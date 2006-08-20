@@ -118,7 +118,7 @@ public:
 class pumpe_t : public leitung_t
 {
 private:
-
+    bool power_there;
     fabrik_t *fab;
 
 protected:
@@ -133,6 +133,7 @@ public:
 
     enum ding_t::typ gib_typ() const {return pumpe;};
 
+#if 0
     /**
      * Eine Pumpe kann zu einer Fabrik gehören.
      * @return Einen Zeiger auf die Fabrik zu der die Pumpe gehört
@@ -140,9 +141,16 @@ public:
      * @author Hj. Malthaner
      */
     virtual inline fabrik_t* fabrik() const {return fab;};
+#endif
 
     void sync_prepare();
     bool sync_step(long delta_t);
+
+    /**
+     * redraw image
+     * @author prissi
+     */
+    virtual bool step(long /*delta_t*/);
 
     /**
      * Dient zur Neuberechnung des Bildes
@@ -158,8 +166,17 @@ class senke_t : public leitung_t
 private:
     int einkommen;
     int max_einkommen;
-
     fabrik_t *fab;
+
+#if 0
+    /**
+     * Eine Senke kann zu einer Fabrik gehören.
+     * @return Einen Zeiger auf die Fabrik zu der die Senke gehört
+     *
+     * @author Hj. Malthaner
+     */
+    virtual inline fabrik_t* fabrik() const {return fab;};
+#endif
 
 protected:
 
@@ -171,16 +188,8 @@ public:
     enum ding_t::typ gib_typ() const {return senke;};
 
     /**
-     * Eine Senke kann zu einer Fabrik gehören.
-     * @return Einen Zeiger auf die Fabrik zu der die Senke gehört
-     *
-     * @author Hj. Malthaner
-     */
-    virtual inline fabrik_t* fabrik() const {return fab;};
-
-    /**
-     * Methode für asynchrone Funktionen eines Objekts.
-     * @author Hj. Malthaner
+     * book money and redraw image
+     * @author prissi
      */
     virtual bool step(long /*delta_t*/);
 

@@ -345,6 +345,11 @@ wegbauer_t::check_for_leitung(const koord zv, const grund_t *bd) const
 	      &&  ribi_t::ist_gerade(ribi_typ(zv))
 	      &&  (lt_ribi&ribi_typ(zv))==0;
 	}
+	// check for transformer
+	if(bd->suche_obj(ding_t::pumpe)!=NULL  ||  bd->suche_obj(ding_t::senke)!=NULL) {
+		return false;
+	}
+	// ok, there is not high power transmission stuff going on here
 	return true;
 }
 
@@ -372,7 +377,7 @@ wegbauer_t::ist_grund_fuer_strasse(koord pos, const koord zv, koord start, koord
   case strasse:
       ok =
     (ok || bd->gib_weg(weg_t::strasse)  || check_crossing(zv,bd,sp,weg_t::schiene)) &&
-    (bd->gib_besitzer() == NULL || bd->gib_besitzer() == sp) &&
+    (bd->gib_weg(weg_t::strasse)  ||  bd->gib_besitzer() == NULL || bd->gib_besitzer() == sp) &&
     !bd->hat_gebaeude(hausbauer_t::frachthof_besch) &&
     check_for_leitung(zv,bd)  &&
     !bd->gib_depot();

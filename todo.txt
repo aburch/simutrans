@@ -1,0 +1,16 @@
+Ich denke zum Beispiel an ein Hauptquartier für die eigenen Firma, an
+Aufgaben oder auch an eine Fabrikliste, an der ich gerade stricke. AUch
+gibt es im Stadtdialog von Simutrans diesen Zähler unten rechts, den man
+auch in soetwas viel "xyz % Passagiere transportiert" verwandeln könnte.
+Auch könnte das Stadtlistenfenster noch Grafiken bekommen, wo eben 300 von
+1234 Passagieren transportiert steht. Und das mittlere Wachstum. Halt
+alles, was einen ein Erfolgserlebnis geben könnte.
+
+Stichpunkte
+
+- mehrere Stationen
+- Icon und Versionsinformationen
+- Statistiken für Stadtfenster
+- Fabrikliste
+- UNDO für Wege
+- powernet nach liste ändern => Karte besser, keine Speicherverschwendung

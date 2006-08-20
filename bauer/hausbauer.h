@@ -51,6 +51,7 @@ private:
     static slist_tpl<const haus_besch_t *> fabriken;
     static slist_tpl<const haus_besch_t *> denkmaeler;
     static slist_tpl<const haus_besch_t *> ungebaute_denkmaeler;
+    //static slist_tpl<const haus_besch_t *> hausbauer_t::train_stops;
 
 public:
 

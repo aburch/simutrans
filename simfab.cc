@@ -347,136 +347,139 @@ fabrik_t::ist_da_eine(karte_t *welt, int minX, int minY, int maxX, int maxY)
 void
 fabrik_t::rdwr(loadsave_t *file)
 {
-    int i;
-    int spieler_n;
-    int eingang_count;
-    int ausgang_count;
-    int anz_lieferziele;
-    const char *s = NULL;
-
-    if(file->is_saving()) {
-        eingang_count = eingang->get_count();
-        ausgang_count = ausgang->get_count();
-        anz_lieferziele = lieferziele.get_count();
-
-	s = gib_name();
-    }
-    file->rdwr_str(s, "-");
-    if(file->is_loading()) {
-	besch = fabrikbauer_t::gib_fabesch(s);
-	guarded_free(const_cast<char *>(s));
-    }
-    pos.rdwr(file);
-
-    file->rdwr_delim("Bau: ");
-    file->rdwr_char(rotate, "\n");
-
-    file->rdwr_int(eingang_count, "\n");
-
-    for(i=0; i<eingang_count; i++) {
-	ware_t dummy;
-	const char *typ = NULL;
+	int i;
+	int spieler_n;
+	int eingang_count;
+	int ausgang_count;
+	int anz_lieferziele;
+	const char *s = NULL;
 
 	if(file->is_saving()) {
-	    typ = eingang->at(i).gib_typ()->gib_name();
-	    dummy.menge = eingang->at(i).menge;
-	    dummy.max = eingang->at(i).max;
+		eingang_count = eingang->get_count();
+		ausgang_count = ausgang->get_count();
+		anz_lieferziele = lieferziele.get_count();
+		s = gib_name();
 	}
-	file->rdwr_delim("Ein: ");
-	file->rdwr_str(typ, " ");
-	file->rdwr_int(dummy.menge, " ");
-	file->rdwr_int(dummy.max, "\n");
+	file->rdwr_str(s, "-");
 	if(file->is_loading()) {
-	    dummy.setze_typ( warenbauer_t::gib_info(typ) );
-	    guarded_free(const_cast<char *>(typ));
-
-	    // Hajo: repair files that have 'insane' values
-
-	    if(dummy.menge < 0) {
-	      dummy.menge = 0;
-	    }
-
-	    if(dummy.menge > (FAB_MAX_INPUT << precision_bits)) {
-	      dummy.menge = (FAB_MAX_INPUT << precision_bits);
-	    }
-
-	    eingang->append(dummy);
+		besch = fabrikbauer_t::gib_fabesch(s);
+		guarded_free(const_cast<char *>(s));
 	}
-    }
-    file->rdwr_int(ausgang_count, "\n");
+	pos.rdwr(file);
 
-    for(i=0; i<ausgang_count; i++) {
-	ware_t dummy;
-	const char *typ = NULL;
-	int ab_sum;
-	int ab_letzt;
+	file->rdwr_delim("Bau: ");
+	file->rdwr_char(rotate, "\n");
 
-	if(file->is_saving()) {
-	    typ = ausgang->at(i).gib_typ()->gib_name();
-	    dummy.menge = ausgang->at(i).menge;
-	    dummy.max = ausgang->at(i).max;
-	    ab_sum = abgabe_sum->at(i);
-	    ab_letzt = abgabe_letzt->at(i);
+	// now rebuilt information for recieved goods
+	file->rdwr_int(eingang_count, "\n");
+	for(i=0; i<eingang_count; i++) {
+		ware_t dummy;
+		const char *typ = NULL;
+
+		if(file->is_saving()) {
+			typ = eingang->at(i).gib_typ()->gib_name();
+			dummy.menge = eingang->at(i).menge;
+			dummy.max = eingang->at(i).max;
+		}
+
+		file->rdwr_delim("Ein: ");
+		file->rdwr_str(typ, " ");
+		file->rdwr_int(dummy.menge, " ");
+		file->rdwr_int(dummy.max, "\n");
+		if(file->is_loading()) {
+			dummy.setze_typ( warenbauer_t::gib_info(typ) );
+			guarded_free(const_cast<char *>(typ));
+
+			// Hajo: repair files that have 'insane' values
+			if(dummy.menge < 0) {
+				dummy.menge = 0;
+			}
+			if(dummy.menge > (FAB_MAX_INPUT << precision_bits)) {
+				dummy.menge = (FAB_MAX_INPUT << precision_bits);
+			}
+			eingang->append(dummy);
+		}
 	}
-	file->rdwr_delim("Aus: ");
-	file->rdwr_str(typ, " ");
-	file->rdwr_int(dummy.menge, " ");
-	file->rdwr_int(dummy.max, "\n");
-	file->rdwr_int(ab_sum, " ");
-	file->rdwr_int(ab_letzt, "\n");
+
+	// now rebuilt information for produced goods
+	file->rdwr_int(ausgang_count, "\n");
+	for(i=0; i<ausgang_count; i++) {
+		ware_t dummy;
+		const char *typ = NULL;
+		int ab_sum;
+		int ab_letzt;
+
+		if(file->is_saving()) {
+			typ = ausgang->at(i).gib_typ()->gib_name();
+			dummy.menge = ausgang->at(i).menge;
+			dummy.max = ausgang->at(i).max;
+			ab_sum = abgabe_sum->at(i);
+			ab_letzt = abgabe_letzt->at(i);
+		}
+		file->rdwr_delim("Aus: ");
+		file->rdwr_str(typ, " ");
+		file->rdwr_int(dummy.menge, " ");
+		file->rdwr_int(dummy.max, "\n");
+		file->rdwr_int(ab_sum, " ");
+		file->rdwr_int(ab_letzt, "\n");
+
+		if(file->is_loading()) {
+			abgabe_sum->at(i)  = ab_sum;
+			abgabe_letzt->at(i) = ab_letzt;
+			dummy.setze_typ( warenbauer_t::gib_info(typ));
+			guarded_free(const_cast<char *>(typ));
+			ausgang->append(dummy);
+		}
+	}
+	// restore other information
+	spieler_n = welt->sp2num(besitzer_p);
+	file->rdwr_delim("Bes: ");
+	file->rdwr_int(spieler_n, "\n");
+	file->rdwr_delim("Prf: ");
+	file->rdwr_int(prodbase, "\n");
+	file->rdwr_delim("Prb: ");
+	file->rdwr_int(prodfaktor, "\n");
+	// take care of old files
+	if(prodfaktor==1) {
+		prodfaktor = 16;
+	}
+	// owner stuff
+	if(file->is_loading()) {
+		// Hajo: restore factory owner
+		// Due to a omission in Volkers changes, there might be savegames
+		// in which factories were saved without an owner. In this case
+		// set the owner to the default of player 1
+		if(spieler_n == -1) {
+			// Use default
+			besitzer_p = welt->gib_spieler(1);
+		}
+		else {
+		// Restore owner pointer
+		besitzer_p = welt->gib_spieler(spieler_n);
+		}
+	}
+
+	file->rdwr_int(anz_lieferziele, "\n");
+
+	// connect/save consumer
+	if(file->is_loading()) {
+		koord k;
+		for(int i=0; i<anz_lieferziele; i++) {
+			k.rdwr(file);
+			add_lieferziel(k);
+		}
+	}
+	else {
+		koord k;
+		for(int i=0; i<anz_lieferziele; i++) {
+			k = lieferziele.get(i);
+			k.rdwr(file);
+		}
+	}
 
 	if(file->is_loading()) {
-	    abgabe_sum->at(i)  = ab_sum;
-	    abgabe_letzt->at(i) = ab_letzt;
-	    dummy.setze_typ( warenbauer_t::gib_info(typ));
-	    guarded_free(const_cast<char *>(typ));
-	    ausgang->append(dummy);
+		baue(rotate, false);
 	}
-    }
-    spieler_n = welt->sp2num(besitzer_p);
-    file->rdwr_delim("Bes: ");
-    file->rdwr_int(spieler_n, "\n");
-    file->rdwr_delim("Prf: ");
-    file->rdwr_int(prodfaktor, "\n");
-    file->rdwr_delim("Prb: ");
-    file->rdwr_int(prodbase, "\n");
-    if(prodbase<16) {
-      prodbase = 16;
-    }
-    if(file->is_loading()) {
-	// Hajo: restore factory owner
-	// Due to a omission in Volkers changes, there might be savegames
-        // in which factories were saved without an owner. In this case
-	// set the owner to the default of player 1
-
-	if(spieler_n == -1) {
-	    // Use default
-	    besitzer_p = welt->gib_spieler(1);
-	} else {
-	    // Restore owner pointer
-	    besitzer_p = welt->gib_spieler(spieler_n);
-	}
-    }
-
-    file->rdwr_int(anz_lieferziele, "\n");
-
-    if(file->is_loading()) {
-	koord k;
-	for(int i=0; i<anz_lieferziele; i++) {
-	    k.rdwr(file);
-	    add_lieferziel(k);
-	}
-    } else {
-	koord k;
-	for(int i=0; i<anz_lieferziele; i++) {
-	    k = lieferziele.get(i);
-	    k.rdwr(file);
-	}
-    }
-
-    if(file->is_loading()) {
-        baue(rotate, false);
-    }
 }
 
 
@@ -485,11 +488,10 @@ fabrik_t::rdwr(loadsave_t *file)
  */
 void fabrik_t::set_eingang(vector_tpl<ware_t> * typen)
 {
-  if(eingang) {
-    delete eingang;
-  }
-
-  eingang = typen;
+	if(eingang) {
+		delete eingang;
+	}
+	eingang = typen;
 }
 
 /**
@@ -497,26 +499,24 @@ void fabrik_t::set_eingang(vector_tpl<ware_t> * typen)
  */
 void fabrik_t::set_ausgang(vector_tpl<ware_t> * typen)
 {
-  if(ausgang) {
-    delete ausgang;
-  }
+	if(ausgang) {
+		delete ausgang;
+	}
 
-  ausgang = typen;
+	ausgang = typen;
+	if(abgabe_sum) {
+		delete abgabe_sum;
+	}
+	if(abgabe_letzt) {
+		delete abgabe_letzt;
+	}
 
-  if(abgabe_sum) {
-    delete abgabe_sum;
-  }
-  if(abgabe_letzt) {
-    delete abgabe_letzt;
-  }
-
-  abgabe_sum = new array_tpl<int> (ausgang->get_size());
-  abgabe_letzt = new array_tpl<int> (ausgang->get_size());
-
-  for(uint32 j=0; j<ausgang->get_size(); j++) {
-    abgabe_sum->at(j) = 0;
-    abgabe_letzt->at(j) = 0;
-  }
+	abgabe_sum = new array_tpl<int> (ausgang->get_size());
+	abgabe_letzt = new array_tpl<int> (ausgang->get_size());
+	for(uint32 j=0; j<ausgang->get_size(); j++) {
+		abgabe_sum->at(j) = 0;
+		abgabe_letzt->at(j) = 0;
+	}
 }
 
 /*
@@ -556,7 +556,7 @@ dbg->message("fabrik_t::get_free_production_of()","supplier %s can supply approx
  */
 uint32 fabrik_t::produktion(const long delta_t, const uint32 produkt) const
 {
-  uint32 menge = ((prodbase * prodfaktor) << precision_bits) >> (BASEPRODSHIFT+MAX_PRODBASE_SHIFT);
+  uint32 menge = (prodbase * prodfaktor) >> (BASEPRODSHIFT+MAX_PRODBASE_SHIFT-precision_bits);
 
   if(ausgang->get_count() > produkt) {
     // wenn das lager voller wird, produziert eine Fabrik weniger pro step
@@ -582,9 +582,9 @@ uint32 fabrik_t::produktion(const long delta_t, const uint32 produkt) const
 
 int fabrik_t::max_produktion() const
 {
-  // P = prod_base * anz_gebaeude * prodfaktor;
+  // P = prod_base * anz_gebaeude * prodfaktor; (prodfaktor 16=1.0)
   // theoretische Menge pro tick
-  const int menge = ((prodbase * prodfaktor) << precision_bits) >> (BASEPRODSHIFT+MAX_PRODBASE_SHIFT);
+  const uint32 menge = (prodbase * prodfaktor) >> (BASEPRODSHIFT+MAX_PRODBASE_SHIFT-precision_bits);
   const koord k = besch->gib_haus()->gib_groesse();
   const int n = k.x * k.y;
 
@@ -1104,10 +1104,10 @@ void fabrik_t::info(cbuffer_t & buf)
 
 void fabrik_t::laden_abschliessen()
 {
-    slist_iterator_tpl<fabrik_t*> fiter ( welt->gib_fab_list() );
-    while(fiter.next()) {
-    	fabrik_t * fab = fiter.get_current();
-    	koord fab_pos = fab->gib_pos().gib_2d();
+	slist_iterator_tpl<fabrik_t*> fiter ( welt->gib_fab_list() );
+	while(fiter.next()) {
+		fabrik_t * fab = fiter.get_current();
+		koord fab_pos = fab->gib_pos().gib_2d();
 		const vector_tpl <koord> &lieferziele = fab->gib_lieferziele();
 		for(uint32 i=0; i<lieferziele.get_count(); i++) {
 			const koord lieferziel = lieferziele.get(i);
@@ -1116,13 +1116,15 @@ void fabrik_t::laden_abschliessen()
 				fab2->add_supplier(fab_pos);
 			}
 		}
-    }
-};
+	}
+}
+
+
 
 void
 fabrik_t::add_supplier(koord pos)
 {
-    if(suppliers.get_count() < max_suppliers) {
-	suppliers.append_unique(pos);
-    }
+	if(suppliers.get_count() < max_suppliers) {
+		suppliers.append_unique(pos);
+	}
 }

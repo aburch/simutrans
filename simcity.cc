@@ -451,48 +451,46 @@ void stadt_t::laden_abschliessen()
 }
 
 
-
+/* calculates the factories which belongs to certain cities */
 void
 stadt_t::verbinde_fabriken()
 {
-    slist_tpl<fabrik_t *>fab_list;
+	slist_tpl<fabrik_t *>fab_list;
+	slist_iterator_tpl<fabrik_t *> fab_iter (welt->gib_fab_list());
 
-    slist_iterator_tpl<fabrik_t *> fab_iter (welt->gib_fab_list());
+	while(fab_iter.next()) {
+		fabrik_t *fab = fab_iter.get_current();
+		// do not check for fish_swarm
+		if(strcmp("fish_swarm",fab->gib_besch()->gib_name())!=0) {
+			fab_list.insert( fab );
+		}
+	}
 
-    while(fab_iter.next()) {
-       fabrik_t *fab = fab_iter.get_current();
+	for(int i=0; i<16; i++) {
+		slist_iterator_tpl<fabrik_t *> iter (fab_list);
 
-       fab_list.insert( fab );
-    }
+		// die arbeiter pendeln nicht allzu weit
+		int mind = 5000;
+		fabrik_t *best = NULL;
 
-    for(int i=0; i<16; i++) {
+		while(iter.next()) {
+			fabrik_t *fab = iter.get_current();
+			const koord k = fab->gib_pos().gib_2d();
+			const int d = (k.x-pos.x) * (k.x-pos.x) + (k.y-pos.y) * (k.y-pos.y);
 
-  slist_iterator_tpl<fabrik_t *> iter (fab_list);
-
-  // die arbeiter pendeln nicht allzu weit
-  int mind = 5000;
-  fabrik_t *best = NULL;
-
-  while(iter.next()) {
-      fabrik_t *fab = iter.get_current();
-
-      const koord k = fab->gib_pos().gib_2d();
-
-      const int d = (k.x-pos.x) * (k.x-pos.x) + (k.y-pos.y) * (k.y-pos.y);
-
-      if(d < mind) {
-    mind = d;
-    best = fab;
-      }
-  }
-
-  if(best != NULL) {
-      best->add_arbeiterziel( this );
-      arbeiterziele.insert( best );
-
-      fab_list.remove( best );
-  }
-    }
+			// alway connect if closer
+			if(d < mind) {
+				mind = d;
+				best = fab;
+			}
+		}
+		// add as new workes target
+		if(best != NULL) {
+			best->add_arbeiterziel( this );
+			arbeiterziele.insert( best );
+			fab_list.remove( best );
+		}
+	}
 }
 
 
@@ -500,10 +498,13 @@ stadt_t::verbinde_fabriken()
 void
 stadt_t::add_factory_arbeiterziel(fabrik_t *fab)
 {
-	fab->add_arbeiterziel( this );
-	// do not add a factory twice!
-	if(!arbeiterziele.contains(fab)){
-		arbeiterziele.insert( fab );
+	// now fish swarms ...
+	if(strcmp("fish_swarm",fab->gib_besch()->gib_name())!=0) {
+		fab->add_arbeiterziel( this );
+		// do not add a factory twice!
+		if(!arbeiterziele.contains(fab)){
+			arbeiterziele.insert( fab );
+		}
 	}
 }
 
@@ -857,7 +858,7 @@ stadt_t::check_bau_spezial(bool new_town)
 			// tell the player, if not during initialization
 			if(!new_town) {
 				char buf[256];
-				sprintf(buf, translator::translate("To attract more tourists\n%s built\na %s\nwith the aid of\n%i tax payers."), gib_name(), besch->gib_name(), bev );
+				sprintf(buf, translator::translate("To attract more tourists\n%s built\na %s\nwith the aid of\n%i tax payers."), gib_name(), translator::translate(besch->gib_name()), bev );
 				message_t::get_instance()->add_message(buf,best_pos,message_t::tourist,CITY_KI,besch->gib_tile(0)->gib_hintergrund(0,0) );
 			}
       }
@@ -1078,7 +1079,7 @@ dbg->message("stadt_t::check_bau_factory","adding new industry at %i inhabitants
 		int n=fabrikbauer_t::baue_hierarchie(welt, NULL, market, rotate, &market_pos, welt->gib_spieler(1) );
 		// tell the player
 		char buf[256];
-		sprintf(buf, translator::translate("New factory chain\nfor %s near\n%s built with\n%i factories."), market->gib_name(), gib_name(), n );
+		sprintf(buf, translator::translate("New factory chain\nfor %s near\n%s built with\n%i factories."), translator::translate(market->gib_name()), gib_name(), n );
 		message_t::get_instance()->add_message(buf,market_pos.gib_2d(),message_t::industry,CITY_KI,market->gib_haus()->gib_tile(0)->gib_hintergrund(0,0) );
 	}
 }

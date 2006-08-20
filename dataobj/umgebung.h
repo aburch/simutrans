@@ -62,6 +62,14 @@ class umgebung_t
 
 
   /**
+   * which messages to display where?
+   *
+   * @author prissi
+   */
+  static int message_flags[4];
+
+
+  /**
    * Wasser (Boden) animieren?
    *
    * @author Hj. Malthaner

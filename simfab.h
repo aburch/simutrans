@@ -324,15 +324,21 @@ public:
      *
      * @author Hj. Malthaner
      */
-    void set_prodbase(int i) {prodbase = (i<16)?16:i;};
+    void set_prodbase(int i) {prodbase = i;};
 
     /**
      * setzt den Produktionsmultiplikator
      *
      * @author Hj. Malthaner
      */
-  void set_prodfaktor(int i) {prodfaktor=i;};
+  void set_prodfaktor(int i) {prodfaktor= (i<16)?16:i;};
 
+    /**
+     * setzt den Produktionsmultiplikator
+     *
+     * @author Hj. Malthaner
+     */
+  int get_prodfaktor(void) {return prodfaktor;};
 };
 
 #endif

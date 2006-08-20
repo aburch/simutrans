@@ -1,3 +1,34 @@
+
+Released Simutrans 0.85.03
+
+6-Feb-2005:
+	FIX/CHANGE: replace building seach in map window by simple gib_halt()
+	FIX: No crowded stations messages from AI anymore
+	FIX: Depot reached message was not in mailbox
+	FIX: mailbox now starts always empty.
+	FIX: after selecting a list, the info tool is selected back
+	CHANGE: message settings will be save in simworld.cfg
+
+5-Feb-2005:
+	FIX: way building did not check for transformers
+	CHANGE: when producing power, powerstations consumption raises 3x
+		(to prevent building too many transformers)
+	FIX: removing transformer when under power now reduced production again
+	FIX: no more sucide divers at the fish_swarm
+	FIX: factor for production increase could lead to very high values for
+		low productions in 128 set
+
+
+Released Simutrans 0.85.02.1
+
+4-Feb-2005:
+	FIX: list windows were not open correctly (fixed by Markus Weber)
+	FIX: tooltip for main menu
+	CHANGE: citylist for dutch cities by AlienDNA
+	FIX: could not connect to a road built by the AI
+	FIX: effect of power on production was faulty
+	FIX: new tourist attractions and factories announcement were not translated
+
 Released Simutrans 0.85.02.0
 
 2-Feb-2005:

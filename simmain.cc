@@ -34,6 +34,7 @@
 #include "railblocks.h"
 #include "simsound.h"
 #include "simintr.h"
+#include "simmesg.h"
 
 
 #include "simsys.h"
@@ -726,14 +727,10 @@ int simu_cpp_main(int argc, char ** argv)
 	}
     }
 
-
-
     // jetzt, nachdem die Kommandozeile ausgewertet ist
     // koennen wir das config file lesen, ung ggf.
     // einige einstellungen setzen
     config = fopen("simworld.cfg","rb");
-
-    int AIs[6] = { 0, 0, 0, 0, 1, 0 };
 
     if(config) {
 	int dn = 0;
@@ -746,16 +743,14 @@ int simu_cpp_main(int argc, char ** argv)
         umgebung_t::night_shift = (dn != 0);
 
 	fscanf(config, "AIs=%d,%d,%d,%d,%d,%d\n",
-	    &AIs[0], &AIs[1], &AIs[2],
-	    &AIs[3], &AIs[4], &AIs[5]);
+	    &umgebung_t::automaten[0], &umgebung_t::automaten[1], &umgebung_t::automaten[2],
+	    &umgebung_t::automaten[3], &umgebung_t::automaten[4], &umgebung_t::automaten[5]);
+
+	fscanf(config,"Messages=%d,%d,%d,%d\n",
+		&umgebung_t::message_flags[0], &umgebung_t::message_flags[1], &umgebung_t::message_flags[2], &umgebung_t::message_flags[3] );
 
 	fclose(config);
     }
-    for(i = 0; i < 6; i++) {
-	umgebung_t::automaten[i] = AIs[i] > 0;
-    }
-
-
 
     karte_t *welt = new karte_t();
 
@@ -918,9 +913,15 @@ display_show_pointer( true );
 	}
 	loadgame = "";    // only first time
 
+	// 05-Feb-2005 Added message service here
+    message_t msg = message_t(welt);
+    msg.add_message("Welcome to Simutrans, a game created by Hj. Malthaner.", koord::invalid, message_t::general, welt->gib_spieler(0)->kennfarbe);
+    msg.set_flags( umgebung_t::message_flags[0],  umgebung_t::message_flags[1],  umgebung_t::message_flags[2],  umgebung_t::message_flags[3] );
+
         // 02-Nov-2001     Markus Weber    Function returns a boolean now
 	quit_simutrans = welt->interactive();
 
+    msg.get_flags( &umgebung_t::message_flags[0],  &umgebung_t::message_flags[1],  &umgebung_t::message_flags[2],  &umgebung_t::message_flags[3] );
 
     } while(!(umgebung_t::testlauf || quit_simutrans));
 
@@ -948,6 +949,11 @@ display_show_pointer( true );
 	    umgebung_t::automaten[3],
 	    umgebung_t::automaten[4],
 	    umgebung_t::automaten[5]);
+	fprintf(config, "Messages=%d,%d,%d,%d\n",
+	    umgebung_t::message_flags[0],
+	    umgebung_t::message_flags[1],
+	    umgebung_t::message_flags[2],
+	    umgebung_t::message_flags[3]);
 	fclose(config);
     }
 

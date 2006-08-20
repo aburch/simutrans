@@ -17,7 +17,7 @@
 #include "simdepot.h"
 #include "simwin.h"
 #include "simcolor.h"
-#include "simticker.h"
+#include "simmesg.h"
 #include "blockmanager.h"
 #include "simintr.h"
 #include "simlinemgmt.h"
@@ -461,9 +461,7 @@ convoi_t::sync_step(long delta_t)
 	if(dp) {
 	  char buf[128];
 	  sprintf(buf, translator::translate("!1_DEPOT_REACHED"), gib_name());
-	  ticker_t::get_instance()->add_msg(buf,
-					    fahr->at(0)->gib_pos().gib_2d(),
-					    BLAU);
+	  message_t::get_instance()->add_message(buf,fahr->at(0)->gib_pos().gib_2d(),message_t::convoi,gib_besitzer()->kennfarbe,IMG_LEER);
 
 
 	  // Hajo: Fenster zu sonst Absturz bei Verkauf

@@ -43,6 +43,8 @@ slist_tpl<const haus_besch_t *> hausbauer_t::spezials;
 slist_tpl<const haus_besch_t *> hausbauer_t::denkmaeler;
 slist_tpl<const haus_besch_t *> hausbauer_t::ungebaute_denkmaeler;
 
+//slist_tpl<const haus_besch_t *> hausbauer_t::train_stops;
+
 /*
  * Diese Tabelle ermöglicht das Auffinden einer Beschreibung durch ihren Namen
  */
@@ -52,7 +54,6 @@ stringhashtable_tpl<const haus_besch_t *> hausbauer_t::besch_names;
  * Alle Gebäude, die die Anwendung direkt benötigt, kriegen feste IDs.
  * Außerdem müssen wir dafür sorgen, dass sie alle da sind.
  */
-const haus_besch_t *hausbauer_t::bahnhof_besch = NULL;
 const haus_besch_t *hausbauer_t::frachthof_besch = NULL;
 const haus_besch_t *hausbauer_t::bushalt_besch = NULL;
 const haus_besch_t *hausbauer_t::dock_besch = NULL;
@@ -61,11 +62,11 @@ const haus_besch_t *hausbauer_t::str_depot_besch = NULL;
 const haus_besch_t *hausbauer_t::sch_depot_besch = NULL;
 const haus_besch_t *hausbauer_t::post_besch = NULL;
 const haus_besch_t *hausbauer_t::muehle_besch = NULL;
+const haus_besch_t *hausbauer_t::bahnhof_besch = NULL;
 const haus_besch_t *hausbauer_t::gueterbahnhof_besch = NULL;
 
 static spezial_obj_tpl<haus_besch_t> spezial_objekte[] = {
     { &hausbauer_t::bushalt_besch,	"BusStop" },
-    { &hausbauer_t::bahnhof_besch,	"TrainStop" },
     { &hausbauer_t::frachthof_besch,	"CarStop" },
     { &hausbauer_t::dock_besch,		"ShipStop" },
     { &hausbauer_t::bahn_depot_besch,   "TrainDepot" },
@@ -73,6 +74,7 @@ static spezial_obj_tpl<haus_besch_t> spezial_objekte[] = {
     { &hausbauer_t::sch_depot_besch,	"ShipDepot" },
     { &hausbauer_t::post_besch,		"PostOffice" },
     { &hausbauer_t::muehle_besch,	"Windmill.obsolete" },
+    { &hausbauer_t::bahnhof_besch,	"TrainStop" },
     { &hausbauer_t::gueterbahnhof_besch,	"FreightTrainStop" },
     { NULL, NULL }
 };

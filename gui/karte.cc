@@ -142,14 +142,16 @@ reliefkarte_t::calc_relief_farbe(const karte_t *welt, const koord k)
 		    // Brücke
 		    color = MN_GREY3;
 		} else if(gr->gib_weg(weg_t::strasse)) {
-		    if(gr->hat_gebaeude(hausbauer_t::frachthof_besch)) {
+//		    if(gr->hat_gebaeude(hausbauer_t::frachthof_besch)) {
+		    if(gr->gib_halt()!=NULL) {
 				color = HALT_KENN;
 		    }
 		    else {
 				color = STRASSE_KENN;
 		    }
 		} else if(gr->gib_weg(weg_t::schiene)) {
-		    if(gr->hat_gebaeude(hausbauer_t::bahnhof_besch)) {
+//		    if(gr->hat_gebaeude(hausbauer_t::bahnhof_besch)) {
+		    if(gr->gib_halt()!=NULL) {
 				color = HALT_KENN;
 		    } else {
 				color = SCHIENE_KENN;
@@ -437,26 +439,32 @@ reliefkarte_t::calc_map(int render_mode)
 	  // show passenger coverage
 	  // display coverage
 	case 0:
-	  if ((gr->hat_gebaeude(hausbauer_t::bahnhof_besch)) ||
+	  if (gr->gib_halt()!=NULL) {
+/*
+	  if (
+	      (gr->hat_gebaeude(hausbauer_t::bahnhof_besch)) ||
 	      (gr->hat_gebaeude(hausbauer_t::gueterbahnhof_besch)) ||
 	      (gr->hat_gebaeude(hausbauer_t::frachthof_besch)) ||
 	      (gr->hat_gebaeude(hausbauer_t::dock_besch)) ||
 	      (gr->hat_gebaeude(hausbauer_t::bushalt_besch))) {
+*/
 	    setze_relief_farbe_area(k, 7, map_type_color[render_mode]);
 	  }
 	  break;
 	  // show mail coverage
 	  // display coverage
 	case 1:
+	{
+/*
 	  if ((gr->hat_gebaeude(hausbauer_t::bahnhof_besch)) ||
 	      (gr->hat_gebaeude(hausbauer_t::gueterbahnhof_besch)) ||
 	      (gr->hat_gebaeude(hausbauer_t::frachthof_besch)) ||
 	      (gr->hat_gebaeude(hausbauer_t::dock_besch)) ||
 	      (gr->hat_gebaeude(hausbauer_t::bushalt_besch))) {
-
+*/
 	    halthandle_t halt = haltestelle_t::gib_halt(welt, k);
 	    // only show player's haltestellen
-	    if ((halt->gib_besitzer() == welt->gib_spieler(0)) && halt->get_post_enabled()) {
+	    if (halt!=NULL  &&  (halt->gib_besitzer()==welt->gib_spieler(0)) && halt->get_post_enabled()) {
 	      setze_relief_farbe_area(k, 7, map_type_color[render_mode]);
 	    }
 	  }
@@ -474,12 +482,14 @@ reliefkarte_t::calc_map(int render_mode)
 	  break;
 				// show station status
 	case 3:
-	  if ((gr->hat_gebaeude(hausbauer_t::bahnhof_besch)) ||
+/*	  if ((gr->hat_gebaeude(hausbauer_t::bahnhof_besch)) ||
 	      (gr->hat_gebaeude(hausbauer_t::gueterbahnhof_besch)) ||
 	      (gr->hat_gebaeude(hausbauer_t::frachthof_besch)) ||
 	      (gr->hat_gebaeude(hausbauer_t::dock_besch)) ||
 	      (gr->hat_gebaeude(hausbauer_t::bushalt_besch)))
 	    {
+*/
+	  if (gr->gib_halt()!=NULL) {
 	      halthandle_t halt = haltestelle_t::gib_halt(welt, k);
 	      // only show player's haltestellen
 	      if (halt->gib_besitzer() == welt->gib_spieler(0))
@@ -501,12 +511,15 @@ reliefkarte_t::calc_map(int render_mode)
 	  break;
 				// show frequency of convois visiting a station
 	case 4:
+	  if (gr->gib_halt()!=NULL) {
+/*
 	  if ((gr->hat_gebaeude(hausbauer_t::bahnhof_besch)) ||
 	      (gr->hat_gebaeude(hausbauer_t::gueterbahnhof_besch)) ||
 	      (gr->hat_gebaeude(hausbauer_t::frachthof_besch)) ||
 	      (gr->hat_gebaeude(hausbauer_t::dock_besch)) ||
 	      (gr->hat_gebaeude(hausbauer_t::bushalt_besch)))
 	    {
+*/
 	      halthandle_t halt = haltestelle_t::gib_halt(welt, k);
 	      // only show player's haltestellen
 	      if (halt->gib_besitzer() == welt->gib_spieler(0))
@@ -533,11 +546,14 @@ reliefkarte_t::calc_map(int render_mode)
 	  break;
 				// show sources of passengers
 	case 6:
+	  if (gr->gib_halt()!=NULL) {
+/*
 	  if ((gr->hat_gebaeude(hausbauer_t::bahnhof_besch)) ||
 	      (gr->hat_gebaeude(hausbauer_t::gueterbahnhof_besch)) ||
 	      (gr->hat_gebaeude(hausbauer_t::frachthof_besch)) ||
 	      (gr->hat_gebaeude(hausbauer_t::dock_besch)) ||
 	      (gr->hat_gebaeude(hausbauer_t::bushalt_besch))) {
+*/
 	    halthandle_t halt = haltestelle_t::gib_halt(welt, k);
 	    // only show player's haltestellen
 	    if (halt->gib_besitzer() == welt->gib_spieler(0)) {
@@ -548,11 +564,14 @@ reliefkarte_t::calc_map(int render_mode)
 	  break;
 				// show destinations for passengers
 	case 7:
+	  if (gr->gib_halt()!=NULL) {
+/*
 	  if ((gr->hat_gebaeude(hausbauer_t::bahnhof_besch)) ||
 	      (gr->hat_gebaeude(hausbauer_t::gueterbahnhof_besch)) ||
 	      (gr->hat_gebaeude(hausbauer_t::frachthof_besch)) ||
 	      (gr->hat_gebaeude(hausbauer_t::dock_besch)) ||
 	      (gr->hat_gebaeude(hausbauer_t::bushalt_besch))) {
+*/
 	    halthandle_t halt = haltestelle_t::gib_halt(welt, k);
 	    // only show player's haltestellen
 	    if (halt->gib_besitzer() == welt->gib_spieler(0)) {
@@ -563,11 +582,14 @@ reliefkarte_t::calc_map(int render_mode)
 	  break;
 				// show waiting goods
 	case 8:
+	  if (gr->gib_halt()!=NULL) {
+/*
 	  if ((gr->hat_gebaeude(hausbauer_t::bahnhof_besch)) ||
 	      (gr->hat_gebaeude(hausbauer_t::gueterbahnhof_besch)) ||
 	      (gr->hat_gebaeude(hausbauer_t::frachthof_besch)) ||
 	      (gr->hat_gebaeude(hausbauer_t::dock_besch)) ||
 	      (gr->hat_gebaeude(hausbauer_t::bushalt_besch))) {
+*/
 	    halthandle_t halt = haltestelle_t::gib_halt(welt, k);
 	    // only show player's haltestellen
 	    if (halt->gib_besitzer() == welt->gib_spieler(0)) {

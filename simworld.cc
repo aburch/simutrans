@@ -40,7 +40,6 @@
 #include "simhalt.h"
 #include "simdepot.h"
 #include "simversion.h"
-#include "simticker.h"
 #include "simmesg.h"
 #include "simcolor.h"
 #include "simlinemgmt.h"
@@ -3636,9 +3635,6 @@ karte_t::interactive()
     last_step_time = now;
 
     steps_bis_jetzt = steps;
-
-    ticker_t::get_instance()->add_msg("Welcome to Simutrans, a game created by Hj. Malthaner.", koord(-1, -1), BLAU);
-    message_t *msg = new message_t(this);
 
     do {
 	// check if we need to play a new midi file

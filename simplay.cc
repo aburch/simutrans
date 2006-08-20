@@ -1232,8 +1232,7 @@ spieler_t::guess_gewinn_transport_quelle_ziel(fabrik_t *qfab,const ware_t *ware,
 		// da aber später genau berechnet wird, welche Fahrzeuge am günstigsten sind => grobe schätzung ok!
 		const int dist = abs(zfab->gib_pos().x - qfab->gib_pos().x) + abs(zfab->gib_pos().y - qfab->gib_pos().y);
 		const int speed = 512;                  // LKW
-		const int grundwert = ware->gib_preis();
-
+		const int grundwert = ware->gib_preis();	// assume 3 cent per square mantenance
 		if( dist > 6) {                          // sollte vernuenftige Entfernung sein
 
 			// wie viel koennen wir tatsaechlich transportieren
@@ -1243,7 +1242,7 @@ spieler_t::guess_gewinn_transport_quelle_ziel(fabrik_t *qfab,const ware_t *ware,
 			const int prod = MIN(zfab->max_produktion(),
 			                 ( qfab->max_produktion() * qfab->gib_besch()->gib_produkt(ware_nr)->gib_faktor() )/256 - qfab->gib_abgabe_letzt(ware_nr) * 2 );
 
-			gewinn = (grundwert * dist * prod)/(dist-6);
+			gewinn = (grundwert *prod-5)*dist/256;
 
 //			// verlust durch fahrtkosten, geschätze anzhal vehikel ist fracht/16
 //			gewinn -= (int)(dist * 16 * (abs(prod)/16));   // dist * steps/planquad * kosten
@@ -2168,12 +2167,12 @@ spieler_t::get_finance_info_old(int type)
  */
 void spieler_t::bescheid_station_voll(halthandle_t halt)
 {
-	if(!automat) {
+	if(welt->gib_spieler(0)==this) {
 		char buf[128];
 
 		sprintf(buf, translator::translate("!0_STATION_CROWDED"), halt->gib_name());
 //        ticker_t::get_instance()->add_msg(buf, halt->gib_basis_pos(), DUNKELROT);
-		message_t::get_instance()->add_message(buf, halt->gib_basis_pos(),message_t::full, DUNKELROT,IMG_LEER);
+		message_t::get_instance()->add_message(buf, halt->gib_basis_pos(),message_t::full, kennfarbe,IMG_LEER);
 	}
 }
 
@@ -2187,11 +2186,11 @@ void spieler_t::bescheid_station_voll(halthandle_t halt)
 void spieler_t::bescheid_vehikel_problem(convoihandle_t cnv,const koord3d ziel)
 {
 dbg->message("spieler_t::bescheid_vehikel_problem","Vehicle %s can't find a route to (%i,%i)!", cnv->gib_name(),ziel.x,ziel.y);
-	if(!automat) {
+	if(welt->gib_spieler(0)==this) {
 		char buf[256];
 		sprintf(buf,"Vehicle %s can't find a route!", cnv->gib_name());
 //		ticker_t::get_instance()->add_msg(buf, cnv->gib_pos().gib_2d(),ROT);
-		message_t::get_instance()->add_message(buf, cnv->gib_pos().gib_2d(),message_t::convoi,ROT,cnv->gib_vehikel(0)->gib_basis_bild());
+		message_t::get_instance()->add_message(buf, cnv->gib_pos().gib_2d(),message_t::convoi,kennfarbe,cnv->gib_vehikel(0)->gib_basis_bild());
 	}
 	else {
 		welt->rem_convoi(cnv);

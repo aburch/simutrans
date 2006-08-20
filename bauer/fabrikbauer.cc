@@ -419,84 +419,89 @@ fabrikbauer_t::verteile_industrie(karte_t * welt, spieler_t *sp, int max_number_
 fabrik_t *
 fabrikbauer_t::baue_fabrik(karte_t * welt, koord3d *parent, const fabrik_besch_t *info, int rotate, koord3d pos, spieler_t *spieler)
 {
-    halthandle_t halt;
+	halthandle_t halt;
+	// no passengers for fish swarms
+	bool make_passenger = strcmp("fish_swarm",info->gib_name())!=0;
 
-    if(info->gib_platzierung() == fabrik_besch_t::Wasser) {
-  const haus_besch_t *besch = hausbauer_t::finde_fabrik(info->gib_name());
-  koord dim = besch->gib_groesse(rotate);
+	// make all water a station
+	if(info->gib_platzierung() == fabrik_besch_t::Wasser) {
+		const haus_besch_t *besch = hausbauer_t::finde_fabrik(info->gib_name());
+		koord dim = besch->gib_groesse(rotate);
 
-        koord k;
-  halt = welt->gib_spieler(0)->halt_add(pos.gib_2d());
-  // no passengers for fish swarms
-  halt->set_pax_enabled( strcmp("fish_swarm",info->gib_name())!=0 );
-  halt->set_ware_enabled( true );
-  halt->set_post_enabled( true );
+		koord k;
+		halt = welt->gib_spieler(0)->halt_add(pos.gib_2d());
 
-  for(k.x=pos.x-1; k.x<=pos.x+dim.x; k.x++) {
-      for(k.y=pos.y-1; k.y<=pos.y+dim.y; k.y++) {
-    if(! halt->ist_da(k)) {
-        const planquadrat_t *plan = welt->lookup(k);
+		halt->set_pax_enabled( make_passenger );
+		halt->set_ware_enabled( true );
+		halt->set_post_enabled( make_passenger );
 
-        // add all water to station
-        if(plan != NULL) {
-      grund_t *gr = plan->gib_kartenboden();
+		for(k.x=pos.x-1; k.x<=pos.x+dim.x; k.x++) {
+			for(k.y=pos.y-1; k.y<=pos.y+dim.y; k.y++) {
+				if(! halt->ist_da(k)) {
+					const planquadrat_t *plan = welt->lookup(k);
 
-      if(gr->ist_wasser() && gr->gib_weg(weg_t::wasser) == 0) {
-          gr->neuen_weg_bauen(new dock_t(welt), ribi_t::alle, welt->gib_spieler(0));
-          halt->add_grund( gr );
-      }
-        }
-    }
-      }
-  }
-    }
+					// add all water to station
+					if(plan != NULL) {
+						grund_t *gr = plan->gib_kartenboden();
 
-    fabrik_t * fab = new fabrik_t(welt, pos, spieler, info);
-    int i;
-
-    vector_tpl<ware_t> *eingang = new vector_tpl<ware_t> (info->gib_lieferanten());
-    vector_tpl<ware_t> *ausgang = new vector_tpl<ware_t> (info->gib_produkte());
-
-    for(i=0; i < info->gib_lieferanten(); i++) {
-  const fabrik_lieferant_besch_t *lieferant = info->gib_lieferant(i);
-  ware_t ware(lieferant->gib_ware());
-
-  ware.max = lieferant->gib_kapazitaet() << fabrik_t::precision_bits;
-
-  eingang->append(ware);
-    }
-    for(i=0; i < info->gib_produkte(); i++) {
-  const fabrik_produkt_besch_t *produkt = info->gib_produkt(i);
-  ware_t ware(produkt->gib_ware());
-
-  ware.max = produkt->gib_kapazitaet() << fabrik_t::precision_bits;
-	if(info->gib_lieferanten()==0) {
-		// source -> start with full storage
-		ware.menge = ware.max-(16<<fabrik_t::precision_bits);
+						if(gr->ist_wasser() && gr->gib_weg(weg_t::wasser) == 0) {
+							gr->neuen_weg_bauen(new dock_t(welt), ribi_t::alle, welt->gib_spieler(0));
+							halt->add_grund( gr );
+						}
+					}
+				}
+			}
+		}
 	}
 
-  ausgang->append(ware);
-    }
-    fab->set_eingang( eingang );
-    fab->set_ausgang( ausgang );
-    // set production
-    fab->set_prodfaktor( info->gib_produktivitaet() +  simrand(info->gib_bereich()) );
-    fab->set_prodbase( 16 );
-    if(parent) {
-  fab->add_lieferziel(parent->gib_2d());
-    }
+	fabrik_t * fab = new fabrik_t(welt, pos, spieler, info);
+	int i;
 
-    fab->baue(rotate, true);
+	vector_tpl<ware_t> *eingang = new vector_tpl<ware_t> (info->gib_lieferanten());
+	vector_tpl<ware_t> *ausgang = new vector_tpl<ware_t> (info->gib_produkte());
 
-    welt->add_fab(fab);
+	// create producer information
+	for(i=0; i < info->gib_lieferanten(); i++) {
+		const fabrik_lieferant_besch_t *lieferant = info->gib_lieferant(i);
+		ware_t ware(lieferant->gib_ware());
+		ware.max = lieferant->gib_kapazitaet() << fabrik_t::precision_bits;
+		eingang->append(ware);
+	}
+	fab->set_eingang( eingang );
 
-    if(info->gib_platzierung() == fabrik_besch_t::Wasser) {
-        welt->lookup(halt->gib_basis_pos())->gib_kartenboden()->setze_text( translator::translate(fab->gib_name()) );
-    }
+	// create consumer information
+	for(i=0; i < info->gib_produkte(); i++) {
+		const fabrik_produkt_besch_t *produkt = info->gib_produkt(i);
+		ware_t ware(produkt->gib_ware());
 
-    if(halt.is_bound()) {
-      halt->verbinde_fabriken();
-    }
+		ware.max = produkt->gib_kapazitaet() << fabrik_t::precision_bits;
+		if(info->gib_lieferanten()==0) {
+			// if source then start with full storage (thus AI will built immeadiately lines)
+			// @author prissi
+			ware.menge = ware.max-(16<<fabrik_t::precision_bits);
+		}
+		ausgang->append(ware);
+	}
+	fab->set_ausgang( ausgang );
+
+	// set production
+	fab->set_prodfaktor( 16 );
+	fab->set_prodbase( info->gib_produktivitaet() +  simrand(info->gib_bereich()) );
+	if(parent) {
+		fab->add_lieferziel(parent->gib_2d());
+	}
+
+	// now built factory
+	fab->baue(rotate, true);
+	welt->add_fab(fab);
+
+	if(info->gib_platzierung() == fabrik_besch_t::Wasser) {
+		welt->lookup(halt->gib_basis_pos())->gib_kartenboden()->setze_text( translator::translate(fab->gib_name()) );
+	}
+
+	if(halt.is_bound()) {
+		halt->verbinde_fabriken();
+	}
 #if 0
 	// check moved to leitung2.cc
 	if(strcmp(fab->gib_name(), "Kohlekraftwerk") == 0  ||  strcmp(fab->gib_name(), "Oil Power Plant") == 0) {
@@ -512,15 +517,18 @@ fabrikbauer_t::baue_fabrik(karte_t * welt, koord3d *parent, const fabrik_besch_t
 		}
 	}
 #endif
-	// add passenger targets
-	const array_tpl<stadt_t *> *staedte=welt->gib_staedte();
-	const int anz_staedte = staedte->get_size();
-	for(  int j=0;  j<anz_staedte;  j++  ) {
-		// noch keine stadt mit diesem namen?
-		if(staedte->get(j)!=NULL) {
-			koord city_dist = staedte->get(j)->gib_pos()-pos.gib_2d();
-			if(  (city_dist.x*city_dist.x)+(city_dist.y*city_dist.y)<5000) {
-				staedte->get(j)->add_factory_arbeiterziel(fab);
+
+	// add passenger targets: take care of fish_swarm, which do not accepts sucide divers ...
+	if(make_passenger) {
+		const array_tpl<stadt_t *> *staedte=welt->gib_staedte();
+		const int anz_staedte = staedte->get_size();
+		for(  int j=0;  j<anz_staedte;  j++  ) {
+			// noch keine stadt mit diesem namen?
+			if(staedte->get(j)!=NULL) {
+				koord city_dist = staedte->get(j)->gib_pos()-pos.gib_2d();
+				if(  (city_dist.x*city_dist.x)+(city_dist.y*city_dist.y)<5000) {
+					staedte->get(j)->add_factory_arbeiterziel(fab);
+				}
 			}
 		}
 	}

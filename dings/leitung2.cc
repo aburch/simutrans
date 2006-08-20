@@ -62,20 +62,24 @@ ist_leitung(karte_t *welt, koord pos)
 fabrik_t *
 leitung_t::suche_fab_4(const koord pos)
 {
-    for(int k=0; k<4; k++) {
+	for(int k=0; k<4; k++) {
+/*
+		fabrik_t *f=fabrik_t::gib_fab(welt,pos);
+		if(f) {
+			return f;
+		}
+*/
+		const grund_t *gr = welt->lookup(pos+koord::nsow[k])->gib_kartenboden();
+		const int n = gr->gib_top();
 
-	const grund_t *gr = welt->lookup(pos+koord::nsow[k])->gib_kartenboden();
-
-	const int n = gr->gib_top();
-
-	for(int i=0; i<n; i++) {
-	    const ding_t * dt = gr->obj_bei(i);
-	    if(dt != NULL && dt->fabrik() != NULL) {
-		return dt->fabrik();
-	    }
+		for(int i=0; i<n; i++) {
+			const ding_t * dt=gr->obj_bei(i);
+			if(dt!=NULL && dt->fabrik()!=NULL) {
+				return dt->fabrik();
+			}
+		}
 	}
-    }
-    return NULL;
+	return NULL;
 }
 
 
@@ -487,23 +491,31 @@ void leitung_t::rdwr(loadsave_t *file)
 
 pumpe_t::pumpe_t(karte_t *welt, loadsave_t *file) : leitung_t(welt , file)
 {
-  fab = 0;
-  calc_bild();
-  welt->sync_add(this);
+	fab = NULL;
+	power_there = false;
+	calc_bild();
+	welt->sync_add(this);
+	calc_neighbourhood();
 }
 
 
 pumpe_t::pumpe_t(karte_t *welt, koord3d pos, spieler_t *sp) : leitung_t(welt , pos, sp)
 {
-  fab = 0;
-  calc_bild();
-  welt->sync_add(this);
+	fab = NULL;
+	power_there = false;
+	calc_bild();
+	welt->sync_add(this);
+	calc_neighbourhood();
 }
+
 
 
 pumpe_t::~pumpe_t()
 {
-  welt->sync_remove(this);
+	if(fab) {
+		fab->set_prodfaktor( MAX(16,fab->get_prodfaktor()/3) );
+	}
+	welt->sync_remove(this);
 }
 
 
@@ -517,31 +529,39 @@ void pumpe_t::calc_bild()
 }
 
 
+/**
+ * recalculates only the image
+ */
+bool pumpe_t::step(long /*delta_t*/)
+{
+    setze_bild(0, skinverwaltung_t::pumpe->gib_bild_nr(power_there?1:0) );
+    return true;
+}
+
+
 void
 pumpe_t::sync_prepare()
 {
-  if(fab == NULL) {
-    fab = leitung_t::suche_fab_4(gib_pos().gib_2d());
-//    verbinde();
-//    calc_neighbourhood();
-  }
+	if(fab==NULL) {
+		fab = leitung_t::suche_fab_4(gib_pos().gib_2d());
+		if(fab) {
+			fab->set_prodfaktor( fab->get_prodfaktor()*3 );
+		}
+	}
 }
 
 
 bool
 pumpe_t::sync_step(long delta_t)
 {
-  if(fab == 0 || fab->gib_eingang()->get_count() == 0 || fab->gib_eingang()->get(0).menge <= 0)
-  {
-    setze_bild(0, skinverwaltung_t::pumpe->gib_bild_nr(0));
-    // nothing to do ?
-  } else {
-//dbg->message("pumpe_t::sync_step()", "fab=%p, net=%i", fab,get_net());
-    setze_bild(0, skinverwaltung_t::pumpe->gib_bild_nr(1));
-    get_net()->add_power(delta_t * PROD);
-  }
-
-  return true;
+	if(fab == 0 || fab->gib_eingang()->get_count() == 0 || fab->gib_eingang()->get(0).menge <= 0) {
+		power_there = false;
+	}
+	else {
+		power_there = true;
+		get_net()->add_power(delta_t * PROD);
+	}
+	return true;
 }
 
 
@@ -550,21 +570,23 @@ pumpe_t::sync_step(long delta_t)
 
 senke_t::senke_t(karte_t *welt, loadsave_t *file) : leitung_t(welt , file)
 {
-  fab = NULL;
-  einkommen = 1;
-  max_einkommen = 1;
-  calc_bild();
-  welt->sync_add(this);
+	fab = NULL;
+	einkommen = 1;
+	max_einkommen = 1;
+	calc_bild();
+	welt->sync_add(this);
+	calc_neighbourhood();
 }
 
 
 senke_t::senke_t(karte_t *welt, koord3d pos, spieler_t *sp) : leitung_t(welt , pos, sp)
 {
-  fab = NULL;
-  einkommen = 1;
-  max_einkommen = 1;
-  calc_bild();
-  welt->sync_add(this);
+	fab = NULL;
+	einkommen = 1;
+	max_einkommen = 1;
+	calc_bild();
+	welt->sync_add(this);
+	calc_neighbourhood();
 }
 
 
@@ -574,13 +596,16 @@ senke_t::senke_t(karte_t *welt, koord3d pos, spieler_t *sp) : leitung_t(welt , p
  */
 void senke_t::calc_bild()
 {
-  setze_bild(0, skinverwaltung_t::senke->gib_bild_nr(0));
+	setze_bild(0, skinverwaltung_t::senke->gib_bild_nr(0));
 }
 
 
 senke_t::~senke_t()
 {
-  welt->sync_remove(this);
+	if(fab!=NULL) {
+		fab->set_prodfaktor( 16 );
+	}
+	welt->sync_remove(this);
 }
 
 
@@ -590,10 +615,12 @@ senke_t::~senke_t()
  */
 bool senke_t::step(long /*delta_t*/)
 {
+    int faktor = (16*einkommen+16)/max_einkommen;
     gib_besitzer()->buche(einkommen >> 11, gib_pos().gib_2d(), COST_INCOME);
-    fab->set_prodfaktor( 16+(16*einkommen+16)/max_einkommen );
     einkommen = 0;
     max_einkommen = 1;
+    fab->set_prodfaktor( 16+faktor );
+    setze_bild(0, skinverwaltung_t::senke->gib_bild_nr(faktor==16?1:0) );
     return true;
 }
 
@@ -602,8 +629,6 @@ void
 senke_t::sync_prepare()
 {
 	if(fab==NULL) {
-//		verbinde();
-//		calc_neighbourhood();
 		fab = leitung_t::suche_fab_4(gib_pos().gib_2d());
 	}
 }
@@ -615,12 +640,6 @@ senke_t::sync_step(long time)
   //dbg->message("senke_t::sync_step()", "called");
   int want_power = time*(PROD/3);
   int get_power = get_net()->withdraw_power(want_power);
-  if(want_power==get_power) {
-	  setze_bild(0, skinverwaltung_t::senke->gib_bild_nr(1));
-  }
-  else {
-	  setze_bild(0, skinverwaltung_t::senke->gib_bild_nr(0));
-  }
   max_einkommen += want_power;
   einkommen += get_power;
   return true;

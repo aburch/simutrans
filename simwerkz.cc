@@ -910,40 +910,32 @@ wkz_dockbau(spieler_t *sp, karte_t *welt, koord pos)
 int
 wkz_senke(spieler_t *sp, karte_t *welt, koord pos)
 {
-    dbg->message("wkz_senke()",
-     "called on %d,%d", pos.x, pos.y);
+dbg->message("wkz_senke()","called on %d,%d", pos.x, pos.y);
 
-    bool ok = false;
+	if(!welt->ist_in_kartengrenzen(pos)) {
+		return false;
+	}
 
-    if(welt->ist_in_kartengrenzen(pos)) {
+	int top = welt->lookup(pos)->gib_kartenboden()->gib_top();
+	int hangtyp = welt->get_slope(pos);
 
-  int top = welt->lookup(pos)->gib_kartenboden()->gib_top();
-        int hangtyp = welt->get_slope(pos);
-
-  if(hangtyp == 0 && top <= 0) {
-  	fabrik_t *fab=leitung_t::suche_fab_4(pos);
-  	if(fab==NULL) {
-  		// need a factory
-  		return false;
-  	}
-     grund_t *gr = welt->lookup(pos)->gib_kartenboden();
-  	if(strcmp(fab->gib_name(), "Kohlekraftwerk") == 0  ||  strcmp(fab->gib_name(), "Oil Power Plant") == 0) {
-        // too near to edge of map or wrong level?
-        pumpe_t *pumpe = new pumpe_t(welt, gr->gib_pos(), welt->gib_spieler(0));
-        pumpe->setze_fabrik(fab);
-        gr->obj_loesche_alle(NULL);
-        gr->obj_add(pumpe);
-     	}
-     	else {
-          gr->obj_loesche_alle(NULL);
-	     gr->obj_add(new senke_t(welt, gr->gib_pos(), sp));
-     		ok = true;
-     	}
-  }
-
-    }
-
-    return ok;
+	if(hangtyp == 0 && top <= 0) {
+		fabrik_t *fab=leitung_t::suche_fab_4(pos);
+		if(fab==NULL) {
+			// need a factory
+			return false;
+		}
+		grund_t *gr = welt->lookup(pos)->gib_kartenboden();
+		if(strcmp(fab->gib_name(), "Kohlekraftwerk")==0  ||  strcmp(fab->gib_name(), "Oil Power Plant")==0) {
+			gr->obj_loesche_alle(NULL);
+			gr->obj_add( new pumpe_t(welt, gr->gib_pos(), welt->gib_spieler(0)) );
+		}
+		else {
+			gr->obj_loesche_alle(NULL);
+			gr->obj_add(new senke_t(welt, gr->gib_pos(), sp));
+		}
+	}
+	return true;
 }
 
 
@@ -952,8 +944,7 @@ wkz_frachthof_aux(spieler_t *sp, karte_t *welt, koord pos, ribi_t::ribi dir)
 {
     grund_t *bd = welt->lookup(pos)->gib_kartenboden();
 
-    dbg->message("wkz_frachthof_aux()",
-     "called on %d,%d", pos.x, pos.y);
+    dbg->message("wkz_frachthof_aux()",     "called on %d,%d", pos.x, pos.y);
 
     if(bd->kann_alle_obj_entfernen(sp) == NULL && bd->gib_grund_hang() == 0) {
   halthandle_t halt = suche_nahe_haltestelle(sp, welt, pos);
@@ -1625,24 +1616,33 @@ int wkz_build_industries_city(spieler_t *sp, karte_t *welt, koord pos)
 /* open the list of halt */
 int wkz_list_halt_tool(spieler_t *sp, karte_t *welt,koord k)
 {
-	create_win(-1, -1, -1, new halt_list_frame_t(sp), w_autodelete, magic_halt_list_t);
-	return true;
+	if(k == INIT) {//see simworld.cc, karte_t::setze_maus_funktion
+		create_win(-1, -1, -1, new halt_list_frame_t(sp), w_autodelete, magic_halt_list_t);
+		welt->setze_maus_funktion(wkz_abfrage, skinverwaltung_t::fragezeiger->gib_bild_nr(0), welt->Z_PLAN, 0, 0);
+	}
+	return false;
 }
 
 
 /* open the list of vehicle */
 int wkz_list_vehicle_tool(spieler_t *sp, karte_t *welt,koord k)
 {
-	create_win(-1, -1, -1, new convoi_frame_t(sp, welt), w_autodelete, magic_convoi_t);
-	return true;
+	if(k == INIT) {//see simworld.cc, karte_t::setze_maus_funktion
+		create_win(-1, -1, -1, new convoi_frame_t(sp, welt), w_autodelete, magic_convoi_t);
+		welt->setze_maus_funktion(wkz_abfrage, skinverwaltung_t::fragezeiger->gib_bild_nr(0), welt->Z_PLAN, 0, 0);
+	}
+	return false;
 }
 
 
 /* open the list of towns */
 int wkz_list_town_tool(spieler_t *sp, karte_t *welt,koord k)
 {
-	create_win(0, 0, new citylist_frame_t(welt), w_info);
-	return true;
+	if(k == INIT) {//see simworld.cc, karte_t::setze_maus_funktion
+		create_win(0, 0, new citylist_frame_t(welt), w_info);
+		welt->setze_maus_funktion(wkz_abfrage, skinverwaltung_t::fragezeiger->gib_bild_nr(0), welt->Z_PLAN, 0, 0);
+	}
+	return false;
 }
 
 
@@ -1650,8 +1650,11 @@ int wkz_list_town_tool(spieler_t *sp, karte_t *welt,koord k)
 /* open the list of goods */
 int wkz_list_good_tool(spieler_t *sp, karte_t *welt,koord k)
 {
-	create_win(0, 0,new goods_frame_t(), w_autodelete);
-	return true;
+	if(k == INIT) {//see simworld.cc, karte_t::setze_maus_funktion
+		create_win(0, 0,new goods_frame_t(), w_autodelete);
+		welt->setze_maus_funktion(wkz_abfrage, skinverwaltung_t::fragezeiger->gib_bild_nr(0), welt->Z_PLAN, 0, 0);
+	}
+	return false;
 }
 
 

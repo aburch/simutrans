@@ -12,7 +12,9 @@ bool umgebung_t::freeplay = false;
 
 int  umgebung_t::show_names = 3;
 
-bool umgebung_t::automaten[6] = {0};
+bool umgebung_t::automaten[6] = {0,0,0,0,1,0};
+
+int umgebung_t::message_flags[4] =  { 0xFF7F, 0x0108, 0x0080, 0xFFFF };
 
 bool umgebung_t::bodenanimation = true;
 
