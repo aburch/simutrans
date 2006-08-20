@@ -21,7 +21,10 @@
 #include "simtypes.h"
 #include "simdings.h"
 #include "simware.h"
+#include "simconvoi.h"
+#include "railblocks.h"
 #include "halthandle_t.h"
+#include "convoihandle_t.h"
 #include "ifc/fahrer.h"
 #include "boden/wege/weg.h"
 #include "besch/vehikel_besch.h"
@@ -431,7 +434,7 @@ public:
     void setze_letztes(bool janein) {ist_letztes = janein;};
 
     void setze_convoi(convoi_t *c);
-
+    convoihandle_t get_convoi() const { return cnv->self; }
 
     /**
      * Remove freight that no longer can reach it's destination
@@ -439,7 +442,6 @@ public:
      * @author Hj. Malthaner
      */
     void remove_stale_freight();
-
 
     /**
      * erzeuge einen für diesen Vehikeltyp passenden Fahrplan
@@ -460,7 +462,7 @@ public:
      * @return Gesamtanzahl aller Transportfahrzeuge
      * @author Hj. Malthaner
      */
-    static inline int anzahl() { return list.count(); };
+    static inline int anzahl() { return list.count(); }
 #endif
 };
 
@@ -484,15 +486,13 @@ protected:
     void calc_bild();
 
 public:
+    automobil_t(karte_t *welt, loadsave_t *file);
+    automobil_t(karte_t *welt, koord3d pos, const vehikel_besch_t *besch, spieler_t *sp, convoi_t *cnv); // start und fahrplan
+
 	// how expensive to go here (for way search)
 	virtual int gib_kosten(const grund_t *,const uint32 ) const;
 
     virtual bool ist_weg_frei(int &restart_speed);
-
-    automobil_t(karte_t *welt, loadsave_t *file);
-    automobil_t(karte_t *welt, koord3d pos, const vehikel_besch_t *besch,
-                spieler_t *sp, convoi_t *cnv); // start und fahrplan
-
 
     /**
      * Ermittelt die für das Fahrzeug geltenden Richtungsbits,
@@ -526,7 +526,6 @@ public:
 class waggon_t : public vehikel_t
 {
 private:
-
     bool ist_blockwechsel(koord3d k1, koord3d k2) const;
 
 protected:
@@ -539,15 +538,25 @@ protected:
     void calc_bild();
 
 public:
+	// since we might need to unreserve previously used blocks, we must do this before calculation a new route
+	bool calc_route(karte_t * welt, koord3d start, koord3d ziel, uint32 max_speed, route_t * route);
+
 	// how expensive to go here (for way search)
 	virtual int gib_kosten(const grund_t *,const uint32 ) const;
 
-    virtual bool ist_weg_frei(int &restart_speed);
+	// returns true for the way search to an unknown target.
+	halthandle_t target_halt;
+	virtual bool ist_ziel(const grund_t *) const;
 
-	bool is_next_block_free( presignal_t *sig ) const;
+	// handles all block stuff and route choosing ...
+	virtual bool ist_weg_frei(int &restart_speed);
+
+	// reserves or unreserves all blocks and returns the handle to the next block (if there)
+	// if count is larger than 1, maximum 64 tiles will be checked (freeing or reserving a choose signal path)
+	// return the last checked block
+	blockhandle_t block_reserver(int count, bool reserve) const;
 
     void verlasse_feld();
-
 
     /**
      * Ermittelt die für das Fahrzeug geltenden Richtungsbits,
@@ -556,9 +565,6 @@ public:
      * @author Hj. Malthaner, 04.01.01
      */
     virtual ribi_t::ribi gib_ribi(const grund_t* ) const;
-
-	// returns true for the way search to an unknown target.
-	virtual bool ist_ziel(const grund_t *) const {return 0;};
 
     enum ding_t::typ gib_typ() const {return waggon;};
 
@@ -644,14 +650,8 @@ public:
 	// returns true for the way search to an unknown target.
 	virtual bool ist_ziel(const grund_t *) const {return 0;};
 
-    /* return friction constant: changes in hill and curves; may even negative downhill *
-     * @author prissi
-     */
-    virtual const int gib_frictionfactor() const {return current_friction;};
-
     schiff_t(karte_t *welt, loadsave_t *file);
-    schiff_t(karte_t *welt, koord3d pos, const vehikel_besch_t *besch,
-             spieler_t *sp, convoi_t *cnv); // start und fahrplan
+    schiff_t(karte_t *welt, koord3d pos, const vehikel_besch_t *besch, spieler_t *sp, convoi_t *cnv); // start und fahrplan
 
     ding_t::typ gib_typ() const {return schiff;};
 
@@ -711,7 +711,6 @@ public:
 
 	// how expensive to go here (for way search)
 	virtual int gib_kosten(const grund_t *,const uint32 ) const;
-
 
     virtual bool ist_weg_frei(int &restart_speed);
 

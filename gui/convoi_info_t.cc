@@ -99,16 +99,16 @@ convoi_info_t::convoi_info_t(convoihandle_t cnv)
 	kill_button.text = "X";
 	kill_button.setze_typ(button_t::roundbox);
 	kill_button.kennfarbe = COL_RED;
-	kill_button.set_tooltip(translator::translate("Remove vehicle from map. Use with care!"));
+	kill_button.set_tooltip("Remove vehicle from map. Use with care!");
 	add_komponente(&kill_button);
 	kill_button.add_listener(this);
 #endif
 
 	toggler.setze_groesse(koord(BUTTON_WIDTH, BUTTON_HEIGHT));
-	toggler.text = translator::translate("Chart");
+	toggler.setze_text("Chart");
 	toggler.setze_typ(button_t::roundbox);
 	toggler.add_listener(this);
-	toggler.set_tooltip(translator::translate("Show/hide statistics"));
+	toggler.set_tooltip("Show/hide statistics");
 	add_komponente(&toggler);
 	btoggled = false;
 
@@ -116,14 +116,14 @@ convoi_info_t::convoi_info_t(convoihandle_t cnv)
 	sort_button.setze_text(translator::translate(sort_text[sortby]));
 	sort_button.setze_typ(button_t::roundbox);
 	sort_button.add_listener(this);
-	sort_button.set_tooltip(translator::translate("Sort by"));
+	sort_button.set_tooltip("Sort by");
 	add_komponente(&sort_button);
 
 	details_button.setze_groesse(koord(BUTTON_WIDTH, BUTTON_HEIGHT));
-	details_button.text = translator::translate("Details");
+	details_button.setze_text("Details");
 	details_button.setze_typ(button_t::roundbox);
 	details_button.add_listener(this);
-	details_button.set_tooltip(translator::translate("Vehicle details"));
+	details_button.set_tooltip("Vehicle details");
 	add_komponente(&details_button);
 
 	scrolly.setze_pos(koord(0, 122));
@@ -166,27 +166,29 @@ convoi_info_t::convoi_info_t(convoihandle_t cnv)
 
 	// this convoi belongs not to an AI
 	button.setze_groesse(koord(BUTTON_WIDTH, BUTTON_HEIGHT));
-	button.text = translator::translate("Fahrplan");
+	button.setze_text("Fahrplan");
 	button.setze_typ(button_t::roundbox);
-	button.set_tooltip(translator::translate("Alters a schedule."));
+	button.set_tooltip("Alters a schedule.");
 	add_komponente(&button);
 	button.setze_pos(koord(BUTTON1_X,76));
 	button.add_listener(this);
 
 	go_home_button.setze_groesse(koord(BUTTON_WIDTH, BUTTON_HEIGHT));
 	go_home_button.setze_pos(koord(BUTTON2_X,76));
-	go_home_button.text = translator::translate("go home");
+	go_home_button.setze_text("go home");
 	go_home_button.setze_typ(button_t::roundbox);
-	go_home_button.set_tooltip(translator::translate("Sends the convoi to the last depot it departed from!"));
+	go_home_button.set_tooltip("Sends the convoi to the last depot it departed from!");
 	add_komponente(&go_home_button);
 	go_home_button.add_listener(this);
 
 	follow_button.setze_groesse(koord(66, BUTTON_HEIGHT));
-	follow_button.text = translator::translate("follow me");
+	follow_button.setze_text("follow me");
 	follow_button.setze_typ(button_t::roundbox);
-	follow_button.set_tooltip(translator::translate("Follow the convoi on the map."));
+	follow_button.set_tooltip("Follow the convoi on the map.");
 	add_komponente(&follow_button);
 	follow_button.add_listener(this);
+
+	cnv->set_sort( sortby );
 
 	set_min_windowsize(koord(TOTAL_WIDTH, 194));
 	set_resizemode(diagonal_resize);
@@ -288,8 +290,7 @@ convoi_info_t::zeichnen(koord pos, koord gr)
 		// next stop
 		const fahrplan_t * fpl = cnv->gib_fahrplan();
 		info_buf.clear();
-		info_buf.append(translator::translate("Fahrtziel:"));
-		info_buf.append(" ");
+		info_buf.append(translator::translate("Fahrtziel"));
 		fahrplan_gui_t::gimme_short_stop_name(info_buf, cnv->gib_welt(), fpl, fpl->aktuell, 34);
 		len = display_proportional( pos.x+11, pos.y+16+20+3*LINESPACE, info_buf, ALIGN_LEFT, COL_BLACK, true );
 
@@ -409,11 +410,9 @@ DBG_MESSAGE("convoi_info_t::action_triggered()","search depot: found on %i,%i",g
 			// if route to a depot has been found, update the convoi's schedule
 			bool b_depot_found = false;
 			if (shortest_route->gib_max_n() > -1) {
-				cnv->anhalten(0);
 				fahrplan_t *fpl = cnv->gib_fahrplan();
 				fpl->insert(welt, welt->lookup(home) );
 				b_depot_found = cnv->setze_fahrplan(fpl);
-				cnv->weiterfahren();
 			}
 			delete shortest_route;
 

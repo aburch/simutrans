@@ -67,8 +67,8 @@ public:
 		DRIVING,
 		LOADING,
 		WAITING_FOR_CLEARANCE,
+		WAITING_FOR_CLEARANCE_ONE_MONTH,
 		SELF_DESTRUCT,
-		ROUTING_3,
 	};
 
 private:
@@ -144,19 +144,11 @@ private:
      */
     spieler_t *besitzer_p;
 
-
     /**
      * Current map
      * @author Hj. Malthaner
      */
     karte_t   *welt;
-
-
-    /**
-     * Wird von anhalten und weiterfahren benutzt
-     * @author Hj. Malthaner
-     */
-    bool ist_fahrend;
 
     /**
      * the convoi caches its freight info; it is only recalculation after loading or resorting
@@ -183,7 +175,7 @@ private:
      * errechnet.
      * @author Hj. Malthaner
      */
-    int sum_leistung;
+    uint32 sum_leistung;
 
 
     /**
@@ -191,7 +183,7 @@ private:
      * errechnet.
      * @author prissi
      */
-    int sum_gear_und_leistung;
+    sint32 sum_gear_und_leistung;
 
 
     /* sum_gewicht: leergewichte aller vehicles *
@@ -200,30 +192,22 @@ private:
      * errechnet beim beladen/fahren.
      * @author Hj. Malthaner, prissi
      */
-    int sum_gewicht;
-    int sum_gesamtgewicht;
-
-    /**
-     * Stores the previous delta_v value; otherwise these digits are lost during calculation and vehicle do not accelrate
-     * @author prissi
-     */
-	int previous_delta_v;
+    sint32 sum_gewicht;
+    sint32 sum_gesamtgewicht;
 
     /**
      * Lowest top speed of all vehicles. Doesn't get saved, but calculated
      * from the vehicles data
      * @author Hj. Malthaner
      */
-    int min_top_speed;
-
+    sint32 min_top_speed;
 
     /**
      * manchmal muss eine bestimmte Zeit gewartet werden.
      * wait_lock bestimmt wie lange gewartet wird (in ms).
      * @author Hanjsörg Malthaner
      */
-    long wait_lock;
-
+    sint32 wait_lock;
 
     /**
      * akkumulierter gewinn über ein jahr hinweg
@@ -237,22 +221,17 @@ private:
      */
     koord3d last_stop_pos;
 
+	// needed for speed control/calculation
+	sint32 akt_speed_soll;	// should go this
+	sint32 akt_speed;			// goes this at the moment
+	sint32 sp_soll;					// steps to go (124 per step)
+	sint32 previous_delta_v;		// Stores the previous delta_v value; otherwise these digits are lost during calculation and vehicle do not accelrate
 
-    // zur Geschwindigkeitssteuerung des convois
+	uint32 next_wolke;	// time to next smoke
 
-    int akt_speed_soll;            // Sollgeschwindigkeit
+	enum states state;
 
-    int akt_speed;                 // momentane Geschwindigkeit
-
-    int sp_soll;                   // Sollstrecke
-
-    unsigned long next_wolke;                // zeit fuer naechste wolke
-
-    enum states state;
-
-
-    ribi_t::ribi alte_richtung;
-
+	ribi_t::ribi alte_richtung;
 
     /**
      * Initialize all variables with default values.
@@ -412,6 +391,13 @@ public:
 
 
     /**
+     * get state
+     * @author hsiegeln
+     */
+    bool is_waiting() { return (state>=WAITING_FOR_CLEARANCE); }
+
+
+    /**
      * Das Handle für uns selbst. In Anlehnung an 'this' aber mit
      * allen checks beim Zugriff.
      * @author Hanjsörg Malthaner
@@ -513,10 +499,10 @@ public:
      * @return total power of this convoi
      * @author Hj. Malthaner
      */
-    const int & gib_sum_leistung() const {return sum_leistung;}
-    const int & gib_min_top_speed() const {return min_top_speed;}
-    const int & gib_sum_gewicht() const {return sum_gewicht;}
-    const int & gib_sum_gesamtgewicht() const {return sum_gesamtgewicht;}
+    const uint32 & gib_sum_leistung() const {return sum_leistung;}
+    const sint32 & gib_min_top_speed() const {return min_top_speed;}
+    const sint32 & gib_sum_gewicht() const {return sum_gewicht;}
+    const sint32 & gib_sum_gesamtgewicht() const {return sum_gesamtgewicht;}
 
 
     /**
@@ -603,23 +589,10 @@ public:
 
     /**
      * Wartet bis Fahrzeug 0 freie Fahrt meldet
+     * will be called during a hop_check, if the road/track is blocked
      * @author Hj. Malthaner
      */
     void warten_bis_weg_frei(int restart_speed);
-
-
-    /**
-     * Convoi anhalten
-     * @author Hj. Malthaner
-     */
-    void anhalten(int restart_speed);
-
-
-    /**
-     * Convoi wieder losfahren lassen
-     * @author Hj. Malthaner
-     */
-    void weiterfahren();
 
 
     /**
@@ -819,13 +792,13 @@ public:
      * return a pointer to the financial history
      * @author hsiegeln
      */
-    sint64* get_finance_history() { return *financial_history; };
+    sint64* get_finance_history() { return *financial_history; }
 
     /**
      * return a specified element from the financial history
      * @author hsiegeln
      */
-    sint64 get_finance_history(int month, int cost_type) { return financial_history[month][cost_type]; };
+    sint64 get_finance_history(int month, int cost_type) { return financial_history[month][cost_type]; }
 
     /**
      * only purpose currently is to roll financial history
@@ -833,16 +806,15 @@ public:
      */
     void new_month();
 
-    int get_line_update_pending() { return line_update_pending; };
+    int get_line_update_pending() { return line_update_pending; }
 
-    void set_line_update_pending(int id) { line_update_pending = id; };
+    void set_line_update_pending(int id) { line_update_pending = id; }
 
-		void check_pending_updates();
+	void check_pending_updates();
 
-		void set_home_depot(koord3d hd) { home_depot = hd; };
+	void set_home_depot(koord3d hd) { home_depot = hd; }
 
-		koord3d get_home_depot() { return home_depot; };
-
+	koord3d get_home_depot() { return home_depot; }
 };
 
 #endif

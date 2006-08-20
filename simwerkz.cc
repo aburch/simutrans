@@ -422,7 +422,7 @@ DBG_MESSAGE("wkz_remover_intern()","at (%d,%d)", pos.x, pos.y);
 	}
 
 	// check for signal
-	if(gr->suche_obj(ding_t::signal)!=NULL  ||  gr->suche_obj(ding_t::presignal)!=NULL) {
+	if(gr->suche_obj(ding_t::signal)!=NULL  ||  gr->suche_obj(ding_t::presignal)!=NULL  ||  gr->suche_obj(ding_t::choosesignal)!=NULL) {
 DBG_MESSAGE("wkz_remover()",  "removing signal %d,%d",  pos.x, pos.y);
 		if(gr->gib_besitzer()==sp  ||  gr->gib_besitzer()==NULL) {
 			blockmanager *bm = blockmanager::gib_manager();
@@ -812,80 +812,6 @@ DBG_MESSAGE("wkz_wegebau()", "try straight route");
 }
 
 
-#if 0
-/* build a ramp for monorail to change between levels ...
- * @author prissi
- */
-int
-wkz_monorail_rampe(spieler_t *sp, karte_t *welt, koord pos, value_t lParam)
-{
-	if(welt->ist_in_kartengrenzen(pos)) {
-		const bruecke_besch_t * besch = (const bruecke_besch_t *) (lParam.p);
-		const weg_besch_t * weg_besch=NULL
-		koord zv=koord::invalid;
-		ribi_t::ribi ribi=ribi_typ(gr->gib_grund_hang());
-
-		grund_t *gr=welt->lookup(pos)->gib_kartenboden();
-		const char *p=gr2->kann_alle_obj_enternene(sp);
-		if(p) {
-			create_win(-1, -1, MESG_WAIT, new nachrichtenfenster_t(welt, p), w_autodelete);
-			return false;
-		}
-		if(gr->suche_obj(ding_t::signal)!=NULL  ||  gr->suche_obj(ding_t::presignal)!=NULL) {
-			create_win(-1, -1, MESG_WAIT, new nachrichtenfenster_t(welt, "Tile not empty."), w_autodelete);
-			return false;
-		}
-		weg_t *w=gr->gib_weg(weg_t::monorail);
-		if(w) {
-			ribi = gr->gib_weg_ribi_unmasked(weg_t::monorail);
-			if(!ribi_t::ist_einach(ribi)) {
-				create_win(-1, -1, MESG_WAIT, new nachrichtenfenster_t(welt, "A bridge must start on a way!"), w_autodelete);
-				return false;
-			}
-			weg_besch = w->gib_besch();
-		}
-
-		// check for top floor ...
-		grund_t *gr2=welt->lookup(koord3d(pos,gr->gib_hoehe()+16));
-		if(gr2) {
-			if(gr2->gib_typ()!=grund_t::monorailboden) {
-				create_win(-1, -1, MESG_WAIT, new nachrichtenfenster_t(welt, "Tile not empty."), w_autodelete);
-				return false;
-			}
-			// a monorailground should have a monorail on it, or something was very wrong ...
-			ribi_t::ribi ribi2 = gib_weg_ribi(weg_t::monorail);
-			if(!ribi_t::ist_gerade(ribi|ribi2)  ||  !ribi_t::ist_einfach(ribi2)) {
-				create_win(-1, -1, MESG_WAIT, new nachrichtenfenster_t(welt, "A bridge must start on a way!"), w_autodelete);
-				return false;
-			}
-			// something else
-			const char *p=gr2->kann_alle_obj_enternene(sp);
-			if(p) {
-				create_win(-1, -1, MESG_WAIT, new nachrichtenfenster_t(welt, p), w_autodelete);
-				return false;
-			}
-			// now remove ground
-			gr2->obj_loesche_alle(sp);
-			if(!weg_besch) {
-				// monorail ground => must have a monorail on it!
-				weg_besch = gr2->gib_weg(weg_t::schiene_monorail)->gib_besch();
-			}
-			gr2->weg_entfernen(weg_t::schiene_monorail,false);
-		}
-
-		// still not a monorail way here?
-		if(weg_besch==NULL) {
-			create_win(-1, -1, MESG_WAIT, new nachrichtenfenster_t(welt, "A bridge must start on a way!"), w_autodelete);
-			return false;
-		}
-
-		// ok, now we have empty ground on top and a direction (hopefully)
-		brueckenbauer_t::baue_auffahrt( welt, sp, gr->gib_pos(), koord(ribi_t::rueckwaerts(ribi)), bruecke_besch, weg_besch );
-		return true;
-	}
-}
-#endif
-
 
 /* build all kind of station buildings
  * @author V. Meyer
@@ -1197,9 +1123,10 @@ DBG_MESSAGE("wkz_senke()","no factory near (%i,%i)",pos.x, pos.y);
 
 
 // builds signal
-int wkz_signal_aux(spieler_t *sp, karte_t *welt, koord pos,bool presignal)
+int wkz_signale(spieler_t *sp, karte_t *welt, koord pos,value_t lParam)
 {
-	DBG_MESSAGE("wkz_signal_aux()","called on %d,%d for a %ssignal", pos.x, pos.y, presignal?"pre":"");
+	ding_t::typ type=(ding_t::typ)lParam.i;
+	DBG_MESSAGE("wkz_signal()","called on %d,%d for a class %d signal", pos.x, pos.y, type);
 	if(welt->ist_in_kartengrenzen(pos)) {
 
 		blockmanager * bm = blockmanager::gib_manager();
@@ -1223,7 +1150,7 @@ int wkz_signal_aux(spieler_t *sp, karte_t *welt, koord pos,bool presignal)
 		}
 
 		if(gr) {
-			error = bm->neues_signal(welt, sp, gr->gib_pos(), (dynamic_cast<zeiger_t*>(welt->gib_zeiger()))->gib_richtung(), presignal);
+			error = bm->neues_signal(welt, sp, gr->gib_pos(), (dynamic_cast<zeiger_t*>(welt->gib_zeiger()))->gib_richtung(), type);
 		}
 		if(error != NULL) {
 			create_win(-1, -1, MESG_WAIT, new nachrichtenfenster_t(welt, error), w_autodelete);
@@ -1234,19 +1161,6 @@ int wkz_signal_aux(spieler_t *sp, karte_t *welt, koord pos,bool presignal)
 	}
 }
 
-
-
-int wkz_signale(spieler_t *sp, karte_t *welt, koord pos)
-{
-	return wkz_signal_aux(sp,welt,pos,false);
-}
-
-
-
-int wkz_presignals(spieler_t *sp, karte_t *welt, koord pos)
-{
-	return wkz_signal_aux(sp,welt,pos,true);
-}
 
 
 
@@ -1367,7 +1281,7 @@ DBG_MESSAGE("wkz_depot_aux()","for depot %s with waytype %d",besch->gib_name(),w
 		}
 
 		// avoid building over a stop
-		if(bd->gib_halt().is_bound()) {
+		if(bd->gib_halt().is_bound()  ||  bd->gib_depot()!=NULL) {
 			create_win(-1, -1, MESG_WAIT, new nachrichtenfenster_t(welt, "Tile not empty."), w_autodelete);
 			return false;
 		}
@@ -1758,9 +1672,36 @@ int wkz_blocktest(spieler_t *, karte_t *welt, koord pos)
 int wkz_electrify_block(spieler_t *sp, karte_t *welt, koord pos)
 {
 	if(welt->lookup(pos)) {
-		grund_t *gr = welt->lookup(pos)->gib_kartenboden();
-		if(gr && gr->gib_besitzer() == sp) {
-			blockmanager::gib_manager()->setze_tracktyp(welt, gr->gib_pos(),true);
+		const planquadrat_t *pl = welt->lookup(pos);
+		const bool backwards=event_get_last_control_shift()==2;
+		const grund_t *bd=0;
+		// search all grounds for match
+		for(  unsigned cnt=0;  cnt<pl->gib_boden_count();  cnt++  ) {
+			// with control backwards
+			const unsigned i = (backwards) ? pl->gib_boden_count()-1-cnt : cnt;
+	     		bd = pl->gib_boden_bei(i);
+			// ignore tunnel
+	     		if(bd->ist_im_tunnel()) {
+	     			bd = 0;
+	     			continue;
+	     		}
+			// has some rail or monorail?
+			if(!bd->hat_wege()  ||  (bd->gib_weg(weg_t::schiene)==NULL   &&  bd->gib_weg(weg_t::schiene_monorail)==NULL) ) {
+	     			bd = 0;
+	     			continue;
+	     		}
+	     		// check for ownership
+			if(bd->gib_besitzer()!=sp) {
+				bd = 0;
+				continue;
+			}
+			// ok, now we have a valid ground
+			break;
+		}
+
+		if(bd) {
+			blockmanager::gib_manager()->setze_tracktyp(welt, bd->gib_pos(),true);
+			sp->init_undo( weg_t::invalid, 0 );	// forbid undo
 		}
 		return true;
 	}
@@ -1802,8 +1743,8 @@ dbg->warning("wkz_add_city()", "Already a city here");
 				// always start with 1/10 citicens
 				stadt_t *stadt = new stadt_t(welt, welt->gib_spieler(1), pos,citizens/10);
 
-				stadt->laden_abschliessen();
 				welt->add_stadt(stadt);
+				stadt->laden_abschliessen();
 
 				sp->buche(umgebung_t::cst_found_city, pos, COST_CONSTRUCTION);
 				ok =  true;
@@ -1975,6 +1916,13 @@ int wkz_set_slope(spieler_t * sp, karte_t *welt, koord pos, value_t lParam)
 		ok |= slope_this!=gr1->gib_grund_hang();
 
 		if(ok) {
+
+			// already some ground here (tunnel, bridge, monorail?)
+			if(new_pos!=gr1->gib_pos()  &&  welt->lookup(new_pos)!=NULL) {
+				create_win(-1, -1, MESG_WAIT, new nachrichtenfenster_t(welt, "Tile not empty."), w_autodelete);
+				return false;
+			}
+
 			// ok, was sucess
 			if(!gr1->ist_wasser()  &&  slope_this==0  &&  new_pos.z==welt->gib_grundwasser()) {
 				// now water

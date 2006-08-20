@@ -57,22 +57,22 @@ color_gui_t::color_gui_t(karte_t *welt)
 
   button_def.setze_pos( koord(10,69) );
   button_def.setze_typ(button_t::square);
-  button_def.text = translator::translate("4LIGHT_CHOOSE");
+  button_def.setze_text("4LIGHT_CHOOSE");
   buttons.append(button_def);
 
   button_def.setze_pos( koord(10,82) );
   button_def.setze_typ(button_t::square);
-  button_def.text = translator::translate("5LIGHT_CHOOSE");
+  button_def.setze_text("5LIGHT_CHOOSE");
   buttons.append(button_def);
 
   button_def.setze_pos( koord(10,95) );
   button_def.setze_typ(button_t::square);
-  button_def.text = translator::translate("6LIGHT_CHOOSE");
+  button_def.setze_text("6LIGHT_CHOOSE");
   buttons.append(button_def);
 
   button_def.setze_pos( koord(10,108) );
   button_def.setze_typ(button_t::square);
-  button_def.text = translator::translate("8WORLD_CHOOSE");
+  button_def.setze_text("8WORLD_CHOOSE");
   buttons.append(button_def);
 }
 
@@ -204,16 +204,16 @@ vector_tpl<button_t>*
 color_gui_t::gib_fensterbuttons()
 {
   // berechne variablen anteil der buttons
-  buttons.at(6).text = translator::translate("4LIGHT_CHOOSE");
+  buttons.at(6).setze_text("4LIGHT_CHOOSE");
   buttons.at(6).pressed = welt->gib_einstellungen()->gib_scroll_multi() < 0;
 
-  buttons.at(7).text = translator::translate("5LIGHT_CHOOSE");
+  buttons.at(7).setze_text("5LIGHT_CHOOSE");
   buttons.at(7).pressed = welt->gib_einstellungen()->gib_show_pax();
 
-  buttons.at(8).text = translator::translate("6LIGHT_CHOOSE");
+  buttons.at(8).setze_text("6LIGHT_CHOOSE");
   buttons.at(8).pressed = umgebung_t::fussgaenger;
 
-  buttons.at(9).text = translator::translate("8WORLD_CHOOSE");
+  buttons.at(9).setze_text("8WORLD_CHOOSE");
   buttons.at(9).pressed = umgebung_t::night_shift;
 
   return &buttons;

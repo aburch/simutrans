@@ -204,6 +204,7 @@ public:
 	      // car = 64,
 
 	      // other new dings
+	      choosesignal = 95,
 	      presignal = 96,
 	      roadsign = 97,
 	      pillar = 98

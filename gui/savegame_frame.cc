@@ -26,8 +26,6 @@
 #include "button.h"
 #include "../simwin.h"
 #include "../simintr.h"
-
-#include "../dataobj/translator.h"              // 29-Oct-2001       Markus Weber    Added
 #include "../utils/simstring.h"
 
 
@@ -91,7 +89,7 @@ savegame_frame_t::savegame_frame_t(const char *suffix) : gui_frame_t("Load/Save"
 
     // Text 'Game name'
     fnlabel.setze_pos (koord(10,12));
-    fnlabel.setze_text ( translator::translate("Filename"));
+    fnlabel.setze_text ("Filename");
     add_komponente(&fnlabel);
 
     // Input box for game name
@@ -117,7 +115,7 @@ savegame_frame_t::savegame_frame_t(const char *suffix) : gui_frame_t("Load/Save"
 	button1->setze_groesse(koord(14, 14));
 	button1->setze_text("X");
 	button1->setze_pos(koord(5, y));
-	button1->set_tooltip(translator::translate("Delete this file."));
+	button1->set_tooltip("Delete this file.");
 
 	button2->setze_pos(koord(25, y));
 	button2->setze_groesse(koord(140, 14));
@@ -142,14 +140,14 @@ savegame_frame_t::savegame_frame_t(const char *suffix) : gui_frame_t("Load/Save"
     y += 10;
     savebutton.setze_pos(koord(10,y));
     savebutton.setze_groesse(koord(65, 14));
-    savebutton.text = translator::translate("Ok");
+    savebutton.setze_text("Ok");
     savebutton.setze_typ(button_t::roundbox);
     savebutton.add_listener(this);
     add_komponente(&savebutton);
 
     cancelbutton.setze_pos(koord(190,y));
     cancelbutton.setze_groesse(koord(65, 14));
-    cancelbutton.text = translator::translate("Cancel");
+    cancelbutton.setze_text("Cancel");
     cancelbutton.setze_typ(button_t::roundbox);
     cancelbutton.add_listener(this);
     add_komponente(&cancelbutton);
@@ -162,19 +160,18 @@ savegame_frame_t::savegame_frame_t(const char *suffix) : gui_frame_t("Load/Save"
 savegame_frame_t::~savegame_frame_t()
 {
     slist_iterator_tpl <button_t *> b_iter (buttons);
-
     while(b_iter.next()) {
-	delete [] const_cast<char *>(b_iter.get_current()->gib_text());
+	delete [] const_cast<char *>(b_iter.get_current()->text);
 	delete b_iter.get_current();
     }
+
     slist_iterator_tpl <gui_label_t *> l_iter (labels);
-
     while(l_iter.next()) {
-	delete [] const_cast<char *>(l_iter.get_current()->gib_text());
+	delete [] const_cast<char *>(l_iter.get_current()->get_text_pointer());
 	delete l_iter.get_current();
-    }
-    slist_iterator_tpl <button_t *> s_iter (deletes);
+   }
 
+    slist_iterator_tpl <button_t *> s_iter (deletes);
     while(s_iter.next()) {
 	delete s_iter.get_current();
     }
@@ -200,18 +197,19 @@ void savegame_frame_t::add_file(const char *filename)
 
     sprintf(name, "%s", filename);
     name[strlen(name)-4] = '\0';
-    button->setze_text(name);
+    button->text = name;	// to avoid translation
 
     unsigned int i;
 
     // sort by date descending:
     for(i = 0; i < buttons.count(); i++) {
-	if(strcmp(labels.at(i)->gib_text(), date) < 0) {
+	if(strcmp(labels.at(i)->get_text_pointer(), date) < 0) {
 	    break;
 	}
     }
     buttons.insert(button, i);
-    labels.insert(new gui_label_t(date), i);
+    labels.insert(new gui_label_t(NULL), i);
+    labels.at(i)->set_text_pointer(date);
     deletes.insert(new button_t, i);
 }
 
@@ -270,23 +268,4 @@ bool savegame_frame_t::action_triggered(gui_komponente_t *komp)
 	}
     }
     return true;
-}
-
-
-
-
-
-/**
- * komponente neu zeichnen. Die übergebenen Werte beziehen sich auf
- * das Fenster, d.h. es sind die Bildschirkoordinaten des Fensters
- * in dem die Komponente dargestellt wird.
- * @author Markus Weber
- */
-void savegame_frame_t::zeichnen(koord pos, koord gr)
-{
-
-    fnlabel.setze_text ( translator::translate("Filename"));
-    savebutton.text = translator::translate("Ok");
-    cancelbutton.text = translator::translate("Cancel");
-    gui_frame_t::zeichnen(pos, gr);
 }

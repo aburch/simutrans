@@ -86,15 +86,6 @@ public:
      * @author Hj. Malthaner
      */
     bool action_triggered(gui_komponente_t *komp);
-
-
-     /**
-     * komponente neu zeichnen. Die übergebenen Werte beziehen sich auf
-     * das Fenster, d.h. es sind die Bildschirkoordinaten des Fensters
-     * in dem die Komponente dargestellt wird.
-     * @author Markus Weber
-     */
-    void zeichnen(koord pos, koord gr);
 };
 
 #endif

@@ -11,8 +11,8 @@
  * Hj. Malthaner
  */
 
-// test!
-#include "../simtime.h"
+#include "../simtime.h"	// testing speed
+#include "../gui/messagebox.h"
 
 #include "../simdebug.h"
 #include "wegbauer.h"
@@ -1181,7 +1181,7 @@ wegbauer_t::intern_calc_route(const koord start, const koord ziel)
 			for(int r=0; r<4; r++) {
 
 				to = NULL;
-				const planquadrat_t *pl=welt->lookup(gr_pos.gib_2d()+koord::nsow[r]);
+//				const planquadrat_t *pl=welt->lookup(gr_pos.gib_2d()+koord::nsow[r]);
 				if(!gr->get_neighbour(to,weg_t::invalid,koord::nsow[r])) {
 					continue;
 				}
@@ -1400,29 +1400,35 @@ wegbauer_t::intern_calc_route_runways(koord start, const koord ziel)
 		// only straight runways!
 		return false;
 	}
+	// not too close to the border?
+	if(	!(welt->ist_in_kartengrenzen(start-koord(5,5))  &&  welt->ist_in_kartengrenzen(start+koord(5,5)))  ||
+		!(welt->ist_in_kartengrenzen(ziel-koord(5,5))  &&  welt->ist_in_kartengrenzen(ziel+koord(5,5)))  ) {
+		if(sp==welt->get_active_player()) {
+			create_win(-1, -1, MESG_WAIT, new nachrichtenfenster_t(welt, "Zu nah am Kartenrand"), w_autodelete);
+			return false;
+		}
+	}
+
+
 	// now try begin and endpoint
 	const koord zv(ribi);
 	// end start
 	const grund_t *gr = welt->lookup(start)->gib_kartenboden();
 	const weg_t *weg=gr->gib_weg(weg_t::luft);
-	if(weg  &&  (weg->gib_besch()->gib_topspeed()<250  ||  ribi_t::ist_kurve(weg->gib_ribi()|ribi))) {
+	if(weg  &&  (weg->gib_besch()->gib_styp()==0  ||  ribi_t::ist_kurve(weg->gib_ribi()|ribi))) {
 		// cannot connect to taxiway at the start and no curve possible
 		return false;
 	}
 	// check end
 	gr = welt->lookup(ziel)->gib_kartenboden();
 	weg=gr->gib_weg(weg_t::luft);
-	if(weg  &&  (weg->gib_besch()->gib_topspeed()<250  ||  ribi_t::ist_kurve(weg->gib_ribi()|ribi))) {
+	if(weg  &&  (weg->gib_besch()->gib_styp()==1  ||  ribi_t::ist_kurve(weg->gib_ribi()|ribi))) {
 		// cannot connect to taxiway at the end and no curve at the end
 		return false;
 	}
 	// now try a straight line with no crossings and no curves at the end
 	const int dist=abs(ziel.x-start.x)+abs(ziel.y-start.y);
 	for(  int i=0;  i<=dist;  i++  ) {
-		if(!welt->ist_in_kartengrenzen(start+zv*i)) {
-			// out of map!?
-			return false;
-		}
 		gr=welt->lookup(start+zv*i)->gib_kartenboden();
 		// no slopes!
 		if(gr->gib_grund_hang()!=0) {
@@ -1475,7 +1481,7 @@ wegbauer_t::calc_route(koord start, const koord ziel)
 long ms=get_current_time_millis();
 	INT_CHECK("simbau 740");
 
-	if(bautyp==luft  &&  besch->gib_topspeed()>=250) {
+	if(bautyp==luft  &&  besch->gib_styp()==1) {
 		intern_calc_route_runways(start, ziel);
 	}
 	else {

@@ -131,12 +131,10 @@ DBG_MESSAGE("","sizeof(stat)=%d, sizeof(tm)=%d",sizeof(struct stat),sizeof(struc
 	random_map.setze_groesse( koord(104, BUTTON_HEIGHT) );
 	random_map.setze_typ(button_t::roundbox);
 	random_map.add_listener( this );
-	random_map.set_tooltip(translator::translate("chooses a random map"));
 	add_komponente( &random_map );
 	load_map.setze_pos( koord(104+11+30, intTopOfButton) );
 	load_map.setze_groesse( koord(104, BUTTON_HEIGHT) );
 	load_map.setze_typ(button_t::roundbox);
-	load_map.set_tooltip(translator::translate("load height data from file"));
 	load_map.add_listener( this );
 	add_komponente( &load_map );
 	intTopOfButton += BUTTON_HEIGHT;
@@ -641,13 +639,15 @@ void welt_gui_t::zeichnen(koord pos, koord gr)
 
 	if(old_lang!=translator::get_language()) {
 		// update button texts!
-		random_map.setze_text(translator::translate("Random map"));
-		load_map.setze_text(translator::translate("Lade Relief"));
-		use_intro_dates.setze_text(translator::translate("Use timeline start year"));
-		allow_player_change.setze_text(translator::translate("Allow player change"));
-		load_game.setze_text(translator::translate("Load game"));
-		start_game.setze_text(translator::translate("Starte Spiel"));
-//		quit_game.setze_text(translator::translate("Beenden"));
+		random_map.setze_text("Random map");
+		random_map.set_tooltip("chooses a random map");
+		load_map.setze_text("Lade Relief");
+		load_map.set_tooltip("load height data from file");
+		use_intro_dates.setze_text("Use timeline start year");
+		allow_player_change.setze_text("Allow player change");
+		load_game.setze_text("Load game");
+		start_game.setze_text("Starte Spiel");
+//		quit_game.setze_text("Beenden");
 		old_lang = translator::get_language();
 	}
 

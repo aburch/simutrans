@@ -165,50 +165,62 @@ button_t::button_t()
 
 button_t::button_t(const button_t & other) : gui_komponente_t(other)
 {
-  *this = other;
+	*this = other;
 }
 
 
 button_t::~button_t()
 {
-  delete listeners;
-  listeners = 0;
+	delete listeners;
+	listeners = 0;
 }
 
 
 void button_t::init(enum type typ, const char *text, koord pos, koord size)
 {
-  setze_typ(typ);
-  setze_text(translator::translate(text));
-  setze_pos(pos);
-  if(size != koord::invalid) {
-    setze_groesse(size);
-  }
+	setze_typ(typ);
+	setze_text(text);
+	setze_pos(pos);
+	if(size != koord::invalid) {
+		setze_groesse(size);
+	}
 }
 
 
 // set type. this includes size for specified buttons.
 void button_t::setze_typ(enum type t)
 {
-  type = t;
-  switch (type) {
-  case square:
-  case arrowleft:
-  case repeatarrowleft:
-  case arrowright:
-  case repeatarrowright:
-  case arrowup:
-  case arrowdown:
-    groesse.x = 10;
-    groesse.y = 10;
-    break;
-  case roundbox:
-    groesse.y = 14;
-    break;
-  default:
-    break;
-  }
+	type = t;
+	switch (type) {
+		case square:
+		case arrowleft:
+		case repeatarrowleft:
+		case arrowright:
+		case repeatarrowright:
+		case arrowup:
+		case arrowdown:
+			groesse.x = 10;
+			groesse.y = 10;
+			break;
+		case roundbox:
+			groesse.y = 14;
+		break;
+			default:
+			break;
+	}
 }
+
+
+/**
+ * Setzt den im Button angezeigten Text
+ * @author Hj. Malthaner
+ */
+void
+button_t::setze_text(const char * text)
+{
+	this->text = translator::translate(text);
+}
+
 
 
 /**
@@ -217,7 +229,7 @@ void button_t::setze_typ(enum type t)
  */
 void button_t::set_tooltip(const char * t)
 {
-  tooltip = t;
+	tooltip = translator::translate(t);
 }
 
 

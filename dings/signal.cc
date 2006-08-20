@@ -216,65 +216,134 @@ void
 presignal_t::setze_zustand(enum signal_t::signalzustand z)
 {
 	zustand = z;
-	step_frequency = zustand;	// only green signals will check for next block ...
+	step_frequency = zustand  &&  related_block.is_bound();	// only green signals will check for next block ...
 	calc_bild();
 }
 
 
 void presignal_t::calc_bild()
 {
-  if(blockend) {
-    setze_bild(0, IMG_LEER);
+	if(blockend) {
+		setze_bild(0, IMG_LEER);
 
-    // Hajo: ein leeres Bild refreshed nicht, deshalb müssen wir manuell
-    // das Feld neuzeichnen lassen
-    welt->markiere_dirty(gib_pos());
-  } else {
-	schiene_t * sch = dynamic_cast<schiene_t *>(welt->lookup(gib_pos())->gib_weg(weg_t::schiene));
-	int offset = (sch->ist_elektrisch()  &&  skinverwaltung_t::presignals->gib_bild_anzahl()>16)?8:0;
-
-	int full_zustand = this->zustand;
-	if(full_zustand==gruen  &&  related_block.is_bound()) {
-		if(!related_block->ist_frei()) {
-			full_zustand = naechste_rot;
-		}
-	}
-	if(skinverwaltung_t::presignals->gib_bild_anzahl()==24) {
-		offset = (offset*3)/2;
+		// Hajo: ein leeres Bild refreshed nicht, deshalb müssen wir manuell
+		// das Feld neuzeichnen lassen
+		welt->markiere_dirty(gib_pos());
 	}
 	else {
-		full_zustand &= 1;;
+		schiene_t * sch = dynamic_cast<schiene_t *>(welt->lookup(gib_pos())->gib_weg(weg_t::schiene));
+		if(!sch) {
+			sch = dynamic_cast<schiene_t *>(welt->lookup(gib_pos())->gib_weg(weg_t::schiene_monorail));
+		}
+		int offset = (sch->ist_elektrisch()  &&  skinverwaltung_t::presignals->gib_bild_anzahl()>16)?8:0;
+
+		int full_zustand = this->zustand;
+		if(full_zustand==gruen  &&  related_block.is_bound()) {
+			if(!related_block->ist_frei()) {
+				full_zustand = naechste_rot;
+			}
+		}
+		if(skinverwaltung_t::presignals->gib_bild_anzahl()==24) {
+			offset = (offset*3)/2;
+		}
+		else {
+			full_zustand &= 1;;
+		}
+
+		switch(dir) {
+			case ribi_t::nord:
+				setze_xoff(-2);
+				setze_yoff(-12);
+				setze_bild(0, skinverwaltung_t::presignals->gib_bild_nr(1+full_zustand*4)+offset);
+			break;
+
+			case ribi_t::sued:
+				setze_xoff(2);
+				setze_yoff(12);
+				setze_bild(0, skinverwaltung_t::presignals->gib_bild_nr(0+full_zustand*4)+offset);
+			break;
+
+			case ribi_t::ost:
+				setze_xoff(24);
+				setze_yoff(0);
+				setze_bild(0, skinverwaltung_t::presignals->gib_bild_nr(2+full_zustand*4)+offset);
+			break;
+
+			case ribi_t::west:
+				setze_xoff(-24);
+				setze_yoff(0);
+				setze_bild(0, skinverwaltung_t::presignals->gib_bild_nr(3+full_zustand*4)+offset);
+			break;
+
+			default:
+				setze_xoff(0);
+				setze_yoff(0);
+				setze_bild(0, skinverwaltung_t::presignals->gib_bild_nr(0));
+		}
 	}
+}
 
-    switch(dir) {
-    case ribi_t::nord:
-      setze_xoff(-2);
-      setze_yoff(-12);
-      setze_bild(0, skinverwaltung_t::presignals->gib_bild_nr(1+full_zustand*4)+offset);
-      break;
 
-    case ribi_t::sued:
-      setze_xoff(2);
-      setze_yoff(12);
-      setze_bild(0, skinverwaltung_t::presignals->gib_bild_nr(0+full_zustand*4)+offset);
-      break;
 
-    case ribi_t::ost:
-      setze_xoff(24);
-      setze_yoff(0);
-      setze_bild(0, skinverwaltung_t::presignals->gib_bild_nr(2+full_zustand*4)+offset);
-      break;
 
-    case ribi_t::west:
-      setze_xoff(-24);
-      setze_yoff(0);
-      setze_bild(0, skinverwaltung_t::presignals->gib_bild_nr(3+full_zustand*4)+offset);
-      break;
+void choosesignal_t::calc_bild()
+{
+	if(blockend) {
+		setze_bild(0, IMG_LEER);
 
-    default:
-      setze_xoff(0);
-      setze_yoff(0);
-      setze_bild(0, skinverwaltung_t::presignals->gib_bild_nr(0));
-    }
-  }
+		// Hajo: ein leeres Bild refreshed nicht, deshalb müssen wir manuell
+		// das Feld neuzeichnen lassen
+		welt->markiere_dirty(gib_pos());
+	}
+	else {
+		schiene_t * sch = dynamic_cast<schiene_t *>(welt->lookup(gib_pos())->gib_weg(weg_t::schiene));
+		if(!sch) {
+			sch = dynamic_cast<schiene_t *>(welt->lookup(gib_pos())->gib_weg(weg_t::schiene_monorail));
+		}
+		int offset = (sch->ist_elektrisch()  &&  skinverwaltung_t::choosesignals->gib_bild_anzahl()>16)?8:0;
+
+		int full_zustand = this->zustand;
+		if(full_zustand==gruen  &&  related_block.is_bound()) {
+			if(!related_block->ist_frei()) {
+				full_zustand = naechste_rot;
+			}
+		}
+		if(skinverwaltung_t::choosesignals->gib_bild_anzahl()==24) {
+			offset = (offset*3)/2;
+		}
+		else {
+			full_zustand &= 1;;
+		}
+
+		switch(dir) {
+			case ribi_t::nord:
+				setze_xoff(-2);
+				setze_yoff(-12);
+				setze_bild(0, skinverwaltung_t::choosesignals->gib_bild_nr(1+full_zustand*4)+offset);
+			break;
+
+			case ribi_t::sued:
+				setze_xoff(2);
+				setze_yoff(12);
+				setze_bild(0, skinverwaltung_t::choosesignals->gib_bild_nr(0+full_zustand*4)+offset);
+			break;
+
+			case ribi_t::ost:
+				setze_xoff(24);
+				setze_yoff(0);
+				setze_bild(0, skinverwaltung_t::choosesignals->gib_bild_nr(2+full_zustand*4)+offset);
+			break;
+
+			case ribi_t::west:
+				setze_xoff(-24);
+				setze_yoff(0);
+				setze_bild(0, skinverwaltung_t::choosesignals->gib_bild_nr(3+full_zustand*4)+offset);
+			break;
+
+			default:
+				setze_xoff(0);
+				setze_yoff(0);
+				setze_bild(0, skinverwaltung_t::choosesignals->gib_bild_nr(0));
+		}
+	}
 }

@@ -164,6 +164,9 @@ void ding_t::info(cbuffer_t & buf) const
 		buf.append(besitzer_n);
 		buf.append("\n");
 	}
+//	else {
+//		buf.append(translator::translate("Kein Besitzer\n"));
+//	}
 }
 
 

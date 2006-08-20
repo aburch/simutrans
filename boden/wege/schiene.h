@@ -25,7 +25,7 @@
  */
 class schiene_t : public weg_t
 {
-private:
+protected:
 
     /**
      * Rail block handle. Should be always bound to a rail block,

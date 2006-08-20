@@ -87,22 +87,22 @@ halt_info_t::halt_info_t(karte_t *welt, halthandle_t halt)
 	// hsiegeln: added sort_button
 	sort_button.setze_groesse(koord(BUTTON_WIDTH, BUTTON_HEIGHT));
 	sort_button.setze_pos(koord(BUTTON1_X, 78));
-	sort_button.text = translator::translate("Zielort");
+	sort_button.setze_text("Zielort");
 	sort_button.setze_typ(button_t::roundbox);
-	sort_button.set_tooltip(translator::translate("Sort waiting list by"));
+	sort_button.set_tooltip("Sort waiting list by");
 
 	toggler.setze_groesse(koord(BUTTON_WIDTH, BUTTON_HEIGHT));
 	toggler.setze_pos(koord(BUTTON3_X, 78));
-	toggler.text = translator::translate("Chart");
+	toggler.setze_text("Chart");
 	toggler.setze_typ(button_t::roundbox);
-	toggler.set_tooltip(translator::translate("Show/hide statistics"));
+	toggler.set_tooltip("Show/hide statistics");
 	toggler.add_listener(this);
 	add_komponente(&toggler);
 	btoggled = false;
 
 	button.setze_groesse(koord(BUTTON_WIDTH, BUTTON_HEIGHT));
 	button.setze_pos(koord(BUTTON4_X, 78));
-	button.text = translator::translate("Details");
+	button.setze_text("Details");
 	button.setze_typ(button_t::roundbox);
 
 	scrolly.setze_pos(koord(1, 78+BUTTON_HEIGHT+4));
@@ -250,7 +250,7 @@ bool halt_info_t::action_triggered(gui_komponente_t *comp)
 	} else if (comp == &sort_button) { 	// @author hsiegeln sort button pressed
 		int sortby = ((int)(halt->get_sortby())+1)%4;
 		halt->set_sortby((freight_list_sorter_t::sort_mode_t) sortby);
-		sort_button.text = translator::translate(sort_text[sortby]);
+		sort_button.setze_text(sort_text[sortby]);
 	} else  if (comp == &toggler) {
 		btoggled = !btoggled;
 		const koord offset = btoggled ? koord(0, 165) : koord(0, -165);

@@ -23,7 +23,7 @@
 class signal_t : public ding_t
 {
 public:
-    enum signalzustand {rot=0, gruen=1, naechste_rot=2 };
+	enum signalzustand {rot=0, gruen=1, naechste_rot=2 };
 
 protected:
 
@@ -37,11 +37,7 @@ public:
      * @return direction of the signal (one of nord, sued, ost, west)
      * @author Hj. Malthaner
      */
-    ribi_t::ribi gib_richtung() const
-    {
-      return dir;
-    };
-
+    ribi_t::ribi gib_richtung() const { return dir; }
 
     enum ding_t::typ gib_typ() const {return signal;};
     const char *gib_name() const {return "Signal";};
@@ -60,7 +56,6 @@ public:
 
     bool ist_blockiert() const {return blockend != 0;};
     void setze_blockiert(bool b) {blockend = b; calc_bild();};
-
 
     /**
      * @return Einen Beschreibungsstring für das Objekt, der z.B. in einem
@@ -107,6 +102,18 @@ public:
     virtual void setze_zustand(enum signal_t::signalzustand z);
 	/* recalculate image */
 	bool step(long);
+
+    void calc_bild();
+};
+
+class choosesignal_t : public presignal_t
+{
+public:
+    enum ding_t::typ gib_typ() const {return choosesignal;}
+    const char *gib_name() const {return "ChooseSignal";}
+
+    choosesignal_t(karte_t *welt, loadsave_t *file) : presignal_t(welt,file) {}
+    choosesignal_t(karte_t *welt, koord3d pos, ribi_t::ribi dir) : presignal_t(welt,pos,dir) {}
 
     void calc_bild();
 };

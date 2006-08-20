@@ -94,8 +94,6 @@ DBG_DEBUG("depot_frame_t::depot_frame_t()","get_max_convoi_length()=%i",depot->g
     lb_convois.setze_text(txt_convois);
     add_komponente(&lb_convois);
 
-    // bt_prev.setze_groesse(koord(13, 13));
-    // bt_prev.setze_text("«");
     bt_prev.setze_typ(button_t::arrowleft);
     bt_prev.add_listener(this);
     add_komponente(&bt_prev);
@@ -103,8 +101,6 @@ DBG_DEBUG("depot_frame_t::depot_frame_t()","get_max_convoi_length()=%i",depot->g
     inp_name.add_listener(this);
     add_komponente(&inp_name);
 
-    // bt_next.setze_groesse(koord(13, 13));
-    // bt_next.setze_text("»");
     bt_next.setze_typ(button_t::arrowright);
     bt_next.add_listener(this);
     add_komponente(&bt_next);
@@ -113,20 +109,15 @@ DBG_DEBUG("depot_frame_t::depot_frame_t()","get_max_convoi_length()=%i",depot->g
      * [SELECT ROUTE]:
      */
 
-    // bt_prev_line.setze_groesse(koord(13, 13));
-    // bt_prev_line.setze_text("«");
     bt_prev_line.setze_typ(button_t::arrowleft);
     bt_prev_line.add_listener(this);
     add_komponente(&bt_prev_line);
 
     inp_name_line.add_listener(this);
-    //add_komponente(&inp_name_line);
 
     box.add_listener(this);
     add_komponente(&box);
 
-    // bt_next_line.setze_groesse(koord(13, 13));
-    // bt_next_line.setze_text("»");
     bt_next_line.setze_typ(button_t::arrowright);
     bt_next_line.add_listener(this);
     add_komponente(&bt_next_line);
@@ -153,22 +144,22 @@ DBG_DEBUG("depot_frame_t::depot_frame_t()","get_max_convoi_length()=%i",depot->g
      */
     bt_start.setze_typ(button_t::roundbox);
     bt_start.add_listener(this);
-    bt_start.set_tooltip(translator::translate("Start the selected vehicle(s)"));
+    bt_start.set_tooltip("Start the selected vehicle(s)");
     add_komponente(&bt_start);
 
     bt_schedule.setze_typ(button_t::roundbox);
     bt_schedule.add_listener(this);
-    bt_schedule.set_tooltip(translator::translate("Give the selected vehicle(s) an individual schedule"));
+    bt_schedule.set_tooltip("Give the selected vehicle(s) an individual schedule");
     add_komponente(&bt_schedule);
 
     bt_destroy.setze_typ(button_t::roundbox);
     bt_destroy.add_listener(this);
-    bt_destroy.set_tooltip(translator::translate("Move the selected vehicle(s) back to the depot"));
+    bt_destroy.set_tooltip("Move the selected vehicle(s) back to the depot");
     add_komponente(&bt_destroy);
 
     bt_sell.setze_typ(button_t::roundbox);
     bt_sell.add_listener(this);
-    bt_sell.set_tooltip(translator::translate("Sell the selected vehicle(s)"));
+    bt_sell.set_tooltip("Sell the selected vehicle(s)");
     add_komponente(&bt_sell);
 
     /*
@@ -177,22 +168,22 @@ DBG_DEBUG("depot_frame_t::depot_frame_t()","get_max_convoi_length()=%i",depot->g
 
     bt_new_line.setze_typ(button_t::roundbox);
     bt_new_line.add_listener(this);
-    bt_new_line.set_tooltip(translator::translate("Lines are used to manage groups of vehicles"));
+    bt_new_line.set_tooltip("Lines are used to manage groups of vehicles");
     add_komponente(&bt_new_line);
 
     bt_apply_line.setze_typ(button_t::roundbox);
     bt_apply_line.add_listener(this);
-    bt_apply_line.set_tooltip(translator::translate("Add the selected vehicle(s) to the selected line"));
+    bt_apply_line.set_tooltip("Add the selected vehicle(s) to the selected line");
     add_komponente(&bt_apply_line);
 
     bt_change_line.setze_typ(button_t::roundbox);
     bt_change_line.add_listener(this);
-    bt_change_line.set_tooltip(translator::translate("Modify the selected line"));
+    bt_change_line.set_tooltip("Modify the selected line");
     add_komponente(&bt_change_line);
 
     bt_copy_convoi.setze_typ(button_t::roundbox);
     bt_copy_convoi.add_listener(this);
-    bt_copy_convoi.set_tooltip(translator::translate("Copy the selected convoi and its schedule or line"));
+    bt_copy_convoi.set_tooltip("Copy the selected convoi and its schedule or line");
     add_komponente(&bt_copy_convoi);
 
     /*
@@ -248,13 +239,13 @@ DBG_DEBUG("depot_frame_t::depot_frame_t()","get_max_convoi_length()=%i",depot->g
     veh_action = va_append;
     bt_veh_action.setze_typ(button_t::roundbox);
     bt_veh_action.add_listener(this);
-    bt_veh_action.set_tooltip(translator::translate("Choose operation executed on clicking stored/new vehicles"));
+    bt_veh_action.set_tooltip("Choose operation executed on clicking stored/new vehicles");
     add_komponente(&bt_veh_action);
 
     bt_obsolete.setze_typ(button_t::square);
-    bt_obsolete.setze_text(translator::translate("Show obsolete"));
+    bt_obsolete.setze_text("Show obsolete");
     bt_obsolete.add_listener(this);
-    bt_obsolete.set_tooltip(translator::translate("Show also vehicles no longer in production."));
+    bt_obsolete.set_tooltip("Show also vehicles no longer in production.");
     add_komponente(&bt_obsolete);
 
     gib_besitzer()->simlinemgmt.sort_lines();
@@ -436,19 +427,19 @@ void depot_frame_t::layout(koord *gr)
      */
     bt_start.setze_pos(koord(0, ACTIONS_VSTART));
     bt_start.setze_groesse(koord(TOTAL_WIDTH/4, ABUTTON_HEIGHT));
-    bt_start.setze_text(translator::translate("Start"));
+    bt_start.setze_text("Start");
 
     bt_schedule.setze_pos(koord(TOTAL_WIDTH/4, ACTIONS_VSTART));
     bt_schedule.setze_groesse(koord(TOTAL_WIDTH*2/4-TOTAL_WIDTH/4, ABUTTON_HEIGHT));
-    bt_schedule.setze_text(translator::translate("Fahrplan"));
+    bt_schedule.setze_text("Fahrplan");
 
     bt_destroy.setze_pos(koord(TOTAL_WIDTH*2/4, ACTIONS_VSTART));
     bt_destroy.setze_groesse(koord(TOTAL_WIDTH*3/4-TOTAL_WIDTH*2/4, ABUTTON_HEIGHT));
-    bt_destroy.setze_text(translator::translate("Aufloesen"));
+    bt_destroy.setze_text("Aufloesen");
 
     bt_sell.setze_pos(koord(TOTAL_WIDTH*3/4, ACTIONS_VSTART));
     bt_sell.setze_groesse(koord(TOTAL_WIDTH-TOTAL_WIDTH*3/4, ABUTTON_HEIGHT));
-    bt_sell.setze_text(translator::translate("Verkauf"));
+    bt_sell.setze_text("Verkauf");
 
     /*
      * ACTIONS for new route management buttons
@@ -456,19 +447,19 @@ void depot_frame_t::layout(koord *gr)
      */
     bt_new_line.setze_pos(koord(0, ACTIONS_VSTART+ABUTTON_HEIGHT));
     bt_new_line.setze_groesse(koord(TOTAL_WIDTH/4, ABUTTON_HEIGHT));
-    bt_new_line.setze_text(translator::translate("New Line"));
+    bt_new_line.setze_text("New Line");
 
     bt_apply_line.setze_pos(koord(TOTAL_WIDTH/4, ACTIONS_VSTART+ABUTTON_HEIGHT));
     bt_apply_line.setze_groesse(koord(TOTAL_WIDTH*2/4-TOTAL_WIDTH/4, ABUTTON_HEIGHT));
-    bt_apply_line.setze_text(translator::translate("Apply Line"));
+    bt_apply_line.setze_text("Apply Line");
 
     bt_change_line.setze_pos(koord(TOTAL_WIDTH*2/4, ACTIONS_VSTART+ABUTTON_HEIGHT));
     bt_change_line.setze_groesse(koord(TOTAL_WIDTH*3/4-TOTAL_WIDTH*2/4, ABUTTON_HEIGHT));
-    bt_change_line.setze_text(translator::translate("Update Line"));
+    bt_change_line.setze_text("Update Line");
 
     bt_copy_convoi.setze_pos(koord(TOTAL_WIDTH*3/4, ACTIONS_VSTART+ABUTTON_HEIGHT));
     bt_copy_convoi.setze_groesse(koord(TOTAL_WIDTH-TOTAL_WIDTH*3/4, ABUTTON_HEIGHT));
-    bt_copy_convoi.setze_text(translator::translate("Copy Convoi"));
+    bt_copy_convoi.setze_text("Copy Convoi");
 
 	/*
 	* [PANEL]
@@ -504,7 +495,7 @@ void depot_frame_t::layout(koord *gr)
 	div_tabbottom.setze_groesse(koord(TOTAL_WIDTH,0));
 
 	lb_veh_action.setze_pos(koord(TOTAL_WIDTH-ABUTTON_WIDTH, PANEL_VSTART + PANEL_HEIGHT+4));
-	lb_veh_action.setze_text(translator::translate("Fahrzeuge:"));
+	lb_veh_action.setze_text("Fahrzeuge:");
 
 	bt_veh_action.setze_pos(koord(TOTAL_WIDTH-ABUTTON_WIDTH, PANEL_VSTART + PANEL_HEIGHT + 14));
 	bt_veh_action.setze_groesse(koord(ABUTTON_WIDTH, 13));
@@ -632,7 +623,7 @@ void depot_frame_t::update_data()
 	// change green into blue for retired vehicles
 	const int month_now = welt->get_timeline_year_month();
 
-	bt_veh_action.setze_text(translator::translate(txt_veh_action[veh_action]));
+	bt_veh_action.setze_text(txt_veh_action[veh_action]);
 
 	// set line text: (line name or <no line>
 	if ((iroute > -1) && (iroute < (int)depot->get_line_list()->count())) {

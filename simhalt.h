@@ -192,20 +192,8 @@ private:
      */
     halthandle_t self;
 
-
     char name[128];
     const char * name_from_ground() const;
-
-    /**
-     * The name is saved with the first ground square. After creating and/
-     * or loading a station the name must be copied into the name array.
-     * This flag tells wether the name s has been copied yet or not.
-     * Set to true in all constructors. Setto false in gib_name() after
-     * copying the name.
-     * @author Hj. Malthaner
-     */
-    bool need_name;
-
 
     /**
      * Liste aller felder (Grund-Objekte) die zu dieser Haltestelle gehören
@@ -213,21 +201,11 @@ private:
      */
     slist_tpl<grund_t *> grund;
 
-
-    /**
-     * What is that for a station (for the image)
-     * @author prissi
-     */
-	stationtyp station_type;
-
-
     // fuer die zielverwaltung
     slist_tpl<warenziel_t> warenziele;
 
-
     // loest warte_menge ab
     ptrhashtable_tpl<const ware_besch_t *, slist_tpl<ware_t> *> waren;
-
 
     /**
      * Liste der angeschlossenen Fabriken
@@ -241,8 +219,15 @@ private:
 #ifdef LAGER_NOT_IN_USE
     lagerhaus_t *lager;         // unser lager, falls vorhanden
 #endif
-
     koord pos;
+
+    /**
+     * What is that for a station (for the image)
+     * @author prissi
+     */
+	stationtyp station_type;
+
+	uint8 reroute_counter;
 
 	/* station flags (most what enabled) */
 	uint8 enables;
@@ -251,29 +236,23 @@ private:
     void set_post_enabled(bool yesno) {yesno ? enables|=POST : enables&=(~POST);};
     void set_ware_enabled(bool yesno) {yesno ? enables|=WARE : enables&=(~WARE);};
 
-
     /**
      * Found route and station uncrowded
      * @author Hj. Malthaner
      */
-    int pax_happy;
-
+    uint32 pax_happy;
 
     /**
      * Found no route
      * @author Hj. Malthaner
      */
-    int pax_no_route;
-
+    uint32 pax_no_route;
 
     /**
      * Station crowded
      * @author Hj. Malthaner
      */
-    int pax_unhappy;
-
-
-
+    uint32 pax_unhappy;
 
     /**
      * Haltestellen werden beim warenrouting markiert. Jeder durchgang
@@ -289,7 +268,6 @@ private:
 #endif
 
     halt_info_t *halt_info;
-
 
     /**
      * Initialisiert das gui für diese Haltestelle.
@@ -324,6 +302,13 @@ private:
     */
     uint8 sortierung;
 	bool resort_freight_info;
+
+	/**
+	 * Called every 255 steps
+	 * will distribute the goods to changed routes (if there are any)
+	 * @author Hj. Malthaner
+	 */
+	void haltestelle_t::reroute_goods();
 
 public:
 

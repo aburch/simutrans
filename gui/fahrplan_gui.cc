@@ -182,7 +182,7 @@ void fahrplan_gui_t::init()
   bt_add.pos.x = 0;
   bt_add.pos.y = gib_fenstergroesse().y-44;
   bt_add.groesse.x = 8*9+4;
-  bt_add.text = translator::translate("Add Stop");
+  bt_add.setze_text("Add Stop");
   bt_add.setze_typ(button_t::roundbox);
   bt_add.add_listener(this);
   add_komponente(&bt_add);
@@ -190,7 +190,7 @@ void fahrplan_gui_t::init()
   bt_insert.pos.x = 9*8+4;
   bt_insert.pos.y = gib_fenstergroesse().y-44;
   bt_insert.groesse.x = 8*8+4;
-  bt_insert.text = translator::translate("Ins Stop");
+  bt_insert.setze_text("Ins Stop");
   bt_insert.setze_typ(button_t::roundbox);
   bt_insert.add_listener(this);
   add_komponente(&bt_insert);
@@ -198,7 +198,7 @@ void fahrplan_gui_t::init()
   bt_remove.pos.x = 9*8+4 + 8*8+4;
   bt_remove.pos.y = gib_fenstergroesse().y-44;
   bt_remove.groesse.x = 8*8+4;
-  bt_remove.text = translator::translate("Del Stop");
+  bt_remove.setze_text("Del Stop");
   bt_remove.setze_typ(button_t::roundbox);
   bt_remove.add_listener(this);
   add_komponente(&bt_remove);
@@ -206,21 +206,19 @@ void fahrplan_gui_t::init()
   bt_done.pos.x = 9*8+4 + 8*8+4 + 8*8+4;
   bt_done.pos.y = gib_fenstergroesse().y-44;
   bt_done.groesse.x = 6*8+4;
-  bt_done.text = translator::translate("Fertig");
+  bt_done.setze_text("Fertig");
   bt_done.setze_typ(button_t::roundbox);
   bt_done.add_listener(this);
   add_komponente(&bt_done);
 
   bt_prev.pos.x = 85;
   bt_prev.pos.y = 23;
-  bt_prev.text = "";
   bt_prev.setze_typ(button_t::arrowleft);
   bt_prev.add_listener(this);
   add_komponente(&bt_prev);
 
   bt_next.pos.x = 140;
   bt_next.pos.y = 23;
-  bt_next.text = "";
   bt_next.setze_typ(button_t::arrowright);
   bt_next.add_listener(this);
   add_komponente(&bt_next);
@@ -228,8 +226,8 @@ void fahrplan_gui_t::init()
   bt_promote_to_line.pos.x = bt_add.pos.x;
   bt_promote_to_line.pos.y = gib_fenstergroesse().y-30;
   bt_promote_to_line.groesse.x = bt_add.groesse.x + bt_insert.groesse.x;
-  bt_promote_to_line.text = translator::translate("promote to line");
-  bt_promote_to_line.set_tooltip(translator::translate("Create a new line based on this schedule"));
+  bt_promote_to_line.setze_text("promote to line");
+  bt_promote_to_line.set_tooltip("Create a new line based on this schedule");
   bt_promote_to_line.setze_typ(button_t::roundbox);
   bt_promote_to_line.add_listener(this);
   add_komponente(&bt_promote_to_line);
@@ -237,8 +235,8 @@ void fahrplan_gui_t::init()
   bt_return.pos.x = bt_remove.pos.x;
   bt_return.pos.y = gib_fenstergroesse().y-30;
   bt_return.groesse.x = bt_remove.groesse.x + bt_done.groesse.x;
-  bt_return.text = translator::translate("return ticket");
-  bt_return.set_tooltip(translator::translate("Add stops for backward travel"));
+  bt_return.setze_text("return ticket");
+  bt_return.set_tooltip("Add stops for backward travel");
   bt_return.setze_typ(button_t::roundbox);
   bt_return.add_listener(this);
   add_komponente(&bt_return);

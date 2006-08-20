@@ -46,62 +46,62 @@ optionen_gui_t::optionen_gui_t(karte_t *welt)
     button_def.setze_groesse( koord(90, 14) );
     button_def.setze_typ(button_t::roundbox);
     button_def.setze_pos( koord(11,65) );
-    button_def.text = translator::translate("Sprache");
+    button_def.setze_text("Sprache");
     buttons.append(button_def);
 
     button_def.setze_groesse( koord(90, 14) );
     button_def.setze_typ(button_t::roundbox);
     button_def.setze_pos( koord(11,81) );
-    button_def.text = translator::translate("Farbe");
+    button_def.setze_text("Farbe");
     buttons.append(button_def);
 
     button_def.setze_groesse( koord(90, 14) );
     button_def.setze_typ(button_t::roundbox);
     button_def.setze_pos( koord(11,97) );
-    button_def.text = translator::translate("Helligk.");
+    button_def.setze_text("Helligk.");
     buttons.append(button_def);
 
     button_def.setze_groesse( koord(90, 14) );
     button_def.setze_typ(button_t::roundbox);
     button_def.setze_pos( koord(11,113) );
-    button_def.text = translator::translate("Sound");
+    button_def.setze_text("Sound");
     buttons.append(button_def);
 
     button_def.setze_groesse( koord(90, 14) );
     button_def.setze_typ(button_t::roundbox);
     button_def.setze_pos( koord(11,129) );
-    button_def.text = translator::translate("Spieler(mz)");
+    button_def.setze_text("Spieler(mz)");
     buttons.append(button_def);
 
     button_def.setze_groesse( koord(90, 14) );
     button_def.setze_typ(button_t::roundbox);
     button_def.setze_pos( koord(112,65) );
-    button_def.text = translator::translate("Laden");
+    button_def.setze_text("Laden");
     buttons.append(button_def);
 
     button_def.setze_groesse( koord(90, 14) );
     button_def.setze_typ(button_t::roundbox);
     button_def.setze_pos( koord(112,81) );
-    button_def.text = translator::translate("Speichern");
+    button_def.setze_text("Speichern");
     buttons.append(button_def);
 
     button_def.setze_groesse( koord(90, 14) );
     button_def.setze_typ(button_t::roundbox);
     button_def.setze_pos( koord(112,97) );
-    button_def.text = translator::translate("Neue Karte");
+    button_def.setze_text("Neue Karte");
     buttons.append(button_def);
 
     // 01-Nov-2001      Markus Weber    Added
     button_def.setze_groesse( koord(90, 14) );
     button_def.setze_typ(button_t::roundbox);
     button_def.setze_pos( koord(112,129) );
-    button_def.text = translator::translate("Beenden");
+    button_def.setze_text("Beenden");
     buttons.append(button_def);
 #ifdef spaeter
     button_def.setze_groesse( koord(90, 14) );
     button_def.setze_typ(button_t::roundbox);
     button_def.setze_pos( koord(112,113) );
-    button_def.text = translator::translate("Autosave");
+    button_def.setze_text("Autosave");
     buttons.append(button_def);
 #endif
 }
@@ -220,17 +220,17 @@ optionen_gui_t::gib_fensterbuttons()
 {
   // variable teile aktualsieren
 
-  buttons.at(0).text = translator::translate("Sprache");
-  buttons.at(1).text = translator::translate("Farbe");
-  buttons.at(2).text = translator::translate("Helligk.");
-  buttons.at(3).text = translator::translate("Sound");
-  buttons.at(4).text = translator::translate("Spieler(mz)");
-  buttons.at(5).text = translator::translate("Laden");
-  buttons.at(6).text = translator::translate("Speichern");
-  buttons.at(7).text = translator::translate("Neue Karte");
-  buttons.at(8).text = translator::translate("Beenden");     // 01-Nov-2001  Markus Weber    Added
+  buttons.at(0).setze_text("Sprache");
+  buttons.at(1).setze_text("Farbe");
+  buttons.at(2).setze_text("Helligk.");
+  buttons.at(3).setze_text("Sound");
+  buttons.at(4).setze_text("Spieler(mz)");
+  buttons.at(5).setze_text("Laden");
+  buttons.at(6).setze_text("Speichern");
+  buttons.at(7).setze_text("Neue Karte");
+  buttons.at(8).setze_text("Beenden");     // 01-Nov-2001  Markus Weber    Added
 #ifdef spaeter
-  buttons.at(9).text = translator::translate("Autosave");
+  buttons.at(9).setze_text("Autosave");
 #endif
   return &buttons;
 }

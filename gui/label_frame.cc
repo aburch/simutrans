@@ -86,7 +86,7 @@ label_frame_t::label_frame_t(karte_t *welt, spieler_t *sp, koord pos) : gui_fram
 	if(!gr->gib_halt().is_bound()) {
 	    removebutton.setze_pos(koord(80,50+14*i));
 	    removebutton.setze_groesse(koord(65, 14));
-	    removebutton.text = translator::translate("Remove");
+	    removebutton.setze_text("Remove");
 	    removebutton.setze_typ(button_t::roundbox);
 	    removebutton.add_listener(this);
 	    add_komponente(&removebutton);
@@ -104,7 +104,7 @@ label_frame_t::label_frame_t(karte_t *welt, spieler_t *sp, koord pos) : gui_fram
 
     savebutton.setze_pos(koord(10,50+14*i));
     savebutton.setze_groesse(koord(65, 14));
-    savebutton.text = translator::translate("Ok");
+    savebutton.setze_text("Ok");
     savebutton.setze_typ(button_t::roundbox);
     savebutton.add_listener(this);
     add_komponente(&savebutton);
@@ -112,7 +112,7 @@ label_frame_t::label_frame_t(karte_t *welt, spieler_t *sp, koord pos) : gui_fram
 
     cancelbutton.setze_pos(koord(150,50+14*i));
     cancelbutton.setze_groesse(koord(65, 14));
-    cancelbutton.text = translator::translate("Cancel");
+    cancelbutton.setze_text("Cancel");
     cancelbutton.setze_typ(button_t::roundbox);
     cancelbutton.add_listener(this);
     add_komponente(&cancelbutton);
@@ -180,8 +180,8 @@ void label_frame_t::zeichnen(koord pos, koord gr)
 {
 
     fnlabel.setze_text (txlabel);
-    savebutton.text = translator::translate("Ok");
-    cancelbutton.text = translator::translate("Cancel");
+    savebutton.setze_text("Ok");
+    cancelbutton.setze_text("Cancel");
     gui_frame_t::zeichnen(pos, gr);
 }
 

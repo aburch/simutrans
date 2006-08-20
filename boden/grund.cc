@@ -132,7 +132,7 @@ void grund_t::calc_back_bild(const sint8 hgt,const sint8 slope_this)
 			if(diff_from_ground<0)  {
 				set_flag(grund_t::draw_as_ding);
 			}
-			else if(gr->get_flag(grund_t::draw_as_ding)  ||  dynamic_cast<gebaeude_t*>(gr->obj_bei(0))) {
+			else if(gr->get_flag(grund_t::draw_as_ding)  ||  gr->obj_count()>0) {
 				left_back_is_building = true;
 			}
 		}
@@ -377,7 +377,7 @@ void grund_t::rdwr(loadsave_t *file)
 		  break;
 		case weg_t::schiene_monorail:
 		  wege[i] = new monorail_t (welt, file);
-		  DBG_DEBUG("grund_t::rdwr()", "monorail");
+//		  DBG_DEBUG("grund_t::rdwr()", "monorail");
 		  break;
 		case weg_t::schiene:
 		{
@@ -431,7 +431,7 @@ void grund_t::rdwr(loadsave_t *file)
 		     	}
 		  break;
 		case weg_t::luft:
-			DBG_DEBUG("grund_t::rdwr()", "Runway");
+//			DBG_DEBUG("grund_t::rdwr()", "Runway");
 			wege[i] = new runway_t (welt, file);
 			DBG_MESSAGE("runway_t::runway_t()","at (%i,%i) ribi %i",gib_pos().x, gib_pos().y, wege[i]->gib_ribi());
 

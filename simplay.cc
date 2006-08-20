@@ -2702,7 +2702,13 @@ DBG_DEBUG("spieler_t::rdwr()","player %i: loading %i halts.",welt->sp2num( this 
 		for(int i=0; i<halt_count; i++) {
 			halthandle_t halt = haltestelle_t::create( welt, file );
 			halt->laden_abschliessen();
-			halt_list->insert( halt );
+			if(halt->existiert_in_welt()) {
+				halt_list->insert( halt );
+			}
+			else {
+				// it was possible to have stops without ground => remove them
+				haltestelle_t::destroy( halt );
+			}
 		}
 		init_texte();
 
@@ -2800,7 +2806,6 @@ void spieler_t::bescheid_station_voll(halthandle_t halt)
 		char buf[256];
 
 		sprintf(buf, translator::translate("!0_STATION_CROWDED"), halt->gib_name());
-//        ticker_t::get_instance()->add_msg(buf, halt->gib_basis_pos(), COL_DARK_RED);
 		message_t::get_instance()->add_message(buf, halt->gib_basis_pos(),message_t::full, kennfarbe,IMG_LEER);
 	}
 }
@@ -2814,16 +2819,31 @@ void spieler_t::bescheid_station_voll(halthandle_t halt)
  */
 void spieler_t::bescheid_vehikel_problem(convoihandle_t cnv,const koord3d ziel)
 {
+	switch(cnv->get_state()) {
+
+		case convoi_t::ROUTING_2:
 DBG_MESSAGE("spieler_t::bescheid_vehikel_problem","Vehicle %s can't find a route to (%i,%i)!", cnv->gib_name(),ziel.x,ziel.y);
-	if(this==welt->get_active_player()) {
-		char buf[256];
-		sprintf(buf,translator::translate("Vehicle %s can't find a route!"), cnv->gib_name());
-//		ticker_t::get_instance()->add_msg(buf, cnv->gib_pos().gib_2d(),COL_RED);
-		message_t::get_instance()->add_message(buf, cnv->gib_pos().gib_2d(),message_t::convoi,kennfarbe,cnv->gib_vehikel(0)->gib_basis_bild());
-	}
-	else if(this != welt->gib_spieler(0)) {
-DBG_MESSAGE("spieler_t::bescheid_vehikel_problem","will self destruct convoi");
-		cnv->self_destruct();
+			if(this==welt->get_active_player()) {
+				char buf[256];
+				sprintf(buf,translator::translate("Vehicle %s can't find a route!"), cnv->gib_name());
+				message_t::get_instance()->add_message(buf, cnv->gib_pos().gib_2d(),message_t::convoi,kennfarbe,cnv->gib_vehikel(0)->gib_basis_bild());
+			}
+			else if(this != welt->gib_spieler(0)) {
+				cnv->self_destruct();
+			}
+			break;
+
+		case convoi_t::WAITING_FOR_CLEARANCE_ONE_MONTH:
+DBG_MESSAGE("spieler_t::bescheid_vehikel_problem","Vehicle %s stucked.!", cnv->gib_name(),ziel.x,ziel.y);
+			if(this==welt->get_active_player()) {
+				char buf[256];
+				sprintf(buf,translator::translate("Vehicle %s is stucked!"), cnv->gib_name());
+				message_t::get_instance()->add_message(buf, cnv->gib_pos().gib_2d(),message_t::convoi,kennfarbe,cnv->gib_vehikel(0)->gib_basis_bild());
+			}
+			break;
+
+		default:
+DBG_MESSAGE("spieler_t::bescheid_vehikel_problem","Vehicle %s, state %i!", cnv->gib_name(), cnv->get_state());
 	}
 }
 

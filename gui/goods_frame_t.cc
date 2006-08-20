@@ -129,15 +129,15 @@ goods_frame_t::~goods_frame_t()
 */
 int goods_frame_t::compare_goods(const void *p1, const void *p2)
 {
-	const ware_besch_t * w1 = warenbauer_t::gib_info(*(unsigned short *)p1);
-	const ware_besch_t * w2 = warenbauer_t::gib_info(*(unsigned short *)p2);
+	const ware_besch_t * w1 = warenbauer_t::gib_info(*(const unsigned short *)p1);
+	const ware_besch_t * w2 = warenbauer_t::gib_info(*(const unsigned short *)p2);
 
 	int order;
 
 	switch (sortby) {
 		default:
 		case 0: // sort by station number
-			order = *(unsigned short *)p1 - *(unsigned short *)p2;
+			order = *(const unsigned short *)p1 - *(const unsigned short *)p2;
 			break;
 		case 1: // sort by station name
 			order = 0;

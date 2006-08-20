@@ -109,6 +109,7 @@ public:
 
     static const skin_besch_t *signale;
     static const skin_besch_t *presignals;
+    static const skin_besch_t *choosesignals;
     static const skin_besch_t *baugrube;
     static const skin_besch_t *fussweg;
     static const skin_besch_t *pumpe;
@@ -124,6 +125,9 @@ public:
     static const skin_besch_t *passagiere;
     static const skin_besch_t *post;
     static const skin_besch_t *waren;
+
+	// seasons
+    static const skin_besch_t *seasons_icons;
 
     static const skin_besch_t *message_options;
 

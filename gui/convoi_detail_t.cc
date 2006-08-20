@@ -46,9 +46,9 @@ convoi_detail_t::convoi_detail_t(convoihandle_t cnv)
 {
 	this->cnv = cnv;
 
-	sale_button.init(button_t::roundbox, translator::translate("verkaufen"), koord(BUTTON3_X, 14), koord(BUTTON_WIDTH,BUTTON_HEIGHT));
+	sale_button.init(button_t::roundbox, "verkaufen", koord(BUTTON3_X, 14), koord(BUTTON_WIDTH,BUTTON_HEIGHT));
 	sale_button.add_listener(this);
-	sale_button.set_tooltip(translator::translate("Remove vehicle from map. Use with care!"));
+	sale_button.set_tooltip("Remove vehicle from map. Use with care!");
 	add_komponente(&sale_button);
 
 	scrolly.setze_pos(koord(0, 64));
@@ -146,8 +146,7 @@ convoi_detail_t::zeichnen(koord pos, koord gr)
 		// next stop
 		const fahrplan_t * fpl = cnv->gib_fahrplan();
 		info_buf.clear();
-		info_buf.append(translator::translate("Fahrtziel:"));
-		info_buf.append(" ");
+		info_buf.append(translator::translate("Fahrtziel"));
 		fahrplan_gui_t::gimme_short_stop_name(info_buf, cnv->gib_welt(), fpl, fpl->aktuell, 34);
 		len = display_proportional( pos.x+11, pos.y+16+20+3*LINESPACE, info_buf, ALIGN_LEFT, COL_BLACK, true );
 
@@ -273,6 +272,11 @@ void gui_vehicleinfo_t::zeichnen(koord offset) const
 				display_proportional_clip( pos.x+w+offset.x, pos.y+offset.y+total_height+extra_y, buf, ALIGN_LEFT, MONEY_PLUS, true );
 				extra_y += LINESPACE;
 			}
+
+// friction
+sprintf( buf, "%s %i", "Friction", v->gib_frictionfactor() );
+display_proportional_clip( pos.x+w+offset.x, pos.y+offset.y+total_height+extra_y, buf, ALIGN_LEFT, MONEY_PLUS, true );
+extra_y += LINESPACE;
 
 			if(v->gib_fracht_max() > 0) {
 

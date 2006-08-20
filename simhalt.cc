@@ -198,9 +198,6 @@ void haltestelle_t::init_gui()
 {
     // Lazy init at opening!
     halt_info = NULL;
-
-    // Lazy init of name. Done on first request fo name.
-    need_name = true;
 }
 
 
@@ -223,7 +220,6 @@ halthandle_t haltestelle_t::create(karte_t *welt, koord pos, spieler_t *sp)
 halthandle_t haltestelle_t::create(karte_t *welt, loadsave_t *file)
 {
     haltestelle_t * p = new haltestelle_t(welt, file);
-
     return p->self;
 }
 
@@ -268,6 +264,8 @@ haltestelle_t::haltestelle_t(karte_t *wl, loadsave_t *file) : self(this)
     pax_unhappy = 0;
     pax_no_route = 0;
 
+	reroute_counter = self.get_id()&255;
+
 	enables = NOT_ENABLED;
 
     // @author hsiegeln
@@ -294,6 +292,8 @@ haltestelle_t::haltestelle_t(karte_t *wl, koord pos, spieler_t *sp) : self(this)
 #endif
 
 	enables = NOT_ENABLED;
+
+	reroute_counter = self.get_id()&255;
 
     pax_happy = 0;
     pax_unhappy = 0;
@@ -351,13 +351,17 @@ haltestelle_t::step()
 {
 	// hsiegeln: update amount of waiting ware
 	financial_history[0][HALT_WAITING] = sum_all_waiting_goods();
+	if(reroute_counter ++==0) {
+		// every 255 steps
+		reroute_goods();
+	}
 	recalc_status();
 }
 
 
 
 /**
- * Called every month/every 24 game hours
+ * Called every month
  * @author Hj. Malthaner
  */
 void haltestelle_t::neuer_monat()
@@ -367,6 +371,29 @@ void haltestelle_t::neuer_monat()
 		enables &= (PAX|POST|WARE);
 	}
 
+	// Hajo: reset passenger statistics
+	pax_happy = 0;
+	pax_no_route = 0;
+	pax_unhappy = 0;
+
+		// hsiegeln: roll financial history
+	for (int j = 0; j<MAX_HALT_COST; j++) {
+		for (int k = MAX_MONTHS-1; k>0; k--) {
+			financial_history[k][j] = financial_history[k-1][j];
+		}
+		financial_history[0][j] = 0;
+	}
+}
+
+
+
+/**
+ * Called every 255 steps
+ * will distribute the goods to changed routes (if there are any)
+ * @author Hj. Malthaner
+ */
+void haltestelle_t::reroute_goods()
+{
 	// reroute only monthly!
 	ptrhashtable_iterator_tpl<const ware_besch_t *, slist_tpl<ware_t> *> waren_iter(waren);
 
@@ -410,19 +437,6 @@ void haltestelle_t::neuer_monat()
 		while( waren_kill_queue.count() ) {
 			wliste->remove( waren_kill_queue.remove_first() );
 		}
-	}
-
-	// Hajo: reset passenger statistics
-	pax_happy = 0;
-	pax_no_route = 0;
-	pax_unhappy = 0;
-
-		// hsiegeln: roll financial history
-	for (int j = 0; j<MAX_HALT_COST; j++) {
-		for (int k = MAX_MONTHS-1; k>0; k--) {
-			financial_history[k][j] = financial_history[k-1][j];
-		}
-		financial_history[0][j] = 0;
 	}
 }
 
@@ -1400,9 +1414,15 @@ haltestelle_t::find_free_position(const weg_t::typ w,const ding_t::typ d) const
 	slist_iterator_tpl<grund_t *> iter( grund );
 	while(iter.next()) {
 		grund_t *gr = iter.get_current();
-		// found a stop for this waytype but without object d ...
-		if(gr->gib_weg(w)!=NULL  &&  gr->suche_obj(d)==NULL) {
-			return true;
+		if(gr) {
+			// found a stop for this waytype but without object d ...
+			const weg_t *weg=gr->gib_weg(w);
+			if(weg  &&  weg->ist_frei()  &&  gr->suche_obj(d)==NULL) {
+				return true;
+			}
+		}
+		else {
+			dbg->error("haltestelle_t::find_free_position()","contains zero ground!");
 		}
 	}
 	return false;
@@ -1678,18 +1698,15 @@ haltestelle_t::name_from_ground() const
 char *
 haltestelle_t::access_name()
 {
-    if(grund.count() > 0) {
-	tstrncpy(name, name_from_ground(), 128);
-	need_name = false;
-
-	grund_t *bd = grund.at(0);
-
-	if(bd != NULL) {
-	    bd->setze_text(name);
+	if(grund.count()>0) {
+		tstrncpy(name, name_from_ground(), 128);
+		grund_t *bd = grund.at(0);
+		if(bd != NULL) {
+			bd->setze_text(name);
+		}
 	}
-    }
 
-    return name;
+	return name;
 }
 
 
@@ -1759,21 +1776,23 @@ haltestelle_t::erzeuge_fussgaenger(karte_t *welt, koord3d pos, int anzahl)
 void
 haltestelle_t::rdwr(loadsave_t *file)
 {
-    int spieler_n;
-    koord3d k;
+	int spieler_n;
+	koord3d k;
 
-    if(file->is_saving()) {
-	spieler_n = welt->sp2num( besitzer_p );
-    }
-    pos.rdwr( file );
-    file->rdwr_long(spieler_n, "\n");
+	if(file->is_saving()) {
+		spieler_n = welt->sp2num( besitzer_p );
+	}
+	pos.rdwr( file );
+	file->rdwr_long(spieler_n, "\n");
 
-    bool dummy;
-    file->rdwr_bool(dummy, " "); // pax
-    file->rdwr_bool(dummy, " "); // post
-    file->rdwr_bool(dummy, "\n");	// ware
+	if(file->get_version()<=88005) {
+		bool dummy;
+		file->rdwr_bool(dummy, " "); // pax
+		file->rdwr_bool(dummy, " "); // post
+		file->rdwr_bool(dummy, "\n");	// ware
+	}
 
-    if(file->is_loading()) {
+	if(file->is_loading()) {
       besitzer_p = welt->gib_spieler(spieler_n);
 	do {
 	    k.rdwr( file );

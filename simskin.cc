@@ -95,6 +95,7 @@ const skin_besch_t *skinverwaltung_t::mouse_cursor = NULL;
 
 const skin_besch_t *skinverwaltung_t::signale = NULL;
 const skin_besch_t *skinverwaltung_t::presignals = NULL;
+const skin_besch_t *skinverwaltung_t::choosesignals = NULL;
 const skin_besch_t *skinverwaltung_t::baugrube = NULL;
 const skin_besch_t *skinverwaltung_t::fussweg = NULL;
 const skin_besch_t *skinverwaltung_t::pumpe = NULL;
@@ -107,6 +108,8 @@ const skin_besch_t *skinverwaltung_t::passagiere = NULL;
 const skin_besch_t *skinverwaltung_t::post = NULL;
 const skin_besch_t *skinverwaltung_t::waren = NULL;
 
+const skin_besch_t *skinverwaltung_t::seasons_icons = NULL;
+
 const skin_besch_t *skinverwaltung_t::message_options = NULL;
 
 /**
@@ -117,10 +120,11 @@ const skin_besch_t *skinverwaltung_t::window_skin = NULL;
 
 
 static spezial_obj_tpl<skin_besch_t> misc_objekte[] = {
+    { &skinverwaltung_t::presignals,	    "preSignals" },
+    { &skinverwaltung_t::choosesignals,	    "ChooseSignals" },
     { &skinverwaltung_t::senke,		    "PowerDest" },
     { &skinverwaltung_t::pumpe,		    "PowerSource" },
     { &skinverwaltung_t::signale,	    "Signals" },
-    { &skinverwaltung_t::presignals,	    "preSignals" },
     { &skinverwaltung_t::baugrube,	    "Construction" },
     { &skinverwaltung_t::fussweg,	    "Sidewalk" },
     { &skinverwaltung_t::oberleitung,	    "Overheadpower" },
@@ -141,6 +145,7 @@ static spezial_obj_tpl<skin_besch_t> menu_objekte[] = {
 };
 
 static spezial_obj_tpl<skin_besch_t> symbol_objekte[] = {
+    { &skinverwaltung_t::seasons_icons,"Seasons" },
     { &skinverwaltung_t::message_options,"MessageOptions" },
     { &skinverwaltung_t::logosymbol,	    "Logo" },
     { &skinverwaltung_t::neujahrsymbol,    "NewYear" },
@@ -208,10 +213,10 @@ bool skinverwaltung_t::alles_geladen(skintyp_t type)
 	sb = cursor_objekte+1;	// forget about mouse cursor
 	break;
     case symbol:
-	sb = symbol_objekte+1;	// forget about message box options
+	sb = symbol_objekte+1+1;	// forget about message box options and seasons
 	break;
     case misc:
-	sb = misc_objekte;
+	sb = misc_objekte+2;	// not all signals needed
 	break;
     case nothing:
 	return true;

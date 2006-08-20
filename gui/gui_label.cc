@@ -24,7 +24,7 @@
  */
 gui_label_t::gui_label_t(const char *text)
 {
-    this->text = text;
+    setze_text( text );
     this->color = COL_BLACK;
     this->align = left;
 }
@@ -36,7 +36,7 @@ gui_label_t::gui_label_t(const char *text)
  */
 gui_label_t::gui_label_t(const char *text, int color)
 {
-    this->text = text;
+    setze_text( text );
     this->color = color;
     this->align = left;
 }
@@ -47,18 +47,9 @@ gui_label_t::gui_label_t(const char *text, int color)
  */
 gui_label_t::gui_label_t(const char *text, int color, align_t align)
 {
-    this->text = text;
+    setze_text( text );
     this->color = color;
     this->align = align;
-}
-
-/**
- * holt den Text des Labels
- * @author Volker Meyer
- */
-const char *gui_label_t::gib_text()
-{
-    return text;
 }
 
 /**

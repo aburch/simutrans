@@ -19,15 +19,15 @@
 
 const char *sound_frame_t::make_song_name()
 {
-    const int current_midi = get_current_midi();
+	const int current_midi = get_current_midi();
 
-    if(current_midi >= 0) {
-	sprintf(song_buf, "%d - %s", current_midi+1, sound_get_midi_title(current_midi));
-    } else {
-	sprintf(song_buf, "Music playing disabled/not available");
-    }
-
-    return(song_buf);
+	if(current_midi >= 0) {
+		sprintf(song_buf, "%d - %s", current_midi+1, sound_get_midi_title(current_midi));
+	}
+	else {
+		sprintf(song_buf, "Music playing disabled/not available" );
+	}
+	return(song_buf);
 }
 
 
@@ -64,12 +64,10 @@ sound_frame_t::sound_frame_t()
 
     mlabel.setze_pos(koord(22,64));
 
-    nextbtn.setze_text(">");
     nextbtn.setze_groesse(koord(20, 14));
     nextbtn.setze_pos(koord(38,133));
     nextbtn.setze_typ(button_t::arrowright);
 
-    prevbtn.setze_text("<");
     prevbtn.setze_groesse(koord(20, 14));
     prevbtn.setze_pos(koord(22,133));
     prevbtn.setze_typ(button_t::arrowleft);
@@ -104,11 +102,12 @@ sound_frame_t::sound_frame_t()
  */
 void sound_frame_t::scrollbar_moved(scrollbar_t *scrolly, int /*range*/, int value)
 {
-    if(scrolly == &digi) {
-	sound_set_global_volume(value);
-    } else {
-	sound_set_midi_volume(value);
-    }
+	if(scrolly == &digi) {
+		sound_set_global_volume(value);
+	}
+	else {
+		sound_set_midi_volume(value);
+	}
 }
 
 bool sound_frame_t::action_triggered(gui_komponente_t *komp)
@@ -145,8 +144,7 @@ bool sound_frame_t::action_triggered(gui_komponente_t *komp)
  */
 void sound_frame_t::zeichnen(koord pos, koord gr)
 {
-    // update song name label
-    make_song_name();
-
-    gui_frame_t::zeichnen(pos, gr);
+	// update song name label
+	curlabel.setze_text(make_song_name());
+	gui_frame_t::zeichnen(pos, gr);
 }

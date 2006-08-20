@@ -44,21 +44,21 @@ message_option_t::message_option_t(karte_t *welt) : infowin_t(welt)
 		button_def.pos.y = 34 + i*2*LINESPACE;
 		button_def.setze_typ(button_t::square);
 		button_def.pressed = (ticker_msg&(1<<i)) != 0;
-		button_def.text = " ";
+		button_def.setze_text( "" );
 		buttons->append(button_def);
 
 		button_def.pos.x = 140;
 		button_def.pos.y = 34 + i*2*LINESPACE;
 		button_def.setze_typ(button_t::square);
 		button_def.pressed = (auto_msg&(1<<i)) != 0;
-		button_def.text = " ";
+		button_def.setze_text( "" );
 		buttons->append(button_def);
 
 		button_def.pos.x = 160;
 		button_def.pos.y = 34 + i*2*LINESPACE;
 		button_def.pressed = (window_msg&(1<<i)) != 0;
 		button_def.setze_typ(button_t::square);
-		button_def.text = " ";
+		button_def.setze_text( "" );
 		buttons->append(button_def);
 	}
 }

@@ -73,12 +73,13 @@ public:
 	 */
 	void add_listener(action_listener_t * l);
 
-
 	/**
 	 * Der im Button angezeigte Text
+	 * direct acces provided to avoid translations
 	 * @author Hj. Malthaner
 	 */
 	const char * text;
+
 
 	bool pressed;
 
@@ -99,7 +100,7 @@ public:
 	 * Setzt den im Button angezeigten Text
 	 * @author Hj. Malthaner
 	 */
-	void setze_text(const char * text) {this->text = text;};
+	void setze_text(const char * text);
 
 	/**
 	 * Sets the tooltip of this button

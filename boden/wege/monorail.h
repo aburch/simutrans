@@ -37,8 +37,7 @@ public:
      * File loading constructor.
      * @author prissi
      */
-    monorail_t(karte_t *welt, loadsave_t *file) : schiene_t(welt,file) {}
-
+    monorail_t(karte_t *welt, loadsave_t *file);
 
     /**
      * Destruktor. Entfernt etwaige Debug-Meldungen vom Feld
@@ -54,6 +53,8 @@ public:
      * @author Hj. Malthaner
      */
     void info(cbuffer_t & buf) const;
+
+    void rdwr(loadsave_t *file);
 };
 
 #endif

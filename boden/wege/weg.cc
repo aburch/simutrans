@@ -184,7 +184,7 @@ void weg_t::info(cbuffer_t & buf) const
 	buf.append("\n");
 
 #if 1
-	buf.append(translator::translate("\nconvoi passed last\nmonth "));
+	buf.append(translator::translate("convoi passed last\nmonth "));
       buf.append(statistics[1][1]);
   // Debug - output stats
 #else

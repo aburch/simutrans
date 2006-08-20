@@ -18,6 +18,7 @@
 
 monorailboden_t::monorailboden_t(karte_t *welt, loadsave_t *file) : grund_t(welt)
 {
+    slope = grund_t::gib_grund_hang();
     rdwr(file);
     clear_flag(grund_t::is_bridge);
 }
@@ -25,6 +26,7 @@ monorailboden_t::monorailboden_t(karte_t *welt, loadsave_t *file) : grund_t(welt
 
 monorailboden_t::monorailboden_t(karte_t *welt, koord3d pos) : grund_t(welt, pos)
 {
+    slope = grund_t::gib_grund_hang();
     clear_flag(grund_t::is_bridge);
 }
 
@@ -32,7 +34,11 @@ monorailboden_t::monorailboden_t(karte_t *welt, koord3d pos) : grund_t(welt, pos
 void
 monorailboden_t::rdwr(loadsave_t *file)
 {
-    grund_t::rdwr(file);
+	grund_t::rdwr(file);
+	// save slope locally
+	if(file->get_version()>88005) {
+		file->rdwr_byte( slope, " " );
+	}
 }
 
 void monorailboden_t::calc_bild()

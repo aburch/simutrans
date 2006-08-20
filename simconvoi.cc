@@ -74,6 +74,7 @@ static const char * state_names[] =
   "DRIVING",
   "LOADING",
   "WAITING_FOR_CLEARANCE",
+  "WAITING_FOR_CLEARANCE_ONE_MONTH",
   ""	// self destruct
  };
 
@@ -122,7 +123,6 @@ void convoi_t::init(karte_t *wl, spieler_t *sp)
 
 	anz_vehikel = 0;
 	anz_ready = 0;
-	ist_fahrend = true;
 	wait_lock = 0;
 
 	jahresgewinn = 0;
@@ -162,13 +162,9 @@ convoi_t::convoi_t(karte_t *wl, spieler_t *sp) :
   self(this)
 {
 	init(wl, sp);
-
 	tstrncpy(name, translator::translate("Unnamed"), 128);
-
-	anhalten(0);
-
+	akt_speed = 0;
 	welt->add_convoi( self );
-
 	init_financial_history();
 }
 
@@ -185,13 +181,21 @@ DBG_MESSAGE("convoi_t::~convoi_t()", "destroying %d, %p", self.get_id(), this);
 	welt->sync_remove( this );
 	welt->rem_convoi( self );
 
-	// Hajo: finally clean up
-	self.detach();
-
 	// @author hsiegeln - deregister from line
 	unset_line();
 
+	// if not already deleted, do it here ...
+	for(unsigned i=0; i<anz_vehikel; i++) {
+		// remove vehicle's marker from the reliefmap
+		tmp_pos.at(i) = fahr->at(i)->gib_pos();
+		reliefkarte_t::gib_karte()->recalc_relief_farbe(fahr->at(i)->gib_pos().gib_2d());
+		delete fahr->at(i);
+	}
 	delete fahr;
+
+	// Hajo: finally clean up
+	self.detach();
+
 	fahr = 0;
 	fpl = 0;
 }
@@ -245,7 +249,8 @@ convoi_t::setze_name(const char *name)
 void
 convoi_t::setze_akt_speed_soll(int as)
 {
-  akt_speed_soll = as;
+	// first set speed limit
+	akt_speed_soll=min(as,min_top_speed);
 }
 
 
@@ -370,27 +375,20 @@ convoi_t::sync_step(long delta_t)
 		// teste, ob wir neu ansetzen müssen ?
 		if(anz_ready == 0) {
 
-			// wir sind noch nicht am ziel
-			// jetzt wird gefahren
-			if(ist_fahrend) {
-				// Prissi: more pleasant and a little more "physical" model *
+			// Prissi: more pleasant and a little more "physical" model *
+			int sum_friction_weight = 0;
+			sum_gesamtgewicht = 0;
+			// calculate total friction
+			for(unsigned i=0; i<anz_vehikel; i++) {
+				int total_vehicle_weight;
 
-				// first set speed limit
-				int speed_limit=MIN(akt_speed_soll,min_top_speed);
+				total_vehicle_weight = fahr->at(i)->gib_gesamtgewicht();
+				sum_friction_weight += fahr->at(i)->gib_frictionfactor()*total_vehicle_weight;
+				sum_gesamtgewicht += total_vehicle_weight;
+			}
 
-				int sum_friction_weight = 0;
-				sum_gesamtgewicht = 0;
-				// calculate total friction
-				for(unsigned i=0; i<anz_vehikel; i++) {
-					int total_vehicle_weight;
-
-					total_vehicle_weight = fahr->at(i)->gib_gesamtgewicht();
-					sum_friction_weight += fahr->at(i)->gib_frictionfactor()*total_vehicle_weight;
-					sum_gesamtgewicht += total_vehicle_weight;
-				}
-
-				// try to simulate quadratic friction
-				if(sum_gesamtgewicht != 0) {
+			// try to simulate quadratic friction
+			if(sum_gesamtgewicht != 0) {
 				/*
 				* The parameter consist of two parts (optimized for good looking):
 				*  - every vehicle in a convoi has a the friction of its weight
@@ -401,42 +399,50 @@ convoi_t::sync_step(long delta_t)
 				* @author prissi
 				*/
 				/* with floats, one would write: akt_speed*ak_speed*iTotalFriction*100 / (12,8*12,8) + 32*anz_vehikel;
-				* but for interger, we have to use the order below and calculate actually 64*deccel, like the sum_gear_und_leistung */
+				* but for integer, we have to use the order below and calculate actually 64*deccel, like the sum_gear_und_leistung */
 				/* since akt_speed=10/128 km/h and we want 64*200kW=(100km/h)^2*100t, we must multiply by (128*2)/100 */
 				/* But since the acceleration was too fast, we just deccelerate 4x more => >>6 instead >>8 */
 				sint32 deccel = ( ( (akt_speed*sum_friction_weight)>>6 )*(akt_speed>>2) ) / 25 + (sum_gesamtgewicht*64);	// this order is needed to prevent overflows!
 				// we normalize delta_t to 1/64th and check for speed limit */
-				sint32 delta_v = ( ( (akt_speed>speed_limit?0l:sum_gear_und_leistung) - deccel) *delta_t)/sum_gesamtgewicht;
+				sint32 delta_v = ( ( (akt_speed>akt_speed_soll?0l:sum_gear_und_leistung) - deccel) * delta_t)/sum_gesamtgewicht;
 				// we need more accurate arithmetik, so we store the previous value
 				delta_v += previous_delta_v;
-				previous_delta_v = delta_v & 0xFFF;
+				previous_delta_v = delta_v & 0x0FFF;
 				// and finally calculate new speed
-				akt_speed = MAX(speed_limit>>4, akt_speed+(delta_v>>12) );
-//DBG_MESSAGE("convoi_t::sync_step","accel %d, deccel %d, akt_speed %d, delta_t %d, delta_v %d",sum_gear_und_leistung,deccel,akt_speed,delta_t,delta_v );
+				akt_speed = max(akt_speed_soll>>4, akt_speed+(sint32)(delta_v>>12l) );
+//DBG_MESSAGE("convoi_t::sync_step","accel %d, deccel %d, akt_speed %d, delta_t %d, delta_v %d, previous_delta_v %d",sum_gear_und_leistung,deccel,akt_speed,delta_t,delta_v, previous_delta_v );
 			}
-			else {
-				// very old vehicle ...
-				akt_speed += 16;
-			}
-			// obey speed maximum with additional const brake ...
-			if(akt_speed > speed_limit) {
-				akt_speed -= 24;
-				if(akt_speed > speed_limit+kmh_to_speed(20)) {
-					akt_speed = speed_limit+kmh_to_speed(20);
-				}
-			}
-
-			sp_soll += (akt_speed*delta_t) / 64;
-			while(1024 < sp_soll && anz_ready == 0) {
-				sp_soll -= 1024;
-
-				for(unsigned i=0; i < anz_vehikel && state != WAITING_FOR_CLEARANCE; i++) {
-					fahr->at(i)->sync_step();
-				}
+		else {
+			// very old vehicle ...
+			akt_speed += 16;
+		}
+		// obey speed maximum with additional const brake ...
+		if(akt_speed > akt_speed_soll) {
+//DBG_MESSAGE("convoi_t::sync_step","akt_speed=%d, akt_speed_soll=%d",akt_speed,akt_speed_soll);
+			akt_speed -= 24;
+			if(akt_speed > akt_speed_soll+kmh_to_speed(20)) {
+				akt_speed = akt_speed_soll+kmh_to_speed(20);
+//DBG_MESSAGE("convoi_t::sync_step","akt_speed=%d, akt_speed_soll=%d",akt_speed,akt_speed_soll);
 			}
 		}
 
-		// smoke for the engines (only first can smoke )
+		// now actually move the units
+		sp_soll += (akt_speed*delta_t) / 64;
+		while(1024 < sp_soll && anz_ready==0) {
+			sp_soll -= 1024;
+
+			fahr->at(0)->sync_step();
+			// stopped by something!
+			if(state!=DRIVING) {
+				sp_soll &= 1023;
+				return true;
+			}
+			for(unsigned i=1; i<anz_vehikel; i++) {
+				fahr->at(i)->sync_step();
+			}
+		}
+
+		// smoke for the engines
 		next_wolke += delta_t;
 		if(next_wolke>500) {
 			next_wolke = 0;
@@ -511,6 +517,7 @@ convoi_t::sync_step(long delta_t)
       break;
 
     case WAITING_FOR_CLEARANCE:
+    case WAITING_FOR_CLEARANCE_ONE_MONTH:
       // Hajo: waiting is asynchronous => fixed waiting order and route search
       break;
 
@@ -637,10 +644,14 @@ void convoi_t::step()
 			break;
 
 		case WAITING_FOR_CLEARANCE:
+		case WAITING_FOR_CLEARANCE_ONE_MONTH:
 			{
 				int restart_speed;
 				if(fahr->at(0)->ist_weg_frei(restart_speed)) {
 					state = DRIVING;
+				}
+				if(restart_speed>=0) {
+					akt_speed = restart_speed;
 				}
 			}
 			break;
@@ -673,6 +684,13 @@ convoi_t::new_month()
 			financial_history[k][j] = financial_history[k-1][j];
 		}
 		financial_history[0][j] = 0;
+	}
+	// check for traffic jam
+	if(state==WAITING_FOR_CLEARANCE) {
+		state = WAITING_FOR_CLEARANCE_ONE_MONTH;
+	}
+	else if(state==WAITING_FOR_CLEARANCE_ONE_MONTH) {
+		gib_besitzer()->bescheid_vehikel_problem(self,koord3d::invalid);
 	}
 }
 
@@ -718,7 +736,6 @@ convoi_t::start()
 			}
 		}
 
-		ist_fahrend = true;
 		alte_richtung = ribi_t::keine;
 
 		state = ROUTING_1;
@@ -749,35 +766,15 @@ void convoi_t::ziel_erreicht(vehikel_t *)
  */
 void convoi_t::warten_bis_weg_frei(int restart_speed)
 {
-  if(restart_speed != -1) {
-    // langsam anfahren
-    akt_speed = restart_speed;
-  }
-
-  state = WAITING_FOR_CLEARANCE;
-}
-
-
-void convoi_t::anhalten(int restart_speed)
-{
-	if(ist_fahrend == true) {
-		ist_fahrend = false;
-		if(restart_speed != -1) {
-			// langsam anfahren
-			akt_speed = restart_speed;
-		}
+	if(!is_waiting()) {
+		state = WAITING_FOR_CLEARANCE;
+	}
+	if(restart_speed>=0) {
+		// langsam anfahren
+		akt_speed = restart_speed;
 	}
 }
 
-
-void convoi_t::weiterfahren()
-{
-  if(ist_fahrend == false) {
-    // printf("convoi_t::weiterfahren: convoi %p fährt an.\n", this);
-
-    ist_fahrend = true;
-  }
-}
 
 
 bool
@@ -1166,7 +1163,8 @@ convoi_t::rdwr(loadsave_t *file)
 	file->rdwr_long(dummy, " ");
 	anz_ready=dummy;
 	file->rdwr_long(wait_lock, " ");
-	file->rdwr_bool(ist_fahrend, " ");
+	bool dummy_bool=false;
+	file->rdwr_bool(dummy_bool, " ");
 	file->rdwr_long(besitzer_n, "\n");
 	file->rdwr_long(akt_speed, " ");
 	file->rdwr_long(akt_speed_soll, " ");
@@ -1483,7 +1481,8 @@ convoi_t::open_schedule_window()
 		//recalc current amount of goods
 		calc_gewinn();
 	}
-	anhalten(8);
+
+	akt_speed = 0;	// stop the train ...
 	state = FAHRPLANEINGABE;
 	alte_richtung = fahr->at(0)->gib_fahrtrichtung();
 
@@ -1492,8 +1491,6 @@ convoi_t::open_schedule_window()
 	// Fahrplandialog oeffnen
 	fahrplan_gui_t *fpl_gui = new fahrplan_gui_t(welt, self, fahr->at(0)->gib_besitzer());
 	fpl_gui->zeige_info();
-
-	weiterfahren();
 }
 
 
@@ -1735,8 +1732,6 @@ void convoi_t::destroy()
 	if(welt->get_follow_convoi()==self) {
 		welt->set_follow_convoi( convoihandle_t() );
 	}
-	welt->sync_remove(this);
-	welt->rem_convoi(self);
 
 	for(unsigned i=0; i<anz_vehikel; i++) {
 		// remove vehicle's marker from the reliefmap
@@ -1745,10 +1740,9 @@ void convoi_t::destroy()
 		delete fahr->at(i);
 	}
 
-	// reset railblocks
-	for(unsigned i=0; i<anz_vehikel; i++) {
-		blockmanager::gib_manager()->pruefe_blockstrecke(welt, tmp_pos.at(i));
-	}
+	anz_vehikel = 0;
+	welt->sync_remove(this);
+	welt->rem_convoi(self);
 
 	// rebuild destination lists after convoi has has been changed removed
 	const slist_tpl<halthandle_t> & list = haltestelle_t::gib_alle_haltestellen();
@@ -1771,8 +1765,7 @@ void convoi_t::dump() const
 {
     fprintf(stderr, "anz_vehikel = %d\n", anz_vehikel);
     fprintf(stderr, "anz_ready = %d\n", anz_ready);
-    fprintf(stderr, "wait_lock = %ld\n", wait_lock);
-    fprintf(stderr, "ist_fahrend = %d\n", ist_fahrend);
+    fprintf(stderr, "wait_lock = %d\n", wait_lock);
     fprintf(stderr, "besitzer_n = %d\n", welt->sp2num(besitzer_p));
     fprintf(stderr, "akt_speed = %d\n", akt_speed);
     fprintf(stderr, "akt_speed_soll = %d\n", akt_speed_soll);
@@ -1890,7 +1883,6 @@ void
 convoi_t::prepare_for_new_schedule(fahrplan_t *f)
 {
 	alte_richtung = fahr->at(0)->gib_fahrtrichtung();
-	anhalten(8);
 
 	if(fpl) {
 		old_fpl = new fahrplan_t( fpl );
@@ -1903,8 +1895,6 @@ DBG_MESSAGE("convoi_t::prepare_for_new_schedule()","old=%p,fpl=%p,f=%p",old_fpl,
 	// Hajo: setze_fahrplan sets state to ROUTING_1
 	// need to undo that
 	state = FAHRPLANEINGABE;
-
-	weiterfahren();
 }
 
 void

@@ -1139,7 +1139,9 @@ win_display_flush(int , int color, double konto)
 	sprintf(info,"%s(%d,%d,%d) %s  %s", delta_pos, pos.x, pos.y, pos.z / 16, stretch_text, translator::translate(wl->use_timeline()?"timeline":"no timeline") );
 
 	const char *active_player_name = wl->get_active_player()->kennfarbe==0 ? "" : wl->get_active_player()->gib_name();
-	display_flush(stunden4, color, konto, time, info, active_player_name, wl->get_active_player()->kennfarbe );
+	image_id season_img = skinverwaltung_t::seasons_icons ? skinverwaltung_t::seasons_icons->gib_bild_nr(wl->gib_jahreszeit()) : IMG_LEER;
+	display_flush(season_img,stunden4, color, konto, time, info, active_player_name, wl->get_active_player()->kennfarbe );
+	// season icon
 }
 
 void win_setze_welt(karte_t *welt)

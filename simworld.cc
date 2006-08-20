@@ -210,7 +210,7 @@ karte_t::calc_hoehe_mit_heightfield(const cstring_t & filename)
 					display_proportional((display_get_width()-gib_groesse_y()+einstellungen->gib_anzahl_staedte()*12-4)/2,display_get_height()/2-20,translator::translate("Init map ..."),ALIGN_LEFT,COL_WHITE,0);
 				}
 				display_progress(y/2, gib_groesse_y()+einstellungen->gib_anzahl_staedte()*12);
-				display_flush(0, 0, 0, "", "", 0, 0);
+				display_flush(IMG_LEER, 0, 0, 0, "", "", 0, 0);
 			}
 		}
 
@@ -266,7 +266,7 @@ karte_t::calc_hoehe_mit_perlin()
 
 		if(is_display_init()) {
 			display_progress(y/2, gib_groesse_y()+einstellungen->gib_anzahl_staedte()*12);
-			display_flush(0, 0, 0, "", "", 0, 0);
+			display_flush(IMG_LEER,0, 0, 0, "", "", 0, 0);
 		}
 		else {
 			printf("X");fflush(NULL);
@@ -777,12 +777,12 @@ DBG_DEBUG("karte_t::init()","prepare cities");
 			int current_citicens = (2500l * einstellungen->gib_mittlere_einwohnerzahl()) /(simrand(20000)+100);
 
 			stadt_t *s = new stadt_t(this, spieler[1], pos->at(i), current_citicens );
-	DBG_DEBUG("karte_t::init()","Erzeuge stadt %i with %ld inhabitants",i,(s->get_city_history_month())[HIST_CITICENS] );
-			stadt->append( s, (s->get_city_history_month())[HIST_CITICENS], 64 );
+DBG_DEBUG("karte_t::init()","Erzeuge stadt %i with %ld inhabitants",i,(s->get_city_history_month())[HIST_CITICENS] );
+			stadt->append( s, current_citicens, 64 );
 
 			if(is_display_init()) {
 				display_progress(gib_groesse_y()/2+i*2, gib_groesse_y()+einstellungen->gib_anzahl_staedte()*12);
-				display_flush(0, 0, 0, "", "", 0, 0);
+				display_flush(IMG_LEER,0, 0, 0, "", "", 0, 0);
 			}
 			else {
 				printf("*");fflush(NULL);
@@ -835,7 +835,7 @@ DBG_DEBUG("karte_t::init()","prepare cities");
 			if(is_display_init()) {
 				display_progress(gib_groesse_y()/2+i*8 + einstellungen->gib_anzahl_staedte()*2,
 				gib_groesse_y()+einstellungen->gib_anzahl_staedte()*12);
-				display_flush(0, 0, 0, "", "", 0, 0);
+				display_flush(IMG_LEER,0, 0, 0, "", "", 0, 0);
 			}
 		} // for i
 
@@ -887,6 +887,11 @@ DBG_DEBUG("karte_t::init()","prepare cities");
 	spieler[i + 2]->set_active( umgebung_t::automaten[i] );
     }
 #endif
+
+	// change grounds to winter?
+	const int current_season=(2+letzter_monat/3)&3; // summer always zero
+	boden_t::toggle_season( current_season );
+	setze_dirty();
 
     intr_enable();
 
@@ -1845,17 +1850,14 @@ karte_t::neuer_monat()
 	while( weg_iter.next() ) {
 		weg_iter.get_current()->neuer_monat();
 	}
-	INT_CHECK("simworld 1890");
-
-//	DBG_MESSAGE("karte_t::neuer_monat()","process seasons");
-	// change grounds to winter?
+	INT_CHECK("simworld 1890");	// change grounds to winter?
 	const int current_season=(2+letzter_monat/3)&3; // summer always zero
 	if(  season!=current_season  ) {
 		season = current_season;
 		boden_t::toggle_season( current_season );
-//		setze_dirty();
 	}
 
+//	DBG_MESSAGE("karte_t::neuer_monat()","process seasons");
 	// recalc old settings (and maybe update the staops with the current values)
 	reliefkarte_t::gib_karte()->neuer_monat();
 
@@ -2027,7 +2029,6 @@ DBG_MESSAGE("karte_t::neues_jahr()","Year %d has started", letztes_jahr);
 	message_t::get_instance()->add_message(buf,koord::invalid,message_t::general,COL_BLACK,skinverwaltung_t::neujahrsymbol->gib_bild_nr(0));
 
 	slist_iterator_tpl<convoihandle_t> iter (convoi_list);
-
 	while(iter.next()) {
 		convoihandle_t cnv = iter.get_current();
 		cnv->neues_jahr();
@@ -2408,7 +2409,7 @@ karte_t::speichern(loadsave_t *file,bool silent)
 	}
 	else {
 		display_progress(j, gib_groesse_y());
-		display_flush(0, 0, 0, "", "", 0, 0);
+		display_flush(IMG_LEER,0, 0, 0, "", "", 0, 0);
 	}
     }
 	DBG_MESSAGE("karte_t::speichern(loadsave_t *file)", "saved access");
@@ -2450,16 +2451,15 @@ karte_t::speichern(loadsave_t *file,bool silent)
     }
 	DBG_MESSAGE("karte_t::speichern(loadsave_t *file)", "saved fabs");
 
-    slist_iterator_tpl<convoihandle_t> citer ( convoi_list );
-    while(citer.next()) {
-	(citer.get_current())->rdwr(file);
-    }
+	slist_iterator_tpl<convoihandle_t> citer ( convoi_list );
+	while(citer.next()) {
+		(citer.get_current())->rdwr(file);
+	}
 	if(silent) {
 		INT_CHECK("saving");
 	}
-
-    file->wr_obj_id("Ende Convois");
-    DBG_MESSAGE("karte_t::speichern(loadsave_t *file)", "saved convois");
+	file->wr_obj_id("Ende Convois");
+	DBG_MESSAGE("karte_t::speichern(loadsave_t *file)", "saved %i convois",convoi_list.count());
 
     for(i=0; i<MAX_PLAYER_COUNT; i++) {
 	spieler[i]->rdwr(file);
@@ -2620,7 +2620,7 @@ DBG_DEBUG("karte_t::laden()","grundwasser %i",grundwasser);
 			access(x, y)->rdwr(this, file);
 		}
 		display_progress(y, gib_groesse_y());
-		display_flush(0, 0, 0, "", "", 0, 0);
+		display_flush(IMG_LEER,0, 0, 0, "", "", 0, 0);
 	}
 
 	DBG_MESSAGE("karte_t::laden()","loading slopes");
@@ -2736,11 +2736,7 @@ DBG_DEBUG("karte_t::laden()","grundwasser %i",grundwasser);
 		}
 		else {
 			convoi_t *cnv = new convoi_t(this, file);
-			convoi_list.insert( cnv->self );
-
-			// printf("----\n%s\n", cnv->gib_name());
-			// cnv->dump();
-
+			convoi_list.append( cnv->self );
 
 			if(cnv->in_depot()) {
 				grund_t * gr = lookup(cnv->gib_pos());
@@ -2749,8 +2745,8 @@ DBG_DEBUG("karte_t::laden()","grundwasser %i",grundwasser);
 					dep->convoi_arrived(cnv, false);
 				}
 				else {
-					dbg->warning("karte_t::laden()", "no depot for convoi");
-					delete cnv;
+					dbg->error("karte_t::laden()", "no depot for convoi, blocks may now be wrongly reserved!");
+					cnv->destroy();
 				}
 			}
 			else {
@@ -3767,7 +3763,8 @@ karte_t::interactive_event(event_t &ev)
 					  tool_tip_with_price(translator::translate("Schienentunnel"), umgebung_t::cst_tunnel));
 		    }
 
-		    wzw->add_tool(wkz_signale,
+		    wzw->add_param_tool(wkz_signale,
+				  ding_t::signal,
 				  Z_LINES,
 				  SFX_GAVEL,
 				  SFX_FAILURE,
@@ -3775,13 +3772,27 @@ karte_t::interactive_event(event_t &ev)
 				  skinverwaltung_t::signalzeiger->gib_bild_nr(0),
 				  tool_tip_with_price(translator::translate("Build signals"), umgebung_t::cst_signal));
 
-		    wzw->add_tool(wkz_presignals,
+		if(skinverwaltung_t::presignals) {
+		    wzw->add_param_tool(wkz_signale,
+				  ding_t::presignal,
 				  Z_LINES,
 				  SFX_GAVEL,
 				  SFX_FAILURE,
 				  skinverwaltung_t::schienen_werkzeug->gib_bild_nr(1),
 				  skinverwaltung_t::signalzeiger->gib_bild_nr(0),
 				  tool_tip_with_price(translator::translate("Build presignals"), umgebung_t::cst_signal));
+		}
+
+		if(skinverwaltung_t::choosesignals) {
+		    wzw->add_param_tool(wkz_signale,
+				  ding_t::choosesignal,
+				  Z_LINES,
+				  SFX_GAVEL,
+				  SFX_FAILURE,
+				  skinverwaltung_t::schienen_werkzeug->gib_bild_nr(2),
+				  skinverwaltung_t::signalzeiger->gib_bild_nr(0),
+				  tool_tip_with_price(translator::translate("Build choosesignals"), umgebung_t::cst_signal));
+		}
 
 		      wzw->add_param_tool(wkz_depot,
 				hausbauer_t::bahn_depot_besch,
@@ -3848,22 +3859,36 @@ karte_t::interactive_event(event_t &ev)
   					  get_timeline_year_month()
 					  );
 
-			wzw->add_tool(wkz_signale,
-					Z_LINES,
-					SFX_GAVEL,
-					SFX_FAILURE,
-					skinverwaltung_t::schienen_werkzeug->gib_bild_nr(0),
-					skinverwaltung_t::signalzeiger->gib_bild_nr(0),
-					tool_tip_with_price(translator::translate("Build signals"), umgebung_t::cst_signal)
-				);
+		    wzw->add_param_tool(wkz_signale,
+				  ding_t::signal,
+				  Z_LINES,
+				  SFX_GAVEL,
+				  SFX_FAILURE,
+				  skinverwaltung_t::schienen_werkzeug->gib_bild_nr(0),
+				  skinverwaltung_t::signalzeiger->gib_bild_nr(0),
+				  tool_tip_with_price(translator::translate("Build signals"), umgebung_t::cst_signal));
 
-		    wzw->add_tool(wkz_presignals,
+		if(skinverwaltung_t::presignals) {
+		    wzw->add_param_tool(wkz_signale,
+				  ding_t::presignal,
 				  Z_LINES,
 				  SFX_GAVEL,
 				  SFX_FAILURE,
 				  skinverwaltung_t::schienen_werkzeug->gib_bild_nr(1),
 				  skinverwaltung_t::signalzeiger->gib_bild_nr(0),
 				  tool_tip_with_price(translator::translate("Build presignals"), umgebung_t::cst_signal));
+		}
+
+		if(skinverwaltung_t::choosesignals) {
+		    wzw->add_param_tool(wkz_signale,
+				  ding_t::choosesignal,
+				  Z_LINES,
+				  SFX_GAVEL,
+				  SFX_FAILURE,
+				  skinverwaltung_t::schienen_werkzeug->gib_bild_nr(2),
+				  skinverwaltung_t::signalzeiger->gib_bild_nr(0),
+				  tool_tip_with_price(translator::translate("Build choosesignals"), umgebung_t::cst_signal));
+		}
 
 		      wzw->add_param_tool(wkz_depot,
 				hausbauer_t::monorail_depot_besch,
@@ -3922,22 +3947,36 @@ karte_t::interactive_event(event_t &ev)
 				  skinverwaltung_t::oberleitung->gib_bild_nr(8),
 				  tool_tip_with_price(translator::translate("Electrify track"), umgebung_t::cst_third_rail));
 
-			wzw->add_tool(wkz_signale,
-					Z_LINES,
-					SFX_GAVEL,
-					SFX_FAILURE,
-					skinverwaltung_t::schienen_werkzeug->gib_bild_nr(0),
-					skinverwaltung_t::signalzeiger->gib_bild_nr(0),
-					tool_tip_with_price(translator::translate("Build signals"), umgebung_t::cst_signal)
-				);
+		    wzw->add_param_tool(wkz_signale,
+				  ding_t::signal,
+				  Z_LINES,
+				  SFX_GAVEL,
+				  SFX_FAILURE,
+				  skinverwaltung_t::schienen_werkzeug->gib_bild_nr(0),
+				  skinverwaltung_t::signalzeiger->gib_bild_nr(0),
+				  tool_tip_with_price(translator::translate("Build signals"), umgebung_t::cst_signal));
 
-		    wzw->add_tool(wkz_presignals,
+		if(skinverwaltung_t::presignals) {
+		    wzw->add_param_tool(wkz_signale,
+				  ding_t::presignal,
 				  Z_LINES,
 				  SFX_GAVEL,
 				  SFX_FAILURE,
 				  skinverwaltung_t::schienen_werkzeug->gib_bild_nr(1),
 				  skinverwaltung_t::signalzeiger->gib_bild_nr(0),
 				  tool_tip_with_price(translator::translate("Build presignals"), umgebung_t::cst_signal));
+		}
+
+		if(skinverwaltung_t::choosesignals) {
+		    wzw->add_param_tool(wkz_signale,
+				  ding_t::choosesignal,
+				  Z_LINES,
+				  SFX_GAVEL,
+				  SFX_FAILURE,
+				  skinverwaltung_t::schienen_werkzeug->gib_bild_nr(2),
+				  skinverwaltung_t::signalzeiger->gib_bild_nr(0),
+				  tool_tip_with_price(translator::translate("Build choosesignals"), umgebung_t::cst_signal));
+		}
 
 		      wzw->add_param_tool(wkz_depot,
 				hausbauer_t::tram_depot_besch,
@@ -4514,11 +4553,6 @@ karte_t::interactive()
 	for(int i=0; i<GRUPPEN; i++) {
 		step_group_times[i] = (350*i)/GRUPPEN;
 	}
-
-	// change grounds to winter?
-	season=(2+(1+letzter_monat/3))&3; // summer always zero
-	boden_t::toggle_season( season );
-	//	setze_dirty();
 
 	do {
 

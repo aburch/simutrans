@@ -13,6 +13,7 @@
 #include "simtypes.h"
 #include "dataobj/koord3d.h"
 #include "tpl/slist_tpl.h"
+#include "convoihandle_t.h"
 #include "tpl/quickstone_tpl.h"
 
 class karte_t;
@@ -45,15 +46,14 @@ private:
      * @author Hj. Malthaner
      */
 
-    unsigned int v_rein;         // anzahl betreten
-    unsigned int v_raus;         // anzahl verlassen
+    uint16 v_rein;         // anzahl betreten
+    uint16 v_raus;         // anzahl verlassen
 
-
+	convoihandle_t cnv_reserved;	// this convoi wants to enter next
 
     blockstrecke_t(karte_t *welt);
     blockstrecke_t(karte_t *welt, loadsave_t *file);
     ~blockstrecke_t();
-
 
 public:
     /**
@@ -79,7 +79,6 @@ public:
 
     void laden_abschliessen();
 
-
     void verdrahte_signale_neu();
 
     void add_signal(signal_t *sig);
@@ -96,13 +95,16 @@ public:
     void betrete(vehikel_basis_t *v);
     void verlasse(vehikel_basis_t *v);
 
+	bool reserve_block(convoihandle_t cnv);
+	bool unreserve_block(convoihandle_t cnv);
+
     /**
      * da am anfang und am ende einer blockstrecke gezaehlt wird
      * gelten nur gerade "raus" werte
      * ausserdem muessen genauso viele "raus" sein wie "rein" damit
      * die Strecke leer ist.
      */
-    inline bool ist_frei() const {return v_rein == v_raus;};
+    bool ist_frei() const;
 
     void setze_belegung(int count);
 

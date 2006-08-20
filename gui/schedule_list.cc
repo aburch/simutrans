@@ -131,15 +131,15 @@ schedule_list_gui_t::schedule_list_gui_t(karte_t *welt,spieler_t *sp)
 	bt_new_line.setze_pos(koord(11, 14 + SCL_HEIGHT));
 	bt_new_line.setze_groesse(koord(BUTTON_WIDTH,BUTTON_HEIGHT));
 	bt_new_line.setze_typ(button_t::roundbox);
-	bt_new_line.text = translator::translate("New Line");
+	bt_new_line.setze_text("New Line");
 	add_komponente(&bt_new_line);
 	bt_new_line.add_listener(this);
 
 	bt_change_line.setze_pos(koord(11+BUTTON_WIDTH, 14 + SCL_HEIGHT));
 	bt_change_line.setze_groesse(koord(BUTTON_WIDTH,BUTTON_HEIGHT));
 	bt_change_line.setze_typ(button_t::roundbox);
-	bt_change_line.text = translator::translate("Update Line");
-	bt_change_line.set_tooltip(translator::translate("Modify the selected line"));
+	bt_change_line.setze_text("Update Line");
+	bt_change_line.set_tooltip("Modify the selected line");
 	add_komponente(&bt_change_line);
 	bt_change_line.add_listener(this);
 	bt_change_line.disable();
@@ -147,7 +147,7 @@ schedule_list_gui_t::schedule_list_gui_t(karte_t *welt,spieler_t *sp)
 	bt_delete_line.setze_pos(koord(11+2*BUTTON_WIDTH, 14 + SCL_HEIGHT));
 	bt_delete_line.setze_groesse(koord(BUTTON_WIDTH,BUTTON_HEIGHT));
 	bt_delete_line.setze_typ(button_t::roundbox);
-	bt_delete_line.text = translator::translate("Delete Line");
+	bt_delete_line.setze_text("Delete Line");
 	add_komponente(&bt_delete_line);
 	bt_delete_line.add_listener(this);
 	bt_delete_line.disable();
@@ -155,7 +155,7 @@ schedule_list_gui_t::schedule_list_gui_t(karte_t *welt,spieler_t *sp)
 	//CHART
 	chart = new gui_chart_t();
 	chart->set_dimension(12, 1000);
-	chart->setze_pos( koord(LINE_NAME_COLUMN_WIDTH+15,11) );
+	chart->setze_pos( koord(LINE_NAME_COLUMN_WIDTH+35,11) );
 	chart->set_seed(0);
 	chart->set_background(MN_GREY1);
 
@@ -420,7 +420,7 @@ void schedule_list_gui_t::resize(const koord delta)
 	scrolly.setze_groesse( koord(rest_width+11, get_client_windowsize().y-scrolly.gib_pos().y) );
 	scrolly_haltestellen.setze_groesse( koord(LINE_NAME_COLUMN_WIDTH-11, get_client_windowsize().y-scrolly_haltestellen.gib_pos().y) );
 
-	chart->setze_groesse(koord(rest_width-11-15, SCL_HEIGHT-11-14-(button_rows*(BUTTON_HEIGHT+BUTTON_SPACER))));
+	chart->setze_groesse(koord(rest_width-11-35, SCL_HEIGHT-11-14-(button_rows*(BUTTON_HEIGHT+BUTTON_SPACER))));
 	inp_name.setze_groesse(koord(rest_width-11, 14));
 	filled_bar.setze_groesse(koord(rest_width-11, 4));
 

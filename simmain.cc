@@ -392,7 +392,7 @@ static void zeige_banner()
 	check_midi();
 
 	scroll_intro(xoff, yoff+10);
-        display_flush(0, 0, 0.0,
+        display_flush(IMG_LEER,0, 0, 0.0,
 		      "    Welcome to Simutrans", "", NULL, 0);
         dr_sleep(70000);
         display_poll_event(&ev);

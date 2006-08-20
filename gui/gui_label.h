@@ -34,10 +34,9 @@ public:
 	money
     };
 private:
-
-    const char * text;
-
     align_t align;
+
+    const char * text;	// only for direct acess of non-translateable things. Do not use!
 
     /**
      * Farbe des Labels
@@ -74,10 +73,16 @@ public:
     void setze_text(const char *text);
 
     /**
-     * holt den Text des Labels
-     * @author Volker Meyer
+     * set the text without translation
+     * @author Hansjörg Malthaner
      */
-    const char *gib_text();
+    void set_text_pointer(const char *text) { this->text = text; }
+
+    /**
+     * returns the pointer (i.e. for freeing untranslater contents)
+     * @author Hansjörg Malthaner
+     */
+    const char * get_text_pointer() { return text; }
 
     /**
      * Events werden hiermit an die GUI-Komponenten

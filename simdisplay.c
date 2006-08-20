@@ -19,6 +19,7 @@
 #include <stdio.h>
 
 #include "simgraph.h"
+#include "simimg.h"
 #include "simdisplay.h"
 #include "simcolor.h"
 #include "utils/simstring.h"
@@ -97,17 +98,22 @@ display_icon_leiste(const int color, int basis_bild)
  * @author Hj. Malthaner
  */
 void
-display_flush(int stunden4, int color, double konto, const char *day_str, const char *info, const char *player_name, const int player_color)
+display_flush(const int season_img,int stunden4, int color, double konto, const char *day_str, const char *info, const char *player_name, const int player_color)
 {
 	char buffer[256];
 	extern int disp_width;
 	extern int disp_height;
 
+	display_setze_clip_wh( 0, 0, disp_width, disp_height );
 	display_fillbox_wh(0, disp_height-16, disp_width, 1, MN_GREY4, FALSE);
 	display_fillbox_wh(0, disp_height-15, disp_width, 15, MN_GREY1, FALSE);
 
+	if(season_img!=IMG_LEER) {
+		display_color_img( season_img, 2, disp_height-15, player_color, false, true );
+	}
+
 	sprintf(buffer,"%s %2d:%02dh", day_str, stunden4 >> 2, (stunden4 & 3)*15);
-	display_proportional(16, disp_height-12, buffer, ALIGN_LEFT, COL_BLACK, TRUE);
+	display_proportional(20, disp_height-12, buffer, ALIGN_LEFT, COL_BLACK, TRUE);
 
 	if(player_name!=NULL) {
 		display_proportional(256, disp_height-12, player_name, ALIGN_MIDDLE, player_color, TRUE);

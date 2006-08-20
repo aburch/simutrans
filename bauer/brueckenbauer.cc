@@ -587,8 +587,8 @@ brueckenbauer_t::remove(karte_t *welt, spieler_t *sp, koord3d pos, weg_t::typ we
 		// Alle Brückenteile auf Entfernbarkeit prüfen!
 		msg = from->kann_alle_obj_entfernen(sp);
 
-		if(msg != NULL) {
-			return "Die Brücke ist nicht frei!\n";
+		if(msg != NULL  ||  from->gib_halt().is_bound()) {
+			return "Die Bruecke ist nicht frei!\n";
 		}
 
 		// Nachbarn raussuchen

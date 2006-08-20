@@ -156,7 +156,7 @@ inline void
 baum_t::calc_bild(const unsigned long alter)
 {
 	// alter/2048 gibt die tage
-	int baum_alter = baum_bild_alter[MIN((alter >> karte_t::ticks_bits_per_tag)>>6, 11)];
+	int baum_alter = baum_bild_alter[MIN(alter>>6, 11)];
 
 	// here comes the variation for the seasons
 	const int nr_seasons=besch->gib_seasons();
@@ -316,14 +316,14 @@ baum_t::saee_baum()
 
 bool baum_t::step(long /*delta_t*/)
 {
-    const long alter = (welt->get_current_month() - geburt)<<karte_t::ticks_bits_per_tag;
-    const long t_alter_temp1 = (karte_t::ticks_per_tag)<<9;  //ticks * 512
+    const long alter = (welt->get_current_month() - geburt);
+    const long t_alter_temp1 = 512;  //ticks * 512
 
     calc_bild(alter);
 
     if(alter >= t_alter_temp1)
     {
-        const long t_alter_temp2 = (karte_t::ticks_per_tag)<<6; //ticks * 64
+        const long t_alter_temp2 = 64; //ticks * 64
 
         if (alter < (t_alter_temp1+t_alter_temp2))
         {  //    ticks * ( 2^9+2^6 = 512 + 64 = 576)
@@ -363,11 +363,11 @@ baum_t::rdwr(loadsave_t *file)
 {
     ding_t::rdwr(file);
 
-    long alter = (welt->get_current_month() - geburt)<<karte_t::ticks_bits_per_tag;
+    long alter = (welt->get_current_month() - geburt)<<18;
     file->rdwr_long(alter, "\n");
 
     // after loading, calculate new
-    geburt = welt->get_current_month() - (alter>>karte_t::ticks_bits_per_tag);
+    geburt = welt->get_current_month() - (alter>>18);
 
     if(file->is_saving()) {
 	const char *s = besch->gib_name();
@@ -417,7 +417,7 @@ void baum_t::info(cbuffer_t & buf) const
 	buf.append("\n");
 	buf.append(welt->get_current_month() - geburt);
 	buf.append(" ");
-	buf.append(translator::translate("Tage alt"));
+	buf.append(translator::translate("Monate alt"));
 }
 
 

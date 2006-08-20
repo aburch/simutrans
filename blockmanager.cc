@@ -397,7 +397,7 @@ blockmanager::entferne_schiene(karte_t *welt, koord3d pos)
 
 
 const char *
-blockmanager::baue_neues_signal(karte_t *welt, spieler_t *sp, koord3d pos, koord3d pos2, schiene_t *sch, ribi_t::ribi dir, bool presignal)
+blockmanager::baue_neues_signal(karte_t *welt, spieler_t *sp, koord3d pos, koord3d pos2, schiene_t *sch, ribi_t::ribi dir, ding_t::typ type)
 {
     DBG_MESSAGE("blockmanager::baue_neues_signal()", "build a new signal between %d,%d and %d,%d", pos.x, pos.y, pos2.x, pos2.y);
 
@@ -423,13 +423,27 @@ blockmanager::baue_neues_signal(karte_t *welt, spieler_t *sp, koord3d pos, koord
 		strecken.remove(bs1);
 		blockstrecke_t::destroy(bs1);
 		bs1 = bs2;
-		dbg->error("blockmanager::baue_neues_signal()", "circular rail block detected.");
+		dbg->warning("blockmanager::baue_neues_signal()", "circular rail block detected.");
 	}
 
 	sch2->ribi_add(ribi_t::rueckwaerts(dir));
-
-	signal_t *sig1 = presignal ? new presignal_t (welt, pos, dir) : new signal_t(welt, pos, dir);
-	signal_t *sig2 = presignal ? new presignal_t(welt, pos2, ribi_t::rueckwaerts(dir)) : new signal_t(welt, pos2, ribi_t::rueckwaerts(dir));
+	signal_t *sig1, *sig2;
+	switch(type) {
+		case ding_t::signal:
+			sig1 = new signal_t(welt, pos, dir);
+			sig2 = new signal_t(welt, pos2, ribi_t::rueckwaerts(dir));
+			break;
+		case ding_t::presignal:
+			sig1 = new presignal_t(welt, pos, dir);
+			sig2 = new presignal_t(welt, pos2, ribi_t::rueckwaerts(dir));
+			break;
+		case ding_t::choosesignal:
+			sig1 = new choosesignal_t(welt, pos, dir);
+			sig2 = new choosesignal_t(welt, pos2, ribi_t::rueckwaerts(dir));
+			break;
+		default:
+			dbg->fatal("blockmanager::baue_neues_signal()","illegal signal type %d used!",type);
+	}
 
 	bs1->add_signal(sig1);
 	bs2->add_signal(sig2);
@@ -462,7 +476,7 @@ blockmanager::baue_neues_signal(karte_t *welt, spieler_t *sp, koord3d pos, koord
 const char *
 blockmanager::baue_andere_signale(koord3d pos1, koord3d pos2,
                                   schiene_t *sch1, schiene_t *sch2,
-                                  ribi_t::ribi ribi, bool /*presignal*/)	// will find out of the signal type anyway
+                                  ribi_t::ribi ribi)
 {
     const ribi_t::ribi rueck = ribi_t::rueckwaerts(ribi);
 
@@ -519,7 +533,7 @@ blockmanager::baue_andere_signale(koord3d pos1, koord3d pos2,
 }
 
 const char *
-blockmanager::neues_signal(karte_t *welt, spieler_t *sp, koord3d pos, ribi_t::ribi dir, bool presignal)
+blockmanager::neues_signal(karte_t *welt, spieler_t *sp, koord3d pos, ribi_t::ribi dir, ding_t::typ type)
 {
     schiene_t *sch = get_block_way(welt->lookup(pos));
     if(sch) {
@@ -557,7 +571,7 @@ blockmanager::neues_signal(karte_t *welt, spieler_t *sp, koord3d pos, ribi_t::ri
         if(sig1 != NULL && sig2 != NULL) {
             // es gibt signale
 
-            return baue_andere_signale(pos, pos2, sch, sch2, dir, presignal);
+            return baue_andere_signale(pos, pos2, sch, sch2, dir);
         } else if(sig1 == NULL && sig2 == NULL) {
             // es gibt noch keine Signale
 
@@ -565,7 +579,7 @@ blockmanager::neues_signal(karte_t *welt, spieler_t *sp, koord3d pos, ribi_t::ri
                 dbg->warning("blockmanger_t::neues_signal()", "direction mismatch: dir=%d, ribi=%d!", dir, ribi);
                 return "Hier kann kein\nSignal aufge-\nstellt werden!\n";
             }
-            return baue_neues_signal(welt, sp, pos, pos2, sch, dir, presignal);
+            return baue_neues_signal(welt, sp, pos, pos2, sch, dir, type);
 
         } else {
             // ein signal muss verlorengegangen sein
@@ -726,11 +740,11 @@ blockmanager::rdwr(karte_t *welt, loadsave_t *file)
 void
 blockmanager::laden_abschliessen()
 {
-    slist_iterator_tpl< blockhandle_t > iter ( strecken );
-    while(iter.next()) {
-        blockhandle_t bs = iter.get_current();
-        bs->laden_abschliessen();
-    }
+	slist_iterator_tpl< blockhandle_t > iter ( strecken );
+	while(iter.next()) {
+		blockhandle_t bs = iter.get_current();
+		bs->laden_abschliessen();
+	}
 }
 
 

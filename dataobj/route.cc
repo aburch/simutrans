@@ -189,219 +189,6 @@ static inline bool am_i_there(karte_t *welt,
 
 
 
-#if 0
-/* find the route to an unknow location
- * Astar does not work here
- * @author prissi
- */
-bool
-route_t::find_route_astar(karte_t *welt,
-                    const koord3d start,
-                    fahrer_t *fahr, const uint32 max_khm )
-{
-	bool ok = false;
-
-	// check for existing koordinates
-	if(welt->lookup(start)==NULL) {
-		return false;
-	}
-
-	// some thing for the search
-	const weg_t::typ wegtyp = fahr->gib_wegtyp();
-	const grund_t *gr;
-	grund_t *to;
-
-	// memory in static list ...
-	const int MAX_STEP = max(65530,umgebung_t::max_route_steps);	// may need very much memory => configurable
-	if(nodes==NULL) {
-		nodes = new ANode[MAX_STEP+4+1];
-	}
-	int step = 0;
-
-//	welt->unmarkiere_alle();	// test in closed list are likely faster ...
-	INT_CHECK("route 347");
-
-	// arrays for A*
-	static vector_tpl <ANode *> open = vector_tpl <ANode *>(0);
-	vector_tpl <ANode *> close =vector_tpl <ANode *>(0);
-
-	// nothing in lists
-	open.clear();
-	close.clear();
-
-	// we clear it here probably twice: does not hurt ...
-	route.clear();
-
-	ANode *tmp = &(nodes[step++]);
-	tmp->parent = NULL;
-	tmp->gr = welt->lookup(start);
-	tmp->f = 0;
-	tmp->g = 0;
-	tmp->dir = 0;
-
-	// first tile is not valid?!?
-	if(!fahr->ist_befahrbar(tmp->gr)) {
-		return false;
-	}
-
-	// start in open
-	open.append(tmp,256);
-
-//DBG_MESSAGE("route_t::find_route()","calc route from %d,%d,%d",start.x, start.y, start.z);
-	do {
-		// Hajo: this is too expensive to be called each step
-		if((step & 127) == 0) {
-			INT_CHECK("route 161");
-		}
-
-		tmp = open.at( open.get_count()-1 );
-		open.remove_at( open.get_count()-1 );
-
-		close.append(tmp,16);
-		gr = tmp->gr;
-
-//DBG_DEBUG("add to close","(%i,%i,%i) f=%i",gr->gib_pos().x,gr->gib_pos().y,gr->gib_pos().z,tmp->f);
-		// already there
-		if(fahr->ist_ziel(gr)) {
-			// we added a target to the closed list: we are finished
-			break;
-		}
-
-		// testing all four possible directions (since this goes the other way round compared to normal search, we must eventually invert)
-		ribi_t::ribi ribi = fahr->gib_ribi(gr);
-		if(ribi_t::alle!=ribi) {
-			ribi = ribi_t::rueckwaerts(ribi);
-		}
-
-		for(int r=0; r<4; r++) {
-
-			// a way goes here, and it is not marked (i.e. in the closed list)
-			if(  (ribi & ribi_t::nsow[r])!=0
-				&& gr->get_neighbour(to, wegtyp, koord::nsow[r])
-				&& fahr->ist_befahrbar(to)
-			) {
-
-				// already in closed list (i.e. all processed nodes
-				unsigned index;
-				for( index=0;  index<close.get_count();  index++  ) {
-					if(  close.get(index)->gr==to  ) {
-						break;
-					}
-				}
-				// in close list => ignore this
-				if(index<close.get_count()) {
-					continue;
-				}
-
-				// already in open list ?
-				for(  index=0;  index<open.get_count();  index++  ) {
-					if(  open.get(index)->gr==gr  ) {
-						break;
-					}
-				}
-
-				// new values for cost g
-				uint32 new_g = tmp->g;
-
-				// first favor faster ways
-				const weg_t *w=to->gib_weg(wegtyp);
-				uint32 max_tile_speed = w ? w->gib_max_speed() : 999;
-				// add cost for going (with maximum spoeed, cost is 1 ...
-				new_g += ( (max_khm<=max_tile_speed) ? 4 :  (max_khm*4+max_tile_speed)/max_tile_speed );
-
-				// malus for occupied tiles
-				if(wegtyp==weg_t::strasse) {
-					// assume all traffic (and even road signs etc.) is not good ...
-					new_g += to->obj_count();
-				}
-
-				// check for curves (usually, one would need the lastlast and the last;
-				// if not there, then we could just take the last
-				uint8 current_dir;
-				if(tmp->parent!=NULL) {
-					current_dir = ribi_typ( tmp->parent->gr->gib_pos().gib_2d(), to->gib_pos().gib_2d() );
-					if(tmp->dir!=current_dir) {
-						new_g += 5;
-						if(tmp->parent->dir!=tmp->dir) {
-							// discourage double turns
-							new_g += 10;
-						}
-					}
-				}
-				else {
-					 current_dir = ribi_typ( gr->gib_pos().gib_2d(), to->gib_pos().gib_2d() );
-				}
-
-				// effect of hang ...
-				if(to->gib_weg_hang()!=0) {
-					// we do not need to check whether up or down, since everything that goes up must go down
-					// thus just add whenever there is a slope ... (counts as nearly 2 standard tiles)
-					new_g += 7;
-				}
-
-				// it is already contained in the list
-				if(index<open.get_count()) {
-//DBG_DEBUG("check open","at %i",index);
-					// => check, if our is better
-					if(open.get(index)->g>new_g) {
-						// our is better
-						open.remove_at(index);
-//DBG_DEBUG("remove from open","%i,%i,%i",to->gib_pos().x,to->gib_pos().y,to->gib_pos().z);
-					}
-					else {
-						// ignore this one
-						continue;
-					}
-				}
-
-				// not in there or taken out => add new
-				ANode *k=&(nodes[step++]);
-
-				k->parent = tmp;
-				k->gr = to;
-				k->g = new_g;
-				k->f = new_g+1;
-				k->dir = current_dir;
-
-				// insert sorted
-				for(  index=0;  index<open.get_count();  index++  ) {
-					if(k->f>open.get(index)->f) {
-						// insert here
-						break;
-					}
-				}
-
-//DBG_DEBUG("insert to open","%i,%i,%i",to->gib_pos().x,to->gib_pos().y,to->gib_pos().z);
-				// insert here
-				open.insert_at(index,k);
-
-			}
-		}
-	} while(open.get_count()>0  &&  step<MAX_STEP);
-
-	INT_CHECK("route 194");
-
-DBG_DEBUG("reached","");
-	// target reached?
-	if(!fahr->ist_ziel(gr)  ||  step >= MAX_STEP  ||  tmp->parent==NULL) {
-		dbg->warning("route_t::find_route()","Too many steps (%i>=max %i) in route (too long/complex)",step,MAX_STEP);
-	}
-	else {
-		// reached => construct route
-		route.insert_at( 0, tmp->gr->gib_pos() );
-		while(tmp != NULL) {
-			route.insert_at( 0, tmp->gr->gib_pos() );
-DBG_DEBUG("add","%i,%i",tmp->gr->gib_pos().x,tmp->gr->gib_pos().y);
-			tmp = tmp->parent;
-		}
-		ok = true;
-    }
-
-    return ok;
-}
-#endif
-
-
 
 // node arrays
 route_t::nodestruct* route_t::nodes=NULL;
@@ -484,10 +271,10 @@ route_t::find_route(karte_t *welt,
 
 		// testing all four possible directions
 		// (since this goes the other way round compared to normal search, we must eventually invert the mask)
-		ribi_t::ribi ribi = fahr->gib_ribi(gr);
 		const weg_t *w=gr->gib_weg(wegtyp);
+		ribi_t::ribi ribi = w->gib_ribi_unmasked();
 		if(w  &&  w->gib_ribi_maske()!=ribi_t::keine) {
-			ribi = ribi_t::rueckwaerts(ribi);
+			ribi &= (~ribi_t::rueckwaerts(w->gib_ribi_maske()));
 		}
 
 		for(int r=0; r<4; r++) {
@@ -495,7 +282,7 @@ route_t::find_route(karte_t *welt,
 			// a way goes here, and it is not marked (i.e. in the closed list)
 			if(  (ribi & ribi_t::nsow[r] & start_dir)!=0  // allowed dir (we can restrict the first step by start_dir)
 				&& abs_distance(start.gib_2d(),gr->gib_pos().gib_2d()+koord::nsow[r])<max_depth	// not too far away
-				&& gr->get_neighbour(to, wegtyp, koord::nsow[r])  // is connected
+				&& gr->get_neighbour(to, wegtyp/*weg_t::invalid*/, koord::nsow[r])  // is connected
 				&& fahr->ist_befahrbar(to)	// can be driven on
 			) {
 				unsigned index;
@@ -787,7 +574,7 @@ DBG_MESSAGE("route_t::calc_route()","No route from %d,%d to %d,%d found",start.x
 		if(halt.is_bound()) {
 
 			// does only make sence for trains
-			if(fahr->gib_wegtyp()==weg_t::schiene  ||  fahr->gib_wegtyp()==weg_t::schiene_monorail) {
+			if(fahr->gib_wegtyp()==weg_t::schiene  ||  fahr->gib_wegtyp()==weg_t::schiene_monorail  ||  fahr->gib_wegtyp()==weg_t::schiene_strab) {
 
 				int max_n = route.get_count()-1;
 

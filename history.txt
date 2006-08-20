@@ -8,9 +8,46 @@ Known bugs: (hard to fix)
 	set color broken?
 
 
+Release of 88.06.1
+
+05-Mar-2006: (prissi)
+	FIX: one way signals/roadsigns work together with the choose points
+	FIX: monorail ground saves slope (otherwise the slope could be changed by building below)
+	CHANGE: schedules are now recalculated more often
+	FIX: no tunnel or bridge destroyed by slopes anymore
+	ADD: indicator for covois stucked for more than a month
+	FIX: much less redraw troubles with slopes (will be drawn as foreground, if any object is behind them)
+	ADD: season indicator
+	FIX: UNDO did remove tracks but no electricfication
+	FIX: block reservation now saved
+	CHANGE: made line chart more slim
+	FIX: when vehicle braking was larger than acceleration in curves => acceleration to insane speeds
+	FIX: removing halt with no ground during load
+	FIX: only removing really empty bridges without stops
+
+04-Mar-2006: (prissi)
+	FIX: choose trains go to the end of a plattform again
+	FIX text changed to "Die Bruecke ist nicht frei!\n"
+	FIX: correctly loading and saving monorails
+
+
+Release of 88.06
+
+04-Mar-2006: (prissi)
+	FIX: airplanes check for exit the map (although this should never happen)
+	FIX: runways may only built up to fout tiles next to the border
+	FIX: no depots on top of depots
+	FIX: too young trees with different timescales
+	FIX: sort options in convoy dialog were not correctly remembered
+	FIX: presignals works with monorail
+	CHANGE: presignals now reserve needed blocks => hopefully less deadlocks (but may be screwed up during reloading)
+	CHANGE: choose signals are possible (as result of the above change)
+	CHANGE: buttons and labels are now translated, when the text is assigned
+
 
 Release of 88.05.1
 
+01-Mar-2006: (prissi)
 	FIX: townhall added wrong buildings during renovation => crash when generated passengers afterwards
 	FIX: connecting to the end of an unconnected bridge (now again going through tunnel and bridges for way calculation)
 	CHANGE: sync_prepare() only called one time before sync_step() => lost of useless objects are not called any more every frame

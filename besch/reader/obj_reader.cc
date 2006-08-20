@@ -63,6 +63,7 @@
 
 // for the progress bar
 #include "../../simcolor.h"
+#include "../../simimg.h"
 #include "../../simgraph.h"
 #include "../../simdisplay.h"
 
@@ -264,7 +265,7 @@ bool obj_reader_t::init(const char *liste)
 			read_file(find.at(i));
 			if(((max-i)&teilung)==0  &&  drawing) {
 				display_progress(max-i,max);
-				display_flush(0, 0, 0, "", "", 0, 0);
+				display_flush(IMG_LEER,0, 0, 0, "", "", 0, 0);
 			}
 		}
 	}

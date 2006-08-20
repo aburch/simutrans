@@ -300,7 +300,7 @@ void stadt_t::add_gebaeude_to_stadt(const gebaeude_t *gb)
 		for(k.y = 0; k.y < size.y; k.y ++) {
 			for(k.x = 0; k.x < size.x; k.x ++) {
 				gb = dynamic_cast<const gebaeude_t *>(welt->lookup(pos+k)->gib_kartenboden()->obj_bei(0));
-				DBG_MESSAGE("stadt_t::add_gebaeude_to_stadt()","geb=%p at (%i,%i)",gb,pos.x+k.x,pos.y+k.y);
+//				DBG_MESSAGE("stadt_t::add_gebaeude_to_stadt()","geb=%p at (%i,%i)",gb,pos.x+k.x,pos.y+k.y);
 				buildings.append(gb,tile->gib_besch()->gib_level()+1,16);
 			}
 		}
@@ -316,13 +316,13 @@ void stadt_t::remove_gebaeude_from_stadt(const gebaeude_t *gb)
 		const haus_tile_besch_t *tile  = gb->gib_tile();
 		koord size = tile->gib_besch()->gib_groesse( tile->gib_layout() );
 		koord k, pos = gb->gib_pos().gib_2d() - tile->gib_offset();
-		DBG_MESSAGE("stadt_t::remove_gebaeude_from_stadt()","at (%i,%i)",pos.x,pos.y);
+//		DBG_MESSAGE("stadt_t::remove_gebaeude_from_stadt()","at (%i,%i)",pos.x,pos.y);
 
 		// remove all tiles
 		for(k.y = 0; k.y < size.y; k.y ++) {
 			for(k.x = 0; k.x < size.x; k.x ++) {
 				gb = dynamic_cast<const gebaeude_t *>(welt->lookup(pos+k)->gib_kartenboden()->obj_bei(0));
-				DBG_MESSAGE("stadt_t::remove_gebaeude_from_stadt()","geb=%p at (%i,%i)",gb,pos.x+k.x,pos.y+k.y);
+//				DBG_MESSAGE("stadt_t::remove_gebaeude_from_stadt()","geb=%p at (%i,%i)",gb,pos.x+k.x,pos.y+k.y);
 				if(gb==NULL) {
 					dbg->error("stadt_t::remove_gebaeude_from_stadt()","Nothing on %i,%i",pos.x+k.x,pos.y+k.y);
 				}
@@ -452,8 +452,6 @@ DBG_MESSAGE("stadt_t::stadt_t()","founding new city named '%s'",name);
     // this way, new cities are properly recognized
     pax_transport = citizens;
     pax_erzeugt = 0;
-    step_bau();
-    pax_transport = 0;
 
     /**
      * initialize history array
@@ -606,6 +604,12 @@ DBG_DEBUG("stadt_t::rdwr()","is old version: No history!");
  */
 void stadt_t::laden_abschliessen()
 {
+	// very young city => need to grow again
+	if(pax_transport>0  &&  pax_erzeugt==0) {
+		step_bau();
+		pax_transport = 0;
+	}
+
     verbinde_fabriken();
 
     // alten namen freigeben
