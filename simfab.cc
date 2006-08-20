@@ -105,7 +105,11 @@ fabrik_t * fabrik_t::gib_fab(const karte_t *welt, const koord pos)
  */
 koord fabrik_t::gib_groesse() const
 {
-  return besch->gib_haus()->gib_groesse();
+	koord size=besch->gib_haus()->gib_groesse();
+	if(rotate) {
+		return koord(size.y,size.x);
+	}
+	return size;
 }
 
 

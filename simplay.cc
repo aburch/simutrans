@@ -639,8 +639,6 @@ dbg->message("spieler_t::suche_platz()","Search around stop at (%i,%i)",x,y);
 	return false;
 }
 
-// ki-haupt
-
 void
 spieler_t::do_ki()
 {
@@ -675,6 +673,7 @@ spieler_t::do_ki()
 		fabrik_t * ziel_neu = NULL;
 		int	start_ware_neu;
 		int gewinn_neu=-1;
+
     	if(  count==KI_TEST_LINES-2  &&  last_ziel!=NULL  ) {
     		// we built a line: do we need another supplier?
 			gewinn_neu = suche_transport_quelle(&start_neu, &start_ware_neu, last_ziel);
@@ -776,8 +775,8 @@ dbg->message("spieler_t::do_ki()",
 			// first we have to find a suitable car
 			const ware_besch_t *freight = start->gib_ausgang()->get(start_ware).gib_typ();
 			// guess the "optimum" speed (usually a little too low)
-		    	int best_rail_speed = MIN(60+freight->gib_speed_bonus()*3, 140 );
-		    	int best_road_speed = MIN(60+freight->gib_speed_bonus()*3, 130 );
+		    	int best_rail_speed = MIN(60+freight->gib_speed_bonus()*5, 140 );
+		    	int best_road_speed = MIN(60+freight->gib_speed_bonus()*5, 130 );
 		    	// obey timeline
 			unsigned month_now = (welt->gib_zeit_ms() >> welt->ticks_bits_per_tag) + (umgebung_t::starting_year * 12);
 			if(  umgebung_t::use_timeline == false   ) {
@@ -795,12 +794,11 @@ dbg->message("spieler_t::do_ki()",
 			const int prod = MIN(ziel->max_produktion(),
 			                 ( start->max_produktion() * start->gib_besch()->gib_produkt(start_ware)->gib_faktor() )/256 - start->gib_abgabe_letzt(start_ware) );
 
-
 			/* calculate number of cars for railroad */
 			count_rail=255;	// no cars yet
 			if(  rail_vehicle!=NULL  ) {
 				// if our car is faster: well use faster speed
-			 	best_rail_speed = rail_vehicle->gib_geschw();
+			 	best_rail_speed = MIN(80,rail_vehicle->gib_geschw());
 				// for engine: gues number of cars
 				count_rail = (prod*dist) / (rail_vehicle->gib_zuladung()*best_rail_speed*3)+1;
 				rail_engine = vehikelbauer_t::vehikel_search( vehikel_besch_t::schiene, month_now, 80*count_rail, best_rail_speed, NULL );

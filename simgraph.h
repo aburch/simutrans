@@ -45,7 +45,6 @@ typedef struct
 	int	descent;
 	int num_chars;
 	char	name[256];
-	unsigned char	*char_width;
 	unsigned char	*screen_width;
 	unsigned char	*char_data;
 } font_type;
@@ -116,7 +115,14 @@ int	unicode2utf8( unsigned unicode, unsigned char *out );
 /* Loads the fonts (large=true loads large font)
  * @author prissi
  */
-bool load_font(const char *fname, bool large );
+bool display_load_font(const char *fname, bool large );
+
+/* checks if a small and a large font exists;
+ * if not the missing font will be emulated
+ * @author prissi
+ */
+void	display_check_fonts(void);
+
 
 void init_images(const char *filename);
 

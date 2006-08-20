@@ -19,7 +19,6 @@
 #include "../utils/cstring_t.h"
 #include "../utils/searchfolder.h"
 #include "../utils/simstring.h"	//tstrncpy()
-#include "../simtools.h"	//simrand()
 #include "../tpl/slist_mit_gewichten_tpl.h"
 
 
@@ -31,128 +30,19 @@
 translator * translator::single_instance = new translator();
 
 
-/* needed for loading city names */
-static char szenario_path[256];
-
-
-/* since the city names are language dependent, they are now kept here!
- * @date 2.1.2005
- * @author prissi
- */
-static const int anz_t1 = 11;
-static const char * name_t1[anz_t1] =
-{
-    "%1_CITY_SYLL", "%2_CITY_SYLL", "%3_CITY_SYLL", "%4_CITY_SYLL", "%5_CITY_SYLL",
-    "%6_CITY_SYLL", "%7_CITY_SYLL", "%8_CITY_SYLL", "%9_CITY_SYLL", "%A_CITY_SYLL",
-    "%B_CITY_SYLL",
-
-};
-
-static const int anz_t2 = 10;
-static const char * name_t2[anz_t2] =
-{
-    "&1_CITY_SYLL", "&2_CITY_SYLL", "&3_CITY_SYLL", "&4_CITY_SYLL", "&5_CITY_SYLL",
-    "&6_CITY_SYLL", "&7_CITY_SYLL", "&8_CITY_SYLL", "&9_CITY_SYLL", "&A_CITY_SYLL",
-};
-
-
-/**
- * Liste aller Städtenamen
- * @author Hj. Malthaner
- */
-static slist_tpl <cstring_t> namen_liste;
-
-
-/* returns a random city name */
-void	translator::get_rand_city_name(char *name)
-{
-    cstring_t &list_name =
-    namen_liste.at(simrand(namen_liste.count()));
-    tstrncpy(name, list_name, 64);
-    namen_liste.remove(list_name);
-}
-
-
-
-/* the city list is now reloaded after the language is changed
- * new cities will get their appropriate names
- * @author hajo, prissi
- */
-static int  init_city_names(void)
-{
-	// rember old directory to go back there
-	char oldpath[1024];
-	getcwd( oldpath, 1024 );
-
-	// alle namen aufräumen
-	namen_liste.clear();
-
-	// Hajo: init city names. There are two options:
-	//
-	// 1.) read list from file
-	// 2.) create random names
-
-	// try to read list
-
-	// @author prissi: first try in scenario
-	cstring_t local_file_name(szenario_path);
-	local_file_name = local_file_name+"text/citylist_"+translator::get_language_name_iso(translator::get_language()) + ".txt";;
-dbg->message("stadt_t::init_namen()","try to read city name list '%s'",local_file_name.chars());
-	FILE * file=fopen(local_file_name, "rb");
-	// not found => try usual location
-	if(file==NULL) {
-		cstring_t local_file_name("text/");
-		local_file_name = local_file_name+"text/citylist_"+translator::get_language_name_iso(translator::get_language()) + ".txt";;
-		file = fopen(local_file_name, "rb");
-		dbg->message("stadt_t::init_namen","loading names from text/");
-	}
-
-	if(file) {
-		char buf[256];
-
-		while(!feof(file)) {
-
-			if(fgets(buf, 256, file)) {
-				rtrim(buf);
-dbg->debug("stadt_t::init_namen()", "reading '%s'", buf);
-				namen_liste.insert(cstring_t(buf));
-			}
-			fclose(file);
-		}
-
-		strcat( oldpath, "/good.*.pak" );
-		fclose( fopen( oldpath, "rb" ) );
-	}
-	else {
-		// Hajo: try to read list failed, create random names
-dbg->message("stadt_t::init_namen()", "reading failed, creating random names.");
-
-		for(int i=0; i<anz_t1; i++) {
-			// const int l1 = strlen(translator::translate(name_t1[i]));
-			for(int j=0; j<anz_t2; j++) {
-			// const int l2 = strlen(translator::translate(name_t2[j]));
-				char buf [256];
-				sprintf(buf, "%s%s", translator::translate(name_t1[i]), translator::translate(name_t2[j]));
-				namen_liste.insert(cstring_t(buf));
-			}
-		}
-	}
-	return namen_liste.count();
-}
-
-
-/* now on to the translate stuff */
-
+/* first two file fuctions needed in connection with utf */
 
 /* checks, if we need a unicode translation (during load only done for identifying strings like "Auflösen")
  * @date 2.1.2005
  * @author prissi
  */
-static bool is_unicode_file(FILE *f)
+bool is_unicode_file(FILE *f)
 {
 	unsigned char	str[2];
 	int	pos = ftell(f);
+dbg->debug("is_unicode_file()", "checking for unicode");fflush(NULL);
 	fread( str, 1, 2,  f );
+dbg->debug("is_unicode_file()", "file starts with %x%x",str[0],str[1]);fflush(NULL);
 	if(  str[0]==0xC2  &&  str[1]==0xA7  ) {
 		// the first line must contain an UTF8 coded paragraph (Latin A7, UTF8 C2 A7), then it is unicode
 		return true;
@@ -164,7 +54,7 @@ static bool is_unicode_file(FILE *f)
 
 
 // recodes string to put them into the tables
-static char * recode(const char *src,bool translate_from_utf,bool translate_to_utf)
+char *recode(const char *src,bool translate_from_utf,bool translate_to_utf)
 {
 	char *base;
 	if(  translate_to_utf  ) {
@@ -204,7 +94,137 @@ static char * recode(const char *src,bool translate_from_utf,bool translate_to_u
 
 
 
-static void load_language_file_body(FILE *file,
+/* needed for loading city names */
+static char szenario_path[256];
+
+/* Liste aller Städtenamen
+ * @author Hj. Malthaner
+ */
+static slist_tpl <cstring_t> namen_liste;
+
+/* since the city names are language dependent, they are now kept here!
+ * @date 2.1.2005
+ * @author prissi
+ */
+static const int anz_t1 = 11;
+static const char * name_t1[anz_t1] =
+{
+    "%1_CITY_SYLL", "%2_CITY_SYLL", "%3_CITY_SYLL", "%4_CITY_SYLL", "%5_CITY_SYLL",
+    "%6_CITY_SYLL", "%7_CITY_SYLL", "%8_CITY_SYLL", "%9_CITY_SYLL", "%A_CITY_SYLL",
+    "%B_CITY_SYLL",
+
+};
+
+static const int anz_t2 = 10;
+static const char * name_t2[anz_t2] =
+{
+    "&1_CITY_SYLL", "&2_CITY_SYLL", "&3_CITY_SYLL", "&4_CITY_SYLL", "&5_CITY_SYLL",
+    "&6_CITY_SYLL", "&7_CITY_SYLL", "&8_CITY_SYLL", "&9_CITY_SYLL", "&A_CITY_SYLL",
+};
+
+
+
+int translator::get_count_city_name(void)
+{
+  return namen_liste.count();
+}
+
+
+
+/* returns a random city name */
+void	translator::get_city_name(char *name, int nr)
+{
+  if(  namen_liste.count()<=0  ) {
+  	// fallback for empty list (should never happen)
+  	strcpy( name, "Simcity" );
+  	return;
+  }
+  cstring_t &list_name = namen_liste.at( nr%namen_liste.count() );
+  tstrncpy(name, list_name, 64);
+  name[64] = 0;
+}
+
+
+
+/* the city list is now reloaded after the language is changed
+ * new cities will get their appropriate names
+ * @author hajo, prissi
+ */
+int  init_city_names(bool is_utf_language)
+{
+	FILE * file;
+	// rember old directory to go back there
+	char oldpath[1024];
+	getcwd( oldpath, 1024 );
+
+	// alle namen aufräumen
+	namen_liste.clear();
+
+	// Hajo: init city names. There are two options:
+	//
+	// 1.) read list from file
+	// 2.) create random names
+
+	// try to read list
+
+	// @author prissi: first try in scenario
+	cstring_t local_file_name(szenario_path);
+	local_file_name = local_file_name+"text/citylist_"+translator::get_language_name_iso(translator::get_language()) + ".txt";
+dbg->message("translator::init_city_names()","try to read city name list '%s'",local_file_name.chars());
+	file=fopen(local_file_name, "rb");
+dbg->message("translator::init_city_names()","file %p",file);fflush(NULL);
+	// not found => try usual location
+	if(file==NULL) {
+		cstring_t local_file_name("text/citylist_");
+		local_file_name = local_file_name+translator::get_language_name_iso(translator::get_language()) + ".txt";
+dbg->message("translator::init_city_names()","try to read city name list '%s'",local_file_name.chars());
+		file = fopen(local_file_name.chars(), "rb");
+	}
+dbg->message("translator::init_city_names()","file %p",file);fflush(NULL);
+
+	if(file!=NULL) {
+		// ok, could open file
+		char buf[256];
+           bool file_is_utf = is_unicode_file(file);
+		while(!feof(file)) {
+
+			if(fgets(buf, 128, file)) {
+				rtrim(buf);
+				char *c= recode( buf, file_is_utf, is_utf_language );
+				namen_liste.insert(cstring_t(buf));
+				guarded_free(c);
+			}
+		}
+		fclose(file);
+
+		file = fopen( oldpath, "rb" );
+		if(file) {
+			fclose( file );
+		}
+	}
+
+dbg->message("translator::init_city_names", "reading failed, creating random names.");fflush(NULL);
+	if(  namen_liste.count()==0  ) {
+		// Hajo: try to read list failed, create random names
+
+		for(int i=0; i<anz_t1; i++) {
+			// const int l1 = strlen(translator::translate(name_t1[i]));
+			for(int j=0; j<anz_t2; j++) {
+			// const int l2 = strlen(translator::translate(name_t2[j]));
+				char buf [256];
+				sprintf(buf, "%s%s", translator::translate(name_t1[i]), translator::translate(name_t2[j]));
+				namen_liste.insert(cstring_t(buf));
+			}
+		}
+	}
+	return namen_liste.count();
+}
+
+
+/* now on to the translate stuff */
+
+
+void load_language_file_body(FILE *file,
 				    stringhashtable_tpl<const char *> * table, bool language_is_utf, bool file_is_utf )
 {
     char buffer1 [4096];
@@ -214,6 +234,10 @@ static void load_language_file_body(FILE *file,
 
     do {
         fgets(buffer1, 4095, file);
+        if(  buffer1[0]=='#' ) {
+        	// ignore comments
+        	continue;
+        }
         fgets(buffer2, 4095, file);
 
         buffer1[4095] = 0;
@@ -223,7 +247,7 @@ static void load_language_file_body(FILE *file,
             // "\n" etc umsetzen
             buffer1[strlen(buffer1)-1] = 0;
             buffer2[strlen(buffer2)-1] = 0;
-            table->put(recode(buffer1,file_is_utf,false), recode(buffer2,false,convert_to_unicode));
+            table->set(recode(buffer1,file_is_utf,false), recode(buffer2,false,convert_to_unicode));
         }
     } while(!feof( file ));
 }
@@ -252,7 +276,8 @@ void translator::load_language_file(FILE *file)
 
 bool translator::load(const cstring_t & scenario_path)
 {
-    tstrncpy(szenario_path, scenario_path, 256);
+    strncpy(szenario_path, scenario_path, 256);
+    szenario_path[256] = 0;
 
     //initialize these values to 0(ie. nothing loaded)
     single_instance->lang_count = single_instance->current_lang = 0;
@@ -350,7 +375,7 @@ void translator::set_language(int lang)
     {
         single_instance->current_lang = lang;
         display_set_unicode( single_instance->language_is_utf_encoded[lang] );
-        init_city_names();
+        init_city_names( single_instance->language_is_utf_encoded[lang] );
     } else {
         dbg->warning("translator::set_language()" , "Out of bounds : %d", lang);
     }

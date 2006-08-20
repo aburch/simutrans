@@ -187,6 +187,12 @@ private:
      */
     void check_bau_rathaus();
 
+    /**
+     * constructs a new consumer
+     * @author prissi
+     */
+    void check_bau_factory();
+
     void bewerte();
 
     // bewertungsfunktionen fuer den Hauserbau

@@ -20,9 +20,9 @@ endif
 export OSTYPE
 
 #OPT=profile
-#OPT=debug
+OPT=debug
 #OPT=optimize
-OPT=debug_optimize
+#OPT=debug_optimize
 
 
 ifeq ($(SIM_OPTIMIZE),true)

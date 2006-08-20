@@ -1,0 +1,9 @@
+UTF8 support works very simple:
+
+If the language file is UTF8, then all input/output is handled as UTF8. However, this is only recommended for real multibyte codepages, as SDL just returns keys from Windows/Latin codepages (0...256) and not real UTF8, as far as I could find out. Also, if a font has less than 256 characters, then the font encoding will be ignored at the moment. Otherwise the font encoding must be ISO10626-1 (or what ever Unicode is).
+
+UTF8 files are beginning with "§" in UTF8 as very first letter. The line endings must be "\xA" (see the japanese files)
+
+The only execption so far is the citylist, which must be in the same encoding as the language file. But this will also change soon.
+
+If an UTF8 file is encountered in an not UTF8 language, it will be translated to 8Bit Latin (by just ignore all bits but the lower 8).

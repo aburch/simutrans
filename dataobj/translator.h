@@ -15,6 +15,8 @@ class loadsave_t;
 class cstring_t;
 
 template <class T> class stringhashtable_tpl;
+//template <class T> class slist_tpl;
+
 
 /**
  * Central location for loading and translating language text for the
@@ -42,8 +44,7 @@ private:
      */
     enum { MAX_LANG = 40 };
 
-    /**
-     * The single instance that this class will use to gain access to
+    /* The single instance that this class will use to gain access to
      * the member variables such as language names
      */
     static translator * single_instance;
@@ -54,7 +55,9 @@ private:
     const char * language_names_iso_base[MAX_LANG];
     stringhashtable_tpl<const char *> * languages[MAX_LANG];
 
+     /* some unicode stuff */
 	bool language_is_utf_encoded[MAX_LANG];
+//     static bool translator::is_unicode_file(FILE *f);
 
     /* Methods related to loading a language file into memory */
     static void load_language_file(FILE *file);
@@ -69,7 +72,8 @@ private:
     }
 
 public:
-	static void get_rand_city_name(char *name);
+	static void get_city_name(char *name, int nr);
+	static int get_count_city_name(void);
 
     /**
      * Loads up all files of language type from the 'language' directory.

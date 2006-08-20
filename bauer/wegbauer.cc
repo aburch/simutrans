@@ -341,7 +341,7 @@ wegbauer_t::ist_grund_fuer_strasse(koord pos, const koord zv, koord start, koord
   if( welt->ist_markiert(bd->gib_pos()))  // als ungeeignet markiert
       return false;
 
-  ok = bd->ist_natur()&!bd->ist_wasser();
+  ok = bd->ist_natur() &&  !bd->ist_wasser();
 
   switch(bautyp) {
   case strasse:
@@ -360,8 +360,7 @@ wegbauer_t::ist_grund_fuer_strasse(koord pos, const koord zv, koord start, koord
       break;
       // like strasse but allow for railroad crossing
   case strasse_bot:
-      ok =
-    (ok || bd->gib_weg(weg_t::strasse)  || check_crossing(zv,bd,weg_t::schiene)) &&
+      ok = (ok || bd->gib_weg(weg_t::strasse)  || check_crossing(zv,bd,weg_t::schiene)) &&
     !bd->hat_gebaeude(hausbauer_t::frachthof_besch);
       break;
   case schiene_bot:
@@ -370,7 +369,8 @@ wegbauer_t::ist_grund_fuer_strasse(koord pos, const koord zv, koord start, koord
      // like schiene, but allow for railroad crossings
      // avoid crossings with any (including our) railroad tracks
   case schiene_bot_bau:
-      ok = ok || (pos==start || pos==ziel)  ||  bd->gib_weg(weg_t::strasse)==NULL  ||  check_crossing(zv,bd,weg_t::strasse);
+      ok = ok || (pos==start || pos==ziel);
+      ok = ok &&  (bd->gib_weg(weg_t::strasse)==NULL  ||  check_crossing(zv,bd,weg_t::strasse));
       ok = ok && bd->gib_weg(weg_t::schiene)==NULL  &&  (bd->gib_besitzer()==sp  ||  bd->gib_besitzer()==NULL);
       break;
   default:

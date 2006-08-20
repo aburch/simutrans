@@ -91,12 +91,19 @@ public:
     static const stringhashtable_tpl<const fabrik_besch_t *> & gib_fabesch() {return table;};
 
 
+	/* returns a random consumer
+	 * @author prissi
+	 */
+	static const fabrik_besch_t *fabrikbauer_t::get_random_consumer(bool in_city);
+
+
+
     /**
      * vorbedingung: pos ist für fabrikbau geeignet
      * @return: Anzahl gebauter Fabriken
      * @author Hj.Malthaner
      */
-    static int baue_hierarchie(karte_t *welt, koord3d *parent, const fabrik_besch_t *info, int rotate, koord3d *pos, spieler_t *sp);
+    static int baue_hierarchie(karte_t *welt, koord3d *parent, const fabrik_besch_t *info, bool rotate, koord3d *pos, spieler_t *sp);
 
 private:
     // bauhilfen

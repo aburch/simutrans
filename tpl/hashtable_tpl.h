@@ -128,7 +128,7 @@ public:
 
 	node.key = key;
 	node.object = object;
-	bags[code].insert( node);
+	bags[code].insert(node);
 	return true;
     }
     //

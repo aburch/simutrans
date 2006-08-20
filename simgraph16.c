@@ -724,7 +724,7 @@ dsp_decode_bdf_data_row( unsigned char *data, int y , int g_width, char *str )
  * @author prissi
  */
 static int
-dsp_read_bdf_glyph( FILE *fin, unsigned char *data, unsigned char *w, unsigned char *screen_w, bool allow_256up, int f_height, int f_desc )
+dsp_read_bdf_glyph( FILE *fin, unsigned char *data, unsigned char *screen_w, bool allow_256up, int f_height, int f_desc )
 {
 	char str[256];
 	int	char_nr = 0;
@@ -763,9 +763,9 @@ dsp_read_bdf_glyph( FILE *fin, unsigned char *data, unsigned char *w, unsigned c
 			const int top = f_height + f_desc - h - g_desc;
 
 			// set place for high nibbles to zero
-			data[15*char_nr+12] = 0;
-			data[15*char_nr+13] = 0;
-			data[15*char_nr+14] = 0;
+			data[16*char_nr+12] = 0;
+			data[16*char_nr+13] = 0;
+			data[16*char_nr+14] = 0;
 
 			// maximum size 10 pixels
 			h = MIN( h+top, 12 );
@@ -774,14 +774,14 @@ dsp_read_bdf_glyph( FILE *fin, unsigned char *data, unsigned char *w, unsigned c
 			int y;
 			for(  y=top;  y<h;  y++  ) {
 				fgets( str, 255, fin );
-				dsp_decode_bdf_data_row( data+char_nr*15, y, g_width, str );
+				dsp_decode_bdf_data_row( data+char_nr*16, y, g_width, str );
 			}
 			continue;
 		}
 
 		// finally add width information (width = 0: not there!)
 		if(  strncmp(str,"ENDCHAR",7)==0  ) {
-			w[char_nr] = g_width;
+			data[16*char_nr+15] = g_width;
 			if(  d_width==0  ) {
 				// no screen width: should not happen, but we can recover
 				printf( "BDF warning: %i has no screen width assigned!\n", char_nr );
@@ -805,7 +805,7 @@ static bool
 dsp_read_bdf_font( FILE *fin, bool *is_unicode, font_type *font )
 {
 	char str[256];
-	unsigned char *data=NULL, *widths=NULL, *screen_widths=NULL;
+	unsigned char *data=NULL, *screen_widths=NULL;
 	int	f_width, f_height, f_lead, f_desc;
 	int f_chars=0;
 
@@ -829,15 +829,8 @@ dsp_read_bdf_font( FILE *fin, bool *is_unicode, font_type *font )
 				*is_unicode = false;
 				f_chars = 256;
 			}
-			data = (unsigned char *)calloc( f_chars, 15 );
+			data = (unsigned char *)calloc( f_chars, 16 );
 			if(  data==NULL ) {
-				printf( "No enough memory for font allocation!\n" );
-				fflush(NULL);
-				return false;
-			}
-			widths =  (unsigned char *)calloc( f_chars, 1 );
-			if(  widths==NULL ) {
-				free( data );
 				printf( "No enough memory for font allocation!\n" );
 				fflush(NULL);
 				return false;
@@ -845,42 +838,42 @@ dsp_read_bdf_font( FILE *fin, bool *is_unicode, font_type *font )
 			screen_widths =  (unsigned char *)calloc( f_chars, 1 );
 			if(  screen_widths==NULL ) {
 				free( data );
-				free( widths );
 				printf( "No enough memory for font allocation!\n" );
 				fflush(NULL);
 				return false;
 			}
-			widths[32] = 0;
+			data[32*16] = 0;	// screen width of space
 			screen_widths[32] = CLIP( f_height/2, 3, 12 );
 			continue;
 		}
 
 		if(  strncmp( str, "STARTCHAR", 9 )==0  &&  f_chars>0  ) {
-			dsp_read_bdf_glyph( fin, data, widths, screen_widths, f_chars>255, f_height, f_desc );
+			dsp_read_bdf_glyph( fin, data, screen_widths, f_chars>255, f_height, f_desc );
 			continue;
 		}
 	}
 	// ok, was successful?
 	if(  f_chars>0  ) {
 		// init default char for missing characters (just a box)
-		widths[0] = 8;
+		screen_widths[0] = 8;
+
 		int h;
-		data[0] = 0x7F;
-		for(  h=1;  h<f_height+f_desc-1;  h++  ) {
-			data[h] = 0x41;
+		data[0] = 0x7E;
+		for(  h=1;  h<f_height-2;  h++ ) {
+			data[h] = 0x42;
 		}
-		data[h] = 0x7F;
+		data[h++] = 0x7E;
 		for(  ;  h<15;  h++  ) {
 			data[h] = 0;
 		}
+		data[15] = 7;
 		// now free old and assign new
-		if(  font->char_width!=NULL  ) {
-			free( font->char_width );
+		if(  font->screen_width!=NULL  ) {
+			free( font->screen_width );
 		}
 		if(  font->char_data!=NULL  ) {
 			free( font->char_data );
 		}
-		font->char_width = widths;
 		font->screen_width = screen_widths;
 		font->char_data = data;
 		font->height = f_height;
@@ -896,7 +889,7 @@ dsp_read_bdf_font( FILE *fin, bool *is_unicode, font_type *font )
 /* Loads the fonts (true for large font)
  * @author prissi
  */
-bool load_font(const char *fname, bool large )
+bool display_load_font(const char *fname, bool large )
 {
     FILE *f = NULL;
     unsigned char c;
@@ -904,7 +897,7 @@ bool load_font(const char *fname, bool large )
 
 	f = fopen(fname, "rb");
 	if (f==NULL) {
-		printf("Error: Cannot open '%s'\n", fname);
+		printf("Error: Cannot open '%s'\n", fname);fflush(NULL);
 		return false;
 	}
 	c = getc(f);
@@ -916,44 +909,40 @@ bool load_font(const char *fname, bool large )
 		int i;
 
 		rewind(f);
-		printf("Loading font '%s'\n", fname);
+		printf("Loading font '%s'\n", fname);fflush(NULL);
 
 		if(  fread(npr_fonttab, 1, 3072, f)!=3072  ) {
-			printf("Error: %s wrong size for old format prop font!\n",fname);
+			printf("Error: %s wrong size for old format prop font!\n",fname);fflush(NULL);
 			fclose(f);
 			return false;
 		}
 		fclose(f);
 		// convert to new standard font
-		if(  fnt->char_width!=NULL  ) {
-			free( fnt->char_width );
+		if(  fnt->screen_width!=NULL  ) {
+			free( fnt->screen_width );
 		}
 		if(  fnt->char_data!=NULL  ) {
 			free( fnt->char_data );
 		}
 		strcpy( fnt->name, fname );
-		fnt->char_width =  (unsigned char *)calloc( 1, 256 );
-		fnt->screen_width =  (unsigned char *)calloc( 1, 256 );
-		fnt->char_data =  (unsigned char *)calloc( 15, 256 );
+		fnt->screen_width =  (unsigned char *)malloc( 256 );
+		fnt->char_data =  (unsigned char *)malloc( 16*256 );
 		fnt->num_chars = 256;
 		fnt->height = 10;
 		fnt->descent = -1;
 		for(  i=0;  i<256;  i++  ) {
 			int j;
-			fnt->char_width[i] = npr_fonttab[i];
 			fnt->screen_width[i] = npr_fonttab[256+i];
 			for(  j=0;  j<10;  j++  ) {
-				fnt->char_data[i*15+j] = npr_fonttab[512+i*10+j];
+				fnt->char_data[i*16+j] = npr_fonttab[512+i*10+j];
 			}
 			for(  ;  j<15;  j++  ) {
-				fnt->char_data[i*15+j] = 0xFF;
+				fnt->char_data[i*16+j] = 0;
 			}
+			fnt->char_data[16*i+15] = npr_fonttab[i];
 		}
-		fnt->char_width[32] = 4;
-		if(  large  ) {
-			large_font_height = 10;
-		}
-		printf("%s sucessful loaded as old format prop font!\n",fname);
+		fnt->screen_width[(16*32)+15] = 4;
+		printf("%s sucessful loaded as old format prop font!\n",fname);fflush(NULL);
 		return true;
 	}
 
@@ -980,34 +969,30 @@ bool load_font(const char *fname, bool large )
 		}
 		fclose(f);
 		// convert to new standard font
-		if(  fnt->char_width!=NULL  ) {
-			free( fnt->char_width );
+		if(  fnt->screen_width!=NULL  ) {
+			free( fnt->screen_width );
 		}
 		if(  fnt->char_data!=NULL  ) {
 			free( fnt->char_data );
 		}
 		strcpy( fnt->name, fname );
-		fnt->char_width =  (unsigned char *)calloc( 1, 256 );
-		fnt->screen_width =  (unsigned char *)calloc( 1, 256 );
-		fnt->char_data =  (unsigned char *)calloc( 15, 256 );
+		fnt->screen_width =  (unsigned char *)malloc( 256 );
+		fnt->char_data =  (unsigned char *)malloc( 16*256 );
 		fnt->num_chars = 256;
 		fnt->height = 7;
 		fnt->descent = -1;
 		for(  i=0;  i<256;  i++  ) {
 			int j;
-			fnt->char_width[i] = 3;
 			fnt->screen_width[i] = 4;
 			for(  j=0;  j<7;  j++  ) {
-				fnt->char_data[i*15+j] = dr_4x7font[i*7+j];
+				fnt->char_data[i*16+j] = dr_4x7font[i*7+j];
 			}
 			for(  ;  j<15;  j++  ) {
-				fnt->char_data[i*15+j] = 0xFF;
+				fnt->char_data[i*16+j] = 0xFF;
 			}
-			if(  large  ) {
-				large_font_height = 10;
-			}
+			fnt->char_data[i*16+15] = 3;
 		}
-		printf("%s sucessful loaded as old format hex font!\n",fname);
+		printf("%s sucessful loaded as old format hex font!\n",fname);fflush(NULL);
 		return true;
 	}
 
@@ -1026,6 +1011,38 @@ bool load_font(const char *fname, bool large )
 	}
 	return false;
 }
+
+
+
+/* copy a font
+ * @author prissi
+ */
+void	copy_font( font_type *dest_font, font_type *src_font )
+{
+	memcpy( dest_font, src_font, sizeof(font_type) );
+	dest_font->char_data = malloc( dest_font->num_chars*16 );
+	memcpy( dest_font->char_data, src_font->char_data, 16*dest_font->num_chars );
+	dest_font->screen_width = malloc( dest_font->num_chars );
+	memcpy( dest_font->screen_width, src_font->screen_width, dest_font->num_chars );
+}
+
+
+
+/* checks if a small and a large font exists;
+ * if not the missing font will be emulated
+ * @author prissi
+ */
+void	display_check_fonts(void)
+{
+	// replace missing font, if none there (better than crashing ... )
+	if(  small_font.screen_width==NULL  &&  large_font.screen_width!=NULL ) {
+		copy_font( &small_font, &large_font );
+	}
+	if(  large_font.screen_width==NULL  &&  small_font.screen_width!=NULL ) {
+		copy_font( &large_font, &small_font );
+	}
+}
+
 
 
 /**
@@ -2380,10 +2397,14 @@ void display_text_proportional_len_clip(int x, int y, const char *txt,
 		{
 			c = (unsigned char)txt[iTextPos++];
 		}
+		// print unknow character?
+		if(  c>=fnt->num_chars  ||  fnt->screen_width[c]==0  ) {
+			c = 0;
+		}
 		// get the data from the font
-		char_width_1 = fnt->char_width[c];
+		char_width_1 = fnt->char_data[16*c+15];
 		char_width_2 = fnt->screen_width[c];
-		char_data = fnt->char_data+(15l*c);
+		char_data = fnt->char_data+(16l*c);
 		if(  char_width_1>8  ) {
 			mask1 = get_mask( x, x+8, cL, cR );
 			// we need to double mask 2, since only 2 Bits are used
@@ -2881,20 +2902,15 @@ simgraph_init(int width, int height, int use_shm, int do_sync)
         textur = dr_textur_init();
 	use_softpointer = dr_use_softpointer();
 
-	small_font.char_width = large_font.char_width = NULL;
+	// init, load, and check fonts
+	small_font.screen_width = large_font.screen_width = NULL;
 	small_font.char_data = large_font.char_data = NULL;
-
-	load_font( FONT_PATH_X "4x7.hex", false );
-	load_font( FONT_PATH_X "prop.fnt", true );
-
-//	init_font(FONT_PATH_X "draw.fnt", FONT_PATH_X "prop.fnt", FONT_PATH_X"unicode.fnt");
-//	load_hex_font(FONT_PATH_X "4x7.hex");
-
+	display_load_font( FONT_PATH_X "4x7.hex", false );
+	display_load_font( FONT_PATH_X "prop.fnt", true );
+	display_check_fonts();
 
 	load_special_palette();
-
 	display_set_color(1);
-
 
 	for(i=0; i<256; i++) {
 	    rgbcolormap[i] = get_system_color(day_pal[i*3], day_pal[i*3+1], day_pal[i*3+2]);

@@ -29,6 +29,7 @@
 
 #include "../sucher/bauplatz_sucher.h"
 
+#include "../gui/karte.h"	// to update map after construction of new industry
 
 // Hajo: average industry distance
 #define DISTANCE 50
@@ -506,6 +507,10 @@ fabrikbauer_t::baue_fabrik(karte_t * welt, koord3d *parent, const fabrik_besch_t
   ware_t ware(produkt->gib_ware());
 
   ware.max = produkt->gib_kapazitaet() << fabrik_t::precision_bits;
+	if(info->gib_lieferanten()==0) {
+		// source -> start with full storage
+		ware.menge = ware.max-(16<<fabrik_t::precision_bits);
+	}
 
   ausgang->append(ware);
     }
@@ -534,61 +539,133 @@ fabrikbauer_t::baue_fabrik(karte_t * welt, koord3d *parent, const fabrik_besch_t
 }
 
 
+
+/* returns a random consumer
+ * @author prissi
+ */
+const fabrik_besch_t *fabrikbauer_t::get_random_consumer(bool in_city)
+{
+
+	// get a random city factory
+	stringhashtable_iterator_tpl<const fabrik_besch_t *> iter(table);
+	slist_tpl <const fabrik_besch_t *> consumer;
+
+	while(iter.next()) {
+		const fabrik_besch_t *current=iter.get_current_value();
+		// nur endverbraucher eintragen
+		if(current->gib_produkt(0)==NULL  &&  (!in_city  ||  current->gib_platzierung() == fabrik_besch_t::Stadt)  ) {
+			consumer.insert(current);
+		}
+	}
+dbg->message("fabrikbauer_t::get_random_consumer","Found %i consumer.",consumer.count());
+	return consumer.at(simrand(consumer.count()));
+}
+
+
+
 /**
  * vorbedingung: pos ist für fabrikbau geeignet
  */
 int
-fabrikbauer_t::baue_hierarchie(karte_t * welt, koord3d *parent, const fabrik_besch_t *info, int rotate, koord3d *pos, spieler_t *sp)
+fabrikbauer_t::baue_hierarchie(karte_t * welt, koord3d *parent, const fabrik_besch_t *info, bool rotate, koord3d *pos, spieler_t *sp)
 {
-    int n = 1;
+	int n = 1;
 
-    baue_fabrik(welt, parent, info, rotate, *pos, sp);
+	if(info==NULL) {
+		// no industry found
+		return 0;
+	}
 
-    for(int i=0; i < info->gib_lieferanten(); i++) {
-  const fabrik_lieferant_besch_t *lieferant = info->gib_lieferant(i);
-  const ware_besch_t *ware = lieferant->gib_ware();
-  const fabrik_besch_t *hersteller = finde_hersteller(ware);
-  const haus_besch_t *haus = hersteller->gib_haus();
+	if(info->gib_platzierung() == fabrik_besch_t::Stadt) {
+		// built consumer (factory) intown:
+		stadt_fabrik_t sf;
+		koord k=koord(pos->x,pos->y);
 
-  int lcount = lieferant->gib_anzahl();
+		koord size=info->gib_haus()->gib_groesse();
+dbg->message("fabrikbauer_t::baue_hierarchie","Search place for city factory (%i,%i) size.",size.x,size.y);
 
-  if(lcount == 0) {
-    // Hajo: search if there already is one
+		sf.stadt = welt->suche_naechste_stadt(k);
+		if(sf.stadt==NULL) {
+			return 0;
+		}
+		//
+		// Drei Varianten:
+		// A:
+		// Ein Bauplatz, möglichst nah am Rathaus mit einer Strasse daneben.
+		// Das könnte ein Zeitproblem geben, wenn eine Stadt keine solchen Bauplatz
+		// hat und die Suche bis zur nächsten Stadt weiterläuft
+		// Ansonsten erscheint mir das am realistischtsten..
+		k = bauplatz_mit_strasse_sucher_t(welt).suche_platz(sf.stadt->gib_pos(), size.x, size.y,&rotate);
+		dbg->message("fabrikbauer_t::baue_hierarchie","Construction at (%i,%i).",k.x,k.y);
+		// B:
+		// Gefällt mir auch. Die Endfabriken stehen eventuell etwas außerhalb der Stadt
+		// aber nicht weit weg.
+		//k = finde_zufallsbauplatz(welt, welt->lookup(sf.stadt->gib_pos())->gib_boden()->gib_pos(), 3, land_bau.dim).gib_2d();
+		// C:
+		// Ein Bauplatz, möglichst nah am Rathaus.
+		// Wenn mehrere Endfabriken bei einer Stadt landen, sind die oft hinter
+		// einer Reihe Häuser "versteckt", von Strassen abgeschnitten.
+		//k = bauplatz_sucher_t(welt).suche_platz(sf.stadt->gib_pos(), land_bau.dim.x, land_bau.dim.y);
 
-    const slist_tpl<fabrik_t *> & list = welt->gib_fab_list();
-    slist_iterator_tpl <fabrik_t *> iter (list);
-    bool found = false;
+		if(k != koord::invalid) {
+			*pos = welt->lookup(k)->gib_kartenboden()->gib_pos();
+			//			baue_hierarchie(welt, NULL, land_bau.info, land_bau.rotate, &pos, welt->gib_spieler( 1 ));
+			//			gebaut.insert(sf);
+		}
+		else
+			return 0;
+	}
 
-    while( iter.next() ) {
-      fabrik_t * fab = iter.get_current();
+dbg->message("fabrikbauer_t::baue_hierarchie","Construction of %s at (%i,%i).",info->gib_name(),pos->x,pos->y);
 
-      if(fab->vorrat_an(ware) > -1) {
+	baue_fabrik(welt, parent, info, rotate, *pos, sp);
 
-        const koord3d d = fab->gib_pos() - *pos;
-        const int distance = abs(d.x) + abs(d.y);
-        const bool ok = distance < 60 || distance < simrand(240);
+	for(int i=0; i < info->gib_lieferanten(); i++) {
+		const fabrik_lieferant_besch_t *lieferant = info->gib_lieferant(i);
+		const ware_besch_t *ware = lieferant->gib_ware();
+		const fabrik_besch_t *hersteller = finde_hersteller(ware);
+		const haus_besch_t *haus = hersteller->gib_haus();
 
-        if(ok) {
-    found = true;
-    fab->add_lieferziel(pos->gib_2d());
-        }
-      }
-    }
+		int lcount = lieferant->gib_anzahl();
+
+		if(lcount == 0) {
+			// Hajo: search if there already is one
+
+			const slist_tpl<fabrik_t *> & list = welt->gib_fab_list();
+			slist_iterator_tpl <fabrik_t *> iter (list);
+			bool found = false;
+
+			while( iter.next() ) {
+				fabrik_t * fab = iter.get_current();
+
+				if(fab->vorrat_an(ware) > -1) {
+
+					const koord3d d = fab->gib_pos() - *pos;
+					const int distance = abs(d.x) + abs(d.y);
+					const bool ok = distance < 60 || distance < simrand(240);
+
+					if(ok) {
+						found = true;
+						fab->add_lieferziel(pos->gib_2d());
+					}
+				}
+			}
+
+			// Hajo: if none exist, build one
+			lcount = found ? 0 : 1;
+		}
 
 
-    // Hajo: if none exist, build one
-    lcount = found ? 0 : 1;
-  }
+		for(int j=0; j<lcount; j++) {
+			int rotate = simrand(4);
 
-
-  for(int j=0; j<lcount; j++) {
-      int rotate = simrand(4);
-
-      koord3d k = finde_zufallsbauplatz(welt, *pos, DISTANCE, haus->gib_groesse(rotate));
-      if(welt->lookup(k)) {
-    n += baue_hierarchie(welt, pos, hersteller, rotate, &k, sp);
-      }
-  }
-    }
-    return n;
+			koord3d k = finde_zufallsbauplatz(welt, *pos, DISTANCE, haus->gib_groesse(rotate));
+			if(welt->lookup(k)) {
+				n += baue_hierarchie(welt, pos, hersteller, rotate, &k, sp);
+			}
+		}
+	}
+	// update an open map
+	reliefkarte_t::gib_karte()->set_mode(-1);
+	return n;
 }

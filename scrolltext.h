@@ -67,6 +67,9 @@
 " Niels Roest","Dutch",
 " Pasi Ruhanen","Finnish",
 " Rémi Denis-Courmont","French",
+" Ferencz Szekely",""
+"","Hungary and Romanian"
+" 'StalkeRXP'","Russian"
 "","",
 "","",
 "Manual and Documentation:","",

@@ -18,7 +18,8 @@ nomad@sms-amore.de
                Simutrans' proportional font
 npr@hetnet.nl
 
-* Markus Pristovsek: Bugfixes
+* Markus Pristovsek: Bugfixes, New AI, UTF-support
+markus@pristovsek.de
 
 * Pasi Ruhanen: Help with BeOS port
 duck@neutech.fi
@@ -187,6 +188,14 @@ ecostaoli@yahoo.com.br
 * Finn Rosenbech Jensen: Danish translation
 finnrj@ofir.dk
 
+* Ferencz Szekely: Hungary and Romanian translation
+phritzy74@freemail.hu
+
+* "StalkeRXP": Russian translation
+deep-dream@narod.ru
+
+* Danilo Schöneberg: Russian BDF-font
+champcarracer@hotmail.com
 
 User manual, documentation and in-game texts
 --------------------------------------------

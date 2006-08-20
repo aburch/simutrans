@@ -49,6 +49,7 @@
 #include "bauer/warenbauer.h"
 #include "bauer/wegbauer.h"
 #include "bauer/hausbauer.h"
+#include "bauer/fabrikbauer.h"
 
 #include "utils/cstring_t.h"
 #include "utils/cbuffer_t.h"
@@ -101,6 +102,13 @@ static struct rule_t * house_rules = 0;
  * @author prissi
  */
 static int minimum_city_distance = 16;
+
+
+/**
+ * add a new consumer every % people increase
+ * @author prissi
+ */
+static int industry_increase_every = 0;
 
 
 //------------ haltestellennamen -----------------------
@@ -309,18 +317,54 @@ stadt_t::stadt_t(karte_t *wl, spieler_t *sp, koord pos) :
     zentrum_namen_cnt = 0;
     aussen_namen_cnt = 0;
 
-    translator::get_rand_city_name( name );
+dbg->message("stadt_t::stadt_t()","Welt %p",welt);fflush(NULL);
+    /* get a unique cityname */
+    /* 9.1.2005, prissi */
+    const array_tpl<stadt_t *> *staedte=welt->gib_staedte();
+    const int anz_staedte = staedte->get_size()-1;
+    const int name_list_count = translator::get_count_city_name();
+    bool not_unique=true;
+
+dbg->message("stadt_t::stadt_t()","number of towns %i",anz_staedte);fflush(NULL);
+
+    // start at random position
+    int start_cont = simrand(name_list_count);
+   char list_name[64];
+
+    translator::get_city_name( list_name, start_cont );
+    {
+    	    for(  int i=0;  i<name_list_count  &&  not_unique;  i++  ) {
+    	    	 // get a name
+            translator::get_city_name( list_name, start_cont+i );
+          	not_unique = false;
+            // check if still unused
+            for(  int j=0;  j<anz_staedte;  j++  ) {
+                // noch keine stadt mit diesem namen?
+                if(  staedte->get(j)!=this   &&  staedte->get(j)!=NULL  ) {
+                	not_unique |= (strcmp( list_name, staedte->get(j)->gib_name() )==0);
+                }
+            }
+dbg->message("stadt_t::stadt_t()", "'%s' is%s unique", list_name, not_unique?" not":"");
+        }
+    }
+    strcpy(name, list_name);
+dbg->message("stadt_t::stadt_t()","founding new city named '%s'",name);
 
     // 1. Rathaus bei 0 Leuten bauen
     check_bau_rathaus();
 
     wachstum = 0;
 
-    const int anzahl = 360 + simrand(3000);
+//    const int anzahl = 360 + simrand(3000);
+//    for(int i=0; i<anzahl; i++) {
+//     step_bau();
+//    }
 
-    for(int i=0; i<anzahl; i++) {
-        step_bau();
-    }
+    // this way, new cities are properly recognized
+    pax_erzeugt = 0;
+    pax_transport = (360 + simrand(3000))/8;
+    step_bau();
+    pax_transport = 0;
 }
 
 
@@ -500,6 +544,7 @@ stadt_t::neuer_monat()
 void
 stadt_t::step_bau()
 {
+  bool new_town = (bev==0);
   wachstum = (pax_transport << 3) / (pax_erzeugt+1);
 
   // Hajo: let city grow in steps of 1
@@ -522,6 +567,10 @@ stadt_t::step_bau()
     check_bau_spezial();
     INT_CHECK("simcity 275");
     check_bau_rathaus();
+    // add industry? (not during creation)
+    if(  !new_town  ) {
+	check_bau_factory();
+    }
   }
 }
 
@@ -972,6 +1021,29 @@ stadt_t::check_bau_rathaus()
 
     if(ob < 0) ob = 0;
     if(un >= welt->gib_groesse()) un = welt->gib_groesse() - 1;
+}
+
+
+
+
+/* eventually adds a new industry
+ * so with growing number of inhabitants the industry grows
+ * @date 12.1.05
+ * @author prissi
+ */
+void
+stadt_t::check_bau_factory()
+{
+	if(industry_increase_every>0  &&  bev%industry_increase_every==0) {
+		const fabrik_besch_t *market=fabrikbauer_t::get_random_consumer(true);
+//		koord size=market->gib_haus()->gib_groesse();
+		bool	rotate=false;
+
+//	      koord3d market_pos = bauplatz_sucher_t(welt, besitzer_p).suche_platz(pos, size.x, size.y,rotate);
+		koord3d	market_pos=welt->lookup(pos)->gib_kartenboden()->gib_pos();
+dbg->message("stadt_t::check_bau_factory","adding new industry at %i inhabitants.",bev);
+	    fabrikbauer_t::baue_hierarchie(welt, NULL, market, rotate, &market_pos, welt->gib_spieler(1) );
+	}
 }
 
 
@@ -1716,6 +1788,7 @@ bool stadt_t::init()
     char buf[128];
 
     minimum_city_distance = contents.get_int("minimum_city_distance", 16);
+    industry_increase_every = contents.get_int("industry_increase_every", 0);
 
     num_house_rules = 0;
     while (true) {

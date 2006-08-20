@@ -53,12 +53,15 @@ void sprachengui_t::init_font_from_lang()
 	// load large font
   char prop_font_file_name [1024];
 	sprintf(prop_font_file_name, "%s%s", FONT_PATH_X, prop_font_file);
-	load_font(prop_font_file_name,true);
+	display_load_font(prop_font_file_name,true);
 
 	// load small font
   char hex_font_file_name [1024];
   sprintf(hex_font_file_name, "%s%s", FONT_PATH_X, hex_font_file);
-  load_font(hex_font_file_name,false);
+  display_load_font(hex_font_file_name,false);
+
+	// if missing, substitute
+  display_check_fonts();
 
   const char * p = translator::translate("SEP_THOUSAND");
   char c = ',';

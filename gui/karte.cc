@@ -24,7 +24,7 @@ int reliefkarte_t::mode = -1;
 
 const int reliefkarte_t::map_type_color[MAX_MAP_TYPE] =
 {
-  7, 11, 15, 132, 23, 31, 35
+  7, 11, 15, 132, 23, 31, 35, 7
 };
 
 const int reliefkarte_t::severity_color[12] =
@@ -568,6 +568,10 @@ reliefkarte_t::calc_map(int render_mode)
 		}
 	  }
 	break;
+	case 10:
+		// show max speed
+		setze_relief_farbe(k, calc_severity_color(gr->get_max_speed(), 20));
+		break;
 	default:
 	  recalc_relief_farbe(k);
 	  break;

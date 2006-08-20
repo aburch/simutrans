@@ -1580,8 +1580,8 @@ int wkz_build_industries(spieler_t *sp, karte_t *welt, koord pos)
 
   if(plan) {
 
-    const fabrik_besch_t *info =
-      fabrikbauer_t::gib_fabesch("Materialswholesale");
+    const fabrik_besch_t *info = fabrikbauer_t::get_random_consumer(false);
+//      fabrikbauer_t::gib_fabesch("Materialswholesale");
 
 
     koord3d pos3d = plan->gib_kartenboden()->gib_pos();

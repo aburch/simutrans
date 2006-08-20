@@ -62,22 +62,7 @@ convoi_info_t::convoi_info_t(convoihandle_t cnv)
     input.setze_groesse(koord(189, 13));
     input.setze_text(cnv->access_name(), 48);
 
-
-    button.setze_groesse(koord(10*8+4, 14));
-    button.text = translator::translate("Fahrplan");
-    button.setze_typ(button_t::roundbox);
-
-    go_home_button.setze_groesse(koord(10*8+4, 14));
-    go_home_button.text = translator::translate("go home");
-    go_home_button.setze_typ(button_t::roundbox);
-    go_home_button.set_tooltip(translator::translate("Sends the convoi to the last depot it departed from!"));
-
-    kill_button.setze_groesse(koord(15, 14));
-    kill_button.text = "X";
-    kill_button.setze_typ(button_t::roundbox);
-    kill_button.set_tooltip(translator::translate("Remove vehicle from map. Use with care!"));
-
-    toggler.setze_groesse(koord(10*8+4, 13));
+     toggler.setze_groesse(koord(10*8+4, 13));
     toggler.setze_pos(view.gib_pos() + koord(11, 105));
     toggler.text = translator::translate("Chart");
     toggler.setze_typ(button_t::roundbox);
@@ -88,7 +73,6 @@ convoi_info_t::convoi_info_t(convoihandle_t cnv)
 
     scrolly.setze_pos(koord(0, 122));
 
-
     filled_bar.add_color_value(&cnv->get_loading_limit(), GELB);
     filled_bar.add_color_value(&cnv->get_loading_level(), GREEN);
     add_komponente(&filled_bar);
@@ -98,14 +82,8 @@ convoi_info_t::convoi_info_t(convoihandle_t cnv)
     speed_bar.add_color_value(&cnv->gib_akt_speed(), GREEN);
     add_komponente(&speed_bar);
 
-
     setze_opaque(true);
     setze_fenstergroesse(koord(304, 278));
-
-
-    button.add_listener(this);
-    go_home_button.add_listener(this);
-    kill_button.add_listener(this);
 
     // chart
     chart = new gui_chart_t;
@@ -143,16 +121,36 @@ convoi_info_t::convoi_info_t(convoihandle_t cnv)
     }
 
     add_komponente(&scrolly);
-    add_komponente(&button);
     add_komponente(&input);
     add_komponente(&view);
-    add_komponente(&go_home_button);
-    add_komponente(&kill_button);
-
 
     set_min_windowsize(koord(304, 194));
     set_resizemode(diagonal_resize);
     resize(koord(0,0));
+
+    if(cnv->gib_besitzer()->automat==false) {
+       // this convoi belongs not to an AI
+       button.setze_groesse(koord(10*8+4, 14));
+       button.text = translator::translate("Fahrplan");
+       button.setze_typ(button_t::roundbox);
+
+       go_home_button.setze_groesse(koord(10*8+4, 14));
+       go_home_button.text = translator::translate("go home");
+       go_home_button.setze_typ(button_t::roundbox);
+       go_home_button.set_tooltip(translator::translate("Sends the convoi to the last depot it departed from!"));
+
+       kill_button.setze_groesse(koord(15, 14));
+       kill_button.text = "X";
+       kill_button.setze_typ(button_t::roundbox);
+       kill_button.set_tooltip(translator::translate("Remove vehicle from map. Use with care!"));
+
+      add_komponente(&button);
+       add_komponente(&go_home_button);
+       add_komponente(&kill_button);
+       button.add_listener(this);
+       go_home_button.add_listener(this);
+       kill_button.add_listener(this);
+    }
 }
 
 
