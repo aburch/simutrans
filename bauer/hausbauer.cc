@@ -468,7 +468,12 @@ hausbauer_t::neues_gebaeude(karte_t *welt, spieler_t *sp, koord3d pos, int layou
 	}
 //DBG_MESSAGE("hausbauer_t::neues_gebaeude()","building stop pri=%i",pri);
 
+	// remove pointer
 	grund_t *gr = welt->lookup(pos);
+	if(gr->suche_obj(ding_t::zeiger)) {
+		gr->obj_remove(gr->suche_obj(ding_t::zeiger),NULL);
+	}
+
 	if(pri==0) {
 		// add it after roadsigns, bridges, and overheadwires, but before any cars ...
 		for( int i=0;  i<255;  i++  ) {

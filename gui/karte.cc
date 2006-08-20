@@ -25,6 +25,13 @@
 #include "../simgraph.h"
 
 
+sint32 reliefkarte_t::max_capacity=0;
+sint32 reliefkarte_t::max_departed=0;
+sint32 reliefkarte_t::max_arrived=0;
+sint32 reliefkarte_t::max_cargo=0;
+sint32 reliefkarte_t::max_convoi_arrived=0;
+sint32 reliefkarte_t::max_passed=0;
+sint32 reliefkarte_t::max_tourist_ziele=0;
 
 reliefkarte_t * reliefkarte_t::single_instance = NULL;
 karte_t * reliefkarte_t::welt = NULL;
@@ -48,17 +55,20 @@ const uint8 reliefkarte_t::severity_color[MAX_SEVERITY_COLORS] =
 
 
 uint8
-reliefkarte_t::calc_severity_color(sint32 amount, sint32 scale)
+reliefkarte_t::calc_severity_color(sint32 amount, sint32 max_value)
 {
-	// color array goes from light blue to red
-	sint32 severity = (amount<<1) / scale;
-	if(severity > MAX_SEVERITY_COLORS) {
-		severity = 20;
+	if(max_value!=0) {
+		// color array goes from light blue to red
+		sint32 severity = (amount*MAX_SEVERITY_COLORS) / max_value;;
+		if(severity>MAX_SEVERITY_COLORS) {
+			severity = 20;
+		}
+		else if(severity < 0) {
+			severity = 0;
+		}
+		return reliefkarte_t::severity_color[severity];
 	}
-	if(severity < 0) {
-		severity = 0;
-	}
-	return reliefkarte_t::severity_color[severity];
+	return reliefkarte_t::severity_color[0];
 }
 
 
@@ -286,7 +296,13 @@ reliefkarte_t::calc_map_pixel(const koord k)
 
 		// show usage
 		case MAP_FREIGHT:
-			{
+			// need to init the maximum?
+			if(max_cargo==0) {
+				max_cargo = 1;
+				calc_map();
+			}
+			else {
+				// now calc again ...
 				sint32 cargo=0;
 				if (gr->gib_weg(weg_t::strasse)) {
 					cargo += gr->gib_weg(weg_t::strasse)->get_statistics(WAY_STAT_GOODS);
@@ -301,7 +317,10 @@ reliefkarte_t::calc_map_pixel(const koord k)
 					cargo += gr->gib_weg(weg_t::luft)->get_statistics(WAY_STAT_GOODS);
 				}
 				if(cargo>0) {
-					setze_relief_farbe(k, calc_severity_color(cargo, 1000));
+					if(cargo>max_cargo) {
+						max_cargo = cargo;
+					}
+					setze_relief_farbe(k, calc_severity_color(cargo, max_cargo));
 				}
 			}
 			break;
@@ -318,44 +337,70 @@ reliefkarte_t::calc_map_pixel(const koord k)
 
 		// show frequency of convois visiting a station
 		case MAP_SERVICE:
-			{
+			// need to init the maximum?
+			if(max_convoi_arrived==0) {
+				max_convoi_arrived = 1;
+				calc_map();
+			}
+			else {
 				halthandle_t halt = gr->gib_halt();
 				if (halt.is_bound()   && (halt->gib_besitzer()==welt->get_active_player()  ||  halt->gib_besitzer()==welt->gib_spieler(1)) ) {
 					// get number of last month's arrived convois
-					setze_relief_farbe_area(k, 3, calc_severity_color(halt->get_finance_history(1, HALT_CONVOIS_ARRIVED), 5));
+					sint32 arrived = halt->get_finance_history(1, HALT_CONVOIS_ARRIVED);
+					if(arrived>max_convoi_arrived) {
+						max_convoi_arrived = arrived;
+					}
+					setze_relief_farbe_area(k, 3, calc_severity_color(arrived, max_convoi_arrived));
 				}
 			}
 			break;
 
 		// show traffic (=convois/month)
 		case MAP_TRAFFIC:
-			{
-				sint32 cargo=0;
+			// need to init the maximum?
+			if(max_passed==0) {
+				max_passed = 1;
+				calc_map();
+			}
+			else {
+				sint32 passed=0;
 				if (gr->gib_weg(weg_t::strasse)) {
-					cargo += gr->gib_weg(weg_t::strasse)->get_statistics(WAY_STAT_CONVOIS);
+					passed += gr->gib_weg(weg_t::strasse)->get_statistics(WAY_STAT_CONVOIS);
 				}
 				if (gr->gib_weg(weg_t::schiene)) {
-					cargo += gr->gib_weg(weg_t::schiene)->get_statistics(WAY_STAT_CONVOIS);
+					passed += gr->gib_weg(weg_t::schiene)->get_statistics(WAY_STAT_CONVOIS);
 				}
 				if (gr->gib_weg(weg_t::wasser)) {
-					cargo += gr->gib_weg(weg_t::wasser)->get_statistics(WAY_STAT_CONVOIS);
+					passed += gr->gib_weg(weg_t::wasser)->get_statistics(WAY_STAT_CONVOIS);
 				}
 				if (gr->gib_weg(weg_t::luft)) {
-					cargo += gr->gib_weg(weg_t::luft)->get_statistics(WAY_STAT_CONVOIS);
+					passed += gr->gib_weg(weg_t::luft)->get_statistics(WAY_STAT_CONVOIS);
 				}
-				if (cargo>0) {
-					setze_relief_farbe_area(k, 1, calc_severity_color(cargo, 4));
+				if (passed>0) {
+					if(passed>max_passed) {
+						max_passed = passed;
+					}
+					setze_relief_farbe_area(k, 1, calc_severity_color(passed, max_passed));
 				}
 			}
 			break;
 
 		// show sources of passengers
 		case MAP_ORIGIN:
-			if (gr->gib_halt().is_bound()) {
+			// need to init the maximum?
+			if(max_arrived==0) {
+				max_arrived = 1;
+				calc_map();
+			}
+			else if (gr->gib_halt().is_bound()) {
 				halthandle_t halt = gr->gib_halt();
 				// only show player's haltestellen
 				if (halt->gib_besitzer()==welt->get_active_player()  ||  halt->gib_besitzer()==welt->gib_spieler(1)) {
-					const uint8 color = calc_severity_color( halt->get_finance_history(1, HALT_DEPARTED)-halt->get_finance_history(1, HALT_ARRIVED), 64 );
+					 sint32 arrived=halt->get_finance_history(1, HALT_DEPARTED)-halt->get_finance_history(1, HALT_ARRIVED);
+					if(arrived>max_arrived) {
+						max_arrived = arrived;
+					}
+					const uint8 color = calc_severity_color( arrived, max_arrived );
 					setze_relief_farbe_area(k, 3, color);
 				}
 			}
@@ -363,10 +408,19 @@ reliefkarte_t::calc_map_pixel(const koord k)
 
 		// show destinations for passengers
 		case MAP_DESTINATION:
-			{
+			// need to init the maximum?
+			if(max_departed==0) {
+				max_departed = 1;
+				calc_map();
+			}
+			else {
 				halthandle_t halt = gr->gib_halt();
 				if (halt.is_bound()   && (halt->gib_besitzer()==welt->get_active_player()  ||  halt->gib_besitzer()==welt->gib_spieler(1)) ) {
-					const uint8 color = calc_severity_color( halt->get_finance_history(1, HALT_ARRIVED)-halt->get_finance_history(1, HALT_DEPARTED), 32 );
+					sint32 departed=halt->get_finance_history(1, HALT_ARRIVED)-halt->get_finance_history(1, HALT_DEPARTED);
+					if(departed>max_departed) {
+						max_departed = departed;
+					}
+					const uint8 color = calc_severity_color( departed, max_departed );
 					setze_relief_farbe_area(k, 3, color );
 				}
 			}
@@ -408,17 +462,26 @@ reliefkarte_t::calc_map_pixel(const koord k)
 			{
 				sint32 speed=gr->get_max_speed();
 				if(speed) {
-					setze_relief_farbe(k, calc_severity_color(gr->get_max_speed(), 20));
+					setze_relief_farbe(k, calc_severity_color(gr->get_max_speed(), 450));
 				}
 			}
 			break;
 
 		// find power lines
 		case MAP_POWERLINES:
-			{
+			// need to init the maximum?
+			if(max_capacity==0) {
+				max_capacity = 1;
+				calc_map();
+			}
+			else {
 				leitung_t *lt = static_cast<leitung_t *>(gr->suche_obj(ding_t::leitung));
 				if(lt!=NULL) {
-					setze_relief_farbe(k, calc_severity_color(lt->get_net()->get_capacity(),1024) );
+					sint32 capacity=lt->get_net()->get_capacity();
+					if(capacity>max_capacity) {
+						max_capacity = capacity;
+					}
+					setze_relief_farbe(k, calc_severity_color(capacity,max_capacity) );
 				}
 			}
 			break;
@@ -444,7 +507,7 @@ reliefkarte_t::calc_map()
 	koord k;
 	for(k.y=0; k.y<welt->gib_groesse_y(); k.y++) {
 		for(k.x=0; k.x<welt->gib_groesse_x(); k.x++) {
-			calc_map_pixel( k);
+			calc_map_pixel(k);
 		}
 	}
 
@@ -461,16 +524,19 @@ reliefkarte_t::calc_map()
 	// since we do iterate the tourist info list, this must be done here
 	// find tourist spots
 	if(mode==MAP_TOURIST) {
+		// need to init the maximum?
+		if(max_tourist_ziele==0) {
+			max_tourist_ziele = 1;
+			calc_map();
+		}
 		const weighted_vector_tpl<gebaeude_t *> &ausflugsziele = welt->gib_ausflugsziele();
-		int maxziele=1;
 		for( unsigned i=0;  i<ausflugsziele.get_count();  i++ ) {
-			if(maxziele<ausflugsziele.at(i)->gib_passagier_level()) {
-				maxziele = ausflugsziele.at(i)->gib_passagier_level();
+			if(max_tourist_ziele<ausflugsziele.at(i)->gib_passagier_level()) {
+				max_tourist_ziele = ausflugsziele.at(i)->gib_passagier_level();
 			}
 		}
-		int steps=max(1,maxziele/11);
 		for( unsigned i=0;  i<ausflugsziele.get_count();  i++ ) {
-			setze_relief_farbe_area(ausflugsziele.at(i)->gib_pos().gib_2d(), 7, calc_severity_color(ausflugsziele.at(i)->gib_passagier_level(),steps) );
+			setze_relief_farbe_area(ausflugsziele.at(i)->gib_pos().gib_2d(), 7, calc_severity_color(ausflugsziele.at(i)->gib_passagier_level(),max_tourist_ziele) );
 		}
 		return;
 	}
@@ -538,6 +604,8 @@ reliefkarte_t::setze_welt(karte_t *welt)
 DBG_MESSAGE("reliefkarte_t::setze_welt()","welt size %i,%i",size.x,size.y);
 		relief = new array2d_tpl<unsigned char> (size.x,size.y);
 		setze_groesse(size);
+
+		max_capacity = max_departed = max_arrived = max_cargo = max_convoi_arrived = max_passed = max_tourist_ziele = 0;
 	}
 }
 

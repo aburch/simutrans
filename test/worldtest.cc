@@ -27,16 +27,10 @@ worldtest_t::check_halt_consistency(halthandle_t halt, int i, int j)
 
     // position checks
 
-    if(haltestelle_t::gib_halt(welt, new koord(i,j)) != halt) {
+    if(haltestelle_t::gib_halt(welt, koord(i,j)) != halt) {
 	log->warning("worldtest_t::check_halt_consistency",
 	          "station has invalid position info: haltestelle_t::gib_halt(welt, new koord(%d,%d)) != halt)", i,j);
     }
-
-    if(!halt->ist_da(koord(i,j))) {
-	log->warning("worldtest_t::check_halt_consistency",
-	          "station has invalid position info: halt->ist_da(koord(%d,%d)) failed)", i,j);
-    }
-
 
     // owner check
 

@@ -12,8 +12,7 @@ public:
     virtual obj_type get_type() const { return obj_xref; }
     virtual const char *get_type_name() const { return "reference"; }
 
-    static const char *get_name(const void *data)
-    {
-	return data ? reinterpret_cast<const char *>(data) + sizeof(obj_type) + 1 : "";
-    }
+    virtual obj_besch_t *read_node(FILE *fp, obj_node_info_t &node);
+
+    static const char *get_name(const void *data) { return data ? reinterpret_cast<const char *>(data) + sizeof(obj_type) + 1 : ""; }
 };

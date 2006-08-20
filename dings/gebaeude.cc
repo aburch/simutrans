@@ -286,7 +286,7 @@ gebaeude_t::gib_bild() const
 		if(gib_haustyp()!=unbekannt) {
 			return skinverwaltung_t::construction_site->gib_bild_nr(0);
 		}
-		else if(hide==ALL_HIDDEN  &&  tile->gib_besch()->gib_utyp()<=hausbauer_t::weitere) {
+		else if(hide==ALL_HIDDEN  &&  tile->gib_besch()->gib_utyp()<hausbauer_t::weitere) {
 			// special bilding
 			int kind=skinverwaltung_t::construction_site->gib_bild_anzahl()<=tile->gib_besch()->gib_utyp() ? skinverwaltung_t::construction_site->gib_bild_anzahl()-1 : tile->gib_besch()->gib_utyp();
 			return skinverwaltung_t::construction_site->gib_bild_nr( kind );

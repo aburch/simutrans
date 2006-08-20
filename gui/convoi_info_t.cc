@@ -340,7 +340,7 @@ DBG_MESSAGE("convoi_info_t::action_triggered()","convoi state %i => cannot chang
 					grund_t * gr = welt->lookup(koord(x,y))->gib_kartenboden();
 					if (gr) {
 						depot = gr->gib_depot();
-						if(depot  &&  depot->get_wegtyp()!=waytype) {
+						if(depot  &&  (depot->get_wegtyp()!=waytype  ||  depot->gib_besitzer()!=cnv->gib_besitzer())) {
 							// that was not the right depot for this vehicle
 							depot = NULL;
 						}

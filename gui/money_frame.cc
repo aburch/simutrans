@@ -258,7 +258,9 @@ money_frame_t::money_frame_t(spieler_t *sp)
  */
 void money_frame_t::zeichnen(koord pos, koord gr)
 {
-    conmoney.setze_text(display_money(COST_CONSTRUCTION, str_buf[0], 0));
+	sp->calc_finance_history();
+
+	    conmoney.setze_text(display_money(COST_CONSTRUCTION, str_buf[0], 0));
     nvmoney.setze_text(display_money(COST_NEW_VEHICLE, str_buf[1], 0));
     vrmoney.setze_text(display_money(COST_VEHICLE_RUN, str_buf[2], 0));
     mmoney.setze_text(display_money(COST_MAINTENANCE, str_buf[3], 0));
@@ -334,7 +336,6 @@ void money_frame_t::zeichnen(koord pos, koord gr)
 
 bool money_frame_t::action_triggered(gui_komponente_t *komp,value_t /* */)
 {
-		sp->calc_finance_history();
     for ( int i = 0; i<MAX_COST; i++)
     {
     	if (komp == &filterButtons[i])

@@ -40,8 +40,8 @@ int main(int argc, char* argv[])
     }
     else {
 	puts(
-	    "\nMakeobj version  " MAKEOBJ_VERSION " for simutrans " VERSION_NUMBER " and higher\n"
-	    "(c) 2002-2005 V. Meyer , Hj. Malthaner, M. Pristovsek (markus@pristovsek.de)\n");
+	    "\nMakeobj version " MAKEOBJ_VERSION " for simutrans " VERSION_NUMBER " and higher\n"
+	    "(c) 2002-2006 V. Meyer , Hj. Malthaner, M. Pristovsek (markus@pristovsek.de)\n");
     }
     if(argc && !STRICMP(argv[0], "capabilities")) {
 	argv++, argc--;

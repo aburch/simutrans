@@ -55,6 +55,14 @@ private:
 
 	void draw_fab_connections(const fabrik_t * fab, uint8 colour, koord pos) const;
 
+	static sint32 max_capacity;
+	static sint32 max_departed;
+	static sint32 max_arrived;
+	static sint32 max_cargo;
+	static sint32 max_convoi_arrived;
+	static sint32 max_passed;
+	static sint32 max_tourist_ziele;
+
 public:
 	static bool is_visible;
 

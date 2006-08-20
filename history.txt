@@ -6,6 +6,30 @@ Known bugs: (hard to fix)
 	valgrind complains about errors in SDL and X?
 
 
+
+Release of 88.10.4
+
+24-Jun-2006: (prissi)
+	FIX: margin calculation now (finally) taken into next month
+	CHANGE: finance update only when dialog open or during new month
+	FIX: monorail again above buildings
+	FIX: remove ownership also with undo and track delete
+	FIX: do not hide depots
+	FIX: slopes where buildings are lower than the natural slope will be preserved
+	FIX: signal at bridges now are drawn in the correct height and will not connect to tracks below
+	FIX: open a schedule default mode now "add stop" also selected (not only button shown ... )
+	FIX: a convoi now only searches for depots that belongs to its owner
+	CHANGE: color indicator now always go from zero to the actual maximum value in the minimap
+	CHANGE: display value in chart under the mouse when clicking on it
+	FIX: harbour under bridges fixed (only a single stop on a tile is now really enforced)
+	CHANGE: search for stop now inline => likely faster search and routing of goods
+	ADD: new error message concerning dock: "Dock must be built on single slope!"
+	FIX: scrollbar in factory windows
+	FIX: clipping errors when letters were vertical (top) clipped
+	FIX: the "cost=" entry in the roadsign files were not correctly saved by makeobj
+	FIX: forgot to add "needs_ground=" to the building section of makeobj. If needs_ground!=0, gras (or snow) will be drawn below a building
+
+
 Release of 88.10.3
 
 19-Jun-2006: (prissi)

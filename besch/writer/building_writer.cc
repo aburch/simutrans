@@ -149,7 +149,8 @@ void building_writer_t::write_obj(FILE *fp, obj_node_t &parent, tabfileobj_t &ob
     besch.enables = 0;
     besch.flags = haus_besch_t::flag_t(
 	(obj.get_int("noinfo", 0) > 0 ? haus_besch_t::FLAG_KEINE_INFO : 0) |
-	(obj.get_int("noconstruction", 0) > 0 ? haus_besch_t::FLAG_KEINE_GRUBE : 0));
+	(obj.get_int("noconstruction", 0) > 0 ? haus_besch_t::FLAG_KEINE_GRUBE : 0) |
+	(obj.get_int("needs_ground", 0) > 0 ? haus_besch_t::FLAG_NEED_GROUND : 0));
 
     const char *type_name = obj.get("type");
 

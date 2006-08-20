@@ -54,6 +54,8 @@ public:
 
     virtual obj_type get_type() const { return obj_imagelist2d; }
     virtual const char *get_type_name() const { return "imagelist2d"; }
+
+    virtual obj_besch_t *read_node(FILE *fp, obj_node_info_t &node);
 };
 
 #endif // __IMAGELIST2D_READER_H

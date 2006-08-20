@@ -47,7 +47,48 @@
 
 
 
-//@ADOC
+/**
+ * Read a factory product node. Does version check and
+ * compatibility transformations.
+ * @author Hj. Malthaner
+ */
+obj_besch_t *
+factory_smoke_reader_t::read_node(FILE *fp, obj_node_info_t &node)
+{
+#ifdef _MSC_VER /* no var array on the stack supported */
+    char *besch_buf = static_cast<char *>(alloca(node.size));
+#else
+  // Hajo: reading buffer is better allocated on stack
+  char besch_buf [node.size];
+#endif
+
+	char *info_buf = new char[sizeof(obj_besch_t) + node.children * sizeof(obj_besch_t *)];
+	rauch_besch_t *besch = new rauch_besch_t();
+	besch->node_info = reinterpret_cast<obj_besch_info_t *>(info_buf);
+
+	// Hajo: Read data
+	fread(besch_buf, node.size, 1, fp);
+	char * p = besch_buf;
+
+	sint16 x = decode_sint16(p);
+	sint16 y = decode_sint16(p);
+	besch->pos_off = koord( x, y );
+
+	x = decode_sint16(p);
+	y = decode_sint16(p);
+	besch->xy_off = koord( x, y );
+
+	besch->zeitmaske = decode_sint16(p);
+
+	DBG_DEBUG("factory_product_reader_t::read_node()","zeitmaske=%d (size %i)",node.size);
+
+	return besch;
+}
+
+
+
+
+///@ADOC
 /////////////////////////////////////////////////////////////////////////////
 //  member function:
 //      factory_smoke_reader_t::register_obj()
@@ -69,6 +110,59 @@ void factory_smoke_reader_t::register_obj(obj_besch_t *&data)
     raucher_t::register_besch(besch, name);
     //printf("...Fabrik %s geladen\n", besch->gib_name());
 }
+
+
+/**
+ * Read a factory product node. Does version check and
+ * compatibility transformations.
+ * @author Hj. Malthaner
+ */
+obj_besch_t *
+factory_supplier_reader_t::read_node(FILE *fp, obj_node_info_t &node)
+{
+  // DBG_DEBUG("factory_product_reader_t::read_node()", "called");
+
+#ifdef _MSC_VER /* no var array on the stack supported */
+    char *besch_buf = static_cast<char *>(alloca(node.size));
+#else
+  // Hajo: reading buffer is better allocated on stack
+  char besch_buf [node.size];
+#endif
+
+  char *info_buf = new char[sizeof(obj_besch_t) + node.children * sizeof(obj_besch_t *)];
+
+  fabrik_lieferant_besch_t *besch = new fabrik_lieferant_besch_t();
+
+  besch->node_info = reinterpret_cast<obj_besch_info_t *>(info_buf);
+
+  // Hajo: Read data
+  fread(besch_buf, node.size, 1, fp);
+  char * p = besch_buf;
+
+  // Hajo: old versions of PAK files have no version stamp.
+  // But we know, the higher most bit was always cleared.
+
+  const uint16 v = decode_uint16(p);
+  const int version = v & 0x8000 ? v & 0x7FFF : 0;
+
+  if(version == 1) {
+    // Versioned node, version 1
+
+    // not there yet ...
+  } else {
+    // old node, version 0
+	besch->kapazitaet = v;
+	besch->anzahl = decode_uint16(p);
+	besch->verbrauch = decode_uint16(p);
+  }
+
+  DBG_DEBUG("factory_product_reader_t::read_node()",  "capacity=%d anzahl=%d, verbrauch=%d", version, besch->kapazitaet, besch->anzahl,besch->verbrauch);
+
+
+  return besch;
+}
+
+
 
 
 /**

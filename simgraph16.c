@@ -3000,7 +3000,7 @@ int display_text_proportional_len_clip(KOORD_VAL x, KOORD_VAL y, const char *txt
 	if( y<cT ) {
 		y0 = cT;
 		y_offset = cT-y;
-		char_height -= y_offset;
+//		char_height -= y_offset;
 		v_clip = TRUE;
 	}
 	if(yy>cB) {

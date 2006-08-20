@@ -89,7 +89,6 @@ private:
      */
     uint8 wtyp;
 
-
     /**
      * Way system type: i.e. for wtyp == track this
      * can be used to select track system type (rail, monorail, maglev)
@@ -102,71 +101,51 @@ private:
 	uint8 draw_as_ding;
 
 public:
+	const char * gib_name() const
+	{
+		return static_cast<const text_besch_t *>(gib_kind(0))->gib_text();
+	}
 
-    int gib_preis() const
-    {
-	return price;
-    }
+	const char * gib_copyright() const
+	{
+		return static_cast<const text_besch_t *>(gib_kind(1))->gib_text();
+	}
 
+	const long gib_preis() const { return price; }
 
-    int gib_wartung() const
-    {
-	return maintenance;
-    }
-
+	const long gib_wartung() const { return maintenance; }
 
     /**
      * Determines max speed in km/h allowed on this way
      * @author Hj. Malthaner
      */
-    int  gib_topspeed() const
-    {
-	return topspeed;
-    }
-
+    const uint32 gib_topspeed() const { return topspeed; }
 
     /**
      * get way type
      * @see weg_t::typ
      * @author Hj. Malthaner
      */
-    const uint8 gib_wtyp() const
+	const uint8 gib_wtyp() const { return wtyp; }
+
+	/**
+	* returns the system type of this way (mostly used with rails)
+	* @see weg_t::styp
+	* @author DarioK
+	*/
+	const uint8 gib_styp() const { return styp; }
+
+	image_id gib_bild_nr(ribi_t::ribi ribi) const
+	{
+		return static_cast<const bildliste_besch_t *>(gib_kind(2))->gib_bild_nr(ribi);
+	}
+
+    image_id gib_hang_bild_nr(hang_t::typ hang) const
     {
-        return wtyp;
-    }
-
-		/**
-		 * returns the system type of this way (mostly used with rails)
-		 * @see weg_t::styp
-		 * @author DarioK
-		 */
-		const uint8 gib_styp() const
-		{
-				return styp;
-		}
-
-
-    const char * gib_name() const
-    {
-        return static_cast<const text_besch_t *>(gib_kind(0))->gib_text();
-    }
-
-    const char * gib_copyright() const
-    {
-        return static_cast<const text_besch_t *>(gib_kind(1))->gib_text();
-    }
-
-    int gib_bild_nr(ribi_t::ribi ribi) const
-    {
-	return static_cast<const bildliste_besch_t *>(gib_kind(2))->gib_bild_nr(ribi);
-    }
-
-    int gib_hang_bild_nr(hang_t::typ hang) const
-    {
-
 #ifndef DOUBLE_GROUNDS
-	if(!hang_t::ist_einfach(hang))
-	    return -1;
+	if(!hang_t::ist_einfach(hang)) {
+		return IMG_LEER;
+	}
 	return static_cast<const bildliste_besch_t *>(gib_kind(3))->gib_bild_nr(hang / 3 - 1);
 #else
 	int nr;
@@ -184,42 +163,34 @@ public:
 			nr = 3;
 			break;
 		default:
-			return -1;
+			return IMG_LEER;
 	}
 	return static_cast<const bildliste_besch_t *>(gib_kind(3))->gib_bild_nr(nr);
 #endif
     }
 
-    int gib_diagonal_bild_nr(ribi_t::ribi ribi) const
-    {
-	if(!ribi_t::ist_kurve(ribi))
-	    return -1;
-
-	return static_cast<const bildliste_besch_t *>(gib_kind(4))->gib_bild_nr(ribi / 3 - 1);
-    }
-
+	image_id gib_diagonal_bild_nr(ribi_t::ribi ribi) const
+	{
+		if(!ribi_t::ist_kurve(ribi)) {
+			return IMG_LEER;
+		}
+		return static_cast<const bildliste_besch_t *>(gib_kind(4))->gib_bild_nr(ribi / 3 - 1);
+	}
 
 	/**
 	* @return introduction year
 	* @author Hj. Malthaner
 	*/
-	int get_intro_year_month() const {
-		return intro_date;
-	}
+	const uint16 get_intro_year_month() const { return intro_date; }
 
 	/**
 	* @return introduction month
 	* @author Hj. Malthaner
 	*/
-	int get_retire_year_month() const {
-		return obsolete_date;
-	}
+	const uint16 get_retire_year_month() const { return obsolete_date; }
 
 	/* true, if this tile is to be drawn as lie a normal thing */
-	bool is_draw_as_ding() const
-	{
-		return draw_as_ding;
-	}
+	bool is_draw_as_ding() const { return draw_as_ding; }
 
 	/**
 	* Skin: cursor (index 0) and icon (index 1)

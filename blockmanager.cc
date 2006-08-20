@@ -543,9 +543,10 @@ blockmanager::baue_andere_signale(koord3d pos1, koord3d pos2,
 const char *
 blockmanager::neues_signal(karte_t *welt, spieler_t *sp, koord3d pos, ribi_t::ribi dir, ding_t::typ type)
 {
-    schiene_t *sch = get_block_way(welt->lookup(pos));
+	grund_t *gr=welt->lookup(pos);
+    schiene_t *sch = get_block_way(gr);
     if(sch) {
-        const ribi_t::ribi ribi = sch->gib_ribi();
+        const ribi_t::ribi ribi = sch->gib_ribi_unmasked();
 
         // pruefe ob dir gültig
         if(dir!=ribi_t::nord && dir != ribi_t::west) {
@@ -553,18 +554,15 @@ blockmanager::neues_signal(karte_t *welt, spieler_t *sp, koord3d pos, ribi_t::ri
             return "Hier kann kein\nSignal aufge-\nstellt werden!\n";
         }
 
-        koord3d pos2 ( pos+koord(dir) );
-
-        // pruefe ob pos2 in der karte liegt
-
-        if(welt->lookup(pos2)==NULL) {
+		if(!gr->get_neighbour(gr, (weg_t::typ)sch->gib_besch()->gib_wtyp(), koord(dir))) {
             // kein boden
             dbg->warning("blockmanager::neues_signal()", "no ground on square!");
             return "Hier kann kein\nSignal aufge-\nstellt werden!\n";
         }
+        koord3d pos2=gr->gib_pos();
 
         // pruefe ob an pos2 geeignete schienen sind
-        schiene_t *sch2 = get_block_way(welt->lookup(pos2));
+        schiene_t *sch2 = get_block_way(gr);
         if(!sch2) {
             // keine schiene
             dbg->warning("blockmanager::neues_signal()", "no railroad track on square!");

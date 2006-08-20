@@ -27,7 +27,38 @@
 /////////////////////////////////////////////////////////////////////////////
 //@EDOC
 
+#include <stdio.h>
+#include <stdlib.h>
+#ifdef _MSC_VER
+#include <malloc.h> // for alloca
+#endif
+#include "../../simdebug.h"
+
 #include "xref_reader.h"
+
+#include "../obj_node_info.h"
+
+
+/**
+ * Read a node. Does version check and
+ * compatibility transformations.
+ * not really needed, since it is only a bytewise string, but there for future compatibility
+ * @author Hj. Malthaner
+ */
+obj_besch_t * xref_reader_t::read_node(FILE *fp, obj_node_info_t &node)
+{
+	char *info_buf = new char[sizeof(obj_besch_t) + node.children * sizeof(obj_besch_t *)];
+	obj_besch_t *besch =  (obj_besch_t*)malloc( sizeof(obj_besch_t *)+node.size );
+	besch->node_info = reinterpret_cast<obj_besch_info_t *>(info_buf);
+
+	// Hajo: Read data
+	fread(besch+1, node.size, 1, fp);
+
+//	DBG_DEBUG("xref_reader_t::read_node()", "%s",besch->gib_text() );
+
+	return besch;
+}
+
 
 
 //@ADOC

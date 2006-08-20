@@ -98,18 +98,19 @@ public:
 slist_tpl<halthandle_t> haltestelle_t::alle_haltestellen;
 
 
-//Klassenmethoden
 halthandle_t
-haltestelle_t::gib_halt(karte_t *welt, grund_t *gr )
+haltestelle_t::gib_halt(karte_t *welt, const koord pos)
 {
-	if(gr) {
-		// if here is a halt, we are finished
-		halthandle_t halt = gr->gib_halt();
-		if(!halt.is_bound()  &&  gr->ist_wasser()) {
-			// ship actually stop next to a halt ...
-			const minivec_tpl<halthandle_t> &haltlist = welt->access(gr->gib_pos().gib_2d() )->get_haltlist();
+	const planquadrat_t *plan = welt->lookup(pos);
+	if(plan) {
+		if(plan->gib_halt().is_bound()) {
+			return plan->gib_halt();
+		}
+		// no halt? => we do the water check
+		if(plan->gib_kartenboden()->ist_wasser()) {
+			const minivec_tpl<halthandle_t> &haltlist = welt->access(pos)->get_haltlist();
 #if 0
-			for(  int i=0;  i<haltlist.get_count();  i++  ) {
+			for( unsigned i=0;  i<haltlist.get_count();  i++  ) {
 				if(haltlist.get(i)->get_station_type()&dock) {
 					// ok, this is a ship stop
 					halt = haltlist.get(i);
@@ -119,58 +120,11 @@ haltestelle_t::gib_halt(karte_t *welt, grund_t *gr )
 #else
 			// may catch bus stops close to water ...
 			if(haltlist.get_count()>0) {
-//DBG_MESSAGE("haltestelle_t::gib_halt()","at %i,%i", gr->gib_pos().x, gr->gib_pos().y );
 				return haltlist.get(0);
 			}
 #endif
 		}
-		return halt;
 	}
-
-	// not found; return unbound handle
-	return halthandle_t();
-}
-
-
-halthandle_t
-haltestelle_t::gib_halt(karte_t *welt, const koord3d pos)
-{
-	return gib_halt( welt,  welt->lookup(pos) );
-}
-
-halthandle_t
-haltestelle_t::gib_halt(karte_t *welt, const koord pos)
-{
-	const planquadrat_t *plan = welt->lookup(pos);
-	if(plan) {
-		// only one ground? then we can do all the water etc. check
-		if(plan->gib_boden_count()==1) {
-			return gib_halt( welt, plan->gib_kartenboden() );
-		}
-		else {
-			// more than one gound?
-			return plan->gib_halt();
-		}
-	}
-	return halthandle_t();
-}
-
-
-
-halthandle_t
-haltestelle_t::gib_halt(koord pos) const
-{
-    return gib_halt(welt, pos);
-}
-
-
-halthandle_t
-haltestelle_t::gib_halt(karte_t *welt, const koord * const pos)
-{
-	if(pos != NULL) {
-		return gib_halt(welt, *pos);
-	}
-	// not found; return unbound handle
 	return halthandle_t();
 }
 
@@ -278,7 +232,8 @@ DBG_MESSAGE("haltestelle_t::remove()", "removing building: cleanup");
 						delete gb;
 						gr->setze_text(NULL);
 						if(gr->gib_typ()==grund_t::fundament) {
-							welt->access(k+pos.gib_2d())->kartenboden_setzen(new boden_t(welt, koord3d(k+pos.gib_2d(),welt->min_hgt(k+pos.gib_2d())), welt->calc_natural_slope(k+pos.gib_2d())), false);
+							uint8 new_slope = gr->gib_hoehe()==welt->min_hgt(k+pos.gib_2d()) ? 0 : welt->calc_natural_slope(k+pos.gib_2d());
+							welt->access(k+pos.gib_2d())->kartenboden_setzen(new boden_t(welt, koord3d(k+pos.gib_2d(),welt->min_hgt(k+pos.gib_2d())), new_slope), false);
 						}
 						else if(welt->max_hgt(k+pos.gib_2d())<=welt->gib_grundwasser()) {
 							welt->access(k+pos.gib_2d())->kartenboden_setzen(new wasser_t(welt, k+pos.gib_2d()), false);
@@ -566,7 +521,7 @@ void haltestelle_t::reroute_goods()
 			INT_CHECK("simhalt 457");
 
 			// check if this good can still reach its destination
-			if(!gib_halt(ware.gib_ziel()).is_bound() ||  !gib_halt(ware.gib_zwischenziel()).is_bound()) {
+			if(!gib_halt(welt,ware.gib_ziel()).is_bound() ||  !gib_halt(welt,ware.gib_zwischenziel()).is_bound()) {
 				// schedule it for removal
 				waren_kill_queue.insert(ware);
 			}
@@ -885,6 +840,8 @@ haltestelle_t::suche_route(ware_t &ware, koord *next_to_ziel)
 
 				if(wz.gib_typ()->is_interchangeable(warentyp)) {
 
+					// since these are precalculated, they should be always pointing to a valid ground
+					// (if not, we were just under construction, and will be fine after 16 steps)
 					const halthandle_t tmp_halt = welt->lookup(wz.gib_ziel())->gib_halt();
 					if(tmp_halt.is_bound() && tmp_halt->marke != current_mark &&  tmp_halt->is_enabled(warentyp)) {
 
@@ -1163,16 +1120,6 @@ haltestelle_t::get_next_pos( koord start ) const
 
 
 
-
-bool
-haltestelle_t::ist_da(const koord k) const
-{
-    const planquadrat_t *plan = welt->lookup(k);
-
-    return plan != NULL && plan->gib_halt()==self;
-}
-
-
 bool
 haltestelle_t::gibt_ab(const ware_besch_t *wtyp) const
 {
@@ -1208,7 +1155,7 @@ haltestelle_t::hole_ab(const ware_besch_t *wtyp, int maxi, fahrplan_t *fpl)
 	for(int i=1; i<count; i++) {
 		const int wrap_i = (i + fpl->aktuell) % count;
 
-		halthandle_t plan_halt = gib_halt(fpl->eintrag.get(wrap_i).pos.gib_2d());
+		halthandle_t plan_halt = gib_halt(welt,fpl->eintrag.get(wrap_i).pos.gib_2d());
 
 		if(plan_halt == self) {
 			// we will come later here again ...
@@ -1230,7 +1177,7 @@ haltestelle_t::hole_ab(const ware_besch_t *wtyp, int maxi, fahrplan_t *fpl)
 						bool ok = wtyp->is_interchangeable(tmp.gib_typ());
 
 						// ok, wants to go here
-						if(ok  &&  gib_halt( tmp.gib_zwischenziel() )==plan_halt ) {
+						if(ok  &&  gib_halt(welt,tmp.gib_zwischenziel())==plan_halt ) {
 
 							// not too much?
 							if(tmp.menge <= maxi) {
@@ -1361,7 +1308,7 @@ haltestelle_t::vereinige_waren(const ware_t &ware)
                         // es wird auf basis von Haltestellen vereinigt
                         // prissi: das ist aber ein Fehler für alle anderen Güter, daher Zielkoordinaten für alles, was kein passagier ist ...
                         if(  tmp.gib_zielpos()==ware.gib_zielpos()
-                        	||  (is_pax   &&   gib_halt(tmp.gib_ziel())==gib_halt(ware.gib_ziel()) )
+                        	||  (is_pax   &&   gib_halt(welt,tmp.gib_ziel())==gib_halt(welt,ware.gib_ziel()) )
                         ) {
                                 tmp.menge += ware.menge;
 						resort_freight_info = true;
@@ -1476,7 +1423,7 @@ dbg->warning("haltestelle_t::liefere_an()","%d %s delivered to %s have no longer
 	suche_route(ware);
 
 	// target no longer there => delete
-	if(!gib_halt(ware.gib_ziel()).is_bound() ||  !gib_halt(ware.gib_zwischenziel()).is_bound()) {
+	if(!gib_halt(welt,ware.gib_ziel()).is_bound() ||  !gib_halt(welt,ware.gib_zwischenziel()).is_bound()) {
 		DBG_MESSAGE("haltestelle_t::liefere_an()","%s: delivered goods (%d %s) to ??? via ??? could not be routed to their destination!",gib_name(), ware.menge, translator::translate(ware.gib_name()) );
 		return ware.menge;
 	}
@@ -1512,7 +1459,7 @@ haltestelle_t::is_connected(const halthandle_t halt, const ware_besch_t * wtyp)
 	slist_iterator_tpl<warenziel_t> iter(warenziele);
 	while(iter.next()) {
 		warenziel_t &tmp = iter.access_current();
-		if(tmp.gib_typ()->is_interchangeable(wtyp) && gib_halt(tmp.gib_ziel())==halt) {
+		if(tmp.gib_typ()->is_interchangeable(wtyp) && gib_halt(welt,tmp.gib_ziel())==halt) {
 			return true;
 		}
 	}
@@ -1539,8 +1486,8 @@ haltestelle_t::hat_gehalten(int /*number_of_cars*/,const ware_besch_t *type, con
 			slist_iterator_tpl<warenziel_t> iter(warenziele);
 			while(iter.next()) {
 				warenziel_t &tmp = iter.access_current();
-
-				if(tmp.gib_typ()->is_interchangeable(type) &&  gib_halt(tmp.gib_ziel()) == gib_halt(wz.gib_ziel())) {
+				// since we only have valid coordinates here, we can also directly look up the handle (not using gib_halt)
+				if(tmp.gib_typ()->is_interchangeable(type) &&  welt->lookup(tmp.gib_ziel())->gib_halt()==welt->lookup(wz.gib_ziel())->gib_halt()) {
 					goto skip;
 				}
 			}

@@ -131,19 +131,16 @@ public:
     //13-Jan-02     Markus Weber    Added
     enum stationtyp {invalid=0, loadingbay = 1 , railstation = 2, dock = 4, busstop = 8, airstop = 16, monorailstop = 32 }; //could be combined with or!
 
-    /* sucht Haltestelle an Koordinate pos.
-     *
-     * @param gr die Position an der gesucht werden soll
-     * @return NULL, wenn nichts gefunden, sonst Zeiger auf Haltestelle
+    /* searches for a stop at the given koordinate
+     * this is called damend often, so we should thin about inline it
+     * @return hanthandle_t(), if nothing found
      * @author prissi
      */
-    static halthandle_t gib_halt(karte_t *welt, grund_t *gr);
+	static halthandle_t gib_halt(karte_t *welt, const koord pos);
 
-    static halthandle_t gib_halt(karte_t *welt, const koord pos);
-    static halthandle_t gib_halt(karte_t *welt, const koord * const pos);
-
-    // Hajo: for future compatibility, migrate to this call!
-    static halthandle_t gib_halt(karte_t *welt, const koord3d pos);
+	// Hajo: for future compatibility, migrate to this call
+	// but since we allow only for a single stop per planquadrat, this is as good as the above
+	static halthandle_t gib_halt(karte_t *welt, const koord3d pos) { return gib_halt(welt,pos.gib_2d()); }
 
     /**
      * Prueft, ob halt auf eine Haltestelle zeigt
@@ -385,15 +382,6 @@ public:
     void neuer_monat();
 
 
-    /**
-     * liefert zu einer Zielkoordinate die Haltestelle
-     * an der Zielkoordinate
-     * @author Hj. Malthaner
-     * @see haltestelle_t::gib_halt
-     */
-    halthandle_t gib_halt(const koord ziel) const;
-
-
     karte_t *gib_welt() const {return welt;};
 
 
@@ -463,7 +451,6 @@ public:
 
     bool existiert_in_welt();
 
-    bool ist_da(koord pos) const;
     koord gib_basis_pos() const;
     koord3d gib_basis_pos3d() const;
 

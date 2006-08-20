@@ -938,7 +938,7 @@ sint32 grund_t::weg_entfernen(weg_t::typ wegtyp, bool ribi_rem)
 
 		for(sint8 i=0, j=-1; i<MAX_WEGE; i++) {
 			if(wege[i]) {
-				if(wege[i]->gib_typ() == wegtyp) {
+				if(wege[i]->gib_typ()==wegtyp) {
 					if(gib_besitzer() && !ist_wasser()) {
 						gib_besitzer()->add_maintenance(-wege[i]->gib_besch()->gib_wartung());
 					}
@@ -956,6 +956,12 @@ sint32 grund_t::weg_entfernen(weg_t::typ wegtyp, bool ribi_rem)
 				}
 			}
 		}
+
+		// remove ownership from empty tile
+		if(!hat_wege()) {
+			setze_besitzer(NULL);
+		}
+
 		calc_bild();
 
 		return costs;

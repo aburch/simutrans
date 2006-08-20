@@ -296,8 +296,8 @@ weg_t::calc_bild()
 				rekursion--;
 			}
 
-			int bild = besch->gib_diagonal_bild_nr(ribi);
-			if(bild != -1) {
+			image_id bild = besch->gib_diagonal_bild_nr(ribi);
+			if(bild != IMG_LEER) {
 				bild_nr = bild;
 				return;
 			}

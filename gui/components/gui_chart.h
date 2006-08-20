@@ -50,6 +50,13 @@ public:
 	 */
         void zeichnen(koord offset) const;
 
+    /**
+     * Events werden hiermit an die GUI-Komponenten
+     * gemeldet
+     * @author Hj. Malthaner
+     */
+    void infowin_event(const event_t *);
+
 	/*
 	 * set dimension
 	 * @author hsiegeln
@@ -76,7 +83,6 @@ public:
         int add_curve(int color, sint64 *values, int size, int offset, int elements, int type, bool show, bool show_value);
 
         void remove_curves() { curves.clear(); };
-
 
 	/**
 	 * Hide a curve of the set
@@ -128,6 +134,8 @@ private:
 	int x_elements, y_elements;
 
 	int seed;
+
+	koord tooltipkoord;
 
 	bool show_x_axis, show_y_axis;
 

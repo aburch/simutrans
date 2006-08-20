@@ -61,7 +61,6 @@ public:
     virtual obj_type get_type() const { return obj_good; }
     virtual const char *get_type_name() const { return "good"; }
 
-
     /**
      * Read a goods info node. Does version check and
      * compatibility transformations.

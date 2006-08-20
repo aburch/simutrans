@@ -667,9 +667,11 @@ bool wegbauer_t::is_allowed_step( const grund_t *from, const grund_t *to, long *
 					check_owner(to->gib_besitzer(),sp) &&
 					check_for_leitung(zv,to);
 			if(ok) {
+DBG_MESSAGE("elevated_monorail","gb %p",gb);
 				if(gb) {
 					// no halt => citybuilding => do not touch
-					if(!check_owner(gb->gib_besitzer(),sp)  ||  gb->gib_tile()->gib_hintergrund(0,1)!=-1) {  // also check for too high buildings ...
+					if(!check_owner(gb->gib_besitzer(),sp)  ||  gb->gib_tile()->gib_hintergrund(0,1)!=IMG_LEER) {  // also check for too high buildings ...
+DBG_MESSAGE("elevated_monorail","ground");
 						return false;
 					}
 				}

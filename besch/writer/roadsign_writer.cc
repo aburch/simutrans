@@ -55,7 +55,7 @@ void roadsign_writer_t::write_obj(FILE *fp, obj_node_t &parent, tabfileobj_t &ob
 	v16 = (uint16) besch.min_speed;
 	node.write_data_at(fp, &v16, 2, sizeof(uint16));
 
-	v32 = (uint32) besch.min_speed;
+	v32 = (uint32) besch.cost;
 	node.write_data_at(fp, &v32, 4, sizeof(uint32));
 
 	v8 = (uint8)besch.flags;

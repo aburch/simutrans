@@ -155,7 +155,7 @@ void halt_detail_t::halt_detail_info(cbuffer_t & buf)
     while(iter.next()) {
       warenziel_t wz = iter.get_current();
 
-      halthandle_t a_halt = halt->gib_halt(wz.gib_ziel());
+      halthandle_t a_halt = halt->gib_halt(welt,wz.gib_ziel());
 
       if(a_halt.is_bound()) {
 

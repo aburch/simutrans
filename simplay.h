@@ -323,6 +323,11 @@ public:
 	const char *gib_name();
 	const uint8 get_player_nr() const {return player_nr; }
 
+	/* return true, if the owner is none, myself or player(1)
+	 * @author prissi
+	 */
+	bool check_owner( const spieler_t *sp ) const;
+
     /**
      * activates and queries player status
      * @author player

@@ -256,14 +256,8 @@ void fahrplan_gui_t::init()
 	lb_load.setze_pos(koord(11, 23));
 	add_komponente(&lb_load);
 
-	if(fpl->maxi() > 0) {
-		mode = none;
-		welt->setze_maus_funktion(wkz_abfrage, skinverwaltung_t::fragezeiger->gib_bild_nr(0), welt->Z_PLAN, NO_SOUND, NO_SOUND);
-	}
-	else {
-		mode = adding;
-		welt->setze_maus_funktion(wkz_fahrplan_add, skinverwaltung_t::fahrplanzeiger->gib_bild_nr(0), welt->Z_PLAN, (value_t)fpl, NO_SOUND, NO_SOUND);
-	}
+	mode = adding;
+	welt->setze_maus_funktion(wkz_fahrplan_add, skinverwaltung_t::fahrplanzeiger->gib_bild_nr(0), welt->Z_PLAN, (value_t)fpl, NO_SOUND, NO_SOUND);
 
 	// fill buffer with halt detail
 	buf.clear();

@@ -213,6 +213,7 @@ DBG_MESSAGE("obj_reader_t::init()","Checking %s objects...",iter.get_current_val
 }
 
 
+
 //@ADOC
 /////////////////////////////////////////////////////////////////////////////
 //  member function:
@@ -228,61 +229,55 @@ DBG_MESSAGE("obj_reader_t::init()","Checking %s objects...",iter.get_current_val
 //@EDOC
 void obj_reader_t::read_file(const char *name)
 {
-    // Hajo: added trace
-    DBG_DEBUG("obj_reader_t::read_file()", "filename='%s'", name);
+	// Hajo: added trace
+	DBG_DEBUG("obj_reader_t::read_file()", "filename='%s'", name);
 
-    FILE *fp = fopen(name, "rb");
+	FILE *fp = fopen(name, "rb");
 
-    if(fp) {
-      int n = 0;
+	if(fp) {
+		int n = 0;
 
-      // This is the normal header reading code
+		// This is the normal header reading code
 
-      int c;
-      do {
-	c = fgetc(fp);
-	n ++;
-      } while(!feof(fp) && c != 0x1a);
+		int c;
+		do {
+			c = fgetc(fp);
+			n ++;
+		} while(!feof(fp) && c != 0x1a);
 
-      if(feof(fp)) {
-	// Hajo: added error check
-	dbg->error("obj_reader_t::read_file()",
-		   "unexpected end of file after %d bytes while reading '%s'!",
-		   n, name);
-      } else {
-	DBG_DEBUG("obj_reader_t::read_file()", "skipped %d header bytes", n);
-      }
+		if(feof(fp)) {
+			// Hajo: added error check
+			dbg->error("obj_reader_t::read_file()",	"unexpected end of file after %d bytes while reading '%s'!",n, name);
+		}
+		else {
+//			DBG_DEBUG("obj_reader_t::read_file()", "skipped %d header bytes", n);
+		}
 
+		// Compiled Verison
+		uint32 version = 0;
+		char dummy[4], *p;
+		p = dummy;
 
-      // This is the hacked header skipper
-      /*
-	char buf[128];
-	fread(buf, 57, 1, fp);
-      */
+		n = fread(dummy, 4, 1, fp);
+		version = decode_uint32(p);
 
+//		DBG_DEBUG("obj_reader_t::read_file()", "read %d blocks, file version is %d", n, version);
 
-      // Compiled Verison
-      uint32 version = 0;
-
-      n = fread(&version, sizeof(version), 1, fp);
-
-      DBG_DEBUG("obj_reader_t::read_file()", "read %d blocks, file version is %d", n, version);
-
-      if(version <= COMPILER_VERSION_CODE) {
-	obj_besch_t *data = NULL;
-
-	read_nodes(fp, NULL, data);
-      } else {
-	DBG_DEBUG("obj_reader_t::read_file()",
-		   "version of '%s' is too old, %d instead of %d",
-		   version, COMPILER_VERSION_CODE, name);
-      }
-      fclose(fp);
-    } else {
-      // Hajo: added error check
-      dbg->error("obj_reader_t::read_file()", "reading '%s' failed!", name);
-    }
+		if(version <= COMPILER_VERSION_CODE) {
+			obj_besch_t *data = NULL;
+			read_nodes(fp, NULL, data);
+		}
+		else {
+			DBG_DEBUG("obj_reader_t::read_file()","version of '%s' is too old, %d instead of %d", version, COMPILER_VERSION_CODE, name);
+		}
+		fclose(fp);
+	}
+	else {
+		// Hajo: added error check
+		dbg->error("obj_reader_t::read_file()", "reading '%s' failed!", name);
+	}
 }
+
 
 
 //@ADOC
@@ -311,36 +306,30 @@ void obj_reader_t::read_nodes(FILE *fp, obj_besch_t * /*parent*/, obj_besch_t *&
 	node.children = decode_uint16(p);
 	node.size = decode_uint16(p);
 
-    obj_reader_t *reader = obj_reader->get(static_cast<obj_type>(node.type));
-    if(reader) {
-      /*
-        DBG_DEBUG("obj_reader_t::read_nodes()",
-		   "Reading %.4s-node of length %d with '%s'",
-		   reinterpret_cast<const char *>(&node.type),
-		   node.size,
-		   reader->get_type_name());
-      */
-	data = reader->read_node(fp, node);
+	obj_reader_t *reader = obj_reader->get(static_cast<obj_type>(node.type));
+	if(reader) {
 
-	for(int i = 0; i < node.children; i++) {
-	    read_nodes(fp, data, data->node_info->children[i]);
+//DBG_DEBUG("obj_reader_t::read_nodes()","Reading %.4s-node of length %d with '%s'",	reinterpret_cast<const char *>(&node.type),	node.size,	reader->get_type_name());
+		data = reader->read_node(fp, node);
+		for(int i = 0; i < node.children; i++) {
+			read_nodes(fp, data, data->node_info->children[i]);
+		}
+
+//DBG_DEBUG("obj_reader_t","registering with '%s'", reader->get_type_name());
+		reader->register_obj(data);
 	}
-
-	// printf("obj_reader_t::registering with '%s'\n", reader->get_type_name());
-
-	reader->register_obj(data);
-
-    }
-    else {
-    	dbg->warning("obj_reader_t::read_nodes()","skipping unknown %.4s-node\n",reinterpret_cast<const char *>(&node.type));
-
-	fseek(fp, node.size, SEEK_CUR);
-	for(int i = 0; i < node.children; i++) {
-	    skip_nodes(fp);
+	else {
+		// no reader found ...
+		dbg->warning("obj_reader_t::read_nodes()","skipping unknown %.4s-node\n",reinterpret_cast<const char *>(&node.type));
+		fseek(fp, node.size, SEEK_CUR);
+		for(int i = 0; i < node.children; i++) {
+			skip_nodes(fp);
+		}
+		data = NULL;
 	}
-	data = NULL;
-    }
 }
+
+
 
 //@ADOC
 /////////////////////////////////////////////////////////////////////////////
@@ -361,25 +350,22 @@ void obj_reader_t::read_nodes(FILE *fp, obj_besch_t * /*parent*/, obj_besch_t *&
 //@EDOC
 obj_besch_t *obj_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 {
-    char *besch_buf = (char *)malloc( sizeof(obj_besch_t *) + node.size );
-    char *info_buf = (char *)malloc( sizeof(obj_besch_t) + node.children * sizeof(obj_besch_t *) );
-
-    // Hajo: I think it's better to clear the buffers
-    // one never knows what will happen later
-    // memset(besch_buf, 0, sizeof(obj_besch_t *) + node.size);
-    // memset(info_buf, 0, sizeof(obj_besch_t) + node.children * sizeof(obj_besch_t *));
-    // Hajo: end
+	char *besch_buf = (char *)malloc( sizeof(obj_besch_t *) + node.size );
+	char *info_buf = (char *)malloc( sizeof(obj_besch_t) + node.children * sizeof(obj_besch_t *) );
 
 	obj_besch_t *besch = reinterpret_cast<obj_besch_t *>(besch_buf);
-
 	besch->node_info =  reinterpret_cast<obj_besch_info_t *>(info_buf);
-	fread(besch + 1, node.size, 1, fp);
 
-	// not 32/64 Bit compatible
-//	DBG_MESSAGE("obj_reader_t::read_node()","native called on node");
+	if(node.size>0) {
+		// not 32/64 Bit compatible for everything but char!
+		fread(besch + 1, node.size, 1, fp);
+		dbg->warning("obj_reader_t::read_node()","native called on type %.4s (size %i), will break on 64Bit if type!=ASCII",reinterpret_cast<const char *>(&node.type),node.size);
+	}
 
 	return besch;
 }
+
+
 
 //@ADOC
 /////////////////////////////////////////////////////////////////////////////
@@ -396,15 +382,22 @@ obj_besch_t *obj_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 //@EDOC
 void obj_reader_t::skip_nodes(FILE *fp)
 {
-    obj_node_info_t node;
+	obj_node_info_t node;
+	char load_dummy[8], *p;
 
-    fread(&node, sizeof(node), 1, fp);
+	p = load_dummy;
+	fread(p, 8, 1, fp);
+	node.type = decode_uint32(p);
+	node.children = decode_uint16(p);
+	node.size = decode_uint16(p);
+//DBG_DEBUG("obj_reader_t::skip_nodes", "type %.4s (size %d)",reinterpret_cast<const char *>(&node.type),node.size);
 
-    fseek(fp, node.size, SEEK_CUR);
-    for(int i = 0; i < node.children; i++) {
-	skip_nodes(fp);
-    }
+	fseek(fp, node.size, SEEK_CUR);
+	for(int i = 0; i < node.children; i++) {
+		skip_nodes(fp);
+	}
 }
+
 
 
 //@ADOC
@@ -429,6 +422,8 @@ void obj_reader_t::delete_node(obj_besch_t *data)
     free( info_buf );
 }
 
+
+
 //@ADOC
 /////////////////////////////////////////////////////////////////////////////
 //  member function:
@@ -441,45 +436,47 @@ void obj_reader_t::delete_node(obj_besch_t *data)
 //@EDOC
 void obj_reader_t::resolve_xrefs()
 {
-    slist_tpl<obj_besch_t *> xref_nodes;
+	slist_tpl<obj_besch_t *> xref_nodes;
+	inthashtable_iterator_tpl<obj_type, stringhashtable_tpl<slist_tpl<obj_besch_t **> > > xreftype_iter(unresolved);
 
-    inthashtable_iterator_tpl<obj_type, stringhashtable_tpl<slist_tpl<obj_besch_t **> > > xreftype_iter(unresolved);
+	while(xreftype_iter.next()) {
+		stringhashtable_iterator_tpl<slist_tpl<obj_besch_t **> > xrefname_iter(xreftype_iter.access_current_value());
 
-    while(xreftype_iter.next()) {
-	stringhashtable_iterator_tpl<slist_tpl<obj_besch_t **> > xrefname_iter(xreftype_iter.access_current_value());
+		while(xrefname_iter.next()) {
+			obj_besch_t *obj_loaded = NULL;
 
-	while(xrefname_iter.next()) {
-	    obj_besch_t *obj_loaded = NULL;
+			if(strlen(xrefname_iter.get_current_key()) > 0) {
+				stringhashtable_tpl<obj_besch_t *> *objtype_loaded = loaded.access(xreftype_iter.get_current_key());
+				if(objtype_loaded) {
+					obj_loaded = objtype_loaded->get(xrefname_iter.get_current_key());
+				}
+				/*if(!objtype_loaded || !obj_loaded) {
+				dbg->fatal("obj_reader_t::resolve_xrefs", "cannot resolve '%4.4s-%s'",&xreftype_iter.get_current_key(), xrefname_iter.get_current_key());
+				}*/
+			}
 
-	    if(strlen(xrefname_iter.get_current_key()) > 0) {
-		stringhashtable_tpl<obj_besch_t *> *objtype_loaded = loaded.access(xreftype_iter.get_current_key());
-		if(objtype_loaded) {
-		    obj_loaded = objtype_loaded->get(xrefname_iter.get_current_key());
+			slist_iterator_tpl<obj_besch_t **> xref_iter(xrefname_iter.access_current_value());
+			while(xref_iter.next()) {
+			if(!obj_loaded && fatals.get(xref_iter.get_current())) {
+				dbg->fatal("obj_reader_t::resolve_xrefs", "cannot resolve '%4.4s-%s'",	&xreftype_iter.get_current_key(), xrefname_iter.get_current_key());
+				}
+				// delete old xref-node
+				xref_nodes.append(*xref_iter.get_current());
+				*xref_iter.get_current() = obj_loaded;
+			}
 		}
-		/*if(!objtype_loaded || !obj_loaded) {
-		    dbg->fatal("obj_reader_t::resolve_xrefs", "cannot resolve '%4.4s-%s'",
-			&xreftype_iter.get_current_key(), xrefname_iter.get_current_key());
-		}*/
-	    }
-	    slist_iterator_tpl<obj_besch_t **> xref_iter(xrefname_iter.access_current_value());
-	    while(xref_iter.next()) {
-		if(!obj_loaded && fatals.get(xref_iter.get_current())) {
-		    dbg->fatal("obj_reader_t::resolve_xrefs", "cannot resolve '%4.4s-%s'",
-			&xreftype_iter.get_current_key(), xrefname_iter.get_current_key());
-		}
-		// delete old xref-node
-		xref_nodes.append(*xref_iter.get_current());
-		*xref_iter.get_current() = obj_loaded;
-	    }
 	}
-    }
-    while(xref_nodes.count() > 0) {
-	delete_node(xref_nodes.remove_first());
-    }
-    loaded.clear();
-    unresolved.clear();
-    fatals.clear();
+
+	while(xref_nodes.count() > 0) {
+		delete_node(xref_nodes.remove_first());
+	}
+
+	loaded.clear();
+	unresolved.clear();
+	fatals.clear();
 }
+
+
 
 //@ADOC
 /////////////////////////////////////////////////////////////////////////////
@@ -498,16 +495,17 @@ void obj_reader_t::resolve_xrefs()
 //@EDOC
 void obj_reader_t::obj_for_xref(obj_type type, const char *name, obj_besch_t *data)
 {
-    stringhashtable_tpl<obj_besch_t *> *objtype_loaded = loaded.access(type);
+	stringhashtable_tpl<obj_besch_t *> *objtype_loaded = loaded.access(type);
 
-    if(!objtype_loaded) {
-	loaded.put(type, stringhashtable_tpl<obj_besch_t *>());
-	objtype_loaded = loaded.access(type);
-    }
-    if(!objtype_loaded->get(name)) {
-	objtype_loaded->put(name, data);
-    }
+	if(!objtype_loaded) {
+		loaded.put(type, stringhashtable_tpl<obj_besch_t *>());
+		objtype_loaded = loaded.access(type);
+	}
+	if(!objtype_loaded->get(name)) {
+		objtype_loaded->put(name, data);
+	}
 }
+
 
 
 //@ADOC
@@ -527,19 +525,19 @@ void obj_reader_t::obj_for_xref(obj_type type, const char *name, obj_besch_t *da
 //@EDOC
 void obj_reader_t::xref_to_resolve(obj_type type, const char *name, obj_besch_t **dest, bool fatal)
 {
-    stringhashtable_tpl< slist_tpl<obj_besch_t **> > *typeunresolved = unresolved.access(type);
+	stringhashtable_tpl< slist_tpl<obj_besch_t **> > *typeunresolved = unresolved.access(type);
 
-    if(!typeunresolved) {
-	unresolved.put(type, stringhashtable_tpl< slist_tpl<obj_besch_t **> >());
-	typeunresolved = unresolved.access(type);
-    }
-    slist_tpl<obj_besch_t **> *list = typeunresolved->access(name);
-    if(!list) {
-	typeunresolved->put(name, slist_tpl<obj_besch_t **>());
-	list = typeunresolved->access(name);
-    }
-    list->insert(dest);
-    if(fatal) {
-	fatals.put(dest, 1);
-    }
+	if(!typeunresolved) {
+		unresolved.put(type, stringhashtable_tpl< slist_tpl<obj_besch_t **> >());
+		typeunresolved = unresolved.access(type);
+	}
+	slist_tpl<obj_besch_t **> *list = typeunresolved->access(name);
+	if(!list) {
+		typeunresolved->put(name, slist_tpl<obj_besch_t **>());
+		list = typeunresolved->access(name);
+	}
+	list->insert(dest);
+	if(fatal) {
+		fatals.put(dest, 1);
+	}
 }

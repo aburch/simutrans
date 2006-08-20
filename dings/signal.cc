@@ -96,39 +96,63 @@ void signal_t::info(cbuffer_t & buf) const
 
 void signal_t::calc_bild()
 {
+	grund_t *gr = welt->lookup(gib_pos());
 	if(blockend) {
-		welt->lookup(gib_pos())->set_flag(grund_t::world_spot_dirty);
+		gr->set_flag(grund_t::world_spot_dirty);
 		setze_bild(0, IMG_LEER);
 	}
 	else {
-		schiene_t * sch = dynamic_cast<schiene_t *>(welt->lookup(gib_pos())->gib_weg(weg_t::schiene));
+		schiene_t * sch = dynamic_cast<schiene_t *>(gr->gib_weg(weg_t::schiene));
 		if(!sch) {
-			sch = dynamic_cast<schiene_t *>(welt->lookup(gib_pos())->gib_weg(weg_t::monorail));
+			sch = dynamic_cast<schiene_t *>(gr->gib_weg(weg_t::monorail));
 		}
 		const int offset = (sch->ist_elektrisch()  &&  skinverwaltung_t::signale->gib_bild_anzahl()==16)?8:0;
 
+		// if the slope is founded on the tile below; we may need an extra offset for the signal on the lower tile ...
+		sint8 extra_yoff = 0;
+		if(gr->gib_typ()!=grund_t::tunnelboden) {
+			// not in a tunnel
+			const hang_t::typ weg_hang=gr->gib_weg_hang(), grund_hang=gr->gib_grund_hang();
+			if(grund_hang==hang_t::flach) {
+				if(ribi_typ(weg_hang)==dir) {
+					// bridge on the ground ...
+					extra_yoff = 16;
+				}
+			}
+			else {
+				if(weg_hang==hang_t::flach  &&  ribi_t::rueckwaerts( ribi_typ(grund_hang) )==dir) {
+					// bridge on a slope
+					extra_yoff = 16;
+				}
+				else if(ribi_typ(grund_hang)==dir) {
+					// ground is sloped ...
+					extra_yoff = 16;
+				}
+			}
+		}
+
 		switch(dir) {
 			case ribi_t::nord:
+				setze_yoff( -12-extra_yoff );
 				setze_xoff(-2);
-				setze_yoff(-12);
 				setze_bild(0, skinverwaltung_t::signale->gib_bild_nr(1+zustand*4)+offset);
 				break;
 
 			case ribi_t::sued:
 				setze_xoff(2);
-				setze_yoff(12);
+				setze_yoff( 12-extra_yoff );
 				setze_bild(0, skinverwaltung_t::signale->gib_bild_nr(0+zustand*4)+offset);
 				break;
 
 			case ribi_t::ost:
 				setze_xoff(24);
-				setze_yoff(0);
+				setze_yoff(0-extra_yoff);
 				setze_bild(0, skinverwaltung_t::signale->gib_bild_nr(2+zustand*4)+offset);
 				break;
 
 			case ribi_t::west:
 				setze_xoff(-24);
-				setze_yoff(0);
+				setze_yoff(0-extra_yoff);
 				setze_bild(0, skinverwaltung_t::signale->gib_bild_nr(3+zustand*4)+offset);
 				break;
 

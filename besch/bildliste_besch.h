@@ -35,6 +35,7 @@
  *	... ...
  */
 class bildliste_besch_t : public obj_besch_t {
+    friend class imagelist_reader_t;
     friend class imagelist_writer_t;
 
     uint16  anzahl;
@@ -51,11 +52,11 @@ public:
 	return i >= 0 && i < anzahl ?
 	    static_cast<const bild_besch_t *>(gib_kind(i)) : 0;
     }
-    int gib_bild_nr(int i) const
+    image_id gib_bild_nr(int i) const
     {
 	const bild_besch_t *bild = gib_bild(i);
 
-	return bild ? bild->bild_nr : -1;
+	return bild ? bild->bild_nr : IMG_LEER;
     }
 };
 

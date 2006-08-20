@@ -395,7 +395,8 @@ stadt_t::~stadt_t()
 		if(gr) {
 			koord pos=buildings.at(0)->gib_pos().gib_2d();
 			gr->obj_loesche_alle(welt->gib_spieler(1));
-			welt->access(pos)->kartenboden_setzen(new boden_t(welt, koord3d(pos,welt->min_hgt(pos)), welt->calc_natural_slope(pos) ), false);
+			uint8 new_slope = gr->gib_hoehe()==welt->min_hgt(pos) ? 0 : welt->calc_natural_slope(pos);
+			welt->access(pos)->kartenboden_setzen(new boden_t(welt, koord3d(pos,welt->min_hgt(pos)), new_slope ), false);
 		}
 		else {
 			buildings.remove_at(0);

@@ -466,8 +466,8 @@ spieler_t::neuer_monat()
  */
 void spieler_t::neues_jahr()
 {
-    roll_finance_history_year();
     calc_finance_history();
+    roll_finance_history_year();
 }
 
 /**
@@ -483,13 +483,8 @@ void spieler_t::roll_finance_history_month()
 			finance_history_month[i][cost_type] = finance_history_month[i-1][cost_type];
 		}
 	}
-
-	for (int i=0;i<MAX_COST;i++) {
-		finance_history_month[0][i] = 0;
-		if ((i == COST_ASSETS) || (i == COST_NETWEALTH)) {
-			finance_history_month[0][i] = finance_history_month[1][i];
-		}
-	}
+	finance_history_month[0][COST_ASSETS] = 0;
+	finance_history_year[0][COST_ASSETS] = 0;
 }
 
 void spieler_t::roll_finance_history_year()
@@ -498,13 +493,6 @@ void spieler_t::roll_finance_history_year()
 	for (i=MAX_HISTORY_YEARS-1; i>0; i--) {
 		for (int cost_type = 0; cost_type<MAX_COST; cost_type++) {
 			finance_history_year[i][cost_type] = finance_history_year[i-1][cost_type];
-		}
-	}
-
-	for (int i=0;i<MAX_COST;i++) {
-		finance_history_year[0][i] = 0;
-		if ((i == COST_ASSETS) || (i == COST_NETWEALTH)) {
-			finance_history_year[0][i] = finance_history_year[1][i];
 		}
 	}
 }
@@ -517,35 +505,40 @@ void spieler_t::calc_finance_history()
     */
     sint64 profit, assets, mprofit;
     profit = assets = mprofit = 0;
-    for (int i=0; i<MAX_COST; i++)
-    {
-    // all costs < COST_ASSETS influence profit, so we must sum them up
-	if (i < COST_ASSETS)
-	{
-		profit += finance_history_year[0][i];
-		mprofit += finance_history_month[0][i];
-	}
+    for (int i=0; i<MAX_COST; i++) {
+	    // all costs < COST_ASSETS influence profit, so we must sum them up
+		if(i<COST_ASSETS) {
+			profit += finance_history_year[0][i];
+			mprofit += finance_history_month[0][i];
+		}
     }
+
+	if(finance_history_month[0][COST_ASSETS]==0) {
+		// new month has started
+	    slist_iterator_tpl<convoihandle_t> iter (welt->gib_convoi_list());
+	    while(iter.next()) {
+	    	convoihandle_t cnv = iter.get_current();
+	    	if (cnv->gib_besitzer() == this) {
+	    		assets += cnv->calc_restwert();
+	    	}
+	    }
+		finance_history_year[0][COST_ASSETS] = finance_history_month[0][COST_ASSETS] = assets;
+	}
+
     finance_history_year[0][COST_PROFIT] = profit;
     finance_history_month[0][COST_PROFIT] = mprofit;
 
-    slist_iterator_tpl<convoihandle_t> iter (welt->gib_convoi_list());
-    while(iter.next()) {
-    	convoihandle_t cnv = iter.get_current();
-    	if (cnv->gib_besitzer() == this) {
-    		assets += cnv->calc_restwert();
-    	}
-    }
-    finance_history_year[0][COST_ASSETS] = assets;
-    finance_history_year[0][COST_NETWEALTH] = assets + konto;
+    finance_history_year[0][COST_NETWEALTH] = finance_history_year[0][COST_ASSETS] + konto;
     finance_history_year[0][COST_CASH] = konto;
-    long margin_div = (finance_history_year[0][COST_VEHICLE_RUN] + finance_history_year[0][COST_MAINTENANCE]);
-	finance_history_year[0][COST_MARGIN] = (margin_div!=0) ? finance_history_year[0][COST_OPERATING_PROFIT] / labs(margin_div) : 0;
-    finance_history_month[0][COST_ASSETS] = assets;
-    finance_history_month[0][COST_NETWEALTH] = assets + konto;
+	finance_history_year[0][COST_OPERATING_PROFIT] = finance_history_year[0][COST_INCOME] + finance_history_year[0][COST_VEHICLE_RUN] + finance_history_year[0][COST_MAINTENANCE];
+    sint64 margin_div = (finance_history_year[0][COST_VEHICLE_RUN] + finance_history_year[0][COST_MAINTENANCE]);
+	finance_history_year[0][COST_MARGIN] = margin_div!= 0 ? (100*finance_history_year[0][COST_OPERATING_PROFIT]) / labs(margin_div) : 0;
+
+    finance_history_month[0][COST_NETWEALTH] = finance_history_month[0][COST_ASSETS] + konto;
     finance_history_month[0][COST_CASH] = konto;
-    margin_div = (finance_history_month[0][COST_VEHICLE_RUN] + finance_history_month[0][COST_MAINTENANCE]);
-	finance_history_month[0][COST_MARGIN] = margin_div!= 0 ? finance_history_month[0][COST_OPERATING_PROFIT] / labs(margin_div) : 0;
+	finance_history_month[0][COST_OPERATING_PROFIT] = finance_history_month[0][COST_INCOME] + finance_history_month[0][COST_VEHICLE_RUN] + finance_history_month[0][COST_MAINTENANCE];
+	margin_div = (finance_history_month[0][COST_VEHICLE_RUN] + finance_history_month[0][COST_MAINTENANCE]);
+	finance_history_month[0][COST_MARGIN] = margin_div!= 0 ? (100*finance_history_month[0][COST_OPERATING_PROFIT]) / labs(margin_div) : 0;
 }
 
 
@@ -555,17 +548,17 @@ spieler_t::buche(const sint64 betrag, const koord pos, const int type)
     buche(betrag, type);
 
     if(betrag != 0) {
-	add_message(pos, betrag);
+		add_message(pos, betrag);
 
-	if(labs(betrag) > 10000) {
-	    struct sound_info info;
+		if(labs(betrag) > 10000) {
+		    struct sound_info info;
 
-	    info.index = SFX_CASH;
-	    info.volume = 255;
-	    info.pri = 0;
+		    info.index = SFX_CASH;
+		    info.volume = 255;
+		    info.pri = 0;
 
-	    welt->play_sound_area_clipped(pos, info);
-	}
+		    welt->play_sound_area_clipped(pos, info);
+		}
     }
 
     return konto;
@@ -577,25 +570,32 @@ spieler_t::buche(const sint64 betrag, int type)
 {
 	konto += betrag;
 
-	if (type < MAX_COST) {
+	if(type < MAX_COST) {
 		// fill year history
 		finance_history_year[0][type] += betrag;
 		finance_history_year[0][COST_PROFIT] += betrag;
 		finance_history_year[0][COST_CASH] = konto;
-		finance_history_year[0][COST_OPERATING_PROFIT] = finance_history_year[0][COST_INCOME] + finance_history_year[0][COST_VEHICLE_RUN] + finance_history_year[0][COST_MAINTENANCE];
-		finance_history_year[0][COST_MARGIN] = (finance_history_year[0][COST_VEHICLE_RUN] + finance_history_year[0][COST_MAINTENANCE]) != 0 ? finance_history_year[0][COST_OPERATING_PROFIT] * 100/ labs((finance_history_year[0][COST_VEHICLE_RUN] + finance_history_year[0][COST_MAINTENANCE])) : 0;
-		finance_history_year[0][COST_NETWEALTH] = konto+finance_history_month[1][COST_ASSETS];
 		// fill month history
 		finance_history_month[0][type] += betrag;
 		finance_history_month[0][COST_PROFIT] += betrag;
 		finance_history_month[0][COST_CASH] = konto;
-		finance_history_month[0][COST_OPERATING_PROFIT] = finance_history_month[0][COST_INCOME] + finance_history_month[0][COST_VEHICLE_RUN] + finance_history_month[0][COST_MAINTENANCE];
-		finance_history_month[0][COST_MARGIN] = (finance_history_month[0][COST_VEHICLE_RUN] + finance_history_month[0][COST_MAINTENANCE]) != 0 ? finance_history_month[0][COST_OPERATING_PROFIT] * 100/ labs((finance_history_month[0][COST_VEHICLE_RUN] + finance_history_month[0][COST_MAINTENANCE])) : 0;
-		finance_history_month[0][COST_NETWEALTH] = konto+finance_history_month[1][COST_ASSETS];
+		// the other will be updated only monthly or whe a finance window is shown
 	}
 
 	return konto;
 }
+
+
+
+/* return true, if the owner is none, myself or player(1)
+ * @author prissi
+ */
+bool
+spieler_t::check_owner( const spieler_t *sp ) const
+{
+	return (this==sp)  ||  (sp==NULL)  ||  (sp==welt->gib_spieler(1));
+}
+
 
 
 /**
@@ -1592,22 +1592,15 @@ DBG_MESSAGE("spieler_t::do_passenger_ki()","waiting: %s (%i) and %s (%i)",h0->gi
 
 
 
+
 /* return true, if my bahnhof is here
  * @author prissi
  */
 bool spieler_t::is_my_halt(koord pos) const
 {
-	if(welt->ist_in_kartengrenzen(pos)) {
-		halthandle_t halt = welt->lookup(pos)->gib_halt();
-//DBG_MESSAGE("spieler_t::is_my_halt()","check halt id %i",halt.get_id());
-		if(halt.is_bound()) {
-//DBG_MESSAGE("spieler_t::is_my_halt()","check owner on valid stop");
-			const spieler_t *sp = halt->gib_besitzer();
-//DBG_MESSAGE("spieler_t::is_my_halt()","owner=%p",sp);
-			if(sp==this  ||  sp==NULL  ||  sp==welt->gib_spieler(1)) {
-				return true;
-			}
-		}
+	halthandle_t halt = haltestelle_t::gib_halt(welt,pos);
+	if(halt.is_bound()  &&  check_owner(halt->gib_besitzer())) {
+		return true;
 	}
 	// nothing here
 	return false;
@@ -1631,13 +1624,8 @@ DBG_MESSAGE("spieler_t::is_my_halt()","called on (%i,%i)",pos.x,pos.y);
 DBG_MESSAGE("spieler_t::is_my_halt()","grund %i exists",i);
 				halthandle_t halt = gr->gib_halt();
 //DBG_MESSAGE("spieler_t::is_my_halt()","check halt id %i",halt.get_id());
-				if(halt.is_bound()) {
-//DBG_MESSAGE("spieler_t::is_my_halt()","check owner on valid stop");
-					const spieler_t *sp = halt->gib_besitzer();
-//DBG_MESSAGE("spieler_t::is_my_halt()","owner=%p",sp);
-					if(sp==this  ||  sp==NULL  ||  sp==welt->gib_spieler(1)) {
-						return i+1;
-					}
+				if(halt.is_bound()  &&  check_owner(halt->gib_besitzer())) {
+					return i+1;
 				}
 			}
 		}
@@ -2054,7 +2042,7 @@ spieler_t::is_connected(halthandle_t halt, koord upperleft, koord lowerright)
 	slist_iterator_tpl<warenziel_t> iter (ziele);
 	while(iter.next()) {
 		warenziel_t wz = iter.get_current();
-		halthandle_t a_halt = halt->gib_halt(wz.gib_ziel());
+		halthandle_t a_halt = haltestelle_t::gib_halt(welt,wz.gib_ziel());
 		if(a_halt.is_bound()) {
 			koord pos = a_halt->gib_basis_pos();
 //DBG_MESSAGE("spieler_t::is_connected()","connection to (%i,%i), compare with (%i,%i)(%i,%i)",pos.x,pos.y,upperleft.x,upperleft.y,lowerright.x,lowerright.y);
@@ -2751,15 +2739,15 @@ spieler_t::undo()
 		return false;
 	}
 	// try to remove everything last built
-	bool ok = false;
+	uint32 cost=0;
 	for(unsigned short i=0;  i<last_built.get_count();  i++  ) {
 		grund_t *gr = welt->lookup(last_built.at(i))->gib_kartenboden();
 		if(undo_type==weg_t::schiene  ||  undo_type==weg_t::schiene_strab  ||  undo_type==weg_t::monorail) {
 			blockmanager::gib_manager()->entferne_schiene(welt, gr->gib_pos());
 		}
-		ok |= gr->weg_entfernen(undo_type,true)!=0;
+		cost += gr->weg_entfernen(undo_type,true);
 //DBG_DEBUG("spieler_t::add_undo()","undo tile %i at (%i,%i)",i,last_built.at(i).x,last_built.at(i).y);
 	}
 	last_built.clear();
-	return ok;
+	return cost!=0;
 }
