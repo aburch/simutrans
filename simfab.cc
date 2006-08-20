@@ -107,7 +107,7 @@ fabrik_t * fabrik_t::gib_fab(const karte_t *welt, const koord pos)
 koord fabrik_t::gib_groesse() const
 {
 	koord size=besch->gib_haus()->gib_groesse(0);
-DBG_MESSAGE("fabrik_t::gib_groesse()","(%i,%i) rot %i",size.x,size.y,rotate);
+//DBG_MESSAGE("fabrik_t::gib_groesse()","(%i,%i) rot %i",size.x,size.y,rotate);
 	switch(rotate) {
 		case 0:
 		case 2:
@@ -124,6 +124,7 @@ void fabrik_t::link_halt(halthandle_t halt)
 {
   if(halt_list.contains(halt) == false) {
     halt_list.insert(halt);
+    welt->lookup(pos)->add_to_haltlist(halt);
   }
 }
 
@@ -131,6 +132,7 @@ void fabrik_t::link_halt(halthandle_t halt)
 void fabrik_t::unlink_halt(halthandle_t halt)
 {
   halt_list.remove(halt);
+  welt->lookup(pos)->remove_from_haltlist(halt);
 }
 
 
@@ -171,8 +173,10 @@ fabrik_t::fabrik_t(karte_t *wl, loadsave_t *file) : lieferziele(max_lieferziele)
 
     rdwr(file);
     aktionszeit = 0;
+#ifdef FAB_PAX
     pax_zeit = 0;
     pax_intervall = 262144/besch->gib_pax_level();
+#endif
     delta_sum = 0;
 
 	koord size=besch->gib_haus()->gib_groesse(0);
@@ -198,8 +202,10 @@ fabrik_t::fabrik_t(karte_t *wl, koord3d pos, spieler_t *spieler, const fabrik_be
     abgabe_letzt = NULL;
 
     aktionszeit = 0;
+#ifdef FAB_PAX
     pax_zeit = 0;
     pax_intervall = 262144/besch->gib_pax_level();
+#endif
     delta_sum = 0;
 
 	koord size=besch->gib_haus()->gib_groesse(0);
@@ -773,6 +779,8 @@ fabrik_t::step(long delta_t)
 		}
 	}
 
+#ifdef FAB_PAX
+/* will be now handled by the simcity.cc as returning passengers! */
 	// finally passengers
 	pax_zeit += delta_t;
 	if(pax_zeit>pax_intervall) {
@@ -780,6 +788,7 @@ fabrik_t::step(long delta_t)
 		verteile_passagiere();
 		INT_CHECK("simfab 643");
 	}
+#endif
 }
 
 
@@ -908,6 +917,7 @@ void fabrik_t::verteile_waren(const uint32 produkt)
 }
 
 
+#ifdef FAB_PAX
 void
 fabrik_t::verteile_passagiere()
 {
@@ -949,7 +959,7 @@ fabrik_t::verteile_passagiere()
 		}
 	}
 }
-
+#endif
 
 
 void

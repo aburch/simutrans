@@ -45,7 +45,7 @@ bool reduce_frame_time()
     if(frame_time > 28 &&
        frame_time > average_frame_time+8 &&
        late_frames < 1) {
-	frame_time -= 2;
+	frame_time -= 8;
 //	printf("*** erniedrige frame_time auf %ld\n", frame_time);
         return true;
     } else {

@@ -36,7 +36,7 @@ tunnel_t::tunnel_t(karte_t *welt, loadsave_t *file) : ding_t(welt)
   besch = 0;
   rdwr(file);
 
-  step_frequency = 255;
+  step_frequency = 0;
 }
 
 
@@ -53,7 +53,7 @@ tunnel_t::tunnel_t(karte_t *welt, koord3d pos,
   }
   setze_besitzer( sp );
 
-  step_frequency = 255;
+  step_frequency = 0;
 }
 
 

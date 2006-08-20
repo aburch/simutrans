@@ -73,7 +73,7 @@ public:
     {
 	count = 0;
     }
-#ifdef not_in_use   /* leave this here - maybe used later! */
+
     /**
      * Resizes the maximum data that can be hold by this vector.
      * Existing entries are preserved, new_size must be big enough
@@ -97,7 +97,7 @@ public:
 	data = new_data;
 	return true;
     }
-#endif
+
     /**
      * Checks if element elem is contained in vector.
      * Uses the == operator for comparison.

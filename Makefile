@@ -225,7 +225,7 @@ SOURCES= \
  simgraph16.c simevent.c simdisplay.c\
  simdebug.cc simmem.cc simio.cc\
  simticker.cc simview.cc simworldview.cc\
- simtime.cc simtools.cc\
+ simtime.cc simtools.c\
  railblocks.cc blockmanager.cc simwin.cc simdepot.cc \
  simvehikel.cc simverkehr.cc simpeople.cc \
  simdings.cc simware.cc simfab.cc simplan.cc\

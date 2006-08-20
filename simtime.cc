@@ -62,7 +62,10 @@ void sync_last_time_now()
  */
 void set_time_multi(long m)
 {
-    multi = m;
+	// smaller 1.0 does not work
+	if(m>=16) {
+		multi = m;
+	}
 }
 
 
@@ -131,6 +134,7 @@ static void wait_msec(long msec)
  */
 void simusleep(unsigned long usec)
 {
+#if 0
   // das ist zu betriebssystemabhängig und wird deshalb
   // an einen systemwraper delegiert
 
@@ -143,7 +147,6 @@ void simusleep(unsigned long usec)
 
   } else {
     long ms = usec >> 10;
-    INT_CHECK("simtime 133");
 
     do {
       const unsigned long T0 = dr_time();
@@ -155,6 +158,29 @@ void simusleep(unsigned long usec)
       // printf("Try to wait 1ms, time passed %d, still to wait %d\n", diff, ms);
     } while(ms > 0);
   }
+#else
+  if(usec < 11) {
+    // ist wohl schon durch aufruf dieser methode langsamer als 11µs
+  } else if(usec < 1024) {
+
+    // busy wait one millisecond => vetter do an display check ...
+    INT_CHECK("simtime 133");
+
+  } else {
+    long ms = usec >> 10;
+    INT_CHECK("simtime 133");
+
+    do {
+    	// wait at most 10 ms
+      const unsigned long T0 = dr_time();
+      dr_sleep(MIN(10244,usec));
+      INT_CHECK("simtime 137");
+
+      const long diff = (long)(dr_time() - T0);
+      ms -= diff;
+    } while(ms > 0);
+  }
+#endif
 }
 
 

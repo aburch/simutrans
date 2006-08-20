@@ -91,6 +91,7 @@ bool leitung_t::sync_step(long /*delta_t*/)
 
 leitung_t::leitung_t(karte_t *welt, loadsave_t *file) : ding_t(welt)
 {
+  step_frequency = 0;
   set_net(NULL);
   rdwr(file);
 }
@@ -100,6 +101,7 @@ leitung_t::leitung_t(karte_t *welt,
 		     koord3d pos,
 		     spieler_t *sp) : ding_t(welt, pos)
 {
+  step_frequency = 0;
   set_net(NULL);
   setze_besitzer( sp );
   verbinde();
@@ -540,6 +542,7 @@ pumpe_t::sync_prepare()
 		if(fab) {
 			fab->set_prodfaktor( fab->get_prodfaktor()*2 );
 		}
+		step_frequency = 1;
 	}
 }
 
@@ -624,6 +627,7 @@ senke_t::sync_prepare()
 {
 	if(fab==NULL) {
 		fab = leitung_t::suche_fab_4(gib_pos().gib_2d());
+		step_frequency = 1;
 	}
 }
 

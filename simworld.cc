@@ -521,15 +521,15 @@ void
 karte_t::destroy()
 {
     DBG_MESSAGE("karte_t::destroy()", "destroying world");
-    printf("Destroying world ... ");
 
-    // hier nur entfernen, aber nicht löschen
-    ausflugsziele.clear();
-    ausflugsziele_max_pax = 0;
+    printf("Destroying world ... ");
 
     labels.clear();
 
     unsigned int i,j;
+
+    // alle haltestellen aufräumen
+    haltestelle_t::destroy_all();
 
     // dinge aufräumen
     if(plan) {
@@ -600,15 +600,15 @@ karte_t::destroy()
 
     // alle fabriken aufräumen
     slist_iterator_tpl<fabrik_t*> fab_iter(fab_list);
-
     while(fab_iter.next()) {
 	delete fab_iter.get_current();
     }
-
     fab_list.clear();
 
-    // alle haltestellen aufräumen
-    haltestelle_t::destroy_all();
+    // hier nur entfernen, aber nicht löschen
+    ausflugsziele.clear();
+    ausflugsziel_max_pax = 0;
+    all_ausflugsziele_top_pax = 0;
 
     // rail blocks aufraeumen
     blockmanager::gib_manager()->delete_all_blocks();
@@ -632,8 +632,13 @@ karte_t::destroy()
 void karte_t::add_stadt(stadt_t *s)
 {
 	// fixme: not check for overflow ...
-    einstellungen->setze_anzahl_staedte(einstellungen->gib_anzahl_staedte()+1);
-    stadt->append(s);
+	if(einstellungen->gib_anzahl_staedte()>=stadt->get_size()) {
+		// extend vector for more cities ...
+DBG_DEBUG("karte_t::add_stadt()","extended city array from %i with additional 64 entries.", stadt->get_size() );
+		stadt->resize(einstellungen->gib_anzahl_staedte()+64);
+	}
+	einstellungen->setze_anzahl_staedte(einstellungen->gib_anzahl_staedte()+1);
+	stadt->append(s);
 }
 
 
@@ -645,10 +650,12 @@ karte_t::init_felder()
     plan   = new planquadrat_t[groesse*groesse];
     slopes = new uint8[groesse*groesse];
     grid_hgts = new sint8[(groesse+1)*(groesse+1)];
+    ausflugsziele_accumulated_level = new array_tpl<int> (64);
+    ausflugsziel_max_pax = 0;
+    all_ausflugsziele_top_pax = 0;
 
     memset(slopes, 0 , sizeof(uint8)*groesse*groesse);
     memset(grid_hgts, 0, sizeof(sint8)*(groesse+1)*(groesse+1));
-
 
     marker.init(groesse);
 
@@ -951,7 +958,6 @@ karte_t::karte_t()
     slopes = 0;
     grid_hgts = 0;
     einstellungen = 0;
-	ausflugsziele_max_pax = 0;
 
     for(i=0; i<anz_spieler ; i++) {
 	spieler[i] = 0;
@@ -1430,120 +1436,118 @@ karte_t::max_hgt(const koord pos) const
 
 // -------- Verwaltung von Fabriken -----------------------------
 
+
 bool
 karte_t::add_fab(fabrik_t *fab)
 {
-    assert(fab != NULL);
-    fab_list.insert( fab );
-    return true;
+	assert(fab != NULL);
+	fab_list.insert( fab );
+	return true;
 }
 
 bool
 karte_t::rem_fab(fabrik_t *fab)
 {
-    assert(fab != NULL);
-    return fab_list.remove( fab );
+	assert(fab != NULL);
+	return fab_list.remove( fab );
 }
-
-int
-karte_t::gib_fab_index(fabrik_t *fab)
-{
-    return fab_list.index_of(fab);
-}
-
 
 fabrik_t *
-karte_t::gib_fab(int index)
+karte_t::get_random_fab() const
 {
-    return (fabrik_t *)fab_list.at(index);
+	const int anz = fab_list.count();
+	fabrik_t *result = NULL;
+
+	if(anz > 0) {
+		const int end = simrand( anz );
+		result = (fabrik_t *)fab_list.at(end);
+	}
+	return result;
 }
 
-const slist_tpl<fabrik_t *> &
-karte_t::gib_fab_list() const
-{
-    return fab_list;
-}
+
+/*----------------------------------------------------------------------------------------------------------------------*/
+/* same procedure for tourist attractions */
 
 void
 karte_t::add_ausflugsziel(gebaeude_t *gb)
 {
 	assert(gb != NULL);
-	ausflugsziele.insert( gb );
-	if(gb->gib_passagier_level()>ausflugsziele_max_pax) {
-		ausflugsziele_max_pax = gb->gib_passagier_level();
+	ausflugsziele.append( gb );
+	if(gb->gib_passagier_level()>ausflugsziel_max_pax) {
+		ausflugsziel_max_pax = gb->gib_passagier_level();
 	}
+
+	// add it to pax destination search array
+	if(ausflugsziele_accumulated_level->get_size()<=ausflugsziele.count()) {
+		array_tpl<int> *new_ausflugsziele_accumulated_level = new array_tpl<int> ( ausflugsziele_accumulated_level->get_size()+64 );
+		for( int i=0;  i<ausflugsziele_accumulated_level->get_size();  i++ ) {
+			new_ausflugsziele_accumulated_level->at(i) = ausflugsziele_accumulated_level->at(i);
+		}
+		delete ausflugsziele_accumulated_level;
+		ausflugsziele_accumulated_level = new_ausflugsziele_accumulated_level;
+	}
+
+	// this is an array for weigthing pax destinations
+	ausflugsziele_accumulated_level->at(ausflugsziele.count()-1) = all_ausflugsziele_top_pax;
+	all_ausflugsziele_top_pax += gb->gib_tile()->gib_besch()->gib_level();
+DBG_DEBUG("karte_t::add_ausflugsziel()","ausflugziel %s added at pos %i (top level %i)", gb->gib_tile()->gib_besch()->gib_name(), ausflugsziele.count()-1,  all_ausflugsziele_top_pax );
 }
 
 void
 karte_t::remove_ausflugsziel(gebaeude_t *gb)
 {
-    assert(gb != NULL);
-    ausflugsziele.remove( gb );
+	assert(gb != NULL);
+
+	const int pax_level = gb->gib_tile()->gib_besch()->gib_level();
+	all_ausflugsziele_top_pax -= pax_level;
+	// first remove from passenger generation array ...
+	int index = ausflugsziele.index_of( gb );
+DBG_DEBUG("karte_t::remove_ausflugsziel()","ausflugziel %s removed at pos %i (top level %i)", gb->gib_tile()->gib_besch()->gib_name(), index,  all_ausflugsziele_top_pax );
+	while(index+1<ausflugsziele.count()) {
+		ausflugsziele_accumulated_level->at(index) = ausflugsziele_accumulated_level->at(index+1)-pax_level;
+		index ++;
+	}
+	ausflugsziele.remove( gb );
 }
 
 
-const slist_tpl<gebaeude_t*> &
-karte_t::gib_ausflugsziele() const
+/* binary search: always searches whole array, since they might be duplicated entries */
+static int binary_search_of_array_of_int(array_tpl<int> *arr, const int top, const int target)
 {
-    return ausflugsziele;
+	int lower, middle, upper;
+	lower = 0;    upper = top;
+
+	while(upper >= lower) {
+		middle = (upper + lower) / 2;
+		if(arr->at(middle)<target) {
+			lower = middle + 1;
+		}
+		else {
+			upper = middle - 1;
+		}
+	}
+	return upper;
 }
 
 
-void karte_t::add_label(koord pos)
+/* select a random target for a tourist; targets are weighted by their importance */
+const gebaeude_t *
+karte_t::gib_random_ausflugsziel() const
 {
-    if(!labels.contains(pos)) {
-	labels.append(pos);
-    }
-}
-
-void karte_t::remove_label(koord pos)
-{
-    labels.remove(pos);
-}
-
-
-const slist_tpl<koord> &
-karte_t::gib_label_list() const
-{
-    return labels;
-}
-
-
-const slist_tpl<convoihandle_t> &
-karte_t::gib_convoi_list() const
-{
-    return convoi_list;
-}
-
-
-bool
-karte_t::add_convoi(convoihandle_t &cnv)
-{
-    assert(cnv.is_bound());
-    convoi_list.insert( cnv );
-    return true;
-}
-
-
-bool
-karte_t::rem_convoi(convoihandle_t &cnv)
-{
-    return convoi_list.remove( cnv );
-}
-
-
-fabrik_t *
-karte_t::get_random_fab() const
-{
-    const int anz = fab_list.count();
-    fabrik_t *result = NULL;
-
-    if(anz > 0) {
-        const int end = simrand( anz );
-	result = (fabrik_t *)fab_list.at(end);
-
-    }
-    return result;
+	if(all_ausflugsziele_top_pax>0  &&  ausflugsziele.count()>0) {
+		const int target = simrand(all_ausflugsziele_top_pax);
+		int i;
+		// faster would be a bsearch ...
+		for( i=1;  i<ausflugsziele.count()  &&  ausflugsziele_accumulated_level->at(i)<target;  i++  ) {
+			;
+		}
+//DBG_DEBUG("karte_t::gib_random_ausflugsziel()","found attraction %s at %i.", ausflugsziele.at(i-1)->gib_tile()->gib_besch()->gib_name(), i-1 );
+		return ausflugsziele.at(i-1);
+	}
+	// so there are no destinations ... should never occur ...
+	dbg->fatal("karte_t::gib_random_ausflugsziel()","nothing found.");
+	return NULL;
 }
 
 
@@ -1603,6 +1607,7 @@ karte_t::suche_naechste_stadt(const koord pos, const stadt_t *letzte) const
 }
 
 
+#if 0
 /**
  * suche Haltestellen fuer einen Passagier/fracht
  * um den Punkt k herum - k selbst wird nicht geprüft!!!
@@ -1615,7 +1620,6 @@ karte_t::suche_nahe_haltestellen(const koord k,
                                  const int mitte_wh,
 				 uint32 max_anzahl) const
 {
-#if 0
     static vector_tpl<halthandle_t> halt_list(32);
 
     halthandle_t halt;
@@ -1711,10 +1715,8 @@ karte_t::suche_nahe_haltestellen(const koord k,
     }
 
     return halt_list;
-#else
-	return lookup(k)->gib_kartenboden()->get_haltlist();
-#endif
 }
+#endif
 
 
 
@@ -1762,7 +1764,6 @@ karte_t::sync_step(const long delta_t)
   while(ok) {
     sync_steppable *ss = iter.get_current();
 
-
     // unsigned long T0 = get_current_time_millis();
 
     // Hajo: advance iterator, so that we can remove the current object
@@ -1775,18 +1776,15 @@ karte_t::sync_step(const long delta_t)
     }
 
     // unsigned long T1 = get_current_time_millis();
-
     // if(T1-T0 > 40) {
     //    dbg->warning("karte_t::sync_step()", "%p needed %d ms for step", ss, T1-T0);
     // }
 
   }
 
-
   for(int x=0; x<8; x++) {
     gib_spieler(x)->age_messages(delta_t);
   }
-
 
   ticks += delta_t;
 
@@ -1923,41 +1921,62 @@ static long step_group_times[GRUPPEN];
 
 void karte_t::step(const long delta_t)
 {
-    const int step_group = steps % GRUPPEN;
-    const int step_group_step = steps / GRUPPEN;
-    unsigned int i;
+	const int step_group = steps % GRUPPEN;
+	unsigned int i;
 
-    for(i=0; i<GRUPPEN; i++) {
-	step_group_times[i] += delta_t;
-    }
-
-    const long delta_t_sum = step_group_times[step_group];
-    step_group_times[step_group] = 0;
-
-    int check_counter = 0;
-
-
-    for(i=step_group; i < cached_groesse2; i+=GRUPPEN) {
-
-	plan[i].step(delta_t_sum, step_group_step);
-
-	if(((++check_counter) & 63) == 0) {
-	    INT_CHECK("simworld 1076");
-	    interactive_update();
+	// due to the scheduling in several parts, we must remember the last number of intervalls
+	for(i=0; i<GRUPPEN; i++) {
+		step_group_times[i] += delta_t;
 	}
-    }
+	// the we use this accumulated value
+	const long delta_t_sum = step_group_times[step_group];
 
-    steps ++;
+	// did the at least 25 ms passed (this makes maximum simloop something below 40)
+	if(delta_t_sum>350) {
 
-    if(ticks > ((letzter_monat + 1)) << ticks_bits_per_tag) {
-	// neuer monat
+		// and reset it
+		step_group_times[step_group] = 0;
+		// how many steps passed?
+		const int step_group_step = (steps / GRUPPEN);
 
-	neuer_monat();
+		int check_counter = 0;
+		for(i=step_group; i<cached_groesse2; i+=GRUPPEN) {
+			plan[i].step(delta_t_sum, step_group_step);
 
-	if(letzter_monat % 12 == 0) {
-            neues_jahr();
+			if(((++check_counter) & 63) == 0) {	// every 64 one update ...
+				INT_CHECK("simworld 1076");
+				interactive_update();
+			}
+		}
+
+		// now step all towns
+		if(stadt) {
+			for(unsigned int n=0; n<stadt->get_count(); n++) {
+				if(stadt->at(n)) {
+					stadt->at(n)->step();
+				}
+				INT_CHECK("simworld 2396");
+				interactive_update();
+			}
+		}
+
+		// then step all players
+		INT_CHECK("simworld 2170");
+		interactive_update();
+		spieler[steps & 7]->step();
+
+		// ok, next step
+		steps ++;
+
+		if(ticks > ((letzter_monat + 1)) << ticks_bits_per_tag) {
+			// neuer monat
+			neuer_monat();
+
+			if(letzter_monat % 12 == 0) {
+				neues_jahr();
+			}
+		}
 	}
-    }
 }
 
 
@@ -2282,7 +2301,13 @@ karte_t::laden(const char *filename)
 
   }
   else {
-	destroy_all_win();
+	// close all open windows
+	{
+		destroy_all_win();
+		event_t ev;
+		ev.ev_class=EVENT_NONE;
+		check_pos_win(&ev);
+	}
 
 	DBG_MESSAGE("karte_t::laden()","Savegame version is %d", file.get_version());
 
@@ -3694,137 +3719,97 @@ karte_t::interactive_update()
 
 
 
+#define MIN_LOOPS 5
+#define MIN_FPS 10
+#define MAX_FPS 50
+
 //void
 //karte_t::interactive()        //02-Nov-2001   Markus Weber    returns true, if simutrans should be unloaded
 
 bool
 karte_t::interactive()
 {
-    sleep_time = 4000;
+	unsigned long now = get_current_time_millis();
+	unsigned long this_step_time = 0;
 
-    doit = true;
+	last_step_time = now;
+	steps_bis_jetzt = steps;
 
-    unsigned long now = get_current_time_millis();
-    unsigned long this_step_time = 0;
-
-    last_step_time = now;
-
-    steps_bis_jetzt = steps;
+	sleep_time = 4000;
+	doit = true;
 
 	// change grounds to winter?
 	season=(2+(1+(ticks >> karte_t::ticks_bits_per_tag))/3)&3; // summer always zero
 	boden_t::toggle_season( season );
-//	setze_dirty();
+	//	setze_dirty();
 
-    do {
-	// check if we need to play a new midi file
-	check_midi();
+	do {
+		// check if we need to play a new midi file
+		check_midi();
 
-//	printf("karte_t::step()\n");
+		INT_CHECK("simworld 2135");
+		interactive_update();
 
-	INT_CHECK("simworld 2135");
-	interactive_update();
-	{
-	  // Hajo: Convois need extra frequent steps to avoid unneccesary
-	  // long waiting times
-	  slist_iterator_tpl <convoihandle_t> iter (convoi_list);
+		// Hajo: Convois need extra frequent steps to avoid unneccesary
+		// long waiting times
+		{
+			slist_iterator_tpl <convoihandle_t> iter (convoi_list);
 
-	  while( iter.next() ) {
-	    if(iter.get_current().is_bound()) {
-	      iter.get_current()->step();
-	      INT_CHECK("simworld 3154");
-	    }
-	  }
-	}
-
-	INT_CHECK("simworld 2139");
-        interactive_update();
-       	simusleep(sleep_time);
-
-	INT_CHECK("simworld 2142");
-        interactive_update();
-
-	// welt steppen
-	this_step_time = get_current_time_millis();
-	step((long)(this_step_time-last_step_time));
-	last_step_time = this_step_time;
-
-	INT_CHECK("simworld 2151");
-	interactive_update();
-	simusleep(sleep_time);
-
-	INT_CHECK("simworld 2155");
-        interactive_update();
-
-	if(stadt) {
-	  for(unsigned int n=0; n<stadt->get_count(); n++) {
-	    if(stadt->at(n)) {
-	      stadt->at(n)->step();
-	    }
-
-	    INT_CHECK("simworld 2396");
-	    interactive_update();
-	  }
-	}
-
-	INT_CHECK("simworld 2166");
-	interactive_update();
-	simusleep(sleep_time);
-
-	INT_CHECK("simworld 2170");
-	interactive_update();
-	spieler[steps & 7]->step();
-
-	INT_CHECK("simworld 2174");
-	interactive_update();
-	simusleep(sleep_time);
-
-	const unsigned long t = get_current_time_millis();
-
-	if(t > now+1000) {
-	    last_simloops = steps - steps_bis_jetzt;
-
-//          printf("%d simloops, %d sleep in der letzten sekunde.\n", dt, sleep_time);
-
-	    const int soll = 5;
-
-            if(last_simloops < soll) {
-
-		// Hajo: emergency case, try to get it running,
-		// reduce idle tile to 0
-		if(last_simloops <= 1) {
-		    sleep_time = 0;
+			while( iter.next() ) {
+				if(iter.get_current().is_bound()) {
+					iter.get_current()->step();
+					INT_CHECK("simworld 3154");
+				}
+			}
 		}
 
-		if(sleep_time > 10) {
-		    sleep_time -= sleep_time/4;
+		INT_CHECK("simworld 2142");
+		interactive_update();
+
+		// welt steppen
+		// but this will not neccessarily result in a step!
+		this_step_time = get_current_time_millis();
+		step((long)(this_step_time-last_step_time));
+		last_step_time = this_step_time;
+
+		INT_CHECK("simworld 2155");
+		interactive_update();
+
+		const unsigned long t = get_current_time_millis();
+
+		if(t > now+1000) {
+			last_simloops = steps - steps_bis_jetzt;
+
+			sleep_time = (25-CLIP(get_current_time_millis() - this_step_time,0,25))<<10;
+			if(sleep_time>11000  &&  lastFPS<MAX_FPS) {
+				reduce_frame_time();
+			}
+
+			if(last_simloops < MIN_LOOPS) {
+
+				// Hajo: emergency case, try to get it running,
+				// reduce idle tile to 0
+				if(sleep_time <= 1024) {
+					sleep_time = 0;
+					increase_frame_time();
+				}
+			}
+
+			if(lastFPS < MIN_FPS) {
+				reduce_frame_time();
+			}
+
+			if(sleep_time>0) {
+				simusleep( sleep_time );
+			}
+
+			now = t;
+			steps_bis_jetzt = steps;
+			lastFPS = thisFPS;
+			thisFPS = 0;
 		}
-		else {
-		    increase_frame_time();
-		}
-	    }
 
-            if(last_simloops > soll) {
-		if(!reduce_frame_time()) {
-		    if(sleep_time == 0) {
-			sleep_time = 10;
-		    } else {
-			sleep_time += sleep_time/4;
-		    }
-		} else {
-		    if(sleep_time > 10) {
-			sleep_time -= sleep_time/4;
-		    }
-		}
-	    }
+	}while(doit);
 
-	    now = t;
-	    steps_bis_jetzt = steps;
-	    lastFPS = thisFPS;
-	    thisFPS = 0;
-	}
-
-    }while(doit);
-
-    return m_quit_simutrans;      // 02-Nov-2001    Markus Weber    Added
+	return m_quit_simutrans;      // 02-Nov-2001    Markus Weber    Added
 }

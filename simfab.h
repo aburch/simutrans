@@ -77,9 +77,6 @@ private:
     vector_tpl <koord> suppliers;
 
 
-    slist_tpl<stadt_t *> arbeiterziele;
-
-
     /**
      * Back-link of haltestelle_t::fab_list
      * @author Hj. Malthaner
@@ -93,13 +90,23 @@ private:
      */
     void verteile_waren(const uint32 produkt);
 
+    /* still needed for the info dialog; otherwise useless
+     */
+    slist_tpl<stadt_t *> arbeiterziele;
+#ifdef FAB_PAX
+    /**
+     * for passenger generation
+     * @author prissi
+     */
+    int pax_zeit;
+    int pax_intervall;
 
     /**
      * Die arbeiter wollen auch wieder nach hause zurueck
      * @author Hj. Malthaner
      */
     void verteile_passagiere();
-
+#endif
 
     spieler_t *besitzer_p;
     karte_t *welt;
@@ -166,15 +173,6 @@ private:
      */
     int aktionszeit;
 
-
-    /**
-     * for passenger generation
-     * @author prissi
-     */
-    int pax_zeit;
-    int pax_intervall;
-
-
     /**
      * Zeitakkumulator für Produktion
      * @author Hj. Malthaner
@@ -215,7 +213,14 @@ public:
 
     const vector_tpl <koord> & gib_lieferziele() const {return lieferziele;};
     const vector_tpl <koord> & get_suppliers() const {return suppliers;};
+
+    /* workers origin only used for info dialog purposes; otherwise useless ...
+     * @author Hj. Malthaner/prissi
+     */
+    void  add_arbeiterziel(stadt_t *stadt);
     const slist_tpl <stadt_t *> & gib_arbeiterziele() const {return arbeiterziele;};
+
+    const slist_tpl<halthandle_t> gib_halt_list () const { return halt_list; }
 
     /**
      * Fügt ein neues Lieferziel hinzu
@@ -228,13 +233,6 @@ public:
      * @author Hj. Malthaner
      */
     void  add_supplier(koord pos);
-
-
-    /**
-     * Fügt ein neues Arbeiterziel hinzu
-     * @author Hj. Malthaner
-     */
-    void  add_arbeiterziel(stadt_t *stadt);
 
 
     /**

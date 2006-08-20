@@ -187,17 +187,33 @@ baum_t::calc_bild()
 }
 
 
+/* also checks for distribution values
+ * @author prissi
+ */
 const baum_besch_t *baum_t::gib_aus_liste(int level)
 {
-    slist_tpl<const baum_besch_t *> auswahl;
-    slist_iterator_tpl<const baum_besch_t *>  iter(baum_typen);
+	slist_tpl<const baum_besch_t *> auswahl;
+	slist_iterator_tpl<const baum_besch_t *>  iter(baum_typen);
+	int weight = 0;
 
-   while(iter.next()) {
-	if(iter.get_current()->gib_hoehenlage() == level) {
-	    auswahl.append(iter.get_current());
+	while(iter.next()) {
+		if(iter.get_current()->gib_hoehenlage() == level) {
+			auswahl.append(iter.get_current());
+			weight += iter.get_current()->gib_distribution_weight();
+		}
 	}
-    }
-    return auswahl.count() > 0 ? auswahl.at(simrand(auswahl.count())) : NULL;
+	// now weight their distribution
+	if( auswahl.count()>0  &&  weight>0) {
+		const int w=simrand(weight);
+		weight = 0;
+		for( int i=0; i<auswahl.count();  i++  ) {
+			weight += auswahl.at(i)->gib_distribution_weight();
+			if(weight>w) {
+				return auswahl.at(i);
+			}
+		}
+	}
+	return NULL;
 }
 
 
@@ -209,7 +225,8 @@ baum_t::baum_t(karte_t *welt, loadsave_t *file) : ding_t(welt)
 	calc_bild();
     }
 
-    step_frequency = 7;
+//    step_frequency = 7;
+    step_frequency = 127;
 }
 
 
@@ -241,15 +258,13 @@ baum_t::baum_t(karte_t *welt, koord3d pos) : ding_t(welt, pos)
   }
 
   //  const int guete = 140 - ABS(bd->gib_hoehe() - (bildbasis - IMG_BAUM_1)*6);
-
   //  printf("Baum: Guete %d\n", guete);
-
 
   calc_off();
   calc_bild();
 
-
-  step_frequency = 7;
+//  step_frequency = 7;
+  step_frequency = 127;
 }
 
 
@@ -263,7 +278,8 @@ baum_t::baum_t(karte_t *welt, koord3d pos, const baum_besch_t *besch) : ding_t(w
   calc_off();
   calc_bild();
 
-  step_frequency = 7;
+//  step_frequency = 7;
+  step_frequency = 127;
 }
 
 

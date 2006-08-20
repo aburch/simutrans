@@ -443,6 +443,7 @@ convoi_t::sync_step(long delta_t)
 
 	// smoke for the engines (only first can smoke )
 #if 0
+	// correct but slower ...
 	if(welt->gib_zeit_ms() > next_wolke) {
 	  fahr->at(0)->rauche();
 	  next_wolke += 500;
@@ -1319,6 +1320,7 @@ convoi_t::open_schedule_window()
 			return;
     }
 
+	calc_gewinn();
     anhalten(8);
 
     state = FAHRPLANEINGABE;
@@ -1426,49 +1428,38 @@ convoi_t::pruefe_alle()
  */
 void convoi_t::laden()
 {
-  if(state == FAHRPLANEINGABE) {
-    return;
-  }
+	if(state == FAHRPLANEINGABE) {
+		return;
+	}
 
-  const koord k = fpl->eintrag.get(fpl->aktuell).pos.gib_2d();
+	const koord k = fpl->eintrag.get(fpl->aktuell).pos.gib_2d();
 
-  // printf("Halt bei %d,%d", k.x, k.y);
+	halthandle_t halt = haltestelle_t::gib_halt(welt, fpl->eintrag.get(fpl->aktuell).pos);
+	// eigene haltestelle ?
+	if(halt.is_bound()  &&  (halt->gib_besitzer()==gib_besitzer()  ||  halt->gib_besitzer()==welt->gib_spieler(1)) ) {
+		// default -> nicht warten
+		hat_gehalten(k, halt);
+	}
 
-  halthandle_t halt;
+	INT_CHECK("simconvoi 1077");
 
-  // eigene haltestelle ?
-  halt = gib_besitzer()->is_my_halt( k );
+	// Nun kann ein/ausgeladen werden
+	if(get_loading_level() >= get_loading_limit())  {
 
-  if(!halt.is_bound()) {
-    // eine oeffentliche haltestelle ?
-    halt = welt->gib_spieler(1)->is_my_halt( k );
-  }
+		// add available capacity after loading(!) to statistics
+		for (int i = 0; i<anz_vehikel; i++) {
+			book(gib_vehikel(i)->gib_fracht_max()-gib_vehikel(i)->gib_fracht_menge(), CONVOI_CAPACITY);
+		}
+		wait_lock += WTT_LOADING;
 
-  // default -> nicht warten
-  if(halt.is_bound()) {
-    hat_gehalten(k, halt);
-  }
-
-  INT_CHECK("simconvoi 1077");
-
-  // Nun kann ein/ausgeladen werden
-  if(get_loading_level() >= get_loading_limit())  {
-
-    // add available capacity after loading(!) to statistics
-    for (int i = 0; i<anz_vehikel; i++) {
-      book(gib_vehikel(i)->gib_fracht_max()-gib_vehikel(i)->gib_fracht_menge(), CONVOI_CAPACITY);
-    }
-
-    wait_lock += WTT_LOADING;
-
-    // Advance schedule
-    drive_to_next_stop();
-
-    state = ROUTING_2;
-  } else {
-    // Hajo: wait a few frames ... 250ms looks ok to me
-    wait_lock = 250;
-  }
+		// Advance schedule
+		drive_to_next_stop();
+		state = ROUTING_2;
+	}
+	else {
+		// Hajo: wait a few frames ... 250ms looks ok to me
+		wait_lock = 250;
+	}
 }
 
 
@@ -1483,7 +1474,8 @@ void convoi_t::calc_gewinn()
   for(int i=0; i<anz_vehikel; i++) {
     vehikel_t *v = fahr->at(i);
     gewinn += v->calc_gewinn(route.position_bei(0),
-			     route.position_bei(MAX(route.gib_max_n(), 0))
+//			     route.position_bei(MAX(route.gib_max_n(), 0))
+				fahr->at(0)->gib_pos()
 			     );
 
   }
@@ -1505,45 +1497,36 @@ void convoi_t::calc_gewinn()
  */
 void convoi_t::hat_gehalten(koord k, halthandle_t halt)
 {
-  // haltestellenquote neu berechnen
+	// haltestellenquote neu berechnen
+	const int quote = anz_vehikel == 1 ? 32 : 16;
+	int i;
 
-  const int quote = anz_vehikel == 1 ? 32 : 16;
-  int i;
+	for(i=0; i<anz_vehikel; i++) {
+		// recalculate connections ...
+		halt->hat_gehalten(quote, fahr->at(i)->gib_fracht_typ(), fpl);
+	}
 
-  for(i=0; i<anz_vehikel; i++) {
-    halt->hat_gehalten(quote,
-		       fahr->at(i)->gib_fracht_typ(),
-		       fpl);
-  }
+	// entladen und beladen
+	for(i=0; i<anz_vehikel; i++) {
 
-  // entladen und beladen
+		// Nur diejenigen Fahrzeuge be-/entladen, die im Bahnhof sind
+		vehikel_t *v = fahr->at(i);
+		const halthandle_t &halt = haltestelle_t::gib_halt(welt, v->gib_pos());
 
-  for(i=0; i<anz_vehikel; i++) {
+		if(halt.is_bound()) {
+			// Hajo: die waren wissen wohin sie wollen
+			// zuerst alle die hier aus/umsteigen wollen ausladen
+			v->entladen(k, halt);
 
-    // Jeder zusätzliche Waggon braucht etwas Zeit
-    wait_lock += (WTT_LOADING/4);
+			// Hajo: danach neue waren einladen
+			v->beladen(k, halt);
 
-    // printf("Vehikel %d hält an %d,%d\n", i, fahr->at(i)->gib_pos().x, fahr->at(i)->gib_pos().y);
+			// Jeder zusätzliche Waggon braucht etwas Zeit
+			wait_lock += (WTT_LOADING/4);
+		}
+	}
 
-    // Nur diejenigen Fahrzeuge be-/entladen, die im Bahnhof sind
-    vehikel_t *v = fahr->at(i);
-    const halthandle_t &halt = welt->lookup(v->gib_pos())->gib_halt();
-
-    if(halt.is_bound()) {
-
-      // Hajo: die waren wissen wohin sie wollen
-      // zuerst alle die hier aus/umsteigen wollen ausladen
-      v->entladen(k, halt);
-
-      // Hajo: danach neue waren einladen
-      v->beladen(k, halt);
-
-      // printf("Vehikel %d hält an %s\n", i, halt->gib_name());
-    }
-  }
-
-
-  calc_loading();
+	calc_loading();
 }
 
 
@@ -1564,46 +1547,40 @@ int convoi_t::calc_restwert() const
  * @author Volker Meyer
  * @date  20.06.2003
  */
-
 void convoi_t::calc_loading()
 {
-    int i;
+	int i;
 
-    loading_limit = 0;
-    if(state == LOADING) {
-	const koord k =  fpl->eintrag.get(fpl->aktuell).pos.gib_2d();
+	loading_limit = 0;
+	if(state == LOADING) {
 
-	halthandle_t halt;
+		halthandle_t halt = haltestelle_t::gib_halt(welt, fpl->eintrag.get(fpl->aktuell).pos );
 
-	// eigene haltestelle ?
-	halt = gib_besitzer()->is_my_halt( k );
+		// eigene haltestelle ?
+		if(halt.is_bound()  &&   !(halt->gib_besitzer()==gib_besitzer()  ||  halt->gib_besitzer()==welt->gib_spieler(1)) ) {
+			// eine oeffentliche haltestelle ?
+			halt = halthandle_t();
+		}
 
-	if(!halt.is_bound()) {
-	    // eine oeffentliche haltestelle ?
-
-	    halt = welt->gib_spieler(1)->is_my_halt( k );
+		// default -> nicht warten
+		if(halt.is_bound()) {
+			loading_limit = fpl->eintrag.get(fpl->aktuell).ladegrad;
+		}
 	}
 
-	// default -> nicht warten
-	if(halt.is_bound()) {
-	    loading_limit = fpl->eintrag.get(fpl->aktuell).ladegrad;
+	int fracht_max = 0;
+	int fracht_menge = 0;
+	for(i=0; i<anz_vehikel; i++) {
+		// Nur diejenigen Fahrzeuge be-/entladen, die im Bahnhof sind
+		vehikel_t *v = fahr->at(i);
+		const halthandle_t &halt = haltestelle_t::gib_halt(welt, v->gib_pos());
+
+		if(state != LOADING || halt.is_bound()) {
+			fracht_max += v->gib_fracht_max();
+			fracht_menge += v->gib_fracht_menge();
+		}
 	}
-    }
-
-    int fracht_max = 0;
-    int fracht_menge = 0;
-
-    for(i=0; i<anz_vehikel; i++) {
-	// Nur diejenigen Fahrzeuge be-/entladen, die im Bahnhof sind
-	vehikel_t *v = fahr->at(i);
-	const halthandle_t &halt = welt->lookup(v->gib_pos())->gib_halt();
-
-	if(state != LOADING || halt.is_bound()) {
-	    fracht_max += v->gib_fracht_max();
-	    fracht_menge += v->gib_fracht_menge();
-	}
-    }
-    loading_level = fracht_max > 0 ? (fracht_menge*100)/fracht_max : 100;
+	loading_level = fracht_max > 0 ? (fracht_menge*100)/fracht_max : 100;
 }
 
 

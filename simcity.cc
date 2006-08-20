@@ -111,7 +111,7 @@ static int minimum_city_distance = 16;
  * add a new consumer every % people increase
  * @author prissi
  */
-static int industry_increase_every = 0;
+static int industry_increase_every[8];
 
 
 //------------ haltestellennamen -----------------------
@@ -524,6 +524,7 @@ stadt_t::verbinde_fabriken()
 		}
 	}
 
+	max_pax_arbeiterziele = 0;
 	for(int i=0; i<16; i++) {
 		slist_iterator_tpl<fabrik_t *> iter (fab_list);
 
@@ -546,6 +547,7 @@ stadt_t::verbinde_fabriken()
 		if(best != NULL) {
 			best->add_arbeiterziel( this );
 			arbeiterziele.insert( best );
+			max_pax_arbeiterziele += best->gib_besch()->gib_pax_level();
 			fab_list.remove( best );
 		}
 	}
@@ -556,12 +558,13 @@ stadt_t::verbinde_fabriken()
 void
 stadt_t::add_factory_arbeiterziel(fabrik_t *fab)
 {
-	// now fish swarms ...
+	// no fish swarms ...
 	if(strcmp("fish_swarm",fab->gib_besch()->gib_name())!=0) {
 		fab->add_arbeiterziel( this );
 		// do not add a factory twice!
 		if(!arbeiterziele.contains(fab)){
 			arbeiterziele.insert( fab );
+			max_pax_arbeiterziele += fab->gib_besch()->gib_pax_level();
 		}
 	}
 }
@@ -573,17 +576,12 @@ stadt_t::step()
 {
 	// Ist es Zeit für einen neuen step?
 	if(welt->gib_zeit_ms() > next_step) {
-//		const long delta_t -= welt->gib_zeit_ms() - next_step;
-
-		// Alle 7 sekunden ein step
-//		next_step = welt->gib_zeit_ms()+MAX(0, step_interval-delta_t);
-		next_step += step_interval;
+		// Alle 7 sekunden ein step (or we need to skip ... )
+		next_step = MAX( welt->gib_zeit_ms(), next_step+step_interval );
 
 		// Zaehlt steps seit instanziierung
 		step_count ++;
-
 		step_passagiere();
-
 
 		if( (step_count & 3) == 0) {
 			step_bau();
@@ -768,13 +766,17 @@ stadt_t::step_passagiere()
 					(gb->gib_tile()->gib_besch()->gib_level() + 6) >> 1 :
 					(gb->gib_post_level() + 3) >> 1;
 
+					// create pedestrians?
+					if(umgebung_t::fussgaenger) {
+						haltestelle_t::erzeuge_fussgaenger(welt, welt->lookup(k)->gib_kartenboden()->gib_pos(), (num_pax>>3)+1);
+						INT_CHECK("simcity 269");
+					}
+
 				// starthaltestelle suchen
-				const vector_tpl<halthandle_t> &halt_list = welt->suche_nahe_haltestellen(k, 4, 0, 1);
+				const vector_tpl<halthandle_t> &halt_list = welt->lookup(k)->gib_kartenboden()->get_haltlist();
 
 				if(halt_list.get_count() > 0) {
 					halthandle_t halt = halt_list.get(0);
-
-					int pax_routed = 0;
 
 //				// Hajo: track number of generated passengers.
 //				pax_erzeugt += num_pax;
@@ -794,29 +796,30 @@ stadt_t::step_passagiere()
 						pax_erzeugt += pax_left_to_do;
 
 						// Ziel für Passagier suchen
-						const koord ziel = finde_passagier_ziel();
+						bool will_return;
+						const koord ziel = finde_passagier_ziel(&will_return);
 
 						// Dario: Check if there's a stop near destination
 						const vector_tpl <halthandle_t> &ziel_list =
-							welt->suche_nahe_haltestellen(ziel, 4, 0, 1);
+							welt->lookup(ziel)->gib_kartenboden()->get_haltlist();
 
 						if(ziel_list.get_count() == 0){
 // DBG_MESSAGE("stadt_t::step_passagiere()", "No stop near dest (%d, %d)", ziel.x, ziel.y);
-							// ziel itself is no stop either. Thus, routing is not possible and we do not need to do a calculation.
+							// Thus, routing is not possible and we do not need to do a calculation.
 							// Mark ziel as destination without route and continue.
 							merke_passagier_ziel(ziel, DUNKELORANGE);
 							continue;
 						}
-						else {
+//						else {
 //DBG_DEBUG("stadt_t::step_passagiere()", "Stop near dest (%d, %d)", ziel.x, ziel.y);
-						} // End: Check if there's a stop near destination
+//						} // End: Check if there's a stop near destination
 
 						// Passgierziel in Passagierzielkarte eintragen
 						merke_passagier_ziel(ziel, GELB);
 
 						ware_t pax (wtyp);
 						pax.setze_zielpos( ziel );
-						pax.menge = pax_left_to_do;
+						pax.menge = (wtyp==warenbauer_t::passagiere)?pax_left_to_do:MAX(1,pax_left_to_do>>3);
 
 						// prissi: 11-Mar-2005
 						// we try all stations to find one not overcrowded
@@ -836,51 +839,76 @@ stadt_t::step_passagiere()
 						}
 						if(halte==halt_list.get_count()) {
 							// prissi: only overcrowded stations found ...
+							// ### maybe we should still send them back
 							continue;
 						}
-#if 0
-						// prissi:
-						// Especially for crowded stops there might be
-						// already some passengers waiting for the same destination
-						if(halt->vereinige_ware(pax)) {
-							const slist_tpl<ware_t> *wl = halt->gib_warenliste(wtyp)
-							if(wliste) {
-								slist_iterator_tpl<ware_t> iter (wliste);
-								bool found=flase;
-								while(!found  &&  iter.next()) {
-									// just iterate until found
-									found = ziel_list.contains(iter.get_current().gib_ziel());
-								}
-								if(found) {
-									halt->add_pax_happy(pax_left_to_do);
-									continue;
-								}
-							}
-						}
-#endif
+
 						// Hajo: for efficiency we try to route not every
 						// single pax, but packets.
 						// the last packet might have less then 7 pax
+						koord return_zwischenziel;	// for people going back ...
+						bool schon_da;
 						// prissi: since we got also a comprehensive list of target destinations,
-						// there should be a way suche_route should profit from this
-						const bool schon_da = halt->suche_route(pax, halt);
+						// we can avoid the search, if there is a target station next to us
+						if(ziel_list.is_contained(halt)) {
+							schon_da = true;
+						}
+						else {
+							schon_da = halt->suche_route(pax, halt, will_return?&return_zwischenziel:NULL );
+						}
 
 						if(!schon_da) {
 							if(pax.gib_ziel() != koord::invalid) {
+								// so we have happy traveling passengers
+								halt->starte_mit_route(pax);	// liefere an recalculates route, so we use this!
 
-								// printf("  adding %d pax to station %s\n", pax->menge, halt->gib_name());
-
-								// Hajo: keep track of transported passengers
 								pax_transport += pax.menge;
+								halt->add_pax_happy(pax.menge);
 
-								halt->liefere_an(pax);
-								halt->add_pax_happy(pax_left_to_do);
-
+								if(will_return) {
+									// send them also back
+									// this comes free for calculation and balances also the amounts!
+									ware_t return_pax (wtyp);
+									return_pax.menge = pax_left_to_do;
+									return_pax.setze_zielpos( k );
+									return_pax.setze_ziel( halt->gib_basis_pos() );
+									return_pax.setze_zwischenziel( return_zwischenziel );
+									// now try to add them to the target halt
+									// we try all stations to find one not overcrowded
+									halthandle_t zwischen_halt=haltestelle_t::gib_halt( welt, return_zwischenziel );
+//DBG_DEBUG("will_return","from %s to %s via %s",halt->gib_name(),ziel_list.get(0)->gib_name(),zwischen_halt->gib_name());
+									for(halte=0;  halte<ziel_list.get_count();  halte++  ) {
+										halt = ziel_list.get(halte);
+										if(halt->is_connected(zwischen_halt,wtyp)) {
+											if(halt->gib_ware_summe(wtyp)<=(halt->gib_grund_count() << 7)) {
+												// prissi: not overcrowded
+												// so add them
+												halt->starte_mit_route(return_pax);
+												halt->add_pax_happy(pax_left_to_do);
+												break;
+											}
+											else {
+												// Hajo: Station crowded:
+												// they are appalled but will try other stations
+												halt->add_pax_unhappy(pax_left_to_do);
+											}
+										}
+										else {
+											halt->add_pax_no_route(pax_left_to_do);
+										}
+									}
+								}
 							}
 							else {
 								halt->add_pax_no_route(pax_left_to_do);
 								merke_passagier_ziel(ziel, DUNKELORANGE);
 							}
+						}
+						else {
+							// ok, they find their destination here too
+							// so we declare them happy
+							pax_transport += pax.menge;
+							halt->add_pax_happy(pax.menge);
 						}
 
 					} // while
@@ -888,8 +916,10 @@ stadt_t::step_passagiere()
 				else {
 					// no halt are in the list
 					// Hajo: fake a ride to get a proper display of destinations
-						const koord ziel = finde_passagier_ziel();
-						merke_passagier_ziel(ziel, DUNKELORANGE);
+					// but this building may generated more ...
+					bool will_return;
+					const koord ziel = finde_passagier_ziel(&will_return);
+					merke_passagier_ziel(ziel, DUNKELORANGE);
 				}
 			}
 
@@ -930,51 +960,65 @@ stadt_t::gib_zufallspunkt() const
 
 
 koord
-stadt_t::finde_passagier_ziel()
+stadt_t::finde_passagier_ziel(bool *will_return)
 {
-    const int rand = simrand(128);
+	const int rand = simrand(128);
 
-    if(arbeiterziele.is_empty() ||
-       rand < 110) {
+	if(arbeiterziele.is_empty()  ||  max_pax_arbeiterziele==0  ||  rand < 110) {
 
-  koord ziel;
+		koord ziel;
 
-  // Ziel in stadt oder ausflugsziel ?
-        // Jeder 4. macht einen Ausflug
-  if((rand & 3) == 0 &&
-           !welt->gib_ausflugsziele().is_empty() ) {
+		// Ziel in stadt oder ausflugsziel ?
+		// Jeder 4. macht einen Ausflug
+		if((rand & 3) == 0  &&  !welt->gib_ausflugsziele().is_empty() ) {
+			const gebaeude_t *gb = welt->gib_random_ausflugsziel();
+			*will_return = true;	// tourists will return
+			ziel = gb->gib_pos().gib_2d();
+// DBG_MESSAGE("stadt_t::finde_passagier_ziel()", "created a tourist to %d,%d", ziel.x, ziel.y);
+		}
+		else {
+			const vector_tpl<stadt_t *> *staedte = welt->gib_staedte();
+			const stadt_t *zielstadt = staedte->get(simrand(welt->gib_einstellungen()->gib_anzahl_staedte()));
 
-      const slist_tpl<gebaeude_t*> &ausflugsziele = welt->gib_ausflugsziele();
-      const int count = ausflugsziele.count();
-      const gebaeude_t *gb = ausflugsziele.at(simrand(count));
+			// nahe staedte bevorzugen
+			if(ABS(zielstadt->pos.x - pos.x) + ABS(zielstadt->pos.y - pos.y) > 80) {
+				// wenn erste Wahl zu weit weg, dann noch mal versuchen
+				zielstadt = staedte->get(simrand(welt->gib_einstellungen()->gib_anzahl_staedte()));
+			}
+			ziel = zielstadt->gib_zufallspunkt();
+			*will_return = false;
+		}
 
-      ziel = gb->gib_pos().gib_2d();
+		return ziel;
+	}
+	else {
+#ifndef FAB_PAX
+		// generate worker
+		const int target_pax = simrand(max_pax_arbeiterziele);
+		int target = 0;
 
-      // DBG_MESSAGE("stadt_t::finde_passagier_ziel()", "created a tourist to %d,%d", ziel.x, ziel.y);
+//DBG_DEBUG("stadt_t::finde_passagier_ziel()","fatory random %i (max %i)", target_pax, max_pax_arbeiterziele );
+		slist_iterator_tpl<fabrik_t *> fab_iter (arbeiterziele);
+		while(fab_iter.next()) {
+			fabrik_t *fab = fab_iter.get_current();
+			target += fab->gib_besch()->gib_pax_level();
+//DBG_DEBUG("stadt_t::finde_passagier_ziel()","fatory current %i", target, fab->gib_besch()->gib_name() );
+			if(target>target_pax) {
+				*will_return = true;
+				return fab->gib_pos().gib_2d();
+			}
+		}
+#else
+		const int i = simrand(arbeiterziele.count());
+		const fabrik_t * fab = arbeiterziele.at(i);
 
-  } else {
-      const vector_tpl<stadt_t *> *staedte = welt->gib_staedte();
-      const int anz_staedte = staedte->get_count();
-
-      const stadt_t *zielstadt = staedte->get(simrand(anz_staedte));
-
-      // nahe staedte bevorzugen
-
-      if(ABS(zielstadt->pos.x - pos.x) + ABS(zielstadt->pos.y - pos.y) > 80) {
-    // wenn erste Wahl zu weit weg, dann noch mal versuchen
-    zielstadt = staedte->get(simrand(anz_staedte));
-      }
-
-      ziel = zielstadt->gib_zufallspunkt();
-  }
-
-  return ziel;
-    } else {
-  const int i = simrand(arbeiterziele.count());
-  const fabrik_t * fab = arbeiterziele.at(i);
-
-  return fab->gib_pos().gib_2d();
-    }
+		*will_return = true;	// worker will return
+		return fab->gib_pos().gib_2d();
+#endif
+	}
+	// we should never reach here!
+dbg->fatal("stadt_t::finde_passagier_ziel()","no passenger ziel found!");
+	return koord::invalid;
 }
 
 
@@ -1296,18 +1340,23 @@ stadt_t::check_bau_rathaus(bool new_town)
 void
 stadt_t::check_bau_factory(bool new_town)
 {
-	if(!new_town  &&  industry_increase_every>0  &&  bev%industry_increase_every==0) {
-		const fabrik_besch_t *market=fabrikbauer_t::get_random_consumer(true);
-//		koord size=market->gib_haus()->gib_groesse();
-		bool	rotate=false;
+	if(!new_town  &&  industry_increase_every[0]>0  &&  bev%industry_increase_every[0]==0) {
+		for(int i=0;  i<8;  i++  ) {
+			if(industry_increase_every[i]==bev) {
+				const fabrik_besch_t *market=fabrikbauer_t::get_random_consumer(true);
+		//		koord size=market->gib_haus()->gib_groesse();
+				bool	rotate=false;
 
-		koord3d	market_pos=welt->lookup(pos)->gib_kartenboden()->gib_pos();
+				koord3d	market_pos=welt->lookup(pos)->gib_kartenboden()->gib_pos();
 DBG_MESSAGE("stadt_t::check_bau_factory","adding new industry at %i inhabitants.",bev);
-		int n=fabrikbauer_t::baue_hierarchie(welt, NULL, market, rotate, &market_pos, welt->gib_spieler(1) );
-		// tell the player
-		char buf[256];
-		sprintf(buf, translator::translate("New factory chain\nfor %s near\n%s built with\n%i factories."), translator::translate(market->gib_name()), gib_name(), n );
-		message_t::get_instance()->add_message(buf,market_pos.gib_2d(),message_t::industry,CITY_KI,market->gib_haus()->gib_tile(0)->gib_hintergrund(0,0) );
+				int n=fabrikbauer_t::baue_hierarchie(welt, NULL, market, rotate, &market_pos, welt->gib_spieler(1) );
+				// tell the player
+				char buf[256];
+				sprintf(buf, translator::translate("New factory chain\nfor %s near\n%s built with\n%i factories."), translator::translate(market->gib_name()), gib_name(), n );
+				message_t::get_instance()->add_message(buf,market_pos.gib_2d(),message_t::industry,CITY_KI,market->gib_haus()->gib_tile(0)->gib_hintergrund(0,0) );
+				break;
+			}
+		}
 	}
 }
 
@@ -2060,7 +2109,10 @@ bool stadt_t::init()
     char buf[128];
 
     minimum_city_distance = contents.get_int("minimum_city_distance", 16);
-    industry_increase_every = contents.get_int("industry_increase_every", 0);
+    int ind_increase = contents.get_int("industry_increase_every", 0);
+    for( int i=0;  i<8;  i++  ) {
+    	industry_increase_every[i] = (ind_increase<<i);
+    }
 
     num_house_rules = 0;
     while (true) {

@@ -42,12 +42,10 @@ void fahrplan_gui_t::gimme_stop_name(cbuffer_t & buf,
 				     int i,
 				     int max_chars)
 {
-  halthandle_t halt = haltestelle_t::gib_halt(welt,
-					      fpl->eintrag.get(i).pos.gib_2d());
+  halthandle_t halt = haltestelle_t::gib_halt(welt,fpl->eintrag.get(i).pos);
   char tmp [256];
 
   if(halt.is_bound()) {
-
     sprintf(tmp, "%s (%d%%) (%d,%d)",
 	    halt->gib_name(), fpl->eintrag.get(i).ladegrad,
 	    fpl->eintrag.get(i).pos.x, fpl->eintrag.get(i).pos.y);

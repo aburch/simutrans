@@ -27,6 +27,7 @@
 #include "../simimg.h"
 #include "../simgraph.h"
 #include "../simdepot.h"
+#include "../simfab.h"
 #include "../simhalt.h"
 #include "../blockmanager.h"
 
@@ -173,6 +174,7 @@ grund_t::grund_t(karte_t *wl) : halt_list(10)
     weg_bild_nr = -1;
     weg2_bild_nr = -1;
     back_bild_nr = -1;
+    halt = halthandle_t();
 }
 
 
@@ -185,6 +187,7 @@ grund_t::grund_t(karte_t *wl, loadsave_t *file) : halt_list(10)
     weg_bild_nr = -1;
     weg2_bild_nr = -1;
     back_bild_nr = -1;
+    halt = halthandle_t();
 
     rdwr(file);
 }
@@ -289,14 +292,13 @@ grund_t::~grund_t()
     // remove text from table
     ground_texts.remove((pos.x << 16) + pos.y);
 
-
-    if(gib_halt().is_bound()) {
-//	printf("Enferne boden %p von Haltestelle %p\n", this, halt);
-
+    if(halt.is_bound()) {
+//	printf("Enferne boden %p von Haltestelle %p\n", this, halt);fflush(NULL);
 // check for memory leaks!
 	halt->rem_grund(this,true);
 	halt.unbind();
   }
+
   halt_list.clear();
     for(int i = 0; i < MAX_WEGE; i++) {
 	if(wege[i]) {
@@ -324,8 +326,8 @@ const char* grund_t::gib_name() const {
 
 void grund_t::info(cbuffer_t & buf) const
 {
-  if(gib_halt().is_bound()) {
-    gib_halt()->info( buf );
+  if(halt.is_bound()) {
+    halt->info( buf );
   }
 
   for(int i = 0; i < MAX_WEGE; i++) {

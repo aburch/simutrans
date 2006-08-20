@@ -159,27 +159,20 @@ public:
     enum sort_mode_t { by_name=0, by_via=1, by_amount=2};
 
 
-    /**
-     * sucht Haltestelle an Koordinate pos.
+    /* sucht Haltestelle an Koordinate pos.
      *
-     * @param pos die Position an der gesucht werden soll
+     * @param gr die Position an der gesucht werden soll
      * @return NULL, wenn nichts gefunden, sonst Zeiger auf Haltestelle
-     * @author Hj. Malthaner
+     * @author prissi
      */
+    static halthandle_t gib_halt(const karte_t *welt, grund_t *gr);
+
     static halthandle_t gib_halt(const karte_t *welt, const koord pos);
+    static halthandle_t gib_halt(const karte_t *welt, const koord * const pos);
 
     // Hajo: for future compatibility, migrate to this call!
     static halthandle_t gib_halt(const karte_t *welt, const koord3d pos);
 
-
-    /**
-     * sucht Haltestelle an Koordinate pos.
-     *
-     * @param pos Zeiger auf die Position an der gesucht werden soll
-     * @return NULL, wenn nichts gefunden, sonst Zeiger auf Haltestelle
-     * @author Hj. Malthaner
-     */
-    static halthandle_t gib_halt(const karte_t *welt, const koord * const pos);
 
 
     /**
@@ -189,9 +182,7 @@ public:
      */
     static bool pruefe_zeiger(halthandle_t halt) {return alle_haltestellen.contains( halt );};
 
-
     static const slist_tpl<halthandle_t> & gib_alle_haltestellen() {return alle_haltestellen;};
-
 
     /**
      * @return die Anzahl der Haltestellen
@@ -464,9 +455,16 @@ public:
      * @param ware die zu routende Ware
      * @param start die Starthaltestelle
      * @author Hj. Malthaner
+     *
+     * for reverse routing, also the next to last stop can be added, if next_to_ziel!=NULL
+     * @author prissi
      */
-    bool suche_route(ware_t &ware, halthandle_t start);
+    bool suche_route(ware_t &ware, halthandle_t start, koord *next_to_ziel=NULL);
 
+	/* true, if there is a conncetion between these places
+	 * @author prissi
+	 */
+	bool is_connected(const halthandle_t halt, const ware_besch_t * wtyp);
 
     void set_pax_enabled(bool yesno) {pax_enabled = yesno;};
     void set_post_enabled(bool yesno){post_enabled = yesno;};
@@ -557,15 +555,18 @@ public:
     ware_t hole_ab(const ware_besch_t *warentyp, int menge, fahrplan_t *fpl);
 
 
-    /**
-     * liefert ware an. Falls die Ware zu wartender Ware dazugenommen
+    /* liefert ware an. Falls die Ware zu wartender Ware dazugenommen
      * werden kann, kann ware_t gelöscht werden! D.h. man darf ware nach
      * aufruf dieser Methode nicht mehr referenzieren!
+     *
+     * The second version is like the first, but will not recalculate the route
+     * This is used for inital passenger, since they already know a route
+     *
      * @return angenommene menge
-     * @author Hj. Malthaner
+     * @author Hj. Malthaner/prissi
      */
     int liefere_an(ware_t ware);
-
+    int starte_mit_route(ware_t ware);
 
     /**
      * wird von Fahrzeug aufgerufen, wenn dieses an der Haltestelle

@@ -49,6 +49,7 @@
 #endif
 
 #include "simgraph.h"
+#include "simdebug.h"
 
 struct event_t;
 class simlinemgmt_t;
@@ -92,12 +93,6 @@ public:
      * @author Hj. Malthaner
      */
     enum { ticks_per_tag = (1 << ticks_bits_per_tag) };
-
-    /**
-     * maximum number of towns
-     * @author prissi
-     */
-    enum { max_stadt = 64 };
 
     /**
      * Hoehe eines Punktes der Karte mit "perlin noise"
@@ -173,11 +168,14 @@ private:
 
     slist_tpl<sync_steppable *> sync_list;
 
-    slist_tpl<fabrik_t *> fab_list;
     slist_tpl<convoihandle_t> convoi_list;
 
+    slist_tpl<fabrik_t *> fab_list;
+
     slist_tpl<gebaeude_t *> ausflugsziele;
-    int ausflugsziele_max_pax;
+    int ausflugsziel_max_pax;
+    array_tpl<int> *ausflugsziele_accumulated_level;
+    int all_ausflugsziele_top_pax;
 
     slist_tpl<koord> labels;
 
@@ -692,29 +690,31 @@ public:
     void new_mountain(int x, int y, int w, int h, int t);
 
 
-    bool add_fab(fabrik_t *fab);
-    bool rem_fab(fabrik_t *fab);
+    void add_convoi(convoihandle_t &cnv) {
+        assert(cnv.is_bound());
+        convoi_list.insert( cnv );
+    };
+    bool rem_convoi(convoihandle_t &cnv) { return convoi_list.remove( cnv ); };
+    const slist_tpl<convoihandle_t> &gib_convoi_list() const {return convoi_list;};
 
-    int  gib_fab_index(fabrik_t *fab);
-    fabrik_t *  gib_fab(int index);
-    const slist_tpl<fabrik_t *> &gib_fab_list() const;
-
-    const slist_tpl<convoihandle_t> &gib_convoi_list() const;
-
-    bool add_convoi(convoihandle_t &cnv);
-    bool rem_convoi(convoihandle_t &cnv);
 
     void add_ausflugsziel(gebaeude_t *gb);
     void remove_ausflugsziel(gebaeude_t *gb);
-    const slist_tpl<gebaeude_t *> & gib_ausflugsziele() const;
-    int gib_ausflugsziele_max_pax() const { return ausflugsziele_max_pax; };
+    const slist_tpl<gebaeude_t *> & gib_ausflugsziele() const { return ausflugsziele; };
+    const gebaeude_t *gib_random_ausflugsziel() const;
+    int gib_ausflugsziele_max_pax() const { return ausflugsziel_max_pax; };
 
-    void add_label(koord pos);
-    void remove_label(koord pos);
-    const slist_tpl<koord> &gib_label_list() const;
 
-    /**
-     * sucht zufaellig eine Fabrik aus der Fabrikliste
+    void add_label(koord pos) { if(!labels.contains(pos)) { labels.append(pos); } };
+    void remove_label(koord pos) {labels.remove(pos);};
+    const slist_tpl<koord> &gib_label_list() const { return labels; };
+
+    bool add_fab(fabrik_t *fab);
+    bool rem_fab(fabrik_t *fab);
+    int  gib_fab_index(fabrik_t *fab) { return fab_list.index_of(fab); };
+    fabrik_t *  gib_fab(int index) { return (fabrik_t *)fab_list.at(index); };
+    const slist_tpl<fabrik_t *> &gib_fab_list() const { return fab_list; };
+    /* sucht zufaellig eine Fabrik aus der Fabrikliste
      * @author Hj. Malthaner
      */
     fabrik_t *get_random_fab() const;
@@ -732,7 +732,7 @@ public:
      */
     stadt_t * suche_naechste_stadt(koord pos, const stadt_t *letzte) const;
 
-
+#if 0
     /**
      * suche Haltestellen fuer einen Passagier/fracht
      * um den Punkt k herum - k selbst wird nicht geprüft!!!
@@ -740,7 +740,8 @@ public:
      * @author Hj. Malthaner
      */
     vector_tpl<halthandle_t> & suche_nahe_haltestellen(koord k, int radius, int mitte_wh, uint32 max_anzahl) const;
-
+    // will not used, since 86 the ground knows himself about the next stops
+#endif
 
     bool sync_add(sync_steppable *obj);
     bool sync_remove(sync_steppable *obj);
@@ -882,6 +883,11 @@ public:
 
 void warte_auf_taste(event_t *ev);
 
+//#ifndef __cplusplus
+//#define __cplusplus
+//#endif
+#include "simtools.h"
+
 /**
  * Hoehe eines Punktes der Karte mit "perlin noise"
  *
@@ -893,7 +899,7 @@ inline int
 karte_t::perlin_hoehe(const int x, const int y,
                       const double frequency, const double amplitude)
 {
-    double perlin_noise_2D(double x, double y, double persistence);
+//    double perlin_noise_2D(double x, double y, double persistence);
 //    return ((int)(perlin_noise_2D(x, y, 0.6)*160.0)) & 0xFFFFFFF0;
     return ((int)(perlin_noise_2D(x, y, frequency)*amplitude)) & 0xFFFFFFF0;
 }

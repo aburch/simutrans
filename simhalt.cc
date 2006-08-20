@@ -167,52 +167,63 @@ public:
 slist_tpl<halthandle_t> haltestelle_t::alle_haltestellen;
 
 
-// Klassenmethoden
-
+//Klassenmethoden
 halthandle_t
-haltestelle_t::gib_halt(const karte_t *welt, const koord pos)
+haltestelle_t::gib_halt(const karte_t *welt, grund_t *gr )
 {
-    const planquadrat_t *plan = welt->lookup(pos);
-
-    if(plan) {
-	const grund_t *gr = plan->gib_kartenboden();
-
 	if(gr) {
-	    // wir haben alle Daten, liefere halt
-	    return gr->gib_halt();
+		// if here is a halt, we are finished
+		halthandle_t halt = gr->gib_halt();
+		if(!halt.is_bound()  &&  gr->ist_wasser()) {
+			// ship actually stop next to a halt ...
+			const vector_tpl<halthandle_t> &haltlist = gr->get_haltlist();
+#if 0
+			for(  int i=0;  i<haltlist.get_count();  i++  ) {
+				if(haltlist.at(i)->get_station_type()&dock) {
+					// ok, this is a ship stop
+					halt = haltlist.at(i);
+					break;
+				}
+			}
+#else
+			// may catch bus stops close to water ...
+			if(haltlist.get_count()>0) {
+				return haltlist.at(0);
+			}
+#endif
+		}
+		return halt;
 	}
-    }
 
-    // not found; return unbound handle
-    return halthandle_t();
+	// not found; return unbound handle
+	return halthandle_t();
 }
 
 
 halthandle_t
 haltestelle_t::gib_halt(const karte_t *welt, const koord3d pos)
 {
-  const grund_t *gr = welt->lookup(pos);
-
-  if(gr) {
-    // wir haben alle Daten, liefere halt
-    return gr->gib_halt();
-  }
-
-  // not found; return unbound handle
-  return halthandle_t();
+	if(welt->ist_in_kartengrenzen(pos.gib_2d())) {
+		return gib_halt( welt, welt->lookup(pos) );
+	}
+	return halthandle_t();
 }
 
+halthandle_t
+haltestelle_t::gib_halt(const karte_t *welt, const koord pos)
+{
+	if(welt->ist_in_kartengrenzen(pos)) {
+		return gib_halt( welt, welt->lookup(pos)->gib_kartenboden() );
+	}
+	return halthandle_t();
+}
 
 halthandle_t
 haltestelle_t::gib_halt(const karte_t *welt, const koord * const pos)
 {
-    // mit allen checks
-    // ist sicher im Aufruf!
-
     if(pos != NULL) {
 	return gib_halt(welt, *pos);
     }
-
     // not found; return unbound handle
     return halthandle_t();
 }
@@ -221,11 +232,12 @@ haltestelle_t::gib_halt(const karte_t *welt, const koord * const pos)
 koord
 haltestelle_t::gib_basis_pos() const
 {
-    if(!grund.is_empty()) {
-	return grund.at(0)->gib_pos().gib_2d();
-    } else {
-	return koord::invalid;
-    }
+	if(!grund.is_empty()) {
+		return grund.at(0)->gib_pos().gib_2d();
+	}
+	else {
+		return koord::invalid;
+	}
 }
 
 
@@ -346,8 +358,11 @@ haltestelle_t::haltestelle_t(karte_t *wl, koord pos, spieler_t *sp) : self(this)
 haltestelle_t::~haltestelle_t()
 {
 //    printf("Haltestelle %s (%p) durchläuft Destruktor\n", gib_name(), this);
+	while(grund.count()>0) {
+		rem_grund(grund.at(0),true);
+	}
 
-    assert(grund.count() == 0);
+//    assert(grund.count() == 0);
 
     if(halt_info) {
 	destroy_win(halt_info);
@@ -523,7 +538,9 @@ void haltestelle_t::display_status(int xpos, int ypos) const
   display_fillbox_wh_clip(xpos-1, ypos, count*4-2, 4, color, true);
 }
 
-
+/*
+ * connects a factory to a halt
+ */
 void
 haltestelle_t::verbinde_fabriken()
 {
@@ -575,51 +592,38 @@ haltestelle_t::verbinde_fabriken()
  */
 void haltestelle_t::rebuild_destinations()
 {
-  DBG_DEBUG("haltestelle_t::rebuild_destinations()", "called");
+DBG_DEBUG("haltestelle_t::rebuild_destinations()", "called");
 
+	// Hajo: first, remove all old entries
+	warenziele.clear();
 
-  // Hajo: first, remove all old entries
-  warenziele.clear();
+// DBG_MESSAGE("haltestelle_t::rebuild_destinations()", "Adding new table entries");
+	// Hajo: second, calculate new entries
 
+	const slist_tpl <convoihandle_t> & convois = welt->gib_convoi_list();
+	slist_iterator_tpl <convoihandle_t> iter ( convois);
 
-  // DBG_MESSAGE("haltestelle_t::rebuild_destinations()", "Adding new table entries");
+	while( iter.next() ) {
+		convoihandle_t cnv = iter.get_current();
+		// DBG_MESSAGE("haltestelle_t::rebuild_destinations()", "convoi %d %p", cnv.get_id(), cnv.get_rep());
 
-  // Hajo: second, calculate new entries
+		fahrplan_t *fpl = cnv->gib_fahrplan();
+		if(fpl) {
+			for(int i=0; i<=fpl->maxi; i++) {
 
+				// Hajo: Hält dieser convoi hier?
+				if(gib_halt(welt,fpl->eintrag.get(i).pos) == self) {
 
-  const slist_tpl <convoihandle_t> & convois = welt->gib_convoi_list();
+					const int anz = cnv->gib_vehikel_anzahl();
+					for(int j=0; j<anz; j++) {
 
-  slist_iterator_tpl <convoihandle_t> iter ( convois);
-
-
-  while( iter.next() ) {
-
-    convoihandle_t cnv = iter.get_current();
-
-    // DBG_MESSAGE("haltestelle_t::rebuild_destinations()", "convoi %d %p", cnv.get_id(), cnv.get_rep());
-
-
-    fahrplan_t *fpl = cnv->gib_fahrplan();
-
-    if(fpl) {
-      for(int i=0; i<=fpl->maxi; i++) {
-
-      // Hajo: Hält dieser convoi hier?
-	const grund_t * gr = welt->lookup(fpl->eintrag.get(i).pos);
-	if(gr && gr->gib_halt() == self) {
-
-	  const int anz = cnv->gib_vehikel_anzahl();
-
-
-	  for(int j=0; j<anz; j++) {
-	    vehikel_t *v = cnv->gib_vehikel(j);
-
-	    hat_gehalten(0, v->gib_fracht_typ(), fpl );
-	  }
+						vehikel_t *v = cnv->gib_vehikel(j);
+						hat_gehalten(0, v->gib_fracht_typ(), fpl );
+					}
+				}
+			}
+		}
 	}
-      }
-    }
-  }
 }
 
 
@@ -659,218 +663,186 @@ haltestelle_t::liefere_an_fabrik(const ware_t ware)
  * @author Hj. Malthaner
  */
 bool
-haltestelle_t::suche_route(ware_t &ware,
-                           halthandle_t start)
+haltestelle_t::suche_route(ware_t &ware, halthandle_t start, koord *next_to_ziel)
 {
-    static HNode nodes[10000];
-
-    static uint32 current_mark = 0;
-
-    INT_CHECK("simhalt 452");
-
-
-    // Need to clean up ?
-    if(current_mark > (1u<<31)) {
-      slist_iterator_tpl<halthandle_t > halt_iter (alle_haltestellen);
-
-      while(halt_iter.next()) {
-        halt_iter.get_current()->marke = 0;
-      }
-
-      current_mark = 0;
-    }
-
-    // alle alten markierungen ungültig machen
-    current_mark++;
-
-
-    // die Berechnung erfolgt durch eine Breitensuche fuer Graphen
-    // Warteschlange fuer Breitensuche
-    static slist_tpl <HNode *> queue;
-    queue.clear();
-
-    const koord ziel = ware.gib_zielpos();
-    const ware_besch_t * warentyp = ware.gib_typ();
-    int step = 1;
-    HNode *tmp;
-
-    nodes[0].halt = start;
-    nodes[0].link = 0;
-    nodes[0].depth = 0;
-
-    queue.insert( &nodes[0] );        // init queue mit erstem feld
-
-    start->marke = current_mark;
-
-
-    // printf("\nSuche Route von %s\n", start->gib_name());
-
-
-    // Breitensuche
-
-    // long t0 = get_current_time_millis();
-
-    do {
-	tmp = queue.remove_first();
-
-	const halthandle_t halt = tmp->halt;
-
-	// printf("step: %s\n", halt->gib_name());
-
-
-	// prüfen ob ware am ziel ist
-
-	// für fracht werden fabriken geprüft
-
-	slist_iterator_tpl<fabrik_t*> fab_iter(halt->fab_list);
-
-	while(fab_iter.next()) {
-	  if(fab_iter.get_current()->gib_pos().gib_2d() == ziel) {
-	    goto found;
-	  }
+	// do we need this search?
+	{
+		const vector_tpl <halthandle_t> &halt_list = welt->lookup(ware.gib_zielpos())->gib_kartenboden()->get_haltlist();
+		if(halt_list.is_contained(start)) {
+			// das zeugs braucht nicht zu reisen, es ist schon am ziel
+//DBG_DEBUG("suche_route()","already at %s",start->gib_name() );
+			return true;
+		}
 	}
 
-	// passagiere+post gehen bis zu 4 felder zu Fuß zu ihrem ziel
+	static HNode nodes[10000];
+	static uint32 current_mark = 0;
 
-	const koord pos = halt->gib_basis_pos();
+	INT_CHECK("simhalt 452");
 
-	const int distance = MAX(ABS(pos.x-ziel.x),ABS(pos.y-ziel.y));
+	// Need to clean up ?
+	if(current_mark > (1u<<31)) {
+		slist_iterator_tpl<halthandle_t > halt_iter (alle_haltestellen);
 
-	// printf("distance from %d %d to  %d %d is %d\n", ziel.x, ziel.y, pos.x, pos.y, distance);
+		while(halt_iter.next()) {
+			halt_iter.get_current()->marke = 0;
+		}
 
-	if(  distance<=2*umgebung_t::station_coverage_size  ) {
-	  // ziel gefunden
-
-	  // printf("distance from %d %d to  %d %d is %d\n", ziel.x, ziel.y, pos.x, pos.y, distance);
-
-	  if(halt == start) {
-	    // printf("Schon am ziel.\n");
-
-	    // das zeugs braucht nicht zu reisen, es ist schon am ziel
-	    return true;
-	  }
-	  goto found;
+		current_mark = 0;
 	}
 
-	// Hajo: check for max transfers -> don't add more stations
-	//      to queue if the limit is reached
-	if(tmp->depth < max_transfers) {
+	// alle alten markierungen ungültig machen
+	current_mark++;
 
-	  // ziele prüfen
-	  slist_iterator_tpl<warenziel_t> iter(halt->warenziele);
+	// die Berechnung erfolgt durch eine Breitensuche fuer Graphen
+	// Warteschlange fuer Breitensuche
+	static slist_tpl <HNode *> queue;
+	queue.clear();
 
-	  while(iter.next() && step < max_hops) {
-	    // check if destination if for the goods type
-	    warenziel_t wz = iter.get_current();
+	const koord ziel = ware.gib_zielpos();
+	const ware_besch_t * warentyp = ware.gib_typ();
+	int step = 1;
+	HNode *tmp;
 
-	    // printf("checking %s\n", gib_halt(wz.gib_ziel())->gib_name());
+	nodes[0].halt = start;
+	nodes[0].link = 0;
+	nodes[0].depth = 0;
 
+	queue.insert( &nodes[0] );	// init queue mit erstem feld
 
-	    if(wz.gib_typ()->is_interchangeable(warentyp)) {
+	start->marke = current_mark;
 
-	      const halthandle_t tmp_halt = gib_halt(welt, wz.gib_ziel());
+	// Breitensuche
+	// long t0 = get_current_time_millis();
 
-	      if(tmp_halt.is_bound() &&
-		 tmp_halt->marke != current_mark &&
-		 (
-		  (warentyp == warenbauer_t::passagiere &&
-		   tmp_halt->pax_enabled) ||
+	do {
+		tmp = queue.remove_first();
+		const halthandle_t halt = tmp->halt;
 
-		  (warentyp == warenbauer_t::post &&
-		   tmp_halt->post_enabled) ||
+		// since also the factory halt list is added to the ground, we can use just this ...
+		const vector_tpl <halthandle_t> &halt_list = welt->lookup(ziel)->gib_kartenboden()->get_haltlist();
+		if(halt_list.is_contained(halt)) {
+			// ziel gefunden
+			goto found;
+		}
 
-		  (warentyp != warenbauer_t::post &&
-		   warentyp != warenbauer_t::passagiere &&
-		   tmp_halt->ware_enabled)
-		  )
-		 ) {
+		// Hajo: check for max transfers -> don't add more stations
+		//      to queue if the limit is reached
+		if(tmp->depth < max_transfers) {
 
-		// printf(" -> %s\n", tmp_halt->gib_name());
+			// ziele prüfen
+			slist_iterator_tpl<warenziel_t> iter(halt->warenziele);
 
-		HNode *node = &nodes[step++];
+			while(iter.next() && step<max_hops) {
 
-		node->halt = tmp_halt;
-		node->depth = tmp->depth + 1;
-		node->link = tmp;
-		queue.append( node );
+				// check if destination if for the goods type
+				warenziel_t wz = iter.get_current();
 
-		// betretene Haltestellen markieren
-		tmp_halt->marke = current_mark;
+				if(wz.gib_typ()->is_interchangeable(warentyp)) {
 
-	      }
-	    }
-	  }
+					const halthandle_t tmp_halt = welt->lookup(wz.gib_ziel())->gib_kartenboden()->gib_halt();
+					if(tmp_halt.is_bound() && tmp_halt->marke != current_mark &&
+						(
+							(warentyp == warenbauer_t::passagiere &&
+							tmp_halt->pax_enabled) ||
 
-	  /*
-	} else {
-	  printf("routing %s to %s -> transfer limit reached\n",
-		 ware.gib_name(),
-		 gib_halt(ware.gib_ziel())->gib_name());
-	  */
+							(warentyp == warenbauer_t::post &&
+							tmp_halt->post_enabled) ||
 
-	} // max transfers
+							(warentyp != warenbauer_t::post &&
+							warentyp != warenbauer_t::passagiere &&
+							tmp_halt->ware_enabled)
+						)
+					) {
+						HNode *node = &nodes[step++];
 
-    } while(queue.count() && step < max_hops);
+						node->halt = tmp_halt;
+						node->depth = tmp->depth + 1;
+						node->link = tmp;
+						queue.append( node );
 
-    // if the loop ends, nothing was found
-    tmp = 0;
+						// betretene Haltestellen markieren
+						tmp_halt->marke = current_mark;
 
-    // printf("No route found in %d steps\n", step);
+					}
+				}
+			}
+
+		} // max transfers
+		/*
+		else {
+			printf("routing %s to %s -> transfer limit reached\n",
+				ware.gib_name(),
+				gib_halt(ware.gib_ziel())->gib_name());
+
+		}
+		*/
+
+	} while(queue.count() && step < max_hops);
+
+	// if the loop ends, nothing was found
+	tmp = 0;
+
+	// printf("No route found in %d steps\n", step);
 
 found:
 
-    // long t1 = get_current_time_millis();
-    // printf("Route calc took %ld ms, %d steps\n", t1-t0, step);
+	// long t1 = get_current_time_millis();
+	// printf("Route calc took %ld ms, %d steps\n", t1-t0, step);
 
-    INT_CHECK("simhalt 606");
+	INT_CHECK("simhalt 606");
 
-    // long t2 = get_current_time_millis();
+	// long t2 = get_current_time_millis();
 
-    if(tmp) {
-	// ziel gefunden
-	ware.setze_ziel( tmp->halt->gib_basis_pos() );
+	if(tmp) {
+		// ziel gefunden
+		ware.setze_ziel( tmp->halt->gib_basis_pos() );
 
-	/*
-	printf("route %s to %s with %d transfers\n",
-               ware.gib_name(),
-               gib_halt(ware.gib_ziel())->gib_name(),
-	       tmp->depth);
-	*/
+		if(tmp->link == NULL) {
+			// kein zwischenziel
+			ware.setze_zwischenziel(ware.gib_ziel());
+			if(next_to_ziel!=NULL) {
+				// for reverse route the next hop, but not hop => enter start
+//DBG_DEBUG("route","zwischenziel %s",tmp->halt->gib_name() );
+				*next_to_ziel = start->gib_basis_pos();
+			}
+		}
+		else {
+			// next to start
+			if(next_to_ziel!=NULL) {
+				// for reverse route the next hop
+				*next_to_ziel = tmp->link->halt->gib_basis_pos();
+//DBG_DEBUG("route","zwischenziel %s",tmp->halt->gib_name(), start->gib_name() );
+			}
+			// zwischenziel ermitteln
+			while(tmp->link->link) {
+				tmp = tmp->link;
+			}
+			ware.setze_zwischenziel(tmp->halt->gib_basis_pos());
+		}
 
-	if(tmp->link == NULL) {
-	    // kein zwischenziel
-	  ware.setze_zwischenziel(ware.gib_ziel());
-	} else {
-	    // zwischenziel ermitteln
+		/*
+		printf("route %s to %s via %s in %d steps\n",
+		ware.gib_name(),
+		gib_halt(ware.gib_ziel())->gib_name(),
+		gib_halt(ware.gib_zwischenziel())->gib_name(),
+		step);
+		*/
+	}
+	else {
+		// Kein Ziel gefunden
 
-	    while(tmp->link->link) {
-		tmp = tmp->link;
-            }
-
-	    ware.setze_zwischenziel(tmp->halt->gib_basis_pos());
+		ware.setze_ziel(koord::invalid);
+		ware.setze_zwischenziel(koord::invalid);
+		// printf("keine route zu %d,%d nach %d steps\n", ziel.x, ziel.y, step);
 	}
 
-	/*
-	printf("route %s to %s via %s in %d steps\n",
-               ware.gib_name(),
-               gib_halt(ware.gib_ziel())->gib_name(),
-	       gib_halt(ware.gib_zwischenziel())->gib_name(),
-	       step);
-	*/
-    } else {
-	// Kein Ziel gefunden
+	// long t3 = get_current_time_millis();
+	// printf("Route setup took %ld ms\n", t3-t2);
 
-	ware.setze_ziel(koord::invalid);
-	ware.setze_zwischenziel(koord::invalid);
-	// printf("keine route zu %d,%d nach %d steps\n", ziel.x, ziel.y, step);
-    }
+	// INT_CHECK("simhalt 659");
 
-    // long t3 = get_current_time_millis();
-    // printf("Route setup took %ld ms\n", t3-t2);
-
-    // INT_CHECK("simhalt 659");
-
-    return false;
+	return false;
 }
 
 
@@ -985,7 +957,6 @@ haltestelle_t::rem_grund(grund_t *gb,bool final)
 	  while( iter.next() ) {
 	    iter.get_current()->unlink_halt(self);
 	  }
-
 
 	  fab_list.clear();
 	}
@@ -1297,6 +1268,37 @@ haltestelle_t::vereinige_waren(const ware_t &ware)
 
 
 
+/* same as liefere an, but there will be no route calculated, since it hase be calculated just before
+ * @author prissi
+ */
+int
+haltestelle_t::starte_mit_route(ware_t ware)
+{
+	// passt das zu bereits wartender ware ?
+	if(vereinige_waren(ware)) {
+		// dann sind wir schon fertig;
+		return ware.menge;
+	}
+
+	// wenn wir hier angekommen sind, konnte die ware
+	// nicht vereinigt werden, sie wird neu in die Liste
+	// eingefügt
+	slist_tpl<ware_t> * wliste = waren.get(ware.gib_typ());
+	if(!wliste) {
+		wliste = new slist_tpl<ware_t>;
+		waren.set(ware.gib_typ(), wliste);
+	}
+	wliste->insert( ware );
+
+	return ware.menge;
+}
+
+
+
+/* Recieves ware and tries to route it further on
+ * if no route is found, it will be removed
+ * @author prissi
+ */
 int
 haltestelle_t::liefere_an(ware_t ware)
 {
@@ -1357,7 +1359,6 @@ haltestelle_t::liefere_an(ware_t ware)
     // ware neu routen
     bool schon_da = suche_route(ware, self);
 
-
     // Das neue routing sagt, wir sind nahe genug am Ziel
     // das kann vorkommen, wenn neue Ware übergeben wurde
     if(schon_da) {
@@ -1369,8 +1370,6 @@ haltestelle_t::liefere_an(ware_t ware)
 
 	return ware.menge;
     }
-
-
 
     // existiert das ziel noch ?
     // sonst kann die ware gelöscht werden
@@ -1408,39 +1407,53 @@ haltestelle_t::liefere_an(ware_t ware)
 }
 
 
-void
-haltestelle_t::hat_gehalten(int /*wert*/, const ware_besch_t *type,
-                            const fahrplan_t *fpl)
+
+/* true, if there is a conncetion between these places
+ * @author prissi
+ */
+bool
+haltestelle_t::is_connected(const halthandle_t halt, const ware_besch_t * wtyp)
 {
-
-  if(type != warenbauer_t::nichts) {
-    for(int i=0; i<=fpl->maxi; i++) {
-      const warenziel_t wz (fpl->eintrag.get(i).pos.gib_2d(),
-			    type);
-
-      // Hajo: Haltestelle selbst wird nicht in Zielliste aufgenommen
-      // Hajo: Nicht existierende Ziele werden übersprungen
-      const grund_t *gr = welt->lookup(fpl->eintrag.get(i).pos);
-      if(gr == 0 || gr->gib_halt() == self) {
-	continue;
-      }
-
-      slist_iterator_tpl<warenziel_t> iter(warenziele);
-
-      while(iter.next()) {
-	warenziel_t &tmp = iter.access_current();
-
-	if(tmp.gib_typ()->is_interchangeable(type) &&
-	   gib_halt(tmp.gib_ziel()) == gib_halt(wz.gib_ziel())) {
-	  goto skip;
+	slist_iterator_tpl<warenziel_t> iter(warenziele);
+	while(iter.next()) {
+		warenziel_t &tmp = iter.access_current();
+		if(tmp.gib_typ()->is_interchangeable(wtyp) && gib_halt(tmp.gib_ziel())==halt) {
+			return true;
+		}
 	}
-      }
+	return true;
+}
 
-      warenziele.insert(wz);
 
-    skip:;
-    }
-  }
+
+void
+haltestelle_t::hat_gehalten(int /*wert*/, const ware_besch_t *type, const fahrplan_t *fpl)
+{
+	if(type != warenbauer_t::nichts) {
+		for(int i=0; i<=fpl->maxi; i++) {
+			const warenziel_t wz (fpl->eintrag.get(i).pos.gib_2d(), type);
+
+			// Hajo: Haltestelle selbst wird nicht in Zielliste aufgenommen
+			halthandle_t halt = gib_halt(welt,fpl->eintrag.get(i).pos);
+			// Hajo: Nicht existierende Ziele (wegpunkte) werden übersprungen
+			if(!halt.is_bound()  ||  halt==self) {
+				continue;
+			}
+
+			slist_iterator_tpl<warenziel_t> iter(warenziele);
+			while(iter.next()) {
+				warenziel_t &tmp = iter.access_current();
+
+				if(tmp.gib_typ()->is_interchangeable(type) &&
+					gib_halt(tmp.gib_ziel()) == gib_halt(wz.gib_ziel())) {
+					goto skip;
+				}
+			}
+
+			warenziele.insert(wz);
+			skip:;
+		}
+	}
 }
 
 
@@ -1692,8 +1705,14 @@ haltestelle_t::recalc_station_type()
 		gebaeude_t *gb = static_cast<gebaeude_t *>(gr->suche_obj(ding_t::gebaeude));
 		const haus_besch_t *besch=gb?gb->gib_tile()->gib_besch():NULL;
 
+		if(gr->ist_wasser()) {
+			// may happend around oil rigs and so on
+			new_station_type |= dock;
+			continue;
+		}
+
 		if(besch==NULL) {
-			// no besch?!?
+			// no besch, but solid gound?!?
 			dbg->fatal("haltestelle_t::get_station_type()","ground belongs to halt but no besch?");
 			continue;
 		}
@@ -1727,19 +1746,19 @@ DBG_DEBUG("haltestelle_t::recalc_station_type()","result %x",new_station_type);
 const char *
 haltestelle_t::name_from_ground() const
 {
-    const char *name = "Unknown";
-
-    if(grund.is_empty()) {
-	name = "Unnamed";
-    } else {
-	grund_t *bd = grund.at(0);
-
-	if(bd != NULL && bd->gib_text() != NULL) {
-	    name = bd->gib_text();
+	const char *name = "Unknown";
+	if(grund.is_empty()) {
+		name = "Unnamed";
 	}
-    }
+	else {
+		grund_t *bd = grund.at(0);
 
-    return name;
+		if(bd != NULL && bd->gib_text() != NULL) {
+			name = bd->gib_text();
+		}
+	}
+
+	return name;
 }
 
 char *

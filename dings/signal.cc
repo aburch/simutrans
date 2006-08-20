@@ -28,7 +28,7 @@ signal_t::signal_t(karte_t *welt, loadsave_t *file) : ding_t (welt)
 {
   rdwr(file, true);
 
-  step_frequency = 255;
+  step_frequency = 0;
 }
 
 
@@ -42,7 +42,7 @@ signal_t::signal_t(karte_t *welt, koord3d pos, ribi_t::ribi dir) :
 
   calc_bild();
 
-  step_frequency = 255;
+  step_frequency = 0;
 }
 
 

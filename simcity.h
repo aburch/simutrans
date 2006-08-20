@@ -183,7 +183,7 @@ private:
      * @author Hj. Malthaner
      */
     slist_tpl<fabrik_t *> arbeiterziele;
-
+    int max_pax_arbeiterziele;
 
     /**
      * allokiert pax_ziele_alt/neu und init. die werte
@@ -412,7 +412,7 @@ public:
      * such ein (zufälliges) ziel für einen Passagier
      * @author Hj. Malthaner
      */
-    koord finde_passagier_ziel();
+    koord finde_passagier_ziel(bool *will_return);
 
 
     /**

@@ -10,13 +10,8 @@
 #ifndef simdings_h
 #define simdings_h
 
-#ifndef simtypes_h
 #include "simtypes.h"
-#endif
-
-#ifndef koord3d_h
 #include "dataobj/koord3d.h"
-#endif
 
 class ding_t;
 class ding_info_t;
@@ -123,8 +118,8 @@ private:
      * public for performance reasons, this is accessed _very frequently_ !
      * @author Hj. Malthaner
      */
+    enum { max_step_frequency=255 };
     uint8 step_frequency;
-
 
  private:
 

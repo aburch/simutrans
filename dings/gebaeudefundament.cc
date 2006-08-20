@@ -25,7 +25,7 @@ gebaeudefundament_t::gebaeudefundament_t(karte_t *welt, loadsave_t *file) :
     ding_t(welt)
 {
   rdwr(file);
-  step_frequency = 255;
+  step_frequency = 0;
 }
 
 gebaeudefundament_t::gebaeudefundament_t(karte_t *welt, koord3d pos, spieler_t *sp) :
@@ -35,7 +35,7 @@ gebaeudefundament_t::gebaeudefundament_t(karte_t *welt, koord3d pos, spieler_t *
 
     setze_bild(0, grund_besch_t::fundament->gib_bild(welt->get_slope(gib_pos().gib_2d())));
 
-  step_frequency = 255;
+  step_frequency = 0;
 }
 
 

@@ -2923,6 +2923,7 @@ spieler_t::init_undo( weg_t::typ wtype, int max )
 {
 	if(kennfarbe!=4) {
 		// this is an KI
+		last_built = NULL;
 		return;
 	}
 	// only human player

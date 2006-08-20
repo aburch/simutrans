@@ -23,8 +23,8 @@
 oberleitung_t::oberleitung_t(karte_t *welt, koord3d pos, spieler_t *besitzer) : ding_t(welt, pos)
 {
   setze_besitzer(besitzer);
-
-  step_frequency = 127;
+//  step_frequency = 127;
+  step_frequency = 0;	// do not step ...
 
   if(gib_besitzer()) {
     gib_besitzer()->add_maintenance(umgebung_t::maint_overhead);
@@ -35,7 +35,8 @@ oberleitung_t::oberleitung_t(karte_t *welt, koord3d pos, spieler_t *besitzer) : 
 oberleitung_t::oberleitung_t(karte_t *welt, loadsave_t *file) : ding_t (welt)
 {
   rdwr(file);
-  step_frequency = 127;
+//  step_frequency = 127;
+  step_frequency = 0;	// do not step ...
 
   if(gib_besitzer()) {
     gib_besitzer()->add_maintenance(umgebung_t::maint_overhead);

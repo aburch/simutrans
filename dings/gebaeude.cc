@@ -54,15 +54,15 @@ bool gebaeude_t::hide = false;
  */
 void gebaeude_t::init(const haus_tile_besch_t *t)
 {
-    tile = t;
-    fab = 0;
+	tile = t;
+	fab = 0;
 
-    anim_time = 0;
-    tourist_time = 0;
+	anim_time = 0;
+	tourist_time = 0;
 
-    sync = false;
-    count = 0;
-    zeige_baugrube = t ? !t->gib_besch()->ist_ohne_grube() : false;
+	sync = false;
+	count = 0;
+	zeige_baugrube = t ? !t->gib_besch()->ist_ohne_grube() : false;
 }
 
 
@@ -150,6 +150,7 @@ gebaeude_t::add_alter(int a)
 	    zeige_baugrube = false;
 	    set_flag(dirty);
 	}
+	calc_bild();
     }
 }
 
@@ -158,6 +159,7 @@ gebaeude_t::renoviere()
 {
     insta_zeit = welt->gib_zeit_ms();
     zeige_baugrube = true;
+    step_frequency = 1;
 }
 
 
@@ -235,6 +237,7 @@ void gebaeude_t::setze_sync(bool yesno)
 }
 
 
+
 bool
 gebaeude_t::step(long delta_t)
 {
@@ -243,22 +246,30 @@ gebaeude_t::step(long delta_t)
 		if(welt->gib_zeit_ms() - insta_zeit > 5000) {
 			zeige_baugrube = false;
 			set_flag(dirty);
+			// factories needs more frequent steps
+			if(fab) {
+				step_frequency = 1;
+			}
+			else {
+				step_frequency = 0;
+			}
 		}
 	}
 
+#if 0
+	/* will be now also handled by the city passenger generation! */
 	// generate passengers for attractions
 	if(tile->gib_besch()->ist_ausflugsziel()) {
 
-		tourist_time += delta_t;
-
-//		const int waiting_time = 5000
-		if(tourist_time > 3500) {
-			tourist_time -= 3500;
+		// Ist es Zeit für einen neuen step?
+		if(welt->gib_zeit_ms() > tourist_time) {
+			// Alle 7 sekunden ein step (or we need to skip ... )
+			tourist_time = MAX( welt->gib_zeit_ms(), tourist_time+7000 );
 
 			INT_CHECK("gebaeude 228");
 
 			// erzeuge ein paar passagiere
-			const vector_tpl<halthandle_t> & halt_list = welt->suche_nahe_haltestellen(gib_pos().gib_2d(), 4, 0, 8);
+			const vector_tpl<halthandle_t> & halt_list = welt->lookup(gib_pos())->get_haltlist();
 
 			if(halt_list.get_count() > 0) {
 				const vector_tpl<stadt_t *>* staedte = welt->gib_staedte();
@@ -274,10 +285,14 @@ gebaeude_t::step(long delta_t)
 				}
 
 				// prissi: since now correctly numbers are used, double initially passengers
-				const int num_pax =
+				int num_pax =
 					(wtyp == warenbauer_t::passagiere) ?
-					((gib_passagier_level() + 6) >> 4) +1:
-					((gib_post_level() + 3) >> 4)+1;
+					(tile->gib_besch()->gib_level() >> 3):
+					(tile->gib_besch()->gib_post_level() >> 3);
+				// too low, so just generate one lonely passenger ...
+				if(num_pax==0  &&  tile->gib_besch()->gib_level()>0) {
+					num_pax = 1;
+				}
 									// create up to level passengers
 				for(int pax_left=num_pax; pax_left>0;  pax_left-=3  ) {
 					const koord ziel = stadt->gib_zufallspunkt();
@@ -313,6 +328,7 @@ gebaeude_t::step(long delta_t)
 			}
 		}
 	} // Ausflugsziel
+#endif
 
 	// factory produce and passengers!
 	if(fab != NULL) {
@@ -320,25 +336,22 @@ gebaeude_t::step(long delta_t)
 		INT_CHECK("gebaeude 250");
 	}
 
-	// create pedestrians?
-	if(umgebung_t::fussgaenger) {
-		if(simrand(100) <= tile->gib_besch()->gib_level()) {
-			haltestelle_t::erzeuge_fussgaenger(welt, gib_pos(), 1);
-			INT_CHECK("gebaeude 269");
+#if 0
+	if(tile->gib_phasen()>1) {
+		/* animation here is too unreliable */
+		anim_time += delta_t;
+		if(anim_time > 300) {
+			anim_time -= 300;
+			count ++;
+
+			if(count >= tile->gib_phasen()) {
+				count = 0;
+			}
+
+			set_flag(dirty);
 		}
 	}
-
-
-  if(!sync && tile->gib_phasen() > 1) {
-    count ++;
-
-    if(count >= tile->gib_phasen()) {
-      count = 0;
-	}
-    set_flag(dirty);
-  }
-
-
+#endif
   return true;
 }
 

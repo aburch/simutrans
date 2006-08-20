@@ -289,7 +289,7 @@ koord gui_flowtext_t::output(koord offset, bool doit) const {
 
 	    if(doit) {
 		display_fillbox_wh_clip(link->tl.x + offset.x,
-					link->tl.y + offset.y + 12,
+					link->tl.y + offset.y + 10,
 					link->br.x-link->tl.x-4, 1,
 					color, true);
 	    }

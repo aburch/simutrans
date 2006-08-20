@@ -22,7 +22,7 @@ unsigned long setsimrand(unsigned long seed)
     return old_seed;
 }
 
-int simrand()
+int simrand_plain()
 {
    // eigene, ganz einfache Random-Funktion
    // damit plattformunabhängig
@@ -35,7 +35,11 @@ int simrand()
 
 int simrand(int max)
 {
-    return simrand() % max;
+	if(max<=1) {
+// maybe we should test assert here ...
+		return 0;
+	}
+	return simrand_plain() % max;
 }
 
 /**
@@ -148,8 +152,9 @@ interpolated_noise(const double x, const double y)
 double perlin_noise_2D(const double x, const double y, const double p)
 {
     double total = 0.0;
+    int i;
 
-    for(int i=0; i<6; i++) {
+    for(i=0; i<6; i++) {
 
 	const double frequency = (double)(1 << i);
 	const double amplitude = pow(p, (double)i);

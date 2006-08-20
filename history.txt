@@ -1,4 +1,30 @@
-Release of 86.00.2
+Release of 86.01
+
+19-Apr-2005 (prissi)
+	CHANGE: passenger to attraction/factory is equal to returning number; mail is 1/8 of returning. This comes for free and reduces the load considerably.
+	CHANGE: when a ware was added to a station, the route was calculated again in case of pax
+	CHANGE: passenger generation/routing cleaned up and reworked => much faster
+	FIX: now really closing all windows before loading
+	CHANGE: Building do not step anymore, if not neccessary => much faster
+	CHANGE: simloop/FPS system complete reworked to allow more time for other applications resp. a smoother scheduling all other times. But now no time strech <1.0 possible
+	CHANGE: factories are now built every 2^x*industry_increase_every
+
+14-Apr-2005 (prissi)
+	FIX: no more adding cities after loading corrected; also now in priciple an unlimited number of cities should be possible (but something still breaks at 64 ... )
+	FIX/CHANGE: traffic to an attraction is now proportional to the level of this attraction
+	FIX: ships could only unload under the harbour ...
+	CHANGE: random now c instead of C++ => a little faster
+	CHANGE: line in fillbox a little higher
+	FIX: new GB citylist
+	FIX: CMOCxx cause pre PentiumPro to crash => exchanged
+
+10-Apr-2005 (prissi)
+	CHANGE: trees have now also an distribution weight (default=3)
+	FIX: transportation revenue also calculated, when vehicle was stopped for new schedule
+	FIX: dirty_rect for vehicles was to small => traces were left!
+
+
+Release of 86.00.3
 
 9-Apr-2005 (prissi)
 	FIX/CHANGE: datatype for city array_tpl now vector_tpl -> more access checks
@@ -7,6 +33,14 @@ Release of 86.00.2
 	FIX: AI busses waited also on overcrowded lines and always created only one bus ...
 	FIX: player images were displayed two times using slow and fast routines ... urg!
 	FIX: tourist and city building passenger amount per time now comparable
+	CHANGE: hopefully removed all spaces from pak64 file names (will break old savegames)
+	FIX: mip_cobbelstone maintetnance corrected
+	FIX: trams corrected
+	FIX: added new pedestrians from Vitus
+
+
+
+Release of 86.00.2
 
 8-Apr-2005 (prissi)
 	CHANGE: new signals for 64

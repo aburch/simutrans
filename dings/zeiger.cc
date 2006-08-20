@@ -19,7 +19,7 @@ zeiger_t::zeiger_t(karte_t *welt, loadsave_t *file) : ding_t(welt)
   richtung = ribi_t::alle;
 
   rdwr(file);
-  step_frequency = 255;
+  step_frequency = 0;
 }
 
 
@@ -28,7 +28,7 @@ zeiger_t::zeiger_t(karte_t *welt, koord3d pos, spieler_t *sp) :
 {
   setze_besitzer( sp );
   setze_bild(0, 30);
-  step_frequency = 255;
+  step_frequency = 0;
   richtung = ribi_t::alle;
 }
 

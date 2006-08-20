@@ -218,40 +218,41 @@ void planquadrat_t::step(const long delta_t, const int steps)
     for(unsigned int i = 0; i < boeden.count(); i++) {
         grund_t *gr = boeden.get(i);
 
-	// Hajo: play or don't play ground animation
-	// see boden/grund.h for more details
-	if(umgebung_t::bodenanimation) {
-	  gr->step();
+		// Hajo: play or don't play ground animation
+		// see boden/grund.h for more details
+		if(umgebung_t::bodenanimation) {
+			gr->step();
+		}
+
+		for(int j=0; j<gr->gib_top(); j++) {
+			ding_t * ding = gr->obj_bei(j);
+
+			if(ding &&
+			    ding->step_frequency>0 &&
+			    (steps%ding->step_frequency) == 0) {
+
+				//long T0 = get_current_time_millis();
+
+				if(ding->step(delta_t) == false) {
+					loeschen.insert( ding );
+				}
+
+				/*
+				long T1 = get_current_time_millis();
+
+				if(T1-T0 > 5) {
+					koord3d pos = ding->gib_pos();
+					printf("ding %s at %d,%d-> %ld ms\n", ding->gib_name(), pos.x, pos.y, T1-T0);
+				}
+				*/
+			}
+		}
 	}
 
-        for(int j=0; j<gr->gib_top(); j++) {
-	    ding_t * ding = gr->obj_bei(j);
-            if(ding &&
-	       ding->step_frequency < 255 &&
-	       (ding->step_frequency & steps) == 0) {
-
-//long T0 = get_current_time_millis();
-
-                if(ding->step(delta_t) == false) {
-                    loeschen.insert( ding );
-                }
-
-/*
-long T1 = get_current_time_millis();
-
-if(T1-T0 > 5) {
-    koord3d pos = ding->gib_pos();
-    printf("ding %s at %d,%d-> %ld ms\n", ding->gib_name(), pos.x, pos.y, T1-T0);
-}
-*/
-            }
-        }
-    }
-
-    while(loeschen.count()) {
-        // destruktor entfernt objekt aus der Verwaltung
-        delete loeschen.remove_first();
-    }
+	while(loeschen.count()) {
+		// destruktor entfernt objekt aus der Verwaltung
+		delete loeschen.remove_first();
+	}
 }
 
 void planquadrat_t::abgesenkt(karte_t *welt)

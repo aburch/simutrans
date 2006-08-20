@@ -24,6 +24,7 @@
  */
 
 #undef DEBUG_FLUSH_BUFFER
+//#define DEBUG_FLUSH_BUFFER
 
 #include <stdlib.h>
 #include <string.h>
@@ -2215,16 +2216,24 @@ void
 display_color_img(const int n, const int xp, const int yp, const int color,
 		  const int daynight, const int dirty)
 {
-	// Hajo: since the colors for player 0 are already right,
-	// only use the expensive replacement routine for colored images
-	// of other players
-	// Hajo: player 1 does not need any recoloring, too
-	if(color<8  &&  daynight) {
-		display_img_aux( n, xp, yp, dirty, false );
-		return;
-	}
-
 	if(n>=0 && n<anz_images) {
+		// since vehicle need larger dirty rect!
+		if(dirty) {
+			mark_rect_dirty_wc(xp+images[n].x-8,
+				yp+images[n].y-4,
+				xp+images[n].x+images[n].w+8-1,
+				yp+images[n].y+images[n].h+4-1);
+		}
+
+		// Hajo: since the colors for player 0 are already right,
+		// only use the expensive replacement routine for colored images
+		// of other players
+		// Hajo: player 1 does not need any recoloring, too
+		if(color<8  &&  daynight) {
+			display_img_aux( n, xp, yp, false, false );
+			return;
+		}
+
 
 		if(images[n].recode_flags[NEED_REZOOM]) {
 			rezoom_img(n);
@@ -2237,15 +2246,8 @@ display_color_img(const int n, const int xp, const int yp, const int color,
 				recode_color_img( n, color );
 			}
 			// ok, now we could use the same faster code as for the normal images
-			display_img_aux( n, xp, yp, dirty, true );
+			display_img_aux( n, xp, yp, false, true );
 			return;
-		}
-
-		if(dirty) {
-			mark_rect_dirty_wc(xp+images[n].x-8,
-				yp+images[n].y-4,
-				xp+images[n].x+images[n].w+8-1,
-				yp+images[n].y+images[n].h+4-1);
 		}
 
 		// prissi: now test if visible and clipping needed
@@ -2335,9 +2337,12 @@ void display_fb_internal(int xp, int yp, int w, int h,
 	// it is equivalent to the above, but only faster ...
 
 __asm__(	"cld\n\t"
-		"movw	_rgbcolormap(%%eax,%%eax),%%cx\n\t"	// load ax with the right color ...
+		"movw	_rgbcolormap(%%eax,%%eax),%%cx\n"	// load ax with the right color ...
 		"btrw $15,%%ax\n\t"	//>=0x8000
-		"cmovcw	_specialcolormap_all_day(%%eax,%%eax),%%cx\n\t"	// move, if carry set (i.e. bit was set)
+		"jnc .Lvok\n\t"
+//		"movcw	_specialcolormap_all_day(%%eax,%%eax),%%cx\n\t"	// move, if carry set (i.e. bit was set): crashes on older machines before Pentium Pro
+		"movw	_specialcolormap_all_day(%%eax,%%eax),%%cx\n"	// move, if carry set (i.e. bit was set)
+".Lvok:\n\t"
 		"movw %%cx,%%ax\n\t"	// couble colorval for lowbyte
 		"shll $16,%%eax\n\t"
 		"movw %%cx,%%ax\n\t"

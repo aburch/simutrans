@@ -1509,7 +1509,7 @@ int wkz_add_city(spieler_t *sp, karte_t *welt, koord pos)
 			if(gb && gb->ist_rathaus()) {
 dbg->warning("wkz_add_city()", "Already a city here");
 			}
-			else if(welt->gib_staedte()->get_count() < welt->gib_staedte()->get_size()-1) {
+			else {
 
 				// Hajo: if city is owned by player and player removes special
 				// buildings the game crashes. To avoid this problem cities
@@ -1526,9 +1526,6 @@ dbg->warning("wkz_add_city()", "Already a city here");
 
 				sp->buche(CST_STADT, pos, COST_CONSTRUCTION);
 				ok =  true;
-			}
-			else {
-dbg->warning("wkz_add_city()", "Only 64 cities allowed");
 			}
 		}
 	}

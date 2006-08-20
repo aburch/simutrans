@@ -37,10 +37,17 @@
  */
 class baum_besch_t : public obj_besch_t {
     friend class tree_writer_t;
+    friend class tree_reader_t;
 
-    uint16  hoehenlage;
+    uint8  hoehenlage;
+    uint8  distribution_weight;
 
 public:
+	int gib_distribution_weight() const
+	{
+		return distribution_weight;
+	}
+
 	int gib_hoehenlage() const
 	{
 		return hoehenlage;

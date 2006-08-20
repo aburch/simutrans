@@ -31,8 +31,7 @@ bruecke_t::bruecke_t(karte_t *welt, loadsave_t *file) : ding_t(welt)
   besch = NULL;
   rdwr(file);
   setze_bild(0, besch->gib_hintergrund(img));
-
-  step_frequency = 255;
+  step_frequency = 0;
 }
 
 bruecke_t::bruecke_t(karte_t *welt, koord3d pos, const int y_off, spieler_t *sp,
@@ -49,8 +48,7 @@ bruecke_t::bruecke_t(karte_t *welt, koord3d pos, const int y_off, spieler_t *sp,
   if(gib_besitzer()) {
     gib_besitzer()->buche(CST_BRUECKE, gib_pos().gib_2d(), COST_CONSTRUCTION);
   }
-
-  step_frequency = 255;
+  step_frequency = 0;
 }
 
 

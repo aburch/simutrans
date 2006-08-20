@@ -432,13 +432,14 @@ fabrikbauer_t::baue_fabrik(karte_t * welt, koord3d *parent, const fabrik_besch_t
 //		halt = haltestelle_t::create(welt, pos.gib_2d(), welt->gib_spieler(1) );
 		halt = welt->gib_spieler(1)->halt_add(pos.gib_2d());
 
+		welt->lookup(pos)->setze_text( translator::translate(info->gib_name()) );
 		halt->set_pax_enabled( make_passenger );
 		halt->set_ware_enabled( true );
 		halt->set_post_enabled( make_passenger );
 
-		for(k.x=pos.x-1; k.x<=pos.x+dim.x; k.x++) {
-			for(k.y=pos.y-1; k.y<=pos.y+dim.y; k.y++) {
-				if(! halt->ist_da(k)) {
+		for(k.x=pos.x; k.x<pos.x+dim.x; k.x++) {
+			for(k.y=pos.y; k.y<pos.y+dim.y; k.y++) {
+				if(!halt->ist_da(k)) {
 					const planquadrat_t *plan = welt->lookup(k);
 
 					// add all water to station
@@ -495,10 +496,6 @@ fabrikbauer_t::baue_fabrik(karte_t * welt, koord3d *parent, const fabrik_besch_t
 	// now built factory
 	fab->baue(rotate, true);
 	welt->add_fab(fab);
-
-	if(info->gib_platzierung() == fabrik_besch_t::Wasser) {
-		welt->lookup(halt->gib_basis_pos())->gib_kartenboden()->setze_text( translator::translate(fab->gib_name()) );
-	}
 
 	// connenct factory to stations
 	if(halt.is_bound()) {
