@@ -330,11 +330,11 @@ dingliste_t::remove(ding_t *ding, spieler_t */*sp*/)
 
 	if(capacity<=1) {
 		if(capacity==1  &&  obj.one==ding) {
+			obj.one = NULL;
+			capacity = 0;
+			top = 0;
 			found = true;
 		}
-		obj.one = NULL;
-		capacity = 0;
-		top = 0;
 		return found;
 	}
 

@@ -480,6 +480,7 @@ gebaeude_t *hausbauer_t::neues_gebaeude(karte_t *welt,
 		pri = 0;
 		gb = new gebaeude_t(welt, pos, sp, tile);
 	}
+//DBG_MESSAGE("hausbauer_t::neues_gebaeude()","building stop pri=%i",pri);
 
 	grund_t *gr = welt->lookup(pos);
 	gr->obj_pri_add(gb, pri);
@@ -494,6 +495,9 @@ gebaeude_t *hausbauer_t::neues_gebaeude(karte_t *welt,
 	if(besch->ist_ausflugsziel()) {
 		welt->add_ausflugsziel( gb );
 	}
+
+//    DBG_MESSAGE("hausbauer_t::neues_gebaeude()","pri=0 %p",welt->lookup(pos)->obj_bei(0) );
+//    DBG_MESSAGE("hausbauer_t::neues_gebaeude()","pri=11 %p",welt->lookup(pos)->obj_bei(PRI_DEPOT) );
 
 	return gb;
 }

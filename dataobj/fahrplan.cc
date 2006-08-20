@@ -347,7 +347,7 @@ autofahrplan_t::ist_halt_erlaubt(const grund_t *gr) const
 void
 autofahrplan_t::zeige_fehlermeldung(karte_t *welt) const
 {
-    create_win(-1, -1, 60, new nachrichtenfenster_t(welt, "Autohalt muss auf\nStraﬂe liegen!\n"), w_autodelete);
+    create_win(-1, -1, 60, new nachrichtenfenster_t(welt, "Autohalt muss auf\nStrasse liegen!\n"), w_autodelete);
 }
 
 bool
@@ -383,5 +383,5 @@ monorailfahrplan_t::ist_halt_erlaubt(const grund_t *gr) const
 void
 monorailfahrplan_t::zeige_fehlermeldung(karte_t *welt) const
 {
-    create_win(-1, -1, 60, new nachrichtenfenster_t(welt, "Monorailhalt muss auf\nRunway liegen!\n"), w_autodelete);
+    create_win(-1, -1, 60, new nachrichtenfenster_t(welt, "Monorailhalt muss auf\nMonorail liegen!\n"), w_autodelete);
 }

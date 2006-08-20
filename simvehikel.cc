@@ -473,9 +473,9 @@ vehikel_basis_t::calc_height()
     return hoff;
 }
 
-
+#ifdef COUNT_ALL_VEHICLES
 slist_tpl<const vehikel_t *> vehikel_t::list;	// Liste der Vehikel (alle !)
-
+#endif
 
 void
 vehikel_t::setze_convoi(convoi_t *c)
@@ -606,8 +606,10 @@ vehikel_t::vehikel_t(karte_t *welt,
 
 	setze_bild(0, besch->gib_basis_bild());
 
+#ifdef COUNT_ALL_VEHICLES
 	list.insert( this );
 	// printf("Erzeuge Vehikle %x, Start %d,%d\n",(unsigned)this, x,y);
+#endif
 }
 
 
@@ -1150,7 +1152,9 @@ vehikel_t::rdwr(loadsave_t *file)
     file->rdwr_bool(ist_letztes, " ");
 
     if(file->is_loading()) {
+#ifdef COUNT_ALL_VEHICLES
         list.insert( this );
+#endif
         if(besch) {
 		calc_bild();
 	// full weight after loading
@@ -1231,18 +1235,9 @@ vehikel_t::ist_entfernbar(const spieler_t *)
  */
 vehikel_t::~vehikel_t()
 {
-  const koord3d k ( gib_pos() );
-
-  if(welt->lookup(k) &&
-     welt->lookup(k)->obj_ist_da(this) ) {
-
-    // Hajo: Everything is ok,
-    // the destructor of the base class will remove the object
-    // from the map
-
-  }
-
+#ifdef COUNT_ALL_VEHICLES
   list.remove(this);
+#endif
 }
 
 

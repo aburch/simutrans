@@ -118,6 +118,11 @@ ding_t::~ding_t()
 {
 	destroy_win(ding_infos->get(this));
 
+	if(flags&not_on_map) {
+		DBG_MESSAGE("ding_t::~ding_t()","deleted %p not on the map",this);
+		return;
+	}
+
 	// pruefe ob objekt auf karte und ggf. entfernen
 	grund_t *gr = welt->lookup(pos);
 	if(gr) {
@@ -128,8 +133,7 @@ ding_t::~ding_t()
 		}
 		else {
 			// not found? => try harder at all map locations
-			dbg->warning("ding_t::~ding_t()","couldn't remove %p from %d,%d,%d",this , pos.x , pos.y, pos.z);
-			DBG_MESSAGE("ding_t::~ding_t()","removing %p failed, checking all plan squares",this);
+			dbg->warning("ding_t::~ding_t()","couldn't remove %p from %d,%d,%d",this, pos.x , pos.y, pos.z);
 
 			koord k;
 			for(k.y=0; k.y<welt->gib_groesse_y(); k.y++) {

@@ -351,7 +351,7 @@ const char *gebaeude_t::gib_name() const
 	case hausbauer_t::special:
 	    return "Besonderes Gebaeude";
 	case hausbauer_t::sehenswuerdigkeit:
-	    return "Sehenswürdigkeit";
+	    return "Sehenswuerdigkeit";
 	case hausbauer_t::denkmal:
 	    return "Denkmal";
 	case hausbauer_t::rathaus:
@@ -588,6 +588,7 @@ bool gebaeude_t::sync_step(long delta_t)
 void
 gebaeude_t::entferne(spieler_t *sp)
 {
+	DBG_MESSAGE("gebaeude_t::entferne()","gb %i");
 	if(sp != NULL && !ist_rathaus()) {
 		stadt_t *city=welt->suche_naechste_stadt(gib_pos().gib_2d());
 #ifdef COUNT_HOUSES

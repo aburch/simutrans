@@ -11,6 +11,8 @@
 #include <stdio.h>
 #include <string.h>
 
+#include "simintr.h"
+
 #include "simconvoi.h"
 #include "simvehikel.h"
 #include "simwin.h"
@@ -184,13 +186,13 @@ void depot_t::remove_vehicle(int icnv, int ipos)
 
 void depot_t::sell_vehicle(int iveh)
 {
-    vehikel_t *veh = get_vehicle(iveh);
-
-    if(veh) {
-	vehicles.remove(veh);
-	gib_besitzer()->buche(veh->calc_restwert(), gib_pos().gib_2d(), COST_NEW_VEHICLE);
-	delete veh;
-    }
+	vehikel_t *veh = get_vehicle(iveh);
+	if(veh) {
+		vehicles.remove(veh);
+		gib_besitzer()->buche(veh->calc_restwert(), gib_pos().gib_2d(), COST_NEW_VEHICLE);
+		DBG_MESSAGE("depot_t::sell_vehicle()","this=%p sells %p",this,veh);
+		delete veh;
+	}
 }
 
 
@@ -257,7 +259,8 @@ bool depot_t::disassemble_convoi(int icnv, bool sell)
 		if( v ) {
 
 		    if(sell) {
-		    DBG_MESSAGE("depot_t::convoi_aufloesen()", "sell %p", v);
+			DBG_MESSAGE("depot_t::convoi_aufloesen()", "sell %p", v);
+			DBG_MESSAGE("depot_t::convoi_aufloesen()", "sell %s", v->gib_besch()->gib_name());
 			delete v;
 		    } else {
 			// Hajo: reset vehikel data
@@ -289,7 +292,9 @@ bool depot_t::disassemble_convoi(int icnv, bool sell)
 	  }
 	}
 
+DBG_MESSAGE("depot_t::convoi_aufloesen()", "convois.remove_at(%i)", icnv);
 	convois.remove_at(icnv);
+
 	// Hajo: destruktor also removes convoi from convoi list
 	delete cnv.detach();
 	return true;

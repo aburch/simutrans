@@ -175,8 +175,12 @@ convoi_t::convoi_t(karte_t *wl, spieler_t *sp) :
 
 convoi_t::~convoi_t()
 {
-	// DBG_MESSAGE("convoi_t::~convoi_t()", "destroying %d, %p", self.get_id(), this);
-	destroy_win(convoi_info);
+DBG_MESSAGE("convoi_t::~convoi_t()", "destroying %d, %p", self.get_id(), this);
+	if(convoi_info) {
+		destroy_win(convoi_info);
+		delete convoi_info;
+	}
+	convoi_info = 0;
 
 	welt->sync_remove( this );
 	welt->rem_convoi( self );
@@ -189,10 +193,6 @@ convoi_t::~convoi_t()
 
 	delete fahr;
 	fahr = 0;
-
-	delete convoi_info;
-	convoi_info = 0;
-
 	fpl = 0;
 }
 
@@ -463,7 +463,9 @@ convoi_t::sync_step(long delta_t)
 			message_t::get_instance()->add_message(buf,fahr->at(0)->gib_pos().gib_2d(),message_t::convoi,gib_besitzer()->kennfarbe,IMG_LEER);
 
 			// Hajo: Fenster zu sonst Absturz bei Verkauf
-			destroy_win(convoi_info);
+			if(convoi_info) {
+				destroy_win(convoi_info);
+			}
 			betrete_depot(dp);
 
 			// Hajo: since 0.81.5exp it's safe to
@@ -827,39 +829,35 @@ DBG_MESSAGE("convoi_t::add_vehikel()","now %i of %i total vehikels.",anz_vehikel
 vehikel_t *
 convoi_t::remove_vehikel_bei(uint16 i)
 {
-    vehikel_t *v = NULL;
+	vehikel_t *v = NULL;
+	if(i<anz_vehikel) {
+		v = fahr->at(i);
+		if(v != NULL) {
+			for(unsigned j=i; j<anz_vehikel-1; j++) {
+				fahr->at(j) = fahr->at(j+1);
+			}
 
-    if(i<anz_vehikel) {
+			--anz_vehikel;
+			fahr->at(anz_vehikel) = NULL;
 
-	v = fahr->at(i);
+			v->setze_convoi(NULL);
 
-	if(v != NULL) {
-	    for(unsigned j=i; j<anz_vehikel-1; j++) {
-		fahr->at(j) = fahr->at(j+1);
-	    }
+			const vehikel_besch_t *info = v->gib_besch();
+			sum_leistung -= info->gib_leistung();
+			sum_gear_und_leistung -= info->gib_leistung()*info->get_gear();
+			sum_gewicht -= info->gib_gewicht();
+		}
+		sum_gesamtgewicht = sum_gewicht;
 
-	    --anz_vehikel;
-	    fahr->at(anz_vehikel) = NULL;
+		// der convoi hat jetzt ein neues ende
+		if(anz_vehikel > 0) {
+			setze_erstes_letztes();
+		}
 
-	    v->setze_convoi(NULL);
-
-    	    const vehikel_besch_t *info = v->gib_besch();
-	    sum_leistung -= info->gib_leistung();
-	    sum_gear_und_leistung -= info->gib_leistung()*info->get_gear();
-	    sum_gewicht -= info->gib_gewicht();
+		// Hajo: calculate new minimum top speed
+		min_top_speed = calc_min_top_speed(fahr, anz_vehikel);
 	}
-    }
-	sum_gesamtgewicht = sum_gewicht;
-
-    // der convoi hat jetzt ein neues ende
-    if(anz_vehikel > 0) {
-	setze_erstes_letztes();
-    }
-
-    // Hajo: calculate new minimum top speed
-    min_top_speed = calc_min_top_speed(fahr, anz_vehikel);
-
-    return v;
+	return v;
 }
 
 void

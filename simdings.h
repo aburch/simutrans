@@ -44,7 +44,7 @@ class ding_t
 public:
     // flags
 
-    enum flag_values {keine_flags=0, dirty=1};
+    enum flag_values {keine_flags=0, dirty=1, not_on_map=2 };
 
 
 private:

@@ -8,6 +8,16 @@ Known bugs: (hard to fix)
 	set color broken?
 
 
+Release of 88.04.2
+
+12-Feb-2006: (prissi)
+	FIX: monorailine correct
+	FIX: again tram depots
+	FIX: again air stops
+	FIX: remove unused vehicle list (that was really eating memory ... )
+	FIX: sell again vehicles in depots without removing them
+
+
 Release of 88.04.1
 
 11-Feb-2006: (prissi)

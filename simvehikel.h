@@ -121,7 +121,9 @@ class vehikel_t : public vehikel_basis_t, public fahrer_t
 {
 private:
 
+#ifdef COUNT_ALL_VEHICLES
     static slist_tpl<const vehikel_t *> list;	// Liste der Vehikel (alle !)
+#endif
 
     /**
      * Kaufdatum in months
@@ -458,12 +460,13 @@ public:
 
     int calc_restwert() const;
 
-
+#ifdef COUNT_ALL_VEHICLES
     /**
      * @return Gesamtanzahl aller Transportfahrzeuge
      * @author Hj. Malthaner
      */
     static inline int anzahl() { return list.count(); };
+#endif
 };
 
 

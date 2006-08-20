@@ -1431,7 +1431,7 @@ int wkz_depot(spieler_t *sp, karte_t *welt, koord pos,value_t w)
 		return true;
 	}
 	else if(hausbauer_t::tram_depot_besch==besch) {
-		return wkz_depot_aux( sp, welt, pos, besch, weg_t::schiene_strab, umgebung_t::cst_depot_rail );
+		return wkz_depot_aux( sp, welt, pos, besch, weg_t::schiene, umgebung_t::cst_depot_rail );
 	}
 	else if(hausbauer_t::str_depot_besch==besch) {
 		return wkz_depot_aux( sp, welt, pos, besch, weg_t::strasse, umgebung_t::cst_depot_road );
@@ -1465,7 +1465,7 @@ DBG_MESSAGE("wkz_halt_aux()", "building %s on square %d,%d for waytype %x", besc
 
 		// first we must find the right ground; thus we coycly through the ground list until something is found
 		grund_t *bd = NULL;
-		weg_t *weg = 0;
+		weg_t *weg = NULL;
 		const bool backwards = (event_get_last_control_shift()==2);
 		for(unsigned i=0;  i<plan->gib_boden_count();  i++  ) {
 			grund_t *test_gr=plan->gib_boden_bei( backwards ? plan->gib_boden_count()-1-i : i );
@@ -1482,11 +1482,12 @@ DBG_MESSAGE("wkz_halt_aux()", "test_gr(%d)=%p",i,test_gr);
 			// check for way
 			weg = test_gr->gib_weg(wegtype);
 			if(weg==NULL) {
-				weg = test_gr->gib_weg(weg_t::schiene_monorail);
-				if(weg_t::schiene!=wegtype   ||  weg==NULL) {
-					continue;
+				if(weg_t::schiene==wegtype) {
+					weg = test_gr->gib_weg(weg_t::schiene_monorail);
+					if(weg==NULL) {
+						continue;
+					}
 				}
-
 			}
 			// check slope
 			if(test_gr->gib_weg_hang()!=0) {
@@ -1627,7 +1628,7 @@ wkz_halt(spieler_t *sp, karte_t *welt, koord pos, value_t value)
 		return wkz_halt_aux( sp, welt, pos, besch, weg_t::wasser, umgebung_t::cst_multiply_dock, "Dock" );
 	}
 	else if(besch->gib_utyp()==hausbauer_t::airport) {
-		return wkz_halt_aux( sp, welt, pos, besch, weg_t::wasser, umgebung_t::cst_multiply_airterminal, "Airport" );
+		return wkz_halt_aux( sp, welt, pos, besch, weg_t::luft, umgebung_t::cst_multiply_airterminal, "Airport" );
 	}
 	else {
 		DBG_MESSAGE("wkz_halt()","called with unknown besch %s",besch->gib_name() );
