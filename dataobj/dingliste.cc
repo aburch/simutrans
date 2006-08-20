@@ -753,20 +753,22 @@ void dingliste_t::rdwr(karte_t *welt, loadsave_t *file, koord3d current_pos)
 
 
 
-/* display all things, much fast to do it here ...
+/* display all things, much faster to do it here ...
+ * reset_dirty will be only true for the main display; all miniworld windows should still reset main window ...
  *  @author prissi
  */
-void dingliste_t::display_dinge( const sint16 xpos, const sint16 ypos, const bool dirty ) const
+void dingliste_t::display_dinge( const sint16 xpos, const sint16 ypos, const bool reset_dirty ) const
 {
 	switch(capacity) {
 
 		case 0:	return;
 
 		case 1:	if(obj.one) {
-						bool this_dirty=dirty||obj.one->get_flag(ding_t::dirty);
-						obj.one->display(xpos, ypos, this_dirty );
-						obj.one->display_after(xpos, ypos, this_dirty );
-						obj.one->clear_flag(ding_t::dirty);
+						obj.one->display(xpos, ypos, reset_dirty );
+						obj.one->display_after(xpos, ypos, reset_dirty );
+						if(reset_dirty) {
+							obj.one->clear_flag(ding_t::dirty);
+						}
 					}
 					return;
 
@@ -776,7 +778,7 @@ void dingliste_t::display_dinge( const sint16 xpos, const sint16 ypos, const boo
 							ding_t * dt = obj.some[n];
 							if(dt) {
 								// ist dort ein objekt ?
-								dt->display(xpos, ypos, dirty||dt->get_flag(ding_t::dirty) );
+								dt->display(xpos, ypos, reset_dirty );
 							}
 						}
 					}
@@ -785,7 +787,7 @@ void dingliste_t::display_dinge( const sint16 xpos, const sint16 ypos, const boo
 						ding_t * dt = obj.some[n];
 						if(dt) {
 							// ist dort ein vordergrund objekt ?
-							dt->display_after(xpos, ypos, dirty||dt->get_flag(ding_t::dirty) );
+							dt->display_after(xpos, ypos, reset_dirty );
 							dt->clear_flag(ding_t::dirty);
 						}
 					}

@@ -333,8 +333,8 @@ void halt_list_frame_t::display_list(void)
     // sort the station list
     qsort((void *)a, n, sizeof (halthandle_t ), compare_halts);
 
-    sortedby.setze_text(translator::translate(sort_text[gib_sortierung()]));
-    sorteddir.setze_text(translator::translate(gib_reverse() ? "hl_btn_sort_desc" : "hl_btn_sort_asc"));
+    sortedby.setze_text(sort_text[gib_sortierung()]);
+    sorteddir.setze_text(gib_reverse() ? "hl_btn_sort_desc" : "hl_btn_sort_asc");
 
     /****************************
      * Display the station list
@@ -379,7 +379,7 @@ bool halt_list_frame_t::action_triggered(gui_komponente_t *komp,value_t /* */)
 {
     if(komp == &filter_on) {
 		setze_filter(any_filter, !gib_filter(any_filter));
-		filter_on.setze_text(translator::translate(gib_filter(any_filter) ? "hl_btn_filter_enable" : "hl_btn_filter_disable"));
+		filter_on.setze_text(gib_filter(any_filter) ? "hl_btn_filter_enable" : "hl_btn_filter_disable");
 		display_list();
     }
 	else if(komp == &sortedby) {

@@ -60,8 +60,6 @@ public:
 	*/
 	void info(cbuffer_t & buf) const;
 
-	virtual void display(int xpos, int ypos, bool dirty) const;
-
 	/**
 	* Dient zur Neuberechnung des Bildes
 	* @author Hj. Malthaner

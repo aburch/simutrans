@@ -152,8 +152,8 @@ int goods_frame_t::compare_goods(const void *p1, const void *p2)
 // creates the list and pass it to the child finction good_stats, which does the display stuff ...
 void goods_frame_t::sort_list()
 {
-	sortedby.setze_text(translator::translate(sort_text[sortby]));
-	sorteddir.setze_text(translator::translate( sortreverse ? "hl_btn_sort_desc" : "hl_btn_sort_asc"));
+	sortedby.setze_text(sort_text[sortby]);
+	sorteddir.setze_text(sortreverse ? "hl_btn_sort_desc" : "hl_btn_sort_asc");
 
 	int n=0;
 	for(unsigned int i=0; i<warenbauer_t::gib_waren_anzahl(); i++) {

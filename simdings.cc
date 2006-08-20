@@ -116,6 +116,14 @@ ding_t::ding_t(karte_t *wl, koord3d pos)
 // removes an object and tries to delete it also form the corresponding dinglist
 ding_t::~ding_t()
 {
+	// mark the region after the image as dirty
+	// better not try to twist your brain to follow the retransformation ...
+	const koord diff=gib_pos().gib_2d()-welt->gib_ij_off();
+	const sint16 rasterweite=get_tile_raster_width();
+	const sint16 x=(diff.x-diff.y)*(rasterweite/2) + welt->gib_x_off() + (display_get_width()/2) + tile_raster_scale_x(gib_xoff(), rasterweite);
+	const sint16 y=16+((display_get_width()/rasterweite)&1)*(rasterweite/4)+(diff.x+diff.y)*(rasterweite/4)+welt->gib_y_off()+tile_raster_scale_x(gib_yoff(), rasterweite)-tile_raster_scale_y(gib_pos().z, rasterweite);
+	display_mark_img_dirty( gib_bild(), x, y );
+
 	destroy_win(ding_infos->get(this));
 
 	if(flags&not_on_map) {
@@ -126,10 +134,8 @@ ding_t::~ding_t()
 	// pruefe ob objekt auf karte und ggf. entfernen
 	grund_t *gr = welt->lookup(pos);
 	if(gr) {
-
 		if(gr->obj_remove(this, gib_besitzer())) {
 			// normal case: redraw here
-			gr->set_flag(grund_t::dirty);
 		}
 		else {
 			// not found? => try harder at all map locations
@@ -181,22 +187,6 @@ ding_t::setze_bild(int n, image_id bild)
 	}
 }
 
-
-
-void
-ding_t::setze_pos(koord3d k)
-{
-	if(k != pos) {
-		grund_t *gr=welt->lookup(pos);
-		if(gr) {
-			// dirty spots are checked while painting grounds.
-			// thus we need to mark the ground pos, rather than our pos.
-			gr->set_flag(grund_t::dirty);
-		}
-		pos = k;
-		set_flag(dirty);
-	}
-}
 
 
 
@@ -263,7 +253,7 @@ void ding_t::laden_abschliessen()
  * @author Hj. Malthaner
  */
 void
-ding_t::display(int xpos, int ypos, bool dirty) const
+ding_t::display(int xpos, int ypos, bool reset_dirty) const
 {
 	const int raster_width = get_tile_raster_width();
 
@@ -272,16 +262,18 @@ ding_t::display(int xpos, int ypos, bool dirty) const
 	ypos += tile_raster_scale_x(gib_yoff(), raster_width);
 	xpos += tile_raster_scale_x(gib_xoff(), raster_width);
 
-	dirty |= get_flag(ding_t::dirty);
-	if(dirty  &&  bild==IMG_LEER) {
+	bool dirty = get_flag(ding_t::dirty);
+/*
+	if(reset_dirty  &&  bild==IMG_LEER) {
 		mark_rect_dirty_wc(xpos-8, ypos-32, xpos+80, ypos+76);
 		return;
 	}
+*/
 
 	int j = 1;
 	while(bild!=IMG_LEER) {
 
-		if(gib_besitzer()) {
+		if(besitzer_n!=-1) {
 			display_color_img(bild, xpos, ypos, gib_besitzer()->get_player_color(), true, dirty);
 		}
 		else {
@@ -295,7 +287,7 @@ ding_t::display(int xpos, int ypos, bool dirty) const
 
 
 void
-ding_t::display_after(int xpos, int ypos, bool dirty) const
+ding_t::display_after(int xpos, int ypos, bool reset_dirty) const
 {
 	image_id bild = gib_after_bild();
 	if(bild != IMG_LEER) {
@@ -304,13 +296,11 @@ ding_t::display_after(int xpos, int ypos, bool dirty) const
 		ypos += tile_raster_scale_x(gib_yoff(), raster_width);
 		xpos += tile_raster_scale_x(gib_xoff(), raster_width);
 
-		dirty |= get_flag(ding_t::dirty);
-
-		if(gib_besitzer()) {
-			display_color_img(bild, xpos, ypos, gib_besitzer()->get_player_color(), true, dirty);
+		if(besitzer_n!=-1) {
+			display_color_img(bild, xpos, ypos, gib_besitzer()->get_player_color(), true, get_flag(ding_t::dirty) );
 		}
 		else {
-			display_img(bild, xpos, ypos, dirty);
+			display_img(bild, xpos, ypos, get_flag(ding_t::dirty) );
 		}
 	}
 }

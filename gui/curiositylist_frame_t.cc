@@ -111,7 +111,7 @@ void curiositylist_frame_t::resize(const koord delta)
 */
 void curiositylist_frame_t::display_list(void)
 {
-	sortedby.setze_text(translator::translate(sort_text[gib_sortierung()]));
-	sorteddir.setze_text(translator::translate(gib_reverse() ? "hl_btn_sort_desc" : "hl_btn_sort_asc"));
+	sortedby.setze_text(sort_text[gib_sortierung()]);
+	sorteddir.setze_text(gib_reverse() ? "hl_btn_sort_desc" : "hl_btn_sort_asc");
 	stats.get_unique_attractions(sortby,sortreverse);
 }

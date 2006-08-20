@@ -985,6 +985,7 @@ haltestelle_t::add_grund(grund_t *gr)
 				koord p=pos+koord(x,y);
 				if(welt->ist_in_kartengrenzen(p)) {
 					welt->access(p)->add_to_haltlist( self );
+					welt->lookup(p)->gib_kartenboden()->set_flag(grund_t::dirty);
 				}
 			}
 		}
@@ -1044,6 +1045,7 @@ DBG_DEBUG("haltestelle_t::rem_grund()","keep floor, count=%i",grund.count());
 DBG_DEBUG("haltestelle_t::rem_grund()","remove also floor, count=%i",grund.count());
 			// otherwise remove ground ...
 			pl->setze_halt(halthandle_t());
+			pl->gib_kartenboden()->set_flag(grund_t::dirty);
 		}
 
 		for(  int y=-welt->gib_einstellungen()->gib_station_coverage();  y<=welt->gib_einstellungen()->gib_station_coverage();  y++  ) {
@@ -1051,6 +1053,7 @@ DBG_DEBUG("haltestelle_t::rem_grund()","remove also floor, count=%i",grund.count
 				planquadrat_t *pl = welt->access( gb->gib_pos().gib_2d()+koord(x,y) );
 				if(pl) {
 					pl->remove_from_haltlist(welt,self);
+					pl->gib_kartenboden()->set_flag(grund_t::dirty);
 				}
 			}
 		}

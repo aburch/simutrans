@@ -77,22 +77,15 @@ void gui_convoiinfo_t::zeichnen(koord offset) const
 
 		static char buf[256];
 
-/* prissi: no nummer
-		sprintf(buf, "%d.", nummer);
-		display_proportional_clip(pos.x+offset.x+4, pos.y+offset.y+8, buf, ALIGN_LEFT, COL_BLACK, true);
-*/
-
 		int max_x = display_proportional_clip(pos.x+offset.x+2,pos.y+offset.y+8+LINESPACE, translator::translate("Gewinn"), ALIGN_LEFT, COL_BLACK, true);
 
 		money_to_string(buf, cnv->gib_jahresgewinn()/100);
 		max_x += display_proportional_clip(pos.x+offset.x+2+max_x+5,pos.y+offset.y+8+LINESPACE, buf, ALIGN_LEFT, cnv->gib_jahresgewinn()>0?MONEY_PLUS:MONEY_MINUS, true);
 
-
 		/*
 		* only show assigned line, if there is one!
 		*/
-		if (cnv->in_depot())
-		{
+		if (cnv->in_depot()) {
 			const char *txt=translator::translate("(in depot)");
 			int w=display_proportional_clip(pos.x+offset.x+2, pos.y+offset.y+8+2*LINESPACE,txt,ALIGN_LEFT, COL_BLACK, true);
 			max_x = max(max_x,w);
@@ -121,8 +114,7 @@ void gui_convoiinfo_t::zeichnen(koord offset) const
 			left += (w*2)/3;
 		}
 
-		// since the only object is the loading bar, we can alter its position this way ...
+		// since the only remaining object is the loading bar, we can alter its position this way ...
 		gui_container_t::zeichnen(pos + offset+koord(xoff-188+2,0));
-
 	}
 }

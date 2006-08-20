@@ -1782,11 +1782,15 @@ dbg->warning("wkz_fahrplan_insert_aux()","Schedule is (null), doing nothing");
 			// with control backwards
 			const unsigned i = (backwards) ? pl->gib_boden_count()-1-cnt : cnt;
 			// ignore tunnel
-	     		bd = pl->gib_boden_bei(i);
-	     		// now just for error messages, we assing a valid ground
-	     		// and check for ownership
-	     		if(!sp->check_owner(bd->gib_besitzer())) {
-	     			bd = 0;
+			bd = pl->gib_boden_bei(i);
+			// now just for error messages, we assing a valid ground
+			// and check for ownership
+			if(!bd->gib_halt().is_bound()  &&  !sp->check_owner(bd->gib_besitzer())) {
+				bd = 0;
+				continue;
+			}
+			if(bd->gib_halt().is_bound()  &&  !sp->check_owner(bd->gib_halt()->gib_besitzer()) ) {
+				bd = 0;
 				continue;
 			}
 			// check for rail

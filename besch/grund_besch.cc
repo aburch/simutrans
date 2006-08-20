@@ -16,6 +16,7 @@
 #include <stdio.h>
 
 #include "../simdebug.h"
+#include "../simgraph.h"
 #include "spezial_obj_tpl.h"
 #include "grund_besch.h"
 
@@ -91,6 +92,11 @@ static spezial_obj_tpl<grund_besch_t> winter_grounds[] = {
  */
 bool grund_besch_t::register_besch(const grund_besch_t *besch)
 {
+	if(strcmp("Outside", besch->gib_name())==0) {
+		const bild_besch_t *bild = static_cast<const bildliste2d_besch_t *>(besch->gib_kind(2))->gib_bild(0,0);
+		dbg->message("grund_besch_t::register_besch()","setting raster width to %i",bild->w);
+		display_set_base_raster_width( bild->w );
+	}
 	if(!::register_besch(grounds, besch)) {
 		return ::register_besch(winter_grounds, besch);
 	}

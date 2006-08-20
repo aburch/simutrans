@@ -132,8 +132,9 @@ bool obj_reader_t::init(const char *liste)
     cstring_t name = find.complete(liste, "dat");
     int i;
 
-
 	if(name.right(1) != "/") {
+		// very old style ... (I think unused by now)
+
 		FILE *listfp = fopen(name,"rt");
 		if(listfp) {
 			while(!feof(listfp)) {
@@ -182,6 +183,8 @@ bool obj_reader_t::init(const char *liste)
 			display_proportional((display_get_width()-max-4)/2,display_get_height()/2-20,"Loading paks ...",ALIGN_LEFT,COL_WHITE,0);
 		}
 
+DBG_MESSAGE("obj_reader_t::init()","reading from '%s'", name.chars());
+		read_file(name+"ground.Outside.pak");
 		for(i=max;  i-->0; ) {
 			read_file(find.at(i));
 			if(((max-i)&teilung)==0  &&  drawing) {

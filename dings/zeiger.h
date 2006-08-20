@@ -16,7 +16,6 @@ private:
     ribi_t::ribi richtung;
 
 public:
-
     void setze_richtung(ribi_t::ribi r);
 
     ribi_t::ribi gib_richtung() const {return richtung;};
@@ -27,11 +26,8 @@ public:
 
     ~zeiger_t();
 
-
     /**
-     * Zeiger bewegen sich manchmal in grossen Sprüngen und brauchen
-     * deswegen eine andere Behandlung beim Neuzeichnen. D.h. ein
-     * größerer Bereich muss 'dirty' markiert werden
+     * we want to be able to highlight the current tile .. thus we overlay this routine
      * @author Hj. Malthaner
      */
     void setze_pos(koord3d k);

@@ -34,6 +34,8 @@ protected:
 
 	uint8 dir;
 
+	sint8 after_offset;
+
 	const roadsign_besch_t *besch;
 
 	uint32 last_switch;	// change state here ...
@@ -83,20 +85,28 @@ public:
 	// changes the state of a traffic light
 	virtual bool step(long);
 
-  /**
-   * For the front image hiding vehicles
-   * @author prissi
-   */
+	/**
+	* For the front image hiding vehicles
+	* @author prissi
+	*/
 	virtual image_id gib_after_bild() const {return after_bild;}
 
-  void rdwr(loadsave_t *file);
+	/**
+	* draw the part overlapping the vehicles
+	* (needed to get the right offset even on hills)
+	* @author V. Meyer
+	*/
+	void display_after(int xpos, int ypos, bool dirty) const;
+
+	void rdwr(loadsave_t *file);
 
 	// substracts cost
 	void entferne(spieler_t *sp);
 
 	void laden_abschliessen();
 
-	// static routines here
+
+	// static routines from here
 private:
 	static slist_tpl<const roadsign_besch_t *> liste;
 	static stringhashtable_tpl<const roadsign_besch_t *> table;

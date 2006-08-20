@@ -42,21 +42,21 @@ wayobj_t::wayobj_t(karte_t *welt, loadsave_t *file) : ding_t (welt)
 {
 	rdwr(file);
 	step_frequency = 0;
-  if(gib_besitzer()) {
-    gib_besitzer()->add_maintenance(umgebung_t::maint_overhead);
-  }
+	if(gib_besitzer()) {
+		gib_besitzer()->add_maintenance(besch->gib_wartung());
+	}
 }
 
 
 
 wayobj_t::wayobj_t(karte_t *welt, koord3d pos, spieler_t *besitzer, ribi_t::ribi dir, const way_obj_besch_t *besch) :  ding_t(welt, pos)
 {
-	setze_besitzer(besitzer);
 	this->besch = besch;
 	this->dir = dir;
 	step_frequency =  0;
+	setze_besitzer(besitzer);
 	if(gib_besitzer()) {
-		gib_besitzer()->add_maintenance(umgebung_t::maint_overhead);
+		gib_besitzer()->add_maintenance(besch->gib_wartung());
 	}
 }
 
@@ -64,6 +64,9 @@ wayobj_t::wayobj_t(karte_t *welt, koord3d pos, spieler_t *besitzer, ribi_t::ribi
 
 wayobj_t::~wayobj_t()
 {
+	if(gib_besitzer()) {
+		gib_besitzer()->add_maintenance(-besch->gib_wartung());
+	}
 	if(besch->gib_own_wtyp()==weg_t::overheadlines) {
 		weg_t *weg = welt->lookup(gib_pos())->gib_weg((weg_t::typ)besch->gib_wtyp());
 		if(weg) {
@@ -289,6 +292,7 @@ wayobj_t::calc_bild()
 		setze_bild( 0, besch->get_back_image_id(dir) );
 	}
 }
+
 
 
 /******************** static stuff from here **********************/

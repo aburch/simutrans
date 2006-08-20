@@ -31,7 +31,7 @@ karte_ansicht_t::karte_ansicht_t(karte_t *welt)
 
 
 void
-karte_ansicht_t::display(bool dirty)
+karte_ansicht_t::display(bool force_dirty)
 {
 	const sint16 disp_width = display_get_width();
 	const sint16 disp_height = display_get_height()-32-16-(ticker_t::get_instance()->count()>0?16:0);
@@ -42,7 +42,7 @@ karte_ansicht_t::display(bool dirty)
 
 	// zuerst den boden zeichnen
 	// denn der Boden kann kein Objekt verdecken
-	dirty = dirty || ((karte_modell_t *)welt)->ist_dirty();
+	force_dirty = force_dirty || ((karte_modell_t *)welt)->ist_dirty();
 	((karte_modell_t *)welt)->setze_dirty_zurueck();
 
 	sint16 IMG_SIZE = get_tile_raster_width();
@@ -71,12 +71,12 @@ karte_ansicht_t::display(bool dirty)
 				if(plan  &&  plan->gib_kartenboden()) {
 					sint16 yypos = ypos - tile_raster_scale_y( plan->gib_kartenboden()->gib_hoehe(), IMG_SIZE);
 					if(yypos-IMG_SIZE/2<disp_height  &&  yypos+IMG_SIZE>32) {
-						plan->display_boden(xpos, yypos, IMG_SIZE, dirty);
+						plan->display_boden(xpos, yypos, IMG_SIZE, true);
 					}
 				}
 				else {
 					// ouside ...
-					display_img(grund_besch_t::ausserhalb->gib_bild(hang_t::flach), xpos,ypos - tile_raster_scale_y( welt->gib_grundwasser(), IMG_SIZE ), dirty);
+					display_img(grund_besch_t::ausserhalb->gib_bild(hang_t::flach), xpos,ypos - tile_raster_scale_y( welt->gib_grundwasser(), IMG_SIZE ), force_dirty);
 				}
 			}
 		}
@@ -98,7 +98,7 @@ karte_ansicht_t::display(bool dirty)
 				if(plan  &&  plan->gib_kartenboden()) {
 					sint16 yypos = ypos - tile_raster_scale_y( plan->gib_kartenboden()->gib_hoehe(), IMG_SIZE);
 					if(yypos-IMG_SIZE*2-32<disp_height  &&  yypos+IMG_SIZE>32) {
-						plan->display_dinge(xpos, yypos, IMG_SIZE, dirty);
+						plan->display_dinge(xpos, yypos, IMG_SIZE, true);
 					}
 				}
 			}
@@ -121,5 +121,9 @@ karte_ansicht_t::display(bool dirty)
 	// finally update the ticker
 	for(int x=0; x<MAX_PLAYER_COUNT; x++) {
 		welt->gib_spieler(x)->display_messages(welt->gib_x_off(),welt->gib_y_off(),disp_width);
+	}
+
+	if(force_dirty) {
+		mark_rect_dirty_wc( 0, 0, display_get_width(), display_get_height() );
 	}
 }

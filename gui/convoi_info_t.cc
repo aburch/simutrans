@@ -102,7 +102,7 @@ convoi_info_t::convoi_info_t(convoihandle_t cnv)
 	toggler.pressed = false;
 
 	sort_button.setze_groesse(koord(BUTTON_WIDTH, BUTTON_HEIGHT));
-	sort_button.setze_text(translator::translate(sort_text[sortby]));
+	sort_button.setze_text(sort_text[sortby]);
 	sort_button.setze_typ(button_t::roundbox);
 	sort_button.add_listener(this);
 	sort_button.set_tooltip("Sort by");
@@ -307,7 +307,7 @@ bool convoi_info_t::action_triggered(gui_komponente_t *komp,value_t /* */)
 	if(komp == &sort_button) {
 		// sort by what
 		sortby = (sort_mode_t)((int)(sortby+1)%(int)SORT_MODES);
-		sort_button.setze_text(translator::translate(sort_text[sortby]));
+		sort_button.setze_text(sort_text[sortby]);
 		global_sortby = sortby;
 		cnv->set_sort( sortby );
 //		sorteddir.setze_text(translator::translate( sortreverse ? "hl_btn_sort_desc" : "hl_btn_sort_asc"));

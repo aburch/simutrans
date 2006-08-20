@@ -232,8 +232,8 @@ void convoi_frame_t::display_list(void)
     }
     qsort((void *)a, n, sizeof (convoihandle_t), compare_convois);
 
-    sortedby.setze_text(translator::translate(sort_text[gib_sortierung()]));
-    sorteddir.setze_text(translator::translate(gib_reverse() ? "cl_btn_sort_desc" : "cl_btn_sort_asc"));
+    sortedby.setze_text(sort_text[gib_sortierung()]);
+    sorteddir.setze_text(gib_reverse() ? "cl_btn_sort_desc" : "cl_btn_sort_asc");
 
     cont.remove_all();
 
@@ -274,7 +274,7 @@ bool convoi_frame_t::action_triggered(gui_komponente_t *komp,value_t /* */)     
     if(komp == &filter_on) {
 DBG_MESSAGE("convoi_frame_t::action_triggered()","toggle %i",gib_filter(any_filter));
 		setze_filter(any_filter, !gib_filter(any_filter));
-		filter_on.setze_text(translator::translate(gib_filter(any_filter) ? "cl_btn_filter_enable" : "cl_btn_filter_disable"));
+		filter_on.setze_text(gib_filter(any_filter) ? "cl_btn_filter_enable" : "cl_btn_filter_disable");
 		display_list();
     }
     else if(komp == &sortedby) {

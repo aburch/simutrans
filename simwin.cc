@@ -231,14 +231,14 @@ static void win_draw_window_title(const koord pos, const koord gr,
 		const simwin_gadget_flags * const flags )
 {
 	PUSH_CLIP(pos.x, pos.y, gr.x, gr.y);
-	display_fillbox_wh_clip(pos.x, pos.y, gr.x, 1, titel_farbe+1, true);
-	display_fillbox_wh_clip(pos.x, pos.y+1, gr.x, 14, titel_farbe, true);
-	display_fillbox_wh_clip(pos.x, pos.y+15, gr.x, 1, COL_BLACK, true);
-	display_vline_wh_clip(pos.x+gr.x-1, pos.y,   15, COL_BLACK, true);
+	display_fillbox_wh_clip(pos.x, pos.y, gr.x, 1, titel_farbe+1, false);
+	display_fillbox_wh_clip(pos.x, pos.y+1, gr.x, 14, titel_farbe, false);
+	display_fillbox_wh_clip(pos.x, pos.y+15, gr.x, 1, COL_BLACK, false);
+	display_vline_wh_clip(pos.x+gr.x-1, pos.y,   15, COL_BLACK, false);
 
 	// Draw the gadgets and then move left and draw text.
 	int width = display_gadget_boxes( flags, pos.x+(REVERSE_GADGETS?0:gr.x-20), pos.y, titel_farbe, closing );
-	display_proportional_clip( pos.x + (REVERSE_GADGETS?width+4:4), pos.y+(16-large_font_height)/2, text, ALIGN_LEFT, COL_WHITE, true );
+	display_proportional_clip( pos.x + (REVERSE_GADGETS?width+4:4), pos.y+(16-large_font_height)/2, text, ALIGN_LEFT, COL_WHITE, false );
 	POP_CLIP();
 }
 
@@ -461,8 +461,15 @@ DBG_DEBUG("create_win()","magic=%d already there, bring to fornt", magic);
 			x = min(gib_maus_x() - gr.x/2, display_get_width()-gr.x);
 			y = min(gib_maus_y() - gr.y-32, display_get_height()-gr.y);
 		}
-		wins[ins_win].pos.x = max(x,0);
-		wins[ins_win].pos.y = max(32, y);
+		if(x<0) {
+			x = 0;
+		}
+		if(y<32) {
+			y = 32;
+		}
+		wins[ins_win].pos = koord(x,y);
+
+		mark_rect_dirty_wc( x, y, x+gr.x, y+gr.y );
 
 DBG_DEBUG("create_win()","new ins_win=%d", ins_win+1);
 		return ins_win ++;
@@ -478,8 +485,6 @@ DBG_DEBUG("create_win()","new ins_win=%d", ins_win+1);
  */
 static void destroy_framed_win(int win)
 {
-//printf("destroy_framed_win(): win=%d of %d, gui=%p\n", win, ins_win, wins[win].gui);
-
 	if(win>=ins_win) {
 dbg->error("destroy_framed_win()","win=%i >= ins_win=%i",win,ins_win);
 	}
@@ -488,17 +493,19 @@ dbg->error("destroy_framed_win()","win=%i >= ins_win=%i",win,ins_win);
 	assert(win < MAX_WIN);
 	assert(win<ins_win);
 
-// printf("destroy_framed_win(): win=%d of %d, gui=%p\n", win, ins_win, wins[win].gui);
+	// mark dirty
+	koord gr = wins[win].gui->gib_fenstergroesse();
+	mark_rect_dirty_wc( wins[win].pos.x, wins[win].pos.y, wins[win].pos.x+gr.x, wins[win].pos.y+gr.y );
 
 	// Hajo: do not destroy frameless windows
 	if(wins[win].wt==w_frameless) {
-//printf("destroy_framed_win(): win=%d of %d is frameless\n", win, ins_win, wins[win].gui);
 		return;
 	}
 
 	gui_fenster_t *tmp = NULL;
 
 	if(wins[win].gui) {
+
 		event_t ev;
 
 		ev.ev_class = INFOWIN;
@@ -528,8 +535,6 @@ dbg->error("destroy_framed_win()","win=%i >= ins_win=%i",win,ins_win);
 	// if there was an autodelete object, delete it
 	delete tmp;
 
-// printf("destroy_framed_win(): destroyed\n");
-
 	// if we removed not the last window, we need
 	// to compact the list
 	if(win < ins_win-1) {
@@ -537,8 +542,9 @@ dbg->error("destroy_framed_win()","win=%i >= ins_win=%i",win,ins_win);
 	}
 
 	ins_win--;
-//printf("destroy_framed_win() ins_win=%i\n",ins_win);fflush(NULL);
 }
+
+
 
 void
 destroy_win(const gui_fenster_t *gui)
@@ -565,6 +571,8 @@ destroy_win(const gui_fenster_t *gui)
 		}
 	}
 }
+
+
 
 void destroy_all_win()
 {
@@ -598,6 +606,11 @@ DBG_MESSAGE("top_win()","win=%i ins_win=%i",win,ins_win);
 	simwin tmp = wins[win];
 	memmove(&wins[win], &wins[win+1], sizeof(struct simwin) * (ins_win - win - 1));
 	wins[ins_win-1] = tmp;
+
+	// mark dirty
+	koord gr = wins[win].gui->gib_fenstergroesse();
+	mark_rect_dirty_wc( wins[win].pos.x, wins[win].pos.y, wins[win].pos.x+gr.x, wins[win].pos.y+gr.y );
+
 	return ins_win-1;
 }
 
@@ -659,27 +672,25 @@ static void remove_old_win()
 void
 move_win(int win, event_t *ev)
 {
-  koord gr = wins[win].gui->gib_fenstergroesse();
-  int xfrom = ev->cx;
-  int yfrom = ev->cy;
-  int xto = ev->mx;
-  int yto = ev->my;
-  int x,y, xdelta, ydelta;
+	koord gr = wins[win].gui->gib_fenstergroesse();
+	mark_rect_dirty_wc( wins[win].pos.x, wins[win].pos.y, wins[win].pos.x+gr.x, wins[win].pos.y+gr.y );
+	int xfrom = ev->cx;
+	int yfrom = ev->cy;
+	int xto = ev->mx;
+	int yto = ev->my;
+	int x,y, xdelta, ydelta;
 
-  // CLIP(wert,min,max)
-  x = CLIP(wins[win].pos.x + (xto-xfrom),
-	   8-gr.x, display_get_width()-16);
-  y = CLIP(wins[win].pos.y + (yto-yfrom),
-	   32, display_get_height()-24);
+	// CLIP(wert,min,max)
+	x = CLIP(wins[win].pos.x + (xto-xfrom), 8-gr.x, display_get_width()-16);
+	y = CLIP(wins[win].pos.y + (yto-yfrom), 32, display_get_height()-24);
 
-  // delta is actual window movement.
-  xdelta = x - wins[win].pos.x;
-  ydelta = y - wins[win].pos.y;
+	// delta is actual window movement.
+	xdelta = x - wins[win].pos.x;
+	ydelta = y - wins[win].pos.y;
 
-  wins[win].pos.x += xdelta;
-  wins[win].pos.y += ydelta;
-  change_drag_start(xdelta, ydelta);
-
+	wins[win].pos.x += xdelta;
+	wins[win].pos.y += ydelta;
+	change_drag_start(xdelta, ydelta);
 }
 
 
@@ -697,35 +708,35 @@ int win_get_posx(gui_fenster_t *gui)
 
 int win_get_posy(gui_fenster_t *gui)
 {
-    int i;
-    for(i=ins_win-1; i>=0; i--) {
-	if(wins[i].gui == gui) {
-	    return wins[i].pos.y;
+	for(int i=ins_win-1; i>=0; i--) {
+		if(wins[i].gui == gui) {
+			return wins[i].pos.y;
+		}
 	}
-    }
-    return -1;
+	return -1;
 }
 
 
 void win_set_pos(gui_fenster_t *gui, int x, int y)
 {
-    int i;
-    for(i=ins_win-1; i>=0; i--) {
-	if(wins[i].gui == gui) {
-	    wins[i].pos.x = x;
-	    wins[i].pos.y = y;
-	    return;
+	for(int i=ins_win-1; i>=0; i--) {
+		if(wins[i].gui == gui) {
+			wins[i].pos.x = x;
+			wins[i].pos.y = y;
+			const koord gr = wins[i].gui->gib_fenstergroesse();
+			mark_rect_dirty_wc( x, y, x+gr.x, y+gr.y );
+			return;
+		}
 	}
-    }
 }
 
 
 static void process_kill_list()
 {
-  for(int i=0; i<kill_list.get_count(); i++) {
-    destroy_framed_win(kill_list.get(i));
-  }
-  kill_list.clear();
+	for(int i=0; i<kill_list.get_count(); i++) {
+		destroy_framed_win(kill_list.get(i));
+	}
+	kill_list.clear();
 }
 
 
@@ -1025,7 +1036,7 @@ win_display_flush(int , int color, double konto)
 {
 #ifdef USE_SOFTPOINTER
 	display_setze_clip_wh( 0, 0, display_get_width(), display_get_height()+1 );
-	display_icon_leiste(color, skinverwaltung_t::hauptmenu->gib_bild(0)->bild_nr);
+	display_icon_leiste(0, skinverwaltung_t::hauptmenu->gib_bild(0)->bild_nr);
 #else
 	display_setze_clip_wh( 0, 32, display_get_width(), display_get_height()+1 );
 #endif

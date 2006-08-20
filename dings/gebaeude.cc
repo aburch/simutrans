@@ -222,7 +222,7 @@ gebaeude_t::renoviere()
 void
 gebaeude_t::setze_sync(bool yesno)
 {
-	if(yesno) {
+	if(yesno  &&  tile->gib_phasen()>1) {
 		// already sync? and worth animating ?
 		if(!sync && tile->gib_phasen()>1) {
 			// no
@@ -247,8 +247,10 @@ gebaeude_t::step(long delta_t)
 	// still under construction?
 	if(zeige_baugrube) {
 		if(welt->gib_zeit_ms() - insta_zeit > 5000) {
-			zeige_baugrube = false;
-			set_flag(ding_t::dirty);
+			if(zeige_baugrube) {
+				set_flag(ding_t::dirty);
+				zeige_baugrube = false;
+			}
 			// factories needs more frequent steps
 			if(is_factory  &&  ptr.fab   &&  ptr.fab->gib_pos()==gib_pos()) {
 				step_frequency = 1;
@@ -259,7 +261,7 @@ gebaeude_t::step(long delta_t)
 			// need no ground?
 			if(!tile->gib_besch()->ist_mit_boden()) {
 				grund_t *gr=welt->lookup(gib_pos());
-				if(gr  &&  gr->gib_typ()==grund_t::fundament) {
+				if(gr  &&  gr->gib_typ()==grund_t::fundament  &&  gr->gib_bild()!=IMG_LEER) {
 					gr->setze_bild( IMG_LEER );
 				}
 			}
@@ -677,7 +679,15 @@ bool gebaeude_t::sync_step(long delta_t)
 // DBG_MESSAGE("gebaeude_t::sync_step()", "%p, %d phases", this, phasen);
 
 	anim_time += delta_t;
-	if(anim_time > 300) {
+	if(anim_time>300) {
+		// mark the region after the image as dirty
+		// better not try to twist your brain to follow the retransformation ...
+		const koord diff=gib_pos().gib_2d()-welt->gib_ij_off();
+		const sint16 rasterweite=get_tile_raster_width();
+		const sint16 x=(diff.x-diff.y)*(rasterweite/2) + welt->gib_x_off() + (display_get_width()/2) + tile_raster_scale_x(gib_xoff(), rasterweite);
+		const sint16 y=16+((display_get_width()/rasterweite)&1)*(rasterweite/4)+(diff.x+diff.y)*(rasterweite/4)+welt->gib_y_off()+tile_raster_scale_x(gib_yoff(), rasterweite)-tile_raster_scale_y(gib_pos().z, rasterweite);
+		display_mark_img_dirty( gib_bild(), x, y );
+
 		anim_time = 0;
 		count ++;
 		if(count >= tile->gib_phasen()) {

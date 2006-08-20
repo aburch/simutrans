@@ -425,6 +425,7 @@ bool brueckenbauer_t::baue_bruecke(karte_t *welt, spieler_t *sp,
 		welt->access(pos.gib_2d())->boden_hinzufuegen(bruecke);
 		bruecke->neuen_weg_bauen(weg, ribi_t::doppelt(ribi), sp);
 		bruecke->obj_add(new bruecke_t(welt, bruecke->gib_pos(), 0, sp, besch, besch->gib_simple(ribi)));
+		bruecke->calc_bild();
 
 //DBG_MESSAGE("bool brueckenbauer_t::baue_bruecke()","at (%i,%i)",pos.x,pos.y);
 		if(besch->gib_pillar()>0) {

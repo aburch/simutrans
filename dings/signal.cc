@@ -15,6 +15,7 @@
 #include "../boden/wege/schiene.h"
 #include "../boden/grund.h"
 #include "../simimg.h"
+#include "../dataobj/ribi.h"
 #include "../dataobj/loadsave.h"
 #include "../dataobj/translator.h"
 #include "../utils/cbuffer_t.h"
@@ -44,6 +45,8 @@ void signal_t::calc_bild()
 
 	grund_t *gr = welt->lookup(gib_pos());
 	if(gr) {
+		set_flag(ding_t::dirty);
+
 		weg_t *sch = gr->gib_weg(besch->gib_wtyp());
 		if(sch) {
 			uint16 offset=0;
@@ -52,6 +55,24 @@ void signal_t::calc_bild()
 				offset = besch->is_pre_signal() ? 12 : 8;
 			}
 
+			// vertical offset of the signal positions
+			hang_t::typ hang = gr->gib_weg_hang();
+			if(hang==hang_t::flach) {
+				setze_yoff( -gr->gib_weg_yoff() );
+				after_offset = 0;
+			}
+			else {
+				if(hang==hang_t::west ||  hang==hang_t::sued) {
+					setze_yoff( 0 );
+					after_offset = -TILE_HEIGHT_STEP;
+				}
+				else {
+					setze_yoff( -TILE_HEIGHT_STEP );
+					after_offset = +TILE_HEIGHT_STEP;
+				}
+			}
+
+			// and now calculate the images
 			if(dir&ribi_t::ost) {
 				after_bild = besch->gib_bild_nr(3+zustand*4+offset);
 			}

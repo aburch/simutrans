@@ -52,43 +52,33 @@ display_progress(int part, int total)
  * @author Hj. Malthaner
  */
 void
-display_icon_leiste(const int color, int basis_bild)
+display_icon_leiste(const int redraw, int basis_bild)
 {
-    static int old_color = 0;
-    int dirty;
-    extern int old_my;
-//    extern int disp_height;
+    int dirty=redraw;
 
-	if(color!=old_color  ||  color==-1
 #ifdef USE_SOFTPOINTER
-		|| old_my <= 32
-#endif
-	) {
+	extern int old_my;
+	if(old_my <= 32) {
 		dirty = TRUE;
-		if(color!=-1) {
-			old_color = color;
-		}
-	} else {
-		dirty = FALSE;
-		return;
 	}
+#endif
 
     display_fillbox_wh(0,0, display_get_width(), 32, MN_GREY1, dirty);
 
-    display_color_img(basis_bild++,0,0, old_color, FALSE, dirty);
-    display_color_img(basis_bild++,64,0, old_color, FALSE, dirty);
-    display_color_img(basis_bild++,128,0, old_color, FALSE, dirty);
-    display_color_img(basis_bild++,192,0, old_color, FALSE, dirty);
-    display_color_img(basis_bild++,256,0, old_color, FALSE, dirty);
-    display_color_img(basis_bild++,320,0, old_color, FALSE, dirty);
+    display_color_img(basis_bild++,0,0, 0, FALSE, dirty);
+    display_color_img(basis_bild++,64,0, 0, FALSE, dirty);
+    display_color_img(basis_bild++,128,0, 0, FALSE, dirty);
+    display_color_img(basis_bild++,192,0, 0, FALSE, dirty);
+    display_color_img(basis_bild++,256,0, 0, FALSE, dirty);
+    display_color_img(basis_bild++,320,0, 0, FALSE, dirty);
 
     //display_color_img(157,320,0, color, FALSE, dirty);
-    display_color_img(basis_bild++,384,0, old_color, FALSE, dirty);
-    display_color_img(basis_bild++,448,0, old_color, FALSE, dirty);
-    display_color_img(basis_bild++,512,0, old_color, FALSE, dirty);
-    display_color_img(basis_bild++,576,0, old_color, FALSE, dirty);
+    display_color_img(basis_bild++,384,0, 0, FALSE, dirty);
+    display_color_img(basis_bild++,448,0, 0, FALSE, dirty);
+    display_color_img(basis_bild++,512,0, 0, FALSE, dirty);
+    display_color_img(basis_bild++,576,0, 0, FALSE, dirty);
 	// added for extended menus
-    display_color_img(basis_bild++,640,0, old_color, FALSE, dirty);
+    display_color_img(basis_bild++,640,0, 0, FALSE, dirty);
 }
 
 

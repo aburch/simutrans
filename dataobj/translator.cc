@@ -191,7 +191,7 @@ DBG_DEBUG("translator::init_city_names()","file %p",file);fflush(NULL);
 DBG_DEBUG("translator::init_city_names()","try to read city name list '%s'",local_file_name.chars());
 		file = fopen(local_file_name.chars(), "rb");
 	}
-DBG_DEBUG("translator::init_city_names()","file %p",file);fflush(NULL);
+DBG_DEBUG("translator::init_city_names()","file %p",file);
 
 	if(file!=NULL) {
 		// ok, could open file
@@ -210,10 +210,9 @@ DBG_DEBUG("translator::init_city_names()","file %p",file);fflush(NULL);
 
 	}
 
-DBG_MESSAGE("translator::init_city_names", "reading failed, creating random names.");fflush(NULL);
 	if(  namen_liste.count()==0  ) {
+DBG_MESSAGE("translator::init_city_names", "reading failed, creating random names.");
 		// Hajo: try to read list failed, create random names
-
 		for(int i=0; i<anz_t1; i++) {
 			// const int l1 = strlen(translator::translate(name_t1[i]));
 			for(int j=0; j<anz_t2; j++) {
@@ -382,7 +381,7 @@ DBG_MESSAGE("translator::load()","loading pak translations from %s for iso nr %i
 void translator::load_language_iso(cstring_t & iso)
 {
 	cstring_t base(iso);
-	single_instance->language_names_iso[single_instance->lang_count] = strdup(iso.chars()+1);
+	single_instance->language_names_iso[single_instance->lang_count] = strdup(iso.chars());
 	int loc = iso.find('_');
 	if(loc != -1) {
 		base = iso.left(loc);

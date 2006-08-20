@@ -45,12 +45,12 @@ private:
      */
     koord min_windowsize;
 
-
     enum resize_modes resize_mode ;      //25-may-02	markus weber added
 
     const spieler_t *owner;
 
-    bool opaque;
+    bool opaque:1;
+    bool dirty:1;
 
 
 protected:

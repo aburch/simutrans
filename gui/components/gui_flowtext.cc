@@ -46,131 +46,125 @@ gui_flowtext_t::~gui_flowtext_t() {
  * Sets the text to display.
  * @author Hj. Malthaner
  */
-void gui_flowtext_t::set_text(const char *text) {
+void gui_flowtext_t::set_text(const char *text)
+{
+	// Hajo: danger here, longest word in text
+	// must not exceed 511 chars!
+	char word[512];
+	int att = 0;
 
-    // Hajo: danger here, longest word in text
-    // must not exceed 511 chars!
-    char word[512];
-    int att = 0;
+	const unsigned char * tail = (const unsigned char *)text;
+	const unsigned char * lead = (const unsigned char *)text;
+	node_t *node = nodes;
+	hyperlink_t *link = links;
 
-    const unsigned char * tail = (const unsigned char *)text;
-    const unsigned char * lead = (const unsigned char *)text;
-    node_t *node = nodes;
-    hyperlink_t *link = links;
+	// hyperref param
+	cstring_t param;
 
-    // hyperref param
-    cstring_t param;
+	while(*tail) {
+		if(*lead=='<') {
 
-    while(*tail) {
-	if(*lead == '<') {
-	    // parse a tag
+			bool endtag = false;
+			if(lead[1]=='/') {
+				endtag = true;
+				lead ++;
+				tail ++;
+			}
 
-	    while(*lead != '>') {
-		lead++;
-	    }
+			// parse a tag (not allowed to exeec 511 letters)
+			for(int i=0;  *lead!='>'  &&  *lead>0  &&  i<511;  i++  ) {
+				lead++;
+			}
 
-	    strncpy(word, (const char *)tail+1, lead-tail-1);
-	    word[lead-tail-1] = '\0';
+			strncpy( word, (const char *)tail+1, lead-tail-1);
+			word[lead-tail-1] = '\0';
 	    lead++;
 
-	    if(word[0] == 'p' ||
-	       (word[0] == 'b' && word[1] == 'r') ||
-	       word[1] == 'p') {
-		att = ATT_NEWLINE;
-	    }
-            else if(word[0] == 'a') {
-	      att = ATT_A_START;
+			if(word[0] == 'p' ||  (word[0] == 'b' && word[1] == 'r')) {
+				att = ATT_NEWLINE;
+			}
+			else if(word[0] == 'a') {
+				if(!endtag) {
+					att = ATT_A_START;
+		      param = word;
+				}
+				else {
+					att = ATT_A_END;
+					hyperlink_t * tmp = new hyperlink_t();
+					tmp->param = param.substr(8, param.len()-1);
+					if(links) {
+						// append
+						link = link->next = tmp;
+					}
+					else {
+						// insert first
+						link = links = tmp;
+					}
+				}
+			}
+			else if(word[0]=='h' && word[1]=='1') {
+				att = endtag ? ATT_H1_END : ATT_H1_START;
+			}
+			else if(word[0]=='e'  &&  word[1]=='m') {
+				att = endtag ? ATT_EM_END : ATT_EM_START;
+			}
+			else if(word[0] == 's'  &&  word[1]=='t') {
+				att = endtag ? ATT_STRONG_END : ATT_STRONG_START;
+			}
+			else if(!endtag  &&  strcmp(word,"title")==0) {
+				// title tag
+				const unsigned char * title_start = lead;
 
-	      param = word;
+				// parse title tag (again, enforce 511 limit)
+				for(int i=0;  *lead!='<'  &&  *lead>0  &&  i<511;  i++  ) {
+					lead++;
+				}
 
-	    }
-            else if(word[0] == '/' && word[1] == 'a') {
-		att = ATT_A_END;
+				strncpy(title, (const char *)title_start, lead-title_start);
+				title[lead-title_start] = '\0';
 
-		hyperlink_t * tmp = new hyperlink_t();
-		tmp->param = param.substr(8, param.len()-1);
-
-		// printf("'%s'\n", tmp->param.chars());
-
-		if(links) {
-		  // append
-		  link = link->next = tmp;
-		} else {
-		  // insert first
-		  link = links = tmp;
-		}
-
-
-	    }
-            else if(word[0] == 'h' && word[1] == '1') {
-		att = ATT_H1_START;
-	    }
-            else if(word[1] == 'h' && word[2] == '1') {
-		att = ATT_H1_END;
-	    }
-            else if(word[0] == 'e') {
-		att = ATT_EM_START;
-	    }
-            else if(word[1] == 'e') {
-		att = ATT_EM_END;
-	    }
-            else if(word[0] == 's') {
-		att = ATT_STRONG_START;
-	    }
-            else if(word[1] == 's') {
-		att = ATT_STRONG_END;
-	    }
-            else if(word[0] == 't') {
-		// title tag
-		const unsigned char * title_start = lead;
-
-		while(*lead != '<') lead++;
-
-		strncpy(title, (const char *)title_start, lead-title_start);
-	        title[lead-title_start] = '\0';
-
-		while(*lead != '>') lead++;
-		lead ++;
-
-		att = ATT_UNKNOWN;
+				// close title tag (again, enforce 511 limit)
+				for(int i=0;  *lead!='>'  &&  *lead>0  &&  i<511;  i++  ) {
+					lead++;
+				}
+				att = ATT_UNKNOWN;
 	    }
 	    else {
-		att = ATT_UNKNOWN;
-	    }
+				// ignore all inknown
+				att = ATT_UNKNOWN;
+			}
+			// end of commands
+		}
+		else {
+			// parse a word (and obey limits)
+			for(int i=0;  *lead!='<'  &&  *lead>32  &&  i<511;  i++  ) {
+				lead++;
+			}
+			strncpy(word, (const char *)tail, lead-tail);
+			word[lead-tail] = '\0';
+			att = ATT_NONE;
+		}
 
-	} else {
-	    // parse a word
+		if(att!=ATT_UNKNOWN) {
+			// only add know commands
+			node_t * tmp = new node_t(word, att);
+			if(node) {
+				// append
+				node->next = tmp;
+			}
+			else {
+				// insert first
+				nodes = tmp;
+			}
+			node = tmp;
+		}
 
-	    while(*lead > 32 && *lead != '<') {
-		lead++;
-	    }
-
-	    strncpy(word, (const char *)tail, lead-tail);
-	    word[lead-tail] = '\0';
-	    att = ATT_NONE;
+		// skip white spaces
+		while(*lead<=32 && *lead>0) {
+			lead++;
+		}
+		tail = lead;
 	}
-
-	// printf("'%s'\n", word);
-
-	node_t * tmp = new node_t(word, att);
-
-	if(node) {
-	    // append
-	    node->next = tmp;
-	} else {
-	    // insert first
-	    nodes = tmp;
-	}
-
-	node = tmp;
-
-
-	while(*lead <= 32 && *lead > 0) {
-	    lead++;
-	}
-
-	tail = lead;
-    }
 }
 
 

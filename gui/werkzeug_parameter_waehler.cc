@@ -34,6 +34,7 @@ werkzeug_parameter_waehler_t::werkzeug_parameter_waehler_t(karte_t *welt,
     this->hilfe_datei = NULL;
 
     tools = new minivec_tpl <struct werkzeug_t> (32);
+    dirty = true;
 }
 
 
@@ -84,6 +85,7 @@ DBG_DEBUG("werkzeug_parameter_waehler_t::add_tool()","ww=%i, rows=%i",ww,rows);
 		// assure equal distribution if more than a single row is needed
 		tool_icon_width = (tool_icon_width+rows-1)/rows;
 	}
+	dirty = true;
 	DBG_DEBUG("werkzeug_parameter_waehler_t::add_tool()","at position %i (width %i)", tools->get_count(), tool_icon_width );
 }
 
@@ -127,6 +129,7 @@ void werkzeug_parameter_waehler_t::add_param_tool(int (* wz1)(spieler_t *, karte
 		// assure equal distribution if more than a single row is needed
 		tool_icon_width = (tool_icon_width+rows-1)/rows;
 	}
+	dirty = true;
 //DBG_DEBUG("werkzeug_parameter_waehler_t::add_param_tool()","at position %i (width %i)", tools->get_count(), tool_icon_width );
 }
 
@@ -221,18 +224,18 @@ void werkzeug_parameter_waehler_t::zeichnen(koord pos, koord)
 			// DDD box as replacement
 
 			// top
-			display_fillbox_wh(draw_pos.x, draw_pos.y, 32, 1, MN_GREY4, true);
+			display_fillbox_wh(draw_pos.x, draw_pos.y, 32, 1, MN_GREY4, dirty);
 			// body
-			display_fillbox_wh(draw_pos.x+1, draw_pos.y+1, 30, 30, MN_GREY2, true);
+			display_fillbox_wh(draw_pos.x+1, draw_pos.y+1, 30, 30, MN_GREY2, dirty);
 			// bottom
-			display_fillbox_wh(draw_pos.x, draw_pos.y+31, 32, 1, MN_GREY0, true);
+			display_fillbox_wh(draw_pos.x, draw_pos.y+31, 32, 1, MN_GREY0, dirty);
 			// Left
-			display_fillbox_wh(draw_pos.x, draw_pos.y, 1, 32, MN_GREY4, true);
+			display_fillbox_wh(draw_pos.x, draw_pos.y, 1, 32, MN_GREY4, dirty);
 			// Right
-			display_fillbox_wh(draw_pos.x+31, draw_pos.y, 1, 32, MN_GREY0, true);
+			display_fillbox_wh(draw_pos.x+31, draw_pos.y, 1, 32, MN_GREY0, dirty);
 		}
 		else {
-			display_color_img(tools->at(i).icon, draw_pos.x, draw_pos.y, 0, false, true);
+			display_color_img(tools->at(i).icon, draw_pos.x, draw_pos.y, 0, false, dirty);
 		}
 	}
 
@@ -245,4 +248,6 @@ void werkzeug_parameter_waehler_t::zeichnen(koord pos, koord)
 			win_set_tooltip( gib_maus_x()+16, gib_maus_y()-16, tools->at(tipnr).tooltip);
 		}
 	}
+
+	dirty = false;
 }

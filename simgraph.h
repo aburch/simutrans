@@ -81,9 +81,11 @@ struct bild_besch_t;
  * macro instead.
  * @author Hj. Malthaner
  */
+#define get_tile_raster_width()    (tile_raster_width)
 extern int tile_raster_width;
 
-#define get_tile_raster_width()    (tile_raster_width)
+/* changes the raster width after loading */
+int display_set_base_raster_width(int new_raster);
 
 
 int get_zoom_factor();
@@ -133,6 +135,7 @@ void register_image_copy(struct bild_besch_t *bild);
 
 void display_set_image_offset( unsigned bild, int xoff, int yoff );
 void display_get_image_offset( unsigned bild, int *xoff, int *yoff, int *xw, int *yw );
+void display_mark_img_dirty( unsigned bild, int x, int y );
 
 int gib_maus_x();
 int gib_maus_y();

@@ -55,8 +55,8 @@ factorylist_frame_t::factorylist_frame_t(karte_t * welt) :
 	add_komponente(&sorteddir);
 
 	// name buttons
-	sortedby.setze_text(translator::translate(sort_text[gib_sortierung()]));
-	sorteddir.setze_text(translator::translate(gib_reverse() ? "hl_btn_sort_desc" : "hl_btn_sort_asc"));
+	sortedby.setze_text(sort_text[gib_sortierung()]);
+	sorteddir.setze_text(gib_reverse() ? "hl_btn_sort_desc" : "hl_btn_sort_asc");
 
 	scrolly.setze_pos(koord(1, 14+BUTTON_HEIGHT+2));
 	scrolly.set_show_scroll_x(false);
@@ -82,12 +82,12 @@ bool factorylist_frame_t::action_triggered(gui_komponente_t *komp,value_t /* */)
 {
     if(komp == &sortedby) {
 	setze_sortierung((factorylist::sort_mode_t)((gib_sortierung() + 1) % factorylist::SORT_MODES));
-	sortedby.setze_text(translator::translate(sort_text[gib_sortierung()]));
+	sortedby.setze_text(sort_text[gib_sortierung()]);
 	stats.sort(gib_sortierung(),gib_reverse());
     }
     else if(komp == &sorteddir) {
 	setze_reverse(!gib_reverse());
-	sorteddir.setze_text(translator::translate(gib_reverse() ? "hl_btn_sort_desc" : "hl_btn_sort_asc"));
+	sorteddir.setze_text(gib_reverse() ? "hl_btn_sort_desc" : "hl_btn_sort_asc");
 	stats.sort(gib_sortierung(),gib_reverse());
     }
     return true;

@@ -93,6 +93,7 @@ world_view_t::zeichnen(koord offset) const
 		const koord pos = gib_pos()+offset+koord(1,1);
 
 		PUSH_CLIP(pos.x, pos.y, gr.x, gr.y);
+		mark_rect_dirty_wc( pos.x, pos.y, pos.x+gr.x, pos.y+gr.y );
 
 		const koord display_off = koord( min( (gr.x-raster)/2, raster/2), hgt+gr.y-raster )+fine_here;	// we aling the bottom of the image with the small image
 

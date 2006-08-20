@@ -194,7 +194,7 @@ struct imd {
   unsigned char h;    // current (zoomed) width
 
   unsigned len;   // base image data size (used for allocation purposes only)
-  unsigned char recode_flags[4]; // first byte: needs recode, second byte: code normal, second byte: code for player1
+  unsigned char recode_flags[4]; // first byte: needs recode, second byte: code normal, second byte: code for player1, third byte: flags
 
   PIXVAL * data;      // current data, zoomed and adapted to output format RGB 555 or RGB 565
 
@@ -209,7 +209,11 @@ struct imd {
 #define NEED_REZOOM (0)
 #define NEED_NORMAL_RECODE (1)
 #define NEED_PLAYER_RECODE (2)
-#define ZOOMABLE (3)
+#define FLAGS (3)
+
+// flags for recoding
+#define FLAG_ZOOMABLE (1)
+#define FLAG_PLAYERCOLOR (2)
 
 
 
@@ -317,11 +321,22 @@ static const int night_lights[LIGHT_COUNT] =
 int tile_raster_width = 16;
 static int base_tile_raster_width = 16;
 
-
 /*
  * Hajo: Zoom factor
  */
 static int zoom_factor = 1;
+
+
+
+/* changes the raster width after loading */
+int display_set_base_raster_width(int new_raster)
+{
+	int old=base_tile_raster_width;
+	base_tile_raster_width = new_raster;
+	tile_raster_width = new_raster/zoom_factor;
+	return old;
+}
+
 
 
 // -------------- Function prototypes --------------
@@ -448,9 +463,7 @@ static int is_tile_dirty(const int x, const int y) {
      const int bita = bit >> 3;
      const int bitb = 1 << (bit & 7);
 
-     return (tile_dirty[bita] & (bitb)) |
-            (tile_dirty_old[bita] & (bitb));
-
+     return (tile_dirty[bita]|tile_dirty_old[bita]) & bitb;
 }
 #else
 static inline int is_tile_dirty(const int x, const int y) {
@@ -458,9 +471,7 @@ static inline int is_tile_dirty(const int x, const int y) {
      const int bita = bit >> 3;
      const int bitb = 1 << (bit & 7);
 
-     return (tile_dirty[bita] & (bitb)) |
-            (tile_dirty_old[bita] & (bitb));
-
+     return (tile_dirty[bita]|tile_dirty_old[bita]) & bitb;
 }
 #endif
 
@@ -679,7 +690,7 @@ static void rezoom()
 {
 	unsigned n;
 	for(n=0; n<anz_images; n++) {
-		images[n].recode_flags[NEED_REZOOM] = images[n].recode_flags[ZOOMABLE]  &&  (images[n].base_h>0);
+		images[n].recode_flags[NEED_REZOOM] = (images[n].recode_flags[FLAGS]&FLAG_ZOOMABLE)!=0  &&  images[n].base_h>0;
 		images[n].recode_flags[NEED_NORMAL_RECODE] = 128;
 		images[n].recode_flags[NEED_PLAYER_RECODE] = 128;	// color will be set next time
 	} // for
@@ -1605,13 +1616,11 @@ static void calc_base_pal_from_night_shift(const int night)
 
 void display_day_night_shift(int night)
 {
-    if(night != night_shift) {
-	night_shift = night;
-
-	calc_base_pal_from_night_shift(night);
-
-	mark_rect_dirty_nc(0,0, disp_width-1, disp_height-1);
-    }
+	if(night != night_shift) {
+		night_shift = night;
+		calc_base_pal_from_night_shift(night);
+		mark_rect_dirty_nc(0,32,disp_width-1, disp_height-1);
+	}
 }
 
 
@@ -1668,6 +1677,13 @@ void register_image(struct bild_besch_t *bild)
 		return;
 	}
 
+	if(anz_images>=65535) {
+		printf("FATAL:\n*** Out of images (more than 65534!) ***\n\n");
+		getchar();
+		fflush(NULL);
+		abort();
+	}
+
 	if(anz_images == alloc_images) {
 		alloc_images += 128;
 		images = (struct imd *)guarded_realloc(images, sizeof(struct imd)*alloc_images);
@@ -1693,35 +1709,42 @@ void register_image(struct bild_besch_t *bild)
 	images[anz_images].recode_flags[NEED_REZOOM] = true;
 
 	images[anz_images].base_data = NULL;
-
 	images[anz_images].zoom_data = NULL;
-
 	images[anz_images].data = NULL;
 	images[anz_images].player_data = NULL;	// chaches data for one AI
 
 	images[anz_images].base_data = (PIXVAL *)guarded_malloc(images[anz_images].len*sizeof(PIXVAL));
 
-	images[anz_images].recode_flags[ZOOMABLE] = bild->zoomable;
+	images[anz_images].recode_flags[FLAGS] = (bild->zoomable&FLAG_ZOOMABLE);
 
 	memcpy(images[anz_images].base_data, (PIXVAL *)(bild + 1),images[anz_images].len*sizeof(PIXVAL));
 
-	if(anz_images>=65535) {
-		printf("FATAL:\n*** Out of images (more than 65534!) ***\n\n");
-		getchar();
-		fflush(NULL);
-		abort();
-	}
-/*
-	else {
-		printf("register_image() %i\n", anz_images );
-	}
-*/
-	if(base_tile_raster_width < bild->w) {
-		base_tile_raster_width = bild->w;
-		tile_raster_width = base_tile_raster_width;
-	}
-
 	bild->bild_nr = anz_images;
+
+	// does this image have color?
+	if(bild->h>0) {
+		int h=bild->h, color=0;
+		PIXVAL *src = images[anz_images].base_data;
+		do {
+			PIXVAL runlen=*src++;	// offset of first start
+			do {
+				// clear run is always ok
+				runlen = *src++;
+				// now just convert the color pixels
+				while(runlen--) {
+					PIXVAL pix = *src++;
+					if((0x8000^pix)<=0x000F) {
+						color=1;
+					}
+				}
+				// next clear run or zero = end
+			} while( (runlen = *src++)!=0 );
+
+		} while(--h  &&  color==0);
+		if(color) {
+			images[anz_images].recode_flags[FLAGS] |= FLAG_PLAYERCOLOR;
+		}
+	}
 
 	anz_images ++;
 }
@@ -2403,23 +2426,14 @@ display_color_img(const unsigned n, const KOORD_VAL xp, const KOORD_VAL yp, cons
 		  const int daynight, const int dirty)
 {
 	if(n<anz_images) {
-		// since vehicle need larger dirty rect!
-		if(dirty) {
-			mark_rect_dirty_wc(xp+images[n].x-8,
-				yp+images[n].y-4,
-				xp+images[n].x+images[n].w+8-1,
-				yp+images[n].y+images[n].h+4-1);
-		}
-
 		// Hajo: since the colors for player 0 are already right,
 		// only use the expensive replacement routine for colored images
 		// of other players
 		// Hajo: player 1 does not need any recoloring, too
-		if(color<8  &&  daynight) {
-			display_img_aux( n, xp, yp, false, false );
+		if(daynight  &&  (color<4  ||  (images[n].recode_flags[FLAGS]&FLAG_PLAYERCOLOR)==0)) {
+			display_img_aux( n, xp, yp, dirty, false );
 			return;
 		}
-
 
 		if(images[n].recode_flags[NEED_REZOOM]) {
 			rezoom_img(n);
@@ -2433,7 +2447,7 @@ display_color_img(const unsigned n, const KOORD_VAL xp, const KOORD_VAL yp, cons
 					recode_color_img( n, color );
 				}
 				// ok, now we could use the same faster code as for the normal images
-				display_img_aux( n, xp, yp, false, true );
+				display_img_aux( n, xp, yp, dirty, true );
 				return;
 			}
 		}
@@ -2450,6 +2464,10 @@ display_color_img(const unsigned n, const KOORD_VAL xp, const KOORD_VAL yp, cons
 				// happens quite often ...
 				return;
 			}
+
+			if(dirty) {
+				mark_rect_dirty_wc( xp+x, yp+y, xp+x+w-1, yp+y+h-1);
+			}
 		}
 
 		// Hajo: choose mapping table
@@ -2461,6 +2479,24 @@ display_color_img(const unsigned n, const KOORD_VAL xp, const KOORD_VAL yp, cons
 		display_color_img_aux(n, xp, yp, color << 2);
 	} // number ok
 }
+
+
+
+/**
+ * the area of this image need update
+ * @author Hj. Malthaner
+ */
+void display_mark_img_dirty( unsigned bild, int xp, int yp )
+{
+	if(bild<anz_images) {
+		mark_rect_dirty_wc(xp+images[bild].x,
+			yp+images[bild].y,
+			xp+images[bild].x+images[bild].w-1,
+			yp+images[bild].y+images[bild].h-1);
+	}
+}
+
+
 
 
 
@@ -3295,14 +3331,13 @@ display_multiline_text(KOORD_VAL x, KOORD_VAL y, const char *buf, PLAYER_COLOR_V
 
 
 
+// copies only the changed areas to the screen using the
+// "tile dirty buffer" To get large changes, actually the current
+// and the previous one is used.
 void display_flush_buffer()
 {
 	int x, y;
 	unsigned char * tmp;
-#ifdef DEBUG_FLUSH_BUFFER
-	// just for debugging
-	int tile_count = 0;
-#endif
 
 #ifdef USE_SOFTPOINTER
 	if(softpointer != -1) {
@@ -3312,44 +3347,29 @@ void display_flush_buffer()
 	old_my = sys_event.my;
 #endif
 
-	for(y=0; y<tile_lines; y++) {
 #ifdef DEBUG_FLUSH_BUFFER
+	for(y=0; y<tile_lines-1; y++) {
+	x = 0;
 
-	for(x=0; x<tiles_per_line; x++) {
+	do {
 	    if(is_tile_dirty(x, y)) {
-		display_fillbox_wh(x << DIRTY_TILE_SHIFT,
-                                   y << DIRTY_TILE_SHIFT,
-				   DIRTY_TILE_SIZE/4,
-				   DIRTY_TILE_SIZE/4,
-				   3,
-				   FALSE);
+		const int xl = x;
+                do {
+		    x++;
+		} while(x < tiles_per_line && is_tile_dirty(x, y));
 
-
-
-		dr_textur(x << DIRTY_TILE_SHIFT,
-                          y << DIRTY_TILE_SHIFT,
-			  DIRTY_TILE_SIZE,
-			  DIRTY_TILE_SIZE);
-
-		tile_count ++;
-	    } else {
-		display_fillbox_wh(x << DIRTY_TILE_SHIFT,
-                                   y << DIRTY_TILE_SHIFT,
-				   DIRTY_TILE_SIZE/4,
-				   DIRTY_TILE_SIZE/4,
-				   0,
-				   FALSE);
-
-
-
-		dr_textur(x << DIRTY_TILE_SHIFT,
-                          y << DIRTY_TILE_SHIFT,
-			  DIRTY_TILE_SIZE,
-			  DIRTY_TILE_SIZE);
+		display_vline_wh((xl<<DIRTY_TILE_SHIFT)-1,y<<DIRTY_TILE_SHIFT,DIRTY_TILE_SIZE,80,FALSE);
+		display_vline_wh(x<<DIRTY_TILE_SHIFT,y<<DIRTY_TILE_SHIFT,DIRTY_TILE_SIZE,80,FALSE);
+		display_fillbox_wh(xl << DIRTY_TILE_SHIFT, y << DIRTY_TILE_SHIFT,(x-xl)<<DIRTY_TILE_SHIFT,1,80, FALSE);
+		display_fillbox_wh(xl << DIRTY_TILE_SHIFT, (y << DIRTY_TILE_SHIFT)+DIRTY_TILE_SIZE-1,(x-xl)<<DIRTY_TILE_SHIFT,1,80, FALSE);
 
 	    }
-	}
+	    x++;
+	} while(x < tiles_per_line);
+    }
+		dr_textur(0,0,disp_width,disp_height);
 #else
+	for(y=0; y<tile_lines; y++) {
 	x = 0;
 
 	do {
@@ -3367,11 +3387,7 @@ void display_flush_buffer()
 	    }
 	    x++;
 	} while(x < tiles_per_line);
-#endif
     }
-
-#ifdef DEBUG_FLUSH_BUFFER
-//    printf("%d von %d tiles wurden gezeichnet\n", tile_count, tile_lines*tiles_per_line);
 #endif
 
     dr_flush();
@@ -3379,8 +3395,8 @@ void display_flush_buffer()
     // swap tile buffers
     tmp = tile_dirty_old;
     tile_dirty_old = tile_dirty;
-
     tile_dirty = tmp;
+    // and clear it
     memset(tile_dirty, 0, tile_buffer_length);
 }
 

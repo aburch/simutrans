@@ -726,9 +726,10 @@ grund_t::text_farbe() const
 
 
 
-inline
-void grund_t::do_display_boden( const sint16 xpos, const sint16 ypos, const bool dirty ) const
+void
+grund_t::display_boden( const sint16 xpos, const sint16 ypos, const bool reset_dirty ) const
 {
+	const bool dirty=get_flag(grund_t::dirty);
 	// walls
 	if(back_bild_nr!=0) {
 		if(abs(back_bild_nr)>121) {
@@ -760,48 +761,58 @@ void grund_t::do_display_boden( const sint16 xpos, const sint16 ypos, const bool
 	}
 
 	// ground
-	display_img( gib_bild(), xpos, ypos, dirty);
+	if(besitzer_n==-1) {
+		display_img(gib_bild(), xpos, ypos, dirty);
+	}
+	else {
+		display_color_img(gib_bild(), xpos, ypos, gib_besitzer()->get_player_color(), true, dirty);
+	}
 
 	if(wege[0]) {
-		display_img(wege[0]->gib_bild(), xpos, ypos - gib_weg_yoff(), dirty);
-#ifdef DEBUG_PDS
-		if((wege[0]->gib_typ()==weg_t::schiene)  &&  ((schiene_t *)wege[0])->is_reserved()) {
-			display_fillbox_wh_clip( xpos+64/2, ypos+(64*3)/4, 16, 16, 0, dirty);
+		sint16 ynpos = ypos-gib_weg_yoff();
+		if(besitzer_n==-1) {
+			display_img(wege[0]->gib_bild(), xpos, ynpos, dirty);
+		}
+		else {
+			display_color_img(wege[0]->gib_bild(), xpos, ynpos, gib_besitzer()->get_player_color(), true, dirty);
+		}
+#ifdef DEBUG_PBS
+		if(dirty  &&  (wege[0]->gib_typ()==weg_t::schiene)  &&  ((schiene_t *)wege[0])->is_reserved()) {
+			display_fillbox_wh_clip( xpos+get_tile_raster_width()/4-8, ypos+(get_tile_raster_width()*3)/4-8, 16, 16, 0, true);
 		}
 #endif
 	}
 
 	if(wege[1]){
-		display_img(wege[1]->gib_bild(), xpos, ypos - gib_weg_yoff(), dirty);
+		sint16 ynpos = ypos-gib_weg_yoff();
+		if(besitzer_n==-1) {
+			display_img(wege[1]->gib_bild(), xpos, ynpos, dirty);
+		}
+		else {
+			display_color_img(wege[1]->gib_bild(), xpos, ynpos, gib_besitzer()->get_player_color(), true, dirty);
+		}
 	}
 }
 
 
 
-void
-grund_t::display_boden(const sint16 xpos, sint16 ypos, bool dirty) const
-{
-	dirty |= get_flag(grund_t::dirty);
-	do_display_boden( xpos, ypos, dirty );
-}
-
-
 
 void
-grund_t::display_dinge(const sint16 xpos, sint16 ypos, bool dirty)
+grund_t::display_dinge(const sint16 xpos, sint16 ypos, bool reset_dirty)
 {
 //	DBG_DEBUG("grund_t::display_dinge()","at %i,%i",pos.x,pos.y);
-	dirty |= get_flag(grund_t::dirty);
-	if(flags&marked) {
+	const bool dirty = get_flag(grund_t::dirty);
+
+	if(reset_dirty  &&  get_flag(grund_t::marked)) {
 		uint8 hang = gib_grund_hang();
 		uint8 back_hang = (hang&1) + ((hang>>1)&6)+8;
 //DBG_DEBUG("grund_t::display_dinge()","marker at %i,%i, img=%i",pos.x,pos.y,grund_besch_t::marker->gib_bild(back_hang));
-		display_img(grund_besch_t::marker->gib_bild(back_hang), xpos, ypos, true);
-		dinge.display_dinge( xpos, ypos, dirty );
-		display_img(grund_besch_t::marker->gib_bild(hang&7), xpos, ypos, true);
+		display_img(grund_besch_t::marker->gib_bild(back_hang), xpos, ypos, dirty);
+		dinge.display_dinge( xpos, ypos, reset_dirty );
+		display_img(grund_besch_t::marker->gib_bild(hang&7), xpos, ypos, dirty);
 	}
 	else {
-		dinge.display_dinge( xpos, ypos, dirty );
+		dinge.display_dinge( xpos, ypos, reset_dirty );
 	}
 
 	// marker/station text
@@ -809,7 +820,6 @@ grund_t::display_dinge(const sint16 xpos, sint16 ypos, bool dirty)
 	if(text && (umgebung_t::show_names & 1)) {
 		const sint16 raster_tile_width = get_tile_raster_width();
 		const int width = proportional_string_width(text)+7;
-
 		display_ddd_proportional_clip(xpos - (width - raster_tile_width)/2, ypos, width, 0, text_farbe(), COL_BLACK, text, dirty);
 	}
 
@@ -823,7 +833,10 @@ grund_t::display_dinge(const sint16 xpos, sint16 ypos, bool dirty)
 		display_fillbox_wh_clip( xpos+raster_tile_width/2, ypos+(raster_tile_width*3)/4, 16, 16, 0, dirty);
 	}
 #endif
-	clear_flag(grund_t::dirty);
+
+	if(reset_dirty) {
+		clear_flag(grund_t::dirty);
+	}
 }
 
 

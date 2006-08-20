@@ -320,7 +320,7 @@ void planquadrat_t::angehoben(karte_t *welt)
 
 
 void
-planquadrat_t::display_boden(const sint16 xpos, const sint16 ypos, const sint16 /*raster*/, bool dirty) const
+planquadrat_t::display_boden(const sint16 xpos, const sint16 ypos, const sint16 /*raster*/, bool reset_dirty) const
 {
 	if(boeden.get_count() > 0) {
 #ifdef COVER_TILES
@@ -329,40 +329,41 @@ planquadrat_t::display_boden(const sint16 xpos, const sint16 ypos, const sint16 
 			for(uint8 i=boeden.get_count()-1; i>0;  i--) {
 				grund_t *gr = boeden.get(i);
 				if(gr->gib_typ()==grund_t::boden) {
-					gr->display_boden(xpos, ypos, dirty);
-					gr->display_dinge(xpos, ypos, dirty);
+					gr->display_boden(xpos, ypos, reset_dirty);
+					gr->display_dinge(xpos, ypos, reset_dirty);
 				}
 			}
 		}
 #endif
 		grund_t *gr = boeden.get(0);
 		if(!gr->get_flag(grund_t::draw_as_ding)) {
-			gr->display_boden(xpos, ypos, dirty);
+			gr->display_boden(xpos, ypos, reset_dirty);
 		}
 	}
 }
 
 
 void
-planquadrat_t::display_dinge(const sint16 xpos, const sint16 ypos, const sint16 raster_tile_width, bool dirty) const
+planquadrat_t::display_dinge(const sint16 xpos, const sint16 ypos, const sint16 raster_tile_width, bool reset_dirty) const
 {
 	if(boeden.get_count()>0) {
 #ifdef COVER_TILES
-		boeden.get(0)->display_dinge(xpos, ypos, dirty);
+		boeden.get(0)->display_dinge(xpos, ypos, reset_dirty);
 		for(uint8 i=1; i<boeden.get_count(); i++) {
 			gr = boeden.get(i);
 			if(gr->gib_typ()!=grund_t::boden)) {
-				gr->display_boden(xpos, ypos, dirty);
-				gr->display_dinge(xpos, ypos, dirty);
+				gr->display_boden(xpos, ypos, reset_dirty);
+				gr->display_dinge(xpos, ypos, reset_dirty);
 			}
 		}
 #else
 		// first some action with the kartenboden (i.e. level ground)
 		grund_t *gr = boeden.get(0);
+		bool kartenboden_dirty = gr->get_flag(grund_t::dirty);
 		if(gr->get_flag(grund_t::draw_as_ding)) {
-			gr->display_boden(xpos, ypos, dirty );
+			gr->display_boden(xpos, ypos, reset_dirty );
 		}
-		gr->display_dinge(xpos, ypos, dirty );
+		gr->display_dinge(xpos, ypos, reset_dirty );
 
 		// display station owner boxes
 		if(umgebung_t::station_coverage_show  &&  halt_list.get_count()>0) {
@@ -371,7 +372,7 @@ planquadrat_t::display_dinge(const sint16 xpos, const sint16 ypos, const sint16 
 			const sint16 y=ypos+(raster_tile_width*3)/4-r - (gr->gib_grund_hang()? tile_raster_scale_y(8,raster_tile_width): 0);
 			// suitable start search
 			for(sint16 h=halt_list.get_count()-1;  h>=0;  h--  ) {
-				display_fillbox_wh_clip( x-h*2, y+h*2, r, r, PLAYER_FLAG|((halt_list.at(h)->gib_besitzer()->get_player_color())*4+4), dirty);
+				display_fillbox_wh_clip( x-h*2, y+h*2, r, r, PLAYER_FLAG|((halt_list.at(h)->gib_besitzer()->get_player_color())*4+4), kartenboden_dirty );
 			}
 		}
 
@@ -380,8 +381,8 @@ planquadrat_t::display_dinge(const sint16 xpos, const sint16 ypos, const sint16 
 		for(uint8 i=1; i<boeden.get_count(); i++) {
 			gr = gib_boden_bei(i);
 			const sint16 yypos = ypos -tile_raster_scale_y( gr->gib_hoehe()-h0, raster_tile_width);
-			gr->display_boden(xpos, yypos, dirty );
-			gr->display_dinge(xpos, yypos, dirty );
+			gr->display_boden(xpos, yypos, reset_dirty );
+			gr->display_dinge(xpos, yypos, reset_dirty );
 		}
 #endif
 	}

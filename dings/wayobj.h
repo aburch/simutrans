@@ -32,70 +32,69 @@ class wayobj_t : public ding_t
 private:
 	const way_obj_besch_t *besch;
 
-  /**
-   * Front side image
-   * @author Hj. Malthaner
-   */
-  image_id after;
+	/**
+	* Front side image
+	* @author Hj. Malthaner
+	*/
+	image_id after;
 
 	// direction of this wayobj
 	ribi_t::ribi dir;
 
-
 	ribi_t::ribi find_next_ribi(const grund_t *start, const koord dir) const;
 
+
 public:
-  wayobj_t(karte_t *welt, koord3d pos, spieler_t *besitzer, ribi_t::ribi dir, const way_obj_besch_t *besch);
+	wayobj_t(karte_t *welt, koord3d pos, spieler_t *besitzer, ribi_t::ribi dir, const way_obj_besch_t *besch);
 
-  wayobj_t(karte_t *welt, loadsave_t *file);
+	wayobj_t(karte_t *welt, loadsave_t *file);
 
-  virtual ~wayobj_t();
+	virtual ~wayobj_t();
 
 	const way_obj_besch_t *gib_besch() const {return besch;}
 
 	/**
-   * the front image, drawn after everything else
-   * @author V. Meyer
-   */
+	* the front image, drawn after everything else
+	* @author V. Meyer
+	*/
 	image_id gib_after_bild() const { return after; }
 
-  /**
-   * 'Jedes Ding braucht einen Typ.'
-   * @return Gibt den typ des Objekts zurück.
-   * @author Hj. Malthaner
-   */
-  enum ding_t::typ gib_typ() const {return wayobj;}
+	/**
+	* 'Jedes Ding braucht einen Typ.'
+	* @return Gibt den typ des Objekts zurück.
+	* @author Hj. Malthaner
+	*/
+	enum ding_t::typ gib_typ() const {return wayobj;}
 
-  /**
-   * no infowin
-   * @author Hj. Malthaner
-   */
+	/**
+	* no infowin
+	* @author Hj. Malthaner
+	*/
 	void zeige_info() {}
 
-  void calc_bild();
+	void calc_bild();
 
-  /**
-   * Speichert den Zustand des Objekts.
-   *
-   * @param file Zeigt auf die Datei, in die das Objekt geschrieben werden
-   * soll.
-   * @author Hj. Malthaner
-   */
-  void rdwr(loadsave_t *file);
+	/**
+	* Speichert den Zustand des Objekts.
+	*
+	* @param file Zeigt auf die Datei, in die das Objekt geschrieben werden
+	* soll.
+	* @author Hj. Malthaner
+	*/
+	void rdwr(loadsave_t *file);
 
 	// substracts cost
 	void entferne(spieler_t *sp);
 
 	/**
-   * calculate image after loading
-   * @author prissi
-   */
-  void laden_abschliessen();
+	* calculate image after loading
+	* @author prissi
+	*/
+	void laden_abschliessen();
 
 	// specific for wayobj
 	void set_dir(ribi_t::ribi dir) { this->dir = dir; calc_bild(); }
 	ribi_t::ribi get_dir() const { return dir; }
-
 
 	/* the static routines */
 private:

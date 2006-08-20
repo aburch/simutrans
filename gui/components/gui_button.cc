@@ -297,7 +297,7 @@ void button_t::zeichnen(koord offset, PLAYER_COLOR_VAL button_color) const
 
    case square: // little square in front of text
     display_button_image(bx, by, SQUARE_BUTTON, pressed);
-    display_proportional_clip(bx+16,by+(12-large_font_height)/2, text, ALIGN_LEFT, b_enabled ? button_color : COL_GREY4, false);
+    display_proportional_clip(bx+16,by+(12-large_font_height)/2, text, ALIGN_LEFT, b_enabled ? button_color : COL_GREY4, true);
     break;
 
    case arrowleft:

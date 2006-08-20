@@ -142,16 +142,47 @@ void roadsign_t::info(cbuffer_t & buf) const
 // coulb be still better aligned for drive_left settings ...
 void roadsign_t::calc_bild()
 {
+	set_flag(ding_t::dirty);
+
+	after_offset = 0;
+
+	// vertical offset of the signal positions
+	const grund_t *gr=welt->lookup(gib_pos());
+	if(gr==NULL) {
+		return;
+	}
+
+	hang_t::typ hang = gr->gib_weg_hang();
+	if(hang==hang_t::flach) {
+		setze_yoff( -gr->gib_weg_yoff() );
+		after_offset = 0;
+	}
+	else {
+		// since the places were switched
+		if(!umgebung_t::drive_on_left) {
+			hang = ribi_t::rueckwaerts(hang);
+		}
+
+		if(hang==hang_t::ost ||  hang==hang_t::nord) {
+			setze_yoff( 0 );
+			after_offset = -TILE_HEIGHT_STEP;
+		}
+		else {
+			setze_yoff( -TILE_HEIGHT_STEP );
+			after_offset = +TILE_HEIGHT_STEP;
+		}
+	}
+
 	if(step_frequency==0) {
 
 		image_id bild=IMG_LEER;
 		after_bild = IMG_LEER;
 
-		if(dir&ribi_t::west) {
+		if(dir&ribi_t::ost) {
 			after_bild = besch->gib_bild_nr(3+zustand*4);
 		}
 
-		if(dir&ribi_t::sued) {
+		if(dir&ribi_t::nord) {
 			if(after_bild!=IMG_LEER) {
 				bild = besch->gib_bild_nr(0+zustand*4);
 			}
@@ -160,11 +191,11 @@ void roadsign_t::calc_bild()
 			}
 		}
 
-		if(dir&ribi_t::ost) {
+		if(dir&ribi_t::west) {
 			bild = besch->gib_bild_nr(2+zustand*4);
 		}
 
-		if(dir&ribi_t::nord) {
+		if(dir&ribi_t::sued) {
 			if(bild!=IMG_LEER) {
 				after_bild = besch->gib_bild_nr(1+zustand*4);
 			}
@@ -186,7 +217,7 @@ void roadsign_t::calc_bild()
 	}
 	else {
 		// traffic light
-		weg_t *str= welt->lookup(gib_pos())->gib_weg(weg_t::strasse);
+		weg_t *str=gr->gib_weg(weg_t::strasse);
 		if(str)
 		{
 			const uint8 weg_dir = str->gib_ribi_unmasked();
@@ -194,6 +225,7 @@ void roadsign_t::calc_bild()
 
 			// other front/back images for left side ...
 			if(umgebung_t::drive_on_left) {
+
 				// drive left
 				if(weg_dir&ribi_t::nord) {
 					if(weg_dir&ribi_t::ost) {
@@ -269,6 +301,18 @@ bool roadsign_t::step(long delta_t)
 
 
 
+// to correct offset on slopes
+void
+roadsign_t::display_after(int xpos, int ypos, bool reset_dirty) const
+{
+	if(after_bild!=IMG_LEER) {
+		const int raster_width = get_tile_raster_width();
+		ypos += tile_raster_scale_x(gib_yoff()+after_offset, raster_width);
+		xpos += tile_raster_scale_x(gib_xoff(), raster_width);
+		display_img(after_bild, xpos, ypos, get_flag(ding_t::dirty) );
+	}
+}
+
 
 
 void
@@ -297,7 +341,7 @@ roadsign_t::rdwr(loadsave_t *file)
 			besch = (const roadsign_besch_t *)roadsign_t::table.get(translator::compatibility_name(bname));
 		}
 		if(!besch) {
-			DBG_MESSAGE("roadsign_t::rwdr", "description %s for ropadsign at %d,%d not found, will be removed!", bname, gib_pos().x, gib_pos().y);
+			DBG_MESSAGE("roadsign_t::rwdr", "description %s for roadsign at %d,%d not found, will be removed!", bname, gib_pos().x, gib_pos().y);
 		}
 	}
 }

@@ -156,7 +156,7 @@ schedule_list_gui_t::schedule_list_gui_t(karte_t *welt,spieler_t *sp)
 
 	//CHART
 	chart.set_dimension(12, 1000);
-	chart.setze_pos( koord(LINE_NAME_COLUMN_WIDTH+35,11) );
+	chart.setze_pos( koord(LINE_NAME_COLUMN_WIDTH+50,11) );
 	chart.set_seed(0);
 	chart.set_background(MN_GREY1);
 
@@ -348,7 +348,7 @@ void schedule_list_gui_t::resize(const koord delta)
 	scrolly.setze_groesse( koord(rest_width+11, get_client_windowsize().y-scrolly.gib_pos().y) );
 	scrolly_haltestellen.setze_groesse( koord(LINE_NAME_COLUMN_WIDTH-11, get_client_windowsize().y-scrolly_haltestellen.gib_pos().y) );
 
-	chart.setze_groesse(koord(rest_width-11-35, SCL_HEIGHT-11-14-(button_rows*(BUTTON_HEIGHT+BUTTON_SPACER))));
+	chart.setze_groesse(koord(rest_width-11-50, SCL_HEIGHT-11-14-(button_rows*(BUTTON_HEIGHT+BUTTON_SPACER))));
 	inp_name.setze_groesse(koord(rest_width-11, 14));
 	filled_bar.setze_groesse(koord(rest_width-11, 4));
 

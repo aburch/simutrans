@@ -302,13 +302,6 @@ void leitung_t::verbinde()
 
 
 
-void leitung_t::display(int xpos, int ypos, bool dirty) const
-{
-	ding_t::display(xpos, ypos, dirty);
-	// display_fillbox_wh(xpos+20, ypos, 24, 6, ((int) net) & 0x7FFF, dirty);
-}
-
-
 ribi_t::ribi leitung_t::gib_ribi()
 {
 	const koord pos = gib_pos().gib_2d();

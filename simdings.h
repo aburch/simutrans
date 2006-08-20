@@ -202,33 +202,16 @@ public:
 		old_pillar = 98
 	};
 
-     inline const sint8 gib_xoff() const {return xoff;};
-     inline const sint8 gib_yoff() const {return yoff;};
+     inline const sint8 gib_xoff() const {return xoff;}
+     inline const sint8 gib_yoff() const {return yoff;}
 
 	// true for all moving objects
 	inline bool is_moving() const { return (gib_typ()&96)==32; }
 
 	// while in principle, this should trigger the dirty, it takes just too much time to do it
-	// so prissi removed this routines
-#if 0
-     void setze_xoff(int xoff) {
-		if(this->xoff != xoff) {
-			this->xoff = xoff;
-			set_flag(dirty);
-		}
-	};
-
-     void setze_yoff(int yoff) {
-		if(this->yoff != yoff) {
-			this->yoff = yoff;
-			set_flag(dirty);
-		}
-	};
-#else
 	// TAKE CARE OF SET IT DIRTY YOURSELF!!!
      inline void setze_xoff(sint8 xoff) {this->xoff = xoff; }
      inline void setze_yoff(sint8 yoff) {this->yoff = yoff; }
-#endif
 
     /**
      * Mit diesem Konstruktor werden Objekte aus einer Datei geladen
@@ -261,14 +244,14 @@ public:
      * Zum buchen der Abrisskosten auf das richtige Konto
      * @author Hj. Malthaner
      */
-    virtual void entferne(spieler_t *) {};
+    virtual void entferne(spieler_t *) {}
 
     /**
      * 'Jedes Ding braucht einen Namen.'
      * @return Gibt den unübersetzten(!) Namen des Objekts zurück.
      * @author Hj. Malthaner
      */
-    virtual const char *gib_name() const {return "Ding";};
+    virtual const char *gib_name() const {return "Ding";}
 
 
     /**
@@ -284,7 +267,7 @@ public:
      * @return false to be deleted after the step, true to live on
      * @author Hj. Malthaner
      */
-    virtual bool step(long /*delta_t*/) {return true;};
+    virtual bool step(long /*delta_t*/) {return true;}
 
 
     /**
@@ -292,14 +275,14 @@ public:
      * @return Die Nummer des aktuellen Bildes für das Objekt.
      * @author Hj. Malthaner
      */
-    virtual image_id gib_bild() const {return bild;};
+    virtual image_id gib_bild() const {return bild;}
 
 
     /**
      * Falls etwas nach den Vehikeln gemalt werden muß.
      * @author V. Meyer
      */
-    virtual image_id gib_after_bild() const {return 0xFFFF;};
+    virtual image_id gib_after_bild() const {return IMG_LEER;}
 
     /**
      * manche Objekte haben mehr als ein Bild
@@ -307,7 +290,7 @@ public:
      * @return die nummer des Bildes, -1 wenn kein Bild verfuegbar
      * @author V. Meyer
      */
-    virtual image_id gib_after_bild(int ) const {return 0xFFFF;};
+    virtual image_id gib_after_bild(int ) const {return IMG_LEER;}
 
     /**
      * Setzt ein Bild des Objects, normalerweise ist nur bild 0
@@ -325,7 +308,7 @@ public:
      * @return die nummer des Bildes, -1 wenn kein Bild verfuegbar
      * @author Hj. Malthaner
      */
-    virtual image_id gib_bild(int ) const {return IMG_LEER;};
+    virtual image_id gib_bild(int ) const {return IMG_LEER;}
 
 
     /**
@@ -334,7 +317,7 @@ public:
      * wenn das Objekt zu keiner Fabrik gehört.
      * @author Hj. Malthaner
      */
-    virtual inline fabrik_t* get_fabrik() const {return NULL;};
+    virtual inline fabrik_t* get_fabrik() const {return NULL;}
 
 
     /**
@@ -362,10 +345,11 @@ public:
      * @author V. Meyer
      * @see ding_t#ding_t
      */
-    inline koord3d gib_pos() const {return pos;};
+    inline koord3d gib_pos() const {return pos;}
 
 
-    virtual void setze_pos(koord3d pos);
+	// only zieger_t overlays this function, so virtual definition is overkill
+    void setze_pos(koord3d k) { if(k!=pos) { set_flag(dirty); pos = k;} }
 
 
     /**
@@ -395,14 +379,14 @@ public:
      * Ding zeichnen
      * @author Hj. Malthaner
      */
-    virtual void display(int xpos, int ypos, bool dirty) const;
+    void display(int xpos, int ypos, bool dirty) const;
 
 
     /**
      * 2. Teil zeichnen (was hinter Fahrzeugen kommt
      * @author V. Meyer
      */
-    void display_after(int xpos, int ypos, bool dirty) const;
+    virtual void display_after(int xpos, int ypos, bool dirty) const;
 
 
     /**

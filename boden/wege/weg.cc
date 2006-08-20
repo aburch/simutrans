@@ -91,11 +91,11 @@ void weg_t::setze_besch(const weg_besch_t *b)
  */
 void weg_t::init_statistics()
 {
-  for (int type=0; type<MAX_WAY_STATISTICS; type++) {
-    for (int month=0; month<MAX_WAY_STAT_MONTHS; month++) {
-      statistics[month][type] = 0;
-    }
-  }
+	for (int type=0; type<MAX_WAY_STATISTICS; type++) {
+		for (int month=0; month<MAX_WAY_STAT_MONTHS; month++) {
+			statistics[month][type] = 0;
+		}
+	}
 }
 
 
@@ -105,17 +105,17 @@ void weg_t::init_statistics()
  */
 void weg_t::init(karte_t *welt)
 {
-  this->welt = welt;
-  ribi = ribi_maske = ribi_t::keine;
-  max_speed = 450;
+	this->welt = welt;
+	ribi = ribi_maske = ribi_t::keine;
+	max_speed = 450;
 
-  pos = koord3d::invalid;
+	pos = koord3d::invalid;
 
-  besch = 0;
+	besch = 0;
 
-  init_statistics();
+	init_statistics();
 
-  alle_wege.insert(this);
+	alle_wege.insert(this);
 	flags = 0;
 }
 
@@ -151,10 +151,13 @@ void weg_t::rdwr(loadsave_t *file)
 	uint16 dummy16=max_speed;
 	file->rdwr_short(dummy16, "\n");
 	max_speed=dummy16;
-	if(file->get_version()>=89000) {
+	if(file->get_version()==89000) {
 		dummy = flags;
 		file->rdwr_byte(dummy,"f");
-		flags = dummy;
+		if(file->is_loading()) {
+			// all other flags are restored afterwards
+			flags = dummy & HAS_WALKWAY;
+		}
 	}
 
 	for (int type=0; type<MAX_WAY_STATISTICS; type++) {
@@ -186,6 +189,10 @@ void weg_t::info(cbuffer_t & buf) const
 	buf.append("\nRibi (masked)");
 	buf.append(gib_ribi());
 	buf.append("\n");
+
+	if(has_sign()) {
+		buf.append(translator::translate("\nwith sign/signal\n"));
+	}
 
 	if(is_electrified()) {
 		buf.append(translator::translate("\nelektrified"));
@@ -260,10 +267,6 @@ weg_t::calc_bild()
 
 	if(from==NULL  ||  besch==NULL) {
 		bild_nr = IMG_LEER;
-	}
-
-	if((flags&(HAS_SIGN|HAS_WAYOBJ))!=0) {
-
 	}
 
 	hang_t::typ hang = from->gib_weg_hang();

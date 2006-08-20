@@ -80,17 +80,24 @@ sync_wolke_t::sync_step(long delta_t)
 {
 	insta_zeit += delta_t;
 	if(insta_zeit<2500) {
-		setze_yoff(base_y_off - (insta_zeit >> 7));
-		setze_bild(0, base_image+(insta_zeit >> 9));
-		set_flag(ding_t::dirty);
+		if(base_y_off - (insta_zeit >> 7)!=gib_yoff()) {
+			// move/change cloud ...
+			if(!get_flag(ding_t::dirty)) {
+				// mark the region after the image as dirty
+				// better not try to twist your brain to follow the retransformation ...
+				const koord diff=gib_pos().gib_2d()-welt->gib_ij_off();
+				const sint16 rasterweite=get_tile_raster_width();
+				const sint16 x=(diff.x-diff.y)*(rasterweite/2) + welt->gib_x_off() + (display_get_width()/2) + tile_raster_scale_x(gib_xoff(), rasterweite);
+				const sint16 y=16+((display_get_width()/rasterweite)&1)*(rasterweite/4)+(diff.x+diff.y)*(rasterweite/4)+welt->gib_y_off()+tile_raster_scale_x(gib_yoff(), rasterweite)-tile_raster_scale_y(gib_pos().z, rasterweite);
+				display_mark_img_dirty( gib_bild(), x, y );
+			}
+			setze_yoff(base_y_off - (insta_zeit >> 7));
+			setze_bild(0, base_image+(insta_zeit >> 9));
+			set_flag(ding_t::dirty);
+		}
 		return true;
 	}
 	// delete wolke ...
-	sint8 offset=(base_y_off-19)/16;;
-	koord pos = gib_pos().gib_2d()+koord(offset,offset);
-	if(welt->lookup(pos)) {
-		welt->lookup(pos)->gib_kartenboden()->set_flag(grund_t::dirty);
-	}
 	return false;
 }
 
@@ -102,13 +109,6 @@ sync_wolke_t::sync_step(long delta_t)
  */
 void sync_wolke_t::entferne(spieler_t *)
 {
-	koord pos = gib_pos().gib_2d()-koord(1,1);
-	if(welt->lookup(pos)) {
-		grund_t *gr=welt->lookup(pos)->gib_kartenboden();
-		if(gr) {
-			gr->set_flag(grund_t::dirty);
-		}
-	}
 	welt->sync_remove(this);
 }
 
@@ -132,6 +132,16 @@ async_wolke_t::step(long delta_t)
 	const int yoff = gib_yoff();
 	insta_zeit -= delta_t;
 	if(yoff>-120 &&  insta_zeit<15000 ) {
+		// move/change cloud ...
+		if(!get_flag(ding_t::dirty)) {
+			// mark the region after the image as dirty
+			// better not try to twist your brain to follow the retransformation ...
+			const koord diff=gib_pos().gib_2d()-welt->gib_ij_off();
+			const sint16 rasterweite=get_tile_raster_width();
+			const sint16 x=(diff.x-diff.y)*(rasterweite/2) + welt->gib_x_off() + (display_get_width()/2) + tile_raster_scale_x(gib_xoff(), rasterweite);
+			const sint16 y=16+((display_get_width()/rasterweite)&1)*(rasterweite/4)+(diff.x+diff.y)*(rasterweite/4)+welt->gib_y_off()+tile_raster_scale_x(gib_yoff(), rasterweite)-tile_raster_scale_y(gib_pos().z, rasterweite);
+			display_mark_img_dirty( gib_bild(), x, y );
+		}
 		setze_yoff( yoff - 2 );
 		set_flag(ding_t::dirty);
 		return true;

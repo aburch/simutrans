@@ -36,6 +36,7 @@ gui_frame_t::gui_frame_t(const char *name, const spieler_t *sp)
     opaque = false;
     container.setze_pos(koord(0,16));
     set_resizemode (no_resize); //25-may-02	markus weber	added
+    dirty = true;
 }
 
 
@@ -133,6 +134,7 @@ void gui_frame_t::setze_fenstergroesse(koord groesse)
     }
 
     this->groesse = groesse;
+    dirty = true;
 }
 
 
@@ -152,6 +154,9 @@ void gui_frame_t::infowin_event(const event_t *ev)
     } else if(IS_WINDOW_MAKE_MIN_SIZE(ev)) {
 	  setze_fenstergroesse( koord(0,0) ) ;
 	  resize( koord(0,0) ) ;
+	}
+	else if(ev->ev_class==INFOWIN  &&  (ev->ev_code==WIN_CLOSE  ||  ev->ev_code==WIN_OPEN)) {
+		dirty = true;
 	}
 
     event_t ev2 = *ev;
@@ -210,6 +215,12 @@ void gui_frame_t::resize(const koord delta)
  */
 void gui_frame_t::zeichnen(koord pos, koord gr)
 {
+	// ok, resized, move or draw for the first time
+	if(dirty) {
+		mark_rect_dirty_wc(pos.x,pos.y,pos.x+gr.x,pos.y+gr.y);
+		dirty = false;
+	}
+
 	if(opaque) {
 		// Hajo: skinned windows code
 		// draw background
@@ -219,17 +230,19 @@ void gui_frame_t::zeichnen(koord pos, koord gr)
 
 		for(int j=0; j<gr.y; j+=64) {
 			for(int i=0; i<gr.x; i+=64) {
-				display_color_img(img, pos.x+1 + i, pos.y+16 + j, 0, false, true);
+				// the background will not trigger a redraw!
+				display_color_img(img, pos.x+1 + i, pos.y+16 + j, 0, false, false);
 			}
 		}
 		POP_CLIP();
 
 		// Hajo: left, right
-		display_vline_wh(pos.x, pos.y+16, gr.y-16, MN_GREY4, true);
-		display_vline_wh(pos.x+gr.x-1, pos.y+16, gr.y-16, MN_GREY0, true);
+		display_vline_wh(pos.x, pos.y+16, gr.y-16, MN_GREY4, false);
+		display_vline_wh(pos.x+gr.x-1, pos.y+16, gr.y-16, MN_GREY0, false);
 
 		// Hajo: bottom line
-		display_fillbox_wh(pos.x, pos.y+gr.y-1, gr.x, 1, MN_GREY0, true);
+		display_fillbox_wh(pos.x, pos.y+gr.y-1, gr.x, 1, MN_GREY0, false);
 	}
+
 	container.zeichnen(pos);
 }

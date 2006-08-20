@@ -741,13 +741,14 @@ print("Reading simuconf.tab successful!\n");
     print("Reading city configuration ...\n");
     stadt_t::init();
 
+	// loading all paks
+	print("Reading object data from %s...\n", objfilename.chars());
+	if(!obj_reader_t::init(objfilename)) {
+		fprintf(stderr, "reading object data failed.\n");
+		exit(11);
+	}
 
 
-    print("Reading object data from %s...\n", objfilename.chars());
-    if(!obj_reader_t::init(objfilename)) {
-	fprintf(stderr, "reading object data failed.\n");
-	exit(11);
-    }
 
     if(gimme_arg(argc, argv, "-load", 0) != NULL) {
 	char buf[128];

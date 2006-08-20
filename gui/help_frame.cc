@@ -70,8 +70,6 @@ help_frame_t::help_frame_t(cstring_t filename) :
 	gui_frame_t("Help"),
 	scrolly(&flow)
 {
-    char buf[8192];
-
     cstring_t file_prefix("text/");
     cstring_t fullname = file_prefix + translator::get_language_name_iso(translator::get_language()) + "/" + filename;
 
@@ -91,16 +89,26 @@ help_frame_t::help_frame_t(cstring_t filename) :
 		file = fopen(file_prefix+"/en/"+filename,"rb");
 	}
 
+	bool success=false;
 	if(file) {
-		const long len = fread(buf, 1, 8191, file);
-		buf[len] = '\0';
-		fclose(file);
-	}
-	else {
-		tstrncpy(buf, "<title>Error</title>Help text not found", 64);
+		fseek(file,0,SEEK_END);
+		long len = ftell(file);
+		if(len>0) {
+			char *buf=(char *)malloc(len+1);
+			fseek(file,0,SEEK_SET);
+			fread(buf, 1, len, file);
+			buf[len] = '\0';
+			fclose(file);
+			success = true;
+			setze_text(buf);
+			free(buf);
+		}
 	}
 
-	setze_text(buf);
+	if(!success) {
+		setze_text("<title>Error</title>Help text not found");
+	}
+
 	setze_opaque(true);
 	set_resizemode(diagonal_resize);
 	add_komponente(&scrolly);

@@ -112,13 +112,13 @@ gui_chart_t::zeichnen(koord offset) const
 
       // draw zero number only, if it will not disturb any other printed values!
       if ((baseline > 18) && (baseline < groesse.y -18)) {
-		display_proportional_clip(offset.x - 4, offset.y+baseline-3, "0", ALIGN_RIGHT, COL_WHITE, false );
+		display_proportional_clip(offset.x - 4, offset.y+baseline-3, "0", ALIGN_RIGHT, COL_WHITE, true );
       }
 
       // display min/max money values
-      display_proportional_clip(offset.x - 4, offset.y-5, cmax, ALIGN_RIGHT, COL_WHITE, false );
+      display_proportional_clip(offset.x - 4, offset.y-5, cmax, ALIGN_RIGHT, COL_WHITE, true );
 
-      display_proportional_clip(offset.x - 4, offset.y+groesse.y-5, cmin, ALIGN_RIGHT, COL_WHITE, false );
+      display_proportional_clip(offset.x - 4, offset.y+groesse.y-5, cmin, ALIGN_RIGHT, COL_WHITE, true );
     }
 
     // draw chart frame
@@ -131,7 +131,7 @@ gui_chart_t::zeichnen(koord offset) const
 			sprintf(digit, "%i", abs(seed-i));
 			display_proportional_clip(offset.x+(groesse.x / (x_elements - 1))*i - (seed != i ? (int)(2*log((double)abs((seed-i)))) : 0),
 					     offset.y+groesse.y+6,
-					     digit, ALIGN_LEFT, 4, false );
+					     digit, ALIGN_LEFT, 4, true );
 		}
 	// year's vertical lines
 	display_vline_wh_clip(offset.x+(groesse.x / (x_elements - 1))*i, offset.y+1, groesse.y-2, 5, false);
@@ -152,7 +152,7 @@ gui_chart_t::zeichnen(koord offset) const
 			//tmp=c.values[year*c.size+c.offset];
 			c.type == 0 ? tmp = c.values[i*c.size+c.offset] : tmp = c.values[i*c.size+c.offset] / 100;
 			// display marker(box) for financial value
-			display_fillbox_wh_clip(offset.x+(groesse.x / (x_elements - 1))*i-2, offset.y+baseline- (int)(tmp/scale)-2, 5, 5, c.color, false);
+			display_fillbox_wh_clip(offset.x+(groesse.x / (x_elements - 1))*i-2, offset.y+baseline- (int)(tmp/scale)-2, 5, 5, c.color, true);
 
 				// display tooltip?
 				if(i==tooltip_n  &&  abs((int)(baseline-(int)(tmp/scale)-tooltipkoord.y))<10) {
@@ -172,7 +172,7 @@ gui_chart_t::zeichnen(koord offset) const
 				// only print value if not too narrow to min/max/zero
 				if ((c.show_value) && (baseline-tmp/scale-8 > 0) && (baseline-tmp/scale+8 < groesse.y) && (abs((int)(tmp/scale)) > 9)) {
 					number_to_string(cmin, tmp);
-					display_proportional_clip(offset.x - 4, offset.y+baseline-(int)(tmp/scale)-4, cmin, ALIGN_RIGHT, 4/*c.color*/, false );
+					display_proportional_clip(offset.x - 4, offset.y+baseline-(int)(tmp/scale)-4, cmin, ALIGN_RIGHT, 4/*c.color*/, true );
 				}
 			}
 			last_year=tmp;

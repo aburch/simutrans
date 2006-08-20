@@ -1,10 +1,28 @@
-
 Known bugs: (hard to fix)
-	Citycars are visible after loading even in a tunnel until they hop onto the next field
 	Citycars cannot go around a 180 degree road bend
 	Monorails have no appropriate crossing, nor tunnel
 	valgrind complains about errors in SDL and X?
 
+
+
+
+Release of 89.02.4
+
+12-Aug-2006: (prissi)
+	FIX: images of bridges after built fixed
+	CHANGE: company color for way and ground (but slower loading, since all images are scanned for company color) This was a heavy rework of the dirty system ...
+	FIX: result of heavy renovation of tile dirty system: much less area copied during each redraw, less garbage pixels left
+	FIX: citylists work again
+	FIX: dummy roadsigns everywhere after reloading games (and info for debug purposes "\nwith sign/signal\n") => stuck trains
+	FIX: coverage area signs now always refreshed after building/deletion
+	FIX: Factorylistbuttontext translated twice Input -> Eingang -> Elevated station ...
+	FIX: more error checking during parsing of help files, unlimited length (before maximum 8192 bytes)
+	FIX: compile error on MAC spooted by Timothy
+	FIX: convoi loosing its name after many actions in the depot ...
+	FIX: choosing of bridges works again
+	FIX: signal and roadsign position on slopes
+	CHANGE: you can pak object with any size. The tile size will be taken now from "ground.Outside.pak" (Go for big ships, Timothy)
+	FIX: overhead maintenance take from pak, not from simuconf.tab any more
 
 
 Release of 89.02.3

@@ -431,49 +431,71 @@ bool vehikel_basis_t::is_about_to_hop() const
 
 void vehikel_basis_t::fahre()
 {
-    const int neu_xoff = gib_xoff() + gib_dx();
-    const int neu_yoff = gib_yoff() + gib_dy();
+	const int neu_xoff = gib_xoff() + gib_dx();
+	const int neu_yoff = gib_yoff() + gib_dy();
 
-    const int li = -16;
-    const int re = 16;
-    const int ob = -8;
-    const int un = 8;
+	const int li = -16;
+	const int re = 16;
+	const int ob = -8;
+	const int un = 8;
 
-    // kann vehikel das naechste feld betreten ?
-    if (is_about_to_hop()) {
+	// want to go to next field and want to step
+	if(is_about_to_hop()) {
 
-	if( !hop_check() ) {
+		if( !hop_check() ) {
+			// red signal etc ...
+			return;
+		}
 
-//	    printf("vehikel %p hop_check failed at (%i,%i,%i)\n", this,gib_pos().x,gib_pos().y,gib_pos().z);fflush(NULL);
-	    return;
-	}
+		if(!get_flag(ding_t::dirty)) {
+			// mark the region after the image as dirty
+			// better not try to twist your brain to follow the retransformation ...
+			const koord diff=gib_pos().gib_2d()-welt->gib_ij_off();
+			const sint16 rasterweite=get_tile_raster_width();
+			const sint16 x=(diff.x-diff.y)*(rasterweite/2) + welt->gib_x_off() + (display_get_width()/2) + tile_raster_scale_x(gib_xoff(), rasterweite);
+			const sint16 y=16+((display_get_width()/rasterweite)&1)*(rasterweite/4)+(diff.x+diff.y)*(rasterweite/4)+welt->gib_y_off()+tile_raster_scale_x(gib_yoff()+hoff, rasterweite)-tile_raster_scale_y(gib_pos().z, rasterweite);
+			display_mark_img_dirty( gib_bild(), x, y );
+		}
 
-	hop();
-	int yoff = neu_yoff;
-	int xoff = neu_xoff;
+		hop();
 
-	if (yoff < 0) {
-	    yoff = un;
+		int yoff = neu_yoff;
+		int xoff = neu_xoff;
+
+		if (yoff < 0) {
+			yoff = un;
+		}
+		else {
+			yoff = ob;
+		}
+
+		if (xoff < 0) {
+			xoff = re;
+		}
+		else {
+			xoff = li;
+		}
+
+		setze_xoff( xoff );
+		setze_yoff( yoff );
 	}
 	else {
-	    yoff = ob;
-	}
+		// driving on the same tile
 
-	if (xoff < 0) {
-	    xoff = re;
-	}
-	else {
-	    xoff = li;
-	}
+		if(!get_flag(ding_t::dirty)) {
+			// mark the region after the image as dirty
+			// better not try to twist your brain to follow the retransformation ...
+			const koord diff=gib_pos().gib_2d()-welt->gib_ij_off();
+			const sint16 rasterweite=get_tile_raster_width();
+			const sint16 x=(diff.x-diff.y)*(rasterweite/2) + welt->gib_x_off() + (display_get_width()/2) + tile_raster_scale_x(gib_xoff(), rasterweite);
+			const sint16 y=16+((display_get_width()/rasterweite)&1)*(rasterweite/4)+(diff.x+diff.y)*(rasterweite/4)+welt->gib_y_off()+tile_raster_scale_x(gib_yoff()+hoff, rasterweite)-tile_raster_scale_y(gib_pos().z, rasterweite);
+			display_mark_img_dirty( gib_bild(), x, y );
+		}
 
-	setze_xoff( xoff );
-	setze_yoff( yoff );
-    }
-    else {
-	setze_xoff( neu_xoff );
-	setze_yoff( neu_yoff );
-  }
-  set_flag(ding_t::dirty);
+		setze_xoff( neu_xoff );
+		setze_yoff( neu_yoff );
+	}
+	set_flag(ding_t::dirty);
 }
 
 
@@ -680,6 +702,16 @@ vehikel_t::play_sound() const
  */
 void vehikel_t::neue_fahrt(uint16 start_route_index )
 {
+	if(welt->ist_in_kartengrenzen(gib_pos().gib_2d())) {
+		// mark the region after the image as dirty
+		// better not try to twist your brain to follow the retransformation ...
+		const koord diff=gib_pos().gib_2d()-welt->gib_ij_off();
+		const sint16 rasterweite=get_tile_raster_width();
+		const sint16 x=(diff.x-diff.y)*(rasterweite/2) + welt->gib_x_off() + (display_get_width()/2) + tile_raster_scale_x(gib_xoff(), rasterweite);
+		const sint16 y=16+((display_get_width()/rasterweite)&1)*(rasterweite/4)+(diff.x+diff.y)*(rasterweite/4)+welt->gib_y_off()+tile_raster_scale_x(gib_yoff()+hoff, rasterweite)-tile_raster_scale_y(gib_pos().z, rasterweite);
+		display_mark_img_dirty( gib_bild(), x, y );
+	}
+
 	route_index = start_route_index+1;
 	pos_next = cnv->get_route()->position_bei(start_route_index+1);
 }
@@ -1891,16 +1923,22 @@ waggon_t::ist_ziel(const grund_t *gr,const grund_t *prev_gr) const
 		if(gr->gib_halt()==target_halt) {
 			// now we must check the precessor ...
 			if(prev_gr!=NULL) {
-				koord dir=gr->gib_pos().gib_2d()-prev_gr->gib_pos().gib_2d();
+				const koord dir=gr->gib_pos().gib_2d()-prev_gr->gib_pos().gib_2d();
+				grund_t *to;
+				if(!gr->get_neighbour(to,gib_wegtyp(),dir)  ||  !to->gib_halt().is_bound()) {
+					return true;
+				}
+/*
 				ribi_t::ribi r = sch1->gib_ribi_unmasked();
 				if(ribi_t::ist_einfach(r)) {
 					// station ends here: terminal tile
 					return true;
 				}
-				if(!welt->ist_in_kartengrenzen(gr->gib_pos().gib_2d()+dir)  ||  !welt->lookup(gr->gib_pos().gib_2d()+dir)->gib_kartenboden()->gib_halt().is_bound()) {
+				if(!welt->ist_in_kartengrenzen(haltpos+dir)  ||  !welt->lookup(gr->gib_pos().gib_2d()+dir)->gib_kartenboden()->gib_halt().is_bound()) {
 					// end of through station ...
 					return true;
 				}
+*/
 			}
 		}
 	}
@@ -1939,6 +1977,11 @@ waggon_t::ist_weg_frei(int & restart_speed)
 	}
 
 	uint16 next_block=cnv->get_next_stop_index()-1;
+/*
+	if(welt->lookup(gib_pos())->gib_weg(gib_wegtyp())->has_sign()) {
+		next_block = route_index;
+	}
+*/
 	if(next_block<=route_index+3) {
 		route_t *rt=cnv->get_route();
 		koord3d block_pos=rt->position_bei(next_block);
@@ -1982,18 +2025,18 @@ waggon_t::ist_weg_frei(int & restart_speed)
 				route_t target_rt;
 				const int richtung = ribi_typ(gib_pos().gib_2d(),pos_next.gib_2d());	// to avoid confusion at diagonals
 #ifdef MAX_CHOOSE_BLOCK_TILES
-				if(!target_rt.find_route( welt, rt->position_bei(next_block+1), this, speed_to_kmh(cnv->gib_min_top_speed()), richtung, MAX_CHOOSE_BLOCK_TILES )) {
+				if(!target_rt.find_route( welt, rt->position_bei(next_block), this, speed_to_kmh(cnv->gib_min_top_speed()), richtung, MAX_CHOOSE_BLOCK_TILES )) {
 #else
-				if(!target_rt.find_route( welt, rt->position_bei(next_block+1), this, speed_to_kmh(cnv->gib_min_top_speed()), richtung, welt->gib_groesse_x()+welt->gib_groesse_y() )) {
+				if(!target_rt.find_route( welt, rt->position_bei(next_block), this, speed_to_kmh(cnv->gib_min_top_speed()), richtung, welt->gib_groesse_x()+welt->gib_groesse_y() )) {
 #endif
 					// nothing empty or not route with less than MAX_CHOOSE_BLOCK_TILES tiles
 					target_halt = halthandle_t();
 				}
 				else {
 					// try to alloc the whole route
-					rt->remove_koord_from(next_block+1);
+					rt->remove_koord_from(next_block);
 					rt->append( &target_rt );
-					next_stop = block_reserver(rt,next_block+1,1000,true);
+					next_stop = block_reserver(rt,next_block,1000,true);
 				}
 				// reserved route to target (or not)
 			}
@@ -2006,11 +2049,26 @@ waggon_t::ist_weg_frei(int & restart_speed)
 			else {
 				// cannot be passed
 				sig->setze_zustand(roadsign_t::rot);
-				if(route_index==cnv->get_next_stop_index()) {
+				if(route_index==next_block+1) {
 //DBG_MESSAGE("cannot","continue");
 					restart_speed = 0;
 					return false;
 				}
+			}
+		}
+		else {
+			// not a signal
+			if(next_block+1<cnv->get_route()->gib_max_n()  &&  route_index>=next_block+1) {
+					restart_speed = 0;
+					return false;
+/*
+DBG_MESSAGE("waggon_t::ist_weg_frei()","reclaiming route at %i (%i last signal) of max %i",route_index,next_block,cnv->get_route()->gib_max_n());
+				uint16 next_stop = block_reserver(cnv->get_route(),route_index,0,true);
+				if(next_stop==0) {
+				}
+				restart_speed = -1;
+				cnv->set_next_stop_index(next_stop);
+*/
 			}
 		}
 	}
@@ -2062,7 +2120,7 @@ waggon_t::block_reserver(const route_t *route, uint16 start_index, int count, bo
 		}
 #endif
 		if(reserve) {
-			if(i!=start_index  &&  sch1->has_sign()) {
+			if(sch1->has_sign()) {
 				count --;
 				next_signal_index = i;
 			}
@@ -2084,7 +2142,7 @@ waggon_t::block_reserver(const route_t *route, uint16 start_index, int count, bo
 //DBG_MESSAGE("block_reserver()","signals at %i, sucess=%d",next_signal_index,success);
 
 	// free, in case of unreserve or no sucess in reservation
-	if( !success) {
+	if(!success) {
 		// free reservation
 		for ( int j=start_index; j<i; j++) {
 			if(i!=skip_index) {
@@ -2099,7 +2157,7 @@ waggon_t::block_reserver(const route_t *route, uint16 start_index, int count, bo
 	if(next_signal_index==65535) {
 		// find out if stop or waypoint, waypoint: do not brake at waypoints
 		grund_t *gr=welt->lookup(route->position_bei(route->gib_max_n()));
-		return (gr  &&  gr->gib_halt().is_bound()) ? i-1 : 65535;
+		return (gr  &&  gr->gib_halt().is_bound()) ? route->gib_max_n() : 65535;
 	}
 	return next_signal_index+1;
 }
