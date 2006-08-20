@@ -118,7 +118,7 @@ ifeq ($(OPT),debug)
 CFLAGS= -Wall -O -g -fschedule-insns2 -fgcse -fstrict-aliasing -fexpensive-optimizations -march=i586 -pipe -minline-all-stringops
 endif
 ifeq ($(OPT),debug_optimize)
-CFLAGS= -Wall -O -g -fschedule-insns2 -fgcse -fstrict-aliasing -fexpensive-optimizations -march=i586 -pipe -minline-all-stringops
+CFLAGS= -DDEBUG -Wall -O -g -fschedule-insns2 -fgcse -fstrict-aliasing -fexpensive-optimizations -march=i586 -pipe -minline-all-stringops
 endif
 endif
 
@@ -180,6 +180,7 @@ SUB_OBJS=\
  boden/boden.o  boden/fundament.o  boden/grund.o  boden/wasser.o\
  boden/brueckenboden.o  boden/tunnelboden.o boden/monorailboden.o \
  boden/wege/kanal.o \
+ boden/wege/runway.o \
  boden/wege/strasse.o \
  boden/wege/schiene.o boden/wege/weg.o \
  gui/components/gui_textinput.o gui/components/gui_resizer.o \

@@ -122,7 +122,7 @@ void building_writer_t::write_obj(FILE *fp, obj_node_t &parent, tabfileobj_t &ob
     haus_besch_t besch;
 
     // Hajo: take care, hardocded size of node on disc here!
-    obj_node_t	node(this, 21, &parent, false);
+    obj_node_t	node(this, 22, &parent, false);
 
     write_head(fp, node, obj);
 
@@ -151,6 +151,7 @@ void building_writer_t::write_obj(FILE *fp, obj_node_t &parent, tabfileobj_t &ob
     besch.utyp = hausbauer_t::unbekannt;
     besch.bauzeit = 0;
     besch.level = 0;
+    besch.enables = 0;
     besch.flags = haus_besch_t::flag_t(
 	(obj.get_int("noinfo", 0) > 0 ? haus_besch_t::FLAG_KEINE_INFO : 0) |
 	(obj.get_int("noconstruction", 0) > 0 ? haus_besch_t::FLAG_KEINE_GRUBE : 0));
@@ -181,6 +182,24 @@ void building_writer_t::write_obj(FILE *fp, obj_node_t &parent, tabfileobj_t &ob
 	besch.level = obj.get_int("passengers", 0);
 	besch.bauzeit = obj.get_int("build_time", 0);
 	besch.utyp = hausbauer_t::firmensitz;
+    } else if(!STRICMP(type_name, "station")) {
+	besch.utyp = hausbauer_t::bahnhof;
+    } else if(!STRICMP(type_name, "busstop")) {
+	besch.utyp = hausbauer_t::bushalt;
+    } else if(!STRICMP(type_name, "carstop")) {
+	besch.utyp = hausbauer_t::ladebucht;
+    } else if(!STRICMP(type_name, "habour")) {
+	besch.utyp = hausbauer_t::hafen;
+    } else if(!STRICMP(type_name, "wharf")) {
+	besch.utyp = hausbauer_t::binnenhafen;
+    } else if(!STRICMP(type_name, "airport")) {
+	besch.utyp = hausbauer_t::airport;
+    } else if(!STRICMP(type_name, "hall")) {
+	besch.utyp = hausbauer_t::wartehalle;
+    } else if(!STRICMP(type_name, "post")) {
+	besch.utyp = hausbauer_t::post;
+    } else if(!STRICMP(type_name, "shed")) {
+	besch.utyp = hausbauer_t::lagerhalle;
     } else if(!STRICMP(type_name, "fac")) {
 	besch.utyp = hausbauer_t::fabrik;
     } else if(!STRICMP(type_name, "any") || *type_name == '\0') {
@@ -192,6 +211,24 @@ void building_writer_t::write_obj(FILE *fp, obj_node_t &parent, tabfileobj_t &ob
 	reason.printf("invalid type %s for building %s\n", type_name, obj.get("name"));
 	throw new obj_pak_exception_t("building_writer_t", reason);
     }
+
+	// if it is a station (building), or a water factory
+	if(besch.utyp>=hausbauer_t::bahnhof  &&  besch.utyp<=hausbauer_t::airport) {
+		// is is an station extension building?
+		if(obj.get_int("extension_building", 0) > 0) {
+			besch.utyp = (enum hausbauer_t::utyp)(8+(int)besch.utyp);
+		}
+	}
+
+	if(obj.get_int("enables_pax", 0) > 0 ) {
+		besch.enables |= 1;
+	}
+	if(obj.get_int("enables_post", 0) > 0 ) {
+		besch.enables |= 2;
+	}
+	if(besch.utyp==hausbauer_t::fabrik  ||  obj.get_int("enables_ware", 0) > 0 ) {
+		besch.enables |= 4;
+	}
 
     // Hajo: read chance - default is 100% chance to be built
     besch.chance = obj.get_int("chance", 100) ;
@@ -246,7 +283,7 @@ void building_writer_t::write_obj(FILE *fp, obj_node_t &parent, tabfileobj_t &ob
     uint8  v8;
 
     // Hajo: write version data
-    v16 = 0x8002;
+    v16 = 0x8003;
     node.write_data_at(fp, &v16, 0, sizeof(uint16));
 
     // Hajo: write besch data
@@ -272,17 +309,20 @@ void building_writer_t::write_obj(FILE *fp, obj_node_t &parent, tabfileobj_t &ob
     v8 = (uint8)besch.layouts;
     node.write_data_at(fp, &v8, 14, sizeof(uint8));
 
-    v8 = (uint8)besch.flags;
+    v8 = (uint8)besch.enables;
     node.write_data_at(fp, &v8, 15, sizeof(uint8));
 
-    v8 = (uint8)besch.chance;
+    v8 = (uint8)besch.flags;
     node.write_data_at(fp, &v8, 16, sizeof(uint8));
 
+    v8 = (uint8)besch.chance;
+    node.write_data_at(fp, &v8, 17, sizeof(uint8));
+
     v16 = besch.intro_date;
-    node.write_data_at(fp, &v16, 17, sizeof(uint16));
+    node.write_data_at(fp, &v16, 18, sizeof(uint16));
 
     v16 = besch.obsolete_date;
-    node.write_data_at(fp, &v16, 19, sizeof(uint16));
+    node.write_data_at(fp, &v16, 20, sizeof(uint16));
 
     // probably add some icons, if defined
 	slist_tpl<cstring_t> cursorkeys;

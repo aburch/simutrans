@@ -70,7 +70,6 @@ public:
 
     static const skin_besch_t *hauptmenu;
     static const skin_besch_t *schienen_werkzeug;
-    static const skin_besch_t *strassen_werkzeug;
     static const skin_besch_t *schiffs_werkzeug;
     static const skin_besch_t *hang_werkzeug;
     static const skin_besch_t *special_werkzeug;
@@ -88,7 +87,8 @@ public:
     // for the stops in the list
     static const skin_besch_t *zughaltsymbol;
     static const skin_besch_t *autohaltsymbol;
-    static const skin_besch_t *shiffshaltsymbol;
+    static const skin_besch_t *schiffshaltsymbol;
+    static const skin_besch_t *airhaltsymbol;
     static const skin_besch_t *bushaltsymbol;
 
     static const skin_besch_t *fragezeiger;
@@ -99,9 +99,6 @@ public:
     static const skin_besch_t *killzeiger;
     static const skin_besch_t *slopezeiger;
     static const skin_besch_t *fahrplanzeiger;
-    static const skin_besch_t *strassentunnelzeiger;
-    static const skin_besch_t *schienentunnelzeiger;
-    static const skin_besch_t *frachthofzeiger;
     static const skin_besch_t *werftNSzeiger;
     static const skin_besch_t *werftOWzeiger;
     static const skin_besch_t *stadtzeiger;
@@ -116,7 +113,15 @@ public:
     static const skin_besch_t *senke;
 
     static const skin_besch_t *oberleitung;
+
+	// for the attraction/factory
     static const skin_besch_t *electricity;
+    static const skin_besch_t *intown;
+
+	// haltstatus
+    static const skin_besch_t *passagiere;
+    static const skin_besch_t *post;
+    static const skin_besch_t *waren;
 
     /**
      * Window skin images

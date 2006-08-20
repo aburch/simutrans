@@ -101,8 +101,8 @@ obj_besch_t * roadsign_reader_t::read_node(FILE *fp, obj_node_info_t &node)
     // Versioned node, version 1
 
     besch->min_speed = kmh_to_speed(decode_uint16(p));
-    besch->single_way = decode_uint8(p)==1;
-DBG_DEBUG("roadsign_reader_t::read_node()","min_speed=%i",besch->min_speed);
+    besch->flags = decode_uint8(p);
+DBG_DEBUG("roadsign_reader_t::read_node()","min_speed=%i, flags=%x",besch->min_speed,besch->flags);
   }
   else {
   	dbg->fatal("roadsign_reader_t::read_node()","version 0 not supported. File corrupt?");

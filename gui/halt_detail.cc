@@ -69,6 +69,7 @@ void halt_detail_t::halt_detail_info(cbuffer_t & buf)
     return;
   }
 
+#if 0
 	buf.append(translator::translate("Akzeptiert:"));
 	if(halt->get_pax_enabled()) {
 		buf.append(" ");
@@ -83,6 +84,7 @@ void halt_detail_t::halt_detail_info(cbuffer_t & buf)
 		buf.append(translator::translate("Fracht"));
 	}
 	buf.append("\n\n");
+#endif
 
     const slist_tpl<fabrik_t *> & fab_list = halt->gib_fab_list();
     slist_tpl<const ware_besch_t *> nimmt_an;
@@ -149,6 +151,24 @@ void halt_detail_t::halt_detail_info(cbuffer_t & buf)
     }
 
 
+    // add lines that serve this stop
+    buf.append("\n");
+    buf.append(translator::translate("Lines serving this stop"));
+    buf.append(":\n");
+
+    if (halt->registered_lines.count() > 0) {
+      for (unsigned int i = 0; i<halt->registered_lines.count(); i++) {
+	buf.append(" ");
+	buf.append(halt->registered_lines.at(i)->get_name());
+	buf.append("\n");
+      }
+    } else {
+      buf.append(" ");
+      buf.append(translator::translate("keine"));
+      buf.append("\n");
+    }
+
+
     buf.append("\n");
     buf.append(translator::translate("Direkt erreichbare Haltestellen"));
     buf.append(":\n");
@@ -198,23 +218,6 @@ void halt_detail_t::halt_detail_info(cbuffer_t & buf)
 	buf.append("\n");
     }
 
-
-    // add lines that serve this stop
-    buf.append("\n");
-    buf.append(translator::translate("Lines serving this stop"));
-    buf.append(":\n");
-
-    if (halt->registered_lines.count() > 0) {
-      for (unsigned int i = 0; i<halt->registered_lines.count(); i++) {
-	buf.append(" ");
-	buf.append(halt->registered_lines.at(i)->get_name());
-	buf.append("\n");
-      }
-    } else {
-      buf.append(" ");
-      buf.append(translator::translate("keine"));
-      buf.append("\n");
-    }
 
     buf.append("\n\n");
 }

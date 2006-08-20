@@ -49,6 +49,7 @@ vehikelbauer_t::baue(karte_t *welt, koord3d k,
       v = new schiff_t(welt, k, vb, sp, cnv);
       break;
   case weg_t::luft:
+      v = new aircraft_t(welt, k, vb, sp, cnv);
       break;
    case weg_t::invalid:
    case weg_t::powerline:

@@ -581,6 +581,7 @@ DBG_MESSAGE("wkz_remover()", "removing way");
 	}
 	cost_sum += gr->weg_entfernen(weg_t::strasse, true);
 	cost_sum += gr->weg_entfernen(weg_t::wasser, true);
+	cost_sum += gr->weg_entfernen(weg_t::luft, true);
 
 	if(cost_sum > 0) {
 		sp->buche(cost_sum * CST_STRASSE, pos, COST_CONSTRUCTION);
@@ -764,9 +765,10 @@ DBG_MESSAGE("wkz_wegebau()", "try straight route");
 /* build all kind of station buildings
  * @author V. Meyer
  */
-int wkz_station_building_aux(spieler_t *sp, karte_t *welt, koord pos, const haus_besch_t * besch, bool is_post)
+int wkz_station_building_aux(spieler_t *sp, karte_t *welt, koord pos, const haus_besch_t * besch)
 {
-DBG_MESSAGE("wkz_post()", "building mail office/station building on square %d,%d", pos.x, pos.y);
+DBG_MESSAGE("wkz_station_building_aux()", "building mail office/station building on square %d,%d", pos.x, pos.y);
+	const bool is_post=(besch->get_enabled()&2)!=0;
 
 	if(welt->ist_in_kartengrenzen(pos)) {
 		koord size = besch->gib_groesse();
@@ -813,16 +815,9 @@ DBG_MESSAGE("wkz_post()", "building mail office/station building on square %d,%d
 }
 
 
-int wkz_post(spieler_t *sp, karte_t *welt, koord pos, value_t value)
-{
-	wkz_station_building_aux(sp, welt, pos, (const haus_besch_t *)value.p, true);
-	return true;
-}
-
-
 int wkz_station_building(spieler_t *sp, karte_t *welt, koord pos, value_t value)
 {
-	wkz_station_building_aux(sp, welt, pos, (const haus_besch_t *)value.p, false);
+	wkz_station_building_aux(sp, welt, pos, (const haus_besch_t *)value.p);
 	return true;
 }
 
@@ -881,9 +876,6 @@ wkz_bahnhof_aux(spieler_t *sp,
 		else {
 DBG_MESSAGE("wkz_bahnhof_aux()", "new segment for station");
 		}
-
-		halt->set_pax_enabled( true );
-		halt->set_ware_enabled( true );
 
 		hausbauer_t::neues_gebaeude(welt, halt->gib_besitzer(), pos, nordsued ? 0 : 1, besch, &halt);
 		halt->recalc_station_type();
@@ -1003,7 +995,6 @@ DBG_MESSAGE("wkz_bushalt_aux()", "founding new station");
 DBG_MESSAGE("wkz_bushalt_aux()", "new segment for station");
 		}
 
-		halt->set_pax_enabled( true );
 		bd->setze_besitzer(halt->gib_besitzer());
 		hausbauer_t::neues_gebaeude( welt, halt->gib_besitzer(), bd->gib_pos(), (ribi & ribi_t::nordsued)?0 :1, besch, &halt);
 		halt->recalc_station_type();
@@ -1087,6 +1078,176 @@ DBG_MESSAGE("wkz_bushalt()", "building bus stop on square %d,%d", pos.x, pos.y);
 }
 
 
+#if 0
+static int
+wkz_airport_aux(spieler_t *sp, karte_t *welt, koord pos, ribi_t::ribi ribi, const haus_besch_t * besch)
+{
+	// handles construction of all(!) airport buildings
+	// name must contain building subtype!
+	// possible values are:
+	// Tower, Stop, Terminal, Post, Hangar
+
+	grund_t *bd = welt->lookup(pos)->gib_kartenboden();
+
+	if((bd->gib_besitzer() == sp || bd->gib_besitzer() == 0) &&
+	 bd->gib_grund_hang() == 0 &&
+	 bd->gib_halt() == 0) {
+		bd->setze_besitzer(sp);
+		halthandle_t halt = suche_nahe_haltestelle(sp,welt,koord3d(pos.x, pos.y, 0));
+
+		int layout = 0;
+		switch(ribi) {
+			//case ribi_t::sued:layout = 0;  break;
+			case ribi_t::ost:   layout = 1;    break;
+			case ribi_t::nord:  layout = 2;    break;
+			case ribi_t::west:  layout = 3;    break;
+		}
+
+		// Stops and Hangars can only be build on runways. If the ribi is set to !=ribi_t::keine we build on a runway
+		if (ribi != ribi_t::keine) {
+			if (strstr(besch->gib_name(), "Stop")) {
+				// build parking position
+				if(!halt.is_bound()) {
+						halt = sp->halt_add(pos);
+						stadt_t *stadt = welt->suche_naechste_stadt(pos);
+						const int count = sp->get_haltcount();
+						  const char *name = stadt->haltestellenname(pos, "Airport", count);
+						bd->setze_text( name );
+					}
+				hausbauer_t::neues_gebaeude( welt, halt->gib_besitzer(), bd->gib_pos(), layout, besch, &halt);
+				sp->buche(CST_TERMINAL, pos, COST_CONSTRUCTION);
+				return true;
+			} else if (strstr(besch->gib_name(), "Hangar") && ribi_t::ist_einfach(ribi)) {
+				// build hangar
+				gebaeude_t * gb = new hangar_t(welt, bd->gib_pos(), sp, besch->gib_tile(layout, 0, 0));
+		    bd->obj_pri_add(gb, PRI_DEPOT);
+	      gb->setze_sync( true );
+	      sp->buche(CST_TERMINAL, pos, COST_CONSTRUCTION);
+	      return true;
+			}
+		} else {
+			// put here everything that must not be built on runways. For example: Tower, Terminal, Freight/Mail
+			if (strstr(besch->gib_name(), "Tower")) {
+				// build Tower
+				if (halt.is_bound()) {
+					hausbauer_t::neues_gebaeude( welt, halt->gib_besitzer(), bd->gib_pos(), layout, besch, &halt);
+					sp->buche(CST_TERMINAL, pos, COST_CONSTRUCTION);
+	      			halt->recalc_station_type();
+					return true;
+				}
+			} else if (strstr(besch->gib_name(), "Terminal")) {
+				// get layout from neighbouring parking position - terminal will face closest parking position!
+				ribi_t::ribi bauribi = ribi_t::keine;
+				for (int i=0; i<4; i++) {
+					koord dir = koord::nsow[i];
+					grund_t *baugrund = welt->lookup(pos+dir)->gib_kartenboden();
+					if (baugrund->gib_halt().is_bound() && (baugrund->gib_weg_ribi_unmasked(weg_t::luft) != ribi_t::keine)) {
+						bauribi = ribi_typ(dir);
+					}
+				}
+				switch (bauribi) {
+					case ribi_t::keine:
+					case ribi_t::sued: layout = 0; break;
+					case ribi_t::ost:   layout = 1;    break;
+					case ribi_t::nord:  layout = 2;    break;
+					case ribi_t::west:  layout = 3;    break;
+				}
+				// build Terminal
+				if (halt.is_bound()) {
+					hausbauer_t::neues_gebaeude( welt, halt->gib_besitzer(), bd->gib_pos(), layout, besch, &halt);
+					sp->buche(CST_TERMINAL, pos, COST_CONSTRUCTION);
+			      	halt->recalc_station_type();
+					return true;
+				}
+			} else if (strstr(besch->gib_name(), "Post")) {
+				// build Post/Freight
+				if (halt.is_bound()) {
+					hausbauer_t::neues_gebaeude( welt, halt->gib_besitzer(), bd->gib_pos(), layout, besch, &halt);
+			      	halt->recalc_station_type();
+					sp->buche(CST_TERMINAL, pos, COST_CONSTRUCTION);
+					return true;
+				}
+			}
+		}
+	}
+	return false;
+}
+#else
+// prissi: only terminals here for the moment
+static int
+wkz_airport_aux(spieler_t *sp, karte_t *welt, koord pos, ribi_t::ribi ribi, const haus_besch_t * besch)
+{
+	grund_t *bd = welt->lookup(pos)->gib_kartenboden();
+
+	if((bd->gib_besitzer() == sp || bd->gib_besitzer() == 0) && bd->gib_grund_hang() == 0) {
+		bd->setze_besitzer(sp);
+		halthandle_t halt = suche_nahe_haltestelle(sp,welt,koord3d(pos.x, pos.y, 0));
+
+		int layout = 0;
+		switch(ribi) {
+			//case ribi_t::sued:layout = 0;  break;
+			case ribi_t::ost:   layout = 1;    break;
+			case ribi_t::nord:  layout = 2;    break;
+			case ribi_t::west:  layout = 3;    break;
+		}
+
+			if (besch->gib_utyp()==hausbauer_t::airport) {
+				// build parking position
+				if(!halt.is_bound()) {
+						halt = sp->halt_add(pos);
+						stadt_t *stadt = welt->suche_naechste_stadt(pos);
+						const int count = sp->get_haltcount();
+						  const char *name = stadt->haltestellenname(pos, "Airport", count);
+						bd->setze_text( name );
+					}
+				hausbauer_t::neues_gebaeude( welt, halt->gib_besitzer(), bd->gib_pos(), layout, besch, &halt);
+      			halt->recalc_station_type();
+				sp->buche(CST_TERMINAL, pos, COST_CONSTRUCTION);
+				return true;
+			} else {
+				// build hangar
+				gebaeude_t * gb = new airdepot_t(welt, bd->gib_pos(), sp, besch->gib_tile(layout, 0, 0));
+				bd->obj_pri_add(gb, PRI_DEPOT);
+				gb->setze_sync( true );
+				sp->buche(CST_TERMINAL, pos, COST_CONSTRUCTION);
+				return true;
+			}
+	}
+	return false;
+}
+#endif
+
+
+
+int
+wkz_airport(spieler_t *sp, karte_t *welt, koord pos, value_t value)
+{
+	dbg->message("wkz_airport()", "building on square %d,%d", pos.x, pos.y);
+
+	if(welt->lookup(pos)) {
+		grund_t *bd = welt->lookup(pos)->gib_kartenboden();
+
+		if(bd->suche_obj(ding_t::airdepot)) {
+	    create_win(-1, -1, MESG_WAIT, new nachrichtenfenster_t(welt, "Es ist ein\nObjekt im Weg!\n"), w_autodelete);
+	    return false;
+		}
+
+		ribi_t::ribi ribi;
+		ribi = bd->gib_weg_ribi_unmasked(weg_t::luft);
+
+	  if(ribi_t::ist_einfach(ribi)) {
+	      if (wkz_airport_aux(sp, welt, pos, ribi, (const haus_besch_t *) value.p)) {
+	      	return true;
+	      }
+		}
+		create_win(-1, -1, MESG_WAIT, new nachrichtenfenster_t(welt, "Hier kann dieses\nFlughafengebaeude nicht\ngebaut werden!\n"), w_autodelete);
+
+	}
+  return false;
+}
+
+
+
 
 /* build a river dock either small or large */
 int
@@ -1121,8 +1282,6 @@ DBG_MESSAGE("wkz_kaibau()","search for stop");
 DBG_MESSAGE("wkz_kaibau()","spawn new halt");
 			halt = sp->halt_add(pos);
 		}
-		halt->set_pax_enabled( true );
-		halt->set_ware_enabled( true );
 
 DBG_MESSAGE("wkz_kaibau()","remove ground below slope");
 		// remove old ground below slope
@@ -1218,8 +1377,6 @@ DBG_MESSAGE("wkz_dockbau()","search for stop");
 DBG_MESSAGE("wkz_dockbau()","spawn new halt");
 			halt = sp->halt_add(pos);
 		}
-		halt->set_pax_enabled( true );
-		halt->set_ware_enabled( true );
 
 DBG_MESSAGE("wkz_dockbau()","remove ground below slope");
 		// remove old ground below slope
@@ -1235,7 +1392,7 @@ DBG_MESSAGE("wkz_dockbau()","clean up");
 			// Kosten
 			sp->buche(CST_DOCK, p, COST_CONSTRUCTION);
 			// dock-land anbindung gehört auch zur haltestelle
-			halt->add_grund(gr);
+//			halt->add_grund(gr);
 		}
 DBG_MESSAGE("wkz_dockbau()","recalc station type");
 		halt->recalc_station_type();
@@ -1315,7 +1472,7 @@ DBG_MESSAGE("wkz_senke()","no factory near (%i,%i)",pos.x, pos.y);
 
 
 static int
-wkz_frachthof_aux(spieler_t *sp, karte_t *welt, koord pos, ribi_t::ribi dir)
+wkz_frachthof_aux(spieler_t *sp, karte_t *welt, koord pos, ribi_t::ribi dir, const haus_besch_t * besch)
 {
 DBG_MESSAGE("wkz_frachthof_aux()",     "called on %d,%d", pos.x, pos.y);
 	grund_t *bd = welt->lookup(pos)->gib_kartenboden();
@@ -1333,9 +1490,6 @@ DBG_MESSAGE("wkz_frachthof_aux()","Founding new station %s",halt->gib_name());
 		else {
 DBG_MESSAGE("wkz_frachthof_aux()","Adding building to station %s", halt->gib_name());
 		}
-		halt->set_ware_enabled( true );
-
-		bd->setze_besitzer(sp);
 
 		int layout = 0;
 		switch(dir) {
@@ -1344,8 +1498,7 @@ DBG_MESSAGE("wkz_frachthof_aux()","Adding building to station %s", halt->gib_nam
 			case ribi_t::nord:  layout = 2;    break;
 			case ribi_t::west:  layout = 3;    break;
 		}
-		hausbauer_t::neues_gebaeude( welt, halt->gib_besitzer(), bd->gib_pos(), layout, hausbauer_t::frachthof_besch, &halt);
-
+		hausbauer_t::neues_gebaeude( welt, halt->gib_besitzer(), bd->gib_pos(), layout, besch, &halt);
 		halt->recalc_station_type();
 
 		if(neu) {
@@ -1371,7 +1524,7 @@ DBG_MESSAGE("wkz_frachthof_aux()","Adding building to station %s", halt->gib_nam
 }
 
 int
-wkz_frachthof(spieler_t *sp, karte_t *welt, koord pos)
+wkz_frachthof(spieler_t *sp, karte_t *welt, koord pos, value_t value)
 {
     DBG_MESSAGE("wkz_frachthof()","called on %d,%d", pos.x, pos.y);
 
@@ -1391,7 +1544,7 @@ wkz_frachthof(spieler_t *sp, karte_t *welt, koord pos)
   }
 
   if(ribi == ribi_t::nord || ribi == ribi_t::ost || ribi == ribi_t::sued || ribi == ribi_t::west) {
-      return wkz_frachthof_aux(sp, welt, pos, ribi);
+      return wkz_frachthof_aux(sp, welt, pos, ribi,(const haus_besch_t *) value.p);
   }
   create_win(-1, -1, MESG_WAIT, new nachrichtenfenster_t(welt, "Hier kann kein\nFrachthof ge-\nbaut werden!\n"), w_autodelete);
     }
@@ -1490,7 +1643,7 @@ int wkz_roadsign(spieler_t *sp, karte_t *welt, koord pos, value_t lParam)
 
 				// if single way, we need to reduce the allowed ribi to one
 DBG_MESSAGE("wkz_roadsign()","dir is %i", dir);
-				if(besch->is_single_way()) {
+				if(besch->is_single_way()  ||  besch->is_free_route()) {
 					for( int i=0;  i<=4;  i++) {
 						if((dir&ribi_t::nsow[i])!=0) {
 							dir = ribi_t::nsow[i];
@@ -1504,7 +1657,7 @@ DBG_MESSAGE("wkz_roadsign()","single dir is %i", dir);
 				roadsign_t *rs = dynamic_cast<roadsign_t *>(gr->suche_obj(ding_t::roadsign));
 				if(rs) {
 					// revers only if single way sign
-					if(besch->is_single_way()) {
+					if(besch->is_single_way()  ||  besch->is_free_route()) {
 DBG_MESSAGE("wkz_roadsign()","reverse ribi %i", ribi_t::rueckwaerts(dir) );
 						rs->set_dir( ribi_t::rueckwaerts(rs->get_dir()) );
 					}

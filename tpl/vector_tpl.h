@@ -259,10 +259,9 @@ public:
 	if(i<count) {
 	    return data[i];
 	} else {
-	    ERROR("vector_tpl<T>::get()",
-	          "index out of bounds: %i not in 0..%d", i, count-1);
+	    ERROR("vector_tpl<T>::get()","index out of bounds: %i not in 0..%d", i, count-1);
+	    trap();
 	    // return data[0];
-	    abort();
 	}
     }
 
@@ -276,8 +275,8 @@ public:
 	    return data[i];
 	} else {
 	    ERROR("vector_tpl<T>::at()","index out of bounds: %i not in 0..%d\n", i, count-1);
+	    trap();
 	    // return data[0];
-	    abort();
 	}
     }
 

@@ -361,3 +361,15 @@ schifffahrplan_t::zeige_fehlermeldung(karte_t *welt) const
 {
     create_win(-1, -1, 60, new nachrichtenfenster_t(welt, "Schiffhalt muss im\nWasser liegen!\n"), w_autodelete);
 }
+
+bool
+airfahrplan_t::ist_halt_erlaubt(const grund_t *gr) const
+{
+    return gr->gib_weg(weg_t::luft) != NULL;
+}
+
+void
+airfahrplan_t::zeige_fehlermeldung(karte_t *welt) const
+{
+    create_win(-1, -1, 60, new nachrichtenfenster_t(welt, "Flugzeughalt muss auf\nRunway liegen!\n"), w_autodelete);
+}

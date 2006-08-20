@@ -18,37 +18,15 @@
 #ifndef _simvehikel_h
 #define _simvehikel_h
 
-#ifndef simtypes_h
 #include "simtypes.h"
-#endif
-
-#ifndef simdings_h
 #include "simdings.h"
-#endif
-
-#ifndef simware_h
 #include "simware.h"
-#endif
-
-#ifndef halthandle_t_h
 #include "halthandle_t.h"
-#endif
-
-#ifndef fahrer_h
 #include "ifc/fahrer.h"
-#endif
-
-#ifndef boden_wege_weg_h
 #include "boden/wege/weg.h"
-#endif
-
-#ifndef __VEHIKEL_BESCH_H
 #include "besch/vehikel_besch.h"
-#endif
-
-#ifndef tpl_slist_tpl_h
+#include "dataobj/route.h"
 #include "tpl/slist_tpl.h"
-#endif
 
 class haltestelle_t;
 class inthashtable_t;
@@ -263,6 +241,7 @@ public:
     ribi_t::ribi gib_fahrtrichtung() const {return fahrtrichtung;};
     void setze_fahrtrichtung(ribi_t::ribi r) {fahrtrichtung=r;calc_bild();};
 
+	virtual bool calc_route(karte_t * welt, koord3d start, koord3d ziel, uint32 max_speed, route_t * route) { return route->calc_route(welt, start, ziel, this, max_speed ); };
 
     void setze_offsets(int x, int y);
 
@@ -469,7 +448,6 @@ public:
      */
     virtual fahrplan_t * erzeuge_neuen_fahrplan() const = 0;
 
-
     const char * ist_entfernbar(const spieler_t *sp);
 
     void rdwr(loadsave_t *file);
@@ -506,6 +484,9 @@ protected:
     void calc_bild();
 
 public:
+	// how expensive to go here (for way search)
+	virtual int gib_kosten(const grund_t *,const uint32 ) const;
+
     virtual bool ist_weg_frei(int &restart_speed);
 
     automobil_t(karte_t *welt, loadsave_t *file);
@@ -521,6 +502,9 @@ public:
      */
     virtual ribi_t::ribi gib_ribi(const grund_t* ) const;
 
+	// returns true for the way search to an unknown target.
+	halthandle_t target_halt;
+	virtual bool ist_ziel(const grund_t *) const;
 
     ding_t::typ gib_typ() const {return automobil;};
 
@@ -555,6 +539,9 @@ protected:
     void calc_bild();
 
 public:
+	// how expensive to go here (for way search)
+	virtual int gib_kosten(const grund_t *,const uint32 ) const;
+
     virtual bool ist_weg_frei(int &restart_speed);
 
 	bool is_next_block_free( presignal_t *sig ) const;
@@ -569,6 +556,9 @@ public:
      * @author Hj. Malthaner, 04.01.01
      */
     virtual ribi_t::ribi gib_ribi(const grund_t* ) const;
+
+	// returns true for the way search to an unknown target.
+	virtual bool ist_ziel(const grund_t *) const {return 0;};
 
     enum ding_t::typ gib_typ() const {return waggon;};
 
@@ -594,7 +584,9 @@ public:
 class schiff_t : public vehikel_t
 {
 protected:
-//    virtual int  calc_height() {return 0;};
+	// how expensive to go here (for way search)
+	virtual int gib_kosten(const grund_t *,const uint32) const {return 1; };
+
     virtual void calc_akt_speed(int , int );
 
     bool ist_befahrbar(const grund_t *bd) const;
@@ -615,6 +607,9 @@ public:
      */
     virtual ribi_t::ribi gib_ribi(const grund_t* ) const;
 
+	// returns true for the way search to an unknown target.
+	virtual bool ist_ziel(const grund_t *) const {return 0;};
+
     /* return friction constant: changes in hill and curves; may even negative downhill *
      * @author prissi
      */
@@ -631,6 +626,82 @@ public:
     void rdwr(loadsave_t *file);
     void rdwr(loadsave_t *file, bool force);
 };
+
+
+/**
+ * Eine Klasse für Flugzeuge. Verwaltet das Aussehen der
+ * Fahrzeuge und die Befahrbarkeit des Untergrundes.
+ *
+ * @author hsiegeln
+ * @see vehikel_t
+ */
+class aircraft_t : public vehikel_t
+{
+private:
+	// only used for ist_ziel() (do not need saving)
+#ifdef USE_DIFFERENT_WIND
+	ribi_t::ribi approach_dir;
+	static uint8 get_approach_ribi( koord3d start, koord3d ziel );
+#endif
+	halthandle_t target_halt;
+
+	// only used for route search and approach vectors of gib_ribi() (do not need saving)
+	koord3d search_start;
+	koord3d search_end;
+
+  	enum flight_state { taxiing=0, departing=1, flying=2, landing=3, looking_for_parking=4  };
+
+  	enum flight_state state;	// functions needed for the search without destination from find_route
+
+//	bool ist_blockwechsel(koord3d k1, koord3d k2) const;
+
+	short flughoehe;
+	short target_height;
+	unsigned suchen, touchdown, takeoff;
+
+protected:
+	bool ist_befahrbar(const grund_t *bd) const;
+
+    void betrete_feld();
+
+    virtual weg_t::typ gib_wegtyp() const { return weg_t::luft; };
+
+    void calc_bild();
+
+public:
+	// and this returns true, if a suitable destination is tested by find_route
+	virtual bool ist_ziel(const grund_t *gr) const;
+
+	// return valid direction
+	virtual ribi_t::ribi gib_ribi(const grund_t* ) const;
+
+	// how expensive to go here (for way search)
+	virtual int gib_kosten(const grund_t *,const uint32 ) const;
+
+
+    virtual bool ist_weg_frei(int &restart_speed);
+
+	// prissi: neede???d important for route finding
+	void reset_state() { state = taxiing; };
+
+	bool calc_route(karte_t * welt, koord3d start, koord3d ziel, uint32 max_speed, route_t * route);
+
+    enum ding_t::typ gib_typ() const {return aircraft;};
+
+    aircraft_t(karte_t *welt, loadsave_t *file);
+    aircraft_t(karte_t *welt, koord3d pos, const vehikel_besch_t *besch, spieler_t *sp, convoi_t *cnv); // start und fahrplan
+    ~aircraft_t();
+
+    fahrplan_t * erzeuge_neuen_fahrplan() const;
+
+    void rdwr(loadsave_t *file);
+    void rdwr(loadsave_t *file, bool force);
+
+    virtual int calc_height();
+
+    virtual void calc_akt_speed(const int h_alt, const int h_neu);
+};
+
 
 
 #endif

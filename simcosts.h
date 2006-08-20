@@ -6,6 +6,8 @@
 // Hajo: all costs are stored in cent!
 // to get the value in credits, divide them by 100
 
+#define CST_TERMINAL -1500000
+
 #define CST_DOCK          -200000
 #define CST_BAHNHOF       -240000
 #define CST_FRACHTHOF     -80000

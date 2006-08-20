@@ -227,6 +227,25 @@ obj_besch_t * vehicle_reader_t::read_node(FILE *fp, obj_node_info_t &node)
     besch->vorgaenger = decode_uint8(p);
     besch->nachfolger = decode_uint8(p);
     besch->engine_type = decode_uint8(p);
+} else if (version==6) {
+    // version 5 just 32 bit for power and 16 Bit for gear
+
+    besch->preis = decode_uint32(p);
+    besch->zuladung = decode_uint16(p);
+    besch->geschw = decode_uint16(p);
+    besch->gewicht = decode_uint16(p);
+    besch->leistung = decode_uint32(p);
+    besch->betriebskosten = decode_uint16(p);
+
+    besch->intro_date = decode_uint16(p);
+    besch->obsolete_date = decode_uint16(p);
+    besch->gear = decode_uint16(p);
+
+    besch->typ = decode_uint8(p);
+    besch->sound = decode_sint8(p);
+    besch->vorgaenger = decode_uint8(p);
+    besch->nachfolger = decode_uint8(p);
+    besch->engine_type = decode_uint8(p);
 } else {
     // old node, version 0
 

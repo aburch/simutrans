@@ -682,7 +682,12 @@ karte_t::init_felder()
     }
     active_player = spieler[0];
     active_player_nr = 0;
-//    schedule_list_gui = new schedule_list_gui_t(this);
+
+	// defaults without timeline
+	average_speed[0] = 60;
+	average_speed[1] = 80;
+	average_speed[2] = 40;
+	average_speed[3] = 350;
 }
 
 
@@ -1901,21 +1906,14 @@ karte_t::neuer_monat()
 	INT_CHECK("simworld 1890");
 
 	DBG_MESSAGE("karte_t::neuer_monat()","timeline");
+
 	// prissi: check for new/retired vehicles
 	if(use_timeline()) {
 		char	buf[256];
 
-		// average speeds
-		for(int i=0;  i<4;  i++) {
-			average_speed[i] = 0;
-		}
-
-		int num_averages[4]={0,0,0,0};
 		for(int i=weg_t::strasse; i<weg_t::luft; i++) {
 			const vehikel_besch_t *info;
-			const int speed_bonus_categorie = (i>=4  &&  i<=7) ? 2 : (i==weg_t::luft ? 4 : i );
 			for(  int j=0;  (info = vehikelbauer_t::gib_info((weg_t::typ)i, j));  j++  ) {
-				assert(speed_bonus_categorie<5  &&  speed_bonus_categorie>0);
 
 				const uint16 intro_month = info->get_intro_year_month();
 				if(intro_month == current_month) {
@@ -1932,27 +1930,12 @@ karte_t::neuer_monat()
 						translator::translate(info->gib_name()));
 						message_t::get_instance()->add_message(buf,koord::invalid,message_t::new_vehicle,NEW_VEHICLE,info->gib_basis_bild());
 				}
-
-				if(info->gib_leistung()>0  &&  !info->is_future(current_month)  &&  !info->is_retired(current_month)) {
-					average_speed[speed_bonus_categorie-1] += info->gib_geschw();
-					num_averages[speed_bonus_categorie-1] ++;
-				}
-
-
 			}
 		}
-		// recalculate them
-		for(int i=0;  i<4;  i++) {
-			average_speed[i] = num_averages[i]*average_speed[i]>0 ? average_speed[i]/num_averages[i] : 80;
-		}
 	}
-	else {
-		// defaults without timeline
-		average_speed[0] = 60;
-		average_speed[1] = 80;
-		average_speed[2] = 40;
-		average_speed[3] = 800;
-	}
+	INT_CHECK("simworld 1921");
+
+	recalc_average_speed();
 	INT_CHECK("simworld 1921");
 
 	if(umgebung_t::autosave>0  &&  letzter_monat%umgebung_t::autosave==0) {
@@ -1970,21 +1953,24 @@ void karte_t::recalc_average_speed()
 	DBG_MESSAGE("karte_t::recalc_average_speed()","");
 	if(use_timeline()) {
 		int num_averages[4]={0,0,0,0};
+		int speed_sum[4]={0,0,0,0};
 		const uint16 timeline_month = get_timeline_year_month();
-		for(int i=weg_t::strasse; i<weg_t::luft; i++) {
+		for(int i=weg_t::strasse; i<=weg_t::luft; i++) {
 			// check for speed
 			const vehikel_besch_t *info;
 			const int speed_bonus_categorie = (i>=4  &&  i<=7) ? 2 : (i==weg_t::luft ? 4 : i );
 			for(  int j=0;  (info = vehikelbauer_t::gib_info((weg_t::typ)i, j));  j++  ) {
 				if(info->gib_leistung()>0  &&  !info->is_future(timeline_month)  &&  !info->is_retired(timeline_month)) {
-					average_speed[speed_bonus_categorie-1] += info->gib_geschw();
+					speed_sum[speed_bonus_categorie-1] += info->gib_geschw();
 					num_averages[speed_bonus_categorie-1] ++;
 				}
 			}
 		}
 		// recalculate them
 		for(int i=0;  i<4;  i++) {
-			average_speed[i] = num_averages[i]>0 ? average_speed[i]/num_averages[i] : 80;
+			if(num_averages[i]>0) {
+				average_speed[i] = speed_sum[i]/num_averages[i];
+			}
 		}
 	}
 	else {
@@ -1992,7 +1978,7 @@ void karte_t::recalc_average_speed()
 		average_speed[0] = 60;
 		average_speed[1] = 80;
 		average_speed[2] = 40;
-		average_speed[3] = 800;
+		average_speed[3] = 350;
 	}
 }
 
@@ -2594,18 +2580,6 @@ DBG_DEBUG("karte_t::laden()","grundwasser %i",grundwasser);
 	DBG_DEBUG("karte_t::laden()","built timeline for citycars");
 	stadtauto_t::built_timeline_liste();
 
-	if(file->get_version()<86006) {
-		// defaults
-		average_speed[0] = 60;
-		average_speed[1] = 80;
-		average_speed[2] = 40;
-		average_speed[3] = 800;
-	}
-	else {
-		recalc_average_speed();
-	}
-
-
     DBG_DEBUG("karte_t::laden", "init %i cities",einstellungen->gib_anzahl_staedte());
     stadt = new weighted_vector_tpl <stadt_t *> (einstellungen->gib_anzahl_staedte());
     for(int i=0; i<einstellungen->gib_anzahl_staedte(); i++) {
@@ -3138,7 +3112,8 @@ void karte_t::bewege_zeiger(const event_t *ev)
 
 	    koord3d pos = lookup(koord(mi,mj))->gib_kartenboden()->gib_pos();
 		if(zeiger->gib_yoff() == Z_GRID) {
-			pos.z = max_hgt(koord(mi,mj));
+			pos.z = lookup_hgt(koord(mi,mj));
+//			pos.z = max_hgt(koord(mi,mj));
 		}
 		zeiger->setze_pos(pos);
 	}
@@ -3699,7 +3674,7 @@ karte_t::interactive_event(event_t &ev)
 				  Z_PLAN,
 				  SFX_JACKHAMMER,
 				  SFX_FAILURE,
-				  skinverwaltung_t::schienen_werkzeug->gib_bild_nr(4),
+				  skinverwaltung_t::schienen_werkzeug->gib_bild_nr(3),
 				  skinverwaltung_t::oberleitung->gib_bild_nr(8),
 				  tool_tip_with_price(translator::translate("Electrify track"), CST_OBERLEITUNG));
 
@@ -3716,8 +3691,8 @@ karte_t::interactive_event(event_t &ev)
 					  Z_PLAN,
 					  SFX_JACKHAMMER,
 					  SFX_FAILURE,
-					  skinverwaltung_t::schienen_werkzeug->gib_bild_nr(3),
-					  skinverwaltung_t::schienentunnelzeiger->gib_bild_nr(0),
+					  tunnelbauer_t::schienentunnel->gib_cursor()->gib_bild_nr(1),
+					  tunnelbauer_t::schienentunnel->gib_cursor()->gib_bild_nr(0),
 					  tool_tip_with_price(translator::translate("Schienentunnel"), CST_TUNNEL));
 		    }
 
@@ -3733,19 +3708,10 @@ karte_t::interactive_event(event_t &ev)
 				  Z_LINES,
 				  SFX_GAVEL,
 				  SFX_FAILURE,
-				  skinverwaltung_t::schienen_werkzeug->gib_bild_nr(7),
+				  skinverwaltung_t::schienen_werkzeug->gib_bild_nr(1),
 				  skinverwaltung_t::signalzeiger->gib_bild_nr(0),
 				  tool_tip_with_price(translator::translate("Build presignals"), CST_SIGNALE));
 
-		    hausbauer_t::fill_menu(wzw,
-					  hausbauer_t::train_stops,
-					  wkz_bahnhof,
-					  SFX_JACKHAMMER,
-					  SFX_FAILURE,
-					  CST_BAHNHOF,
-  					  get_timeline_year_month() );
-
-		    if(hausbauer_t::bahn_depot_besch) {
 		      wzw->add_tool(wkz_bahndepot,
 				    Z_PLAN,
 				    SFX_GAVEL,
@@ -3753,7 +3719,22 @@ karte_t::interactive_event(event_t &ev)
 					hausbauer_t::bahn_depot_besch->gib_cursor()->gib_bild_nr(1),
 					hausbauer_t::bahn_depot_besch->gib_cursor()->gib_bild_nr(0),
 				    tool_tip_with_price(translator::translate("Build train depot"), CST_BAHNDEPOT));
-		    }
+
+		    hausbauer_t::fill_menu(wzw,
+					  hausbauer_t::bahnhof,
+					  wkz_bahnhof,
+					  SFX_JACKHAMMER,
+					  SFX_FAILURE,
+					  CST_BAHNHOF,
+  					  get_timeline_year_month() );
+
+		    hausbauer_t::fill_menu(wzw,
+					  hausbauer_t::bahnhof_geb,
+					  wkz_station_building,
+					  SFX_JACKHAMMER,
+					  SFX_FAILURE,
+					  CST_BAHNHOF,
+  					  get_timeline_year_month() );
 
 		    sound_play(click_sound);
 
@@ -3788,8 +3769,8 @@ karte_t::interactive_event(event_t &ev)
 					  Z_PLAN,
 					  SFX_JACKHAMMER,
 					  SFX_FAILURE,
-					  skinverwaltung_t::strassen_werkzeug->gib_bild_nr(3),
-					  skinverwaltung_t::strassentunnelzeiger->gib_bild_nr(0),
+					  tunnelbauer_t::strassentunnel->gib_cursor()->gib_bild_nr(1),
+					  tunnelbauer_t::strassentunnel->gib_cursor()->gib_bild_nr(0),
 					  tool_tip_with_price(translator::translate("Strassentunnel"), CST_TUNNEL));
 		    }
 
@@ -3799,25 +3780,6 @@ karte_t::interactive_event(event_t &ev)
 					  SFX_FAILURE,
 					  CST_BUSHALT);
 
-		    hausbauer_t::fill_menu(wzw,
-					  hausbauer_t::car_stops,
-					  wkz_bushalt,
-					  SFX_JACKHAMMER,
-					  SFX_FAILURE,
-					  CST_BUSHALT,
-  					  get_timeline_year_month() );
-
-		    if(hausbauer_t::frachthof_besch) {
-		      wzw->add_tool(wkz_frachthof,
-				    Z_PLAN,
-				    SFX_JACKHAMMER,
-				    SFX_FAILURE,
-				    skinverwaltung_t::strassen_werkzeug->gib_bild_nr(1),
-				    skinverwaltung_t::frachthofzeiger->gib_bild_nr(0),
-				    tool_tip_with_price(translator::translate("Frachthof"), CST_FRACHTHOF));
-		    }
-
-		    if(hausbauer_t::str_depot_besch) {
 			wzw->add_tool(wkz_strassendepot,
 				      Z_PLAN,
 				      SFX_GAVEL,
@@ -3825,7 +3787,38 @@ karte_t::interactive_event(event_t &ev)
 					hausbauer_t::str_depot_besch->gib_cursor()->gib_bild_nr(1),
 					hausbauer_t::str_depot_besch->gib_cursor()->gib_bild_nr(0),
 				      tool_tip_with_price(translator::translate("Build truck depot"), CST_STRASSENDEPOT));
-		    }
+
+		    hausbauer_t::fill_menu(wzw,
+					  hausbauer_t::bushalt,
+					  wkz_bushalt,
+					  SFX_JACKHAMMER,
+					  SFX_FAILURE,
+					  CST_BUSHALT,
+  					  get_timeline_year_month() );
+
+		    hausbauer_t::fill_menu(wzw,
+					  hausbauer_t::ladebucht,
+					  wkz_frachthof,
+					  SFX_JACKHAMMER,
+					  SFX_FAILURE,
+					  CST_FRACHTHOF,
+  					  get_timeline_year_month() );
+
+		    hausbauer_t::fill_menu(wzw,
+					  hausbauer_t::bushalt_geb,
+					  wkz_station_building,
+					  SFX_JACKHAMMER,
+					  SFX_FAILURE,
+					  CST_BUSHALT,
+  					  get_timeline_year_month() );
+
+		    hausbauer_t::fill_menu(wzw,
+					  hausbauer_t::ladebucht_geb,
+					  wkz_station_building,
+					  SFX_JACKHAMMER,
+					  SFX_FAILURE,
+					  CST_BUSHALT,
+  					  get_timeline_year_month() );
 
 		    sound_play(click_sound);
 
@@ -3848,7 +3841,7 @@ karte_t::interactive_event(event_t &ev)
 					  );
 
 		    hausbauer_t::fill_menu(wzw,
-					  hausbauer_t::ship_channel_stops,
+					  hausbauer_t::binnenhafen,
 					  wkz_kaibau,
 					  SFX_JACKHAMMER,
 					  SFX_FAILURE,
@@ -3856,32 +3849,47 @@ karte_t::interactive_event(event_t &ev)
 					  get_timeline_year_month() );
 
 		    hausbauer_t::fill_menu(wzw,
-					  hausbauer_t::ship_stops,
+					  hausbauer_t::hafen,
 					  wkz_dockbau,
 					  SFX_JACKHAMMER,
 					  SFX_FAILURE,
 					  CST_DOCK,
 					  get_timeline_year_month() );
 
-		    if(hausbauer_t::sch_depot_besch) {
-			    wzw->add_param_tool(wkz_schiffdepot,
-			             (long int)0,
-					  Z_LINES,
-					  SFX_GAVEL,
-					  SFX_FAILURE,
-					  skinverwaltung_t::schiffs_werkzeug->gib_bild_nr(0),
-					  skinverwaltung_t::werftNSzeiger->gib_bild_nr(0),
-					  tool_tip_with_price(translator::translate("Build ship depot"), CST_SCHIFFDEPOT));
+		    wzw->add_param_tool(wkz_schiffdepot,
+		             (long int)0,
+				  Z_LINES,
+				  SFX_GAVEL,
+				  SFX_FAILURE,
+				  skinverwaltung_t::schiffs_werkzeug->gib_bild_nr(0),
+				  skinverwaltung_t::werftNSzeiger->gib_bild_nr(0),
+				  tool_tip_with_price(translator::translate("Build ship depot"), CST_SCHIFFDEPOT));
 
-			    wzw->add_param_tool(wkz_schiffdepot,
-			             (long int)1,
-					  Z_LINES,
-					  SFX_GAVEL,
+		    wzw->add_param_tool(wkz_schiffdepot,
+		             (long int)1,
+				  Z_LINES,
+				  SFX_GAVEL,
+				  SFX_FAILURE,
+				  skinverwaltung_t::schiffs_werkzeug->gib_bild_nr(1),
+				  skinverwaltung_t::werftNSzeiger->gib_bild_nr(0),
+				  tool_tip_with_price(translator::translate("Build ship depot"), CST_SCHIFFDEPOT));
+
+		    hausbauer_t::fill_menu(wzw,
+					  hausbauer_t::binnenhafen_geb,
+					  wkz_station_building,
+					  SFX_JACKHAMMER,
 					  SFX_FAILURE,
-					  skinverwaltung_t::schiffs_werkzeug->gib_bild_nr(1),
-					  skinverwaltung_t::werftNSzeiger->gib_bild_nr(0),
-					  tool_tip_with_price(translator::translate("Build ship depot"), CST_SCHIFFDEPOT));
-			}
+					  CST_DOCK,
+					  get_timeline_year_month() );
+
+		    hausbauer_t::fill_menu(wzw,
+					  hausbauer_t::hafen_geb,
+					  wkz_station_building,
+					  SFX_JACKHAMMER,
+					  SFX_FAILURE,
+					  CST_DOCK,
+					  get_timeline_year_month() );
+
 		    sound_play(click_sound);
 
 		    wzw->zeige_info(magic_shiptools);
@@ -3907,7 +3915,7 @@ karte_t::interactive_event(event_t &ev)
 				  Z_PLAN,
 				  SFX_JACKHAMMER,
 				  SFX_FAILURE,
-				  skinverwaltung_t::schienen_werkzeug->gib_bild_nr(4),
+				  skinverwaltung_t::schienen_werkzeug->gib_bild_nr(3),
 				  skinverwaltung_t::oberleitung->gib_bild_nr(8),
 				  tool_tip_with_price(translator::translate("Electrify track"), CST_OBERLEITUNG));
 
@@ -3924,25 +3932,9 @@ karte_t::interactive_event(event_t &ev)
 				  Z_LINES,
 				  SFX_GAVEL,
 				  SFX_FAILURE,
-				  skinverwaltung_t::schienen_werkzeug->gib_bild_nr(7),
+				  skinverwaltung_t::schienen_werkzeug->gib_bild_nr(1),
 				  skinverwaltung_t::signalzeiger->gib_bild_nr(0),
 				  tool_tip_with_price(translator::translate("Build presignals"), CST_SIGNALE));
-
-		    hausbauer_t::fill_menu(wzw,
-						  hausbauer_t::train_stops,
-						  wkz_bahnhof,
-						  SFX_JACKHAMMER,
-						  SFX_FAILURE,
-						  CST_BAHNHOF,
-						  get_timeline_year_month() );
-
-		    hausbauer_t::fill_menu(wzw,
-					  hausbauer_t::car_stops,
-					  wkz_bushalt,
-					  SFX_JACKHAMMER,
-					  SFX_FAILURE,
-					  CST_BUSHALT,
-					  get_timeline_year_month() );
 
 				wzw->add_tool(wkz_tramdepot,
 					Z_PLAN,
@@ -3962,6 +3954,21 @@ karte_t::interactive_event(event_t &ev)
 						tool_tip_with_price(translator::translate("Build monorail depot"), CST_BAHNDEPOT) );
 				}
 
+		    hausbauer_t::fill_menu(wzw,
+						  hausbauer_t::bahnhof,
+						  wkz_bahnhof,
+						  SFX_JACKHAMMER,
+						  SFX_FAILURE,
+						  CST_BAHNHOF,
+						  get_timeline_year_month() );
+
+		    hausbauer_t::fill_menu(wzw,
+					  hausbauer_t::bushalt,
+					  wkz_bushalt,
+					  SFX_JACKHAMMER,
+					  SFX_FAILURE,
+					  CST_BUSHALT,
+					  get_timeline_year_month() );
 
 				sound_play(click_sound);
 
@@ -3970,6 +3977,48 @@ karte_t::interactive_event(event_t &ev)
 			break;
 
 	    case 10:
+	     if(hausbauer_t::air_depot.count()>0)
+	    	{
+					// start aircraft
+					werkzeug_parameter_waehler_t *wzw =
+						new werkzeug_parameter_waehler_t(this, "AIRTOOLS");
+
+					wzw->setze_hilfe_datei("airtools.txt");
+
+					wegbauer_t::fill_menu(wzw,
+						weg_t::luft,
+						wkz_wegebau,
+						SFX_JACKHAMMER,
+						SFX_FAILURE
+					);
+
+		    hausbauer_t::fill_menu(wzw,
+						  hausbauer_t::air_depot,
+						  wkz_airport,
+						  SFX_JACKHAMMER,
+						  SFX_FAILURE,
+						  CST_TERMINAL,
+						  get_timeline_year_month() );
+
+		    hausbauer_t::fill_menu(wzw,
+						  hausbauer_t::airport,
+						  wkz_airport,
+						  SFX_JACKHAMMER,
+						  SFX_FAILURE,
+						  CST_POST,
+						  get_timeline_year_month() );
+
+		    hausbauer_t::fill_menu(wzw,
+						  hausbauer_t::airport_geb,
+						  wkz_station_building,
+						  SFX_JACKHAMMER,
+						  SFX_FAILURE,
+						  CST_POST,
+						  get_timeline_year_month() );
+
+					wzw->zeige_info(magic_airtools);
+					// end aircraft
+				}
 		break;
 	    case 11:
           {
@@ -3979,15 +4028,23 @@ karte_t::interactive_event(event_t &ev)
 		    wzw->setze_hilfe_datei("special.txt");
 
 		    hausbauer_t::fill_menu(wzw,
-					  hausbauer_t::post_offices,
-					  wkz_post,
+					  hausbauer_t::post,
+					  wkz_station_building,
 					  SFX_JACKHAMMER,
 					  SFX_FAILURE,
 					  CST_POST,
 					  get_timeline_year_month() );
 
 		    hausbauer_t::fill_menu(wzw,
-					  hausbauer_t::station_building,
+					  hausbauer_t::wartehalle,
+					  wkz_station_building,
+					  SFX_JACKHAMMER,
+					  SFX_FAILURE,
+					  CST_POST,
+					  get_timeline_year_month() );
+
+		    hausbauer_t::fill_menu(wzw,
+					  hausbauer_t::lagerhalle,
 					  wkz_station_building,
 					  SFX_JACKHAMMER,
 					  SFX_FAILURE,
@@ -4146,8 +4203,7 @@ karte_t::interactive_event(event_t &ev)
 	    if(mouse_funk != NULL) {
 		koord pos (mi,mj);
 
-		DBG_MESSAGE("karte_t::interactive_event(event_t &ev)",
-			     "calling a tool");
+		DBG_MESSAGE("karte_t::interactive_event(event_t &ev)", "calling a tool");
 		const int ok = mouse_funk(get_active_player(), this, pos, mouse_funk_param);
 
 		struct sound_info info;

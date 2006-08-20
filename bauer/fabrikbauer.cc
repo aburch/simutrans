@@ -463,9 +463,7 @@ fabrikbauer_t::baue_fabrik(karte_t * welt, koord3d *parent, const fabrik_besch_t
 		if(halt.is_bound()) {
 
 			welt->lookup(pos)->setze_text( translator::translate(info->gib_name()) );
-			halt->set_pax_enabled( make_passenger );
-			halt->set_ware_enabled( true );
-			halt->set_post_enabled( make_passenger );
+			halt->recalc_station_type();
 
 			for(k.x=pos.x; k.x<pos.x+dim.x; k.x++) {
 				for(k.y=pos.y; k.y<pos.y+dim.y; k.y++) {

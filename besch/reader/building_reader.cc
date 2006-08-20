@@ -96,6 +96,52 @@ void building_reader_t::register_obj(obj_besch_t *&data)
 {
     haus_besch_t *besch = static_cast<haus_besch_t *>(data);
 
+	if(besch->utyp==hausbauer_t::fabrik) {
+		// this stuff is just for compatibility
+		int checkpos=strlen(besch->gib_name());
+		if(  strcmp("Oelbohrinsel",besch->gib_name()+checkpos-10)==0  ) {
+			besch->enables = 1|2|4;
+		}
+		else if(  strcmp("fish_swarm",besch->gib_name()+checkpos-10)==0  ) {
+			besch->enables = 4;
+		}
+	}
+
+	if(besch->utyp==hausbauer_t::weitere  &&  besch->enables==0x80) {
+		// this stuff is just for compatibility
+		int checkpos=strlen(besch->gib_name());
+		besch->enables = 0;
+		// before station buildings were identified by their name ...
+		if(  strcmp("BusStop",besch->gib_name()+checkpos-7)==0  ) {
+			besch->utyp = hausbauer_t::bushalt;
+			besch->enables = 1;
+		}
+		if(  strcmp("CarStop",besch->gib_name()+checkpos-7)==0  ) {
+			besch->utyp = hausbauer_t::ladebucht;
+			besch->enables = 4;
+		}
+		else if(  strcmp("TrainStop",besch->gib_name()+checkpos-9)==0  ) {
+			besch->utyp = hausbauer_t::bahnhof;
+			besch->enables = 1|4;
+		}
+		else if(  strcmp("ShipStop",besch->gib_name()+checkpos-8)==0  ) {
+			besch->utyp = hausbauer_t::hafen;
+			besch->enables = 1|4;
+		}
+		else if(  strcmp("ChannelStop",besch->gib_name()+checkpos-11)==0  ) {
+			besch->utyp = hausbauer_t::binnenhafen;
+			besch->enables = 1|4;
+		}
+		else if(  strcmp("PostOffice",besch->gib_name()+checkpos-10)==0  ) {
+			besch->utyp = hausbauer_t::post;
+			besch->enables = 2;
+		}
+		else if(  strcmp("StationBlg",besch->gib_name()+checkpos-10)==0  ) {
+			besch->utyp = hausbauer_t::wartehalle;
+			besch->enables = 1|4;
+		}
+	}
+
     hausbauer_t::register_besch(besch);
     DBG_DEBUG("building_reader_t::register_obj", "Loaded '%s'", besch->gib_name());
 }
@@ -155,7 +201,24 @@ obj_besch_t * building_reader_t::read_node(FILE *fp, obj_node_info_t &node)
   const uint16 v = decode_uint16(p);
   const int version = (v & 0x8000)!=0 ? v&0x7FFF : 0;
 
-  if(version == 2) {
+  if(version == 3) {
+    // Versioned node, version 3
+
+    besch->gtyp      = (enum gebaeude_t::typ)decode_uint8(p);
+    besch->utyp      = (enum hausbauer_t::utyp)decode_uint8(p);
+    besch->level     = decode_uint16(p);
+    besch->bauzeit   = decode_uint32(p);
+    besch->groesse.x = decode_uint16(p);
+    besch->groesse.y = decode_uint16(p);
+    besch->layouts   = decode_uint8(p);
+    besch->enables   = decode_uint8(p);
+    besch->flags     = (enum haus_besch_t::flag_t)decode_uint8(p);
+    besch->chance    = decode_uint8(p);
+
+    besch->intro_date    = decode_uint16(p);
+    besch->obsolete_date = decode_uint16(p);
+  }
+  else if(version == 2) {
     // Versioned node, version 2
 
     besch->gtyp      = (enum gebaeude_t::typ)decode_uint8(p);
@@ -165,6 +228,7 @@ obj_besch_t * building_reader_t::read_node(FILE *fp, obj_node_info_t &node)
     besch->groesse.x = decode_uint16(p);
     besch->groesse.y = decode_uint16(p);
     besch->layouts   = decode_uint8(p);
+    besch->enables   = 0x80;
     besch->flags     = (enum haus_besch_t::flag_t)decode_uint8(p);
     besch->chance    = decode_uint8(p);
 
@@ -182,6 +246,7 @@ obj_besch_t * building_reader_t::read_node(FILE *fp, obj_node_info_t &node)
     besch->groesse.x = decode_uint16(p);
     besch->groesse.y = decode_uint16(p);
     besch->layouts   = decode_uint8(p);
+    besch->enables   = 0x80;
     besch->flags     = (enum haus_besch_t::flag_t)decode_uint8(p);
     besch->chance    = decode_uint8(p);
 
@@ -197,6 +262,7 @@ obj_besch_t * building_reader_t::read_node(FILE *fp, obj_node_info_t &node)
     besch->groesse.x = decode_uint16(p);
     besch->groesse.y = decode_uint16(p);
     besch->layouts   = decode_uint32(p);
+    besch->enables   = 0x80;
     besch->flags     = (enum haus_besch_t::flag_t)decode_uint32(p);
     besch->chance    = 100;
 
@@ -213,6 +279,7 @@ obj_besch_t * building_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 	     " groesse.x=%d"
 	     " groesse.y=%d"
 	     " layouts=%d"
+	     " enables=%x"
 	     " flags=%d"
 	     " chance=%d",
  	     version,
@@ -223,6 +290,7 @@ obj_besch_t * building_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 	     besch->groesse.x,
 	     besch->groesse.y,
 	     besch->layouts,
+	     besch->enables,
 	     besch->flags,
 	     besch->chance
 	     );

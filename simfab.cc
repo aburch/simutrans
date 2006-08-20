@@ -89,9 +89,6 @@ fabrik_t * fabrik_t::gib_fab(const karte_t *welt, const koord pos)
 void fabrik_t::link_halt(halthandle_t halt)
 {
 	welt->access(pos.gib_2d())->add_to_haltlist(halt);
-	if(halt.is_bound()) {
-		halt->set_ware_enabled(true);
-	}
 }
 
 
@@ -101,9 +98,6 @@ void fabrik_t::unlink_halt(halthandle_t halt)
 	planquadrat_t *plan=welt->access(pos.gib_2d());
 	if(plan) {
 		plan->remove_from_haltlist(welt,halt);
-	}
-	if(halt.is_bound()  &&  halt->gib_fab_list().count()==0) {
-		halt->set_ware_enabled(false);
 	}
 }
 

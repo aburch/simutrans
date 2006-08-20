@@ -181,25 +181,6 @@ ding_t::setze_bild(int n, int bild)
 }
 
 
-void
-ding_t::setze_xoff(int xoff)
-{
-    if(this->xoff != xoff) {
-	this->xoff = xoff;
-	set_flag(dirty);
-    }
-}
-
-
-void
-ding_t::setze_yoff(int yoff)
-{
-    if(this->yoff != yoff) {
-	this->yoff = yoff;
-	set_flag(dirty);
-    }
-}
-
 
 void
 ding_t::setze_pos(koord3d k)

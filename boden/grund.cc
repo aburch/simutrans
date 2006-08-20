@@ -16,6 +16,7 @@
 #include "wege/schiene.h"
 #include "wege/strasse.h"
 #include "wege/kanal.h"
+#include "wege/runway.h"
 
 #include "../gui/karte.h"
 #include "../gui/ground_info.h"
@@ -239,7 +240,7 @@ void grund_t::rdwr(loadsave_t *file)
 		  break;
 		case weg_t::schiene_strab:
 		  wege[i] = new schiene_t (welt, file);
-            DBG_DEBUG("grund_t::rdwr()", "tram");
+//            DBG_DEBUG("grund_t::rdwr()", "tram");
 		  if(wege[i]->gib_besch()->gib_styp()!=7) {
 		  	wege[i]->setze_besch(wegbauer_t::weg_search(weg_t::schiene_strab,wege[i]->gib_max_speed()));
 			DBG_DEBUG("grund_t::rdwr()", "tram replace");
@@ -248,9 +249,9 @@ void grund_t::rdwr(loadsave_t *file)
 		case weg_t::wasser:
 			// ignore old type dock ...
 			if(file->get_version()>=87000) {
-			  DBG_DEBUG("grund_t::rdwr()", "Kanal");
+//			  DBG_DEBUG("grund_t::rdwr()", "Kanal");
 			  wege[i] = new kanal_t (welt, file);
-		      DBG_MESSAGE("kanal_t::kanal_t()","at (%i,%i) ribi %i",gib_pos().x, gib_pos().y, wege[i]->gib_ribi());
+//		      DBG_MESSAGE("kanal_t::kanal_t()","at (%i,%i) ribi %i",gib_pos().x, gib_pos().y, wege[i]->gib_ribi());
 		     }
 		     else {
 		     		// ignore old dock
@@ -267,6 +268,12 @@ void grund_t::rdwr(loadsave_t *file)
 			      DBG_MESSAGE("grund_t::rdwr()","at (%i,%i) dock ignored",gib_pos().x, gib_pos().y);
 		     	}
 		  break;
+		case weg_t::luft:
+			DBG_DEBUG("grund_t::rdwr()", "Runway");
+			wege[i] = new runway_t (welt, file);
+			DBG_MESSAGE("runway_t::runway_t()","at (%i,%i) ribi %i",gib_pos().x, gib_pos().y, wege[i]->gib_ribi());
+
+			break;
 		}
 		if(wege[i]) {
 		  wege[i]->setze_pos(pos);

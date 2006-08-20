@@ -96,6 +96,7 @@ schedule_list_gui_t::schedule_list_gui_t(karte_t *welt)
   tabs.add_tab(scl, translator::translate("Truck"));
   tabs.add_tab(scl, translator::translate("Train"));
   tabs.add_tab(scl, translator::translate("Ship"));
+  tabs.add_tab(scl, translator::translate("Air"));
   tabs.add_listener(this);
   add_komponente(&tabs);
 
@@ -394,10 +395,13 @@ schedule_list_gui_t::display(koord pos)
 
 	convoihandle_t cnv = line->get_convoy(i)->self;
 
+	// we do not want to count the capacity of depot convois
+	if (!cnv->in_depot()) {
 	for (unsigned j = 0; j<cnv->gib_vehikel_anzahl(); j++) {
 
 	  capacity += cnv->gib_vehikel(j)->gib_fracht_max();
 	  load += cnv->gib_vehikel(j)->gib_fracht_menge();
+	}
 	}
       }
     }

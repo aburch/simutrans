@@ -68,7 +68,9 @@ public:
 		DRIVING,
 		LOADING,
 		WAITING_FOR_CLEARANCE,
-		SELF_DESTRUCT};
+		SELF_DESTRUCT,
+		ROUTING_3,
+	};
 
 private:
 
@@ -240,6 +242,12 @@ private:
      * @author Hanjsörg Malthaner
      */
     long jahresgewinn;
+
+    /**
+     * Set, when there was a income calculation (avoids some cheats)
+     * @author prissi
+     */
+    koord3d last_stop_pos;
 
 
     // zur Geschwindigkeitssteuerung des convois

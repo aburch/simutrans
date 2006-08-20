@@ -92,8 +92,6 @@ static fabrik_t *baue_start=NULL;
 static fabrik_t *baue_ziel=NULL;
 
 
-
-
 /**
  * Konstruktor
  * @param welt Die Welt (Karte) des Spiels
@@ -395,7 +393,6 @@ spieler_t::step()
  *
  * @author Hj. Malthaner
  */
-
 void
 spieler_t::neuer_monat()
 {
@@ -955,9 +952,11 @@ DBG_MESSAGE("spieler_t::do_passenger_ki()","using %s on %s",road_vehicle->gib_na
 
 				// built a simple road (no bridges, no tunnels)
 				case NR_BAUE_STRASSEN_ROUTE:
-					if(create_simple_road_transport()  &&
-						(is_my_halt(platz1)  ||  wkz_bushalt(this, welt, platz1,hausbauer_t::car_stops.at(0)))  &&
-						(is_my_halt(platz2)  ||  wkz_bushalt(this, welt, platz2,hausbauer_t::car_stops.at(0)))
+				{
+					const haus_besch_t *bs=hausbauer_t::gib_random_station( hausbauer_t::bushalt, welt->get_timeline_year_month(), haltestelle_t::PAX );
+					if(bs  &&  create_simple_road_transport()  &&
+						(is_my_halt(platz1)  ||  wkz_bushalt(this, welt, platz1, bs ))  &&
+						(is_my_halt(platz2)  ||  wkz_bushalt(this, welt, platz2, bs ))
 					  ) {
 						koord list[2]={ platz1, platz2 };
 						// wait only, if traget is not a hub but an attraction/factory
@@ -968,13 +967,16 @@ DBG_MESSAGE("spieler_t::do_passenger_ki()","using %s on %s",road_vehicle->gib_na
 					else {
 						substate = NR_BAUE_STRASSEN_ROUTE2;
 					}
+				}
 				break;
 
 				// built a road, try with bridges or tunnels
 				case NR_BAUE_STRASSEN_ROUTE2:
-					if(create_complex_road_transport()  &&
-						(is_my_halt(platz1)  ||  wkz_bushalt(this, welt, platz1,hausbauer_t::car_stops.at(0)))  &&
-						(is_my_halt(platz2)  ||  wkz_bushalt(this, welt, platz2,hausbauer_t::car_stops.at(0)))
+				{
+					const haus_besch_t *bs=hausbauer_t::gib_random_station( hausbauer_t::bushalt, welt->get_timeline_year_month(), haltestelle_t::PAX );
+					if(bs  &&  create_complex_road_transport()  &&
+						(is_my_halt(platz1)  ||  wkz_bushalt(this, welt, platz1,bs))  &&
+						(is_my_halt(platz2)  ||  wkz_bushalt(this, welt, platz2,bs))
 					  ) {
 						koord list[2]={ platz1, platz2 };
 						// wait only, if traget is not a hub but an attraction/factory
@@ -984,6 +986,7 @@ DBG_MESSAGE("spieler_t::do_passenger_ki()","using %s on %s",road_vehicle->gib_na
 					else {
 						substate = NR_BAUE_CLEAN_UP;
 					}
+				}
 				break;
 
 				// remove marker etc.
@@ -1783,17 +1786,7 @@ DBG_MESSAGE("spieler_t::baue_bahnhof","try to remove last segment");
 	bool make_all_bahnhof=false;
 
 	// find a freight train station
-	const haus_besch_t * besch=hausbauer_t::train_stops.at(0);
-	for( unsigned i=1;  i<hausbauer_t::train_stops.count();  i++  ) {
-		if(strstr(hausbauer_t::train_stops.at(i)->gib_name(),"Freight")) {
-			besch = hausbauer_t::train_stops.at(i);
-			if(simrand(20)<7) {
-				break;
-			}
-		}
-	}
-
-	// first one direction
+	const haus_besch_t *besch=hausbauer_t::gib_random_station( hausbauer_t::bahnhof, welt->get_timeline_year_month(), haltestelle_t::WARE );
      koord pos;
 	for(  pos=*p;  pos!=t+zv;  pos+=zv ) {
 		if(  make_all_bahnhof  ||  is_my_halt(pos+koord(-1,-1))  ||  is_my_halt(pos+koord(-1,1))  ||  is_my_halt(pos+koord(1,-1))  ||  is_my_halt(pos+koord(1,1))  ) {
@@ -2202,8 +2195,9 @@ DBG_MESSAGE("spieler_t::create_bus_transport_vehikel()","bus at (%i,%i)",startpo
 void
 spieler_t::create_road_transport_vehikel(fabrik_t *qfab, int anz_vehikel)
 {
+	const haus_besch_t *fh=hausbauer_t::gib_random_station( hausbauer_t::ladebucht, welt->get_timeline_year_month(), haltestelle_t::WARE );
 	// succeed in frachthof creation
-    if(hausbauer_t::frachthof_besch  &&  wkz_frachthof(this, welt, platz1)  &&  wkz_frachthof(this, welt, platz2)  ) {
+    if(fh  &&  wkz_frachthof(this, welt, platz1,fh)  &&  wkz_frachthof(this, welt, platz2,fh)  ) {
 
      koord3d pos1 = welt->lookup(platz1)->gib_kartenboden()->gib_pos();
      koord3d pos2 = welt->lookup(platz2)->gib_kartenboden()->gib_pos();

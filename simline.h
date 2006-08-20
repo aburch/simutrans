@@ -31,7 +31,7 @@ class simlinemgmt_t;
 class simline_t {
 	public:
 
-	enum linetype { line = 0, truckline = 1, trainline = 2, shipline = 3};
+	enum linetype { line = 0, truckline = 1, trainline = 2, shipline = 3, airline = 4};
 
 	/*
 	 * constructor/destructor
@@ -200,5 +200,20 @@ class shipline_t : public simline_t
 		{
 			type = simline_t::shipline;
 			set_fahrplan(new schifffahrplan_t(fpl));
+		};
+};
+
+class airline_t : public simline_t
+{
+	public:
+		airline_t(karte_t * welt, simlinemgmt_t * simlinemgmt, fahrplan_t * fpl) : simline_t(welt, simlinemgmt, fpl)
+		{
+			type = simline_t::airline;
+		};
+
+		airline_t(karte_t * welt, simlinemgmt_t * simlinemgmt, loadsave_t * file) : simline_t(welt, simlinemgmt, file)
+		{
+			type = simline_t::airline;
+			set_fahrplan(new airfahrplan_t(fpl));
 		};
 };

@@ -30,9 +30,10 @@ Stichpunkte
 - FastForward-Button: done
 - A* pfadsuche: done
 
-- distribution_weight für Versorgerfabriken berücktsichtigen
 - details for convois
 - cursor für up/down
+- connection weighted by their intermediate stops => A* for goods routing
+- when import tranaslation: ignore entries which are identical (saving runtime)
 
 - Landfabrik alle x Jahre/Fakriken
 - Brücken an senkrechten Wänden

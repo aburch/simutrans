@@ -336,7 +336,7 @@ haltestelle_t::haltestelle_t(karte_t *wl, loadsave_t *file) : self(this)
     pax_unhappy = 0;
     pax_no_route = 0;
 
-	station_crowded = false;
+	enables = NOT_ENABLED;
 
     // @author hsiegeln
     sortierung = haltestelle_t::by_name;
@@ -359,11 +359,8 @@ haltestelle_t::haltestelle_t(karte_t *wl, koord pos, spieler_t *sp) : self(this)
 #ifdef LAGER_NOT_IN_USE
     lager = NULL;
 #endif
-    pax_enabled = false;
-    post_enabled = false;
-    ware_enabled = false;
 
-	station_crowded = false;
+	enables = NOT_ENABLED;
 
     pax_happy = 0;
     pax_unhappy = 0;
@@ -433,9 +430,9 @@ haltestelle_t::step()
  */
 void haltestelle_t::neuer_monat()
 {
-	if(station_crowded) {
+	if(enables&CROWDED) {
 		besitzer_p->bescheid_station_voll(self);
-		station_crowded = false;
+		enables &= (PAX|POST|WARE);
 	}
 
 	// reroute only monthly!
@@ -1461,6 +1458,27 @@ haltestelle_t::hat_gehalten(int /*number_of_cars*/,const ware_besch_t *type, con
 }
 
 
+
+/* checks, if there is an unoccupied loading bay for this kind of thing
+ * @author prissi
+ */
+bool
+haltestelle_t::find_free_position(const weg_t::typ w,const ding_t::typ d) const
+{
+	// iterate over all tiles
+	slist_iterator_tpl<grund_t *> iter( grund );
+	while(iter.next()) {
+		grund_t *gr = iter.get_current();
+		// found a stop for this waytype but without object d ...
+		if(gr->gib_weg(w)!=NULL  &&  gr->suche_obj(d)==NULL) {
+			return true;
+		}
+	}
+	return false;
+}
+
+
+
 const char *
 haltestelle_t::quote_bezeichnung(int quote) const
 {
@@ -1620,34 +1638,39 @@ void haltestelle_t::get_freight_info(cbuffer_t & buf)
 
 void haltestelle_t::get_short_freight_info(cbuffer_t & buf)
 {
-  bool got_one = false;
+	bool got_one = false;
 
-  for(unsigned int i=0; i<warenbauer_t::gib_waren_anzahl(); i++) {
-    const ware_besch_t *wtyp = warenbauer_t::gib_info(i);
+	for(unsigned int i=0; i<warenbauer_t::gib_waren_anzahl(); i++) {
+		const ware_besch_t *wtyp = warenbauer_t::gib_info(i);
+		if(gibt_ab(wtyp)) {
 
-    if(gibt_ab(wtyp)) {
-      if(got_one) {
-	buf.append(", ");
-      }
+			// ignore goods with sum=zero
+			const int summe=gib_ware_summe(wtyp);
+			if(summe>0) {
 
-      buf.append(gib_ware_summe(wtyp));
-      buf.append(translator::translate(wtyp->gib_mass()));
-      buf.append(" ");
-      buf.append(translator::translate(wtyp->gib_name()));
+				if(got_one) {
+					buf.append(", ");
+				}
 
-      got_one = true;
-    }
-  }
+				buf.append(summe);
+				buf.append(translator::translate(wtyp->gib_mass()));
+				buf.append(" ");
+				buf.append(translator::translate(wtyp->gib_name()));
 
+				got_one = true;
+			}
+		}
+	}
 
-  if(got_one) {
-    buf.append(" ");
-    buf.append(translator::translate("waiting"));
-    buf.append("\n");
-  } else {
-    buf.append(translator::translate("no goods waiting"));
-    buf.append("\n");
-  }
+	if(got_one) {
+		buf.append(" ");
+		buf.append(translator::translate("waiting"));
+		buf.append("\n");
+	}
+	else {
+		buf.append(translator::translate("no goods waiting"));
+		buf.append("\n");
+	}
 }
 
 
@@ -1718,8 +1741,8 @@ void
 haltestelle_t::recalc_station_type()
 {
 	slist_iterator_tpl<grund_t *> iter( grund );
-	post_enabled = false;	// check for post office
 	int new_station_type = 0;
+	enables &= CROWDED;	// clear flags
 
 	// iterate over all tiles
 	while(iter.next()) {
@@ -1730,6 +1753,10 @@ haltestelle_t::recalc_station_type()
 		if(gr->ist_wasser()) {
 			// may happend around oil rigs and so on
 			new_station_type |= dock;
+			// for water factories
+			if(besch) {
+				enables |= besch->get_enabled();
+			}
 			continue;
 		}
 
@@ -1741,24 +1768,28 @@ haltestelle_t::recalc_station_type()
 //if(besch) DBG_DEBUG("haltestelle_t::get_station_type()","besch(%p)=%s",besch,besch->gib_name());
 
 		// there is only one loading bay ...
-		if(besch==hausbauer_t::frachthof_besch) {
+		if(besch->gib_utyp()==hausbauer_t::ladebucht) {
 			new_station_type |= loadingbay;
 		}
 		// check for trainstation
-		else if((new_station_type&railstation)==0  &&  hausbauer_t::train_stops.contains(besch)) {
+		else if(besch->gib_utyp()==hausbauer_t::bahnhof) {
 			new_station_type |= railstation;
 		}
-		// check for dock
-		else if((new_station_type&dock)==0  &&  (hausbauer_t::ship_stops.contains(besch)  ||  hausbauer_t::ship_channel_stops.contains(besch))) {
+		// check for habour
+		else if(besch->gib_utyp()==hausbauer_t::hafen  ||  besch->gib_utyp()==hausbauer_t::binnenhafen) {
 			new_station_type |= dock;
 		}
-		// check for roadstop
-		else if((new_station_type&busstop)==0  &&  hausbauer_t::car_stops.contains(besch)) {
+		// check for bus
+		else if(besch->gib_utyp()==hausbauer_t::bushalt) {
 			new_station_type |= busstop;
 		}
-		else if(!post_enabled  &&  (hausbauer_t::post_offices.contains(besch)  ||  gb->fabrik()!=NULL) ) {
-			post_enabled = true;
+		// check for airport
+		else if(besch->gib_utyp()==hausbauer_t::airport) {
+			new_station_type |= airstop;
 		}
+
+		// enabled the matching types
+		enables |= besch->get_enabled();
 
 	}
 	station_type = (haltestelle_t::stationtyp)new_station_type;
@@ -1878,9 +1909,11 @@ haltestelle_t::rdwr(loadsave_t *file)
     }
     pos.rdwr( file );
     file->rdwr_long(spieler_n, "\n");
-    file->rdwr_bool(pax_enabled, " ");
-    file->rdwr_bool(post_enabled, " ");
-    file->rdwr_bool(ware_enabled, "\n");
+
+    bool dummy;
+    file->rdwr_bool(dummy, " "); // pax
+    file->rdwr_bool(dummy, " "); // post
+    file->rdwr_bool(dummy, "\n");	// ware
 
     if(file->is_loading()) {
       besitzer_p = welt->gib_spieler(spieler_n);
@@ -1903,12 +1936,6 @@ haltestelle_t::rdwr(loadsave_t *file)
 		else {
 dbg->warning("haltestelle_t::rdwr()", "will no longer add ground without building at %s!",k3_to_cstr(k).chars());
 		}
-
-		// Hajo: some versions generated oil rigs that did not accept
-		// passengers. This line will change all water-based stations
-		// to accept passengers. Should be removed once the savegames
-		// are converted
-		// if(gr->ist_wasser()) set_pax_enabled( true );
 
 	    }
 	} while( k != koord3d::invalid);

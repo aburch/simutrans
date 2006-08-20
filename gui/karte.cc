@@ -146,6 +146,13 @@ reliefkarte_t::calc_relief_farbe(const karte_t *welt, const koord k)
 			    } else {
 					color = SCHIENE_KENN;
 			    }
+			} else if(gr->gib_weg(weg_t::luft)) {
+			    if(gr->gib_halt()!=NULL) {
+					color = HALT_KENN;
+			    }
+			    else {
+					color = DUNKELORANGE;
+			    }
 			} else if(gr->gib_typ() == grund_t::fundament) {
 			    // auf einem fundament steht ein gebaeude
 			    // das ist objekt nr. 1
@@ -439,6 +446,8 @@ reliefkarte_t::calc_map(int render_mode)
 	    cargo += gr->gib_weg(weg_t::schiene)->get_statistics(WAY_STAT_GOODS);
 	  if (gr->gib_weg(weg_t::wasser))
 	    cargo += gr->gib_weg(weg_t::wasser)->get_statistics(WAY_STAT_GOODS);
+	  if (gr->gib_weg(weg_t::luft))
+	    cargo += gr->gib_weg(weg_t::luft)->get_statistics(WAY_STAT_GOODS);
 	  if (cargo > 0)
 	    setze_relief_farbe_area(k, 1, calc_severity_color(cargo, 1000));
 	  break;
@@ -446,19 +455,8 @@ reliefkarte_t::calc_map(int render_mode)
 	case MAP_STATUS:
 	{
 	    halthandle_t halt = gr->gib_halt();
-	  if (halt.is_bound()   && (halt->gib_besitzer()==welt->get_active_player()  ||  halt->gib_besitzer()==welt->gib_spieler(1)) ) {
-		  int color = GREEN;
-		  if(halt->get_pax_happy() > 0 || halt->get_pax_no_route() > 0) {
-		    if(halt->get_pax_no_route() > halt->get_pax_happy() * 8) {
-		      color = GELB;
-		    }
-		    if(halt->get_pax_unhappy() > 200) {
-		      color = ROT;
-		    } else if(halt->get_pax_unhappy() > 40) {
-		      color = ORANGE;
-		    }
-		  }
-		  setze_relief_farbe_area(k, 3, color);
+	  if (halt.is_bound()  && (halt->gib_besitzer()==welt->get_active_player()  ||  halt->gib_besitzer()==welt->gib_spieler(1)) ) {
+		  setze_relief_farbe_area(k, 3, halt->gib_status_farbe());
 		}
 	    }
 	  break;
@@ -482,6 +480,9 @@ reliefkarte_t::calc_map(int render_mode)
 	  }
 	  if (gr->gib_weg(weg_t::wasser)) {
 	    cargo += gr->gib_weg(weg_t::wasser)->get_statistics(WAY_STAT_CONVOIS);
+	  }
+	  if (gr->gib_weg(weg_t::luft)) {
+	    cargo += gr->gib_weg(weg_t::luft)->get_statistics(WAY_STAT_CONVOIS);
 	  }
 	  if (cargo > 0) {
 	    setze_relief_farbe_area(k, 1, calc_severity_color(cargo, 4));

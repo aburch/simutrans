@@ -20,6 +20,7 @@
 #include "../simware.h"
 #include "../simfab.h"
 #include "../simwin.h"
+#include "../simcolor.h"
 #include "../dataobj/translator.h"
 #include "../simplay.h"
 
@@ -131,6 +132,7 @@ bool halt_list_frame_t::passes_filter(halthandle_t halt)
 	if(!(gib_filter(frachthof_filter) && (t & haltestelle_t::loadingbay)) &&
 	   !(gib_filter(bahnhof_filter) && (t & haltestelle_t::railstation)) &&
 	   !(gib_filter(bushalt_filter) && (t & haltestelle_t::busstop)) &&
+	   !(gib_filter(airport_filter) && (t & haltestelle_t::airstop)) &&
 	   !(gib_filter(dock_filter) && (t & haltestelle_t::dock)))
 	{
 	    return false;
@@ -140,19 +142,11 @@ bool halt_list_frame_t::passes_filter(halthandle_t halt)
 	ok = false;
 
 	if(gib_filter(ueberfuellt_filter)) {
-	    for(unsigned int i = 0; i < warenbauer_t::gib_waren_anzahl(); i++) {
-		const ware_besch_t *ware = warenbauer_t::gib_info(i);
-
-		// Passagier und Post zählen nicht als überfüllt ?
-		if(warenbauer_t::ist_fabrik_ware(ware))
-		{
-		    ok = halt->gib_ware_summe(ware) >= 1000;
-		}
-	    }
+		const int farbe=halt->gib_status_farbe();
+		ok = (farbe==ROT  &&  farbe==ORANGE);
 	}
 	if(!ok && gib_filter(ohneverb_filter)) {
 	    const slist_tpl<warenziel_t> *ziele = halt->gib_warenziele();
-	    //ok = ziele->count() > 0; //04-nov-2004	markus weber	changed	(filter has only displayed stations with connections)
 	    ok = (ziele->count() == 0); //only display stations with NO connection
 	}
 	if(!ok) {

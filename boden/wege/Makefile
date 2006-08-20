@@ -2,10 +2,10 @@ CFLAGS = -Wall -O -g -c
 CXXFLAGS = -Wall -O -g -c
 
 SOURCES= \
-schiene.cc strasse.cc weg.cc kanal.cc
+schiene.cc strasse.cc weg.cc kanal.cc runway.cc
 
 OBJECTS= \
-schiene.o strasse.o weg.o kanal.o
+schiene.o strasse.o weg.o kanal.o runway.o
 
 
 all: $(OBJECTS)

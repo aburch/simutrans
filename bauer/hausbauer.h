@@ -44,7 +44,10 @@ public:
     /**
      * Unbekannte Gebäude sind nochmal unterteilt
      */
-    enum utyp { unbekannt, special, sehenswuerdigkeit, denkmal, fabrik, rathaus, weitere, firmensitz };
+    enum utyp { unbekannt=0, special=1, sehenswuerdigkeit=2, denkmal=3, fabrik=4, rathaus=5, weitere=6, firmensitz=7,
+    					 bahnhof=8, bushalt=9, ladebucht=10, hafen=11, binnenhafen=12, airport=13,
+    					 bahnhof_geb=16, bushalt_geb=17, ladebucht_geb=18, hafen_geb=19, binnenhafen_geb=20, airport_geb=21,
+    					 wartehalle=30, post=31, lagerhalle=32 };
 
 private:
     static slist_tpl<const haus_besch_t *> alle;
@@ -69,15 +72,10 @@ public:
     static const haus_besch_t *sch_depot_besch;
     static const haus_besch_t *monorail_depot_besch;
     static const haus_besch_t *monorail_foundation_besch;
-    static const haus_besch_t *muehle_besch;
 
     // to allow for an arbitary number, we use lists
     static slist_tpl<const haus_besch_t *> hausbauer_t::station_building;
-    static slist_tpl<const haus_besch_t *> hausbauer_t::post_offices;
-    static slist_tpl<const haus_besch_t *> hausbauer_t::train_stops;
-    static slist_tpl<const haus_besch_t *> hausbauer_t::car_stops;
-    static slist_tpl<const haus_besch_t *> hausbauer_t::ship_stops;
-    static slist_tpl<const haus_besch_t *> hausbauer_t::ship_channel_stops;
+    static slist_tpl<const haus_besch_t *> hausbauer_t::air_depot;
     static slist_tpl<const haus_besch_t *> hausbauer_t::headquarter;
 
 private:
@@ -114,7 +112,9 @@ private:
     static const haus_besch_t *gib_special_intern(int bev, enum utyp utype, uint16 time);
 
     static void insert_sorted(slist_tpl<const haus_besch_t *> &liste, const haus_besch_t *besch);
+
 public:
+    static const haus_besch_t *gib_random_station(const enum utyp utype,const uint16 time,const uint8 enables);
 
     static const haus_tile_besch_t *find_tile(const char *name, int idx);
 
@@ -126,6 +126,14 @@ public:
      */
     static void fill_menu(werkzeug_parameter_waehler_t *wzw,
     		slist_tpl<const haus_besch_t *>&stops,
+    		int (* werkzeug)(spieler_t *, karte_t *, koord, value_t),
+    		const int sound_ok, const int sound_ko,const int cost, const uint16 time);
+
+    /* Fill menu with icons of given stops of a given type
+     * @author prissi
+     */
+    static void fill_menu(werkzeug_parameter_waehler_t *wzw,
+    		hausbauer_t::utyp,
     		int (* werkzeug)(spieler_t *, karte_t *, koord, value_t),
     		const int sound_ok, const int sound_ko,const int cost, const uint16 time);
 

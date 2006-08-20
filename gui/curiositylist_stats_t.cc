@@ -19,6 +19,7 @@
 #include "../simplan.h"
 
 #include "../besch/haus_besch.h"
+#include "../besch/skin_besch.h"
 
 #include "../utils/cbuffer_t.h"
 
@@ -102,12 +103,9 @@ if (IS_LEFTRELEASE(ev))
 		gebaeude_t * geb = attractions.at(line);
 		if(geb) {
 			const koord3d pos = geb->gib_pos();
-			if(welt->ist_in_kartengrenzen(pos.gib_2d()))
-			{
-				welt->setze_ij_off(pos.gib_2d() + koord(-5,-5));
-				if (event_get_last_control_shift() != 2) {
-					geb->zeige_info();
-				}
+			welt->setze_ij_off(pos.gib_2d() + koord(-5,-5));
+			if (event_get_last_control_shift() != 2) {
+				geb->zeige_info();
 			}
 		}
 	}
@@ -195,10 +193,10 @@ void curiositylist_stats_t::zeichnen(koord offset) const
 		buf.append(geb->gib_post_level());
 		buf.append(") ");
 
-		display_proportional_clip(xoff+20,yoff+6,buf,ALIGN_LEFT,SCHWARZ,true);
+		display_proportional_clip(xoff+26,yoff+6,buf,ALIGN_LEFT,SCHWARZ,true);
 
-		/*if (geb->gib_tile()->gib_besch()->gib_bauzeit() != 0)
-		    display_color_img(skinverwaltung_t::electricity->gib_bild_nr(0), xoff, yoff+6, 0, false, false);*/
+		if (geb->gib_tile()->gib_besch()->gib_bauzeit() != 0)
+		    display_color_img(skinverwaltung_t::intown->gib_bild_nr(0), xoff+16, yoff+6, 0, false, false);
 
 	    yoff +=LINESPACE+3;
 	}

@@ -293,7 +293,6 @@ bool
 depot_t::start_convoi(int icnv)
 {
 	convoihandle_t cnv = get_convoi(icnv);
-	route_t * route = new route_t();
 
 	if(cnv.is_bound() &&  cnv->gib_fahrplan() != NULL &&  cnv->gib_fahrplan()->ist_abgeschlossen() &&   cnv->gib_fahrplan()->maxi() > 0) {
 
@@ -301,7 +300,7 @@ depot_t::start_convoi(int icnv)
 		if(cnv->gib_sum_leistung() == 0 || !cnv->pruefe_alle()) {
 			create_win(100, 64, MESG_WAIT, new nachrichtenfenster_t(welt, "Diese Zusammenstellung kann nicht fahren!\n"), w_autodelete);
 		}
-		else if(!route->calc_route(welt, this->gib_pos(), cnv->gib_fahrplan()->eintrag.at(cnv->gib_fahrplan()->get_aktuell()).pos, cnv->gib_vehikel(0),0) ) {
+		else if(!cnv->gib_vehikel(0)->calc_route(welt, this->gib_pos(), cnv->gib_fahrplan()->eintrag.at(cnv->gib_fahrplan()->get_aktuell()).pos, cnv->gib_min_top_speed(), cnv->get_route()) ) {
 			// no route to go ...
 			static char buf[256];
 			sprintf(buf,translator::translate("Vehicle %s can't find a route!"), cnv->gib_name());
@@ -343,8 +342,6 @@ depot_t::start_convoi(int icnv)
 		else {
 			create_win(100, 64, new nachrichtenfenster_t(welt, "Blockstrecke ist\nbelegt\n"), w_autodelete);
 		}
-
-		delete route;
 	}
 	else {
 		create_win(100, 64, new nachrichtenfenster_t(welt, "Noch kein Fahrzeug\nmit Fahrplan\nvorhanden\n"), w_autodelete);
@@ -552,6 +549,12 @@ bahndepot_t::gib_name() const
 }
 
 
+const weg_t::typ bahndepot_t::get_wegtyp() const
+{
+	return is_tram?weg_t::schiene_strab:(is_monorail?weg_t::schiene_monorail:weg_t::schiene);
+}
+
+
 void
 bahndepot_t::build_line_list() {
 	welt->simlinemgmt->build_line_list(simline_t::trainline, &lines);
@@ -654,6 +657,65 @@ schiffdepot_t::build_line_list() {
 
 slist_tpl<simline_t *> *
 schiffdepot_t::get_line_list()
+{
+	build_line_list();
+	return &lines;
+}
+
+
+/* air hangar from here on */
+
+airdepot_t::airdepot_t(karte_t *welt, loadsave_t *file) : depot_t(welt)
+{
+  rdwr(file);
+}
+
+
+airdepot_t::airdepot_t(karte_t *welt, koord3d pos,spieler_t *sp, const haus_tile_besch_t *t) : depot_t(welt, pos, sp, t)
+{
+
+}
+
+void
+airdepot_t::convoi_arrived(convoihandle_t cnv, bool fpl_adjust)
+{
+    depot_t::convoi_arrived(cnv, fpl_adjust);
+
+    blockmanager::gib_manager()->pruefe_blockstrecke(welt, gib_pos());
+}
+
+
+
+fahrplan_t *
+airdepot_t::erzeuge_fahrplan(fahrplan_t * fpl)
+{
+    return new airfahrplan_t(fpl);
+}
+
+simline_t *
+airdepot_t::create_line(karte_t * welt)
+{
+    return welt->simlinemgmt->create_line(simline_t::airline);
+}
+
+const vehikel_besch_t *airdepot_t::get_vehicle_type(int itype)
+{
+    return vehikelbauer_t::gib_info(weg_t::luft, itype);
+}
+
+const char *
+airdepot_t::gib_name() const
+{
+    return "Hangar";
+}
+
+void
+airdepot_t::build_line_list() {
+	welt->simlinemgmt->build_line_list(simline_t::airline, &lines);
+}
+
+slist_tpl<simline_t *> *
+airdepot_t::get_line_list()
 {
 	build_line_list();
 	return &lines;

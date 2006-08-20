@@ -195,7 +195,7 @@ public:
               signal=8,
 
 	      bruecke=9, tunnel=10, gebaeudefundament=11,
-	      bahndepot=12, strassendepot=13, schiffdepot = 14,
+	      bahndepot=12, strassendepot=13, schiffdepot = 14, airdepot = 99,
 
 	      raucher=15,
 	      leitung = 16, pumpe = 17, senke = 18,
@@ -212,7 +212,7 @@ public:
 
 	      // vehikel sind von 32 bis 40
 	      automobil=32, waggon=33,
-	      schiff=34,
+	      schiff=34, aircraft=35,
 
 	      // individualverkehr
 	      verkehr=41,
@@ -230,8 +230,19 @@ public:
      inline const sint8 & gib_xoff() const {return xoff;};
      inline const sint8 & gib_yoff() const {return yoff;};
 
-     void setze_xoff(int xoff);
-     void setze_yoff(int yoff);
+     void setze_xoff(int xoff) {
+		if(this->xoff != xoff) {
+			this->xoff = xoff;
+			set_flag(dirty);
+		}
+	};
+
+     void setze_yoff(int yoff) {
+		if(this->yoff != yoff) {
+			this->yoff = yoff;
+			set_flag(dirty);
+		}
+	};
 
     /**
      * Mit diesem Konstruktor werden Objekte aus einer Datei geladen

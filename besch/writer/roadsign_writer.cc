@@ -40,7 +40,7 @@ void roadsign_writer_t::write_obj(FILE *fp, obj_node_t &parent, tabfileobj_t &ob
 	// Hajoval: int (useful range: 0-14)
 	roadsign_besch_t besch;
 	besch.min_speed = obj.get_int("min_speed", 0);
-	besch.single_way = obj.get_int("single_way", 0);
+	besch.flags = (obj.get_int("single_way", 0)>0) + (obj.get_int("free_route", 0)>0)*2;
 
 	// Hajo: temp vars of appropriate size
 	uint16 v16;
@@ -53,7 +53,7 @@ void roadsign_writer_t::write_obj(FILE *fp, obj_node_t &parent, tabfileobj_t &ob
 	v16 = (uint16) besch.min_speed;
 	node.write_data_at(fp, &v16, 2, sizeof(uint8));
 
-	v8 = (uint8)besch.single_way;
+	v8 = (uint8)besch.flags;
 	node.write_data_at(fp, &v8, 4, sizeof(uint8));
 
 	write_head(fp, node, obj);

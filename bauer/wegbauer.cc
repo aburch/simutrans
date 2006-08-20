@@ -17,6 +17,7 @@
 #include "../boden/wege/strasse.h"
 #include "../boden/wege/schiene.h"
 #include "../boden/wege/kanal.h"
+#include "../boden/wege/runway.h"
 #include "../boden/brueckenboden.h"
 #include "../boden/monorailboden.h"
 #include "../boden/grund.h"
@@ -537,6 +538,9 @@ wegbauer_t::ist_grund_fuer_strasse(koord pos, const koord zv, koord start, koord
 					(bd->gib_besitzer() == NULL || bd->gib_besitzer() == sp);
 			break;
 
+	case luft: // hsiegeln: runway
+		ok = ( ok || bd->gib_weg(weg_t::luft)) &&  (bd->gib_besitzer() == NULL || bd->gib_besitzer() == sp) &&  check_for_leitung(zv,bd)  &&  !bd->gib_depot()  &&  bd->gib_grund_hang()==0;
+		break;
 	}
 	return ok;
 }
@@ -1317,6 +1321,28 @@ wegbauer_t::calc_route(koord start, const koord ziel)
 {
 	INT_CHECK("simbau 740");
 
+	if(bautyp==luft  &&  besch->gib_topspeed()>=250) {
+		// assume, we will fail
+		max_n = -1;
+		// make sure no curves for runway
+		if(start.x!=ziel.x  &&  start.y!=ziel.y) {
+			// only straight runways!
+			return;
+		}
+		// ok, straight line!
+		const sint8 ribi = ribi_typ( start, ziel );
+		const weg_t *w1=welt->lookup(start)->gib_kartenboden()->gib_weg(weg_t::luft);
+		if(w1  &&  w1->gib_max_speed()>=250  &&  (ribi&w1->gib_ribi_unmasked())==0) {
+			// this would generate a curve onthe start tile!
+			return;
+		}
+		const weg_t *w2=welt->lookup(ziel)->gib_kartenboden()->gib_weg(weg_t::luft);
+		if(w2  &&  w2->gib_max_speed()>=250  &&  (ribi&w2->gib_ribi_unmasked())==0) {
+			// this would generate a curve on the end tile!
+			return;
+		}
+	}
+
 	keep_existing_city_roads |= (bautyp==strasse_bot);
     if(baubaer) {
 	intern_calc_route(start, ziel);
@@ -1894,7 +1920,98 @@ DBG_MESSAGE("wegbauer_t::baue_kanal()","extend ribi_t at (%i,%i) with %i",route-
 
 
 
-/* built a corrdinate list
+void
+wegbauer_t::baue_runway()
+{
+	int i;
+
+	if(max_n >= 1) {
+
+		for(i=1; i<max_n; i++) {
+			if(baubaer) {
+				optimiere_stelle(i);
+			}
+		}
+
+		// init undo
+		sp->init_undo(weg_t::luft,max_n);
+
+		// built tracks
+		for(i=0; i<=max_n; i++) {
+			int cost = 0;
+			grund_t *gr = welt->lookup(route->at(i))->gib_kartenboden();
+			ribi_t::ribi ribi = calc_ribi(i);
+			// extended ribi calculation for first and last tile
+			if(i==0  ||  i==max_n) {
+				// see slope!
+				if(gr->gib_hoehe()==welt->gib_grundwasser()) {
+					if(i>0) {
+						ribi |= ribi_typ( route->at(max_n-1), route->at(max_n) );
+					}
+					else {
+						ribi |= ribi_typ( route->at(1), route->at(0) );
+					}
+DBG_MESSAGE("wegbauer_t::baue_runway()","extend ribi_t at (%i,%i) with %i",route->at(i).x,route->at(i).y, ribi );
+				}
+			}
+
+			if(!gr->ist_wasser()) {
+				if(gr->weg_erweitern(weg_t::luft, ribi)) {
+					weg_t * weg = gr->gib_weg(weg_t::luft);
+					if(weg->gib_besch()!=besch && !(weg->gib_besch()->gib_topspeed()>besch->gib_topspeed())) {
+						if(sp) {
+							sp->add_maintenance(besch->gib_wartung() - weg->gib_besch()->gib_wartung());
+						}
+
+						weg->setze_besch(besch);
+						gr->calc_bild();
+						cost = -besch->gib_preis();
+					}
+
+				}
+				else {
+					runway_t * w = new runway_t(welt);
+					w->setze_besch(besch);
+					gr->neuen_weg_bauen(w, ribi, sp);
+
+					// prissi: into UNDO-list, so wie can remove it later
+					sp->add_undo( route->at(i) );
+
+					cost = -besch->gib_preis();
+				}
+
+				if(cost) {
+					sp->buche(cost, gr->gib_pos().gib_2d(), COST_CONSTRUCTION);
+				}
+
+				gr->calc_bild();
+
+				if(i&3==0) {
+					INT_CHECK( "wegbauer 1880" );
+				}
+			}
+		}
+	}
+
+	// V.Meyer: weg_position_t changed to grund_t::get_neighbour()
+	grund_t *start = welt->lookup(route->at(0))->gib_kartenboden();
+	grund_t *end = welt->lookup(route->at(max_n))->gib_kartenboden();
+	grund_t *to;
+
+	for (i=0; i <= 4; i++) {
+		if (start->get_neighbour(to, weg_t::luft, koord::nsow[i])) {
+			to->calc_bild();
+		}
+		if (end->get_neighbour(to, weg_t::luft, koord::nsow[i])) {
+			to->calc_bild();
+		}
+	}
+}
+
+
+
+
+/* built a coordinate list
  * @author prissi
  */
 void
@@ -1949,6 +2066,10 @@ wegbauer_t::baue()
 		case schiene_monorail:
 			DBG_MESSAGE("wegbauer_t::baue", "schiene_monorail");
 			baue_monorail();
+			break;
+		case luft:
+			DBG_MESSAGE("wegbauer_t::baue", "luft");
+			baue_runway();
 			break;
   }
  	INT_CHECK("simbau 1087");

@@ -7,13 +7,61 @@ Known bugs: (hard to fix)
 	sorting factories has an umlaute problem
 
 
+	FIX: air depot/terminal alignment
+	FIX: only straight runways
+	FIX: power large than 65536 and gear larger than 255 are now handled
+	FIX: slower acceleration on runways
+
+Release of 88.00
+
+22-Nov-2005:
+	FIX (hsiegeln): do not count vehicles in depot for line capacity
+	FIX (hsiegeln): display in convoi and schedule list
+	FIX (prissi): vehicles in depot are shown, even if obsolete (but apparantly worked before too)
+	FIX (prissi): speedboni are always initilized with default values
+	CHANGE (prissi): zero number if goods waiting are omitted in haltlist
+	FIX (prissi): vehicle going in wrong depots
+	CHANGE (prissi): haltlist now also with CNTRL functionality (CNTRL+click = only jump to position)
+
+20-Nov-2005 (prissi):
+	FIX: no income generated at waypoints
+	ADD: free chose of stops for cars after certain signposts (new sign flag "free_route=1")
+	ADD: new entry for halt filter (type "hlf_chk_airport")
+	ADD: indicator for city attraction in the attraction list
+	FIX: cursor alignment for up/down fixed
+	FIX: minimum income for any good is 1/8 of the normal income, even if speed bonus is negative
+
+17-Nov-05 (hsiegeln/prissi):
+	ADD: airplanes
+	ADD: stations need support building for certain types. Now there are freight stations that needs a waiting hall to accept passengers.
+		for the obj=building the type="" has been extended by the following types.
+			station - Rail stop (2 dir)
+			busstop - Road stop (2 dir)
+			carstop - Road stop (4 dir)
+			habour - in the sea (4 dir)
+			wharf - channel stop (2 dir)
+			airport - plane stop (4 dir)
+		These can have additional flags strings:
+			extension_building=1 - extents like the station buildings (1 dir) (cannot build on a way)
+			enables_pax=1 - passengers can travel from here
+			enables_post=1 - mail can start from here
+			enables_ware=1 - good are accepted here
+		Without these flags, a stop will not accept anything!
+		A freight station must posses "type=station  enables_ware=1" or it won't accept freigth.
+		For generic, not stop specific buildings, there are three entries left:
+			hall - waiting hall (1 dir)
+			post - post office (1 dir)
+			shed - goods shed (1 dir)
+	The halt list and halt dialoge are extended by a small symbol indicating what this station accepts.
+
+
 Release of 87.02
 
 13-Nov-2005 (prissi)
 	FIX: after reloading, check stations for post offices (was broken before)
 	FIX: search for next station failed too often
 	FIX: error message when AI failed building a route does not appear any more
-	FIX: crossing channels with eltric wires again ok
+	FIX: crossing channels with electric wires again ok
 	FIX: going to end of station also on bridges
 	FIX: avoid deleting parts of a bridge
 	FIX: default filter state for convoi list is off

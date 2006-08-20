@@ -43,7 +43,9 @@ class roadsign_besch_t : public obj_besch_t {
     friend class roadsign_writer_t;
     friend class roadsign_reader_t;
 
-    bool single_way;	// single way (0==unused)
+    enum types {ONE_WAY=1, FREE_ROUTE=2 };
+
+    short flags;
 
     int min_speed;	// max speed sign; 0==unused
 
@@ -70,7 +72,7 @@ public:
 
 	bool is_single_way() const
 	{
-		return single_way;
+		return flags&ONE_WAY!=0;
 	}
 
 	int gib_min_speed() const
@@ -86,7 +88,7 @@ public:
 	//  return true for a traffic light
 	bool is_traffic_light() const { return (gib_bild_anzahl()>4); };
 
-
+	bool is_free_route() const { return flags&FREE_ROUTE; };
 };
 
 #endif // __ROADSIGN_BESCH_H

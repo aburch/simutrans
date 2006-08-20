@@ -1967,11 +1967,6 @@ static inline void colorpixcopy(PIXVAL *dest,
 #endif
 
 
-extern void
-decode_img16(unsigned short *tp, const unsigned short *sp,
-             int h, const int disp_width);
-
-
 
 /**
  * Returns image width

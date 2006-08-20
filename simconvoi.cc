@@ -63,12 +63,13 @@ static const char * state_names[] =
   "FAHRPLANEINGABE",
   "ROUTING_1",
   "ROUTING_2",
-  "ROUTING_4",
+ "ROUTING_4",
   "ROUTING_5",
   "DRIVING",
   "LOADING",
-  "WAITING_FOR_CLEARANCE"
-};
+  "WAITING_FOR_CLEARANCE",
+  ""	// self destruct
+ };
 
 
 /**
@@ -127,7 +128,6 @@ void convoi_t::init(karte_t *wl, spieler_t *sp)
 
   convoi_info = NULL;
 
-
   anz_vehikel = 0;
   anz_ready = 0;
   ist_fahrend = true;
@@ -152,6 +152,7 @@ void convoi_t::init(karte_t *wl, spieler_t *sp)
   line_update_pending = -1;
 
   home_depot = koord3d(0,0,0);
+  last_stop_pos = koord3d(0,0,0);
 }
 
 
@@ -407,9 +408,9 @@ convoi_t::sync_step(long delta_t)
 				* but for interger, we have to use the order below and calculate actually 64*deccel, like the sum_gear_und_leistung */
 				/* since akt_speed=10/128 km/h and we want 64*200kW=(100km/h)^2*100t, we must multiply by (128*2)/100 */
 				/* But since the acceleration was too fast, we just deccelerate 4x more => >>6 instead >>8 */
-				int deccel = ( ( (akt_speed*sum_friction_weight)>>6 )*akt_speed ) / 100 + (sum_gesamtgewicht*64);	// this order is needed to prevent overflows!
+				sint32 deccel = ( ( (akt_speed*sum_friction_weight)>>6 )*(akt_speed>>2) ) / 25 + (sum_gesamtgewicht*64);	// this order is needed to prevent overflows!
 				// we normalize delta_t to 1/64th and check for speed limit */
-				int delta_v = ( ( (akt_speed>speed_limit?0:sum_gear_und_leistung) - deccel) *delta_t)/sum_gesamtgewicht;
+				sint32 delta_v = ( ( (akt_speed>speed_limit?0l:sum_gear_und_leistung) - deccel) *delta_t)/sum_gesamtgewicht;
 				// we need more accurate arithmetik, so we store the previous value
 				delta_v += previous_delta_v;
 				previous_delta_v = delta_v & 0xFFF;
@@ -455,12 +456,13 @@ convoi_t::sync_step(long delta_t)
 		const grund_t *gr = welt->lookup(fahr->at(0)->gib_pos());
 		depot_t * dp = gr->gib_depot();
 
-		// Gewinn für transport einstreichen
-		calc_gewinn();
 
 		if(dp) {
 			// ok, we are entering a depot
 			char buf[128];
+
+			// Gewinn für transport einstreichen
+			calc_gewinn();
 
 			akt_speed = 0;
 			sprintf(buf, translator::translate("!1_DEPOT_REACHED"), gib_name());
@@ -483,6 +485,8 @@ convoi_t::sync_step(long delta_t)
 			halthandle_t halt = haltestelle_t::gib_halt(welt, fahr->at(0)->gib_pos());
 			// we could have reached a non-haltestelle stop, so check before booking!
 			if (halt.is_bound()) {
+				// Gewinn für transport einstreichen
+				calc_gewinn();
 				akt_speed = 0;
 				halt->book(1, HALT_CONVOIS_ARRIVED);
 			}
@@ -532,23 +536,20 @@ int convoi_t::drive_to(koord3d start, koord3d ziel)
 {
   INT_CHECK("simconvoi 293");
 
-  bool ok = route.calc_route(welt, start, ziel, fahr->at(0), speed_to_kmh(min_top_speed) );
+	bool ok = anz_vehikel>0  ? fahr->at(0)->calc_route(welt, start, ziel, speed_to_kmh(min_top_speed), &route ) : false;
 
-  for(unsigned i=0; i<anz_vehikel; i++) {
-    fahr->at(i)->neue_fahrt();
-  }
+	if(ok) {
+//DBG_MESSAGE("convoi_t::drive_to()","route was found");
+		for(unsigned i=0; i<anz_vehikel; i++) {
+			fahr->at(i)->neue_fahrt();
+		}
+	}
+	else {
+		gib_besitzer()->bescheid_vehikel_problem(self,ziel);
+	}
 
-
-  INT_CHECK("simconvoi 297");
-
-  // printf("Convoi %p hat Route errechnet\n", this);
-
-
-  if(!ok) {
-    gib_besitzer()->bescheid_vehikel_problem(self,ziel);
-  }
-
-  return ok;
+	INT_CHECK("simconvoi 297");
+	return ok;
 }
 
 
@@ -1212,6 +1213,7 @@ convoi_t::rdwr(loadsave_t *file)
 	    case ding_t::automobil: v = new automobil_t(welt, file);  break;
 	    case ding_t::waggon:    v = new waggon_t(welt, file);     break;
 	    case ding_t::schiff:    v = new schiff_t(welt, file);     break;
+	    case ding_t::aircraft:    v = new aircraft_t(welt, file);     break;
 	    default:
 	        dbg->fatal("convoi_t::convoi_t()","Can't load vehicle type %d", typ);
 	    }
@@ -1305,6 +1307,12 @@ convoi_t::rdwr(loadsave_t *file)
 			home_depot.rdwr(file);
 		}
 
+	if(file->get_version()>=87001) {
+		last_stop_pos.rdwr(file);
+	}
+	else {
+		last_stop_pos = route.gib_max_n()>1 ? route.position_bei(0) : (anz_vehikel>0 ? fahr->at(0)->gib_pos() : koord3d(0,0,0) );
+	}
 }
 
 
@@ -1556,18 +1564,18 @@ void convoi_t::laden()
  */
 void convoi_t::calc_gewinn()
 {
-  int gewinn = 0;
+	int gewinn = 0;
 
-  for(unsigned i=0; i<anz_vehikel; i++) {
-    vehikel_t *v = fahr->at(i);
-    gewinn += v->calc_gewinn(route.position_bei(0),
-				fahr->at(0)->gib_pos()
-			     );
+	for(unsigned i=0; i<anz_vehikel; i++) {
+		vehikel_t *v = fahr->at(i);
+		gewinn += v->calc_gewinn(last_stop_pos, fahr->at(0)->gib_pos() );
+	}
+	if(anz_vehikel>0) {
+		last_stop_pos = fahr->at(0)->gib_pos();
+	}
 
-  }
-
-  besitzer_p->buche(gewinn, fahr->at(0)->gib_pos().gib_2d(), COST_INCOME);
-  jahresgewinn += gewinn;
+	besitzer_p->buche(gewinn, fahr->at(0)->gib_pos().gib_2d(), COST_INCOME);
+	jahresgewinn += gewinn;
 
 	// hsiegeln
 	book(gewinn, CONVOI_PROFIT);

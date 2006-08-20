@@ -36,6 +36,8 @@
  *	2   Bildliste Hintergrund
  *	3   Bildliste Vordergrund
  */
+ #include "skin_besch.h"
+
 class tunnel_besch_t : public obj_besch_t {
     friend class tunnel_writer_t;
 
@@ -70,6 +72,10 @@ public:
 
 	return besch ? besch->bild_nr : -1;
     }
+    const skin_besch_t *gib_cursor() const
+    {
+	return static_cast<const skin_besch_t *>(gib_kind(4));
+   }
 };
 
 

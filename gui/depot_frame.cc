@@ -537,8 +537,7 @@ void depot_frame_t::setze_fenstergroesse( koord gr )
 bool depot_frame_t::is_contained(const vehikel_besch_t *info)
 {
 	if(depot->vehicle_count()>0) {
-		const slist_tpl<vehikel_t *> *vehicle_list = depot->get_vehicle_list();
-		slist_iterator_tpl<vehikel_t *> iter(vehicle_list);
+		slist_iterator_tpl<vehikel_t *> iter(depot->get_vehicle_list());
 		while(iter.next()) {
 			if(iter.get_current()->gib_besch()==info) {
 				return true;
@@ -596,7 +595,8 @@ DBG_DEBUG("depot_frame_t::build_vehicle_lists()","%i passenger vehicle, %i  engi
 		// Hajo: check for timeline
 		// prissi: and retirement date
 		if(  (schiene_electric  ||  info->get_engine_type()!=vehikel_besch_t::electric)  &&
-			(!info->is_future(month_now))  &&  (show_retired_vehicles  ||  (!info->is_retired(month_now)) )   ||  is_contained(info)
+			(!info->is_future(month_now))  &&  (show_retired_vehicles  ||  (!info->is_retired(month_now)) )
+			||  is_contained(info)
 		) {
 			image_list_t::image_data_t img_data;
 

@@ -828,23 +828,25 @@ display_img_nc(const int n, const int xp, const int yp)
 void
 display_img(const int n, const int xp, const int yp, const int dirty)
 {
+	const int xpp=xp+images[n].x+images[n].w-1;
+	const int ypp=yp+images[n].y+images[n].h-1;
     if(dirty && n>=0 && n<anz_images) {
 	mark_rect_dirty_wc(xp+images[n].x,
                            yp+images[n].y,
-                           xp+images[n].x+images[n].w-1,
-                           yp+images[n].y+images[n].h-1);
+                           xpp,
+                           ypp);
     }
 
 
     if(xp>=clip_rect.x &&
        yp>=clip_rect.y &&
-       xp < clip_rect.xx-tile_raster_width &&
-       yp < clip_rect.yy-tile_raster_width) {
+       xpp < clip_rect.xx &&
+       ypp < clip_rect.yy) {
 
 	display_img_nc(n, xp, yp);
 
-    } else if(xp>clip_rect.x-tile_raster_width &&
-	      yp>clip_rect.y-tile_raster_width &&
+    } else if(xpp>=clip_rect.x &&
+	      ypp>=clip_rect.y &&
 	      xp < clip_rect.xx &&
 	      yp < clip_rect.yy) {
 	display_img_wc(n, xp, yp);

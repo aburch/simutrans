@@ -286,7 +286,7 @@ bool roadsign_t::register_besch(roadsign_besch_t *besch)
 			display_set_image_offset( besch->gib_bild_nr(3), +XOFF, -YOFF );
 			display_set_image_offset( besch->gib_bild_nr(11), +XOFF, -YOFF );
 		}
-		else {
+		else if(!besch->is_free_route()) {
 			const int XOFF=(30*get_tile_raster_width())/64;
 			const int YOFF=(14*get_tile_raster_width())/64;
 

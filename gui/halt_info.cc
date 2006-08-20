@@ -16,9 +16,11 @@
 #include "../simplay.h"
 #include "../simcolor.h"
 #include "../simgraph.h"
+#include "../simskin.h"
 
 #include "../dataobj/translator.h"
 #include "components/gui_chart.h"
+#include "../besch/skin_besch.h"
 
 static const char *sort_text[4] = {
   "Zielort",
@@ -52,16 +54,14 @@ halt_info_t::halt_info_t(karte_t *welt, halthandle_t halt)
     this->welt = welt;
 
     input.setze_pos(koord(11,4));
-    input.setze_groesse(koord(189, 13));
     input.setze_text(halt->access_name(), 48);
 
-
-    button.setze_groesse(koord(10*8+4, 13));
+    button.setze_groesse(koord(64, 13));
     button.text = translator::translate("Details");
     button.setze_typ(button_t::roundbox);
 
-    toggler.setze_groesse(koord(10*8+4, 13));
-    toggler.setze_pos(view.gib_pos() + koord(11, 72));
+    toggler.setze_groesse(koord(84, 13));
+    toggler.setze_pos(koord(11, 88));
     toggler.text = translator::translate("Chart");
     toggler.setze_typ(button_t::roundbox);
     toggler.set_tooltip(translator::translate("Show/hide statistics"));
@@ -70,8 +70,8 @@ halt_info_t::halt_info_t(karte_t *welt, halthandle_t halt)
     btoggled = false;
 
     // hsiegeln: added sort_button
-    sort_button.setze_groesse(koord(10*8+4, 13));
-    sort_button.setze_pos(view.gib_pos() + koord(105, 72));
+    sort_button.setze_groesse(koord(110, 13));
+    sort_button.setze_pos(koord(105, 88));
     sort_button.text = translator::translate("Zielort");
     sort_button.setze_typ(button_t::roundbox);
     sort_button.set_tooltip(translator::translate("Sort waiting list by"));
@@ -151,6 +151,20 @@ halt_info_t::zeichnen(koord pos, koord gr)
 
     gui_frame_t::zeichnen(pos, gr);
 
+	// now what do we accept here?
+	int left = 11;
+	if (halt->get_pax_enabled()) {
+	    display_color_img(skinverwaltung_t::passagiere->gib_bild_nr(0), pos.x+left, pos.y+40, 0, false, false);
+	    left += 10;
+	}
+	if (halt->get_post_enabled()) {
+	    display_color_img(skinverwaltung_t::post->gib_bild_nr(0), pos.x+left, pos.y+40, 0, false, false);
+	    left += 10;
+	}
+	if (halt->get_ware_enabled()) {
+	    display_color_img(skinverwaltung_t::waren->gib_bild_nr(0), pos.x+left, pos.y+40, 0, false, false);
+	}
+
     display_ddd_box(pos.x+viewpos.x, pos.y+viewpos.y+16, 66, 57, MN_GREY0, MN_GREY4);
 
 	// status box
@@ -163,7 +177,7 @@ halt_info_t::zeichnen(koord pos, koord gr)
     freight_info.clear();
     halt->info(freight_info);
 
-    display_multiline_text(pos.x+11, pos.y+40, freight_info, SCHWARZ);
+    display_multiline_text(pos.x+11, pos.y+56, freight_info, SCHWARZ);
 
     const int sortby = MIN(MAX(halt->get_sortby(), 0), 3);
 
@@ -234,7 +248,10 @@ void halt_info_t::resize(const koord delta)
 {
   gui_frame_t::resize(delta);
 
+  input.setze_groesse(koord(get_client_windowsize().x-23, 13));
+  button.setze_pos(koord(get_client_windowsize().x - 90-64-86,22));
+  toggler.setze_pos(koord(get_client_windowsize().x - 106-64,22));
+  sort_button.setze_pos(koord(get_client_windowsize().x - 108-16,btoggled?268:90));
+  view.setze_pos(koord(get_client_windowsize().x - 64 - 16 , 21));
   scrolly.setze_groesse(get_client_windowsize()-scrolly.gib_pos());
-  button.setze_pos(koord(get_client_windowsize().x - 93,4));
-  view.setze_pos(koord(get_client_windowsize().x - 64 - 20 , 21));
 }

@@ -11,6 +11,7 @@
 #define dings_roadsign_h
 
 #include "../simdings.h"
+#include "../besch/roadsign_besch.h"
 
 class roadsign_besch_t;
 class werkzeug_parameter_waehler_t;
@@ -69,6 +70,10 @@ public:
 	 * berechnet aktuelles bild
 	 */
 	void calc_bild();
+
+
+	// true, if a free route choose point (these are always single way the avoid recalculation of long return routes)
+	bool roadsign_t::is_free_route(uint8 check_dir) const { return besch->is_free_route() &&  check_dir==dir; };
 
 
 

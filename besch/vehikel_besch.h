@@ -87,12 +87,12 @@ private:
     uint16  zuladung;
     uint16  geschw;
     uint16  gewicht;
-    uint16  leistung;
+    uint32  leistung;
     uint16  betriebskosten;
 
     uint16  intro_date; // Hajo: introduction date
     uint16  obsolete_date; //phase out at
-    uint8   gear;       // Hajo: engine gear (power multiplier)
+    uint16  gear;       // Hajo: engine gear (power multiplier)
 
     sint8  typ;         // Hajo: Das ist der weg_t
     sint8  sound;

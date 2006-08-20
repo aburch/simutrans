@@ -26,7 +26,7 @@ class fahrplan_t
 public:
 
   enum fahrplan_type {
-    fahrplan = 0, autofahrplan = 1, zugfahrplan = 2, schifffahrplan = 3
+    fahrplan = 0, autofahrplan = 1, zugfahrplan = 2, schifffahrplan = 3, airfahrplan = 4
   };
 
 private:
@@ -197,6 +197,23 @@ public:
     schifffahrplan_t(loadsave_t *file) : fahrplan_t(file) {type = schifffahrplan;};
     schifffahrplan_t(fahrplan_t * fpl) : fahrplan_t(fpl) {type = schifffahrplan;};
     fahrplan_t * copy() { return new schifffahrplan_t(this); };
+};
+
+
+/* the schedule for air ...
+ * @author Hj. Malthaner
+ */
+class airfahrplan_t : public fahrplan_t
+{
+protected:
+    virtual bool ist_halt_erlaubt(const grund_t *) const;
+    virtual void zeige_fehlermeldung(karte_t *) const;
+
+public:
+    airfahrplan_t() : fahrplan_t() {type = airfahrplan;};
+    airfahrplan_t(loadsave_t *file) : fahrplan_t(file) {type = airfahrplan;};
+    airfahrplan_t(fahrplan_t * fpl) : fahrplan_t(fpl) {type = airfahrplan;};
+    fahrplan_t * copy() { return new airfahrplan_t(this); };
 };
 
 

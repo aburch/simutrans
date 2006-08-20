@@ -68,19 +68,13 @@ const haus_besch_t *hausbauer_t::str_depot_besch = NULL;
 const haus_besch_t *hausbauer_t::sch_depot_besch = NULL;
 const haus_besch_t *hausbauer_t::monorail_depot_besch = NULL;
 const haus_besch_t *hausbauer_t::monorail_foundation_besch = NULL;
-const haus_besch_t *hausbauer_t::muehle_besch = NULL;
 
-slist_tpl<const haus_besch_t *> hausbauer_t::train_stops;
-slist_tpl<const haus_besch_t *> hausbauer_t::car_stops;
-slist_tpl<const haus_besch_t *> hausbauer_t::ship_stops;
-slist_tpl<const haus_besch_t *> hausbauer_t::ship_channel_stops;
-slist_tpl<const haus_besch_t *> hausbauer_t::post_offices;
 slist_tpl<const haus_besch_t *> hausbauer_t::station_building;
 slist_tpl<const haus_besch_t *> hausbauer_t::headquarter;
+slist_tpl<const haus_besch_t *> hausbauer_t::air_depot;
 
 
 static spezial_obj_tpl<haus_besch_t> spezial_objekte[] = {
-    { &hausbauer_t::frachthof_besch,   "CarStop" },
     { &hausbauer_t::bahn_depot_besch,   "TrainDepot" },
     { &hausbauer_t::tram_depot_besch,   "TramDepot" },
     { &hausbauer_t::monorail_depot_besch,   "MonorailDepot" },
@@ -124,85 +118,79 @@ void hausbauer_t::insert_sorted(slist_tpl<const haus_besch_t *> &liste, const ha
 
 bool hausbauer_t::register_besch(const haus_besch_t *besch)
 {
-    alle.append(besch);
+	alle.append(besch);
 
-    ::register_besch(spezial_objekte, besch);
+	::register_besch(spezial_objekte, besch);
 
-    switch(besch->gib_typ()) {
-    case gebaeude_t::wohnung:
-	insert_sorted(wohnhaeuser, besch);
-	break;
-    case gebaeude_t::industrie:
-	insert_sorted(industriehaeuser, besch);
-	break;
-    case gebaeude_t::gewerbe:
-	insert_sorted(gewerbehaeuser, besch);
-	break;
-    case gebaeude_t::unbekannt:
-	switch(besch->gib_utyp()) {
-	case fabrik:
-	    fabriken.append(besch);
-	    break;
-	case denkmal:
-	    denkmaeler.append(besch);
-	    break;
-	case sehenswuerdigkeit:
-	    sehenswuerdigkeiten.append(besch);
-	    break;
-	case firmensitz:
-		headquarter.append(besch);
-		break;
-	case rathaus:
-	  // printf("Rathaus mit bev=%d\n", besch->gib_bauzeit());
-	case special:
-	    spezials.append(besch);
-	    break;
+	switch(besch->gib_typ()) {
 
-	case weitere:
-	{
-		int checkpos=strlen(besch->gib_name());
-		if(  strcmp("BusStop",besch->gib_name()+checkpos-7)==0  ) {
-DBG_DEBUG("hausbauer_t::register_besch()","Bus %s",besch->gib_name());
-			car_stops.append(besch);
-		}
-		else if(  strcmp("TrainStop",besch->gib_name()+checkpos-9)==0  ) {
-DBG_DEBUG("hausbauer_t::register_besch()","Bf %s",besch->gib_name());
-			train_stops.append(besch);
-		}
-		else if(  strcmp("ShipStop",besch->gib_name()+checkpos-8)==0  ) {
-DBG_DEBUG("hausbauer_t::register_besch()","Ship %s",besch->gib_name());
-			ship_stops.append(besch);
-		}
-		else if(  strcmp("ChannelStop",besch->gib_name()+checkpos-11)==0  ) {
-DBG_DEBUG("hausbauer_t::register_besch()","Ship (channel) %s",besch->gib_name());
-			ship_channel_stops.append(besch);
-		}
-		else if(  strcmp("PostOffice",besch->gib_name()+checkpos-10)==0  ) {
-DBG_DEBUG("hausbauer_t::register_besch()","Post %s",besch->gib_name());
-			post_offices.append(besch);
-		}
-		else if(  strcmp("StationBlg",besch->gib_name()+checkpos-10)==0  ) {
-DBG_DEBUG("hausbauer_t::register_besch()","Station building %s",besch->gib_name());
-			station_building.append(besch);
+		case gebaeude_t::wohnung:
+			insert_sorted(wohnhaeuser, besch);
+			break;
+
+		case gebaeude_t::industrie:
+			insert_sorted(industriehaeuser, besch);
+			break;
+
+		case gebaeude_t::gewerbe:
+			insert_sorted(gewerbehaeuser, besch);
+			break;
+
+		case gebaeude_t::unbekannt:
+		switch(besch->gib_utyp()) {
+			case fabrik:
+				fabriken.append(besch);
+				break;
+			case denkmal:
+				denkmaeler.append(besch);
+				break;
+			case sehenswuerdigkeit:
+				sehenswuerdigkeiten.append(besch);
+				break;
+			case firmensitz:
+				headquarter.append(besch);
+				break;
+			case rathaus:
+				// printf("Rathaus mit bev=%d\n", besch->gib_bauzeit());
+				case special:
+				spezials.append(besch);
+				break;
+			case weitere:
+				{
+				// allow for more than one air depot
+					int checkpos=strlen(besch->gib_name());
+					if(  strcmp("AirDepot",besch->gib_name()+checkpos-8)==0  ) {
+DBG_DEBUG("hausbauer_t::register_besch()","AirDepot %s",besch->gib_name());
+						air_depot.append(besch);
+					}
+				}
+				break;
+
+			default:
+				// usually station buldings
+				if(besch->gib_utyp()>=bahnhof  &&  besch->gib_utyp()<=lagerhalle) {
+					station_building.append(besch);
+DBG_DEBUG("hausbauer_t::register_besch()","Station %s",besch->gib_name());
+				}
+				else {
+DBG_DEBUG("hausbauer_t::register_besch()","unknown subtype %i of %s: ignored",besch->gib_utyp(),besch->gib_name());
+					return false;
+				}
+				break;
 		}
 	}
-	break;
-	default:
-	    return false;
+
+	const haus_tile_besch_t *tile;
+	int i = 0;
+	while((tile = besch->gib_tile(i++)) != NULL) {
+		const_cast<haus_tile_besch_t *>(tile)->setze_besch(besch);
 	}
-    }
-    const haus_tile_besch_t *tile;
-    int i = 0;
 
-    while((tile = besch->gib_tile(i++)) != NULL) {
-	const_cast<haus_tile_besch_t *>(tile)->setze_besch(besch);
-    }
-
-    if(besch_names.get(besch->gib_name())) {
-    	dbg->fatal("hausbauer_t::register_Besch()", "building %s duplicated", besch->gib_name());
-    }
-    besch_names.put(besch->gib_name(), besch);
-    return true;
+	if(besch_names.get(besch->gib_name())) {
+		dbg->fatal("hausbauer_t::register_Besch()", "building %s duplicated", besch->gib_name());
+	}
+	besch_names.put(besch->gib_name(), besch);
+	return true;
 }
 
 
@@ -226,6 +214,47 @@ DBG_DEBUG("hausbauer_t::fill_menu()","maximum %i",stops.count());
 
 DBG_DEBUG("hausbauer_t::fill_menu()","try at pos %i to add %s(%p)",i,besch->gib_name(),besch);
 		if(besch->gib_cursor()->gib_bild_nr(1) != -1) {
+			if(time==0  ||  (besch->get_intro_year_month()<=time  &&  besch->get_retire_year_month()>time)) {
+
+				// only add items with a cursor
+DBG_DEBUG("hausbauer_t::fill_menu()","at pos %i add %s",i,besch->gib_name());
+				sprintf(buf, "%s, %d$",translator::translate(besch->gib_name()),cost/(-100));
+
+				wzw->add_param_tool(werkzeug,
+				  (const void *)besch,
+				  karte_t::Z_PLAN,
+				  sound_ok,
+				  sound_ko,
+				  besch->gib_cursor()->gib_bild_nr(1),
+				  besch->gib_cursor()->gib_bild_nr(0),
+				  buf );
+			}
+		}
+	}
+}
+
+
+
+
+/**
+ * Fill menu with icons of given stops from the list
+ * @author Hj. Malthaner
+ */
+void hausbauer_t::fill_menu(werkzeug_parameter_waehler_t *wzw,
+	hausbauer_t::utyp utyp,
+	int (* werkzeug)(spieler_t *, karte_t *, koord, value_t),
+	const int sound_ok,
+	const int sound_ko,
+	const int cost,
+	const uint16 time)
+{
+DBG_DEBUG("hausbauer_t::fill_menu()","maximum %i",station_building.count());
+	for( unsigned i=0;  i<station_building.count();  i++  ) {
+		char buf[128];
+		const haus_besch_t *besch=station_building.at(i);
+
+//DBG_DEBUG("hausbauer_t::fill_menu()","try at pos %i to add %s (%p)",i,besch->gib_name(),besch);
+		if(besch->gib_utyp()==utyp  &&  besch->gib_cursor()->gib_bild_nr(1) != -1) {
 			if(time==0  ||  (besch->get_intro_year_month()<=time  &&  besch->get_retire_year_month()>time)) {
 
 				// only add items with a cursor
@@ -364,7 +393,7 @@ void hausbauer_t::baue(karte_t *welt,
 					gr->obj_pri_add(gb, 1);
 				}
 			}
-			else if( ship_stops.contains(besch) ) {
+			else if( besch->gib_utyp()==hausbauer_t::hafen ) {
 				// its a dock!
 				gr->obj_add(gb);
 				gr->setze_besitzer(sp);
@@ -397,14 +426,10 @@ void hausbauer_t::baue(karte_t *welt,
 				else if(besch->ist_firmensitz()) {
 					gb->setze_besitzer(sp);
 				}
-				else if(post_offices.contains(besch)) {
-					(*static_cast<halthandle_t *>(param))->add_grund(gr);
-					(*static_cast<halthandle_t *>(param))->set_post_enabled( true );
-				}
 				else if(station_building.contains(besch)) {
 					(*static_cast<halthandle_t *>(param))->add_grund(gr);
 				}
-				else if( ship_stops.contains(besch) ) {
+				 if( besch->gib_utyp()==hausbauer_t::hafen ) {
 					// its a dock!
 					gb->setze_yoff(0);
 				}
@@ -450,7 +475,7 @@ gebaeude_t *hausbauer_t::neues_gebaeude(karte_t *welt,
 
     gr->obj_pri_add(gb, pri);
 
-    if(train_stops.contains(besch)  ||  car_stops.contains(besch) ||  ship_channel_stops.contains(besch) ||  besch==hausbauer_t::frachthof_besch) {
+    if(station_building.contains(besch)) {
     	// is a station/bus stop
 	(*static_cast<halthandle_t *>(param))->add_grund(gr);
 	gr->calc_bild();
@@ -492,8 +517,34 @@ const haus_tile_besch_t *hausbauer_t::find_tile(const char *name, int idx)
 }
 
 
+
+
 // timeline routines
 // for time==0 these routines behave like the previous ones
+
+const haus_besch_t *hausbauer_t::gib_random_station(const enum utyp utype,const uint16 time,const uint8 enables)
+{
+	slist_iterator_tpl<const haus_besch_t *> iter(hausbauer_t::station_building);
+	slist_tpl<const haus_besch_t *>stops;
+
+	while(iter.next()) {
+		const haus_besch_t *besch = iter.get_current();
+		if(besch->gib_utyp()==utype  &&  (besch->get_enabled()&enables)!=0) {
+			// ok, now check timeline
+			if(time==0  ||  (besch->get_intro_year_month()<=time  &&  besch->get_retire_year_month()>time)) {
+				stops.append(besch);;
+			}
+		}
+	}
+	// found something?
+	if(stops.count()>0) {
+		if(stops.count()==1) {
+			return stops.at(0);
+		}
+		return stops.at(simrand(stops.count()));
+	}
+	return NULL;
+}
 
 const haus_besch_t *hausbauer_t::gib_special_intern(int bev, utyp utype,uint16 time)
 {

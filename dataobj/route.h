@@ -80,7 +80,7 @@ public:
      * @return Koordinate an index n
      * @author Hj. Malthaner
      */
-    const koord3d & position_bei(const unsigned int n) const { return route.at(n); };
+    const koord3d & position_bei(const unsigned int n) const { return route.get(n); };
 
 
     /**
@@ -99,11 +99,41 @@ public:
 
 
     /**
+     * kopiert positionen und hoehen von einer anderen route
+     * @author prissi
+     */
+    void append(const route_t *route);
+
+
+    /**
      * fügt k vorne in die route ein
      * @author Hj. Malthaner
      */
     void insert(koord3d k);
 
+    /**
+     * fügt k hinten in die route ein
+     * @author prissi
+     */
+    void append(koord3d k);
+
+    /**
+     * removes all tiles from the route
+     * @author prissi
+     */
+    void clear() { route.clear(); };
+
+    /**
+     * removes all tiles behind this position
+     * @author prissi
+     */
+    void remove_koord_from(int);
+
+	/* find the route to an unknow location (where tile_found becomes true)
+	 * the max_depth is the maximum length of a route
+	 * @author prissi
+	 */
+	bool find_route(karte_t *w, const koord3d start, fahrer_t *fahr, const uint32 max_khm, uint8 start_dir, uint32 max_depth );
 
     /**
      * berechnet eine route von start nach ziel.

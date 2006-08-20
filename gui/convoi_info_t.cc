@@ -14,6 +14,7 @@
 
 #include "../simplay.h"
 #include "../simconvoi.h"
+#include "../simdepot.h"
 #include "../simvehikel.h"
 #include "../simcolor.h"
 #include "../simgraph.h"
@@ -284,14 +285,15 @@ bool convoi_info_t::action_triggered(gui_komponente_t *komp)
 			slist_tpl<koord3d> all_depots;
 			karte_t * welt = cnv->gib_welt();
 			depot_t * depot = NULL;
+			const weg_t::typ waytype = cnv->gib_vehikel(0)->gib_wegtyp();
 			for (int x = 0; x < welt->gib_groesse_x(); x++) {
 				for (int y = 0; y < welt->gib_groesse_y(); y++) {
 					grund_t * gr = welt->lookup(koord(x,y))->gib_kartenboden();
 					if (gr) {
-						fahrer_t * fahr = cnv->gib_vehikel(0);
-						// only add depots to list, which are compatible with convoi
-						if (fahr->ist_befahrbar(gr)) {
-							depot = gr->gib_depot();
+						depot = gr->gib_depot();
+						if(depot  &&  depot->get_wegtyp()!=waytype) {
+							// that was not the right depot for this vehicle
+							depot = NULL;
 						}
 					}
 					if (depot) {
@@ -309,7 +311,7 @@ DBG_MESSAGE("convoi_info_t::action_triggered()","search depot: found on %i,%i",g
 			koord3d home = koord3d(0,0,0);
 			while (depot_iter.next()) {
 				koord3d pos = depot_iter.get_current();
-				bool found = route->calc_route(welt, cnv->gib_pos(), pos, cnv->gib_vehikel(0), 0 );	// do not care about speed
+				bool found = cnv->gib_vehikel(0)->calc_route(welt, cnv->gib_pos(), pos,  50, route );	// do not care about speed
 				if (found) {
 					if (route->gib_max_n() < shortest_route->gib_max_n() || shortest_route->gib_max_n() == -1) {
 						shortest_route->kopiere(route);

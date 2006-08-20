@@ -195,6 +195,7 @@ private:
     void baue_leitung();
     void baue_monorail();
     void baue_kanal();
+    void baue_runway();
 
 public:
 

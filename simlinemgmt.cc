@@ -180,6 +180,9 @@ simlinemgmt_t::rdwr(karte_t * welt, loadsave_t *file)
 					case simline_t::shipline:
 						line = new shipline_t(welt, this, file);
 						break;
+					case simline_t::airline:
+						line = new airline_t(welt, this, file);
+						break;
 					default:
 						line = new simline_t(welt, this, file);
 						break;
@@ -204,6 +207,10 @@ simlinemgmt_t::rdwr(karte_t * welt, loadsave_t *file)
 					case fahrplan_t::schifffahrplan:
 						line->set_fahrplan(new schifffahrplan_t(fpl));
 						line->set_linetype(simline_t::shipline);
+						break;
+					case fahrplan_t::airfahrplan:
+						line->set_fahrplan(new airfahrplan_t(fpl));
+						line->set_linetype(simline_t::airline);
 						break;
 					default:
 						line->set_fahrplan(new fahrplan_t(fpl));
@@ -321,6 +328,10 @@ simlinemgmt_t::create_line(int ltype, fahrplan_t * fpl)
 			line = new shipline_t(welt, this, new schifffahrplan_t(fpl));
 			DBG_MESSAGE("simlinemgmt_t::create_line()", "shipline created");
 			break;
+		case simline_t::airline:
+			line = new airline_t(welt, this, new airfahrplan_t(fpl));
+			DBG_MESSAGE("simlinemgmt_t::create_line()", "airline created");
+			break;
 		default:
 		    line = new simline_t(welt, this, new fahrplan_t(fpl));
 			DBG_MESSAGE("simlinemgmt_t::create_line()", "default line created");
@@ -361,6 +372,12 @@ simlinemgmt_t::build_line_list(int type, slist_tpl<simline_t *> * list)
       break;
     case simline_t::shipline:
       if (line->get_linetype() == simline_t::shipline ||
+	  line->get_linetype() == simline_t::line) {
+	list->append(line);
+    }
+    break;
+    case simline_t::airline:
+      if (line->get_linetype() == simline_t::airline ||
 	  line->get_linetype() == simline_t::line) {
 	list->append(line);
       }

@@ -141,7 +141,7 @@ void vehicle_writer_t::write_obj(FILE *fp, obj_node_t &parent, tabfileobj_t &obj
     uint8  uv8;
     sint8  sv8;
 
-    obj_node_t	node(this, 26, &parent, false);
+    obj_node_t	node(this, 29, &parent, false);
 
     write_head(fp, node, obj);
 
@@ -149,7 +149,7 @@ void vehicle_writer_t::write_obj(FILE *fp, obj_node_t &parent, tabfileobj_t &obj
     // Hajo: version number
     // Hajo: Version needs high bit set as trigger -> this is required
     //       as marker because formerly nodes were unversionend
-    uv16 = 0x8005;
+    uv16 = 0x8006;
     node.write_data_at(fp, &uv16, 0, sizeof(uint16));
 
 
@@ -179,32 +179,32 @@ void vehicle_writer_t::write_obj(FILE *fp, obj_node_t &parent, tabfileobj_t &obj
 
     // Hajodoc: Power of this vehicle in KW
     // Hajoval: int
-    uv16 = obj.get_int("power", 0);
-    node.write_data_at(fp, &uv16, 12, sizeof(uint16));
+    uv32 = obj.get_int("power", 0);
+    node.write_data_at(fp, &uv32, 12, sizeof(uint32));
 
 
     // Hajodoc: Running costs, given in cent per square
     // Hajoval: int
     uv16 = obj.get_int("runningcost", 0);
-    node.write_data_at(fp, &uv16, 14, sizeof(uint16));
+    node.write_data_at(fp, &uv16, 16, sizeof(uint16));
 
 
     // Hajodoc: Introduction date (year*16+month)
     // Hajoval: int
     uv16  = obj.get_int("intro_year", DEFAULT_INTRO_DATE) * 12;
     uv16 += obj.get_int("intro_month", 1) - 1;
-    node.write_data_at(fp, &uv16, 16, sizeof(uint16));
+    node.write_data_at(fp, &uv16, 18, sizeof(uint16));
 
     // Hajodoc: retire date (year*16+month)
     // Hajoval: int
     uv16 = obj.get_int("retire_year", DEFAULT_RETIRE_DATE) * 12;
     uv16 += obj.get_int("retire_month", 1) - 1;
-    node.write_data_at(fp, &uv16, 18, sizeof(uint16));
+    node.write_data_at(fp, &uv16, 20, sizeof(uint16));
 
     // Hajodoc: Engine gear (power multiplier)
     // Hajoval: int
-    uv8 = (obj.get_int("gear", 100) * 64) / 100;
-    node.write_data_at(fp, &uv8, 20, sizeof(uint8));
+    uv16 = (obj.get_int("gear", 100) * 64) / 100;
+    node.write_data_at(fp, &uv16, 22, sizeof(uint16));
 
 
     // Hajodoc: Type of way this vehicle drives on
@@ -212,13 +212,13 @@ void vehicle_writer_t::write_obj(FILE *fp, obj_node_t &parent, tabfileobj_t &obj
     const char *waytype = obj.get("waytype");
     const char waytype_uint = get_waytype(waytype, obj);
     uv8 = (waytype_uint==4) ? weg_t::schiene : waytype_uint;
-    node.write_data_at(fp, &uv8, 21, sizeof(uint8));
+    node.write_data_at(fp, &uv8, 24, sizeof(uint8));
 
 
     // Hajodoc: The sound to play on start, -1 for no sound
     // Hajoval: int
     sv8 = obj.get_int("sound", -1);
-    node.write_data_at(fp, &sv8, 22, sizeof(sint8));
+    node.write_data_at(fp, &sv8, 25, sizeof(sint8));
 
 
     if(waytype_uint == 4) {
@@ -228,7 +228,7 @@ void vehicle_writer_t::write_obj(FILE *fp, obj_node_t &parent, tabfileobj_t &obj
       const char *engine_type = obj.get("engine_type");
       uv8 = get_engine_type(engine_type, obj);
     }
-    node.write_data_at(fp, &uv8, 25, sizeof(uint8));
+    node.write_data_at(fp, &uv8, 26, sizeof(uint8));
 
 
     // Hajodoc: The freight type
@@ -332,8 +332,8 @@ void vehicle_writer_t::write_obj(FILE *fp, obj_node_t &parent, tabfileobj_t &obj
 	}
     } while (str.len() > 0);
 
-    node.write_data_at(fp, &besch_vorgaenger, 23, sizeof(sint8));
-    node.write_data_at(fp, &besch_nachfolger, 24, sizeof(sint8));
+    node.write_data_at(fp, &besch_vorgaenger, 27, sizeof(sint8));
+    node.write_data_at(fp, &besch_nachfolger, 28, sizeof(sint8));
 
     node.write(fp);
 }

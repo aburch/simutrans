@@ -38,6 +38,7 @@
 #include "obj_node.h"
 #include "text_writer.h"
 #include "imagelist_writer.h"
+#include "skin_writer.h"
 
 #include "tunnel_writer.h"
 
@@ -82,8 +83,18 @@ void tunnel_writer_t::write_obj(FILE *fp, obj_node_t &parent, tabfileobj_t &obj)
 	    (pos ? &backkeys : &frontkeys)->append(str);
 	}
     }
+
+    slist_tpl<cstring_t> cursorkeys;
+    cursorkeys.append(cstring_t(obj.get("cursor")));
+    cursorkeys.append(cstring_t(obj.get("icon")));
+
     imagelist_writer_t::instance()->write_obj(fp, node, backkeys);
     imagelist_writer_t::instance()->write_obj(fp, node, frontkeys);
+    cursorskin_writer_t::instance()->write_obj(fp, node, obj, cursorkeys);
+
+    cursorkeys.clear();
+    backkeys.clear();
+    frontkeys.clear();
 
     node.write_data(fp, &besch);
     node.write(fp);

@@ -41,8 +41,9 @@ public:
 	bahnhof_filter=128,
 	bushalt_filter=256,
 	dock_filter=512,
-	ueberfuellt_filter=1024,
-	ohneverb_filter=2048
+	airport_filter=1024,
+	ueberfuellt_filter=2048,
+	ohneverb_filter=4096
     };
 
 private:

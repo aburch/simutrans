@@ -37,9 +37,6 @@ public:
      */
     enum typ {wohnung, gewerbe, industrie, unbekannt};
 
-    static const int ALT;
-
-
     /**
      * Set to true to hide all non-station buildings
      * @author Hj. Malthaner

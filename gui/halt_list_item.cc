@@ -22,6 +22,7 @@
 #include "../simgraph.h"
 #include "../simplay.h"
 #include "../simevent.h"
+#include "../simworld.h"
 #include "../dataobj/translator.h"
 #include "../utils/cbuffer_t.h"
 #include "../utils/simstring.h"
@@ -36,9 +37,12 @@
  */
 void halt_list_item_t::infowin_event(const event_t *ev)
 {
-    if(IS_LEFTRELEASE(ev)) {
-	halt->zeige_info();
-    }
+	if(IS_LEFTRELEASE(ev)) {
+		halt->gib_welt()->setze_ij_off(halt->gib_basis_pos() + koord(-5,-5));
+		if (event_get_last_control_shift() != 2) {
+			halt->zeige_info();
+		}
+	}
 }
 
 
@@ -72,13 +76,26 @@ void halt_list_item_t::zeichnen(koord offset) const
                                   buf, ALIGN_LEFT, SCHWARZ, true);
 
 
-	// Hajo: removed call to translator, which doesn't made sense here
+	// now what do we accept here?
+	int left = 2;
+	if (halt->get_pax_enabled()) {
+	    display_color_img(skinverwaltung_t::passagiere->gib_bild_nr(0), pos.x+offset.x+left, pos.y+offset.y+20, 0, false, false);
+	    left += 10;
+	}
+	if (halt->get_post_enabled()) {
+	    display_color_img(skinverwaltung_t::post->gib_bild_nr(0), pos.x+offset.x+left, pos.y+offset.y+20, 0, false, false);
+	    left += 10;
+	}
+	if (halt->get_ware_enabled()) {
+	    display_color_img(skinverwaltung_t::waren->gib_bild_nr(0), pos.x+offset.x+left, pos.y+offset.y+20, 0, false, false);
+	}
+
 	buf.clear();
  	halt->get_short_freight_info(buf);
         display_proportional_clip(pos.x+offset.x+33, pos.y+offset.y+20,
                                   buf, ALIGN_LEFT, SCHWARZ, true);
 
-	int left = 210;
+	left = 210;
 
 
  	halttype = halt->get_station_type();
@@ -95,7 +112,11 @@ void halt_list_item_t::zeichnen(koord offset) const
 	  left += 23;
  	}
  	if (halttype & haltestelle_t::dock) {
-	    display_color_img(skinverwaltung_t::shiffshaltsymbol->gib_bild_nr(0), pos.x+offset.x+left, pos.y+offset.y-37, 0, false, false);
+	    display_color_img(skinverwaltung_t::schiffshaltsymbol->gib_bild_nr(0), pos.x+offset.x+left, pos.y+offset.y-37, 0, false, false);
+	  left += 23;
+ 	}
+ 	if (halttype & haltestelle_t::airstop) {
+	    display_color_img(skinverwaltung_t::airhaltsymbol->gib_bild_nr(0), pos.x+offset.x+left, pos.y+offset.y-37, 0, false, false);
 	  left += 23;
  	}
 

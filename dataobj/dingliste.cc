@@ -519,6 +519,7 @@ void dingliste_t::rdwr(karte_t *welt, loadsave_t *file, koord3d current_pos)
 				case ding_t::bahndepot:	    d = new bahndepot_t (welt, file);	        break;
 				case ding_t::strassendepot:	    d = new strassendepot_t (welt, file);       break;
 				case ding_t::schiffdepot:	    d = new schiffdepot_t (welt, file);	        break;
+				case ding_t::airdepot:	    d = new airdepot_t (welt, file);	        break;
 				case ding_t::bruecke:	    d = new bruecke_t (welt, file);	        break;
 				case ding_t::tunnel:	    d = new tunnel_t (welt, file);	        break;
 				case ding_t::pumpe:		    d = new pumpe_t (welt, file);	        break;

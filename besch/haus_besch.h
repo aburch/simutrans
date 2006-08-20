@@ -146,7 +146,8 @@ class haus_besch_t : public obj_besch_t {     // Daten für ein ganzes Gebäude
     koord		groesse;
     flag_t		flags;
     int			level;          // or passengers;
-    int			layouts;        // 1 2 oder 4
+    uint8		layouts;        // 1 2 oder 4
+    uint8		enables;		// if it is a stop, what is enabled ...
     uint8		chance;         // Hajo: chance to build, special buildings, only other is weight factor
 
     // when was this building allowed
@@ -273,6 +274,16 @@ public:
      */
     int get_retire_year_month() const {
       return obsolete_date;
+    }
+
+
+
+    /**
+     * @return time when obsolete
+     * @author prissi
+     */
+    int get_enabled() const {
+      return enables;
     }
 };
 

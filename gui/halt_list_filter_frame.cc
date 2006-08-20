@@ -28,9 +28,10 @@ koord halt_list_filter_frame_t::filter_buttons_pos[FILTER_BUTTONS] = {
     koord(21, 74),
     koord(21, 90),
     koord(21, 106),
-    koord(5, 127),
-    koord(21, 143),
+    koord(21, 122),
+    koord(5, 143),
     koord(21, 159),
+    koord(21, 175),
     koord(125, 4),
     koord(265, 4)
 };
@@ -42,6 +43,7 @@ const char *halt_list_filter_frame_t::filter_buttons_text[FILTER_BUTTONS] = {
     "hlf_chk_bushalt",
     "hlf_chk_bahnhof",
     "hlf_chk_anleger",
+    "hlf_chk_airport",
     "hlf_chk_spezial_filter",
     "hlf_chk_überfüllt",
     "hlf_chk_keine_verb",
@@ -56,6 +58,7 @@ halt_list_frame_t::filter_flag_t halt_list_filter_frame_t::filter_buttons_types[
     halt_list_frame_t::bushalt_filter,
     halt_list_frame_t::bahnhof_filter,
     halt_list_frame_t::dock_filter,
+    halt_list_frame_t::airport_filter,
     halt_list_frame_t::spezial_filter,
     halt_list_frame_t::ueberfuellt_filter,
     halt_list_frame_t::ohneverb_filter,

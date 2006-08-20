@@ -65,7 +65,6 @@
  */
 const skin_besch_t *skinverwaltung_t::hauptmenu = NULL;
 const skin_besch_t *skinverwaltung_t::schienen_werkzeug = NULL;
-const skin_besch_t *skinverwaltung_t::strassen_werkzeug = NULL;
 const skin_besch_t *skinverwaltung_t::schiffs_werkzeug = NULL;
 const skin_besch_t *skinverwaltung_t::hang_werkzeug = NULL;
 const skin_besch_t *skinverwaltung_t::special_werkzeug = NULL;
@@ -81,7 +80,8 @@ const skin_besch_t *skinverwaltung_t::meldungsymbol = NULL;
 const skin_besch_t *skinverwaltung_t::bauigelsymbol = NULL;
 const skin_besch_t *skinverwaltung_t::zughaltsymbol = NULL;
 const skin_besch_t *skinverwaltung_t::autohaltsymbol = NULL;
-const skin_besch_t *skinverwaltung_t::shiffshaltsymbol = NULL;
+const skin_besch_t *skinverwaltung_t::schiffshaltsymbol = NULL;
+const skin_besch_t *skinverwaltung_t::airhaltsymbol = NULL;
 const skin_besch_t *skinverwaltung_t::bushaltsymbol = NULL;
 
 const skin_besch_t *skinverwaltung_t::fragezeiger = NULL;
@@ -92,9 +92,6 @@ const skin_besch_t *skinverwaltung_t::belegtzeiger = NULL;
 const skin_besch_t *skinverwaltung_t::killzeiger = NULL;
 const skin_besch_t *skinverwaltung_t::slopezeiger = NULL;
 const skin_besch_t *skinverwaltung_t::fahrplanzeiger = NULL;
-const skin_besch_t *skinverwaltung_t::strassentunnelzeiger = NULL;
-const skin_besch_t *skinverwaltung_t::schienentunnelzeiger = NULL;
-const skin_besch_t *skinverwaltung_t::frachthofzeiger = NULL;
 const skin_besch_t *skinverwaltung_t::werftNSzeiger = NULL;
 const skin_besch_t *skinverwaltung_t::werftOWzeiger = NULL;
 const skin_besch_t *skinverwaltung_t::stadtzeiger = NULL;
@@ -110,7 +107,10 @@ const skin_besch_t *skinverwaltung_t::senke = NULL;
 
 const skin_besch_t *skinverwaltung_t::oberleitung = NULL;
 const skin_besch_t *skinverwaltung_t::electricity = NULL;
-
+const skin_besch_t *skinverwaltung_t::intown = NULL;
+const skin_besch_t *skinverwaltung_t::passagiere = NULL;
+const skin_besch_t *skinverwaltung_t::post = NULL;
+const skin_besch_t *skinverwaltung_t::waren = NULL;
 
 /**
  * Window skin images
@@ -134,7 +134,6 @@ static spezial_obj_tpl<skin_besch_t> menu_objekte[] = {
     { &skinverwaltung_t::window_skin,	    "WindowSkin" },
     { &skinverwaltung_t::hauptmenu,	    "MainMenu" },
     { &skinverwaltung_t::schienen_werkzeug, "RailTools" },
-    { &skinverwaltung_t::strassen_werkzeug, "RoadTools" },
     { &skinverwaltung_t::schiffs_werkzeug,  "ShipTools" },
     { &skinverwaltung_t::hang_werkzeug,     "SlopeTools" },
     { &skinverwaltung_t::special_werkzeug,     "SpecialTools" },
@@ -153,9 +152,14 @@ static spezial_obj_tpl<skin_besch_t> symbol_objekte[] = {
     { &skinverwaltung_t::bauigelsymbol,	    "Builder" },
     { &skinverwaltung_t::zughaltsymbol,	    "TrainStop" },
     { &skinverwaltung_t::autohaltsymbol,    "CarStop" },
-    { &skinverwaltung_t::shiffshaltsymbol,  "ShipStop" },
+    { &skinverwaltung_t::schiffshaltsymbol,  "ShipStop" },
     { &skinverwaltung_t::bushaltsymbol,	    "BusStop" },
+    { &skinverwaltung_t::airhaltsymbol,  "AirStop" },
     { &skinverwaltung_t::electricity,	    "Electricity" },
+    { &skinverwaltung_t::intown,	    "InTown" },
+    { &skinverwaltung_t::passagiere,	    "Passagiere" },
+    { &skinverwaltung_t::post,	    "Post" },
+    { &skinverwaltung_t::waren,	    "Waren" },
     { NULL, NULL }
 };
 
@@ -168,9 +172,6 @@ static spezial_obj_tpl<skin_besch_t> cursor_objekte[] = {
     { &skinverwaltung_t::killzeiger,		"Remove" },
     { &skinverwaltung_t::slopezeiger,		"Slope" },
     { &skinverwaltung_t::fahrplanzeiger,	"Schedule" },
-    { &skinverwaltung_t::strassentunnelzeiger,	"RoadTunnel" },
-    { &skinverwaltung_t::schienentunnelzeiger,	"RailTunnel" },
-    { &skinverwaltung_t::frachthofzeiger,	"CarStop" },
     { &skinverwaltung_t::werftNSzeiger,		"ShipDepotNS" },
     { &skinverwaltung_t::werftOWzeiger,		"ShipDepotEW" },
     { &skinverwaltung_t::stadtzeiger,		"City" },

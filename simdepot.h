@@ -181,6 +181,13 @@ public:
      * @author Volker Meyer
      */
     virtual const vehikel_besch_t *get_vehicle_type(int itype) = 0;
+
+    /**
+     * Returns the waytype for a certain vehicle; only way to distingiush differnt depots ...
+     * @author prissi
+     */
+    virtual const weg_t::typ get_wegtyp() const { return weg_t::invalid; };
+
     /**
      * A convoi arrived at the depot and is added to the convoi list.
      * If fpl_adjust is true, the current depot is removed from schedule.
@@ -300,6 +307,8 @@ public:
      */
     virtual const vehikel_besch_t *get_vehicle_type(int itype);
 
+    virtual const weg_t::typ get_wegtyp() const;
+
     enum ding_t::typ gib_typ() const {return bahndepot;};
     const char *gib_name() const;
 
@@ -352,6 +361,8 @@ public:
      * @author Volker Meyer
      */
     virtual const vehikel_besch_t *get_vehicle_type(int itype);
+
+    virtual const weg_t::typ get_wegtyp() const {return weg_t::strasse; };
 
     /**
      * Parameters to determine layout and behaviour of the depot_frame_t.
@@ -426,6 +437,7 @@ public:
     int get_y_grid() const { return 46; }
     unsigned get_max_convoi_length() const { return 4; }
 
+    virtual const weg_t::typ get_wegtyp() const {return weg_t::wasser; };
 
     enum ding_t::typ gib_typ() const {return schiffdepot;};
     const char *gib_name() const;
@@ -433,6 +445,67 @@ public:
 #if USE_NEW_GEBAUDE
     virtual void * operator new(size_t s) { return (schiffdepot_t *)freelist_t::gimme_node(sizeof(schiffdepot_t)); }
     virtual void operator delete(void *p) { freelist_t::putback_node(sizeof(schiffdepot_t),p); };
+#endif
+};
+
+class airdepot_t : public depot_t
+{
+protected:
+
+//fahrplan_t * erzeuge_fahrplan();
+
+  fahrplan_t * erzeuge_fahrplan(fahrplan_t * fpl = NULL);
+
+	simline_t * create_line(karte_t * welt);
+
+    virtual const char * gib_zieher_name() {
+	return "aircraft_tab";
+    };
+
+    virtual const char * gib_haenger_name() {
+	return "Waggon_tab";
+    };
+
+    virtual const char * gib_passenger_name() {
+	return "Flug_tab";
+    };
+
+	void build_line_list();
+
+public:
+
+	slist_tpl<simline_t *> *get_line_list();
+
+    airdepot_t(karte_t *welt, loadsave_t *file);
+    airdepot_t(karte_t *welt, koord3d pos,spieler_t *sp, const haus_tile_besch_t *t);
+
+    virtual void convoi_arrived(convoihandle_t cnv, bool fpl_adjust);
+
+    /**
+     * Parameters to determine layout and behaviour of the depot_frame_t.
+     * @author Volker Meyer
+     * @date  09.06.2003
+     */
+    int get_x_placement() const {return -10; }
+    int get_y_placement() const {return -23; }
+    int get_x_grid() const { return 36; }
+    int get_y_grid() const { return 36; }
+    unsigned get_max_convoi_length() const { return 1; }
+
+    /**
+     * Access to vehicle types which can be bought in the depot.
+     * @author Volker Meyer
+     */
+    virtual const vehikel_besch_t *get_vehicle_type(int itype);
+
+    virtual const weg_t::typ get_wegtyp() const {return weg_t::luft; };
+
+    enum ding_t::typ gib_typ() const {return airdepot;};
+    const char *gib_name() const;
+
+#if USE_NEW_GEBAUDE
+    virtual void * operator new(size_t s) { return (airdepot_t *)freelist_t::gimme_node(sizeof(airdepot_t)); }
+    virtual void operator delete(void *p) { freelist_t::putback_node(sizeof(airdepot_t),p); };
 #endif
 };
 

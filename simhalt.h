@@ -14,6 +14,9 @@
 #include "simdebug.h"
 #include "simware.h"
 #include "simtypes.h"
+#include "simdings.h"
+
+#include "boden/wege/weg.h"
 
 #include "bauer/warenbauer.h"
 
@@ -84,6 +87,7 @@ public:
    */
   static void set_max_hops(int hops);
 
+	enum station_flags { NOT_ENABLED=0, PAX=1, POST=2, WARE=4, CROWDED=8 };
 
 private:
 
@@ -132,8 +136,7 @@ public:
 
 
     //13-Jan-02     Markus Weber    Added
-    enum stationtyp {invalid=0, loadingbay = 1 ,
-                     railstation = 2, dock = 4, busstop = 8}; //could be combined with or!
+    enum stationtyp {invalid=0, loadingbay = 1 , railstation = 2, dock = 4, busstop = 8, airstop = 16 }; //could be combined with or!
 
     // @author hsiegeln added
     enum sort_mode_t { by_name=0, by_via=1, by_via_sum=2, by_amount=3};
@@ -258,10 +261,12 @@ private:
 
     koord pos;
 
-    bool pax_enabled;
-    bool post_enabled;
-    bool ware_enabled;
-    bool station_crowded;	// flag, if overflowing ...
+	/* station flags (most what enabled) */
+	uint8 enables;
+
+    void set_pax_enabled(bool yesno) {yesno ? enables|PAX : enables&(~PAX);};
+    void set_post_enabled(bool yesno) {yesno ? enables|POST : enables&(~POST);};
+    void set_ware_enabled(bool yesno) {yesno ? enables|WARE : enables&(~WARE);};
 
 
     /**
@@ -416,6 +421,9 @@ public:
     halthandle_t gib_halt(const koord ziel) const;
 
 
+    karte_t *gib_welt() const {return welt;};
+
+
     /**
      * Kann die Ware nicht zum Ziel geroutet werden (keine Route), dann werden
      * Ziel und Zwischenziel auf koord::invalid gesetzt.
@@ -433,24 +441,20 @@ public:
 	 */
 	bool is_connected(const halthandle_t halt, const ware_besch_t * wtyp);
 
-    void set_pax_enabled(bool yesno) {pax_enabled = yesno;};
-    void set_post_enabled(bool yesno){post_enabled = yesno;};
-    void set_ware_enabled(bool yesno){ware_enabled = yesno;};
-
-    bool get_pax_enabled() const { return pax_enabled;};
-    bool get_post_enabled() const { return post_enabled;};
-    bool get_ware_enabled() const { return ware_enabled;};
+    int get_pax_enabled() const { return enables&PAX;};
+    int get_post_enabled() const { return enables&POST;};
+    int get_ware_enabled() const { return enables&WARE;};
 
 	// check, if we accepts this good
 	// often called, thus inline ...
-	bool is_enabled( const ware_besch_t *wtyp ) {
+	int is_enabled( const ware_besch_t *wtyp ) {
 		if(wtyp==warenbauer_t::passagiere) {
-			return pax_enabled;
+			return enables&PAX;
 		}
 		else if(wtyp==warenbauer_t::post) {
-			return post_enabled;
+			return enables&POST;
 		}
-		return ware_enabled;
+		return enables&WARE;
 	}
 
     /**
@@ -547,6 +551,14 @@ public:
     void hat_gehalten(const int number_of_cars,
                       const ware_besch_t *warentyp,
                       const fahrplan_t *fpl);
+
+
+	/* checks, if there is an unoccupied loading bay for this kind of thing
+	 * @author prissi
+	 */
+	bool find_free_position(const weg_t::typ w ,const ding_t::typ d) const;
+
+
 
 
     void info(cbuffer_t & buf) const;
@@ -666,7 +678,7 @@ public:
     sint64 get_finance_history(int month, int cost_type) { return financial_history[month][cost_type]; };
 
 	// flags station for a crowded message at the beginning of next month
-	void bescheid_station_voll() { station_crowded = true; };
+	void bescheid_station_voll() { enables|CROWDED; };
 };
 
 

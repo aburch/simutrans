@@ -1,5 +1,6 @@
-#include "stdio.h"
-#include "stdarg.h"
+#include <stdio.h>
+#include <assert.h>
+#include <stdarg.h>
 
 #include "debug_helper.h"
 
@@ -38,10 +39,14 @@ void out_message(const char *who, const char *format, ...)
 // generate a division be zero error
 void trap()
 {
+#ifdef DEBUG
 	int i=32, j;
 	for( j=1; j>=0;  j-- )
 	{
 		i += (i/j);
 		printf("%*d",i);
 	}
+#else
+	assert(0);
+#endif
 }

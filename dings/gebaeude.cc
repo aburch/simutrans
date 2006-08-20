@@ -45,8 +45,6 @@
 #include "gebaeude.h"
 
 
-const int gebaeude_t::ALT = 10000;
-
 bool gebaeude_t::hide = false;
 
 
@@ -553,23 +551,14 @@ gebaeude_t::rdwr(loadsave_t *file)
 				// first check for special buildings
 				if(strstr(buf,"TrainStop")!=NULL) {
 					tile = hausbauer_t::find_tile("TrainStop", idx);
-					if(tile==NULL) {
-						tile = hausbauer_t::train_stops.at(0)->gib_tile(idx);
-					}
 				} else if(strstr(buf,"BusStop")!=NULL) {
 					tile = hausbauer_t::find_tile("BusStop", idx);
-					if(tile==NULL) {
-						tile = hausbauer_t::car_stops.at(0)->gib_tile(idx);
-					}
 				} else if(strstr(buf,"ShipStop")!=NULL) {
 					tile = hausbauer_t::find_tile("ShipStop", idx);
-					if(tile==NULL) {
-						tile = hausbauer_t::ship_stops.at(0)->gib_tile(idx);
-					}
 				} else if(strstr(buf,"PostOffice")!=NULL) {
-					tile = hausbauer_t::post_offices.at(0)->gib_tile(0);
+					tile = hausbauer_t::find_tile("PostOffice", idx);
 				} else if(strstr(buf,"StationBlg")!=NULL) {
-					tile = hausbauer_t::station_building.at(0)->gib_tile(0);
+					tile = hausbauer_t::find_tile("StationBlg", idx);
 				}
 				else {
 					// try to find a fitting building
