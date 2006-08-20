@@ -131,6 +131,7 @@ obj_besch_t * bridge_reader_t::read_node(FILE *fp, obj_node_info_t &node)
     besch->topspeed = decode_uint16(p);
     besch->preis = decode_uint32(p);
     besch->maintenance = 800;
+    besch->pillars_every = 0;
 
   } else if (version == 2) {
 
@@ -140,6 +141,18 @@ obj_besch_t * bridge_reader_t::read_node(FILE *fp, obj_node_info_t &node)
     besch->preis = decode_uint32(p);
     besch->maintenance = decode_uint32(p);
     besch->wegtyp = decode_uint8(p);
+    besch->pillars_every = 0;
+
+  } else if (version == 3) {
+
+    // Versioned node, version 3
+    // pillars added
+
+    besch->topspeed = decode_uint16(p);
+    besch->preis = decode_uint32(p);
+    besch->maintenance = decode_uint32(p);
+    besch->wegtyp = decode_uint8(p);
+    besch->pillars_every = decode_uint8(p);
 
   } else {
     // old node, version 0
@@ -150,12 +163,12 @@ obj_besch_t * bridge_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 
     besch->topspeed = 999;               // Safe default ...
     besch->maintenance = 800;
+    besch->pillars_every = 0;
   }
 
   DBG_DEBUG("bridge_reader_t::read_node()",
-	     "version=%d waytype=%d price=%d topspeed=%d",
-	     version, besch->wegtyp, besch->preis, besch->topspeed);
-
+	     "version=%d waytype=%d price=%d topspeed=%d,pillars=%i",
+	     version, besch->wegtyp, besch->preis, besch->topspeed,besch->pillars_every);
 
   return besch;
 }

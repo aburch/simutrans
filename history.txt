@@ -6,6 +6,20 @@ Known bugs: (hard to fix)
 	valgrind complains about errors in SDL and X?
 
 
+Release of 86.09.1
+
+16-Sep-2005 (prissi)
+	FIX: bridges now cost again money
+	FIX: citycars and pedestrians behave now as intended
+	FIX: citycars delete themseves at the end of their lifetime
+	CHANGE: non-square buildings are allowed also without rotation
+	FIX: click in town tool now on correct line
+	FIX: overlarge windows now moved to left corner
+	FIX: again water industries (was built in wrong order [pri=1])
+	ADD: resizeable depots
+	ADD: preliminary support for pillars in bridges: "pillar_distance=1...x" (distance [0=default off]), backpillar[s]=..., backpillar[w]=....
+
+
 Release of 86.09
 
 13-Sep-2005 (prissi)

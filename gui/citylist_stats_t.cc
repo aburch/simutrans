@@ -40,31 +40,23 @@ citylist_stats_t::citylist_stats_t(karte_t * w)
  */
 void citylist_stats_t::infowin_event(const event_t * ev)
 {
-  if(IS_LEFTRELEASE(ev)) {
-    const unsigned int line = (ev->cy - 15) / 14;
+	if(IS_LEFTRELEASE(ev)) {
 
-    printf("%d\n", line);
+		const unsigned int line = (ev->cy-30) / 14;
+		const vector_tpl<stadt_t *> * cities = welt->gib_staedte();
+		if(line < cities->get_count()) {
 
-    const vector_tpl<stadt_t *> * cities = welt->gib_staedte();
+			stadt_t * stadt = cities->get(line);
+			if(stadt) {
+				create_win(320, 0, -1, stadt->gib_stadt_info(), w_info, magic_none);	/* with magic!=none only one dialog is allowed */
 
-    if(line < cities->get_count()) {
-      stadt_t * stadt = cities->get(line);
-      if(stadt) {
-	create_win(320, 0,
-		   -1,
-		   stadt->gib_stadt_info(),
-		   w_info,
-		magic_none); /* otherwise only one dialog is allowed */
-
-
-	const koord pos = stadt->gib_pos();
-
-	if(welt->ist_in_kartengrenzen(pos)) {
-	  welt->setze_ij_off(pos + koord(-5,-5));
+				const koord pos = stadt->gib_pos();
+				if(welt->ist_in_kartengrenzen(pos)) {
+					welt->setze_ij_off(pos + koord(-5,-5));
+				}
+			}
+		}
 	}
-      }
-    }
-  }
 }
 
 

@@ -65,10 +65,10 @@ private:
     int	icnv;
     int iroute;// @author hsiegeln
 
-	/* show retired vehicles
+	/* show retired vehicles (same for all depot)
 	 * @author prissi
 	 */
-	bool show_retired_vehicles;
+	static bool show_retired_vehicles;
 
     /**
      * Gui elements
@@ -177,7 +177,15 @@ private:
      * @author Volker Meyer
      * @date  18.06.2003
      */
-    void layout();
+    void layout(koord *);
+
+
+    /**
+     * Does this window need a min size button in the title bar?
+     * @return true if such a button is needed
+     * @author Hj. Malthaner
+     */
+    virtual bool has_min_sizer() const {return true;};
 
 
 	// true if future
@@ -193,6 +201,13 @@ public:
 
 
     depot_frame_t(karte_t *welt, depot_t *depot, int &farbe);
+
+    /**
+     * Setzt die Fenstergroesse
+     * @author (Mathew Hounsell)
+     * @date   11-Mar-2003
+     */
+    virtual void setze_fenstergroesse(koord groesse);
 
     /**
      * Create and fill loks_vec and waggons_vec.

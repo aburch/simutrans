@@ -121,38 +121,37 @@ slist_tpl <fabrikbauer_t::stadt_fabrik_t> fabrikbauer_t::gebaut;
 
 void fabrikbauer_t::bau_info_t::random(slist_tpl <const fabrik_besch_t *> &fab)
 {
-    slist_iterator_tpl<const fabrik_besch_t *> iter(fab);
-    int gewichtung = 0;
-    int next;
+	slist_iterator_tpl<const fabrik_besch_t *> iter(fab);
+	int gewichtung = 0;
+	int next;
 
-    while(iter.next()) {
-  gewichtung += iter.get_current()->gib_gewichtung();
-    }
-    if(gewichtung > 0) {
-  next = simrand(gewichtung);
-  iter.begin();
-  while(iter.next()) {
-      if(next < iter.get_current()->gib_gewichtung()) {
-    info = iter.get_current();
-    besch = hausbauer_t::finde_fabrik(info->gib_name());
+	while(iter.next()) {
+		gewichtung += iter.get_current()->gib_gewichtung();
+	}
+	if(gewichtung > 0) {
+		next = simrand(gewichtung);
+		iter.begin();
+		while(iter.next()) {
+			if(next < iter.get_current()->gib_gewichtung()) {
+				info = iter.get_current();
+				besch = hausbauer_t::finde_fabrik(info->gib_name());
 
-    if(besch == 0) {
-      dbg->fatal("fabrikbauer_t::bau_info_t::random","No description found for '%s'",info->gib_name());
-    }
-
-    break;
-      }
-      next -= iter.get_current()->gib_gewichtung();
-  }
-  rotate = simrand(4);
-  dim = besch->gib_groesse(rotate);
-    }
-    else {
-  besch = NULL;
-  info = NULL;
-  dim = koord(1,1);
-  rotate = 0;
-    }
+				if(besch == 0) {
+dbg->fatal("fabrikbauer_t::bau_info_t::random","No description found for '%s'",info->gib_name());
+				}
+				break;
+			}
+			next -= iter.get_current()->gib_gewichtung();
+		}
+		rotate = simrand(4);
+		dim = besch->gib_groesse(rotate);
+	}
+	else {
+		besch = NULL;
+		info = NULL;
+		dim = koord(1,1);
+		rotate = 0;
+	}
 }
 
 
@@ -201,25 +200,25 @@ DBG_MESSAGE("fabrikbauer_t::get_random_consumer()","consumer %s found.",consumer
 
 void fabrikbauer_t::bau_info_t::random_land(slist_tpl <const fabrik_besch_t *> &fab)
 {
-    switch(simrand( 5 ) ) {
-    case 0:
-    case 1:
-  random(fab);
-  break;
-    case 2:
-    case 3:
-    case 4:
-  info = NULL;
-  besch = hausbauer_t::waehle_sehenswuerdigkeit();
-  if(!besch) {
-      random(fab);
-  }
-  break;
-    }
-    rotate = simrand(4);
-    if(besch) {
-  dim = besch->gib_groesse(rotate);
-    }
+	switch(simrand( 5 ) ) {
+		case 0:
+		case 1:
+			random(fab);
+			break;
+		case 2:
+		case 3:
+		case 4:
+			info = NULL;
+			besch = hausbauer_t::waehle_sehenswuerdigkeit();
+			if(!besch) {
+				random(fab);
+			}
+			break;
+	}
+	rotate = simrand(4);
+	if(besch) {
+		dim = besch->gib_groesse(rotate);
+	}
 }
 
 
@@ -578,7 +577,7 @@ DBG_MESSAGE("fabrikbauer_t::baue_hierarchie","Search place for city factory (%i,
 		// Das könnte ein Zeitproblem geben, wenn eine Stadt keine solchen Bauplatz
 		// hat und die Suche bis zur nächsten Stadt weiterläuft
 		// Ansonsten erscheint mir das am realistischtsten..
-		bool	is_rotate;
+		bool	is_rotate=info->gib_haus()->gib_all_layouts()>1;
 		k = factory_bauplatz_mit_strasse_sucher_t(welt).suche_platz(sf.stadt->gib_pos(), size.x, size.y,&is_rotate);
 		rotate = is_rotate?1:0;
 		DBG_MESSAGE("fabrikbauer_t::baue_hierarchie","Construction at (%i,%i).",k.x,k.y);
@@ -680,11 +679,11 @@ DBG_MESSAGE("fabrikbauer_t::baue_hierarchie","find lieferant for %s.",info->gib_
 DBG_MESSAGE("fabrikbauer_t::baue_hierarchie()","found myself!");
 				return n;
 			}
-			int rotate = simrand(4);
+			int rotate = simrand(hersteller->gib_haus()->gib_all_layouts()-1);
 			koord3d k = finde_zufallsbauplatz(welt, *pos, DISTANCE, hersteller->gib_haus()->gib_groesse(rotate),hersteller->gib_platzierung()==fabrik_besch_t::Wasser);
 INT_CHECK("fabrikbauer 679");
 			if(welt->lookup(k)) {
-DBG_MESSAGE("fabrikbauer_t::baue_hierarchie","Try to built lieferant %s at (%i,%i) for %s.",hersteller->gib_name(),k.x,k.y,info->gib_name());
+DBG_MESSAGE("fabrikbauer_t::baue_hierarchie","Try to built lieferant %s at (%i,%i) r=%i for %s.",hersteller->gib_name(),k.x,k.y,rotate,info->gib_name());
 				n += baue_hierarchie(welt, pos, hersteller, rotate, &k, sp);
 				lcount --;
 

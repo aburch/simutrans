@@ -78,25 +78,26 @@ static uint8 get_waytype (const char * waytype, const char * obj_name)
  */
 void bridge_writer_t::write_obj(FILE *outfp, obj_node_t &parent, tabfileobj_t &obj)
 {
-    // Hajo: node size is 13 bytes
-    obj_node_t	node(this, 13, &parent, false);
-
+    // Hajo: node size is 14 bytes
+    obj_node_t	node(this, 14, &parent, false);
 
     uint8 wegtyp = get_waytype(obj.get("waytype"), obj.get("name"));
 
     uint16 topspeed = obj.get_int("topspeed", 999);
     uint32 preis = obj.get_int("cost", 0);
     uint32 maintenance= obj.get_int("maintenance", 1000);
+    uint8 pillars_every = obj.get_int("pillar_distance",0);	// distance==0 is off
 
     // Hajo: Version needs high bit set as trigger -> this is required
     //       as marker because formerly nodes were unversionend
-    uint16 version = 0x8002;
+    uint16 version = 0x8003;
     node.write_data_at(outfp, &version, 0, 2);
 
     node.write_data_at(outfp, &topspeed, 2, 2);
     node.write_data_at(outfp, &preis, 4, 4);
     node.write_data_at(outfp, &maintenance, 8, 4);
     node.write_data_at(outfp, &wegtyp, 12, 1);
+    node.write_data_at(outfp, &pillars_every, 13, 1);
 
 
     static const char * names[] = {
@@ -126,16 +127,24 @@ void bridge_writer_t::write_obj(FILE *outfp, obj_node_t &parent, tabfileobj_t &o
 	    //intf("BACK: %s -> %s\n", keybuf, value.chars());
 	    sprintf(keybuf, "front%s[%s]", keyname, keyindex);
 	    value = obj.get(keybuf);
-	    frontkeys.append(value);
-	    //intf("FRNT: %s -> %s\n", keybuf, value.chars());
-
+	    if(value.len()>2) {
+		    frontkeys.append(value);
+		    //intf("FRNT: %s -> %s\n", keybuf, value.chars());
+		}
+		else {
+printf("WARNING: not %s specified (but might be still working)\n",keybuf);
+		}
 	    keyindex = *ptr++;
 	} while(keyindex);
 	keyname = *ptr++;
     } while(keyname);
 
-    slist_tpl<cstring_t> cursorkeys;
+	if(pillars_every==32) {
+		backkeys.append(cstring_t(obj.get("backpillar[s]")));
+		backkeys.append(cstring_t(obj.get("backpillar[w]")));
+	}
 
+    slist_tpl<cstring_t> cursorkeys;
     cursorkeys.append(cstring_t(obj.get("cursor")));
     cursorkeys.append(cstring_t(obj.get("icon")));
 

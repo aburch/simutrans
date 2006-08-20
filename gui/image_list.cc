@@ -155,6 +155,9 @@ void image_list_t::zeichnen(koord parent_pos) const
 void image_list_t::recalc_size()
 {
 	const int columns = (groesse.x - 2 * BORDER) / grid.x;
-	const int rows = images->get_count() / columns + 1;
-	setze_groesse(koord(groesse.x, rows * grid.y + BORDER));
+	int rows = (images->get_count() + columns-1) / columns;
+	if(rows== 0) {
+		rows = 1;
+	}
+	setze_groesse(koord(groesse.x, rows * grid.y + 2*BORDER));
 }

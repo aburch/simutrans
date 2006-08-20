@@ -7,8 +7,8 @@
 #
 
 
-OSTYPE=mingw-sdl
-#OSTYPE=mingw-gdi
+#OSTYPE=mingw-sdl
+OSTYPE=mingw-gdi
 #OSTYPE=beos
 #OSTYPE=linux-gnu
 
@@ -35,6 +35,7 @@ OPT=debug_optimize
 
 ifeq ($(OSTYPE),cygwin)
 OS_INC=-I/SDL/include -I/usr/include/cygwin
+DISPLAY_OBJ= simsys_s16.o
 STD_LIBS=
 SDLLIBS=  -L/SDL/lib -lz -lSDL -lwinmm -lc /lib/mingw/libstdc++.a -lc /lib/mingw/libmingw32.a -lc /lib/mingw/libmsvcrt.a
 #SDLLIBS= -lSDL -lwinmm -lc /lib/libmsvcrt40.a -lc /lib/libstdc++.a -lc /lib/libmingw32.a
@@ -42,6 +43,7 @@ SDLLIBS=  -L/SDL/lib -lz -lSDL -lwinmm -lc /lib/mingw/libstdc++.a -lc /lib/mingw
 OS_OPT=-Wbad-function-cast
 endif
 ifeq ($(OSTYPE),mingw-sdl)
+DISPLAY_OBJ= simsys_s16.o
 OS_INC=-I /usr/include/mingw
 OS_OPT=-mno-cygwin -DPNG_STATIC -DZLIB_STATIC
 #OS_OPT=-Wbad-function-cast
@@ -49,6 +51,7 @@ STD_LIBS=-lstdc++ -lz
 SDLLIBS= -lmingw32 -lSDLmain -lSDL -lwinmm
 endif
 ifeq ($(OSTYPE),mingw-gdi)
+DISPLAY_OBJ= simsys_w16.o
 OS_INC=-I /usr/include/mingw
 OS_OPT=-mno-cygwin -DPNG_STATIC -DZLIB_STATIC
 #OS_OPT=-Wbad-function-cast
@@ -57,6 +60,7 @@ SDLLIBS= -lmingw32 -lgdi32 -lwinmm
 endif
 ifeq ($(OSTYPE),linux-gnu)
 #STD_LIBS= /usr/lib/libstdc++-3-libc6.1-2-2.10.0.a -lz
+DISPLAY_OBJ= simsys_s16.o
 STD_LIBS= -lstdc++ -lz
 SDLLIBS= -lSDL -lpthread
 OS_OPT=
@@ -67,6 +71,7 @@ SDLLIBS= -lSDL -lpthread
 OS_OPT=
 endif
 ifeq ($(OSTYPE),beos)
+DISPLAY_OBJ= simsys_s16.o
 STD_LIBS= -lz
 SDLLIBS= -lSDL
 OS_OPT=
@@ -169,8 +174,8 @@ SUB_OBJS=\
  bauer/wegbauer.o\
  sucher/platzsucher.o\
  dings/oberleitung.o\
- dings/wolke.o dings/raucher.o dings/zeiger.o dings/baum.o dings/bruecke.o\
- dings/tunnel.o dings/gebaeude.o\
+ dings/wolke.o dings/raucher.o dings/zeiger.o dings/baum.o dings/bruecke.o dings/pillar.o \
+ dings/tunnel.o dings/gebaeude.o \
  dings/signal.o dings/leitung2.o dings/roadsign.o dings/dummy.o dings/lagerhaus.o\
  boden/boden.o  boden/fundament.o  boden/grund.o  boden/wasser.o\
  boden/brueckenboden.o  boden/tunnelboden.o \
@@ -270,14 +275,6 @@ OBJECTS= \
  simcity.o simwerkz.o simworld.o simplay.o simsound.o simintr.o \
  simmain.o  simskin.o simlinemgmt.o simline.o simmesg.o
 
-#ifeq ($(OSTYPE),mingw-sdl)
-#ASM_DISPLAY_IMG= asm/display_img16w.o
-#else
-#ASM_DISPLAY_IMG= asm/display_img16.o
-#endif
-#
-#ASM_OBJECTS= \
-# asm/pixcopy.o asm/colorpixcopy.o asm/display_img.o asm/display_img16.o asm/display_img16w.o
 
 
 all:    16
@@ -302,18 +299,16 @@ normal:	$(OBJECTS) simsys_d.o simgraph.o
 	$(LN) $(LDFLAGS) -o sim $(OBJECTS) simsys_d.o simgraph.o /usr/local/lib/liballeg.a $(SUB_OBJS) $(STD_LIBS)
 
 
-normal16:	$(OBJECTS) simsys_s16.o simsys_w16.o simgraph16.o $(ASM_DISPLAY_IMG)
+normal16:	$(OBJECTS) $(DISPLAY_OBJ) simgraph16.o $(ASM_DISPLAY_IMG)
 ifeq ($(OSTYPE),mingw-sdl)
 	windres -O COFF simwin.rc simres.o
-	$(LN) $(LDFLAGS) -o sim $(OBJECTS) simsys_s16.o simgraph16.o $(SUB_OBJS) simres.o $(STD_LIBS) $(SDLLIBS)
-#	$(LN) $(LDFLAGS) -o sim $(OBJECTS) simsys_s16.o simgraph16.o $(ASM_DISPLAY_IMG) $(SUB_OBJS) simres.o $(STD_LIBS) $(SDLLIBS)
+	$(LN) $(LDFLAGS) -o sim $(OBJECTS) $(DISPLAY_OBJ) simgraph16.o $(SUB_OBJS) simres.o $(STD_LIBS) $(SDLLIBS)
 else
 ifeq ($(OSTYPE),mingw-gdi)
 	windres -O COFF simwin.rc simres.o
-	$(LN) $(LDFLAGS) -o sim $(OBJECTS) simsys_w16.o simgraph16.o $(SUB_OBJS) simres.o $(STD_LIBS) $(SDLLIBS)
+	$(LN) $(LDFLAGS) -o sim $(OBJECTS) $(DISPLAY_OBJ) simgraph16.o $(SUB_OBJS) simres.o $(STD_LIBS) $(SDLLIBS)
 else
-	$(LN) $(LDFLAGS) -o sim $(OBJECTS) simsys_s16.o simgraph16.o $(ASM_DISPLAY_IMG) $(SUB_OBJS) $(STD_LIBS) $(SDLLIBS)
-#	$(LN) $(LDFLAGS) -o sim $(OBJECTS) simsys_s16.o simgraph16.o $(ASM_DISPLAY_IMG) $(SUB_OBJS) $(STD_LIBS) $(SDLLIBS)
+	$(LN) $(LDFLAGS) -o sim $(OBJECTS) $(DISPLAY_OBJ) simgraph16.o $(ASM_DISPLAY_IMG) $(SUB_OBJS) $(STD_LIBS) $(SDLLIBS)
 endif
 endif
 

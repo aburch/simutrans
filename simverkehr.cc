@@ -114,11 +114,10 @@ stadtauto_t::stadtauto_t(karte_t *welt, koord3d pos)
  : verkehrsteilnehmer_t(welt, pos)
 {
 	besch = liste_timeline.gib_gewichted(simrand(liste_timeline.gib_gesamtgewicht()));
-	time_to_life = umgebung_t::stadtauto_duration;
+	time_to_life = 100;//umgebung_t::stadtauto_duration;
 	current_speed = 48;
 	step_frequency = 0;
 	setze_max_speed( besch->gib_geschw() );
-	welt->sync_add(this);
 }
 
 
@@ -129,8 +128,12 @@ stadtauto_t::stadtauto_t(karte_t *welt, koord3d pos)
  */
 stadtauto_t::~stadtauto_t()
 {
-    // just to be sure we are removed from this list!
-    welt->sync_remove(this);
+	// just to be sure we are removed from this list!
+	step_frequency = 0;
+	if(time_to_life>0) {
+		welt->sync_remove(this);
+	}
+DBG_MESSAGE("stadtauto_t::~stadtauto_t()","called");
 }
 
 
@@ -196,44 +199,56 @@ stadtauto_t::ist_weg_frei() const
 		return false;
 	}
 
+	if(gr->obj_count()>200) {
+		// too many cars here
+		return false;
+	}
+
 	// pruefe auf Schienenkreuzung
 	if(gr->gib_weg(weg_t::schiene) && gr->gib_weg(weg_t::strasse)) {
 		// das ist eine Kreuzung, ist sie frei ?
-		if(gr->suche_obj(ding_t::waggon)) {
+
+		if(gr->suche_obj_ab(ding_t::waggon,PRI_RAIL_AND_ROAD)) {
 			return false;
 		}
 	}
 
-    bool frei = true;
+
+	// calculate new direction
+	sint8 dx, dy;	// dummies
+	// are we just turning around?
+	const uint8 this_fahrtrichtung = (gib_pos()==pos_next) ? gib_fahrtrichtung() :  ribi_t::rueckwaerts(this_fahrtrichtung);
+	// next direction
+	const uint8 next_fahrtrichtung = (gib_pos()==pos_next) ? this_fahrtrichtung : this->calc_richtung(gib_pos().gib_2d(), pos_next.gib_2d(), dx, dy);
+	bool frei = true;
 
 	// suche vehikel
-	automobil_t *at = dynamic_cast<automobil_t *>(welt->lookup(pos_next)->suche_obj(ding_t::automobil));
-	if(at != NULL) {
-		if(at->gib_fahrtrichtung() == gib_fahrtrichtung()) {
+	const uint8 top = gr->gib_top();
+	for(  uint8 pos=0;  pos<top  && frei;  pos++ ) {
+		ding_t *dt = gr->obj_bei(pos);
+		if(dt) {
+			uint8 other_fahrtrichtung=255;
 
-			// da ist ein fahrzeug in unserer fahrtrichtung im weg
-			frei = false;
+			// check for car
+			if(dt->gib_typ()==ding_t::automobil) {
+				automobil_t *at = (automobil_t *)dt;
+				other_fahrtrichtung = at->gib_fahrtrichtung();
+			}
 
-		} else if(ribi_t::ist_orthogonal(at->gib_fahrtrichtung(), gib_fahrtrichtung())) {
+			// check for city car
+			if(dt->gib_typ()==ding_t::verkehr) {
+				vehikel_basis_t *v = (vehikel_basis_t *)dt;
+				other_fahrtrichtung = v->gib_fahrtrichtung();
+			}
 
-			// da ist ein fahrzeug quer zu unserer fahrtrichtung im weg
-			frei = false;
-		}
-	}
-	else {
-		if(at == NULL) {
-			// checke verkehr
-			vehikel_basis_t *v = dynamic_cast<vehikel_basis_t *>(welt->lookup(pos_next)->suche_obj(ding_t::verkehr));
-//			verkehrsteilnehmer_t *v = dynamic_cast<verkehrsteilnehmer_t *>(welt->lookup(pos_next)->suche_obj(ding_t::verkehr));
+			// ok, there is another car ...
+			if(other_fahrtrichtung!=255) {
 
-			if(v!=NULL) {
-				if(v->gib_fahrtrichtung() == gib_fahrtrichtung()) {
-					// da ist ein fahrzeug in unserer fahrtrichtung im weg
+				if(other_fahrtrichtung==next_fahrtrichtung  ||  other_fahrtrichtung==this_fahrtrichtung ) {
+					// this goes into the same direction as we, so stopp and save a restart speed
 					frei = false;
-
-				} else if(ribi_t::ist_orthogonal(v->gib_fahrtrichtung(), gib_fahrtrichtung())) {
-
-					// da ist ein fahrzeug quer zu unserer fahrtrichtung im weg
+				} else if(ribi_t::ist_orthogonal(other_fahrtrichtung,this_fahrtrichtung )) {
+					// there is a car orthogonal to us
 					frei = false;
 				}
 			}
@@ -241,6 +256,28 @@ stadtauto_t::ist_weg_frei() const
 	}
 
 	return frei;
+}
+
+
+
+void
+stadtauto_t::betrete_feld()
+{
+	// this will automatically give the right order
+	grund_t *gr = welt->lookup( gib_pos() );
+
+	uint8 offset;
+	if(gr->gib_weg(weg_t::schiene)) {
+		offset = (gib_fahrtrichtung()<4)^(umgebung_t::drive_on_left==false) ? PRI_ROAD_S_W_SW_SE : PRI_ROAD_AND_RAIL_N_E_NE_NW;
+	}
+	else {
+		offset = (gib_fahrtrichtung()<4)^(umgebung_t::drive_on_left==false) ? PRI_ROAD_S_W_SW_SE : PRI_ROAD_N_E_NE_NW;
+	}
+	bool ok = (gr->obj_pri_add(this, offset) != 0);
+
+	if(!ok) {
+		dbg->error("stadtauto_t::betrete_feld()","vehicel '%s' %p could not be added to %d, %d, %d",gib_pos().x, gib_pos().y, gib_pos().z);
+	}
 }
 
 
@@ -488,39 +525,40 @@ verkehrsteilnehmer_t::hop()
 
 bool verkehrsteilnehmer_t::sync_step(long delta_t)
 {
+	if(gib_age()<=0) {
+		// remove obj
+		step_frequency = 0;
+DBG_MESSAGE("verkehrsteilnehmer_t::sync_step()","sopped");
+  		return false;
+	}
+
 	if(step_frequency>0) {
 		// step will check for traffic jams
 		return true;
 	}
     weg_next += (current_speed*delta_t) / 64;
 
-    // Funktionsaufruf vermeiden, wenn möglich
-    // if ist schneller als Aufruf!
-    if(hoff) {
-	setze_yoff( gib_yoff() - hoff );
-    }
-
-    while(1024 < weg_next)
-    {
-	weg_next -= 1024;
-	fahre();
-    }
-
-    hoff = calc_height();
-
-    // Funktionsaufruf vermeiden, wenn möglich
-    // if ist schneller als Aufruf!
-    if(hoff) {
-	setze_yoff( gib_yoff() + hoff );
-    }
-
-	if(gib_age()<=0) {
-		// remove obj
-		verlasse_feld();
-  		return false;
+	// Funktionsaufruf vermeiden, wenn möglich
+	// if ist schneller als Aufruf!
+	if(hoff) {
+		setze_yoff( gib_yoff() - hoff );
 	}
 
-    return true;
+	while(1024 < weg_next)
+	{
+		weg_next -= 1024;
+		fahre();
+	}
+
+	hoff = calc_height();
+
+	// Funktionsaufruf vermeiden, wenn möglich
+	// if ist schneller als Aufruf!
+	if(hoff) {
+		setze_yoff( gib_yoff() + hoff );
+	}
+
+	return true;
 }
 
 

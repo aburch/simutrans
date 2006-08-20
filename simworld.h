@@ -793,17 +793,6 @@ public:
      */
     stadt_t * suche_naechste_stadt(koord pos, const stadt_t *letzte) const;
 
-#if 0
-    /**
-     * suche Haltestellen fuer einen Passagier/fracht
-     * um den Punkt k herum - k selbst wird nicht geprüft!!!
-     * liefert vector gefundener Haltestellen zurück
-     * @author Hj. Malthaner
-     */
-    vector_tpl<halthandle_t> & suche_nahe_haltestellen(koord k, int radius, int mitte_wh, uint32 max_anzahl) const;
-    // will not used, since 86 the ground knows himself about the next stops
-#endif
-
     bool sync_add(sync_steppable *obj);
     bool sync_remove(sync_steppable *obj);
 

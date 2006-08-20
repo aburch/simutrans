@@ -421,7 +421,8 @@ public:
 	 */
 	bool next()
 	{
-		return (current_node = current_node->next) != 0;
+		current_node = current_node->next;
+		return (current_node!= 0);
 	}
 
 	/**

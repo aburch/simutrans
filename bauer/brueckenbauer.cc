@@ -33,6 +33,7 @@
 #include "../besch/skin_besch.h"
 
 #include "../dings/bruecke.h"
+#include "../dings/pillar.h"
 
 #include "../dataobj/translator.h"
 
@@ -366,44 +367,54 @@ brueckenbauer_t::baue(spieler_t *sp, karte_t *welt, koord pos, value_t param)
 bool brueckenbauer_t::baue_bruecke(karte_t *welt, spieler_t *sp,
                  koord3d pos, koord3d end, koord zv, const bruecke_besch_t *besch)
 {
-    ribi_t::ribi ribi;
-    blockhandle_t bs1;
-    weg_t *weg;
+	ribi_t::ribi ribi;
+	blockhandle_t bs1;
+	weg_t *weg;
 
-    DBG_MESSAGE("brueckenbauer_t::baue()",
-     "build from %d,%d", pos.x, pos.y);
+	DBG_MESSAGE("brueckenbauer_t::baue()", "build from %d,%d", pos.x, pos.y);
+	baue_auffahrt(welt, sp, pos, zv, besch);
 
-    baue_auffahrt(welt, sp, pos, zv, besch);
-    ribi = welt->lookup(pos)->gib_weg_ribi_unmasked(besch->gib_wegtyp());
-    if(besch->gib_wegtyp() == weg_t::schiene) {
-  bs1 = ((schiene_t *)welt->lookup(pos)->gib_weg(besch->gib_wegtyp()))->gib_blockstrecke();
-    }
-    pos = pos + zv;
+	ribi = welt->lookup(pos)->gib_weg_ribi_unmasked(besch->gib_wegtyp());
+	if(besch->gib_wegtyp() == weg_t::schiene) {
+		bs1 = ((schiene_t *)welt->lookup(pos)->gib_weg(besch->gib_wegtyp()))->gib_blockstrecke();
+	}
+	pos = pos + zv;
 
-    while(pos.gib_2d() != end.gib_2d()) {
-  brueckenboden_t *bruecke = new  brueckenboden_t(welt, pos + koord3d(0, 0, 16), 0, 0);
+	while(pos.gib_2d() != end.gib_2d()) {
+		brueckenboden_t *bruecke = new  brueckenboden_t(welt, pos + koord3d(0, 0, 16), 0, 0);
 
-  if(besch->gib_wegtyp() == weg_t::schiene) {
-      weg = new schiene_t(welt,450);
-      ((schiene_t *)weg)->setze_blockstrecke( bs1 );
-        } else {
-      weg = new strasse_t(welt,450);
-  }
+		if(besch->gib_wegtyp() == weg_t::schiene) {
+			weg = new schiene_t(welt,450);
+			((schiene_t *)weg)->setze_blockstrecke( bs1 );
+		}
+		else {
+			weg = new strasse_t(welt,450);
+		}
 
-  weg->setze_max_speed(besch->gib_topspeed());
+		weg->setze_max_speed(besch->gib_topspeed());
+		welt->access(pos.gib_2d())->boden_hinzufuegen(bruecke);
+		bruecke->neuen_weg_bauen(weg, ribi_t::doppelt(ribi), sp);
+		bruecke->obj_add(new bruecke_t(welt, bruecke->gib_pos(), 0, sp, besch, besch->gib_simple(ribi)));
 
-  welt->access(pos.gib_2d())->boden_hinzufuegen(bruecke);
+//DBG_MESSAGE("bool brueckenbauer_t::baue_bruecke()","at (%i,%i)",pos.x,pos.y);
+		if(besch->gib_pillar()>0) {
+			// make a new pillar here
+			if(besch->gib_pillar()==1  ||  (pos.x+pos.y)%besch->gib_pillar()==0) {
+				grund_t *gr = welt->lookup(pos.gib_2d())->gib_kartenboden();
+//DBG_MESSAGE("bool brueckenbauer_t::baue_bruecke()","h1=%i, h2=%i",pos.z,gr->gib_pos().z);
+				int height = (pos.z - gr->gib_pos().z)/16+1;
+				while(height-->0) {
+					// eventual more than one part needed, if it is too high ...
+					gr->obj_add( new pillar_t(welt,gr->gib_pos(),sp,besch,besch->gib_pillar(ribi), height_scaling(height*16) ) );
+				}
+			}
+		}
 
-  bruecke->neuen_weg_bauen(weg, ribi_t::doppelt(ribi), sp);
+		pos = pos + zv;
+	}
 
-  bruecke->obj_add(new bruecke_t(welt, bruecke->gib_pos(), 0, sp, besch, besch->gib_simple(ribi)));
-
-  sp->buche(besch->gib_preis(), pos.gib_2d(), COST_CONSTRUCTION);
-        pos = pos + zv;
-    }
-    baue_auffahrt(welt, sp, pos, -zv, besch);
-    return true;
-
+	baue_auffahrt(welt, sp, pos, -zv, besch);
+	return true;
 }
 
 void
@@ -431,19 +442,19 @@ brueckenbauer_t::baue_auffahrt(karte_t *welt, spieler_t *sp, koord3d end, koord 
     if(besch->gib_wegtyp() == weg_t::schiene) {
     	  weg = new schiene_t(welt,besch->gib_topspeed());
   if(!alter_weg) {
-          sp->buche(CST_SCHIENE, alter_boden->gib_pos().gib_2d(), COST_CONSTRUCTION);
+          sp->buche(weg->gib_besch()->gib_preis(), alter_boden->gib_pos().gib_2d(), COST_CONSTRUCTION);
   } else {
       blockhandle_t bs = ((schiene_t *)alter_weg)->gib_blockstrecke();
       ((schiene_t *)weg)->setze_blockstrecke( bs );
       sig = (ding_t *)alter_boden->suche_obj(ding_t::signal);
       if(sig) { // Signal aufheben - kommt auf den neuen Boden!
-    alter_boden->obj_remove(sig, sp);
+	    alter_boden->obj_remove(sig, sp);
       }
   }
     } else {
   weg = new strasse_t(welt,besch->gib_topspeed());
   if(!alter_weg) {
-          sp->buche(CST_STRASSE, alter_boden->gib_pos().gib_2d(), COST_CONSTRUCTION);
+          sp->buche(weg->gib_besch()->gib_preis(), alter_boden->gib_pos().gib_2d(), COST_CONSTRUCTION);
   }
     }
     welt->access(end.gib_2d())->kartenboden_setzen( bruecke, false );
@@ -472,116 +483,124 @@ brueckenbauer_t::baue_auffahrt(karte_t *welt, spieler_t *sp, koord3d end, koord 
 const char *
 brueckenbauer_t::remove(karte_t *welt, spieler_t *sp, koord3d pos, weg_t::typ wegtyp)
 {
-    blockmanager *bm = blockmanager::gib_manager();
+	blockmanager *bm = blockmanager::gib_manager();
 
-    marker_t    marker(welt->gib_groesse_x(),welt->gib_groesse_y());
-    slist_tpl<koord3d> end_list;
-    slist_tpl<koord3d> part_list;
-    slist_tpl<koord3d> tmp_list;
-    const char    *msg;
+	marker_t    marker(welt->gib_groesse_x(),welt->gib_groesse_y());
+	slist_tpl<koord3d> end_list;
+	slist_tpl<koord3d> part_list;
+	slist_tpl<koord3d> tmp_list;
+	const char    *msg;
 
-    // Erstmal das ganze Außmaß der Brücke bestimmen und sehen,
-    // ob uns was im Weg ist.
-    tmp_list.insert(pos);
-    marker.markiere(welt->lookup(pos));
+	// Erstmal das ganze Außmaß der Brücke bestimmen und sehen,
+	// ob uns was im Weg ist.
+	tmp_list.insert(pos);
+	marker.markiere(welt->lookup(pos));
 
-    do {
-  pos = tmp_list.remove_first();
+	do {
+		pos = tmp_list.remove_first();
 
-  // V.Meyer: weg_position_t changed to grund_t::get_neighbour()
-  grund_t *from = welt->lookup(pos);
-  grund_t *to;
-  koord zv = koord::invalid;
+		// V.Meyer: weg_position_t changed to grund_t::get_neighbour()
+		grund_t *from = welt->lookup(pos);
+		grund_t *to;
+		koord zv = koord::invalid;
 
-  if(from->ist_karten_boden()) {
-          // Der Grund ist Brückenanfang/-ende - hier darf nur in
-      // eine Richtung getestet werden.
-      if(from->gib_grund_hang() != hang_t::flach) {
-    zv = koord(hang_t::gegenueber(from->gib_grund_hang()));
-      }
-      else {
-    zv = koord(from->gib_weg_hang());
-      }
-      end_list.insert(pos);
-  }
-  else {
-      part_list.insert(pos);
-  }
-  // Alle Brückenteile auf Entfernbarkeit prüfen!
-  msg = from->kann_alle_obj_entfernen(sp);
+		if(from->ist_karten_boden()) {
+			// Der Grund ist Brückenanfang/-ende - hier darf nur in
+			// eine Richtung getestet werden.
+			if(from->gib_grund_hang() != hang_t::flach) {
+				zv = koord(hang_t::gegenueber(from->gib_grund_hang()));
+			}
+			else {
+				zv = koord(from->gib_weg_hang());
+			}
+			end_list.insert(pos);
+		}
+		else {
+			part_list.insert(pos);
+		}
+		// Alle Brückenteile auf Entfernbarkeit prüfen!
+		msg = from->kann_alle_obj_entfernen(sp);
 
-  if(msg != NULL) {
-      return "Die Brücke ist nicht frei!\n";
-  }
-  // Nachbarn raussuchen
-  for(int r = 0; r < 4; r++) {
-      if((zv == koord::invalid || zv == koord::nsow[r]) &&
-    from->get_neighbour(to, wegtyp, koord::nsow[r]) &&
-    !marker.ist_markiert(to)) {
-    tmp_list.insert(to->gib_pos());
-    marker.markiere(to);
-      }
-  }
-    } while(!tmp_list.is_empty());
+		if(msg != NULL) {
+			return "Die Brücke ist nicht frei!\n";
+		}
 
-    // Jetzt geht es ans löschen der Brücke
-    while(!part_list.is_empty()) {
-  pos = part_list.remove_first();
+		// Nachbarn raussuchen
+		for(int r = 0; r < 4; r++) {
+			if((zv == koord::invalid || zv == koord::nsow[r]) &&
+			from->get_neighbour(to, wegtyp, koord::nsow[r]) &&
+			!marker.ist_markiert(to)) {
+				tmp_list.insert(to->gib_pos());
+				marker.markiere(to);
+			}
+		}
+	} while(!tmp_list.is_empty());
 
-  grund_t *gr = welt->lookup(pos);
+	// Jetzt geht es ans löschen der Brücke
+	while(!part_list.is_empty()) {
+		pos = part_list.remove_first();
 
-  if(wegtyp == weg_t::schiene) {
-      bm->entferne_schiene(welt, pos);
-  }
-  gr->weg_entfernen(wegtyp, false);
-  gr->obj_loesche_alle(sp);
+		grund_t *gr = welt->lookup(pos);
 
-  welt->access(pos.gib_2d())->boden_entfernen(gr);
+		if(wegtyp == weg_t::schiene) {
+			bm->entferne_schiene(welt, pos);
+		}
+		gr->weg_entfernen(wegtyp, false);
+		gr->obj_loesche_alle(sp);
 
-  sp->buche(CST_BRUECKE, pos.gib_2d(), COST_CONSTRUCTION);
+		welt->access(pos.gib_2d())->boden_entfernen(gr);
+		delete gr;
 
-  delete gr;
-    }
-    // Und die Brückenenden am Schluß
-    while(!end_list.is_empty()) {
-  pos = end_list.remove_first();
+		//  sp->buche(besch->gib_preis(), pos.gib_2d(), COST_CONSTRUCTION);
 
-  grund_t *gr = welt->lookup(pos);
-  ding_t *sig = NULL;
-  ribi_t::ribi ribi = gr->gib_weg_ribi_unmasked(wegtyp);
+		// finally delete all pillars (if there)
+		gr = welt->lookup(pos.gib_2d())->gib_kartenboden();
+		pillar_t *p;
+		while((p=dynamic_cast<pillar_t *>(gr->suche_obj(ding_t::pillar)))!=0) {
+			gr->obj_remove(p,sp);
+			delete p;
+		}
+	}
 
-  if(gr->gib_grund_hang() != hang_t::flach) {
-      ribi &= ~ribi_typ(hang_t::gegenueber(gr->gib_grund_hang()));
-  }
-  else {
-      ribi &= ~ribi_typ(gr->gib_weg_hang());
-  }
-  if(wegtyp == weg_t::schiene) {
-      sig = gr->suche_obj(ding_t::signal);
-      if(sig) { // Signal aufheben - kommt auf den neuen Boden!
-    gr->obj_remove(sig, sp);
-    ((schiene_t *)gr->gib_weg(weg_t::schiene))->gib_blockstrecke()->entferne_signal((signal_t *)sig);
-      }
-      bm->entferne_schiene(welt, gr->gib_pos());
-  }
-  gr->weg_entfernen(wegtyp, false);
-  gr->obj_loesche_alle(sp);
+	// Und die Brückenenden am Schluß
+	while(!end_list.is_empty()) {
+		pos = end_list.remove_first();
 
-  gr = new boden_t(welt, pos);
-  welt->access(pos.gib_2d())->kartenboden_setzen(gr, false);
+		grund_t *gr = welt->lookup(pos);
+		ding_t *sig = NULL;
+		ribi_t::ribi ribi = gr->gib_weg_ribi_unmasked(wegtyp);
 
-  // Neuen Boden wieder mit Weg versehen
-  if(wegtyp == weg_t::schiene) {
-      gr->neuen_weg_bauen(new schiene_t(welt,450), ribi, sp);
-      bm->neue_schiene(welt, gr, sig);
-  }
-  else {
-      gr->neuen_weg_bauen(new strasse_t(welt,450), ribi, sp);
-  }
-      gr->calc_bild();
-    }
+		if(gr->gib_grund_hang() != hang_t::flach) {
+			ribi &= ~ribi_typ(hang_t::gegenueber(gr->gib_grund_hang()));
+		}
+		else {
+			ribi &= ~ribi_typ(gr->gib_weg_hang());
+		}
+		if(wegtyp == weg_t::schiene) {
+			sig = gr->suche_obj(ding_t::signal);
+			if(sig) { // Signal aufheben - kommt auf den neuen Boden!
+				gr->obj_remove(sig, sp);
+				((schiene_t *)gr->gib_weg(weg_t::schiene))->gib_blockstrecke()->entferne_signal((signal_t *)sig);
+			}
+			bm->entferne_schiene(welt, gr->gib_pos());
+		}
+		gr->weg_entfernen(wegtyp, false);
+		gr->obj_loesche_alle(sp);
 
-    welt->setze_dirty();
+		gr = new boden_t(welt, pos);
+		welt->access(pos.gib_2d())->kartenboden_setzen(gr, false);
 
-    return NULL;
+		// Neuen Boden wieder mit Weg versehen
+		if(wegtyp == weg_t::schiene) {
+			gr->neuen_weg_bauen(new schiene_t(welt,450), ribi, sp);
+			bm->neue_schiene(welt, gr, sig);
+		}
+		else {
+			gr->neuen_weg_bauen(new strasse_t(welt,450), ribi, sp);
+		}
+		gr->calc_bild();
+	}
+
+	welt->setze_dirty();
+	return NULL;
 }

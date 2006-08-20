@@ -254,14 +254,12 @@ bool load_freight(karte_t * welt,
 vehikel_basis_t::vehikel_basis_t(karte_t *welt):
     ding_t(welt)
 {
-
 }
 
 
 vehikel_basis_t::vehikel_basis_t(karte_t *welt, koord3d pos):
     ding_t(welt, pos)
 {
-
 }
 
 
@@ -1309,6 +1307,10 @@ bool
 automobil_t::ist_weg_frei(int &restart_speed) const
 {
 	const grund_t *gr = welt->lookup( pos_next );
+	if(gr==NULL) {
+		return false;
+	}
+
 
 	if(gr->obj_count()>200) {
 		// too many cars here

@@ -4,11 +4,11 @@ CXXFLAGS = -Wall -O -g -c
 
 SOURCES=wolke.cc raucher.cc zeiger.cc baum.cc bruecke.cc tunnel.cc\
 gebaeude.cc signal.cc\
-leitung2.cc lagerhaus.cc oberleitung.cc roadsign.cc dummy.cc
+leitung2.cc lagerhaus.cc oberleitung.cc roadsign.cc dummy.cc pillar.cc
 
 OBJECTS=wolke.o raucher.o zeiger.o baum.o bruecke.o tunnel.o\
 gebaeude.o signal.o\
-leitung2.o lagerhaus.o oberleitung.o roadsign.o dummy.o
+leitung2.o lagerhaus.o oberleitung.o roadsign.o dummy.o pillar.o
 
 
 all:   $(OBJECTS)

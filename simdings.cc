@@ -148,6 +148,7 @@ ding_t::~ding_t()
 			}
 		}
 	}
+//DBG_MESSAGE("ding_t::~ding_t()","finished");
 }
 
 
@@ -242,13 +243,6 @@ ding_t::ist_entfernbar(const spieler_t *sp)
 	return "Der Besitzer erlaubt das Entfernen nicht";
     }
 }
-
-
-void
-ding_t::entferne(spieler_t *)
-{
-}
-
 
 void
 ding_t::rdwr(loadsave_t *file)

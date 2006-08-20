@@ -1141,18 +1141,13 @@ stadt_t::check_bau_spezial(bool new_town)
 	if(besch) {
 		if(simrand(100) < besch->gib_chance()) {
 			// baue was immer es ist
-			int rotate;
-			bool is_rotate;
-//			koord best_pos ( bauplatz_sucher_t(welt).suche_platz(pos, besch->gib_b(), besch->gib_h(), &rotate)  );
+			int rotate = 0;
+			bool is_rotate = besch->gib_all_layouts()>10;
 			koord best_pos = bauplatz_mit_strasse_sucher_t(welt).suche_platz(pos,  besch->gib_b(), besch->gib_h(),&is_rotate);
 
 			if(best_pos != koord::invalid) {
 				// then built it
-				if(besch->gib_b()==besch->gib_h()) {
-					// do we have more versions?
-					rotate = simrand(3);
-				}
-				else {
+				if(besch->gib_all_layouts()>1) {
 					rotate = (simrand(20)&2) + is_rotate;
 				}
 				hausbauer_t::baue(welt, besitzer_p, welt->lookup(best_pos)->gib_kartenboden()->gib_pos(), rotate, besch);
@@ -1172,33 +1167,36 @@ stadt_t::check_bau_spezial(bool new_town)
 		//
 		besch = hausbauer_t::waehle_denkmal();
 		if(besch) {
-			koord best_pos ( denkmal_platz_sucher_t(welt,
-				besitzer_p).suche_platz(pos, 3, 3) );
+			koord total_size = koord( 2+besch->gib_b(), 2+besch->gib_h() );
+			koord best_pos ( denkmal_platz_sucher_t(welt,besitzer_p).suche_platz(pos,total_size.x,total_size.y ) );
 
 			if(best_pos != koord::invalid) {
-				int i, j;
+				int i;
 				bool ok = false;
 
 				// Wir bauen das Denkmal nur, wenn schon mindestens eine Strasse da ist
-				for(i = 0; i < 3 && !ok; i++) {
+				for(i = 0; i < total_size.x && !ok; i++) {
 					ok = ok ||
-						welt->access(best_pos + koord(3, i))->gib_kartenboden()->gib_weg(weg_t::strasse) ||
 						welt->access(best_pos + koord(i, -1))->gib_kartenboden()->gib_weg(weg_t::strasse) ||
-						welt->access(best_pos + koord(-1, i))->gib_kartenboden()->gib_weg(weg_t::strasse) ||
-						welt->access(best_pos + koord(i, 3))->gib_kartenboden()->gib_weg(weg_t::strasse);
+						welt->access(best_pos + koord(i, total_size.y))->gib_kartenboden()->gib_weg(weg_t::strasse);
+				}
+				for(i = 0; i < total_size.y && !ok; i++) {
+					ok = ok ||
+						welt->access(best_pos + koord(total_size.x, i))->gib_kartenboden()->gib_weg(weg_t::strasse) ||
+						welt->access(best_pos + koord(-1, i))->gib_kartenboden()->gib_weg(weg_t::strasse);
 				}
 				if(ok) {
 					// Straﬂenkreis um das Denkmal legen
-					for(i = 0; i < 3; i++) {
-						for(j = 0; j < 3; j++) {
-							if(i != 1 || j != 1) {
-								baue_strasse(best_pos + koord(i, j), NULL, true);
-							 }
-						}
+					for(i=0; i<total_size.y; i++) {
+						baue_strasse(best_pos + koord(0,i), NULL, true);
+						baue_strasse(best_pos + koord(total_size.x-1,i), NULL, true);
+					}
+					for(i=0; i<total_size.x; i++) {
+						baue_strasse(best_pos + koord(i,0), NULL, true);
+						baue_strasse(best_pos + koord(i,total_size.y-1), NULL, true);
 					}
 					// and then built it
-					hausbauer_t::baue(welt, besitzer_p,
-					      welt->lookup(best_pos + koord(1, 1))->gib_kartenboden()->gib_pos(), 0, besch);
+					hausbauer_t::baue(welt, besitzer_p, welt->lookup(best_pos + koord(1, 1))->gib_kartenboden()->gib_pos(), 0, besch);
 					hausbauer_t::denkmal_gebaut(besch);
 					// tell the player, if not during initialization
 					if(!new_town) {
@@ -1217,143 +1215,124 @@ stadt_t::check_bau_spezial(bool new_town)
 void
 stadt_t::check_bau_rathaus(bool new_town)
 {
-    const haus_besch_t *besch = hausbauer_t::gib_rathaus(bev);
+	const haus_besch_t *besch = hausbauer_t::gib_rathaus(bev);
 
-    if(besch) {
-  grund_t *gr = welt->lookup(pos)->gib_kartenboden();
-  gebaeude_t *gb = dynamic_cast<gebaeude_t *>(gr->obj_bei(0));
-  bool neugruendung = !gb || !gb->ist_rathaus();
-  bool umziehen = !neugruendung;
-  koord alte_str ( koord::invalid );
-  koord best_pos ( pos );
-  koord k;
+	if(besch) {
+		grund_t *gr = welt->lookup(pos)->gib_kartenboden();
+		gebaeude_t *gb = dynamic_cast<gebaeude_t *>(gr->obj_bei(0));
+		bool neugruendung = !gb || !gb->ist_rathaus();
+		bool umziehen = !neugruendung;
+		koord alte_str ( koord::invalid );
+		koord best_pos ( pos );
+		koord k;
 
-  DBG_MESSAGE("check_bau_rathaus()",
-         "bev=%d, new=%d", bev, neugruendung);
+		DBG_MESSAGE("check_bau_rathaus()","bev=%d, new=%d", bev, neugruendung);
 
+		if(!neugruendung) {
+			if(gb->gib_tile()->gib_besch()->gib_level() == besch->gib_level())  {
+				DBG_MESSAGE("check_bau_rathaus()","town hall already ok.");
+				return; // Rathaus ist schon okay
+			}
 
-  if(!neugruendung) {
-      if(gb->gib_tile()->gib_besch()->gib_level() == besch->gib_level())  {
-        DBG_MESSAGE("check_bau_rathaus()","town hall already ok.");
+			const haus_besch_t *besch_alt = gb->gib_tile()->gib_besch();
+			koord pos_alt = gr->gib_pos().gib_2d() - gb->gib_tile()->gib_offset();
+			koord groesse_alt = besch_alt->gib_groesse(gb->gib_tile()->gib_layout());
 
-    return; // Rathaus ist schon okay
-      }
+			// Wir gehen hier von quadratisch aus:
+			if(besch->gib_h() <= groesse_alt.y) {
+				umziehen = false;   // Platz reicht - Umzug nicht nˆtig
+			}
+			else if(welt->lookup(pos + koord(0, besch_alt->gib_h()))->gib_kartenboden()->gib_weg(weg_t::strasse)) {
+				// Wenn die Strasse vor dem alten Rathaus noch da ist,
+				// verbinden wir sie nachher mit der neuen Position.
+				alte_str =  pos + koord(0, besch_alt->gib_h());
+			}
 
-      const haus_besch_t *besch_alt = gb->gib_tile()->gib_besch();
-      koord pos_alt = gr->gib_pos().gib_2d() - gb->gib_tile()->gib_offset();
-      koord groesse_alt = besch_alt->gib_groesse(gb->gib_tile()->gib_layout());
+			//
+			// Jetzt r‰umen wir so oder so das alte Rathaus ab.
+			//
+			for(k.x = 0; k.x < groesse_alt.x; k.x++) {
+				for(k.y = 0; k.y < groesse_alt.y; k.y++) {
+					gr = welt->lookup(pos_alt + k)->gib_kartenboden();
+					gr->obj_bei(0)->setze_besitzer(NULL); // da muﬂ ein Fundament sein!
+					gr->setze_besitzer(NULL);     // Nicht mehr Rathaus, wieder abreissbar!
 
-      // Wir gehen hier von quadratisch aus:
-      if(besch->gib_h() <= groesse_alt.y) {
-    umziehen = false;   // Platz reicht - Umzug nicht nˆtig
-      }
-      else if(welt->lookup(pos + koord(0, besch_alt->gib_h()))->gib_kartenboden()->gib_weg(weg_t::strasse)) {
-    // Wenn die Strasse vor dem alten Rathaus noch da ist,
-    // verbinden wir sie nachher mit der neuen Position.
-    alte_str =  pos + koord(0, besch_alt->gib_h());
-      }
+					if(!umziehen && k.x < besch->gib_b() && k.y < besch->gib_h()) {
+						// Platz f¸r neues Rathaus freimachen
+						ding_t *gb = gr->obj_bei(0);
+						gr->obj_remove(gb, besitzer_p);
+						gb->setze_pos(koord3d::invalid); // Hajo: mark 'not on map'
+						delete gb;
+					}
+					else {
+						// Altes Rathaus durch Wohnhaus(0) ersetzen - Wohnhaus(0) muﬂ 1x1 sein!
+						hausbauer_t::umbauen(welt, gb, hausbauer_t::gib_wohnhaus(0));
+						gb->setze_besitzer(NULL);
+					}
+				}
 
-      //
-      // Jetzt r‰umen wir so oder so das alte Rathaus ab.
-      //
-      for(k.x = 0; k.x < groesse_alt.x; k.x++) {
-    for(k.y = 0; k.y < groesse_alt.y; k.y++) {
-        gr = welt->lookup(pos_alt + k)->gib_kartenboden();
+				// printf("Alte Position=%d,%d\n", pos_alt.x+k.x, pos_alt.y+k.y);
+				// welt->lookup(pos_alt + k)->gib_kartenboden()->setze_besitzer(NULL);
+			}
+			gr->setze_text(NULL);
+		}
 
-        gr->obj_bei(0)->setze_besitzer(NULL); // da muﬂ ein Fundament sein!
-        gr->setze_besitzer(NULL);     // Nicht mehr Rathaus, wieder abreissbar!
+		//
+		// Neues Rathaus bauen
+		//
+		int layout = simrand(besch->gib_all_layouts()-1);
+		if(neugruendung || umziehen) {
+			best_pos = rathausplatz_sucher_t(welt, besitzer_p).suche_platz(pos, besch->gib_b(layout), besch->gib_h(layout)+1);
+		}
+		hausbauer_t::baue(welt, besitzer_p,welt->lookup(best_pos)->gib_kartenboden()->gib_pos(), layout, besch);
+		DBG_MESSAGE("new townhall","use layout=%i",layout);
 
-        if(!umziehen && k.x < besch->gib_b() && k.y < besch->gib_h()) {
-      // Platz f¸r neues Rathaus freimachen
-      ding_t *gb = gr->obj_bei(0);
-      gr->obj_remove(gb, besitzer_p);
-      gb->setze_pos(koord3d::invalid); // Hajo: mark 'not on map'
-      delete gb;
-        }
-        else {
-      // Altes Rathaus durch Wohnhaus(0) ersetzen - Wohnhaus(0) muﬂ 1x1 sein!
-      hausbauer_t::umbauen(welt, gb, hausbauer_t::gib_wohnhaus(0));
-      gb->setze_besitzer(NULL);
-        }
-    }
+		// Orstnamen hinpflanzen
+		welt->lookup(best_pos)->gib_kartenboden()->setze_text(name);
 
-    // printf("Alte Position=%d,%d\n", pos_alt.x+k.x, pos_alt.y+k.y);
-    // welt->lookup(pos_alt + k)->gib_kartenboden()->setze_besitzer(NULL);
-      }
-      gr->setze_text(NULL);
-  }
+		// tell the player, if not during initialization
+		if(!new_town) {
+			char buf[256];
+			sprintf(buf, translator::translate("%s wasted\nyour money with a\nnew townhall\nwhen it reached\n%i inhabitants."), gib_name(), bev );
+			message_t::get_instance()->add_message(buf,pos,message_t::city,CITY_KI,besch->gib_tile(layout,0,0)->gib_hintergrund(0,0) );
+		}
 
-
-  //
-  // Neues Rathaus bauen
-  //
-  if(neugruendung || umziehen) {
-      best_pos = rathausplatz_sucher_t(welt, besitzer_p).suche_platz(
-    pos, besch->gib_b(), besch->gib_h() + 1);
-  }
-        hausbauer_t::baue(welt, besitzer_p,welt->lookup(best_pos)->gib_kartenboden()->gib_pos(), simrand(besch->gib_all_layouts()), besch);
-
-  // Orstnamen hinpflanzen
-  welt->lookup(best_pos)->gib_kartenboden()->setze_text(name);
-
-	// tell the player, if not during initialization
-	if(!new_town) {
-		char buf[256];
-		sprintf(buf, translator::translate("%s wasted\nyour money with a\nnew townhall\nwhen it reached\n%i inhabitants."), gib_name(), bev );
-		message_t::get_instance()->add_message(buf,pos,message_t::city,CITY_KI,besch->gib_tile(0)->gib_vordergrund(0,0) );
+		// Strasse davor verlegen
+		// Hajo: nur, wenn der Boden noch niemand gehˆrt!
+		k = koord(0, besch->gib_h(layout));
+		for(k.x = 0; k.x < besch->gib_b(layout); k.x++) {
+			grund_t * gr = welt->lookup(best_pos+k)->gib_kartenboden();
+			if(gr->gib_besitzer() == 0) {
+				baue_strasse(best_pos + k, NULL, true);
+			} else {
+				// Hajo: Strassenbau nicht versuchen, eines der Felder
+				// ist schon belegt
+				alte_str == koord::invalid;
+			}
+		}
+		if(umziehen && alte_str != koord::invalid ) {
+			// Strasse vom ehemaligen Rathaus zum neuen verlegen.
+			wegbauer_t bauer(welt, NULL);
+			bauer.route_fuer(wegbauer_t::strasse, wegbauer_t::gib_besch(umgebung_t::city_road_type->chars()) );
+			bauer.calc_route(alte_str, best_pos + koord(0, besch->gib_h(layout)));
+			bauer.baue();
+		}
+		else if(neugruendung) {
+			li = best_pos.x - 2;
+			re = best_pos.x + besch->gib_b(layout) + 2;
+			ob = best_pos.y - 2;
+			un = best_pos.y + besch->gib_h(layout) + 2;
+		}
+		pos = best_pos;
 	}
 
-  // Strasse davor verlegen
-  // Hajo: nur, wenn der Boden noch niemand gehˆrt!
-  k = koord(0, (int)besch->gib_h());
-  for(k.x = 0; k.x < besch->gib_b(); k.x++) {
-    grund_t * gr = welt->lookup(best_pos+k)->gib_kartenboden();
+	// Hajo: paranoia - ensure correct bounds in all cases
+	//       I don't know if best_pos is always valid
+	if(li < 0) li = 0;
+	if(re >= welt->gib_groesse_x()) re = welt->gib_groesse_x() - 1;
 
-    // printf("Position=%d,%d\n", (best_pos+k).x, (best_pos+k).y);
-    // printf("Besitzer=%d\n", welt->sp2num(gr->gib_besitzer()));
-
-    if(gr->gib_besitzer() == 0) {
-      baue_strasse(best_pos + k, NULL, true);
-    } else {
-      // Hajo: Strassenbau nicht versuchen, eines der Felder
-      // ist schon belegt
-      alte_str == koord::invalid;
-    }
-  }
-  if(umziehen && alte_str != koord::invalid ) {
-      // Strasse vom ehemaligen Rathaus zum neuen verlegen.
-      wegbauer_t bauer(welt, NULL);
-      bauer.route_fuer(wegbauer_t::strasse,
-           wegbauer_t::gib_besch(umgebung_t::city_road_type->chars()));
-      bauer.calc_route(alte_str, best_pos + koord(0, besch->gib_h()));
-      bauer.baue();
-
-      /* Hajo: seems to be buggy and not needed at all
-             *       I leave it here if Volker wants to check that
-             *       case again
-      // Ort verschieben:
-      li += best_pos.x - pos.x;
-      re += best_pos.x - pos.x;
-      ob += best_pos.y - pos.y;
-      un += best_pos.y - pos.y;
-      */
-  }
-  else if(neugruendung) {
-      li = best_pos.x - 2;
-      re = best_pos.x + besch->gib_b() + 2;
-      ob = best_pos.y - 2;
-      un = best_pos.y + besch->gib_h() + 2;
-  }
-  pos = best_pos;
-    }
-
-    // Hajo: paranoia - ensure correct bounds in all cases
-    //       I don't know if best_pos is always valid
-    if(li < 0) li = 0;
-    if(re >= welt->gib_groesse_x()) re = welt->gib_groesse_x() - 1;
-
-    if(ob < 0) ob = 0;
-    if(un >= welt->gib_groesse_y()) un = welt->gib_groesse_y() - 1;
+	if(ob < 0) ob = 0;
+	if(un >= welt->gib_groesse_y()) un = welt->gib_groesse_y() - 1;
 }
 
 
@@ -1372,7 +1351,6 @@ stadt_t::check_bau_factory(bool new_town)
 			if(industry_increase_every[i]==bev) {
 				const fabrik_besch_t *market=fabrikbauer_t::get_random_consumer(true);
 				if(market!=NULL) {
-			//		koord size=market->gib_haus()->gib_groesse();
 					bool	rotate=false;
 
 					koord3d	market_pos=welt->lookup(pos)->gib_kartenboden()->gib_pos();

@@ -265,18 +265,19 @@ fabrik_t::rem_arbeiterziel(stadt_t *stadt)
 void
 fabrik_t::baue(int rotate, bool clear)
 {
-  if(besch) {
-    this->rotate = rotate;
-     hausbauer_t::baue(welt, besitzer_p, pos, rotate, besch->gib_haus(), clear, this);
+	if(besch) {
+		this->rotate = rotate;
+		hausbauer_t::baue(welt, besitzer_p, pos, rotate, besch->gib_haus(), clear, this);
 
-    const rauch_besch_t *rada = besch->gib_rauch();
-    if(rada) {
-	const koord3d k ( pos + rada->gib_pos_off() );
-	welt->lookup(k)->obj_add(new raucher_t(welt, k, rada));
-    }
-  } else {
-    dbg->error("fabrik_t::baue()", "Good pak not available!");
-  }
+		const rauch_besch_t *rada = besch->gib_rauch();
+		if(rada) {
+			const koord3d k ( pos + rada->gib_pos_off() );
+			welt->lookup(k)->obj_add(new raucher_t(welt, k, rada));
+		}
+	}
+	else {
+		dbg->error("fabrik_t::baue()", "Good pak not available!");
+	}
 }
 
 bool

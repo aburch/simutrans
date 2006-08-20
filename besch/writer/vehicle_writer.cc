@@ -43,7 +43,7 @@
 #include "../../dataobj/tabfile.h"
 
 #include "../vehikel_besch.h"
-#include "../boden/wege/weg.h"
+#include "../../boden/wege/weg.h"
 
 #include "obj_pak_exception.h"
 #include "obj_node.h"

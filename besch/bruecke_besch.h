@@ -48,6 +48,7 @@ class bruecke_besch_t : public obj_besch_t {
     uint32 maintenance;
 
     uint8  wegtyp;
+    uint8 pillars_every;	// =0 off
 
 
 public:
@@ -55,7 +56,7 @@ public:
      * Nummerierung all der verschiedenen Schienstücke
      */
     enum img_t {
-	NS_Segment, OW_Segment, N_Start, S_Start, O_Start, W_Start, N_Rampe, S_Rampe, O_Rampe, W_Rampe
+	NS_Segment, OW_Segment, N_Start, S_Start, O_Start, W_Start, N_Rampe, S_Rampe, O_Rampe, W_Rampe, NS_Pillar, OW_Pillar
     };
 
     /*
@@ -84,10 +85,11 @@ public:
 	    return bild->bild_nr;
 	}
 	return -1;
-    }
+  }
     static img_t gib_simple(ribi_t::ribi ribi);
     static img_t gib_start(ribi_t::ribi ribi);
     static img_t gib_rampe(ribi_t::ribi ribi);
+    static img_t gib_pillar(ribi_t::ribi ribi);
 
 
     const skin_besch_t *gib_cursor() const
@@ -121,6 +123,16 @@ public:
     int  gib_topspeed() const
     {
 	return topspeed;
+    }
+
+
+    /**
+     * Distance of pillars (=0 for no pillars)
+     * @author Hj. Malthaner
+     */
+    int  gib_pillar() const
+    {
+	return pillars_every;
     }
 };
 

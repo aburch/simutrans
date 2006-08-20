@@ -52,6 +52,8 @@ static const char * engine_type_names [6] =
   "hydrogene"
 };
 
+bool  depot_frame_t::show_retired_vehicles = false;
+
 
 depot_frame_t::depot_frame_t(karte_t *welt, depot_t *depot, int &farbe) :
     gui_frame_t(txt_title, farbe),
@@ -254,19 +256,27 @@ DBG_DEBUG("depot_frame_t::depot_frame_t()","get_max_convoi_length()=%i",depot->g
     add_komponente(&bt_obsolete);
 
     welt->simlinemgmt->sort_lines();
-    layout();
+    koord gr = koord(0,0);
+    layout(&gr);
     update_data();
-    layout();
+//    gr = koord(0,0);
+//    layout(gr);
+    gui_frame_t::setze_fenstergroesse(gr);
+
+	// Hajo: Trigger layouting
+	set_resizemode(diagonal_resize);
 }
 
 
 
-void depot_frame_t::layout()
+void depot_frame_t::layout(koord *gr)
 {
     koord placement;
     koord grid;
     int grid_dx;
     int placement_dx;
+
+    koord fgr = (gr!=NULL)? *gr : gib_fenstergroesse();
 
     /*
      * These parameter are adjusted to resolution.
@@ -328,12 +338,22 @@ void depot_frame_t::layout()
     /*
      *	Structure of [VINFO] is one multiline text.
      */
-    int VINFO_HEIGHT = 90;
+    int VINFO_HEIGHT = 82;
 
     /*
      * Total width is the max from [CONVOI] and [ACTIONS] width.
      */
-    int TOTAL_WIDTH = max(CONVOI_WIDTH, ACTIONS_WIDTH);
+    int MIN_TOTAL_WIDTH = max(CONVOI_WIDTH, ACTIONS_WIDTH);
+    int TOTAL_WIDTH = max(fgr.x,max(CONVOI_WIDTH, ACTIONS_WIDTH));
+
+    /*
+     *	Now we can do the first vertical adjustement:
+     */
+    int SELECT_VSTART = 16;
+    int CONVOI_VSTART = SELECT_VSTART + SELECT_HEIGHT + LINESPACE;
+    int CINFO_VSTART = CONVOI_VSTART + CLIST_HEIGHT;
+    int ACTIONS_VSTART = CINFO_VSTART + CINFO_HEIGHT + 2 + LINESPACE;
+    int PANEL_VSTART = ACTIONS_VSTART + ACTIONS_HEIGHT + 8;
 
     /*
      * Now we determine the row/col layout for the panel and the total panel
@@ -341,28 +361,38 @@ void depot_frame_t::layout()
      * build_vehicle_lists() fills loks_vec and waggon_vec.
      * Total width will be expanded to match completo columns in panel.
      */
-    int PANEL_COLS = (TOTAL_WIDTH - 2 * image_list_t::BORDER - 1) / grid.x + 1;
-    int PANEL_ROWS = 3;
-    int PANEL_WIDTH = PANEL_COLS * grid.x + 2 * image_list_t::BORDER + 12;
+//    int PANEL_COLS = (TOTAL_WIDTH - 2 * image_list_t::BORDER - 1) / grid.x;
+//    int PANEL_WIDTH = PANEL_COLS * grid.x + 2 * image_list_t::BORDER + 12;
+    int total_h = PANEL_VSTART+VINFO_HEIGHT + 17 + tab_panel_t::HEADER_VSIZE + 2 * image_list_t::BORDER;
+    int PANEL_ROWS = max(1, ((fgr.y-total_h)/grid.y) );
+	if(gr  &&  gr->y==0) {
+		PANEL_ROWS = 3;
+	}
     int PANEL_HEIGHT = PANEL_ROWS * grid.y + tab_panel_t::HEADER_VSIZE + 2 * image_list_t::BORDER;
+    int MIN_PANEL_HEIGHT = grid.y + tab_panel_t::HEADER_VSIZE + 2 * image_list_t::BORDER;
 
-    TOTAL_WIDTH = PANEL_WIDTH + 1;
 
     /*
      *	Now we can do the complete vertical adjustement:
      */
-    int SELECT_VSTART = 16;
-    int CONVOI_VSTART = SELECT_VSTART + SELECT_HEIGHT + LINESPACE;
-    int CINFO_VSTART = CONVOI_VSTART + CLIST_HEIGHT;
-    int ACTIONS_VSTART = CINFO_VSTART + CINFO_HEIGHT + 2 + LINESPACE;
-    int PANEL_VSTART = ACTIONS_VSTART + ACTIONS_HEIGHT + 8;
     int TOTAL_HEIGHT = PANEL_VSTART + PANEL_HEIGHT + VINFO_HEIGHT + 17;
+    int MIN_TOTAL_HEIGHT = PANEL_VSTART + MIN_PANEL_HEIGHT + VINFO_HEIGHT + 17;
 
     /*
      * DONE with layout planning - now build everything.
      */
 
-    setze_fenstergroesse(koord(TOTAL_WIDTH, TOTAL_HEIGHT));
+    set_min_windowsize(koord(MIN_TOTAL_WIDTH, MIN_TOTAL_HEIGHT));
+    if(fgr.x<TOTAL_WIDTH) {
+	    gui_frame_t::setze_fenstergroesse(koord(MIN_TOTAL_WIDTH, max(fgr.y,MIN_TOTAL_HEIGHT) ));
+    }
+
+    if(gr  &&  gr->x==0) {
+    	gr->x = TOTAL_WIDTH;
+    }
+    if(gr  &&  gr->y==0) {
+    	gr->y = TOTAL_HEIGHT;
+    }
 
     /*
      * [SELECT]:
@@ -449,7 +479,7 @@ void depot_frame_t::layout()
      * [PANEL]
      */
     tabs.setze_pos(koord(0, PANEL_VSTART));
-    tabs.setze_groesse(koord(PANEL_WIDTH, PANEL_HEIGHT));
+    tabs.setze_groesse(koord(TOTAL_WIDTH, PANEL_HEIGHT+8));
 
     pas->set_grid(grid);
     pas->set_placement(placement);
@@ -476,20 +506,28 @@ void depot_frame_t::layout()
 	scrolly_waggons->setze_groesse(scrolly_waggons->gib_groesse());
 
     div_tabbottom.setze_pos(koord(0,PANEL_VSTART+PANEL_HEIGHT));
-    div_tabbottom.setze_groesse(koord(PANEL_WIDTH,0));
+    div_tabbottom.setze_groesse(koord(TOTAL_WIDTH,0));
 
-    lb_veh_action.setze_pos(koord(PANEL_WIDTH-ABUTTON_WIDTH, PANEL_VSTART + PANEL_HEIGHT+4));
+    lb_veh_action.setze_pos(koord(TOTAL_WIDTH-ABUTTON_WIDTH, PANEL_VSTART + PANEL_HEIGHT+4));
     lb_veh_action.setze_text(translator::translate("Fahrzeuge:"));
 
-    bt_veh_action.setze_pos(koord(PANEL_WIDTH-ABUTTON_WIDTH, PANEL_VSTART + PANEL_HEIGHT + 14));
+    bt_veh_action.setze_pos(koord(TOTAL_WIDTH-ABUTTON_WIDTH, PANEL_VSTART + PANEL_HEIGHT + 14));
     bt_veh_action.setze_groesse(koord(ABUTTON_WIDTH, 13));
 
-    bt_obsolete.setze_pos(koord(PANEL_WIDTH-(ABUTTON_WIDTH*5)/2, PANEL_VSTART + PANEL_HEIGHT + 14));
+    bt_obsolete.setze_pos(koord(TOTAL_WIDTH-(ABUTTON_WIDTH*5)/2, PANEL_VSTART + PANEL_HEIGHT + 14));
     bt_obsolete.setze_groesse(koord(ABUTTON_WIDTH, 13));
     bt_obsolete.pressed = show_retired_vehicles;
 }
 
 
+
+
+void depot_frame_t::setze_fenstergroesse( koord gr )
+{
+	koord g=gr;
+	layout(&g);
+	gui_frame_t::setze_fenstergroesse(gr);
+}
 
 
 // true if future
@@ -834,8 +872,7 @@ DBG_DEBUG("depot_frame_t::bild_gewaehlt()","icnv");
 		}  // endif (!cnv.is_bound() || cnv->gib_vehikel_anzahl() < depot->get_max_convoi_length())
 	    }
  	    update_data();
- 	    layout();
-
+ 	    layout(NULL);
 	}
     } else if(lst == convoi) {
 	const convoihandle_t cnv = depot->get_convoi(icnv);
@@ -850,7 +887,7 @@ DBG_DEBUG("depot_frame_t::bild_gewaehlt()","convoi index %i",bild_index);
 	    }
 	    build_vehicle_lists();
 	    update_data();
-	    layout();
+	    layout(NULL);
 	}
     }
 }
@@ -885,7 +922,7 @@ depot_frame_t::action_triggered(gui_komponente_t *komp)
 		icnv = depot->convoi_count() - 1;
 	    }
 	} else if(komp == &bt_obsolete) {
-	    show_retired_vehicles = !show_retired_vehicles;
+	    show_retired_vehicles = (show_retired_vehicles==0);
          build_vehicle_lists();
     	} else if(komp == &bt_veh_action) {
 	    if(veh_action++ == va_sell) {
@@ -901,8 +938,7 @@ depot_frame_t::action_triggered(gui_komponente_t *komp)
 	    depot->copy_convoi(icnv);
 	    // automatically select newly created convoi
 	    icnv = depot->convoi_count()-1;
-	    update_data();
-	    layout();
+	    layout(NULL);
 	    return true;
 	} else if(komp == &bt_apply_line) {
 	    apply_line();
@@ -924,7 +960,7 @@ depot_frame_t::action_triggered(gui_komponente_t *komp)
 	}
     }
     update_data();
-    layout();
+    layout(NULL);
     return true;
 }
 
@@ -989,11 +1025,12 @@ void depot_frame_t::infowin_event(const event_t *ev)
 	 */
         welt->zentriere_auf(pos);
 	} else if(IS_WINDOW_REZOOM(ev)) {
-		layout();
+	    koord gr = gib_fenstergroesse();
+	    setze_fenstergroesse(gr);
 	} else if(ev->ev_class == INFOWIN && ev->ev_code == WIN_OPEN) {
 		// Hajo: this seems to be needed to refresh the list of lines
 		update_data();
-		layout();
+	    layout(NULL);
     } else {
 		gui_frame_t::infowin_event(ev);
 	}
@@ -1036,7 +1073,7 @@ depot_frame_t::zeichnen(koord pos, koord groesse)
 	*txt_convoi_line = '\0';
     }
 
-    bt_obsolete.pressed = show_retired_vehicles;
+    bt_obsolete.pressed = show_retired_vehicles;	// otherwise the button would not show depressed
     gui_frame_t::zeichnen(pos, groesse);
     if(!cnv.is_bound()) {
 	display_proportional_clip(pos.x+inp_name.gib_pos().x+2,
@@ -1074,7 +1111,8 @@ void depot_frame_t::new_line()
 	line_management_gui_t *line_gui = new line_management_gui_t(welt, new_line, welt->get_active_player());
 	line_gui->zeige_info();
 	update_data();
-	layout();
+
+	layout(NULL);
 }
 
 void depot_frame_t::apply_line()
@@ -1236,7 +1274,7 @@ depot_frame_t::draw_vehicle_info_text(koord pos)
 
     display_multiline_text(
 	pos.x + 4,
-	pos.y + tabs.gib_pos().y + tabs.gib_groesse().y + 20,
+	pos.y + tabs.gib_pos().y + tabs.gib_groesse().y + 12,
 	buf,
 	SCHWARZ);
 

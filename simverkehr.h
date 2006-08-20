@@ -73,7 +73,6 @@ protected:
 
     virtual ribi_t::ribi gib_fahrtrichtung() const {return fahrtrichtung;};
 
-
     virtual int  gib_dx() const {return dx;};
     virtual int  gib_dy() const {return dy;};
     virtual int  gib_hoff() const {return hoff;};
@@ -153,6 +152,7 @@ public:
 
    virtual void age() { time_to_life--; };
    virtual int gib_age() { return time_to_life; };
+   void destroy() {time_to_life=0; };
 
     /* this function builts the list of the allowed citycars
      * it should be called every month and in the beginning of a new game
@@ -163,6 +163,8 @@ public:
 
     static bool register_besch(const stadtauto_besch_t *besch);
     static bool laden_erfolgreich();
+
+   virtual void betrete_feld();
 
     /**
      * Methode für asynchrone Funktionen eines Objekts.

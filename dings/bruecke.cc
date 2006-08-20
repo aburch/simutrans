@@ -39,25 +39,25 @@ bruecke_t::bruecke_t(karte_t *welt, koord3d pos, const int y_off, spieler_t *sp,
 		     const bruecke_besch_t *besch, bruecke_besch_t::img_t img) :
  ding_t(welt, pos)
 {
-  this->besch = besch;
-  this->img = img;
+	this->besch = besch;
+	this->img = img;
 
-  setze_bild(0, besch->gib_hintergrund(img));
-  setze_besitzer( sp );
-  setze_yoff( height_scaling(y_off) );
+	setze_bild(0, besch->gib_hintergrund(img));
+	setze_besitzer( sp );
+	setze_yoff( height_scaling(y_off) );
 
-  if(gib_besitzer()) {
-    gib_besitzer()->buche(besch->gib_preis(), gib_pos().gib_2d(), COST_CONSTRUCTION);
-  }
-  step_frequency = 0;
+	if(gib_besitzer()) {
+		gib_besitzer()->buche(-besch->gib_preis(), gib_pos().gib_2d(), COST_CONSTRUCTION);
+	}
+	step_frequency = 0;
 }
 
 
 bruecke_t::~bruecke_t()
 {
-    if(gib_besitzer()) {
-	gib_besitzer()->buche(CST_BRUECKE, gib_pos().gib_2d(), COST_CONSTRUCTION);
-    }
+	if(gib_besitzer()) {
+		gib_besitzer()->buche(-besch->gib_preis(), gib_pos().gib_2d(), COST_CONSTRUCTION);
+	}
 }
 
 

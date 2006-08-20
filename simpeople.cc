@@ -102,27 +102,22 @@ bool fussgaenger_t::sync_step(long delta_t)
 
 void fussgaenger_t::rdwr(loadsave_t *file)
 {
-    verkehrsteilnehmer_t::rdwr(file);
+	verkehrsteilnehmer_t::rdwr(file);
 
-    const char *s = NULL;
-
-    if(!file->is_loading()) {
-	s = besch->gib_name();
-    }
-    file->rdwr_str(s, "N");
-    if(file->is_loading()) {
-
-      // besch = liste.gib_gewichted(simrand(liste.gib_gesamtgewicht()));
-	besch = table.get(s);
-
-	if(besch == 0) {
-	  // Hajo: fallback for missing PAK file
-
-	  besch = liste.at(0);
+	const char *s = NULL;
+	if(!file->is_loading()) {
+		s = besch->gib_name();
 	}
+	file->rdwr_str(s, "N");
 
-	guarded_free(const_cast<char *>(s));
-    }
+	if(file->is_loading()) {
+		besch = table.get(s);
+		// unknow pedestrian => create random new one
+		if(besch == 0) {
+		    besch = liste.gib_gewichted(simrand(liste.gib_gesamtgewicht()));
+		}
+		guarded_free(const_cast<char *>(s));
+	}
 }
 
 

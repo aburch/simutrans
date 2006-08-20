@@ -35,7 +35,7 @@ SOURCES=makeobj.cc
 
 OBJECTS=makeobj.o ../besch/writer/obj_node.o \
  ../simmem.o \
- ../dataobj/nodelist_t.o ../dataobj/nodes_12.o \
+ ../dataobj/freelist.o \
  ../dataobj/tabfile.o ../utils/cstring_t.o ../utils/searchfolder.o \
  ../tpl/debug_helper.o ../tpl/no_such_element_exception.o \
  ../makepak16/dr_rdpng.o \

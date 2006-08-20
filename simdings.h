@@ -230,7 +230,8 @@ public:
 
 	      // other new dings
 	      presignal = 96,
-	      roadsign = 97
+	      roadsign = 97,
+	      pillar = 98
 	      };
 
 
@@ -397,13 +398,6 @@ public:
      * @author Hj. Malthaner
      */
     virtual const char * ist_entfernbar(const spieler_t *sp);
-
-
-    /**
-     * wird aufgerufen wenn ding entfernt wird
-     * @author Hj. Malthaner
-     */
-    virtual void entferne(spieler_t *sp);
 
 
     /**

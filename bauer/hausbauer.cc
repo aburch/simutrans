@@ -335,22 +335,19 @@ void hausbauer_t::baue(karte_t *welt,
 			if(besch->ist_fabrik()) {
 //DBG_DEBUG("hausbauer_t::baue()","setze_fab() at %i,%i",k.x,k.y);
 				gb->setze_fab((fabrik_t *)param);
-				gb->add_alter(gebaeude_t::ALT);
 			}
-			else if( ship_stops.contains(besch) ) {
-				// its a dock!
-				gb->add_alter(gebaeude_t::ALT);
-//DBG_DEBUG("hausbauer_t::baue()","building dock");
-			}
+			// try to fake old building
 			else if(welt->gib_zeit_ms() < 2) {
 				// Hajo: after staring a new map, build fake old buildings
 				gb->add_alter(10000);
 			}
 			grund_t *gr = welt->lookup(pos.gib_2d() + k)->gib_kartenboden();
 			if(gr->ist_wasser()) {
-//DBG_DEBUG("hausbauer_t::baue()","obj_pri_add()");
-				gr->obj_pri_add(gb, 1);
-//DBG_DEBUG("hausbauer_t::baue()","ok");
+				ding_t *dt = gr->obj_takeout(0);	// ensure, pos 0 is empty
+				gr->obj_pri_add(gb, 0);
+				if(dt) {
+					gr->obj_pri_add(gb, 1);
+				}
 			}
 			else if( ship_stops.contains(besch) ) {
 				// its a dock!
@@ -362,7 +359,7 @@ void hausbauer_t::baue(karte_t *welt,
 				}
 				grund_t *gr2 = new fundament_t(welt, gr->gib_pos());
 
-//				gb->setze_bild(0, tile->gib_hintergrund(0, 0));	prissi:???
+//				gb->setze_bild(0, tile->gib_hintergrund(0, 0));	//prissi:???
 				welt->access(gr->gib_pos().gib_2d())->boden_ersetzen(gr, gr2);
 				gr = gr2;
 				gr->obj_add( gb );

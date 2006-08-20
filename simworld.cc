@@ -3403,13 +3403,13 @@ karte_t::interactive_event(event_t &ev)
 					  skinverwaltung_t::upzeiger->gib_bild_nr(0),
 					  tool_tip_with_price(translator::translate("Anheben"), CST_BAU));
 
-			    wzw->add_tool(wkz_raise,
+			    wzw->add_tool(wkz_lower,
 					  Z_PLAN,
 					  SFX_JACKHAMMER,
 					  SFX_FAILURE,
 					  skinverwaltung_t::hang_werkzeug->gib_bild_nr(9),
 					  skinverwaltung_t::downzeiger->gib_bild_nr(0),
-					  tool_tip_with_price(translator::translate("Anheben"), CST_BAU));
+					  tool_tip_with_price(translator::translate("Absenken"), CST_BAU));
 			}
 
 		    wzw->add_param_tool(wkz_set_slope,(long)12,

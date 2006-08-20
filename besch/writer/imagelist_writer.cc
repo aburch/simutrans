@@ -60,13 +60,20 @@ void imagelist_writer_t::write_obj(FILE *fp, obj_node_t &parent, const slist_tpl
 
     slist_iterator_tpl< cstring_t > iter(keys);
 
-    besch.anzahl = keys.count();
-
+	int count = 0;
     while(iter.next()) {
-	image_writer_t::instance()->write_obj(fp, node, iter.get_current());
+    	if(iter.get_current().chars()==0) {
+    		break;
     }
-
-    // printf("wrote %d images\n", besch.anzahl);
+	image_writer_t::instance()->write_obj(fp, node, iter.get_current());
+	count ++;
+  }
+  if(count<keys.count())
+  {
+	printf("WARNING: Expected %i images, but found only %i (but might be still correct)!\n",keys.count(),count );
+	fflush(NULL);
+  }
+    besch.anzahl = count;//keys.count();
 
     node.write_data(fp, &besch);
     node.write(fp);

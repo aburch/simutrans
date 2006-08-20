@@ -380,11 +380,10 @@ DBG_DEBUG("create_win()","ins_win=%d", ins_win);
 	}
 
 	if(x == -1) {
-	    x = CLIP(gib_maus_x() - gr.x/2, 0, display_get_width()-gr.x);
-	    y = CLIP(gib_maus_y() - gr.y-32, 0, display_get_height()-gr.y);
+		x = MIN(gib_maus_x() - gr.x/2, display_get_width()-gr.x);
+		y = MIN(gib_maus_y() - gr.y-32, display_get_height()-gr.y);
 	}
-
-	wins[ins_win].pos.x = x;
+	wins[ins_win].pos.x = MAX(x,0);
 	wins[ins_win].pos.y = MAX(32, y);
 
 DBG_DEBUG("create_win()","new ins_win=%d", ins_win+1);

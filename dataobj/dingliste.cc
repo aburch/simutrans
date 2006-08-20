@@ -14,6 +14,7 @@
 #include "../dings/zeiger.h"
 #include "../dings/baum.h"
 #include "../dings/bruecke.h"
+#include "../dings/pillar.h"
 #include "../dings/tunnel.h"
 //#include "../dings/gebaeudefundament.h"
 #include "../dings/gebaeude.h"
@@ -306,12 +307,12 @@ dingliste_t::remove(ding_t *ding, spieler_t *sp)
 	assert(ding != NULL);
 
 	if(capacity<=1) {
-		if(obj.one==ding) {
+		if(capacity==1  &&  obj.one==ding) {
 			found = true;
-			obj.one = NULL;
-			ding->entferne(sp);
-			capacity = 0;
 		}
+		obj.one = NULL;
+		capacity = 0;
+		top = 0;
 		return found;
 	}
 
@@ -324,7 +325,6 @@ dingliste_t::remove(ding_t *ding, spieler_t *sp)
 		if(obj.some[i]==ding) {
 			obj.some[i] = NULL;
 			found = true;
-			ding->entferne(sp);
 
 			if(i == top-1) {
 				top = last+1;
@@ -347,10 +347,10 @@ dingliste_t::loesche_alle(spieler_t *sp)
 		ding_t *dt = bei(i);
 		if(dt) {
 
-			dt->entferne(sp);
+//			dt->entferne(sp);
 			// der destruktor sollte das objekt autom. aus der karte
-			// entfernen. Tut er aber nicht immer bei waggons!
-			delete dt;
+			// entfernen. Tut er aber nicht
+delete dt;
 		}
 	}
 
@@ -473,7 +473,7 @@ void dingliste_t::rdwr(karte_t *welt, loadsave_t *file, koord3d current_pos)
 				continue;
 			}
 
-			ding_t *d = 0;
+			ding_t *d = NULL;
 
 			switch(typ) {
 				case ding_t::sync_wolke:	    d = new sync_wolke_t (welt, file);	        break;
@@ -492,19 +492,25 @@ void dingliste_t::rdwr(karte_t *welt, loadsave_t *file, koord3d current_pos)
 				case ding_t::zeiger:	    d = new zeiger_t (welt, file);	        break;
 				case ding_t::roadsign:	    d = new roadsign_t (welt, file);	        break;
 
-				case ding_t::raucher:
-					// only factories con smoke; but then, the smoker is reinstated after loading
-					d = new raucher_t (welt, file);
-					delete d;
-					d = NULL;
-					break;
+				// check for pillars
+				case ding_t::pillar:
+				{
+					pillar_t *p = new pillar_t(welt, file);
+					if(p->gib_besch()!=NULL  &&  p->gib_besch()->gib_pillar()!=0) {
+						d = p;
+					}
+					else {
+						// has no pillar ...
+						delete p;
+					}
+				}
+				break;
 
 				case ding_t::baum:
 				{
 					baum_t *b = new baum_t(welt, file);
 					if(!b->gib_besch()) {
 						delete b;
-						b = 0;
 					}
 					d = b;
 				}
@@ -525,8 +531,11 @@ void dingliste_t::rdwr(karte_t *welt, loadsave_t *file, koord3d current_pos)
 				}
 				break;
 
-				// will be ignored
+				// will be ignored, was only used before 86.09
 				case ding_t::gebaeudefundament: d = new dummy_ding_t(welt, file); delete d; d=NULL;  break;
+
+				// only factories can smoke; but then, the smoker is reinstated after loading
+				case ding_t::raucher: d = new raucher_t (welt, file); delete d; d = NULL; break;
 
 #ifdef LAGER_NOT_IN_USE
 				case ding_t::lagerhaus:	    d = new lagerhaus_t (welt, file);	        break;

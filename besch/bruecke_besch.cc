@@ -52,6 +52,12 @@ bruecke_besch_t::img_t bruecke_besch_t::gib_simple(ribi_t::ribi ribi)
 }
 
 
+// dito for pillars
+bruecke_besch_t::img_t bruecke_besch_t::gib_pillar(ribi_t::ribi ribi)
+{
+    return (ribi & ribi_t::nordsued) ? NS_Pillar : OW_Pillar;
+}
+
 
 /*
  *  member function:

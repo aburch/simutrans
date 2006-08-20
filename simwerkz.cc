@@ -318,8 +318,7 @@ DBG_MESSAGE("wkz_remover_intern()","at (%d,%d)", pos.x, pos.y);
 	// stadtauto zum löschen? (we allow always)
 	if(gr->suche_obj(ding_t::verkehr)) {
 		stadtauto_t *citycar = dynamic_cast<stadtauto_t *>(gr->suche_obj(ding_t::verkehr));
-		gr->obj_remove(citycar,welt->gib_spieler(1));
-		citycar->~stadtauto_t();
+		delete citycar;
 		return true;
 	}
 
