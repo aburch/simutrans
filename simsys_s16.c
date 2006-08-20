@@ -102,18 +102,15 @@ static SDL_Cursor *arrow, *hourglass;
  */
 int dr_os_init(int ok, int *parameter)
 {
-	// initialize SDL
-	ok = SDL_Init(SDL_INIT_VIDEO|SDL_INIT_NOPARACHUTE);
-	if(ok != 0) {
+	if (SDL_Init(SDL_INIT_VIDEO|SDL_INIT_NOPARACHUTE) != 0) {
 		fprintf(stderr, "Couldn't initialize SDL: %s\n", SDL_GetError());
 		return FALSE;
 	}
 
 	sync_blit = parameter[1];
 
-	// if SDL gets initialized normally, return zero
 	atexit(SDL_Quit); // clean up on exit
-	return ok == 0;
+	return TRUE;
 }
 
 
@@ -136,13 +133,7 @@ int dr_os_open(int w, int h,int fullscreen)
   width = w;
   height = h;
 
-  if(fullscreen) {
-    flags |= SDL_FULLSCREEN;
-  }
-  else {
-		// if in window, allow resize
-		flags |= SDL_RESIZABLE;
-	}
+	flags |= (fullscreen ? SDL_FULLSCREEN : SDL_RESIZABLE);
 
   // open the window now
   screen = SDL_SetVideoMode(w, h, 16, flags);
