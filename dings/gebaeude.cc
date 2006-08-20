@@ -38,6 +38,7 @@
 
 #include "../gui/stadt_info.h"
 #include "../gui/fabrik_info.h"
+#include "../gui/money_frame.h"
 
 #include "gebaeude.h"
 
@@ -189,6 +190,13 @@ gebaeude_t::zeige_info()
 		}
 		else {
 DBG_MESSAGE("gebaeude_t::zeige_info()", "at %d,%d - name is '%s'", gib_pos().x, gib_pos().y, gib_name());
+
+				if(ist_firmensitz()) {
+					if(umgebung_t::townhall_info) {
+						ding_t::zeige_info();
+					}
+			         create_win(-1, -1, -1, gib_besitzer()->gib_money_frame(), w_info);
+				}
 
 			if(!tile->gib_besch()->ist_ohne_info()) {
 
@@ -442,6 +450,11 @@ const char *gebaeude_t::gib_name() const
 bool gebaeude_t::ist_rathaus() const
 {
     return tile->gib_besch()->ist_rathaus();
+}
+
+bool gebaeude_t::ist_firmensitz() const
+{
+    return tile->gib_besch()->ist_firmensitz();
 }
 
 gebaeude_t::typ gebaeude_t::gib_haustyp() const

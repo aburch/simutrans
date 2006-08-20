@@ -612,7 +612,6 @@ DBG_MESSAGE("wkz_post()", "building mail office/station building on square %d,%d
 }
 
 
-
 int wkz_post(spieler_t *sp, karte_t *welt, koord pos, value_t value)
 {
 	wkz_station_building_aux(sp, welt, pos, (const haus_besch_t *)value.p, true);
@@ -1467,33 +1466,37 @@ dbg->warning("wkz_add_city()", "Already a city here");
  */
 int wkz_set_slope(spieler_t * /*sp*/, karte_t *welt, koord pos, value_t lParam)
 {
-  const int slope = lParam.i;
-  bool ok = false;
+	const int slope = lParam.i;
+	bool ok = false;
 
-  if(welt->ist_in_kartengrenzen(pos)) {
-    if(slope >= 0 && slope < 15) {
+	if(welt->ist_in_kartengrenzen(pos)) {
 
-      welt->set_slope(pos, slope);
+		grund_t * gr = welt->lookup(pos)->gib_kartenboden();
+		if(!gr->ist_natur()  ||  gr->suche_obj(ding_t::gebaeude)!=NULL) {
+			create_win(-1, -1, MESG_WAIT, new nachrichtenfenster_t(welt, "Tile not empty."), w_autodelete);
+			return false;
+		}
 
-      grund_t * gr = welt->lookup(pos)->gib_kartenboden();
-      if(gr) {
-  gr->calc_bild();
-      }
+		if(slope >= 0 && slope < 15) {
 
-      for(int i=0; i<4; i++) {
-  const koord k = pos + koord::nsow[i];
-  const planquadrat_t *plan = welt->lookup(k);
+			welt->set_slope(pos, slope);
 
-  if(plan) {
-    gr = plan->gib_kartenboden();
-    if(gr) {
-      gr->calc_bild();
-    }
-  }
-      }
+			gr->calc_bild();
 
-      ok = true;
-    }
+			for(int i=0; i<4; i++) {
+				const koord k = pos + koord::nsow[i];
+				const planquadrat_t *plan = welt->lookup(k);
+
+				if(plan) {
+					gr = plan->gib_kartenboden();
+					if(gr) {
+						gr->calc_bild();
+					}
+				}
+			}
+
+			ok = true;
+		}
 
     if(slope == 16) {
       // Hajo: special action: lower land
@@ -1714,3 +1717,66 @@ int wkz_undo(spieler_t *sp, karte_t *welt)
 	return false;
 }
 // Werkzeuge ende
+
+
+
+/* builds company headquarter
+ * @author prissi
+ */
+int wkz_headquarter(spieler_t *sp, karte_t *welt, koord pos)
+{
+	bool ok=false;
+
+	if(pos==INIT  ||  pos==EXIT) {
+		return true;
+	}
+DBG_MESSAGE("wkz_headquarter()", "building headquarter at (%d,%d)", pos.x, pos.y);
+
+	if(welt->ist_in_kartengrenzen(pos)) {
+
+		int level = sp->get_headquarter_level();
+		int besch_nr=-1;
+		koord previous = sp->get_headquarter_pos();
+
+		for(int i=0;  i<hausbauer_t::headquarter.count();  i++  ) {
+			if(hausbauer_t::headquarter.at(i)->gib_bauzeit()==level) {
+				besch_nr = i;
+				break;
+			}
+		}
+
+		if(besch_nr<0) {
+			// no further headquarter level
+			welt->setze_maus_funktion(wkz_abfrage, skinverwaltung_t::fragezeiger->gib_bild_nr(0), welt->Z_PLAN, 0, 0);
+			return false;
+		}
+
+		const haus_besch_t *besch = hausbauer_t::headquarter.at(besch_nr);
+		koord size = besch->gib_groesse();
+		int rotate = 0;
+
+		if(welt->ist_platz_frei(pos, size.x, size.y, NULL, false)) {
+			ok = true;
+		}
+		if(size.y != size.x && welt->ist_platz_frei(pos, size.y, size.x, NULL, false)) {
+			rotate = 1;
+			ok = true;
+		}
+
+		if(ok) {
+			// remove previous one
+			if(previous!=koord::invalid) {
+				wkz_remover(sp,welt,previous);
+			}
+			// then built is
+			hausbauer_t::baue(welt, sp, welt->lookup(pos)->gib_kartenboden()->gib_pos(), rotate, besch, true, NULL);
+			sp->add_headquarter( level+1, pos );
+			sp->buche(-1000000*besch->gib_level(), pos, COST_CONSTRUCTION * size.x * size.y);
+		}
+		else {
+			create_win(-1, -1, MESG_WAIT, new nachrichtenfenster_t(welt, "Es ist ein\nObjekt im Weg!\n"), w_autodelete);
+		}
+		welt->setze_maus_funktion(wkz_abfrage, skinverwaltung_t::fragezeiger->gib_bild_nr(0), welt->Z_PLAN, 0, 0);
+	}
+	return ok;
+}

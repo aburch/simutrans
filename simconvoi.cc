@@ -335,17 +335,8 @@ convoi_t::sync_step(long delta_t)
 	// V.Meyer: If we are at destination - complete loading task!
 	state = gib_pos() == fpl->eintrag.get(fpl->aktuell).pos ? LOADING : ROUTING_1;
 	calc_loading();
-
-	// rebuild destination lists after schedule has been changed
-	const slist_tpl<halthandle_t> & list = haltestelle_t::gib_alle_haltestellen();
-	slist_iterator_tpl <halthandle_t> iter (list);
-
-	while( iter.next() ) {
-	  iter.get_current()->rebuild_destinations();
-	  INT_CHECK("convoi_t 384");
-	}
-      }
-      break;
+    }
+    break;
 
     case ROUTING_1:
 
@@ -462,15 +453,19 @@ convoi_t::sync_step(long delta_t)
 		// Ziel erreicht
 		alte_richtung = fahr->at(0)->gib_fahrtrichtung();
 		state = LOADING;
-		akt_speed = 0;
 
 		// pruefen ob wir ein depot erreicht haben
 		const grund_t *gr = welt->lookup(fahr->at(0)->gib_pos());
 		depot_t * dp = gr->gib_depot();
 
+		// Gewinn für transport einstreichen
+		calc_gewinn();
+
 		if(dp) {
 			// ok, we are entering a depot
 			char buf[128];
+
+			akt_speed = 0;
 			sprintf(buf, translator::translate("!1_DEPOT_REACHED"), gib_name());
 			message_t::get_instance()->add_message(buf,fahr->at(0)->gib_pos().gib_2d(),message_t::convoi,gib_besitzer()->kennfarbe,IMG_LEER);
 
@@ -491,12 +486,16 @@ convoi_t::sync_step(long delta_t)
 			halthandle_t halt = haltestelle_t::gib_halt(welt, fahr->at(0)->gib_pos());
 			// we could have reached a non-haltestelle stop, so check before booking!
 			if (halt.is_bound()) {
+				akt_speed = 0;
 				halt->book(1, HALT_CONVOIS_ARRIVED);
+			}
+			else {
+				// Neither depot nor station: waypoint
+				drive_to_next_stop();
+				state = ROUTING_2;
 			}
 		}
 
-		// Gewinn für transport einstreichen
-		calc_gewinn();
 	}
 
 	break;
@@ -612,32 +611,51 @@ koord3d convoi_t::advance_route(const int n) const
  */
 void convoi_t::step()
 {
+	switch(state) {
 
-  switch(state) {
+		case LOADING:
+			laden();
+			break;
 
-  case LOADING:
-    laden();
-    break;
+		case ROUTING_2:
+			// rebuild destination (schedule may changed)
+			if(fpl) {
+				for(int i=0; i<=fpl->maxi; i++) {
 
-  case ROUTING_2:
-    // Hajo: now calculate a new route
-    drive_to(fahr->at(0)->gib_pos(),
-	     fpl->eintrag.at(fpl->get_aktuell()).pos);
+					halthandle_t halt=welt->lookup(fpl->eintrag.get(i).pos)->gib_halt();
+					if(halt.is_bound()) {
 
-    if(route.gib_max_n() > 0) {
-      // Hajo: ROUTING_3 is no more, go to ROUTING_4 directly
-      state = ROUTING_4;
-    }
-    break;
+						const ware_besch_t *last_fracht_typ=NULL;
+						for(int j=0; j<anz_vehikel; j++) {
 
-  case ROUTING_5:
-    vorfahren();
-    break;
+							if(fahr->at(j)->gib_fracht_typ()!=last_fracht_typ) {
+								last_fracht_typ = fahr->at(j)->gib_fracht_typ();
+								halt->hat_gehalten(0,last_fracht_typ, fpl );
+							}
+						}
+					}
 
-  default:
-    // Hajo: do nothing
-    break;
-  }
+					INT_CHECK("convoi_t 384");
+				}
+			}
+
+			// Hajo: now calculate a new route
+			drive_to(fahr->at(0)->gib_pos(),
+			fpl->eintrag.at(fpl->get_aktuell()).pos);
+
+			if(route.gib_max_n() > 0) {
+				// Hajo: ROUTING_3 is no more, go to ROUTING_4 directly
+				state = ROUTING_4;
+			}
+			break;
+
+		case ROUTING_5:
+			vorfahren();
+			break;
+
+		default:	/* keeps compiler silent*/
+			break;
+	}
 }
 
 
@@ -964,12 +982,15 @@ convoi_t::vorfahren()
 {
 	// Hajo: init speed settings
 	sp_soll = 0;
-	akt_speed = 8;
-	setze_akt_speed_soll(fahr->at(0)->gib_speed());
+
 	anz_ready = 0;
 
 	int dummy1, dummy2;
 	ribi_t::ribi neue_richtung =  fahr->at(0)->calc_richtung(route.position_bei(0).gib_2d(), route.position_bei(1).gib_2d(), dummy1, dummy2);
+	if(neue_richtung!=alte_richtung) {
+		akt_speed = 8;
+	}
+	setze_akt_speed_soll(fahr->at(0)->gib_speed());
 
 	INT_CHECK("simconvoi 651");
 

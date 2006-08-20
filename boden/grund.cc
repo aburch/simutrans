@@ -598,6 +598,8 @@ grund_t::display_boden(const int xpos, int ypos, bool dirty) const
 		if(gib_weg2_bild() >= 0){
 			display_img(gib_weg2_bild(), xpos, ypos - gib_weg_yoff(), dirty);
 		}
+
+
 	}
 }
 

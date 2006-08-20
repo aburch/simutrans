@@ -197,6 +197,7 @@ void fahrplan_gui_t::init()
 
   if(fpl->maxi > 0) {
     mode = none;
+	welt->setze_maus_funktion(wkz_abfrage, skinverwaltung_t::fragezeiger->gib_bild_nr(0), welt->Z_PLAN, 0, 0);
   } else {
     mode = adding;
     welt->setze_maus_funktion(wkz_fahrplan_add,

@@ -625,7 +625,7 @@ int simu_cpp_main(int argc, char ** argv)
       /*
        * Max number of transfers in goods pathfinding
        */
-      haltestelle_t::set_max_transfers(contents.get_int("max_transfers", 6));
+      umgebung_t::max_transfers = contents.get_int("max_transfers", 7);
 
 
       simuconf.close();
@@ -683,7 +683,10 @@ int simu_cpp_main(int argc, char ** argv)
 	case 4:
 	    disp_width = resolutions[res*2];
 	    disp_height = resolutions[res*2+1];
+	    fullscreen = true;
 	    break;
+	case 5:
+		fullscreen = false;
 	default:
 	    print("invalid resolution, argument must be 1,2,3 or 4\n");
 	    print("1=640x480, 2=800x600, 3=1024x768, 4=1280x1024\n");

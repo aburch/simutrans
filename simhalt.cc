@@ -73,13 +73,6 @@ static int max_hops = 300;
 
 
 /**
- * Max number of transfers in route calculation
- * @author Hj. Malthaner
- */
-static int max_transfers = 6;
-
-
-/**
  * Sets max number of hops in route calculation
  * @author Hj. Malthaner
  */
@@ -90,16 +83,6 @@ void haltestelle_t::set_max_hops(int hops)
   }
 
   max_hops = hops;
-}
-
-
-/**
- * Sets max number of transfers in route calculation
- * @author Hj. Malthaner
- */
-void haltestelle_t::set_max_transfers(int transfers)
-{
-  max_transfers = transfers;
 }
 
 
@@ -634,7 +617,7 @@ void haltestelle_t::rebuild_destinations()
 					for(int j=0; j<anz; j++) {
 
 						vehikel_t *v = cnv->gib_vehikel(j);
-						hat_gehalten(0, v->gib_fracht_typ(), fpl );
+						hat_gehalten(0,v->gib_fracht_typ(), fpl );
 					}
 				}
 			}
@@ -711,6 +694,7 @@ haltestelle_t::suche_route(ware_t &ware, koord *next_to_ziel)
 
 	static HNode nodes[10000];
 	static uint32 current_mark = 0;
+	const int max_transfers = umgebung_t::max_transfers;
 
 	INT_CHECK("simhalt 452");
 
@@ -1416,7 +1400,7 @@ haltestelle_t::is_connected(const halthandle_t halt, const ware_besch_t * wtyp)
 
 
 void
-haltestelle_t::hat_gehalten(int /*wert*/, const ware_besch_t *type, const fahrplan_t *fpl)
+haltestelle_t::hat_gehalten(int /*number_of_cars*/,const ware_besch_t *type, const fahrplan_t *fpl)
 {
 	if(type != warenbauer_t::nichts) {
 		for(int i=0; i<=fpl->maxi; i++) {

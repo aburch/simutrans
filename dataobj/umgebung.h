@@ -210,6 +210,10 @@ class umgebung_t
 
   /* prissi: maximum number of steps for breath search */
   static int max_route_steps;
+
+
+  /* prissi: maximum number of steps for breath search */
+  static int max_transfers;
 };
 
 #endif

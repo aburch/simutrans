@@ -954,9 +954,7 @@ wegbauer_t::intern_calc_route(const koord start, const koord ziel)
   int   dist_straight_start=1+(dist*3)/4;
   int   dist_straight_ziel=1+dist/4;
 
-
 //DBG_MESSAGE("wegbauer_t::intern_calc_route","From (%i,%i) to (%i,%i) [low %i] [high %i]",ziel.x,ziel.y,start.x,start.y,dist_straight_start,dist_straight_ziel);
-
     calc_route_init();
 
     INT_CHECK("simbau 608");
@@ -1026,8 +1024,6 @@ wegbauer_t::intern_calc_route(const koord start, const koord ziel)
 	} // if(baubaer == true)
 
 	koord force_dir = forces_lookup(k);
-//	koord force_dir = koord(0, 0);
-
   koord next_try_dir[4];  // will be updated each step: biggest distance try first ...
 
   int current_dist =  abs(start.x-k.x)+abs(start.y-k.y);
@@ -1075,7 +1071,7 @@ wegbauer_t::intern_calc_route(const koord start, const koord ziel)
 
       if(t.x > 0 && t.y > 0 &&
                t.x < welt->gib_groesse()-1 && t.y < welt->gib_groesse()-1) {
-    // pr�ob wir �upt dort hin d�
+    // test if we are allowed to go there
 
     grund_t *bd_von = welt->lookup(k)->gib_kartenboden();
     grund_t *bd_nach = welt->lookup(t)->gib_kartenboden();
@@ -1085,12 +1081,10 @@ wegbauer_t::intern_calc_route(const koord start, const koord ziel)
         continue;
     }
 
-
     // spezielle checks, Uferlage
     if(welt->gib_spieler(0) == sp && bd_nach->gib_hoehe() <= welt->gib_grundwasser()) {
         continue;
     }
-
 
     if(!kann_mit_strasse_erreichen(bd_von, zv)) {
         continue;
@@ -1107,11 +1101,11 @@ wegbauer_t::intern_calc_route(const koord start, const koord ziel)
     }
 
     // allgemeine checks, untergrund
-                if(!ist_grund_fuer_strasse(t, zv, start, ziel)) {
+    if(!ist_grund_fuer_strasse(t, zv, start, ziel)) {
         continue;
     }
 
-    // berechne kosten f� Schritt
+    // calculate costs
     int cost = calc_cost(t);
     // make it cheaper to go straight
     if(  straight_track  &&  (current_dist>=dist_straight_start  ||  current_dist<=dist_straight_ziel)  ) {
@@ -1139,10 +1133,6 @@ found:;
 	n = 0;
 	do {
 	    route->at(n++) = k;
-
-//	    printf("Route %d ist (%d,%d) mit val %d\n",
-//	           n, k.x, k.y,
-//		   info[k.x][k.y].val);
 
 	    k = info->at(k).k;
 	} while(n<maximum && n<max_route_laenge && k != koord::invalid);

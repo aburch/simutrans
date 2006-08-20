@@ -164,17 +164,11 @@ int dr_os_open(int w, int h,int fullscreen)
   width = w;
   height = h;
 
-  if(width == 640 ||
-     width == 800 ||
-     width == 1024 ||
-     width == 1280 ||
-     fullscreen) {
-
+  if(fullscreen) {
     flags |= SDL_FULLSCREEN;
   }
-
-	if((flags&SDL_FULLSCREEN)==0) {
-		// if in wondow, allow resize
+  else {
+		// if in window, allow resize
 		flags |= SDL_RESIZABLE;
 	}
 

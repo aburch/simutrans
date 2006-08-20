@@ -44,7 +44,7 @@ public:
     /**
      * Unbekannte Gebäude sind nochmal unterteilt
      */
-    enum utyp { unbekannt, special, sehenswuerdigkeit, denkmal, fabrik, rathaus, weitere };
+    enum utyp { unbekannt, special, sehenswuerdigkeit, denkmal, fabrik, rathaus, weitere, firmensitz };
 
 private:
     static slist_tpl<const haus_besch_t *> alle;
@@ -76,6 +76,7 @@ public:
     static slist_tpl<const haus_besch_t *> hausbauer_t::train_stops;
     static slist_tpl<const haus_besch_t *> hausbauer_t::car_stops;
     static slist_tpl<const haus_besch_t *> hausbauer_t::ship_stops;
+    static slist_tpl<const haus_besch_t *> hausbauer_t::headquarter;
 
 private:
 

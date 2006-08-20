@@ -71,6 +71,8 @@ class cstring_t;
 
 template <class T> class vector_tpl;
 
+#define TILE_HEIGHT_STEP 16
+
 /**
  * Die Karte ist der zentrale Bestandteil der Simulation. Sie
  * speichert alle Daten und Objekte.
@@ -513,6 +515,13 @@ public:
 	const planquadrat_t *plan = lookup(pos.gib_2d());
 	return plan ? plan->gib_boden_in_hoehe(pos.z) : NULL;
     };
+
+
+	/**
+	 * returns the natural slope a a position
+	 * @author prissi
+	 */
+	uint8	calc_natural_slope( const koord pos ) const;
 
 
     /**

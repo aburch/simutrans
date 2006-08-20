@@ -176,6 +176,8 @@ public:
 
     bool ist_rathaus() const;
 
+    bool ist_firmensitz() const;
+
     /**
      * setzt das Baudatum auf die aktuelle Zeit und das
      * Baugruben-Flag auf true

@@ -2038,6 +2038,30 @@ karte_t::blick_aendern(event_t *ev)
 // suedhang = 12
 
 /**
+ * returns the natural slope a a position
+ * @author prissi
+ */
+uint8	karte_t::calc_natural_slope( const koord pos ) const
+{
+	if(ist_in_kartengrenzen(pos.x, pos.y)) {
+
+		const sint8 * p = &grid_hgts[pos.x + pos.y*(cached_groesse+1)];
+
+		const int h1 = *p;
+		const int h2 = *(p+1);
+		const int h3 = *(p+cached_groesse+2);
+		const int h4 = *(p+cached_groesse+1);
+
+		const int mini = min(min(h1,h2), min(h3,h4));
+
+		return ((h1>mini)<<3) + ((h2>mini)<<2) + ((h3>mini)<<1) + ((h4>mini));
+	}
+	return 0;
+}
+
+
+
+/**
  * Calculates slope for grid at pos.
  * @author Hj. Malthaner
  */
@@ -2143,20 +2167,15 @@ karte_t::finde_plaetze(int w, int h) const
 bool
 karte_t::play_sound_area_clipped(koord pos, sound_info info)
 {
-    const int center = display_get_width() >> 7;
-    const int dist = ABS((pos.x-center) - gib_ij_off().x) + ABS((pos.y-center) - gib_ij_off().y);
+	const int center = display_get_width() >> 7;
+	const int dist = ABS((pos.x-center) - gib_ij_off().x) + ABS((pos.y-center) - gib_ij_off().y);
 
-    if(dist < 25) {
-	if(info.volume > dist*9 + 10) {
-	    info.volume -= dist*9;
-	} else {
-	    info.volume = 8;
+	if(dist < 25) {
+		info.volume = 255-dist*9;
+		sound_play(info);
 	}
 
-	sound_play(info);
-    }
-
-    return dist < 25;
+	return dist < 25;
 }
 
 
@@ -2931,6 +2950,12 @@ karte_t::interactive_event(event_t &ev)
 	    }
 	    break;
 
+	case 'H':
+	    if(hausbauer_t::headquarter.count()>0) {
+		setze_maus_funktion(wkz_headquarter, skinverwaltung_t::undoc_zeiger->gib_bild_nr(0), Z_PLAN, SFX_JACKHAMMER, SFX_FAILURE);
+	    }
+	    break;
+
 	case 'I':
 	  setze_maus_funktion(wkz_build_industries_land, skinverwaltung_t::undoc_zeiger->gib_bild_nr(0), Z_PLAN, 0, 0);
 	    break;
@@ -3160,10 +3185,11 @@ karte_t::interactive_event(event_t &ev)
 					wkz_set_slope,
 					skinverwaltung_t::slopezeiger->gib_bild_nr(0),
 					Z_PLAN,
-					(long)0,
+					(long)12,
 					SFX_JACKHAMMER,
 					SFX_FAILURE);
 		    wzw->set_tooltip(0, "Experimental feature, use at your own risk!");
+
 
 		    wzw->setze_werkzeug(1,
 					wkz_set_slope,
@@ -3173,7 +3199,6 @@ karte_t::interactive_event(event_t &ev)
 					SFX_JACKHAMMER,
 					SFX_FAILURE);
 		    wzw->set_tooltip(1, "Experimental feature, use at your own risk!");
-
 
 		    wzw->setze_werkzeug(2,
 					wkz_set_slope,
@@ -3199,11 +3224,10 @@ karte_t::interactive_event(event_t &ev)
 					wkz_set_slope,
 					skinverwaltung_t::slopezeiger->gib_bild_nr(0),
 					Z_PLAN,
-					(long)12,
+					(long)0,
 					SFX_JACKHAMMER,
 					SFX_FAILURE);
 		    wzw->set_tooltip(4, "Experimental feature, use at your own risk!");
-
 
 		    wzw->setze_werkzeug(5,
 					wkz_set_slope,
@@ -3669,71 +3693,53 @@ karte_t::interactive_event(event_t &ev)
     		break;
     	}
   	}
-
-    if(ev.ev_class == EVENT_SYSTEM) {
-        // hellmade 15.05.2002
-        // Beenden des Programms wenn das Fenster geschlossen wird.
-        switch(ev.ev_code) {
-			case SYSTEM_RESIZE:
-			{
-				// main window resized
-				simgraph_resize( ev.mx, ev.my );
-				win_display_menu();
-				setze_dirty();
-			}
-			break;
-	case SYSTEM_QUIT:
-            sound_play(click_sound);
-	    destroy_all_win();
-	    beenden(true);
-	    break;
-	}
-    }
-
     INT_CHECK("simworld 2117");
 }
+
+
 
 void
 karte_t::interactive_update()
 {
-    event_t ev;
-    bool swallowed = false;
+	event_t ev;
+	bool swallowed = false;
 
-//    const long frame_time = get_frame_time();
+	do {
 
-    do {
-	win_poll_event(&ev);
+		// get an event
+		win_poll_event(&ev);
 
-	if(ev.ev_class != EVENT_NONE &&
-	   ev.ev_class != IGNORE_EVENT) {
+		if(ev.ev_class == EVENT_SYSTEM  &&  ev.ev_code==SYSTEM_QUIT) {
+			// Beenden des Programms wenn das Fenster geschlossen wird.
+			destroy_all_win();
+			beenden(true);
+			return;
+		}
 
+		if(ev.ev_class != EVENT_NONE &&  ev.ev_class != IGNORE_EVENT) {
 
-	  swallowed = check_pos_win(&ev);
+			swallowed = check_pos_win(&ev);
 
+			if(IS_RIGHTCLICK(&ev)) {
+				display_show_pointer(false);
+			} else if(IS_RIGHTRELEASE(&ev)) {
+				display_show_pointer(true);
+			} else if(ev.ev_class == EVENT_DRAG && ev.ev_code == MOUSE_RIGHTBUTTON) {
+				blick_aendern(&ev);
+			}
 
-	  if(IS_RIGHTCLICK(&ev)) {
-	    display_show_pointer(false);
-	  } else if(IS_RIGHTRELEASE(&ev)) {
-	    display_show_pointer(true);
-	  } else if(ev.ev_class == EVENT_DRAG && ev.ev_code == MOUSE_RIGHTBUTTON) {
-	    blick_aendern(&ev);
-	  }
+			if(ev.button_state == 0 && ev.ev_class == EVENT_MOVE) {
+				bewege_zeiger(&ev);
+			}
+		}
 
-	  if(ev.button_state == 0 && ev.ev_class == EVENT_MOVE) {
-	    bewege_zeiger(&ev);
-	  }
+		INT_CHECK("simworld 2630");
+
+	} while(ev.button_state != 0);
+
+	if (!swallowed) {
+		interactive_event(ev);
 	}
-
-	INT_CHECK("simworld 2630");
-
-    } while(ev.button_state != 0);
-
-
-//    set_frame_time(frame_time);
-
-    if (!swallowed) {
-	interactive_event(ev);
-    }
 }
 
 
@@ -3830,12 +3836,3 @@ karte_t::interactive()
 
 	return m_quit_simutrans;      // 02-Nov-2001    Markus Weber    Added
 }
-
-
-
-/*
-
-if(t > now+1000) {
-last_simloops = steps - steps_bis_jetzt;
-
-*/

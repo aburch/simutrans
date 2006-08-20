@@ -165,6 +165,10 @@ void building_writer_t::write_obj(FILE *fp, obj_node_t &parent, tabfileobj_t &ob
 	besch.level = obj.get_int("passengers", 0);
 	besch.bauzeit = obj.get_int("build_time", 0);
 	besch.utyp = hausbauer_t::rathaus;
+    } else if(!STRICMP(type_name, "hq")) {
+	besch.level = obj.get_int("passengers", 0);
+	besch.bauzeit = obj.get_int("build_time", 0);
+	besch.utyp = hausbauer_t::firmensitz;
     } else if(!STRICMP(type_name, "fac")) {
 	besch.utyp = hausbauer_t::fabrik;
     } else if(!STRICMP(type_name, "any") || *type_name == '\0') {

@@ -1,3 +1,19 @@
+
+
+Release of 86.05
+
+17-Jun-2005 (prissi)
+	FIX: no resize when dialog open
+	FIX: AI busses waiting at tourist attractions were not added to routing tables (and updating tables now asynchronus process).
+	FIX: passenger AI could cause random crashes. Also test for indirect connections was no working. Now only new route built, if more than three stations bypassed.
+	CHANGE: rearraged icon in the slope tool
+	CHANGE: 4 new slope graphs => much less drawing errors (backward compatible)
+	CHANGE: forbid use of slopes on potentially dangerous tiles (message: "Tile not empty.")
+	ADD: support for headquarter (in dat: obj=building, type=hq, parameters are level= 1,2,3,4,... and passengers=xyz) (Press 'H' to built)
+	CHANGE: No stop at waypoints on straight tracks
+	FIX: fullscreen-switch repaired
+
+
 Release of 86.04
 
 11-Jun-2005 (prissi)

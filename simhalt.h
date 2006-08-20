@@ -101,13 +101,6 @@ public:
   static void set_max_hops(int hops);
 
 
-  /**
-   * Sets max number of transfers in route calculation
-   * @author Hj. Malthaner
-   */
-  static void set_max_transfers(int transfers);
-
-
 private:
 
 
@@ -563,11 +556,10 @@ public:
     /**
      * wird von Fahrzeug aufgerufen, wenn dieses an der Haltestelle
      * gehalten hat.
-     * @param wertung Verbesserungswert der Haltestellenquote in 1/256
      * @param typ der beförderte warentyp
      * @author Hj. Malthaner
      */
-    void hat_gehalten(int wertung,
+    void hat_gehalten(const int number_of_cars,
                       const ware_besch_t *warentyp,
                       const fahrplan_t *fpl);
 

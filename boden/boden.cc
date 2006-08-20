@@ -22,6 +22,7 @@
 #include "../besch/skin_besch.h"
 
 #include "../simtools.h"
+#include "../simimg.h"
 
 mempool_t * boden_t::mempool = new mempool_t(sizeof(boden_t) );
 
@@ -181,6 +182,10 @@ static const uint8 double_slope_table[16] = {
 void
 boden_t::calc_bild()
 {
+	const koord k = gib_pos().gib_2d();
+	const uint8 slope_this =  welt->get_slope(k);
+	const uint8 natural_slope_this = welt->calc_natural_slope(k);
+
 	grund_t::calc_bild();
 
 	weg_t *weg = gib_weg(weg_t::strasse);
@@ -206,56 +211,64 @@ boden_t::calc_bild()
 				hang += 18;
 			}
 		}
-		setze_bild(grund_besch_t::boden->gib_bild(hang + offset));
+		int bild=IMG_LEER;
+		if(slope_this!=0  &&  slope_this!=natural_slope_this) {
+			bild = grund_besch_t::boden->gib_bild(53+(slope_this/3));
+		}
+		if(bild==IMG_LEER) {
+			bild = grund_besch_t::boden->gib_bild(hang + offset);
+		}
+		setze_bild( bild );
 	}
 
-	int back_bild = -1;
-	const koord k = gib_pos().gib_2d();
+	int back_bild = IMG_LEER;
 
 	const planquadrat_t *left  = welt->lookup(k - koord(1,0));
 	const planquadrat_t *right = welt->lookup(k - koord(0,1));
-	const int height = gib_pos().z;
 
-	if(left && right) {
+	if(left!=NULL  && right!=NULL) {
 		grund_t * lgr = left->gib_kartenboden();
 		grund_t * rgr = right->gib_kartenboden();
 
-		const int lhdiff = lgr->ist_wasser() ? -1 : lgr->gib_hoehe() - height;
-		const int lrdiff = rgr->ist_wasser() ? -1 : rgr->gib_hoehe() - height;
-
-		const uint8 slope_this =  welt->get_slope(k);
 		const uint8 slope_left =  welt->get_slope(k - koord(1,0));
 		const uint8 slope_right = welt->get_slope(k - koord(0,1));
 
-		uint8 idl = ((slope_left & 4) >> 1) + ((slope_left & 2) >> 1);
-		uint8 idr = ((slope_right & 1) << 1) + ((slope_right & 2) >> 1);
+//		const int lhdiff = lgr->ist_wasser() ? -1 : lgr->gib_hoehe() - gib_hoehe();
+//		const int lrdiff = rgr->ist_wasser() ? -1 : rgr->gib_hoehe() - gib_hoehe();
+		const int lhdiff = (lgr->gib_hoehe() - gib_hoehe())/TILE_HEIGHT_STEP;
+		const int lrdiff = (rgr->gib_hoehe() - gib_hoehe())/TILE_HEIGHT_STEP;
 
-		// Hajo: cases for height difference
-		if(lhdiff > 0) {
-			idl = 3;
-		} else if(lhdiff < 0) {
-			idl = 0;
+		int slope_wall = 0;
+
+		if(lhdiff>=0) {
+			// add corners of left slope
+			sint8 llhdiff = ((slope_left&2)!=0) - ((slope_this&1)!=0) + lhdiff;
+			sint8 lhhdiff = ((slope_left&4)!=0) - ((slope_this&8)!=0) + lhdiff;
+			slope_wall = (llhdiff>0)*4 + (lhhdiff>0)*8;
+			// only down-slopes in table
+			// thus upslopes are converted to solid walls
+			if(lhdiff>0  &&  slope_wall!=0) {
+				slope_wall = 12;
+			}
 		}
 
-		if(lrdiff > 0) {
-			idr = 3;
-		} else if(lrdiff < 0) {
-			idr = 0;
+		if(lrdiff>=0) {
+			// add corner of right slope
+			sint8 hlhdiff = ((slope_right&1)!=0) - ((slope_this&8)!=0) + lrdiff;
+			sint8 hhhdiff = ((slope_right&2)!=0) - ((slope_this&4)!=0) + lrdiff;
+			slope_wall |= (hlhdiff>0)*2 + (hhhdiff>0)*1;
+			// only down-slopes in table
+			// thus upslopes are converted to solid walls
+			if(lrdiff>0  &&  (slope_wall&3)>0) {
+				slope_wall |= 3;
+			}
 		}
 
-
-		if(slope_this != 0 &&
-			slope_this != 3 && slope_this != 6 &&
-			slope_this != 9 && slope_this != 12) {
-			idl = idr = 0;
-		}
-
-		const uint8 both = (idl << 2) + idr;
-		if(both != 0) {
-			// printf("idl=%d idr=%d both=%x dslope=%d\n", idl, idr, both, double_slope_table[both]);
-			back_bild = grund_besch_t::boden->gib_bild(38 + double_slope_table[both]);
+		if(slope_wall!=0) {
+				back_bild = grund_besch_t::boden->gib_bild(38 + double_slope_table[slope_wall]);
 		}
 	}
+
 	setze_back_bild(back_bild);
 }
 

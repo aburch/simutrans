@@ -843,11 +843,20 @@ win_get_event(struct event_t *ev)
 void
 win_poll_event(struct event_t *ev)
 {
-  display_poll_event(ev);
-  if (snre_pointer && IS_LEFTRELEASE(ev)) {
-    *snre_pointer = false; snre_pointer = 0;
-    ev->ev_class = EVENT_NONE;
-  }
+	display_poll_event(ev);
+	// swallow pointer event (prissi: why?)
+	if (snre_pointer && IS_LEFTRELEASE(ev)) {
+		*snre_pointer = false;
+		snre_pointer = 0;
+		ev->ev_class = EVENT_NONE;
+	}
+	// main window resized
+	if(ev->ev_class==EVENT_SYSTEM  &&  ev->ev_code==SYSTEM_RESIZE) {
+		// main window resized
+		simgraph_resize( ev->mx, ev->my );
+		win_display_menu();
+		ev->ev_class = EVENT_NONE;
+	}
 }
 
 static const char*  tooltips[22] =

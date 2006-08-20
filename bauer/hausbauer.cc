@@ -37,7 +37,7 @@
 
 
 /*
- * Die verschiedenen Gebäudegruppen isnd in eigenen Listen gesammelt.
+ * Die verschiedenen Gebäudegruppen sind in eigenen Listen gesammelt.
  */
 slist_tpl<const haus_besch_t *> hausbauer_t::alle;
 slist_tpl<const haus_besch_t *> hausbauer_t::wohnhaeuser;
@@ -72,6 +72,7 @@ slist_tpl<const haus_besch_t *> hausbauer_t::car_stops;
 slist_tpl<const haus_besch_t *> hausbauer_t::ship_stops;
 slist_tpl<const haus_besch_t *> hausbauer_t::post_offices;
 slist_tpl<const haus_besch_t *> hausbauer_t::station_building;
+slist_tpl<const haus_besch_t *> hausbauer_t::headquarter;
 
 
 static spezial_obj_tpl<haus_besch_t> spezial_objekte[] = {
@@ -142,12 +143,15 @@ bool hausbauer_t::register_besch(const haus_besch_t *besch)
 	case sehenswuerdigkeit:
 	    sehenswuerdigkeiten.append(besch);
 	    break;
+	case firmensitz:
+		headquarter.append(besch);
+		break;
 	case rathaus:
 	  // printf("Rathaus mit bev=%d\n", besch->gib_bauzeit());
-
 	case special:
 	    spezials.append(besch);
 	    break;
+
 	case weitere:
 	{
 		int checkpos=strlen(besch->gib_name());
@@ -373,6 +377,9 @@ DBG_DEBUG("hausbauer_t::baue()","building dock");
 		    gb->setze_anim_time(0);
 		}
 		else if(besch->ist_rathaus()) {
+		    gb->setze_besitzer(sp);
+		}
+		else if(besch->ist_firmensitz()) {
 		    gb->setze_besitzer(sp);
 		}
 		else if(post_offices.contains(besch)) {

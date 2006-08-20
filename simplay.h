@@ -30,6 +30,7 @@
 
 #include "boden/wege/weg.h"
 
+#include "tpl/vector_tpl.h"
 #include "tpl/array_tpl.h"
 #include "tpl/array2d_tpl.h"
 
@@ -524,14 +525,23 @@ private:
 	/* undo informations *
 	 * @author prissi
 	 */
-	array_tpl<koord> *last_built;
-	int last_built_count;
+	vector_tpl<koord> last_built;
 	weg_t::typ undo_type;
 
 public:
-	void init_undo(weg_t::typ t, int max );
+	void init_undo(weg_t::typ t, unsigned short max );
 	void add_undo(koord k);
 	bool undo();
+
+	// headquarter stuff
+private:
+	int headquarter_level;
+	koord headquarter_pos;
+
+public:
+	void add_headquarter( short hq_level, koord hq_pos ) { headquarter_level = hq_level; headquarter_pos = hq_pos; };
+	koord get_headquarter_pos(void) const { return headquarter_pos; };
+	short get_headquarter_level(void) const { return headquarter_level; };
 };
 
 #endif

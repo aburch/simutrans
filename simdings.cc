@@ -166,6 +166,7 @@ void ding_t::info(cbuffer_t & buf) const
     buf.append(translator::translate("Spieler"));
     buf.append(" ");
     buf.append(besitzer_n);
+    buf.append("\n");
   }
 }
 

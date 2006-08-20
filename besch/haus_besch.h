@@ -192,6 +192,10 @@ public:
     {
         return ist_utyp(hausbauer_t::rathaus);
     }
+    bool ist_firmensitz() const
+    {
+        return ist_utyp(hausbauer_t::firmensitz);
+    }
     bool ist_ausflugsziel() const
     {
         return ist_utyp(hausbauer_t::sehenswuerdigkeit) || ist_utyp(hausbauer_t::special);

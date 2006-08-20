@@ -20,6 +20,7 @@ int wkz_raise(spieler_t *sp, karte_t *welt, koord pos);
 int wkz_lower(spieler_t *sp, karte_t *welt, koord pos);
 int wkz_remover(spieler_t *sp, karte_t *welt, koord pos);
 
+
 int wkz_wegebau(spieler_t *sp, karte_t *welt, koord pos, value_t lParam);
 
 int wkz_frachthof(spieler_t *sp, karte_t *welt, koord pos);
@@ -28,7 +29,6 @@ int wkz_station_building(spieler_t *sp, karte_t *welt, koord pos, value_t value)
 //int wkz_lagerhaus(spieler_t *sp, karte_t *welt, koord pos);
 int wkz_bahnhof(spieler_t *sp, karte_t *welt, koord pos, value_t lParam);
 int wkz_bushalt(spieler_t *sp, karte_t *welt, koord pos,value_t value);
-
 int wkz_dockbau(spieler_t *sp, karte_t *welt, koord pos,value_t value);
 
 int wkz_marker(spieler_t *sp, karte_t *welt, koord pos);
@@ -44,7 +44,6 @@ int wkz_tramdepot(spieler_t *sp, karte_t *welt, koord pos);
 int wkz_strassendepot(spieler_t *sp, karte_t *welt, koord pos);
 int wkz_schiffdepot(spieler_t *sp, karte_t *welt, koord pos, value_t value);
 
-int wkz_schienenkreuz(spieler_t *sp, karte_t *welt, koord pos);
 
 
 // sonderwerkzeuge
@@ -101,5 +100,7 @@ int wkz_list_good_tool(spieler_t *sp, karte_t *welt, koord v);
 
 /* undo building */
 int wkz_undo(spieler_t *sp, karte_t *welt);
+
+int wkz_headquarter(spieler_t *sp, karte_t *welt, koord pos);
 
 #endif

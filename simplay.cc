@@ -100,7 +100,7 @@ static fabrik_t *baue_ziel=NULL;
  * @param color Kennfarbe des Spielers
  * @author Hj. Malthaner
  */
-spieler_t::spieler_t(karte_t *wl, int color)
+spieler_t::spieler_t(karte_t *wl, int color) : last_built(0)
 {
     halt_list = new slist_tpl <halthandle_t>;
 
@@ -112,6 +112,9 @@ spieler_t::spieler_t(karte_t *wl, int color)
 
     konto_ueberzogen = 0;
     automat = false;		// Start nicht als automatischer Spieler
+
+    headquarter_pos = koord::invalid;
+    headquarter_level = 0;
 
     /**
      * initialize finance history array
@@ -162,8 +165,7 @@ spieler_t::spieler_t(karte_t *wl, int color)
 
     init_texte();
 
-	// UNDO array empty
-	last_built = NULL;
+	last_built.clear();
 
 	money_frame = NULL;
 
@@ -209,11 +211,6 @@ spieler_t::~spieler_t()
 		delete money_frame;
 	}
 	money_frame = NULL;
-	// maybe free undo list
-	if(last_built!=NULL) {
-		delete last_built;
-	}
-	last_built = NULL;
 	// always there
 	delete halt_list;
 	halt_list = 0;
@@ -738,7 +735,7 @@ spieler_t::do_passenger_ki()
 			int anzahl = staedte->get_count();
 			int offset = (anzahl>1)?simrand(anzahl-1):0;
 			// start with previous target
-			const stadt_t* last_star_stadt=start_stadt;
+			const stadt_t* last_start_stadt=start_stadt;
 			start_stadt = end_stadt;
 			end_stadt = NULL;
 			end_ausflugsziel = NULL;
@@ -751,13 +748,18 @@ spieler_t::do_passenger_ki()
 DBG_MESSAGE("spieler_t::do_passenger_ki()","using city %s for start",start_stadt->gib_name());
 			const halthandle_t start_halt = get_our_hub(start_stadt);
 			// find starting place
+
+if(!start_halt.is_bound()) {
+	DBG_MESSAGE("spieler_t::do_passenger_ki()","new_hub");
+}
 			platz1 = start_halt.is_bound()?start_halt->gib_basis_pos():built_hub(start_stadt->gib_pos(),9);
 			if(platz1==koord::invalid) {
 				return;
 			}
+DBG_MESSAGE("spieler_t::do_passenger_ki()","using place (%i,%i) for start",platz1.x,platz1.y);
 
 			if(anzahl==1  ||  simrand(3)==0) {
-//DBG_MESSAGE("spieler_t::do_passenger_ki()","searching attraction");
+DBG_MESSAGE("spieler_t::do_passenger_ki()","searching attraction");
 				// 25 % of all connections are tourist attractions
 				const slist_tpl<gebaeude_t*> &ausflugsziele = welt->gib_ausflugsziele();
 				// this way, we are sure, our factory is connected to this town ...
@@ -817,31 +819,36 @@ DBG_MESSAGE("spieler_t::do_passenger_ki()","decision: %s wants to built network 
 				}
 			}
 			else {
-//DBG_MESSAGE("spieler_t::do_passenger_ki()","searching town");
+DBG_MESSAGE("spieler_t::do_passenger_ki()","searching town");
 				count = 1;
 				// find a good route
 				for( int i=0;  i<anzahl;  i++  ) {
 					const int nr = (i+offset)%anzahl;
 					stadt_t *cur = staedte->get(nr);
-					if(cur!=last_star_stadt  &&  cur!=start_stadt  &&  !is_connected(start_halt,cur->get_linksoben(),cur->get_rechtsunten())  ) {
-						int	dist;
+assert(cur!=NULL);
+					if(cur!=last_start_stadt  &&  cur!=start_stadt  &&  !is_connected(start_halt,cur->get_linksoben(),cur->get_rechtsunten())  ) {
+						int	dist=-1;
 						if(end_stadt!=NULL) {
-							halthandle_t end_halt = get_our_hub(end_stadt);
-							// if there is a route, then do not built a line between
-							if(end_halt.is_bound()) {
+							halthandle_t end_halt = get_our_hub(cur);
+DBG_MESSAGE("spieler_t::do_passenger_ki()","found end hub");
+							int dist1 = abs_distance(platz1,cur->gib_pos());
+
+							// if there is a not too long route (less than 4 times changes), then do not built a line between
+							if(start_halt.is_bound()  &&  end_halt.is_bound()) {
 								ware_t pax(warenbauer_t::passagiere);
 								pax.setze_zielpos(end_halt->gib_basis_pos());
 								INT_CHECK("simplay 838");
+								const int max_transfers=umgebung_t::max_transfers;
+								umgebung_t::max_transfers = 4;
 								start_halt->suche_route(pax);
-								if(pax.gib_ziel() != koord::invalid) {
+								umgebung_t::max_transfers = max_transfers;;
+								if(pax.gib_ziel()!=koord::invalid  &&  dist1>welt->gib_groesse()/3) {
 									// already connected
 									continue;
 								}
 							}
-							koord dist1, dist2;
-							dist1 = platz1-cur->gib_pos();
-							dist2 = platz1-end_stadt->gib_pos();
-							dist = abs(dist1.x)+abs(dist1.y) - (abs(dist2.x)+abs(dist2.y));
+							int dist2 = abs_distance(platz1,end_stadt->gib_pos());
+							dist = dist1-dist2;
 						}
 						// check if more close or NULL
 						if(end_stadt==NULL  ||  dist<0  ) {
@@ -870,7 +877,7 @@ DBG_MESSAGE("spieler_t::do_passenger_ki()","%s wants to built network between %s
 DBG_MESSAGE("spieler_t::do_passenger_ki()","Find hub");
 					// also for target (if not tourist attraction!)
 					if(end_stadt!=NULL) {
-DBG_MESSAGE("spieler_t::do_passenger_ki()","town %p", end_stadt );
+DBG_MESSAGE("spieler_t::do_passenger_ki()","try to built connect to city %p", end_stadt );
 						// target is town
 						halthandle_t h = get_our_hub(end_stadt);
 						if(h.is_bound()) {
@@ -998,7 +1005,11 @@ DBG_DEBUG("do_passenger_ki()","calling message_t()");
 					message_t::get_instance()->add_message(buf,platz1,message_t::ai,kennfarbe,road_vehicle->gib_basis_bild());
 				}
 				break;
+
+				default:	// keeps compiler happy
+					break;
 			}
+
 		}
 		break;
 
@@ -2076,10 +2087,11 @@ spieler_t::built_hub( const koord pos, int radius )
 			koord try_pos=pos+koord(x,y);
 			if(welt->ist_in_kartengrenzen(try_pos)) {
 				const grund_t * gr = welt->lookup(try_pos)->gib_kartenboden();
-				// flat, road and no other bus stop here ...
-				if(gr->gib_grund_hang()==hang_t::flach  &&  (gr->gib_besitzer()==NULL || gr->gib_besitzer()==this)  ) {
+
+				// flat, solid, and ours
+				if(!gr->ist_wasser()  &&  gr->gib_grund_hang()==hang_t::flach  &&  (gr->gib_besitzer()==NULL || gr->gib_besitzer()==this)  ) {
 					if(gr->gib_halt().is_bound()) {
-						// ok, the halt is our ...
+						// ok, one halt belongs already to us ...
       					return try_pos;
 					}
 					else if(gr->gib_weg(weg_t::strasse)) {
@@ -2089,7 +2101,7 @@ spieler_t::built_hub( const koord pos, int radius )
 	      					dist = abs(x)+abs(y);
 	      				}
 	      			}
-	      			else if(gr->ist_natur()  &&  !gr->ist_wasser()  &&  abs(x)+abs(y)<=dist-2) {
+	      			else if(gr->ist_natur()  &&  abs(x)+abs(y)<=dist-2) {
 	      				// also ok for a stop, but second choice
 	      				// so wie gave it a malus of 2
       					best_pos = try_pos;
@@ -2356,6 +2368,7 @@ DBG_MESSAGE("spieler_t::create_simple_road_transport()","But connection between 
 			INT_CHECK("simplay 2111");
 			// found something back from here
 			if(bauhase.max_n > 1) {
+DBG_MESSAGE("spieler_t::create_simple_road_transport()","try to join overlong route");
 				// just remove doubles
 				while(bauigel.max_n>0  &&   bauhase.max_n>0  &&   bauigel.gib_route_bei(bauigel.max_n)==bauhase.gib_route_bei(bauhase.max_n)) {
 					mitte = bauigel.gib_route_bei(bauigel.max_n);
@@ -2935,6 +2948,28 @@ DBG_DEBUG("spieler_t::rdwr()","player %i: loading %i halts.",welt->sp2num( this 
 		// empty undo buffer
 		init_undo(weg_t::strasse,0);
 	}
+
+	// headquarter stuff
+	if (file->get_version() < 86004)
+	{
+		headquarter_level = 0;
+		headquarter_pos = koord::invalid;
+	}
+	else {
+		file->rdwr_int(headquarter_level, " ");
+		headquarter_pos.rdwr( file );
+		if(file->is_loading()) {
+			if(headquarter_level>=hausbauer_t::headquarter.count()) {
+				headquarter_level = hausbauer_t::headquarter.count()-1;
+			}
+			if(headquarter_level<0) {
+				headquarter_pos = koord::invalid;
+				headquarter_level = 0;
+			}
+		}
+	}
+
+
 }
 
 /**
@@ -3020,23 +3055,18 @@ DBG_MESSAGE("spieler_t::bescheid_vehikel_problem","Vehicle %s can't find a route
  */
 
 void
-spieler_t::init_undo( weg_t::typ wtype, int max )
+spieler_t::init_undo( weg_t::typ wtype, unsigned short max )
 {
 	if(kennfarbe>=4) {
 		// this is an KI
-		last_built = NULL;
 		return;
 	}
 	// only human player
 	// prissi: allow for UNDO for real player
-	if(last_built) {
-		delete last_built;
-		last_built = NULL;
-	}
 DBG_MESSAGE("spieler_t::int_undo()","undo tiles %i",max);
-	last_built_count = 0;
+	last_built.clear();
+	last_built.resize(max+1);
 	if(max>0) {
-		last_built = new array_tpl<koord> (max+1);
 		undo_type = wtype;
 	}
 
@@ -3046,10 +3076,9 @@ DBG_MESSAGE("spieler_t::int_undo()","undo tiles %i",max);
 void
 spieler_t::add_undo(koord k)
 {
-	if(last_built!=NULL) {
-DBG_DEBUG("spieler_t::add_undo()","tile %i at (%i,%i)",last_built_count,k.x,k.y);
-		assert(last_built_count<last_built->get_size());
-		last_built->at(last_built_count++) = k;
+	if(last_built.get_size()>0) {
+DBG_DEBUG("spieler_t::add_undo()","tile at (%i,%i)",k.x,k.y);
+		last_built.append(k);
 	}
 }
 
@@ -3058,18 +3087,17 @@ DBG_DEBUG("spieler_t::add_undo()","tile %i at (%i,%i)",last_built_count,k.x,k.y)
 bool
 spieler_t::undo()
 {
-	if(last_built_count==0  ||  last_built==NULL) {
+	if(last_built.get_count()==0) {
 		// nothing to UNDO
 		return false;
 	}
 	// try to remove everything last built
 	bool ok = false;
-	for(int i=0;  i<last_built_count;  i++  ) {
-		grund_t *gr = welt->lookup(last_built->at(i))->gib_kartenboden();
+	for(unsigned short i=0;  i<last_built.get_count();  i++  ) {
+		grund_t *gr = welt->lookup(last_built.at(i))->gib_kartenboden();
 		ok |= gr->weg_entfernen(undo_type,true);
-DBG_DEBUG("spieler_t::add_undo()","undo tile %i at (%i,%i)",i,last_built->at(i).x,last_built->at(i).y);
+DBG_DEBUG("spieler_t::add_undo()","undo tile %i at (%i,%i)",i,last_built.at(i).x,last_built.at(i).y);
 	}
-	delete last_built;
-	last_built = NULL;
+	last_built.clear();
 	return ok;
 }
