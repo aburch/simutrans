@@ -161,10 +161,12 @@ protected:
 
     void register_reader();
 public:
-    virtual obj_type get_type() const = 0;
-    virtual const char *get_type_name() const = 0;
+	virtual ~obj_reader_t() {}
 
-    static bool init(const char *liste);
+	virtual obj_type get_type() const = 0;
+	virtual const char *get_type_name() const = 0;
+
+	static bool init(const char *liste);
 };
 
 #endif // __OBJ_READER_H

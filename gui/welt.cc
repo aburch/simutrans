@@ -59,6 +59,7 @@ DBG_MESSAGE("","sizeof(stat)=%d, sizeof(tm)=%d",sizeof(struct stat),sizeof(struc
 	this->welt = welt;
 	this->sets = sets;
 	this->old_lang = -1;
+	this->sets->setze_beginner_mode(umgebung_t::beginner_mode_first);
 	loaded_heightfield = load_heightfield = false;
 	load = start = close = false;
 	int intTopOfButton=START_HEIGHT;
@@ -69,6 +70,12 @@ DBG_MESSAGE("","sizeof(stat)=%d, sizeof(tm)=%d",sizeof(struct stat),sizeof(struc
 	map_number[0].setze_typ( button_t::repeatarrowleft );
 	map_number[0].add_listener( this );
 	add_komponente( map_number+0 );
+	sprintf(map_number_s,"%d",abs(sets->gib_karte_nummer())%9999);
+	inp_map_number.setze_pos( koord(RIGHT_ARROW-36,intTopOfButton-2) );
+	inp_map_number.setze_groesse( koord(32,12) );
+	inp_map_number.setze_text(map_number_s, 5);
+	inp_map_number.add_listener( this );
+	add_komponente( &inp_map_number );
 	map_number[1].setze_pos( koord(RIGHT_ARROW,intTopOfButton) );
 	map_number[1].setze_typ( button_t::repeatarrowright );
 	map_number[1].add_listener( this );
@@ -237,6 +244,13 @@ DBG_MESSAGE("","sizeof(stat)=%d, sizeof(tm)=%d",sizeof(struct stat),sizeof(struc
 	add_komponente( &allow_player_change );
 	intTopOfButton += 12;
 
+	intTopOfButton += 5;
+	use_beginner_mode.setze_pos( koord(10,intTopOfButton) );
+	use_beginner_mode.setze_typ( button_t::square );
+	use_beginner_mode.add_listener( this );
+	add_komponente( &use_beginner_mode );
+	intTopOfButton += 12;
+
 	// final stating buttons
 	intTopOfButton += 10;
 	load_game.setze_pos( koord(10, intTopOfButton) );
@@ -253,7 +267,7 @@ DBG_MESSAGE("","sizeof(stat)=%d, sizeof(tm)=%d",sizeof(struct stat),sizeof(struc
 	start_game.add_listener( this );
 	add_komponente( &start_game );
 
-	setze_fenstergroesse( koord(260, 300) );
+	setze_fenstergroesse( koord(260, intTopOfButton+14+8+16) );
 
 	update_preview();
 	setze_opaque(true);
@@ -346,6 +360,8 @@ DBG_MESSAGE("welt_gui_t::update_from_heightfield()","success (%5f,%5f)",skip_x,s
 		mountain_roughness[0].disable();
 		mountain_roughness[1].disable();
 
+		strcpy(map_number_s,translator::translate("file"));
+
 		return true;
 	}
 	return false;
@@ -394,20 +410,18 @@ DBG_MESSAGE("sizes","grund_t=%i, planquadrat_t=%d, ding_t=%d",sizeof(grund_t),si
 bool
 welt_gui_t::action_triggered(gui_komponente_t *komp,value_t /* */)
 {
+	// check for changed map (update preview for any event)
+	int knr = atoi(map_number_s)%9999;
+	if(knr==0  &&  (map_number_s[0]<'0'  ||  map_number_s[0]>'9')) {
+		knr = -1;
+	}
+
 	if(komp==map_number+0) {
-		if(sets->gib_karte_nummer() > 0 ) {
-			if(!loaded_heightfield) {
-				sets->setze_karte_nummer( sets->gib_karte_nummer() - 1 );
-			}
-			update_preview();
-		}
+		knr --;
 	}
 	else if(komp==map_number+1) {
-		if(sets->gib_karte_nummer() < 9999 ) {
-			if(!loaded_heightfield) {
-				sets->setze_karte_nummer( sets->gib_karte_nummer() + 1 );
-			}
-			update_preview();
+		if(knr>=0) {
+			knr ++;
 		}
 	}
 	else if(komp==x_size+0) {
@@ -562,20 +576,23 @@ welt_gui_t::action_triggered(gui_komponente_t *komp,value_t /* */)
 		sets->setze_starting_year( sets->gib_starting_year() + 1 );
 	}
 	else if(komp==&random_map) {
-		sets->setze_karte_nummer(simrand(9999));
-		update_preview();
+		knr = simrand(9999);
 	}
 	else if(komp==&load_map) {
 		// load relief
 		loaded_heightfield = false;
 		sets->heightfield = "";
 		create_win(new load_relief_frame_t(welt, sets), w_info, magic_load_t);
+		knr = sets->gib_karte_nummer();	// otherwise using cancel would not show the normal generated map again
 	}
 	else if(komp==&use_intro_dates) {
 		sets->setze_use_timeline( !sets->gib_use_timeline() );
 	}
 	else if(komp==&allow_player_change) {
 		sets->setze_allow_player_change( !sets->gib_allow_player_change() );
+	}
+	else if(komp==&use_beginner_mode) {
+		sets->setze_beginner_mode( !sets->gib_beginner_mode() );
 	}
 	else if(komp==&load_game) {
 		load = true;
@@ -586,6 +603,14 @@ welt_gui_t::action_triggered(gui_komponente_t *komp,value_t /* */)
 		}
 		else {
 			start = true;
+		}
+	}
+
+	if(knr>=0) {
+		sets->setze_karte_nummer( knr );
+		if(!loaded_heightfield) {
+			update_preview();
+			sprintf(map_number_s,"%d",knr);
 		}
 	}
 	return true;
@@ -611,11 +636,14 @@ void welt_gui_t::zeichnen(koord pos, koord gr)
 			loaded_heightfield = true;
 		}
 		else {
+			loaded_heightfield = false;
 			sets->heightfield = "";
+			sprintf(map_number_s,"%d",abs(sets->gib_karte_nummer())%9999);
 		}
 	}
 	use_intro_dates.pressed = sets->gib_use_timeline();
 	allow_player_change.pressed = sets->gib_allow_player_change();
+	use_beginner_mode.pressed = sets->gib_beginner_mode();
 
 	if(old_lang!=translator::get_language()) {
 		// update button texts!
@@ -625,10 +653,12 @@ void welt_gui_t::zeichnen(koord pos, koord gr)
 		load_map.set_tooltip("load height data from file");
 		use_intro_dates.setze_text("Use timeline start year");
 		allow_player_change.setze_text("Allow player change");
+		use_beginner_mode.setze_text("Beginner mode");
 		load_game.setze_text("Load game");
 		start_game.setze_text("Starte Spiel");
 //		quit_game.setze_text("Beenden");
 		old_lang = translator::get_language();
+		welt->setze_dirty();
 	}
 
 	gui_frame_t::zeichnen(pos, gr);
@@ -644,12 +674,7 @@ void welt_gui_t::zeichnen(koord pos, koord gr)
 	display_array_wh(x+174, y+1, preview_size, preview_size, karte);
 
 	display_proportional_clip(x, y, translator::translate("2WORLD_CHOOSE"), ALIGN_LEFT, COL_BLACK, true);
-	if(!loaded_heightfield) {
-		display_proportional_clip(x+TEXT_RIGHT, y, ntos(sets->gib_karte_nummer(), 0), ALIGN_RIGHT, COL_WHITE, true);
-	}
-	else {
-		display_proportional_clip(x+TEXT_RIGHT, y, translator::translate("file"), ALIGN_RIGHT, COL_WHITE, true);
-	}
+	// since the display is done via a textfiled, we have nothing to do
 	y += 12;
 
 	const long x2 = sets->gib_groesse_x() * sets->gib_groesse_y();
@@ -698,6 +723,7 @@ void welt_gui_t::zeichnen(koord pos, koord gr)
 	y += 12+5;
 
 	display_proportional_clip(x+TEXT_WIDE_RIGHT, y, ntos(sets->gib_starting_year(), 0), ALIGN_RIGHT, COL_WHITE, true);
+	y += 12+5;
 	y += 12+5;
 	y += 12+5;
 

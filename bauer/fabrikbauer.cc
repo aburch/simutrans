@@ -313,9 +313,6 @@ fabrikbauer_t::verteile_tourist(karte_t * welt, spieler_t *, int max_number)
 	// stuff for the progress bar
 	const int groesse=welt->gib_groesse_y();	// only used for progrss bar!!!
 	const int staedte = welt->gib_einstellungen()->gib_anzahl_staedte();
-	const int display_offset = (5*groesse)/6 + staedte*12;
-	const int display_part = groesse/6;
-	const int display_total = groesse+staedte*12;
 	// current count
 	int current_number=0;
 
@@ -325,6 +322,7 @@ fabrikbauer_t::verteile_tourist(karte_t * welt, spieler_t *, int max_number)
 		return;
 	}
 
+	// very fast, so we do not bother updating progress bar
 	print("Distributing %i tourist attractions ...\n",max_number);fflush(NULL);
 
 	// try to built 25% city consumer (if there)
@@ -345,10 +343,6 @@ fabrikbauer_t::verteile_tourist(karte_t * welt, spieler_t *, int max_number)
 			current_number ++;
 		}
 
-	      if(is_display_init()) {
-		    display_progress(display_offset + (display_part *current_number)/max_number, display_total);
-		    display_flush(IMG_LEER,0, 0, 0, "", "", 0, 0);
-		}
 	}
 	// update an open map
 	reliefkarte_t::gib_karte()->calc_map();
@@ -365,9 +359,8 @@ fabrikbauer_t::verteile_industrie(karte_t * welt, spieler_t *, int max_number_of
 	// stuff for the progress bar
 	const int groesse = welt->gib_groesse_y();	// only for progress bar!!!
 	const int staedte = welt->gib_einstellungen()->gib_anzahl_staedte();
-	const int display_offset = ( (in_city?4:3)*groesse )/6 + staedte*12;
-	const int display_part = groesse/6;
-	const int display_total = groesse+staedte*12;
+	const int display_offset = 16 + welt->gib_einstellungen()->gib_anzahl_staedte()*4 + (in_city? welt->gib_einstellungen()->gib_land_industry_chains() : 0);
+	const int display_total = 16 + welt->gib_einstellungen()->gib_anzahl_staedte()*4 + welt->gib_einstellungen()->gib_land_industry_chains() + welt->gib_einstellungen()->gib_city_industry_chains();
 	// current count
 	int factory_number=0;
 	int current_number=0;
@@ -394,7 +387,7 @@ fabrikbauer_t::verteile_industrie(karte_t * welt, spieler_t *, int max_number_of
 		}
 
 	      if(is_display_init()) {
-		    display_progress(display_offset + (display_part *current_number)/max_number_of_factories, display_total);
+		    display_progress(display_offset + current_number, display_total);
 		    display_flush(IMG_LEER,0, 0, 0, "", "", 0, 0);
 		}
 	}

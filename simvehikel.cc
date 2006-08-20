@@ -448,13 +448,8 @@ void vehikel_basis_t::fahre()
 		}
 
 		if(!get_flag(ding_t::dirty)) {
-			// mark the region after the image as dirty
-			// better not try to twist your brain to follow the retransformation ...
-			const koord diff=gib_pos().gib_2d()-welt->gib_ij_off();
-			const sint16 rasterweite=get_tile_raster_width();
-			const sint16 x=(diff.x-diff.y)*(rasterweite/2) + welt->gib_x_off() + (display_get_width()/2) + tile_raster_scale_x(gib_xoff(), rasterweite);
-			const sint16 y=16+((display_get_width()/rasterweite)&1)*(rasterweite/4)+(diff.x+diff.y)*(rasterweite/4)+welt->gib_y_off()+tile_raster_scale_x(gib_yoff()+hoff, rasterweite)-tile_raster_scale_y(gib_pos().z, rasterweite);
-			display_mark_img_dirty( gib_bild(), x, y );
+			// old position needs redraw
+			mark_image_dirty(gib_bild(),hoff);
 		}
 
 		hop();
@@ -483,13 +478,8 @@ void vehikel_basis_t::fahre()
 		// driving on the same tile
 
 		if(!get_flag(ding_t::dirty)) {
-			// mark the region after the image as dirty
-			// better not try to twist your brain to follow the retransformation ...
-			const koord diff=gib_pos().gib_2d()-welt->gib_ij_off();
-			const sint16 rasterweite=get_tile_raster_width();
-			const sint16 x=(diff.x-diff.y)*(rasterweite/2) + welt->gib_x_off() + (display_get_width()/2) + tile_raster_scale_x(gib_xoff(), rasterweite);
-			const sint16 y=16+((display_get_width()/rasterweite)&1)*(rasterweite/4)+(diff.x+diff.y)*(rasterweite/4)+welt->gib_y_off()+tile_raster_scale_x(gib_yoff()+hoff, rasterweite)-tile_raster_scale_y(gib_pos().z, rasterweite);
-			display_mark_img_dirty( gib_bild(), x, y );
+			// old position needs redraw
+			mark_image_dirty(gib_bild(),hoff);
 		}
 
 		setze_xoff( neu_xoff );
@@ -996,8 +986,6 @@ vehikel_t::rauche()
 void
 vehikel_t::fahre()
 {
-	vehikel_basis_t::fahre();
-
 	// target mark: same coordinate twice (stems from very old ages, I think)
 	if(ist_erstes  &&  pos_next==pos_cur) {
 		// check half a tile (8 sync_steps) ahead for a tile change
@@ -1011,10 +999,12 @@ vehikel_t::fahre()
 		const int c_minus = y_off_2 - neu_xoff;
 
 		// so we are there yet?
-		if( ! (c_plus < 32 && c_minus < 32 && c_plus > -32 && c_minus > -32)  ) {
+		if( !(c_plus< 32 && c_minus < 32 &&  c_plus >=-32 && c_minus >=-32)  ) {
 			cnv->ziel_erreicht(this);
 		}
 	}
+
+	vehikel_basis_t::fahre();
 }
 
 

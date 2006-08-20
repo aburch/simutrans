@@ -11,6 +11,7 @@
 #define gui_kennfarbe_h
 
 #include "gui_frame.h"
+#include "components/gui_image.h"
 #include "components/gui_textarea.h"
 
 /**
@@ -23,6 +24,7 @@ class farbengui_t : public gui_frame_t
 private:
 	spieler_t *sp;
 	gui_textarea_t txt;
+	gui_image_t bild;
 
 public:
     farbengui_t(spieler_t *sp);
@@ -35,15 +37,6 @@ public:
     virtual const char * gib_hilfe_datei() const { return "color.txt"; }
 
     void infowin_event(const event_t *ev);
-
-  /**
-   * komponente neu zeichnen. Die übergebenen Werte beziehen sich auf
-   * das Fenster, d.h. es sind die Bildschirkoordinaten des Fensters
-   * in dem die Komponente dargestellt wird.
-   *
-   * @author Hj. Malthaner
-   */
-  void zeichnen(koord pos, koord gr);
 };
 
 #endif

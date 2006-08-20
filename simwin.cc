@@ -673,7 +673,10 @@ void
 move_win(int win, event_t *ev)
 {
 	koord gr = wins[win].gui->gib_fenstergroesse();
+
+	// need to mark all old position dirty
 	mark_rect_dirty_wc( wins[win].pos.x, wins[win].pos.y, wins[win].pos.x+gr.x, wins[win].pos.y+gr.y );
+
 	int xfrom = ev->cx;
 	int yfrom = ev->cy;
 	int xto = ev->mx;
@@ -690,6 +693,10 @@ move_win(int win, event_t *ev)
 
 	wins[win].pos.x += xdelta;
 	wins[win].pos.y += ydelta;
+
+	// and to mark new position also dirty ...
+	mark_rect_dirty_wc( wins[win].pos.x, wins[win].pos.y, wins[win].pos.x+gr.x, wins[win].pos.y+gr.y );
+
 	change_drag_start(xdelta, ydelta);
 }
 

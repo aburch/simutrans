@@ -1007,6 +1007,10 @@ void depot_frame_t::infowin_event(const event_t *ev)
 void
 depot_frame_t::zeichnen(koord pos, koord groesse)
 {
+	if(welt->get_active_player()!=depot->gib_besitzer()) {
+		destroy_win(this);
+	}
+
 	const convoihandle_t cnv = depot->get_convoi(icnv);
 	if(cnv.is_bound()) {
 		if(cnv->gib_vehikel_anzahl() > 0) {

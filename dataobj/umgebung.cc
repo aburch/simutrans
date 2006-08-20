@@ -47,7 +47,7 @@ int umgebung_t::maint_way;
 
 /**
  * Wartungskosten für Oberleitungen
- *
+ * (not used since 89.02.2)
  * @author Hj. Malthaner
  */
 int umgebung_t::maint_overhead = 200;
@@ -158,3 +158,9 @@ uint32 umgebung_t::way_max_bridge_len=15;
 
 // passenger manipulation factor
 uint32 umgebung_t::passenger_factor=16;
+
+// easier prices for beginner
+uint32 umgebung_t::beginner_price_factor=1500;
+
+// easier prices for beginner
+bool umgebung_t::beginner_mode_first=false;

@@ -122,7 +122,7 @@ static void display_button_image(int x, int y, int number, bool pushed)
     break;
   }
 
-  display_color_img(button, x, y, 0, false, false);
+  display_color_img(button, x, y, 0, false, true);
 }
 
 

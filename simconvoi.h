@@ -16,7 +16,6 @@
 #include "dataobj/route.h"
 
 #include "tpl/array_tpl.h"
-#include "tpl/id_handle_tpl.h"
 
 #include "convoihandle_t.h"
 #include "halthandle_t.h"
@@ -297,9 +296,10 @@ private:
 
     /**
      * calculate income for last hop
+     * if true, then only vehicles in station are used to calculate
      * @author Hj. Malthaner
      */
-    void calc_gewinn();
+    void calc_gewinn(bool);
 
 
     /**

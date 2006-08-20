@@ -483,7 +483,7 @@ convoi_t::sync_step(long delta_t)
 			char buf[128];
 
 			// Gewinn für transport einstreichen
-			calc_gewinn();
+			calc_gewinn(false);
 
 			akt_speed = 0;
 			sprintf(buf, translator::translate("!1_DEPOT_REACHED"), gib_name());
@@ -506,7 +506,7 @@ convoi_t::sync_step(long delta_t)
 			// we could have reached a non-haltestelle stop, so check before booking!
 			if(halt.is_bound()  &&  gr->gib_weg_ribi(fahr->at(0)->gib_wegtyp())!=0) {
 				// Gewinn für transport einstreichen
-				calc_gewinn();
+				calc_gewinn(true);
 				akt_speed = 0;
 				halt->book(1, HALT_CONVOIS_ARRIVED);
 //DBG_MESSAGE("convoi_t::sync_step()","reached station at (%i,%i)",gr->gib_pos().x,gr->gib_pos().y);
@@ -621,6 +621,10 @@ void convoi_t::step()
 				gib_besitzer()->bescheid_vehikel_problem(self,fahr->at(0)->gib_pos());
 			}
 			else {
+				// check first, if we are already there:
+				if(fahr->at(0)->gib_pos()==fpl->eintrag.at(fpl->get_aktuell()).pos) {
+					drive_to_next_stop();
+				}
 				// Hajo: now calculate a new route
 				drive_to(fahr->at(0)->gib_pos(),fpl->eintrag.at(fpl->get_aktuell()).pos);
 				if(route.gib_max_n() > 0) {
@@ -1520,7 +1524,7 @@ convoi_t::open_schedule_window()
 
 	if(state==DRIVING) {
 		//recalc current amount of goods
-		calc_gewinn();
+		calc_gewinn(false);
 	}
 
 	akt_speed = 0;	// stop the train ...
@@ -1661,13 +1665,16 @@ void convoi_t::laden()
  * calculate income for last hop
  * @author Hj. Malthaner
  */
-void convoi_t::calc_gewinn()
+void convoi_t::calc_gewinn(bool in_station)
 {
 	sint64 gewinn = 0;
 
 	for(unsigned i=0; i<anz_vehikel; i++) {
 		vehikel_t *v = fahr->at(i);
-		gewinn += v->calc_gewinn(last_stop_pos, fahr->at(0)->gib_pos() );
+		if(!in_station  ||  welt->lookup(v->gib_pos())->gib_halt().is_bound()) {
+			// in a station, calc only for vehicles which are unloaded
+			gewinn += v->calc_gewinn(last_stop_pos, fahr->at(0)->gib_pos() );
+		}
 	}
 	if(anz_vehikel>0) {
 		last_stop_pos = fahr->at(0)->gib_pos();

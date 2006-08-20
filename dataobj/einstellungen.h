@@ -64,6 +64,8 @@ private:
 
 	cstring_t filename;
 
+	bool beginner_mode;
+
 public:
 
     /**
@@ -142,6 +144,9 @@ public:
 
     void setze_filename(const char *n) {filename=n;}	// prissi, Jun-06
     const char *gib_filename() const {return filename.chars();}
+
+	void setze_beginner_mode(bool yesno) {beginner_mode=yesno;}	// prissi, Aug-06
+	const bool gib_beginner_mode() const {return beginner_mode;}
 };
 
 #endif // dataobj_einstellungen_h

@@ -51,7 +51,7 @@
 class tile_reader_t : public obj_reader_t {
     static tile_reader_t the_instance;
 
-    tile_reader_t() { register_reader(); }
+	tile_reader_t() { register_reader(); }
 public:
     static tile_reader_t*instance() { return &the_instance; }
 

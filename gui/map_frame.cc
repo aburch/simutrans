@@ -229,7 +229,6 @@ void map_frame_t::infowin_event(const event_t *ev)
 		if(!is_dragging) {
 			resize( koord(0,0) );
 		}
-
 		is_dragging = false;
 		reliefkarte_t::gib_karte()->gib_welt()->set_scroll_lock(false);
 	}
@@ -241,13 +240,14 @@ void map_frame_t::infowin_event(const event_t *ev)
 		x += (ev->mx - ev->cx)*2;
 		y += (ev->my - ev->cy)*2;
 
-		scrolly.setze_scroll_position(  max(0, min(size.x, x)),  max(0, min(size.y, y)) );
+		is_dragging = true;
+		reliefkarte_t::gib_karte()->gib_welt()->set_scroll_lock(true);
+
+		scrolly.setze_scroll_position(  max(0, x),  max(0, y) );
+//		scrolly.setze_scroll_position(  max(0, min(size.x, x)),  max(0, min(size.y, y)) );
 
 		// Hajo: re-center mouse pointer
 		display_move_pointer(screenpos.x+ev->cx, screenpos.y+ev->cy);
-
-		is_dragging = true;
-		reliefkarte_t::gib_karte()->gib_welt()->set_scroll_lock(true);
 	}
 }
 
@@ -265,6 +265,7 @@ void map_frame_t::setze_fenstergroesse(koord groesse)
 	// set scroll area size
 	scrolly.setze_groesse( groesse-scrolly.gib_pos()-koord(0,16) );
 	map_frame_t::size = gib_fenstergroesse();
+//DBG_MESSAGE("map_frame_t::setze_fenstergroesse()","gr.x=%i, gr.y=%i",size.x,size.y );
 }
 
 

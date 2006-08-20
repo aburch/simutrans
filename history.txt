@@ -6,6 +6,26 @@ Known bugs: (hard to fix)
 
 
 
+Release of 89.03
+
+13-Aug-2006: (prissi)
+	CHANGE: you can pak object with any size (smaller than 255). The tile size will be taken now from "ground.Outside.pak" (Go for big ships, Timothy)
+	FIX: overhead maintenance take from pak, not from simuconf.tab any more
+	FIX: code file cleaning up
+	FIX: signal appearing immideately after direction changes
+	FIX: mark dirty for higher buildings
+	CHANGE: beginner mode 'Beginner mode' with 1,5times higher prices (can be configured in simuconf.tab) and no just in time factories
+	FIX: under certain circumstances, the wayobj/wayremove found an electric engine and could not lay a caternary ...
+	FIX: hopefully, convois will be no longer try to calculate a route to the position they are already
+	FIX: only money for vehicles in stations
+	FIX: correct number of vehicles reach into the station (hopefully)
+	CHANGE: better progress indicator slowest process (city size growth and road connection) now take most of the bar
+	FIX: full scrolling in map window
+	FIX: no longer messing around in other players depot
+	FIX: restored functionality of 'e' again
+	ADD: generic names for city buildings: If no translation is available, they will be called 'residential house', 'industrial building', or 'shops and stores'
+
+
 Release of 89.02.4
 
 12-Aug-2006: (prissi)
@@ -21,8 +41,6 @@ Release of 89.02.4
 	FIX: convoi loosing its name after many actions in the depot ...
 	FIX: choosing of bridges works again
 	FIX: signal and roadsign position on slopes
-	CHANGE: you can pak object with any size. The tile size will be taken now from "ground.Outside.pak" (Go for big ships, Timothy)
-	FIX: overhead maintenance take from pak, not from simuconf.tab any more
 
 
 Release of 89.02.3

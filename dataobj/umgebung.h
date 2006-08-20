@@ -285,6 +285,12 @@ class umgebung_t
 
 	// passenger manipulation factor (=16 about old value)
 	static uint32 passenger_factor;
+
+	// changing the prices of all goods
+	static uint32 beginner_price_factor;
+
+	// default beginner mode in a new map
+	static bool beginner_mode_first;
 };
 
 #endif

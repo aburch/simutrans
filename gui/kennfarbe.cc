@@ -10,6 +10,7 @@
 #include "../simdebug.h"
 #include "../simevent.h"
 #include "../simimg.h"
+#include "../simworld.h"
 #include "../simplay.h"
 #include "../besch/skin_besch.h"
 #include "../simskin.h"
@@ -20,13 +21,16 @@
 
 farbengui_t::farbengui_t(spieler_t *sp) :
 	gui_frame_t("Meldung",sp),
-	txt(translator::translate("COLOR_CHOOSE\n"))
+	txt(translator::translate("COLOR_CHOOSE\n")),
+	bild(skinverwaltung_t::farbmenu->gib_bild_nr(0))
 {
 	this->sp = sp;
 	setze_fenstergroesse( koord(216, 84) );
 	setze_opaque(true);
 	txt.setze_pos( koord(10,10) );
 	add_komponente( &txt );
+	bild.setze_pos( koord(136, 0) );
+	add_komponente( &bild );
 }
 
 
@@ -43,22 +47,8 @@ void farbengui_t::infowin_event(const event_t *ev)
 			const int f = (y + x*8);
 			if(f>=0 && f<16) {
 				sp->set_player_color(f*4);
+				sp->gib_welt()->setze_dirty();
 			}
 		}
 	}
-}
-
-
-/**
- * komponente neu zeichnen. Die übergebenen Werte beziehen sich auf
- * das Fenster, d.h. es sind die Bildschirkoordinaten des Fensters
- * in dem die Komponente dargestellt wird.
- *
- * @author Hj. Malthaner
- */
-void farbengui_t::zeichnen(koord pos, koord gr)
-{
-	gui_frame_t::zeichnen(pos, gr);
-
-	display_color_img(skinverwaltung_t::farbmenu->gib_bild_nr(0), pos.x + 136, pos.y + 16, 0, false, false);
 }

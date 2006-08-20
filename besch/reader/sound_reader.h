@@ -47,7 +47,8 @@
 class sound_reader_t : public obj_reader_t {
     static sound_reader_t the_instance;
 
-    sound_reader_t() { register_reader(); }
+	sound_reader_t() { register_reader(); }
+	virtual ~sound_reader_t() {}
 protected:
     virtual void register_obj(obj_besch_t *&data);
     virtual bool successfully_loaded() const;

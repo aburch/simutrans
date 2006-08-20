@@ -12,13 +12,18 @@
 #include "../besch/spezial_obj_tpl.h"
 #include "warenbauer.h"
 
+
 stringhashtable_tpl<const ware_besch_t *> warenbauer_t::besch_names;
 
-slist_tpl<const ware_besch_t *> warenbauer_t::waren;
+slist_tpl<ware_besch_t *> warenbauer_t::waren;
 
 const ware_besch_t *warenbauer_t::passagiere = NULL;
 const ware_besch_t *warenbauer_t::post = NULL;
 const ware_besch_t *warenbauer_t::nichts = NULL;
+
+ware_besch_t *warenbauer_t::load_passagiere = NULL;
+ware_besch_t *warenbauer_t::load_post = NULL;
+ware_besch_t *warenbauer_t::load_nichts = NULL;
 
 static spezial_obj_tpl<ware_besch_t> spezial_objekte[] = {
     { &warenbauer_t::passagiere,    "Passagiere" },
@@ -37,25 +42,32 @@ bool warenbauer_t::alles_geladen()
 	* Put special items in front:
 	* Volker Meyer
 	*/
-	waren.insert(post);
-	waren.insert(passagiere);
-	waren.insert(nichts);
+	waren.insert(load_post);
+	waren.insert(load_passagiere);
+	waren.insert(load_nichts);
 	return true;
 }
 
 
 bool warenbauer_t::register_besch(ware_besch_t *besch)
 {
+	besch->value = besch->base_value;
 	::register_besch(spezial_objekte, besch);
 	besch_names.put(besch->gib_name(), const_cast<ware_besch_t *>(besch));
 
 	if(besch==passagiere) {
 		besch->ware_index = 0;
+		load_passagiere = besch;
 	} else if(besch==post) {
 		besch->ware_index = 1;
+		load_post = besch;
 	} else if(besch != nichts) {
 		besch->ware_index = waren.count()+2;
 		waren.append(besch);
+	}
+	else {
+		load_nichts = besch;
+		besch->ware_index = 2;
 	}
 	return true;
 }
@@ -63,21 +75,20 @@ bool warenbauer_t::register_besch(ware_besch_t *besch)
 
 
 
-
-const ware_besch_t *warenbauer_t::gib_info(const char* name)
+const ware_besch_t *
+warenbauer_t::gib_info(const char* name)
 {
     const ware_besch_t *t = (const ware_besch_t *)besch_names.get(name);
-
     if(t == NULL) {
         dbg->error("warenbauer_t::gib_info()", "No info for good '%s' available", name);
     }
-
     return t;
 }
 
 
 
-const ware_besch_t *warenbauer_t::gib_info_catg(const sint8 catg)
+const ware_besch_t *
+warenbauer_t::gib_info_catg(const sint8 catg)
 {
 	if(catg>0) {
 		for(unsigned i=0;  i<gib_waren_anzahl();  i++  ) {
@@ -88,4 +99,17 @@ const ware_besch_t *warenbauer_t::gib_info_catg(const sint8 catg)
 	}
 	dbg->warning("warenbauer_t::gib_info()", "No info for good catg %d available, set to passengers", catg);
 	return waren.at(0);
+}
+
+
+
+// adjuster for dummies ...
+void
+warenbauer_t::set_multiplier(sint32 multiplier)
+{
+//DBG_MESSAGE("warenbauer_t::set_multiplier()","new factor %i",multiplier);
+	for(unsigned i=0;  i<gib_waren_anzahl();  i++  ) {
+		sint32 long_base_value = waren.at(i)->base_value;
+		waren.at(i)->value = (uint16)((long_base_value*multiplier)/1000l);
+	}
 }

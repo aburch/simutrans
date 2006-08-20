@@ -619,7 +619,9 @@ int simu_cpp_main(int argc, char ** argv)
 	umgebung_t::way_max_bridge_len= contents.get_int("way_max_bridge_len", 15 );
 
 	umgebung_t::passenger_factor= contents.get_int("passenger_factor", 16 );	/* this can manipulate the passenger generation */
+	umgebung_t::beginner_price_factor = contents.get_int("beginner_price_factor", 1500 );	/* this manipulates the good prices in beginner mode */
 
+	umgebung_t::beginner_mode_first = contents.get_int("first_beginner", 0 );	/* start in beginner mode */
 
       /*
        * Selection of savegame format through inifile

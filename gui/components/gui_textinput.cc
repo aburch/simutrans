@@ -203,28 +203,25 @@ DBG_DEBUG("gui_textinput_t::gui_textinput_t()","cursor_pos=%i, cx=%i",cursor_pos
  */
 void gui_textinput_t::zeichnen(koord offset) const
 {
-//	PUSH_CLIP(pos.x+offset.x+1, pos.y+offset.y+1, groesse.x-2, groesse.y-2);
+	display_fillbox_wh_clip(pos.x+offset.x+1, pos.y+offset.y+1,groesse.x-2, groesse.y-2, MN_GREY1, true);
+	display_ddd_box_clip(pos.x+offset.x, pos.y+offset.y,groesse.x, groesse.y,MN_GREY0, MN_GREY4);
 
-    display_fillbox_wh_clip(pos.x+offset.x+1, pos.y+offset.y+1,groesse.x-2, groesse.y-2, MN_GREY1, true);
-
-    display_ddd_box_clip(pos.x+offset.x, pos.y+offset.y,groesse.x, groesse.y,MN_GREY0, MN_GREY4);
-
-    if(text) {
-    	int cursor_offset = proportional_string_len_width(text, cursor_pos);
-    	if (cursor_offset > groesse.x - 2) {
-    		cursor_offset -= (groesse.x - 3);
-    	} else {
-    		cursor_offset = 0;
-    	}
+	if(text) {
+		int cursor_offset = proportional_string_len_width(text, cursor_pos);
+		if (cursor_offset > groesse.x - 2) {
+			cursor_offset -= (groesse.x - 3);
+		}
+		else {
+			cursor_offset = 0;
+		}
 
 		display_proportional_clip(pos.x+offset.x+2-cursor_offset, pos.y+offset.y+2, text, ALIGN_LEFT, COL_BLACK, true);
 
-    	// cursor must been shown, if textinput has focus!
+		// cursor must been shown, if textinput has focus!
 		if(has_focus(this)) {
-		    display_fillbox_wh_clip(pos.x+offset.x+1+proportional_string_len_width(text, cursor_pos)-cursor_offset, pos.y+offset.y+1, 1, 11, COL_WHITE, true);
+			display_fillbox_wh_clip(pos.x+offset.x+1+proportional_string_len_width(text, cursor_pos)-cursor_offset, pos.y+offset.y+1, 1, 11, COL_WHITE, true);
 		}
-    }
-//	POP_CLIP();
+	}
 }
 
 

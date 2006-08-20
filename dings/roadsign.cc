@@ -106,6 +106,12 @@ void roadsign_t::set_dir(ribi_t::ribi dir)
 		}
 DBG_MESSAGE("roadsign_t::set_dir()","ribi %i",dir);
 	}
+
+	// force redraw
+	mark_image_dirty(gib_bild(),0);
+	mark_image_dirty(after_bild,after_offset);
+
+	// only traffic light need switches
 	step_frequency = 0;
 	if(flags&SWITCH_AUTOMATIC) {
 		step_frequency = 1;

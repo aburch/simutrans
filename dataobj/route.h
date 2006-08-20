@@ -55,7 +55,7 @@ public:
 	    uint32  f,g;
 	    uint8 dir;
 			uint16 count;
-	} ANode GCC_PACKED;
+	} ANode;
 
 	static ANode *nodes;
 	static uint32 MAX_STEP;

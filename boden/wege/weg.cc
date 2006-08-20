@@ -151,7 +151,7 @@ void weg_t::rdwr(loadsave_t *file)
 	uint16 dummy16=max_speed;
 	file->rdwr_short(dummy16, "\n");
 	max_speed=dummy16;
-	if(file->get_version()==89000) {
+	if(file->get_version()>=89000) {
 		dummy = flags;
 		file->rdwr_byte(dummy,"f");
 		if(file->is_loading()) {

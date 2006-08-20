@@ -52,6 +52,7 @@ class good_reader_t : public obj_reader_t {
     static good_reader_t the_instance;
 
     good_reader_t() { register_reader(); }
+	virtual ~good_reader_t() {}
 protected:
     virtual void register_obj(obj_besch_t *&data);
     virtual bool successfully_loaded() const;

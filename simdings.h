@@ -310,7 +310,6 @@ public:
      */
     virtual image_id gib_bild(int ) const {return IMG_LEER;}
 
-
     /**
      * Ein Objekt kann zu einer Fabrik gehören.
      * @return Einen Zeiger auf die Fabrik zu der das Objekt gehört oder NULL,
@@ -388,6 +387,12 @@ public:
      */
     virtual void display_after(int xpos, int ypos, bool dirty) const;
 
+	/*
+	 * when a vehicle moves or a cloud moves, it needs to mark the old spot as dirty (to copy to screen)
+	 * sometimes they have an extra offset, this the yoff parameter
+	 * @author prissi
+	 */
+	void mark_image_dirty(image_id bild,sint8 yoff);
 
     /**
      * Dient zur Neuberechnung des Bildes

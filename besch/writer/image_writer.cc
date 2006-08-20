@@ -37,7 +37,7 @@
 #include <string.h>
 
 #include "../../utils/cstring_t.h"
-#include "../../makepak16/dr_rdpng.h"
+#include "../../utils/dr_rdpng.h"
 
 #include "../bild_besch.h"
 #include "obj_node.h"

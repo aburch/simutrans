@@ -157,6 +157,7 @@ karte_t::calc_hoehe_mit_heightfield(const cstring_t & filename)
 {
 	FILE *file = fopen(filename, "rb");
 	if(file) {
+		const int display_total = 16 + gib_einstellungen()->gib_anzahl_staedte()*4 + gib_einstellungen()->gib_land_industry_chains() + gib_einstellungen()->gib_city_industry_chains();
 		char buf [256];
 		int w, h;
 
@@ -195,9 +196,9 @@ karte_t::calc_hoehe_mit_heightfield(const cstring_t & filename)
 
 			if(is_display_init()) {
 				if(y==0) {
-					display_proportional((display_get_width()-gib_groesse_y()+einstellungen->gib_anzahl_staedte()*12-4)/2,display_get_height()/2-20,translator::translate("Init map ..."),ALIGN_LEFT,COL_WHITE,0);
+					display_proportional((display_get_width()-display_total)/2,display_get_height()/2-20,translator::translate("Init map ..."),ALIGN_LEFT,COL_WHITE,0);
 				}
-				display_progress(y/2, gib_groesse_y()+einstellungen->gib_anzahl_staedte()*12);
+				display_progress((y*16)/gib_groesse_y(), display_total);
 				display_flush(IMG_LEER, 0, 0, 0, "", "", 0, 0);
 			}
 		}
@@ -232,10 +233,7 @@ karte_t::perlin_hoehe(const int x, const int y,
 void
 karte_t::calc_hoehe_mit_perlin()
 {
-	if(is_display_init()) {
-		display_proportional((display_get_width()-gib_groesse_y()-einstellungen->gib_anzahl_staedte()*12-4)/2,display_get_height()/2-20,translator::translate("Init map ..."),ALIGN_LEFT,COL_WHITE,0);
-	}
-
+	const int display_total = 16 + gib_einstellungen()->gib_anzahl_staedte()*4 + gib_einstellungen()->gib_land_industry_chains() + gib_einstellungen()->gib_city_industry_chains();
 	for(int y=0; y<=gib_groesse_y(); y++) {
 
 		for(int x=0; x<=gib_groesse_x(); x++) {
@@ -253,8 +251,11 @@ karte_t::calc_hoehe_mit_perlin()
 		}
 
 		if(is_display_init()) {
-			display_progress(y/2, gib_groesse_y()+einstellungen->gib_anzahl_staedte()*12);
-			display_flush(IMG_LEER,0, 0, 0, "", "", 0, 0);
+			if(y==0) {
+				display_proportional((display_get_width()-display_total)/2,display_get_height()/2-20,translator::translate("Init map ..."),ALIGN_LEFT,COL_WHITE,0);
+			}
+			display_progress((y*16)/gib_groesse_y(), display_total);
+			display_flush(IMG_LEER, 0, 0, 0, "", "", 0, 0);
 		}
 		else {
 			printf("X");fflush(NULL);
@@ -651,6 +652,11 @@ karte_t::init(einstellungen_t *sets)
 
 	grundwasser = sets->gib_grundwasser();      //29-Nov-01     Markus Weber    Changed
 
+	if(sets->gib_beginner_mode()) {
+		warenbauer_t::set_multiplier( umgebung_t::beginner_price_factor );
+		umgebung_t::just_in_time = 0;
+	}
+
 	// wird gecached, um den Pointerzugriff zu sparen, da
 	// die groesse _sehr_ oft referenziert wird
 	cached_groesse_gitter_x = einstellungen->gib_groesse_x();
@@ -718,13 +724,15 @@ DBG_DEBUG("karte_t::init()","hausbauer_t::neue_karte()");
 		city_road = wegbauer_t::weg_search(weg_t::strasse,30,get_timeline_year_month());
 	}
 
+
 DBG_DEBUG("karte_t::init()","prepare cities");
 	stadt = new weighted_vector_tpl <stadt_t *>(0);
 	vector_tpl<koord> *pos = stadt_t::random_place(this, einstellungen->gib_anzahl_staedte());
 
 	if(pos!=NULL  &&  pos->get_count()>0) {
 		// prissi if we could not generate enough positions ...
-		einstellungen->setze_anzahl_staedte( pos->get_count() );	// new number of towns ...
+		einstellungen->setze_anzahl_staedte( pos->get_count() );	// new number of towns (if we did not found enough positions) ...
+		const int max_display_progress=16+einstellungen->gib_anzahl_staedte()*4+einstellungen->gib_land_industry_chains()+einstellungen->gib_city_industry_chains();
 
 		// Ansicht auf erste Stadt zentrieren
 		setze_ij_off(pos->at(0) + koord(-8, -8));
@@ -739,20 +747,20 @@ DBG_DEBUG("karte_t::init()","prepare cities");
 			stadt_t *s = new stadt_t(this, spieler[1], pos->at(i), current_citicens );
 DBG_DEBUG("karte_t::init()","Erzeuge stadt %i with %ld inhabitants",i,(s->get_city_history_month())[HIST_CITICENS] );
 			stadt->append( s, current_citicens, 64 );
-
-			if(is_display_init()) {
-				display_progress(gib_groesse_y()/2+i*2, gib_groesse_y()+einstellungen->gib_anzahl_staedte()*12);
-				display_flush(IMG_LEER,0, 0, 0, "", "", 0, 0);
-			}
-			else {
-				printf("*");fflush(NULL);
-			}
 		}
 
 		for(i=0; i<einstellungen->gib_anzahl_staedte(); i++) {
 			// Hajo: do final init after world was loaded/created
 			if(stadt->at(i)) {
 				stadt->at(i)->laden_abschliessen();
+			}
+			// the growth is slow, so update here the progress bar
+			if(is_display_init()) {
+				display_progress(16+i*2, max_display_progress);
+				display_flush(IMG_LEER,0, 0, 0, "", "", 0, 0);
+			}
+			else {
+				printf("*");fflush(NULL);
 			}
 		}
 
@@ -777,6 +785,10 @@ DBG_DEBUG("karte_t::init()","Erzeuge stadt %i with %ld inhabitants",i,(s->get_ci
 			roff = koord(0,2);
 		}
 
+		int old_progress_count = 16+2*einstellungen->gib_anzahl_staedte();
+		int count = 0;
+		const int max_count=(einstellungen->gib_anzahl_staedte()*(einstellungen->gib_anzahl_staedte()-1))/2;
+
 		for(i=0; i<einstellungen->gib_anzahl_staedte(); i++) {
 			for(int j=i+1; j<einstellungen->gib_anzahl_staedte(); j++) {
 				const koord k1 = pos->at(i) + roff;
@@ -785,25 +797,29 @@ DBG_DEBUG("karte_t::init()","Erzeuge stadt %i with %ld inhabitants",i,(s->get_ci
 				const int d = diff.x*diff.x + diff.y*diff.y;
 
 				if(d < umgebung_t::intercity_road_length) {
+//DBG_DEBUG("karte_t::init()","built route fom city %d to %d", i, j);
 					bauigel.calc_route(k1, k2);
-
 					if(bauigel.max_n >= 1) {
 						bauigel.baue();
 					}
 					else {
-	DBG_DEBUG("karte_t::init()","no route found fom city %d to %d", i, j);
+//DBG_DEBUG("karte_t::init()","no route found fom city %d to %d", i, j);
 					}
 				}
 				else {
-	DBG_DEBUG("karte_t::init()","cites %d and %d are too far away", i, j);
+//DBG_DEBUG("karte_t::init()","cites %d and %d are too far away", i, j);
+				}
+				count ++;
+				// how much we continued?
+				if(is_display_init()) {
+					int progress_count = 16+einstellungen->gib_anzahl_staedte()*2+ (count*einstellungen->gib_anzahl_staedte()*2)/max_count;
+					if(old_progress_count!=progress_count) {
+						display_progress(progress_count, max_display_progress );
+						display_flush(IMG_LEER,0, 0, 0, "", "", 0, 0);
+						old_progress_count = progress_count;
+					}
 				}
 			} //for j
-
-			if(is_display_init()) {
-				display_progress(gib_groesse_y()/2+i*8 + einstellungen->gib_anzahl_staedte()*2,
-				gib_groesse_y()+einstellungen->gib_anzahl_staedte()*12);
-				display_flush(IMG_LEER,0, 0, 0, "", "", 0, 0);
-			}
 		} // for i
 
 		delete pos;
@@ -811,12 +827,8 @@ DBG_DEBUG("karte_t::init()","Erzeuge stadt %i with %ld inhabitants",i,(s->get_ci
 	pos = NULL;
 
     // prissi: completely change format
-     fabrikbauer_t::verteile_industrie(this,
-				gib_spieler(1),
-				einstellungen->gib_land_industry_chains(),false);
-     fabrikbauer_t::verteile_industrie(this,
-				gib_spieler(1),
-				einstellungen->gib_city_industry_chains(),true);
+     fabrikbauer_t::verteile_industrie(this, gib_spieler(1),	einstellungen->gib_land_industry_chains(),false);
+     fabrikbauer_t::verteile_industrie(this, gib_spieler(1), einstellungen->gib_city_industry_chains(),true);
 	// crossconnect all?
 	if(umgebung_t::crossconnect_factories) {
 		slist_iterator_tpl <fabrik_t *> iter (this->fab_list);
@@ -826,7 +838,7 @@ DBG_DEBUG("karte_t::init()","Erzeuge stadt %i with %ld inhabitants",i,(s->get_ci
 	}
 
 	// tourist attractions
-     fabrikbauer_t::verteile_tourist(this, gib_spieler(1), 	einstellungen->gib_tourist_attractions());
+     fabrikbauer_t::verteile_tourist(this, gib_spieler(1), einstellungen->gib_tourist_attractions());
 
     print("Preparing startup ...\n");
 
@@ -1404,7 +1416,7 @@ karte_t::max_hgt(const koord pos) const
 bool
 karte_t::add_fab(fabrik_t *fab)
 {
-DBG_MESSAGE("karte_t::add_fab()","fab = %p",fab);
+//DBG_MESSAGE("karte_t::add_fab()","fab = %p",fab);
 	assert(fab != NULL);
 	fab_list.insert( fab );
 	return true;
@@ -1414,10 +1426,10 @@ bool
 karte_t::rem_fab(fabrik_t *fab)
 {
 DBG_MESSAGE("karte_t::rem_fab()","fab = %p",fab);
-DBG_MESSAGE("karte_t::rem_fab()","fab_list index = %i",fab_list.index_of(fab));
+//DBG_MESSAGE("karte_t::rem_fab()","fab_list index = %i",fab_list.index_of(fab));
 	assert(fab != NULL);
 	bool ok=fab_list.remove( fab );
-DBG_MESSAGE("karte_t::rem_fab()","fab_list now %i(%i)",fab_list.count(),ok);
+//DBG_MESSAGE("karte_t::rem_fab()","fab_list now %i(%i)",fab_list.count(),ok);
 	return true;
 }
 
@@ -1449,7 +1461,7 @@ karte_t::find_all_factories( koord pos, koord extent )
 		fabrik_t * fab = iter.get_current();
 		if(fab->is_fabrik(pos,extent)) {
 			fablist.append(fab);
-DBG_MESSAGE("karte_t::find_all_factories()","append %s at (%i,%i)",fab->gib_name(),fab->gib_pos().x,fab->gib_pos().y);
+//DBG_MESSAGE("karte_t::find_all_factories()","append %s at (%i,%i)",fab->gib_name(),fab->gib_pos().x,fab->gib_pos().y);
 		}
 	}
 	return fablist;
@@ -1463,7 +1475,7 @@ karte_t::add_ausflugsziel(gebaeude_t *gb)
 {
 	assert(gb != NULL);
 	ausflugsziele.append( gb, gb->gib_tile()->gib_besch()->gib_level(), 16 );
-DBG_MESSAGE("karte_t::add_ausflugsziel()","appended ausflugsziel at %i",ausflugsziele.get_count() );
+//DBG_MESSAGE("karte_t::add_ausflugsziel()","appended ausflugsziel at %i",ausflugsziele.get_count() );
 }
 
 void
@@ -3040,6 +3052,7 @@ karte_t::interactive_event(event_t &ev)
 {
 	extern const weg_besch_t *default_track;
 	extern const weg_besch_t *default_road;
+	extern const way_obj_besch_t *default_electric;
     struct sound_info click_sound;
 
     click_sound.index = SFX_SELECT;
@@ -3096,6 +3109,12 @@ karte_t::interactive_event(event_t &ev)
             break;
 	case 'd':
 	    setze_maus_funktion(wkz_lower, skinverwaltung_t::downzeiger->gib_bild_nr(0), Z_GRID,  NO_SOUND, NO_SOUND );
+	    break;
+	case 'e':
+	    if(default_electric==NULL) {
+			default_electric = wayobj_t::wayobj_search(weg_t::schiene,weg_t::overheadlines,get_timeline_year_month());
+	    }
+	    setze_maus_funktion(wkz_wayobj, default_electric->gib_cursor()->gib_bild_nr(0), Z_PLAN, (long)default_electric, SFX_JACKHAMMER, SFX_FAILURE);
 	    break;
 	case 'f': /* OCR: Finances */
 	    sound_play(click_sound);

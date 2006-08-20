@@ -599,11 +599,10 @@ reliefkarte_t::setze_welt(karte_t *welt)
     }
 
     if(welt) {
-    		koord size = koord(welt->gib_groesse_x()*zoom, welt->gib_groesse_y()*zoom);
+		koord size = koord(welt->gib_groesse_x()*zoom, welt->gib_groesse_y()*zoom);
 DBG_MESSAGE("reliefkarte_t::setze_welt()","welt size %i,%i",size.x,size.y);
 		relief = new array2d_tpl<unsigned char> (size.x,size.y);
 		setze_groesse(size);
-
 		max_capacity = max_departed = max_arrived = max_cargo = max_convoi_arrived = max_passed = max_tourist_ziele = 0;
 	}
 }

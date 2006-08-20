@@ -844,8 +844,16 @@ wkz_wayremover(spieler_t *sp, karte_t *welt,  koord pos, value_t lParam)
 			wkz_wayremover_bauer = NULL;
 			erster = true;
 
-			// there should be always a car for passengers ...
-			const vehikel_besch_t *remover_besch = vehikelbauer_t::gib_info(wt,0);	// first engine/wagon/car for this waytype
+			// there should be always a car for passengers (but it must not be electric!)
+			const vehikel_besch_t *remover_besch;
+			for(int  i=0;  ;  i++ ) {
+				// get engine/wagon/car for this waytype
+				const vehikel_besch_t *test_besch = vehikelbauer_t::gib_info(wt,i);
+				if(test_besch==NULL  ||  test_besch->get_engine_type()!=vehikel_besch_t::electric) {
+					remover_besch = test_besch;
+					break;
+				}
+			}
 			if(remover_besch==NULL) {
 				dbg->error("wkz_wayremover()", "no vehicle found?!?");
 				// second try, wagon, electric
@@ -960,6 +968,8 @@ DBG_MESSAGE("wkz_wayremover()","route with %d tile found",verbindung.gib_max_n()
 
 
 
+const way_obj_besch_t *default_electric=NULL;
+
 /* add catenary during construction */
 int
 wkz_wayobj(spieler_t *sp, karte_t *welt, koord pos, value_t lParam)
@@ -969,6 +979,11 @@ wkz_wayobj(spieler_t *sp, karte_t *welt, koord pos, value_t lParam)
 	weg_t::typ wt=(weg_t::typ)besch->gib_wtyp();
 	static bool erster = true;
 	static koord3d start, end;
+
+	// save default overheadwires
+	if(besch->gib_wtyp()==weg_t::schiene  &&  besch->gib_own_wtyp()==weg_t::overheadlines) {
+		default_electric = besch;
+	}
 
 	if(pos==INIT || pos == EXIT) {  // init strassenbau
 		erster = true;
@@ -1005,8 +1020,16 @@ wkz_wayobj(spieler_t *sp, karte_t *welt, koord pos, value_t lParam)
 			wkz_wayobj_bauer = NULL;
 			erster = true;
 
-			// there should be always a car for passengers ...
-			const vehikel_besch_t *fahrer_besch = vehikelbauer_t::gib_info(wt,0);	// first engine/wagon/car for this waytype
+			// there should be always a car for passengers (but it must not be electric!)
+			const vehikel_besch_t *fahrer_besch;
+			for(int  i=0;  ;  i++ ) {
+				// get engine/wagon/car for this waytype
+				const vehikel_besch_t *test_besch = vehikelbauer_t::gib_info(wt,i);
+				if(test_besch==NULL  ||  test_besch->get_engine_type()!=vehikel_besch_t::electric) {
+					fahrer_besch = test_besch;
+					break;
+				}
+			}
 			if(fahrer_besch==NULL) {
 				dbg->error("wkz_wayremover()", "no vehicle found?!?");
 				// second try, wagon, electric

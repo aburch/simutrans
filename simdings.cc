@@ -116,6 +116,7 @@ ding_t::ding_t(karte_t *wl, koord3d pos)
 // removes an object and tries to delete it also form the corresponding dinglist
 ding_t::~ding_t()
 {
+/*
 	// mark the region after the image as dirty
 	// better not try to twist your brain to follow the retransformation ...
 	const koord diff=gib_pos().gib_2d()-welt->gib_ij_off();
@@ -123,7 +124,8 @@ ding_t::~ding_t()
 	const sint16 x=(diff.x-diff.y)*(rasterweite/2) + welt->gib_x_off() + (display_get_width()/2) + tile_raster_scale_x(gib_xoff(), rasterweite);
 	const sint16 y=16+((display_get_width()/rasterweite)&1)*(rasterweite/4)+(diff.x+diff.y)*(rasterweite/4)+welt->gib_y_off()+tile_raster_scale_x(gib_yoff(), rasterweite)-tile_raster_scale_y(gib_pos().z, rasterweite);
 	display_mark_img_dirty( gib_bild(), x, y );
-
+*/
+	mark_image_dirty( gib_bild(), 0 );
 	destroy_win(ding_infos->get(this));
 
 	if(flags&not_on_map) {
@@ -263,13 +265,6 @@ ding_t::display(int xpos, int ypos, bool reset_dirty) const
 	xpos += tile_raster_scale_x(gib_xoff(), raster_width);
 
 	bool dirty = get_flag(ding_t::dirty);
-/*
-	if(reset_dirty  &&  bild==IMG_LEER) {
-		mark_rect_dirty_wc(xpos-8, ypos-32, xpos+80, ypos+76);
-		return;
-	}
-*/
-
 	int j = 1;
 	while(bild!=IMG_LEER) {
 
@@ -302,5 +297,26 @@ ding_t::display_after(int xpos, int ypos, bool reset_dirty) const
 		else {
 			display_img(bild, xpos, ypos, get_flag(ding_t::dirty) );
 		}
+	}
+}
+
+
+
+/*
+ * when a vehicle moves or a cloud moves, it needs to mark the old spot as dirty (to copy to screen)
+ * sometimes they have an extra offset, this the yoff parameter
+* @author prissi
+ */
+void
+ding_t::mark_image_dirty(image_id bild,sint8 yoff)
+{
+	if(bild!=IMG_LEER) {
+		// better not try to twist your brain to follow the retransformation ...
+		const koord diff=gib_pos().gib_2d()-welt->gib_ij_off();
+		const sint16 rasterweite=get_tile_raster_width();
+		const sint16 x=(diff.x-diff.y)*(rasterweite/2) + welt->gib_x_off() + (display_get_width()/2) + tile_raster_scale_x(gib_xoff(), rasterweite);
+		const sint16 y=16+((display_get_width()/rasterweite)&1)*(rasterweite/4)+(diff.x+diff.y)*(rasterweite/4)+welt->gib_y_off()+tile_raster_scale_x(gib_yoff()+yoff, rasterweite)-tile_raster_scale_y(gib_pos().z, rasterweite);
+		// mark the region after the image as dirty
+		display_mark_img_dirty( bild, x, y );
 	}
 }

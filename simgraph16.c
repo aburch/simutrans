@@ -3330,6 +3330,7 @@ display_multiline_text(KOORD_VAL x, KOORD_VAL y, const char *buf, PLAYER_COLOR_V
 }
 
 
+//#define DEBUG_FLUSH_BUFFER
 
 // copies only the changed areas to the screen using the
 // "tile dirty buffer" To get large changes, actually the current

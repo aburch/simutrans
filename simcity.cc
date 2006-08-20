@@ -985,7 +985,7 @@ stadt_t::step_passagiere()
 		// Find passenger destination
 		for(int pax_routed=0;  pax_routed<num_pax;  pax_routed+=7) {
 
-			// just the defualt "No route" stop
+			// just the default "No route" stop
 			halthandle_t start_halt = halt_list.at(0);
 
 			// number of passengers that want to travel

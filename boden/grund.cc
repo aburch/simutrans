@@ -761,11 +761,21 @@ grund_t::display_boden( const sint16 xpos, const sint16 ypos, const bool reset_d
 	}
 
 	// ground
-	if(besitzer_n==-1) {
-		display_img(gib_bild(), xpos, ypos, dirty);
+	image_id bild=gib_bild();
+	if(bild==IMG_LEER) {
+		// only check for forced redraw (of marked ... )
+		if(dirty) {
+			const sint16 rasterweite=get_tile_raster_width();
+			mark_rect_dirty_wc( xpos, ypos+rasterweite/2, xpos+rasterweite-1, ypos+rasterweite-1 );
+		}
 	}
 	else {
-		display_color_img(gib_bild(), xpos, ypos, gib_besitzer()->get_player_color(), true, dirty);
+		if(besitzer_n==-1) {
+			display_img(gib_bild(), xpos, ypos, dirty);
+		}
+		else {
+			display_color_img(gib_bild(), xpos, ypos, gib_besitzer()->get_player_color(), true, dirty);
+		}
 	}
 
 	if(wege[0]) {

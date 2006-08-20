@@ -4,6 +4,7 @@ class xref_reader_t : public obj_reader_t {
     static xref_reader_t the_instance;
 
     xref_reader_t() { register_reader(); }
+	virtual ~xref_reader_t() {}
 protected:
     virtual void register_obj(obj_besch_t *&data);
 public:

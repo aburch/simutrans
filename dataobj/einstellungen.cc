@@ -16,39 +16,41 @@ einstellungen_t::einstellungen_t() :
 	filename(""),
 	heightfield("")
 {
-    groesse_x = 256;
-    groesse_y = 256;
+	groesse_x = 256;
+	groesse_y = 256;
 
-    nummer = 0;
+	nummer = 0;
 
-    /* new setting since version 0.85.01
-     * @author prissi
-     */
-    land_industry_chains = 6;
-    city_industry_chains = 1;
-    tourist_attractions = 2;
+	/* new setting since version 0.85.01
+	 * @author prissi
+	 */
+	land_industry_chains = 6;
+	city_industry_chains = 1;
+	tourist_attractions = 2;
 
-    anzahl_staedte = 12;
-    mittlere_einwohnerzahl = 1600;
+	anzahl_staedte = 12;
+	mittlere_einwohnerzahl = 1600;
 
-    scroll_multi = 1;
+	scroll_multi = 1;
 
-    verkehr_level = 5;
+	verkehr_level = 5;
 
-    show_pax = true;
+	show_pax = true;
 
-    grundwasser = -32;                          //25-Nov-01        Markus Weber    Added
+	grundwasser = -32;                          //25-Nov-01        Markus Weber    Added
 
-    max_mountain_height = 160;                  //can be 0-160.0  01-Dec-01        Markus Weber    Added
-    map_roughness = 0.6;                        //can be 0-1      01-Dec-01        Markus Weber    Added
+	max_mountain_height = 160;                  //can be 0-160.0  01-Dec-01        Markus Weber    Added
+	map_roughness = 0.6;                        //can be 0-1      01-Dec-01        Markus Weber    Added
 
-    station_coverage_size = 2;	//added May 05, valid 1...x
+	station_coverage_size = 2;	//added May 05, valid 1...x
 
 	// some settigns more
-    allow_player_change = true;
-    use_timeline = true;
-    starting_year = 1930;
-    bits_per_month = 19;
+	allow_player_change = true;
+	use_timeline = true;
+	starting_year = 1930;
+	bits_per_month = 19;
+
+	beginner_mode = false;
 }
 
 
@@ -62,35 +64,26 @@ einstellungen_t::einstellungen_t(const einstellungen_t *other)
     groesse_y = other->groesse_y;
 
     nummer = other->nummer;
-    land_industry_chains =
-      other->land_industry_chains;
-    city_industry_chains =
-      other->city_industry_chains;
-    tourist_attractions =
-      other->tourist_attractions;
+    land_industry_chains = other->land_industry_chains;
+    city_industry_chains = other->city_industry_chains;
+    tourist_attractions = other->tourist_attractions;
 
-    anzahl_staedte =
-      other->anzahl_staedte;
-    mittlere_einwohnerzahl =
-      other->mittlere_einwohnerzahl;
-    scroll_multi =
-      other->scroll_multi;
-    verkehr_level =
-      other->verkehr_level;
-    show_pax =
-      other->show_pax;
-    grundwasser =
-      other->grundwasser;
-    max_mountain_height =
-      other->max_mountain_height;
-    map_roughness =
-      other->map_roughness;
+    anzahl_staedte = other->anzahl_staedte;
+    mittlere_einwohnerzahl = other->mittlere_einwohnerzahl;
+    scroll_multi = other->scroll_multi;
+    verkehr_level = other->verkehr_level;
+    show_pax = other->show_pax;
 
+    grundwasser = other->grundwasser;
+    max_mountain_height = other->max_mountain_height;
+    map_roughness = other->map_roughness;
     heightfield = other->heightfield;
 
     station_coverage_size = other->station_coverage_size;
 
     allow_player_change = other->allow_player_change;
+    beginner_mode = other->beginner_mode;
+
     use_timeline = other->use_timeline;
     starting_year = other->starting_year;
     bits_per_month = other->bits_per_month;
@@ -122,7 +115,7 @@ einstellungen_t::rdwr(loadsave_t *file)
 		file->rdwr_long(dummy, "\n");
 		dummy &= 127;
 		if(dummy>63) {
-dbg->warning("einstellungen_t::rdwr()","This game was saved with too many cities! (%i of maximum 63). Simutrans may crash!",dummy);
+			dbg->warning("einstellungen_t::rdwr()","This game was saved with too many cities! (%i of maximum 63). Simutrans may crash!",dummy);
 		}
 		anzahl_staedte = dummy;
 
@@ -135,6 +128,7 @@ dbg->warning("einstellungen_t::rdwr()","This game was saved with too many cities
 		file->rdwr_double(map_roughness, "\n");
 
 		station_coverage_size = 3;
+		beginner_mode = false;
 	}
 	else {
 		// newer versions
@@ -190,6 +184,13 @@ dbg->warning("einstellungen_t::rdwr()","This game was saved with too many cities
 		}
 		else {
 			bits_per_month = 18;
+		}
+
+		if(file->get_version()>=89003) {
+			file->rdwr_bool(beginner_mode,"\n");
+		}
+		else {
+			beginner_mode = false;
 		}
 
 		// clear the name when loading ...

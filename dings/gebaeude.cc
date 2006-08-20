@@ -452,9 +452,9 @@ gebaeude_t::zeige_info()
 	koord k = tile->gib_offset();
 	if(k != koord(0, 0)) {
 		ding_t *gb = welt->lookup(gib_pos() - k)->obj_bei(0);
-
 		if(gb)
-			gb->zeige_info();	// an den ersten deligieren
+			// is the info of the (0,0) tile on multi tile buildings
+			gb->zeige_info();
 		}
 		else {
 DBG_MESSAGE("gebaeude_t::zeige_info()", "at %d,%d - name is '%s'", gib_pos().x, gib_pos().y, gib_name());
@@ -502,7 +502,25 @@ void gebaeude_t::info(cbuffer_t & buf) const
 	else {
 		const char *desc = tile->gib_besch()->gib_name();
 		if(desc != NULL) {
-			buf.append(translator::translate(desc));
+			const char *trans_desc = translator::translate(desc);
+			if(trans_desc==desc) {
+				// no descrition here
+				switch(gib_haustyp()) {
+					case wohnung:
+						trans_desc = translator::translate("residential house");
+						break;
+					case industrie:
+						trans_desc = translator::translate("industrial building");
+						break;
+					case gewerbe:
+						trans_desc = translator::translate("shops and stores");
+						break;
+					default:
+						// use file name
+						break;
+				}
+			}
+			buf.append(translator::translate(trans_desc));
 			buf.append("\n");
 		}
 
@@ -680,13 +698,15 @@ bool gebaeude_t::sync_step(long delta_t)
 
 	anim_time += delta_t;
 	if(anim_time>300) {
-		// mark the region after the image as dirty
-		// better not try to twist your brain to follow the retransformation ...
-		const koord diff=gib_pos().gib_2d()-welt->gib_ij_off();
-		const sint16 rasterweite=get_tile_raster_width();
-		const sint16 x=(diff.x-diff.y)*(rasterweite/2) + welt->gib_x_off() + (display_get_width()/2) + tile_raster_scale_x(gib_xoff(), rasterweite);
-		const sint16 y=16+((display_get_width()/rasterweite)&1)*(rasterweite/4)+(diff.x+diff.y)*(rasterweite/4)+welt->gib_y_off()+tile_raster_scale_x(gib_yoff(), rasterweite)-tile_raster_scale_y(gib_pos().z, rasterweite);
-		display_mark_img_dirty( gib_bild(), x, y );
+		for(int i=0;  ;  i++) {
+			image_id bild = gib_bild(i);
+			if(bild==IMG_LEER) {
+				break;
+			}
+			mark_image_dirty(bild,-(i<<6));
+		}
+		// old positions need redraw
+		mark_image_dirty(0,0);
 
 		anim_time = 0;
 		count ++;
