@@ -2305,7 +2305,7 @@ static const unsigned char byte_to_mask_array[9]={0xFF,0x7F,0x3F,0x1F,0x0F,0x07,
  * @author priss
  * @date  29.11.04
  */
-inline unsigned char get_mask( const int xL, const int xR, const int cL, const int cR)
+inline unsigned char get_h_mask( const int xL, const int xR, const int cL, const int cR)
 {
 	// do not mask
 	unsigned char mask;
@@ -2326,6 +2326,39 @@ inline unsigned char get_mask( const int xL, const int xR, const int cL, const i
 	{
 		// right border clipped
 		mask &= ~byte_to_mask_array[cR-xL];
+	}
+	return mask;
+}
+
+/* @ see get_v_mask() */
+static const unsigned char left_byte_to_v_mask_array[5]={0xFF,0x3F,0x0F,0x03,0x00};
+static const unsigned char right_byte_to_v_mask_array[5]={0xFF,0xFC,0xF0,0xC0,0x00};
+
+/* Helper: calculates mask for clipping of 2Bit extension *
+ * Attention: xL-xR must be <=4 !!!
+ * @author priss
+ * @date  29.11.04
+ */
+inline unsigned char get_v_mask( const int yT, const int yB, const int cT, const int cB)
+{
+	// do not mask
+	unsigned char mask;
+
+	// check, if there is something to display
+	if(yB<=cT  ||  yT>cB) {
+		return 0;
+	}
+
+	mask = 0xFF;
+
+	// top bits masked
+	if(yT>=cT  &&  yT<cT+4) {
+		mask = left_byte_to_v_mask_array[yT-cT];
+	}
+	// mask height start bits
+	if(  mask  &&  yB>cT  &&  yB<=cT+4) {
+		// Left border clipped
+		mask &= right_byte_to_v_mask_array[(cT+4)-yB];
 	}
 	return mask;
 }
@@ -2352,14 +2385,29 @@ void display_text_proportional_len_clip(int x, int y, const char *txt,
 	unsigned char *p;
 	int yy = y+fnt->height;
 	int x0;	// store the inital x (for dirty marking)
+	int y0, y_offset, char_height;	// real y for display with clipping
+	bool v_clip;
 	unsigned char mask1, mask2;	// for horizontal clipping
 	const PIXVAL color = rgbcolormap[color_index];
 
+	// TAKE CARE: Clipping area may be larger than actual screen size ...
 	if(  use_clipping  ) {
 		cL = clip_rect.x;
+		if(cL>=disp_width) {
+			cL = disp_width-1;
+		}
 		cR = clip_rect.xx;
+		if(cR>=disp_width) {
+			cR = disp_width-1;
+		}
 		cT = clip_rect.y;
+		if(cT>=disp_height) {
+			cT = disp_height-1;
+		}
 		cB = clip_rect.yy;
+		if(cB>=disp_height) {
+			cB = disp_height-1;
+		}
 	}
 	else {
 		cL = 0;
@@ -2367,6 +2415,7 @@ void display_text_proportional_len_clip(int x, int y, const char *txt,
 		cT = 0;
 		cB = disp_height-1;
  	}
+ 	// don't know len yet ...
 	if(  len<0  ) {
 		len = 0x7FFF;
 	}
@@ -2383,8 +2432,28 @@ void display_text_proportional_len_clip(int x, int y, const char *txt,
 			x -= display_proportional_string_len_width(txt, len, use_large_font);
 			break;
 	}
+ 	// still something to display?
+ 	if(x>cR  ||  y>cB  ||  y+fnt->height<=cT) {
+ 		// nothing to display
+ 		return;
+ 	}
 	// x0 contains the startin x
 	x0 = x;
+	y0 = y;
+	y_offset = 0;
+	char_height = fnt->height;
+	v_clip = false;
+	// calculate vertical y clipping parameters
+	if( y<cT ) {
+		y0 = cT;
+		y_offset = cT-y;
+		char_height -= y_offset;
+		v_clip = TRUE;
+	}
+	if(yy>cB) {
+		char_height -= (yy-cB);
+		v_clip = TRUE;
+	}
 
 	// big loop, char by char
 	while(  iTextPos<len  &&  txt[iTextPos]!=0  ) {
@@ -2407,9 +2476,9 @@ void display_text_proportional_len_clip(int x, int y, const char *txt,
 		char_width_2 = fnt->screen_width[c];
 		char_data = fnt->char_data+(16l*c);
 		if(  char_width_1>8  ) {
-			mask1 = get_mask( x, x+8, cL, cR );
+			mask1 = get_h_mask( x, x+8, cL, cR );
 			// we need to double mask 2, since only 2 Bits are used
-			mask2 = get_mask( x+8, x+char_width_1, cL, cR ) ;
+			mask2 = get_h_mask( x+8, x+char_width_1, cL, cR ) ;
 			// since only two pixels are used
 			mask2 &= 0xC0;
 			if(mask2&0x80) mask2 |= 0xAA;
@@ -2417,190 +2486,99 @@ void display_text_proportional_len_clip(int x, int y, const char *txt,
 		}
 		else {
 			// char_width_1<= 8: call directly
-			mask1 = get_mask( x, x+char_width_1, cL, cR );
+			mask1 = get_h_mask( x, x+char_width_1, cL, cR );
 			mask2 = 0;
 		}
 		// do the display
-		screen_pos = y*disp_width + x;
+		screen_pos = y0*disp_width + x;
 
-		if (y>=cT && yy<=cB) { // no vertical blocking, letter fully visible
-			int h,dat;
-
-			p = char_data;
-			for (h=0; h<fnt->height; h++) {
-				dat = (*p++)&mask1;
-				if(  dat!=0  ) {
-					if (dat & 128) textur[screen_pos+0]   = color;
-					if (dat &  64) textur[screen_pos+1] = color;
-					if (dat &  32) textur[screen_pos+2] = color;
-					if (dat &  16) textur[screen_pos+3] = color;
-					if (dat &   8) textur[screen_pos+4] = color;
-					if (dat &   4) textur[screen_pos+5] = color;
-					if (dat &   2) textur[screen_pos+6] = color;
-					if (dat &   1) textur[screen_pos+7] = color;
-				}
+		p = char_data+y_offset;
+		int h;
+		for (h=y_offset; h<char_height; h++) {
+			int dat = (*p++)&mask1;
+			if(  dat!=0  ) {
+				if (dat & 128) textur[screen_pos+0]   = color;
+				if (dat &  64) textur[screen_pos+1] = color;
+				if (dat &  32) textur[screen_pos+2] = color;
+				if (dat &  16) textur[screen_pos+3] = color;
+				if (dat &   8) textur[screen_pos+4] = color;
+				if (dat &   4) textur[screen_pos+5] = color;
+				if (dat &   2) textur[screen_pos+6] = color;
+				if (dat &   1) textur[screen_pos+7] = color;
+			}
+			screen_pos += disp_width;
+		}
+		// extra two bit for overwidth characters (up to 10 pixel supported for unicode)
+		// if the character height is smaller than 10, not all is needed; but we do this anyway!
+		if(  char_width_1>8  &&  mask2!=0  ) {
+			int dat = 0;
+			p = char_data+12;
+			screen_pos = y*disp_width + x+8;
+			dat = (*p++)&mask2;
+			// vertical clipping
+			if(v_clip) {
+				dat &= get_v_mask( y_offset, char_height, 0, 4 );
+			}
+			if( dat!=0 ) {
+				if (dat & 128) textur[screen_pos+0]   = color;
+				if (dat &  64) textur[screen_pos+1] = color;
+				screen_pos += disp_width;
+				if (dat &  32) textur[screen_pos+0] = color;
+				if (dat &  16) textur[screen_pos+1] = color;
+				screen_pos += disp_width;
+				if (dat &   8) textur[screen_pos+0] = color;
+				if (dat &   4) textur[screen_pos+1] = color;
+				screen_pos += disp_width;
+				if (dat &   2) textur[screen_pos+0] = color;
+				if (dat &   1) textur[screen_pos+1] = color;
 				screen_pos += disp_width;
 			}
-			// extra two bit for overwidth characters (up to 10 pixel supported for unicode)
-			// if the character height is smaller than 10, not all is needed; but we do this anyway!
-			if(  char_width_1>8  &&  mask2!=0  ) {
-				p = char_data+12;
-				screen_pos = y*disp_width + x+8;
-				dat = (*p++)&mask2;
-				if( dat!=0 ) {
-					if (dat & 128) textur[screen_pos+0]   = color;
-					if (dat &  64) textur[screen_pos+1] = color;
-					screen_pos += disp_width;
-					if (dat &  32) textur[screen_pos+0] = color;
-					if (dat &  16) textur[screen_pos+1] = color;
-					screen_pos += disp_width;
-					if (dat &   8) textur[screen_pos+0] = color;
-					if (dat &   4) textur[screen_pos+1] = color;
-					screen_pos += disp_width;
-					if (dat &   2) textur[screen_pos+0] = color;
-					if (dat &   1) textur[screen_pos+1] = color;
-					screen_pos += disp_width;
-				}
-				else {
-					screen_pos += disp_width*4;
-				}
-				dat = (*p++)&mask2;
-				if( dat!=0 ) {
-					if (dat & 128) textur[screen_pos+0]   = color;
-					if (dat &  64) textur[screen_pos+1] = color;
-					screen_pos += disp_width;
-					if (dat &  32) textur[screen_pos+0] = color;
-					if (dat &  16) textur[screen_pos+1] = color;
-					screen_pos += disp_width;
-					if (dat &   8) textur[screen_pos+0] = color;
-					if (dat &   4) textur[screen_pos+1] = color;
-					screen_pos += disp_width;
-					if (dat &   2) textur[screen_pos+0] = color;
-					if (dat &   1) textur[screen_pos+1] = color;
-					screen_pos += disp_width;
-				}
-				else {
-					screen_pos += disp_width*4;
-				}
-				dat = (*p++)&mask2;
-				if( dat!=0 ) {
-					if (dat & 128) textur[screen_pos+0]   = color;
-					if (dat &  64) textur[screen_pos+1] = color;
-					screen_pos += disp_width;
-					if (dat &  32) textur[screen_pos+0] = color;
-					if (dat &  16) textur[screen_pos+1] = color;
-					screen_pos += disp_width;
-					if (dat &   8) textur[screen_pos+0] = color;
-					if (dat &   4) textur[screen_pos+1] = color;
-					screen_pos += disp_width;
-					if (dat &   2) textur[screen_pos+0] = color;
-					if (dat &   1) textur[screen_pos+1] = color;
-					screen_pos += disp_width;
-				}
+			else {
+				screen_pos += disp_width*4;
+			}
+			dat = (*p++)&mask2;
+			// vertical clipping
+			if(v_clip) {
+				dat &= get_v_mask( y_offset, char_height, 4, 8 );
+			}
+			if( dat!=0 ) {
+				if (dat & 128) textur[screen_pos+0]   = color;
+				if (dat &  64) textur[screen_pos+1] = color;
+				screen_pos += disp_width;
+				if (dat &  32) textur[screen_pos+0] = color;
+				if (dat &  16) textur[screen_pos+1] = color;
+				screen_pos += disp_width;
+				if (dat &   8) textur[screen_pos+0] = color;
+				if (dat &   4) textur[screen_pos+1] = color;
+				screen_pos += disp_width;
+				if (dat &   2) textur[screen_pos+0] = color;
+				if (dat &   1) textur[screen_pos+1] = color;
+				screen_pos += disp_width;
+			}
+			else {
+				screen_pos += disp_width*4;
+			}
+			dat = (*p++)&mask2;
+			// vertical clipping
+			if(v_clip) {
+				dat &= get_v_mask( y_offset, char_height, 8, 12 );
+			}
+			if( dat!=0 ) {
+				if (dat & 128) textur[screen_pos+0]   = color;
+				if (dat &  64) textur[screen_pos+1] = color;
+				screen_pos += disp_width;
+				if (dat &  32) textur[screen_pos+0] = color;
+				if (dat &  16) textur[screen_pos+1] = color;
+				screen_pos += disp_width;
+				if (dat &   8) textur[screen_pos+0] = color;
+				if (dat &   4) textur[screen_pos+1] = color;
+				screen_pos += disp_width;
+				if (dat &   2) textur[screen_pos+0] = color;
+				if (dat &   1) textur[screen_pos+1] = color;
+				screen_pos += disp_width;
 			}
 		}
-		else {
-			if (y>=cT || yy<=cB) { // top or bottom half visible
-				int h,yh,dat;
-
-				p = char_data;
-				for (h=0, yh=y; h<fnt->height; yh++, h++) {
-					dat = (*p++)&mask1;
-					if (dat) { // a lot of times just empty
-						if (yh>=cT && yh<=cB) {
-							if (dat & 128) textur[screen_pos+0]   = color;
-							if (dat &  64) textur[screen_pos+1] = color;
-							if (dat &  32) textur[screen_pos+2] = color;
-							if (dat &  16) textur[screen_pos+3] = color;
-							if (dat &   8) textur[screen_pos+4] = color;
-							if (dat &   4) textur[screen_pos+5] = color;
-							if (dat &   2) textur[screen_pos+6] = color;
-							if (dat &   1) textur[screen_pos+7] = color;
-						}
-					}
-					screen_pos += disp_width;
-				}
-				// handle characters wider than 8 Bit here
-				if(  char_width_1>8  ) {
-					screen_pos = y*disp_width + x+8;
-					p = char_data+12;
-					yh = 0;
-					dat = (*p++)&mask2;
-					if (yh>=cT && yh<=cB) {
-						if (dat & 128) textur[screen_pos+0]   = color;
-						if (dat &  64) textur[screen_pos+1] = color;
-					}
-					screen_pos += disp_width;
-					yh ++;
-					if (yh>=cT && yh<=cB) {
-						if (dat &  32) textur[screen_pos+0] = color;
-						if (dat &  16) textur[screen_pos+1] = color;
-					}
-					yh ++;
-					screen_pos += disp_width;
-					if (yh>=cT && yh<=cB) {
-						if (dat &   8) textur[screen_pos+0] = color;
-						if (dat &   4) textur[screen_pos+1] = color;
-					}
-					yh ++;
-					screen_pos += disp_width;
-					if (yh>=cT && yh<=cB) {
-						if (dat &   2) textur[screen_pos+0] = color;
-						if (dat &   1) textur[screen_pos+1] = color;
-					}
-					yh ++;
-					screen_pos += disp_width;
-					dat = (*p++)&mask2;
-					if (yh>=cT && yh<=cB) {
-						if (dat & 128) textur[screen_pos+0]   = color;
-						if (dat &  64) textur[screen_pos+1] = color;
-					}
-					yh ++;
-					screen_pos += disp_width;
-					if (yh>=cT && yh<=cB) {
-						if (dat &  32) textur[screen_pos+0] = color;
-						if (dat &  16) textur[screen_pos+1] = color;
-					}
-					yh ++;
-					screen_pos += disp_width;
-					if (yh>=cT && yh<=cB) {
-						if (dat &   8) textur[screen_pos+0] = color;
-						if (dat &   4) textur[screen_pos+1] = color;
-					}
-					yh ++;
-					screen_pos += disp_width;
-					if (yh>=cT && yh<=cB) {
-						if (dat &   2) textur[screen_pos+0] = color;
-						if (dat &   1) textur[screen_pos+1] = color;
-					}
-					yh ++;
-					screen_pos += disp_width;
-					dat = (*p++)&mask2;
-					if (yh>=cT && yh<=cB) {
-						if (dat & 128) textur[screen_pos+0]   = color;
-						if (dat &  64) textur[screen_pos+1] = color;
-					}
-					screen_pos += disp_width;
-					yh ++;
-					if (yh>=cT && yh<=cB) {
-						if (dat &  32) textur[screen_pos+0] = color;
-						if (dat &  16) textur[screen_pos+1] = color;
-					}
-					screen_pos += disp_width;
-					yh ++;
-					if (yh>=cT && yh<=cB) {
-						if (dat &   8) textur[screen_pos+0] = color;
-						if (dat &   4) textur[screen_pos+1] = color;
-					}
-					yh ++;
-					screen_pos += disp_width;
-					if (yh>=cT && yh<=cB) {
-						if (dat &   2) textur[screen_pos+0] = color;
-						if (dat &   1) textur[screen_pos+1] = color;
-					}
-				}
-			}
-		}
+		// next char: screen width
 		x += char_width_2;
 	}
 

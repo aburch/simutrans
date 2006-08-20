@@ -1,3 +1,40 @@
+Release Simutrans 85.04.1
+
+21-Feb-2005:
+	FIX: cleaned up many images, removed many pixels => 200kB smaller base set
+	CHANGE: added heavy ore truck by MHz
+	CHANGE: doubled power needed for acceleration, but every car now only consumers kW equiv. to its weight
+	CHANGE: passenger level added to factory window
+	FIX: correct calculation and passenger display for all monuments
+
+
+19-Feb-2005:
+	FIX: removed uneccessary pixels from cathedral and stadium
+	FIX: night lights for stadium
+	FIX: initial displaywidth now 704 instead 702
+	CHANGE: added citycar pickup
+	FIX: ship power values reworked
+
+	FIX: clipping error for char display
+	FIX: large map creation fixed
+	CHANGE: now random map creates a map out of 9999 choices (theo. max 273025)
+	CHANGE: removed blanks in ticker
+	FIX: passenger generation from attraction and factories corrected
+	FIX: passenger generation again level dependent: factories ~ 20
+	FIX: no transformers on water
+	FIX: production could jump for very high timer loads (i.e. during zooming)
+		=> more performance
+	FIX: new factories are again connected to stations
+
+	CHANGE: bus AI added (player 2) including overcrowded lines
+		=> new message "Travellers now\nuse %s's\nbusses between\n%s \nand %s.\n"
+	CHANGE: mip_cobblestone now 50 km/h, cobbelstone 60
+	CHANGE: AI can build now much more roads
+	FIX: maintenance of city road reduced to 3.00, because difference is charged to player
+	FIX: error with way replayement in AI (same way replaced was charged)
+	FIX: no income generating by overbuilding roads
+
+
 Released Simutrans 0.85.04.0
 
 11-Feb-2005:

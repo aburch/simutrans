@@ -1338,7 +1338,7 @@ void wegbauer_t::optimiere_stelle(int index)
 void
 wegbauer_t::baue_strasse()
 {
-    int cost = 0;
+	int cost = 0;
 
 	// init undo
 	if(sp!=NULL) {
@@ -1346,50 +1346,61 @@ wegbauer_t::baue_strasse()
 		sp->init_undo(weg_t::strasse,max_n);
 	}
 
-    for(int i=0; i<=max_n; i++) {
-  const koord k = route->at(i);
+	for(int i=0; i<=max_n; i++) {
+		const koord k = route->at(i);
 
-  if(baubaer) {
-      optimiere_stelle(i);
-  }
-  grund_t *gr = welt->lookup(k)->gib_kartenboden();
+		if(baubaer) {
+			optimiere_stelle(i);
+		}
+		grund_t *gr = welt->lookup(k)->gib_kartenboden();
 
-  if(gr->weg_erweitern(weg_t::strasse, calc_ribi(i))) {
-    weg_t * weg = gr->gib_weg(weg_t::strasse);
-    // keep faster ways ... (@author prissi)
-    if(weg->gib_besch()!=besch  &&  !keep_existing_ways  &&  !(keep_existing_faster_ways  &&  weg->gib_besch()->gib_topspeed()>=besch->gib_topspeed())  ) {
-      // Hajo: den typ des weges aendern, kosten berechnen
+		if(gr->weg_erweitern(weg_t::strasse, calc_ribi(i))) {
+			weg_t * weg = gr->gib_weg(weg_t::strasse);
 
-      if(sp) {
-        sp->add_maintenance(besch->gib_wartung() - weg->gib_besch()->gib_wartung());
-      }
+			// keep faster ways or if it is the same way ... (@author prissi)
+			if(weg->gib_besch()==besch  ||  keep_existing_ways  ||  (keep_existing_faster_ways  &&  weg->gib_besch()->gib_topspeed()>=besch->gib_topspeed())  ) {
+				//nothing to be done
+//dbg->message("wegbauer_t::baue_strasse()","nothing to do at (%i,%i)",k.x,k.y);
+				cost = 0;
+			}
+			else
+			{
+//dbg->message("wegbauer_t::baue_strasse()","updating %s to %s at (%i,%i)",weg->gib_besch()->gib_name(),besch->gib_name(),k.x,k.y);
 
-      weg->setze_besch(besch);
-      gr->calc_bild();
-      cost = -besch->gib_preis();
+				// Hajo: den typ des weges aendern, kosten berechnen
+				// if this is less than zero, ignore it
+				if(sp) {
+					int diff=(long)besch->gib_wartung() - (long)weg->gib_besch()->gib_wartung();
+					sp->add_maintenance( diff>0?diff:0 );
+				}
 
-    }
-  } else {
-      strasse_t * str = new strasse_t(welt);
-      str->setze_besch(besch);
+				weg->setze_besch(besch);
+				gr->calc_bild();
+				cost = -besch->gib_preis();
+			}
+		}
+		else {
+			// make new way
+			strasse_t * str = new strasse_t(welt);
+			str->setze_besch(besch);
 
-      gr->neuen_weg_bauen(str, calc_ribi(i), sp);
+			gr->neuen_weg_bauen(str, calc_ribi(i), sp);
 
-	// prissi: into UNDO-list, so wie can remove it later
-	if(sp!=NULL) {
-		// intercity raods have no owner, so we must check for an owner
-		sp->add_undo(route->at(i));
-	}
+			// prissi: into UNDO-list, so wie can remove it later
+			if(sp!=NULL) {
+				// intercity raods have no owner, so we must check for an owner
+				sp->add_undo(route->at(i));
+			}
 
-      cost = -besch->gib_preis();
-  }
+			cost = -besch->gib_preis();
+		}
 
-  if(cost && sp) {
-    sp->buche(cost, k, COST_CONSTRUCTION);
-  }
-    } // for
+		if(cost && sp) {
+			sp->buche(cost, k, COST_CONSTRUCTION);
+		}
+	} // for
 
-    baue_tunnel_und_bruecken();
+	baue_tunnel_und_bruecken();
 }
 
 
@@ -1501,6 +1512,23 @@ wegbauer_t::baue_schiene()
 
     baue_tunnel_und_bruecken();
 }
+
+
+
+/* built a corrdinate list
+ * @author prissi
+ */
+void
+wegbauer_t::baue_strecke( slist_tpl <koord> &list )
+{
+	max_n = list.count()-1;
+	for(  int i=0;  i<=max_n;  i++  ) {
+		route->at(i) = list.at(i);
+	}
+	baue();
+}
+
+
 
 void
 wegbauer_t::baue()

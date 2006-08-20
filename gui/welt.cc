@@ -197,8 +197,10 @@ void welt_gui_t::infowin_event(const event_t *ev)
 		update_preview();
 	    }
 	} else if(buttons.at(1).getroffen(ev->cx, ev->cy)) {
-	    sets->setze_karte_nummer( sets->gib_karte_nummer() + 1 );
-	    update_preview();
+	    if(sets->gib_karte_nummer() <9999 ) {
+	      sets->setze_karte_nummer( sets->gib_karte_nummer() + 1 );
+	      update_preview();
+	   }
 
 	} else if(buttons.at(2).getroffen(ev->cx, ev->cy)) {
 	    if(sets->gib_groesse() > 128 ) {
@@ -312,7 +314,7 @@ void welt_gui_t::infowin_event(const event_t *ev)
 
 	    // Button 'Random map'                                                      // 28-Oct-2001 Markus Weber Added
 	} else if(buttons.at(22).getroffen(ev->cx, ev->cy)) {
-		sets->setze_karte_nummer(simrand(999));
+		sets->setze_karte_nummer(simrand(9999));
 		update_preview();
 
 

@@ -213,7 +213,7 @@ public:
      * @return Den level (die Ausbaustufe) des Gebaudes
      * @author Hj. Malthaner
      */
-    int gib_level() const;
+    int gib_passagier_level() const;
 
     int gib_post_level() const;
 

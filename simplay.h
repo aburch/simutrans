@@ -58,6 +58,7 @@
 class karte_t;
 class fabrik_t;
 class stadt_t;
+class gebaeude_t;
 class wegbauer_t;
 class slist_t;
 class Stack;
@@ -232,10 +233,9 @@ private:
     int gewinn;
 
 	// passenger KI
-	stadt_t *start_stadt;
-	koord	start_hub_pos;
-	stadt_t *end_stadt;
-	koord	end_hub_pos;
+	const stadt_t *start_stadt;
+	const stadt_t *end_stadt;	// target is town
+	const gebaeude_t *end_ausflugsziel;
 
     // ende KI vars
 
@@ -249,8 +249,9 @@ private:
          koord *);
 
     // all for passenger transport
-    halthandle_t  get_our_hub( stadt_t *s );
-    koord built_hub( stadt_t *s );
+    bool is_connected(halthandle_t halt, koord upperleft, koord lowerright);
+    halthandle_t  get_our_hub( const stadt_t *s );
+    koord built_hub( const koord pos, int radius );
     void create_bus_transport_vehikel(koord startpos,int anz_vehikel,koord *stops,int anzahl);
 
   bool spieler_t::is_my_bahnhof(koord pos);
@@ -276,7 +277,6 @@ private:
 
     bool suche_platz1_platz2(fabrik_t *qfab, fabrik_t *zfab);    // neue Transportroute anlegen
 
-    bool create_simple_road_transport();    // neue Transportroute anlegen
 
     void init_texte();
 
@@ -297,7 +297,12 @@ private:
             slist_tpl <koord> &list);
 
     bool checke_streckenbau(wegbauer_t &bauigel, slist_tpl<koord> &list);
-    void baue_strecke(wegbauer_t &bauigel, slist_tpl<koord> &list);
+
+    /**
+     * Ist dieser Spieler ein automatischer Spieler?
+     * @author Hj. Malthaner
+     */
+    bool automat;
 
 
 
@@ -330,11 +335,14 @@ public:
 	const char *gib_name();
 
 
+
     /**
-     * Ist dieser Spieler ein automatischer Spieler?
-     * @author Hj. Malthaner
+     * activates and queries player status
+     * @author player
      */
-    bool automat;
+     bool is_active() {return automat; };
+     bool set_active(bool new_state);
+
 
 
     /**
@@ -450,9 +458,11 @@ public:
 
     // fuer tests
     koord platz1, platz2;
+
+    bool create_simple_road_transport();    // neue Transportroute anlegen
+    bool create_complex_road_transport();
     bool create_simple_rail_transport();
     bool create_complex_rail_transport();
-    bool create_complex_road_transport();    // neue Transportroute anlegen
 
 
     /**

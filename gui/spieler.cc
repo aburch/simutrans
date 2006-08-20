@@ -113,8 +113,7 @@ void ki_kontroll_t::infowin_event(const event_t *ev)
 					create_win(-1, -1, -1, welt->gib_spieler(i-6+2)->gib_money_frame(), w_info );
 				}
 				else {
-					welt->gib_spieler(i+2)->automat = !welt->gib_spieler(i+2)->automat;
-					umgebung_t::automaten[i] = welt->gib_spieler(i+2)->automat;
+					umgebung_t::automaten[i] = welt->gib_spieler(i+2)->set_active( !welt->gib_spieler(i+2)->is_active() );
 				}
 			}
 		}
@@ -126,7 +125,7 @@ vector_tpl<button_t>*
 ki_kontroll_t::gib_fensterbuttons()
 {
 	for(int i=0; i<6; i++) {
-		buttons->at(i).pressed = welt->gib_spieler(i+2)->automat;
+		buttons->at(i).pressed = welt->gib_spieler(i+2)->is_active();
 		// buttons
 		buttons->at(6+i).setze_text( welt->gib_spieler(i+2)->gib_name() );
 		buttons->at(6+i).background = welt->gib_spieler(i+2)->kennfarbe+3;

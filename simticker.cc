@@ -81,7 +81,6 @@ void ticker_t::pop()
   if(list->count() > 0) {
     node p = list->at(0);
     list->remove_first();
-    delete(const_cast<char *>(p.msg));
   }
 }
 
@@ -105,35 +104,35 @@ void ticker_t::add_msg(const char *txt, koord pos)
  */
 void ticker_t::add_msg(const char *txt, koord pos, int color)
 {
-  //    printf("Ticker: adding '%s' at %d\n", txt, next_pos);
+	// don't store more than 4 messages, it's useless.
+	const int count = list->count();
 
-  // don't store more than 4 messages, it's useless.
+	if(count < 4) {
+		// Don't repeat messages
+		if(count == 0 || strncmp(txt, list->at(count-1).msg, strlen(txt)) != 0) {
+			node n;
+			int i=0;
 
-  const int count = list->count();
+			// remove breaks
+			for(  int j=0;  i<250  &&  txt[j]!=0;  j++ ) {
+					if(txt[i]=='\n'  &&  (i==0  ||  n.msg[i-1]!=' ')  ) {
+					n.msg[i++] = ' ';
+				}
+				else {
+					n.msg[i++] = txt[j];
+				}
+			}
+			n.msg[i++] = ' ';
+			n.msg[i++] = ' ';
+			n.msg[i++] = ' ';
+			n.msg[i++] = 0;
 
-  if(count < 4) {
-    // Don't repeat messages
-    if(count == 0 || strncmp(txt, list->at(count-1).msg, strlen(txt)) != 0) {
-      const int len = strlen(txt)+1;
-      char * p = new char [len+3];  // reserve space for three more spaces
-      strcpy(p, txt);
-      strcat(p, "   ");   // add spaces
-	// remove breaks
-	for( int i=0;  i<len;  i++ ) {
-		if(p[i]=='\n') {
-			p[i] = ' ';
+			n.pos = pos;
+			n.color = color;
+			n.xpos = next_pos;
+			list->append(n);
+
+			next_pos += proportional_string_width(n.msg) + 16;
 		}
 	}
-
-      node n;
-
-      n.msg = p;
-      n.pos = pos;
-      n.color = color;
-      n.xpos = next_pos;
-      list->append(n);
-
-      next_pos += proportional_string_width(n.msg) + 16;
-    }
-  }
 }

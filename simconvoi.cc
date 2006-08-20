@@ -407,7 +407,8 @@ convoi_t::sync_step(long delta_t)
 	    /* with floats, one would write: akt_speed*ak_speed*iTotalFriction*100 / (12,8*12,8) + 32*anz_vehikel;
 	     * but for interger, we have to use the order below and calculate actualle 64*deccel, like the sum_gear_und_leistung */
 	    /* since akt_speed=10/128 km/h and we want 64*200kW=(100km/h)^2*100t, we must multiply by (128*2)/100 */
-	    int deccel = ( ( (akt_speed*sum_friction_weight)>>8 )*akt_speed ) / 100 + (anz_vehikel*16*64);	// this order is needed to prevent overflows!
+	    /* But since the acceleration was too fast, we just deccelerate 4x more => >>6 instead >>8 */
+	    int deccel = ( ( (akt_speed*sum_friction_weight)>>6 )*akt_speed ) / 100 + (sum_gesamtgewicht*64);	// this order is needed to prevent overflows!
 	    // we normalize delta_t to 1/64th and check for speed limit */
 	    int delta_v = ( ( (akt_speed>speed_limit?0:sum_gear_und_leistung) - deccel) *delta_t)/sum_gesamtgewicht;
 	    // we need more accurate arithmetik, so we store the previous value

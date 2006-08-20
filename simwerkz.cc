@@ -484,7 +484,6 @@ wkz_wegebau(spieler_t *sp, karte_t *welt,  koord pos, value_t lParam)
     bautyp = wegbauer_t::leitung;
   }
 
-
   if(pos==INIT || pos == EXIT) {  // init strassenbau
     erster = true;
 
@@ -542,6 +541,7 @@ wkz_wegebau(spieler_t *sp, karte_t *welt,  koord pos, value_t lParam)
       // bauigel.baubaer = true;
 
       bauigel.route_fuer(bautyp, besch);
+      bauigel.set_keep_existing_faster_ways(true);
       bauigel.calc_route(start,ziel);
 
       // sp->platz1 = start;
@@ -919,7 +919,7 @@ dbg->message("wkz_senke()","called on %d,%d", pos.x, pos.y);
 	//int top = welt->lookup(pos)->gib_kartenboden()->gib_top();
 	int hangtyp = welt->get_slope(pos);
 
-	if(hangtyp == 0) {
+	if(hangtyp == 0  &&  !welt->lookup(pos)->gib_kartenboden()->ist_wasser()) {
 		fabrik_t *fab=leitung_t::suche_fab_4(pos);
 		if(fab==NULL) {
 dbg->message("wkz_senke()","no factory near (%i,%i)",pos.x, pos.y);

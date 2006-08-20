@@ -415,6 +415,8 @@ public:
 
     const slist_tpl<warenziel_t> * gib_warenziele() const {return &warenziele;};
 
+	const slist_tpl<ware_t> * gib_warenliste(const ware_besch_t *ware) { return waren.get(ware); };
+
     const slist_tpl<fabrik_t*> & gib_fab_list() const {return fab_list;};
 
 

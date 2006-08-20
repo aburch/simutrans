@@ -352,7 +352,7 @@ void karte_t::cleanup_karte()
 {
     int i,j;
 
-    int hgts[(gib_groesse()+1)*(gib_groesse()+1)];
+    int *hgts = new int[(gib_groesse()+1)*(gib_groesse()+1)];
     int *p = hgts;
 
     for(j=0; j<=gib_groesse(); j++) {
@@ -381,6 +381,7 @@ void karte_t::cleanup_karte()
 	raise_to(i, gib_groesse(), grundwasser);
 	raise_to(gib_groesse(), i, grundwasser);
     }
+    delete [] hgts;
 }
 
 
@@ -672,15 +673,15 @@ karte_t::init_felder()
     win_setze_welt( this );
     reliefkarte_t::gib_karte()->setze_welt(this);
 
-
     for(i=0; i<anz_spieler ; i++) {
         spieler[i] = new spieler_t(this, i*4);
+/********************************************************************** automat
         if(i>=2) {
         	// otherwise during loading things are not belonging to an AI ...
         	spieler[i]->automat = true;
         }
+*/
     }
-
     schedule_list_gui = new schedule_list_gui_t(this);
 }
 
@@ -924,7 +925,7 @@ karte_t::init(einstellungen_t *sets)
 
 #ifndef DEMO
     for(i = 0; i < 6; i++) {
-	spieler[i + 2]->automat = umgebung_t::automaten[i];
+	spieler[i + 2]->set_active( umgebung_t::automaten[i] );
     }
 #endif
 
@@ -2467,7 +2468,7 @@ void karte_t::laden(loadsave_t *file)
     }
     dbg->message("karte_t::laden()", "players loaded");
     for(i = 0; i < 6; i++) {
-	umgebung_t::automaten[i] = spieler[i + 2]->automat;
+	umgebung_t::automaten[i] = spieler[i + 2]->is_active();
     }
 
     // nachdem die welt jetzt geladen ist können die Blockstrecken neu

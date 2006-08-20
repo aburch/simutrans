@@ -28,6 +28,16 @@ class spieler_t;
 class stadt_t;
 class stringhashtable_t;
 
+
+// production happens in these time steps
+#define PRODUCTION_DELTA_T (4096)
+// error of shifting
+#define BASEPRODSHIFT (8)
+// base production=1 is 16 => shift 4
+#define MAX_PRODBASE_SHIFT (4)
+
+
+
 /**
  * Eine Klasse für Fabriken in Simutrans. Fabriken produzieren und
  * verbrauchen Waren und beliefern nahe Haltestellen.
@@ -103,6 +113,12 @@ private:
     unsigned char rotate;
 
     /**
+     * Factory procution depends on factory size
+     * @author Hj. Malthaner
+     */
+    int number_of_tiles;
+
+    /**
      * produktionsgrundmenge
      * @author Hj. Malthaner
      */
@@ -148,7 +164,7 @@ private:
      * Zeitpunkt für nächste Aktion, zB Warenverteilung.
      * @author Hj. Malthaner
      */
-    unsigned long aktionszeit;
+    int aktionszeit;
 
 
     /**
@@ -255,12 +271,12 @@ public:
     inline koord3d gib_pos() const {return pos;};
 
 
-    /**
-     * Die Menge an Produzierter Ware je Zeitspanne
+   /**
+     * Die Menge an Produzierter Ware je Zeitspanne PRODUCTION_DELTA_T
      *
      * @author Hj. Malthaner
      */
-    uint32 produktion(long delta_t, uint32 produkt) const;
+    uint32 produktion(uint32 produkt) const;
 
 
     /**

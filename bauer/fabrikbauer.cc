@@ -10,6 +10,7 @@
 #include "../simdebug.h"
 #include "fabrikbauer.h"
 #include "../simworld.h"
+#include "../simintr.h"
 #include "../simfab.h"
 #include "../simdisplay.h"
 #include "../simgraph.h"
@@ -498,24 +499,25 @@ fabrikbauer_t::baue_fabrik(karte_t * welt, koord3d *parent, const fabrik_besch_t
 		welt->lookup(halt->gib_basis_pos())->gib_kartenboden()->setze_text( translator::translate(fab->gib_name()) );
 	}
 
+	// connenct factory to stations
 	if(halt.is_bound()) {
+		// is in water
 		halt->verbinde_fabriken();
 	}
-#if 0
-	// check moved to leitung2.cc
-	if(strcmp(fab->gib_name(), "Kohlekraftwerk") == 0  ||  strcmp(fab->gib_name(), "Oil Power Plant") == 0) {
-		koord3d pos = fab->gib_pos()+koord3d(2,0,0);
+	else {
+		// search for near stations and connect factory to them
+		koord dim = fab->gib_groesse();
+		koord k;
 
-		if(skinverwaltung_t::pumpe && welt->lookup(pos)) {
-		// too near to edge of map or wrong level?
-		pumpe_t *pumpe = new pumpe_t(welt, pos, spieler);
-		pumpe->setze_fabrik(fab);
-
-		welt->lookup(pos)->obj_loesche_alle(NULL);
-		welt->lookup(pos)->obj_add(pumpe);
+		for(k.x=pos.x-3; k.x<=pos.x+dim.x+2; k.x++) {
+			for(k.y=pos.y-3; k.y<=pos.y+dim.y+2; k.y++) {
+				halthandle_t verbinde_halt = halt->gib_halt(welt,k);
+				if(verbinde_halt!=NULL) {
+					verbinde_halt->verbinde_fabriken();
+				}
+			}
 		}
 	}
-#endif
 
 	// add passenger targets: take care of fish_swarm, which do not accepts sucide divers ...
 	if(make_passenger) {
@@ -590,8 +592,11 @@ dbg->message("fabrikbauer_t::baue_hierarchie","Search place for city factory (%i
 	}
 
 dbg->message("fabrikbauer_t::baue_hierarchie","Construction of %s at (%i,%i).",info->gib_name(),pos->x,pos->y);
+INT_CHECK("fabrikbauer 594");
 
 	const fabrik_t *our_fab=baue_fabrik(welt, parent, info, rotate&1, *pos, sp);
+
+INT_CHECK("fabrikbauer 596");
 
 	for(int i=0; i < info->gib_lieferanten(); i++) {
 		const fabrik_lieferant_besch_t *lieferant = info->gib_lieferant(i);
@@ -669,7 +674,7 @@ dbg->message("fabrikbauer_t::baue_hierarchie()","found myself!");
 			}
 			int rotate = simrand(4);
 			koord3d k = finde_zufallsbauplatz(welt, *pos, DISTANCE, hersteller->gib_haus()->gib_groesse(rotate),hersteller->gib_platzierung()==fabrik_besch_t::Wasser);
-
+INT_CHECK("fabrikbauer 679");
 			if(welt->lookup(k)) {
 dbg->message("fabrikbauer_t::baue_hierarchie","Try to built lieferant %s at (%i,%i) for %s.",hersteller->gib_name(),k.x,k.y,info->gib_name());
 				n += baue_hierarchie(welt, pos, hersteller, rotate, &k, sp);

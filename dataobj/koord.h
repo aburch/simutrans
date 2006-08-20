@@ -7,6 +7,7 @@
  * in other projects without written permission of the author.
  */
 
+#include <stdlib.h>
 
 #ifndef koord_h
 #define koord_h
@@ -66,6 +67,15 @@ public:
       return koord(x/m, y/m);
     }
 };
+
+
+
+inline int abs_distance(koord a,koord b)
+{
+	return abs(a.x-b.x)+abs(a.y-b.y);
+}
+
+
 
 
 inline bool operator== (const koord & a, const koord & b)

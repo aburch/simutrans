@@ -234,83 +234,82 @@ void gebaeude_t::setze_sync(bool yesno)
 bool
 gebaeude_t::step(long delta_t)
 {
-  if(zeige_baugrube) {
-    if(welt->gib_zeit_ms
-() - insta_zeit > 5000) {
-      zeige_baugrube = false;
-      set_flag(dirty);
-    }
-  }
-
-
-  if(tile->gib_besch()->ist_ausflugsziel()) {
-
-    tourist_time += delta_t;
-
-    if(tourist_time > 5000) {
-      tourist_time -= 5000;
-
-      INT_CHECK("gebaeude 228");
-
-      // erzeuge ein paar passagiere
-      const vector_tpl<halthandle_t> & halt_list = welt->suche_nahe_haltestellen(gib_pos().gib_2d(), 4, 0, 8);
-
-      if(halt_list.get_count() > 0) {
-	const array_tpl<stadt_t *>* staedte = welt->gib_staedte();
-	const stadt_t *stadt = staedte->get(simrand(welt->gib_einstellungen()->gib_anzahl_staedte()));
-
-	// create up to 28 passengers
-	for(int i=0; i<2; i++) {
-	  const koord ziel = stadt->gib_zufallspunkt();
-
-	  ware_t pax (warenbauer_t::passagiere);
-	  pax.menge = 2+i;
-	  pax.setze_zielpos( ziel );
-
-	  for(uint32 i=0; i<halt_list.get_count(); i++) {
-	    halthandle_t halt = halt_list.get(i);
-
-	    halt->suche_route(pax, halt);
-
-	    // printf("7 Tourists generated\n");
-
-	    if(halt->gib_ware_summe(warenbauer_t::passagiere) > (halt->gib_grund_count() << 7)) {
-	      // Hajo: Station crowded:
-	      // some are appalled and will not try other
-	      // stations
-
-	      halt->add_pax_unhappy(pax.menge);
-
-	    } else if(pax.gib_ziel() != koord::invalid) {
-
-	      // printf("... going\n");
-
-	      halt->liefere_an(pax);
-	      halt->add_pax_happy(pax.menge);
-	      break;
-	    } else {
-	      halt->add_pax_no_route(pax.menge);
-	    }
-	  }
-	  INT_CHECK("gebaeude 254");
+	// still under construction?
+	if(zeige_baugrube) {
+		if(welt->gib_zeit_ms() - insta_zeit > 5000) {
+			zeige_baugrube = false;
+			set_flag(dirty);
+		}
 	}
-      }
-    }
-  } // Ausflugsziel
 
+	// generate passengers for attractions
+	if(tile->gib_besch()->ist_ausflugsziel()) {
 
-  if(fab != NULL) {
-    fab->step(delta_t);
-    INT_CHECK("gebaeude 250");
-  }
+		tourist_time += delta_t;
 
+//		const int waiting_time = 5000
+		if(tourist_time > 5000) {
+			tourist_time -= 5000;
 
-  if(umgebung_t::fussgaenger) {
-    if(simrand(100) <= gib_level()) {
-      haltestelle_t::erzeuge_fussgaenger(welt, gib_pos(), 1);
-      INT_CHECK("gebaeude 269");
-    }
-  }
+			INT_CHECK("gebaeude 228");
+
+			// erzeuge ein paar passagiere
+			const vector_tpl<halthandle_t> & halt_list = welt->suche_nahe_haltestellen(gib_pos().gib_2d(), 4, 0, 8);
+
+			if(halt_list.get_count() > 0) {
+				const array_tpl<stadt_t *>* staedte = welt->gib_staedte();
+				const stadt_t *stadt = staedte->get(simrand(welt->gib_einstellungen()->gib_anzahl_staedte()));
+
+				// create up to level passengers
+				for(int j=0; j<tile->gib_besch()->gib_level();  j+=17  ) {
+					const koord ziel = stadt->gib_zufallspunkt();
+
+					ware_t pax (warenbauer_t::passagiere);
+					pax.menge = (delta_t&3)+1;
+					pax.setze_zielpos( ziel );
+
+					for(uint32 i=0; i<halt_list.get_count(); i++) {
+						halthandle_t halt = halt_list.get(i);
+
+						halt->suche_route(pax, halt);
+
+						// printf("7 Tourists generated\n");
+
+						if(halt->gib_ware_summe(warenbauer_t::passagiere) > (halt->gib_grund_count() << 7)) {
+							// Hajo: Station crowded:
+							// some are appalled and will not try other
+							// stations
+							halt->add_pax_unhappy(pax.menge);
+
+						} else if(pax.gib_ziel() != koord::invalid) {
+
+							halt->liefere_an(pax);
+							halt->add_pax_happy(pax.menge);
+						}
+						else {
+
+							halt->add_pax_no_route(pax.menge);
+						}
+					}
+					INT_CHECK("gebaeude 254");
+				}
+			}
+		}
+	} // Ausflugsziel
+
+	// factory produce and passengers!
+	if(fab != NULL) {
+		fab->step(delta_t);
+		INT_CHECK("gebaeude 250");
+	}
+
+	// create pedestrians?
+	if(umgebung_t::fussgaenger) {
+		if(simrand(100) <= tile->gib_besch()->gib_level()) {
+			haltestelle_t::erzeuge_fussgaenger(welt, gib_pos(), 1);
+			INT_CHECK("gebaeude 269");
+		}
+	}
 
 
   if(!sync && tile->gib_phasen() > 1) {
@@ -379,14 +378,17 @@ void gebaeude_t::setze_count(int count)
     this->count = count % tile->gib_phasen();
 }
 
-int gebaeude_t::gib_level() const
+// calculate also the size
+int gebaeude_t::gib_passagier_level() const
 {
-    return tile->gib_besch()->gib_level();
+	koord dim = tile->gib_besch()->gib_groesse();
+	return tile->gib_besch()->gib_level()*dim.x*dim.y;
 }
 
 int gebaeude_t::gib_post_level() const
 {
-    return tile->gib_besch()->gib_post_level();
+	koord dim = tile->gib_besch()->gib_groesse();
+	return tile->gib_besch()->gib_post_level()*dim.x*dim.y;
 }
 
 
@@ -453,7 +455,7 @@ void gebaeude_t::info(cbuffer_t & buf) const
 
     buf.append(translator::translate("Passagierrate"));
     buf.append(": ");
-    buf.append(gib_level());
+    buf.append(gib_passagier_level());
     buf.append("\n");
 
     buf.append(translator::translate("Postrate"));
@@ -464,7 +466,7 @@ void gebaeude_t::info(cbuffer_t & buf) const
     if(gib_besitzer() == NULL) {
       buf.append(translator::translate("Wert"));
       buf.append(": ");
-      buf.append(-CST_HAUS_ENTFERNEN*(gib_level()+1)/100);
+      buf.append(-CST_HAUS_ENTFERNEN*(tile->gib_besch()->gib_level()+1)/100);
       buf.append("$\n");
     }
   }
@@ -572,7 +574,7 @@ void
 gebaeude_t::entferne(spieler_t *sp)
 {
     if(sp != NULL && !ist_rathaus()) {
-	sp->buche(CST_HAUS_ENTFERNEN*(gib_level()+1),
+	sp->buche(CST_HAUS_ENTFERNEN*(tile->gib_besch()->gib_level()+1),
 		  gib_pos().gib_2d(),
 		  COST_CONSTRUCTION);
     }

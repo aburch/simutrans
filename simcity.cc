@@ -629,7 +629,7 @@ stadt_t::step_passagiere()
 				// prissi: since now correctly numbers are used, double initially passengers
 				const int num_pax =
 					(wtyp == warenbauer_t::passagiere) ?
-					(gb->gib_level() + 6) >> 1 :
+					(gb->gib_tile()->gib_besch()->gib_level() + 6) >> 1 :
 					(gb->gib_post_level() + 3) >> 1;
 
 				// starthaltestelle suchen
@@ -934,7 +934,7 @@ stadt_t::check_bau_rathaus(bool new_town)
 
 
   if(!neugruendung) {
-      if(gb->gib_level() == besch->gib_level())  {
+      if(gb->gib_tile()->gib_besch()->gib_level() == besch->gib_level())  {
         dbg->message("check_bau_rathaus()",
          "town hall already ok.");
 
@@ -1505,7 +1505,7 @@ stadt_t::renoviere_gebaeude(koord k)
 
     // hier sind wir sicher dass es ein Gebaeude ist
 
-    const int level = gb->gib_level();
+    const int level = gb->gib_tile()->gib_besch()->gib_level();
 
     // bisher gibt es 2 Sorten Haeuser
     // arbeit-spendende und wohnung-spendende

@@ -361,14 +361,14 @@ reliefkarte_t::zeichnen(koord pos) const
       const char * name = stadt->gib_name();
 
 	if(  zoom>1  ) {
-		int w = proportional_string_width(stadt->gib_name());
+		int w = proportional_string_width(name);
 		p.x = MAX( pos.x+(p.x*zoom)-(w/2), pos.x );
-   		display_proportional_clip( p.x, pos.y+p.y*zoom, stadt->gib_name(), ALIGN_LEFT, WEISS, true);
+   		display_proportional_clip( p.x, pos.y+p.y*zoom, name, ALIGN_LEFT, WEISS, true);
    	}
    	else {
-		int w = small_proportional_string_width(stadt->gib_name());
+		int w = small_proportional_string_width(name);
 		p.x = MAX( pos.x+(p.x*zoom)-(w/2), pos.x );
-   		display_small_proportional_clip( p.x, pos.y+p.y*zoom, stadt->gib_name(), ALIGN_LEFT, WEISS, true);
+   		display_small_proportional_clip( p.x, pos.y+p.y*zoom, name, ALIGN_LEFT, WEISS, true);
    	}
     }
 
@@ -404,7 +404,7 @@ reliefkarte_t::calc_map(int render_mode)
 	if(render_mode==12) {
 		const slist_tpl<gebaeude_t *> &ziele = welt->gib_ausflugsziele();
 		for(  unsigned i=0;  i<ziele.count();  i++  ) {
-			setze_relief_farbe_area(ziele.at(i)->gib_pos().gib_2d(), 7, calc_severity_color(ziele.at(i)->gib_level(),15) );
+			setze_relief_farbe_area(ziele.at(i)->gib_pos().gib_2d(), 7, calc_severity_color(ziele.at(i)->gib_passagier_level(),50) );
 		}
 		return;
 	}

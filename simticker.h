@@ -28,7 +28,7 @@ class ticker_t
 {
 public:
     struct node {
-      const char *msg;
+      char msg[256];
       koord pos;
       int color;
       unsigned int xpos;

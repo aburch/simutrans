@@ -69,6 +69,7 @@
 
 static const int FAB_MAX_INPUT = 15000;
 
+
 fabrik_t * fabrik_t::gib_fab(const karte_t *welt, const koord pos)
 {
   const planquadrat_t *plan = welt->lookup(pos);
@@ -169,8 +170,11 @@ fabrik_t::fabrik_t(karte_t *wl, loadsave_t *file) : lieferziele(max_lieferziele)
     besitzer_p = NULL;
 
     rdwr(file);
-    aktionszeit = (long)this & 8191; // do a little randomizing
-    delta_sum = (long)this & 1023;
+    aktionszeit = 0;
+    delta_sum = 0;
+
+	koord size=besch->gib_haus()->gib_groesse(0);
+	number_of_tiles = size.x * size.y;
 }
 
 
@@ -191,8 +195,11 @@ fabrik_t::fabrik_t(karte_t *wl, koord3d pos, spieler_t *spieler, const fabrik_be
     abgabe_sum = NULL;
     abgabe_letzt = NULL;
 
-    aktionszeit = (long)this & 8191; // do a little randomizing
-    delta_sum = (long)this & 1023;
+    aktionszeit = 0;
+    delta_sum = 0;
+
+	koord size=besch->gib_haus()->gib_groesse(0);
+	number_of_tiles = size.x * size.y;
 }
 
 
@@ -550,43 +557,33 @@ dbg->message("fabrik_t::get_free_production_of()","supplier %s can supply approx
 
 
 /*
- * calculates the produktion per delta_t
- *
- */
-
-#define BASEPRODSHIFT (8)
-#define MAX_PRODBASE_SHIFT (4)
-
-
-/**
- * Die Menge an Produzierter Ware je Zeitspanne
- *
+ * calculates the produktion per delta_t; this is now PRODUCTION_DELTA_T
  * @author Hj. Malthaner
  */
-uint32 fabrik_t::produktion(const long delta_t, const uint32 produkt) const
+uint32 fabrik_t::produktion(const uint32 produkt) const
 {
-  uint32 menge = (prodbase * prodfaktor) >> (BASEPRODSHIFT+MAX_PRODBASE_SHIFT-precision_bits);
+	uint32 menge = (prodbase * prodfaktor) >> (BASEPRODSHIFT+MAX_PRODBASE_SHIFT-precision_bits);
 
-  if(ausgang->get_count() > produkt) {
-    // wenn das lager voller wird, produziert eine Fabrik weniger pro step
+	if(ausgang->get_count() > produkt) {
+		// wenn das lager voller wird, produziert eine Fabrik weniger pro step
 
-    const uint32 maxi = ausgang->get(produkt).max;
-    const uint32 actu = ausgang->get(produkt).menge;
+		const uint32 maxi = ausgang->get(produkt).max;
+		const uint32 actu = ausgang->get(produkt).menge;
 
-    if(actu < maxi) {
-      // P = prod_base * anz_gebaeude * prodfaktor;
-      // theoretische Menge pro tick
-      menge = (menge*(maxi-actu)) / maxi;
-    } else {
-      // Lager (über)voll? -> 0
-      menge = 0;
-    }
-  }
+		if(actu < maxi) {
+			// P = prod_base * anz_gebaeude * prodfaktor;
+			// theoretische Menge pro tick
+			menge = (menge*(maxi-actu)) / maxi;
+		}
+		else {
+			// Lager (über)voll? -> 0
+			menge = 0;
+		}
+	}
 
-  //    printf("produktion %ld\n", (menge*delta_t) >> BASEPRODSHIFT);
-
-  return (menge*delta_t) >> BASEPRODSHIFT;
+	return (menge*PRODUCTION_DELTA_T) >> BASEPRODSHIFT;
 }
+
 
 
 int fabrik_t::max_produktion() const
@@ -681,7 +678,7 @@ fabrik_t::step(long delta_t)
 {
   delta_sum += delta_t;
 
-  if(delta_sum > 1024) {
+  if(delta_sum > PRODUCTION_DELTA_T) {
     INT_CHECK("simfab 558");
 
     const uint32 ecount = eingang->get_count();
@@ -708,7 +705,7 @@ fabrik_t::step(long delta_t)
 	  }
 	}
 
-	const uint32 p_menge = produktion(delta_sum, produkt);
+	const uint32 p_menge = produktion(produkt);
 	menge = p_menge < menge ? p_menge : menge;  // beschraenkt produktion verbrauch ?
 
 	// vorraete verbrauchen
@@ -724,7 +721,7 @@ fabrik_t::step(long delta_t)
 	  }
 	}
       } else {                                      // reiner Erzeuger
-	menge = produktion(delta_sum, produkt);
+	menge = produktion(produkt);
       }
 
 
@@ -741,7 +738,7 @@ fabrik_t::step(long delta_t)
     // trotzdem waren verbrauchen
 
     if(ausgang->get_count() == 0) {
-      const uint32 menge = produktion(delta_sum, 0);
+      const uint32 menge = produktion(0);
 
       // vorraete verbrauchen
       for(index = 0; index < ecount; index ++) {
@@ -759,26 +756,25 @@ fabrik_t::step(long delta_t)
 
 
     // Zeituhr zurücksetzen
-    delta_sum = 0;
+    delta_sum -= PRODUCTION_DELTA_T;
   }
 
+	aktionszeit += delta_t;
+	// verteilung frühestens alle 8 sekunden
+	if(aktionszeit>8192) {
+		aktionszeit -= 8192;
 
-  // verteilung frühestens alle 8 sekunden
-  if(welt->gib_zeit_ms() > aktionszeit) {
-    aktionszeit = welt->gib_zeit_ms() + 8192;
+		for(uint32 produkt = 0; produkt < ausgang->get_count(); produkt ++) {
+			if(ausgang->at(produkt).menge > (32<<precision_bits)) {
 
-    for(uint32 produkt = 0; produkt < ausgang->get_count(); produkt ++) {
-      if(ausgang->at(produkt).menge > (32<<precision_bits)) {
+				verteile_waren(produkt);
+				INT_CHECK("simfab 636");
+			}
+		}
 
-	verteile_waren(produkt);
-	INT_CHECK("simfab 636");
-      }
-    }
-
-
-    verteile_passagiere();
-    INT_CHECK("simfab 643");
-  }
+		verteile_passagiere();
+		INT_CHECK("simfab 643");
+	}
 }
 
 
@@ -921,39 +917,46 @@ void fabrik_t::verteile_waren(const uint32 produkt)
 void
 fabrik_t::verteile_passagiere()
 {
-    slist_iterator_tpl <halthandle_t> iter (halt_list);
+	slist_iterator_tpl <halthandle_t> iter (halt_list);
 
-    while(iter.next()) {
-	halthandle_t halt = iter.get_current();
+	while(iter.next()) {
+		halthandle_t halt = iter.get_current();
 
-	// die Arbeiter wollen auch wieder nach hause
+		// die Arbeiter wollen auch wieder nach hause
+		slist_iterator_tpl<stadt_t *> stadt_iter (arbeiterziele);
 
-	slist_iterator_tpl<stadt_t *> stadt_iter (arbeiterziele);
+		while(stadt_iter.next()) {
+			stadt_t * stadt = stadt_iter.get_current();
 
-	while(stadt_iter.next()) {
-	    stadt_t * stadt = stadt_iter.get_current();
+			// Hajo: call simrand() only once, use different
+			// bits for different purposes
+			const int r = simrand(0xFFFF);
 
-	    // Hajo: call simrand() only once, use different
-	    // bits for different purposes
-	    const int r = simrand(0xFFFF);
+			ware_t pax (((r & 3) == 0) ? warenbauer_t::post : warenbauer_t::passagiere);
+			pax.menge = ((r >> 2) & 3) + 1;
 
-	    ware_t pax (((r & 3) == 0) ? warenbauer_t::post : warenbauer_t::passagiere);
-	    pax.menge = ((r >> 2) & 3) + 1;
+			const koord ziel = stadt->gib_zufallspunkt();
+			pax.setze_zielpos( ziel );
 
-	    const koord ziel = stadt->gib_zufallspunkt();
-	    pax.setze_zielpos( ziel );
+			halt->suche_route(pax, halt);
 
-	    halt->suche_route(pax, halt);
-
-	    if(pax.gib_ziel() != koord::invalid) {
-		halt->liefere_an(pax);
-		halt->add_pax_happy(pax.menge);
-	    } else {
-		halt->add_pax_no_route(pax.menge);
-	    }
+			if(pax.gib_ziel()!=koord::invalid) {
+				if(halt->gib_ware_summe(pax.gib_typ()) > (halt->gib_grund_count() << 7)) {
+					halt->add_pax_unhappy(pax.menge);
+				}
+				else {
+					halt->liefere_an(pax);
+					halt->add_pax_happy(pax.menge);
+				}
+			}
+			else {
+				halt->add_pax_no_route(pax.menge);
+			}
+		}
 	}
-    }
 }
+
+
 
 void
 fabrik_t::neuer_monat()
@@ -1060,7 +1063,20 @@ void fabrik_t::info(cbuffer_t & buf)
       buf.append("     ");
       buf.append(stadt->gib_name());
       buf.append("\n");
+
     }
+    // give a passenger level for orientation
+    int passagier_rate = 15*gib_groesse().x*gib_groesse().y;
+    buf.append("\n");
+    buf.append(translator::translate("Passagierrate"));
+    buf.append(": ");
+    buf.append(passagier_rate);
+    buf.append("\n");
+
+    buf.append(translator::translate("Postrate"));
+    buf.append(": ");
+    buf.append(passagier_rate/3);
+    buf.append("\n");
   }
 
   if(ausgang->get_count() > 0) {

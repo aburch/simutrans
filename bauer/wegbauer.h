@@ -16,6 +16,7 @@
 #include "../tpl/slist_tpl.h"
 #include "../simtypes.h"
 
+
 class weg_besch_t;
 class kreuzung_besch_t;
 class karte_t;
@@ -217,6 +218,11 @@ public:
   bool check_crossing(const koord zv, const grund_t *bd,weg_t::typ wtyp) const;
   bool check_for_leitung(const koord zv, const grund_t *bd) const;
     bool ist_grund_fuer_strasse(koord pos, const koord zv, koord start, koord ziel) const;
+
+/* built a corrdinate list
+ * @author prissi
+ */
+void baue_strecke( slist_tpl <koord> &list );
 
     void baue();
 };
