@@ -2288,7 +2288,7 @@ karte_t::speichern(loadsave_t *file,bool silent)
 		INT_CHECK("saving");
 	}
 
-	DBG_MESSAGE("karte_t::speichern(loadsave_t *file)", "save access");
+	DBG_MESSAGE("karte_t::speichern(loadsave_t *file)", "save tiles");
     for(j=0; j<gib_groesse_y(); j++) {
 	for(i=0; i<gib_groesse_x(); i++) {
 	    access(i, j)->rdwr(this, file);

@@ -359,8 +359,7 @@ DBG_MESSAGE("wkz_remover()",  "removing signal from bridge %d,%d",  pos.x, pos.y
 	if(gr_oben->suche_obj(ding_t::roadsign) != NULL) {
 DBG_MESSAGE("wkz_remover()",  "removing roadsign from bridge %d,%d",  pos.x, pos.y);
 		roadsign_t *rs = dynamic_cast<roadsign_t *>(gr_oben->suche_obj(ding_t::roadsign));
-//		gr_oben->obj_remove(rs,sp);
-		rs->~roadsign_t();
+		delete rs;
 		return true;
 	}
     // Signal auf Boden prüfen
@@ -376,8 +375,7 @@ DBG_MESSAGE("wkz_remover()",  "removing signal from %d,%d",  pos.x, pos.y);
 	if(gr_oben->suche_obj(ding_t::roadsign) != NULL) {
 DBG_MESSAGE("wkz_remover()",  "removing roadsign %d,%d",  pos.x, pos.y);
 		roadsign_t *rs = dynamic_cast<roadsign_t *>(gr_oben->suche_obj(ding_t::roadsign));
-//		gr_oben->obj_remove(rs,sp);
-		rs->~roadsign_t();
+		delete rs;
 		return true;
 	}
 
@@ -414,8 +412,8 @@ DBG_MESSAGE("wkz_remover()",  "removing roadsign %d,%d",  pos.x, pos.y);
 	depot_t * dp = gr->gib_depot();
 	if(dp) {
 DBG_MESSAGE("wkz_remover()", "removing %s %p from %d,%d",	dp->gib_name(), dp, pos.x, pos.y);
-
 		gr->obj_remove(dp, sp);
+		dp->entferne(sp);
 		delete dp;
 		return true;
 	}

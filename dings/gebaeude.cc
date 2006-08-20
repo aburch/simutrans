@@ -664,9 +664,9 @@ bool gebaeude_t::sync_step(long delta_t)
 void
 gebaeude_t::entferne(spieler_t *sp)
 {
-    if(sp != NULL && !ist_rathaus()) {
-	sp->buche(CST_HAUS_ENTFERNEN*(tile->gib_besch()->gib_level()+1),
-		  gib_pos().gib_2d(),
-		  COST_CONSTRUCTION);
-    }
+	if(sp != NULL && !ist_rathaus()) {
+		sp->buche(CST_HAUS_ENTFERNEN*(tile->gib_besch()->gib_level()+1),
+			gib_pos().gib_2d(),
+			COST_CONSTRUCTION);
+	}
 }

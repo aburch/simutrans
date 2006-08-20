@@ -425,9 +425,9 @@ void baum_t::info(cbuffer_t & buf) const
 void
 baum_t::entferne(spieler_t *sp)
 {
-    if(sp != NULL) {
-	sp->buche(CST_BAUM_ENTFERNEN, gib_pos().gib_2d(), COST_CONSTRUCTION);
-    }
+	if(sp != NULL) {
+		sp->buche(CST_BAUM_ENTFERNEN, gib_pos().gib_2d(), COST_CONSTRUCTION);
+	}
 }
 
 

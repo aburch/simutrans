@@ -27,8 +27,7 @@ public:
     const char *gib_name() const {return "Bruecke";};
     enum ding_t::typ gib_typ() const {return bruecke;};
 
-    const char * ist_entfernbar(const spieler_t *sp);
-
+	const bruecke_besch_t *gib_besch() const { return besch; };
 
     /**
      * @return Einen Beschreibungsstring für das Objekt, der z.B. in einem

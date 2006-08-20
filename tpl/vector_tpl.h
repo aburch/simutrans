@@ -149,6 +149,7 @@ public:
 	{
 		if(count>=size) {
 			if(  !resize( count+extend )  ) {
+				ERROR("vector_tpl<T>::append(,)","could not extend capacity %i.",size);
 				return false;
 			}
 		}
@@ -161,14 +162,13 @@ public:
      *
      * @author Hj. Malthaner
      */
-    bool append_unique(T elem)
-    {
-	if(!is_contained(elem)) {
-	    return append(elem);
-	} else {
-	    return true;
+	bool append_unique(T elem)
+	{
+		if(!is_contained(elem)) {
+			return append(elem);
+		}
+		return true;
 	}
-    }
 
     /**
      * Checks if element is contained. Appends only new elements.
@@ -178,7 +178,7 @@ public:
 	bool append_unique(T elem,unsigned short extend)
 	{
 		if(!is_contained(elem)) {
-			return append(elem);
+			return append(elem,extend);
 		}
 		return true;
 	}
@@ -220,7 +220,7 @@ public:
 			data[pos] = elem;
 			return true;
 		}
-		ERROR("vector_tpl<T>::append()","cannot insert at %i! Only %i elements.", pos, count);
+		ERROR("vector_tpl<T>::insert_at()","cannot insert at %i! Only %i elements.", pos, count);
 		return false;
 	}
 

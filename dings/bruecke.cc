@@ -92,16 +92,6 @@ void bruecke_t::info(cbuffer_t & buf) const
 }
 
 
-const char *
-bruecke_t::ist_entfernbar(const spieler_t *sp)
-{
-    if(sp == gib_besitzer()) {
-	return NULL;
-    } else {
-	return "Der Besitzer erlaubt das Entfernen nicht";
-    }
-}
-
 
 void bruecke_t::rdwr(loadsave_t *file)
 {

@@ -6,6 +6,29 @@ Known bugs: (hard to fix)
 	valgrind complains about errors in SDL and X?
 
 
+24-Sep-2005 (prissi)
+	FIX: also loading games with too many objects
+	FIX: working again with factories with more than 30 destinations and 10 suppliers
+	FIX: artificial slopes now nearly always ok (one case is not solveable)
+	FIX: reloading streets with paveway are again 50km/h
+
+
+Release of 86.09.2
+
+23-Sep-2005 (prissi)
+	FIX: citycar stopped also when passing a car
+	FIX: correcting rail blocks when loading
+	FIX: destroying building cost again money
+	FIX: try to fix memory leak with powerlines
+	FIX: not post for non-accepting stops (check for correct routing please)
+	FIX: screenshot for windows again
+	ADD: show accepted good types also in station details
+	FIX: pillar show bridge info
+	FIX: several alignment errors with yellow steel bridge
+	ADD: brick rail viaduct
+	ADD: length limit for certain bridges (max_lenght=)
+
+
 Release of 86.09.1
 
 16-Sep-2005 (prissi)

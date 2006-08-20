@@ -11,34 +11,18 @@
 #ifndef simhalt_h
 #define simhalt_h
 
-#ifndef simdebug_h
 #include "simdebug.h"
-#endif
-
-#ifndef tpl_slist_tpl_h
-#include "tpl/slist_tpl.h"
-#endif
-
-#ifndef ptrhashtable_tpl_h
-#include "tpl/ptrhashtable_tpl.h"
-#endif
-
-
-#ifndef simware_h
 #include "simware.h"
-#endif
-
-#ifndef dataobj_warenziel_h
-#include "dataobj/warenziel.h"
-#endif
-
-#ifndef koord3d_h
-#include "dataobj/koord3d.h"
-#endif
-
-#ifndef simtypes_h
 #include "simtypes.h"
-#endif
+
+#include "bauer/warenbauer.h"
+
+#include "dataobj/warenziel.h"
+#include "dataobj/koord3d.h"
+
+#include "tpl/slist_tpl.h"
+#include "tpl/ptrhashtable_tpl.h"
+
 
 
 #define MAX_HALT_COST   7 // Total number of cost items
@@ -451,6 +435,22 @@ public:
 
     bool get_pax_enabled() const { return pax_enabled;};
     bool get_post_enabled() const { return post_enabled;};
+    bool get_ware_enabled() const { return ware_enabled;};
+
+	// check, if we accepts this good
+	// often called, thus inline ...
+	bool is_enabled( const ware_besch_t *wtyp ) const {
+		if(wtyp==warenbauer_t::passagiere) {
+			return pax_enabled;
+		}
+		else if(wtyp==warenbauer_t::post) {
+			return post_enabled;
+		}
+		return ware_enabled;
+	}
+
+
+
 
 
 
@@ -522,10 +522,7 @@ public:
      */
     int gib_ware_fuer_zwischenziel(const ware_besch_t *warentyp, const koord zwischenziel) const;
 
-
-    bool nimmt_an(const ware_besch_t *warentyp);
     bool gibt_ab(const ware_besch_t *warentyp) const;
-
 
     /**
      * holt ware ab

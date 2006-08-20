@@ -478,7 +478,7 @@ fabrikbauer_t::baue_fabrik(karte_t * welt, koord3d *parent, const fabrik_besch_t
 		const fabrik_lieferant_besch_t *lieferant = info->gib_lieferant(i);
 		ware_t ware(lieferant->gib_ware());
 		ware.max = lieferant->gib_kapazitaet() << fabrik_t::precision_bits;
-		eingang->append(ware);
+		eingang->append(ware,4);
 	}
 	fab->set_eingang( eingang );
 
@@ -493,7 +493,7 @@ fabrikbauer_t::baue_fabrik(karte_t * welt, koord3d *parent, const fabrik_besch_t
 			// @author prissi
 			ware.menge = ware.max-(16<<fabrik_t::precision_bits);
 		}
-		ausgang->append(ware);
+		ausgang->append(ware,4);
 	}
 	fab->set_ausgang( ausgang );
 
@@ -642,9 +642,9 @@ DBG_MESSAGE("fabrikbauer_t::baue_hierarchie","lieferanten %i, lcount %i (need %i
 					found = true;
 					fab->add_lieferziel(pos->gib_2d());
 
-					// now guess, how much this factory can 05.05.05 22:39supply
+					// now guess, how much this factory can supply
 					for(int gg=0;gg<fab->gib_besch()->gib_produkte();gg++) {
-						if(fab->gib_besch()->gib_produkt(gg)->gib_ware()==ware  &&  fab->gib_lieferziele().get_count()<fabrik_t::max_lieferziele) {
+						if(fab->gib_besch()->gib_produkt(gg)->gib_ware()==ware  &&  fab->gib_lieferziele().get_count()<10) {	// does not make sense to split into more ...
 							int produktion=(fab->max_produktion()*fab->gib_besch()->gib_produkt(gg)->gib_faktor())/(fab->gib_lieferziele().get_count()*2);
 							// search consumer
 							const vector_tpl <koord> & lieferziele = fab->gib_lieferziele();

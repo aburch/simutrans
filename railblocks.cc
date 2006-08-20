@@ -312,39 +312,41 @@ blockstrecke_t::vereinige_vehikel_counter(blockhandle_t bs)
 void
 blockstrecke_t::rdwr(loadsave_t *file)
 {
-    int count;
-    short int typ = ding_t::signal;
+	int count;
+	short int typ = ding_t::signal;
 
-    // signale laden
-    if(file->is_saving()) {
-        count = signale.count();
-    }
-    file->rdwr_delim("S ");
-    file->rdwr_long(count, "\n");
+	// signale laden
+	if(file->is_saving()) {
+		count = signale.count();
+	}
+	file->rdwr_delim("S ");
+	file->rdwr_long(count, "\n");
 
-    if(file->is_saving()) {
-        slist_iterator_tpl<signal_t*> s_iter ( signale );
-        while(s_iter.next()) {
-	    s_iter.get_current()->rdwr(file, true);
-        }
-    }
-    else {
-        for(int i=0; i<count; i++) {
-	    // objectdescriptor überlesen
-	    typ=file->rd_obj_id();
-	    signal_t * sig = NULL;
-	    // currently we only have two signal types, so this line of code should be ok
-	    // if we introduce more types, we should change this code to a "switch-case" block
-	  	sig = typ == ding_t::signal ? new signal_t(welt, file) : new presignal_t(welt, file);
-	    signale.insert( sig );
-        }
-    }
-    file->rdwr_long(v_rein, " ");
-    file->rdwr_long(v_raus, "\n");
-    if(file->is_loading()  &&  (v_rein>32  ||  v_raus>32 /*||  v_rein!=v_raus*/)) {
-       dbg->warning("blockstrecke_t::rdwr()","suspicious counter values (rein=%i raus=%i)!", v_rein,v_raus);
-       v_rein = v_raus = 0;
-    }
+	if(file->is_saving()) {
+		slist_iterator_tpl<signal_t*> s_iter ( signale );
+		while(s_iter.next()) {
+			s_iter.get_current()->rdwr(file, true);
+		}
+	}
+	else {
+		for(int i=0; i<count; i++) {
+			// objectdescriptor überlesen
+			typ=file->rd_obj_id();
+			signal_t * sig = NULL;
+			// currently we only have two signal types, so this line of code should be ok
+			// if we introduce more types, we should change this code to a "switch-case" block
+			sig = typ == ding_t::signal ? new signal_t(welt, file) : new presignal_t(welt, file);
+			signale.insert( sig );
+		}
+	}
+	file->rdwr_long(v_rein, " ");
+	file->rdwr_long(v_raus, "\n");
+	if(file->is_loading()) {
+		if(v_rein>32  ||  v_raus>32 /*||  v_rein!=v_raus*/) {
+			dbg->warning("blockstrecke_t::rdwr()","suspicious counter values (rein=%i raus=%i)!", v_rein,v_raus);
+		}
+		v_rein = v_raus = 0;
+	}
 }
 
 

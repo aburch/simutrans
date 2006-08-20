@@ -14,6 +14,7 @@
 class loadsave_t;
 class karte_t;
 class cbuffer_t;
+class ding_info_t;
 
 class pillar_t : public ding_t
 {
@@ -29,7 +30,6 @@ public:
     const char *gib_name() const {return "Pillar";};
     enum ding_t::typ gib_typ() const {return ding_t::pillar;};
 
-    const char * ist_entfernbar(const spieler_t *sp);
     const bruecke_besch_t *gib_besch() const { return besch; };
 
     /**
@@ -37,6 +37,7 @@ public:
      * Beobachtungsfenster angezeigt wird.
      * @author Hj. Malthaner
      */
-    virtual void info(cbuffer_t & buf) const;
+	virtual ding_info_t *new_info();
+//    virtual void zeige_info() const;
 };
 #endif

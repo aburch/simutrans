@@ -60,7 +60,7 @@ public:
      * Konstanten
      * @author Hj. Malthaner
      */
-    enum { precision_bits = 10, max_lieferziele = 6, max_suppliers = 30 };
+    enum { precision_bits = 10 };
 
 private:
 

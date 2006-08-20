@@ -43,6 +43,7 @@ static const char * measures[] =
 };
 */
 
+
 static bool
 ist_leitung(karte_t *welt, koord pos)
 {
@@ -51,12 +52,50 @@ ist_leitung(karte_t *welt, koord pos)
 
   if(plan) {
     grund_t * gr = plan->gib_kartenboden();
-
     result = gr && (gr->suche_obj(ding_t::leitung)!=NULL  ||  gr->suche_obj(ding_t::pumpe)!=NULL  ||  gr->suche_obj(ding_t::senke)!=NULL);
   }
 
   return result;
 }
+
+
+
+static int
+gimme_neighbours(karte_t *welt, koord base_pos, leitung_t **conn)
+{
+	int count = 0;
+
+	for(int i=0; i<4; i++) {
+		const koord pos = base_pos + koord::nsow[i];
+		const planquadrat_t * plan = welt->lookup(pos);
+		grund_t * gr = plan ? plan->gib_kartenboden() : 0;
+
+		conn[i] = NULL;
+		if(gr) {
+			leitung_t *p = dynamic_cast<leitung_t *> (gr->suche_obj(ding_t::pumpe));
+			if(p) {
+				conn[i] = p;
+				count ++;
+				continue;
+			}
+			// now handle drain
+			leitung_t *s = dynamic_cast<leitung_t *> (gr->suche_obj(ding_t::senke));
+			if(s) {
+				conn[i] = s;
+				count ++;
+				continue;
+			}
+			// and now handle line
+			leitung_t *l = dynamic_cast<leitung_t *> (gr->suche_obj(ding_t::leitung));
+			if(l) {
+				conn[i] = l;
+				count ++;
+			}
+		}
+	}
+	return count;
+}
+
 
 
 fabrik_t *
@@ -98,45 +137,32 @@ leitung_t::leitung_t(karte_t *welt,
 
 leitung_t::~leitung_t()
 {
-    entferne(gib_besitzer());
-}
+	grund_t *gr = welt->lookup(gib_pos());
+	if(gr) {
+		powernet_t *my_net = get_net();
+		gr->obj_remove(this, gib_besitzer());
 
+		leitung_t * conn[4];
+		gimme_neighbours(welt, gib_pos().gib_2d(), conn);
 
-
-static int
-gimme_neighbours(karte_t *welt, koord base_pos, leitung_t **conn)
-{
-	int count = 0;
-
-	for(int i=0; i<4; i++) {
-		const koord pos = base_pos + koord::nsow[i];
-		const planquadrat_t * plan = welt->lookup(pos);
-		grund_t * gr = plan ? plan->gib_kartenboden() : 0;
-
-		conn[i] = NULL;
-		if(gr) {
-			leitung_t *p = dynamic_cast<leitung_t *> (gr->suche_obj(ding_t::pumpe));
-			if(p) {
-				conn[i] = p;
-				count ++;
-				continue;
-			}
-			// now handle drain
-			leitung_t *s = dynamic_cast<leitung_t *> (gr->suche_obj(ding_t::senke));
-			if(s) {
-				conn[i] = s;
-				count ++;
-				continue;
-			}
-			// and now handle line
-			leitung_t *l = dynamic_cast<leitung_t *> (gr->suche_obj(ding_t::leitung));
-			if(l) {
-				conn[i] = l;
-				count ++;
+		for(int i=0; i<4; i++) {
+			if(conn[i]!=NULL) {
+				koord pos = gr->gib_pos().gib_2d()+koord::nsow[i];
+				// possible memory leak!
+				powernet_t *new_net = new powernet_t();
+				welt->sync_add(new_net);
+				replace(pos, my_net, new_net);
+				conn[i]->calc_neighbourhood();
 			}
 		}
+		// clean up stuff
+		if(my_net!=NULL) {
+			welt->sync_remove( net );
+			delete net;
+		}
 	}
-	return count;
+	this->set_net(NULL);
+	setze_pos(koord3d::invalid);
 }
 
 
@@ -228,7 +254,7 @@ void leitung_t::replace(koord base_pos, powernet_t *old_net, powernet_t *new_net
 			if(current!=old_net) {
 				replace(pos,current,new_net);
 				if(current!=NULL) {
-// memory leak
+// maybe memory leak?
 //					delete current;
 				}
 			}
@@ -272,59 +298,6 @@ void leitung_t::verbinde()
 		replace(pos, NULL, new_net);
 		set_net(new_net);
 	}
-}
-
-
-/**
- * Disconencts this piece of powerline from its neighbours.
- * -> This may case a network split and new networks must be introduced.
- */
-void leitung_t::trenne()
-{
-}
-
-
-
-const char *
-leitung_t::ist_entfernbar(const spieler_t *sp)
-{
-	if(sp==gib_besitzer()) {
-		return NULL;
-	}
-	else {
-		return "Der Besitzer erlaubt das Entfernen nicht";
-	}
-}
-
-
-
-void leitung_t::entferne(const spieler_t *)
-{
-//DBG_MESSAGE("leitung_t::entferne()","remove pylon at (%i,%i)",gib_pos().x,gib_pos().y);
-	grund_t *gr = welt->lookup(gib_pos());
-	if(gr) {
-		powernet_t *my_net = get_net();
-		gr->obj_remove(this, gib_besitzer());
-
-		leitung_t * conn[4];
-		gimme_neighbours(welt, gib_pos().gib_2d(), conn);
-//		const int count = gimme_neighbours(welt, gib_pos().gib_2d(), conn);
-
-		for(int i=0; i<4; i++) {
-			if(conn[i]!=NULL) {
-				koord pos = gr->gib_pos().gib_2d()+koord::nsow[i];
-				// possible memory leak!
-				powernet_t *new_net = new powernet_t();
-				welt->sync_add(new_net);
-				replace(pos, my_net, new_net);
-				conn[i]->calc_neighbourhood();
-			}
-		}
-		// clean up stuff
-//		delete this->net;
-	}
-	this->set_net(NULL);
-	setze_pos(koord3d::invalid);
 }
 
 

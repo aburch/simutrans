@@ -708,16 +708,7 @@ haltestelle_t::suche_route(ware_t &ware, koord *next_to_ziel)
 	minivec_tpl <halthandle_t> ziel_list (halt_list.get_count());
 	for( unsigned h=0;  h<halt_list.get_count();  h++ ) {
 		halthandle_t halt = halt_list.at(h);
-		if(	(warentyp == warenbauer_t::passagiere &&
-				halt->pax_enabled) ||
-
-				(warentyp == warenbauer_t::post &&
-				halt->post_enabled) ||
-
-				(warentyp != warenbauer_t::post &&
-				warentyp != warenbauer_t::passagiere &&
-				halt->ware_enabled)
-		) {
+		if(	halt->is_enabled(warentyp)  ) {
 			ziel_list.append( halt );
 		}
 	}
@@ -797,19 +788,8 @@ haltestelle_t::suche_route(ware_t &ware, koord *next_to_ziel)
 				if(wz.gib_typ()->is_interchangeable(warentyp)) {
 
 					const halthandle_t tmp_halt = welt->lookup(wz.gib_ziel())->gib_kartenboden()->gib_halt();
-					if(tmp_halt.is_bound() && tmp_halt->marke != current_mark &&
-						(
-							(warentyp == warenbauer_t::passagiere &&
-							tmp_halt->pax_enabled) ||
+					if(tmp_halt.is_bound() && tmp_halt->marke != current_mark &&  tmp_halt->is_enabled(warentyp)) {
 
-							(warentyp == warenbauer_t::post &&
-							tmp_halt->post_enabled) ||
-
-							(warentyp != warenbauer_t::post &&
-							warentyp != warenbauer_t::passagiere &&
-							tmp_halt->ware_enabled)
-						)
-					) {
 						HNode *node = &nodes[step++];
 
 						node->halt = tmp_halt;
@@ -819,7 +799,6 @@ haltestelle_t::suche_route(ware_t &ware, koord *next_to_ziel)
 
 						// betretene Haltestellen markieren
 						tmp_halt->marke = current_mark;
-
 					}
 				}
 			}
@@ -1234,36 +1213,6 @@ haltestelle_t::gib_ware_fuer_zwischenziel(const ware_besch_t *typ, const koord z
 
 
 
-
-/*
- * Volker an Hajo: das sieht komisch aus:
- * Wenn ware_enabled == true kriegt man für Pax und Post immer true.
- * Soll das so sein?
- */
-bool
-haltestelle_t::nimmt_an(const ware_besch_t* wtyp)
-{
-    if(wtyp == warenbauer_t::passagiere && pax_enabled) {
-	return true;
-    }
-
-    if(wtyp == warenbauer_t::post && post_enabled) {
-	return true;
-    }
-
-    if(ware_enabled) {
-	return true;
-    }
-#ifdef LAGER_NOT_IN_USE
-    if(lager != NULL) {
-	return lager->nimmt_an(wtyp);
-    }
-#endif
-    return false;
-}
-
-
-
 bool
 haltestelle_t::vereinige_waren(const ware_t &ware)
 {
@@ -1492,6 +1441,7 @@ void haltestelle_t::info(cbuffer_t & buf) const
 	  pax_no_route,
 	  translator::translate("Hier warten/lagern:")
 	  );
+
 
   buf.append(tmp);
 }

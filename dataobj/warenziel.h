@@ -28,17 +28,15 @@ private:
     koord ziel;
     const ware_besch_t *typ;
 
-    // don't use them, or fix them
-    int operator==(const warenziel_t &wz) {
-        return (ziel == wz.gib_ziel());
-    }
-
-    int operator!=(const warenziel_t &wz) {
-	return !(*this == wz);
-    }
-
-
 public:
+    // don't use them, or fix them: Actually, these should check for stops
+    // but they are needed for list search ...
+    int operator==(const warenziel_t &wz) {
+        return (ziel == wz.gib_ziel()  &&  typ==wz.gib_typ());
+    }
+    int operator!=(const warenziel_t &wz) {
+        return ziel!=wz.gib_ziel()  ||  typ!=wz.gib_typ();
+    }
 
     warenziel_t() {typ = 0;};
 

@@ -49,7 +49,7 @@ class bruecke_besch_t : public obj_besch_t {
 
     uint8  wegtyp;
     uint8 pillars_every;	// =0 off
-
+    uint8 max_length;	// =0 off, else maximum length
 
 public:
     /*
@@ -128,11 +128,20 @@ public:
 
     /**
      * Distance of pillars (=0 for no pillars)
-     * @author Hj. Malthaner
+     * @author prissi
      */
     int  gib_pillar() const
     {
 	return pillars_every;
+    }
+
+    /**
+     * maximum bridge span (=0 for infinite)
+     * @author prissi
+     */
+    int  gib_max_length() const
+    {
+	return max_length;
     }
 };
 

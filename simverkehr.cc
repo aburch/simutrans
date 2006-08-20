@@ -217,7 +217,8 @@ stadtauto_t::ist_weg_frei() const
 	// calculate new direction
 	sint8 dx, dy;	// dummies
 	// are we just turning around?
-	const uint8 this_fahrtrichtung = (gib_pos()==pos_next) ? gib_fahrtrichtung() :  ribi_t::rueckwaerts(this_fahrtrichtung);
+	//	const uint8 this_fahrtrichtung = (gib_pos()==pos_next) ? gib_fahrtrichtung() :  ribi_t::rueckwaerts(this_fahrtrichtung);
+	const uint8 this_fahrtrichtung = gib_fahrtrichtung();
 	// next direction
 	const uint8 next_fahrtrichtung = (gib_pos()==pos_next) ? this_fahrtrichtung : this->calc_richtung(gib_pos().gib_2d(), pos_next.gib_2d(), dx, dy);
 	bool frei = true;

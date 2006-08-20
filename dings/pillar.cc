@@ -16,12 +16,15 @@
 
 #include "../boden/grund.h"
 
+#include "../gui/thing_info.h"
+
 #include "../utils/cbuffer_t.h"
 
 #include "../dataobj/loadsave.h"
 #include "../dataobj/translator.h"
 
 #include "../dings/pillar.h"
+#include "../dings/bruecke.h"
 
 
 
@@ -53,26 +56,29 @@ pillar_t::~pillar_t()
 }
 
 
+
 /**
  * @return Einen Beschreibungsstring für das Objekt, der z.B. in einem
  * Beobachtungsfenster angezeigt wird.
  * @author Hj. Malthaner
  */
-void pillar_t::info(cbuffer_t & buf) const
+ding_info_t *pillar_t::new_info()
 {
-  ding_t::info(buf);
-}
-
-
-const char *
-pillar_t::ist_entfernbar(const spieler_t *sp)
-{
-    if(sp == gib_besitzer()) {
+	planquadrat_t *plan=welt->access(gib_pos().gib_2d());
+	for(unsigned i=0;  i<plan->gib_boden_count();  i++  ) {
+		grund_t *bd=plan->gib_boden_bei(i);
+		if(bd->ist_bruecke()) {
+			bruecke_t *br=dynamic_cast<bruecke_t *>(bd->suche_obj(ding_t::bruecke));
+			if(br  &&  br->gib_besch()==besch) {
+//				create_win(-1, -1, new ding_infos->get(this), w_autodelete);
+//				br->zeige_info();
+    				return new ding_infowin_t(welt, br);
+			}
+		}
+	}
 	return NULL;
-    } else {
-	return "Der Besitzer erlaubt das Entfernen nicht";
-    }
 }
+
 
 
 void pillar_t::rdwr(loadsave_t *file)

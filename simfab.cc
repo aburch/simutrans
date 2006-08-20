@@ -121,13 +121,11 @@ void fabrik_t::unlink_halt(halthandle_t halt)
 void
 fabrik_t::add_lieferziel(koord ziel)
 {
-    if(lieferziele.get_count() < max_lieferziele) {
-		lieferziele.append_unique(ziel);
-		fabrik_t * fab = fabrik_t::gib_fab(welt, ziel);
-		if (fab) {
-			fab->add_supplier(gib_pos().gib_2d());
-		}
-    }
+	lieferziele.append_unique(ziel,4);
+	fabrik_t * fab = fabrik_t::gib_fab(welt, ziel);
+	if (fab) {
+		fab->add_supplier(gib_pos().gib_2d());
+	}
 }
 
 
@@ -138,7 +136,7 @@ fabrik_t::rem_lieferziel(koord ziel)
 }
 
 
-fabrik_t::fabrik_t(karte_t *wl, loadsave_t *file) : lieferziele(max_lieferziele), suppliers(max_suppliers)
+fabrik_t::fabrik_t(karte_t *wl, loadsave_t *file) : lieferziele(0), suppliers(0)
 {
     welt = wl;
 
@@ -151,14 +149,11 @@ fabrik_t::fabrik_t(karte_t *wl, loadsave_t *file) : lieferziele(max_lieferziele)
     abgabe_letzt = NULL;
 
     // fixme: real size isn't known here
-    vector_tpl<ware_t> * eingang_tmp = new vector_tpl<ware_t> (16);
-    vector_tpl<ware_t> * ausgang_tmp = new vector_tpl<ware_t> (16);
+    vector_tpl<ware_t> * eingang_tmp = new vector_tpl<ware_t> (0);
+    vector_tpl<ware_t> * ausgang_tmp = new vector_tpl<ware_t> (0);
 
     set_eingang( eingang_tmp );
     set_ausgang( ausgang_tmp );
-
-    // abgabe_sum = new array_tpl<int>(16);
-    // abgabe_letzt = new array_tpl<int>(16);
 
     besitzer_p = NULL;
 
@@ -173,7 +168,7 @@ fabrik_t::fabrik_t(karte_t *wl, loadsave_t *file) : lieferziele(max_lieferziele)
 }
 
 
-fabrik_t::fabrik_t(karte_t *wl, koord3d pos, spieler_t *spieler, const fabrik_besch_t *fabesch) : lieferziele(max_lieferziele), suppliers(max_suppliers)
+fabrik_t::fabrik_t(karte_t *wl, koord3d pos, spieler_t *spieler, const fabrik_besch_t *fabesch) : lieferziele(0), suppliers(0)
 {
     this->pos = pos;
     besch = fabesch;
@@ -317,7 +312,7 @@ vector_tpl<fabrik_t *> &
 fabrik_t::sind_da_welche(karte_t *welt, koord min_pos, koord max_pos)
 {
     int i,j;
-    static vector_tpl <fabrik_t*> fablist(32);
+    static vector_tpl <fabrik_t*> fablist(0);
 
     fablist.clear();
 
@@ -336,7 +331,7 @@ fabrik_t::sind_da_welche(karte_t *welt, koord min_pos, koord max_pos)
 			fabrik_t * fab = dt->fabrik();
 
 			// fabrik nur einmal in liste eintragen
-			fablist.append_unique( fab );
+			fablist.append_unique( fab, 4 );
 //DBG_MESSAGE("fabrik_t::sind_da_welche()","appended factory %s at (%i,%i)",fab->gib_besch()->gib_name(),i,j);
 
 		    }
@@ -429,7 +424,7 @@ DBG_DEBUG("fabrik_t::rdwr()","loading factory '%s'",s);
 			if(dummy.menge > (FAB_MAX_INPUT << precision_bits)) {
 				dummy.menge = (FAB_MAX_INPUT << precision_bits);
 			}
-			eingang->append(dummy);
+			eingang->append(dummy,4);
 		}
 	}
 
@@ -460,7 +455,7 @@ DBG_DEBUG("fabrik_t::rdwr()","loading factory '%s'",s);
 			abgabe_letzt->at(i) = ab_letzt;
 			dummy.setze_typ( warenbauer_t::gib_info(typ));
 			guarded_free(const_cast<char *>(typ));
-			ausgang->append(dummy);
+			ausgang->append(dummy,4);
 		}
 	}
 	// restore other information
@@ -1177,7 +1172,7 @@ void fabrik_t::laden_abschliessen()
 void
 fabrik_t::add_supplier(koord pos)
 {
-	suppliers.append_unique(pos,max_suppliers);
+	suppliers.append_unique(pos,4);
 }
 
 

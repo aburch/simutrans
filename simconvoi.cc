@@ -1215,11 +1215,9 @@ convoi_t::rdwr(loadsave_t *file)
 		  gr = welt->lookup(v->gib_pos().gib_2d())->gib_kartenboden();
 		  dbg->warning("convoi_t::rdwr()",
 			       "invalid position %s for vehicle %s in state %d (setting to ground %s)",
-			       k3_to_cstr(v->gib_pos()).chars(),
-			       v->gib_name(),
-			       state,
-			       k3_to_cstr(gr->gib_pos()).chars());
+			       k3_to_cstr(v->gib_pos()).chars(), v->gib_name(), state, k3_to_cstr(gr->gib_pos()).chars());
 		}
+		gr->betrete(v);	// this will correct the block counter ...
 		gr->obj_add(v);
 	    }
         }

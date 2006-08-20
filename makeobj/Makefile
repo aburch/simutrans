@@ -50,7 +50,7 @@ OBJECTS=makeobj.o ../besch/writer/obj_node.o \
  ../besch/writer/crossing_writer.o  ../besch/writer/tunnel_writer.o \
  ../besch/writer/citycar_writer.o  ../besch/writer/pedestrian_writer.o \
  ../besch/writer/sim_writer.o ../besch/writer/roadsign_writer.o \
- ../simdebug.o ../utils/log.o
+ ../simdebug.o ../utils/log.o ../simtools.o
 
 all: makeobj
 

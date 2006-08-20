@@ -69,6 +69,21 @@ void halt_detail_t::halt_detail_info(cbuffer_t & buf)
     return;
   }
 
+	buf.append(translator::translate("Akzeptiert:"));
+	if(halt->get_pax_enabled()) {
+		buf.append(" ");
+		buf.append(translator::translate("Passagiere"));
+	}
+	if(halt->get_post_enabled()) {
+		buf.append(" ");
+		buf.append(translator::translate("Post"));
+	}
+	if(halt->get_ware_enabled()) {
+		buf.append(" ");
+		buf.append(translator::translate("Fracht"));
+	}
+	buf.append("\n\n");
+
     const slist_tpl<fabrik_t *> & fab_list = halt->gib_fab_list();
     slist_tpl<const ware_besch_t *> nimmt_an;
 

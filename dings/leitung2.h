@@ -37,12 +37,6 @@ protected:
 
   void leitung_t::replace(koord base_pos, powernet_t *alt, powernet_t *neu);
 
-  /**
-   * Disconencts this piece of powerline from its neighbours.
-   * -> This may case a network split and new networks must be introduced.
-   */
-  void trenne();
-
 public:
 	powernet_t * get_net() const {return net;};
 	void set_net(powernet_t *p) {net=p;};
@@ -65,14 +59,6 @@ public:
 	* @author Hj. Malthaner
 	*/
 	void info(cbuffer_t & buf) const;
-
-	/**
-	* @returns NULL wenn OK, ansonsten eine Fehlermeldung
-	* @author Hj. Malthaner
-	*/
-	virtual const char * ist_entfernbar(const spieler_t *sp);
-
-	void entferne(const spieler_t *sp);
 
 	virtual void display(int xpos, int ypos, bool dirty) const;
 

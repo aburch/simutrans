@@ -828,26 +828,12 @@ stadt_t::step_passagiere()
 					INT_CHECK("simcity 269");
 				}
 
-#ifdef START_ONLY_CORRECT
-				// suitable start search
-				const minivec_tpl<halthandle_t> &start_list = welt->lookup(k)->gib_kartenboden()->get_haltlist();
-				minivec_tpl <halthandle_t> halt_list(start_list.get_count());
-				for( unsigned h=0;  h<start_list.get_count();  h++ ) {
-					halthandle_t halt = start_list.at(h);
-					if(wtyp==warenbauer_t::post  &&  halt->get_post_enabled()) {
-						halt_list.append( halt );
-					}
-					if(wtyp==warenbauer_t::passagiere  &&  halt->get_pax_enabled()) {
-						halt_list.append( halt );
-					}
-				}
-#else
 				// suitable start search
 				const minivec_tpl<halthandle_t> &halt_list = welt->lookup(k)->gib_kartenboden()->get_haltlist();
-#endif
+
 				// only continue, if this is a good start halt
 				if(halt_list.get_count()>0) {
-					halthandle_t halt = halt_list.at(0);
+					halthandle_t start_halt = halt_list.at(0);
 
 					// Find passenger destination
 					for(int pax_routed=0;  pax_routed<num_pax;  pax_routed+=7) {
@@ -867,14 +853,24 @@ stadt_t::step_passagiere()
 						const koord ziel = finde_passagier_ziel(&will_return);
 
 						// Dario: Check if there's a stop near destination
-						const minivec_tpl <halthandle_t> &ziel_list = welt->lookup(ziel)->gib_kartenboden()->get_haltlist();
+						const minivec_tpl <halthandle_t> &dest_list = welt->lookup(ziel)->gib_kartenboden()->get_haltlist();
 
-						if(ziel_list.get_count() == 0){
+						// suitable end search
+						unsigned ziel_count=0;
+						for( unsigned h=0;  h<dest_list.get_count();  h++ ) {
+							halthandle_t halt = dest_list.at(h);
+							if(halt->is_enabled(wtyp)) {
+								ziel_count ++;
+								break;	// because we found at least one valid step ...
+							}
+						}
+
+						if(ziel_count==0){
 // DBG_MESSAGE("stadt_t::step_passagiere()", "No stop near dest (%d, %d)", ziel.x, ziel.y);
 							// Thus, routing is not possible and we do not need to do a calculation.
 							// Mark ziel as destination without route and continue.
 							merke_passagier_ziel(ziel, DUNKELORANGE);
-							halt->add_pax_no_route(pax_left_to_do);
+							start_halt->add_pax_no_route(pax_left_to_do);
 							continue;
 						}
 
@@ -886,15 +882,15 @@ stadt_t::step_passagiere()
 						// we try all stations to find one not overcrowded
 						unsigned halte;
 						for( halte=0;  halte<halt_list.get_count();  halte++  ) {
-							halthandle_t halt = halt_list.get(halte);
-							if(halt->gib_ware_summe(wtyp) <= (halt->gib_grund_count() << 7)) {
+							start_halt = halt_list.get(halte);
+							if(start_halt->gib_ware_summe(wtyp) <= (start_halt->gib_grund_count() << 7)) {
 								// prissi: not overcrowded so now try routing
 								goto not_overcrowded;
 							}
 							else {
 								// Hajo: Station crowded:
 								// they are appalled but will try other stations
-								halt->add_pax_unhappy(pax_left_to_do);
+								start_halt->add_pax_unhappy(pax_left_to_do);
 							}
 						}
 						// prissi: only overcrowded or wrong stations found ...
@@ -902,16 +898,16 @@ stadt_t::step_passagiere()
 						continue;
 
 not_overcrowded:
-						if(!ziel_list.is_contained(halt)) {
+						if(!dest_list.is_contained(start_halt)) {
 							// ok, they are not in walking distance
 							// now, finally search a route; this consumes most of the time
 							koord return_zwischenziel;	// for people going back ...
-							halt->suche_route(pax, will_return?&return_zwischenziel:NULL );
+							start_halt->suche_route(pax, will_return?&return_zwischenziel:NULL );
 
 							if(pax.gib_ziel() != koord::invalid) {
 								// so we have happy traveling passengers
-								halt->starte_mit_route(pax);
-								halt->add_pax_happy(pax.menge);
+								start_halt->starte_mit_route(pax);
+								start_halt->add_pax_happy(pax.menge);
 								// and show it
 								merke_passagier_ziel(ziel, GELB);
 								pax_transport += pax.menge;
@@ -919,22 +915,37 @@ not_overcrowded:
 								// send them also back
 								if(will_return) {
 									// this comes free for calculation and balances also the amounts!
-									ware_t return_pax (wtyp);
-									return_pax.menge = pax_left_to_do;
-									return_pax.setze_zielpos( k );
-									return_pax.setze_ziel( halt->gib_basis_pos() );
-									return_pax.setze_zwischenziel( return_zwischenziel );
+									halthandle_t ret_halt = welt->lookup(pax.gib_ziel())->gib_kartenboden()->gib_halt();
+
+									// we just have to ensure, the ware can be delivered at this station
+									warenziel_t wz(start_halt->gib_basis_pos(),wtyp);
+									bool found = false;
+									for(  unsigned i=0;  i<halt_list.get_count();  i++  ) {
+										start_halt=halt_list.at(i);
+										if(start_halt->is_enabled(wtyp)  &&  start_halt->gib_warenziele()->contains(wz)) {
+											found = true;
+											break;
+										}
+									}
+
 									// now try to add them to the target halt
-// we try all stations to find one not overcrowded
-//									halthandle_t zwischen_halt=haltestelle_t::gib_halt( welt, return_zwischenziel );
-//if(!zwischen_halt.is_bound()) dbg->error("stadt_t::step_passagiere()","Unbound halt on return!");
-									halthandle_t ret_halt = halt->gib_halt(welt,pax.gib_ziel());
-									if(ret_halt->gib_ware_summe(wtyp)<=(halt->gib_grund_count() << 7)) {
-										// prissi: not overcrowded
-										// so add them
-										ret_halt->starte_mit_route(return_pax);
-										ret_halt->add_pax_happy(pax_left_to_do);
-										break;
+									if(ret_halt->gib_ware_summe(wtyp)<=(ret_halt->gib_grund_count() << 7)) {
+										// prissi: not overcrowded and can recieve => add them
+										if(found  &&  start_halt->is_enabled(wtyp)) {
+											ware_t return_pax (wtyp);
+
+											return_pax.menge = pax_left_to_do;
+											return_pax.setze_zielpos( k );
+											return_pax.setze_ziel( start_halt->gib_basis_pos() );
+											return_pax.setze_zwischenziel( return_zwischenziel );
+
+											ret_halt->starte_mit_route(return_pax);
+											ret_halt->add_pax_happy(pax_left_to_do);
+										}
+										else {
+											// no route back
+											ret_halt->add_pax_no_route(pax_left_to_do);
+										}
 									}
 									else {
 										// Hajo: Station crowded:
@@ -943,14 +954,15 @@ not_overcrowded:
 								}
 							}
 							else {
-								halt->add_pax_no_route(pax_left_to_do);
+								start_halt->add_pax_no_route(pax_left_to_do);
 								merke_passagier_ziel(ziel, DUNKELORANGE);
 							}
 						}
 						else {
 							// ok, they find their destination here too
+							// (this works even for mail on stations, which does not accept mail (but is much faster than checking)
 							// so we declare them happy
-							halt->add_pax_happy(pax.menge);
+							start_halt->add_pax_happy(pax.menge);
 							// and show it
 							merke_passagier_ziel(ziel, GELB);
 							pax_transport += pax.menge;
@@ -1693,12 +1705,10 @@ static koord neighbours[8]=
 void
 stadt_t::baue_gebaeude(const koord k)
 {
-	const koord3d pos ( welt->lookup(k)->gib_kartenboden()->gib_pos() );
+	grund_t *gr=welt->lookup(k)->gib_kartenboden();
+	const koord3d pos ( gr->gib_pos() );
 
-	if(welt->lookup(pos)->ist_natur()  &&
-		welt->lookup(pos)->suche_obj(ding_t::leitung)==NULL  &&
-		welt->lookup(pos)->suche_obj(ding_t::pumpe)==NULL  &&
-		welt->lookup(pos)->suche_obj(ding_t::senke)==NULL) {
+	if(gr->ist_natur()  &&  gr->kann_alle_obj_entfernen(welt->gib_spieler(1))==NULL ) {
 
 		// bisher gibt es 2 Sorten Haeuser
 		// arbeit-spendende und wohnung-spendende

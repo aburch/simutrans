@@ -240,8 +240,32 @@ void move_pointer(int x, int y)
  */
 int dr_screenshot(const char *filename)
 {
+	FILE *fBmp = fopen(filename,"wb");
+	if(fBmp) {
+		BITMAPFILEHEADER bf;
+		unsigned i;
+
+		AllDib->biHeight = (WindowSize.bottom+1);
+
+		bf.bfType	= 0x4d42;	//"BM"
+		bf.bfReserved1 = 0;
+		bf.bfReserved2 = 0;
+		bf.bfOffBits = sizeof(BITMAPFILEHEADER)+sizeof(BITMAPINFOHEADER)+sizeof(DWORD)*3;
+		bf.bfSize = (bf.bfOffBits +  AllDib->biHeight*AllDib->biWidth*2 +3)/4;
+		fwrite( &bf, sizeof(BITMAPFILEHEADER), 1, fBmp );
+
+		fwrite( AllDib, sizeof(BITMAPINFOHEADER)+sizeof(DWORD)*3, 1, fBmp );
+
+		for(i=0;  i<AllDib->biHeight;  i++) {
+			fwrite( AllDibData+(((AllDib->biHeight-1)-i)*AllDib->biWidth), AllDib->biWidth, 2, fBmp );
+		}
+
+		fclose(fBmp);
+	}
 	return 0;
 }
+
+
 
 
 /*

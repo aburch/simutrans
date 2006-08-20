@@ -167,15 +167,12 @@ protected:
 
 
 public:
-
-
     /**
      * setzt den Besitzer des dings
      * (public wegen Rathausumbau - V.Meyer)
      * @author Hj. Malthaner
      */
     void setze_besitzer(spieler_t *sp);
-
 
     /**
      * Ein Objekt kann einen Besitzer haben.
@@ -185,13 +182,10 @@ public:
      */
     spieler_t * gib_besitzer() const;
 
-
     void entferne_ding_info();
-
 
     inline void clear_flag(enum flag_values flag) {flags &= ~flag;};
     inline bool get_flag(enum flag_values flag) const {return ((flags & flag) != 0);};
-
 
     enum typ {undefined=-1, ding=0, baum=1, zeiger=2,
 	      wolke=3, sync_wolke=4, async_wolke=5,
@@ -232,16 +226,13 @@ public:
 	      presignal = 96,
 	      roadsign = 97,
 	      pillar = 98
-	      };
-
+	};
 
      inline const sint8 & gib_xoff() const {return xoff;};
      inline const sint8 & gib_yoff() const {return yoff;};
 
      void setze_xoff(int xoff);
      void setze_yoff(int yoff);
-
-
 
     /**
      * Mit diesem Konstruktor werden Objekte aus einer Datei geladen
@@ -251,7 +242,6 @@ public:
      * @author Hj. Malthaner
      */
     ding_t(karte_t *welt, loadsave_t *file);
-
 
     /**
      * Mit diesem Konstruktor werden Objekte für den Boden[x][y][z] erzeugt,
@@ -264,7 +254,6 @@ public:
      */
     ding_t(karte_t *welt, koord3d pos);
 
-
     /**
      * Der Destruktor schließt alle Beobachtungsfenster für dieses Objekt.
      * Er entfernt das Objekt aus der Karte.
@@ -272,6 +261,11 @@ public:
      */
     virtual ~ding_t();
 
+    /**
+     * Zum buchen der Abrisskosten auf das richtige Konto
+     * @author Hj. Malthaner
+     */
+    virtual void entferne(spieler_t *sp) {};
 
     /**
      * 'Jedes Ding braucht einen Namen.'

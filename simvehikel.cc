@@ -120,7 +120,7 @@ int unload_freight(karte_t *welt,
 
   kill_queue.clear();
 
-  if(halt->nimmt_an( fracht_typ )) {
+  if(halt->is_enabled( fracht_typ )) {
     if(!fracht->is_empty()) {
 
       slist_iterator_tpl<ware_t> iter (fracht);
@@ -1380,62 +1380,6 @@ automobil_t::ist_weg_frei(int &restart_speed) const
 void
 automobil_t::betrete_feld()
 {
-#if 0
-	vehikel_t::betrete_feld();
-
-	// vehikel neu anorden wg. sichbarkeit
-	grund_t *gr = welt->lookup( gib_pos() );
-	ding_t *zweites_vehikel = NULL;
-	ding_t *drittes_vehikel = NULL;
-
-	// Hajo: vehikel_basis_t added us, but we want to reorder ourselves
-	// thus we first need to remove us again
-	gr->obj_remove(this, gib_besitzer());
-
-	bool ok = true;
-
-	for(int i=0; i<gr->gib_top(); i++) {
-		ding_t *dt = gr->obj_bei(i);
-		if(dt != NULL && dt->gib_typ() >= 32 && dt->gib_typ() <= 40) {
-			if(zweites_vehikel == NULL) {
-				zweites_vehikel = dt;
-				gr->obj_remove(dt, gib_besitzer());
-			}
-			else {
-
-				if(!(gib_fahrtrichtung() == ribi_t::nord || gib_fahrtrichtung() == ribi_t::west)) {
-					drittes_vehikel = dt;
-					gr->obj_remove(dt, gib_besitzer());
-				}
-				break;
-			}
-		}
-	}
-
-	int offset = gr->gib_top();
-	if(zweites_vehikel != NULL) {
-
-		if(gib_fahrtrichtung() == ribi_t::nord || gib_fahrtrichtung() == ribi_t::west) {
-
-			ok &= (gr->obj_pri_add(zweites_vehikel, offset) != 0);
-			ok &= (gr->obj_pri_add(this, 2) != 0);
-
-		}
-		else {
-
-			ok &= (gr->obj_pri_add(this, offset) != 0);
-			ok &= (gr->obj_pri_add(zweites_vehikel, 2) != 0);
-		}
-
-		if(drittes_vehikel != NULL) {
-			ok &= (gr->obj_pri_add(drittes_vehikel, 2) != 0);
-		}
-
-	}
-	else {
-		ok &= (gr->obj_pri_add(this, offset) != 0);
-	}
-#else
 	// this will automatically give the right order
 	grund_t *gr = welt->lookup( gib_pos() );
 
@@ -1451,7 +1395,7 @@ automobil_t::betrete_feld()
 	if(ist_erstes) {
 		reliefkarte_t::gib_karte()->setze_relief_farbe(gib_pos().gib_2d(), VEHIKEL_KENN);
 	}
-#endif
+
 	if(!ok) {
 		dbg->error("automobil_t::betrete_feld()","vehicel '%s' %p could not be added to %d, %d, %d",gib_pos().x, gib_pos().y, gib_pos().z);
 	}
@@ -1637,59 +1581,6 @@ waggon_t::verlasse_feld()
 void
 waggon_t::betrete_feld()
 {
-#if 0
-  vehikel_t::betrete_feld();
-
-  grund_t * gr = welt->lookup(gib_pos());
-
-  if(ist_blockwechsel(pos_prev, pos_cur)) {
-    gr->betrete(this);
-  }
-
-  // Hajo: Neu anordnen fuer richtige Sichtbarkeit
-#ifdef _MSC_VER
-  ding_t **arr = (ding_t **)alloca(gr->gib_top() * sizeof(ding_t *));
-#else
-  ding_t * arr [gr->gib_top()];
-#endif
-  int idx = 0;
-
-  // Hajo: scan for waggons
-  int i;
-  for(i=0; i<gr->gib_top(); i++) {
-    ding_t *dt = gr->obj_bei(i);
-    if(dt != NULL && dt->gib_typ() == 33) {
-      arr[idx++] = dt;
-    }
-  }
-
-  // Hajo: remove waggons, later add them again in correct order
-  for(i=0; i<idx; i++) {
-    gr->obj_remove(arr[i], arr[i]->gib_besitzer());
-  }
-
-
-  // Hajo: sort by y-offset
-  for(i=0; i<idx; i++) {
-    int best = -1;
-    int max_y = -999;
-
-    for(int j=0; j<idx; j++) {
-      if(arr[j] && arr[j]->gib_yoff() > max_y) {
-	max_y = arr[j]->gib_yoff();
-	best = j;
-      }
-    }
-
-    if(best != -1) {
-      gr->obj_add(arr[best]);
-      arr[best] = 0;
-    } else {
-      dbg->error("waggon_t::betrete_feld()",
-		 "sorting failed!");
-    }
-  }
-#else
 	grund_t * gr = welt->lookup(gib_pos());
 	static ding_t *arr[256];
 	bool ok=false;
@@ -1738,7 +1629,7 @@ waggon_t::betrete_feld()
 	if(ist_erstes) {
 		reliefkarte_t::gib_karte()->setze_relief_farbe(gib_pos().gib_2d(), VEHIKEL_KENN);
 	}
-#endif
+
 	const int cargo = gib_fracht_menge();
 	gr->gib_weg(weg_t::schiene)->book(cargo, WAY_STAT_GOODS);
 	if (ist_erstes) {

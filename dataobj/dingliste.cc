@@ -346,11 +346,8 @@ dingliste_t::loesche_alle(spieler_t *sp)
 
 		ding_t *dt = bei(i);
 		if(dt) {
-
-//			dt->entferne(sp);
-			// der destruktor sollte das objekt autom. aus der karte
-			// entfernen. Tut er aber nicht
-delete dt;
+			dt->entferne(sp);
+			delete dt;
 		}
 	}
 
@@ -462,9 +459,9 @@ void dingliste_t::rdwr(karte_t *welt, loadsave_t *file, koord3d current_pos)
 		dbg->error("dingliste_t::laden()","Too many objects at one place (%i)",max_object_index);
 	}
 
-	for(uint8 i=0; i<=max_object_index; i++) {
+	for(int i=0; i<=max_object_index; i++) {
 		if(file->is_loading()) {
-			uint8 pri = i;
+			uint8 pri = (i>254) ? 0: (uint8)i;	// try to read as many as possible
 			ding_t::typ typ = (ding_t::typ)file->rd_obj_id();
 
 			// DBG_DEBUG("dingliste_t::laden()", "Thing type %d", typ);
@@ -564,7 +561,8 @@ void dingliste_t::rdwr(karte_t *welt, loadsave_t *file, koord3d current_pos)
 			}
 
 			//DBG_DEBUG("dingliste_t::rdwr()","Loading %d,%d #%d: %s", d->gib_pos().x, d->gib_pos().y, i, d->gib_name());
-			if(d) {
+			if(d  &&  pri<254) {
+				// add, if capacity not exceeded
 				add(d, pri);
 			}
 		}
