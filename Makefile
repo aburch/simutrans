@@ -7,7 +7,7 @@
 #
 
 
-#OSTYPE=mingw
+#OSTYPE=mingw-sdl
 OSTYPE=mingw-gdi
 #OSTYPE=beos
 #OSTYPE=linux-gnu
@@ -41,7 +41,7 @@ SDLLIBS=  -L/SDL/lib -lz -lSDL -lwinmm -lc /lib/mingw/libstdc++.a -lc /lib/mingw
 #SDLLIBS= -lSDL -lwinmm -lpthread
 OS_OPT=-Wbad-function-cast
 endif
-ifeq ($(OSTYPE),mingw)
+ifeq ($(OSTYPE),mingw-sdl)
 OS_INC=-I /usr/include/mingw
 OS_OPT=-mno-cygwin -DPNG_STATIC -DZLIB_STATIC
 #OS_OPT=-Wbad-function-cast
@@ -270,7 +270,7 @@ OBJECTS= \
  simcity.o simwerkz.o simworld.o simplay.o simsound.o simintr.o \
  simmain.o  simskin.o simlinemgmt.o simline.o simmesg.o
 
-#ifeq ($(OSTYPE),mingw)
+#ifeq ($(OSTYPE),mingw-sdl)
 #ASM_DISPLAY_IMG= asm/display_img16w.o
 #else
 #ASM_DISPLAY_IMG= asm/display_img16.o
@@ -303,7 +303,7 @@ normal:	$(OBJECTS) simsys_d.o simgraph.o
 
 
 normal16:	$(OBJECTS) simsys_s16.o simsys_w16.o simgraph16.o $(ASM_DISPLAY_IMG)
-ifeq ($(OSTYPE),mingw)
+ifeq ($(OSTYPE),mingw-sdl)
 	windres -O COFF simwin.rc simres.o
 	$(LN) $(LDFLAGS) -o sim $(OBJECTS) simsys_s16.o simgraph16.o $(SUB_OBJS) simres.o $(STD_LIBS) $(SDLLIBS)
 #	$(LN) $(LDFLAGS) -o sim $(OBJECTS) simsys_s16.o simgraph16.o $(ASM_DISPLAY_IMG) $(SUB_OBJS) simres.o $(STD_LIBS) $(SDLLIBS)

@@ -11,6 +11,7 @@
 #error "Only Windows has GDI!"
 #endif
 
+/*
 #ifndef _MSC_VER
 #include <unistd.h>
 #include <sys/time.h>
@@ -20,6 +21,9 @@
 #include <string.h>
 #include <stdlib.h>
 #include <math.h>
+*/
+
+#include <stdio.h>
 
 // windows Bibliotheken DirectDraw 5.x
 #include <windows.h>
@@ -42,7 +46,7 @@
 
 static HWND hwnd;
 static MSG msg;
-static RECT WindowSize;
+static RECT WindowSize={0,0,0,0};
 static RECT MaxSize;
 HINSTANCE hInstance;
 
@@ -50,6 +54,18 @@ static BITMAPINFOHEADER AllDib;
 static unsigned short *AllDibData = NULL;
 
 static HDC hdc = NULL;
+
+/*
+ * Hajo: flag if sound module should be used
+ */
+static int use_sound = 0;
+
+
+/* this list contains all the samples
+ */
+static void *samples[32];
+static int sample_number = 0;
+
 
 /*
  * Hier sind die Basisfunktionen zur Initialisierung der
@@ -67,24 +83,25 @@ int dr_os_init(int n, int *parameter)
 // open the window
 int dr_os_open(int w, int h,int fullscreen)
 {
+	// fake fullscreen
 	if(fullscreen  &&  w==MaxSize.right  &&  h==MaxSize.bottom) {
 		hwnd = CreateWindowEx(WS_EX_TOPMOST	,
 				SAVEGAME_PREFIX, SAVEGAME_PREFIX " " VERSION_NUMBER " - " VERSION_DATE, WS_POPUP,
 				0, 0,
 				w, h,
 				NULL, NULL, hInstance, NULL);
-		GetClientRect( hwnd, &WindowSize );
 		ShowWindow (hwnd, SW_SHOW);
 	}
 	else {
 		hwnd = CreateWindow(
 					SAVEGAME_PREFIX, SAVEGAME_PREFIX " " VERSION_NUMBER " - " VERSION_DATE, WS_OVERLAPPEDWINDOW,
 					CW_USEDEFAULT, CW_USEDEFAULT,
-					w+6, h+25,
+					w+GetSystemMetrics(SM_CXFRAME), h+GetSystemMetrics(SM_CYFRAME)+GetSystemMetrics(SM_CYCAPTION),
 					NULL, NULL, hInstance, NULL);
-		SetRect( &WindowSize, 0, 0, w, h-1 );
 		ShowWindow (hwnd, SW_SHOW);
 	}
+	WindowSize.right = w;
+	WindowSize.bottom = h;
 
 	AllDib.biSize = sizeof(BITMAPINFOHEADER);
 	AllDib.biWidth = w;
@@ -102,18 +119,13 @@ int dr_os_open(int w, int h,int fullscreen)
 // shut down SDL
 int dr_os_close(void)
 {
+	if(hdc!=NULL) {
+		ReleaseDC( hwnd, hdc );
+		hdc = NULL;
+	}
+	GlobalFree( GlobalHandle( AllDibData ) );
 	DestroyWindow( hwnd );
 	return TRUE;
-}
-
-
-
-/**
- * Sound initialisation routine
- */
-void dr_init_sound()
-{
-
 }
 
 
@@ -122,8 +134,16 @@ void dr_init_sound()
 int dr_textur_resize(unsigned short **textur,int w, int h)
 {
 	AllDib.biWidth = w;
-	AllDib.biHeight = h;
-//	SetWindowPos( hwnd, NULL, 0, 0, w, h, SWP_NOMOVE|SWP_NOZORDER	);
+	AllDib.biHeight = -h;
+	WindowSize.right = w;
+	WindowSize.bottom = h;
+/*
+	RECT r={0,0,0,0};
+	r.right = WindowSize.right = w;
+	r.bottom = WindowSize.bottom = h;
+	AdjustWindowRect( &r, WS_OVERLAPPEDWINDOW, FALSE );
+	SetWindowPos( hwnd, NULL, 0, 0, r.right, r.bottom, SWP_NOZORDER|SWP_NOMOVE );
+*/
 	return TRUE;
 }
 
@@ -162,13 +182,13 @@ int dr_use_softpointer()
 
 void dr_flush()
 {
-	/*
+/*
 	HDC hdc = GetDC(hwnd);
 	StretchDIBits( hdc, 0, 0, WindowSize.right, WindowSize.bottom,
 		0, WindowSize.bottom+1, WindowSize.right, -WindowSize.bottom,
 		(LPSTR)AllDibData, (LPBITMAPINFO)&AllDib,
 		DIB_RGB_COLORS, SRCCOPY	 );
-	*/
+*/
 	if(hdc!=NULL) {
 		ReleaseDC( hwnd, hdc );
 		hdc = NULL;
@@ -183,9 +203,10 @@ dr_textur(int xp, int yp, int w, int h)
 	if(hdc==NULL) {
 		hdc = GetDC(hwnd);
 	}
-	StretchDIBits( hdc, xp, yp, w, h,
-		xp, WindowSize.bottom+1-yp, w, -h,
-		(LPSTR)AllDibData, (LPBITMAPINFO)&AllDib,
+	AllDib.biHeight = h;
+	StretchDIBits( hdc, xp, yp+h-1, w, -h,
+		xp, 0, w, h,
+		(LPSTR)(AllDibData+(yp*WindowSize.right)), (LPBITMAPINFO)&AllDib,
 		DIB_RGB_COLORS, SRCCOPY	 );
 }
 
@@ -268,31 +289,33 @@ LRESULT WINAPI WindowProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 		// resize client area
 		case WM_SIZE:
 		{
-			GetClientRect( hwnd, &WindowSize );
-
 			sys_event.type=SIM_SYSTEM;
 			sys_event.code=SIM_SYSTEM_RESIZE;
 
-			sys_event.mx = WindowSize.right;
+			sys_event.mx = LOWORD(lParam);
 			if(sys_event.mx<=0) {
 				sys_event.mx = 4;
 			}
-			WindowSize.right = sys_event.mx;
 
-			sys_event.my = WindowSize.bottom+1;
+			sys_event.my = HIWORD(lParam);
 			if(sys_event.my<=1) {
 				sys_event.my = 64;
 			}
-			WindowSize.bottom = sys_event.my-1;
 		}
 		break;
 
 		case WM_PAINT:
 		{
+			if(hdc!=NULL) {
+				ReleaseDC( hwnd, hdc );
+				hdc = NULL;
+			}
+
 			PAINTSTRUCT ps;
-			HDC hdc = BeginPaint(hwnd, &ps);
-			StretchDIBits( hdc, 0, 0, WindowSize.right, WindowSize.bottom,
-								0, WindowSize.bottom+1, WindowSize.right, -WindowSize.bottom,
+			HDC hdcp = BeginPaint(hwnd, &ps);
+			AllDib.biHeight = WindowSize.bottom;
+			StretchDIBits( hdcp, 0, WindowSize.bottom-1, WindowSize.right, -WindowSize.bottom,
+								0, 0, WindowSize.right, WindowSize.bottom,
 								(LPSTR)AllDibData, (LPBITMAPINFO)&AllDib,
 								DIB_RGB_COLORS, SRCCOPY	 );
 			EndPaint(hwnd, &ps);
@@ -386,6 +409,19 @@ LRESULT WINAPI WindowProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 			break;
 
 		case WM_DESTROY:
+			// free HDC
+			if(hdc!=NULL) {
+				ReleaseDC( hwnd, hdc );
+				hdc = NULL;
+			}
+			// terminate sound system
+			if(use_sound) {
+				int i;
+				sndPlaySound( NULL, SND_ASYNC );
+				for(i=0;  i<sample_number;  i++  ) {
+					GlobalFree( GlobalHandle( samples[i] ) );
+				}
+			}
 			sys_event.type=SIM_SYSTEM;
 			sys_event.code=SIM_SYSTEM_QUIT;
 			PostQuitMessage(0);
@@ -465,12 +501,42 @@ void dr_sleep(unsigned long usec)
 
 
 /**
+ * Sound initialisation routine
+ */
+void dr_init_sound()
+{
+	use_sound = 1;
+}
+
+
+
+/**
  * loads a sample
  * @return a handle for that sample or -1 on failure
  * @author Hj. Malthaner
  */
 int dr_load_sample(const char *filename)
 {
+	if(use_sound  &&  sample_number>=0  &&  sample_number<32) {
+
+		FILE *fIn=fopen(filename,"rb");
+
+		if(fIn) {
+			fseek( fIn, 0, SEEK_END );
+			long len = ftell( fIn );
+
+			if(len>0) {
+				samples[sample_number] = GlobalLock( GlobalAlloc(  GMEM_MOVEABLE, len ) );
+
+				rewind( fIn );
+				fread( samples[sample_number], len, 1, fIn );
+				fclose( fIn );
+
+				return sample_number++;
+			}
+		}
+	}
+
 	return -1;
 }
 
@@ -482,11 +548,25 @@ int dr_load_sample(const char *filename)
  */
 void dr_play_sample(int sample_number, int volume)
 {
+	if(use_sound  &&  sample_number>=0  &&  sample_number<32  &&  volume>1) {
+		// prissis short version
+		static int oldvol = -1;
+		volume = (volume<<8)-1;
+		if(oldvol!=volume) {
+			long vol = (volume<<16)|volume;
+			waveOutSetVolume( 0, vol );
+			oldvol = volume;
+		}
+		// terminate the current sound
+		sndPlaySound( NULL, SND_ASYNC );
+		// now play
+		sndPlaySound( samples[sample_number], SND_MEMORY|SND_ASYNC|SND_NODEFAULT );
+	}
 }
 
 
 
-#include "system/no_midi.c"
+#include "system/w32_midi.c"
 
 
 

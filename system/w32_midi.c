@@ -6,6 +6,8 @@
  */
 #ifdef _MSC_VER
 #include <direct.h>
+#else
+#include <dir.h>
 #endif
 
 #include <windows.h>
@@ -50,9 +52,9 @@ void __win32_set_midi_volume(int type, int left, int right);
  */
 void dr_set_midi_volume(int vol)
 {
-  if(use_midi) {
-    __win32_set_midi_volume(__MIDI_VOL_SIMU, vol, vol);
-  }
+	if(use_midi) {
+		__win32_set_midi_volume(__MIDI_VOL_SIMU, vol, vol);
+	}
 }
 
 
@@ -225,6 +227,7 @@ void dr_destroy_midi()
  */
 void dr_init_midi()
 {
+ #ifdef MIXER_VOLUME
    UINT nMIDIDevices;
    MIXERLINECONTROLS mlc;
    MIXERCONTROL MixControl;
@@ -282,7 +285,16 @@ void dr_init_midi()
    sound_set_midi_volume_var(OldMIDIVol[0] >> 8); // Set the MIDI volume
 
    mixerSetControlDetails(0, &MixControlDetails, MIXER_OBJECTF_MIDIOUT | MIXER_SETCONTROLDETAILSF_VALUE);
+#else
+	long old_volume;
 
+	if( midiOutGetNumDevs()== 0 ) {
+		return;
+	}
+	midiOutGetVolume( 0, &old_volume );
+	OldMIDIVol[0] = old_volume>>24;
+	OldMIDIVol[1] = (old_volume&0x0000FF00)>>8;
+#endif
 
   // Hajo: assuming if we got here, all is set up to work properly
   use_midi = 1;
@@ -297,6 +309,7 @@ void set_midi_pos(int pos)
 // Sets the MIDI volume - internal routine
 void __win32_set_midi_volume(int type, int left, int right)
 {
+#ifdef MIXER_VOLUME
    UINT nMIDIDevices;
    MIXERLINECONTROLS mlc;
    MIXERCONTROL MixControl;
@@ -307,7 +320,6 @@ void __win32_set_midi_volume(int type, int left, int right)
    MIXERCAPS DevCaps;
 
    nMIDIDevices = midiOutGetNumDevs();
-
    if (nMIDIDevices == 0)
       return;
 
@@ -360,4 +372,13 @@ void __win32_set_midi_volume(int type, int left, int right)
    mixerSetControlDetails(0, &MixControlDetails, MIXER_OBJECTF_MIDIOUT | MIXER_SETCONTROLDETAILSF_VALUE);
 
    // Phew, I'm glad that's over! What a horrible API...
+#else
+	// prissis short version
+	long vol = (left<<24)|(right<<8);
+
+	if( midiOutGetNumDevs()== 0 ) {
+		return;
+	}
+	midiOutSetVolume( 0, vol );
+#endif
 }

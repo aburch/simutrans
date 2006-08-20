@@ -2904,7 +2904,7 @@ void karte_t::bewege_zeiger(const event_t *ev)
 	int i_alt=zeiger->gib_pos().x;
 	int j_alt=zeiger->gib_pos().y;
 
-	int screen_y = ev->my - y_off - rw2 - rw4 + (rw4-16);
+	int screen_y = ev->my - y_off - rw2 - ((display_get_width()/rw1)&1)*16;
 	int screen_x = (ev->mx - x_off - rw2 - display_get_width()/2) / 2;
 
 	if(zeiger->gib_yoff() == Z_PLAN) {

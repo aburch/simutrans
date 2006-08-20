@@ -5,13 +5,17 @@ Known bugs: (hard to fix)
 	Monorails have no appropriate crossing
 
 
-Release of 86.07.2
+Release of 86.07.3
 
-28-Jul-2005 (prissi)
+30-Jul-2005 (prissi)
 	FIX: cursor alignment with 128
 	FIX: no money making by open schedule window during loading in a station
 	FIX: message list now displays all messages again
-	FIX: divers errors around the GDI display routines and further speed up
+	FIX: divers errors around the GDI display routines and further speed up + sound and midi
+	FIX: cursor offset finally corrected for all display widths
+
+
+Release of 86.07.2
 
 25-Jul-2005 (prissi)
 	FIX: again correct train types for newer paks

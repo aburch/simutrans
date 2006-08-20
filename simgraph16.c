@@ -3316,6 +3316,8 @@ simgraph_init(int width, int height, int use_shm, int do_sync, int full_screen)
 
     dr_os_init(2, parameter);
 
+	// make sure it something of 16 (also better for caching ... )
+    width = (width+15)&0x7FF0;
     ok = dr_os_open(width, height, full_screen);
 
     if(ok) {

@@ -113,7 +113,16 @@ void karte_vollansicht_t::display_dinge(const int i, const int j, const int xpos
 	}
     }
 
-    // Debugging
+#if 0
+	ding_t *zeiger = welt->gib_zeiger();
+	if(zeiger->gib_pos().gib_2d() == koord(i,j)) {
+		zeiger->display(xpos,
+			ypos-zeiger->gib_pos().z  * (get_tile_raster_width() >> 6),
+			dirty);
+		zeiger->clear_flag(ding_t::dirty);
+	}
+#endif
+	// Debugging
     // if(welt->ist_markiert(koord3d(pos.x, pos.y, -32))) {
     //	display_img(70, xpos, ypos - welt->gib_grundwasser(), true);
     // }
@@ -143,5 +152,5 @@ void karte_vollansicht_t::display(bool dirty)
  */
 ding_t *karte_vollansicht_t::gib_zeiger()
 {
-	welt->gib_zeiger();
+	return welt->gib_zeiger();
 }

@@ -23,7 +23,7 @@
  */
 
 //#define DEBUG 1
-
+#undef DEBUG
 
 #include <stdlib.h>
 #include <string.h>
