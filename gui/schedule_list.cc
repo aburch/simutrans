@@ -14,7 +14,6 @@
 
 #include "messagebox.h"
 #include "schedule_list.h"
-#include "components/gui_scrolled_list.h"
 #include "line_management_gui.h"
 #include "gui_convoiinfo.h"
 
@@ -32,7 +31,6 @@
 #include "../dataobj/fahrplan.h"
 #include "../dataobj/translator.h"
 #include "../dataobj/linie.h"
-#include "components/gui_chart.h"
 #include "components/list_button.h"
 #include "halt_list_item.h"
 
@@ -72,7 +70,8 @@ uint8 schedule_list_gui_t::statistic_type[MAX_LINE_COST]={
 schedule_list_gui_t::schedule_list_gui_t(karte_t *welt,spieler_t *sp)
  : gui_frame_t("Line Management",sp->get_player_color()),
  scrolly(&cont),
- scrolly_haltestellen(&cont_haltestellen)
+ scrolly_haltestellen(&cont_haltestellen),
+ scl(gui_scrolled_list_t::select)
 {
 	this->welt = welt;
 	this->sp = sp;
@@ -84,22 +83,21 @@ schedule_list_gui_t::schedule_list_gui_t(karte_t *welt,spieler_t *sp)
 	button_t button_def;
 
 	// init scrolled list
-	scl = new gui_scrolled_list_t(gui_scrolled_list_t::select);
-	scl->setze_groesse(koord(LINE_NAME_COLUMN_WIDTH-22, SCL_HEIGHT-14));
-	scl->setze_pos(koord(0,1));
-	scl->setze_highlight_color(gib_besitzer()->get_player_color()+1);
-	scl->request_groesse(scl->gib_groesse());
+	scl.setze_groesse(koord(LINE_NAME_COLUMN_WIDTH-22, SCL_HEIGHT-14));
+	scl.setze_pos(koord(0,1));
+	scl.setze_highlight_color(sp->get_player_color()+1);
+	scl.request_groesse(scl.gib_groesse());
 
 	// tab panel
 	tabs.setze_pos(koord(11,5));
 	tabs.setze_groesse(koord(LINE_NAME_COLUMN_WIDTH-22, SCL_HEIGHT));
-	tabs.add_tab(scl, translator::translate("All"));
-	tabs.add_tab(scl, translator::translate("Train"));
-	tabs.add_tab(scl, translator::translate("Monorail"));
-	tabs.add_tab(scl, translator::translate("Tram"));
-	tabs.add_tab(scl, translator::translate("Truck"));
-	tabs.add_tab(scl, translator::translate("Ship"));
-	tabs.add_tab(scl, translator::translate("Air"));
+	tabs.add_tab(&scl, translator::translate("All"));
+	tabs.add_tab(&scl, translator::translate("Train"));
+	tabs.add_tab(&scl, translator::translate("Monorail"));
+	tabs.add_tab(&scl, translator::translate("Tram"));
+	tabs.add_tab(&scl, translator::translate("Truck"));
+	tabs.add_tab(&scl, translator::translate("Ship"));
+	tabs.add_tab(&scl, translator::translate("Air"));
 	tabs.add_listener(this);
 	add_komponente(&tabs);
 
@@ -157,13 +155,12 @@ schedule_list_gui_t::schedule_list_gui_t(karte_t *welt,spieler_t *sp)
 	bt_delete_line.disable();
 
 	//CHART
-	chart = new gui_chart_t();
-	chart->set_dimension(12, 1000);
-	chart->setze_pos( koord(LINE_NAME_COLUMN_WIDTH+35,11) );
-	chart->set_seed(0);
-	chart->set_background(MN_GREY1);
+	chart.set_dimension(12, 1000);
+	chart.setze_pos( koord(LINE_NAME_COLUMN_WIDTH+35,11) );
+	chart.set_seed(0);
+	chart.set_background(MN_GREY1);
 
-	add_komponente(chart);
+	add_komponente(&chart);
 	//CHART END
 
 	// add filter buttons
@@ -185,22 +182,11 @@ schedule_list_gui_t::schedule_list_gui_t(karte_t *welt,spieler_t *sp)
 
 
 
-schedule_list_gui_t::~schedule_list_gui_t()
-{
-	delete(scl);
-	scl=0;
-	delete(chart);
-	chart=0;
-}
-
-
-
-bool schedule_list_gui_t::action_triggered(gui_komponente_t *komp)           // 28-Dec-01    Markus Weber    Added
+bool schedule_list_gui_t::action_triggered(gui_komponente_t *komp,value_t /* */)           // 28-Dec-01    Markus Weber    Added
 {
 	if (komp == &bt_change_line) {
 		if (line.is_bound()) {
-			line_management_gui_t *line_gui = new line_management_gui_t(welt, line, welt->get_active_player());
-			line_gui->zeige_info();
+			create_win(-1, -1, new line_management_gui_t(welt, line, sp), w_info);
 		}
 	}
 	else if (komp == &bt_new_line) {
@@ -208,8 +194,7 @@ bool schedule_list_gui_t::action_triggered(gui_komponente_t *komp)           // 
 			// create typed line
 			uint8 type=tabs_to_lineindex[tabs.get_active_tab_index()];
 			linehandle_t new_line = sp->simlinemgmt.create_line(type);
-			line_management_gui_t *line_gui = new line_management_gui_t(welt, new_line, sp);
-			line_gui->zeige_info();
+			create_win(-1, -1, new line_management_gui_t(welt, new_line, sp), w_info);
 			update_lineinfo( new_line );
 			build_line_list( tabs.get_active_tab_index() );
 		}
@@ -234,7 +219,7 @@ bool schedule_list_gui_t::action_triggered(gui_komponente_t *komp)           // 
 		if (line.is_bound()) {
 			for ( int i = 0; i<MAX_LINE_COST; i++) {
 				if (komp == &filterButtons[i]) {
-					chart->is_visible(i) == true ? chart->hide_curve(i) : chart->show_curve(i);
+					chart.is_visible(i) == true ? chart.hide_curve(i) : chart.show_curve(i);
 					break;
 				}
 			}
@@ -260,13 +245,13 @@ schedule_list_gui_t::infowin_event(const event_t *ev)
 			bt_change_line.enable();
 			bt_delete_line.enable();
 		}
-		if (scl->getroffen(x, y-40)) {
+		if (scl.getroffen(x, y-40)) {
 			linehandle_t new_line=linehandle_t();
 			event_t ev2 = *ev;
 			translate_event(&ev2, -tabs.pos.x, -tabs.pos.y-35);
-			scl->infowin_event(&ev2);
+			scl.infowin_event(&ev2);
 
-			selection = scl->gib_selection();
+			selection = scl.gib_selection();
 			// get selected line
 			if ((selection >= 0) && (selection < (int)lines.count())) {
 				new_line = lines.at(selection);
@@ -284,14 +269,14 @@ schedule_list_gui_t::infowin_event(const event_t *ev)
 void schedule_list_gui_t::zeichnen(koord pos, koord gr)
 {
   for (int i = 0;i<MAX_LINE_COST;i++) {
-    filterButtons[i].pressed = chart->is_visible(i);
+    filterButtons[i].pressed = chart.is_visible(i);
   }
 
   gui_frame_t::zeichnen(pos, gr);
   if (line.is_bound()) {
     display(pos);
   }
-//  scl->zeichnen(pos);
+//  scl.zeichnen(pos);
 }
 
 
@@ -360,7 +345,7 @@ void schedule_list_gui_t::resize(const koord delta)
 	scrolly.setze_groesse( koord(rest_width+11, get_client_windowsize().y-scrolly.gib_pos().y) );
 	scrolly_haltestellen.setze_groesse( koord(LINE_NAME_COLUMN_WIDTH-11, get_client_windowsize().y-scrolly_haltestellen.gib_pos().y) );
 
-	chart->setze_groesse(koord(rest_width-11-35, SCL_HEIGHT-11-14-(button_rows*(BUTTON_HEIGHT+BUTTON_SPACER))));
+	chart.setze_groesse(koord(rest_width-11-35, SCL_HEIGHT-11-14-(button_rows*(BUTTON_HEIGHT+BUTTON_SPACER))));
 	inp_name.setze_groesse(koord(rest_width-11, 14));
 	filled_bar.setze_groesse(koord(rest_width-11, 4));
 
@@ -377,14 +362,14 @@ void schedule_list_gui_t::build_line_list(int filter)
 	sp->simlinemgmt.sort_lines();	// to take care of renaming ...
 DBG_MESSAGE("schedule_list_gui_t::build_line_list()","count=%i",sp->simlinemgmt.count_lines());
 	if(sp->simlinemgmt.count_lines() > 0) {
-		scl->clear_elements();
+		scl.clear_elements();
 		lines.clear();
 		sp->simlinemgmt.build_line_list( tabs_to_lineindex[filter], &lines );
 		slist_iterator_tpl<linehandle_t> iter(lines);
 		while( iter.next() ) {
-			scl->append_element( iter.get_current()->get_name() );
+			scl.append_element( iter.get_current()->get_name() );
 			if(line==iter.get_current()) {
-				scl->setze_selection( scl->get_count()-1 );
+				scl.setze_selection( scl.get_count()-1 );
 			}
 		}
 	}
@@ -443,11 +428,11 @@ void schedule_list_gui_t::update_lineinfo(linehandle_t new_line)
 		cont_haltestellen.setze_groesse(koord(500, ypos));
 
 		// chart
-		chart->remove_curves();
+		chart.remove_curves();
 		for (int i=0; i<MAX_LINE_COST; i++)  {
-			chart->add_curve(cost_type_color[i], (sint64 *)new_line->get_finance_history(), MAX_LINE_COST, statistic[i], MAX_MONTHS, statistic_type[i], filterButtons[i].pressed, true);
+			chart.add_curve(cost_type_color[i], (sint64 *)new_line->get_finance_history(), MAX_LINE_COST, statistic[i], MAX_MONTHS, statistic_type[i], filterButtons[i].pressed, true);
 		}
-		chart->set_visible(true);
+		chart.set_visible(true);
 	}
 	else if(line.is_bound()) {
 		// need to hide everything
@@ -458,7 +443,7 @@ void schedule_list_gui_t::update_lineinfo(linehandle_t new_line)
 		scrolly_haltestellen.set_visible(false);
 		inp_name.set_visible(false);
 		filled_bar.set_visible(false);
-		scl->setze_selection(-1);
+		scl.setze_selection(-1);
 		bt_delete_line.disable();
 		bt_change_line.disable();
 	}

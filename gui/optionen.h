@@ -6,7 +6,7 @@
 #include "components/gui_button.h"
 #include "components/gui_label.h"
 #include "components/gui_divider.h"
-#include "ifc/action_listener.h"
+#include "components/action_listener.h"
 
 
 /**
@@ -40,13 +40,17 @@ public:
      * @return den Dateinamen für die Hilfe, oder NULL
      * @author Hj. Malthaner
      */
-    virtual const char * gib_hilfe_datei() const {return "options.txt";};
+    const char * gib_hilfe_datei() const {return "options.txt";};
 
-	/**
-	 * This method is called if an action is triggered (i.e. button pressed and released)
-	 * @author Hj. Malthaner
-	 */
-	bool action_triggered(gui_komponente_t *comp);
+    /**
+     * This method is called if an action is triggered
+     * @author Hj. Malthaner
+     *
+     * Returns true, if action is done and no more
+     * components should be triggered.
+     * V.Meyer
+     */
+    bool action_triggered(gui_komponente_t *komp, value_t extra);
 };
 
 #endif

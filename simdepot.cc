@@ -103,7 +103,7 @@ depot_t::convoi_arrived(convoihandle_t acnv, bool fpl_adjust)
   }
   convois.append(acnv);
   if(depot_info) {
-      depot_info->action_triggered(NULL);
+      depot_info->action_triggered(NULL,(long int)0);
   }
 
   DBG_MESSAGE("depot_t::convoi_arrived()", "convoi %d, %p entered depot",

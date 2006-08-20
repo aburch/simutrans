@@ -1,4 +1,5 @@
 #include "simstring.h"
+#include "../tpl/debug_helper.h"
 
 #include <string.h>
 #include <stdio.h>
@@ -7,6 +8,27 @@
 
 static char thousand_sep = ',';
 static char fraction_sep = '.';
+
+
+
+// a single use number to string ...
+char *ntos(int number, const char *format)
+{
+    static char tempstring[32];
+    int r;
+
+    if (format) {
+          r = sprintf(tempstring, format, number);
+    } else {
+          r = sprintf(tempstring, "%d", number);
+    }
+
+    if(r>=16) out_error("ntos","overflow");
+
+    return tempstring;
+}
+
+
 
 
 /**

@@ -7,16 +7,17 @@
  * in other projects without written permission of the author.
  */
 
+#ifndef money_frame_h
+#define money_frame_h
+
 #include "../simplay.h"
 
 #include "gui_frame.h"
-#include "ifc/action_listener.h"
+#include "components/action_listener.h"
 #include "components/gui_button.h"
 #include "components/gui_label.h"
 #include "components/gui_tab_panel.h"
-
-class gui_chart_t;
-class gui_label_t;
+#include "components/gui_chart.h"
 
 /**
  * Finances dialog
@@ -30,7 +31,7 @@ class money_frame_t : public gui_frame_t, private action_listener_t
 private:
     char money_frame_title[80];
 
-    gui_chart_t *chart, *mchart;
+    gui_chart_t chart, mchart;
 
     gui_label_t tylabel; // this year
     gui_label_t lylabel; // last year
@@ -100,7 +101,7 @@ public:
      * @return den Dateinamen für die Hilfe, oder NULL
      * @author Hj. Malthaner
      */
-    virtual const char * gib_hilfe_datei() const {return "finances.txt";};
+    const char * gib_hilfe_datei() const {return "finances.txt";};
 
     /**
      * Konstruktor. Erzeugt alle notwendigen Subkomponenten.
@@ -118,9 +119,14 @@ public:
 
     /**
      * This method is called if an action is triggered
-     * @author hsiegeln
+     * @author Hj. Malthaner
+     *
+     * Returns true, if action is done and no more
+     * components should be triggered.
+     * V.Meyer
      */
-    virtual bool action_triggered(gui_komponente_t *);
-
+    bool action_triggered(gui_komponente_t *komp, value_t extra);
 
 };
+
+#endif

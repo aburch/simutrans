@@ -11,8 +11,7 @@
 #include "components/gui_scrollbar.h"
 #include "components/gui_label.h"
 #include "components/gui_button.h"
-#include "ifc/action_listener.h"
-#include "ifc/scrollbar_listener.h"
+#include "components/action_listener.h"
 
 /**
  * Soundkontrollfenster für Simutrans.
@@ -21,7 +20,7 @@
  * @date 09-Apr-01
  * @version $Revision: 1.8 $
  */
-class sound_frame_t : public gui_frame_t, scrollbar_listener_t, action_listener_t
+class sound_frame_t : public gui_frame_t, action_listener_t
 {
 private:
     scrollbar_t digi;
@@ -44,7 +43,7 @@ public:
      * @return den Dateinamen für die Hilfe, oder NULL
      * @author Hj. Malthaner
      */
-    virtual const char * gib_hilfe_datei() const {return "sound.txt";};
+    const char * gib_hilfe_datei() const {return "sound.txt";};
 
 
     /**
@@ -53,16 +52,6 @@ public:
      */
     sound_frame_t();
 
-
-
-    /**
-     * This method is called if the slider is moved.
-     * The value ranges from 0 to (and including) range.
-     * @author Hj. Malthaner
-     */
-    void scrollbar_moved(scrollbar_t *sb, int range, int value);
-    bool action_triggered(gui_komponente_t *komp);
-
     /**
      * komponente neu zeichnen. Die übergebenen Werte beziehen sich auf
      * das Fenster, d.h. es sind die Bildschirkoordinaten des Fensters
@@ -70,4 +59,14 @@ public:
      * @author Hj. Malthaner
      */
     void zeichnen(koord pos, koord gr);
+
+    /**
+     * This method is called if an action is triggered
+     * @author Hj. Malthaner
+     *
+     * Returns true, if action is done and no more
+     * components should be triggered.
+     * V.Meyer
+     */
+    bool action_triggered(gui_komponente_t *komp, value_t extra);
 };

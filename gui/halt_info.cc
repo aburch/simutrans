@@ -21,7 +21,6 @@
 
 #include "../dataobj/translator.h"
 #include "components/list_button.h"
-#include "components/gui_chart.h"
 #include "../besch/skin_besch.h"
 
 
@@ -94,11 +93,11 @@ halt_info_t::halt_info_t(karte_t *welt, halthandle_t halt)
 	toggler.setze_groesse(koord(BUTTON_WIDTH, BUTTON_HEIGHT));
 	toggler.setze_pos(koord(BUTTON3_X, 78));
 	toggler.setze_text("Chart");
-	toggler.setze_typ(button_t::roundbox);
+	toggler.setze_typ(button_t::roundbox_state);
 	toggler.set_tooltip("Show/hide statistics");
 	toggler.add_listener(this);
+	toggler.pressed = false;
 	add_komponente(&toggler);
-	btoggled = false;
 
 	button.setze_groesse(koord(BUTTON_WIDTH, BUTTON_HEIGHT));
 	button.setze_pos(koord(BUTTON4_X, 78));
@@ -121,25 +120,24 @@ halt_info_t::halt_info_t(karte_t *welt, halthandle_t halt)
 	sort_button.add_listener(this);
 
 	// chart
-	chart = new gui_chart_t;
-	chart->setze_pos(koord(46,80));
-	chart->setze_groesse(koord(BUTTON4_X+BUTTON_WIDTH-50, 100));
-	chart->set_dimension(12, 10000);
-	chart->set_visible(false);
-	chart->set_background(MN_GREY1);
-	for (int cost = 0; cost<MAX_HALT_COST; cost++) {
-		chart->add_curve(cost_type_color[cost], halt->get_finance_history(), MAX_HALT_COST, index_of_haltinfo[cost], MAX_MONTHS, 0, false, true);
+	chart.setze_pos(koord(46,80));
+	chart.setze_groesse(koord(BUTTON4_X+BUTTON_WIDTH-50, 100));
+	chart.set_dimension(12, 10000);
+	chart.set_visible(false);
+	chart.set_background(MN_GREY1);
 
-		filterButtons[cost].init(button_t::box, cost_type[cost],
+	for (int cost = 0; cost<MAX_HALT_COST; cost++) {
+		chart.add_curve(cost_type_color[cost], halt->get_finance_history(), MAX_HALT_COST, index_of_haltinfo[cost], MAX_MONTHS, 0, false, true);
+		filterButtons[cost].init(button_t::box_state, cost_type[cost],
 			koord(BUTTON1_X+(BUTTON_WIDTH+BUTTON_SPACER)*(cost%4), 198+(BUTTON_HEIGHT+2)*(cost/4) ),
 			koord(BUTTON_WIDTH, BUTTON_HEIGHT));
 		filterButtons[cost].add_listener(this);
 		filterButtons[cost].background = cost_type_color[cost];
 		filterButtons[cost].set_visible(false);
-		bFilterIsActive[cost] = false;
+		filterButtons[cost].pressed = false;
 		add_komponente(filterButtons + cost);
     }
-    add_komponente(chart);
+    add_komponente(&chart);
 
     add_komponente(&view);
     add_komponente(&scrolly);
@@ -163,11 +161,6 @@ halt_info_t::zeichnen(koord pos, koord gr)
 			text.setze_text(freight_info);
 			resize( koord(0,0) );	// recalcs slider
 		}
-
-		for (int i = 0;i<MAX_HALT_COST;i++) {
-			filterButtons[i].pressed = bFilterIsActive[i];
-		}
-		toggler.pressed = btoggled;
 
 		gui_frame_t::zeichnen(pos, gr);
 
@@ -237,7 +230,7 @@ halt_info_t::zeichnen(koord pos, koord gr)
  * This method is called if an action is triggered
  * @author Hj. Malthaner
  */
-bool halt_info_t::action_triggered(gui_komponente_t *comp)
+bool halt_info_t::action_triggered(gui_komponente_t *comp,value_t /* */)
 {
 	if (comp == &button) { 			// details button pressed
 		halt->open_detail_window();
@@ -246,27 +239,25 @@ bool halt_info_t::action_triggered(gui_komponente_t *comp)
 		halt->set_sortby((freight_list_sorter_t::sort_mode_t) sortby);
 		sort_button.setze_text(sort_text[sortby]);
 	} else  if (comp == &toggler) {
-		btoggled = !btoggled;
-		const koord offset = btoggled ? koord(0, 165) : koord(0, -165);
-   		set_min_windowsize(koord(BUTTON4_X+BUTTON_WIDTH+2, btoggled ?372:194));
+		toggler.pressed ^= 1;
+		const koord offset = toggler.pressed ? koord(0, 165) : koord(0, -165);
+   		set_min_windowsize(koord(BUTTON4_X+BUTTON_WIDTH+2, toggler.pressed ?372:194));
 		scrolly.pos.y += offset.y;
 		// toggle visibility of components
-		chart->set_visible(btoggled);
+		chart.set_visible(toggler.pressed);
 		setze_fenstergroesse(gib_fenstergroesse() + offset);
 		resize(koord(0,0));
 		for (int i=0;i<MAX_HALT_COST;i++) {
-			filterButtons[i].set_visible(btoggled);
+			filterButtons[i].set_visible(toggler.pressed);
 		}
 	} else {
-		for ( int i = 0; i<MAX_HALT_COST; i++) {
-
+		for( int i = 0; i<MAX_HALT_COST; i++) {
 			if (comp == &filterButtons[i]) {
-
-				bFilterIsActive[i] = !bFilterIsActive[i];
-				if(bFilterIsActive[i]) {
-					chart->show_curve(i);
+				filterButtons[i].pressed = !filterButtons[i].pressed;
+				if(filterButtons[i].pressed) {
+					chart.show_curve(i);
 				} else {
-					chart->hide_curve(i);
+					chart.hide_curve(i);
 				}
 				break;
 			}
@@ -285,7 +276,7 @@ void halt_info_t::resize(const koord delta)
 {
 	gui_frame_t::resize(delta);
 
-	const sint16 button_offset_y = btoggled?245:80;
+	const sint16 button_offset_y = toggler.pressed?245:80;
 
 	input.setze_groesse(koord(get_client_windowsize().x-23, 13));
 	toggler.setze_pos(koord(BUTTON3_X,button_offset_y));

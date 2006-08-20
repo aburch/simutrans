@@ -31,25 +31,18 @@ private:
 public:
 	message_stats_t(karte_t *welt);
 
-    /**
-     * Vorzugsweise sollte diese Methode zum Setzen der Größe benutzt werden,
-     * obwohl groesse public ist.
-     * @author Hj. Malthaner
-     */
-//    virtual void setze_groesse(koord groesse);
-
   /**
    * Events werden hiermit an die GUI-Komponenten
    * gemeldet
    * @author Hj. Malthaner
    */
-  virtual void infowin_event(const event_t *);
+  void infowin_event(const event_t *);
 
   /**
    * Zeichnet die Komponente
    * @author Hj. Malthaner
    */
-  virtual void zeichnen(koord offset) const;
+  void zeichnen(koord offset) const;
 };
 
 #endif // message_stats_n

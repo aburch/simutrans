@@ -30,7 +30,6 @@
 
 #include "../utils/simstring.h"
 
-#include "components/gui_chart.h"
 #include "components/list_button.h"
 
 #include "convoi_detail_t.h"
@@ -94,23 +93,13 @@ convoi_info_t::convoi_info_t(convoihandle_t cnv)
 
 	add_komponente(&sort_label);
 
-#ifdef HAVE_KILL
-	kill_button.setze_groesse(koord(15, 11));
-	kill_button.text = "X";
-	kill_button.setze_typ(button_t::roundbox);
-	kill_button.kennfarbe = COL_RED;
-	kill_button.set_tooltip("Remove vehicle from map. Use with care!");
-	add_komponente(&kill_button);
-	kill_button.add_listener(this);
-#endif
-
 	toggler.setze_groesse(koord(BUTTON_WIDTH, BUTTON_HEIGHT));
 	toggler.setze_text("Chart");
-	toggler.setze_typ(button_t::roundbox);
+	toggler.setze_typ(button_t::roundbox_state);
 	toggler.add_listener(this);
 	toggler.set_tooltip("Show/hide statistics");
 	add_komponente(&toggler);
-	btoggled = false;
+	toggler.pressed = false;
 
 	sort_button.setze_groesse(koord(BUTTON_WIDTH, BUTTON_HEIGHT));
 	sort_button.setze_text(translator::translate(sort_text[sortby]));
@@ -146,22 +135,21 @@ convoi_info_t::convoi_info_t(convoihandle_t cnv)
 	setze_fenstergroesse(koord(TOTAL_WIDTH, 278));
 
 	// chart
-	chart = new gui_chart_t;
-	chart->setze_pos(koord(44,76+BUTTON_HEIGHT+8));
-	chart->setze_groesse(koord(TOTAL_WIDTH-44-4, 100));
-	chart->set_dimension(12, 10000);
-	chart->set_visible(false);
-	chart->set_background(MN_GREY1);
+	chart.setze_pos(koord(44,76+BUTTON_HEIGHT+8));
+	chart.setze_groesse(koord(TOTAL_WIDTH-44-4, 100));
+	chart.set_dimension(12, 10000);
+	chart.set_visible(false);
+	chart.set_background(MN_GREY1);
 	for (int cost = 0; cost<MAX_CONVOI_COST; cost++) {
-		chart->add_curve(cost_type_color[cost], cnv->get_finance_history(), MAX_CONVOI_COST, cost, MAX_MONTHS, cost<MAX_CONVOI_NON_MONEY_TYPES ? 0 : 1, false, true);
-		filterButtons[cost].init(button_t::box, cost_type[cost], koord(BUTTON1_X+(BUTTON_WIDTH+BUTTON_SPACER)*(cost%4), 230+(BUTTON_HEIGHT+2)*(cost/4)), koord(BUTTON_WIDTH, BUTTON_HEIGHT));
+		chart.add_curve(cost_type_color[cost], cnv->get_finance_history(), MAX_CONVOI_COST, cost, MAX_MONTHS, cost<MAX_CONVOI_NON_MONEY_TYPES ? 0 : 1, false, true);
+		filterButtons[cost].init(button_t::box_state, cost_type[cost], koord(BUTTON1_X+(BUTTON_WIDTH+BUTTON_SPACER)*(cost%4), 230+(BUTTON_HEIGHT+2)*(cost/4)), koord(BUTTON_WIDTH, BUTTON_HEIGHT));
 		filterButtons[cost].add_listener(this);
 		filterButtons[cost].background = cost_type_color[cost];
 		filterButtons[cost].set_visible(false);
-		bFilterIsActive[cost] = false;
+		filterButtons[cost].pressed = false;
 		add_komponente(filterButtons + cost);
 	}
-	add_komponente(chart);
+	add_komponente(&chart);
 	add_komponente(&view);
 
 	// this convoi belongs not to an AI
@@ -183,7 +171,7 @@ convoi_info_t::convoi_info_t(convoihandle_t cnv)
 
 	follow_button.setze_groesse(koord(66, BUTTON_HEIGHT));
 	follow_button.setze_text("follow me");
-	follow_button.setze_typ(button_t::roundbox);
+	follow_button.setze_typ(button_t::roundbox_state);
 	follow_button.set_tooltip("Follow the convoi on the map.");
 	add_komponente(&follow_button);
 	follow_button.add_listener(this);
@@ -195,12 +183,6 @@ convoi_info_t::convoi_info_t(convoihandle_t cnv)
 	resize(koord(0,0));
 }
 
-
-/**
- * Destruktor.
- * @author Hj. Malthaner
- */
-convoi_info_t::~convoi_info_t() { }
 
 
 /**
@@ -219,18 +201,12 @@ convoi_info_t::zeichnen(koord pos, koord gr)
 		if(cnv->gib_besitzer()==cnv->gib_welt()->get_active_player()) {
 			button.enable();
 			go_home_button.enable();
-#ifdef HAVE_KILL
-			kill_button.enable();
-#endif
 		}
 		else {
 			button.disable();
 			go_home_button.disable();
-#ifdef HAVE_KILL
-			kill_button.disable();
-#endif
 		}
-		follow_button.enable();
+		follow_button.pressed = (cnv->gib_welt()->get_follow_convoi()==cnv);
 
 		// buffer update now only when needed by convoi itself => dedicated buffer for this
 		int old_len=freight_info.len();
@@ -239,12 +215,6 @@ convoi_info_t::zeichnen(koord pos, koord gr)
 			text.setze_text(freight_info);
 			resize( koord(0,0) );	// recalcs slider ...
 		}
-
-		for (int i = 0; i<MAX_CONVOI_COST; i++) {
-			filterButtons[i].pressed = bFilterIsActive[i];
-		}
-		toggler.pressed = btoggled;
-		follow_button.pressed = (cnv->gib_welt()->get_follow_convoi()==cnv);
 
 		route_bar.set_base(cnv->get_route()->gib_max_n());
 		cnv_route_index = cnv->gib_vehikel(0)->gib_route_index()-1;
@@ -312,7 +282,7 @@ convoi_info_t::zeichnen(koord pos, koord gr)
  * This method is called if an action is triggered
  * @author Hj. Malthaner
  */
-bool convoi_info_t::action_triggered(gui_komponente_t *komp)
+bool convoi_info_t::action_triggered(gui_komponente_t *komp,value_t /* */)
 {
 	// follow convoi on map?
 	if(komp == &follow_button) {
@@ -417,29 +387,20 @@ DBG_MESSAGE("convoi_info_t::action_triggered()","search depot: found on %i,%i",g
 				create_win(-1, -1, 120, new nachrichtenfenster_t(cnv->gib_welt(), translator::translate("Home depot not found!\nYou need to send the\nconvoi to the depot\nmanually.")), w_autodelete);
 			}
 		} // end go home button
-
-#ifdef HAVE_KILL
-		if(komp == &kill_button)     // Destroy convoi -> deletes us, too!
-		{
-		      destroy_win(dynamic_cast <gui_fenster_t *> (this));
-			cnv->self_destruct();
-			return true;
-		}
-#endif
 	}
 
 	if (komp == &toggler)
         {
-		btoggled = !btoggled;
-		const koord offset = btoggled ? koord(0, 170) : koord(0, -170);
-		set_min_windowsize( koord(TOTAL_WIDTH, btoggled ? 364: 194));
+		toggler.pressed = !toggler.pressed;
+		const koord offset = toggler.pressed ? koord(0, 170) : koord(0, -170);
+		set_min_windowsize( koord(TOTAL_WIDTH, toggler.pressed ? 364: 194));
 		scrolly.pos.y += offset.y;
 		// toggle visibility of components
-		chart->set_visible(btoggled);
+		chart.set_visible(toggler.pressed);
 		setze_fenstergroesse(gib_fenstergroesse() + offset);
 		resize(koord(0,0));
 		for (int i=0;i<MAX_CONVOI_COST;i++) {
-			filterButtons[i].set_visible(btoggled);
+			filterButtons[i].set_visible(toggler.pressed);
 		}
 		return true;
 	}
@@ -448,11 +409,11 @@ DBG_MESSAGE("convoi_info_t::action_triggered()","search depot: found on %i,%i",g
 	{
 		if (komp == &filterButtons[i])
 		{
-		  bFilterIsActive[i] = !bFilterIsActive[i];
-		  if(bFilterIsActive[i]) {
-		    chart->show_curve(i);
+		  filterButtons[i].pressed = !filterButtons[i].pressed;
+		  if(filterButtons[i].pressed) {
+		    chart.show_curve(i);
 		  } else {
-		    chart->hide_curve(i);
+		    chart.hide_curve(i);
 		  }
 
 		  return true;
@@ -471,12 +432,7 @@ void convoi_info_t::resize(const koord delta)
 {
 	gui_frame_t::resize(delta);
 
-#ifdef HAVE_KILL
-	input.setze_groesse(koord(get_client_windowsize().x-22-15-11, 13));
-	kill_button.setze_pos(koord(get_client_windowsize().x - 11-15 , 4));
-#else
 	input.setze_groesse(koord(get_client_windowsize().x-22, 13));
-#endif
 
 	view.setze_pos(koord(get_client_windowsize().x - 64 - 12 , 21));
 	follow_button.setze_pos(koord(view.gib_pos().x-1,77));

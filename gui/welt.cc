@@ -37,6 +37,7 @@
 
 #include "load_relief_frame.h"
 
+#include "../utils/simstring.h"
 #include "components/list_button.h"
 
 #define START_HEIGHT (28)
@@ -252,6 +253,8 @@ DBG_MESSAGE("","sizeof(stat)=%d, sizeof(tm)=%d",sizeof(struct stat),sizeof(struc
 	start_game.add_listener( this );
 	add_komponente( &start_game );
 
+	setze_fenstergroesse( koord(260, 300) );
+
 	update_preview();
 	setze_opaque(true);
 }
@@ -383,19 +386,13 @@ DBG_MESSAGE("sizes","grund_t=%i, planquadrat_t=%d, ding_t=%d",sizeof(grund_t),si
 
 
 
-koord welt_gui_t::gib_fenstergroesse() const
-{
-    return koord(260, 300);
-}
-
-
 
 /**
  * This method is called if an action is triggered
  * @author Hj. Malthaner
  */
 bool
-welt_gui_t::action_triggered(gui_komponente_t *komp)
+welt_gui_t::action_triggered(gui_komponente_t *komp,value_t /* */)
 {
 	if(komp==map_number+0) {
 		if(sets->gib_karte_nummer() > 0 ) {
@@ -607,23 +604,6 @@ void welt_gui_t::infowin_event(const event_t *ev)
 
 
 
-static char *ntos(int number, const char *format)
-{
-    static char tempstring[32];
-    int r;
-
-    if (format) {
-          r = sprintf(tempstring, format, number);
-    } else {
-          r = sprintf(tempstring, "%d", number);
-    }
-    assert(r<16);
-
-    return tempstring;
-}
-
-
-
 void welt_gui_t::zeichnen(koord pos, koord gr)
 {
 	if(!loaded_heightfield  && sets->heightfield.len()!=0) {
@@ -665,7 +645,7 @@ void welt_gui_t::zeichnen(koord pos, koord gr)
 
 	display_proportional_clip(x, y, translator::translate("2WORLD_CHOOSE"), ALIGN_LEFT, COL_BLACK, true);
 	if(!loaded_heightfield) {
-		display_proportional_clip(x+TEXT_RIGHT, y, ntos(sets->gib_karte_nummer(), "%3d"), ALIGN_RIGHT, COL_WHITE, true);
+		display_proportional_clip(x+TEXT_RIGHT, y, ntos(sets->gib_karte_nummer(), 0), ALIGN_RIGHT, COL_WHITE, true);
 	}
 	else {
 		display_proportional_clip(x+TEXT_RIGHT, y, translator::translate("file"), ALIGN_RIGHT, COL_WHITE, true);
@@ -676,48 +656,48 @@ void welt_gui_t::zeichnen(koord pos, koord gr)
 	const long memory = (sizeof(karte_t)+8l*sizeof(spieler_t)+ 100*sizeof(convoi_t) + (sets->gib_groesse_x()+sets->gib_groesse_y())*(sizeof(schiene_t)+sizeof(vehikel_t)) + (sizeof(stadt_t)*sets->gib_anzahl_staedte()) + x2*(sizeof(grund_t)+sizeof(planquadrat_t)+4*sizeof(ding_t)) )/(1024l*1024l);
 	sprintf(buf, translator::translate("3WORLD_CHOOSE"), memory);
 	display_proportional_clip(x, y, buf, ALIGN_LEFT, COL_BLACK, true);
-	display_proportional_clip(x+TEXT_RIGHT, y, ntos(sets->gib_groesse_x(), "%3d"), ALIGN_RIGHT, COL_WHITE, true);
+	display_proportional_clip(x+TEXT_RIGHT, y, ntos(sets->gib_groesse_x(), 0), ALIGN_RIGHT, COL_WHITE, true);
 	y += 12;
-	display_proportional_clip(x+TEXT_RIGHT, y, ntos(sets->gib_groesse_y(), "%3d"), ALIGN_RIGHT, COL_WHITE, true);
+	display_proportional_clip(x+TEXT_RIGHT, y, ntos(sets->gib_groesse_y(), 0), ALIGN_RIGHT, COL_WHITE, true);
 	y += 12+5;
 
       // water level       18-Nov-01       Markus W. Added
 	display_proportional_clip(x, y, translator::translate("Water level"), ALIGN_LEFT, COL_BLACK, true);
-	display_proportional_clip(x+TEXT_RIGHT, y, ntos(sets->gib_grundwasser()/32+5,"%3d"), ALIGN_RIGHT, COL_WHITE, true);
+	display_proportional_clip(x+TEXT_RIGHT, y, ntos(sets->gib_grundwasser()/32+5,0), ALIGN_RIGHT, COL_WHITE, true);
 	y += 12;
 	display_proportional_clip(x, y, translator::translate("Mountain height"), ALIGN_LEFT, COL_BLACK, true);
-	display_proportional_clip(x+TEXT_RIGHT, y, ntos((int)(sets->gib_max_mountain_height()), "%3d"), ALIGN_RIGHT, COL_WHITE, true);
+	display_proportional_clip(x+TEXT_RIGHT, y, ntos((int)(sets->gib_max_mountain_height()), 0), ALIGN_RIGHT, COL_WHITE, true);
 	y += 12;
 	display_proportional_clip(x, y, translator::translate("Map roughness"), ALIGN_LEFT, COL_BLACK, true);
-	display_proportional_clip(x+TEXT_RIGHT, y, ntos((int)(sets->gib_map_roughness()*20.0 + 0.5)-8 , "%3d") , ALIGN_RIGHT, COL_WHITE, true);     // x = round(roughness * 10)-4  // 0.6 * 10 - 4 = 2    //29-Nov-01     Markus W. Added
+	display_proportional_clip(x+TEXT_RIGHT, y, ntos((int)(sets->gib_map_roughness()*20.0 + 0.5)-8 , 0) , ALIGN_RIGHT, COL_WHITE, true);     // x = round(roughness * 10)-4  // 0.6 * 10 - 4 = 2    //29-Nov-01     Markus W. Added
 	y += 12+5;
 
 	y += BUTTON_HEIGHT+5;	// buttons
 
 	display_proportional_clip(x, y, translator::translate("5WORLD_CHOOSE"), ALIGN_LEFT, COL_BLACK, true);
-	display_proportional_clip(x+TEXT_WIDE_RIGHT, y, ntos(sets->gib_anzahl_staedte(), "%3d"), ALIGN_RIGHT, COL_WHITE, true);
+	display_proportional_clip(x+TEXT_WIDE_RIGHT, y, ntos(sets->gib_anzahl_staedte(), 0), ALIGN_RIGHT, COL_WHITE, true);
 	y += 12;
 	display_proportional_clip(x, y, translator::translate("Median Citizen per town"), ALIGN_LEFT, COL_BLACK, true);
-	display_proportional_clip(x+TEXT_WIDE_RIGHT, y, ntos(sets->gib_mittlere_einwohnerzahl(),"%3d"),ALIGN_RIGHT, COL_WHITE, true);
+	display_proportional_clip(x+TEXT_WIDE_RIGHT, y, ntos(sets->gib_mittlere_einwohnerzahl(),0),ALIGN_RIGHT, COL_WHITE, true);
 	y += 12;
 	display_proportional_clip(x, y, translator::translate("Intercity road len:"), ALIGN_LEFT, COL_BLACK, true);
-	display_proportional_clip(x+TEXT_WIDE_RIGHT, y, ntos(umgebung_t::intercity_road_length,"%3d"),ALIGN_RIGHT, COL_WHITE, true);
+	display_proportional_clip(x+TEXT_WIDE_RIGHT, y, ntos(umgebung_t::intercity_road_length,0),ALIGN_RIGHT, COL_WHITE, true);
 	y += 12;
 	display_proportional_clip(x, y, translator::translate("6WORLD_CHOOSE"), ALIGN_LEFT, COL_BLACK, true);
-	display_proportional_clip(x+TEXT_WIDE_RIGHT, y, ntos(sets->gib_verkehr_level(),"%3d"), ALIGN_RIGHT, COL_WHITE, true);
+	display_proportional_clip(x+TEXT_WIDE_RIGHT, y, ntos(sets->gib_verkehr_level(),0), ALIGN_RIGHT, COL_WHITE, true);
 	y += 12+5;
 
 	display_proportional_clip(x, y, translator::translate("Land industries"), ALIGN_LEFT, COL_BLACK, true);
-	display_proportional_clip(x+TEXT_WIDE_RIGHT, y, ntos(sets->gib_land_industry_chains(),"%3d"), ALIGN_RIGHT, COL_WHITE, true);
+	display_proportional_clip(x+TEXT_WIDE_RIGHT, y, ntos(sets->gib_land_industry_chains(),0), ALIGN_RIGHT, COL_WHITE, true);
 	y += 12;
 	display_proportional_clip(x, y, translator::translate("City industries"), ALIGN_LEFT, COL_BLACK, true);
-	display_proportional_clip(x+TEXT_WIDE_RIGHT, y, ntos(sets->gib_city_industry_chains(),"%3d"), ALIGN_RIGHT, COL_WHITE, true);
+	display_proportional_clip(x+TEXT_WIDE_RIGHT, y, ntos(sets->gib_city_industry_chains(),0), ALIGN_RIGHT, COL_WHITE, true);
 	y += 12;
 	display_proportional_clip(x, y, translator::translate("Tourist attractions"), ALIGN_LEFT, COL_BLACK, true);
-	display_proportional_clip(x+TEXT_WIDE_RIGHT, y, ntos(sets->gib_tourist_attractions(),"%3d"), ALIGN_RIGHT, COL_WHITE, true);
+	display_proportional_clip(x+TEXT_WIDE_RIGHT, y, ntos(sets->gib_tourist_attractions(),0), ALIGN_RIGHT, COL_WHITE, true);
 	y += 12+5;
 
-	display_proportional_clip(x+TEXT_WIDE_RIGHT, y, ntos(sets->gib_starting_year(), "%3d"), ALIGN_RIGHT, COL_WHITE, true);
+	display_proportional_clip(x+TEXT_WIDE_RIGHT, y, ntos(sets->gib_starting_year(), 0), ALIGN_RIGHT, COL_WHITE, true);
 	y += 12+5;
 	y += 12+5;
 

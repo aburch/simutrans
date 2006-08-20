@@ -135,7 +135,7 @@ map_frame_t::map_frame_t(const karte_modell_t *welt) :
 
 // button pressed
 bool
-map_frame_t::action_triggered(gui_komponente_t *komp)
+map_frame_t::action_triggered(gui_komponente_t *komp,value_t /* */)
 {
 	reliefkarte_t::gib_karte()->set_mode(-1);
 	for (int i=0;i<MAX_MAP_TYPE;i++) {

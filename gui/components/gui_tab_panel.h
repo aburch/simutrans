@@ -35,7 +35,7 @@ public:
      * Gibt die aktuell angezeigte Komponente zurück.
      * @author Hj. Malthaner
      */
-    gui_komponente_t * gib_aktives_tab() const;
+    gui_komponente_t * gib_aktives_tab() const { return tabs.at(active_tab); }
 
     int get_active_tab_index() { return active_tab; }
 
@@ -44,19 +44,20 @@ public:
      * gemeldet
      * @author Hj. Malthaner
      */
-    virtual void infowin_event(const event_t *ev);
+    void infowin_event(const event_t *ev);
 
     /**
      * Zeichnet die Registerkarten
      * @author Hj. Malthaner
      */
-    virtual void zeichnen(koord offset) const;
+    void zeichnen(koord offset) const;
+
     /**
      * Resizing must be propagated!
      * @author Volker Meyer
      * @date  18.06.2003
      */
-    virtual void setze_groesse(koord groesse);
+    void setze_groesse(koord groesse);
 };
 
 #endif

@@ -5,10 +5,12 @@
  * in other projects without written permission of the author.
  */
 
+#ifndef gui_chart_h
+#define gui_chart_h
+
 #include "../../simtypes.h"
 #include "../../ifc/gui_komponente.h"
 #include "../../tpl/slist_tpl.h"
-#include "../ifc/action_listener.h"
 
 // CURVE TYPES
 #define STANDARD 0
@@ -20,9 +22,8 @@
  */
 class gui_chart_t : public gui_komponente_t
 {
-	public:
-
-        /**
+public:
+    /**
 	 * Set background color. -1 means no background
 	 * @author Hj. Malthaner
 	 */
@@ -88,23 +89,12 @@ class gui_chart_t : public gui_komponente_t
 	 */
         void show_curve(unsigned int id);
 
-
-	void setze_pos(koord pos) {
-		this->pos = pos;
-	}
-
-	void setze_groesse(koord groesse) {
-		this->groesse = groesse;
-	}
-
 	/*
 	 * set starting value for x-axis of chart
 	 * example: set_seed(1930) will make a graph starting in year 1930; use set_seed(-1) to display nothing
 	 * @author hsiegeln
 	 */
-	void set_seed(int seed) {
-		this->seed = seed;
-	}
+	void set_seed(int seed) { this->seed = seed; }
 
 	bool is_visible(unsigned int id);
 
@@ -114,7 +104,7 @@ class gui_chart_t : public gui_komponente_t
 
 	int get_curve_count() { return curves.count(); };
 
-	private:
+private:
 
         void calc_gui_chart_values(sint64 *baseline, float *scale, char *, char *) const;
 
@@ -141,10 +131,11 @@ class gui_chart_t : public gui_komponente_t
 
 	bool show_x_axis, show_y_axis;
 
-
 	/**
 	 * Background color, -1 for transparent background
 	 * @author Hj. Malthaner
 	 */
 	int background;
 };
+
+#endif

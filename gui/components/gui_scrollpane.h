@@ -1,28 +1,21 @@
 /*
  * gui_scrollpane.h
  *
+ * this is a scrolling area in which subcomponents are drawn
+ *
  * Copyright (c) 1997 - 2001 Hansjörg Malthaner
  *
  * This file is part of the Simutrans project and may not be used
  * in other projects without written permission of the author.
  */
 
-#include "../../ifc/gui_komponente.h"
-
-class scrollbar_t;
-
-
-/**
- * Eine Klasse doe Scrollbars für andere gui_komponent_t bereitstellt.
- *
- * @author Hj. Malthaner
- * @date 03-Mar-01
- * @version $Revision: 1.7 $
- */
 
 #ifndef gui_scrollpane_h
 #define gui_scrollpane_h
 
+
+#include "../../ifc/gui_komponente.h"
+#include "gui_scrollbar.h"
 
 class gui_scrollpane_t : public gui_komponente_t
 {
@@ -33,23 +26,16 @@ private:
      */
     gui_komponente_t *komp;
 
-
     /**
-     * Scrollbar X
+     * Scrollbar X/Y
      * @author Hj. Malthaner
      */
-    scrollbar_t *scroll_x;
+    scrollbar_t scroll_x, scroll_y;
 
+	bool b_show_scroll_x:1;
+	bool b_show_scroll_y:1;
+	bool b_has_size_corner:1;
 
-    /**
-     * Scrollbar X
-     * @author Hj. Malthaner
-     */
-    scrollbar_t *scroll_y;
-
-	bool b_show_scroll_x;
-	bool b_show_scroll_y;
-	bool b_has_size_corner;
 public:
 
     /**
@@ -58,13 +44,6 @@ public:
      * @author Hj. Malthaner
      */
     gui_scrollpane_t(gui_komponente_t *komp);
-
-
-    /**
-     * Destruktor
-     * @author Hj. Malthaner
-     */
-    ~gui_scrollpane_t();
 
 
     /**
@@ -88,21 +67,19 @@ public:
      * gemeldet
      * @author Hj. Malthaner
      */
-    virtual void infowin_event(const event_t *ev);
-
+    void infowin_event(const event_t *ev);
 
     /**
      * Zeichnet die Komponente
      * @author Hj. Malthaner
      */
-    virtual void zeichnen(koord offset) const;
+    void zeichnen(koord offset) const;
 
     void set_show_scroll_x(bool yesno) { b_show_scroll_x = yesno; };
 
     void set_show_scroll_y(bool yesno) { b_show_scroll_y = yesno; };
 
     void set_size_corner(bool yesno) { b_has_size_corner = yesno; };
-
 };
 
 #endif

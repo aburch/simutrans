@@ -20,14 +20,12 @@
 #include "../tpl/vector_tpl.h"
 #include "components/gui_tab_panel.h"
 #include "components/gui_button.h"
-#include "ifc/image_list_listener.h"
-#include "ifc/action_listener.h"
+#include "components/action_listener.h"
 #include "components/gui_scrollpane.h"
 #include "../simtypes.h"
 
 class depot_t;
 class vehikel_t;
-class gui_image_list_t;
 class spieler_t;
 /**
  * Depot frame, handles all interaction with a vehicle depot.
@@ -36,7 +34,6 @@ class spieler_t;
  * @date 22-Nov-01
  */
 class depot_frame_t : public gui_frame_t,
-                      public image_list_listener_t,
                       public action_listener_t
 {
 private:
@@ -70,7 +67,7 @@ private:
     gui_label_t lb_convois;
     button_t bt_next;
 
-    gui_image_list_t *convoi;
+
     gui_label_t lb_convoi_count;
     gui_label_t lb_convoi_value;
     gui_label_t lb_convoi_line;
@@ -84,15 +81,6 @@ private:
 
     gui_tab_panel_t tabs;
     gui_divider_t   div_tabbottom;
-    gui_image_list_t    *pas;
-    gui_image_list_t    *loks;
-    gui_image_list_t    *waggons;
-    gui_scrollpane_t *scrolly_pas;
-    gui_scrollpane_t *scrolly_loks;
-    gui_scrollpane_t *scrolly_waggons;
-    gui_container_t *cont_pas;
-    gui_container_t *cont_loks;
-    gui_container_t *cont_waggons;
 
     gui_label_t lb_veh_action;
     button_t bt_veh_action;
@@ -105,6 +93,23 @@ private:
     button_t bt_change_line;
     button_t bt_copy_convoi;
     button_t bt_apply_line;
+
+    vector_tpl<gui_image_list_t::image_data_t> convoi_pics;
+    gui_image_list_t convoi;
+
+    vector_tpl<gui_image_list_t::image_data_t> pas_vec;
+    vector_tpl<gui_image_list_t::image_data_t> loks_vec;
+    vector_tpl<gui_image_list_t::image_data_t> waggons_vec;
+
+    gui_image_list_t    pas;
+    gui_image_list_t    loks;
+    gui_image_list_t    waggons;
+    gui_scrollpane_t scrolly_pas;
+    gui_scrollpane_t scrolly_loks;
+    gui_scrollpane_t scrolly_waggons;
+    gui_container_t cont_pas;
+    gui_container_t cont_loks;
+    gui_container_t cont_waggons;
 
 	static char no_line_text[128];
 	gui_combobox_t line_selector;
@@ -120,14 +125,9 @@ private:
 
     char txt_convois[40];
 
-    vector_tpl<gui_image_list_t::image_data_t> convoi_pics;
     char txt_convoi_count[40];
     char txt_convoi_value[40];
     char txt_convoi_line[128];
-
-    vector_tpl<gui_image_list_t::image_data_t> *pas_vec;
-    vector_tpl<gui_image_list_t::image_data_t> *loks_vec;
-    vector_tpl<gui_image_list_t::image_data_t> *waggons_vec;
 
     enum { va_append, va_insert, va_sell };
     uint8 veh_action;
@@ -175,7 +175,7 @@ private:
      * @return true if such a button is needed
      * @author Hj. Malthaner
      */
-    virtual bool has_min_sizer() const {return true;}
+    bool has_min_sizer() const {return true;}
 
 	// true if already stored here
 	bool is_contained(const vehikel_besch_t *info);
@@ -183,9 +183,12 @@ private:
 	// add a single vehicle (helper function)
 	void add_to_vehicle_list(const vehikel_besch_t *info);
 
+	// for convoi image
+    void image_from_convoi_list(int nr);
+
+	void image_from_storage_list(gui_image_list_t::image_data_t *bild_data);
+
 public:
-
-
     depot_frame_t(karte_t *welt, depot_t *depot);
 
     /**
@@ -193,7 +196,7 @@ public:
      * @author (Mathew Hounsell)
      * @date   11-Mar-2003
      */
-    virtual void setze_fenstergroesse(koord groesse);
+    void setze_fenstergroesse(koord groesse);
 
     /**
      * Create and fill loks_vec and waggons_vec.
@@ -207,14 +210,14 @@ public:
      * @return den Dateinamen für die Hilfe, oder NULL
      * @author Hj. Malthaner
      */
-    virtual const char * gib_hilfe_datei() const {return "depot.txt";};
+    const char * gib_hilfe_datei() const {return "depot.txt";};
 
     /**
      * Does this window need a next button in the title bar?
      * @return true if such a button is needed
      * @author Volker Meyer
      */
-    virtual bool has_next() const {return true;};
+    bool has_next() const {return true;};
 
     /**
      * Open dialog for schedule entry.
@@ -222,19 +225,7 @@ public:
      */
     void fahrplaneingabe();
 
-    /**
-     * Implementiert einen image_list_listener_t.
-     * @author Hj. Malthaner
-     */
-    virtual void bild_gewaehlt(gui_image_list_t *, int bild_index);
-
-    /**
-     * This method is called if an action is triggered
-     * @author Hj. Malthaner
-     */
-    virtual bool action_triggered(gui_komponente_t *komp);
-
-    virtual void infowin_event(const event_t *ev);
+    void infowin_event(const event_t *ev);
 
     /**
      * Zeichnet das Frame
@@ -246,6 +237,16 @@ public:
     void new_line();
     void change_line();
     void apply_line();
+
+    /**
+     * This method is called if an action is triggered
+     * @author Hj. Malthaner
+     *
+     * Returns true, if action is done and no more
+     * components should be triggered.
+     * V.Meyer
+     */
+    bool action_triggered(gui_komponente_t *komp, value_t extra);
 };
 
 #endif

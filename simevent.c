@@ -21,7 +21,7 @@ static int control_shift_state=0;	// none pressed
 
 int event_get_last_control_shift()
 {
-MESSAGE("event_get_last_control_shift()","state %i\n",control_shift_state);
+//MESSAGE("event_get_last_control_shift()","state %i",control_shift_state);
 	return control_shift_state&0x03;
 }
 

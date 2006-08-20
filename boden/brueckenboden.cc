@@ -69,8 +69,7 @@ brueckenboden_t::rdwr(loadsave_t *file)
 
 	}
 	else {
-		if(file->get_version()<88009) {
-			// now reduntant, has been read by grund!
+		if(file->get_version()<=88009) {
 			file->rdwr_byte(slope, " ");
 		}
 		file->rdwr_byte(weg_hang, "\n");

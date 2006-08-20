@@ -102,14 +102,13 @@ void boden_t::toggle_season(int season)
 
 boden_t::boden_t(karte_t *welt, loadsave_t *file) : grund_t(welt)
 {
-    rdwr(file);
+	rdwr(file);
 //DBG_DEBUG("boden_t::rdwr()", "loaded at %i,%i with %i dinge.", gib_pos().x, gib_pos().y, obj_count());
 }
 
-
-boden_t::boden_t(karte_t *welt, koord3d pos,hang_t::typ slope) : grund_t(welt, pos)
+boden_t::boden_t(karte_t *welt, koord3d pos,hang_t::typ sl) : grund_t(welt, pos)
 {
-	this->slope = slope;
+	slope = sl;
 }
 
 

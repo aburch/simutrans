@@ -22,19 +22,16 @@ gui_tab_panel_t::gui_tab_panel_t()
 }
 
 
+
 void gui_tab_panel_t::add_tab(gui_komponente_t *c, const char *name)
 {
     tabs.append(c);
     namen.append(name);
-
     c->setze_groesse(gib_groesse()-koord(0,HEADER_VSIZE));
 }
 
-gui_komponente_t *
-gui_tab_panel_t::gib_aktives_tab() const
-{
-    return tabs.at(active_tab);
-}
+
+
 
 void gui_tab_panel_t::setze_groesse(koord groesse)
 {
@@ -71,9 +68,9 @@ void gui_tab_panel_t::infowin_event(const event_t *ev)
 		const int width = proportional_string_width( text );
 
 		if(text_x < ev->cx && text_x+width+8 > ev->cx) {
-		    active_tab = i;
-			call_listeners();
-		    break;
+			active_tab = i;
+			call_listeners((long)active_tab);
+			break;
 		}
 
 		text_x += width + 8;

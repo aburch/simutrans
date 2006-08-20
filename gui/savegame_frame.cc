@@ -23,7 +23,6 @@
 
 #include "../simdebug.h"
 #include "savegame_frame.h"
-#include "components/gui_button.h"
 #include "../simwin.h"
 #include "../simintr.h"
 #include "../utils/simstring.h"
@@ -229,7 +228,7 @@ void savegame_frame_t::add_file(const char *filename)
  * This method is called if an action is triggered
  * @author Hj. Malthaner
  */
-bool savegame_frame_t::action_triggered(gui_komponente_t *komp)
+bool savegame_frame_t::action_triggered(gui_komponente_t *komp,value_t /* */)
 {
     char buf[128];
     //if(komp == &input) {       //29-Oct-2001         Markus Weber    Added   savebutton case
@@ -294,12 +293,7 @@ void savegame_frame_t::setze_fenstergroesse(koord groesse)
 	if(groesse.y>display_get_height()-64) {
 		// too large ...
 		groesse.y = display_get_height()-64;
-/* getting own coordinates is non-trival: deferred to a later time
-		// will be moved up
-		if(gib_pos().y>display_get_height()-32-groesse.y){
-			setze_pos( koord( gib_pos().x, display_get_height()-32-groesse.y ) );
-		}
-*/
+		// position adjustment will be done automatically ... nice!
 	}
 	scrolly.setze_groesse( koord(groesse.x,groesse.y-30-40-16) );
 	gui_frame_t::setze_fenstergroesse(groesse);

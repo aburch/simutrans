@@ -80,7 +80,7 @@ public:
      * This method is called if an action is triggered
      * @author Hj. Malthaner
      */
-    virtual bool action_triggered(gui_komponente_t *komp);
+    virtual bool action_triggered(gui_komponente_t *komp,value_t /* */);
 
     /**
      * Zeichnet die Komponente

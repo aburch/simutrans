@@ -19,7 +19,7 @@
 #include "gui_frame.h"
 #include "components/gui_combobox.h"
 #include "components/gui_button.h"
-#include "ifc/action_listener.h"
+#include "components/action_listener.h"
 
 #include "components/gui_textarea.h"
 #include "components/gui_scrollpane.h"
@@ -82,7 +82,6 @@ private:
     button_t bt_add;
     button_t bt_insert;
     button_t bt_remove;
-    button_t bt_done;
     button_t bt_prev;
     button_t bt_next;
     button_t bt_promote_to_line;
@@ -105,41 +104,23 @@ private:
 
     void init_line_selector();
 
-public:
+	/**
+	 * initialize layout, etc.
+	 * @author hsiegeln
+	 */
+	void init();
 
+public:
     fahrplan_gui_t(karte_t *welt, fahrplan_t *fpl, spieler_t *sp);
     fahrplan_gui_t(karte_t *welt, convoihandle_t cnv, spieler_t *sp);
-    ~fahrplan_gui_t() { }
-
-
-    /**
-     * in top-level fenstern wird der Name in der Titelzeile dargestellt
-     * @return den nicht uebersetzten Namen der Komponente
-     */
-    virtual const char * gib_name() const;
-
-    /**
-     * Öffnet ein neues Beobachtungsfenster für das Objekt.
-     */
-    virtual void zeige_info();
-
-
-    /**
-     * @return gibt wunschgroesse für das beobachtungsfenster zurueck
-     */
-    virtual koord gib_fenstergroesse() const;
 
     /**
      * Mausklicks werden hiermit an die GUI-Komponenten
      * gemeldet
      */
-    virtual void infowin_event(const event_t *ev);
+    void infowin_event(const event_t *ev);
 
-    /**
-     * This method is called if an action is triggered
-     * @author Hj. Malthaner
-     */
-    virtual bool action_triggered(gui_komponente_t *komp);
+    const char * gib_hilfe_datei() const {return "schedule.txt";}
 
     /**
      * Zeichnet das Frame
@@ -151,20 +132,22 @@ public:
      * show or hide the line selector combobox and its associated label
      * @author hsiegeln
      */
-    void show_line_selector(bool yesno)
-    {
+    void show_line_selector(bool yesno) {
     	line_selector.set_visible(yesno);
     	lb_line.set_visible(yesno);
     };
 
-	/**
-	 * initialize layout, etc.
-	 * @author hsiegeln
-	 */
-	void init();
-
 	void get_fpl_text(cbuffer_t & buf);
 
+    /**
+     * This method is called if an action is triggered
+     * @author Hj. Malthaner
+     *
+     * Returns true, if action is done and no more
+     * components should be triggered.
+     * V.Meyer
+     */
+    bool action_triggered(gui_komponente_t *komp, value_t extra);
 };
 
 #endif

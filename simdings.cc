@@ -42,7 +42,7 @@
  * @author Hj. Malthaner
  */
 karte_t * ding_t::welt = NULL;
-ptrhashtable_tpl<ding_t *, ding_info_t *> * ding_t::ding_infos = new ptrhashtable_tpl<ding_t *, ding_info_t *> ();
+ptrhashtable_tpl<ding_t *, ding_infowin_t *> * ding_t::ding_infos = new ptrhashtable_tpl<ding_t *, ding_infowin_t *> ();
 
 
 /**
@@ -202,7 +202,7 @@ ding_t::setze_pos(koord3d k)
     }
 }
 
-ding_info_t *ding_t::new_info()
+ding_infowin_t *ding_t::new_info()
 {
     return new ding_infowin_t(welt, this);
 }

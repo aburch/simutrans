@@ -6,7 +6,7 @@
 #include "gui_frame.h"
 #include "components/gui_button.h"
 #include "components/gui_label.h"
-#include "ifc/action_listener.h"
+#include "components/action_listener.h"
 
 
 class spieler_t;
@@ -30,7 +30,7 @@ private:
 
 public:
     ki_kontroll_t(karte_t *welt);
-    ~ki_kontroll_t() {};
+    ~ki_kontroll_t();
 
 
     /**
@@ -38,13 +38,7 @@ public:
      * @return den Dateinamen für die Hilfe, oder NULL
      * @author Hj. Malthaner
      */
-    virtual const char * gib_hilfe_datei() const {return "players.txt";}
-
-    /**
-     * This method is called if an action is triggered
-     * @author Hj. Malthaner
-     */
-    virtual bool action_triggered(gui_komponente_t *);
+    const char * gib_hilfe_datei() const {return "players.txt";}
 
     /**
      * komponente neu zeichnen. Die übergebenen Werte beziehen sich auf
@@ -52,7 +46,17 @@ public:
      * in dem die Komponente dargestellt wird.
      * @author Hj. Malthaner
      */
-    virtual void zeichnen(koord pos, koord gr);
+    void zeichnen(koord pos, koord gr);
+
+    /**
+     * This method is called if an action is triggered
+     * @author Hj. Malthaner
+     *
+     * Returns true, if action is done and no more
+     * components should be triggered.
+     * V.Meyer
+     */
+    bool action_triggered(gui_komponente_t *komp, value_t extra);
 };
 
 #endif

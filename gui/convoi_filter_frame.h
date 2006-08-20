@@ -8,7 +8,7 @@
  */
 #include "gui_frame.h"
 #include "components/gui_label.h"
-#include "ifc/action_listener.h"
+#include "components/action_listener.h"
 #include "components/gui_button.h"
 #include "convoi_frame.h"
 #include "components/gui_textinput.h"
@@ -96,13 +96,7 @@ public:
      * gemeldet
      * @author V. Meyer
      */
-    virtual void infowin_event(const event_t *ev);
-
-    /**
-     * This method is called if an action is triggered
-     * @author V. Meyer
-     */
-    virtual bool action_triggered(gui_komponente_t *);
+    void infowin_event(const event_t *ev);
 
     /*
      * Propagate funktion from main_frame for ware_item_t
@@ -122,12 +116,22 @@ public:
      * in dem die Komponente dargestellt wird.
      * @author V. Meyer
      */
-    virtual void zeichnen(koord pos, koord gr);
+    void zeichnen(koord pos, koord gr);
 
     /**
      * Manche Fenster haben einen Hilfetext assoziiert.
      * @return den Dateinamen für die Hilfe, oder NULL
      * @author V. Meyer
      */
-    virtual const char * gib_hilfe_datei() const {return "convoi_filter.txt"; }
+    const char * gib_hilfe_datei() const {return "convoi_filter.txt"; }
+
+    /**
+     * This method is called if an action is triggered
+     * @author Hj. Malthaner
+     *
+     * Returns true, if action is done and no more
+     * components should be triggered.
+     * V.Meyer
+     */
+    bool action_triggered(gui_komponente_t *komp, value_t extra);
 };

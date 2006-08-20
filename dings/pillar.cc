@@ -70,9 +70,7 @@ void pillar_t::zeige_info()
 		if(bd->ist_bruecke()) {
 			bruecke_t *br=dynamic_cast<bruecke_t *>(bd->suche_obj(ding_t::bruecke));
 			if(br  &&  br->gib_besch()==besch) {
-//    				create_win(-1, -1, ding_infos->get(br), w_autodelete);
    				br->zeige_info();
-//    				return new ding_infowin_t(welt, br);
 			}
 		}
 	}

@@ -3,7 +3,6 @@
 #include "../../simgraph.h"
 #include "../../simcolor.h"
 #include "../../simevent.h"
-#include "../ifc/hyperlink_listener.h"
 #include "gui_flowtext.h"
 
 
@@ -20,7 +19,6 @@ gui_flowtext_t::gui_flowtext_t() {
     // Hajo: initialitze with empty list
     nodes     = 0;
     links     = 0;
-    listeners = 0;
 
     title[0] = '\0';
 }
@@ -40,12 +38,6 @@ gui_flowtext_t::~gui_flowtext_t() {
 	hyperlink_t * tmp = links->next;
 	delete links;
 	links = tmp;
-    }
-
-    while(listeners) {
-	listener_t * tmp = listeners->next;
-	delete listeners;
-	listeners = tmp;
     }
 }
 
@@ -192,15 +184,6 @@ koord gui_flowtext_t::get_preferred_size() const {
 }
 
 
-void gui_flowtext_t::add_listener(hyperlink_listener_t *call)
-{
-  listener_t * l = new listener_t();
-
-  l->callback = call;
-  l->next = listeners;
-
-  listeners = l;
-}
 
 
 /**
@@ -329,12 +312,7 @@ void gui_flowtext_t::infowin_event(const event_t *ev)
 		hyperlink_t * link = links;
 		while(link) {
 			if(link->tl.x <= ev->cx && link->br.x >= ev->cx && link->tl.y <= ev->cy && link->br.y >= ev->cy) {
-				// call listeners
-				listener_t * l = listeners;
-				while(l) {
-					l->callback->hyperlink_activated(link->param);
-					l = l->next;
-				}
+				call_listeners( (const void *)link->param );
 			}
 			link = link->next;
 		}

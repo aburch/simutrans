@@ -10,9 +10,6 @@
 #include <stdio.h>
 
 #include "sound_frame.h"
-#include "components/gui_scrollbar.h"
-#include "components/gui_label.h"
-#include "components/gui_button.h"
 #include "../simsound.h"
 #include "../simintr.h"
 
@@ -95,44 +92,31 @@ sound_frame_t::sound_frame_t()
 }
 
 
-/**
- * This method is called if the slider is moved.
- * The value ranges from 0 to (and including) range.
- * @author Hj. Malthaner
- */
-void sound_frame_t::scrollbar_moved(scrollbar_t *scrolly, int /*range*/, int value)
+
+bool
+sound_frame_t::action_triggered(gui_komponente_t *komp,value_t p)
 {
-	if(scrolly == &digi) {
-		sound_set_global_volume(value);
+	if (komp == &nextbtn) {
+		midi_stop();
+		midi_next_track();
+		check_midi();
+		curlabel.setze_text(make_song_name());
+		intr_refresh_display(true);
 	}
-	else {
-		sound_set_midi_volume(value);
+	else if (komp == &prevbtn) {
+		midi_stop();
+		midi_last_track();
+		check_midi();
+		curlabel.setze_text(make_song_name());
+		intr_refresh_display(true);
 	}
-}
-
-bool sound_frame_t::action_triggered(gui_komponente_t *komp)
-{
-//    printf("sound_frame_t: action triggered!\n");
-
-    if (komp == &nextbtn)
-    {
-       midi_stop();
-
-       midi_next_track();
-       check_midi();
-       curlabel.setze_text(make_song_name());
-       intr_refresh_display(true);
-    }
-    else if (komp == &prevbtn)
-    {
-       midi_stop();
-
-       midi_last_track();
-       check_midi();
-       curlabel.setze_text(make_song_name());
-       intr_refresh_display(true);
-    }
-    return true;
+	else if (komp == &digi) {
+		sound_set_global_volume(p.i);
+	}
+	else if (komp == &midi) {
+		sound_set_midi_volume(p.i);
+	}
+	return true;
 }
 
 

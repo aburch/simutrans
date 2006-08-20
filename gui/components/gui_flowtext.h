@@ -1,16 +1,16 @@
 #ifndef gui_components_flowtext_h
 #define gui_components_flowtext_h
 
-#include "../../ifc/gui_komponente.h"
+#include "../../ifc/gui_action_creator.h"
+#include "action_listener.h"
 #include "../../utils/cstring_t.h"
 
-class hyperlink_listener_t;
 
 /**
  * A component for floating text. It does not use any templates on purpose!
  * @author Hj. Malthaner
  */
-class gui_flowtext_t : public gui_komponente_t
+class gui_flowtext_t : public gui_komponente_action_creator_t
 {
 private:
 
@@ -49,20 +49,8 @@ private:
     };
 
 
-    /**
-     * Node for the list of listeners
-     * @author Hj. Malthaner
-     */
-    class listener_t {
-    public:
-      hyperlink_listener_t *callback;
-      listener_t *next;
-      listener_t() {next = 0;};
-    };
-
     node_t      * nodes;
     hyperlink_t * links;
-    listener_t  * listeners;
 
     koord output(koord pos, bool doit) const;
 
@@ -75,7 +63,6 @@ public:
 
     ~gui_flowtext_t();
 
-
     /**
      * Sets the text to display.
      * @author Hj. Malthaner
@@ -86,25 +73,18 @@ public:
 
     koord get_preferred_size() const;
 
-
-    void add_listener(hyperlink_listener_t *callback);
-
-
     /**
      * Paints the component
      * @author Hj. Malthaner
      */
     void zeichnen(koord offset) const;
 
-
-
     /**
      * Events werden hiermit an die GUI-Komponenten
      * gemeldet
      * @author Hj. Malthaner
      */
-    virtual void infowin_event(const event_t *);
-
+    void infowin_event(const event_t *);
 };
 
 #endif

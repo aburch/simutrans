@@ -1,19 +1,19 @@
 #ifndef gui_schedule_list_h
 #define gui_schedule_list_h
 
+#include "gui_frame.h"
+#include "gui_container.h"
+#include "components/gui_chart.h"
 #include "components/gui_resizer.h"                             // 28-Dec-2001  Markus Weber    Added
 #include "components/gui_textinput.h"
-#include "gui_frame.h"
 #include "components/gui_scrolled_list.h"
-#include "gui_container.h"
 #include "components/gui_scrollpane.h"
+#include "components/gui_tab_panel.h"
 #include "gui_convoiinfo.h"
 #include "../simline.h"
-#include "components/gui_tab_panel.h"
 
 class spieler_t;
 class karte_t;
-class gui_chart_t;
 
 /**
  * Window.
@@ -32,13 +32,13 @@ private:
   spieler_t *sp;
 
   koord groesse;
-  gui_scrolled_list_t *scl;
   button_t bt_new_line, bt_change_line, bt_delete_line;
   gui_container_t cont, cont_haltestellen;
   gui_scrollpane_t scrolly, scrolly_haltestellen;
+  gui_scrolled_list_t scl;
   gui_speedbar_t filled_bar;
   gui_textinput_t inp_name;
-  gui_chart_t *chart;
+  gui_chart_t chart;
   button_t filterButtons[MAX_LINE_COST];
   gui_tab_panel_t tabs;
 
@@ -62,7 +62,7 @@ private:
 public:
 
   schedule_list_gui_t(karte_t *welt,spieler_t *sp);
-  ~schedule_list_gui_t();
+
 
   koord gib_fenstergroesse() const { return groesse; }
 
@@ -73,26 +73,19 @@ public:
      */
     const char *gib_name() const {return "Line Management";};
 
-  /**
+   /**
      * Manche Fenster haben einen Hilfetext assoziiert.
      * @return den Dateinamen für die Hilfe, oder NULL
      * @author Hj. Malthaner
      */
-    virtual const char * gib_hilfe_datei() const {return "linemanagement.txt";};
-
-    /**
-     * gibt den Besitzer zurück
-     *
-     * @author Hj. Malthaner
-     */
-	virtual spieler_t* gib_besitzer() { return sp; }
+    const char * gib_hilfe_datei() const {return "linemanagement.txt";};
 
     /**
      * Does this window need a min size button in the title bar?
      * @return true if such a button is needed
      * @author Hj. Malthaner
      */
-    virtual bool has_min_sizer() const {return true;}
+    bool has_min_sizer() const {return true;}
 
     /**
      * Events werden hiermit an die GUI-Komponenten
@@ -110,13 +103,21 @@ public:
      */
     void zeichnen(koord pos, koord gr);
 
-    bool action_triggered(gui_komponente_t *komp);
-
     /**
      * resize window in response to a resize event
      * @author Hj. Malthaner
      */
-    virtual void resize(const koord delta);
+    void resize(const koord delta);
+
+    /**
+     * This method is called if an action is triggered
+     * @author Hj. Malthaner
+     *
+     * Returns true, if action is done and no more
+     * components should be triggered.
+     * V.Meyer
+     */
+    bool action_triggered(gui_komponente_t *komp, value_t extra);
 };
 
 #endif

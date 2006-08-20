@@ -16,7 +16,7 @@
 #include "components/gui_scrollpane.h"
 #include "components/gui_button.h"
 #include "components/gui_label.h"
-#include "ifc/action_listener.h"
+#include "components/action_listener.h"
 
 class spieler_t;
 class haltestelle_t;
@@ -94,6 +94,7 @@ private:
      * @author V. Meyer
      */
     static bool passes_filter(halthandle_t halt);
+
 public:
 
     /**
@@ -115,12 +116,6 @@ public:
      * @author V. Meyer
      */
     virtual void infowin_event(const event_t *ev);
-
-    /**
-     * This method is called if an action is triggered
-     * @author Hj. Malthaner
-     */
-    virtual bool action_triggered(gui_komponente_t *);
 
     /**
      * The filter frame tells us when it is closed.
@@ -153,7 +148,7 @@ public:
      * @return den Dateinamen für die Hilfe, oder NULL
      * @author V. Meyer
      */
-    virtual const char * gib_hilfe_datei() const {return "haltlist.txt"; }
+    const char * gib_hilfe_datei() const {return "haltlist.txt"; }
 
     static sort_mode_t gib_sortierung() { return sortby; }
     static void setze_sortierung(sort_mode_t sm) { sortby = sm; }
@@ -173,6 +168,16 @@ public:
     static bool gib_ware_filter_an(const ware_besch_t *ware) { return waren_filter_an.contains(ware); }
     static void setze_ware_filter_an(const ware_besch_t *ware, int mode);
     static void setze_alle_ware_filter_an(int mode);
+
+    /**
+     * This method is called if an action is triggered
+     * @author Hj. Malthaner
+     *
+     * Returns true, if action is done and no more
+     * components should be triggered.
+     * V.Meyer
+     */
+    bool action_triggered(gui_komponente_t *komp, value_t extra);
 };
 
 #endif //__halt_list_frame_h

@@ -13,7 +13,7 @@
 
 #include "gui_frame.h"
 #include "components/gui_scrollpane.h"
-#include "ifc/action_listener.h"
+#include "components/action_listener.h"
 #include "components/gui_button.h"
 #include "karte.h"
 
@@ -66,22 +66,21 @@ public:
      * @return den Dateinamen für die Hilfe, oder NULL
      * @author Hj. Malthaner
      */
-    virtual const char * gib_hilfe_datei() const {return "map.txt";};
-
+    const char * gib_hilfe_datei() const {return "map.txt";};
 
     /**
      * Does this window need a min size button in the title bar?
      * @return true if such a button is needed
      * @author Hj. Malthaner
      */
-    virtual bool has_min_sizer() const {return true;};
+    bool has_min_sizer() const {return true;};
 
     /**
      * Does this window need a next button in the title bar?
      * @return true if such a button is needed
      * @author Volker Meyer
      */
-    virtual bool has_next() const {return true;};
+    bool has_next() const {return true;};
 
     /**
      * Konstruktor. Erzeugt alle notwendigen Subkomponenten.
@@ -89,30 +88,26 @@ public:
      */
     map_frame_t(const karte_modell_t *welt);
 
-	~map_frame_t() {}
-
     /**
      * Events werden hiermit an die GUI-Komponenten
      * gemeldet
      * @author Hj. Malthaner
      */
-    virtual void infowin_event(const event_t *ev);
-
+    void infowin_event(const event_t *ev);
 
     /**
      * Setzt die Fenstergroesse
      * @author (Mathew Hounsell)
      * @date   11-Mar-2003
      */
-    virtual void setze_fenstergroesse(koord groesse);
+    void setze_fenstergroesse(koord groesse);
 
     /**
      * resize window in response to a resize event
      * @author Hj. Malthaner
      * @date   01-Jun-2002
      */
-    virtual void resize(const koord delta);
-
+    void resize(const koord delta);
 
     /**
      * komponente neu zeichnen. Die übergebenen Werte beziehen sich auf
@@ -120,11 +115,15 @@ public:
      * in dem die Komponente dargestellt wird.
      * @author Hj. Malthaner
      */
-    virtual void zeichnen(koord pos, koord gr);
+    void zeichnen(koord pos, koord gr);
 
     /**
      * This method is called if an action is triggered
      * @author Hj. Malthaner
+     *
+     * Returns true, if action is done and no more
+     * components should be triggered.
+     * V.Meyer
      */
-    virtual bool action_triggered(gui_komponente_t *komp);
+    bool action_triggered(gui_komponente_t *komp, value_t extra);
 };

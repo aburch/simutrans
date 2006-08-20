@@ -11,14 +11,10 @@
 #define gui_thing_info_h
 
 #include "../simdebug.h"
-#include "../tpl/vector_tpl.h"
 #include "../simdings.h"
-#include "components/gui_button.h"
-#include "infowin.h"
-
-#ifdef _MSC_VER
-#pragma warning(disable:4250)
-#endif
+#include "gui_frame.h"
+#include "components/gui_world_view_t.h"
+#include "../utils/cbuffer_t.h"
 
 /**
  * An adapter class to display info windows for things (objects)
@@ -26,9 +22,23 @@
  * @author Hj. Malthaner
  * @date 22-Nov-2001
  */
-class ding_info_t : virtual public gui_fenster_t
+class ding_infowin_t : public gui_frame_t
 {
-public:
+protected:
+    world_view_t view;
+
+    int calc_fensterhoehe_aus_info() const;
+
+    /**
+     * Zeiger auf die Karte zu der der Untergrund gehoert.
+     * Der Zeiger ist eine Klassenvariable um Speicher zu sparen, sollen
+     * mehrere Karten unterschieden werden, muss er eine Instanzvariable
+     * werden.
+     *
+     * @author Hj. Malthaner
+     */
+    static karte_t *welt;
+    static cbuffer_t buf;
 
     /**
      * The thing we observe. The thing will delete this object
@@ -37,38 +47,18 @@ public:
      */
     ding_t *ding;
 
-
-    /**
-     * This function is needed for the pointermap_tpl in
-     * ding_t::ding_infos.
-     * @author V. Meyer
-     */
-    ding_t *gib_key_obj() const
-    {
-	return ding;
-    }
-
 public:
-
-
     /**
      * Basic constructor.
      * @author Hj. Malthaner
      */
-    ding_info_t(ding_t *ding) {
-	this->ding = ding;
-    };
-
+    ding_infowin_t(karte_t *welt, ding_t *ding);
 
     /**
      * destructor.
      * @author V. Meyer
      */
-    ~ding_info_t()
-    {
-	ding->entferne_ding_info();
-    }
-
+    virtual ~ding_infowin_t() { ding->entferne_ding_info(); }
 
     /**
      * @return window title
@@ -76,10 +66,7 @@ public:
      * @author Hj. Malthaner
      * @see simwin
      */
-    const char * gib_name() const {
-	return ding->gib_name();
-    }
-
+    virtual const char * gib_name() const { return ding->gib_name(); }
 
     /**
      * @return the text to display in the info window
@@ -87,49 +74,29 @@ public:
      * @author Hj. Malthaner
      * @see simwin
      */
-    virtual void info(cbuffer_t & buf) const {
-	ding->info(buf);
-    }
-
+    virtual void info(cbuffer_t & buf) const { ding->info(buf); }
 
     /**
      * @return a pointer to the player who owns this thing
      *
      * @author Hj. Malthaner
      */
-    virtual spieler_t* gib_besitzer() const {
-	return ding->gib_besitzer();
-    }
-
+    virtual spieler_t* gib_besitzer() const { return ding->gib_besitzer(); }
 
     /**
      * @return the current map position
      *
      * @author Hj. Malthaner
      */
-    virtual koord3d gib_pos() const {
-	return ding->gib_pos();
-    }
+    virtual koord3d gib_pos() const { return ding->gib_pos(); }
+
+  /**
+   * komponente neu zeichnen. Die übergebenen Werte beziehen sich auf
+   * das Fenster, d.h. es sind die Bildschirmkoordinaten des Fensters
+   * in dem die Komponente dargestellt wird.
+   */
+  virtual void zeichnen(koord pos, koord gr);
 };
 
-
-/**
- * The "normal" ding_infowin_t is this. Only townhalls currently have other
- * ding_info_t-windows.
- *
- * @author V. Meyer
- */
-class ding_infowin_t : public ding_info_t, public infowin_t {
-public:
-    ding_infowin_t(karte_t *welt, ding_t *ding) : ding_info_t(ding), infowin_t(welt) {}
-
-    /*
-     * Für den Aufruf der richtigen Methoden sorgen!
-     */
-    virtual void info(cbuffer_t & buf) const { ding_info_t::info(buf); }
-    virtual spieler_t* gib_besitzer() const { return ding_info_t::gib_besitzer(); }
-    virtual koord3d gib_pos() const { return ding_info_t::gib_pos(); }
-    virtual const char * gib_name() const { return ding_info_t::gib_name(); }
-};
 
 #endif

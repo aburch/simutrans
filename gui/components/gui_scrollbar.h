@@ -2,12 +2,10 @@
 #define gui_scrollbar_h
 
 #include "../../tpl/slist_tpl.h"
-#include "../../dataobj/koord.h"
+#include "../../ifc/gui_action_creator.h"
 #include "../../simevent.h"
 #include "gui_button.h"
-#include "../../ifc/gui_komponente.h"
 
-class scrollbar_listener_t;
 
 /**
  * Scrollbar class
@@ -16,24 +14,19 @@ class scrollbar_listener_t;
  * @author Niels Roest, additions by Hj. Malthaner
  * @version $Revision: 1.9 $
  */
-class scrollbar_t : public gui_komponente_t
+class scrollbar_t : public gui_komponente_action_creator_t
 {
 public:
-
-    enum type {
-	vertical, horizontal
-    };
+    enum type { vertical, horizontal };
 
 private:
     enum type type;
-
 
     /**
      * scrollbahn zeichnen? default ist false
      * @author Hansjörg Malthaner
      */
     bool opaque;
-
 
     // the following three values are from host (e.g. list), NOT actual size.
     int knob_offset; // offset from top-left
@@ -44,9 +37,7 @@ private:
      * number of pixels to scroll with arrow button press. default: 11 pixels
      */
     int knob_scroll_amount;
-
-    button_t *buttons[4];
-    button_t button_def[4];
+    button_t button_def[3];
 
     void reposition_buttons();
     void button_press(int number); // arrow button
@@ -64,15 +55,9 @@ private:
 	}
     }
 
-    slist_tpl <scrollbar_listener_t *> callback_list;
-
-    void call_callback();
-
 public:
-
     // type is either scrollbar_t::horizontal or scrollbar_t::vertical
     scrollbar_t(enum type type);
-
 
     /**
      * Vorzugsweise sollte diese Methode zum Setzen der Größe benutzt werden,
@@ -81,41 +66,24 @@ public:
      */
     void setze_groesse(koord groesse);
 
-
     /**
      * setzt die Transparenz
      * @author Hj. Malthaner
      */
-    void setze_opaque(bool janein) {opaque = janein;};
+    void setze_opaque(bool janein) {opaque = janein;}
 
-
-    void setze_scroll_amount(int sa) {
-	knob_scroll_amount = sa;
-    };
+    void setze_scroll_amount(int sa) { knob_scroll_amount = sa; }
 
     /**
      * size is visible size, area is total size in pixels of _parent_.
      */
     void setze_knob(int knob_size, int knob_area);
 
-    // add/remove callback functions
-    void add_listener(scrollbar_listener_t *c) {
-	callback_list.insert(c);
-    };
+    int gib_knob_offset() const {return knob_offset;}
 
-
-    int gib_knob_offset() const {return knob_offset;};
-
-    void setze_knob_offset(int v) {knob_offset = v; reposition_buttons();};
-
-
-
-    void remove_listener(scrollbar_listener_t *c) {
-	callback_list.remove(c);
-    };
+    void setze_knob_offset(int v) {knob_offset = v; reposition_buttons();}
 
     void infowin_event(const event_t *ev);
-
 
     /**
      * Draw scrollbar. Offset is top left of window.

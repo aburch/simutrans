@@ -13,71 +13,30 @@
 
 #include <stdio.h>
 
-#include "../simworld.h"
-#include "../simplay.h"
-#include "../simimg.h"
-#include "../simskin.h"
-#include "../besch/skin_besch.h"
-#include "../simcolor.h"
 #include "../simgraph.h"
 #include "../dataobj/translator.h"
-#include "../utils/cbuffer_t.h"
 
 #include "messagebox.h"
 
-nachrichtenfenster_t::nachrichtenfenster_t(karte_t *welt, const char *text)
- : infowin_t(welt)
-{
-    meldung = text;
-    bild = skinverwaltung_t::meldungsymbol->gib_bild_nr(0);
-}
 
-nachrichtenfenster_t::nachrichtenfenster_t(karte_t *welt, const char *text, int bild)
- : infowin_t(welt)
+
+nachrichtenfenster_t::nachrichtenfenster_t(karte_t */**/, const char *text, image_id id) :
+	gui_frame_t("Meldung"),
+	bild( id ),
+	meldung( translator::translate(text) )
 {
-	meldung = text;
-	this->bild = bild;
+	sint16 height = max( meldung.gib_groesse().y+36, get_tile_raster_width()+30 );
+
+	meldung.setze_pos( koord(10, 4) );
+	add_komponente( &meldung );
+
 	int xoff, yoff, xw, yw;
 	xoff = yw = 0;
-	display_get_image_offset( bild, &xoff, &yoff, &xw, &yw );
-	this->bild_offset = koord(48-xw-xoff,72-yw-yoff);
-}
+	display_get_image_offset( id, &xoff, &yoff, &xw, &yw );
 
-nachrichtenfenster_t::nachrichtenfenster_t(karte_t *welt, const char *text, int bild, koord off)
- : infowin_t(welt)
-{
-	meldung = text;
-	this->bild = bild;
-	this->bild_offset = off;
-}
+	bild.setze_pos( koord( 220-xw-xoff, 64-yw-yoff) );	// aligned to lower right corner
+	add_komponente( &bild );
 
-
-const char *
-nachrichtenfenster_t::gib_name() const
-{
-    return "Meldung";
-}
-
-
-int
-nachrichtenfenster_t::gib_bild() const
-{
-   return bild;
-}
-
-/**
- * Das Bild kann im Fenster über Offsets plaziert werden
- *
- * @author Hj. Malthaner
- * @return den x,y Offset des Bildes im Infofenster
- */
-koord nachrichtenfenster_t::gib_bild_offset() const
-{
-    return bild_offset;
-}
-
-
-void nachrichtenfenster_t::info(cbuffer_t & buf) const
-{
-    buf.append(translator::translate(meldung));
+	setze_fenstergroesse( koord( 230, height ) );
+	setze_opaque(true);
 }

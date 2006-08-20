@@ -44,7 +44,7 @@ class citylist_stats_t : public gui_komponente_t
      * gemeldet
      * @author Hj. Malthaner
      */
-    virtual void infowin_event(const event_t *);
+    void infowin_event(const event_t *);
 
 
     /**

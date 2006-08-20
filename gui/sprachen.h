@@ -1,10 +1,14 @@
 #ifndef gui_sprachen_h
 #define gui_sprachen_h
 
-#ifndef gui_infowin_h
-#include "infowin.h"
-#endif
+#include "gui_frame.h"
+#include "components/action_listener.h"
+#include "components/gui_button.h"
+#include "components/gui_textarea.h"
+#include "components/gui_image.h"
+#include "components/gui_divider.h"
 
+#include "../tpl/array_tpl.h"
 
 class spieler_t;
 class karte_t;
@@ -12,16 +16,17 @@ class karte_t;
 /**
  * Sprachauswahldialog
  *
- * @author Hj. Maltahner, Niels Roest
+ * @author Hj. Maltahner, Niels Roest, prissi
  */
-class sprachengui_t : public infowin_t
+class sprachengui_t : public gui_frame_t, private action_listener_t
 {
 private:
-
-    vector_tpl<button_t> *buttons;
+    gui_textarea_t text_label;
+    gui_image_t flags;
+    array_tpl<button_t> buttons;
+    gui_divider_t seperator;
 
 public:
-
     /**
      * Causes the required fonts for currently selected
      * language to be loaded
@@ -31,91 +36,22 @@ public:
 
     sprachengui_t(karte_t *welt);
 
-    ~sprachengui_t();
-
-
     /**
      * Manche Fenster haben einen Hilfetext assoziiert.
      * @return den Dateinamen für die Hilfe, oder NULL
      * @author Hj. Malthaner
      */
-    virtual const char * gib_hilfe_datei() const {return "language.txt";};
-
-    /* return NULL->orange frame *
-     * @author Hj. Malthaner
-     */
-    virtual spieler_t* gib_besitzer() const { return NULL; }
+    const char * gib_hilfe_datei() const {return "language.txt";};
 
     /**
-     * in top-level fenstern wird der Name in der Titelzeile dargestellt
-     * @return den nicht uebersetzten Namen der Komponente
+     * This method is called if an action is triggered
      * @author Hj. Malthaner
-     */
-    const char *gib_name() const {return "Sprache";};
-
-
-    /**
-     * Jedes Objekt braucht ein Bild.
      *
-     * @author Hj. Malthaner
-     * @return Die Nummer des aktuellen Bildes für das Objekt.
+     * Returns true, if action is done and no more
+     * components should be triggered.
+     * V.Meyer
      */
-    int gib_bild() const;
-
-
-    /**
-     * Das Bild kann im Fenster über Offsets plaziert werden
-     *
-     * @author Hj. Malthaner
-     * @return den x,y Offset des Bildes im Infofenster
-     */
-    koord gib_bild_offset() const;
-
-
-    /**
-     *
-     * @author Hj. Malthaner
-     * @return gibt wunschgroesse für das beobachtungsfenster zurueck
-     */
-    koord gib_fenstergroesse() const;
-
-
-    /**
-     *
-     * @author Hj. Malthaner
-     * @return eine NULL-Terminierte Liste von Buttons fuer das
-     * Beobachtungsfenster
-     */
-    virtual vector_tpl<button_t> *gib_fensterbuttons();
-
-
-    /**
-     * @return Einen Beschreibungsstext für das Objekt, der z.B. in einem
-     * Beobachtungsfenster angezeigt wird, NULL wenn kein Fenster angezeigt
-     * werden soll
-     *
-     * @author Hj. Malthaner
-     * @see simwin
-     */
-    void info(cbuffer_t & buf) const;
-
-
-    /**
-     * Events werden hiermit an die GUI-Komponenten
-     * gemeldet
-     * @author Hj. Malthaner
-     */
-    void infowin_event(const event_t *ev);
-
-
-    /**
-     * komponente neu zeichnen. Die übergebenen Werte beziehen sich auf
-     * das Fenster, d.h. es sind die Bildschirkoordinaten des Fensters
-     * in dem die Komponente dargestellt wird.
-     *
-     * @author Hj. Malthaner
-     */
-    void zeichnen(koord pos, koord gr);
+    bool action_triggered(gui_komponente_t *komp, value_t extra);
 };
 
 #endif

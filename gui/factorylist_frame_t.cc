@@ -10,7 +10,6 @@
 
 #include "factorylist_frame_t.h"
 #include "components/list_button.h"
-#include "components/gui_scrollpane.h"
 
 /**
  * This variable defines the sort order (ascending or descending)
@@ -79,7 +78,7 @@ factorylist_frame_t::factorylist_frame_t(karte_t * welt) :
  * This method is called if an action is triggered
  * @author Markus Weber/Volker Meyer
  */
-bool factorylist_frame_t::action_triggered(gui_komponente_t *komp)
+bool factorylist_frame_t::action_triggered(gui_komponente_t *komp,value_t /* */)
 {
     if(komp == &sortedby) {
 	setze_sortierung((factorylist::sort_mode_t)((gib_sortierung() + 1) % factorylist::SORT_MODES));

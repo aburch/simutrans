@@ -111,7 +111,7 @@ protected:
      * Erzeugt ein Info-Fenster für dieses Objekt
      * @author V. Meyer
      */
-    virtual ding_info_t *new_info();
+    virtual ding_infowin_t *new_info();
 
 public:
     gebaeude_t(karte_t *welt, loadsave_t *file);

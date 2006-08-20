@@ -12,8 +12,9 @@
 #define gui_components_gui_divider_h
 
 #include "../../ifc/gui_komponente.h"
+#include "../../simgraph.h"
+#include "../../simcolor.h"
 
-struct event_t; //nötig???
 
 /**
  * Eine einfache Trennlinie
@@ -23,56 +24,12 @@ struct event_t; //nötig???
  */
 class gui_divider_t : public gui_komponente_t
 {
-private:
-
-    // Der Stringbuffer.
-    // char * text;
-
-
-    // Maximallänge des Stringbuffers
-    // int max;
-
 public:
-
-
-    /**
-     * Konstruktor
-     *
-     * @author Markus Weber
-     */
-    gui_divider_t();
-
-
-    /**
-     * Destruktor
-     *
-     * @author Markus Weber
-     */
-    ~gui_divider_t();
-
-
-    /**
-     * Setzt den Textpuffer
-     *
-     * @author Markus Weber
-     */
-    //void setze_text(char *text, int max) {this->text = text; this->max=max;};
-
-
-    /**
-     * Holt den Textpuffer
-     *
-     * @author Markus Weber
-     */
-    //char *gib_text() const {return text;};
-
-
-
     /**
      * Zeichnet die Komponente
      * @author Markus Weber
      */
-    void zeichnen(koord offset) const;
+    void zeichnen(koord offset) const { display_ddd_box_clip(pos.x+offset.x, pos.y+offset.y, groesse.x, groesse.y, MN_GREY0, MN_GREY4); }
 };
 
 #endif

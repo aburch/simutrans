@@ -57,7 +57,6 @@ DBG_MESSAGE("message_t::message_t()","previous instance %p");
 	auto_win_flags = 0;
 	ignore_flags = 0;
 	if(w) {
-//		win_flags = 129;
 		win_flags = 256+8;
 		auto_win_flags = 128;
 	}

@@ -65,6 +65,8 @@ protected:
      */
     virtual void resize(const koord delta);
 
+	void set_title_color( uint16 col ) { farben.titel = col; }
+
 public:
 
     /**
@@ -96,15 +98,12 @@ public:
      */
     void remove_komponente(gui_komponente_t *komp);
 
-
-
     /**
      * Der Name wird in der Titelzeile dargestellt
      * @return den nicht uebersetzten Namen der Komponente
      * @author Hj. Malthaner
      */
     virtual const char * gib_name() const;
-
 
     /**
      * setzt den Namen (Fenstertitel)

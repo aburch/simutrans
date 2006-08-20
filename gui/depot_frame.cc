@@ -71,24 +71,25 @@ depot_frame_t::depot_frame_t(karte_t *welt, depot_t *depot) :
     lb_convoi_value(NULL, COL_BLACK, gui_label_t::right),
     lb_convoi_line(NULL, COL_BLACK, gui_label_t::left),
     lb_veh_action(NULL, COL_BLACK, gui_label_t::left),
-    convoi_pics(depot->get_max_convoi_length())
+    convoi_pics(depot->get_max_convoi_length()),
+	convoi(&convoi_pics),
+	pas_vec(0),
+	loks_vec(0),
+	waggons_vec(0),
+	pas(&pas_vec),
+	loks(&loks_vec),
+	waggons(&waggons_vec),
+	scrolly_pas(&cont_pas),
+	scrolly_loks(&cont_loks),
+	scrolly_waggons(&cont_waggons)
 {
 DBG_DEBUG("depot_frame_t::depot_frame_t()","get_max_convoi_length()=%i",depot->get_max_convoi_length());
-	waggons_vec = 0;
-	loks_vec = 0;
-	pas_vec = 0;
-
 	uint8 kennfarbe=depot->gib_besitzer()->get_player_color();
-
 	selected_line = linehandle_t();
-
 	strcpy(no_line_text, translator::translate("<no line>"));
-
     setze_opaque( true );
 
-    sprintf(txt_title, "(%d,%d) %s",
-	depot->gib_pos().x, depot->gib_pos().y,
-	translator::translate(depot->gib_name()));
+    sprintf(txt_title, "(%d,%d) %s", depot->gib_pos().x, depot->gib_pos().y, translator::translate(depot->gib_name()));
 
     build_vehicle_lists();
 
@@ -119,10 +120,9 @@ DBG_DEBUG("depot_frame_t::depot_frame_t()","get_max_convoi_length()=%i",depot->g
     /*
      * [CONVOI]
      */
-    convoi = new gui_image_list_t(&convoi_pics);
-    convoi->set_player_color(kennfarbe);
-    convoi->add_listener(this);
-    add_komponente(convoi);
+    convoi.set_player_color(kennfarbe);
+    convoi.add_listener(this);
+    add_komponente(&convoi);
 
     lb_convoi_count.setze_text(txt_convoi_count);
     add_komponente(&lb_convoi_count);
@@ -182,51 +182,38 @@ DBG_DEBUG("depot_frame_t::depot_frame_t()","get_max_convoi_length()=%i",depot->g
     /*
      * [PANEL]
      */
-    pas = new gui_image_list_t(pas_vec);
-    pas->set_player_color(kennfarbe);
-    pas->add_listener(this);
+    pas.set_player_color(kennfarbe);
+    pas.add_listener(this);
 
-    loks = new gui_image_list_t(loks_vec);
-    loks->set_player_color(kennfarbe);
-    loks->add_listener(this);
+    loks.set_player_color(kennfarbe);
+    loks.add_listener(this);
 
-    waggons = new gui_image_list_t(waggons_vec);
-    waggons->set_player_color(kennfarbe);
-    waggons->add_listener(this);
+    waggons.set_player_color(kennfarbe);
+    waggons.add_listener(this);
 
-    cont_pas = new gui_container_t();
-    cont_pas->add_komponente(pas);
-    scrolly_pas = new gui_scrollpane_t(cont_pas);
-    scrolly_pas->set_show_scroll_x(false);
-    scrolly_pas->set_size_corner(false);
-    scrolly_pas->set_read_only(false);
-
-    if(pas_vec->get_count() > 0  ||  (loks_vec->get_count()==0  && waggons_vec->get_count()==0)  ) {
-	tabs.add_tab(scrolly_pas, depot->gib_passenger_name());
+    cont_pas.add_komponente(&pas);
+    scrolly_pas.set_show_scroll_x(false);
+    scrolly_pas.set_size_corner(false);
+    scrolly_pas.set_read_only(false);
+    if(pas_vec.get_count() > 0  ||  (loks_vec.get_count()==0  && waggons_vec.get_count()==0)  ) {
+	tabs.add_tab(&scrolly_pas, depot->gib_passenger_name());
     }
 
-    cont_loks = new gui_container_t();
-    cont_loks->add_komponente(loks);
-    scrolly_loks = new gui_scrollpane_t(cont_loks);
-    scrolly_loks->set_show_scroll_x(false);
-    scrolly_loks->set_size_corner(false);
-    scrolly_loks->set_read_only(false);
-
-    if(loks_vec->get_count() > 0) {
-		tabs.add_tab(scrolly_loks, depot->gib_zieher_name());
+    cont_loks.add_komponente(&loks);
+    scrolly_loks.set_show_scroll_x(false);
+    scrolly_loks.set_size_corner(false);
+    scrolly_loks.set_read_only(false);
+    if(loks_vec.get_count() > 0) {
+		tabs.add_tab(&scrolly_loks, depot->gib_zieher_name());
     }
 
-    cont_waggons = new gui_container_t();
-    cont_waggons->add_komponente(waggons);
-    scrolly_waggons = new gui_scrollpane_t(cont_waggons);
-    scrolly_waggons->set_show_scroll_x(false);
-    scrolly_waggons->set_size_corner(false);
-    scrolly_waggons->set_read_only(false);
-
-    if(waggons_vec->get_count() > 0) {
-		tabs.add_tab(scrolly_waggons, depot->gib_haenger_name());
+    cont_waggons.add_komponente(&waggons);
+    scrolly_waggons.set_show_scroll_x(false);
+    scrolly_waggons.set_size_corner(false);
+    scrolly_waggons.set_read_only(false);
+    if(waggons_vec.get_count() > 0) {
+		tabs.add_tab(&scrolly_waggons, depot->gib_haenger_name());
   }
-
 
     add_komponente(&tabs);
     add_komponente(&div_tabbottom);
@@ -252,6 +239,7 @@ DBG_DEBUG("depot_frame_t::depot_frame_t()","get_max_convoi_length()=%i",depot->g
 	// Hajo: Trigger layouting
 	set_resizemode(diagonal_resize);
 }
+
 
 
 
@@ -308,7 +296,6 @@ void depot_frame_t::layout(koord *gr)
 	int CLIST_WIDTH = depot->get_max_convoi_length() * (grid.x - grid_dx) + 2 * gui_image_list_t::BORDER;
 	int CLIST_HEIGHT = grid.y + 2 * gui_image_list_t::BORDER;
 	int CONVOI_WIDTH = CLIST_WIDTH + placement_dx;
-// int CONVOI_HEIGHT = CLIST_HEIGHT + CINFO_HEIGHT;
 
 	/*
 	*	Structure of [ACTIONS] is a row of buttons:
@@ -347,8 +334,6 @@ void depot_frame_t::layout(koord *gr)
 	* build_vehicle_lists() fills loks_vec and waggon_vec.
 	* Total width will be expanded to match completo columns in panel.
 	*/
-//    int PANEL_COLS = (TOTAL_WIDTH - 2 * gui_image_list_t::BORDER - 1) / grid.x;
-//    int PANEL_WIDTH = PANEL_COLS * grid.x + 2 * gui_image_list_t::BORDER + 12;
 	int total_h = PANEL_VSTART+VINFO_HEIGHT + 17 + gui_tab_panel_t::HEADER_VSIZE + 2 * gui_image_list_t::BORDER;
 	int PANEL_ROWS = max(1, ((fgr.y-total_h)/grid.y) );
 	if(gr  &&  gr->y==0) {
@@ -384,8 +369,8 @@ void depot_frame_t::layout(koord *gr)
 
     bt_prev.setze_pos(koord(5, SELECT_VSTART + 2));
 
-    inp_name.setze_pos(koord(20, SELECT_VSTART));
-    inp_name.setze_groesse(koord(TOTAL_WIDTH - 40, 14));
+    inp_name.setze_pos(koord(5+12, SELECT_VSTART));
+    inp_name.setze_groesse(koord(TOTAL_WIDTH - 26-5, 14));
 
     bt_next.setze_pos(koord(TOTAL_WIDTH - 16, SELECT_VSTART + 2));
 
@@ -393,18 +378,18 @@ void depot_frame_t::layout(koord *gr)
      * [SELECT ROUTE]:
      * @author hsiegeln
      */
-    line_selector.setze_pos(koord(20, SELECT_VSTART + 13));
-    line_selector.setze_groesse(koord(TOTAL_WIDTH - 40, 14));
-    line_selector.set_max_size(koord(TOTAL_WIDTH - 40, LINESPACE*13+2+16));
+    line_selector.setze_pos(koord(5, SELECT_VSTART + 14));
+    line_selector.setze_groesse(koord(TOTAL_WIDTH - 8, 14));
+    line_selector.set_max_size(koord(TOTAL_WIDTH - 8, LINESPACE*13+2+16));
     line_selector.set_highlight_color(1);
 
     /*
      * [CONVOI]
      */
-    convoi->set_grid(koord(grid.x - grid_dx, grid.y));
-    convoi->set_placement(koord(placement.x - placement_dx, placement.y));
-    convoi->setze_pos(koord((TOTAL_WIDTH-CLIST_WIDTH)/2, CONVOI_VSTART));
-    convoi->setze_groesse(koord(CLIST_WIDTH, CLIST_HEIGHT));
+    convoi.set_grid(koord(grid.x - grid_dx, grid.y));
+    convoi.set_placement(koord(placement.x - placement_dx, placement.y));
+    convoi.setze_pos(koord((TOTAL_WIDTH-CLIST_WIDTH)/2, CONVOI_VSTART));
+    convoi.setze_groesse(koord(CLIST_WIDTH, CLIST_HEIGHT));
 
     lb_convoi_count.setze_pos(koord(4, CINFO_VSTART));
     lb_convoi_value.setze_pos(koord(TOTAL_WIDTH-10, CINFO_VSTART));
@@ -455,30 +440,30 @@ void depot_frame_t::layout(koord *gr)
 	tabs.setze_pos(koord(0, PANEL_VSTART));
 	tabs.setze_groesse(koord(TOTAL_WIDTH, PANEL_HEIGHT));
 
-	pas->set_grid(grid);
-	pas->set_placement(placement);
-	pas->setze_groesse(tabs.gib_groesse());
-	pas->recalc_size();
-	pas->setze_pos(koord(1,1));
-	cont_pas->setze_groesse(pas->gib_groesse());
-	scrolly_pas->setze_groesse(scrolly_pas->gib_groesse());
+	pas.set_grid(grid);
+	pas.set_placement(placement);
+	pas.setze_groesse(tabs.gib_groesse());
+	pas.recalc_size();
+	pas.setze_pos(koord(1,1));
+	cont_pas.setze_groesse(pas.gib_groesse());
+	scrolly_pas.setze_groesse(scrolly_pas.gib_groesse());
 
-	loks->set_grid(grid);
-	loks->set_placement(placement);
-	loks->setze_groesse(tabs.gib_groesse());
-	loks->recalc_size();
-	loks->setze_pos(koord(1,1));
-	cont_loks->setze_pos(koord(0,0));
-	cont_loks->setze_groesse(loks->gib_groesse());
-	scrolly_loks->setze_groesse(scrolly_loks->gib_groesse());
+	loks.set_grid(grid);
+	loks.set_placement(placement);
+	loks.setze_groesse(tabs.gib_groesse());
+	loks.recalc_size();
+	loks.setze_pos(koord(1,1));
+	cont_loks.setze_pos(koord(0,0));
+	cont_loks.setze_groesse(loks.gib_groesse());
+	scrolly_loks.setze_groesse(scrolly_loks.gib_groesse());
 
-	waggons->set_grid(grid);
-	waggons->set_placement(placement);
-	waggons->setze_groesse(tabs.gib_groesse());
-	waggons->recalc_size();
-	waggons->setze_pos(koord(1,1));
-	cont_waggons->setze_groesse(waggons->gib_groesse());
-	scrolly_waggons->setze_groesse(scrolly_waggons->gib_groesse());
+	waggons.set_grid(grid);
+	waggons.set_placement(placement);
+	waggons.setze_groesse(tabs.gib_groesse());
+	waggons.recalc_size();
+	waggons.setze_pos(koord(1,1));
+	cont_waggons.setze_groesse(waggons.gib_groesse());
+	scrolly_waggons.setze_groesse(scrolly_waggons.gib_groesse());
 
 	div_tabbottom.setze_pos(koord(0,PANEL_VSTART+PANEL_HEIGHT));
 	div_tabbottom.setze_groesse(koord(TOTAL_WIDTH,0));
@@ -535,16 +520,16 @@ void depot_frame_t::add_to_vehicle_list(const vehikel_besch_t *info)
 
 	// since they come "pre-sorted" for the vehikelbauer, we have to do nothing to keep them sorted
 	if(info->gib_ware()==warenbauer_t::passagiere  ||  info->gib_ware()==warenbauer_t::post) {
-		pas_vec->append(img_data);
-		vehicle_map.set(info, &pas_vec->at(pas_vec->get_count() - 1));
+		pas_vec.append(img_data,4);
+		vehicle_map.set(info, &pas_vec.at(pas_vec.get_count() - 1));
 	}
 	else if(info->gib_leistung() > 0  ||  info->gib_zuladung()==0) {
-		loks_vec->append(img_data);
-		vehicle_map.set(info, &loks_vec->at(loks_vec->get_count() - 1));
+		loks_vec.append(img_data,4);
+		vehicle_map.set(info, &loks_vec.at(loks_vec.get_count() - 1));
 	}
 	else {
-		waggons_vec->append(img_data);
-		vehicle_map.set(info, &waggons_vec->at(waggons_vec->get_count() - 1));
+		waggons_vec.append(img_data,4);
+		vehicle_map.set(info, &waggons_vec.at(waggons_vec.get_count() - 1));
 	}
 }
 
@@ -556,8 +541,7 @@ void depot_frame_t::build_vehicle_lists()
 	const int month_now = welt->get_timeline_year_month();
 	int i = 0;
 
-	if(waggons_vec == 0) {
-
+	if(pas_vec.get_count()+loks_vec.get_count()+waggons_vec.get_count() == 0) {
 		int loks = 0, waggons = 0, pax=0;
 		while(depot->get_vehicle_type(i)) {
 			const vehikel_besch_t *info = depot->get_vehicle_type(i);
@@ -573,17 +557,11 @@ void depot_frame_t::build_vehicle_lists()
 			}
 			i++;
 		}
-
-		waggons_vec = new vector_tpl<gui_image_list_t::image_data_t>(waggons+1);
-		loks_vec = new vector_tpl<gui_image_list_t::image_data_t>(loks+1);
-		pas_vec = new vector_tpl<gui_image_list_t::image_data_t>(pax+1);
 DBG_DEBUG("depot_frame_t::build_vehicle_lists()","%i passenger vehicle, %i  engines, %i good wagons",pax,loks,waggons);
 	}
-	else {
-		waggons_vec->clear();
-		loks_vec->clear();
-		pas_vec->clear();
-	}
+	pas_vec.clear();
+	loks_vec.clear();
+	waggons_vec.clear();
 
 	vehicle_map.clear();
 
@@ -781,90 +759,95 @@ int depot_frame_t::calc_restwert(const vehikel_besch_t *veh_type)
 	return wert;
 }
 
+
+
 void
-depot_frame_t::bild_gewaehlt(gui_image_list_t *lst, int bild_index)
+depot_frame_t::image_from_storage_list(gui_image_list_t::image_data_t *bild_data)
 {
-    if(lst == loks || lst == waggons  ||  lst == pas) {
-	gui_image_list_t::image_data_t *bild_data = &(lst == loks ? loks_vec : (lst==pas? pas_vec :waggons_vec))->at(bild_index);
-
 	if(bild_data->lcolor != COL_RED && bild_data->rcolor != COL_RED) {
-	    int bild = bild_data->image;
+		int bild = bild_data->image;
 
-	    int oldest_veh = -1;
-	    int newest_veh = -1;
-	    sint32 insta_time_old = 0;
-	    sint32 insta_time_new = 0;
+		int oldest_veh = -1;
+		int newest_veh = -1;
+		sint32 insta_time_old = 0;
+		sint32 insta_time_new = 0;
 
-	    int i = 0;
-	    slist_iterator_tpl<vehikel_t *> iter(depot->get_vehicle_list());
-	    while(iter.next()) {
-		if(iter.get_current()->gib_basis_bild() == bild) {
-		    if(oldest_veh == -1 || insta_time_old > iter.get_current()->gib_insta_zeit()) {
-			oldest_veh = i;
-			insta_time_old = iter.get_current()->gib_insta_zeit();
-		    }
-		    if(newest_veh == -1 || insta_time_new < iter.get_current()->gib_insta_zeit()) {
-			newest_veh = i;
-			insta_time_new = iter.get_current()->gib_insta_zeit();
-		    }
+		int i = 0;
+		slist_iterator_tpl<vehikel_t *> iter(depot->get_vehicle_list());
+		while(iter.next()) {
+			if(iter.get_current()->gib_basis_bild() == bild) {
+				if(oldest_veh == -1 || insta_time_old > iter.get_current()->gib_insta_zeit()) {
+					oldest_veh = i;
+					insta_time_old = iter.get_current()->gib_insta_zeit();
+				}
+				if(newest_veh == -1 || insta_time_new < iter.get_current()->gib_insta_zeit()) {
+					newest_veh = i;
+					insta_time_new = iter.get_current()->gib_insta_zeit();
+				}
+			}
+			i++;
 		}
-		i++;
-	    }
 
-	    if(veh_action == va_sell) {
-		/*
-		 *	We sell the newest vehicle - gives most money back.
-		 */
-DBG_DEBUG("depot_frame_t::bild_gewaehlt()","sell %i",newest_veh);
-		depot->sell_vehicle(newest_veh);
-	    } else {
-		const convoihandle_t cnv = depot->get_convoi(icnv);
+		if(veh_action == va_sell) {
+			/*
+			*	We sell the newest vehicle - gives most money back.
+			*/
+//DBG_DEBUG("depot_frame_t::bild_gewaehlt()","sell %i",newest_veh);
+			depot->sell_vehicle(newest_veh);
+		}
+		else {
+			const convoihandle_t cnv = depot->get_convoi(icnv);
 
-		if(!cnv.is_bound() || cnv->gib_vehikel_anzahl() < depot->get_max_convoi_length()) {
-		    /*
-		     *	We add the oldest vehicle - newer stay for selling
-		     */
-		    if(oldest_veh == -1) {
-			oldest_veh = depot->buy_vehicle(bild);
-		    }
-		    if(oldest_veh != -1) {
-			depot->append_vehicle(icnv, oldest_veh, veh_action == va_insert);
-DBG_DEBUG("depot_frame_t::bild_gewaehlt()","appended vehicle");
-			if(icnv == -1) {
-			    icnv = depot->convoi_count() - 1;
-			    depot->get_convoi(icnv)->setze_name(
-				depot->get_convoi(icnv)->gib_vehikel(0)->gib_besch()->gib_name());
-
-			} // endif (icnv == -1)
-DBG_DEBUG("depot_frame_t::bild_gewaehlt()","icnv");
-		    } // endif (oldest_veh != -1)
-		}  // endif (!cnv.is_bound() || cnv->gib_vehikel_anzahl() < depot->get_max_convoi_length())
-	    }
- 	    update_data();
- 	    layout(NULL);
+			if(!cnv.is_bound() || cnv->gib_vehikel_anzahl() < depot->get_max_convoi_length()) {
+				/*
+				*	We add the oldest vehicle - newer stay for selling
+				*/
+				if(oldest_veh == -1) {
+					oldest_veh = depot->buy_vehicle(bild);
+				}
+				if(oldest_veh != -1) {
+					depot->append_vehicle(icnv, oldest_veh, veh_action == va_insert);
+	//DBG_DEBUG("depot_frame_t::bild_gewaehlt()","appended vehicle");
+					if(icnv == -1) {
+						icnv = depot->convoi_count() - 1;
+						depot->get_convoi(icnv)->setze_name(
+						depot->get_convoi(icnv)->gib_vehikel(0)->gib_besch()->gib_name());
+					} // endif (icnv == -1)
+//DBG_DEBUG("depot_frame_t::bild_gewaehlt()","icnv");
+				} // endif (oldest_veh != -1)
+			}  // endif (!cnv.is_bound() || cnv->gib_vehikel_anzahl() < depot->get_max_convoi_length())
+		}
+		update_data();
+		layout(NULL);
 	}
-    } else if(lst == convoi) {
+}
+
+
+
+void
+depot_frame_t::image_from_convoi_list(int nr)
+{
 	const convoihandle_t cnv = depot->get_convoi(icnv);
 
-DBG_DEBUG("depot_frame_t::bild_gewaehlt()","convoi index %i",bild_index);
-	if(cnv.is_bound() && bild_index < (int)cnv->gib_vehikel_anzahl() ) {
-	    if(cnv->gib_vehikel_anzahl() == 1) {
-		depot->disassemble_convoi(icnv, false);
-		icnv--;
-	    } else {
-		depot->remove_vehicle(icnv, bild_index);
-	    }
-	    build_vehicle_lists();
-	    update_data();
-	    layout(NULL);
+//DBG_DEBUG("depot_frame_t::bild_gewaehlt()","convoi index %i",nr);
+	if(cnv.is_bound() &&  nr<(int)cnv->gib_vehikel_anzahl() ) {
+		if(cnv->gib_vehikel_anzahl() == 1) {
+			depot->disassemble_convoi(icnv, false);
+			icnv--;
+		}
+		else {
+			depot->remove_vehicle(icnv, nr);
+		}
 	}
-    }
+	build_vehicle_lists();
+	update_data();
+	layout(NULL);
 }
 
 
 
 bool
-depot_frame_t::action_triggered(gui_komponente_t *komp)
+depot_frame_t::action_triggered(gui_komponente_t *komp,value_t p)
 {
    if(komp != NULL) {	// message from outside!
        if(komp == &bt_start) {
@@ -889,7 +872,16 @@ depot_frame_t::action_triggered(gui_komponente_t *komp)
 	} else if(komp == &bt_prev) {
 	    if(icnv-- == -1) {
 		icnv = depot->convoi_count() - 1;
-	    }
+	  }
+	  // image lsit selction here ...
+	} else if(komp == &convoi) {
+		image_from_convoi_list( p.i );
+	} else if(komp == &pas) {
+		image_from_storage_list( &pas_vec.at(p.i) );
+	} else if(komp == &loks) {
+		image_from_storage_list( &loks_vec.at(p.i) );
+	} else if(komp == &waggons) {
+		image_from_storage_list( &waggons_vec.at(p.i) );
 	} else if(komp == &bt_obsolete) {
 	    show_retired_vehicles = (show_retired_vehicles==0);
          build_vehicle_lists();
@@ -1067,8 +1059,7 @@ void depot_frame_t::new_line()
 DBG_MESSAGE("depot_frame_t::new_line()","id=%d",selected_line.get_id() );
 	layout(NULL);
 	update_data();
-	line_management_gui_t *line_gui = new line_management_gui_t(welt, selected_line, welt->get_active_player());
-	line_gui->zeige_info();
+	create_win(-1, -1, new line_management_gui_t(welt, selected_line, depot->gib_besitzer()), w_info);
 DBG_MESSAGE("depot_frame_t::new_line()","id=%d",selected_line.get_id() );
 }
 
@@ -1096,8 +1087,7 @@ void depot_frame_t::apply_line()
 void depot_frame_t::change_line()
 {
 	if(selected_line.is_bound()) {
-		line_management_gui_t *line_gui = new line_management_gui_t(welt, selected_line, welt->get_active_player());
-		line_gui->zeige_info();
+		create_win(-1, -1, new line_management_gui_t(welt, selected_line, depot->gib_besitzer()), w_info);
 	}
 }
 
@@ -1115,8 +1105,7 @@ void depot_frame_t::fahrplaneingabe()
 		if(fpl != NULL && fpl->ist_abgeschlossen()) {
 
 			// Fahrplandialog oeffnen
-			fahrplan_gui_t *fpl_gui = new fahrplan_gui_t(welt, fpl, welt->get_active_player());
-			fpl_gui->zeige_info();
+			create_win(-1, -1, new fahrplan_gui_t(welt, fpl, cnv->gib_besitzer()), w_info);
 
 			// evtl. hat ein callback cnv gelöscht, so erneut testen
 			if(cnv.is_bound() && fpl != NULL) {
@@ -1150,22 +1139,21 @@ depot_frame_t::draw_vehicle_info_text(koord pos)
 	sprintf(buf, translator::translate("%d Einzelfahrzeuge im Depot"), depot->vehicle_count());
         break;
     }
-    gui_image_list_t *lst = dynamic_cast<gui_image_list_t *>(tabs.get_active_tab_index() == 0 ? pas :(tabs.get_active_tab_index() == 1 ? loks : waggons));
+    gui_image_list_t *lst = dynamic_cast<gui_image_list_t *>(tabs.get_active_tab_index() == 0 ? &pas :(tabs.get_active_tab_index() == 1 ? &loks : &waggons));
     int x = gib_maus_x();
     int y = gib_maus_y();
     int value = -1;
     const vehikel_besch_t *veh_type = NULL;
-    koord relpos = (tabs.get_active_tab_index() == 0 ? koord(0, scrolly_pas->get_scroll_y()) : (tabs.get_active_tab_index() == 1 ? koord(0, scrolly_loks->get_scroll_y()) : koord(0, scrolly_waggons->get_scroll_y()) ));
-
+    koord relpos = koord( 0, ((gui_scrollpane_t *)tabs.gib_aktives_tab())->get_scroll_y() );
     int sel_index = lst->index_at(pos + tabs.gib_pos() - relpos, x, y - 16 - gui_tab_panel_t::HEADER_VSIZE);
     if ((sel_index != -1) && (tabs.getroffen(x-pos.x,y-pos.y))) {
-			vector_tpl<gui_image_list_t::image_data_t> *vec = (lst == pas ? pas_vec : (lst == loks ? loks_vec : waggons_vec));
+			vector_tpl<gui_image_list_t::image_data_t> *vec = (lst == &pas ? &pas_vec : (lst == &loks ? &loks_vec : &waggons_vec));
 			veh_type = vehikelbauer_t::gib_info(vec->at(sel_index).image);
 			if(vec->at(sel_index).count > 0) {
 	    	value = calc_restwert(veh_type) / 100;
 			}
     } else {
-			sel_index = convoi->index_at(pos , x, y - 16);
+			sel_index = convoi.index_at(pos , x, y - 16);
 			if(sel_index != -1) {
 		    convoihandle_t cnv = depot->get_convoi(icnv);
 		    veh_type = cnv->gib_vehikel(sel_index)->gib_besch();

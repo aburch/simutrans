@@ -12,73 +12,29 @@
 #define message_info_h
 
 
-#include "../simimg.h"
-#include "infowin.h"
 #include "gui_frame.h"
+#include "components/gui_world_view_t.h"
+#include "components/gui_image.h"
+#include "components/gui_textarea.h"
+#include "../utils/cbuffer_t.h"
 
 class karte_t;
 
 
 /**
- * Display a message
+ * Display a message on a non-world object
  * @author prissi
  */
-class message_info_t : public infowin_t
+class message_info_t : public gui_frame_t
 {
 private:
-	karte_t *welt;
-	int	bild;
-	int color;
-	koord k;
-	const char *text;
+	gui_image_t bild;
+	gui_textarea_t meldung;
+	world_view_t view;
 
 public:
-  message_info_t(karte_t *welt, int color, char *text, koord k, int bild);
-  ~message_info_t();
-
-    /**
-     * gibt farbinformationen fuer Fenstertitel, -ränder und -körper
-     * zurück
-     * @author Hj. Malthaner
-     */
-    fensterfarben gib_fensterfarben() const;
-
-    /**
-     * Jedes Objekt braucht ein Bild.
-     *
-     * @author Hj. Malthaner
-     * @return Die Nummer des aktuellen Bildes für das Objekt.
-     */
-    int gib_bild() const;
-
-    /**
-     * @return Die aktuelle Planquadrat-Koordinate des Objekts
-     *
-     * @author Hj. Malthaner
-     */
-    koord3d gib_pos() const {return koord3d(k,1);};
-
-    /**
-     * in top-level fenstern wird der Name in der Titelzeile dargestellt
-     * @return den nicht uebersetzten Namen der Komponente
-     * @author Hj. Malthaner
-     */
-    const char *gib_name() const;
-
-    /**
-     * Zeichnet die Komponente
-     * @author Hj. Malthaner
-     */
-    void info(cbuffer_t & buf) const;
-
-
-    /**
-     * Das Bild kann im Fenster über Offsets plaziert werden
-     *
-     * @author Hj. Malthaner
-     * @return den x,y Offset des Bildes im Infofenster
-     */
-    virtual koord gib_bild_offset() const;
+	message_info_t(karte_t *welt, sint16 color, char *text, koord k, image_id bild);
 };
+
 
 #endif //message_frame_h

@@ -63,13 +63,6 @@ convoi_detail_t::convoi_detail_t(convoihandle_t cnv)
 }
 
 
-/**
- * Destruktor.
- * @author Hj. Malthaner
- */
-convoi_detail_t::~convoi_detail_t() { }
-
-
 
 static koord groesse_vehicle(300,5);
 
@@ -177,7 +170,7 @@ convoi_detail_t::zeichnen(koord pos, koord gr)
  * @author Markus Weber
  */
 bool
-convoi_detail_t::action_triggered(gui_komponente_t *komp)           // 28-Dec-01    Markus Weber    Added
+convoi_detail_t::action_triggered(gui_komponente_t *komp,value_t /* */)           // 28-Dec-01    Markus Weber    Added
 {
 	if(cnv.is_bound()) {
 		if(komp==&sale_button) {

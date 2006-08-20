@@ -381,9 +381,9 @@ void grund_t::rdwr(loadsave_t *file)
 	sint8 dummy8=besitzer_n;
 	file->rdwr_byte(dummy8, "\n");
 	besitzer_n = dummy8;
-	// slopes now loaded here!
+
 	if(file->get_version()>=88009) {
-		file->rdwr_byte(dummy8, "s");
+		file->rdwr_byte(slope, "\n");
 	}
 
     if(file->is_loading()) {

@@ -102,7 +102,7 @@ void gui_textinput_t::infowin_event(const event_t *ev)
 		    case 13:
 			if(has_focus(this)) {
 			    release_focus(this);
-			    call_listeners();
+			    call_listeners((long)0);
 			}
 			break;
 			case 0:

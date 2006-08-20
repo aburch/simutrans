@@ -20,10 +20,6 @@ line_management_gui_t::line_management_gui_t(karte_t *welt, linehandle_t line, s
 	show_line_selector(false);
 }
 
-line_management_gui_t::~line_management_gui_t()
-{
-}
-
 const char *
 line_management_gui_t::gib_name() const
 {
@@ -38,6 +34,5 @@ line_management_gui_t::infowin_event(const event_t *ev)
     	// update all convoys of this line!
 		sp->simlinemgmt.update_line(line);
     }
-
     fahrplan_gui_t::infowin_event(ev);
 }

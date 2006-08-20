@@ -15,7 +15,7 @@
 #include "gui_frame.h"
 #include "components/gui_button.h"
 #include "components/gui_label.h"
-#include "ifc/action_listener.h"
+#include "components/action_listener.h"
 
 class einstellungen_t;
 struct event_t;
@@ -87,15 +87,13 @@ private:
 
 public:
     welt_gui_t(karte_t *welt, einstellungen_t *sets);
-    ~welt_gui_t() {}
-
 
     /**
      * Manche Fenster haben einen Hilfetext assoziiert.
      * @return den Dateinamen für die Hilfe, oder NULL
      * @author Hj. Malthaner
      */
-    virtual const char * gib_hilfe_datei() const {return "new_world.txt";};
+    const char * gib_hilfe_datei() const {return "new_world.txt";};
 
     bool gib_load_heightfield() const {return load_heightfield;}
     bool gib_load() const {return load;}
@@ -104,19 +102,6 @@ public:
     bool gib_quit() const {return false;}
 
     einstellungen_t *gib_sets() const {return sets;};
-
-    /**
-     *
-     * @author Hj. Malthaner
-     * @return gibt wunschgroesse für das beobachtungsfenster zurueck
-     */
-    koord gib_fenstergroesse() const;
-
-    /**
-     * This method is called if an action is triggered
-     * @author Hj. Malthaner
-     */
-    virtual bool action_triggered(gui_komponente_t *);
 
     /**
      * Events werden hiermit an die GUI-Komponenten
@@ -133,6 +118,16 @@ public:
      * @author Hj. Malthaner
      */
     void zeichnen(koord pos, koord gr);
+
+    /**
+     * This method is called if an action is triggered
+     * @author Hj. Malthaner
+     *
+     * Returns true, if action is done and no more
+     * components should be triggered.
+     * V.Meyer
+     */
+    bool action_triggered(gui_komponente_t *komp, value_t extra);
 };
 
 #endif

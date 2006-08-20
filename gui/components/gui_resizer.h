@@ -10,8 +10,7 @@
 #ifndef gui_components_gui_resizer_h
 #define gui_components_gui_resizer_h
 
-#include "../../ifc/gui_komponente.h"
-#include "../ifc/action_listener.h"
+#include "../../ifc/gui_action_creator.h"
 #include "../../tpl/slist_tpl.h"
 
 struct event_t;
@@ -22,23 +21,19 @@ struct event_t;
  * @date 15-Dec-01
  * @author Markus Weber
  */
-class gui_resizer_t : public gui_komponente_t
+class gui_resizer_t : public gui_komponente_action_creator_t
 {
+public:
+  enum type { vertical_resize, horizonal_resize, diagonal_resize };
+
+private:
+    enum type type;
+
+    int vresize;
+    int hresize;
+    bool followmouse;
 
 public:
-  enum type
-    { vertical_resize, horizonal_resize, diagonal_resize };
-
-
-    /**
-     * Add a new listener.
-     * @author Hj. Malthaner
-     */
-   void add_listener(action_listener_t * l) {
-	listeners.insert( l );
-    }
-
-
     /**
      * Konstruktor
      *
@@ -47,15 +42,7 @@ public:
     gui_resizer_t();
 
 
-    /**
-     * Destruktor
-     *
-     * @author Markus Weber
-     */
-    ~gui_resizer_t();
-
-
-    void set_type(enum type type);
+    void set_type(enum type type) { this->type = type; }
 
     /**
      * Zeichnet die Komponente
@@ -105,43 +92,6 @@ public:
      * @author Markus Weber
      */
     void cancelresize();
-
-
-
-
-private:
-    enum type type;
-
-
-    /**
-     * Our listeners.
-     * @author Hj. Malthaner
-     */
-    slist_tpl <action_listener_t *> listeners;
-
-
-    /**
-     * Inform all listeners that an action was triggered.
-     * @author Hj. Malthaner
-     */
-    void call_listeners();
-
-    /**
-     * @return true wenn x,y innerhalb der Buttonflaeche liegt, d.h. der
-     * Button getroffen wurde, false wenn x, y ausserhalb liegt
-     * @author Hj. Malthaner
-     */
-    /*bool getroffen(int x,int y)       // x and y doesn't inlcude useable data
-    {
-        bool pressed;
-        pressed = gui_komponente_t::getroffen(x, y);
-	return pressed;
-    };*/
-
-    int vresize;
-    int hresize;
-    bool followmouse;
-
 };
 
 #endif

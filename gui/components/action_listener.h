@@ -10,6 +10,8 @@
 #ifndef gui_ifc_action_listener_h
 #define gui_ifc_action_listener_h
 
+#include "../../simtypes.h"
+
 class gui_komponente_t;
 
 /**
@@ -29,7 +31,7 @@ public:
      * components should be triggered.
      * V.Meyer
      */
-    virtual bool action_triggered(gui_komponente_t *komp) = 0;
+    virtual bool action_triggered(gui_komponente_t *komp, value_t extra) = 0;
 };
 
 #endif

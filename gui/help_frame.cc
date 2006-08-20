@@ -113,9 +113,11 @@ help_frame_t::help_frame_t(cstring_t filename) :
  * @param the hyper ref of the link
  * @author Hj. Malthaner
  */
-void help_frame_t::hyperlink_activated(const cstring_t &txt)
+bool
+help_frame_t::action_triggered(gui_komponente_t */**/, value_t extra)
 {
-  create_win(new help_frame_t(txt), w_autodelete, magic_none);
+	create_win(new help_frame_t((const char *)(extra.p)), w_autodelete, magic_none);
+	return true;
 }
 
 

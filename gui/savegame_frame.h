@@ -13,14 +13,14 @@
 
 
 #include "../tpl/slist_tpl.h"
-#include "ifc/action_listener.h"
+#include "components/action_listener.h"
 #include "gui_frame.h"
-#include "components/gui_scrollpane.h"
 #include "gui_container.h"
+#include "components/gui_scrollpane.h"
 #include "components/gui_textinput.h"
-#include "components/gui_divider.h"     // 30-Oct-2001      Markus Weber    Added
-#include "components/gui_label.h"                  // 31-Oct-2001      Markus Weber    Added
-#include "components/gui_button.h"                     // 29-Oct-2001      Markus Weber    Added
+#include "components/gui_divider.h"
+#include "components/gui_label.h"
+#include "components/gui_button.h"
 
 
 class button_t;
@@ -81,17 +81,21 @@ public:
     ~savegame_frame_t();
 
     /**
-     * This method is called if an action is triggered
-     * @author Hj. Malthaner
-     */
-    bool action_triggered(gui_komponente_t *komp);
-
-    /**
      * Setzt die Fenstergroesse
      * @author (Mathew Hounsell)
      * @date   11-Mar-2003
      */
     virtual void setze_fenstergroesse(koord groesse);
+
+    /**
+     * This method is called if an action is triggered
+     * @author Hj. Malthaner
+     *
+     * Returns true, if action is done and no more
+     * components should be triggered.
+     * V.Meyer
+     */
+    bool action_triggered(gui_komponente_t *komp, value_t extra);
 };
 
 #endif

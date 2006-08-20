@@ -7,7 +7,7 @@
 
  #include "fahrplan_gui.h"
  #include "components/gui_textinput.h"
- #include "ifc/action_listener.h"
+ #include "components/action_listener.h"
  #include "gui_frame.h"
 
 #include "../linehandle_t.h"
@@ -16,12 +16,12 @@
 
  class line_management_gui_t : public fahrplan_gui_t
  {
- 	public:
- 	    line_management_gui_t(karte_t *welt, linehandle_t line, spieler_t *sp);
-	    ~line_management_gui_t();
-	    virtual const char * gib_name() const;
-	    virtual void infowin_event(const event_t *ev);
-	private:
+public:
+	line_management_gui_t(karte_t *welt, linehandle_t line, spieler_t *sp);
+	const char * gib_name() const;
+	void infowin_event(const event_t *ev);
+
+private:
 	    linehandle_t line;
 	    spieler_t * sp;
 };

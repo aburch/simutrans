@@ -50,9 +50,11 @@ void
 tunnelboden_t::rdwr(loadsave_t *file)
 {
 	grund_t::rdwr(file);
+
 	if(file->get_version()<88009) {
-		int int_hang = 0;
+		int int_hang = slope;
 		file->rdwr_long(int_hang, "\n");
+		slope = int_hang;
 	}
 }
 

@@ -133,6 +133,7 @@ fensterfarben gui_frame_t::gib_fensterfarben() const
 }
 
 
+
 /**
  * @return gibt wunschgroesse für das Darstellungsfenster zurueck
  * @author Hj. Malthaner
@@ -254,14 +255,6 @@ void gui_frame_t::zeichnen(koord pos, koord gr)
 {
   if(opaque) {
     const fensterfarben f = gib_fensterfarben();
-
-
-    // Hajo: colored windows code
-    /*
-       // fensterkoerper zeichnen
-       display_fillbox_wh(pos.x+1,pos.y+16,gr.x-2,gr.y-17, f.mittel, true);
-
-    */
 
     // Hajo: skinned windows code
     // fensterkoerper zeichnen

@@ -7,28 +7,24 @@
  * in other projects without written permission of the author.
  */
 
-#include "components/list_button.h"
-#include "components/gui_button.h"
-
 #include "../simwin.h"
 
 #include "../dataobj/translator.h"
 #include "message_frame_t.h"
 #include "message_stats_t.h"
 #include "message_option_t.h"
-#include "components/gui_scrollpane.h"
 
 #include "help_frame.h"
 
-#include "ifc/action_listener.h"
+#include "components/list_button.h"
+#include "components/action_listener.h"
 
 message_frame_t::message_frame_t(karte_t *welt) : gui_frame_t("Mailbox"),
-	stats(welt)
+	stats(welt),
+	scrolly(&stats)
 {
-	scrolly = new gui_scrollpane_t(&stats);
 	message_frame_t::welt = welt;
-//  scrolly.setze_pos(koord(0, 0));
-	add_komponente(scrolly);
+	add_komponente(&scrolly);
 
 	option_bt.init(button_t::box, translator::translate("Optionen"), koord(BUTTON1_X,0), koord(BUTTON_WIDTH,BUTTON_HEIGHT));
 	option_bt.add_listener(this);
@@ -45,20 +41,6 @@ message_frame_t::message_frame_t(karte_t *welt) : gui_frame_t("Mailbox"),
 
 
 
-message_frame_t::~message_frame_t()
-{
-	/*
-	delete option_bt;
-	option_bt = 0;
-	delete stats;
-	stats = 0;
-	*/
-	delete scrolly;
-	scrolly = 0;
-}
-
-
-
 /**
  * resize window in response to a resize event
  * @author Hj. Malthaner
@@ -68,15 +50,15 @@ void message_frame_t::resize(const koord delta)
 {
 	gui_frame_t::resize(delta);
 	koord groesse = gib_fenstergroesse()-koord(0,16);
-	scrolly->setze_groesse(groesse);
+	scrolly.setze_groesse(groesse);
 }
 
 
 
 
- /* triggered, when button clicked */
+ /* triggered, when button clicked; only single button registered, so the action is clear ... */
 bool
-message_frame_t::action_triggered(gui_komponente_t *)
+message_frame_t::action_triggered(gui_komponente_t *,value_t)
 {
 	create_win(320,200, new message_option_t(welt), w_info );
 	return true;

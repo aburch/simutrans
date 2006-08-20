@@ -22,14 +22,12 @@
 #include "../simskin.h"
 #include "../dataobj/translator.h"
 
+cbuffer_t fabrik_info_t::info_buf(8192);
 
 fabrik_info_t::fabrik_info_t(fabrik_t *fab, gebaeude_t *gb, karte_t *welt) :
-  gui_frame_t(fab->gib_name(),fab->gib_besitzer()->get_player_color()),
-  ding_info_t(gb),
-  view(welt, gb->gib_pos()),
-  scrolly(&cont),
-  txt("\n"),
-  info_buf(8192)
+	ding_infowin_t(welt,gb),
+	scrolly(&cont),
+	txt("\n")
 {
   unsigned int i;
 
@@ -41,6 +39,7 @@ fabrik_info_t::fabrik_info_t(fabrik_t *fab, gebaeude_t *gb, karte_t *welt) :
   txt.setze_text(info_buf);
   cont.add_komponente(&txt);
 
+	view.set_location(gb->gib_pos());
 
   const vector_tpl <koord> & lieferziele =  fab->gib_lieferziele();
 #ifdef _MSC_VER
@@ -119,10 +118,11 @@ fabrik_info_t::fabrik_info_t(fabrik_t *fab, gebaeude_t *gb, karte_t *welt) :
     add_komponente(about);
   }
 
-  fab->info(info_buf);
-  const short height = MAX(count_char(info_buf, '\n')*LINESPACE+40, 92);
+	info_buf.clear();
+	fab->info(info_buf);
+	int  height = max(count_char(buf, '\n')*LINESPACE+40, get_tile_raster_width()+30 );
 
-  setze_fenstergroesse(koord((short)290, MIN(height, 408)));
+  setze_fenstergroesse(koord((short)290, min(height, 408)));
   cont.setze_groesse(koord((short)290, height-20));
 
   scrolly.setze_groesse(gib_fenstergroesse()-koord(1, 8));
@@ -131,9 +131,11 @@ fabrik_info_t::fabrik_info_t(fabrik_t *fab, gebaeude_t *gb, karte_t *welt) :
   scrolly.set_read_only(true);
   add_komponente(&scrolly);
 
-  view.setze_pos(koord(266 - 64, 8));
+  view.setze_pos(koord(266 - 64, 8));	// view is actually borrowed from ding-info ...
+  view.setze_groesse( koord(64,56) );	// in the moment only this size works
   add_komponente(&view);
 
+  gui_frame_t::set_title_color( gib_besitzer() ? gib_besitzer()->get_player_color() : COL_ORANGE );
 }
 
 
@@ -150,14 +152,6 @@ fabrik_info_t::~fabrik_info_t()
 }
 
 
-/*
- * Für den Aufruf der richtigen Methoden sorgen!
- */
-const char * fabrik_info_t::gib_name() const {
-  return gui_frame_t::gib_name();
-}
-
-
 
 /**
  * komponente neu zeichnen. Die übergebenen Werte beziehen sich auf
@@ -169,9 +163,9 @@ const char * fabrik_info_t::gib_name() const {
 void fabrik_info_t::zeichnen(koord pos, koord gr)
 {
 	info_buf.clear();
-	fab->info(info_buf);
+	fab->info( info_buf );
 
-	gui_frame_t::zeichnen(pos, gr);
+	gui_frame_t::zeichnen(pos,gr);
 
 	unsigned indikatorfarbe = fabrik_t::status_to_color[ fab->calc_factory_status( NULL, NULL ) ];
 	display_ddd_box_clip(pos.x + view.pos.x, pos.y + view.pos.y + 75, 64, 8, MN_GREY0, MN_GREY4);
@@ -191,7 +185,7 @@ void fabrik_info_t::zeichnen(koord pos, koord gr)
  * components should be triggered.
  * V.Meyer
    */
-bool fabrik_info_t::action_triggered(gui_komponente_t *komp)
+bool fabrik_info_t::action_triggered(gui_komponente_t *komp,value_t /* */)
 {
     unsigned int i;
 
@@ -215,12 +209,9 @@ bool fabrik_info_t::action_triggered(gui_komponente_t *komp)
 
     if(komp == about) {
       help_frame_t * frame = new help_frame_t();
-
       char key[256];
       sprintf(key, "factory_%s_details", fab->gib_name());
-
       frame->setze_text(translator::translate(key));
-
       create_win(frame, w_autodelete, magic_none);
     }
 

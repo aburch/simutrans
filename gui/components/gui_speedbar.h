@@ -12,7 +12,6 @@
 
 #include "../../ifc/gui_komponente.h"
 #include "../../tpl/slist_tpl.h"
-#include "../ifc/action_listener.h"
 
 struct event_t;
 
@@ -42,20 +41,11 @@ public:
      */
     gui_speedbar_t() { base = 100; vertical = false; }
 
-
-    /**
-     * Destruktor
-     *
-     */
-    ~gui_speedbar_t() {}
-
-
     void add_color_value(const sint32 *value, int color);
 
     void set_base(sint32 base);
 
     void set_vertical(bool vertical) { this->vertical = vertical; }
-
 
     /**
      * Zeichnet die Komponente

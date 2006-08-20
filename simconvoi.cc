@@ -1503,8 +1503,7 @@ convoi_t::open_schedule_window()
 	old_fpl =new fahrplan_t( fpl );
 
 	// Fahrplandialog oeffnen
-	fahrplan_gui_t *fpl_gui = new fahrplan_gui_t(welt, self, fahr->at(0)->gib_besitzer());
-	fpl_gui->zeige_info();
+	create_win(-1, -1, new fahrplan_gui_t(welt, self, gib_besitzer()), w_info);
 }
 
 

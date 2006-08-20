@@ -1,6 +1,5 @@
 
 #include "../simdebug.h"
-#include "monorailboden.h"
 
 #include "../gui/karte.h"
 #include "../gui/ground_info.h"
@@ -11,10 +10,10 @@
 #include "../simhalt.h"
 #include "../besch/grund_besch.h"
 
-
 #include "../dataobj/loadsave.h"
 #include "../dataobj/freelist.h"
 
+#include "monorailboden.h"
 
 monorailboden_t::monorailboden_t(karte_t *welt, loadsave_t *file) : grund_t(welt)
 {
@@ -35,12 +34,14 @@ monorailboden_t::rdwr(loadsave_t *file)
 {
 	grund_t::rdwr(file);
 
-	// save slope locally
-	if(file->get_version()>88005) {
-		file->rdwr_byte( slope, " " );
-	}
-	else {
-		slope = grund_t::gib_grund_hang();
+	if(file->get_version()<88009) {
+		// save slope locally
+		if(file->get_version()>88005) {
+			file->rdwr_byte( slope, " " );
+		}
+		else {
+			slope = grund_t::gib_grund_hang();
+		}
 	}
 }
 

@@ -12,8 +12,6 @@
 #include "../simworld.h"
 #include "money_frame.h"
 #include "../simdebug.h"
-#include "components/gui_label.h"
-#include "components/gui_button.h"
 #include "../simintr.h"
 #include "../simplay.h"
 #include "../simgraph.h"
@@ -21,7 +19,6 @@
 #include "../utils/simstring.h"
 #include "../dataobj/translator.h"
 #include "../dataobj/umgebung.h"
-#include "components/gui_chart.h"
 
 #define COST_BALANCE    10 // bank balance
 
@@ -120,36 +117,31 @@ money_frame_t::money_frame_t(spieler_t *sp)
     const int left = 12;
 
     //CHART YEAR
-    chart = new gui_chart_t();
-    chart->setze_pos(koord(1,1));
-    chart->setze_groesse(koord(443,120));
-    chart->set_dimension(MAX_HISTORY_YEARS, 10000);
-    chart->set_seed(sp->gib_welt()->get_last_year());
-    chart->set_background(MN_GREY1);
-    int i;
-    for (i = 0; i<MAX_COST; i++)
-    {
-    	chart->add_curve(cost_type_color[i], (sint64 *)sp->get_finance_history_year(), MAX_COST, i, 12, i<MAX_COST-2 ? MONEY: STANDARD, false, false);
+    chart.setze_pos(koord(1,1));
+    chart.setze_groesse(koord(443,120));
+    chart.set_dimension(MAX_HISTORY_YEARS, 10000);
+    chart.set_seed(sp->gib_welt()->get_last_year());
+    chart.set_background(MN_GREY1);
+    for (int i = 0; i<MAX_COST; i++) {
+    	chart.add_curve(cost_type_color[i], (sint64 *)sp->get_finance_history_year(), MAX_COST, i, 12, i<MAX_COST-2 ? MONEY: STANDARD, false, false);
     }
     //CHART YEAR END
 
     //CHART MONTH
-    mchart = new gui_chart_t();
-    mchart->setze_pos(koord(1,1));
-    mchart->setze_groesse(koord(443,120));
-    mchart->set_dimension(MAX_HISTORY_MONTHS, 10000);
-    mchart->set_seed(0);
-    mchart->set_background(MN_GREY1);
-    for (i = 0; i<MAX_COST; i++)
-    {
-    	mchart->add_curve(cost_type_color[i], (sint64 *)sp->get_finance_history_month(), MAX_COST, i, 12, i<MAX_COST-2 ? MONEY: STANDARD, false, false);
+    mchart.setze_pos(koord(1,1));
+    mchart.setze_groesse(koord(443,120));
+    mchart.set_dimension(MAX_HISTORY_MONTHS, 10000);
+    mchart.set_seed(0);
+    mchart.set_background(MN_GREY1);
+    for (int i = 0; i<MAX_COST; i++) {
+    	mchart.add_curve(cost_type_color[i], (sint64 *)sp->get_finance_history_month(), MAX_COST, i, 12, i<MAX_COST-2 ? MONEY: STANDARD, false, false);
     }
-    mchart->set_visible(false);
+    mchart.set_visible(false);
     //CHART MONTH END
 
     // tab (month/year)
-    year_month_tabs.add_tab(chart, translator::translate("Years"));
-    year_month_tabs.add_tab(mchart, translator::translate("Months"));
+    year_month_tabs.add_tab(&chart, translator::translate("Years"));
+    year_month_tabs.add_tab(&mchart, translator::translate("Months"));
     year_month_tabs.setze_pos(koord(112, top+9*BUTTONSPACE-6));
     year_month_tabs.setze_groesse(koord(443, 125));
     add_komponente(&year_month_tabs);
@@ -329,18 +321,18 @@ void money_frame_t::zeichnen(koord pos, koord gr)
     for (int i = 0;i<MAX_COST;i++)
     {
     	filterButtons[i].pressed = bFilterIsActive[i];
-    	// year_month_toggle.pressed = mchart->is_visible();
+    	// year_month_toggle.pressed = mchart.is_visible();
     }
 
     // Hajo: update chart seed
-    chart->set_seed(sp->gib_welt()->get_last_year());
+    chart.set_seed(sp->gib_welt()->get_last_year());
 
 
     gui_frame_t::zeichnen(pos, gr);
 
 }
 
-bool money_frame_t::action_triggered(gui_komponente_t *komp)
+bool money_frame_t::action_triggered(gui_komponente_t *komp,value_t /* */)
 {
 		sp->calc_finance_history();
     for ( int i = 0; i<MAX_COST; i++)
@@ -349,11 +341,11 @@ bool money_frame_t::action_triggered(gui_komponente_t *komp)
     	{
     		bFilterIsActive[i] == true ? bFilterIsActive[i] = false : bFilterIsActive[i] = true;
     		if (bFilterIsActive[i] == true) {
-				chart->show_curve(i);
-				mchart->show_curve(i);
+				chart.show_curve(i);
+				mchart.show_curve(i);
 			} else {
-				chart->hide_curve(i);
-				mchart->hide_curve(i);
+				chart.hide_curve(i);
+				mchart.hide_curve(i);
 			}
     		return true;
     	}

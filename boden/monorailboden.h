@@ -11,8 +11,6 @@ public:
 
 	virtual void rdwr(loadsave_t *file);
 
-	inline bool ist_bruecke() const { return false; };
-
 	inline const char *gib_name() const {return "Monorailboden";};
 	inline enum typ gib_typ() const {return monorailboden;};
 

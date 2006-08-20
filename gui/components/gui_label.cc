@@ -63,24 +63,6 @@ void gui_label_t::setze_text(const char *text)
     this->text = translator::translate(text);
 }
 
-/**
- * Sets the colour of the label
- * @author Owen Rudge
- */
-void gui_label_t::set_color(int colour)
-{
-    this->color = colour;
-}
-
-/**
- * Events werden hiermit an die GUI-Komponenten
- * gemeldet
- * @author Hj. Malthaner
- */
-void gui_label_t::infowin_event(const event_t *)
-{
-
-}
 
 
 /**

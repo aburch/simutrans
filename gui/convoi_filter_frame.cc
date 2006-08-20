@@ -10,7 +10,6 @@
 
 
 #include "gui_container.h"
-#include "components/gui_scrollpane.h"
 #include "gui_convoiinfo.h"
 #include "convoi_frame.h"
 #include "convoi_filter_frame.h"
@@ -146,7 +145,7 @@ void convoi_filter_frame_t::infowin_event(const event_t *ev)
  * This method is called if an action is triggered
  * @author V. Meyer
  */
-bool convoi_filter_frame_t::action_triggered(gui_komponente_t *komp)
+bool convoi_filter_frame_t::action_triggered(gui_komponente_t *komp,value_t /* */)
 {
     int i;
 

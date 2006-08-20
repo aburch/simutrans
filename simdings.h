@@ -14,10 +14,6 @@
 #include "simimg.h"
 #include "dataobj/koord3d.h"
 
-class ding_t;
-class ding_info_t;
-
-class cbuffer_t;
 
 template <class K, class V> class ptrhashtable_tpl;
 
@@ -25,7 +21,9 @@ template <class K, class V> class ptrhashtable_tpl;
 // Klassen
 
 // brauche forward-deklaration
-class ding_info_t;
+class ding_t;
+class ding_infowin_t;
+class cbuffer_t;
 class fabrik_t;
 class karte_t;
 class convoi_t;
@@ -127,13 +125,13 @@ protected:
      * Erzeugt ein Info-Fenster für dieses Objekt
      * @author V. Meyer
      */
-    virtual ding_info_t *new_info();
+    virtual ding_infowin_t *new_info();
 
     /**
      * Offene Info-Fenster
      * @author V. Meyer
      */
-    static ptrhashtable_tpl<ding_t *, ding_info_t *> * ding_infos;
+    static ptrhashtable_tpl<ding_t *, ding_infowin_t *> * ding_infos;
 
     /**
      * Pointer to the world of this thing. Static to conserve space.

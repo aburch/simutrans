@@ -121,7 +121,7 @@ optionen_gui_t::optionen_gui_t(karte_t *welt) :
  * This method is called if an action is triggered
  * @author Hj. Malthaner
  */
-bool optionen_gui_t::action_triggered(gui_komponente_t *comp)
+bool optionen_gui_t::action_triggered(gui_komponente_t *comp,value_t /* */)
 {
 	if(comp==&bt_lang) {
 		create_win(new sprachengui_t(welt), w_info, magic_sprachengui_t);

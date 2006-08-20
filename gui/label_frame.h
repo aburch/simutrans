@@ -13,7 +13,7 @@
 
 
 #include "../tpl/slist_tpl.h"
-#include "ifc/action_listener.h"
+#include "components/action_listener.h"
 #include "gui_frame.h"
 #include "components/gui_textinput.h"
 #include "components/gui_divider.h"
@@ -60,13 +60,6 @@ public:
 
     ~label_frame_t();
 
-    /**
-     * This method is called if an action is triggered
-     * @author V. Meyer
-     */
-    bool action_triggered(gui_komponente_t *komp);
-
-
      /**
      * komponente neu zeichnen. Die übergebenen Werte beziehen sich auf
      * das Fenster, d.h. es sind die Bildschirkoordinaten des Fensters
@@ -74,6 +67,16 @@ public:
      * @author Markus Weber
      */
     void zeichnen(koord pos, koord gr);
+
+    /**
+     * This method is called if an action is triggered
+     * @author Hj. Malthaner
+     *
+     * Returns true, if action is done and no more
+     * components should be triggered.
+     * V.Meyer
+     */
+    bool action_triggered(gui_komponente_t *komp, value_t extra);
 };
 
 #endif

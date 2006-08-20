@@ -34,10 +34,20 @@ template <class T> class slist_tpl;
 class button_t : public gui_komponente_action_creator_t
 {
 public:
-	enum type { square, box, roundbox, arrowleft, arrowright, arrowup, arrowdown, scrollbar, repeatarrowleft, repeatarrowright };
+	/* the button with the postfix state do not automatically change their state like the normal button do
+	 * the _state buttons must be changed by the caller!
+	 *
+	 * square: button with text on the right side next to it
+	 * box:  button with is used for many selection purposes; can have colored background
+	 * roundbox: button for "load" cancel and such options
+	 * arrow-buttons: buttons with arrows, cannot have text
+	 * repeat arrows: calls the caller until the mouse is released
+	 * scrollbar: well you guess it. Not used by gui_frame_t things ...
+	 */
+	enum type { square=1, box, roundbox, arrowleft, arrowright, arrowup, arrowdown, scrollbar, repeatarrowleft, repeatarrowright,
+					   square_state=129, box_state, roundbox_state, arrowleft_state, arrowright_state, arrowup_state, arrowdown_state, scrollbar_state, repeatarrowleft_state, repeatarrowright_state };
 
 private:
-
 	/**
 	 * Tooltip ofthis button
 	 * @author Hj. Malthaner
@@ -61,7 +71,6 @@ public:
 	 * @author Hj. Malthaner
 	 */
 	const char * text;
-
 
 	bool pressed:1;
 
@@ -94,10 +103,7 @@ public:
 	 * Button getroffen wurde, false wenn x, y ausserhalb liegt
 	 * @author Hj. Malthaner
 	 */
-	bool getroffen(int x,int y) {
-		pressed = gui_komponente_t::getroffen(x, y);
-		return pressed;
-	};
+	bool getroffen(int x,int y);
 
 	/**
 	 * Events werden hiermit an die GUI-Komponenten
@@ -116,7 +122,7 @@ public:
 	 * Zeichnet die Komponente
 	 * @author Hj. Malthaner
 	 */
-	virtual void zeichnen(koord offset) const;
+	void zeichnen(koord offset) const;
 
 	void operator= (const button_t & other);
 

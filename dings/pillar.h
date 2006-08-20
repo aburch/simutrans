@@ -14,7 +14,6 @@
 class loadsave_t;
 class karte_t;
 class cbuffer_t;
-class ding_info_t;
 
 class pillar_t : public ding_t
 {

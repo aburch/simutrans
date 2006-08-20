@@ -98,10 +98,8 @@ gui_chart_t::zeichnen(koord offset) const
 
     // Hajo: draw background if desired
     if(background != -1) {
-      display_fillbox_wh_clip(offset.x, offset.y, groesse.x, groesse.y,
-			 background, false);
+      display_fillbox_wh_clip(offset.x, offset.y, groesse.x, groesse.y, background, false);
     }
-
 
     // draw zero line
     display_direct_line(offset.x+1, offset.y+baseline, offset.x+groesse.x-2, offset.y+baseline, 5);

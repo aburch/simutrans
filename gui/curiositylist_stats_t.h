@@ -40,7 +40,6 @@ class curiositylist_stats_t : public gui_komponente_t
 	curiositylist_stats_t(karte_t *welt,const curiositylist::sort_mode_t& sortby,const bool& sortreverse);
 
 
-
   	void get_unique_attractions(const curiositylist::sort_mode_t& sortby,const bool& reverse);
 
 
@@ -49,7 +48,7 @@ class curiositylist_stats_t : public gui_komponente_t
 	 * gemeldet
 	 * @author Hj. Malthaner
 	 */
-	virtual void infowin_event(const event_t *);
+	void infowin_event(const event_t *);
 
 	/**
 	 * Zeichnet die Komponente

@@ -78,8 +78,10 @@ DBG_MESSAGE("event","HOWDY!");
 			if(IS_LEFTRELEASE(ev)) {
 				bt_prev.pressed = false;
 				if(droplist->gib_selection()>=-1) {
-					set_selection( droplist->gib_selection()-1 );
-					call_listeners();
+					value_t p;
+					p.i = droplist->gib_selection()-1;
+//					set_selection( p.i );
+					call_listeners(p);
 				}
 			}
 			return;
@@ -89,8 +91,10 @@ DBG_MESSAGE("event","HOWDY!");
 			if(IS_LEFTRELEASE(ev)) {
 				bt_next.pressed = false;
 				if(droplist->gib_selection()<droplist->get_count()-1) {
-					set_selection( droplist->gib_selection()+1 );
-					call_listeners();
+					value_t p;
+					p.i = droplist->gib_selection()+1;
+//					set_selection( p.i );
+					call_listeners(p);
 				}
 			}
 			return;
@@ -153,7 +157,7 @@ DBG_MESSAGE("gui_combobox_t::infowin_event()","close");
 
 
 /* selction now handled via callback */
-bool gui_combobox_t::action_triggered(gui_komponente_t *komp)
+bool gui_combobox_t::action_triggered(gui_komponente_t *komp,value_t /* */)
 {
 	if(komp==droplist) {
 DBG_MESSAGE("gui_combobox_t::infowin_event()","scroll selected %i",get_selection());
@@ -213,7 +217,9 @@ gui_combobox_t::close_box()
 {
 	if(finish) {
 //DBG_MESSAGE("gui_combobox_t::infowin_event()","prepare selected %i for %d listerners",get_selection(),listeners.count());
-		call_listeners();
+		value_t p;
+		p.i = droplist->gib_selection();
+		call_listeners(p);
 		finish = false;
 	}
 	release_focus(this);

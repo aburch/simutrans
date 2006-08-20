@@ -970,7 +970,7 @@ display_show_pointer( true );
 	    if(wg->gib_start()) {
 		destroy_win( wg );
 
-		nachrichtenfenster_t *nd = new nachrichtenfenster_t(welt, "Erzeuge neue Karte.\n", skinverwaltung_t::neueweltsymbol->gib_bild_nr(0), koord(-16, 16));
+		nachrichtenfenster_t *nd = new nachrichtenfenster_t(welt, "Erzeuge neue Karte.\n", skinverwaltung_t::neueweltsymbol->gib_bild_nr(0));
 
 		create_win(200, 100, nd, w_autodelete);
 

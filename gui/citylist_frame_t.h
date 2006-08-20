@@ -4,7 +4,7 @@
 #include "../gui/gui_frame.h"
 #include "../gui/citylist_stats_t.h"
 #include "../dataobj/translator.h"
-#include "ifc/action_listener.h"
+#include "components/action_listener.h"
 #include "components/gui_button.h"
 #include "components/gui_label.h"
 #include "components/gui_scrollpane.h"
@@ -47,32 +47,36 @@ class citylist_frame_t : public gui_frame_t, private action_listener_t
      * in dem die Komponente dargestellt wird.
      * @author Hj. Malthaner
      */
-    virtual void zeichnen(koord pos, koord gr);
+    void zeichnen(koord pos, koord gr);
 
     /**
      * resize window in response to a resize event
      * @author Hj. Malthaner
      */
-    virtual void resize(const koord delta);
-
-    /**
-     * This method is called if an action is triggered
-     * @author Hj. Malthaner
-     */
-    virtual bool action_triggered(gui_komponente_t *);
+    void resize(const koord delta);
 
     /**
      * Manche Fenster haben einen Hilfetext assoziiert.
      * @return den Dateinamen für die Hilfe, oder NULL
      * @author V. Meyer
      */
-    virtual const char * gib_hilfe_datei() const {return "citylist_filter.txt"; }
+    const char * gib_hilfe_datei() const {return "citylist_filter.txt"; }
 
     static citylist::sort_mode_t gib_sortierung() { return sortby; }
     static void setze_sortierung(const citylist::sort_mode_t& sm) { sortby = sm; }
 
     static bool gib_reverse() { return sortreverse; }
     static void setze_reverse(const bool& reverse) { sortreverse = reverse; }
+
+    /**
+     * This method is called if an action is triggered
+     * @author Hj. Malthaner
+     *
+     * Returns true, if action is done and no more
+     * components should be triggered.
+     * V.Meyer
+     */
+    bool action_triggered(gui_komponente_t *komp, value_t extra);
 };
 
 #endif // citylist_frame_t_h

@@ -6,8 +6,6 @@
 #include "../../simimg.h"
 
 
-class image_list_listener_t;
-
 /**
  * Updated! class is used only for the vehicle dialog. SO I changed some things
  * for the new one::

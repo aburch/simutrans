@@ -169,7 +169,7 @@ void halt_list_filter_frame_t::infowin_event(const event_t *ev)
  * This method is called if an action is triggered
  * @author V. Meyer
  */
-bool halt_list_filter_frame_t::action_triggered(gui_komponente_t *komp)
+bool halt_list_filter_frame_t::action_triggered(gui_komponente_t *komp,value_t /* */)
 {
     int i;
 

@@ -20,44 +20,38 @@
 
 int gui_scrolled_list_t::total_vertical_size() const
 {
-  return item_list->count() * LINESPACE + 2;
+  return item_list.count() * LINESPACE + 2;
 }
 
 
-gui_scrolled_list_t::gui_scrolled_list_t(enum type type)
+gui_scrolled_list_t::gui_scrolled_list_t(enum type type) :
+	sb(scrollbar_t::vertical)
 {
-  item_list = new slist_tpl <const char *>;
+	this->type = type;
+	selection = -1; // nothing
+	groesse = koord(0,0);
+	pos = koord(0,0);
+	offset = 0;
+	border = 0;
+	if (type==select) {
+		border = 2;
+	} else if (type==list) {
+		border = 4;
+	}
+	sb.add_listener(this);
+	sb.setze_opaque(true);
 
-    this->type = type;
-    selection = -1; // nothing
-    groesse = koord(0,0);
-    pos = koord(0,0);
-    offset = 0;
-    border = 0;
-    if (type==select) {
-	border = 2;
-    } else if (type==list) {
-	border = 4;
-    }
-    sb = new scrollbar_t(scrollbar_t::vertical);
-    sb->add_listener(this);
-    sb->setze_opaque(true);
-
-    clear_elements();
-}
-
-gui_scrolled_list_t::~gui_scrolled_list_t()
-{
-  delete item_list;
-  item_list = 0;
+	clear_elements();
 }
 
 
-void
-gui_scrolled_list_t::scrollbar_moved(class scrollbar_t *, int, int value)
+
+bool
+gui_scrolled_list_t::action_triggered(gui_komponente_t */* comp */, value_t extra)
 {
-    // search/replace all offsets with sb->gib_offset() is also an option
-    offset = value;
+    // search/replace all offsets with sb.gib_offset() is also an option
+    offset = extra.i;
+    return true;
 }
 
 
@@ -66,15 +60,15 @@ gui_scrolled_list_t::scrollbar_moved(class scrollbar_t *, int, int value)
 void
 gui_scrolled_list_t::show_selection(int s)
 {
-	if((unsigned)s<item_list->count()) {
+	if((unsigned)s<item_list.count()) {
 		selection = s;
 //		if(groesse.y>0) {
 DBG_MESSAGE("gui_scrolled_list_t::show_selection()","sel=%d, offset=%d, groesse.y=%d",s,offset,groesse.y);
 			s *= LINESPACE;
 			if(s<offset  ||  (s+LINESPACE)>offset+groesse.y) {
 				// outside range => reposition
-				sb->setze_knob_offset( max(0,s-(groesse.y/2) ) );
-				offset = sb->gib_knob_offset();
+				sb.setze_knob_offset( max(0,s-(groesse.y/2) ) );
+				offset = sb.gib_knob_offset();
 			}
 //		}
 	}
@@ -86,29 +80,29 @@ DBG_MESSAGE("gui_scrolled_list_t::show_selection()","sel=%d, offset=%d, groesse.
 
 void gui_scrolled_list_t::clear_elements()
 {
-    item_list->clear();
-    sb->setze_knob(groesse.y-border, total_vertical_size());
+    item_list.clear();
+    sb.setze_knob(groesse.y-border, total_vertical_size());
 }
 
 
 void gui_scrolled_list_t::insert_element(const char *string, const int pos /*= 0*/)
 {
-    item_list->insert(string, pos);
-    sb->setze_knob(groesse.y-border, total_vertical_size());
+    item_list.insert(string, pos);
+    sb.setze_knob(groesse.y-border, total_vertical_size());
 }
 
 
 void gui_scrolled_list_t::append_element(const char *string)
 {
-    item_list->append(string);
-    sb->setze_knob(groesse.y-border, total_vertical_size());
+    item_list.append(string);
+    sb.setze_knob(groesse.y-border, total_vertical_size());
 }
 
 
 void gui_scrolled_list_t::remove_element(const int pos)
 {
-    item_list->remove_at(pos);
-    sb->setze_knob(groesse.y-border, total_vertical_size());
+    item_list.remove_at(pos);
+    sb.setze_knob(groesse.y-border, total_vertical_size());
 }
 
 
@@ -138,9 +132,9 @@ koord gui_scrolled_list_t::request_groesse(koord request)
 
     setze_groesse( groesse );
 
-    sb->setze_pos(koord(groesse.x-12,0));
-    sb->setze_groesse(koord(10, (int)groesse.y+border));
-    sb->setze_knob(groesse.y-border, total_vertical_size());
+    sb.setze_pos(koord(groesse.x-12,0));
+    sb.setze_groesse(koord(10, (int)groesse.y+border));
+    sb.setze_knob(groesse.y-border, total_vertical_size());
 
     return groesse;
 }
@@ -166,22 +160,21 @@ gui_scrolled_list_t::infowin_event(const event_t *ev)
 		selection = (y-(border/2)-2+offset);
 		if (selection>=0) {
 		    selection/=LINESPACE;
-		    if((unsigned)selection>item_list->count()) {
+		    if((unsigned)selection>item_list.count()) {
 		    	selection = -1;
 		    }
 DBG_MESSAGE("gui_scrolled_list_t::infowin_event()","selected %i",selection);
 		}
-
-		call_listeners();
+		call_listeners((long)selection);
 	    }
 	    break;
 	}
     }
 
-    if (sb->getroffen(x, y)) {
+    if (sb.getroffen(x, y)) {
 	event_t ev2 = *ev;
-	translate_event(&ev2, -sb->gib_pos().x, -sb->gib_pos().y);
-	sb->infowin_event(&ev2);
+	translate_event(&ev2, -sb.gib_pos().x, -sb.gib_pos().y);
+	sb.infowin_event(&ev2);
     }
 }
 
@@ -232,5 +225,5 @@ void gui_scrolled_list_t::zeichnen(koord pos) const
   POP_CLIP();
 
 
-  sb->zeichnen(pos);
+  sb.zeichnen(pos);
 }

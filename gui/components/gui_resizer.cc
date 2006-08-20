@@ -26,18 +26,8 @@
 gui_resizer_t::gui_resizer_t()
 {
     followmouse = false;
-
 }
 
-/**
- * Destruktor
- *
- * @author Markus Weber
- */
-gui_resizer_t::~gui_resizer_t()
-{
-
-}
 
 
 /**
@@ -57,12 +47,6 @@ void gui_resizer_t::zeichnen(koord offset) const
 }
 
 
-// set type. this includes size for specified buttons.
-void gui_resizer_t::set_type(enum type t)
-{
-  type = t;
-}
-
 
 
 /**
@@ -72,8 +56,6 @@ void gui_resizer_t::set_type(enum type t)
  */
 void gui_resizer_t::infowin_event(const event_t *ev)
 {
-
-
   int x = ev->cx;
   int y = ev->cy;
 
@@ -98,15 +80,13 @@ void gui_resizer_t::infowin_event(const event_t *ev)
         break;
         }
 
-          call_listeners();
-
+		value_t p;
+          call_listeners(p);
           if (followmouse==true)
           {
                 setze_pos(koord(pos.x+hresize,pos.y+vresize));
           }
-
           change_drag_start(hresize, vresize);
-
      }
 }
 
@@ -118,22 +98,4 @@ void gui_resizer_t::infowin_event(const event_t *ev)
 void gui_resizer_t::cancelresize()
 {
     change_drag_start(0, 0);
-}
-
-
-
-/**
- * Inform all listeners that an action was triggered.
- * @author Markus Weber
- */
-
-void gui_resizer_t::call_listeners()
-{
-    // printf("Message: button_t::call_listeners()\n");
-
-    slist_iterator_tpl<action_listener_t *> iter (listeners);
-
-    while(iter.next() && !iter.get_current()->action_triggered(this))
-	;
-
 }

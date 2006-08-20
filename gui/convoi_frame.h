@@ -14,7 +14,7 @@
 #include "gui_container.h"
 #include "components/gui_scrollpane.h"
 #include "components/gui_label.h"
-#include "ifc/action_listener.h"                                // 28-Dec-2001  Markus Weber    Added
+#include "components/action_listener.h"                                // 28-Dec-2001  Markus Weber    Added
 #include "components/gui_button.h"
 
 class spieler_t;
@@ -93,23 +93,11 @@ public:
     convoi_frame_t(spieler_t *sp, karte_t *welt);
 
     /**
-     * Destruktor.
-     * @author Hj. Malthaner
-     */
-    ~convoi_frame_t();
-
-    /**
      * Events werden hiermit an die GUI-Komponenten
      * gemeldet
      * @author V. Meyer
      */
-    virtual void infowin_event(const event_t *ev);
-
-    /**
-     * This method is called if an action is triggered
-     * @author Hj. Malthaner
-     */
-    virtual bool action_triggered(gui_komponente_t *);
+    void infowin_event(const event_t *ev);
 
     /**
      * The filter frame tells us when it is closed.
@@ -129,7 +117,7 @@ public:
      * in dem die Komponente dargestellt wird.
      * @author Hj. Malthaner
      */
-    virtual void zeichnen(koord pos, koord gr);
+    void zeichnen(koord pos, koord gr);
 
     /**
      * Displays the current list, checking sorting and filter settings.
@@ -142,7 +130,7 @@ public:
      * @return den Dateinamen für die Hilfe, oder NULL
      * @author V. Meyer
      */
-    virtual const char * gib_hilfe_datei() const {return "convoi.txt"; }
+    const char * gib_hilfe_datei() const {return "convoi.txt"; }
 
     static sort_mode_t gib_sortierung() { return sortby; }
     static void setze_sortierung(sort_mode_t sm) { sortby = sm; }
@@ -160,6 +148,15 @@ public:
     static void setze_ware_filter(const ware_besch_t *ware, int mode);
     static void setze_alle_ware_filter(int mode);
 
+    /**
+     * This method is called if an action is triggered
+     * @author Hj. Malthaner
+     *
+     * Returns true, if action is done and no more
+     * components should be triggered.
+     * V.Meyer
+     */
+    bool action_triggered(gui_komponente_t *komp, value_t extra);
 };
 
 #endif // __convoi_frame_h

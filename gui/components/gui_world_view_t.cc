@@ -9,16 +9,16 @@
 
 #include <stdio.h>
 
-#include "world_view_t.h"
-#include "../simevent.h"
-#include "../simworld.h"
-#include "../simdings.h"
-#include "../simgraph.h"
-#include "../simcolor.h"
-#include "../boden/grund.h"
+#include "gui_world_view_t.h"
+#include "../../simevent.h"
+#include "../../simworld.h"
+#include "../../simdings.h"
+#include "../../simgraph.h"
+#include "../../simcolor.h"
+#include "../../boden/grund.h"
 
-#include "../dataobj/umgebung.h"
-#include "../dataobj/koord3d.h"
+#include "../../dataobj/umgebung.h"
+#include "../../dataobj/koord3d.h"
 
 
 
@@ -185,4 +185,4 @@ void world_view_t::setze_groesse(koord size)
 		dy++;
 	}
 //	DBG_MESSAGE("world_view_t::setze_groesse()","%d tiles added",offsets.get_count() );
- }
+}

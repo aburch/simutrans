@@ -35,7 +35,9 @@ void gui_image_list_t::infowin_event(const event_t *ev)
 {
 	int sel_index = index_at(-pos, ev->mx, ev->my);
 	if(sel_index!=-1  &&  IS_LEFTCLICK(ev)) {
-		call_listeners();
+		value_t p;
+		p.i = sel_index;
+		call_listeners( p );
 	}
 }
 
@@ -59,8 +61,7 @@ int gui_image_list_t::index_at(koord parent_pos, int xpos, int ypos) const
 	    row * columns + column :
 	    column * rows + row;
 
-	if(bild_index < images->get_count() && images->get(bild_index).image != -1)
-	{
+	if(bild_index < images->get_count() && images->get(bild_index).image!=IMG_LEER) 	{
 	    return bild_index;
 	}
     }

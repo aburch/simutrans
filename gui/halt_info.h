@@ -16,16 +16,12 @@
 #include "components/gui_textarea.h"
 #include "components/gui_textinput.h"
 #include "components/gui_button.h"
-#include "world_view_t.h"
-#include "ifc/action_listener.h"
+#include "components/gui_world_view_t.h"
+#include "components/action_listener.h"
+#include "components/gui_chart.h"
 
 #include "../halthandle_t.h"
-
-#ifndef cbuffer_t_h
 #include "../utils/cbuffer_t.h"
-#endif
-
-class gui_chart_t;
 
 
 /**
@@ -41,15 +37,13 @@ private:
     gui_scrollpane_t scrolly;
     gui_textarea_t text;
     gui_textinput_t input;
-    gui_chart_t *chart;
+    gui_chart_t chart;
     gui_label_t sort_label;
     world_view_t view;
     button_t button;
     button_t sort_button;     // @author hsiegeln
     button_t filterButtons[7];
     button_t toggler;
-    bool btoggled;
-    bool bFilterIsActive[7];
     halthandle_t halt;
 
     /**
@@ -70,7 +64,7 @@ public:
      * @return den Dateinamen für die Hilfe, oder NULL
      * @author Hj. Malthaner
      */
-    virtual const char * gib_hilfe_datei() const {return "station.txt";};
+    const char * gib_hilfe_datei() const {return "station.txt";};
 
 
     /**
@@ -79,21 +73,24 @@ public:
      * in dem die Komponente dargestellt wird.
      * @author Hj. Malthaner
      */
-    virtual void zeichnen(koord pos, koord gr);
-
-
-    /**
-     * This method is called if an action is triggered
-     * @author Hj. Malthaner
-     */
-    virtual bool action_triggered(gui_komponente_t *komp);
+    void zeichnen(koord pos, koord gr);
 
 
     /**
      * resize window in response to a resize event
      * @author Hj. Malthaner
      */
-    virtual void resize(const koord delta);
+    void resize(const koord delta);
+
+    /**
+     * This method is called if an action is triggered
+     * @author Hj. Malthaner
+     *
+     * Returns true, if action is done and no more
+     * components should be triggered.
+     * V.Meyer
+     */
+    bool action_triggered(gui_komponente_t *komp, value_t extra);
 };
 
 #endif

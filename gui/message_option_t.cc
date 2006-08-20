@@ -1,129 +1,77 @@
 /*
- * spieler.cc
+ * message_optione_t.cc
  *
- * Copyright (c) 1997 - 2001 Hansjörg Malthaner
+ * Settings for player message options
+ *
+ * Copyright (c) 2006 prissi
  *
  * This file is part of the Simutrans project and may not be used
  * in other projects without written permission of the author.
  */
 
-/* optionen.cc
- *
- * Dialog fuer Automatische Spieler
- * Hj. Malthaner, 2000
- */
-
 #include <stdio.h>
 
-#include "../simevent.h"
-#include "../simworld.h"
-#include "../simplay.h"
-#include "../simimg.h"
 #include "../simskin.h"
+#include "../besch/skin_besch.h"
 #include "../simmesg.h"
-#include "../simgraph.h"
 #include "../dataobj/translator.h"
 #include "../dataobj/umgebung.h"
-#include "../utils/cbuffer_t.h"
-
-#include "components/gui_label.h"
-
-
 #include "message_option_t.h"
 
 
-message_option_t::message_option_t(karte_t *welt) : infowin_t(welt)
+message_option_t::message_option_t(karte_t */**/) :
+	gui_frame_t("Mailbox Options"),
+	text_label(translator::translate("MessageOptionsText")),
+	legend( skinverwaltung_t::message_options->gib_bild_nr(0) )
 {
-    buttons = new vector_tpl<button_t> (3*9);
-    button_t button_def;
+	text_label.setze_pos( koord(10,-2) );
+	add_komponente( &text_label );
+
+	legend.setze_pos( koord(110,0) );
+	add_komponente( &legend );
 
 	message_t::get_instance()->get_flags( &ticker_msg, &window_msg, &auto_msg, &ignore_msg );
 
 	for(int i=0; i<9; i++) {
-		button_def.pos.x = 120;
-		button_def.pos.y = 34 + i*2*LINESPACE;
-		button_def.setze_typ(button_t::square);
-		button_def.pressed = (ticker_msg&(1<<i)) != 0;
-		button_def.setze_text( "" );
-		buttons->append(button_def);
+		buttons[i*3].pos = koord(120,18+i*2*LINESPACE);
+		buttons[i*3].setze_typ(button_t::square_state);
+		buttons[i*3].pressed = (ticker_msg>>i)&1;
+		buttons[i*3].add_listener(this);
+		add_komponente( buttons+i*3 );
 
-		button_def.pos.x = 140;
-		button_def.pos.y = 34 + i*2*LINESPACE;
-		button_def.setze_typ(button_t::square);
-		button_def.pressed = (auto_msg&(1<<i)) != 0;
-		button_def.setze_text( "" );
-		buttons->append(button_def);
+		buttons[i*3+1].pos = koord(140,18+i*2*LINESPACE);
+		buttons[i*3+1].setze_typ(button_t::square_state);
+		buttons[i*3+1].pressed = (auto_msg>>i)&1;
+		buttons[i*3+1].add_listener(this);
+		add_komponente( buttons+i*3+1 );
 
-		button_def.pos.x = 160;
-		button_def.pos.y = 34 + i*2*LINESPACE;
-		button_def.pressed = (window_msg&(1<<i)) != 0;
-		button_def.setze_typ(button_t::square);
-		button_def.setze_text( "" );
-		buttons->append(button_def);
+		buttons[i*3+2].pos = koord(160,18+i*2*LINESPACE);
+		buttons[i*3+2].setze_typ(button_t::square_state);
+		buttons[i*3+2].pressed = (window_msg>>i)&1;
+		buttons[i*3+2].add_listener(this);
+		add_komponente( buttons+i*3+2 );
 	}
-}
-
-message_option_t::~message_option_t()
-{
-	delete buttons;
-}
-
-int message_option_t::gib_bild() const
-{
-    return skinverwaltung_t::message_options==NULL?IMG_LEER:skinverwaltung_t::message_options->gib_bild_nr(0);
+	setze_opaque(true);
+	setze_fenstergroesse( koord(180, 230) );
 }
 
 
-/**
- * Info for buttons
- */
-koord
-message_option_t::gib_bild_offset() const
+
+bool
+message_option_t::action_triggered(gui_komponente_t *komp, value_t )
 {
-  return koord(-5,0);
-}
-
-
-void message_option_t::info(cbuffer_t & buf) const
-{
-	buf.append(translator::translate("MessageOptionsText"));
-}
-
-
-koord message_option_t::gib_fenstergroesse() const
-{
-    return koord(180, 230);
-}
-
-
-void message_option_t::infowin_event(const event_t *ev)
-{
-	infowin_t::infowin_event(ev);
-
-	if(IS_LEFTCLICK(ev)) {
-		for(int i=0; i<9; i++) {
-			if(buttons->at(i*3).getroffen(ev->mx, ev->my)) {
-				ticker_msg ^= (1<<i);
-			}
-			if(buttons->at(i*3+1).getroffen(ev->mx, ev->my)) {
-				auto_msg ^= (1<<i);
-			}
-			if(buttons->at(i*3+2).getroffen(ev->mx, ev->my)) {
-				window_msg ^= (1<<i);
-			}
-		}
-		message_t::get_instance()->set_flags( ticker_msg, window_msg, auto_msg, ignore_msg );
-	}
-}
-
-
-vector_tpl<button_t>*
-message_option_t::gib_fensterbuttons()
-{
+	((button_t*)komp)->pressed ^= 1;
 	for(int i=0; i<9; i++) {
-		buttons->at(i*3+0).pressed = (ticker_msg&(1<<i))!=0;
-		buttons->at(i*3+1).pressed = (auto_msg&(1<<i))!=0;
-		buttons->at(i*3+2).pressed = (window_msg&(1<<i))!=0;
+		if(&buttons[i*3]==komp) {
+			ticker_msg ^= (1<<i);
+		}
+		if(&buttons[i*3+1]==komp) {
+			auto_msg ^= (1<<i);
+		}
+		if(&buttons[i*3+2]==komp) {
+			window_msg ^= (1<<i);
+		}
 	}
-	return buttons;
+	message_t::get_instance()->set_flags( ticker_msg, window_msg, auto_msg, ignore_msg );
+	return true;
 }

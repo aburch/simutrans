@@ -7,7 +7,7 @@
 #include "../../simdebug.h"
 
 #include "gui_scrollbar.h"
-#include "../ifc/scrollbar_listener.h"
+#include "action_listener.h"
 
 #include "../../simcolor.h"
 #include "../../simgraph.h"
@@ -22,7 +22,6 @@ scrollbar_t::scrollbar_t(enum type type)
   knob_size = 10;
   knob_area = 20;
   knob_scroll_amount = 11; // equals one line
-  callback_list.clear();
 
   if (type == vertical) {
     groesse = koord(10,40);
@@ -37,27 +36,8 @@ scrollbar_t::scrollbar_t(enum type type)
   button_def[1].setze_pos(koord(0,0));
   button_def[2].setze_typ(button_t::scrollbar);
   reposition_buttons();
-
-  int i;
-  for(i=0; i<3; i++) { buttons[i] = &button_def[i]; }
-  buttons[3] = 0;
 }
 
-
-
-// special callback
-void scrollbar_t::call_callback()
-{
-    int range = knob_area - knob_size;
-    if (range < 0) {
-	range = 0;
-    }
-
-    slist_iterator_tpl<scrollbar_listener_t *> iter( callback_list );
-    while( iter.next() ) {
-	iter.get_current()->scrollbar_moved(this, range, knob_offset);
-    }
-}
 
 
 void scrollbar_t::setze_groesse(koord groesse)
@@ -90,7 +70,7 @@ void scrollbar_t::reposition_buttons()
   if (knob_size + knob_offset > knob_area) {
     knob_offset = knob_area - knob_size;
     if (knob_offset < 0) knob_offset = 0;
-    call_callback();
+    call_listeners((long)knob_offset);
   }
 
   float ratio = (float)area / (float)knob_area;
@@ -134,7 +114,7 @@ int scrollbar_t::slider_drag(int amount)
   if (proposed_offset != knob_offset) {
     int o;
     knob_offset = proposed_offset;
-    call_callback();
+    call_listeners((long)knob_offset);
     o = real_knob_position();
     reposition_buttons();
 
@@ -158,8 +138,7 @@ void scrollbar_t::button_press(int number)
     knob_offset += knob_scroll_amount;
     if (knob_offset>maximum) { knob_offset = maximum; }
   }
-
-  call_callback();
+  call_listeners((long)knob_offset);
   reposition_buttons();
 }
 
@@ -183,8 +162,8 @@ void scrollbar_t::space_press(int updown) // 0: scroll up/left, 1: scroll down/r
 			knob_offset = maximum;
 		}
 	}
-
-	call_callback();
+	value_t p; p.i=knob_offset;
+	call_listeners(p);
 	reposition_buttons();
 }
 
@@ -264,22 +243,21 @@ void scrollbar_t::infowin_event(const event_t *ev)
 
 void scrollbar_t::zeichnen(koord pos, int button_farbe) const
 {
-    pos += this->pos;
+	pos += this->pos;
 
-    if(opaque) {
-    	// if opaque style, display GREY sliding bar backgrounds
-    	if (type == vertical) {
+	if(opaque) {
+		// if opaque style, display GREY sliding bar backgrounds
+		if (type == vertical) {
 			display_fillbox_wh(pos.x, pos.y+12, 10, groesse.y-24, MN_GREY1, true);
-		} else {
+		}
+		else {
 			display_fillbox_wh(pos.x+12, pos.y, groesse.x-24, 10, MN_GREY1, true);
 		}
-    }
+	}
 
-    int i=0;
-	    while(buttons[i] != NULL) {
-		buttons[i]->zeichnen(pos, button_farbe);
-		i++;
-    }
+	button_def[0].zeichnen(pos, button_farbe);
+	button_def[1].zeichnen(pos, button_farbe);
+	button_def[2].zeichnen(pos, button_farbe);
 }
 
 void scrollbar_t::zeichnen(koord pos) const

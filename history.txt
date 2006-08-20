@@ -2,14 +2,17 @@
 Known bugs: (hard to fix)
 	Citycars are visible after loading even in a tunnel until they hop onto the next field
 	Citycars cannot go around a 180 degree road bend
-	Monorails have no appropriate crossing
+	Monorails have no appropriate crossing, nor tunnel
 	valgrind complains about errors in SDL and X?
-	set color broken?
+	set color broken? yes
 
 
+
+	CHANGE: obsolete entry "2LIGHT_CHOOSE"
 
 Release of 88.09.3
 
+4-Mai-2006: (prissi)
 	FIX: recompiled with hopefully corrected files => bridges/marker correctly, line number ok again
 	FIX: ownership of public owned road is taken when using trams
 	FIX: last line in schedules selectable again

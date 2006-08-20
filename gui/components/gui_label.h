@@ -87,14 +87,6 @@ public:
     const char * get_text_pointer() { return text; }
 
     /**
-     * Events werden hiermit an die GUI-Komponenten
-     * gemeldet
-     * @author Hj. Malthaner
-     */
-    void infowin_event(const event_t *);
-
-
-    /**
      * Zeichnet die Komponente
      * @author Hj. Malthaner
      */
@@ -105,7 +97,7 @@ public:
      * @author Owen Rudge
      */
 
-    void set_color(int colour);
+    void set_color(int colour) { this->color = colour; }
 
     /**
      * Sets the alignment of the label

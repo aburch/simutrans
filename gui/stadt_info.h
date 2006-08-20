@@ -16,13 +16,12 @@
 #include "gui_frame.h"
 #include "components/gui_chart.h"
 #include "components/gui_textinput.h"
-#include "ifc/action_listener.h"
+#include "components/action_listener.h"
 #include "components/gui_label.h"
 #include "components/gui_button.h"
 #include "components/gui_tab_panel.h"
 
 class stadt_t;
-class gui_chart_t;
 
 /**
  * Dies stellt ein Fenster mit den Informationen
@@ -39,7 +38,7 @@ private:
 
 	gui_tab_panel_t year_month_tabs;
 
-	gui_chart_t *chart, *mchart;
+	gui_chart_t chart, mchart;
 
 	button_t filterButtons[MAX_CITY_HISTORY];
 	bool bFilterIsActive[MAX_CITY_HISTORY];
@@ -53,21 +52,24 @@ public:
      * @return den Dateinamen für die Hilfe, oder NULL
      * @author Hj. Malthaner
      */
-    virtual const char * gib_hilfe_datei() const {return "citywindow.txt";};
+    const char * gib_hilfe_datei() const {return "citywindow.txt";};
 
   /**
    * komponente neu zeichnen. Die übergebenen Werte beziehen sich auf
    * das Fenster, d.h. es sind die Bildschirmkoordinaten des Fensters
    * in dem die Komponente dargestellt wird.
    */
-  virtual void zeichnen(koord pos, koord gr);
+  void zeichnen(koord pos, koord gr);
 
-   /**
-   * This method is called if an action is triggered
-   * @author hsiegeln
-   */
-  virtual bool action_triggered(gui_komponente_t *);
-
+    /**
+     * This method is called if an action is triggered
+     * @author Hj. Malthaner
+     *
+     * Returns true, if action is done and no more
+     * components should be triggered.
+     * V.Meyer
+     */
+    bool action_triggered(gui_komponente_t *komp, value_t extra);
 };
 
 #endif
