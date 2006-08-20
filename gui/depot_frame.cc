@@ -534,10 +534,10 @@ void depot_frame_t::build_vehicle_lists()
 		while(depot->get_vehicle_type(i)) {
 			const vehikel_besch_t *info = depot->get_vehicle_type(i);
 
-			if(info->gib_ware()==warenbauer_t::passagiere) {
+			if(info->gib_ware()==warenbauer_t::passagiere  ||  info->gib_ware()==warenbauer_t::post) {
 				pax++;
 			}
-			else if(info->gib_leistung() > 0) {
+			else if(info->gib_leistung() > 0  ||  info->gib_zuladung()==0) {
 				loks++;
 			}
 			else {
@@ -580,11 +580,11 @@ DBG_DEBUG("depot_frame_t::build_vehicle_lists()","%i passenger vehicle, %i  engi
 			img_data.count = 0;
 			img_data.lcolor = img_data.rcolor= -1;
 
-			if(info->gib_ware()==warenbauer_t::passagiere) {
+			if(info->gib_ware()==warenbauer_t::passagiere  ||  info->gib_ware()==warenbauer_t::post) {
 				pas_vec->append(img_data);
 				vehicle_map.set(info, &pas_vec->at(pas_vec->get_count() - 1));
 			}
-			else if(info->gib_leistung() > 0) {
+			else if(info->gib_leistung() > 0  ||  info->gib_zuladung()==0) {
 				loks_vec->append(img_data);
 				vehicle_map.set(info, &loks_vec->at(loks_vec->get_count() - 1));
 			}
@@ -1071,7 +1071,7 @@ void depot_frame_t::new_line()
 		}
 	}
 
-	line_management_gui_t *line_gui = new line_management_gui_t(welt, new_line, welt->gib_spieler(0));
+	line_management_gui_t *line_gui = new line_management_gui_t(welt, new_line, welt->get_active_player());
 	line_gui->zeige_info();
 	update_data();
 	layout();
@@ -1106,7 +1106,7 @@ void depot_frame_t::apply_line()
 void depot_frame_t::change_line()
 {
 	if (iroute > -1) {
-		line_management_gui_t *line_gui = new line_management_gui_t(welt, depot->get_line_list()->at(iroute), welt->gib_spieler(0));
+		line_management_gui_t *line_gui = new line_management_gui_t(welt, depot->get_line_list()->at(iroute), welt->get_active_player());
 		line_gui->zeige_info();
 	}
 }
@@ -1127,7 +1127,7 @@ void depot_frame_t::fahrplaneingabe()
 	if(fpl != NULL && fpl->ist_abgeschlossen()) {
 
 	    // Fahrplandialog oeffnen
-	    fahrplan_gui_t *fpl_gui = new fahrplan_gui_t(welt, fpl, welt->gib_spieler(0));
+	    fahrplan_gui_t *fpl_gui = new fahrplan_gui_t(welt, fpl, welt->get_active_player());
 	    fpl_gui->zeige_info();
 
 

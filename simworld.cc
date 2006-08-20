@@ -624,7 +624,6 @@ karte_t::destroy()
  */
 void karte_t::add_stadt(stadt_t *s)
 {
-	// fixme: not check for overflow ...
 	if(stadt->get_count()>=stadt->get_size()) {
 		// extend vector for more cities ...
 DBG_DEBUG("karte_t::add_stadt()","extended city array from %i with additional 64 entries.", stadt->get_size() );
@@ -632,6 +631,30 @@ DBG_DEBUG("karte_t::add_stadt()","extended city array from %i with additional 64
 	}
 	einstellungen->setze_anzahl_staedte(einstellungen->gib_anzahl_staedte()+1);
 	stadt->append(s);
+}
+
+
+
+/**
+ * Removes town from map, houses will be left overs
+ * @author prissi
+ */
+bool karte_t::rem_stadt(stadt_t *s)
+{
+	if(stadt->get_count()==1  ||  s==NULL) {
+		// there must be at least one single town left!
+		return false;
+	}
+	// ok, we can delete this
+	stadt->remove( s );
+	// reduce number of towns
+	einstellungen->setze_anzahl_staedte(einstellungen->gib_anzahl_staedte()-1);
+	// remove all links from factories
+	slist_iterator_tpl<fabrik_t *> iter (fab_list);
+	while(iter.next()) {
+		iter.get_current()->rem_arbeiterziel(s);
+	}
+	return true;
 }
 
 
@@ -665,6 +688,8 @@ karte_t::init_felder()
         }
 */
     }
+    active_player = spieler[0];
+    active_player_nr = 0;
     schedule_list_gui = new schedule_list_gui_t(this);
 }
 
@@ -1135,8 +1160,6 @@ int karte_t::raise_to(int x, int y, int h)
       if((plan = access(x-1,y-1))) {
 	plan->angehoben(this);
       }
-
-      wkz_set_slope(0, this, pos, get_slope(pos));
     }
   }
 
@@ -1248,7 +1271,7 @@ int karte_t::lower_to(int x, int y, int h)
 	plan->abgesenkt( this );
       }
 
-      wkz_set_slope(0, this, pos, get_slope(pos));
+//may cause some error message, better use above code      wkz_set_slope(0, this, pos, get_slope(pos));
     }
   }
 
@@ -1336,7 +1359,7 @@ karte_t::setze_maus_funktion(int (* funktion)(spieler_t *, karte_t *, koord,
     if(funktion != NULL) {
 	// gab es eine alte funktion ?
 	if(mouse_funk != NULL) {
-	    mouse_funk(spieler[0], this, EXIT, mouse_funk_param);
+	    mouse_funk(get_active_player(), this, EXIT, mouse_funk_param);
 	}
 
 	struct sound_info info;
@@ -1350,7 +1373,7 @@ karte_t::setze_maus_funktion(int (* funktion)(spieler_t *, karte_t *, koord,
 	zeiger->setze_yoff(zeiger_versatz);
 	zeiger->setze_bild(0, zeiger_bild);
 
-	mouse_funk(spieler[0], this, INIT, mouse_funk_param);
+	mouse_funk(get_active_player(), this, INIT, mouse_funk_param);
     }
 
     mouse_funk_ok_sound = ok_sound;
@@ -1434,6 +1457,7 @@ karte_t::max_hgt(const koord pos) const
 bool
 karte_t::add_fab(fabrik_t *fab)
 {
+DBG_MESSAGE("karte_t::add_fab()","fab = %p",fab);
 	assert(fab != NULL);
 	fab_list.insert( fab );
 	return true;
@@ -1442,8 +1466,12 @@ karte_t::add_fab(fabrik_t *fab)
 bool
 karte_t::rem_fab(fabrik_t *fab)
 {
+DBG_MESSAGE("karte_t::rem_fab()","fab = %p",fab);
+DBG_MESSAGE("karte_t::rem_fab()","fab_list index = %i",fab_list.index_of(fab));
 	assert(fab != NULL);
-	return fab_list.remove( fab );
+	bool ok=fab_list.remove( fab );
+DBG_MESSAGE("karte_t::rem_fab()","fab_list now %i(%i)",fab_list.count(),ok);
+	return true;
 }
 
 fabrik_t *
@@ -1459,6 +1487,26 @@ karte_t::get_random_fab() const
 	return result;
 }
 
+
+/* return all factories in this area
+ * @author prissi
+ */
+vector_tpl<fabrik_t *> &
+karte_t::find_all_factories( koord pos, koord extent )
+{
+	static vector_tpl <fabrik_t*> fablist(32);
+	fablist.clear();
+
+	slist_iterator_tpl<fabrik_t *> iter (this->fab_list);
+	while(iter.next()) {
+		fabrik_t * fab = iter.get_current();
+		if(fab->is_fabrik(pos,extent)) {
+			fablist.append(fab);
+DBG_MESSAGE("karte_t::find_all_factories()","append %s at (%i,%i)",fab->gib_name(),fab->gib_pos().x,fab->gib_pos().y);
+		}
+	}
+	return fablist;
+}
 
 /*----------------------------------------------------------------------------------------------------------------------*/
 /* same procedure for tourist attractions */
@@ -1880,6 +1928,11 @@ DBG_MESSAGE("karte_t::neuer_monat()","Month %d has started", letzter_monat);
 		}
 	}
 
+	if(umgebung_t::autosave) {
+		char buf[128];
+		sprintf( buf, "save/autosave%02i.sve", (letzter_monat%12)+1 );
+		speichern( buf, true );
+	}
 }
 
 
@@ -1947,7 +2000,6 @@ void karte_t::step(const long delta_t)
 		// long waiting times
 		{
 			slist_iterator_tpl <convoihandle_t> iter (convoi_list);
-
 			while( iter.next() ) {
 				if(iter.get_current().is_bound()) {
 					iter.get_current()->step();
@@ -1961,18 +2013,17 @@ void karte_t::step(const long delta_t)
 		for(unsigned int n=0; n<stadt->get_count(); n++) {
 			stadt->at(n)->step();
 			INT_CHECK("simworld 1959");
-			interactive_update();
 		}
+		interactive_update();
 
 		// then step all players
 		INT_CHECK("simworld 1975");
-		interactive_update();
 		spieler[steps & 7]->step();
+		interactive_update();
 
 		// ok, next step
 		steps ++;
 		INT_CHECK("simworld 1975");
-		interactive_update();
 
 		if(ticks > ((letzter_monat + 1)) << ticks_bits_per_tag) {
 			// neuer monat
@@ -1982,6 +2033,7 @@ void karte_t::step(const long delta_t)
 				neues_jahr();
 			}
 		}
+		interactive_update();
 	}
 }
 
@@ -2191,7 +2243,7 @@ karte_t::beenden(bool quit_simutrans)
 }
 
 void
-karte_t::speichern(const char *filename)
+karte_t::speichern(const char *filename,bool silent)
 {
     display_show_pointer(false);
 
@@ -2205,9 +2257,11 @@ karte_t::speichern(const char *filename)
 	create_win(-1, -1, new nachrichtenfenster_t(this, "Kann Spielstand\nnicht speichern.\n"), w_autodelete);
 	perror("Error");
     } else {
-	speichern(&file);
+	speichern(&file,silent);
 	file.close();
-	create_win(-1, -1, 30, new nachrichtenfenster_t(this, "Spielstand wurde\ngespeichert!\n"), w_autodelete);
+	if(!silent) {
+		create_win(-1, -1, 30, new nachrichtenfenster_t(this, "Spielstand wurde\ngespeichert!\n"), w_autodelete);
+	}
     }
 #endif
 
@@ -2216,7 +2270,7 @@ karte_t::speichern(const char *filename)
 
 
 void
-karte_t::speichern(loadsave_t *file)
+karte_t::speichern(loadsave_t *file,bool silent)
 {
     int i,j;
 
@@ -2228,19 +2282,30 @@ karte_t::speichern(loadsave_t *file)
 
     for(i=0; i<einstellungen->gib_anzahl_staedte(); i++) {
 	stadt->at(i)->rdwr(file);
+	if(silent) {
+		INT_CHECK("saving");
+	}
     }
 	DBG_MESSAGE("karte_t::speichern(loadsave_t *file)", "saved cities");
 
     blockmanager *bm = blockmanager::gib_manager();
     bm->rdwr(this, file);
 	DBG_MESSAGE("karte_t::speichern(loadsave_t *file)", "saved bm");
+	if(silent) {
+		INT_CHECK("saving");
+	}
 
     for(j=0; j<gib_groesse(); j++) {
 	for(i=0; i<gib_groesse(); i++) {
 	    access(i, j)->rdwr(this, file);
 	}
-	display_progress(j, gib_groesse());
-	display_flush(0, 0, 0, "", "");
+	if(silent) {
+		INT_CHECK("saving");
+	}
+	else {
+		display_progress(j, gib_groesse());
+		display_flush(0, 0, 0, "", "");
+	}
     }
 	DBG_MESSAGE("karte_t::speichern(loadsave_t *file)", "saved access");
 
@@ -2251,6 +2316,9 @@ karte_t::speichern(loadsave_t *file)
 	}
     }
 	DBG_MESSAGE("karte_t::speichern(loadsave_t *file)", "saved hgt");
+	if(silent) {
+		INT_CHECK("saving");
+	}
 
     // Hajo: save slopes
 
@@ -2261,6 +2329,9 @@ karte_t::speichern(loadsave_t *file)
       }
     }
 	DBG_MESSAGE("karte_t::speichern(loadsave_t *file)", "saved slopes");
+	if(silent) {
+		INT_CHECK("saving");
+	}
 
     int fabs = fab_list.count();
 
@@ -2269,6 +2340,9 @@ karte_t::speichern(loadsave_t *file)
     slist_iterator_tpl<fabrik_t*> fiter ( fab_list );
     while(fiter.next()) {
 	(fiter.get_current())->rdwr(file);
+	if(silent) {
+		INT_CHECK("saving");
+	}
     }
 	DBG_MESSAGE("karte_t::speichern(loadsave_t *file)", "saved fabs");
 
@@ -2276,18 +2350,26 @@ karte_t::speichern(loadsave_t *file)
     // @author hsiegeln
     simlinemgmt->rdwr(this, file);
     DBG_MESSAGE("karte_t::speichern(loadsave_t *file)", "saved lines");
+	if(silent) {
+		INT_CHECK("saving");
+	}
 
     slist_iterator_tpl<convoihandle_t> citer ( convoi_list );
-
     while(citer.next()) {
 	(citer.get_current())->rdwr(file);
     }
+	if(silent) {
+		INT_CHECK("saving");
+	}
 
     file->wr_obj_id("Ende Convois");
     DBG_MESSAGE("karte_t::speichern(loadsave_t *file)", "saved convois");
 
     for(i=0; i<8 ; i++) {
 	spieler[i]->rdwr(file);
+	if(silent) {
+		INT_CHECK("saving");
+	}
     }
 	DBG_MESSAGE("karte_t::speichern(loadsave_t *file)", "saved players");
 
@@ -2875,6 +2957,91 @@ static char * tool_tip_with_price(const char * tip, int price)
 }
 
 
+
+/* goes to next active player */
+void karte_t::switch_active_player()
+{
+	// cheat: play as AI
+	char buf[512];
+
+	active_player_nr ++;
+	active_player_nr &= 7;
+	active_player = spieler[active_player_nr];
+	sprintf(buf, translator::translate("Now active as %s.\n"), get_active_player()->gib_name() );
+	message_t::get_instance()->add_message(buf,koord(-1,-simrand(63)),message_t::problems,get_active_player()->kennfarbe,IMG_LEER);
+	// open edit tools
+	if(active_player_nr==1) {
+	    werkzeug_parameter_waehler_t *wzw = new werkzeug_parameter_waehler_t(this, "EDITTOOLS");
+
+	    wzw->setze_hilfe_datei("edittools.txt");
+
+	    wzw->add_param_tool(&wkz_grow_city,
+			  (long)100,
+			  Z_PLAN,
+			  -1,
+			  SFX_FAILURE,
+			  skinverwaltung_t::edit_werkzeug->gib_bild_nr(0),
+			  skinverwaltung_t::upzeiger->gib_bild_nr(0),
+			  translator::translate("Grow city") );
+
+	    wzw->add_param_tool(&wkz_grow_city,
+			  (long)-100,
+			  Z_PLAN,
+			  -1,
+			  SFX_FAILURE,
+			  skinverwaltung_t::edit_werkzeug->gib_bild_nr(1),
+			  skinverwaltung_t::downzeiger->gib_bild_nr(0),
+			  translator::translate("Shrink city") );
+
+		// cityroads
+		const weg_besch_t *besch = wegbauer_t::gib_besch("city_road");
+		if(besch!=NULL) {
+			sprintf(buf, "%s, %d$ (%d$), %dkm/h",
+				translator::translate(besch->gib_name()),
+				besch->gib_preis()/100,
+				besch->gib_wartung()/100,
+				besch->gib_topspeed());
+
+		    wzw->add_param_tool(&wkz_wegebau,
+				  (const void *)besch,
+	  			  Z_PLAN,
+				  SFX_JACKHAMMER,
+				  SFX_FAILURE,
+				  skinverwaltung_t::edit_werkzeug->gib_bild_nr(2),
+				  wegbauer_t::gib_besch("asphalt_road")->gib_cursor()->gib_bild_nr(0),
+				  buf);
+		}
+
+	    wzw->add_tool(&wkz_add_attraction,
+			  Z_PLAN,
+			  SFX_JACKHAMMER,
+			  SFX_FAILURE,
+			  skinverwaltung_t::edit_werkzeug->gib_bild_nr(3),
+			  skinverwaltung_t::undoc_zeiger->gib_bild_nr(0),
+			  translator::translate("Built random attraction") );
+
+	    wzw->add_tool(wkz_build_industries_land,
+			  Z_PLAN,
+			  SFX_JACKHAMMER,
+			  SFX_FAILURE,
+			  skinverwaltung_t::special_werkzeug->gib_bild_nr(3),
+			  skinverwaltung_t::undoc_zeiger->gib_bild_nr(0),
+			  translator::translate("Build land consumer"));
+
+	    wzw->add_tool(wkz_build_industries_city,
+			  Z_PLAN,
+			  SFX_JACKHAMMER,
+			  SFX_FAILURE,
+			  skinverwaltung_t::special_werkzeug->gib_bild_nr(4),
+			  skinverwaltung_t::undoc_zeiger->gib_bild_nr(0),
+			  translator::translate("Build city market"));
+
+		wzw->zeige_info(magic_railtools);
+	}
+}
+
+
+
 void
 karte_t::interactive_event(event_t &ev)
 {
@@ -2942,7 +3109,7 @@ karte_t::interactive_event(event_t &ev)
 	    break;
 	case 'f': /* OCR: Finances */
 	    sound_play(click_sound);
-         create_win(-1, -1, -1, gib_spieler(0)->gib_money_frame(), w_info);
+         create_win(-1, -1, -1, get_active_player()->gib_money_frame(), w_info);
 	    break;
 	case 'g':
 	    if(skinverwaltung_t::senke) {
@@ -2982,6 +3149,10 @@ karte_t::interactive_event(event_t &ev)
             setze_maus_funktion(wkz_test_new_cars, skinverwaltung_t::belegtzeiger->gib_bild_nr(0), Z_PLAN, 0, 0);
             break;
 #endif
+	case 'P':
+		sound_play(click_sound);
+		switch_active_player();
+		break;
 	case 'p':
 	    sound_play(click_sound);
 	    do_pause();
@@ -3058,7 +3229,7 @@ karte_t::interactive_event(event_t &ev)
 	    break;
 
 	case 'z':
-		wkz_undo(gib_spieler(0),this);
+		wkz_undo(get_active_player(),this);
 		break;
 	    /*
 #ifdef AUTOTEST
@@ -3082,7 +3253,7 @@ karte_t::interactive_event(event_t &ev)
 
 	case 'V':
 	    sound_play(click_sound);
-	    create_win(-1, -1, -1, new convoi_frame_t(gib_spieler(0), this), w_autodelete, magic_convoi_t);
+	    create_win(-1, -1, -1, new convoi_frame_t(get_active_player(), this), w_autodelete, magic_convoi_t);
 	    break;
 	case '9':
 	    setze_ij_off(gib_ij_off()+koord::nord);
@@ -3486,7 +3657,7 @@ karte_t::interactive_event(event_t &ev)
 					tool_tip_with_price(translator::translate("Build signals"), CST_SIGNALE)
 				);
 
-			    hausbauer_t::fill_menu(wzw,
+		    hausbauer_t::fill_menu(wzw,
 						  hausbauer_t::train_stops,
 						  wkz_bahnhof,
 						  SFX_JACKHAMMER,
@@ -3537,6 +3708,14 @@ karte_t::interactive_event(event_t &ev)
 					  SFX_FAILURE,
 					  CST_POST);
 
+		      wzw->add_tool(wkz_switch_player,
+					  Z_PLAN,
+					  -1,
+					  -1,
+					  skinverwaltung_t::edit_werkzeug->gib_bild_nr(4),
+					  IMG_LEER,
+					  translator::translate("Change player") );
+
 		      wzw->add_tool(wkz_add_city,
 					  Z_PLAN,
 					  SFX_JACKHAMMER,
@@ -3552,22 +3731,6 @@ karte_t::interactive_event(event_t &ev)
 				  skinverwaltung_t::special_werkzeug->gib_bild_nr(6),
 				  skinverwaltung_t::baumzeiger->gib_bild_nr(0),
 				  translator::translate("Plant tree"));
-
-		    wzw->add_tool(wkz_build_industries_land,
-				  Z_PLAN,
-				  SFX_JACKHAMMER,
-				  SFX_FAILURE,
-				  skinverwaltung_t::special_werkzeug->gib_bild_nr(3),
-				  skinverwaltung_t::undoc_zeiger->gib_bild_nr(0),
-				  translator::translate("Build land consumer"));
-
-		    wzw->add_tool(wkz_build_industries_city,
-				  Z_PLAN,
-				  SFX_JACKHAMMER,
-				  SFX_FAILURE,
-				  skinverwaltung_t::special_werkzeug->gib_bild_nr(4),
-				  skinverwaltung_t::undoc_zeiger->gib_bild_nr(0),
-				  translator::translate("Build city market"));
 
 	    if(wegbauer_t::leitung_besch) {
 		    wzw->add_param_tool(wkz_wegebau,
@@ -3640,7 +3803,7 @@ karte_t::interactive_event(event_t &ev)
 		break;
 	    case 17:
 		sound_play(click_sound);
-           create_win(-1, -1, -1, gib_spieler(0)->gib_money_frame(), w_info);
+           create_win(-1, -1, -1, get_active_player()->gib_money_frame(), w_info);
 		break;
 	    case 19:
 		sound_play(click_sound);
@@ -3659,7 +3822,7 @@ karte_t::interactive_event(event_t &ev)
 
 		DBG_MESSAGE("karte_t::interactive_event(event_t &ev)",
 			     "calling a tool");
-		const int ok = mouse_funk(spieler[0], this, pos, mouse_funk_param);
+		const int ok = mouse_funk(get_active_player(), this, pos, mouse_funk_param);
 
 		struct sound_info info;
 		info.volume = 255;
@@ -3754,6 +3917,9 @@ karte_t::interactive()
 {
 	unsigned long now = get_system_ms();
 	unsigned long this_step_time = 0;
+
+	active_player_nr = 0;
+	active_player = spieler[0];
 
 	last_step_time = get_current_time_millis();
 	steps_bis_jetzt = steps;

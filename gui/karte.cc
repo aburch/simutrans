@@ -450,7 +450,7 @@ reliefkarte_t::calc_map(int render_mode)
 	{
 	    halthandle_t halt = haltestelle_t::gib_halt(welt, k);
 	    // only show player's haltestellen
-	    if (halt.is_bound()  &&  (halt->gib_besitzer()==welt->gib_spieler(0)) && halt->get_post_enabled()) {
+	    if (halt.is_bound()  &&  (halt->gib_besitzer()==welt->get_active_player()) && halt->get_post_enabled()) {
 	      setze_relief_farbe_area(k, 7, map_type_color[render_mode]);
 	    }
 	  }
@@ -471,7 +471,7 @@ reliefkarte_t::calc_map(int render_mode)
 	  if (gr->gib_halt().is_bound()) {
 	      halthandle_t halt = haltestelle_t::gib_halt(welt, k);
 	      // only show player's haltestellen
-	      if (halt->gib_besitzer() == welt->gib_spieler(0))
+	      if (halt->gib_besitzer() == welt->get_active_player())
 		{
 		  int color = GREEN;
 		  if(halt->get_pax_happy() > 0 || halt->get_pax_no_route() > 0) {
@@ -493,7 +493,7 @@ reliefkarte_t::calc_map(int render_mode)
 	  if (gr->gib_halt().is_bound()) {
 	      halthandle_t halt = haltestelle_t::gib_halt(welt, k);
 	      // only show player's haltestellen
-	      if (halt->gib_besitzer() == welt->gib_spieler(0))
+	      if (halt->gib_besitzer() == welt->get_active_player())
 		{
 		  // get number of last month's arrived convois
 		  setze_relief_farbe_area(k, 3, calc_severity_color(halt->get_finance_history(1, HALT_CONVOIS_ARRIVED), 5));
@@ -520,7 +520,7 @@ reliefkarte_t::calc_map(int render_mode)
 	  if (gr->gib_halt().is_bound()) {
 	    halthandle_t halt = haltestelle_t::gib_halt(welt, k);
 	    // only show player's haltestellen
-	    if (halt->gib_besitzer() == welt->gib_spieler(0)) {
+	    if (halt->gib_besitzer() == welt->get_active_player()) {
 	      const int net = halt->get_finance_history(1, HALT_DEPARTED)-halt->get_finance_history(1, HALT_ARRIVED);
 	      setze_relief_farbe_area(k, 3, calc_severity_color(net, 64));
 	    }
@@ -531,7 +531,7 @@ reliefkarte_t::calc_map(int render_mode)
 	  if (gr->gib_halt().is_bound()) {
 	    halthandle_t halt = haltestelle_t::gib_halt(welt, k);
 	    // only show player's haltestellen
-	    if (halt->gib_besitzer() == welt->gib_spieler(0)) {
+	    if (halt->gib_besitzer() == welt->get_active_player()) {
 	      const int net = halt->get_finance_history(1, HALT_ARRIVED)-halt->get_finance_history(1, HALT_DEPARTED);
 	      setze_relief_farbe_area(k, 3, calc_severity_color(net, 32));
 	    }
@@ -542,7 +542,7 @@ reliefkarte_t::calc_map(int render_mode)
 	  if (gr->gib_halt().is_bound()) {
 	    halthandle_t halt = haltestelle_t::gib_halt(welt, k);
 	    // only show player's haltestellen
-	    if (halt->gib_besitzer() == welt->gib_spieler(0)) {
+	    if (halt->gib_besitzer() == welt->get_active_player()) {
 	      setze_relief_farbe_area(k,
 				      3,
 				      calc_severity_color(halt->get_finance_history(0, HALT_WAITING),

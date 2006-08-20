@@ -102,24 +102,25 @@ gebaeude_t::gebaeude_t(karte_t *welt, koord3d pos,spieler_t *sp, const haus_tile
  */
 gebaeude_t::~gebaeude_t()
 {
-    if(sync) {
-	sync = false;
-	welt->sync_remove(this);
-    }
+	if(sync) {
+		sync = false;
+		welt->sync_remove(this);
+	}
 
-    // Hajo: if the PAK file was removed we end up with buildings
-    // that have no tile description. Thus we need to check that
-    // case here ...
-    if(tile && tile->gib_besch() &&
-       tile->gib_besch()->ist_ausflugsziel()) {
-      welt->remove_ausflugsziel(this);
-    }
+	// Hajo: if the PAK file was removed we end up with buildings
+	// that have no tile description. Thus we need to check that
+	// case here ...
+	if(tile && tile->gib_besch()) {
+		if(tile->gib_besch()->ist_ausflugsziel()) {
+			welt->remove_ausflugsziel(this);
+		}
+	}
 
-    count = 0;
-    anim_time = 0;
-    if(gib_besitzer()) {
-	gib_besitzer()->add_maintenance(-umgebung_t::maint_building);
-    }
+	count = 0;
+	anim_time = 0;
+	if(gib_besitzer()) {
+		gib_besitzer()->add_maintenance(-umgebung_t::maint_building);
+	}
 }
 
 void
@@ -217,6 +218,8 @@ DBG_MESSAGE("gebaeude_t::zeige_info()", "at %d,%d - name is '%s'", gib_pos().x, 
 		}
 	}
 }
+
+
 
 /**
  * Should only be called after everything is set up to play

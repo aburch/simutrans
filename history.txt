@@ -1,5 +1,27 @@
 
 
+Release of 86.05.1
+
+23-Jun-2005 (prissi)
+	FIX: now correct waytype when building tunnels
+	CHANGE: mail now passenger tab in depots, wagons without payload (usually tender) also into engine tab
+	FIX: delete of multi-tile buildings improved
+	ADD: deleting industries works, if no station is connected
+	ADD: deleting towns by deleting townhalls (the other houses are not affected by this; but only houses within city limits can generate passengers)
+	FIX: avoid dropping of frame time below 10ms
+	FIX: convoi info windows not correctly checked
+	FIX: error message when raising/lowering tiles now correct (came never/too much)
+	ADD: monthly autosave (option "autosave = 1" in simuconf.tab) as file autosaveXX.sve (XX=01..12)
+	FIX: message repeat now changed a little: Now route/overcrowded messages will be repeated after one month
+
+21-Jun-2005 (prissi)
+	FIX: fullscreen mode from simuconf working.
+	FIX: redraw error when raising water.
+	ADD: 'P' to change player (player 0 is construction AI).
+	ADD: Edit menu for player 0 (grow city, shrink city, biult cityroad, built attraction)
+	CHANGE: built industry now into edit menu
+
+
 Release of 86.05
 
 17-Jun-2005 (prissi)

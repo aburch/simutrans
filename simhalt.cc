@@ -569,9 +569,10 @@ haltestelle_t::verbinde_fabriken()
 	}
 
 // check this !!!!!!!!!!!!!!!!!!!!
-	vector_tpl<fabrik_t *> &fablist = fabrik_t::sind_da_welche(welt,
-                                                  minX-welt->gib_einstellungen()->gib_station_coverage(), minY-welt->gib_einstellungen()->gib_station_coverage(),
-                                                  maxX+welt->gib_einstellungen()->gib_station_coverage(), maxY+welt->gib_einstellungen()->gib_station_coverage());
+	vector_tpl<fabrik_t *> &fablist = fabrik_t::sind_da_welche( welt,
+                                                  koord( minX-welt->gib_einstellungen()->gib_station_coverage(), minY-welt->gib_einstellungen()->gib_station_coverage()),
+                                                  koord(maxX+welt->gib_einstellungen()->gib_station_coverage(), maxY+welt->gib_einstellungen()->gib_station_coverage())
+                                                  );
         fab_list.clear();
 
 	for(uint32 i=0; i<fablist.get_count(); i++) {
@@ -581,6 +582,25 @@ haltestelle_t::verbinde_fabriken()
 	  fab->link_halt(self);
 	}
     }
+}
+
+
+/*
+ * removes factory to a halt
+ */
+void
+haltestelle_t::remove_fabriken(fabrik_t *fab)
+{
+DBG_MESSAGE("haltestelle_t::remove_fabriken()","removing %p",fab);
+	for(int i=0;  i<fab_list.count();  i++ ) {
+DBG_MESSAGE("haltestelle_t::remove_fabriken()","fab_list at(%i) = %p",i,fab_list.at(i));
+	}
+DBG_MESSAGE("haltestelle_t::remove_fabriken()","removing %s",fab->gib_name());
+	bool ok=fab_list.remove(fab);
+DBG_MESSAGE("karte_t::remove_fabriken()","fab_list now %i(%i)",fab_list.count(),ok);
+	for(int i=0;  i<fab_list.count();  i++ ) {
+DBG_MESSAGE("haltestelle_t::remove_fabriken()","fab_list at(%i) = %p",i,fab_list.at(i));
+	}
 }
 
 

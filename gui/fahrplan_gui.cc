@@ -182,7 +182,7 @@ void fahrplan_gui_t::init()
   line_selector.setze_pos(koord(90, 5));
   line_selector.setze_groesse(koord(164, 14));
   line_selector.set_max_size(koord(164, 100));
-  line_selector.set_highlight_color(welt->gib_spieler(0)->kennfarbe+1);
+  line_selector.set_highlight_color(welt->get_active_player()->kennfarbe+1);
   line_selector.clear_elements();
   init_line_selector();
   line_selector.set_selection(-1);

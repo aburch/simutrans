@@ -269,7 +269,7 @@ void infowin_t::zeichnen(koord pos, koord gr)
 
     int button_farbe = SCHWARZ;
 
-    if(gib_besitzer() != welt->gib_spieler(0)) {
+    if(gib_besitzer() != welt->get_active_player()) {
 	button_farbe = GRAU2;
     }
 

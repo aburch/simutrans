@@ -99,3 +99,6 @@ int umgebung_t::max_route_steps = 10000;
 
 /* prissi: maximum number of steps for breath search */
 int umgebung_t::max_transfers = 7;
+
+
+bool umgebung_t::autosave = true;

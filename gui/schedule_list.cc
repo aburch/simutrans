@@ -188,7 +188,7 @@ schedule_list_gui_t::~schedule_list_gui_t()
  */
 spieler_t* schedule_list_gui_t::gib_besitzer() const
 {
-    return welt->gib_spieler(0);
+    return welt->get_active_player();
 }
 
 char *schedule_list_gui_t::info(char *buf) const
@@ -204,7 +204,7 @@ bool schedule_list_gui_t::action_triggered(gui_komponente_t *komp)           // 
     {
 		if (line != NULL)
 		{
-			line_management_gui_t *line_gui = new line_management_gui_t(welt, line, welt->gib_spieler(0));
+			line_management_gui_t *line_gui = new line_management_gui_t(welt, line, welt->get_active_player());
 			line_gui->zeige_info();
 		}
     } else if (komp == &bt_new_line)
@@ -212,7 +212,7 @@ bool schedule_list_gui_t::action_triggered(gui_komponente_t *komp)           // 
     	if (tabs.get_active_tab_index() > 0) {
     	// create typed line
 		simline_t * new_line = welt->simlinemgmt->create_line(tabs.get_active_tab_index());
-		line_management_gui_t *line_gui = new line_management_gui_t(welt, new_line, welt->gib_spieler(0));
+		line_management_gui_t *line_gui = new line_management_gui_t(welt, new_line, welt->get_active_player());
 		line_gui->zeige_info();
 
 		// once a new line is added we need to renew the SCL and sort the lines

@@ -587,6 +587,9 @@ int simu_cpp_main(int argc, char ** argv)
       umgebung_t::starting_year =
 	(contents.get_int("starting_year", 1930));
 
+      umgebung_t::autosave =
+	(contents.get_int("autosave", 0)) != 0;
+
       /*
        * Selection of savegame format through inifile
        * @author Volker Meyer
@@ -694,7 +697,7 @@ int simu_cpp_main(int argc, char ** argv)
 	}
     }
 
-	fullscreen = (gimme_arg(argc, argv, "-fullscreen", 0) != NULL);
+	fullscreen |= (gimme_arg(argc, argv, "-fullscreen", 0) != NULL);
 
     if(gimme_arg(argc, argv, "-screensize", 0) != NULL) {
 	const char * res_str = gimme_arg(argc, argv, "-screensize", 1);

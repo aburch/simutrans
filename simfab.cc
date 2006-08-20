@@ -131,6 +131,13 @@ fabrik_t::add_lieferziel(koord ziel)
 }
 
 
+void
+fabrik_t::rem_lieferziel(koord ziel)
+{
+	lieferziele.remove(ziel);
+}
+
+
 fabrik_t::fabrik_t(karte_t *wl, loadsave_t *file) : lieferziele(max_lieferziele), suppliers(max_suppliers)
 {
     welt = wl;
@@ -216,6 +223,21 @@ fabrik_t::~fabrik_t()
 }
 
 
+
+// must be extended for non-square factories!
+bool
+fabrik_t::is_fabrik( koord check )
+{
+	return (check.x>=pos.x   &&  check.x<pos.x+besch->gib_haus()->gib_groesse(rotate).x  &&  check.y>=pos.y  &&  check.y<pos.y+besch->gib_haus()->gib_groesse(rotate).y);
+}
+
+bool
+fabrik_t::is_fabrik( koord lu, koord rd )
+{
+	return (rd.x>=pos.x   &&  lu.x<pos.x+besch->gib_haus()->gib_groesse(rotate).x  &&  rd.y>=pos.y  &&  lu.y<pos.y+besch->gib_haus()->gib_groesse(rotate).y);
+}
+
+
 void
 fabrik_t::add_arbeiterziel(stadt_t *stadt)
 {
@@ -223,6 +245,13 @@ fabrik_t::add_arbeiterziel(stadt_t *stadt)
 	if(!arbeiterziele.contains(stadt)) {
 		arbeiterziele.insert(stadt);
 	}
+}
+
+
+void
+fabrik_t::rem_arbeiterziel(stadt_t *stadt)
+{
+	arbeiterziele.remove(stadt);
 }
 
 
@@ -255,7 +284,7 @@ fabrik_t::ist_bauplatz(karte_t *welt, koord pos, koord groesse,bool wasser)
     if(pos.x > 0 && pos.y > 0 &&
        pos.x+groesse.x < welt->gib_groesse() && pos.y+groesse.y < welt->gib_groesse() &&
        ( wasser  ||  welt->ist_platz_frei(pos, groesse.x, groesse.y) )&&
-       !ist_da_eine(welt, pos.x-5, pos.y-5, pos.x+groesse.x+3, pos.y+groesse.y+3)) {
+       !ist_da_eine(welt,pos-koord(5,5),pos+groesse+koord(3,3))) {
 
 	ok = true;
 		// check for water (no shore in sight!)
@@ -282,15 +311,15 @@ fabrik_t::ist_bauplatz(karte_t *welt, koord pos, koord groesse,bool wasser)
 
 
 vector_tpl<fabrik_t *> &
-fabrik_t::sind_da_welche(karte_t *welt, int minX, int minY, int maxX, int maxY)
+fabrik_t::sind_da_welche(karte_t *welt, koord min_pos, koord max_pos)
 {
     int i,j;
     static vector_tpl <fabrik_t*> fablist(32);
 
     fablist.clear();
 
-    for(j=minY; j<=maxY; j++) {
-	for(i=minX; i<=maxX; i++) {
+    for(j=min_pos.y; j<=max_pos.y; j++) {
+	for(i=min_pos.x; i<=max_pos.x; i++) {
 	    const koord pos(i,j);
 	    const planquadrat_t * plan = welt->lookup(pos);
 	    if(plan) {
@@ -317,12 +346,12 @@ DBG_MESSAGE("fabrik_t::sind_da_welche()","appended factory %s at (%i,%i)",fab->g
 }
 
 bool
-fabrik_t::ist_da_eine(karte_t *welt, int minX, int minY, int maxX, int maxY)
+fabrik_t::ist_da_eine(karte_t *welt, koord min_pos, koord max_pos )
 {
     int i,j;
 
-    for(j=minY; j<=maxY; j++) {
-	for(i=minX; i<=maxX; i++) {
+    for(j=min_pos.y; j<=max_pos.y; j++) {
+	for(i=min_pos.x; i<=max_pos.x; i++) {
 	    if(welt->ist_in_kartengrenzen(i, j)) {
 	        const koord pos(i,j);
 		const grund_t *gr = welt->lookup(pos)->gib_kartenboden();
@@ -1136,4 +1165,11 @@ fabrik_t::add_supplier(koord pos)
 	if(suppliers.get_count() < max_suppliers) {
 		suppliers.append_unique(pos);
 	}
+}
+
+
+void
+fabrik_t::rem_supplier(koord pos)
+{
+	suppliers.remove(pos);
 }

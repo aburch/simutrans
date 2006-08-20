@@ -297,14 +297,13 @@ private:
     int zentrum_namen_cnt, aussen_namen_cnt;
 
 
+public:
     /**
      * sucht arbeitsplätze für die Einwohner
      * @author Hj. Malthaner
      */
     void verbinde_fabriken();
 
-
-public:
     /* returns all factories connected to this city ...
      * @author: prissi
      */
@@ -313,7 +312,6 @@ public:
     int gib_pax_erzeugt() const {return pax_erzeugt;};
     int gib_pax_transport() const {return pax_transport;};
     int gib_wachstum() const {return wachstum;};
-
 
     /**
      * ermittelt die Einwohnerzahl der Stadt
@@ -402,6 +400,9 @@ public:
      */
     void laden_abschliessen();
 
+	/* change size of city
+	 * @author prissi */
+	void change_size( long delta_citicens );
 
     void step();
 

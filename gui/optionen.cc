@@ -119,7 +119,7 @@ optionen_gui_t::gib_name() const
  */
 spieler_t* optionen_gui_t::gib_besitzer() const
 {
-  return welt->gib_spieler(0);
+  return welt->get_active_player();
 }
 
 /**

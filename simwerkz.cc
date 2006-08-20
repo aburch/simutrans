@@ -182,58 +182,61 @@ wkz_abfrage(spieler_t *, karte_t *welt, koord pos)
 int
 wkz_raise(spieler_t *sp, karte_t *welt, koord pos)
 {
-    DBG_MESSAGE("wkz_raise()",
-     "raising square %d,%d to %d",
-     pos.x, pos.y, welt->lookup_hgt(pos)+16);
+//DBG_MESSAGE("wkz_raise()","raising square (%d,%d) to %d",pos.x, pos.y, welt->lookup_hgt(pos)+16);
 
-    bool ok = false;
+	bool ok = false;
 
-    if(welt->ist_in_gittergrenzen(pos)) {
-  const int hgt = welt->lookup_hgt(pos);
-  int n=1;
+	if(welt->ist_in_gittergrenzen(pos)) {
+		const int hgt = welt->lookup_hgt(pos);
 
-  if(hgt < 224) {
+		if(hgt < 224) {
 
-      n = welt->raise(pos);
-      sp->buche(CST_BAU*n, pos, COST_CONSTRUCTION);
-
-      DBG_MESSAGE("wkz_raise()", "%d squares changed", n);
-
-      ok = true;
-  } else {
-      DBG_MESSAGE("wkz_raise()", "Maximum height reached");
-  }
-    }
-    return ok;
+			int n = welt->raise(pos);
+			ok = (n!=0);
+			if(!ok) {
+				create_win(-1, -1, MESG_WAIT, new nachrichtenfenster_t(welt, "Tile not empty."), w_autodelete);
+				return false;
+			}
+			else {
+				sp->buche(CST_BAU*n, pos, COST_CONSTRUCTION);
+			}
+//DBG_MESSAGE("wkz_raise()", "%d squares changed", n);
+		} else {
+//DBG_MESSAGE("wkz_raise()", "Maximum height reached");
+		}
+	}
+	return ok;
 }
 
 int
 wkz_lower(spieler_t *sp, karte_t *welt, koord pos)
 {
-    DBG_MESSAGE("wkz_lower()",
-     "lowering square %d,%d to %d",
-     pos.x, pos.y, welt->lookup_hgt(pos)-16);
+// DBG_MESSAGE("wkz_lower()","lowering square %d,%d to %d", pos.x, pos.y, welt->lookup_hgt(pos)-16);
 
-    bool ok = false;
+	bool ok = false;
 
-    if(welt->ist_in_gittergrenzen(pos)) {
-  const int hgt = welt->lookup_hgt(pos);
-  int n=1;
+	if(welt->ist_in_gittergrenzen(pos)) {
 
-  if(hgt > welt->gib_grundwasser()) {
+		const int hgt = welt->lookup_hgt(pos);
 
-      n = welt->lower(pos);
-      sp->buche(CST_BAU*n, pos, COST_CONSTRUCTION);
+		if(hgt > welt->gib_grundwasser()) {
 
-      DBG_MESSAGE("wkz_lower()", "%d squares changed", n);
+			int n = welt->lower(pos);
+			ok = (n!=0);
+			if(!ok) {
+				create_win(-1, -1, MESG_WAIT, new nachrichtenfenster_t(welt, "Tile not empty."), w_autodelete);
+			}
+			else {
+				sp->buche(CST_BAU*n, pos, COST_CONSTRUCTION);
+			}
+//      DBG_MESSAGE("wkz_lower()", "%d squares changed", n);
 
-      ok =  true;
-  } else {
-      DBG_MESSAGE("wkz_lower()", "Minimum height reached");
-  }
-    }
+		} else {
+//      DBG_MESSAGE("wkz_lower()", "Minimum height reached");
+		}
+	}
 
-    return ok;
+	return ok;
 }
 
 
@@ -393,6 +396,85 @@ DBG_MESSAGE("wkz_remover()",  "removing everything from %d,%d,%d",
 			return false;
 		}
 	}
+
+#if 1
+		// since buildings can have more than one tile, we must handle them together
+		gebaeude_t *gb = static_cast<gebaeude_t *>(gr->suche_obj(ding_t::gebaeude));
+		if(gb) {
+			const haus_tile_besch_t *tile  = gb->gib_tile();
+			koord size = tile->gib_besch()->gib_groesse( tile->gib_layout() );
+
+			// get startpos
+			koord k=tile->gib_offset();
+			if(k != koord(0,0)) {
+				return wkz_remover_intern(sp, welt, pos-k, msg);
+			}
+			else {
+
+				// remove factory?
+				if(gb->fabrik()!=NULL) {
+
+					// remove connections ...
+					fabrik_t *fab=gb->fabrik();
+DBG_MESSAGE("wkz_remover()", "removing factory:  %p");
+
+					if(fab->gib_halt_list().count()!=0) {
+						// remove from all stops
+						msg = "Das Feld gehoert\neinem anderen Spieler\n";
+						return false;
+					}
+
+
+					// delete it from map
+DBG_MESSAGE("wkz_remover()", "removing factory from world");
+					gb->setze_fab(NULL);
+					welt->rem_fab(fab);
+
+DBG_MESSAGE("wkz_remover()", "removing factory:  supplier info change for %i factories",welt->gib_fab_list().count() );
+					// remove all links from factories
+					slist_iterator_tpl<fabrik_t *> iter (welt->gib_fab_list());
+					while(iter.next()) {
+						fabrik_t * fab = iter.get_current();
+						fab->rem_lieferziel(pos);
+						fab->rem_supplier(pos);
+DBG_MESSAGE("wkz_remover()", "reconnecting factories");
+					}
+			welt->rem_fab((fabrik_t*)6);
+
+					// remove from all cities
+DBG_MESSAGE("wkz_remover()", "removing factory:  reconnecting towns");
+					const vector_tpl<stadt_t *> *stadt = welt->gib_staedte();
+					for( int i=0;  i<stadt->get_count();  i++ ) {
+						stadt->at(i)->verbinde_fabriken();
+					}
+welt->rem_fab((fabrik_t*)1);
+
+					// finally delete it
+					fab->~fabrik_t();
+				}
+
+				// remove town? (when removing townhall)
+				if(gb->ist_rathaus()) {
+					stadt_t *stadt = welt->suche_naechste_stadt(pos);
+					if(!welt->rem_stadt( stadt )) {
+						msg = "Das Feld gehoert\neinem anderen Spieler\n";
+						return false;
+					}
+				}
+
+				for(k.y = 0; k.y < size.y; k.y ++) {
+					for(k.x = 0; k.x < size.x; k.x ++) {
+						if(k!=koord(0,0)) {
+							grund_t *gr = welt->lookup(k+pos)->gib_kartenboden();
+							gr->obj_loesche_alle(sp);
+							welt->access(k+pos)->kartenboden_setzen(new boden_t(welt, gr->gib_pos()), false);
+						}
+					}
+				}
+			}
+			welt->rem_fab((fabrik_t*)1);
+		}
+#endif
 	gr->obj_loesche_alle(sp);
 
 	/*
@@ -427,8 +509,7 @@ DBG_MESSAGE("wkz_remover()",  "removing everything from %d,%d,%d",
 int
 wkz_remover(spieler_t *sp, karte_t *welt, koord pos)
 {
-    DBG_MESSAGE("wkz_remover()",
-     "at %d,%d", pos.x, pos.y);
+    DBG_MESSAGE("wkz_remover()","at %d,%d", pos.x, pos.y);
     const char *fail = NULL;
 
     if(!wkz_remover_intern(sp, welt, pos, fail)) {
@@ -570,14 +651,15 @@ DBG_MESSAGE("wkz_post()", "building mail office/station building on square %d,%d
 		int rotate = 0;
 
 		bool hat_platz = false;
+		bool slope_check = size.x+size.y>2;
 		halthandle_t halt;
 
-		if(welt->ist_platz_frei(pos, size.x, size.y, NULL, false)) {
+		if(welt->ist_platz_frei(pos, size.x, size.y, NULL, slope_check)) {
 			hat_platz = true;
 			halt = suche_nahe_haltestelle(sp, welt, pos, size.x, size.y);
 		}
 
-		if(size.y != size.x && welt->ist_platz_frei(pos, size.y, size.x, NULL, false)) {
+		if(!hat_platz  &&  size.y != size.x && welt->ist_platz_frei(pos, size.y, size.x, NULL, slope_check)) {
 			halthandle_t halt2 = suche_nahe_haltestelle(sp, welt, pos, size.y, size.x);
 			hat_platz = true;
 			if(halt2.is_bound()) {
@@ -615,12 +697,14 @@ DBG_MESSAGE("wkz_post()", "building mail office/station building on square %d,%d
 int wkz_post(spieler_t *sp, karte_t *welt, koord pos, value_t value)
 {
 	wkz_station_building_aux(sp, welt, pos, (const haus_besch_t *)value.p, true);
+	return true;
 }
 
 
 int wkz_station_building(spieler_t *sp, karte_t *welt, koord pos, value_t value)
 {
 	wkz_station_building_aux(sp, welt, pos, (const haus_besch_t *)value.p, false);
+	return true;
 }
 
 
@@ -1626,22 +1710,26 @@ int wkz_test(spieler_t *, karte_t *welt, koord pos)
 /* builts a random industry chain, either in the next town */
 int wkz_build_industries_land(spieler_t *sp, karte_t *welt, koord pos)
 {
-	const planquadrat_t *plan = welt->lookup(pos);
-	if(plan) {
-		const fabrik_besch_t *info = fabrikbauer_t::get_random_consumer(false);
-		// is there enough even space ...
-		// ok, all fields are free, and we can remove all objects there
-		koord3d pos3d = plan->gib_kartenboden()->gib_pos();
-		for(int y=0;  y<info->gib_haus()->gib_groesse(0).y;  y++  ) {
-			for(int x=0;  x<info->gib_haus()->gib_groesse(0).x;  x++  ) {
-				koord k=pos+koord(x,y);
-				if(welt->get_slope(k)!=0  ||  welt->lookup(k)->gib_kartenboden()->ist_wasser()  ||  welt->lookup(k)->gib_kartenboden()->kann_alle_obj_entfernen(welt->gib_spieler(0))!=NULL) {
-					// cannot build here ...
-					return false;
-				}
-			}
-		}
-		fabrikbauer_t::baue_hierarchie(welt, NULL, info, 0, &pos3d,welt->gib_spieler(1));
+	const fabrik_besch_t *info = fabrikbauer_t::get_random_consumer(false);
+
+	koord size = info->gib_haus()->gib_groesse();
+	int rotation = 0;
+
+	bool hat_platz = false;
+	bool slope_check = size.x+size.y>2;
+
+	if(welt->ist_platz_frei(pos, size.x, size.y, NULL, slope_check)) {
+		hat_platz = true;
+	}
+
+	if(!hat_platz &&  size.y != size.x && welt->ist_platz_frei(pos, size.y, size.x, NULL, slope_check)) {
+		rotation = 1;
+		hat_platz = true;
+	}
+
+	if(hat_platz) {
+		koord3d k = welt->lookup(pos)->gib_kartenboden()->gib_pos();
+		fabrikbauer_t::baue_hierarchie(welt, NULL, info, rotation, &k,welt->gib_spieler(1));
 		return true;
 	}
 
@@ -1658,7 +1746,6 @@ int wkz_build_industries_city(spieler_t *sp, karte_t *welt, koord pos)
     koord3d pos3d = plan->gib_kartenboden()->gib_pos();
     fabrikbauer_t::baue_hierarchie(welt, NULL, info, false, &pos3d,welt->gib_spieler(1));
   }
-
   return plan != 0;
 }
 
@@ -1779,4 +1866,70 @@ DBG_MESSAGE("wkz_headquarter()", "building headquarter at (%d,%d)", pos.x, pos.y
 		welt->setze_maus_funktion(wkz_abfrage, skinverwaltung_t::fragezeiger->gib_bild_nr(0), welt->Z_PLAN, 0, 0);
 	}
 	return ok;
+}
+
+
+
+/* switch to next player
+ * @author prissi
+ */
+int wkz_switch_player(spieler_t *, karte_t *welt, koord pos)
+{
+	if(pos==INIT) {
+		welt->setze_maus_funktion(wkz_abfrage, skinverwaltung_t::fragezeiger->gib_bild_nr(0), welt->Z_PLAN, 0, 0);
+		welt->switch_active_player();
+	}
+	return false;
+}
+
+
+
+/* change city size
+ * @author prissi
+ */
+int wkz_grow_city(spieler_t *, karte_t *welt, koord pos, value_t lParam)
+{
+	stadt_t *city = welt->suche_naechste_stadt(pos);
+
+	if(pos!=INIT  && pos!=EXIT  &&  city!=NULL) {
+		city->change_size( lParam.i );
+	}
+	return true;
+}
+
+
+/* built random tourist attraction
+ * @author prissi
+ */
+int wkz_add_attraction(spieler_t *, karte_t *welt, koord pos)
+{
+	if(pos!=INIT  && pos!=EXIT) {
+		const haus_besch_t *attraction=hausbauer_t::waehle_sehenswuerdigkeit();
+
+		if(attraction==NULL) {
+			return false;
+		}
+
+		koord size = attraction->gib_groesse();
+		int rotation = 0;
+
+		bool hat_platz = false;
+		bool slope_check = size.x+size.y>2;
+
+		if(welt->ist_platz_frei(pos, size.x, size.y, NULL, slope_check)) {
+			hat_platz = true;
+		}
+
+		if(!hat_platz &&  size.y != size.x && welt->ist_platz_frei(pos, size.y, size.x, NULL, slope_check)) {
+			rotation = 1;
+			hat_platz = true;
+		}
+
+		// Platz gefunden ...
+		if(hat_platz) {
+			hausbauer_t::baue(welt, welt->gib_spieler(1), welt->lookup(pos)->gib_kartenboden()->gib_pos(), rotation, attraction);
+			return true;
+		}
+	}
+	return false;
 }

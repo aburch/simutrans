@@ -386,6 +386,7 @@ DBG_MESSAGE("stadt_t::stadt_t()","founding new city named '%s'",name);
 }
 
 
+
 stadt_t::stadt_t(karte_t *wl, loadsave_t *file) :
     welt(wl),
     pax_ziele_alt(96, 96),
@@ -525,6 +526,7 @@ stadt_t::verbinde_fabriken()
 	}
 
 	max_pax_arbeiterziele = 0;
+	arbeiterziele.clear();
 	for(int i=0; i<16; i++) {
 		slist_iterator_tpl<fabrik_t *> iter (fab_list);
 
@@ -567,6 +569,34 @@ stadt_t::add_factory_arbeiterziel(fabrik_t *fab)
 			max_pax_arbeiterziele += fab->gib_besch()->gib_pax_level();
 		}
 	}
+}
+
+
+
+/* change size of city
+ * @author prissi */
+void stadt_t::change_size( long delta_citicens )
+{
+	step_bau();
+	pax_erzeugt = 0;
+DBG_MESSAGE("stadt_t::change_size()","%i+%i",bev,delta_citicens);
+	if(delta_citicens>0) {
+		pax_transport = delta_citicens/8;
+		step_bau();
+		pax_transport = 0;
+	}
+	if(delta_citicens<0) {
+		pax_transport = 0;
+		if(bev>-delta_citicens) {
+			bev += delta_citicens;
+		}
+		else {
+//			remove_city();
+			bev = 0;
+		}
+		step_bau();
+	}
+DBG_MESSAGE("stadt_t::change_size()","%i+%i",bev,delta_citicens);
 }
 
 

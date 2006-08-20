@@ -188,6 +188,16 @@ public:
    */
    void laden_abschliessen();
 
+    /* check, if the coordinate belongs to this factory
+     * @author prissi
+     */
+    bool is_fabrik( koord check );
+
+    /* check, if the coordinate belongs to this factory
+     * @author prissi
+     */
+    bool is_fabrik( koord check, koord extent );
+
     /**
      * Die Koordinate (Position) der fabrik
      * @author Hj. Malthaner
@@ -206,6 +216,7 @@ public:
      * @author Hj. Malthaner/prissi
      */
     void  add_arbeiterziel(stadt_t *stadt);
+    void  rem_arbeiterziel(stadt_t *stadt);
     const slist_tpl <stadt_t *> & gib_arbeiterziele() const {return arbeiterziele;};
 
     const slist_tpl<halthandle_t> gib_halt_list () const { return halt_list; }
@@ -215,12 +226,14 @@ public:
      * @author Hj. Malthaner
      */
     void  add_lieferziel(koord ziel);
+    void  rem_lieferziel(koord pos);
 
     /**
      * adds a supplier
      * @author Hj. Malthaner
      */
     void  add_supplier(koord pos);
+    void  rem_supplier(koord pos);
 
 
     /**
@@ -286,7 +299,7 @@ public:
      *
      * @author Hj. Malthaner
      */
-    static vector_tpl<fabrik_t *> & sind_da_welche(karte_t *welt, int minX, int minY, int maxX, int maxY);
+    static vector_tpl<fabrik_t *> & sind_da_welche(karte_t *welt, koord min, koord max);
 
 
     /**
@@ -294,7 +307,7 @@ public:
      *
      * @author Hj. Malthaner
      */
-    static bool ist_da_eine(karte_t *welt, int minX, int minY, int maxX, int maxY);
+    static bool ist_da_eine(karte_t *welt, koord min, koord max);
 
     static bool ist_bauplatz(karte_t *welt, koord pos, koord groesse = koord(2, 2),bool water=false);
 

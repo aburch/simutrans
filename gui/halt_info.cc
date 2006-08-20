@@ -48,6 +48,7 @@ halt_info_t::halt_info_t(karte_t *welt, halthandle_t halt)
    freight_info(16384)
 {
     this->halt = halt;
+    this->welt = welt;
 
     input.setze_pos(koord(11,4));
     input.setze_groesse(koord(189, 13));
@@ -76,12 +77,10 @@ halt_info_t::halt_info_t(karte_t *welt, halthandle_t halt)
 
     scrolly.setze_pos(koord(1, 90));
 
-    // Hajo: only available if player owns this station or public
-    if(halt->gib_besitzer()==welt->gib_spieler(0)  ||  halt->gib_besitzer()==welt->gib_spieler(1)) {
-      add_komponente(&sort_button);
-      add_komponente(&button);
-      add_komponente(&input);
-    }
+    add_komponente(&sort_button);
+    add_komponente(&button);
+
+    add_komponente(&input);
 
     setze_opaque(true);
     setze_fenstergroesse(koord(304, 264));
@@ -174,53 +173,51 @@ halt_info_t::zeichnen(koord pos, koord gr)
  */
 bool halt_info_t::action_triggered(gui_komponente_t *comp)
 {
+	if (comp == &button) { 			// details button pressed
+		halt->open_detail_window();
+	} else if (comp == &sort_button) { 	// @author hsiegeln sort button pressed
+		int sortby = halt->get_sortby();
 
-  if (comp == &button) { 			// details button pressed
-    halt->open_detail_window();
-  } else if (comp == &sort_button) { 	// @author hsiegeln sort button pressed
-    int sortby = halt->get_sortby();
+		if(sortby < 0) {
+			// Hajo: error case, correct silently
+			sortby = 0;
+		} else if (sortby < 2){
+			sortby++;
+		} else {
+			sortby = 0;
+		}
 
-    if(sortby < 0) {
-      // Hajo: error case, correct silently
-      sortby = 0;
-    } else if (sortby < 2){
-      sortby++;
-    } else {
-      sortby = 0;
-    }
-
-    halt->set_sortby((haltestelle_t::sort_mode_t) sortby);
-    sort_button.text = translator::translate(sort_text[sortby]);
-  } else if (comp == &toggler) {
-
-    btoggled = !btoggled;
-    const koord offset = btoggled ? koord(40, 178) : koord(-40, -178);
-    set_min_windowsize(btoggled ? koord(344, 372) : koord(304, 194));
-    scrolly.pos.y += offset.y;
-    // toggle visibility of components
-    chart->set_visible(btoggled);
-    setze_fenstergroesse(gib_fenstergroesse() + offset);
-    resize(koord(0,0));
-    for (int i=0;i<MAX_HALT_COST;i++) {
-      filterButtons[i].set_visible(btoggled);
-    }
-  } else {
-    for ( int i = 0; i<MAX_HALT_COST; i++) {
-
-      if (comp == &filterButtons[i]) {
-
-	bFilterIsActive[i] = !bFilterIsActive[i];
-	if(bFilterIsActive[i]) {
-	  chart->show_curve(i);
+		halt->set_sortby((haltestelle_t::sort_mode_t) sortby);
+		sort_button.text = translator::translate(sort_text[sortby]);
+	} else  if (comp == &toggler) {
+		btoggled = !btoggled;
+		const koord offset = btoggled ? koord(40, 178) : koord(-40, -178);
+		set_min_windowsize(btoggled ? koord(344, 372) : koord(304, 194));
+		scrolly.pos.y += offset.y;
+		// toggle visibility of components
+		chart->set_visible(btoggled);
+		setze_fenstergroesse(gib_fenstergroesse() + offset);
+		resize(koord(0,0));
+		for (int i=0;i<MAX_HALT_COST;i++) {
+			filterButtons[i].set_visible(btoggled);
+		}
 	} else {
-	  chart->hide_curve(i);
+		for ( int i = 0; i<MAX_HALT_COST; i++) {
+
+			if (comp == &filterButtons[i]) {
+
+				bFilterIsActive[i] = !bFilterIsActive[i];
+				if(bFilterIsActive[i]) {
+					chart->show_curve(i);
+				} else {
+					chart->hide_curve(i);
+				}
+				break;
+			}
+		}
 	}
 
-	break;
-      }
-    }
-  }
-  return true;
+	return true;
 }
 
 

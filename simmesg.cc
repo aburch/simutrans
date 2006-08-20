@@ -134,7 +134,7 @@ DBG_MESSAGE("message_t::add_msg()","%40s (at %i,%i)", text, pos.x, pos.y );
 
 	int art = (1<<what);
 	if(art&ignore_flags) {
-		// use wants us to ignore this completely
+		// wants us to ignore this completely
 		return;
 	}
 
@@ -144,8 +144,9 @@ DBG_MESSAGE("message_t::add_msg()","%40s (at %i,%i)", text, pos.x, pos.y );
       }
 
 	// we will not add messages two time to the list if it was within the last 20 messages
+	unsigned long now = welt->gib_zeit_ms();
 	for(int i=0;  i<list->count()  &&  i<20;  i++) {
-		if(  strcmp(list->at(i).msg,text)==0  ) {
+		if(  list->at(i).time>=now  &&  list->at(i).pos==pos  &&  strcmp(list->at(i).msg,text)==0  ) {
 			// we had exactly this message already
 			return;
 		}
@@ -158,7 +159,7 @@ DBG_MESSAGE("message_t::add_msg()","%40s (at %i,%i)", text, pos.x, pos.y );
 	n.msg[256] = 0;
 	n.pos = pos;
 	n.color = color;
-	n.time = get_current_time_millis();
+	n.time = welt->gib_zeit_ms()+(1ul<<karte_t::ticks_bits_per_tag);
 	n.bild = bild;
 
 	// insert at the top

@@ -260,7 +260,9 @@ private:
      * Die Spieler
      * @author Hj. Malthaner
      */
-    spieler_t  *spieler[8];                   // Mensch ist spieler Nr. 0
+    spieler_t *spieler[8];                   // Mensch ist spieler Nr. 0
+    uint8 active_player_nr;
+    spieler_t	*active_player;
 
 
     /**
@@ -302,7 +304,7 @@ private:
      * internal saving method
      * @author Hj. Malthaner
      */
-    void speichern(loadsave_t *file);
+    void speichern(loadsave_t *file,bool silent);
 
 
     /**
@@ -365,7 +367,8 @@ public:
     ding_t * gib_zeiger() const;
 
     spieler_t * gib_spieler(int n);
-
+    spieler_t *get_active_player() {return active_player; };
+    void switch_active_player();
 
 
     /**
@@ -428,7 +431,8 @@ public:
      * Zugriff auf das Städte Array.
      * @author Hj. Malthaner
      */
-    void add_stadt(stadt_t *);
+    void add_stadt(stadt_t *s);
+    bool rem_stadt(stadt_t *s);
 
 
     /**
@@ -733,6 +737,10 @@ public:
      * @author Hj. Malthaner
      */
     fabrik_t *get_random_fab() const;
+/* return all factories in this area
+ * @author prissi
+ */
+    vector_tpl<fabrik_t *> &find_all_factories( koord pos, koord extent );
 
     /**
      * sucht naechstgelegene Stadt an Position i,j
@@ -840,7 +848,7 @@ public:
      * @param filename name of the file to write
      * @author Hansjörg Malthaner
      */
-    void speichern(const char *filename);
+    void speichern(const char *filename,bool silent);
 
 
     /**

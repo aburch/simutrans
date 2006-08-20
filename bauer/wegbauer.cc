@@ -1082,7 +1082,7 @@ wegbauer_t::intern_calc_route(const koord start, const koord ziel)
     }
 
     // spezielle checks, Uferlage
-    if(welt->gib_spieler(0) == sp && bd_nach->gib_hoehe() <= welt->gib_grundwasser()) {
+    if(welt->get_active_player() == sp && bd_nach->gib_hoehe() <= welt->gib_grundwasser()) {
         continue;
     }
 
@@ -1363,9 +1363,15 @@ wegbauer_t::baue_strasse()
 {
 	int cost = 0;
 
+	// construct city road?
+	bool add_sidewalk = besch==gib_besch("city_road");
+	if(add_sidewalk) {
+		sp = NULL;
+	}
+
 	// init undo
 	if(sp!=NULL) {
-		// intercity raods have no owner, so we must check for an owner
+		// intercity roads have no owner, so we must check for an owner
 		sp->init_undo(weg_t::strasse,max_n);
 	}
 
@@ -1405,8 +1411,9 @@ wegbauer_t::baue_strasse()
 		else {
 			// make new way
 			strasse_t * str = new strasse_t(welt);
-			str->setze_besch(besch);
 
+			str->setze_besch(besch);
+			str->setze_gehweg(add_sidewalk);
 			gr->neuen_weg_bauen(str, calc_ribi(i), sp);
 
 			// prissi: into UNDO-list, so wie can remove it later

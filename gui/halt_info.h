@@ -56,6 +56,8 @@ private:
      */
     cbuffer_t freight_info;
 
+    karte_t *welt;
+
 public:
 
     halt_info_t(karte_t *welt, halthandle_t halt);

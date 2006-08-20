@@ -103,4 +103,19 @@ int wkz_undo(spieler_t *sp, karte_t *welt);
 
 int wkz_headquarter(spieler_t *sp, karte_t *welt, koord pos);
 
+/* switch to next player
+ * @author prissi
+ */
+int wkz_switch_player(spieler_t *, karte_t *welt, koord pos);
+
+/* change city size
+ * @author prissi
+ */
+int wkz_grow_city(spieler_t *, karte_t *welt, koord pos, value_t lParam);
+
+/* built random tourist attraction
+ * @author prissi
+ */
+ int wkz_add_attraction(spieler_t *, karte_t *welt, koord pos);
+
 #endif

@@ -74,7 +74,7 @@ ki_kontroll_t::gib_name() const
 spieler_t*
 ki_kontroll_t::gib_besitzer() const
 {
-  return welt->gib_spieler(0);
+  return welt->get_active_player();
 }
 
 

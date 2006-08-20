@@ -214,6 +214,10 @@ class umgebung_t
 
   /* prissi: maximum number of steps for breath search */
   static int max_transfers;
+
+
+  /* prissi: do autosave every month? */
+  static bool autosave;
 };
 
 #endif

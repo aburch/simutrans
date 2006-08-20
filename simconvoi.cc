@@ -1312,7 +1312,7 @@ convoi_t::open_schedule_window()
 
 	// darf der spieler diesen convoi umplanen ?
 	if(gib_besitzer() != NULL &&
-		gib_besitzer() != welt->gib_spieler(0)) {
+		gib_besitzer() != welt->get_active_player()) {
 		return;
 	}
 

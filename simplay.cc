@@ -3020,7 +3020,7 @@ spieler_t::get_finance_info_old(int type)
  */
 void spieler_t::bescheid_station_voll(halthandle_t halt)
 {
-	if(welt->gib_spieler(0)==this) {
+	if(welt->get_active_player()==this) {
 		char buf[128];
 
 		sprintf(buf, translator::translate("!0_STATION_CROWDED"), halt->gib_name());
@@ -3039,7 +3039,7 @@ void spieler_t::bescheid_station_voll(halthandle_t halt)
 void spieler_t::bescheid_vehikel_problem(convoihandle_t cnv,const koord3d ziel)
 {
 DBG_MESSAGE("spieler_t::bescheid_vehikel_problem","Vehicle %s can't find a route to (%i,%i)!", cnv->gib_name(),ziel.x,ziel.y);
-	if(welt->gib_spieler(0)==this) {
+	if(this==welt->get_active_player()) {
 		char buf[256];
 		sprintf(buf,"Vehicle %s can't find a route!", cnv->gib_name());
 //		ticker_t::get_instance()->add_msg(buf, cnv->gib_pos().gib_2d(),ROT);

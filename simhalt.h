@@ -392,6 +392,7 @@ public:
      * @author Hj. Malthaner
      */
     void verbinde_fabriken();
+    void remove_fabriken(fabrik_t *fab);
 
 
     /**

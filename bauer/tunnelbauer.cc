@@ -34,6 +34,8 @@
 
 #include "../gui/messagebox.h"
 
+#include "wegbauer.h"
+
 
 const tunnel_besch_t *tunnelbauer_t::strassentunnel = NULL;
 const tunnel_besch_t *tunnelbauer_t::schienentunnel = NULL;
@@ -151,89 +153,113 @@ int tunnelbauer_t::baue(spieler_t *sp, karte_t *welt, koord pos, weg_t::typ wegt
 
 
 
-bool tunnelbauer_t::baue_tunnel(karte_t *welt, spieler_t *sp,
-                 koord3d start, koord3d end, koord zv, weg_t::typ wegtyp)
+bool tunnelbauer_t::baue_tunnel(karte_t *welt, spieler_t *sp, koord3d start, koord3d end, koord zv, weg_t::typ wegtyp)
 {
-    ribi_t::ribi ribi;
-    blockhandle_t bs1;
-    const tunnel_besch_t *besch;
-    weg_t *weg;
-    koord3d pos = start;
-    int cost = 0;
+	ribi_t::ribi ribi;
+	blockhandle_t bs1;
+	const tunnel_besch_t *besch;
+	weg_t *weg;
+	koord3d pos = start;
+	int cost = 0;
+	const weg_besch_t *einfahrt_besch;
 
-    DBG_MESSAGE("tunnelbauer_t::baue()",
-     "build from %d,%d", pos.x, pos.y);
+DBG_MESSAGE("tunnelbauer_t::baue()","build from (%d,%d)", pos.x, pos.y);
 
-    baue_einfahrt(welt, sp, pos, zv, wegtyp, cost);
-    ribi = welt->lookup(pos)->gib_weg_ribi_unmasked(wegtyp);
-    if(wegtyp == weg_t::schiene) {
-  bs1 = ((schiene_t *)welt->lookup(pos)->gib_weg(wegtyp))->gib_blockstrecke();
-  besch = schienentunnel;
-    } else {
-  besch = strassentunnel;
-    }
-    pos = pos + zv;
+	// get a way for enty/exit
+	weg = welt->lookup(start)->gib_weg(wegtyp);
+	if(weg==NULL) {
+		weg = welt->lookup(end)->gib_weg(wegtyp);
+	}
+	if(weg==NULL) {
+		einfahrt_besch = wegbauer_t::weg_search(wegtyp,450);
+	}
+	else {
+		einfahrt_besch = weg->gib_besch();
+	}
 
-    while(pos.gib_2d() != end.gib_2d()) {
-  tunnelboden_t *tunnel = new tunnelboden_t(welt, pos, 0);
+	baue_einfahrt(welt, sp, pos, zv, wegtyp, einfahrt_besch, cost);
+	ribi = welt->lookup(pos)->gib_weg_ribi_unmasked(wegtyp);
+	if(wegtyp == weg_t::schiene) {
+		besch = schienentunnel;
+		bs1 = ((schiene_t *)welt->lookup(pos)->gib_weg(wegtyp))->gib_blockstrecke();
+	}
+	else {
+		besch = strassentunnel;
+	}
+	pos = pos + zv;
 
-  if(wegtyp == weg_t::schiene) {
-      weg = new schiene_t(welt,450);
-      ((schiene_t *)weg)->setze_blockstrecke( bs1 );
-        } else {
-      weg = new strasse_t(welt,450);
-  }
-  welt->access(pos.gib_2d())->boden_hinzufuegen(tunnel);
-  tunnel->neuen_weg_bauen(weg, ribi_t::doppelt(ribi), sp);
-  tunnel->obj_add(new tunnel_t(welt, pos, sp, besch));
-  cost += CST_TUNNEL;
+	while(pos.gib_2d()!=end.gib_2d()) {
+		tunnelboden_t *tunnel = new tunnelboden_t(welt, pos, 0);
 
-        pos = pos + zv;
-    }
-    baue_einfahrt(welt, sp, pos, -zv, wegtyp, cost);
+		if(wegtyp == weg_t::schiene) {
+			weg = new schiene_t(welt,450);
+			((schiene_t *)weg)->setze_blockstrecke( bs1 );
+		}
+		else {
+			weg = new strasse_t(welt,450);
+		}
 
-    sp->buche(cost, start.gib_2d(), COST_CONSTRUCTION);
-    return true;
+		welt->access(pos.gib_2d())->boden_hinzufuegen(tunnel);
+		tunnel->neuen_weg_bauen(weg, ribi_t::doppelt(ribi), sp);
+		tunnel->obj_add(new tunnel_t(welt, pos, sp, besch));
+		cost += CST_TUNNEL;
+
+		pos = pos + zv;
+	}
+	baue_einfahrt(welt, sp, pos, -zv, wegtyp, einfahrt_besch, cost);
+
+	sp->buche(cost, start.gib_2d(), COST_CONSTRUCTION);
+	return true;
 }
 
-void
-tunnelbauer_t::baue_einfahrt(karte_t *welt, spieler_t *sp, koord3d end, koord zv, weg_t::typ wegtyp, int &cost)
-{
-    grund_t *alter_boden = welt->lookup(end);
-    ribi_t::ribi ribi = alter_boden->gib_weg_ribi_unmasked(wegtyp) | ribi_typ(zv);
-    weg_t *alter_weg = alter_boden->gib_weg(wegtyp);
-    tunnelboden_t *tunnel = new tunnelboden_t(welt, end, alter_boden->gib_grund_hang());
-    ding_t *sig = NULL;
-    const tunnel_besch_t *besch;
-    weg_t *weg;
 
-    if(wegtyp == weg_t::schiene) {
-        weg = new schiene_t(welt);
-  besch = schienentunnel;
-  if(!alter_weg) {
-      cost += CST_SCHIENE;
-  } else {
-      blockhandle_t bs = ((schiene_t *)alter_weg)->gib_blockstrecke();
-      ((schiene_t *)weg)->setze_blockstrecke( bs );
-      sig = (ding_t *)alter_boden->suche_obj(ding_t::signal);
-      if(sig) { // Signal aufheben - kommt auf den neuen Boden!
-    alter_boden->obj_remove(sig, sp);
-      }
-  }
-    } else {
-  weg = new strasse_t(welt);
-  besch = strassentunnel;
-  if(!alter_weg) {
-      cost += CST_STRASSE;
-  }
-    }
-    welt->access(end.gib_2d())->kartenboden_setzen( tunnel, false );
-    tunnel->neuen_weg_bauen(weg, ribi, sp);
-    if(wegtyp == weg_t::schiene) {
-  blockmanager::gib_manager()->neue_schiene(welt, tunnel, sig);
-    }
-    tunnel->obj_add(new tunnel_t(welt, end, sp, besch));
-    cost += CST_TUNNEL;
+
+void
+tunnelbauer_t::baue_einfahrt(karte_t *welt, spieler_t *sp, koord3d end, koord zv, weg_t::typ wegtyp, const weg_besch_t *weg_besch, int &cost)
+{
+	grund_t *alter_boden = welt->lookup(end);
+	ribi_t::ribi ribi = alter_boden->gib_weg_ribi_unmasked(wegtyp) | ribi_typ(zv);
+	weg_t *alter_weg = alter_boden->gib_weg(wegtyp);
+
+	tunnelboden_t *tunnel = new tunnelboden_t(welt, end, alter_boden->gib_grund_hang());
+	ding_t *sig = NULL;
+	const tunnel_besch_t *besch;
+	weg_t *weg;
+
+DBG_MESSAGE("tunnelbauer_t::baue_einfahrt()","at end (%d,%d) for %s", end.x, end.y, weg_besch->gib_name());
+
+	// rail tunnel
+	if(wegtyp == weg_t::schiene) {
+		weg = new schiene_t(welt);
+		besch = schienentunnel;
+		if(alter_weg!=NULL) {
+			blockhandle_t bs = ((schiene_t *)alter_weg)->gib_blockstrecke();
+			((schiene_t *)weg)->setze_blockstrecke( bs );
+			sig = (ding_t *)alter_boden->suche_obj(ding_t::signal);
+			if(sig) { // Signal aufheben - kommt auf den neuen Boden!
+				alter_boden->obj_remove(sig, sp);
+			}
+		}
+	}
+	// or road tunnel
+	else {
+		weg = new strasse_t(welt);
+		besch = strassentunnel;
+	}
+
+	weg->setze_besch(weg_besch);
+	if(!alter_weg) {
+		cost += weg_besch->gib_preis();
+	}
+
+	welt->access(end.gib_2d())->kartenboden_setzen( tunnel, false );
+	tunnel->neuen_weg_bauen(weg, ribi, sp);
+	if(wegtyp == weg_t::schiene) {
+		blockmanager::gib_manager()->neue_schiene(welt, tunnel, sig);
+	}
+	tunnel->obj_add(new tunnel_t(welt, end, sp, besch));
+
+	cost += CST_TUNNEL;
 	// no undo possible anymore
 	if(sp!=NULL) {
 		sp->init_undo(wegtyp,0);
@@ -254,6 +280,7 @@ tunnelbauer_t::remove(karte_t *welt, spieler_t *sp, koord3d start, weg_t::typ we
     const char    *msg;
     koord3d   pos = start;
     int     cost = 0;
+    const weg_besch_t* weg_besch;
 
     // Erstmal das ganze Außmaß des Tunnels bestimmen und sehen,
     // ob uns was im Weg ist.
@@ -317,8 +344,7 @@ tunnelbauer_t::remove(karte_t *welt, spieler_t *sp, koord3d start, weg_t::typ we
 
   grund_t *gr = welt->lookup(pos);
   ding_t *sig = NULL;
-  ribi_t::ribi ribi =
-      gr->gib_weg_ribi_unmasked(wegtyp) &
+  ribi_t::ribi ribi = gr->gib_weg_ribi_unmasked(wegtyp) &
           ~ribi_typ(gr->gib_grund_hang());
 
   if(wegtyp == weg_t::schiene) {
@@ -329,6 +355,7 @@ tunnelbauer_t::remove(karte_t *welt, spieler_t *sp, koord3d start, weg_t::typ we
       }
       bm->entferne_schiene(welt, gr->gib_pos());
   }
+  weg_besch = gr->gib_weg(wegtyp)->gib_besch();
   gr->weg_entfernen(wegtyp, false);
   gr->obj_loesche_alle(sp);
   cost += CST_TUNNEL;
@@ -338,11 +365,15 @@ tunnelbauer_t::remove(karte_t *welt, spieler_t *sp, koord3d start, weg_t::typ we
 
   // Neuen Boden wieder mit Weg versehen
   if(wegtyp == weg_t::schiene) {
-      gr->neuen_weg_bauen(new schiene_t(welt), ribi, sp);
+  	weg_t *weg = new schiene_t(welt);
+  	weg->setze_besch( weg_besch );
+      gr->neuen_weg_bauen( weg, ribi, sp );
       bm->neue_schiene(welt, gr, sig);
   }
   else {
-      gr->neuen_weg_bauen(new strasse_t(welt), ribi, sp);
+  	weg_t *weg = new strasse_t(welt);
+  	weg->setze_besch( weg_besch );
+      gr->neuen_weg_bauen( weg, ribi, sp );
   }
       gr->calc_bild();
     }

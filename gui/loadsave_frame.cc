@@ -22,7 +22,7 @@ void loadsave_frame_t::action(const char *filename)
     if(do_load) {
 	welt->laden(filename);
     } else {
-	welt->speichern(filename);
+	welt->speichern(filename,false);
     }
 
     welt->setze_dirty();

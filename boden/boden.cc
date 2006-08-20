@@ -214,6 +214,7 @@ boden_t::calc_bild()
 		int bild=IMG_LEER;
 		if(slope_this!=0  &&  slope_this!=natural_slope_this) {
 			bild = grund_besch_t::boden->gib_bild(53+(slope_this/3));
+DBG_DEBUG("slope","%i",slope_this);
 		}
 		if(bild==IMG_LEER) {
 			bild = grund_besch_t::boden->gib_bild(hang + offset);
@@ -233,10 +234,10 @@ boden_t::calc_bild()
 		const uint8 slope_left =  welt->get_slope(k - koord(1,0));
 		const uint8 slope_right = welt->get_slope(k - koord(0,1));
 
-//		const int lhdiff = lgr->ist_wasser() ? -1 : lgr->gib_hoehe() - gib_hoehe();
-//		const int lrdiff = rgr->ist_wasser() ? -1 : rgr->gib_hoehe() - gib_hoehe();
-		const int lhdiff = (lgr->gib_hoehe() - gib_hoehe())/TILE_HEIGHT_STEP;
-		const int lrdiff = (rgr->gib_hoehe() - gib_hoehe())/TILE_HEIGHT_STEP;
+		const int lhdiff = lgr->ist_wasser() ? -1 : lgr->gib_hoehe() - gib_hoehe();
+		const int lrdiff = rgr->ist_wasser() ? -1 : rgr->gib_hoehe() - gib_hoehe();
+//		const int lhdiff = (lgr->gib_hoehe() - gib_hoehe())/TILE_HEIGHT_STEP;
+//		const int lrdiff = (rgr->gib_hoehe() - gib_hoehe())/TILE_HEIGHT_STEP;
 
 		int slope_wall = 0;
 

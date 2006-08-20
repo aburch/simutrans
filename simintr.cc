@@ -46,13 +46,14 @@ bool reduce_frame_time()
 		frame_time --;
 		return true;
 	} else {
+		frame_time = 10;
 		return false;
 	}
 }
 
 bool increase_frame_time()
 {
-	if(frame_time < 256) {
+	if(frame_time < 255) {
 		frame_time ++;
 		return true;
 	} else {
@@ -81,7 +82,7 @@ void
 intr_refresh_display(bool dirty)
 {
 	welt_ansicht->display( dirty );
-	win_display_flush(	welt_modell->gib_zeit_ms(), welt_modell->gib_spieler(0)->kennfarbe, welt_modell->gib_spieler(0)->gib_konto_als_double() );
+	win_display_flush(	welt_modell->gib_zeit_ms(), welt_modell->get_active_player()->kennfarbe, welt_modell->get_active_player()->gib_konto_als_double() );
 }
 
 

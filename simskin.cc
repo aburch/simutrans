@@ -66,12 +66,11 @@
 const skin_besch_t *skinverwaltung_t::hauptmenu = NULL;
 const skin_besch_t *skinverwaltung_t::schienen_werkzeug = NULL;
 const skin_besch_t *skinverwaltung_t::strassen_werkzeug = NULL;
-const skin_besch_t *skinverwaltung_t::tram_werkzeug = NULL; // Dario: Tramway
 const skin_besch_t *skinverwaltung_t::schiffs_werkzeug = NULL;
-//const skin_besch_t *skinverwaltung_t::bruecken_werkzeug = NULL;
 const skin_besch_t *skinverwaltung_t::hang_werkzeug = NULL;
 const skin_besch_t *skinverwaltung_t::special_werkzeug = NULL;
 const skin_besch_t *skinverwaltung_t::listen_werkzeug = NULL;
+const skin_besch_t *skinverwaltung_t::edit_werkzeug = NULL;
 const skin_besch_t *skinverwaltung_t::farbmenu = NULL;
 
 const skin_besch_t *skinverwaltung_t::logosymbol = NULL;
@@ -91,23 +90,13 @@ const skin_besch_t *skinverwaltung_t::downzeiger = NULL;
 const skin_besch_t *skinverwaltung_t::upzeiger = NULL;
 const skin_besch_t *skinverwaltung_t::belegtzeiger = NULL;
 const skin_besch_t *skinverwaltung_t::killzeiger = NULL;
-//const skin_besch_t *skinverwaltung_t::strassenzeiger = NULL;
-//const skin_besch_t *skinverwaltung_t::schienenzeiger = NULL;
 const skin_besch_t *skinverwaltung_t::slopezeiger = NULL;
-//const skin_besch_t *skinverwaltung_t::postzeiger = NULL;
 const skin_besch_t *skinverwaltung_t::fahrplanzeiger = NULL;
 const skin_besch_t *skinverwaltung_t::strassentunnelzeiger = NULL;
 const skin_besch_t *skinverwaltung_t::schienentunnelzeiger = NULL;
-//const skin_besch_t *skinverwaltung_t::bahnhofzeiger = NULL;
-//const skin_besch_t *skinverwaltung_t::gueterbahnhofzeiger = NULL;
-//const skin_besch_t *skinverwaltung_t::bushaltzeiger = NULL;
 const skin_besch_t *skinverwaltung_t::frachthofzeiger = NULL;
-//const skin_besch_t *skinverwaltung_t::anlegerzeiger = NULL;
-//const skin_besch_t *skinverwaltung_t::bahndepotzeiger = NULL;
-//const skin_besch_t *skinverwaltung_t::strassendepotzeiger = NULL;
 const skin_besch_t *skinverwaltung_t::werftNSzeiger = NULL;
 const skin_besch_t *skinverwaltung_t::werftOWzeiger = NULL;
-//const skin_besch_t *skinverwaltung_t::kreuzungzeiger = NULL;
 const skin_besch_t *skinverwaltung_t::stadtzeiger = NULL;
 const skin_besch_t *skinverwaltung_t::baumzeiger = NULL;
 const skin_besch_t *skinverwaltung_t::undoc_zeiger = NULL;
@@ -146,12 +135,11 @@ static spezial_obj_tpl<skin_besch_t> menu_objekte[] = {
     { &skinverwaltung_t::schienen_werkzeug, "RailTools" },
     { &skinverwaltung_t::strassen_werkzeug, "RoadTools" },
     { &skinverwaltung_t::schiffs_werkzeug,  "ShipTools" },
-		//{ &skinverwaltung_t::tram_werkzeug, "TramTools" }, // Dario: Tramway
     { &skinverwaltung_t::hang_werkzeug,     "SlopeTools" },
     { &skinverwaltung_t::special_werkzeug,     "SpecialTools" },
     { &skinverwaltung_t::listen_werkzeug,     "ListTools" },
     { &skinverwaltung_t::farbmenu,	    "ColorMenu" },
-//    { &skinverwaltung_t::bruecken_werkzeug, "BridgeTools" },
+    { &skinverwaltung_t::edit_werkzeug,	    "EditTools" },
     { NULL, NULL }
 };
 
@@ -176,23 +164,13 @@ static spezial_obj_tpl<skin_besch_t> cursor_objekte[] = {
     { &skinverwaltung_t::upzeiger,		"Up" },
     { &skinverwaltung_t::belegtzeiger,		"Marked" },
     { &skinverwaltung_t::killzeiger,		"Remove" },
-//    { &skinverwaltung_t::strassenzeiger,	"Road" },
-//    { &skinverwaltung_t::schienenzeiger,	"Rail" },
     { &skinverwaltung_t::slopezeiger,		"Slope" },
-//    { &skinverwaltung_t::postzeiger,		"Post" },
     { &skinverwaltung_t::fahrplanzeiger,	"Schedule" },
     { &skinverwaltung_t::strassentunnelzeiger,	"RoadTunnel" },
     { &skinverwaltung_t::schienentunnelzeiger,	"RailTunnel" },
-//    { &skinverwaltung_t::bahnhofzeiger,		"TrainStop" },
-//    { &skinverwaltung_t::gueterbahnhofzeiger,	"TrainFreightStop" },
-//    { &skinverwaltung_t::bushaltzeiger,		"BusStop" },
     { &skinverwaltung_t::frachthofzeiger,	"CarStop" },
-//    { &skinverwaltung_t::anlegerzeiger,		"ShipStop" },
-//    { &skinverwaltung_t::bahndepotzeiger,	"TrainDepot" },
-//    { &skinverwaltung_t::strassendepotzeiger,	"CarDepot" },
     { &skinverwaltung_t::werftNSzeiger,		"ShipDepotNS" },
     { &skinverwaltung_t::werftOWzeiger,		"ShipDepotEW" },
-//    { &skinverwaltung_t::kreuzungzeiger,	"Crossing" },
     { &skinverwaltung_t::stadtzeiger,		"City" },
     { &skinverwaltung_t::baumzeiger,		"Baum" },
     { &skinverwaltung_t::undoc_zeiger,		"Undocumented" },

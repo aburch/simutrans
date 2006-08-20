@@ -129,7 +129,6 @@ convoi_info_t::convoi_info_t(convoihandle_t cnv)
     resize(koord(0,0));
 
 //DBG_MESSAGE("convoi_info_t::convoi_info_t()","This convoi belong to $%p.",cnv->gib_besitzer());
-    if(cnv->gib_besitzer()==cnv->gib_welt()->gib_spieler(0)) {
        // this convoi belongs not to an AI
        button.setze_groesse(koord(10*8+4, 14));
        button.text = translator::translate("Fahrplan");
@@ -151,7 +150,6 @@ convoi_info_t::convoi_info_t(convoihandle_t cnv)
        button.add_listener(this);
        go_home_button.add_listener(this);
        kill_button.add_listener(this);
-    }
 }
 
 
@@ -175,6 +173,17 @@ void
 convoi_info_t::zeichnen(koord pos, koord gr)
 {
     koord viewpos = view.gib_pos(); // 01-June-02  markus weber   added
+
+    if(cnv->gib_besitzer()==cnv->gib_welt()->get_active_player()) {
+       button.enable();
+       go_home_button.enable();
+       kill_button.enable();
+    }
+    else {
+       button.disable();
+       go_home_button.disable();
+       kill_button.disable();
+    }
 
     if(cnv.is_bound()) {
 
@@ -231,7 +240,6 @@ convoi_info_t::zeichnen(koord pos, koord gr)
 
 	freight_info.append("\n");
 
-
 	/*
 	 * only show assigned line, if there is one!
 	 * @author hsiegeln
@@ -244,10 +252,7 @@ convoi_info_t::zeichnen(koord pos, koord gr)
 	  freight_info.append(cnv->get_line()->get_name());
 	}
 
-	display_multiline_text(pos.x+11,
-			       pos.y+30,
-			       freight_info,
-			       SCHWARZ);
+	display_multiline_text(pos.x+11, pos.y+30, freight_info, SCHWARZ);
     }
 }
 
@@ -258,91 +263,95 @@ convoi_info_t::zeichnen(koord pos, koord gr)
  */
 bool convoi_info_t::action_triggered(gui_komponente_t *komp)
 {
-	if(komp == &button)     //Fahrplan
-	{
-		cnv->open_schedule_window();
-		return true;
-	}
+	// some actions only allowed, when I am the player
+	if(cnv->gib_besitzer()==cnv->gib_welt()->get_active_player()) {
 
-	if(komp == &go_home_button)
-	{
-		// limit update to certain states that are considered to be save for fahrplan updates
-		int state = cnv->get_state();
-		if(state==convoi_t::FAHRPLANEINGABE  ||  state==convoi_t::ROUTING_4  ||  state==convoi_t::ROUTING_5) {
+		if(komp == &button)     //Fahrplan
+		{
+			cnv->open_schedule_window();
 			return true;
 		}
 
-		// find all depots
-		slist_tpl<koord3d> all_depots;
-		karte_t * welt = cnv->gib_welt();
-		int world_size = welt->gib_groesse();
-		depot_t * depot = NULL;
-		for (int x = 0; x < world_size; x++) {
-			for (int y = 0; y < world_size; y++) {
-				grund_t * gr = welt->lookup(koord(x,y))->gib_kartenboden();
-				if (gr) {
-					fahrer_t * fahr = cnv->gib_vehikel(0);
-					// only add depots to list, which are compatible with convoi
-					if (fahr->ist_befahrbar(gr)) {
-						depot = gr->gib_depot();
+		if(komp == &go_home_button)
+		{
+			// limit update to certain states that are considered to be save for fahrplan updates
+			int state = cnv->get_state();
+			if(state==convoi_t::FAHRPLANEINGABE  ||  state==convoi_t::ROUTING_4  ||  state==convoi_t::ROUTING_5) {
+				return true;
+			}
+
+			// find all depots
+			slist_tpl<koord3d> all_depots;
+			karte_t * welt = cnv->gib_welt();
+			int world_size = welt->gib_groesse();
+			depot_t * depot = NULL;
+			for (int x = 0; x < world_size; x++) {
+				for (int y = 0; y < world_size; y++) {
+					grund_t * gr = welt->lookup(koord(x,y))->gib_kartenboden();
+					if (gr) {
+						fahrer_t * fahr = cnv->gib_vehikel(0);
+						// only add depots to list, which are compatible with convoi
+						if (fahr->ist_befahrbar(gr)) {
+							depot = gr->gib_depot();
+						}
+					}
+					if (depot) {
+						all_depots.append(gr->gib_pos());
+						depot = NULL;
 					}
 				}
-				if (depot) {
-					all_depots.append(gr->gib_pos());
-					depot = NULL;
+			}
+
+			// iterate over all depots and try to find shortest route
+			slist_iterator_tpl<koord3d> depot_iter(all_depots);
+			route_t * shortest_route = new route_t();
+			route_t * route = new route_t();
+			koord3d home = koord3d(0,0,0);
+			while (depot_iter.next()) {
+				koord3d pos = depot_iter.get_current();
+				bool found = route->calc_route(welt, cnv->gib_pos(), pos, cnv->gib_vehikel(0));
+				if (found) {
+					if (route->gib_max_n() < shortest_route->gib_max_n() || shortest_route->gib_max_n() == -1) {
+						shortest_route->kopiere(route);
+						home = pos;
+					}
 				}
 			}
-		}
+			DBG_MESSAGE("shortest route has ", "%i hops", shortest_route->gib_max_n());
 
-		// iterate over all depots and try to find shortest route
-		slist_iterator_tpl<koord3d> depot_iter(all_depots);
-		route_t * shortest_route = new route_t();
-		route_t * route = new route_t();
-		koord3d home = koord3d(0,0,0);
-		while (depot_iter.next()) {
-			koord3d pos = depot_iter.get_current();
-			bool found = route->calc_route(welt, cnv->gib_pos(), pos, cnv->gib_vehikel(0));
-			if (found) {
-				if (route->gib_max_n() < shortest_route->gib_max_n() || shortest_route->gib_max_n() == -1) {
-					shortest_route->kopiere(route);
-					home = pos;
-				}
+	#if 0
+			// shortest path by Hajo
+	/*		karte_t * welt = cnv->gib_welt();
+			route_t * shortest_route = new route_t();
+			shortest_route->find_path(welt, cnv->gib_pos(), cnv->gib_vehikel(0), ding_t::bahndepot);
+			const koord3d home = shortest_route->position_bei(0);
+			DBG_MESSAGE("Depot at: ", "%i,%i,%i", home.x, home.y, home.z);
+	*/
+	#endif
+			// if route to a depot has been found, update the convoi's schedule
+			bool b_depot_found = false;
+			if (shortest_route->gib_max_n() > -1) {
+				cnv->anhalten(0);
+				fahrplan_t *fpl = cnv->gib_fahrplan();
+				fpl->insert(welt, home);
+				b_depot_found = cnv->setze_fahrplan(fpl);
+				cnv->weiterfahren();
 			}
-		}
-		DBG_MESSAGE("shortest route has ", "%i hops", shortest_route->gib_max_n());
 
-#if 0
-		// shortest path by Hajo
-/*		karte_t * welt = cnv->gib_welt();
-		route_t * shortest_route = new route_t();
-		shortest_route->find_path(welt, cnv->gib_pos(), cnv->gib_vehikel(0), ding_t::bahndepot);
-		const koord3d home = shortest_route->position_bei(0);
-		DBG_MESSAGE("Depot at: ", "%i,%i,%i", home.x, home.y, home.z);
-*/
-#endif
-		// if route to a depot has been found, update the convoi's schedule
-		bool b_depot_found = false;
-		if (shortest_route->gib_max_n() > -1) {
-			cnv->anhalten(0);
-			fahrplan_t *fpl = cnv->gib_fahrplan();
-			fpl->insert(welt, home);
-			b_depot_found = cnv->setze_fahrplan(fpl);
-			cnv->weiterfahren();
-		}
+			// show result
+			if (b_depot_found) {
+				create_win(-1, -1, 120, new nachrichtenfenster_t(cnv->gib_welt(), translator::translate("Convoi has been sent\nto the nearest depot\nof appropriate type.\n")), w_autodelete);
+			} else {
+				create_win(-1, -1, 120, new nachrichtenfenster_t(cnv->gib_welt(), translator::translate("Home depot not found!\nYou need to send the\nconvoi to the depot\nmanually.")), w_autodelete);
+			}
+		} // end go home button
 
-		// show result
-		if (b_depot_found) {
-			create_win(-1, -1, 120, new nachrichtenfenster_t(cnv->gib_welt(), translator::translate("Convoi has been sent\nto the nearest depot\nof appropriate type.\n")), w_autodelete);
-		} else {
-			create_win(-1, -1, 120, new nachrichtenfenster_t(cnv->gib_welt(), translator::translate("Home depot not found!\nYou need to send the\nconvoi to the depot\nmanually.")), w_autodelete);
+		if(komp == &kill_button)     // Destroy convoi -> deletes us, too!
+		{
+		      destroy_win(dynamic_cast <gui_fenster_t *> (this));
+			cnv->self_destruct();
+			return true;
 		}
-	} // end go home button
-
-	if(komp == &kill_button)     // Destroy convoi -> deletes us, too!
-	{
-	      destroy_win(dynamic_cast <gui_fenster_t *> (this));
-		cnv->self_destruct();
-		return true;
 	}
 
 	if (komp == &toggler)

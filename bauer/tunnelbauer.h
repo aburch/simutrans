@@ -32,7 +32,7 @@ class tunnelbauer_t {
 private:
     static koord3d finde_ende(karte_t *welt, koord3d pos, koord zv, weg_t::typ wegtyp);
     static bool baue_tunnel(karte_t *welt, spieler_t *sp, koord3d pos, koord3d end, koord zv, weg_t::typ wegtyp);
-    static void baue_einfahrt(karte_t *welt, spieler_t *sp, koord3d pos, koord zv, weg_t::typ wegtyp, int &cost);
+    static void baue_einfahrt(karte_t *welt, spieler_t *sp, koord3d end, koord zv, weg_t::typ wegtyp, const weg_besch_t *weg_besch, int &cost);
 
     tunnelbauer_t() {} // private -> no instance please
 public:

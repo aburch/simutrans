@@ -31,7 +31,6 @@
 #include "world_view_t.h"
 #endif
 
-
 class spieler_t;
 class button_t;
 class karte_t;

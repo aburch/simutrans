@@ -107,7 +107,7 @@ private:
 
     static void putback_node(node_t *tmp)
     {
-      tmp->data =  T();
+//      tmp->data =  T();
       freelist->putback_node(tmp);
     }
 
@@ -117,7 +117,7 @@ private:
       node_t *p = tmp;
 
       while(p) {
-	p->data =  T();
+  // p->data =  T();
 	p = p->next;
       }
 
@@ -139,8 +139,8 @@ public:
      */
     slist_tpl()
     {
-	head = 0;             // leere liste
-        tail = 0;
+	head = NULL;             // leere liste
+        tail = NULL;
 	node_count = 0;
 
 	alloc_freelist();
@@ -172,7 +172,7 @@ public:
 	head = tmp;
 	head->data = data;
 
-        if(tail == 0) {
+        if(tail == NULL) {
 	    tail = tmp;
 	}
         node_count++;
@@ -255,7 +255,6 @@ public:
     bool remove(const T data)
     {
 	if(node_count == 0) {
-	    // MESSAGE("slist_tpl<T>::remove()", "called on empty list!");
 	    //throw new no_such_element_exception();
 	    return false;
 	}
@@ -264,8 +263,8 @@ public:
 	    putback_node( head );
 	    head = tmp;
 
-	    if(head == 0) {
-		tail = 0;
+	    if(head == NULL) {
+		tail = NULL;
 	    }
 	} else {
 	    node_t *p = head;
