@@ -72,8 +72,8 @@ halt_list_filter_frame_t::halt_list_filter_frame_t(spieler_t *sp, halt_list_fram
     ware_scrolly_ab(&ware_cont_ab),
     ware_scrolly_an(&ware_cont_an)
 {
-    int i;
-    int n;
+    unsigned i;
+    unsigned n;
 
     this->main_frame = main_frame;
 

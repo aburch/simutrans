@@ -10,10 +10,8 @@
 
 #include "../simtypes.h"
 #include "koord.h"
-#include "../mm/mempool.h"
+#include "freelist.h"
 #include "loadsave.h"
-
-mempool_t * koord::mempool = new mempool_t(sizeof(koord));
 
 
 const koord koord::invalid(-1, -1);
@@ -67,21 +65,15 @@ const koord koord::from_hang[16] = {
 };
 
 
-void *
-koord::operator new(size_t /*s*/)
+void * koord::operator new(size_t /*s*/)
 {
-//    printf("new koord\n");
-
-    return mempool->alloc();
+	return (koord *)freelist_t::gimme_node(sizeof(koord));
 }
 
 
-void
-koord::operator delete(void *p)
+void koord::operator delete(void *p)
 {
-//    printf("delete koord\n");
-
-    mempool->free( p );
+	freelist_t::putback_node(sizeof(koord),p);
 }
 
 

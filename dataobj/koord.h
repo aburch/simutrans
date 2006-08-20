@@ -18,7 +18,6 @@
 #include "ribi.h"
 #endif
 
-class mempool_t;
 class loadsave_t;
 
 /**
@@ -31,8 +30,6 @@ class koord
 private:
     static const koord from_ribi[16];
     static const koord from_hang[16];
-
-    static mempool_t *mempool;
 
 public:
     short x, y;

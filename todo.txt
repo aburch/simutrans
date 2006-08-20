@@ -1,5 +1,5 @@
 Ich denke zum Beispiel an ein Hauptquartier für die eigenen Firma, an
-Aufgaben oder auch an eine Fabrikliste, an der ich gerade stricke. AUch
+Aufgaben oder auch an eine Fabrikliste, an der ich gerade stricke.
 
 Stichpunkte
 
@@ -10,10 +10,22 @@ Stichpunkte
 - Einzugsbereich einstellbar: done
 - Vorsignale: done
 - Güterbalken eins daneben: done
+- Hauptquartier: done
+- bevorzugt für nächsten Halt einsteigen lassen: done
+- step für citycars/vehicles (für turnaround/stau): done
 
 - Fabrikliste + Sehenwürdigkeitenliste
 - powernet nach liste ändern => Karte besser, keine Speicherverschwendung
 - Landfabrik alle x Jahre
-- oberes Fenster schließen
-- Hauptquartier
+- oberstes Fenster schließen
+- Linksverkehr
+- Pfeiler für Brücken
+- Brücken and senkrechten Wänden
 - Felder: Grafiken da, fehlt noch code (vielleicht wie Wälder?)
+
+Immer zu tun:
+- Aufräumen von Datentypen für bessere Portierbarkeit
+- Testen auf BeOS und PowerPC
+
+Unmögliches ...
+- echte Abzweige nur in eine Richtung

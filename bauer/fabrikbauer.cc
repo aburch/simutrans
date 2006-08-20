@@ -52,7 +52,7 @@ class factory_bauplatz_mit_strasse_sucher_t: public bauplatz_sucher_t  {
 	int find_dist_next_factory(koord pos) const {
 		const slist_tpl<fabrik_t *> & list = welt->gib_fab_list();
 		slist_iterator_tpl <fabrik_t *> iter (list);
-		int dist = welt->gib_groesse()*2;
+		int dist = welt->gib_groesse_x()+welt->gib_groesse_y();
 		while(iter.next()) {
 			fabrik_t * fab = iter.get_current();
 			int d = koord_distance(fab->gib_pos(),pos);
@@ -184,7 +184,7 @@ DBG_MESSAGE("fabrikbauer_t::get_random_consumer()","No suitable consumer found")
 	}
 	// now find a random one
 	int next=simrand(gewichtung);
-	for(  int i=1;  i<consumer.count();  i++  ) {
+	for( unsigned i=1;  i<consumer.count();  i++  ) {
 		if(next < consumer.at(i)->gib_gewichtung()) {
 DBG_MESSAGE("fabrikbauer_t::get_random_consumer()","consumer %s found.",consumer.at(i)->gib_name());
 			return consumer.at(i);
@@ -333,10 +333,10 @@ fabrikbauer_t::finde_zufallsbauplatz(karte_t * welt, const koord3d pos, const in
  * @author prissi
  */
 void
-fabrikbauer_t::verteile_tourist(karte_t * welt, spieler_t *sp, int max_number)
+fabrikbauer_t::verteile_tourist(karte_t * welt, spieler_t *, int max_number)
 {
 	// stuff for the progress bar
-	const int groesse = welt->gib_groesse();
+	const int groesse=welt->gib_groesse_y();	// only used for progrss bar!!!
 	const int staedte = welt->gib_einstellungen()->gib_anzahl_staedte();
 	const int display_offset = (5*groesse)/6 + staedte*12;
 	const int display_part = groesse/6;
@@ -352,11 +352,10 @@ fabrikbauer_t::verteile_tourist(karte_t * welt, spieler_t *sp, int max_number)
 	print("Distributing %i tourist attractions ...\n",max_number);fflush(NULL);
 
 	// try to built 25% city consumer (if there)
-	int city=0;
 	while(current_number<max_number)
 	{
 		int	rotation=simrand(4);
-		koord3d	pos=koord3d(simrand(welt->gib_groesse()),simrand(welt->gib_groesse()),1);
+		koord3d	pos=koord3d(simrand(welt->gib_groesse_x()),simrand(welt->gib_groesse_y()),1);
 		const haus_besch_t *attraction=hausbauer_t::waehle_sehenswuerdigkeit();
 
 		if(attraction==NULL) {
@@ -385,10 +384,10 @@ fabrikbauer_t::verteile_tourist(karte_t * welt, spieler_t *sp, int max_number)
  * @author prissi
  */
 void
-fabrikbauer_t::verteile_industrie(karte_t * welt, spieler_t *sp, int max_number_of_factories,bool in_city)
+fabrikbauer_t::verteile_industrie(karte_t * welt, spieler_t *, int max_number_of_factories,bool in_city)
 {
 	// stuff for the progress bar
-	const int groesse = welt->gib_groesse();
+	const int groesse = welt->gib_groesse_y();	// only for progress bar!!!
 	const int staedte = welt->gib_einstellungen()->gib_anzahl_staedte();
 	const int display_offset = ( (in_city?4:3)*groesse )/6 + staedte*12;
 	const int display_part = groesse/6;
@@ -408,7 +407,7 @@ fabrikbauer_t::verteile_industrie(karte_t * welt, spieler_t *sp, int max_number_
 	while(current_number<max_number_of_factories)
 	{
 		int	rotation=simrand(4);
-		koord3d	pos=koord3d(simrand(welt->gib_groesse()),simrand(welt->gib_groesse()),1);
+		koord3d	pos=koord3d(simrand(welt->gib_groesse_x()),simrand(welt->gib_groesse_y()),1);
 		const fabrik_besch_t *fab=get_random_consumer(in_city);
 
 		pos = finde_zufallsbauplatz(welt, pos, 20, fab->gib_haus()->gib_groesse(rotation),fab->gib_platzierung()==fabrik_besch_t::Wasser);
@@ -639,7 +638,7 @@ DBG_MESSAGE("fabrikbauer_t::baue_hierarchie","lieferanten %i, lcount %i (need %i
 			if(fab->vorrat_an(ware) > -1) {
 
 				const int distance = koord_distance(fab->gib_pos(),*pos);
-				const bool ok = distance < DISTANCE || distance < simrand((welt->gib_groesse()*3)/4);
+				const bool ok = distance < DISTANCE || distance < simrand((welt->gib_groesse_x()*3)/4);
 
 				if(ok  &&  distance>6) {
 					found = true;
@@ -707,6 +706,7 @@ DBG_MESSAGE("fabrikbauer_t::baue_hierarchie","new supplier %s can supply approx 
 			}
 		}
 	}
+DBG_MESSAGE("fabrikbauer_t::baue_hierarchie()","update karte");
 	// finally
 	if(parent==NULL) {
 		// update an open map

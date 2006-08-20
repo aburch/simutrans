@@ -33,6 +33,7 @@
 #include "boden/tunnelboden.h"
 
 #include "simvehikel.h"
+#include "simverkehr.h"
 #include "simworld.h"
 #include "simdepot.h"
 #include "simfab.h"
@@ -315,6 +316,14 @@ DBG_MESSAGE("wkz_remover_intern()","at (%d,%d)", pos.x, pos.y);
 	}
 	grund_t *gr = plan->gib_kartenboden();
 
+	// stadtauto zum löschen? (we allow always)
+	if(gr->suche_obj(ding_t::verkehr)) {
+		stadtauto_t *citycar = dynamic_cast<stadtauto_t *>(gr->suche_obj(ding_t::verkehr));
+		gr->obj_remove(citycar,welt->gib_spieler(1));
+		citycar->~stadtauto_t();
+		return true;
+	}
+
 	msg = gr->kann_alle_obj_entfernen(sp);
 	if( msg ) {
 		return false;
@@ -334,11 +343,12 @@ DBG_MESSAGE("wkz_remover_intern()","at (%d,%d)", pos.x, pos.y);
 		return false;
 	}
 
-	// erstens: Signal auf Brücke prüfen
 	grund_t *gr_oben = plan->gib_obersten_boden(sp);
 	if(gr_oben == NULL) {
 		gr_oben = plan->gib_obersten_boden(NULL);
 	}
+
+	// dan: Signal auf Brücke prüfen
 	if(gr_oben->suche_obj(ding_t::signal) != NULL  ||  gr_oben->suche_obj(ding_t::presignal) != NULL) {
 DBG_MESSAGE("wkz_remover()",  "removing signal from bridge %d,%d",  pos.x, pos.y);
 		blockmanager *bm = blockmanager::gib_manager();
@@ -347,6 +357,13 @@ DBG_MESSAGE("wkz_remover()",  "removing signal from bridge %d,%d",  pos.x, pos.y
 			create_win(-1, -1, MESG_WAIT, new nachrichtenfenster_t(welt, "Ambiguous signal combination.\nTry removing by clicking the\nother side of the signal.\n"), w_autodelete);
 		}
 		return ok;
+	}
+	if(gr_oben->suche_obj(ding_t::roadsign) != NULL) {
+DBG_MESSAGE("wkz_remover()",  "removing roadsign from bridge %d,%d",  pos.x, pos.y);
+		roadsign_t *rs = dynamic_cast<roadsign_t *>(gr_oben->suche_obj(ding_t::roadsign));
+//		gr_oben->obj_remove(rs,sp);
+		rs->~roadsign_t();
+		return true;
 	}
     // Signal auf Boden prüfen
 	if(gr_oben->suche_obj(ding_t::signal) != NULL  ||  gr_oben->suche_obj(ding_t::presignal) != NULL) {
@@ -357,6 +374,13 @@ DBG_MESSAGE("wkz_remover()",  "removing signal from %d,%d",  pos.x, pos.y);
 			create_win(-1, -1, MESG_WAIT, new nachrichtenfenster_t(welt, "Ambiguous signal\ncombination. Try removing\nfrom the other side of the\nsignal.\n"), w_autodelete);
 		}
 		return ok;
+	}
+	if(gr_oben->suche_obj(ding_t::roadsign) != NULL) {
+DBG_MESSAGE("wkz_remover()",  "removing roadsign %d,%d",  pos.x, pos.y);
+		roadsign_t *rs = dynamic_cast<roadsign_t *>(gr_oben->suche_obj(ding_t::roadsign));
+//		gr_oben->obj_remove(rs,sp);
+		rs->~roadsign_t();
+		return true;
 	}
 
 	// Brückenanfang prüfen
@@ -455,7 +479,7 @@ DBG_MESSAGE("wkz_remover()", "reconnecting factories");
 					// remove from all cities
 DBG_MESSAGE("wkz_remover()", "removing factory:  reconnecting towns");
 					const vector_tpl<stadt_t *> *stadt = welt->gib_staedte();
-					for( int i=0;  i<stadt->get_count();  i++ ) {
+					for( unsigned i=0;  i<stadt->get_count();  i++ ) {
 						stadt->at(i)->verbinde_fabriken();
 					}
 welt->rem_fab((fabrik_t*)1);
@@ -536,9 +560,9 @@ wkz_remover(spieler_t *sp, karte_t *welt, koord pos)
     if(pos.y>1)
   welt->lookup(pos+koord::nord)->gib_kartenboden()->calc_bild();
 
-    if(pos.x<welt->gib_groesse()-1)
+    if(pos.x<welt->gib_groesse_x()-1)
   welt->lookup(pos+koord::ost)->gib_kartenboden()->calc_bild();
-    if(pos.y<welt->gib_groesse()-1)
+    if(pos.y<welt->gib_groesse_y()-1)
   welt->lookup(pos+koord::sued)->gib_kartenboden()->calc_bild();
 
     return true;
@@ -1819,7 +1843,7 @@ int wkz_test(spieler_t *, karte_t *welt, koord pos)
 
 
 /* builts a random industry chain, either in the next town */
-int wkz_build_industries_land(spieler_t *sp, karte_t *welt, koord pos)
+int wkz_build_industries_land(spieler_t *, karte_t *welt, koord pos)
 {
 	const fabrik_besch_t *info = fabrikbauer_t::get_random_consumer(false);
 
@@ -1849,7 +1873,7 @@ int wkz_build_industries_land(spieler_t *sp, karte_t *welt, koord pos)
 
 
 /* builts a random industry chain, either in the next town */
-int wkz_build_industries_city(spieler_t *sp, karte_t *welt, koord pos)
+int wkz_build_industries_city(spieler_t *, karte_t *welt, koord pos)
 {
   const planquadrat_t *plan = welt->lookup(pos);
   if(plan) {
@@ -1884,7 +1908,7 @@ int wkz_list_vehicle_tool(spieler_t *sp, karte_t *welt,koord k)
 
 
 /* open the list of towns */
-int wkz_list_town_tool(spieler_t *sp, karte_t *welt,koord k)
+int wkz_list_town_tool(spieler_t *, karte_t *welt,koord k)
 {
 	if(k == INIT) {//see simworld.cc, karte_t::setze_maus_funktion
 		create_win(0, 0, new citylist_frame_t(welt), w_info);
@@ -1896,7 +1920,7 @@ int wkz_list_town_tool(spieler_t *sp, karte_t *welt,koord k)
 
 
 /* open the list of goods */
-int wkz_list_good_tool(spieler_t *sp, karte_t *welt,koord k)
+int wkz_list_good_tool(spieler_t *, karte_t *welt,koord k)
 {
 	if(k == INIT) {//see simworld.cc, karte_t::setze_maus_funktion
 		create_win(0, 0,new goods_frame_t(), w_autodelete);
@@ -1936,7 +1960,7 @@ DBG_MESSAGE("wkz_headquarter()", "building headquarter at (%d,%d)", pos.x, pos.y
 		int besch_nr=-1;
 		koord previous = sp->get_headquarter_pos();
 
-		for(int i=0;  i<hausbauer_t::headquarter.count();  i++  ) {
+		for(unsigned i=0;  i<hausbauer_t::headquarter.count();  i++  ) {
 			if(hausbauer_t::headquarter.at(i)->gib_bauzeit()==level) {
 				besch_nr = i;
 				break;

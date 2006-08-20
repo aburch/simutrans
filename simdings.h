@@ -98,17 +98,17 @@ private:
 
 
     /**
-     * flags fuer Zustaende, etc
-     * @author Hj. Malthaner
-     */
-    uint8 flags;
-
-
-    /**
      * Dies ist der Zeiger auf den Besitzer des Objekts.
      * @author Hj. Malthaner
      */
-    sint8 besitzer_n;
+    sint8 besitzer_n:4;
+
+
+    /**
+     * flags fuer Zustaende, etc
+     * @author Hj. Malthaner
+     */
+    uint8 flags:4;
 
 
  public:
@@ -215,7 +215,7 @@ public:
 	      lagerhaus = 24,
 	      oberleitung = 25,
 
-				tramschiene = 26,
+		tramschiene = 26,
 
 	      // vehikel sind von 32 bis 40
 	      automobil=32, waggon=33,

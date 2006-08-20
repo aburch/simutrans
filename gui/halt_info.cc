@@ -20,9 +20,10 @@
 #include "../dataobj/translator.h"
 #include "components/gui_chart.h"
 
-static const char *sort_text[3] = {
+static const char *sort_text[4] = {
   "Zielort",
   "via",
+  "via Menge",
   "Menge"
 };
 
@@ -160,7 +161,7 @@ halt_info_t::zeichnen(koord pos, koord gr)
 
     display_multiline_text(pos.x+11, pos.y+40, freight_info, SCHWARZ);
 
-    const int sortby = MIN(MAX(halt->get_sortby(), 0), 2);
+    const int sortby = MIN(MAX(halt->get_sortby(), 0), 3);
 
     sort_button.text = translator::translate(sort_text[sortby]);
   }
@@ -181,7 +182,7 @@ bool halt_info_t::action_triggered(gui_komponente_t *comp)
 		if(sortby < 0) {
 			// Hajo: error case, correct silently
 			sortby = 0;
-		} else if (sortby < 2){
+		} else if (sortby < 3){
 			sortby++;
 		} else {
 			sortby = 0;

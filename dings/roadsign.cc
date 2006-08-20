@@ -27,6 +27,8 @@
 #include "../besch/skin_besch.h"
 #include "../dataobj/translator.h"
 
+#include "../simvehikel.h"	// for kmh/speed conversion
+
 #include "roadsign.h"
 
 slist_tpl<const roadsign_besch_t *> liste;
@@ -55,6 +57,7 @@ roadsign_t::~roadsign_t()
 {
 	weg_t *weg = welt->lookup(gib_pos())->gib_weg(weg_t::strasse);
 	if(weg  &&  besch->is_single_way()) {
+		DBG_MESSAGE("roadsign_t::~roadsign_t()","restore dir");
 		// Weg wieder freigeben, wenn das Signal nicht mehr da ist.
 		dynamic_cast<strasse_t *>(weg)->setze_ribi_maske(ribi_t::keine);
 	} else {
@@ -86,7 +89,14 @@ DBG_MESSAGE("roadsign_t::set_dir()","ribi %i",dir);
  */
 void roadsign_t::info(cbuffer_t & buf) const
 {
-	ding_t::info(buf);
+	//ding_t::info(buf);
+	buf.append("Roadsign\n\nsingle way: ");
+	buf.append(besch->is_single_way());
+	buf.append("\nminimum speed: ");
+	buf.append(speed_to_kmh(besch->gib_min_speed()));
+	buf.append("\ndirection: ");
+	buf.append(dir);
+	buf.append("\n");
 }
 
 
@@ -118,9 +128,9 @@ roadsign_t::rdwr(loadsave_t *file)
 {
 	ding_t::rdwr(file);
 
-	file->rdwr_char(blockend, " ");
-	file->rdwr_char(zustand, " ");
-	file->rdwr_char(dir, "\n");
+	file->rdwr_byte(blockend, " ");
+	file->rdwr_byte(zustand, " ");
+	file->rdwr_byte(dir, "\n");
 
 	if(file->is_saving()) {
 		const char *s = besch->gib_name();
@@ -175,10 +185,10 @@ void roadsign_t::fill_menu(werkzeug_parameter_waehler_t *wzw,
 	int (* werkzeug)(spieler_t *, karte_t *, koord, value_t),
 	int sound_ok,
 	int sound_ko,
-	int cost)
+	int /*cost*/)
 {
 DBG_DEBUG("roadsign_t::fill_menu()","maximum %i",liste.count());
-	for(  int i=0;  i<liste.count();  i++  ) {
+	for( unsigned i=0;  i<liste.count();  i++  ) {
 		char buf[128];
 		const roadsign_besch_t *besch=liste.at(i);
 

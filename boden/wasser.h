@@ -12,9 +12,6 @@
 class wasser_t : public grund_t
 {
 private:
-
-    static mempool_t *mempool;
-
     int step_nr;
 
 public:

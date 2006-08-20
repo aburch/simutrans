@@ -27,13 +27,11 @@
 signal_t::signal_t(karte_t *welt, loadsave_t *file) : ding_t (welt)
 {
   rdwr(file, true);
-
   step_frequency = 0;
 }
 
 
-signal_t::signal_t(karte_t *welt, koord3d pos, ribi_t::ribi dir) :
-  ding_t(welt, pos)
+signal_t::signal_t(karte_t *welt, koord3d pos, ribi_t::ribi dir) :  ding_t(welt, pos)
 {
   this->dir = dir;
 
@@ -150,7 +148,7 @@ signal_t::rdwr(loadsave_t *file)
 	/*
         file->rdwr_bool(blockend, " ");
         file->rdwr_enum(zustand, " ");
-        file->rdwr_int(nach_rechts, "\n");
+        file->rdwr_long(nach_rechts, "\n");
 	*/
 
     } else {
@@ -165,9 +163,9 @@ signal_t::rdwr(loadsave_t *file, bool force)
     assert(force == true);
     ding_t::rdwr(file);
 
-    file->rdwr_char(blockend, " ");
-    file->rdwr_char(zustand, " ");
-    file->rdwr_char(dir, "\n");
+    file->rdwr_byte(blockend, " ");
+    file->rdwr_byte(zustand, " ");
+    file->rdwr_byte(dir, "\n");
 }
 
 
@@ -182,6 +180,40 @@ void signal_t::laden_abschliessen()
   calc_bild();
 }
 
+
+presignal_t::presignal_t(karte_t *welt, loadsave_t *file) : signal_t(welt, file)
+{
+  this->related_block = blockhandle_t();
+  step_frequency = 1;
+}
+
+
+presignal_t::presignal_t(karte_t *welt, koord3d pos, ribi_t::ribi dir) : signal_t(welt, pos, dir)
+{
+  this->related_block = blockhandle_t();
+  step_frequency = 0;
+}
+
+
+/* recalculate image */
+bool
+presignal_t::step(long)
+{
+	calc_bild();
+	return true;
+}
+
+
+
+void
+presignal_t::setze_zustand(enum signal_t::signalzustand z)
+{
+	zustand = z;
+	step_frequency = zustand;	// only green signals will check for next block ...
+	calc_bild();
+}
+
+
 void presignal_t::calc_bild()
 {
   if(blockend) {
@@ -191,32 +223,45 @@ void presignal_t::calc_bild()
     // das Feld neuzeichnen lassen
     welt->markiere_dirty(gib_pos());
   } else {
-  schiene_t * sch = dynamic_cast<schiene_t *>(welt->lookup(gib_pos())->gib_weg(weg_t::schiene));
-  const int offset = (sch->ist_elektrisch()  &&  skinverwaltung_t::presignals->gib_bild_anzahl()==16)?8:0;
+	schiene_t * sch = dynamic_cast<schiene_t *>(welt->lookup(gib_pos())->gib_weg(weg_t::schiene));
+	int offset = (sch->ist_elektrisch()  &&  skinverwaltung_t::presignals->gib_bild_anzahl()>16)?8:0;
+
+	int full_zustand = this->zustand;
+	if(full_zustand==gruen  &&  related_block.is_bound()) {
+		if(!related_block->ist_frei()) {
+			full_zustand = naechste_rot;
+		}
+	}
+	if(skinverwaltung_t::presignals->gib_bild_anzahl()==24) {
+		offset = (offset*3)/2;
+	}
+	else {
+		full_zustand &= 1;;
+	}
 
     switch(dir) {
     case ribi_t::nord:
       setze_xoff(-2);
       setze_yoff(-12);
-      setze_bild(0, skinverwaltung_t::presignals->gib_bild_nr(1+zustand*4)+offset);
+      setze_bild(0, skinverwaltung_t::presignals->gib_bild_nr(1+full_zustand*4)+offset);
       break;
 
     case ribi_t::sued:
       setze_xoff(2);
       setze_yoff(12);
-      setze_bild(0, skinverwaltung_t::presignals->gib_bild_nr(0+zustand*4)+offset);
+      setze_bild(0, skinverwaltung_t::presignals->gib_bild_nr(0+full_zustand*4)+offset);
       break;
 
     case ribi_t::ost:
       setze_xoff(24);
       setze_yoff(0);
-      setze_bild(0, skinverwaltung_t::presignals->gib_bild_nr(2+zustand*4)+offset);
+      setze_bild(0, skinverwaltung_t::presignals->gib_bild_nr(2+full_zustand*4)+offset);
       break;
 
     case ribi_t::west:
       setze_xoff(-24);
       setze_yoff(0);
-      setze_bild(0, skinverwaltung_t::presignals->gib_bild_nr(3+zustand*4)+offset);
+      setze_bild(0, skinverwaltung_t::presignals->gib_bild_nr(3+full_zustand*4)+offset);
       break;
 
     default:

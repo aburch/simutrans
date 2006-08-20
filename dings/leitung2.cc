@@ -319,7 +319,8 @@ DBG_MESSAGE("leitung_t::entferne()","remove pylon at (%i,%i)",gib_pos().x,gib_po
 		gr->obj_remove(this, gib_besitzer());
 
 		leitung_t * conn[4];
-		const int count = gimme_neighbours(welt, gib_pos().gib_2d(), conn);
+		gimme_neighbours(welt, gib_pos().gib_2d(), conn);
+//		const int count = gimme_neighbours(welt, gib_pos().gib_2d(), conn);
 
 		for(int i=0; i<4; i++) {
 			if(conn[i]!=NULL) {

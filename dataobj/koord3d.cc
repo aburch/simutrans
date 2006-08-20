@@ -12,30 +12,25 @@
 
 #include "../simtypes.h"
 #include "koord3d.h"
-#include "../mm/mempool.h"
-#include "../dataobj/loadsave.h"
 
-mempool_t * koord3d::mempool = new mempool_t(sizeof(koord3d));
+#include "../dataobj/loadsave.h"
+#include "../dataobj/freelist.h"
+
 
 const koord3d koord3d::invalid(-1, -1, -1);
 
 
-void *
-koord3d::operator new(size_t /*s*/)
+void * koord3d::operator new(size_t /*s*/)
 {
-//    printf("new koord\n");
-
-    return mempool->alloc();
+	return (koord3d *)freelist_t::gimme_node(sizeof(koord3d));
 }
 
 
-void
-koord3d::operator delete(void *p)
+void koord3d::operator delete(void *p)
 {
-//    printf("delete koord\n");
-
-    mempool->free( p );
+	freelist_t::putback_node(sizeof(koord3d),p);
 }
+
 
 
 void

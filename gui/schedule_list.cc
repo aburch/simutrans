@@ -289,7 +289,7 @@ schedule_list_gui_t::infowin_event(const event_t *ev)
 
       selection = scl->gib_selection();
       // get selected line
-      if ((selection >= 0) && (selection < lines.count())) {
+      if ((selection >= 0) && (selection < (int)lines.count())) {
   	  	line = lines.at(selection);
   	  	bt_change_line.enable();
   	  	bt_delete_line.enable();
@@ -394,7 +394,7 @@ schedule_list_gui_t::display(koord pos)
 
 	convoihandle_t cnv = line->get_convoy(i)->self;
 
-	for (int j = 0; j<cnv->gib_vehikel_anzahl(); j++) {
+	for (unsigned j = 0; j<cnv->gib_vehikel_anzahl(); j++) {
 
 	  capacity += cnv->gib_vehikel(j)->gib_fracht_max();
 	  load += cnv->gib_vehikel(j)->gib_fracht_menge();

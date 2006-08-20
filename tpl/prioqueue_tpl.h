@@ -43,10 +43,9 @@ template <class T>
 class prioqueue_tpl
 {
 private:
-    class node_t
+    struct node_t
     {
-        public:
-	node_t *next;
+	struct node_t *next;
 	T data;
     };
 

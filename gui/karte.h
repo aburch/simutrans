@@ -31,7 +31,7 @@ private:
     karte_t *welt;
     array2d_tpl<unsigned char> *relief;
 
-    reliefkarte_t(karte_t *welt);
+    reliefkarte_t();
 
     static reliefkarte_t * single_instance;
 
@@ -89,7 +89,6 @@ public:
      */
     static int calc_relief_farbe(const karte_t *welt, koord k);
 
-    static reliefkarte_t *gib_karte(karte_t *welt);
     static reliefkarte_t *gib_karte();
 
     /**

@@ -18,10 +18,10 @@
 #include "../boden/grund.h"
 #include "marker.h"
 
-void marker_t::init(int welt_groesse)
+void marker_t::init(int welt_groesse_x,int welt_groesse_y)
 {
-    cached_groesse = welt_groesse;
-    bits_groesse = (cached_groesse * cached_groesse + bit_mask) / (bit_unit);
+    cached_groesse = welt_groesse_x;
+    bits_groesse = (welt_groesse_x*welt_groesse_y + bit_mask) / (bit_unit);
     if(bits)
 	delete bits;
 

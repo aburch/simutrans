@@ -253,7 +253,7 @@ void color_gui_t::zeichnen(koord pos, koord gr)
   display_proportional_clip(x+10, y+164, "Sim:",
 		       ALIGN_LEFT, SCHWARZ, true);
 
-  sprintf(buf,"%ld/%ld/%ld ms", 1000/max(1,welt->gib_realFPS()), get_frame_time(), welt->gib_realFPS() );
+  sprintf(buf,"%d ms/%ld ms", 1000/max(1,welt->gib_realFPS()), get_frame_time() );
 
   display_proportional_clip(x+77, y+134, buf,
 		       ALIGN_LEFT, WEISS, true);
@@ -270,8 +270,10 @@ void color_gui_t::zeichnen(koord pos, koord gr)
    		farbe = GELB;
    	}
   }
-  display_proportional_clip(x+37, y+154, ntos(loops, "%d fps"),
+  sprintf(buf,"%d fps (real: %d)", loops, welt->gib_realFPS() );
+  display_proportional_clip(x+37, y+154, buf,
 		       ALIGN_LEFT, farbe, true);
+
    loops=welt->gib_simloops();
    farbe = WEISS;
    if(loops<=5) {

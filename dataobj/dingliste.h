@@ -36,7 +36,7 @@ public:
     dingliste_t();
     ~dingliste_t();
 
-    void rdwr(karte_t *welt, loadsave_t *file);
+    void rdwr(karte_t *welt, loadsave_t *file,koord3d current_pos);
 
     ding_t * suche(ding_t::typ typ) const;
 

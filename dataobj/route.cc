@@ -305,7 +305,7 @@ route_t::rdwr(loadsave_t *file)
 	int max_n = route.get_count()-1;
 	int i;
 
-	file->rdwr_int(max_n, "\n");
+	file->rdwr_long(max_n, "\n");
 	if(file->is_loading()) {
 		koord3d k;
 		route.clear();

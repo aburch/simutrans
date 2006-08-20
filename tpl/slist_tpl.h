@@ -13,8 +13,7 @@
 #include <stdlib.h>
 #include <typeinfo>
 
-#include "../dataobj/nodelist_t.h"
-#include "../dataobj/nodes_12.h"
+#include "../dataobj/freelist.h"
 
 #include "no_such_element_exception.h"
 #include "debug_helper.h"
@@ -40,21 +39,11 @@ template<class T>
 class slist_tpl
 {
 private:
-    class node_t
+    struct node_t
     {
-        public:
-	node_t *next;
+public:
+	struct node_t *next;
 	T data;
-
-	/**
-	 * Places new objects in the given memory area
-	 * @author Hj. Malthaner
-	 */
-	void *operator new (size_t, void *mem) {
-	  return mem;
-	};
-        void operator delete(void *pMem, void *mem) {
-        };
     };
 
     node_t * head;
@@ -63,70 +52,26 @@ private:
 
     friend class slist_iterator_tpl<T>;
 
-
-    /**
-     * static freelist to share nodes between all lists
-     * @author Hj. Malthaner
-     */
-    static nodelist_t *freelist;
-
-
-    /**
-     * We keep nodes of size 12 an smaller in a gloabl freelist,
-     * other nodes in a per-type freelist
-     * @author Hj. Malthaner
-     */
-    static void alloc_freelist() {
-      // MESSAGE("slist_tpl<T>::alloc_freelist()", "freelist=%p", freelist);
-
-      if(freelist == 0) {
-	if(sizeof(node_t) <= 16) {
-	  if(nodes_16 == 0) {
-	    nodes_16 = new nodelist_t(16,
-				      20480,
-				      "slist_tpl",
-				      "Generic 16 byte node list");
-	  }
-	  freelist = nodes_16;
-	} else {
-	  freelist = new nodelist_t(sizeof(node_t),
-				    1,
-				    "slist_tpl",
-				    typeid(T).name());
+	node_t * gimme_node()
+	{
+		return (node_t *)freelist_t::gimme_node(sizeof(node_t));
 	}
-      }
-    }
 
 
-    static node_t * gimme_node()
-    {
-      // alloc_freelist();
-      return new (freelist->gimme_node()) node_t ();
-    }
+	void putback_node(node_t *tmp)
+	{
+		freelist_t::putback_node(sizeof(node_t),tmp);
+	}
 
 
-    static void putback_node(node_t *tmp)
-    {
-//      tmp->data =  T();
-      freelist->putback_node(tmp);
-    }
-
-
-    static void putback_nodes(node_t *tmp)
-    {
-      node_t *p = tmp;
-
-      while(p) {
-  // p->data =  T();
-	p = p->next;
-      }
-
-      freelist->putback_nodes(tmp);
-    }
+	void putback_nodes()
+	{
+		freelist_t::putback_nodes(sizeof(node_t),head);
+	}
 
 public:
 
-    static int node_size() // debuging
+    int node_size() // debuging
     {
 	return sizeof(node_t);
     }
@@ -139,11 +84,9 @@ public:
      */
     slist_tpl()
     {
-	head = NULL;             // leere liste
-        tail = NULL;
-	node_count = 0;
-
-	alloc_freelist();
+		head = NULL;             // leere liste
+		tail = NULL;
+		node_count = 0;
     }
 
 
@@ -366,14 +309,14 @@ public:
     void clear()
     {
 	if(head) {
-	    putback_nodes( head );
+	    putback_nodes();
 	}
 	head = 0;
-        tail = 0;
+      tail = 0;
 	node_count = 0;
     }
 
-
+#if 0
     /**
      * Deletes all nodes and the freelist. Doesn't delete the objects.
      * Leaves the list empty.
@@ -384,25 +327,15 @@ public:
      */
     void destroy()
     {
-	node_t *p = head;
-	while(p != 0) {
-	    node_t * tmp = p->next;
-	    delete p;
-	    p = tmp;
-	}
-	while(freelist != 0) {
-	    node_t *tmp = freelist->next;
-	    delete freelist;
-	    freelist = tmp;
-	}
+    	if(head) {
+	      putback_nodes();
+    	}
 
 	head = 0;
-        tail = 0;
-	freelist = 0;
-
+      tail = 0;
 	node_count = 0;
     }
-
+#endif
 
     unsigned int count() const
     {
@@ -448,7 +381,7 @@ public:
 };
 
 
-template <class T> nodelist_t * slist_tpl<T>::freelist = 0;
+//template <class T> nodelist_t * slist_tpl<T>::freelist = 0;
 
 
 

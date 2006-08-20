@@ -202,11 +202,12 @@ DBG_MESSAGE("gebaeude_t::zeige_info()", "at %d,%d - name is '%s'", gib_pos().x, 
 			if(!tile->gib_besch()->ist_ohne_info()) {
 
 				if(ist_rathaus()) {
-
+				stadt_t *city = welt->suche_naechste_stadt(gib_pos().gib_2d());
 				create_win(-1, -1, -1,
-					new stadt_info_t(welt->suche_naechste_stadt(gib_pos().gib_2d())),
-					w_autodelete,
-					magic_city_info_t);
+					city->gib_stadt_info(),
+					w_info,
+					magic_none); /* otherwise only on image is allowed */
+//					magic_city_info_t);
 
 				if(umgebung_t::townhall_info) {
 					ding_t::zeige_info();
@@ -543,7 +544,7 @@ gebaeude_t::rdwr(loadsave_t *file)
 		hausbauer_t::denkmal_gebaut(tile->gib_besch());
 	    }
 	}
-	file->rdwr_char(sync, "\n");
+	file->rdwr_byte(sync, "\n");
 
 	if(file->is_loading() && tile) {
     	    count = 0;

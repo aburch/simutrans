@@ -2,25 +2,17 @@
 #define dings_gebaeundefundament_h
 
 
-class mempool_t;
-
 
 /**
  * Gebäude brauchen einen ebenen Untergrund. Diese Klasse liefert
  * den notwendigen Sockel, wenn Gebäude am Hang gebaut werden.
- *
- * Benutzt mempools, darf nicht gesubclassed werden!
  *
  * @version $Revision: 1.8 $
  * @author Hj. Maltahner
  */
 class gebaeudefundament_t : public ding_t
 {
-private:
-
-    static mempool_t *mempool;
 public:
-
     gebaeudefundament_t(karte_t *welt, loadsave_t *file);
     gebaeudefundament_t(karte_t *welt, koord3d pos, spieler_t *sp);
 

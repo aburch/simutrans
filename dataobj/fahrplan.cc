@@ -249,8 +249,8 @@ fahrplan_t::remove()
 void
 fahrplan_t::rdwr(loadsave_t *file)
 {
-    file->rdwr_int(aktuell, " ");
-    file->rdwr_int(maxi, " ");
+    file->rdwr_long(aktuell, " ");
+    file->rdwr_long(maxi, " ");
 
     if(file->is_loading()) {
 	abgeschlossen = true;
@@ -258,7 +258,7 @@ fahrplan_t::rdwr(loadsave_t *file)
     for(int i=0; i<=maxi; i++) {
 	eintrag.at(i).pos.rdwr( file );
 
-	file->rdwr_int(eintrag.at(i).ladegrad, "\n");
+	file->rdwr_long(eintrag.at(i).ladegrad, "\n");
     }
 
     if(file->is_loading()) {

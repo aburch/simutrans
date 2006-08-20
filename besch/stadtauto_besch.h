@@ -47,6 +47,9 @@ class stadtauto_besch_t : public obj_besch_t {
     // when was this car used?
     uint16 intro_date;
     uint16 obsolete_date;
+
+	uint8	length[8];	// length of pixel until leaving the field (not used)
+
 public:
     const char *gib_name() const
     {
@@ -99,6 +102,13 @@ public:
     int get_retire_month() const {
       return obsolete_date & 15;
     }
+
+	/* @return the normalized distance to the next vehicle
+	 * @author prissi
+	 */
+	uint8 get_length_to_next( uint8 next_dir ) const {
+		return length[next_dir];
+	}
 };
 
 #endif // __STADTAUTO_BESCH_H

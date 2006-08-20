@@ -273,7 +273,7 @@ const char *
 tunnelbauer_t::remove(karte_t *welt, spieler_t *sp, koord3d start, weg_t::typ wegtyp)
 {
     blockmanager  *bm = blockmanager::gib_manager();
-    marker_t    marker(welt->gib_groesse());
+    marker_t    marker(welt->gib_groesse_x(),welt->gib_groesse_y());
     slist_tpl<koord3d>  end_list;
     slist_tpl<koord3d>  part_list;
     slist_tpl<koord3d>  tmp_list;

@@ -2,14 +2,14 @@
 CXXFLAGS = -O
 
 SOURCES=\
-nodelist_t.cc nodes_12.cc\
+freelist.cc\
 translator.cc ribi.cc koord.cc koord3d.cc\
 linie.cc fahrplan.cc route.cc einstellungen.cc\
 warenziel.cc umgebung.cc koord3d.cc dingliste.cc marker.cc\
 loadsave.cc tabfile.cc powernet.cc
 
 OBJECTS=\
-nodelist_t.o nodes_12.o\
+freelist.o\
 translator.o ribi.o koord.o koord3d.o\
 linie.o fahrplan.o route.o einstellungen.o\
 warenziel.o umgebung.o koord3d.o dingliste.o marker.o\

@@ -116,7 +116,7 @@ void gui_convoiinfo_t::zeichnen(koord offset) const
 	const int yoff =
 	  get_tile_raster_width() == 64 ? -26 : -(128 >> get_zoom_factor());
 
-        for(int i=0; i<cnv->gib_vehikel_anzahl();i++) {
+        for(unsigned i=0; i<cnv->gib_vehikel_anzahl();i++) {
 				display_color_img(cnv->gib_vehikel(i)->gib_basis_bild(),
 	                      pos.x+offset.x+xoff+i*16,
 			      pos.y+offset.y+yoff,

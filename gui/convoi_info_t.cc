@@ -283,10 +283,9 @@ bool convoi_info_t::action_triggered(gui_komponente_t *komp)
 			// find all depots
 			slist_tpl<koord3d> all_depots;
 			karte_t * welt = cnv->gib_welt();
-			int world_size = welt->gib_groesse();
 			depot_t * depot = NULL;
-			for (int x = 0; x < world_size; x++) {
-				for (int y = 0; y < world_size; y++) {
+			for (int x = 0; x < welt->gib_groesse_x(); x++) {
+				for (int y = 0; y < welt->gib_groesse_y(); y++) {
 					grund_t * gr = welt->lookup(koord(x,y))->gib_kartenboden();
 					if (gr) {
 						fahrer_t * fahr = cnv->gib_vehikel(0);
@@ -297,6 +296,7 @@ bool convoi_info_t::action_triggered(gui_komponente_t *komp)
 					}
 					if (depot) {
 						all_depots.append(gr->gib_pos());
+DBG_MESSAGE("convoi_info_t::action_triggered()","search depot: found on %i,%i",gr->gib_pos().x,gr->gib_pos().y);
 						depot = NULL;
 					}
 				}

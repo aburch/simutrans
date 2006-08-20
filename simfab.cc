@@ -282,7 +282,7 @@ fabrik_t::ist_bauplatz(karte_t *welt, koord pos, koord groesse,bool wasser)
 {
     bool ok = false;
     if(pos.x > 0 && pos.y > 0 &&
-       pos.x+groesse.x < welt->gib_groesse() && pos.y+groesse.y < welt->gib_groesse() &&
+       pos.x+groesse.x < welt->gib_groesse_x() && pos.y+groesse.y < welt->gib_groesse_y() &&
        ( wasser  ||  welt->ist_platz_frei(pos, groesse.x, groesse.y) )&&
        !ist_da_eine(welt,pos-koord(5,5),pos+groesse+koord(3,3))) {
 
@@ -334,7 +334,7 @@ fabrik_t::sind_da_welche(karte_t *welt, koord min_pos, koord max_pos)
 
 			// fabrik nur einmal in liste eintragen
 			fablist.append_unique( fab );
-DBG_MESSAGE("fabrik_t::sind_da_welche()","appended factory %s at (%i,%i)",fab->gib_besch()->gib_name(),i,j);
+//DBG_MESSAGE("fabrik_t::sind_da_welche()","appended factory %s at (%i,%i)",fab->gib_besch()->gib_name(),i,j);
 
 		    }
 		}
@@ -397,10 +397,10 @@ DBG_DEBUG("fabrik_t::rdwr()","loading factory '%s'",s);
 	pos.rdwr(file);
 
 	file->rdwr_delim("Bau: ");
-	file->rdwr_char(rotate, "\n");
+	file->rdwr_byte(rotate, "\n");
 
 	// now rebuilt information for recieved goods
-	file->rdwr_int(eingang_count, "\n");
+	file->rdwr_long(eingang_count, "\n");
 	for(i=0; i<eingang_count; i++) {
 		ware_t dummy;
 		const char *typ = NULL;
@@ -413,8 +413,8 @@ DBG_DEBUG("fabrik_t::rdwr()","loading factory '%s'",s);
 
 		file->rdwr_delim("Ein: ");
 		file->rdwr_str(typ, " ");
-		file->rdwr_int(dummy.menge, " ");
-		file->rdwr_int(dummy.max, "\n");
+		file->rdwr_long(dummy.menge, " ");
+		file->rdwr_long(dummy.max, "\n");
 		if(file->is_loading()) {
 			dummy.setze_typ( warenbauer_t::gib_info(typ) );
 			guarded_free(const_cast<char *>(typ));
@@ -431,7 +431,7 @@ DBG_DEBUG("fabrik_t::rdwr()","loading factory '%s'",s);
 	}
 
 	// now rebuilt information for produced goods
-	file->rdwr_int(ausgang_count, "\n");
+	file->rdwr_long(ausgang_count, "\n");
 	for(i=0; i<ausgang_count; i++) {
 		ware_t dummy;
 		const char *typ = NULL;
@@ -447,10 +447,10 @@ DBG_DEBUG("fabrik_t::rdwr()","loading factory '%s'",s);
 		}
 		file->rdwr_delim("Aus: ");
 		file->rdwr_str(typ, " ");
-		file->rdwr_int(dummy.menge, " ");
-		file->rdwr_int(dummy.max, "\n");
-		file->rdwr_int(ab_sum, " ");
-		file->rdwr_int(ab_letzt, "\n");
+		file->rdwr_long(dummy.menge, " ");
+		file->rdwr_long(dummy.max, "\n");
+		file->rdwr_long(ab_sum, " ");
+		file->rdwr_long(ab_letzt, "\n");
 
 		if(file->is_loading()) {
 			abgabe_sum->at(i)  = ab_sum;
@@ -463,11 +463,11 @@ DBG_DEBUG("fabrik_t::rdwr()","loading factory '%s'",s);
 	// restore other information
 	spieler_n = welt->sp2num(besitzer_p);
 	file->rdwr_delim("Bes: ");
-	file->rdwr_int(spieler_n, "\n");
+	file->rdwr_long(spieler_n, "\n");
 	file->rdwr_delim("Prf: ");
-	file->rdwr_int(prodbase, "\n");
+	file->rdwr_long(prodbase, "\n");
 	file->rdwr_delim("Prb: ");
-	file->rdwr_int(prodfaktor, "\n");
+	file->rdwr_long(prodfaktor, "\n");
 	// owner stuff
 	if(file->is_loading()) {
 		// take care of old files
@@ -494,7 +494,7 @@ DBG_DEBUG("fabrik_t::rdwr()","correction of production by %i",k.x*k.y);
 		}
 	}
 
-	file->rdwr_int(anz_lieferziele, "\n");
+	file->rdwr_long(anz_lieferziele, "\n");
 
 	// connect/save consumer
 	if(file->is_loading()) {

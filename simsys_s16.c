@@ -274,9 +274,9 @@ unsigned short *dr_textur_resize(int w, int h)
 #ifdef USE_HW
 	SDL_UnlockSurface( screen );
 #endif
+	int flags = screen->flags;
 	width = w;
 	height = h;
-	int flags = screen->flags;
 
 //	SDL_FreeSurface(screen);
 	screen = SDL_SetVideoMode(width, height, 16, flags);

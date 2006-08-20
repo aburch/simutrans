@@ -115,7 +115,7 @@ template <class besch_t> void warne_ungeladene(spezial_obj_tpl<besch_t> *so, int
 {
     while(count-- && so->name) {
 	if(!*so->besch) {
-	    dbg->message("warne_ungeladene", "Object %s not found, feature disabled", so->name);
+	    MESSAGE("warne_ungeladene", "Object %s not found, feature disabled", so->name);
 	}
 	so++;
     }

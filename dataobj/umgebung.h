@@ -217,7 +217,7 @@ class umgebung_t
 
 
   /* prissi: do autosave every month? */
-  static bool autosave;
+  static int autosave;
 };
 
 #endif

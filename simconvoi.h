@@ -170,7 +170,7 @@ private:
      * Number of vehicles in this convoi.
      * @author Hj. Malthaner
      */
-    int anz_vehikel;
+    unsigned anz_vehikel;
 
 
     /**
@@ -629,8 +629,8 @@ public:
      * @return Vehicle at position i or NULL if the is not vehicle at i
      * @author Hj. Malthaner
      */
-    vehikel_t * gib_vehikel(int i) const {
-	if(i>=0 && i<fahr->get_size()) return fahr->at(i); else return NULL;
+    vehikel_t * gib_vehikel(uint16 i) const {
+	return (i<fahr->get_size()) ? fahr->at(i) : NULL;
     };
 
 

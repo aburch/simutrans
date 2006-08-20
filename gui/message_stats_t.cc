@@ -64,7 +64,7 @@ void message_stats_t::zeichnen(koord offset) const
 {
 	struct clip_dimension cd = display_gib_clip_wh();
 	unsigned count = msg->gib_count();
-	for(  int i=0;  i<count;  i++  ) {
+	for( unsigned i=0;  i<count;  i++  ) {
 		if(offset.y+i*14<cd.y) {
 			// reached the top
 			continue;

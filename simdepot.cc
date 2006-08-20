@@ -68,7 +68,7 @@ depot_t::~depot_t()
 void
 depot_t::convoi_arrived(convoihandle_t acnv, bool fpl_adjust)
 {
-  for(int i=0; i< acnv->gib_vehikel_anzahl(); i++) {
+  for(unsigned i=0; i< acnv->gib_vehikel_anzahl(); i++) {
 
     vehikel_t *v = acnv->gib_vehikel(i);
 
@@ -313,7 +313,7 @@ depot_t::start_convoi(int icnv)
 		    halthandle_t halt = haltestelle_t::gib_halt(welt, fpl->eintrag.at(i).pos.gib_2d());
 
 		    if(halt.is_bound()) {
-			for(int j=0; j<cnv->gib_vehikel_anzahl(); j++) {
+			for(unsigned j=0; j<cnv->gib_vehikel_anzahl(); j++) {
 			    halt->hat_gehalten(0, cnv->gib_vehikel(j)->gib_fracht_typ(), fpl);
 			}
 		    }
@@ -371,7 +371,7 @@ depot_t::rdwr_vehikel(slist_tpl<vehikel_t *> &list, loadsave_t *file)
     if(file->is_saving()) {
         count = list.count();
     }
-    file->rdwr_int(count, "\n");
+    file->rdwr_long(count, "\n");
 
     if(file->is_loading()) {
         for(int i=0; i<count; i++) {

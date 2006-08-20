@@ -945,7 +945,7 @@ void win_display_menu()
 
 
 void
-win_display_flush(int ticks, int color, double konto)
+win_display_flush(int , int color, double konto)
 {
 	display_setze_clip_wh( 0, 32, display_get_width(), display_get_height()+1 );
 
@@ -997,12 +997,15 @@ win_display_flush(int ticks, int color, double konto)
 //    display_icon_leiste(color, skinverwaltung_t::hauptmenu->gib_bild(0)->bild_nr);
 
     koord3d pos;
+    uint32 ticks=1, month=0, year=0;
 
 	if(wl) {
 		const ding_t *dt = wl->gib_zeiger();
 		pos = dt->gib_pos();
+		month = wl->get_last_month();
+		year = wl->get_last_year();
+		ticks = wl->gib_zeit_ms();
 	}
-
 
 	const int tage = ticks >> karte_t::ticks_bits_per_tag;
 	const int stunden4 = ((ticks - (tage << karte_t::ticks_bits_per_tag)) * 96) >> karte_t::ticks_bits_per_tag;
@@ -1023,13 +1026,13 @@ win_display_flush(int ticks, int color, double konto)
     if (umgebung_t::show_month)
     {
     	sprintf(time, "%s, %s %d",
-		translator::translate(month_names[tage % 12]),
+		translator::translate(month_names[month%12]),
 		translator::translate(seasons[wl->gib_jahreszeit()]),
-		umgebung_t::starting_year+tage/12);
+		year);
     } else {
     	sprintf(time, "%s %d",
 		translator::translate(seasons[wl->gib_jahreszeit()]),
-		umgebung_t::starting_year+tage/12);
+		year);
     }
 
     sprintf(info,"(%d,%d,%d)  (T=%1.2f)", pos.x, pos.y, pos.z / 16, get_time_multi()/16.0);

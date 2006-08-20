@@ -64,7 +64,7 @@ public:
     }
     bool remove_at(int pos)
     {
-	T data = at(pos);
+	T data = this->at(pos);
 	if(slist_tpl<T>::remove(data)) {
 	    gesamtgewicht -= data->gib_gewichtung();
 	    return true;

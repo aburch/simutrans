@@ -32,7 +32,10 @@
 #include "simmesg.h"
 #include "simtime.h"
 #include "simcolor.h"
+
 #include "gui/karte.h"
+#include "gui/stadt_info.h"
+
 #include "besch/haus_besch.h"
 #include "tpl/slist_mit_gewichten_tpl.h"
 
@@ -281,11 +284,12 @@ const int stadt_t::step_interval = 7000;
 void
 stadt_t::init_pax_ziele()
 {
-	const int gr = welt->gib_groesse();
+	const int gr_x = welt->gib_groesse_x();
+	const int gr_y = welt->gib_groesse_y();
 
 	for(int j=0; j<96; j++) {
 		for(int i=0; i<96; i++) {
-			const koord pos (i*gr/96, j*gr/96);
+			const koord pos (i*gr_x/96, j*gr_y/96);
 			pax_ziele_alt.at(i, j) = pax_ziele_neu.at(i ,j) = reliefkarte_t::calc_relief_farbe(welt, pos);
 			//      pax_ziele_alt.at(i, j) = pax_ziele_neu.at(i ,j) = 0;
 		}
@@ -301,7 +305,7 @@ stadt_t::stadt_t(karte_t *wl, spieler_t *sp, koord pos,int citizens) :
     assert(wl->ist_in_kartengrenzen(pos));
 
     step_count = 0;
-    next_step = welt->gib_zeit_ms()+step_interval+simrand(step_interval);
+    next_step = 0;
 
     pax_erzeugt = 0;
     pax_transport = 0;
@@ -383,6 +387,8 @@ DBG_MESSAGE("stadt_t::stadt_t()","founding new city named '%s'",name);
 	last_month_bev = city_history_month[0][HIST_CITICENS] = bev;
 	this_year_transported = 0;
 	this_year_pax = 0;
+
+	stadt_info = NULL;
 }
 
 
@@ -393,7 +399,7 @@ stadt_t::stadt_t(karte_t *wl, loadsave_t *file) :
     pax_ziele_neu(96, 96)
 {
     step_count = 0;
-    next_step = welt->gib_zeit_ms()+step_interval+simrand(step_interval);
+    next_step = 0;//welt->gib_zeit_ms()+step_interval+simrand(step_interval);
 
     pax_erzeugt = 0;
     pax_transport = 0;
@@ -403,6 +409,8 @@ stadt_t::stadt_t(karte_t *wl, loadsave_t *file) :
     rdwr(file);
 
     verbinde_fabriken();
+
+	stadt_info = NULL;
 }
 
 
@@ -416,18 +424,18 @@ void stadt_t::rdwr(loadsave_t *file)
 	file->rdwr_str(name, 31);
 	pos.rdwr( file );
 	file->rdwr_delim("Plo: ");
-	file->rdwr_int(li, " ");
-	file->rdwr_int(ob, "\n");
+	file->rdwr_long(li, " ");
+	file->rdwr_long(ob, "\n");
 	file->rdwr_delim("Pru: ");
-	file->rdwr_int(re, " ");
-	file->rdwr_int(un, "\n");
+	file->rdwr_long(re, " ");
+	file->rdwr_long(un, "\n");
 	file->rdwr_delim("Bes: ");
-	file->rdwr_int(besitzer_n, "\n");
-	file->rdwr_int(bev, " ");
-	file->rdwr_int(arb, " ");
-	file->rdwr_int(won, "\n");
-	file->rdwr_int(zentrum_namen_cnt, " ");
-	file->rdwr_int(aussen_namen_cnt, "\n");
+	file->rdwr_long(besitzer_n, "\n");
+	file->rdwr_long(bev, " ");
+	file->rdwr_long(arb, " ");
+	file->rdwr_long(won, "\n");
+	file->rdwr_long(zentrum_namen_cnt, " ");
+	file->rdwr_long(aussen_namen_cnt, "\n");
 
 	if(file->is_loading()) {
 		besitzer_p = welt->gib_spieler(besitzer_n);
@@ -468,10 +476,10 @@ DBG_DEBUG("stadt_t::rdwr()","is old version: No history!");
 			}
 		}
 		// since we add it internally
-		file->rdwr_int(last_year_bev, " ");
-		file->rdwr_int(last_month_bev, " ");
-		file->rdwr_int(this_year_transported, " ");
-		file->rdwr_int(this_year_pax, "\n");
+		file->rdwr_long(last_year_bev, " ");
+		file->rdwr_long(last_month_bev, " ");
+		file->rdwr_long(this_year_transported, " ");
+		file->rdwr_long(this_year_pax, "\n");
 	}
 
     // 08-Jan-03: Due to some bugs in the special buildings/town hall
@@ -480,10 +488,10 @@ DBG_DEBUG("stadt_t::rdwr()","is old version: No history!");
     // and we need to correct it here.
 
     if(li < 0) li = 0;
-    if(re >= welt->gib_groesse()) re = welt->gib_groesse() - 1;
+    if(re >= welt->gib_groesse_x()) re = welt->gib_groesse_x() - 1;
 
     if(ob < 0) ob = 0;
-    if(un >= welt->gib_groesse()) un = welt->gib_groesse() - 1;
+    if(un >= welt->gib_groesse_y()) un = welt->gib_groesse_y() - 1;
 }
 
 
@@ -508,6 +516,21 @@ void stadt_t::laden_abschliessen()
 
     init_pax_ziele();
 }
+
+
+
+/* returns the money dialoge of a city
+ * @author prissi
+ */
+stadt_info_t *
+stadt_t::gib_stadt_info(void)
+{
+	if(stadt_info==NULL) {
+		stadt_info = new stadt_info_t(this);
+	}
+	return stadt_info;
+}
+
 
 
 /* calculates the factories which belongs to certain cities */
@@ -673,7 +696,7 @@ stadt_t::roll_history()
 	city_history_month[0][0] = bev;
 
 	//need to roll year too?
-	if(    (welt->gib_zeit_ms() >> karte_t::ticks_bits_per_tag)%12==0  ) {
+	if(   welt->get_last_month()==0  ) {
 		for (i=MAX_CITY_HISTORY_YEARS-1; i>0; i--)
 		{
 			for (int hist_type = 0; hist_type<MAX_CITY_HISTORY; hist_type++)
@@ -702,14 +725,13 @@ stadt_t::roll_history()
 void
 stadt_t::neuer_monat()
 {
-	const int gr = welt->gib_groesse();
+	const int gr_x = welt->gib_groesse_x();
+	const int gr_y = welt->gib_groesse_y();
 
 	pax_ziele_alt.copy_from(pax_ziele_neu);
-
-
 	for(int j=0; j<96; j++) {
 		for(int i=0; i<96; i++) {
-			const koord pos (i*gr/96, j*gr/96);
+			const koord pos (i*gr_x/96, j*gr_y/96);
 
 			pax_ziele_neu.at(i, j) = reliefkarte_t::calc_relief_farbe(welt, pos);
 			//      pax_ziele_neu.at(i, j) = 0;
@@ -1044,25 +1066,10 @@ dbg->fatal("stadt_t::finde_passagier_ziel()","no passenger ziel found!");
 void
 stadt_t::merke_passagier_ziel(koord k, int color)
 {
-    const int groesse = welt->gib_groesse();
-    const koord p = koord((k.x*96)/groesse, (k.y*96)/groesse);
-
-    // printf("Merke ziel %d,%d\n", p.x, p.y);
-
-    // pax_ziele_neu.at(p) = 121;
+    const koord p = koord((k.x*96)/welt->gib_groesse_x(), (k.y*96)/welt->gib_groesse_y());
     pax_ziele_neu.at(p) = color;
 }
 
-/*
-void
-stadt_t::merke_passagier_ziel(koord k, int pax)
-{
-    const int groesse = welt->gib_groesse();
-    const koord p = koord((k.x*96)/groesse, (k.y*96)/groesse);
-
-    pax_ziele_neu.at(p) += pax;
-}
-*/
 
 
 /**
@@ -1080,7 +1087,7 @@ class bauplatz_mit_strasse_sucher_t: public bauplatz_sucher_t  {
 	int find_dist_next_special(koord pos) const {
 		const slist_tpl<gebaeude_t *> & list = welt->gib_ausflugsziele();
 		slist_iterator_tpl <gebaeude_t *> iter (list);
-		int dist = welt->gib_groesse()*2;
+		int dist = welt->gib_groesse_x()*welt->gib_groesse_y();
 		while(iter.next()) {
 			gebaeude_t * gb = iter.get_current();
 			int d = koord_distance(gb->gib_pos(),pos);
@@ -1338,12 +1345,11 @@ stadt_t::check_bau_rathaus(bool new_town)
 
     // Hajo: paranoia - ensure correct bounds in all cases
     //       I don't know if best_pos is always valid
-
     if(li < 0) li = 0;
-    if(re >= welt->gib_groesse()) re = welt->gib_groesse() - 1;
+    if(re >= welt->gib_groesse_x()) re = welt->gib_groesse_x() - 1;
 
     if(ob < 0) ob = 0;
-    if(un >= welt->gib_groesse()) un = welt->gib_groesse() - 1;
+    if(un >= welt->gib_groesse_y()) un = welt->gib_groesse_y() - 1;
 }
 
 
@@ -1973,7 +1979,7 @@ stadt_t::pruefe_grenzen(koord k)
   li = k.x - 1;
     }
 
-    if(k.x >= re && k.x < welt->gib_groesse() -1) {
+    if(k.x >= re && k.x < welt->gib_groesse_x() -1) {
   re = k.x+1;
     }
 
@@ -1981,7 +1987,7 @@ stadt_t::pruefe_grenzen(koord k)
   ob = k.y-1;
     }
 
-    if(k.y >= un && k.y< welt->gib_groesse()-1) {
+    if(k.y >= un && k.y< welt->gib_groesse_y()-1) {
   un = k.y+1;
     }
 }
@@ -2065,7 +2071,9 @@ stadt_t::haltestellenname(koord k, const char *typ, int number)
 vector_tpl<koord> *
 stadt_t::random_place(const karte_t *wl, const int anzahl)
 {
+DBG_DEBUG("karte_t::init()","get random places");
 	slist_tpl<koord> *list = wl->finde_plaetze(2,3);
+DBG_DEBUG("karte_t::init()","found %i places",list->count());
 	vector_tpl<koord> *result = new vector_tpl<koord> (anzahl);
 
 	for(int  i=0;  i<anzahl;  i++) {

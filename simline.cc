@@ -114,7 +114,7 @@ simline_t::rdwr(loadsave_t * file)
 	}
 
 	file->rdwr_str(name, sizeof(name));
-	file->rdwr_int(id, " ");
+	file->rdwr_long(id, " ");
 	fpl->rdwr(file);
 	//financial history
 	if (file->get_version() >= 83001)

@@ -113,44 +113,41 @@ ding_t::ding_t(karte_t *wl, koord3d pos)
 }
 
 
+// removes an object and tries to delete it also form the corresponding dinglist
 ding_t::~ding_t()
 {
-    destroy_win(ding_infos->get(this));
+	destroy_win(ding_infos->get(this));
 
-    // pruefe ob objekt auf karte und ggf. entfernen
-    grund_t *gr = welt->lookup(pos);
-    if(gr) {
-	if(gr->obj_ist_da(this) ) {
-	    // printf("Destruktor: Entferne %s %p von %d %d.\n", gib_name(), this, pos.x, pos.y);
-	    gr->obj_remove(this, gib_besitzer());
-	    welt->markiere_dirty(pos);
-	} else {
-	    dbg->warning("ding_t::~ding_t()",
- 			 "couldn't remove %p from %d,%d,%d",
- 			 this , pos.x , pos.y, pos.z);
+	// pruefe ob objekt auf karte und ggf. entfernen
+	grund_t *gr = welt->lookup(pos);
+	if(gr) {
 
-	    DBG_MESSAGE("ding_t::~ding_t()",
-			 "removing %p failed, checking all plan squares",
-			 this);
-
-            koord k;
-	    const int groesse = welt->gib_groesse();
-
-	    for(k.y=0; k.y<groesse; k.y++) {
-		for(k.x=0; k.x<groesse; k.x++) {
-		    grund_t *gr = welt->access( k )->gib_boden_von_obj(this);
-
-		    if(gr && gr->obj_remove(this, gib_besitzer())) {
-		      dbg->warning("ding_t::~ding_t()",
-				   "removed %p from %d,%d,%d, but it should have been on %d,%d,%d",
- 				   this,
-				   gr->gib_pos().x, gr->gib_pos().y, gr->gib_pos().z,
-				   pos.x, pos.y, pos.z);
-		    }
+		if(gr->obj_ist_da(this) ) {
+			// normal case
+			gr->obj_remove(this, gib_besitzer());
+			welt->markiere_dirty(pos);
 		}
-	    }
+		else {
+			// not found? => try harder at all map locations
+			dbg->warning("ding_t::~ding_t()","couldn't remove %p from %d,%d,%d",this , pos.x , pos.y, pos.z);
+			DBG_MESSAGE("ding_t::~ding_t()","removing %p failed, checking all plan squares",this);
+
+			koord k;
+			for(k.y=0; k.y<welt->gib_groesse_y(); k.y++) {
+				for(k.x=0; k.x<welt->gib_groesse_x(); k.x++) {
+					grund_t *gr = welt->access( k )->gib_boden_von_obj(this);
+
+					if(gr && gr->obj_remove(this, gib_besitzer())) {
+						dbg->warning("ding_t::~ding_t()",
+							"removed %p from %d,%d,%d, but it should have been on %d,%d,%d",
+							this,
+							gr->gib_pos().x, gr->gib_pos().y, gr->gib_pos().z,
+							pos.x, pos.y, pos.z);
+					}
+				}
+			}
+		}
 	}
-    }
 }
 
 
@@ -259,9 +256,11 @@ ding_t::rdwr(loadsave_t *file)
     file->wr_obj_id(gib_typ());
     pos.rdwr( file );
 
-    file->rdwr_signed_char(xoff, " ");
-    file->rdwr_signed_char(yoff, "\n");
-    file->rdwr_signed_char(besitzer_n, "\n");
+    file->rdwr_byte(xoff, " ");
+    file->rdwr_byte(yoff, "\n");
+    uint8 owner = besitzer_n;
+    file->rdwr_byte(owner, "\n");
+    besitzer_n = owner;
 
     if(file->is_loading()) {
 	bild = static_cast<uint16>(IMG_LEER);

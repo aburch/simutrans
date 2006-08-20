@@ -114,7 +114,7 @@ planquadrat_t::kartenboden_setzen(grund_t *bd, bool mit_spieler)
 			}
 			// prissi: restore halt list
 			vector_tpl<halthandle_t> &haltlist=tmp->get_haltlist();
-			for(int i=0;i<haltlist.get_count();i++) {
+			for(unsigned i=0;i<haltlist.get_count();i++) {
 				bd->add_to_haltlist( haltlist.get(i) );
 			}
 			// now delete everything
@@ -139,7 +139,7 @@ void planquadrat_t::boden_ersetzen(grund_t *alt, grund_t *neu)
 		if(i==0) {
 			// prissi: restore halt list
 			vector_tpl<halthandle_t> &haltlist=tmp->get_haltlist();
-			for(int i=0;i<haltlist.get_count();i++) {
+			for(unsigned i=0;i<haltlist.get_count();i++) {
 				neu->add_to_haltlist( haltlist.get(i) );
 			}
 		}

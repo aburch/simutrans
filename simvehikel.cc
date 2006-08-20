@@ -261,46 +261,37 @@ vehikel_basis_t::~vehikel_basis_t()
 void
 vehikel_basis_t::verlasse_feld()
 {
-    if( !welt->lookup(gib_pos())->obj_remove(this, gib_besitzer()) ) {
-        dbg->error("vehikel_basis_t::verlasse_feld()",
-		   "'%s' %p could not be removed from %d %d",
-		   gib_name(), this, gib_pos().x, gib_pos().y);
+	if( !welt->lookup(gib_pos())->obj_remove(this, gib_besitzer()) ) {
+		// was not removed (not found?)
 
+		dbg->error("vehikel_basis_t::verlasse_feld()","'%s' %p could not be removed from %d %d", gib_name(), this, gib_pos().x, gib_pos().y);
+		DBG_MESSAGE("vehikel_basis_t::verlasse_feld()","checking all plan squares");
 
-        DBG_MESSAGE("vehikel_basis_t::verlasse_feld()",
-		     "checking all plan squares");
+		koord k;
+		bool ok = false;
 
-	koord k;
-	const int groesse = welt->gib_groesse();
-	bool ok = false;
+		for(k.y=0; k.y<welt->gib_groesse_y(); k.y++) {
+			for(k.x=0; k.x<welt->gib_groesse_x(); k.x++) {
+				grund_t *gr = welt->lookup( k )->gib_boden_von_obj(this);
 
-	for(k.y=0; k.y<groesse; k.y++) {
-	    for(k.x=0; k.x<groesse; k.x++) {
-		grund_t *gr = welt->lookup( k )->gib_boden_von_obj(this);
-
-		if(gr && gr->obj_remove(this, gib_besitzer())) {
-		    dbg->warning("vehikel_basis_t::verlasse_feld()",
-				 "remvoved vehicle '%s' %p from %d %d",
-				 gib_name(), this, k.x, k.y);
-		    ok = true;
+				if(gr && gr->obj_remove(this, gib_besitzer())) {
+					dbg->warning("vehikel_basis_t::verlasse_feld()","remvoved vehicle '%s' %p from %d %d",gib_name(), this, k.x, k.y);
+					ok = true;
+				}
+			}
 		}
-	    }
-	}
 
-	if(!ok) {
-	    dbg->error("vehikel_basis_t::verlasse_feld()",
-		       "'%s' %p was not found on any map sqaure!",
-		       gib_name(), this);
-
+		if(!ok) {
+			dbg->error("vehikel_basis_t::verlasse_feld()","'%s' %p was not found on any map sqaure!",gib_name(), this);
+		}
 	}
-    }
 }
 
 
 void vehikel_basis_t::betrete_feld()
 {
-  grund_t * gr = welt->lookup(gib_pos());
-  gr->obj_add(this);
+	grund_t * gr = welt->lookup(gib_pos());
+	gr->obj_add(this);
 }
 
 
@@ -339,7 +330,7 @@ void vehikel_basis_t::fahre()
 
 	if( !hop_check() ) {
 
-	    printf("vehikel %p hop_check failed at (%i,%i,%i)\n", this,gib_pos().x,gib_pos().y,gib_pos().z);fflush(NULL);
+//	    printf("vehikel %p hop_check failed at (%i,%i,%i)\n", this,gib_pos().x,gib_pos().y,gib_pos().z);fflush(NULL);
 	    return;
 	} else {
             change = true;
@@ -376,7 +367,7 @@ void vehikel_basis_t::fahre()
 }
 
 ribi_t::ribi
-vehikel_basis_t::calc_richtung(koord start, koord ende, int &dx, int &dy)
+vehikel_basis_t::calc_richtung(koord start, koord ende, sint8 &dx, sint8 &dy)
 {
     ribi_t::ribi richtung = ribi_t::keine;
 
@@ -577,7 +568,7 @@ vehikel_t::vehikel_t(karte_t *welt,
   this->besch = besch;
 
   setze_besitzer( sp );
-  insta_zeit = welt->gib_zeit_ms();
+  insta_zeit = welt->get_current_month();
   cnv = NULL;
   speed_limit = -1;
 
@@ -629,8 +620,8 @@ vehikel_t::hop_check()
 		return false;
 	}
 
-	if(ist_befahrbar(bd)) {
-		if(ist_erstes) {
+	if(ist_erstes) {
+		if(ist_befahrbar(bd)) {
 			int restart_speed = 1;
 
 			// ist_weg_frei() berechnet auch die Geschwindigkeit
@@ -643,16 +634,16 @@ vehikel_t::hop_check()
 				// nicht weiterfahren
 				return false;
 			}
+			return true;
 		}
-		return true;
-	} else {
-		// weg nicht befahrbar  -  wurde wohl abgerissen
-		if(ist_erstes ) {
+		else {
+			// weg nicht befahrbar  -  wurde wohl abgerissen
 			// dann suchen wir eben einen anderen Weg!
 			cnv->suche_neue_route();
 		}
 		return false;
 	}
+	return true;
 }
 
 
@@ -1014,15 +1005,6 @@ void vehikel_t::sync_step()
 }
 
 
-bool
-vehikel_t::step(long /*delta_t*/)
-{
-  // Hajo: no nothing ?
-
-  return true;
-}
-
-
 
 /**
  * Ermittelt fahrtrichtung
@@ -1051,18 +1033,42 @@ vehikel_t::rdwr(loadsave_t *file)
 
     ding_t::rdwr(file);
 
-    // parameter werden in der deklarierten reihenfolge gespeichert
-    file->rdwr_long(insta_zeit, "\n");
-    file->rdwr_int(dx, " ");
-    file->rdwr_int(dy, "\n");
-    file->rdwr_int(hoff, "\n");
-    file->rdwr_int(speed_limit, "\n");
-    file->rdwr_enum(fahrtrichtung, " ");
-    file->rdwr_enum(alte_fahrtrichtung, "\n");
-    file->rdwr_delim("Wre: ");
-    file->rdwr_int(fracht_count, " ");
-
-    file->rdwr_int(route_index, "\n");
+	if(file->get_version()<86006) {
+		// parameter werden in der deklarierten reihenfolge gespeichert
+		long l;
+		file->rdwr_long(insta_zeit, "\n");
+		file->rdwr_long(l, " ");
+		dx = l;
+		file->rdwr_long(l, "\n");
+		dy = l;
+		file->rdwr_long(l, "\n");
+		hoff = l;
+		file->rdwr_long(speed_limit, "\n");
+		file->rdwr_enum(fahrtrichtung, " ");
+		file->rdwr_enum(alte_fahrtrichtung, "\n");
+		file->rdwr_delim("Wre: ");
+		file->rdwr_long(fracht_count, " ");
+		file->rdwr_long(l, "\n");
+		route_index = l;
+		if(file->is_loading()) {
+			long zeit = (welt->gib_zeit_ms()-insta_zeit) >> karte_t::ticks_bits_per_tag;
+//DBG_MESSAGE("vehicle_t::rdwr()","bought at tick count %i i.e. %i month(s) before.",insta_zeit,zeit);
+			insta_zeit = welt->get_current_month()-zeit;
+		}
+	}
+	else {
+		// prissi: changed several data types to save runtime memory
+		file->rdwr_long(insta_zeit, "\n");
+		file->rdwr_byte(dx, " ");
+		file->rdwr_byte(dy, "\n");
+		file->rdwr_short(hoff, "\n");
+		file->rdwr_long(speed_limit, "\n");
+		file->rdwr_enum(fahrtrichtung, " ");
+		file->rdwr_enum(alte_fahrtrichtung, "\n");
+		file->rdwr_delim("Wre: ");
+		file->rdwr_long(fracht_count, " ");
+		file->rdwr_short(route_index, "\n");
+	}
 
     pos_prev.rdwr(file);
     pos_cur.rdwr(file);
@@ -1114,8 +1120,8 @@ vehikel_t::rdwr(loadsave_t *file)
 
 int vehikel_t::calc_restwert() const
 {
-    return (int)((double)besch->gib_preis() *
-                 pow(0.9999999, (welt->gib_zeit_ms() - gib_insta_zeit())));
+	// after 20 year, it has only half value
+    return (int)((double)besch->gib_preis() * pow(0.997, (welt->get_current_month() - gib_insta_zeit())));
 }
 
 
@@ -1463,50 +1469,54 @@ waggon_t::ist_blockwechsel(koord3d k1, koord3d k2) const
 bool
 waggon_t::ist_weg_frei(int & restart_speed) const
 {
-  if(!ist_blockwechsel(pos_cur, pos_next)) {
-    restart_speed = -1;
-    return true;
-  } else {
-    const schiene_t * sch1 =
-      (const schiene_t *) welt->lookup( pos_next )->gib_weg(gib_wegtyp());
+	if(!ist_blockwechsel(pos_cur, pos_next)) {
+		restart_speed = -1;
+		return true;
+	}
+	else {
+		const schiene_t * sch1 = (const schiene_t *) welt->lookup( pos_next )->gib_weg(gib_wegtyp());
 
-    bool frei = sch1->ist_frei();
-    signal_t * sig = sch1->gib_blockstrecke()->gib_signal_bei(pos_next);
-    if (sig)
-    	if (sig->gib_typ() == ding_t::presignal)
-     		frei = frei && is_next_block_free();
+		bool frei = sch1->ist_frei();
+		signal_t * sig = sch1->gib_blockstrecke()->gib_signal_bei(pos_next);
 
+		if(sig) {
+			if(sig->gib_typ()==ding_t::presignal) {
+				frei = frei && is_next_block_free((presignal_t *)sig);
+			}
+		}
 
-    if(frei) {
-      restart_speed = -1;
-    } else {
-      restart_speed = 8;
-    }
+		if(frei) {
+			restart_speed = -1;
+		}
+		else {
+			restart_speed = 8;
+		}
 
-    return frei;
-  }
+		return frei;
+	}
 }
 
 bool
-waggon_t::is_next_block_free() const
+waggon_t::is_next_block_free(presignal_t * sig) const
 {
 	const schiene_t * sch0 = (const schiene_t *) welt->lookup( pos_next )->gib_weg(gib_wegtyp());
 	const route_t * route = cnv->get_route();
-assert(sch0!=NULL);
+	assert(sch0!=NULL);
 
 	// find next blocksegment enroute
-	for (int i = route_index + 1; i < route->gib_max_n(); i++) {
+	for (int i = route_index+1; i < route->gib_max_n(); i++) {
 
 		const schiene_t * sch1 = (const schiene_t *) welt->lookup( route->position_bei(i))->gib_weg(gib_wegtyp());
 		if(sch1==NULL) {
 			dbg->error("waggon_t::is_next_block_free()","invalid route");
 			return true;
 		}
-assert(sch0->gib_blockstrecke().is_bound());
-assert(sch1->gib_blockstrecke().is_bound());
+		assert(sch0->gib_blockstrecke().is_bound());
+		assert(sch1->gib_blockstrecke().is_bound());
 
 		if(sch0->gib_blockstrecke() != sch1->gib_blockstrecke()) {
 			// next blocksegment found!
+			sig->set_next_block_pos( sch1->gib_blockstrecke() );
 			return sch1->gib_blockstrecke()->ist_frei();
 		}
 	}

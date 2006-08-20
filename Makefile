@@ -145,7 +145,7 @@ export CXXFLAGS
 SUB_OBJS=\
  utils/log.o utils/simstring.o utils/cstring_t.o utils/tocstring.o utils/searchfolder.o\
  utils/cbuffer_t.o\
- dataobj/nodelist_t.o dataobj/nodes_12.o\
+ dataobj/freelist.o\
  dataobj/powernet.o\
  dataobj/ribi.o dataobj/tabfile.o dataobj/linie.o \
  dataobj/fahrplan.o dataobj/koord.o dataobj/koord3d.o dataobj/route.o \
@@ -192,7 +192,6 @@ SUB_OBJS=\
  gui/sound_frame.o gui/savegame_frame.o \
  gui/load_relief_frame.o gui/loadsave_frame.o \
  gui/money_frame.o gui/convoi_frame.o gui/convoi_filter_frame.o gui/convoi_info_t.o gui/label_frame.o \
- mm/mempool.o mm/memblock.o \
  besch/reader/obj_reader.o besch/reader/root_reader.o besch/reader/xref_reader.o \
  besch/reader/building_reader.o besch/reader/good_reader.o besch/reader/tree_reader.o \
  besch/reader/skin_reader.o besch/reader/image_reader.o besch/reader/factory_reader.o \
@@ -205,6 +204,7 @@ SUB_OBJS=\
  besch/grund_besch.o\
  besch/tunnel_besch.o\
  besch/reader/sim_reader.o
+# mm/mempool.o mm/memblock.o \
 # utils/writepcx.o
 # utils/image_encoder.o
 # drivables/car_group_t.o\
@@ -282,7 +282,7 @@ cross:  subs wincross
 	mv simwin.exe ../simutrans/simutrans.exe
 
 
-subs:   gui_sub dataobj_sub dings_sub bauer_sub sucher_sub boden_sub mm_sub utils_sub besch_sub
+subs:   gui_sub dataobj_sub dings_sub bauer_sub sucher_sub boden_sub utils_sub besch_sub
 #subs:   gui_sub dataobj_sub dings_sub bauer_sub sucher_sub boden_sub mm_sub utils_sub besch_sub car_sub
 
 clean:

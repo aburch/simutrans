@@ -103,8 +103,7 @@ bool convoi_frame_t::passes_filter(convoihandle_t cnv)
 	return true;
     }
     vehikel_t *fahr = cnv->gib_vehikel(0);
-    int i;
-
+    unsigned i;
 
     if(gib_filter(name_filter) &&
        !strstr(cnv->gib_name(), name_filter_value)) {
@@ -141,7 +140,7 @@ bool convoi_frame_t::passes_filter(convoihandle_t cnv)
 	}
     }
     if(gib_filter(ware_filter)) {
-	for(i = 0; i < cnv->gib_vehikel_anzahl(); i++) {
+	for( i = 0; i < cnv->gib_vehikel_anzahl(); i++) {
 	    if(gib_ware_filter(cnv->gib_vehikel(i)->gib_fracht_typ()))
 		break;
 	}

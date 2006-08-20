@@ -898,7 +898,7 @@ display_show_pointer( true );
     event_t ev;
 
     einstellungen_t *sets = new einstellungen_t( *welt->gib_einstellungen() );
-    sets->setze_groesse(256);
+    sets->setze_groesse(256,256);
     sets->setze_anzahl_staedte(16);
     sets->setze_land_industry_chains(6);
     sets->setze_city_industry_chains(0);

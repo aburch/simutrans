@@ -55,13 +55,13 @@ blockmanager::finde_nachbarn(const karte_t *welt, const koord3d pos,
 blockmanager * blockmanager::single_instance = NULL;
 
 
-blockmanager::blockmanager()
+blockmanager::blockmanager() : marker(0,0)
 {
 }
 
-void blockmanager::setze_welt_groesse(int w)
+void blockmanager::setze_welt_groesse(int w,int h)
 {
-    marker.init(w);
+    marker.init(w,h);
 }
 
 
@@ -201,9 +201,9 @@ blockmanager::vereinige(karte_t *welt,
         return;
     }
 
-    for(int j=0; j<welt->gib_groesse(); j++) {
-        for(int i=0; i<welt->gib_groesse(); i++) {
-            const planquadrat_t *plan = welt->lookup(koord(i, j));
+	for(int y=0; y<welt->gib_groesse_y(); y++) {
+		for(int x=0; x<welt->gib_groesse_x(); x++) {
+            const planquadrat_t *plan = welt->lookup(koord(x, y));
 
             for(unsigned int k = 0; k < plan->gib_boden_count(); k++) {
                 weg_t *weg = plan->gib_boden_bei(k)->gib_weg(weg_t::schiene);
@@ -511,6 +511,8 @@ blockmanager::baue_andere_signale(koord3d pos1, koord3d pos2,
     signal_t *sig1 = sch1->gib_blockstrecke()->gib_signal_bei(pos1);
     signal_t *sig2 = sch2->gib_blockstrecke()->gib_signal_bei(pos2);
 
+	// prissi: todo: we should check, if there was a change to a presignal requested!
+
     DBG_MESSAGE("blockmanager::baue_andere_signale()",
                  "between %d,%d and %d,%d",
                  pos1.x, pos1.y, pos2.x, pos2.y);
@@ -740,28 +742,33 @@ blockmanager::traversiere_netz(const karte_t *welt,
 void
 blockmanager::rdwr(karte_t *welt, loadsave_t *file)
 {
-    int count;
+	int count;
 
-    if(file->is_loading()) {
-        // alle strecken aufräumen
-        delete_all_blocks();
-    }
-    else {
-        count = strecken.count();
-    }
-    file->rdwr_int(count, "\n");
+	if(file->is_loading()) {
+		// alle strecken aufräumen
+		delete_all_blocks();
+	}
+	else {
+		count = strecken.count();
+	}
+	file->rdwr_long(count, "\n");
 
-    if(file->is_loading()) {
-        for(int i=0; i<count; i++) {
-            strecken.append(blockstrecke_t::create(welt, file));
-        }
-    }
-    else {
-        slist_iterator_tpl<blockhandle_t > s_iter ( strecken );
-        while(s_iter.next()) {
-            s_iter.get_current()->rdwr(file);
-        }
-    }
+	if(file->is_loading()) {
+		for(int i=0; i<count; i++) {
+			strecken.append(blockstrecke_t::create(welt, file));
+		}
+	}
+	else {
+		slist_iterator_tpl<blockhandle_t > s_iter ( strecken );
+		while(s_iter.next()) {
+			if(s_iter.get_current().is_bound()) {
+				s_iter.get_current()->rdwr(file);
+			}
+			else {
+				dbg->warning("blockmanager::rdwr()","skipping unused railblock during save!");
+			}
+		}
+	}
 }
 
 void

@@ -139,7 +139,7 @@ void weg_t::rdwr(loadsave_t *file)
   if(file->is_saving()) {
     ribi8 = ribi | (ribi_maske << 4);
   }
-  file->rdwr_char(ribi8, "\n");
+  file->rdwr_byte(ribi8, "\n");
   if(file->is_loading()) {
     ribi = ribi8 & 0xF;
     ribi_maske = ribi8 >> 4;
@@ -152,7 +152,7 @@ void weg_t::rdwr(loadsave_t *file)
 
   for (int type=0; type<MAX_WAY_STATISTICS; type++) {
     for (int month=0; month<MAX_WAY_STAT_MONTHS; month++) {
-      file->rdwr_int(statistics[month][type], "\n");
+      file->rdwr_long(statistics[month][type], "\n");
       // DBG_DEBUG("weg_t::rdwr()", "statistics[%d][%d]=%d",
       //	   month, type, statistics[month][type]);
     }

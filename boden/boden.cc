@@ -11,9 +11,10 @@
 #include "../simhalt.h"
 #include "../simwin.h"
 #include "../simskin.h"
-#include "../mm/mempool.h"
 
 #include "../gui/ground_info.h"
+
+#include "../dataobj/freelist.h"
 
 #include "boden.h"
 #include "wege/strasse.h"
@@ -24,7 +25,6 @@
 #include "../simtools.h"
 #include "../simimg.h"
 
-mempool_t * boden_t::mempool = new mempool_t(sizeof(boden_t) );
 
 bool boden_t::show_grid = false;
 
@@ -35,24 +35,20 @@ bool boden_t::show_grid = false;
  */
 void boden_t::toggle_grid()
 {
-  const int groesse = welt->gib_groesse();
+	show_grid = !show_grid;
 
-  show_grid = !show_grid;
+	for(int y=0; y<welt->gib_groesse_y(); y++) {
+		for(int x=0; x<welt->gib_groesse_x(); x++) {
 
+			const planquadrat_t *plan = welt->lookup(koord(x,y));
+			const int boden_count = plan->gib_boden_count();
 
-  for(int j=0; j<groesse; j++) {
-    for(int i=0; i<groesse; i++) {
-
-      const planquadrat_t *plan = welt->lookup(koord(i,j));
-      const int boden_count = plan->gib_boden_count();
-
-      for(int schicht=0; schicht<boden_count; schicht++) {
-
-	grund_t *gr = plan->gib_boden_bei(schicht);
-	gr->calc_bild();
-      }
-    }
-  }
+			for(int schicht=0; schicht<boden_count; schicht++) {
+				grund_t *gr = plan->gib_boden_bei(schicht);
+				gr->calc_bild();
+			}
+		}
+	}
 }
 
 
@@ -79,15 +75,13 @@ void boden_t::toggle_season(int season)
 	}
 
 	// now redraw ground image
-	const int groesse = welt->gib_groesse();
-	for(int j=0; j<groesse; j++) {
-		for(int i=0; i<groesse; i++) {
+	for(int y=0; y<welt->gib_groesse_y(); y++) {
+		for(int x=0; x<welt->gib_groesse_x(); x++) {
 
-			const planquadrat_t *plan = welt->lookup(koord(i,j));
+			const planquadrat_t *plan = welt->lookup(koord(x,y));
 			const int boden_count = plan->gib_boden_count();
 
 			for(int schicht=0; schicht<boden_count; schicht++) {
-
 				grund_t *gr = plan->gib_boden_bei(schicht);
 				gr->calc_bild();
 			}
@@ -214,7 +208,7 @@ boden_t::calc_bild()
 		int bild=IMG_LEER;
 		if(slope_this!=0  &&  slope_this!=natural_slope_this) {
 			bild = grund_besch_t::boden->gib_bild(53+(slope_this/3));
-DBG_DEBUG("slope","%i",slope_this);
+//DBG_DEBUG("slope","%i",slope_this);
 		}
 		if(bild==IMG_LEER) {
 			bild = grund_besch_t::boden->gib_bild(hang + offset);
@@ -276,11 +270,11 @@ DBG_DEBUG("slope","%i",slope_this);
 
 void * boden_t::operator new(size_t /*s*/)
 {
-    return mempool->alloc();
+	return (boden_t *)freelist_t::gimme_node(sizeof(boden_t));
 }
 
 
 void boden_t::operator delete(void *p)
 {
-    mempool->free( p );
+	freelist_t::putback_node(sizeof(boden_t),p);
 }

@@ -525,7 +525,7 @@ bool depot_frame_t::is_contained(const vehikel_besch_t *info)
 
 void depot_frame_t::build_vehicle_lists()
 {
-	const int month_now = (welt->gib_zeit_ms() >> karte_t::ticks_bits_per_tag) + (umgebung_t::starting_year * 12);
+	const int month_now = welt->get_current_month();
 	int i = 0;
 
 	if(waggons_vec == 0) {
@@ -610,7 +610,7 @@ void depot_frame_t::update_data()
     };
 
 	// change grren into blue for retired vehicles
-	const int month_now = (welt->gib_zeit_ms() >> karte_t::ticks_bits_per_tag) + (umgebung_t::starting_year * 12);
+	const int month_now = welt->get_current_month();
 
     bt_veh_action.setze_text(translator::translate(txt_veh_action[veh_action]));
 
@@ -653,8 +653,8 @@ void depot_frame_t::update_data()
     if(cnv.is_bound() && cnv->gib_vehikel_anzahl() > 0) {
 		inp_name.setze_text(cnv->access_name(), 48);
 	image_list_t::image_data_t img_data;
-	int i;
 
+	uint16 i;
 	for(i = 0; i < cnv->gib_vehikel_anzahl(); i++) {
 	    img_data.image = cnv->gib_vehikel(i)->gib_bild();
 	    img_data.count = 0;
@@ -785,8 +785,8 @@ depot_frame_t::bild_gewaehlt(image_list_t *lst, int bild_index)
 
 	    int oldest_veh = -1;
 	    int newest_veh = -1;
-	    long insta_time_old = 0;
-	    long insta_time_new = 0;
+	    sint32 insta_time_old = 0;
+	    sint32 insta_time_new = 0;
 
 	    int i = 0;
 	    slist_iterator_tpl<vehikel_t *> iter(depot->get_vehicle_list());
@@ -945,18 +945,18 @@ void depot_frame_t::infowin_event(const event_t *ev)
 	do {
 	    if(dir == NEXT_WINDOW) {
 		pos.x++;
-		if(pos.x == welt->gib_groesse()) {
+		if(pos.x == welt->gib_groesse_x()) {
 		    pos.x = 0;
 		    pos.y++;
-		    if(pos.y == welt->gib_groesse()) {
+		    if(pos.y == welt->gib_groesse_y()) {
 			pos.y = 0;
 		    }
 		}
 	    } else {
 		if(pos.x == 0) {
-		    pos.x = welt->gib_groesse();
+		    pos.x = welt->gib_groesse_x();
 		    if(pos.y == 0) {
-			pos.y = welt->gib_groesse();
+			pos.y = welt->gib_groesse_y();
 		    }
 		    pos.y--;
 		}

@@ -7,12 +7,9 @@
 #include "../simworld.h"
 #include "../simtools.h"
 #include "../besch/grund_besch.h"
-#include "../mm/mempool.h"
 
 #include "../dataobj/loadsave.h"
-
-
-mempool_t * brueckenboden_t::mempool = new mempool_t(sizeof(brueckenboden_t) );
+#include "../dataobj/freelist.h"
 
 
 brueckenboden_t::brueckenboden_t(karte_t *welt, loadsave_t *file) : grund_t(welt)
@@ -64,8 +61,8 @@ brueckenboden_t::rdwr(loadsave_t *file)
       weg_hang = v;
 
     } else {
-      file->rdwr_signed_char(grund_hang, " ");
-      file->rdwr_signed_char(weg_hang, "\n");
+      file->rdwr_byte(grund_hang, " ");
+      file->rdwr_byte(weg_hang, "\n");
     }
 }
 
@@ -82,11 +79,11 @@ int brueckenboden_t::gib_weg_yoff() const
 
 void * brueckenboden_t::operator new(size_t /*s*/)
 {
-    return mempool->alloc();
+	return (brueckenboden_t *)freelist_t::gimme_node(sizeof(brueckenboden_t));
 }
 
 
 void brueckenboden_t::operator delete(void *p)
 {
-    mempool->free( p );
+	freelist_t::putback_node(sizeof(brueckenboden_t),p);
 }

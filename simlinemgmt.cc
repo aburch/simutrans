@@ -156,14 +156,14 @@ simlinemgmt_t::rdwr(karte_t * welt, loadsave_t *file)
     if(file->is_saving()) {
 		file->wr_obj_id("Linemanagement");
 		int count = count_lines();
-		file->rdwr_int(count, " ");
+		file->rdwr_long(count, " ");
 		for (int i = 0; i < count; i++)
 		{
 			get_line(i)->rdwr(file);
 		}
     } else {
 		int totalLines = 0;
-		file->rdwr_int(totalLines, " ");
+		file->rdwr_long(totalLines, " ");
 		for (int i = 0; i<totalLines; i++)
 		{
 			simline_t * line;

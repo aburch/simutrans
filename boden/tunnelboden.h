@@ -6,8 +6,6 @@
 class tunnelboden_t : public boden_t
 {
 private:
-    static mempool_t *mempool;
-
     hang_t::typ hang_typ;
 public:
     tunnelboden_t(karte_t *welt, loadsave_t *file);

@@ -149,7 +149,7 @@ public:
                      railstation = 2, dock = 4, busstop = 8}; //could be combined with or!
 
     // @author hsiegeln added
-    enum sort_mode_t { by_name=0, by_via=1, by_amount=2};
+    enum sort_mode_t { by_name=0, by_via=1, by_via_sum=2, by_amount=3};
 
 
     /* sucht Haltestelle an Koordinate pos.
@@ -318,13 +318,6 @@ private:
      * @author Hj. Malthaner
      */
     void init_gui();
-
-
-    /**
-     * prüft ob das zwischenziel der Ware im Fahrplan enthalten ist
-     * @author Hj. Malthaner
-     */
-    bool pruefe_ziel(const ware_t &ware, const fahrplan_t *fpl) const;
 
 
     /**

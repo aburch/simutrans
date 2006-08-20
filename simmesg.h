@@ -34,7 +34,7 @@ public:
 
 //	void add_message( char *text, koord pos, msg_typ where );
 //	void add_message( char *text, koord pos, msg_typ where, int color );
-	void add_message( char *text, koord pos, msg_typ where, int color=SCHWARZ, int bild=IMG_LEER );
+	void add_message( const char *text, koord pos, msg_typ where, int color=SCHWARZ, int bild=IMG_LEER );
 
     static message_t * get_instance();
 

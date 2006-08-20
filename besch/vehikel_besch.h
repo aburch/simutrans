@@ -96,6 +96,8 @@ private:
 
     uint8  engine_type; // Hajo: diesel, steam, electric
 
+	uint8 length[8];	// length to the next vehicle
+
 public:
     const char *gib_name() const
     {
@@ -117,6 +119,7 @@ public:
     {
 	return gib_bild_nr(ribi_t::dir_sued, false);
     }
+
     int gib_bild_nr(ribi_t::dir dir, bool empty) const
     {
 	const bildliste_besch_t *liste = static_cast<const bildliste_besch_t *>(gib_kind(empty ? 4 : 5));
@@ -247,6 +250,32 @@ public:
     uint8 get_engine_type() const {
       return engine_type;
     }
+
+
+	/* @return the normalized distance to the next vehicle
+	 * @author prissi
+	 */
+	uint8 get_length_to_next( uint8 next_dir ) const {
+		return length[next_dir];
+	}
+
+	/* @returns the real coordinates
+	 * @author prissi
+	 */
+	const uint8 *gib_bild_daten(int dir)
+	{
+		const bildliste_besch_t *liste = static_cast<const bildliste_besch_t *>(gib_kind(4));
+		const bild_besch_t *bild = liste->gib_bild(dir);
+
+		if(!bild) {
+			bild = liste->gib_bild(dir - 4);
+			if(!bild) {
+				return 0;
+			}
+		}
+		return (const uint8 *)(bild->gib_daten());
+	}
+
 };
 
 #endif // __VEHIKEL_BESCH_H

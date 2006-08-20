@@ -23,6 +23,8 @@ class spieler_t;
 class haltestelle_t;
 class cstring_t;
 class cbuffer_t;
+class stadt_info_t;
+
 struct hausbesch;
 
 
@@ -159,6 +161,8 @@ private:
 	 */
 	void roll_history(void);
 
+	stadt_info_t *stadt_info;
+
 public:
 	/**
 	 * Returns pointer to history for city
@@ -166,6 +170,11 @@ public:
 	 */
 	sint64* get_city_history_year() {return *city_history_year;};
 	sint64* get_city_history_month() {return *city_history_month;};
+
+	/* returns the money dialoge of a city
+	 * @author prissi
+	 */
+	stadt_info_t *gib_stadt_info();
 
 	/* end of histroy related thingies */
 private:

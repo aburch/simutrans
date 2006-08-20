@@ -24,9 +24,6 @@ class baum_besch_t;
 class baum_t : public ding_t
 {
 private:
-
-    static mempool_t *mempool;
-
     static stringhashtable_tpl<const baum_besch_t *> besch_names;
     static slist_tpl<const baum_besch_t *> baum_typen;
 

@@ -73,6 +73,7 @@ bool grund_besch_t::register_besch(const grund_besch_t *besch)
 	if(!::register_besch(spezial_objekte, besch)) {
 		return ::register_besch(winter_spezial_objekte, besch);
 	}
+	return true;
 }
 
 /*

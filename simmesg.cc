@@ -128,7 +128,7 @@ message_t::get_node(unsigned i)
  * @param bild images assosiated with message
  * @author prissi
  */
-void message_t::add_message(char *text, koord pos, msg_typ what, int color, int bild )
+void message_t::add_message(const char *text, koord pos, msg_typ what, int color, int bild )
 {
 DBG_MESSAGE("message_t::add_msg()","%40s (at %i,%i)", text, pos.x, pos.y );
 
@@ -143,9 +143,9 @@ DBG_MESSAGE("message_t::add_msg()","%40s (at %i,%i)", text, pos.x, pos.y );
 		ticker_t::get_instance()->add_msg(text,pos,color);
       }
 
-	// we will not add messages two time to the list if it was within the last 20 messages
-	unsigned long now = welt->gib_zeit_ms();
-	for(int i=0;  i<list->count()  &&  i<20;  i++) {
+	// we will not add messages two times to the list if it was within the last 20 messages or within last three months
+	unsigned long now = welt->get_current_month()-2;
+	for(unsigned i=0;  i<list->count()  &&  i<20;  i++) {
 		if(  list->at(i).time>=now  &&  list->at(i).pos==pos  &&  strcmp(list->at(i).msg,text)==0  ) {
 			// we had exactly this message already
 			return;
@@ -159,7 +159,7 @@ DBG_MESSAGE("message_t::add_msg()","%40s (at %i,%i)", text, pos.x, pos.y );
 	n.msg[256] = 0;
 	n.pos = pos;
 	n.color = color;
-	n.time = welt->gib_zeit_ms()+(1ul<<karte_t::ticks_bits_per_tag);
+	n.time = welt->get_current_month();
 	n.bild = bild;
 
 	// insert at the top

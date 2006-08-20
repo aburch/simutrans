@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <ctype.h>
+#include <assert.h>
 
 #include "../simtypes.h"
 #include "../simversion.h"
@@ -12,7 +13,10 @@ loadsave_t::mode_t loadsave_t::save_mode = binary;	// default to use for saving
 
 loadsave_t::loadsave_t()
 {
-    fp = NULL;
+	assert(sizeof(int) == 4);
+	assert(sizeof(short) == 2);
+	assert(sizeof(long) == 4);
+	fp = NULL;
 }
 
 loadsave_t::~loadsave_t()
@@ -141,7 +145,9 @@ int loadsave_t::read (void *buf, unsigned len)
     }
 }
 
-void loadsave_t::rdwr_signed_char(signed char &c, const char *delim)
+
+/* read data types (should check also for Intel/Motorola) etc */
+void loadsave_t::rdwr_byte(signed char &c, const char *delim)
 {
     if(saving) {
         lsputc(c);
@@ -151,16 +157,83 @@ void loadsave_t::rdwr_signed_char(signed char &c, const char *delim)
     rdwr_delim(delim);
 }
 
-void loadsave_t::rdwr_char(unsigned char &c, const char *delim)
+void loadsave_t::rdwr_byte(unsigned char &c, const char *delim)
 {
-    if(saving) {
-        lsputc(c);
+	signed char cc=c;
+	rdwr_byte(cc,delim);
+	c = (unsigned char)cc;
+}
+
+
+/* shorts */
+void loadsave_t::rdwr_short(short &i, const char *delim)
+{
+    if(!is_text()) {
+
+	if(saving) {
+	    write(&i, sizeof(short));
+        } else {
+	    read(&i, sizeof(short));
+	}
     } else {
-	c = lsgetc();
+	if(saving) {
+	    fprintf(fp, "%d", i);
+        } else {
+	    fscanf(fp, "%hd", &i);
+	}
     }
     rdwr_delim(delim);
 }
 
+void loadsave_t::rdwr_short(unsigned short &i, const char *delim)
+{
+	short ii=i;
+	rdwr_short(ii,delim);
+	i = (unsigned short)ii;
+}
+
+
+/* long words*/
+void loadsave_t::rdwr_long(long &l, const char *delim)
+{
+    if(!is_text()) {
+	if(saving) {
+	    write(&l, sizeof(long));
+        } else {
+	    read(&l, sizeof(long));
+	}
+    } else {
+	if(saving) {
+    	    fprintf(fp, "%ld", l);
+        } else {
+	    fscanf(fp, "%ld", &l);
+	}
+    }
+    rdwr_delim(delim);
+}
+
+void loadsave_t::rdwr_long(unsigned long &l, const char *delim)
+{
+	long ll=l;
+	rdwr_long(ll,delim);
+	l = (unsigned long)l;
+}
+
+void loadsave_t::rdwr_long(int &l, const char *delim)
+{
+	long ll = l;
+	rdwr_long(ll,delim);
+	l = (int)ll;
+}
+
+void loadsave_t::rdwr_long(unsigned &l, const char *delim)
+{
+	long ll = l;
+	rdwr_long(ll,delim);
+	l = (unsigned)ll;
+}
+
+/* long long (64 Bit) */
 void loadsave_t::rdwr_longlong(sint64 &ll, const char *delim)
 {
     if(!is_text()) {
@@ -181,127 +254,7 @@ void loadsave_t::rdwr_longlong(sint64 &ll, const char *delim)
     rdwr_delim(delim);
 }
 
-void loadsave_t::rdwr_long(long &l, const char *delim)
-{
-///    assert(sizeof(int) == 4);
 
-    if(!is_text()) {
-	if(saving) {
-	    write(&l, sizeof(long));
-        } else {
-	    read(&l, sizeof(long));
-	}
-    } else {
-	if(saving) {
-    	    fprintf(fp, "%ld", l);
-        } else {
-	    fscanf(fp, "%ld", &l);
-	}
-    }
-    rdwr_delim(delim);
-}
-
-
-void loadsave_t::rdwr_long(unsigned long &l, const char *delim)
-{
-///    assert(sizeof(int) == 4);
-
-    if(!is_text()) {
-	if(saving) {
-	    write(&l, sizeof(unsigned long));
-        } else {
-	    read(&l, sizeof(unsigned long));
-	}
-    } else {
-	if(saving) {
-    	    fprintf(fp, "%ld", l);
-        } else {
-	    fscanf(fp, "%ld", &l);
-	}
-    }
-    rdwr_delim(delim);
-}
-
-
-
-void loadsave_t::rdwr_int(int &i, const char *delim)
-{
-///    assert(sizeof(int) == 4);
-
-    if(!is_text()) {
-	if(saving) {
-	    write(&i, sizeof(int));
-        } else {
-	    read(&i, sizeof(int));
-	}
-    } else {
-	if(saving) {
-	    fprintf(fp, "%d", i);
-        } else {
-	    fscanf(fp, "%d", &i);
-	}
-    }
-    rdwr_delim(delim);
-}
-
-void loadsave_t::rdwr_int(unsigned &u, const char *delim)
-{
-    if(!is_text()) {
-///        assert(sizeof(unsigned) == 4);
-
-	if(saving) {
-	    write(&u, sizeof(unsigned));
-        } else {
-	    read(&u, sizeof(unsigned));
-	}
-    } else {
-	if(saving) {
-	    fprintf(fp, "%u", u);
-        } else {
-	    fscanf(fp, "%u", &u);
-	}
-    }
-    rdwr_delim(delim);
-}
-
-void loadsave_t::rdwr_short(short &i, const char *delim)
-{
-    if(!is_text()) {
-//        assert(sizeof(short) == 2);
-
-	if(saving) {
-	    write(&i, sizeof(short));
-        } else {
-	    read(&i, sizeof(short));
-	}
-    } else {
-	if(saving) {
-	    fprintf(fp, "%d", i);
-        } else {
-	    fscanf(fp, "%hd", &i);
-	}
-    }
-    rdwr_delim(delim);
-}
-void loadsave_t::rdwr_short(unsigned short &i, const char *delim)
-{
-    if(!is_text()) {
-//        assert(sizeof(unsigned short) == 2);
-
-	if(saving) {
-	    write(&i, sizeof(unsigned short));
-        } else {
-	    read(&i, sizeof(unsigned short));
-	}
-    } else {
-	if(saving) {
-	    fprintf(fp, "%u", i);
-        } else {
-	    fscanf(fp, "%hu", &i);
-	}
-    }
-    rdwr_delim(delim);
-}
 
 void loadsave_t::rdwr_bool(bool &i, const char *delim)
 {

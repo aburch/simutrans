@@ -126,7 +126,7 @@ money_frame_t::money_frame_t(spieler_t *sp)
     chart->setze_pos(koord(1,1));
     chart->setze_groesse(koord(443,120));
     chart->set_dimension(MAX_HISTORY_YEARS, 10000);
-    chart->set_seed(umgebung_t::starting_year+sp->gib_welt()->get_last_year());
+    chart->set_seed(sp->gib_welt()->get_last_year());
     chart->set_background(MN_GREY1);
     int i;
     for (i = 0; i<MAX_COST; i++)
@@ -294,7 +294,7 @@ void money_frame_t::zeichnen(koord pos, koord gr)
     }
 
     // Hajo: update chart seed
-    chart->set_seed(umgebung_t::starting_year+sp->gib_welt()->get_last_year());
+    chart->set_seed(sp->gib_welt()->get_last_year());
 
 
     gui_frame_t::zeichnen(pos, gr);

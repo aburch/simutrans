@@ -75,8 +75,8 @@ convoi_filter_frame_t::convoi_filter_frame_t(spieler_t *sp, convoi_frame_t *main
     gui_frame_t("clf_title", sp->kennfarbe),
     ware_scrolly(&ware_cont)
 {
-    int i;
-    int n;
+    unsigned i;
+    unsigned n;
 
     this->main_frame = main_frame;
 

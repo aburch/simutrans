@@ -169,7 +169,7 @@ schiene_t::rdwr(loadsave_t *file)
      "This saved game will not be loadable again!!!");
     }
   }
-  file->rdwr_int(blocknr, "\n");
+  file->rdwr_long(blocknr, "\n");
 
   if(file->is_loading()) {
     if(blocknr < 0) {
@@ -183,7 +183,7 @@ schiene_t::rdwr(loadsave_t *file)
     }
   }
 
-  file->rdwr_char(is_electrified, "\n");
+  file->rdwr_byte(is_electrified, "\n");
 
   if(file->is_saving()) {
     const char *s = gib_besch()->gib_name();

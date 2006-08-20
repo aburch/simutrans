@@ -12,9 +12,10 @@
 #include "../simworld.h"
 #include "../simdings.h"
 #include "wolke.h"
-#include "../dataobj/loadsave.h"
 
-#include "../mm/mempool.h"
+#include "../dataobj/loadsave.h"
+#include "../dataobj/freelist.h"
+
 
 
 wolke_t::wolke_t(karte_t *welt) : ding_t (welt)
@@ -44,8 +45,6 @@ wolke_t::rdwr(loadsave_t *file)
     file->rdwr_long(insta_zeit, "\n");
 }
 
-
-mempool_t * sync_wolke_t::mempool = new mempool_t(sizeof(sync_wolke_t) );
 
 
 sync_wolke_t::sync_wolke_t(karte_t *welt, loadsave_t *file) : wolke_t(welt)
@@ -98,22 +97,18 @@ void sync_wolke_t::entferne(spieler_t *)
 }
 
 
-void *
-sync_wolke_t::operator new(size_t /*s*/)
-{
-//    printf("new wolke\n");
 
-    return mempool->alloc();
+void * sync_wolke_t::operator new(size_t /*s*/)
+{
+	return (sync_wolke_t *)freelist_t::gimme_node(sizeof(sync_wolke_t));
 }
 
 
-void
-sync_wolke_t::operator delete(void *p)
+void sync_wolke_t::operator delete(void *p)
 {
-//    printf("delete wolke\n");
-
-    mempool->free( p );
+	freelist_t::putback_node(sizeof(sync_wolke_t),p);
 }
+
 
 
 async_wolke_t::async_wolke_t(karte_t *welt, loadsave_t *file) : wolke_t(welt)

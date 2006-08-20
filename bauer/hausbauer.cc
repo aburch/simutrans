@@ -209,7 +209,7 @@ void hausbauer_t::fill_menu(werkzeug_parameter_waehler_t *wzw,
 	int cost)
 {
 DBG_DEBUG("hausbauer_t::fill_menu()","maximum %i",stops.count());
-	for(  int i=0;  i<stops.count();  i++  ) {
+	for( unsigned i=0;  i<stops.count();  i++  ) {
 		char buf[128];
 		const haus_besch_t *besch=stops.at(i);
 

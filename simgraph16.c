@@ -742,7 +742,7 @@ static void rezoom_img( const unsigned int n )
 			PIXVAL *dest, *last_dest;
 
 			// decode/recode linewise
-			unsigned int last_color;
+			unsigned int last_color=255; // ==255 to keep compiler happy
 
 			if(images[n].zoom_data==NULL) {
 				// normal len is ok, since we are only skipping parts ...
@@ -781,6 +781,8 @@ static void rezoom_img( const unsigned int n )
 				if(y_left==0  ||  last_color<color) {
 					// required; but if the following are longer, take them instead (aviods empty pixels)
 					// so we have to set/save the beginning
+					unsigned char i, step=0;
+
 					if(y_left==0) {
 						last_dest = dest;
 					}
@@ -789,7 +791,6 @@ static void rezoom_img( const unsigned int n )
 					}
 
 					// encode this line
-					unsigned char i, step=0;
 					do {
 						// check length of transparent pixels
 						for(  i=0;  line[step]==0x73FE  &&  step<base_tile_raster_width;  i++, step+=zoom_factor  )
@@ -1836,14 +1837,14 @@ asm(
 
 /************ display all king of images from here on ********/
 #ifndef _MSC_VER
-static void pixcopy(PIXVAL *dest,
+static inline void pixcopy(PIXVAL *dest,
                     const PIXVAL *src,
-                    unsigned int len) __attribute__ ((regparm(3)));
+                    unsigned int len); // __attribute__ ((regparm(3)));
 
 
-static void colorpixcopy(PIXVAL *dest, const PIXVAL *src,
+static inline void colorpixcopy(PIXVAL *dest, const PIXVAL *src,
                          const PIXVAL * const end,
-                         const int color) __attribute__ ((regparm(3)));
+                         const int color); // __attribute__ ((regparm(3)));
 
 #endif
 
@@ -2350,15 +2351,15 @@ void display_fb_internal(int xp, int yp, int w, int h,
     clip_lr(&yp, &h, cT, cB-1);
 
     if(w > 0 && h > 0) {
-		if(dirty) {
-			mark_rect_dirty_nc(xp, yp, xp+w-1, yp+h-1);
-		}
-
 #ifdef USE_C
 		const PIXVAL colval = color >= 0x8000 ? specialcolormap_all_day[(color & 0x7FFF)]: rgbcolormap[color];
 		PIXVAL *p = textur + xp + yp*disp_width;
 		const unsigned long longcolval = (colval << 16) | colval;
 		const dx=disp_width-w;
+
+		if(dirty) {
+			mark_rect_dirty_nc(xp, yp, xp+w-1, yp+h-1);
+		}
 
 		do {
 			int count = w >> 1;
@@ -2373,9 +2374,13 @@ void display_fb_internal(int xp, int yp, int w, int h,
 
 		} while(--h);
 #else
-	// attention: prissi tries with gcc inline assembler ...
-	// the following takes the best of C and asm with the worst syntax possible
-	// it is equivalent to the above, but only faster ...
+		if(dirty) {
+			mark_rect_dirty_nc(xp, yp, xp+w-1, yp+h-1);
+		}
+
+		// attention: prissi tries with gcc inline assembler ...
+		// the following takes the best of C and asm with the worst syntax possible
+		// it is equivalent to the above, but only faster ...
 
 __asm__(	"cld\n\t"
 #if defined( __MINGW32__)

@@ -57,7 +57,7 @@ enum magic_numbers {
     magic_roadtools,
     magic_shiptools,
     magic_slopetools,
-		magic_tramtools, // Dario: Tramway
+    magic_tramtools, // Dario: Tramway
     magic_convoi_t,
     magic_halt_list_t,
     magic_label_frame,
@@ -65,7 +65,8 @@ enum magic_numbers {
     magic_autosave_t,	    // comes later
     magic_specialtools,
     magic_listtools,
-    magic_edittools
+    magic_edittools,
+    magic_keyhelp
 };
 
 // Haltezeit für Nachrichtenfenster

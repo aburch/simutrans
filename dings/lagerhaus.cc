@@ -127,7 +127,7 @@ lagerhaus_t::rdwr(loadsave_t *file)
     gebaeude_t::rdwr(file);
 
     for(int i=0; i<warenbauer_t::MAX_WAREN; i++) {
-	file->rdwr_int(lager[i].menge, "\n");
+	file->rdwr_long(lager[i].menge, "\n");
     }
 }
 #endif

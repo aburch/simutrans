@@ -19,8 +19,8 @@
 #endif
 
 
-#define PRI_DACH1   0
-#define PRI_DACH2  11
+//#define PRI_DACH1   0
+//#define PRI_DACH2  11
 #define PRI_DEPOT  11
 
 #define PRI_NIEDRIG 3

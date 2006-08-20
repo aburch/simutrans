@@ -115,7 +115,7 @@ brueckenbauer_t::fill_menu(werkzeug_parameter_waehler_t *wzw,
 		const bruecke_besch_t *besch = bruecken.get(i);
 		if(besch->gib_wegtyp() == wtyp) {
 			// add int sorted
-			int j;
+			unsigned j;
 			for( j=0;  j<matching.count();  j++  ) {
 				// insert sorted
 				if(matching.at(j)->gib_topspeed()>besch->gib_topspeed()) {
@@ -473,7 +473,7 @@ brueckenbauer_t::remove(karte_t *welt, spieler_t *sp, koord3d pos, weg_t::typ we
 {
     blockmanager *bm = blockmanager::gib_manager();
 
-    marker_t    marker(welt->gib_groesse());
+    marker_t    marker(welt->gib_groesse_x(),welt->gib_groesse_y());
     slist_tpl<koord3d> end_list;
     slist_tpl<koord3d> part_list;
     slist_tpl<koord3d> tmp_list;

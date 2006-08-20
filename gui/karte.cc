@@ -43,33 +43,23 @@ reliefkarte_t::setze_relief_farbe(koord k, const int color)
 	// if map is in normal mode, set new color for map
 	// otherwise do nothing
 	// result: convois will not "paint over" special maps
-	if (is_map_locked)
+	if (is_map_locked  ||  relief==NULL)
 	{
 		return;
 	}
 
-	if ((k.x < 0) || (k.y < 0) || (k.x > welt->gib_groesse() -1) || (k.y > welt->gib_groesse() -1))
+	if(!welt->ist_in_kartengrenzen(k)) {
 		return;
+	}
 
-  /*if(zoom == 1) {
-    relief->at(k.x, k.y) = color;
+	k.x *= zoom;
+	k.y *= zoom;
 
-  } else {
-    k.x += k.x;
-    k.y += k.y;
-
-    relief->at(k.x,   k.y) = color;
-    relief->at(k.x+1, k.y) = color;
-    relief->at(k.x,   k.y+1) = color;
-    relief->at(k.x+1, k.y+1) = color;
-  }*/
-
-  k.x *= zoom;
-  k.y *= zoom;
-
-  for (int x = 0; x < zoom; x++)
-  	for (int y = 0; y < zoom; y++)
-  		relief->at(k.x + x, k.y + y) = color;
+	for (int x = 0; x < zoom; x++) {
+		for (int y = 0; y < zoom; y++) {
+			relief->at(k.x + x, k.y + y) = color;
+		}
+	}
 }
 
 
@@ -81,8 +71,6 @@ int
 reliefkarte_t::calc_hoehe_farbe(const int hoehe, const int grundwasser)
 {
     int color;
-
-//    printf("%d %d\n", hoehe, grundwasser);
 
     if(hoehe <= grundwasser) {
 	color = BLAU;
@@ -202,7 +190,7 @@ reliefkarte_t::recalc_relief_farbe(const koord k)
 
 
 
-reliefkarte_t::reliefkarte_t(karte_t *welt)
+reliefkarte_t::reliefkarte_t()
 {
   relief = NULL;
 
@@ -213,17 +201,6 @@ reliefkarte_t::reliefkarte_t(karte_t *welt)
 
   fab = 0;
   gr = 0;
-
-  if(welt) {
-    setze_welt(welt);
-    setze_groesse(koord(welt->gib_groesse() * zoom,
-			welt->gib_groesse() * zoom));
-
-    init();
-  } else {
-    setze_welt(NULL);
-    setze_groesse(koord(256, 256));
-  }
 }
 
 
@@ -236,44 +213,27 @@ reliefkarte_t::~reliefkarte_t()
 
 
 reliefkarte_t *
-reliefkarte_t::gib_karte(karte_t *welt)
-{
-    if(single_instance == NULL) {
-	single_instance = new reliefkarte_t(welt);
-    } else {
-	if(single_instance->welt != welt) {
-	    single_instance->setze_welt(welt);
-	}
-    }
-
-    return single_instance;
-}
-
-
-reliefkarte_t *
 reliefkarte_t::gib_karte()
 {
-    if(single_instance == NULL) {
-	single_instance = new reliefkarte_t(NULL);
-    }
-
-    return single_instance;
+	if(single_instance == NULL) {
+		single_instance = new reliefkarte_t();
+	}
+	return single_instance;
 }
 
 
 void
 reliefkarte_t::init()
 {
-  if(welt != NULL) {
-    const short map_size = welt->gib_groesse();
-    koord k;
+	if(welt!=NULL  &&  relief!=NULL) {
+		koord k;
 
-    for(k.y=0; k.y<map_size; k.y++) {
-      for(k.x=0; k.x<map_size; k.x++) {
-	recalc_relief_farbe(k);
-      }
-    }
-  }
+		for(k.y=0; k.y<welt->gib_groesse_y(); k.y++) {
+			for(k.x=0; k.x<welt->gib_groesse_x(); k.x++) {
+				recalc_relief_farbe(k);
+			}
+		}
+	}
 }
 
 
@@ -288,13 +248,14 @@ reliefkarte_t::setze_welt(karte_t *welt)
     }
 
     if(welt) {
-		setze_groesse(koord(welt->gib_groesse()*zoom,
-				    welt->gib_groesse()*zoom));
-		relief = new array2d_tpl<unsigned char> (welt->gib_groesse()*zoom,
-							 welt->gib_groesse()*zoom);
-    } else {
-		setze_groesse(koord(0,0));
-    }
+    		koord size = koord(welt->gib_groesse_x()*zoom, welt->gib_groesse_y()*zoom);
+DBG_MESSAGE("reliefkarte_t::setze_welt()","welt size %i,%i",size.x,size.y);
+		relief = new array2d_tpl<unsigned char> (size.x,size.y);
+DBG_MESSAGE("reliefkarte_t::setze_welt()","welt size %i,%i",size.x,size.y);
+		setze_groesse(size);
+//		init();
+DBG_MESSAGE("reliefkarte_t::setze_welt()","welt size %i,%i",size.x,size.y);
+	}
 }
 
 
@@ -374,13 +335,10 @@ reliefkarte_t::zeichnen(koord pos) const
 
     if (fab) {
       draw_fab_connections(fab, is_shift_pressed ? ROT : WEISS, pos);
-      const koord fabpos = koord(pos.x + fab->pos.x * zoom,
-				 pos.y + fab->pos.y * zoom);
+      const koord fabpos = koord(pos.x + fab->pos.x * zoom, pos.y + fab->pos.y * zoom);
       const koord boxpos = fabpos + koord(10, 0);
       const char * name = translator::translate(fab->gib_name());
-      display_ddd_proportional_clip(boxpos.x, boxpos.y,
-				    proportional_string_width(name)+8,
-				    0, 10, WEISS, name, true);
+      display_ddd_proportional_clip(boxpos.x, boxpos.y, proportional_string_width(name)+8, 0, 10, WEISS, name, true);
     }
   }
 }
@@ -411,8 +369,8 @@ reliefkarte_t::calc_map(int render_mode)
 	}
 	// find power lines
 	if(render_mode==11) {
-		for( int x=0; x<welt->gib_groesse(); x++ ) {
-			for( int y=0; y<welt->gib_groesse(); y++ ) {
+		for( int x=0; x<welt->gib_groesse_x(); x++ ) {
+			for( int y=0; y<welt->gib_groesse_y(); y++ ) {
 				leitung_t *lt = static_cast<leitung_t *>(welt->lookup(koord(x,y))->gib_kartenboden()->suche_obj(ding_t::leitung));
 				if(lt!=NULL) {
 //					setze_relief_farbe(koord(x,y), GREEN );
@@ -623,17 +581,13 @@ reliefkarte_t::draw_fab_connections(const fabrik_t * fab, int colour, koord pos)
     const fabrik_t * fab2 = fabrik_t::gib_fab(welt, lieferziel);
     if (fab2) {
       const koord end = pos + lieferziel * zoom;
-      display_direct_line(fabpos.x+zoom, fabpos.y+zoom,
-			  end.x+zoom, end.y+zoom, colour);
+      display_direct_line(fabpos.x+zoom, fabpos.y+zoom, end.x+zoom, end.y+zoom, colour);
       const koord boxpos = end + koord(10, 0);
-      display_fillbox_wh_clip(end.x, end.y, 3 * zoom, 3 * zoom,
-			      ((welt->gib_zeit_ms() >> 10) & 1) == 0 ? ROT : WEISS, true);
+      display_fillbox_wh_clip(end.x, end.y, 3 * zoom, 3 * zoom, ((welt->gib_zeit_ms() >> 10) & 1) == 0 ? ROT : WEISS, true);
 
       const char * name = translator::translate(fab2->gib_name());
 
-      display_ddd_proportional_clip(boxpos.x, boxpos.y,
-				    proportional_string_width(name)+8,
-				    0, 5, WEISS, name, true);
+      display_ddd_proportional_clip(boxpos.x, boxpos.y, proportional_string_width(name)+8, 0, 5, WEISS, name, true);
     }
   }
 }

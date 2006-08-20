@@ -1,7 +1,35 @@
 
 Known bugs: (hard to fix)
-	Citycars are visible after loading even in a tunnel until the hop onto the next field
+	Citycars are visible after loading even in a tunnel until they hop onto the next field
 	Citycars cannot go around a 180 degree road bend
+
+Release of 86.07
+
+13-Jul-2005 (prissi)
+	Internal cleaning up of some data structures => more run-time memory, preparation for other machines/64 Bit
+	Repaired/Changed some code to make it compatible with DevCpp
+	Changed the list handling code: There was a lot of uneeded memory use (class instead struct) and some overhead. Also more friendly to different compilers.
+	Changed the mempool code: Reuse the blocks also used for the list handling code (will be alway size of 4, 8, 12, ... bytes up)
+
+	CHANGE: removing now first deletes citycars, then roadsigns/signals, otherwise like before
+	FIX: key help dialog is now a magic one (only open once)
+	FIX: limit maximum speed even hill down to maximum_speed+20 (higher speed would likely cause a derailment in reality)
+	FIX: now the absolute year is saved (avoid cheats) With saving and reloading every 500 years or so this should allow unlimited long games.
+	CHANGE: Non-quadratic maps (my favorite is always 512x256)
+	CHANGE: Unmagic cityinfo (so you can open more than one) and city info does not forget its settings anymore
+	CHANGE: try to built a little more straighter road/tracks also for diagonals (not 100% working yet)
+	ADD: presignals now posess a third stage, i.e. next block free, but nextnext one still not free
+	FIX: Paranoia check during loading can partly repair broken savegames during loading/saving
+	CHANGE: vehicle values drops now 50% in 20 xears and changes monthly.
+	CHANGE: passengers and goods are first loaded for the nearest stations the convoi goes. This allows to built local and station skipping highspeed lines.
+	ADD: after three month not moving, citycars will turn around. If still stuck, they will report "To heavy traffic\nresults in traffic jam.\n" as a problem
+	CHANGE: citycars will wait for next free hop in a step() (saveing lots of calculation time)
+	CHANGE: autosave value gives now interval in month (0=off)
+	FIX: no more redraw errors with slopes behind buildings
+	CHANGE: sorting by number of passenger for the next destination (i.e. connecting to xyz)
+
+	64 Graphcis:
+	ADD: new station building and new harbours from timeshock/converted 128px graphics
 
 
 Release of 86.06

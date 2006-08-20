@@ -5,8 +5,6 @@
 
 class brueckenboden_t : public grund_t
 {
-    static mempool_t *mempool;
-
     hang_t::typ grund_hang;
     hang_t::typ weg_hang;
 

@@ -249,8 +249,7 @@ signal_t * blockstrecke_t::gib_signal_bei(koord3d k)
 
 void blockstrecke_t::schalte_signale()
 {
-    const signal_t::signalzustand zustand =
-        ist_frei() ? signal_t::gruen : signal_t::rot;
+    const signal_t::signalzustand zustand = ist_frei() ? signal_t::gruen : signal_t::rot;
 
     slist_iterator_tpl<signal_t *> iter( signale );
 
@@ -321,7 +320,7 @@ blockstrecke_t::rdwr(loadsave_t *file)
         count = signale.count();
     }
     file->rdwr_delim("S ");
-    file->rdwr_int(count, "\n");
+    file->rdwr_long(count, "\n");
 
     if(file->is_saving()) {
         slist_iterator_tpl<signal_t*> s_iter ( signale );
@@ -340,8 +339,12 @@ blockstrecke_t::rdwr(loadsave_t *file)
 	    signale.insert( sig );
         }
     }
-    file->rdwr_int(v_rein, " ");
-    file->rdwr_int(v_raus, "\n");
+    file->rdwr_long(v_rein, " ");
+    file->rdwr_long(v_raus, "\n");
+    if(file->is_loading()  &&  (v_rein>32  ||  v_raus>32 /*||  v_rein!=v_raus*/)) {
+       dbg->warning("blockstrecke_t::rdwr()","suspicious counter values (rein=%i raus=%i)!", v_rein,v_raus);
+       v_rein = v_raus = 0;
+    }
 }
 
 

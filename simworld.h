@@ -114,7 +114,14 @@ private:
     einstellungen_t *einstellungen;
 
     // aus performancegruenden werden einige Einstellungen local gecached
-    unsigned int cached_groesse;
+    int cached_groesse_gitter_x;
+    int cached_groesse_gitter_y;
+    // diese Werte sind um ein kleiner als die Werte für das Gitter
+    int cached_groesse_karte_x;
+    int cached_groesse_karte_y;
+    // maximum size for waitng bars etc.
+    int cached_groesse_max;
+
 
     // die mausfunktion
     int (* mouse_funk)(spieler_t *, karte_t *, koord pos, value_t param);
@@ -146,7 +153,7 @@ private:
      * Mauszeigerposition, intern
      * @author Hj. Malthaner
      */
-    int i,j;
+    int mi,mj;
 
 
     /**
@@ -269,12 +276,15 @@ private:
      * Die Zeit in ms
      * @author Hj. Malthaner
      */
-    unsigned long ticks;		      // Anzahl ms seit Erzeugung
+    uint32 ticks;		      // Anzahl ms seit Erzeugung
+    uint32 next_month_ticks;	// from now on is next month
 
     unsigned long last_step_time;
 
-    unsigned int letzter_monat;  // Anzahl Spielmonate seit Erzeugung
-    unsigned int letztes_jahr;   // Anzahl Spieljahre seit Erzeugung
+    sint32 current_month;	// monat+12*jahr
+    sint32 letzter_monat;  // Absoluter Monat 0..12
+    sint32 letztes_jahr;   // Absolutes Jahr
+    sint32 basis_jahr;   // Jahr ab dem die ticks zählen
 
     int season;	// current season
 
@@ -314,9 +324,17 @@ private:
     void laden(loadsave_t *file);
 
 public:
+    /**
+     * Absoluter Monat
+     * @author prissi
+     */
+	inline uint32 get_last_month() const { return letzter_monat; };
 
     // @author hsiegeln
-    unsigned int get_last_year() { return letztes_jahr; };
+    sint32 get_last_year() { return letztes_jahr; };
+
+    // @author hsiegeln
+    sint32 get_base_year() { return basis_jahr; };
 
     int gib_x_off() const {return x_off;};
     int gib_y_off() const {return y_off;};
@@ -353,9 +371,6 @@ public:
     // das ist eher ein flag als ein offset
     static const int Z_LINES;
 
-
-    inline int gib_groesse() const {return cached_groesse;};
-
     einstellungen_t * gib_einstellungen() const {return einstellungen;};
 
     /**
@@ -379,10 +394,17 @@ public:
 
 
     /**
-     * Zeit seit Kartenerzeugung in ms
+     * Zeit seit Kartenerzeugung/dem letzen laden in ms
      * @author Hj. Malthaner
      */
     inline unsigned long gib_zeit_ms() const { return ticks; };
+
+
+    /**
+     * Absoluter Monat
+     * @author prissi
+     */
+	inline uint32 get_current_month() const { return current_month; };
 
 
     /**
@@ -476,50 +498,67 @@ public:
 
     void setze_scroll_multi(int n);
 
+	// all stuf concerning map size
+	inline int gib_groesse_x() const {return cached_groesse_gitter_x;};
+	inline int gib_groesse_y() const {return cached_groesse_gitter_y;};
+	inline int gib_groesse_max() const {return cached_groesse_max;};
 
-    inline bool ist_in_kartengrenzen(koord k) const {
-	return (k.x>=0 && k.y>=0 &&
-		k.x<(short)cached_groesse && k.y<(short)cached_groesse);
-    }
+	inline bool ist_in_kartengrenzen(koord k) const {
+	// prissi: since negative values will make the whole result negative, we can use bitwise or
+	// faster, since pentiums and other long pipeline processors do not like jumps
+//		return (k.x|k.y|(cached_groesse_karte_x-k.x)|(cached_groesse_karte_y-k.y))>=0;
+		return k.x>=0 &&  k.y>=0  &&  cached_groesse_karte_x>=k.x  &&  cached_groesse_karte_y>=k.y;
+	}
 
+	inline bool ist_in_kartengrenzen(int x, int y) const {
+	// prissi: since negative values will make the whole result negative, we can use bitwise or
+	// faster, since pentiums and other long pipeline processors do not like jumps
+//		return (x|y|(cached_groesse_karte_x-x)|(cached_groesse_karte_y-y))>=0;
+		return x>=0 &&  y>=0  &&  cached_groesse_karte_x>=x  &&  cached_groesse_karte_y>=y;
+	}
 
-    inline bool ist_in_kartengrenzen(unsigned int i, unsigned int j) const {
-	return (i<cached_groesse && j<cached_groesse);
-    }
+	inline bool ist_in_kartengrenzen(unsigned x, unsigned y) const {
+		return (x<=(unsigned)cached_groesse_karte_x && y<=(unsigned)cached_groesse_karte_y);
+	}
 
+	inline bool ist_in_gittergrenzen(koord k) const {
+	// prissi: since negative values will make the whole result negative, we can use bitwise or
+	// faster, since pentiums and other long pipeline processors do not like jumps
+//		return (k.x|k.y|(cached_groesse_gitter_x-k.x)|(cached_groesse_gitter_y-k.y))>=0;
+		return k.x>=0 &&  k.y>=0  &&  cached_groesse_gitter_x>=k.x  &&  cached_groesse_gitter_y>=k.y;
+	}
 
-    inline bool ist_in_gittergrenzen(koord k) const {
-	return (k.x>=0 && k.y>=0 &&
-		k.x<=(short)cached_groesse && k.y<=(short)cached_groesse);
-    }
+	inline bool ist_in_gittergrenzen(int x,int y) const {
+	// prissi: since negative values will make the whole result negative, we can use bitwise or
+	// faster, since pentiums and other long pipeline processors do not like jumps
+//		return (x|y|(cached_groesse_gitter_x-x)|(cached_groesse_gitter_y-y))>=0;
+		return x>=0 &&  y>=0  &&  cached_groesse_gitter_x>=x  &&  cached_groesse_gitter_y>=y;
+	}
 
-    inline bool ist_in_gittergrenzen(unsigned int i, unsigned int j) const {
-	return (i<=cached_groesse && j<=cached_groesse);
-    }
+	inline bool ist_in_gittergrenzen(unsigned x, unsigned y) const {
+		return (x<=(unsigned)cached_groesse_gitter_x && y<=(unsigned)cached_groesse_gitter_y);
+	}
 
+	/**
+	* Inline because called very frequently!
+	* @return Planquadrat an koordinate pos
+	* @author Hj. Malthaner
+	*/
+	inline const planquadrat_t * lookup(const koord k) const
+	{
+		return ist_in_kartengrenzen(k.x, k.y) ? &plan[k.x+k.y*cached_groesse_gitter_x] : 0;
+	};
 
-    /**
-     * Inline because called very frequently!
-     * @return Planquadrat an koordinate pos
-     * @author Hj. Malthaner
-     */
-    inline const planquadrat_t * lookup(const koord k) const
-    {
-      return ist_in_kartengrenzen(k.x, k.y) ? &plan[k.x+k.y*cached_groesse] : 0;
-    };
-
-
-    /**
-     * Inline because called very frequently!
-     * @return grund an pos/hoehe
-     * @author Hj. Malthaner
-     */
-    inline grund_t * lookup(const koord3d pos) const
-    {
-	const planquadrat_t *plan = lookup(pos.gib_2d());
-	return plan ? plan->gib_boden_in_hoehe(pos.z) : NULL;
-    };
-
+	/**
+	 * Inline because called very frequently!
+	 * @return grund an pos/hoehe
+	 * @author Hj. Malthaner
+	 */
+	inline grund_t * lookup(const koord3d pos) const
+	{
+		const planquadrat_t *plan = lookup(pos.gib_2d());
+		return plan ? plan->gib_boden_in_hoehe(pos.z) : NULL;
+	};
 
 	/**
 	 * returns the natural slope a a position
@@ -527,14 +566,13 @@ public:
 	 */
 	uint8	calc_natural_slope( const koord pos ) const;
 
-
     /**
      * Get slope at position pos. Outside the map everything is flat.
      * @author Hj. Malthaner
      */
     uint8 get_slope(const koord k) const
     {
-      return ist_in_kartengrenzen(k.x, k.y) ? slopes[k.x+k.y*cached_groesse] : 0;
+      return ist_in_kartengrenzen(k) ? slopes[k.x+k.y*cached_groesse_gitter_x] : 0;
     }
 
 
@@ -774,8 +812,13 @@ public:
 
     void step(long delta_t);	// Nicht-Echtzeit
 
-    planquadrat_t *access(int i, int j);
-    inline planquadrat_t *access(koord k) {return access(k.x, k.y);};
+	planquadrat_t *access(int i, int j) {
+		return ist_in_kartengrenzen(i, j) ? &plan[i + j*cached_groesse_gitter_x] : NULL;
+	}
+
+    planquadrat_t *access(koord k) {
+		return ist_in_kartengrenzen(k) ? &plan[k.x + k.y*cached_groesse_gitter_x] : NULL;
+	}
 
 
     /**
@@ -784,7 +827,7 @@ public:
      */
     inline int lookup_hgt(koord k) const
     {
-	return ist_in_gittergrenzen(k.x, k.y) ? grid_hgts[k.x + k.y*(cached_groesse+1)] << 4 : grundwasser;
+	return ist_in_gittergrenzen(k.x, k.y) ? grid_hgts[k.x + k.y*(cached_groesse_gitter_x+1)] << 4 : grundwasser;
     };
 
 

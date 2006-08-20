@@ -18,7 +18,7 @@ class loadsave_t;
 class einstellungen_t
 {
 private:
-    int groesse;
+    int groesse_x, groesse_y;
     int nummer;
 
     /* new setting since version 0.85.01
@@ -74,8 +74,11 @@ public:
      */
     einstellungen_t(const einstellungen_t *);
 
-    void setze_groesse(int g) {groesse=g;};
-    int gib_groesse() const {return groesse;};
+    void setze_groesse_x(int g) {groesse_x=g;};
+    void setze_groesse_y(int g) {groesse_y=g;};
+    void setze_groesse(int w,int h) {groesse_x=w;groesse_y=h;};
+    int gib_groesse_x() const {return groesse_x;};
+    int gib_groesse_y() const {return groesse_y;};
 
     void setze_karte_nummer(int n) {nummer=n;};
     int gib_karte_nummer() const {return nummer;};

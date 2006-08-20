@@ -7,20 +7,18 @@
 
 #include "fundament.h"
 #include "../simhalt.h"
-#include "../mm/mempool.h"
+
+#include "../dataobj/freelist.h"
 
 
-mempool_t * fundament_t::mempool = new mempool_t(sizeof(fundament_t) );
-
-
-fundament_t::fundament_t(karte_t *welt, loadsave_t *file) : grund_t(welt)
+fundament_t::fundament_t(karte_t *welt, loadsave_t *file) : boden_t(welt,file)
 {
-  rdwr(file);
+	// already handled by boden_t()
 }
 
-fundament_t::fundament_t(karte_t *welt, koord3d pos) : grund_t(welt, pos)
+fundament_t::fundament_t(karte_t *welt, koord3d pos) : boden_t(welt, pos)
 {
-  setze_bild( -1 );
+	setze_bild( -1 );
 }
 
 
@@ -30,27 +28,27 @@ fundament_t::fundament_t(karte_t *welt, koord3d pos) : grund_t(welt, pos)
  */
 void fundament_t::zeige_info()
 {
-  if(gib_halt().is_bound()) {
-    gib_halt()->zeige_info();
-  }
+	if(gib_halt().is_bound()) {
+		gib_halt()->zeige_info();
+	}
 }
 
 
 void
 fundament_t::calc_bild()
 {
-  grund_t::calc_bild();
-  setze_bild( -1 );
+	boden_t::calc_bild();
+//	setze_bild( -1 );
 }
 
 
 void * fundament_t::operator new(size_t /*s*/)
 {
-    return mempool->alloc();
+	return (fundament_t *)freelist_t::gimme_node(sizeof(fundament_t));
 }
 
 
 void fundament_t::operator delete(void *p)
 {
-    mempool->free( p );
+	freelist_t::putback_node(sizeof(fundament_t),p);
 }

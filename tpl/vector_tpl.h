@@ -92,7 +92,7 @@ public:
 		if(new_size<=size) {
 			return true;	// do nothing
 		}
-DBG_DEBUG("<vector_tpl>::resize()","old size %i, new size %i",size,new_size);
+//DBG_DEBUG("<vector_tpl>::resize()","old size %i, new size %i",size,new_size);
 		if(count > new_size) {
 			ERROR("vector_tpl<T>::resize()", "cannot preserve elements.");
 			return false;

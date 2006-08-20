@@ -55,6 +55,7 @@ class inthashtable_t;
 class cstring_t;
 class vehikel_besch_t;
 class fahrplan_t;
+class presignal_t;
 
 struct event_t;
 
@@ -113,7 +114,7 @@ protected:
     virtual void hop() = 0;
 
 public:
-    ribi_t::ribi calc_richtung(koord start, koord ende, int &dx, int &dy);
+    ribi_t::ribi calc_richtung(koord start, koord ende, sint8 &dx, sint8 &dy);
 
     /**
      * Checks if this vehicle must change the square upon next move
@@ -146,18 +147,16 @@ private:
     static slist_tpl<const vehikel_t *> list;	// Liste der Vehikel (alle !)
 
     /**
-     * Kaufdatum in Simutrans-Ticks
+     * Kaufdatum in months
      * @author Hj. Malthaner
      */
-    unsigned long insta_zeit;
-
-
+    sint32 insta_zeit;
 
     /**
      * Aktuelle Fahrtrichtung in Bildschirm-Koordinaten
      * @author Hj. Malthaner
      */
-    int dx, dy;
+    sint8 dx, dy;
 
 
     bool rauchen;
@@ -167,21 +166,21 @@ private:
      * Offsets fuer Bergauf/Bergab
      * @author Hj. Malthaner
      */
-    int hoff;
+    sint16 hoff;
 
     /* For the more physical acceleration model friction is introduced
      * frictionforce = gamma*speed*weight
      * since the total weight is needed a lot of times, we save it
      * @author prissi
      */
-     int sum_weight;
+     uint16 sum_weight;
      /* The friction is calculated new every step, so we save it too
      * @author prissi
      */
-     int current_friction;
+     sint16 current_friction;
 
 
-    int speed_limit;
+    sint32 speed_limit;
 
     bool hop_check();
     void ziel_erreicht();
@@ -210,7 +209,7 @@ protected:
      * Current index on the route
      * @author Hj. Malthaner
      */
-    int route_index;
+    uint16 route_index;
 
 
     /**
@@ -260,7 +259,7 @@ public:
 
     virtual weg_t::typ gib_wegtyp() const = 0;
 
-    const unsigned long gib_insta_zeit() const {return insta_zeit;};
+    const sint32 gib_insta_zeit() const {return insta_zeit;};
 
     void darf_rauchen(bool yesno ) { rauchen = yesno;};
     ribi_t::ribi gib_fahrtrichtung() const {return fahrtrichtung;};
@@ -330,9 +329,6 @@ public:
 
 
     void rauche();
-
-
-    bool step(long delta_t) ;	// asynchrone Aufgaben
 
 
     /**
@@ -563,7 +559,7 @@ protected:
 public:
     virtual bool ist_weg_frei(int &restart_speed) const;
 
-		bool is_next_block_free() const;
+	bool is_next_block_free( presignal_t *sig ) const;
 
     void verlasse_feld();
 

@@ -13,11 +13,9 @@
 #include "../simworld.h"
 #include "../simtools.h"
 #include "../simhalt.h"
-#include "../mm/mempool.h"
 #include "../besch/grund_besch.h"
 
-
-mempool_t * wasser_t::mempool = new mempool_t(sizeof(wasser_t) );
+#include "../dataobj/freelist.h"
 
 wasser_t::wasser_t(karte_t *welt, loadsave_t *file) : grund_t(welt)
 {
@@ -78,16 +76,12 @@ ribi_t::ribi wasser_t::gib_weg_ribi(weg_t::typ typ) const
 void *
 wasser_t::operator new(size_t /*s*/)
 {
-//    printf("new wasser_t\n");
-
-    return mempool->alloc();
+	return (wasser_t *)freelist_t::gimme_node(sizeof(wasser_t));
 }
 
 
 void
 wasser_t::operator delete(void *p)
 {
-//    printf("delete wasser_t\n");
-
-    mempool->free( p );
+	freelist_t::putback_node(sizeof(wasser_t),p);
 }

@@ -12,12 +12,12 @@
 #define koord3d_h
 
 #include <stdlib.h>
+#include "../simtypes.h"
 
 #ifndef koord_h
 #include "koord.h"
 #endif
 
-class mempool_t;
 
 /**
  * 3d koordinaten
@@ -26,19 +26,16 @@ class mempool_t;
  */
 class koord3d
 {
-private:
-    static mempool_t *mempool;
-
 public:
     // Hajo: 6-byte variant, bad for alignment :(
     // short x, y, z;
 
-/*
+/* to few bits and bad for performance anyway
     signed int x : 11;
     signed int y : 11;
     signed int z : 10;
 */
-	signed short x, y, z;
+	sint16 x, y, z;
 
     // 6 byte, clear code
 	koord3d() {x=y=z=0;};

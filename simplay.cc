@@ -325,7 +325,7 @@ spieler_t::display_messages(const int xoff, const int yoff, const int width)
  * @author Hj. Malthaner
  */
 void
-spieler_t::age_messages(long delta_t)
+spieler_t::age_messages(long /*delta_t*/)
 {
   for(int n=0; n<=last_message_index; n++) {
     if(text_alter[n] >= -80) {
@@ -842,7 +842,7 @@ DBG_MESSAGE("spieler_t::do_passenger_ki()","found end hub");
 								umgebung_t::max_transfers = 4;
 								start_halt->suche_route(pax);
 								umgebung_t::max_transfers = max_transfers;;
-								if(pax.gib_ziel()!=koord::invalid  &&  dist1>welt->gib_groesse()/3) {
+								if(pax.gib_ziel()!=koord::invalid  &&  dist1>welt->gib_groesse_max()/3) {
 									// already connected
 									continue;
 								}
@@ -913,7 +913,7 @@ DBG_MESSAGE("spieler_t::do_passenger_ki()","no suitable hub found");
 				if(!baue)
 				{
 				  	// obey timeline
-					unsigned month_now = (welt->gib_zeit_ms() >> welt->ticks_bits_per_tag) + (umgebung_t::starting_year * 12);
+					unsigned month_now = welt->get_current_month();
 					if(  umgebung_t::use_timeline == false   ) {
 						month_now = 0xFFFFFFFFu;
 					}
@@ -1033,7 +1033,7 @@ DBG_DEBUG("do_passenger_ki()","calling message_t()");
 						  	// obey timeline
 							unsigned month_now = 0xFFFFFFFFu;
 							if(  umgebung_t::use_timeline == true   ) {
-								month_now = (welt->gib_zeit_ms() >> welt->ticks_bits_per_tag) + (umgebung_t::starting_year * 12);
+								month_now = welt->get_current_month();
 							}
 							road_vehicle = vehikelbauer_t::vehikel_search( vehikel_besch_t::strasse, month_now, 10, 80, warenbauer_t::passagiere );
 							koord list[2] = {halt->gib_basis_pos(),ware.gib_zwischenziel()};
@@ -1051,7 +1051,7 @@ DBG_MESSAGE("spieler_t::do_passenger_ki()","add new convoi to crowded line from 
 				if(cnv->gib_besitzer()==this) {
 					// check for empty vehicles (likely stucked) that are making no plus and remove them ...
 					// take care, that the vehicle is old enough ...
-					if((welt->gib_zeit_ms()-cnv->gib_vehikel(0)->gib_insta_zeit())>>(karte_t::ticks_bits_per_tag+1)>2  &&  cnv->gib_jahresgewinn()<=0  ){
+					if((welt->get_current_month()-cnv->gib_vehikel(0)->gib_insta_zeit())>2  &&  cnv->gib_jahresgewinn()==0  ){
 						sint64 passenger=0;
 						for( int i=0;  i<MAX_MONTHS;  i ++) {
 							passenger += cnv->get_finance_history(i,CONVOI_TRANSPORTED_GOODS);
@@ -1283,7 +1283,7 @@ DBG_MESSAGE("spieler_t::do_ki()","%s want to build a route from %s (%d,%d) to %s
 				  	int best_road_speed = MIN(60+freight->gib_speed_bonus()*5, 130 );
 
 				  	// obey timeline
-					unsigned month_now = (welt->gib_zeit_ms() >> welt->ticks_bits_per_tag) + (umgebung_t::starting_year * 12);
+					unsigned month_now = welt->get_current_month();
 					if(  umgebung_t::use_timeline == false   ) {
 						month_now = 0xFFFFFFFFu;
 					}
@@ -1546,7 +1546,7 @@ DBG_MESSAGE("spieler_t::do_ki()","No roadway possible.");
 				if(cnv->gib_besitzer()==this) {
 					// check for empty vehicles (likely stucked) that are making no plus and remove them ...
 					// take care, that the vehicle is old enough ...
-					if((welt->gib_zeit_ms()-cnv->gib_vehikel(0)->gib_insta_zeit())>>(karte_t::ticks_bits_per_tag+1)>2  &&  cnv->gib_jahresgewinn()==0  ){
+					if((welt->get_current_month()-cnv->gib_vehikel(0)->gib_insta_zeit())>2  &&  cnv->gib_jahresgewinn()==0  ){
 						sint64 passenger=0;
 						for( int i=0;  i<MAX_MONTHS;  i ++) {
 							passenger += cnv->get_finance_history(i,CONVOI_TRANSPORTED_GOODS);
@@ -1744,7 +1744,7 @@ DBG_MESSAGE("spieler_t::baue_bahnhof","try to remove last segment");
 
 	// find a freight train station
 	const haus_besch_t * besch=hausbauer_t::train_stops.at(0);
-	for( int i=1;  i<hausbauer_t::train_stops.count();  i++  ) {
+	for( unsigned i=1;  i<hausbauer_t::train_stops.count();  i++  ) {
 		if(strstr(hausbauer_t::train_stops.at(i)->gib_name(),"Freight")) {
 			besch = hausbauer_t::train_stops.at(i);
 			if(simrand(20)<7) {
@@ -1799,7 +1799,7 @@ DBG_MESSAGE("spieler_t::baue_bahnhof","Final station at (%i,%i)",p->x,p->y);
  * @author prissi
  */
 int
-spieler_t::rating_transport_quelle_ziel(fabrik_t *qfab,const ware_t *ware,fabrik_t *zfab)
+spieler_t::rating_transport_quelle_ziel(fabrik_t */*qfab*/,const ware_t *ware,fabrik_t *zfab)
 {
 	const vector_tpl<ware_t> *eingang = zfab->gib_eingang();
 	// we may have more than one input:
@@ -1871,7 +1871,6 @@ spieler_t::guess_gewinn_transport_quelle_ziel(fabrik_t *qfab,const ware_t *ware,
 		// wenn andere fahrzeuge genutzt werden muss man die werte anpassen
 		// da aber später genau berechnet wird, welche Fahrzeuge am günstigsten sind => grobe schätzung ok!
 		const int dist = abs(zfab->gib_pos().x - qfab->gib_pos().x) + abs(zfab->gib_pos().y - qfab->gib_pos().y);
-		const int speed = 512;                  // LKW
 		const int grundwert = ware->gib_preis();	// assume 3 cent per square mantenance
 		if( dist > 6) {                          // sollte vernuenftige Entfernung sein
 
@@ -2224,7 +2223,7 @@ spieler_t::create_rail_transport_vehikel(const koord platz1, const koord platz2,
    const koord3d pos2 ( welt->lookup(platz2)->gib_kartenboden()->gib_pos() );
 
     // lokomotive bauen
-    unsigned month_now = (welt->gib_zeit_ms() >> welt->ticks_bits_per_tag) + (umgebung_t::starting_year * 12);
+    unsigned month_now = welt->get_current_month();
     if(  umgebung_t::use_timeline == false   ) {
     		month_now = 0xFFFFFFFFu;
     	}
@@ -2678,7 +2677,7 @@ spieler_t::checke_streckenbau(wegbauer_t &bauigel, slist_tpl<koord> &list)
  * @author Hj. Malthaner
  */
 bool
-spieler_t::versuche_brueckenbau(koord p, int *index, ribi_t::ribi ribi,
+spieler_t::versuche_brueckenbau(koord , int *index, ribi_t::ribi,
                                 wegbauer_t &bauigel,
 				slist_tpl <koord> &list)
 {
@@ -2749,17 +2748,17 @@ DBG_DEBUG("spieler_t::rdwr()","%i has %i halts.",welt->sp2num( this ),halt_count
 	}
 	file->rdwr_delim("Sp ");
 	file->rdwr_longlong(konto, " ");
-	file->rdwr_int(konto_ueberzogen, " ");
-	file->rdwr_int(steps, " ");
-	file->rdwr_int(kennfarbe, " ");
-	file->rdwr_int(halt_count, " ");
+	file->rdwr_long(konto_ueberzogen, " ");
+	file->rdwr_long(steps, " ");
+	file->rdwr_long(kennfarbe, " ");
+	file->rdwr_long(halt_count, " ");
 	// @author hsiegeln
 	if (file->get_version() < 82003)
 	{
 		haltcount = 0;
 	}
 	else {
-		file->rdwr_int(haltcount, " ");
+		file->rdwr_long(haltcount, " ");
 	}
 
 	// from here on loading financial stuff
@@ -2872,10 +2871,10 @@ DBG_DEBUG("spieler_t::rdwr()","%i has %i halts.",welt->sp2num( this ),halt_count
 	file->rdwr_enum(dummy, " ");
 	subzustand subdummy=NR_INIT;
 	file->rdwr_enum(subdummy, "\n");
-	file->rdwr_int(start_index, " ");
-	file->rdwr_int(ziel_index, "\n");
-	file->rdwr_int(gewinn, " ");
-	file->rdwr_int(count, "\n");
+	file->rdwr_long(start_index, " ");
+	file->rdwr_long(ziel_index, "\n");
+	file->rdwr_long(gewinn, " ");
+	file->rdwr_long(count, "\n");
 	platz1.rdwr( file );
 	platz2.rdwr( file );
 
@@ -2956,7 +2955,7 @@ DBG_DEBUG("spieler_t::rdwr()","player %i: loading %i halts.",welt->sp2num( this 
 		headquarter_pos = koord::invalid;
 	}
 	else {
-		file->rdwr_int(headquarter_level, " ");
+		file->rdwr_long(headquarter_level, " ");
 		headquarter_pos.rdwr( file );
 		if(file->is_loading()) {
 			if(headquarter_level>=hausbauer_t::headquarter.count()) {

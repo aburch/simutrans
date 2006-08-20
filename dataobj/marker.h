@@ -29,10 +29,10 @@ class marker_t {
 
     slist_tpl <const grund_t *> more;
 public:
-    marker_t(int welt_groesse = 0) : bits(NULL) { init(welt_groesse); }
+    marker_t(int welt_groesse_x,int welt_groesse_y) : bits(NULL) { init(welt_groesse_x, welt_groesse_y); }
     ~marker_t();
 
-    void init(int welt_groesse);
+    void init(int welt_groesse_x,int welt_groesse_y);
 
     void markiere(const grund_t *gr);
     void unmarkiere(const grund_t *gr);

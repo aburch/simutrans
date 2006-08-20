@@ -72,14 +72,14 @@ public:
     bool is_text() const { return mode == text; }
     int get_version() const { return version; }
 
-    void rdwr_signed_char(signed char &c, const char *delim);
-    void rdwr_char(unsigned char &c, const char *delim);
-    void rdwr_int(int &i, const char *delim);
-    void rdwr_int(unsigned &u, const char *delim);
+    void rdwr_byte(signed char &c, const char *delim);
+    void rdwr_byte(unsigned char &c, const char *delim);
     void rdwr_short(short &i, const char *delim);
     void rdwr_short(unsigned short &i, const char *delim);
     void rdwr_long(long &i, const char *delim);
     void rdwr_long(unsigned long &i, const char *delim);
+    void rdwr_long(int &i, const char *delim);
+    void rdwr_long(unsigned &i, const char *delim);
     void rdwr_longlong(sint64 &i, const char *delim);
     void rdwr_bool(bool &i, const char *delim);
     void rdwr_double(double &dbl, const char *delim);             //01-Dec-01     Markus Weber    Added
@@ -104,7 +104,7 @@ public:
         if(is_saving()) {
             int_x = (int)x;
         }
-        rdwr_int(int_x, delim);
+        rdwr_long(int_x, delim);
         if(is_loading()) {
             x = (X)int_x;
         }

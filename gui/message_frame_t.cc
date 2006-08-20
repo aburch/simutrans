@@ -77,7 +77,7 @@ void message_frame_t::resize(const koord delta)
 
  /* triggered, when button clicked */
 bool
-message_frame_t::action_triggered(gui_komponente_t *komp)
+message_frame_t::action_triggered(gui_komponente_t *)
 {
 	create_win(320,200, new message_option_t(welt), w_info );
 	return true;

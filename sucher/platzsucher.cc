@@ -182,7 +182,7 @@ bool pos_liste_wh_t::gib_naechste_pos(koord &k)
 
 bool platzsucher_t::ist_platz_ok(koord pos, int b, int h) const
 {
-    if(pos.x < 0 || pos.y < 0 || pos.x + b >= welt->gib_groesse() || pos.y + h >= welt->gib_groesse()) {
+	if(!welt->ist_in_kartengrenzen(pos)) {
 	return false;
     }
     koord k(b, h);
@@ -210,7 +210,7 @@ bool platzsucher_t::ist_feld_ok(koord /*pos*/, koord /*d*/) const
 
 koord platzsucher_t::suche_platz(koord start, int b, int h, bool *r)
 {
-    pos_liste_wh_t psuch1(welt->gib_groesse(), b, h);
+    pos_liste_wh_t psuch1(welt->gib_groesse_max(), b, h);
 
     this->b = b;
     this->h = h;
@@ -221,7 +221,7 @@ koord platzsucher_t::suche_platz(koord start, int b, int h, bool *r)
 	//
 	// Hier suchen wir auch gedrehte Positionen.
 	//
-	pos_liste_wh_t psuch2(welt->gib_groesse(), h, b);
+	pos_liste_wh_t psuch2(welt->gib_groesse_max(), h, b);
 
 	if(ist_platz_ok(start, b, h)) {
 	    *r = false;

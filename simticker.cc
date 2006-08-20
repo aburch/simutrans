@@ -88,7 +88,7 @@ const ticker_t::node * ticker_t::next()
 void ticker_t::pop()
 {
   if(list->count() > 0) {
-    node p = list->at(0);
+//    node p = list->at(0);
     list->remove_first();
   }
 }
@@ -156,7 +156,7 @@ void ticker_t::add_msg(const char *txt, koord pos, int color)
 /* Ticker infowin pops up
  * @author Hj. Malthaner
  */
-koord ticker_t::get_welt_pos( int x, int y )
+koord ticker_t::get_welt_pos( int /*x*/, int /*y*/ )
 {
 	return default_pos;
 }
@@ -184,7 +184,7 @@ void ticker_t::zeichnen(void)
 			display_fillbox_wh(width-X_DIST, start_y+1, X_DIST, 15, MN_GREY2, true);
 			// ok, ready for the text
 			PUSH_CLIP(width-X_DIST-1,start_y+1,X_DIST+1,15);
-			for(int i=0;  i<list->count();  i++  ) {
+			for(unsigned i=0;  i<list->count();  i++  ) {
 				struct node *n=&list->at(i);
 				n->xpos -= X_DIST;
 				if(n->xpos<width) {

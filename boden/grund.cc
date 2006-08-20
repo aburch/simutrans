@@ -216,7 +216,7 @@ void grund_t::rdwr(loadsave_t *file)
     if(file->is_loading() && label) {
 	welt->add_label(gib_pos().gib_2d());
     }
-    file->rdwr_signed_char(besitzer_n, "\n");
+    file->rdwr_byte(besitzer_n, "\n");
 
     if(file->is_loading()) {
 	weg_t::typ wtyp;
@@ -261,7 +261,7 @@ void grund_t::rdwr(loadsave_t *file)
         }
         file->wr_obj_id(-1);   // Ende der Wege
     }
-    dinge.rdwr(welt, file);
+    dinge.rdwr(welt, file,gib_pos());
     if(file->is_loading()) {
         flags |= dirty;
     }

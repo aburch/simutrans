@@ -12,6 +12,7 @@
  */
 
 #include "simdebug.h"
+#include "simmesg.h"
 #include "boden/grund.h"
 #include "boden/wege/weg.h"
 #include "simworld.h"
@@ -20,6 +21,7 @@
 #include "simmem.h"
 #include "tpl/slist_mit_gewichten_tpl.h"
 
+#include "dataobj/translator.h"
 #include "dataobj/loadsave.h"
 #include "dataobj/umgebung.h"
 
@@ -38,7 +40,7 @@ void stadtauto_t::built_timeline_liste()
 {
 	// this list will contain all citycars
 	liste_timeline.clear();
-	const int month_now = (welt->gib_zeit_ms() >> karte_t::ticks_bits_per_tag) + (umgebung_t::starting_year * 12);
+	const int month_now = welt->get_current_month();
 
 //DBG_DEBUG("stadtauto_t::built_timeline_liste()","year=%i, month=%i", month_now/12, month_now%12+1);
 
@@ -85,6 +87,7 @@ stadtauto_t::stadtauto_t(karte_t *welt, loadsave_t *file)
  : verkehrsteilnehmer_t(welt)
 {
 	rdwr(file);
+	step_frequency = 0;
 	welt->sync_add(this);
 }
 
@@ -94,6 +97,7 @@ stadtauto_t::stadtauto_t(karte_t *welt, koord3d pos)
 	besch = liste_timeline.gib_gewichted(simrand(liste_timeline.gib_gesamtgewicht()));
 	time_to_life = umgebung_t::stadtauto_duration;
 	current_speed = 48;
+	step_frequency = 0;
 	setze_max_speed( besch->gib_geschw() );
 }
 
@@ -142,7 +146,7 @@ void stadtauto_t::rdwr(loadsave_t *file)
 		time_to_life = simrand(100000);
 	}
 	else {
-		file->rdwr_int(time_to_life, "\n");
+		file->rdwr_long(time_to_life, "\n");
 	}
 
 	if(file->get_version() <= 86004) {
@@ -152,8 +156,10 @@ void stadtauto_t::rdwr(loadsave_t *file)
 		}
 	}
 	else {
-		file->rdwr_int(current_speed, "\n");
+		file->rdwr_long(current_speed, "\n");
 	}
+	// do not start with zero speed!
+	current_speed ++;
 }
 
 
@@ -229,6 +235,49 @@ stadtauto_t::ist_weg_frei() const
 
 
 
+bool
+stadtauto_t::step(long /*delta_t*/)
+{
+	// if we get here, we are stucked somewhere
+	// since this test takes some time, we do not do it too often
+	if(ist_weg_frei()) {
+		// drive on
+		step_frequency = 0;
+		current_speed = 48;
+	}
+	else {
+		// still stucked
+		if(ms_traffic_jam<welt->gib_zeit_ms()) {
+			// try to turn around
+			fahrtrichtung = ribi_t::rueckwaerts( fahrtrichtung );
+			koord3d old_pos_next = pos_next;
+			pos_next = gib_pos();
+			setze_pos( pos_next+koord(-1,0) );
+			if(ist_weg_frei()) {
+				// drive on
+				setze_pos( pos_next );
+				step_frequency = 0;
+				current_speed = 48;
+			}
+			else {
+				// old direction again and report traffic jam
+				fahrtrichtung = ribi_t::rueckwaerts( fahrtrichtung );
+				setze_pos( pos_next );
+				pos_next = old_pos_next;
+				ms_traffic_jam = welt->gib_zeit_ms()+(3<<karte_t::ticks_bits_per_tag);
+				koord about_pos = gib_pos().gib_2d();
+				message_t::get_instance()->add_message(
+					translator::translate("To heavy traffic\nresults in traffic jam.\n"),
+					koord(about_pos.x&0xFFF4,about_pos.y&0xFFF4) ,message_t::problems,ORANGE );
+				// still stucked ...
+			}
+		}
+	}
+	return true;
+}
+
+
+
 void
 verkehrsteilnehmer_t::calc_current_speed()
 {
@@ -247,9 +296,10 @@ verkehrsteilnehmer_t::calc_current_speed()
 verkehrsteilnehmer_t::verkehrsteilnehmer_t(karte_t *welt) :
    vehikel_basis_t(welt)
 {
-    setze_besitzer( welt->gib_spieler(1) );
-    max_speed = 0;
-    current_speed = 0;
+	setze_besitzer( welt->gib_spieler(1) );
+	max_speed = 0;
+	current_speed = 1;
+	step_frequency = 0;
 }
 
 
@@ -266,6 +316,8 @@ verkehrsteilnehmer_t::verkehrsteilnehmer_t(karte_t *welt, koord3d pos) :
 
     max_speed = kmh_to_speed(80);
     current_speed = 50;
+	current_speed = 1;
+	step_frequency = 0;
 
     weg_next = simrand(1024);
     hoff = 0;
@@ -332,7 +384,8 @@ stadtauto_t::hop_check()
 {
 	bool frei = ist_weg_frei();
 	if(!frei) {
-		current_speed = 64;
+		ms_traffic_jam = welt->gib_zeit_ms() + (3<<karte_t::ticks_bits_per_tag);
+		step_frequency = 1;
 	}
 	return frei;
 }
@@ -415,8 +468,14 @@ verkehrsteilnehmer_t::calc_bild()
 }
 
 
+
+
 bool verkehrsteilnehmer_t::sync_step(long delta_t)
 {
+	if(step_frequency>0) {
+		// step will check for traffic jams
+		return true;
+	}
   // DBG_MESSAGE("verkehrsteilnehmer_t::sync_step()", "%p called", this);
 //	if(current_speed==0) {
 //		calc_current_speed();
@@ -456,26 +515,37 @@ bool verkehrsteilnehmer_t::sync_step(long delta_t)
 
 void verkehrsteilnehmer_t::rdwr(loadsave_t *file)
 {
-	int dummy = 0;
-
+	step_frequency = 0;
 	vehikel_basis_t::rdwr(file);
 
-	file->rdwr_int(max_speed, "\n");
-	file->rdwr_int(dummy, " ");
-	file->rdwr_int(weg_next, "\n");
-	file->rdwr_int(dx, " ");
-	file->rdwr_int(dy, "\n");
-	file->rdwr_enum(fahrtrichtung, " ");
-	file->rdwr_int(hoff, "\n");
-
+	if(file->get_version() < 86006) {
+		long l;
+		file->rdwr_long(max_speed, "\n");
+		file->rdwr_long(l, " ");
+		file->rdwr_long(weg_next, "\n");
+		file->rdwr_long(l, " ");
+		dx = l;
+		file->rdwr_long(l, "\n");
+		dy = l;
+		file->rdwr_enum(fahrtrichtung, " ");
+		file->rdwr_long(l, "\n");
+		hoff = l;
+	}
+	else {
+		file->rdwr_long(max_speed, "\n");
+		file->rdwr_long(weg_next, "\n");
+		file->rdwr_byte(dx, " ");
+		file->rdwr_byte(dy, "\n");
+		file->rdwr_enum(fahrtrichtung, " ");
+		file->rdwr_short(hoff, "\n");
+	}
 	pos_next.rdwr(file);
+
 	// Hajo: avoid endless growth of the values
 	// this causes lockups near 2**32
-
 	weg_next &= 1023;
 
 	if(file->is_loading()) {
-
 		// Hajo: pre-speed limit game had city cars with max speed of
 		// 60 km/h, since city raods now have a speed limit of 50 km/h
 		// we can use 80 for the cars so that they speed up on
@@ -483,6 +553,5 @@ void verkehrsteilnehmer_t::rdwr(loadsave_t *file)
 		if(file->get_version() <= 84000 && max_speed==kmh_to_speed(60)) {
 			max_speed = kmh_to_speed(80);
 		}
-
 	}
 }

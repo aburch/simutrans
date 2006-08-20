@@ -8,10 +8,6 @@
 class ding_t;
 class karte_t;
 
-class mempool_t;
-
-
-
 
 /**
  * Basisklasse für Wölkchen für Simutrans.
@@ -49,7 +45,6 @@ class sync_wolke_t : public wolke_t, public sync_steppable
 private:
     sint16 base_y_off;
     sint16 base_image;
-    static mempool_t *mempool;
 
 public:
     sync_wolke_t(karte_t *welt, loadsave_t *file);
@@ -80,7 +75,7 @@ public:
 
 
 /**
- * Asynchron bewegte Wölkchen für Simutrans. Bewegt sich schlechjt, braucht aber
+ * Asynchron bewegte Wölkchen für Simutrans. Bewegt sich schlecht, braucht aber
  * weniger Rechenzeit als synchrone Wolken.
  *
  * @author Hj. Malthaner

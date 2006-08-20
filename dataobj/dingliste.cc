@@ -26,50 +26,46 @@
 #include "../dings/leitung2.h"
 #include "../dings/oberleitung.h"
 
-#include "../mm/mempool.h"
-
 #include "../simdepot.h"
 #include "../simmem.h"
 #include "../simverkehr.h"
 #include "../simpeople.h"
-#include "../dataobj/translator.h"
+#include "../simplan.h"
 #include "../besch/haus_besch.h"
 
-#include "loadsave.h"
+#include "../dataobj/translator.h"
+#include "../dataobj/loadsave.h"
+#include "../dataobj/freelist.h"
 
 
-static mempool_t *pool = new mempool_t(8*sizeof(ding_t *));
 
 
 static void dl_free(void *p, unsigned int size)
 {
-  assert((size & 7) == 0);
+	assert((size & 7) == 0);
 
-  // printf("free %d\n", size);
-
-  if(size == 8) {
-    pool->free(p);
-  } else {
-    guarded_free(p);
-  }
+	if(size<=8) {
+		freelist_t::putback_node(sizeof(ding_t *)*size,p);
+	} else {
+		guarded_free(p);
+	}
 }
 
 
 static ding_t ** dl_alloc(unsigned int size)
 {
-  void *p = 0;
+	assert((size & 7) == 0);
 
-  assert((size & 7) == 0);
+	void *p = 0;
 
-  // printf("alloc %d\n", size);
+	if(size<=8) {
+		p = (ding_t **)freelist_t::gimme_node(size*sizeof(ding_t *));
+	}
+	else {
+		p = guarded_malloc(size*sizeof(ding_t *));
+	}
 
-  if(size == 8) {
-    p = pool->alloc();
-  } else {
-    p = guarded_malloc(size * sizeof(ding_t *));
-  }
-
-  return (ding_t **)p;
+	return (ding_t **)p;
 }
 
 
@@ -165,26 +161,28 @@ dingliste_t::grow_capacity(const int pri)
 void
 dingliste_t::shrink_capacity(const int o_top)
 {
-    // if we go for speed we should not free this array
-    // because roads and railroads often chnage to 0 objects
-    // but need such an array again whn a train/truck arrives
+	// if we go for speed we should not free this array
+	// because roads and railroads often change to 0 objects
+	// but need such an array again whn a train/truck arrives
 
-    // if memory should be preserved this can be helpful
+#if 0
+	// we really wnat to save all we can ...
+	if(capacity > 0 && last_index == -1) {
+		// last vehicle left ...
+		dl_free(obj, capacity);
+		// Paranoia
+		top = 0;
+		capacity = 0;
+	}
+	else
+#endif
 
-/*
-    if(capacity > 0 && last_index == -1) {
-	delete[] obj;
-	obj = NULL;
-	capacity = 0;
-    } else
-*/
+	// strategy: avoid free'ing mem if not neccesary. Only if we hold lots
+	// of memory then free it.
+	if(capacity>16  &&  o_top<8) {
+		set_capacity(8);
+	}
 
-    // strategy: avoid free'ing mem if not neccesary. Only if we hold lots
-    // of memory then free it.
-
-    if(capacity > 32 && o_top < 8) {
-	set_capacity(8);
-    }
 }
 
 
@@ -339,26 +337,27 @@ dingliste_t::count() const
     return n;
 }
 
-void dingliste_t::rdwr(karte_t *welt, loadsave_t *file)
+void dingliste_t::rdwr(karte_t *welt, loadsave_t *file, koord3d current_pos)
 {
-    int max_object_index;
+    int max_object_index, load_index=0;
 
     if(file->is_saving()) {
         max_object_index = top-1;
     }
-    file->rdwr_int(max_object_index, "\n");
+    file->rdwr_long(max_object_index, "\n");
 
     for(int i=0; i<=max_object_index; i++) {
         if(file->is_loading()) {
             ding_t::typ typ = (ding_t::typ)file->rd_obj_id();
 
-	    // DBG_DEBUG("dingliste_t::laden()", "Thing type %d", typ);
+ // DBG_DEBUG("dingliste_t::laden()", "Thing type %d", typ);
 
     	    if(typ == -1) {
     	        continue;
 	    }
 
 	    ding_t *d = 0;
+	    bool is_depot=false;
 
 	    switch(typ) {
 	    case ding_t::baum:
@@ -367,7 +366,8 @@ void dingliste_t::rdwr(karte_t *welt, loadsave_t *file)
 		    if(!b->gib_besch()) {
 			delete b;
 			b = 0;
-		    }
+			dbg->warning("dingliste_t::rdwr()","baum_t with no matching besch!");
+		  	}
 		    d = b;
 		}
 		break;
@@ -390,9 +390,9 @@ void dingliste_t::rdwr(karte_t *welt, loadsave_t *file)
 	    case ding_t::async_wolke:	    d = new async_wolke_t (welt, file);	        break;
 	    case ding_t::verkehr:	    d = new stadtauto_t (welt, file);		break;
 	    case ding_t::fussgaenger:	    d = new fussgaenger_t (welt, file);	        break;
-	    case ding_t::bahndepot:	    d = new bahndepot_t (welt, file);	        break;
-	    case ding_t::strassendepot:	    d = new strassendepot_t (welt, file);       break;
-	    case ding_t::schiffdepot:	    d = new schiffdepot_t (welt, file);	        break;
+	    case ding_t::bahndepot:	    d = new bahndepot_t (welt, file); is_depot=true;     break;
+	    case ding_t::strassendepot:	    d = new strassendepot_t (welt, file); is_depot=true;      break;
+	    case ding_t::schiffdepot:	    d = new schiffdepot_t (welt, file);	is_depot=true;        break;
 	    case ding_t::bruecke:	    d = new bruecke_t (welt, file);	        break;
 	    case ding_t::tunnel:	    d = new tunnel_t (welt, file);	        break;
 	    case ding_t::pumpe:		    d = new pumpe_t (welt, file);	        break;
@@ -414,17 +414,33 @@ void dingliste_t::rdwr(karte_t *welt, loadsave_t *file)
 	    default:
 		dbg->warning("dingliste_t::laden()", "Error while loading game:");
 		dbg->fatal("dingliste_t::laden()", "Unknown object type '%d'", typ);
-	    }
+	  }
+
+	  if(d  &&  d->gib_typ()!=typ) {
+DBG_DEBUG("dingliste_t::rdwr()","typ error: %i instead %i",d->gib_typ(),typ);
+DBG_DEBUG("dingliste_t::rdwr()","typ error on %i,%i, object ignored!",d->gib_pos().x, d->gib_pos().y);
+		d = NULL;
+	}
+
+	if(d  &&  d->gib_pos()!=current_pos) {
+DBG_DEBUG("dingliste_t::rdwr()","position error: %i,%i instead %i,%i",d->gib_pos().x,d->gib_pos().y,current_pos.x,current_pos.y);
+DBG_DEBUG("dingliste_t::rdwr()","object ignored!");
+		d = NULL;
+	}
 
 //DBG_DEBUG("dingliste_t::rdwr()","Loading %d,%d #%d: %s", d->gib_pos().x, d->gib_pos().y, i, d->gib_name());
 	    if(d) {
-		add(d, i);
+		add(d, is_depot?PRI_DEPOT:i);
 	    }
 	}
         else {
-	    if( obj[i] ) {
+	    if( obj[i] &&  obj[i]->gib_pos()==current_pos) {
 	        obj[i]->rdwr(file);
 	    } else {
+		    if( obj[i] &&  obj[i]->gib_pos()!=current_pos) {
+DBG_DEBUG("dingliste_t::rdwr()","position error: %i,%i instead %i,%i",obj[i]->gib_pos().x,obj[i]->gib_pos().y,current_pos.x,current_pos.y);
+DBG_DEBUG("dingliste_t::rdwr()","object ignored!");
+			}
 	        file->wr_obj_id(-1);
 	    }
         }

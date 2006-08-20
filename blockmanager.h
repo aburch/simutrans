@@ -105,8 +105,6 @@ private:
     slist_tpl< blockhandle_t  > strecken;
     marker_t marker;
 
-    int  map_size;
-
     const char * baue_neues_signal(karte_t *welt, spieler_t *sp,
                                    koord3d pos, koord3d pos2, schiene_t *sch,
                                    ribi_t::ribi dir, bool presignal = false);
@@ -128,7 +126,7 @@ private:
 
 public:
 
-    void setze_welt_groesse(int w);
+    void setze_welt_groesse(int w,int h);
 
     int gib_block_nr(blockhandle_t bs) {return strecken.index_of(bs);};
     blockhandle_t  gib_strecke_bei(int i) {return (blockhandle_t )strecken.at(i);};

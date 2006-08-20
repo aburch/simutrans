@@ -1,7 +1,8 @@
 #ifndef boden_fundament_h
 #define boden_fundament_h
 
-#include "grund.h"
+//#include "grund.h"
+#include "boden.h"
 #include "../simimg.h"
 
 
@@ -11,11 +12,8 @@
  * @author Hj. Malthaner
  * @version $Revision: 1.9 $
  */
-class fundament_t : public grund_t
+class fundament_t : public boden_t
 {
-private:
-    static mempool_t *mempool;
-
 public:
 
     fundament_t(karte_t *welt, loadsave_t *file);

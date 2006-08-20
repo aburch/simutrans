@@ -34,14 +34,14 @@ protected:
      * Hoechstgeschwindigkeit
      * @author Hj. Malthaner
      */
-    int max_speed;
+    sint32 max_speed;
 
 
     /**
      * Aktuelle Geschwindigkeit
      * @author Hj. Malthaner
      */
-    int current_speed;
+    sint32 current_speed;
 
 
     /**
@@ -55,7 +55,7 @@ protected:
      * aktuelle Bewegungsrichtung
      * @author Hj. Malthaner
      */
-    int dx, dy;
+    sint8 dx, dy;
 
 
     ribi_t::ribi fahrtrichtung;
@@ -64,7 +64,7 @@ protected:
     koord3d pos_next;
 
 
-    int hoff;
+    sint16 hoff;
 
 
     virtual bool ist_weg_frei() const {return 1; };	// always free
@@ -132,6 +132,7 @@ class stadtauto_t : public verkehrsteilnehmer_t {
 
 	// prissi: time to life in blocks
     int time_to_life;
+    uint32 ms_traffic_jam;
 
     virtual bool hop_check();
     virtual bool ist_weg_frei() const;
@@ -164,6 +165,13 @@ public:
 
     static bool register_besch(const stadtauto_besch_t *besch);
     static bool laden_erfolgreich();
+
+    /**
+     * Methode für asynchrone Funktionen eines Objekts.
+     * @return false to be deleted after the step, true to live on
+     * @author Hj. Malthaner
+     */
+    virtual bool step(long /*delta_t*/);
 
     const char *gib_name() const {return "Verkehrsteilnehmer";};
     enum ding_t::typ gib_typ() const {return verkehr;};

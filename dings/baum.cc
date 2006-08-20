@@ -14,16 +14,20 @@
 #include "../simdings.h"
 #include "../simimg.h"
 #include "../simplay.h"
-#include "../boden/grund.h"
 #include "../simmem.h"
 #include "../simcosts.h"
 #include "../simtools.h"
-#include "../mm/mempool.h"
+
+#include "../boden/grund.h"
+
 #include "../besch/baum_besch.h"
+
 #include "../utils/cbuffer_t.h"
+
 #include "../dataobj/loadsave.h"
 #include "../dataobj/translator.h"
 #include "../dataobj/umgebung.h"
+#include "../dataobj/freelist.h"
 
 
 #include "baum.h"
@@ -36,7 +40,6 @@ static const int baum_bild_alter[12] =
 
 bool baum_t::hide = false;
 
-mempool_t * baum_t::mempool = new mempool_t(sizeof(baum_t) );
 
 /*
  * Diese Tabelle ermöglicht das Auffinden dient zur Auswahl eines Baumtypen
@@ -183,7 +186,7 @@ baum_t::calc_bild(const unsigned long alter)
 inline void
 baum_t::calc_bild()
 {
-    calc_bild(welt->gib_zeit_ms() - geburt);
+    calc_bild(welt->get_current_month() - geburt);
 }
 
 
@@ -206,7 +209,7 @@ const baum_besch_t *baum_t::gib_aus_liste(int level)
 	if( auswahl.count()>0  &&  weight>0) {
 		const int w=simrand(weight);
 		weight = 0;
-		for( int i=0; i<auswahl.count();  i++  ) {
+		for( unsigned i=0; i<auswahl.count();  i++  ) {
 			weight += auswahl.at(i)->gib_distribution_weight();
 			if(weight>w) {
 				return auswahl.at(i);
@@ -233,7 +236,7 @@ baum_t::baum_t(karte_t *welt, loadsave_t *file) : ding_t(welt)
 baum_t::baum_t(karte_t *welt, koord3d pos) : ding_t(welt, pos)
 {
   // Hajo: auch aeltere Baeume erzeugen
-  geburt = welt->gib_zeit_ms() - (simrand(400) * welt->ticks_per_tag);
+  geburt = welt->get_current_month() - simrand(400);
 
   const grund_t *gr = welt->lookup(pos);
 
@@ -272,7 +275,7 @@ baum_t::baum_t(karte_t *welt, koord3d pos, const baum_besch_t *besch) : ding_t(w
 {
   // alter = simrand( 16 ) * welt->ticks_per_tag;
 
-  geburt = welt->gib_zeit_ms();
+  geburt = welt->get_current_month();
 
   this->besch = besch;
   calc_off();
@@ -314,14 +317,14 @@ baum_t::saee_baum()
 
 bool baum_t::step(long /*delta_t*/)
 {
-    const long alter = welt->gib_zeit_ms() - geburt;
-    const long t_alter_temp1 = (welt->ticks_per_tag)<<9;  //ticks * 512
+    const long alter = (welt->get_current_month() - geburt)<<karte_t::ticks_bits_per_tag;
+    const long t_alter_temp1 = (karte_t::ticks_per_tag)<<9;  //ticks * 512
 
     calc_bild(alter);
 
     if(alter >= t_alter_temp1)
     {
-        const long t_alter_temp2 = (welt->ticks_per_tag)<<6; //ticks * 64
+        const long t_alter_temp2 = (karte_t::ticks_per_tag)<<6; //ticks * 64
 
         if (alter < (t_alter_temp1+t_alter_temp2))
         {  //    ticks * ( 2^9+2^6 = 512 + 64 = 576)
@@ -335,7 +338,7 @@ bool baum_t::step(long /*delta_t*/)
 
 			// und danach nicht noch mal säen
 			// Trick: Geburtsdatum verlegen
-			geburt -= t_alter_temp2;
+			geburt = geburt - (t_alter_temp2>>karte_t::ticks_bits_per_tag);
 
         }
 
@@ -361,11 +364,11 @@ baum_t::rdwr(loadsave_t *file)
 {
     ding_t::rdwr(file);
 
-    long alter = welt->gib_zeit_ms() - geburt;
+    long alter = (welt->get_current_month() - geburt)<<karte_t::ticks_bits_per_tag;
     file->rdwr_long(alter, "\n");
 
     // after loading, calculate new
-    geburt = welt->gib_zeit_ms() - alter;
+    geburt = welt->get_current_month() - (alter>>karte_t::ticks_bits_per_tag);
 
     if(file->is_saving()) {
 	const char *s = besch->gib_name();
@@ -409,9 +412,9 @@ void baum_t::info(cbuffer_t & buf) const
 	buf.append("\n");
 	buf.append(translator::translate(besch->gib_name()));
 	buf.append("\n");
-	// buf.append((welt->gib_zeit_ms() - geburt) >> welt->ticks_bits_per_tag);
-	// buf.append(" ");
-	// buf.append(translator::translate("Tage alt"));
+	buf.append(welt->get_current_month() - geburt);
+	buf.append(" ");
+	buf.append(translator::translate("Tage alt"));
 }
 
 
@@ -424,19 +427,13 @@ baum_t::entferne(spieler_t *sp)
 }
 
 
-void *
-baum_t::operator new(size_t /*s*/)
+void * baum_t::operator new(size_t /*s*/)
 {
-//    printf("new baum_t\n");
-
-    return mempool->alloc();
+	return (baum_t *)freelist_t::gimme_node(sizeof(baum_t));
 }
 
 
-void
-baum_t::operator delete(void *p)
+void baum_t::operator delete(void *p)
 {
-//    printf("delete baum_t\n");
-
-    mempool->free( p );
+	freelist_t::putback_node(sizeof(baum_t),p);
 }

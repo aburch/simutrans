@@ -58,6 +58,10 @@
 #include <io.h>
 #endif
 
+// uncomment for intel, comment for POWER_PC Macintosh
+#define NATIVE_LITTLE_ENDIAN
+
+
 #include "../../utils/searchfolder.h"
 
 #include "../../tpl/inthashtable_tpl.h"
@@ -82,9 +86,6 @@ inthashtable_tpl<obj_type, stringhashtable_tpl< slist_tpl<obj_besch_t **> > > ob
 ptrhashtable_tpl<obj_besch_t **, int> obj_reader_t::fatals;
 
 
-
-
-
 /**
  * Reads uint8 from memory area. Advances pointer by 1 byte.
  * @author Hj. Malthaner
@@ -92,9 +93,7 @@ ptrhashtable_tpl<obj_besch_t **, int> obj_reader_t::fatals;
 uint8 decode_uint8(char * &data)
 {
   const uint8 v = *((uint8 *)data);
-
-  data += sizeof(uint8);
-
+  data ++;
   return v;
 }
 
@@ -106,12 +105,9 @@ uint8 decode_uint8(char * &data)
 sint8 decode_sint8(char * &data)
 {
   const sint8 v = *((sint8 *)data);
-
-  data += sizeof(sint8);
-
+  data ++;
   return v;
 }
-
 
 
 /**
@@ -120,15 +116,13 @@ sint8 decode_sint8(char * &data)
  */
 uint16 decode_uint16(char * &data)
 {
-  /*
-  uint16 v = ((uint8) *data++);
-  v |= ((uint8) *data++) << 8;
-  */
-
+#ifdef LITTLE_ENDIAN
   const uint16 v = *((uint16 *)data);
-
-  data += sizeof(uint16);
-
+  data += 2;
+#else
+  uint16 v = ((uint8) *data++);
+  v |= ((uint8) *data++)<<8;
+#endif
   return v;
 }
 
@@ -139,15 +133,13 @@ uint16 decode_uint16(char * &data)
  */
 sint16 decode_sint16(char * &data)
 {
-  /*
-  uint16 v = ((uint8) *data++);
-  v |= ((uint8) *data++) << 8;
-  */
-
+#ifdef LITTLE_ENDIAN
   const sint16 v = *((sint16 *)data);
-
-  data += sizeof(sint16);
-
+  data += 2;
+#else
+  sint16 v = ((sint8) *data++);
+  v |= ((sint8) *data++)<<8;
+#endif
   return v;
 }
 
@@ -158,17 +150,15 @@ sint16 decode_sint16(char * &data)
  */
 uint32 decode_uint32(char * &data)
 {
-  /*
+#ifdef LITTLE_ENDIAN
+  const uint32 v = *((uint32 *)data);
+  data += 4;
+#else
   uint32 v = ((uint8) *data++);
   v |= ((uint8) *data++) << 8;
   v |= ((uint8) *data++) << 16;
   v |= ((uint8) *data++) << 24;
-  */
-
-  const uint32 v = *((uint32 *)data);
-
-  data += sizeof(uint32);
-
+#endif
   return v;
 }
 
@@ -189,7 +179,6 @@ void obj_reader_t::register_reader()
 	obj_reader =  new inthashtable_tpl<obj_type, obj_reader_t *>;
     }
     obj_reader->put(get_type(), this);
-
     //printf("This program can read %s objects\n", get_type_name());
 }
 
@@ -270,7 +259,6 @@ bool obj_reader_t::init(const char *liste)
     }
 
     dbg->warning("obj_reader_t::init()", "done");
-
     return true;
 }
 
@@ -389,9 +377,7 @@ void obj_reader_t::read_nodes(FILE *fp, obj_besch_t * /*parent*/, obj_besch_t *&
 
     }
     else {
-    	dbg->warning("obj_reader_t::read_nodes()",
-		     "skipping unknown %.4s-node\n",
-		     reinterpret_cast<const char *>(&node.type));
+    	dbg->warning("obj_reader_t::read_nodes()","skipping unknown %.4s-node\n",reinterpret_cast<const char *>(&node.type));
 
 	fseek(fp, node.size, SEEK_CUR);
 	for(int i = 0; i < node.children; i++) {

@@ -12,8 +12,6 @@
 
 #include "grund.h"
 
-class mempool_t;
-
 /**
  * Der Boden ist der 'Natur'-Untergrund in Simu. Er kann einen Besitzer haben.
  *
@@ -23,11 +21,9 @@ class mempool_t;
 class boden_t : public grund_t
 {
 private:
-    static mempool_t *mempool;
-
     static bool show_grid;
-public:
 
+public:
     /**
      * Toggle ground grid display
      * @author Hj. Malthaner

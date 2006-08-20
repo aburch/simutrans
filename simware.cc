@@ -92,8 +92,8 @@ ware_t::~ware_t()
 void
 ware_t::rdwr(loadsave_t *file)
 {
-    file->rdwr_int(menge, " ");
-    file->rdwr_int(max, " ");
+    file->rdwr_long(menge, " ");
+    file->rdwr_long(max, " ");
 
     const char *typ = NULL;
 

@@ -117,6 +117,7 @@ int haltestelle_t::compare_ware(const void *td1, const void *td2)
           	order = strcmp(halt1->gib_name(), halt2->gib_name());
           }
           break;
+        case by_via_sum:
         case by_amount: // sort by ware amount
           order = ware2.menge - ware1.menge;
           // if the same amount is transported, we sort by via_destination
@@ -152,7 +153,7 @@ slist_tpl<halthandle_t> haltestelle_t::alle_haltestellen;
 
 //Klassenmethoden
 halthandle_t
-haltestelle_t::gib_halt(const karte_t *welt, grund_t *gr )
+haltestelle_t::gib_halt(const karte_t */*welt*/, grund_t *gr )
 {
 	if(gr) {
 		// if here is a halt, we are finished
@@ -592,13 +593,13 @@ void
 haltestelle_t::remove_fabriken(fabrik_t *fab)
 {
 DBG_MESSAGE("haltestelle_t::remove_fabriken()","removing %p",fab);
-	for(int i=0;  i<fab_list.count();  i++ ) {
+	for(unsigned i=0;  i<fab_list.count();  i++ ) {
 DBG_MESSAGE("haltestelle_t::remove_fabriken()","fab_list at(%i) = %p",i,fab_list.at(i));
 	}
 DBG_MESSAGE("haltestelle_t::remove_fabriken()","removing %s",fab->gib_name());
 	bool ok=fab_list.remove(fab);
 DBG_MESSAGE("karte_t::remove_fabriken()","fab_list now %i(%i)",fab_list.count(),ok);
-	for(int i=0;  i<fab_list.count();  i++ ) {
+	for(unsigned i=0;  i<fab_list.count();  i++ ) {
 DBG_MESSAGE("haltestelle_t::remove_fabriken()","fab_list at(%i) = %p",i,fab_list.at(i));
 	}
 }
@@ -611,8 +612,6 @@ DBG_MESSAGE("haltestelle_t::remove_fabriken()","fab_list at(%i) = %p",i,fab_list
  */
 void haltestelle_t::rebuild_destinations()
 {
-// DBG_DEBUG("haltestelle_t::rebuild_destinations()", "called");
-
 	// Hajo: first, remove all old entries
 	warenziele.clear();
 
@@ -626,18 +625,21 @@ void haltestelle_t::rebuild_destinations()
 		convoihandle_t cnv = iter.get_current();
 		// DBG_MESSAGE("haltestelle_t::rebuild_destinations()", "convoi %d %p", cnv.get_id(), cnv.get_rep());
 
-		fahrplan_t *fpl = cnv->gib_fahrplan();
-		if(fpl) {
-			for(int i=0; i<=fpl->maxi; i++) {
+		if(gib_besitzer()==welt->gib_spieler(1)  ||  cnv->gib_besitzer()==gib_besitzer()) {
 
-				// Hajo: Hält dieser convoi hier?
-				if(gib_halt(welt,fpl->eintrag.get(i).pos) == self) {
+			fahrplan_t *fpl = cnv->gib_fahrplan();
+			if(fpl) {
+				for(int i=0; i<=fpl->maxi; i++) {
 
-					const int anz = cnv->gib_vehikel_anzahl();
-					for(int j=0; j<anz; j++) {
+					// Hajo: Hält dieser convoi hier?
+					if(gib_halt(welt,fpl->eintrag.get(i).pos)==self) {
 
-						vehikel_t *v = cnv->gib_vehikel(j);
-						hat_gehalten(0,v->gib_fracht_typ(), fpl );
+						const int anz = cnv->gib_vehikel_anzahl();
+						for(int j=0; j<anz; j++) {
+
+							vehikel_t *v = cnv->gib_vehikel(j);
+							hat_gehalten(0,v->gib_fracht_typ(), fpl );
+						}
 					}
 				}
 			}
@@ -1060,112 +1062,91 @@ haltestelle_t::gibt_ab(const ware_besch_t *wtyp) const
 }
 
 
-bool
-haltestelle_t::pruefe_ziel(const ware_t &ware, const fahrplan_t *fpl) const
-{
-    const halthandle_t via_halt = gib_halt( ware.gib_zwischenziel() );
 
-    // stimmt das Ziel ?
-    if(!via_halt.is_bound()) {
-        DBG_MESSAGE("haltestelle_t::pruefe_ziel()",
-		     "at stop %s there are %d %s without intermediate destination\n",
-		     gib_name(),
-		     ware.menge,
-		     translator::translate(ware.gib_name()));
-    }
-
-    const int count = fpl->maxi + 1;
-
-    // da wir schon an der aktuellem haltestelle halten
-    // startet die schleife ab 1, d.h. dem naechsten halt
-
-    for(int i=1; i<count; i++) {
-	const int wrap_i = (i + fpl->aktuell) % count;
-
-	halthandle_t plan_halt = gib_halt(fpl->eintrag.get(wrap_i).pos.gib_2d());
-
-	if(plan_halt == self) {
-	    // das fahrzeug kommt vor dem ziel hier noch mal vorbei,
-	    // noch nicht einsteigen!
-	    return false;
-	} else if(plan_halt == via_halt) {
-	    // ja, hier geht's zum ziel
-	    // -> einsteigen
-	    return true;
-	}
-    }
-
-    // ziel nicht gefunden
-    // nicht einsteigen
-    return false;
-}
-
-
-
+// will load something compatible with wtyp into the car which schedule is fpl
 ware_t
 haltestelle_t::hole_ab(const ware_besch_t *wtyp, int maxi, fahrplan_t *fpl)
 {
-	// suche innerhalb der Liste nach ware mit passendem Ziel
-	// und menge
+	// prissi: first iterate over the next stop, then over the ware
+	// might be a little slower, but ensures that passengers to nearest stop are served first
+	// this allows for separate high speed and normal service
 
-	for(unsigned int i=0; i<warenbauer_t::gib_waren_anzahl(); i++) {
-		const ware_besch_t *ware = warenbauer_t::gib_info(i);
-		slist_tpl<ware_t> * wliste = waren.get(ware);
+	const int count = fpl->maxi + 1;
 
-		if(wliste) {
-			slist_iterator_tpl<ware_t> iter (wliste);
+	// da wir schon an der aktuellem haltestelle halten
+	// startet die schleife ab 1, d.h. dem naechsten halt
 
-			while(iter.next()) {
-				ware_t &tmp = iter.access_current();
+	for(int i=1; i<count; i++) {
+		const int wrap_i = (i + fpl->aktuell) % count;
 
-				// passt der Warentyp?
-				bool ok = wtyp->is_interchangeable(tmp.gib_typ());
+		halthandle_t plan_halt = gib_halt(fpl->eintrag.get(wrap_i).pos.gib_2d());
 
-				// more checks: passt das Ziel ?
-				if(ok && pruefe_ziel(tmp, fpl)) {
-					// printf("hole_ab %d, es lagern %d %s\n", maxi, tmp->menge, tmp->name());
+		if(plan_halt == self) {
+			// wi will come later here again ...
+			break;;
+		}
+		else {
 
-					// passt die Menge ?
-					if(tmp.menge <= maxi) {
-						// ja, alles geht ins Fahrzeug
-						ware_t neu (tmp);
-						bool ok = wliste->remove( tmp );
-						assert(ok);
+			for(unsigned int i=0; i<warenbauer_t::gib_waren_anzahl(); i++) {
+				const ware_besch_t *ware = warenbauer_t::gib_info(i);
+				slist_tpl<ware_t> * wliste = waren.get(ware);
 
-						if(wliste->count() == 0) {
-							waren.remove(ware);
-							delete wliste;
+				if(wliste) {
+					slist_iterator_tpl<ware_t> iter (wliste);
+
+					while(iter.next()) {
+						ware_t &tmp = iter.access_current();
+
+						// passt der Warentyp?
+						bool ok = wtyp->is_interchangeable(tmp.gib_typ());
+
+						// ok, wants to go here
+						if(ok  &&  gib_halt( tmp.gib_zwischenziel() )==plan_halt ) {
+
+							// not too much?
+							if(tmp.menge <= maxi) {
+
+								// ok, all can be loaded
+								ware_t neu (tmp);
+								bool ok = wliste->remove( tmp );
+								assert(ok);
+
+								if(wliste->count() == 0) {
+									waren.remove(ware);
+									delete wliste;
+								}
+								book(neu.menge, HALT_DEPARTED);
+								return neu;
+
+							}
+							else {
+
+								// too much, divide
+								ware_t neu (tmp.gib_typ());
+								neu.setze_ziel(tmp.gib_ziel());
+								neu.setze_zwischenziel(tmp.gib_zwischenziel());
+								neu.setze_zielpos(tmp.gib_zielpos());
+								neu.menge = maxi;
+
+								// abgegebene Menge von wartender Menge abziehen
+								tmp.menge -= maxi;
+
+								book(neu.menge, HALT_DEPARTED);
+								return neu;
+							}
 						}
-						book(neu.menge, HALT_DEPARTED);
-						return neu;
-
 					}
-					else {
-						// Menge zu groß, wir muessen aufteilen
-						ware_t neu (tmp.gib_typ());
-						neu.setze_ziel(tmp.gib_ziel());
-						neu.setze_zwischenziel(tmp.gib_zwischenziel());
-						neu.setze_zielpos(tmp.gib_zielpos());
-						neu.menge = maxi;
 
-						// abgegebene Menge von wartender Menge abziehen
-						tmp.menge -= maxi;
-
-						// printf("%s: Teile ware, gebe %d, behalte %d\n", gib_name(), maxi, tmp->menge);
-
-						book(neu.menge, HALT_DEPARTED);
-						return neu;
-					}
+					// es ist gar nichts passendes da zum abholen!
 				}
 			}
-
-			// es ist gar nichts passendes da zum abholen!
 		}
 	}
 
 	// empty quantity of required type -> no effect
 	return ware_t (wtyp);
 }
+
 
 
 int
@@ -1503,91 +1484,103 @@ void haltestelle_t::info(cbuffer_t & buf) const
  */
 void haltestelle_t::get_freight_info(cbuffer_t & buf)
 {
-  for(unsigned int i=0; i<warenbauer_t::gib_waren_anzahl(); i++) {
-    const ware_besch_t *wtyp = warenbauer_t::gib_info(i);
+	for(unsigned int i=0; i<warenbauer_t::gib_waren_anzahl(); i++) {
+		const ware_besch_t *wtyp = warenbauer_t::gib_info(i);
 
-    slist_tpl<ware_t> * wliste = waren.get(wtyp);
+		slist_tpl<ware_t> * wliste = waren.get(wtyp);
 
-    if(wliste) {
-      slist_iterator_tpl<ware_t> iter (wliste);
+		if(wliste) {
+			slist_iterator_tpl<ware_t> iter (wliste);
 
-      buf.append(" ");
-      buf.append(gib_ware_summe(wtyp));
-      buf.append(translator::translate(wtyp->gib_mass()));
-      buf.append(" ");
-      buf.append(translator::translate(wtyp->gib_name()));
-      buf.append(" ");
-      buf.append(translator::translate("waiting"));
-      buf.append("\n");
+			buf.append(" ");
+			buf.append(gib_ware_summe(wtyp));
+			buf.append(translator::translate(wtyp->gib_mass()));
+			buf.append(" ");
+			buf.append(translator::translate(wtyp->gib_name()));
+			buf.append(" ");
+			buf.append(translator::translate("waiting"));
+			buf.append("\n");
 
-      // hsiegeln
-      // added sorting to ware's destination list
-      int pos = 0;
+			// hsiegeln
+			// added sorting to ware's destination list
+			int pos = 0;
 #ifdef _MSC_VER
-      travel_details *tdlist = (travel_details *)alloca(wliste->count() * sizeof(travel_details *));
+			travel_details *tdlist = (travel_details *)alloca(wliste->count() * sizeof(travel_details *));
 #else
-      travel_details tdlist [wliste->count()];
+			travel_details tdlist [wliste->count()];
 #endif
-      while(iter.next()) {
-	ware_t ware = iter.get_current();
-	tdlist[pos].ware = ware;
-	tdlist[pos].destination = gib_halt(ware.gib_ziel());
-	tdlist[pos].via_destination = gib_halt(ware.gib_zwischenziel());
-	pos++;
-      }
-      // sort the ware's list
-      qsort((void *)tdlist, pos, sizeof (travel_details), compare_ware);
+			while(iter.next()) {
+				ware_t ware = iter.get_current();
+				tdlist[pos].ware = ware;
+				tdlist[pos].destination = gib_halt(ware.gib_ziel());
+				tdlist[pos].via_destination = gib_halt(ware.gib_zwischenziel());
+				// for the sorting via the number for the next stop we unify entries
+				if(sortby==by_via_sum) {
+					// only add it, if there is not another thing waiting with the same via but another destination
+					for( int i=0;  i<pos;  i++ ) {
+						if(tdlist[i].ware.gib_typ()==tdlist[pos].ware.gib_typ()  &&  tdlist[i].via_destination==tdlist[pos].via_destination  &&  tdlist[i].destination!=tdlist[i].via_destination) {
+							tdlist[i].ware.menge += tdlist[pos--].ware.menge;
+							break;
+						}
+					}
+				}
+				pos++;
+			}
+			// sort the ware's list
+			qsort((void *)tdlist, pos, sizeof (travel_details), compare_ware);
 
-      // print the ware's list to buffer - it should be in sortorder by now!
-      for (int j = 0; j<pos; j++) {
-	ware_t ware = tdlist[j].ware;
+			// print the ware's list to buffer - it should be in sortorder by now!
+			for (int j = 0; j<pos; j++) {
+				ware_t ware = tdlist[j].ware;
 
-	const char * name = "Error in Routing";
 
-	halthandle_t halt = gib_halt(ware.gib_ziel());
-	if(halt.is_bound()) {
-	  name = halt->gib_name();
+				halthandle_t halt = tdlist[j].destination;
+				halthandle_t via_halt = tdlist[j].via_destination;
+
+				const char * name = "Error in Routing";
+				if(halt.is_bound()) {
+					name = halt->gib_name();
+				}
+
+				buf.append("   ");
+				buf.append(ware.menge);
+				buf.append(translator::translate(wtyp->gib_mass()));
+				buf.append(" ");
+				buf.append(translator::translate(wtyp->gib_name()));
+				buf.append(" > ");
+				// the target name is not correct for the via sort
+				if(sortby!=by_via_sum  ||  via_halt==halt) {
+					buf.append(name);
+				}
+
+				// for debugging
+				const char *via_name = "Error in Routing";
+				if(via_halt.is_bound()) {
+					via_name = via_halt->gib_name();
+				}
+
+				if(via_halt != halt) {
+					char tmp [512];
+					sprintf(tmp, translator::translate("   via %s\n"), via_name);
+					buf.append(tmp);
+				}
+				else {
+					buf.append("\n");
+				}
+				// debug ende
+
+			}
+
+			buf.append("\n");
+		}
 	}
-
-	buf.append("   ");
-	buf.append(ware.menge);
-	buf.append(translator::translate(wtyp->gib_mass()));
-	buf.append(" ");
-	buf.append(translator::translate(wtyp->gib_name()));
-	buf.append(" > ");
-	buf.append(name);
-
-	// for debugging
-	const char *via_name = "Error in Routing";
-	halthandle_t via_halt = gib_halt(ware.gib_zwischenziel());
-	if(via_halt.is_bound()) {
-	  via_name = via_halt->gib_name();
-
-	}
-
-	if(via_halt != halt) {
-	  char tmp [512];
-	  sprintf(tmp, translator::translate("   via %s\n"), via_name);
-	  buf.append(tmp);
-
-	} else {
-	  buf.append("\n");
-	}
-	// debug ende
-
-      }
-
-      buf.append("\n");
-    }
-  }
 #ifdef LAGER_NOT_IN_USE
-  if(lager != NULL) {
-    buf.append("\n");
-    buf = lager->info_lagerbestand(buf);
-  }
+	if(lager != NULL) {
+		buf.append("\n");
+		buf = lager->info_lagerbestand(buf);
+	}
 #endif
-
-  buf.append("\n");
+	buf.append("\n");
 }
 
 
@@ -1846,7 +1839,7 @@ haltestelle_t::rdwr(loadsave_t *file)
 	spieler_n = welt->sp2num( besitzer_p );
     }
     pos.rdwr( file );
-    file->rdwr_int(spieler_n, "\n");
+    file->rdwr_long(spieler_n, "\n");
     file->rdwr_bool(pax_enabled, " ");
     file->rdwr_bool(post_enabled, " ");
     file->rdwr_bool(ware_enabled, "\n");

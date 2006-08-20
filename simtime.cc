@@ -117,6 +117,7 @@ unsigned long get_current_time_millis()
 }
 
 
+#if 0
 /**
  * Busy wait, millisecond precision
  * @author Hj. Malthaner
@@ -131,6 +132,7 @@ static void wait_msec(long msec)
 
   INT_CHECK("simtime 131");
 }
+#endif
 
 
 /**

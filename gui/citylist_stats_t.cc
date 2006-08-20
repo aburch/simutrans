@@ -47,9 +47,9 @@ void citylist_stats_t::infowin_event(const event_t * ev)
       if(stadt) {
 	create_win(320, 0,
 		   -1,
-		   new stadt_info_t(stadt),
-		   w_autodelete,
-		   magic_city_info_t);
+		   stadt->gib_stadt_info(),
+		   w_info,
+		magic_none); /* otherwise only one dialog is allowed */
 
 
 	const koord pos = stadt->gib_pos();
