@@ -716,7 +716,7 @@ void verkehrsteilnehmer_t::rdwr(loadsave_t *file)
 		// 60 km/h, since city raods now have a speed limit of 50 km/h
 		// we can use 80 for the cars so that they speed up on
 		// intercity roads
-		if(file->get_version() <= 84000 && max_speed==kmh_to_speed(60)) {
+		if(max_speed==kmh_to_speed(60)) {
 			max_speed = kmh_to_speed(80);
 		}
 	}

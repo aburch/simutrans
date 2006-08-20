@@ -57,26 +57,28 @@ class haus_tile_besch_t : public obj_besch_t {
 
     uint16		phasen;	    // Wie viele Animationsphasen haben wir?
     uint16		index;
-
 public:
-    void setze_besch(const haus_besch_t *haus_besch)
-    {
-	haus = haus_besch;
-    }
-    const haus_besch_t *gib_besch() const
-    {
-	return haus;
-    }
+	void setze_besch(const haus_besch_t *haus_besch)
+	{
+		haus = haus_besch;
+	}
 
-    int gib_index() const
-    {
-	return index;
-    }
-    int gib_phasen() const
-    {
-	return phasen;
-    }
-	int gib_hintergrund(int phase, int hoehe) const
+	const haus_besch_t *gib_besch() const
+	{
+		return haus;
+	}
+
+	int gib_index() const
+	{
+		return index;
+	}
+
+	int gib_phasen() const
+	{
+		return phasen;
+	}
+
+	image_id gib_hintergrund(int phase, int hoehe) const
 	{
 		if(phase>0 && phase<phasen) {
 			const bild_besch_t *bild = static_cast<const bildliste2d_besch_t *>(gib_kind(0))->gib_bild(hoehe, phase);
@@ -89,9 +91,10 @@ public:
 		if(bild) {
 			return bild->bild_nr;
 		}
-		return -1;
+		return IMG_LEER;
 	}
-	int gib_vordergrund(int phase, int hoehe) const
+
+	image_id gib_vordergrund(int phase, int hoehe) const
 	{
 		if(phase>0 && phase<phasen) {
 			const bild_besch_t *bild = static_cast<const bildliste2d_besch_t *>(gib_kind(1))->gib_bild(hoehe, phase);
@@ -104,11 +107,12 @@ public:
 		if(bild) {
 			return bild->bild_nr;
 		}
-		return -1;
+		return IMG_LEER;
 	}
-    koord gib_offset() const;
 
-    int gib_layout() const;
+	koord gib_offset() const;
+
+	int gib_layout() const;
 };
 
 /*
@@ -136,8 +140,9 @@ class haus_besch_t : public obj_besch_t {     // Daten für ein ganzes Gebäude
     enum flag_t {
         FLAG_NULL = 0,
         FLAG_KEINE_INFO = 1,       // was flag FLAG_ZEIGE_INFO
-        FLAG_KEINE_GRUBE = 2       // Baugrube oder nicht?
-    };
+        FLAG_KEINE_GRUBE = 2 ,      // Baugrube oder nicht?
+        FLAG_NEED_GROUND = 4	// draw ground below
+      };
 
     gebaeude_t::typ     gtyp;      // Hajo: this is the type of the building
     hausbauer_t::utyp   utyp;      // Hajo: if gtyp ==  gebaeude_t::unbekannt, then this is the real type
@@ -198,6 +203,10 @@ public:
     {
         return bauzeit;
     }
+    bool ist_mit_boden() const
+    {
+        return (flags & FLAG_NEED_GROUND) != 0;
+    }
     bool ist_ohne_grube() const
     {
         return (flags & FLAG_KEINE_GRUBE) != 0;
@@ -256,7 +265,6 @@ public:
      */
     const skin_besch_t * gib_cursor() const
     {
-//        return static_cast<const skin_besch_t *>(gib_kind(5));
 	return (const skin_besch_t *)(gib_kind(2+groesse.x*groesse.y*layouts));
     }
 
@@ -275,8 +283,6 @@ public:
     int get_retire_year_month() const {
       return obsolete_date;
     }
-
-
 
     /**
      * @return time when obsolete

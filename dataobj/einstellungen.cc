@@ -12,7 +12,9 @@
 #include "../simdebug.h"
 #include "loadsave.h"
 
-einstellungen_t::einstellungen_t() : heightfield("")
+einstellungen_t::einstellungen_t() :
+	filename(""),
+	heightfield("")
 {
     groesse_x = 256;
     groesse_y = 256;
@@ -92,6 +94,8 @@ einstellungen_t::einstellungen_t(const einstellungen_t *other)
     use_timeline = other->use_timeline;
     starting_year = other->starting_year;
     bits_per_month = other->bits_per_month;
+
+	filename = other->filename;
 }
 
 void
@@ -118,7 +122,7 @@ einstellungen_t::rdwr(loadsave_t *file)
 		file->rdwr_long(dummy, "\n");
 		dummy &= 127;
 		if(dummy>63) {
-dbg->warning("einstellungen_t::rdwr()","This game has too many cities! (%i of maximum 63). Simutrans may crash!",dummy);
+dbg->warning("einstellungen_t::rdwr()","This game was saved with too many cities! (%i of maximum 63). Simutrans may crash!",dummy);
 		}
 		anzahl_staedte = dummy;
 
@@ -188,5 +192,9 @@ dbg->warning("einstellungen_t::rdwr()","This game has too many cities! (%i of ma
 			bits_per_month = 18;
 		}
 
+		// clear the name when loading ...
+		if(file->is_loading()) {
+			filename = "";
+		}
 	}
 }

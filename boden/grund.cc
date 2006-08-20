@@ -840,12 +840,13 @@ bool grund_t::weg_erweitern(weg_t::typ wegtyp, ribi_t::ribi ribi)
  *
  * @author V. Meyer
  */
-bool grund_t::neuen_weg_bauen(weg_t *weg, ribi_t::ribi ribi, spieler_t *sp)
+long grund_t::neuen_weg_bauen(weg_t *weg, ribi_t::ribi ribi, spieler_t *sp)
 {
 	if(sp  &&  sp!=gib_besitzer()   &&  besitzer_n!=1  && besitzer_n!=-1) {
 		// cannot take ownership
-		return false;
+		return 0;
 	}
+	long cost=0;
 
 	// by claiming this field, we also take over matenance for all ways
 	setze_besitzer( sp );
@@ -859,15 +860,13 @@ bool grund_t::neuen_weg_bauen(weg_t *weg, ribi_t::ribi ribi, spieler_t *sp)
 			// new way here
 
 			// remove all trees
-			while(1)
-			{
-				baum_t *b=dynamic_cast<baum_t *>(suche_obj(ding_t::baum));
-				if(!b) {
-					break;
+			for( int i=dinge.count()-1;  i>=0;  i--  ) {
+				ding_t *d=dinge.bei(i);
+				if(d  &&  d->gib_typ()==ding_t::baum) {
+					dinge.remove_at(i);
+					delete d;
+					cost += umgebung_t::cst_remove_tree;
 				}
-				obj_remove(b,sp);
-				b->entferne(sp);
-				delete b;
 			}
 
 			// add
@@ -877,7 +876,7 @@ bool grund_t::neuen_weg_bauen(weg_t *weg, ribi_t::ribi ribi, spieler_t *sp)
 			// another way will be added
 			if(wege[1]) {
 				dbg->error("grund_t::neuen_weg_bauen()","cannot built more than two ways on %i,%i,%i!",pos.x,pos.y,pos.z);
-				return false;
+				return 0;
 			}
 			// add the way
 			if(weg->gib_typ()==weg_t::strasse  &&  wege[0]->gib_besch()->gib_styp()==7) {
@@ -900,9 +899,9 @@ bool grund_t::neuen_weg_bauen(weg_t *weg, ribi_t::ribi ribi, spieler_t *sp)
 		// may result in a crossing
 		calc_bild();
 
-		return true;
+		return cost;
 	}
-	return false;
+	return 0;
 }
 
 

@@ -2420,63 +2420,9 @@ DBG_DEBUG("spieler_t::rdwr()","%i has %i halts.",welt->sp2num( this ),halt_count
 	file->rdwr_long(farbe, " ");
 	kennfarbe = (uint8)farbe;
 	file->rdwr_long(halt_count, " ");
-	// @author hsiegeln
-	if (file->get_version() < 82003)
-	{
-		haltcount = 0;
-	}
-	else {
-		file->rdwr_long(haltcount, " ");
-	}
+	file->rdwr_long(haltcount, " ");
 
-	// from here on loading financial stuff
-	if (file->get_version() < 82003)
-	{
-		file->rdwr_longlong(finances[0], " ");
-		file->rdwr_longlong(finances[1], " ");
-		file->rdwr_longlong(finances[2], " ");
-		file->rdwr_longlong(finances[3], " ");
-		file->rdwr_longlong(finances[4], " ");
-		file->rdwr_longlong(old_finances[0], " ");
-		file->rdwr_longlong(old_finances[1], " ");
-		file->rdwr_longlong(old_finances[2], " ");
-		file->rdwr_longlong(old_finances[3], "\n");
-		file->rdwr_longlong(old_finances[4], " ");
-
-		/**
-		* initialize finance data structures
-		* @author hsiegeln
-		*/
-		for (int year = 0;year<MAX_HISTORY_YEARS;year++) {
-			for (int cost_type = 0; cost_type<MAX_COST; cost_type++) {
-				finance_history_year[year][cost_type] = 0;
-			}
-		}
-		for (int month = 0;month<MAX_HISTORY_MONTHS;month++) {
-			for (int cost_type = 0; cost_type<MAX_COST; cost_type++) {
-				finance_history_month[month][cost_type] = 0;
-			}
-		}
-
-		/**
-		* old datastructures have less entries, so we only migrate values for the first 5 elements!
-		* others will be set to zero
-		* @author hsiegeln
-		*/
-		for (int cost_type = 0; cost_type<MAX_COST; cost_type++)
-		{
-			if (cost_type < 5)
-			{
-				finance_history_year[0][cost_type] = finances[cost_type];
-				finance_history_year[1][cost_type] = old_finances[cost_type];
-			}
-			else {
-				finance_history_year[0][cost_type] = 0;
-				finance_history_year[1][cost_type] = 0;
-			}
-		}
-	}
-	else 	if (file->get_version() < 84008) {
+	if (file->get_version() < 84008) {
 		// not so old save game
 		for (int year = 0;year<MAX_HISTORY_YEARS;year++) {
 			for (int cost_type = 0; cost_type<MAX_COST; cost_type++) {
@@ -2524,27 +2470,17 @@ DBG_DEBUG("spieler_t::rdwr()","%i has %i halts.",welt->sp2num( this ),halt_count
 		}
 	}
 	else {
-		DBG_MESSAGE("spieler_t::rdwr()","account=%.2f",konto/100.0);
-		DBG_MESSAGE("spieler_t::rdwr()","account=%.2f",konto/100.0);
+//		DBG_MESSAGE("spieler_t::rdwr()","account=%.2f",konto/100.0);
+//		DBG_MESSAGE("spieler_t::rdwr()","account=%.2f",konto/100.0);
 		// most recent savegame version
 		for (int year = 0;year<MAX_HISTORY_YEARS;year++) {
 			for (int cost_type = 0; cost_type<MAX_COST; cost_type++) {
 				file->rdwr_longlong(finance_history_year[year][cost_type], " ");
-#ifdef DEBUG
-				if(year==0) {
-					DBG_MESSAGE("spieler_t::rdwr()","year=0, catg=%d account=%.2f",cost_type,finance_history_year[0][cost_type]/100.0);
-				}
-#endif
 			}
 		}
 		for (int month = 0;month<MAX_HISTORY_MONTHS;month++) {
 			for (int cost_type = 0; cost_type<MAX_COST; cost_type++) {
 				file->rdwr_longlong(finance_history_month[month][cost_type], " ");
-#ifdef DEBUG
-				if(month==0) {
-					DBG_MESSAGE("spieler_t::rdwr()","month=0, catg=%d account=%.2f",cost_type,finance_history_month[0][cost_type]/100.0);
-				}
-#endif
 			}
 		}
 	}

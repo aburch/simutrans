@@ -27,26 +27,13 @@ fundament_t::fundament_t(karte_t *welt, loadsave_t *file) : grund_t(welt)
 	slope = (uint8)hang_t::flach;
 }
 
-fundament_t::fundament_t(karte_t *welt, koord3d pos) : grund_t(welt, pos)
+fundament_t::fundament_t(karte_t *welt, koord3d pos,hang_t::typ hang ) : grund_t(welt, pos)
 {
 	setze_bild( IMG_LEER );
-	if(welt->calc_natural_slope(pos.gib_2d())!=0) {
-		int new_h=welt->max_hgt(pos.gib_2d());
-/*
-		if(welt->lookup(koord(1,0)+pos.gib_2d())) {
-			int h = welt->lookup(koord(1,0)+pos.gib_2d())->gib_kartenboden()->gib_hoehe();
-			if(h+32<new_h) {
-				new_h = h+32;
-			}
-		}
-		if(welt->lookup(koord(0,1)+pos.gib_2d())) {
-			int h = welt->lookup(koord(0,1)+pos.gib_2d())->gib_kartenboden()->gib_hoehe();
-			if(h+32<new_h) {
-				new_h = h+32;
-			}
-		}
-*/
-		setze_hoehe( new_h );
+	if(hang) {
+		pos = gib_pos();
+		pos.z += 16;
+		setze_pos( pos );
 	}
 	slope = (uint8)hang_t::flach;
 }
@@ -72,6 +59,7 @@ fundament_t::calc_bild()
 {
 	slope = 0;
 	grund_t::calc_bild();
+	setze_bild( grund_besch_t::boden->gib_bild(0) );
 	grund_t::calc_back_bild(gib_hoehe()/16,0);
 }
 

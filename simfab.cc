@@ -189,6 +189,11 @@ fabrik_t::~fabrik_t()
 		delete abgabe_letzt;
 	}
 	abgabe_letzt = 0;
+
+	if(raucher) {
+		delete raucher;
+	}
+	raucher = 0;
 }
 
 
@@ -239,7 +244,11 @@ fabrik_t::baue(int rotate, bool clear)
 		const rauch_besch_t *rada = besch->gib_rauch();
 		if(rada) {
 			const koord3d k ( pos + rada->gib_pos_off() );
-			welt->lookup(k)->obj_add(new raucher_t(welt, k, rada));
+			raucher = new raucher_t(welt, k, rada);
+			raucher->set_flag(ding_t::not_on_map);
+		}
+		else {
+			raucher = NULL;
 		}
 	}
 	else {
@@ -290,7 +299,7 @@ fabrik_t::sind_da_welche(karte_t *welt, koord min_pos, koord max_pos)
 		for(int x=min_pos.x; x<=max_pos.x; x++) {
 			if(welt->ist_in_kartengrenzen(x, y)) {
 				const grund_t *gr = welt->lookup(koord(x,y))->gib_kartenboden();
-				if(gr->obj_bei(0)!=NULL  &&  gr->obj_bei(0)->get_fabrik() != NULL) {
+				if(gr->obj_bei(0)!=NULL  &&  gr->obj_bei(0)->get_fabrik()!=NULL) {
 					if( fablist.append_unique( gr->obj_bei(0)->get_fabrik(), 4 )  ) {
 //DBG_MESSAGE("fabrik_t::sind_da_welche()","appended factory %s at (%i,%i)",gr->obj_bei(0)->get_fabrik()->gib_besch()->gib_name(),x,y);
 					}
@@ -525,7 +534,8 @@ void fabrik_t::set_ausgang(vector_tpl<ware_t> * typen)
 uint32 fabrik_t::produktion(const uint32 produkt) const
 {
 	// default prodfaktor = 16 => shift 4, default time = 1024 => shift 10, rest precion
-	uint32 menge = (prodbase * prodfaktor) >> (18-10+4-fabrik_t::precision_bits);
+	const uint32 max = prodbase * prodfaktor;
+	uint32 menge = max >> (18-10+4-fabrik_t::precision_bits);
 
 	if(ausgang->get_count() > produkt) {
 		// wenn das lager voller wird, produziert eine Fabrik weniger pro step
@@ -650,6 +660,7 @@ fabrik_t::step(long delta_t)
 		const uint32 ecount = eingang->get_count();
 		uint32 index = 0;
 		uint32 produkt=0;
+		bool is_currently_producing = false;
 
 		if(ausgang->get_count()==0) {
 			// consumer only ...
@@ -663,6 +674,7 @@ fabrik_t::step(long delta_t)
 
 				if((uint32)(eingang->get(index).menge) > v) {
 					eingang->at(index).menge -= v;
+					is_currently_producing = true;
 				}
 				else {
 					eingang->at(index).menge = 0;
@@ -699,6 +711,7 @@ fabrik_t::step(long delta_t)
 					if(menge>consumed_menge) {
 						consumed_menge = menge;
 					}
+
 				}
 				else {
 					// source producer
@@ -714,6 +727,7 @@ fabrik_t::step(long delta_t)
 				// produce
 				if(ausgang->at(produkt).menge < ausgang->at(produkt).max) {
 					ausgang->at(produkt).menge += p;
+					is_currently_producing = true;
 				} else {
 					ausgang->at(produkt).menge = ausgang->at(produkt).max-1;
 				}
@@ -727,12 +741,15 @@ fabrik_t::step(long delta_t)
 
 				if((uint32)(eingang->get(index).menge) > v) {
 					eingang->at(index).menge -= v;
+					is_currently_producing = true;
 				}
 				else {
 					eingang->at(index).menge = 0;
 				}
 			}
 		}
+
+
 
 		// Zeituhr zurücksetzen
 		while(  delta_sum>PRODUCTION_DELTA_T) {
@@ -748,6 +765,10 @@ fabrik_t::step(long delta_t)
 			}
 		}
 		recalc_factory_status();
+
+		if(raucher  &&  is_currently_producing) {
+			raucher->step(delta_sum);
+		}
 	}
 
 	// to distribute to all target equally, we use this counter, for the factory, to try first

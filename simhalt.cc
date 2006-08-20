@@ -2142,20 +2142,13 @@ dbg->warning("haltestelle_t::rdwr()", "will no longer add ground without buildin
       guarded_free(const_cast<char *>(s));
     }
 
-	// load statistics
-	if (file->get_version() < 83001)
+	for (int j = 0; j<MAX_HALT_COST; j++)
 	{
-		init_financial_history();
-	} else {
-		for (int j = 0; j<MAX_HALT_COST; j++)
+		for (int k = MAX_MONTHS-1; k>=0; k--)
 		{
-			for (int k = MAX_MONTHS-1; k>=0; k--)
-			{
-				file->rdwr_longlong(financial_history[k][j], " ");
-			}
+			file->rdwr_longlong(financial_history[k][j], " ");
 		}
 	}
-
 }
 
 

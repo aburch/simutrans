@@ -14,6 +14,8 @@
 #include <zlib.h>
 #include <stdio.h>
 
+#include "../utils/cstring_t.h"
+
 /**
  * loadsave_t:
  *
@@ -28,6 +30,7 @@
  *
  * @author V. Meyer, Hj. Malthaner
  */
+
 class loadsave_t {
 public:
     enum mode_t { text, binary, zipped };
@@ -37,6 +40,9 @@ private:
     mode_t mode;
     bool saving;
     int version;
+
+	cstring_t filename;	// the current name ...
+
     FILE *fp;
 
     static int int_version(const char *version_text, mode_t *mode);

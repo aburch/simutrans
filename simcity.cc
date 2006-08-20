@@ -643,7 +643,7 @@ void stadt_t::laden_abschliessen()
 	recount_houses();
 
 	// init step counter with meaningful value
-	step_interval = (2<<18u)/(buildings.get_count()*4);
+	step_interval = (2<<18u)/(buildings.get_count()*4+1);
 	if(step_interval<1) {
 		step_interval = 1;
 	}
@@ -770,7 +770,7 @@ stadt_t::step(long delta_t)
 	next_step += delta_t;
 	next_bau_step += delta_t;
 
-	step_interval = (8<<18u)/(buildings.get_count()*umgebung_t::passenger_factor);
+	step_interval = (8<<18u)/(buildings.get_count()*umgebung_t::passenger_factor+1);
 	if(step_interval<1) {
 		step_interval = 1;
 	}
@@ -2179,7 +2179,7 @@ stadt_t::baue_strasse(koord k, spieler_t *sp, bool forced)
 				strasse_t *weg = new strasse_t(welt);
 				weg->setze_gehweg( true );
 				weg->setze_besch(welt->get_city_road());
-				// Hajo: city roads should not belong to any player
+				// Hajo: city roads should not belong to any player => so we can ignore any contruction costs ...
 				bd->neuen_weg_bauen(weg, ribi, sp);
 			}
 			else {

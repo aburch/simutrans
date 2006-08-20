@@ -781,10 +781,11 @@ void
 vehikel_t::verlasse_feld()
 {
     vehikel_basis_t::verlasse_feld();
-
+#ifndef DEBUG_ROUTES
     if(ist_letztes  &&  reliefkarte_t::is_visible) {
         reliefkarte_t::gib_karte()->calc_map_pixel(gib_pos().gib_2d());
     }
+#endif
 }
 
 
@@ -1433,8 +1434,6 @@ automobil_t::ist_befahrbar(const grund_t *bd) const
 int
 automobil_t::gib_kosten(const grund_t *gr,const uint32 max_speed) const
 {
-	int costs;
-
 	// first favor faster ways
 	const weg_t *w=gr->gib_weg(weg_t::strasse);
 	if(!w) {
@@ -1444,8 +1443,8 @@ automobil_t::gib_kosten(const grund_t *gr,const uint32 max_speed) const
 	// max_speed?
 	uint32 max_tile_speed = w->gib_max_speed();
 
-	// add cost for going (with maximum spoeed, cost is 1 ...
-	costs = ( (max_speed<=max_tile_speed) ? 4 :  (max_speed*4+max_tile_speed)/max_tile_speed );
+	// add cost for going (with maximum speed, cost is 1)
+	int costs = (max_speed<=max_tile_speed) ? 1 :  (max_speed*4)/(max_tile_speed*4);
 
 	// assume all traffic (and even road signs etc.) is not good ...
 	costs += gr->obj_count();
@@ -1827,8 +1826,8 @@ waggon_t::gib_kosten(const grund_t *gr,const uint32 max_speed) const
 	// first favor faster ways
 	const weg_t *w=gr->gib_weg(gib_wegtyp());
 	uint32 max_tile_speed = w ? w->gib_max_speed() : 999;
-	// add cost for going (with maximum spoeed, cost is 1 ...
-	int costs = ( (max_speed<=max_tile_speed) ? 4 :  (max_speed*4+max_tile_speed)/max_tile_speed );
+	// add cost for going (with maximum speed, cost is 1)
+	int costs = (max_speed<=max_tile_speed) ? 1 :  (max_speed*4)/(max_tile_speed*4);
 
 	// effect of hang ...
 	if(gr->gib_weg_hang()!=0) {

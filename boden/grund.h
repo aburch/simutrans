@@ -441,12 +441,12 @@ public:
     uint8	obj_insert_at(ding_t *obj,uint8 pri) { return dinge.insert_at(obj,pri); }
     uint8  obj_pri_add(ding_t *obj, uint8 pri) { return dinge.add(obj, pri); }
     uint8  obj_remove(ding_t *obj, spieler_t *sp) { set_flag(dirty); return dinge.remove(obj, sp); }
-    ding_t *obj_takeout(uint8 pos) { return dinge.remove_at(pos); };
+    ding_t *obj_takeout(uint8 pos) { return dinge.remove_at(pos); }
     bool obj_loesche_alle(spieler_t *sp) { return dinge.loesche_alle(sp); }
     bool obj_ist_da(ding_t *obj) const { return dinge.ist_da(obj); }
     ding_t * obj_bei(uint8 n) const { return dinge.bei(n); }
     uint8  obj_count() const { return dinge.count(); }
-    uint8 gib_top() const {return dinge.gib_top();};
+    uint8 gib_top() const {return dinge.gib_top();}
 
     /**
      * @returns NULL wenn OK, oder Meldung, warum nicht
@@ -573,7 +573,7 @@ public:
     const char * gib_weg_name(weg_t::typ typ = weg_t::invalid) const;
 
 
-    virtual hang_t::typ gib_weg_hang() const { return gib_grund_hang(); };
+    virtual hang_t::typ gib_weg_hang() const { return gib_grund_hang(); }
 
     /**
      * Interface zur Bauen der Wege
@@ -591,7 +591,7 @@ public:
      *
      * @author V. Meyer
      */
-    bool neuen_weg_bauen(weg_t *weg, ribi_t::ribi ribi, spieler_t *sp);
+    long neuen_weg_bauen(weg_t *weg, ribi_t::ribi ribi, spieler_t *sp);
 
     /**
      * Bauhilfsfunktion - die ribis eines vorhandenen weges werden erweitert

@@ -274,6 +274,7 @@ private:
 
     int steps;          // Anzahl steps seit Erzeugung
     int steps_bis_jetzt;
+    bool is_sound;	// flag, that now no sound will play
     bool doit;          // flag fuer simulationsabbruch (false == abbruch)
     bool m_quit_simutrans;// true = unload simutrans      //02-Nov-2001   Markus Weber    Added
     int sleep_time;     // sleep time fuer simulationsschleife
@@ -818,6 +819,8 @@ public:
      * @author Hj. Malthaner
      */
     bool play_sound_area_clipped(koord pos, sound_info info);
+
+	void mute_sound( bool state ) { is_sound = !state; }
 
 
     bool setze_hoehe_no_remap(int x,int y,int h, int &n);

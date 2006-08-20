@@ -55,25 +55,13 @@ void
 brueckenboden_t::rdwr(loadsave_t *file)
 {
 	grund_t::rdwr(file);
-	if(file->get_version() <= 84004) {
-		short v;
-		v = slope;
-		file->rdwr_short(v, " ");
-		slope = (uint8)v;
 
-		v= weg_hang;
-		file->rdwr_short(v, "\n");
-		weg_hang = (uint8)v;
-
+	if(file->get_version()<88009) {
+		uint8 sl;
+		file->rdwr_byte( sl, " " );
+		slope = sl;
 	}
-	else {
-		if(file->get_version()<88009) {
-			uint8 sl;
-			file->rdwr_byte( sl, " " );
-			slope = sl;
-		}
-		file->rdwr_byte(weg_hang, "\n");
-	}
+	file->rdwr_byte(weg_hang, "\n");
 }
 
 

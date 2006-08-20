@@ -145,19 +145,9 @@ simline_t::rdwr(loadsave_t * file)
 	fpl->rdwr(file);
 
 	//financial history
-	if (file->get_version() >= 83001) {
-		for (int j = 0; j<MAX_LINE_COST; j++) {
-			for (int k = MAX_MONTHS-1; k>=0; k--) {
-				file->rdwr_longlong(financial_history[k][j], " ");
-			}
-		}
-	}
-	else {
-		// Hajo: added compatibility code
-		for (int j = 0; j<MAX_LINE_COST; j++) {
-			for (int k = MAX_MONTHS-1; k>=0; k--) {
-				financial_history[k][j] = 0;
-			}
+	for (int j = 0; j<MAX_LINE_COST; j++) {
+		for (int k = MAX_MONTHS-1; k>=0; k--) {
+			file->rdwr_longlong(financial_history[k][j], " ");
 		}
 	}
 	// otherwise inintialized to zero if loading ...

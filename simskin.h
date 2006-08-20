@@ -110,7 +110,7 @@ public:
     static const skin_besch_t *signale;
     static const skin_besch_t *presignals;
     static const skin_besch_t *choosesignals;
-    static const skin_besch_t *baugrube;
+    static const skin_besch_t *construction_site;
     static const skin_besch_t *fussweg;
     static const skin_besch_t *pumpe;
     static const skin_besch_t *senke;

@@ -28,6 +28,7 @@ class haltestelle_t;
 class spieler_t;
 class stadt_t;
 class stringhashtable_t;
+class raucher_t;
 
 
 // production happens in every second
@@ -63,7 +64,7 @@ public:
      * Konstanten
      * @author Hj. Malthaner
      */
-    enum { precision_bits = 6, old_precision_bits = 10 };
+    enum { precision_bits = 10, old_precision_bits = 10 };
 
 private:
 
@@ -95,6 +96,8 @@ private:
     karte_t *welt;
 
     const fabrik_besch_t *besch;
+
+	raucher_t *raucher;
 
     /**
      * Bauposition gedreht?

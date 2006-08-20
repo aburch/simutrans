@@ -27,6 +27,9 @@
 /* normal ground can be covered by other ground (building does not work correctly yet ...) */
 //#define COVER_TILES
 
+/* construct automatic bridges also a active player */
+//#define AUTOMATIC_BRIDGES
+
 /* citycars have a destination; if they could get near, they dissolve */
 //#define DESTINATION_CITYCARS
 
@@ -49,6 +52,9 @@
 //#define CHECK_LOCATIONS
 
 /*********************** Useful things for debugging ... ********************/
+
+/* will highlite marked areas and convoi will leave traces */
+//#define DEBUG_ROUTES
 
 /* shows which tiles are grown as dings (used in boden/grund.cc) */
 //#define SHOW_FORE_GRUND 1

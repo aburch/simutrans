@@ -400,7 +400,7 @@ void move_pointer(int x, int y)
 	position_mouse(x,y);
 }
 
-void set_pointer(int x, int y)
+void set_pointer(int loading)
 {
 	// not supported
 }

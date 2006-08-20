@@ -44,7 +44,7 @@
 #include "gebaeude.h"
 
 
-bool gebaeude_t::hide = false;
+uint8 gebaeude_t::hide = NOT_HIDDEN;
 
 
 
@@ -256,6 +256,13 @@ gebaeude_t::step(long delta_t)
 			else {
 				step_frequency = 0;
 			}
+			// need no ground?
+			if(!tile->gib_besch()->ist_mit_boden()) {
+				grund_t *gr=welt->lookup(gib_pos());
+				if(gr  &&  gr->gib_typ()==grund_t::fundament) {
+					gr->setze_bild( IMG_LEER );
+				}
+			}
 		}
 	}
 
@@ -275,12 +282,19 @@ gebaeude_t::step(long delta_t)
 image_id
 gebaeude_t::gib_bild() const
 {
-	if(hide  &&  gib_haustyp() != unbekannt) {
-		return skinverwaltung_t::baugrube->gib_bild_nr(0);
+	if(hide!=NOT_HIDDEN) {
+		if(gib_haustyp()!=unbekannt) {
+			return skinverwaltung_t::construction_site->gib_bild_nr(0);
+		}
+		else if(hide==ALL_HIDDEN  &&  tile->gib_besch()->gib_utyp()<=hausbauer_t::weitere) {
+			// special bilding
+			int kind=skinverwaltung_t::construction_site->gib_bild_anzahl()<=tile->gib_besch()->gib_utyp() ? skinverwaltung_t::construction_site->gib_bild_anzahl()-1 : tile->gib_besch()->gib_utyp();
+			return skinverwaltung_t::construction_site->gib_bild_nr( kind );
+		}
 	}
 
 	if(zeige_baugrube)  {
-		return skinverwaltung_t::baugrube->gib_bild_nr(0);
+		return skinverwaltung_t::construction_site->gib_bild_nr(0);
 	}
 	else {
 		return tile->gib_hintergrund(count, 0);

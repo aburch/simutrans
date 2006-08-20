@@ -37,22 +37,23 @@ const rauch_besch_t *raucher_t::gib_besch(const char *name)
 
 raucher_t::raucher_t(karte_t *welt, loadsave_t *file) : ding_t (welt)
 {
-    rdwr(file);
+	rdwr(file);
 }
 
 
 raucher_t::raucher_t(karte_t *welt, koord3d pos, const rauch_besch_t *besch) :
     ding_t(welt, pos)
 {
-    this->besch = besch;
-    setze_yoff( besch->gib_xy_off().y );
-    setze_xoff( besch->gib_xy_off().x );
+	this->besch = besch;
+	active = true;
+	setze_yoff( besch->gib_xy_off().y );
+	setze_xoff( besch->gib_xy_off().x );
 }
 
 bool
 raucher_t::step(long /*delta_t*/)
 {
-	if(simrand(besch->gib_zeitmaske()) < 16) {
+	if(simrand(besch->gib_zeitmaske())<16  && active) {
 		welt->lookup(gib_pos())->obj_add(new async_wolke_t(welt, gib_pos(), gib_xoff()+simrand(7)-3, gib_yoff(), besch->gib_bilder()->gib_bild_nr((0))));
 		INT_CHECK("raucher 57");
 	}
@@ -68,15 +69,15 @@ raucher_t::zeige_info()
 void
 raucher_t::rdwr(loadsave_t *file)
 {
-    ding_t::rdwr( file );
-    const char *s = NULL;
+	ding_t::rdwr( file );
+	const char *s = NULL;
 
-    if(file->is_saving()) {
-	s = besch->gib_name();
-    }
-    file->rdwr_str(s, "N");
-    if(file->is_loading()) {
-	besch = gib_besch(s);
-	guarded_free(const_cast<char *>(s));
-    }
+	if(file->is_saving()) {
+		s = besch->gib_name();
+	}
+	file->rdwr_str(s, "N");
+	if(file->is_loading()) {
+		besch = gib_besch(s);
+		guarded_free(const_cast<char *>(s));
+	}
 }

@@ -33,6 +33,8 @@ class gebaeude_t : public ding_t, sync_steppable
 {
 public:
 
+    enum  {NOT_HIDDEN=0, SOME_HIDDEN, ALL_HIDDEN};
+
     /**
      * Vom typ "unbekannt" sind auch spezielle gebaeude z.B. das Rathaus
      * @author Hj. Malthaner
@@ -43,7 +45,7 @@ public:
      * Set to true to hide all non-station buildings
      * @author Hj. Malthaner
      */
-    static bool hide;
+    static uint8 hide;
 
 
 private:

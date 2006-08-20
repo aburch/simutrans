@@ -693,6 +693,7 @@ wkz_wegebau(spieler_t *sp, karte_t *welt,  koord pos, value_t lParam)
 			// Hajo: to test baubaer mode (only for AI)
 			// bauigel.baubaer = true;
 
+			display_show_load_pointer(true);
 			bauigel.route_fuer(bautyp, besch);
 			if(event_get_last_control_shift()==2) {
 DBG_MESSAGE("wkz_wegebau()", "try straight route");
@@ -706,8 +707,18 @@ DBG_MESSAGE("wkz_wegebau()", "try straight route");
 
 			DBG_MESSAGE("wkz_wegebau()", "builder found route with %d sqaures length.", bauigel.max_n);
 
-			bauigel.calc_costs();
+			long cost = bauigel.calc_costs();
+			welt->mute_sound(true);
 			bauigel.baue();
+			welt->mute_sound(false);
+			if(cost>10000) {
+				struct sound_info info;
+				info.index = SFX_CASH;
+				info.volume = 255;
+				info.pri = 0;
+				sound_play(info);
+			}
+			display_show_load_pointer(false);
 		}
 	}
 	return true;

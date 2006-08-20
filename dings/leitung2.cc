@@ -432,21 +432,18 @@ void leitung_t::laden_abschliessen()
  */
 void leitung_t::rdwr(loadsave_t *file)
 {
-  unsigned long value;
+	unsigned long value;
 
-  ding_t::rdwr(file);
-  if(file->get_version() <= 82001) {
-    set_net(NULL);
-  } else {
-    if(file->is_saving()) {
-      value = (unsigned long)get_net();
-      file->rdwr_long(value, "\n");
-    } else {
-      file->rdwr_long(value, "\n");
-//      net = powernet_t::load_net((powernet_t *) value);
-	set_net(NULL);
-    }
-  }
+	ding_t::rdwr(file);
+	if(file->is_saving()) {
+		value = (unsigned long)get_net();
+		file->rdwr_long(value, "\n");
+	}
+	else {
+		file->rdwr_long(value, "\n");
+		//      net = powernet_t::load_net((powernet_t *) value);
+		set_net(NULL);
+	}
 }
 
 

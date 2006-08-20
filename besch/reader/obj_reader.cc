@@ -302,9 +302,14 @@ void obj_reader_t::read_file(const char *name)
 //@EDOC
 void obj_reader_t::read_nodes(FILE *fp, obj_besch_t * /*parent*/, obj_besch_t *&data)
 {
-    obj_node_info_t node;
+	obj_node_info_t node;
+	char load_dummy[8], *p;
 
-    fread(&node, sizeof(node), 1, fp);
+	p = load_dummy;
+	fread(p, 8, 1, fp);
+	node.type = decode_uint32(p);
+	node.children = decode_uint16(p);
+	node.size = decode_uint16(p);
 
     obj_reader_t *reader = obj_reader->get(static_cast<obj_type>(node.type));
     if(reader) {
@@ -365,12 +370,15 @@ obj_besch_t *obj_reader_t::read_node(FILE *fp, obj_node_info_t &node)
     // memset(info_buf, 0, sizeof(obj_besch_t) + node.children * sizeof(obj_besch_t *));
     // Hajo: end
 
-    obj_besch_t *besch = reinterpret_cast<obj_besch_t *>(besch_buf);
+	obj_besch_t *besch = reinterpret_cast<obj_besch_t *>(besch_buf);
 
-    besch->node_info =  reinterpret_cast<obj_besch_info_t *>(info_buf);
-    fread(besch + 1, node.size, 1, fp);
+	besch->node_info =  reinterpret_cast<obj_besch_info_t *>(info_buf);
+	fread(besch + 1, node.size, 1, fp);
 
-    return besch;
+	// not 32/64 Bit compatible
+//	DBG_MESSAGE("obj_reader_t::read_node()","native called on node");
+
+	return besch;
 }
 
 //@ADOC

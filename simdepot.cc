@@ -123,13 +123,6 @@ depot_t::zeige_info()
 	if(depot_info==NULL) {
 		depot_info = new depot_frame_t(welt, this);
 	}
-	else {
-		// update data (needs to be doen twice?!?)
-		depot_info->build_vehicle_lists();
-		depot_info->action_triggered(NULL,(long int)0);
-		depot_info->build_vehicle_lists();
-		depot_info->action_triggered(NULL,(long int)0);
-	}
 	create_win(20, 20, depot_info, w_info);
 }
 

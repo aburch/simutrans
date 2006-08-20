@@ -20,7 +20,6 @@ gui_image_list_t::gui_image_list_t(vector_tpl<image_data_t> *images) :
     placement(16, 16)
 {
     this->images = images;
-
     use_rows = true;
     color = 0;
 }
@@ -88,27 +87,19 @@ void gui_image_list_t::zeichnen(koord parent_pos) const
     for(unsigned int i=0; i< images->get_count(); i++) {
 	const image_data_t &idata = images->get(i);
 
-	if(idata.count >= 0) {
+	if(idata.count>=0) {
 	    // display mark
 
-	    if(idata.lcolor != -1) {
-		display_fillbox_wh_clip(
-		    xpos + 1, ypos + grid.y - 5, grid.x/2 - 1, 4,
-		    idata.lcolor,
-		    true);
+	    if(idata.lcolor!=EMPTY_IMAGE_BAR) {
+		display_fillbox_wh_clip( xpos + 1, ypos + grid.y - 5, grid.x/2 - 1, 4, idata.lcolor, true);
 	    }
-	    if(idata.rcolor != -1) {
-		display_fillbox_wh_clip(
-		    xpos + grid.x/2, ypos + grid.y - 5, grid.x - grid.x/2 - 1, 4,
-		    idata.rcolor,
-		    true);
+	    if(idata.rcolor!=EMPTY_IMAGE_BAR) {
+		display_fillbox_wh_clip( xpos + grid.x/2, ypos + grid.y - 5, grid.x - grid.x/2 - 1, 4, idata.rcolor, true);
 	    }
 	    if(i == sel_index) {
 		display_ddd_box_clip(xpos, ypos, grid.x, grid.y, MN_GREY4, MN_GREY0);
 	    }
-	    display_color_img(idata.image, xpos + placement.x, ypos + placement.y,
-			      color, false, true);
-
+	    display_color_img(idata.image, xpos + placement.x, ypos + placement.y,color, false, true);
 
 	    // If necessary, display a number:
 	    if(idata.count > 0) {
@@ -119,13 +110,11 @@ void gui_image_list_t::zeichnen(koord parent_pos) const
 		// Let's make a black background to ensure visibility
 		for(int iy = -3; iy < 0; iy++) {
 		    for(int ix = 1; ix < 4; ix++) {
-			display_proportional_clip(xpos + ix, ypos + iy, text, ALIGN_LEFT,
-					     COL_BLACK, true);
+			display_proportional_clip(xpos + ix, ypos + iy, text, ALIGN_LEFT, COL_BLACK, true);
 		    }
 		}
 		// Display the number white on black
-		display_proportional_clip(xpos + 2, ypos - 2, text, ALIGN_LEFT,
-				     COL_WHITE, true);
+		display_proportional_clip(xpos + 2, ypos - 2, text, ALIGN_LEFT, COL_WHITE, true);
 	    }
 	}
 	// advance x, y to next position

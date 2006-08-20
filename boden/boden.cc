@@ -172,7 +172,7 @@ DBG_MESSAGE("boden_t::calc_bild()","at pos %i,%i,%i", gib_pos().x,gib_pos().y,gi
 		set_flag(grund_t::draw_as_ding);
 
 		if(welt->lookup(gib_pos().gib_2d())->gib_kartenboden()!=this) {
-DBG_MESSAGE("boden_t::calc_bild()","ERROR: covered tile not ground?!?");
+dbg->fatal("boden_t::calc_bild()","covered tile not ground?!?");
 		}
 	}
 	else {

@@ -39,14 +39,15 @@ void loadsave_frame_t::del_action(const char *filename)
  */
 loadsave_frame_t::loadsave_frame_t(karte_t *welt, bool do_load) : savegame_frame_t(".sve")
 {
-    this->welt = welt;
-    this->do_load = do_load;
+	this->welt = welt;
+	this->do_load = do_load;
 
-    if(do_load) {
-	setze_name("Laden");
-    } else {
-	setze_name("Speichern");
-    }
+	if(do_load) {
+		setze_name("Laden");
+	} else {
+		set_filename(welt->gib_einstellungen()->gib_filename());
+		setze_name("Speichern");
+	}
 }
 
 

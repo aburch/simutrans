@@ -72,8 +72,6 @@ map_frame_t::map_frame_t(const karte_modell_t *welt) :
 	gui_frame_t("Reliefkarte"),
 	scrolly(reliefkarte_t::gib_karte())
 {
-	reliefkarte_t::gib_karte()->is_visible = true;
-	reliefkarte_t::gib_karte()->calc_map();
 	// init factories names
 	legend_names.clear();
 	legend_colors.clear();
@@ -139,7 +137,6 @@ map_frame_t::map_frame_t(const karte_modell_t *welt) :
 // switches updates off
 map_frame_t::~map_frame_t()
 {
-	reliefkarte_t::gib_karte()->is_visible = false;
 }
 
 
@@ -178,6 +175,16 @@ map_frame_t::action_triggered(gui_komponente_t *komp,value_t /* */)
  */
 void map_frame_t::infowin_event(const event_t *ev)
 {
+	if(ev->ev_class == INFOWIN) {
+		if(ev->ev_code == WIN_OPEN) {
+			reliefkarte_t::gib_karte()->is_visible = true;
+			reliefkarte_t::gib_karte()->calc_map();
+		}
+		else if(ev->ev_code == WIN_CLOSE) {
+			reliefkarte_t::gib_karte()->is_visible = false;
+		}
+	}
+
 	if(IS_WHEELUP(ev) || IS_WHEELDOWN(ev)  &&  reliefkarte_t::gib_karte()->getroffen(ev->mx,ev->my)) {
 		// otherwise these would go to the vertical scroll bar
 		reliefkarte_t::gib_karte()->infowin_event(ev);

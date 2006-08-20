@@ -484,11 +484,12 @@ fabrikbauer_t::baue_fabrik(karte_t * welt, koord3d *parent, const fabrik_besch_t
 		koord dim = info->gib_haus()->gib_groesse(rotate);
 		koord k;
 
-		for(k.x=pos.x-3; k.x<=pos.x+dim.x+2; k.x++) {
-			for(k.y=pos.y-3; k.y<=pos.y+dim.y+2; k.y++) {
-				halthandle_t verbinde_halt = haltestelle_t::gib_halt(welt,k);
-				if(verbinde_halt!=NULL) {
-					verbinde_halt->verbinde_fabriken();
+		for(k.x=pos.x; k.x<=pos.x+dim.x; k.x++) {
+			for(k.y=pos.y; k.y<=pos.y+dim.y; k.y++) {
+				planquadrat_t *plan=welt->access(k);
+				const minivec_tpl<halthandle_t> &halt_list = welt->access(k)->get_haltlist();
+				for( unsigned i=0;  i<halt_list.get_count();  i++  ) {
+					halt_list.at(i)->verbinde_fabriken();
 				}
 			}
 		}

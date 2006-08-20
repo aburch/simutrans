@@ -51,24 +51,26 @@ template <class X> class stringhashtable_tpl;
 class raucher_t : public ding_t
 {
 private:
-    static stringhashtable_tpl<const rauch_besch_t *> besch_table;
+	static stringhashtable_tpl<const rauch_besch_t *> besch_table;
+	static const rauch_besch_t *gib_besch(const char *name);
 
-    static const rauch_besch_t *gib_besch(const char *name);
+	const rauch_besch_t *besch;
+	bool active;
 
-    const rauch_besch_t *besch;
 public:
-    static void register_besch(const rauch_besch_t *besch, const char *name);
+	static void register_besch(const rauch_besch_t *besch, const char *name);
 
-    raucher_t(karte_t *welt, loadsave_t *file);
-    raucher_t(karte_t *welt, koord3d pos, const rauch_besch_t *besch);
+	raucher_t(karte_t *welt, loadsave_t *file);
+	raucher_t(karte_t *welt, koord3d pos, const rauch_besch_t *besch);
 
-    bool step(long delta_t);
-    void zeige_info();
+	void set_active( bool state ) { active=state; }
 
-    void rdwr(loadsave_t *file);
+	bool step(long delta_t);
+	void zeige_info();
 
-    enum ding_t::typ gib_typ() const {return raucher;};
+	void rdwr(loadsave_t *file);
 
+	enum ding_t::typ gib_typ() const {return raucher;};
 };
 
 #endif // __RAUCHER_H

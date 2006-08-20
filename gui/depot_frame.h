@@ -67,7 +67,6 @@ private:
     gui_label_t lb_convois;
     button_t bt_next;
 
-
     gui_label_t lb_convoi_count;
     gui_label_t lb_convoi_value;
     gui_label_t lb_convoi_line;

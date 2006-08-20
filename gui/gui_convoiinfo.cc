@@ -97,7 +97,7 @@ void gui_convoiinfo_t::zeichnen(koord offset) const
 			int w=display_proportional_clip(pos.x+offset.x+2, pos.y+offset.y+8+2*LINESPACE,txt,ALIGN_LEFT, COL_BLACK, true);
 			max_x = max(max_x,w);
 		}
-		else if (cnv->get_line() != NULL)
+		else if (cnv->get_line().is_bound())
 		{
 			sprintf(buf, "%s: %s", translator::translate("Line"), cnv->get_line()->get_name());
 			int w = display_proportional_clip(pos.x+offset.x+2, pos.y+offset.y+8+2*LINESPACE,buf,ALIGN_LEFT, COL_BLACK, true);

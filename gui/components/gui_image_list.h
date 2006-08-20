@@ -5,6 +5,7 @@
 #include "../../tpl/vector_tpl.h"
 #include "../../simimg.h"
 
+#define EMPTY_IMAGE_BAR (255)
 
 /**
  * Updated! class is used only for the vehicle dialog. SO I changed some things
@@ -27,8 +28,8 @@ public:
     struct image_data_t {
 	image_id		image;
 	sint16		count;
-	sint16		lcolor;	//0=none, 1=green, 2=red, 3 =yellow
-	sint16		rcolor;
+	uint8		lcolor;	//0=none, 1=green, 2=red, 3 =yellow
+	uint8		rcolor;
     };
     /**
      * Graphic layout:

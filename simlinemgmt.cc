@@ -97,16 +97,17 @@ simlinemgmt_t::get_line(fahrplan_t *fpl)
 	return NULL;
 }
 
-void
+bool
 simlinemgmt_t::delete_line(int iroute)
 {
 	linehandle_t line = get_line(iroute);
 	if(line.is_bound()) {
-		delete_line(line);
+		return delete_line(line);
 	}
+	return false;
 }
 
-void
+bool
 simlinemgmt_t::delete_line(linehandle_t line)
 {
 	if (line.is_bound()) {
@@ -114,7 +115,9 @@ simlinemgmt_t::delete_line(linehandle_t line)
 		//destroy line object
 		simline_t *line_ptr=line.detach();
 		delete line_ptr;
+		return true;
 	}
+	return false;
 	//DBG_MESSAGE("simlinemgt_t::delete_line()", "line at index %d (%p) deleted", iroute, line);
 }
 
@@ -156,73 +159,30 @@ simlinemgmt_t::rdwr(karte_t * welt, loadsave_t *file)
 DBG_MESSAGE("simlinemgmt_t::rdwr()","number of lines=%i",totalLines);
 			for (int i = 0; i<totalLines; i++) {
 				simline_t * line;
-				if (file->get_version() > 84003) {
-					simline_t::linetype lt;
-					file->rdwr_enum(lt, "\n");
-					switch(lt) {
-						case simline_t::truckline:
-							line = new truckline_t(welt, this, file);
-							break;
-						case simline_t::trainline:
-							line = new trainline_t(welt, this, file);
-							break;
-						case simline_t::shipline:
-							line = new shipline_t(welt, this, file);
-							break;
-						case simline_t::airline:
-							line = new airline_t(welt, this, file);
-							break;
-						case simline_t::monorailline:
-							line = new monorailline_t(welt, this, file);
-							break;
-						case simline_t::tramline:
-							line = new tramline_t(welt, this, file);
-							break;
-						default:
-							line = new simline_t(welt, this, file);
-							break;
-					}
-				}
-				else {
-					// this else-block is for compatibility with old savegames! (may be not loadable anyway ... )
-					line = new simline_t(welt, this, file);
-					// identify linetype by checking type of first stop in fahrplan
-					fahrplan_t * fpl = line->get_fahrplan();
-					fahrplan_t::fahrplan_type type;
-					type = fpl->get_type(welt);
-					// set linetype and correct fahrplan type
-					switch(type) {
-						case fahrplan_t::autofahrplan:
-							line->set_fahrplan(new autofahrplan_t(fpl));
-							line->set_linetype(simline_t::truckline);
-							break;
-						case fahrplan_t::zugfahrplan:
-							line->set_fahrplan(new zugfahrplan_t(fpl));
-							line->set_linetype(simline_t::trainline);
-							break;
-						case fahrplan_t::schifffahrplan:
-							line->set_fahrplan(new schifffahrplan_t(fpl));
-							line->set_linetype(simline_t::shipline);
-							break;
-/* not exitent at that time ...
-						case fahrplan_t::airfahrplan:
-							line->set_fahrplan(new airfahrplan_t(fpl));
-							line->set_linetype(simline_t::airline);
-							break;
-						case fahrplan_t::monorailfahrplan:
-							line->set_fahrplan(new monorailfahrplan_t(fpl));
-							line->set_linetype(simline_t::monorailline);
-							break;
-						case fahrplan_t::tramfahrplan:
-							line->set_fahrplan(new tramfahrplan_t(fpl));
-							line->set_linetype(simline_t::tramline);
-							break;
-*/
-						default:
-							line->set_fahrplan(new fahrplan_t(fpl));
-							line->set_linetype(simline_t::line);
-							break;
-					}
+				simline_t::linetype lt;
+				file->rdwr_enum(lt, "\n");
+				switch(lt) {
+					case simline_t::truckline:
+						line = new truckline_t(welt, this, file);
+						break;
+					case simline_t::trainline:
+						line = new trainline_t(welt, this, file);
+						break;
+					case simline_t::shipline:
+						line = new shipline_t(welt, this, file);
+						break;
+					case simline_t::airline:
+						line = new airline_t(welt, this, file);
+						break;
+					case simline_t::monorailline:
+						line = new monorailline_t(welt, this, file);
+						break;
+					case simline_t::tramline:
+						line = new tramline_t(welt, this, file);
+						break;
+					default:
+						line = new simline_t(welt, this, file);
+						break;
 				}
 				add_line(line->self);
 			}

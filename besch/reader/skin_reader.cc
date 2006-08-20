@@ -27,6 +27,7 @@
 #include <stdio.h>
 
 #include "../../simdings.h"
+#include "../../simdebug.h"
 #include "../../simskin.h"
 
 #include "../skin_besch.h"
@@ -72,5 +73,6 @@ void skin_reader_t::register_obj(obj_besch_t *&data)
 //@EDOC
 bool skin_reader_t::successfully_loaded() const
 {
+	DBG_MESSAGE("skin_reader_t::successfully_loaded()","");
     return skinverwaltung_t::alles_geladen(get_skintype());
 }

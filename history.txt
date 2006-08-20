@@ -6,6 +6,22 @@ Known bugs: (hard to fix)
 	valgrind complains about errors in SDL and X?
 
 
+Release of 88.10.3
+
+19-Jun-2006: (prissi)
+	FIX: wrong buildings on slopes, transparent bottoms
+	FIX/CHANGE: forbid to delete a line assinged to convois (but you could do it without crash anyway again)
+	FIX: set dirty of smoke
+	CHANGE: only smoking chimmneys when producing/consuming
+	FIX: another try to fix the depot window to prevent wrong obsolete vehicles
+	FIX: faster, less memory consuming route calculation (about factor of 10-50 for ships)
+	FIX: waybuilder much faster calculation and finally builds diagonals as expected (may have one curve too much but is up to 4000% faster that way)
+	FIX: waybuilder now only generates one sound per tile after finishing construction and you can read the total costs per tile (not painting over each other)
+	CLEANUP: removed all support for savegames before 84.06 since they were not loadable anyway
+	CHANGE: remember last name with that the game was saved
+	CHANGE: hide all buildings (special up to five additional construction sites, if there)
+	CHANGE: allows for non-square factories (leave the empty field out, not fully tested yet)
+
 
 Release of 88.10.2
 

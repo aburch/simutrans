@@ -42,8 +42,8 @@ class simlinemgmt_t
 	 * delete a line
 	 * @author hsiegeln
 	 */
- 	void delete_line(int iroute);
- 	void delete_line(linehandle_t line);
+ 	bool delete_line(int iroute);
+ 	bool delete_line(linehandle_t line);
 
 	/*
 	 * update a line -> apply updated fahrplan to all convoys

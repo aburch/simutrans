@@ -166,6 +166,12 @@ reliefkarte_t::calc_relief_farbe(const grund_t *gr)
 {
 	uint8 color = COL_BLACK;
 
+#ifdef DEBUG_ROUTES
+	/* for debug purposes only ...*/
+	if(welt->ist_markiert(gr)) {
+		color = COL_PURPLE;
+	}else
+#endif
 	if(gr->gib_halt().is_bound()) {
 		color = HALT_KENN;
 	}

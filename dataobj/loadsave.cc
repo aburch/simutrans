@@ -9,9 +9,12 @@
 #include "../simmem.h"
 #include "loadsave.h"
 
+#include "../utils/simstring.h"
+
 loadsave_t::mode_t loadsave_t::save_mode = binary;	// default to use for saving
 
-loadsave_t::loadsave_t()
+loadsave_t::loadsave_t() :
+	filename()
 {
 	assert(sizeof(int) == 4);
 	assert(sizeof(short) == 2);
@@ -26,72 +29,75 @@ loadsave_t::~loadsave_t()
 
 bool loadsave_t::rd_open(const char *filename)
 {
-    close();
+	close();
 
-    version = 0;
-    fp = (FILE *)gzopen(filename, "rb");
-    if(!fp) {
-	return false;
-    }
-    saving = false;
+	version = 0;
+	fp = (FILE *)gzopen(filename, "rb");
+	if(!fp) {
+		return false;
+	}
+	saving = false;
 
-    char buf[80];
+	char buf[80];
+	gzgets(fp, buf, 80);
 
-    gzgets(fp, buf, 80);
-
-    if(strncmp(buf, SAVEGAME_PREFIX, sizeof(SAVEGAME_PREFIX) - 1)) {
-        close();
-        return false;
-    }
-    version = int_version(buf + sizeof(SAVEGAME_PREFIX) - 1, &mode);
-    if(mode != zipped) {
-	gzclose(fp);
-	fp = fopen(filename, "rb");
-	fgets(buf, 80, fp);
-    }
-    return true;
+	if(strncmp(buf, SAVEGAME_PREFIX, sizeof(SAVEGAME_PREFIX) - 1)) {
+		close();
+		return false;
+	}
+	version = int_version(buf + sizeof(SAVEGAME_PREFIX) - 1, &mode);
+	if(mode != zipped) {
+		gzclose(fp);
+		fp = fopen(filename, "rb");
+		fgets(buf, 80, fp);
+	}
+	this->filename = filename;
+	return true;
 }
 
 bool loadsave_t::wr_open(const char *filename, mode_t m)
 {
-  mode = m;
+	mode = m;
+	close();
 
-  close();
+	if(mode == zipped) {
+		fp = (FILE *)gzopen(filename, "wb");
+	}
+	else {
+		fp = fopen(filename, "wb");
+	}
 
-  if(mode == zipped) {
-    fp = (FILE *)gzopen(filename, "wb");
-  }  else {
-    fp = fopen(filename, "wb");
-  }
+	if(!fp) {
+		return false;
+	}
+	saving = true;
 
-  if(!fp) {
-    return false;
-  }
-  saving = true;
+	if(is_zipped()) {
+		gzprintf(fp, "%s%s\n", SAVEGAME_VERSION, "zip");
+	}
+	else {
+		fprintf(fp, "%s%s\n", SAVEGAME_VERSION, mode == binary ? "bin" : "");
+	}
 
-  if(is_zipped()) {
-    gzprintf(fp, "%s%s\n", SAVEGAME_VERSION, "zip");
-  } else {
-    fprintf(fp, "%s%s\n", SAVEGAME_VERSION, mode == binary ? "bin" : "");
-  }
+	version = int_version(SAVEGAME_VER_NR, NULL);
+	this->mode = mode;
+	this->filename = filename;
 
-  version = int_version(SAVEGAME_VER_NR, NULL);
-  this->mode = mode;
-
-  return true;
+	return true;
 }
 
 
 void loadsave_t::close()
 {
-    if(fp != NULL) {
-	if(is_zipped()) {
-	    gzclose (fp);
-	} else {
-	    fclose(fp);
+	if(fp != NULL) {
+		if(is_zipped()) {
+			gzclose (fp);
+		}
+		else {
+			fclose(fp);
+		}
+		fp = NULL;
 	}
-	fp = NULL;
-    }
 }
 
 
@@ -101,11 +107,12 @@ void loadsave_t::close()
  */
 bool loadsave_t::is_eof()
 {
-    if(is_zipped()) {
-        return gzeof(fp) != 0;
-    } else {
-	return feof(fp) != 0;
-    }
+	if(is_zipped()) {
+		return gzeof(fp) != 0;
+	}
+	else {
+		return feof(fp) != 0;
+	}
 }
 
 

@@ -241,10 +241,13 @@ schedule_list_gui_t::infowin_event(const event_t *ev)
 		if (!line.is_bound()) {
 			bt_change_line.disable();
 			bt_delete_line.disable();
-		} else {
+		}
+#if 0
+		else {
 			bt_change_line.enable();
 			bt_delete_line.enable();
 		}
+#endif
 		if (scl.getroffen(x, y-40)) {
 			linehandle_t new_line=linehandle_t();
 			event_t ev2 = *ev;
@@ -405,6 +408,13 @@ void schedule_list_gui_t::update_lineinfo(linehandle_t new_line)
 			ypos += 40;
 		}
 		cont.setze_groesse(koord(500, ypos));
+
+		if(icnv>0) {
+			bt_delete_line.disable();
+		}
+		else {
+			bt_delete_line.enable();
+		}
 
 		// fill haltestellen container with info of line's haltestellen
 		cont_haltestellen.remove_all();

@@ -56,6 +56,8 @@
 
 #include "../dings/leitung2.h"
 
+#include "../gui/karte.h"	// for debugging
+
 
 // Hajo: these are needed to build the menu entries
 #include "../gui/werkzeug_parameter_waehler.h"
@@ -1081,6 +1083,25 @@ wegbauer_t::route_fuer(enum bautyp wt, const weg_besch_t *b, const bruecke_besch
 
 
 
+koord *
+get_next_koord(koord gr_pos, koord ziel)
+{
+	static koord next_koord[4];
+	if( abs(gr_pos.x-ziel.x)>abs(gr_pos.y-ziel.y) ) {
+		next_koord[0] = (ziel.x>gr_pos.x) ? koord::ost : koord::west;
+		next_koord[1] = (ziel.y>gr_pos.y) ? koord::sued : koord::nord;
+	}
+	else {
+		next_koord[0] = (ziel.y>gr_pos.y) ? koord::sued : koord::nord;
+		next_koord[1] = (ziel.x>gr_pos.x) ? koord::ost : koord::west;
+	}
+	next_koord[2] = koord(  -next_koord[1].x, -next_koord[1].y );
+	next_koord[3] = koord(  -next_koord[0].x, -next_koord[0].y );
+	return next_koord;
+}
+
+
+
 /* this routine uses A* to calculate the best route
  * beware: change the cost and you will mess up the system!
  */
@@ -1114,13 +1135,24 @@ wegbauer_t::intern_calc_route(const koord start, const koord ziel)
 	}
 	int step = 0;
 
+	// arrays for A*
+	// (was vector_tpl before, but since we really badly need speed here, we use unchecked arrays)
+	static route_t::ANode **open;
+	static uint32 open_size=0, open_count;
+
 	INT_CHECK("wegbauer 347");
 
-	// arrays for A*
-	static vector_tpl <route_t::ANode *> open = vector_tpl <route_t::ANode *>(0);
+	// is valid ground?
+	long dummy;
+	gr = welt->lookup(start3d);
+	if(!is_allowed_step(gr,gr,&dummy)) {
+		DBG_MESSAGE("wegbauer_t::intern_calc_route()","cannot start on (%i,%i)",start.x,start.y);
+		return false;
+	}
+
+	route_t::GET_NODE();
 
 	// nothing in lists
-	open.clear();
 	welt->unmarkiere_alle();
 
 	route_t::ANode *tmp = &(route_t::nodes[step++]);
@@ -1130,24 +1162,27 @@ wegbauer_t::intern_calc_route(const koord start, const koord ziel)
 	tmp->g = 0;
 	tmp->dir = 0;
 
-	// is valid ground?
-	long dummy;
-	if(!is_allowed_step(tmp->gr,tmp->gr,&dummy)) {
-		DBG_MESSAGE("wegbauer_t::intern_calc_route()","cannot start on (%i,%i)",start.x,start.y);
-		return false;
+	if(open_size==0) {
+		open_size = 4096;
+		open = (route_t::ANode **)malloc( sizeof(route_t::ANode*)*4096 );
 	}
 
-	route_t::GET_NODE();
-
-	// assume first tile is valid!
-
 	// start in open
-	open.append(tmp,256);
+	open[0] = tmp;
+	open_count = 1;
+
+	// to speed up search, but may not find all shortest ways
+	uint32 min_dist = 99999999;
 
 //DBG_MESSAGE("route_t::itern_calc_route()","calc route from %d,%d,%d to %d,%d,%d",ziel.x, ziel.y, ziel.z, start.x, start.y, start.z);
 	do {
-		tmp = open.at( open.get_count()-1 );
-		open.remove_at( open.get_count()-1 );
+		open_count --;
+		if(welt->ist_markiert(open[open_count]->gr)) {
+			// well we had already a better one going here ...
+			// this speeds up wayfinding dramatically, but may find a only nearly best route ...
+			continue;
+		}
+		tmp = open[open_count];
 
 		gr = tmp->gr;
 		gr_pos = gr->gib_pos();
@@ -1167,12 +1202,13 @@ wegbauer_t::intern_calc_route(const koord start, const koord ziel)
 		// only one direction allowed ...
 		const koord bridge_nsow=tmp->parent!=NULL ? gr->gib_pos().gib_2d()-tmp->parent->gr->gib_pos().gib_2d() : koord::invalid;
 
+		const koord *next_koord = get_next_koord(gr->gib_pos().gib_2d(),ziel);
+
 		// testing all four possible directions
 		for(int r=0; r<4; r++) {
 
 			to = NULL;
-//				const planquadrat_t *pl=welt->lookup(gr_pos.gib_2d()+koord::nsow[r]);
-			if(!gr->get_neighbour(to,weg_t::invalid,koord::nsow[r])) {
+			if(!gr->get_neighbour(to,weg_t::invalid,next_koord[r])) {
 				continue;
 			}
 
@@ -1182,7 +1218,6 @@ wegbauer_t::intern_calc_route(const koord start, const koord ziel)
 			}
 
 			long new_cost = 0;
-
 			bool is_ok = is_allowed_step(gr,to,&new_cost);
 
 			// we check here for 180° turns and the end of bridges ...
@@ -1219,6 +1254,9 @@ wegbauer_t::intern_calc_route(const koord start, const koord ziel)
 		for(unsigned r=0; r<next_gr.get_count(); r++) {
 
 			to = next_gr.get(r).gr;
+			if(welt->ist_markiert(to)) {
+				continue;
+			}
 
 			// new values for cost g
 			uint32 new_g = tmp->g + next_gr.get(r).cost;
@@ -1226,67 +1264,101 @@ wegbauer_t::intern_calc_route(const koord start, const koord ziel)
 			// check for curves (usually, one would need the lastlast and the last;
 			// if not there, then we could just take the last
 			uint8 current_dir;
-			if(tmp->parent==NULL) {
-				current_dir = ribi_typ( tmp->gr->gib_pos().gib_2d(), to->gib_pos().gib_2d() );
+			if(tmp->parent!=NULL) {
+				current_dir = ribi_typ( tmp->parent->gr->gib_pos().gib_2d(), to->gib_pos().gib_2d() );
 				if(tmp->dir!=current_dir) {
 					new_g += umgebung_t::way_count_curve;
+					if(tmp->parent->dir!=tmp->dir) {
+						// discourage double turns
+						new_g += umgebung_t::way_count_double_curve;
+					}
+					else if(ribi_t::ist_exakt_orthogonal(tmp->dir,current_dir)) {
+						// discourage v turns heavily
+						new_g += umgebung_t::way_count_90_curve;
+					}
 				}
 			}
 			else {
-				current_dir = ribi_typ( tmp->parent->gr->gib_pos().gib_2d(), to->gib_pos().gib_2d() );
-				if(tmp->parent->dir!=current_dir  ||  tmp->dir!=current_dir) {
-					// is near a curve ...
-
-					if(ribi_t::ist_exakt_orthogonal(tmp->dir,current_dir)) {
-						// 180° bend
-						new_g +=  umgebung_t::way_count_90_curve;
-					}
-					else if(ribi_t::ist_orthogonal(tmp->parent->dir,current_dir)) {
-						// 90° curve
-						new_g +=  umgebung_t::way_count_double_curve;
-//DBG_MESSAGE("curve double from","%i,%i -> %i,%i -> %i,%i", tmp->parent->gr->gib_pos().x, tmp->parent->gr->gib_pos().y, tmp->gr->gib_pos().x, tmp->gr->gib_pos().y, to->gib_pos().x, to->gib_pos().y );
-					}
-					// double curve?
-					else if(tmp->dir!=current_dir  &&  tmp->parent->dir!=current_dir  &&  tmp->dir!=tmp->parent->dir) {
-						new_g +=  umgebung_t::way_count_double_curve;
-					}
-					// normal curve?
-					else {
-						if(tmp->dir!=current_dir) {
-							new_g +=  umgebung_t::way_count_curve;
-						}
-/*
-						if(tmp->parent->dir!=current_dir) {
-							new_g +=  umgebung_t::way_count_curve;
-						}
-*/
-					}
-				}
+				 current_dir = ribi_typ( gr->gib_pos().gib_2d(), to->gib_pos().gib_2d() );
 			}
 
-			const uint32 new_f = new_g+route_t::calc_distance( to->gib_pos(), ziel3d );
-
-			// already in open list and better?
-			sint32 index;
-			for(  index=open.get_count()-1;  index>=0  &&   open.get(index)->f<=new_f;  index--  ) {
-				if(open.get(index)->gr==to) {
-					break;
-				}
+			const uint32 new_dist = route_t::calc_distance( to->gib_pos(), ziel3d );
+			if(new_dist<min_dist) {
+				min_dist = new_dist;
 			}
-
-			if(index>=0  &&  open.get(index)->gr==to) {
-				// it is already contained in the list
-				// and it is lower in f ...
+			else if(new_dist>min_dist+50) {
+				// skip, if too far from current minimum tile
+				// will not find some ways, but will be much faster ...
 				continue;
 			}
 
-			// it may or may not be in the list; but since the arrays are sorted
-			// we find out about this during inserting!
+			const uint32 new_f = new_g+new_dist;
 
-			INT_CHECK("wegbauer 161");
+			uint32 index = open_count;
+			// insert with binary search, ignore doublettes
+			if(open_count>0  &&  new_f>open[open_count-1]->f) {
+#if 0
+				// and the fastest binary search variant
+				sint32 high = open_count, low = -1, probe;
+				while(high - low>1) {
+					probe = ((uint32) (low + high)) >> 1;
+					if(open[probe]->f==new_f) {
+						low = probe;
+						break;
+					}
+					else if(open[probe]->f>new_f) {
+						low = probe;
+					}
+					else {
+						high = probe;
+					}
+				}
+				// we want to insert before, so we may add 1
+				index = 0;
+				if(low>=0) {
+					index = low;
+					if(open[index]->f>=new_f) {
+						index ++;
+					}
+				}
+//DBG_MESSAGE("bsort","current=%i f=%i  f+1=%i",new_f,open[index]->f,open[index+1]->f);
+#else
+				// this is the slower variant of the binary search ...
+				uint32 diff = 1;
+				sint8 counter=0;
+				// now make sure, diff is 2^n
+				while(diff<=open_count) {
+					diff <<= 1;
+					counter ++;
+				}
+				diff >>= 1;
 
+				index = diff-1;
+
+				// now search
+				while(counter--) {
+					diff = diff>>1;
+					if(  index<open_count  &&  open[index]->f>new_f  ) {
+						index += diff;
+					}
+					else {
+						index -= diff;
+					}
+				}
+				// might be wrong by one
+				if(index<open_count  &&  open[index]->f>=new_f) {
+					index ++;
+				}
+			}
+#endif
 			// not in there or taken out => add new
-			route_t::ANode *k=&(route_t::nodes[step++]);
+			route_t::ANode *k=&(route_t::nodes[step]);
+			step++;
+
+			if((step&0x03)==0) {
+				INT_CHECK( "wegbauer 1347" );
+				if((step&1023)==0) {reliefkarte_t::gib_karte()->calc_map();}
+			}
 
 			k->parent = tmp;
 			k->gr = to;
@@ -1294,25 +1366,26 @@ wegbauer_t::intern_calc_route(const koord start, const koord ziel)
 			k->f = new_f;
 			k->dir = current_dir;
 
-			// insert sorted
-			for( index=0;  index<(int)open.get_count()  &&  open.get(index)->f>new_f;  index++  ) {
-				if(open.get(index)->gr==to) {
-					open.remove_at(index);
-					index --;
-				}
-			}
-			// was best f so far => append
-			if(index>=(int)open.get_count()) {
-				open.append(k,16);
-			}
-			else {
-				open.insert_at(index,k);
+			// need to enlarge?
+			if(open_count==open_size) {
+				route_t::ANode **tmp=open;
+				open_size += 4096;
+				open = (route_t::ANode **)malloc( sizeof(route_t::ANode*)*open_size );
+				memcpy( open, tmp, sizeof(route_t::ANode*)*(open_size-4096) );
+				free( tmp );
 			}
 
-//DBG_DEBUG("insert to open","(%i,%i,%i)  f=%i at %i",to->gib_pos().x,to->gib_pos().y,to->gib_pos().z,k->f, index);
+			if(index<open_count) {
+				// was not best f so far => insert
+				memmove( open+index+1ul, open+index, sizeof(route_t::ANode*)*(open_count-index) );
+			}
+			open[index] = k;
+			open_count ++;
+//DBG_DEBUG("insert to open","(%i,%i,%i)  f=%i at %i (top=%i, f=%i)",to->gib_pos().x,to->gib_pos().y,to->gib_pos().z,k->f, index,open_count,open[open_count-1]->f);
 		}
-	} while(open.get_count()>0  &&  step<route_t::MAX_STEP  &&  gr->gib_pos()!=ziel3d);
+	} while(open_count>0  &&  step<route_t::MAX_STEP  &&  gr->gib_pos()!=ziel3d);
 
+//DBG_DEBUG("wegbauer_t::intern_calc_route()","steps %i (max %i) in route cost %i",step,route_t::MAX_STEP,tmp->g);
 	INT_CHECK("wegbauer 194");
 
 	route_t::RELEASE_NODE();
@@ -1733,15 +1806,13 @@ wegbauer_t::baue_strasse()
 
 			str->setze_besch(besch);
 			str->setze_gehweg(add_sidewalk);
-			gr->neuen_weg_bauen(str, calc_ribi(i), sp);
+			cost = -gr->neuen_weg_bauen(str, calc_ribi(i), sp)-besch->gib_preis();
 
 			// prissi: into UNDO-list, so wie can remove it later
 			if(sp!=NULL) {
 				// intercity raods have no owner, so we must check for an owner
 				sp->add_undo( position_bei(i));
 			}
-
-			cost = -besch->gib_preis();
 		}
 
 		if(cost && sp) {
@@ -1827,13 +1898,12 @@ wegbauer_t::baue_schiene()
 			else {
 				schiene_t * sch = new schiene_t(welt);
 				sch->setze_besch(besch);
-				gr->neuen_weg_bauen(sch, ribi, sp);
+				cost = -gr->neuen_weg_bauen(sch, ribi, sp)-besch->gib_preis();
 
 				// prissi: into UNDO-list, so wie can remove it later
 				sp->add_undo( position_bei(i) );
 
 				bm->neue_schiene(welt, gr);
-				cost = -besch->gib_preis();
 			}
 
 			if(cost  &&  sp) {
@@ -1916,13 +1986,12 @@ wegbauer_t::baue_monorail()
 					// must built new way here (is on kartenboden!)
 					monorail_t * mono = new monorail_t(welt);
 					mono->setze_besch(besch);
-					monorail->neuen_weg_bauen(mono, ribi, sp);
+					cost = -monorail->neuen_weg_bauen(mono, ribi, sp)-besch->gib_preis();
 
 					// prissi: into UNDO-list, so wie can remove it later
 					sp->add_undo( position_bei(i) );
 
 					bm->neue_schiene(welt, monorail);
-					cost = -besch->gib_preis();
 				}
 			}
 			else {
@@ -1932,7 +2001,7 @@ wegbauer_t::baue_monorail()
 				mono->setze_besch(besch);
 				mono->setze_max_speed(besch->gib_topspeed());
 				plan->boden_hinzufuegen(monorail);
-				monorail->neuen_weg_bauen(mono, ribi, sp);
+				cost = -monorail->neuen_weg_bauen(mono, ribi, sp)-besch->gib_preis();
 
 				// prissi: into UNDO-list, so wie can remove it later
 	//			sp->add_undo( position_bei(i) );
@@ -2001,12 +2070,10 @@ DBG_MESSAGE("wegbauer_t::baue_kanal()","extend ribi_t at (%i,%i) with %i",route-
 				else {
 					kanal_t * w = new kanal_t(welt);
 					w->setze_besch(besch);
-					gr->neuen_weg_bauen(w, ribi, sp);
+					cost = -gr->neuen_weg_bauen(w, ribi, sp)-besch->gib_preis();
 
 					// prissi: into UNDO-list, so wie can remove it later
 					sp->add_undo( position_bei(i) );
-
-					cost = -besch->gib_preis();
 				}
 
 				if(cost  &&  sp) {
@@ -2085,12 +2152,10 @@ DBG_MESSAGE("wegbauer_t::baue_runway()","extend ribi_t at (%i,%i) with %i",route
 				else {
 					runway_t * w = new runway_t(welt);
 					w->setze_besch(besch);
-					gr->neuen_weg_bauen(w, ribi, sp);
+					cost = -gr->neuen_weg_bauen(w, ribi, sp)-besch->gib_preis();
 
 					// prissi: into UNDO-list, so wie can remove it later
 					sp->add_undo( position_bei(i) );
-
-					cost = -besch->gib_preis();
 				}
 
 				if(cost  &&  sp) {
@@ -2144,33 +2209,30 @@ void
 wegbauer_t::baue()
 {
 	if(max_n<0  ||  max_n>(sint32)maximum) {
-		DBG_MESSAGE("wegbauer_t::baue()","called, but no valid route.");
+DBG_MESSAGE("wegbauer_t::baue()","called, but no valid route.");
 		// no valid route here ...
 		return;
 	}
-  DBG_MESSAGE("wegbauer_t::baue()",
-         "type=%d max_n=%d start=%d,%d end=%d,%d",
-         bautyp, max_n,
-         route->at(0).x, route->at(0).y,
-         route->at(max_n).x, route->at(max_n).y );
+DBG_MESSAGE("wegbauer_t::baue()","type=%d max_n=%d start=%d,%d end=%d,%d",bautyp, max_n,route->at(0).x, route->at(0).y,route->at(max_n).x, route->at(max_n).y );
+
 // test!
 long ms=get_current_time_millis();
 
 	INT_CHECK("simbau 1072");
-  switch(bautyp) {
-  	case wasser:
+	switch(bautyp) {
+		case wasser:
   			baue_kanal();
   			break;
-   	case strasse:
-   	case elevated_strasse:
-   	case strasse_bot:
+	   	case strasse:
+	   	case elevated_strasse:
+	   	case strasse_bot:
 			baue_strasse();
 			DBG_MESSAGE("wegbauer_t::baue", "strasse");
 			break;
-   	case schiene:
-   	case elevated_schiene:
-   	case schiene_bot:
-   	case schiene_bot_bau:
+		case schiene:
+		case elevated_schiene:
+		case schiene_bot:
+		case schiene_bot_bau:
 			DBG_MESSAGE("wegbauer_t::baue", "schiene");
 			baue_schiene();
 			break;
@@ -2190,10 +2252,12 @@ long ms=get_current_time_millis();
 			DBG_MESSAGE("wegbauer_t::baue", "luft");
 			baue_runway();
 			break;
-  }
- 	INT_CHECK("simbau 1087");
+	}
+
+	INT_CHECK("simbau 1087");
 	baue_tunnel_und_bruecken();
- 	INT_CHECK("simbau 1087");
+
+	INT_CHECK("simbau 1087");
 
 DBG_MESSAGE("wegbauer_t::baue", "took %i ms",get_current_time_millis()-ms);
 }

@@ -43,7 +43,6 @@ static const void * block_tester=NULL;
 #define Node KNode
 
 // dies wird fuer die routenplanung benoetigt
-
 class KNode {
 
 public:
@@ -367,6 +366,24 @@ route_t::find_route(karte_t *welt,
 
 
 
+ribi_t::ribi *
+get_next_dirs(koord gr_pos, koord ziel)
+{
+	static ribi_t::ribi next_ribi[4];
+	if( abs(gr_pos.x-ziel.x)>abs(gr_pos.y-ziel.y) ) {
+		next_ribi[0] = (ziel.x>gr_pos.x) ? ribi_t::ost : ribi_t::west;
+		next_ribi[1] = (ziel.y>gr_pos.y) ? ribi_t::sued : ribi_t::nord;
+	}
+	else {
+		next_ribi[0] = (ziel.y>gr_pos.y) ? ribi_t::sued : ribi_t::nord;
+		next_ribi[1] = (ziel.x>gr_pos.x) ? ribi_t::ost : ribi_t::west;
+	}
+	next_ribi[2] = ribi_t::rueckwaerts( next_ribi[1] );
+	next_ribi[3] = ribi_t::rueckwaerts( next_ribi[0] );
+	return next_ribi;
+}
+
+
 
 bool
 route_t::intern_calc_route(karte_t *welt, const koord3d ziel, const koord3d start, fahrer_t *fahr, const uint32 max_speed, const uint32 max_cost)
@@ -416,7 +433,6 @@ route_t::intern_calc_route(karte_t *welt, const koord3d ziel, const koord3d star
 
 	GET_NODE();
 
-
 	uint32 step = 1;
 	Node *tmp =(Node *)&(nodes[0]);
 
@@ -459,6 +475,27 @@ DBG_DEBUG("sizes","KNode=%i, ANode=%i",sizeof(KNode),sizeof(ANode));
 		tmp = test_tmp;
 #else
 		open_count --;
+
+		if(welt->ist_markiert(open[open_count]->gr)) {
+#if 0
+			// well we may have had already a better one going here ...
+			// gives a 20% gain ...
+			Node *check=tmp;
+			uint32 this_f=open[open_count]->f+25;
+			const grund_t *this_gr=open[open_count]->gr;
+			while(check->parent!=NULL  &&  check->f>this_f  &&  check->gr!=this_gr) {
+				check = check->parent;
+			}
+			// this new one is worse?
+			if(check->gr==this_gr) {
+				continue;
+			}
+#else
+			// this is not 100% optimal, but is about two to three times faster ...
+			continue;
+#endif
+		}
+
 		tmp = open[open_count];
 #endif
 
@@ -475,23 +512,24 @@ DBG_DEBUG("sizes","KNode=%i, ANode=%i",sizeof(KNode),sizeof(ANode));
 
 		// testing all four possible directions
 		const ribi_t::ribi ribi =  fahr->gib_ribi(gr);
+		const ribi_t::ribi *next_ribi = get_next_dirs(gr->gib_pos().gib_2d(),ziel.gib_2d());
 		for(int r=0; r<4; r++) {
 
 			// a way in our direction?
-			if(  (ribi & ribi_t::nsow[r])==0  ) {
+			if(  (ribi & next_ribi[r])==0  ) {
 				continue;
 			}
 
 			to = NULL;
 			if(is_airplane) {
-				const planquadrat_t *pl=welt->lookup(gr->gib_pos().gib_2d()+koord::nsow[r]);
+				const planquadrat_t *pl=welt->lookup(gr->gib_pos().gib_2d()+koord(next_ribi[r]));
 				if(pl) {
 					to = pl->gib_kartenboden();
 				}
 			}
 
 			// a way goes here, and it is not marked (i.e. in the closed list)
-			if((to  ||  gr->get_neighbour(to, wegtyp, koord::nsow[r]))  &&  fahr->ist_befahrbar(to)  &&  !welt->ist_markiert(to)) {
+			if((to  ||  gr->get_neighbour(to, wegtyp, koord(next_ribi[r]) ))  &&  fahr->ist_befahrbar(to)  &&  !welt->ist_markiert(to)) {
 
 				// new values for cost g
 				uint32 new_g = tmp->g + fahr->gib_kosten(to,max_speed);
@@ -502,22 +540,23 @@ DBG_DEBUG("sizes","KNode=%i, ANode=%i",sizeof(KNode),sizeof(ANode));
 				if(tmp->parent!=NULL) {
 					current_dir = ribi_typ( tmp->parent->gr->gib_pos().gib_2d(), to->gib_pos().gib_2d() );
 					if(tmp->dir!=current_dir) {
-						new_g += 5;
+						new_g += 3;
 						if(tmp->parent->dir!=tmp->dir) {
-							// discourage double turns
+							// discourage 90° turns
 							new_g += 10;
 						}
 						else if(ribi_t::ist_exakt_orthogonal(tmp->dir,current_dir)) {
 							// discourage v turns heavily
-							new_g += 20;
+							new_g += 25;
 						}
 					}
+
 				}
 				else {
 					 current_dir = ribi_typ( gr->gib_pos().gib_2d(), to->gib_pos().gib_2d() );
 				}
 
-				const uint32 new_f = new_g+calc_distance( to->gib_pos(), ziel );
+				const uint32 new_f = new_g + calc_distance( to->gib_pos(), ziel );
 
 #ifdef PRIOR
 				// not in there or taken out => add new
@@ -533,55 +572,33 @@ DBG_DEBUG("sizes","KNode=%i, ANode=%i",sizeof(KNode),sizeof(ANode));
 				queue.insert( k );
 //DBG_DEBUG("insert to open","%i,%i,%i",to->gib_pos().x,to->gib_pos().y,to->gib_pos().z);
 #else
-				uint32 index;
-
-// use this to save memory
-#ifdef SAVE_MEMORY
-				if(open_count==0  ||  new_f<open[open_count-1]->f>=new_f) {
-					index =open_count;
-				}
-				else {
-					// ... and that the much faster binary search
-					uint32 diff = 1;
-					sint8 counter=0;
-					// now make sure, diff is 2^n
-					while(diff <= open_count) {
-						diff <<= 1;
-						counter ++;
-					}
-					diff >>= 1;
-
-					index = diff;
-
-					// now search
-					while(counter-->0) {
-						diff = (diff+1)/2;
-						if(  index<open_count  &&  open[index]->f>new_f  ) {
-							if(  index==0  ||  open[index-1]->f<=new_f) {
-								break;
-							}
-							index += diff;
-						}
-						else {
-							index -= diff;
-						}
-					}
-					// find out, if already something with lower f there?
-					bool already_contained = false;
-					for( uint32 i=index+1;  i<open_count;  i++ ) {
-						if(open[i]->f<new_f  &&  open[i]->gr==to) {
-							already_contained = true;
+				uint32 index = open_count;
+				// insert with binary search, ignore doublettes
+				if(open_count>0  &&  new_f>open[open_count-1]->f) {//  || (new_f==open[open_count-1]->f  &&  new_g<=open[open_count-1]->g))) {
+					sint32 high = open_count, low = -1, probe;
+					while(high - low>1) {
+						probe = ((uint32) (low + high)) >> 1;
+						if(open[probe]->f==new_f) {
+							low = probe;
 							break;
 						}
+						else if(open[probe]->f>new_f) {
+							low = probe;
+						}
+						else {
+							high = probe;
+						}
 					}
-					// do not insert, if something with lower f for same field exists
-					if(already_contained) {
-						continue;
+					// we want to insert before, so we may add 1
+					index = 0;
+					if(low>=0) {
+						index = low;
+						if(open[index]->f>=new_f) {
+							index ++;
+						}
 					}
+//DBG_MESSAGE("bsort","current=%i f=%i  f+1=%i",new_f,open[index]->f,open[index+1]->f);
 				}
-#endif
-				// it may or may not be in the list; but since the arrays are sorted
-				// we find out about this during inserting!
 
 				// not in there or taken out => add new
 				ANode *k=&(nodes[step]);
@@ -592,40 +609,6 @@ DBG_DEBUG("sizes","KNode=%i, ANode=%i",sizeof(KNode),sizeof(ANode));
 				k->g = new_g;
 				k->f = new_f;
 				k->dir = current_dir;
-
-// or this to save time (imho better)
-#ifndef SAVE_MEMORY
-				if(open_count==0  ||  new_f<open[open_count-1]->f) {
-					index = open_count;
-				}
-				else {
-					// ... and that the much faster binary search
-					uint32 diff = 1;
-					sint8 counter=0;
-					// now make sure, diff is 2^n
-					while(diff <= open_count) {
-						diff <<= 1;
-						counter ++;
-					}
-					diff >>= 1;
-
-					index = diff;
-
-					// now search
-					while(counter-->0) {
-						diff = (diff+1)/2;
-						if(  index<open_count  &&  open[index]->f>new_f  ) {
-							if(  index==0  ||  open[index-1]->f<=new_f) {
-								break;
-							}
-							index += diff;
-						}
-						else {
-							index -= diff;
-						}
-					}
-				}
-#endif
 
 				// need to enlarge?
 				if(open_count==open_size) {
@@ -652,8 +635,9 @@ DBG_DEBUG("sizes","KNode=%i, ANode=%i",sizeof(KNode),sizeof(ANode));
 	} while(open_count>0  &&  !am_i_there(welt, gr->gib_pos(), ziel, false)  &&  step<MAX_STEP  &&  tmp->g<max_cost);
 
 	INT_CHECK("route 194");
-//	DBG_DEBUG("route_t::intern_calc_route()","steps=%i  (max %i) in route, open %i, cost %u (max %u)",step,MAX_STEP,open_count,tmp->g,max_cost);
-
+#ifdef DEBUG_ROUTES
+DBG_DEBUG("route_t::intern_calc_route()","steps=%i  (max %i) in route, open %i, cost %u (max %u)",step,MAX_STEP,open_count,tmp->g,max_cost);
+#endif
 	// target reached?
 	if(!am_i_there(welt, tmp->gr->gib_pos(), ziel, false)  || step >= MAX_STEP  ||  tmp->parent==NULL) {
 		dbg->warning("route_t::intern_calc_route()","Too many steps (%i>=max %i) in route (too long/complex)",step,MAX_STEP);
@@ -690,10 +674,14 @@ route_t::calc_route(karte_t *welt,
 
 	INT_CHECK("route 336");
 
+#ifdef DEBUG_ROUTES
 	// profiling for routes ...
-//	long ms=get_current_time_millis();
+	long ms=get_current_time_millis();
 	bool ok = intern_calc_route(welt, ziel, start, fahr, max_khm,max_cost);
-//	if(fahr->gib_wegtyp()==weg_t::wasser) {DBG_DEBUG("route_t::calc_route()","route from %d,%d to %d,%d with %i steps in %u ms found.",start.x, start.y, ziel.x, ziel.y, route.get_count()-2, get_current_time_millis()-ms );}
+	if(fahr->gib_wegtyp()==weg_t::wasser) {DBG_DEBUG("route_t::calc_route()","route from %d,%d to %d,%d with %i steps in %u ms found.",start.x, start.y, ziel.x, ziel.y, route.get_count()-2, get_current_time_millis()-ms );}
+#else
+	bool ok = intern_calc_route(welt, ziel, start, fahr, max_khm,max_cost);
+#endif
 
 	INT_CHECK("route 343");
 

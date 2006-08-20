@@ -168,6 +168,7 @@ button_frame.setze_groesse( koord( 175+26*2+56,y ) );
 }
 
 
+
 savegame_frame_t::~savegame_frame_t()
 {
     slist_iterator_tpl <button_t *> b_iter (buttons);
@@ -188,41 +189,63 @@ savegame_frame_t::~savegame_frame_t()
     }
 }
 
-void savegame_frame_t::add_file(const char *filename)
+
+
+// sets the current filename in the input box
+void
+savegame_frame_t::set_filename(const char *fn)
 {
-    button_t * button = new button_t();
-    char * name = new char [strlen(filename)+10];
-    char * date = new char[18];
-
-//DBG_MESSAGE("","sizeof(stat)=%d, sizeof(tm)=%d",sizeof(struct stat),sizeof(struct tm) );
-    sprintf(name, SAVE_PATH_X "%s", filename);
-
-    struct stat  sb;
-    stat(name, &sb);
-    struct tm *tm = localtime(&sb.st_mtime);
-    if(tm) {
-	strftime(date, 18, "%Y-%m-%d %H:%M", tm);
-    } else {
-	tstrncpy(date, "??.??.???? ??:??", 15);
-    }
-
-    sprintf(name, "%s", filename);
-    name[strlen(name)-4] = '\0';
-    button->text = name;	// to avoid translation
-
-    unsigned int i;
-
-    // sort by date descending:
-    for(i = 0; i < buttons.count(); i++) {
-	if(strcmp(labels.at(i)->get_text_pointer(), date) < 0) {
-	    break;
+	long len=strlen(fn);
+	if(len>=4  &&  len-SAVE_PATH_X_LEN-3<58) {
+		if(strncmp(fn,SAVE_PATH_X,SAVE_PATH_X_LEN)==0) {
+			tstrncpy(input.gib_text(), fn+SAVE_PATH_X_LEN, len-SAVE_PATH_X_LEN-3 );
+		}
+		else {
+			tstrncpy(input.gib_text(), fn, len-3 );
+		}
 	}
-    }
-    buttons.insert(button, i);
-    labels.insert(new gui_label_t(NULL), i);
-    labels.at(i)->set_text_pointer(date);
-    deletes.insert(new button_t, i);
 }
+
+
+
+void
+savegame_frame_t::add_file(const char *filename)
+{
+	button_t * button = new button_t();
+	char * name = new char [strlen(filename)+10];
+	char * date = new char[18];
+
+	//DBG_MESSAGE("","sizeof(stat)=%d, sizeof(tm)=%d",sizeof(struct stat),sizeof(struct tm) );
+	sprintf(name, SAVE_PATH_X "%s", filename);
+
+	struct stat  sb;
+	stat(name, &sb);
+	struct tm *tm = localtime(&sb.st_mtime);
+	if(tm) {
+		strftime(date, 18, "%Y-%m-%d %H:%M", tm);
+	}
+	else {
+		tstrncpy(date, "??.??.???? ??:??", 15);
+	}
+
+	sprintf(name, "%s", filename);
+	name[strlen(name)-4] = '\0';
+	button->text = name;	// to avoid translation
+
+	// sort by date descending:
+	unsigned int i;
+	for(i = 0; i < buttons.count(); i++) {
+		if(strcmp(labels.at(i)->get_text_pointer(), date) < 0) {
+			break;
+		}
+	}
+	buttons.insert(button, i);
+	labels.insert(new gui_label_t(NULL), i);
+	labels.at(i)->set_text_pointer(date);
+	deletes.insert(new button_t, i);
+}
+
+
 
 /**
  * This method is called if an action is triggered
@@ -230,56 +253,56 @@ void savegame_frame_t::add_file(const char *filename)
  */
 bool savegame_frame_t::action_triggered(gui_komponente_t *komp,value_t /* */)
 {
-    char buf[128];
-    //if(komp == &input) {       //29-Oct-2001         Markus Weber    Added   savebutton case
+	char buf[128];	// ok, since maximum length is 58
 
-    if(komp == &input || komp == &savebutton) {
-
-        // Save/Load Button or Enter-Key pressed
-        //---------------------------------------
-
-        destroy_win(this);      //29-Oct-2001         Markus Weber    Close window
-
-	tstrncpy(buf, SAVE_PATH_X, 128);
-	strcat(buf, ibuf);
-	strcat(buf, suffix);
-	action(buf);
-
-    } else if(komp == &cancelbutton) {
-
-        // Cancel-button pressed
-        //-----------------------------
-        destroy_win(this);      //29-Oct-2001         Markus Weber    Added   savebutton case
-
-    } else {
-
-        // File in list selected
-        //--------------------------
-
-	slist_iterator_tpl <button_t *> iter (buttons);
-	slist_iterator_tpl <button_t *> iter2 (deletes);
-
-	while(iter.next()) {
-	    iter2.next();
-	    if(komp == iter.get_current() || komp == iter2.get_current()) {
-		destroy_win(this);
-		intr_refresh_display( true );
+	if(komp == &input || komp == &savebutton) {
+		// Save/Load Button or Enter-Key pressed
+		//---------------------------------------
 
 		tstrncpy(buf, SAVE_PATH_X, 128);
-		strcat(buf, iter.get_current()->gib_text());
+		strcat(buf, ibuf);
 		strcat(buf, suffix);
 
-		if(komp == iter.get_current()) {
-		    action(buf);
-		} else {
-		    del_action(buf);
-		}
-		break;
-	    }
+		destroy_win(this);      //29-Oct-2001         Markus Weber    Close window
+
+		action(buf);
 	}
-    }
-    return true;
+	else if(komp == &cancelbutton) {
+		// Cancel-button pressed
+		//-----------------------------
+		destroy_win(this);      //29-Oct-2001         Markus Weber    Added   savebutton case
+
+	}
+	else {
+		// File in list selected
+		//--------------------------
+
+		slist_iterator_tpl <button_t *> iter (buttons);
+		slist_iterator_tpl <button_t *> iter2 (deletes);
+
+		while(iter.next()) {
+			iter2.next();
+			if(komp == iter.get_current() || komp == iter2.get_current()) {
+				destroy_win(this);
+				intr_refresh_display( true );
+
+				tstrncpy(buf, SAVE_PATH_X, 128);
+				strcat(buf, iter.get_current()->gib_text());
+				strcat(buf, suffix);
+
+				if(komp == iter.get_current()) {
+					action(buf);
+				}
+				else {
+					del_action(buf);
+				}
+				break;
+			}
+		}
+	}
+	return true;
 }
+
 
 
 

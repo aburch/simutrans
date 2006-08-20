@@ -629,6 +629,7 @@ karte_t::init_felder()
 void
 karte_t::init(einstellungen_t *sets)
 {
+	mute_sound(true);
 	int i, j;
 
 	destroy();
@@ -866,6 +867,7 @@ DBG_DEBUG("karte_t::init()","Erzeuge stadt %i with %ld inhabitants",i,(s->get_ci
 	if(is_display_init()) {
 		display_show_pointer(true);
 	}
+	mute_sound(false);
 }
 
 karte_t::karte_t() : ausflugsziele(16), quick_shortcuts(15), marker(0,0)
@@ -2123,15 +2125,17 @@ DBG_DEBUG("karte_t::finde_plaetze()","for size (%i,%i) in map (%i,%i)",w,h,gib_g
 bool
 karte_t::play_sound_area_clipped(koord pos, sound_info info)
 {
-	const int center = display_get_width() >> 7;
-	const int dist = abs((pos.x-center) - gib_ij_off().x) + abs((pos.y-center) - gib_ij_off().y);
+	if(is_sound) {
+		const int center = display_get_width() >> 7;
+		const int dist = abs((pos.x-center) - gib_ij_off().x) + abs((pos.y-center) - gib_ij_off().y);
 
-	if(dist < 25) {
-		info.volume = 255-dist*9;
-		sound_play(info);
+		if(dist < 25) {
+			info.volume = 255-dist*9;
+			sound_play(info);
+		}
+		return dist < 25;
 	}
-
-	return dist < 25;
+	return false;
 }
 
 
@@ -2149,30 +2153,27 @@ karte_t::beenden(bool quit_simutrans)
 void
 karte_t::speichern(const char *filename,bool silent)
 {
-//	display_show_pointer(false);
-	display_show_load_pointer( true );
-
 #ifndef DEMO
+DBG_MESSAGE("karte_t::speichern()", "saving game to '%s'", filename);
+
 	loadsave_t  file;
 
-	DBG_MESSAGE("karte_t::speichern()", "saving game to '%s'", filename);
-
-
+	display_show_load_pointer( true );
 	if(!file.wr_open(filename)) {
-	create_win(-1, -1, new nachrichtenfenster_t(this, "Kann Spielstand\nnicht speichern.\n"), w_autodelete);
-	perror("Error");
-	} else {
-
-	speichern(&file,silent);
-	file.close();
-	if(!silent) {
-	create_win(-1, -1, 30, new nachrichtenfenster_t(this, "Spielstand wurde\ngespeichert!\n"), w_autodelete);
+		create_win(-1, -1, new nachrichtenfenster_t(this, "Kann Spielstand\nnicht speichern.\n"), w_autodelete);
+		dbg->error("karte_t::speichern()","cannot open file for writing! check permissions!");
 	}
+	else {
+		speichern(&file,silent);
+		file.close();
+		if(!silent) {
+			create_win(-1, -1, 30, new nachrichtenfenster_t(this, "Spielstand wurde\ngespeichert!\n"), w_autodelete);
+		}
+		// update the filename
+		einstellungen->setze_filename(filename);
 	}
-#endif
-
 	display_show_load_pointer( false );
-//	display_show_pointer(true);
+#endif
 }
 
 
@@ -2275,50 +2276,52 @@ karte_t::speichern(loadsave_t *file,bool silent)
 }
 
 
+
+// just the preliminaries, opens the file, checks the versions ...
 void
 karte_t::laden(const char *filename)
 {
-    display_show_pointer(false);
+	mute_sound(true);
+	display_show_load_pointer(true);
 
 #ifndef DEMO
-    loadsave_t file;
+	loadsave_t file;
 
-    DBG_MESSAGE("karte_t::laden", "loading game from '%s'", filename);
+	DBG_MESSAGE("karte_t::laden", "loading game from '%s'", filename);
 
-    if(!file.rd_open(filename)) {
+	if(!file.rd_open(filename)) {
 
-        if(file.get_version() == -1) {
-	    create_win(-1, -1, new nachrichtenfenster_t(this, "WRONGSAVE"), w_autodelete);
-        }
-        else {
-	    create_win(-1, -1, new nachrichtenfenster_t(this, "Kann Spielstand\nnicht laden.\n"), w_autodelete);
-        }
-    } else if(file.get_version() < 84006) {
-	create_win(-1, -1, new nachrichtenfenster_t(this, "WRONGSAVE"), w_autodelete);
-
-  }
-  else {
-	// close all open windows
-	{
+		if(file.get_version() == -1) {
+			create_win(-1, -1, new nachrichtenfenster_t(this, "WRONGSAVE"), w_autodelete);
+		}
+		else {
+			create_win(-1, -1, new nachrichtenfenster_t(this, "Kann Spielstand\nnicht laden.\n"), w_autodelete);
+		}
+	} else if(file.get_version() < 84006) {
+		// too old
+		create_win(-1, -1, new nachrichtenfenster_t(this, "WRONGSAVE"), w_autodelete);
+	}
+	else {
 		destroy_all_win();
 		event_t ev;
 		ev.ev_class=EVENT_NONE;
 		check_pos_win(&ev);
+
+DBG_MESSAGE("karte_t::laden()","Savegame version is %d", file.get_version());
+
+		laden(&file);
+		file.close();
+		steps_bis_jetzt = steps-4;
+		create_win(-1, -1, 30, new nachrichtenfenster_t(this, "Spielstand wurde\ngeladen!\n"), w_autodelete);
 	}
-
-	DBG_MESSAGE("karte_t::laden()","Savegame version is %d", file.get_version());
-
-	laden(&file);
-	file.close();
-	steps_bis_jetzt = steps-4;
-	create_win(-1, -1, 30, new nachrichtenfenster_t(this, "Spielstand wurde\ngeladen!\n"), w_autodelete);
-    }
 #endif
-
-    display_show_pointer(true);
+	einstellungen->setze_filename(filename);
+	display_show_load_pointer(false);
 }
 
 
+
+// handles the actual loading
 void karte_t::laden(loadsave_t *file)
 {
     char buf[80];
@@ -2425,15 +2428,7 @@ DBG_MESSAGE("karte_t::laden()","loading grid");
 		}
 	}
 
-	if(file->get_version() < 82001) {
-		// Hajo: init slopes (before artificial slopes)
-		for(y=0; y<gib_groesse_y(); y++) {
-			for(x=0; x<gib_groesse_x(); x++) {
-				access(x, y)->gib_kartenboden()->setze_grund_hang(calc_natural_slope(koord(x,y)));
-			}
-		}
-	}
-	else if(file->get_version()<88009) {
+	if(file->get_version()<88009) {
 		DBG_MESSAGE("karte_t::laden()","loading slopes from older version");
 		// Hajo: load slopes for older versions
 		// now part of the grund_t structure
@@ -2577,11 +2572,6 @@ DBG_MESSAGE("karte_t::laden()", "players loaded");
     DBG_MESSAGE("karte_t::laden()", "Setting view to %d,%d", mi,mj);
     setze_ij_off(koord(mi,mj));
 
-
-	if(file->get_version() < 84001) {
-		translator::rdwr( file );
-	}
-
 	display_laden(file->gib_file(), file->is_zipped());
 
 DBG_MESSAGE("karte_t::laden()", "%d ways loaded",weg_t::gib_alle_wege().count());
@@ -2657,6 +2647,7 @@ DBG_MESSAGE("karte_t::laden()", "%d ways loaded",weg_t::gib_alle_wege().count())
 	reset_timer();
      recalc_average_speed();
 	intr_enable();
+	mute_sound(false);
 }
 
 // Hilfsfunktionen zum Speichern
@@ -3104,7 +3095,10 @@ karte_t::interactive_event(event_t &ev)
 	    break;
 	case '"':
 	    sound_play(click_sound);
-	    gebaeude_t::hide = !gebaeude_t::hide;
+	    gebaeude_t::hide++;
+	    if(gebaeude_t::hide>gebaeude_t::ALL_HIDDEN) {
+	    	gebaeude_t::hide = gebaeude_t::NOT_HIDDEN;
+	    }
 	    baum_t::hide = !baum_t::hide;
 	    setze_dirty();
 	    break;

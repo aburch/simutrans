@@ -117,6 +117,7 @@ async_wolke_t::step(long delta_t)
 	insta_zeit -= delta_t;
 	if(yoff>-120 &&  insta_zeit<15000 ) {
 		setze_yoff( yoff - 2 );
+		set_flag(ding_t::dirty);
 		return true;
 	}
 	// remove cloud

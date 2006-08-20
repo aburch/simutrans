@@ -96,7 +96,7 @@ const skin_besch_t *skinverwaltung_t::mouse_cursor = NULL;
 const skin_besch_t *skinverwaltung_t::signale = NULL;
 const skin_besch_t *skinverwaltung_t::presignals = NULL;
 const skin_besch_t *skinverwaltung_t::choosesignals = NULL;
-const skin_besch_t *skinverwaltung_t::baugrube = NULL;
+const skin_besch_t *skinverwaltung_t::construction_site = NULL;
 const skin_besch_t *skinverwaltung_t::fussweg = NULL;
 const skin_besch_t *skinverwaltung_t::pumpe = NULL;
 const skin_besch_t *skinverwaltung_t::senke = NULL;
@@ -125,7 +125,7 @@ static spezial_obj_tpl<skin_besch_t> misc_objekte[] = {
     { &skinverwaltung_t::senke,		    "PowerDest" },
     { &skinverwaltung_t::pumpe,		    "PowerSource" },
     { &skinverwaltung_t::signale,	    "Signals" },
-    { &skinverwaltung_t::baugrube,	    "Construction" },
+    { &skinverwaltung_t::construction_site,	    "Construction" },
     { &skinverwaltung_t::fussweg,	    "Sidewalk" },
     { &skinverwaltung_t::oberleitung,	    "Overheadpower" },
     { NULL, NULL }

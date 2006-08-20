@@ -70,6 +70,9 @@ protected:
      */
     virtual void del_action(const char *filename) = 0;
 
+	// sets the filename in the edit field
+	void set_filename( const char *fn );
+
 public:
     /**
      * Konstruktor.

@@ -641,7 +641,7 @@ void dingliste_t::rdwr(karte_t *welt, loadsave_t *file, koord3d current_pos)
 				case ding_t::gebaeudefundament: d = new dummy_ding_t(welt, file); delete d; d=NULL;  break;
 
 				// only factories can smoke; but then, the smoker is reinstated after loading
-				case ding_t::raucher: d = new raucher_t (welt, file); delete d; d = NULL; break;
+				case ding_t::raucher: 	d = new raucher_t (welt, file); delete d; d = NULL; break;
 
 				// wolke saves wrong images; but new smoke will emerge anyway ...
 				case ding_t::sync_wolke:	    d = new sync_wolke_t (welt, file); delete d; d=NULL; break;

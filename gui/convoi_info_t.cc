@@ -267,7 +267,7 @@ convoi_info_t::zeichnen(koord pos, koord gr)
 		* only show assigned line, if there is one!
 		* @author hsiegeln
 		*/
-		if (cnv->get_line() != NULL) {
+		if (cnv->get_line().is_bound()) {
 			info_buf.clear();
 			info_buf.append( translator::translate("Serves Line:") );
 			info_buf.append( " " );

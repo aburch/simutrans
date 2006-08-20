@@ -17,6 +17,7 @@
 #include "../simdepot.h"
 #include "../simhalt.h"
 #include "../simtools.h"
+#include "../simskin.h"
 
 #include "../boden/grund.h"
 #include "../boden/fundament.h"
@@ -350,16 +351,13 @@ void hausbauer_t::baue(karte_t *welt, spieler_t *sp, koord3d pos, int layout, co
 	layout = besch->layout_anpassen(layout);
 	dim = besch->gib_groesse(layout);
 
-	if(besch->ist_fabrik()) {
-		count = simrand(1024);
-	}
 	for(k.y = 0; k.y < dim.y; k.y ++) {
 		for(k.x = 0; k.x < dim.x; k.x ++) {
 //DBG_DEBUG("hausbauer_t::baue()","get_tile() at %i,%i",k.x,k.y);
 			const haus_tile_besch_t *tile = besch->gib_tile(layout, k.x, k.y);
 			// here test for good tile
-			if(tile==NULL) {
-				DBG_MESSAGE("hausbauer_t::baue()","get_tile() at %i,%i",k.x,k.y);
+			if(tile==NULL  ||  tile->gib_hintergrund(0,0)==IMG_LEER) {
+				DBG_MESSAGE("hausbauer_t::baue()","get_tile() empty at %i,%i",k.x,k.y);
 				continue;
 			}
 			gebaeude_t *gb = new gebaeude_t(welt, pos + k, sp, tile);
@@ -389,7 +387,8 @@ void hausbauer_t::baue(karte_t *welt, spieler_t *sp, koord3d pos, int layout, co
 				if(clear) {
 					gr->obj_loesche_alle(sp);	// alles weg
 				}
-				grund_t *gr2 = new fundament_t(welt, gr->gib_pos());
+				koord3d this_pos=gr->gib_pos();
+				grund_t *gr2 = new fundament_t(welt, gr->gib_pos(),gr->gib_grund_hang());
 				welt->access(gr->gib_pos().gib_2d())->boden_ersetzen(gr, gr2);
 				gr = gr2;
 //DBG_DEBUG("hausbauer_t::baue()","ground count now %i",gr->obj_count());
@@ -413,7 +412,7 @@ void hausbauer_t::baue(karte_t *welt, spieler_t *sp, koord3d pos, int layout, co
 			gb->setze_sync( true );
 			if(besch->gib_typ() == gebaeude_t::unbekannt) {
 				if(besch->ist_fabrik()) {
-					gb->setze_count(count);
+					gb->setze_count(1024);
 					gb->setze_anim_time(0);
 				}
 				else if(besch->ist_rathaus()) {
