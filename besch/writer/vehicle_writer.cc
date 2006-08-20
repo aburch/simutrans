@@ -132,7 +132,7 @@ void vehicle_writer_t::write_obj(FILE *fp, obj_node_t &parent, tabfileobj_t &obj
     uint8  uv8;
     sint8  sv8;
 
-    obj_node_t	node(this, 24, &parent, false);
+    obj_node_t	node(this, 26, &parent, false);
 
     write_head(fp, node, obj);
 
@@ -140,7 +140,7 @@ void vehicle_writer_t::write_obj(FILE *fp, obj_node_t &parent, tabfileobj_t &obj
     // Hajo: version number
     // Hajo: Version needs high bit set as trigger -> this is required
     //       as marker because formerly nodes were unversionend
-    uv16 = 0x8002;
+    uv16 = 0x8003;
     node.write_data_at(fp, &uv16, 0, sizeof(uint16));
 
 
@@ -186,6 +186,11 @@ void vehicle_writer_t::write_obj(FILE *fp, obj_node_t &parent, tabfileobj_t &obj
     uv16 += obj.get_int("intro_month", 1) - 1;
     node.write_data_at(fp, &uv16, 16, sizeof(uint16));
 
+    // Hajodoc: retire date (year*16+month)
+    // Hajoval: int
+    uv16  = obj.get_int("retire_year", 1900) * 16;
+    uv16 += obj.get_int("retire_month", 1) - 1;
+    node.write_data_at(fp, &uv16, 16, sizeof(uint16));
 
     // Hajodoc: Engine gear (power multiplier)
     // Hajoval: int

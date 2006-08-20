@@ -7,9 +7,13 @@
 #include "../simimg.h"
 
 #include "../gui/messagebox.h"
+#include "../bauer/hausbauer.h"
+#include "../besch/haus_besch.h"
 #include "../boden/wege/weg.h"
 #include "../boden/grund.h"
+#include "../dings/gebaeude.h"
 #include "../dings/zeiger.h"
+#include "../simdepot.h"
 #include "loadsave.h"
 
 #include "fahrplan.h"
@@ -332,7 +336,21 @@ fahrplan_t::fahrplan_type fahrplan_t::get_type(karte_t * welt) const
 bool
 zugfahrplan_t::ist_halt_erlaubt(const grund_t *gr) const
 {
-    return gr->gib_weg(weg_t::schiene) != NULL;
+DBG_MESSAGE("zugfahrplan_t::ist_halt_erlaubt()","Checking for stop");
+	if(gr->gib_weg(weg_t::schiene)==NULL) {
+		// no track
+		return false;
+	}
+	const depot_t *gb = gr->gib_depot();
+	if(gb==NULL) {
+		// empty track => ok
+		return true;
+	}
+	// test for no street depot (may happen with trams)
+	if(gb->gib_tile()->gib_besch()==hausbauer_t::str_depot_besch) {
+		return false;
+	}
+	return true;
 }
 
 void
@@ -344,7 +362,20 @@ zugfahrplan_t::zeige_fehlermeldung(karte_t *welt) const
 bool
 autofahrplan_t::ist_halt_erlaubt(const grund_t *gr) const
 {
-    return gr->gib_weg(weg_t::strasse) != NULL;
+	if(gr->gib_weg(weg_t::strasse)==NULL) {
+		// no road
+		return false;
+	}
+	const depot_t *gb = gr->gib_depot();
+	if(gb==NULL) {
+		// empty road => ok
+		return true;
+	}
+	// test for no railway depot (may happen with trams)
+	if(gb->gib_tile()->gib_besch()==hausbauer_t::bahn_depot_besch  ||  gb->gib_tile()->gib_besch()==hausbauer_t::tram_depot_besch) {
+		return false;
+	}
+	return true;
 }
 
 void
@@ -356,11 +387,7 @@ autofahrplan_t::zeige_fehlermeldung(karte_t *welt) const
 bool
 schifffahrplan_t::ist_halt_erlaubt(const grund_t *gr) const
 {
-    return gr != NULL &&
-	   gr->ist_wasser() /* &&
-	   gr->gib_weg_ribi_unmasked(weg_t::wasser)
-			    */
-	   ;
+    return gr!=NULL &&  gr->ist_wasser();
 }
 
 void

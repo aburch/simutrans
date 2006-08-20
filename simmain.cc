@@ -413,15 +413,13 @@ static void zeige_banner()
 #ifdef _MSC_VER
 int sim_new_handler(unsigned int)
 {
-    dbg->fatal("sim_new_handler()",
-	       "OUT OF MEMORY");
+    dbg->fatal("sim_new_handler()","OUT OF MEMORY");
     return 0;
 }
 #else
 void sim_new_handler()
 {
-    dbg->fatal("sim_new_handler()",
-	       "OUT OF MEMORY");
+    dbg->fatal("sim_new_handler()","OUT OF MEMORY");
 }
 #endif
 
@@ -1007,8 +1005,7 @@ display_show_pointer( true );
 
     close_midi();
   } catch(no_such_element_exception nse) {
-    dbg->fatal("simmain.cc",
-	       "simu_cpp_main()",
+    dbg->fatal("simmain.cc","simu_cpp_main()",
 	       nse.message);
   }
 

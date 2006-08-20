@@ -625,7 +625,7 @@ karte_t::destroy()
 void karte_t::add_stadt(stadt_t *s)
 {
 	// fixme: not check for overflow ...
-	if(einstellungen->gib_anzahl_staedte()>stadt->get_size()) {
+	if(stadt->get_count()>=stadt->get_size()) {
 		// extend vector for more cities ...
 DBG_DEBUG("karte_t::add_stadt()","extended city array from %i with additional 64 entries.", stadt->get_size() );
 		stadt->resize(einstellungen->gib_anzahl_staedte()+64);
@@ -2685,8 +2685,8 @@ void karte_t::do_pause()
     warte_auf_mausklick_oder_taste(&ev);
 
     // Reset timers
-    intr_set_last_time(get_current_time_millis());
     sync_last_time_now();
+    intr_set_last_time(get_current_time_millis());
     last_step_time = get_current_time_millis();
 
     // Hajo: this actually is too conservative but the correct

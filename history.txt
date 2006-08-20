@@ -1,8 +1,38 @@
+Release of 86.02.2
+
+11-May-2005 (prissi)
+	CHANGE: produced good go now first to the factories, which have a storage, that is not overcrowded
+	CHANGE: removed the step-wise route recalculation at halts into a monthwise one.
+	FIX: error, when good is already at target stop hopefully finally fixed
+	CHANGE: retiring date for city cars and eingines
+	CHANGE: production now really the value in the dat-files => resetting several 64pak values
+	FIX: factory location searcher works again as intended
+	FIX: some things which placing bus stops
+	FIX: no longer send cars to tram depots and vice versa
+	FIX: no production during pause any more
+	FIX: no longer many transparent pixels when zooming
+
+
+Release of 86.02.1
+
+05-May-2005 (prissi)
+	FIX: error when creating goods and all destinations were empty: only first was served
+	FIX: no longer people waiting for transport to own stop
+	FIX: numbers of created with no route at station display corrected corrected
+	FIX: station type was not calculated after loading => station list empty
+	FIX: pres-ignal crashed, when deleted tiles of a calculated route
+	FIX: pedestrian grafics fixed
+
+
+Release of 86.02
+
 01-May-2005 (prissi)
 	FIX: error when loading UTF8 citylists fixed
 	FIX: rebuild destinations, when convoi was removed by x => no more stale freight waiting
 	FIX: when convoi self_detructs, its value is booked back to the owner
 	FIX: when station already is already destination => just happy
+	ADD: vitus new pedestrians to 64-pak
+	CHANGE: oilfield to Ravens oilfied
 
 24-Apr-2005 (prissi)
 	FIX: no route found, when factory was to close

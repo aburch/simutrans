@@ -688,11 +688,10 @@ wkz_bahnhof_aux(spieler_t *sp,
       sp->buche(neu ? CST_BAHNHOF : CST_BAHNHOF/2,
           pos,
           COST_CONSTRUCTION);
+DBG_MESSAGE("wkz_bahnhof_aux()","sucessful built station at (%d,%d)",pos.x, pos.y);
     }
     else {
-  DBG_MESSAGE("wkz_bahnhof_aux()",
-         "can't build a train station segment on %d,%d",
-         pos.x, pos.y);
+DBG_MESSAGE("wkz_bahnhof_aux()","can't build a train station segment on %d,%d",pos.x, pos.y);
     }
     return true;
 }
@@ -782,42 +781,26 @@ DBG_MESSAGE("wkz_bushalt_aux()", "new segment for station");
 int
 wkz_bushalt(spieler_t *sp, karte_t *welt, koord pos,value_t value)
 {
-	DBG_MESSAGE("wkz_bushalt()", "building bus stop on square %d,%d", pos.x, pos.y);
+DBG_MESSAGE("wkz_bushalt()", "building bus stop on square %d,%d", pos.x, pos.y);
 
 	if(welt->lookup(pos)) {
+
 		grund_t *bd = welt->lookup(pos)->gib_kartenboden();
-
-		// Dario: ribi must also be returned for a tramway track as a bus stop may be also built on y
-		// tramway track that has not been placed on a street. Hence, here the ribi must also be read
-		// in case weg_t is schiene
-		ribi_t::ribi ribi;
-
-		if(bd->gib_weg(weg_t::strasse)) ribi = bd->gib_weg_ribi_unmasked(weg_t::strasse);
-		else if(bd->gib_weg(weg_t::schiene)) ribi= bd->gib_weg_ribi_unmasked(weg_t::schiene);
-		// Note: A bus stop mustn't be built in a curve or on a crossroads! Hence, the ribi of a
-		// present has to have a higher priority as else on a straight tramway track that is situated
-		// within a curve a stop could be built!
-
-		//if(!bd->gib_weg(weg_t::strasse) || (bd->gib_styp(weg_t::schiene)!= 7 )) {
 		if(!bd->gib_weg(weg_t::strasse)) {
-			// Bus stop may be built on a street or on a tramway track
-			if (bd->gib_styp(weg_t::schiene) != 7) {
-		    create_win(-1, -1, MESG_WAIT, new nachrichtenfenster_t(welt, "Haltestelle kann\nnur auf Schienen\ngebaut werden!\n"), w_autodelete);
-	  	  return false;
-			}
+			create_win(-1, -1, MESG_WAIT, new nachrichtenfenster_t(welt, "Haltestelle kann\nnur auf Schienen\ngebaut werden!\n"), w_autodelete);
+			return false;
 		}
-
-//	if(bd->obj_count() > 0) {
 
 		if(bd->suche_obj(ding_t::strassendepot)) {
-	    create_win(-1, -1, MESG_WAIT, new nachrichtenfenster_t(welt, "Es ist ein\nObjekt im Weg!\n"), w_autodelete);
-	    return false;
+			create_win(-1, -1, MESG_WAIT, new nachrichtenfenster_t(welt, "Es ist ein\nObjekt im Weg!\n"), w_autodelete);
+			return false;
 		}
 
-
+		// there is a street and both street and rails (if there) are parallel
+		// can only happen for trams, so we can skip rail type checks
+		ribi_t::ribi ribi = bd->gib_weg_ribi_unmasked(weg_t::strasse)  |  bd->gib_weg_ribi_unmasked(weg_t::schiene);
 		if(ribi_t::ist_gerade(ribi)) {
-			DBG_MESSAGE("bushalt", "ribi");
-	    return wkz_bushalt_aux(sp, welt, pos, ribi, (const haus_besch_t *) value.p);
+			return wkz_bushalt_aux(sp, welt, pos, ribi, (const haus_besch_t *) value.p);
 		}
 
 		create_win(-1, -1, MESG_WAIT, new nachrichtenfenster_t(welt, "Hier kann keine\nHaltestelle ge-\nbaut werden!\n"), w_autodelete);

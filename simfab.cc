@@ -160,6 +160,7 @@ fabrik_t::fabrik_t(karte_t *wl, loadsave_t *file) : lieferziele(max_lieferziele)
     pax_intervall = 262144/besch->gib_pax_level();
 #endif
     delta_sum = 0;
+    last_lieferziel_start = 0;
 }
 
 
@@ -186,6 +187,7 @@ fabrik_t::fabrik_t(karte_t *wl, koord3d pos, spieler_t *spieler, const fabrik_be
     pax_intervall = 262144/besch->gib_pax_level();
 #endif
     delta_sum = 0;
+    last_lieferziel_start = 0;
 }
 
 
@@ -359,6 +361,7 @@ fabrik_t::rdwr(loadsave_t *file)
 	}
 	file->rdwr_str(s, "-");
 	if(file->is_loading()) {
+DBG_DEBUG("fabrik_t::rdwr()","loading factory '%s'",s);
 		besch = fabrikbauer_t::gib_fabesch(s);
 		guarded_free(const_cast<char *>(s));
 	}
@@ -530,8 +533,10 @@ void fabrik_t::set_ausgang(vector_tpl<ware_t> * typen)
  */
 uint32 fabrik_t::produktion(const uint32 produkt) const
 {
+	// default prodfaktor = 16 => shift 4, default time = 1024 => shift 10, rest precion
+	uint32 menge = (prodbase * prodfaktor) >> (welt->ticks_bits_per_tag+4-10-precision_bits);
+
 //	uint32 menge = (prodbase * prodfaktor) >> (BASEPRODSHIFT+MAX_PRODBASE_SHIFT-precision_bits);
-	uint32 menge = (prodbase * prodfaktor*4) >> (BASEPRODSHIFT+MAX_PRODBASE_SHIFT-precision_bits);
 
 	if(ausgang->get_count() > produkt) {
 		// wenn das lager voller wird, produziert eine Fabrik weniger pro step
@@ -540,7 +545,6 @@ uint32 fabrik_t::produktion(const uint32 produkt) const
 		const uint32 actu = ausgang->get(produkt).menge;
 
 		if(actu < maxi) {
-			// P = prod_base * anz_gebaeude * prodfaktor;
 			// theoretische Menge pro tick
 			menge = (menge*(maxi-actu)) / maxi;
 		}
@@ -550,7 +554,6 @@ uint32 fabrik_t::produktion(const uint32 produkt) const
 		}
 	}
 
-//	return (menge*PRODUCTION_DELTA_T) >> BASEPRODSHIFT;
 	return menge;
 }
 
@@ -558,15 +561,11 @@ uint32 fabrik_t::produktion(const uint32 produkt) const
 
 int fabrik_t::max_produktion() const
 {
-  // P = prod_base * anz_gebaeude * prodfaktor; (prodfaktor 16=1.0)
   // theoretische Menge pro tick
-  const uint32 menge = (prodbase * prodfaktor) >> (BASEPRODSHIFT+MAX_PRODBASE_SHIFT-precision_bits);
-//  const koord k = besch->gib_haus()->gib_groesse();
-//  const int n = k.x * k.y;
-//  return (((menge*welt->ticks_per_tag) >> BASEPRODSHIFT) >> precision_bits)*n;
-
+//  const uint32 menge = (prodbase * prodfaktor) >> (BASEPRODSHIFT+MAX_PRODBASE_SHIFT-precision_bits);
   // monat mit 1(!) tag
-  return (((menge*welt->ticks_per_tag) >> BASEPRODSHIFT) >> precision_bits);
+//  return (((menge*welt->ticks_per_tag) >> BASEPRODSHIFT) >> precision_bits);
+	return (prodbase * prodfaktor)>>4;
 }
 
 
@@ -639,7 +638,7 @@ fabrik_t::verbraucht(const ware_besch_t *typ)
     for(uint32 index = 0; index < eingang->get_count(); index ++) {
 	if(eingang->at(index).gib_typ() == typ) {
             // sollte maximale lagerkapazitaet pruefen
-	    return 1;
+	    return eingang->at(index).menge>eingang->at(index).max;
 	}
     }
     return -1;  // wird hier nicht verbraucht
@@ -657,7 +656,7 @@ fabrik_t::step(long delta_t)
 
 		const uint32 ecount = eingang->get_count();
 		uint32 index = 0;
-		uint32 produkt;
+		uint32 produkt=0;
 
 		if(ausgang->get_count()==0) {
 			// consumer only ...
@@ -751,6 +750,8 @@ fabrik_t::step(long delta_t)
 				INT_CHECK("simfab 636");
 			}
 		}
+		// to distribute to all target equally, we use this counter, for the factory, to try first
+		last_lieferziel_start ++;
 	}
 
 #ifdef FAB_PAX
@@ -781,6 +782,7 @@ void fabrik_t::verteile_waren(const uint32 produkt)
 	slist_tpl<ware_t> ware_ok;
 	// Über alle Haltestellen iterieren
 	slist_iterator_tpl <halthandle_t> iter (halt_list);
+	int min_vorrat = 0x7FFFFFFF;
 
 	// ok, first send everything away
 	while(iter.next()) {
@@ -788,32 +790,31 @@ void fabrik_t::verteile_waren(const uint32 produkt)
 
 		// Über alle Ziele iterieren
 		for(uint32 n=0; n<lieferziele.get_count(); n++) {
-			const koord lieferziel = lieferziele.get(n);
+			// prissi: this way, the halt, that is tried first, will change. As a result, if all destinations are empty, it will be spread evenly
+			const koord lieferziel = lieferziele.get((n+last_lieferziel_start)%lieferziele.get_count());
 
 			fabrik_t * ziel_fab = gib_fab(welt, lieferziel);
+			int vorrat;
 
-			if(ziel_fab &&	ziel_fab->verbraucht(ausgang->at(produkt).gib_typ()) >= 0) {
+			if(ziel_fab &&	(vorrat=ziel_fab->verbraucht(ausgang->at(produkt).gib_typ()))>= 0) {
+
+//DBG_DEBUG("verteile_waren()","vorrat %i at %s",vorrat,ziel_fab->gib_name());
 
 				ware_t ware (ausgang->at(produkt).gib_typ());
 				ware.menge = 1;
 				ware.setze_zielpos( lieferziel );
 
-
 				// Station can only store up to 128 units of goods per square
-				if(halt->gib_ware_summe(ware.gib_typ()) <(halt->gib_grund_count() << 7)) {
+				if(halt->gib_ware_summe(ware.gib_typ()) <(halt->gib_grund_count()<<7)) {
 					// ok, still enough space
-					halt->suche_route(ware, halt);
+					halt->suche_route(ware);
 
 					if(ware.gib_ziel() != koord::invalid) {
-//	    printf("Starthalt %d/%d %s\n", i+1, list.get_count(), halt->gib_name());
-//	    printf("Zielhalt %s\n", haltestelle_t::gib_halt(welt, ware->gib_ziel())->gib_name());
-
-						halt_ok.insert(halt);
-						ware_ok.insert(ware);
-					}
-					else {
-// printf("Starthalt %d/%d %s\n", i+1, list.get_count(), halt->gib_name());
-// printf("kann %s nicht Ziel %d %d (%d/%d) liefern\n", ware.gib_name(), lieferziel.x, lieferziel.y, n, lieferziele.get_count());
+						if(vorrat<min_vorrat) {
+							halt_ok.insert(halt);
+							ware_ok.insert(ware);
+							min_vorrat = vorrat;
+						}
 					}
 
 				}
@@ -826,12 +827,17 @@ void fabrik_t::verteile_waren(const uint32 produkt)
 		}
 	}
 
-
 	// Auswertung der Ergebnisse
 	if(!halt_ok.is_empty()) {
-
 		// Hajo: distribute goods to station that has the least amount stored
 		const int menge = (ausgang->at(produkt).menge >> precision_bits);
+#if 1
+		if(menge > 1) {
+			ausgang->at(produkt).menge -= menge << precision_bits;
+			ware_ok.at(0).menge = menge;
+			halt_ok.at(0)->liefere_an(ware_ok.at(0));
+		}
+#else
 
 		if(menge > 1) {
 			ausgang->at(produkt).menge -= menge << precision_bits;
@@ -862,7 +868,6 @@ void fabrik_t::verteile_waren(const uint32 produkt)
 		}
 
 
-
 		/* Hajo: old code distributed equal amounts to all stations
 		const int count = halt_ok.count();
 		int menge = (ausgang->at(0).menge >> precision_bits) / count;
@@ -887,6 +892,7 @@ void fabrik_t::verteile_waren(const uint32 produkt)
 		}
 		}
 	*/
+#endif
 	}
 }
 
@@ -916,7 +922,7 @@ fabrik_t::verteile_passagiere()
 			const koord ziel = stadt->gib_zufallspunkt();
 			pax.setze_zielpos( ziel );
 
-			halt->suche_route(pax, halt);
+			halt->suche_route(pax);
 
 			if(pax.gib_ziel()!=koord::invalid) {
 				if(halt->gib_ware_summe(pax.gib_typ()) > (halt->gib_grund_count() << 7)) {

@@ -442,24 +442,16 @@ public:
 
 
     /**
-     * gibt true zurück, wenn die Ware nicht mehr reisen muss
-     * weil sie schon nahe genug am ziel ist.
-     *
-     * false kann bedeuten: die Ware ist noch nicht am Ziel. Dabei gibt es zwei
-     * Fälle: keine Route oder Route zum Ziel. ware->ziel() und Zwischenziel()
-     * geben Auskunft, sind NULL, wenn keine Route existiert.
-     *
      * Kann die Ware nicht zum Ziel geroutet werden (keine Route), dann werden
      * Ziel und Zwischenziel auf koord::invalid gesetzt.
      *
      * @param ware die zu routende Ware
-     * @param start die Starthaltestelle
      * @author Hj. Malthaner
      *
      * for reverse routing, also the next to last stop can be added, if next_to_ziel!=NULL
      * @author prissi
      */
-    bool suche_route(ware_t &ware, halthandle_t start, koord *next_to_ziel=NULL);
+    void suche_route(ware_t &ware, koord *next_to_ziel=NULL);
 
 	/* true, if there is a conncetion between these places
 	 * @author prissi

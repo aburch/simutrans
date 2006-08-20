@@ -1209,7 +1209,7 @@ DBG_MESSAGE("spieler_t::do_ki","Decicion %s to %s (income %i)",start->gib_name()
 						}
 						else {
 							// use another line
-							substate = NR_INIT;
+							state = CHECK_CONVOI;
 						}
 					}
 				}
@@ -1220,7 +1220,7 @@ DBG_MESSAGE("spieler_t::do_ki","Decicion %s to %s (income %i)",start->gib_name()
 				{
 					if(baue) {
 DBG_MESSAGE("do_ki()","Player %s could not built: baue=%1",gib_name(),baue);
-						substate = NR_INIT;
+						state = CHECK_CONVOI;
 						break;
 					}
 					// just mark for other AI: this is off limits ...
@@ -1288,7 +1288,7 @@ DBG_MESSAGE("do_ki()","road vehicle %p",road_vehicle);
 						// if our car is faster: well use faster speed
 					 	best_rail_speed = MIN(80,rail_vehicle->gib_geschw());
 						// for engine: gues number of cars
-						count_rail = (prod*dist) / (rail_vehicle->gib_zuladung()*best_rail_speed*3)+1;
+						count_rail = (prod*dist) / (rail_vehicle->gib_zuladung()*best_rail_speed)+1;
 						rail_engine = vehikelbauer_t::vehikel_search( vehikel_besch_t::schiene, month_now, 80*count_rail, best_rail_speed, NULL );
 						if(  rail_engine!=NULL  ) {
 						  if(  best_rail_speed>rail_engine->gib_geschw()  ) {
@@ -1301,7 +1301,7 @@ DBG_MESSAGE("do_ki()","road vehicle %p",road_vehicle);
 							  	best_rail_speed = rail_weg->gib_topspeed();
 							  }
 							  // no train can have more than 15 cars
-							  count_rail = MIN( 15, (prod*dist) / (rail_vehicle->gib_zuladung()*best_rail_speed*3) );
+							  count_rail = MIN( 15, (prod*dist) / (rail_vehicle->gib_zuladung()*best_rail_speed) );
 							  // if engine too week, reduce number of cars
 							  if(  count_rail*80*64>(rail_engine->gib_leistung()*rail_engine->get_gear())  ) {
 							  	count_rail = rail_engine->gib_leistung()*rail_engine->get_gear()/(80*64);
@@ -1329,7 +1329,7 @@ DBG_MESSAGE("spieler_t::do_ki()","No railway possible.");
 								best_road_speed = road_weg->gib_topspeed();
 							}
 							// minimum vehicle is 1, maximum vehicle is 48, more just result in congestion
-							count_road = MIN( 254, (prod*dist) / (road_vehicle->gib_zuladung()*best_road_speed*4)+2 );
+							count_road = MIN( 254, (prod*dist*3) / (road_vehicle->gib_zuladung()*best_road_speed*2)+2 );
 DBG_MESSAGE("spieler_t::do_ki()","guess to need %d road cars %s for route %s", count_road, road_vehicle->gib_name(), road_weg->gib_name() );
 						}
 						else {
@@ -1380,7 +1380,7 @@ DBG_MESSAGE("spieler_t::do_ki()","No roadway possible.");
 					else {
 						// falls gar nichts klappt gehen wir zum initialzustand zurueck
 						baue = false;
-						substate = NR_INIT;
+						state = CHECK_CONVOI;
 					}
 				}
 				break;
@@ -1460,7 +1460,6 @@ DBG_MESSAGE("spieler_t::do_ki()","No roadway possible.");
 
 				// remove marker etc.
 				case NR_BAUE_CLEAN_UP:
-					substate = NR_INIT;
 					// otherwise it may always try to built the same route!
 					ziel = NULL;
 					// schilder aufraeumen
@@ -1471,6 +1470,7 @@ DBG_MESSAGE("spieler_t::do_ki()","No roadway possible.");
 						welt->access(platz2)->gib_kartenboden()->obj_loesche_alle(this);
 					}
 					baue = false;
+					state = CHECK_CONVOI;
 				break;
 
 				// successful rail construction
@@ -1481,8 +1481,8 @@ DBG_MESSAGE("spieler_t::do_ki()","No roadway possible.");
 					sprintf(buf, translator::translate("%s\nopened a new railway\nbetween %s\nat (%i,%i) and\n%s at (%i,%i)."), gib_name(), translator::translate(start->gib_name()), start->pos.x, start->pos.y, translator::translate(ziel->gib_name()), ziel->pos.x, ziel->pos.y );
 					message_t::get_instance()->add_message(buf,start->pos.gib_2d(),message_t::ai,kennfarbe,rail_engine->gib_basis_bild());
 
-					substate = NR_INIT;
 					baue = false;
+					state = CHECK_CONVOI;
 				}
 				break;
 
@@ -1494,14 +1494,86 @@ DBG_MESSAGE("spieler_t::do_ki()","No roadway possible.");
 					sprintf(buf, translator::translate("%s\nnow operates\n%i trucks between\n%s at (%i,%i)\nand %s at (%i,%i)."), gib_name(), count_road, translator::translate(start->gib_name()), start->pos.x, start->pos.y, translator::translate(ziel->gib_name()), ziel->pos.x, ziel->pos.y );
 					message_t::get_instance()->add_message(buf,start->pos.gib_2d(),message_t::ai,kennfarbe,road_vehicle->gib_basis_bild());
 
-					substate = NR_INIT;
 					baue = false;
+					state = CHECK_CONVOI;
 				}
 				break;
 
 				default:
 					dbg->error("spieler_t::do_ki()","State %d with illegal substate %d!", state, substate);
 			}
+		break;
+
+		// remove stucked vehicles
+		case CHECK_CONVOI:
+		{
+			slist_iterator_tpl<convoihandle_t> iter (welt->gib_convoi_list());
+			while(iter.next()) {
+				const convoihandle_t cnv = iter.get_current();
+				if(cnv->gib_besitzer()==this) {
+					// check for empty vehicles (likely stucked) that are making no plus and remove them ...
+					// take care, that the vehicle is old enough ...
+					if((welt->gib_zeit_ms()-cnv->gib_vehikel(0)->gib_insta_zeit())>>(karte_t::ticks_bits_per_tag+1)>2  &&  cnv->gib_jahresgewinn()==0  ){
+						sint64 passenger=0;
+						for( int i=0;  i<MAX_MONTHS;  i ++) {
+							passenger += cnv->get_finance_history(i,CONVOI_TRANSPORTED_GOODS);
+						}
+						if(passenger==0) {
+							// now passengers for two months?
+							// well, then delete this (likely stucked somewhere)
+DBG_MESSAGE("spieler_t::do_ki()","convoi %s not needed!",cnv->gib_name());
+							buche( -cnv->calc_restwert(), cnv->gib_pos().gib_2d(), COST_NEW_VEHICLE );
+							cnv->self_destruct();
+							break;
+						}
+					}
+#if 0
+					// then check for overcrowded lines
+					if(cnv->gib_vehikel(0)->gib_fracht_menge()==cnv->gib_vehikel(0)->gib_fracht_max()) {
+						INT_CHECK("simplay 889");
+						// this is our vehicle, and is 100% loaded
+						fahrplan_t  *f = cnv->gib_fahrplan();
+						koord3d startpos= cnv->gib_pos();
+						// next checkpoint also crowed with things for us?
+						halthandle_t h0=welt->lookup( f->eintrag.at(0).pos )->gib_halt();
+						halthandle_t h1=welt->lookup( f->eintrag.at(1).pos )->gib_halt();
+DBG_MESSAGE("spieler_t::do_passenger_ki()","checking our convoi %s between %s and %s",cnv->gib_name(),h0->gib_name(),h1->gib_name());
+DBG_MESSAGE("spieler_t::do_passenger_ki()","waiting: %s (%i) and %s (%i)",h0->gib_name(),h0->gib_ware_fuer_zwischenziel(warenbauer_t::passagiere,f->eintrag.at(1).pos.gib_2d()),h1->gib_name(),h1->gib_ware_fuer_zwischenziel(warenbauer_t::passagiere,f->eintrag.at(0).pos.gib_2d()));
+
+						// we assume crowed for more than 129 waiting passengers
+						if(	h0->gib_ware_fuer_zwischenziel(warenbauer_t::passagiere,f->eintrag.at(1).pos.gib_2d())>250   ||
+							h1->gib_ware_fuer_zwischenziel(warenbauer_t::passagiere,f->eintrag.at(0).pos.gib_2d())>250   ) {
+	DBG_MESSAGE("spieler_t::do_passenger_ki()","copy convoi %s on route %s to %s",cnv->gib_name(),h0->gib_name(),h1->gib_name());
+							vehikel_t * v = vehikelbauer_t::baue(welt, startpos, this,NULL, cnv->gib_vehikel(0)->gib_besch());
+							convoi_t *new_cnv = new convoi_t(welt, this);
+							// V.Meyer: give the new convoi name from first vehicle
+							new_cnv->setze_name( v->gib_besch()->gib_name() );
+							new_cnv->add_vehikel( v );
+							fahrplan_t *fpl = new_cnv->gib_vehikel(0)->erzeuge_neuen_fahrplan();
+							// do not start at current stop => wont work ...
+							fpl->aktuell = (f->eintrag.at(0).pos==startpos)?1:0;
+							// now copy scedule
+							fpl->maxi = f->maxi;
+							for(int j=0;  j<=f->maxi;  j++) {
+								fpl->eintrag.at(j).pos = f->eintrag.at(j).pos;
+								// waiting on a overcrowded line does not make sense!
+								// fpl->eintrag.at(j).ladegrad = f->eintrag.at(j).ladegrad;
+								fpl->eintrag.at(j).ladegrad = 0;
+							}
+							// and start new convoi
+							welt->sync_add( new_cnv );
+							new_cnv->setze_fahrplan(fpl);
+							new_cnv->start();
+							// we do not want too many copies, just copy once!
+							break;
+						}
+					}
+#endif
+				}
+			}
+			state = NEUE_ROUTE;
+			substate = NR_INIT;
+		}
 		break;
 
 		default:
@@ -1755,7 +1827,7 @@ spieler_t::guess_gewinn_transport_quelle_ziel(fabrik_t *qfab,const ware_t *ware,
 	int gewinn=-1;
 	// more checks
 	if(ware->gib_typ() != warenbauer_t::nichts &&
-		zfab != NULL && zfab->verbraucht(ware->gib_typ()) > 0) {
+		zfab != NULL && zfab->verbraucht(ware->gib_typ()) == 0) {
 
 		// hat noch mehr als halbvolle Lager  and more then 35 (otherwise there might be also another transporter) ?
 		if(ware->menge < ware->max*0.90  ||  ware->menge<(34<<fabrik_t::precision_bits)  ) {

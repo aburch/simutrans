@@ -115,8 +115,7 @@ void blockmanager::neue_schiene(karte_t *welt, grund_t *gr, ding_t *sig)
         }
 	break;
     default:
-        dbg->fatal("blockmanager::neues_schienen_stueck()",
-                   "unknown case in bockmanager::neue_schiene()");
+        dbg->fatal("blockmanager::neues_schienen_stueck()","unknown case in bockmanager::neue_schiene()");
     }
     if(sig) {
 	sch->gib_blockstrecke()->add_signal((signal_t *)sig);

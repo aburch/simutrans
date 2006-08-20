@@ -69,6 +69,7 @@ private:
      * @author Hj. Malthaner
      */
     vector_tpl <koord> lieferziele;
+    uint32 last_lieferziel_start;
 
     /**
      * suppliers to this factry

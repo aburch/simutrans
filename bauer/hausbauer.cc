@@ -391,8 +391,7 @@ gebaeude_t *hausbauer_t::neues_gebaeude(karte_t *welt,
 			void *param)
 {
     if(besch->gib_groesse(layout) != koord(1, 1)) {
-	dbg->fatal("hausbauer_t::neues_gebaeude()",
-	           "building %s is not 1*1", besch->gib_name());
+	dbg->fatal("hausbauer_t::neues_gebaeude()","building %s is not 1*1", besch->gib_name());
 	return NULL;
     }
     gebaeude_t *gb;

@@ -147,17 +147,17 @@ simline_t::register_stops(fahrplan_t * fpl)
 {
 	halthandle_t halt;
 
-	DBG_DEBUG("simline_t::register_stops()", "%d fpl entries", fpl->maxi);
+DBG_DEBUG("simline_t::register_stops()", "%d fpl entries", fpl->maxi+1);
 
 	for (int i = 0; i<=fpl->maxi; i++)
 	{
 		halt = haltestelle_t::gib_halt(welt, fpl->eintrag.get(i).pos.gib_2d());
 		if (halt.is_bound())
 		{
-			DBG_DEBUG("simline_t::register_stops()", "halt not null");
+//DBG_DEBUG("simline_t::register_stops()", "halt not null");
 			halt->add_line(this);
 		} else {
-			DBG_DEBUG("simline_t::register_stops()", "halt null");
+DBG_DEBUG("simline_t::register_stops()", "halt null");
 		}
 	}
 }

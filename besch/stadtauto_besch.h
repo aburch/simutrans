@@ -39,8 +39,12 @@
  */
 class stadtauto_besch_t : public obj_besch_t {
     friend class citycar_writer_t;
+    friend class citycar_reader_t;
 
     uint16 gewichtung;
+    // when was this car used?
+    uint16 intro_date;
+    uint16 obsolete_date;
 public:
     const char *gib_name() const
     {

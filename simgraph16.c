@@ -748,31 +748,45 @@ static void rezoom_img( const unsigned int n )
 			unsigned char h = images[n].base_h;
 
 			// decode/recode linewise
-			do { // zeilen dekodieren
+			unsigned int last_color;
+			PIXVAL *last_dest=dest;
+			do { // decode/recode line
 
-				if(y_left==0) {
-					unsigned int runlen;
-					PIXVAL *p = line;
+				unsigned int runlen;
+				unsigned int color = 0;
+				PIXVAL *p = line;
 
-					// left offset, which was left by division
-					runlen = images[n].base_x%zoom_factor;
+				// left offset, which was left by division
+				runlen = images[n].base_x%zoom_factor;
+				while(  runlen--  ) {
+					*p++ = 0x73FE;
+				}
+
+				// decode line
+				runlen = *sp++;
+				color -= runlen;
+				do {
+					// clear run
 					while(  runlen--  ) {
 						*p++ = 0x73FE;
 					}
-
-					// decode line
+					// color pixel
 					runlen = *sp++;
-					do {
-						// clear run
-						while(  runlen--  ) {
-							*p++ = 0x73FE;
-						}
-						// color pixel
-						runlen = *sp++;
-						while(  runlen--  ) {
-							*p++ = *sp++;
-						}
-					} while( (runlen = *sp++) );
+					color += runlen;
+					while(  runlen--  ) {
+						*p++ = *sp++;
+					}
+				} while( (runlen = *sp++) );
+
+				if(y_left==0  ||  last_color<color) {
+					// required; but if the following are longer, take them instead (aviods empty pixels)
+					// so we have to set/save the beginning
+					if(y_left==0) {
+						last_dest = dest;
+					}
+					else {
+						dest = last_dest;
+					}
 
 					// encode this line
 					unsigned char i, step=0;
@@ -790,20 +804,11 @@ static void rezoom_img( const unsigned int n )
 					} while(step<base_tile_raster_width);
 					// mark line end
 					*dest++ = 0;
-					// ok now reset countdown counter
-					y_left = zoom_factor;
-				}
-				else {
-					// ignore this line
-					unsigned int runlen = *sp++;
-					// eine Zeile dekodieren
-					do {
-						// clear run (now just ignore it)
-
-						// jump color pixel
-						runlen = *sp++;
-						sp += runlen;
-					} while( (runlen = *sp++) );
+					if(y_left==0) {
+						// ok now reset countdown counter
+						y_left = zoom_factor;
+					}
+					last_color = color;
 				}
 
 				// countdown line skip counter
@@ -2353,7 +2358,7 @@ __asm__(	"cld\n\t"
 #if defined( __MINGW32__)
 		"movw	_rgbcolormap(%%eax,%%eax),%%cx\n"	// load ax with the right color ...
 #else
-		"movw	_rgbcolormap(%%eax,%%eax),%%cx\n"	// load ax with the right color ...
+		"movw	rgbcolormap(%%eax,%%eax),%%cx\n"	// load ax with the right color ...
 #endif
 		"btrw $15,%%ax\n\t"	//>=0x8000
 		"jnc .Lvok\n\t"

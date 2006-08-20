@@ -303,7 +303,7 @@ gebaeude_t::step(long delta_t)
 
 					for(uint32 i=0; i<halt_list.get_count(); i++) {
 						halthandle_t halt = halt_list.get(i);
-						halt->suche_route(pax, halt);
+						halt->suche_route(pax);
 
 						if(halt->gib_ware_summe(wtyp) > (halt->gib_grund_count() << 7)) {
 							// Hajo: Station crowded:

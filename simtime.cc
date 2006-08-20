@@ -50,7 +50,7 @@ static long multi = 16;
  */
 void sync_last_time_now()
 {
-  last_time = dr_time();
+	last_time = dr_time();
 }
 
 
@@ -95,19 +95,17 @@ long get_time_multi()
  */
 unsigned long get_current_time_millis()
 {
-    unsigned long now = dr_time();
+	unsigned long now = dr_time();
 
-    if(now > last_time) {
-	long diff = (now - last_time);
+	if(now > last_time) {
+		long diff = (now - last_time);
 
-        diff = (diff * multi) >> 4;
+		diff = (diff * multi) >> 4;
+		sim_time += diff;
+		last_time = now;
+	}
 
-	sim_time += diff;
-    }
-
-    last_time = now;
-
-    return sim_time;
+	return sim_time;
 }
 
 

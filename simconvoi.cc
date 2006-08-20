@@ -1121,8 +1121,7 @@ convoi_t::rdwr(loadsave_t *file)
 	    case ding_t::waggon:    v = new waggon_t(welt, file);     break;
 	    case ding_t::schiff:    v = new schiff_t(welt, file);     break;
 	    default:
-	        dbg->fatal("convoi_t::convoi_t()",
-		           "Can't load vehicle type %d", typ);
+	        dbg->fatal("convoi_t::convoi_t()","Can't load vehicle type %d", typ);
 	    }
 	    tmp_pos.at(i).rdwr(file);
 

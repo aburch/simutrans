@@ -130,7 +130,29 @@ obj_besch_t * vehicle_reader_t::read_node(FILE *fp, obj_node_info_t &node)
       besch->typ = vehikel_besch_t::schiene;
     }
 
-  } else {
+} else if (version == 3 ) {
+    // Versioned node, version 3 with retire date
+
+    besch->preis = decode_uint32(p);
+    besch->zuladung = decode_uint16(p);
+    besch->geschw = decode_uint16(p);
+    besch->gewicht = decode_uint16(p);
+    besch->leistung = decode_uint16(p);
+    besch->betriebskosten = decode_uint16(p);
+
+    besch->intro_date = decode_uint16(p);
+    besch->obsolete_date = decode_uint16(p);
+    besch->gear = decode_uint8(p);
+
+    besch->typ = decode_uint8(p);
+    besch->sound = decode_sint8(p);
+    besch->vorgaenger = decode_uint8(p);
+    besch->nachfolger = decode_uint8(p);
+    besch->engine_type = decode_uint8(p);
+
+    besch->typ = vehikel_besch_t::schiene;
+
+} else {
     // old node, version 0
 
     besch->typ = v;

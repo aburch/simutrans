@@ -101,8 +101,7 @@ void stadtauto_t::rdwr(loadsave_t *file)
 	guarded_free(const_cast<char *>(s));
 
 	if(besch == 0) {
-	  dbg->fatal("stadtauto_t::rdwr()",
-		     "loading game with private cars, but no private car objects found in PAK files.");
+	  dbg->fatal("stadtauto_t::rdwr()", "loading game with private cars, but no private car objects found in PAK files.");
 	}
     }
 }

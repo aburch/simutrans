@@ -43,10 +43,10 @@
  *
  * @author V. Meyer
  */
-class bauplatz_mit_strasse_sucher_t: public bauplatz_sucher_t  {
+class factory_bauplatz_mit_strasse_sucher_t: public bauplatz_sucher_t  {
 
 	public:
-		bauplatz_mit_strasse_sucher_t(karte_t *welt) : bauplatz_sucher_t (welt) {}
+		factory_bauplatz_mit_strasse_sucher_t(karte_t *welt) : bauplatz_sucher_t (welt) {}
 
 	// get distance to next factory
 	int find_dist_next_factory(koord pos) const {
@@ -60,6 +60,7 @@ class bauplatz_mit_strasse_sucher_t: public bauplatz_sucher_t  {
 				dist = d;
 			}
 		}
+//DBG_DEBUG("bauplatz_mit_strasse_sucher_t::find_dist_next_factory()","returns %i",dist);
 		return dist;
 	}
 
@@ -128,9 +129,7 @@ void fabrikbauer_t::bau_info_t::random(slist_tpl <const fabrik_besch_t *> &fab)
     besch = hausbauer_t::finde_fabrik(info->gib_name());
 
     if(besch == 0) {
-      dbg->fatal("fabrikbauer_t::bau_info_t::random",
-           "No description found for '%s'",
-           info->gib_name());
+      dbg->fatal("fabrikbauer_t::bau_info_t::random","No description found for '%s'",info->gib_name());
     }
 
     break;
@@ -574,7 +573,7 @@ DBG_MESSAGE("fabrikbauer_t::baue_hierarchie","Search place for city factory (%i,
 		// Das könnte ein Zeitproblem geben, wenn eine Stadt keine solchen Bauplatz
 		// hat und die Suche bis zur nächsten Stadt weiterläuft
 		// Ansonsten erscheint mir das am realistischtsten..
-		k = bauplatz_mit_strasse_sucher_t(welt).suche_platz(sf.stadt->gib_pos(), size.x, size.y,&is_rotate);
+		k = factory_bauplatz_mit_strasse_sucher_t(welt).suche_platz(sf.stadt->gib_pos(), size.x, size.y,&is_rotate);
 		rotate = is_rotate;
 		DBG_MESSAGE("fabrikbauer_t::baue_hierarchie","Construction at (%i,%i).",k.x,k.y);
 		// B:
@@ -623,7 +622,7 @@ DBG_MESSAGE("fabrikbauer_t::baue_hierarchie","lieferanten %i, lcount %i (need %i
 				// try to find matching factories for this consumption
 				( (lcount==0  &&  lfound<3  &&  verbrauch>0) ||
 				// otherwise dont find more than two times new number
-				  (lcount<=lfound+1) )
+				  (lcount>=lfound+1) )
 				)
 		{
 			fabrik_t * fab = iter.get_current();
@@ -638,7 +637,7 @@ DBG_MESSAGE("fabrikbauer_t::baue_hierarchie","lieferanten %i, lcount %i (need %i
 					found = true;
 					fab->add_lieferziel(pos->gib_2d());
 
-					// now guess, how much this factory can supply
+					// now guess, how much this factory can 05.05.05 22:39supply
 					for(int gg=0;gg<fab->gib_besch()->gib_produkte();gg++) {
 						if(fab->gib_besch()->gib_produkt(gg)->gib_ware()==ware  &&  fab->gib_lieferziele().get_count()<fabrik_t::max_lieferziele) {
 							int produktion=(fab->max_produktion()*fab->gib_besch()->gib_produkt(gg)->gib_faktor()*100)/256;

@@ -310,7 +310,7 @@ int
 create_win(int x, int y, int dauer, gui_fenster_t *gui,
            enum wintype wt, int magic)
 {
-printf("create_win(): ins_win=%d\n", ins_win);
+DBG_DEBUG("create_win()","ins_win=%d", ins_win);
     assert(ins_win >= 0);
 
     if(ins_win < MAX_WIN) {
@@ -384,7 +384,7 @@ printf("create_win(): ins_win=%d\n", ins_win);
 	wins[ins_win].pos.x = x;
 	wins[ins_win].pos.y = MAX(32, y);
 
-printf("create_win(): new ins_win=%d\n", ins_win+1);
+DBG_DEBUG("create_win()","new ins_win=%d", ins_win+1);
 	return ins_win ++;
     } else {
 	return -1;

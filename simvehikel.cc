@@ -1483,21 +1483,27 @@ waggon_t::ist_weg_frei(int & restart_speed) const
 }
 
 bool
-waggon_t::is_next_block_free() const {
-  const schiene_t * sch0 =
-    (const schiene_t *) welt->lookup( pos_next )->gib_weg(gib_wegtyp());
-
+waggon_t::is_next_block_free() const
+{
+	const schiene_t * sch0 = (const schiene_t *) welt->lookup( pos_next )->gib_weg(gib_wegtyp());
 	const route_t * route = cnv->get_route();
+assert(sch0!=NULL);
+
 	// find next blocksegment enroute
 	for (int i = route_index + 1; i < route->gib_max_n(); i++) {
 
-	  const schiene_t * sch1 =
-	    (const schiene_t *) welt->lookup( route->position_bei(i))->gib_weg(gib_wegtyp());
+		const schiene_t * sch1 = (const schiene_t *) welt->lookup( route->position_bei(i))->gib_weg(gib_wegtyp());
+		if(sch1==NULL) {
+			dbg->error("waggon_t::is_next_block_free()","invalid route");
+			return true;
+		}
+assert(sch0->gib_blockstrecke().is_bound());
+assert(sch1->gib_blockstrecke().is_bound());
 
-	  if (sch0->gib_blockstrecke() != sch1->gib_blockstrecke()) {
-	  	// next blocksegment found!
-	  	return sch1->gib_blockstrecke()->ist_frei();
-	  }
+		if(sch0->gib_blockstrecke() != sch1->gib_blockstrecke()) {
+			// next blocksegment found!
+			return sch1->gib_blockstrecke()->ist_frei();
+		}
 	}
 	// no next-next block found enroute!
 	return true;
