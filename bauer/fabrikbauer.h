@@ -42,7 +42,6 @@ class fabrikbauer_t
 	koord			dim;
 
 	void random(slist_tpl <const fabrik_besch_t *> &fab);
-	void random_land(slist_tpl <const fabrik_besch_t *> &fab);
     };
     /**
      * Diese Klasse wird in verteile_industrie benötigt.

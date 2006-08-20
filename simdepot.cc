@@ -291,73 +291,74 @@ bool depot_t::disassemble_convoi(int icnv, bool sell)
 bool
 depot_t::start_convoi(int icnv)
 {
-    convoihandle_t cnv = get_convoi(icnv);
+	convoihandle_t cnv = get_convoi(icnv);
+	route_t * route = new route_t();
 
-    if(cnv.is_bound() &&
-       cnv->gib_fahrplan() != NULL &&
-       cnv->gib_fahrplan()->ist_abgeschlossen() &&
-       cnv->gib_fahrplan()->maxi() > 0) {
+	if(cnv.is_bound() &&  cnv->gib_fahrplan() != NULL &&  cnv->gib_fahrplan()->ist_abgeschlossen() &&   cnv->gib_fahrplan()->maxi() > 0) {
 
-	// pruefen ob zug vollstaendig
-	if(cnv->gib_sum_leistung() == 0 || !cnv->pruefe_alle()) {
-	    create_win(100, 64, MESG_WAIT, new nachrichtenfenster_t(welt, "Diese Zusammenstellung kann nicht fahren!\n"), w_autodelete);
-	} else {
+		// pruefen ob zug vollstaendig
+		if(cnv->gib_sum_leistung() == 0 || !cnv->pruefe_alle()) {
+			create_win(100, 64, MESG_WAIT, new nachrichtenfenster_t(welt, "Diese Zusammenstellung kann nicht fahren!\n"), w_autodelete);
+		}
+		else if(!route->calc_route(welt, this->gib_pos(), cnv->gib_fahrplan()->eintrag.at(cnv->gib_fahrplan()->get_aktuell()).pos, cnv->gib_vehikel(0)) ) {
+			// no route to go ...
+			static char buf[256];
+			sprintf(buf,translator::translate("Vehicle %s can't find a route!"), cnv->gib_name());
+			create_win(100, 64, MESG_WAIT, new nachrichtenfenster_t(welt, buf), w_autodelete);
+		}
+		else if(can_convoi_start(icnv)) {
 
-	    if(can_convoi_start(icnv)) {
+			// Hajo: alle Haltestellen auf dem Fahrplan werden informiert,
+			// dass sie jetzt angefahren werden.
+			fahrplan_t *fpl = cnv->gib_fahrplan();
 
-		// Hajo: alle Haltestellen auf dem Fahrplan werden informiert,
-		// daß sie jetzt angefahren werden.
-		fahrplan_t *fpl = cnv->gib_fahrplan();
+			for(int i=0; i<fpl->maxi(); i++) {
+				halthandle_t halt = haltestelle_t::gib_halt(welt, fpl->eintrag.at(i).pos.gib_2d());
 
-		for(int i=0; i<fpl->maxi(); i++) {
-		    halthandle_t halt = haltestelle_t::gib_halt(welt, fpl->eintrag.at(i).pos.gib_2d());
-
-		    if(halt.is_bound()) {
-			for(unsigned j=0; j<cnv->gib_vehikel_anzahl(); j++) {
-			    halt->hat_gehalten(0, cnv->gib_vehikel(j)->gib_fracht_typ(), fpl);
+				if(halt.is_bound()) {
+					for(unsigned j=0; j<cnv->gib_vehikel_anzahl(); j++) {
+						halt->hat_gehalten(0, cnv->gib_vehikel(j)->gib_fracht_typ(), fpl);
+					}
+				}
 			}
-		    }
+
+			// Hajo: OK, die Haltestellen sind informiert,
+			// der Convoi kann losdüsen
+			cnv->setze_fahrplan( fpl );     // das ist nicht redundant, nicht löschen!!!
+			welt->sync_add( cnv.get_rep() );
+			cnv->start();
+
+			// Hajo: don't wait for map step to trigger the first vehicle
+			// do that step immediately to shorten the delay until vehicle
+			// starts to move. There are three steps until the route is
+			// found
+			cnv->step();
+			cnv->sync_step(20);
+			cnv->step();
+
+			convois.remove_at(icnv);
+			return true;
+		}
+		else {
+			create_win(100, 64, new nachrichtenfenster_t(welt, "Blockstrecke ist\nbelegt\n"), w_autodelete);
 		}
 
-		// Hajo: OK, die Haltestellen sind informiert,
-		// der Convoi kann losdüsen
-		cnv->setze_fahrplan( fpl );     // das ist nicht redundant, nicht löschen!!!
-		welt->sync_add( cnv.get_rep() );
-		cnv->start();
+		delete route;
+	}
+	else {
+		create_win(100, 64, new nachrichtenfenster_t(welt, "Noch kein Fahrzeug\nmit Fahrplan\nvorhanden\n"), w_autodelete);
 
-		// Hajo: don't wait for map step to trigger the first vehicle
-		// do that step immediately to shorten the delay until vehicle
-		// starts to move. There are three steps until the route is
-		// found
-		cnv->step();
-		cnv->sync_step(20);
-		cnv->step();
-
-		convois.remove_at(icnv);
-		return true;
-	    } else {
-		create_win(100, 64, new nachrichtenfenster_t(welt, "Blockstrecke ist\nbelegt\n"), w_autodelete);
-	    }
+		if(!cnv.is_bound()) {
+			dbg->warning("depot_t::starte_convoi()","No convoi to start!");
+		}
+		if(cnv.is_bound() && cnv->gib_fahrplan() == NULL) {
+			dbg->warning("depot_t::starte_convoi()","No schedule for convoi.");
+		}
+		if(cnv.is_bound() && cnv->gib_fahrplan() != NULL && cnv->gib_fahrplan()->ist_abgeschlossen() == false) {
+			dbg->warning("depot_t::starte_convoi()","Schedule is incomplete/not finished");
+		}
 	}
-    } else {
-	create_win(100, 64, new nachrichtenfenster_t(welt, "Noch kein Fahrzeug\nmit Fahrplan\nvorhanden\n"), w_autodelete);
-
-	if(!cnv.is_bound()) {
-	    dbg->warning("depot_t::starte_convoi()",
-			 "No convoi to start!");
-	}
-	if(cnv.is_bound() && cnv->gib_fahrplan() == NULL) {
-	    dbg->warning("depot_t::starte_convoi()",
-			 "No schedule for convoi.");
-	}
-	if(cnv.is_bound() &&
-	   cnv->gib_fahrplan() != NULL &&
-	   cnv->gib_fahrplan()->ist_abgeschlossen() == false) {
-	    dbg->warning("depot_t::starte_convoi()",
-			 "Schedule is incomplete/not finished");
-	}
-    }
-    return false;
+	return false;
 }
 
 
@@ -431,7 +432,7 @@ depot_t::rdwr(loadsave_t *file)
  */
 const char * depot_t::ist_entfernbar(const spieler_t *)
 {
-    if(vehicles.count()) {
+    if(vehicles.count()>0) {
         return "There are still vehicles\nstored in this depot!\n";
     }
     slist_iterator_tpl<convoihandle_t> iter(convois);

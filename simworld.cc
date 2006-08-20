@@ -757,18 +757,12 @@ DBG_DEBUG("karte_t::init()","kartenboden_setzen");
     // calc_hoehe(0, 0, gib_groesse()-1, gib_groesse()-1);
 
 DBG_DEBUG("karte_t::init()","calc_hoehe_mit_heightfield");
-    unsigned long old_seed = setsimrand( einstellungen->gib_karte_nummer() );
+    unsigned long old_seed = setsimrand( 0xFFFFFFFF, einstellungen->gib_karte_nummer() );
     if(einstellungen->heightfield.len() > 0) {
       calc_hoehe_mit_heightfield(einstellungen->heightfield);
     } else {
       calc_hoehe_mit_perlin();
     }
-
-	// Wenn man den Zufall kaputtmacht, sollte man ihn auch wieder heil machen
-	DBG_DEBUG("karte_t::init()","random seed");
-	if(gib_groesse_x() != 64) {
-		setsimrand( old_seed );
-	}
 
 	DBG_DEBUG("karte_t::init()","cleanup karte");
 	cleanup_karte();
@@ -945,6 +939,7 @@ DBG_DEBUG("karte_t::init()","prepare cities");
     setze_maus_funktion(wkz_abfrage, skinverwaltung_t::fragezeiger->gib_bild_nr(0), Z_PLAN, 0, 0);
 
     reliefkarte_t::gib_karte()->init();
+    recalc_average_speed();
 
 #ifndef DEMO
     for(i = 0; i < 6; i++) {
@@ -976,7 +971,6 @@ karte_t::karte_t() : ausflugsziele(16), marker(0,0)
 		sets->setze_verkehr_level(7);
 		sets->setze_karte_nummer( 33 );
 		sets->setze_station_coverage( umgebung_t::station_coverage_size );
-
 	}
 	else {
 		sets->setze_groesse(64,64);
@@ -990,6 +984,7 @@ karte_t::karte_t() : ausflugsziele(16), marker(0,0)
 	}
 
 	sets->setze_starting_year( umgebung_t::starting_year );
+	sets->setze_use_timeline( umgebung_t::use_timeline==1 );
 
 	stadt = 0;
 	zeiger = 0;
@@ -1768,42 +1763,37 @@ karte_t::sync_prepare()
 }
 
 void
-karte_t::sync_step(const long delta_t)
+karte_t::sync_step(const long dt)
 {
-  slist_iterator_tpl<sync_steppable*> iter (sync_list);
+	const long delta_t = (dt * get_time_multi()) >> 4;
+	slist_iterator_tpl<sync_steppable*> iter (sync_list);
 
-  // Hajo: we use a slight hack here to remove the current
-  // object from the list without wrecking the iterator
+	// Hajo: we use a slight hack here to remove the current
+	// object from the list without wrecking the iterator
 
-  bool ok = iter.next();
-  while(ok) {
-    sync_steppable *ss = iter.get_current();
+	bool ok = iter.next();
+	while(ok) {
+		sync_steppable *ss = iter.get_current();
 
-    // unsigned long T0 = get_current_time_millis();
+		// Hajo: advance iterator, so that we can remove the current object
+		// safely
+		ok = iter.next();
 
-    // Hajo: advance iterator, so that we can remove the current object
-    // safely
-    ok = iter.next();
+		if(ss->sync_step(delta_t) == false) {
+			sync_list.remove(ss);
+			delete ss;
+		}
 
-    if(ss->sync_step(delta_t) == false) {
-      sync_list.remove(ss);
-      delete ss;
-    }
+	}
 
-    // unsigned long T1 = get_current_time_millis();
-    // if(T1-T0 > 40) {
-    //    dbg->warning("karte_t::sync_step()", "%p needed %d ms for step", ss, T1-T0);
-    // }
-  }
+	for(int x=0; x<8; x++) {
+		gib_spieler(x)->age_messages(delta_t);
+	}
 
-  for(int x=0; x<8; x++) {
-    gib_spieler(x)->age_messages(delta_t);
-  }
+	ticks += delta_t;
 
-  ticks += delta_t;
-
-  // Hajo: ein weiterer Frame
-  thisFPS++;
+	// Hajo: ein weiterer Frame
+	thisFPS++;
 }
 
 
@@ -1822,10 +1812,12 @@ karte_t::neuer_monat()
 		city_road = city_road_test;
 	}
 	else {
+		DBG_MESSAGE("karte_t::neuer_monat()","Month %d has started", letzter_monat);
 		city_road = wegbauer_t::weg_search(weg_t::strasse,30,get_timeline_year_month());
 	}
 	INT_CHECK("simworld 1701");
 
+//	DBG_MESSAGE("karte_t::neuer_monat()","process seasons");
 	// change grounds to winter?
 	const int current_season=(2+letzter_monat/3)&3; // summer always zero
 	if(  season!=current_season  ) {
@@ -1836,6 +1828,7 @@ karte_t::neuer_monat()
 
 	INT_CHECK("simworld 1701");
 
+//	DBG_MESSAGE("karte_t::neuer_monat()","convois");
 	// hsiegeln - call new month for convois
 	slist_iterator_tpl<convoihandle_t> citer (convoi_list);
 	while(citer.next()) {
@@ -1845,6 +1838,7 @@ karte_t::neuer_monat()
 
 	INT_CHECK("simworld 1701");
 
+//	DBG_MESSAGE("karte_t::neuer_monat()","factories");
 	slist_iterator_tpl<fabrik_t*> iter (fab_list);
 	while(iter.next()) {
 		fabrik_t * fab = iter.get_current();
@@ -1853,6 +1847,7 @@ karte_t::neuer_monat()
 	INT_CHECK("simworld 1278");
 
 
+//	DBG_MESSAGE("karte_t::neuer_monat()","cities");
 	// roll city history and copy the new citicens (i.e. the new weight) into the stadt array
 	// no INT_CHECK() here, or dialoges will go crazy!!!
 	weighted_vector_tpl<stadt_t *>  *new_weighted_stadt = new weighted_vector_tpl <stadt_t *> ( stadt->get_count()+1 );
@@ -1867,6 +1862,7 @@ karte_t::neuer_monat()
 
 	INT_CHECK("simworld 1282");
 
+//	DBG_MESSAGE("karte_t::neuer_monat()","players");
 	// spieler
 	for(int i=0; i<anz_spieler; i++) {
 		if(spieler[i] != NULL) {
@@ -1876,33 +1872,44 @@ karte_t::neuer_monat()
 
 	INT_CHECK("simworld 1289");
 
+//	DBG_MESSAGE("karte_t::neuer_monat()","halts");
 	slist_iterator_tpl <halthandle_t> halt_iter (haltestelle_t::gib_alle_haltestellen());
 	while( halt_iter.next() ) {
 		halt_iter.get_current()->neuer_monat();
 		INT_CHECK("simworld 1877");
 	}
 
+//	DBG_MESSAGE("karte_t::neuer_monat()","citycars");
 	stadtauto_t::built_timeline_liste();
 	INT_CHECK("simworld 1299");
 
+//	DBG_MESSAGE("karte_t::neuer_monat()","lines");
 	simlinemgmt->new_month();
 	INT_CHECK("simworld 1301");
 
+//	DBG_MESSAGE("karte_t::neuer_monat()","ways");
 	slist_iterator_tpl <weg_t *> weg_iter (weg_t::gib_alle_wege());
 	while( weg_iter.next() ) {
 		weg_iter.get_current()->neuer_monat();
 	}
 	INT_CHECK("simworld 1890");
 
+	DBG_MESSAGE("karte_t::neuer_monat()","timeline");
 	// prissi: check for new/retired vehicles
 	if(use_timeline()) {
 		char	buf[256];
 
+		// average speeds
+		for(int i=0;  i<4;  i++) {
+			average_speed[i] = 0;
+		}
+
+		int num_averages[4]={0,0,0,0};
 		for(int i=weg_t::strasse; i<weg_t::luft; i++) {
-			int j=0;
 			const vehikel_besch_t *info;
-			while((info = vehikelbauer_t::gib_info((weg_t::typ)i, j))) {
-				j++;
+			const int speed_bonus_categorie = (i>=4  &&  i<=7) ? 2 : (i==weg_t::luft ? 4 : i );
+			for(  int j=0;  (info = vehikelbauer_t::gib_info((weg_t::typ)i, j));  j++  ) {
+				assert(speed_bonus_categorie<5  &&  speed_bonus_categorie>0);
 
 				const uint16 intro_month = info->get_intro_year_month();
 				if(intro_month == current_month) {
@@ -1920,8 +1927,25 @@ karte_t::neuer_monat()
 						message_t::get_instance()->add_message(buf,koord::invalid,message_t::new_vehicle,NEW_VEHICLE,info->gib_basis_bild());
 				}
 
+				if(info->gib_leistung()>0  &&  !info->is_future(current_month)  &&  !info->is_retired(current_month)) {
+					average_speed[speed_bonus_categorie-1] += info->gib_geschw();
+					num_averages[speed_bonus_categorie-1] ++;
+				}
+
+
 			}
 		}
+		// recalculate them
+		for(int i=0;  i<4;  i++) {
+			average_speed[i] = num_averages[i]*average_speed[i]>0 ? average_speed[i]/num_averages[i] : 80;
+		}
+	}
+	else {
+		// defaults without timeline
+		average_speed[0] = 60;
+		average_speed[1] = 80;
+		average_speed[2] = 40;
+		average_speed[3] = 800;
 	}
 	INT_CHECK("simworld 1921");
 
@@ -1931,6 +1955,57 @@ karte_t::neuer_monat()
 		speichern( buf, true );
 	}
 }
+
+
+
+// recalculated speed boni for different vehicles
+void karte_t::recalc_average_speed()
+{
+	DBG_MESSAGE("karte_t::recalc_average_speed()","");
+	if(use_timeline()) {
+		int num_averages[4]={0,0,0,0};
+		const uint16 timeline_month = get_timeline_year_month();
+		for(int i=weg_t::strasse; i<weg_t::luft; i++) {
+			// check for speed
+			const vehikel_besch_t *info;
+			const int speed_bonus_categorie = (i>=4  &&  i<=7) ? 2 : (i==weg_t::luft ? 4 : i );
+			for(  int j=0;  (info = vehikelbauer_t::gib_info((weg_t::typ)i, j));  j++  ) {
+				if(info->gib_leistung()>0  &&  !info->is_future(timeline_month)  &&  !info->is_retired(timeline_month)) {
+					average_speed[speed_bonus_categorie-1] += info->gib_geschw();
+					num_averages[speed_bonus_categorie-1] ++;
+				}
+			}
+		}
+		// recalculate them
+		for(int i=0;  i<4;  i++) {
+			average_speed[i] = num_averages[i]>0 ? average_speed[i]/num_averages[i] : 80;
+		}
+	}
+	else {
+		// defaults
+		average_speed[0] = 60;
+		average_speed[1] = 80;
+		average_speed[2] = 40;
+		average_speed[3] = 800;
+	}
+}
+
+
+
+int karte_t::get_average_speed(weg_t::typ typ) const
+{
+	switch(typ) {
+		case weg_t::strasse: return average_speed[0];
+		case weg_t::schiene:
+		case weg_t::schiene_monorail:
+		case weg_t::schiene_maglev:
+		case weg_t::schiene_strab: return average_speed[1];
+		case weg_t::wasser: return average_speed[2];
+		case weg_t::luft: return average_speed[3];
+		default: return 1;
+	}
+}
+
 
 
 void karte_t::neues_jahr()
@@ -2747,23 +2822,12 @@ DBG_DEBUG("karte_t::laden()","grundwasser %i",grundwasser);
 	// rebuild destination lists
 	const slist_tpl<halthandle_t> & list = haltestelle_t::gib_alle_haltestellen();
 	slist_iterator_tpl <halthandle_t> iter (list);
-
 	while( iter.next() ) {
-//		iter.get_current()->verbinde_fabriken();
 		iter.get_current()->rebuild_destinations();
 	}
 
-    // Reset timers
-    sync_last_time_now();
-    intr_set_last_time(get_system_ms());
-    last_step_time = get_current_time_millis();
-
-    // Hajo: this actually is too conservative but the correct
-    // solution is way too difficult for a simple pause function ...
-	// init for a good separation
-	for(int i=0; i<GRUPPEN; i++) {
-		step_group_times[i] = (350*i)/GRUPPEN;
-	}
+	reset_timer();
+     recalc_average_speed();
 	intr_enable();
 }
 
@@ -2860,35 +2924,54 @@ static void warte_auf_mausklick_oder_taste(event_t *ev)
 }
 
 
-void karte_t::do_pause()
+void karte_t::reset_timer()
 {
-    display_fillbox_wh(display_get_width()/2-100, display_get_height()/2-50,
-                               200,100, MN_GREY2, true);
-    display_ddd_box(display_get_width()/2-100, display_get_height()/2-50,
-                                200,100, MN_GREY4, MN_GREY0);
-    display_ddd_box(display_get_width()/2-92, display_get_height()/2-42,
-                                200-16,100-16, MN_GREY0, MN_GREY4);
+	DBG_MESSAGE("karte_t::reset_timer()","called");
+	// Reset timers
+	sync_last_time_now();
+	intr_set_last_time(get_system_ms());
+	last_step_time = get_current_time_millis();
 
-    display_proportional(display_get_width()/2, display_get_height()/2-5,
-                                     translator::translate("GAME PAUSED"),
-                                     ALIGN_MIDDLE, SCHWARZ, false);
-
-    // Pause: warten auf die nächste Taste
-    event_t ev;
-    display_flush_buffer();
-    warte_auf_mausklick_oder_taste(&ev);
-
-    // Reset timers
-    sync_last_time_now();
-    intr_set_last_time(get_system_ms());
-    last_step_time = get_current_time_millis();
-
-    // Hajo: this actually is too conservative but the correct
-    // solution is way too difficult for a simple pause function ...
+	// Hajo: this actually is too conservative but the correct
+	// solution is way too difficult for a simple pause function ...
 	// init for a good separation
 	for(int i=0; i<GRUPPEN; i++) {
-		step_group_times[i] = (350*i)/GRUPPEN;
+		step_group_times[i] = (50*i)/GRUPPEN;
 	}
+}
+
+
+
+// jump one year ahead
+void karte_t::step_year()
+{
+	DBG_MESSAGE("karte_t::step_year()","called");
+	ticks += 12*karte_t::ticks_per_tag;
+	next_month_ticks += 12*karte_t::ticks_per_tag;
+	current_month += 12;
+	letztes_jahr ++;
+	reset_timer();
+}
+
+
+void karte_t::do_pause()
+{
+	display_fillbox_wh(display_get_width()/2-100, display_get_height()/2-50,
+	                           200,100, MN_GREY2, true);
+	display_ddd_box(display_get_width()/2-100, display_get_height()/2-50,
+	                            200,100, MN_GREY4, MN_GREY0);
+	display_ddd_box(display_get_width()/2-92, display_get_height()/2-42,
+	                            200-16,100-16, MN_GREY0, MN_GREY4);
+
+	display_proportional(display_get_width()/2, display_get_height()/2-5,
+	                                 translator::translate("GAME PAUSED"),
+	                                 ALIGN_MIDDLE, SCHWARZ, false);
+
+	// Pause: warten auf die nächste Taste
+	event_t ev;
+	display_flush_buffer();
+	warte_auf_mausklick_oder_taste(&ev);
+	reset_timer();
 }
 
 
@@ -2978,9 +3061,9 @@ void karte_t::bewege_zeiger(const event_t *ev)
 	    mj = ((int)floor(base_j/(double)rw4)) + j_off;
 
 
-	    if(zeiger->gib_yoff() == Z_GRID) {
-		hgt = lookup_hgt(koord(mi,mj));
-	    } else {
+/*	    if(zeiger->gib_yoff() == Z_GRID) {
+    		hgt = max_hgt(koord(mi,mj))+8;
+	    } else */{
 		const planquadrat_t *plan = lookup(koord(mi,mj));
 		if(plan != NULL) {
 		    hgt = plan->gib_kartenboden()->gib_hoehe();
@@ -3020,8 +3103,11 @@ void karte_t::bewege_zeiger(const event_t *ev)
 	    i_alt = mi;
 	    j_alt = mj;
 
-	    const koord3d pos = lookup(koord(mi,mj))->gib_kartenboden()->gib_pos();
-	    zeiger->setze_pos(pos);
+	    koord3d pos = lookup(koord(mi,mj))->gib_kartenboden()->gib_pos();
+		if(zeiger->gib_yoff() == Z_GRID) {
+			pos.z = max_hgt(koord(mi,mj));
+		}
+		zeiger->setze_pos(pos);
 	}
     }
 }
@@ -3136,6 +3222,14 @@ void karte_t::switch_active_player()
 			  skinverwaltung_t::edit_werkzeug->gib_bild_nr(5),
 			  skinverwaltung_t::edit_werkzeug->gib_bild_nr(5),
 			  translator::translate("Lock game"));
+
+	    wzw->add_tool(wkz_step_year,
+			  Z_PLAN,
+			  SFX_JACKHAMMER,
+			  SFX_FAILURE,
+			  skinverwaltung_t::edit_werkzeug->gib_bild_nr(6),
+			  skinverwaltung_t::undoc_zeiger->gib_bild_nr(0),
+			  translator::translate("Step timeline one year"));
 
 		wzw->zeige_info(magic_edittools);
 	}
@@ -3306,7 +3400,7 @@ karte_t::interactive_event(event_t &ev)
 	    break;
 
 	case 'G':
-	  create_win(0, 0,new goods_frame_t(), w_autodelete);
+	  create_win(0, 0,new goods_frame_t(this), w_autodelete);
 	  break;
 
 	case 'Q':
@@ -3403,12 +3497,17 @@ karte_t::interactive_event(event_t &ev)
 	  setze_dirty();
 	  break;
 
-	case 8:
 	case 27:
 	case 127:
+		// close topmost win
+		destroy_win( win_get_top() );
+		break;
+
+	case 8:
 	    sound_play(click_sound);
 	    destroy_all_win();
 	    break;
+
 	case KEY_F1:
 	    create_win(new help_frame_t("general.txt"), w_autodelete, magic_none);
 
@@ -3459,7 +3558,7 @@ karte_t::interactive_event(event_t &ev)
 			// evt. we have also the normal tools here ...
 			if(skinverwaltung_t::hang_werkzeug->gib_bild_nr(8)!=IMG_LEER) {
 			    wzw->add_tool(wkz_raise,
-					  Z_PLAN,
+					  Z_GRID,
 					  SFX_JACKHAMMER,
 					  SFX_FAILURE,
 					  skinverwaltung_t::hang_werkzeug->gib_bild_nr(8),
@@ -3467,7 +3566,7 @@ karte_t::interactive_event(event_t &ev)
 					  tool_tip_with_price(translator::translate("Anheben"), CST_BAU));
 
 			    wzw->add_tool(wkz_lower,
-					  Z_PLAN,
+					  Z_GRID,
 					  SFX_JACKHAMMER,
 					  SFX_FAILURE,
 					  skinverwaltung_t::hang_werkzeug->gib_bild_nr(9),

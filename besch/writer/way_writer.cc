@@ -50,26 +50,37 @@
  * Convert waytype string to enum wegtyp
  * @author Hj. Malthaner
  */
-static uint8 get_waytype (const char * waytype, const char * obj_name)
+static uint8 get_waytype(const char * waytype, tabfileobj_t &obj)
 {
-  uint8 wegtyp = weg_t::strasse;
+	uint8 uv8 = weg_t::strasse;
 
-  if(!STRICMP(waytype, "road")) {
-    wegtyp = weg_t::strasse;
-  } else if(!STRICMP(waytype, "track")) {
-    wegtyp = weg_t::schiene;
-  } else if(!STRICMP(waytype, "power")) {
-    wegtyp = weg_t::powerline;
-  } else {
-    cstring_t reason;
+	if(!STRICMP(waytype, "road")) {
+		uv8 = weg_t::strasse;
+	} else if(!STRICMP(waytype, "track")) {
+		uv8 = weg_t::schiene;
+	} else if(!STRICMP(waytype, "electrified_track")) {
+		uv8 = weg_t::overheadlines;
+	} else if(!STRICMP(waytype, "monorail_track")) {
+		uv8 = weg_t::schiene_monorail;
+	} else if(!STRICMP(waytype, "maglev_track")) {
+		uv8 = weg_t::schiene_maglev;
+	} else if(!STRICMP(waytype, "water")) {
+		uv8 = weg_t::wasser;
+	} else if(!STRICMP(waytype, "air")) {
+		uv8 = weg_t::luft;
+	} else if(!STRICMP(waytype, "schiene_tram")) {
+		uv8 = weg_t::schiene_strab;
+	} else if(!STRICMP(waytype, "tram_track")) {
+		uv8 = weg_t::schiene_strab;
+	} else {
+		cstring_t reason;
+		reason.printf("invalid waytype %s for way %s\n", waytype, obj.get("name"));
+		throw new obj_pak_exception_t("way_writer_t", reason);
+	}
 
-    reason.printf("invalid waytype %s for way %s\n", waytype, obj_name);
-
-    throw new obj_pak_exception_t("way_writer_t", reason);
-  }
-
-  return wegtyp;
+	return uv8;
 }
+
 
 
 /**
@@ -78,50 +89,57 @@ static uint8 get_waytype (const char * waytype, const char * obj_name)
  */
 void way_writer_t::write_obj(FILE *outfp, obj_node_t &parent, tabfileobj_t &obj)
 {
-    static char *ribi_codes[16] = {
-	"-", "n",  "e",  "ne",  "s",  "ns",  "se",  "nse",
-	"w", "nw", "ew", "new", "sw", "nsw", "sew", "nsew"
-    };
-    int ribi, hang;
+	static char *ribi_codes[16] = {
+		"-", "n",  "e",  "ne",  "s",  "ns",  "se",  "nse",
+		"w", "nw", "ew", "new", "sw", "nsw", "sew", "nsew"
+	};
+	int ribi, hang;
 
-    // Hajo: node size is 24 bytes
-    obj_node_t	node(this, 24, &parent, false);
-
-
-    // Hajo: Version needs high bit set as trigger -> this is required
-    //       as marker because formerly nodes were unversionend
-    uint16 version = 0x8002;
-    uint32 price =      obj.get_int("cost", 100);
-    uint32 maintenance= obj.get_int("maintenance", 100);
-    uint32 topspeed =   obj.get_int("topspeed", 999);
-    uint32 max_weight = obj.get_int("max_weight", 999);
-
-    uint16 intro  = obj.get_int("intro_year", DEFAULT_INTRO_DATE) * 12;
-    intro +=        obj.get_int("intro_month", 1) - 1;
-
-    uint16 retire  = obj.get_int("retire_year", DEFAULT_RETIRE_DATE) * 12;
-    intro +=        obj.get_int("retire_month", 1) - 1;
-
-    uint8 wtyp =    get_waytype(obj.get("waytype"), obj.get("name"));
-    uint8 styp =    obj.get_int("system_type", 0);
-
-    node.write_data_at(outfp, &version, 0, 2);
-    node.write_data_at(outfp, &price, 2, 4);
-    node.write_data_at(outfp, &maintenance, 6, 4);
-    node.write_data_at(outfp, &topspeed, 10, 4);
-    node.write_data_at(outfp, &max_weight, 14, 4);
-    node.write_data_at(outfp, &intro, 18, 4);
-    node.write_data_at(outfp, &retire, 20, 2);
-    node.write_data_at(outfp, &wtyp, 22, 1);
-    node.write_data_at(outfp, &styp, 23, 1);
+	// Hajo: node size is 24 bytes
+	obj_node_t	node(this, 24, &parent, false);
 
 
-    write_head(outfp, node, obj);
+	// Hajo: Version needs high bit set as trigger -> this is required
+	//       as marker because formerly nodes were unversionend
+	uint16 version = 0x8002;
+	uint32 price =      obj.get_int("cost", 100);
+	uint32 maintenance= obj.get_int("maintenance", 100);
+	uint32 topspeed =   obj.get_int("topspeed", 999);
+	uint32 max_weight = obj.get_int("max_weight", 999);
+
+	uint16 intro  = obj.get_int("intro_year", DEFAULT_INTRO_DATE) * 12;
+	intro +=        obj.get_int("intro_month", 1) - 1;
+
+	uint16 retire  = obj.get_int("retire_year", DEFAULT_RETIRE_DATE) * 12;
+	intro +=        obj.get_int("retire_month", 1) - 1;
+
+	uint8 wtyp =    get_waytype(obj.get("waytype"), obj.get("name"));
+	uint8 styp =    obj.get_int("system_type", 0);
+	if(wtyp==weg_t::track  &&  styp==1) {
+//		styp = 1;
+		wtyp = weg_t::monorail;
+	} else if(wtyp==weg_t::track  &&  styp==7) {
+//		styp = 7;
+		wtyp = weg_t::schiene_strab;
+	}
+
+	node.write_data_at(outfp, &version, 0, 2);
+	node.write_data_at(outfp, &price, 2, 4);
+	node.write_data_at(outfp, &maintenance, 6, 4);
+	node.write_data_at(outfp, &topspeed, 10, 4);
+	node.write_data_at(outfp, &max_weight, 14, 4);
+	node.write_data_at(outfp, &intro, 18, 4);
+	node.write_data_at(outfp, &retire, 20, 2);
+	node.write_data_at(outfp, &wtyp, 22, 1);
+	node.write_data_at(outfp, &styp, 23, 1);
 
 
-    slist_tpl<cstring_t> keys;
+	write_head(outfp, node, obj);
 
-    for(ribi = 0; ribi < 16; ribi++) {
+
+	slist_tpl<cstring_t> keys;
+
+	for(ribi = 0; ribi < 16; ribi++) {
 	char buf[40];
 
 
@@ -129,40 +147,40 @@ void way_writer_t::write_obj(FILE *outfp, obj_node_t &parent, tabfileobj_t &obj)
 
 	cstring_t str = obj.get(buf);
 	keys.append(str);
-    }
-    imagelist_writer_t::instance()->write_obj(outfp, node, keys);
+	}
+	imagelist_writer_t::instance()->write_obj(outfp, node, keys);
 
-    keys.clear();
-    for(hang = 3; hang <= 12; hang += 3) {
+	keys.clear();
+	for(hang = 3; hang <= 12; hang += 3) {
 	char buf[40];
 
 	sprintf(buf, "imageup[%d]", hang);
 
 	cstring_t str = obj.get(buf);
 	keys.append(str);
-    }
-    imagelist_writer_t::instance()->write_obj(outfp, node, keys);
+	}
+	imagelist_writer_t::instance()->write_obj(outfp, node, keys);
 
-    keys.clear();
-    for(ribi = 3; ribi <= 12; ribi += 3) {
+	keys.clear();
+	for(ribi = 3; ribi <= 12; ribi += 3) {
 	char buf[40];
 
 	sprintf(buf, "diagonal[%s]", ribi_codes[ribi]);
 
 	cstring_t str = obj.get(buf);
 	keys.append(str);
-    }
-    imagelist_writer_t::instance()->write_obj(outfp, node, keys);
+	}
+	imagelist_writer_t::instance()->write_obj(outfp, node, keys);
 
-    slist_tpl<cstring_t> cursorkeys;
+	slist_tpl<cstring_t> cursorkeys;
 
-    cursorkeys.append(cstring_t(obj.get("cursor")));
-    cursorkeys.append(cstring_t(obj.get("icon")));
+	cursorkeys.append(cstring_t(obj.get("cursor")));
+	cursorkeys.append(cstring_t(obj.get("icon")));
 
-    cursorskin_writer_t::instance()->write_obj(outfp, node, obj, cursorkeys);
+	cursorskin_writer_t::instance()->write_obj(outfp, node, obj, cursorkeys);
 
-    // node.write_data(fp, &besch);
-    node.write(outfp);
+	// node.write_data(fp, &besch);
+	node.write(outfp);
 }
 /////////////////////////////////////////////////////////////////////////////
 //@EOF

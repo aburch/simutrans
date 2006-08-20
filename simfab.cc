@@ -88,14 +88,23 @@ fabrik_t * fabrik_t::gib_fab(const karte_t *welt, const koord pos)
 
 void fabrik_t::link_halt(halthandle_t halt)
 {
-	welt->lookup(pos.gib_2d())->gib_kartenboden()->add_to_haltlist(halt);
+	welt->access(pos.gib_2d())->add_to_haltlist(halt);
+	if(halt.is_bound()) {
+		halt->set_ware_enabled(true);
+	}
 }
 
 
 
 void fabrik_t::unlink_halt(halthandle_t halt)
 {
-	welt->lookup(pos.gib_2d())->gib_kartenboden()->remove_from_haltlist(halt);
+	planquadrat_t *plan=welt->access(pos.gib_2d());
+	if(plan) {
+		plan->remove_from_haltlist(welt,halt);
+	}
+	if(halt.is_bound()  &&  halt->gib_fab_list().count()==0) {
+		halt->set_ware_enabled(false);
+	}
 }
 
 
@@ -516,8 +525,6 @@ uint32 fabrik_t::produktion(const uint32 produkt) const
 	// default prodfaktor = 16 => shift 4, default time = 1024 => shift 10, rest precion
 	uint32 menge = (prodbase * prodfaktor) >> (welt->ticks_bits_per_tag+4-10-precision_bits);
 
-//	uint32 menge = (prodbase * prodfaktor) >> (BASEPRODSHIFT+MAX_PRODBASE_SHIFT-precision_bits);
-
 	if(ausgang->get_count() > produkt) {
 		// wenn das lager voller wird, produziert eine Fabrik weniger pro step
 
@@ -529,7 +536,7 @@ uint32 fabrik_t::produktion(const uint32 produkt) const
 			menge = (menge*(maxi-actu)) / maxi;
 		}
 		else {
-			// Lager (über)voll? -> 0
+			// overfull? -> 0
 			menge = 0;
 		}
 	}
@@ -541,10 +548,7 @@ uint32 fabrik_t::produktion(const uint32 produkt) const
 
 int fabrik_t::max_produktion() const
 {
-  // theoretische Menge pro tick
-//  const uint32 menge = (prodbase * prodfaktor) >> (BASEPRODSHIFT+MAX_PRODBASE_SHIFT-precision_bits);
-  // monat mit 1(!) tag
-//  return (((menge*welt->ticks_per_tag) >> BASEPRODSHIFT) >> precision_bits);
+	// production per month
 	return (prodbase * prodfaktor)>>4;
 }
 
@@ -753,7 +757,7 @@ void fabrik_t::verteile_waren(const uint32 produkt)
 	}
 
 	// not connected?
-	minivec_tpl<halthandle_t> &haltlist = welt->lookup(pos)->get_haltlist();
+	minivec_tpl<halthandle_t> &haltlist = welt->access(pos.gib_2d())->get_haltlist();
 	if(haltlist.get_count()==0) {
 		return;
 	}
@@ -796,6 +800,8 @@ void fabrik_t::verteile_waren(const uint32 produkt)
 						// if only overflown factories found => deliver to first
 						// else deliver to non-overflown factory
 						bool overflown = ziel_fab->gib_eingang()->at(w).menge >= ziel_fab->gib_eingang()->at(w).max;
+#if 0
+// use this for distribution also to overflowing factories
 						if(still_overflow  &&  !overflown) {
 							// not overflowing factory found
 							still_overflow = false;
@@ -806,6 +812,13 @@ void fabrik_t::verteile_waren(const uint32 produkt)
 							halt_ok.insert(halt);
 							ware_ok.insert(ware);
 						}
+#else
+// only distribute to no-overflowed factories
+						if(!overflown) {
+							halt_ok.insert(halt);
+							ware_ok.insert(ware);
+						}
+#endif
 					}
 
 				}
@@ -918,7 +931,7 @@ fabrik_t::calc_factory_status(unsigned long *input, unsigned long *output) const
 	char status_ein;
 	char status_aus;
 
-	int haltcount=welt->lookup(pos)->get_haltlist().get_count();
+	int haltcount=welt->access(pos.gib_2d())->get_haltlist().get_count();
 
 	// set bits for input
 	warenlager = 0;
@@ -1168,12 +1181,13 @@ void fabrik_t::info(cbuffer_t & buf)
       buf.append("%\n");
     }
   }
-
-	minivec_tpl<halthandle_t> &haltlist = welt->lookup(pos)->get_haltlist();
+#ifdef DEBUG
+	minivec_tpl<halthandle_t> &haltlist = welt->access(pos.gib_2d())->get_haltlist();
 	for(unsigned i=0;  i<haltlist.get_count();  i++  ) {
 	     buf.append("\n");
 		buf.append(haltlist.at(i)->gib_name());
 	}
+#endif
 }
 
 void fabrik_t::laden_abschliessen()

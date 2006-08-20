@@ -76,26 +76,36 @@ public:
     {
 	return phasen;
     }
-    int gib_hintergrund(int phase, int hoehe) const
-    {
-	if(phase >= 0 && phase < phasen) {
-	    const bild_besch_t *bild = static_cast<const bildliste2d_besch_t *>(gib_kind(0))->gib_bild(hoehe, phase);
-	    if(bild) {
-		return bild->bild_nr;
-	    }
+	int gib_hintergrund(int phase, int hoehe) const
+	{
+		if(phase>0 && phase<phasen) {
+			const bild_besch_t *bild = static_cast<const bildliste2d_besch_t *>(gib_kind(0))->gib_bild(hoehe, phase);
+			if(bild) {
+				return bild->bild_nr;
+			}
+		}
+		// here if this phase does not exists ...
+		const bild_besch_t *bild = static_cast<const bildliste2d_besch_t *>(gib_kind(0))->gib_bild(hoehe, 0);
+		if(bild) {
+			return bild->bild_nr;
+		}
+		return -1;
 	}
-	return -1;
-    }
-    int gib_vordergrund(int phase, int hoehe) const
-    {
-	if(phase >= 0 && phase < phasen) {
-	    const bild_besch_t *bild = static_cast<const bildliste2d_besch_t *>(gib_kind(1))->gib_bild(hoehe, phase);
-	    if(bild) {
-		return bild->bild_nr;
-	    }
+	int gib_vordergrund(int phase, int hoehe) const
+	{
+		if(phase>0 && phase<phasen) {
+			const bild_besch_t *bild = static_cast<const bildliste2d_besch_t *>(gib_kind(1))->gib_bild(hoehe, phase);
+			if(bild) {
+				return bild->bild_nr;
+			}
+		}
+		// here if this phase does not exists ...
+		const bild_besch_t *bild = static_cast<const bildliste2d_besch_t *>(gib_kind(1))->gib_bild(hoehe, 0);
+		if(bild) {
+			return bild->bild_nr;
+		}
+		return -1;
 	}
-	return -1;
-    }
     koord gib_offset() const;
 
     int gib_layout() const;
@@ -160,10 +170,13 @@ public:
     {
         return static_cast<const text_besch_t *>(gib_kind(0))->gib_text();
     }
-    const char *gib_copyright() const
-    {
-        return static_cast<const text_besch_t *>(gib_kind(1))->gib_text();
-    }
+	const char *gib_copyright() const
+	{
+		if(gib_kind(1)==0) {
+			return NULL;
+		}
+		return static_cast<const text_besch_t *>(gib_kind(1))->gib_text();
+	}
     koord gib_groesse(int layout = 0) const
     {
         return (layout & 1) ? koord(groesse.y, groesse.x) : groesse;

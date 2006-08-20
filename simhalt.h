@@ -142,13 +142,13 @@ public:
      * @return NULL, wenn nichts gefunden, sonst Zeiger auf Haltestelle
      * @author prissi
      */
-    static halthandle_t gib_halt(const karte_t *welt, grund_t *gr);
+    static halthandle_t gib_halt(karte_t *welt, grund_t *gr);
 
-    static halthandle_t gib_halt(const karte_t *welt, const koord pos);
-    static halthandle_t gib_halt(const karte_t *welt, const koord * const pos);
+    static halthandle_t gib_halt(karte_t *welt, const koord pos);
+    static halthandle_t gib_halt(karte_t *welt, const koord * const pos);
 
     // Hajo: for future compatibility, migrate to this call!
-    static halthandle_t gib_halt(const karte_t *welt, const koord3d pos);
+    static halthandle_t gib_halt(karte_t *welt, const koord3d pos);
 
 
 

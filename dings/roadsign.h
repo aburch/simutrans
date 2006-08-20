@@ -93,6 +93,9 @@ public:
 	 */
 	virtual void laden_abschliessen();
 
+	// substracts cost
+	void entferne(spieler_t *sp);
+
     static bool register_besch(roadsign_besch_t *besch);
     static bool alles_geladen();
 
@@ -105,6 +108,7 @@ public:
 		int sound_ok,
 		int sound_ko,
 		int cost);
+
 };
 
 #endif

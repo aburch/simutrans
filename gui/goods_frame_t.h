@@ -27,7 +27,7 @@ class goods_frame_t : public gui_frame_t
 
  public:
 
-  goods_frame_t();
+  goods_frame_t(karte_t *welt);
   ~goods_frame_t();
 
 

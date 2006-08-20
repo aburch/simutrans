@@ -38,7 +38,7 @@
  * @author Hj. Malthaner
  */
 void fahrplan_gui_t::gimme_stop_name(cbuffer_t & buf,
-				     const karte_t *welt,
+				     karte_t *welt,
 				     const fahrplan_t *fpl,
 				     int i,
 				     int max_chars)
@@ -335,7 +335,8 @@ fahrplan_gui_t::action_triggered(gui_komponente_t *komp)
       mode = none;
     }
 
-  } else if(komp == &bt_done) {
+   } else if(komp == &bt_done) {
+	fpl->cleanup();	// remove dublettes
     destroy_win(this);
   } else if(komp == &bt_prev) {
     if(fpl->maxi() > 0) {

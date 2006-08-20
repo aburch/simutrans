@@ -2,6 +2,7 @@
 #define quickstone_tpl_h
 
 #include <stdlib.h>
+#include "../simtypes.h"
 
 /**
  * An implementation of the tombstone pointer checking method.
@@ -28,20 +29,20 @@ template <class T> class quickstone_tpl
   /**
    * Next entry to check
    */
-  static unsigned short int next;
+  static uint16 next;
 
 
   /**
    * Size of tombstone table
    */
-  static unsigned short int size;
+  static uint16 size;
 
 
   /**
    * Retrieves next free tombstone index
    */
-  static unsigned short int find_next() {
-    unsigned short int i;
+  static uint16 find_next() {
+    uint16 i;
 
     // scan rest of array
     for(i = next; i<size; i++) {
@@ -69,7 +70,7 @@ template <class T> class quickstone_tpl
    * The index in the table for this handle.
    *
    */
-  unsigned short int entry;
+  uint16 entry;
 
 
  public:
@@ -82,7 +83,7 @@ template <class T> class quickstone_tpl
    * @param n number of elements
    * @author Hj. Malthaner
    */
-  static void init(const unsigned short int n) {
+  static void init(const uint16 n) {
 
     size = n;
     data = new T* [size];
@@ -176,7 +177,7 @@ template <class T> class quickstone_tpl
    * @return the index into the tombstone table. May be used as
    * an ID for the referenced object.
    */
-  unsigned short int get_id() const {
+  uint16 get_id() const {
     return entry;
   };
 
@@ -204,8 +205,8 @@ template <class T> class quickstone_tpl
 
 template <class T> T** quickstone_tpl<T>::data = 0;
 
-template <class T> unsigned short int quickstone_tpl<T>::next = 1;
-template <class T> unsigned short int quickstone_tpl<T>::size = 0;
+template <class T> uint16 quickstone_tpl<T>::next = 1;
+template <class T> uint16 quickstone_tpl<T>::size = 0;
 
 
 #endif // quickstone_tpl_h

@@ -471,38 +471,55 @@ gebaeude_t::typ gebaeude_t::gib_haustyp() const
 
 void gebaeude_t::info(cbuffer_t & buf) const
 {
-  ding_t::info(buf);
+	ding_t::info(buf);
 
-  if(fab != NULL) {
-    fab->info(buf);
-  }
-  else if(zeige_baugrube) {
-    buf.append(translator::translate("Baustelle"));
-    buf.append("\n");
-  } else {
-    const char *desc = tile->gib_besch()->gib_name();
-    if(desc != NULL) {
-      buf.append(translator::translate(desc));
-      buf.append("\n");
-    }
+	if(fab != NULL) {
+		fab->info(buf);
+	}
+	else if(zeige_baugrube) {
+		buf.append(translator::translate("Baustelle"));
+		buf.append("\n");
+	}
+	else {
+		const char *desc = tile->gib_besch()->gib_name();
+		if(desc != NULL) {
+			buf.append(translator::translate(desc));
+			buf.append("\n");
+		}
 
-    buf.append(translator::translate("Passagierrate"));
-    buf.append(": ");
-    buf.append(gib_passagier_level());
-    buf.append("\n");
+		buf.append(translator::translate("Passagierrate"));
+		buf.append(": ");
+		buf.append(gib_passagier_level());
+		buf.append("\n");
 
-    buf.append(translator::translate("Postrate"));
-    buf.append(": ");
-    buf.append(gib_post_level());
-    buf.append("\n");
+		buf.append(translator::translate("Postrate"));
+		buf.append(": ");
+		buf.append(gib_post_level());
+		buf.append("\n");
 
-    if(gib_besitzer() == NULL) {
-      buf.append(translator::translate("Wert"));
-      buf.append(": ");
-      buf.append(-CST_HAUS_ENTFERNEN*(tile->gib_besch()->gib_level()+1)/100);
-      buf.append("$\n");
-    }
-  }
+		buf.append(translator::translate("\nBauzeit von "));
+		buf.append(tile->gib_besch()->get_intro_year_month()/12);
+		if(tile->gib_besch()->get_retire_year_month()!=DEFAULT_RETIRE_DATE*12) {
+			buf.append(translator::translate("\nBauzeit bis "));
+			buf.append(tile->gib_besch()->get_retire_year_month()/12);
+		}
+
+		buf.append("\n");
+		if(gib_besitzer() == NULL) {
+			buf.append("\n");
+			buf.append(translator::translate("Wert"));
+			buf.append(": ");
+			buf.append(-CST_HAUS_ENTFERNEN*(tile->gib_besch()->gib_level()+1)/100);
+			buf.append("$\n");
+		}
+
+		const char *maker=tile->gib_besch()->gib_copyright();
+		if(maker!=NULL) {
+			buf.append("\n");
+			buf.append(translator::translate("Constructed by "));
+			buf.append(maker);
+		}
+	}
 }
 
 
@@ -578,13 +595,13 @@ gebaeude_t::rdwr(loadsave_t *file)
 					//		DBG_MESSAGE("gebaeude_t::rwdr", "%s level %i",typ_str,level);
 					if(strcmp(typ_str,"RES")==0) {
 	DBG_MESSAGE("gebaeude_t::rwdr", "replace unknown building %s with residence level %i",buf,level);
-						tile = hausbauer_t::gib_wohnhaus(level)->gib_tile(0);
+						tile = hausbauer_t::gib_wohnhaus(level,welt->get_timeline_year_month())->gib_tile(0);
 					} else if(strcmp(typ_str,"COM")==0) {
 	DBG_MESSAGE("gebaeude_t::rwdr", "replace unknown building %s with commercial level %i",buf,level);
-						tile = hausbauer_t::gib_gewerbe(level)->gib_tile(0);
+						tile = hausbauer_t::gib_gewerbe(level,welt->get_timeline_year_month())->gib_tile(0);
 					} else if(strcmp(typ_str,"IND")==0) {
 	DBG_MESSAGE("gebaeude_t::rwdr", "replace unknown building %s with industrie level %i",buf,level);
-						tile = hausbauer_t::gib_industrie(level)->gib_tile(0);
+						tile = hausbauer_t::gib_industrie(level,welt->get_timeline_year_month())->gib_tile(0);
 					} else {
 	DBG_MESSAGE("gebaeude_t::rwdr", "description %s for building at %d,%d not found (will be removed)!", buf, gib_pos().x, gib_pos().y);
 					}

@@ -311,54 +311,52 @@ DBG_MESSAGE( "vehikelbauer_t::vehikel_search()","for speed %i, power %i",target_
 //  leistung <<= 6; // to account for gear
   while(iter.next()) {
     // check for wegetype
-    if(iter.get_current_value()->gib_typ()==typ) {
-      // ok, might be useful: Now, check for intro year
-      const unsigned month = iter.get_current_value()->get_intro_year_month();
-
-      if(month <= month_now) {
+    const vehikel_besch_t *test_besch = iter.get_current_value();
+    // correct type and useable=
+    if(test_besch->gib_typ()==typ  &&  !test_besch->is_future(month_now)) {
         // finally, we might be able to use this vehicle
-        int power = iter.get_current_value()->gib_leistung();
-        int speed = iter.get_current_value()->gib_geschw();
+        int power = test_besch->gib_leistung();
+        int speed = test_besch->gib_geschw();
 
         // we want a car
         if(  target_freight!=NULL ) {
-        	if( iter.get_current_value()->gib_zuladung()>0
+        	if( test_besch->gib_zuladung()>0
         		&&  target_power==0
-        			||  (power>=target_power  &&  vehikel_can_lead(iter.get_current_value())  &&  (iter.get_current_value()->gib_nachfolger_count()==0  ||  iter.get_current_value()->gib_nachfolger(0)==0))
+        			||  (power>=target_power  &&  vehikel_can_lead(test_besch)  &&  (test_besch->gib_nachfolger_count()==0  ||  test_besch->gib_nachfolger(0)==0))
         	) {
             // it is a good car (and road vehicles need power)
-            if(  iter.get_current_value()->gib_ware()->is_interchangeable( target_freight )  ) {
-DBG_MESSAGE( "vehikelbauer_t::vehikel_search","try freight car %s",iter.get_current_value()->gib_name());
+            if(  test_besch->gib_ware()->is_interchangeable( target_freight )  ) {
+DBG_MESSAGE( "vehikelbauer_t::vehikel_search","try freight car %s",test_besch->gib_name());
               // freight category ok
 #if 1
               int difference=0;	// smaller is better
               // assign this vehicle, if we have none found one yet, or we found only a too week one
               if(  besch!=NULL  ) {
                 // it is cheaper to run? (this is most important)
-                difference = besch->gib_zuladung()-iter.get_current_value()->gib_zuladung();
-                difference += (iter.get_current_value()->gib_betriebskosten() - besch->gib_betriebskosten())/2;
+                difference = besch->gib_zuladung()-test_besch->gib_zuladung();
+                difference += (test_besch->gib_betriebskosten() - besch->gib_betriebskosten())/2;
                 if(  target_power>0  ) {
 	             // it is strongerer?
      	             difference += (besch->gib_leistung() < power)? -10 : 10;
      	           }
                 // it is faster? (although we support only up to 120km/h for goods)
-                difference += (besch->gib_geschw() < iter.get_current_value()->gib_geschw())? -20 : 20;
+                difference += (besch->gib_geschw() < test_besch->gib_geschw())? -20 : 20;
                 // it is cheaper? (not so important)
-                difference += (besch->gib_preis() > iter.get_current_value()->gib_preis())? -10 : 10;
+                difference += (besch->gib_preis() > test_besch->gib_preis())? -10 : 10;
               }
               // ok, final check
               if(  besch==NULL  ||  difference<simrand(30)    )
               {
                   // then we want this vehicle!
-                  besch = iter.get_current_value();
+                  besch = test_besch;
 DBG_MESSAGE( "vehikelbauer_t::vehikel_search","Found engine %s",besch->gib_name());
               }
 #else
-              if(  besch==NULL  ||  (besch->gib_zuladung()+besch->gib_geschw())<(iter.get_current_value()->gib_zuladung()+iter.get_current_value()->gib_geschw())  ) {
-DBG_MESSAGE( "vehikelbauer_t::vehikel_search","Found freight car %s",iter.get_current_value()->gib_name());
+              if(  besch==NULL  ||  (besch->gib_zuladung()+besch->gib_geschw())<(test_besch->gib_zuladung()+test_besch->gib_geschw())  ) {
+DBG_MESSAGE( "vehikelbauer_t::vehikel_search","Found freight car %s",test_besch->gib_name());
                 // we have more freigth here ....
                 // then we want this vehicle!
-                besch = iter.get_current_value();
+                besch = test_besch;
               }
 #endif
             }
@@ -368,9 +366,9 @@ DBG_MESSAGE( "vehikelbauer_t::vehikel_search","Found freight car %s",iter.get_cu
 
           // so we have power: this is an engine, which can lead a track and have no constrains
           if(  power>0  &&
-            (include_electric  ||  iter.get_current_value()->get_engine_type()!=vehikel_besch_t::electric)  &&
-            vehikel_can_lead(iter.get_current_value())  &&
-            iter.get_current_value()->gib_nachfolger_count()==0
+            (include_electric  ||  test_besch->get_engine_type()!=vehikel_besch_t::electric)  &&
+            vehikel_can_lead(test_besch)  &&
+            test_besch->gib_nachfolger_count()==0
           ) {
             // we cannot use an engine with freight
             if(  besch==NULL  ||  power>=target_power  ||   speed>=target_speed  ) {
@@ -379,26 +377,25 @@ DBG_MESSAGE( "vehikelbauer_t::vehikel_search","Found freight car %s",iter.get_cu
               // assign this vehicle, if we have none found one yet, or we found only a too week one
               if(  besch!=NULL  ) {
                 // it is cheaper to run? (this is most important)
-                difference = iter.get_current_value()->gib_betriebskosten() - besch->gib_betriebskosten();
+                difference = test_besch->gib_betriebskosten() - besch->gib_betriebskosten();
                 // it is strongerer?
                 difference += (besch->gib_leistung() < power)? -40 : 40;
                 // it is faster? (although we support only up to 120km/h for goods)
-                difference += (besch->gib_geschw() < iter.get_current_value()->gib_geschw())? -40 : 40;
+                difference += (besch->gib_geschw() < test_besch->gib_geschw())? -40 : 40;
                 // it is cheaper? (not so important)
-                difference += (besch->gib_preis() > iter.get_current_value()->gib_preis())? -20 : 20;
+                difference += (besch->gib_preis() > test_besch->gib_preis())? -20 : 20;
               }
               // ok, final check
               if(  besch==NULL  ||  besch->gib_leistung()<target_power  ||  besch->gib_geschw()<target_speed  ||  difference<simrand(100)    )
               {
                   // then we want this vehicle!
-                  besch = iter.get_current_value();
+                  besch = test_besch;
 DBG_MESSAGE( "vehikelbauer_t::vehikel_search","Found engine %s",besch->gib_name());
               }
             }
           }
         }
       }
-    }
   } // end of iteration
   // no vehicle found!
   if(  besch==NULL  ) {

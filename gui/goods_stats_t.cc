@@ -11,17 +11,20 @@
 
 #include "../simgraph.h"
 #include "../simcolor.h"
+#include "../simworld.h"
 
 #include "../bauer/warenbauer.h"
 #include "../besch/ware_besch.h"
 
+#include "../boden/wege/weg.h"
+
 #include "../dataobj/translator.h"
 
 
-goods_stats_t::goods_stats_t()
+goods_stats_t::goods_stats_t(karte_t *welt)
 {
-  setze_groesse(koord(210,
-		      warenbauer_t::gib_waren_anzahl()*LINESPACE+48));
+	this->welt = welt;
+	setze_groesse(koord(210,warenbauer_t::gib_waren_anzahl()*LINESPACE+48+16));
 }
 
 
@@ -34,6 +37,9 @@ void goods_stats_t::zeichnen(koord offset) const
   int yoff = offset.y+10;
   char buf[256];
 
+  sprintf(buf, translator::translate("Speed boni for road %i km/h, for rail %i km/h, for ships %i km/h, and for air %i km/h."), welt->get_average_speed(weg_t::strasse), welt->get_average_speed(weg_t::schiene), welt->get_average_speed(weg_t::wasser), welt->get_average_speed(weg_t::luft) );
+  display_proportional_clip( offset.x+20, yoff, buf, ALIGN_LEFT, WEISS, true );
+  yoff += 16;
 
   // Hajo: Headline, list follows below
 

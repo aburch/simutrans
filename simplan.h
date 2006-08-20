@@ -10,17 +10,10 @@
 #ifndef simplan_h
 #define simplan_h
 
-#ifndef tpl_microvec_h
 #include "tpl/microvec_tpl.h"
-#endif
-
-#ifndef boden_grund_h
+#include "tpl/minivec_tpl.h"
+#include "halthandle_t.h"
 #include "boden/grund.h"
-#endif
-
-
-//#define PRI_DACH1   0
-//#define PRI_DACH2  11
 
 #define PRI_DEPOT  11
 
@@ -51,9 +44,17 @@ class ding_t;
 class planquadrat_t
 {
 private:
-  // minivec_tpl<grund_t *>boeden;
-
   microvec_tpl <grund_t *> boeden;
+
+    /**
+     * The station this ground is bound to
+     */
+    halthandle_t halt;
+
+    /**
+     * stations which can be reached from this ground
+     */
+    minivec_tpl<halthandle_t> halt_list;
 
 
 public:
@@ -62,7 +63,7 @@ public:
      * Constructs a planquadrat with initial capacity of one ground
      * @author Hansjörg Malthaner
      */
-    planquadrat_t() : boeden(1) {}
+    planquadrat_t() : boeden(1), halt_list(0) { halt = halthandle_t(); }
 
 
     /**
@@ -166,6 +167,38 @@ public:
      */
     void angehoben(karte_t *welt);
 
+
+    /**
+     * since stops may be multilevel, but waren uses pos, we mirror here any halt that is on this square
+     * @author Hj. Malthaner
+     */
+    void setze_halt(halthandle_t halt);
+
+    /**
+     * returns a halthandle, if some ground here has a stop
+     * @return NULL wenn keine Haltestelle, sonst Zeiger auf Haltestelle
+     * @author Hj. Malthaner
+     */
+    const halthandle_t gib_halt() const {return halt;};
+
+    /*
+     * The following three functions takes about 4 bytes of memory per tile but speed up passenger generation
+     * @author prissi
+     */
+    void add_to_haltlist(halthandle_t halt);
+
+    /**
+     * removes the halt from a ground
+     * however this funtion check, whether there is really no other part still reachable
+     * @author prissi
+     */
+    void remove_from_haltlist(karte_t *welt, halthandle_t halt);
+
+    /**
+     * returns the internal array of halts
+     * @author prissi
+     */
+    minivec_tpl<halthandle_t> & get_haltlist() { return halt_list; };
 
 
     void rdwr(karte_t *welt, loadsave_t *file);

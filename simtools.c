@@ -1,46 +1,113 @@
-#include "simtools.h"
-#include "simmem.h"
-
 #include <stdlib.h>
 #include <string.h>
 #include <math.h>
 
+/* This is the mersenne random generator: More random and faster! */
 
-//#include "simintr.h"
+/* Period parameters */
+#define MERSENNE_TWISTER_N 624
+#define M 397
+#define MATRIX_A 0x9908b0dfUL   /* constant vector a */
+#define UPPER_MASK 0x80000000UL /* most significant w-r bits */
+#define LOWER_MASK 0x7fffffffUL /* least significant r bits */
+
+unsigned long mersenne_twister[MERSENNE_TWISTER_N]; /* the array for the state vector  */
+int mersenne_twister_index=MERSENNE_TWISTER_N+1; /* mersenne_twister_index==N+1 means mersenne_twister[N] is not initialized */
+
+/* define before including simtools.h! */
+
+
+#include "simtools.h"
+#include "simmem.h"
+
+
+
+/* initializes mersenne_twister[N] with a seed */
+void init_genrand(unsigned long s)
+{
+    mersenne_twister[0]= s & 0xffffffffUL;
+    for (mersenne_twister_index=1; mersenne_twister_index<MERSENNE_TWISTER_N; mersenne_twister_index++) {
+        mersenne_twister[mersenne_twister_index] = (1812433253UL * (mersenne_twister[mersenne_twister_index-1] ^ (mersenne_twister[mersenne_twister_index-1] >> 30)) + mersenne_twister_index);
+        /* See Knuth TAOCP Vol2. 3rd Ed. P.106 for multiplier. */
+        /* In the previous versions, MSBs of the seed affect   */
+        /* only MSBs of the array mersenne_twister[].                        */
+        /* 2002/01/09 modified by Makoto Matsumoto             */
+        mersenne_twister[mersenne_twister_index] &= 0xffffffffUL;
+        /* for >32 bit machines */
+    }
+}
+
+
+
+/* generate N words at one time */
+ void	MTgenerate(void)
+ {
+	static unsigned long mag01[2]={0x0UL, MATRIX_A};
+	unsigned long y;
+     int kk;
+
+	if (mersenne_twister_index == MERSENNE_TWISTER_N+1)   /* if init_genrand() has not been called, */
+		init_genrand(5489UL); /* a default initial seed is used */
+
+	for (kk=0;kk<MERSENNE_TWISTER_N-M;kk++) {
+		y = (mersenne_twister[kk]&UPPER_MASK)|(mersenne_twister[kk+1]&LOWER_MASK);
+		mersenne_twister[kk] = mersenne_twister[kk+M] ^ (y >> 1) ^ mag01[y & 0x1UL];
+	}
+	for (;kk<MERSENNE_TWISTER_N-1;kk++) {
+		y = (mersenne_twister[kk]&UPPER_MASK)|(mersenne_twister[kk+1]&LOWER_MASK);
+		mersenne_twister[kk] = mersenne_twister[kk+(M-MERSENNE_TWISTER_N)] ^ (y >> 1) ^ mag01[y & 0x1UL];
+	}
+	y = (mersenne_twister[MERSENNE_TWISTER_N-1]&UPPER_MASK)|(mersenne_twister[0]&LOWER_MASK);
+	mersenne_twister[MERSENNE_TWISTER_N-1] = mersenne_twister[M-1] ^ (y >> 1) ^ mag01[y & 0x1UL];
+
+	mersenne_twister_index = 0;
+}
+
+
+
+/* generates a random number on [0,0xffffffff]-interval */
+unsigned long simrand_plain(void)
+{
+	unsigned long y;
+
+	if (mersenne_twister_index >= MERSENNE_TWISTER_N) { /* generate N words at one time */
+		MTgenerate();
+	}
+	y = mersenne_twister[mersenne_twister_index++];
+
+	/* Tempering */
+	y ^= (y >> 11);
+	y ^= (y << 7) & 0x9d2c5680UL;
+	y ^= (y << 15) & 0xefc60000UL;
+	y ^= (y >> 18);
+
+	return y;
+}
+
 
 
 static unsigned long rand_seed = 0;
 static unsigned long noise_seed = 0;
 
-unsigned long setsimrand(unsigned long seed)
+unsigned long setsimrand(unsigned long seed,unsigned long ns)
 {
-    unsigned long old_seed = rand_seed;
+	unsigned long old_noise_seed = noise_seed;
 
-    rand_seed = seed;
-    noise_seed = seed*15731;
-
-    return old_seed;
-}
-
-int simrand_plain()
-{
-   // eigene, ganz einfache Random-Funktion
-   // damit plattformunabhängig
-
-   rand_seed *= 3141592621u;
-   rand_seed ++;
-
-   return (rand_seed >> 8);
-}
-
-int simrand(int max)
-{
-	if(max<=1) {
-// maybe we should test assert here ...
-		return 0;
+	if(seed!=0xFFFFFFFF) {
+		init_genrand( seed );
 	}
-	return simrand_plain() % max;
+	if(noise_seed!=0xFFFFFFFF) {
+		noise_seed = ns*15731;
+	}
+	return noise_seed;
 }
+
+
+
+/* generates a random number on [0,max-1]-interval */
+//inline unsigned long simrand(const unsigned long max)
+
+
 
 /**
  * verwuerfelt liste list zufaellig

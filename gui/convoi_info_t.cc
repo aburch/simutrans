@@ -317,6 +317,7 @@ DBG_MESSAGE("convoi_info_t::action_triggered()","search depot: found on %i,%i",g
 					}
 				}
 			}
+			delete route;
 			DBG_MESSAGE("shortest route has ", "%i hops", shortest_route->gib_max_n());
 
 	#if 0
@@ -333,10 +334,11 @@ DBG_MESSAGE("convoi_info_t::action_triggered()","search depot: found on %i,%i",g
 			if (shortest_route->gib_max_n() > -1) {
 				cnv->anhalten(0);
 				fahrplan_t *fpl = cnv->gib_fahrplan();
-				fpl->insert(welt, home);
+				fpl->insert(welt, welt->lookup(home) );
 				b_depot_found = cnv->setze_fahrplan(fpl);
 				cnv->weiterfahren();
 			}
+			delete shortest_route;
 
 			// show result
 			if (b_depot_found) {

@@ -922,7 +922,7 @@ display_show_pointer( true );
 	    create_win((disp_width-250)/2, (disp_height-300)/2, -1, wg, w_info);
 
 
-	    setsimrand( get_current_time_millis() );
+	    setsimrand( get_current_time_millis(), get_current_time_millis() );
 
 	    do {
 		win_poll_event(&ev);

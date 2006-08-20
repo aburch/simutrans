@@ -277,6 +277,10 @@ private:
 	// may change due to timeline
 	const weg_besch_t *city_road;
 
+	int average_speed[4];
+	// recalculated speed boni for different vehicles
+	void recalc_average_speed();
+
     /**
      * fuer performancevergleiche
      * @author Hj. Malthaner
@@ -290,7 +294,6 @@ private:
     void do_pause();         // Spiel pausieren
     void neuer_monat();      // Monatliche Aktionen
     void neues_jahr();       // Jaehrliche Aktionen
-
 
     /**
      * internal saving method
@@ -339,9 +342,7 @@ public:
       max_no_of_trees_on_square = number;
     };
 
-
     void zentriere_auf(koord k);
-
 
     /**
      * offsets für zeigerposition
@@ -358,8 +359,14 @@ public:
     // often used, therefore found here
     bool use_timeline() const {return einstellungen->gib_use_timeline(); };
 
+    void reset_timer();
+    void step_year();
+
 	// returns either 0 or the current year*16 + month
     uint16 get_timeline_year_month() const {return (einstellungen->gib_use_timeline()) ? current_month : 0; };
+
+	// returns current speed bonus
+	int get_average_speed(weg_t::typ typ) const;
 
     /**
      * sollte einen const zeiger_t * zurueckgeben, aber wegen der Tests
@@ -784,11 +791,11 @@ public:
 
     void step(long delta_t);	// Nicht-Echtzeit
 
-	planquadrat_t *access(int i, int j) {
+	inline planquadrat_t *access(int i, int j) {
 		return ist_in_kartengrenzen(i, j) ? &plan[i + j*cached_groesse_gitter_x] : NULL;
 	}
 
-    planquadrat_t *access(koord k) {
+    inline planquadrat_t *access(koord k) {
 		return ist_in_kartengrenzen(k) ? &plan[k.x + k.y*cached_groesse_gitter_x] : NULL;
 	}
 

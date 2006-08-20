@@ -630,7 +630,7 @@ spieler_t::suche_platz(int xpos, int ypos, koord *start)
 	    return false;
 	}
 	// or a station?
-	if(is_my_halt(pos).is_bound()) {
+	if(is_my_halt(pos)) {
 	    return false;
 	}
 	const planquadrat_t * plan = welt->lookup(pos);
@@ -670,7 +670,7 @@ DBG_MESSAGE("spieler_t::suche_platz()","at (%i,%i) for size (%i,%i)",xpos,ypos,o
 			}
 			else {
 				koord test(x,y);
-				if(is_my_halt(test).is_bound()) {
+				if(is_my_halt(test)) {
 DBG_MESSAGE("spieler_t::suche_platz()","Search around stop at (%i,%i)",x,y);
 					// we are on a station that belongs to us
 					int xneu=x-1, yneu=y-1;
@@ -805,7 +805,7 @@ DBG_MESSAGE("spieler_t::do_passenger_ki()","searching attraction");
 						// or a lonely point somewhere
 						// in any case we do not want to serve this location already
 						koord test_platz=built_hub(pos,size.x);
-						if(!is_my_halt(test_platz).is_bound()) {
+						if(!is_my_halt(test_platz)) {
 							// not served
 							dist = abs_distance(platz1,test_platz);
 							if(dist+simrand(50)<last_dist  &&   dist>3) {
@@ -956,8 +956,8 @@ DBG_MESSAGE("spieler_t::do_passenger_ki()","using %s on %s",road_vehicle->gib_na
 				// built a simple road (no bridges, no tunnels)
 				case NR_BAUE_STRASSEN_ROUTE:
 					if(create_simple_road_transport()  &&
-						(is_my_halt(platz1).is_bound()  ||  wkz_bushalt(this, welt, platz1,hausbauer_t::car_stops.at(0)))  &&
-						(is_my_halt(platz2).is_bound()  ||  wkz_bushalt(this, welt, platz2,hausbauer_t::car_stops.at(0)))
+						(is_my_halt(platz1)  ||  wkz_bushalt(this, welt, platz1,hausbauer_t::car_stops.at(0)))  &&
+						(is_my_halt(platz2)  ||  wkz_bushalt(this, welt, platz2,hausbauer_t::car_stops.at(0)))
 					  ) {
 						koord list[2]={ platz1, platz2 };
 						// wait only, if traget is not a hub but an attraction/factory
@@ -973,8 +973,8 @@ DBG_MESSAGE("spieler_t::do_passenger_ki()","using %s on %s",road_vehicle->gib_na
 				// built a road, try with bridges or tunnels
 				case NR_BAUE_STRASSEN_ROUTE2:
 					if(create_complex_road_transport()  &&
-						(is_my_halt(platz1).is_bound()  ||  wkz_bushalt(this, welt, platz1,hausbauer_t::car_stops.at(0)))  &&
-						(is_my_halt(platz2).is_bound()  ||  wkz_bushalt(this, welt, platz2,hausbauer_t::car_stops.at(0)))
+						(is_my_halt(platz1)  ||  wkz_bushalt(this, welt, platz1,hausbauer_t::car_stops.at(0)))  &&
+						(is_my_halt(platz2)  ||  wkz_bushalt(this, welt, platz2,hausbauer_t::car_stops.at(0)))
 					  ) {
 						koord list[2]={ platz1, platz2 };
 						// wait only, if traget is not a hub but an attraction/factory
@@ -1054,7 +1054,7 @@ DBG_DEBUG("do_passenger_ki()","calling message_t()");
 							road_vehicle = vehikelbauer_t::vehikel_search( weg_t::strasse, month_now, 10, 80, warenbauer_t::passagiere );
 							koord list[2] = {halt->gib_basis_pos(),ware.gib_zwischenziel()};
 							create_bus_transport_vehikel( list[0], 1, list, 2, false );	// overcrowded line, so waiting does not make sense
-DBG_MESSAGE("spieler_t::do_passenger_ki()","add new convoi to crowded line from %s to %s",halt->gib_name(),is_my_halt(list[1])->gib_name());
+DBG_MESSAGE("spieler_t::do_passenger_ki()","add new convoi to crowded line from %s to %s",halt->gib_name(),haltestelle_t::gib_halt(welt,list[1])->gib_name());
 							break;
 						}
 					}
@@ -1623,48 +1623,58 @@ DBG_MESSAGE("spieler_t::do_passenger_ki()","waiting: %s (%i) and %s (%i)",h0->gi
 
 
 
-
 /* return true, if my bahnhof is here
  * @author prissi
  */
-halthandle_t
-spieler_t::is_my_halt(koord pos) const
+bool spieler_t::is_my_halt(koord pos) const
 {
-	halthandle_t halt;
 	if(welt->ist_in_kartengrenzen(pos)) {
-		halt = welt->lookup(pos)->gib_kartenboden()->gib_halt();
-		if(  halt.is_bound()  &&  halt->gib_besitzer()==this  ) {
-			return halt;
+		halthandle_t halt = welt->lookup(pos)->gib_halt();
+//DBG_MESSAGE("spieler_t::is_my_halt()","check halt id %i",halt.get_id());
+		if(halt.is_bound()) {
+//DBG_MESSAGE("spieler_t::is_my_halt()","check owner on valid stop");
+			const spieler_t *sp = halt->gib_besitzer();
+//DBG_MESSAGE("spieler_t::is_my_halt()","owner=%p",sp);
+			if(sp==this  ||  sp==NULL  ||  sp==welt->gib_spieler(1)) {
+				return true;
+			}
 		}
 	}
 	// nothing here
-	halthandle_t unbound;
-	return unbound;
+	return false;
 }
+
 
 
 /* return true, if my bahnhof is here
  * @author prissi
  */
-halthandle_t
+unsigned
 spieler_t::is_my_halt(koord3d pos) const
 {
-	halthandle_t halt;
-
+DBG_MESSAGE("spieler_t::is_my_halt()","called on (%i,%i)",pos.x,pos.y);
 	const planquadrat_t *plan = welt->lookup(pos.gib_2d());
 	if(plan) {
 
 		for(unsigned i=0;  i<plan->gib_boden_count();  i++  ) {
 			grund_t *gr=plan->gib_boden_bei(i);
-			halt = gr->gib_halt();
-			if(  halt.is_bound()  &&  halt->gib_besitzer()==this  ) {
-				return halt;
+			if(gr) {
+DBG_MESSAGE("spieler_t::is_my_halt()","grund %i exists",i);
+				halthandle_t halt = gr->gib_halt();
+//DBG_MESSAGE("spieler_t::is_my_halt()","check halt id %i",halt.get_id());
+				if(halt.is_bound()) {
+//DBG_MESSAGE("spieler_t::is_my_halt()","check owner on valid stop");
+					const spieler_t *sp = halt->gib_besitzer();
+//DBG_MESSAGE("spieler_t::is_my_halt()","owner=%p",sp);
+					if(sp==this  ||  sp==NULL  ||  sp==welt->gib_spieler(1)) {
+						return i+1;
+					}
+				}
 			}
 		}
 	}
 	// nothing here
-	halthandle_t unbound;
-	return unbound;
+	return false;
 }
 
 
@@ -1786,7 +1796,7 @@ DBG_MESSAGE("spieler_t::baue_bahnhof","try to remove last segment");
 	// first one direction
      koord pos;
 	for(  pos=*p;  pos!=t+zv;  pos+=zv ) {
-		if(  make_all_bahnhof  ||  is_my_halt(pos+koord(-1,-1)).is_bound()  ||  is_my_halt(pos+koord(-1,1)).is_bound()  ||  is_my_halt(pos+koord(1,-1)).is_bound()  ||  is_my_halt(pos+koord(1,1)).is_bound()  ) {
+		if(  make_all_bahnhof  ||  is_my_halt(pos+koord(-1,-1))  ||  is_my_halt(pos+koord(-1,1))  ||  is_my_halt(pos+koord(1,-1))  ||  is_my_halt(pos+koord(1,1))  ) {
 			// start building, if next to an existing station
 			make_all_bahnhof = true;
 			wkz_bahnhof(this, welt, pos, besch);
@@ -1795,7 +1805,7 @@ DBG_MESSAGE("spieler_t::baue_bahnhof","try to remove last segment");
 	}
 	// now add the other squares (going backwards)
 	for(  pos=t;  pos!=*p-zv;  pos-=zv ) {
-		if(  !is_my_halt(pos).is_bound()  ) {
+		if(  !is_my_halt(pos)  ) {
 			wkz_bahnhof(this, welt, pos, besch);
 		}
 		baulaenge ++;
@@ -2174,7 +2184,7 @@ DBG_MESSAGE("spieler_t::create_bus_transport_vehikel()","bus at (%i,%i)",startpo
 
 		// do not start at current stop => wont work ...
 		for(int j=0;  j<anzahl;  j++) {
-			fpl->append( welt, welt->lookup(stops[j])->gib_kartenboden()->gib_pos(), (j==0  ||  !do_wait)?0:10 );
+			fpl->append( welt, welt->lookup(stops[j])->gib_kartenboden(), (j==0  ||  !do_wait)?0:10 );
 		}
 		fpl->aktuell = (stops[0]==startpos2d);
 
@@ -2225,8 +2235,8 @@ spieler_t::create_road_transport_vehikel(fabrik_t *qfab, int anz_vehikel)
 	    fpl = cnv->gib_vehikel(0)->erzeuge_neuen_fahrplan();
 
 	    fpl->aktuell = 0;
-	    fpl->append(welt,pos1,0);
-	    fpl->append(welt,pos2,0);
+	    fpl->append(welt,welt->lookup(pos1),0);
+	    fpl->append(welt,welt->lookup(pos2),0);
 	    fpl->eintrag.at(start_location).ladegrad = 100;
 
 	    welt->sync_add( cnv );
@@ -2280,8 +2290,8 @@ spieler_t::create_rail_transport_vehikel(const koord platz1, const koord platz2,
     fpl = cnv->gib_vehikel(0)->erzeuge_neuen_fahrplan();
 
     fpl->aktuell = 0;
-    fpl->append( welt, pos1, ladegrad );
-    fpl->append( welt, pos2, 0 );
+    fpl->append( welt, welt->lookup(pos1), ladegrad );
+    fpl->append( welt, welt->lookup(pos2), 0 );
 
     cnv->setze_fahrplan(fpl);
     welt->sync_add( cnv );
@@ -2851,15 +2861,17 @@ DBG_DEBUG("spieler_t::rdwr()","%i has %i halts.",welt->sp2num( this ),halt_count
 					if (cost_type < 9) {
 						file->rdwr_longlong(finance_history_year[year][cost_type], " ");
 					} else {
-						finance_history_year[year][COST_OPERATING_PROFIT] = finance_history_year[year][COST_INCOME] + finance_history_year[year][COST_VEHICLE_RUN] + finance_history_year[year][COST_MAINTENANCE];
-						finance_history_year[year][COST_MARGIN] = (finance_history_year[year][COST_VEHICLE_RUN] + finance_history_year[year][COST_MAINTENANCE]) != 0 ? finance_history_year[year][COST_OPERATING_PROFIT] * 100 / abs((finance_history_year[year][COST_VEHICLE_RUN] + finance_history_year[year][COST_MAINTENANCE])) : 0;
+						sint64 tmp = labs(finance_history_year[year][COST_VEHICLE_RUN] + finance_history_year[year][COST_MAINTENANCE]);
+						finance_history_year[year][COST_MARGIN] = (tmp== 0) ? 0 : (finance_history_year[year][COST_OPERATING_PROFIT] * 100) / tmp;
+						finance_history_year[year][COST_OPERATING_PROFIT] = 0;
 						finance_history_year[year][COST_TRANSPORTED_GOODS] = 0;
 					}
 				} else {
 					if (cost_type < 10) {
 						file->rdwr_longlong(finance_history_year[year][cost_type], " ");
 					} else {
-						finance_history_year[year][COST_MARGIN] = (finance_history_year[year][COST_VEHICLE_RUN] + finance_history_year[year][COST_MAINTENANCE]) != 0 ? finance_history_year[year][COST_OPERATING_PROFIT] * 100 / abs((finance_history_year[year][COST_VEHICLE_RUN] + finance_history_year[year][COST_MAINTENANCE])) : 0;
+						sint64 tmp = labs(finance_history_year[year][COST_VEHICLE_RUN] + finance_history_year[year][COST_MAINTENANCE]);
+						finance_history_year[year][COST_MARGIN] = (tmp== 0) ? 0 : (finance_history_year[year][COST_OPERATING_PROFIT] * 100) / tmp;
 						finance_history_year[year][COST_TRANSPORTED_GOODS] = 0;
 					}
 				}
@@ -2872,7 +2884,8 @@ DBG_DEBUG("spieler_t::rdwr()","%i has %i halts.",welt->sp2num( this ),halt_count
 			for (int cost_type = 0; cost_type<10; cost_type++) {
 				file->rdwr_longlong(finance_history_year[year][cost_type], " ");
 			}
-			finance_history_year[year][COST_MARGIN] = (finance_history_year[year][COST_VEHICLE_RUN] + finance_history_year[year][COST_MAINTENANCE]) != 0 ? finance_history_year[year][COST_OPERATING_PROFIT] * 100 / abs((finance_history_year[year][COST_VEHICLE_RUN] + finance_history_year[year][COST_MAINTENANCE])) : 0;
+			sint64 tmp = labs(finance_history_year[year][COST_VEHICLE_RUN] + finance_history_year[year][COST_MAINTENANCE]);
+			finance_history_year[year][COST_MARGIN] = (tmp== 0) ? 0 : (finance_history_year[year][COST_OPERATING_PROFIT] * 100) / tmp;
 			finance_history_year[year][COST_TRANSPORTED_GOODS] = 0;
 		}
 		// in 84008 monthly finance history was introduced
@@ -2880,7 +2893,8 @@ DBG_DEBUG("spieler_t::rdwr()","%i has %i halts.",welt->sp2num( this ),halt_count
 			for (int cost_type = 0; cost_type<10; cost_type++) {
 				file->rdwr_longlong(finance_history_month[month][cost_type], " ");
 			}
-			finance_history_month[month][COST_MARGIN] = (finance_history_month[month][COST_VEHICLE_RUN] + finance_history_month[month][COST_MAINTENANCE]) != 0 ? finance_history_month[month][COST_OPERATING_PROFIT] * 100 / abs((finance_history_month[month][COST_VEHICLE_RUN] + finance_history_month[month][COST_MAINTENANCE])) : 0;
+			sint64 tmp = labs( finance_history_month[month][COST_VEHICLE_RUN] + finance_history_month[month][COST_MAINTENANCE]);
+			finance_history_month[month][COST_MARGIN] = (tmp== 0) ? 0 : (finance_history_month[month][COST_OPERATING_PROFIT] * 100) / tmp;
 			finance_history_month[month][COST_TRANSPORTED_GOODS] = 0;
 		}
 	}
@@ -3073,7 +3087,7 @@ void spieler_t::bescheid_vehikel_problem(convoihandle_t cnv,const koord3d ziel)
 DBG_MESSAGE("spieler_t::bescheid_vehikel_problem","Vehicle %s can't find a route to (%i,%i)!", cnv->gib_name(),ziel.x,ziel.y);
 	if(this==welt->get_active_player()) {
 		char buf[256];
-		sprintf(buf,"Vehicle %s can't find a route!", cnv->gib_name());
+		sprintf(buf,translator::translate("Vehicle %s can't find a route!"), cnv->gib_name());
 //		ticker_t::get_instance()->add_msg(buf, cnv->gib_pos().gib_2d(),ROT);
 		message_t::get_instance()->add_message(buf, cnv->gib_pos().gib_2d(),message_t::convoi,kennfarbe,cnv->gib_vehikel(0)->gib_basis_bild());
 	}

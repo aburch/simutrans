@@ -196,36 +196,12 @@ DBG_MESSAGE("fabrikbauer_t::get_random_consumer()","consumer %s found.",consumer
 
 
 
-
-
-void fabrikbauer_t::bau_info_t::random_land(slist_tpl <const fabrik_besch_t *> &fab)
-{
-	switch(simrand( 5 ) ) {
-		case 0:
-		case 1:
-			random(fab);
-			break;
-		case 2:
-		case 3:
-		case 4:
-			info = NULL;
-			besch = hausbauer_t::waehle_sehenswuerdigkeit();
-			if(!besch) {
-				random(fab);
-			}
-			break;
-	}
-	rotate = simrand(besch->gib_all_layouts()-1);
-	if(besch) {
-		dim = besch->gib_groesse(rotate);
-	}
-}
-
-
 const fabrik_besch_t *fabrikbauer_t::gib_fabesch(const char *fabtype)
 {
     return table.get(fabtype);
 }
+
+
 
 void fabrikbauer_t::register_besch(fabrik_besch_t *besch)
 {
@@ -343,8 +319,9 @@ fabrikbauer_t::verteile_tourist(karte_t * welt, spieler_t *, int max_number)
 	// current count
 	int current_number=0;
 
-	// nothing at all?
-	if(hausbauer_t::waehle_sehenswuerdigkeit()==NULL) {
+	// select without timeline (otherwise no old attractions appear)
+	if(hausbauer_t::waehle_sehenswuerdigkeit(0)==NULL) {
+		// nothing at all?
 		return;
 	}
 
@@ -354,7 +331,7 @@ fabrikbauer_t::verteile_tourist(karte_t * welt, spieler_t *, int max_number)
 	while(current_number<max_number)
 	{
 		koord3d	pos=koord3d(simrand(welt->gib_groesse_x()),simrand(welt->gib_groesse_y()),1);
-		const haus_besch_t *attraction=hausbauer_t::waehle_sehenswuerdigkeit();
+		const haus_besch_t *attraction=hausbauer_t::waehle_sehenswuerdigkeit(0);
 		int	rotation=simrand(attraction->gib_all_layouts()-1);
 
 		if(attraction==NULL) {
@@ -547,7 +524,7 @@ fabrikbauer_t::baue_hierarchie(karte_t * welt, koord3d *parent, const fabrik_bes
 		return 0;
 	}
 
-	if(info->gib_platzierung() == fabrik_besch_t::Stadt) {
+	if(info->gib_platzierung() == fabrik_besch_t::Stadt  &&  welt->gib_staedte()->get_count()>0) {
 		// built consumer (factory) intown:
 		stadt_fabrik_t sf;
 		koord k=pos->gib_2d();

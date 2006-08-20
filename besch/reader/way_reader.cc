@@ -145,6 +145,14 @@ obj_besch_t * way_reader_t::read_node(FILE *fp, obj_node_info_t &node)
       dbg->fatal("way_reader_t::read_node()","Invalid version %d", version);
     }
   }
+  if(besch->wtyp==weg_t::schiene_strab) {
+  	besch->styp = 7;
+  	besch->wtyp = weg_t::schiene;
+  }
+  if(besch->wtyp==weg_t::schiene_monorail) {
+  	besch->styp = 1;
+  	besch->wtyp = weg_t::schiene;
+  }
 
   DBG_DEBUG("way_reader_t::read_node()",
 	     "version=%d price=%d maintenance=%d topspeed=%d max_weight=%d "

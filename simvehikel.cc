@@ -890,7 +890,7 @@ int vehikel_t::calc_gewinn(koord3d start, koord3d end) const
     const int dist = abs(end.x - start.x) +
                      abs(end.y - start.y);
 
-    const int ref_speed = gib_wegtyp() == weg_t::wasser ? 40 : 80;
+    const int ref_speed = welt->get_average_speed( gib_wegtyp() );
     const int speed_base = speed_to_kmh(cnv->gib_min_top_speed()) - ref_speed;
 
     double value = 0;
@@ -1529,10 +1529,10 @@ waggon_t::ist_weg_frei(int & restart_speed)
 		const schiene_t * sch1 = (const schiene_t *) welt->lookup( pos_next )->gib_weg(gib_wegtyp());
 
 		bool frei = sch1->ist_frei();
-		signal_t * sig = sch1->gib_blockstrecke()->gib_signal_bei(pos_next);
-
-		if(sig) {
-			if(sig->gib_typ()==ding_t::presignal) {
+		// ok, next is free; check for presignal
+		if(frei) {
+			signal_t * sig = sch1->gib_blockstrecke()->gib_signal_bei(pos_next);
+			if(sig  &&  sig->gib_typ()==ding_t::presignal) {
 				frei = frei && is_next_block_free((presignal_t *)sig);
 			}
 		}

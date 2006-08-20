@@ -530,20 +530,6 @@ void depot_frame_t::setze_fenstergroesse( koord gr )
 }
 
 
-// true if future
-bool depot_frame_t::is_future(const vehikel_besch_t *info,const uint16 month_now)
-{
-	const int intro_month = info->get_intro_year_month();
-	return month_now  &&  intro_month > month_now;
-}
-
-// true if obsolete
-bool depot_frame_t::is_retired(const vehikel_besch_t *info,const uint16 month_now)
-{
-	const int retire_month = info->get_retire_year_month();
-	return month_now  &&  retire_month <= month_now;
-}
-
 // true if already stored here
 bool depot_frame_t::is_contained(const vehikel_besch_t *info)
 {
@@ -611,7 +597,7 @@ DBG_DEBUG("depot_frame_t::build_vehicle_lists()","%i passenger vehicle, %i  engi
 		// Hajo: check for timeline
 		// prissi: and retirement date
 		if(  (schiene_electric  ||  info->get_engine_type()!=vehikel_besch_t::electric)  &&
-			(!is_future(info,month_now))  &&  (show_retired_vehicles  ||  (!is_retired(info,month_now)) )   ||  is_contained(info)
+			(!info->is_future(month_now))  &&  (show_retired_vehicles  ||  (!info->is_retired(month_now)) )   ||  is_contained(info)
 		) {
 
 			img_data.image = info->gib_basis_bild();
@@ -713,7 +699,7 @@ void depot_frame_t::update_data()
 
 		// change grren into blue for retired vehicles
 		for(i=0;  i<cnv->gib_vehikel_anzahl(); i++) {
-			if(is_future(cnv->gib_vehikel(i)->gib_besch(),month_now) || is_retired(cnv->gib_vehikel(i)->gib_besch(),month_now)) {
+			if(cnv->gib_vehikel(i)->gib_besch()->is_future(month_now) || cnv->gib_vehikel(i)->gib_besch()->is_retired(month_now)) {
 				if(convoi_pics.at(i).lcolor==GREEN) {
 					convoi_pics.at(i).lcolor = BLAU;
 				}
@@ -730,7 +716,7 @@ void depot_frame_t::update_data()
 	}
     }
     while(iter1.next()) {
-	const int ok_color = is_future(iter1.get_current_key(),month_now) || is_retired(iter1.get_current_key(),month_now) ? BLAU: GREEN;
+	const int ok_color = iter1.get_current_key()->is_future(month_now) || iter1.get_current_key()->is_retired(month_now) ? BLAU: GREEN;
 
 	iter1.get_current_value()->count = 0;
 	iter1.get_current_value()->lcolor = -1;
@@ -1295,9 +1281,13 @@ depot_frame_t::draw_vehicle_info_text(koord pos)
 		    veh_type->get_gear()/64.0);
       }
 
+		if(veh_type->gib_copyright()!=NULL) {
+			n+= sprintf(buf+n, "%s%s\n",translator::translate("Constructed by "),veh_type->gib_copyright());
+		}
+
       display_multiline_text(
 			     pos.x + 200,
-			     pos.y + tabs.gib_pos().y + tabs.gib_groesse().y + 20 + LINESPACE*3,
+			     pos.y + tabs.gib_pos().y + tabs.gib_groesse().y + 20 + LINESPACE*2,
 			     buf,
 			     SCHWARZ);
     }

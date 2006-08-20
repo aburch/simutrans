@@ -55,7 +55,7 @@ class fahrplan_gui_t :	public gui_frame_t,
    * @author Hj. Malthaner
    */
   static void gimme_stop_name(cbuffer_t & buf,
-			      const karte_t *welt,
+			      karte_t *welt,
 			      const fahrplan_t *fpl,
 			      int i,
 			      int max_chars);

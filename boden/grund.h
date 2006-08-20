@@ -21,9 +21,6 @@
 
 #include "../besch/weg_besch.h"
 
-#include "../tpl/vector_tpl.h"
-#include "../tpl/minivec_tpl.h"
-
 class spieler_t;
 class vehikel_basis_t;
 class depot_t;
@@ -91,16 +88,10 @@ private:
      */
     dingliste_t dinge;
 
-
     /**
      * The station this ground is bound to
      */
     halthandle_t halt;
-
-    /**
-     * stations which can be reached from this ground
-     */
-    minivec_tpl<halthandle_t> halt_list;
 
     /**
      * Jeder Boden hat im Moment maximal 2 Wege (Kreuzungen sind 1 Weg).
@@ -108,13 +99,11 @@ private:
      */
     weg_t *wege[MAX_WEGE];
 
-
     /**
      * Koordinate in der Karte.
      * @author Hj. Malthaner
      */
     koord3d pos;
-
 
     /**
      * Nummer des aktuellen Hintergrundbildes fuer den Untergrund.
@@ -122,20 +111,17 @@ private:
      */
     sint16 back_bild_nr;
 
-
     /**
      * Nummer des aktuellen Basisbildes fuer den Untergrund.
      * @author Hj. Malthaner
      */
     sint16 bild_nr;
 
-
     /**
      * Nummer des aktuellen Wegbildes fuer den Untergrund.
      * @author Hj. Malthaner
      */
     sint16 weg_bild_nr;
-
 
 	/**
 		* Nummer des aktuellen 2. Wegbildes (so es ein gibt).
@@ -144,13 +130,11 @@ private:
 		*/
 	sint16 weg2_bild_nr;
 
-
     /**
      * Flags für das neuzeichnen geänderter Untergründe
      * @author Hj. Malthaner
      */
     uint8 flags;
-
 
     /**
      * der Besitzer des Feldes als index in das array der Welt,
@@ -158,7 +142,6 @@ private:
      * @author Hj. Malthaner
      */
     sint8 besitzer_n;
-
 
     /**
      * Description;
@@ -456,24 +439,6 @@ public:
      */
     const halthandle_t gib_halt() const {return halt;};
 
-    /* The following three functions takes about 132 bytes of memory per tile but can speed up passenger generation *
-     * Some stations may be reachable from this ground
-     * @author prissi
-     */
-    void add_to_haltlist(halthandle_t halt);
-
-    /**
-     * removes the halt from a ground
-     * however this funtion check, whether there is really no other part still reachable
-     * @author prissi
-     */
-    void remove_from_haltlist(halthandle_t halt);
-
-    /**
-     * returns the internal array of halts
-     * @author prissi
-     */
-    minivec_tpl<halthandle_t> & get_haltlist() { return halt_list; };
 
 
     inline short gib_hoehe() const {return pos.z;};

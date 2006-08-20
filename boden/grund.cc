@@ -165,7 +165,7 @@ bool grund_t::setze_besitzer(spieler_t *s)
 }
 
 
-grund_t::grund_t(karte_t *wl) : halt_list(0)
+grund_t::grund_t(karte_t *wl)
 {
     memset(wege, 0, sizeof(wege));
     welt = wl;
@@ -178,7 +178,7 @@ grund_t::grund_t(karte_t *wl) : halt_list(0)
 }
 
 
-grund_t::grund_t(karte_t *wl, loadsave_t *file) : halt_list(0)
+grund_t::grund_t(karte_t *wl, loadsave_t *file)
 {
 	// only used for saving?
     memset(wege, 0, sizeof(wege));
@@ -277,7 +277,7 @@ void grund_t::rdwr(loadsave_t *file)
 }
 
 
-grund_t::grund_t(karte_t *wl, koord3d pos) : halt_list(0)
+grund_t::grund_t(karte_t *wl, koord3d pos)
 {
     this->pos = pos;
     flags = 0;
@@ -290,6 +290,7 @@ grund_t::grund_t(karte_t *wl, koord3d pos) : halt_list(0)
     back_bild_nr = -1;
 
     setze_bild( 0 );    // setzt   flags = dirty;
+    halt = halthandle_t();
 }
 
 
@@ -307,7 +308,6 @@ grund_t::~grund_t()
 	halt.unbind();
   }
 
-  halt_list.clear();
     for(int i = 0; i < MAX_WEGE; i++) {
 	if(wege[i]) {
 	    if(gib_besitzer() && !ist_wasser() && wege[i]->gib_besch()) {
@@ -364,68 +364,9 @@ void grund_t::info(cbuffer_t & buf) const
  * @author Hj. Malthaner
  */
 void grund_t::setze_halt(halthandle_t halt) {
-    this->halt = halt;
+	this->halt = halt;
+//	welt->lookup( pos.gib_2d() )->setze_halt(halt);
 }
-
-
-
-/* The following three functions takes about 132 bytes of memory per tile but can speed up passenger generation *
- * Some stations may be reachable from this ground
- * @author prissi
- */
-void grund_t::add_to_haltlist(halthandle_t halt)
-{
-	if(halt.is_bound()) {
-		spieler_t *sp=halt->gib_besitzer();
-
-		unsigned insert_pos = 0;
-
-//DBG_DEBUG("grund_t::add_to_haltlist()","Add at pos %i", sp->has_passenger() );
-
-		// exact position does matter for passenger transport
-		if(sp!=NULL  &&  sp->has_passenger()  &&  halt_list.get_count()>0  ) {
-			halt_list.remove(halt);
-			// since only the first one gets all the passengers, we want the closest one for passenger transport to be on top
-			for(insert_pos=0;  insert_pos<halt_list.get_count();  insert_pos++) {
-				// not a passenger KI or other is farer away
-//DBG_DEBUG("grund_t::add_to_haltlist()","(%i,%i) vs (%i,%i) at (%i,%i)",  halt_list.at(insert_pos)->get_next_pos(pos.gib_2d()).x, halt_list.at(insert_pos)->get_next_pos(pos.gib_2d()).y, halt->get_next_pos(pos.gib_2d()).x, halt->get_next_pos(pos.gib_2d()).y, pos.x, pos.y );
-				if(  !halt_list.get(insert_pos)->gib_besitzer()->has_passenger()
-				      ||  abs_distance( halt_list.get(insert_pos)->get_next_pos(pos.gib_2d()), pos.gib_2d() ) > abs_distance( halt->get_next_pos(pos.gib_2d()), pos.gib_2d() )  )
-				{
-//DBG_DEBUG("grund_t::add_to_haltlist()","Add at pos %i", insert_pos );
-					halt_list.insert_at( insert_pos, halt );
-					return;
-				}
-			}
-			// not found
-		}
-		// first or no passenger or append to the end ...
-		halt_list.append_unique( halt, 2 );
-	}
-}
-
-/**
- * removes the halt from a ground
- * however this funtion check, whether there is really no other part still reachable
- * @author prissi
- */
-void grund_t::remove_from_haltlist(halthandle_t halt)
-{
-//DBG_DEBUG("grund_t::remove_from_haltlist()","at pos %i,%i from halt (%i)",pos.gib_2d().x,pos.gib_2d().y,halt.is_bound());
-	for(int y=-umgebung_t::station_coverage_size; y<=umgebung_t::station_coverage_size; y++) {
-		for(int x=-umgebung_t::station_coverage_size; x<=umgebung_t::station_coverage_size; x++) {
-			koord test_pos = pos.gib_2d()+koord(x,y);
-			const planquadrat_t *pl = welt->lookup(test_pos);
-			if(pl   &&  pl->gib_kartenboden()->gib_halt()==halt  ) {
-				// still conncected  => do nothing
-				return;
-			}
-		}
-	}
-	// if we reached here, we are not connected to this halt anymore
-	halt_list.remove(halt);
-}
-
 
 
 
@@ -545,13 +486,18 @@ ribi_t::ribi grund_t::gib_weg_ribi_unmasked(weg_t::typ typ) const
 int
 grund_t::text_farbe() const
 {
-    const spieler_t *sp = gib_besitzer();
+	// if this gund belongs to a halt, the color should reflect the halt owner, not the grund owner!
+	if(halt.is_bound()  &&  halt->gib_besitzer()) {
+		return halt->gib_besitzer()->kennfarbe+2;
+	}
 
-    if(sp) {
-	return sp->kennfarbe+2;
-    } else {
-	return 101;
-    }
+	// else color according to current owner
+	const spieler_t *sp = gib_besitzer();
+	if(sp) {
+		return sp->kennfarbe+2;
+	} else {
+		return 101;
+	}
 }
 
 
@@ -600,7 +546,6 @@ grund_t::display_boden(const int xpos, int ypos, bool dirty) const
 		if(gib_weg2_bild() >= 0){
 			display_img(gib_weg2_bild(), xpos, ypos - gib_weg_yoff(), dirty);
 		}
-
 
 	}
 }
@@ -662,11 +607,14 @@ grund_t::display_dinge(const int xpos, int ypos, bool dirty)
 		}
 
 		// display station owner boxes
-		if(umgebung_t::station_coverage_show) {
+		planquadrat_t *pl=welt->access(pos.gib_2d());
+		if(umgebung_t::station_coverage_show  &&  pl->gib_kartenboden()==this) {
 			int r=raster_tile_width/8;
 			int x=xpos+raster_tile_width/2-r;
 			int y=ypos+(raster_tile_width*3)/4-r;
 
+			// suitable start search
+			const minivec_tpl<halthandle_t> &halt_list = pl->get_haltlist();
 			for(int h=halt_list.get_count()-1;  h>=0;  h--  ) {
 				display_fillbox_wh_clip( x-h*2, y+h*2, r, r, halt_list.at(h)->gib_besitzer()->kennfarbe+2, dirty);
 			}

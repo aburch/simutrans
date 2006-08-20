@@ -166,14 +166,14 @@ slist_tpl<halthandle_t> haltestelle_t::alle_haltestellen;
 
 //Klassenmethoden
 halthandle_t
-haltestelle_t::gib_halt(const karte_t */*welt*/, grund_t *gr )
+haltestelle_t::gib_halt(karte_t *welt, grund_t *gr )
 {
 	if(gr) {
 		// if here is a halt, we are finished
 		halthandle_t halt = gr->gib_halt();
 		if(!halt.is_bound()  &&  gr->ist_wasser()) {
 			// ship actually stop next to a halt ...
-			const minivec_tpl<halthandle_t> &haltlist = gr->get_haltlist();
+			const minivec_tpl<halthandle_t> &haltlist = welt->access(gr->gib_pos().gib_2d() )->get_haltlist();
 #if 0
 			for(  int i=0;  i<haltlist.get_count();  i++  ) {
 				if(haltlist.get(i)->get_station_type()&dock) {
@@ -198,17 +198,24 @@ haltestelle_t::gib_halt(const karte_t */*welt*/, grund_t *gr )
 
 
 halthandle_t
-haltestelle_t::gib_halt(const karte_t *welt, const koord3d pos)
+haltestelle_t::gib_halt(karte_t *welt, const koord3d pos)
 {
 	return gib_halt( welt,  welt->lookup(pos) );
 }
 
 halthandle_t
-haltestelle_t::gib_halt(const karte_t *welt, const koord pos)
+haltestelle_t::gib_halt(karte_t *welt, const koord pos)
 {
 	const planquadrat_t *plan = welt->lookup(pos);
 	if(plan) {
-		return gib_halt( welt, plan->gib_kartenboden() );
+		// only one ground? then we can do all the water etc. check
+		if(plan->gib_boden_count()==1) {
+			return gib_halt( welt, plan->gib_kartenboden() );
+		}
+		else {
+			// more than one gound?
+			return plan->gib_halt();
+		}
 	}
 	return halthandle_t();
 }
@@ -216,14 +223,14 @@ haltestelle_t::gib_halt(const karte_t *welt, const koord pos)
 
 
 halthandle_t
-haltestelle_t::gib_halt(const koord pos) const
+haltestelle_t::gib_halt(koord pos) const
 {
     return gib_halt(welt, pos);
 }
 
 
 halthandle_t
-haltestelle_t::gib_halt(const karte_t *welt, const koord * const pos)
+haltestelle_t::gib_halt(karte_t *welt, const koord * const pos)
 {
 	if(pos != NULL) {
 		return gib_halt(welt, *pos);
@@ -449,7 +456,7 @@ void haltestelle_t::neuer_monat()
 			ware_t & ware = ware_iter.access_current();
 
 			// since also the factory halt list is added to the ground, we can use just this ...
-			const minivec_tpl <halthandle_t> &halt_list = welt->lookup(ware.gib_zielpos())->gib_kartenboden()->get_haltlist();
+			const minivec_tpl <halthandle_t> &halt_list = welt->access(ware.gib_zielpos())->get_haltlist();
 			if(halt_list.is_contained(self)) {
 				// we are already there!
 				if(warenbauer_t::ist_fabrik_ware(ware.gib_typ())) {
@@ -497,23 +504,33 @@ void haltestelle_t::neuer_monat()
  */
 int haltestelle_t::gib_status_farbe() const
 {
-  int color = GRAU6;
+	int color = financial_history[0][HALT_CONVOIS_ARRIVED] > 0 ? GREEN : GELB;
 
-  if(get_pax_happy() > 0 || get_pax_no_route() > 0) {
-    color = GREEN;
-  }
+	// has passengers
+	if(get_pax_happy() > 0 || get_pax_no_route() > 0) {
 
-  if(get_pax_no_route() > get_pax_happy() * 8) {
-    color = GELB;
-  }
+		if(get_pax_unhappy() > 200 ) {
+			color = ROT;
+		} else if(get_pax_unhappy() > 40) {
+			color = ORANGE;
+		}
+	}
 
-  if(get_pax_unhappy() > 200) {
-    color = ROT;
-  } else if(get_pax_unhappy() > 40) {
-    color = ORANGE;
-  }
+	// check for goods
+	if(color!=ROT  &&  get_ware_enabled()) {
+		const int count = warenbauer_t::gib_waren_anzahl();
+		const int max_ware = gib_grund_count()<<7;
 
-  return color;
+		for( int i=0; i+1<count; i++) {
+			const ware_besch_t *wtyp = warenbauer_t::gib_info(i+1);
+			if(  gib_ware_summe(wtyp)>max_ware  ) {
+				color = ROT;
+				break;
+			}
+		}
+	}
+
+	return color;
 }
 
 
@@ -699,7 +716,7 @@ haltestelle_t::suche_route(ware_t &ware, koord *next_to_ziel)
 	const koord ziel = ware.gib_zielpos();
 
 	// since also the factory halt list is added to the ground, we can use just this ...
-	const minivec_tpl <halthandle_t> &halt_list = welt->lookup(ziel)->gib_kartenboden()->get_haltlist();
+	const minivec_tpl <halthandle_t> &halt_list = welt->access(ziel)->get_haltlist();
 	// but we can only use a subset of these
 	minivec_tpl <halthandle_t> ziel_list (halt_list.get_count());
 	for( unsigned h=0;  h<halt_list.get_count();  h++ ) {
@@ -794,7 +811,7 @@ haltestelle_t::suche_route(ware_t &ware, koord *next_to_ziel)
 
 				if(wz.gib_typ()->is_interchangeable(warentyp)) {
 
-					const halthandle_t tmp_halt = welt->lookup(wz.gib_ziel())->gib_kartenboden()->gib_halt();
+					const halthandle_t tmp_halt = welt->lookup(wz.gib_ziel())->gib_halt();
 					if(tmp_halt.is_bound() && tmp_halt->marke != current_mark &&  tmp_halt->is_enabled(warentyp)) {
 
 						HNode *node = &nodes[step++];
@@ -943,12 +960,12 @@ haltestelle_t::add_grund(grund_t *gr)
 		for(  int x=-welt->gib_einstellungen()->gib_station_coverage();  x<=welt->gib_einstellungen()->gib_station_coverage();  x++ ) {
 			koord p=pos+koord(x,y);
 			if(welt->ist_in_kartengrenzen(p)) {
-				welt->lookup(p)->gib_kartenboden()->add_to_haltlist( self );
+				welt->access(p)->add_to_haltlist( self );
 			}
 		}
 	}
 
-	welt->lookup(pos)->gib_kartenboden()->setze_halt(self);
+	welt->access(pos)->setze_halt(self);
 
 //DBG_MESSAGE("haltestelle_t::add_grund()","pos %i,%i,%i to %s added.",pos.x,pos.y,pos.z,gib_name());
 
@@ -986,42 +1003,27 @@ haltestelle_t::rem_grund(grund_t *gb)
 		return;
 	}
 
-	const planquadrat_t *pl = welt->lookup( gb->gib_pos().gib_2d() );
+	planquadrat_t *pl = welt->access( gb->gib_pos().gib_2d() );
 	if(pl) {
-		if(gb!=pl->gib_kartenboden()) {
-			// no longer connected (upper level)
-			gb->setze_halt(halthandle_t ());
-			// still connected elsewhere?
-			for(unsigned i=1;  i<pl->gib_boden_count();  i++  ) {
-				if(pl->gib_boden_bei(i)->gib_halt().is_bound()) {
-					// still connected => do not remove from ground ...
-					return;
-				}
+		// no longer connected (upper level)
+		gb->setze_halt(halthandle_t());
+		// still connected elsewhere?
+		for(unsigned i=0;  i<pl->gib_boden_count();  i++  ) {
+			if(pl->gib_boden_bei(i)->gib_halt().is_bound()) {
+				// still connected => do not remove from ground ...
+				return;
 			}
-			if(!grund.contains(pl->gib_kartenboden())) {
+		}
 DBG_DEBUG("haltestelle_t::rem_grund()","remove also floor, count=%i",grund.count());
-				// otherwise remove ground ...
-				pl->gib_kartenboden()->setze_halt(halthandle_t ());
-			}
-		}
-		else {
-			// still connected elsewhere?
-			for(unsigned i=1;  i<pl->gib_boden_count();  i++  ) {
-				if(pl->gib_boden_bei(i)->gib_halt().is_bound()) {
-					// still connected => do not remove from ground ...
-					return;
-				}
-			}
-			// otherwise remove ground ... (gr is kartenboden)
-			gb->setze_halt(halthandle_t ());
-		}
+		// otherwise remove ground ...
+		pl->setze_halt(halthandle_t());
 	}
 
 	for(  int y=-welt->gib_einstellungen()->gib_station_coverage();  y<=welt->gib_einstellungen()->gib_station_coverage();  y++  ) {
 		for(  int x=-welt->gib_einstellungen()->gib_station_coverage();  x<=welt->gib_einstellungen()->gib_station_coverage();  x++  ) {
-			const planquadrat_t *pl = welt->lookup( gb->gib_pos().gib_2d()+koord(x,y) );
-			if(pl  &&  pl->gib_kartenboden()) {
-				pl->gib_kartenboden()->remove_from_haltlist(self);
+			planquadrat_t *pl = welt->access( gb->gib_pos().gib_2d()+koord(x,y) );
+			if(pl) {
+				pl->remove_from_haltlist(welt,self);
 			}
 		}
 	}
@@ -1093,9 +1095,7 @@ haltestelle_t::ist_da(const koord k) const
 {
     const planquadrat_t *plan = welt->lookup(k);
 
-    return plan != NULL &&
-           plan->gib_kartenboden() != NULL &&
-	   plan->gib_kartenboden()->gib_halt() == self;
+    return plan != NULL && plan->gib_halt()==self;
 }
 
 
@@ -1353,7 +1353,7 @@ dbg->warning("haltestelle_t::liefere_an()","%d %s delivered to %s have no longer
 //DBG_MESSAGE("haltestelle_t::liefere_an()","%s: took %i %s",gib_name(), ware.menge, translator::translate(ware.gib_name()) );		// dann sind wir schon fertig;
 
 	// since also the factory halt list is added to the ground, we can use just this ...
-	const minivec_tpl <halthandle_t> &halt_list = welt->lookup(ware.gib_zielpos())->gib_kartenboden()->get_haltlist();
+	const minivec_tpl <halthandle_t> &halt_list = welt->access(ware.gib_zielpos())->get_haltlist();
 
 	// did we arrived?
 	if(halt_list.is_contained(self)) {

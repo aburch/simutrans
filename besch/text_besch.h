@@ -36,7 +36,7 @@ class text_besch_t : public obj_besch_t {
 public:
     const char *gib_text() const
     {
-	return reinterpret_cast<const char *>(this + 1);
+		return reinterpret_cast<const char *>(this + 1);
     }
 };
 

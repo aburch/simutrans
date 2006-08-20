@@ -16,6 +16,7 @@
 #include "../besch/skin_besch.h"
 #include "../boden/grund.h"
 #include "../boden/wege/weg.h"
+#include "../boden/wege/schiene.h"
 #include "../simdebug.h"
 #include "../dataobj/loadsave.h"
 #include "../dataobj/umgebung.h"
@@ -46,9 +47,19 @@ oberleitung_t::oberleitung_t(karte_t *welt, loadsave_t *file) : ding_t (welt)
 
 oberleitung_t::~oberleitung_t()
 {
-  if(gib_besitzer()) {
-    gib_besitzer()->add_maintenance(-umgebung_t::maint_overhead);
-  }
+	if(gib_besitzer()) {
+	gib_besitzer()->add_maintenance(-umgebung_t::maint_overhead);
+	}
+
+	// remove status electrified from rail
+	koord3d	pos = gib_pos();
+	grund_t *gr=welt->lookup(pos);
+	if(gr) {
+		schiene_t *sch = dynamic_cast<schiene_t *> (gr->gib_weg(weg_t::schiene));
+		if(sch) {
+			sch->setze_elektrisch( false );
+		}
+	}
 }
 
 

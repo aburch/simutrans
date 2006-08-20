@@ -140,28 +140,28 @@ public:
      * werden soll.
      * @author V. Meyer
      */
-   static const haus_besch_t *gib_rathaus(int bev, uint16 time=0) { return gib_special_intern(bev, rathaus, time);  }
+   static const haus_besch_t *gib_rathaus(int bev, uint16 time) { return gib_special_intern(bev, rathaus, time);  }
 
     /**
      * Gewerbegebäude passend zum Level liefern. Zur Zeit sind die Einträge
      * eindeutig aufsteigend.
      * @author V. Meyer
      */
-    static const haus_besch_t *gib_gewerbe(int level, uint16 time=0) { return gib_aus_liste(gewerbehaeuser, level, time); };
+    static const haus_besch_t *gib_gewerbe(int level, uint16 time) { return gib_aus_liste(gewerbehaeuser, level, time); };
 
     /**
      * Industriegebäude passend zum Level liefern. Zur Zeit sind die Einträge
      * eindeutig aufsteigend.
      * @author V. Meyer
      */
-    static const haus_besch_t *gib_industrie(int level,uint16 time=0) { return gib_aus_liste(industriehaeuser, level,time); };
+    static const haus_besch_t *gib_industrie(int level,uint16 time) { return gib_aus_liste(industriehaeuser, level,time); };
 
     /**
      * Wohnhaus passend zum Level liefern. Zur Zeit sind die Einträge
      * eindeutig aufsteigend.
      * @author V. Meyer
      */
-    static const haus_besch_t *gib_wohnhaus(int level,uint16 time=0) { return gib_aus_liste(wohnhaeuser, level,time); };
+    static const haus_besch_t *gib_wohnhaus(int level,uint16 time) { return gib_aus_liste(wohnhaeuser, level,time); };
 
     /**
      * Fabrikbeschreibung anhand des Namens raussuchen.
@@ -181,7 +181,7 @@ public:
      * die bei Kartenerstellung gebaut werden kann.
      * @author V. Meyer
      */
-    static const haus_besch_t *waehle_sehenswuerdigkeit(uint16 time=0) { return waehle_aus_liste(sehenswuerdigkeiten,time); };
+    static const haus_besch_t *waehle_sehenswuerdigkeit(uint16 time) { return waehle_aus_liste(sehenswuerdigkeiten,time); };
 
     /**
      * Liefert per Zufall die Beschreibung eines ungebauten Denkmals.

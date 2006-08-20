@@ -46,21 +46,19 @@ protected:
 	void init();
 
     /**
+     * sollte eine Fehlermeldung ausgeben, wenn halt nicht erlaubt ist
+     * @author Hj. Malthaner
+     */
+    virtual void zeige_fehlermeldung(karte_t *) const {};
+
+public:
+    /**
      * der allgemeine Fahrplan erlaubt haltestellen überall.
      * diese Methode sollte in den unterklassen redefiniert werden.
      * @author Hj. Malthaner
      */
     virtual bool ist_halt_erlaubt(const grund_t *) const {return true;};
 
-
-    /**
-     * sollte eine Fehlermeldung ausgeben, wenn halt nicht erlaubt ist
-     * @author Hj. Malthaner
-     */
-    virtual void zeige_fehlermeldung(karte_t *) const {};
-
-
-public:
     minivec_tpl<struct linieneintrag_t> eintrag;
     short aktuell;
 
@@ -102,12 +100,15 @@ public:
      * fügt eine koordinate an stelle aktuell in den Fahrplan ein
      * alle folgenden Koordinaten verschieben sich dadurch
      */
-    bool insert(karte_t *welt, koord3d k,int ladegrad=0);
+    bool insert(karte_t *welt, const grund_t *gr,int ladegrad=0);
 
     /**
      * hängt eine koordinate an den fahrplan an
      */
-    bool append(karte_t *welt, koord3d k,int ladegrad=0);
+    bool append(karte_t *welt, const grund_t *gr,int ladegrad=0);
+
+	// cleanup a schedule, removes double entries
+	bool cleanup();
 
     /**
      * entfern eintrag[aktuell] aus dem fahrplan

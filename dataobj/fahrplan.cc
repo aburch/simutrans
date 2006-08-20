@@ -106,26 +106,17 @@ void fahrplan_t::copy_from(const fahrplan_t *src)
 
 
 bool
-fahrplan_t::insert(karte_t *welt, koord3d k,int ladegrad)
+fahrplan_t::insert(karte_t *welt, const grund_t *gr,int ladegrad)
 {
-	grund_t *gr = welt->lookup(k);
-	// not allowed here?
-	if(!ist_halt_erlaubt(gr)) {
-		// try all grounds
-		const planquadrat_t *plan = welt->lookup(k.gib_2d());
-		grund_t *gr2 = gr;
-		for( unsigned i=0;  i<plan->gib_boden_count();  i++  ) {
-			gr = plan->gib_boden_bei(i);
-			if(gr!=gr2  &&  ist_halt_erlaubt(gr)) {
-				break;
-			}
-		}
-	}
-
 	aktuell = max(aktuell,0);
 	struct linieneintrag_t stop = { gr->gib_pos(), ladegrad, 0 };
 
-	if(ist_halt_erlaubt(gr)  &&  eintrag.insert_at(aktuell,stop) ) {
+	if(ist_halt_erlaubt(gr)) {
+		bool ok= eintrag.insert_at(aktuell,stop);
+		if(!ok) {
+			dbg->warning("fahrplan_t::insert()","max stop exceeded!");
+			create_win(-1, -1, 60, new nachrichtenfenster_t(welt, "Maximum 254 stops\nin a schedule!\n"), w_autodelete);
+		}
 		// ok
 		return true;
 	}
@@ -139,35 +130,60 @@ fahrplan_t::insert(karte_t *welt, koord3d k,int ladegrad)
 
 
 bool
-fahrplan_t::append(karte_t *welt, koord3d k,int ladegrad)
+fahrplan_t::append(karte_t *welt, const grund_t *gr,int ladegrad)
 {
-	grund_t *gr = welt->lookup(k);
-
-	// not allowed here?
-	if(!ist_halt_erlaubt(gr)) {
-		// try all grounds
-		const planquadrat_t *plan = welt->lookup(k.gib_2d());
-		grund_t *gr2 = gr;
-		for( unsigned i=0;  i<plan->gib_boden_count();  i++  ) {
-			gr = plan->gib_boden_bei(i);
-			if(gr!=gr2  &&  ist_halt_erlaubt(gr)) {
-				break;
-			}
-		}
-	}
-
 	aktuell = max(aktuell,0);
 	struct linieneintrag_t stop = { gr->gib_pos(), ladegrad, 0 };
 
-	if(ist_halt_erlaubt(gr)  &&  eintrag.append(stop) ) {
+	if(ist_halt_erlaubt(gr)) {
+		bool ok= eintrag.append(stop,4);
+		if(!ok) {
+			dbg->warning("fahrplan_t::append()","max stop exceeded!");
+			create_win(-1, -1, 60, new nachrichtenfenster_t(welt, "Maximum 254 stops\nin a schedule!\n"), w_autodelete);
+		}
 		// ok
 		return true;
 	}
 	else {
+		DBG_MESSAGE("fahrplan_t::append()","forbidden stop at %i,%i,%i",gr->gib_pos().x, gr->gib_pos().x, gr->gib_pos().z );
 		// error
 		zeige_fehlermeldung(welt);
 		return false;
 	}
+}
+
+
+
+// cleanup a schedule
+bool
+fahrplan_t::cleanup()
+{
+	if(eintrag.get_count()==0) {
+		return true;	// nothing to check
+	}
+
+	// first and last must not be the same!
+	koord3d lastpos=eintrag.get( eintrag.get_count()-1 ).pos;
+	bool ok=true;
+  	// now we have to check all entries ...
+	for(unsigned i = 0; i<eintrag.get_count(); i++) {
+		if (eintrag.get(i).pos==lastpos) {
+			// ingore double entries just one after the other
+			ok = false;
+			eintrag.remove_at(i);
+			i--;
+		}
+		else if (eintrag.get(i).pos==koord3d::invalid) {
+			// ingore double entries just one after the other
+			ok = false;
+			eintrag.remove_at(i);
+		}
+		else {
+			// next pos for check
+			lastpos = eintrag.get( i ).pos;
+		}
+	}
+	return ok;
 }
 
 
@@ -201,8 +217,6 @@ fahrplan_t::rdwr(loadsave_t *file)
 			maxi ++;
 		}
 
-//		eintrag.clear();
-//		eintrag.resize(maxi);
 		for(int i=0; i<maxi; i++) {
 			koord3d pos;
 			pos.rdwr(file);
@@ -257,8 +271,7 @@ fahrplan_t::matches(const fahrplan_t *fpl)
 void
 fahrplan_t::add_return_way(karte_t *)
 {
-	int maxi = eintrag.get_count();
-	while(  --maxi>0   ) {
+	for( int maxi = ((int)eintrag.get_count())-2;  maxi>0;  maxi--  ) {
 		eintrag.append( eintrag.at(maxi) );
 	}
 }

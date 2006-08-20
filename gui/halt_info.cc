@@ -153,6 +153,10 @@ halt_info_t::zeichnen(koord pos, koord gr)
 
     display_ddd_box(pos.x+viewpos.x, pos.y+viewpos.y+16, 66, 57, MN_GREY0, MN_GREY4);
 
+	// status box
+	unsigned indikatorfarbe = halt->gib_status_farbe();
+	display_ddd_box_clip(pos.x + view.pos.x, pos.y + view.pos.y + 75, 66, 8, MN_GREY0, MN_GREY4);
+	display_fillbox_wh_clip(pos.x + view.pos.x+1, pos.y + view.pos.y + 76, 64, 6, indikatorfarbe, true);
 
     // Hajo: Reuse of freight_info buffer to get and display
     // information about the convoi itself

@@ -9,7 +9,7 @@ static const char * catg_names[32] = {
   "oil/gasoline",
   "cooled goods",
   "liquid food",
-  "CATEGORY_06",
+  "long goods",
   "CATEGORY_07",
 
   "CATEGORY_08",

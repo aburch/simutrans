@@ -56,7 +56,7 @@ display_icon_leiste(const int color, int basis_bild)
     static int old_color = -1;
     int dirty;
     extern int disp_width;
-    extern int disp_height;
+//    extern int disp_height;
 
     if(color != old_color
 #ifdef USE_SOFTPOINTER

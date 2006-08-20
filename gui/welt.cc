@@ -162,14 +162,14 @@ welt_gui_t::update_preview()
 	const int mx = sets->gib_groesse_x()/preview_size;
 	const int my = sets->gib_groesse_y()/preview_size;
 
-	unsigned long old_seed = setsimrand( sets->gib_karte_nummer() );
+	unsigned long old_seed = setsimrand( 0xFFFFFFFF, sets->gib_karte_nummer() );
 
 	for(int j=0; j<preview_size; j++) {
 		for(int i=0; i<preview_size; i++) {
 			karte[j*preview_size+i] = reliefkarte_t::calc_hoehe_farbe(karte_t::perlin_hoehe(i*mx, j*my, sets->gib_map_roughness(), sets->gib_max_mountain_height())+16, sets->gib_grundwasser());
 		}
 	}
-	setsimrand( old_seed );
+//	setsimrand( 0xFFFFFFFF, old_seed );
 }
 
 

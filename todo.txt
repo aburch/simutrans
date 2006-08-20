@@ -18,20 +18,25 @@ Stichpunkte
 - Pfeiler für Brücken: done
 - Monorail als Brückenstrecke: done
 - Fabrikliste: done
+- Stadtwachstum abhängig von größe: bis 1000/4  bis 10000/2  dann normal: done
+- Gebäude gleichen Levels sollten nicht mehr wechseln wenn renoviert: done
+- oberstes Fenster schließen: done
+- timeline/distribution für Gebäude: done
+- Bahnhöfe auf Brücken: done
+- Start aus Depot nur mit gültiger Route: done
+- nur an nicht überfüllte Abnehmer liefern: done?
+- bonus mit Jahr anpassen: done?
 
-- timeline/distribution für Gebäude: halfway
-- Bahnhöfe auf Brücken: halfway
+- distribution_weight für Versorgerfabriken berücktsichtigen
+- FastForward-Button
 
 - Sehenwürdigkeitenliste
 - Landfabrik alle x Jahre/Fakriken
-- oberstes Fenster schließen
 - Brücken an senkrechten Wänden
 - Felder: Grafiken da, fehlt noch code (vielleicht wie Wälder?)
 - schönerer Jahreszeitenwechsel
 - Winter höhenabhängig?
-- Gebäude gleichen Levels sollten nicht mehr wechseln wenn renoviert
 
-- Stadtwachstum abhängig von größe: bis 1000/6  bis 5000/4  bis 25000/2  dann normal
 
 Immer zu tun:
 - Aufräumen von Datentypen für bessere Portierbarkeit
@@ -45,4 +50,4 @@ Fehler:
 Stadtautos kommen nicht um 180 Kurve
 Linienverwaltung kollidiert mit AI Spieler
 Städte ohne Rathaus?
-Powerlines und Trackupdate? (seems ok)
+Signale löschen auf der falschen Seite mit valgrind ausprobieren!

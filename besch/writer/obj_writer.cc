@@ -112,14 +112,11 @@ void obj_writer_t::write(FILE *fp, obj_node_t &parent, tabfileobj_t &obj)
 */
 void obj_writer_t::write_head(FILE *fp, obj_node_t &node, tabfileobj_t &obj)
 {
-    const char *name = obj.get("name");
-    const char *msg = obj.get("copyright");
+	const char *name = obj.get("name");
+	const char *msg = obj.get("copyright");
 
-    text_writer_t::instance()->write_obj(fp, node, name);
-    if(msg && *msg)
+	text_writer_t::instance()->write_obj(fp, node, name);
 	text_writer_t::instance()->write_obj(fp, node, msg);
-    else
-	xref_writer_t::instance()->write_obj(fp, node, obj_text, "", false);
 }
 
 //@ADOC

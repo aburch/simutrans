@@ -14,9 +14,9 @@
 
 
 
-goods_frame_t::goods_frame_t() : gui_frame_t("Goods list")
+goods_frame_t::goods_frame_t(karte_t *welt) : gui_frame_t("Goods list")
 {
-  goods_stats_t * goods_stats = new goods_stats_t();
+  goods_stats_t * goods_stats = new goods_stats_t(welt);
 
   scrolly = new gui_scrollpane_t(goods_stats);
 

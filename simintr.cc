@@ -96,7 +96,7 @@ intr_routine(long delta_t)
 	}
 
 	welt_modell->sync_prepare();
-	welt_modell->sync_step( (delta_t * get_time_multi()) >> 4 );
+	welt_modell->sync_step( delta_t );
 }
 
 

@@ -126,4 +126,6 @@ int wkz_grow_city(spieler_t *, karte_t *welt, koord pos, value_t lParam);
 // protects map from further change
 int wkz_lock( spieler_t *, karte_t *welt, koord pos);
 
+int wkz_step_year( spieler_t *, karte_t *welt, koord pos);
+
 #endif

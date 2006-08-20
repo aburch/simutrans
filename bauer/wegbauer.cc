@@ -142,6 +142,7 @@ DBG_MESSAGE("wegbauer_t::weg_search","Found weg %s, limit %i",besch->gib_name(),
  */
 const weg_besch_t * wegbauer_t::gib_besch(const char * way_name,const uint16 time)
 {
+DBG_MESSAGE("wegbauer_t::gib_besch","return besch for %s in (%i)",way_name, time/12);
 	const weg_besch_t *besch = alle_wegtypen.get(way_name);
 	if(time==0  ||  besch==NULL  ||  (besch->get_intro_year_month()<=time  &&  besch->get_retire_year_month()>time)) {
 		return besch;

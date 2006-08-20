@@ -11,6 +11,7 @@
 #define good_stats_t_h
 
 #include "../ifc/gui_komponente.h"
+class karte_t;
 
 /**
  * Display information about each configured good
@@ -19,11 +20,12 @@
  */
 class goods_stats_t : public gui_komponente_t
 {
+	karte_t *welt;
 
  public:
 
 
-  goods_stats_t();
+  goods_stats_t(karte_t *welt);
 
 
   /**

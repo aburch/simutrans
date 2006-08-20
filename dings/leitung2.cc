@@ -596,7 +596,7 @@ senke_t::sync_step(long time)
 	}
 	max_einkommen += want_power;
 	einkommen += get_power;
-	return true;
+	return fab;	// only zero, when loading failed ...
 }
 
 

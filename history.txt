@@ -8,6 +8,38 @@ Known bugs: (hard to fix)
 
 
 
+Release of 87.00
+
+27-Oct-2005 (prissi)
+	CHANGE: train outside depot on same sqare are displayed first
+	CHANGE: no goods are sent to overflowing industries
+	CHANGE: halt status color also red, when goods are overflowing station
+	CHANGE: accepts freight at all stops near factories (includign bus stops)
+	CHANGE: road, rail and ship bonus now depend on average speed, if timeline is on
+	FIX: some errors loading older savegames fixed
+	FIX: on animated tiles missing phases will return the tile at phase=0 (i.e. baumarkt)
+	FIX: alignment error of up-/down slopepointer
+	FIX: could remove a non-empty depot ...
+	FIX: industry chain creation could crash without cities
+	FIX: schedule is corrected for invalid entries after input
+	ADD: full use of copyright entries for houses and vehicles
+24-Oct-2005 (prissi)
+	FIX: roadsign cost correctly display (and not free anymore) and now also on bridges
+	FIX: return ticket finally working (was too easy to do it right?!?)
+	CHANGE: close topmost window by ESC or DEL
+	FIX: not replacing city roads below depots (fixed sending home error)
+	FIX: removing overhead wires make now removes electrified status again
+	CHANGE: Using Mersenne Twister algorithm for faster and better random numbers
+	FIX: when renovating, check, if I can renovate something; if highest level reached: do nothing
+	CHANGE: full building timeline for 64 pak with many new building (=> can play from 1900)
+	CHANGE: era and copyright message for buildings
+	ADD: many new trams, alignement corrected for existing ones
+	ADD: new player1 tool: jump a year forward
+	CHANGE: haltlist now member of planquadrat
+	ADD: stations on bridges
+	CHANGE: also for stops, station, schedule entries, roadsign signals: CNTRL is from up, normal from down
+
+
 Release of 86.10.5
 
 16-Oct-2005 (prissi)

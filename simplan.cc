@@ -12,6 +12,8 @@
 #include "simdings.h"
 #include "simplan.h"
 #include "simworld.h"
+#include "simhalt.h"
+#include "simplay.h"
 #include "simdebug.h"
 #include "boden/grund.h"
 #include "boden/boden.h"
@@ -111,11 +113,6 @@ planquadrat_t::kartenboden_setzen(grund_t *bd, bool mit_spieler)
 			if(mit_spieler) {
 				bd->setze_besitzer(tmp->gib_besitzer());
 			}
-			// prissi: restore halt list
-			minivec_tpl<halthandle_t> &haltlist=tmp->get_haltlist();
-			for(unsigned i=0;i<haltlist.get_count();i++) {
-				bd->add_to_haltlist( haltlist.get(i) );
-			}
 			// now delete everything
 			delete tmp;
 		}
@@ -135,13 +132,6 @@ void planquadrat_t::boden_ersetzen(grund_t *alt, grund_t *neu)
 	for(int i=0; i<boeden.get_count(); i++) {
 	    if(boeden.get(i) == alt) {
 		grund_t *tmp = boeden.get(i);
-		if(i==0) {
-			// prissi: restore halt list
-			minivec_tpl<halthandle_t> &haltlist=tmp->get_haltlist();
-			for(unsigned i=0;i<haltlist.get_count();i++) {
-				neu->add_to_haltlist( haltlist.get(i) );
-			}
-		}
 		boeden.at(i) = neu;
 		delete tmp;
 		return;
@@ -324,6 +314,88 @@ planquadrat_t::display_dinge(const int xpos, const int ypos, bool dirty) const
         boeden.get(i)->display_boden(xpos, ypos, dirty);
         boeden.get(i)->display_dinge(xpos, ypos, dirty);
     }
+}
+
+
+
+/**
+ * Manche Böden können zu Haltestellen gehören.
+ * Der Zeiger auf die Haltestelle wird hiermit gesetzt.
+ * @author Hj. Malthaner
+ */
+void planquadrat_t::setze_halt(halthandle_t halt) {
+#ifdef DEBUG
+	if(halt.is_bound()  &&  this->halt.is_bound()  &&  halt!=this->halt) {
+		dbg->warning("planquadrat_t::setze_halt()","cannot assign new halt: already bound!" );
+	}
+#endif
+	this->halt = halt;
+}
+
+
+
+
+/* The following functions takes at least 8 bytes of memory per tile but speed up passenger generation *
+ * @author prissi
+ */
+void planquadrat_t::add_to_haltlist(halthandle_t halt)
+{
+	if(halt.is_bound()) {
+		spieler_t *sp=halt->gib_besitzer();
+
+		unsigned insert_pos = 0;
+		// quick and dirty way to our 2d koodinates ...
+		const koord pos = boeden.at(0)->gib_pos().gib_2d();
+
+		// exact position does matter only for passenger/mail transport
+		if(sp!=NULL  &&  sp->has_passenger()  &&  halt_list.get_count()>0  ) {
+			halt_list.remove(halt);
+
+			// since only the first one gets all the passengers, we want the closest one for passenger transport to be on top
+			for(insert_pos=0;  insert_pos<halt_list.get_count();  insert_pos++) {
+
+				// not a passenger KI or other is farer away
+				if(  !halt_list.get(insert_pos)->gib_besitzer()->has_passenger()
+				      ||  abs_distance( halt_list.get(insert_pos)->get_next_pos(pos), pos ) > abs_distance( halt->get_next_pos(pos), pos )  )
+				{
+
+					halt_list.insert_at( insert_pos, halt );
+					return;
+				}
+			}
+			// not found
+		}
+
+		// first or no passenger or append to the end ...
+		halt_list.append_unique( halt, 2 );
+	}
+}
+
+/**
+ * removes the halt from a ground
+ * however this funtion check, whether there is really no other part still reachable
+ * @author prissi
+ */
+void planquadrat_t::remove_from_haltlist(karte_t *welt, halthandle_t halt)
+{
+	// quick and dirty way to our 2d koodinates ...
+	const koord pos = boeden.at(0)->gib_pos().gib_2d();
+
+	for(int y=-umgebung_t::station_coverage_size; y<=umgebung_t::station_coverage_size; y++) {
+
+		for(int x=-umgebung_t::station_coverage_size; x<=umgebung_t::station_coverage_size; x++) {
+
+			koord test_pos = pos+koord(x,y);
+			const planquadrat_t *pl = welt->lookup(test_pos);
+
+			if(pl   &&  pl->gib_halt()==halt  ) {
+				// still conncected  => do nothing
+				return;
+			}
+		}
+	}
+	// if we reached here, we are not connected to this halt anymore
+	halt_list.remove(halt);
 }
 
 

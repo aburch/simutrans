@@ -425,11 +425,11 @@ public:
      */
     void halt_remove(halthandle_t halt);
 
-    /* returns the halt of the play at that position or an unbound handle
+    /* returns true for a halt of the player at that position
      * @author prissi
      */
-    halthandle_t is_my_halt(koord pos) const;
-    halthandle_t is_my_halt(koord3d pos) const;
+    bool is_my_halt(koord pos) const;
+    unsigned is_my_halt(koord3d pos) const;	// return the boden_count+1, 0==fails
 
     /**
      * Gets haltcount, for naming purposes

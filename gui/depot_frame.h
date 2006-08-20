@@ -187,13 +187,6 @@ private:
      */
     virtual bool has_min_sizer() const {return true;};
 
-
-	// true if future
-	static bool is_future(const vehikel_besch_t *info,const uint16 time_now);
-
-	// true if obsolete
-	static bool is_retired(const vehikel_besch_t *info,const uint16 time_now);
-
 	// true if already stored here
 	bool is_contained(const vehikel_besch_t *info);
 

@@ -59,7 +59,7 @@ public:
      */
     enum typ {
     					invalid=-1, strasse=1, schiene=2, wasser=3,
-					// Hajo: unused ATM: schiene_elektrifiziert=4,
+					overheadlines=4,
 					schiene_monorail=5,
 					schiene_maglev=6,
 					schiene_strab=7, // Dario: Tramway

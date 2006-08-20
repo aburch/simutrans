@@ -515,10 +515,6 @@ const haus_besch_t * hausbauer_t::gib_aus_liste(slist_tpl<const haus_besch_t *> 
 {
 	weighted_vector_tpl<const haus_besch_t *> auswahl(16);
 
-	// Hajo: to jump over gaps, we scan buildings up to a certain level offset
-	int offset = 0;
-	const int max_offset = 16;
-
 //	DBG_MESSAGE("hausbauer_t::gib_aus_liste()","target level %i", level );
 	const haus_besch_t *besch_at_least=NULL;
 	slist_iterator_tpl <const haus_besch_t *> iter (liste);
@@ -526,7 +522,7 @@ const haus_besch_t * hausbauer_t::gib_aus_liste(slist_tpl<const haus_besch_t *> 
 	while(iter.next()) {
 		const haus_besch_t *besch = iter.get_current();
 
-		if(time==0  ||  (besch->get_intro_year_month()<=time  &&  besch->get_retire_year_month()>time)) {
+		if(besch->gib_chance()>0  &&  (time==0  ||  (besch->get_intro_year_month()<=time  &&  besch->get_retire_year_month()>time))) {
 			besch_at_least = iter.get_current();
 		}
 
@@ -543,7 +539,7 @@ const haus_besch_t * hausbauer_t::gib_aus_liste(slist_tpl<const haus_besch_t *> 
 			}
 		}
 
-		if(thislevel==level) {
+		if(thislevel==level  &&  besch->gib_chance()>0) {
 			if(time==0  ||  (besch->get_intro_year_month()<=time  &&  besch->get_retire_year_month()>time)) {
 //					DBG_MESSAGE("hausbauer_t::gib_aus_liste()","appended %s at %i", besch->gib_name(), thislevel );
 				auswahl.append(besch,besch->gib_chance(),4);
@@ -552,7 +548,7 @@ const haus_besch_t * hausbauer_t::gib_aus_liste(slist_tpl<const haus_besch_t *> 
 
 	}
 
-	if(auswahl.get_count()==0) {
+	if(auswahl.get_sum_weight()==0) {
 		// this is some level below, but at least it is something
 		return besch_at_least;
 	}
@@ -575,13 +571,13 @@ const haus_besch_t *hausbauer_t::waehle_aus_liste(slist_tpl<const haus_besch_t *
 
 		while(iter.next()) {
 			const haus_besch_t *besch = iter.get_current();
-			if(time==0  ||  (besch->get_intro_year_month()<=time  &&  besch->get_retire_year_month()>time)) {
+			if(besch->gib_chance()>0  &&  (time==0  ||  (besch->get_intro_year_month()<=time  &&  besch->get_retire_year_month()>time))) {
 //				DBG_MESSAGE("hausbauer_t::gib_aus_liste()","appended %s at %i", besch->gib_name(), thislevel );
 				auswahl.append(besch,besch->gib_chance(),4);
 			}
 		}
 		// now look, what we have got ...
-		if(auswahl.get_count()==0) {
+		if(auswahl.get_sum_weight()==0) {
 			return NULL;
 		}
 		if(auswahl.get_count()==1) {
