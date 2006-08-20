@@ -27,7 +27,10 @@ struct event_t;
  * @author Hj. Malthaner
  */
 
-class gui_combobox_t : public gui_textinput_t
+class gui_combobox_t :
+	public gui_textinput_t,
+	public action_listener_t
+
 {
 private:
 
@@ -36,6 +39,16 @@ private:
      * @author hsiegeln
      */
     scrolled_list_gui_t * droplist;
+
+	/*
+	 * flag for first call
+	 */
+	bool first_call:1;
+
+	/*
+	 * flag for finish selection
+	 */
+	bool finish:1;
 
     /**
      * the max size this component can have
@@ -67,6 +80,11 @@ public:
      */
     void infowin_event(const event_t *);
 
+    /**
+     * This method is called if an action is triggered
+     * @author Hj. Malthaner
+     */
+    virtual bool action_triggered(gui_komponente_t *komp);
 
     /**
      * Zeichnet die Komponente

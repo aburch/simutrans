@@ -280,22 +280,6 @@ private:
 
     void add_message(koord k, int summe);
 
-    /**
-     * Test if a bridge can be build here
-     *
-     * @param p position of obstacle
-     * @param index index in route where obstacle was hit
-     * @param ribi ribi of obstacle
-     * @param bauigel the waybilder used to build the way
-     * @param list list of bridge start/end koordinates
-     * @author Hj. Malthaner
-     */
-    bool versuche_brueckenbau(koord p, int *index, ribi_t::ribi ribi,
-                              wegbauer_t &bauigel,
-            slist_tpl <koord> &list);
-
-    bool checke_streckenbau(wegbauer_t &bauigel, slist_tpl<koord> &list);
-
 public:
     /**
      * Ist dieser Spieler ein automatischer Spieler?
@@ -371,7 +355,7 @@ public:
      * @return the new maintenance costs
      * @author Hj. Malthaner
      */
-    uint32 add_maintenance(sint32 change) {maintenance += change; return maintenance;};
+    sint32 add_maintenance(sint32 change) {maintenance += change; return maintenance;};
 
     // Owen Rudge, finances
     sint64 buche(sint64 betrag, koord k, int type);
@@ -454,10 +438,7 @@ public:
     koord platz1, platz2;
 
     bool create_simple_road_transport();    // neue Transportroute anlegen
-    bool create_complex_road_transport();
     bool create_simple_rail_transport();
-    bool create_complex_rail_transport();
-
 
     /**
      * Returns the amount of money for a certain finance section
@@ -540,7 +521,7 @@ public:
 
 	// headquarter stuff
 private:
-	int headquarter_level;
+	sint32 headquarter_level;
 	koord headquarter_pos;
 
 public:

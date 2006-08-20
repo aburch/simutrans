@@ -67,7 +67,7 @@
  * Zeitintervall für step
  * @author Hj. Malthaner
  */
-const int stadt_t::step_interval = 7000;
+const uint32 stadt_t::step_interval = 7000;
 
 karte_t *stadt_t::welt = NULL;	// one is enough ...
 
@@ -510,11 +510,13 @@ void stadt_t::rdwr(loadsave_t *file)
 	file->rdwr_str(name, 31);
 	pos.rdwr( file );
 	file->rdwr_delim("Plo: ");
-	file->rdwr_long(li, " ");
-	file->rdwr_long(ob, "\n");
+	uint32	lli=li, lob=ob, lre=re, lun=un;
+	file->rdwr_long(lli, " ");
+	file->rdwr_long(lob, "\n");
 	file->rdwr_delim("Pru: ");
-	file->rdwr_long(re, " ");
-	file->rdwr_long(un, "\n");
+	file->rdwr_long(lre, " ");
+	file->rdwr_long(lun, "\n");
+	li = lli;	ob = lob;	re = lre; un=lun;
 	file->rdwr_delim("Bes: ");
 	file->rdwr_long(besitzer_n, "\n");
 	file->rdwr_long(bev, " ");
@@ -1265,7 +1267,7 @@ stadt_t::check_bau_spezial(bool new_town)
 	// touristenattraktion bauen
 	const haus_besch_t *besch = hausbauer_t::gib_special(bev,welt->get_timeline_year_month());
 	if(besch) {
-		if(simrand(100) < besch->gib_chance()) {
+		if(simrand(100) < (unsigned)besch->gib_chance()) {
 			// baue was immer es ist
 			int rotate = 0;
 			bool is_rotate = besch->gib_all_layouts()>10;
@@ -2208,24 +2210,20 @@ stadt_t::pruefe_grenzen(koord k)
 const char *
 stadt_t::haltestellenname(koord k, const char *typ, int number)
 {
-    const char *base = "%s Fehler %s";
+    const char *base = "1center";	// usually gets to %s %s
     const char *building=NULL;
-
 
 	// prissi: first we try a factory name
 	halthandle_t halt=haltestelle_t::gib_halt(welt,k);
 	if(halt.is_bound()) {
 		slist_iterator_tpl <fabrik_t *> fab_iter(halt->gib_fab_list());
 		while( fab_iter.next() ) {
-//			if(welt->access(fab_iter.get_current()->gib_pos().gib_2d())->get_haltlist().get_count()==1) {
-				// we are the first!
-//				building = fab_iter.get_current()->gib_name();
-//			}
 			building = fab_iter.get_current()->gib_name();
 			break;
 		}
 	}
 
+	// no factory found => take the usual name scheme
 	if(building==NULL) {
 		int li_gr = li + 2;
 		int re_gr = re - 2;
@@ -2270,20 +2268,21 @@ stadt_t::haltestellenname(koord k, const char *typ, int number)
 
     char buf [512];
 
-	if(number >= 0 && umgebung_t::numbered_stations) {
-		const int n=sprintf(buf, translator::translate(base),
+	if(number>=0 && umgebung_t::numbered_stations) {
+		int n=sprintf(buf, translator::translate(base),
 			this->name,
 			translator::translate(typ));
-
-		sprintf(buf+n, " (%d)", number);
+		sprintf(buf+n, " (%d)",
+			number);
 	}
 	else if(building==NULL) {
-		const int n=sprintf(buf, translator::translate(base),
+		sprintf(buf, translator::translate(base),
 			this->name,
 			translator::translate(typ));
 	}
 	else {
-		const int n=sprintf(buf, translator::translate("%s building %s %s"),
+		// with factories
+		sprintf(buf, translator::translate("%s building %s %s"),
 			this->name,
 			building,
 			translator::translate(typ));

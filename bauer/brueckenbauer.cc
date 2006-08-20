@@ -270,7 +270,7 @@ bool brueckenbauer_t::ist_ende_ok(spieler_t *sp, const grund_t *gr)
 */
 int brueckenbauer_t::baue(spieler_t *sp, karte_t *welt, koord pos, weg_t::typ wegtyp)
 {
-	for(int i = 0; i < bruecken.get_count(); i++) {
+	for(unsigned i = 0; i < bruecken.get_count(); i++) {
 		const bruecke_besch_t *besch = bruecken.get(i);
 
 		if(besch && besch->gib_wegtyp() == wegtyp) {
@@ -283,10 +283,10 @@ int brueckenbauer_t::baue(spieler_t *sp, karte_t *welt, koord pos, weg_t::typ we
 
 /* built bridge with right top speed
  */
-int brueckenbauer_t::baue(spieler_t *sp, karte_t *welt, koord pos, weg_t::typ wegtyp,int top_speed)
+int brueckenbauer_t::baue(spieler_t *sp, karte_t *welt, koord pos, weg_t::typ wegtyp,uint32 top_speed)
 {
   const bruecke_besch_t *besch=NULL;
-  for(int i = 0; i < bruecken.get_count(); i++) {
+  for(unsigned i = 0; i < bruecken.get_count(); i++) {
     if(bruecken.get(i)->gib_wegtyp() == wegtyp) {
       if(besch==NULL
           ||  (besch->gib_topspeed()<top_speed  &&  besch->gib_topspeed()<bruecken.get(i)->gib_topspeed())
@@ -366,7 +366,7 @@ DBG_MESSAGE("brueckenbauer_t::baue()", "no way %x found",besch->gib_wegtyp());
 	// Brückenende suchen
 	koord3d end = finde_ende(welt, gr->gib_pos(), zv, besch->gib_wegtyp());
 
-	if(besch->gib_max_length()>0  &&  abs_distance(gr->gib_pos().gib_2d(),end.gib_2d())>besch->gib_max_length()) {
+	if(besch->gib_max_length()>0  &&  abs_distance(gr->gib_pos().gib_2d(),end.gib_2d())>(unsigned)besch->gib_max_length()) {
 		create_win(-1, -1, MESG_WAIT, new nachrichtenfenster_t(welt,"Bridge is too long for this type!\n"), w_autodelete);
 		return false;
 	}
@@ -474,7 +474,6 @@ brueckenbauer_t::baue_auffahrt(karte_t *welt, spieler_t *sp, koord3d end, koord 
 {
 	grund_t *alter_boden = welt->lookup(end);
 	weg_t *weg=0;
-	ribi_t::ribi ribi_alt = alter_boden->gib_weg_ribi_unmasked(besch->gib_wegtyp());
 	ribi_t::ribi ribi_neu;
 	brueckenboden_t *bruecke;
 	int weg_hang = 0;

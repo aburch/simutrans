@@ -267,7 +267,7 @@ private:
      * if the direction is the same as before
      * @author Hanjsörg Malthaner
      */
-    bool go_alte_richtung(ribi_t::ribi);
+    bool go_alte_richtung();
 
 
     /**

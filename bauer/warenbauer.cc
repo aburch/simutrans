@@ -80,7 +80,7 @@ const ware_besch_t *warenbauer_t::gib_info(const char* name)
 const ware_besch_t *warenbauer_t::gib_info_catg(const sint8 catg)
 {
 	if(catg>0) {
-		for(int i=0;  i<gib_waren_anzahl();  i++  ) {
+		for(unsigned i=0;  i<gib_waren_anzahl();  i++  ) {
 			if(waren.at(i)->catg==catg) {
 				return (const ware_besch_t *)waren.at(i);
 			}

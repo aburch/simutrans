@@ -19,19 +19,19 @@
 
 
 /**
- * Adds a selection_listener_t to this component
+ * Adds a action_listener_t to this component
  * @author Hj. Malthaner
  */
-void scrolled_list_gui_t::add_listener(selection_listener_t *c) {
+void scrolled_list_gui_t::add_listener(action_listener_t *c) {
   listeners->insert(c);
 };
 
 
 /**
- * Removes a selection_listener_t from this component
+ * Removes a action_listener_t from this component
  * @author Hj. Malthaner
  */
-void scrolled_list_gui_t::remove_listener(selection_listener_t *c) {
+void scrolled_list_gui_t::remove_listener(action_listener_t *c) {
   listeners->remove(c);
 };
 
@@ -42,22 +42,22 @@ void scrolled_list_gui_t::remove_listener(selection_listener_t *c) {
  */
 void scrolled_list_gui_t::call_listeners()
 {
-    slist_iterator_tpl<selection_listener_t *> iter( listeners );
+    slist_iterator_tpl<action_listener_t *> iter( listeners );
     while( iter.next() ) {
-	iter.get_current()->eintrag_gewaehlt(this, selection);
+	iter.get_current()->action_triggered(this);
     }
 }
 
 
 int scrolled_list_gui_t::total_vertical_size() const
 {
-  return item_list->count() * 11 + 4;
+  return item_list->count() * LINESPACE + 2;
 }
 
 
 scrolled_list_gui_t::scrolled_list_gui_t(enum type type)
 {
-  listeners = new slist_tpl <selection_listener_t *>;
+  listeners = new slist_tpl <action_listener_t *>;
   item_list = new slist_tpl <const char *>;
 
     this->type = type;
@@ -125,7 +125,7 @@ void scrolled_list_gui_t::remove_element(const int pos)
 
 
 // no less than 3, must be room for scrollbuttons
-#define YMIN ((11*3)+4)
+#define YMIN ((LINESPACE*3)+2)
 koord scrolled_list_gui_t::request_groesse(koord request)
 {
     koord groesse = gib_groesse();
@@ -177,7 +177,11 @@ scrolled_list_gui_t::infowin_event(const event_t *ev)
 		y>=(border/2) && y<(h-border/2)) {
 		selection = (y-(border/2)-2+offset);
 		if (selection>=0) {
-		    selection/=11;
+		    selection/=LINESPACE;
+		    if(selection>item_list->count()) {
+		    	selection = -1;
+		    }
+DBG_MESSAGE("scrolled_list_gui_t::infowin_event()","selected %i",selection);
 		}
 
 		call_listeners();

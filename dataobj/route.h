@@ -109,7 +109,7 @@ public:
      * @return letzer index in der Koordinatenliste
      * @author Hj. Malthaner
      */
-    int gib_max_n() const { return ((signed int)route.get_count())-1; };
+    sint32 gib_max_n() const { return ((signed int)route.get_count())-1; };
 
 
 

@@ -122,7 +122,7 @@ void fahrplan_gui_t::gimme_short_stop_name(cbuffer_t & buf,
 		}
 	}
 	// finally append
-	if(strlen(p)>max_chars) {
+	if(strlen(p)>(unsigned)max_chars) {
 		char tmp[max_chars+1];
 		strncpy( tmp, p, max_chars-3 );
 		strcpy( tmp+max_chars-3, "..." );
@@ -246,7 +246,7 @@ void fahrplan_gui_t::init()
 
 	line_selector.setze_pos(koord(90, 5));
 	line_selector.setze_groesse(koord(164, 14));
-	line_selector.set_max_size(koord(164, 100));
+	line_selector.set_max_size(koord(164, 13*LINESPACE+2+16));
 	line_selector.set_highlight_color(welt->get_active_player()->kennfarbe+1);
 	line_selector.clear_elements();
 	init_line_selector();
@@ -421,7 +421,7 @@ fahrplan_gui_t::action_triggered(gui_komponente_t *komp)
   } else if (komp == &line_selector) {
     int selection = line_selector.get_selection()-1;
 DBG_MESSAGE("fahrplan_gui_t::action_triggered()","line selection=%i",selection);
-    if (selection>-1  &&  selection<lines.count()) {
+    if (selection>-1  &&  selection<(int)lines.count()) {
       new_line = lines.at(selection);
       line_selector.setze_text(new_line->get_name(), 128);
       fpl->copy_from( new_line->get_fahrplan() );

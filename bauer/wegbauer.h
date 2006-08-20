@@ -135,7 +135,7 @@ private:
     bool keep_existing_city_roads;
 
     karte_t *welt;
-    int maximum;    // hoechste Suchtiefe
+    uint32 maximum;    // hoechste Suchtiefe
 
     vector_tpl<koord3d> *route;
 
@@ -210,7 +210,7 @@ public:
 
     void route_fuer(enum bautyp wt, const weg_besch_t * besch, const bruecke_besch_t *bruecke_besch=NULL);
 
-    void set_maximum(int n);
+    void set_maximum(uint32 n) { maximum = n; }
 
     wegbauer_t(karte_t *welt, spieler_t *spl);
     ~wegbauer_t();

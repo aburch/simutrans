@@ -1983,19 +1983,6 @@ static inline void colorpixcopy(PIXVAL *dest,
 
 
 /**
- * Returns image width
- * @author prissi
- */
-int display_get_img_width( int n ) {
-	if(n >= 0 && n < anz_images) {
-		return images[n].w;
-	}
-	return 0;
-}
-
-
-
-/**
  * Zeichnet Bild mit Clipping
  * @author Hj. Malthaner
  */

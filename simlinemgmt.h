@@ -56,7 +56,7 @@ class simlinemgmt_t
 	 * return number off lines
 	 * @author hsiegeln
 	 */
- 	int count_lines() { return all_managed_lines.get_count(); }
+ 	sint32 count_lines() { return all_managed_lines.get_count(); }
 
 	/*
 	* return a line

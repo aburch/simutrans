@@ -81,7 +81,7 @@ static int calc_min_top_speed(array_tpl <vehikel_t *> *fahr, int anz_vehikel)
 {
   int min_top_speed = 9999999;
   for(int i=0; i<anz_vehikel; i++) {
-    min_top_speed = MIN(min_top_speed, fahr->at(i)->gib_speed());
+    min_top_speed = min(min_top_speed, fahr->at(i)->gib_speed());
   }
 
   return min_top_speed;
@@ -209,7 +209,7 @@ convoi_t::laden_abschliessen()
 	if(anz_vehikel>0) {
 		for( unsigned i=0;  i<anz_vehikel;  i++ ) {
 			fahr->at(i)->setze_erstes( i==0 );
-			fahr->at(i)->setze_letztes( i==(anz_vehikel-1) );
+			fahr->at(i)->setze_letztes( i==(anz_vehikel-1u) );
 			// this sets the convoi and will renew the block reservation, if needed!
 			fahr->at(i)->setze_convoi( this );
 		}
@@ -651,7 +651,7 @@ void convoi_t::step()
 		case WAITING_FOR_CLEARANCE:
 		case WAITING_FOR_CLEARANCE_ONE_MONTH:
 			{
-				int restart_speed;
+				int restart_speed=-1;
 				if(fahr->at(0)->ist_weg_frei(restart_speed)) {
 					state = DRIVING;
 				}
@@ -810,7 +810,7 @@ DBG_MESSAGE("convoi_t::add_vehikel()","extend array_tpl to %i totals.",max_rail_
 		sum_leistung += info->gib_leistung();
 		sum_gear_und_leistung += info->gib_leistung()*info->get_gear();
 		sum_gewicht += info->gib_gewicht();
-		min_top_speed = MIN(min_top_speed, v->gib_speed());
+		min_top_speed = min(min_top_speed, v->gib_speed());
 		sum_gesamtgewicht = sum_gewicht;
 		calc_loading();
 		freight_info_resort = true;
@@ -834,7 +834,7 @@ convoi_t::remove_vehikel_bei(uint16 i)
 	if(i<anz_vehikel) {
 		v = fahr->at(i);
 		if(v != NULL) {
-			for(unsigned j=i; j<anz_vehikel-1; j++) {
+			for(unsigned j=i; j<anz_vehikel-1u; j++) {
 				fahr->at(j) = fahr->at(j+1);
 			}
 
@@ -942,25 +942,50 @@ convoi_t::erzeuge_fahrplan()
 
 
 /* checks, if we go in the same direction;
- * if yes, prepare the convoi for this
+ * true: convoy prepared
+ * false: must recalculate position
+ * on all error we better use the normal starting procedure ...
  */
 bool
-convoi_t::go_alte_richtung(ribi_t::ribi neue_richtung)
+convoi_t::go_alte_richtung()
 {
-DBG_MESSAGE("convoi_t::go_alte_richtung()","alte=%d, neu=%d",alte_richtung,neue_richtung);
-	if(neue_richtung!=alte_richtung) {
-		// may differ due to curve
-		if(ribi_t::ist_kurve(alte_richtung)) {
-			if((alte_richtung&neue_richtung)==0) {
-DBG_MESSAGE("convoi_t::go_alte_richtung()","false");
-				return false;
-			}
-		}
-		else {
-DBG_MESSAGE("convoi_t::go_alte_richtung()","false");
+	// going backwards? then recalculate all
+	sint8 dummy;
+	ribi_t::ribi neue_richtung_rwr =  ribi_t::rueckwaerts( fahr->at(0)->calc_richtung(route.position_bei(0).gib_2d(), route.position_bei(2).gib_2d(), dummy, dummy) );
+//DBG_MESSAGE("convoi_t::go_alte_richtung()","neu=%i,rwr_neu=%i,alt=%i",neue_richtung,ribi_t::rueckwaerts(neue_richtung),alte_richtung);
+	if(neue_richtung_rwr&alte_richtung) {
+		akt_speed = 8;
+		return false;
+	}
+
+	// now get the actual length and the tile length
+	int length=15;
+	for(unsigned i=0; i<anz_vehikel; i++) {
+		length+=fahr->at(i)->gib_besch()->get_length();
+		if(i>0  &&  abs_distance( fahr->at(i)->gib_pos().gib_2d(), fahr->at(i-1)->gib_pos().gib_2d())>=2 ) {
+			// ending here is an error!
+			// this is an already broken train => restart
+			dbg->warning("convoi_t::go_alte_richtung()","broken convoy (id %i) found => fixing!",self.get_id());
+			akt_speed = 8;
 			return false;
 		}
 	}
+	length = max((length/16)+2,route.gib_max_n()-1);	// maximum length in tiles to check
+
+	// we just check, wether we go back (i.e. route tiles other than zero have convoi vehicles on them)
+	for( int index=1;  index<length;  index++ ) {
+		grund_t *gr=welt->lookup(route.position_bei(index));
+		// now check, if we are already here ...
+		for(unsigned i=0; i<anz_vehikel; i++) {
+			if(gr->obj_ist_da(fahr->at(i))) {
+				// we are turning around => start slowly ...
+				akt_speed = 8;
+				return false;
+			}
+		}
+	}
+
+//DBG_MESSAGE("convoi_t::go_alte_richtung()","alte=%d, neu_rwr=%d",alte_richtung,neue_richtung_rwr);
 
 	// we continue our journey; however later cars need also a correct route entry
 	// eventually we need to add their positions to the convois route
@@ -979,13 +1004,29 @@ DBG_MESSAGE("convoi_t::go_alte_richtung()","false");
 	for(unsigned i=0; i<anz_vehikel; i++) {
 		// this is such akward, since it takes into account different vehicle length
 		const koord3d vehicle_start_pos = fahr->at(i)->gib_pos();
-		for( unsigned idx=0;  idx<convoi_t::max_rail_vehicle/2+1;  idx++  ) {
+		bool ok=false;
+		for( int idx=0;  idx<length;  idx++  ) {
 			if(route.position_bei(idx)==vehicle_start_pos) {
 				fahr->at(i)->neue_fahrt( idx );
+				ok = true;
 				break;
 			}
 		}
-		// direction etc. should be still the same
+		// too short?!?
+		if(!ok) {
+			return false;
+		}
+	}
+
+	// on curves the vehicle may be already on the next tile but with a wrong direction
+	for(unsigned i=0; i<anz_vehikel; i++) {
+		uint8 richtung = fahr->at(i)->gib_fahrtrichtung();
+		uint8 neu_richtung=fahr->at(i)->richtung();
+		// we need to move to this place ...
+		if(neu_richtung!=richtung  &&  (i!=0  ||  anz_vehikel==1)) {
+			// 90 deg bend!
+			return false;
+		}
 	}
 
 	return true;
@@ -1025,16 +1066,14 @@ convoi_t::vorfahren()
 	anz_ready = 0;
 
 	sint8 dummy1, dummy2;
-	ribi_t::ribi neue_richtung =  fahr->at(0)->calc_richtung(route.position_bei(0).gib_2d(), route.position_bei(1).gib_2d(), dummy1, dummy2);
 	setze_akt_speed_soll(fahr->at(0)->gib_speed());
 
 	INT_CHECK("simconvoi 651");
 
-	if(!go_alte_richtung(neue_richtung)) {
+	if(!go_alte_richtung()) {
 		// we reached a terminal => so we head in the reverse direction
 
-		akt_speed = 8;
-
+		ribi_t::ribi neue_richtung =  fahr->at(0)->calc_richtung(route.position_bei(0).gib_2d(), route.position_bei(1).gib_2d(), dummy1, dummy2);
 		go_neue_richtung();
 		bool extra_check=false;	// if there are only four view, we may need to extra advance the car
 
@@ -1062,7 +1101,7 @@ convoi_t::vorfahren()
 
 		// move one train length to the start position ...
 		int train_length=0;
-		for(unsigned i=0; i<anz_vehikel-1; i++) {
+		for(unsigned i=0; i<anz_vehikel-1u; i++) {
 			train_length += fahr->at(i)->gib_besch()->get_length();	// this give the length in 1/16 of a full tile
 		}
 
@@ -1070,6 +1109,7 @@ convoi_t::vorfahren()
 		fahr->at(0)->setze_erstes( false );	// switches off signal checks ...
 		for(unsigned i=0; i<anz_vehikel; i++) {
 			fahr->at(i)->darf_rauchen(false);
+			fahr->at(i)->richtung();
 			for(int j=0; j<train_length; j++) {
 				fahr->at(i)->sync_step();
 			}

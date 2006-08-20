@@ -794,9 +794,11 @@ print("Reading simuconf.tab successful!\n");
 
         umgebung_t::night_shift = (dn != 0);
 
-	fscanf(config, "AIs=%d,%d,%d,%d,%d,%d\n",
-	    &umgebung_t::automaten[0], &umgebung_t::automaten[1], &umgebung_t::automaten[2],
-	    &umgebung_t::automaten[3], &umgebung_t::automaten[4], &umgebung_t::automaten[5]);
+	int b[6];
+	fscanf(config, "AIs=%i,%i,%i,%i,%i,%i\n",&b[0],&b[1],&b[2],&b[3],&b[4],&b[5] );
+	for( int i=0;  i<6;  i++  ) {
+		umgebung_t::automaten[i] = b[i];
+	}
 
 	fscanf(config,"Messages=%d,%d,%d,%d\n",
 		&umgebung_t::message_flags[0], &umgebung_t::message_flags[1], &umgebung_t::message_flags[2], &umgebung_t::message_flags[3] );

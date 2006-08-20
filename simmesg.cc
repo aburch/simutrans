@@ -144,7 +144,7 @@ DBG_MESSAGE("message_t::add_msg()","%40s (at %i,%i)", text, pos.x, pos.y );
       }
 
 	// we will not add messages two times to the list if it was within the last 20 messages or within last three months
-	unsigned long now = welt->get_current_month()-2;
+	sint32 now = welt->get_current_month()-2;
 	for(unsigned i=0;  i<list->count()  &&  i<20;  i++) {
 		if(  list->at(i).time>=now  &&  list->at(i).pos==pos  &&  strcmp(list->at(i).msg,text)==0  ) {
 			// we had exactly this message already

@@ -21,6 +21,9 @@
 #include "vehicle_reader.h"
 #include "../obj_node_info.h"
 
+/******************************************
+ * This an attempt to move vehicles at the right positiion during load time
+
 static offset_koord xy_road[8] =
 {
 	{ 28, 45 },
@@ -40,6 +43,8 @@ static offset_koord xy_rail[8] =
 	{ 28, 48 },
 	{ 22, 48 },
 };
+
+*/
 
 
 //@ADOC

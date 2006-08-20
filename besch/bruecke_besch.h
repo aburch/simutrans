@@ -111,13 +111,13 @@ public:
     }
 
 
-    int gib_preis() const
+    sint32 gib_preis() const
     {
 	return preis;
     }
 
 
-    int gib_wartung() const
+    sint32 gib_wartung() const
     {
 	return maintenance;
     }
@@ -127,7 +127,7 @@ public:
      * Determines max speed in km/h allowed on this bridge
      * @author Hj. Malthaner
      */
-    int  gib_topspeed() const
+    uint32  gib_topspeed() const
     {
 	return topspeed;
     }

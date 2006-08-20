@@ -111,11 +111,7 @@ DBG_DEBUG("depot_frame_t::depot_frame_t()","get_max_convoi_length()=%i",depot->g
     /*
      * [SELECT ROUTE]:
      */
-	line_selector.setze_pos(koord(90, 5));
-	line_selector.setze_groesse(koord(164, 14));
-	line_selector.set_max_size(koord(164, 100));
 	line_selector.set_highlight_color(welt->get_active_player()->kennfarbe+1);
-	line_selector.clear_elements();
 	line_selector.add_listener(this);
 	add_komponente(&line_selector);
 
@@ -399,7 +395,7 @@ void depot_frame_t::layout(koord *gr)
      */
     line_selector.setze_pos(koord(20, SELECT_VSTART + 13));
     line_selector.setze_groesse(koord(TOTAL_WIDTH - 40, 14));
-    line_selector.set_max_size(koord(TOTAL_WIDTH - 40, 150));
+    line_selector.set_max_size(koord(TOTAL_WIDTH - 40, LINESPACE*13+2+16));
     line_selector.set_highlight_color(1);
 
     /*
@@ -618,14 +614,6 @@ void depot_frame_t::update_data()
 
 	bt_veh_action.setze_text(txt_veh_action[veh_action]);
 
-	// set line text: (line name or <no line>
-	if(selected_line.is_bound()) {
-		line_selector.setze_text(selected_line->get_name(), 128);
-	}
-	else {
-		line_selector.setze_text(no_line_text, 128);
-	}
-
 	switch(depot->convoi_count()) {
 		case 0:
 			tstrncpy(txt_convois, translator::translate("no convois"), 40);
@@ -657,7 +645,7 @@ void depot_frame_t::update_data()
 		inp_name.setze_text(cnv->access_name(), 48);
 		image_list_t::image_data_t img_data;
 
-		for(int i=0; i<cnv->gib_vehikel_anzahl(); i++) {
+		for(unsigned i=0; i<cnv->gib_vehikel_anzahl(); i++) {
 
 			// just make sure, there is this vehicle also here!
 			const vehikel_besch_t *info=cnv->gib_vehikel(i)->gib_besch();
@@ -673,8 +661,8 @@ void depot_frame_t::update_data()
 
 		/* color bars for current convoi: */
 		convoi_pics.at(0).lcolor = convoi_t::pruefe_vorgaenger(NULL,cnv->gib_vehikel(0)->gib_besch()) ? COL_GREEN : COL_YELLOW;
-		int i;
-		for(i=1;  i<cnv->gib_vehikel_anzahl(); i++) {
+		unsigned i;
+		for(  i=1;  i<cnv->gib_vehikel_anzahl(); i++) {
 			convoi_pics.at(i - 1).rcolor = convoi_t::pruefe_nachfolger(cnv->gib_vehikel(i - 1)->gib_besch(),cnv->gib_vehikel(i)->gib_besch()) ? COL_GREEN : COL_RED;
 			convoi_pics.at(i).lcolor = convoi_t::pruefe_vorgaenger(cnv->gib_vehikel(i - 1)->gib_besch(),cnv->gib_vehikel(i)->gib_besch()) ? COL_GREEN : COL_RED;
 		}
@@ -751,16 +739,21 @@ void depot_frame_t::update_data()
 		}
 	}
 
+	// update the line selector
 	line_selector.clear_elements();
 	line_selector.append_element(no_line_text);
-	if(gib_besitzer()->simlinemgmt.count_lines() > 0) {
-		slist_iterator_tpl<linehandle_t> iter( depot->get_line_list() );
-		while( iter.next() ) {
-			linehandle_t line = iter.get_current();
-			line_selector.append_element( line->get_name() );
-			if(line==selected_line) {
-				line_selector.set_selection( line_selector.count_elements() );
-			}
+	if(!selected_line.is_bound()) {
+		line_selector.setze_text(no_line_text, 128);
+		line_selector.set_selection( 0 );
+	}
+	// check all matching lines
+	slist_iterator_tpl<linehandle_t> iter( depot->get_line_list() );
+	while( iter.next() ) {
+		linehandle_t line = iter.get_current();
+		line_selector.append_element( line->get_name() );
+		if(line==selected_line) {
+			line_selector.setze_text( line->get_name(), 128);
+			line_selector.set_selection( line_selector.count_elements()-1 );
 		}
 	}
 }
@@ -848,7 +841,7 @@ DBG_DEBUG("depot_frame_t::bild_gewaehlt()","icnv");
 	const convoihandle_t cnv = depot->get_convoi(icnv);
 
 DBG_DEBUG("depot_frame_t::bild_gewaehlt()","convoi index %i",bild_index);
-	if(cnv.is_bound() && bild_index < cnv->gib_vehikel_anzahl() ) {
+	if(cnv.is_bound() && bild_index < (int)cnv->gib_vehikel_anzahl() ) {
 	    if(cnv->gib_vehikel_anzahl() == 1) {
 		depot->disassemble_convoi(icnv, false);
 		icnv--;
@@ -912,6 +905,7 @@ depot_frame_t::action_triggered(gui_komponente_t *komp)
 	    apply_line();
 		} else if(komp == &line_selector) {
 			int sel=line_selector.get_selection();
+DBG_MESSAGE("depot_frame_t::action_triggered()","selected %i",sel);
 			if(sel>0) {
 				selected_line = depot->get_line_list()->at(sel-1);
 			}
@@ -998,6 +992,7 @@ void depot_frame_t::infowin_event(const event_t *ev)
     }
     else {
 		gui_frame_t::infowin_event(ev);
+
 		if(IS_LEFTCLICK(ev) &&  !line_selector.getroffen(ev->cx, ev->cy)) {
 			// close combo box; we must do it ourselves, since the box does not recieve outside events ...
 			line_selector.release_focus();

@@ -117,7 +117,11 @@ stadtauto_t::stadtauto_t(karte_t *welt, loadsave_t *file)
 	welt->sync_add(this);
 }
 
+#ifdef DESTINATION_CITYCARS
 stadtauto_t::stadtauto_t(karte_t *welt, koord3d pos, koord target)
+#else
+stadtauto_t::stadtauto_t(karte_t *welt, koord3d pos, koord )
+#endif
  : verkehrsteilnehmer_t(welt, pos)
 {
 	besch = liste_timeline.gib_gewichted(simrand(liste_timeline.gib_gesamtgewicht()));

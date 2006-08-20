@@ -2,8 +2,8 @@
 #OSTYPE = beos
 #OSTYPE = cygwin
 #OSTYPE = freebsd
-#OSTYPE = linux
-OSTYPE = mingw
+OSTYPE = linux
+#OSTYPE = mingw
 
 LN= $(CC)
 

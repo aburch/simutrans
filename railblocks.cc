@@ -428,7 +428,7 @@ blockstrecke_t::rdwr(loadsave_t *file)
 		file->rdwr_long(dummy, " ");
 		file->rdwr_long(dummy, "\n");
 		v_rein = 0;
-		v_raus = -1;	// unbound!
+		v_raus = (uint16)-1;	// unreserved block
 	}
 	else  {
 		// new style => 16 Bit counter and a reservation handle

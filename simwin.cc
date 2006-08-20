@@ -432,8 +432,8 @@ DBG_DEBUG("create_win()","magic=%d already there, bring to fornt", magic);
 		}
 
 		if(x == -1) {
-			x = MIN(gib_maus_x() - gr.x/2, display_get_width()-gr.x);
-			y = MIN(gib_maus_y() - gr.y-32, display_get_height()-gr.y);
+			x = min(gib_maus_x() - gr.x/2, display_get_width()-gr.x);
+			y = min(gib_maus_y() - gr.y-32, display_get_height()-gr.y);
 		}
 		wins[ins_win].pos.x = MAX(x,0);
 		wins[ins_win].pos.y = MAX(32, y);

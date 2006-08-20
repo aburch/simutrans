@@ -48,7 +48,7 @@ oberleitung_t::oberleitung_t(karte_t *welt, loadsave_t *file) : ding_t (welt)
 oberleitung_t::~oberleitung_t()
 {
 	if(gib_besitzer()) {
-	gib_besitzer()->add_maintenance(-umgebung_t::maint_overhead);
+		gib_besitzer()->add_maintenance(-umgebung_t::maint_overhead);
 	}
 
 	// remove status electrified from rail
@@ -57,7 +57,7 @@ oberleitung_t::~oberleitung_t()
 	if(gr) {
 		schiene_t *sch = dynamic_cast<schiene_t *> (gr->gib_weg_nr(0));
 		if(sch==0) {
-			schiene_t *sch = dynamic_cast<schiene_t *> (gr->gib_weg_nr(1));
+			sch = dynamic_cast<schiene_t *> (gr->gib_weg_nr(1));
 		}
 		if(sch) {
 			sch->setze_elektrisch( false );

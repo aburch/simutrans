@@ -56,6 +56,7 @@ vehikelbauer_t::baue(karte_t *welt, koord3d k,
       break;
    case weg_t::invalid:
    case weg_t::powerline:
+   default:
    	dbg->fatal("vehikelbauer_t::baue()","cannot built a vehicle with waytype %i",vb->gib_typ());
   }
 
@@ -175,8 +176,8 @@ void vehikelbauer_t::sort_lists()
         if(cmp == 0) {
         	if(test->gib_leistung()>0) {
 	        	// to handle tender correctly
-	        	uint8 engine = (test->gib_zuladung()+test->gib_leistung()==0) ? vehikel_besch_t::steam : test->get_engine_type();
-	        	uint8 besch_engine = (besch->gib_zuladung()+besch->gib_leistung()==0) ? vehikel_besch_t::steam : besch->get_engine_type();
+	        	uint8 engine = (test->gib_zuladung()+test->gib_leistung()==0) ? (uint8)vehikel_besch_t::steam : test->get_engine_type();
+	        	uint8 besch_engine = (besch->gib_zuladung()+besch->gib_leistung()==0) ? (uint8)vehikel_besch_t::steam : besch->get_engine_type();
 	        	cmp =  engine - besch_engine;
 	        }
 
@@ -381,8 +382,7 @@ DBG_MESSAGE( "vehikelbauer_t::vehikel_search","try freight car %s",test_besch->g
                 difference += (besch->gib_preis() > test_besch->gib_preis())? -10 : 10;
               }
               // ok, final check
-              if(  besch==NULL  ||  difference<simrand(30)    )
-              {
+              if(  besch==NULL  ||  difference<(int)simrand(30)    ) {
                   // then we want this vehicle!
                   besch = test_besch;
 DBG_MESSAGE( "vehikelbauer_t::vehikel_search","Found engine %s",besch->gib_name());
@@ -422,7 +422,7 @@ DBG_MESSAGE( "vehikelbauer_t::vehikel_search","Found freight car %s",test_besch-
                 difference += (besch->gib_preis() > test_besch->gib_preis())? -20 : 20;
               }
               // ok, final check
-              if(  besch==NULL  ||  besch->gib_leistung()<target_power  ||  besch->gib_geschw()<target_speed  ||  difference<simrand(100)    )
+              if(  besch==NULL  ||  besch->gib_leistung()<target_power  ||  besch->gib_geschw()<target_speed  ||  difference<(int)simrand(100)    )
               {
                   // then we want this vehicle!
                   besch = test_besch;
@@ -471,9 +471,9 @@ DBG_MESSAGE( "vehikelbauer_t::vehikel_fuer_leistung()","%s: vorgaenger %i nachfo
           // assign this vehicle, if we have none found one yet, or we found only a too week one
           if(  besch==NULL  ||  besch->gib_leistung()<leistung  ||
             // it is cheaper to run?
-            iter.get_current_value()->gib_betriebskosten()-besch->gib_betriebskosten()<simrand(100)  ||
+            iter.get_current_value()->gib_betriebskosten()-besch->gib_betriebskosten()<(int)simrand(100)  ||
             // it is faster
-             iter.get_current_value()->gib_geschw()-besch->gib_geschw()>simrand(128)    ) {
+             iter.get_current_value()->gib_geschw()-besch->gib_geschw()>(int)simrand(128)    ) {
 
               // then we want this vehicle!
               besch = iter.get_current_value();

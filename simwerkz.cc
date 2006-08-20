@@ -797,11 +797,6 @@ DBG_MESSAGE("wkz_wegebau()", "try straight route");
 				bauigel.calc_route(start,ziel);
 			}
 
-			// sp->platz1 = start;
-			// sp->platz2 = ziel;
-			// sp->create_complex_rail_transport();
-			// sp->create_complex_road_transport();
-
 			DBG_MESSAGE("wkz_wegebau()", "builder found route with %d sqaures length.", bauigel.max_n);
 
 			bauigel.calc_costs();

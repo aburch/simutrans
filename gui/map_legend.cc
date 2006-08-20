@@ -81,7 +81,7 @@ void map_legend_t::calc_button_positions()
  * Konstruktor. Erzeugt alle notwendigen Subkomponenten.
  * @author Hj. Malthaner
  */
-map_legend_t::map_legend_t(const karte_modell_t *welt) : gui_frame_t("Legend")
+map_legend_t::map_legend_t(const karte_modell_t */*welt*/) : gui_frame_t("Legend")
 {
 	legend_names.clear();
 	legend_colors.clear();

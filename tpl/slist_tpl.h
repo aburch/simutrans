@@ -129,27 +129,28 @@ public:
      */
     void insert(T data, unsigned int pos)
     {
-	if(pos > node_count) {
-		ERROR("slist_tpl<T>::insert()","<%s> index %d is out of bounds (<%d)",typeid(T).name(),pos,count());
-	}
-	if(pos == 0) { // insert at front
-	    insert(data);
-	    return;
-	}
-	node_t *p = head;
-	while(--pos) {
-	    p = p->next;
-	}
-	// insert between p and p->next
-	node_t *tmp = gimme_node();
-	tmp->data = data;
-	tmp->next = p->next;
-	p->next = tmp;
+		if(pos > node_count) {
+			ERROR("slist_tpl<T>::insert()","<%s> index %d is out of bounds (<%d)",typeid(T).name(),pos,count());
+		}
 
-	if(tail == p) {
-	    tail = tmp;
-	}
-	node_count++;
+		if(pos == 0) { // insert at front
+			insert(data);
+			return;
+		}
+		node_t *p = head;
+		while(--pos) {
+			p = p->next;
+		}
+		// insert between p and p->next
+		node_t *tmp = gimme_node();
+		tmp->data = data;
+		tmp->next = p->next;
+		p->next = tmp;
+
+		if(tail == p) {
+			tail = tmp;
+		}
+		node_count++;
     }
 
     /**
@@ -159,17 +160,18 @@ public:
      */
     void append(T data)
     {
-	if(tail == 0) {
-	    insert(data);
-	} else {
-	    node_t *tmp = gimme_node();
-	    tmp->data = data;
-	    tmp->next = 0;
+		if(tail == 0) {
+			insert(data);
+		}
+		else {
+			node_t *tmp = gimme_node();
+			tmp->data = data;
+			tmp->next = 0;
 
-	    tail->next = tmp;
-	    tail = tmp;
-	    node_count++;
-	}
+			tail->next = tmp;
+			tail = tmp;
+			node_count++;
+		}
     }
 
     /**
@@ -194,38 +196,40 @@ public:
      */
     bool remove(const T data)
     {
-	if(node_count == 0) {
-        //MESSAGE("slist_tpl<T>::remove()", "data not in list!");
-	    return false;
-	}
-	if(head->data == data) {
-	    node_t *tmp = head->next;
-	    putback_node( head );
-	    head = tmp;
+		if(node_count == 0) {
+			//MESSAGE("slist_tpl<T>::remove()", "data not in list!");
+			return false;
+		}
 
-	    if(head == NULL) {
-		tail = NULL;
-	    }
-	} else {
-	    node_t *p = head;
+		if(head->data == data) {
+			node_t *tmp = head->next;
+			putback_node( head );
+			head = tmp;
 
-	    while(p->next != 0 && !(p->next->data == data)) {
-		p = p->next;
-	    }
-	    if(p->next == 0) {
-	        //MESSAGE("slist_tpl<T>::remove()", "data not in list!");
-		return false;
-	    }
-	    node_t *tmp = p->next->next;
-	    putback_node( p->next );
-	    p->next = tmp;
+			if(head == NULL) {
+				tail = NULL;
+			}
+		}
+		else {
+			node_t *p = head;
 
-	    if(tmp == 0) {
-		tail = p;
-	    }
-	}
-	node_count--;
-	return true;
+			while(p->next != 0 && !(p->next->data == data)) {
+				p = p->next;
+			}
+			if(p->next == 0) {
+				//MESSAGE("slist_tpl<T>::remove()", "data not in list!");
+				return false;
+			}
+			node_t *tmp = p->next->next;
+			putback_node( p->next );
+			p->next = tmp;
+
+			if(tmp == 0) {
+				tail = p;
+			}
+		}
+		node_count--;
+		return true;
     }
 
     /**
@@ -235,33 +239,36 @@ public:
      */
     void remove_at(unsigned int pos)
     {
-	if(pos >= node_count) {
-		ERROR("slist_tpl<T>::remove_at()","<%s> index %d is out of bounds",typeid(T).name(),pos);
-		trap();
-	}
-      	if(pos == 0) { // remove first element
-	    node_t *tmp = head->next;
-	    putback_node( head );
-	    head = tmp;
+		if(pos >= node_count) {
+			ERROR("slist_tpl<T>::remove_at()","<%s> index %d is out of bounds",typeid(T).name(),pos);
+			trap();
+		}
 
-	    if(head == 0) {
-		tail = 0;
-	    }
-	}
-	else {
-	    node_t *p = head;
-	    while(--pos) {
-		p = p->next;
-	    }
-	    // remove p->next
-	    node_t *tmp = p->next->next;
-	    putback_node( p->next );
-	    p->next = tmp;
-	    if(tmp == 0) {
-		tail = p;
-	    }
-	}
-	node_count--;
+		if(pos == 0) {
+			// remove first element
+			node_t *tmp = head->next;
+			putback_node( head );
+			head = tmp;
+
+			if(head == 0) {
+				tail = 0;
+			}
+		}
+		else {
+			node_t *p = head;
+			while(--pos) {
+				p = p->next;
+			}
+
+			// remove p->next
+			node_t *tmp = p->next->next;
+			putback_node( p->next );
+			p->next = tmp;
+			if(tmp == 0) {
+				tail = p;
+			}
+		}
+		node_count--;
     }
 
     /**
@@ -269,28 +276,28 @@ public:
      * deleted from the list. Useful for some queueing tasks.
      * @author Hj. Malthaner
      */
-    T remove_first()
-    {
-	if(node_count > 0) {
-	    T tmp = head->data;
-	    node_t *p = head;
+	T remove_first()
+	{
+		if(node_count==0) {
+			ERROR("slist_tpl<T>::remove_first()","List of <%s> is empty",typeid(T).name());
+			trap();
+		}
 
-            head = head->next;
-	    putback_node(p);
+		T tmp = head->data;
+		node_t *p = head;
 
-	    node_count--;
+		head = head->next;
+		putback_node(p);
 
-	    if(head == 0) {
-		// list is empty now
-		tail = 0;
-	    }
+		node_count--;
 
-	    return tmp;
-	} else {
-	ERROR("slist_tpl<T>::remove_first()","List of <%s> is empty",typeid(T).name());
-	trap();
+		if(head == 0) {
+			// list is empty now
+			tail = 0;
+		}
+
+		return tmp;
 	}
-    }
 
 
     /**
@@ -300,12 +307,12 @@ public:
      */
     void clear()
     {
-	if(head) {
-	    putback_nodes();
-	}
-	head = 0;
-      tail = 0;
-	node_count = 0;
+		if(head) {
+			putback_nodes();
+		}
+		head = 0;
+		tail = 0;
+		node_count = 0;
     }
 
     unsigned int count() const
@@ -320,32 +327,31 @@ public:
 
     T &at(unsigned int pos) const
     {
-	node_t *p = head;
+		node_t *p = head;
 
-	while(p != 0) {
-	    if(pos-- == 0) {
-		return p->data;
-	    }
-	    p = p->next;
-	}
+		while(p != 0) {
+			if(pos-- == 0) {
+				return p->data;
+			}
+			p = p->next;
+		}
 
-	ERROR("slist_tpl<T>::at()","<%s> index %d is out of bounds",typeid(T).name(),pos);
-	trap();
-//	assert(false);
-	return head->data;	// to keep compiler silent
+		ERROR("slist_tpl<T>::at()","<%s> index %d is out of bounds",typeid(T).name(),pos);
+		trap();
+		return head->data;	// to keep compiler silent
     }
 
 
     int index_of(T data) const
     {
-	node_t *t = head;
-	int index = 0;
+		node_t *t = head;
+		int index = 0;
 
-	while(t && t->data != data) {
-	    t = t->next;
-	    index++;
-	}
-	return t ? index : -1;
+		while(t && t->data != data) {
+			t = t->next;
+			index++;
+		}
+		return t ? index : -1;
     }
 };
 

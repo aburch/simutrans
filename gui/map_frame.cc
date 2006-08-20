@@ -62,8 +62,8 @@ map_frame_t::map_frame_t(const karte_modell_t *welt) : gui_frame_t("Reliefkarte"
 
 
 	// Clipping geändert - max. 250 war zu knapp für grosse Karten - V.Meyer
-	scrolly.setze_scroll_position(MAX(0, MIN(gr.x - (64+16),(ij.x+8) * 2-128)),
-	MAX(0, MIN(gr.x - (64+16),(ij.y+8) * 2-128)) );
+	scrolly.setze_scroll_position(max(0, min(gr.x - (64+16),(ij.x+8) * 2-128)),
+	max(0, min(gr.x - (64+16),(ij.y+8) * 2-128)) );
 
 	// Hajo: Trigger layouting
 	set_resizemode(diagonal_resize);
@@ -138,8 +138,8 @@ void map_frame_t::infowin_event(const event_t *ev)
     x += (ev->mx - ev->cx)*2;
     y += (ev->my - ev->cy)*2;
 
-    scrolly.setze_scroll_position(MAX(0, MIN(groesse.x, x)),
-				  MAX(0, MIN(groesse.y, y)) );
+    scrolly.setze_scroll_position(max(0, min(groesse.x, x)),
+				  max(0, min(groesse.y, y)) );
 
     // Hajo: re-center mouse pointer
     display_move_pointer(screenpos.x+ev->cx, screenpos.y+ev->cy);

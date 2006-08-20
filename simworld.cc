@@ -939,6 +939,7 @@ karte_t::karte_t() : ausflugsziele(16), quick_shortcuts(15), marker(0,0)
 	slopes = 0;
 	grid_hgts = 0;
 	einstellungen = 0;
+	schedule_counter = 0;
 
 	for(int i=0; i<MAX_PLAYER_COUNT ; i++) {
 		spieler[i] = 0;
@@ -2037,7 +2038,7 @@ DBG_MESSAGE("karte_t::neues_jahr()","Year %d has started", letztes_jahr);
 #define GRUPPEN 14
 static long step_group_times[GRUPPEN];
 
-static int last_tick=0;
+
 
 void karte_t::step(const long delta_t)
 {
@@ -2815,11 +2816,11 @@ DBG_MESSAGE("karte_t::laden()", "%d ways loaded",weg_t::gib_alle_wege().count())
 	}
 
 	// just keep the record for the last 12 years ... to allow infite long games
-	while(ticks>(288 << karte_t::ticks_bits_per_tag)) {
-		ticks -= (144 << karte_t::ticks_bits_per_tag);
+	while(ticks>(288u << karte_t::ticks_bits_per_tag)) {
+		ticks -= (144u << karte_t::ticks_bits_per_tag);
 	}
 	// get the number of year (12 is the longest history we got
-	if(ticks > (144 << karte_t::ticks_bits_per_tag)) {
+	if(ticks > (144u << karte_t::ticks_bits_per_tag)) {
 		basis_jahr = letztes_jahr-12;
 	}
 	else {
@@ -4479,14 +4480,14 @@ karte_t::interactive_update()
 		// get an event
 		win_poll_event(&ev);
 
-		if(ev.ev_class == EVENT_SYSTEM  &&  ev.ev_code==SYSTEM_QUIT) {
+		if(ev.ev_class==EVENT_SYSTEM  &&  ev.ev_code==SYSTEM_QUIT) {
 			// Beenden des Programms wenn das Fenster geschlossen wird.
 			destroy_all_win();
 			beenden(true);
 			return;
 		}
 
-		if(ev.ev_class != EVENT_NONE &&  ev.ev_class != IGNORE_EVENT) {
+		if(ev.ev_class!=EVENT_NONE &&  ev.ev_class!=IGNORE_EVENT) {
 
 			swallowed = check_pos_win(&ev);
 
@@ -4494,7 +4495,7 @@ karte_t::interactive_update()
 				display_show_pointer(false);
 			} else if(IS_RIGHTRELEASE(&ev)) {
 				display_show_pointer(true);
-			} else if(ev.ev_class == EVENT_DRAG && ev.ev_code == MOUSE_RIGHTBUTTON) {
+			} else if(ev.ev_class==EVENT_DRAG  &&  ev.ev_code==MOUSE_RIGHTBUTTON) {
 				// unset following
 				if(follow_convoi.is_bound()) {
 					follow_convoi = convoihandle_t();
@@ -4502,7 +4503,7 @@ karte_t::interactive_update()
 				blick_aendern(&ev);
 			}
 
-			if(ev.button_state == 0 && ev.ev_class == EVENT_MOVE) {
+			if(ev.button_state==0  &&  ev.ev_class==EVENT_MOVE) {
 				bewege_zeiger(&ev);
 			}
 		}
@@ -4528,6 +4529,7 @@ karte_t::interactive()
 {
 	unsigned long now = get_system_ms();
 	unsigned long this_step_time = 0;
+	thisFPS = 0;
 
 	active_player_nr = 0;
 	active_player = spieler[0];

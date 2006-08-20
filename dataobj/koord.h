@@ -67,7 +67,7 @@ public:
 
 
 
-inline int abs_distance(koord a,koord b)
+inline unsigned abs_distance(koord a,koord b)
 {
 	return abs(a.x-b.x)+abs(a.y-b.y);
 }

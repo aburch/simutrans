@@ -100,7 +100,7 @@ public:
      * Brückenbau für die KI - chosse chepest fast enough
      * @author V. Meyer
      */
-    static int baue(spieler_t *sp, karte_t *welt, koord pos, weg_t::typ wegtyp,int top_speed);
+    static int baue(spieler_t *sp, karte_t *welt, koord pos, weg_t::typ wegtyp,uint32 top_speed);
 
     /*
      * Brückenbau für die KI - der ist der Brückenstil egal.

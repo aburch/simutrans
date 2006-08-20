@@ -176,12 +176,7 @@ DBG_MESSAGE("boden_t::calc_bild()","ERROR: covered tile not ground?!?");
 		}
 	}
 	else {
-		const koord k = gib_pos().gib_2d();
 		uint8 slope_this =  gib_grund_hang();
-
-		const int min_h=welt->min_hgt(k);
-		const int max_h=welt->max_hgt(k);
-
 		weg_t *weg = gib_weg(weg_t::strasse);
 
 #ifndef DOUBLE_GROUNDS

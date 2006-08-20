@@ -44,20 +44,20 @@ struct sys_event sys_event;
  * Schnittstelle untergebracht
  * -> init,open,close
  */
-int dr_os_init(int n, int *parameter)
+int dr_os_init(int ok, int *parameter)
 {
-  // initialize SDL
-  int ok = SDL_Init(SDL_INIT_VIDEO|SDL_INIT_NOPARACHUTE);
-  if(ok != 0) {
-    fprintf(stderr, "Couldn't initialize SDL: %s\n", SDL_GetError());
-    return FALSE;
-  }
+	// initialize SDL
+	ok = SDL_Init(SDL_INIT_VIDEO|SDL_INIT_NOPARACHUTE);
+	if(ok != 0) {
+		fprintf(stderr, "Couldn't initialize SDL: %s\n", SDL_GetError());
+		return FALSE;
+	}
 
-  sync_blit = parameter[1];
+	sync_blit = parameter[1];
 
-  // if SDL gets initialized normally, return zero
-  atexit(SDL_Quit); // clean up on exit
-  return ok == 0;
+	// if SDL gets initialized normally, return zero
+	atexit(SDL_Quit); // clean up on exit
+	return ok == 0;
 }
 
 

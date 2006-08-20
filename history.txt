@@ -6,9 +6,21 @@ Known bugs: (hard to fix)
 	valgrind complains about errors in SDL and X?
 	sorting factories has an umlaute problem
 	set color broken?
+	help windows to large => need scrolling!
 
 
-Release of 88.07
+Release of 88.08.1
+
+16-Apr-2006: (prissi)
+	FIX: all unneccessary warnings corrected (and an error in the AI module found)
+	FIX: some problem with initialized values fixed
+	FIX: broken convoys after curves, much less "jumping" at waypoints
+	FIX: line selector in depot now hopefully finally fixed
+	FIX: wrong naming of industry stops with numbered stations
+	FIX: 64er aircraft cost optimized for timeline
+
+
+Release of 88.08
 
 14-Apr-2006: (prissi)
 	FIX: line selection in depot window

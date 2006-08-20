@@ -156,7 +156,7 @@ inline void
 baum_t::calc_bild(const unsigned long alter)
 {
 	// alter/2048 gibt die tage
-	int baum_alter = baum_bild_alter[MIN(alter>>6, 11)];
+	int baum_alter = baum_bild_alter[min(alter>>6, 11u)];
 
 	// here comes the variation for the seasons
 	const int nr_seasons=besch->gib_seasons();
@@ -303,7 +303,7 @@ baum_t::saee_baum()
 		const int guete = 140 - ABS(bd->gib_hoehe() - besch->gib_hoehenlage()*16);
 		//		printf("Guete %d\n", guete);
 
-		if(guete > simrand(128)) {
+		if(guete >(int)simrand(128)) {
 		    bd->obj_add( new baum_t(welt, bd->gib_pos(), besch) );
 		    //		    printf("  Erfolgreich.\n");
 		}

@@ -715,7 +715,9 @@ DBG_MESSAGE("vehikel_t::hop()","reverse dir at route index %d",route_index);
 			if(welt->lookup(pos_next)->gib_halt().is_bound()) {
 				fahrtrichtung = calc_richtung(pos_prev.gib_2d(), pos_next.gib_2d(), dx, dy);
 			}
+			else {
 //DBG_MESSAGE("vehikel_t::hop()","next is stop at route index %d",route_index);
+			}
 		}
 	}
 	calc_bild();
@@ -2007,7 +2009,6 @@ waggon_t::betrete_feld()
 {
 	grund_t * gr = welt->lookup(gib_pos());
 	static ding_t *arr[256];
-	bool ok=false;
 	const uint8 offset=gr->gib_weg(weg_t::strasse)!=0 ? PRI_RAIL_AND_ROAD : PRI_RAIL;
 
 	if(ist_blockwechsel(pos_prev, pos_cur)) {
@@ -2562,7 +2563,7 @@ aircraft_t::betrete_feld()
 {
 	vehikel_t::betrete_feld();
 
-	if((state==flying2  ||  state==flying)  &&  route_index+6>=touchdown) {
+	if((state==flying2  ||  state==flying)  &&  route_index+6u>=touchdown) {
 		const short landehoehe=height_scaling(cnv->get_route()->position_bei(touchdown).z)+16*(touchdown-route_index);
 		if(landehoehe<flughoehe) {
 			state = landing;
@@ -2691,7 +2692,7 @@ aircraft_t::get_approach_ribi( koord3d start, koord3d ziel )
 bool
 aircraft_t::calc_route(karte_t * welt, koord3d start, koord3d ziel, uint32 max_speed, route_t *route )
 {
-	DBG_MESSAGE("aircraft_t::calc_route()","search route from %i,%i,%i to %i,%i,%i state=%i",start.x,start.y,start.z,ziel.x,ziel.y,ziel.z);
+	DBG_MESSAGE("aircraft_t::calc_route()","search route from %i,%i,%i to %i,%i,%i",start.x,start.y,start.z,ziel.x,ziel.y,ziel.z);
 
 	// free target reservation
 	if(ist_erstes  &&  alte_fahrtrichtung!=ribi_t::keine  &&  cnv  &&  target_halt.is_bound() ) {

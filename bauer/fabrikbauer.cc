@@ -603,7 +603,7 @@ DBG_MESSAGE("fabrikbauer_t::baue_hierarchie","lieferanten %i, lcount %i (need %i
 			if(fab->vorrat_an(ware) > -1) {
 
 				// for sources (oil fields, forests ... ) prefer thoses with a smaller distance
-				const int distance = koord_distance(fab->gib_pos(),*pos);
+				const unsigned distance = koord_distance(fab->gib_pos(),*pos);
 				const bool ok = fab->gib_eingang()->get_count()>0  ||  distance < DISTANCE || distance < simrand((welt->gib_groesse_x()*3)/4);
 
 				if(ok  &&  distance>6) {

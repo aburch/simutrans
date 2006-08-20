@@ -354,7 +354,7 @@ simlinemgmt_t::build_line_list(int type, slist_tpl<linehandle_t> * list)
 //DBG_MESSAGE("simlinemgmt_t::build_line_list()","type=%i",type);
 	list->clear();
 
-	for( unsigned i=0;  i<count_lines();  i++  ) {
+	for( int i=0;  i<count_lines();  i++  ) {
 		linehandle_t line = all_managed_lines.at(i);
 
 		if(type==simline_t::line  ||  line->get_linetype()==simline_t::line  ||  line->get_linetype()==type) {

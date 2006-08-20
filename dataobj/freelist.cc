@@ -36,8 +36,6 @@ static nodelist_node_t *all_lists[NUM_LIST] = {
 };
 
 
-static long dummy;
-
 void *
 freelist_t::gimme_node(int size)
 {

@@ -968,7 +968,7 @@ int wegbauer_t::check_for_bridge( const grund_t *parent_from, const grund_t *fro
 	// uphill hang ... may be tunnel?
 	if(ribi_typ(from->gib_grund_hang())==ribi_typ(zv)) {
 
-		for(unsigned i=0;  i<umgebung_t::way_max_bridge_len;  i++ ) {
+		for(unsigned i=0;  i<(unsigned)umgebung_t::way_max_bridge_len;  i++ ) {
 			// not on map or already something there => fail
 			if(!welt->ist_in_kartengrenzen(to_pos+zv*(i+1)) ) {
 				return false;
@@ -1067,14 +1067,6 @@ wegbauer_t::route_fuer(enum bautyp wt, const weg_besch_t *b, const bruecke_besch
          bruecke_besch ? bruecke_besch->gib_name() : "NULL"
          );
 }
-
-
-void
-wegbauer_t::set_maximum(int mx)
-{
-    maximum = mx;
-}
-
 
 
 
@@ -1292,14 +1284,14 @@ wegbauer_t::intern_calc_route(const koord start, const koord ziel)
 			k->dir = current_dir;
 
 			// insert sorted
-			for(  index=0;  index<open.get_count()  &&  open.get(index)->f>new_f;  index++  ) {
+			for( index=0;  index<(int)open.get_count()  &&  open.get(index)->f>new_f;  index++  ) {
 				if(open.get(index)->gr==to) {
 					open.remove_at(index);
 					index --;
 				}
 			}
 			// was best f so far => append
-			if(index>=open.get_count()) {
+			if(index>=(int)open.get_count()) {
 				open.append(k,16);
 			}
 			else {
@@ -2148,7 +2140,7 @@ wegbauer_t::baue_strecke( slist_tpl <koord> &list )
 void
 wegbauer_t::baue()
 {
-	if(max_n<0  ||  max_n>maximum) {
+	if(max_n<0  ||  max_n>(sint32)maximum) {
 		DBG_MESSAGE("wegbauer_t::baue()","called, but no valid route.");
 		// no valid route here ...
 		return;

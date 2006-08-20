@@ -174,12 +174,12 @@ fahrplan_t::cleanup()
 			// ingore double entries just one after the other
 			ok = false;
 			eintrag.remove_at(i);
-			if(i>aktuell) {
+			if(i>(unsigned)aktuell) {
 				aktuell --;
 			}
 			i--;
 		}
-		else if (eintrag.get(i).pos==koord3d::invalid) {
+		else if(eintrag.get(i).pos==koord3d::invalid) {
 			// ingore double entries just one after the other
 			ok = false;
 			eintrag.remove_at(i);
@@ -189,8 +189,8 @@ fahrplan_t::cleanup()
 			lastpos = eintrag.get(i).pos;
 		}
 	}
-	if(aktuell>eintrag.get_count()-1) {
-		aktuell = aktuell>eintrag.get_count()-1;
+	if((unsigned)aktuell>eintrag.get_count()-1) {
+		aktuell = eintrag.get_count()-1;
 	}
 	return ok;
 }

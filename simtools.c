@@ -86,7 +86,6 @@ unsigned long simrand_plain(void)
 
 
 
-static unsigned long rand_seed = 0;
 static unsigned long noise_seed = 0;
 
 unsigned long setsimrand(unsigned long seed,unsigned long ns)
@@ -99,7 +98,7 @@ unsigned long setsimrand(unsigned long seed,unsigned long ns)
 	if(noise_seed!=0xFFFFFFFF) {
 		noise_seed = ns*15731;
 	}
-	return noise_seed;
+	return old_noise_seed;
 }
 
 

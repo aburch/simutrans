@@ -1015,7 +1015,7 @@ bool grund_t::get_neighbour(grund_t *&to, weg_t::typ type, koord dir) const
 
 	// find ground in the same height: This work always!
 	const sint16 this_height = get_vmove(dir);
-	for( int i=0;  i<plan->gib_boden_count();  i++  ) {
+	for( unsigned i=0;  i<plan->gib_boden_count();  i++  ) {
 		gr = plan->gib_boden_bei(i);
 		if(gr->get_vmove(-dir)==this_height) {
 			// test, if connected

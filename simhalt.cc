@@ -255,26 +255,29 @@ void haltestelle_t::destroy_all()
 
 haltestelle_t::haltestelle_t(karte_t *wl, loadsave_t *file) : self(this), reservation(0), registered_lines(0)
 {
-    alle_haltestellen.insert(self);
+	alle_haltestellen.insert(self);
 
-    welt = wl;
-    marke = 0;
+	welt = wl;
+	marke = 0;
 
-    pax_happy = 0;
-    pax_unhappy = 0;
-    pax_no_route = 0;
+	pax_happy = 0;
+	pax_unhappy = 0;
+	pax_no_route = 0;
+
+	status_color = COL_YELLOW;
 
 	reroute_counter = welt->get_schedule_counter();
+	rebuilt_destination_counter = reroute_counter-1;
 
 	enables = NOT_ENABLED;
 
-    // @author hsiegeln
-    sortierung = freight_list_sorter_t::by_name;
-    resort_freight_info = true;
+	// @author hsiegeln
+	sortierung = freight_list_sorter_t::by_name;
+	resort_freight_info = true;
 
-    rdwr(file);
+	rdwr(file);
 
-    init_gui();
+	init_gui();
 }
 
 
@@ -505,7 +508,7 @@ void haltestelle_t::display_status(int xpos, int ypos) const
   for( int i=0; i+1<count; i++) {
     const ware_besch_t *wtyp = warenbauer_t::gib_info(i+1);
 
-    const int v = MIN((gib_ware_summe(wtyp) >> 2) + 2, 128);
+    const int v = min((gib_ware_summe(wtyp) >> 2) + 2, 128);
 
     display_fillbox_wh_clip(xpos+i*4, ypos-v-1, 1, v,
 			    COL_GREY4,

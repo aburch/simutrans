@@ -310,7 +310,7 @@ void hausbauer_t::neue_karte()
  *
  * @author V. Meyer
  */
-void hausbauer_t::umbauen(karte_t *welt,gebaeude_t *gb, const haus_besch_t *besch)
+void hausbauer_t::umbauen(karte_t */*welt*/,gebaeude_t *gb, const haus_besch_t *besch)
 {
 	const haus_tile_besch_t *tile = besch->gib_tile(0, 0, 0);
 

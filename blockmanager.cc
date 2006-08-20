@@ -187,8 +187,10 @@ blockmanager::finde_blockstrecke(karte_t * welt, koord3d pos)
 	return bs;
 }
 
+
+
 void
-blockmanager::vereinige(karte_t *welt, blockhandle_t  bs1, blockhandle_t  bs2)
+blockmanager::vereinige(karte_t */*welt*/, blockhandle_t  bs1, blockhandle_t  bs2)
 {
 	DBG_MESSAGE("blockmanager::vereinige()","joining rail blocks %ld and %ld.", bs1.get_id(), bs2.get_id());
 
@@ -1086,7 +1088,7 @@ DBG_MESSAGE("blockmanager::check_block_borders::neue_koord()","on %d %d: %d -> %
 
 /* stop only at a new signal */
 bool
-blockmanager::check_block_borders::ist_uebergang_ok(koord3d pos1, koord3d pos2)
+blockmanager::check_block_borders::ist_uebergang_ok(koord3d pos1, koord3d)
 {
 	grund_t *gr=welt->lookup(pos1);
 	if(gr  &&  (gr->suche_obj(ding_t::signal)  ||  gr->suche_obj(ding_t::presignal)  ||  gr->suche_obj(ding_t::choosesignal))) {

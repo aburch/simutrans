@@ -62,12 +62,12 @@ class stadt_t {
      * @author V. Meyer
      */
     class best_t {
-	int best_wert;
+	sint32 best_wert;
 	koord best_pos;
     public:
 	void reset(koord pos) { best_wert = 0; best_pos = pos; }
 
-	void check(koord pos, int wert) {
+	void check(koord pos, sint32 wert) {
 	    if(wert > best_wert) {
 		best_wert = wert;
 		best_pos = pos;
@@ -76,7 +76,7 @@ class stadt_t {
 	bool found() const { return best_wert > 0; }
 
 	koord gib_pos() const { return best_pos;}
-	// int gib_wert() const { return best_wert; }
+	// sint32 gib_wert() const { return best_wert; }
     };
 
 
@@ -86,7 +86,7 @@ private:
      * Ein Step alle step_intervall/1000 Sekunden.
      * @author Hj. Malthaner
      */
-    static const int step_interval;
+    static const uint32 step_interval;
 
 public:
 
@@ -107,44 +107,44 @@ private:
     array2d_tpl<unsigned char> pax_ziele_neu;
 
     koord pos;			// Gruendungsplanquadrat der Stadt
-    int ob, un, li, re;		// aktuelle Ausdehnung
+    sint16 ob, un, li, re;		// aktuelle Ausdehnung
 
     // das wird bei jedem laden wieder von 0 angefangen
     // step wird nicht gespeichert!!!
-    int step_count;
+    uint32 step_count;
 
     /**
      * Echtzeitpunkt für nächsten step.
      * @author Hj. Malthaner
      */
-    unsigned long next_step;
+    uint32 next_step;
 
     // attribute fuer die Bevoelkerung
 
-    int bev;	// Bevoelkerung gesamt
-    int arb;	// davon mit Arbeit
-    int won;	// davon mit Wohnung
+    sint32 bev;	// Bevoelkerung gesamt
+    sint32 arb;	// davon mit Arbeit
+    sint32 won;	// davon mit Wohnung
 
     /**
      * Counter: possible passengers in this month
      * transient data, not saved
      * @author Hj. Malthaner
      */
-    int pax_erzeugt;
+    sint32 pax_erzeugt;
 
     /**
      * Counter: transported passengers in this month
      * transient data, not saved
      * @author Hj. Malthaner
      */
-    int pax_transport;
+    sint32 pax_transport;
 
     /**
      * Modifier for city growth
      * transient data, not saved
      * @author Hj. Malthaner
      */
-    int wachstum;
+    sint32 wachstum;
 
     /**
     * City history
@@ -153,9 +153,9 @@ private:
     sint64 city_history_year[MAX_CITY_HISTORY_YEARS][MAX_CITY_HISTORY];
     sint64 city_history_month[MAX_CITY_HISTORY_MONTHS][MAX_CITY_HISTORY];
 
-    int last_month_bev;
-    int last_year_bev;
-    int	this_year_pax, this_year_transported;
+    sint32 last_month_bev;
+    sint32 last_year_bev;
+    sint32	this_year_pax, this_year_transported;
 
 	/* updates the city history
 	 * @author prissi
@@ -182,8 +182,8 @@ public:
 
 	/* end of histroy related thingies */
 private:
-    int best_haus_wert;
-    int best_strasse_wert;
+    sint32 best_haus_wert;
+    sint32 best_strasse_wert;
 
     best_t best_haus;
     best_t best_strasse;
@@ -229,7 +229,7 @@ private:
      * ein Passagierziel in die Zielkarte eintragen
      * @author Hj. Malthaner
      */
-    void merke_passagier_ziel(koord ziel, int color);
+    void merke_passagier_ziel(koord ziel, sint32 color);
 
 
     /**
@@ -257,16 +257,16 @@ private:
 
     gebaeude_t::typ was_ist_an(koord pos) const;
 
-    int bewerte_industrie(koord pos);
-    int bewerte_gewerbe(koord pos);
-    int bewerte_wohnung(koord pos);
+    sint32 bewerte_industrie(koord pos);
+    sint32 bewerte_gewerbe(koord pos);
+    sint32 bewerte_wohnung(koord pos);
 
 
     /**
      * baut ein Gebaeude auf Planquadrat x,y
      */
     void baue_gebaeude(koord pos);
-    void erzeuge_verkehrsteilnehmer(koord pos, int level,koord target);
+    void erzeuge_verkehrsteilnehmer(koord pos, sint32 level,koord target);
     void renoviere_gebaeude(koord pos);
 
 
@@ -301,10 +301,10 @@ private:
      * Check rule in all transformations at given position
      * @author Hj. Malthaner
      */
-    int bewerte_pos(koord pos, const char *regel);
+    sint32 bewerte_pos(koord pos, const char *regel);
 
-    void bewerte_strasse(koord pos, int rd, char *regel);
-    void bewerte_haus(koord pos, int rd, char *regel);
+    void bewerte_strasse(koord pos, sint32 rd, char *regel);
+    void bewerte_haus(koord pos, sint32 rd, char *regel);
 
     void trans_y(const char *regel, char *tr);
     void trans_l(const char *regel, char *tr);
@@ -313,7 +313,7 @@ private:
     void pruefe_grenzen(koord pos);
 
     // fuer die haltestellennamen
-    int zentrum_namen_cnt, aussen_namen_cnt;
+    sint32 zentrum_namen_cnt, aussen_namen_cnt;
 
 
 public:
@@ -332,9 +332,9 @@ public:
 	// (called when removed by player, or by town)
 	void remove_gebaeude_from_stadt(const gebaeude_t *gb);
 
-    int gib_pax_erzeugt() const {return pax_erzeugt;}
-    int gib_pax_transport() const {return pax_transport;}
-    int gib_wachstum() const {return wachstum;}
+    sint32 gib_pax_erzeugt() const {return pax_erzeugt;}
+    sint32 gib_pax_transport() const {return pax_transport;}
+    sint32 gib_wachstum() const {return wachstum;}
 
     /**
      * ermittelt die Einwohnerzahl der Stadt
@@ -383,7 +383,7 @@ public:
      * @param number of citizens
      * @author Hj. Malthaner
      */
-    stadt_t(karte_t *welt, spieler_t *sp, koord pos,int citizens);
+    stadt_t(karte_t *welt, spieler_t *sp, koord pos,sint32 citizens);
 
 
     /**
@@ -454,7 +454,7 @@ public:
      * @param number if >= 0, then a number is added to the name
      * @author Hj. Malthaner
      */
-    const char * haltestellenname(koord pos, const char *typ, int number);
+    const char * haltestellenname(koord pos, const char *typ, sint32 number);
 
 
     /**
@@ -464,7 +464,7 @@ public:
      * @param anzahl die Anzahl der zu liefernden Koordinaten
      * @author Hj. Malthaner
      */
-    static vector_tpl<koord> *random_place(const karte_t *wl, int anzahl);	// geeigneten platz zur Stadtgruendung durch Zufall ermitteln
+    static vector_tpl<koord> *random_place(const karte_t *wl, sint32 anzahl);	// geeigneten platz zur Stadtgruendung durch Zufall ermitteln
 
 
     /**

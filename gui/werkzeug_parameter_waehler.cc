@@ -174,7 +174,7 @@ bool werkzeug_parameter_waehler_t::getroffen(int x, int y)
 	int dx = x>>5;
 	int	dy = (y-16)>>5;
 	if(x>=0 && dx<tool_icon_width  &&  y>=0  &&  (y<16  ||  dy<tool_icon_width)) {
-		return (y<16)  ||  (dx+(tool_icon_width*dy) < tools->get_count());
+		return (y<16)  ||  (dx+(tool_icon_width*dy) < (int)tools->get_count());
 	}
 	return false;
 }
@@ -190,7 +190,7 @@ void werkzeug_parameter_waehler_t::infowin_event(const event_t *ev)
 		if(x>=0 && x<tool_icon_width  &&  y>=0) {
 			const int wz_idx = x+(tool_icon_width*y);
 
-			if(wz_idx<tools->get_count()) {
+			if(wz_idx<(int)tools->get_count()) {
 				const struct werkzeug_t & tool = tools->at(wz_idx);
 
 				if(tool.has_param) {
@@ -242,7 +242,7 @@ void werkzeug_parameter_waehler_t::zeichnen(koord pos, koord)
 	const int ydiff = (gib_maus_y() - pos.y - 16) >> 5;
 	if(xdiff>=0  &&  xdiff<tool_icon_width  &&  ydiff>=0) {
 		const int tipnr = xdiff+(tool_icon_width*ydiff);
-		if(tipnr<tools->get_count()) {
+		if(tipnr<(int)tools->get_count()) {
 			win_set_tooltip( gib_maus_x()+16, gib_maus_y()-16, tools->at(tipnr).tooltip);
 		}
 	}

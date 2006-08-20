@@ -5,7 +5,7 @@
 
 #include "scrollbar.h"
 #include "ifc/scrollbar_listener.h"
-#include "ifc/selection_listener.h"
+#include "ifc/action_listener.h"
 
 class karte_t;
 template <class T> class slist_tpl;
@@ -32,7 +32,7 @@ private:
    * The list of listeners which want to be informed about selection events.
    * @author Hj. Malthaner
    */
-  slist_tpl<selection_listener_t *> * listeners;
+  slist_tpl<action_listener_t *> * listeners;
 
   /**
    * Informs (calls) all listeners about a new selection
@@ -74,18 +74,17 @@ public:
 
 
   /**
-   * Adds a selection_listener_t to this component
+   * Adds a action_listener_t to this component
    * @author Hj. Malthaner
    */
-  void add_listener(selection_listener_t *c);
+  void add_listener(action_listener_t *c);
 
 
   /**
-   * Removes a selection_listener_t from this component
+   * Removes a action_listener_t from this component
    * @author Hj. Malthaner
    */
-  void remove_listener(selection_listener_t *c);
-
+  void remove_listener(action_listener_t *c);
 
   void setze_selection(int s) { selection = s; }
   int gib_selection() { return selection; }

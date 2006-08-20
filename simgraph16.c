@@ -75,7 +75,9 @@ typedef unsigned short PIXVAL;
 
 // --------------      static data    --------------
 
+#ifdef USE_SOFTPOINTER
 static int softpointer = -1;
+#endif
 static int standard_pointer = -1;
 
 
@@ -196,7 +198,7 @@ struct imd {
   unsigned char y;    // current (zoomed) min y offset
   unsigned char h;    // current (zoomed) width
 
-  unsigned long len;   // base image data size (used for allocation purposes only)
+  unsigned len;   // base image data size (used for allocation purposes only)
   unsigned char recode_flags[4]; // first byte: needs recode, second byte: code normal, second byte: code for player1
 
   PIXVAL * data;      // current data, zoomed and adapted to output format RGB 555 or RGB 565
@@ -229,13 +231,13 @@ struct imd *images = NULL;
 /*
  * Number of loaded images
  */
-static int anz_images = 0;
+static unsigned anz_images = 0;
 
 /*
  * Number of allocated entries for images
  * (>= anz_images)
  */
-static int alloc_images = 0;
+static unsigned alloc_images = 0;
 
 
 /*
@@ -548,7 +550,7 @@ void mark_rect_dirty_wc(int x1, int y1, int x2, int y2)
  */
 static void recode()
 {
-	int n;
+	unsigned n;
 	for(n=0; n<anz_images; n++) {
 		// tut jetzt on demand recode_img() für jedes Bild einzeln
 		images[n].recode_flags[NEED_NORMAL_RECODE] = 128;
@@ -680,13 +682,11 @@ static void recode_img_src_target_color( int h, PIXVAL *src, PIXVAL *target, con
  */
 static void rezoom()
 {
-	int n;
-
+	unsigned n;
 	for(n=0; n<anz_images; n++) {
 		images[n].recode_flags[NEED_REZOOM] = images[n].recode_flags[ZOOMABLE]  &&  (images[n].base_h>0);
 		images[n].recode_flags[NEED_NORMAL_RECODE] = 128;
 		images[n].recode_flags[NEED_PLAYER_RECODE] = 128;	// color will be set next time
-//		rezoom_img(n);
 	} // for
 }
 
@@ -816,7 +816,7 @@ static void rezoom_img( const unsigned int n )
 
 			// something left?
 			{
-				const int zoom_len = dest-images[n].zoom_data;
+				const unsigned zoom_len = dest-images[n].zoom_data;
 				if(zoom_len>images[n].len) {
 					printf("*** FATAL ***\nzoom_len (%i) > image_len (%i)",zoom_len,images[n].len);fflush(NULL);
 					exit(0);
@@ -1776,7 +1776,7 @@ void register_image_copy(struct bild_besch_t *bild)
 
 
 // prissi: query offsets
-void display_get_image_offset( int bild, int *xoff, int *yoff, int *xw, int *yw ) {
+void display_get_image_offset( unsigned bild, int *xoff, int *yoff, int *xw, int *yw ) {
 	if(bild<anz_images) {
 		*xoff = images[bild].base_x;
 		*yoff = images[bild].base_y;
@@ -1789,7 +1789,7 @@ void display_get_image_offset( int bild, int *xoff, int *yoff, int *xw, int *yw 
 
 // prissi: canges the offset of an image
 // we need it this complex, because the actual x-offset is coded into the image
-void display_set_image_offset( int bild, int xoff, int yoff )
+void display_set_image_offset( unsigned bild, int xoff, int yoff )
 {
 	if(bild<anz_images  &&  images[bild].base_h>0  &&  images[bild].base_w>0) {
 		int h = images[bild].base_h;
@@ -2062,19 +2062,6 @@ static inline void colorpixcopy(PIXVAL *dest,
 
 
 /**
- * Returns image width
- * @author prissi
- */
-int display_get_img_width( int n ) {
-	if(n >= 0 && n < anz_images) {
-		return images[n].w;
-	}
-	return 0;
-}
-
-
-
-/**
  * Zeichnet Bild mit Clipping
  * @author Hj. Malthaner
  */
@@ -2225,9 +2212,9 @@ asm(
  * Zeichnet Bild mit verticalem clipping (schnell) und horizontalem (langsam)
  * @author prissi
  */
-void display_img_aux(const int n, const int xp, int yp, const int dirty, bool use_player)
+void display_img_aux(const unsigned n, const int xp, int yp, const int dirty, bool use_player)
 {
-	if(n>=0 && n<anz_images) {
+	if(n<anz_images) {
 		// need to go to nightmode and or rezoomed?
 		PIXVAL *sp;
 		int h, reduce_h, skip_lines;
@@ -2321,7 +2308,7 @@ if(sp==NULL){ printf("Img %i failed!\n", n );return;}
  * @author hajo/prissi
  */
 static void
-display_color_img_aux(const int n, const int xp, const int yp,
+display_color_img_aux(const unsigned n, const int xp, const int yp,
 		      const int color)
 {
 	int h = images[n].h;
@@ -2386,10 +2373,10 @@ display_color_img_aux(const int n, const int xp, const int yp,
  * @author Hj. Malthaner
  */
 void
-display_color_img(const int n, const int xp, const int yp, const int color,
+display_color_img(const unsigned n, const int xp, const int yp, const int color,
 		  const int daynight, const int dirty)
 {
-	if(n>=0 && n<anz_images) {
+	if(n<anz_images) {
 		// since vehicle need larger dirty rect!
 		if(dirty) {
 			mark_rect_dirty_wc(xp+images[n].x-8,
@@ -2473,9 +2460,6 @@ display_pixel(int x, int y, int color)
  * @author Hj. Malthaner
  */
 static
-#ifndef _MSC_VER
-//inline
-#endif
 void display_fb_internal(int xp, int yp, int w, int h,
 			 const int color, const int dirty,
 			 const int cL, const int cR, const int cT, const int cB)

@@ -200,7 +200,7 @@ bool route_t::node_in_use=false;
 bool
 route_t::find_route(karte_t *welt,
                     const koord3d start,
-                    fahrer_t *fahr, const uint32 max_khm, uint8 start_dir, uint32 max_depth )
+                    fahrer_t *fahr, const uint32 /*max_khm*/, uint8 start_dir, uint32 max_depth )
 {
 	bool ok = false;
 
@@ -465,18 +465,21 @@ route_t::intern_calc_route(karte_t *welt, const koord3d ziel, const koord3d star
 
 				const uint32 new_f = new_g+calc_distance( to->gib_pos(), ziel );
 
-				// already in open list and better?
-				sint32 index;
-				for(  index=open.get_count()-1;  index>=0  &&   open.get(index)->f<=new_f;  index--  ) {
-					if(open.get(index)->gr==gr) {
-						break;
-					}
-				}
+				unsigned index;
 
-				if(index>=0  &&  open.get(index)->gr==gr) {
-					// it is already contained in the list
-					// and it is lower in f ...
-					continue;
+				// already in open list and better?
+				if(open.get_count()>0) {
+					for(  index=open.get_count()-1;  index>0  &&  open.get(index)->f<=new_f;  index--  ) {
+						if(open.get(index)->gr==gr) {
+							break;
+						}
+					}
+
+					if(open.get(index)->gr==gr) {
+						// it is already contained in the list
+						// and it is lower in f ...
+						continue;
+					}
 				}
 
 				// it may or may not be in the list; but since the arrays are sorted

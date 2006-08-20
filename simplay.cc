@@ -773,7 +773,7 @@ DBG_MESSAGE("spieler_t::do_passenger_ki()","searching attraction");
 				const weighted_vector_tpl<gebaeude_t*> &ausflugsziele = welt->gib_ausflugsziele();
 				// this way, we are sure, our factory is connected to this town ...
 				const weighted_vector_tpl<fabrik_t *> &fabriken = start_stadt->gib_arbeiterziele();
-				int	last_dist = 0xFFFF;
+				unsigned	last_dist = 0xFFFFFFFF;
 				bool ausflug=simrand(2)!=0;	// holidays first ...
 				int ziel_count=ausflug?ausflugsziele.get_count():fabriken.get_count();
 				count = 1;	// one vehicle
@@ -792,7 +792,7 @@ DBG_MESSAGE("spieler_t::do_passenger_ki()","searching attraction");
 				}
 #endif
 				for( int i=0;  i<ziel_count;  i++  ) {
-					int	dist;
+					unsigned	dist;
 					koord pos, size;
 					if(ausflug) {
 						if(ausflugsziele.at(i)->gib_post_level()<=25) {
@@ -979,28 +979,14 @@ DBG_MESSAGE("spieler_t::do_passenger_ki()","using %s on %s",road_vehicle->gib_na
 						substate = NR_ROAD_SUCCESS;
 					}
 					else {
-						substate = NR_BAUE_STRASSEN_ROUTE2;
+						substate = NR_BAUE_CLEAN_UP;
 					}
 				}
 				break;
 
-				// built a road, try with bridges or tunnels
+				// this is just history ...
 				case NR_BAUE_STRASSEN_ROUTE2:
-				{
-					const haus_besch_t *bs=hausbauer_t::gib_random_station( hausbauer_t::bushalt, welt->get_timeline_year_month(), haltestelle_t::PAX );
-					if(bs  &&  create_complex_road_transport()  &&
-						(is_my_halt(platz1)  ||  wkz_halt(this, welt, platz1,bs))  &&
-						(is_my_halt(platz2)  ||  wkz_halt(this, welt, platz2,bs))
-					  ) {
-						koord list[2]={ platz1, platz2 };
-						// wait only, if traget is not a hub but an attraction/factory
-						create_bus_transport_vehikel(platz1,count,list,2,end_stadt==NULL);
-						substate = NR_ROAD_SUCCESS;
-					}
-					else {
-						substate = NR_BAUE_CLEAN_UP;
-					}
-				}
+					substate = NR_BAUE_CLEAN_UP;
 				break;
 
 				// remove marker etc.
@@ -1305,8 +1291,8 @@ DBG_MESSAGE("spieler_t::do_ki()","%s want to build a route from %s (%d,%d) to %s
 					const ware_besch_t *freight = start->gib_ausgang()->get(start_ware).gib_typ();
 
 					// guess the "optimum" speed (usually a little too low)
-				  	int best_rail_speed = MIN(60+freight->gib_speed_bonus()*5, 140 );
-				  	int best_road_speed = MIN(60+freight->gib_speed_bonus()*5, 130 );
+				  	int best_rail_speed = min(60+freight->gib_speed_bonus()*5, 140 );
+				  	int best_road_speed = min(60+freight->gib_speed_bonus()*5, 130 );
 
 				  	// obey timeline
 					unsigned month_now = welt->get_current_month();
@@ -1336,15 +1322,15 @@ DBG_MESSAGE("do_ki()","road vehicle %p",road_vehicle);
 					INT_CHECK("simplay 1265");
 
 					// properly calculate production
-					const int prod = MIN(ziel->max_produktion(),
-					                 ( start->max_produktion() * start->gib_besch()->gib_produkt(start_ware)->gib_faktor() )/256 - start->gib_abgabe_letzt(start_ware) );
+					const int prod = min(ziel->max_produktion(),
+					                 ( start->max_produktion() * start->gib_besch()->gib_produkt(start_ware)->gib_faktor() )/256u - start->gib_abgabe_letzt(start_ware) );
 
 DBG_MESSAGE("do_ki()","check railway");
 					/* calculate number of cars for railroad */
 					count_rail=255;	// no cars yet
 					if(  rail_vehicle!=NULL  ) {
 						// if our car is faster: well use faster speed
-					 	best_rail_speed = MIN(80,rail_vehicle->gib_geschw());
+					 	best_rail_speed = min(80,rail_vehicle->gib_geschw());
 						// for engine: gues number of cars
 						count_rail = (prod*dist) / (rail_vehicle->gib_zuladung()*best_rail_speed)+1;
 						rail_engine = vehikelbauer_t::vehikel_search( weg_t::schiene, month_now, 80*count_rail, best_rail_speed, NULL );
@@ -1359,7 +1345,7 @@ DBG_MESSAGE("do_ki()","check railway");
 							  	best_rail_speed = rail_weg->gib_topspeed();
 							  }
 							  // no train can have more than 15 cars
-							  count_rail = MIN( 15, (prod*dist) / (rail_vehicle->gib_zuladung()*best_rail_speed) );
+							  count_rail = min( 15, (prod*dist) / (rail_vehicle->gib_zuladung()*best_rail_speed) );
 							  // if engine too week, reduce number of cars
 							  if(  count_rail*80*64>(rail_engine->gib_leistung()*rail_engine->get_gear())  ) {
 							  	count_rail = rail_engine->gib_leistung()*rail_engine->get_gear()/(80*64);
@@ -1390,7 +1376,7 @@ DBG_MESSAGE("do_ki()","check railway");
 								best_road_speed = road_weg->gib_topspeed();
 							}
 							// minimum vehicle is 1, maximum vehicle is 48, more just result in congestion
-							count_road = MIN( 254, (prod*dist) / (road_vehicle->gib_zuladung()*best_road_speed*2)+2 );
+							count_road = min( 254, (prod*dist) / (road_vehicle->gib_zuladung()*best_road_speed*2)+2 );
 DBG_MESSAGE("spieler_t::do_ki()","guess to need %d road cars %s for route %s", count_road, road_vehicle->gib_name(), road_weg->gib_name() );
 						}
 						else {
@@ -1429,7 +1415,7 @@ DBG_MESSAGE("spieler_t::do_ki()","No roadway possible.");
 					}
 
 					// check location, if vehicles found
-					if(  MIN(count_road,count_rail)!=255  &&  suche_platz1_platz2(start, ziel)  ) {
+					if(  min(count_road,count_rail)!=255  &&  suche_platz1_platz2(start, ziel)  ) {
 						// road or rail?
 						if(  cost_rail<cost_road  ) {
 							substate = NR_BAUE_SIMPLE_SCHIENEN_ROUTE;
@@ -1446,7 +1432,7 @@ DBG_MESSAGE("spieler_t::do_ki()","No roadway possible.");
 				}
 				break;
 
-				// built a simple railroad (no bridges, no tunnels)
+				// built a simple railroad
 				case NR_BAUE_SIMPLE_SCHIENEN_ROUTE:
 					if(create_simple_rail_transport()) {
 						count_rail = baue_bahnhof(start->pos,&platz1, count_rail)-1;
@@ -1455,46 +1441,15 @@ DBG_MESSAGE("spieler_t::do_ki()","No roadway possible.");
 						substate = NR_RAIL_SUCCESS;
 					}
 					else {
-						substate = NR_BAUE_SCHIENEN_ROUTE1;
+						substate = NR_BAUE_STRASSEN_ROUTE;
 					}
 				break;
 
 				// built a railroad, try with bridges or tunnels
+				// but this is history now!
 				case NR_BAUE_SCHIENEN_ROUTE1:
-					if(create_complex_rail_transport()) {
-						count_rail = baue_bahnhof(start->pos,&platz1, count_rail)-1;
-						count_rail = baue_bahnhof(ziel->pos,&platz2, count_rail)-1;
-						create_rail_transport_vehikel(platz1,platz2, count_rail, 100 );
-						substate = NR_RAIL_SUCCESS;
-					}
-					else {
-						substate = NR_BAUE_SCHIENEN_ROUTE2;
-					}
-				break;
-
-				// built a railroad, try with bridges or tunnels, only backwards
-				// CHECK!
-				// prissi: since the waybuilder tries also backwards, I am not sure this is successful
 				case NR_BAUE_SCHIENEN_ROUTE2:
-				{
-					const koord tmp = platz2;
-					platz2 = platz1;
-					platz1 = tmp;
-
-					if(create_complex_rail_transport()) {
-						count_rail = baue_bahnhof(start->pos,&platz2, count_rail)-1;
-						count_rail = baue_bahnhof(ziel->pos,&platz1, count_rail)-1;
-						create_rail_transport_vehikel(platz2,platz1,count_rail, 100 );
-						substate = NR_RAIL_SUCCESS;
-					}
-					else {
-						substate = NR_BAUE_CLEAN_UP;
-						// could not lay track
-						if(  count_road<255  ) {
-							substate = NR_BAUE_STRASSEN_ROUTE;
-						}
-					}
-				}
+					substate = NR_BAUE_SCHIENEN_ROUTE2;
 				break;
 
 				// built a simple road (no bridges, no tunnels)
@@ -1504,19 +1459,14 @@ DBG_MESSAGE("spieler_t::do_ki()","No roadway possible.");
 						substate = NR_ROAD_SUCCESS;
 					}
 					else {
-						substate = NR_BAUE_STRASSEN_ROUTE2;
+						substate = NR_BAUE_CLEAN_UP;
 					}
 				break;
 
 				// built a road, try with bridges or tunnels
+				// this is history ...
 				case NR_BAUE_STRASSEN_ROUTE2:
-					if(create_complex_road_transport()) {
-						create_road_transport_vehikel(start, count_road  );
-						substate = NR_ROAD_SUCCESS;
-					}
-					else {
-						substate = NR_BAUE_CLEAN_UP;
-					}
+					substate = NR_BAUE_CLEAN_UP;
 				break;
 
 				// remove marker etc.
@@ -1571,7 +1521,7 @@ DBG_MESSAGE("spieler_t::do_ki()","No roadway possible.");
 			slist_iterator_tpl<convoihandle_t> iter (welt->gib_convoi_list());
 			while(iter.next()) {
 				const convoihandle_t cnv = iter.get_current();
-				if(cnv->gib_besitzer()==this  &&  cnv->gib_vehikel(0)->gib_typ()==weg_t::strasse) {
+				if(cnv->gib_besitzer()==this  &&  cnv->gib_vehikel(0)->gib_besch()->gib_typ()==weg_t::strasse) {
 					// check for empty vehicles (likely stucked) that are making no plus and remove them ...
 					// take care, that the vehicle is old enough ...
 					if((welt->get_current_month()-cnv->gib_vehikel(0)->gib_insta_zeit())>12  &&  cnv->gib_jahresgewinn()==0  ){
@@ -1942,8 +1892,8 @@ spieler_t::guess_gewinn_transport_quelle_ziel(fabrik_t *qfab,const ware_t *ware,
 			// Bei der abgabe rechnen wir einen sicherheitsfaktor 2 mit ein
 			// wieviel kann am ziel verarbeitet werden, und wieviel gibt die quelle her?
 
-			const int prod = MIN(zfab->max_produktion(),
-			                 ( qfab->max_produktion() * qfab->gib_besch()->gib_produkt(ware_nr)->gib_faktor() )/256 - qfab->gib_abgabe_letzt(ware_nr) * 2 );
+			const int prod = min(zfab->max_produktion(),
+			                 ( qfab->max_produktion() * qfab->gib_besch()->gib_produkt(ware_nr)->gib_faktor() )/256u - qfab->gib_abgabe_letzt(ware_nr) * 2u );
 
 			gewinn = (grundwert *prod-5)+simrand(15000);
 			if(dist>100) {
@@ -2379,7 +2329,7 @@ spieler_t::create_simple_road_transport()
     		vehikel_t *test_driver=new automobil_t(welt,koord3d(platz1,0),road_vehicle,this,NULL);;
 		route_t verbindung;
 		if(	verbindung.calc_route(welt,welt->lookup(platz1)->gib_kartenboden()->gib_pos(),welt->lookup(platz2)->gib_kartenboden()->gib_pos(),(fahrer_t *)test_driver,0)  &&
-			verbindung.gib_max_n()<2*abs_distance(platz1,platz2))  {
+			verbindung.gib_max_n()<2*(sint32)abs_distance(platz1,platz2))  {
 DBG_MESSAGE("spieler_t::create_simple_road_transport()","Already connection between %d,%d to %d,%d is only %i",platz1.x, platz1.y, platz2.x, platz2.y, verbindung.gib_max_n() );
 			// found something with the nearly same lenght
 			delete test_driver;
@@ -2415,12 +2365,6 @@ DBG_MESSAGE("spieler_t::create_simple_road_transport()","building simple road fr
 	return false;
 }
 
-bool
-spieler_t::create_complex_road_transport()
-{
-	return false;
-}
-
 
 
 /* built a very simple track with just the minimum effort
@@ -2443,40 +2387,6 @@ DBG_MESSAGE("spieler_t::create_simple_rail_transport()","building simple track f
 		INT_CHECK("simplay 2480");
 		return true;
 	}
-}
-
-
-
-bool
-spieler_t::create_complex_rail_transport()
-{
-	return false;
-}
-
-
-bool
-spieler_t::checke_streckenbau(wegbauer_t &bauigel, slist_tpl<koord> &list)
-{
-	return false;
-}
-
-
-/**
- * Test if a bridge can be build here
- *
- * @param p position of obstacle
- * @param index index in route where obstacle was hit
- * @param ribi ribi of obstacle
- * @param bauigel the waybilder used to build the way
- * @param list list of bridge start/end koordinates
- * @author Hj. Malthaner
- */
-bool
-spieler_t::versuche_brueckenbau(koord , int *index, ribi_t::ribi,
-                                wegbauer_t &bauigel,
-				slist_tpl <koord> &list)
-{
-	// gets here, if no bridge possible
 	return false;
 }
 
@@ -2724,8 +2634,8 @@ DBG_DEBUG("spieler_t::rdwr()","player %i: loading %i halts.",welt->sp2num( this 
 		file->rdwr_long(headquarter_level, " ");
 		headquarter_pos.rdwr( file );
 		if(file->is_loading()) {
-			if(headquarter_level>=hausbauer_t::headquarter.count()) {
-				headquarter_level = hausbauer_t::headquarter.count()-1;
+			if(headquarter_level>=(sint32)hausbauer_t::headquarter.count()) {
+				headquarter_level = (sint32)hausbauer_t::headquarter.count()-1;
 			}
 			if(headquarter_level<0) {
 				headquarter_pos = koord::invalid;

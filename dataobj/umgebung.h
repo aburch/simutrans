@@ -281,7 +281,7 @@ class umgebung_t
 	static sint32 way_count_90_curve;
 	static sint32 way_count_slope;
 	static sint32 way_count_tunnel;
-	static sint32 way_max_bridge_len;
+	static uint32 way_max_bridge_len;
 };
 
 #endif

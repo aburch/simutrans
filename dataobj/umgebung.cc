@@ -154,4 +154,4 @@ sint32 umgebung_t::way_count_double_curve=40;
 sint32 umgebung_t::way_count_90_curve=2000;
 sint32 umgebung_t::way_count_slope=80;
 sint32 umgebung_t::way_count_tunnel=8;
-sint32 umgebung_t::way_max_bridge_len=15;
+uint32 umgebung_t::way_max_bridge_len=15;
