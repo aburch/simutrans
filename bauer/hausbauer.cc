@@ -22,7 +22,6 @@
 
 #include "../besch/haus_besch.h"
 #include "../besch/spezial_obj_tpl.h"
-#include "../dings/gebaeudefundament.h"
 
 // Hajo: these are needed to build the menu entries
 #include "../gui/werkzeug_parameter_waehler.h"
@@ -363,12 +362,13 @@ void hausbauer_t::baue(karte_t *welt,
 				}
 				grund_t *gr2 = new fundament_t(welt, gr->gib_pos());
 
-				gr2->obj_add(new gebaeudefundament_t(welt, gr2->gib_pos(), sp) );
-				gb->setze_bild(0, tile->gib_hintergrund(0, 0));
+//				gb->setze_bild(0, tile->gib_hintergrund(0, 0));	prissi:???
 				welt->access(gr->gib_pos().gib_2d())->boden_ersetzen(gr, gr2);
 				gr = gr2;
 				gr->obj_add( gb );
+//DBG_DEBUG("hausbauer_t::baue()","ground count now %i",gr->obj_count());
 				gr->setze_besitzer(sp);
+				gr ->calc_bild();
 			}
 			if(besch->ist_ausflugsziel()) {
 				welt->add_ausflugsziel( gb );

@@ -1,16 +1,13 @@
 /*
  * simwerkz.cc
  *
+ * Werkzeuge für den Simutrans-Spieler
+ * von Hj. Malthaner
+ *
  * Copyright (c) 1997 - 2001 Hansjörg Malthaner
  *
  * This file is part of the Simutrans project and may not be used
  * in other projects without written permission of the author.
- */
-
-/* simwerkz.cc
- *
- * Werkzeuge für den Simutrans-Spieler
- * von Hj. Malthaner
  */
 
 #include <stdio.h>
@@ -1308,7 +1305,7 @@ DBG_MESSAGE("wkz_roadsign()","single dir is %i", dir);
 
 				// if there is already a sing, we might need to inverse the direction
 				roadsign_t *rs = dynamic_cast<roadsign_t *>(gr->suche_obj(ding_t::roadsign));
-				if(rs!=NULL) {
+				if(rs) {
 					// revers only if single way sign
 					if(besch->is_single_way()) {
 DBG_MESSAGE("wkz_roadsign()","reverse ribi %i", ribi_t::rueckwaerts(dir) );
@@ -1316,9 +1313,17 @@ DBG_MESSAGE("wkz_roadsign()","reverse ribi %i", ribi_t::rueckwaerts(dir) );
 					}
 				}
 				else {
-					// add a new roadsign
+					// add a new roadsign at position zero!
 					rs = new roadsign_t( welt, gr->gib_pos(), dir, besch );
-					gr->obj_add(rs);
+					ding_t *dt = gr->obj_bei(0);
+					if(dt) {
+						gr->obj_remove( dt, dt->gib_besitzer() );
+						gr->obj_pri_add(rs,0);
+						gr->obj_pri_add(dt,0);
+					}
+					else {
+						gr->obj_pri_add(rs,0);
+					}
 				}
 				error = NULL;
 			}
@@ -1357,8 +1362,17 @@ DBG_MESSAGE("wkz_roadsign()","reverse ribi %i", ribi_t::rueckwaerts(dir) );
 						rs->set_dir( ribi_t::rueckwaerts(rs->get_dir()) );
 					}
 					else {
+						// add a new roadsign at position zero!
 						rs = new roadsign_t( welt, gr->gib_pos(), dir, besch );
-						gr->obj_add(rs);
+						ding_t *dt = gr->obj_bei(0);
+						if(dt) {
+							gr->obj_remove( dt, dt->gib_besitzer() );
+							gr->obj_pri_add(rs,0);
+							gr->obj_pri_add(dt,0);
+						}
+						else {
+							gr->obj_pri_add(rs,0);
+						}
 					}
 					error = NULL;
 				}
@@ -1656,7 +1670,7 @@ int wkz_add_city(spieler_t *sp, karte_t *welt, koord pos)
 			!gr->ist_wasser() &&
 			gr->gib_grund_hang() == 0) {
 
-			ding_t *d = gr->obj_bei(1);
+			ding_t *d = gr->obj_bei(0);
 			gebaeude_t *gb = dynamic_cast<gebaeude_t *>(d);
 
 			if(gb && gb->ist_rathaus()) {
@@ -1694,127 +1708,109 @@ dbg->warning("wkz_add_city()", "Already a city here");
  * @param param the slope type
  * @author Hj. Malthaner
  */
-int wkz_set_slope(spieler_t * /*sp*/, karte_t *welt, koord pos, value_t lParam)
+int wkz_set_slope(spieler_t * sp, karte_t *welt, koord pos, value_t lParam)
 {
 	const int slope = lParam.i;
 	bool ok = false;
 
 	if(welt->ist_in_kartengrenzen(pos)) {
 
-		grund_t * gr = welt->lookup(pos)->gib_kartenboden();
-		if(!gr->ist_natur()  ||  gr->suche_obj(ding_t::gebaeude)!=NULL) {
+		grund_t * gr1 = welt->lookup(pos)->gib_kartenboden();
+		if(!gr1->ist_natur()  ||  gr1->suche_obj(ding_t::gebaeude)!=NULL) {
 			create_win(-1, -1, MESG_WAIT, new nachrichtenfenster_t(welt, "Tile not empty."), w_autodelete);
 			return false;
 		}
 
 		if(slope >= 0 && slope < 15) {
-
 			welt->set_slope(pos, slope);
+			ok = true;
+		}
 
-			gr->calc_bild();
+		if(slope == 16) {
+			// Hajo: special action: lower land
+
+			// Precondition: sqaure and all neighbours have same height
+			// or neighbours are one level deeper
+
+			ok = true;
+			for(int i=0; i<4; i++) {
+				const koord k = pos + koord::nsow[i];
+				const planquadrat_t *plan = welt->lookup(k);
+
+				if(plan) {
+					grund_t * gr = plan->gib_kartenboden();
+					if(gr) {
+						ok &= gr->gib_pos().z == gr1->gib_pos().z ||
+								  gr->gib_pos().z == gr1->gib_pos().z - 16;
+					}
+				}
+			}
+
+			if(ok) {
+				welt->set_slope(pos, 0);
+				gr1->setze_pos(gr1->gib_pos() - koord3d(0,0,16));
+			}
+		}
+
+
+		if(slope == 17) {
+			// Hajo: special action: raise land
+
+			// Precondition: sqaure and all neighbours have same height
+			// or neighbours are one level higher
+
+			ok = true;
+			for(int i=0; i<4; i++) {
+				const koord k = pos + koord::nsow[i];
+				const planquadrat_t *plan = welt->lookup(k);
+
+				if(plan) {
+					grund_t * gr = plan->gib_kartenboden();
+					if(gr) {
+						ok &= gr->gib_pos().z == gr1->gib_pos().z ||
+								  gr->gib_pos().z == gr1->gib_pos().z + 16;
+					}
+				}
+			}
+
+			if(ok) {
+				welt->set_slope(pos, 0);
+				gr1->setze_pos(gr1->gib_pos() + koord3d(0,0,16));
+			}
+		}
+
+		if(slope == 18) {
+			// prissi: special action: set to natural slope
+
+			const int natural_slope = welt->calc_natural_slope(pos);
+			ok = natural_slope!=welt->get_slope(pos);
+
+			if(ok) {
+				welt->set_slope(pos, natural_slope);
+			}
+		}
+
+		// ok, was sucess => need to treat the other tiles
+		if(ok) {
+			sp->buche(CST_BAU*2, pos, COST_CONSTRUCTION);
+
+			gr1->calc_bild();
 
 			for(int i=0; i<4; i++) {
 				const koord k = pos + koord::nsow[i];
 				const planquadrat_t *plan = welt->lookup(k);
 
 				if(plan) {
-					gr = plan->gib_kartenboden();
+					grund_t *gr = plan->gib_kartenboden();
 					if(gr) {
 						gr->calc_bild();
 					}
 				}
 			}
-
-			ok = true;
 		}
 
-    if(slope == 16) {
-      // Hajo: special action: lower land
-
-      // Precondition: sqaure and all neighbours have same height
-      // or neighbours are one level deeper
-
-      grund_t * gr1 = welt->lookup(pos)->gib_kartenboden();
-      ok = true;
-
-      for(int i=0; i<4; i++) {
-  const koord k = pos + koord::nsow[i];
-  const planquadrat_t *plan = welt->lookup(k);
-
-  if(plan) {
-    grund_t * gr = plan->gib_kartenboden();
-    if(gr) {
-      ok &=
-        gr->gib_pos().z == gr1->gib_pos().z ||
-        gr->gib_pos().z == gr1->gib_pos().z - 16;
-    }
-  }
-      }
-
-      if(ok) {
-  welt->set_slope(pos, 0);
-  gr1->setze_pos(gr1->gib_pos() - koord3d(0,0,16));
-  gr1->calc_bild();
-
-  for(int i=0; i<4; i++) {
-    const koord k = pos + koord::nsow[i];
-    const planquadrat_t *plan = welt->lookup(k);
-
-    if(plan) {
-      grund_t * gr = plan->gib_kartenboden();
-      if(gr) {
-        gr->calc_bild();
-      }
-    }
-  }
-      }
-    }
-
-
-    if(slope == 17) {
-      // Hajo: special action: raise land
-
-      // Precondition: sqaure and all neighbours have same height
-      // or neighbours are one level higher
-
-      grund_t * gr1 = welt->lookup(pos)->gib_kartenboden();
-      ok = true;
-
-      for(int i=0; i<4; i++) {
-  const koord k = pos + koord::nsow[i];
-  const planquadrat_t *plan = welt->lookup(k);
-
-  if(plan) {
-    grund_t * gr = plan->gib_kartenboden();
-    if(gr) {
-      ok &=
-        gr->gib_pos().z == gr1->gib_pos().z ||
-        gr->gib_pos().z == gr1->gib_pos().z + 16;
-    }
-  }
-      }
-
-      if(ok) {
-  welt->set_slope(pos, 0);
-  gr1->setze_pos(gr1->gib_pos() + koord3d(0,0,16));
-  gr1->calc_bild();
-
-  for(int i=0; i<4; i++) {
-    const koord k = pos + koord::nsow[i];
-    const planquadrat_t *plan = welt->lookup(k);
-
-    if(plan) {
-      grund_t * gr = plan->gib_kartenboden();
-      if(gr) {
-        gr->calc_bild();
-      }
-    }
-  }
-      }
-    }
-  }
-
-  return ok;
+	}
+	return ok;
 }
 
 

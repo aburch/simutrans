@@ -62,12 +62,10 @@ public:
 	{
 		return static_cast<const text_besch_t *>(gib_kind(1))->gib_text();
 	}
-
 	const bild_besch_t *gib_bild(int h, int i) const
 	{
 		return static_cast<const bildliste2d_besch_t *>(gib_kind(2))->gib_bild(i, h);
 	}
-
 	const int gib_seasons() const
 	{
 		return static_cast<const bildliste2d_besch_t *>(gib_kind(2))->gib_anzahl()/5;

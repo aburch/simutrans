@@ -1035,7 +1035,7 @@ void fabrik_t::info(cbuffer_t & buf)
     for(uint32 i=0; i<lieferziele.get_count(); i++) {
       const koord lieferziel = lieferziele.get(i);
 
-      ding_t * dt = welt->lookup(lieferziel)->gib_kartenboden()->obj_bei(1);
+      ding_t * dt = welt->lookup(lieferziel)->gib_kartenboden()->obj_bei(0);
       if(dt) {
 	fabrik_t *fab = dt->fabrik();
 
@@ -1060,7 +1060,7 @@ void fabrik_t::info(cbuffer_t & buf)
     for(uint32 i=0; i<suppliers.get_count(); i++) {
       const koord supplier = suppliers.get(i);
 
-      ding_t * dt = welt->lookup(supplier)->gib_kartenboden()->obj_bei(1);
+      ding_t * dt = welt->lookup(supplier)->gib_kartenboden()->obj_bei(0);
       if(dt) {
 	fabrik_t *fab = dt->fabrik();
 

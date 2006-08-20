@@ -84,8 +84,6 @@ protected:
     virtual void age() { };
    virtual int gib_age() { return 1; };
 
-    virtual void calc_bild();
-
     void setze_max_speed(int s) {max_speed = s;};
     int gib_max_speed() const {return max_speed;};
 
@@ -95,7 +93,6 @@ protected:
     verkehrsteilnehmer_t(karte_t *welt, koord3d pos);
 
 public:
-
     const char *gib_name() const = 0;
     enum ding_t::typ gib_typ() const  = 0;
 
@@ -140,6 +137,9 @@ private:
 
 protected:
     void rdwr(loadsave_t *file);
+
+	void calc_bild();
+
 public:
     stadtauto_t(karte_t *welt, loadsave_t *file);
     stadtauto_t(karte_t *welt, koord3d pos);
@@ -153,9 +153,6 @@ public:
 
    virtual void age() { time_to_life--; };
    virtual int gib_age() { return time_to_life; };
-
-    virtual void calc_bild();
-
 
     /* this function builts the list of the allowed citycars
      * it should be called every month and in the beginning of a new game

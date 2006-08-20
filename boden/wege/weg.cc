@@ -134,29 +134,30 @@ weg_t::~weg_t()
 
 void weg_t::rdwr(loadsave_t *file)
 {
-  file->wr_obj_id(gib_typ());
-  uint8 ribi8;
-  if(file->is_saving()) {
-    ribi8 = ribi | (ribi_maske << 4);
-  }
-  file->rdwr_byte(ribi8, "\n");
-  if(file->is_loading()) {
-    ribi = ribi8 & 0xF;
-    ribi_maske = ribi8 >> 4;
-  }
 
-  file->rdwr_short(max_speed, "\n");
+	uint8 ribi8;
+	if(file->is_saving()) {
+		// reading has been done by grund_t!
+		file->wr_obj_id(
+			(gib_typ()==weg_t::schiene  &&  besch->gib_styp()==7) ? weg_t::schiene_strab : gib_typ()
+		 );
+		 // init ribi
+		ribi8 = ribi | (ribi_maske << 4);
+	}
+	file->rdwr_byte(ribi8, "\n");
+	if(file->is_loading()) {
+		ribi = ribi8 & 0xF;
+		ribi_maske = ribi8 >> 4;
+	}
 
-//if(gib_typ()==weg_t::schiene)
-//DBG_MESSAGE("weg_t::rdwr","schiene at (%i,%i) max_speed %i",gib_pos().x,gib_pos().y,max_speed);
+	file->rdwr_short(max_speed, "\n");
 
-  for (int type=0; type<MAX_WAY_STATISTICS; type++) {
-    for (int month=0; month<MAX_WAY_STAT_MONTHS; month++) {
-      file->rdwr_long(statistics[month][type], "\n");
-      // DBG_DEBUG("weg_t::rdwr()", "statistics[%d][%d]=%d",
-      //	   month, type, statistics[month][type]);
-    }
-  }
+	for (int type=0; type<MAX_WAY_STATISTICS; type++) {
+		for (int month=0; month<MAX_WAY_STAT_MONTHS; month++) {
+			file->rdwr_long(statistics[month][type], "\n");
+			// DBG_DEBUG("weg_t::rdwr()", "statistics[%d][%d]=%d", month, type, statistics[month][type]);
+		}
+	}
 }
 
 

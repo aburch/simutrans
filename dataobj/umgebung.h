@@ -191,6 +191,12 @@ class umgebung_t
 	*/
 	static cstring_t * intercity_road_type;
 
+	/**
+	 * Typ (Name) initiale Stadtstrassen
+	 *
+	 * @author Hj. Malthaner
+	 */
+	static cstring_t * city_road_type;
 
 	/**
 	* Should the timeline be activated?
@@ -221,6 +227,9 @@ class umgebung_t
 
 	/* prissi: crossconnect all factories (like OTTD and similar games) */
 	static bool crossconnect_factories;
+
+	/* prissi: drive on the left side of the road */
+	static bool drive_on_left;
 };
 
 #endif

@@ -811,7 +811,7 @@ stadt_t::step_passagiere()
     // nur jede achte Zeile bearbeiten
 	for(k.y = ob+row; k.y <= un; k.y += 8) {
 		for(k.x = li+col; k.x <= re; k.x += 2) {
-			const gebaeude_t *gb = dynamic_cast<const gebaeude_t *> (welt->lookup(k)->gib_kartenboden()->obj_bei(1));
+			const gebaeude_t *gb = dynamic_cast<const gebaeude_t *> (welt->lookup(k)->gib_kartenboden()->obj_bei(0));
 
 			// ist das dort ein gebaeude ?
 			if(gb != NULL) {
@@ -1221,7 +1221,7 @@ stadt_t::check_bau_rathaus(bool new_town)
 
     if(besch) {
   grund_t *gr = welt->lookup(pos)->gib_kartenboden();
-  gebaeude_t *gb = dynamic_cast<gebaeude_t *>(gr->obj_bei(1));
+  gebaeude_t *gb = dynamic_cast<gebaeude_t *>(gr->obj_bei(0));
   bool neugruendung = !gb || !gb->ist_rathaus();
   bool umziehen = !neugruendung;
   koord alte_str ( koord::invalid );
@@ -1265,7 +1265,7 @@ stadt_t::check_bau_rathaus(bool new_town)
 
         if(!umziehen && k.x < besch->gib_b() && k.y < besch->gib_h()) {
       // Platz für neues Rathaus freimachen
-      ding_t *gb = gr->obj_bei(1);
+      ding_t *gb = gr->obj_bei(0);
       gr->obj_remove(gb, besitzer_p);
       gb->setze_pos(koord3d::invalid); // Hajo: mark 'not on map'
       delete gb;
@@ -1324,7 +1324,7 @@ stadt_t::check_bau_rathaus(bool new_town)
       // Strasse vom ehemaligen Rathaus zum neuen verlegen.
       wegbauer_t bauer(welt, NULL);
       bauer.route_fuer(wegbauer_t::strasse,
-           wegbauer_t::gib_besch("city_road"));
+           wegbauer_t::gib_besch(umgebung_t::city_road_type->chars()));
       bauer.calc_route(alte_str, best_pos + koord(0, besch->gib_h()));
       bauer.baue();
 
@@ -1472,18 +1472,19 @@ stadt_t::bewerte_loc(const koord pos, const char *regel)
 
   switch(regel[(k.x-pos.x+1) + ((k.y-pos.y+1)<<2)]) {
   case 's':
-    ok = gr->gib_weg(weg_t::strasse) && (gr->gib_top() <= 0);
+    ok = gr->gib_weg(weg_t::strasse);
     break;
   case 'S':
     ok = !gr->gib_weg(weg_t::strasse);
     break;
   case 'h':
-    ok = gr->obj_bei(0)!=0 && gr->obj_bei(0)->gib_typ()==ding_t::gebaeudefundament;
+  	// is house
+    ok = gr->gib_typ() == grund_t::fundament;
     break;
   case 'H':
-    ok = gr->obj_bei(0)==0 || gr->obj_bei(0)->gib_typ()!=ding_t::gebaeudefundament;
+  	// no house
+    ok = gr->gib_typ() != grund_t::fundament;
     break;
-
   case 'n':
     ok = gr->ist_natur() && !gr->gib_besitzer();
     break;
@@ -1614,21 +1615,19 @@ stadt_t::bewerte()
 gebaeude_t::typ
 stadt_t::was_ist_an(const koord k) const
 {
-    const planquadrat_t *plan = welt->lookup(k);
-    gebaeude_t::typ t = gebaeude_t::unbekannt;
+	const planquadrat_t *plan = welt->lookup(k);
+	gebaeude_t::typ t = gebaeude_t::unbekannt;
 
-    if(plan) {
-  const ding_t *d = plan->gib_kartenboden()->obj_bei(1);
-  const gebaeude_t *gb = dynamic_cast<const gebaeude_t *>(d);
+	if(plan) {
+		const ding_t *d = plan->gib_kartenboden()->obj_bei(0);
+		const gebaeude_t *gb = dynamic_cast<const gebaeude_t *>(d);
+		if(gb) {
+			t = gb->gib_haustyp();
+		}
+	}
+//	DBG_MESSAGE("stadt_t::was_ist_an()","an pos %d,%d ist ein gebaeude vom typ %d", k.x, k.y, t);
 
-  if(gb) {
-      t = gb->gib_haustyp();
-  }
-    }
-
-//    printf("an pos %d,%d ist ein gebaeude vom typ %d\n", x, y, t);
-
-    return t;
+	return t;
 }
 
 int
@@ -1704,53 +1703,70 @@ stadt_t::bewerte_wohnung(const koord pos)
     return score;
 }
 
+
+// return the eight neighbours
+static koord neighbours[8]=
+{
+	koord(-1,-1), 	koord(-1,0), 	koord(-1,1),
+	koord(0,-1), 	koord(0,1),
+	koord(1,-1), 	koord(1,0), 	koord(1,1)
+};
+
 void
 stadt_t::baue_gebaeude(const koord k)
 {
-  const koord3d pos ( welt->lookup(k)->gib_kartenboden()->gib_pos() );
+	const koord3d pos ( welt->lookup(k)->gib_kartenboden()->gib_pos() );
 
-  if(welt->lookup(pos)->ist_natur()  &&
-  	welt->lookup(pos)->suche_obj(ding_t::leitung)==NULL  &&
-  	welt->lookup(pos)->suche_obj(ding_t::pumpe)==NULL  &&
-  	welt->lookup(pos)->suche_obj(ding_t::senke)==NULL) {
+	if(welt->lookup(pos)->ist_natur()  &&
+		welt->lookup(pos)->suche_obj(ding_t::leitung)==NULL  &&
+		welt->lookup(pos)->suche_obj(ding_t::pumpe)==NULL  &&
+		welt->lookup(pos)->suche_obj(ding_t::senke)==NULL) {
 
-    // bisher gibt es 2 Sorten Haeuser
-    // arbeit-spendende und wohnung-spendende
+		// bisher gibt es 2 Sorten Haeuser
+		// arbeit-spendende und wohnung-spendende
 
-    int will_arbeit = (bev - arb) / 4;  // Nur ein viertel arbeitet
-    int will_wohnung = (bev - won);
+		int will_arbeit = (bev - arb) / 4;  // Nur ein viertel arbeitet
+		int will_wohnung = (bev - won);
 
-    // der Bauplatz muss bewertet werden
+		// der Bauplatz muss bewertet werden
 
-    const int passt_industrie = bewerte_industrie(k);
-    INT_CHECK("simcity 813");
-    const int passt_gewerbe = bewerte_gewerbe(k);
-    INT_CHECK("simcity 815");
-    const int passt_wohnung = bewerte_wohnung(k);
+		const int passt_industrie = bewerte_industrie(k);
+		INT_CHECK("simcity 813");
+		const int passt_gewerbe = bewerte_gewerbe(k);
+		INT_CHECK("simcity 815");
+		const int passt_wohnung = bewerte_wohnung(k);
 
+		const int sum_gewerbe = passt_gewerbe + will_arbeit;
+		const int sum_industrie = passt_industrie + will_arbeit;
+		const int sum_wohnung = passt_wohnung + will_wohnung;
 
-    const int sum_gewerbe = passt_gewerbe + will_arbeit;
-    const int sum_industrie = passt_industrie + will_arbeit;
-    const int sum_wohnung = passt_wohnung + will_wohnung;
+		if(sum_gewerbe > sum_industrie && sum_gewerbe > sum_wohnung) {
+			hausbauer_t::baue(welt, NULL, pos, 0, hausbauer_t::gib_gewerbe(0));
+			arb += 20;
+		}
 
-    //    printf("%d Leute, %d ohne Arbeit, %d ohne Wohnung\n",bev, will_arbeit, will_wohnung);
-    //    printf("%d Industrie, %d Gewerbe, %d  Wohnung\n", sum_industrie, sum_gewerbe, sum_wohnung);
+		if(sum_industrie > sum_gewerbe && sum_industrie > sum_wohnung) {
+			hausbauer_t::baue(welt, NULL, pos, 0, hausbauer_t::gib_industrie(0));
+			arb += 20;
+		}
 
-    if(sum_gewerbe > sum_industrie && sum_gewerbe > sum_wohnung) {
-      hausbauer_t::baue(welt, NULL, pos, 0, hausbauer_t::gib_gewerbe(0));
-      arb += 20;
-    }
+		if(sum_wohnung > sum_industrie && sum_wohnung > sum_gewerbe) {
+			hausbauer_t::baue(welt, NULL, pos, 0, hausbauer_t::gib_wohnhaus(0));
+			won += 10;
+		}
 
-    if(sum_industrie > sum_gewerbe && sum_industrie > sum_wohnung) {
-      hausbauer_t::baue(welt, NULL, pos, 0, hausbauer_t::gib_industrie(0));
-      arb += 20;
-    }
-
-    if(sum_wohnung > sum_industrie && sum_wohnung > sum_gewerbe) {
-      hausbauer_t::baue(welt, NULL, pos, 0, hausbauer_t::gib_wohnhaus(0));
-      won += 10;
-    }
-  }
+		// check for pavement
+		for(  int i=0;  i<8;  i++ ) {
+			grund_t *gr = welt->lookup(k+neighbours[i])->gib_kartenboden();
+			if(gr) {
+				strasse_t *weg = dynamic_cast <strasse_t *>(gr->gib_weg(weg_t::strasse));
+				if(weg) {
+					weg->setze_gehweg(true);
+					gr->calc_bild();
+				}
+			}
+		}
+	}
 }
 
 
@@ -1795,7 +1811,7 @@ stadt_t::renoviere_gebaeude(koord k)
   return;   // kann nur bekannte gebaeude renovieren
     }
 
-    gebaeude_t *gb = dynamic_cast<gebaeude_t *>(welt->lookup(k)->gib_kartenboden()->obj_bei(1));
+    gebaeude_t *gb = dynamic_cast<gebaeude_t *>(welt->lookup(k)->gib_kartenboden()->obj_bei(0));
 
     if(gb == NULL) {
   dbg->error("stadt_t::renoviere_gebaeude()",
@@ -1866,6 +1882,18 @@ stadt_t::renoviere_gebaeude(koord k)
       won -= level * 10;
 
   erzeuge_verkehrsteilnehmer(k, neu_lev);
+
+	// check for pavement
+	for(  int i=0;  i<8;  i++ ) {
+		grund_t *gr = welt->lookup(k+neighbours[i])->gib_kartenboden();
+		if(gr) {
+			strasse_t *weg = dynamic_cast <strasse_t *>(gr->gib_weg(weg_t::strasse));
+			if(weg) {
+				weg->setze_gehweg(true);
+				gr->calc_bild();
+			}
+		}
+	}
     }
 }
 
@@ -1924,7 +1952,7 @@ stadt_t::baue_strasse(koord k, spieler_t *sp, bool forced)
       if(!bd->weg_erweitern(weg_t::strasse, ribi)) {
   strasse_t *weg = new strasse_t(welt);
   weg->setze_gehweg( true );
-  weg->setze_besch(wegbauer_t::gib_besch("city_road"));
+  weg->setze_besch(wegbauer_t::gib_besch(umgebung_t::city_road_type->chars()));
 
   // Hajo: city roads should not belong to any player
   bd->neuen_weg_bauen(weg, ribi, sp);
@@ -1943,30 +1971,30 @@ stadt_t::baue()
 {
 //    printf("Haus: %d  Strasse %d\n",best_haus_wert, best_strasse_wert);
 
-    if(best_strasse.found()) {
-  if(!baue_strasse(best_strasse.gib_pos(), NULL, false)) {
-      baue_gebaeude(best_strasse.gib_pos());
-  }
-  pruefe_grenzen(best_strasse.gib_pos());
-    }
+	if(best_strasse.found()) {
+		if(!baue_strasse(best_strasse.gib_pos(), NULL, false)) {
+			baue_gebaeude(best_strasse.gib_pos());
+		}
+		pruefe_grenzen(best_strasse.gib_pos());
+	}
 
-    INT_CHECK("simcity 1156");
+	INT_CHECK("simcity 1156");
 
-    if(best_haus.found()) {
-  baue_gebaeude(best_haus.gib_pos());
-  pruefe_grenzen(best_haus.gib_pos());
-    }
+	if(best_haus.found()) {
+		baue_gebaeude(best_haus.gib_pos());
+		pruefe_grenzen(best_haus.gib_pos());
+	}
 
-    INT_CHECK("simcity 1163");
+	INT_CHECK("simcity 1163");
 
-    if(!best_haus.found() && !best_strasse.found() &&
-       was_ist_an(best_haus.gib_pos()) != gebaeude_t::unbekannt) {
+	if(!best_haus.found() && !best_strasse.found() &&
+		was_ist_an(best_haus.gib_pos()) != gebaeude_t::unbekannt) {
 
-  if(simrand(8) <= 2) { // nicht so oft renovieren
-      renoviere_gebaeude(best_haus.gib_pos());
-      INT_CHECK("simcity 876");
-        }
-    }
+		if(simrand(8) <= 2) { // nicht so oft renovieren
+			renoviere_gebaeude(best_haus.gib_pos());
+			INT_CHECK("simcity 876");
+		}
+	}
 }
 
 void

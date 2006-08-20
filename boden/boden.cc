@@ -221,49 +221,53 @@ boden_t::calc_bild()
 
 	int back_bild = IMG_LEER;
 
-	const planquadrat_t *left  = welt->lookup(k - koord(1,0));
-	const planquadrat_t *right = welt->lookup(k - koord(0,1));
+	if(slope_this!=natural_slope_this  ||  slope_this==0) {
+		const planquadrat_t *left  = welt->lookup(k - koord(1,0));
+		const planquadrat_t *right = welt->lookup(k - koord(0,1));
 
-	if(left!=NULL  && right!=NULL) {
-		grund_t * lgr = left->gib_kartenboden();
-		grund_t * rgr = right->gib_kartenboden();
+		if(left!=NULL  && right!=NULL) {
+			grund_t * lgr = left->gib_kartenboden();
+			grund_t * rgr = right->gib_kartenboden();
 
-		const uint8 slope_left =  welt->get_slope(k - koord(1,0));
-		const uint8 slope_right = welt->get_slope(k - koord(0,1));
 
-		const int lhdiff = lgr->ist_wasser() ? -1 : lgr->gib_hoehe() - gib_hoehe();
-		const int lrdiff = rgr->ist_wasser() ? -1 : rgr->gib_hoehe() - gib_hoehe();
-//		const int lhdiff = (lgr->gib_hoehe() - gib_hoehe())/TILE_HEIGHT_STEP;
-//		const int lrdiff = (rgr->gib_hoehe() - gib_hoehe())/TILE_HEIGHT_STEP;
+			const int lhdiff = lgr->ist_wasser() ? -1 : lgr->gib_hoehe() - gib_hoehe();
+			const int lrdiff = rgr->ist_wasser() ? -1 : rgr->gib_hoehe() - gib_hoehe();
+	//		const int lhdiff = (lgr->gib_hoehe() - gib_hoehe())/TILE_HEIGHT_STEP;
+	//		const int lrdiff = (rgr->gib_hoehe() - gib_hoehe())/TILE_HEIGHT_STEP;
 
-		int slope_wall = 0;
+			if(slope_this!=natural_slope_this  ||  (lhdiff!=0  ||  lrdiff!=0)) {
+				const uint8 slope_left =  welt->get_slope(k - koord(1,0));
+				const uint8 slope_right = welt->get_slope(k - koord(0,1));
+				int slope_wall = 0;
 
-		if(lhdiff>=0) {
-			// add corners of left slope
-			sint8 llhdiff = ((slope_left&2)!=0) - ((slope_this&1)!=0) + lhdiff;
-			sint8 lhhdiff = ((slope_left&4)!=0) - ((slope_this&8)!=0) + lhdiff;
-			slope_wall = (llhdiff>0)*4 + (lhhdiff>0)*8;
-			// only down-slopes in table
-			// thus upslopes are converted to solid walls
-			if(lhdiff>0  &&  slope_wall!=0) {
-				slope_wall = 12;
+				if(lhdiff>=0) {
+					// add corners of left slope
+					sint8 llhdiff = ((slope_left&2)!=0) - ((slope_this&1)!=0) + lhdiff;
+					sint8 lhhdiff = ((slope_left&4)!=0) - ((slope_this&8)!=0) + lhdiff;
+					slope_wall = (llhdiff>0)*4 + (lhhdiff>0)*8;
+					// only down-slopes in table
+					// thus upslopes are converted to solid walls
+					if(lhdiff>0  &&  slope_wall!=0) {
+						slope_wall = 12;
+					}
+				}
+
+				if(lrdiff>=0) {
+					// add corner of right slope
+					sint8 hlhdiff = ((slope_right&1)!=0) - ((slope_this&8)!=0) + lrdiff;
+					sint8 hhhdiff = ((slope_right&2)!=0) - ((slope_this&4)!=0) + lrdiff;
+					slope_wall |= (hlhdiff>0)*2 + (hhhdiff>0)*1;
+					// only down-slopes in table
+					// thus upslopes are converted to solid walls
+					if(lrdiff>0  &&  (slope_wall&3)>0) {
+						slope_wall |= 3;
+					}
+				}
+
+				if(slope_wall!=0) {
+						back_bild = grund_besch_t::boden->gib_bild(38 + double_slope_table[slope_wall]);
+				}
 			}
-		}
-
-		if(lrdiff>=0) {
-			// add corner of right slope
-			sint8 hlhdiff = ((slope_right&1)!=0) - ((slope_this&8)!=0) + lrdiff;
-			sint8 hhhdiff = ((slope_right&2)!=0) - ((slope_this&4)!=0) + lrdiff;
-			slope_wall |= (hlhdiff>0)*2 + (hhhdiff>0)*1;
-			// only down-slopes in table
-			// thus upslopes are converted to solid walls
-			if(lrdiff>0  &&  (slope_wall&3)>0) {
-				slope_wall |= 3;
-			}
-		}
-
-		if(slope_wall!=0) {
-				back_bild = grund_besch_t::boden->gib_bild(38 + double_slope_table[slope_wall]);
 		}
 	}
 

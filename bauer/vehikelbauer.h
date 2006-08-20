@@ -77,7 +77,7 @@ public:
   /* extended sreach for vehicles for KI
    * @author prissi
    */
-    static const vehikel_besch_t *vehikelbauer_t::vehikel_search(weg_t::typ typ,const unsigned month_now,const int target_power,const int target_speed,const ware_besch_t * target_freight);
+    static const vehikel_besch_t *vehikelbauer_t::vehikel_search(weg_t::typ typ,const unsigned month_now,const int target_power,const int target_speed,const ware_besch_t * target_freight,bool include_eletric=true);
 
     static const vehikel_besch_t *vehikel_fuer_leistung(int leistung, weg_t::typ typ,const unsigned month_now);
     static int gib_preis(int base_img);

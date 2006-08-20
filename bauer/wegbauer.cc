@@ -63,7 +63,6 @@ static stringhashtable_tpl <const weg_besch_t *> alle_wegtypen;
 
 bool wegbauer_t::alle_wege_geladen()
 {
-    // Strom muꂲnicht sein!
     return ::alles_geladen(spezial_objekte + 1);
 }
 
@@ -83,9 +82,7 @@ bool wegbauer_t::alle_kreuzungen_geladen()
 bool wegbauer_t::register_besch(const weg_besch_t *besch)
 {
   DBG_DEBUG("wegbauer_t::register_besch()", besch->gib_name());
-
   alle_wegtypen.put(besch->gib_name(), besch);
-
   return ::register_besch(spezial_objekte, besch);
 }
 
@@ -205,8 +202,9 @@ const weg_besch_t *  wegbauer_t::weg_search(weg_t::typ wtyp,int speed_limit)
 DBG_MESSAGE("wegbauer_t::weg_search","Search cheapest for limit %i",speed_limit);
   while(iter.next()) {
 
-    if(iter.get_current_value()->gib_wtyp() == wtyp &&
-       iter.get_current_value()->gib_cursor()->gib_bild_nr(1) != -1) {
+    if(
+    	(iter.get_current_value()->gib_wtyp()==wtyp ||  (wtyp==weg_t::schiene_strab  &&  iter.get_current_value()->gib_wtyp()==weg_t::schiene  &&  iter.get_current_value()->gib_styp()==7)
+    	)  &&  iter.get_current_value()->gib_cursor()->gib_bild_nr(1) != -1) {
 
         if(  besch==NULL  ||  (besch->gib_topspeed()<speed_limit  &&  besch->gib_topspeed()<iter.get_current_value()->gib_topspeed()) ||  (iter.get_current_value()->gib_topspeed()>=speed_limit  &&  iter.get_current_value()->gib_wartung()<besch->gib_wartung())  ) {
           besch = iter.get_current_value();
@@ -1469,7 +1467,7 @@ wegbauer_t::baue_strasse()
 			weg_t * weg = gr->gib_weg(weg_t::strasse);
 
 			// keep faster ways or if it is the same way ... (@author prissi)
-			if(weg->gib_besch()==besch  ||  keep_existing_ways  ||  (keep_existing_city_roads  && weg->gib_besch()==cityroad)  ||  (keep_existing_faster_ways  &&  weg->gib_besch()->gib_topspeed()>=besch->gib_topspeed())  ) {
+			if(weg->gib_besch()==besch  ||  keep_existing_ways  ||  (keep_existing_city_roads  && weg->gib_besch()==cityroad)  ||  (keep_existing_faster_ways  &&  weg->gib_besch()->gib_topspeed()>besch->gib_topspeed())  ) {
 				//nothing to be done
 //DBG_MESSAGE("wegbauer_t::baue_strasse()","nothing to do at (%i,%i)",k.x,k.y);
 				cost = 0;

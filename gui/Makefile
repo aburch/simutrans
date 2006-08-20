@@ -3,7 +3,7 @@ CXXFLAGS = -O -Wall -g -c
 
 SOURCES= button.cc\
  infowin.cc colors.cc karte.cc welt.cc\
- werkzeug_waehler.cc  werkzeug_parameter_waehler.cc\
+ werkzeug_parameter_waehler.cc\
  goods_frame_t.cc goods_stats_t.cc\
  kennfarbe.cc halt_info.cc halt_detail.cc\
  halt_list_frame.cc halt_list_item.cc\
@@ -25,7 +25,7 @@ SOURCES= button.cc\
 
 OBJECTS=button.o\
  infowin.o colors.o karte.o welt.o\
- werkzeug_waehler.o  werkzeug_parameter_waehler.o\
+ werkzeug_parameter_waehler.o\
  goods_frame_t.o goods_stats_t.o\
  kennfarbe.o halt_info.o  halt_detail.o\
  halt_list_frame.o halt_list_item.o\

@@ -98,7 +98,12 @@ static int old_my = -1;
  * @date 29.11.04
  */
 static bool has_unicode = false;
+#ifdef USE_SMALL_FONT
 static font_type	large_font, small_font;
+#else
+static font_type	large_font;
+#define small_font (large_font)
+#endif
 
 // needed for gui
 int large_font_height=10;
@@ -188,18 +193,17 @@ static int selected_player_color_set = 0;
  * Hajo: Image map descriptor struture
  */
 struct imd {
-  unsigned char x;    // current (zoomed) min x offset
-  unsigned char w;    // current (zoomed) width
-  unsigned char y;    // current (zoomed) min y offset
-  unsigned char h;    // current (zoomed) width
-
   unsigned char base_x;    // current min x offset
   unsigned char base_w;    // current width
   unsigned char base_y;    // current min y offset
   unsigned char base_h;    // current width
 
-  int len;            // base image data size (used for allocation purposes only)
+  unsigned char x;    // current (zoomed) min x offset
+  unsigned char w;    // current (zoomed) width
+  unsigned char y;    // current (zoomed) min y offset
+  unsigned char h;    // current (zoomed) width
 
+  unsigned long len;   // base image data size (used for allocation purposes only)
   unsigned char recode_flags[4]; // first byte: needs recode, second byte: code normal, second byte: code for player1
 
   PIXVAL * data;      // current data, zoomed and adapted to output format RGB 555 or RGB 565
@@ -209,14 +213,13 @@ struct imd {
   PIXVAL * base_data;  // original image data
 
   PIXVAL * player_data; // current data coded for player1 (since many building belong to him)
-
-  unsigned char zoomable;  // Flag if this image can be zoomed
-};
+};	/* exactly 32 bit: This should make thigns faster ... */
 
 // offsets in the recode array
 #define NEED_REZOOM (0)
 #define NEED_NORMAL_RECODE (1)
 #define NEED_PLAYER_RECODE (2)
+#define ZOOMABLE (3)
 
 
 
@@ -687,7 +690,7 @@ static void rezoom()
 	int n;
 
 	for(n=0; n<anz_images; n++) {
-		images[n].recode_flags[NEED_REZOOM] = images[n].zoomable  &&  (images[n].base_h>0);
+		images[n].recode_flags[NEED_REZOOM] = images[n].recode_flags[ZOOMABLE]  &&  (images[n].base_h>0);
 		images[n].recode_flags[NEED_NORMAL_RECODE] = 128;
 		images[n].recode_flags[NEED_PLAYER_RECODE] = 128;	// color will be set next time
 //		rezoom_img(n);
@@ -830,7 +833,7 @@ static void rezoom_img( const unsigned int n )
 			}
 		}
 
-	} // if(images[n].zoomable) {
+	} // if(images[n].recode_flags[ZOOMABLE]) {
 }
 
 
@@ -1196,6 +1199,7 @@ void	copy_font( font_type *dest_font, font_type *src_font )
 
 
 
+#ifdef USE_SMALL_FONT
 /* checks if a small and a large font exists;
  * if not the missing font will be emulated
  * @author prissi
@@ -1219,6 +1223,7 @@ int display_get_font_height_small()
 {
 	return small_font.height;
 }
+#endif
 
 int display_get_font_height()
 {
@@ -1673,7 +1678,7 @@ void register_image(struct bild_besch_t *bild)
 
 	images[anz_images].base_data = (PIXVAL *)guarded_malloc(images[anz_images].len*sizeof(PIXVAL));
 
-	images[anz_images].zoomable = bild->zoomable;
+	images[anz_images].recode_flags[ZOOMABLE] = bild->zoomable;
 
 	memcpy(images[anz_images].base_data, (PIXVAL *)(bild + 1),images[anz_images].len*sizeof(PIXVAL));
 
@@ -1686,6 +1691,46 @@ void register_image(struct bild_besch_t *bild)
 
 	anz_images ++;
 }
+
+
+
+// prissi: canges the offset of an image
+// we need it this complex, because the actual x-offset is coded into the image
+void display_set_image_offset( int bild, int xoff, int yoff )
+{
+	if(bild<anz_images  &&  images[bild].base_h>0  &&  images[bild].base_w>0) {
+		int h = images[bild].base_h;
+		PIXVAL *sp = images[bild].base_data;
+
+		// avoid overflow
+		if(images[bild].base_x+xoff<0) {
+			xoff = -images[bild].base_x;
+		}
+		images[bild].base_x += xoff;
+		images[bild].base_y += yoff;
+		// the offfset is hardcoded into the image
+		while(h-->0) {
+			// one line
+			*sp += xoff;	// reduce number of transparent pixels (always first)
+			do
+			{
+				// clear run + colored run + next clear run
+				  ++sp;
+				sp += *sp + 1;
+			}
+			while(*sp);
+			sp ++;
+		}
+		// need recoding
+		images[anz_images].recode_flags[NEED_NORMAL_RECODE] = 128;
+#ifdef NEED_PLAYER_RECODE
+		images[anz_images].recode_flags[NEED_PLAYER_RECODE] = 128;
+#endif
+		images[anz_images].recode_flags[NEED_REZOOM] = true;
+	}
+}
+
+
 
 
 /**
@@ -3330,11 +3375,15 @@ simgraph_init(int width, int height, int use_shm, int do_sync, int full_screen)
 	use_softpointer = dr_use_softpointer();
 
 	// init, load, and check fonts
-	small_font.screen_width = large_font.screen_width = NULL;
-	small_font.char_data = large_font.char_data = NULL;
-	display_load_font( FONT_PATH_X "4x7.hex", false );
+	large_font.screen_width = NULL;
+	large_font.char_data = NULL;
 	display_load_font( FONT_PATH_X "prop.fnt", true );
+#ifdef USE_SMALL_FONT
+	small_font.screen_width = NULL;
+	small_font.char_data = NULL;
+	display_load_font( FONT_PATH_X "4x7.hex", false );
 	display_check_fonts();
+#endif
 
 	load_special_palette();
 	display_set_color(1);

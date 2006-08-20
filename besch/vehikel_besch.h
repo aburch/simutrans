@@ -69,7 +69,8 @@ public:
      * @author Hj. Malthaner
      */
     enum engine_t {
-      steam,
+    	 unknown=-1,
+      steam=0,
       diesel,
       electric,
       bio,

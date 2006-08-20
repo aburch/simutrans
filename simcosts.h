@@ -25,7 +25,7 @@
 
 #define CST_STRASSE -10000
 #define CST_SCHIENE -10000
-#define CST_BAU     -12000
+#define CST_BAU     -250000
 #define CST_BRUECKE -20000
 #define CST_TUNNEL  -100000
 #define CST_LEITUNG -12000

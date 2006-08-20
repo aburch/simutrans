@@ -77,18 +77,6 @@ leitung_t::suche_fab_4(const koord pos)
 }
 
 
-void leitung_t::sync_prepare()
-{
-  // unused
-};
-
-
-bool leitung_t::sync_step(long /*delta_t*/)
-{
-  return true;
-};
-
-
 leitung_t::leitung_t(karte_t *welt, loadsave_t *file) : ding_t(welt)
 {
   step_frequency = 0;
@@ -490,8 +478,8 @@ pumpe_t::pumpe_t(karte_t *welt, loadsave_t *file) : leitung_t(welt , file)
 	fab = NULL;
 	power_there = false;
 	calc_bild();
-	welt->sync_add(this);
 	calc_neighbourhood();
+	welt->sync_add(this);
 }
 
 
@@ -500,8 +488,8 @@ pumpe_t::pumpe_t(karte_t *welt, koord3d pos, spieler_t *sp) : leitung_t(welt , p
 	fab = NULL;
 	power_there = false;
 	calc_bild();
-	welt->sync_add(this);
 	calc_neighbourhood();
+	welt->sync_add(this);
 }
 
 
@@ -551,6 +539,9 @@ pumpe_t::sync_prepare()
 bool
 pumpe_t::sync_step(long delta_t)
 {
+	if(!get_net()) {
+		return false;
+	}
 	if(  fab==0 || (fab->gib_eingang()->get_count()>0  &&  fab->gib_eingang()->get(0).menge<=0)  ) {
 		power_there = false;
 	}
@@ -572,8 +563,8 @@ senke_t::senke_t(karte_t *welt, loadsave_t *file) : leitung_t(welt , file)
 	einkommen = 1;
 	max_einkommen = 1;
 	calc_bild();
-	welt->sync_add(this);
 	calc_neighbourhood();
+	welt->sync_add(this);
 }
 
 
@@ -583,8 +574,8 @@ senke_t::senke_t(karte_t *welt, koord3d pos, spieler_t *sp) : leitung_t(welt , p
 	einkommen = 1;
 	max_einkommen = 1;
 	calc_bild();
-	welt->sync_add(this);
 	calc_neighbourhood();
+	welt->sync_add(this);
 }
 
 
@@ -636,6 +627,9 @@ senke_t::sync_prepare()
 bool
 senke_t::sync_step(long time)
 {
+	if(!get_net()) {
+		return false;
+	}
 //DBG_MESSAGE("senke_t::sync_step()", "called");
 	int want_power = time*(PROD/3);
 	int get_power = get_net()->withdraw_power(want_power);

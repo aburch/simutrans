@@ -1926,7 +1926,7 @@ DBG_MESSAGE("spieler_t::suche_transport_quelle","Search other %i supplier for: %
 
 		if(welt->lookup(lieferquelle)) {
 			// valid koordinate?
-			ding_t * dt = welt->lookup(lieferquelle)->gib_kartenboden()->obj_bei(1);
+			ding_t * dt = welt->lookup(lieferquelle)->gib_kartenboden()->obj_bei(0);
 			if(dt==NULL) {
 				// is already served ...
 				continue;
@@ -2000,7 +2000,7 @@ DBG_MESSAGE("spieler_t::suche_transport_ziel","Lieferziele %d",lieferziel_anzahl
 			fabrik_t *zfab = NULL;
 
 			if(welt->lookup(lieferziel)) {
-				ding_t * dt = welt->lookup(lieferziel)->gib_kartenboden()->obj_bei(1);
+				ding_t * dt = welt->lookup(lieferziel)->gib_kartenboden()->obj_bei(0);
 				if(dt) {
 					zfab = dt->fabrik();
 					dieser_gewinn = guess_gewinn_transport_quelle_ziel( qfab, &ware, ware_nr, zfab );
@@ -3054,6 +3054,10 @@ DBG_MESSAGE("spieler_t::bescheid_vehikel_problem","Vehicle %s can't find a route
 		sprintf(buf,"Vehicle %s can't find a route!", cnv->gib_name());
 //		ticker_t::get_instance()->add_msg(buf, cnv->gib_pos().gib_2d(),ROT);
 		message_t::get_instance()->add_message(buf, cnv->gib_pos().gib_2d(),message_t::convoi,kennfarbe,cnv->gib_vehikel(0)->gib_basis_bild());
+	}
+	else if(this != welt->gib_spieler(0)) {
+DBG_MESSAGE("spieler_t::bescheid_vehikel_problem","will self destruct convoi");
+		cnv->self_destruct();
 	}
 }
 

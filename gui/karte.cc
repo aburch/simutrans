@@ -150,7 +150,7 @@ reliefkarte_t::calc_relief_farbe(const karte_t *welt, const koord k)
 			    // auf einem fundament steht ein gebaeude
 			    // das ist objekt nr. 1
 
-			    ding_t * dt = gr->obj_bei(1);
+			    ding_t * dt = gr->obj_bei(0);
 
 			    if(dt == NULL || dt->fabrik() == NULL) {
 					color = GRAU3;
@@ -160,7 +160,7 @@ reliefkarte_t::calc_relief_farbe(const karte_t *welt, const koord k)
 
 			} else if(gr->gib_hoehe() <= welt->gib_grundwasser()) {
 
-			    ding_t * dt = gr->obj_bei(1);
+			    ding_t * dt = gr->obj_bei(0);
 
 			    if(dt != NULL && dt->fabrik() != NULL) {
 					color = dt->fabrik()->gib_kennfarbe();
@@ -303,7 +303,6 @@ reliefkarte_t::zeichnen(koord pos) const
 
     int xpos = (welt->gib_ij_off().x+8)*zoom;
     int ypos = (welt->gib_ij_off().y+8)*zoom;
-    unsigned int i;
 
     // zoom faktor
     const int zf = zoom * get_zoom_factor();

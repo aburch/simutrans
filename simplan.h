@@ -21,7 +21,15 @@
 
 //#define PRI_DACH1   0
 //#define PRI_DACH2  11
+
 #define PRI_DEPOT  11
+
+#define PRI_RAIL  0
+#define PRI_RAIL_AND_ROAD 4
+
+#define PRI_ROAD_S_W_SW_SE 0
+#define PRI_ROAD_AND_RAIL_N_E_NE_NW 6
+#define PRI_ROAD_N_E_NE_NW 4
 
 #define PRI_NIEDRIG 3
 #define PRI_MITTEL  6

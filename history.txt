@@ -6,7 +6,37 @@ Known bugs: (hard to fix)
 	valgrind complains about errors in SDL and X?
 
 
+Release of 86.09
 
+13-Sep-2005 (prissi)
+	ADD: Additional tool "natural slope"
+	CHANGE: changing terrain becomes much more expensive (so use bridges and tunnels more often)
+	FIX: some more drawing errors with slope fixed
+	CHANGE: more equal distribution of tools in a toolbar
+	CHANGE: citycars will no turn into a dead end (check 2 tiles ahead)
+	FIX: again pedestrians (was broken since 86.07)
+	CHANGE: new setting in simuconf.tab: "drive_left" will offset all citycars, trucks, roadsigns, ... to the other side of the road (there will be still some clipping errors)
+	CHANGE: artifical slopes now includes the natural ones
+	ADD: Isaac new roadsigns
+	ADD: cityroad configurable "city_road_type" in simuconf.tab
+	FIX: cars now also wait on diagonals
+	CHANGE: new vehicle-sorter, thus trams look a little better and it know about left side driving
+
+11-Sep-2005 (prissi)
+	FIX: cursor keys with SDL working again
+	FIX: remove obsolete keywords from translations, also small font will be ignored
+	FIX: en.tab and de.tab for finances/map legend
+	ADD: Some buildings from Moistboy and de/en translation texts
+	ADD: road inside city limits will get a sidewalk after some time
+	ADD: "Total inhabitants:" to citylist which shows the number of total inhabitants
+	CHANGE: made dinglist to maximum size 255, and single objects are stored directly => much faster loading, saved another 2 bytes per tile and 32 byte per emtpy tile/one object tile
+	CHANGE: removed fundament type from ding-types => 56 bytes less per building
+	FIX: Some more error checking, when loading ways => can cope with unknow ways
+
+
+Release of 86.08.1
+
+10-Sep-2005 (prissi)
 	FIX: wrong engine types for obsolete rail type "electrified_track" in old packages
 	FIX: SHIFT again dead key with SDL
 	FIX: after removing stops from a schedule, the removed stop was not updates => passengers waiting for non-existent lines

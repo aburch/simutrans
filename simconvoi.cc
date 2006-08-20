@@ -803,11 +803,11 @@ convoi_t::add_vehikel(vehikel_t *v, bool infront)
 
 
 vehikel_t *
-convoi_t::remove_vehikel_bei(int i)
+convoi_t::remove_vehikel_bei(unsigned short i)
 {
     vehikel_t *v = NULL;
 
-    if(i>=0 && i<anz_vehikel) {
+    if(i<anz_vehikel) {
 
 	v = fahr->at(i);
 
@@ -1051,7 +1051,7 @@ convoi_t::vorfahren()
 
 	for(unsigned i=0; i<anz_vehikel; i++) {
 		tmp_pos.at(i) = fahr->at(i)->gib_pos();
-		const bool ok = (welt->lookup(tmp_pos.get(i))->obj_remove(fahr->at(i), besitzer_p)  != NULL);
+		const bool ok = (welt->lookup(tmp_pos.get(i))->obj_remove(fahr->at(i), besitzer_p))  != 0;
 
 		if(!ok) {
 			dbg->error("convoi_t::vorfahren()", "Vehicle %d couldn't be removed.", i);
@@ -1554,12 +1554,12 @@ void convoi_t::calc_gewinn()
  *
  * V.Meyer: ladegrad is now stored in the object (not returned)
  */
-void convoi_t::hat_gehalten(koord k, halthandle_t halt)
+void convoi_t::hat_gehalten(koord k, halthandle_t /*halt*/)
 {
+/* should be no longer neccessary
 	// haltestellenquote neu berechnen
 	const int quote = anz_vehikel == 1 ? 32 : 16;
 
-/* should be no longer neccessary
 	for(unsigned i=0; i<anz_vehikel; i++) {
 		// recalculate connections ...
 		halt->hat_gehalten(quote, fahr->at(i)->gib_fracht_typ(), fpl);

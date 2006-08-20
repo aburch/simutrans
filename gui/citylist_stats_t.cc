@@ -17,14 +17,19 @@
 
 #include "../gui/stadt_info.h"
 
+#include "../dataobj/translator.h"
+
 #include "../utils/cbuffer_t.h"
+
+static const char *total_bev_string;
 
 
 citylist_stats_t::citylist_stats_t(karte_t * w)
 {
   welt = w;
 
-  setze_groesse(koord(600, welt->gib_staedte()->get_count()*14 + 30));
+  setze_groesse(koord(600, welt->gib_staedte()->get_count()*14 + 19));
+  total_bev_string = translator::translate("Total inhabitants:");
 }
 
 
@@ -70,6 +75,7 @@ void citylist_stats_t::infowin_event(const event_t * ev)
 void citylist_stats_t::zeichnen(koord offset) const
 {
   static cbuffer_t buf (1024);
+  long total_bev=0;
 
   const vector_tpl<stadt_t *> * cities = welt->gib_staedte();
 
@@ -82,8 +88,14 @@ void citylist_stats_t::zeichnen(koord offset) const
       buf.append(i+1);
       buf.append(".) ");
 
+      total_bev += stadt->gib_einwohner();
       stadt->get_short_info(buf);
-      display_multiline_text(offset.x+10, 15 + offset.y+i*14, buf, SCHWARZ);
+      display_multiline_text(offset.x+10, 19+ offset.y+i*14, buf, SCHWARZ);
     }
   }
+  buf.clear();
+  buf.append(total_bev_string);
+  buf.append(" ");
+  buf.append(total_bev);
+  display_multiline_text(offset.x+10, offset.y+4, buf, SCHWARZ);
 }

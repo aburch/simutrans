@@ -114,7 +114,7 @@ protected:
     virtual void hop() = 0;
 
 public:
-    ribi_t::ribi calc_richtung(koord start, koord ende, sint8 &dx, sint8 &dy);
+    ribi_t::ribi calc_richtung(koord start, koord ende, sint8 &dx, sint8 &dy) const;
 
     /**
      * Checks if this vehicle must change the square upon next move

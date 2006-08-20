@@ -17,6 +17,12 @@
 #ifndef simgraph_h
 #define simgraph_h
 
+/* prissi: if uncommented, also support for a small size font will be enabled (by not used at the moment) */
+//#define USE_SMALL_FONT
+
+/* prissi: the next line will make a version using only 8px height (like TTDX) */
+//#define OTTD_LIKE
+
 
 #ifdef __cplusplus
 extern "C" {
@@ -32,9 +38,6 @@ typedef enum {false=0, true=1 } bool;
 #define FALSE 0
 #endif
 
-
-// prissi: the next line will make a version using only 8px height (like TTDX)
-//#define OTTD_LIKE
 
 #ifdef OTTD_LIKE
 #define tile_raster_scale_x(v, rw)   (((v)*(rw)) >> 6)
@@ -140,9 +143,8 @@ void	display_check_fonts(void);
 int display_get_font_height_small();
 int display_get_font_height();
 
-void init_images(const char *filename);
-
 void register_image(struct bild_besch_t *buffer);
+void display_set_image_offset( int bild, int xoff, int yoff );
 
 int gib_maus_x();
 int gib_maus_y();

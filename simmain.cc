@@ -556,6 +556,9 @@ int simu_cpp_main(int argc, char ** argv)
       umgebung_t::stadtauto_duration =
 	(contents.get_int("citycar_life", 35000));
 
+      umgebung_t::drive_on_left =
+	(contents.get_int("drive_left", false));
+
       umgebung_t::tree_info =
 	(contents.get_int("tree_info", 0) != 0);
 
@@ -592,6 +595,11 @@ int simu_cpp_main(int argc, char ** argv)
       umgebung_t::intercity_road_type =
 	new cstring_t(ltrim(contents.get("intercity_road_type")));
 
+      umgebung_t::city_road_type =
+	new cstring_t(ltrim(contents.get("city_road_type")));
+	if(umgebung_t::city_road_type->len()==0) {
+		*umgebung_t::city_road_type = "city_road";
+	}
 
       umgebung_t::use_timeline =
 	(contents.get_int("use_timeline", 0)) != 0;

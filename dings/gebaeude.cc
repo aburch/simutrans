@@ -186,7 +186,7 @@ gebaeude_t::zeige_info()
 	// Sonst gibt es für eine 2x2-Fabrik bis zu 4 Infofenster.
 	koord k = tile->gib_offset();
 	if(k != koord(0, 0)) {
-		ding_t *gb = welt->lookup(gib_pos() - k)->obj_bei(1);
+		ding_t *gb = welt->lookup(gib_pos() - k)->obj_bei(0);
 
 		if(gb)
 			gb->zeige_info();	// an den ersten deligieren
@@ -509,91 +509,129 @@ void gebaeude_t::info(cbuffer_t & buf) const
 void
 gebaeude_t::rdwr(loadsave_t *file)
 {
-    if(fabrik() == NULL || file->is_loading()) {
-	// Gebaude, die zu einer Fabrik gehoeren werden beim laden
-	// der Fabrik neu erzeugt
-	ding_t::rdwr(file);
+	if(fabrik() == NULL || file->is_loading()) {
+		// Gebaude, die zu einer Fabrik gehoeren werden beim laden
+		// der Fabrik neu erzeugt
+		ding_t::rdwr(file);
 
-	char  buf[256];
-	short idx;
+		char  buf[256];
+		short idx;
+
+		if(file->is_saving()) {
+			const char *s = tile->gib_besch()->gib_name();
+			idx = tile->gib_index();
+			file->rdwr_str(s, "N");
+		}
+		else {
+			file->rd_str_into(buf, "N");
+		}
+
+		file->rdwr_short(idx, "\n");
+		file->rdwr_long(insta_zeit, " ");
+
+		if(file->is_loading()) {
+			tile = hausbauer_t::find_tile(buf, idx);
+
+			if(!tile) {
+				// first check for special buildings
+				if(strstr(buf,"TrainStop")!=NULL) {
+					tile = hausbauer_t::find_tile("TrainStop", idx);
+					if(tile==NULL) {
+						tile = hausbauer_t::train_stops.at(0)->gib_tile(idx);
+					}
+				} else if(strstr(buf,"BusStop")!=NULL) {
+					tile = hausbauer_t::find_tile("BusStop", idx);
+					if(tile==NULL) {
+						tile = hausbauer_t::car_stops.at(0)->gib_tile(idx);
+					}
+				} else if(strstr(buf,"ShipStop")!=NULL) {
+					tile = hausbauer_t::find_tile("ShipStop", idx);
+					if(tile==NULL) {
+						tile = hausbauer_t::ship_stops.at(0)->gib_tile(idx);
+					}
+				} else if(strstr(buf,"PostOffice")!=NULL) {
+					tile = hausbauer_t::post_offices.at(0)->gib_tile(0);
+				} else if(strstr(buf,"StationBlg")!=NULL) {
+					tile = hausbauer_t::station_building.at(0)->gib_tile(0);
+				}
+				else {
+					// try to find a fitting building
+					char typ_str[16];
+					int i, level=atoi(buf);
+
+					if(level>0) {
+						// May be an old 64er, so we can try some
+						if(strncmp(buf+3,"WOHN",4)==0) {
+							strcpy(typ_str,"RES");
+						} else if(strncmp(buf+3,"FAB",3)==0) {
+							strcpy(typ_str,"IND");
+						} else {
+							strcpy(typ_str,"COM");
+						}
+					}
+					else {
+						sscanf(buf,"%3s_%i_%i",typ_str,&i,&level);
+						typ_str[0] = toupper(typ_str[0]);
+						typ_str[1] = toupper(typ_str[1]);
+						typ_str[2] = toupper(typ_str[2]);
+					}
+					//		DBG_MESSAGE("gebaeude_t::rwdr", "%s level %i",typ_str,level);
+					if(strcmp(typ_str,"RES")==0) {
+	DBG_MESSAGE("gebaeude_t::rwdr", "replace unknown building %s with residence level %i",buf,level);
+						tile = hausbauer_t::gib_wohnhaus(level)->gib_tile(0);
+					} else if(strcmp(typ_str,"COM")==0) {
+	DBG_MESSAGE("gebaeude_t::rwdr", "replace unknown building %s with commercial level %i",buf,level);
+						tile = hausbauer_t::gib_gewerbe(level)->gib_tile(0);
+					} else if(strcmp(typ_str,"IND")==0) {
+	DBG_MESSAGE("gebaeude_t::rwdr", "replace unknown building %s with industrie level %i",buf,level);
+						tile = hausbauer_t::gib_industrie(level)->gib_tile(0);
+					} else {
+	DBG_MESSAGE("gebaeude_t::rwdr", "description %s for building at %d,%d not found (will be removed)!", buf, gib_pos().x, gib_pos().y);
+					}
+				}
+			}	// here we should have a valid tile pointer or nothing ...
 
 
-	if(file->is_saving()) {
-	    const char *s = tile->gib_besch()->gib_name();
-	    idx = tile->gib_index();
-	    file->rdwr_str(s, "N");
-	} else {
-	    file->rd_str_into(buf, "N");
+			// Denkmäler sollen nicht doppelt gebaut werden, daher
+			// checken wir hier über den Gebäudenamen, ob wir ein Denkmal sind.
+			// Sollte später mal hübscher gehen: entweder speichern
+			// der gebauten denkmäler
+			// oder aber eine feste Zuordnung von gebaeude_alt_t
+			// und Beschreibung.
+			if(tile && tile->gib_besch()->gib_utyp() == hausbauer_t::denkmal) {
+				hausbauer_t::denkmal_gebaut(tile->gib_besch());
+			}
+		}
+
+		file->rdwr_byte(sync, "\n");
+
+		if(file->is_loading()) {
+			count = 0;
+			anim_time = 0;
+			if(tile && sync) {
+				// Sicherstellen, dass alles wieder animiert wird!
+				// Ohne "sync=false" denkt setze_sync(), es dreht sich
+				// schon alles.
+				sync = false;
+				setze_sync(true);
+			}
+
+			// Hajo: rebuild tourist attraction list
+			if(tile && tile->gib_besch()->ist_ausflugsziel()) {
+				welt->add_ausflugsziel( this );
+			}
+		}
+	}
+	else {
+		file->wr_obj_id(-1);
 	}
 
-	file->rdwr_short(idx, "\n");
- 	file->rdwr_long(insta_zeit, " ");
 
 	if(file->is_loading()) {
-	    tile = hausbauer_t::find_tile(buf, idx);
-
-	    if(!tile) {
-	    	// try to find a fitting building
-	    	char typ_str[16];
-	    	int i, level=0;
-	    	sscanf(buf,"%3s_%i_%i",typ_str,&i,&level);
-		typ_str[0] = toupper(typ_str[0]);
-		typ_str[1] = toupper(typ_str[1]);
-		typ_str[2] = toupper(typ_str[2]);
-//		DBG_MESSAGE("gebaeude_t::rwdr", "%s level %i",typ_str,level);
-	    	if(strcmp(typ_str,"RES")==0) {
-			DBG_MESSAGE("gebaeude_t::rwdr", "replace unknown building %s with residence level %i",buf,level);
-	    		tile = hausbauer_t::gib_wohnhaus(level)->gib_tile(0);
-	    	} else if(strcmp(typ_str,"COM")==0) {
-			DBG_MESSAGE("gebaeude_t::rwdr", "replace unknown building %s with commercial level %i",buf,level);
-	    		tile = hausbauer_t::gib_gewerbe(level)->gib_tile(0);
-	    	} else if(strcmp(typ_str,"IND")==0) {
-			DBG_MESSAGE("gebaeude_t::rwdr", "replace unknown building %s with industrie level %i",buf,level);
-	    		tile = hausbauer_t::gib_industrie(level)->gib_tile(0);
-	    	} else {
-			DBG_MESSAGE("gebaeude_t::rwdr", "description %s for building at %d,%d not found (will be removed)!", buf, gib_pos().x, gib_pos().y);
-	    }
-	    }
-
-
-	    // Denkmäler sollen nicht doppelt gebaut werden, daher
-	    // checken wir hier über den Gebäudenamen, ob wir ein Denkmal sind.
-	    // Sollte später mal hübscher gehen: entweder speichern
-	    // der gebauten denkmäler
-	    // oder aber eine feste Zuordnung von gebaeude_alt_t
-	    // und Beschreibung.
-	    if(tile && tile->gib_besch()->gib_utyp() == hausbauer_t::denkmal) {
-		hausbauer_t::denkmal_gebaut(tile->gib_besch());
-	    }
+		if(gib_besitzer()) {
+			gib_besitzer()->add_maintenance(umgebung_t::maint_building);
+		}
 	}
-	file->rdwr_byte(sync, "\n");
-
-	if(file->is_loading()) {
-    	    count = 0;
-	    anim_time = 0;
-	    if(tile && sync) {
-		// Sicherstellen, dass alles wieder animiert wird!
-		// Ohne "sync=false" denkt setze_sync(), es dreht sich
-	        // schon alles.
-		sync = false;
-		setze_sync(true);
-	    }
-
-	    // Hajo: rebuild tourist attraction list
-	    if(tile && tile->gib_besch()->ist_ausflugsziel()) {
-	      welt->add_ausflugsziel( this );
-	    }
-	}
-    } else {
-        file->wr_obj_id(-1);
-    }
-
-
-    if(file->is_loading()) {
-        if(gib_besitzer()) {
-	    gib_besitzer()->add_maintenance(umgebung_t::maint_building);
-        }
-    }
 }
 
 /**

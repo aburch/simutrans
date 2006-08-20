@@ -40,21 +40,24 @@ void sprachengui_t::init_font_from_lang()
   const char * prop_font_file =
     translator::translate("PROP_FONT_FILE");
 
-  const char * hex_font_file =
-    translator::translate("4x7_FONT_FILE");
-
   // Hajo: fallback if entry is missing
   // -> use latin-1 font
-
   if(*prop_font_file == 'P') {
     prop_font_file = "prop.fnt";
-    hex_font_file = "4x7.hex";
   }
 
 	// load large font
   char prop_font_file_name [1024];
 	sprintf(prop_font_file_name, "%s%s", FONT_PATH_X, prop_font_file);
 	display_load_font(prop_font_file_name,true);
+
+#ifdef USE_SMALL_FONT
+  const char * hex_font_file =
+    translator::translate("4x7_FONT_FILE");
+
+  if(hex_font_file[4] == 'F') {
+    hex_font_file = "4x7.hex";
+  }
 
 	// load small font
   char hex_font_file_name [1024];
@@ -63,6 +66,7 @@ void sprachengui_t::init_font_from_lang()
 
 	// if missing, substitute
   display_check_fonts();
+#endif
 
   const char * p = translator::translate("SEP_THOUSAND");
   char c = ',';

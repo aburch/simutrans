@@ -234,8 +234,16 @@ void grund_t::rdwr(loadsave_t *file)
 		  wege[i] = new strasse_t (welt, file);
 		  break;
 		case weg_t::schiene:
-//		  DBG_DEBUG("grund_t::rdwr()", "railroad");
 		  wege[i] = new schiene_t (welt, file);
+//		  DBG_DEBUG("grund_t::rdwr()", "railroad");
+		  break;
+		case weg_t::schiene_strab:
+		  wege[i] = new schiene_t (welt, file);
+            DBG_DEBUG("grund_t::rdwr()", "tram");
+		  if(wege[i]->gib_besch()->gib_styp()!=7) {
+		  	wege[i]->setze_besch(wegbauer_t::weg_search(weg_t::schiene_strab,wege[i]->gib_max_speed()));
+			DBG_DEBUG("grund_t::rdwr()", "tram replace");
+		  }
 		  break;
 		case weg_t::wasser:
 //		  DBG_DEBUG("grund_t::rdwr()", "dock");

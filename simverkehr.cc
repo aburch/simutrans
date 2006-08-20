@@ -63,20 +63,37 @@ void stadtauto_t::built_timeline_liste()
 	}
 }
 
+
+
 bool stadtauto_t::register_besch(const stadtauto_besch_t *besch)
 {
-    liste.append(besch);
-    table.put(besch->gib_name(), besch);
+	liste.append(besch);
+	table.put(besch->gib_name(), besch);
+	// correct for driving on left side
+	if(umgebung_t::drive_on_left) {
+		const int XOFF=(12*get_tile_raster_width())/64;
+		const int YOFF=(6*get_tile_raster_width())/64;
 
-    return true;
+		display_set_image_offset( besch->gib_bild_nr(0), +XOFF, +YOFF );
+		display_set_image_offset( besch->gib_bild_nr(1), -XOFF, +YOFF );
+		display_set_image_offset( besch->gib_bild_nr(2), 0, +YOFF );
+		display_set_image_offset( besch->gib_bild_nr(3), +XOFF, 0 );
+		display_set_image_offset( besch->gib_bild_nr(4), -XOFF, -YOFF );
+		display_set_image_offset( besch->gib_bild_nr(5), +XOFF, -YOFF );
+		display_set_image_offset( besch->gib_bild_nr(6), 0, -YOFF );
+		display_set_image_offset( besch->gib_bild_nr(7), -XOFF-YOFF, 0 );
+	}
+	return true;
 }
+
+
 
 bool stadtauto_t::laden_erfolgreich()
 {
-    if(liste.count() == 0) {
-	DBG_MESSAGE("stadtauto_t", "No citycars found - feature disabled");
-    }
-    return true;
+	if(liste.count() == 0) {
+		DBG_MESSAGE("stadtauto_t", "No citycars found - feature disabled");
+	}
+	return true;
 }
 
 int stadtauto_t::gib_anzahl_besch()
@@ -101,6 +118,7 @@ stadtauto_t::stadtauto_t(karte_t *welt, koord3d pos)
 	current_speed = 48;
 	step_frequency = 0;
 	setze_max_speed( besch->gib_geschw() );
+	welt->sync_add(this);
 }
 
 
@@ -162,16 +180,6 @@ void stadtauto_t::rdwr(loadsave_t *file)
 	}
 	// do not start with zero speed!
 	current_speed ++;
-}
-
-
-void stadtauto_t::calc_bild()
-{
-	if(welt->lookup(gib_pos())->ist_im_tunnel()) {
-		setze_bild(0, -1);
-	} else {
-		setze_bild(0,besch->gib_bild_nr(ribi_t::gib_dir(gib_fahrtrichtung())));
-	}
 }
 
 
@@ -276,6 +284,17 @@ stadtauto_t::step(long /*delta_t*/)
 		}
 	}
 	return true;
+}
+
+
+
+void stadtauto_t::calc_bild()
+{
+	if(welt->lookup(gib_pos())->ist_im_tunnel()) {
+		setze_bild(0, -1);
+	} else {
+		setze_bild(0,besch->gib_bild_nr(ribi_t::gib_dir(gib_fahrtrichtung())));
+	}
 }
 
 
@@ -431,18 +450,25 @@ verkehrsteilnehmer_t::hop()
 		if(  (ribi & ribi_t::nsow[r])!=0  &&  (ribi_t::nsow[r]&gegenrichtung)==0 &&
 			from->get_neighbour(to, weg_t::strasse, koord::nsow[r])
 		) {
-			const roadsign_t *rs = dynamic_cast<roadsign_t *>(to->suche_obj(ding_t::roadsign));
-if(rs)DBG_MESSAGE("hop()","%i and %i",rs->gib_besch()->gib_min_speed(),gib_max_speed());
-			if(rs==NULL  ||  rs->gib_besch()->gib_min_speed()==0  ||  rs->gib_besch()->gib_min_speed()<=gib_max_speed()) {
-				liste[count++] = to;
+			// check, if this is just a single tile deep
+			int next_ribi =  to->gib_weg(weg_t::strasse)->gib_ribi_unmasked();
+			if((ribi&next_ribi)!=0  ||  !ribi_t::ist_einfach(next_ribi)) {
+				const roadsign_t *rs = dynamic_cast<roadsign_t *>(to->obj_bei(0));
+				if(rs==NULL  ||  rs->gib_typ()!=ding_t::roadsign  ||  rs->gib_besch()->gib_min_speed()==0  ||  rs->gib_besch()->gib_min_speed()<=gib_max_speed()) {
+					liste[count++] = to;
+				}
 			}
 		}
 	}
 
-	if(count > 0) {
+	if(count > 1) {
 		pos_next = liste[simrand(count)]->gib_pos();
 		fahrtrichtung = calc_richtung(gib_pos().gib_2d(), pos_next.gib_2d(), dx, dy);
-	} else {
+	} else if(count==1) {
+		pos_next = liste[0]->gib_pos();
+		fahrtrichtung = calc_richtung(gib_pos().gib_2d(), pos_next.gib_2d(), dx, dy);
+	}
+	else {
 		fahrtrichtung = gegenrichtung;
 		current_speed = 1;
 		dx = -dx;
@@ -459,18 +485,6 @@ if(rs)DBG_MESSAGE("hop()","%i and %i",rs->gib_besch()->gib_min_speed(),gib_max_s
 }
 
 
-void
-verkehrsteilnehmer_t::calc_bild()
-{
-    if(welt->lookup(gib_pos())->ist_im_tunnel()) {
-	setze_bild(0, -1);
-    } else {
-	setze_bild(0, gib_bild(gib_fahrtrichtung()));
-    }
-}
-
-
-
 
 bool verkehrsteilnehmer_t::sync_step(long delta_t)
 {
@@ -478,11 +492,6 @@ bool verkehrsteilnehmer_t::sync_step(long delta_t)
 		// step will check for traffic jams
 		return true;
 	}
-  // DBG_MESSAGE("verkehrsteilnehmer_t::sync_step()", "%p called", this);
-//	if(current_speed==0) {
-//		calc_current_speed();
-//	}
-
     weg_next += (current_speed*delta_t) / 64;
 
     // Funktionsaufruf vermeiden, wenn möglich

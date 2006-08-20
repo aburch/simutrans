@@ -382,7 +382,7 @@ baum_t::rdwr(loadsave_t *file)
 	besch = (const baum_besch_t *)besch_names.get(bname);
 
 	if(!besch) {
-    	    DBG_MESSAGE("baum_t::rwdr", "description %s for tree at %d,%d not found!", bname, gib_pos().x, gib_pos().y);
+//    	    DBG_MESSAGE("baum_t::rwdr", "description %s for tree at %d,%d not found!", bname, gib_pos().x, gib_pos().y);
     	    // replace with random tree
     	    if(baum_typen.count()>0) {
 	    	    besch = baum_typen.at(simrand(baum_typen.count()));

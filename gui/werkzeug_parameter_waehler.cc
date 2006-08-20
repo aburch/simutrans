@@ -56,22 +56,30 @@ void werkzeug_parameter_waehler_t::add_tool(int (* wz1)(spieler_t *, karte_t *, 
 	      int cursor,
 	      cstring_t tooltip)
 {
-  struct werkzeug_t tool;
+	struct werkzeug_t tool;
 
-  tool.has_param = false;
-  tool.wzwp = 0;
-  tool.wzwop = wz1;
-  tool.param.i = 0;
-  tool.versatz = versatz;
-  tool.sound_ok = sound_ok;
-  tool.sound_ko = sound_ko;
-  tool.icon = icon;
-  tool.cursor = cursor;
-  tool.tooltip = tooltip;
+	tool.has_param = false;
+	tool.wzwp = 0;
+	tool.wzwop = wz1;
+	tool.param.i = 0;
+	tool.versatz = versatz;
+	tool.sound_ok = sound_ok;
+	tool.sound_ko = sound_ko;
+	tool.icon = icon;
+	tool.cursor = cursor;
+	tool.tooltip = tooltip;
 
-  tools->append(tool);
-  tool_icon_width = MIN( (display_get_width()/32)-2, tools->get_count() );
-//DBG_DEBUG("werkzeug_parameter_waehler_t::add_param_tool()","at position %i (width %i)", tools->get_count(), tool_icon_width );
+	tools->append(tool);
+
+	int ww = (display_get_width()/32)-2;
+	tool_icon_width = tools->get_count();
+	if(ww<tool_icon_width) {
+		int rows = (tool_icon_width/ww)+1;
+DBG_DEBUG("werkzeug_parameter_waehler_t::add_param_tool()","ww=%i, rows=%i",ww,rows);
+		// assure equal distribution if more than a single row is needed
+		tool_icon_width = (tool_icon_width+rows-1)/rows;
+	}
+	DBG_DEBUG("werkzeug_parameter_waehler_t::add_param_tool()","at position %i (width %i)", tools->get_count(), tool_icon_width );
 }
 
 
@@ -89,22 +97,28 @@ void werkzeug_parameter_waehler_t::add_param_tool(int (* wz1)(spieler_t *, karte
 		    int cursor,
 		    cstring_t tooltip)
 {
-  struct werkzeug_t tool;
+	struct werkzeug_t tool;
 
-  tool.has_param = true;
-  tool.wzwp = wz1;
-  tool.wzwop = 0;
-  tool.param = param;
-  tool.versatz = versatz;
-  tool.sound_ok = sound_ok;
-  tool.sound_ko = sound_ko;
-  tool.icon = icon;
-  tool.cursor = cursor;
-  tool.tooltip = tooltip;
+	tool.has_param = true;
+	tool.wzwp = wz1;
+	tool.wzwop = 0;
+	tool.param = param;
+	tool.versatz = versatz;
+	tool.sound_ok = sound_ok;
+	tool.sound_ko = sound_ko;
+	tool.icon = icon;
+	tool.cursor = cursor;
+	tool.tooltip = tooltip;
 
-  tools->append(tool);
-  tool_icon_width = MIN( (display_get_width()/32)-2, tools->get_count() );
-//DBG_DEBUG("werkzeug_parameter_waehler_t::add_param_tool()","at position %i (width %i)", tools->get_count(), tool_icon_width );
+	tools->append(tool);
+	int ww = (display_get_width()/32)-2;
+	tool_icon_width = tools->get_count();
+	if(ww>tool_icon_width) {
+		int rows = (tool_icon_width/ww)+1;
+		// assure equal distribution if more than a single row is needed
+		tool_icon_width = (tool_icon_width+rows-1)/rows;
+	}
+	DBG_DEBUG("werkzeug_parameter_waehler_t::add_param_tool()","at position %i (width %i)", tools->get_count(), tool_icon_width );
 }
 
 

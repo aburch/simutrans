@@ -228,7 +228,7 @@ money_frame_t::money_frame_t(spieler_t *sp)
 	// add filter buttons
 	for(int i=0;  i<7;  i++) {
 		int ibutton=button_order[i];
-		filterButtons[ibutton].init(button_t::box, translator::translate(cost_type[ibutton]), koord(left, top+i*BUTTONSPACE), koord(120, BUTTONSPACE));
+		filterButtons[ibutton].init(button_t::box, translator::translate(cost_type[ibutton]), koord(left, top+i*BUTTONSPACE-2), koord(120, BUTTONSPACE));
 		filterButtons[ibutton].add_listener(this);
 		filterButtons[ibutton].background = cost_type_color[ibutton];
 		bFilterIsActive[ibutton] = false;
@@ -236,7 +236,7 @@ money_frame_t::money_frame_t(spieler_t *sp)
 	}
 	for(int i=7;  i<10;  i++) {
 		int ibutton=button_order[i];
-		filterButtons[ibutton].init(button_t::box, translator::translate(cost_type[ibutton]), koord(left+335, top+(i-7)*BUTTONSPACE), koord(120, BUTTONSPACE));
+		filterButtons[ibutton].init(button_t::box, translator::translate(cost_type[ibutton]), koord(left+335, top+(i-7)*BUTTONSPACE-2), koord(120, BUTTONSPACE));
 		filterButtons[ibutton].add_listener(this);
 		filterButtons[ibutton].background = cost_type_color[ibutton];
 		bFilterIsActive[ibutton] = false;
@@ -245,7 +245,7 @@ money_frame_t::money_frame_t(spieler_t *sp)
 	// Button 10: Marge
 	{
 		int ibutton=button_order[10];
-		filterButtons[ibutton].init(button_t::box, translator::translate(cost_type[ibutton]), koord(left+335, top+4*BUTTONSPACE), koord(120, BUTTONSPACE));
+		filterButtons[ibutton].init(button_t::box, translator::translate(cost_type[ibutton]), koord(left+335, top+4*BUTTONSPACE-2), koord(120, BUTTONSPACE));
 		filterButtons[ibutton].add_listener(this);
 		filterButtons[ibutton].background = cost_type_color[ibutton];
 		bFilterIsActive[ibutton] = false;
@@ -255,7 +255,7 @@ money_frame_t::money_frame_t(spieler_t *sp)
 	// Button 11: Transport
 	{
 		int ibutton=button_order[11];
-		filterButtons[ibutton].init(button_t::box, translator::translate(cost_type[ibutton]), koord(left+335+100, top+8*BUTTONSPACE), koord(120, BUTTONSPACE));
+		filterButtons[ibutton].init(button_t::box, translator::translate(cost_type[ibutton]), koord(left+335+100, top+8*BUTTONSPACE-2), koord(120, BUTTONSPACE));
 		filterButtons[ibutton].add_listener(this);
 		filterButtons[ibutton].background = cost_type_color[ibutton];
 		bFilterIsActive[ibutton] = false;
@@ -315,7 +315,7 @@ void money_frame_t::zeichnen(koord pos, koord gr)
     money.set_color(get_money_colour(COST_NETWEALTH, 0));
 
     display_money(COST_MARGIN, str_buf[19], 0);
-    str_buf[19][strlen(str_buf[19])-1] = '%';	// remove percent sign
+    str_buf[19][strlen(str_buf[19])-1] = 0;	// remove percent sign
     margin.setze_text(str_buf[19]);
     margin.set_color(get_money_colour(COST_MARGIN, 0));
 

@@ -74,7 +74,6 @@
 #include "gui/map_frame.h"
 #include "gui/optionen.h"
 #include "gui/spieler.h"
-#include "gui/werkzeug_waehler.h"
 #include "gui/werkzeug_parameter_waehler.h"
 #include "gui/messagebox.h"
 #include "gui/loadsave_frame.h"
@@ -847,7 +846,6 @@ DBG_DEBUG("karte_t::init()","prepare cities");
 
 		// Hajo: connect some cities with roads
 		const weg_besch_t * besch = wegbauer_t::gib_besch(umgebung_t::intercity_road_type->chars());
-
 		if(besch == 0) {
 			dbg->warning("karte_t::init()","road type '%s' not found",umgebung_t::intercity_road_type->chars());
 			// Hajo: try some default
@@ -3040,7 +3038,7 @@ void karte_t::switch_active_player()
 			  translator::translate("Shrink city") );
 
 		// cityroads
-		const weg_besch_t *besch = wegbauer_t::gib_besch("city_road");
+		const weg_besch_t *besch = wegbauer_t::gib_besch(umgebung_t::city_road_type->chars());
 		if(besch!=NULL) {
 			sprintf(buf, "%s, %d$ (%d$), %dkm/h",
 				translator::translate(besch->gib_name()),
@@ -3391,80 +3389,92 @@ karte_t::interactive_event(event_t &ev)
 		break;
 	    case 5:
                 {
-		    werkzeug_waehler_t *wzw =
-                        new werkzeug_waehler_t(this,
-					       skinverwaltung_t::hang_werkzeug,
-					       "SLOPETOOLS");
+		    werkzeug_parameter_waehler_t *wzw =
+                        new werkzeug_parameter_waehler_t(this, "SLOPETOOLS");
+		    wzw->setze_hilfe_datei("slopetools.txt");
 
-		    // wzw->setze_hilfe_datei("railtools.txt");
+			// evt. we have also the normal tools here ...
+			if(skinverwaltung_t::hang_werkzeug->gib_bild_nr(8)!=IMG_LEER) {
+			    wzw->add_tool(wkz_raise,
+					  Z_PLAN,
+					  SFX_JACKHAMMER,
+					  SFX_FAILURE,
+					  skinverwaltung_t::hang_werkzeug->gib_bild_nr(8),
+					  skinverwaltung_t::upzeiger->gib_bild_nr(0),
+					  tool_tip_with_price(translator::translate("Anheben"), CST_BAU));
 
-		    wzw->setze_werkzeug(0,
-					wkz_set_slope,
-					skinverwaltung_t::slopezeiger->gib_bild_nr(0),
-					Z_PLAN,
-					(long)12,
-					SFX_JACKHAMMER,
-					SFX_FAILURE);
-		    wzw->set_tooltip(0, "Experimental feature, use at your own risk!");
+			    wzw->add_tool(wkz_raise,
+					  Z_PLAN,
+					  SFX_JACKHAMMER,
+					  SFX_FAILURE,
+					  skinverwaltung_t::hang_werkzeug->gib_bild_nr(9),
+					  skinverwaltung_t::downzeiger->gib_bild_nr(0),
+					  tool_tip_with_price(translator::translate("Anheben"), CST_BAU));
+			}
 
+		    wzw->add_param_tool(wkz_set_slope,(long)12,
+				  Z_PLAN,
+				  SFX_JACKHAMMER,
+				  SFX_FAILURE,
+				  skinverwaltung_t::hang_werkzeug->gib_bild_nr(0),
+				  skinverwaltung_t::slopezeiger->gib_bild_nr(0),
+				  tool_tip_with_price(translator::translate("Built artifical slopes"), CST_BAU*2));
 
-		    wzw->setze_werkzeug(1,
-					wkz_set_slope,
-					skinverwaltung_t::slopezeiger->gib_bild_nr(0),
-					Z_PLAN,
-					(long)3,
-					SFX_JACKHAMMER,
-					SFX_FAILURE);
-		    wzw->set_tooltip(1, "Experimental feature, use at your own risk!");
+		    wzw->add_param_tool(wkz_set_slope,(long)3,
+				  Z_PLAN,
+				  SFX_JACKHAMMER,
+				  SFX_FAILURE,
+				  skinverwaltung_t::hang_werkzeug->gib_bild_nr(1),
+				  skinverwaltung_t::slopezeiger->gib_bild_nr(0),
+				  tool_tip_with_price(translator::translate("Built artifical slopes"), CST_BAU*2));
 
-		    wzw->setze_werkzeug(2,
-					wkz_set_slope,
-					skinverwaltung_t::slopezeiger->gib_bild_nr(0),
-					Z_PLAN,
-					(long)6,
-					SFX_JACKHAMMER,
-					SFX_FAILURE);
-		    wzw->set_tooltip(2, "Experimental feature, use at your own risk!");
+		    wzw->add_param_tool(wkz_set_slope,(long)6,
+				  Z_PLAN,
+				  SFX_JACKHAMMER,
+				  SFX_FAILURE,
+				  skinverwaltung_t::hang_werkzeug->gib_bild_nr(2),
+				  skinverwaltung_t::slopezeiger->gib_bild_nr(0),
+				  tool_tip_with_price(translator::translate("Built artifical slopes"), CST_BAU*2));
 
+		    wzw->add_param_tool(wkz_set_slope,(long)9,
+				  Z_PLAN,
+				  SFX_JACKHAMMER,
+				  SFX_FAILURE,
+				  skinverwaltung_t::hang_werkzeug->gib_bild_nr(3),
+				  skinverwaltung_t::slopezeiger->gib_bild_nr(0),
+				  tool_tip_with_price(translator::translate("Built artifical slopes"), CST_BAU*2));
 
-		    wzw->setze_werkzeug(3,
-					wkz_set_slope,
-					skinverwaltung_t::slopezeiger->gib_bild_nr(0),
-					Z_PLAN,
-					(long)9,
-					SFX_JACKHAMMER,
-					SFX_FAILURE);
-		    wzw->set_tooltip(3, "Experimental feature, use at your own risk!");
+		    wzw->add_param_tool(wkz_set_slope,(long)0,
+				  Z_PLAN,
+				  SFX_JACKHAMMER,
+				  SFX_FAILURE,
+				  skinverwaltung_t::hang_werkzeug->gib_bild_nr(4),
+				  skinverwaltung_t::slopezeiger->gib_bild_nr(0),
+				  tool_tip_with_price(translator::translate("Built artifical slopes"), CST_BAU*2));
 
+		    wzw->add_param_tool(wkz_set_slope,(long)16,
+				  Z_PLAN,
+				  SFX_JACKHAMMER,
+				  SFX_FAILURE,
+				  skinverwaltung_t::hang_werkzeug->gib_bild_nr(5),
+				  skinverwaltung_t::slopezeiger->gib_bild_nr(0),
+				  tool_tip_with_price(translator::translate("Built artifical slopes"), CST_BAU*2));
 
-		    wzw->setze_werkzeug(4,
-					wkz_set_slope,
-					skinverwaltung_t::slopezeiger->gib_bild_nr(0),
-					Z_PLAN,
-					(long)0,
-					SFX_JACKHAMMER,
-					SFX_FAILURE);
-		    wzw->set_tooltip(4, "Experimental feature, use at your own risk!");
+		    wzw->add_param_tool(wkz_set_slope,(long)17,
+				  Z_PLAN,
+				  SFX_JACKHAMMER,
+				  SFX_FAILURE,
+				  skinverwaltung_t::hang_werkzeug->gib_bild_nr(6),
+				  skinverwaltung_t::slopezeiger->gib_bild_nr(0),
+				  tool_tip_with_price(translator::translate("Built artifical slopes"), CST_BAU*2));
 
-		    wzw->setze_werkzeug(5,
-					wkz_set_slope,
-					skinverwaltung_t::slopezeiger->gib_bild_nr(0),
-					Z_PLAN,
-					(long)16,
-					SFX_JACKHAMMER,
-					SFX_FAILURE);
-		    wzw->set_tooltip(5, "Experimental feature, use at your own risk!");
-
-
-		    wzw->setze_werkzeug(6,
-					wkz_set_slope,
-					skinverwaltung_t::slopezeiger->gib_bild_nr(0),
-					Z_PLAN,
-					(long)17,
-					SFX_JACKHAMMER,
-					SFX_FAILURE);
-		    wzw->set_tooltip(6, "Experimental feature, use at your own risk!");
-
+		    wzw->add_param_tool(wkz_set_slope,(long)18,
+				  Z_PLAN,
+				  SFX_JACKHAMMER,
+				  SFX_FAILURE,
+				  skinverwaltung_t::hang_werkzeug->gib_bild_nr(7),
+				  skinverwaltung_t::slopezeiger->gib_bild_nr(0),
+				  tool_tip_with_price(translator::translate("Restore natural slope"), CST_BAU*2));
 
 		    sound_play(click_sound);
 
@@ -3813,22 +3823,42 @@ karte_t::interactive_event(event_t &ev)
 	      break;
 	    case 15:
           {
-		    werkzeug_waehler_t *wzw =
-                        new werkzeug_waehler_t(this, skinverwaltung_t::listen_werkzeug, "LISTTOOLS");
+		    werkzeug_parameter_waehler_t *wzw =
+                        new werkzeug_parameter_waehler_t(this, "LISTTOOLS");
 
 		    wzw->setze_hilfe_datei("list.txt");
 
-			wzw->setze_werkzeug(0, wkz_list_halt_tool, IMG_LEER, Z_PLAN, SFX_SELECT, SFX_SELECT);
-			wzw->set_tooltip(0, translator::translate("hl_title"));
+		      wzw->add_tool(wkz_list_halt_tool,
+					  Z_PLAN,
+					  -1,
+					  -1,
+					  skinverwaltung_t::listen_werkzeug->gib_bild_nr(0),
+					 IMG_LEER,
+					 translator::translate("hl_title"));
 
-			wzw->setze_werkzeug(1, wkz_list_vehicle_tool, IMG_LEER, Z_PLAN, SFX_SELECT, SFX_SELECT);
-			wzw->set_tooltip(1, translator::translate("cl_title"));
+		      wzw->add_tool(wkz_list_vehicle_tool,
+					  Z_PLAN,
+					  -1,
+					  -1,
+					  skinverwaltung_t::listen_werkzeug->gib_bild_nr(1),
+					 IMG_LEER,
+					 translator::translate("cl_title"));
 
-			wzw->setze_werkzeug(2, wkz_list_town_tool, IMG_LEER, Z_PLAN, SFX_SELECT, SFX_SELECT);
-			wzw->set_tooltip(2, translator::translate("tl_title"));
+		      wzw->add_tool(wkz_list_town_tool,
+					  Z_PLAN,
+					  -1,
+					  -1,
+					  skinverwaltung_t::listen_werkzeug->gib_bild_nr(2),
+					 IMG_LEER,
+					 translator::translate("tl_title"));
 
-			wzw->setze_werkzeug(3, wkz_list_good_tool, IMG_LEER, Z_PLAN, SFX_SELECT, SFX_SELECT);
-			wzw->set_tooltip(3, translator::translate("gl_title"));
+		      wzw->add_tool(wkz_list_good_tool,
+					  Z_PLAN,
+					  -1,
+					  -1,
+					  skinverwaltung_t::listen_werkzeug->gib_bild_nr(3),
+					 IMG_LEER,
+					 translator::translate("gl_title"));
 
 		    sound_play(click_sound);
 

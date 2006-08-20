@@ -13,6 +13,8 @@
 #include "../simdebug.h"
 #include "../simtools.h"  // for simrand
 
+#include "../dataobj/umgebung.h"
+
 #include "../besch/vehikel_besch.h"
 #include "../boden/wege/weg.h"
 
@@ -67,22 +69,47 @@ vehikelbauer_t::baue(karte_t *welt, koord3d k,
 
 bool vehikelbauer_t::register_besch(const vehikel_besch_t *besch)
 {
-  // printf("N=%s T=%d V=%d P=%d\n", besch->gib_name(), besch->gib_typ(), besch->gib_geschw(), besch->gib_leistung());
+	// printf("N=%s T=%d V=%d P=%d\n", besch->gib_name(), besch->gib_typ(), besch->gib_geschw(), besch->gib_leistung());
 
-    name_fahrzeuge.put(besch->gib_name(), besch);
-    _fahrzeuge.put(besch->gib_basis_bild(), besch);
+	name_fahrzeuge.put(besch->gib_name(), besch);
+	_fahrzeuge.put(besch->gib_basis_bild(), besch);
 
-    weg_t::typ typ = besch->gib_typ();
+	weg_t::typ typ = besch->gib_typ();
 
-    slist_tpl<const vehikel_besch_t *> *typ_liste = typ_fahrzeuge.access(typ);
-    if(!typ_liste) {
-  typ_fahrzeuge.put(typ, slist_tpl<const vehikel_besch_t *>());
+	slist_tpl<const vehikel_besch_t *> *typ_liste = typ_fahrzeuge.access(typ);
+	if(!typ_liste) {
+		typ_fahrzeuge.put(typ, slist_tpl<const vehikel_besch_t *>());
+		typ_liste = typ_fahrzeuge.access(typ);
+	}
+	typ_liste->append(besch);
 
-  typ_liste = typ_fahrzeuge.access(typ);
-    }
-    typ_liste->append(besch);
+	// correct for driving on left side
+	if(typ==weg_t::strasse  &&  umgebung_t::drive_on_left) {
+		const int XOFF=(12*get_tile_raster_width())/64;
+		const int YOFF=(6*get_tile_raster_width())/64;
 
-    return true;
+		display_set_image_offset( besch->gib_bild_nr(0,true), +XOFF, +YOFF );
+		display_set_image_offset( besch->gib_bild_nr(1,true), -XOFF, +YOFF );
+		display_set_image_offset( besch->gib_bild_nr(2,true), 0, +YOFF );
+		display_set_image_offset( besch->gib_bild_nr(3,true), +XOFF, 0 );
+		display_set_image_offset( besch->gib_bild_nr(4,true), -XOFF, -YOFF );
+		display_set_image_offset( besch->gib_bild_nr(5,true), +XOFF, -YOFF );
+		display_set_image_offset( besch->gib_bild_nr(6,true), 0, -YOFF );
+		display_set_image_offset( besch->gib_bild_nr(7,true), -XOFF-YOFF, 0 );
+		// need also to correct empty graph
+		if(besch->gib_bild_nr(0,true)!=besch->gib_bild_nr(0,false)) {
+			display_set_image_offset( besch->gib_bild_nr(0,false), +XOFF, +YOFF );
+			display_set_image_offset( besch->gib_bild_nr(1,false), -XOFF, +YOFF );
+			display_set_image_offset( besch->gib_bild_nr(2,false), 0, +YOFF );
+			display_set_image_offset( besch->gib_bild_nr(3,false), +XOFF+YOFF, 0 );
+			display_set_image_offset( besch->gib_bild_nr(4,false), -XOFF, -YOFF );
+			display_set_image_offset( besch->gib_bild_nr(5,false), +XOFF, -YOFF );
+			display_set_image_offset( besch->gib_bild_nr(6,false), 0, -YOFF );
+			display_set_image_offset( besch->gib_bild_nr(7,false), -XOFF-YOFF, 0 );
+		}
+	}
+
+	return true;
 }
 
 
@@ -266,7 +293,7 @@ int vehikelbauer_t::vehikel_can_lead( const vehikel_besch_t *v )
  * tries to get best with but adds a little random action
  * @author prissi
  */
-const vehikel_besch_t *vehikelbauer_t::vehikel_search(weg_t::typ typ,const unsigned month_now,const int target_power,const int target_speed,const ware_besch_t * target_freight)
+const vehikel_besch_t *vehikelbauer_t::vehikel_search(weg_t::typ typ,const unsigned month_now,const int target_power,const int target_speed,const ware_besch_t * target_freight,bool include_electric)
 {
   // only needed for iteration
   inthashtable_iterator_tpl<int, const vehikel_besch_t *> iter(_fahrzeuge);
@@ -339,7 +366,11 @@ DBG_MESSAGE( "vehikelbauer_t::vehikel_search","Found freight car %s",iter.get_cu
         else {
 
           // so we have power: this is an engine, which can lead a track and have no constrains
-          if(  power>0  &&  vehikel_can_lead(iter.get_current_value())  &&  iter.get_current_value()->gib_nachfolger_count()==0  ) {
+          if(  power>0  &&
+            (include_electric  ||  iter.get_current_value()->get_engine_type()!=vehikel_besch_t::electric)  &&
+            vehikel_can_lead(iter.get_current_value())  &&
+            iter.get_current_value()->gib_nachfolger_count()==0
+          ) {
             // we cannot use an engine with freight
             if(  besch==NULL  ||  power>=target_power  ||   speed>=target_speed  ) {
               // we found a useful engine

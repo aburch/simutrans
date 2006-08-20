@@ -329,7 +329,7 @@ public:
 
 
     /**
-     * Gibt die Farbe des Beschreibungstexthintergrundes zuck
+     * Gibt die Farbe des Beschreibungstexthintergrundes zuurck
      * @return die Farbe des Beschreibungstexthintergrundes.
      * @author Hj. Malthaner
      */
@@ -369,7 +369,7 @@ public:
 
 
     /**
-     * Setze den Besitzer des Untergrundes. Gibt false zurck, wenn
+     * Setze den Besitzer des Untergrundes. Gibt false zururck, wenn
      * das setzen fehlgeschlagen ist.
      * @author Hj. Malthaner
      */
@@ -493,11 +493,13 @@ public:
      */
     void display_dinge(const int xpos, const int ypos, const bool dirty);
 
-    ding_t * suche_obj(ding_t::typ typ) const { return dinge.suche(typ); }
+    ding_t * suche_obj(ding_t::typ typ) const { return dinge.suche(typ,0); }
+    ding_t * suche_obj_ab(ding_t::typ typ,uint8 start) const { return dinge.suche(typ,start); }
 
     int  obj_add(ding_t *obj) { return dinge.add(obj); }
     int  obj_pri_add(ding_t *obj, int pri) { return dinge.add(obj, pri); }
     int  obj_remove(ding_t *obj, spieler_t *sp) { set_flag(dirty); return dinge.remove(obj, sp); }
+    ding_t *obj_takeout(uint8 pos) { return dinge.remove_at(pos); };
     bool obj_loesche_alle(spieler_t *sp) { return dinge.loesche_alle(sp); }
     bool obj_ist_da(ding_t *obj) const { return dinge.ist_da(obj); }
     ding_t * obj_bei(int n) const { return dinge.bei(n); }
@@ -512,7 +514,7 @@ public:
 
 
     /**
-     * Interface zur Bauen und abfragen von Geb„uden
+     * Interface zur Bauen und abfragen von Gebaeuden
      * =============================================
      */
 
@@ -529,7 +531,7 @@ public:
     bool hat_gebaeude(const haus_besch_t *besch) const;
 
     /**
-     * Falls es hier ein Depot gibt, dieses zurckliefern
+     * Falls es hier ein Depot gibt, dieses zurueckliefern
      * @author Volker Meyer
      */
     depot_t *gib_depot() const;
@@ -538,8 +540,8 @@ public:
     /*
      * Interface zur Abfrage der Wege
      * ==============================
-     * Jeder Boden hat bis zu 2. Special fr Wasser: ohne Weg-Objekt werden
-     * alle ribis vom weg_t::wassert als gesetzt zurckgeliefert.
+     * Jeder Boden hat bis zu 2. Special fuer Wasser: ohne Weg-Objekt werden
+     * alle ribis vom weg_t::wassert als gesetzt zurueckgeliefert.
      */
 
 
@@ -603,31 +605,31 @@ public:
 	inline short gib_weg2_bild() const {return weg2_bild_nr;};
 
      /**
-     * Ermittelt die Richtungsbits fr den weg vom Typ 'typ'.
+     * Ermittelt die Richtungsbits furr den weg vom Typ 'typ'.
      * Liefert 0 wenn kein weg des Typs vorhanden ist. Ein Weg kann ggf.
      * auch 0 als Richtungsbits liefern, deshalb kann die Anwesenheit eines
-     * Wegs nicht hierber, sondern mit gib_weg(), ermittelt werden.
+     * Wegs nicht hierurber, sondern mit gib_weg(), ermittelt werden.
      * @author Hj. Malthaner
      */
     virtual ribi_t::ribi gib_weg_ribi(weg_t::typ typ) const;
 
      /**
-     * Ermittelt die Richtungsbits fr den weg vom Typ 'typ' unmaskiert.
-     * Dies wird beim Bauen ben÷tigt. Fr die Routenfindung werden die
+     * Ermittelt die Richtungsbits furr den weg vom Typ 'typ' unmaskiert.
+     * Dies wird beim Bauen ben÷tigt. Furr die Routenfindung werden die
      * maskierten ribis benutzt.
      * @author Hj. Malthaner/V. Meyer
      *
      */
     virtual ribi_t::ribi gib_weg_ribi_unmasked(weg_t::typ typ) const;
     /**
-     * Brckenwege an den Auffahrten sind eine Ebene ber der Planh÷he.
+     * Brurckenwege an den Auffahrten sind eine Ebene urber der Planh÷he.
      * Alle anderen liefern hier 0.
      * @author V. Meyer
      */
     virtual int gib_weg_yoff() const { return 0; }
 
     /**
-     * Hat der Boden mindestens ein weg_t-Objekt? Liefert false fr Wasser!
+     * Hat der Boden mindestens ein weg_t-Objekt? Liefert false furr Wasser!
      * @author V. Meyer
      */
     inline bool hat_wege() const { return wege[0] != NULL;}
@@ -641,7 +643,7 @@ public:
 		bool ist_uebergang() const;
 
     /**
-     * Liefert einen Text fr die šberschrift des Info-Fensters.
+     * Liefert einen Text furr die Ueberschrift des Info-Fensters.
      * @author V. Meyer
      */
     const char * gib_weg_name(weg_t::typ typ = weg_t::invalid) const;
@@ -684,7 +686,7 @@ public:
      *
      * @return bool	    true, falls weg vorhanden war
      * @param wegtyp	    um welchen wegtyp geht es
-     * @param ribi_rem  sollen die ribis der nachbar zurckgesetzt werden?
+     * @param ribi_rem  sollen die ribis der nachbar zururckgesetzt werden?
      *
      * @author V. Meyer
      */

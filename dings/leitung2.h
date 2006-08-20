@@ -19,7 +19,7 @@ class powernet_t;
 class spieler_t;
 class fabrik_t;
 
-class leitung_t : public ding_t, public sync_steppable
+class leitung_t : public ding_t
 {
 protected:
   /**
@@ -55,15 +55,9 @@ public:
 	leitung_t(karte_t *welt, koord3d pos, spieler_t *sp);
 	virtual ~leitung_t();
 
-
-	void sync_prepare();
-	bool sync_step(long /*delta_t*/);
-
-
 	enum ding_t::typ gib_typ() const {return leitung;};
 
 	const char *gib_name() const {return "Leitung";};
-
 
 	/**
 	* @return Einen Beschreibungsstring für das Objekt, der z.B. in einem
@@ -115,7 +109,7 @@ public:
 };
 
 
-class pumpe_t : public leitung_t
+class pumpe_t : public leitung_t, public sync_steppable
 {
 private:
     bool power_there;
@@ -161,7 +155,7 @@ public:
     const char *name() const {return "Pumpe";};
 };
 
-class senke_t : public leitung_t
+class senke_t : public leitung_t, public sync_steppable
 {
 private:
     int einkommen;

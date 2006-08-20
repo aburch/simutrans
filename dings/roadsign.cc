@@ -13,11 +13,16 @@
 #include "../simcosts.h"
 #include "../simworld.h"
 #include "../simdings.h"
+#include "../simimg.h"
+
+#include "../besch/roadsign_besch.h"
+
 #include "../boden/wege/strasse.h"
 #include "../boden/grund.h"
-#include "../simimg.h"
+
 #include "../dataobj/loadsave.h"
-#include "../besch/roadsign_besch.h"
+#include "../dataobj/umgebung.h"
+
 #include "../utils/cbuffer_t.h"
 
 #include "../tpl/stringhashtable_tpl.h"
@@ -172,6 +177,17 @@ bool roadsign_t::register_besch(roadsign_besch_t *besch)
 {
 	table.put(besch->gib_name(), besch);
 	liste.append(besch);
+	// correct for driving on left side
+	if(umgebung_t::drive_on_left) {
+		const int XOFF=(30*get_tile_raster_width())/64;
+		const int YOFF=(14*get_tile_raster_width())/64;
+
+		display_set_image_offset( besch->gib_bild_nr(0), -XOFF, -YOFF );
+		display_set_image_offset( besch->gib_bild_nr(1), +XOFF, +YOFF );
+		display_set_image_offset( besch->gib_bild_nr(2), -XOFF, +YOFF );
+		display_set_image_offset( besch->gib_bild_nr(3), +XOFF, -YOFF );
+	}
+
 DBG_DEBUG( "roadsign_t::register_besch()","%s", besch->gib_name() );
 	return true;
 }

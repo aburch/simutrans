@@ -7,8 +7,8 @@
 #
 
 
-#OSTYPE=mingw-sdl
-OSTYPE=mingw-gdi
+OSTYPE=mingw-sdl
+#OSTYPE=mingw-gdi
 #OSTYPE=beos
 #OSTYPE=linux-gnu
 
@@ -170,8 +170,8 @@ SUB_OBJS=\
  sucher/platzsucher.o\
  dings/oberleitung.o\
  dings/wolke.o dings/raucher.o dings/zeiger.o dings/baum.o dings/bruecke.o\
- dings/tunnel.o dings/gebaeudefundament.o dings/gebaeude.o\
- dings/signal.o dings/leitung2.o dings/roadsign.o dings/lagerhaus.o\
+ dings/tunnel.o dings/gebaeude.o\
+ dings/signal.o dings/leitung2.o dings/roadsign.o dings/dummy.o dings/lagerhaus.o\
  boden/boden.o  boden/fundament.o  boden/grund.o  boden/wasser.o\
  boden/brueckenboden.o  boden/tunnelboden.o \
  boden/wege/dock.o boden/wege/strasse.o \
@@ -185,7 +185,7 @@ SUB_OBJS=\
  gui/components/gui_combobox.o \
  gui/help_frame.o gui/citylist_frame_t.o gui/citylist_stats_t.o\
  gui/message_frame_t.o gui/message_stats_t.o gui/message_option_t.o  gui/message_info_t.o\
- gui/colors.o gui/welt.o gui/werkzeug_waehler.o\
+ gui/colors.o gui/welt.o\
  gui/werkzeug_parameter_waehler.o\
  gui/goods_frame_t.o gui/goods_stats_t.o\
  gui/halt_info.o gui/halt_detail.o gui/depot_frame.o\

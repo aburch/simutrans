@@ -645,7 +645,7 @@ public:
      * Removes vehicles at position i
      * @author Hj. Malthaner
      */
-    vehikel_t * remove_vehikel_bei(int i);
+    vehikel_t * remove_vehikel_bei(unsigned short i);
 
 
     /**

@@ -105,8 +105,8 @@ ware_t::rdwr(loadsave_t *file)
 		type = warenbauer_t::gib_info(typ);
 		guarded_free(const_cast<char *>(typ));
 		if(type==NULL) {
-			DBG_MESSAGE("ware_t::rdwr()","unknown ware set to empty!");
-			menge = 0;
+			dbg->warning("ware_t::rdwr()","unknown ware set to passengers!");
+			type = warenbauer_t::gib_info("Passagiere");
 		}
 	}
 	ziel.rdwr(file);

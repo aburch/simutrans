@@ -6,6 +6,7 @@
  */
 
 #include <stdio.h>
+#include <string.h>
 
 #include "../simworld.h"
 #include "../simdings.h"
@@ -104,18 +105,31 @@ bruecke_t::ist_entfernbar(const spieler_t *sp)
 
 void bruecke_t::rdwr(loadsave_t *file)
 {
-    ding_t::rdwr(file);
+	ding_t::rdwr(file);
 
-    const char *s = NULL;
+	const char *s = NULL;
 
-    if(file->is_saving()) {
+	if(file->is_saving()) {
 	s = besch->gib_name();
-    }
-    file->rdwr_str(s, "");
-    file->rdwr_enum(img, "");
+	}
+	file->rdwr_str(s, "");
+	file->rdwr_enum(img, "");
 
-    if(file->is_loading()) {
-	besch = brueckenbauer_t::gib_besch(s);
-	guarded_free(const_cast<char *>(s));
-    }
+	if(file->is_loading()) {
+		besch = brueckenbauer_t::gib_besch(s);
+		if(besch==0) {
+			if(strstr(s,"ail")) {
+				besch = brueckenbauer_t::gib_besch("ClassicRail");
+				dbg->warning("bruecke_t::rdwr()","Unknown bridge %s replaced by ClassicRail",s);
+			}
+			else if(strstr(s,"oad")) {
+				besch = brueckenbauer_t::gib_besch("ClassicRoad");
+				dbg->warning("bruecke_t::rdwr()","Unknown bridge %s replaced by ClassicRoad",s);
+			}
+			else {
+				dbg->fatal("bruecke_t::rdwr()","Unknown bridge %s",s);
+			}
+		}
+		guarded_free(const_cast<char *>(s));
+	}
 }
