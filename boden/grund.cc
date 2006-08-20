@@ -303,7 +303,7 @@ grund_t::~grund_t()
     if(halt.is_bound()) {
 //	printf("Enferne boden %p von Haltestelle %p\n", this, halt);fflush(NULL);
 // check for memory leaks!
-	halt->rem_grund(this,true);
+	halt->rem_grund(this);
 	halt.unbind();
   }
 

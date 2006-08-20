@@ -189,10 +189,10 @@ private:
 
 
 	// true if future
-	bool is_future(const vehikel_besch_t *info,const int time_now);
+	static bool is_future(const vehikel_besch_t *info,const uint16 time_now);
 
 	// true if obsolete
-	bool is_retired(const vehikel_besch_t *info,const int time_now);
+	static bool is_retired(const vehikel_besch_t *info,const uint16 time_now);
 
 	// true if already stored here
 	bool is_contained(const vehikel_besch_t *info);

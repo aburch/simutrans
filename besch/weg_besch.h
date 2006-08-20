@@ -21,6 +21,9 @@
 #include "text_besch.h"
 #include "../dataobj/ribi.h"
 
+#include "intro_dates.h"
+
+
 class skin_besch_t;
 
 /**
@@ -75,7 +78,8 @@ private:
      * Introduction date
      * @author Hj. Malthaner
      */
-    uint32 intro_date;
+    uint16 intro_date;
+    uint16 obsolete_date;
 
 
     /**
@@ -174,8 +178,8 @@ public:
      * @return introduction year
      * @author Hj. Malthaner
      */
-    int get_intro_year() const {
-      return intro_date >> 4;
+    int get_intro_year_month() const {
+      return intro_date;
     }
 
 
@@ -183,8 +187,8 @@ public:
      * @return introduction month
      * @author Hj. Malthaner
      */
-    int get_intro_month() const {
-      return intro_date & 15;
+    int get_retire_year_month() const {
+      return obsolete_date;
     }
 
 

@@ -28,6 +28,8 @@
 #include "../besch/skin_besch.h"
 #include "../dataobj/translator.h"
 
+#include "../tpl/weighted_vector_tpl.h"
+
 #ifdef _MSC_VER
 #define STRICMP stricmp
 #else
@@ -207,9 +209,10 @@ DBG_DEBUG("hausbauer_t::register_besch()","Station building %s",besch->gib_name(
 void hausbauer_t::fill_menu(werkzeug_parameter_waehler_t *wzw,
 	slist_tpl<const haus_besch_t *>&stops,
 	int (* werkzeug)(spieler_t *, karte_t *, koord, value_t),
-	int sound_ok,
-	int sound_ko,
-	int cost)
+	const int sound_ok,
+	const int sound_ko,
+	const int cost,
+	const uint16 time)
 {
 DBG_DEBUG("hausbauer_t::fill_menu()","maximum %i",stops.count());
 	for( unsigned i=0;  i<stops.count();  i++  ) {
@@ -218,18 +221,21 @@ DBG_DEBUG("hausbauer_t::fill_menu()","maximum %i",stops.count());
 
 DBG_DEBUG("hausbauer_t::fill_menu()","try at pos %i to add %s(%p)",i,besch->gib_name(),besch);
 		if(besch->gib_cursor()->gib_bild_nr(1) != -1) {
-			// only add items with a cursor
-DBG_DEBUG("hausbauer_t::fill_menu()","at pos %i add %s",i,besch->gib_name());
-			sprintf(buf, "%s, %d$",translator::translate(besch->gib_name()),cost/(-100));
+			if(time==0  ||  (besch->get_intro_year_month()<=time  &&  besch->get_retire_year_month()>time)) {
 
-			wzw->add_param_tool(werkzeug,
-			  (const void *)besch,
-			  karte_t::Z_PLAN,
-			  sound_ok,
-			  sound_ko,
-			  besch->gib_cursor()->gib_bild_nr(1),
-			  besch->gib_cursor()->gib_bild_nr(0),
-			  buf );
+				// only add items with a cursor
+DBG_DEBUG("hausbauer_t::fill_menu()","at pos %i add %s",i,besch->gib_name());
+				sprintf(buf, "%s, %d$",translator::translate(besch->gib_name()),cost/(-100));
+
+				wzw->add_param_tool(werkzeug,
+				  (const void *)besch,
+				  karte_t::Z_PLAN,
+				  sound_ok,
+				  sound_ko,
+				  besch->gib_cursor()->gib_bild_nr(1),
+				  besch->gib_cursor()->gib_bild_nr(0),
+				  buf );
+			}
 		}
 	}
 }
@@ -454,90 +460,21 @@ gebaeude_t *hausbauer_t::neues_gebaeude(karte_t *welt,
 }
 
 
-/**
- * Liefert den Eintrag mit passendem Level aus der Liste,
- * falls es ihn gibt.
- * Falls es ihn nicht gibt wird ein gebäude des nächstöheren vorhandenen
- * levels geliefert.
- * Falls es das auch nicht gibt wird das Gebäude mit dem höchsten
- * level aus der Liste geliefert.
- *
- * Diese Methode liefert niemals NULL!
- *
- * @author Hj. Malthaner
- */
-const haus_besch_t * hausbauer_t::gib_aus_liste(slist_tpl<const haus_besch_t *> &liste, int level)
-{
-	slist_tpl <const haus_besch_t *> auswahl;
-
-	// Hajo: to jump over gaps, we scan buildings up to a certain level offset
-	int offset = 0;
-	const int max_offset = 16;
-	auswahl.clear();
-
-//	DBG_MESSAGE("hausbauer_t::gib_aus_liste()","target level %i", level );
-	do {
-		slist_iterator_tpl <const haus_besch_t *> iter (liste);
-
-		while(iter.next()) {
-			const int thislevel = iter.get_current()->gib_level();
-
-			if(thislevel>(level+offset)) {
-				// Hajo: current level too high
-				break;
-			}
-			if(thislevel == (level+offset)) {
-//				DBG_MESSAGE("hausbauer_t::gib_aus_liste()","appended %s at %i", iter.get_current()->gib_name(), thislevel );
-				auswahl.append(iter.get_current());
-			}
-		}
-
-		offset ++;
-	} while(auswahl.count()==0 && offset<max_offset);
-
-	return (auswahl.count() > 0) ?
-				auswahl.at( simrand(auswahl.count()) ) :
-				liste.at(liste.count() - 1);
-}
-
-
 const haus_besch_t *hausbauer_t::finde_in_liste(slist_tpl<const haus_besch_t *>  &liste, utyp utype, const char *name)
 {
-    if(name) {
-	slist_iterator_tpl<const haus_besch_t *>  iter(liste);
+	if(name) {
+		slist_iterator_tpl<const haus_besch_t *>  iter(liste);
 
-	while(iter.next()) {
-	    if(!strcmp(iter.get_current()->gib_name(), name) &&
-		(utype == unbekannt || iter.get_current()->gib_utyp() == utype))
-	    {
-		return iter.get_current();
-	    }
+		while(iter.next()) {
+			if(!strcmp(iter.get_current()->gib_name(), name) && (utype == unbekannt || iter.get_current()->gib_utyp() == utype)) {
+				return iter.get_current();
+			}
+		}
 	}
-    }
-    return NULL;
-}
-
-const haus_besch_t *hausbauer_t::waehle_aus_liste(slist_tpl<const haus_besch_t *> &liste)
-{
-    if(liste.count())
-        return liste.at(simrand(liste.count()));
-    else
 	return NULL;
 }
 
-const haus_besch_t *hausbauer_t::gib_special_intern(int bev, utyp utype)
-{
-    slist_iterator_tpl<const haus_besch_t *> iter(spezials);
 
-    while(iter.next()) {
-	if((bev == -1 || iter.get_current()->gib_bauzeit() == bev) &&
-	   iter.get_current()->gib_utyp() == utype)
-	{
-	    return iter.get_current();
-	}
-    }
-    return NULL;
-}
 
 const haus_tile_besch_t *hausbauer_t::find_tile(const char *name, int idx)
 {
@@ -546,5 +483,112 @@ const haus_tile_besch_t *hausbauer_t::find_tile(const char *name, int idx)
     if(besch)
 	return besch->gib_tile(idx);
     else
+	return NULL;
+}
+
+
+// timeline routines
+// for time==0 these routines behave like the previous ones
+
+const haus_besch_t *hausbauer_t::gib_special_intern(int bev, utyp utype,uint16 time)
+{
+	slist_iterator_tpl<const haus_besch_t *> iter(spezials);
+
+	while(iter.next()) {
+		const haus_besch_t *besch = iter.get_current();
+		if(  (bev == -1 || besch->gib_bauzeit() == bev) && besch->gib_utyp() == utype) {
+			// ok, now check timeline
+			if(time==0  ||  (besch->get_intro_year_month()<=time  &&  besch->get_retire_year_month()>time)) {
+				return besch;
+			}
+		}
+	}
+	return NULL;
+}
+
+/**
+ * tries to find something that matches this entry
+ * it will skip and jump, and will never return zero, if there is at least a single valid entry in the list
+ * @author Hj. Malthaner
+ */
+const haus_besch_t * hausbauer_t::gib_aus_liste(slist_tpl<const haus_besch_t *> &liste, int level, uint16 time)
+{
+	weighted_vector_tpl<const haus_besch_t *> auswahl(16);
+
+	// Hajo: to jump over gaps, we scan buildings up to a certain level offset
+	int offset = 0;
+	const int max_offset = 16;
+
+//	DBG_MESSAGE("hausbauer_t::gib_aus_liste()","target level %i", level );
+	const haus_besch_t *besch_at_least=NULL;
+	slist_iterator_tpl <const haus_besch_t *> iter (liste);
+
+	while(iter.next()) {
+		const haus_besch_t *besch = iter.get_current();
+
+		if(time==0  ||  (besch->get_intro_year_month()<=time  &&  besch->get_retire_year_month()>time)) {
+			besch_at_least = iter.get_current();
+		}
+
+		const int thislevel = besch->gib_level();
+
+		if(thislevel>level) {
+			if(auswahl.get_count()==0) {
+				// continue with search ...
+				level = thislevel;
+			}
+			else {
+				// ok, we found something
+				break;
+			}
+		}
+
+		if(thislevel==level) {
+			if(time==0  ||  (besch->get_intro_year_month()<=time  &&  besch->get_retire_year_month()>time)) {
+//					DBG_MESSAGE("hausbauer_t::gib_aus_liste()","appended %s at %i", besch->gib_name(), thislevel );
+				auswahl.append(besch,besch->gib_chance(),4);
+			}
+		}
+
+	}
+
+	if(auswahl.get_count()==0) {
+		// this is some level below, but at least it is something
+		return besch_at_least;
+	}
+	if(auswahl.get_count()==1) {
+		return auswahl.at(0);
+	}
+	// now there is something to choose
+	return auswahl.at_weight( simrand(auswahl.get_sum_weight()) );
+}
+
+
+
+// get a random object
+const haus_besch_t *hausbauer_t::waehle_aus_liste(slist_tpl<const haus_besch_t *> &liste, uint16 time)
+{
+	if(liste.count()) {
+		// previously just returned a random object; however, now we do als look at the chance entry
+		weighted_vector_tpl<const haus_besch_t *> auswahl(16);
+		slist_iterator_tpl <const haus_besch_t *> iter (liste);
+
+		while(iter.next()) {
+			const haus_besch_t *besch = iter.get_current();
+			if(time==0  ||  (besch->get_intro_year_month()<=time  &&  besch->get_retire_year_month()>time)) {
+//				DBG_MESSAGE("hausbauer_t::gib_aus_liste()","appended %s at %i", besch->gib_name(), thislevel );
+				auswahl.append(besch,besch->gib_chance(),4);
+			}
+		}
+		// now look, what we have got ...
+		if(auswahl.get_count()==0) {
+			return NULL;
+		}
+		if(auswahl.get_count()==1) {
+			return auswahl.at(0);
+		}
+		// now there is something to choose
+		return auswahl.at_weight( simrand(auswahl.get_sum_weight()) );
+	}
 	return NULL;
 }

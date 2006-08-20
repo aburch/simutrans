@@ -38,6 +38,12 @@ public:
      * @author Hj. Malthaner
      */
     virtual void laden_abschliessen();
+
+    /**
+     * Normally step is disabled; enable only for removal!
+     * @author prissi
+     */
+    virtual bool step(long /*delta_t*/) {return false;};
 };
 
 #endif

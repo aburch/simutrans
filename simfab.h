@@ -38,6 +38,8 @@ class stringhashtable_t;
 #define MAX_PRODBASE_SHIFT (4)
 
 
+// up to this distance, factories will be connected to their towns ...
+#define CONNECT_TO_TOWN_SQUARE_DISTANCE 5000
 
 /**
  * Eine Klasse für Fabriken in Simutrans. Fabriken produzieren und
@@ -141,12 +143,6 @@ private:
      */
     array_tpl<int> * abgabe_letzt;
 
-
-    /**
-     * Zeitpunkt für nächste Aktion, zB Warenverteilung.
-     * @author Hj. Malthaner
-     */
-    int aktionszeit;
 
     /**
      * Zeitakkumulator für Produktion

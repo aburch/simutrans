@@ -16,8 +16,6 @@
 #include "../dataobj/freelist.h"
 
 
-static weg_besch_t *monorailpillar=NULL;
-
 monorailboden_t::monorailboden_t(karte_t *welt, loadsave_t *file) : grund_t(welt)
 {
     rdwr(file);

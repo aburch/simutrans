@@ -274,6 +274,8 @@ private:
     bool m_quit_simutrans;// true = unload simutrans      //02-Nov-2001   Markus Weber    Added
     int sleep_time;     // sleep time fuer simulationsschleife
 
+	// may change due to timeline
+	const weg_besch_t *city_road;
 
     /**
      * fuer performancevergleiche
@@ -356,6 +358,9 @@ public:
     // often used, therefore found here
     bool use_timeline() const {return einstellungen->gib_use_timeline(); };
 
+	// returns either 0 or the current year*16 + month
+    uint16 get_timeline_year_month() const {return (einstellungen->gib_use_timeline()) ? current_month : 0; };
+
     /**
      * sollte einen const zeiger_t * zurueckgeben, aber wegen der Tests
      * braucht man mehr Zugriff, deshalb ohne const
@@ -389,6 +394,9 @@ public:
      */
 	inline uint32 get_current_month() const { return current_month; };
 
+	// prissi: current city road
+	// may change due to timeline
+	const weg_besch_t *get_city_road() const { return city_road; };
 
     /**
      * Anzahl steps seit Kartenerzeugung

@@ -22,6 +22,7 @@
 
 #include "../simworld.h"
 #include "../simwerkz.h"
+#include "../simmesg.h"
 #include "../simcosts.h"
 #include "../simplay.h"
 #include "../simplan.h"
@@ -104,17 +105,87 @@ bool wegbauer_t::register_besch(const kreuzung_besch_t *besch)
 
 
 /**
+ * Finds a way with a given speed limit for a given waytype
+ * @author prissi
+ */
+const weg_besch_t *  wegbauer_t::weg_search(const weg_t::typ wtyp,const int speed_limit,const uint16 time)
+{
+	stringhashtable_iterator_tpl<const weg_besch_t *> iter(alle_wegtypen);
+
+	const weg_besch_t * besch=NULL;
+DBG_MESSAGE("wegbauer_t::weg_search","Search cheapest for limit %i, year=%i, month=%i",speed_limit, time/12, time%12+1);
+	while(iter.next()) {
+		const weg_besch_t *test_weg = iter.get_current_value();
+
+
+		if(
+			(test_weg->gib_wtyp()==wtyp ||  (wtyp==weg_t::schiene_strab  &&  test_weg->gib_wtyp()==weg_t::schiene  &&  test_weg->gib_styp()==7)
+			)  &&  iter.get_current_value()->gib_cursor()->gib_bild_nr(1) != -1) {
+
+			if(  besch==NULL  ||  (besch->gib_topspeed()<speed_limit  &&  besch->gib_topspeed()<iter.get_current_value()->gib_topspeed()) ||  (iter.get_current_value()->gib_topspeed()>=speed_limit  &&  iter.get_current_value()->gib_wartung()<besch->gib_wartung())  ) {
+				if(time==0  ||  (test_weg->get_intro_year_month()<=time  &&  test_weg->get_retire_year_month()>time)) {
+					besch = test_weg;
+DBG_MESSAGE("wegbauer_t::weg_search","Found weg %s, limit %i",besch->gib_name(),besch->gib_topspeed());
+				}
+			}
+		}
+	}
+	return besch;
+}
+
+
+
+/**
  * Tries to look up description for way, described by way type,
  * system type and construction type
  * @author Hj. Malthaner
  */
-const weg_besch_t * wegbauer_t::gib_besch(const char * way_name)
+const weg_besch_t * wegbauer_t::gib_besch(const char * way_name,const uint16 time)
 {
-  return alle_wegtypen.get(way_name);
+	const weg_besch_t *besch = alle_wegtypen.get(way_name);
+	if(time==0  ||  besch==NULL  ||  (besch->get_intro_year_month()<=time  &&  besch->get_retire_year_month()>time)) {
+		return besch;
+	}
+	return NULL;
 }
 
 
-const kreuzung_besch_t *wegbauer_t::gib_kreuzung(weg_t::typ ns, weg_t::typ ow)
+
+// generates timeline message
+void wegbauer_t::neuer_monat(karte_t *welt)
+{
+	const uint16 current_month = welt->get_timeline_year_month();
+	if(current_month!=0) {
+		// check, what changed
+		slist_tpl <const weg_besch_t *> matching;
+		stringhashtable_iterator_tpl<const weg_besch_t *> iter(alle_wegtypen);
+		while(iter.next()) {
+			const weg_besch_t * besch = iter.get_current_value();
+			char	buf[256];
+
+			const uint16 intro_month = besch->get_intro_year_month();
+			if(intro_month == current_month) {
+				sprintf(buf,
+					translator::translate("%s now available:\n%s\n"),
+					translator::translate(besch->gib_name()));
+					message_t::get_instance()->add_message(buf,koord::invalid,message_t::new_vehicle,NEW_VEHICLE,besch->gib_bild_nr(5));
+			}
+
+			const uint16 retire_month =besch->get_retire_year_month();
+			if(retire_month == current_month) {
+				sprintf(buf,
+					translator::translate("%s cannot longer used:\n%s\n"),
+					translator::translate(besch->gib_name()));
+					message_t::get_instance()->add_message(buf,koord::invalid,message_t::new_vehicle,NEW_VEHICLE,besch->gib_bild_nr(5));
+			}
+		}
+
+	}
+}
+
+
+
+const kreuzung_besch_t *wegbauer_t::gib_kreuzung(const weg_t::typ ns, const weg_t::typ ow)
 {
     slist_iterator_tpl<const kreuzung_besch_t *> iter(kreuzungen);
 
@@ -133,11 +204,12 @@ const kreuzung_besch_t *wegbauer_t::gib_kreuzung(weg_t::typ ns, weg_t::typ ow)
  * @author Hj. Malthaner/prissi/dariok
  */
 void wegbauer_t::fill_menu(werkzeug_parameter_waehler_t *wzw,
-			   weg_t::typ wtyp,
-			   int (* werkzeug)(spieler_t *, karte_t *, koord, value_t),
-			   int sound_ok,
-			   int sound_ko,
-				 uint8 styp)
+	const weg_t::typ wtyp,
+	int (* werkzeug)(spieler_t *, karte_t *, koord, value_t),
+	const int sound_ok,
+	const int sound_ko,
+	const uint16 time,
+	const uint8 styp)
 {
 	// list of matching types (sorted by speed)
 	slist_tpl <const weg_besch_t *> matching;
@@ -146,24 +218,27 @@ void wegbauer_t::fill_menu(werkzeug_parameter_waehler_t *wzw,
 	while(iter.next()) {
 		const weg_besch_t * besch = iter.get_current_value();
 
-		if((besch->gib_styp()!=0  &&  styp!=0) ||  (styp==0  &&  besch->gib_styp()==0)) {
-			 // DarioK: load only if the given styp maches!
-			if(besch->gib_wtyp() == wtyp &&
-				besch->gib_cursor()->gib_bild_nr(1) != -1) {
+		if(time==0  ||  (besch->get_intro_year_month()<=time  &&  besch->get_retire_year_month()>time)) {
 
-				// this should avoid tram-tracks to be loaded into rail-menu
-				unsigned i;
-				for( i=0;  i<matching.count();  i++  ) {
-					// insert sorted
-					if(matching.at(i)->gib_topspeed()>besch->gib_topspeed()) {
-						matching.insert(besch,i);
-						break;
+			if((besch->gib_styp()!=0  &&  styp!=0) ||  (styp==0  &&  besch->gib_styp()==0)) {
+				 // DarioK: load only if the given styp maches!
+				if(besch->gib_wtyp() == wtyp &&
+					besch->gib_cursor()->gib_bild_nr(1) != -1) {
+
+					// this should avoid tram-tracks to be loaded into rail-menu
+					unsigned i;
+					for( i=0;  i<matching.count();  i++  ) {
+						// insert sorted
+						if(matching.at(i)->gib_topspeed()>besch->gib_topspeed()) {
+							matching.insert(besch,i);
+							break;
+						}
 					}
-				}
-				if(i==matching.count()) {
-					matching.append(besch);
-				}
+					if(i==matching.count()) {
+						matching.append(besch);
+					}
 
+				}
 			}
 		}
 	}
@@ -192,32 +267,6 @@ void wegbauer_t::fill_menu(werkzeug_parameter_waehler_t *wzw,
 	}
 }
 
-
-
-/**
- * Finds a way with a given speed limit for a given waytype
- * @author prissi
- */
-const weg_besch_t *  wegbauer_t::weg_search(weg_t::typ wtyp,int speed_limit)
-{
-  stringhashtable_iterator_tpl<const weg_besch_t *> iter(alle_wegtypen);
-
-  const weg_besch_t * besch = NULL;
-DBG_MESSAGE("wegbauer_t::weg_search","Search cheapest for limit %i",speed_limit);
-  while(iter.next()) {
-
-    if(
-    	(iter.get_current_value()->gib_wtyp()==wtyp ||  (wtyp==weg_t::schiene_strab  &&  iter.get_current_value()->gib_wtyp()==weg_t::schiene  &&  iter.get_current_value()->gib_styp()==7)
-    	)  &&  iter.get_current_value()->gib_cursor()->gib_bild_nr(1) != -1) {
-
-        if(  besch==NULL  ||  (besch->gib_topspeed()<speed_limit  &&  besch->gib_topspeed()<iter.get_current_value()->gib_topspeed()) ||  (iter.get_current_value()->gib_topspeed()>=speed_limit  &&  iter.get_current_value()->gib_wartung()<besch->gib_wartung())  ) {
-          besch = iter.get_current_value();
-DBG_MESSAGE("wegbauer_t::weg_search","Found weg %s, limit %i",besch->gib_name(),besch->gib_topspeed());
-      }
-    }
-  }
-  return besch;
-}
 
 
 bool

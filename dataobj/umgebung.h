@@ -214,7 +214,7 @@ class umgebung_t
 	*
 	* @author Hj. Malthaner
 	*/
-	static bool use_timeline;
+	static char use_timeline;
 
 
 	/**

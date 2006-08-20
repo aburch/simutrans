@@ -36,26 +36,29 @@ class wegbauer_t
 public:
     static const weg_besch_t *leitung_besch;
 
-    static const kreuzung_besch_t *gib_kreuzung(weg_t::typ ns, weg_t::typ ow);
+    static const kreuzung_besch_t *gib_kreuzung(const weg_t::typ ns, const weg_t::typ ow);
 
     static bool register_besch(const weg_besch_t *besch);
     static bool register_besch(const kreuzung_besch_t *besch);
     static bool alle_wege_geladen();
     static bool alle_kreuzungen_geladen();
 
+    // generates timeline message
+	static void wegbauer_t::neuer_monat(karte_t *welt);
+
 
     /**
      * Finds a way with a given speed limit for a given waytype
      * @author prissi
      */
-    static const weg_besch_t *  weg_search(weg_t::typ wtyp,int speed_limit);
+    static const weg_besch_t *  weg_search(const weg_t::typ wtyp,const int speed_limit,const uint16 time=0);
 
     /**
      * Tries to look up description for way, described by way type,
      * system type and construction type
      * @author Hj. Malthaner
      */
-    static const weg_besch_t * gib_besch(const char * way_name);
+    static const weg_besch_t * gib_besch(const char * way_name,const uint16 time=0);
 
 
     /**
@@ -63,11 +66,12 @@ public:
      * @author Hj. Malthaner
      */
     static void fill_menu(werkzeug_parameter_waehler_t *wzw,
-			  weg_t::typ wtyp,
+			  const weg_t::typ wtyp,
 			  int (* wz1)(spieler_t *, karte_t *, koord, value_t),
-			  int sound_ok,
-			  int sound_ko,
-				uint8 styp = 0);
+			  const int sound_ok,
+			  const int sound_ko,
+			  const uint16 time=0,
+			  uint8 styp = 0);
 
 
     enum bautyp {

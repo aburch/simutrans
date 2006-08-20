@@ -25,6 +25,7 @@
 #include "boden/wege/weg.h"
 #include "simhalt.h"
 #include "simfab.h"
+#include "simplay.h"
 #include "simconvoi.h"
 #include "simwin.h"
 #include "simworld.h"
@@ -328,12 +329,12 @@ haltestelle_t::haltestelle_t(karte_t *wl, loadsave_t *file) : self(this)
     pax_unhappy = 0;
     pax_no_route = 0;
 
+	station_crowded = false;
+
     // @author hsiegeln
     sortierung = haltestelle_t::by_name;
 
     rdwr(file);
-
-//    verbinde_fabriken();
 
     init_gui();
 }
@@ -355,6 +356,8 @@ haltestelle_t::haltestelle_t(karte_t *wl, koord pos, spieler_t *sp) : self(this)
     post_enabled = false;
     ware_enabled = false;
 
+	station_crowded = false;
+
     pax_happy = 0;
     pax_unhappy = 0;
     pax_no_route = 0;
@@ -362,20 +365,15 @@ haltestelle_t::haltestelle_t(karte_t *wl, koord pos, spieler_t *sp) : self(this)
     sortierung = haltestelle_t::by_name;
     init_financial_history();
 
-//    verbinde_fabriken();
-
     init_gui();
 }
 
 
 haltestelle_t::~haltestelle_t()
 {
-//    printf("Haltestelle %s (%p) durchläuft Destruktor\n", gib_name(), this);
 	while(grund.count()>0) {
-		rem_grund(grund.at(0),true);
+		rem_grund(grund.at(0));
 	}
-
-//    assert(grund.count() == 0);
 
     if(halt_info) {
 	destroy_win(halt_info);
@@ -420,12 +418,18 @@ haltestelle_t::step()
 }
 
 
+
 /**
  * Called every month/every 24 game hours
  * @author Hj. Malthaner
  */
 void haltestelle_t::neuer_monat()
 {
+	if(station_crowded) {
+		besitzer_p->bescheid_station_voll(self);
+		station_crowded = false;
+	}
+
 	// reroute only monthly!
 	ptrhashtable_iterator_tpl<const ware_besch_t *, slist_tpl<ware_t> *> waren_iter(waren);
 
@@ -456,6 +460,8 @@ void haltestelle_t::neuer_monat()
 			else {
 				suche_route(ware);
 			}
+
+			INT_CHECK("simhalt 457");
 
 			// check if this good can still reach its destination
 			if(!gib_halt(ware.gib_ziel()).is_bound() ||  !gib_halt(ware.gib_zwischenziel()).is_bound()) {
@@ -574,13 +580,7 @@ haltestelle_t::verbinde_fabriken()
 		}
 		fab_list.clear();
 
-		int minX=99999;
-		int minY=99999;
-		int maxX=0;
-		int maxY=0;
-
 		slist_iterator_tpl<grund_t *> iter( grund );
-
 		while(iter.next()) {
 			grund_t *gb = iter.get_current();
 			koord p = gb->gib_pos().gib_2d();
@@ -930,7 +930,7 @@ haltestelle_t::add_grund(grund_t *gr)
     assert(gr != NULL);
 
 	// neu halt?
-    if(!grund.contains( gr )) {
+    if(!grund.contains(gr)) {
 
     	koord pos=gr->gib_pos().gib_2d();
 
@@ -974,27 +974,54 @@ haltestelle_t::add_grund(grund_t *gr)
 }
 
 void
-haltestelle_t::rem_grund(grund_t *gb,bool final)
+haltestelle_t::rem_grund(grund_t *gb)
 {
     // namen merken
     const char *tmp = gib_name();
 
     if(gb) {
-	grund.remove(gb);
 
-//	printf("Haltestelle %s (%p) hat nach rem_grund noch %d böden\n", tmp, this, grund.count());
+	// was not part of station => do nothing
+	if(!grund.remove(gb)) {
+		return;
+	}
 
-	gb->setze_halt(halthandle_t ());
-
-	// remove this square from all grounds
-	// (only will removed, if no longer reachable)
-	if(!final) {
-		for(  int y=-welt->gib_einstellungen()->gib_station_coverage();  y<=welt->gib_einstellungen()->gib_station_coverage();  y++  ) {
-			for(  int x=-welt->gib_einstellungen()->gib_station_coverage();  x<=welt->gib_einstellungen()->gib_station_coverage();  x++  ) {
-				const planquadrat_t *pl = welt->lookup( gb->gib_pos().gib_2d()+koord(x,y) );
-				if(pl  &&  pl->gib_kartenboden()) {
-					pl->gib_kartenboden()->remove_from_haltlist(self);
+	const planquadrat_t *pl = welt->lookup( gb->gib_pos().gib_2d() );
+	if(pl) {
+		if(gb!=pl->gib_kartenboden()) {
+			// no longer connected (upper level)
+			gb->setze_halt(halthandle_t ());
+			// still connected elsewhere?
+			for(unsigned i=1;  i<pl->gib_boden_count();  i++  ) {
+				if(pl->gib_boden_bei(i)->gib_halt().is_bound()) {
+					// still connected => do not remove from ground ...
+					return;
 				}
+			}
+			if(!grund.contains(pl->gib_kartenboden())) {
+DBG_DEBUG("haltestelle_t::rem_grund()","remove also floor, count=%i",grund.count());
+				// otherwise remove ground ...
+				pl->gib_kartenboden()->setze_halt(halthandle_t ());
+			}
+		}
+		else {
+			// still connected elsewhere?
+			for(unsigned i=1;  i<pl->gib_boden_count();  i++  ) {
+				if(pl->gib_boden_bei(i)->gib_halt().is_bound()) {
+					// still connected => do not remove from ground ...
+					return;
+				}
+			}
+			// otherwise remove ground ... (gr is kartenboden)
+			gb->setze_halt(halthandle_t ());
+		}
+	}
+
+	for(  int y=-welt->gib_einstellungen()->gib_station_coverage();  y<=welt->gib_einstellungen()->gib_station_coverage();  y++  ) {
+		for(  int x=-welt->gib_einstellungen()->gib_station_coverage();  x<=welt->gib_einstellungen()->gib_station_coverage();  x++  ) {
+			const planquadrat_t *pl = welt->lookup( gb->gib_pos().gib_2d()+koord(x,y) );
+			if(pl  &&  pl->gib_kartenboden()) {
+				pl->gib_kartenboden()->remove_from_haltlist(self);
 			}
 		}
 	}
@@ -1022,6 +1049,11 @@ haltestelle_t::rem_grund(grund_t *gb,bool final)
 bool
 haltestelle_t::existiert_in_welt()
 {
+	DBG_MESSAGE("haltestelle_t::existiert_in_welt()","count=%i",grund.count());
+	if(grund.count()>0) {
+		DBG_MESSAGE("haltestelle_t::existiert_in_welt()","grund(0)=%i,%i,%i",grund.at(0)->gib_pos().x,grund.at(0)->gib_pos().y,grund.at(0)->gib_pos().z);
+	}
+
 	return !grund.is_empty();
 }
 

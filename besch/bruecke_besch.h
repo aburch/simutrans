@@ -18,6 +18,9 @@
 #include "text_besch.h"
 #include "../boden/wege/weg.h"
 
+#include "intro_dates.h"
+
+
 
 /**
  *  class:
@@ -50,6 +53,10 @@ class bruecke_besch_t : public obj_besch_t {
     uint8  wegtyp;
     uint8 pillars_every;	// =0 off
     uint8 max_length;	// =0 off, else maximum length
+
+    // allowed eara
+    uint16 intro_date;
+    uint16 obsolete_date;
 
 public:
     /*
@@ -142,6 +149,22 @@ public:
     int  gib_max_length() const
     {
 	return max_length;
+    }
+
+    /**
+     * @return introduction month
+     * @author Hj. Malthaner
+     */
+    int get_intro_year_month() const {
+      return intro_date;
+    }
+
+    /**
+     * @return time when obsolete
+     * @author prissi
+     */
+    int get_retire_year_month() const {
+      return obsolete_date;
     }
 };
 

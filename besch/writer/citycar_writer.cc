@@ -46,16 +46,16 @@ void citycar_writer_t::write_obj(FILE *fp, obj_node_t &parent, tabfileobj_t &obj
 
     besch.gewichtung = obj.get_int("distributionweight", 1);
 
-    besch.intro_date  = obj.get_int("intro_year", 1900) * 16;
+    besch.intro_date  = obj.get_int("intro_year", DEFAULT_INTRO_DATE) * 12;
     besch.intro_date += obj.get_int("intro_month", 1) - 1;
 
-    besch.obsolete_date  = obj.get_int("retire_year", 2999) * 16;
+    besch.obsolete_date  = obj.get_int("retire_year", DEFAULT_RETIRE_DATE) * 12;
     besch.obsolete_date += obj.get_int("retire_month", 1) - 1;
 
     besch.geschw  = obj.get_int("speed", 80) * 16;
 
     // new version with intro and obsolete dates
-    uint16 data = 0x8001;
+    uint16 data = 0x8002;
     node.write_data_at(fp, &data, 0, sizeof(uint16));
 
     data = (uint16)besch.gewichtung;

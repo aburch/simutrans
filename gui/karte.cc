@@ -414,18 +414,20 @@ reliefkarte_t::calc_map(int render_mode)
 	  // show passenger coverage
 	  // display coverage
 	case MAP_PASSENGER:
-	  if (gr->gib_halt().is_bound()) {
-	    setze_relief_farbe_area(k, (welt->gib_einstellungen()->gib_station_coverage()*2)+1, map_type_color[render_mode]);
+	{
+	    halthandle_t halt = gr->gib_halt();
+	  if (halt.is_bound()    &&  halt->get_pax_enabled()) {
+	    setze_relief_farbe_area(k, (welt->gib_einstellungen()->gib_station_coverage()*2)+1, halt->gib_besitzer()->kennfarbe );
+	  }
 	  }
 	  break;
 	  // show mail coverage
 	  // display coverage
 	case MAP_MAIL:
 	{
-	    halthandle_t halt = haltestelle_t::gib_halt(welt, k);
-	    // only show player's haltestellen
-	    if (halt.is_bound()  &&  (halt->gib_besitzer()==welt->get_active_player()) && halt->get_post_enabled()) {
-	      setze_relief_farbe_area(k, (welt->gib_einstellungen()->gib_station_coverage()*2)+1, map_type_color[render_mode]);
+	    halthandle_t halt = gr->gib_halt();
+	    if (halt.is_bound()  &&  halt->get_post_enabled()) {
+	      setze_relief_farbe_area(k, (welt->gib_einstellungen()->gib_station_coverage()*2)+1,halt->gib_besitzer()->kennfarbe );
 	    }
 	  }
 	  break;
@@ -442,11 +444,9 @@ reliefkarte_t::calc_map(int render_mode)
 	  break;
 				// show station status
 	case MAP_STATUS:
-	  if (gr->gib_halt().is_bound()) {
-	      halthandle_t halt = haltestelle_t::gib_halt(welt, k);
-	      // only show player's haltestellen
-	      if (halt->gib_besitzer() == welt->get_active_player())
-		{
+	{
+	    halthandle_t halt = gr->gib_halt();
+	  if (halt.is_bound()   && (halt->gib_besitzer()==welt->get_active_player()  ||  halt->gib_besitzer()==welt->gib_spieler(1)) ) {
 		  int color = GREEN;
 		  if(halt->get_pax_happy() > 0 || halt->get_pax_no_route() > 0) {
 		    if(halt->get_pax_no_route() > halt->get_pax_happy() * 8) {
@@ -464,15 +464,13 @@ reliefkarte_t::calc_map(int render_mode)
 	  break;
 				// show frequency of convois visiting a station
 	case MAP_SERVICE:
-	  if (gr->gib_halt().is_bound()) {
-	      halthandle_t halt = haltestelle_t::gib_halt(welt, k);
-	      // only show player's haltestellen
-	      if (halt->gib_besitzer() == welt->get_active_player())
-		{
+	{
+	    halthandle_t halt = gr->gib_halt();
+	  if (halt.is_bound()   && (halt->gib_besitzer()==welt->get_active_player()  ||  halt->gib_besitzer()==welt->gib_spieler(1)) ) {
 		  // get number of last month's arrived convois
 		  setze_relief_farbe_area(k, 3, calc_severity_color(halt->get_finance_history(1, HALT_CONVOIS_ARRIVED), 5));
 		}
-	    }
+	 }
 	  break;
 				// show traffic (=convois/month)
 	case MAP_TRAFFIC:
@@ -492,9 +490,9 @@ reliefkarte_t::calc_map(int render_mode)
 				// show sources of passengers
 	case MAP_ORIGIN:
 	  if (gr->gib_halt().is_bound()) {
-	    halthandle_t halt = haltestelle_t::gib_halt(welt, k);
+	    halthandle_t halt = gr->gib_halt();
 	    // only show player's haltestellen
-	    if (halt->gib_besitzer() == welt->get_active_player()) {
+	    if (halt->gib_besitzer()==welt->get_active_player()  ||  halt->gib_besitzer()==welt->gib_spieler(1)) {
 	      const int net = halt->get_finance_history(1, HALT_DEPARTED)-halt->get_finance_history(1, HALT_ARRIVED);
 	      setze_relief_farbe_area(k, 3, calc_severity_color(net, 64));
 	    }
@@ -502,10 +500,9 @@ reliefkarte_t::calc_map(int render_mode)
 	  break;
 				// show destinations for passengers
 	case MAP_DESTINATION:
-	  if (gr->gib_halt().is_bound()) {
-	    halthandle_t halt = haltestelle_t::gib_halt(welt, k);
-	    // only show player's haltestellen
-	    if (halt->gib_besitzer() == welt->get_active_player()) {
+	{
+	    halthandle_t halt = gr->gib_halt();
+	  if (halt.is_bound()   && (halt->gib_besitzer()==welt->get_active_player()  ||  halt->gib_besitzer()==welt->gib_spieler(1)) ) {
 	      const int net = halt->get_finance_history(1, HALT_ARRIVED)-halt->get_finance_history(1, HALT_DEPARTED);
 	      setze_relief_farbe_area(k, 3, calc_severity_color(net, 32));
 	    }
@@ -513,10 +510,9 @@ reliefkarte_t::calc_map(int render_mode)
 	  break;
 				// show waiting goods
 	case MAP_WAITING:
-	  if (gr->gib_halt().is_bound()) {
-	    halthandle_t halt = haltestelle_t::gib_halt(welt, k);
-	    // only show player's haltestellen
-	    if (halt->gib_besitzer() == welt->get_active_player()) {
+	{
+	    halthandle_t halt = gr->gib_halt();
+	  if (halt.is_bound()   && (halt->gib_besitzer()==welt->get_active_player()  ||  halt->gib_besitzer()==welt->gib_spieler(1)) ) {
 	      setze_relief_farbe_area(k,
 				      3,
 				      calc_severity_color(halt->get_finance_history(0, HALT_WAITING),

@@ -92,13 +92,13 @@ private:
      *
      * @author Hj. Malthaner
      */
-    static const haus_besch_t * gib_aus_liste(slist_tpl<const haus_besch_t *> &liste, int level);
+    static const haus_besch_t * gib_aus_liste(slist_tpl<const haus_besch_t *> &liste, int level, uint16);
 
     /**
      * Liefert einen zufälligen Eintrag aus der Liste.
      * @author V. Meyer
      */
-    static const haus_besch_t *waehle_aus_liste(slist_tpl<const haus_besch_t *> &liste);
+    static const haus_besch_t *waehle_aus_liste(slist_tpl<const haus_besch_t *> &liste,uint16 time);
 
     /**
      * Sucht einen Eintrag aus einer Liste passend zum Namen ("Name=..." aus gebaeude.tab).
@@ -110,7 +110,7 @@ private:
      * Sucht eine Eintrag aus der Spezialgebäudeliste mit der passenden Bevölkerung.
      * @author V. Meyer
      */
-    static const haus_besch_t *gib_special_intern(int bev, enum utyp utype);
+    static const haus_besch_t *gib_special_intern(int bev, enum utyp utype, uint16 time);
 
     static void insert_sorted(slist_tpl<const haus_besch_t *> &liste, const haus_besch_t *besch);
 public:
@@ -126,77 +126,68 @@ public:
     static void fill_menu(werkzeug_parameter_waehler_t *wzw,
     		slist_tpl<const haus_besch_t *>&stops,
     		int (* werkzeug)(spieler_t *, karte_t *, koord, value_t),
-    		int sound_ok, int sound_ko,int cost);
+    		const int sound_ok, const int sound_ko,const int cost, const uint16 time);
 
     /**
      * Sucht ein Gebäude, welches bei der gegebenen Bevölkerungszahl gebaut
      * werden soll.
      * @author V. Meyer
      */
-    static const haus_besch_t *gib_special(int bev)
-    { return gib_special_intern(bev, special);  }
+    static const haus_besch_t *gib_special(int bev,uint16 time=0) { return gib_special_intern(bev, special,time);  };
 
     /**
      * Sucht ein Rathaus, welches bei der gegebenen Bevölkerungszahl gebaut
      * werden soll.
      * @author V. Meyer
      */
-    static const haus_besch_t *gib_rathaus(int bev)
-    { return gib_special_intern(bev, rathaus);  }
+   static const haus_besch_t *gib_rathaus(int bev, uint16 time=0) { return gib_special_intern(bev, rathaus, time);  }
 
     /**
      * Gewerbegebäude passend zum Level liefern. Zur Zeit sind die Einträge
      * eindeutig aufsteigend.
      * @author V. Meyer
      */
-    static const haus_besch_t *gib_gewerbe(int level)
-    { return gib_aus_liste(gewerbehaeuser, level); }
+    static const haus_besch_t *gib_gewerbe(int level, uint16 time=0) { return gib_aus_liste(gewerbehaeuser, level, time); };
 
     /**
      * Industriegebäude passend zum Level liefern. Zur Zeit sind die Einträge
      * eindeutig aufsteigend.
      * @author V. Meyer
      */
-    static const haus_besch_t *gib_industrie(int level)
-    { return gib_aus_liste(industriehaeuser, level); }
+    static const haus_besch_t *gib_industrie(int level,uint16 time=0) { return gib_aus_liste(industriehaeuser, level,time); };
 
     /**
      * Wohnhaus passend zum Level liefern. Zur Zeit sind die Einträge
      * eindeutig aufsteigend.
      * @author V. Meyer
      */
-    static const haus_besch_t *gib_wohnhaus(int level)
-    { return gib_aus_liste(wohnhaeuser, level); }
+    static const haus_besch_t *gib_wohnhaus(int level,uint16 time=0) { return gib_aus_liste(wohnhaeuser, level,time); };
 
     /**
      * Fabrikbeschreibung anhand des Namens raussuchen.
      * eindeutig aufsteigend.
      * @author V. Meyer
      */
-    static const haus_besch_t *finde_fabrik(const char *name)
-    { return finde_in_liste(fabriken, fabrik, name); }
+    static const haus_besch_t *finde_fabrik(const char *name) { return finde_in_liste(fabriken, fabrik, name); };
 
     /**
      * Denkmal anhand des Namens raussuchen.
      * @author V. Meyer
      */
-    static const haus_besch_t *finde_denkmal(const char *name)
-    { return finde_in_liste(denkmaeler, denkmal, name ); }
+    static const haus_besch_t *finde_denkmal(const char *name) { return finde_in_liste(denkmaeler, denkmal, name ); };
 
     /**
      * Liefert per Zufall die Beschreibung eines Sehenswuerdigkeit,
      * die bei Kartenerstellung gebaut werden kann.
      * @author V. Meyer
      */
-    static const haus_besch_t *waehle_sehenswuerdigkeit()
-    { return waehle_aus_liste(sehenswuerdigkeiten); }
+    static const haus_besch_t *waehle_sehenswuerdigkeit(uint16 time=0) { return waehle_aus_liste(sehenswuerdigkeiten,time); };
 
     /**
      * Liefert per Zufall die Beschreibung eines ungebauten Denkmals.
      * @author V. Meyer
      */
-    static const haus_besch_t *waehle_denkmal()
-    { return waehle_aus_liste(ungebaute_denkmaeler); }
+    static const haus_besch_t *waehle_denkmal(uint16 time=0) { return waehle_aus_liste(ungebaute_denkmaeler,time); };
 
     /**
      * Diese Funktion setzt intern alle Denkmäler auf ungebaut. Damit wir
@@ -209,8 +200,7 @@ public:
      * Dem Hausbauer Bescheid sagen, dass ein bestimmtes Denkmal gebaut wurde.
      * @author V. Meyer
      */
-    static void denkmal_gebaut(const haus_besch_t *besch)
-    {    ungebaute_denkmaeler.remove(besch); }
+    static void denkmal_gebaut(const haus_besch_t *besch) { ungebaute_denkmaeler.remove(besch); };
 
 
     /*

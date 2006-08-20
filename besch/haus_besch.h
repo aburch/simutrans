@@ -22,6 +22,9 @@
 #include "../dings/gebaeude.h"
 #include "../bauer/hausbauer.h"
 
+#include "intro_dates.h"
+
+
 /*
  *  forward declarations
  */
@@ -48,6 +51,7 @@ class skin_besch_t;
  */
 class haus_tile_besch_t : public obj_besch_t {
     friend class tile_writer_t;
+    friend class tile_reader_t;
 
     const haus_besch_t	*haus;
 
@@ -126,18 +130,18 @@ class haus_besch_t : public obj_besch_t {     // Daten für ein ganzes Gebäude
     };
 
     gebaeude_t::typ     gtyp;      // Hajo: this is the type of the building
+    hausbauer_t::utyp   utyp;      // Hajo: if gtyp ==  gebaeude_t::unbekannt, then this is the real type
 
-    hausbauer_t::utyp   utyp;      // Hajo: if gtyp ==  gebaeude_t::unbekannt
-                                   // then this is the real type
+    uint16		bauzeit;        // == inhabitants at build time
+    koord		groesse;
+    flag_t		flags;
+    int			level;          // or passengers;
+    int			layouts;        // 1 2 oder 4
+    uint8		chance;         // Hajo: chance to build, special buildings, only other is weight factor
 
-
-    int                 level;          // or passengers;
-    int                 bauzeit;        // == inhabitants at build time
-    koord          groesse;
-    int                 layouts;        // 1 2 oder 4
-    flag_t           flags;
-    int                 chance;         // Hajo: chance to build
-                                        // special buildings only
+    // when was this building allowed
+    uint16 intro_date;
+    uint16 obsolete_date;
 
     bool ist_utyp(hausbauer_t::utyp utyp) const
     {
@@ -240,6 +244,22 @@ public:
     {
 //        return static_cast<const skin_besch_t *>(gib_kind(5));
 	return (const skin_besch_t *)(gib_kind(2+groesse.x*groesse.y*layouts));
+    }
+
+    /**
+     * @return introduction month
+     * @author Hj. Malthaner
+     */
+    int get_intro_year_month() const {
+      return intro_date;
+    }
+
+    /**
+     * @return time when obsolete
+     * @author prissi
+     */
+    int get_retire_year_month() const {
+      return obsolete_date;
     }
 };
 

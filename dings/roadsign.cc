@@ -142,7 +142,6 @@ void roadsign_t::calc_bild()
 		{
 			const uint8 weg_dir = str->gib_ribi_unmasked();
 			const uint8 direction = (dir&ribi_t::nord)!=0;
-			const uint8 not_direction = !direction;
 
 			// other front/back images for left side ...
 			if(umgebung_t::drive_on_left) {

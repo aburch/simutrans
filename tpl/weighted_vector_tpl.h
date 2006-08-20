@@ -317,7 +317,9 @@ public:
 			return nodes[i].data;
 		} else {
 			ERROR("weighted_vector_tpl<T>::get()","index out of bounds: %i not in 0..%d", i, count-1);
-			abort();
+			trap();
+			// to keep compiler silent
+			return nodes[0].data;
 		}
 	}
 
@@ -331,7 +333,9 @@ public:
 			return nodes[i].data;
 		} else {
 			ERROR("weighted_vector_tpl<T>::at()","index out of bounds: %i not in 0..%d", i, count-1);
-			abort();
+			trap();
+			// to keep compiler silent
+			return nodes[0].data;
 		}
 	}
 
@@ -391,7 +395,9 @@ public:
 #endif
 		} else {
 			ERROR("weighted_vector_tpl<T>::at_weight()","weight out of bounds: %i not in 0..%d", target_weight, total_weight);
-			abort();
+			trap();
+			// to keep compiler silent
+			return nodes[0].data;
 		}
 	}
 

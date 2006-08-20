@@ -106,9 +106,10 @@ bool brueckenbauer_t::laden_erfolgreich()
  */
 void
 brueckenbauer_t::fill_menu(werkzeug_parameter_waehler_t *wzw,
-         weg_t::typ wtyp,
-         int sound_ok,
-         int sound_ko)
+         const weg_t::typ wtyp,
+         const int sound_ok,
+         const int sound_ko,
+         const uint16 time)
 {
 	// list of matching types (sorted by speed)
 	slist_tpl <const bruecke_besch_t *> matching;
@@ -116,17 +117,19 @@ brueckenbauer_t::fill_menu(werkzeug_parameter_waehler_t *wzw,
 	for(unsigned int i = 0; i < bruecken.get_count(); i++) {
 		const bruecke_besch_t *besch = bruecken.get(i);
 		if(besch->gib_wegtyp() == wtyp) {
-			// add int sorted
-			unsigned j;
-			for( j=0;  j<matching.count();  j++  ) {
-				// insert sorted
-				if(matching.at(j)->gib_topspeed()>besch->gib_topspeed()) {
-					matching.insert(besch,j);
-					break;
+			if(time==0  ||  (besch->get_intro_year_month()<=time  &&  besch->get_retire_year_month()>time)) {
+				// add int sorted
+				unsigned j;
+				for( j=0;  j<matching.count();  j++  ) {
+					// insert sorted
+					if(matching.at(j)->gib_topspeed()>besch->gib_topspeed()) {
+						matching.insert(besch,j);
+						break;
+					}
 				}
-			}
-			if(j==matching.count()) {
-				matching.append(besch);
+				if(j==matching.count()) {
+					matching.append(besch);
+				}
 			}
 		}
 	}

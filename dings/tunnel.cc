@@ -44,16 +44,13 @@ tunnel_t::tunnel_t(karte_t *welt, koord3d pos,
 		   spieler_t *sp, const tunnel_besch_t *besch) :
     ding_t(welt, pos)
 {
-  this->besch = besch;
-
-  const grund_t *gr = welt->lookup(gib_pos());
-
-  if(besch) {
-    setze_bild(0, besch->gib_hintergrund_nr(gr->gib_grund_hang()));
-  }
-  setze_besitzer( sp );
-
-  step_frequency = 0;
+	const grund_t *gr = welt->lookup(gib_pos());
+	this->besch = besch;
+	if(besch) {
+		setze_bild(0, besch->gib_hintergrund_nr(gr->gib_grund_hang()));
+	}
+	setze_besitzer( sp );
+	step_frequency = 0;
 }
 
 
@@ -83,31 +80,37 @@ void tunnel_t::info(cbuffer_t & buf) const
 
 int tunnel_t::gib_after_bild() const
 {
-  const grund_t *gr = welt->lookup(gib_pos());
-  return besch->gib_vordergrund_nr(gr->gib_grund_hang());
+	const grund_t *gr = welt->lookup(gib_pos());
+	return besch->gib_vordergrund_nr(gr->gib_grund_hang());
 }
 
 
 int tunnel_t::gib_bild() const
 {
-  const grund_t *gr = welt->lookup(gib_pos());
-  return besch->gib_hintergrund_nr(gr->gib_grund_hang());
+	const grund_t *gr = welt->lookup(gib_pos());
+	return besch->gib_hintergrund_nr(gr->gib_grund_hang());
 }
 
 
 void tunnel_t::rdwr(loadsave_t *file)
 {
-  ding_t::rdwr(file);
+	ding_t::rdwr(file);
 }
 
 
 void tunnel_t::laden_abschliessen()
 {
-  const grund_t *gr = welt->lookup(gib_pos());
+	const grund_t *gr = welt->lookup(gib_pos());
 
-  if(gr->gib_weg(weg_t::strasse)) {
-    besch = tunnelbauer_t::strassentunnel;
-  } else {
-    besch = tunnelbauer_t::schienentunnel;
-  }
+	if(gr->gib_grund_hang()==0) {
+		step_frequency = 1;	// remove
+		dbg->error("tunnel_t::laden_abschliessen()","tunnel entry at flat position at %i,%i will be removed.",gib_pos().x,gib_pos().y);
+	}
+
+	if(gr->gib_weg(weg_t::strasse)) {
+		besch = tunnelbauer_t::strassentunnel;
+	}
+	else {
+		besch = tunnelbauer_t::schienentunnel;
+	}
 }

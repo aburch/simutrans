@@ -320,7 +320,7 @@ dingliste_t::remove_at(uint8 pos)
 
 
 uint8
-dingliste_t::remove(ding_t *ding, spieler_t *sp)
+dingliste_t::remove(ding_t *ding, spieler_t */*sp*/)
 {
 	uint8 i, number=0;
 	bool found = false;
@@ -419,6 +419,7 @@ dingliste_t::kann_alle_entfernen(const spieler_t *sp) const
 		}
 		return msg;
 	}
+	return NULL;
 }
 
 

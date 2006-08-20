@@ -248,7 +248,7 @@ wkz_lower(spieler_t *sp, karte_t *welt, koord pos)
 			// update image
 			for(int j=-1; j<=1; j++) {
 				for(int i=-1; i<=1; i++) {
-					if(welt->ist_in_gittergrenzen(pos.x+i,pos.y+j)  &&  welt->lookup(pos+koord(i,j))->gib_kartenboden()) {
+					if(welt->ist_in_kartengrenzen(pos.x+i,pos.y+j)  &&  welt->lookup(pos+koord(i,j))->gib_kartenboden()) {
 						welt->lookup(pos+koord(i,j))->gib_kartenboden()->calc_bild();
 					}
 				}
@@ -276,20 +276,22 @@ static void
 entferne_haltestelle(karte_t *welt, spieler_t *sp,
                      halthandle_t halt, koord3d pos)
 {
-	DBG_MESSAGE("entferne_haltestelle()","removing segment from %d,%d", pos.x, pos.y);
+DBG_MESSAGE("entferne_haltestelle()","removing segment from %d,%d,%d", pos.x, pos.y, pos.z);
 
 	grund_t *bd = welt->lookup(pos);
 
 	// Alle objekte entfernen
 	bd->obj_loesche_alle(sp);
-	halt->rem_grund(welt->lookup(pos.gib_2d())->gib_kartenboden());
+	halt->rem_grund(bd);
 
 	if(!halt->existiert_in_welt()) {
+DBG_DEBUG("entferne_haltestelle()","remove last");
 		// all deleted?
 		sp->halt_remove( halt );
 		haltestelle_t::destroy( halt );
 	}
 	else {
+DBG_DEBUG("entferne_haltestelle()","not last");
 		// may have been changed ...
 		halt->recalc_station_type();
 	}
@@ -335,25 +337,8 @@ DBG_MESSAGE("wkz_remover_intern()","at (%d,%d)", pos.x, pos.y);
 	     		}
 			gr = plan->gib_boden_bei(i);
 			// ok, something to remove from here ...
-			if(!gr->ist_bruecke()  &&  gr->obj_count()>0) {
+			if(gr->obj_count()>0  ||  (gr->hat_wege()  &&  (gr->gib_besitzer()==sp  ||  gr->gib_besitzer()==NULL))) {
 				break;
-			}
-			else if(i==0  &&  (gr->hat_wege()  ||  gr->obj_count()>0)  &&  gr->gib_besitzer()==sp) {
-				// still something to remove
-				break;
-			}
-			else if(i>0  &&  gr->gib_typ()==grund_t::monorailboden  &&  gr->gib_besitzer()==sp  &&  gr->obj_count()==0) {
-				// some upper ground (channel/monorail/...)
-				int cost_sum = gr->weg_entfernen(weg_t::schiene, true);
-				cost_sum += gr->weg_entfernen(weg_t::strasse, true);
-				cost_sum += gr->weg_entfernen(weg_t::wasser, true);
-
-				if(cost_sum > 0) {
-					sp->buche(cost_sum * CST_STRASSE, pos, COST_CONSTRUCTION);
-				}
-
-				plan->boden_entfernen( gr );
-				return true;
 			}
 		}
 	}
@@ -365,22 +350,9 @@ DBG_MESSAGE("wkz_remover_intern()","at (%d,%d)", pos.x, pos.y);
 	     			continue;
 	     		}
 			gr = plan->gib_boden_bei(i);
-			// ok, something to remove from here ...
-			if(!gr->ist_bruecke()  &&  gr->obj_count()>0) {
+			// ok, something to remove from here, if not null ...
+			if(gr->obj_count()>0  ||  (gr->hat_wege()  &&  (gr->gib_besitzer()==sp  ||  gr->gib_besitzer()==NULL))) {
 				break;
-			}
-			else if(i>0  &&  gr->gib_typ()==grund_t::monorailboden  &&  gr->gib_besitzer()==sp  &&  gr->obj_count()==0) {
-				// some upper ground (channel/monorail/...)
-				int cost_sum = gr->weg_entfernen(weg_t::schiene, true);
-				cost_sum += gr->weg_entfernen(weg_t::strasse, true);
-				cost_sum += gr->weg_entfernen(weg_t::wasser, true);
-
-				if(cost_sum > 0) {
-					sp->buche(cost_sum * CST_STRASSE, pos, COST_CONSTRUCTION);
-				}
-
-				plan->boden_entfernen( gr );
-				return true;
 			}
 		}
 	}
@@ -425,8 +397,8 @@ DBG_MESSAGE("wkz_remover()",  "removing roadsign %d,%d",  pos.x, pos.y);
 	}
 
 	// Haltestelle prüfen
-	halthandle_t halt = sp->is_my_halt( pos);
-	if( halt.is_bound() ) {
+	halthandle_t halt = gr->gib_halt();
+	if( halt.is_bound()  &&  (halt->gib_besitzer()==sp  ||  halt->gib_besitzer()==welt->gib_spieler(1))) {
 		entferne_haltestelle(welt, sp, halt, gr->gib_pos());
 		return true;
 	}
@@ -588,6 +560,7 @@ DBG_MESSAGE("wkz_remover()",  "removing everything from %d,%d,%d",gr->gib_pos().
 		}
 	}
 
+DBG_MESSAGE("wkz_remover()", "removing way");
 	/*
 	* Eigentlich müssen wir hier noch verhindern, daß ein Bahnhofsgebäude oder eine
 	* Bushaltestelle vereinzelt wird!
@@ -605,6 +578,7 @@ DBG_MESSAGE("wkz_remover()",  "removing everything from %d,%d,%d",gr->gib_pos().
 	if(cost_sum > 0) {
 		sp->buche(cost_sum * CST_STRASSE, pos, COST_CONSTRUCTION);
 	}
+DBG_MESSAGE("wkz_remover()", "check ground");
 
 	// now labels on water
 	// replacements of ground will give a grass tile
@@ -617,6 +591,14 @@ DBG_MESSAGE("wkz_remover()",  "removing everything from %d,%d,%d",gr->gib_pos().
 			plan->gib_kartenboden()->setze_besitzer(sp);
 		}
 	}
+
+	if(gr!=plan->gib_kartenboden()) {
+DBG_MESSAGE("wkz_remover()", "removing ground");
+		// remove upper or lower ground
+		plan->boden_entfernen(gr);
+//		delete gr;
+	}
+
 	return true;
 }
 
@@ -783,28 +765,38 @@ DBG_MESSAGE("wkz_post()", "building mail office/station building on square %d,%d
 		halthandle_t halt;
 
 		if(welt->ist_platz_frei(pos, size.x, size.y, NULL, slope_check)) {
-			hat_platz = true;
 			halt = suche_nahe_haltestelle(sp, welt, k, size.x, size.y);
+			hat_platz = halt.is_bound();
+			// try to connect to public stop ...
+			if(!hat_platz) {
+				halt = suche_nahe_haltestelle(welt->gib_spieler(1), welt, k, size.x, size.y);
+			}
+			hat_platz = halt.is_bound();
 		}
 
 		if(!hat_platz  &&  size.y != size.x && welt->ist_platz_frei(pos, size.y, size.x, NULL, slope_check)) {
 			halthandle_t halt2 = suche_nahe_haltestelle(sp, welt, k, size.y, size.x);
-			hat_platz = true;
-			if(halt2.is_bound()) {
-				if(halt.is_bound() || simrand(2) == 1) {
-					halt = halt2;
-					rotate = 1;
-				}
+			hat_platz = halt2.is_bound();
+
+			// try to connect to public stop ...
+			if(!hat_platz) {
+				halt2 = suche_nahe_haltestelle(welt->gib_spieler(1), welt, k, size.y, size.x);
+			}
+			hat_platz = halt2.is_bound();
+
+			if(hat_platz) {
+				halt = halt2;
+				rotate = 1;
 			}
 		}
 
 		// is there already a halt to connect?
-		if(halt.is_bound()) {
+		if(hat_platz) {
 			if(is_post  &&  halt->get_post_enabled()) {
 				create_win(-1, -1, MESG_WAIT, new nachrichtenfenster_t(welt, "Station already\nhas a post office!\n"), w_autodelete);
 			}
 			else {
-				hausbauer_t::baue(welt, sp, k, rotate, besch, true, &halt);
+				hausbauer_t::baue(welt, halt->gib_besitzer(), k, rotate, besch, true, &halt);
 				sp->buche(CST_POST, pos, COST_CONSTRUCTION * size.x * size.y);
 			}
 		}
@@ -845,10 +837,8 @@ wkz_lagerhaus(spieler_t *sp, karte_t *welt, koord pos)
     if(welt->ist_in_kartengrenzen(pos)) {
   bool can_build = (welt->lookup(pos)->gib_boden()->kann_alle_obj_entfernen(sp) == NULL);
 
-  halthandle_t halt;
-
   if( can_build ) {
-      halt = suche_nahe_haltestelle(sp, welt, pos);
+      halthandle_t halt = suche_nahe_haltestelle(sp, welt, pos);
 
       if(halt.is_bound()) {
     grund_t *gr = welt->lookup(pos)->gib_boden();
@@ -881,9 +871,15 @@ wkz_bahnhof_aux(spieler_t *sp,
 {
 	grund_t *bd = welt->lookup(pos);
 
-	if(bd->kann_alle_obj_entfernen(sp) == NULL && bd->gib_grund_hang() == 0) {
+	if(bd->kann_alle_obj_entfernen(sp)==NULL && bd->gib_grund_hang()==0) {
 		halthandle_t halt = suche_nahe_haltestelle(sp, welt, pos);
 		bool neu = !halt.is_bound();
+
+		// try to connect to public stop ...
+		if(neu) {
+			halt = suche_nahe_haltestelle(welt->gib_spieler(1), welt, pos);
+			neu = !halt.is_bound();
+		}
 
 		if(neu) {
 			DBG_MESSAGE("wkz_bahnhof_aux()", "founding new station");
@@ -892,10 +888,11 @@ wkz_bahnhof_aux(spieler_t *sp,
 		else {
 DBG_MESSAGE("wkz_bahnhof_aux()", "new segment for station");
 		}
+
 		halt->set_pax_enabled( true );
 		halt->set_ware_enabled( true );
 
-		hausbauer_t::neues_gebaeude(welt, sp, pos, nordsued ? 0 : 1, besch, &halt);
+		hausbauer_t::neues_gebaeude(welt, halt->gib_besitzer(), pos, nordsued ? 0 : 1, besch, &halt);
 		halt->recalc_station_type();
 
 		if(neu) {
@@ -943,7 +940,7 @@ wkz_bahnhof(spieler_t *sp, karte_t *welt, koord pos, value_t value)
 			return false;
 		}
 
-		if(bd->gib_besitzer() != sp) {
+		if(sp!=welt->gib_spieler(1)  &&  bd->gib_besitzer()!=sp) {
 			create_win(-1, -1, MESG_WAIT, new nachrichtenfenster_t(welt, "Die Schiene\ngehoert einem\nanderen Spieler!\n"), w_autodelete);
 			return false;
 		}
@@ -974,13 +971,19 @@ wkz_bushalt_aux(spieler_t *sp, karte_t *welt, koord pos, ribi_t::ribi ribi,const
 {
 	grund_t *bd = welt->lookup(pos)->gib_kartenboden();
 
-	if((bd->gib_besitzer() == sp || bd->gib_besitzer() == 0) &&
+	if((sp==welt->gib_spieler(1)  ||  bd->gib_besitzer() == sp || bd->gib_besitzer() == 0) &&
 		// bd->kann_alle_obj_entfernen(sp) == 0 &&
 		bd->gib_grund_hang() == 0 &&
 		(!bd->gib_halt().is_bound()  ||  bd->obj_bei(0)==0  ||  bd->obj_bei(0)->gib_typ()!=ding_t::gebaeude)
 	) {
 		halthandle_t halt = suche_nahe_haltestelle(sp,welt,bd->gib_pos());
 		bool neu = !halt.is_bound();
+
+		// try to connect to public stop ...
+		if(neu) {
+			halt = suche_nahe_haltestelle(welt->gib_spieler(1), welt, bd->gib_pos());
+			neu = !halt.is_bound();
+		}
 
 		if(neu) {
 			halt = sp->halt_add(pos);
@@ -991,8 +994,8 @@ DBG_MESSAGE("wkz_bushalt_aux()", "new segment for station");
 		}
 
 		halt->set_pax_enabled( true );
-		bd->setze_besitzer(sp);
-		hausbauer_t::neues_gebaeude( welt, sp, bd->gib_pos(), (ribi & ribi_t::nordsued)?0 :1, besch, &halt);
+		bd->setze_besitzer(halt->gib_besitzer());
+		hausbauer_t::neues_gebaeude( welt, halt->gib_besitzer(), bd->gib_pos(), (ribi & ribi_t::nordsued)?0 :1, besch, &halt);
 		halt->recalc_station_type();
 
 		if(neu) {
@@ -1050,35 +1053,6 @@ DBG_MESSAGE("wkz_bushalt()", "building bus stop on square %d,%d", pos.x, pos.y);
 
 
 
-#if 0
-static void dock_add_halt_grund_um(karte_t *welt, spieler_t *sp, halthandle_t halt, koord pos)
-{
-    assert(halt.is_bound());
-    koord k;
-
-    for(k.x=pos.x-1; k.x<=pos.x+1; k.x++) {
-  for(k.y=pos.y-1; k.y<=pos.y+1; k.y++) {
-      if(! halt->ist_da(k)) {
-    const planquadrat_t *plan = welt->lookup(k);
-
-    if(plan != NULL) {
-        grund_t *gr = plan->gib_kartenboden();
-
-        if(gr->ist_wasser() && !gr->gib_weg(weg_t::wasser)) {
-
-      gr->neuen_weg_bauen(new dock_t(welt), ribi_t::alle, sp);
-
-      halt->add_grund( gr );
-        }
-    }
-      }
-  }
-    }
-}
-#endif
-
-
-
 /* build a dock either small or large */
 int
 wkz_dockbau(spieler_t *sp, karte_t *welt, koord pos, value_t value)
@@ -1126,6 +1100,12 @@ DBG_MESSAGE("wkz_dockbau()","building dock from square (%d,%d) to (%d,%d)", pos.
 		halthandle_t halt = suche_nahe_haltestelle(sp, welt, welt->lookup(pos)->gib_kartenboden()->gib_pos() );
 		bool neu = !halt.is_bound();
 
+		// try to connect to public stop ...
+		if(neu) {
+			halt = suche_nahe_haltestelle(welt->gib_spieler(1), welt, welt->lookup(pos)->gib_kartenboden()->gib_pos());
+			neu = !halt.is_bound();
+		}
+
 		if(neu) { // neues dock
 			halt = sp->halt_add(pos);
 		}
@@ -1135,7 +1115,7 @@ DBG_MESSAGE("wkz_dockbau()","building dock from square (%d,%d) to (%d,%d)", pos.
 		// remove old ground below slope
 		welt->access(pos)->kartenboden_setzen(new boden_t(welt, welt->lookup(pos)->gib_kartenboden()->gib_pos()), false);
 
-		hausbauer_t::baue(welt, sp, bau_pos, layout,besch, 0, &halt);
+		hausbauer_t::baue(welt, halt->gib_besitzer(), bau_pos, layout,besch, 0, &halt);
 
 		for(int i=0;  i<=len;  i++ ) {
 			koord p=pos-dx*i;
@@ -1228,6 +1208,12 @@ DBG_MESSAGE("wkz_frachthof_aux()",     "called on %d,%d", pos.x, pos.y);
 		halthandle_t halt = suche_nahe_haltestelle(sp, welt, bd->gib_pos() );
 		bool neu = !halt.is_bound();
 
+		// try to connect to public stop ...
+		if(neu) {
+			halt = suche_nahe_haltestelle(welt->gib_spieler(1), welt, bd->gib_pos());
+			neu = !halt.is_bound();
+		}
+
 DBG_MESSAGE("wkz_frachthof_aux()","building loading bay on %d,%d", pos.x, pos.y);
 		if(neu) {
 			halt = sp->halt_add(pos);
@@ -1248,9 +1234,8 @@ DBG_MESSAGE("wkz_frachthof_aux()","Adding building to station %s", halt->gib_nam
 			case ribi_t::nord:  layout = 2;    break;
 			case ribi_t::west:  layout = 3;    break;
 		}
-		hausbauer_t::neues_gebaeude(
-				welt, sp, bd->gib_pos(), layout,
-				hausbauer_t::frachthof_besch, &halt);
+		hausbauer_t::neues_gebaeude( welt, halt->gib_besitzer(), bd->gib_pos(), layout, hausbauer_t::frachthof_besch, &halt);
+
 		halt->recalc_station_type();
 
 		if(neu) {

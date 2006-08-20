@@ -25,6 +25,8 @@
 
 #include "../boden/wege/weg.h"
 
+#include "intro_dates.h"
+
 /**
  * Vehicle type description - all attributes of a vehicle type
  *
@@ -212,28 +214,16 @@ public:
      * @return introduction year
      * @author Hj. Malthaner
      */
-    int get_intro_year() const {
-      return intro_date >> 4;
-    }
-
-    /**
-     * @return introduction month
-     * @author Hj. Malthaner
-     */
-    int get_intro_month() const {
-      return intro_date & 15;
+    uint16 get_intro_year_month() const {
+      return intro_date;
     }
 
     /**
      * @return time when obsolete
      * @author prissi
      */
-    int get_retire_year() const {
-      return obsolete_date >> 4;
-    }
-
-    int get_retire_month() const {
-      return obsolete_date & 15;
+    uint16 get_retire_year_month() const {
+      return obsolete_date;
     }
 
     /**

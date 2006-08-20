@@ -198,7 +198,7 @@ public:
     virtual int get_y_grid() const = 0;
     virtual int get_x_placement() const = 0;
     virtual int get_y_placement() const = 0;
-    virtual int get_max_convoi_length() const = 0;
+    virtual unsigned get_max_convoi_length() const = 0;
 
     /**
      * Öffnet ein neues Beobachtungsfenster für das Objekt.
@@ -292,7 +292,7 @@ public:
     int get_y_placement() const {return -28; }
     int get_x_grid() const { return 24; }
     int get_y_grid() const { return 24; }
-    int get_max_convoi_length() const { return convoi_t::max_rail_vehicle; }
+    unsigned get_max_convoi_length() const { return convoi_t::max_rail_vehicle; }
 
     /**
      * Access to vehicle types which can be bought in the depot.
@@ -362,7 +362,7 @@ public:
     int get_y_placement() const { return -25; }
     int get_x_grid() const { return 24; }
     int get_y_grid() const { return 24; }
-    int get_max_convoi_length() const { return 4; }
+    unsigned get_max_convoi_length() const { return 4; }
 
     enum ding_t::typ gib_typ() const {return strassendepot;};
     const char *gib_name() const;
@@ -424,7 +424,7 @@ public:
     int get_y_placement() const {return -11;};
     int get_x_grid() const { return 60; }
     int get_y_grid() const { return 46; }
-    int get_max_convoi_length() const { return 4; }
+    unsigned get_max_convoi_length() const { return 4; }
 
 
     enum ding_t::typ gib_typ() const {return schiffdepot;};

@@ -505,7 +505,7 @@ blockmanager::baue_neues_signal(karte_t *welt,
 const char *
 blockmanager::baue_andere_signale(koord3d pos1, koord3d pos2,
                                   schiene_t *sch1, schiene_t *sch2,
-                                  ribi_t::ribi ribi, bool presignal)
+                                  ribi_t::ribi ribi, bool /*presignal*/)	// will find out of the signal type anyway
 {
     const ribi_t::ribi rueck = ribi_t::rueckwaerts(ribi);
 

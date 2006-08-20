@@ -531,17 +531,17 @@ void depot_frame_t::setze_fenstergroesse( koord gr )
 
 
 // true if future
-bool depot_frame_t::is_future(const vehikel_besch_t *info,const int month_now)
+bool depot_frame_t::is_future(const vehikel_besch_t *info,const uint16 month_now)
 {
-	const int intro_month = info->get_intro_year() * 12 + info->get_intro_month();
-	return welt->use_timeline()  &&  intro_month > month_now;
+	const int intro_month = info->get_intro_year_month();
+	return month_now  &&  intro_month > month_now;
 }
 
 // true if obsolete
-bool depot_frame_t::is_retired(const vehikel_besch_t *info,const int month_now)
+bool depot_frame_t::is_retired(const vehikel_besch_t *info,const uint16 month_now)
 {
-	const int retire_month = info->get_retire_year() * 12 + info->get_retire_month();
-	return welt->use_timeline()  &&  retire_month <= month_now;
+	const int retire_month = info->get_retire_year_month();
+	return month_now  &&  retire_month <= month_now;
 }
 
 // true if already stored here
@@ -563,7 +563,7 @@ bool depot_frame_t::is_contained(const vehikel_besch_t *info)
 
 void depot_frame_t::build_vehicle_lists()
 {
-	const int month_now = welt->get_current_month();
+	const int month_now = welt->get_timeline_year_month();
 	int i = 0;
 
 	if(waggons_vec == 0) {
@@ -1279,14 +1279,14 @@ depot_frame_t::draw_vehicle_info_text(koord pos)
     if(veh_type) {
       int n = sprintf(buf, "%s %s %04d\n",
 		      translator::translate("Intro. date:"),
-		      translator::translate(month_names[veh_type->get_intro_month()]),
-		      veh_type->get_intro_year() );
+		      translator::translate(month_names[veh_type->get_intro_year_month()%12]),
+		      veh_type->get_intro_year_month()/12 );
 
-      if(veh_type->get_retire_year() !=2999) {
+      if(veh_type->get_retire_year_month() !=DEFAULT_RETIRE_DATE*12) {
       n += sprintf(buf+n, "%s %s %04d\n",
 		      translator::translate("Retire. date:"),
-		      translator::translate(month_names[veh_type->get_retire_month()]),
-		      veh_type->get_retire_year() );
+		      translator::translate(month_names[veh_type->get_retire_year_month()%12]),
+		      veh_type->get_retire_year_month()/12 );
       }
 
       if(veh_type->gib_leistung() > 0) {

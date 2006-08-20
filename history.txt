@@ -7,6 +7,28 @@ Known bugs: (hard to fix)
 	sorting factories has an umlaute problem
 
 
+
+Release of 86.10.5
+
+16-Oct-2005 (prissi)
+	FIX: time now corrected after loading (no jumps)
+	CHANGE: city takes over city road ownership
+	CHANGE: growth now size dependent (max 1.67 for <1000, max. 3 for <1000, max. 6 for other)
+	FIX: good distribution always, when more than 10 produced: non-distributing factories should be gone
+	FIX: passenger and mail coverage display fixed
+	FIX: connection from factories and town were assymetric and only passengers went to the last factory in the list
+	CHANGE: train can drive now on any track (also on public owned roadcrossings ...)
+15-Oct-2005 (prissi)
+	FIX: deleting upper and lower objects tweaked a little
+	FIX: also now deleting of tram rail on a road works out
+	ADD: public stops for player 1 can be now constructed everywhere. New tiles of this stop will be also public.
+14-Oct-2005 (prissi)
+	FIX: timeline can be also altered afterwards on non-locked maps
+	FIX: crash when lowering land at the lower right border
+	CHANGE: selection of next building now via "chance=" (default 100)
+	CHANGE: timeline enforced for ways, bridges, and buildings incl. stations and attractions (new makeobj needed, support now fully retire_year/retire_month and intro_year/intro_month)
+
+
 Release of 86.10.4
 
 13-Oct-2005 (prissi)
@@ -23,7 +45,7 @@ Release of 86.10.4
 	CHANGE: for you ariabic and hebrew writers and all brainwashed by gates: close button configurable to the right (goes best with Win98 skin ... )
 	ADD: timeline, starting year and cheating mode can be set in the starting menue (and will be fixed further one, allowing for competitions)
 	ADD: new edit tool to protect a map from further change
-	CHANGE: new spanish, portugese and dutch translation for 64 set
+	CHANGE: new spanish, portugese, czech, and dutch translation for 64 set
 	CHANGE: further reordering of deletion order ...
 	FIX: if factories were connected via station areas, goods disappeared ...
 

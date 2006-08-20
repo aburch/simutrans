@@ -125,8 +125,8 @@ public:
      * @author priss
      */
     static void fill_menu(werkzeug_parameter_waehler_t *wzw,
-        weg_t::typ wtyp,
-        int sound_ok, int sound_ko);
+        const weg_t::typ wtyp,
+        const int sound_ok, const int sound_ko,const uint16 time);
 };
 
 

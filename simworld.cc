@@ -817,6 +817,12 @@ DBG_DEBUG("karte_t::init()","built timeline");
 DBG_DEBUG("karte_t::init()","hausbauer_t::neue_karte()");
     hausbauer_t::neue_karte();
 
+	// make sure, we have a city road ...
+	city_road = wegbauer_t::gib_besch(umgebung_t::city_road_type->chars(),get_timeline_year_month());
+	if(!city_road) {
+		city_road = wegbauer_t::weg_search(weg_t::strasse,30,get_timeline_year_month());
+	}
+
 DBG_DEBUG("karte_t::init()","prepare cities");
 	stadt = new weighted_vector_tpl <stadt_t *>(0);
 	vector_tpl<koord> *pos = stadt_t::random_place(this, einstellungen->gib_anzahl_staedte());
@@ -829,9 +835,14 @@ DBG_DEBUG("karte_t::init()","prepare cities");
 		setze_ij_off(pos->at(0) + koord(-8, -8));
 
 		for(i=0; i<einstellungen->gib_anzahl_staedte(); i++) {
-			int citizens=(int)(einstellungen->gib_mittlere_einwohnerzahl()*0.9);
+
+//			int citizens=(int)(einstellungen->gib_mittlere_einwohnerzahl()*0.9);
+//			citizens = citizens/10+simrand(2*citizens+1);
+
+			int current_citicens = (2500l * einstellungen->gib_mittlere_einwohnerzahl()) /(simrand(20000)+100);
+
+			stadt_t *s = new stadt_t(this, spieler[1], pos->at(i), current_citicens );
 	DBG_DEBUG("karte_t::init()","Erzeuge stadt %i",i);
-			stadt_t *s = new stadt_t(this, spieler[1], pos->at(i), citizens/10+simrand(2*citizens+1) );
 			stadt->append( s, s->gib_einwohner(), 64 );
 
 			if(is_display_init()) {
@@ -847,8 +858,8 @@ DBG_DEBUG("karte_t::init()","prepare cities");
 		const weg_besch_t * besch = wegbauer_t::gib_besch(umgebung_t::intercity_road_type->chars());
 		if(besch == 0) {
 			dbg->warning("karte_t::init()","road type '%s' not found",umgebung_t::intercity_road_type->chars());
-			// Hajo: try some default
-			besch = wegbauer_t::gib_besch("asphalt_road");
+			// Hajo: try some default (might happen with timeline ... )
+			besch = wegbauer_t::weg_search(weg_t::strasse,80,get_timeline_year_month());
 		}
 
 		// Hajo: No owner so that roads can be removed!
@@ -977,6 +988,8 @@ karte_t::karte_t() : ausflugsziele(16), marker(0,0)
 		sets->setze_karte_nummer( 33 );
 		sets->setze_station_coverage( umgebung_t::station_coverage_size );
 	}
+
+	sets->setze_starting_year( umgebung_t::starting_year );
 
 	stadt = 0;
 	zeiger = 0;
@@ -1802,8 +1815,16 @@ karte_t::neuer_monat()
 	if(letzter_monat>11) {
 		letzter_monat = 0;
 	}
-
 	DBG_MESSAGE("karte_t::neuer_monat()","Month %d has started", letzter_monat);
+
+	const weg_besch_t *city_road_test = wegbauer_t::gib_besch(umgebung_t::city_road_type->chars(),get_timeline_year_month());
+	if(city_road_test) {
+		city_road = city_road_test;
+	}
+	else {
+		city_road = wegbauer_t::weg_search(weg_t::strasse,30,get_timeline_year_month());
+	}
+	INT_CHECK("simworld 1701");
 
 	// change grounds to winter?
 	const int current_season=(2+letzter_monat/3)&3; // summer always zero
@@ -1812,6 +1833,8 @@ karte_t::neuer_monat()
 		boden_t::toggle_season( current_season );
 //		setze_dirty();
 	}
+
+	INT_CHECK("simworld 1701");
 
 	// hsiegeln - call new month for convois
 	slist_iterator_tpl<convoihandle_t> citer (convoi_list);
@@ -1827,8 +1850,8 @@ karte_t::neuer_monat()
 		fabrik_t * fab = iter.get_current();
 		fab->neuer_monat();
 	}
-
 	INT_CHECK("simworld 1278");
+
 
 	// roll city history and copy the new citicens (i.e. the new weight) into the stadt array
 	// no INT_CHECK() here, or dialoges will go crazy!!!
@@ -1837,6 +1860,7 @@ karte_t::neuer_monat()
 		stadt_t *s = stadt->at(i);
 		s->neuer_monat();
 		new_weighted_stadt->append( s, s->gib_einwohner(), 64 );
+		INT_CHECK("simworld 1278");
 	}
 	delete stadt;
 	stadt = new_weighted_stadt;
@@ -1855,6 +1879,7 @@ karte_t::neuer_monat()
 	slist_iterator_tpl <halthandle_t> halt_iter (haltestelle_t::gib_alle_haltestellen());
 	while( halt_iter.next() ) {
 		halt_iter.get_current()->neuer_monat();
+		INT_CHECK("simworld 1877");
 	}
 
 	stadtauto_t::built_timeline_liste();
@@ -1867,6 +1892,7 @@ karte_t::neuer_monat()
 	while( weg_iter.next() ) {
 		weg_iter.get_current()->neuer_monat();
 	}
+	INT_CHECK("simworld 1890");
 
 	// prissi: check for new/retired vehicles
 	if(use_timeline()) {
@@ -1878,7 +1904,7 @@ karte_t::neuer_monat()
 			while((info = vehikelbauer_t::gib_info((weg_t::typ)i, j))) {
 				j++;
 
-				const int intro_month =info->get_intro_year() * 12 + info->get_intro_month();
+				const uint16 intro_month = info->get_intro_year_month();
 				if(intro_month == current_month) {
 					sprintf(buf,
 						translator::translate("New vehicle now available:\n%s\n"),
@@ -1886,7 +1912,7 @@ karte_t::neuer_monat()
 						message_t::get_instance()->add_message(buf,koord::invalid,message_t::new_vehicle,NEW_VEHICLE,info->gib_basis_bild());
 				}
 
-				const int retire_month =info->get_retire_year() * 12 + info->get_retire_month();
+				const uint16 retire_month = info->get_retire_year_month();
 				if(retire_month == current_month) {
 					sprintf(buf,
 						translator::translate("Production of vehicle has been stopped:\n%s\n"),
@@ -1897,6 +1923,7 @@ karte_t::neuer_monat()
 			}
 		}
 	}
+	INT_CHECK("simworld 1921");
 
 	if(umgebung_t::autosave>0  &&  letzter_monat%umgebung_t::autosave==0) {
 		char buf[128];
@@ -2435,10 +2462,15 @@ void karte_t::laden(loadsave_t *file)
     // Datenstrukturen loeschen
     destroy();
 
-    // jetzt geht das laden los
-    DBG_MESSAGE("karte_t::laden", "Fileversion: %d", file->get_version());
-    einstellungen->rdwr(file);
-    DBG_DEBUG("karte_t::laden", "einstellungen loaded (groesse %i,%i)",einstellungen->gib_groesse_x(),einstellungen->gib_groesse_y());
+	// jetzt geht das laden los
+	DBG_MESSAGE("karte_t::laden", "Fileversion: %d", file->get_version());
+	einstellungen->rdwr(file);
+	if(einstellungen->gib_allow_player_change()  &&  umgebung_t::use_timeline!=2) {
+		// not locked => eventually switch off timeline settings, if explicitly stated
+		einstellungen->setze_use_timeline( umgebung_t::use_timeline );
+		DBG_DEBUG("karte_t::laden", "timeline: reset to %i", umgebung_t::use_timeline );
+	}
+	DBG_DEBUG("karte_t::laden", "einstellungen loaded (groesse %i,%i)",einstellungen->gib_groesse_x(),einstellungen->gib_groesse_y());
 
     // wird gecached, um den Pointerzugriff zu sparen, da
     // die groesse _sehr_ oft referenziert wird
@@ -2472,6 +2504,9 @@ DBG_DEBUG("karte_t::laden()","grundwasser %i",grundwasser);
 	steps = 0;
 
 	DBG_MESSAGE("karte_t::laden()","savegame loading at tick count %i",ticks);
+
+	DBG_DEBUG("karte_t::laden()","built timeline for citycars");
+	stadtauto_t::built_timeline_liste();
 
     DBG_DEBUG("karte_t::laden", "init %i cities",einstellungen->gib_anzahl_staedte());
     stadt = new weighted_vector_tpl <stadt_t *> (einstellungen->gib_anzahl_staedte());
@@ -2718,7 +2753,18 @@ DBG_DEBUG("karte_t::laden()","grundwasser %i",grundwasser);
 		iter.get_current()->rebuild_destinations();
 	}
 
-    intr_enable();
+    // Reset timers
+    sync_last_time_now();
+    intr_set_last_time(get_system_ms());
+    last_step_time = get_current_time_millis();
+
+    // Hajo: this actually is too conservative but the correct
+    // solution is way too difficult for a simple pause function ...
+	// init for a good separation
+	for(int i=0; i<GRUPPEN; i++) {
+		step_group_times[i] = (350*i)/GRUPPEN;
+	}
+	intr_enable();
 }
 
 // Hilfsfunktionen zum Speichern
@@ -3041,7 +3087,7 @@ void karte_t::switch_active_player()
 			  translator::translate("Shrink city") );
 
 		// cityroads
-		const weg_besch_t *besch = wegbauer_t::gib_besch(umgebung_t::city_road_type->chars());
+		const weg_besch_t *besch = get_city_road();
 		if(besch!=NULL) {
 			sprintf(buf, "%s, %d$ (%d$), %dkm/h",
 				translator::translate(besch->gib_name()),
@@ -3225,7 +3271,7 @@ karte_t::interactive_event(event_t &ev)
 */
 	case 's':
 	    if(default_road==NULL) {
-			default_road = wegbauer_t::gib_besch("asphalt_road");
+			default_road = wegbauer_t::weg_search(weg_t::strasse,90,get_timeline_year_month());
 	    }
 	    setze_maus_funktion(wkz_wegebau, default_road->gib_cursor()->gib_bild_nr(0), Z_PLAN, (long)default_road, 0, 0);
 	    break;
@@ -3235,7 +3281,7 @@ karte_t::interactive_event(event_t &ev)
 	    break;
 	case 't':
 	    if(default_track==NULL) {
-			default_track = wegbauer_t::gib_besch("wooden_sleeper_track");
+			default_track = default_road = wegbauer_t::weg_search(weg_t::schiene,100,get_timeline_year_month());
 	    }
 	    setze_maus_funktion(wkz_wegebau, default_track->gib_cursor()->gib_bild_nr(0), Z_PLAN,	(long)default_track, 0, 0);
 	    break;
@@ -3509,7 +3555,8 @@ karte_t::interactive_event(event_t &ev)
 					  weg_t::schiene,
 					  wkz_wegebau,
 					  SFX_JACKHAMMER,
-					  SFX_FAILURE
+					  SFX_FAILURE,
+					  get_timeline_year_month()
 					  );
 
 		    wzw->add_tool(wkz_electrify_block,
@@ -3523,7 +3570,8 @@ karte_t::interactive_event(event_t &ev)
 		    brueckenbauer_t::fill_menu(wzw,
 					  weg_t::schiene,
 					  SFX_JACKHAMMER,
-					  SFX_FAILURE
+					  SFX_FAILURE,
+  					  get_timeline_year_month()
 					  );
 
 		    if(tunnelbauer_t::schienentunnel) {
@@ -3558,7 +3606,8 @@ karte_t::interactive_event(event_t &ev)
 					  wkz_bahnhof,
 					  SFX_JACKHAMMER,
 					  SFX_FAILURE,
-					  CST_BAHNHOF);
+					  CST_BAHNHOF,
+  					  get_timeline_year_month() );
 
 		    if(hausbauer_t::bahn_depot_besch) {
 		      wzw->add_tool(wkz_bahndepot,
@@ -3586,13 +3635,15 @@ karte_t::interactive_event(event_t &ev)
 					  weg_t::strasse,
 					  wkz_wegebau,
 					  SFX_JACKHAMMER,
-					  SFX_FAILURE
+					  SFX_FAILURE,
+					  get_timeline_year_month()
 					  );
 
 		    brueckenbauer_t::fill_menu(wzw,
 					  weg_t::strasse,
 					  SFX_JACKHAMMER,
-					  SFX_FAILURE
+					  SFX_FAILURE,
+					  get_timeline_year_month()
 					  );
 
 		    if(tunnelbauer_t::strassentunnel) {
@@ -3617,7 +3668,8 @@ karte_t::interactive_event(event_t &ev)
 					  wkz_bushalt,
 					  SFX_JACKHAMMER,
 					  SFX_FAILURE,
-					  CST_BUSHALT);
+					  CST_BUSHALT,
+  					  get_timeline_year_month() );
 
 		    if(hausbauer_t::frachthof_besch) {
 		      wzw->add_tool(wkz_frachthof,
@@ -3656,7 +3708,8 @@ karte_t::interactive_event(event_t &ev)
 					  wkz_dockbau,
 					  SFX_JACKHAMMER,
 					  SFX_FAILURE,
-					  CST_DOCK);
+					  CST_DOCK,
+					  get_timeline_year_month() );
 
 		    if(hausbauer_t::sch_depot_besch) {
 			    wzw->add_param_tool(wkz_schiffdepot,
@@ -3694,6 +3747,7 @@ karte_t::interactive_event(event_t &ev)
 					wkz_wegebau,
 					SFX_JACKHAMMER,
 					SFX_FAILURE,
+					get_timeline_year_month(),
 					7
 				);
 
@@ -3727,14 +3781,16 @@ karte_t::interactive_event(event_t &ev)
 						  wkz_bahnhof,
 						  SFX_JACKHAMMER,
 						  SFX_FAILURE,
-						  CST_BAHNHOF);
+						  CST_BAHNHOF,
+						  get_timeline_year_month() );
 
 		    hausbauer_t::fill_menu(wzw,
 					  hausbauer_t::car_stops,
 					  wkz_bushalt,
 					  SFX_JACKHAMMER,
 					  SFX_FAILURE,
-					  CST_BUSHALT);
+					  CST_BUSHALT,
+					  get_timeline_year_month() );
 
 				wzw->add_tool(wkz_tramdepot,
 					Z_PLAN,
@@ -3775,14 +3831,16 @@ karte_t::interactive_event(event_t &ev)
 					  wkz_post,
 					  SFX_JACKHAMMER,
 					  SFX_FAILURE,
-					  CST_POST);
+					  CST_POST,
+					  get_timeline_year_month() );
 
 		    hausbauer_t::fill_menu(wzw,
 					  hausbauer_t::station_building,
 					  wkz_station_building,
 					  SFX_JACKHAMMER,
 					  SFX_FAILURE,
-					  CST_POST);
+					  CST_POST,
+					  get_timeline_year_month() );
 
 		      wzw->add_tool(wkz_switch_player,
 					  Z_PLAN,

@@ -19,6 +19,8 @@ Stichpunkte
 - Monorail als Brückenstrecke: done
 - Fabrikliste: done
 
+- timeline/distribution für Gebäude: halfway
+- Bahnhöfe auf Brücken: halfway
 
 - Sehenwürdigkeitenliste
 - Landfabrik alle x Jahre/Fakriken
@@ -26,9 +28,10 @@ Stichpunkte
 - Brücken an senkrechten Wänden
 - Felder: Grafiken da, fehlt noch code (vielleicht wie Wälder?)
 - schönerer Jahreszeitenwechsel
-- Bahnhöfe auf Brücken
 - Winter höhenabhängig?
+- Gebäude gleichen Levels sollten nicht mehr wechseln wenn renoviert
 
+- Stadtwachstum abhängig von größe: bis 1000/6  bis 5000/4  bis 25000/2  dann normal
 
 Immer zu tun:
 - Aufräumen von Datentypen für bessere Portierbarkeit

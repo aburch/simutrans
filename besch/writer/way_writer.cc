@@ -90,16 +90,17 @@ void way_writer_t::write_obj(FILE *outfp, obj_node_t &parent, tabfileobj_t &obj)
 
     // Hajo: Version needs high bit set as trigger -> this is required
     //       as marker because formerly nodes were unversionend
-    uint16 version = 0x8001;
+    uint16 version = 0x8002;
     uint32 price =      obj.get_int("cost", 100);
     uint32 maintenance= obj.get_int("maintenance", 100);
     uint32 topspeed =   obj.get_int("topspeed", 999);
     uint32 max_weight = obj.get_int("max_weight", 999);
 
-    // Hajodoc: Introduction date (year*16+month)
-    // Hajoval: int
-    uint32 intro  = obj.get_int("intro_year", 1900) * 16;
+    uint16 intro  = obj.get_int("intro_year", DEFAULT_INTRO_DATE) * 12;
     intro +=        obj.get_int("intro_month", 1) - 1;
+
+    uint16 retire  = obj.get_int("retire_year", DEFAULT_RETIRE_DATE) * 12;
+    intro +=        obj.get_int("retire_month", 1) - 1;
 
     uint8 wtyp =    get_waytype(obj.get("waytype"), obj.get("name"));
     uint8 styp =    obj.get_int("system_type", 0);
@@ -110,6 +111,7 @@ void way_writer_t::write_obj(FILE *outfp, obj_node_t &parent, tabfileobj_t &obj)
     node.write_data_at(outfp, &topspeed, 10, 4);
     node.write_data_at(outfp, &max_weight, 14, 4);
     node.write_data_at(outfp, &intro, 18, 4);
+    node.write_data_at(outfp, &retire, 20, 2);
     node.write_data_at(outfp, &wtyp, 22, 1);
     node.write_data_at(outfp, &styp, 23, 1);
 

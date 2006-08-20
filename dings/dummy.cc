@@ -30,7 +30,7 @@ dummy_ding_t::dummy_ding_t(karte_t *welt, loadsave_t *file) :
 	step_frequency = 0;
 }
 
-dummy_ding_t::dummy_ding_t(karte_t *welt, koord3d pos, spieler_t *sp) :
+dummy_ding_t::dummy_ding_t(karte_t *welt, koord3d pos, spieler_t *) :
     ding_t(welt, pos)
 {
 	step_frequency = 0;

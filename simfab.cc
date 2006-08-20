@@ -132,7 +132,6 @@ fabrik_t::fabrik_t(karte_t *wl, loadsave_t *file) : lieferziele(0), suppliers(0)
 	besitzer_p = NULL;
 
 	rdwr(file);
-	aktionszeit = welt->gib_zeit_ms() + 8192;
 
 	delta_sum = 0;
 	last_lieferziel_start = 0;
@@ -155,8 +154,6 @@ fabrik_t::fabrik_t(karte_t *wl, koord3d pos, spieler_t *spieler, const fabrik_be
 
     abgabe_sum = NULL;
     abgabe_letzt = NULL;
-
-    aktionszeit = 0;
 
     delta_sum = 0;
     last_lieferziel_start = 0;
@@ -443,8 +440,8 @@ DBG_DEBUG("fabrik_t::rdwr()","correction of production by %i",k.x*k.y);
 			besitzer_p = welt->gib_spieler(1);
 		}
 		else {
-		// Restore owner pointer
-		besitzer_p = welt->gib_spieler(spieler_n);
+			// Restore owner pointer
+			besitzer_p = welt->gib_spieler(spieler_n);
 		}
 	}
 
@@ -729,20 +726,17 @@ fabrik_t::step(long delta_t)
 		}
 	}
 
-	// verteilung frühestens alle 8 sekunden
-	if(welt->gib_zeit_ms() > aktionszeit) {
-		aktionszeit = welt->gib_zeit_ms() + 8192;
+	// distribute, if there are more than 10 waiting ...
+	for(uint32 produkt = 0; produkt < ausgang->get_count(); produkt ++) {
+		if(ausgang->at(produkt).menge > (10<<precision_bits)) {
 
-		for(uint32 produkt = 0; produkt < ausgang->get_count(); produkt ++) {
-			if(ausgang->at(produkt).menge > (10<<precision_bits)) {
-
-				verteile_waren(produkt);
-				INT_CHECK("simfab 636");
-			}
+			verteile_waren(produkt);
+			INT_CHECK("simfab 636");
 		}
-		// to distribute to all target equally, we use this counter, for the factory, to try first
-		last_lieferziel_start ++;
 	}
+
+	// to distribute to all target equally, we use this counter, for the factory, to try first
+	last_lieferziel_start ++;
 
 }
 
@@ -766,7 +760,6 @@ void fabrik_t::verteile_waren(const uint32 produkt)
 
 	slist_tpl<halthandle_t> halt_ok;
 	slist_tpl<ware_t> ware_ok;
-	int min_vorrat = 0x7FFFFFFF;
 	bool still_overflow = true;
 
 	// ok, first send everything away
@@ -818,7 +811,7 @@ void fabrik_t::verteile_waren(const uint32 produkt)
 				}
 				else {
 					// Station too full, notify player
-					halt->gib_besitzer()->bescheid_station_voll(halt);
+					halt->bescheid_station_voll();
 				}
 			}
 		}

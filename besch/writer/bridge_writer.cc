@@ -79,7 +79,7 @@ static uint8 get_waytype (const char * waytype, const char * obj_name)
 void bridge_writer_t::write_obj(FILE *outfp, obj_node_t &parent, tabfileobj_t &obj)
 {
     // Hajo: node size is 14 bytes
-    obj_node_t	node(this, 15, &parent, false);
+    obj_node_t	node(this, 19, &parent, false);
 
     uint8 wegtyp = get_waytype(obj.get("waytype"), obj.get("name"));
 
@@ -88,6 +88,13 @@ void bridge_writer_t::write_obj(FILE *outfp, obj_node_t &parent, tabfileobj_t &o
     uint32 maintenance= obj.get_int("maintenance", 1000);
     uint8 pillars_every = obj.get_int("pillar_distance",0);	// distance==0 is off
     uint8 max_lenght = obj.get_int("max_lenght",0);	// max_lenght==0: unlimited
+
+    // prissi: timeline
+    uint16 intro_date  = obj.get_int("intro_year", DEFAULT_INTRO_DATE) * 12;
+    intro_date += obj.get_int("intro_month", 1) - 1;
+
+    uint16 obsolete_date  = obj.get_int("retire_year", DEFAULT_RETIRE_DATE) * 12;
+    obsolete_date += obj.get_int("retire_month", 1) - 1;
 
     // Hajo: Version needs high bit set as trigger -> this is required
     //       as marker because formerly nodes were unversionend
@@ -100,6 +107,8 @@ void bridge_writer_t::write_obj(FILE *outfp, obj_node_t &parent, tabfileobj_t &o
     node.write_data_at(outfp, &wegtyp, 12, 1);
     node.write_data_at(outfp, &pillars_every, 13, 1);
     node.write_data_at(outfp, &max_lenght, 14, 1);
+    node.write_data_at(outfp, &intro_date, 15, sizeof(uint16));
+    node.write_data_at(outfp, &obsolete_date, 17, sizeof(uint16));
 
 
     static const char * names[] = {

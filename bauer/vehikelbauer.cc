@@ -313,7 +313,7 @@ DBG_MESSAGE( "vehikelbauer_t::vehikel_search()","for speed %i, power %i",target_
     // check for wegetype
     if(iter.get_current_value()->gib_typ()==typ) {
       // ok, might be useful: Now, check for intro year
-      const unsigned month = iter.get_current_value()->get_intro_year() * 12 + iter.get_current_value()->get_intro_month();
+      const unsigned month = iter.get_current_value()->get_intro_year_month();
 
       if(month <= month_now) {
         // finally, we might be able to use this vehicle
@@ -429,7 +429,7 @@ const vehikel_besch_t *vehikelbauer_t::vehikel_fuer_leistung(int leistung, weg_t
     ) {
 DBG_MESSAGE( "vehikelbauer_t::vehikel_fuer_leistung()","%s: vorgaenger %i nachfolger %i",iter.get_current_value()->gib_name(),iter.get_current_value()->gib_vorgaenger_count(),iter.get_current_value()->gib_nachfolger_count());
       // ok, might be useful: Now, check for intro year
-      const unsigned month = iter.get_current_value()->get_intro_year() * 12 + iter.get_current_value()->get_intro_month();
+      const unsigned month = iter.get_current_value()->get_intro_year_month();
 
       if(month <= month_now) {
         // finally, we might be able to use this vehicle

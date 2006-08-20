@@ -258,6 +258,7 @@ private:
     bool pax_enabled;
     bool post_enabled;
     bool ware_enabled;
+    bool station_crowded;	// flag, if overflowing ...
 
 
     /**
@@ -487,7 +488,7 @@ public:
     void setze_lager(lagerhaus_t *l) {lager = l;};
 #endif
     bool add_grund(grund_t *gb);
-    void rem_grund(grund_t *gb,bool final=false);
+    void rem_grund(grund_t *gb);
 
     int gib_grund_count() const {return grund.count();};
 
@@ -672,6 +673,8 @@ public:
      */
     sint64 get_finance_history(int month, int cost_type) { return financial_history[month][cost_type]; };
 
+	// flags station for a crowded message at the beginning of next month
+	void bescheid_station_voll() { station_crowded = true; };
 };
 
 

@@ -49,8 +49,8 @@ void stadtauto_t::built_timeline_liste()
 		slist_iterator_tpl <const stadtauto_besch_t *> iter (liste);
 		while(iter.next()) {
 			const stadtauto_besch_t *info = iter.get_current();
-			const int intro_month = info->get_intro_year() * 12 + info->get_intro_month();
-			const int retire_month = info->get_retire_year() * 12 + info->get_retire_month();
+			const int intro_month = info->get_intro_year_month();
+			const int retire_month = info->get_retire_year_month();
 
 //DBG_DEBUG("stadtauto_t::built_timeline_liste()","iyear=%i, imonth=%i", intro_month/12, intro_month%12+1);
 //DBG_DEBUG("stadtauto_t::built_timeline_liste()","ryear=%i, rmonth=%i", retire_month/12, retire_month%12+1);
@@ -114,6 +114,9 @@ stadtauto_t::stadtauto_t(karte_t *welt, koord3d pos)
  : verkehrsteilnehmer_t(welt, pos)
 {
 	besch = liste_timeline.gib_gewichted(simrand(liste_timeline.gib_gesamtgewicht()));
+	if(!besch) {
+		besch = liste.gib_gewichted(simrand(liste.gib_gesamtgewicht()));
+	}
 	time_to_life = umgebung_t::stadtauto_duration;
 	current_speed = 48;
 	step_frequency = 0;
@@ -153,8 +156,12 @@ void stadtauto_t::rdwr(loadsave_t *file)
 		besch = table.get(s);
 
 		if(besch == 0 && liste_timeline.count() > 0) {
-			dbg->warning("stadtauto_t::rdwr()", "Object '%s' not found in table, trying first stadtauto object type",s);
+			dbg->warning("stadtauto_t::rdwr()", "Object '%s' not found in table, trying random stadtauto object type",s);
 			besch = liste_timeline.gib_gewichted(simrand(liste_timeline.gib_gesamtgewicht()));
+		}
+		if(besch == 0 && liste.count() > 0) {
+			dbg->warning("stadtauto_t::rdwr()", "Object '%s' not found in table, trying random stadtauto object type",s);
+			besch = liste.gib_gewichted(simrand(liste.gib_gesamtgewicht()));
 		}
 		guarded_free(const_cast<char *>(s));
 

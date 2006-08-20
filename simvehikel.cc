@@ -1491,11 +1491,8 @@ waggon_t::ist_befahrbar(const grund_t *bd) const
   const schiene_t * sch = dynamic_cast<const schiene_t *> (bd->gib_weg(weg_t::schiene));
 
   // Hajo: diesel and steam engines can use electrifed track as well.
-
-  const bool ok =
-    sch != 0 &&
-    (besch->get_engine_type() == vehikel_besch_t::electric ? sch->ist_elektrisch() : true) &&
-    bd->gib_besitzer() == gib_besitzer();
+  // also allow driving on foreign tracks ...
+  const bool ok = sch != 0 && (besch->get_engine_type() == vehikel_besch_t::electric ? sch->ist_elektrisch() : true);
 
   return ok;
 }

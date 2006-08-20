@@ -124,15 +124,19 @@ obj_besch_t * bridge_reader_t::read_node(FILE *fp, obj_node_info_t &node)
   const uint16 v = decode_uint16(p);
   const int version = v & 0x8000 ? v & 0x7FFF : 0;
 
+	// some defaults
+	besch->maintenance = 800;
+	besch->pillars_every = 0;
+	besch->max_length = 0;
+	besch->intro_date = DEFAULT_INTRO_DATE*12;
+	besch->obsolete_date = DEFAULT_RETIRE_DATE*12;
+
   if(version == 1) {
     // Versioned node, version 1
 
     besch->wegtyp = decode_uint16(p);
     besch->topspeed = decode_uint16(p);
     besch->preis = decode_uint32(p);
-    besch->maintenance = 800;
-    besch->pillars_every = 0;
-    besch->max_length = 0;
 
   } else if (version == 2) {
 
@@ -142,8 +146,6 @@ obj_besch_t * bridge_reader_t::read_node(FILE *fp, obj_node_info_t &node)
     besch->preis = decode_uint32(p);
     besch->maintenance = decode_uint32(p);
     besch->wegtyp = decode_uint8(p);
-    besch->pillars_every = 0;
-    besch->max_length = 0;
 
   } else if (version == 3) {
 
@@ -169,17 +171,27 @@ obj_besch_t * bridge_reader_t::read_node(FILE *fp, obj_node_info_t &node)
     besch->pillars_every = decode_uint8(p);
     besch->max_length = decode_uint8(p);
 
+  } else if (version == 5) {
+
+    // Versioned node, version 5
+    // timeline
+
+    besch->topspeed = decode_uint16(p);
+    besch->preis = decode_uint32(p);
+    besch->maintenance = decode_uint32(p);
+    besch->wegtyp = decode_uint8(p);
+    besch->pillars_every = decode_uint8(p);
+    besch->max_length = decode_uint8(p);
+    besch->intro_date = decode_uint16(p);
+    besch->obsolete_date = decode_uint16(p);
+
   } else {
     // old node, version 0
 
     besch->wegtyp = v;
     decode_uint16(p);                    // Menupos, no more used
     besch->preis = decode_uint32(p);
-
     besch->topspeed = 999;               // Safe default ...
-    besch->maintenance = 800;
-    besch->pillars_every = 0;
-    besch->max_length = 0;
   }
 
   DBG_DEBUG("bridge_reader_t::read_node()",

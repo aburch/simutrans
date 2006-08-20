@@ -537,89 +537,49 @@ int simu_cpp_main(int argc, char ** argv)
       simuconf.read(contents);
 
       print("Initializing tombstones ...\n");
+
       convoihandle_t::init(contents.get_int("convoys", 8192));
       blockhandle_t::init(contents.get_int("railblocks", 8192));
       halthandle_t::init(contents.get_int("stations", 8192));
       umgebung_t::max_route_steps = contents.get_int("max_route_steps", 100000);
 
+
+      umgebung_t::bodenanimation = (contents.get_int("animated_grounds", 1) != 0);
+
+      umgebung_t::fussgaenger = (contents.get_int("random_pedestrians", 0) != 0);
+      umgebung_t::verkehrsteilnehmer_info = (contents.get_int("pedes_and_car_info", 0) != 0);
+      umgebung_t::stadtauto_duration = (contents.get_int("citycar_life", 35000));
+      umgebung_t::drive_on_left = (contents.get_int("drive_left", false));
+
+      umgebung_t::tree_info = (contents.get_int("tree_info", 0) != 0);
+      umgebung_t::townhall_info = (contents.get_int("townhall_info", 0) != 0);
+      umgebung_t::single_info = contents.get_int("only_single_info", 0);
+
+      umgebung_t::window_buttons_right = contents.get_int("window_buttons_right", false);
+
+      umgebung_t::starting_money = (contents.get_int("starting_money", 15000000));
+      umgebung_t::maint_building = (contents.get_int("maintenance_building", 5000));
+      umgebung_t::maint_way = (contents.get_int("maintenance_ways", 800));
+      umgebung_t::maint_overhead = (contents.get_int("maintenance_overhead", 200));
+
+
+      umgebung_t::show_names = (contents.get_int("show_names", 3));
+      umgebung_t::numbered_stations = (contents.get_int("numbered_stations", 0)) != 0;
       umgebung_t::station_coverage_size = contents.get_int("station_coverage", 2);
 
-      umgebung_t::bodenanimation =
-	(contents.get_int("animated_grounds", 1) != 0);
+      umgebung_t::show_month = (contents.get_int("show_month", 0)) != 0;
 
-      umgebung_t::fussgaenger =
-	(contents.get_int("random_pedestrians", 0) != 0);
-
-      umgebung_t::verkehrsteilnehmer_info =
-	(contents.get_int("pedes_and_car_info", 0) != 0);
-
-      umgebung_t::stadtauto_duration =
-	(contents.get_int("citycar_life", 35000));
-
-      umgebung_t::drive_on_left =
-	(contents.get_int("drive_left", false));
-
-      umgebung_t::tree_info =
-	(contents.get_int("tree_info", 0) != 0);
-
-      umgebung_t::townhall_info =
-	(contents.get_int("townhall_info", 0) != 0);
-
-      umgebung_t::single_info =
-	contents.get_int("only_single_info", 0);
-
-      umgebung_t::window_buttons_right =
-	contents.get_int("window_buttons_right", false);
-
-      umgebung_t::starting_money =
-	(contents.get_int("starting_money", 15000000));
-
-
-      umgebung_t::maint_building =
-	(contents.get_int("maintenance_building", 5000));
-
-
-      umgebung_t::maint_way =
-	(contents.get_int("maintenance_ways", 800));
-
-
-      umgebung_t::maint_overhead =
-	(contents.get_int("maintenance_overhead", 200));
-
-
-      umgebung_t::numbered_stations =
-	(contents.get_int("numbered_stations", 0)) != 0;
-
-      umgebung_t::show_month =
-	(contents.get_int("show_month", 0)) != 0;
-
-
-      umgebung_t::intercity_road_length =
-	(contents.get_int("intercity_road_length", 8000));
-
-
-      umgebung_t::intercity_road_type =
-	new cstring_t(ltrim(contents.get("intercity_road_type")));
-
-      umgebung_t::city_road_type =
-	new cstring_t(ltrim(contents.get("city_road_type")));
+      umgebung_t::intercity_road_length = (contents.get_int("intercity_road_length", 8000));
+      umgebung_t::intercity_road_type = new cstring_t(ltrim(contents.get("intercity_road_type")));
+      umgebung_t::city_road_type = new cstring_t(ltrim(contents.get("city_road_type")));
 	if(umgebung_t::city_road_type->len()==0) {
 		*umgebung_t::city_road_type = "city_road";
 	}
 
-      umgebung_t::use_timeline =
-	(contents.get_int("use_timeline", 0)) != 0;
+      umgebung_t::use_timeline = contents.get_int("use_timeline", 2);
+      umgebung_t::starting_year = (contents.get_int("starting_year", 1930));
 
-
-      umgebung_t::show_names =
-	(contents.get_int("show_names", 3));
-
-
-      umgebung_t::starting_year =
-	(contents.get_int("starting_year", 1930));
-
-      umgebung_t::autosave =
-	(contents.get_int("autosave", 0));
+      umgebung_t::autosave = (contents.get_int("autosave", 0));
 
       umgebung_t::crossconnect_factories =
 #ifdef OTTD_LIKE
@@ -771,7 +731,7 @@ print("Reading simuconf.tab successful!\n");
     if(gimme_arg(argc, argv, "-timeline", 0) != NULL) {
 	const char * ref_str = gimme_arg(argc, argv, "-timeline", 1);
     	if(ref_str != NULL) {
-		umgebung_t::use_timeline = ( atoi(ref_str) != 0 );
+		umgebung_t::use_timeline = atoi(ref_str);
 	}
     }
 
@@ -946,7 +906,7 @@ display_show_pointer( true );
     sets->setze_karte_nummer(simrand(999));
     sets->setze_station_coverage( umgebung_t::station_coverage_size );
     sets->setze_allow_player_change( true );
-    sets->setze_use_timeline( umgebung_t::use_timeline );
+    sets->setze_use_timeline( umgebung_t::use_timeline==1 );
     sets->setze_starting_year( umgebung_t::starting_year );
 
     do {

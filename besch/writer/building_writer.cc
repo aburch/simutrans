@@ -73,31 +73,43 @@ void tile_writer_t::write_obj(FILE *fp, obj_node_t &parent,
     int index, const slist_tpl< slist_tpl<cstring_t> > &backkeys,
     const slist_tpl< slist_tpl<cstring_t> > &frontkeys)
 {
-    haus_tile_besch_t besch;
+	haus_tile_besch_t besch;
 
-    obj_node_t	node(this, sizeof(besch), &parent, true);
+	obj_node_t node(this, 6, &parent, false);
 
-    besch.phasen = 0;
+	besch.phasen = 0;
 
-    slist_iterator_tpl< slist_tpl<cstring_t> > iter(backkeys);
-    while(iter.next()) {
-	if(iter.get_current().count() > besch.phasen) {
-	    besch.phasen = iter.get_current().count();
+	slist_iterator_tpl< slist_tpl<cstring_t> > iter(backkeys);
+	while(iter.next()) {
+		if(iter.get_current().count() > besch.phasen) {
+			besch.phasen = iter.get_current().count();
+		}
 	}
-    }
-    iter = slist_iterator_tpl< slist_tpl<cstring_t> > (frontkeys);
-    while(iter.next()) {
-	if(iter.get_current().count() > besch.phasen) {
-	    besch.phasen = iter.get_current().count();
+	iter = slist_iterator_tpl< slist_tpl<cstring_t> > (frontkeys);
+	while(iter.next()) {
+		if(iter.get_current().count() > besch.phasen) {
+			besch.phasen = iter.get_current().count();
+		}
 	}
-    }
-    besch.index = index;
+	besch.index = index;
 
-    imagelist2d_writer_t::instance()->write_obj(fp, node, backkeys);
-    imagelist2d_writer_t::instance()->write_obj(fp, node, frontkeys);
+	imagelist2d_writer_t::instance()->write_obj(fp, node, backkeys);
+	imagelist2d_writer_t::instance()->write_obj(fp, node, frontkeys);
 
-    node.write_data(fp, &besch);
-    node.write(fp);
+	// Hajo: temp vars of appropriate size
+	uint16 v16;
+
+	// Hajo: write version data
+	v16 = 0x8001;
+	node.write_data_at(fp, &v16, 0, sizeof(uint16));
+
+	v16 = besch.phasen;
+	node.write_data_at(fp, &v16, 2, sizeof(uint16));
+
+	v16 = besch.index;
+	node.write_data_at(fp, &v16, 4, sizeof(uint16));
+
+	node.write(fp);
 }
 
 
@@ -110,7 +122,7 @@ void building_writer_t::write_obj(FILE *fp, obj_node_t &parent, tabfileobj_t &ob
     haus_besch_t besch;
 
     // Hajo: take care, hardocded size of node on disc here!
-    obj_node_t	node(this, 17, &parent, false);
+    obj_node_t	node(this, 21, &parent, false);
 
     write_head(fp, node, obj);
 
@@ -184,6 +196,12 @@ void building_writer_t::write_obj(FILE *fp, obj_node_t &parent, tabfileobj_t &ob
     // Hajo: read chance - default is 100% chance to be built
     besch.chance = obj.get_int("chance", 100) ;
 
+    // prissi: timeline for buildings
+    besch.intro_date  = obj.get_int("intro_year", DEFAULT_INTRO_DATE) * 12;
+    besch.intro_date += obj.get_int("intro_month", 1) - 1;
+
+    besch.obsolete_date  = obj.get_int("retire_year", DEFAULT_RETIRE_DATE) * 12;
+    besch.obsolete_date += obj.get_int("retire_month", 1) - 1;
 
     int tile_index = 0;
     for(int l = 0; l < besch.layouts; l++)  {   // each layout
@@ -228,7 +246,7 @@ void building_writer_t::write_obj(FILE *fp, obj_node_t &parent, tabfileobj_t &ob
     uint8  v8;
 
     // Hajo: write version data
-    v16 = 0x8001;
+    v16 = 0x8002;
     node.write_data_at(fp, &v16, 0, sizeof(uint16));
 
     // Hajo: write besch data
@@ -259,6 +277,12 @@ void building_writer_t::write_obj(FILE *fp, obj_node_t &parent, tabfileobj_t &ob
 
     v8 = (uint8)besch.chance;
     node.write_data_at(fp, &v8, 16, sizeof(uint8));
+
+    v16 = besch.intro_date;
+    node.write_data_at(fp, &v16, 17, sizeof(uint16));
+
+    v16 = besch.obsolete_date;
+    node.write_data_at(fp, &v16, 19, sizeof(uint16));
 
     // probably add some icons, if defined
 	slist_tpl<cstring_t> cursorkeys;

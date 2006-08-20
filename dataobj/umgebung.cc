@@ -94,7 +94,7 @@ cstring_t * umgebung_t::city_road_type = 0;
  *
  * @author Hj. Malthaner
  */
-bool umgebung_t::use_timeline = 0;
+char umgebung_t::use_timeline = 2;	// do not care
 
 
 /**

@@ -136,7 +136,7 @@ obj_besch_t * citycar_reader_t::read_node(FILE *fp, obj_node_info_t &node)
   const uint16 v = decode_uint16(p);
   const int version = v & 0x8000 ? v & 0x7FFF : 0;
 
-  if(version == 1) {
+  if(version == 2) {
     // Versioned node, version 1
 
     besch->gewichtung = decode_uint16(p);
@@ -144,13 +144,22 @@ obj_besch_t * citycar_reader_t::read_node(FILE *fp, obj_node_info_t &node)
     besch->intro_date = decode_uint16(p);
     besch->obsolete_date = decode_uint16(p);
   }
+  else if(version == 1) {
+    // Versioned node, version 1
+
+    besch->gewichtung = decode_uint16(p);
+    besch->geschw = kmh_to_speed(decode_uint16(p)/16);
+    uint16 intro_date = decode_uint16(p);
+    besch->intro_date = (intro_date/16)*12  + (intro_date%12);
+    uint16 obsolete_date = decode_uint16(p);
+    besch->obsolete_date= (obsolete_date/16)*12  + (obsolete_date%12);
+  }
   else {
     besch->gewichtung = v;
     besch->geschw = kmh_to_speed(80);
-    besch->intro_date = 1900*16;
-    besch->obsolete_date = 2999*16;
+    besch->intro_date = DEFAULT_INTRO_DATE*12;
+    besch->obsolete_date = DEFAULT_RETIRE_DATE*12;
   }
-DBG_DEBUG("citycar_reader_t::read_node()","version=%i, weight=%i, intro=%i.%i, retire=%i,%i",
-	version,besch->gewichtung,besch->intro_date&15+1,besch->intro_date/16,besch->obsolete_date&15+1,besch->obsolete_date/16);
+  DBG_DEBUG("citycar_reader_t::read_node()","version=%i, weight=%i, intro=%i, retire=%i",version,besch->gewichtung,besch->intro_date/12,besch->obsolete_date/12);
   return besch;
 }

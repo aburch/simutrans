@@ -525,13 +525,8 @@ fabrikbauer_t::baue_fabrik(karte_t * welt, koord3d *parent, const fabrik_besch_t
 	// add passenger targets: take care of fish_swarm, which do not accepts sucide divers ...
 	if(make_passenger) {
 		const weighted_vector_tpl<stadt_t *> *staedte=welt->gib_staedte();
-		const int anz_staedte = staedte->get_count();
-		for(  int j=0;  j<anz_staedte;  j++  ) {
-			// connect, if closer than 5000
-			koord city_dist = staedte->get(j)->gib_pos()-pos.gib_2d();
-			if(  (city_dist.x*city_dist.x)+(city_dist.y*city_dist.y)<5000) {
-				staedte->get(j)->add_factory_arbeiterziel(fab);
-			}
+		for(  unsigned i=0;  i<staedte->get_count();  i++  ) {
+			staedte->get(i)->add_factory_arbeiterziel(fab);
 		}
 	}
 	return fab;

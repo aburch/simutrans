@@ -380,10 +380,9 @@ DBG_MESSAGE("stadt_t::stadt_t()","founding new city named '%s'",name);
     wachstum = 0;
 
     // this way, new cities are properly recognized
+    pax_transport = citizens;
     pax_erzeugt = 0;
-    pax_transport = citizens/8;
     step_bau();
-    pax_erzeugt = 0;
     pax_transport = 0;
 
     /**
@@ -551,46 +550,40 @@ stadt_t::gib_stadt_info(void)
 
 
 
-/* calculates the factories which belongs to certain cities */
-/* we connect all factories, which are closer than 50 tiles radius */
-void
-stadt_t::verbinde_fabriken()
-{
-	slist_iterator_tpl<fabrik_t *> fab_iter (welt->gib_fab_list());
-	arbeiterziele.clear();
-
-	while(fab_iter.next()) {
-		fabrik_t *fab = fab_iter.get_current();
-		const koord k = fab->gib_pos().gib_2d();
-		const int d = (k.x-pos.x) * (k.x-pos.x) + (k.y-pos.y) * (k.y-pos.y);
-
-		// do not add the fish_swarm
-		if(strcmp("fish_swarm",fab->gib_besch()->gib_name())==0) {
-			continue;
-		}
-
-		// worker do not travel more than 50 tiles
-		if(d < 2500) {
-			fab->add_arbeiterziel( this );
-			arbeiterziele.append( fab, fab->gib_besch()->gib_pax_level(), 4 );
-		}
-	}
-	DBG_MESSAGE("stadt_t::verbinde_fabriken()","is connected with %i factories.",arbeiterziele.get_count() );
-}
-
-
 /* add workers to factory list */
 void
 stadt_t::add_factory_arbeiterziel(fabrik_t *fab)
 {
 	// no fish swarms ...
 	if(strcmp("fish_swarm",fab->gib_besch()->gib_name())!=0) {
-		fab->add_arbeiterziel( this );
-		// do not add a factory twice!
-		if(!arbeiterziele.is_contained(fab)){
-			arbeiterziele.append( fab, fab->gib_besch()->gib_pax_level(), 4 );
+		const koord k = fab->gib_pos().gib_2d() - pos;
+
+		// worker do not travel more than 50 tiles
+		if(k.x*k.x + k.y*k.y < CONNECT_TO_TOWN_SQUARE_DISTANCE) {
+DBG_MESSAGE("stadt_t::add_factory_arbeiterziel()","found %s with level %i", fab->gib_name(), fab->gib_besch()->gib_pax_level() );
+			fab->add_arbeiterziel( this );
+			// do not add a factory twice!
+			arbeiterziele.append_unique( fab, fab->gib_besch()->gib_pax_level(), 4 );
 		}
 	}
+}
+
+
+
+/* calculates the factories which belongs to certain cities */
+/* we connect all factories, which are closer than 50 tiles radius */
+void
+stadt_t::verbinde_fabriken()
+{
+	DBG_MESSAGE("stadt_t::verbinde_fabriken()","search factories near %s (center at %i,%i)",gib_name(), pos.x, pos.y  );
+
+	slist_iterator_tpl<fabrik_t *> fab_iter (welt->gib_fab_list());
+	arbeiterziele.clear();
+
+	while(fab_iter.next()) {
+		add_factory_arbeiterziel( fab_iter.get_current() );
+	}
+	DBG_MESSAGE("stadt_t::verbinde_fabriken()","is connected with %i factories (sum_weight=%i).",arbeiterziele.get_count(), arbeiterziele.get_sum_weight() );
 }
 
 
@@ -603,7 +596,7 @@ void stadt_t::change_size( long delta_citicens )
 	pax_erzeugt = 0;
 DBG_MESSAGE("stadt_t::change_size()","%i+%i",bev,delta_citicens);
 	if(delta_citicens>0) {
-		pax_transport = delta_citicens/8;
+		pax_transport = delta_citicens;
 		step_bau();
 		pax_transport = 0;
 	}
@@ -748,8 +741,19 @@ stadt_t::neuer_monat()
 void
 stadt_t::step_bau()
 {
-  bool new_town = (bev==0);
-  wachstum = (pax_transport << 3) / (pax_erzeugt+1);
+	bool new_town = (bev==0);
+
+	// prissi: growth now size dependent
+	if(pax_erzeugt==0) {
+		wachstum = pax_transport;
+	} else if(bev<1000) {
+		wachstum = (pax_transport *2) / (pax_erzeugt+1);
+	} else if(bev<10000) {
+		wachstum = (pax_transport *4) / (pax_erzeugt+1);
+	}
+	else {
+		wachstum = (pax_transport *8) / (pax_erzeugt+1);
+	}
 
   // Hajo: let city grow in steps of 1
 //  for(int n = 0; n < (1 + wachstum); n++) {
@@ -811,11 +815,11 @@ stadt_t::step_passagiere()
 			// ist das dort ein gebaeude ?
 			if(gb != NULL) {
 
-				// prissi: since now correctly numbers are used, double initially passengers
+				// prissi: since now backtravels occur, we damp the numbers a little
 				const int num_pax =
 					(wtyp == warenbauer_t::passagiere) ?
-					(gb->gib_tile()->gib_besch()->gib_level() + 6) >> 1 :
-					(gb->gib_post_level() + 3) >> 1;
+					(gb->gib_tile()->gib_besch()->gib_level() + 6) >> 2 :
+					(gb->gib_post_level() + 5) >> 2;
 
 				// create pedestrians?
 				if(umgebung_t::fussgaenger) {
@@ -1019,7 +1023,7 @@ stadt_t::finde_passagier_ziel(bool *will_return)
 
 	// about 1/3 are workers
 	if(rand<FACTORY_PAX  &&  arbeiterziele.get_sum_weight()>0) {
-		const fabrik_t *fab = arbeiterziele.at_weight( arbeiterziele.get_sum_weight() );
+		const fabrik_t *fab = arbeiterziele.at_weight( simrand(arbeiterziele.get_sum_weight()) );
 		*will_return = true;	// worker will return
 		return fab->gib_pos().gib_2d();
 	}
@@ -1292,7 +1296,7 @@ stadt_t::check_bau_rathaus(bool new_town)
 		if(umziehen && alte_str != koord::invalid ) {
 			// Strasse vom ehemaligen Rathaus zum neuen verlegen.
 			wegbauer_t bauer(welt, NULL);
-			bauer.route_fuer(wegbauer_t::strasse, wegbauer_t::gib_besch(umgebung_t::city_road_type->chars()) );
+			bauer.route_fuer(wegbauer_t::strasse, welt->get_city_road() );
 			bauer.calc_route(alte_str, best_pos + koord(0, besch->gib_h(layout)));
 			bauer.baue();
 		}
@@ -1695,19 +1699,31 @@ stadt_t::baue_gebaeude(const koord k)
 		const int sum_industrie = passt_industrie + will_arbeit;
 		const int sum_wohnung = passt_wohnung + will_wohnung;
 
+  		const uint16 current_month = welt->get_timeline_year_month();
+
 		if(sum_gewerbe > sum_industrie && sum_gewerbe > sum_wohnung) {
-			hausbauer_t::baue(welt, NULL, pos, 0, hausbauer_t::gib_gewerbe(0));
-			arb += 20;
+			const haus_besch_t *h= hausbauer_t::gib_gewerbe(0,current_month);
+			if(h) {
+				hausbauer_t::baue(welt, NULL, pos, 0, h );
+				arb += 20;
+			}
 		}
 
 		if(sum_industrie > sum_gewerbe && sum_industrie > sum_wohnung) {
-			hausbauer_t::baue(welt, NULL, pos, 0, hausbauer_t::gib_industrie(0));
-			arb += 20;
+			const haus_besch_t *h= hausbauer_t::gib_industrie(0,current_month);
+			if(h) {
+				hausbauer_t::baue(welt, NULL, pos, 0, h );
+				arb += 20;
+			}
 		}
 
 		if(sum_wohnung > sum_industrie && sum_wohnung > sum_gewerbe) {
-			hausbauer_t::baue(welt, NULL, pos, 0, hausbauer_t::gib_wohnhaus(0));
-			won += 10;
+			const haus_besch_t *h= hausbauer_t::gib_wohnhaus(0,current_month);
+			hausbauer_t::baue(welt, NULL, pos, 0, h );
+			if(h) {
+				hausbauer_t::baue(welt, NULL, pos, 0, h );
+				won += 10;
+			}
 		}
 
 		// check for pavement
@@ -1717,6 +1733,14 @@ stadt_t::baue_gebaeude(const koord k)
 				strasse_t *weg = dynamic_cast <strasse_t *>(gr->gib_weg(weg_t::strasse));
 				if(weg) {
 					weg->setze_gehweg(true);
+					// if not current city road standard, then replace it
+					if(weg->gib_besch()!=welt->get_city_road()) {
+						if(gr->gib_besitzer()!=NULL) {
+							gr->gib_besitzer()->add_maintenance(-weg->gib_besch()->gib_wartung());
+							gr->setze_besitzer( NULL );	// make public
+						}
+						weg->setze_besch( welt->get_city_road() );
+					}
 					gr->calc_bild();
 				}
 			}
@@ -1815,15 +1839,16 @@ stadt_t::renoviere_gebaeude(koord k)
 //    DBG_MESSAGE("stadt_t::renoviere_gebaeude()","renovation at %i,%i (%i level) of typ %i to typ %i with desire %i",k.x,k.y,alt_typ,will_haben,sum);
 
   const int neu_lev = (alt_typ == will_haben) ? level + 1 : level;
+  const uint16 current_month = welt->get_timeline_year_month();
 
   if(will_haben == gebaeude_t::wohnung) {
-      hausbauer_t::umbauen(welt, gb, hausbauer_t::gib_wohnhaus(neu_lev));
+      hausbauer_t::umbauen(welt, gb, hausbauer_t::gib_wohnhaus(neu_lev,current_month));
       won += neu_lev * 10;
   } else if(will_haben == gebaeude_t::gewerbe) {
-      hausbauer_t::umbauen(welt, gb, hausbauer_t::gib_gewerbe(neu_lev));
+      hausbauer_t::umbauen(welt, gb, hausbauer_t::gib_gewerbe(neu_lev,current_month));
       arb += neu_lev * 20;
   } else if(will_haben == gebaeude_t::industrie) {
-      hausbauer_t::umbauen(welt, gb, hausbauer_t::gib_industrie(neu_lev));
+      hausbauer_t::umbauen(welt, gb, hausbauer_t::gib_industrie(neu_lev,current_month));
       arb += neu_lev * 20;
   }
 
@@ -1845,6 +1870,14 @@ stadt_t::renoviere_gebaeude(koord k)
 			strasse_t *weg = dynamic_cast <strasse_t *>(gr->gib_weg(weg_t::strasse));
 			if(weg) {
 				weg->setze_gehweg(true);
+				// if not current city road standard, then replace it
+				if(weg->gib_besch()!=welt->get_city_road()) {
+					if(gr->gib_besitzer()!=NULL) {
+						gr->gib_besitzer()->add_maintenance(-weg->gib_besch()->gib_wartung());
+						gr->setze_besitzer( NULL );	// make public
+					}
+					weg->setze_besch( welt->get_city_road() );
+				}
 				gr->calc_bild();
 			}
 		}
@@ -1907,7 +1940,7 @@ stadt_t::baue_strasse(koord k, spieler_t *sp, bool forced)
       if(!bd->weg_erweitern(weg_t::strasse, ribi)) {
   strasse_t *weg = new strasse_t(welt);
   weg->setze_gehweg( true );
-  weg->setze_besch(wegbauer_t::gib_besch(umgebung_t::city_road_type->chars()));
+  weg->setze_besch(welt->get_city_road());
 
   // Hajo: city roads should not belong to any player
   bd->neuen_weg_bauen(weg, ribi, sp);

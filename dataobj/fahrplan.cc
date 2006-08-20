@@ -95,7 +95,7 @@ void fahrplan_t::copy_from(const fahrplan_t *src)
 	for(unsigned i=0; i<src->eintrag.get_count(); i++) {
 		eintrag.append(src->eintrag.get(i));
 	}
-	if(aktuell>=eintrag.get_count()) {
+	if(aktuell>=(int)eintrag.get_count()) {
 		aktuell = eintrag.get_count()-1;
 	}
 	if(aktuell<0) {
@@ -176,7 +176,7 @@ bool
 fahrplan_t::remove()
 {
 	bool ok=eintrag.remove_at(aktuell);
-	if( aktuell>=eintrag.get_count()-1) {
+	if( aktuell>=(int)eintrag.get_count()-1) {
 		aktuell = eintrag.get_count()-1;
 	}
 	return ok;
