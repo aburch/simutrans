@@ -91,7 +91,7 @@ int tunnel_t::gib_after_bild() const
 int tunnel_t::gib_bild() const
 {
   const grund_t *gr = welt->lookup(gib_pos());
-  return besch->gib_vordergrund_nr(gr->gib_grund_hang());
+  return besch->gib_hintergrund_nr(gr->gib_grund_hang());
 }
 
 

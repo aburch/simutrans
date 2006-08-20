@@ -67,9 +67,10 @@ int dr_os_open(int w, int h, int fullscreen);
 int dr_os_close();
 
 unsigned short * dr_textur_init();
-unsigned short * dr_textur_resize(int w, int h);
+int dr_textur_resize( unsigned short **textur,int w, int h);
 
-
+unsigned short *dr_start_update();
+unsigned short *dr_end_update();
 
 /**
  * Transform a 24 bit RGB color into the system format.

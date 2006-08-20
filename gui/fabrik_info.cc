@@ -25,7 +25,7 @@
 fabrik_info_t::fabrik_info_t(fabrik_t *fab, gebaeude_t *gb, karte_t *welt) :
   gui_frame_t(fab->gib_name()),
   ding_info_t(gb),
-  view(welt, gb->gib_pos().gib_2d()),
+  view(welt, gb->gib_pos()),
   scrolly(&cont),
   txt("\n"),
   info_buf(8192)

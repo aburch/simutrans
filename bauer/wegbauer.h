@@ -140,6 +140,7 @@ private:
      */
     bool keep_existing_ways;
     bool keep_existing_faster_ways;
+    bool keep_existing_city_roads;
 
 
     karte_t *welt;
@@ -208,6 +209,11 @@ public:
      * @author Hj. Malthaner
      */
     void set_keep_existing_faster_ways(bool yesno);
+
+    /* Always keep city roads (for AI)
+     * @author prissi
+     */
+    void set_keep_city_roads(bool yesno) {keep_existing_city_roads=yesno;};
 
 
     void route_fuer(enum bautyp wt, const weg_besch_t * besch);

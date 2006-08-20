@@ -36,6 +36,7 @@
 #include "../dataobj/translator.h"
 #include "../dataobj/einstellungen.h"
 #include "../dataobj/umgebung.h"
+#include "../dataobj/freelist.h"
 
 #include "../gui/stadt_info.h"
 #include "../gui/fabrik_info.h"
@@ -134,7 +135,7 @@ gebaeude_t::calc_yoff()
 	const int ht = welt->get_slope(gib_pos().gib_2d());
 
 	if(ht != 0 ) {				// wenn uneben
-	    setze_yoff( -16 );			// dann sockel
+	    setze_yoff( height_scaling(-16) );			// dann sockel
         } else {
 	    setze_yoff( 0 );
 	}

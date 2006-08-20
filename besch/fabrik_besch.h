@@ -66,7 +66,7 @@ public:
     {
     	return xy_off;
     }
-    int gib_zeitmaske() const
+    sint16 gib_zeitmaske() const
     {
     	return zeitmaske;
     }

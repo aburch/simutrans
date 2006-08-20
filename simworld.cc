@@ -912,6 +912,15 @@ DBG_DEBUG("karte_t::init()","prepare cities");
      fabrikbauer_t::verteile_industrie(this,
 				gib_spieler(1),
 				einstellungen->gib_city_industry_chains(),true);
+	// crossconnect all?
+	if(umgebung_t::crossconnect_factories) {
+		slist_iterator_tpl <fabrik_t *> iter (this->fab_list);
+		while( iter.next() ) {
+			iter.get_current()->add_all_suppliers();
+		}
+	}
+
+	// tourist attractions
      fabrikbauer_t::verteile_tourist(this,
 				gib_spieler(1),
 				einstellungen->gib_tourist_attractions());
@@ -2543,6 +2552,11 @@ DBG_DEBUG("karte_t::laden()","grundwasser %i",grundwasser);
       }
     }
 
+    // Reliefkarte an neue welt anpassen
+    DBG_MESSAGE("karte_t::laden()", "init relief");
+    win_setze_welt( this );
+    reliefkarte_t::gib_karte()->setze_welt(this);
+
     int fabs;
     file->rdwr_long(fabs, "\n");
     DBG_MESSAGE("karte_t::laden()", "prepare for %i factories", fabs);
@@ -2561,7 +2575,24 @@ DBG_DEBUG("karte_t::laden()","grundwasser %i",grundwasser);
     if (fab_list.count() > 0) {
       gib_fab(0)->laden_abschliessen();
     }
+
+	// crossconnect all?
+	if(umgebung_t::crossconnect_factories) {
+	    DBG_MESSAGE("karte_t::laden()", "crossconnecting factories");
+		slist_iterator_tpl <fabrik_t *> iter (this->fab_list);
+		while( iter.next() ) {
+			iter.get_current()->add_all_suppliers();
+		}
+	}
+
     DBG_MESSAGE("karte_t::laden()", "%d factories loaded", fab_list.count());
+
+    // auch die fabrikverbindungen können jetzt neu init werden
+    // must be done after reliefkarte is initialized
+    for(unsigned i=0; i<stadt->get_count(); i++) {
+	stadt->at(i)->laden_abschliessen();
+    }
+    DBG_MESSAGE("karte_t::laden()", "cities initialized");
 
     // load linemanagement status (and lines)
     // @author hsiegeln
@@ -2619,19 +2650,15 @@ DBG_DEBUG("karte_t::laden()","grundwasser %i",grundwasser);
     for(int i=0; i<8 ; i++) {
 	spieler[i]->rdwr(file);
     }
-    DBG_MESSAGE("karte_t::laden()", "players loaded");
     for(int i=0; i<6; i++) {
 	umgebung_t::automaten[i] = spieler[i+2]->is_active();
     }
+    DBG_MESSAGE("karte_t::laden()", "players loaded");
 
     // nachdem die welt jetzt geladen ist können die Blockstrecken neu
     // angelegt werden
     bm->laden_abschliessen();
-
-    // auch die fabrikverbindungen können jetzt neu init werden
-    for(unsigned i=0; i<stadt->get_count(); i++) {
-	stadt->at(i)->laden_abschliessen();
-    }
+    DBG_MESSAGE("karte_t::laden()", "blocks loaded");
 
     file->rdwr_delim("View ");
     file->rdwr_long(mi, " ");
@@ -2670,16 +2697,13 @@ DBG_DEBUG("karte_t::laden()","grundwasser %i",grundwasser);
 	    }
 	  }
 	}
-    }
+  }
+
+  	// recalc karte
+    reliefkarte_t::gib_karte()->set_mode(-1);
 
     // register all line stops
     simlinemgmt->laden_abschliessen();
-
-    // Reliefkarte an neue welt anpassen
-    win_setze_welt( this );
-    reliefkarte_t::gib_karte()->setze_welt(this);
-    reliefkarte_t::gib_karte()->set_mode(-1);
-
 
 	// just keep the record for the last 12 years ... to allow infite long games
 	while(ticks>(288 << karte_t::ticks_bits_per_tag)) {
@@ -2880,7 +2904,7 @@ void karte_t::bewege_zeiger(const event_t *ev)
 	int i_alt=zeiger->gib_pos().x;
 	int j_alt=zeiger->gib_pos().y;
 
-	int screen_y = ev->my - y_off - rw2;
+	int screen_y = ev->my - y_off - rw2 - rw4 + (rw4-16);
 	int screen_x = (ev->mx - x_off - rw2 - display_get_width()/2) / 2;
 
 	if(zeiger->gib_yoff() == Z_PLAN) {
@@ -2913,8 +2937,8 @@ void karte_t::bewege_zeiger(const event_t *ev)
 
 	for(int n = 0; n < 2; n++) {
 
-	    const int base_i = (screen_x+screen_y+hgt*scale)/2;
-	    const int base_j = (screen_y-screen_x+hgt*scale)/2;
+	    const int base_i = (screen_x+screen_y+height_scaling(hgt*scale) )/2;
+	    const int base_j = (screen_y-screen_x+height_scaling(hgt*scale) )/2;
 
 	    mi = ((int)floor(base_i/(double)rw4)) + i_off;
 	    mj = ((int)floor(base_j/(double)rw4)) + j_off;
@@ -3465,11 +3489,30 @@ karte_t::interactive_event(event_t &ev)
 					  SFX_FAILURE
 					  );
 
+		    wzw->add_tool(wkz_electrify_block,
+				  Z_PLAN,
+				  SFX_JACKHAMMER,
+				  SFX_FAILURE,
+				  skinverwaltung_t::schienen_werkzeug->gib_bild_nr(4),
+				  skinverwaltung_t::oberleitung->gib_bild_nr(8),
+				  tool_tip_with_price(translator::translate("Electrify track"), CST_OBERLEITUNG));
+
 		    brueckenbauer_t::fill_menu(wzw,
 					  weg_t::schiene,
 					  SFX_JACKHAMMER,
 					  SFX_FAILURE
 					  );
+
+		    if(tunnelbauer_t::schienentunnel) {
+		      wzw->add_param_tool(&tunnelbauer_t::baue,
+					  weg_t::schiene,
+					  Z_PLAN,
+					  SFX_JACKHAMMER,
+					  SFX_FAILURE,
+					  skinverwaltung_t::schienen_werkzeug->gib_bild_nr(3),
+					  skinverwaltung_t::schienentunnelzeiger->gib_bild_nr(0),
+					  tool_tip_with_price(translator::translate("Schienentunnel"), CST_TUNNEL));
+		    }
 
 		    wzw->add_tool(wkz_signale,
 				  Z_LINES,
@@ -3504,37 +3547,6 @@ karte_t::interactive_event(event_t &ev)
 				    tool_tip_with_price(translator::translate("Build train depot"), CST_BAHNDEPOT));
 		    }
 
-
-		    if(tunnelbauer_t::schienentunnel) {
-		      wzw->add_param_tool(&tunnelbauer_t::baue,
-					  weg_t::schiene,
-					  Z_PLAN,
-					  SFX_JACKHAMMER,
-					  SFX_FAILURE,
-					  skinverwaltung_t::schienen_werkzeug->gib_bild_nr(3),
-					  skinverwaltung_t::schienentunnelzeiger->gib_bild_nr(0),
-					  tool_tip_with_price(translator::translate("Schienentunnel"), CST_TUNNEL));
-		    }
-
-
-		    wzw->add_tool(wkz_electrify_block,
-				  Z_PLAN,
-				  SFX_JACKHAMMER,
-				  SFX_FAILURE,
-				  skinverwaltung_t::schienen_werkzeug->gib_bild_nr(4),
-				  skinverwaltung_t::oberleitung->gib_bild_nr(8),
-				  tool_tip_with_price(translator::translate("Electrify track"), CST_OBERLEITUNG));
-
-/*
-		    wzw->add_tool(wkz_schienenkreuz,
-				  Z_PLAN,
-				  SFX_JACKHAMMER,
-				  SFX_FAILURE,
-				  skinverwaltung_t::schienen_werkzeug->gib_bild_nr(5),
-				  skinverwaltung_t::kreuzungzeiger->gib_bild_nr(0),
-				  translator::translate("Build level crossing"));
-*/
-
 		    sound_play(click_sound);
 
 		    wzw->zeige_info(magic_railtools);
@@ -3560,15 +3572,26 @@ karte_t::interactive_event(event_t &ev)
 					  SFX_FAILURE
 					  );
 
-		    hausbauer_t::fill_menu(wzw,
-					  hausbauer_t::car_stops,
-					  wkz_bushalt,
+		    if(tunnelbauer_t::strassentunnel) {
+		      wzw->add_param_tool(&tunnelbauer_t::baue,
+					  (long)weg_t::strasse,
+					  Z_PLAN,
+					  SFX_JACKHAMMER,
+					  SFX_FAILURE,
+					  skinverwaltung_t::strassen_werkzeug->gib_bild_nr(3),
+					  skinverwaltung_t::strassentunnelzeiger->gib_bild_nr(0),
+					  tool_tip_with_price(translator::translate("Strassentunnel"), CST_TUNNEL));
+		    }
+
+		    roadsign_t::fill_menu(wzw,
+					  wkz_roadsign,
 					  SFX_JACKHAMMER,
 					  SFX_FAILURE,
 					  CST_BUSHALT);
 
-		    roadsign_t::fill_menu(wzw,
-					  wkz_roadsign,
+		    hausbauer_t::fill_menu(wzw,
+					  hausbauer_t::car_stops,
+					  wkz_bushalt,
 					  SFX_JACKHAMMER,
 					  SFX_FAILURE,
 					  CST_BUSHALT);
@@ -3592,27 +3615,6 @@ karte_t::interactive_event(event_t &ev)
 					hausbauer_t::str_depot_besch->gib_cursor()->gib_bild_nr(0),
 				      tool_tip_with_price(translator::translate("Build truck depot"), CST_STRASSENDEPOT));
 		    }
-
-		    if(tunnelbauer_t::strassentunnel) {
-		      wzw->add_param_tool(&tunnelbauer_t::baue,
-					  (long)weg_t::strasse,
-					  Z_PLAN,
-					  SFX_JACKHAMMER,
-					  SFX_FAILURE,
-					  skinverwaltung_t::strassen_werkzeug->gib_bild_nr(3),
-					  skinverwaltung_t::strassentunnelzeiger->gib_bild_nr(0),
-					  tool_tip_with_price(translator::translate("Strassentunnel"), CST_TUNNEL));
-		    }
-
-/*
-		    wzw->add_tool(wkz_schienenkreuz,
-				  Z_PLAN,
-				  SFX_JACKHAMMER,
-				  SFX_FAILURE,
-				      skinverwaltung_t::strassen_werkzeug->gib_bild_nr(4),
-				  skinverwaltung_t::kreuzungzeiger->gib_bild_nr(0),
-				  translator::translate("Build level crossing"));
-*/
 
 		    sound_play(click_sound);
 
@@ -3688,6 +3690,14 @@ karte_t::interactive_event(event_t &ev)
 					skinverwaltung_t::signalzeiger->gib_bild_nr(0),
 					tool_tip_with_price(translator::translate("Build signals"), CST_SIGNALE)
 				);
+
+		    wzw->add_tool(wkz_presignals,
+				  Z_LINES,
+				  SFX_GAVEL,
+				  SFX_FAILURE,
+				  skinverwaltung_t::schienen_werkzeug->gib_bild_nr(7),
+				  skinverwaltung_t::signalzeiger->gib_bild_nr(0),
+				  tool_tip_with_price(translator::translate("Build presignals"), CST_SIGNALE));
 
 		    hausbauer_t::fill_menu(wzw,
 						  hausbauer_t::train_stops,

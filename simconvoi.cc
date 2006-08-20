@@ -1324,7 +1324,10 @@ convoi_t::open_schedule_window()
 		return;
 	}
 
-	calc_gewinn();
+	if(state==DRIVING) {
+		//recalc current amount of goods
+		calc_gewinn();
+	}
 	anhalten(8);
 	state = FAHRPLANEINGABE;
 	alte_richtung = fahr->at(0)->gib_fahrtrichtung();
@@ -1472,7 +1475,6 @@ void convoi_t::calc_gewinn()
   for(unsigned i=0; i<anz_vehikel; i++) {
     vehikel_t *v = fahr->at(i);
     gewinn += v->calc_gewinn(route.position_bei(0),
-//			     route.position_bei(MAX(route.gib_max_n(), 0))
 				fahr->at(0)->gib_pos()
 			     );
 

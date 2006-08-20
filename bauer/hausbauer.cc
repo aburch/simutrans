@@ -312,88 +312,93 @@ void hausbauer_t::baue(karte_t *welt,
 		       bool clear,
 		       void *param)
 {
-    koord k;
-    koord dim;
-    int count = 0;
+	koord k;
+	koord dim;
+	int count = 0;
 
-    layout = besch->layout_anpassen(layout);
-    dim = besch->gib_groesse(layout);
+	layout = besch->layout_anpassen(layout);
+	dim = besch->gib_groesse(layout);
 
-    if(besch->ist_fabrik()) {
-	count = simrand(1024);
-    }
-    for(k.y = 0; k.y < dim.y; k.y ++) {
-	for(k.x = 0; k.x < dim.x; k.x ++) {
-	    const haus_tile_besch_t *tile = besch->gib_tile(layout, k.x, k.y);
-
-	    // printf("Hausbauer::baue() Position=%d,%d\n", pos.x+k.x, pos.y+k.y);
-
-
-	    gebaeude_t *gb = new gebaeude_t(welt, pos + k, sp, tile);
-
-	    if(besch->ist_fabrik()) {
-		gb->setze_fab((fabrik_t *)param);
-		gb->add_alter(gebaeude_t::ALT);
-	    }
-	    else if( ship_stops.contains(besch) ) {
-	    	// its a dock!
-		gb->add_alter(gebaeude_t::ALT);
-DBG_DEBUG("hausbauer_t::baue()","building dock");
-	    }
-	    else if(welt->gib_zeit_ms() < 2) {
-	        // Hajo: after staring a new map, build fake old buildings^
-		gb->add_alter(10000);
-	    }
-	    grund_t *gr = welt->lookup(pos.gib_2d() + k)->gib_kartenboden();
-	    if(gr->ist_wasser()) {
-		gr->obj_pri_add(gb, 1);
-	    }
-	    else if( ship_stops.contains(besch) ) {
-	    	// its a dock!
-		gr->obj_add(gb);
-		gr->setze_besitzer(sp);
-	    } else {
-		if(clear) {
-		    gr->obj_loesche_alle(sp);	// alles weg
-		}
-		grund_t *gr2 = new fundament_t(welt, gr->gib_pos());
-
-		gr2->obj_add(new gebaeudefundament_t(welt, gr2->gib_pos(), sp) );
-		gb->setze_bild(0, tile->gib_hintergrund(0, 0));
-		welt->access(gr->gib_pos().gib_2d())->boden_ersetzen(gr, gr2);
-		gr = gr2;
-		gr->obj_add( gb );
-		gr->setze_besitzer(sp);
-	    }
-	    if(besch->ist_ausflugsziel()) {
-		welt->add_ausflugsziel( gb );
-	    }
-	    gb->setze_sync( true );
-	    if(besch->gib_typ() == gebaeude_t::unbekannt) {
-		if(besch->ist_fabrik()) {
-		    gb->setze_count(count);
-		    gb->setze_anim_time(0);
-		}
-		else if(besch->ist_rathaus()) {
-		    gb->setze_besitzer(sp);
-		}
-		else if(besch->ist_firmensitz()) {
-		    gb->setze_besitzer(sp);
-		}
-		else if(post_offices.contains(besch)) {
-		    (*static_cast<halthandle_t *>(param))->add_grund(gr);
-		    (*static_cast<halthandle_t *>(param))->set_post_enabled( true );
-		}
-		else if(station_building.contains(besch)) {
-		    (*static_cast<halthandle_t *>(param))->add_grund(gr);
-		}
-	    else if( ship_stops.contains(besch) ) {
-               // its a dock!
-		    gb->setze_yoff(0);
-		}
-	    }
+	if(besch->ist_fabrik()) {
+		count = simrand(1024);
 	}
-    }
+	for(k.y = 0; k.y < dim.y; k.y ++) {
+		for(k.x = 0; k.x < dim.x; k.x ++) {
+//DBG_DEBUG("hausbauer_t::baue()","get_tile() at %i,%i",k.x,k.y);
+			const haus_tile_besch_t *tile = besch->gib_tile(layout, k.x, k.y);
+			// here test for good tile
+			if(tile==NULL) {
+				DBG_MESSAGE("hausbauer_t::baue()","get_tile() at %i,%i",k.x,k.y);
+				continue;
+			}
+			gebaeude_t *gb = new gebaeude_t(welt, pos + k, sp, tile);
+
+			if(besch->ist_fabrik()) {
+//DBG_DEBUG("hausbauer_t::baue()","setze_fab() at %i,%i",k.x,k.y);
+				gb->setze_fab((fabrik_t *)param);
+				gb->add_alter(gebaeude_t::ALT);
+			}
+			else if( ship_stops.contains(besch) ) {
+				// its a dock!
+				gb->add_alter(gebaeude_t::ALT);
+//DBG_DEBUG("hausbauer_t::baue()","building dock");
+			}
+			else if(welt->gib_zeit_ms() < 2) {
+				// Hajo: after staring a new map, build fake old buildings
+				gb->add_alter(10000);
+			}
+			grund_t *gr = welt->lookup(pos.gib_2d() + k)->gib_kartenboden();
+			if(gr->ist_wasser()) {
+//DBG_DEBUG("hausbauer_t::baue()","obj_pri_add()");
+				gr->obj_pri_add(gb, 1);
+//DBG_DEBUG("hausbauer_t::baue()","ok");
+			}
+			else if( ship_stops.contains(besch) ) {
+				// its a dock!
+				gr->obj_add(gb);
+				gr->setze_besitzer(sp);
+			} else {
+				if(clear) {
+					gr->obj_loesche_alle(sp);	// alles weg
+				}
+				grund_t *gr2 = new fundament_t(welt, gr->gib_pos());
+
+				gr2->obj_add(new gebaeudefundament_t(welt, gr2->gib_pos(), sp) );
+				gb->setze_bild(0, tile->gib_hintergrund(0, 0));
+				welt->access(gr->gib_pos().gib_2d())->boden_ersetzen(gr, gr2);
+				gr = gr2;
+				gr->obj_add( gb );
+				gr->setze_besitzer(sp);
+			}
+			if(besch->ist_ausflugsziel()) {
+				welt->add_ausflugsziel( gb );
+			}
+			gb->setze_sync( true );
+			if(besch->gib_typ() == gebaeude_t::unbekannt) {
+				if(besch->ist_fabrik()) {
+					gb->setze_count(count);
+					gb->setze_anim_time(0);
+				}
+				else if(besch->ist_rathaus()) {
+					gb->setze_besitzer(sp);
+				}
+				else if(besch->ist_firmensitz()) {
+					gb->setze_besitzer(sp);
+				}
+				else if(post_offices.contains(besch)) {
+					(*static_cast<halthandle_t *>(param))->add_grund(gr);
+					(*static_cast<halthandle_t *>(param))->set_post_enabled( true );
+				}
+				else if(station_building.contains(besch)) {
+					(*static_cast<halthandle_t *>(param))->add_grund(gr);
+				}
+				else if( ship_stops.contains(besch) ) {
+					// its a dock!
+					gb->setze_yoff(0);
+				}
+			}
+		}
+	}
 }
 
 gebaeude_t *hausbauer_t::neues_gebaeude(karte_t *welt,

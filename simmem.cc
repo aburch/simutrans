@@ -209,17 +209,14 @@ void guarded_free(void *p)
 
 } // extern "C"
 
+#include "dataobj/freelist.h"
+
 void * operator new(size_t size)
 {
-    return guarded_malloc(size);
+	return guarded_malloc(size);
 }
 
 void operator delete(void *p)
 {
-    guarded_free(p);
-}
-
-void operator delete[](void *p)
-{
-    guarded_free(p);
+	guarded_free(p);
 }

@@ -16,6 +16,7 @@
 #include "simplan.h"
 #include "simplay.h"
 #include "simdisplay.h"
+#include "simdings.h"
 #include "simskin.h"
 #include "simwin.h"
 #include "simgraph.h"
@@ -112,16 +113,6 @@ void karte_vollansicht_t::display_dinge(const int i, const int j, const int xpos
 	}
     }
 
-    ding_t *zeiger = welt->gib_zeiger();
-    if(zeiger->gib_pos().gib_2d() == koord(i,j)) {
-		zeiger->display(xpos,
-		ypos - tile_raster_scale_y( zeiger->gib_pos().z, get_tile_raster_width()),
-		dirty);
-
-	zeiger->clear_flag(ding_t::dirty);
-    }
-
-
     // Debugging
     // if(welt->ist_markiert(koord3d(pos.x, pos.y, -32))) {
     //	display_img(70, xpos, ypos - welt->gib_grundwasser(), true);
@@ -143,4 +134,14 @@ void karte_vollansicht_t::display(bool dirty)
 	for(int x=0; x<8; x++) {
 		welt->gib_spieler(x)->display_messages(welt->gib_x_off(),welt->gib_y_off(),width);
 	}
+}
+
+
+
+/* mousepointer from karte_t
+ * @author Hj. Malthaner
+ */
+ding_t *karte_vollansicht_t::gib_zeiger()
+{
+	welt->gib_zeiger();
 }

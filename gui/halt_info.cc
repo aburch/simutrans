@@ -45,7 +45,7 @@ halt_info_t::halt_info_t(karte_t *welt, halthandle_t halt)
        " \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n"
        " \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n"
       ),
-   view(welt, halt->gib_basis_pos()),
+   view(welt, halt->gib_basis_pos3d()),
    freight_info(16384)
 {
     this->halt = halt;

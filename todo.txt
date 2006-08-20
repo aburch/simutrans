@@ -22,6 +22,8 @@ Stichpunkte
 - Pfeiler für Brücken
 - Brücken and senkrechten Wänden
 - Felder: Grafiken da, fehlt noch code (vielleicht wie Wälder?)
+- schönerer Jahreszeitenwechsel
+- nur 2x1 und nur 1x2 Gebäude
 
 - Winter höhenabhängig?
 
@@ -31,3 +33,9 @@ Immer zu tun:
 
 Unmögliches ...
 - echte Abzweige nur in eine Richtung
+
+
+Fehler:
+Stadtautos kommen nicht um 180 Kurve
+Linienverwaltung kollidiert mit AI Spieler
+Städte ohne Rathaus

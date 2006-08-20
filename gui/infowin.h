@@ -70,7 +70,7 @@ protected:
 
 public:
 
-    infowin_t(karte_t *welt) : view(welt, koord::invalid) {this->welt = welt;};
+    infowin_t(karte_t *welt) : view(welt, koord3d::invalid) {this->welt = welt;};
 
 
     virtual ~infowin_t();

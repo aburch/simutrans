@@ -1,11 +1,17 @@
 
 #include <stdlib.h>
+#include <assert.h>
 
 #include "../tpl/debug_helper.h"
 
 #include "../simmem.h"
 
 #include "freelist.h"
+
+
+#ifdef DEBUG
+//#define DEBUG_MEM
+#endif
 
 // list of all allocated memory
 static nodelist_node_t *chunk_list = NULL;
@@ -30,10 +36,16 @@ static nodelist_node_t *all_lists[NUM_LIST] = {
 };
 
 
+static long dummy;
+
 void *
 freelist_t::gimme_node(int size)
 {
 	nodelist_node_t ** list = NULL;
+	if(size==0) {
+		return NULL;
+	}
+
 	if(size>64) {
 		switch(size) {
 			case 276:
@@ -47,7 +59,7 @@ freelist_t::gimme_node(int size)
 				break;
 			default:
 				ERROR("freelist_t::gimme_node()","No list with size %i!", size );
-				abort();
+				assert(false);
 		}
 	}
 	else {
@@ -63,8 +75,8 @@ freelist_t::gimme_node(int size)
 		chunk_list = chunk;
 		p += sizeof(p);
 		// then enter nodes into nodelist
-		while( num_elements-->0 ) {
-			nodelist_node_t *tmp = (nodelist_node_t *)(p+num_elements*size);
+		for( int i=0;  i<num_elements;  i++ ) {
+			nodelist_node_t *tmp = (nodelist_node_t *)(p+i*size);
 			tmp->next = *list;
 			*list = tmp;
 		}
@@ -77,11 +89,41 @@ freelist_t::gimme_node(int size)
 }
 
 
+// put back a node and checks for consitency
+void
+freelist_t::putback_check_node(nodelist_node_t ** list,nodelist_node_t *p)
+{
+	if(*list<p) {
+		if(p==*list) {
+			ERROR("freelist_t::putback_check_node()","node %p already freeded!",p);
+			assert(false);
+		}
+		p->next = *list;
+		*list = p;
+	}
+	else {
+		nodelist_node_t *tmp = *list;
+		while(tmp->next>p) {
+			tmp = tmp->next;
+		}
+		if(p==tmp->next) {
+			ERROR("freelist_t::putback_check_node()","node %p already freeded!",p);
+			assert(false);
+		}
+		p->next = tmp->next;
+		tmp->next = p;
+	}
+}
+
+
 
 void
 freelist_t::putback_node(int size,void *p)
 {
 	nodelist_node_t ** list = NULL;
+	if(size==0  ||  p==NULL) {
+		return;
+	}
 	if(size>64) {
 		switch(size) {
 			case 276:
@@ -95,16 +137,20 @@ freelist_t::putback_node(int size,void *p)
 				break;
 			default:
 				ERROR("freelist_t::gimme_node()","No list with size %i!", size );
-				abort();
+				assert(false);
 		}
 	}
 	else {
 		list = &(all_lists[(size+3)/4]);
 	}
+#ifdef DEBUG_MEN
+	putback_check_node(list,(nodelist_node_t *)p);
+#else
 	// putback to first node
 	nodelist_node_t *tmp = (nodelist_node_t *)p;
 	tmp->next = *list;
 	*list = tmp;
+#endif
 }
 
 
@@ -113,6 +159,9 @@ freelist_t::putback_node(int size,void *p)
 void
 freelist_t::putback_nodes(int size,void *p)
 {
+	if(size==0  ||  p==NULL) {
+		return;
+	}
 	nodelist_node_t ** list = NULL;
 	if(size>64) {
 		switch(size) {
@@ -127,12 +176,23 @@ freelist_t::putback_nodes(int size,void *p)
 				break;
 			default:
 				ERROR("freelist_t::gimme_node()","No list with size %i!", size );
-				abort();
+				assert(false);
 		}
 	}
 	else {
 		list = &(all_lists[(size+3)/4]);
 	}
+#ifdef DEBUG_MEN
+//MESSAGE("freelist_t::putback_nodes()","at %p",p);
+	// goto end of nodes to append
+	nodelist_node_t *tmp1 = (nodelist_node_t *)p;
+	while(tmp1->next!=NULL) {
+		nodelist_node_t *tmp = tmp1->next;
+		putback_check_node(list,tmp1);
+		tmp1 = tmp;
+	}
+	putback_check_node(list,tmp1);
+#else
 	// goto end of nodes to append
 	nodelist_node_t *tmp = (nodelist_node_t *)p;
 	while(tmp->next!=NULL) {
@@ -141,6 +201,7 @@ freelist_t::putback_nodes(int size,void *p)
 	// putback list to first node
 	tmp->next = *list;
 	*list = (nodelist_node_t *)p;
+#endif
 }
 
 

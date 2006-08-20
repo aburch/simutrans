@@ -70,7 +70,7 @@ brueckenboden_t::rdwr(loadsave_t *file)
 int brueckenboden_t::gib_weg_yoff() const
 {
     if(ist_karten_boden() && weg_hang == 0) {
-	return 16;
+	return height_scaling(16);
     } else {
 	return 0;
     }

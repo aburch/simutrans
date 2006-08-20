@@ -58,13 +58,18 @@ void message_stats_t::infowin_event(const event_t * ev)
 
 /**
  * Now draw the list
- * @author Hj. Malthaner
+ * @author prissi
  */
 void message_stats_t::zeichnen(koord offset) const
 {
 	struct clip_dimension cd = display_gib_clip_wh();
-	unsigned count = msg->gib_count();
-	for( unsigned i=0;  i<count;  i++  ) {
+	const int offsets = (cd.y-offset.y+13)/14;
+	int max_message = (cd.yy-offset.y-13)/14;
+	if(max_message>msg->gib_count()) {
+		max_message = msg->gib_count();
+	}
+	for( unsigned i=offsets;  i<max_message;  i++  ) {
+/*
 		if(offset.y+i*14<cd.y) {
 			// reached the top
 			continue;
@@ -73,9 +78,10 @@ void message_stats_t::zeichnen(koord offset) const
 			// reached the bottom
 			break;
 		}
-
+*/
 		message_t::node *n=msg->get_node(i);
 		if(n==NULL  ||  n->msg==NULL) {
+DBG_MESSAGE("message_stats_t::zeichnen()","invalid message %i",i);
 			// paranoia
 			break;
 		}

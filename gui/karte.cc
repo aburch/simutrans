@@ -120,58 +120,57 @@ reliefkarte_t::calc_relief_farbe(const karte_t *welt, const koord k)
 {
     int color = SCHWARZ;
 
-    if(welt != NULL)
+    if(welt!=NULL)
     {
 		const planquadrat_t *plan = welt->lookup(k);
-		grund_t *gr = plan->gib_kartenboden();
+		if(plan!=NULL  &&  plan->gib_boden_count()>0) {
+			grund_t *gr = plan->gib_kartenboden();
 
-		// Umsetzung von Hoehe in Farben wie bei Reliefkarten ueblich
-		if(plan->gib_boden_bei(plan->gib_boden_count() - 1)->ist_bruecke()) {
-		    // Brücke
-		    color = MN_GREY3;
-		} else if(gr->gib_weg(weg_t::strasse)) {
-//		    if(gr->hat_gebaeude(hausbauer_t::frachthof_besch)) {
-		    if(gr->gib_halt()!=NULL) {
-				color = HALT_KENN;
-		    }
-		    else {
-				color = STRASSE_KENN;
-		    }
-		} else if(gr->gib_weg(weg_t::schiene)) {
-//		    if(gr->hat_gebaeude(hausbauer_t::bahnhof_besch)) {
-		    if(gr->gib_halt()!=NULL) {
-				color = HALT_KENN;
-		    } else {
-				color = SCHIENE_KENN;
-		    }
-		} else if(gr->gib_typ() == grund_t::fundament) {
+			// Umsetzung von Hoehe in Farben wie bei Reliefkarten ueblich
+			if(plan->gib_boden_bei(plan->gib_boden_count() - 1)->ist_bruecke()) {
+			    // Brücke
+			    color = MN_GREY3;
+			} else if(gr->gib_weg(weg_t::strasse)) {
+			    if(gr->gib_halt()!=NULL) {
+					color = HALT_KENN;
+			    }
+			    else {
+					color = STRASSE_KENN;
+			    }
+			} else if(gr->gib_weg(weg_t::schiene)) {
+			    if(gr->gib_halt()!=NULL) {
+					color = HALT_KENN;
+			    } else {
+					color = SCHIENE_KENN;
+			    }
+			} else if(gr->gib_typ() == grund_t::fundament) {
+			    // auf einem fundament steht ein gebaeude
+			    // das ist objekt nr. 1
 
-		    // auf einem fundament steht ein gebaeude
-		    // das ist objekt nr. 1
+			    ding_t * dt = gr->obj_bei(1);
 
-		    ding_t * dt = gr->obj_bei(1);
+			    if(dt == NULL || dt->fabrik() == NULL) {
+					color = GRAU3;
+			    } else {
+					color = dt->fabrik()->gib_kennfarbe();
+			    }
 
-		    if(dt == NULL || dt->fabrik() == NULL) {
-				color = GRAU3;
-		    } else {
-				color = dt->fabrik()->gib_kennfarbe();
-		    }
+			} else if(gr->gib_hoehe() <= welt->gib_grundwasser()) {
 
-		} else if(gr->gib_hoehe() <= welt->gib_grundwasser()) {
+			    ding_t * dt = gr->obj_bei(1);
 
-		    ding_t * dt = gr->obj_bei(1);
+			    if(dt != NULL && dt->fabrik() != NULL) {
+					color = dt->fabrik()->gib_kennfarbe();
+			    } else {
+					color = BLAU;
+			    }
 
-		    if(dt != NULL && dt->fabrik() != NULL) {
-				color = dt->fabrik()->gib_kennfarbe();
-		    } else {
-				color = BLAU;
-		    }
-
-		} else if(plan->gib_boden_bei(plan->gib_boden_count() > 1 ? 1 : 0)->ist_tunnel()) {
-		    // Tunnel
-	    	    color = MN_GREY0;
-		} else {
-		    color = calc_hoehe_farbe(gr->gib_hoehe(), welt->gib_grundwasser());
+			} else if(plan->gib_boden_bei(plan->gib_boden_count() > 1 ? 1 : 0)->ist_tunnel()) {
+			    // Tunnel
+		    	    color = MN_GREY0;
+			} else {
+			    color = calc_hoehe_farbe(gr->gib_hoehe(), welt->gib_grundwasser());
+			}
 		}
 	}
 
@@ -357,16 +356,18 @@ reliefkarte_t::calc_map(int render_mode)
   // prepare empty map
   init();
 
-	// since searching all map, we must do this here ...
+	// since we do iterate the tourist info list, this must be done here
 	// find tourist spots
 	if(render_mode==12) {
 		int steps=MAX(1,welt->gib_ausflugsziele_max_pax()/12);
-		const slist_tpl<gebaeude_t *> &ziele = welt->gib_ausflugsziele();
-		for(  unsigned i=0;  i<ziele.count();  i++  ) {
-			setze_relief_farbe_area(ziele.at(i)->gib_pos().gib_2d(), 7, calc_severity_color(ziele.at(i)->gib_passagier_level(),steps) );
+		slist_iterator_tpl <gebaeude_t *> iter (welt->gib_ausflugsziele());
+		while(iter.next()) {
+			setze_relief_farbe_area(iter.get_current()->gib_pos().gib_2d(), 7, calc_severity_color(iter.get_current()->gib_passagier_level(),steps) );
 		}
 		return;
 	}
+
+	// since searching all map, we must do this here ...
 	// find power lines
 	if(render_mode==11) {
 		for( int x=0; x<welt->gib_groesse_x(); x++ ) {

@@ -442,7 +442,6 @@ fabrikbauer_t::baue_fabrik(karte_t * welt, koord3d *parent, const fabrik_besch_t
 		koord dim = besch->gib_groesse(rotate);
 
 		koord k;
-//		halt = haltestelle_t::create(welt, pos.gib_2d(), welt->gib_spieler(1) );
 		halt = welt->gib_spieler(1)->halt_add(pos.gib_2d());
 
 		welt->lookup(pos)->setze_text( translator::translate(info->gib_name()) );

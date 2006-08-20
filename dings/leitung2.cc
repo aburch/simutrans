@@ -312,7 +312,7 @@ leitung_t::ist_entfernbar(const spieler_t *sp)
 
 void leitung_t::entferne(const spieler_t *)
 {
-DBG_MESSAGE("leitung_t::entferne()","remove pylon at (%i,%i)",gib_pos().x,gib_pos().y);
+//DBG_MESSAGE("leitung_t::entferne()","remove pylon at (%i,%i)",gib_pos().x,gib_pos().y);
 	grund_t *gr = welt->lookup(gib_pos());
 	if(gr) {
 		powernet_t *my_net = get_net();

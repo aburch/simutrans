@@ -53,7 +53,7 @@ convoi_info_t::convoi_info_t(convoihandle_t cnv)
        " \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n"
        " \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n"
        " \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n"),
-  view(cnv->gib_welt(), cnv->gib_pos().gib_2d()),
+  view(cnv->gib_welt(), cnv->gib_pos()),
   freight_info(32768)
 {
     this->cnv = cnv;
@@ -195,7 +195,7 @@ convoi_info_t::zeichnen(koord pos, koord gr)
 	setze_name(input.gib_text());*/
 
 	// update window contents
-	view.set_location(cnv->gib_pos().gib_2d());
+	view.set_location(cnv->gib_pos());
 
 	freight_info.clear();
 	cnv->get_freight_info(freight_info);

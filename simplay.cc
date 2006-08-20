@@ -1313,6 +1313,7 @@ DBG_MESSAGE("do_ki()","road vehicle %p",road_vehicle);
 					const int prod = MIN(ziel->max_produktion(),
 					                 ( start->max_produktion() * start->gib_besch()->gib_produkt(start_ware)->gib_faktor() )/256 - start->gib_abgabe_letzt(start_ware) );
 
+DBG_MESSAGE("do_ki()","check railway");
 					/* calculate number of cars for railroad */
 					count_rail=255;	// no cars yet
 					if(  rail_vehicle!=NULL  ) {
@@ -1351,6 +1352,7 @@ DBG_MESSAGE("spieler_t::do_ki()","No railway possible.");
 
 					INT_CHECK("simplay 1265");
 
+DBG_MESSAGE("do_ki()","check railway");
 					/* calculate number of cars for road; much easier */
 					count_road=255;	// no cars yet
 					if(  road_vehicle!=NULL  ) {
@@ -1881,7 +1883,10 @@ spieler_t::guess_gewinn_transport_quelle_ziel(fabrik_t *qfab,const ware_t *ware,
 			const int prod = MIN(zfab->max_produktion(),
 			                 ( qfab->max_produktion() * qfab->gib_besch()->gib_produkt(ware_nr)->gib_faktor() )/256 - qfab->gib_abgabe_letzt(ware_nr) * 2 );
 
-			gewinn = (grundwert *prod-5)*dist/128;
+			gewinn = (grundwert *prod-5)+simrand(15000);
+			if(dist>200) {
+				gewinn /= 2;
+			}
 
 //			// verlust durch fahrtkosten, geschätze anzhal vehikel ist fracht/16
 //			gewinn -= (int)(dist * 16 * (abs(prod)/16));   // dist * steps/planquad * kosten
@@ -2320,6 +2325,7 @@ spieler_t::create_simple_road_transport()
 	bauigel.baubaer = true;
 	// we won't destroy cities (and save the money)
 	bauigel.set_keep_existing_faster_ways(true);
+	bauigel.set_keep_city_roads(true);
 	bauigel.set_maximum(10000);
 
 	INT_CHECK("simplay 846");
@@ -2352,6 +2358,7 @@ DBG_MESSAGE("spieler_t::create_simple_road_transport()","But connection between 
 		koord mitte=(platz1+platz2)/2+koord(simrand(4)-2,simrand(4)-2);
 		INT_CHECK("simplay 2098");
 		bauigel.baubaer = false;
+		bauigel.set_keep_city_roads(true);
 		bauigel.calc_route(platz1,mitte);
 		// found half way
 		if(bauigel.max_n > 1) {
@@ -2360,6 +2367,7 @@ DBG_MESSAGE("spieler_t::create_simple_road_transport()","But connection between 
 			bauhase.route_fuer( wegbauer_t::strasse, road_weg );
 			bauhase.baubaer = false;
 			bauhase.set_keep_existing_faster_ways(true);
+			bauigel.set_keep_city_roads(true);
 			bauhase.set_maximum(10000);
 
 			INT_CHECK("simplay 2109");
@@ -2406,6 +2414,7 @@ spieler_t::create_complex_road_transport()
     INT_CHECK("simplay 867");
 
     bauigel.baubaer = true;
+	bauigel.set_keep_city_roads(true);
     bauigel.set_keep_existing_faster_ways(true);
     bauigel.set_maximum(32000);
     bauigel.route_fuer( wegbauer_t::strasse_bot, 0 );

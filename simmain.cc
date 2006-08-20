@@ -85,6 +85,9 @@
 #include <unistd.h>
 #endif
 
+
+#ifdef CHECK_LOCATIONS
+// this part move old files to new locations
 static void check_location(const char *file, const char *dir)
 {
     char src[128];
@@ -134,7 +137,9 @@ static void check_locations()
 /*
  * End of file moving code. Call to check locations beneath has to be removed,
  * too.
- ******************************************************************************/
+ */
+#endif
+ /******************************************************************************/
 
 
 static void show_sizes()
@@ -426,6 +431,12 @@ void sim_new_handler()
 #endif
 
 
+#ifdef OTTD_LIKE
+#define DEFAULT_OBJPATH "pak.ttd/"
+#else
+#define DEFAULT_OBJPATH "pak/"
+#endif
+
 int simu_cpp_main(int argc, char ** argv)
 {
   // Try to catch all exceptions and print them
@@ -448,12 +459,12 @@ int simu_cpp_main(int argc, char ** argv)
     int fullscreen = false;
 
     cstring_t loadgame = "";
-    cstring_t objfilename = "pak/";
+    cstring_t objfilename = DEFAULT_OBJPATH;
 
-
+#ifdef CHECK_LOCATIONS
     // Hajo: currently not needed
     // check_locations();
-
+#endif
 
     // init. fehlerbehandlung
 #ifdef _MSC_VER
@@ -466,7 +477,12 @@ int simu_cpp_main(int argc, char ** argv)
     if(gimme_arg(argc, argv, "-log", 0)) {
       	init_logging("simu.log", true, gimme_arg(argc, argv, "-debug", 0) != NULL);
     } else {
-        init_logging("stderr", true, gimme_arg(argc, argv, "-debug", 0) != NULL);
+        if(gimme_arg(argc, argv, "-debug", 0) != NULL) {
+          init_logging("stderr", true, gimme_arg(argc, argv, "-debug", 0) != NULL);
+        }
+        else {
+          init_logging(NULL, false, false);
+        }
     }
 
 
@@ -590,7 +606,14 @@ int simu_cpp_main(int argc, char ** argv)
 	(contents.get_int("starting_year", 1930));
 
       umgebung_t::autosave =
-	(contents.get_int("autosave", 0)) != 0;
+	(contents.get_int("autosave", 0));
+
+      umgebung_t::crossconnect_factories =
+#ifdef OTTD_LIKE
+      (contents.get_int("crossconnect_factories", 1))!=0;
+#else
+      (contents.get_int("crossconnect_factories", 0))!=0;
+#endif
 
       /*
        * Selection of savegame format through inifile
@@ -618,7 +641,7 @@ int simu_cpp_main(int argc, char ** argv)
       /*
        * Default pak file path
        */
-      objfilename = ltrim(contents.get_string("pak_file_path", "pak/"));
+      objfilename = ltrim(contents.get_string("pak_file_path", DEFAULT_OBJPATH));
 
 
       /*

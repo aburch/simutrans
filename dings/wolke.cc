@@ -97,7 +97,7 @@ void sync_wolke_t::entferne(spieler_t *)
 }
 
 
-
+#ifdef FREELIST_NEW
 void * sync_wolke_t::operator new(size_t /*s*/)
 {
 	return (sync_wolke_t *)freelist_t::gimme_node(sizeof(sync_wolke_t));
@@ -108,7 +108,7 @@ void sync_wolke_t::operator delete(void *p)
 {
 	freelist_t::putback_node(sizeof(sync_wolke_t),p);
 }
-
+#endif
 
 
 async_wolke_t::async_wolke_t(karte_t *welt, loadsave_t *file) : wolke_t(welt)

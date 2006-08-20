@@ -233,6 +233,11 @@ public:
 	 * @author hsiegeln (stolen from Hajo)
 	 */
 	int get_oldest_vehicle(int id);
+
+#if USE_NEW_GEBAUDE
+    virtual void * operator new(size_t s) { return (depot_t *)freelist_t::gimme_node(sizeof(depot_t)); }
+    virtual void operator delete(void *p) { freelist_t::putback_node(sizeof(depot_t),p); };
+#endif
 };
 
 
@@ -296,6 +301,11 @@ public:
 
     enum ding_t::typ gib_typ() const {return bahndepot;};
     const char *gib_name() const;
+
+#if USE_NEW_GEBAUDE
+    virtual void * operator new(size_t s) { return (bahndepot_t *)freelist_t::gimme_node(sizeof(bahndepot_t)); }
+    virtual void operator delete(void *p) { freelist_t::putback_node(sizeof(bahndepot_t),p); };
+#endif
 };
 
 
@@ -355,6 +365,11 @@ public:
 
     enum ding_t::typ gib_typ() const {return strassendepot;};
     const char *gib_name() const;
+
+#if USE_NEW_GEBAUDE
+    virtual void * operator new(size_t s) { return (strassendepot_t *)freelist_t::gimme_node(sizeof(strassendepot_t)); }
+    virtual void operator delete(void *p) { freelist_t::putback_node(sizeof(strassendepot_t),p); };
+#endif
 };
 
 
@@ -413,6 +428,11 @@ public:
 
     enum ding_t::typ gib_typ() const {return schiffdepot;};
     const char *gib_name() const;
+
+#if USE_NEW_GEBAUDE
+    virtual void * operator new(size_t s) { return (schiffdepot_t *)freelist_t::gimme_node(sizeof(schiffdepot_t)); }
+    virtual void operator delete(void *p) { freelist_t::putback_node(sizeof(schiffdepot_t),p); };
+#endif
 };
 
 #endif

@@ -269,7 +269,7 @@ void dr_init_sound()
 
 
 // reiszes screen
-unsigned short *dr_textur_resize(int w, int h)
+int dr_textur_resize(unsigned short **textur,int w, int h)
 {
 #ifdef USE_HW
 	SDL_UnlockSurface( screen );
@@ -278,10 +278,10 @@ unsigned short *dr_textur_resize(int w, int h)
 	width = w;
 	height = h;
 
-//	SDL_FreeSurface(screen);
 	screen = SDL_SetVideoMode(width, height, 16, flags);
 	printf("textur_resize()::screen=%p\n",screen);fflush(NULL);
-	return (unsigned short *)(screen->pixels);
+	*textur = (unsigned short *)(screen->pixels);
+	return 1;
 }
 
 

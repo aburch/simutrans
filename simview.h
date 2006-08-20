@@ -11,6 +11,7 @@
 #define simview_h
 
 class karte_modell_t;
+class ding_t;
 
 /**
  * View-Klasse für Weltmodell.
@@ -41,6 +42,11 @@ protected:
 
     virtual int gib_anzeige_breite() = 0;
     virtual int gib_anzeige_hoehe() = 0;
+
+    /* mousepointer from karte_t
+     * @author Hj. Malthaner
+     */
+    virtual ding_t * gib_zeiger() = 0;
 
 public:
 

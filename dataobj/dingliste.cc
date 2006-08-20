@@ -373,7 +373,7 @@ void dingliste_t::rdwr(karte_t *welt, loadsave_t *file, koord3d current_pos)
 		    gebaeude_t *gb = new gebaeude_t (welt, file);
 		    if(!gb->gib_tile()) {
 			delete gb;
-			gb  = NULL;
+			gb  = 0;
 		    }
 		    d = gb;
 		}
@@ -401,7 +401,13 @@ void dingliste_t::rdwr(karte_t *welt, loadsave_t *file, koord3d current_pos)
 #endif
 	    case ding_t::oberleitung:	    d = new oberleitung_t (welt, file);	        break;
 
-	    case ding_t::raucher:	    d = new raucher_t (welt, file);	        break;
+	    case ding_t::raucher:
+	        // only factories con smoke; but then, the smoker is reinstated after loading
+	        d = new raucher_t (welt, file);
+	        delete d;
+	        d = NULL;
+	        break;
+
 	    case ding_t::zeiger:	    d = new zeiger_t (welt, file);	        break;
 	    case ding_t::roadsign:	    d = new roadsign_t (welt, file);	        break;
 	    default:
@@ -427,8 +433,8 @@ DBG_DEBUG("dingliste_t::rdwr()","object ignored!");
 	    }
 	}
         else {
-	    if( obj[i] &&  obj[i]->gib_pos()==current_pos) {
-	        obj[i]->rdwr(file);
+	    if( obj[i] &&  obj[i]->gib_pos()==current_pos  &&  obj[i]->gib_typ()!=ding_t::raucher) {
+		        obj[i]->rdwr(file);
 	    } else {
 		    if( obj[i] &&  obj[i]->gib_pos()!=current_pos) {
 DBG_DEBUG("dingliste_t::rdwr()","position error: %i,%i instead %i,%i",obj[i]->gib_pos().x,obj[i]->gib_pos().y,current_pos.x,current_pos.y);

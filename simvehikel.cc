@@ -446,14 +446,49 @@ vehikel_basis_t::calc_height()
 	}
 	else if(gr->ist_tunnel()) {
 	    hoff = 0;
+		if(!gr->ist_im_tunnel()) {
+			// need hiding?
+			switch(gr->gib_grund_hang()) {
+			    case 3:	// nordhang
+			    	if(vehikel_basis_t::gib_yoff()>-7) {
+			    		setze_bild(0, IMG_LEER);
+			    	}
+			    	else {
+			    		calc_bild();
+			    	}
+			    	break;
+			    case 6:	// westhang
+			    	if(vehikel_basis_t::gib_xoff()>-12) {
+			    		setze_bild(0, IMG_LEER);
+			    	}
+			    	else {
+			    		calc_bild();
+			    	}
+				break;
+			    case 9:	// osthang
+			    	if(vehikel_basis_t::gib_xoff()<6) {
+			    		setze_bild(0, IMG_LEER);
+			    	}
+			    	else {
+			    		calc_bild();
+			    	}
+			    case 12:    // suedhang
+			    	if(vehikel_basis_t::gib_yoff()<7) {
+			    		setze_bild(0, IMG_LEER);
+			    	}
+			    	else {
+			    		calc_bild();
+			    	}
+			}
+		}
 	}
     }
     // geschwindigkeit berechnen
 
-
+	hoff = height_scaling(hoff);
     calc_akt_speed(hoff_alt, hoff);
 
-    return height_scaling(hoff);
+    return hoff;
 }
 
 
@@ -797,7 +832,7 @@ vehikel_t::rauche()
 
       grund_t * gr = welt->lookup( pos_cur );
       // nicht im tunnel ?
-      if(gr && !gr->ist_tunnel() ) {
+      if(gr && !gr->ist_im_tunnel() ) {
 	sync_wolke_t *abgas =  new sync_wolke_t(welt,
 						pos_cur,
 						gib_xoff(),
@@ -1392,7 +1427,7 @@ void
 automobil_t::calc_bild()
 {
     if(welt->lookup(pos_cur) &&
-       welt->lookup(pos_cur)->ist_tunnel() ) {	// tunnel ?
+       welt->lookup(pos_cur)->ist_im_tunnel() ) {	// tunnel ?
 	setze_bild(0, IMG_LEER);
     } else {
 	setze_bild(0, besch->gib_bild_nr(ribi_t::gib_dir(gib_fahrtrichtung()),
@@ -1632,7 +1667,7 @@ waggon_t::~waggon_t()
 void waggon_t::calc_bild()
 {
     if(welt->lookup( pos_cur ) &&
-       welt->lookup( pos_cur )->ist_tunnel() ) {	// tunnel ?
+       welt->lookup( pos_cur )->ist_im_tunnel() ) {	// tunnel ?
 	setze_bild(0, IMG_LEER);
     } else  {
 	setze_bild(0, besch->gib_bild_nr(ribi_t::gib_dir(gib_fahrtrichtung()), fracht.is_empty()));

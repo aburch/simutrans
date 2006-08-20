@@ -290,6 +290,7 @@ stadt_t::init_pax_ziele()
 	for(int j=0; j<96; j++) {
 		for(int i=0; i<96; i++) {
 			const koord pos (i*gr_x/96, j*gr_y/96);
+//DBG_MESSAGE("stadt_t::init_pax_ziele()","at %i,%i = (%i,%i)",i,j,pos.x,pos.y);
 			pax_ziele_alt.at(i, j) = pax_ziele_neu.at(i ,j) = reliefkarte_t::calc_relief_farbe(welt, pos);
 			//      pax_ziele_alt.at(i, j) = pax_ziele_neu.at(i ,j) = 0;
 		}
@@ -398,6 +399,7 @@ stadt_t::stadt_t(karte_t *wl, loadsave_t *file) :
     pax_ziele_alt(96, 96),
     pax_ziele_neu(96, 96)
 {
+	welt = wl;
     step_count = 0;
     next_step = 0;//welt->gib_zeit_ms()+step_interval+simrand(step_interval);
 

@@ -495,6 +495,7 @@ public:
 
     bool ist_da(koord pos) const;
     koord gib_basis_pos() const;
+    koord3d gib_basis_pos3d() const;
 
     /* return the closest square that belongs to this halt
      * @author prissi

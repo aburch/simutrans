@@ -93,7 +93,7 @@ void oberleitung_t::calc_bild()
   if(hang != gr->gib_grund_hang() &&
      gr->gib_grund_hang() != 0) {
     // Hajo: rampe oder so
-    setze_yoff(/*gib_yoff()*/ -16);
+    setze_yoff( height_scaling( -16) );
   }
 
   if(hang != hang_t::flach) {

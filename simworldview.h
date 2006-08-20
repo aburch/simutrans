@@ -41,6 +41,10 @@ protected:
      */
     virtual void display_dinge(int i, int j, int xpos, int ypos, bool dirty);
 
+    /* mousepointer from karte_t
+     * @author Hj. Malthaner
+     */
+    virtual ding_t * gib_zeiger();
 
     virtual int gib_anzeige_breite();
     virtual int gib_anzeige_hoehe();

@@ -69,8 +69,10 @@ public:
      */
     virtual void entferne(spieler_t *sp);
 
+#ifdef FREELIST_NEW
     void * operator new(size_t s);
     void operator delete(void *p);
+#endif
 };
 
 

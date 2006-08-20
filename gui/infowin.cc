@@ -235,7 +235,7 @@ void infowin_t::zeichnen(koord pos, koord gr)
     const planquadrat_t * plan = welt->lookup(gib_pos().gib_2d());
 
     if(plan) {
-	view.set_location(gib_pos().gib_2d());
+	view.set_location(gib_pos());
 
 	display_ddd_box(x+w-77, y+23, 66, 57, f.dunkel, f.hell);
 	view.zeichnen(koord(x+w-76, y+24));

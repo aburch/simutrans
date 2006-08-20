@@ -167,7 +167,7 @@ void stadtauto_t::rdwr(loadsave_t *file)
 
 void stadtauto_t::calc_bild()
 {
-	if(welt->lookup(gib_pos())->ist_tunnel()) {
+	if(welt->lookup(gib_pos())->ist_im_tunnel()) {
 		setze_bild(0, -1);
 	} else {
 		setze_bild(0,besch->gib_bild_nr(ribi_t::gib_dir(gib_fahrtrichtung())));
@@ -462,7 +462,7 @@ if(rs)DBG_MESSAGE("hop()","%i and %i",rs->gib_besch()->gib_min_speed(),gib_max_s
 void
 verkehrsteilnehmer_t::calc_bild()
 {
-    if(welt->lookup(gib_pos())->ist_tunnel()) {
+    if(welt->lookup(gib_pos())->ist_im_tunnel()) {
 	setze_bild(0, -1);
     } else {
 	setze_bild(0, gib_bild(gib_fahrtrichtung()));

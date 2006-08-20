@@ -14,10 +14,12 @@
 #include "../simworld.h"
 #include "../simgraph.h"
 #include "../boden/grund.h"
+
 #include "../dataobj/umgebung.h"
+#include "../dataobj/koord3d.h"
 
 
-world_view_t::world_view_t(karte_t *welt, koord location)
+world_view_t::world_view_t(karte_t *welt, koord3d location)
 {
     this->location = location;
     this->welt = welt;
@@ -35,8 +37,8 @@ void
 world_view_t::infowin_event(const event_t *ev)
 {
     if(IS_LEFTRELEASE(ev)) {
-	if(welt->ist_in_kartengrenzen(location)) {
-	    welt->zentriere_auf(location);
+	if(welt->ist_in_kartengrenzen(location.gib_2d())) {
+	    welt->zentriere_auf(location.gib_2d());
 	}
     }
 }
@@ -77,13 +79,13 @@ static const koord offsets[18] =
 void
 world_view_t::zeichnen(koord offset) const
 {
-    const planquadrat_t * plan = welt->lookup(location);
+    const planquadrat_t * plan = welt->lookup(location.gib_2d());
 
     if(plan) {
         const int raster = get_tile_raster_width();
 	const int scale = raster/64;
 
-        const int hgt = (plan->gib_kartenboden()->gib_hoehe() - 12)*scale;
+        const int hgt = height_scaling( (plan->gib_kartenboden()->gib_hoehe() - 12)*scale );
 
 	const koord pos = gib_pos()+offset;
 	int i;
@@ -97,7 +99,7 @@ world_view_t::zeichnen(koord offset) const
 	umgebung_t::show_names = 0;
 
 	for(i=0; i<18; i+=2) {
-	    const koord k = location + offsets[i];
+	    const koord k = location.gib_2d() + offsets[i];
 	    const koord off = offsets[i+1]*scale;
 
 	    plan = welt->lookup(k);
@@ -109,7 +111,7 @@ world_view_t::zeichnen(koord offset) const
 	}
 
 	for(i=0; i<18; i+=2) {
-	    const koord k = location + offsets[i];
+	    const koord k = location.gib_2d() + offsets[i];
 	    const koord off = offsets[i+1]*scale;
 
 	    plan = welt->lookup(k);

@@ -343,32 +343,24 @@ public:
 
 
     /**
-     * setzt die Produktionsgrundmenge
-     *
+     * Produktionsgrundmenge
      * @author Hj. Malthaner
      */
     void set_prodbase(int i) {prodbase = i;};
-
-    /**
-     * setzt den Produktionsmultiplikator
-     *
-     * @author Hj. Malthaner
-     */
   int get_prodbase(void) {return prodbase;};
 
     /**
-     * setzt den Produktionsmultiplikator
-     *
+     * Produktionsmultiplikator
      * @author Hj. Malthaner
      */
   void set_prodfaktor(int i) {prodfaktor= (i<16)?16:i;};
+  int get_prodfaktor(void) {return prodfaktor;};
 
     /**
-     * setzt den Produktionsmultiplikator
-     *
+     * Crossconnects all factories
      * @author Hj. Malthaner
      */
-  int get_prodfaktor(void) {return prodfaktor;};
+   void add_all_suppliers();
 };
 
 #endif

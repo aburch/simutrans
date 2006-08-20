@@ -100,5 +100,8 @@ int umgebung_t::max_route_steps = 10000;
 /* prissi: maximum number of steps for breath search */
 int umgebung_t::max_transfers = 7;
 
-
+/* prissi: autosave every x months */
 int umgebung_t::autosave = 3;
+
+/* prissi: crossconnect all factories (like OTTD and similar games) */
+bool umgebung_t::crossconnect_factories=false;

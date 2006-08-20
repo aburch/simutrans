@@ -16,6 +16,10 @@ typedef struct ns{
  */
 class freelist_t
 {
+private:
+	// put back a node and checks for consitency
+	static void putback_check_node(nodelist_node_t ** list,nodelist_node_t *p);
+
 public:
 	static void *gimme_node(int size);
 	static void putback_node(int size,void *p);

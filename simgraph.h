@@ -34,16 +34,18 @@ typedef enum {false=0, true=1 } bool;
 
 
 // prissi: the next line will make a version using only 8px height (like TTDX)
-#define OTTD_LIKE
+//#define OTTD_LIKE
 
 #ifdef OTTD_LIKE
 #define tile_raster_scale_x(v, rw)   (((v)*(rw)) >> 6)
 #define tile_raster_scale_y(v, rh)   (((v)*(rh)) >> 7)
 #define height_scaling(i) ((i)>>1)
+#define height_unscaling(i) ((i)>>1)
 #else
 #define tile_raster_scale_x(v, rw)   (((v)*(rw)) >> 6)
 #define tile_raster_scale_y(v, rh)   (((v)*(rh)) >> 6)
 #define height_scaling(i) (i)
+#define height_unscaling(i) (i)
 #endif
 
 #define DPY_WIDTH   12

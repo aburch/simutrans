@@ -862,7 +862,9 @@ void fabrik_t::verteile_waren(const uint32 produkt)
 
 	// Auswertung der Ergebnisse
 	if(!halt_ok.is_empty()) {
-		// Hajo: distribute goods to station that has the least amount stored
+
+		// prissi: distribute goods to factory, that has not an overflowing input storage
+		// if all have, then distribute evenly
 		const int menge = (ausgang->at(produkt).menge >> precision_bits);
 #if 1
 		if(menge > 1) {
@@ -872,6 +874,7 @@ void fabrik_t::verteile_waren(const uint32 produkt)
 		}
 #else
 
+		// Hajo: distribute goods to station that has the least amount stored
 		if(menge > 1) {
 			ausgang->at(produkt).menge -= menge << precision_bits;
 
@@ -1166,9 +1169,10 @@ void fabrik_t::laden_abschliessen()
 void
 fabrik_t::add_supplier(koord pos)
 {
-	if(suppliers.get_count() < max_suppliers) {
-		suppliers.append_unique(pos);
+	if(suppliers.get_count() >= suppliers.get_size()) {
+		suppliers.resize( suppliers.get_count()+max_suppliers );
 	}
+	suppliers.append_unique(pos);
 }
 
 
@@ -1176,4 +1180,30 @@ void
 fabrik_t::rem_supplier(koord pos)
 {
 	suppliers.remove(pos);
+}
+
+
+// prissi: crossconnect everything possible
+void
+fabrik_t::add_all_suppliers()
+{
+
+	for(int i=0; i < besch->gib_lieferanten(); i++) {
+		const fabrik_lieferant_besch_t *lieferant = besch->gib_lieferant(i);
+		const ware_besch_t *ware = lieferant->gib_ware();
+
+		const slist_tpl<fabrik_t *> & list = welt->gib_fab_list();
+		slist_iterator_tpl <fabrik_t *> iter (list);
+
+		while( iter.next() ) {
+
+			fabrik_t * fab = iter.get_current();
+
+			// connect to an existing one, if this is an producer
+			if(fab!=this  &&  fab->vorrat_an(ware) > -1) {
+				// add us to this factory
+				fab->add_lieferziel(pos.gib_2d());
+			}
+		}
+	}
 }

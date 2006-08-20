@@ -82,7 +82,8 @@ public:
       world_spot_dirty = 8,  // Hajo: benutzt von karte_t::ist_dirty(koord3d)
       // 16, 32,
       is_bridge = 64,
-      is_tunnel = 128
+      is_tunnel = 128,
+      is_in_tunnel = 32
     };
 
 
@@ -405,6 +406,13 @@ public:
      * @author Hj. Malthaner
      */
     inline bool ist_tunnel() const {return (flags & is_tunnel) != 0;};
+
+    /**
+     * This is called very often, it must be inlined and therefore
+     * cannot be virtual - subclasses must set the flags appropriately!
+     * @author Hj. Malthaner
+     */
+    inline bool ist_im_tunnel() const {return (flags & is_in_tunnel) != 0;};
 
 
 

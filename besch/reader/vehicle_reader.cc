@@ -247,12 +247,14 @@ obj_besch_t * vehicle_reader_t::read_node(FILE *fp, obj_node_info_t &node)
   }
 	//change the vehicle type
 	if(version<4) {
-		if(besch->typ == 4) {
+		if(besch->typ==4) {
 			besch->engine_type = vehikel_besch_t::electric;
 			besch->typ = 2;
 		}
 		else {
-			besch->engine_type = vehikel_besch_t::diesel;
+			if(besch->typ==2  &&  version<2) {
+				besch->engine_type = vehikel_besch_t::diesel;
+			}
 		}
 		// convert to new standard
 		const weg_t::typ convert_from_old[8]={weg_t::strasse, weg_t::schiene, weg_t::wasser, weg_t::luft, weg_t::invalid, weg_t::schiene_monorail, weg_t::schiene_maglev, weg_t::schiene_strab };

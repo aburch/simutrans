@@ -23,6 +23,7 @@ tunnelboden_t::tunnelboden_t(karte_t *welt, koord3d pos, hang_t::typ hang_typ) :
 {
     this->hang_typ = hang_typ;
     set_flag(grund_t::is_tunnel);
+    set_flag(grund_t::is_in_tunnel);
 }
 
 
@@ -34,9 +35,12 @@ void tunnelboden_t::calc_bild()
 
       boden_t::calc_bild();
       setze_weg_bild(-1);
+      set_flag(grund_t::is_tunnel);
+      clear_flag(grund_t::is_in_tunnel);
 
     } else {
         setze_bild(-1);
+        set_flag(grund_t::is_in_tunnel);
     }
 }
 

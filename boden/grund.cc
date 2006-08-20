@@ -409,7 +409,7 @@ void grund_t::add_to_haltlist(halthandle_t halt)
  */
 void grund_t::remove_from_haltlist(halthandle_t halt)
 {
-DBG_DEBUG("grund_t::remove_from_haltlist()","at pos %i,%i from halt (%i)",pos.gib_2d().x,pos.gib_2d().y,halt.is_bound());
+//DBG_DEBUG("grund_t::remove_from_haltlist()","at pos %i,%i from halt (%i)",pos.gib_2d().x,pos.gib_2d().y,halt.is_bound());
 	for(int y=-umgebung_t::station_coverage_size; y<=umgebung_t::station_coverage_size; y++) {
 		for(int x=-umgebung_t::station_coverage_size; x<=umgebung_t::station_coverage_size; x++) {
 			koord test_pos = pos.gib_2d()+koord(x,y);

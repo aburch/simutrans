@@ -11,6 +11,7 @@
 #define world_view_t_h
 
 #include "../ifc/gui_komponente.h"
+#include "../dataobj/koord3d.h"
 
 class karte_t;
 struct event_t;
@@ -28,7 +29,7 @@ private:
      * The location to display.
      * @autor Hj. Malthaner
      */
-    koord location;
+    koord3d location;
 
 
     /**
@@ -41,13 +42,13 @@ private:
 
 public:
 
-    world_view_t(karte_t *welt, koord location);
+    world_view_t(karte_t *welt, koord3d location);
 
     /**
      * Sets the location to be displayed.
      * @author Hj. Malthaner
      */
-    void set_location(koord l) {location=l;};
+    void set_location(koord3d l) {location=l;};
 
 
     /**

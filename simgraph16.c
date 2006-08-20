@@ -2828,6 +2828,10 @@ void display_text_proportional_len_clip(int x, int y, const char *txt,
 	bool v_clip;
 	unsigned char mask1, mask2;	// for horizontal clipping
 	const PIXVAL color = rgbcolormap[color_index];
+#ifndef USE_C
+	// faster drawing with assembler
+	const unsigned long color2 = (color<<16)|color;
+#endif
 
 	// TAKE CARE: Clipping area may be larger than actual screen size ...
 	if(  use_clipping  ) {
@@ -3412,7 +3416,7 @@ simgraph_resize( int w, int h )
 		guarded_free(tile_dirty);
 		guarded_free(tile_dirty_old);
 
-		textur = dr_textur_resize( disp_width, disp_height );
+		dr_textur_resize( &textur, disp_width, disp_height );
 
 		// allocate dirty tile flags
 		tiles_per_line = (disp_width + DIRTY_TILE_SIZE - 1) / DIRTY_TILE_SIZE;

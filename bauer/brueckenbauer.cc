@@ -13,6 +13,7 @@
 #include "brueckenbauer.h"
 
 #include "../simworld.h"
+#include "../simgraph.h"
 #include "../simwin.h"
 #include "../simsfx.h"
 #include "../simplay.h"
@@ -397,7 +398,7 @@ bool brueckenbauer_t::baue_bruecke(karte_t *welt, spieler_t *sp,
 
   bruecke->obj_add(new bruecke_t(welt, bruecke->gib_pos(), 0, sp, besch, besch->gib_simple(ribi)));
 
-  sp->buche(CST_BRUECKE, pos.gib_2d(), COST_CONSTRUCTION);
+  sp->buche(besch->gib_preis(), pos.gib_2d(), COST_CONSTRUCTION);
         pos = pos + zv;
     }
     baue_auffahrt(welt, sp, pos, -zv, besch);

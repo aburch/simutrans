@@ -2,6 +2,30 @@
 Known bugs: (hard to fix)
 	Citycars are visible after loading even in a tunnel until they hop onto the next field
 	Citycars cannot go around a 180 degree road bend
+	Monorails have no appropriate crossing
+
+
+Release of 86.07.2
+
+28-Jul-2005 (prissi)
+	FIX: cursor alignment with 128
+	FIX: no money making by open schedule window during loading in a station
+	FIX: message list now displays all messages again
+	FIX: divers errors around the GDI display routines and further speed up
+
+25-Jul-2005 (prissi)
+	FIX: again correct train types for newer paks
+	FIX: error during loading was using evt. unitialized minimap
+	CHANGE: order in railtools and tramstools roughly similar
+	CHANGE: background for tunnel graphics (was returning always foreground)
+	CHANGE: AI will always keep cityroads
+	FIX: roads under harbour deleted
+	FIX: AI now users better calculation of income (before always the farest factory won)
+	CHANGE: zeiger now drawn on to of everything
+	CHANGE: allow to crossconnect all factories (via crossconnect_factories=1 in conf/simuconf.tab)
+	FIX: factories initiated more than one smoker instance during loading (could break savegames)
+	FIX: cars and trains now really vanish in tunnels (more or less)
+	CHANGE: wrote extremly simple direct copy in Windows-GDI. Seems 2x faster than SDL and the debugger works a little, yeah!!!
 
 
 Release of 86.07.1

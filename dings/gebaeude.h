@@ -11,8 +11,15 @@
 #ifndef dings_gebaeude_h
 #define dings_gebaeude_h
 
+// use my own functions,m but does not work properly
+#define USE_NEW_GEBAUDE 0
+
 #include "../ifc/sync_steppable.h"
 #include "../simdings.h"
+
+#ifdef USE_NEW_GEBAUDE
+#include "../dataobj/freelist.h"
+#endif
 
 class haus_tile_besch_t;
 
@@ -56,7 +63,7 @@ private:
      * Zeitpunkt an dem das Gebaeude Gebaut wurde
      * @author Hj. Malthaner
      */
-    unsigned long insta_zeit;
+    uint32 insta_zeit;
 
 
     /**
@@ -231,7 +238,11 @@ public:
     virtual void zeige_info();
 
     void entferne(spieler_t *sp);
-};
 
+#if USE_NEW_GEBAUDE
+    virtual void * operator new(size_t s) { return (gebaeude_t *)freelist_t::gimme_node(sizeof(gebaeude_t)); }
+    virtual void operator delete(void *p) { freelist_t::putback_node(sizeof(gebaeude_t),p); };
+#endif
+};
 
 #endif

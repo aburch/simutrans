@@ -242,6 +242,17 @@ haltestelle_t::gib_basis_pos() const
 	}
 }
 
+koord3d
+haltestelle_t::gib_basis_pos3d() const
+{
+	if(!grund.is_empty()) {
+		return grund.at(0)->gib_pos();
+	}
+	else {
+		return koord3d::invalid;
+	}
+}
+
 void haltestelle_t::init_gui()
 {
     // Lazy init at opening!
@@ -1500,7 +1511,7 @@ void haltestelle_t::get_freight_info(cbuffer_t & buf)
 		if(wliste) {
 			slist_iterator_tpl<ware_t> iter (wliste);
 
-DBG_MESSAGE("haltestelle_t::get_freight_info()","start for ware %s",wtyp->gib_name());
+//DBG_MESSAGE("haltestelle_t::get_freight_info()","start for ware %s",wtyp->gib_name());
 			buf.append(" ");
 			buf.append(gib_ware_summe(wtyp));
 			buf.append(translator::translate(wtyp->gib_mass()));
@@ -1520,13 +1531,13 @@ DBG_MESSAGE("haltestelle_t::get_freight_info()","start for ware %s",wtyp->gib_na
 #endif
 			while(iter.next()) {
 				ware_t ware = iter.get_current();
-DBG_MESSAGE("haltestelle_t::get_freight_info()","for halt %i",pos);
+//DBG_MESSAGE("haltestelle_t::get_freight_info()","for halt %i",pos);
 				tdlist[pos].ware = ware;
 				tdlist[pos].destination = gib_halt(ware.gib_ziel());
 				tdlist[pos].via_destination = gib_halt(ware.gib_zwischenziel());
 				// for the sorting via the number for the next stop we unify entries
 				if(sortby==by_via_sum  &&  pos>0) {
-DBG_MESSAGE("haltestelle_t::get_freight_info()","for halt %i check connection",pos);
+//DBG_MESSAGE("haltestelle_t::get_freight_info()","for halt %i check connection",pos);
 					// only add it, if there is not another thing waiting with the same via but another destination
 					for( int i=0;  i<pos;  i++ ) {
 						if(/*tdlist[i].ware.gib_typ()==tdlist[pos].ware.gib_typ()  &&*/  tdlist[i].via_destination==tdlist[pos].via_destination  &&  tdlist[i].destination!=tdlist[i].via_destination) {
@@ -1535,13 +1546,13 @@ DBG_MESSAGE("haltestelle_t::get_freight_info()","for halt %i check connection",p
 						}
 					}
 				}
-DBG_MESSAGE("haltestelle_t::get_freight_info()","for halt %i added",pos);
+//DBG_MESSAGE("haltestelle_t::get_freight_info()","for halt %i added",pos);
 				pos++;
 			}
-DBG_MESSAGE("haltestelle_t::get_freight_info()","sort %i positions mode=%i",pos,sortby);
+//DBG_MESSAGE("haltestelle_t::get_freight_info()","sort %i positions mode=%i",pos,sortby);
 			// sort the ware's list
 			qsort((void *)tdlist, pos, sizeof (travel_details), compare_ware);
-DBG_MESSAGE("haltestelle_t::get_freight_info()","added %i ware.",pos);
+//DBG_MESSAGE("haltestelle_t::get_freight_info()","added %i ware.",pos);
 			// print the ware's list to buffer - it should be in sortorder by now!
 			for (int j = 0; j<pos; j++) {
 				ware_t ware = tdlist[j].ware;
@@ -1737,7 +1748,7 @@ haltestelle_t::recalc_station_type()
 	}
 	station_type = (haltestelle_t::stationtyp)new_station_type;
 
-DBG_DEBUG("haltestelle_t::recalc_station_type()","result %x",new_station_type);
+//DBG_DEBUG("haltestelle_t::recalc_station_type()","result %x",new_station_type);
 }
 
 

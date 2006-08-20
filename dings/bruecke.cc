@@ -43,10 +43,10 @@ bruecke_t::bruecke_t(karte_t *welt, koord3d pos, const int y_off, spieler_t *sp,
 
   setze_bild(0, besch->gib_hintergrund(img));
   setze_besitzer( sp );
-  setze_yoff( y_off );
+  setze_yoff( height_scaling(y_off) );
 
   if(gib_besitzer()) {
-    gib_besitzer()->buche(CST_BRUECKE, gib_pos().gib_2d(), COST_CONSTRUCTION);
+    gib_besitzer()->buche(besch->gib_preis(), gib_pos().gib_2d(), COST_CONSTRUCTION);
   }
   step_frequency = 0;
 }

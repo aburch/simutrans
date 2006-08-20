@@ -65,6 +65,7 @@
 #endif
 
 #include "dataobj/einstellungen.h"
+#include "dataobj/umgebung.h"
 #include "dataobj/fahrplan.h"
 
 #include "bauer/tunnelbauer.h"
@@ -1024,6 +1025,9 @@ DBG_MESSAGE("wkz_dockbau()","building dock from square (%d,%d) to (%d,%d)", pos.
 		halt->set_pax_enabled( true );
 		halt->set_ware_enabled( true );
 
+		// remove old ground below slope
+		welt->access(pos)->kartenboden_setzen(new boden_t(welt, welt->lookup(pos)->gib_kartenboden()->gib_pos()), false);
+
 		hausbauer_t::baue(welt, sp, bau_pos, layout,besch, 0, &halt);
 
 		for(int i=0;  i<=len;  i++ ) {
@@ -1831,12 +1835,12 @@ int wkz_pflanze_baum(spieler_t *, karte_t *welt, koord pos)
 #include "simverkehr.h"
 int wkz_test(spieler_t *, karte_t *welt, koord pos)
 {
-    if(welt->ist_in_kartengrenzen(pos)) {
-  verkehrsteilnehmer_t *vt = new verkehrsteilnehmer_t(welt, pos);
-  welt->lookup(pos)->gib_boden()->obj_add( vt );
-  welt->sync_add( vt );
-    }
-    return true;
+	if(welt->ist_in_kartengrenzen(pos)) {
+		verkehrsteilnehmer_t *vt = new verkehrsteilnehmer_t(welt, pos);
+		welt->lookup(pos)->gib_boden()->obj_add( vt );
+		welt->sync_add( vt );
+	}
+	return true;
 }
 */
 
@@ -1865,6 +1869,16 @@ int wkz_build_industries_land(spieler_t *, karte_t *welt, koord pos)
 	if(hat_platz) {
 		koord3d k = welt->lookup(pos)->gib_kartenboden()->gib_pos();
 		fabrikbauer_t::baue_hierarchie(welt, NULL, info, rotation, &k,welt->gib_spieler(1));
+
+		// crossconnect all?
+		if(umgebung_t::crossconnect_factories) {
+			const slist_tpl<fabrik_t *> & list = welt->gib_fab_list();
+			slist_iterator_tpl <fabrik_t *> iter (list);
+			while( iter.next() ) {
+				iter.get_current()->add_all_suppliers();
+			}
+		}
+
 		return true;
 	}
 
@@ -1875,13 +1889,24 @@ int wkz_build_industries_land(spieler_t *, karte_t *welt, koord pos)
 /* builts a random industry chain, either in the next town */
 int wkz_build_industries_city(spieler_t *, karte_t *welt, koord pos)
 {
-  const planquadrat_t *plan = welt->lookup(pos);
-  if(plan) {
-    const fabrik_besch_t *info = fabrikbauer_t::get_random_consumer(true);
-    koord3d pos3d = plan->gib_kartenboden()->gib_pos();
-    fabrikbauer_t::baue_hierarchie(welt, NULL, info, false, &pos3d,welt->gib_spieler(1));
-  }
-  return plan != 0;
+	const planquadrat_t *plan = welt->lookup(pos);
+	if(plan) {
+
+		const fabrik_besch_t *info = fabrikbauer_t::get_random_consumer(true);
+		koord3d pos3d = plan->gib_kartenboden()->gib_pos();
+		fabrikbauer_t::baue_hierarchie(welt, NULL, info, false, &pos3d,welt->gib_spieler(1));
+
+		// crossconnect all?
+		if(umgebung_t::crossconnect_factories) {
+			const slist_tpl<fabrik_t *> & list = welt->gib_fab_list();
+			slist_iterator_tpl <fabrik_t *> iter (list);
+			while( iter.next() ) {
+				iter.get_current()->add_all_suppliers();
+			}
+		}
+
+	}
+	return plan != 0;
 }
 
 

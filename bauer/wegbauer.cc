@@ -470,6 +470,7 @@ wegbauer_t::wegbauer_t(karte_t *wl, spieler_t *spl)
     maximum = 500;
 
     keep_existing_ways = false;
+    keep_existing_city_roads = false;
     keep_existing_faster_ways = false;
 
     info = new array2d_tpl<info_t> (welt->gib_groesse_x(), welt->gib_groesse_y());
@@ -1167,6 +1168,7 @@ wegbauer_t::calc_route(koord start, const koord ziel)
 {
 	INT_CHECK("simbau 740");
 
+	keep_existing_city_roads |= (bautyp==strasse_bot);
     if(baubaer) {
 	intern_calc_route(start, ziel);
 	const int len2 = max_n;
@@ -1376,7 +1378,9 @@ wegbauer_t::baue_strasse()
 	int cost = 0;
 
 	// construct city road?
-	bool add_sidewalk = besch==gib_besch("city_road");
+	const weg_besch_t *cityroad = gib_besch("city_road");
+	bool add_sidewalk = besch==cityroad;
+
 	if(add_sidewalk) {
 		sp = NULL;
 	}
@@ -1399,7 +1403,7 @@ wegbauer_t::baue_strasse()
 			weg_t * weg = gr->gib_weg(weg_t::strasse);
 
 			// keep faster ways or if it is the same way ... (@author prissi)
-			if(weg->gib_besch()==besch  ||  keep_existing_ways  ||  (keep_existing_faster_ways  &&  weg->gib_besch()->gib_topspeed()>=besch->gib_topspeed())  ) {
+			if(weg->gib_besch()==besch  ||  keep_existing_ways  ||  (keep_existing_city_roads  && weg->gib_besch()==cityroad)  ||  (keep_existing_faster_ways  &&  weg->gib_besch()->gib_topspeed()>=besch->gib_topspeed())  ) {
 				//nothing to be done
 //DBG_MESSAGE("wegbauer_t::baue_strasse()","nothing to do at (%i,%i)",k.x,k.y);
 				cost = 0;
