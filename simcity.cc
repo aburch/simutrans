@@ -57,38 +57,6 @@
 
 class spieler_t;
 
-// Eine Liste mit Namensteilen fuer die Stadtnamen
-
-static const int anz_t1 = 11;
-static const char * name_t1[anz_t1] =
-{
-//    "Kalten", "Friedrichs", "Bo", "Michel", "Tuna", "Karls", "Frei",
-//    "Alten", "Neu", "Steinen", "Rast"
-
-    "%1_CITY_SYLL", "%2_CITY_SYLL", "%3_CITY_SYLL", "%4_CITY_SYLL", "%5_CITY_SYLL",
-    "%6_CITY_SYLL", "%7_CITY_SYLL", "%8_CITY_SYLL", "%9_CITY_SYLL", "%A_CITY_SYLL",
-    "%B_CITY_SYLL",
-
-};
-
-static const int anz_t2 = 10;
-static const char * name_t2[anz_t2] =
-{
-//  "stadt", "dorf", "bruck", "bronn", "berg", "tal", "weiler", "hausen",
-//  "steig", "brigg"
-
-    "&1_CITY_SYLL", "&2_CITY_SYLL", "&3_CITY_SYLL", "&4_CITY_SYLL", "&5_CITY_SYLL",
-    "&6_CITY_SYLL", "&7_CITY_SYLL", "&8_CITY_SYLL", "&9_CITY_SYLL", "&A_CITY_SYLL",
-};
-
-
-/**
- * Liste aller Städtenamen
- * @author Hj. Malthaner
- */
-static slist_tpl <cstring_t> namen_liste;
-
-
 /**
  * Number of road building rules
  * @author Hj. Malthaner
@@ -126,6 +94,13 @@ static struct rule_t * road_rules = 0;
  */
 static struct rule_t * house_rules = 0;
 
+
+
+/**
+ * try to built cities at least this distance apart
+ * @author prissi
+ */
+static int minimum_city_distance = 16;
 
 
 //------------ haltestellennamen -----------------------
@@ -221,26 +196,26 @@ public:
     virtual bool ist_feld_ok(koord pos, koord d) const {
         const planquadrat_t *plan = welt->lookup(pos + d);
 
-	// Hajo: can't build here
-	if(plan == 0) return false;
+  // Hajo: can't build here
+  if(plan == 0) return false;
 
-	const grund_t *gr = plan->gib_kartenboden();
-	if(ist_randfeld(d)) {
-	    return
-	        gr != 0 &&
-		gr->gib_grund_hang() == hang_t::flach &&	// Flach
-		gr->gib_typ() == grund_t::boden &&		// Boden -> keine GEbäude
-		!gr->gib_weg(weg_t::schiene) &&			// Höchstens Strassen
-		gr->kann_alle_obj_entfernen(NULL) == NULL;	// Irgendwas verbaut den Platz?
-	}
-	else {
-	    return
-	        gr != 0 &&
-		gr->gib_grund_hang() == hang_t::flach &&
-		gr->gib_typ() == grund_t::boden &&
-		gr->ist_natur() &&				// Keine Wege hier
-		gr->kann_alle_obj_entfernen(NULL) == NULL;	// Irgendwas verbaut den Platz?
-	}
+  const grund_t *gr = plan->gib_kartenboden();
+  if(ist_randfeld(d)) {
+      return
+          gr != 0 &&
+    gr->gib_grund_hang() == hang_t::flach &&  // Flach
+    gr->gib_typ() == grund_t::boden &&    // Boden -> keine GEbäude
+    !gr->gib_weg(weg_t::schiene) &&     // Höchstens Strassen
+    gr->kann_alle_obj_entfernen(NULL) == NULL;  // Irgendwas verbaut den Platz?
+  }
+  else {
+      return
+          gr != 0 &&
+    gr->gib_grund_hang() == hang_t::flach &&
+    gr->gib_typ() == grund_t::boden &&
+    gr->ist_natur() &&        // Keine Wege hier
+    gr->kann_alle_obj_entfernen(NULL) == NULL;  // Irgendwas verbaut den Platz?
+  }
     }
 };
 
@@ -260,27 +235,27 @@ public:
     virtual bool ist_feld_ok(koord pos, koord d) const {
         const planquadrat_t *plan = welt->lookup(pos + d);
 
-	// Hajo: can't build here
-	if(plan == 0) return false;
+  // Hajo: can't build here
+  if(plan == 0) return false;
 
-	const grund_t *gr = plan->gib_kartenboden();
-	if(d.y == h - 1) {
-	    // Hier soll eine Strasse hin
-	    return
-	        gr != 0 &&
-		gr->gib_grund_hang() == hang_t::flach &&
-		gr->gib_typ() == grund_t::boden &&
-		!gr->gib_weg(weg_t::schiene) &&
-		!gr->gib_halt().is_bound() &&
-		gr->kann_alle_obj_entfernen(NULL) == NULL;
-	} else {
-	    // Hier soll das Haus hin - wir ersetzen auch andere Gebäude, aber keine Wege!
-	    return
-	        gr != 0 &&
-		gr->gib_grund_hang() == hang_t::flach &&
-		(gr->gib_typ() == grund_t::boden && gr->ist_natur() || gr->gib_typ() == grund_t::fundament) &&
-		gr->kann_alle_obj_entfernen(NULL) == NULL;
-	}
+  const grund_t *gr = plan->gib_kartenboden();
+  if(d.y == h - 1) {
+      // Hier soll eine Strasse hin
+      return
+          gr != 0 &&
+    gr->gib_grund_hang() == hang_t::flach &&
+    gr->gib_typ() == grund_t::boden &&
+    !gr->gib_weg(weg_t::schiene) &&
+    !gr->gib_halt().is_bound() &&
+    gr->kann_alle_obj_entfernen(NULL) == NULL;
+  } else {
+      // Hier soll das Haus hin - wir ersetzen auch andere Gebäude, aber keine Wege!
+      return
+          gr != 0 &&
+    gr->gib_grund_hang() == hang_t::flach &&
+    (gr->gib_typ() == grund_t::boden && gr->ist_natur() || gr->gib_typ() == grund_t::fundament) &&
+    gr->kann_alle_obj_entfernen(NULL) == NULL;
+  }
     }
 };
 
@@ -298,11 +273,11 @@ stadt_t::init_pax_ziele()
     const int gr = welt->gib_groesse();
 
     for(int j=0; j<96; j++) {
-	for(int i=0; i<96; i++) {
-	    const koord pos (i*gr/96, j*gr/96);
-	    pax_ziele_alt.at(i, j) = pax_ziele_neu.at(i ,j) = reliefkarte_t::calc_relief_farbe(welt, pos);
-//	    pax_ziele_alt.at(i, j) = pax_ziele_neu.at(i ,j) = 0;
-	}
+  for(int i=0; i<96; i++) {
+      const koord pos (i*gr/96, j*gr/96);
+      pax_ziele_alt.at(i, j) = pax_ziele_neu.at(i ,j) = reliefkarte_t::calc_relief_farbe(welt, pos);
+//      pax_ziele_alt.at(i, j) = pax_ziele_neu.at(i ,j) = 0;
+  }
     }
 }
 
@@ -334,9 +309,7 @@ stadt_t::stadt_t(karte_t *wl, spieler_t *sp, koord pos) :
     zentrum_namen_cnt = 0;
     aussen_namen_cnt = 0;
 
-    cstring_t & list_name = namen_liste.at(simrand(namen_liste.count()));
-    tstrncpy(name, list_name, 64);
-    namen_liste.remove(list_name);
+    translator::get_rand_city_name( name );
 
     // 1. Rathaus bei 0 Leuten bauen
     check_bau_rathaus();
@@ -449,31 +422,31 @@ stadt_t::verbinde_fabriken()
 
     for(int i=0; i<16; i++) {
 
-	slist_iterator_tpl<fabrik_t *> iter (fab_list);
+  slist_iterator_tpl<fabrik_t *> iter (fab_list);
 
-	// die arbeiter pendeln nicht allzu weit
-	int mind = 5000;
-	fabrik_t *best = NULL;
+  // die arbeiter pendeln nicht allzu weit
+  int mind = 5000;
+  fabrik_t *best = NULL;
 
-	while(iter.next()) {
-	    fabrik_t *fab = iter.get_current();
+  while(iter.next()) {
+      fabrik_t *fab = iter.get_current();
 
-	    const koord k = fab->gib_pos().gib_2d();
+      const koord k = fab->gib_pos().gib_2d();
 
-	    const int d = (k.x-pos.x) * (k.x-pos.x) + (k.y-pos.y) * (k.y-pos.y);
+      const int d = (k.x-pos.x) * (k.x-pos.x) + (k.y-pos.y) * (k.y-pos.y);
 
-	    if(d < mind) {
-		mind = d;
-		best = fab;
-	    }
-	}
+      if(d < mind) {
+    mind = d;
+    best = fab;
+      }
+  }
 
-	if(best != NULL) {
-	    best->add_arbeiterziel( this );
-	    arbeiterziele.insert( best );
+  if(best != NULL) {
+      best->add_arbeiterziel( this );
+      arbeiterziele.insert( best );
 
-	    fab_list.remove( best );
-	}
+      fab_list.remove( best );
+  }
     }
 }
 
@@ -483,23 +456,23 @@ stadt_t::step()
 {
     // Ist es Zeit für einen neuen step?
     if(welt->gib_zeit_ms() > next_step) {
-	const long delta_t = welt->gib_zeit_ms() - next_step;
+  const long delta_t = welt->gib_zeit_ms() - next_step;
 
-    	// printf("Step intervall %ld, %ld zu spät\n", welt->gib_zeit()-next_step, delta_t);
+      // printf("Step intervall %ld, %ld zu spät\n", welt->gib_zeit()-next_step, delta_t);
 
-	// Alle 10 sekunden ein step
-	next_step = welt->gib_zeit_ms()+MAX(0, step_interval-delta_t);
-
-
-	// Zaehlt steps seit instanziierung
-	step_count ++;
+  // Alle 10 sekunden ein step
+  next_step = welt->gib_zeit_ms()+MAX(0, step_interval-delta_t);
 
 
-	step_passagiere();
+  // Zaehlt steps seit instanziierung
+  step_count ++;
 
-	if( (step_count & 3) == 0) {
-	    step_bau();
-	}
+
+  step_passagiere();
+
+  if( (step_count & 3) == 0) {
+      step_bau();
+  }
     }
 }
 
@@ -512,12 +485,12 @@ stadt_t::neuer_monat()
 
 
     for(int j=0; j<96; j++) {
-	for(int i=0; i<96; i++) {
-	    const koord pos (i*gr/96, j*gr/96);
+  for(int i=0; i<96; i++) {
+      const koord pos (i*gr/96, j*gr/96);
 
-	    pax_ziele_neu.at(i, j) = reliefkarte_t::calc_relief_farbe(welt, pos);
-//	    pax_ziele_neu.at(i, j) = 0;
-	}
+      pax_ziele_neu.at(i, j) = reliefkarte_t::calc_relief_farbe(welt, pos);
+//      pax_ziele_neu.at(i, j) = 0;
+  }
     }
 
     pax_erzeugt = 0;
@@ -532,7 +505,7 @@ stadt_t::step_bau()
   // Hajo: let city grow in steps of 1
   for(int n = 0; n < (1 + wachstum); n++) {
 
-    bev ++;	// Hajo: bevoelkerung wachsen lassen
+    bev ++; // Hajo: bevoelkerung wachsen lassen
 
     INT_CHECK("simcity 338");
 
@@ -585,106 +558,106 @@ stadt_t::step_passagiere()
       // ist das dort ein gebaeude ?
       if(gb != NULL) {
 
-	const int num_pax =
-	  (wtyp == warenbauer_t::passagiere) ?
-	  (gb->gib_level() + 6) >> 2 :
-	  (gb->gib_post_level() + 3) >> 2;
+  const int num_pax =
+    (wtyp == warenbauer_t::passagiere) ?
+    (gb->gib_level() + 6) >> 2 :
+    (gb->gib_post_level() + 3) >> 2;
 
 
-	// starthaltestelle suchen
-	const vector_tpl<halthandle_t> &halt_list = welt->suche_nahe_haltestellen(k, 4, 0, 1);
+  // starthaltestelle suchen
+  const vector_tpl<halthandle_t> &halt_list = welt->suche_nahe_haltestellen(k, 4, 0, 1);
 
-	if(halt_list.get_count() > 0) {
-	  halthandle_t halt = halt_list.get(0);
+  if(halt_list.get_count() > 0) {
+    halthandle_t halt = halt_list.get(0);
 
-	  int pax_routed = 0;
+    int pax_routed = 0;
 
-	  // Hajo: track number of generated passengers.
-	  pax_erzeugt += num_pax;
+    // Hajo: track number of generated passengers.
+    pax_erzeugt += num_pax;
 
-	  //printf("  distributing %d pax\n", num_pax);
+    //printf("  distributing %d pax\n", num_pax);
 
-	  while(pax_routed < num_pax) {
-	    // passagier erzeugen;
+    while(pax_routed < num_pax) {
+      // passagier erzeugen;
 
-	    // Ziel für Passagier suchen
-	    const koord ziel = finde_passagier_ziel();
-
-
-	    // Dario: Check if there's a stop near destination
-	    const vector_tpl <halthandle_t> &ziel_list =
-	      welt->suche_nahe_haltestellen(ziel, 4, 0, 1);
-
-	    if(ziel_list.get_count() == 0){
-	      // Dario: suche_nahe_haltestellen doesn't check ziel itself.
-	      // So search for a stop on ziel
-	      // is required additionally
-
-	      if(halt->gib_halt(welt, ziel) == NULL){
-		// ziel itself is no stop either. Thus, routing is not needed.
-		// Mark ziel as destination without route and continue.
-
-		// dbg->message("stadt_t::step_passagiere()", "No stop near dest (%d, %d)", ziel.x, ziel.y);
-		merke_passagier_ziel(ziel, DUNKELORANGE);
-
-		continue;
-	      }
-	    } else {
-	      // dbg->debug("stadt_t::step_passagiere()", "Stop near dest (%d, %d)", ziel.x, ziel.y);
-	    } // End: Check if there's a stop near destination
+      // Ziel für Passagier suchen
+      const koord ziel = finde_passagier_ziel();
 
 
-	    // Passgierziel in Passagierzielkarte eintragen
-	    merke_passagier_ziel(ziel, GELB);
+      // Dario: Check if there's a stop near destination
+      const vector_tpl <halthandle_t> &ziel_list =
+        welt->suche_nahe_haltestellen(ziel, 4, 0, 1);
+
+      if(ziel_list.get_count() == 0){
+        // Dario: suche_nahe_haltestellen doesn't check ziel itself.
+        // So search for a stop on ziel
+        // is required additionally
+
+        if(halt->gib_halt(welt, ziel) == NULL){
+    // ziel itself is no stop either. Thus, routing is not needed.
+    // Mark ziel as destination without route and continue.
+
+    // dbg->message("stadt_t::step_passagiere()", "No stop near dest (%d, %d)", ziel.x, ziel.y);
+    merke_passagier_ziel(ziel, DUNKELORANGE);
+
+    continue;
+        }
+      } else {
+        // dbg->debug("stadt_t::step_passagiere()", "Stop near dest (%d, %d)", ziel.x, ziel.y);
+      } // End: Check if there's a stop near destination
 
 
-	    ware_t pax (wtyp);
-	    pax.setze_zielpos( ziel );
-	    pax.menge = MIN(7, num_pax - pax_routed);
-	    pax_routed += pax.menge;  // pax_menge are routed this step
-
-	    if(halt->gib_ware_summe(wtyp) > (halt->gib_grund_count() << 7)) {
-	      // Hajo: Station crowded:
-	      // some are appalled and will not try other
-	      // stations
-
-	      halt->add_pax_unhappy(pax.menge);
-
-	      continue;
-	    }
+      // Passgierziel in Passagierzielkarte eintragen
+      merke_passagier_ziel(ziel, GELB);
 
 
-	    // Hajo: for efficiency we try to route not every
-	    // single pax, but packets.
-	    // the last packet might have less then 7 pax
+      ware_t pax (wtyp);
+      pax.setze_zielpos( ziel );
+      pax.menge = MIN(7, num_pax - pax_routed);
+      pax_routed += pax.menge;  // pax_menge are routed this step
 
-	    const bool schon_da = halt->suche_route(pax, halt);
+      if(halt->gib_ware_summe(wtyp) > (halt->gib_grund_count() << 7)) {
+        // Hajo: Station crowded:
+        // some are appalled and will not try other
+        // stations
 
-	    if(!schon_da) {
-	      if(pax.gib_ziel() != koord::invalid) {
+        halt->add_pax_unhappy(pax.menge);
 
-		// printf("  adding %d pax to station %s\n", pax->menge, halt->gib_name());
+        continue;
+      }
 
-		// Hajo: keep track of transported passengers
-		pax_transport += pax.menge;
 
-		halt->liefere_an(pax);
-		halt->add_pax_happy(pax.menge);
+      // Hajo: for efficiency we try to route not every
+      // single pax, but packets.
+      // the last packet might have less then 7 pax
 
-	      } else {
-		halt->add_pax_no_route(pax.menge);
-		merke_passagier_ziel(ziel, DUNKELORANGE);
-	      }
-	    }
+      const bool schon_da = halt->suche_route(pax, halt);
 
-	  } // while
+      if(!schon_da) {
+        if(pax.gib_ziel() != koord::invalid) {
 
-	} else {
-	  // Hajo: fake a ride to get a proper display of destinations
+    // printf("  adding %d pax to station %s\n", pax->menge, halt->gib_name());
 
-	    const koord ziel = finde_passagier_ziel();
-	    merke_passagier_ziel(ziel, DUNKELORANGE);
-	}
+    // Hajo: keep track of transported passengers
+    pax_transport += pax.menge;
+
+    halt->liefere_an(pax);
+    halt->add_pax_happy(pax.menge);
+
+        } else {
+    halt->add_pax_no_route(pax.menge);
+    merke_passagier_ziel(ziel, DUNKELORANGE);
+        }
+      }
+
+    } // while
+
+  } else {
+    // Hajo: fake a ride to get a proper display of destinations
+
+      const koord ziel = finde_passagier_ziel();
+      merke_passagier_ziel(ziel, DUNKELORANGE);
+  }
       }
     }
 
@@ -731,43 +704,43 @@ stadt_t::finde_passagier_ziel()
     if(arbeiterziele.is_empty() ||
        rand < 110) {
 
-	koord ziel;
+  koord ziel;
 
-	// Ziel in stadt oder ausflugsziel ?
+  // Ziel in stadt oder ausflugsziel ?
         // Jeder 4. macht einen Ausflug
-	if((rand & 3) == 0 &&
+  if((rand & 3) == 0 &&
            !welt->gib_ausflugsziele().is_empty() ) {
 
-	    const slist_tpl<gebaeude_t*> &ausflugsziele = welt->gib_ausflugsziele();
-	    const int count = ausflugsziele.count();
-	    const gebaeude_t *gb = ausflugsziele.at(simrand(count));
+      const slist_tpl<gebaeude_t*> &ausflugsziele = welt->gib_ausflugsziele();
+      const int count = ausflugsziele.count();
+      const gebaeude_t *gb = ausflugsziele.at(simrand(count));
 
-	    ziel = gb->gib_pos().gib_2d();
+      ziel = gb->gib_pos().gib_2d();
 
-	    // dbg->message("stadt_t::finde_passagier_ziel()", "created a tourist to %d,%d", ziel.x, ziel.y);
+      // dbg->message("stadt_t::finde_passagier_ziel()", "created a tourist to %d,%d", ziel.x, ziel.y);
 
-	} else {
-	    const array_tpl<stadt_t *> *staedte = welt->gib_staedte();
-	    const int anz_staedte = staedte->get_size();
+  } else {
+      const array_tpl<stadt_t *> *staedte = welt->gib_staedte();
+      const int anz_staedte = staedte->get_size();
 
-	    const stadt_t *zielstadt = staedte->get(simrand(anz_staedte));
+      const stadt_t *zielstadt = staedte->get(simrand(anz_staedte));
 
-	    // nahe staedte bevorzugen
+      // nahe staedte bevorzugen
 
-	    if(ABS(zielstadt->pos.x - pos.x) + ABS(zielstadt->pos.y - pos.y) > 80) {
-		// wenn erste Wahl zu weit weg, dann noch mal versuchen
-		zielstadt = staedte->get(simrand(anz_staedte));
-	    }
+      if(ABS(zielstadt->pos.x - pos.x) + ABS(zielstadt->pos.y - pos.y) > 80) {
+    // wenn erste Wahl zu weit weg, dann noch mal versuchen
+    zielstadt = staedte->get(simrand(anz_staedte));
+      }
 
-	    ziel = zielstadt->gib_zufallspunkt();
-	}
+      ziel = zielstadt->gib_zufallspunkt();
+  }
 
-	return ziel;
+  return ziel;
     } else {
-	const int i = simrand(arbeiterziele.count());
-	const fabrik_t * fab = arbeiterziele.at(i);
+  const int i = simrand(arbeiterziele.count());
+  const fabrik_t * fab = arbeiterziele.at(i);
 
-	return fab->gib_pos().gib_2d();
+  return fab->gib_pos().gib_2d();
     }
 }
 
@@ -804,61 +777,61 @@ stadt_t::check_bau_spezial()
     if(besch) {
       if(simrand(100) < besch->gib_chance()) {
 
-	// baue was immer es ist
-	bool rotate;
-	koord best_pos ( bauplatz_sucher_t(welt).suche_platz(pos,
-							     besch->gib_b(),
-							     besch->gib_h(),
-							     &rotate)
-			 );
+  // baue was immer es ist
+  bool rotate;
+  koord best_pos ( bauplatz_sucher_t(welt).suche_platz(pos,
+                   besch->gib_b(),
+                   besch->gib_h(),
+                   &rotate)
+       );
 
-	if(best_pos != koord::invalid)
-	    hausbauer_t::baue(welt,
-			      besitzer_p,
-			      welt->lookup(best_pos)->gib_kartenboden()->gib_pos(),
-			      rotate ? 1 : 0,
-			      besch);
+  if(best_pos != koord::invalid)
+      hausbauer_t::baue(welt,
+            besitzer_p,
+            welt->lookup(best_pos)->gib_kartenboden()->gib_pos(),
+            rotate ? 1 : 0,
+            besch);
       }
     }
     if((bev & 511) == 0) {
-	//
-	// Denkmal bauen:
-	//
-	besch = hausbauer_t::waehle_denkmal();
-	if(besch) {
-	    koord best_pos ( denkmal_platz_sucher_t(welt,
-						    besitzer_p).suche_platz(pos, 3, 3) );
+  //
+  // Denkmal bauen:
+  //
+  besch = hausbauer_t::waehle_denkmal();
+  if(besch) {
+      koord best_pos ( denkmal_platz_sucher_t(welt,
+                besitzer_p).suche_platz(pos, 3, 3) );
 
-	    if(best_pos != koord::invalid) {
-		int i, j;
-		bool ok = false;
+      if(best_pos != koord::invalid) {
+    int i, j;
+    bool ok = false;
 
-		// Wir bauen das Denkmal nur, wenn schon mindestens eine Strasse da ist
-		for(i = 0; i < 3 && !ok; i++) {
-		    ok = ok ||
-			welt->access(best_pos + koord(3, i))->gib_kartenboden()->gib_weg(weg_t::strasse) ||
-			welt->access(best_pos + koord(i, -1))->gib_kartenboden()->gib_weg(weg_t::strasse) ||
-			welt->access(best_pos + koord(-1, i))->gib_kartenboden()->gib_weg(weg_t::strasse) ||
-			welt->access(best_pos + koord(i, 3))->gib_kartenboden()->gib_weg(weg_t::strasse);
-		}
-		if(ok) {
-		    // Straßenkreis um das Denkmal legen
-		    for(i = 0; i < 3; i++) {
-			for(j = 0; j < 3; j++) {
-			    if(i != 1 || j != 1) {
-				baue_strasse(best_pos + koord(i, j), NULL, true);
-			    }
-			}
-		    }
-		    hausbauer_t::baue(welt,
-				      welt->gib_spieler(1),
-				      welt->lookup(best_pos + koord(1, 1))->gib_kartenboden()->gib_pos(),
-				      0,
-				      besch);
-		    hausbauer_t::denkmal_gebaut(besch);
-		}
-	    }
-	}
+    // Wir bauen das Denkmal nur, wenn schon mindestens eine Strasse da ist
+    for(i = 0; i < 3 && !ok; i++) {
+        ok = ok ||
+      welt->access(best_pos + koord(3, i))->gib_kartenboden()->gib_weg(weg_t::strasse) ||
+      welt->access(best_pos + koord(i, -1))->gib_kartenboden()->gib_weg(weg_t::strasse) ||
+      welt->access(best_pos + koord(-1, i))->gib_kartenboden()->gib_weg(weg_t::strasse) ||
+      welt->access(best_pos + koord(i, 3))->gib_kartenboden()->gib_weg(weg_t::strasse);
+    }
+    if(ok) {
+        // Straßenkreis um das Denkmal legen
+        for(i = 0; i < 3; i++) {
+      for(j = 0; j < 3; j++) {
+          if(i != 1 || j != 1) {
+        baue_strasse(best_pos + koord(i, j), NULL, true);
+          }
+      }
+        }
+        hausbauer_t::baue(welt,
+              welt->gib_spieler(1),
+              welt->lookup(best_pos + koord(1, 1))->gib_kartenboden()->gib_pos(),
+              0,
+              besch);
+        hausbauer_t::denkmal_gebaut(besch);
+    }
+      }
+  }
     }
 }
 
@@ -869,126 +842,126 @@ stadt_t::check_bau_rathaus()
     const haus_besch_t *besch = hausbauer_t::gib_rathaus(bev);
 
     if(besch) {
-	grund_t *gr = welt->lookup(pos)->gib_kartenboden();
-	gebaeude_t *gb = dynamic_cast<gebaeude_t *>(gr->obj_bei(1));
-	bool neugruendung = !gb || !gb->ist_rathaus();
-	bool umziehen = !neugruendung;
-	koord alte_str ( koord::invalid );
-	koord best_pos ( pos );
-	koord k;
+  grund_t *gr = welt->lookup(pos)->gib_kartenboden();
+  gebaeude_t *gb = dynamic_cast<gebaeude_t *>(gr->obj_bei(1));
+  bool neugruendung = !gb || !gb->ist_rathaus();
+  bool umziehen = !neugruendung;
+  koord alte_str ( koord::invalid );
+  koord best_pos ( pos );
+  koord k;
 
-	dbg->message("check_bau_rathaus()",
-		     "bev=%d, new=%d", bev, neugruendung);
-
-
-	if(!neugruendung) {
-	    if(gb->gib_level() == besch->gib_level())  {
-	      dbg->message("check_bau_rathaus()",
-			   "town hall already ok.");
-
-		return;	// Rathaus ist schon okay
-	    }
-
-	    const haus_besch_t *besch_alt = gb->gib_tile()->gib_besch();
-	    koord pos_alt = gr->gib_pos().gib_2d() - gb->gib_tile()->gib_offset();
-	    koord groesse_alt = besch_alt->gib_groesse(gb->gib_tile()->gib_layout());
-
-	    // Wir gehen hier von quadratisch aus:
-	    if(besch->gib_h() <= groesse_alt.y) {
-		umziehen = false;   // Platz reicht - Umzug nicht nötig
-	    }
-	    else if(welt->lookup(pos + koord(0, besch_alt->gib_h()))->gib_kartenboden()->gib_weg(weg_t::strasse)) {
-		// Wenn die Strasse vor dem alten Rathaus noch da ist,
-		// verbinden wir sie nachher mit der neuen Position.
-		alte_str =  pos + koord(0, besch_alt->gib_h());
-	    }
-
-	    //
-	    // Jetzt räumen wir so oder so das alte Rathaus ab.
-	    //
-	    for(k.x = 0; k.x < groesse_alt.x; k.x++) {
-		for(k.y = 0; k.y < groesse_alt.y; k.y++) {
-		    gr = welt->lookup(pos_alt + k)->gib_kartenboden();
-
-		    gr->obj_bei(0)->setze_besitzer(NULL);	// da muß ein Fundament sein!
-		    gr->setze_besitzer(NULL); 		// Nicht mehr Rathaus, wieder abreissbar!
-
-		    if(!umziehen && k.x < besch->gib_b() && k.y < besch->gib_h()) {
-			// Platz für neues Rathaus freimachen
-			ding_t *gb = gr->obj_bei(1);
-			gr->obj_remove(gb, besitzer_p);
-			gb->setze_pos(koord3d::invalid); // Hajo: mark 'not on map'
-			delete gb;
-		    }
-		    else {
-			// Altes Rathaus durch Wohnhaus(0) ersetzen - Wohnhaus(0) muß 1x1 sein!
-			hausbauer_t::umbauen(welt, gb, hausbauer_t::gib_wohnhaus(0));
-			gb->setze_besitzer(NULL);
-		    }
-		}
-
-		// printf("Alte Position=%d,%d\n", pos_alt.x+k.x, pos_alt.y+k.y);
-		// welt->lookup(pos_alt + k)->gib_kartenboden()->setze_besitzer(NULL);
-	    }
-	    gr->setze_text(NULL);
-	}
+  dbg->message("check_bau_rathaus()",
+         "bev=%d, new=%d", bev, neugruendung);
 
 
-	//
-	// Neues Rathaus bauen
-	//
-	if(neugruendung || umziehen) {
-	    best_pos = rathausplatz_sucher_t(welt, besitzer_p).suche_platz(
-		pos, besch->gib_b(), besch->gib_h() + 1);
-	}
+  if(!neugruendung) {
+      if(gb->gib_level() == besch->gib_level())  {
+        dbg->message("check_bau_rathaus()",
+         "town hall already ok.");
+
+    return; // Rathaus ist schon okay
+      }
+
+      const haus_besch_t *besch_alt = gb->gib_tile()->gib_besch();
+      koord pos_alt = gr->gib_pos().gib_2d() - gb->gib_tile()->gib_offset();
+      koord groesse_alt = besch_alt->gib_groesse(gb->gib_tile()->gib_layout());
+
+      // Wir gehen hier von quadratisch aus:
+      if(besch->gib_h() <= groesse_alt.y) {
+    umziehen = false;   // Platz reicht - Umzug nicht nötig
+      }
+      else if(welt->lookup(pos + koord(0, besch_alt->gib_h()))->gib_kartenboden()->gib_weg(weg_t::strasse)) {
+    // Wenn die Strasse vor dem alten Rathaus noch da ist,
+    // verbinden wir sie nachher mit der neuen Position.
+    alte_str =  pos + koord(0, besch_alt->gib_h());
+      }
+
+      //
+      // Jetzt räumen wir so oder so das alte Rathaus ab.
+      //
+      for(k.x = 0; k.x < groesse_alt.x; k.x++) {
+    for(k.y = 0; k.y < groesse_alt.y; k.y++) {
+        gr = welt->lookup(pos_alt + k)->gib_kartenboden();
+
+        gr->obj_bei(0)->setze_besitzer(NULL); // da muß ein Fundament sein!
+        gr->setze_besitzer(NULL);     // Nicht mehr Rathaus, wieder abreissbar!
+
+        if(!umziehen && k.x < besch->gib_b() && k.y < besch->gib_h()) {
+      // Platz für neues Rathaus freimachen
+      ding_t *gb = gr->obj_bei(1);
+      gr->obj_remove(gb, besitzer_p);
+      gb->setze_pos(koord3d::invalid); // Hajo: mark 'not on map'
+      delete gb;
+        }
+        else {
+      // Altes Rathaus durch Wohnhaus(0) ersetzen - Wohnhaus(0) muß 1x1 sein!
+      hausbauer_t::umbauen(welt, gb, hausbauer_t::gib_wohnhaus(0));
+      gb->setze_besitzer(NULL);
+        }
+    }
+
+    // printf("Alte Position=%d,%d\n", pos_alt.x+k.x, pos_alt.y+k.y);
+    // welt->lookup(pos_alt + k)->gib_kartenboden()->setze_besitzer(NULL);
+      }
+      gr->setze_text(NULL);
+  }
+
+
+  //
+  // Neues Rathaus bauen
+  //
+  if(neugruendung || umziehen) {
+      best_pos = rathausplatz_sucher_t(welt, besitzer_p).suche_platz(
+    pos, besch->gib_b(), besch->gib_h() + 1);
+  }
         hausbauer_t::baue(welt, besitzer_p,
-	    welt->lookup(best_pos)->gib_kartenboden()->gib_pos(), 0, besch);
+      welt->lookup(best_pos)->gib_kartenboden()->gib_pos(), 0, besch);
 
-	// Orstnamen hinpflanzen
-	welt->lookup(best_pos)->gib_kartenboden()->setze_text(name);
+  // Orstnamen hinpflanzen
+  welt->lookup(best_pos)->gib_kartenboden()->setze_text(name);
 
-	// Strasse davor verlegen
-	// Hajo: nur, wenn der Boden noch niemand gehört!
-	k = koord(0, (int)besch->gib_h());
-	for(k.x = 0; k.x < besch->gib_b(); k.x++) {
-	  grund_t * gr = welt->lookup(best_pos+k)->gib_kartenboden();
+  // Strasse davor verlegen
+  // Hajo: nur, wenn der Boden noch niemand gehört!
+  k = koord(0, (int)besch->gib_h());
+  for(k.x = 0; k.x < besch->gib_b(); k.x++) {
+    grund_t * gr = welt->lookup(best_pos+k)->gib_kartenboden();
 
-	  // printf("Position=%d,%d\n", (best_pos+k).x, (best_pos+k).y);
-	  // printf("Besitzer=%d\n", welt->sp2num(gr->gib_besitzer()));
+    // printf("Position=%d,%d\n", (best_pos+k).x, (best_pos+k).y);
+    // printf("Besitzer=%d\n", welt->sp2num(gr->gib_besitzer()));
 
-	  if(gr->gib_besitzer() == 0) {
-	    baue_strasse(best_pos + k, NULL, true);
-	  } else {
-	    // Hajo: Strassenbau nicht versuchen, eines der Felder
-	    // ist schon belegt
-	    alte_str == koord::invalid;
-	  }
-	}
-	if(umziehen && alte_str != koord::invalid ) {
-	    // Strasse vom ehemaligen Rathaus zum neuen verlegen.
-	    wegbauer_t bauer(welt, NULL);
-	    bauer.route_fuer(wegbauer_t::strasse,
-			     wegbauer_t::gib_besch("city_road"));
-	    bauer.calc_route(alte_str, best_pos + koord(0, besch->gib_h()));
-	    bauer.baue();
+    if(gr->gib_besitzer() == 0) {
+      baue_strasse(best_pos + k, NULL, true);
+    } else {
+      // Hajo: Strassenbau nicht versuchen, eines der Felder
+      // ist schon belegt
+      alte_str == koord::invalid;
+    }
+  }
+  if(umziehen && alte_str != koord::invalid ) {
+      // Strasse vom ehemaligen Rathaus zum neuen verlegen.
+      wegbauer_t bauer(welt, NULL);
+      bauer.route_fuer(wegbauer_t::strasse,
+           wegbauer_t::gib_besch("city_road"));
+      bauer.calc_route(alte_str, best_pos + koord(0, besch->gib_h()));
+      bauer.baue();
 
-	    /* Hajo: seems to be buggy and not needed at all
+      /* Hajo: seems to be buggy and not needed at all
              *       I leave it here if Volker wants to check that
              *       case again
-	    // Ort verschieben:
-	    li += best_pos.x - pos.x;
-	    re += best_pos.x - pos.x;
-	    ob += best_pos.y - pos.y;
-	    un += best_pos.y - pos.y;
-	    */
-	}
-	else if(neugruendung) {
-	    li = best_pos.x - 2;
-	    re = best_pos.x + besch->gib_b() + 2;
-	    ob = best_pos.y - 2;
-	    un = best_pos.y + besch->gib_h() + 2;
-	}
-	pos = best_pos;
+      // Ort verschieben:
+      li += best_pos.x - pos.x;
+      re += best_pos.x - pos.x;
+      ob += best_pos.y - pos.y;
+      un += best_pos.y - pos.y;
+      */
+  }
+  else if(neugruendung) {
+      li = best_pos.x - 2;
+      re = best_pos.x + besch->gib_b() + 2;
+      ob = best_pos.y - 2;
+      un = best_pos.y + besch->gib_h() + 2;
+  }
+  pos = best_pos;
     }
 
     // Hajo: paranoia - ensure correct bounds in all cases
@@ -1082,29 +1055,29 @@ stadt_t::bewerte_loc(const koord pos, const char *regel)
 
       if(plan && (gr = plan->gib_kartenboden())) {
 
-	switch(regel[(k.x-pos.x+1) + ((k.y-pos.y+1)<<2)]) {
-	case 's':
-	  ok = gr->gib_weg(weg_t::strasse) &&
-	    (gr->gib_top() <= 0);
-	  break;
-	case 'S':
-	  ok = !gr->gib_weg(weg_t::strasse);
-	  break;
-	case 'h':
-	  ok = gr->obj_bei(0) != 0 &&
-	    gr->obj_bei(0)->gib_typ() == ding_t::gebaeudefundament;
-	  break;
-	case 'H':
-	  ok = gr->obj_bei(0) == 0 ||
-	    gr->obj_bei(0)->gib_typ() != ding_t::gebaeudefundament;
-	  break;
+  switch(regel[(k.x-pos.x+1) + ((k.y-pos.y+1)<<2)]) {
+  case 's':
+    ok = gr->gib_weg(weg_t::strasse) &&
+      (gr->gib_top() <= 0);
+    break;
+  case 'S':
+    ok = !gr->gib_weg(weg_t::strasse);
+    break;
+  case 'h':
+    ok = gr->obj_bei(0) != 0 &&
+      gr->obj_bei(0)->gib_typ() == ding_t::gebaeudefundament;
+    break;
+  case 'H':
+    ok = gr->obj_bei(0) == 0 ||
+      gr->obj_bei(0)->gib_typ() != ding_t::gebaeudefundament;
+    break;
 
-	case 'n':
-	  ok = gr->ist_natur() && !gr->gib_besitzer();
-	  break;
-	}
+  case 'n':
+    ok = gr->ist_natur() && !gr->gib_besitzer();
+    break;
+  }
       } else {
-	ok = false;
+  ok = false;
       }
     }
   }
@@ -1119,7 +1092,7 @@ stadt_t::bewerte_loc(const koord pos, const char *regel)
 int
 stadt_t::bewerte_pos(const koord pos, const char *regel)
 {
-    char tr[12];		// fuer die 'transformierte' Regel
+    char tr[12];    // fuer die 'transformierte' Regel
 
     int w=bewerte_loc(pos, regel);
     trans_y(regel, tr);
@@ -1138,7 +1111,7 @@ void
 stadt_t::bewerte_strasse(koord k, int rd, char *regel)
 {
     if(simrand(rd) == 0) {
-	best_strasse.check(k, bewerte_pos(k, regel));
+  best_strasse.check(k, bewerte_pos(k, regel));
     }
 }
 
@@ -1146,7 +1119,7 @@ void
 stadt_t::bewerte_haus(koord k, int rd, char *regel)
 {
     if(simrand(rd) == 0) {
-	best_haus.check(k, bewerte_pos(k, regel));
+  best_haus.check(k, bewerte_pos(k, regel));
     }
 }
 
@@ -1165,24 +1138,24 @@ stadt_t::bewerte()
 
     // Zufallspos im Stadtgebiet
     const koord k (li + simrand(re-li+1),
-		   ob + simrand(un-ob+1));
+       ob + simrand(un-ob+1));
 
     best_haus.reset(k);
     best_strasse.reset(k);
 
     /*
-    bewerte_haus(k, speed-4,"....n.sss");	// Haus am Strassenrand
-    bewerte_haus(k, speed+12,"....n.ss.");	// Haus am Strassenrand
-    bewerte_haus(k, speed+12,"....n..ss");	// Haus am Strassenrand
+    bewerte_haus(k, speed-4,"....n.sss"); // Haus am Strassenrand
+    bewerte_haus(k, speed+12,"....n.ss.");  // Haus am Strassenrand
+    bewerte_haus(k, speed+12,"....n..ss");  // Haus am Strassenrand
     INT_CHECK("simcity 710");
 
-    bewerte_strasse(k, speed+3,"...SnSssS");	// Kurve 1
-    bewerte_strasse(k, speed+3,"...SnSSss");	// Kurve 2
+    bewerte_strasse(k, speed+3,"...SnSssS");  // Kurve 1
+    bewerte_strasse(k, speed+3,"...SnSSss");  // Kurve 2
 
-    bewerte_strasse(k, speed+3,"...SnSSs.");	// Strassenende weiterbauen
+    bewerte_strasse(k, speed+3,"...SnSSs.");  // Strassenende weiterbauen
     INT_CHECK("simcity 716");
-    bewerte_strasse(k, speed+3,"...SnS.sS");	// Strassenende weiterbauen
-    bewerte_strasse(k, speed,"....n.SsS");	// Strassenende weiterbauen
+    bewerte_strasse(k, speed+3,"...SnS.sS");  // Strassenende weiterbauen
+    bewerte_strasse(k, speed,"....n.SsS");  // Strassenende weiterbauen
     bewerte_strasse(k, speed+1,"...nnnsss");    // Einmuendung in Natur
     */
 
@@ -1213,15 +1186,15 @@ stadt_t::bewerte()
 
     for(int i=0; i<num_house_rules; i++) {
       bewerte_haus(k,
-		   speed+house_rules[i].chance,
-		   house_rules[i].rule);
+       speed+house_rules[i].chance,
+       house_rules[i].rule);
     }
 
 
     for(int i=0; i<num_road_rules; i++) {
       bewerte_strasse(k,
-		      speed+road_rules[i].chance,
-		      road_rules[i].rule);
+          speed+road_rules[i].chance,
+          road_rules[i].rule);
     }
 }
 
@@ -1233,12 +1206,12 @@ stadt_t::was_ist_an(const koord k) const
     gebaeude_t::typ t = gebaeude_t::unbekannt;
 
     if(plan) {
-	const ding_t *d = plan->gib_kartenboden()->obj_bei(1);
-	const gebaeude_t *gb = dynamic_cast<const gebaeude_t *>(d);
+  const ding_t *d = plan->gib_kartenboden()->obj_bei(1);
+  const gebaeude_t *gb = dynamic_cast<const gebaeude_t *>(d);
 
-	if(gb) {
-	    t = gb->gib_haustyp();
-	}
+  if(gb) {
+      t = gb->gib_haustyp();
+  }
     }
 
 //    printf("an pos %d,%d ist ein gebaeude vom typ %d\n", x, y, t);
@@ -1253,14 +1226,14 @@ stadt_t::bewerte_industrie(const koord pos)
     int score = 0;
 
     for(k.y=pos.y-2; k.y<=pos.y+2; k.y++) {
-	for(k.x=pos.x-2; k.x<=pos.x+2; k.x++) {
-	    if(was_ist_an(k) == gebaeude_t::industrie) {
-		score += 8;
-	    } else if(was_ist_an(k) == gebaeude_t::wohnung) {
-		score -= 8;
-	    }
+  for(k.x=pos.x-2; k.x<=pos.x+2; k.x++) {
+      if(was_ist_an(k) == gebaeude_t::industrie) {
+    score += 8;
+      } else if(was_ist_an(k) == gebaeude_t::wohnung) {
+    score -= 8;
+      }
 
-	}
+  }
     }
     return score;
 }
@@ -1273,28 +1246,28 @@ stadt_t::bewerte_gewerbe(const koord pos)
     int score = -20;
 
     for(k.y=pos.y-2; k.y<=pos.y+2; k.y++) {
-	for(k.x=pos.x-2; k.x<=pos.x+2; k.x++) {
-	    if(was_ist_an(k) == gebaeude_t::industrie) {
-		score += 4;
-	    } else if(was_ist_an(k) == gebaeude_t::wohnung) {
-		score += 8;
-	    }
-	}
+  for(k.x=pos.x-2; k.x<=pos.x+2; k.x++) {
+      if(was_ist_an(k) == gebaeude_t::industrie) {
+    score += 4;
+      } else if(was_ist_an(k) == gebaeude_t::wohnung) {
+    score += 8;
+      }
+  }
     }
 */
 
     int score = -10;
 
     for(k.y=pos.y-2; k.y<=pos.y+2; k.y++) {
-	for(k.x=pos.x-2; k.x<=pos.x+2; k.x++) {
-	    if(was_ist_an(k) == gebaeude_t::industrie) {
-		score += 1;
-	    } else if(was_ist_an(k) == gebaeude_t::wohnung) {
-		score += 1;
-	    } else if(was_ist_an(k) == gebaeude_t::gewerbe) {
-		score += 8;
-	    }
-	}
+  for(k.x=pos.x-2; k.x<=pos.x+2; k.x++) {
+      if(was_ist_an(k) == gebaeude_t::industrie) {
+    score += 1;
+      } else if(was_ist_an(k) == gebaeude_t::wohnung) {
+    score += 1;
+      } else if(was_ist_an(k) == gebaeude_t::gewerbe) {
+    score += 8;
+      }
+  }
     }
 
 
@@ -1308,13 +1281,13 @@ stadt_t::bewerte_wohnung(const koord pos)
     int score = 0;
 
     for(k.y=pos.y-2; k.y<=pos.y+2; k.y++) {
-	for(k.x=pos.x-2; k.x<=pos.x+2; k.x++) {
-	    if(was_ist_an(k) == gebaeude_t::wohnung) {
-		score += 8;
-	    } else if(was_ist_an(k) == gebaeude_t::industrie) {
-		score -= 8;
-	    }
-	}
+  for(k.x=pos.x-2; k.x<=pos.x+2; k.x++) {
+      if(was_ist_an(k) == gebaeude_t::wohnung) {
+    score += 8;
+      } else if(was_ist_an(k) == gebaeude_t::industrie) {
+    score -= 8;
+      }
+  }
     }
     return score;
 }
@@ -1329,7 +1302,7 @@ stadt_t::baue_gebaeude(const koord k)
     // bisher gibt es 2 Sorten Haeuser
     // arbeit-spendende und wohnung-spendende
 
-    int will_arbeit = (bev - arb) / 4;	// Nur ein viertel arbeitet
+    int will_arbeit = (bev - arb) / 4;  // Nur ein viertel arbeitet
     int will_wohnung = (bev - won);
 
     // der Bauplatz muss bewertet werden
@@ -1371,30 +1344,30 @@ stadt_t::erzeuge_verkehrsteilnehmer(koord pos, int level)
 {
     if(welt->gib_einstellungen()->gib_verkehr_level() != 16 &&
        (level == welt->gib_einstellungen()->gib_verkehr_level() ||
-	level == welt->gib_einstellungen()->gib_verkehr_level()*2)) {
+  level == welt->gib_einstellungen()->gib_verkehr_level()*2)) {
 
-	koord k;
+  koord k;
 
-	for(k.y = pos.y-1; k.y<=pos.y+1; k.y ++) {
-	    for(k.x = pos.x-1; k.x<=pos.x+1; k.x ++) {
-		if(welt->ist_in_kartengrenzen(k)) {
-		    grund_t *gr = welt->lookup(k)->gib_kartenboden();
-		    const weg_t *weg = gr->gib_weg(weg_t::strasse);
+  for(k.y = pos.y-1; k.y<=pos.y+1; k.y ++) {
+      for(k.x = pos.x-1; k.x<=pos.x+1; k.x ++) {
+    if(welt->ist_in_kartengrenzen(k)) {
+        grund_t *gr = welt->lookup(k)->gib_kartenboden();
+        const weg_t *weg = gr->gib_weg(weg_t::strasse);
 
-		    if(weg &&
-			(gr->gib_weg_ribi_unmasked(weg_t::strasse) == ribi_t::nordsued ||
+        if(weg &&
+      (gr->gib_weg_ribi_unmasked(weg_t::strasse) == ribi_t::nordsued ||
                         gr->gib_weg_ribi_unmasked(weg_t::strasse) == ribi_t::ostwest))
                     {
-			if(stadtauto_t::gib_anzahl_besch() > 0) {
-			    stadtauto_t *vt = new stadtauto_t(welt, gr->gib_pos());
-			    gr->obj_add( vt );
-			    welt->sync_add( vt );
-			}
-			return;
-		    }
-		}
-	    }
-	}
+      if(stadtauto_t::gib_anzahl_besch() > 0) {
+          stadtauto_t *vt = new stadtauto_t(welt, gr->gib_pos());
+          gr->obj_add( vt );
+          welt->sync_add( vt );
+      }
+      return;
+        }
+    }
+      }
+  }
     }
 }
 
@@ -1404,15 +1377,15 @@ stadt_t::renoviere_gebaeude(koord k)
     const gebaeude_t::typ alt_typ = was_ist_an(k);
 
     if(alt_typ == gebaeude_t::unbekannt) {
-	return;		// kann nur bekannte gebaeude renovieren
+  return;   // kann nur bekannte gebaeude renovieren
     }
 
     gebaeude_t *gb = dynamic_cast<gebaeude_t *>(welt->lookup(k)->gib_kartenboden()->obj_bei(1));
 
     if(gb == NULL) {
-	dbg->error("stadt_t::renoviere_gebaeude()",
-		   "could not find a building at (%d,%d) but there should be one!", k.x, k.y);
-	return;
+  dbg->error("stadt_t::renoviere_gebaeude()",
+       "could not find a building at (%d,%d) but there should be one!", k.x, k.y);
+  return;
     }
 
     // hier sind wir sicher dass es ein Gebaeude ist
@@ -1422,7 +1395,7 @@ stadt_t::renoviere_gebaeude(koord k)
     // bisher gibt es 2 Sorten Haeuser
     // arbeit-spendende und wohnung-spendende
 
-    const int will_arbeit = (bev - arb) / 4;	// Nur ein viertel arbeitet
+    const int will_arbeit = (bev - arb) / 4;  // Nur ein viertel arbeitet
     const int will_wohnung = (bev - won);
 
     // der Bauplatz muss bewertet werden
@@ -1444,44 +1417,44 @@ stadt_t::renoviere_gebaeude(koord k)
     int sum = 0;
 
     if(sum_gewerbe > sum_industrie && sum_gewerbe > sum_wohnung) {
-	will_haben = gebaeude_t::gewerbe;
-	sum = sum_gewerbe;
+  will_haben = gebaeude_t::gewerbe;
+  sum = sum_gewerbe;
     } else if ( sum_industrie > sum_gewerbe && sum_industrie > sum_wohnung) {
-	will_haben = gebaeude_t::industrie;
-	sum = sum_industrie;
+  will_haben = gebaeude_t::industrie;
+  sum = sum_industrie;
     } else if ( sum_wohnung > sum_industrie && sum_wohnung > sum_gewerbe) {
-	will_haben = gebaeude_t::wohnung;
-	sum = sum_wohnung;
+  will_haben = gebaeude_t::wohnung;
+  sum = sum_wohnung;
     }
 
     if(alt_typ != will_haben) {
-	sum -= level * 10;
+  sum -= level * 10;
     }
 
     if(sum > 0) {
-	const int neu_lev = (alt_typ == will_haben) ? level + 1 : level;
+  const int neu_lev = (alt_typ == will_haben) ? level + 1 : level;
 
-	if(will_haben == gebaeude_t::wohnung) {
-	    hausbauer_t::umbauen(welt, gb, hausbauer_t::gib_wohnhaus(neu_lev));
-	    won += neu_lev * 10;
-	} else if(will_haben == gebaeude_t::gewerbe) {
-	    hausbauer_t::umbauen(welt, gb, hausbauer_t::gib_gewerbe(neu_lev));
-	    arb += neu_lev * 20;
-	} else if(will_haben == gebaeude_t::industrie) {
-	    hausbauer_t::umbauen(welt, gb, hausbauer_t::gib_industrie(neu_lev));
-	    arb += neu_lev * 20;
-	}
+  if(will_haben == gebaeude_t::wohnung) {
+      hausbauer_t::umbauen(welt, gb, hausbauer_t::gib_wohnhaus(neu_lev));
+      won += neu_lev * 10;
+  } else if(will_haben == gebaeude_t::gewerbe) {
+      hausbauer_t::umbauen(welt, gb, hausbauer_t::gib_gewerbe(neu_lev));
+      arb += neu_lev * 20;
+  } else if(will_haben == gebaeude_t::industrie) {
+      hausbauer_t::umbauen(welt, gb, hausbauer_t::gib_industrie(neu_lev));
+      arb += neu_lev * 20;
+  }
 
-	// printf("Renovierung mit %d Industrie, %d Gewerbe, %d  Wohnung\n", sum_industrie, sum_gewerbe, sum_wohnung);
+  // printf("Renovierung mit %d Industrie, %d Gewerbe, %d  Wohnung\n", sum_industrie, sum_gewerbe, sum_wohnung);
 
-	if(alt_typ == gebaeude_t::industrie)
-	    arb -= level * 20;
-	if(alt_typ == gebaeude_t::gewerbe)
-	    arb -= level * 20;
-	if(alt_typ == gebaeude_t::wohnung)
-	    won -= level * 10;
+  if(alt_typ == gebaeude_t::industrie)
+      arb -= level * 20;
+  if(alt_typ == gebaeude_t::gewerbe)
+      arb -= level * 20;
+  if(alt_typ == gebaeude_t::wohnung)
+      won -= level * 10;
 
-	erzeuge_verkehrsteilnehmer(k, neu_lev);
+  erzeuge_verkehrsteilnehmer(k, neu_lev);
     }
 }
 
@@ -1517,35 +1490,35 @@ stadt_t::baue_strasse(koord k, spieler_t *sp, bool forced)
       switch(ribi_t::nsow[r]) {
       case ribi_t::ost:
       case ribi_t::west:
-	ok = hang_t::ist_wegbar_ow(typ) && hang_t::ist_wegbar_ow(typ2);
-	break;
+  ok = hang_t::ist_wegbar_ow(typ) && hang_t::ist_wegbar_ow(typ2);
+  break;
       case ribi_t::nord:
       case ribi_t::sued:
-	ok = hang_t::ist_wegbar_ns(typ) && hang_t::ist_wegbar_ns(typ2);
-	break;
+  ok = hang_t::ist_wegbar_ns(typ) && hang_t::ist_wegbar_ns(typ2);
+  break;
       }
       if(ok) {
-	grund_t *bd2 = welt->access(k + koord::nsow[r])->gib_kartenboden();
-	weg_t *weg2 = bd2->gib_weg(weg_t::strasse);
+  grund_t *bd2 = welt->access(k + koord::nsow[r])->gib_kartenboden();
+  weg_t *weg2 = bd2->gib_weg(weg_t::strasse);
 
-	if(weg2) {
-	  weg2->ribi_add(ribi_t::rueckwaerts(ribi_t::nsow[r]));
-	  bd2->calc_bild();
-	  ribi |= ribi_t::nsow[r];
-	}
+  if(weg2) {
+    weg2->ribi_add(ribi_t::rueckwaerts(ribi_t::nsow[r]));
+    bd2->calc_bild();
+    ribi |= ribi_t::nsow[r];
+  }
       }
     }
     if(ribi != ribi_t::keine || forced) {
 
       if(!bd->weg_erweitern(weg_t::strasse, ribi)) {
-	strasse_t *weg = new strasse_t(welt);
-	weg->setze_gehweg( true );
-	weg->setze_besch(wegbauer_t::gib_besch("city_road"));
+  strasse_t *weg = new strasse_t(welt);
+  weg->setze_gehweg( true );
+  weg->setze_besch(wegbauer_t::gib_besch("city_road"));
 
-	// Hajo: city roads should not belong to any player
-	bd->neuen_weg_bauen(weg, ribi, sp);
+  // Hajo: city roads should not belong to any player
+  bd->neuen_weg_bauen(weg, ribi, sp);
       } else {
-	bd->setze_besitzer( sp );
+  bd->setze_besitzer( sp );
       }
       return true;
     }
@@ -1560,17 +1533,17 @@ stadt_t::baue()
 //    printf("Haus: %d  Strasse %d\n",best_haus_wert, best_strasse_wert);
 
     if(best_strasse.found()) {
-	if(!baue_strasse(best_strasse.gib_pos(), NULL, false)) {
-	    baue_gebaeude(best_strasse.gib_pos());
-	}
-	pruefe_grenzen(best_strasse.gib_pos());
+  if(!baue_strasse(best_strasse.gib_pos(), NULL, false)) {
+      baue_gebaeude(best_strasse.gib_pos());
+  }
+  pruefe_grenzen(best_strasse.gib_pos());
     }
 
     INT_CHECK("simcity 1156");
 
     if(best_haus.found()) {
-	baue_gebaeude(best_haus.gib_pos());
-	pruefe_grenzen(best_haus.gib_pos());
+  baue_gebaeude(best_haus.gib_pos());
+  pruefe_grenzen(best_haus.gib_pos());
     }
 
     INT_CHECK("simcity 1163");
@@ -1578,9 +1551,9 @@ stadt_t::baue()
     if(!best_haus.found() && !best_strasse.found() &&
        was_ist_an(best_haus.gib_pos()) != gebaeude_t::unbekannt) {
 
-	if(simrand(8) <= 2) {	// nicht so oft renovieren
-	    renoviere_gebaeude(best_haus.gib_pos());
-	    INT_CHECK("simcity 876");
+  if(simrand(8) <= 2) { // nicht so oft renovieren
+      renoviere_gebaeude(best_haus.gib_pos());
+      INT_CHECK("simcity 876");
         }
     }
 }
@@ -1589,19 +1562,19 @@ void
 stadt_t::pruefe_grenzen(koord k)
 {
     if(k.x <= li && k.x > 0) {
-	li = k.x - 1;
+  li = k.x - 1;
     }
 
     if(k.x >= re && k.x < welt->gib_groesse() -1) {
-	re = k.x+1;
+  re = k.x+1;
     }
 
     if(k.y <= ob && k.y > 0) {
-	ob = k.y-1;
+  ob = k.y-1;
     }
 
     if(k.y >= un && k.y< welt->gib_groesse()-1) {
-	un = k.y+1;
+  un = k.y+1;
     }
 }
 
@@ -1622,39 +1595,39 @@ stadt_t::haltestellenname(koord k, const char *typ, int number)
     int un_gr = un - 2;
 
     if(li_gr<k.x && re_gr>k.x && ob_gr<k.y && un_gr>k.y) {
-	base = zentrum_namen[zentrum_namen_cnt % anz_zentrum];
-	zentrum_namen_cnt ++;
+  base = zentrum_namen[zentrum_namen_cnt % anz_zentrum];
+  zentrum_namen_cnt ++;
 
     } else if(li_gr-6<k.x && re_gr+6>k.x && ob_gr-6<k.y && un_gr+6>k.y) {
-	if(k.y < ob_gr) {
-	    if(k.x<li_gr) {
-		base = nordwest_namen[0];
-	    } else if(k.x>re_gr) {
-		base = nordost_namen[0];
-	    } else {
-		base = nord_namen[0];
-	    }
-	} else if(k.y > un_gr) {
-	    if(k.x<li_gr) {
-		base = suedwest_namen[0];
-	    } else if(k.x>re_gr) {
-		base = suedost_namen[0];
-	    } else {
-		base = sued_namen[0];
-	    }
-	} else {
-	    if(k.x <= li_gr) {
-		base = west_namen[0];
-	    } else if(k.x >= re_gr) {
-		base = ost_namen[0];
-	    } else {
-		base = zentrum_namen[zentrum_namen_cnt % anz_zentrum];
-		zentrum_namen_cnt ++;
-	    }
-	}
+  if(k.y < ob_gr) {
+      if(k.x<li_gr) {
+    base = nordwest_namen[0];
+      } else if(k.x>re_gr) {
+    base = nordost_namen[0];
+      } else {
+    base = nord_namen[0];
+      }
+  } else if(k.y > un_gr) {
+      if(k.x<li_gr) {
+    base = suedwest_namen[0];
+      } else if(k.x>re_gr) {
+    base = suedost_namen[0];
+      } else {
+    base = sued_namen[0];
+      }
+  } else {
+      if(k.x <= li_gr) {
+    base = west_namen[0];
+      } else if(k.x >= re_gr) {
+    base = ost_namen[0];
+      } else {
+    base = zentrum_namen[zentrum_namen_cnt % anz_zentrum];
+    zentrum_namen_cnt ++;
+      }
+  }
     } else {
-	base = aussen_namen[aussen_namen_cnt % anz_aussen];
-	aussen_namen_cnt ++;
+  base = aussen_namen[aussen_namen_cnt % anz_aussen];
+  aussen_namen_cnt ++;
     }
 
 
@@ -1662,14 +1635,14 @@ stadt_t::haltestellenname(koord k, const char *typ, int number)
 
     if(number >= 0 && umgebung_t::numbered_stations) {
       const int n = sprintf(buf, translator::translate(base),
-			    this->name,
-			    translator::translate(typ));
+          this->name,
+          translator::translate(typ));
 
       sprintf(buf+n, " (%d)", number);
     } else {
       sprintf(buf, translator::translate(base),
-	      this->name,
-	      translator::translate(typ));
+        this->name,
+        translator::translate(typ));
     }
 
     const int len = strlen(buf) + 1;
@@ -1681,39 +1654,48 @@ stadt_t::haltestellenname(koord k, const char *typ, int number)
 
 
 // geeigneten platz zur Stadtgruendung durch Zufall ermitteln
-
 array_tpl<koord> *
 stadt_t::random_place(const karte_t *wl, const int anzahl)
 {
-    slist_tpl<koord> *list = wl->finde_plaetze(2,3);
+	slist_tpl<koord> *list = wl->finde_plaetze(2,3);
+	array_tpl<koord> *result = new array_tpl<koord> (anzahl);
 
-    array_tpl<koord> *result = new array_tpl<koord> (anzahl);
+	for(int  i=0;  i<anzahl;  i++) {
 
-    for(int i=0; i<anzahl; i++) {
+		int len = list->count();
+		// check distances of all cities to their respective neightbours
+		while(len > 0) {
+			const int index = simrand(len);
+			int minimum_dist = 0x7FFFFFFF;  // init with maximum
+			koord k = list->at(index);
 
-	const int len = list->count();
+			// check minimum distance
+			for(  int j=0;  j<i;  j++  ) {
+				int dist = abs(k.x-result->at(j).x) + abs(k.y-result->at(j).y);
+				if(  minimum_dist>dist  ) {
+					minimum_dist = dist;
+				}
+			}
+			list->remove( k );
+			len --;
+			if(  minimum_dist>minimum_city_distance  ) {
+				// all citys are far enough => ok, find next place
+				result->at(i) = k;
+				break;
+			}
+			// if we reached here, the city was not far enough => try again
+		}
 
-
-	if(len > 0) {
-	    const int index = simrand(len);
-
-	    koord k = list->at(index);
-	    result->at(i) = k;
-	    list->remove( k );
-
-	} else {
-	    dbg->error("stadt_t::random_place()",
-		       "No places found!");
-
-	    delete result;
-	    return NULL;
+		if(len<=0  &&  i<anzahl-1) {
+dbg->error("stadt_t::random_place()","No enough places found!");
+			delete result;
+			return NULL;
+		}
 	}
-    }
+	list->clear();
+	delete(list);
 
-    list->clear();
-    delete(list);
-
-    return result;
+	return result;
 }
 
 
@@ -1733,13 +1715,15 @@ bool stadt_t::init()
 
     char buf[128];
 
+    minimum_city_distance = contents.get_int("minimum_city_distance", 16);
+
     num_house_rules = 0;
     while (true) {
       sprintf(buf, "house_%d", num_house_rules+1);
       if(contents.get_string(buf, 0)) {
-	num_house_rules ++;
+  num_house_rules ++;
       } else {
-	break;
+  break;
       }
     }
 
@@ -1750,9 +1734,9 @@ bool stadt_t::init()
     while (true) {
       sprintf(buf, "road_%d", num_road_rules+1);
       if(contents.get_string(buf, 0)) {
-	num_road_rules ++;
+  num_road_rules ++;
       } else {
-	break;
+  break;
       }
     }
 
@@ -1796,75 +1780,6 @@ bool stadt_t::init()
 }
 
 
-void
-stadt_t::init_namen()
-{
-
-  // alle namen aufräumen
-  namen_liste.clear();
-
-
-  // Hajo: init city names. There are two options:
-  //
-  // 1.) read list from file
-  // 2.) create random names
-
-  // try to read list
-
-  const int lang = translator::get_language();
-  cstring_t filename ("text/citylist_");
-
-  filename = filename + translator::get_language_name_iso(lang) + ".txt";
-
-  dbg->message("stadt_t::init_namen()",
-	       "try to read city name list '%s'",
-	       filename.chars());
-
-
-  FILE * file = fopen(filename, "rb");
-
-  if(file) {
-    dbg->message("stadt_t::init_namen()", "reading ...");
-    char buf[256];
-
-    while(!feof(file)) {
-
-      if(fgets(buf, 256, file)) {
-	rtrim(buf);
-
-	dbg->debug("stadt_t::init_namen()", "reading '%s'", buf);
-
-	namen_liste.insert(cstring_t(buf));
-      }
-    }
-
-    fclose(file);
-    file = 0;
-  } else {
-
-    // Hajo: try to read list failed, create random names
-
-    dbg->message("stadt_t::init_namen()", "reading failed, creating random names.");
-
-    for(int i=0; i<anz_t1; i++) {
-      // const int l1 = strlen(translator::translate(name_t1[i]));
-
-      for(int j=0; j<anz_t2; j++) {
-	// const int l2 = strlen(translator::translate(name_t2[j]));
-
-	char buf [256];
-
-	sprintf(buf, "%s%s",
-		translator::translate(name_t1[i]),
-		translator::translate(name_t2[j]));
-
-	namen_liste.insert(cstring_t(buf));
-      }
-    }
-  }
-}
-
-
 /**
  * @return Einen Beschreibungsstring für das Objekt, der z.B. in einem
  * Beobachtungsfenster angezeigt wird.
@@ -1875,22 +1790,22 @@ char * stadt_t::info(char *buf) const
 {
 
   buf += sprintf(buf, "%s: %d (+%d)\n\n",
-		 translator::translate("City size"),
-		 gib_einwohner(),
-		 gib_wachstum()
-		 );
+     translator::translate("City size"),
+     gib_einwohner(),
+     gib_wachstum()
+     );
 
 
   buf += sprintf(buf, "%d,%d - %d,%d\n\n",
-		 li, ob, re , un
-		 );
+     li, ob, re , un
+     );
 
 
   buf += sprintf(buf, "%s: %d\n%s: %d\n\n",
-		 translator::translate("Unemployed"),
-		 bev-arb,
-		 translator::translate("Homeless"),
-		 bev-won);
+     translator::translate("Unemployed"),
+     bev-arb,
+     translator::translate("Homeless"),
+     bev-won);
 
 
   return buf;

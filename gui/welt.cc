@@ -379,10 +379,10 @@ void welt_gui_t::zeichnen(koord pos, koord gr)
   display_divider(x+10,y+242,230);
 
 
-  display_proportional(x+10, y+22, translator::translate("1WORLD_CHOOSE"),
+  display_proportional(x+10, y+24, translator::translate("1WORLD_CHOOSE"),
 		       ALIGN_LEFT, SCHWARZ, true);
 
-  int yo = y+60;
+  int yo = y+60+4;
   display_proportional(x+10, yo, translator::translate("2WORLD_CHOOSE"),
 		       ALIGN_LEFT, SCHWARZ, true);
   display_proportional(x+137, yo, ntos(sets->gib_karte_nummer(), "%3d"),

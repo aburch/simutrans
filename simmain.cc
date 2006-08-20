@@ -239,19 +239,25 @@ static void scroll_intro(const int xoff, const int yoff)
 {
     static int line = 0;
 
-    const int text_line = line / 9;
+    const int text_line = (line / 9)*2;
     const int text_offset = line % 9;
     const int left = 60;
     const int top = 196;
 
     display_fillbox_wh(xoff+left, yoff+top, 240, 48, GRAU1, true);
-    display_text(1, xoff+left+4, yoff+top-text_offset, scrolltext[text_line], WEISS, true);
-    display_text(1, xoff+left+4, yoff+top+9-text_offset, scrolltext[text_line+1], WEISS, true);
-    display_text(1, xoff+left+4, yoff+top+18-text_offset, scrolltext[text_line+2], GRAU6, true);
-    display_text(1, xoff+left+4, yoff+top+27-text_offset, scrolltext[text_line+3], GRAU5, true);
-    display_text(1, xoff+left+4, yoff+top+36-text_offset, scrolltext[text_line+4], GRAU4, true);
-    display_text(1, xoff+left+4, yoff+top+45-text_offset, scrolltext[text_line+5], GRAU3, true);
-    // display_text(1, xoff+left+4, yoff+top+54-text_offset, scrolltext[text_line+6], GRAU2, true);
+
+    display_proportional(xoff+left+4, yoff+1+top-text_offset, scrolltext[text_line], ALIGN_LEFT, WEISS, true );
+    display_proportional(xoff+left+236, yoff+1+top-text_offset, scrolltext[text_line+1], ALIGN_RIGHT, WEISS, true );
+    display_proportional(xoff+left+4, yoff+10+top-text_offset, scrolltext[text_line+2], ALIGN_LEFT, WEISS, true );
+    display_proportional(xoff+left+236, yoff+10+top-text_offset, scrolltext[text_line+3], ALIGN_RIGHT, WEISS, true );
+    display_proportional(xoff+left+4, yoff+19+top-text_offset, scrolltext[text_line+4], ALIGN_LEFT, GRAU6, true );
+    display_proportional(xoff+left+236, yoff+19+top-text_offset, scrolltext[text_line+5], ALIGN_RIGHT, GRAU6, true );
+    display_proportional(xoff+left+4, yoff+28+top-text_offset, scrolltext[text_line+6], ALIGN_LEFT, GRAU5, true );
+    display_proportional(xoff+left+236, yoff+28+top-text_offset, scrolltext[text_line+7], ALIGN_RIGHT, GRAU5, true );
+    display_proportional(xoff+left+4, yoff+37+top-text_offset, scrolltext[text_line+8], ALIGN_LEFT, GRAU4, true );
+    display_proportional(xoff+left+236, yoff+37+top-text_offset, scrolltext[text_line+9], ALIGN_RIGHT, GRAU4, true );
+    display_proportional(xoff+left+4, yoff+46+top-text_offset, scrolltext[text_line+10], ALIGN_LEFT, GRAU3, true );
+    display_proportional(xoff+left+236, yoff+46+top-text_offset, scrolltext[text_line+11], ALIGN_RIGHT, GRAU3, true );
 
     display_fillbox_wh(xoff+left, yoff+top-8, 240, 7, GRAU4, true);
     display_fillbox_wh(xoff+left, yoff+top-1, 240, 1, GRAU3, true);
@@ -259,10 +265,9 @@ static void scroll_intro(const int xoff, const int yoff)
     display_fillbox_wh(xoff+left, yoff+top+48, 240, 1, GRAU6, true);
     display_fillbox_wh(xoff+left, yoff+top+49, 240, 7, GRAU4, true);
 
-
     line ++;
 
-    if(line > (104-7)*9) {
+    if(text_line>190-11) {
 	line = 0;
     }
 }
@@ -748,13 +753,6 @@ int simu_cpp_main(int argc, char ** argv)
 
     karte_vollansicht_t *view = new karte_vollansicht_t(welt);
 
-
-    // Hajo: simgraph init loads default fonts, now we need to load
-    // the real fonts for the current language
-    sprachengui_t::init_font_from_lang();
-
-
-
     print("Init timer module ...\n");
     time_init();
 
@@ -817,6 +815,10 @@ display_show_pointer( false );
 
 
     zeige_banner();
+
+    // Hajo: simgraph init loads default fonts, now we need to load
+    // the real fonts for the current language
+    sprachengui_t::init_font_from_lang();
 
     welt->setze_dirty();
 

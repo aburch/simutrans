@@ -10,13 +10,16 @@
 #ifndef simtypes_h
 #define simtypes_h
 
-#define MAX(a,b)            ((a) > (b) ? (a) : (b))
-#define MIN(a,b)            ((a) < (b) ? (a) : (b))
-#define ABS(a)              ((a) < 0 ? -(a) : (a))
+// makros are not very safe: thus use these macro like functions
+// otherwise things may fail or functions are called uneccessarily twice
 
+#define MAX(a,b) ({ typeof (a) _a = (a); typeof (b) _b = (b); _a > _b ? _a : _b; })
+#define MIN(a,b) ({ typeof (a) _a = (a); typeof (b) _b = (b); _a < _b ? _a : _b; })
+#define ABS(a) ({ typeof (a) _a = (a); _a < 0 ? -_a : _a; })
 #define CLIP(wert,min,max)  MIN(MAX((wert),(min)),(max))
 
 // Hajo: define machine independant types
+
 
 typedef signed char          sint8;
 typedef unsigned char        uint8;
@@ -31,7 +34,6 @@ typedef unsigned __int64    uint64;
 typedef signed long long    sint64;
 typedef unsigned long long  uint64;
 #endif
-
 
 /**
  * Sometimes we need to pass pointers as well as integers through

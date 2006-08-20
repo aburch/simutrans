@@ -5,7 +5,8 @@
  * von Hansjörg Malthaner
  */
 
-#include "stdlib.h"
+#include <math.h>
+#include <stdlib.h>
 
 #include "simcosts.h"
 #include "simworld.h"
@@ -103,12 +104,11 @@ void convoi_t::init_buttons()
  */
 void convoi_t::init(karte_t *wl, spieler_t *sp)
 {
-  int i;
-
   welt = wl;
   besitzer_p = sp;
 
-  sum_gewicht = sum_gear_und_leistung = sum_leistung = 0;
+  sum_gesamtgewicht = sum_gewicht = sum_gear_und_leistung = sum_leistung = 0;
+  previous_delta_v = 0;
   min_top_speed = 9999999;
 
   fahr = new array_tpl<vehikel_t *> (16);
@@ -117,7 +117,7 @@ void convoi_t::init(karte_t *wl, spieler_t *sp)
   line = NULL;
   line_id = -1;
 
-  for(i=0; i<16; i++) {
+  for(int i=0; i<16; i++) {
     fahr->at(i) = NULL;
   }
 
@@ -130,9 +130,6 @@ void convoi_t::init(karte_t *wl, spieler_t *sp)
   wait_lock = 0;
 
   jahresgewinn = 0;
-
-  beschleunigung = 16;
-  bremsung = 48;
 
   alte_richtung = ribi_t::keine;
   next_wolke = welt->gib_zeit_ms() + 100;
@@ -252,55 +249,6 @@ convoi_t::setze_akt_speed_soll(int as)
 }
 
 
-/**
- * Calculates total weight of freight in KG
- * @author Hj. Malthaner
- */
-int convoi_t::calc_freight_weight() const
-{
-  int gewicht = 0;
-
-  for(int i=0; i<anz_vehikel; i++) {
-    gewicht += fahr->at(i)->gib_fracht_gewicht();
-  }
-
-  return gewicht;
-}
-
-
-/**
- * Calculates accelleration of this convoi
- * @param mini minimal accelleration cap
- * @return accelleration
- * @author Hj. Malthaner
- */
-int convoi_t::calc_accelleration(int mini) const
-{
-  int acc = 0;
-  int gewicht = sum_gewicht + ((calc_freight_weight() + 499) >> 10);
-
-
-  // das ist eine arg grobe Naeherung an die realitaet!!!
-
-  if(gewicht > 0 && fahr->at(0)) {
-    acc = sum_gear_und_leistung / (gewicht * 64);
-    acc = MAX(acc, mini);
-
-  } else {
-    // ohne gewicht nehmen wir einen standardwert
-    acc = 16;
-  }
-
-  return acc;
-}
-
-
-void convoi_t::calc_beschleunigung()
-{
-  beschleunigung = calc_accelleration(1);
-  bremsung = 48;
-}
-
 
 /**
  * Vehicles of the convoi add their running cost by using this
@@ -356,12 +304,13 @@ convoi_t::sync_step(long delta_t)
 {
   // dbg->message("convoi_t::sync_step()", "%p, state %d", this, state);
 
-	// moved check to here, as this will apply the same update logic/constraints convois have for manual schedule manipulation
-	if (line_update_pending > -1) {
-		if ((state != ROUTING_4) && (state != ROUTING_5)) {
-			check_pending_updates();
-		}
-	}
+  // moved check to here, as this will apply the same update
+  // logic/constraints convois have for manual schedule manipulation
+  if (line_update_pending > -1) {
+    if ((state != ROUTING_4) && (state != ROUTING_5)) {
+      check_pending_updates();
+    }
+  }
 
   wait_lock -= delta_t;
 
@@ -422,36 +371,65 @@ convoi_t::sync_step(long delta_t)
 
 
     case DRIVING:
-
       // teste, ob wir neu ansetzen müssen ?
       if(anz_ready == 0) {
 	// wir sind noch nicht am ziel
 
 	// jetzt wird gefahren
-
 	if(ist_fahrend) {
+	  // Prissi: more pleasant and a little more "physical" model *
 
-	  if(akt_speed < akt_speed_soll) {
-	    akt_speed += beschleunigung;
-	  } else {
-	    akt_speed -= bremsung;
+	  // first set speed limit
+	  int speed_limit=MIN(akt_speed_soll,min_top_speed);
+
+	  int sum_friction_weight = 0;
+	  sum_gesamtgewicht = 0;
+	  // calculate total friction
+	  for(int i=0; i < anz_vehikel; i++) {
+	    int total_vehicle_weight;
+
+	    total_vehicle_weight = fahr->at(i)->gib_gesamtgewicht();
+	    sum_friction_weight += fahr->at(i)->gib_frictionfactor()*total_vehicle_weight;
+	    sum_gesamtgewicht += total_vehicle_weight;
 	  }
 
-
-	  // Hajo: check max allowed speed cap
-	  if(akt_speed > min_top_speed) {
-	    // Hajo: we can't go that fast, some vehicle is too slow
-	    akt_speed = min_top_speed;
+	  // try to simulate quadratic friction
+	  if(sum_gesamtgewicht != 0) {
+	    /*
+	     * The parameter consist of two parts (optimized for good looking):
+	     *  - every vehicle in a convoi has a constant friction of 32 per vehicle.
+	     *  - the dynamic friction is calculated that way, that v^2*weight*frictionfactor = 200 kW
+	     * => the more heavy and the more fast the less power for acceleration is available!
+	     * since delta_t can have any value, we have to scale the step size by this value.
+	     * however, there is a quadratic friction term => if delta_t is too large the calculation may get weird results
+	     * @author prissi
+	     */
+	    /* with floats, one would write: akt_speed*ak_speed*iTotalFriction*100 / (12,8*12,8) + 32*anz_vehikel;
+	     * but for interger, we have to use the order below and calculate actualle 64*deccel, like the sum_gear_und_leistung */
+	    /* since akt_speed=10/128 km/h and we want 64*200kW=(100km/h)^2*100t, we must multiply by (128*2)/100 */
+	    int deccel = ( ( (akt_speed*sum_friction_weight)>>8 )*akt_speed ) / 100 + (anz_vehikel*16*64);	// this order is needed to prevent overflows!
+	    // we normalize delta_t to 1/64th and check for speed limit */
+	    int delta_v = ( ( (akt_speed>speed_limit?0:sum_gear_und_leistung) - deccel) *delta_t)/sum_gesamtgewicht;
+	    // we need more accurate arithmetik, so we store the previous value
+	    delta_v += previous_delta_v;
+	    previous_delta_v = delta_v & 0xFFF;
+	    // and finally calculate new speed
+	    akt_speed = MAX(speed_limit>>4, akt_speed+(delta_v>>12) );
+	    //dbg->message("convoi_t::sync_step","accel %d, deccel %d, akt_speed %d, delta_t %d, delta_v %d",sum_gear_und_leistung,deccel,akt_speed,delta_t,delta_v );
 	  }
+	  else {
+	    // very old vehicle ...
+	    akt_speed += 16;
+	  }
+      // obey speed maximum with additional const brake ...
+	  if(akt_speed > speed_limit) {
+	   	akt_speed -= 24;
+      }
 
 	  sp_soll += (akt_speed*delta_t) / 64;
-
 	  while(1024 < sp_soll && anz_ready == 0) {
-
 	    sp_soll -= 1024;
-
 	    // printf("convoi: steppe vehikel\n");
-
 	    // for(int i=anz_vehikel-1; i >= 0; i--) {
 	    for(int i=0; i < anz_vehikel && state != WAITING_FOR_CLEARANCE; i++) {
 	      fahr->at(i)->sync_step();
@@ -459,6 +437,7 @@ convoi_t::sync_step(long delta_t)
 	  }
 	}
 
+	// smoke for the engines (only first can smoke )
 	if(welt->gib_zeit_ms() > next_wolke) {
 	  fahr->at(0)->rauche();
 	  next_wolke += 500;
@@ -467,8 +446,8 @@ convoi_t::sync_step(long delta_t)
 	  }
 	}
 
-
-      } else {
+      } // end if(anz_ready==0)
+      else {
 	// Ziel erreicht
 	alte_richtung = fahr->at(0)->gib_fahrtrichtung();
 	state = LOADING;
@@ -523,10 +502,10 @@ convoi_t::sync_step(long delta_t)
 
     case WAITING_FOR_CLEARANCE:
       {
-				int restart_speed;
-				if(fahr->at(0)->ist_weg_frei(restart_speed)) {
-				  state = DRIVING;
-				}
+	int restart_speed;
+	if(fahr->at(0)->ist_weg_frei(restart_speed)) {
+	  state = DRIVING;
+	}
       }
       break;
     case SELF_DESTRUCT:
@@ -562,7 +541,7 @@ int convoi_t::drive_to(koord3d start, koord3d ziel)
 
 
   if(!ok) {
-    gib_besitzer()->bescheid_vehikel_problem(self);
+    gib_besitzer()->bescheid_vehikel_problem(self,ziel);
   }
 
   return ok;
@@ -803,11 +782,9 @@ convoi_t::add_vehikel(vehikel_t *v, bool infront)
 	sum_gear_und_leistung += info->gib_leistung()*info->get_gear();
 	sum_gewicht += info->gib_gewicht();
 	min_top_speed = MIN(min_top_speed, v->gib_speed());
-
-
-	calc_beschleunigung();
     }
 
+	sum_gesamtgewicht = sum_gewicht;
     // der convoi hat jetzt ein neues ende
     setze_erstes_letztes();
 
@@ -838,10 +815,9 @@ convoi_t::remove_vehikel_bei(int i)
 	    sum_leistung -= info->gib_leistung();
 	    sum_gear_und_leistung -= info->gib_leistung()*info->get_gear();
 	    sum_gewicht -= info->gib_gewicht();
-
-	    calc_beschleunigung();
 	}
     }
+	sum_gesamtgewicht = sum_gewicht;
 
     // der convoi hat jetzt ein neues ende
     if(anz_vehikel > 0) {
@@ -1171,6 +1147,7 @@ convoi_t::rdwr(loadsave_t *file)
 	    }
         }
     }
+	sum_gesamtgewicht = sum_gewicht;
 
     bool has_fpl = fpl != NULL;
 
@@ -1178,7 +1155,6 @@ convoi_t::rdwr(loadsave_t *file)
 
     if(has_fpl) {
       if(file->is_loading() && fahr->at(0)) {
-	calc_beschleunigung();
 	fpl = fahr->at(0)->erzeuge_neuen_fahrplan();
       }
       // Hajo: hack to load corrupted games -> there is a schedule
@@ -1265,9 +1241,10 @@ void convoi_t::info(cbuffer_t & buf) const
     buf.append("KW\n ");
     buf.append(translator::translate("Gewicht"));
     buf.append(": ");
+	/* changed to stored values (may be wrong afterloading until frist stop is reached) */
     buf.append(sum_gewicht);
     buf.append(" (");
-    buf.append((calc_freight_weight() + 499) >> 10);
+    buf.append(sum_gesamtgewicht-sum_gewicht);
     buf.append(") t\n ");
     buf.append(translator::translate("Gewinn"));
     buf.append(": ");
@@ -1484,8 +1461,6 @@ void convoi_t::laden()
     // Hajo: wait a few frames ... 250ms looks ok to me
     wait_lock = 250;
   }
-
-  calc_beschleunigung();
 }
 
 

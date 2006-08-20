@@ -40,7 +40,7 @@ public:
     koord3d pos;
 
     inline bool operator < (const KNode &k) const {
-	return dist+total <= k.dist+k.total;
+  return dist+total <= k.dist+k.total;
     };
 };
 
@@ -53,7 +53,7 @@ void route_t::entferne_markierungen() {
 route_t::route_t()
 {
     for(int i=0; i<512; i++) {
-	route[i] = koord3d(0, 0, 0);
+  route[i] = koord3d(0, 0, 0);
     }
 
     max_n = -1;
@@ -67,7 +67,7 @@ route_t::kopiere(const route_t *r)
     // es gibt am ende ein sonderfeld!
 
     //    for(int i=0; i<=r->max_n+1; i++) {
-    //	route[i] = r->route[i];
+    //  route[i] = r->route[i];
     //    }
 
     memcpy(route, r->route, sizeof(koord3d)*(r->max_n+1));
@@ -93,9 +93,9 @@ route_t::insert(koord3d k)
 
 
 static inline bool am_i_there(karte_t *welt,
-			      koord3d pos,
-			      koord3d ziel,
-			      bool block_test)
+            koord3d pos,
+            koord3d ziel,
+            bool block_test)
 {
   bool ok = false;
 
@@ -173,56 +173,56 @@ route_t::intern_calc_route(const koord3d ziel, const koord3d start,
     grund_t *to;
 
     do {
-	// Hajo: this is too expensive to be called each step
-	if((step & 127) == 0) {
-	    INT_CHECK("route 161");
-	}
+  // Hajo: this is too expensive to be called each step
+  if((step & 127) == 0) {
+      INT_CHECK("route 161");
+  }
 
-	tmp = queue.pop();
-
-
-	// debugging
-	// intr_refresh_display(false);
+  tmp = queue.pop();
 
 
-	//print("Teste route at %d,%d,%d\n", tmp->pos.x,tmp->pos.y,tmp->pos.z);
-	if(tmp->pos != ziel) {                      // am ziel ?
-	    gr = welt->lookup(tmp->pos);
+  // debugging
+  // intr_refresh_display(false);
 
-	    if(gr && fahr->ist_befahrbar(gr)) {
-	      const ribi_t::ribi ribi = gr->gib_weg_ribi(wegtyp);
 
-	      //print("Teste route at %d,%d,%d -> ribi %d\n", tmp->pos.x,tmp->pos.y,tmp->pos.z, ribi);
+  //print("Teste route at %d,%d,%d\n", tmp->pos.x,tmp->pos.y,tmp->pos.z);
+  if(tmp->pos != ziel) {                      // am ziel ?
+      gr = welt->lookup(tmp->pos);
 
-	      for(int r=0; r<4; r++) {
+      if(gr && fahr->ist_befahrbar(gr)) {
+        const ribi_t::ribi ribi = gr->gib_weg_ribi(wegtyp);
 
-	        if((ribi & ribi_t::nsow[r])
-		   && gr->get_neighbour(to, wegtyp, koord::nsow[r])
-		   && !welt->ist_markiert(k_next = to->gib_pos())
-		   && (block_tester == 0
-		       || tmp->total < 30
-		       || !block_tester->is_blocked(tmp->pos, k_next))
+        //print("Teste route at %d,%d,%d -> ribi %d\n", tmp->pos.x,tmp->pos.y,tmp->pos.z, ribi);
 
-		   ) {
+        for(int r=0; r<4; r++) {
 
-		    KNode *k = &nodes[step++];
+          if((ribi & ribi_t::nsow[r])
+       && gr->get_neighbour(to, wegtyp, koord::nsow[r])
+       && !welt->ist_markiert(k_next = to->gib_pos())
+       && (block_tester == 0
+           || tmp->total < 30
+           || !block_tester->is_blocked(tmp->pos, k_next))
 
-		    k->link = tmp;
-		    k->dist = is_ship ? ABS(k_next.x-ziel.x) +
-		                        ABS(k_next.y-ziel.y) : 0;
-		    k->total = tmp->total+1;
-		    k->pos = k_next;
+       ) {
 
-		    queue.insert( k );
+        KNode *k = &nodes[step++];
 
-		    welt->markiere(k->pos);  // betretene Felder markieren
-		}
-	      }
-	    }
-	}
+        k->link = tmp;
+        k->dist = is_ship ? ABS(k_next.x-ziel.x) +
+                            ABS(k_next.y-ziel.y) : 0;
+        k->total = tmp->total+1;
+        k->pos = k_next;
+
+        queue.insert( k );
+
+        welt->markiere(k->pos);  // betretene Felder markieren
+    }
+        }
+      }
+  }
     } while(!queue.is_empty()
-	    && !am_i_there(welt, tmp->pos, ziel, block_tester != 0)
-	    && step < MAX_STEP);
+      && !am_i_there(welt, tmp->pos, ziel, block_tester != 0)
+      && step < MAX_STEP);
 
     // const long t1 = get_current_time_millis();
     // printf("Route calc took %ld ms for %d steps\n", t1-t0, step);
@@ -236,44 +236,48 @@ route_t::intern_calc_route(const koord3d ziel, const koord3d start,
     // Abbruch pruefen
     if(!am_i_there(welt, tmp->pos, ziel, block_tester != 0)
        || step >= MAX_STEP) {
-	if(step >= MAX_STEP) {
-	    dbg->warning("route_t::intern_calc_route()",
-	                 "Too many steps in route (too long/complex)");
-	}
-	// keine Route gefunden: zu lange strecke ?!
+  if(step >= MAX_STEP) {
+      dbg->warning("route_t::intern_calc_route()",
+                   "Too many steps in route (too long/complex)");
+  }
+  // keine Route gefunden: zu lange strecke ?!
     } else {
         // route zusammenbauen
         int n = 0;
 
         while(tmp != NULL && n < 511) {
-	    route[n++] = tmp->pos;
+      route[n++] = tmp->pos;
 
-	    //printf("Route %d: at %d,%d,%d\n", n, tmp->pos.x, tmp->pos.y, tmp->pos.z);
+      //printf("Route %d: at %d,%d,%d\n", n, tmp->pos.x, tmp->pos.y, tmp->pos.z);
 
-	    tmp = tmp->link;
-    	}
+      tmp = tmp->link;
+      }
 
-	// wir lassen eine reserve für "insert()" aufrufe - eigentlich
-	// 511 - maximale_convoi_laenge
-    	if(n >= 480) {
+  // wir lassen eine reserve für "insert()" aufrufe - eigentlich
+  // 511 - maximale_convoi_laenge
+      if(n >= 480) {
             dbg->warning("route_t::intern_calc_route()", "Route too long");
-	    n = 0;
-    	} else {
-    	    // einige berechnungen brauchen noch zwei felder extra
-    	    route[n+1] = route[n] = route[n-1];
+      n = 0;
+      } else {
+          // einige berechnungen brauchen noch zwei felder extra
+          route[n+1] = route[n] = route[n-1];
 
-    	    // start und maximum init.
-    	    max_n = n-1;
-    	    n = 0;
-	    // wir koennen fahren, wenn die Route min. ein Feld (index 0) enthaelt
-	    ok = max_n >= 0;
-	}
+          // start und maximum init.
+          max_n = n-1;
+          n = 0;
+      // wir koennen fahren, wenn die Route min. ein Feld (index 0) enthaelt
+      ok = max_n >= 0;
+  }
     }
 
     return ok;
 }
 
-
+/* searches route, uses intern_calc_route() for distance between stations
+ * handles only driving in stations by itself
+ * corrected 12/2005 for station search
+ * @author Hansjörg Malthaner, prissi
+ */
 bool
 route_t::calc_route(karte_t *w,
                     const koord3d ziel, const koord3d start,
@@ -293,43 +297,45 @@ route_t::calc_route(karte_t *w,
     INT_CHECK("route 347");
 
     if( !ok ) {
-	route[0] = start;		// muss Vehikel spaeter entfernen
-	route[1] = start;              	// koennen
-	max_n = -1;
+  route[0] = start;   // muss Vehikel spaeter entfernen
+  route[1] = start;               // koennen
+  max_n = -1;
 
-	dbg->message("route_t::calc_route()",
-		     "No route from %d,%d to %d,%d found",
-		     start.x, start.y, ziel.x, ziel.y);
+  dbg->message("route_t::calc_route()",
+         "No route from %d,%d to %d,%d found",
+         start.x, start.y, ziel.x, ziel.y);
     } else {
-	//	printf("Route mit %d Schritten gefunden.\n",max_n);
+  //  printf("Route mit %d Schritten gefunden.\n",max_n);
 
-	halthandle_t halt = welt->lookup(start)->gib_halt();
+  halthandle_t halt = welt->lookup(start)->gib_halt();
 
-	// in bahnhof einfahren
-	if(halt.is_bound() && max_n < 510) {
-	    if(max_n > 0 &&
-	       welt->lookup(start)->gib_weg(weg_t::schiene) != NULL) {
+  // in bahnhof einfahren
+  if(halt.is_bound() && max_n < 510) {
+      if(max_n > 0 &&
+         welt->lookup(start)->gib_weg(weg_t::schiene) != NULL) {
 
-		const koord zv = route[max_n].gib_2d() - route[max_n-1].gib_2d();
-		const int ribi = fahr->gib_ribi(welt->lookup(start));
+    const koord zv = route[max_n].gib_2d() - route[max_n-1].gib_2d();
+    const int ribi = fahr->gib_ribi(welt->lookup(start));
                 koord3d k = start;
                 koord3d k2 = start + zv;
+    const grund_t *gr;
 
-		while(max_n < 510 &&
-		      welt->lookup(k2) &&
-		      welt->lookup(k2)->gib_halt() == halt &&
-		      welt->lookup(k2)->gib_weg(weg_t::schiene) != NULL &&
-		      (fahr->gib_ribi(welt->lookup(k2)) & ribi))
-		{
-		    k = k2;
-		    k2 += zv;
+    while(max_n < 510 &&  (gr=welt->lookup(k2))!=NULL  &&
+          gr->gib_halt() == halt &&
+          gr->gib_weg(weg_t::schiene) != NULL &&
+          (fahr->gib_ribi(gr) & ribi)  &&
+          !ribi_t::ist_einfach(fahr->gib_ribi(welt->lookup(k)))  &&
+          fahr->ist_befahrbar(gr)  )  // stop at end of track! (prissi)
+    {
+        k = k2;
+        k2 += zv;
                     max_n++;
-		    route[max_n] = k;
-		}
-	    }
-	}
+        route[max_n] = k;
+    }
+      }
+  }
         if(max_n < 511)
-	   route[max_n+1] = route[max_n];
+     route[max_n+1] = route[max_n];
     }
     return ok;
 }
@@ -337,10 +343,10 @@ route_t::calc_route(karte_t *w,
 
 bool
 route_t::calc_unblocked_route(karte_t *w,
-			      const koord3d start,
-			      const koord3d ziel,
-			      fahrer_t *fahr,
-			      route_block_tester_t *tester)
+            const koord3d start,
+            const koord3d ziel,
+            fahrer_t *fahr,
+            route_block_tester_t *tester)
 {
     welt = w;
     block_tester = tester;
@@ -351,18 +357,18 @@ route_t::calc_unblocked_route(karte_t *w,
     block_tester = 0;
 
     if( !ok ) {
-	route[0] = start;		// muss Vehikel spaeter entfernen
-	route[1] = start;              	// koennen
-	max_n = -1;
+  route[0] = start;   // muss Vehikel spaeter entfernen
+  route[1] = start;               // koennen
+  max_n = -1;
 
-	dbg->message("route_t::calc_unblocked_route()",
-		     "No route from %d,%d to %d,%d found",
-		     start.x, start.y, ziel.x, ziel.y);
+  dbg->message("route_t::calc_unblocked_route()",
+         "No route from %d,%d to %d,%d found",
+         start.x, start.y, ziel.x, ziel.y);
     } else {
-	//	printf("Route mit %d Schritten gefunden.\n",max_n);
+  //  printf("Route mit %d Schritten gefunden.\n",max_n);
 
         if(max_n < 511)
-	   route[max_n+1] = route[max_n];
+     route[max_n+1] = route[max_n];
     }
     return ok;
 }
@@ -379,7 +385,7 @@ route_t::rdwr(loadsave_t *file)
     file->rdwr_int(max_n, "\n");
 
     for(i=0; i<=max_n; i++) {
-	route[i].rdwr( file );
+  route[i].rdwr( file );
     }
     if(file->is_loading()) {    // War da nicht noch was mit 1 extra? V. Meyer
         route[i] = route[i - 1];
@@ -388,7 +394,7 @@ route_t::rdwr(loadsave_t *file)
 
 bool route_t::find_path(karte_t * welt, const koord3d start, fahrer_t * fahr, ding_t::typ typ)
 {
-	block_tester = 0;
+  block_tester = 0;
   const int MAX_STEP = 10000;
   KNode nodes[MAX_STEP+4+1];
   int step = 0;
@@ -412,7 +418,7 @@ bool route_t::find_path(karte_t * welt, const koord3d start, fahrer_t * fahr, di
 
   // Hajo: init queue with first node
   queue.insert( tmp );
-	welt->markiere(tmp->pos);  // betretene Felder markieren
+  welt->markiere(tmp->pos);  // betretene Felder markieren
 
   const weg_t::typ wegtyp = fahr->gib_wegtyp();
   koord3d k_next;
@@ -425,83 +431,83 @@ bool route_t::find_path(karte_t * welt, const koord3d start, fahrer_t * fahr, di
     if(is_ding_there(welt, tmp->pos, typ) == false &&
        tmp->total < 250 &&
        step < MAX_STEP) {
-	    gr = welt->lookup(tmp->pos);
-	    if(gr && fahr->ist_befahrbar(gr)) {
-	      const ribi_t::ribi ribi = gr->gib_weg_ribi(wegtyp);
-	      for(int r=0; r<4; r++) {
-	      	if((ribi & ribi_t::nsow[r])
-							&& gr->get_neighbour(to, wegtyp, koord::nsow[r])
-							&& !welt->ist_markiert(k_next = to->gib_pos())
-							) {
+      gr = welt->lookup(tmp->pos);
+      if(gr && fahr->ist_befahrbar(gr)) {
+        const ribi_t::ribi ribi = gr->gib_weg_ribi(wegtyp);
+        for(int r=0; r<4; r++) {
+          if((ribi & ribi_t::nsow[r])
+              && gr->get_neighbour(to, wegtyp, koord::nsow[r])
+              && !welt->ist_markiert(k_next = to->gib_pos())
+              ) {
 
-							KNode *k = &nodes[step++];
+              KNode *k = &nodes[step++];
 
-							k->pos   = k_next;
-							k->dist  = 0;
-							k->total = tmp->total+1;
-							k->link  = tmp;
+              k->pos   = k_next;
+              k->dist  = 0;
+              k->total = tmp->total+1;
+              k->link  = tmp;
 
-							queue.insert( k );
+              queue.insert( k );
 
-							// Hajo: mark entered squares
-							welt->markiere(k->pos);
-						}
-	      }
-	    }
+              // Hajo: mark entered squares
+              welt->markiere(k->pos);
+            }
+        }
+      }
     }
   } while(queue.is_empty() == false
-	  && is_ding_there(welt, tmp->pos, typ) == false
-	  && step < MAX_STEP);
+    && is_ding_there(welt, tmp->pos, typ) == false
+    && step < MAX_STEP);
 
-	max_n = -1;
+  max_n = -1;
   bool ok = false;
 
-	if(!is_ding_there(welt, tmp->pos, typ) || step >= MAX_STEP) {
-		if(step >= MAX_STEP) {
-			dbg->warning("route_t::find_path()", "Too many steps in route (too long/complex)");
-		}
-	} else {
-		// route zusammenbauen
-		int n = 0;
+  if(!is_ding_there(welt, tmp->pos, typ) || step >= MAX_STEP) {
+    if(step >= MAX_STEP) {
+      dbg->warning("route_t::find_path()", "Too many steps in route (too long/complex)");
+    }
+  } else {
+    // route zusammenbauen
+    int n = 0;
 
-		while(tmp != NULL && n < 511) {
-			route[n++] = tmp->pos;
-			tmp = tmp->link;
-		}
-		if(n >= 480) {
-			dbg->warning("route_t::intern_calc_route()", "Route too long");
-			n = 0;
-		} else {
-			route[n+1] = route[n] = route[n-1];
-			max_n = n-1;
-			n = 0;
-			ok = max_n >= 0;
-		}
-	}
+    while(tmp != NULL && n < 511) {
+      route[n++] = tmp->pos;
+      tmp = tmp->link;
+    }
+    if(n >= 480) {
+      dbg->warning("route_t::intern_calc_route()", "Route too long");
+      n = 0;
+    } else {
+      route[n+1] = route[n] = route[n-1];
+      max_n = n-1;
+      n = 0;
+      ok = max_n >= 0;
+    }
+  }
   if( !ok ) {
-		route[0] = start;		// muss Vehikel spaeter entfernen
-		route[1] = start;              	// koennen
-		max_n = -1;
-		dbg->message("route_t::find_path()", "No route from %d,%d to a depot found",
-		     start.x, start.y);
+    route[0] = start;   // muss Vehikel spaeter entfernen
+    route[1] = start;               // koennen
+    max_n = -1;
+    dbg->message("route_t::find_path()", "No route from %d,%d to a depot found",
+         start.x, start.y);
   } else {
     if(max_n < 511)
-			route[max_n+1] = route[max_n];
+      route[max_n+1] = route[max_n];
   }
-	// entferne_markierungen();
+  // entferne_markierungen();
   return ok;
 }
 
 bool
 route_t::is_ding_there(karte_t * welt, const koord3d pos, ding_t::typ typ)
 {
-	bool ok = false;
-	grund_t * gr = welt->lookup(koord(pos.x,pos.y))->gib_kartenboden();
-	if (gr) {
-		ding_t * ding = gr->suche_obj(typ);
-		if (ding) {
-			ok = true;
-		}
-	}
-	return ok;
+  bool ok = false;
+  grund_t * gr = welt->lookup(koord(pos.x,pos.y))->gib_kartenboden();
+  if (gr) {
+    ding_t * ding = gr->suche_obj(typ);
+    if (ding) {
+      ok = true;
+    }
+  }
+  return ok;
 }

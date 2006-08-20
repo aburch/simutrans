@@ -191,10 +191,10 @@ void fahrplan_gui_t::init()
   line_selector.add_listener(this);
   add_komponente(&line_selector);
 
-  lb_line.setze_pos(koord(11, 3));
+  lb_line.setze_pos(koord(11, 7));
   add_komponente(&lb_line);
 
-  lb_load.setze_pos(koord(11, 19));
+  lb_load.setze_pos(koord(11, 23));
   add_komponente(&lb_load);
 
   if(fpl->maxi > 0) {

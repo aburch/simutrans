@@ -284,9 +284,7 @@ void button_t::zeichnen(koord offset, int button_color) const
       display_ddd_box(bx, by, bw, bh, GRAU6, GRAU3);
       display_fillbox_wh_clip(bx+1, by+1, bw-2, bh-2, background, false);
     }
-    //display_text(bx+2,by-2, text, button_color, true);
-//    display_proportional(bx+4,by+(bh-16)/2, text, ALIGN_LEFT, button_color, true);
-    display_proportional(bx+4,by+(bh-16)/2, text, ALIGN_LEFT, b_enabled ? button_color : GRAU4, true);
+    display_proportional_clip(bx+4,by+(bh-large_font_height)/2, text, ALIGN_LEFT, b_enabled ? button_color : GRAU4, true);
     break;
    case roundbox: // new box with round corners
 #if 1
@@ -340,12 +338,12 @@ void button_t::zeichnen(koord offset, int button_color) const
     }
     POP_CLIP();
 #endif
-    display_proportional_clip(bx+(bw>>1),by+2, text, ALIGN_MIDDLE, b_enabled ? button_color : GRAU4, true);
+    display_proportional_clip(bx+(bw>>1),by+(bh-large_font_height)/2, text, ALIGN_MIDDLE, b_enabled ? button_color : GRAU4, true);
     break;
 
    case square: // little square in front of text
     display_button_image(bx, by, SQUARE_BUTTON, pressed);
-    display_proportional_clip(bx+16,by, text, ALIGN_LEFT, b_enabled ? button_color : GRAU4, false);
+    display_proportional_clip(bx+16,by+(12-large_font_height)/2, text, ALIGN_LEFT, b_enabled ? button_color : GRAU4, false);
     break;
 
    case arrowleft:

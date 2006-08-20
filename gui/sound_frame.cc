@@ -53,7 +53,7 @@ sound_frame_t::sound_frame_t()
     digi.setze_knob_offset(sound_get_global_volume());
     digi.add_listener( this );
 
-    dlabel.setze_pos(koord(22,10));
+    dlabel.setze_pos(koord(22,14));
 
     midi.setze_groesse(koord(256, 10));
     midi.setze_pos(koord(22, 80));
@@ -62,7 +62,7 @@ sound_frame_t::sound_frame_t()
     midi.setze_knob_offset(sound_get_midi_volume());
     midi.add_listener( this );
 
-    mlabel.setze_pos(koord(22,60));
+    mlabel.setze_pos(koord(22,64));
 
     nextbtn.setze_text(">");
     nextbtn.setze_groesse(koord(20, 14));
@@ -74,8 +74,8 @@ sound_frame_t::sound_frame_t()
     prevbtn.setze_pos(koord(22,133));
     prevbtn.setze_typ(button_t::arrowleft);
 
-    cplaying.setze_pos(koord(22,110)); // "Currently Playing:"
-    curlabel.setze_pos(koord(60,130)); // "Jazz"
+    cplaying.setze_pos(koord(22,114)); // "Currently Playing:"
+    curlabel.setze_pos(koord(60,134)); // "Jazz"
 
     add_komponente(&dlabel);
     add_komponente(&digi);

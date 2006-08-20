@@ -17,10 +17,15 @@
 #ifndef simgraph_h
 #define simgraph_h
 
+
 #ifdef __cplusplus
 extern "C" {
+// since our simgraph16.c ist a plain c-file, it will never see this
+extern int large_font_height;
+#else
+// only needed for non C++
+typedef enum {false=0, true=1 } bool;
 #endif
-
 
 #ifndef TRUE
 #define TRUE 1
@@ -32,6 +37,18 @@ extern "C" {
 #define DPY_HEIGHT  28
 
 #define LINESPACE 11
+
+
+typedef struct
+{
+	int	height;
+	int	descent;
+	int num_chars;
+	char	name[256];
+	unsigned char	*char_width;
+	unsigned char	*screen_width;
+	unsigned char	*char_data;
+} font_type;
 
 
 struct clip_dimension {
@@ -81,13 +98,25 @@ void set_zoom_factor(int rw);
  */
 int simgraph_init(int width, int height, int use_shm, int do_sync);
 
-/**
- * Loads the fonts
- * @author Hj. Malthaner
+/*
+ * uncomment to enable unicode
  */
-void init_font(const char *fixed_font, const char *prop_font);
+#define UNICODE_SUPPORT
 
-void load_hex_font(const char *filename);
+/* unicode helper functions
+ * @author prissi
+ */
+int	display_get_unicode(void);
+int	display_set_unicode(int use_unicode);
+int unicode_get_previous_character( const char *text, int cursor_pos);
+int unicode_get_next_character( const char *text, int cursor_pos);
+unsigned short utf82unicode (unsigned char const *ptr, int *iLen );
+int	unicode2utf8( unsigned unicode, unsigned char *out );
+
+/* Loads the fonts (large=true loads large font)
+ * @author prissi
+ */
+bool load_font(const char *fname, bool large );
 
 void init_images(const char *filename);
 
@@ -143,11 +172,7 @@ void display_show_pointer(int yesno);
 
 void display_pixel(int x, int y, int color);
 
-void display_ddd_text(int xpos, int ypos, int hgt,
-                      int ddd_farbe, int text_farbe,
-                      const char *text, int dirty);
 
-void display_text(int font, int x, int y, const char *txt, int color, int dirty);
 void display_array_wh(int xp, int yp, int w, int h, const unsigned char *arr);
 
 // compound painting routines
@@ -158,23 +183,36 @@ void display_ddd_box_clip(int x1, int y1, int w, int h, int tl_color, int rd_col
 #define ALIGN_LEFT 0
 #define ALIGN_MIDDLE 1
 #define ALIGN_RIGHT 2
-int proportional_string_width(const char *text);
-int proportional_string_len_width(const char *text, int len);
 
-void display_ddd_proportional(int xpos, int ypos, int width, int hgt,
-			      int ddd_farbe, int text_farbe,
-			      const char *text, int dirty);
-void display_ddd_proportional_clip(int xpos, int ypos, int width, int hgt,
-			      int ddd_farbe, int text_farbe,
-			      const char *text, int dirty);
-void display_proportional(int x, int y, const char *txt,
-			  int align, const int color, int dirty);
-void display_proportional_clip(int x, int y, const char *txt,
-			       int align, const int color, int dirty);
+/* routines for string len (macros for compatibility with old calls) */
+int display_proportional_string_len_width(const char *text, int len,bool use_large_font );
+#define small_proportional_string_width(text) display_proportional_string_len_width( text, 0x7FFF, false )
+#define proportional_string_width(text) display_proportional_string_len_width( text, 0x7FFF, true )
+#define proportional_string_len_width(text,len) display_proportional_string_len_width( text, len, true )
+
+/*
+ * len parameter added - use -1 for previous bvbehaviour.
+ * completely renovated for unicode and 10 bit width and variable height
+ * @author Volker Meyer, prissi
+ * @date  15.06.2003, 2.1.2005
+ */
+void display_text_proportional_len_clip(int x, int y, const char *txt, int align, const int color_index, int dirty, bool use_large_font, int len, bool use_clipping );
+/* macro are for compatibility */
+#define display_small_proportional( x,  y, txt,  align, color, dirty) display_text_proportional_len_clip(x, y, txt, align, color, dirty, false, -1, false )
+#define display_small_proportional_clip( x,  y, txt,  align, color, dirty) display_text_proportional_len_clip(x, y, txt, align, color, dirty, false, -1, true )
+#define display_small_proportional_len_clip( x,  y, txt,  len, align, color, dirty) display_text_proportional_len_clip(x, y, txt, align, color, dirty, false, len, true )
+#define display_proportional( x,  y, txt,  align, color, dirty) display_text_proportional_len_clip(x, y, txt, align, color, dirty, true, -1, false )
+#define display_proportional_clip( x,  y, txt,  align, color, dirty) display_text_proportional_len_clip(x, y, txt, align, color, dirty, true, -1, true )
+#define display_proportional_len_clip( x,  y, txt,  len, align, color, dirty) display_text_proportional_len_clip(x, y, txt, align, color, dirty, true, len, true )
+
+void display_ddd_proportional(int xpos, int ypos, int width, int hgt,int ddd_farbe, int text_farbe,const char *text, int dirty);
+void display_ddd_proportional_clip(int xpos, int ypos, int width, int hgt,int ddd_farbe, int text_farbe, const char *text, int dirty);
+
+void display_multiline_text(int x, int y, const char *inbuf, int color);
+
 void display_direct_line(const int x, const int y, const int xx, const int yy, const int color);
 
 int count_char(const char *str, const char c);
-void display_multiline_text(int x, int y, const char *inbuf, int color);
 
 void display_setze_clip_wh(int x, int y, int w, int h);
 struct clip_dimension display_gib_clip_wh(void);
@@ -190,6 +228,7 @@ void display_laden(void* file, int zipped);
 void display_speichern(void* file, int zipped);
 
 void line(int x1s, int y1s, int x2s, int y2s, int col);
+
 #ifdef __cplusplus
 }
 #endif

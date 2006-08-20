@@ -258,7 +258,7 @@ halt_list_frame_t::halt_list_frame_t(spieler_t *sp) :
     m_sp = sp;
     filter_frame = NULL;
 
-    sort_label.setze_pos(koord(3, 0));
+    sort_label.setze_pos(koord(3, 4));
     add_komponente(&sort_label);
     sortedby.init(button_t::roundbox, "", koord(1, 14), koord(78,14));
     sortedby.add_listener(this);
@@ -268,7 +268,7 @@ halt_list_frame_t::halt_list_frame_t(spieler_t *sp) :
     sorteddir.add_listener(this);
     add_komponente(&sorteddir);
 
-    filter_label.setze_pos(koord(164, 0));
+    filter_label.setze_pos(koord(164, 4));
     add_komponente(&filter_label);
 
     filter_on.init(button_t::roundbox, translator::translate(gib_filter(any_filter) ? "hl_btn_filter_enable" : "hl_btn_filter_disable"), koord(162, 14), koord(78,14));

@@ -326,7 +326,7 @@ void depot_frame_t::layout()
      */
     int SELECT_VSTART = 16;
     int CONVOI_VSTART = SELECT_VSTART + SELECT_HEIGHT + LINESPACE;
-    int CINFO_VSTART = CONVOI_VSTART + CLIST_HEIGHT - 4;
+    int CINFO_VSTART = CONVOI_VSTART + CLIST_HEIGHT;
     int ACTIONS_VSTART = CINFO_VSTART + CINFO_HEIGHT + 2 + LINESPACE;
     int PANEL_VSTART = ACTIONS_VSTART + ACTIONS_HEIGHT + 8;
     int TOTAL_HEIGHT = PANEL_VSTART + PANEL_HEIGHT + VINFO_HEIGHT + 17;
@@ -340,7 +340,7 @@ void depot_frame_t::layout()
     /*
      * [SELECT]:
      */
-    lb_convois.setze_pos(koord(4, SELECT_VSTART - 14));
+    lb_convois.setze_pos(koord(4, SELECT_VSTART - 10));
 
     bt_prev.setze_pos(koord(5, SELECT_VSTART + 2));
 
@@ -445,7 +445,7 @@ void depot_frame_t::layout()
     div_tabbottom.setze_pos(koord(0,PANEL_VSTART+PANEL_HEIGHT));
     div_tabbottom.setze_groesse(koord(PANEL_WIDTH,0));
 
-    lb_veh_action.setze_pos(koord(PANEL_WIDTH-ABUTTON_WIDTH, PANEL_VSTART + PANEL_HEIGHT));
+    lb_veh_action.setze_pos(koord(PANEL_WIDTH-ABUTTON_WIDTH, PANEL_VSTART + PANEL_HEIGHT+4));
     lb_veh_action.setze_text(translator::translate("Fahrzeuge:"));
 
     bt_veh_action.setze_pos(koord(PANEL_WIDTH-ABUTTON_WIDTH, PANEL_VSTART + PANEL_HEIGHT + 14));
@@ -940,7 +940,7 @@ depot_frame_t::zeichnen(koord pos, koord groesse)
     gui_frame_t::zeichnen(pos, groesse);
     if(!cnv.is_bound()) {
 	display_proportional(pos.x+inp_name.gib_pos().x+2,
-			     pos.y+inp_name.gib_pos().y+14,
+			     pos.y+inp_name.gib_pos().y+18,
                              translator::translate("new convoi"),
 			     ALIGN_LEFT, GRAU1, true);
     }

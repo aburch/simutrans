@@ -114,14 +114,14 @@ void tab_panel_t::zeichnen(koord parent_pos) const
 	    display_vline_wh(text_x-4, ypos+5, HEADER_VSIZE-6, MN_GREY4, true);
 	    display_vline_wh(text_x+width+3, ypos+5, HEADER_VSIZE-6, MN_GREY0, true);
 
-	    display_proportional(text_x, ypos+3, text, ALIGN_LEFT, SCHWARZ, true);
+	    display_proportional(text_x, ypos+7, text, ALIGN_LEFT, SCHWARZ, true);
 	} else {
 	    display_fillbox_wh(text_x-3, ypos+3, width+5, 1, MN_GREY4, true);
 
 	    display_vline_wh(text_x-4, ypos+4, 13, MN_GREY4, true);
 	    display_vline_wh(text_x+width+3, ypos+4, 13, MN_GREY0, true);
 
-	    display_proportional(text_x, ypos+2, text, ALIGN_LEFT, SCHWARZ, true);
+	    display_proportional(text_x, ypos+7, text, ALIGN_LEFT, SCHWARZ, true);
 
 	    tabs.at(i)->zeichnen(koord(xpos+0, ypos+HEADER_VSIZE));
 	}

@@ -1,3 +1,36 @@
+Released Simutrans 0.84.22.0
+
+3-Jan-2005
+
+FIX
+	Route finding in station was faulty (ignored dead ends and electrification)
+	Station did not grow properly together
+	citylist is now loaded with the correct language
+	clipping of small font in map window works again
+
+CHANGE:
+	Many buildings nightpixel removed/exchanged
+	Renovation of the KI
+		- tries to built networks (factories missing a single good for production a rated higher)
+		- checks more factories
+		- always use the cheapest means of transport (only a little biased towards rails ;))
+		- all possible locations are now searched, including points near a previous built station
+		- tries to built a single station
+		- obeys timeline for vehicles
+		- can electrify tracks
+	Renovation of way/rail construction tool
+		- automatically creates railroad crossings if possible
+		- tunnels will always have the fastes way (not name dependent any more)
+	Cities in a new map can now have a certain distance (see confing/cityconf.tab)
+	Japanese pak "Oil Power Plant" now have a powerline connection
+	Full Unicode display support
+		- renovation of all text displaying routines and therefore many dialoge boxes
+		- support of BDF as an alternative font format (less than 256 chars of Unicode/ISO10626-1 coding only)
+		- UTF8 encoded (2 Byte language) files are possible
+		- 2 Byte output/editing works (no input due to SDL yet)
+		- citylist can be either in text/ or pak/text/ (or where your pak-files are).
+
+
 Released Simutrans 0.84.20.0
 
 28-Nov-04: FIX: fixed a crash if a vehicle was sold while the vehicle

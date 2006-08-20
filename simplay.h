@@ -26,6 +26,10 @@
 #include "dataobj/koord.h"
 #endif
 
+#include "simware.h"
+
+#include "besch/weg_besch.h"
+#include "besch/vehikel_besch.h"
 
 #define MAX_COST           10 // Total number of items in array
 
@@ -34,10 +38,10 @@
 #define COST_NEW_VEHICLE   2 // New vehicles
 #define COST_INCOME        3 // Income
 #define COST_MAINTENANCE   4 // Upkeep
-#define COST_ASSETS	   5 // value of all vehicles and buildings
+#define COST_ASSETS    5 // value of all vehicles and buildings
 #define COST_CASH          6 // Cash
 #define COST_NETWEALTH     7 // Total Cash + Assets
-#define COST_PROFIT	   8 // 3-(0+1+2+4)
+#define COST_PROFIT    8 // 3-(0+1+2+4)
 #define COST_OPERATING_PROFIT 9 // 3-(1+4)
 #define MAX_HISTORY_YEARS  12 // number of years to keep history
 #define MAX_HISTORY_MONTHS  12 // number of months to keep history
@@ -68,15 +72,18 @@ public:
     enum zustand {NEUE_ROUTE};
 
     enum subzustand {NR_INIT, NR_SAMMLE_ROUTEN,
-                     NR_BAUE_ROUTE1, NR_BAUE_ROUTE2,
-		     NR_BAUE_SCHIENEN_ROUTE1,
-		     NR_BAUE_SCHIENEN_ROUTE2,
-                     NR_BAUE_BAHNHOF,
-		     NR_BAUE_SCHIENEN_VEHIKEL,
-		     NR_BAUE_STRASSEN_ROUTE,
-		     NR_BAUE_STRASSEN_ROUTE2,
-                     NR_BAUE_STRASSEN_VEHIKEL
-		    };
+                     NR_BAUE_ROUTE1,
+//                     NR_BAUE_ROUTE2,
+         NR_BAUE_SIMPLE_SCHIENEN_ROUTE,
+         NR_BAUE_SCHIENEN_ROUTE1,
+         NR_BAUE_SCHIENEN_ROUTE2,
+//                     NR_BAUE_BAHNHOF,
+//         NR_BAUE_SCHIENEN_VEHIKEL,
+         NR_BAUE_STRASSEN_ROUTE,
+         NR_BAUE_STRASSEN_ROUTE2,
+ //                    NR_BAUE_STRASSEN_VEHIKEL,
+       NR_BAUE_CLEAN_UP
+        };
 
     enum { MAX_KONTO_VERZUG = 3 };
 
@@ -160,10 +167,30 @@ private:
     enum zustand state;
     enum subzustand substate;
 
+  /* test more than one supplier and more than one good *
+   * save last factory for building next supplier/consumer *
+   * @author prissi
+   */
     fabrik_t *start;
+    fabrik_t *last_start;
+    int start_ware;
     fabrik_t *ziel;
+    fabrik_t *last_ziel;
+
+  // we will use this vehicle!
+  const vehikel_besch_t *rail_vehicle;
+  const vehikel_besch_t *rail_engine;
+  const vehikel_besch_t *road_vehicle;
+  // and the convoi will run on this track:
+  const weg_besch_t *rail_weg ;
+  const weg_besch_t *road_weg ;
+
+    int count_rail;
+    int count_road;
+  // multi-purpose counter
+  int count;
+
     int gewinn;
-    int count;
 
     // ende KI vars
 
@@ -171,21 +198,27 @@ private:
 
     bool suche_platz(int x, int y, koord *);
     bool suche_platz(int x, int y, int dx, int dy,
-		     koord off,
-		     koord *);
+         koord off,
+         koord *);
 
 
-    bool checke_bahnhof_bau(koord p);
-    int baue_bahnhof(koord &p, int anz_vehikel);
+  bool spieler_t::is_my_bahnhof(koord pos);
+    int baue_bahnhof(koord3d quelle,koord *p, int anz_vehikel);
 
-    /**
-     * @return gewinn für eine Fahrt per lkw auf dieser strecke
-     * @author Hj. Malthaner
+    /* these two routines calculate the income
+     * @author prissi
      */
-    int suche_transport_quelle_ziel(fabrik_t **quelle, fabrik_t **ziel);
+    int rating_transport_quelle_ziel(fabrik_t *qfab,const ware_t *ware,fabrik_t *zfab);
+    int guess_gewinn_transport_quelle_ziel(fabrik_t *qfab,const ware_t *ware, int qware_nr, fabrik_t *zfab);
+    /* These two routines calculate, which route next
+     * @author Hj. Malthaner
+     * @author prissi
+     */
+  int suche_transport_ziel(fabrik_t *quelle, int *quelle_ware, fabrik_t **ziel);
+    int suche_transport_quelle(fabrik_t **quelle,int *quelle_ware, fabrik_t *ziel);
 
     void create_road_transport_vehikel(fabrik_t *qfab, int anz_vehikel);
-    void create_rail_transport_vehikel(fabrik_t *qfab, int anz_vehikel);
+    void create_rail_transport_vehikel(const koord pos1,const koord pos2, int anz_vehikel);
 
 
     bool suche_platz1_platz2(fabrik_t *qfab, fabrik_t *zfab);    // neue Transportroute anlegen
@@ -209,9 +242,9 @@ private:
      * @param list list of bridge start/end koordinates
      * @author Hj. Malthaner
      */
-    bool versuche_brueckenbau(koord p, int index, ribi_t::ribi ribi,
+    bool versuche_brueckenbau(koord p, int *index, ribi_t::ribi ribi,
                               wegbauer_t &bauigel,
-			      slist_tpl <koord> &list);
+            slist_tpl <koord> &list);
 
     bool checke_streckenbau(wegbauer_t &bauigel, slist_tpl<koord> &list);
     void baue_strecke(wegbauer_t &bauigel, slist_tpl<koord> &list);
@@ -361,6 +394,7 @@ public:
 
     // fuer tests
     koord platz1, platz2;
+    bool create_simple_rail_transport();
     bool create_complex_rail_transport();
     bool create_complex_road_transport();    // neue Transportroute anlegen
 
@@ -390,7 +424,7 @@ public:
     * @author hsiegeln
     */
     sint64* get_finance_history_year() {return *finance_history_year;};
-	sint64* get_finance_history_month() {return *finance_history_month;};
+  sint64* get_finance_history_month() {return *finance_history_month;};
 
     /**
     * Returns the world the player is in
@@ -424,7 +458,7 @@ public:
      * @author Hansjörg Malthaner
      * @date 26-Nov-2001
      */
-    void bescheid_vehikel_problem(convoihandle_t cnv);
+    void bescheid_vehikel_problem(convoihandle_t cnv,const koord3d ziel);
 
 };
 

@@ -217,37 +217,37 @@ void color_gui_t::zeichnen(koord pos, koord gr)
 
   display_divider(x+10, y+122, 149);
 
-  display_proportional(x+10, y+22, translator::translate("1LIGHT_CHOOSE"),
+  display_proportional(x+10, y+26, translator::translate("1LIGHT_CHOOSE"),
 		       ALIGN_LEFT, SCHWARZ, true);
-  display_proportional(x+113, y+22, ntos(display_get_light(), 0),
+  display_proportional(x+113, y+26, ntos(display_get_light(), 0),
 		       ALIGN_MIDDLE, SCHWARZ, true);
-  display_proportional(x+10, y+34, translator::translate("2LIGHT_CHOOSE"),
+  display_proportional(x+10, y+38, translator::translate("2LIGHT_CHOOSE"),
 		       ALIGN_LEFT, SCHWARZ, true);
-  display_proportional(x+113, y+34, ntos(display_get_color(), 0),
+  display_proportional(x+113, y+38, ntos(display_get_color(), 0),
 		       ALIGN_MIDDLE, SCHWARZ, true);
-  display_proportional(x+10, y+46, translator::translate("3LIGHT_CHOOSE"),
+  display_proportional(x+10, y+50, translator::translate("3LIGHT_CHOOSE"),
 		       ALIGN_LEFT, SCHWARZ, true);
-  display_proportional(x+113, y+46, ntos(abs(sets->gib_scroll_multi()), 0),
+  display_proportional(x+113, y+50, ntos(abs(sets->gib_scroll_multi()), 0),
 		       ALIGN_MIDDLE, SCHWARZ, true);
 
-  display_proportional(x+10, y+130, "Frame time:",
+  display_proportional(x+10, y+134, "Frame time:",
 		       ALIGN_LEFT, SCHWARZ, true);
-  display_proportional(x+10, y+140, "Idle:",
+  display_proportional(x+10, y+144, "Idle:",
 		       ALIGN_LEFT, SCHWARZ, true);
-  display_proportional(x+10, y+150, "FPS:",
+  display_proportional(x+10, y+154, "FPS:",
 		       ALIGN_LEFT, SCHWARZ, true);
-  display_proportional(x+10, y+160, "Sim:",
+  display_proportional(x+10, y+164, "Sim:",
 		       ALIGN_LEFT, SCHWARZ, true);
 
   sprintf(buf,"%ld/%ld/%ld ms", get_actual_frame_time(), get_average_frame_time(), get_frame_time());
 
-  display_proportional(x+77, y+130, buf,
+  display_proportional(x+77, y+134, buf,
 		       ALIGN_LEFT, WEISS, true);
-  display_proportional(x+37, y+140, ntos(welt->gib_schlaf_zeit(), "%d µs"),
+  display_proportional(x+37, y+144, ntos(welt->gib_schlaf_zeit(), "%d µs"),
 		       ALIGN_LEFT, WEISS, true);
-  display_proportional(x+37, y+150, ntos(welt->gib_FPS(), "%d fps"),
+  display_proportional(x+37, y+154, ntos(welt->gib_FPS(), "%d fps"),
 		       ALIGN_LEFT, WEISS, true);
-  display_proportional(x+37, y+160, ntos(welt->gib_simloops(), "%d loops"),
+  display_proportional(x+37, y+164, ntos(welt->gib_simloops(), "%d loops"),
 		       ALIGN_LEFT, WEISS, true);
 
 

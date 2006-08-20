@@ -189,13 +189,20 @@ private:
     int sum_gear_und_leistung;
 
 
-    /**
-     * Gesamtgewicht. Wird nicht gespeichert, sondern aus den Einzelgewichten
-     * errechnet.
-     * @author Hj. Malthaner
+    /* sum_gewicht: leergewichte aller vehicles *
+     * sum_gesamtgewicht: gesamtgewichte aller vehicles *
+     * Werden nicht gespeichert, sondern aus den Einzelgewichten
+     * errechnet beim beladen/fahren.
+     * @author Hj. Malthaner, prissi
      */
     int sum_gewicht;
+    int sum_gesamtgewicht;
 
+    /**
+     * Stores the previous delta_v value; otherwise these digits are lost during calculation and vehicle do not accelrate
+     * @author prissi
+     */
+	int previous_delta_v;
 
     /**
      * Lowest top speed of all vehicles. Doesn't get saved, but calculated
@@ -203,13 +210,6 @@ private:
      * @author Hj. Malthaner
      */
     int min_top_speed;
-
-
-    /**
-     * berechnet beschleunigung aus gweicht und leistung
-     * @author Hj. Malthaner
-     */
-    void calc_beschleunigung();
 
 
     /**
@@ -243,9 +243,6 @@ private:
 
 
     // zur Geschwindigkeitssteuerung des convois
-
-    int beschleunigung;
-    int bremsung;
 
     int akt_speed_soll;            // Sollgeschwindigkeit
 

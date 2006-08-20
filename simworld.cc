@@ -108,7 +108,7 @@
 #ifdef AUTOTEST
 #include "test/worldtest.h"
 #include "test/testtool.h"
-#include "test/buildings_frame_t.h"
+//#include "test/buildings_frame_t.h"
 #endif
 
 
@@ -799,7 +799,6 @@ karte_t::init(einstellungen_t *sets)
 
     hausbauer_t::neue_karte();
 
-    stadt_t::init_namen();
     array_tpl<koord> *pos = stadt_t::random_place(this, einstellungen->gib_anzahl_staedte() + 1);
     if( pos ) {
 
@@ -2997,6 +2996,7 @@ karte_t::interactive_event(event_t &ev)
 	    break;
 #endif
 	    */
+	    /*
 #ifdef AUTOTEST
 	case '%':
 	  create_win(0, 0,
@@ -3004,6 +3004,7 @@ karte_t::interactive_event(event_t &ev)
 		     w_autodelete);
 	    break;
 #endif
+		*/
 
 	case 'V':
 	    sound_play(click_sound);

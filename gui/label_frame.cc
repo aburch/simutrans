@@ -76,7 +76,7 @@ label_frame_t::label_frame_t(karte_t *welt, spieler_t *sp, koord pos) : gui_fram
 	sprintf(txlabel, "(%d,%d) ", pos.x, pos.y);
 
         // Text
-	fnlabel.setze_pos (koord(10,8));
+	fnlabel.setze_pos (koord(10,12));
         fnlabel.setze_text (txlabel);
 	add_komponente(&fnlabel);
 
@@ -101,7 +101,7 @@ label_frame_t::label_frame_t(karte_t *welt, spieler_t *sp, koord pos) : gui_fram
     else {
         // Text
 	sprintf(txlabel, "(%d,%d) owned by someone else!", pos.x, pos.y);
-	fnlabel.setze_pos (koord(10,8));
+	fnlabel.setze_pos (koord(10,12));
         fnlabel.setze_text (txlabel);
 
 	add_komponente(&fnlabel);

@@ -64,6 +64,12 @@ public:
      */
     schiene_t(karte_t *welt);
 
+    /**
+     * Basic constructor with top_speed
+     * @author Hj. Malthaner
+     */
+    schiene_t(karte_t *welt, int top_speed);
+
 
     /**
      * Destruktor. Entfernt etwaige Debug-Meldungen vom Feld

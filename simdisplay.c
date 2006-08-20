@@ -134,17 +134,17 @@ display_flush(int stunden4,
 
 
     sprintf(buffer,"%s %2d:%02dh", day_str, stunden4 >> 2, (stunden4 & 3)*15);
-    display_proportional(24, disp_height-16, buffer, ALIGN_LEFT, SCHWARZ, TRUE);
+    display_proportional(24, disp_height-12, buffer, ALIGN_LEFT, SCHWARZ, TRUE);
     money_to_string(buffer, konto);
 
     if(konto >= 0.0) {
-	display_proportional(344, disp_height-16, buffer, ALIGN_LEFT, SCHWARZ, TRUE);
+	display_proportional(344, disp_height-12, buffer, ALIGN_LEFT, SCHWARZ, TRUE);
     } else {
-	display_proportional(344, disp_height-16, buffer, ALIGN_LEFT, DUNKELROT, TRUE);
+	display_proportional(344, disp_height-12, buffer, ALIGN_LEFT, DUNKELROT, TRUE);
     }
 
 
-    display_proportional(480, disp_height-16, info, ALIGN_LEFT, BLACK, TRUE);
+    display_proportional(480, disp_height-12, info, ALIGN_LEFT, BLACK, TRUE);
 
     display_flush_buffer();
 }

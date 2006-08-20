@@ -1,9 +1,11 @@
 #CXX = g++
 CXXFLAGS = -O
 
-SOURCES=worldtest.cc testtool.cc buildings_frame_t.cc buildings_stats_t.cc
+SOURCES=worldtest.cc testtool.cc
+#buildings_frame_t.cc buildings_stats_t.cc
 
-OBJECTS=worldtest.o testtool.o buildings_frame_t.o buildings_stats_t.o
+OBJECTS=worldtest.o testtool.o
+#buildings_frame_t.o buildings_stats_t.o
 
 
 all: $(OBJECTS)

@@ -42,15 +42,25 @@ strasse_t::strasse_t(karte_t *welt) : weg_t (welt)
 }
 
 
+/* create strasse with minimum topspeed
+ * @author prissi
+ */
+strasse_t::strasse_t(karte_t *welt,int top_speed) : weg_t (welt)
+{
+  setze_gehweg(false);
+  setze_besch(wegbauer_t::weg_search(weg_t::strasse,top_speed));
+}
+
+
 int strasse_t::calc_bild(koord3d pos) const
 {
     if(welt->ist_in_kartengrenzen( pos.gib_2d() )) {
         // V.Meyer: weg_position_t removed
         grund_t *gr = welt->lookup(pos);
 
-	if(gr && !gr->hat_gebaeude(hausbauer_t::frachthof_besch)) {
-	    return weg_t::calc_bild(pos, gib_besch());
-	}
+  if(gr && !gr->hat_gebaeude(hausbauer_t::frachthof_besch)) {
+      return weg_t::calc_bild(pos, gib_besch());
+  }
     }
     return -1;
 }
@@ -96,11 +106,11 @@ strasse_t::rdwr(loadsave_t *file)
       setze_besch(wegbauer_t::gib_besch(bname));
 
       if(gib_besch() == 0) {
-	dbg->warning("strasse_t::rwdr",
-		     "description %s for road at %d,%d not found!",
-		     bname,
-		     gib_pos().x,
-		     gib_pos().y);
+  dbg->warning("strasse_t::rwdr",
+         "description %s for road at %d,%d not found!",
+         bname,
+         gib_pos().x,
+         gib_pos().y);
       }
     }
   }

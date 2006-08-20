@@ -44,6 +44,12 @@ public:
 
 
     /**
+     * Finds a way with a given speed limit for a given waytype
+     * @author prissi
+     */
+    static const weg_besch_t *  wegbauer_t::weg_search(weg_t::typ wtyp,int speed_limit);
+
+    /**
      * Tries to look up description for way, described by way type,
      * system type and construction type
      * @author Hj. Malthaner
@@ -56,18 +62,18 @@ public:
      * @author Hj. Malthaner
      */
     static void fill_menu(werkzeug_parameter_waehler_t *wzw,
-			  weg_t::typ wtyp,
-			  int (* wz1)(spieler_t *, karte_t *, koord, value_t),
-			  int sound_ok,
-			  int sound_ko);
+        weg_t::typ wtyp,
+        int (* wz1)(spieler_t *, karte_t *, koord, value_t),
+        int sound_ok,
+        int sound_ko);
 
     enum bautyp {
         strasse,
-	schiene,
-	leitung,
-	schiene_bot,
-	schiene_bot_bau,
-	strasse_bot
+  schiene,
+  leitung,
+  schiene_bot,
+  schiene_bot_bau,
+  strasse_bot
     };
 
     bool kann_ribis_setzen(const grund_t *bd, const koord zv);
@@ -83,8 +89,8 @@ private:
     class info_t
     {
     public:
-	int val;
-	koord k;
+  int val;
+  koord k;
     };
 
     class dir_force_t
@@ -129,10 +135,11 @@ private:
      * @author Hj. Malthaner
      */
     bool keep_existing_ways;
+    bool keep_existing_faster_ways;
 
 
     karte_t *welt;
-    int maximum;		// hoechste Suchtiefe
+    int maximum;    // hoechste Suchtiefe
 
     array_tpl<koord> *route;
 
@@ -154,7 +161,7 @@ private:
 
     bool check_step(const koord k, const koord t,
                     const koord start, const koord ziel, int cost,
-		    koord force_dir);
+        koord force_dir);
 
     void calc_route_init();
     void intern_calc_route(koord start, const koord ziel);
@@ -191,6 +198,12 @@ public:
      */
     void set_keep_existing_ways(bool yesno);
 
+    /* If a way is built on top of another way, should the type
+     * of the former way be kept or replaced, if the current way is faster (true == keep)
+     * @author Hj. Malthaner
+     */
+    void set_keep_existing_faster_ways(bool yesno);
+
 
     void route_fuer(enum bautyp wt, const weg_besch_t * besch);
 
@@ -201,7 +214,8 @@ public:
 
 
     void calc_route(koord start, const koord ziel);
-    bool ist_grund_fuer_strasse(koord pos, koord start, koord ziel) const;
+  bool check_crossing(const koord zv, const grund_t *bd,weg_t::typ wtyp) const;
+    bool ist_grund_fuer_strasse(koord pos, const koord zv, koord start, koord ziel) const;
 
     void baue();
 };

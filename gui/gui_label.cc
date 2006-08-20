@@ -101,17 +101,17 @@ void gui_label_t::zeichnen(koord offset) const
 	    const char *separator = strrchr(text, get_fraction_sep());
 
 	    if(separator) {
-		display_proportional(pos.x+offset.x, pos.y+offset.y,
+		display_proportional_clip(pos.x+offset.x, pos.y+offset.y,
 				     translator::translate(separator),
 				     ALIGN_LEFT, color, true);
 
 		*const_cast<char *>(separator) = '\0';
-		display_proportional(pos.x+offset.x, pos.y+offset.y,
+		display_proportional_clip(pos.x+offset.x, pos.y+offset.y,
 				     translator::translate(text),
 				     ALIGN_RIGHT, color, true);
 		*const_cast<char *>(separator) = ',';
 	    } else {
-		display_proportional(pos.x+offset.x, pos.y+offset.y,
+		display_proportional_clip(pos.x+offset.x, pos.y+offset.y,
 				     translator::translate(text),
 				     ALIGN_RIGHT, color, true);
 	    }

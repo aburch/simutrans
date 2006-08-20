@@ -69,7 +69,6 @@ private:
     static const int step_interval;
 
 public:
-    static void init_namen();
 
     /**
      * Reads city configuration data

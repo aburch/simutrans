@@ -90,7 +90,7 @@ savegame_frame_t::savegame_frame_t(const char *suffix) : gui_frame_t("Load/Save"
 #endif
 
     // Text 'Game name'
-    fnlabel.setze_pos (koord(10,8));
+    fnlabel.setze_pos (koord(10,12));
     fnlabel.setze_text ( translator::translate("Filename"));
     add_komponente(&fnlabel);
 
@@ -122,7 +122,7 @@ savegame_frame_t::savegame_frame_t(const char *suffix) : gui_frame_t("Load/Save"
 	button2->setze_pos(koord(25, y));
 	button2->setze_groesse(koord(140, 14));
 
-	label->setze_pos(koord(170, y));
+	label->setze_pos(koord(170, y+3));
 
 	button1->add_listener(this);
 	button2->add_listener(this);

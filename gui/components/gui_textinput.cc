@@ -58,45 +58,48 @@ void gui_textinput_t::infowin_event(const event_t *ev)
 		    const int len = strlen(text);
 
 		    switch(ev->ev_code) {
-		    case 274: // down arrow
+		    case KEY_DOWN: // down arrow
 		    	// not used currently
 			break;
-		    case 276: // left arrow
+		    case KEY_LEFT: // left arrow
 		    	if (cursor_pos > 0)
-		    		cursor_pos--;
+		    		cursor_pos = unicode_get_previous_character(text,cursor_pos);
 			break;
-		    case 275: // right arrow
+		    case KEY_RIGHT: // right arrow
 		    	if (cursor_pos < len)
-		    		cursor_pos++;
+		    		cursor_pos = unicode_get_next_character(text,cursor_pos);
 			break;
-		    case 273: // rightarrow
+		    case KEY_UP: // rightarrow
 		    	// not used currently
 			break;
-			case 278: // home
+			case KEY_HOME: // home
 				cursor_pos = 0;
 			break;
-			case 279: // end
+			case KEY_END: // end
 				cursor_pos = strlen(text);
 			break;
 		    case 8:
 			// backspace
 			if(cursor_pos > 0) {
 				if (cursor_pos < len) {
-					for (int pos = cursor_pos-1; pos < len; pos++) {
-						text[pos] = text[pos+1];
+					int prev_pos = cursor_pos;
+					cursor_pos = unicode_get_previous_character(text,cursor_pos);
+					for (int pos = cursor_pos; pos <= len-(prev_pos-cursor_pos); pos++) {
+						text[pos] = text[pos+(prev_pos-cursor_pos)];
 					}
 				} else {
-				    text[len-1] = 0;
+			    		cursor_pos = unicode_get_previous_character(text,cursor_pos);
+				    text[cursor_pos] = 0;
 				}
-				cursor_pos > 0 ? cursor_pos-- : cursor_pos = 0;
 			}
 			break;
 			case 127:
 			// delete
-			if (cursor_pos < len) {
-				for (int pos = cursor_pos; pos < len; pos++) {
-					text[pos] = text[pos+1];
-				}
+			if (cursor_pos <= len) {
+					int next_pos = unicode_get_next_character(text,cursor_pos);
+					for (int pos = cursor_pos; pos < len; pos++) {
+						text[pos] = text[pos+(next_pos-cursor_pos)];
+					}
 			}
 			break;
 		    case 13:
@@ -167,7 +170,7 @@ void gui_textinput_t::zeichnen(koord offset) const
     		cursor_offset = 0;
     	}
 
-		display_proportional_clip(pos.x+offset.x+2-cursor_offset, pos.y+offset.y+2,
+		display_proportional(pos.x+offset.x+2-cursor_offset, pos.y+offset.y+2,
 	                             text, ALIGN_LEFT, SCHWARZ, true);
 
     	// cursor must been shown, if textinput has focus!

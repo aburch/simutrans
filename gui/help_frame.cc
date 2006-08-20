@@ -20,7 +20,7 @@ void help_frame_t::setze_text(const char * buf)
 {
     flow.set_text(buf);
 
-    flow.setze_pos(koord(10, 10));
+    flow.setze_pos(koord(10, 6));
     flow.setze_groesse(koord(220, 0));
 
     int i = 0;

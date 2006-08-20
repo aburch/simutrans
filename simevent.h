@@ -57,6 +57,7 @@ extern "C" {
 #define SYSTEM_QUIT             1
 
 /* normal keys have range 0-255, special key follow above 255 */
+/* other would be better for true unicode support :( */
 
 #define KEY_F1                  256
 
@@ -72,7 +73,9 @@ extern "C" {
 //left arrow
 #define KEY_LEFT                276
 
+#define	KEY_HOME			278
 
+#define KEY_END				279
 
 /* makros */
 

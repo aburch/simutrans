@@ -176,6 +176,18 @@ private:
      */
     int hoff;
 
+    /* For the more physical acceleration model friction is introduced
+     * frictionforce = gamma*speed*weight
+     * since the total weight is needed a lot of times, we save it
+     * @author prissi
+     */
+     int sum_weight;
+     /* The friction is calculated new every step, so we save it too
+     * @author prissi
+     */
+     int current_friction;
+
+
     int speed_limit;
 
     bool hop_check();
@@ -360,6 +372,18 @@ public:
 
 
     inline const int gib_speed() const {return kmh_to_speed(besch->gib_geschw());};
+
+
+    /* return friction constant: changes in hill and curves; may even negative downhill *
+     * @author prissi
+     */
+	inline const int gib_frictionfactor() const {return current_friction;};
+
+
+    /* Return total weight including freight*
+     * @author prissi
+     */
+	inline const int gib_gesamtgewicht() const {return sum_weight;};
 
 
     /**

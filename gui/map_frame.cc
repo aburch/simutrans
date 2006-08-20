@@ -53,13 +53,12 @@ const char map_frame_t::map_type[MAX_MAP_TYPE][64] =
     "Origin",
     "Destination",
     "Waiting",
-    "Tracks",
-    "Speedlimit"
+    "Tracks"
 };
 
 const int map_frame_t::map_type_color[MAX_MAP_TYPE] =
 {
-  7, 11, 15, 132, 23, 27, 31, 35, 241, 7, 11
+  7, 11, 15, 132, 23, 27, 31, 35, 241, 7
 };
 
 /**
@@ -107,10 +106,11 @@ map_frame_t::map_frame_t(const karte_modell_t *welt) : gui_frame_t("Reliefkarte"
     while( iter.next() ) {
 
       cstring_t label (translator::translate(iter.get_current_value()->gib_name()));
-      if(label.len() > 14) {
-	label.set_at(12, '.');
-	label.set_at(13, '.');
-	label.set_at(14, '\0');
+//      if(  small_proportional_width(label)>60  ) {//label.len() > 14) {
+      if(  label.len() > 14) {
+		label.set_at(12, '.');
+		label.set_at(13, '.');
+		label.set_at(14, '\0');
       }
 
       legend_names.append(label);
@@ -297,9 +297,10 @@ void map_frame_t::zeichnen(koord pos, koord gr)
 
     display_fillbox_wh(xpos, ypos+1, 4, 4, color, false);
 
-    display_text(0, xpos + 5, ypos,
-		 legend_names.get(i), SCHWARZ, false);
-
+	/* changed for unicode display
+	 * @author: prissi
+	 */
+	display_small_proportional( xpos+5, ypos, legend_names.get(i), ALIGN_LEFT, SCHWARZ, false);
   }
 
   for (int i = 0;i<MAX_MAP_TYPE;i++) {
@@ -311,13 +312,8 @@ void map_frame_t::zeichnen(koord pos, koord gr)
     display_fillbox_wh(pos.x + size.x - 10, pos.y+gr.y-legend_height + 10 + i*8, 4, 8, reliefkarte_t::severity_color[11-i], false);
   }
 
-  display_text(0, pos.x + size.x - 14, pos.y+gr.y-legend_height + 1,
-	       translator::translate("max"),
-	       SCHWARZ, false);
-
-  display_text(0, pos.x + size.x - 15, pos.y+gr.y-legend_height + 107,
-	       translator::translate("min"),
-	       SCHWARZ, false);
+  display_small_proportional(pos.x + size.x, pos.y+gr.y-legend_height - 3, translator::translate("max"), ALIGN_RIGHT, SCHWARZ, false);
+  display_small_proportional(pos.x + size.x, pos.y+gr.y-legend_height + 107, translator::translate("min"), ALIGN_RIGHT, SCHWARZ, false);
 
   gui_frame_t::zeichnen(pos, gr);
 }

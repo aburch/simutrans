@@ -158,12 +158,18 @@ private:
     long delta_sum;
 
 public:
-	static fabrik_t * gib_fab(const karte_t *welt, const koord pos);
+  static fabrik_t * gib_fab(const karte_t *welt, const koord pos);
 
-	/**
-	 * @author hsiegeln
-	 */
-	 void laden_abschliessen();
+    /**
+     * @return vehicle description object
+     * @author Hj. Malthaner
+     */
+    const fabrik_besch_t *gib_besch() const {return besch; }
+
+  /**
+   * @author hsiegeln
+   */
+   void laden_abschliessen();
 
     /**
      * Die Koordinate (Position) der fabrik
@@ -223,7 +229,7 @@ public:
      *   -1 wenn typ nicht produziert wird
      *   sonst die gelagerte menge
      */
-    int vorrat_an(const ware_besch_t *ware);	      // Vorrat von Warentyp
+    int vorrat_an(const ware_besch_t *ware);        // Vorrat von Warentyp
 
     /**
      * @return 1 wenn verbrauch,
@@ -236,7 +242,7 @@ public:
 
     int gib_abgabe_letzt(int t) {return abgabe_letzt->at(t);};
 
-    void step(long delta_t);           	      // fabrik muss auch arbeiten
+    void step(long delta_t);                  // fabrik muss auch arbeiten
     void neuer_monat();
 
     const char *gib_name() const { return besch ? besch->gib_name() : "unnamed"; }

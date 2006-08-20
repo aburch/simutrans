@@ -32,7 +32,7 @@
 #include <zlib.h>
 
 #include "pathes.h"
-#include "simgraph.h"
+#include "simtypes.h"
 #include "simsys16.h"
 #include "simmem.h"
 #include "simdebug.h"
@@ -52,15 +52,15 @@
 #include <unistd.h>
 #endif
 
+#include "simgraph.h"
+
 
 /*
  * Use C implementation of image drawing routines
  */
 // #define USE_C
 
-
 // --------------      static data    --------------
-
 
 /*
  * do we need a mouse pointer emulation ?
@@ -79,10 +79,16 @@ static int softpointer = 261;
  */
 static int old_my = -1;
 
-static unsigned char dr_fonttab[2048];  /* Unser Zeichensatz sitzt hier */
-static unsigned char npr_fonttab[3072]; // Niels: npr are my initials
 
-static unsigned char dr_4x7font[7*256];
+/* Flag, if we have Unicode font => do unicode (UTF8) support! *
+ * @author prissi
+ * @date 29.11.04
+ */
+static bool has_unicode = false;
+static font_type	large_font, small_font;
+
+// needed for gui
+int large_font_height=10;
 
 
 /*
@@ -310,7 +316,8 @@ static int zoom_factor = 1;
 
 // -------------- Function prototypes --------------
 
-static void display_img_nc(const int n, const int xp, const int yp, const PIXVAL *);
+extern void display_img_nc(const int n, const int xp, const int yp, const PIXVAL *);
+
 static void rezoom();
 static void recode();
 static void calc_base_pal_from_night_shift(const int night);
@@ -520,7 +527,7 @@ static void recode()
 	    // original data XXX HACK XXX
 
 	    if(images[n].recoded_base_data == 0) {
-	      images[n].recoded_base_data =
+	      images[n].recoded_base_data = (PIXVAL *)
 		guarded_malloc(sizeof(PIXVAL) * images[n].zoom_len);
 
 	      memcpy(images[n].recoded_base_data,
@@ -539,7 +546,7 @@ static void recode()
 static void rezoom()
 {
   int n;
-  PIXVAL * buf = guarded_malloc(sizeof(PIXVAL) *
+  PIXVAL * buf = (PIXVAL *)guarded_malloc(sizeof(PIXVAL) *
 				base_tile_raster_width *
 				base_tile_raster_width);
 
@@ -639,7 +646,7 @@ static void rezoom()
 	  images[n].zoom_data = result;
 	  images[n].zoom_len = len;
 
-	  images[n].data = malloc(sizeof(PIXVAL) * len);
+	  images[n].data = (PIXVAL *)malloc(sizeof(PIXVAL) * len);
 
 	  /*
 	  printf("%4d  x=%02d y=%02d w=%02d h=%02d len=%d\n",
@@ -662,59 +669,362 @@ static void rezoom()
 
 
 
-/**
- * Loads the fonts
- * @author Hj. Malthaner
+/* returns TRUE, if there is a Unicode font loaded
+ * @author prissi
  */
-void init_font(const char *fixed_font, const char *prop_font)
+int	display_get_unicode(void)
+{
+	return has_unicode;
+}
+
+
+int	display_set_unicode(int use_unicode)
+{
+	return has_unicode=use_unicode!=0;
+}
+
+
+static int nibble(char c)
+{
+    if(c > '9') {
+	return 10 + (c - 'A');
+    } else {
+	return c - '0';
+    }
+}
+
+
+
+
+
+/* decodes a single line line of a character
+ * @author prissi
+ */
+static void
+dsp_decode_bdf_data_row( unsigned char *data, int y , int g_width, char *str )
+{
+	char	buf[3];
+	buf[0] = str[0];
+	buf[1] = str[1];
+	buf[2] = 0;
+	data[y] = strtol(buf,NULL,16);
+	// read second byte but use only first two nibbles
+	if(  g_width>8  ) {
+		buf[0] = str[2];
+		buf[1] = str[3];
+		buf[2] = 0;
+		unsigned char data2 = strtol(buf,NULL,16) & 0xC0;
+		data[12+(y/4)] |= (data2>>(2*(y&0x03)));
+	}
+}
+
+
+
+/* reads a single character
+ * @author prissi
+ */
+static int
+dsp_read_bdf_glyph( FILE *fin, unsigned char *data, unsigned char *w, unsigned char *screen_w, bool allow_256up, int f_height, int f_desc )
+{
+	char str[256];
+	int	char_nr = 0;
+	int g_width, h, c, g_desc;
+	int	d_width = 0;
+
+	str[255] = 0;
+	while(  !feof(fin)  ) {
+		fgets( str, 255, fin );
+
+		// endcoding (char number) in decimal
+		if(  strncmp( str, "ENCODING", 8 )==0  ) {
+			char_nr = atoi( str+8 );
+			if(  (!allow_256up  &&  char_nr>255)  ||  char_nr<=0  ||  char_nr>=65536  ) {
+				printf("Unexpected character (%i) for %i character font!\n", char_nr, allow_256up?65536:256 );
+				char_nr = 0;
+				continue;
+			}
+			continue;
+		}
+
+		// information over size and coding
+		if(  strncmp(str,"BBX",3)==0  ) {
+			sscanf(str+3, "%d %d %d %d", &g_width, &h, &c, &g_desc);
+			continue;
+		}
+
+		// information over size and coding
+		if(  strncmp(str,"DWIDTH",6)==0  ) {
+			d_width = atoi(str+6);
+			continue;
+		}
+
+		// start if bitmap data
+		if(  strncmp(str,"BITMAP",6)==0  ) {
+			const int top = f_height + f_desc - h - g_desc;
+
+			// set place for high nibbles to zero
+			data[15*char_nr+12] = 0;
+			data[15*char_nr+13] = 0;
+			data[15*char_nr+14] = 0;
+
+			// maximum size 10 pixels
+			h = MIN( h+top, 12 );
+
+			// read for height times
+			int y;
+			for(  y=top;  y<h;  y++  ) {
+				fgets( str, 255, fin );
+				dsp_decode_bdf_data_row( data+char_nr*15, y, g_width, str );
+			}
+			continue;
+		}
+
+		// finally add width information (width = 0: not there!)
+		if(  strncmp(str,"ENDCHAR",7)==0  ) {
+			w[char_nr] = g_width;
+			if(  d_width==0  ) {
+				// no screen width: should not happen, but we can recover
+				printf( "BDF warning: %i has no screen width assigned!\n", char_nr );
+				d_width = g_width+1;
+			}
+			screen_w[char_nr] = g_width;
+			return char_nr;
+			continue;
+		}
+	}
+	return 0;
+}
+
+
+
+
+/* reads a single character
+ * @author prissi
+ */
+static bool
+dsp_read_bdf_font( FILE *fin, bool *is_unicode, font_type *font )
+{
+	char str[256];
+	unsigned char *data=NULL, *widths=NULL, *screen_widths=NULL;
+	int	f_width, f_height, f_lead, f_desc;
+	int f_chars=0;
+
+	str[255] = 0;
+	while(  !feof(fin)  ) {
+		fgets( str, 255, fin );
+
+		if(  strncmp( str, "FONTBOUNDINGBOX", 15 )==0  ) {
+			sscanf(str+15, "%d %d %d %d", &f_width, &f_height, &f_lead, &f_desc );
+			continue;
+		}
+
+		if(  strncmp( str, "CHARS", 5 )==0  ) {
+			f_chars = atoi( str+5 );
+			if(  f_chars>255   ) {
+				*is_unicode = true;
+				f_chars = 65536;
+			}
+			else {
+				// normal 256 chars
+				*is_unicode = false;
+				f_chars = 256;
+			}
+			data = (unsigned char *)calloc( f_chars, 15 );
+			if(  data==NULL ) {
+				printf( "No enough memory for font allocation!\n" );
+				fflush(NULL);
+				return false;
+			}
+			widths =  (unsigned char *)calloc( f_chars, 1 );
+			if(  widths==NULL ) {
+				free( data );
+				printf( "No enough memory for font allocation!\n" );
+				fflush(NULL);
+				return false;
+			}
+			screen_widths =  (unsigned char *)calloc( f_chars, 1 );
+			if(  screen_widths==NULL ) {
+				free( data );
+				free( widths );
+				printf( "No enough memory for font allocation!\n" );
+				fflush(NULL);
+				return false;
+			}
+			widths[32] = 0;
+			screen_widths[32] = CLIP( f_height/2, 3, 12 );
+			continue;
+		}
+
+		if(  strncmp( str, "STARTCHAR", 9 )==0  &&  f_chars>0  ) {
+			dsp_read_bdf_glyph( fin, data, widths, screen_widths, f_chars>255, f_height, f_desc );
+			continue;
+		}
+	}
+	// ok, was successful?
+	if(  f_chars>0  ) {
+		// init default char for missing characters (just a box)
+		widths[0] = 8;
+		int h;
+		data[0] = 0x7F;
+		for(  h=1;  h<f_height+f_desc-1;  h++  ) {
+			data[h] = 0x41;
+		}
+		data[h] = 0x7F;
+		for(  ;  h<15;  h++  ) {
+			data[h] = 0;
+		}
+		// now free old and assign new
+		if(  font->char_width!=NULL  ) {
+			free( font->char_width );
+		}
+		if(  font->char_data!=NULL  ) {
+			free( font->char_data );
+		}
+		font->char_width = widths;
+		font->screen_width = screen_widths;
+		font->char_data = data;
+		font->height = f_height;
+		font->descent = f_height+f_desc;
+		font->num_chars = f_chars;
+		return true;
+	}
+	return false;
+}
+
+
+
+/* Loads the fonts (true for large font)
+ * @author prissi
+ */
+bool load_font(const char *fname, bool large )
 {
     FILE *f = NULL;
+    unsigned char c;
+    font_type *fnt=large?&large_font:&small_font;
 
-    // suche in ./draw.fnt
-
-    if(f==NULL ) {
-	f=fopen(fixed_font,"rb");
-    }
-
-    if(f==NULL) {
-	printf("Error: Cannot open '%s'\n", fixed_font);
-	exit(1);
-    } else {
-	int i;
-
-	printf("Loading font '%s'\n", fixed_font);
-
-	for(i=0;i<2048;i++) {
-	  dr_fonttab[i]=getc(f);
+	f = fopen(fname, "rb");
+	if (f==NULL) {
+		printf("Error: Cannot open '%s'\n", fname);
+		return false;
 	}
-	fclose(f);
-    }
+	c = getc(f);
 
+	// binary => the assume dumpe prop file
+	if(  c<32  ) {
+		// read classical prop font
+		unsigned char npr_fonttab[3074];
+		int i;
 
-    // also, read font.dat
-    {
-      int i,r;
-      f = fopen(prop_font, "rb");
-      if (f==NULL) {
-	printf("Error: Cannot open '%s'\n", prop_font);
-	exit(1);
-      }
+		rewind(f);
+		printf("Loading font '%s'\n", fname);
 
-      printf("Loading font '%s'\n", prop_font);
+		if(  fread(npr_fonttab, 1, 3072, f)!=3072  ) {
+			printf("Error: %s wrong size for old format prop font!\n",fname);
+			fclose(f);
+			return false;
+		}
+		fclose(f);
+		// convert to new standard font
+		if(  fnt->char_width!=NULL  ) {
+			free( fnt->char_width );
+		}
+		if(  fnt->char_data!=NULL  ) {
+			free( fnt->char_data );
+		}
+		strcpy( fnt->name, fname );
+		fnt->char_width =  (unsigned char *)calloc( 1, 256 );
+		fnt->screen_width =  (unsigned char *)calloc( 1, 256 );
+		fnt->char_data =  (unsigned char *)calloc( 15, 256 );
+		fnt->num_chars = 256;
+		fnt->height = 10;
+		fnt->descent = -1;
+		for(  i=0;  i<256;  i++  ) {
+			int j;
+			fnt->char_width[i] = npr_fonttab[i];
+			fnt->screen_width[i] = npr_fonttab[256+i];
+			for(  j=0;  j<10;  j++  ) {
+				fnt->char_data[i*15+j] = npr_fonttab[512+i*10+j];
+			}
+			for(  ;  j<15;  j++  ) {
+				fnt->char_data[i*15+j] = 0xFF;
+			}
+		}
+		fnt->char_width[32] = 4;
+		if(  large  ) {
+			large_font_height = 10;
+		}
+		printf("%s sucessful loaded as old format prop font!\n",fname);
+		return true;
+	}
 
-      for (i=0;i<3072;i++) {
-	npr_fonttab[i] = r = getc(f);
-      }
-      if (r==EOF) {
-	printf("Error: prop.fnt too short\n");
-	exit(1);
-      }
-      if (getc(f)!=EOF) {
-	printf("Error: prop.fnt too long\n");
-	exit(1);
-      }
-      fclose(f);
-    }
+	// load old hex font format
+	if(  c=='0'  ) {
+		unsigned char dr_4x7font[7*256];
+		int fh = 7;
+		char buf [80];
+		int i;
+		int  n, line;
+		char *p;
+
+		rewind(f);
+
+		while(fgets(buf, 79, f) != NULL) {
+			sscanf(buf, "%4x", &n);
+			p = buf+5;
+
+			for(line=0; line<fh; line ++) {
+				int val =  nibble(p[0])*16 + nibble(p[1]);
+				dr_4x7font[n*fh + line] = val;
+				p += 2;
+			}
+		}
+		fclose(f);
+		// convert to new standard font
+		if(  fnt->char_width!=NULL  ) {
+			free( fnt->char_width );
+		}
+		if(  fnt->char_data!=NULL  ) {
+			free( fnt->char_data );
+		}
+		strcpy( fnt->name, fname );
+		fnt->char_width =  (unsigned char *)calloc( 1, 256 );
+		fnt->screen_width =  (unsigned char *)calloc( 1, 256 );
+		fnt->char_data =  (unsigned char *)calloc( 15, 256 );
+		fnt->num_chars = 256;
+		fnt->height = 7;
+		fnt->descent = -1;
+		for(  i=0;  i<256;  i++  ) {
+			int j;
+			fnt->char_width[i] = 3;
+			fnt->screen_width[i] = 4;
+			for(  j=0;  j<7;  j++  ) {
+				fnt->char_data[i*15+j] = dr_4x7font[i*7+j];
+			}
+			for(  ;  j<15;  j++  ) {
+				fnt->char_data[i*15+j] = 0xFF;
+			}
+			if(  large  ) {
+				large_font_height = 10;
+			}
+		}
+		printf("%s sucessful loaded as old format hex font!\n",fname);
+		return true;
+	}
+
+	/* also, read unicode font.dat
+	 * @author prissi
+	 */
+	printf("Loading BDF font '%s'\n", fname);fflush(NULL);
+	bool	dummy;
+	if(  dsp_read_bdf_font(f,&dummy,fnt)  ) {
+		printf("Loading BDF font %s ok\n", fname);fflush(NULL);
+		fclose(f);
+		if(  large  ) {
+			large_font_height = large_font.height;
+		}
+		return true;
+	}
+	return false;
 }
 
 
@@ -793,50 +1103,6 @@ load_special_palette()
   return file != NULL;
 }
 
-
-static int nibble(char c)
-{
-    if(c > '9') {
-	return 10 + (c - 'A');
-    } else {
-	return c - '0';
-    }
-}
-
-
-void load_hex_font(const char *filename)
-{
-    FILE *file = fopen(filename, "rb");
-
-    int fh = 7;
-
-    if(file) {
-	char buf [80];
-        int  n, line;
-        char *p;
-
-	printf("Loading hex font '%s'\n", filename);
-
-	while(fgets(buf, 79, file) != NULL) {
-
-	    sscanf(buf, "%4x", &n);
-
-	    p = buf+5;
-
-	    for(line=0; line<fh; line ++) {
-		int val =  nibble(p[0])*16 + nibble(p[1]);
-		dr_4x7font[n*fh + line] = val;
-		p += 2;
-		// printf("%02X", val);
-	    }
-	    // printf("\n");
-
-	}
-	fclose(file);
-    } else {
-	fprintf(stderr, "Error: can't open file '%s' for reading\n", filename);
-    }
-}
 
 
 int display_get_width()
@@ -1191,11 +1457,9 @@ void register_image(struct bild_besch_t *bild)
     images[anz_images].base_data = (PIXVAL *)(bild + 1);
 
 
-    images[anz_images].zoom_data = guarded_malloc(images[anz_images].len
-						  *sizeof(PIXVAL));
+    images[anz_images].zoom_data = (PIXVAL *)guarded_malloc(images[anz_images].len*sizeof(PIXVAL));
 
-    images[anz_images].data = guarded_malloc(images[anz_images].len
-    					     *sizeof(PIXVAL));
+    images[anz_images].data = (PIXVAL *)guarded_malloc(images[anz_images].len*sizeof(PIXVAL));
 
     images[anz_images].recoded_base_data = 0;
 
@@ -1697,72 +1961,6 @@ display_pixel(int x, int y, int color)
 }
 
 
-/**
- * Zeichnet einen Text, lowlevel Funktion
- * @author Hj. Malthaner
- */
-static void
-dr_textur_text(PIXVAL *textur,
-               const unsigned char *fontdata,
-	       int fw, int fh,
-               int x,int y,
-               const char *txt,
-               const int chars,
-               const int fgpen,
-	       const int dirty)
-{
-    if(y >= clip_rect.y && y+fh <= clip_rect.yy) {
-	const PIXVAL colval = rgbcolormap[fgpen];
-	int screen_pos = y*disp_width + x;
-	int p;
-
-	if(dirty) {
-	    mark_rect_dirty_wc(x, y, x+chars*fw-1, y+fh-1);
-	}
-
-
-	for(p=0; p<chars; p++) {      /* Zeichen fuer Zeichen ausgeben */
-	    int base=((unsigned char *)txt)[p] * fh;                 /* 8 Byte je Zeichen */
-	    const int end = base+fh;
-
-	    do {
-		const int c=fontdata[base++];       /* Eine Zeile des Zeichens */
-		int b;
-
-		for(b=0; b<fw; b++) {
-		    if(c & (128 >> b) &&
-                       b+x >= clip_rect.x &&
-                       b+x <= clip_rect.xx) {
-			textur[screen_pos+b] = colval;
-		    }
-		}
-		screen_pos += disp_width;
-	    } while(base < end);
-
-            x += fw;
-	    screen_pos += fw - disp_width*fh;
-	}
-    }
-}
-
-
-/**
- * Zeichnet Text, highlevel Funktion
- * @author Hj. Malthaner
- */
-void
-display_text(int font, int x, int y, const char *txt, int color, int dirty)
-{
-    const int chars = strlen(txt);
-
-    if(font == 1) {
-	dr_textur_text(textur, dr_fonttab, 8, 8, x, y, txt, chars, color, dirty);
-    } else {
-	dr_textur_text(textur, dr_4x7font, 4, 7, x, y, txt, chars, color, dirty);
-    }
-}
-
-
 
 /**
  * Zeichnet gefuelltes Rechteck
@@ -1900,202 +2098,502 @@ display_array_wh(int xp, int yp, int w, int h, const unsigned char *arr)
 
 
 // --------------- compound painting procedures ---------------
+/* Unicode/UTF stuff
+ * taken from PalmDict (see sourceforge)
+ * @date 2.1.2005
+ * @author prissi
+*/
+// UTF-8 encouding values
+#define UTF8_VALUE1     0x00        // Value for set bits for single byte UTF-8 Code.
+#define UTF8_MASK1      0x80        // Mask (i.e. bits not set by the standard) 0xxxxxxx
+#define UTF8_WRITE1     0xff80      // Mask of bits we cannot allow if we are going to write one byte code
+#define UTF8_VALUE2     0xc0        // Two byte codes
+#define UTF8_MASK2      0xe0        // 110xxxxx 10yyyyyy
+#define UTF8_WRITE2     0xf800      // Mask of mits we cannot allow if we are going to write two byte code
+#define UTF8_VALUE3     0xe0        // Three byte codes
+#define UTF8_WRITE3     0xffff0000      // Mask of mits we cannot allow if we are going to write three byte code (16 Bit)
+#define UTF8_MASK3      0xf0        // 1110xxxx 10yyyyyy 10zzzzzz
+#define UTF8_VALUE4     0xf0        // Four byte values
+#define UTF8_MASK4      0xf8        // 11110xxx ----    (These values are not supported).
+#define UTF8_VALUEC     0x80        // Continueation byte (10xxxxxx).
+#define UTF8_MASKC      0xc0
 
-/**
- * proportional_string_width with a text of a given length
- *
+
+
+// find next unicode character
+int unicode_get_next_character( const char *text, int cursor_pos)
+{
+	unsigned char *ptr=text;
+	ptr += cursor_pos;
+
+	if (UTF8_VALUE1 == (*ptr & UTF8_MASK1)  ||  *ptr<0x80  ) {
+		return cursor_pos + 1;
+	}
+	else {
+		if (UTF8_VALUE2 == (*ptr & UTF8_MASK2)) 	{
+			return cursor_pos + 2;
+		}
+		else {
+			if (UTF8_VALUE3 == (*ptr & UTF8_MASK3)) {
+				return cursor_pos + 3;
+			}
+		}
+	}
+	// should never ever get here!
+	return cursor_pos + 1;
+}
+
+
+
+// find previous character border
+int unicode_get_previous_character( const char *text, int cursor_pos)
+{
+	int pos=0, last_pos;
+	// find previous character border
+	while(  pos<cursor_pos  &&  text[pos]!=0  ) {
+		last_pos = pos;
+		pos = unicode_get_next_character( text, pos );
+	}
+	return last_pos;
+}
+
+
+
+/* converts UTF8 to Unicode with save recovery
+ * @author prissi
+ * @date 29.11.04
+ */
+unsigned short utf82unicode (unsigned char const *ptr, int *iLen )
+{
+	unsigned short iUnicode=0;
+
+	if (UTF8_VALUE1 == (*ptr & UTF8_MASK1)) {
+		iUnicode = ptr[0];
+		(*iLen) += 1;
+	}
+	else {
+		if (UTF8_VALUE2 == (*ptr & UTF8_MASK2)) 	{
+			// error handling ...
+			if(  ptr[1]<=127  ) {
+				(*iLen) += 1;
+				return ptr[0];
+			}
+			//    iUnicode = (((*ptr)[1] & 0x1f) << 6) | ((*ptr)[2] & 0x3f);
+			iUnicode = ptr[0] & 0x1f;
+			iUnicode <<= 6;
+			iUnicode |= ptr[1] & 0x3f;
+			(*iLen) += 2;
+		}
+		else {
+			if (UTF8_VALUE3 == (*ptr & UTF8_MASK3)) {
+				// error handling ...
+				if(  (ptr[1]<=127)    ||   (ptr[2]<=127)  ) {
+					(*iLen) += 1;
+					return ptr[0];
+				}
+				iUnicode = ptr[0] & 0x0f;
+				iUnicode <<= 6;
+				iUnicode |= ptr[1] & 0x3f;
+				iUnicode <<= 6;
+				iUnicode |= ptr[2] & 0x3f;
+				(*iLen) += 3;
+			}
+			else {
+				// 4 Byte unicode not supported
+				(*iLen) += 1;
+				return ptr[0];
+			}
+		}
+	}
+	return iUnicode;
+}
+
+
+// Converts Unicode to UTF8 sequence
+int	unicode2utf8( unsigned unicode, unsigned char *out )
+{
+	if(  unicode<0x0080u  )
+	{
+		*out++ = unicode;
+		return 1;
+	}
+	else if(  unicode<0x0800u  )
+	{
+		*out++ = 0xC0|(unicode>>6);
+		*out++ = 0x80|(unicode&0x3F);
+		return 2;
+	}
+	else // if(  lUnicode<0x10000l  ) immer TRUE!
+	{
+		*out++ = 0xE0|(unicode>>12);
+		*out++ = 0x80|((unicode>>6)&0x3F);
+		*out++ = 0x80|(unicode&0x3F);
+		return 3;
+	}
+}
+
+
+
+/* proportional_string_width with a text of a given length
+ * extended for universal font routines with unicode support
  * @author Volker Meyer
  * @date  15.06.2003
+ * @author prissi
+ * @date 29.11.04
  */
-int proportional_string_len_width(const char *text, int len)
+int display_proportional_string_len_width(const char *text, int len,bool use_large_font )
 {
-  int c, width = 0;
-  char *char_next = npr_fonttab+256; // points to pixel-to-next-char
+	font_type *fnt=use_large_font ? &large_font : &small_font;
+	unsigned int c, width = 0;
 
-  while((c = *text++) && len--) { width += char_next[c]; }
-  return width;
+#ifdef UNICODE_SUPPORT
+	if(  has_unicode  ) {
+		unsigned short iUnicode;
+		int	iLen=0;
+		// decode char; Unicode is always 8 pixel (so far)
+		while(  iLen<len  ) {
+			iUnicode = utf82unicode( text+iLen, &iLen );
+			if(  iUnicode==0  ) {
+				return width;
+			}
+			int w = fnt->screen_width[iUnicode];
+			if(  w==0  ) {
+				// default width for missing characters
+				w = fnt->screen_width[0];
+			}
+			width += w;
+		}
+	}
+	else
+#endif
+	{
+		while(*text!=0 && len>0) {
+			c = (unsigned char)*text;
+			width += fnt->screen_width[c];
+			text ++;
+			len --;
+		}
+	}
+	return width;
 }
 
-int proportional_string_width(const char *text)
-{
-  int c, width = 0;
-  char *char_next = npr_fonttab+256; // points to pixel-to-next-char
 
-  while((c = *text++)) { width += char_next[c]; }
-  return width;
-}
 
-// if width equals zero, take default value
-void display_ddd_proportional(int xpos, int ypos, int width, int hgt,
-			      int ddd_farbe, int text_farbe,
-			      const char *text, int dirty)
-{
-  display_fillbox_wh(xpos-2, ypos-6-hgt, width,  1, ddd_farbe+1, dirty);
-  display_fillbox_wh(xpos-2, ypos-5-hgt, width, 10, ddd_farbe,   dirty);
-  display_fillbox_wh(xpos-2, ypos+5-hgt, width,  1, ddd_farbe-1, dirty);
+/* @ see get_mask() */
+static const unsigned char byte_to_mask_array[8]={0xFF,0x7F,0x3F,0x1F,0x0F,0x07,0x03,0x01};
 
-  display_vline_wh(xpos-2, ypos-6-hgt, 11, ddd_farbe+1, dirty);
-  display_vline_wh(xpos+width-3, ypos-6-hgt, 11, ddd_farbe-1, dirty);
-
-  display_proportional(xpos+2, ypos-9-hgt, text, ALIGN_LEFT, text_farbe,FALSE);
-}
-
-/**
- * display text in 3d box with clipping
- * @author: hsiegeln
+/* Helper: calculates mask for clipping *
+ * Attention: xL-xR must be <=8 !!!
+ * @author priss
+ * @date  29.11.04
  */
-void display_ddd_proportional_clip(int xpos, int ypos, int width, int hgt,
-			      int ddd_farbe, int text_farbe,
-			      const char *text, int dirty)
+inline unsigned char get_mask( const int xL, const int xR, const int cL, const int cR)
 {
-  display_fillbox_wh_clip(xpos-2, ypos-6-hgt, width,  1, ddd_farbe+1, dirty);
-  display_fillbox_wh_clip(xpos-2, ypos-5-hgt, width, 10, ddd_farbe,   dirty);
-  display_fillbox_wh_clip(xpos-2, ypos+5-hgt, width,  1, ddd_farbe-1, dirty);
+	// do not mask
+	unsigned char mask;
 
-  display_vline_wh_clip(xpos-2, ypos-6-hgt, 11, ddd_farbe+1, dirty);
-  display_vline_wh_clip(xpos+width-3, ypos-6-hgt, 11, ddd_farbe-1, dirty);
-
-  display_proportional_clip(xpos+2, ypos-4-hgt, text, ALIGN_LEFT, text_farbe,FALSE);
+	// check, if there is something to display
+	if(xR<cL  ||  xL>=cR) {
+		return 0;
+	}
+	mask = 0xFF;
+	// check for left border
+	if(  xL<cL  &&  xR>=cL  )
+	{
+		// Left border clipped
+		mask = byte_to_mask_array[(cL-xL)&0x07];
+	}
+	// check for right border
+	if(  xL<cR  &&  xR>=cR  )
+	{
+		// right border clipped
+		mask &= ~byte_to_mask_array[(cR-xL)&0x07];
+	}
+	return mask;
 }
 
-// clip Left/Right/Top/Bottom
-/**
+/*
  * len parameter added - use -1 for previous bvbehaviour.
- * @author Volker Meyer
- * @date  15.06.2003
+ * completely renovated for unicode and 10 bit width and variable height
+ * @author Volker Meyer, prissi
+ * @date  15.06.2003, 2.1.2005
  */
-void display_p_internal(int x, int y, const char *txt, int len,
+void display_text_proportional_len_clip(int x, int y, const char *txt,
 			int align,
 			const int color_index,
 			int dirty,
-			int cL, int cR, int cT, int cB)
+			bool use_large_font, int len, bool use_clipping )
 {
-  int c;
-  int text_width;
-  int char_width_1, char_width_2; // 1 is char only, 2 includes room
-  int screen_pos;
-  unsigned char *char_next = npr_fonttab+256; // points to pixel-to-next-char
-  unsigned char *char_data = npr_fonttab+512; // points to font data
-  unsigned char *p;
-  int yy = y+9;
-  const PIXVAL color = rgbcolormap[color_index];
+	font_type *fnt=use_large_font ? &large_font : &small_font;
+	int cL, cR, cT, cB;
+	unsigned c;
+	int	iTextPos=0;	// pointer on text position: prissi
+	int char_width_1, char_width_2; // 1 is char only, 2 includes room
+	int screen_pos;
+	unsigned char *char_data;
+	unsigned char *p;
+	int yy = y+fnt->height;
+	int x0;	// store the inital x (for dirty marking)
+	unsigned char mask1, mask2;	// for horizontal clipping
+	const PIXVAL color = rgbcolormap[color_index];
 
-  text_width = proportional_string_len_width(txt, len);
-
-  // adapt x-coordinate for alignment
-  switch(align) {
-   case ALIGN_LEFT: break;
-   case ALIGN_MIDDLE: x -= (text_width>>1); break;
-   case ALIGN_RIGHT: x -= text_width; break;
-  }
-
-  if (dirty) {
-    mark_rect_dirty_wc(x, y, x+text_width-1, y+10-1);
-  }
-
-  // big loop, char by char
-  while ((c = *((unsigned char *)txt)++) && len--) {
-    char_width_1 = npr_fonttab[c];
-    char_width_2 = char_next[c];
-    screen_pos = y*disp_width + x;
-
-    if (x>=cL && x+char_width_1<=cR) { // no horizontal blocking
-      if (y>=cT && yy<=cB) { // no vertical blocking, letter fully visible
-	int h,dat;
-
-	p = char_data+c*10;
-	for (h=0; h<10; h++) {
-	  dat = *p++;
-	  if (dat) { // a lot of times just empty
-	    if (dat & 128) textur[screen_pos]   = color;
-	    if (dat &  64) textur[screen_pos+1] = color;
-	    if (dat &  32) textur[screen_pos+2] = color;
-	    if (dat &  16) textur[screen_pos+3] = color;
-	    if (dat &   8) textur[screen_pos+4] = color;
-	    if (dat &   4) textur[screen_pos+5] = color;
-	    if (dat &   2) textur[screen_pos+6] = color;
-	    if (dat &   1) textur[screen_pos+7] = color;
-	  }
-	  screen_pos += disp_width;
+	if(  use_clipping  ) {
+		cL = clip_rect.x;
+		cR = clip_rect.xx;
+		cT = clip_rect.y;
+		cB = clip_rect.yy;
 	}
-      } else if (y>=cT || yy<=cB) { // top or bottom half visible
-	int h,yh,dat;
-
-	p = char_data+c*10;
-	for (h=0, yh=y; h<10; yh++, h++) {
-	  dat = *p++;
-	  if (dat) { // a lot of times just empty
-	    if (yh>=cT && yh<=cB) {
-	      if (dat & 128) textur[screen_pos]   = color;
-	      if (dat &  64) textur[screen_pos+1] = color;
-	      if (dat &  32) textur[screen_pos+2] = color;
-	      if (dat &  16) textur[screen_pos+3] = color;
-	      if (dat &   8) textur[screen_pos+4] = color;
-	      if (dat &   4) textur[screen_pos+5] = color;
-	      if (dat &   2) textur[screen_pos+6] = color;
-	      if (dat &   1) textur[screen_pos+7] = color;
-	    }
-	  }
-	  screen_pos += disp_width;
+	else {
+		cL = 0;
+		cR = disp_width-1;
+		cT = 0;
+		cB = disp_height-1;
+ 	}
+	if(  len<0  ) {
+		len = 0x7FFF;
 	}
-      }
-    } else if (x>=cL || x+char_width_1<=cR) { // left or right part visible
-      if (y>=cT && yy<=cB) { // no vertical blocking
-	int h,b,b2,dat;
 
-	p = char_data+c*10;
-	for (h=0; h<10; h++) {
-	  dat = *p++;
-	  if (dat) { // a lot of times just empty
-	    for (b=0, b2=128; b<8; b++, b2>>=1) {
-	      if (x+b < cL) continue;
-	      if (x+b > cR) break;
-	      if (dat & b2) textur[screen_pos+b] = color;
-	    }
-	  }
-	  screen_pos += disp_width;
+	// adapt x-coordinate for alignment
+	switch(align) {
+		case ALIGN_LEFT:
+			// nothing to do
+			break;
+		case ALIGN_MIDDLE:
+			x -= display_proportional_string_len_width(txt, len, use_large_font)/2;
+			break;
+		case ALIGN_RIGHT:
+			x -= display_proportional_string_len_width(txt, len, use_large_font);
+			break;
 	}
-      }
-    } else { // something else
-    }
+	// x0 contains the startin x
+	x0 = x;
 
-    x += char_width_2;
-  }
+	// big loop, char by char
+	while(  iTextPos<len  &&  txt[iTextPos]!=0  ) {
+#ifdef UNICODE_SUPPORT
+		// decode char
+		if(  has_unicode  ) {
+			c = utf82unicode( txt+iTextPos, &iTextPos );
+		}
+		else
+#endif
+		{
+			c = (unsigned char)txt[iTextPos++];
+		}
+		// get the data from the font
+		char_width_1 = fnt->char_width[c];
+		char_width_2 = fnt->screen_width[c];
+		char_data = fnt->char_data+(15l*c);
+		if(  char_width_1>8  ) {
+			mask1 = get_mask( x, x+8, cL, cR );
+			// we need to double mask 2, since only 2 Bits are used
+			mask2 = get_mask( x+8, x+char_width_1, cL, cR ) ;
+			if(  mask2==0x80  ) {
+				mask2 = 0xAA;
+			}
+			else {
+				if(  mask2==0xC0  ) {
+					mask2 = 0xFF;
+				}
+			}
+		}
+		else {
+			// char_width_1<= 8: call directly
+			mask1 = get_mask( x, x+char_width_1, cL, cR );
+			mask2 = 0;
+		}
+		// do the display
+		screen_pos = y*disp_width + x;
 
+		if (y>=cT && yy<=cB) { // no vertical blocking, letter fully visible
+			int h,dat;
+
+			p = char_data;
+			for (h=0; h<fnt->height; h++) {
+				dat = (*p++)&mask1;
+				if(  dat!=0  ) {
+					if (dat & 128) textur[screen_pos+0]   = color;
+					if (dat &  64) textur[screen_pos+1] = color;
+					if (dat &  32) textur[screen_pos+2] = color;
+					if (dat &  16) textur[screen_pos+3] = color;
+					if (dat &   8) textur[screen_pos+4] = color;
+					if (dat &   4) textur[screen_pos+5] = color;
+					if (dat &   2) textur[screen_pos+6] = color;
+					if (dat &   1) textur[screen_pos+7] = color;
+				}
+				screen_pos += disp_width;
+			}
+			// extra two bit for overwidth characters (up to 10 pixel supported for unicode)
+			// if the character height is smaller than 10, not all is needed; but we do this anyway!
+			if(  char_width_1>8  &&  mask2!=0  ) {
+				p = char_data+12;
+				screen_pos = y*disp_width + x+8;
+				dat = (*p++)&mask2;
+				if( dat!=0 ) {
+					if (dat & 128) textur[screen_pos+0]   = color;
+					if (dat &  64) textur[screen_pos+1] = color;
+					screen_pos += disp_width;
+					if (dat &  32) textur[screen_pos+0] = color;
+					if (dat &  16) textur[screen_pos+1] = color;
+					screen_pos += disp_width;
+					if (dat &   8) textur[screen_pos+0] = color;
+					if (dat &   4) textur[screen_pos+1] = color;
+					screen_pos += disp_width;
+					if (dat &   2) textur[screen_pos+0] = color;
+					if (dat &   1) textur[screen_pos+1] = color;
+					screen_pos += disp_width;
+				}
+				else {
+					screen_pos += disp_width*4;
+				}
+				dat = (*p++)&mask2;
+				if( dat!=0 ) {
+					if (dat & 128) textur[screen_pos+0]   = color;
+					if (dat &  64) textur[screen_pos+1] = color;
+					screen_pos += disp_width;
+					if (dat &  32) textur[screen_pos+0] = color;
+					if (dat &  16) textur[screen_pos+1] = color;
+					screen_pos += disp_width;
+					if (dat &   8) textur[screen_pos+0] = color;
+					if (dat &   4) textur[screen_pos+1] = color;
+					screen_pos += disp_width;
+					if (dat &   2) textur[screen_pos+0] = color;
+					if (dat &   1) textur[screen_pos+1] = color;
+					screen_pos += disp_width;
+				}
+				else {
+					screen_pos += disp_width*4;
+				}
+				dat = (*p++)&mask2;
+				if( dat!=0 ) {
+					if (dat & 128) textur[screen_pos+0]   = color;
+					if (dat &  64) textur[screen_pos+1] = color;
+					screen_pos += disp_width;
+					if (dat &  32) textur[screen_pos+0] = color;
+					if (dat &  16) textur[screen_pos+1] = color;
+					screen_pos += disp_width;
+					if (dat &   8) textur[screen_pos+0] = color;
+					if (dat &   4) textur[screen_pos+1] = color;
+					screen_pos += disp_width;
+					if (dat &   2) textur[screen_pos+0] = color;
+					if (dat &   1) textur[screen_pos+1] = color;
+					screen_pos += disp_width;
+				}
+			}
+		}
+		else {
+			if (y>=cT || yy<=cB) { // top or bottom half visible
+				int h,yh,dat;
+
+				p = char_data;
+				for (h=0, yh=y; h<fnt->height; yh++, h++) {
+					dat = (*p++)&mask1;
+					if (dat) { // a lot of times just empty
+						if (yh>=cT && yh<=cB) {
+							if (dat & 128) textur[screen_pos+0]   = color;
+							if (dat &  64) textur[screen_pos+1] = color;
+							if (dat &  32) textur[screen_pos+2] = color;
+							if (dat &  16) textur[screen_pos+3] = color;
+							if (dat &   8) textur[screen_pos+4] = color;
+							if (dat &   4) textur[screen_pos+5] = color;
+							if (dat &   2) textur[screen_pos+6] = color;
+							if (dat &   1) textur[screen_pos+7] = color;
+						}
+					}
+					screen_pos += disp_width;
+				}
+				// handle characters wider than 8 Bit here
+				if(  char_width_1>8  ) {
+					screen_pos = y*disp_width + x+8;
+					p = char_data+12;
+					yh = 0;
+					dat = (*p++)&mask2;
+					if (yh>=cT && yh<=cB) {
+						if (dat & 128) textur[screen_pos+0]   = color;
+						if (dat &  64) textur[screen_pos+1] = color;
+					}
+					screen_pos += disp_width;
+					yh ++;
+					if (yh>=cT && yh<=cB) {
+						if (dat &  32) textur[screen_pos+0] = color;
+						if (dat &  16) textur[screen_pos+1] = color;
+					}
+					yh ++;
+					screen_pos += disp_width;
+					if (yh>=cT && yh<=cB) {
+						if (dat &   8) textur[screen_pos+0] = color;
+						if (dat &   4) textur[screen_pos+1] = color;
+					}
+					yh ++;
+					screen_pos += disp_width;
+					if (yh>=cT && yh<=cB) {
+						if (dat &   2) textur[screen_pos+0] = color;
+						if (dat &   1) textur[screen_pos+1] = color;
+					}
+					yh ++;
+					screen_pos += disp_width;
+					dat = (*p++)&mask2;
+					if (yh>=cT && yh<=cB) {
+						if (dat & 128) textur[screen_pos+0]   = color;
+						if (dat &  64) textur[screen_pos+1] = color;
+					}
+					yh ++;
+					screen_pos += disp_width;
+					if (yh>=cT && yh<=cB) {
+						if (dat &  32) textur[screen_pos+0] = color;
+						if (dat &  16) textur[screen_pos+1] = color;
+					}
+					yh ++;
+					screen_pos += disp_width;
+					if (yh>=cT && yh<=cB) {
+						if (dat &   8) textur[screen_pos+0] = color;
+						if (dat &   4) textur[screen_pos+1] = color;
+					}
+					yh ++;
+					screen_pos += disp_width;
+					if (yh>=cT && yh<=cB) {
+						if (dat &   2) textur[screen_pos+0] = color;
+						if (dat &   1) textur[screen_pos+1] = color;
+					}
+					yh ++;
+					screen_pos += disp_width;
+					dat = (*p++)&mask2;
+					if (yh>=cT && yh<=cB) {
+						if (dat & 128) textur[screen_pos+0]   = color;
+						if (dat &  64) textur[screen_pos+1] = color;
+					}
+					screen_pos += disp_width;
+					yh ++;
+					if (yh>=cT && yh<=cB) {
+						if (dat &  32) textur[screen_pos+0] = color;
+						if (dat &  16) textur[screen_pos+1] = color;
+					}
+					screen_pos += disp_width;
+					yh ++;
+					if (yh>=cT && yh<=cB) {
+						if (dat &   8) textur[screen_pos+0] = color;
+						if (dat &   4) textur[screen_pos+1] = color;
+					}
+					yh ++;
+					screen_pos += disp_width;
+					if (yh>=cT && yh<=cB) {
+						if (dat &   2) textur[screen_pos+0] = color;
+						if (dat &   1) textur[screen_pos+1] = color;
+					}
+				}
+			}
+		}
+		x += char_width_2;
+	}
+
+	if (dirty) {
+		// here, because only now we know the lenght also for ALIGN_LEFT text
+		mark_rect_dirty_wc(x0, y,x-1, y+10-1);
+	}
 }
-// proportional text routine
-// align: ALIGN_LEFT, ALIGN_MIDDLE, ALIGN_RIGHT
-void display_proportional(int x, int y, const char *txt,
-			  int align, const int color, int dirty) {
-  // clip vertically
-  if(y < 8 || y >= disp_height-13) { return; }
-  // amiga <-> pc correction
-  y+=4;
-
-  display_p_internal(x,y,txt,-1,align,color,dirty,0,disp_width-1,0,disp_height-1);
-}
 
 
-void display_proportional_clip(int x, int y, const char *txt,
-			       int align, const int color,
-			       int dirty)
-{
-    display_p_internal(x,y,txt,-1,align,color,dirty,
-		       clip_rect.x, clip_rect.xx, clip_rect.y, clip_rect.yy);
-}
 
-/**
- * This version of display_proportional_clip displays text of fixed length.
- * @author Volker Meyer
- * @date  15.06.2003
- */
-void display_proportional_len_clip(int x, int y, const char *txt, int len,
-			       int align, const int color,
-			       int dirty)
-{
-    display_p_internal(x,y,txt,len,align,color,dirty,
-		       clip_rect.x, clip_rect.xx, clip_rect.y, clip_rect.yy);
-}
 
 /**
  * Zeichnet schattiertes Rechteck
@@ -2112,6 +2610,7 @@ display_ddd_box(int x1, int y1, int w, int h, int tl_color, int rd_color)
     display_vline_wh(x1, y1+1, h, tl_color, TRUE);
     display_vline_wh(x1+w-1, y1+1, h, rd_color, TRUE);
 }
+
 
 
 /**
@@ -2131,39 +2630,53 @@ display_ddd_box_clip(int x1, int y1, int w, int h, int tl_color, int rd_color)
 }
 
 
-/**
- * Zeichnet schattierten  Text
- * @author Hj. Malthaner
- */
-void
-display_ddd_text(int xpos, int ypos, int hgt,
-                 int ddd_farbe, int text_farbe,
-                 const char *text, int dirty)
+
+// if width equals zero, take default value
+void display_ddd_proportional(int xpos, int ypos, int width, int hgt,
+			      int ddd_farbe, int text_farbe,
+			      const char *text, int dirty)
 {
-    const int len = strlen(text)*4;
+  int halfheight=(large_font_height/2)+1;
 
-    display_fillbox_wh(xpos-2-len,
-                       ypos-hgt-6,
-                       4 + len*2, 1,
-                       ddd_farbe+1,
-		       dirty);
-    display_fillbox_wh(xpos-2-len,
-                       ypos-hgt-5,
-                       4 + len*2, 8,
-                       ddd_farbe,
-		       dirty);
-    display_fillbox_wh(xpos-2-len,
-                       ypos-hgt+3,
-                       4 + len*2, 1,
-                       ddd_farbe-1,
-		       dirty);
+  display_fillbox_wh(xpos-2, ypos-halfheight-1-hgt, width,  1, ddd_farbe+1, dirty);
+  display_fillbox_wh(xpos-2, ypos-halfheight-hgt, width, halfheight*2, ddd_farbe,   dirty);
+  display_fillbox_wh(xpos-2, ypos+halfheight-hgt, width,  1, ddd_farbe-1, dirty);
 
-    display_text(1, xpos - len,
-                 ypos-hgt-9,
-                 text,
-		 text_farbe,
-		 dirty);
+  display_vline_wh(xpos-2, ypos-halfheight-1-hgt, halfheight*2+1, ddd_farbe+1, dirty);
+  display_vline_wh(xpos+width-3, ypos-halfheight-1-hgt, halfheight*2+1, ddd_farbe-1, dirty);
+
+  display_text_proportional_len_clip(xpos+2, ypos-halfheight+1, text, ALIGN_LEFT, text_farbe,FALSE, true, -1, false );
 }
+
+
+
+/**
+ * display text in 3d box with clipping
+ * @author: hsiegeln
+ */
+void display_ddd_proportional_clip(int xpos, int ypos, int width, int hgt,
+			      int ddd_farbe, int text_farbe,
+			      const char *text, int dirty)
+{
+  int halfheight=(large_font_height/2)+1;
+
+  display_fillbox_wh_clip(xpos-2, ypos-halfheight-1-hgt, width,  1, ddd_farbe+1, dirty);
+  display_fillbox_wh_clip(xpos-2, ypos-halfheight-hgt, width, halfheight*2, ddd_farbe,   dirty);
+  display_fillbox_wh_clip(xpos-2, ypos+halfheight-hgt, width,  1, ddd_farbe-1, dirty);
+
+  display_vline_wh_clip(xpos-2, ypos-halfheight-1-hgt, halfheight*2+1, ddd_farbe+1, dirty);
+  display_vline_wh_clip(xpos+width-3, ypos-halfheight-1-hgt, halfheight*2+1, ddd_farbe-1, dirty);
+/*
+  display_fillbox_wh_clip(xpos-2, ypos-6-hgt, width,  1, ddd_farbe+1, dirty);
+  display_fillbox_wh_clip(xpos-2, ypos-5-hgt, width, 10, ddd_farbe,   dirty);
+  display_fillbox_wh_clip(xpos-2, ypos+5-hgt, width,  1, ddd_farbe-1, dirty);
+
+  display_vline_wh_clip(xpos-2, ypos-6-hgt, 11, ddd_farbe+1, dirty);
+  display_vline_wh_clip(xpos+width-3, ypos-6-hgt, 11, ddd_farbe-1, dirty);
+*/
+  display_text_proportional_len_clip(xpos+2, ypos-5+(12-large_font_height)/2, text, ALIGN_LEFT, text_farbe,FALSE, true, -1, true );
+}
+
 
 
 /**
@@ -2180,6 +2693,9 @@ count_char(const char *str, const char c)
     }
     return count;
 }
+
+
+
 /**
  * Zeichnet einen mehrzeiligen Text
  * @author Hj. Malthaner
@@ -2196,10 +2712,10 @@ display_multiline_text(int x, int y, const char *buf, int color)
 
 	do {
 	    next = strchr(buf,'\n');
-	    display_proportional_len_clip(
-		x, y,
-		buf, next ? next - buf : -1,
-		ALIGN_LEFT, color, TRUE);
+	    display_text_proportional_len_clip(
+		x, y,buf,
+		ALIGN_LEFT, color, TRUE,
+		true, next ? next - buf : -1, true );
 	    buf = next + 1;
 	    y += LINESPACE;
 	} while(next);
@@ -2224,7 +2740,7 @@ display_clear()
 void display_flush_buffer()
 {
     int x, y;
-    char * tmp;
+    unsigned char * tmp;
 #ifdef DEBUG
     // just for debugging
     int tile_count = 0;
@@ -2365,8 +2881,14 @@ simgraph_init(int width, int height, int use_shm, int do_sync)
         textur = dr_textur_init();
 	use_softpointer = dr_use_softpointer();
 
-	init_font(FONT_PATH_X "draw.fnt", FONT_PATH_X "prop.fnt");
-	load_hex_font(FONT_PATH_X "4x7.hex");
+	small_font.char_width = large_font.char_width = NULL;
+	small_font.char_data = large_font.char_data = NULL;
+
+	load_font( FONT_PATH_X "4x7.hex", false );
+	load_font( FONT_PATH_X "prop.fnt", true );
+
+//	init_font(FONT_PATH_X "draw.fnt", FONT_PATH_X "prop.fnt", FONT_PATH_X"unicode.fnt");
+//	load_hex_font(FONT_PATH_X "4x7.hex");
 
 
 	load_special_palette();
@@ -2389,8 +2911,8 @@ simgraph_init(int width, int height, int use_shm, int do_sync)
     tile_lines = (disp_height + DIRTY_TILE_SIZE - 1) / DIRTY_TILE_SIZE;
     tile_buffer_length = (tile_lines*tiles_per_line+7) / 8;
 
-    tile_dirty = guarded_malloc( tile_buffer_length );
-    tile_dirty_old = guarded_malloc( tile_buffer_length );
+    tile_dirty = (unsigned char *)guarded_malloc( tile_buffer_length );
+    tile_dirty_old = (unsigned char *)guarded_malloc( tile_buffer_length );
 
     memset(tile_dirty, 255, tile_buffer_length);
     memset(tile_dirty_old, 255, tile_buffer_length);
@@ -2508,7 +3030,7 @@ void display_laden(void * file, int zipped)
  * Speichert Einstellungen
  * @author Hj. Malthaner
  */
-void display_speichern(void* file, int zipped)
+void display_speichern(void * file, int zipped)
 {
     if(zipped) {
         gzprintf(file, "%d %d %d\n", light_level, color_level, night_shift);

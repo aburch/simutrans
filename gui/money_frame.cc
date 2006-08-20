@@ -114,7 +114,7 @@ money_frame_t::money_frame_t(spieler_t *sp)
 
     this->sp = sp;
 
-    const int top = 16;
+    const int top = 20;
     const int left = 12;
 
     //CHART YEAR

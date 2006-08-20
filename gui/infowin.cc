@@ -256,7 +256,7 @@ void infowin_t::zeichnen(koord pos, koord gr)
     buf.clear();
     info(buf);
 
-    display_multiline_text(x+11, y+22, buf, SCHWARZ);
+    display_multiline_text(x+11, y+24, buf, SCHWARZ);
 
     /*
     if(buf.len() == 0) {

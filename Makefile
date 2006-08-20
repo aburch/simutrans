@@ -7,7 +7,8 @@
 #
 
 
-OSTYPE=linux-gnu
+OSTYPE=mingw
+#OSTYPE=linux-gnu
 
 
 ifeq ($(OSTYPE),)
@@ -19,9 +20,9 @@ endif
 export OSTYPE
 
 #OPT=profile
-OPT=debug
+#OPT=debug
 #OPT=optimize
-#OPT=debug_optimize
+OPT=debug_optimize
 
 
 ifeq ($(SIM_OPTIMIZE),true)
@@ -40,9 +41,9 @@ OS_OPT=-Wbad-function-cast
 endif
 ifeq ($(OSTYPE),mingw)
 OS_INC=-I /usr/include/mingw
-OS_OPT=-Wbad-function-cast -mno-cygwin -DPNG_STATIC -DZLIB_STATIC
+OS_OPT=-mno-cygwin -DPNG_STATIC -DZLIB_STATIC
 #OS_OPT=-Wbad-function-cast
-STD_LIBS=
+STD_LIBS=-lstdc++ -lz
 SDLLIBS= -lmingw32 -lSDLmain -lSDL -lwinmm
 endif
 ifeq ($(OSTYPE),linux-gnu)
@@ -229,11 +230,8 @@ SOURCES= \
  simcity.cc simwerkz.cc simworld.cc simplay.cc simsound.cc simintr.cc \
  simmain.cc simskin.cc simlinemgmt.cc simline.cc
 
-# ASM_SOURCES= \
-# asm/pixcopy.s asm/colorpixcopy.s asm/display_img.s asm/display_img16.s
-
-ASM_SOURCES= asm/display_img16.s
-
+ASM_SOURCES= \
+ asm/pixcopy.s asm/colorpixcopy.s asm/display_img.s asm/display_img16.s asm/display_img16w.s
 
 # objectfiles
 OBJECTS= \
@@ -249,8 +247,14 @@ OBJECTS= \
  simcity.o simwerkz.o simworld.o simplay.o simsound.o simintr.o \
  simmain.o  simskin.o simlinemgmt.o simline.o
 
+ifeq ($(OSTYPE),mingw)
+ASM_DISPLAY_IMG= asm/display_img16w.o
+else
+ASM_DISPLAY_IMG= asm/display_img16.o
+endif
+
 ASM_OBJECTS= \
- asm/pixcopy.o asm/colorpixcopy.o asm/display_img.o asm/display_img16.o
+ asm/pixcopy.o asm/colorpixcopy.o asm/display_img.o asm/display_img16.o asm/display_img16w.o
 
 
 all:    16
@@ -273,8 +277,8 @@ clean:
 normal:	$(OBJECTS) simsys_d.o simgraph.o
 	$(LN) $(LDFLAGS) -o sim $(OBJECTS) simsys_d.o simgraph.o /usr/local/lib/liballeg.a $(SUB_OBJS) $(STD_LIBS)
 
-normal16:	$(OBJECTS) simsys_s16.o simgraph16.o asm/display_img16.o
-	$(LN) $(LDFLAGS) -o sim $(OBJECTS) simsys_s16.o simgraph16.o asm/display_img16.o $(SUB_OBJS) $(STD_LIBS) $(SDLLIBS)
+normal16:	$(OBJECTS) simsys_s16.o simgraph16.o $(ASM_DISPLAY_IMG)
+	$(LN) $(LDFLAGS) -o sim $(OBJECTS) simsys_s16.o simgraph16.o $(ASM_DISPLAY_IMG) $(SUB_OBJS) $(STD_LIBS) $(SDLLIBS)
 
 allegro16:	$(OBJECTS) simsys_d16.o simgraph16.o
 	$(LN) $(LDFLAGS) -o sim $(OBJECTS) simsys_d16.o simgraph16.o $(SUB_OBJS) -lefence /usr/local/lib/liballeg.a $(STD_LIBS)
@@ -299,7 +303,9 @@ autotest:
 	$(MAKE) CXXFLAGS='$(CXXFLAGS) -DAUTOTEST' testfiles
 
 testfiles: dataobj_sub dings_sub gui_sub utils_sub test_sub $(OBJECTS) simsys_s16.o simgraph16.o
-	$(LN) $(LDFLAGS) -o sim $(OBJECTS) simsys_s16.o simgraph16.o asm/display_img16.o test/worldtest.o test/testtool.o test/buildings_frame_t.o test/buildings_stats_t.o $(SUB_OBJS) $(STD_LIBS)  $(SDLLIBS)
+	$(LN) $(LDFLAGS) -o sim $(OBJECTS) simsys_s16.o simgraph16.o asm/display_img16w.o test/worldtest.o test/testtool.o $(SUB_OBJS) $(STD_LIBS)  $(SDLLIBS)
+
+# test/buildings_frame_t.o test/buildings_stats_t.o
 
 pak:
 	utils/makepak

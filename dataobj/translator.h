@@ -54,10 +54,11 @@ private:
     const char * language_names_iso_base[MAX_LANG];
     stringhashtable_tpl<const char *> * languages[MAX_LANG];
 
+	bool language_is_utf_encoded[MAX_LANG];
+
     /* Methods related to loading a language file into memory */
     static void load_language_file(FILE *file);
     static void load_language_iso(cstring_t & iso);
-
 
     /**
      * Checks whether or not the given language is in bounds.
@@ -68,6 +69,7 @@ private:
     }
 
 public:
+	static void get_rand_city_name(char *name);
 
     /**
      * Loads up all files of language type from the 'language' directory.

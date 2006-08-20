@@ -111,7 +111,7 @@ gui_chart_t::zeichnen(koord offset) const
       // draw zero number only, if it will not disturb any other printed values!
       if ((baseline > 18) && (baseline < groesse.y -18)) {
 	display_proportional(offset.x - 4,
-			     offset.y+baseline-7,
+			     offset.y+baseline-3,
 			     "0",
 			     ALIGN_RIGHT,
 			     WHITE,
@@ -120,14 +120,14 @@ gui_chart_t::zeichnen(koord offset) const
 
       // display min/max money values
       display_proportional(offset.x - 4,
-			   offset.y-9,
+			   offset.y-5,
 			   cmax,
 			   ALIGN_RIGHT,
 			   WHITE,
 			   false );
 
       display_proportional(offset.x - 4,
-			   offset.y+groesse.y-9,
+			   offset.y+groesse.y-5,
 			   cmin,
 			   ALIGN_RIGHT,
 			   WHITE,
@@ -145,7 +145,7 @@ gui_chart_t::zeichnen(koord offset) const
 			// display x-axis
 			sprintf(digit, "%i", abs(seed-i));
 			display_proportional(offset.x+(groesse.x / (x_elements - 1))*i - (seed != i ? (int)(2*log(abs((seed-i)))) : 0),
-					     offset.y+groesse.y+2,
+					     offset.y+groesse.y+6,
 					     digit, ALIGN_LEFT, 4, false );
 		}
 	// year's vertical lines
@@ -185,7 +185,7 @@ gui_chart_t::zeichnen(koord offset) const
 				{
 					number_to_string(cmin, tmp);
 					display_proportional(offset.x - 4,
-							     offset.y+baseline-(int)(tmp/scale)-8,
+							     offset.y+baseline-(int)(tmp/scale)-4,
 							     cmin,
 							     ALIGN_RIGHT,
 							     4/*c.color*/,

@@ -214,7 +214,7 @@ static void win_draw_window_title(const koord pos, const koord gr,
 
     // Draw the gadgets and then move left and draw text.
     int width = display_gadget_boxes( flags, pos.x, pos.y, titel_farbe, closing );
-    display_proportional_clip( pos.x + width + 8, pos.y+4, text, ALIGN_LEFT, WEISS, true );
+    display_proportional_clip( pos.x + width + 8, pos.y+(16-large_font_height)/2, text, ALIGN_LEFT, WEISS, true );
     POP_CLIP();
 }
 

@@ -580,6 +580,9 @@ vehikel_t::vehikel_t(karte_t *welt,
   rauchen = true;
   fahrtrichtung = ribi_t::keine;
 
+	current_friction = 4;
+	sum_weight = besch->gib_gewicht();
+
   ist_erstes = ist_letztes = false;
   alte_fahrtrichtung = fahrtrichtung = ribi_t::keine;
 
@@ -599,6 +602,8 @@ vehikel_t::vehikel_t(karte_t *welt) :
   cnv = NULL;
 
   route_index = 1;
+	current_friction = 4;
+	sum_weight = 10;
 
   alte_fahrtrichtung = fahrtrichtung = ribi_t::keine;
 }
@@ -724,31 +729,45 @@ vehikel_t::setze_speed_limit(int l)
 }
 
 
+
+/* calculates the current friction coefficient based on the curent track
+ * falt, slope, curve ...
+ * @author prissi, HJ
+ */
 void
 vehikel_t::calc_akt_speed(const int h_alt, const int h_neu)
 {
-    int akt_speed = gib_speed();
-
-    if(h_neu != h_alt) {
-	if(h_neu < h_alt && h_neu > h_alt-4) {
-	    akt_speed = (akt_speed * 3) >> 3;
-	} else if(h_neu < h_alt+4) {
-	    akt_speed = (akt_speed * 9) >> 3;
+	// even track
+	current_friction = 1;
+	// or a hill?
+	if(h_neu != h_alt) {
+		if(h_neu < h_alt) {
+			// hill up, since height offsets are negative: heavy deccelerate
+			current_friction = 64;
+		}
+		else {
+			// hill down: accelrate
+			current_friction = -32;
+		}
 	}
-    }
 
-    if(alte_fahrtrichtung != fahrtrichtung) {
-	akt_speed = (akt_speed*2) >> 2;
-    }
+	// curve: higher friction
+	if(alte_fahrtrichtung != fahrtrichtung) {
+		current_friction = 8;
+	}
 
-    if(speed_limit != -1 && akt_speed > speed_limit) {
-	akt_speed = speed_limit;
-    }
-
-    if(ist_erstes) {
-	cnv->setze_akt_speed_soll(akt_speed);
-    }
+	if(ist_erstes) {
+		// just to accelerate: The actual speed takes care of all vehicles in the convoi
+ 	        const int akt_speed = gib_speed();
+	        if(speed_limit != -1 && akt_speed > speed_limit) {
+		  cnv->setze_akt_speed_soll(speed_limit);
+		} else {
+		  cnv->setze_akt_speed_soll(akt_speed);
+		}
+	}
 }
+
+
 
 void
 vehikel_t::rauche()
@@ -760,10 +779,15 @@ vehikel_t::rauche()
 
     // Hajo: only produce smoke when heavily accelerating
     //       or steam engine
-    if(cnv->gib_akt_speed() < (gib_speed()>>1) ||
+    int akt_speed = gib_speed();
+    if(speed_limit != -1 && akt_speed > speed_limit) {
+      akt_speed = speed_limit;
+    }
+
+    if(cnv->gib_akt_speed() < (akt_speed >> 1) ||
        besch->get_engine_type() == vehikel_besch_t::steam) {
 
-      grund_t *gr = welt->lookup( pos_cur );
+      grund_t * gr = welt->lookup( pos_cur );
       // nicht im tunnel ?
       if(gr && !gr->ist_tunnel() ) {
 	sync_wolke_t *abgas =  new sync_wolke_t(welt,
@@ -922,18 +946,16 @@ vehikel_t::loesche_fracht()
 bool
 vehikel_t::beladen(koord , halthandle_t halt)
 {
-  //    printf("Vehikel %p beladen\n", this);
+	//    printf("Vehikel %p beladen\n", this);
+	const bool ok= load_freight(welt, halt, &fracht, besch, cnv->gib_fahrplan());
+	sum_weight =  ((gib_fracht_gewicht()+499)>>10) + besch->gib_gewicht();
 
-  const bool ok= load_freight(welt, halt, &fracht, besch, cnv->gib_fahrplan());
-
-  // bild hat sich geändert
-  // set_flag(dirty);
-  if(ok) {
-    calc_bild();
-  }
-
-
-  return ok;
+	// bild hat sich geändert
+	// set_flag(dirty);
+	if(ok) {
+		calc_bild();
+	}
+	return ok;
 }
 
 
@@ -943,13 +965,14 @@ vehikel_t::beladen(koord , halthandle_t halt)
  */
 void vehikel_t::entladen(koord, halthandle_t halt)
 {
-
 	// printf("Vehikel %p entladen\n", this);
 	int menge = unload_freight(welt, halt, &fracht, gib_fracht_typ());
 	// add delivered goods to statistics
 	cnv->book(menge, CONVOI_TRANSPORTED_GOODS);
 	// add delivered goods to halt's statistics
 	halt->book(menge, HALT_ARRIVED);
+	// recalculate vehicles load (here is enough, because this routine is alsways called after beladen!?
+	sum_weight =  ((gib_fracht_gewicht()+499)>>10) + besch->gib_gewicht();
 }
 
 
@@ -1072,6 +1095,7 @@ vehikel_t::rdwr(loadsave_t *file)
     if(file->is_loading()) {
         list.insert( this );
 	calc_bild();
+	sum_weight = besch->gib_gewicht();
     }
 }
 

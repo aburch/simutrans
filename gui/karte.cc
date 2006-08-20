@@ -24,7 +24,7 @@ int reliefkarte_t::mode = -1;
 
 const int reliefkarte_t::map_type_color[MAX_MAP_TYPE] =
 {
-  7, 11, 15, 132, 23, 31, 35, 7
+  7, 11, 15, 132, 23, 31, 35
 };
 
 const int reliefkarte_t::severity_color[12] =
@@ -354,9 +354,16 @@ reliefkarte_t::zeichnen(koord pos) const
       koord p = stadt->gib_pos();
       const char * name = stadt->gib_name();
 
-      display_text(zoom > 1 ? 1 : 0, pos.x+p.x*zoom-strlen(name)*zoom,
-		   pos.y+p.y*zoom-4,
-		   stadt->gib_name(), WEISS, true);
+	if(  zoom>1  ) {
+		int w = proportional_string_width(stadt->gib_name());
+		p.x = MAX( pos.x+(p.x*zoom)-(w/2), pos.x );
+   		display_proportional_clip( p.x, pos.y+p.y*zoom, stadt->gib_name(), ALIGN_LEFT, WEISS, true);
+   	}
+   	else {
+		int w = small_proportional_string_width(stadt->gib_name());
+		p.x = MAX( pos.x+(p.x*zoom)-(w/2), pos.x );
+   		display_small_proportional_clip( p.x, pos.y+p.y*zoom, stadt->gib_name(), ALIGN_LEFT, WEISS, true);
+   	}
     }
 
     if (fab) {
@@ -560,10 +567,6 @@ reliefkarte_t::calc_map(int render_mode)
 			};
 		}
 	  }
-	break;
-	case 10:
-		// show max speed
-		setze_relief_farbe(k, calc_severity_color(gr->get_max_speed(), 20));
 	break;
 	default:
 	  recalc_relief_farbe(k);
