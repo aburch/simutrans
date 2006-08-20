@@ -61,7 +61,6 @@ private:
      * @date  09.06.2003
      */
     int	icnv;
-    int iroute;// @author hsiegeln
 
 	/* show retired vehicles (same for all depot)
 	 * @author prissi
@@ -116,10 +115,8 @@ private:
 
 	static char no_line_text[128];
 	gui_combobox_t line_selector;
-//    button_t bt_prev_line;
-//    gui_textinput_t inp_name_line;
-//    gui_combobox_t box;
-//    button_t bt_next_line;
+
+	linehandle_t selected_line;
 
     /**
      * Data fields for use with gui elements.

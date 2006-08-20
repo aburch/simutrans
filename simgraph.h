@@ -127,6 +127,8 @@ int display_get_font_height_small();
 int display_get_font_height();
 
 void register_image(struct bild_besch_t *buffer);
+void register_image_copy(struct bild_besch_t *bild);
+
 void display_set_image_offset( int bild, int xoff, int yoff );
 void display_get_image_offset( int bild, int *xoff, int *yoff, int *xw, int *yw );
 

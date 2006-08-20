@@ -546,29 +546,24 @@ convoi_t::sync_step(long delta_t)
 }
 
 
+
 /**
  * Berechne route von Start- zu Zielkoordinate
  * @author Hanjsörg Malthaner
  */
 int convoi_t::drive_to(koord3d start, koord3d ziel)
 {
-  INT_CHECK("simconvoi 293");
+	INT_CHECK("simconvoi 293");
 
 	bool ok = anz_vehikel>0  ? fahr->at(0)->calc_route(welt, start, ziel, speed_to_kmh(min_top_speed), &route ) : false;
-
-	if(ok) {
-//DBG_MESSAGE("convoi_t::drive_to()","route was found");
-		for(unsigned i=0; i<anz_vehikel; i++) {
-			fahr->at(i)->neue_fahrt();
-		}
-	}
-	else {
+	if(!ok) {
 		gib_besitzer()->bescheid_vehikel_problem(self,ziel);
 	}
 
 	INT_CHECK("simconvoi 297");
 	return ok;
 }
+
 
 
 /**
@@ -753,14 +748,13 @@ convoi_t::start()
 
 
 /**
- * Bereit-Meldung entgegennehmen
+ * called, when the first vehicle reaches the target
  * @author Hj. Malthaner
  */
 void convoi_t::ziel_erreicht(vehikel_t *)
 {
-  wait_lock += 8*50;
-  anz_ready ++;
-  // Wir sind am Ziel, sagt uns ein Fahrzeug.
+	wait_lock += 8*50;
+	anz_ready ++;
 }
 
 
@@ -943,32 +937,60 @@ convoi_t::erzeuge_fahrplan()
 	}
 
 	return fpl;
-};
-
-
-void
-convoi_t::go_alte_richtung()
-{
-  // wir wollen den zug neu aufstellen
-  // dazu muss die lok evtl. einige felder zurück gesetzt werden
-  // und es müssen einige felder in die route eingefügt werden
-  koord3d pos ( fahr->at(0)->gib_pos() );
-  for(unsigned i=1; i<anz_vehikel; i++) {
-    const koord3d k = fahr->at(i)->gib_pos();
-    if(pos != k) {
-      route.insert(k);
-      pos = k;
-    }
-  }
-
-  const koord3d k0 = route.position_bei(0);
-  const koord3d k1 = route.position_bei(1);
-  for(unsigned i=0; i<anz_vehikel; i++) {
-    fahr->at(i)->setze_pos(k0);
-    fahr->at(i)->starte_neue_route(k0, k1);
-    fahr->at(i)->betrete_feld();
-  }
 }
+
+
+
+/* checks, if we go in the same direction;
+ * if yes, prepare the convoi for this
+ */
+bool
+convoi_t::go_alte_richtung(ribi_t::ribi neue_richtung)
+{
+DBG_MESSAGE("convoi_t::go_alte_richtung()","alte=%d, neu=%d",alte_richtung,neue_richtung);
+	if(neue_richtung!=alte_richtung) {
+		// may differ due to curve
+		if(ribi_t::ist_kurve(alte_richtung)) {
+			if((alte_richtung&neue_richtung)==0) {
+DBG_MESSAGE("convoi_t::go_alte_richtung()","false");
+				return false;
+			}
+		}
+		else {
+DBG_MESSAGE("convoi_t::go_alte_richtung()","false");
+			return false;
+		}
+	}
+
+	// we continue our journey; however later cars need also a correct route entry
+	// eventually we need to add their positions to the convois route
+	koord3d pos ( fahr->at(0)->gib_pos() );
+	for(unsigned i=1; i<anz_vehikel; i++) {
+		const koord3d k = fahr->at(i)->gib_pos();
+		if(pos != k) {
+			// ok, same => insert and continue
+			route.insert(k);
+			pos = k;
+		}
+	}
+
+	// since we need the route for every vehicle of this convoi,
+	// we mus set the current route index (instead assuming 1)
+	for(unsigned i=0; i<anz_vehikel; i++) {
+		// this is such akward, since it takes into account different vehicle length
+		const koord3d vehicle_start_pos = fahr->at(i)->gib_pos();
+		for( unsigned idx=0;  idx<convoi_t::max_rail_vehicle/2+1;  idx++  ) {
+			if(route.position_bei(idx)==vehicle_start_pos) {
+				fahr->at(i)->neue_fahrt( idx );
+				break;
+			}
+		}
+		// direction etc. should be still the same
+	}
+
+	return true;
+}
+
 
 
 void
@@ -977,9 +999,19 @@ convoi_t::go_neue_richtung()
 	const koord3d k0 = route.position_bei(0);
 	const koord3d k1 = route.position_bei(1);
 	for(unsigned i=0; i<anz_vehikel; i++) {
+		grund_t *gr=welt->lookup(fahr->at(i)->gib_pos());
+		if(gr) {
+			gr->verlasse(fahr->at(i));
+			gr->obj_remove(fahr->at(i),gib_besitzer());
+		}
+		fahr->at(i)->neue_fahrt(0);
 		fahr->at(i)->setze_pos(k0);
 		fahr->at(i)->starte_neue_route(k0, k1);
-		fahr->at(i)->betrete_feld();
+		gr=welt->lookup(k0);
+		if(gr) {
+			gr->betrete(fahr->at(i));
+			fahr->at(i)->betrete_feld();
+		}
 	}
 }
 
@@ -994,69 +1026,61 @@ convoi_t::vorfahren()
 
 	sint8 dummy1, dummy2;
 	ribi_t::ribi neue_richtung =  fahr->at(0)->calc_richtung(route.position_bei(0).gib_2d(), route.position_bei(1).gib_2d(), dummy1, dummy2);
-	if(neue_richtung!=alte_richtung) {
-		akt_speed = 8;
-	}
 	setze_akt_speed_soll(fahr->at(0)->gib_speed());
 
 	INT_CHECK("simconvoi 651");
 
-	for(unsigned i=0; i<anz_vehikel; i++) {
-		fahr->at(i)->verlasse_feld();
-	}
+	if(!go_alte_richtung(neue_richtung)) {
+		// we reached a terminal => so we head in the reverse direction
 
-	if(alte_richtung == neue_richtung) {
-		go_alte_richtung();
-	}
-	else {
+		akt_speed = 8;
+
 		go_neue_richtung();
-	}
+		bool extra_check=false;	// if there are only four view, we may need to extra advance the car
 
-	for(unsigned i=0; i<anz_vehikel; i++) {
-		switch(neue_richtung) {
-			case ribi_t::west:
-				fahr->at(i)->setze_offsets(10,5);
-				break;
-			case ribi_t::ost :
-				fahr->at(i)->setze_offsets(-2,-1);
-				break;
-			case ribi_t::nord:
-				fahr->at(i)->setze_offsets(-10,5);
-				break;
-			case ribi_t::sued:
-				fahr->at(i)->setze_offsets(2,-1);
-				break;
-			default:
-				fahr->at(i)->setze_offsets(0,0);
-				break;
-		}
-	}
-
-	// einige richtungen brauchen extra anfahrsteps
-	int extra = 0;
-	if(alte_richtung == neue_richtung) {
-		if((anz_vehikel & 1) == 1) {
-			extra = 8;
-		}
-	}
-
-	fahr->at(0)->setze_erstes( false );	// switches off signal checks ...
-	for(unsigned i=0; i<anz_vehikel; i++) {
-
-		// raucher beim vorfahren abschalten
-		fahr->at(i)->darf_rauchen(false);
-
-		const int steps = (anz_vehikel-i-1)*8 + extra;
-		for(int j=0; j<steps; j++) {
-			fahr->at(i)->sync_step();
+		for(unsigned i=0; i<anz_vehikel; i++) {
+			switch(neue_richtung) {
+				case ribi_t::west:
+					fahr->at(i)->setze_offsets(10,5);
+					break;
+				case ribi_t::ost :
+					fahr->at(i)->setze_offsets(-2,-1);
+					extra_check = true;
+					break;
+				case ribi_t::nord:
+					fahr->at(i)->setze_offsets(-10,5);
+					extra_check = true;
+					break;
+				case ribi_t::sued:
+					fahr->at(i)->setze_offsets(2,-1);
+					break;
+				default:
+					fahr->at(i)->setze_offsets(0,0);
+					break;
+			}
 		}
 
-		fahr->at(i)->darf_rauchen(true);
+		// move one train length to the start position ...
+		int train_length=0;
+		for(unsigned i=0; i<anz_vehikel-1; i++) {
+			train_length += fahr->at(i)->gib_besch()->get_length();	// this give the length in 1/16 of a full tile
+		}
+
+		// now advance all convoi until it is completely on the track
+		fahr->at(0)->setze_erstes( false );	// switches off signal checks ...
+		for(unsigned i=0; i<anz_vehikel; i++) {
+			fahr->at(i)->darf_rauchen(false);
+			for(int j=0; j<train_length; j++) {
+				fahr->at(i)->sync_step();
+			}
+			train_length -= fahr->at(i)->gib_besch()->get_length();	// this give the length in 1/16 of a full tile => all cars closely coupled!
+			fahr->at(i)->darf_rauchen(true);
+		}
+		fahr->at(0)->setze_erstes( true );
 	}
-	fahr->at(0)->setze_erstes( true );
+
 
 	INT_CHECK("simconvoi 711");
-
 	state = DRIVING;
 	calc_loading();
 }

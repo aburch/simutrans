@@ -39,13 +39,13 @@ int main(int argc, char* argv[])
     }
     else {
 	puts(
-	    "\nMakeobj v0.1.34 by V. Meyer (c) 2002, 2003, 2004, 2005 and Hj. Malthaner\n"
+	    "\nMakeobj v0.1.35 by V. Meyer (c) 2002, 2003, 2004, 2005 and Hj. Malthaner\n"
 	    "   This program creates .pak files for Simutrans - a great game from\n"
 	    "   Hj. Malthaner. Makeobj replaces Makepak and Makepak16 starting with\n"
 	    "   version 0.81.1 of Simutrans.\n"
+	    "   This makeobj creates pak for Simutrans version 0.88.08 or higher\n"
 	    "   If you have questions about Simutrans or Makeobj contact the authors\n"
-	    "   at:\n"
-	    "      volker.meyer@thales-is.com  or  markus@pristovsek.de\n");
+	    "      markus@pristovsek.de\n");
     }
     if(argc && !STRICMP(argv[0], "capabilities")) {
 	argv++, argc--;

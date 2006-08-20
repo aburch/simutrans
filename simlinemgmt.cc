@@ -342,58 +342,32 @@ simlinemgmt_t::create_line(int ltype, fahrplan_t * fpl)
 	return line->self;
 }
 
+
+
+/*
+ * return a list with all lines of a certain type;
+ * type==simline_t::line will return all lines
+ */
 void
 simlinemgmt_t::build_line_list(int type, slist_tpl<linehandle_t> * list)
 {
 //DBG_MESSAGE("simlinemgmt_t::build_line_list()","type=%i",type);
 	list->clear();
+
 	for( unsigned i=0;  i<count_lines();  i++  ) {
 		linehandle_t line = all_managed_lines.at(i);
 
-		// Hajo: 11-Apr-04
-		// changed code to show generic lines (type == line)
-		// in all depots
-		//
-		// At some time in future, generic lines should be removed
-		// from Simutrans because they are unsafe (no checking if stop
-		// is set on correct ground type)
-
-		switch (type) {
-
-			case simline_t::line:
-				// all lines
+		if(type==simline_t::line  ||  line->get_linetype()==simline_t::line  ||  line->get_linetype()==type) {
+			// inset sorted (these lists are not too long, so we will refrain from quicksorts)
+			for(unsigned i=0;  i<list->count()  &&  line.is_bound();  i++  ) {
+				if(strcmp(line->get_name(),list->at(i)->get_name())<=0) {
+					list->insert( line, i );
+					line = linehandle_t();
+				}
+			}
+			if(line.is_bound()) {
 				list->append(line);
-				break;
-			case simline_t::truckline:
-				if (line->get_linetype() == simline_t::truckline || line->get_linetype() == simline_t::line) {
-					list->append(line);
-				}
-				break;
-			case simline_t::trainline:
-				if (line->get_linetype() == simline_t::trainline || line->get_linetype() == simline_t::line) {
-					list->append(line);
-				}
-				break;
-			case simline_t::shipline:
-				if (line->get_linetype() == simline_t::shipline || line->get_linetype() == simline_t::line) {
-					list->append(line);
-				}
-				break;
-			case simline_t::airline:
-				if (line->get_linetype() == simline_t::airline || line->get_linetype() == simline_t::line) {
-					list->append(line);
-				}
-				break;
-			case simline_t::monorailline:
-				if (line->get_linetype() == simline_t::monorailline || line->get_linetype() == simline_t::line) {
-					list->append(line);
-				}
-				break;
-			case simline_t::tramline:
-				if (line->get_linetype() == simline_t::tramline || line->get_linetype() == simline_t::line) {
-					list->append(line);
-				}
-				break;
+			}
 		}
 	}
 }

@@ -305,6 +305,11 @@ depot_t::start_convoi(int icnv)
 
 	if(cnv.is_bound() &&  cnv->gib_fahrplan() != NULL &&  cnv->gib_fahrplan()->ist_abgeschlossen() &&   cnv->gib_fahrplan()->maxi() > 0) {
 
+		// if next schedule entry is this depot => advance to next entry
+		if(cnv->gib_fahrplan()->eintrag.at(cnv->gib_fahrplan()->aktuell).pos==gib_pos()) {
+			cnv->gib_fahrplan()->aktuell = (cnv->gib_fahrplan()->aktuell+1) % cnv->gib_fahrplan()->maxi();
+		}
+
 		// pruefen ob zug vollstaendig
 		if(cnv->gib_sum_leistung() == 0 || !cnv->pruefe_alle()) {
 			create_win(100, 64, MESG_WAIT, new nachrichtenfenster_t(welt, "Diese Zusammenstellung kann nicht fahren!\n"), w_autodelete);
@@ -333,13 +338,13 @@ depot_t::start_convoi(int icnv)
 		create_win(100, 64, new nachrichtenfenster_t(welt, "Noch kein Fahrzeug\nmit Fahrplan\nvorhanden\n"), w_autodelete);
 
 		if(!cnv.is_bound()) {
-			dbg->warning("depot_t::starte_convoi()","No convoi to start!");
+			dbg->warning("depot_t::start_convoi()","No convoi to start!");
 		}
 		if(cnv.is_bound() && cnv->gib_fahrplan() == NULL) {
-			dbg->warning("depot_t::starte_convoi()","No schedule for convoi.");
+			dbg->warning("depot_t::start_convoi()","No schedule for convoi.");
 		}
 		if(cnv.is_bound() && cnv->gib_fahrplan() != NULL && cnv->gib_fahrplan()->ist_abgeschlossen() == false) {
-			dbg->warning("depot_t::starte_convoi()","Schedule is incomplete/not finished");
+			dbg->warning("depot_t::start_convoi()","Schedule is incomplete/not finished");
 		}
 	}
 	return false;

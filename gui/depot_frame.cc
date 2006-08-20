@@ -67,7 +67,6 @@ depot_frame_t::depot_frame_t(karte_t *welt, depot_t *depot, int &farbe) :
     kennfarbe(farbe),
     depot(depot),
     icnv(depot->convoi_count()-1),
-    iroute(-1),
     lb_convois(NULL, COL_BLACK, gui_label_t::left),
     lb_convoi_count(NULL, COL_BLACK, gui_label_t::left),
     lb_convoi_value(NULL, COL_BLACK, gui_label_t::left),
@@ -79,6 +78,8 @@ DBG_DEBUG("depot_frame_t::depot_frame_t()","get_max_convoi_length()=%i",depot->g
 	waggons_vec = 0;
 	loks_vec = 0;
 	pas_vec = 0;
+
+	selected_line = linehandle_t();
 
 	strcpy(no_line_text, translator::translate("<no line>"));
 
@@ -227,7 +228,7 @@ DBG_DEBUG("depot_frame_t::depot_frame_t()","get_max_convoi_length()=%i",depot->g
 
     if(waggons_vec->get_count() > 0) {
 		tabs.add_tab(scrolly_waggons, depot->gib_haenger_name());
-    }
+  }
 
 
     add_komponente(&tabs);
@@ -410,7 +411,7 @@ void depot_frame_t::layout(koord *gr)
     convoi->setze_groesse(koord(CLIST_WIDTH, CLIST_HEIGHT));
 
     lb_convoi_count.setze_pos(koord(4, CINFO_VSTART));
-    lb_convoi_value.setze_pos(koord(4 + 100, CINFO_VSTART));
+    lb_convoi_value.setze_pos(koord(TOTAL_WIDTH-180, CINFO_VSTART));
     lb_convoi_line.setze_pos(koord(4, CINFO_VSTART + LINESPACE));
 
     /*
@@ -474,7 +475,6 @@ void depot_frame_t::layout(koord *gr)
 	cont_loks->setze_pos(koord(0,0));
 	cont_loks->setze_groesse(loks->gib_groesse());
 	scrolly_loks->setze_groesse(scrolly_loks->gib_groesse());
-//DBG_MESSAGE("depot::resize()","lok pane siz = %d,%d",loks->gib_groesse().x,loks->gib_groesse().y);
 
 	waggons->set_grid(grid);
 	waggons->set_placement(placement);
@@ -619,12 +619,11 @@ void depot_frame_t::update_data()
 	bt_veh_action.setze_text(txt_veh_action[veh_action]);
 
 	// set line text: (line name or <no line>
-	if ((iroute > -1) && (iroute < (int)depot->get_line_list()->count()-1)) {
-		line_selector.setze_text(depot->get_line_list()->at(iroute)->get_name(), 128);
+	if(selected_line.is_bound()) {
+		line_selector.setze_text(selected_line->get_name(), 128);
 	}
 	else {
 		line_selector.setze_text(no_line_text, 128);
-		iroute = -1;
 	}
 
 	switch(depot->convoi_count()) {
@@ -759,9 +758,11 @@ void depot_frame_t::update_data()
 		while( iter.next() ) {
 			linehandle_t line = iter.get_current();
 			line_selector.append_element( line->get_name() );
+			if(line==selected_line) {
+				line_selector.set_selection( line_selector.count_elements() );
+			}
 		}
 	}
-	line_selector.set_selection(iroute+1);
 }
 
 
@@ -909,24 +910,19 @@ depot_frame_t::action_triggered(gui_komponente_t *komp)
 	    icnv = depot->convoi_count()-1;
 	} else if(komp == &bt_apply_line) {
 	    apply_line();
-/*
-	} else if(komp == &bt_next_line) {
-	    if(++iroute == (int)depot->get_line_list()->count()) {
-			iroute = -1;
-	    }
-		line_selector.set_selection(iroute);
-	} else if(komp == &bt_prev_line) {
-	    if(iroute-- == -1) {
-			iroute = depot->get_line_list()->count() - 1;
-	    }
-		line_selector.set_selection(iroute);
-*/
-	} else if(komp == &line_selector) {
-		iroute = line_selector.get_selection()-1;
-	} else {
-	    return false;
+		} else if(komp == &line_selector) {
+			int sel=line_selector.get_selection();
+			if(sel>0) {
+				selected_line = depot->get_line_list()->at(sel-1);
+			}
+			else {
+				selected_line = linehandle_t();
+			}
+		}
+		else {
+			return false;
+		}
 	}
-    }
 	update_data();
 	layout(NULL);
 	return true;
@@ -1014,37 +1010,35 @@ void depot_frame_t::infowin_event(const event_t *ev)
 void
 depot_frame_t::zeichnen(koord pos, koord groesse)
 {
-    const convoihandle_t cnv = depot->get_convoi(icnv);
-
-    if(cnv.is_bound()) {
-	//inp_name.setze_text(cnv->access_name(), 48);
-	if(cnv->gib_vehikel_anzahl() > 0) {
-	    sprintf(txt_convoi_count, "%s %d",
-		translator::translate("Fahrzeuge:"),
-		cnv->gib_vehikel_anzahl());
-	    sprintf(txt_convoi_value, "%s %d$",
-		translator::translate("Restwert:"),
-		cnv->calc_restwert()/100);
-	    if (cnv->get_line() != NULL)
-	    {
-		sprintf(txt_convoi_line, "%s %s",
-  			translator::translate("Serves Line:"),
-			cnv->get_line()->get_name());
-	    } else {
-		sprintf(txt_convoi_line, "%s %s",
-  			translator::translate("Serves Line:"),
-			translator::translate("<no line>"));
-	    }
-	} else {
-	    tstrncpy(txt_convoi_count, "keine Fahrzeuge", 40);
-	    *txt_convoi_value = '\0';
+	const convoihandle_t cnv = depot->get_convoi(icnv);
+	if(cnv.is_bound()) {
+		if(cnv->gib_vehikel_anzahl() > 0) {
+			int length=0;
+			for( unsigned i=0;  i<cnv->gib_vehikel_anzahl();  i++) {
+				length += cnv->gib_vehikel(i)->gib_besch()->get_length();
+			}
+			sprintf(txt_convoi_count, "%s %d (%s %i)",
+				translator::translate("Fahrzeuge:"), cnv->gib_vehikel_anzahl(),
+				translator::translate("Station tiles:"), (length+15)/16 );
+			sprintf(txt_convoi_value, "%s %d$", translator::translate("Restwert:"), cnv->calc_restwert()/100);
+			if (cnv->get_line()!=NULL) {
+				sprintf(txt_convoi_line, "%s %s", translator::translate("Serves Line:"), 	cnv->get_line()->get_name());
+			}
+			else {
+				sprintf(txt_convoi_line, "%s %s", translator::translate("Serves Line:"), no_line_text);
+			}
+		}
+		else {
+			tstrncpy(txt_convoi_count, "keine Fahrzeuge", 40);
+			*txt_convoi_value = '\0';
+		}
 	}
-    } else {
-	inp_name.setze_text("\0", 0);
-	*txt_convoi_count = '\0';
-	*txt_convoi_value = '\0';
-	*txt_convoi_line = '\0';
-    }
+	else {
+		inp_name.setze_text("\0", 0);
+		*txt_convoi_count = '\0';
+		*txt_convoi_value = '\0';
+		*txt_convoi_line = '\0';
+	}
 
     bt_obsolete.pressed = show_retired_vehicles;	// otherwise the button would not show depressed
     gui_frame_t::zeichnen(pos, groesse);
@@ -1065,56 +1059,38 @@ depot_frame_t::zeichnen(koord pos, koord groesse)
  */
 void depot_frame_t::new_line()
 {
-	linehandle_t new_line = depot->create_line();
-	iroute = depot->get_line_list()->count()-1;
-
-	// newly created lines will be put into a sorted list of all lines
-	// to make it easier for the player we must select the newly created
-	// line in the dialog. This code block identifies the new line by name
-	// and sets the selector accordingly
-        for (int i = 0; i<=iroute; i++) {
-		if (new_line==depot->get_line_list()->at(i)) {
-			iroute = i;
-			break;
-		}
-	}
-
-	line_management_gui_t *line_gui = new line_management_gui_t(welt, new_line, welt->get_active_player());
+	selected_line = depot->create_line();
+	line_management_gui_t *line_gui = new line_management_gui_t(welt, selected_line, welt->get_active_player());
 	line_gui->zeige_info();
 	update_data();
-
 	layout(NULL);
 }
 
 void depot_frame_t::apply_line()
 {
-	convoihandle_t cnv = depot->get_convoi(icnv);
-	// if no convoi is selected, do nothing
-	if (cnv == NULL)
-	{
-		return;
-	}
-
-	if ((iroute>-1) && (icnv > -1))
-	{
-		// get selected route
-		linehandle_t line = depot->get_line_list()->at(iroute);
-		// set new route only, a valid route is selected:
-		if (line.is_bound()) {
-			cnv->set_line(line);
+	if(icnv > -1) {
+		convoihandle_t cnv = depot->get_convoi(icnv);
+		// if no convoi is selected, do nothing
+		if(cnv==NULL) {
+			return;
 		}
-	} else if (iroute == -1) {
-		// sometimes the user might wish to remove convoy from line
-		// this happens here
-		cnv->unset_line();
-	}
 
+		if(selected_line.is_bound()) {
+			// set new route only, a valid route is selected:
+			cnv->set_line(selected_line);
+		}
+		else {
+			// sometimes the user might wish to remove convoy from line
+			// this happens here
+			cnv->unset_line();
+		}
+	}
 }
 
 void depot_frame_t::change_line()
 {
-	if (iroute > -1) {
-		line_management_gui_t *line_gui = new line_management_gui_t(welt, depot->get_line_list()->at(iroute), welt->get_active_player());
+	if(selected_line.is_bound()) {
+		line_management_gui_t *line_gui = new line_management_gui_t(welt, selected_line, welt->get_active_player());
 		line_gui->zeige_info();
 	}
 }
@@ -1126,30 +1102,30 @@ void depot_frame_t::change_line()
 
 void depot_frame_t::fahrplaneingabe()
 {
-    convoihandle_t cnv = depot->get_convoi(icnv);
+	convoihandle_t cnv = depot->get_convoi(icnv);
+	if(cnv.is_bound() && cnv->gib_vehikel_anzahl() > 0) {
 
-    if(cnv.is_bound() && cnv->gib_vehikel_anzahl() > 0) {
+		fahrplan_t *fpl = cnv->erzeuge_fahrplan();
+		if(fpl != NULL && fpl->ist_abgeschlossen()) {
 
-	fahrplan_t *fpl = cnv->erzeuge_fahrplan();
+			// Fahrplandialog oeffnen
+			fahrplan_gui_t *fpl_gui = new fahrplan_gui_t(welt, fpl, welt->get_active_player());
+			fpl_gui->zeige_info();
 
-	if(fpl != NULL && fpl->ist_abgeschlossen()) {
-
-	    // Fahrplandialog oeffnen
-	    fahrplan_gui_t *fpl_gui = new fahrplan_gui_t(welt, fpl, welt->get_active_player());
-	    fpl_gui->zeige_info();
-
-
-	    // evtl. hat ein callback cnv gelöscht, so erneut testen
-	    if(cnv.is_bound() && fpl != NULL) {
-		cnv->setze_fahrplan(fpl);
-	    }
-	} else {
-	    create_win(100, 64, new nachrichtenfenster_t(welt, "Es wird bereits\nein Fahrplan\neingegeben\n"), w_autodelete);
+			// evtl. hat ein callback cnv gelöscht, so erneut testen
+			if(cnv.is_bound() && fpl != NULL) {
+				cnv->setze_fahrplan(fpl);
+			}
+		}
+		else {
+			create_win(100, 64, new nachrichtenfenster_t(welt, "Es wird bereits\nein Fahrplan\neingegeben\n"), w_autodelete);
+		}
 	}
-    } else {
-	create_win(100, 64, new nachrichtenfenster_t(welt, "Please choose vehicles first\n"), w_autodelete);
-    }
+	else {
+		create_win(100, 64, new nachrichtenfenster_t(welt, "Please choose vehicles first\n"), w_autodelete);
+	}
 }
+
 
 
 void

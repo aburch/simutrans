@@ -264,9 +264,10 @@ private:
 
     /**
      * Setup vehicles for moving in same direction than before
+     * if the direction is the same as before
      * @author Hanjsörg Malthaner
      */
-    void go_alte_richtung();
+    bool go_alte_richtung(ribi_t::ribi);
 
 
     /**

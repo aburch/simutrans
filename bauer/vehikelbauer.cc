@@ -15,6 +15,7 @@
 
 #include "../dataobj/umgebung.h"
 
+#include "../besch/bildliste_besch.h"
 #include "../besch/vehikel_besch.h"
 #include "../boden/wege/weg.h"
 

@@ -150,7 +150,6 @@ private:
     sint32 speed_limit;
 
     bool hop_check();
-    void ziel_erreicht();
 
     void hop();
 
@@ -213,7 +212,7 @@ protected:
     convoi_t *cnv;		// != NULL falls das vehikel zu einem Convoi gehoert
 
     bool ist_erstes:1;            // falls vehikel im convoi fährt, geben diese
-    bool ist_letztes:1;           // flags auskunft über die psosition
+    bool ist_letztes:1;           // flags auskunft über die position
     bool rauchen:1;
 
 
@@ -279,7 +278,7 @@ public:
      * der Convoi eine neue Route ermittelt
      * @author Hj. Malthaner
      */
-    void neue_fahrt();
+    void neue_fahrt( uint16 start_route_index );
 
 
     void starte_neue_route(koord3d k0, koord3d k1);
@@ -556,7 +555,7 @@ public:
 	// reserves or unreserves all blocks and returns the handle to the next block (if there)
 	// if count is larger than 1, maximum 64 tiles will be checked (freeing or reserving a choose signal path)
 	// return the last checked block
-	blockhandle_t block_reserver(int count, bool reserve) const;
+	blockhandle_t block_reserver(const route_t *route,int count, bool reserve) const;
 
     void verlasse_feld();
 

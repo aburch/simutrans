@@ -65,6 +65,7 @@ void image_reader_t::register_obj(obj_besch_t *&data)
 	delete_node(data);
 	data = NULL;
     }
-    else
+    else {
 	register_image(besch);
+    }
 }

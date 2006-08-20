@@ -96,6 +96,7 @@ private:
     uint16  gear;       // Hajo: engine gear (power multiplier)
 
     sint8  typ;         // Hajo: Das ist der weg_t
+    uint8 len;			// length (=8 is half a tile, the old default)
     sint8  sound;
 
     uint8  vorgaenger;	// Anzahl möglicher Vorgänger
@@ -129,6 +130,12 @@ public:
     {
 	return gib_bild_nr(ribi_t::dir_sued, false);
     }
+
+	// returns the number of different directions
+	int gib_dirs() const
+	{
+		return (static_cast<const bildliste_besch_t *>(gib_kind(4)))->gib_bild(4) ? 8 : 4;
+	}
 
     int gib_bild_nr(ribi_t::dir dir, bool empty) const
     {
@@ -262,11 +269,11 @@ public:
     }
 
 
-	/* @return the normalized distance to the next vehicle
+	/* @return the vehicles length in 1/8 of the normal len
 	 * @author prissi
 	 */
-	uint8 get_length_to_next( uint8 next_dir ) const {
-		return length[next_dir];
+	uint8 get_length() const {
+		return len;
 	}
 
 	/* @returns the real coordinates

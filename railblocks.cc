@@ -235,18 +235,22 @@ signal_t * blockstrecke_t::gib_signal_bei(koord3d k)
 {
     signal_t *sig = NULL;
 
-    slist_iterator_tpl<signal_t *> iter( signale );
+	slist_iterator_tpl<signal_t *> iter( signale );
+	while(iter.next()) {
+		signal_t *tmp = iter.get_current();
 
-    while(iter.next()) {
-	signal_t *tmp = iter.get_current();
-
-	if(tmp->gib_pos() == k) {
-	    sig = tmp;
-	    break;
+		if(tmp->gib_pos() == k) {
+			sig = tmp;
+			break;
+		}
 	}
-    }
 
-//DBG_MESSAGE("blockstrecke_t::gib_signal_bei()","found signal %p at %d,%d.\n", sig, k.x, k.y);
+	if(sig==NULL) {
+		dbg->warning("blockstrecke_t::gib_signal_bei()","no signal found at %d,%d.\n", k.x, k.y);
+	}
+	else {
+//		DBG_MESSAGE("blockstrecke_t::gib_signal_bei()","found signal %p at %d,%d.\n", sig, k.x, k.y);
+	}
 
     return sig;
 }

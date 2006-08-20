@@ -10,6 +10,23 @@ Known bugs: (hard to fix)
 
 Release of 88.07
 
+14-Apr-2006: (prissi)
+	FIX: line selection in depot window
+	CHANGE: lines now sorted alphabetically
+	CHANGE: new parameter for vehicles in dat files: length=xyz for the length i 1/16 of a tile (default: 8) => much easier stem engines with short tender etc.; but: vehicles with len!=8 better have 8 views, else ...
+		The standard vehicle length are like this for 64:
+			S or W: x=2*len, y=len
+			SE: y=2*len
+			SW: x=4*len
+	CHANGE: no jumping at waypoint on diagonals
+	CHANGE: depot window now displays minimum station tiles needed ("Station tiles:")
+	FIX: signals on stations should now work as intended, even with pre- and choose-signals
+	FIX: when current schedule entry is the current depot, not route message was show => now advance to next entry
+	FIX: many wagon overlapping drawing errors with trains
+
+
+Release of 88.07
+
 9-Apr-2006: (prissi)
 	CHANGE: asynchronous updating of routes and rerouting to avoid lags when building stations/change schedules
 	CHANGE: more CPU-friendly choosing for trains

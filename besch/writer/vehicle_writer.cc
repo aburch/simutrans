@@ -100,7 +100,7 @@ void vehicle_writer_t::write_obj(FILE *fp, obj_node_t &parent, tabfileobj_t &obj
     uint8  uv8;
     sint8  sv8;
 
-	int total_len = 29;
+	int total_len = 30;
 
 	// prissi: must be done here, since it may affect the len of the header!
 	cstring_t sound_str = ltrim( obj.get("sound") );
@@ -130,7 +130,7 @@ void vehicle_writer_t::write_obj(FILE *fp, obj_node_t &parent, tabfileobj_t &obj
     // Hajo: version number
     // Hajo: Version needs high bit set as trigger -> this is required
     //       as marker because formerly nodes were unversionend
-    uv16 = 0x8006;
+    uv16 = 0x8007;
     node.write_data_at(fp, &uv16, 0, sizeof(uint16));
 
 
@@ -307,14 +307,17 @@ void vehicle_writer_t::write_obj(FILE *fp, obj_node_t &parent, tabfileobj_t &obj
     }
     node.write_data_at(fp, &uv8, 26, sizeof(uint8));
 
+    // the length (default 8)
+    uv8 = obj.get_int("length", 8);
+    node.write_data_at(fp, &uv8, 27, sizeof(uint8));
 
-    node.write_data_at(fp, &besch_vorgaenger, 27, sizeof(sint8));
-    node.write_data_at(fp, &besch_nachfolger, 28, sizeof(sint8));
+    node.write_data_at(fp, &besch_vorgaenger, 28, sizeof(sint8));
+    node.write_data_at(fp, &besch_nachfolger, 29, sizeof(sint8));
 
 	if(sound_str.len()>0) {
 		sv8 = sound_str.len();
-		node.write_data_at(fp, &sv8, 29, sizeof(sint8));
-		node.write_data_at(fp, sound_str.chars(), 30, sound_str.len());
+		node.write_data_at(fp, &sv8, 30, sizeof(sint8));
+		node.write_data_at(fp, sound_str.chars(), 31, sound_str.len());
 	}
 
     node.write(fp);

@@ -243,7 +243,7 @@ obj_besch_t * vehicle_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 		besch->vorgaenger = decode_uint8(p);
 		besch->nachfolger = decode_uint8(p);
 	} else if (version==7) {
-		// new sound handling ...
+		// different length of cars ...
 
 		besch->preis = decode_uint32(p);
 		besch->zuladung = decode_uint16(p);
@@ -259,6 +259,7 @@ obj_besch_t * vehicle_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 		besch->typ = decode_uint8(p);
 		besch->sound = decode_sint8(p);
 		besch->engine_type = decode_uint8(p);
+		besch->len = decode_uint8(p);
 		besch->vorgaenger = decode_uint8(p);
 		besch->nachfolger = decode_uint8(p);
 	} else {
@@ -294,8 +295,6 @@ obj_besch_t * vehicle_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 			besch->engine_type = vehikel_besch_t::electric;
 			besch->typ = 1;
 		}
-		else {
-		}
 		// convert to new standard
 		const weg_t::typ convert_from_old[8]={weg_t::strasse, weg_t::schiene, weg_t::wasser, weg_t::luft, weg_t::invalid, weg_t::monorail, weg_t::schiene_maglev, weg_t::schiene_strab };
 		besch->typ = convert_from_old[besch->typ];
@@ -307,6 +306,11 @@ obj_besch_t * vehicle_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 		besch->intro_date = (date/16)*12 + (date%16);
 		date=besch->obsolete_date;
 		besch->obsolete_date = (date/16)*12 + (date%16);
+	}
+
+	// before the length was always 1/8 (=half a tile)
+	if(version<7) {
+		besch->len = 8;
 	}
 
 	if(besch->sound==LOAD_SOUND) {
@@ -329,7 +333,7 @@ DBG_MESSAGE("vehicle_reader_t::register_obj()","old sound %i to %i",old_id,besch
 	     "version=%d "
 	     "typ=%d zuladung=%d preis=%d geschw=%d gewicht=%d leistung=%d "
 	     "betrieb=%d sound=%d vor=%d nach=%d "
-	     "date=%d/%d gear=%d engine_type=%d",
+	     "date=%d/%d gear=%d engine_type=%d len=%d",
 	     version,
 	     besch->typ,
 	     besch->zuladung,
@@ -344,7 +348,8 @@ DBG_MESSAGE("vehicle_reader_t::register_obj()","old sound %i to %i",old_id,besch
 	     (besch->intro_date%12)+1,
 	     besch->intro_date/12,
 	     besch->gear,
-	     besch->engine_type);
+	     besch->engine_type,
+	     besch->len);
 
   return besch;
 }
