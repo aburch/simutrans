@@ -150,6 +150,10 @@ private:
      */
     long delta_sum;
 
+   unsigned long total_input, total_output;
+   unsigned status;
+
+   void recalc_factory_status();
 public:
   static fabrik_t * gib_fab(const karte_t *welt, const koord pos);
 
@@ -330,9 +334,9 @@ public:
   int get_prodfaktor(void) const {return prodfaktor;};
 
    /* prissi: returns the status of the current factory, as well as output */
-   static unsigned status_to_color[5];
    enum { bad, medium, good, inactive, nothing };
-   unsigned calc_factory_status(unsigned long *input, unsigned long *output) const;
+   static unsigned status_to_color[5];
+   unsigned calc_factory_status(unsigned long *input, unsigned long *output) const { if(input) {*input=total_input;} if(output) { *output=total_output; }; return status; };
 
     /**
      * Crossconnects all factories

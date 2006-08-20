@@ -29,6 +29,7 @@ Stichpunkte
 
 - distribution_weight für Versorgerfabriken berücktsichtigen
 - FastForward-Button
+- details for convois
 
 - Sehenwürdigkeitenliste
 - Landfabrik alle x Jahre/Fakriken

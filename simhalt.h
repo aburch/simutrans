@@ -115,6 +115,9 @@ private:
      */
     void init_financial_history();
 
+	uint8 status_color;
+	void recalc_status();
+
 public:
 
 
@@ -354,7 +357,7 @@ public:
      * Calculates a status color for status bars
      * @author Hj. Malthaner
      */
-    int gib_status_farbe() const;
+    int gib_status_farbe() const {return status_color; };
 
 
     /**
@@ -450,17 +453,11 @@ public:
 		return ware_enabled;
 	}
 
-
-
-
-
-
     /**
      * Found route and station uncrowded
      * @author Hj. Malthaner
      */
     void add_pax_happy(int n);
-
 
     /**
      * Found no route
@@ -468,20 +465,15 @@ public:
      */
     void add_pax_no_route(int n);
 
-
     /**
      * Station crowded
      * @author Hj. Malthaner
      */
     void add_pax_unhappy(int n);
 
-
-
     int get_pax_happy() const {return pax_happy;};
     int get_pax_no_route() const {return pax_no_route;};
     int get_pax_unhappy() const {return pax_unhappy;};
-
-
 
 
 #ifdef LAGER_NOT_IN_USE

@@ -887,30 +887,40 @@ vehikel_t::fahre()
  */
 int vehikel_t::calc_gewinn(koord3d start, koord3d end) const
 {
-    const int dist = abs(end.x - start.x) +
-                     abs(end.y - start.y);
+    const long dist = abs(end.x - start.x) + abs(end.y - start.y);
 
-    const int ref_speed = welt->get_average_speed( gib_wegtyp() );
-    const int speed_base = speed_to_kmh(cnv->gib_min_top_speed()) - ref_speed;
+    const long ref_speed = welt->get_average_speed( gib_wegtyp() );
+    const long speed_base = speed_to_kmh(cnv->gib_min_top_speed()) - ref_speed;
 
-    double value = 0;
+    sint64 value = 0;
     slist_iterator_tpl <ware_t> iter (fracht);
 
     while( iter.next() ) {
       const ware_t & ware = iter.get_current();
-      const int grundwert = ware.gib_typ()->gib_preis();
 
-      double price = (grundwert * dist * ware.menge) / 3.0;
+#if 0
+      double price = (ware.gib_typ()->gib_preis() * dist * ware.menge) / 3.0;
 
       // Hajo: add speed bonus
       price += 0.001 * price * (speed_base * ware.gib_typ()->gib_speed_bonus());
-
       // Hajo: sum up new price
       value += price;
     }
 
     // Hajo: Rounded value, in cents
     return (int)(value+0.5);
+#else
+	// prissi
+      const sint64 grundwert1000 = (ware.gib_typ()->gib_preis()*(1000l+speed_base*ware.gib_typ()->gib_speed_bonus()));
+      const sint64 price = (grundwert1000 * dist * ware.menge);
+      // sum up new price
+      value += price;
+    }
+
+    // Hajo: Rounded value, in cents
+    return (value+1500l)/3000l;
+#endif
+
 }
 
 
@@ -1744,22 +1754,47 @@ schiff_t::schiff_t(karte_t *welt, loadsave_t *file) : vehikel_t(welt)
 ribi_t::ribi
 schiff_t::gib_ribi(const grund_t *gr) const
 {
-    weg_t *weg = gr->gib_weg(weg_t::wasser);
-
-    if(weg) {
-	return weg->gib_ribi();
-    } else if(gr->ist_wasser()) {
-	return ribi_t::alle;
-    }
-    return ribi_t::keine;
+	return gr->gib_weg_ribi(weg_t::wasser);
 }
 
 
 bool
 schiff_t::ist_befahrbar(const grund_t *bd) const
 {
-    return bd->ist_wasser();
+    return bd->ist_wasser()  ||  bd->gib_weg(weg_t::wasser);
 }
+
+
+/* Since slopes are handled different for ships
+ * @author prissi
+ */
+void
+schiff_t::calc_akt_speed(const int h_alt, const int h_neu)
+{
+	// even track
+	current_friction = 1;
+	// or a hill?
+	if(h_neu != h_alt) {
+		// hill up or down => in lock => deccelarte
+		current_friction = 128;
+	}
+
+	// curve: higher friction
+	if(alte_fahrtrichtung != fahrtrichtung) {
+		current_friction = 2;
+	}
+
+	if(ist_erstes) {
+		// just to accelerate: The actual speed takes care of all vehicles in the convoi
+ 	        const int akt_speed = gib_speed();
+	        if(get_speed_limit() != -1 && akt_speed > get_speed_limit()) {
+		  cnv->setze_akt_speed_soll(get_speed_limit());
+		} else {
+		  cnv->setze_akt_speed_soll(akt_speed);
+		}
+	}
+}
+
 
 
 bool

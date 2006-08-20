@@ -112,6 +112,7 @@
 //#include "test/buildings_frame_t.h"
 #endif
 
+static bool fast_forward = false;
 
 
 //static schedule_list_gui_t * schedule_list_gui = 0;
@@ -757,7 +758,7 @@ DBG_DEBUG("karte_t::init()","kartenboden_setzen");
     // calc_hoehe(0, 0, gib_groesse()-1, gib_groesse()-1);
 
 DBG_DEBUG("karte_t::init()","calc_hoehe_mit_heightfield");
-    unsigned long old_seed = setsimrand( 0xFFFFFFFF, einstellungen->gib_karte_nummer() );
+	setsimrand( 0xFFFFFFFF, einstellungen->gib_karte_nummer() );
     if(einstellungen->heightfield.len() > 0) {
       calc_hoehe_mit_heightfield(einstellungen->heightfield);
     } else {
@@ -1765,7 +1766,7 @@ karte_t::sync_prepare()
 void
 karte_t::sync_step(const long dt)
 {
-	const long delta_t = (dt * get_time_multi()) >> 4;
+	const long delta_t = (fast_forward) ? 200 : (dt * get_time_multi()) >> 4;
 	slist_iterator_tpl<sync_steppable*> iter (sync_list);
 
 	// Hajo: we use a slight hack here to remove the current
@@ -2010,7 +2011,7 @@ int karte_t::get_average_speed(weg_t::typ typ) const
 
 void karte_t::neues_jahr()
 {
-    letztes_jahr ++;
+    letztes_jahr = current_month/12;
 
     DBG_MESSAGE("karte_t::neues_jahr()","Year %d has started", letztes_jahr);
     char buf[256];
@@ -2033,10 +2034,15 @@ void karte_t::neues_jahr()
 #define GRUPPEN 14
 static long step_group_times[GRUPPEN];
 
-
+static int last_tick=0;
 
 void karte_t::step(const long delta_t)
 {
+	// needs plausibility check?!?
+	if(delta_t<=0  ||  delta_t>10000) {
+		return;
+	}
+
 	const int step_group = steps % GRUPPEN;
 	unsigned int i;
 
@@ -2583,6 +2589,18 @@ DBG_DEBUG("karte_t::laden()","grundwasser %i",grundwasser);
 	DBG_DEBUG("karte_t::laden()","built timeline for citycars");
 	stadtauto_t::built_timeline_liste();
 
+	if(file->get_version()<86006) {
+		// defaults
+		average_speed[0] = 60;
+		average_speed[1] = 80;
+		average_speed[2] = 40;
+		average_speed[3] = 800;
+	}
+	else {
+		recalc_average_speed();
+	}
+
+
     DBG_DEBUG("karte_t::laden", "init %i cities",einstellungen->gib_anzahl_staedte());
     stadt = new weighted_vector_tpl <stadt_t *> (einstellungen->gib_anzahl_staedte());
     for(int i=0; i<einstellungen->gib_anzahl_staedte(); i++) {
@@ -2922,6 +2940,15 @@ static void warte_auf_mausklick_oder_taste(event_t *ev)
 	      (ev->ev_class == EVENT_KEYBOARD &&
 	       (ev->ev_code >= 32 && ev->ev_code < 256))));
 }
+
+
+
+// in fast forward mode?
+bool karte_t::is_fast_forward()
+{
+	return fast_forward;
+}
+
 
 
 void karte_t::reset_timer()
@@ -3382,6 +3409,10 @@ karte_t::interactive_event(event_t &ev)
 	case 'u':
 	    setze_maus_funktion(wkz_raise, skinverwaltung_t::upzeiger->gib_bild_nr(0), Z_GRID, 0, 0);
 	    break;
+	case 'W':
+		fast_forward ^= 1;
+		reset_timer();
+		break;
 	case 'w':
 	    sound_play(click_sound);
 	    create_win(0, 0, -1, new schedule_list_gui_t(this), w_info, magic_schedule_list_gui_t);
@@ -3802,6 +3833,22 @@ karte_t::interactive_event(event_t &ev)
 
 		    wzw->setze_hilfe_datei("shiptools.txt");
 
+			wegbauer_t::fill_menu(wzw,
+					  weg_t::wasser,
+					  wkz_wegebau,
+					  SFX_JACKHAMMER,
+					  SFX_FAILURE,
+					  get_timeline_year_month()
+					  );
+
+		    hausbauer_t::fill_menu(wzw,
+					  hausbauer_t::ship_channel_stops,
+					  wkz_kaibau,
+					  SFX_JACKHAMMER,
+					  SFX_FAILURE,
+					  CST_DOCK,
+					  get_timeline_year_month() );
+
 		    hausbauer_t::fill_menu(wzw,
 					  hausbauer_t::ship_stops,
 					  wkz_dockbau,
@@ -4053,6 +4100,14 @@ karte_t::interactive_event(event_t &ev)
 					 IMG_LEER,
 					 translator::translate("fl_title"));
 
+		      wzw->add_tool(wkz_list_curiosity_tool,
+					  Z_PLAN,
+					  -1,
+					  -1,
+					  skinverwaltung_t::listen_werkzeug->gib_bild_nr(5),
+					 IMG_LEER,
+					 translator::translate("curlist_title"));
+
 		    sound_play(click_sound);
 
 		    wzw->zeige_info(magic_listtools);
@@ -4076,7 +4131,11 @@ karte_t::interactive_event(event_t &ev)
 		do_pause();
 		setze_dirty();
 		break;
-	    }
+	  case 21:
+		fast_forward ^= 1;
+		reset_timer();
+	  break;
+	  }
 	} else {
 	    if(mouse_funk != NULL) {
 		koord pos (mi,mj);
@@ -4199,65 +4258,98 @@ karte_t::interactive()
 	//	setze_dirty();
 
 	do {
-		INT_CHECK("simworld 3746");
-		interactive_update();
 
-		// check if we need to play a new midi file
-		check_midi();
+		if(fast_forward) {
 
-		INT_CHECK("simworld 3763");
-		interactive_update();
+			if(abs(steps-now)>=5) {
+				const long t = get_system_ms();
 
-		// welt steppen
-		// but this will not neccessarily result in a step!
-		this_step_time = get_current_time_millis();
-		step((long)(this_step_time-last_step_time));
-		last_step_time = this_step_time;
-
-		INT_CHECK("simworld 3772");
-		interactive_update();
-
-		const unsigned long t = get_system_ms();
-
-		if(t > now+1000) {
-			// every second is enough ...
-
-			const long stretch_factor = get_time_multi();
-			last_simloops = ( (steps - steps_bis_jetzt) * 16) / stretch_factor;
-			realFPS = (thisFPS * 1000) / (t-now);
-			lastFPS = (thisFPS * 16) / stretch_factor;
-			thisFPS = 0;
-
-			if(last_simloops<MIN_LOOPS) {
-				sleep_time = 0;
-				increase_frame_time();
-			}
-			else if(last_simloops>MAX_LOOPS) {
-				sleep_time += 1;
-			}
-			else if(last_simloops<MAX_LOOPS  &&  sleep_time>=1) {
-				sleep_time -= 1;
+				last_simloops = steps-now;
+				realFPS = (thisFPS*1000)/((t-this_step_time)|1);// make sure, this is always!=0!!!
+				lastFPS = thisFPS;
+				thisFPS = 0;
+				this_step_time = t;
+				now = steps;
 			}
 
-			if(realFPS>MAX_FPS  ||  last_simloops<MIN_LOOPS) {
-				increase_frame_time();
-			} else if(realFPS<MIN_FPS  &&  last_simloops>MIN_LOOPS) {
-				reduce_frame_time();
-			}
+			last_step_time = ticks;
 
-			steps_bis_jetzt = steps;
-
-			now = t;
-		}
-
-		if(sleep_time>0) {
+			INT_CHECK("simworld 3746");
 			interactive_update();
-			if(sleep_time>25) {
-				sleep_time = 25;
-			}
-			simusleep( sleep_time );
-		}
 
+			// check if we need to play a new midi file
+			check_midi();
+
+			INT_CHECK("simworld 3763");
+			interactive_update();
+
+			if(ticks-last_step_time<200) {
+				sync_step( 200 );
+			}
+
+			step(ticks-last_step_time);
+
+		}
+		else {
+			INT_CHECK("simworld 3746");
+			interactive_update();
+
+			// check if we need to play a new midi file
+			check_midi();
+
+			INT_CHECK("simworld 3763");
+			interactive_update();
+
+			// welt steppen
+			// but this will not neccessarily result in a step!
+			this_step_time = get_current_time_millis();
+			step((long)(this_step_time-last_step_time));
+			last_step_time = this_step_time;
+
+			INT_CHECK("simworld 3772");
+			interactive_update();
+
+			const unsigned long t = get_system_ms();
+
+			if(t > now+1000) {
+				// every second is enough ...
+
+				const long stretch_factor = get_time_multi();
+				last_simloops = ( (steps - steps_bis_jetzt) * 16) / stretch_factor;
+				realFPS = (thisFPS * 1000) / (t-now);
+				lastFPS = (thisFPS * 16) / stretch_factor;
+				thisFPS = 0;
+
+				if(last_simloops<MIN_LOOPS) {
+					sleep_time = 0;
+					increase_frame_time();
+				}
+				else if(last_simloops>MAX_LOOPS) {
+					sleep_time += 1;
+				}
+				else if(last_simloops<MAX_LOOPS  &&  sleep_time>=1) {
+					sleep_time -= 1;
+				}
+
+				if(realFPS>MAX_FPS  ||  last_simloops<MIN_LOOPS) {
+					increase_frame_time();
+				} else if(realFPS<MIN_FPS  &&  last_simloops>MIN_LOOPS) {
+					reduce_frame_time();
+				}
+
+				steps_bis_jetzt = steps;
+
+				now = t;
+			}
+
+			if(sleep_time>0) {
+				interactive_update();
+				if(sleep_time>25) {
+					sleep_time = 25;
+				}
+				simusleep( sleep_time );
+			}
+		}
 
 	}while(doit);
 

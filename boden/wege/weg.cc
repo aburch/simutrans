@@ -139,7 +139,8 @@ void weg_t::rdwr(loadsave_t *file)
 	if(file->is_saving()) {
 		// reading has been done by grund_t!
 		file->wr_obj_id(
-			(gib_typ()==weg_t::schiene  &&  besch->gib_styp()==7) ? weg_t::schiene_strab : gib_typ()
+//			(gib_typ()==weg_t::schiene  &&  besch->gib_styp()==7) ? weg_t::schiene_strab : gib_typ()
+			gib_typ()
 		 );
 		 // init ribi
 		ribi8 = ribi | (ribi_maske << 4);

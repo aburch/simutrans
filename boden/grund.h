@@ -586,6 +586,7 @@ public:
      *
      */
     virtual ribi_t::ribi gib_weg_ribi_unmasked(weg_t::typ typ) const;
+
     /**
      * Brurckenwege an den Auffahrten sind eine Ebene urber der Planh÷he.
      * Alle anderen liefern hier 0.

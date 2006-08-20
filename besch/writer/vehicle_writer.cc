@@ -113,10 +113,14 @@ static uint8 get_engine_type(const char * engine_type, tabfileobj_t &obj)
     uv8 = vehikel_besch_t::steam;
   } else if(!STRICMP(engine_type, "bio")) {
     uv8 = vehikel_besch_t::bio;
+  } else if(!STRICMP(engine_type, "sail")) {
+    uv8 = vehikel_besch_t::fuel_cell;
   } else if(!STRICMP(engine_type, "fuel_cell")) {
     uv8 = vehikel_besch_t::fuel_cell;
   } else if(!STRICMP(engine_type, "hydrogene")) {
     uv8 = vehikel_besch_t::hydrogene;
+  } else if(!STRICMP(engine_type, "unknown")) {
+    uv8 = vehikel_besch_t::unknown;
   }
 
   // printf("Engine type %s -> %d\n", engine_type, uv8);

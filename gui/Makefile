@@ -21,7 +21,8 @@ SOURCES= button.cc\
  loadsave_frame.cc money_frame.cc convoi_frame.cc convoi_info_t.cc \
  convoi_filter_frame.cc halt_list_frame.cc halt_list_item.cc halt_list_filter_frame.cc \
  line_management_gui.cc \
- factorylist_frame_t.cc factorylist_stats_t.cc
+ factorylist_frame_t.cc factorylist_stats_t.cc  \
+ curiositylist_frame_t.cc curiositylist_stats_t.cc
 
 
 OBJECTS=button.o\
@@ -44,7 +45,8 @@ OBJECTS=button.o\
  loadsave_frame.o money_frame.o convoi_frame.o convoi_info_t.o \
  convoi_filter_frame.o halt_list_frame.o halt_list_item.o halt_list_filter_frame.o \
  line_management_gui.o \
- factorylist_frame_t.o factorylist_stats_t.o
+ factorylist_frame_t.o factorylist_stats_t.o \
+ curiositylist_frame_t.o curiositylist_stats_t.o
 
 
 all:   component_sub $(OBJECTS)

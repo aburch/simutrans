@@ -168,12 +168,21 @@ if (IS_LEFTRELEASE(ev))
 void factorylist_stats_t::zeichnen(koord offset) const
 {
 //DBG_DEBUG("factorylist_stats_t()","zeichnen()");
+	const struct clip_dimension cd = display_gib_clip_wh();
+	const int start = cd.y-LINESPACE-3;
+	const int end = cd.yy+LINESPACE+3;
 
 	static cbuffer_t buf(256);
 	int xoff = offset.x;
 	int yoff = offset.y;
 
-	for (unsigned int i=0; i<fab_list->get_count(); i++) {
+	for (unsigned int i=0; i<fab_list->get_count()  &&  yoff<end; i++) {
+
+		// skip invisible lines
+		if(yoff<start) {
+			yoff += LINESPACE+3;
+			continue;
+		}
 
 		const fabrik_t *fab = fab_list->at(i);
 		if(fab) {
@@ -218,7 +227,7 @@ void factorylist_stats_t::zeichnen(koord offset) const
 			// show text
 			display_proportional_clip(xoff+25,yoff+6,buf,ALIGN_LEFT,SCHWARZ,true);
 		}
-	    yoff+=14;
+	    yoff += LINESPACE+3;
 	}
 //DBG_DEBUG("factorylist_stats_t()","zeichnen() ende");
 }

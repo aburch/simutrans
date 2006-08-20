@@ -158,9 +158,7 @@ private:
      */
     sint8 dx, dy;
 
-
     bool rauchen;
-
 
     /**
      * Offsets fuer Bergauf/Bergab
@@ -174,11 +172,6 @@ private:
      * @author prissi
      */
      uint16 sum_weight;
-     /* The friction is calculated new every step, so we save it too
-     * @author prissi
-     */
-     sint16 current_friction;
-
 
     sint32 speed_limit;
 
@@ -197,14 +190,17 @@ private:
 
     void fahre();
 
-    void setze_speed_limit(int limit);
-
+protected:
 
     ribi_t::ribi alte_fahrtrichtung;
     ribi_t::ribi fahrtrichtung;
 
-protected:
+     /* The friction is calculated new every step, so we save it too
+     * @author prissi
+     */
+     sint16 current_friction;
 
+    void setze_speed_limit(int limit);
     sint32 get_speed_limit() { return speed_limit; };
 
     /**
@@ -598,8 +594,8 @@ public:
 class schiff_t : public vehikel_t
 {
 protected:
-    virtual int  calc_height() {return 0;};
-
+//    virtual int  calc_height() {return 0;};
+    virtual void calc_akt_speed(int , int );
 
     bool ist_befahrbar(const grund_t *bd) const;
 
@@ -619,6 +615,10 @@ public:
      */
     virtual ribi_t::ribi gib_ribi(const grund_t* ) const;
 
+    /* return friction constant: changes in hill and curves; may even negative downhill *
+     * @author prissi
+     */
+    virtual const int gib_frictionfactor() const {return current_friction;};
 
     schiff_t(karte_t *welt, loadsave_t *file);
     schiff_t(karte_t *welt, koord3d pos, const vehikel_besch_t *besch,

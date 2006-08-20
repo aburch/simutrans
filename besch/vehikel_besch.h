@@ -76,6 +76,7 @@ public:
       diesel,
       electric,
       bio,
+      sail,
       fuel_cell,
       hydrogene
     };

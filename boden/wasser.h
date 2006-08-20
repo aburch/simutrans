@@ -33,6 +33,7 @@ public:
      * @author Hj. Malthaner
      */
     virtual ribi_t::ribi gib_weg_ribi(weg_t::typ typ) const;
+    virtual ribi_t::ribi gib_weg_ribi_unmasked(weg_t::typ typ) const;
 
 
     /**

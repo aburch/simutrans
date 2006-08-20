@@ -72,6 +72,8 @@ static uint8 get_waytype(const char * waytype, tabfileobj_t &obj)
 		uv8 = weg_t::schiene_strab;
 	} else if(!STRICMP(waytype, "tram_track")) {
 		uv8 = weg_t::schiene_strab;
+	} else if(!STRICMP(waytype, "power")) {
+		uv8 = weg_t::powerline;
 	} else {
 		cstring_t reason;
 		reason.printf("invalid waytype %s for way %s\n", waytype, obj.get("name"));
@@ -113,12 +115,12 @@ void way_writer_t::write_obj(FILE *outfp, obj_node_t &parent, tabfileobj_t &obj)
 	uint16 retire  = obj.get_int("retire_year", DEFAULT_RETIRE_DATE) * 12;
 	intro +=        obj.get_int("retire_month", 1) - 1;
 
-	uint8 wtyp =    get_waytype(obj.get("waytype"), obj.get("name"));
+	uint8 wtyp =    get_waytype(obj.get("waytype"), obj);
 	uint8 styp =    obj.get_int("system_type", 0);
-	if(wtyp==weg_t::track  &&  styp==1) {
+	if(wtyp==weg_t::schiene  &&  styp==1) {
 //		styp = 1;
-		wtyp = weg_t::monorail;
-	} else if(wtyp==weg_t::track  &&  styp==7) {
+		wtyp = weg_t::schiene_monorail;
+	} else if(wtyp==weg_t::schiene  &&  styp==7) {
 //		styp = 7;
 		wtyp = weg_t::schiene_strab;
 	}

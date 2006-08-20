@@ -211,6 +211,8 @@ private:
     void step_bau();
 
 
+    typedef enum { no_return=0, factoy_return, tourist_return, town_return } pax_zieltyp;
+
     /**
      * verteilt die Passagiere auf die Haltestellen
      * @author Hj. Malthaner
@@ -414,13 +416,11 @@ public:
 
     void neuer_monat();
 
-
     /**
      * such ein (zufälliges) ziel für einen Passagier
      * @author Hj. Malthaner
      */
-    koord finde_passagier_ziel(bool *will_return);
-
+    koord finde_passagier_ziel(pax_zieltyp *will_return);
 
     /**
      * Gibt die Gruendungsposition der Stadt zurueck.

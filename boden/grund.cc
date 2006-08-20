@@ -15,7 +15,7 @@
 #include "wege/weg.h"
 #include "wege/schiene.h"
 #include "wege/strasse.h"
-#include "wege/dock.h"
+#include "wege/kanal.h"
 
 #include "../gui/karte.h"
 #include "../gui/ground_info.h"
@@ -246,8 +246,26 @@ void grund_t::rdwr(loadsave_t *file)
 		  }
 		  break;
 		case weg_t::wasser:
-//		  DBG_DEBUG("grund_t::rdwr()", "dock");
-		  wege[i] = new dock_t (welt, file);
+			// ignore old type dock ...
+			if(file->get_version()>=87000) {
+			  DBG_DEBUG("grund_t::rdwr()", "Kanal");
+			  wege[i] = new kanal_t (welt, file);
+		      DBG_MESSAGE("kanal_t::kanal_t()","at (%i,%i) ribi %i",gib_pos().x, gib_pos().y, wege[i]->gib_ribi());
+		     }
+		     else {
+		     		// ignore old dock
+		     		unsigned char d8;
+		     		short d16;
+		     		long d32;
+
+				file->rdwr_byte(d8, "\n");
+				file->rdwr_short(d16, "\n");
+				file->rdwr_long(d32, "\n");
+				file->rdwr_long(d32, "\n");
+				file->rdwr_long(d32, "\n");
+				file->rdwr_long(d32, "\n");
+			      DBG_MESSAGE("grund_t::rdwr()","at (%i,%i) dock ignored",gib_pos().x, gib_pos().y);
+		     	}
 		  break;
 		}
 		if(wege[i]) {
@@ -334,26 +352,29 @@ const char* grund_t::gib_name() const {
 
 void grund_t::info(cbuffer_t & buf) const
 {
-  if(halt.is_bound()) {
-    halt->info( buf );
-  }
+	if(halt.is_bound()) {
+		halt->info( buf );
+	}
 
-  for(int i = 0; i < MAX_WEGE; i++) {
-    if(wege[i]) {
+	for(int i = 0; i < MAX_WEGE; i++) {
+		if(wege[i]) {
 
-      if(wege[i]->gib_typ() == weg_t::schiene) {
-	wege[i]->info(buf);
-    }
-      if(wege[i]->gib_typ() == weg_t::strasse) {
-	wege[i]->info(buf);
-    }
-    }
-  }
+			if(wege[i]->gib_typ() == weg_t::schiene) {
+				wege[i]->info(buf);
+			}
+			if(wege[i]->gib_typ() == weg_t::strasse) {
+				wege[i]->info(buf);
+			}
+			if(wege[i]->gib_typ() == weg_t::wasser  &&  !ist_wasser()) {
+				wege[i]->info(buf);
+			}
+		}
+	}
 
-  if(buf.len() == 0) {
-//    buf.append("\n");
-//    buf.append(translator::translate("Keine Info."));
-  }
+	if(buf.len() == 0) {
+		//    buf.append("\n");
+		//    buf.append(translator::translate("Keine Info."));
+	}
 }
 
 
@@ -729,7 +750,7 @@ bool grund_t::weg_entfernen(weg_t::typ wegtyp, bool ribi_rem)
 	    for(int r = 0; r < 4; r++) {
 		if((ribi & ribi_t::nsow[r]) && get_neighbour(to, wegtyp, koord::nsow[r])) {
 		    weg_t *weg2 = to->gib_weg(wegtyp);
-		    if(weg2) {
+		    if(weg2  &&  !ist_tunnel()   &&  !ist_bruecke()) {
 			weg2->ribi_rem(ribi_t::rueckwaerts(ribi_t::nsow[r]));
 			to->calc_bild();
 		    }
@@ -776,7 +797,7 @@ bool grund_t::get_neighbour(grund_t *&to, weg_t::typ type, koord dir) const
 	}
 
 	if(ist_bruecke() || ist_tunnel()) {
-		int vmove = get_vmove(dir);
+		int vmove = ist_tunnel()?0:get_vmove(dir);
 
 		// Kucken ob drüber oder drunter Anschluß ist
 		if(vmove) {
@@ -810,21 +831,10 @@ bool grund_t::is_connected(const grund_t *gr, weg_t::typ wegtyp, koord dv) const
     if(wegtyp == weg_t::invalid) {
 	return true;
     }
-    weg_t *weg1 = gib_weg(wegtyp);
-    weg_t *weg2 = gr->gib_weg(wegtyp);
-    int ribi1 = 0;
-    int ribi2 = 0;
 
-    if(weg1 != NULL) {
-	ribi1 = weg1->gib_ribi_unmasked();
-    } else if(wegtyp == weg_t::wasser) {
-	ribi1 = ribi_t::alle;
-    }
-    if(weg2 != NULL) {
-	ribi2 = weg2->gib_ribi_unmasked();
-    } else if(wegtyp == weg_t::wasser) {
-	ribi2 = ribi_t::alle;
-    }
+	const int ribi1 = gib_weg_ribi_unmasked(wegtyp);
+	const int ribi2 = gr->gib_weg_ribi_unmasked(wegtyp);
+//DBG_MESSAGE("grund_t::is_connected()","at (%i,%i) ribi1=%i ribi2=%i",pos.x,pos.y,ribi1,ribi2);
     if(dv == koord::nord) {
 	return (ribi1 & ribi_t::nord) && (ribi2 & ribi_t::sued);
     } else if(dv == koord::sued) {

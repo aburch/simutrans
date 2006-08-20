@@ -82,7 +82,23 @@ bool vehikelbauer_t::register_besch(const vehikel_besch_t *besch)
 		typ_fahrzeuge.put(typ, slist_tpl<const vehikel_besch_t *>());
 		typ_liste = typ_fahrzeuge.access(typ);
 	}
-	typ_liste->append(besch);
+
+	// sort vehicles according to their engine type
+	bool append = true;
+	for(unsigned i=0;  i<typ_liste->count();  i++  ) {
+		const vehikel_besch_t *sort_besch = typ_liste->at(i);
+		if(sort_besch->get_engine_type()<besch->get_engine_type()) {
+			continue;
+		}
+		if(sort_besch->get_engine_type()>besch->get_engine_type()) {
+			typ_liste->insert(besch,0);
+			append = false;
+			break;
+		}
+	}
+	if(append) {
+		typ_liste->append(besch);
+	}
 
 	// correct for driving on left side
 	if(typ==weg_t::strasse  &&  umgebung_t::drive_on_left) {
@@ -212,10 +228,7 @@ vehikelbauer_t::gib_info(const ware_besch_t *wtyp,
   }
     }
 
-    DBG_MESSAGE("vehikelbauer_t::gib_info()",
-     "no vehicle matches way type %d, good %d, min. power %d",
-     vtyp, wtyp, min_power);
-
+    DBG_MESSAGE("vehikelbauer_t::gib_info()","no vehicle matches way type %d, good %d, min. power %d", vtyp, wtyp, min_power);
     return NULL;
 }
 

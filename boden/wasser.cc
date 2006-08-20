@@ -75,6 +75,21 @@ ribi_t::ribi wasser_t::gib_weg_ribi(weg_t::typ typ) const
 }
 
 
+
+ribi_t::ribi wasser_t::gib_weg_ribi_unmasked(weg_t::typ typ) const
+{
+    const weg_t *weg = gib_weg(typ);
+
+    if(weg) {
+	return weg->gib_ribi_unmasked();
+    } else if(typ == weg_t::wasser) {
+	return ribi_t::alle;
+    } else {
+	return ribi_t::keine;
+    }
+}
+
+
 void *
 wasser_t::operator new(size_t /*s*/)
 {

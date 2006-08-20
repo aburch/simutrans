@@ -16,6 +16,7 @@
 
 #include "../boden/wege/strasse.h"
 #include "../boden/wege/schiene.h"
+#include "../boden/wege/kanal.h"
 #include "../boden/brueckenboden.h"
 #include "../boden/monorailboden.h"
 #include "../boden/grund.h"
@@ -39,6 +40,7 @@
 #include "brueckenbauer.h"
 
 #include "../besch/weg_besch.h"
+#include "../besch/haus_besch.h"
 #include "../besch/kreuzung_besch.h"
 #include "../besch/spezial_obj_tpl.h"
 
@@ -142,7 +144,7 @@ DBG_MESSAGE("wegbauer_t::weg_search","Found weg %s, limit %i",besch->gib_name(),
  */
 const weg_besch_t * wegbauer_t::gib_besch(const char * way_name,const uint16 time)
 {
-DBG_MESSAGE("wegbauer_t::gib_besch","return besch for %s in (%i)",way_name, time/12);
+//DBG_MESSAGE("wegbauer_t::gib_besch","return besch for %s in (%i)",way_name, time/12);
 	const weg_besch_t *besch = alle_wegtypen.get(way_name);
 	if(time==0  ||  besch==NULL  ||  (besch->get_intro_year_month()<=time  &&  besch->get_retire_year_month()>time)) {
 		return besch;
@@ -506,6 +508,10 @@ wegbauer_t::ist_grund_fuer_strasse(koord pos, const koord zv, koord start, koord
 
 		// like tram, but checks for bridges too
 		case schiene_monorail:
+			if(!ok  &&  bd->gib_typ()==grund_t::fundament) {
+				const gebaeude_t *gb=dynamic_cast<const gebaeude_t *>(bd->suche_obj(ding_t::gebaeude));
+				ok = (gb!=NULL  &&  gb->gib_tile()->gib_hintergrund(0,1)==-1);
+			}
 			ok =	(ok || bd->gib_weg(weg_t::schiene)  || bd->gib_weg(weg_t::strasse)) &&
 					(bd->gib_besitzer() == NULL || bd->gib_besitzer() == sp) &&
 					check_for_leitung(zv,bd)  &&
@@ -524,6 +530,12 @@ wegbauer_t::ist_grund_fuer_strasse(koord pos, const koord zv, koord start, koord
 					check_for_leitung(zv,bd)  &&
 					!bd->gib_depot();
 		break;
+
+		case wasser:
+			ok = (ok  ||  bd->ist_wasser()  ||  bd->gib_weg(weg_t::wasser))  &&
+					(bd->gib_besitzer() == NULL || bd->gib_besitzer() == sp);
+			break;
+
 	}
 	return ok;
 }
@@ -1580,6 +1592,10 @@ wegbauer_t::baue_strasse()
 		if(cost && sp) {
 			sp->buche(cost, k, COST_CONSTRUCTION);
 		}
+
+		if(i&3==0) {
+			INT_CHECK( "wegbauer 1584" );
+		}
 	} // for
 
 	baue_tunnel_und_bruecken();
@@ -1613,6 +1629,9 @@ wegbauer_t::baue_leitung()
 			gr->obj_add(lt);
 		}
 		lt->calc_neighbourhood();
+		if(i&3==0) {
+			INT_CHECK( "wegbauer 1584" );
+		}
 	}
 }
 
@@ -1674,6 +1693,10 @@ wegbauer_t::baue_schiene()
 			}
 
 			gr->calc_bild();
+
+			if(i&3==0) {
+				INT_CHECK( "wegbauer 1584" );
+			}
 		}
 
 		// V.Meyer: weg_position_t changed to grund_t::get_neighbour()
@@ -1687,6 +1710,9 @@ wegbauer_t::baue_schiene()
 			}
 			if (end->get_neighbour(to, weg_t::schiene, koord::nsow[i])) {
 				to->calc_bild();
+			}
+			if(i&3==0) {
+				INT_CHECK( "wegbauer 1584" );
 			}
 		}
 	}
@@ -1766,6 +1792,101 @@ wegbauer_t::baue_monorail()
 				}
 			}
 #endif
+			if(i&3==0) {
+				INT_CHECK( "wegbauer 1584" );
+			}
+		}
+	}
+}
+
+
+
+
+void
+wegbauer_t::baue_kanal()
+{
+	int i;
+	if(max_n >= 1) {
+
+		for(i=1; i<max_n; i++) {
+			if(baubaer) {
+				optimiere_stelle(i);
+			}
+		}
+
+		// init undo
+		sp->init_undo(weg_t::wasser,max_n);
+
+		// built tracks
+		for(i=0; i<=max_n; i++) {
+			int cost = 0;
+			grund_t *gr = welt->lookup(route->at(i))->gib_kartenboden();
+			ribi_t::ribi ribi = calc_ribi(i);
+
+			// extended ribi calculation for first and last tile
+			if(i==0  ||  i==max_n) {
+				// see slope!
+				if(gr->gib_hoehe()==welt->gib_grundwasser()) {
+					if(i>0) {
+						ribi |= ribi_typ( route->at(max_n-1), route->at(max_n) );
+					}
+					else {
+						ribi |= ribi_typ( route->at(1), route->at(0) );
+					}
+DBG_MESSAGE("wegbauer_t::baue_kanal()","extend ribi_t at (%i,%i) with %i",route->at(i).x,route->at(i).y, ribi );
+				}
+			}
+
+			if(!gr->ist_wasser()) {
+				if(gr->weg_erweitern(weg_t::wasser, ribi)) {
+					weg_t * weg = gr->gib_weg(weg_t::wasser);
+					if(weg->gib_besch()!=besch && !keep_existing_ways) {
+						// Hajo: den typ des weges aendern, kosten berechnen
+						if(sp) {
+							sp->add_maintenance(besch->gib_wartung() - weg->gib_besch()->gib_wartung());
+						}
+
+						weg->setze_besch(besch);
+						gr->calc_bild();
+						cost = -besch->gib_preis();
+					}
+
+				}
+				else {
+					kanal_t * w = new kanal_t(welt);
+					w->setze_besch(besch);
+					gr->neuen_weg_bauen(w, ribi, sp);
+
+					// prissi: into UNDO-list, so wie can remove it later
+					sp->add_undo( route->at(i) );
+
+					cost = -besch->gib_preis();
+				}
+
+				if(cost) {
+					sp->buche(cost, gr->gib_pos().gib_2d(), COST_CONSTRUCTION);
+				}
+
+				gr->calc_bild();
+
+				if(i&3==0) {
+					INT_CHECK( "wegbauer 1584" );
+				}
+			}
+		}
+	}
+
+	// V.Meyer: weg_position_t changed to grund_t::get_neighbour()
+	grund_t *start = welt->lookup(route->at(0))->gib_kartenboden();
+	grund_t *end = welt->lookup(route->at(max_n))->gib_kartenboden();
+	grund_t *to;
+
+	for (i=0; i <= 4; i++) {
+		if (start->get_neighbour(to, weg_t::wasser, koord::nsow[i])) {
+			to->calc_bild();
+		}
+		if (end->get_neighbour(to, weg_t::wasser, koord::nsow[i])) {
+			to->calc_bild();
 		}
 	}
 }
@@ -1804,6 +1925,9 @@ wegbauer_t::baue()
 
 	INT_CHECK("simbau 1072");
   switch(bautyp) {
+  	case wasser:
+  			baue_kanal();
+  			break;
    	case strasse:
    	case strasse_bot:
 			baue_strasse();

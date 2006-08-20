@@ -1047,7 +1047,8 @@ win_display_flush(int , int color, double konto)
 	}
 
     char time [128];
-    char info [128];
+    char info [256];
+    char stretch_text[32];
 
     // @author hsiegeln - updated to show month
     if (umgebung_t::show_month)
@@ -1062,7 +1063,8 @@ win_display_flush(int , int color, double konto)
 		year);
     }
 
-    sprintf(info,"(%d,%d,%d)  (T=%1.2f)", pos.x, pos.y, pos.z / 16, get_time_multi()/16.0);
+	sprintf(stretch_text, wl->is_fast_forward()?">>":"(T=%1.2f)", get_time_multi()/16.0 );
+    sprintf(info,"(%d,%d,%d)  %s  %s", pos.x, pos.y, pos.z / 16, stretch_text, translator::translate(wl->use_timeline()?"timeline":"no timeline") );
 
 	const char *active_player_name = wl->get_active_player()->kennfarbe==0 ? "" : wl->get_active_player()->gib_name();
 	display_flush(stunden4, color, konto, time, info, active_player_name, wl->get_active_player()->kennfarbe );

@@ -8,6 +8,30 @@ Known bugs: (hard to fix)
 
 
 
+Release of 87.01
+
+4-Nov-2005 (prissi)
+	FIX: loading old maps with obsolete docks
+	FIX: no route next to attraction should now have a more meaningful number (so you can better guess how much you have to transport)
+	FIX: mail from attractions and factories again 4x recieved mail
+	CHANGE: some further small optimizations for faster drawing of dialoges
+	CHANGE: vehicles now sorted in depot by intro year and engine type
+3-Nov-2005 (mip)
+	ADD: curiosity list
+3-Nov-2005 (prissi)
+	ADD: channels as waterways, habour as "...ChannelStop"
+	FIX: mail flag correctly recalculated after changing a station
+	FIX: deleting tunnels
+30-Oct-2005 (prissi)
+	FIX: builds again presignals
+	FIX: under some circumstances, building on ways (e.g. all stations) were not correctly removed
+	FIX: several data of pak64 vehicles finetuned, mail carriage added, busstop before 1900 added
+	ADD: Fast forward (keycode W)
+	ADD: indicator for fast forward and timeline (tranlatable "timeline" "no timeline")
+	FIX: calculation of speed bonus changed => bonus not per car, but per passenger
+	FIX: timeline was sometimes some years off; especially after loading old games
+
+
 Release of 87.00
 
 27-Oct-2005 (prissi)

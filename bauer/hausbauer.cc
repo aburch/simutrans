@@ -73,6 +73,7 @@ const haus_besch_t *hausbauer_t::muehle_besch = NULL;
 slist_tpl<const haus_besch_t *> hausbauer_t::train_stops;
 slist_tpl<const haus_besch_t *> hausbauer_t::car_stops;
 slist_tpl<const haus_besch_t *> hausbauer_t::ship_stops;
+slist_tpl<const haus_besch_t *> hausbauer_t::ship_channel_stops;
 slist_tpl<const haus_besch_t *> hausbauer_t::post_offices;
 slist_tpl<const haus_besch_t *> hausbauer_t::station_building;
 slist_tpl<const haus_besch_t *> hausbauer_t::headquarter;
@@ -171,6 +172,10 @@ DBG_DEBUG("hausbauer_t::register_besch()","Bf %s",besch->gib_name());
 		else if(  strcmp("ShipStop",besch->gib_name()+checkpos-8)==0  ) {
 DBG_DEBUG("hausbauer_t::register_besch()","Ship %s",besch->gib_name());
 			ship_stops.append(besch);
+		}
+		else if(  strcmp("ChannelStop",besch->gib_name()+checkpos-11)==0  ) {
+DBG_DEBUG("hausbauer_t::register_besch()","Ship (channel) %s",besch->gib_name());
+			ship_channel_stops.append(besch);
 		}
 		else if(  strcmp("PostOffice",besch->gib_name()+checkpos-10)==0  ) {
 DBG_DEBUG("hausbauer_t::register_besch()","Post %s",besch->gib_name());
@@ -445,7 +450,7 @@ gebaeude_t *hausbauer_t::neues_gebaeude(karte_t *welt,
 
     gr->obj_pri_add(gb, pri);
 
-    if(train_stops.contains(besch)  ||  car_stops.contains(besch) ||  besch==hausbauer_t::frachthof_besch) {
+    if(train_stops.contains(besch)  ||  car_stops.contains(besch) ||  ship_channel_stops.contains(besch) ||  besch==hausbauer_t::frachthof_besch) {
     	// is a station/bus stop
 	(*static_cast<halthandle_t *>(param))->add_grund(gr);
 	gr->calc_bild();

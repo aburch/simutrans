@@ -29,6 +29,7 @@ int wkz_station_building(spieler_t *sp, karte_t *welt, koord pos, value_t value)
 //int wkz_lagerhaus(spieler_t *sp, karte_t *welt, koord pos);
 int wkz_bahnhof(spieler_t *sp, karte_t *welt, koord pos, value_t lParam);
 int wkz_bushalt(spieler_t *sp, karte_t *welt, koord pos,value_t value);
+int wkz_kaibau(spieler_t *sp, karte_t *welt, koord pos,value_t value);
 int wkz_dockbau(spieler_t *sp, karte_t *welt, koord pos,value_t value);
 
 int wkz_marker(spieler_t *sp, karte_t *welt, koord pos);
@@ -102,6 +103,9 @@ int wkz_list_good_tool(spieler_t *sp, karte_t *welt, koord v);
 
 /* open the list of factories */
 int wkz_list_factory_tool(spieler_t *, karte_t *welt,koord k);
+
+/* open the list of attraction */
+int wkz_list_curiosity_tool(spieler_t *, karte_t *welt,koord k);
 
 /* undo building */
 int wkz_undo(spieler_t *sp, karte_t *welt);

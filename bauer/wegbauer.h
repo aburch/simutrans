@@ -77,12 +77,14 @@ public:
     enum bautyp {
         strasse,
 	schiene,
-	leitung,
 	schiene_bot,
 	schiene_bot_bau,
 	strasse_bot,
 	schiene_tram, // Dario: Tramway
-	schiene_monorail
+	schiene_monorail,
+	leitung,
+	wasser,
+	luft
     };
 
     bool kann_ribis_setzen(const grund_t *bd, const koord zv);
@@ -192,6 +194,7 @@ private:
     void baue_schiene();
     void baue_leitung();
     void baue_monorail();
+    void baue_kanal();
 
 public:
 

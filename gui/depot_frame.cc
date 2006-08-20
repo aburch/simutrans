@@ -42,15 +42,18 @@
 #include "../boden/wege/weg.h"
 #include "../boden/wege/schiene.h"
 
-static const char * engine_type_names [6] =
+static const char * engine_type_names [8] =
 {
+  "unknown",
   "steam",
   "diesel",
   "electric",
   "bio",
+  "sail",
   "fuel_cell",
   "hydrogene"
 };
+
 
 bool  depot_frame_t::show_retired_vehicles = false;
 
@@ -60,7 +63,7 @@ depot_frame_t::depot_frame_t(karte_t *welt, depot_t *depot, int &farbe) :
     welt(welt),
     kennfarbe(farbe),
     depot(depot),
-    icnv(depot->convoi_count() > 0 ? 0 : -1),
+    icnv(depot->convoi_count()-1),
     iroute(-1),
     lb_convois(NULL, SCHWARZ, gui_label_t::left),
     lb_convoi_count(NULL, SCHWARZ, gui_label_t::left),
@@ -581,17 +584,18 @@ DBG_DEBUG("depot_frame_t::build_vehicle_lists()","%i passenger vehicle, %i  engi
 		pas_vec->clear();
 	}
 
-	vehicle_map.clear();
+	// temporary storage for sorting
+	vector_tpl <const vehikel_besch_t *> pax(16);
+	vector_tpl <const vehikel_besch_t *> eng(16);
+	vector_tpl <const vehikel_besch_t *> wag(16);
 
 	// we do not allow to built electric vehicle in a depot without electrification
 	const schiene_t *sch = dynamic_cast<const schiene_t *>(welt->lookup(depot->gib_pos())->gib_weg(weg_t::schiene));
 	const bool schiene_electric = (sch==NULL)  ||  sch->ist_elektrisch();
 
-
 	i = 0;
 	while(depot->get_vehicle_type(i)) {
 		const vehikel_besch_t *info = depot->get_vehicle_type(i);
-		image_list_t::image_data_t img_data;
 
 		// prissi: ist a non-electric track?
 		// Hajo: check for timeline
@@ -599,22 +603,38 @@ DBG_DEBUG("depot_frame_t::build_vehicle_lists()","%i passenger vehicle, %i  engi
 		if(  (schiene_electric  ||  info->get_engine_type()!=vehikel_besch_t::electric)  &&
 			(!info->is_future(month_now))  &&  (show_retired_vehicles  ||  (!info->is_retired(month_now)) )   ||  is_contained(info)
 		) {
-
-			img_data.image = info->gib_basis_bild();
-			img_data.count = 0;
-			img_data.lcolor = img_data.rcolor= -1;
+			unsigned pos;
 
 			if(info->gib_ware()==warenbauer_t::passagiere  ||  info->gib_ware()==warenbauer_t::post) {
-				pas_vec->append(img_data);
-				vehicle_map.set(info, &pas_vec->at(pas_vec->get_count() - 1));
+				// sort passenger cars for year
+				for(  pos=0;  pos<pax.get_count();  pos++  ) {
+					if(pax.get(pos)->get_intro_year_month()>info->get_intro_year_month()) {
+						break;
+					}
+				}
+				pax.insert_at(pos,info);
 			}
 			else if(info->gib_leistung() > 0  ||  info->gib_zuladung()==0) {
-				loks_vec->append(img_data);
-				vehicle_map.set(info, &loks_vec->at(loks_vec->get_count() - 1));
+				// sort engines for year and engine type
+				for(  pos=0;  pos<eng.get_count();  pos++  ) {
+					if(eng.get(pos)->get_engine_type()>info->get_engine_type()) {
+						break;
+					}
+					// power==0 is likely a tender => so we count it as steam
+					if((info->gib_leistung()==0  ||  eng.get(pos)->get_engine_type()==info->get_engine_type())  &&  eng.get(pos)->get_intro_year_month()>info->get_intro_year_month()) {
+						break;
+					}
+				}
+				eng.insert_at(pos,info);
 			}
 			else {
-				waggons_vec->append(img_data);
-				vehicle_map.set(info, &waggons_vec->at(waggons_vec->get_count() - 1));
+				// sort all other cars for year
+				for(  pos=0;  pos<wag.get_count();  pos++  ) {
+					if(wag.get(pos)->get_intro_year_month()>info->get_intro_year_month()) {
+						break;
+					}
+				}
+				wag.insert_at(pos,info);
 			}
 		} else {
 //DBG_DEBUG("depot_frame_t::build_vehicle_lists()","now vehicle %s not available.", info->gib_name());
@@ -622,6 +642,43 @@ DBG_DEBUG("depot_frame_t::build_vehicle_lists()","%i passenger vehicle, %i  engi
 
 		i++;
 	}
+
+	// after sorting, enter them into the lists ...
+	vehicle_map.clear();
+	for(unsigned i=0;  i<pax.get_count();  i++ ) {
+		const vehikel_besch_t *info = pax.get(i);
+		image_list_t::image_data_t img_data;
+
+		img_data.image = info->gib_basis_bild();
+		img_data.count = 0;
+		img_data.lcolor = img_data.rcolor= -1;
+
+		pas_vec->append(img_data);
+		vehicle_map.set(info, &pas_vec->at(pas_vec->get_count() - 1));
+	}
+	for(unsigned i=0;  i<eng.get_count();  i++ ) {
+		const vehikel_besch_t *info = eng.get(i);
+		image_list_t::image_data_t img_data;
+
+		img_data.image = info->gib_basis_bild();
+		img_data.count = 0;
+		img_data.lcolor = img_data.rcolor= -1;
+
+		loks_vec->append(img_data);
+		vehicle_map.set(info, &loks_vec->at(loks_vec->get_count() - 1));
+	}
+	for(unsigned i=0;  i<wag.get_count();  i++ ) {
+		const vehikel_besch_t *info = wag.get(i);
+		image_list_t::image_data_t img_data;
+
+		img_data.image = info->gib_basis_bild();
+		img_data.count = 0;
+		img_data.lcolor = img_data.rcolor= -1;
+
+		waggons_vec->append(img_data);
+		vehicle_map.set(info, &waggons_vec->at(waggons_vec->get_count() - 1));
+	}
+
 }
 
 
@@ -1217,7 +1274,7 @@ depot_frame_t::draw_vehicle_info_text(koord pos)
 	    sprintf(name,
 		    "%s (%s)",
 		    translator::translate(veh_type->gib_name()),
-		    translator::translate(engine_type_names[veh_type->get_engine_type()]));
+		    translator::translate(engine_type_names[veh_type->get_engine_type()+1]));
 
 	    sprintf(buf + strlen(buf),
 		    translator::translate("LOCO_INFO"),
@@ -1226,11 +1283,18 @@ depot_frame_t::draw_vehicle_info_text(koord pos)
 		    veh_type->gib_betriebskosten()/100.0,
 		    veh_type->gib_leistung(),
 		    veh_type->gib_geschw(),
-		    veh_type->gib_gewicht(),
-		    zuladung,
-		    zuladung ? translator::translate(veh_type->gib_ware()->gib_mass()) : "",
-		    zuladung ? (veh_type->gib_ware()->gib_catg() == 0 ? translator::translate(veh_type->gib_ware()->gib_name()) : translator::translate(veh_type->gib_ware()->gib_catg_name())) : ""
+		    veh_type->gib_gewicht()
 		    );
+
+			if(zuladung>0) {
+				sprintf(buf + strlen(buf),
+						translator::translate("LOCO_CAP"),
+						zuladung,
+						translator::translate(veh_type->gib_ware()->gib_mass()),
+						veh_type->gib_ware()->gib_catg() == 0 ? translator::translate(veh_type->gib_ware()->gib_name()) : translator::translate(veh_type->gib_ware()->gib_catg_name())
+				);
+			}
+
 	} else {
 	    // waggon
 	    sprintf(buf + strlen(buf),
@@ -1246,11 +1310,6 @@ depot_frame_t::draw_vehicle_info_text(koord pos)
 		    veh_type->gib_gewicht(),
 		    veh_type->gib_geschw()
 		    );
-	}
-	if(value != -1) {
-	    sprintf(buf + strlen(buf), "%s %d Cr",
-		translator::translate("Restwert:"),
-		value);
 	}
     }
 
@@ -1275,19 +1334,25 @@ depot_frame_t::draw_vehicle_info_text(koord pos)
 		      veh_type->get_retire_year_month()/12 );
       }
 
-      if(veh_type->gib_leistung() > 0) {
+      if(veh_type->gib_leistung() > 0  &&  veh_type->get_gear()!=64) {
 	n+= sprintf(buf+n, "%s %0.2f : 1\n",
 		    translator::translate("Gear:"),
 		    veh_type->get_gear()/64.0);
       }
 
-		if(veh_type->gib_copyright()!=NULL) {
+		if(veh_type->gib_copyright()!=NULL  &&  veh_type->gib_copyright()[0]!=0) {
 			n+= sprintf(buf+n, "%s%s\n",translator::translate("Constructed by "),veh_type->gib_copyright());
+		}
+
+		if(value != -1) {
+		    sprintf(buf + strlen(buf), "%s %d Cr",
+			translator::translate("Restwert:"),
+			value);
 		}
 
       display_multiline_text(
 			     pos.x + 200,
-			     pos.y + tabs.gib_pos().y + tabs.gib_groesse().y + 20 + LINESPACE*2,
+			     pos.y + tabs.gib_pos().y + tabs.gib_groesse().y + 23 + LINESPACE*2,
 			     buf,
 			     SCHWARZ);
     }

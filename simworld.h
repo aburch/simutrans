@@ -368,6 +368,8 @@ public:
 	// returns current speed bonus
 	int get_average_speed(weg_t::typ typ) const;
 
+	bool is_fast_forward();
+
     /**
      * sollte einen const zeiger_t * zurueckgeben, aber wegen der Tests
      * braucht man mehr Zugriff, deshalb ohne const

@@ -50,9 +50,9 @@ private:
     static slist_tpl<const haus_besch_t *> alle;
     static slist_tpl<const haus_besch_t *> sehenswuerdigkeiten;
     static slist_tpl<const haus_besch_t *> spezials;
-    static slist_tpl<const haus_besch_t *> fabriken;
     static slist_tpl<const haus_besch_t *> denkmaeler;
     static slist_tpl<const haus_besch_t *> ungebaute_denkmaeler;
+    static slist_tpl<const haus_besch_t *> fabriken;
 
 public:
     static slist_tpl<const haus_besch_t *> wohnhaeuser;
@@ -77,6 +77,7 @@ public:
     static slist_tpl<const haus_besch_t *> hausbauer_t::train_stops;
     static slist_tpl<const haus_besch_t *> hausbauer_t::car_stops;
     static slist_tpl<const haus_besch_t *> hausbauer_t::ship_stops;
+    static slist_tpl<const haus_besch_t *> hausbauer_t::ship_channel_stops;
     static slist_tpl<const haus_besch_t *> hausbauer_t::headquarter;
 
 private:

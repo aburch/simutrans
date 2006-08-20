@@ -31,7 +31,7 @@
 #include "simmem.h"
 #include "simcolor.h"
 #include "boden/grund.h"
-#include "boden/wege/dock.h"
+//#include "boden/wege/dock.h"
 #include "simfab.h"
 #include "simcity.h"
 #include "simhalt.h"
@@ -144,6 +144,8 @@ fabrik_t::fabrik_t(karte_t *wl, loadsave_t *file) : lieferziele(0), suppliers(0)
 
 	delta_sum = 0;
 	last_lieferziel_start = 0;
+	total_input = total_output = 0;
+	status = nothing;
 }
 
 
@@ -166,6 +168,8 @@ fabrik_t::fabrik_t(karte_t *wl, koord3d pos, spieler_t *spieler, const fabrik_be
 
     delta_sum = 0;
     last_lieferziel_start = 0;
+	total_input = total_output = 0;
+	status = nothing;
 }
 
 
@@ -728,15 +732,16 @@ fabrik_t::step(long delta_t)
 		while(  delta_sum>PRODUCTION_DELTA_T) {
 			delta_sum -= PRODUCTION_DELTA_T;
 		}
-	}
 
-	// distribute, if there are more than 10 waiting ...
-	for(uint32 produkt = 0; produkt < ausgang->get_count(); produkt ++) {
-		if(ausgang->at(produkt).menge > (10<<precision_bits)) {
+		// distribute, if there are more than 10 waiting ...
+		for(uint32 produkt = 0; produkt < ausgang->get_count(); produkt ++) {
+			if(ausgang->at(produkt).menge > (10<<precision_bits)) {
 
-			verteile_waren(produkt);
-			INT_CHECK("simfab 636");
+				verteile_waren(produkt);
+				INT_CHECK("simfab 636");
+			}
 		}
+		recalc_factory_status();
 	}
 
 	// to distribute to all target equally, we use this counter, for the factory, to try first
@@ -923,10 +928,8 @@ unsigned fabrik_t::status_to_color[5] = {ROT, ORANGE, GREEN, GELB, WHITE };
 #define FL_WARE_HATWAS         64
 
 /* returns the status of the current factory, as well as output */
-unsigned
-fabrik_t::calc_factory_status(unsigned long *input, unsigned long *output) const
+void fabrik_t::recalc_factory_status()
 {
-	unsigned status;
 	unsigned long warenlager;
 	char status_ein;
 	char status_aus;
@@ -952,9 +955,7 @@ fabrik_t::calc_factory_status(unsigned long *input, unsigned long *output) const
 	if(warenlager==0) {
 		status_ein |= FL_WARE_ALLENULL;
 	}
-	if(input) {
-		*input = warenlager;
-	}
+	total_input = warenlager;
 
 	// set bits for output
 	warenlager = 0;
@@ -979,9 +980,7 @@ fabrik_t::calc_factory_status(unsigned long *input, unsigned long *output) const
 		}
 	}
 	warenlager >>= fabrik_t::precision_bits;
-	if(output) {
-		*output = warenlager;
-	}
+	total_output = warenlager;
 
 	// now calculate status bar
 	if(status_ein==(FL_WARE_ALLELIMIT|FL_WARE_ALLENULL)) {
@@ -1048,8 +1047,6 @@ fabrik_t::calc_factory_status(unsigned long *input, unsigned long *output) const
 			status = good;
 		}
 	}
-
-	return status;
 }
 
 

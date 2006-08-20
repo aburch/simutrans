@@ -353,7 +353,7 @@ autofahrplan_t::zeige_fehlermeldung(karte_t *welt) const
 bool
 schifffahrplan_t::ist_halt_erlaubt(const grund_t *gr) const
 {
-    return gr!=NULL &&  gr->ist_wasser();
+    return gr!=NULL &&  (gr->ist_wasser()  ||  gr->gib_weg(weg_t::wasser));
 }
 
 void

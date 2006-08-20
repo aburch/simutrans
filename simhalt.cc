@@ -422,6 +422,7 @@ haltestelle_t::step()
 {
 	// hsiegeln: update amount of waiting ware
 	financial_history[0][HALT_WAITING] = sum_all_waiting_goods();
+	recalc_status();
 }
 
 
@@ -502,35 +503,33 @@ void haltestelle_t::neuer_monat()
  * Calculates a status color for status bars
  * @author Hj. Malthaner
  */
-int haltestelle_t::gib_status_farbe() const
+void haltestelle_t::recalc_status()
 {
-	int color = financial_history[0][HALT_CONVOIS_ARRIVED] > 0 ? GREEN : GELB;
+	status_color = financial_history[0][HALT_CONVOIS_ARRIVED] > 0 ? GREEN : GELB;
 
 	// has passengers
 	if(get_pax_happy() > 0 || get_pax_no_route() > 0) {
 
 		if(get_pax_unhappy() > 200 ) {
-			color = ROT;
+			status_color = ROT;
 		} else if(get_pax_unhappy() > 40) {
-			color = ORANGE;
+			status_color = ORANGE;
 		}
 	}
 
 	// check for goods
-	if(color!=ROT  &&  get_ware_enabled()) {
+	if(status_color!=ROT  &&  get_ware_enabled()) {
 		const int count = warenbauer_t::gib_waren_anzahl();
 		const int max_ware = gib_grund_count()<<7;
 
 		for( int i=0; i+1<count; i++) {
 			const ware_besch_t *wtyp = warenbauer_t::gib_info(i+1);
 			if(  gib_ware_summe(wtyp)>max_ware  ) {
-				color = ROT;
+				status_color = ROT;
 				break;
 			}
 		}
 	}
-
-	return color;
 }
 
 
@@ -1719,6 +1718,7 @@ void
 haltestelle_t::recalc_station_type()
 {
 	slist_iterator_tpl<grund_t *> iter( grund );
+	post_enabled = false;	// check for post office
 	int new_station_type = 0;
 
 	// iterate over all tiles
@@ -1749,12 +1749,15 @@ haltestelle_t::recalc_station_type()
 			new_station_type |= railstation;
 		}
 		// check for dock
-		else if((new_station_type&dock)==0  &&  hausbauer_t::ship_stops.contains(besch)) {
+		else if((new_station_type&dock)==0  &&  (hausbauer_t::ship_stops.contains(besch)  ||  hausbauer_t::ship_channel_stops.contains(besch))) {
 			new_station_type |= dock;
 		}
 		// check for roadstop
 		else if((new_station_type&busstop)==0  &&  hausbauer_t::car_stops.contains(besch)) {
 			new_station_type |= busstop;
+		}
+		else if(!post_enabled  &&  (hausbauer_t::post_offices.contains(besch)  ||  gb->fabrik()!=NULL) ) {
+			post_enabled = true;
 		}
 
 	}
