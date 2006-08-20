@@ -190,8 +190,8 @@ karte_t::calc_hoehe_mit_heightfield(const cstring_t & filename)
 		}
 
 		int y;
-		for(y=0; y<gib_groesse_y(); y++) {
-			for(int x=0; x<gib_groesse_x(); x++) {
+		for(y=0; y<=gib_groesse_y(); y++) {
+			for(int x=0; x<=gib_groesse_x(); x++) {
 				setze_grid_hgt(koord(x,y), grundwasser);
 			}
 		}
@@ -2847,9 +2847,8 @@ DBG_MESSAGE("karte_t::laden()", "%d ways loaded",weg_t::gib_alle_wege().count())
 	slist_iterator_tpl <halthandle_t> iter (list);
 	while( iter.next() ) {
 		iter.get_current()->recalc_station_type();	// fix broken post flags
-		iter.get_current()->rebuild_destinations();
 	}
-	schedule_counter++;	// force check for unroutable goods
+	schedule_counter++;	// force check for unroutable goods and connections
 
 	reset_timer();
      recalc_average_speed();
@@ -3402,8 +3401,11 @@ karte_t::interactive_event(event_t &ev)
 	case 't':
 	    if(default_track==NULL) {
 			default_track = wegbauer_t::weg_search(weg_t::schiene,100,get_timeline_year_month());
+	  	}
+	  	// may be NULL, if no track exists ...
+	    if(default_track!=NULL) {
+	    	setze_maus_funktion(wkz_wegebau, default_track->gib_cursor()->gib_bild_nr(0), Z_PLAN,	(long)default_track, SFX_JACKHAMMER, SFX_FAILURE);
 	    }
-	    setze_maus_funktion(wkz_wegebau, default_track->gib_cursor()->gib_bild_nr(0), Z_PLAN,	(long)default_track, SFX_JACKHAMMER, SFX_FAILURE);
 	    break;
 	case 'u':
 	    setze_maus_funktion(wkz_raise, skinverwaltung_t::upzeiger->gib_bild_nr(0), Z_GRID,  NO_SOUND, NO_SOUND );

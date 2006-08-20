@@ -9,6 +9,7 @@
 #define simconvoi_h
 
 #include "simtypes.h"
+#include "linehandle_t.h"
 
 #include "ifc/sync_steppable.h"
 
@@ -37,7 +38,6 @@ class haltestelle_t;
 class convoi_info_t;
 class vehikel_t;
 class vehikel_besch_t;
-class simline_t;
 class fahrplan_t;
 class cbuffer_t;
 
@@ -85,7 +85,7 @@ private:
      * assigned line
      * @author hsiegeln
      */
-    simline_t * line;
+    linehandle_t line;
     uint16 line_id;
 
     /**
@@ -349,22 +349,14 @@ public:
      * get line
      * @author hsiegeln
      */
-    simline_t * get_line() const;
-
-
-    /**
-     * has line
-     * returns true if convoi is member of a line, false otherwise
-     * @author hsiegeln
-     */
-    bool has_line() { return (get_line() != NULL); };
+    linehandle_t get_line() const;
 
 
     /**
      * set line
      * @author hsiegeln
      */
-    void set_line(simline_t *);
+    void set_line(linehandle_t );
 
 
     /**

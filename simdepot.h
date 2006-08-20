@@ -66,7 +66,7 @@ protected:
      * train depots, for example, will only see trainlines
      * @author hsiegeln
      */
-     slist_tpl<simline_t *> lines;
+     slist_tpl<linehandle_t> lines;
 
     virtual bool can_convoi_start(int icnv) const;
 
@@ -81,7 +81,7 @@ public:
 
 	fahrplan_t * erzeuge_fahrplan();
 
-	virtual simline_t * create_line();
+	virtual linehandle_t create_line();
 
 	/**
 	 * Text of the passenger tab (for gui)
@@ -222,7 +222,7 @@ public:
 	 */
 	virtual const char * ist_entfernbar(const spieler_t *sp);
 
-	virtual slist_tpl<simline_t *> *get_line_list();
+	virtual slist_tpl<linehandle_t> *get_line_list();
 
 	/**
 	* identifies the oldest vehicle of a certain type (id)

@@ -37,6 +37,7 @@
 #include "simintr.h"
 #include "simmesg.h"
 
+#include "linehandle_t.h"
 
 #include "simsys.h"
 #include "simgraph.h"
@@ -346,7 +347,7 @@ static void zeige_banner()
 			     ALIGN_LEFT,
 			     color, true);
         display_proportional(xoff+s+48,yoff+s+88,
-			     "Hansjörg Malthaner et. al.",
+			     "Hansjörg Malthaner et al.",
 			     ALIGN_LEFT,
 			     color, true);
 
@@ -363,22 +364,22 @@ static void zeige_banner()
 
         if(s == 0) color = COL_WHITE;
         display_proportional(xoff+s+48,yoff+s+138,
+			      "Markus Pristovsek",
+			     ALIGN_LEFT,
+			     color, true);
+        display_proportional(xoff+s+48,yoff+s+138+12,
 			      "<markus@pristovsek.de>",
 			     ALIGN_LEFT,
 			     color, true);
         // display_proportional( xoff+s+48,yoff+s+142,"hansjoerg.malthaner@danet.de", color, true);
 
         if(s == 0) color = heading;
-        display_proportional(xoff+s+24,yoff+s+158,
+        display_proportional(xoff+s+24,yoff+s+158+12,
 			     "or visit the Simutrans pages on the web:",
 			     ALIGN_LEFT,
 			     color, true);
 
         if(s == 0) color = COL_WHITE;
-        display_proportional(xoff+s+48,yoff+s+172,
-			     "http://www.simutrans.de",
-			     ALIGN_LEFT,
-			     color, true);
         display_proportional(xoff+s+48,yoff+s+184,
 			     "http://www.simutrans.com",
 			     ALIGN_LEFT,
@@ -542,6 +543,7 @@ int simu_cpp_main(int argc, char ** argv)
       print("Initializing tombstones ...\n");
 
       convoihandle_t::init(contents.get_int("convoys", 8192));
+      linehandle_t::init(contents.get_int("lines", 8192));
       blockhandle_t::init(contents.get_int("railblocks", 8192));
       halthandle_t::init(contents.get_int("stations", 8192));
       umgebung_t::max_route_steps = contents.get_int("max_route_steps", 100000);
@@ -1041,7 +1043,10 @@ display_show_pointer( true );
     }
 
     close_midi();
-  } catch(no_such_element_exception nse) {
+  }
+
+
+  catch(no_such_element_exception nse) {
     dbg->fatal("simmain.cc","simu_cpp_main()",
 	       nse.message);
   }

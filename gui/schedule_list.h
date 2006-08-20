@@ -51,9 +51,9 @@ private:
 
   void display(koord pos);
 
-  simline_t * line;
+  linehandle_t line;
 
-  slist_tpl <simline_t *> lines;
+  slist_tpl <linehandle_t> lines;
 
   void build_line_list(int filter);
 
@@ -86,15 +86,11 @@ public:
 	virtual spieler_t* gib_besitzer() { return sp; }
 
     /**
-     * @return Einen Beschreibungsstext für das Objekt, der z.B. in einem
-     * Beobachtungsfenster angezeigt wird, NULL wenn kein Fenster angezeigt
-     * werden soll
-     *
+     * Does this window need a min size button in the title bar?
+     * @return true if such a button is needed
      * @author Hj. Malthaner
-     * @see simwin
      */
-    char * info(char *buf) const;
-
+    virtual bool has_min_sizer() const {return true;}
 
     /**
      * Events werden hiermit an die GUI-Komponenten
@@ -102,7 +98,6 @@ public:
      * @author Hj. Malthaner
      */
     void infowin_event(const event_t *ev);
-
 
     /**
      * komponente neu zeichnen. Die übergebenen Werte beziehen sich auf

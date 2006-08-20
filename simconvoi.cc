@@ -46,12 +46,6 @@
 // zeige debugging info in infofenster wenn definiert
 // #define DEBUG 1
 
-/**
- * Während des Routings müssen zeitweise die pos gespeichert werden
- * @author Hj. Malthaner
- */
-array_tpl <koord3d> convoi_t::tmp_pos(max_rail_vehicle);
-
 /*
  * Waiting time for loading (ms)
  * @author Hj- Malthaner
@@ -112,7 +106,7 @@ void convoi_t::init(karte_t *wl, spieler_t *sp)
 	fahr = new array_tpl<vehikel_t *> (max_vehicle);
 
 	old_fpl = fpl = NULL;
-	line = NULL;
+	line = linehandle_t();
 	line_id = UNVALID_LINE_ID;
 
 	for(unsigned i=0; i<fahr->get_size(); i++) {
@@ -172,6 +166,11 @@ convoi_t::convoi_t(karte_t *wl, spieler_t *sp) :
 convoi_t::~convoi_t()
 {
 DBG_MESSAGE("convoi_t::~convoi_t()", "destroying %d, %p", self.get_id(), this);
+	// stop following
+	if(welt->get_follow_convoi()==self) {
+		welt->set_follow_convoi( convoihandle_t() );
+	}
+
 	if(convoi_info) {
 		destroy_win(convoi_info);
 		delete convoi_info;
@@ -184,10 +183,12 @@ DBG_MESSAGE("convoi_t::~convoi_t()", "destroying %d, %p", self.get_id(), this);
 	// @author hsiegeln - deregister from line
 	unset_line();
 
+	// force asynchronous recalculation
+	welt->set_schedule_counter();
+
 	// if not already deleted, do it here ...
 	for(unsigned i=0; i<anz_vehikel; i++) {
 		// remove vehicle's marker from the reliefmap
-		tmp_pos.at(i) = fahr->at(i)->gib_pos();
 		reliefkarte_t::gib_karte()->recalc_relief_farbe(fahr->at(i)->gib_pos().gib_2d());
 		delete fahr->at(i);
 	}
@@ -213,7 +214,7 @@ convoi_t::laden_abschliessen()
 			fahr->at(i)->setze_convoi( this );
 		}
 		// lines are still unknown during loading!
-		if(line_id != UNVALID_LINE_ID) {
+		if(line_id!=UNVALID_LINE_ID) {
 			// if a line is assigned, set line!
 			register_with_line(line_id);
 		}
@@ -485,10 +486,6 @@ convoi_t::sync_step(long delta_t)
 			sprintf(buf, translator::translate("!1_DEPOT_REACHED"), gib_name());
 			message_t::get_instance()->add_message(buf,fahr->at(0)->gib_pos().gib_2d(),message_t::convoi,gib_besitzer()->kennfarbe,IMG_LEER);
 
-			// Hajo: Fenster zu sonst Absturz bei Verkauf
-			if(convoi_info) {
-				destroy_win(convoi_info);
-			}
 			betrete_depot(dp);
 
 			// Hajo: since 0.81.5exp it's safe to
@@ -713,18 +710,12 @@ convoi_t::betrete_depot(depot_t *dep)
 {
 	// Hajo: remove vehicles from world data structure
 	for(unsigned i=0; i<anz_vehikel; i++) {
-		tmp_pos.at(i) = fahr->at(i)->gib_pos();
-		welt->lookup(fahr->at(i)->gib_pos())->obj_remove(fahr->at(i), fahr->at(i)->gib_besitzer());
-	}
-
-	// reset railblocks
-	for(unsigned i=0; i<anz_vehikel; i++) {
-		blockmanager::gib_manager()->pruefe_blockstrecke(welt, tmp_pos.at(i));
+		fahr->at(i)->verlasse_feld();
 	}
 
 	dep->convoi_arrived(self, true);
 
-	if(!convoi_info) {
+	if(convoi_info) {
 		//  V.Meyer: destroy convoi info when entering the depot
 		destroy_win(convoi_info);
 		delete convoi_info;
@@ -745,7 +736,7 @@ convoi_t::start()
 			grund_t * gr = welt->lookup(fahr->at(i)->gib_pos());
 
 			if(!gr->obj_ist_da(fahr->at(i))) {
-				gr->obj_add( fahr->at(i) );
+				fahr->at(i)->betrete_feld();
 			}
 		}
 
@@ -908,32 +899,6 @@ convoi_t::setze_fahrplan(fahrplan_t * f)
 		return false;
 	}
 
-	// is there an old schedule?
-	if(old_fpl != NULL  &&  !old_fpl->matches(f)) {
-
-DBG_DEBUG("convoi_t::setze_fahrplan()", "removing old destinations (old_fpl=%p) f=%p",old_fpl, f);
-
-		// rebuild destination (since halt may have been removed)
-		for(int i=0; i<old_fpl->maxi(); i++) {
-
-			// check, if this schedule is also contained within the new schedule (thus we can skip it)
-			int j;
-			for( j=0; j<f->maxi()  &&  old_fpl->eintrag.get(i).pos!=f->eintrag.get(j).pos; j++)
-				;
-			if(  j<f->maxi()  ) {
-				continue;
-			}
-
-DBG_DEBUG("convoi_t::setze_fahrplan()", "remove destinations at (%i,%i)",old_fpl->eintrag.get(i).pos.x,old_fpl->eintrag.get(i).pos.y);
-			// did we perform a stop at a station?
-			halthandle_t halt = haltestelle_t::gib_halt(welt, old_fpl->eintrag.get(i).pos);
-			if(halt.is_bound()) {
-				halt->rebuild_destinations();
-			}
-
-			INT_CHECK("convoi_t 384");
-		}
-	}
 	if(old_fpl!=NULL) {
 		delete old_fpl;
 	}
@@ -941,35 +906,6 @@ DBG_DEBUG("convoi_t::setze_fahrplan()", "remove destinations at (%i,%i)",old_fpl
 
 	// happens to be identical?
 	if(fpl!=f) {
-DBG_DEBUG("convoi_t::setze_fahrplan()", "fpl!=f");
-
-		if(fpl!=NULL  &&  !fpl->matches(f)) {
-
-DBG_DEBUG("convoi_t::setze_fahrplan()", "rebuilding destinations (fpl=%p), f=%p", fpl, f );
-
-			// rebuild destination (since halt may have been removed)
-			for(int i=0; i<fpl->maxi(); i++) {
-
-				// check, if this schedule is also contained within the new schedule (thus we can skip it)
-				int j=0;
-				for( j=0; j<f->maxi()  &&  fpl->eintrag.get(i).pos!=f->eintrag.get(j).pos; j++)
-					;
-				if(  j<f->maxi()  ) {
-					continue;
-				}
-				// ok, contains in both => do not touch
-
-DBG_DEBUG("convoi_t::setze_fahrplan()", "remove destinations at (%i,%i)",fpl->eintrag.get(i).pos.x,fpl->eintrag.get(i).pos.y);
-				// did we perform a stop at a station?
-				halthandle_t halt = haltestelle_t::gib_halt(welt, fpl->eintrag.get(i).pos);
-				if(halt.is_bound()) {
-					halt->rebuild_destinations();
-				}
-
-				INT_CHECK("convoi_t 384");
-			}
-		}
-
 		// delete, if not equal
 		if(fpl) {
 			delete fpl;
@@ -979,25 +915,14 @@ DBG_DEBUG("convoi_t::setze_fahrplan()", "remove destinations at (%i,%i)",fpl->ei
 
 	// rebuild destination for the new schedule
 	fpl = f;
-	for(int i=0; i<fpl->maxi(); i++) {
 
-DBG_DEBUG("convoi_t::setze_fahrplan()", "add destinations at (%i,%i)",fpl->eintrag.get(i).pos.x,fpl->eintrag.get(i).pos.y);
-		// did we perform a stop at a station?
-		halthandle_t halt = haltestelle_t::gib_halt(welt, fpl->eintrag.get(i).pos);
-		if(halt.is_bound()) {
-			halt->rebuild_destinations();
-		}
-
-		INT_CHECK("convoi_t 384");
-	}
+	// asynchronous recalculation of routes
+	welt->set_schedule_counter();
 
 	// remove wrong freight
 	for(unsigned i=0; i<anz_vehikel; i++) {
 		fahr->at(i)->remove_stale_freight();
 	}
-
-	// this generates an out of bound ...
-//	fahr->at(anz_vehikel) = NULL;
 
 	// ok, now we have a schedule
 	if(old_state!=INITIAL) {
@@ -1028,10 +953,8 @@ convoi_t::go_alte_richtung()
   // dazu muss die lok evtl. einige felder zurück gesetzt werden
   // und es müssen einige felder in die route eingefügt werden
   koord3d pos ( fahr->at(0)->gib_pos() );
-
   for(unsigned i=1; i<anz_vehikel; i++) {
     const koord3d k = fahr->at(i)->gib_pos();
-
     if(pos != k) {
       route.insert(k);
       pos = k;
@@ -1040,12 +963,10 @@ convoi_t::go_alte_richtung()
 
   const koord3d k0 = route.position_bei(0);
   const koord3d k1 = route.position_bei(1);
-
   for(unsigned i=0; i<anz_vehikel; i++) {
-    welt->lookup(k0)->obj_add(fahr->at(i));
     fahr->at(i)->setze_pos(k0);
     fahr->at(i)->starte_neue_route(k0, k1);
-    // fahr->at(i)->setze_offsets(0,0);
+    fahr->at(i)->betrete_feld();
   }
 }
 
@@ -1053,15 +974,13 @@ convoi_t::go_alte_richtung()
 void
 convoi_t::go_neue_richtung()
 {
-  const koord3d k0 = route.position_bei(0);
-  const koord3d k1 = route.position_bei(1);
-
-  for(unsigned i=0; i<anz_vehikel; i++) {
-    welt->lookup(k0)->obj_add(fahr->at(i));
-    fahr->at(i)->setze_pos(k0);
-    fahr->at(i)->starte_neue_route(k0, k1);
-    // fahr->at(i)->setze_offsets(0,0);
-  }
+	const koord3d k0 = route.position_bei(0);
+	const koord3d k1 = route.position_bei(1);
+	for(unsigned i=0; i<anz_vehikel; i++) {
+		fahr->at(i)->setze_pos(k0);
+		fahr->at(i)->starte_neue_route(k0, k1);
+		fahr->at(i)->betrete_feld();
+	}
 }
 
 
@@ -1083,11 +1002,7 @@ convoi_t::vorfahren()
 	INT_CHECK("simconvoi 651");
 
 	for(unsigned i=0; i<anz_vehikel; i++) {
-		tmp_pos.at(i) = fahr->at(i)->gib_pos();
-		const bool ok = (welt->lookup(fahr->at(i)->gib_pos())->obj_remove(fahr->at(i), besitzer_p))  != 0;
-		if(!ok) {
-			dbg->error("convoi_t::vorfahren()", "Vehicle %d couldn't be removed.", i);
-		}
+		fahr->at(i)->verlasse_feld();
 	}
 
 	if(alte_richtung == neue_richtung) {
@@ -1095,11 +1010,6 @@ convoi_t::vorfahren()
 	}
 	else {
 		go_neue_richtung();
-	}
-
-	// reset railblocks
-	for(unsigned i=0; i<anz_vehikel; i++) {
-		blockmanager::gib_manager()->pruefe_blockstrecke(welt, tmp_pos.at(i));
 	}
 
 	for(unsigned i=0; i<anz_vehikel; i++) {
@@ -1130,7 +1040,7 @@ convoi_t::vorfahren()
 		}
 	}
 
-	fahr->at(0)->setze_erstes( false );
+	fahr->at(0)->setze_erstes( false );	// switches off signal checks ...
 	for(unsigned i=0; i<anz_vehikel; i++) {
 
 		// raucher beim vorfahren abschalten
@@ -1213,10 +1123,11 @@ convoi_t::rdwr(loadsave_t *file)
 
     file->rdwr_str(name, sizeof(name));
 
+	koord3d dummy_pos=koord3d(0,0,0);
 	for(unsigned i=0; i<anz_vehikel; i++) {
 		if(file->is_saving()) {
 			fahr->at(i)->rdwr(file, true);
-			tmp_pos.at(i).rdwr(file);	// will be ignored ...
+			dummy_pos.rdwr(file);	// will be ignored ...
 		}
 		else {
 			ding_t::typ typ = (ding_t::typ)file->rd_obj_id();
@@ -1231,7 +1142,7 @@ convoi_t::rdwr(loadsave_t *file)
 				default:
 				dbg->fatal("convoi_t::convoi_t()","Can't load vehicle type %d", typ);
 			}
-			tmp_pos.at(i).rdwr(file);
+			dummy_pos.rdwr(file);
 
 			assert(v != 0);
 			fahr->at(i)  = v;
@@ -1744,30 +1655,6 @@ void convoi_t::self_destruct()
  */
 void convoi_t::destroy()
 {
-	// stop following
-	if(welt->get_follow_convoi()==self) {
-		welt->set_follow_convoi( convoihandle_t() );
-	}
-
-	for(unsigned i=0; i<anz_vehikel; i++) {
-		// remove vehicle's marker from the reliefmap
-		tmp_pos.at(i) = fahr->at(i)->gib_pos();
-		reliefkarte_t::gib_karte()->recalc_relief_farbe(fahr->at(i)->gib_pos().gib_2d());
-		delete fahr->at(i);
-	}
-
-	anz_vehikel = 0;
-	welt->sync_remove(this);
-	welt->rem_convoi(self);
-
-	// rebuild destination lists after convoi has has been changed removed
-	const slist_tpl<halthandle_t> & list = haltestelle_t::gib_alle_haltestellen();
-	slist_iterator_tpl <halthandle_t> iter (list);
-	while( iter.next() ) {
-		iter.get_current()->rebuild_destinations();
-		INT_CHECK("convoi_t 384");
-	}
-
 	delete this;
 }
 
@@ -1811,9 +1698,9 @@ bool convoi_t::hat_keine_route() const
 * get line
 * @author hsiegeln
 */
-simline_t * convoi_t::get_line() const
+linehandle_t convoi_t::get_line() const
 {
-  return line;
+	return line_id!=UNVALID_LINE_ID ? line : NULL;
 }
 
 /**
@@ -1821,21 +1708,22 @@ simline_t * convoi_t::get_line() const
 * since convoys must operate on a copy of the route's fahrplan, we apply a fresh copy
 * @author hsiegeln
 */
-void convoi_t::set_line(simline_t * line)
+void convoi_t::set_line(linehandle_t org_line)
 {
 	// to remove a convoi from a line, call unset_line(); passing a NULL is not allowed!
-	if (line == NULL) {
+	if(!org_line.is_bound()) {
 		return;
 	}
-
-	if (this->line != NULL) {
+	if(line.is_bound()) {
 		unset_line();
 	}
-	this->line = line;
-	this->line_id = line->get_id();
-	fahrplan_t * new_fpl= new fahrplan_t( line->get_fahrplan() );
+	line = org_line;
+	line_id = org_line->get_line_id();
+	fahrplan_t * new_fpl= new fahrplan_t( org_line->get_fahrplan() );
 	setze_fahrplan(new_fpl);
-	line->add_convoy(this);
+	line->add_convoy(self);
+	// force asynchronous recalculation
+	welt->set_schedule_counter();
 }
 
 /**
@@ -1848,11 +1736,11 @@ void convoi_t::register_with_line(uint16 id)
 {
 	DBG_DEBUG("convoi_t::register_with_line()","%s registers for %d", name, id);
 
-	simline_t * line = besitzer_p->simlinemgmt.get_line_by_id(id);
-	if(line != NULL) {
-		this->line = line;
-		this->line_id = line->get_id();
-		line->add_convoy(this);
+	linehandle_t new_line = besitzer_p->simlinemgmt.get_line_by_id(id);
+	if(new_line.is_bound()) {
+		line = new_line;
+		line_id = new_line->get_line_id();
+		line->add_convoy(self);
 	}
 }
 
@@ -1865,29 +1753,11 @@ void convoi_t::register_with_line(uint16 id)
 */
 void convoi_t::unset_line()
 {
-	if(line != NULL)
-	{
-		this->line->remove_convoy(this);
-		this->line = NULL;
-		this->line_id = UNVALID_LINE_ID;
-		// in in depot, clear the schedule too
-		if(state==INITIAL  &&  fpl!=NULL) {
-			// is there an old schedule?
-			DBG_DEBUG("convoi_t::unset_line()", "removing old destinations from depot fpl=%p",fpl);
-			fahrplan_t *f=fpl;
-			fpl = NULL;
-
-			// rebuild destination (since halt may have been removed)
-			for(int i=0; i<f->maxi(); i++) {
-
-				// did we perform a stop at a station?
-				halthandle_t halt=haltestelle_t::gib_halt(welt,f->eintrag.get(i).pos.gib_2d());
-				if(halt.is_bound()) {
-					halt->rebuild_destinations();
-				}
-			}
-			delete f;
-		}
+	if(line.is_bound()) {
+DBG_DEBUG("convoi_t::unset_line()", "removing old destinations from line=%d, fpl=%p",line.get_id(),fpl);
+		line->remove_convoy(self);
+		line = linehandle_t();
+		line_id = UNVALID_LINE_ID;
 	}
 }
 
@@ -1897,7 +1767,6 @@ void
 convoi_t::prepare_for_new_schedule(fahrplan_t *f)
 {
 	alte_richtung = fahr->at(0)->gib_fahrtrichtung();
-
 	if(fpl) {
 		old_fpl = new fahrplan_t( fpl );
 DBG_MESSAGE("convoi_t::prepare_for_new_schedule()","old=%p,fpl=%p,f=%p",old_fpl,fpl,f);
@@ -1914,7 +1783,7 @@ DBG_MESSAGE("convoi_t::prepare_for_new_schedule()","old=%p,fpl=%p,f=%p",old_fpl,
 void
 convoi_t::book(sint64 amount, int cost_type)
 {
-	if (cost_type > MAX_CONVOI_COST) {
+	if (cost_type>MAX_CONVOI_COST) {
 		// THIS SHOULD NEVER HAPPEN!
 		// CHECK CODE
 		DBG_MESSAGE("convoi_t::book()", "function was called with cost_type: %i, which is not valid (MAX_CONVOI_COST=%i)", cost_type, MAX_CONVOI_COST);
@@ -1922,7 +1791,7 @@ convoi_t::book(sint64 amount, int cost_type)
 	}
 
 	financial_history[0][cost_type] += amount;
-	if (has_line()) {
+	if (line.is_bound()) {
 		line->book(amount, simline_t::convoi_to_line_catgory[cost_type] );
 	}
 
@@ -1955,10 +1824,10 @@ void
 convoi_t::check_pending_updates()
 {
 	if (line_update_pending!=UNVALID_LINE_ID) {
-		simline_t * line = besitzer_p->simlinemgmt.get_line_by_id(line_update_pending);
+		linehandle_t line = besitzer_p->simlinemgmt.get_line_by_id(line_update_pending);
 		// the line could have been deleted in the meantime
 		// if line was deleted ignore line update; convoi will continue with existing schedule
-		if (line != NULL) {
+		if (line.is_bound()) {
 			int aktuell = fpl->get_aktuell(); // save current position of schedule
 			fpl = new fahrplan_t(line->get_fahrplan());
 			fpl->set_aktuell(aktuell); // set new schedule current position to old schedule current position

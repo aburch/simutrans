@@ -19,11 +19,6 @@
 uint8 simlinemgmt_t::used_ids[8192];
 
 
-struct line_details_t {
-	simline_t * line;
-};
-
-
 void simlinemgmt_t::init_line_ids()
 {
 	memset( used_ids, 8192, 0 );
@@ -33,14 +28,14 @@ void simlinemgmt_t::init_line_ids()
 
 int simlinemgmt_t::compare_lines(const void *p1, const void *p2)
 {
-    line_details_t line1 =*(const line_details_t *)p1;
-    line_details_t line2 =*(const line_details_t *)p2;
+    linehandle_t line1 =*(const linehandle_t *)p1;
+    linehandle_t line2 =*(const linehandle_t *)p2;
     int order;
 
     /***********************************
     * Compare line 1 and line 2
     ***********************************/
-    order = strcmp(line1.line->get_name(), line2.line->get_name());
+    order = strcmp(line1->get_name(), line2->get_name());
     return order;
 }
 
@@ -52,9 +47,9 @@ simlinemgmt_t::simlinemgmt_t(karte_t * welt,spieler_t *sp) :
 }
 
 void
-simlinemgmt_t::add_line(simline_t * new_line)
+simlinemgmt_t::add_line(linehandle_t new_line)
 {
-	const uint16 id = new_line->get_id();
+	const uint16 id = new_line->get_line_id();
 	if(all_managed_lines.is_contained(new_line)) {
 		trap();
 	}
@@ -64,28 +59,28 @@ simlinemgmt_t::add_line(simline_t * new_line)
 }
 
 
-simline_t *
+linehandle_t
 simlinemgmt_t::get_line_by_id(uint16 id)
 {
 	int count = count_lines();
 	for(int i = 0; i<count; i++) {
-		simline_t *line = all_managed_lines.at(i);
-		if (line->get_id()==id) {
+		linehandle_t line = all_managed_lines.at(i);
+		if (line->get_line_id()==id) {
 			return line;
 		}
 	}
 	dbg->warning("simlinemgmt_t::get_line_by_id()","no line for id=%i",id);
-	return NULL;
+	return linehandle_t();
 }
 
 /*
  * this function will try to find a line, which's fahrplan matches the passed fahrplan
  */
-simline_t *
+linehandle_t
 simlinemgmt_t::get_line(fahrplan_t *fpl)
 {
 	int count = count_lines();
-	simline_t * line = NULL;
+	linehandle_t line=linehandle_t();
 	for (int i = 0; i<count; i++)
 	{
 		line = get_line(i);
@@ -98,33 +93,34 @@ simlinemgmt_t::get_line(fahrplan_t *fpl)
 void
 simlinemgmt_t::delete_line(int iroute)
 {
-	simline_t * line = get_line(iroute);
-	if(line) {
+	linehandle_t line = get_line(iroute);
+	if(line.is_bound()) {
 		delete_line(line);
 	}
 }
 
 void
-simlinemgmt_t::delete_line(simline_t * line)
+simlinemgmt_t::delete_line(linehandle_t line)
 {
-	if (line != NULL) {
+	if (line.is_bound()) {
 		all_managed_lines.remove(line);
 		//destroy line object
-		delete (line);
+		simline_t *line_ptr=line.detach();
+		delete line_ptr;
 	}
 	//DBG_MESSAGE("simlinemgt_t::delete_line()", "line at index %d (%p) deleted", iroute, line);
 }
 
 
 void
-simlinemgmt_t::update_line(simline_t * line)
+simlinemgmt_t::update_line(linehandle_t line)
 {
 	// when a line is updated, all managed convoys must get the new fahrplan!
 	int count = line->count_convoys();
-	convoi_t *cnv = NULL;
+	convoihandle_t cnv = convoihandle_t();
 	for (int i = 0; i<count; i++) {
 		cnv = line->get_convoy(i);
-		cnv->set_line_update_pending(line->get_id());
+		cnv->set_line_update_pending(line->get_line_id());
 	}
 	// finally de/register all stops
 	line->renew_stops();
@@ -134,7 +130,7 @@ simlinemgmt_t::update_line(simline_t * line)
 void
 simlinemgmt_t::update_line(int iroute)
 {
-	simline_t * updated_line = get_line(iroute);
+	linehandle_t updated_line = get_line(iroute);
 	update_line(updated_line);
 }
 
@@ -227,7 +223,7 @@ simlinemgmt_t::rdwr(karte_t * welt, loadsave_t *file)
 							break;
 					}
 				}
-				add_line(line);
+				add_line(line->self);
 			}
 		}
     }
@@ -244,18 +240,18 @@ simlinemgmt_t::sort_lines()
 {
 	int count = count_lines();
 #ifdef _MSC_VER
-	line_details_t *a = (line_details_t *)alloca(count * sizeof(line_details_t));
+	linehandle_t *a = (line_details_t *)alloca(count * sizeof(line_details_t));
 #else
-	line_details_t a[count];
+	linehandle_t a[count];
 #endif
         int i;
 	for (i = 0; i<count; i++) {
-		a[i].line = get_line(i);
+		a[i] = get_line(i);
 	}
-	qsort((void *)a, count, sizeof (line_details_t), compare_lines);
+	qsort((void *)a, count, sizeof (linehandle_t), compare_lines);
 	all_managed_lines.clear();
 	for (i = 0; i<count; i++) {
-		all_managed_lines.append(a[i].line);
+		all_managed_lines.append(a[i]);
 	}
 }
 
@@ -273,34 +269,6 @@ void
 simlinemgmt_t::laden_abschliessen()
 {
 	register_all_stops();
-#if 0
-	// convert all tram and monorail lines into their correct type ...
-	for (int i = 0; i<count_lines(); i++) {
-		simline_t *line=all_managed_lines.at(i);
-		if(line->count_convoys()>0) {
-			// check only first convoy for line type, should be enough ...
-			const vehikel_t *v=line->get_convoy(0)->gib_vehikel(0);
-			if(v) {
-				// if needed, switch line to correct type
-				switch(v->gib_typ()) {
-					case weg_t::schiene_strab:
-						if(line->get_linetype()!=simline_t::tramline) {
-DBG_MESSAGE("simlinemgmt_t::laden_abschliessen()","line %d to tramline.",line->get_id() );
-							line->set_linetype(simline_t::tramline);
-						}
-						break;
-					case weg_t::monorail:
-						if(line->get_linetype()!=simline_t::monorailline) {
-							line->set_linetype(simline_t::monorailline);
-						}
-						break;
-					default: // no need to convert the rest
-						;
-				}
-			}
-		}
-	}
-#endif
 }
 
 
@@ -330,13 +298,13 @@ simlinemgmt_t::new_month()
 	}
 }
 
-simline_t *
+linehandle_t
 simlinemgmt_t::create_line(int ltype)
 {
 	return create_line(ltype, NULL);
 }
 
-simline_t *
+linehandle_t
 simlinemgmt_t::create_line(int ltype, fahrplan_t * fpl)
 {
 	simline_t * line = NULL;
@@ -371,16 +339,16 @@ simlinemgmt_t::create_line(int ltype, fahrplan_t * fpl)
 			DBG_MESSAGE("simlinemgmt_t::create_line()", "default line created");
 			break;
 		}
-	return line;
+	return line->self;
 }
 
 void
-simlinemgmt_t::build_line_list(int type, slist_tpl<simline_t *> * list)
+simlinemgmt_t::build_line_list(int type, slist_tpl<linehandle_t> * list)
 {
 //DBG_MESSAGE("simlinemgmt_t::build_line_list()","type=%i",type);
 	list->clear();
 	for( unsigned i=0;  i<count_lines();  i++  ) {
-		simline_t * line = all_managed_lines.at(i);
+		linehandle_t line = all_managed_lines.at(i);
 
 		// Hajo: 11-Apr-04
 		// changed code to show generic lines (type == line)

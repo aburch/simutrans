@@ -48,8 +48,8 @@ private:
     scrollbar_t *scroll_y;
 
 	bool b_show_scroll_x;
-
 	bool b_show_scroll_y;
+	bool b_has_size_corner;
 public:
 
     /**
@@ -100,6 +100,8 @@ public:
     void set_show_scroll_x(bool yesno) { b_show_scroll_x = yesno; };
 
     void set_show_scroll_y(bool yesno) { b_show_scroll_y = yesno; };
+
+    void set_size_corner(bool yesno) { b_has_size_corner = yesno; };
 
 };
 

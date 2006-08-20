@@ -12,6 +12,7 @@
 #define simhalt_h
 
 #include "convoihandle_t.h"
+#include "linehandle_t.h"
 
 #include "simdebug.h"
 #include "simware.h"
@@ -231,7 +232,8 @@ private:
      */
 	stationtyp station_type;
 
-	uint8 reroute_counter;
+	uint8 rebuilt_destination_counter;	// new schedule, first rebuilt destinations asynchroniously
+	uint8 reroute_counter;						// the reroute goods
 
 	/* station flags (most what enabled) */
 	uint8 enables;
@@ -624,19 +626,19 @@ public:
      * called, if a line serves this stop
      * @author hsiegeln
      */
-    void add_line(simline_t * line) { if (!registered_lines.contains(line)) registered_lines.append(line); rebuild_destinations(); };
+    void add_line(linehandle_t line) { registered_lines.append_unique(line,4); }
 
     /*
      * called, if a line removes this stop from it's schedule
      * @author hsiegeln
      */
-    void remove_line(simline_t * line) { registered_lines.remove(line); rebuild_destinations(); };
+    void remove_line(linehandle_t line) { registered_lines.remove(line); }
 
     /*
      * list of line ids that serve this stop
      * @author hsiegeln
      */
-    slist_tpl<simline_t *> registered_lines;
+    vector_tpl<linehandle_t> registered_lines;
 
     /**
      * book a certain amount into the halt's financial history

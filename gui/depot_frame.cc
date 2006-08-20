@@ -43,6 +43,8 @@
 #include "../boden/wege/weg.h"
 #include "../boden/wege/schiene.h"
 
+char depot_frame_t::no_line_text[128];	// contains the current translation of "<no line>"
+
 static const char * engine_type_names [8] =
 {
   "unknown",
@@ -74,11 +76,11 @@ depot_frame_t::depot_frame_t(karte_t *welt, depot_t *depot, int &farbe) :
     convoi_pics(depot->get_max_convoi_length())
 {
 DBG_DEBUG("depot_frame_t::depot_frame_t()","get_max_convoi_length()=%i",depot->get_max_convoi_length());
-  waggons_vec = 0;
-  loks_vec = 0;
-  pas_vec = 0;
+	waggons_vec = 0;
+	loks_vec = 0;
+	pas_vec = 0;
 
-    tstrncpy(no_line_text, translator::translate("<no line>"), 124);
+	strcpy(no_line_text, translator::translate("<no line>"));
 
     setze_opaque( true );
 
@@ -108,19 +110,13 @@ DBG_DEBUG("depot_frame_t::depot_frame_t()","get_max_convoi_length()=%i",depot->g
     /*
      * [SELECT ROUTE]:
      */
-
-    bt_prev_line.setze_typ(button_t::arrowleft);
-    bt_prev_line.add_listener(this);
-    add_komponente(&bt_prev_line);
-
-    inp_name_line.add_listener(this);
-
-    box.add_listener(this);
-    add_komponente(&box);
-
-    bt_next_line.setze_typ(button_t::arrowright);
-    bt_next_line.add_listener(this);
-    add_komponente(&bt_next_line);
+	line_selector.setze_pos(koord(90, 5));
+	line_selector.setze_groesse(koord(164, 14));
+	line_selector.set_max_size(koord(164, 100));
+	line_selector.set_highlight_color(welt->get_active_player()->kennfarbe+1);
+	line_selector.clear_elements();
+	line_selector.add_listener(this);
+	add_komponente(&line_selector);
 
     /*
      * [CONVOI]
@@ -165,7 +161,6 @@ DBG_DEBUG("depot_frame_t::depot_frame_t()","get_max_convoi_length()=%i",depot->g
     /*
      * new route management buttons
      */
-
     bt_new_line.setze_typ(button_t::roundbox);
     bt_new_line.add_listener(this);
     bt_new_line.set_tooltip("Lines are used to manage groups of vehicles");
@@ -205,6 +200,7 @@ DBG_DEBUG("depot_frame_t::depot_frame_t()","get_max_convoi_length()=%i",depot->g
     cont_pas->add_komponente(pas);
     scrolly_pas = new gui_scrollpane_t(cont_pas);
     scrolly_pas->set_show_scroll_x(false);
+    scrolly_pas->set_size_corner(false);
     scrolly_pas->set_read_only(false);
 
     if(pas_vec->get_count() > 0  ||  (loks_vec->get_count()==0  && waggons_vec->get_count()==0)  ) {
@@ -215,6 +211,7 @@ DBG_DEBUG("depot_frame_t::depot_frame_t()","get_max_convoi_length()=%i",depot->g
     cont_loks->add_komponente(loks);
     scrolly_loks = new gui_scrollpane_t(cont_loks);
     scrolly_loks->set_show_scroll_x(false);
+    scrolly_loks->set_size_corner(false);
     scrolly_loks->set_read_only(false);
 
     if(loks_vec->get_count() > 0) {
@@ -225,6 +222,7 @@ DBG_DEBUG("depot_frame_t::depot_frame_t()","get_max_convoi_length()=%i",depot->g
     cont_waggons->add_komponente(waggons);
     scrolly_waggons = new gui_scrollpane_t(cont_waggons);
     scrolly_waggons->set_show_scroll_x(false);
+    scrolly_waggons->set_size_corner(false);
     scrolly_waggons->set_read_only(false);
 
     if(waggons_vec->get_count() > 0) {
@@ -398,17 +396,10 @@ void depot_frame_t::layout(koord *gr)
      * [SELECT ROUTE]:
      * @author hsiegeln
      */
-    bt_prev_line.setze_pos(koord(5, SELECT_VSTART + 15));
-
-    inp_name_line.setze_pos(koord(20, SELECT_VSTART + 13));
-    inp_name_line.setze_groesse(koord(TOTAL_WIDTH - 40, 14));
-
-    box.setze_pos(koord(20, SELECT_VSTART + 13));
-    box.setze_groesse(koord(TOTAL_WIDTH - 40, 14));
-    box.set_max_size(koord(TOTAL_WIDTH - 40, 150));
-    box.set_highlight_color(1);
-
-    bt_next_line.setze_pos(koord(TOTAL_WIDTH - 16, SELECT_VSTART + 15));
+    line_selector.setze_pos(koord(20, SELECT_VSTART + 13));
+    line_selector.setze_groesse(koord(TOTAL_WIDTH - 40, 14));
+    line_selector.set_max_size(koord(TOTAL_WIDTH - 40, 150));
+    line_selector.set_highlight_color(1);
 
     /*
      * [CONVOI]
@@ -465,7 +456,7 @@ void depot_frame_t::layout(koord *gr)
 	* [PANEL]
 	*/
 	tabs.setze_pos(koord(0, PANEL_VSTART));
-	tabs.setze_groesse(koord(TOTAL_WIDTH, PANEL_HEIGHT+8));
+	tabs.setze_groesse(koord(TOTAL_WIDTH, PANEL_HEIGHT));
 
 	pas->set_grid(grid);
 	pas->set_placement(placement);
@@ -480,8 +471,10 @@ void depot_frame_t::layout(koord *gr)
 	loks->setze_groesse(tabs.gib_groesse());
 	loks->recalc_size();
 	loks->setze_pos(koord(1,1));
+	cont_loks->setze_pos(koord(0,0));
 	cont_loks->setze_groesse(loks->gib_groesse());
 	scrolly_loks->setze_groesse(scrolly_loks->gib_groesse());
+//DBG_MESSAGE("depot::resize()","lok pane siz = %d,%d",loks->gib_groesse().x,loks->gib_groesse().y);
 
 	waggons->set_grid(grid);
 	waggons->set_placement(placement);
@@ -626,11 +619,11 @@ void depot_frame_t::update_data()
 	bt_veh_action.setze_text(txt_veh_action[veh_action]);
 
 	// set line text: (line name or <no line>
-	if ((iroute > -1) && (iroute < (int)depot->get_line_list()->count())) {
-		box.setze_text(depot->get_line_list()->at(iroute)->get_name(), 128);
+	if ((iroute > -1) && (iroute < (int)depot->get_line_list()->count()-1)) {
+		line_selector.setze_text(depot->get_line_list()->at(iroute)->get_name(), 128);
 	}
 	else {
-		box.setze_text(no_line_text, 128);
+		line_selector.setze_text(no_line_text, 128);
 		iroute = -1;
 	}
 
@@ -759,17 +752,16 @@ void depot_frame_t::update_data()
 		}
 	}
 
-	box.clear_elements();
+	line_selector.clear_elements();
+	line_selector.append_element(no_line_text);
 	if(gib_besitzer()->simlinemgmt.count_lines() > 0) {
-		slist_iterator_tpl<simline_t *> iter( depot->get_line_list() );
+		slist_iterator_tpl<linehandle_t> iter( depot->get_line_list() );
 		while( iter.next() ) {
-			simline_t *line = iter.get_current();
-			if (line) {
-				box.append_element( line->get_name() );
-			}
+			linehandle_t line = iter.get_current();
+			line_selector.append_element( line->get_name() );
 		}
 	}
-	box.set_selection(iroute);
+	line_selector.set_selection(iroute+1);
 }
 
 
@@ -917,18 +909,20 @@ depot_frame_t::action_triggered(gui_komponente_t *komp)
 	    icnv = depot->convoi_count()-1;
 	} else if(komp == &bt_apply_line) {
 	    apply_line();
+/*
 	} else if(komp == &bt_next_line) {
 	    if(++iroute == (int)depot->get_line_list()->count()) {
 			iroute = -1;
 	    }
-		box.set_selection(iroute);
+		line_selector.set_selection(iroute);
 	} else if(komp == &bt_prev_line) {
 	    if(iroute-- == -1) {
 			iroute = depot->get_line_list()->count() - 1;
 	    }
-		box.set_selection(iroute);
-	} else if(komp == &box) {
-		iroute = box.get_selection();
+		line_selector.set_selection(iroute);
+*/
+	} else if(komp == &line_selector) {
+		iroute = line_selector.get_selection()-1;
 	} else {
 	    return false;
 	}
@@ -1005,8 +999,13 @@ void depot_frame_t::infowin_event(const event_t *ev)
 		// Hajo: this seems to be needed to refresh the list of lines
 		update_data();
 	    layout(NULL);
-    } else {
+    }
+    else {
 		gui_frame_t::infowin_event(ev);
+		if(IS_LEFTCLICK(ev) &&  !line_selector.getroffen(ev->cx, ev->cy)) {
+			// close combo box; we must do it ourselves, since the box does not recieve outside events ...
+			line_selector.release_focus();
+		}
 	}
 }
 
@@ -1066,17 +1065,15 @@ depot_frame_t::zeichnen(koord pos, koord groesse)
  */
 void depot_frame_t::new_line()
 {
-	simline_t * new_line = depot->create_line();
-	iroute = depot->get_line_list()->count() -1;
+	linehandle_t new_line = depot->create_line();
+	iroute = depot->get_line_list()->count()-1;
 
 	// newly created lines will be put into a sorted list of all lines
 	// to make it easier for the player we must select the newly created
 	// line in the dialog. This code block identifies the new line by name
 	// and sets the selector accordingly
-        for (int i = 0; i<=iroute; i++)
-        {
-		if ( strcmp(new_line->get_name(), depot->get_line_list()->at(i)->get_name()) == 0)
-		{
+        for (int i = 0; i<=iroute; i++) {
+		if (new_line==depot->get_line_list()->at(i)) {
 			iroute = i;
 			break;
 		}
@@ -1098,13 +1095,12 @@ void depot_frame_t::apply_line()
 		return;
 	}
 
-	if ((iroute > -1) && (icnv > -1))
+	if ((iroute>-1) && (icnv > -1))
 	{
 		// get selected route
-		simline_t * line = depot->get_line_list()->at(iroute);
+		linehandle_t line = depot->get_line_list()->at(iroute);
 		// set new route only, a valid route is selected:
-		if (line != NULL)
-		{
+		if (line.is_bound()) {
 			cnv->set_line(line);
 		}
 	} else if (iroute == -1) {
@@ -1250,7 +1246,7 @@ depot_frame_t::draw_vehicle_info_text(koord pos)
 
     display_multiline_text(
 	pos.x + 4,
-	pos.y + tabs.gib_pos().y + tabs.gib_groesse().y + 12,
+	pos.y + tabs.gib_pos().y + tabs.gib_groesse().y + 20,
 	buf,
 	COL_BLACK);
 
@@ -1286,7 +1282,7 @@ depot_frame_t::draw_vehicle_info_text(koord pos)
 
       display_multiline_text(
 			     pos.x + 200,
-			     pos.y + tabs.gib_pos().y + tabs.gib_groesse().y + 23 + LINESPACE*2,
+			     pos.y + tabs.gib_pos().y + tabs.gib_groesse().y + 31 + LINESPACE*2,
 			     buf,
 			     COL_BLACK);
     }

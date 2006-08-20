@@ -37,7 +37,7 @@ class blockstrecke_t
 private:
     slist_tpl <signal_t *> signale;
 
-    karte_t *welt;
+    static karte_t *welt;
 
     /**
      * Anzahl vehikel in der blockstrecke. Muss ein zaehler sein, da ein
@@ -53,9 +53,12 @@ private:
 
     blockstrecke_t(karte_t *welt);
     blockstrecke_t(karte_t *welt, loadsave_t *file);
-    ~blockstrecke_t();
 
 public:
+    ~blockstrecke_t();
+
+	karte_t *gib_welt() { return welt; }
+
     /**
      * Rail block factory method. Returns handles instead of pointers.
      * @author Hj. Malthaner
@@ -94,8 +97,9 @@ public:
     void betrete(vehikel_basis_t *v);
     void verlasse(vehikel_basis_t *v);
 
-	bool reserve_block(convoihandle_t cnv);
-	bool unreserve_block(convoihandle_t cnv);
+	bool can_reserve_block(convoihandle_t cnv);	// we can enter here?
+	bool reserve_block(convoihandle_t cnv);	// ok, we want to enter here (false, if not possible)
+	bool unreserve_block(convoihandle_t cnv);	// we wanted to enter here but now changed our intention
 
     /**
      * da am anfang und am ende einer blockstrecke gezaehlt wird
@@ -107,12 +111,7 @@ public:
 
     void setze_belegung(int count);
 
-    void clone_vehikel_counter(blockhandle_t bs)
-    {
-	v_rein = bs->v_rein;
-	v_raus = bs->v_raus;
-	schalte_signale();
-    };
+//    void clone_vehikel_counter(blockhandle_t bs) { v_rein = bs->v_rein; v_raus = bs->v_raus; schalte_signale(); }
 
     void vereinige_vehikel_counter(blockhandle_t bs);
 

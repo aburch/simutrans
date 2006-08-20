@@ -43,12 +43,6 @@ private:
      */
     koord max_size;
 
-    /**
-     * the selection in the droplist
-     * @author hsiegeln
-     */
-    int selection;
-
 public:
 
     /**
@@ -92,41 +86,43 @@ public:
 	 * add element to droplist
 	 * @author hsiegeln
 	 */
-	void append_element(char * text) { droplist->append_element( text ); };
+	void append_element(char * text) { droplist->append_element( text ); }
 
 	/**
 	 * remove all elements from droplist
 	 * @author hsiegeln
 	 */
-	void clear_elements() { droplist->clear_elements(); };
+	void clear_elements() { droplist->clear_elements(); }
+
+	/**
+	 * remove all elements from droplist
+	 * @author hsiegeln
+	 */
+	int count_elements() { return droplist->get_count(); }
 
 	/**
 	 * sets the highlight color for the droplist
 	 * @author hsiegeln
 	 */
-	void set_highlight_color(int color) { droplist->setze_highlight_color(color); };
+	void set_highlight_color(int color) { droplist->setze_highlight_color(color); }
 
 	/**
 	 * set maximum size for control
 	 * @author hsiegeln
 	 */
-	 void set_max_size(koord max) { max_size = max; };
+	 void set_max_size(koord max) { max_size = max; }
 
 	 /**
 	  * returns the selection id
 	  * @author hsiegeln
 	  */
-	  int get_selection() { return droplist->gib_selection(); };
+	  int get_selection() { return droplist->gib_selection(); }
 
 	  /**
 	   * sets the selection
 	   * @author hsiegeln
 	   */
-	  void set_selection(int s)
-	  {
-		selection = s;
-		droplist->setze_selection( selection );
-	  };
+	  void set_selection(int s) { droplist->setze_selection( s ); }
 
 };
 

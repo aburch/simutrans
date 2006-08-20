@@ -33,6 +33,7 @@ gui_scrollpane_t::gui_scrollpane_t(gui_komponente_t *komp)
 
     b_show_scroll_x = true;
     b_show_scroll_y = true;
+    b_has_size_corner = true;
 }
 
 /**
@@ -53,18 +54,24 @@ gui_scrollpane_t::~gui_scrollpane_t()
  */
 void gui_scrollpane_t::setze_groesse(koord groesse)
 {
-    gui_komponente_t::setze_groesse(groesse);
+	gui_komponente_t::setze_groesse(groesse);
 
-    // printf("gui_scrollpane::setze_groesse(%d,%d), komp (%d,%d)\n", groesse.x, groesse.y, komp->gib_groesse().x, komp->gib_groesse().y);
+	// printf("gui_scrollpane::setze_groesse(%d,%d), komp (%d,%d)\n", groesse.x, groesse.y, komp->gib_groesse().x, komp->gib_groesse().y);
 
-    scroll_x->setze_knob(groesse.x-12, komp->gib_groesse().x);
-    scroll_y->setze_knob(groesse.y-12, komp->gib_groesse().y);
+	scroll_x->setze_knob(groesse.x-12, komp->gib_groesse().x);
+	scroll_x->setze_pos(koord(0, groesse.y-11));
+	scroll_x->setze_groesse(groesse-koord(12,12));
 
-    scroll_x->setze_pos(koord(0, groesse.y-11));
-    scroll_y->setze_pos(koord(groesse.x-11, 0));
-
-    scroll_x->setze_groesse(groesse-koord(12,12));
-    scroll_y->setze_groesse(groesse-koord(12,12));
+	if(b_has_size_corner) {
+		scroll_y->setze_knob(groesse.y-12, komp->gib_groesse().y);
+		scroll_y->setze_pos(koord(groesse.x-11, 0));
+		scroll_y->setze_groesse(groesse-koord(12,12));
+	}
+	else {
+		scroll_y->setze_knob(groesse.y, komp->gib_groesse().y);
+		scroll_y->setze_pos(koord(groesse.x-11, 0));
+		scroll_y->setze_groesse(groesse-koord(12,0));
+	}
 }
 
 

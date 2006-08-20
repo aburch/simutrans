@@ -138,7 +138,7 @@ bool convoi_frame_t::passes_filter(convoihandle_t cnv)
     if(gib_filter(spezial_filter)) {
         if(!(gib_filter(noroute_filter) && cnv->hat_keine_route()) &&
 	   !(gib_filter(indepot_filter) && cnv->in_depot()) &&
-	   !(gib_filter(noline_filter) && !cnv->has_line()) &&
+	   !(gib_filter(noline_filter) && !cnv->get_line().is_bound()) &&
 	   !(gib_filter(nofpl_filter) && cnv->gib_fahrplan() == 0) &&
 	   !(gib_filter(noincome_filter) && cnv->gib_jahresgewinn()/100 <= 0))
 	{

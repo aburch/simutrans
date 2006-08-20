@@ -8,6 +8,29 @@ Known bugs: (hard to fix)
 	set color broken?
 
 
+Release of 88.07
+
+9-Apr-2006: (prissi)
+	CHANGE: asynchronous updating of routes and rerouting to avoid lags when building stations/change schedules
+	CHANGE: more CPU-friendly choosing for trains
+	ADD: block tool (b) also checks for double or orphan block and block without signal and corrects it
+	ADD: invalid block ids are now corrected duing loading
+	FIX: crash using (t) when no rails are available
+	FIX: signal state in front of waiting train now always red, even for presignals and choose signals
+	FIX: better check for double entries in schedule to avoid crashing
+	CHANGE: line management convoi info more consistent color/names (removed string from translator: "Convois: %d\nProfit: %s"), added min size button
+	FIX: minor display errors with line windows
+	CHANGE: line now accessed via handles (more stable programming, less memory required)
+	FIX: after changing max speed at depot the convoi info shows new max speed
+	FIX: many errors with list management fixed
+	FIX: no loading of smoke => no wrong images emerging after updates
+	FIX: lower right border error when loading reliefdata fixed
+	FIX: wrong speed on bridges after loading a saved game
+	CHANGE: after creating a new line, this line is immediately selected in this scedule window (removed text: "New line created!\nYou can assign the line now\nby selecting it from the\nline selector above.")
+	CHANGE: clicking somewhere else into the dialog will close the line drop down box in schedule and depot dialog
+	FIX: construction of ship depots now again everywhere
+	FIX: redraw error in depot (part of vehicle was visible in certain window sizes outside the box)
+
 
 Release of 88.06.3 ("stable")
 

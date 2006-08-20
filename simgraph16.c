@@ -826,9 +826,11 @@ static void rezoom_img( const unsigned int n )
 				}
 			}
 		}
-		else if(images[n].w==0) {
-			// h=0 will be ignored, with w=0 there was an error!
-			printf("WARNING: image%d w=0!\n",n);
+		else {
+			if(images[n].w<=0) {
+				// h=0 will be ignored, with w=0 there was an error!
+				printf("WARNING: image%d w=0!\n",n);
+			}
 			images[n].h = 0;
 		}
 
@@ -2156,14 +2158,13 @@ asm(
  */
 void display_img_aux(const int n, const int xp, int yp, const int dirty, bool use_player)
 {
-	if(n >= 0 && n < anz_images) {
+	if(n>=0 && n<anz_images) {
 		// need to go to nightmode and or rezoomed?
 		PIXVAL *sp;
 		int h, reduce_h, skip_lines;
 
 		if(use_player) {
 			sp = images[n].player_data;
-
 if(sp==NULL){ printf("CImg %i failed!\n", n );return;}
 		}
 	  	else {
@@ -2182,6 +2183,7 @@ if(sp==NULL){ printf("Img %i failed!\n", n );return;}
 		// now, since zooming may have change this image
 		yp += images[n].y;
 		h = images[n].h;	// may change due to vertical clipping
+
 		// in the next line the vertical clipping will be handled
 		// by that way the drawing routines must only take into account the horizontal clipping
 		// this should be much faster in most cases
@@ -2223,20 +2225,20 @@ if(sp==NULL){ printf("Img %i failed!\n", n );return;}
 			const int x = images[n].x;
 			const int w = images[n].w;
 
-			// since height may be reduced, start marking here
-			if(dirty) {
-				mark_rect_dirty_wc(xp+x,
-					yp,
-					xp+x+w-1,
-					yp+h-1);
-			}
-
 			// use horzontal clipping or skip it?
-			if(xp+x>=clip_rect.x &&  xp+x+w-1 <= clip_rect.xx) {
+			if(xp+x>=clip_rect.x  &&  xp+x+w-1<=clip_rect.xx) {
+				// marking change?
+				if(dirty) {
+					mark_rect_dirty_nc(xp+x, yp, xp+x+w-1, yp+h-1);
+				}
 				display_img_nc(h, xp, yp, sp);
 			}
 			else if( xp <= clip_rect.xx && xp+x+w>clip_rect.x ) {
 				display_img_wc(h, xp, yp, sp);
+				// since height may be reduced, start marking here
+				if(dirty) {
+					mark_rect_dirty_wc( xp+x, yp, xp+x+w-1, yp+h-1);
+				}
 			}
 		}
 	}

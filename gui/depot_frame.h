@@ -40,9 +40,6 @@ class depot_frame_t : public gui_frame_t,
                       public action_listener_t
 {
 private:
-
-    char no_line_text[128];
-
     karte_t *welt;
 
 
@@ -117,10 +114,12 @@ private:
     button_t bt_copy_convoi;
     button_t bt_apply_line;
 
-    button_t bt_prev_line;
-    gui_textinput_t inp_name_line;
-    gui_combobox_t box;
-    button_t bt_next_line;
+	static char no_line_text[128];
+	gui_combobox_t line_selector;
+//    button_t bt_prev_line;
+//    gui_textinput_t inp_name_line;
+//    gui_combobox_t box;
+//    button_t bt_next_line;
 
     /**
      * Data fields for use with gui elements.
@@ -186,7 +185,7 @@ private:
      * @return true if such a button is needed
      * @author Hj. Malthaner
      */
-    virtual bool has_min_sizer() const {return true;};
+    virtual bool has_min_sizer() const {return true;}
 
 	// true if already stored here
 	bool is_contained(const vehikel_besch_t *info);

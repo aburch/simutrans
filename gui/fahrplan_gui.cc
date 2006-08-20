@@ -33,6 +33,8 @@
 #include "messagebox.h"
 
 
+char fahrplan_gui_t::no_line[128];	// contains the current translation of "<no line>"
+
 // here are the default loading values
 #define MAX_LADEGRADE (7)
 
@@ -144,11 +146,12 @@ fahrplan_gui_t::fahrplan_gui_t(karte_t *welt, convoihandle_t cnv, spieler_t *sp)
 	this->sp = sp;
 	this->fpl = cnv->gib_fahrplan();
 	this->cnv = cnv;
-	init();
-	if (cnv->has_line()) {
+	if (cnv->get_line().is_bound()) {
 		new_line = cnv->get_line();
 	}
+	init();
 }
+
 
 
 fahrplan_gui_t::fahrplan_gui_t(karte_t *welt, fahrplan_t *fpl, spieler_t *sp) :
@@ -159,25 +162,23 @@ fahrplan_gui_t::fahrplan_gui_t(karte_t *welt, fahrplan_t *fpl, spieler_t *sp) :
 	lb_load(translator::translate("Full load")),
 	buf(8192)
 {
-  this->welt = welt;
-  this->sp = sp;
-  this->fpl = fpl;
+	this->welt = welt;
+	this->sp = sp;
+	this->fpl = fpl;
 DBG_DEBUG("fahrplan_gui_t::fahrplan_gui_t()","fahrplan %p",fpl);
-  this->cnv = NULL;
-  show_line_selector(false);
-  init();
+	this->cnv = NULL;
+	new_line = linehandle_t();
+	show_line_selector(false);
+	init();
 }
 
 
 void fahrplan_gui_t::init()
 {
-	new_line = NULL;
-
 	setze_opaque( true );
 
 	fpl->eingabe_beginnen();
-	no_line = new char[128];
-	sprintf(no_line, translator::translate("<no line>"));
+	strcpy(no_line, translator::translate("<no line>"));
 
 	bt_add.pos.x = 0;
 	bt_add.pos.y = gib_fenstergroesse().y-44;
@@ -223,14 +224,16 @@ void fahrplan_gui_t::init()
 	bt_next.add_listener(this);
 	add_komponente(&bt_next);
 
-	bt_promote_to_line.pos.x = bt_add.pos.x;
-	bt_promote_to_line.pos.y = gib_fenstergroesse().y-30;
-	bt_promote_to_line.groesse.x = bt_add.groesse.x + bt_insert.groesse.x;
-	bt_promote_to_line.setze_text("promote to line");
-	bt_promote_to_line.set_tooltip("Create a new line based on this schedule");
-	bt_promote_to_line.setze_typ(button_t::roundbox);
-	bt_promote_to_line.add_listener(this);
-	add_komponente(&bt_promote_to_line);
+	if(cnv!=NULL) {
+		bt_promote_to_line.pos.x = bt_add.pos.x;
+		bt_promote_to_line.pos.y = gib_fenstergroesse().y-30;
+		bt_promote_to_line.groesse.x = bt_add.groesse.x + bt_insert.groesse.x;
+		bt_promote_to_line.setze_text("promote to line");
+		bt_promote_to_line.set_tooltip("Create a new line based on this schedule");
+		bt_promote_to_line.setze_typ(button_t::roundbox);
+		bt_promote_to_line.add_listener(this);
+		add_komponente(&bt_promote_to_line);
+	}
 
 	bt_return.pos.x = bt_remove.pos.x;
 	bt_return.pos.y = gib_fenstergroesse().y-30;
@@ -247,7 +250,6 @@ void fahrplan_gui_t::init()
 	line_selector.set_highlight_color(welt->get_active_player()->kennfarbe+1);
 	line_selector.clear_elements();
 	init_line_selector();
-	line_selector.set_selection(-1);
 	line_selector.add_listener(this);
 	add_komponente(&line_selector);
 
@@ -318,14 +320,20 @@ fahrplan_gui_t::gib_fenstergroesse() const
 void
 fahrplan_gui_t::infowin_event(const event_t *ev)
 {
-	if (IS_LEFTCLICK(ev) &&  !line_selector.getroffen(ev->cx, ev->cy)  &&  scrolly.getroffen(ev->cx+12, ev->cy)  &&  ev->my>=40+16) {
-		// we are now in the multiline region ...
-		const int line = ((ev->my - (39 - scrolly.get_scroll_y()))/LINESPACE)-3;
+	if (IS_LEFTCLICK(ev) &&  !line_selector.getroffen(ev->cx, ev->cy)  &&  scrolly.getroffen(ev->cx+12, ev->cy)) {
 
-		if(line >= 0 && line < fpl->maxi()) {
-			fpl->aktuell = line;
-			if(mode == removing) {
-				fpl->remove();
+		// close combo box; we must do it ourselves, since the box does not recieve outside events ...
+		line_selector.release_focus();
+
+		if(ev->my>=40+16) {
+			// we are now in the multiline region ...
+			const int line = ((ev->my - (39 - scrolly.get_scroll_y()))/LINESPACE)-3;
+
+			if(line >= 0 && line < fpl->maxi()) {
+				fpl->aktuell = line;
+				if(mode == removing) {
+					fpl->remove();
+				}
 			}
 		}
 	}
@@ -334,9 +342,9 @@ fahrplan_gui_t::infowin_event(const event_t *ev)
 		welt->setze_maus_funktion(wkz_abfrage, skinverwaltung_t::fragezeiger->gib_bild_nr(0), welt->Z_PLAN, NO_SOUND, NO_SOUND);
 		if (cnv.is_bound()) {
 			// if a line is selected
-			if (new_line != NULL) {
+			if (new_line.is_bound()) {
 				// if the selected line is different to the convoi's line, apply it
-				if (new_line != cnv->get_line()) {
+				if(new_line!=cnv->get_line()) {
 					cnv->set_line(new_line);
 				}
 			}
@@ -412,23 +420,25 @@ fahrplan_gui_t::action_triggered(gui_komponente_t *komp)
     fpl->add_return_way(welt);
   } else if (komp == &line_selector) {
     int selection = line_selector.get_selection()-1;
-//DBG_MESSAGE("fahrplan_gui_t::action_triggered()","line selection=%i",selection);
+DBG_MESSAGE("fahrplan_gui_t::action_triggered()","line selection=%i",selection);
     if (selection>-1  &&  selection<lines.count()) {
       new_line = lines.at(selection);
       line_selector.setze_text(new_line->get_name(), 128);
       fpl->copy_from( new_line->get_fahrplan() );
       fpl->eingabe_beginnen();
     } else {
+    	if(selection==-1){
     	// remove line from convoy
       line_selector.setze_text(no_line, 128);
-      new_line = NULL;
+      new_line = linehandle_t();
+      }
     }
-  } else if (komp == &bt_promote_to_line) {
-    sp->simlinemgmt.create_line(fpl->get_type(), this->fpl);
-    init_line_selector();
-    create_win(-1, -1, 120, new nachrichtenfenster_t(welt, translator::translate("New line created!\nYou can assign the line now\nby selecting it from the\nline selector above.")), w_autodelete);
-  }
-  return true;
+		} else if (komp == &bt_promote_to_line) {
+		new_line = sp->simlinemgmt.create_line(fpl->get_type(), this->fpl);
+		init_line_selector();
+//		create_win(-1, -1, 120, new nachrichtenfenster_t(welt, translator::translate("New line created!\nYou can assign the line now\nby selecting it from the\nline selector above.")), w_autodelete);
+	}
+	return true;
 }
 
 
@@ -470,8 +480,8 @@ fahrplan_gui_t::zeichnen(koord pos, koord groesse)
 
 	if (line_selector.is_visible()) {
 		// unequal to line => remove from line ...
-		if(new_line!=NULL  &&   !fpl->matches(new_line->get_fahrplan())) {
-			new_line = NULL;
+		if(new_line.is_bound()  &&   !fpl->matches(new_line->get_fahrplan())) {
+			new_line = linehandle_t();
 			line_selector.setze_text(no_line, 128);
 		}
 		line_selector.zeichnen(pos+koord(0,16));
@@ -484,7 +494,7 @@ fahrplan_gui_t::get_fpl_text(cbuffer_t & buf)
 	if(fpl) {
 		buf.clear();
 		for(int i=0; i<fpl->maxi(); i++) {
-			buf.append(i==fpl->aktuell ? "» " : "   ");
+			buf.append(i==fpl->aktuell ? "> " : "   ");
 			buf.append(i+1);
 			buf.append(".) ");
 			gimme_stop_name(buf, welt, fpl, i, 240);
@@ -498,21 +508,25 @@ void fahrplan_gui_t::init_line_selector()
 {
 	line_selector.clear_elements();
 	line_selector.append_element(no_line);
-
+	line_selector.set_selection(-1);
+	int selection = -1;
 	if (sp->simlinemgmt.count_lines() > 0) {
 		sp->simlinemgmt.build_line_list(fpl->get_type(welt), &lines);
-		slist_iterator_tpl<simline_t *> iter( lines );
+		slist_iterator_tpl<linehandle_t> iter( lines );
 		while( iter.next() ) {
-			simline_t *line = iter.get_current();
-			if (line) {
-				line_selector.append_element( line->get_name() );
+			linehandle_t line = iter.get_current();
+			line_selector.append_element( line->get_name() );
+			if(new_line==line) {
+DBG_MESSAGE("fahrplan_gui_t::init_line_selector()","line %i contained",line.get_id());
+				selection = line_selector.count_elements();
 			}
 		}
 	}
+
 	line_selector.setze_text(no_line, 128);
-	if (cnv != NULL) {
-		if (cnv->has_line()){
-			line_selector.setze_text(cnv->get_line()->get_name(), 128);
-		}
+	if(new_line.is_bound()) {
+		line_selector.setze_text(new_line->get_name(), 128);
+DBG_MESSAGE("fahrplan_gui_t::init_line_selector()","selection %i",selection);
+		line_selector.set_selection( selection );
 	}
 }

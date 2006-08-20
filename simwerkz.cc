@@ -1055,15 +1055,8 @@ DBG_MESSAGE("wkz_dockbau()","recalc station type");
 			}
 		}
 
-DBG_MESSAGE("wkz_dockbau()","rebuilt destination");
 		// rebuild destination lists (since maybe a convoi stopped here, but there was no station yet)
-//DBG_MESSAGE("haltestelle_t::add_grund()","->rebuild_destinations()");
-		const slist_tpl<halthandle_t> & list = haltestelle_t::gib_alle_haltestellen();
-		slist_iterator_tpl <halthandle_t> iter (list);
-		while( iter.next() ) {
-			iter.get_current()->rebuild_destinations();
-			INT_CHECK( "simwerkz 1080" );
-		}
+		welt->set_schedule_counter();
 
 		ok = true;
 	}
@@ -1294,7 +1287,7 @@ DBG_MESSAGE("wkz_depot_aux()","for depot %s with waytype %d",besch->gib_name(),w
 			ribi = bd->gib_weg_ribi_unmasked(wegtype);
 		}
 
-		if(ribi_t::ist_einfach(ribi)  &&  welt->get_slope(pos)==0) {
+		if(ribi_t::ist_einfach(ribi)  &&  (bd->ist_wasser()  ||  welt->get_slope(pos)==0)  ) {
 
 			const char *p=bd->kann_alle_obj_entfernen(sp);
 			if(p) {
@@ -1503,14 +1496,7 @@ DBG_MESSAGE("wkz_halt_aux()", "new segment for station");
 		}
 
 		// rebuild destination lists (since maybe a convoi stopped here, but there was no station yet)
-DBG_MESSAGE("wkz_halt_aux()","->rebuild_destinations()");
-		const slist_tpl<halthandle_t> & list = haltestelle_t::gib_alle_haltestellen();
-		slist_iterator_tpl <halthandle_t> iter (list);
-
-		while( iter.next() ) {
-			iter.get_current()->rebuild_destinations();
-			INT_CHECK( "simwerkz 930" );
-		}
+		welt->set_schedule_counter();
 		sp->buche(cost*besch->gib_level()*besch->gib_b()*besch->gib_h(), pos, COST_CONSTRUCTION);
 		return true;
 	}

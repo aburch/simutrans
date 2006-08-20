@@ -67,6 +67,7 @@ blockmanager::blockmanager() : marker(0,0)
 void blockmanager::setze_welt_groesse(int w,int h)
 {
     marker.init(w,h);
+    repair_blocks.clear();
 }
 
 
@@ -413,6 +414,7 @@ blockmanager::baue_neues_signal(karte_t *welt, spieler_t *sp, koord3d pos, koord
     bes->neu = bs2;
     traversiere_netz(welt, pos2, bes);
     strecken.insert( bs2 );
+	delete bes;
 
     // signale neu verdrahten
     bs1->verdrahte_signale_neu();
@@ -427,7 +429,7 @@ blockmanager::baue_neues_signal(karte_t *welt, spieler_t *sp, koord3d pos, koord
 	}
 
 	sch2->ribi_add(ribi_t::rueckwaerts(dir));
-	signal_t *sig1, *sig2;
+	signal_t *sig1=NULL, *sig2=NULL;	// to keep compiler happy ...
 	switch(type) {
 		case ding_t::signal:
 			sig1 = new signal_t(welt, pos, dir);
@@ -621,22 +623,87 @@ bool blockmanager::entferne_signal(signal_t *sig, blockhandle_t bs)
     return ok;
 }
 
+
+
+/* if an unmarked block is found with this blockhandle, it will given a new id to repair the blocks
+ * return true, if something was repaired
+ */
+bool
+blockmanager::repair_identical_marked_blocks(karte_t *welt, blockhandle_t bs)
+{
+	// now iterate over all ways with this type
+	// there should be no blockstrecke left with this id!
+	slist_iterator_tpl <weg_t *> iter (weg_t::gib_alle_wege());
+	while(iter.next()) {
+		grund_t *gr = welt->lookup(iter.get_current()->gib_pos());
+		if(!marker.ist_markiert(gr)) {
+			schiene_t *test_sch = get_block_way(gr);
+			if(test_sch  &&  test_sch->gib_blockstrecke()==bs) {
+				// found unconnected block here! Have to give it a new number an must start again
+				blockhandle_t bs_neu = blockstrecke_t::create(welt);
+				marker.unmarkiere_alle();
+				block_ersetzer *bes = new block_ersetzer(welt, bs);
+				bes->neu = bs_neu;
+				traversiere_netz(welt, gr->gib_pos(), bes);
+				strecken.insert( bs_neu );
+				// redistribute signals
+				bs->verdrahte_signale_neu();
+				bs_neu->verdrahte_signale_neu();
+				delete bes;
+				// now correct the counter
+				pruefer_ob_strecke_frei pr(welt, bs_neu);
+				marker.unmarkiere_alle();
+				traversiere_netz(welt, gr->gib_pos(), &pr);
+				bs_neu->setze_belegung( pr.count );
+				// we must now also recorrect the original block
+DBG_MESSAGE("blockmanager::repair_identical_marked_blocks()", "block id %d was doubled, new id is %d.",bs.get_id(), bs_neu.get_id() );
+				return true;
+			}
+		}
+	}
+	// nothing found => all blocks seem ok
+	return false;
+}
+
+
+
 void
 blockmanager::pruefe_blockstrecke(karte_t *welt, koord3d k)
 {
-    const grund_t *gr = welt->lookup(k);
-
-    if(gr) {
-        schiene_t *sch = get_block_way(gr);
-        if(sch) {
-            blockhandle_t bs = sch->gib_blockstrecke();
-            pruefer_ob_strecke_frei pr (welt, bs);
-            marker.unmarkiere_alle();
-            traversiere_netz(welt, k, &pr);
-            bs->setze_belegung( pr.count );
-// DBG_MESSAGE("blockmanager::pruefe_blockstrecke()", "setting waggon counter to %d waggons", pr.count);
-        }
-    }
+	const grund_t *gr = welt->lookup(k);
+	if(gr) {
+		schiene_t *sch = get_block_way(gr);
+		if(sch) {
+			blockhandle_t bs = sch->gib_blockstrecke();
+			if(bs->gib_signale().count()==0) {
+				// no signals in this block?!? then there is an error
+DBG_MESSAGE("blockmanager::pruefe_blockstrecke()", "block id %d no signals => try replace", bs.get_id());
+				// first replace block (will recalc all signals)
+				marker.unmarkiere_alle();
+				marker.unmarkiere_alle();
+				check_block_borders *cbb = new check_block_borders(welt, bs);
+				traversiere_netz(welt, gr->gib_pos(), cbb);
+				// repair signals
+				bs->verdrahte_signale_neu();
+				slist_iterator_tpl<blockhandle_t> changed_bs_iter (cbb->changed_bs);
+				while(changed_bs_iter.next()) {
+					changed_bs_iter.get_current()->verdrahte_signale_neu();
+				}
+				delete cbb;
+			}
+			// now find out if there are other blocks with double ids
+			int count=0;
+			do {
+				bs = sch->gib_blockstrecke();
+				pruefer_ob_strecke_frei pr(welt, bs);
+				marker.unmarkiere_alle();
+				traversiere_netz(welt, k, &pr);
+				count = pr.count;
+			} while(repair_identical_marked_blocks(welt,bs));
+DBG_MESSAGE("blockmanager::pruefe_blockstrecke()", "block id %d setting waggon counter to %d waggons", bs.get_id(), count);
+			bs->setze_belegung( count );
+		}
+	}
 }
 
 
@@ -740,11 +807,58 @@ blockmanager::rdwr(karte_t *welt, loadsave_t *file)
 void
 blockmanager::laden_abschliessen()
 {
-	slist_iterator_tpl< blockhandle_t > iter ( strecken );
-	while(iter.next()) {
-		blockhandle_t bs = iter.get_current();
-		bs->laden_abschliessen();
+	DBG_MESSAGE("blockmanager::laden_abschliessen()","for %i blocks",strecken.count() );
+	// first call laden_abschliessen for all
+	slist_iterator_tpl< blockhandle_t > finish_iter ( strecken );
+	while(finish_iter.next()) {
+		finish_iter.get_current()->laden_abschliessen();
 	}
+
+	// now repair all blocks that had invalid ids during loading
+	slist_iterator_tpl <blockhandle_t> repair_iter (repair_blocks);
+	while(repair_iter.next()) {
+		blockhandle_t repair_bs=repair_iter.get_current();
+		DBG_MESSAGE("blockmanager::laden_abschliessen()","repair block id %d",repair_bs.get_id() );
+		// find the first way which this id ...
+		slist_iterator_tpl <weg_t *> iter (weg_t::gib_alle_wege());
+		while(iter.next()) {
+			schiene_t *sch = dynamic_cast<schiene_t *>(iter.get_current());
+			if(sch  &&  repair_bs==sch->gib_blockstrecke()) {
+				pruefe_blockstrecke( repair_bs->gib_welt(), sch->gib_pos() );
+				break;	// check next repair block
+	  		}
+		}
+	}
+	repair_blocks.clear();
+
+	// finally remove all unused blocks ...
+
+	// first copy them
+	slist_iterator_tpl <blockhandle_t> all_iter (strecken);
+	while(all_iter.next()) {
+		repair_blocks.append( all_iter.get_current() );
+	}
+
+	// then delete all existing ones ...
+	slist_iterator_tpl <weg_t *> iter (weg_t::gib_alle_wege());
+	while(iter.next()) {
+		schiene_t *sch = dynamic_cast<schiene_t *>(iter.get_current());
+		if(sch) {
+			repair_blocks.remove( sch->gib_blockstrecke() );
+  		}
+	}
+
+	// the remaining are broken ...
+	while(repair_blocks.count()>0) {
+		blockhandle_t remove_bs = repair_blocks.remove_first();
+		DBG_MESSAGE("blockmanager::laden_abschliessen()","remove empty block id %d",remove_bs.get_id() );
+		strecken.remove(remove_bs);
+		blockstrecke_t *bs_ptr=remove_bs.detach();
+		delete bs_ptr;
+	}
+
+	// now all blocks are hopefully ok (but we did not check for double id for all blocks)
+	// but this would take to long, so we left this to the player
 }
 
 
@@ -937,5 +1051,52 @@ bool blockmanager::pruefer_ob_strecke_frei::ist_uebergang_ok(koord3d /*pos1*/, k
 }
 
 void blockmanager::pruefer_ob_strecke_frei::wieder_koord(koord3d )
+{
+}
+
+
+
+/* tries to correct all invalid signal borders ... */
+blockmanager::check_block_borders::check_block_borders(karte_t *w, blockhandle_t b)
+{
+    welt = w;
+    bs = b;
+    changed_bs.clear();
+}
+
+/* replace the block */
+bool
+blockmanager::check_block_borders::neue_koord(koord3d pos)
+{
+	bool ok = true;   // assume we break traversal here
+	schiene_t *sch = get_block_way(welt->lookup(pos));
+	if(sch) {
+		blockhandle_t alt=sch->gib_blockstrecke();
+		if(alt!=bs) {
+			if(!changed_bs.contains(alt)) {
+				changed_bs.append(alt);
+DBG_MESSAGE("blockmanager::check_block_borders::neue_koord()","on %d %d: %d -> %d", pos.x, pos.y, alt.get_id(), bs.get_id());
+			}
+			sch->setze_blockstrecke(bs);
+		}
+		ok = false;   // do not stop traversal yet
+	}
+	return ok;
+}
+
+/* stop only at a new signal */
+bool
+blockmanager::check_block_borders::ist_uebergang_ok(koord3d pos1, koord3d pos2)
+{
+	grund_t *gr=welt->lookup(pos1);
+	if(gr  &&  (gr->suche_obj(ding_t::signal)  ||  gr->suche_obj(ding_t::presignal)  ||  gr->suche_obj(ding_t::choosesignal))) {
+		return false;
+	}
+	return true;
+}
+
+
+void
+blockmanager::check_block_borders::wieder_koord(koord3d )
 {
 }

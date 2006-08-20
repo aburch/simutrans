@@ -78,10 +78,7 @@ public:
 
     virtual ribi_t::ribi gib_fahrtrichtung() const = 0;
 
-
 protected:
-
-    virtual void betrete_feld();
     virtual void fahre();
     virtual int  calc_height();		// Offset Bergauf/Bergab
     virtual void calc_akt_speed(const grund_t *) {};
@@ -101,6 +98,8 @@ public:
      * @author Hj. Malthaner
      */
     bool is_about_to_hop() const;
+
+    virtual void betrete_feld();
 
     virtual void verlasse_feld();
 
@@ -226,11 +225,10 @@ protected:
 
     virtual bool ist_befahrbar(const grund_t* ) const {return false;};
 
-    virtual void betrete_feld();
-
 public:
-
     virtual bool ist_weg_frei(int &/*restart_speed*/) {return true;};
+
+    virtual void betrete_feld();
 
     virtual void verlasse_feld();
 
@@ -481,11 +479,11 @@ class automobil_t : public vehikel_t
 protected:
     bool ist_befahrbar(const grund_t *bd) const;
 
-    virtual void betrete_feld();
-
     void calc_bild();
 
 public:
+    virtual void betrete_feld();
+
     virtual weg_t::typ gib_wegtyp() const { return weg_t::strasse; };
 
     automobil_t(karte_t *welt, loadsave_t *file);

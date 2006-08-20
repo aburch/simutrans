@@ -53,7 +53,7 @@ wolke_t::rdwr(loadsave_t *file)
 
 sync_wolke_t::sync_wolke_t(karte_t *welt, loadsave_t *file) : wolke_t(welt)
 {
-    welt->sync_add( this );
+//    welt->sync_add( this );	//no smoke anymore after loading ...
     rdwr(file);
 }
 

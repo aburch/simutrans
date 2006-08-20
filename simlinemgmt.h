@@ -12,6 +12,7 @@
 
 #include "simtypes.h"
 #include "simline.h"
+#include "linehandle_t.h"
 #include "dataobj/loadsave.h"
 #include "dataobj/translator.h"
 
@@ -35,21 +36,21 @@ class simlinemgmt_t
 	 * add a line
 	 * @author hsiegeln
 	 */
- 	void add_line(simline_t * new_line);
+ 	void add_line(linehandle_t new_line);
 
 	/*
 	 * delete a line
 	 * @author hsiegeln
 	 */
  	void delete_line(int iroute);
- 	void delete_line(simline_t * line);
+ 	void delete_line(linehandle_t line);
 
 	/*
 	 * update a line -> apply updated fahrplan to all convoys
 	 * @author hsiegeln
 	 */
  	void update_line(int iroute);
-	void update_line(simline_t * line);
+	void update_line(linehandle_t line);
 
 	/*
 	 * return number off lines
@@ -61,14 +62,14 @@ class simlinemgmt_t
 	* return a line
 	* @author hsiegeln
 	*/
-	simline_t * get_line(uint16 i) const {return i<all_managed_lines.get_count() ? all_managed_lines.at(i) : NULL; }
-	simline_t * get_line(fahrplan_t *fpl);
+	linehandle_t get_line(uint16 i) const {return i<all_managed_lines.get_count() ? all_managed_lines.at(i) : NULL; }
+	linehandle_t get_line(fahrplan_t *fpl);
 
 	/*
 	* return a line by its ID
 	* @author hsiegeln
 	*/
-	simline_t * get_line_by_id(uint16 line);
+	linehandle_t get_line_by_id(uint16 line);
 
  	/*
  	 * load or save the linemanagement
@@ -102,13 +103,13 @@ class simlinemgmt_t
 	/**
 	 * @author hsiegeln
 	 */
-	simline_t * create_line(int ltype);
-	simline_t * create_line(int ltype, fahrplan_t * fpl);
+	linehandle_t create_line(int ltype);
+	linehandle_t create_line(int ltype, fahrplan_t * fpl);
 
 	/**
 	 * @author hsiegeln
 	 */
-	 void build_line_list(int type, slist_tpl<simline_t *> * list);
+	 void build_line_list(int type, slist_tpl<linehandle_t> * list);
 
 	/*
 	 * @author prissi
@@ -118,7 +119,7 @@ class simlinemgmt_t
  private:
 	static uint8 used_ids[8192];
 
-	vector_tpl<simline_t *> all_managed_lines;
+	vector_tpl<linehandle_t> all_managed_lines;
 
 	static int compare_lines(const void *p1, const void *p2);
 

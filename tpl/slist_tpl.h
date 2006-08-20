@@ -130,10 +130,7 @@ public:
     void insert(T data, unsigned int pos)
     {
 	if(pos > node_count) {
-	    throw new no_such_element_exception("slist_tpl<T>::insert()",
-						typeid(T).name(),
-						pos,
-						"Out of bounds");
+		ERROR("slist_tpl<T>::insert()","<%s> index %d is out of bounds (<%d)",typeid(T).name(),pos,count());
 	}
 	if(pos == 0) { // insert at front
 	    insert(data);
@@ -198,7 +195,7 @@ public:
     bool remove(const T data)
     {
 	if(node_count == 0) {
-	    //throw new no_such_element_exception();
+        //MESSAGE("slist_tpl<T>::remove()", "data not in list!");
 	    return false;
 	}
 	if(head->data == data) {
@@ -217,7 +214,6 @@ public:
 	    }
 	    if(p->next == 0) {
 	        //MESSAGE("slist_tpl<T>::remove()", "data not in list!");
-		//throw new no_such_element_exception();
 		return false;
 	    }
 	    node_t *tmp = p->next->next;
@@ -240,10 +236,8 @@ public:
     void remove_at(unsigned int pos)
     {
 	if(pos >= node_count) {
-	    throw new no_such_element_exception("slist_tpl<T>::remove_at()",
-						typeid(T).name(),
-						pos,
-						"Out of bounds");
+		ERROR("slist_tpl<T>::remove_at()","<%s> index %d is out of bounds",typeid(T).name(),pos);
+		trap();
 	}
       	if(pos == 0) { // remove first element
 	    node_t *tmp = head->next;
@@ -293,10 +287,8 @@ public:
 
 	    return tmp;
 	} else {
-	    throw new no_such_element_exception("slist_tpl<T>::remove_first()",
-						typeid(T).name(),
-						0,
-						"List is empty");
+	ERROR("slist_tpl<T>::remove_first()","List of <%s> is empty",typeid(T).name());
+	trap();
 	}
     }
 
@@ -337,10 +329,10 @@ public:
 	    p = p->next;
 	}
 
-	throw new no_such_element_exception("slist_tpl<T>::at()",
-					    typeid(T).name(),
-					    pos,
-					    "Out of bounds");
+	ERROR("slist_tpl<T>::at()","<%s> index %d is out of bounds",typeid(T).name(),pos);
+	trap();
+//	assert(false);
+	return head->data;	// to keep compiler silent
     }
 
 

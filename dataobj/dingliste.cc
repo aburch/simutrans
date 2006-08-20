@@ -509,8 +509,6 @@ void dingliste_t::rdwr(karte_t *welt, loadsave_t *file, koord3d current_pos)
 			ding_t *d = NULL;
 
 			switch(typ) {
-				case ding_t::sync_wolke:	    d = new sync_wolke_t (welt, file);	        break;
-				case ding_t::async_wolke:	    d = new async_wolke_t (welt, file);	        break;
 				case ding_t::verkehr:	    d = new stadtauto_t (welt, file);		break;
 				case ding_t::fussgaenger:	    d = new fussgaenger_t (welt, file);	        break;
 				case ding_t::monoraildepot:	    d = new monoraildepot_t (welt, file);	        break;
@@ -596,6 +594,10 @@ void dingliste_t::rdwr(karte_t *welt, loadsave_t *file, koord3d current_pos)
 
 				// only factories can smoke; but then, the smoker is reinstated after loading
 				case ding_t::raucher: d = new raucher_t (welt, file); delete d; d = NULL; break;
+
+				// wolke saves wrong images; but new smoke will emerge anyway ...
+				case ding_t::sync_wolke:	    d = new sync_wolke_t (welt, file); delete d; d=NULL; break;
+				case ding_t::async_wolke:	    d = new async_wolke_t (welt, file); delete d; d=NULL; break;
 
 #ifdef LAGER_NOT_IN_USE
 				case ding_t::lagerhaus:	    d = new lagerhaus_t (welt, file);	        break;

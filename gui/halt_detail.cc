@@ -131,19 +131,15 @@ void halt_detail_t::halt_detail_info(cbuffer_t & buf)
 
     // add lines that serve this stop
     buf.append("\n");
+    if (halt->registered_lines.get_count() > 0) {
     buf.append(translator::translate("Lines serving this stop"));
     buf.append(":\n");
 
-    if (halt->registered_lines.count() > 0) {
-      for (unsigned int i = 0; i<halt->registered_lines.count(); i++) {
+      for (unsigned int i = 0; i<halt->registered_lines.get_count(); i++) {
 	buf.append(" ");
 	buf.append(halt->registered_lines.at(i)->get_name());
 	buf.append("\n");
       }
-    } else {
-      buf.append(" ");
-      buf.append(translator::translate("keine"));
-      buf.append("\n");
     }
 
 

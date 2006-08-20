@@ -33,7 +33,9 @@
 #include "../simhalt.h"
 #include "../blockmanager.h"
 
+#include "../dings/bruecke.h"
 #include "../dings/gebaeude.h"
+
 #include "../besch/haus_besch.h"
 #include "../besch/kreuzung_besch.h"
 
@@ -448,19 +450,30 @@ void grund_t::rdwr(loadsave_t *file)
 	while(++i < MAX_WEGE) {
 	    wege[i] = NULL;
 	}
-    } else {
-        for(int i = 0; i < MAX_WEGE; i++) {
-	    if(wege[i]) {
-	        wege[i]->rdwr(file);
-	    }
-        }
-        file->wr_obj_id(-1);   // Ende der Wege
-    }
-    dinge.rdwr(welt, file,gib_pos());
-    if(file->is_loading()) {
-        flags |= dirty;
-    }
-//DBG_DEBUG("grund_t::rdwr()", "loaded at %i,%i with %i dinge bild %i.", pos.x, pos.y, obj_count(),bild_nr);
+  }
+	else {
+		// saving
+		for(int i = 0; i < MAX_WEGE; i++) {
+			if(wege[i]) {
+			wege[i]->rdwr(file);
+			}
+		}
+		file->wr_obj_id(-1);   // Ende der Wege
+	}
+	// all objects on this tile
+	dinge.rdwr(welt, file,gib_pos());
+
+	if(file->is_loading()) {
+		flags |= dirty;
+		// set speedlimit for birdges
+		if(gib_typ()==brueckenboden) {
+			bruecke_t *br=dynamic_cast<bruecke_t *>(suche_obj(ding_t::bruecke));
+			if(wege[0]  &&  br) {
+				wege[0]->setze_max_speed(br->gib_besch()->gib_topspeed());
+			}
+		}
+	}
+	//DBG_DEBUG("grund_t::rdwr()", "loaded at %i,%i with %i dinge bild %i.", pos.x, pos.y, obj_count(),bild_nr);
 }
 
 

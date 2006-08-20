@@ -506,7 +506,6 @@ void vehikel_t::remove_stale_freight()
   static slist_tpl<ware_t> kill_queue;
   kill_queue.clear();
 
-
   if(!fracht.is_empty()) {
     slist_iterator_tpl<ware_t> iter (fracht);
 
@@ -1695,13 +1694,25 @@ waggon_t::gib_ribi(const grund_t *gr) const
 bool
 waggon_t::ist_befahrbar(const grund_t *bd) const
 {
-	const schiene_t * sch = dynamic_cast<const schiene_t *> (bd->gib_weg(weg_t::schiene));
+	const schiene_t * sch = dynamic_cast<const schiene_t *> (bd->gib_weg(gib_wegtyp()));
 
 	// Hajo: diesel and steam engines can use electrifed track as well.
 	// also allow driving on foreign tracks ...
-	const bool ok = sch != 0 && (besch->get_engine_type() == vehikel_besch_t::electric ? sch->ist_elektrisch() : true);
+	const bool ok = (sch!=0) && (besch->get_engine_type() == vehikel_besch_t::electric ? sch->ist_elektrisch() : true);
 
-	return ok;
+	if(!ok  ||  !target_halt.is_bound()  ||  !cnv->is_waiting()) {
+		return ok;
+	}
+	else {
+		// we are searching a stop here:
+		// ok, we can go where we already are ...
+		if(bd->gib_pos()==gib_pos()) {
+			return true;
+		}
+		// but we can only use empty blocks ...
+		// now check, if we could enter here
+		return sch->gib_blockstrecke()->can_reserve_block(cnv->self);
+	}
 }
 
 
@@ -1732,9 +1743,13 @@ waggon_t::gib_kosten(const grund_t *gr,const uint32 max_speed) const
 bool
 waggon_t::ist_blockwechsel(koord3d k1, koord3d k2) const
 {
+//	DBG_MESSAGE("waggon_t::ist_blockwechsel()","%i,%i->%i,%i",k1.x,k1.y,k2.x,k2.y);
 	const schiene_t * sch0 = (const schiene_t *) welt->lookup( k1 )->gib_weg(gib_wegtyp());
 	const schiene_t * sch1 = (const schiene_t *) welt->lookup( k2 )->gib_weg(gib_wegtyp());
-	return sch0->gib_blockstrecke() != sch1->gib_blockstrecke();
+	if(sch0  &&  sch1) {
+		return sch0->gib_blockstrecke() != sch1->gib_blockstrecke();
+	}
+	return false;
 }
 
 
@@ -1898,6 +1913,9 @@ DBG_DEBUG("waggon_t::ist_weg_frei()","add station at %i,%i",gr->gib_pos().x,gr->
 			restart_speed = -1;
 		}
 		else {
+			if(sig) {
+				sig->setze_zustand(signal_t::rot);
+			}
 			restart_speed = 0;
 		}
 		return frei;
@@ -2498,7 +2516,6 @@ aircraft_t::ist_weg_frei(int & restart_speed)
 	// check for another circle ...
 	if(route_index==(touchdown-4)  &&  !target_halt.is_bound()) {
 		// circle slowly next round
-		route_t *rt=cnv->get_route();
 		cnv->setze_akt_speed_soll( kmh_to_speed(besch->gib_geschw())/2 );
 		route_index -= 16;
 		state = flying;

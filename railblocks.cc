@@ -36,6 +36,8 @@
 
 #include "find_block_way.h"
 
+karte_t *blockstrecke_t::welt=NULL;
+
 
 /**
  * Rail block factory method. Returns handles instead of pointers.
@@ -96,7 +98,6 @@ blockstrecke_t::~blockstrecke_t()
 {
 //    printf("destruktor::blockstrecke %p\n", this);
 	verdrahte_signale_neu();
-
 	// alle signale aufräumen
 	while(signale.count() > 0) {
 		signal_t * sig = signale.at(0);
@@ -269,12 +270,28 @@ blockstrecke_t::ist_frei() const
 
 
 bool
+blockstrecke_t::can_reserve_block(convoihandle_t cnv)
+{
+	if(v_rein==v_raus) {
+		// is empty => check reservation
+		if(cnv_reserved!=cnv  &&  cnv_reserved.is_bound()) {
+			// not our reservation => fail
+			return false;
+		}
+		return true;
+	}
+	return false;
+}
+
+
+
+bool
 blockstrecke_t::reserve_block(convoihandle_t cnv)
 {
 	if(v_rein==v_raus) {
 		// is empty => check reservation
 		if(cnv_reserved==cnv  ||  !cnv_reserved.is_bound()) {
-			// another convoi wants to enter here already
+			// our reservation => ok
 			cnv_reserved = cnv;
 			return true;
 		}
@@ -326,7 +343,7 @@ void blockstrecke_t::verlasse(vehikel_basis_t *)
 	v_raus ++;
 	schalte_signale();
 
-	if(v_raus == v_rein) {
+	if(v_raus >= v_rein) {
 		// vermeide Zaehlerueberlauf
 		v_raus = v_rein = 0;
 	}
@@ -476,7 +493,7 @@ void blockstrecke_t::info(cbuffer_t & buf) const
 	if(cnv_reserved.is_bound()) {
 		buf.append(translator::translate("(reserved)"));
 	}
-#if 0
+#if 1
 	// debug:
 	buf.append("\nnumber of signals ");buf.append(signale.count());
 	slist_iterator_tpl<signal_t *> iter( signale );

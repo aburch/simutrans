@@ -169,11 +169,14 @@ fahrplan_t::cleanup()
 	koord3d lastpos=eintrag.get( eintrag.get_count()-1 ).pos;
 	bool ok=true;
   	// now we have to check all entries ...
-	for(unsigned i = 0; i<eintrag.get_count()-1; i++) {
-		if (eintrag.get(i).pos==lastpos) {
+	for(unsigned i=0; i<eintrag.get_count(); i++) {
+		if(eintrag.get(i).pos==lastpos) {
 			// ingore double entries just one after the other
 			ok = false;
 			eintrag.remove_at(i);
+			if(i>aktuell) {
+				aktuell --;
+			}
 			i--;
 		}
 		else if (eintrag.get(i).pos==koord3d::invalid) {
@@ -183,8 +186,11 @@ fahrplan_t::cleanup()
 		}
 		else {
 			// next pos for check
-			lastpos = eintrag.get( i ).pos;
+			lastpos = eintrag.get(i).pos;
 		}
+	}
+	if(aktuell>eintrag.get_count()-1) {
+		aktuell = aktuell>eintrag.get_count()-1;
 	}
 	return ok;
 }

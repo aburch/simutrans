@@ -24,9 +24,8 @@
 #include "components/gui_textarea.h"
 #include "gui_scrollpane.h"
 
-#ifndef convoihandle_t_h
 #include "../convoihandle_t.h"
-#endif
+#include "../linehandle_t.h"
 
 
 class spieler_t;
@@ -72,10 +71,11 @@ class fahrplan_gui_t :	public gui_frame_t,
 				     int max_chars);
 
 private:
+	static char no_line[128];
 
     enum mode_t {adding, inserting, removing, none};
 
-	slist_tpl<simline_t *> lines;
+	slist_tpl<linehandle_t> lines;
 
     mode_t mode;
 
@@ -101,9 +101,7 @@ private:
 
     cbuffer_t buf;
 
-    char * no_line;
-
-    simline_t * new_line;
+    linehandle_t new_line;
 
     void init_line_selector();
 
@@ -111,9 +109,7 @@ public:
 
     fahrplan_gui_t(karte_t *welt, fahrplan_t *fpl, spieler_t *sp);
     fahrplan_gui_t(karte_t *welt, convoihandle_t cnv, spieler_t *sp);
-    ~fahrplan_gui_t() {
-    	delete (no_line);
-    };
+    ~fahrplan_gui_t() { }
 
 
     /**

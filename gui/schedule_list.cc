@@ -76,7 +76,7 @@ schedule_list_gui_t::schedule_list_gui_t(karte_t *welt,spieler_t *sp)
 {
 	this->welt = welt;
 	this->sp = sp;
-	line = NULL;
+	line = linehandle_t();
 	capacity = load = 0;
 	selection = -1;
 	loadfactor = 0;
@@ -194,20 +194,11 @@ schedule_list_gui_t::~schedule_list_gui_t()
 
 
 
-char *schedule_list_gui_t::info(char *buf) const
-{
-    buf[0]=' ';
-    buf[1]=0;
-    return buf;
-}
-
-
-
 bool schedule_list_gui_t::action_triggered(gui_komponente_t *komp)           // 28-Dec-01    Markus Weber    Added
 {
     if (komp == &bt_change_line)
     {
-		if (line != NULL) {
+		if (line.is_bound()) {
 			line_management_gui_t *line_gui = new line_management_gui_t(welt, line, welt->get_active_player());
 			line_gui->zeige_info();
 		}
@@ -216,7 +207,7 @@ bool schedule_list_gui_t::action_triggered(gui_komponente_t *komp)           // 
     	if (tabs.get_active_tab_index() > 0) {
     	// create typed line
     	uint8 type=tabs_to_lineindex[tabs.get_active_tab_index()];
-		simline_t * new_line = sp->simlinemgmt.create_line(type);
+		linehandle_t new_line = sp->simlinemgmt.create_line(type);
 		line_management_gui_t *line_gui = new line_management_gui_t(welt, new_line, sp);
 		line_gui->zeige_info();
 
@@ -230,7 +221,7 @@ bool schedule_list_gui_t::action_triggered(gui_komponente_t *komp)           // 
 		}
     } else if (komp == &bt_delete_line)
     {
-		if (line != NULL) {
+		if (line.is_bound()) {
 			// remove elements from lists
 			lines.remove(line);
 			sp->simlinemgmt.delete_line(line);
@@ -241,7 +232,7 @@ bool schedule_list_gui_t::action_triggered(gui_komponente_t *komp)           // 
 			inp_name.set_visible(false);
 			filled_bar.set_visible(false);
 			build_line_list(tabs.get_active_tab_index());
-			line = NULL;
+			line = linehandle_t();
 			scl->setze_selection(-1);
 			bt_delete_line.disable();
 			bt_change_line.disable();
@@ -254,9 +245,9 @@ bool schedule_list_gui_t::action_triggered(gui_komponente_t *komp)           // 
 		filled_bar.set_visible(false);
     	build_line_list(tabs.get_active_tab_index());
     	scl->setze_selection(-1);
-    	line = NULL;
+    	line = linehandle_t();
     } else {
-    	if (line != NULL)
+    	if (line.is_bound())
     	{
     	    for ( int i = 0; i<MAX_LINE_COST; i++) {
 		    	if (komp == &filterButtons[i]) {
@@ -277,7 +268,7 @@ schedule_list_gui_t::infowin_event(const event_t *ev)
   int y = ev->cy;
 
     if (ev->ev_class == EVENT_CLICK) {
-      if (line == NULL) {
+      if (!line.is_bound()) {
   	  	bt_change_line.disable();
   	  	bt_delete_line.disable();
       } else {
@@ -296,9 +287,9 @@ schedule_list_gui_t::infowin_event(const event_t *ev)
   	  	bt_change_line.enable();
   	  	bt_delete_line.enable();
   	  } else {
-  	  	line = NULL;
+  	  	line = linehandle_t();
   	  }
-      if (line == NULL) {
+      if (!line.is_bound()) {
 				return;
       }
       scrolly.set_visible(true);
@@ -367,7 +358,7 @@ void schedule_list_gui_t::zeichnen(koord pos, koord gr)
   }
 
   gui_frame_t::zeichnen(pos, gr);
-  if (line != NULL) {
+  if (line.is_bound()) {
     display(pos);
   }
 //  scl->zeichnen(pos);
@@ -403,13 +394,24 @@ schedule_list_gui_t::display(koord pos)
 		loadfactor = (load * 100) / capacity;
 	}
 
-	money_to_string(ctmp, profit / 100.0);
-	sprintf(buffer, translator::translate("Convois: %d\nProfit: %s"), icnv, ctmp);
-	display_multiline_text(pos.x + LINE_NAME_COLUMN_WIDTH + 2, pos.y+16 + 14 + SCL_HEIGHT+14+4, buffer, COL_BLACK);
+	switch(icnv) {
+		case 0: strcpy(buffer, translator::translate("no convois") );
+			break;
+		case 1: strcpy(buffer, translator::translate("no convois") );
+			break;
+		default: sprintf(buffer, translator::translate("%d convois"), icnv);
+			break;
+	}
+	display_proportional(pos.x+LINE_NAME_COLUMN_WIDTH-5, pos.y+16+14+SCL_HEIGHT+14+4, buffer, ALIGN_LEFT, COL_BLACK, true );
 
+	int len = display_proportional(pos.x+LINE_NAME_COLUMN_WIDTH-5, pos.y+16+14+SCL_HEIGHT+14+4+LINESPACE, translator::translate("Gewinn"), ALIGN_LEFT, COL_BLACK, true );
+	money_to_string(ctmp, profit / 100.0);
+	display_proportional(pos.x+LINE_NAME_COLUMN_WIDTH+len, pos.y+16+14+SCL_HEIGHT+14+4+LINESPACE, ctmp, ALIGN_LEFT, profit>=0?MONEY_PLUS:MONEY_MINUS, true );
+
+	int rest_width = get_client_windowsize().x-LINE_NAME_COLUMN_WIDTH;
 	number_to_string(ctmp, capacity);
 	sprintf(buffer, translator::translate("Capacity: %s\nLoad: %d (%d%%)"), ctmp, load, loadfactor);
-	display_multiline_text(pos.x + LINE_NAME_COLUMN_WIDTH + 106, pos.y+16 + 14 + SCL_HEIGHT + 14 +6 , buffer, COL_BLACK);
+	display_multiline_text(pos.x + LINE_NAME_COLUMN_WIDTH + rest_width/2, pos.y+16 + 14 + SCL_HEIGHT + 14 +4 , buffer, COL_BLACK);
 }
 
 void schedule_list_gui_t::resize(const koord delta)
@@ -419,7 +421,7 @@ void schedule_list_gui_t::resize(const koord delta)
 
 	int rest_width = get_client_windowsize().x-LINE_NAME_COLUMN_WIDTH;
 	int button_per_row=max(1,rest_width/(BUTTON_WIDTH+BUTTON_SPACER));
-	int button_rows=(MAX_LINE_COST)/button_per_row;
+	int button_rows= MAX_LINE_COST/button_per_row + ((MAX_LINE_COST%button_per_row)!=0);
 
 	scrolly.setze_groesse( koord(rest_width+11, get_client_windowsize().y-scrolly.gib_pos().y) );
 	scrolly_haltestellen.setze_groesse( koord(LINE_NAME_COLUMN_WIDTH-11, get_client_windowsize().y-scrolly_haltestellen.gib_pos().y) );
@@ -441,7 +443,7 @@ DBG_MESSAGE("schedule_list_gui_t::build_line_list()","count=%i",sp->simlinemgmt.
 		scl->clear_elements();
 		lines.clear();
 		sp->simlinemgmt.build_line_list( tabs_to_lineindex[filter], &lines );
-		slist_iterator_tpl<simline_t *> iter(lines);
+		slist_iterator_tpl<linehandle_t> iter(lines);
 		while( iter.next() ) {
 			scl->append_element( iter.get_current()->get_name() );
 		}

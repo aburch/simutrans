@@ -20,8 +20,7 @@ template <class T> class slist_tpl;
  * -selection. is a list, but additionaly, one item can be selected.
  * @author Niels Roest, additions by Hj. Malthaner
  */
-class scrolled_list_gui_t
-: public gui_komponente_t, public scrollbar_listener_t
+class scrolled_list_gui_t  : public gui_komponente_t, public scrollbar_listener_t
 {
 public:
 
@@ -90,6 +89,7 @@ public:
 
   void setze_selection(int s) { selection = s; }
   int gib_selection() { return selection; }
+  int get_count() { return item_list->count(); }
 
   void scrollbar_moved(class scrollbar_t *sb, int range, int value);
 

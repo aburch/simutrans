@@ -66,15 +66,14 @@ monorail_t::rdwr(loadsave_t *file)
 	file->rdwr_long(blocknr, "\n");
 
 	if(file->is_loading()) {
-		if(blocknr < 0) {
-			dbg->error("monorail_t::monorail_t()","invalid rail block id (id=%d) in saved game", blocknr);
-
-			// Hack wg. invalid railblock ids - kein abort mehr
-			setze_blockstrecke(blockstrecke_t::create(welt));
+		blockhandle_t bs=blockmanager::gib_manager()->gib_strecke_bei(blocknr);
+		if(!bs.is_bound()) {
+			// will try to repair them after loading everything ...
+			dbg->warning("monorail_t::monorail_t()","invalid rail block id (id=%d) in saved game", blocknr);
+			bs = blockstrecke_t::create(welt);
+			blockmanager::gib_manager()->repair_block(bs);
 		}
-		else {
-			setze_blockstrecke(blockmanager::gib_manager()->gib_strecke_bei(blocknr));
-		}
+		setze_blockstrecke(bs);
 	}
 
 	file->rdwr_byte(is_electrified, "\n");

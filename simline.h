@@ -14,10 +14,13 @@
 #include "dataobj/translator.h"
 #include "dataobj/fahrplan.h"
 
-#include "tpl/slist_tpl.h"
+//#include "tpl/slist_tpl.h"
+#include "tpl/vector_tpl.h"
 #include "simconvoi.h"
 
 #include "simdebug.h"
+#include "linehandle_t.h"
+#include "convoihandle_t.h"
 
 #define MAX_LINE_COST   6 // Total number of cost items
 #define MAX_MONTHS     12 // Max history
@@ -35,7 +38,13 @@ class simlinemgmt_t;
 class convoi_t;
 
 class simline_t {
-	public:
+public:
+
+    /**
+     * Handle for ourselves. Can be used like the 'this' pointer
+     * @author Hj. Malthaner
+     */
+    linehandle_t self;
 
 	enum linetype { line = 0, truckline = 1, trainline = 2, shipline = 3, airline = 4, monorailline=5, tramline=6};
 	static uint8 convoi_to_line_catgory[MAX_CONVOI_COST];
@@ -44,7 +53,7 @@ class simline_t {
 	 * constructor/destructor
 	 * @author hsiegeln
 	 */
-	simline_t(simline_t *line);
+	simline_t(linehandle_t line);
 	simline_t(karte_t * welt, simlinemgmt_t * simlinemgmt, fahrplan_t * fpl);
 	simline_t(karte_t * welt, simlinemgmt_t * simlinemgmt, loadsave_t * file);
 	~simline_t();
@@ -53,19 +62,19 @@ class simline_t {
 	 * add convoy to route
 	 * @author hsiegeln
 	 */
-	void add_convoy(convoi_t * cnv);
+	void add_convoy(convoihandle_t cnv);
 
 	/*
 	 * remove convoy from route
 	 * @author hsiegeln
 	 */
-	void remove_convoy(convoi_t * cnv);
+	void remove_convoy(convoihandle_t cnv);
 
 	/*
 	 * get convoy
 	 * @author hsiegeln
 	 */
-	convoi_t * get_convoy(int i);
+	convoihandle_t get_convoy(int i);
 
 	/*
 	 * return number of manages convoys in this line
@@ -87,7 +96,7 @@ class simline_t {
 	 */
 	char * get_name();
 
-	uint16 get_id() const {return id;};
+	uint16 get_line_id() const {return id;}
 
  	/*
  	 * load or save the line
@@ -132,9 +141,9 @@ class simline_t {
 	 */
 	void prepare_for_update();
 
-	linetype get_linetype() { return type; };
+	linetype get_linetype() { return type; }
 
-	void set_linetype(linetype lt) { type = lt; };
+	void set_linetype(linetype lt) { type = lt; }
 
 protected:
 	fahrplan_t * fpl,  * old_fpl;
@@ -154,7 +163,7 @@ private:
 	 * a list of all convoys assigned to this line
 	 * @author hsiegeln
 	 */
-	slist_tpl<convoi_t *> line_managed_convoys;
+	vector_tpl<convoihandle_t> line_managed_convoys;
 
 	/*
  	 * struct holds new financial history for line
@@ -168,7 +177,7 @@ private:
 class truckline_t : public simline_t
 {
 	public:
-		truckline_t(simline_t *line) : simline_t(line) { type = simline_t::truckline; }
+		truckline_t(linehandle_t line) : simline_t(line) { type = simline_t::truckline; }
 
 		truckline_t(karte_t * welt, simlinemgmt_t * simlinemgmt, fahrplan_t * fpl) : simline_t(welt, simlinemgmt, fpl)
 		{
@@ -185,7 +194,7 @@ class truckline_t : public simline_t
 class trainline_t : public simline_t
 {
 	public:
-		trainline_t(simline_t *line) : simline_t(line) { type = simline_t::trainline; }
+		trainline_t(linehandle_t line) : simline_t(line) { type = simline_t::trainline; }
 
 		trainline_t(karte_t * welt, simlinemgmt_t * simlinemgmt, fahrplan_t * fpl) : simline_t(welt, simlinemgmt, fpl)
 		{
@@ -202,7 +211,7 @@ class trainline_t : public simline_t
 class shipline_t : public simline_t
 {
 	public:
-		shipline_t(simline_t *line) : simline_t(line) { type = simline_t::shipline; }
+		shipline_t(linehandle_t line) : simline_t(line) { type = simline_t::shipline; }
 
 		shipline_t(karte_t * welt, simlinemgmt_t * simlinemgmt, fahrplan_t * fpl) : simline_t(welt, simlinemgmt, fpl)
 		{
@@ -219,7 +228,7 @@ class shipline_t : public simline_t
 class airline_t : public simline_t
 {
 	public:
-		airline_t(simline_t *line) : simline_t(line) { type = simline_t::airline; }
+		airline_t(linehandle_t line) : simline_t(line) { type = simline_t::airline; }
 
 		airline_t(karte_t * welt, simlinemgmt_t * simlinemgmt, fahrplan_t * fpl) : simline_t(welt, simlinemgmt, fpl)
 		{
@@ -236,7 +245,7 @@ class airline_t : public simline_t
 class monorailline_t : public simline_t
 {
 	public:
-		monorailline_t(simline_t *line) : simline_t(line) { type = simline_t::monorailline; }
+		monorailline_t(linehandle_t line) : simline_t(line) { type = simline_t::monorailline; }
 
 		monorailline_t(karte_t * welt, simlinemgmt_t * simlinemgmt, fahrplan_t * fpl) : simline_t(welt, simlinemgmt, fpl)
 		{
@@ -253,7 +262,7 @@ class monorailline_t : public simline_t
 class tramline_t : public simline_t
 {
 	public:
-		tramline_t(simline_t *line) : simline_t(line) { type = simline_t::tramline; }
+		tramline_t(linehandle_t line) : simline_t(line) { type = simline_t::tramline; }
 
 		tramline_t(karte_t * welt, simlinemgmt_t * simlinemgmt, fahrplan_t * fpl) : simline_t(welt, simlinemgmt, fpl) { type = simline_t::tramline; }
 

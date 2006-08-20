@@ -401,16 +401,13 @@ spieler_t::step()
 
     int i = steps & 15;
     slist_iterator_tpl <halthandle_t> iter( halt_list );
-
     while(iter.next()) {
-
         if( (i & 15) == 0 ) {
 	    INT_CHECK("simplay 154");
             iter.get_current()->step();
 	    INT_CHECK("simplay 156");
         }
         i++;
-
     }
     INT_CHECK("simplay 157");
 }
@@ -2670,6 +2667,7 @@ DBG_DEBUG("spieler_t::rdwr()","%i has %i halts.",welt->sp2num( this ),halt_count
 DBG_MESSAGE("spieler_t::rdwr","Save ok");
 	}
 	else {
+DBG_MESSAGE("spieler_t::rdwr","loading ...");
 		// loading
 		start = NULL;
 		if(start_index != -1) {

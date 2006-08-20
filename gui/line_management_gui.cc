@@ -11,7 +11,7 @@
 #include "../simlinemgmt.h"
 
 
-line_management_gui_t::line_management_gui_t(karte_t *welt, simline_t * line, spieler_t *sp) :
+line_management_gui_t::line_management_gui_t(karte_t *welt, linehandle_t line, spieler_t *sp) :
 	fahrplan_gui_t(welt, line->get_fahrplan(), sp)
 {
 	this->line = line;

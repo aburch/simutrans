@@ -236,7 +236,7 @@ convoihandle_t depot_t::copy_convoi(int icnv)
 			    }
 				}
 			}
-			if (old_cnv->has_line()) {
+			if (old_cnv->get_line().is_bound()) {
 				new_cnv->set_line(old_cnv->get_line());
 			} else {
 				if (old_cnv->gib_fahrplan() != NULL) {
@@ -283,19 +283,8 @@ bool depot_t::disassemble_convoi(int icnv, bool sell)
 	// Hajo: update all stations from schedule that this convoi des not
 	// drive any more
 	fahrplan_t * fpl = cnv->gib_fahrplan();
-	if(fpl) {
-
-	  for(int i=0; i<fpl->maxi(); i++) {
-
-	    halthandle_t halt;
-
-	    DBG_MESSAGE("depot_t::convoi_aufloesen()", "Unlinking schedule entry %d", i);
-
-	    // Hajo: Hält dieser convoi hier?
-	    if( (halt = haltestelle_t::gib_halt(welt, fpl->eintrag.get(i).pos.gib_2d())).is_bound() ) {
-	      halt->rebuild_destinations();
-	    }
-	  }
+	if(fpl  &&  fpl->maxi()>0) {
+		welt->set_schedule_counter();
 	}
 
 DBG_MESSAGE("depot_t::convoi_aufloesen()", "convois.remove_at(%i)", icnv);
@@ -447,14 +436,15 @@ depot_t::get_vehicle_type(int itype)
 	return vehikelbauer_t::gib_info(get_wegtyp(), itype);
 }
 
-slist_tpl<simline_t *> *
+slist_tpl<linehandle_t> *
 depot_t::get_line_list()
 {
+	lines.clear();
 	gib_besitzer()->simlinemgmt.build_line_list(get_line_type(), &lines);
 	return &lines;
 }
 
-simline_t *
+linehandle_t
 depot_t::create_line()
 {
 	return gib_besitzer()->simlinemgmt.create_line(get_line_type());
@@ -502,7 +492,7 @@ bahndepot_t::can_convoi_start(int icnv) const
     // prüfe ob blockstrecke frei
     if(bs.is_bound() && bs->ist_frei()) {
 	// blockstrecke ist frei, wir können starten
-///////////////////////////Signal
+
 	// simuliere überfahren des ersten feldes der blockstrecke
 	int i = 0;
 

@@ -33,6 +33,8 @@ gui_combobox_t::gui_combobox_t() : gui_textinput_t()
     set_read_only(false);
 }
 
+
+
 /**
  * Destruktor
  *
@@ -43,9 +45,9 @@ gui_combobox_t::~gui_combobox_t()
     if(has_focus()) {
 		release_focus();
     }
-
     delete droplist;
 }
+
 
 
 /**
@@ -56,23 +58,23 @@ gui_combobox_t::~gui_combobox_t()
 void gui_combobox_t::infowin_event(const event_t *ev)
 {
 	gui_textinput_t::infowin_event(ev);
+
 	if(IS_LEFTCLICK(ev) || IS_LEFTDRAG(ev) || IS_LEFTRELEASE(ev)) {
 		if(!has_focus()) {
 	        request_focus();
-		} else {
+		}
+		else {
 			droplist->set_visible(true);
 
-			if (droplist->is_visible())
-			{
+			if (droplist->is_visible()) {
 				event_t ev2 = *ev;
 				translate_event(&ev2, 0, -16);
-				if (droplist->getroffen(ev->cx+pos.x, ev->cy+pos.y))
-				{
+
+				if (droplist->getroffen(ev->cx+pos.x, ev->cy+pos.y)) {
 					droplist->infowin_event(&ev2);
 
 					// acting on "release" is better than checking for "new selection"
-					if (IS_LEFTRELEASE(ev) && (droplist->getroffen(ev->cx+pos.x+15, ev->cy+pos.y)))
-					{
+					if (IS_LEFTRELEASE(ev) && (droplist->getroffen(ev->cx+pos.x+15, ev->cy+pos.y))) {
 						// notify listeners of new selection
 						call_listeners();
 						droplist->set_visible(false);
@@ -81,21 +83,19 @@ void gui_combobox_t::infowin_event(const event_t *ev)
 				}
 			}
 		}
-    } else if(ev->ev_class == INFOWIN &&
-	      ev->ev_code == WIN_CLOSE &&
-	      has_focus()) {
-		  release_focus();
-    } else if (ev->ev_class == EVENT_KEYBOARD) {
-    	switch (ev->ev_code) {
-    		case 13: //return key
-						droplist->set_visible(false);
-						release_focus();
-    		break;
-    	}
-    }
-		// update "mouse-click-catch-area"
-		droplist->is_visible() ? setze_groesse(koord(groesse.x, max_size.y)) : setze_groesse(koord(groesse.x, 14));
+	} else if(ev->ev_class==INFOWIN  &&  ev->ev_code==WIN_CLOSE  &&  has_focus()) {
+		release_focus();
+	} else if (ev->ev_class == EVENT_KEYBOARD) {
+		if(ev->ev_code==13) {
+			//return key
+			droplist->set_visible(false);
+			release_focus();
+		}
+	}
+	// update "mouse-click-catch-area"
+	droplist->is_visible() ? setze_groesse(koord(groesse.x, max_size.y)) : setze_groesse(koord(groesse.x, 14));
 }
+
 
 
 /**
@@ -105,20 +105,25 @@ void gui_combobox_t::infowin_event(const event_t *ev)
 void gui_combobox_t::zeichnen(koord offset) const
 {
 	gui_textinput_t::zeichnen(offset);
-    droplist->setze_groesse(koord(this->groesse.x, max_size.y-16));
-    droplist->setze_pos(koord(this->pos.x, this->pos.y+16));
+
+	droplist->setze_groesse(koord(this->groesse.x, max_size.y-16));
+	droplist->setze_pos(koord(this->pos.x, this->pos.y+16));
 	droplist->request_groesse(droplist->gib_groesse());
-    if (droplist->is_visible())
-    {
-    	droplist->zeichnen(offset);
-    }
+
+	if (droplist->is_visible()) {
+		droplist->zeichnen(offset);
+	}
 }
+
+
 
 /**
 * Release the focus if we had it
 */
-bool gui_combobox_t::release_focus() {
+bool gui_combobox_t::release_focus()
+{
 	gui_textinput_t::release_focus();
 	droplist->set_visible(false);
+	setze_groesse(koord(groesse.x, 14));
 	return !has_focus();
 };

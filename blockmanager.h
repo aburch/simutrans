@@ -98,6 +98,31 @@ private:
 
 
 
+    /**
+     * normalerweise weiss eine blockstrecke, ob sie frei ist oder nicht
+     * aber neu angelegte blockstrecken besitzen diese information noch
+     * nicht. deshalb können objekte dieser Klasse prüfen, ob eine blockstrecke
+     * frei ist.
+     * @author Hj. Malthaner
+     */
+    class check_block_borders : public koord_beobachter
+    {
+    private:
+        karte_t *welt;
+	blockhandle_t bs;
+    public:
+	check_block_borders(karte_t *welt, blockhandle_t bs);
+	virtual ~check_block_borders() {}
+
+	bool neue_koord(koord3d k);
+	void wieder_koord(koord3d );
+	bool ist_uebergang_ok(koord3d pos1, koord3d pos2);
+
+	slist_tpl<blockhandle_t>changed_bs;
+    };
+
+
+
     static blockmanager * single_instance;
 
     blockmanager();
@@ -126,10 +151,10 @@ public:
 
     void setze_welt_groesse(int w,int h);
 
-    int gib_block_nr(blockhandle_t bs) {return strecken.index_of(bs);};
-    blockhandle_t  gib_strecke_bei(int i) {return (blockhandle_t )strecken.at(i);};
+    int gib_block_nr(blockhandle_t bs) {return strecken.index_of(bs);}
+    blockhandle_t  gib_strecke_bei(int i) { return (((unsigned)i)<strecken.count()) ? (blockhandle_t )strecken.at(i) : blockhandle_t(); }
 
-    const slist_tpl< blockhandle_t  > * gib_strecken() {return &strecken;};
+    const slist_tpl< blockhandle_t  > * gib_strecken() {return &strecken;}
 
 
     /**
@@ -166,7 +191,12 @@ public:
      */
     blockhandle_t  finde_blockstrecke(karte_t *welt, koord3d punkt);
 
+private:
+	bool repair_identical_marked_blocks( karte_t *welt, blockhandle_t bs );
 
+	slist_tpl<blockhandle_t> repair_blocks;	// list of all blocks to be repaired after loading
+
+public:
 
     /**
      * Nur zum Debugging, setzt leere Blockstrecken auf leer
@@ -174,8 +204,9 @@ public:
      */
     void pruefe_blockstrecke(karte_t *welt, koord3d k);
 
-    void setze_tracktyp(karte_t *welt, koord3d k, uint8 styp);
+	void repair_block(blockhandle_t bs) { if(!repair_blocks.contains(bs)) {repair_blocks.append(bs);} }
 
+    void setze_tracktyp(karte_t *welt, koord3d k, uint8 styp);
 
     void rdwr(karte_t *welt, loadsave_t *file);
     void laden_abschliessen();
@@ -183,9 +214,7 @@ public:
     void delete_all_blocks();
 
 private:
-
-    array_tpl<koord3d> &finde_nachbarn(const karte_t *welt, const koord3d pos,
-                                  const ribi_t::ribi ribi, int &anzahl);
+    array_tpl<koord3d> &finde_nachbarn(const karte_t *welt, const koord3d pos, const ribi_t::ribi ribi, int &anzahl);
 
     bool ist_markiert(grund_t *gr) const { return marker.ist_markiert(gr); }
     void traversiere_netz(const karte_t * welt, const koord3d start, koord_beobachter *cmd);

@@ -253,7 +253,7 @@ void haltestelle_t::destroy_all()
 
 // Konstruktoren
 
-haltestelle_t::haltestelle_t(karte_t *wl, loadsave_t *file) : self(this), reservation(0)
+haltestelle_t::haltestelle_t(karte_t *wl, loadsave_t *file) : self(this), reservation(0), registered_lines(0)
 {
     alle_haltestellen.insert(self);
 
@@ -278,7 +278,7 @@ haltestelle_t::haltestelle_t(karte_t *wl, loadsave_t *file) : self(this), reserv
 }
 
 
-haltestelle_t::haltestelle_t(karte_t *wl, koord pos, spieler_t *sp) : self(this), reservation(0)
+haltestelle_t::haltestelle_t(karte_t *wl, koord pos, spieler_t *sp) : self(this), reservation(0), registered_lines(0)
 {
     alle_haltestellen.insert(self);
 
@@ -354,11 +354,18 @@ haltestelle_t::step()
 //	DBG_MESSAGE("haltestelle_t::step()","%s (cnt %i)",gib_name(),reroute_counter);
 	// hsiegeln: update amount of waiting ware
 	financial_history[0][HALT_WAITING] = sum_all_waiting_goods();
-	if(reroute_counter!=welt->get_schedule_counter()) {
-		// every 255 steps
-		reroute_goods();
-		reroute_counter = welt->get_schedule_counter();
-//		DBG_MESSAGE("haltestelle_t::step()","rerouting goods at %s",gib_name());
+	if(rebuilt_destination_counter!=welt->get_schedule_counter()) {
+		// schedule has changed ...
+		rebuild_destinations();
+		rebuilt_destination_counter = welt->get_schedule_counter();
+	}
+	else {
+		// all new connection updated => recalc routes
+		if(reroute_counter!=welt->get_schedule_counter()) {
+			reroute_goods();
+			reroute_counter = welt->get_schedule_counter();
+	//		DBG_MESSAGE("haltestelle_t::step()","rerouting goods at %s",gib_name());
+		}
 	}
 	recalc_status();
 }
@@ -608,6 +615,8 @@ void haltestelle_t::rebuild_destinations()
 		// DBG_MESSAGE("haltestelle_t::rebuild_destinations()", "convoi %d %p", cnv.get_id(), cnv.get_rep());
 
 		if(gib_besitzer()==welt->gib_spieler(1)  ||  cnv->gib_besitzer()==gib_besitzer()) {
+
+			INT_CHECK("simhalt.cc 612");
 
 			fahrplan_t *fpl = cnv->gib_fahrplan();
 			if(fpl) {
