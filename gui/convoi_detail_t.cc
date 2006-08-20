@@ -46,6 +46,11 @@ convoi_detail_t::convoi_detail_t(convoihandle_t cnv)
 {
 	this->cnv = cnv;
 
+	sale_button.init(button_t::roundbox, translator::translate("verkaufen"), koord(BUTTON3_X, 14), koord(BUTTON_WIDTH,BUTTON_HEIGHT));
+	sale_button.add_listener(this);
+	sale_button.set_tooltip(translator::translate("Remove vehicle from map. Use with care!"));
+	add_komponente(&sale_button);
+
 	scrolly.setze_pos(koord(0, 64));
 	add_komponente(&scrolly);
 
@@ -78,11 +83,35 @@ static koord groesse_vehicle(300,5);
 void
 convoi_detail_t::zeichnen(koord pos, koord gr)
 {
-	if(cnv.is_bound()) {
+	if(!cnv.is_bound()) {
+		destroy_win(dynamic_cast <gui_fenster_t *> (this));
+	}
+	else {
+		if(cnv->gib_besitzer()==cnv->gib_welt()->get_active_player()) {
+			sale_button.enable();
+		}
+		else {
+			sale_button.disable();
+		}
+
 		// all gui stuff set => display it
 		gui_frame_t::zeichnen(pos, gr);
 		veh_info.setze_groesse(groesse_vehicle);
 		scrolly.setze_groesse(get_client_windowsize()-scrolly.gib_pos());
+		int offset_y = pos.y+14+16;
+
+		// current value
+		static char tmp[256], buf[32];
+
+		// current power
+		sprintf( tmp, translator::translate("Leistung: %d kW"), cnv->gib_sum_leistung() );
+		display_proportional_clip( pos.x+10, offset_y, tmp, ALIGN_LEFT, MONEY_PLUS, true );
+		offset_y += LINESPACE;
+
+		money_to_string( buf, cnv->calc_restwert()/100.0 );
+		sprintf( tmp, "%s %s", translator::translate("Restwert:"), buf );
+		display_proportional_clip( pos.x+10, offset_y, tmp, ALIGN_LEFT, MONEY_PLUS, true );
+		offset_y += LINESPACE;
 
 #if 0
 		// convoi information
@@ -93,16 +122,16 @@ convoi_detail_t::zeichnen(koord pos, koord gr)
 		mean_convoi_speed += speed_to_kmh(cnv->gib_akt_speed()*4);
 		mean_convoi_speed /= 2;
 		sprintf(tmp,translator::translate("%i km/h (max. %ikm/h)"), (mean_convoi_speed+3)/4, speed_to_kmh(cnv->gib_min_top_speed()) );
-		display_proportional( pos.x+11, pos.y+16+20, tmp, ALIGN_LEFT, SCHWARZ, true );
+		display_proportional( pos.x+11, pos.y+16+20, tmp, ALIGN_LEFT, COL_BLACK, true );
 
 		// next important: income stuff
 		info_buf.clear();
 		info_buf.append( translator::translate("Gewinn") );
-		int len = 5+display_proportional( pos.x+11, pos.y+16+20+1*LINESPACE, info_buf, ALIGN_LEFT, SCHWARZ, true );
+		int len = 5+display_proportional( pos.x+11, pos.y+16+20+1*LINESPACE, info_buf, ALIGN_LEFT, COL_BLACK, true );
 		money_to_string( tmp, cnv->gib_jahresgewinn()/100.0 );
 		len += 5+display_proportional( pos.x+11+len, pos.y+16+20+1*LINESPACE, tmp, ALIGN_LEFT, cnv->gib_jahresgewinn()>0?MONEY_PLUS:MONEY_MINUS, true );
 		sprintf(tmp," (%1.2f$/km)", cnv->get_running_cost()/100.0 );
-		display_proportional( pos.x+11+len, pos.y+16+20+1*LINESPACE, tmp, ALIGN_LEFT, SCHWARZ, true );
+		display_proportional( pos.x+11+len, pos.y+16+20+1*LINESPACE, tmp, ALIGN_LEFT, COL_BLACK, true );
 
 		// the weight entry
 		info_buf.clear();
@@ -112,7 +141,7 @@ convoi_detail_t::zeichnen(koord pos, koord gr)
 		info_buf.append( " (" );
 		info_buf.append( cnv->gib_sum_gesamtgewicht()-cnv->gib_sum_gewicht() );
 		info_buf.append( ") t" );
-		display_proportional( pos.x+11, pos.y+16+20+2*LINESPACE, info_buf, ALIGN_LEFT, SCHWARZ, true );
+		display_proportional( pos.x+11, pos.y+16+20+2*LINESPACE, info_buf, ALIGN_LEFT, COL_BLACK, true );
 
 		// next stop
 		const fahrplan_t * fpl = cnv->gib_fahrplan();
@@ -120,7 +149,7 @@ convoi_detail_t::zeichnen(koord pos, koord gr)
 		info_buf.append(translator::translate("Fahrtziel:"));
 		info_buf.append(" ");
 		fahrplan_gui_t::gimme_short_stop_name(info_buf, cnv->gib_welt(), fpl, fpl->aktuell, 34);
-		len = display_proportional( pos.x+11, pos.y+16+20+3*LINESPACE, info_buf, ALIGN_LEFT, SCHWARZ, true );
+		len = display_proportional( pos.x+11, pos.y+16+20+3*LINESPACE, info_buf, ALIGN_LEFT, COL_BLACK, true );
 
 		// convoi load indicator
 		const int offset = max( len+11, 167)+3;
@@ -136,10 +165,29 @@ convoi_detail_t::zeichnen(koord pos, koord gr)
 			info_buf.append( translator::translate("Serves Line:") );
 			info_buf.append( " " );
 			info_buf.append( cnv->get_line()->get_name() );
-			display_proportional( pos.x+11, pos.y+16+20+4*LINESPACE, info_buf, ALIGN_LEFT, SCHWARZ, true );
+			display_proportional( pos.x+11, pos.y+16+20+4*LINESPACE, info_buf, ALIGN_LEFT, COL_BLACK, true );
 		}
 #endif
 	}
+}
+
+
+
+/**
+ * This method is called if an action is triggered
+ * @author Markus Weber
+ */
+bool
+convoi_detail_t::action_triggered(gui_komponente_t *komp)           // 28-Dec-01    Markus Weber    Added
+{
+	if(cnv.is_bound()) {
+		if(komp==&sale_button) {
+			destroy_win(dynamic_cast <gui_fenster_t *> (this));
+			cnv->self_destruct();
+			return true;
+		}
+	}
+	return false;
 }
 
 
@@ -209,7 +257,7 @@ void gui_vehicleinfo_t::zeichnen(koord offset) const
 			// age
 			sint32 month = v->gib_insta_zeit();
 			sprintf( buf, "%s %s %i", translator::translate("Manufactured:"), translator::translate(month_names[month%12]), month/12  );
-			display_proportional_clip( pos.x+w+offset.x, pos.y+offset.y+total_height+extra_y, buf, ALIGN_LEFT, BLACK, true );
+			display_proportional_clip( pos.x+w+offset.x, pos.y+offset.y+total_height+extra_y, buf, ALIGN_LEFT, COL_BLACK, true );
 			extra_y += LINESPACE;
 
 			// value
@@ -229,7 +277,7 @@ void gui_vehicleinfo_t::zeichnen(koord offset) const
 			if(v->gib_fracht_max() > 0) {
 
 				// bonus stuff
-				int len = 5+display_proportional_clip( pos.x+w+offset.x, pos.y+offset.y+total_height+extra_y, translator::translate("Max income:"), ALIGN_LEFT, SCHWARZ, true );
+				int len = 5+display_proportional_clip( pos.x+w+offset.x, pos.y+offset.y+total_height+extra_y, translator::translate("Max income:"), ALIGN_LEFT, COL_BLACK, true );
 				const sint32 grundwert128 = v->gib_fracht_typ()->gib_preis()<<7;
 				const sint32 grundwert_bonus = v->gib_fracht_typ()->gib_preis()*(1000l+speed_base*v->gib_fracht_typ()->gib_speed_bonus());
 				const sint32 price = (v->gib_fracht_max()*(grundwert128>grundwert_bonus ? grundwert128 : grundwert_bonus))/30 - v->gib_betriebskosten();
@@ -246,7 +294,7 @@ void gui_vehicleinfo_t::zeichnen(koord offset) const
 				freight_info.append("\n");
 				v->gib_fracht_info(freight_info);
 				// show it
-				display_multiline_text( pos.x+offset.x+w, pos.y+offset.y+total_height+extra_y, freight_info, SCHWARZ );
+				display_multiline_text( pos.x+offset.x+w, pos.y+offset.y+total_height+extra_y, freight_info, COL_BLACK );
 				// count returns
 				const char *p=freight_info;
 				for(int i=0; i<freight_info.len(); i++ ) {
@@ -260,6 +308,7 @@ void gui_vehicleinfo_t::zeichnen(koord offset) const
 			total_height += max(extra_y,4*LINESPACE)+5;
 		}
 	}
+
 	// since the methods is const, we have to use dirty tricks ...
 	groesse_vehicle = koord(300, total_height+1);
 }

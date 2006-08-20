@@ -10,10 +10,10 @@
 #ifndef list_button_h
 #define list_button_h
 
-#define BUTTON_WIDTH (90)
+#define BUTTON_WIDTH (92)
 #define BUTTON_HEIGHT (14)
 
-#define BUTTON_SPACER (4)
+#define BUTTON_SPACER (2)
 
 #define BUTTON1_X (2)
 #define BUTTON2_X (2+1*(BUTTON_WIDTH+BUTTON_SPACER))

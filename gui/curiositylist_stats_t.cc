@@ -198,13 +198,13 @@ void curiositylist_stats_t::zeichnen(koord offset) const
 		}
 		// now decide on color
 		if(some_crowded) {
-			indicatorfarbe = all_crowded ? ROT : ORANGE;
+			indicatorfarbe = all_crowded ? COL_RED : COL_ORANGE;
 		}
 		else if(pax) {
-			indicatorfarbe = post ? 190 : GREEN;
+			indicatorfarbe = post ? 190 : COL_GREEN;
 		}
 		else {
-			indicatorfarbe = post ? BLAU : GELB;
+			indicatorfarbe = post ? COL_BLUE : COL_YELLOW;
 		}
 		display_ddd_box_clip(xoff+7, yoff+6, 8, 8, MN_GREY0, MN_GREY4);
 		display_fillbox_wh_clip(xoff+8, yoff+7, 6, 6, indicatorfarbe, true);
@@ -230,7 +230,7 @@ void curiositylist_stats_t::zeichnen(koord offset) const
 		buf.append(geb->gib_post_level());
 		buf.append(") ");
 
-		display_proportional_clip(xoff+20,yoff+6,buf,ALIGN_LEFT,SCHWARZ,true);
+		display_proportional_clip(xoff+20,yoff+6,buf,ALIGN_LEFT,COL_BLACK,true);
 
 		/*if (geb->gib_tile()->gib_besch()->gib_bauzeit() != 0)
 		    display_color_img(skinverwaltung_t::electricity->gib_bild_nr(0), xoff, yoff+6, 0, false, false);*/

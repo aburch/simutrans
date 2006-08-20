@@ -176,6 +176,13 @@ void weg_t::info(cbuffer_t & buf) const
 	buf.append(max_speed);
 	buf.append("km/h\n");
 
+	buf.append("\nRibi (unmasked)");
+	buf.append(gib_ribi_unmasked());
+
+	buf.append("\nRibi (masked)");
+	buf.append(gib_ribi());
+	buf.append("\n");
+
 #if 1
 	buf.append(translator::translate("\nconvoi passed last\nmonth "));
       buf.append(statistics[1][1]);

@@ -114,7 +114,7 @@ gui_chart_t::zeichnen(koord offset) const
 			     offset.y+baseline-3,
 			     "0",
 			     ALIGN_RIGHT,
-			     WHITE,
+			     COL_WHITE,
 			     false );
       }
 
@@ -123,19 +123,19 @@ gui_chart_t::zeichnen(koord offset) const
 			   offset.y-5,
 			   cmax,
 			   ALIGN_RIGHT,
-			   WHITE,
+			   COL_WHITE,
 			   false );
 
       display_proportional_clip(offset.x - 4,
 			   offset.y+groesse.y-5,
 			   cmin,
 			   ALIGN_RIGHT,
-			   WHITE,
+			   COL_WHITE,
 			   false );
     }
 
     // draw chart frame
-    display_ddd_box_clip(offset.x, offset.y, groesse.x, groesse.y, GRAU1, WEISS);
+    display_ddd_box_clip(offset.x, offset.y, groesse.x, groesse.y, COL_GREY1, COL_WHITE);
 
     // draw chart lines
     for (int i = 0; i<x_elements; i++)

@@ -467,9 +467,9 @@ gebaeude_t *hausbauer_t::neues_gebaeude(karte_t *welt,
 	if(besch == bahn_depot_besch) {
 		gb = new bahndepot_t(welt, pos, sp, tile);
 	} else if(besch == tram_depot_besch) {
-		gb = new bahndepot_t(welt, pos, sp, tile);
+		gb = new tramdepot_t(welt, pos, sp, tile);
 	} else if(besch == monorail_depot_besch) {
-		gb = new bahndepot_t(welt, pos, sp, tile);
+		gb = new monoraildepot_t(welt, pos, sp, tile);
 	} else if(besch == str_depot_besch) {
 		gb = new strassendepot_t(welt, pos, sp, tile);
 	} else if(besch == sch_depot_besch) {

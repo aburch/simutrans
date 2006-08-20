@@ -16,14 +16,12 @@
 #include "../dings/bruecke.h"
 #include "../dings/pillar.h"
 #include "../dings/tunnel.h"
-//#include "../dings/gebaeudefundament.h"
 #include "../dings/gebaeude.h"
 #include "../dings/signal.h"
 #ifdef LAGER_NOT_IN_USE
 #include "../dings/lagerhaus.h"
 #endif
 #include "../dings/gebaeude.h"
-//#include "../dings/leitung.h"
 #include "../dings/leitung2.h"
 #include "../dings/oberleitung.h"
 #include "../dings/roadsign.h"
@@ -515,7 +513,8 @@ void dingliste_t::rdwr(karte_t *welt, loadsave_t *file, koord3d current_pos)
 				case ding_t::async_wolke:	    d = new async_wolke_t (welt, file);	        break;
 				case ding_t::verkehr:	    d = new stadtauto_t (welt, file);		break;
 				case ding_t::fussgaenger:	    d = new fussgaenger_t (welt, file);	        break;
-				case ding_t::bahndepot:	    d = new bahndepot_t (welt, file);	        break;
+				case ding_t::monoraildepot:	    d = new monoraildepot_t (welt, file);	        break;
+				case ding_t::tramdepot:	    d = new tramdepot_t (welt, file);	        break;
 				case ding_t::strassendepot:	    d = new strassendepot_t (welt, file);       break;
 				case ding_t::schiffdepot:	    d = new schiffdepot_t (welt, file);	        break;
 				case ding_t::airdepot:	    d = new airdepot_t (welt, file);	        break;
@@ -527,6 +526,31 @@ void dingliste_t::rdwr(karte_t *welt, loadsave_t *file, koord3d current_pos)
 				case ding_t::oberleitung:	    d = new oberleitung_t (welt, file);	        break;
 				case ding_t::zeiger:	    d = new zeiger_t (welt, file);	        break;
 				case ding_t::roadsign:	    d = new roadsign_t (welt, file);	        break;
+
+				case ding_t::bahndepot:
+				{
+					// for compatibilty reasons ...
+					gebaeude_t *gb = new gebaeude_t(welt, file);
+					if(gb->gib_tile()->gib_besch()==hausbauer_t::monorail_depot_besch) {
+						monoraildepot_t *md = new monoraildepot_t(welt,gb->gib_pos(),(spieler_t *)NULL,gb->gib_tile());
+						md->rdwr_vehicles(file);
+						d = md;
+					}
+					else if(gb->gib_tile()->gib_besch()==hausbauer_t::tram_depot_besch) {
+						tramdepot_t *td = new tramdepot_t(welt,gb->gib_pos(),(spieler_t *)NULL,gb->gib_tile());
+						td->rdwr_vehicles(file);
+						d = td;
+					}
+					else {
+						bahndepot_t *bd = new bahndepot_t(welt,gb->gib_pos(),(spieler_t *)NULL,gb->gib_tile());
+						bd->rdwr_vehicles(file);
+						d = bd;
+					}
+					d->setze_besitzer( gb->gib_besitzer() );
+					typ = d->gib_typ();
+					delete gb;
+				}
+				break;
 
 				// check for pillars
 				case ding_t::pillar:

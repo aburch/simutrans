@@ -466,7 +466,7 @@ fahrplan_gui_t::zeichnen(koord pos, koord groesse)
 			unsigned current = max( 0, min(fpl->aktuell,fpl->maxi()-1 ) );
 			sprintf(tmp, "%3d%%\n", fpl->eintrag.get(current).ladegrad);
 		}
-		display_multiline_text(pos.x+105, pos.y+40, tmp, SCHWARZ);
+		display_multiline_text(pos.x+105, pos.y+40, tmp, COL_BLACK);
 	}
 
 

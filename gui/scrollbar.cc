@@ -276,5 +276,5 @@ void scrollbar_t::zeichnen(koord pos, int button_farbe) const
 
 void scrollbar_t::zeichnen(koord pos) const
 {
-    zeichnen(pos, SCHWARZ);
+    zeichnen(pos, COL_BLACK);
 }

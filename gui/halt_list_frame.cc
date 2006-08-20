@@ -145,7 +145,7 @@ bool halt_list_frame_t::passes_filter(halthandle_t halt)
 
 	if(gib_filter(ueberfuellt_filter)) {
 		const int farbe=halt->gib_status_farbe();
-		ok = (farbe==ROT  &&  farbe==ORANGE);
+		ok = (farbe==COL_RED  &&  farbe==COL_ORANGE);
 	}
 	if(!ok && gib_filter(ohneverb_filter)) {
 	    const slist_tpl<warenziel_t> *ziele = halt->gib_warenziele();

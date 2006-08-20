@@ -98,7 +98,7 @@ void tab_panel_t::zeichnen(koord parent_pos) const
     int text_x = xpos+8;
     int i = 0;
 
-    display_fillbox_wh_clip(xpos, ypos+HEADER_VSIZE-1, 4, 1, WEISS, true);
+    display_fillbox_wh_clip(xpos, ypos+HEADER_VSIZE-1, 4, 1, COL_WHITE, true);
 
     slist_iterator_tpl<const char*> iter (namen);
 
@@ -114,14 +114,14 @@ void tab_panel_t::zeichnen(koord parent_pos) const
 	    display_vline_wh_clip(text_x-4, ypos+5, HEADER_VSIZE-6, MN_GREY4, true);
 	    display_vline_wh_clip(text_x+width+3, ypos+5, HEADER_VSIZE-6, MN_GREY0, true);
 
-	    display_proportional_clip(text_x, ypos+7, text, ALIGN_LEFT, SCHWARZ, true);
+	    display_proportional_clip(text_x, ypos+7, text, ALIGN_LEFT, COL_BLACK, true);
 	} else {
 	    display_fillbox_wh_clip(text_x-3, ypos+3, width+5, 1, MN_GREY4, true);
 
 	    display_vline_wh_clip(text_x-4, ypos+4, 13, MN_GREY4, true);
 	    display_vline_wh_clip(text_x+width+3, ypos+4, 13, MN_GREY0, true);
 
-	    display_proportional_clip(text_x, ypos+7, text, ALIGN_LEFT, SCHWARZ, true);
+	    display_proportional_clip(text_x, ypos+7, text, ALIGN_LEFT, COL_BLACK, true);
 
 	    tabs.at(i)->zeichnen(koord(xpos+0, ypos+HEADER_VSIZE));
 	}

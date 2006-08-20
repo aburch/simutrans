@@ -787,7 +787,7 @@ DBG_MESSAGE("route_t::calc_route()","No route from %d,%d to %d,%d found",start.x
 		if(halt.is_bound()) {
 
 			// does only make sence for trains
-			if(welt->lookup(start)->gib_weg(weg_t::schiene) != NULL) {
+			if(fahr->gib_wegtyp()==weg_t::schiene  ||  fahr->gib_wegtyp()==weg_t::schiene_monorail) {
 
 				int max_n = route.get_count()-1;
 
@@ -797,7 +797,7 @@ DBG_MESSAGE("route_t::calc_route()","No route from %d,%d to %d,%d found",start.x
 				const int ribi = ribi_typ(zv);//fahr->gib_ribi(welt->lookup(start));
 				grund_t *gr=welt->lookup(start);
 
-				while(gr->get_neighbour(gr,weg_t::schiene,zv)  &&  gr->gib_halt() == halt  &&   fahr->ist_befahrbar(gr)   &&  (fahr->gib_ribi(gr)&&ribi)!=0) {
+				while(gr->get_neighbour(gr,fahr->gib_wegtyp(),zv)  &&  gr->gib_halt() == halt  &&   fahr->ist_befahrbar(gr)   &&  (fahr->gib_ribi(gr)&&ribi)!=0) {
 					// stop at end of track! (prissi)
 //DBG_DEBUG("route_t::calc_route()","add station at %i,%i",gr->gib_pos().x,gr->gib_pos().y);
 					route.append(gr->gib_pos(),12);

@@ -257,7 +257,7 @@ bool obj_reader_t::init(const char *liste)
 		}
 		teilung = (2<<teilung)-1;
 		if(drawing) {
-			display_proportional((display_get_width()-max-4)/2,display_get_height()/2-20,"Loading paks ...",ALIGN_LEFT,WEISS,0);
+			display_proportional((display_get_width()-max-4)/2,display_get_height()/2-20,"Loading paks ...",ALIGN_LEFT,COL_WHITE,0);
 		}
 
 		for(i=max;  i-->0; ) {
@@ -283,7 +283,7 @@ DBG_MESSAGE("obj_reader_t::init()","Checking %s objects...",iter.get_current_val
 
 	// clean screen
 	if(drawing) {
-		display_fillbox_wh( 0, display_get_height()/2-20, display_get_width(), display_get_height()/2+20, SCHWARZ, true );
+		display_fillbox_wh( 0, display_get_height()/2-20, display_get_width(), display_get_height()/2+20, COL_BLACK, true );
 	}
 
 	dbg->warning("obj_reader_t::init()", "done");

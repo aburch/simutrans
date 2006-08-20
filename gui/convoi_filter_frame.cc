@@ -200,7 +200,7 @@ void convoi_filter_frame_t::zeichnen(koord pos, koord gr)
 
     for(i = 0; i < FILTER_BUTTONS; i++) {
 	if(filter_buttons_types[i] < convoi_frame_t::sub_filter) {
-	    filter_buttons[i].zeichnen(pos + koord(0,16), WEISS);
+	    filter_buttons[i].zeichnen(pos + koord(0,16), COL_WHITE);
 	}
     }
 }

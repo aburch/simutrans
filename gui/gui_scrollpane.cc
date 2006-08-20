@@ -75,25 +75,20 @@ void gui_scrollpane_t::setze_groesse(koord groesse)
  */
 void gui_scrollpane_t::infowin_event(const event_t *ev)
 {
-	if(scroll_y->getroffen(ev->mx, ev->my) || scroll_y->getroffen(ev->cx, ev->cy)) {
+	if(b_show_scroll_y  &&  (scroll_y->getroffen(ev->mx, ev->my) || scroll_y->getroffen(ev->cx, ev->cy)) ) {
 		event_t ev2 = *ev;
 		translate_event(&ev2, -scroll_y->gib_pos().x, -scroll_y->gib_pos().y);
 		scroll_y->infowin_event(&ev2);
 	}
-
-	else if(scroll_x->getroffen(ev->mx, ev->my) ||
-		scroll_x->getroffen(ev->cx, ev->cy)) {
+	else if(b_show_scroll_x  &&  (scroll_x->getroffen(ev->mx, ev->my) || scroll_x->getroffen(ev->cx, ev->cy))) {
 		event_t ev2 = *ev;
 		translate_event(&ev2, -scroll_x->gib_pos().x, -scroll_x->gib_pos().y);
 		scroll_x->infowin_event(&ev2);
 	}
-
 	else {
 		// translate according to scrolled position
 		event_t ev2 = *ev;
-		translate_event(&ev2,
-		scroll_x->gib_knob_offset(),
-		scroll_y->gib_knob_offset());
+		translate_event(&ev2, scroll_x->gib_knob_offset(), scroll_y->gib_knob_offset());
 
 		// hand event to component
 		komp->infowin_event(&ev2);

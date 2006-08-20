@@ -38,7 +38,7 @@
 const char cost_type[MAX_CONVOI_COST][64] =
 {
 	"Free Capacity",
-	"Transported Goods",
+	"Transported",
 	"Revenue",
 	"Operation",
 	"Profit"
@@ -63,7 +63,7 @@ const char *convoi_info_t::sort_text[SORT_MODES] = {
 
 const int cost_type_color[MAX_CONVOI_COST] =
 {
-  7, 11, 132, 23, 27
+  COL_FREE_CAPACITY, COL_TRANSPORTED, COL_REVENUE, COL_OPERATION, COL_PROFIT
 };
 
 
@@ -94,13 +94,15 @@ convoi_info_t::convoi_info_t(convoihandle_t cnv)
 
 	add_komponente(&sort_label);
 
+#ifdef HAVE_KILL
 	kill_button.setze_groesse(koord(15, 11));
 	kill_button.text = "X";
 	kill_button.setze_typ(button_t::roundbox);
-	kill_button.kennfarbe = ROT;
+	kill_button.kennfarbe = COL_RED;
 	kill_button.set_tooltip(translator::translate("Remove vehicle from map. Use with care!"));
 	add_komponente(&kill_button);
 	kill_button.add_listener(this);
+#endif
 
 	toggler.setze_groesse(koord(BUTTON_WIDTH, BUTTON_HEIGHT));
 	toggler.text = translator::translate("Chart");
@@ -127,17 +129,17 @@ convoi_info_t::convoi_info_t(convoihandle_t cnv)
 	scrolly.setze_pos(koord(0, 122));
 	add_komponente(&scrolly);
 
-	filled_bar.add_color_value(&cnv->get_loading_limit(), GELB);
-	filled_bar.add_color_value(&cnv->get_loading_level(), GREEN);
+	filled_bar.add_color_value(&cnv->get_loading_limit(), COL_YELLOW);
+	filled_bar.add_color_value(&cnv->get_loading_level(), COL_GREEN);
 	add_komponente(&filled_bar);
 
 	speed_bar.set_base(max_convoi_speed);
 	speed_bar.set_vertical(false);
-	speed_bar.add_color_value(&mean_convoi_speed, GREEN);
+	speed_bar.add_color_value(&mean_convoi_speed, COL_GREEN);
 	add_komponente(&speed_bar);
 
 	// we update this ourself!
-	route_bar.add_color_value(&cnv_route_index, GREEN);
+	route_bar.add_color_value(&cnv_route_index, COL_GREEN);
 	add_komponente(&route_bar);
 
 	setze_opaque(true);
@@ -209,17 +211,23 @@ void
 convoi_info_t::zeichnen(koord pos, koord gr)
 {
 	koord viewpos = view.gib_pos(); // 01-June-02  markus weber   added
-	if(cnv.is_bound()) {
-
+	if(!cnv.is_bound()) {
+		destroy_win(dynamic_cast <gui_fenster_t *> (this));
+	}
+	else {
 		if(cnv->gib_besitzer()==cnv->gib_welt()->get_active_player()) {
 			button.enable();
 			go_home_button.enable();
+#ifdef HAVE_KILL
 			kill_button.enable();
+#endif
 		}
 		else {
 			button.disable();
 			go_home_button.disable();
+#ifdef HAVE_KILL
 			kill_button.disable();
+#endif
 		}
 		follow_button.enable();
 
@@ -256,16 +264,16 @@ convoi_info_t::zeichnen(koord pos, koord gr)
 		mean_convoi_speed += speed_to_kmh(cnv->gib_akt_speed()*4);
 		mean_convoi_speed /= 2;
 		sprintf(tmp,translator::translate("%i km/h (max. %ikm/h)"), (mean_convoi_speed+3)/4, speed_to_kmh(cnv->gib_min_top_speed()) );
-		display_proportional( pos.x+11, pos.y+16+20, tmp, ALIGN_LEFT, SCHWARZ, true );
+		display_proportional( pos.x+11, pos.y+16+20, tmp, ALIGN_LEFT, COL_BLACK, true );
 
 		// next important: income stuff
 		info_buf.clear();
 		info_buf.append( translator::translate("Gewinn") );
-		int len = display_proportional( pos.x+11, pos.y+16+20+1*LINESPACE, info_buf, ALIGN_LEFT, SCHWARZ, true )+5;
+		int len = display_proportional( pos.x+11, pos.y+16+20+1*LINESPACE, info_buf, ALIGN_LEFT, COL_BLACK, true )+5;
 		money_to_string( tmp, cnv->gib_jahresgewinn()/100.0 );
 		len += display_proportional( pos.x+11+len, pos.y+16+20+1*LINESPACE, tmp, ALIGN_LEFT, cnv->gib_jahresgewinn()>0?MONEY_PLUS:MONEY_MINUS, true )+5;
 		sprintf(tmp," (%1.2f$/km)", cnv->get_running_cost()/100.0 );
-		display_proportional( pos.x+11+len, pos.y+16+20+1*LINESPACE, tmp, ALIGN_LEFT, SCHWARZ, true );
+		display_proportional( pos.x+11+len, pos.y+16+20+1*LINESPACE, tmp, ALIGN_LEFT, COL_BLACK, true );
 
 		// the weight entry
 		info_buf.clear();
@@ -275,7 +283,7 @@ convoi_info_t::zeichnen(koord pos, koord gr)
 		info_buf.append( " (" );
 		info_buf.append( cnv->gib_sum_gesamtgewicht()-cnv->gib_sum_gewicht() );
 		info_buf.append( ") t" );
-		display_proportional( pos.x+11, pos.y+16+20+2*LINESPACE, info_buf, ALIGN_LEFT, SCHWARZ, true );
+		display_proportional( pos.x+11, pos.y+16+20+2*LINESPACE, info_buf, ALIGN_LEFT, COL_BLACK, true );
 
 		// next stop
 		const fahrplan_t * fpl = cnv->gib_fahrplan();
@@ -283,7 +291,7 @@ convoi_info_t::zeichnen(koord pos, koord gr)
 		info_buf.append(translator::translate("Fahrtziel:"));
 		info_buf.append(" ");
 		fahrplan_gui_t::gimme_short_stop_name(info_buf, cnv->gib_welt(), fpl, fpl->aktuell, 34);
-		len = display_proportional( pos.x+11, pos.y+16+20+3*LINESPACE, info_buf, ALIGN_LEFT, SCHWARZ, true );
+		len = display_proportional( pos.x+11, pos.y+16+20+3*LINESPACE, info_buf, ALIGN_LEFT, COL_BLACK, true );
 
 		// convoi load indicator
 		const int offset = max( len, 167)+3;
@@ -299,7 +307,7 @@ convoi_info_t::zeichnen(koord pos, koord gr)
 			info_buf.append( translator::translate("Serves Line:") );
 			info_buf.append( " " );
 			info_buf.append( cnv->get_line()->get_name() );
-			display_proportional( pos.x+11, pos.y+16+20+4*LINESPACE, info_buf, ALIGN_LEFT, SCHWARZ, true );
+			display_proportional( pos.x+11, pos.y+16+20+4*LINESPACE, info_buf, ALIGN_LEFT, COL_BLACK, true );
 		}
 	}
 }
@@ -417,12 +425,14 @@ DBG_MESSAGE("convoi_info_t::action_triggered()","search depot: found on %i,%i",g
 			}
 		} // end go home button
 
+#ifdef HAVE_KILL
 		if(komp == &kill_button)     // Destroy convoi -> deletes us, too!
 		{
 		      destroy_win(dynamic_cast <gui_fenster_t *> (this));
 			cnv->self_destruct();
 			return true;
 		}
+#endif
 	}
 
 	if (komp == &toggler)
@@ -468,8 +478,12 @@ void convoi_info_t::resize(const koord delta)
 {
 	gui_frame_t::resize(delta);
 
+#ifdef HAVE_KILL
 	input.setze_groesse(koord(get_client_windowsize().x-22-15-11, 13));
 	kill_button.setze_pos(koord(get_client_windowsize().x - 11-15 , 4));
+#else
+	input.setze_groesse(koord(get_client_windowsize().x-22, 13));
+#endif
 
 	view.setze_pos(koord(get_client_windowsize().x - 64 - 12 , 21));
 	follow_button.setze_pos(koord(view.gib_pos().x-1,77));

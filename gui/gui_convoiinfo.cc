@@ -38,8 +38,8 @@ gui_convoiinfo_t::gui_convoiinfo_t(convoihandle_t cnv, int n)
 
     filled_bar.setze_pos(koord(188, 33));
     filled_bar.setze_groesse(koord(100, 4));
-    filled_bar.add_color_value(&cnv->get_loading_limit(), GELB);
-    filled_bar.add_color_value(&cnv->get_loading_level(), GREEN);
+    filled_bar.add_color_value(&cnv->get_loading_limit(), COL_YELLOW);
+    filled_bar.add_color_value(&cnv->get_loading_level(), COL_GREEN);
     add_komponente(&filled_bar);
 }
 
@@ -74,10 +74,10 @@ void gui_convoiinfo_t::zeichnen(koord offset) const
 
 /* prissi: no nummer
 		sprintf(buf, "%d.", nummer);
-		display_proportional_clip(pos.x+offset.x+4, pos.y+offset.y+8, buf, ALIGN_LEFT, SCHWARZ, true);
+		display_proportional_clip(pos.x+offset.x+4, pos.y+offset.y+8, buf, ALIGN_LEFT, COL_BLACK, true);
 */
 
-		int max_x = display_proportional_clip(pos.x+offset.x+2,pos.y+offset.y+8+LINESPACE, translator::translate("Gewinn"), ALIGN_LEFT, SCHWARZ, true);
+		int max_x = display_proportional_clip(pos.x+offset.x+2,pos.y+offset.y+8+LINESPACE, translator::translate("Gewinn"), ALIGN_LEFT, COL_BLACK, true);
 
 		money_to_string(buf, cnv->gib_jahresgewinn()/100);
 		max_x += display_proportional_clip(pos.x+offset.x+2+max_x+5,pos.y+offset.y+8+LINESPACE, buf, ALIGN_LEFT, cnv->gib_jahresgewinn()>0?MONEY_PLUS:MONEY_MINUS, true);
@@ -89,18 +89,18 @@ void gui_convoiinfo_t::zeichnen(koord offset) const
 		if (cnv->in_depot())
 		{
 			const char *txt=translator::translate("(in depot)");
-			int w=display_proportional_clip(pos.x+offset.x+2, pos.y+offset.y+8+2*LINESPACE,txt,ALIGN_LEFT, SCHWARZ, true);
+			int w=display_proportional_clip(pos.x+offset.x+2, pos.y+offset.y+8+2*LINESPACE,txt,ALIGN_LEFT, COL_BLACK, true);
 			max_x = max(max_x,w);
 		}
 		else if (cnv->get_line() != NULL)
 		{
 			sprintf(buf, "%s: %s", translator::translate("Line"), cnv->get_line()->get_name());
-			int w = display_proportional_clip(pos.x+offset.x+2, pos.y+offset.y+8+2*LINESPACE,buf,ALIGN_LEFT, SCHWARZ, true);
+			int w = display_proportional_clip(pos.x+offset.x+2, pos.y+offset.y+8+2*LINESPACE,buf,ALIGN_LEFT, COL_BLACK, true);
 			max_x = max(max_x,w);
 		}
 
 		// name
-		int w=display_proportional_clip(pos.x+offset.x+2, pos.y+offset.y+8,translator::translate(cnv->gib_name()),ALIGN_LEFT, SCHWARZ, true);
+		int w=display_proportional_clip(pos.x+offset.x+2, pos.y+offset.y+8,translator::translate(cnv->gib_name()),ALIGN_LEFT, COL_BLACK, true);
 		max_x = max(max_x,w);
 
 		// vehicles

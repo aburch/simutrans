@@ -38,11 +38,30 @@
 
 #include "besch/haus_besch.h"
 
-depot_t::depot_t(karte_t *welt) :
-    gebaeude_t(welt)
+
+
+
+depot_t::depot_t(karte_t *welt,loadsave_t *file) : gebaeude_t(welt)
 {
+    gebaeude_t::rdwr(file);
+
     depot_info = NULL;
+
+    if(file->get_version() < 81033) {
+	slist_tpl<vehikel_t *> waggons;
+
+	rdwr_vehikel(vehicles, file);
+	rdwr_vehikel(waggons, file);
+
+	while(waggons.count() > 0) {
+	    vehicles.append(waggons.at(0));
+	    waggons.remove_at(0);
+	}
+    } else {
+	rdwr_vehikel(vehicles, file);
+    }
 }
+
 
 
 depot_t::depot_t(karte_t *welt, koord3d pos, spieler_t *sp, const haus_tile_besch_t *t) :
@@ -122,7 +141,6 @@ bool depot_t::can_convoi_start(int /*icnv*/) const
 {
   return true;
 }
-
 
 
 
@@ -393,27 +411,6 @@ depot_t::rdwr_vehikel(slist_tpl<vehikel_t *> &list, loadsave_t *file)
 }
 
 
-void
-depot_t::rdwr(loadsave_t *file)
-{
-    gebaeude_t::rdwr(file);
-
-    if(file->get_version() < 81033) {
-	slist_tpl<vehikel_t *> waggons;
-
-	rdwr_vehikel(vehicles, file);
-	rdwr_vehikel(waggons, file);
-
-	while(waggons.count() > 0) {
-	    vehicles.append(waggons.at(0));
-	    waggons.remove_at(0);
-	}
-    } else {
-	rdwr_vehikel(vehicles, file);
-    }
-}
-
-
 /**
  * @returns NULL wenn OK, ansonsten eine Fehlermeldung
  * @author Hj. Malthaner
@@ -433,9 +430,23 @@ const char * depot_t::ist_entfernbar(const spieler_t *)
 	return NULL;
 }
 
-void
-depot_t::build_line_list() {
-	gib_besitzer()->simlinemgmt.build_line_list(simline_t::line, &lines);
+const vehikel_besch_t *
+depot_t::get_vehicle_type(int itype)
+{
+	return vehikelbauer_t::gib_info(get_wegtyp(), itype);
+}
+
+slist_tpl<simline_t *> *
+depot_t::get_line_list()
+{
+	gib_besitzer()->simlinemgmt.build_line_list(get_line_type(), &lines);
+	return &lines;
+}
+
+simline_t *
+depot_t::create_line()
+{
+	return gib_besitzer()->simlinemgmt.create_line(get_line_type());
 }
 
 int
@@ -459,30 +470,13 @@ depot_t::get_oldest_vehicle(int id)
 }
 
 
-bahndepot_t::bahndepot_t(karte_t *welt, loadsave_t *file) : depot_t(welt)
-{
-	rdwr(file);
-	is_tram = gib_tile()->gib_besch()==hausbauer_t::tram_depot_besch;
-	is_monorail = gib_tile()->gib_besch()==hausbauer_t::monorail_depot_besch;
-}
 
-bahndepot_t::bahndepot_t(karte_t *welt, koord3d pos,spieler_t *sp, const haus_tile_besch_t *t) : depot_t(welt, pos, sp, t)
-{
-	is_tram = t->gib_besch()==hausbauer_t::tram_depot_besch;
-	is_monorail = gib_tile()->gib_besch()==hausbauer_t::monorail_depot_besch;
-}
-
+/* deoptmanagement for railway depots and all other vehicles which uses the blockmanager */
 void
 bahndepot_t::convoi_arrived(convoihandle_t cnv, bool fpl_adjust)
 {
     depot_t::convoi_arrived(cnv, fpl_adjust);
     blockmanager::gib_manager()->pruefe_blockstrecke(welt, gib_pos());
-}
-
-simline_t *
-bahndepot_t::create_line()
-{
-	return gib_besitzer()->simlinemgmt.create_line( is_monorail? simline_t::monorailline : simline_t::trainline);
 }
 
 bool
@@ -512,172 +506,9 @@ bahndepot_t::can_convoi_start(int icnv) const
     return ok;
 }
 
-
-const vehikel_besch_t *bahndepot_t::get_vehicle_type(int itype)
-{
-	if(is_tram) {
-		// trams only?
-		return vehikelbauer_t::gib_info(weg_t::schiene_strab, itype);
-	} else if(is_monorail) {
-		// monorails only?
-		return vehikelbauer_t::gib_info(weg_t::schiene_monorail, itype);
-	}
-	return vehikelbauer_t::gib_info(weg_t::schiene, itype);
-}
-
-const char *
-bahndepot_t::gib_name() const
-{
-	return is_tram?"Tramdepot":(is_monorail?"Monoraildepot":"Bahndepot");
-}
-
-
-const weg_t::typ bahndepot_t::get_wegtyp() const
-{
-	return is_tram?weg_t::schiene_strab:(is_monorail?weg_t::schiene_monorail:weg_t::schiene);
-}
-
-
+// needed for compatibility reasons ...
 void
-bahndepot_t::build_line_list() {
-	gib_besitzer()->simlinemgmt.build_line_list(simline_t::trainline, &lines);
-}
-
-slist_tpl<simline_t *> *
-bahndepot_t::get_line_list()
+bahndepot_t::rdwr_vehicles(loadsave_t *file)
 {
-	build_line_list();
-	return &lines;
-}
-
-
-strassendepot_t::strassendepot_t(karte_t *welt, loadsave_t *file) : depot_t(welt)
-{
-  rdwr(file);
-}
-
-
-strassendepot_t::strassendepot_t(karte_t *welt, koord3d pos,spieler_t *sp, const haus_tile_besch_t *t) : depot_t(welt, pos, sp, t)
-{
-
-}
-
-simline_t *
-strassendepot_t::create_line()
-{
-    return gib_besitzer()->simlinemgmt.create_line(simline_t::truckline);
-}
-
-const vehikel_besch_t *strassendepot_t::get_vehicle_type(int itype)
-{
-    return vehikelbauer_t::gib_info(weg_t::strasse, itype);
-}
-
-const char *
-strassendepot_t::gib_name() const
-{
-    return "Strassendepot";
-}
-
-void
-strassendepot_t::build_line_list() {
-	gib_besitzer()->simlinemgmt.build_line_list(simline_t::truckline, &lines);
-}
-
-slist_tpl<simline_t *> *
-strassendepot_t::get_line_list()
-{
-	build_line_list();
-	return &lines;
-}
-
-schiffdepot_t::schiffdepot_t(karte_t *welt, loadsave_t *file) : depot_t(welt)
-{
-    rdwr(file);
-}
-
-schiffdepot_t::schiffdepot_t(karte_t *welt, koord3d pos, spieler_t *sp, const haus_tile_besch_t *t) : depot_t(welt, pos, sp, t)
-{
-
-}
-
-simline_t *
-schiffdepot_t::create_line()
-{
-    return gib_besitzer()->simlinemgmt.create_line(simline_t::shipline);
-}
-
-const vehikel_besch_t *schiffdepot_t::get_vehicle_type(int itype)
-{
-    return vehikelbauer_t::gib_info(weg_t::wasser, itype);
-}
-
-
-const char *
-schiffdepot_t::gib_name() const
-{
-    return "Schiffdepot";
-}
-
-void
-schiffdepot_t::build_line_list() {
-	gib_besitzer()->simlinemgmt.build_line_list(simline_t::shipline, &lines);
-}
-
-slist_tpl<simline_t *> *
-schiffdepot_t::get_line_list()
-{
-	build_line_list();
-	return &lines;
-}
-
-
-/* air hangar from here on */
-
-airdepot_t::airdepot_t(karte_t *welt, loadsave_t *file) : depot_t(welt)
-{
-  rdwr(file);
-}
-
-
-airdepot_t::airdepot_t(karte_t *welt, koord3d pos,spieler_t *sp, const haus_tile_besch_t *t) : depot_t(welt, pos, sp, t)
-{
-
-}
-
-void
-airdepot_t::convoi_arrived(convoihandle_t cnv, bool fpl_adjust)
-{
-    depot_t::convoi_arrived(cnv, fpl_adjust);
-
-    blockmanager::gib_manager()->pruefe_blockstrecke(welt, gib_pos());
-}
-
-simline_t *
-airdepot_t::create_line()
-{
-    return gib_besitzer()->simlinemgmt.create_line(simline_t::airline);
-}
-
-const vehikel_besch_t *airdepot_t::get_vehicle_type(int itype)
-{
-    return vehikelbauer_t::gib_info(weg_t::luft, itype);
-}
-
-const char *
-airdepot_t::gib_name() const
-{
-    return "Hangar";
-}
-
-void
-airdepot_t::build_line_list() {
-	gib_besitzer()->simlinemgmt.build_line_list(simline_t::airline, &lines);
-}
-
-slist_tpl<simline_t *> *
-airdepot_t::get_line_list()
-{
-	build_line_list();
-	return &lines;
+	depot_t::rdwr_vehikel(vehicles,file);
 }

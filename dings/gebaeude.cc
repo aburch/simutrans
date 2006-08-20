@@ -320,13 +320,34 @@ void gebaeude_t::setze_count(int count)
 int gebaeude_t::gib_passagier_level() const
 {
 	koord dim = tile->gib_besch()->gib_groesse();
-	return tile->gib_besch()->gib_level()*dim.x*dim.y;
+	long pax = tile->gib_besch()->gib_level();
+	if(tile->gib_besch()->gib_typ()!=gebaeude_t::unbekannt) {
+		// belongs to a city ...
+		stadt_t *city=welt->suche_naechste_stadt( gib_pos().gib_2d() );
+		if(city) {
+			const koord lo(city->get_linksoben()), ru(city->get_rechtsunten());
+			const long dense=(lo.x-ru.x)*(lo.y-ru.y);
+			return (2097*((pax+6)>>2))/dense;
+		}
+		return pax;
+	}
+	return pax*dim.x*dim.y;
 }
 
 int gebaeude_t::gib_post_level() const
 {
 	koord dim = tile->gib_besch()->gib_groesse();
-	return tile->gib_besch()->gib_post_level()*dim.x*dim.y;
+	long post = tile->gib_besch()->gib_post_level();
+	if(tile->gib_besch()->gib_typ()!=gebaeude_t::unbekannt) {
+		// belongs to a city ...
+		stadt_t *city=welt->suche_naechste_stadt( gib_pos().gib_2d() );
+		if(city) {
+			const koord lo(city->get_linksoben()), ru(city->get_rechtsunten());
+			const long dense=(lo.x-ru.x)*(lo.y-ru.y);
+			return (2097*((post+5)>>2))/dense;
+		}
+	}
+	return post*dim.x*dim.y;
 }
 
 
@@ -412,10 +433,10 @@ void gebaeude_t::info(cbuffer_t & buf) const
 		buf.append(gib_post_level());
 		buf.append("\n");
 
-		buf.append(translator::translate("\nBauzeit von "));
+		buf.append(translator::translate("\nBauzeit von"));
 		buf.append(tile->gib_besch()->get_intro_year_month()/12);
 		if(tile->gib_besch()->get_retire_year_month()!=DEFAULT_RETIRE_DATE*12) {
-			buf.append(translator::translate("\nBauzeit bis "));
+			buf.append(translator::translate("\nBauzeit bis"));
 			buf.append(tile->gib_besch()->get_retire_year_month()/12);
 		}
 
@@ -431,7 +452,7 @@ void gebaeude_t::info(cbuffer_t & buf) const
 		const char *maker=tile->gib_besch()->gib_copyright();
 		if(maker!=NULL  && maker[0]!=0) {
 			buf.append("\n");
-			buf.append(translator::translate("Constructed by "));
+			buf.append(translator::translate("Constructed by"));
 			buf.append(maker);
 		}
 	}
@@ -588,7 +609,7 @@ bool gebaeude_t::sync_step(long delta_t)
 void
 gebaeude_t::entferne(spieler_t *sp)
 {
-	DBG_MESSAGE("gebaeude_t::entferne()","gb %i");
+//	DBG_MESSAGE("gebaeude_t::entferne()","gb %i");
 	if(sp != NULL && !ist_rathaus()) {
 		stadt_t *city=welt->suche_naechste_stadt(gib_pos().gib_2d());
 #ifdef COUNT_HOUSES

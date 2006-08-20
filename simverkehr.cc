@@ -362,7 +362,7 @@ stadtauto_t::step(long /*delta_t*/)
 				koord about_pos = gib_pos().gib_2d();
 				message_t::get_instance()->add_message(
 					translator::translate("To heavy traffic\nresults in traffic jam.\n"),
-					koord(about_pos.x&0xFFF4,about_pos.y&0xFFF4) ,message_t::problems,ORANGE );
+					koord(about_pos.x&0xFFF4,about_pos.y&0xFFF4) ,message_t::problems,COL_ORANGE );
 				// still stucked ...
 			}
 		}

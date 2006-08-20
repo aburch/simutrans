@@ -8,6 +8,27 @@ Known bugs: (hard to fix)
 	set color broken?
 
 
+18-Feb-2006: (prissi)
+	FIX: sum up freight of same catg again
+	CHANGE: extended convoi detail dialog, mover kill button to details
+	FIX: ugly tunnel bug
+changed translations:
+added: Leistung: %d kW
+removed: Transported Goods
+
+15-Feb-2006: (prissi)
+	FIX: track builder always failed in a station
+	CHANGE: cleaned up the depot code code, monorail and trams are now classes
+	FIX: monorails no go again to the end of a station
+	FIX: expensive rails are no longer replaced by cheaper ones
+	CHANGE: larger passenger destinations in city window
+	CHANGE: unified color scheme for charts
+
+13-Feb-2006: (prissi)
+	FIX: error check when building stops on completely empty tiles
+	FIX: deleting harbour: water again at correct position ...
+
+
 Release of 88.04.2
 
 12-Feb-2006: (prissi)

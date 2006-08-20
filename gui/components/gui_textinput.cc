@@ -216,11 +216,11 @@ void gui_textinput_t::zeichnen(koord offset) const
     		cursor_offset = 0;
     	}
 
-		display_proportional_clip(pos.x+offset.x+2-cursor_offset, pos.y+offset.y+2, text, ALIGN_LEFT, SCHWARZ, true);
+		display_proportional_clip(pos.x+offset.x+2-cursor_offset, pos.y+offset.y+2, text, ALIGN_LEFT, COL_BLACK, true);
 
     	// cursor must been shown, if textinput has focus!
 		if(has_focus()) {
-		    display_fillbox_wh_clip(pos.x+offset.x+1+proportional_string_len_width(text, cursor_pos)-cursor_offset, pos.y+offset.y+1, 1, 11, WHITE, true);
+		    display_fillbox_wh_clip(pos.x+offset.x+1+proportional_string_len_width(text, cursor_pos)-cursor_offset, pos.y+offset.y+1, 1, 11, COL_WHITE, true);
 		}
     }
 //	POP_CLIP();

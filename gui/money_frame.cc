@@ -36,7 +36,18 @@ const char money_frame_t::cost_type[MAX_COST][64] =
 
 const int money_frame_t::cost_type_color[MAX_COST] =
 {
-  7, 11, 15, 132, 23, 27, 31, 35, 241, 61, 62, 63
+	COL_CONSTRUCTION,
+	COL_OPERATION,
+	COL_NEW_VEHICLES,
+	COL_REVENUE,
+	COL_MAINTENANCE,
+	COL_VEHICLE_ASSETS,
+	COL_CASH,
+	COL_WEALTH,
+	COL_PROFIT,
+	COL_OPS_PROFIT,
+	COL_MARGIN,
+	COL_TRANSPORTED
 };
 
 const uint8 button_order[MAX_COST] =
@@ -73,30 +84,30 @@ int money_frame_t::get_money_colour(int type, int old)
  */
 money_frame_t::money_frame_t(spieler_t *sp)
   : gui_frame_t("Finanzen", sp->kennfarbe),
-    tylabel("This Year", WEISS, gui_label_t::right),
-    lylabel("Last Year", WEISS, gui_label_t::right),
-    conmoney(NULL, WEISS, gui_label_t::money),
-    nvmoney(NULL, WEISS, gui_label_t::money),
-    vrmoney(NULL, WEISS, gui_label_t::money),
-    imoney(NULL, WEISS, gui_label_t::money),
-    tmoney(NULL, WEISS, gui_label_t::money),
-    mmoney(NULL, WEISS, gui_label_t::money),
-    omoney(NULL, WEISS, gui_label_t::money),
-    old_conmoney(NULL, WEISS, gui_label_t::money),
-    old_nvmoney(NULL, WEISS, gui_label_t::money),
-    old_vrmoney(NULL, WEISS, gui_label_t::money),
-    old_imoney(NULL, WEISS, gui_label_t::money),
-    old_tmoney(NULL, WEISS, gui_label_t::money),
-    old_mmoney(NULL, WEISS, gui_label_t::money),
-    old_omoney(NULL, WEISS, gui_label_t::money),
-    tylabel2("This Year", WEISS, gui_label_t::right),
-    gtmoney(NULL, WEISS, gui_label_t::money),
-    vtmoney(NULL, WEISS, gui_label_t::money),
-    money(NULL, WEISS, gui_label_t::money),
-    margin(NULL, WEISS, gui_label_t::money),
+    tylabel("This Year", COL_WHITE, gui_label_t::right),
+    lylabel("Last Year", COL_WHITE, gui_label_t::right),
+    conmoney(NULL, COL_WHITE, gui_label_t::money),
+    nvmoney(NULL, COL_WHITE, gui_label_t::money),
+    vrmoney(NULL, COL_WHITE, gui_label_t::money),
+    imoney(NULL, COL_WHITE, gui_label_t::money),
+    tmoney(NULL, COL_WHITE, gui_label_t::money),
+    mmoney(NULL, COL_WHITE, gui_label_t::money),
+    omoney(NULL, COL_WHITE, gui_label_t::money),
+    old_conmoney(NULL, COL_WHITE, gui_label_t::money),
+    old_nvmoney(NULL, COL_WHITE, gui_label_t::money),
+    old_vrmoney(NULL, COL_WHITE, gui_label_t::money),
+    old_imoney(NULL, COL_WHITE, gui_label_t::money),
+    old_tmoney(NULL, COL_WHITE, gui_label_t::money),
+    old_mmoney(NULL, COL_WHITE, gui_label_t::money),
+    old_omoney(NULL, COL_WHITE, gui_label_t::money),
+    tylabel2("This Year", COL_WHITE, gui_label_t::right),
+    gtmoney(NULL, COL_WHITE, gui_label_t::money),
+    vtmoney(NULL, COL_WHITE, gui_label_t::money),
+    money(NULL, COL_WHITE, gui_label_t::money),
+    margin(NULL, COL_WHITE, gui_label_t::money),
     maintenance_label("Maintenance (monthly):"),
-    maintenance_money(NULL, ROT, gui_label_t::money),
-    warn("", ROT)
+    maintenance_money(NULL, COL_RED, gui_label_t::money),
+    warn("", COL_RED)
 {
 	if(sp->gib_welt()->gib_spieler(0)!=sp) {
 		sprintf(money_frame_title,translator::translate("Finances of %s"),translator::translate(sp->gib_name()) );

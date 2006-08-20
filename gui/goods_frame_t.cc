@@ -55,7 +55,7 @@ const char *goods_frame_t::sort_text[SORT_MODES] = {
 goods_frame_t::goods_frame_t(karte_t *wl) :
 	gui_frame_t("Goods list"),
 	sort_label(translator::translate("hl_txt_sort")),
-	change_speed_label(speed_bonus,WEISS,gui_label_t::right)
+	change_speed_label(speed_bonus,COL_WHITE,gui_label_t::right)
 {
 	this->welt = wl;
 	good_list = new unsigned short[warenbauer_t::gib_waren_anzahl()-1];
@@ -256,5 +256,5 @@ void goods_frame_t::zeichnen(koord pos, koord gr)
 		(welt->get_average_speed(weg_t::wasser)*relative_speed_change)/100,
 		(welt->get_average_speed(weg_t::luft)*relative_speed_change)/100
 	);
-	display_multiline_text(pos.x+11, pos.y+BUTTON_HEIGHT+4, speed_message, WEISS);
+	display_multiline_text(pos.x+11, pos.y+BUTTON_HEIGHT+4, speed_message, COL_WHITE);
 }

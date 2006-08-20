@@ -160,9 +160,9 @@ fensterfarben werkzeug_parameter_waehler_t::gib_fensterfarben() const
   fensterfarben f;
 
   f.titel  = WIN_TITEL;
-  f.hell   = GRAU6;
-  f.mittel = GRAU5;
-  f.dunkel = GRAU3;
+  f.hell   = COL_GREY6;
+  f.mittel = COL_GREY5;
+  f.dunkel = COL_GREY3;
 
   return f;
 }

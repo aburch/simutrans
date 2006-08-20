@@ -232,42 +232,42 @@ void color_gui_t::zeichnen(koord pos, koord gr)
   display_ddd_box_clip(pos.x+10, pos.y+126, 149, 0, MN_GREY0, MN_GREY4);
 
   display_proportional_clip(x+10, y+26, translator::translate("1LIGHT_CHOOSE"),
-		       ALIGN_LEFT, SCHWARZ, true);
+		       ALIGN_LEFT, COL_BLACK, true);
   display_proportional_clip(x+113, y+26, ntos(display_get_light(), 0),
-		       ALIGN_MIDDLE, SCHWARZ, true);
+		       ALIGN_MIDDLE, COL_BLACK, true);
   display_proportional_clip(x+10, y+38, translator::translate("2LIGHT_CHOOSE"),
-		       ALIGN_LEFT, SCHWARZ, true);
+		       ALIGN_LEFT, COL_BLACK, true);
   display_proportional_clip(x+113, y+38, ntos(display_get_color(), 0),
-		       ALIGN_MIDDLE, SCHWARZ, true);
+		       ALIGN_MIDDLE, COL_BLACK, true);
   display_proportional_clip(x+10, y+50, translator::translate("3LIGHT_CHOOSE"),
-		       ALIGN_LEFT, SCHWARZ, true);
+		       ALIGN_LEFT, COL_BLACK, true);
   display_proportional_clip(x+113, y+50, ntos(abs(sets->gib_scroll_multi()), 0),
-		       ALIGN_MIDDLE, SCHWARZ, true);
+		       ALIGN_MIDDLE, COL_BLACK, true);
 
   display_proportional_clip(x+10, y+134, "Frame time:",
-		       ALIGN_LEFT, SCHWARZ, true);
+		       ALIGN_LEFT, COL_BLACK, true);
   display_proportional_clip(x+10, y+144, "Idle:",
-		       ALIGN_LEFT, SCHWARZ, true);
+		       ALIGN_LEFT, COL_BLACK, true);
   display_proportional_clip(x+10, y+154, "FPS:",
-		       ALIGN_LEFT, SCHWARZ, true);
+		       ALIGN_LEFT, COL_BLACK, true);
   display_proportional_clip(x+10, y+164, "Sim:",
-		       ALIGN_LEFT, SCHWARZ, true);
+		       ALIGN_LEFT, COL_BLACK, true);
 
   sprintf(buf,"%d ms/%ld ms", 1000/max(1,welt->gib_realFPS()), get_frame_time() );
 
   display_proportional_clip(x+77, y+134, buf,
-		       ALIGN_LEFT, WEISS, true);
+		       ALIGN_LEFT, COL_WHITE, true);
   display_proportional_clip(x+37, y+144, ntos(welt->gib_schlaf_zeit(), "%d ms"),
-		       ALIGN_LEFT, WEISS, true);
+		       ALIGN_LEFT, COL_WHITE, true);
    int farbe, loops;
    loops=welt->gib_FPS();
-   farbe = WEISS;
+   farbe = COL_WHITE;
    if(loops<=10) {
    	if(loops<=7) {
-   		farbe = ROT;
+   		farbe = COL_RED;
    	}
    	else {
-   		farbe = GELB;
+   		farbe = COL_YELLOW;
    	}
   }
   sprintf(buf,"%d fps (real: %d)", loops, welt->gib_realFPS() );
@@ -275,13 +275,13 @@ void color_gui_t::zeichnen(koord pos, koord gr)
 		       ALIGN_LEFT, farbe, true);
 
    loops=welt->gib_simloops();
-   farbe = WEISS;
+   farbe = COL_WHITE;
    if(loops<=5) {
    	if(loops<=2) {
-   		farbe = ROT;
+   		farbe = COL_RED;
    	}
    	else {
-   		farbe = GELB;
+   		farbe = COL_YELLOW;
    	}
   }
   display_proportional_clip(x+37, y+164, ntos(loops, "%d loops"),

@@ -76,10 +76,10 @@ reliefkarte_t::calc_hoehe_farbe(const int hoehe, const int grundwasser)
     int color;
 
     if(hoehe <= grundwasser) {
-	color = BLAU;
+	color = COL_BLUE;
     } else switch((hoehe-grundwasser)>>4) {
     case 0:
-	color = BLAU;
+	color = COL_BLUE;
 	break;
     case 1:
 	color = 183;
@@ -119,10 +119,11 @@ reliefkarte_t::calc_hoehe_farbe(const int hoehe, const int grundwasser)
     return color;
 }
 
+
 int
 reliefkarte_t::calc_relief_farbe(const karte_t *welt, const koord k)
 {
-    int color = SCHWARZ;
+    int color = COL_BLACK;
 
     if(welt!=NULL)
     {
@@ -134,33 +135,17 @@ reliefkarte_t::calc_relief_farbe(const karte_t *welt, const koord k)
 			if(plan->gib_boden_bei(plan->gib_boden_count() - 1)->ist_bruecke()) {
 			    // Brücke
 			    color = MN_GREY3;
-			} else if(gr->gib_weg(weg_t::strasse)) {
-			    if(gr->gib_halt()!=NULL) {
-					color = HALT_KENN;
-			    }
-			    else {
-					color = STRASSE_KENN;
-			    }
-			} else if(gr->gib_weg(weg_t::schiene)) {
-			    if(gr->gib_halt()!=NULL) {
-					color = HALT_KENN;
-			    } else {
-					color = SCHIENE_KENN;
-			    }
-			} else if(gr->gib_weg(weg_t::luft)) {
-			    if(gr->gib_halt()!=NULL) {
-					color = HALT_KENN;
-			    }
-			    else {
-					color = DUNKELORANGE;
-			    }
-			} else if(gr->gib_weg(weg_t::wasser)) {
-			    if(gr->gib_halt()!=NULL) {
-					color = HALT_KENN;
-			    }
-			    else {
-					color = VIOLETT;
-			    }
+			} else if(gr->gib_halt().is_bound()) {
+				color = HALT_KENN;
+			} else if(gr->hat_wege()) {
+				switch(gr->gib_weg_nr(0)->gib_typ()) {
+					case weg_t::strasse: color = STRASSE_KENN; break;
+					case weg_t::schiene_strab:
+					case weg_t::schiene: color = SCHIENE_KENN; break;
+					case weg_t::schiene_monorail: color = MONORAIL_KENN; break;
+					case weg_t::wasser: color = CHANNEL_KENN; break;
+					case weg_t::luft: color = RUNWAY_KENN; break;
+				}
 			} else if(gr->gib_typ() == grund_t::fundament) {
 			    // auf einem fundament steht ein gebaeude
 			    // das ist objekt nr. 1
@@ -168,7 +153,7 @@ reliefkarte_t::calc_relief_farbe(const karte_t *welt, const koord k)
 			    ding_t * dt = gr->obj_bei(0);
 
 			    if(dt == NULL || dt->fabrik() == NULL) {
-					color = GRAU3;
+					color = COL_GREY3;
 			    } else {
 					color = dt->fabrik()->gib_kennfarbe();
 			    }
@@ -180,10 +165,13 @@ reliefkarte_t::calc_relief_farbe(const karte_t *welt, const koord k)
 			    if(dt != NULL && dt->fabrik() != NULL) {
 					color = dt->fabrik()->gib_kennfarbe();
 			    } else {
-					color = BLAU;
+					color = COL_BLUE;
 			    }
 
-			} else if(plan->gib_boden_bei(plan->gib_boden_count() > 1 ? 1 : 0)->ist_tunnel()) {
+			} else if(plan->gib_boden_bei(plan->gib_boden_count() - 1)->gib_typ()==grund_t::monorailboden) {
+			    // Brücke
+			    color = MONORAIL_KENN;
+			} else if(plan->gib_boden_bei(plan->gib_boden_count()-1)->ist_tunnel()) {
 			    // Tunnel
 		    	    color = MN_GREY0;
 			} else {
@@ -310,7 +298,7 @@ reliefkarte_t::zeichnen(koord pos) const
 
     display_fillbox_wh_clip(pos.x,
 			    pos.y,
-			    4000, 4000, SCHWARZ, true);
+			    4000, 4000, COL_BLACK, true);
 
     display_array_wh(pos.x, pos.y,
 		     relief->get_width(),
@@ -324,10 +312,10 @@ reliefkarte_t::zeichnen(koord pos) const
     const int zf = zoom * get_zoom_factor();
 
     // zoom/resize "selection box" in map
-    display_direct_line(pos.x+xpos+12*zf, pos.y+ypos, pos.x+xpos, pos.y+ypos-12*zf, WEISS);
-    display_direct_line(pos.x+xpos-12*zf, pos.y+ypos, pos.x+xpos, pos.y+ypos-12*zf, WEISS);
-    display_direct_line(pos.x+xpos+12*zf, pos.y+ypos, pos.x+xpos, pos.y+ypos+12*zf, WEISS);
-    display_direct_line(pos.x+xpos-12*zf, pos.y+ypos, pos.x+xpos, pos.y+ypos+12*zf, WEISS);
+    display_direct_line(pos.x+xpos+12*zf, pos.y+ypos, pos.x+xpos, pos.y+ypos-12*zf, COL_WHITE);
+    display_direct_line(pos.x+xpos-12*zf, pos.y+ypos, pos.x+xpos, pos.y+ypos-12*zf, COL_WHITE);
+    display_direct_line(pos.x+xpos+12*zf, pos.y+ypos, pos.x+xpos, pos.y+ypos+12*zf, COL_WHITE);
+    display_direct_line(pos.x+xpos-12*zf, pos.y+ypos, pos.x+xpos, pos.y+ypos+12*zf, COL_WHITE);
 
 	// since we do iterate the factory info list, this must be done here
 	// find tourist spots
@@ -342,16 +330,16 @@ reliefkarte_t::zeichnen(koord pos) const
 
 			int w = proportional_string_width(name);
 			p.x = max( pos.x+(p.x*zoom)-(w/2), pos.x );
-			display_proportional_clip( p.x, pos.y+p.y*zoom, name, ALIGN_LEFT, WEISS, true);
+			display_proportional_clip( p.x, pos.y+p.y*zoom, name, ALIGN_LEFT, COL_WHITE, true);
 		}
 	}
 
     if (fab) {
-      draw_fab_connections(fab, is_shift_pressed ? ROT : WEISS, pos);
+      draw_fab_connections(fab, is_shift_pressed ? COL_RED : COL_WHITE, pos);
       const koord fabpos = koord(pos.x + fab->pos.x * zoom, pos.y + fab->pos.y * zoom);
       const koord boxpos = fabpos + koord(10, 0);
       const char * name = translator::translate(fab->gib_name());
-      display_ddd_proportional_clip(boxpos.x, boxpos.y, proportional_string_width(name)+8, 0, 10, WEISS, name, true);
+      display_ddd_proportional_clip(boxpos.x, boxpos.y, proportional_string_width(name)+8, 0, 10, COL_WHITE, name, true);
     }
   }
 }
@@ -392,7 +380,7 @@ reliefkarte_t::calc_map(int render_mode)
 	if(render_mode==MAP_FACTORIES) {
 		slist_iterator_tpl <fabrik_t *> iter (welt->gib_fab_list());
 		while(iter.next()) {
-			setze_relief_farbe_area(iter.get_current()->gib_pos().gib_2d(), 9, SCHWARZ );
+			setze_relief_farbe_area(iter.get_current()->gib_pos().gib_2d(), 9, COL_BLACK );
 			setze_relief_farbe_area(iter.get_current()->gib_pos().gib_2d(), 7, iter.get_current()->gib_kennfarbe() );
 		}
 		return;
@@ -405,7 +393,7 @@ reliefkarte_t::calc_map(int render_mode)
 			for( int y=0; y<welt->gib_groesse_y(); y++ ) {
 				leitung_t *lt = static_cast<leitung_t *>(welt->lookup(koord(x,y))->gib_kartenboden()->suche_obj(ding_t::leitung));
 				if(lt!=NULL) {
-//					setze_relief_farbe(koord(x,y), GREEN );
+//					setze_relief_farbe(koord(x,y), COL_GREEN );
 					setze_relief_farbe(koord(x,y), calc_severity_color(lt->get_net()->get_capacity(),1024) );
 				}
 			}
@@ -536,14 +524,14 @@ reliefkarte_t::calc_map(int render_mode)
 	  if (gr->gib_weg(weg_t::schiene)) {
 	  	const schiene_t * sch = dynamic_cast<const schiene_t *> (gr->gib_weg(weg_t::schiene));
 		if (sch->ist_elektrisch()) {
-	      setze_relief_farbe(k, ROT);
+	      setze_relief_farbe(k, COL_RED);
 		} else {
-	      setze_relief_farbe(k, WEISS);
+	      setze_relief_farbe(k, COL_WHITE);
 		}
 		// show signals
 		if (sch->gib_blockstrecke().is_bound()) {
 			if (sch->gib_blockstrecke()->gib_signal_bei(gr->gib_pos())) {
-				setze_relief_farbe(k, GELB);
+				setze_relief_farbe(k, COL_YELLOW);
 			};
 		}
 	  }
@@ -616,11 +604,11 @@ reliefkarte_t::draw_fab_connections(const fabrik_t * fab, int colour, koord pos)
       const koord end = pos + lieferziel * zoom;
       display_direct_line(fabpos.x+zoom, fabpos.y+zoom, end.x+zoom, end.y+zoom, colour);
       const koord boxpos = end + koord(10, 0);
-      display_fillbox_wh_clip(end.x, end.y, 3 * zoom, 3 * zoom, ((welt->gib_zeit_ms() >> 10) & 1) == 0 ? ROT : WEISS, true);
+      display_fillbox_wh_clip(end.x, end.y, 3 * zoom, 3 * zoom, ((welt->gib_zeit_ms() >> 10) & 1) == 0 ? COL_RED : COL_WHITE, true);
 
       const char * name = translator::translate(fab2->gib_name());
 
-      display_ddd_proportional_clip(boxpos.x, boxpos.y, proportional_string_width(name)+8, 0, 5, WEISS, name, true);
+      display_ddd_proportional_clip(boxpos.x, boxpos.y, proportional_string_width(name)+8, 0, 5, COL_WHITE, name, true);
     }
   }
 }

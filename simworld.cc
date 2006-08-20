@@ -193,7 +193,7 @@ karte_t::calc_hoehe_mit_heightfield(const cstring_t & filename)
 
 			if(is_display_init()) {
 				if(y==0) {
-					display_proportional((display_get_width()-gib_groesse_y()+einstellungen->gib_anzahl_staedte()*12-4)/2,display_get_height()/2-20,translator::translate("Init map ..."),ALIGN_LEFT,WEISS,0);
+					display_proportional((display_get_width()-gib_groesse_y()+einstellungen->gib_anzahl_staedte()*12-4)/2,display_get_height()/2-20,translator::translate("Init map ..."),ALIGN_LEFT,COL_WHITE,0);
 				}
 				display_progress(y/2, gib_groesse_y()+einstellungen->gib_anzahl_staedte()*12);
 				display_flush(0, 0, 0, "", "", 0, 0);
@@ -231,7 +231,7 @@ void
 karte_t::calc_hoehe_mit_perlin()
 {
 	if(is_display_init()) {
-		display_proportional((display_get_width()-gib_groesse_y()-einstellungen->gib_anzahl_staedte()*12-4)/2,display_get_height()/2-20,translator::translate("Init map ..."),ALIGN_LEFT,WEISS,0);
+		display_proportional((display_get_width()-gib_groesse_y()-einstellungen->gib_anzahl_staedte()*12-4)/2,display_get_height()/2-20,translator::translate("Init map ..."),ALIGN_LEFT,COL_WHITE,0);
 	}
 
 	for(int y=0; y<=gib_groesse_y(); y++) {
@@ -1554,13 +1554,13 @@ karte_t::gib_random_ausflugsziel() const
 stadt_t *
 karte_t::suche_naechste_stadt(const koord pos) const
 {
-    int min_dist = 99999999;
+    long min_dist = 99999999;
     stadt_t * best = NULL;
 
     for(unsigned n=0; n<stadt->get_count(); n++) {
 	    const koord k = stadt->at(n)->gib_pos();
 
-	    const int dist = (pos.x-k.x)*(pos.x-k.x) + (pos.y-k.y)*(pos.y-k.y);
+	    const long dist = (pos.x-k.x)*(pos.x-k.x) + (pos.y-k.y)*(pos.y-k.y);
 
 	    if(dist < min_dist) {
 
@@ -2001,7 +2001,7 @@ DBG_MESSAGE("karte_t::neues_jahr()","Year %d has started", letztes_jahr);
 
 	char buf[256];
 	sprintf(buf,translator::translate("Year %i has started."),letztes_jahr);
-	message_t::get_instance()->add_message(buf,koord::invalid,message_t::general,SCHWARZ,skinverwaltung_t::neujahrsymbol->gib_bild_nr(0));
+	message_t::get_instance()->add_message(buf,koord::invalid,message_t::general,COL_BLACK,skinverwaltung_t::neujahrsymbol->gib_bild_nr(0));
 
 	slist_iterator_tpl<convoihandle_t> iter (convoi_list);
 
@@ -2979,7 +2979,7 @@ void karte_t::do_pause()
 
 	display_proportional(display_get_width()/2, display_get_height()/2-5,
 	                                 translator::translate("GAME PAUSED"),
-	                                 ALIGN_MIDDLE, SCHWARZ, false);
+	                                 ALIGN_MIDDLE, COL_BLACK, false);
 
 	// Pause: warten auf die nächste Taste
 	event_t ev;

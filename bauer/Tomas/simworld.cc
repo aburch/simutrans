@@ -2314,7 +2314,7 @@ static void do_pause() {
 
     display_proportional(display_get_width()/2, display_get_height()/2-5,
                                      translator::translate("GAME PAUSED"),
-                                     ALIGN_MIDDLE, SCHWARZ, false);
+                                     ALIGN_MIDDLE, COL_BLACK, false);
 
     // Pause: warten auf die nächste Taste
     event_t ev;
@@ -2907,7 +2907,7 @@ karte_t::interactive()
 
     steps_bis_jetzt = steps;
 
-    ticker_t::get_instance()->add_msg("Welcome to Simutrans, a game created by Hj. Malthaner.", BLAU);
+    ticker_t::get_instance()->add_msg("Welcome to Simutrans, a game created by Hj. Malthaner.", COL_BLUE);
 
     do {
 	// check if we need to play a new midi file

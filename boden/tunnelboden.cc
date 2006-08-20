@@ -33,9 +33,9 @@ void tunnelboden_t::calc_bild()
 		gib_weg_nr(0)->setze_bild(IMG_LEER);
 	}
 	if(ist_karten_boden()  &&  suche_obj(ding_t::tunnel)) {
+		clear_flag(grund_t::is_in_tunnel);
 		boden_t::calc_bild();
 //		setze_bild(grund_besch_t::boden->gib_bild(gib_grund_hang()));
-		clear_flag(grund_t::is_in_tunnel);
 		if(gib_weg_nr(0)) {
 			gib_weg_nr(0)->setze_bild(IMG_LEER);
 		}

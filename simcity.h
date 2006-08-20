@@ -332,9 +332,9 @@ public:
 	// (called when removed by player, or by town)
 	void remove_gebaeude_from_stadt(gebaeude_t *gb);
 
-    int gib_pax_erzeugt() const {return pax_erzeugt;};
-    int gib_pax_transport() const {return pax_transport;};
-    int gib_wachstum() const {return wachstum;};
+    int gib_pax_erzeugt() const {return pax_erzeugt;}
+    int gib_pax_transport() const {return pax_transport;}
+    int gib_wachstum() const {return wachstum;}
 
     /**
      * ermittelt die Einwohnerzahl der Stadt

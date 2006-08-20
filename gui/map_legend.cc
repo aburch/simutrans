@@ -192,8 +192,8 @@ void map_legend_t::zeichnen(koord pos, koord gr)
 	for (i = 0; i<12; i++) {
 		display_fillbox_wh(pos.x + 30 + (11-i)*(size.x-60)/12, pos.y+18+3,  (size.x-60)/12, 7, reliefkarte_t::severity_color[11-i], false);
 	}
-	display_proportional(pos.x + 26, pos.y+18+2, translator::translate("min"), ALIGN_RIGHT, SCHWARZ, false);
-	display_proportional(pos.x + size.x - 26, pos.y+18+2, translator::translate("max"), ALIGN_LEFT, SCHWARZ, false);
+	display_proportional(pos.x + 26, pos.y+18+2, translator::translate("min"), ALIGN_RIGHT, COL_BLACK, false);
+	display_proportional(pos.x + size.x - 26, pos.y+18+2, translator::translate("max"), ALIGN_LEFT, COL_BLACK, false);
 
 	// factories
 	const int rows = (size.x-10)/110;
@@ -208,7 +208,7 @@ void map_legend_t::zeichnen(koord pos, koord gr)
 			break;
 		}
 		display_fillbox_wh(xpos, ypos+1, 7, 7, color, false);
-		display_proportional( xpos+8, ypos, legend_names.get(u), ALIGN_LEFT, SCHWARZ, false);
+		display_proportional( xpos+8, ypos, legend_names.get(u), ALIGN_LEFT, COL_BLACK, false);
 	}
 }
 

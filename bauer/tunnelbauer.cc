@@ -243,12 +243,12 @@ DBG_MESSAGE("tunnelbauer_t::baue_einfahrt()","at end (%d,%d) for %s", end.x, end
 		cost += weg_besch->gib_preis();
 	}
 
-	welt->access(end.gib_2d())->kartenboden_setzen( tunnel, false );
 	tunnel->neuen_weg_bauen(weg, ribi, sp);
+	tunnel->obj_add(new tunnel_t(welt, end, sp, besch));
 	if(wegtyp == weg_t::schiene) {
 		blockmanager::gib_manager()->neue_schiene(welt, tunnel, sig);
 	}
-	tunnel->obj_add(new tunnel_t(welt, end, sp, besch));
+	welt->access(end.gib_2d())->kartenboden_setzen( tunnel, false );
 	tunnel->calc_bild();
 
 	cost += umgebung_t::cst_tunnel;

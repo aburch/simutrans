@@ -56,7 +56,13 @@ const uint8 index_of_haltinfo[MAX_HALT_COST] = {
 
 const int cost_type_color[MAX_HALT_COST] =
 {
-  7, 11, 15, 132, 23, 27, 31
+	COL_HAPPY,
+	COL_UNHAPPY,
+	COL_NO_ROUTE,
+	COL_WAITING,
+	COL_ARRIVED,
+	COL_DEPARTED,
+	COL_VEHICLE_ASSETS
 };
 
 halt_info_t::halt_info_t(karte_t *welt, halthandle_t halt)
@@ -219,7 +225,7 @@ halt_info_t::zeichnen(koord pos, koord gr)
 		info_buf.append(translator::translate("Storage capacity"));
 		info_buf.append(": ");
 		info_buf.append(halt->get_capacity());
-		display_proportional(pos.x+viewpos.x-11, pos.y+40, info_buf, ALIGN_RIGHT, SCHWARZ, true);
+		display_proportional(pos.x+viewpos.x-11, pos.y+40, info_buf, ALIGN_RIGHT, COL_BLACK, true);
 
 		// word view box frame
 		display_ddd_box(pos.x+viewpos.x, pos.y+viewpos.y+16, 66, 57, MN_GREY0, MN_GREY4);
@@ -228,7 +234,7 @@ halt_info_t::zeichnen(koord pos, koord gr)
 		// information about the convoi itself
 		info_buf.clear();
 		halt->info(info_buf);
-		display_multiline_text(pos.x+11, pos.y+56, info_buf, SCHWARZ);
+		display_multiline_text(pos.x+11, pos.y+56, info_buf, COL_BLACK);
 	}
 }
 

@@ -12,8 +12,11 @@
 
 #include "tpl/slist_tpl.h"
 #include "dings/gebaeude.h"
+#include "boden/wege/weg.h"
 #include "convoihandle_t.h"
-#include "simconvoi.h"
+#include "simline.h"
+//#include "simconvoi.h"
+
 
 class karte_t;
 class vehikel_t;
@@ -40,6 +43,7 @@ private:
      */
     depot_frame_t *depot_info;
 
+protected:
     /**
      * Reworked depot data!
      *
@@ -58,9 +62,6 @@ private:
 
     void rdwr_vehikel(slist_tpl<vehikel_t*> &list, loadsave_t *file);
 
-protected:
-	void build_line_list();
-
     /**
      * this list contains the lines matching the depot type
      * train depots, for example, will only see trainlines
@@ -70,14 +71,16 @@ protected:
 
     virtual bool can_convoi_start(int icnv) const;
 
+	virtual simline_t::linetype get_line_type() = 0;
+
 public:
-    depot_t(karte_t *welt);
+    depot_t(karte_t *welt,loadsave_t *file);
     depot_t(karte_t *welt, koord3d pos, spieler_t *sp, const haus_tile_besch_t *t);
     virtual ~depot_t();
 
 	fahrplan_t * erzeuge_fahrplan();
 
-	virtual simline_t * create_line() = 0;
+	virtual simline_t * create_line();
 
     /**
      * Text of the passenger tab (for gui)
@@ -151,12 +154,8 @@ public:
      * @date  30.05.2003
      */
     unsigned vehicle_count() const { return vehicles.count(); }
-
-    vehikel_t * get_vehicle(unsigned int iveh)
-    { return iveh < vehicle_count() ? vehicles.at(iveh) : NULL; }
-
-    const slist_tpl<vehikel_t *> *get_vehicle_list()
-    { return &vehicles; }
+    vehikel_t * get_vehicle(unsigned int iveh) { return iveh < vehicle_count() ? vehicles.at(iveh) : NULL; }
+    const slist_tpl<vehikel_t *> *get_vehicle_list() { return &vehicles; }
 
     /**
      * A new vehicle is bought and added to the vehicle list. The number of the
@@ -177,7 +176,7 @@ public:
      * Access to vehicle types which can be bought in the depot.
      * @author Volker Meyer
      */
-    virtual const vehikel_besch_t *get_vehicle_type(int itype) = 0;
+    virtual const vehikel_besch_t *get_vehicle_type(int itype);
 
     /**
      * Returns the waytype for a certain vehicle; only way to distingiush differnt depots ...
@@ -218,18 +217,12 @@ public:
     depot_frame_t *get_info_win() const { return depot_info; }
 
     /**
-     * Load/seve this depot
-     * @author Hj. Malthaner
-     */
-    void rdwr(loadsave_t *file);
-
-    /**
      * @returns NULL wenn OK, ansonsten eine Fehlermeldung
      * @author Hj. Malthaner
      */
     virtual const char * ist_entfernbar(const spieler_t *sp);
 
-	virtual slist_tpl<simline_t *> *get_line_list() = 0;
+	virtual slist_tpl<simline_t *> *get_line_list();
 
 	/**
 	 * identifies the oldest vehicle of a certain type (id)
@@ -254,33 +247,17 @@ public:
 class bahndepot_t : public depot_t
 {
 protected:
-	simline_t * create_line();
+	virtual simline_t::linetype get_line_type() { return simline_t::trainline; }
+
+    virtual const char * gib_zieher_name() { return "Lokomotive_tab"; }
+    virtual const char * gib_haenger_name() { return "Waggon_tab"; }
+    virtual const char * gib_passenger_name() { return "Pas_tab"; }
 
     bool can_convoi_start(int icnv) const;
 
-    virtual const char * gib_zieher_name() {
-	return "Lokomotive_tab";
-    };
-
-    virtual const char * gib_haenger_name() {
-	return "Waggon_tab";
-    };
-
-    virtual const char * gib_passenger_name() {
-	return "Pas_tab";
-    };
-
-	void build_line_list();
-
-	bool is_tram;	// flag for tram depot
-	bool is_monorail;	// flag for monorail depot
-
 public:
-
-	slist_tpl<simline_t *> *get_line_list();
-
-    bahndepot_t(karte_t *welt, loadsave_t *file);
-    bahndepot_t(karte_t *welt, koord3d pos,spieler_t *sp, const haus_tile_besch_t *t);
+    bahndepot_t(karte_t *welt, loadsave_t *file) : depot_t(welt,file) {}
+    bahndepot_t(karte_t *welt, koord3d pos,spieler_t *sp, const haus_tile_besch_t *t) : depot_t(welt,pos,sp,t) {}
 
     virtual void convoi_arrived(convoihandle_t cnv, bool fpl_adjust);
 
@@ -295,16 +272,11 @@ public:
     int get_y_grid() const { return 24; }
     unsigned get_max_convoi_length() const { return convoi_t::max_rail_vehicle; }
 
-    /**
-     * Access to vehicle types which can be bought in the depot.
-     * @author Volker Meyer
-     */
-    virtual const vehikel_besch_t *get_vehicle_type(int itype);
+	virtual const weg_t::typ get_wegtyp() const {return weg_t::schiene;}
+    virtual enum ding_t::typ gib_typ() const {return bahndepot;}
+    virtual const char *gib_name() const {return "Bahndepot"; }
 
-    virtual const weg_t::typ get_wegtyp() const;
-
-    enum ding_t::typ gib_typ() const {return bahndepot;};
-    const char *gib_name() const;
+	void rdwr_vehicles(loadsave_t *file);
 
 #if USE_NEW_GEBAUDE
     virtual void * operator new(size_t s) { return (bahndepot_t *)freelist_t::gimme_node(sizeof(bahndepot_t)); }
@@ -313,6 +285,32 @@ public:
 };
 
 
+class tramdepot_t : public bahndepot_t
+{
+protected:
+
+public:
+    tramdepot_t(karte_t *welt, loadsave_t *file):bahndepot_t(welt,file) {}
+    tramdepot_t(karte_t *welt, koord3d pos,spieler_t *sp, const haus_tile_besch_t *t): bahndepot_t(welt,pos,sp,t) {}
+
+	virtual const weg_t::typ get_wegtyp() const {return weg_t::schiene_strab;}
+    virtual enum ding_t::typ gib_typ() const {return tramdepot;};
+    virtual const char *gib_name() const {return "Tramdepot"; }
+};
+
+class monoraildepot_t : public bahndepot_t
+{
+protected:
+	virtual simline_t::linetype get_line_type() { return simline_t::monorailline; }
+
+public:
+    monoraildepot_t(karte_t *welt, loadsave_t *file):bahndepot_t(welt,file) {}
+    monoraildepot_t(karte_t *welt, koord3d pos,spieler_t *sp, const haus_tile_besch_t *t): bahndepot_t(welt,pos,sp,t) {}
+
+   virtual  const weg_t::typ get_wegtyp() const {return weg_t::schiene_monorail;}
+    virtual enum ding_t::typ gib_typ() const {return monoraildepot;};
+    virtual const char *gib_name() const {return "Monoraildepot"; }
+};
 
 /**
  * Depots für Straßenfahrzeuge
@@ -323,35 +321,15 @@ public:
 class strassendepot_t : public depot_t
 {
 protected:
-	simline_t * create_line();
+	virtual simline_t::linetype get_line_type() { return simline_t::truckline; }
 
-    virtual const char * gib_passenger_name() {
-	return "Bus_tab";
-    };
+    virtual const char * gib_passenger_name() { return "Bus_tab"; }
+    virtual const char * gib_zieher_name() { return "LKW_tab"; }
+    virtual const char * gib_haenger_name() { return "Anhaenger_tab"; }
 
-    virtual const char * gib_zieher_name() {
-	return "LKW_tab";
-    };
-
-    virtual const char * gib_haenger_name() {
-	return "Anhaenger_tab";
-    };
-
-	void build_line_list();
 public:
-
-	slist_tpl<simline_t *> *get_line_list();
-
-    strassendepot_t(karte_t *welt, loadsave_t *file) ;
-    strassendepot_t(karte_t *welt, koord3d pos,spieler_t *sp, const haus_tile_besch_t *t);
-
-    /**
-     * Access to vehicle types which can be bought in the depot.
-     * @author Volker Meyer
-     */
-    virtual const vehikel_besch_t *get_vehicle_type(int itype);
-
-    virtual const weg_t::typ get_wegtyp() const {return weg_t::strasse; };
+    strassendepot_t(karte_t *welt, loadsave_t *file) : depot_t(welt,file) {}
+    strassendepot_t(karte_t *welt, koord3d pos,spieler_t *sp, const haus_tile_besch_t *t) : depot_t(welt,pos,sp,t) {}
 
     /**
      * Parameters to determine layout and behaviour of the depot_frame_t.
@@ -364,8 +342,9 @@ public:
     int get_y_grid() const { return 24; }
     unsigned get_max_convoi_length() const { return 4; }
 
-    enum ding_t::typ gib_typ() const {return strassendepot;};
-    const char *gib_name() const;
+    virtual const weg_t::typ get_wegtyp() const {return weg_t::strasse; }
+    enum ding_t::typ gib_typ() const {return strassendepot;}
+    const char *gib_name() const {return "Strassendepot";}
 
 #if USE_NEW_GEBAUDE
     virtual void * operator new(size_t s) { return (strassendepot_t *)freelist_t::gimme_node(sizeof(strassendepot_t)); }
@@ -383,104 +362,64 @@ public:
 class schiffdepot_t : public depot_t
 {
 protected:
-	simline_t * create_line();
+	virtual simline_t::linetype get_line_type() { return simline_t::shipline; }
 
-    virtual const char * gib_passenger_name() {
-	return "Ferry_tab";
-    };
-
-    virtual const char * gib_zieher_name() {
-	return "Schiff_tab";
-    };
-
-    virtual const char * gib_haenger_name() {
-	return "Schleppkahn_tab";
-    };
-
-	void build_line_list();
+    virtual const char * gib_passenger_name() { return "Ferry_tab"; }
+    virtual const char * gib_zieher_name() { return "Schiff_tab"; }
+    virtual const char * gib_haenger_name() { return "Schleppkahn_tab"; }
 
 public:
+	schiffdepot_t(karte_t *welt, loadsave_t *file) : depot_t(welt,file) {}
+	schiffdepot_t(karte_t *welt, koord3d pos, spieler_t *sp, const haus_tile_besch_t *t) : depot_t(welt,pos,sp,t) {}
 
-	slist_tpl<simline_t *> *get_line_list();
+	/**
+	 * Parameters to determine layout and behaviour of the depot_frame_t.
+	 * @author Volker Meyer
+	 * @date  09.06.2003
+	 */
+	int get_x_placement() const {return -1;};
+	int get_y_placement() const {return -11;};
+	int get_x_grid() const { return 60; }
+	int get_y_grid() const { return 46; }
 
-    schiffdepot_t(karte_t *welt, loadsave_t *file);
-
-    schiffdepot_t(karte_t *welt, koord3d pos, spieler_t *sp, const haus_tile_besch_t *t);
-
-    virtual const vehikel_besch_t * get_vehicle_type(int itype);
-
-
-    /**
-     * Parameters to determine layout and behaviour of the depot_frame_t.
-     * @author Volker Meyer
-     * @date  09.06.2003
-     */
-    int get_x_placement() const {return -1;};
-    int get_y_placement() const {return -11;};
-    int get_x_grid() const { return 60; }
-    int get_y_grid() const { return 46; }
-    unsigned get_max_convoi_length() const { return 4; }
-
-    virtual const weg_t::typ get_wegtyp() const {return weg_t::wasser; };
-
-    enum ding_t::typ gib_typ() const {return schiffdepot;};
-    const char *gib_name() const;
+	unsigned get_max_convoi_length() const { return 4; }
+	virtual const weg_t::typ get_wegtyp() const {return weg_t::wasser; }
+	enum ding_t::typ gib_typ() const {return schiffdepot;}
+	const char *gib_name() const {return "Schiffdepot";}
 
 #if USE_NEW_GEBAUDE
-    virtual void * operator new(size_t s) { return (schiffdepot_t *)freelist_t::gimme_node(sizeof(schiffdepot_t)); }
-    virtual void operator delete(void *p) { freelist_t::putback_node(sizeof(schiffdepot_t),p); };
+	virtual void * operator new(size_t s) { return (schiffdepot_t *)freelist_t::gimme_node(sizeof(schiffdepot_t)); }
+	virtual void operator delete(void *p) { freelist_t::putback_node(sizeof(schiffdepot_t),p); };
 #endif
 };
 
 class airdepot_t : public depot_t
 {
 protected:
-	simline_t * create_line();
+	virtual simline_t::linetype get_line_type() { return simline_t::airline; }
 
-    virtual const char * gib_zieher_name() {
-	return "aircraft_tab";
-    };
-
-    virtual const char * gib_haenger_name() {
-	return "Waggon_tab";
-    };
-
-    virtual const char * gib_passenger_name() {
-	return "Flug_tab";
-    };
-
-	void build_line_list();
+    virtual const char * gib_zieher_name() { return "aircraft_tab"; }
+    virtual const char * gib_haenger_name() { return "Waggon_tab"; }
+    virtual const char * gib_passenger_name() { return "Flug_tab"; }
 
 public:
+	airdepot_t(karte_t *welt, loadsave_t *file) : depot_t(welt,file) {}
+	airdepot_t(karte_t *welt, koord3d pos,spieler_t *sp, const haus_tile_besch_t *t) : depot_t(welt,pos,sp,t) {}
 
-	slist_tpl<simline_t *> *get_line_list();
+	/**
+	 * Parameters to determine layout and behaviour of the depot_frame_t.
+	 * @author Volker Meyer
+	 * @date  09.06.2003
+	 */
+	int get_x_placement() const {return -10; }
+	int get_y_placement() const {return -23; }
+	int get_x_grid() const { return 36; }
+	int get_y_grid() const { return 36; }
+	unsigned get_max_convoi_length() const { return 1; }
 
-    airdepot_t(karte_t *welt, loadsave_t *file);
-    airdepot_t(karte_t *welt, koord3d pos,spieler_t *sp, const haus_tile_besch_t *t);
-
-    virtual void convoi_arrived(convoihandle_t cnv, bool fpl_adjust);
-
-    /**
-     * Parameters to determine layout and behaviour of the depot_frame_t.
-     * @author Volker Meyer
-     * @date  09.06.2003
-     */
-    int get_x_placement() const {return -10; }
-    int get_y_placement() const {return -23; }
-    int get_x_grid() const { return 36; }
-    int get_y_grid() const { return 36; }
-    unsigned get_max_convoi_length() const { return 1; }
-
-    /**
-     * Access to vehicle types which can be bought in the depot.
-     * @author Volker Meyer
-     */
-    virtual const vehikel_besch_t *get_vehicle_type(int itype);
-
-    virtual const weg_t::typ get_wegtyp() const {return weg_t::luft; };
-
-    enum ding_t::typ gib_typ() const {return airdepot;};
-    const char *gib_name() const;
+	virtual const weg_t::typ get_wegtyp() const {return weg_t::luft; };
+	enum ding_t::typ gib_typ() const {return airdepot;};
+	const char *gib_name() const {return "Hangar";}
 
 #if USE_NEW_GEBAUDE
     virtual void * operator new(size_t s) { return (airdepot_t *)freelist_t::gimme_node(sizeof(airdepot_t)); }

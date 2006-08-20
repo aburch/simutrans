@@ -57,21 +57,12 @@ strasse_t::strasse_t(karte_t *welt,int top_speed) : weg_t (welt)
 
 void strasse_t::info(cbuffer_t & buf) const
 {
-  weg_t::info(buf);
-
+	weg_t::info(buf);
 /* debug
-  if(gehweg) {
-	  buf.append("\nSidewalk\n ");
+	if(gehweg) {
+		buf.append("\nSidewalk\n ");
 	}
 */
-
-  buf.append("\nRibi (unmasked) ");
-  buf.append(gib_ribi_unmasked());
-
-
-  buf.append("\nRibi (masked) ");
-  buf.append(gib_ribi());
-  buf.append("\n");
 }
 
 

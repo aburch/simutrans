@@ -225,7 +225,7 @@ koord gui_flowtext_t::output(koord offset, bool doit) const {
     node_t *node = nodes;
     int xpos = 0;
     int ypos = 0;
-    int color = SCHWARZ;
+    int color = COL_BLACK;
     int max_width = width;
 
     while(node) {
@@ -249,10 +249,10 @@ koord gui_flowtext_t::output(koord offset, bool doit) const {
 	    xpos = nxpos;
 	}
 	else if(node->att == ATT_H1_START) {
-	    color = SCHWARZ;
+	    color = COL_BLACK;
 	}
 	else if(node->att == ATT_H1_END) {
-	    color = SCHWARZ;
+	    color = COL_BLACK;
 	    if(doit) {
 		display_fillbox_wh_clip(offset.x, offset.y+12, xpos-4, 1, color, true);
 	    }
@@ -260,19 +260,19 @@ koord gui_flowtext_t::output(koord offset, bool doit) const {
 	    ypos += LINESPACE;
 	}
 	else if(node->att == ATT_EM_START) {
-	    color = WEISS;
+	    color = COL_WHITE;
 	}
 	else if(node->att == ATT_EM_END) {
-	    color = SCHWARZ;
+	    color = COL_BLACK;
 	}
 	else if(node->att == ATT_STRONG_START) {
-	    color = ROT;
+	    color = COL_RED;
 	}
 	else if(node->att == ATT_STRONG_END) {
-	    color = SCHWARZ;
+	    color = COL_BLACK;
 	}
 	else if(node->att == ATT_A_START) {
-	    color = BLAU;
+	    color = COL_BLUE;
 	    link->tl.x = xpos;
 	    link->tl.y = ypos;
 	}
@@ -296,7 +296,7 @@ koord gui_flowtext_t::output(koord offset, bool doit) const {
 
 	    link = link->next;
 
-	    color = SCHWARZ;
+	    color = COL_BLACK;
 	}
 	else if(node->att == ATT_NEWLINE) {
 	    xpos = 0;

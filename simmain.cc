@@ -254,26 +254,26 @@ static void scroll_intro(const int xoff, const int yoff)
     const int left = 60;
     const int top = 196;
 
-    display_fillbox_wh(xoff+left, yoff+top, 240, 48, GRAU1, true);
+    display_fillbox_wh(xoff+left, yoff+top, 240, 48, COL_GREY1, true);
 
-    display_proportional(xoff+left+4, yoff+1+top-text_offset, scrolltext[text_line], ALIGN_LEFT, WEISS, true );
-    display_proportional(xoff+left+236, yoff+1+top-text_offset, scrolltext[text_line+1], ALIGN_RIGHT, WEISS, true );
-    display_proportional(xoff+left+4, yoff+10+top-text_offset, scrolltext[text_line+2], ALIGN_LEFT, WEISS, true );
-    display_proportional(xoff+left+236, yoff+10+top-text_offset, scrolltext[text_line+3], ALIGN_RIGHT, WEISS, true );
-    display_proportional(xoff+left+4, yoff+19+top-text_offset, scrolltext[text_line+4], ALIGN_LEFT, GRAU6, true );
-    display_proportional(xoff+left+236, yoff+19+top-text_offset, scrolltext[text_line+5], ALIGN_RIGHT, GRAU6, true );
-    display_proportional(xoff+left+4, yoff+28+top-text_offset, scrolltext[text_line+6], ALIGN_LEFT, GRAU5, true );
-    display_proportional(xoff+left+236, yoff+28+top-text_offset, scrolltext[text_line+7], ALIGN_RIGHT, GRAU5, true );
-    display_proportional(xoff+left+4, yoff+37+top-text_offset, scrolltext[text_line+8], ALIGN_LEFT, GRAU4, true );
-    display_proportional(xoff+left+236, yoff+37+top-text_offset, scrolltext[text_line+9], ALIGN_RIGHT, GRAU4, true );
-    display_proportional(xoff+left+4, yoff+46+top-text_offset, scrolltext[text_line+10], ALIGN_LEFT, GRAU3, true );
-    display_proportional(xoff+left+236, yoff+46+top-text_offset, scrolltext[text_line+11], ALIGN_RIGHT, GRAU3, true );
+    display_proportional(xoff+left+4, yoff+1+top-text_offset, scrolltext[text_line], ALIGN_LEFT, COL_WHITE, true );
+    display_proportional(xoff+left+236, yoff+1+top-text_offset, scrolltext[text_line+1], ALIGN_RIGHT, COL_WHITE, true );
+    display_proportional(xoff+left+4, yoff+10+top-text_offset, scrolltext[text_line+2], ALIGN_LEFT, COL_WHITE, true );
+    display_proportional(xoff+left+236, yoff+10+top-text_offset, scrolltext[text_line+3], ALIGN_RIGHT, COL_WHITE, true );
+    display_proportional(xoff+left+4, yoff+19+top-text_offset, scrolltext[text_line+4], ALIGN_LEFT, COL_GREY6, true );
+    display_proportional(xoff+left+236, yoff+19+top-text_offset, scrolltext[text_line+5], ALIGN_RIGHT, COL_GREY6, true );
+    display_proportional(xoff+left+4, yoff+28+top-text_offset, scrolltext[text_line+6], ALIGN_LEFT, COL_GREY5, true );
+    display_proportional(xoff+left+236, yoff+28+top-text_offset, scrolltext[text_line+7], ALIGN_RIGHT, COL_GREY5, true );
+    display_proportional(xoff+left+4, yoff+37+top-text_offset, scrolltext[text_line+8], ALIGN_LEFT, COL_GREY4, true );
+    display_proportional(xoff+left+236, yoff+37+top-text_offset, scrolltext[text_line+9], ALIGN_RIGHT, COL_GREY4, true );
+    display_proportional(xoff+left+4, yoff+46+top-text_offset, scrolltext[text_line+10], ALIGN_LEFT, COL_GREY3, true );
+    display_proportional(xoff+left+236, yoff+46+top-text_offset, scrolltext[text_line+11], ALIGN_RIGHT, COL_GREY3, true );
 
-    display_fillbox_wh(xoff+left, yoff+top-8, 240, 7, GRAU4, true);
-    display_fillbox_wh(xoff+left, yoff+top-1, 240, 1, GRAU3, true);
+    display_fillbox_wh(xoff+left, yoff+top-8, 240, 7, COL_GREY4, true);
+    display_fillbox_wh(xoff+left, yoff+top-1, 240, 1, COL_GREY3, true);
 
-    display_fillbox_wh(xoff+left, yoff+top+48, 240, 1, GRAU6, true);
-    display_fillbox_wh(xoff+left, yoff+top+49, 240, 7, GRAU4, true);
+    display_fillbox_wh(xoff+left, yoff+top+48, 240, 1, COL_GREY6, true);
+    display_fillbox_wh(xoff+left, yoff+top+49, 240, 7, COL_GREY4, true);
 
     line ++;
 
@@ -297,10 +297,10 @@ static void zeige_banner()
 
     // display_show_pointer( false );
 
-    display_ddd_box(xoff, yoff, 360, 270, GRAU6, GRAU2);
-    display_fillbox_wh(xoff+1, yoff+1, 358, 268, GRAU5, true);
-    display_ddd_box(xoff+4, yoff+4, 352, 262, GRAU2, GRAU6);
-    display_fillbox_wh(xoff+5, yoff+5, 350, 260, GRAU4, true);
+    display_ddd_box(xoff, yoff, 360, 270, COL_GREY6, COL_GREY2);
+    display_fillbox_wh(xoff+1, yoff+1, 358, 268, COL_GREY5, true);
+    display_ddd_box(xoff+4, yoff+4, 352, 262, COL_GREY2, COL_GREY6);
+    display_fillbox_wh(xoff+5, yoff+5, 350, 260, COL_GREY4, true);
 
     display_color_img(skinverwaltung_t::logosymbol->gib_bild_nr(0),
 		      xoff+264, yoff+40, 0, false, true);
@@ -313,9 +313,9 @@ static void zeige_banner()
         int color;
 
 	if(s == 0) {
-            color = WEISS;
+            color = COL_WHITE;
 	} else {
-            color = SCHWARZ;
+            color = COL_BLACK;
 	}
 
         if(s == 0) color = heading;
@@ -324,7 +324,7 @@ static void zeige_banner()
 			     ALIGN_LEFT,
 			     color, true);
 
-        if(s == 0) color = WEISS;
+        if(s == 0) color = COL_WHITE;
         display_proportional(xoff+s+48,yoff+s+28,
 			     "Version " VERSION_NUMBER " " VERSION_DATE,
 			     ALIGN_LEFT,
@@ -336,7 +336,7 @@ static void zeige_banner()
 			     ALIGN_LEFT,
 			     color, true);
 
-        if(s == 0) color = WEISS;
+        if(s == 0) color = COL_WHITE;
         display_proportional(xoff+s+48,yoff+s+64,
 			     "the simutrans team, based on",
 			     ALIGN_LEFT,
@@ -361,7 +361,7 @@ static void zeige_banner()
 			     ALIGN_LEFT,
 			     color, true);
 
-        if(s == 0) color = WEISS;
+        if(s == 0) color = COL_WHITE;
         display_proportional(xoff+s+48,yoff+s+138,
 			      "<markus@pristovsek.de>",
 			     ALIGN_LEFT,
@@ -374,7 +374,7 @@ static void zeige_banner()
 			     ALIGN_LEFT,
 			     color, true);
 
-        if(s == 0) color = WEISS;
+        if(s == 0) color = COL_WHITE;
         display_proportional(xoff+s+48,yoff+s+172,
 			     "http://www.simutrans.de",
 			     ALIGN_LEFT,

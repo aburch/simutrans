@@ -918,7 +918,7 @@ static void info_add_ware_description(cbuffer_t & buf, const ware_t & ware)
 
 
 // static !
-unsigned fabrik_t::status_to_color[5] = {ROT, ORANGE, GREEN, GELB, WHITE };
+unsigned fabrik_t::status_to_color[5] = {COL_RED, COL_ORANGE, COL_GREEN, COL_YELLOW, COL_WHITE };
 
 #define FL_WARE_NULL           1
 #define FL_WARE_ALLENULL       2

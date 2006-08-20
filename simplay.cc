@@ -333,7 +333,7 @@ spieler_t::display_messages(const int xoff, const int yoff, const int width)
 
 	if(text_alter[n] >= -80) {
 
-	    display_proportional_clip( x+xoff+1, y+yoff+1, texte[n], ALIGN_LEFT, SCHWARZ, true);
+	    display_proportional_clip( x+xoff+1, y+yoff+1, texte[n], ALIGN_LEFT, COL_BLACK, true);
 	    display_proportional_clip( x+xoff, y+yoff, texte[n], ALIGN_LEFT, kennfarbe+3, true);
 
 	    last_displayed_message = n;
@@ -2798,7 +2798,7 @@ void spieler_t::bescheid_station_voll(halthandle_t halt)
 		char buf[256];
 
 		sprintf(buf, translator::translate("!0_STATION_CROWDED"), halt->gib_name());
-//        ticker_t::get_instance()->add_msg(buf, halt->gib_basis_pos(), DUNKELROT);
+//        ticker_t::get_instance()->add_msg(buf, halt->gib_basis_pos(), COL_DARK_RED);
 		message_t::get_instance()->add_message(buf, halt->gib_basis_pos(),message_t::full, kennfarbe,IMG_LEER);
 	}
 }
@@ -2816,7 +2816,7 @@ DBG_MESSAGE("spieler_t::bescheid_vehikel_problem","Vehicle %s can't find a route
 	if(this==welt->get_active_player()) {
 		char buf[256];
 		sprintf(buf,translator::translate("Vehicle %s can't find a route!"), cnv->gib_name());
-//		ticker_t::get_instance()->add_msg(buf, cnv->gib_pos().gib_2d(),ROT);
+//		ticker_t::get_instance()->add_msg(buf, cnv->gib_pos().gib_2d(),COL_RED);
 		message_t::get_instance()->add_message(buf, cnv->gib_pos().gib_2d(),message_t::convoi,kennfarbe,cnv->gib_vehikel(0)->gib_basis_bild());
 	}
 	else if(this != welt->gib_spieler(0)) {

@@ -35,14 +35,14 @@ display_progress(int part, int total)
     extern int disp_height;
 
     // umriß
-    display_ddd_box((disp_width-total-4)/2, disp_height/2-9, total+3, 18, GRAU6, GRAU4);
-    display_ddd_box((disp_width-total-2)/2, disp_height/2-8, total+1, 16, GRAU4, GRAU6);
+    display_ddd_box((disp_width-total-4)/2, disp_height/2-9, total+3, 18, COL_GREY6, COL_GREY4);
+    display_ddd_box((disp_width-total-2)/2, disp_height/2-8, total+1, 16, COL_GREY4, COL_GREY6);
 
     // flaeche
-    display_fillbox_wh((disp_width-total)/2, disp_height/2-7, total, 14, GRAU5, TRUE);
+    display_fillbox_wh((disp_width-total)/2, disp_height/2-7, total, 14, COL_GREY5, TRUE);
 
     // progress
-    display_fillbox_wh((disp_width-total)/2, disp_height/2-5, part, 10, BLAU, TRUE);
+    display_fillbox_wh((disp_width-total)/2, disp_height/2-5, part, 10, COL_BLUE, TRUE);
 }
 
 
@@ -107,16 +107,16 @@ display_flush(int stunden4, int color, double konto, const char *day_str, const 
 	display_fillbox_wh(0, disp_height-15, disp_width, 15, MN_GREY1, FALSE);
 
 	sprintf(buffer,"%s %2d:%02dh", day_str, stunden4 >> 2, (stunden4 & 3)*15);
-	display_proportional(16, disp_height-12, buffer, ALIGN_LEFT, SCHWARZ, TRUE);
+	display_proportional(16, disp_height-12, buffer, ALIGN_LEFT, COL_BLACK, TRUE);
 
 	if(player_name!=NULL) {
 		display_proportional(256, disp_height-12, player_name, ALIGN_MIDDLE, player_color, TRUE);
 	}
 
 	money_to_string(buffer, konto);
-	display_proportional(disp_width/2, disp_height-12, buffer, ALIGN_MIDDLE, konto >= 0.0?SCHWARZ:DUNKELROT, TRUE);
+	display_proportional(disp_width/2, disp_height-12, buffer, ALIGN_MIDDLE, konto >= 0.0?MONEY_PLUS:MONEY_MINUS, TRUE);
 
-	display_proportional(disp_width-30, disp_height-12, info, ALIGN_RIGHT, BLACK, TRUE);
+	display_proportional(disp_width-30, disp_height-12, info, ALIGN_RIGHT, COL_BLACK, TRUE);
 
 	display_flush_buffer();
 }

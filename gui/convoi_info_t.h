@@ -46,7 +46,9 @@ private:
     button_t button;
     button_t follow_button;
     button_t go_home_button;
+#ifdef HAVE_KILL
     button_t kill_button;
+#endif
     button_t filterButtons[7];
 
     button_t sort_button;

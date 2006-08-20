@@ -127,12 +127,12 @@ void image_list_t::zeichnen(koord parent_pos) const
 		for(int iy = -3; iy < 0; iy++) {
 		    for(int ix = 1; ix < 4; ix++) {
 			display_proportional_clip(xpos + ix, ypos + iy, text, ALIGN_LEFT,
-					     BLACK, true);
+					     COL_BLACK, true);
 		    }
 		}
 		// Display the number white on black
 		display_proportional_clip(xpos + 2, ypos - 2, text, ALIGN_LEFT,
-				     WHITE, true);
+				     COL_WHITE, true);
 	    }
 	}
 	// advance x, y to next position

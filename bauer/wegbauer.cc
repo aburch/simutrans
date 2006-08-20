@@ -531,7 +531,7 @@ bool wegbauer_t::is_allowed_step( const grund_t *from, const grund_t *to, long *
 				}
 				if(gb) {
 					// no halt => citybuilding => do not touch
-					if(sch==NULL  ||  !to->gib_halt().is_bound()  ||  from->gib_halt().is_bound()  ||  !check_owner(gb->gib_besitzer(),sp)) {
+					if(sch==NULL  ||  !check_owner(gb->gib_besitzer(),sp)) {
 						return false;
 					}
 					// now we have a halt => check for direction
@@ -581,10 +581,19 @@ bool wegbauer_t::is_allowed_step( const grund_t *from, const grund_t *to, long *
 			ok =	!to->ist_wasser()  &&  !fundament  &&
 					(to->hat_wege()==0  ||  to->gib_weg(weg_t::schiene_monorail))  &&  (from->hat_wege()==0  ||  from->gib_weg(weg_t::schiene_monorail))
 					&&  check_owner(to->gib_besitzer(),sp) && check_for_leitung(zv,to)  && !to->gib_depot();
+			const weg_t *sch=to->gib_weg(weg_t::schiene_monorail);
+			// check for end/start of bridge
+			if(to->gib_weg_hang()!=to->gib_grund_hang()  &&  (sch==NULL  ||  ribi_t::ist_kreuzung(ribi_typ(to_pos,from_pos)|sch->gib_ribi_unmasked()))) {
+				return false;
+			}
 			if(gb) {
-				const weg_t *sch=to->gib_weg(weg_t::schiene_monorail);
 				// no halt => citybuilding => do not touch
-				if(!to->gib_halt().is_bound()  ||  !check_owner(gb->gib_besitzer(),sp)) {
+				if(sch==NULL  ||  !check_owner(gb->gib_besitzer(),sp)) {
+					return false;
+				}
+				// now we have a halt => check for direction
+				if(ribi_t::ist_kreuzung(ribi_typ(to_pos,from_pos)|sch->gib_ribi_unmasked())  ) {
+					// no crossings on stops
 					return false;
 				}
 			}
@@ -618,8 +627,7 @@ bool wegbauer_t::is_allowed_step( const grund_t *from, const grund_t *to, long *
 			if(gb) {
 				const weg_t *sch=to->gib_weg(weg_t::schiene);
 				// no halt => citybuilding => do not touch
-				if(!to->gib_halt().is_bound()  ||  !check_owner(gb->gib_besitzer(),sp)
-					||  gb->gib_tile()->gib_hintergrund(0,1)!=-1) {  // also check for too high buildings ...
+				if(!check_owner(gb->gib_besitzer(),sp)  ||  gb->gib_tile()->gib_hintergrund(0,1)!=-1) {  // also check for too high buildings ...
 					return false;
 				}
 				// now we have a halt => check for direction
@@ -1747,11 +1755,20 @@ wegbauer_t::baue_schiene()
 
 			if(gr->weg_erweitern(weg_t::schiene, ribi)) {
 				weg_t * weg = gr->gib_weg(weg_t::schiene);
-				if(weg->gib_besch() != besch && !keep_existing_ways) {
-					// Hajo: den typ des weges aendern, kosten berechnen
 
+				// keep faster ways or if it is the same way ... (@author prissi)
+				if(weg->gib_besch()==besch  ||  keep_existing_ways  ||  (keep_existing_faster_ways  &&  weg->gib_besch()->gib_topspeed()>besch->gib_topspeed())  ) {
+					//nothing to be done
+					cost = 0;
+				}
+				else {
+					// we take ownershipe => we take care to maintain the roads completely ...
+					if(gr->gib_besitzer()) {
+						gr->gib_besitzer()->add_maintenance( -weg->gib_besch()->gib_wartung() );
+					}
 					if(sp) {
-						sp->add_maintenance(besch->gib_wartung() - weg->gib_besch()->gib_wartung());
+						sp->add_maintenance( besch->gib_wartung() );
+						gr->setze_besitzer( sp );
 					}
 
 					weg->setze_besch(besch);
@@ -1833,11 +1850,23 @@ wegbauer_t::baue_monorail()
 			if(monorail) {
 				if(monorail->weg_erweitern(weg_t::schiene_monorail, ribi)) {
 					weg_t *weg=monorail->gib_weg(weg_t::schiene_monorail);
-					if(weg->gib_besch()!=besch) {
-						if(sp) {
-							sp->add_maintenance(besch->gib_wartung() - weg->gib_besch()->gib_wartung());
+					// keep faster ways or if it is the same way ... (@author prissi)
+					if(weg->gib_besch()==besch  ||  keep_existing_ways  ||  (keep_existing_faster_ways  &&  weg->gib_besch()->gib_topspeed()>besch->gib_topspeed())  ) {
+						//nothing to be done
+						cost = 0;
+					}
+					else {
+						// we take ownershipe => we take care to maintain the roads completely ...
+						if(monorail->gib_besitzer()) {
+							monorail->gib_besitzer()->add_maintenance( -weg->gib_besch()->gib_wartung() );
 						}
+						if(sp) {
+							sp->add_maintenance( besch->gib_wartung() );
+							monorail->setze_besitzer( sp );
+						}
+
 						weg->setze_besch(besch);
+						monorail->calc_bild();
 						cost = -besch->gib_preis();
 					}
 					bm->schiene_erweitern(welt, monorail);

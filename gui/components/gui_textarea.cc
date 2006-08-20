@@ -56,5 +56,5 @@ gui_textarea_t::setze_text(const char *text)
  */
 void gui_textarea_t::zeichnen(koord offset) const
 {
-    display_multiline_text(pos.x+offset.x, pos.y+offset.y+10, text, SCHWARZ);
+    display_multiline_text(pos.x+offset.x, pos.y+offset.y+10, text, COL_BLACK);
 }

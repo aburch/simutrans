@@ -84,7 +84,7 @@ void citylist_stats_t::zeichnen(koord offset) const
       total_bev += stadt->gib_einwohner();
       total_growth += stadt->gib_wachstum();
       stadt->get_short_info(buf);
-      display_multiline_text(offset.x+10, 19+ offset.y+i*14, buf, SCHWARZ);
+      display_multiline_text(offset.x+10, 19+ offset.y+i*14, buf, COL_BLACK);
     }
   }
   buf.clear();
@@ -94,5 +94,5 @@ void citylist_stats_t::zeichnen(koord offset) const
   buf.append(" (+");
   buf.append(total_growth);
   buf.append(")");
-  display_multiline_text(offset.x+10, offset.y+4, buf, SCHWARZ);
+  display_multiline_text(offset.x+10, offset.y+4, buf, COL_BLACK);
 }

@@ -185,6 +185,7 @@ freight_list_sorter_t::sort_freight( karte_t *welt, const slist_tpl <ware_t>*wli
 		if(last_ware_index!=ware.gib_typ()->gib_index()  &&  last_ware_catg!=ware.gib_catg()) {
 			sint32 sum = 0;
 			last_ware_index = ware.gib_typ()->gib_index();
+			last_ware_catg = (ware.gib_catg()!=0) ? ware.gib_catg() : -1;
 			for(int i=j;  i<pos;  i++  ) {
 				ware_t sumware = tdlist[i].ware;
 				if(last_ware_index!=sumware.gib_typ()->gib_index()) {

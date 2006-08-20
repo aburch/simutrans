@@ -66,11 +66,11 @@ depot_frame_t::depot_frame_t(karte_t *welt, depot_t *depot, int &farbe) :
     depot(depot),
     icnv(depot->convoi_count()-1),
     iroute(-1),
-    lb_convois(NULL, SCHWARZ, gui_label_t::left),
-    lb_convoi_count(NULL, SCHWARZ, gui_label_t::left),
-    lb_convoi_value(NULL, SCHWARZ, gui_label_t::left),
-    lb_convoi_line(NULL, SCHWARZ, gui_label_t::left),
-    lb_veh_action(NULL, SCHWARZ, gui_label_t::left),
+    lb_convois(NULL, COL_BLACK, gui_label_t::left),
+    lb_convoi_count(NULL, COL_BLACK, gui_label_t::left),
+    lb_convoi_value(NULL, COL_BLACK, gui_label_t::left),
+    lb_convoi_line(NULL, COL_BLACK, gui_label_t::left),
+    lb_veh_action(NULL, COL_BLACK, gui_label_t::left),
     convoi_pics(depot->get_max_convoi_length())
 {
 DBG_DEBUG("depot_frame_t::depot_frame_t()","get_max_convoi_length()=%i",depot->get_max_convoi_length());
@@ -689,22 +689,22 @@ void depot_frame_t::update_data()
 		}
 
 		/* color bars for current convoi: */
-		convoi_pics.at(0).lcolor = convoi_t::pruefe_vorgaenger(NULL,cnv->gib_vehikel(0)->gib_besch()) ? GREEN : GELB;
+		convoi_pics.at(0).lcolor = convoi_t::pruefe_vorgaenger(NULL,cnv->gib_vehikel(0)->gib_besch()) ? COL_GREEN : COL_YELLOW;
 		int i;
 		for(i=1;  i<cnv->gib_vehikel_anzahl(); i++) {
-			convoi_pics.at(i - 1).rcolor = convoi_t::pruefe_nachfolger(cnv->gib_vehikel(i - 1)->gib_besch(),cnv->gib_vehikel(i)->gib_besch()) ? GREEN : ROT;
-			convoi_pics.at(i).lcolor = convoi_t::pruefe_vorgaenger(cnv->gib_vehikel(i - 1)->gib_besch(),cnv->gib_vehikel(i)->gib_besch()) ? GREEN : ROT;
+			convoi_pics.at(i - 1).rcolor = convoi_t::pruefe_nachfolger(cnv->gib_vehikel(i - 1)->gib_besch(),cnv->gib_vehikel(i)->gib_besch()) ? COL_GREEN : COL_RED;
+			convoi_pics.at(i).lcolor = convoi_t::pruefe_vorgaenger(cnv->gib_vehikel(i - 1)->gib_besch(),cnv->gib_vehikel(i)->gib_besch()) ? COL_GREEN : COL_RED;
 		}
-		convoi_pics.at(i - 1).rcolor = convoi_t::pruefe_nachfolger(cnv->gib_vehikel(i - 1)->gib_besch(),NULL) ? GREEN : GELB;
+		convoi_pics.at(i - 1).rcolor = convoi_t::pruefe_nachfolger(cnv->gib_vehikel(i - 1)->gib_besch(),NULL) ? COL_GREEN : COL_YELLOW;
 
 		// change grren into blue for retired vehicles
 		for(i=0;  i<cnv->gib_vehikel_anzahl(); i++) {
 			if(cnv->gib_vehikel(i)->gib_besch()->is_future(month_now) || cnv->gib_vehikel(i)->gib_besch()->is_retired(month_now)) {
-				if(convoi_pics.at(i).lcolor==GREEN) {
-					convoi_pics.at(i).lcolor = BLAU;
+				if(convoi_pics.at(i).lcolor==COL_GREEN) {
+					convoi_pics.at(i).lcolor = COL_BLUE;
 				}
-				if(convoi_pics.at(i).rcolor==GREEN) {
-					convoi_pics.at(i).rcolor = BLAU;
+				if(convoi_pics.at(i).rcolor==COL_GREEN) {
+					convoi_pics.at(i).rcolor = COL_BLUE;
 				}
 			}
 		}
@@ -718,7 +718,7 @@ void depot_frame_t::update_data()
 
 	ptrhashtable_iterator_tpl<const vehikel_besch_t *, image_list_t::image_data_t *> iter1(vehicle_map);
 	while(iter1.next()) {
-		const int ok_color = iter1.get_current_key()->is_future(month_now) || iter1.get_current_key()->is_retired(month_now) ? BLAU: GREEN;
+		const int ok_color = iter1.get_current_key()->is_future(month_now) || iter1.get_current_key()->is_retired(month_now) ? COL_BLUE: COL_GREEN;
 
 		iter1.get_current_value()->count = 0;
 		iter1.get_current_value()->lcolor = -1;
@@ -735,10 +735,10 @@ void depot_frame_t::update_data()
 		if(veh_action == va_insert) {
 			if (!convoi_t::pruefe_nachfolger(iter1.get_current_key(), veh) ||
 				veh && !convoi_t::pruefe_vorgaenger(iter1.get_current_key(), veh)) {
-				iter1.get_current_value()->lcolor = ROT;
-				iter1.get_current_value()->rcolor = ROT;
+				iter1.get_current_value()->lcolor = COL_RED;
+				iter1.get_current_value()->rcolor = COL_RED;
 			} else if(!convoi_t::pruefe_vorgaenger(NULL, iter1.get_current_key())) {
-				iter1.get_current_value()->lcolor = GELB;
+				iter1.get_current_value()->lcolor = COL_YELLOW;
 				iter1.get_current_value()->rcolor = ok_color;
 			} else {
 				iter1.get_current_value()->lcolor = ok_color;
@@ -747,11 +747,11 @@ void depot_frame_t::update_data()
 		} else if(veh_action == va_append) {
 			if(!convoi_t::pruefe_vorgaenger(veh, iter1.get_current_key()) ||
 				veh && !convoi_t::pruefe_nachfolger(veh, iter1.get_current_key())) {
-				iter1.get_current_value()->lcolor = ROT;
-				iter1.get_current_value()->rcolor = ROT;
+				iter1.get_current_value()->lcolor = COL_RED;
+				iter1.get_current_value()->rcolor = COL_RED;
 			} else if(!convoi_t::pruefe_nachfolger(iter1.get_current_key(), NULL)) {
 				iter1.get_current_value()->lcolor = ok_color;
-				iter1.get_current_value()->rcolor = GELB;
+				iter1.get_current_value()->rcolor = COL_YELLOW;
 			} else {
 				iter1.get_current_value()->lcolor = ok_color;
 				iter1.get_current_value()->rcolor = ok_color;
@@ -763,8 +763,8 @@ void depot_frame_t::update_data()
 	while(iter2.next()) {
 		vehicle_map.get(iter2.get_current()->gib_besch())->count++;
 		if(veh_action == va_sell) {
-			vehicle_map.get(iter2.get_current()->gib_besch())->lcolor = GREEN;
-			vehicle_map.get(iter2.get_current()->gib_besch())->rcolor = GREEN;
+			vehicle_map.get(iter2.get_current()->gib_besch())->lcolor = COL_GREEN;
+			vehicle_map.get(iter2.get_current()->gib_besch())->rcolor = COL_GREEN;
 		}
 	}
 
@@ -804,7 +804,7 @@ depot_frame_t::bild_gewaehlt(image_list_t *lst, int bild_index)
     if(lst == loks || lst == waggons  ||  lst == pas) {
 	image_list_t::image_data_t *bild_data = &(lst == loks ? loks_vec : (lst==pas? pas_vec :waggons_vec))->at(bild_index);
 
-	if(bild_data->lcolor != ROT && bild_data->rcolor != ROT) {
+	if(bild_data->lcolor != COL_RED && bild_data->rcolor != COL_RED) {
 	    int bild = bild_data->image;
 
 	    int oldest_veh = -1;
@@ -1062,7 +1062,7 @@ depot_frame_t::zeichnen(koord pos, koord groesse)
 	display_proportional_clip(pos.x+inp_name.gib_pos().x+2,
 			     pos.y+inp_name.gib_pos().y+18,
                              translator::translate("new convoi"),
-			     ALIGN_LEFT, GRAU1, true);
+			     ALIGN_LEFT, COL_GREY1, true);
     }
 
     draw_vehicle_info_text(pos);
@@ -1261,7 +1261,7 @@ depot_frame_t::draw_vehicle_info_text(koord pos)
 	pos.x + 4,
 	pos.y + tabs.gib_pos().y + tabs.gib_groesse().y + 12,
 	buf,
-	SCHWARZ);
+	COL_BLACK);
 
 
     if(veh_type) {
@@ -1297,6 +1297,6 @@ depot_frame_t::draw_vehicle_info_text(koord pos)
 			     pos.x + 200,
 			     pos.y + tabs.gib_pos().y + tabs.gib_groesse().y + 23 + LINESPACE*2,
 			     buf,
-			     SCHWARZ);
+			     COL_BLACK);
     }
 }

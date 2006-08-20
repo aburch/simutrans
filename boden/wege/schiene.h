@@ -88,8 +88,8 @@ public:
     virtual void calc_bild(koord3d) { weg_t::calc_bild(); }
 
 
-    inline const char *gib_typ_name() const {return "Schiene";};
-    inline typ gib_typ() const {return schiene;};
+    virtual const char *gib_typ_name() const {return "Schiene";};
+    virtual typ gib_typ() const {return schiene;};
 
 
     /**

@@ -229,8 +229,7 @@ DBG_MESSAGE("translator::init_city_names", "reading failed, creating random name
 /* now on to the translate stuff */
 
 
-void load_language_file_body(FILE *file,
-				    stringhashtable_tpl<const char *> * table, bool language_is_utf, bool file_is_utf )
+void load_language_file_body(FILE *file, stringhashtable_tpl<const char *> * table, bool language_is_utf, bool file_is_utf )
 {
     char buffer1 [4096];
     char buffer2 [4096];
@@ -274,8 +273,7 @@ void translator::load_language_file(FILE *file)
 
     //load up translations, putting them into
     //language table of index 'lang'
-    load_language_file_body(file,
-			    single_instance->languages[single_instance->lang_count],file_is_utf,file_is_utf);
+    load_language_file_body(file,single_instance->languages[single_instance->lang_count],file_is_utf,file_is_utf);
 }
 
 
@@ -401,15 +399,29 @@ void translator::set_language(char *iso)
 
 const char * translator::translate(const char *str)
 {
-    if(str == NULL)
-    {
+    if(str == NULL) {
         return "(null)";
-    } else if(!check(str))
-    {
+    }
+    else if(!check(str)) {
         return str;
-    } else {
+    }
+    else {
         return (const char *)single_instance->languages[get_language()]->get(str);
     }
+}
+
+
+const char * translator::translate_from_lang(const int lang,const char *str)
+{
+	if(str == NULL){
+		return "(null)";
+	}
+	else if(!check(str)  ||  !is_in_bounds(lang)) {
+		return str;
+	}
+	else {
+		return (const char *)single_instance->languages[lang]->get(str);
+	}
 }
 
 

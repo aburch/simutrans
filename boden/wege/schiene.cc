@@ -72,26 +72,19 @@ schiene_t::~schiene_t()
 
 void schiene_t::info(cbuffer_t & buf) const
 {
-  weg_t::info(buf);
+	weg_t::info(buf);
 
-  if(is_electrified) {
-    buf.append(translator::translate("\nelektrified"));
-  } else {
-    buf.append(translator::translate("\nnot elektrified"));
-  }
+	if(is_electrified) {
+		buf.append(translator::translate("\nelektrified"));
+	} else {
+		buf.append(translator::translate("\nnot elektrified"));
+	}
 
-  buf.append(translator::translate("\nRail block "));
+  buf.append(translator::translate("\nRail block"));
   buf.append(bs.get_id());
   buf.append("\n");
 
   bs->info(buf);
-
-  buf.append(translator::translate("\n\nRibi (unmasked) "));
-  buf.append(gib_ribi_unmasked());
-
-  buf.append(translator::translate("\nRibi (masked) "));
-  buf.append(gib_ribi());
-  buf.append("\n");
 }
 
 

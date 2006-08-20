@@ -134,7 +134,7 @@ void factorylist_stats_t::zeichnen(koord offset) const
 	    }
 
 	    // show text
-	    display_proportional_clip(xoff+25,yoff+6,buf,ALIGN_LEFT,SCHWARZ,true);
+	    display_proportional_clip(xoff+25,yoff+6,buf,ALIGN_LEFT,COL_BLACK,true);
 	}
 	yoff += LINESPACE+3;
     }

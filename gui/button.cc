@@ -154,7 +154,7 @@ button_t::button_t()
 	text = 0;
 	pressed = false;
 	type = box;
-	kennfarbe = SCHWARZ;
+	kennfarbe = COL_BLACK;
 	tooltip = 0;
 	background = MN_GREY3;
 	b_enabled = true;
@@ -270,12 +270,12 @@ void button_t::zeichnen(koord offset, int button_color) const
       display_ddd_box_clip(bx, by, bw, bh, MN_GREY0, MN_GREY4);
       display_fillbox_wh_clip(bx+1, by+1, bw-2, bh-2, background, false);
     } else {
-      display_ddd_box_clip(bx, by, bw, bh, GRAU6, GRAU3);
+      display_ddd_box_clip(bx, by, bw, bh, COL_GREY6, COL_GREY3);
       display_fillbox_wh_clip(bx+1, by+1, bw-2, bh-2, background, false);
     }
     PUSH_CLIP(bx, by, bw, bh);
     int len = proportional_string_width(text);
-    display_proportional_clip(bx+max((bw-len)/2,0),by+(bh-large_font_height)/2, text, ALIGN_LEFT, b_enabled ? button_color : GRAU4, true);
+    display_proportional_clip(bx+max((bw-len)/2,0),by+(bh-large_font_height)/2, text, ALIGN_LEFT, b_enabled ? button_color : COL_GREY4, true);
     POP_CLIP();
     break;
    case roundbox: // new box with round corners
@@ -283,24 +283,24 @@ void button_t::zeichnen(koord offset, int button_color) const
 #if 1
 	if (pressed) {
 		display_fillbox_wh_clip(bx, by, bw, 1, MN_GREY1, true);
-		display_fillbox_wh_clip(bx+1, by+1, bw-2, 1, SCHWARZ, true);
+		display_fillbox_wh_clip(bx+1, by+1, bw-2, 1, COL_BLACK, true);
 		display_fillbox_wh_clip(bx+2, by+2, bw-2, bh-4, MN_GREY1, true);
 		display_fillbox_wh_clip(bx, by+bh-2, bw, 1, MN_GREY3, true);
-		display_fillbox_wh_clip(bx, by+bh-1, bw, 1, WEISS, true);
+		display_fillbox_wh_clip(bx, by+bh-1, bw, 1, COL_WHITE, true);
 		display_vline_wh_clip(bx+bw-2, by+1, bh-2, MN_GREY4, true);
-		display_vline_wh_clip(bx+bw-1, by+1, bh-1, WEISS, true);
+		display_vline_wh_clip(bx+bw-1, by+1, bh-1, COL_WHITE, true);
 		display_vline_wh_clip(bx, by, bh, MN_GREY1, true);
-		display_vline_wh_clip(bx+1, by+1, bh-2, SCHWARZ, true);
+		display_vline_wh_clip(bx+1, by+1, bh-2, COL_BLACK, true);
 	}
 	else {
-		display_fillbox_wh_clip(bx, by, bw, 1, WEISS, true);
+		display_fillbox_wh_clip(bx, by, bw, 1, COL_WHITE, true);
 		display_fillbox_wh_clip(bx+1, by+1, bw-2, 1, MN_GREY4, true);
 		display_fillbox_wh_clip(bx+2, by+2, bw-2, bh-4, MN_GREY3, true);
 		display_fillbox_wh_clip(bx, by+bh-2, bw, 1, MN_GREY1, true);
-		display_fillbox_wh_clip(bx, by+bh-1, bw, 1, SCHWARZ, true);
+		display_fillbox_wh_clip(bx, by+bh-1, bw, 1, COL_BLACK, true);
 		display_vline_wh_clip(bx+bw-2, by+1, bh-2, MN_GREY1, true);
-		display_vline_wh_clip(bx+bw-1, by+1, bh-1, SCHWARZ, true);
-		display_vline_wh_clip(bx, by, bh, WEISS, true);
+		display_vline_wh_clip(bx+bw-1, by+1, bh-1, COL_BLACK, true);
+		display_vline_wh_clip(bx, by, bh, COL_WHITE, true);
 		display_vline_wh_clip(bx+1, by+1, bh-2, MN_GREY4, true);
 	}
 #else
@@ -354,12 +354,12 @@ void button_t::zeichnen(koord offset, int button_color) const
     }
     //POP_CLIP();
 #endif
-    display_proportional_clip(bx+(bw>>1),by+(bh-large_font_height)/2, text, ALIGN_MIDDLE, b_enabled ? button_color : GRAU4, true);
+    display_proportional_clip(bx+(bw>>1),by+(bh-large_font_height)/2, text, ALIGN_MIDDLE, b_enabled ? button_color : COL_GREY4, true);
     break;
 
    case square: // little square in front of text
     display_button_image(bx, by, SQUARE_BUTTON, pressed);
-    display_proportional_clip(bx+16,by+(12-large_font_height)/2, text, ALIGN_LEFT, b_enabled ? button_color : GRAU4, false);
+    display_proportional_clip(bx+16,by+(12-large_font_height)/2, text, ALIGN_LEFT, b_enabled ? button_color : COL_GREY4, false);
     break;
 
    case arrowleft:
@@ -387,14 +387,14 @@ void button_t::zeichnen(koord offset, int button_color) const
       display_fillbox_wh_clip(bx+2, by+2, bw-3, bh-3, MN_GREY1, false);
       display_vline_wh_clip  (bx+2, by+3, 2,   MN_GREY0, false);
       display_fillbox_wh_clip(bx+2, by+2, 3,1, MN_GREY0, false);
-      display_vline_wh_clip  (bx+1, by+2, bh-3,   BLACK, false);
-      display_fillbox_wh_clip(bx+1, by+1, bw-2,1, BLACK, false);
+      display_vline_wh_clip  (bx+1, by+2, bh-3,   COL_BLACK, false);
+      display_fillbox_wh_clip(bx+1, by+1, bw-2,1, COL_BLACK, false);
       display_vline_wh_clip  (bx+bw-2, by+3, bh-5,   MN_GREY2, false);
       display_fillbox_wh_clip(bx+3, by+bh-2, bw-4,1, MN_GREY2, false);
       display_vline_wh_clip  (bx, by+1, bh-2, MN_GREY0, false);
       display_fillbox_wh_clip(bx, by, bw-1,1, MN_GREY0, false);
-      display_vline_wh_clip  (bx+bw-1, by, bh,   WHITE, false);
-      display_fillbox_wh_clip(bx, by+bh-1, bw,1, WHITE, false);
+      display_vline_wh_clip  (bx+bw-1, by, bh,   COL_WHITE, false);
+      display_fillbox_wh_clip(bx, by+bh-1, bw,1, COL_WHITE, false);
     } else {
       display_fillbox_wh_clip(bx+1, by+1, bw-3, bh-3, MN_GREY3, false);
       display_vline_wh_clip  (bx+bw-3, by+bh-5, 2,   MN_GREY1, false);
@@ -403,10 +403,10 @@ void button_t::zeichnen(koord offset, int button_color) const
       display_fillbox_wh_clip(bx+1, by+1, bw-4,1, MN_GREY4, false);
       display_vline_wh_clip  (bx+bw-2, by+1, bh-3,   MN_GREY0, false);
       display_fillbox_wh_clip(bx+1, by+bh-2, bw-2,1, MN_GREY0, false);
-      display_vline_wh_clip  (bx, by+1, bh-2, WHITE, false);
-      display_fillbox_wh_clip(bx, by, bw-1,1, WHITE, false);
-      display_vline_wh_clip  (bx+bw-1, by, bh,   BLACK, false);
-      display_fillbox_wh_clip(bx, by+bh-1, bw,1, BLACK, false);
+      display_vline_wh_clip  (bx, by+1, bh-2, COL_WHITE, false);
+      display_fillbox_wh_clip(bx, by, bw-1,1, COL_WHITE, false);
+      display_vline_wh_clip  (bx+bw-1, by, bh,   COL_BLACK, false);
+      display_fillbox_wh_clip(bx, by+bh-1, bw,1, COL_BLACK, false);
     }
 //    POP_CLIP();
 #else

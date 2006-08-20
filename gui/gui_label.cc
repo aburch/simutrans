@@ -25,7 +25,7 @@
 gui_label_t::gui_label_t(const char *text)
 {
     this->text = text;
-    this->color = SCHWARZ;
+    this->color = COL_BLACK;
     this->align = left;
 }
 

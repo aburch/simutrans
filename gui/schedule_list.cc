@@ -38,7 +38,7 @@
 const char schedule_list_gui_t::cost_type[MAX_LINE_COST][64] =
 {
 	"Free Capacity",
-	"Transported Goods",
+	"Transported",
 	"Revenue",
 	"Operation",
 	"Profit",
@@ -47,7 +47,7 @@ const char schedule_list_gui_t::cost_type[MAX_LINE_COST][64] =
 
 const int schedule_list_gui_t::cost_type_color[MAX_LINE_COST] =
 {
-  7, 11, 132, 23, 27, 15
+  COL_FREE_CAPACITY, COL_TRANSPORTED, COL_REVENUE, COL_OPERATION, COL_PROFIT, COL_VEHICLE_ASSETS
 };
 
 uint8 schedule_list_gui_t::statistic[MAX_LINE_COST]={
@@ -106,7 +106,7 @@ schedule_list_gui_t::schedule_list_gui_t(karte_t *welt,spieler_t *sp)
 	add_komponente(&inp_name);
 
 	// load display
-	filled_bar.add_color_value(&loadfactor, GREEN);
+	filled_bar.add_color_value(&loadfactor, COL_GREEN);
 	filled_bar.setze_pos(koord(LINE_NAME_COLUMN_WIDTH, 6 + SCL_HEIGHT));
 	filled_bar.set_visible(false);
 	add_komponente(&filled_bar);
@@ -139,6 +139,7 @@ schedule_list_gui_t::schedule_list_gui_t(karte_t *welt,spieler_t *sp)
 	bt_change_line.setze_groesse(koord(BUTTON_WIDTH,BUTTON_HEIGHT));
 	bt_change_line.setze_typ(button_t::roundbox);
 	bt_change_line.text = translator::translate("Update Line");
+	bt_change_line.set_tooltip(translator::translate("Modify the selected line"));
 	add_komponente(&bt_change_line);
 	bt_change_line.add_listener(this);
 	bt_change_line.disable();
@@ -173,7 +174,7 @@ schedule_list_gui_t::schedule_list_gui_t(karte_t *welt,spieler_t *sp)
 	build_line_list(0);
 
 	// resize button
-	set_min_windowsize(koord(480, 400));
+	set_min_windowsize(koord(488, 400));
 	set_resizemode(diagonal_resize);
 	resize(koord(0,0));
 }
@@ -400,11 +401,11 @@ schedule_list_gui_t::display(koord pos)
 
 	money_to_string(ctmp, profit / 100.0);
 	sprintf(buffer, translator::translate("Convois: %d\nProfit: %s"), icnv, ctmp);
-	display_multiline_text(pos.x + LINE_NAME_COLUMN_WIDTH + 2, pos.y+16 + 14 + SCL_HEIGHT+14+4, buffer, BLACK);
+	display_multiline_text(pos.x + LINE_NAME_COLUMN_WIDTH + 2, pos.y+16 + 14 + SCL_HEIGHT+14+4, buffer, COL_BLACK);
 
 	number_to_string(ctmp, capacity);
 	sprintf(buffer, translator::translate("Capacity: %s\nLoad: %d (%d%%)"), ctmp, load, loadfactor);
-	display_multiline_text(pos.x + LINE_NAME_COLUMN_WIDTH + 106, pos.y+16 + 14 + SCL_HEIGHT + 14 +6 , buffer, BLACK);
+	display_multiline_text(pos.x + LINE_NAME_COLUMN_WIDTH + 106, pos.y+16 + 14 + SCL_HEIGHT + 14 +6 , buffer, COL_BLACK);
 }
 
 void schedule_list_gui_t::resize(const koord delta)
@@ -413,19 +414,19 @@ void schedule_list_gui_t::resize(const koord delta)
 	this->groesse = get_client_windowsize() + koord(0, 16);
 
 	int rest_width = get_client_windowsize().x-LINE_NAME_COLUMN_WIDTH;
-	int button_per_row=max(1,rest_width/BUTTON_WIDTH);
+	int button_per_row=max(1,rest_width/(BUTTON_WIDTH+BUTTON_SPACER));
 	int button_rows=(MAX_LINE_COST)/button_per_row;
 
 	scrolly.setze_groesse( koord(rest_width+11, get_client_windowsize().y-scrolly.gib_pos().y) );
 	scrolly_haltestellen.setze_groesse( koord(LINE_NAME_COLUMN_WIDTH-11, get_client_windowsize().y-scrolly_haltestellen.gib_pos().y) );
 
-	chart->setze_groesse(koord(rest_width-11-15, SCL_HEIGHT-11-14-(button_rows*BUTTON_HEIGHT)));
+	chart->setze_groesse(koord(rest_width-11-15, SCL_HEIGHT-11-14-(button_rows*(BUTTON_HEIGHT+BUTTON_SPACER))));
 	inp_name.setze_groesse(koord(rest_width-11, 14));
 	filled_bar.setze_groesse(koord(rest_width-11, 4));
 
-	int y=SCL_HEIGHT-11-(button_rows*BUTTON_HEIGHT)+14;
+	int y=SCL_HEIGHT-11-(button_rows*(BUTTON_HEIGHT+BUTTON_SPACER))+14;
 	for (int i=0; i<MAX_LINE_COST; i++) {
-		filterButtons[i].setze_pos( koord(LINE_NAME_COLUMN_WIDTH+(i%button_per_row)*BUTTON_WIDTH,y+(i/button_per_row)*BUTTON_HEIGHT)  );
+		filterButtons[i].setze_pos( koord(LINE_NAME_COLUMN_WIDTH+(i%button_per_row)*(BUTTON_WIDTH+BUTTON_SPACER),y+(i/button_per_row)*(BUTTON_HEIGHT+BUTTON_SPACER))  );
 	}
 }
 

@@ -15,6 +15,7 @@
 
 #include <stdio.h>
 
+#include "../simdebug.h"
 #include "../pathes.h"
 #include "../simevent.h"
 #include "../simimg.h"
@@ -88,19 +89,27 @@ void sprachengui_t::init_font_from_lang()
 
 sprachengui_t::sprachengui_t(karte_t *welt) : infowin_t(welt)
 {
-    buttons = new vector_tpl<button_t> (translator::get_language_count());
-    button_t button_def;
-
-    int i;
-    for(i=0; i<translator::get_language_count(); i++) {
-	button_def.setze_pos(koord(11 + (i%2) * 84 , 68+15*(i/2)));
-        button_def.setze_typ(button_t::square);
-	button_def.text = translator::get_language_name(i);
-
-	buttons->append(button_def);
-    }
-
-    buttons->at(translator::get_language()).pressed = true;
+	buttons = new vector_tpl<button_t> (translator::get_language_count());
+	button_t button_def;
+	for(int i=0; i<translator::get_language_count(); i++) {
+		button_def.setze_pos(koord(11 + (i%2) * 84 , 68+15*(i/2)));
+		button_def.setze_typ(button_t::square);
+		button_def.text = translator::get_language_name(i);
+		buttons->append(button_def);
+		// check, if font exists
+		const char *fontname=translator::translate_from_lang(i,"PROP_FONT_FILE");
+		char prop_font_file_name [1024];
+		sprintf(prop_font_file_name, "%s%s", FONT_PATH_X, fontname);
+		FILE *f=fopen(prop_font_file_name,"r");
+		if(f) {
+			fclose(f);
+		}
+		else {
+			dbg->warning("sprachengui_t::sprachengui_t()","no font found for %s",translator::get_language_name(i) );
+			buttons->at(i).disable();
+		}
+	}
+	buttons->at(translator::get_language()).pressed = true;
 }
 
 
@@ -138,8 +147,8 @@ sprachengui_t::gib_fenstergroesse() const
 vector_tpl<button_t>*
 sprachengui_t::gib_fensterbuttons()
 {
-    buttons->at(translator::get_language()).pressed = true;
-    return buttons;
+	buttons->at(translator::get_language()).pressed = true;
+	return buttons;
 }
 
 
@@ -156,11 +165,10 @@ sprachengui_t::infowin_event(const event_t *ev)
 
     if(IS_LEFTCLICK(ev)) {
 	for(int i=0; i<translator::get_language_count(); i++) {
-	    if(buttons->at(i).getroffen(ev->mx, ev->my)) {
+	    if(buttons->at(i).getroffen(ev->mx, ev->my)  &&  buttons->at(i).enabled()) {
 		buttons->at(translator::get_language()).pressed = false;
 		buttons->at(i).pressed = true;
-                translator::set_language(i);
-
+          translator::set_language(i);
 		init_font_from_lang();
 	    }
 	}

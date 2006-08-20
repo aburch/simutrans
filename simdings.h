@@ -177,7 +177,7 @@ public:
               signal=8,
 
 	      bruecke=9, tunnel=10, gebaeudefundament=11,
-	      bahndepot=12, strassendepot=13, schiffdepot = 14, airdepot = 99,
+	      bahndepot=12, strassendepot=13, schiffdepot = 14, airdepot = 99, monoraildepot=100, tramdepot=101,
 
 	      raucher=15,
 	      leitung = 16, pumpe = 17, senke = 18,

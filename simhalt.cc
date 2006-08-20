@@ -434,27 +434,27 @@ void haltestelle_t::neuer_monat()
  */
 void haltestelle_t::recalc_status()
 {
-	status_color = financial_history[0][HALT_CONVOIS_ARRIVED] > 0 ? GREEN : GELB;
+	status_color = financial_history[0][HALT_CONVOIS_ARRIVED] > 0 ? COL_GREEN : COL_YELLOW;
 
 	// has passengers
 	if(get_pax_happy() > 0 || get_pax_no_route() > 0) {
 
 		if(get_pax_unhappy() > 200 ) {
-			status_color = ROT;
+			status_color = COL_RED;
 		} else if(get_pax_unhappy() > 40) {
-			status_color = ORANGE;
+			status_color = COL_ORANGE;
 		}
 	}
 
 	// check for goods
-	if(status_color!=ROT  &&  get_ware_enabled()) {
+	if(status_color!=COL_RED  &&  get_ware_enabled()) {
 		const int count = warenbauer_t::gib_waren_anzahl();
 		const int max_ware = get_capacity();
 
 		for( int i=0; i+1<count; i++) {
 			const ware_besch_t *wtyp = warenbauer_t::gib_info(i+1);
 			if(  gib_ware_summe(wtyp)>max_ware  ) {
-				status_color = ROT;
+				status_color = COL_RED;
 				break;
 			}
 		}
@@ -480,7 +480,7 @@ void haltestelle_t::display_status(int xpos, int ypos) const
     const int v = MIN((gib_ware_summe(wtyp) >> 2) + 2, 128);
 
     display_fillbox_wh_clip(xpos+i*4, ypos-v-1, 1, v,
-			    GRAU4,
+			    COL_GREY4,
 			    true);
 
     display_fillbox_wh_clip(xpos+i*4+1, ypos-v-1, 2, v,
@@ -489,16 +489,16 @@ void haltestelle_t::display_status(int xpos, int ypos) const
 			    true);
 
     display_fillbox_wh_clip(xpos+i*4+3, ypos-v-1, 1, v,
-			    GRAU1,
+			    COL_GREY1,
 			    true);
 
     // Hajo: show up arrow for capped values
     if(v == 128) {
       display_fillbox_wh_clip(xpos+i*4+1, ypos-v-6, 2, 4,
-			      WEISS,
+			      COL_WHITE,
 			      true);
       display_fillbox_wh_clip(xpos+i*4, ypos-v-5, 4, 1,
-			      WEISS,
+			      COL_WHITE,
 			      true);
     }
 

@@ -348,9 +348,9 @@ stadt_t::init_pax_ziele()
 	const int gr_x = welt->gib_groesse_x();
 	const int gr_y = welt->gib_groesse_y();
 
-	for(int j=0; j<96; j++) {
-		for(int i=0; i<96; i++) {
-			const koord pos (i*gr_x/96, j*gr_y/96);
+	for(int j=0; j<128; j++) {
+		for(int i=0; i<128; i++) {
+			const koord pos (i*gr_x/128, j*gr_y/128);
 //DBG_MESSAGE("stadt_t::init_pax_ziele()","at %i,%i = (%i,%i)",i,j,pos.x,pos.y);
 			pax_ziele_alt.at(i, j) = pax_ziele_neu.at(i ,j) = reliefkarte_t::calc_relief_farbe(welt, pos);
 			//      pax_ziele_alt.at(i, j) = pax_ziele_neu.at(i ,j) = 0;
@@ -373,8 +373,8 @@ stadt_t::~stadt_t()
 
 stadt_t::stadt_t(karte_t *wl, spieler_t *sp, koord pos,int citizens) :
 	buildings(16),
-    pax_ziele_alt(96, 96),
-    pax_ziele_neu(96, 96),
+    pax_ziele_alt(128, 128),
+    pax_ziele_neu(128, 128),
     arbeiterziele(4)
 {
 	welt = wl;
@@ -469,8 +469,8 @@ DBG_MESSAGE("stadt_t::stadt_t()","founding new city named '%s'",name);
 
 stadt_t::stadt_t(karte_t *wl, loadsave_t *file) :
 	buildings(16),
-	pax_ziele_alt(96, 96),
-	pax_ziele_neu(96, 96),
+	pax_ziele_alt(128, 128),
+	pax_ziele_neu(128, 128),
 	arbeiterziele(4)
 {
 	welt = wl;
@@ -785,9 +785,9 @@ stadt_t::neuer_monat()
 	const int gr_y = welt->gib_groesse_y();
 
 	pax_ziele_alt.copy_from(pax_ziele_neu);
-	for(int j=0; j<96; j++) {
-		for(int i=0; i<96; i++) {
-			const koord pos (i*gr_x/96, j*gr_y/96);
+	for(int j=0; j<128; j++) {
+		for(int i=0; i<128; i++) {
+			const koord pos (i*gr_x/128, j*gr_y/128);
 
 			pax_ziele_neu.at(i, j) = reliefkarte_t::calc_relief_farbe(welt, pos);
 			//      pax_ziele_neu.at(i, j) = 0;
@@ -888,7 +888,7 @@ stadt_t::step_passagiere()
 				const int num_pax =
 					(wtyp == warenbauer_t::passagiere) ?
 					(gb->gib_tile()->gib_besch()->gib_level() + 6) >> 2 :
-					(gb->gib_post_level() + 5) >> 2;
+					(gb->gib_tile()->gib_besch()->gib_post_level() + 5) >> 2;
 
 				// create pedestrians?
 				if(umgebung_t::fussgaenger) {
@@ -943,7 +943,7 @@ stadt_t::step_passagiere()
 	// DBG_MESSAGE("stadt_t::step_passagiere()", "No stop near dest (%d, %d)", ziel.x, ziel.y);
 							// Thus, routing is not possible and we do not need to do a calculation.
 							// Mark ziel as destination without route and continue.
-							merke_passagier_ziel(ziel, DUNKELORANGE);
+							merke_passagier_ziel(ziel, COL_DARK_ORANGE);
 							start_halt->add_pax_no_route(pax_left_to_do);
 	#ifdef DESTINATION_CITYCARS
 							//citycars with destination
@@ -989,12 +989,12 @@ stadt_t::step_passagiere()
 									start_halt->starte_mit_route(pax);
 									start_halt->add_pax_happy(pax.menge);
 									// and show it
-									merke_passagier_ziel(ziel, GELB);
+									merke_passagier_ziel(ziel, COL_YELLOW);
 									pax_transport += pax.menge;
 								}
 								else {
 									start_halt->add_pax_no_route(pax_left_to_do);
-									merke_passagier_ziel(ziel, DUNKELORANGE);
+									merke_passagier_ziel(ziel, COL_DARK_ORANGE);
 	#ifdef DESTINATION_CITYCARS
 									//citycars with destination
 									erzeuge_verkehrsteilnehmer( start_halt->gib_basis_pos(), step_count, ziel );
@@ -1055,7 +1055,7 @@ stadt_t::step_passagiere()
 							// so we declare them happy
 							start_halt->add_pax_happy(pax_left_to_do);
 							// and show it
-							merke_passagier_ziel(ziel, GELB);
+							merke_passagier_ziel(ziel, COL_YELLOW);
 							pax_transport += pax_left_to_do;
 						}
 
@@ -1070,7 +1070,7 @@ stadt_t::step_passagiere()
 					//citycars with destination
 					erzeuge_verkehrsteilnehmer( k, step_count, ziel );
 	#endif
-					merke_passagier_ziel(ziel, DUNKELORANGE);
+					merke_passagier_ziel(ziel, COL_DARK_ORANGE);
 					pax_erzeugt += num_pax;
 					// check destination stop to add no route
 					const minivec_tpl <halthandle_t> &dest_list = welt->access(ziel)->get_haltlist();
@@ -1152,7 +1152,7 @@ dbg->fatal("stadt_t::finde_passagier_ziel()","no passenger ziel found!");
 void
 stadt_t::merke_passagier_ziel(koord k, int color)
 {
-    const koord p = koord((k.x*96)/welt->gib_groesse_x(), (k.y*96)/welt->gib_groesse_y());
+    const koord p = koord( ((k.x*127)/welt->gib_groesse_x())&127, ((k.y*128)/welt->gib_groesse_y())&127 );
     pax_ziele_neu.at(p) = color;
 }
 

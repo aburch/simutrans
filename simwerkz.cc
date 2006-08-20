@@ -307,7 +307,7 @@ DBG_MESSAGE("entferne_haltestelle()","removing segment from %d,%d,%d", pos.x, po
 			for(k.y = 0; k.y < size.y; k.y ++) {
 				for(k.x = 0; k.x < size.x; k.x ++) {
 					grund_t *gr = welt->lookup(koord3d(k,0)+pos);
-					if((gr->gib_pos().z<=welt->gib_grundwasser()  && gr->gib_grund_hang()==0)  ||  gr->gib_typ()==grund_t::fundament) {
+					if(welt->max_hgt(k+pos.gib_2d())<=welt->gib_grundwasser()  ||  gr->gib_typ()==grund_t::fundament) {
 						msg=gr->kann_alle_obj_entfernen(sp);
 						if(msg) {
 							return false;
@@ -330,8 +330,8 @@ DBG_MESSAGE("entferne_haltestelle()", "removing building: cleanup");
 						if(gr->gib_typ()==grund_t::fundament) {
 							welt->access(k+pos.gib_2d())->kartenboden_setzen(new boden_t(welt, koord3d(k+pos.gib_2d(),welt->min_hgt(k+pos.gib_2d()))), false);
 						}
-						else if(gr->gib_pos().z<=welt->gib_grundwasser()  && gr->gib_grund_hang()==0) {
-							welt->access(k+pos.gib_2d())->kartenboden_setzen(new wasser_t(welt, k), false);
+						else if(welt->max_hgt(k+pos.gib_2d())<=welt->gib_grundwasser()) {
+							welt->access(k+pos.gib_2d())->kartenboden_setzen(new wasser_t(welt, k+pos.gib_2d()), false);
 						}
 						else {
 							weg_t *weg = bd->gib_weg(weg_t::strasse);
@@ -355,7 +355,7 @@ DBG_MESSAGE("entferne_haltestelle()", "removing building: cleanup");
 	if(!halt->existiert_in_welt()) {
 DBG_DEBUG("entferne_haltestelle()","remove last");
 		// all deleted?
-		sp->halt_remove( halt );
+		halt->gib_besitzer()->halt_remove( halt );
 DBG_DEBUG("entferne_haltestelle()","destroy");
 		haltestelle_t::destroy( halt );
 	}
@@ -1203,7 +1203,7 @@ int wkz_signal_aux(spieler_t *sp, karte_t *welt, koord pos,bool presignal)
 	if(welt->ist_in_kartengrenzen(pos)) {
 
 		blockmanager * bm = blockmanager::gib_manager();
-		const char * error = "Hier kann kein\npreSignal aufge-\nstellt werden!\n";
+		const char * error = "Hier kann kein\nSignal aufge-\nstellt werden!\n";
 
 		const planquadrat_t *plan=welt->lookup(pos);
 		const bool backwards = (event_get_last_control_shift()==2);
@@ -1484,9 +1484,9 @@ DBG_MESSAGE("wkz_halt_aux()", "test_gr(%d)=%p",i,test_gr);
 			if(weg==NULL) {
 				if(weg_t::schiene==wegtype) {
 					weg = test_gr->gib_weg(weg_t::schiene_monorail);
-					if(weg==NULL) {
-						continue;
-					}
+				}
+				if(weg==NULL) {
+					continue;
 				}
 			}
 			// check slope
@@ -1503,7 +1503,7 @@ DBG_MESSAGE("wkz_halt_aux()", "test_gr(%d)=%p",i,test_gr);
 		}
 
 DBG_MESSAGE("wkz_halt_aux()", "bd=%p",bd);
-		if(bd==NULL) {
+		if(bd==NULL  ||  weg==NULL) {
 			create_win(-1, -1, MESG_WAIT, new nachrichtenfenster_t(welt, p_error), w_autodelete);
 			return false;
 		}

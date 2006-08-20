@@ -19,12 +19,11 @@
 #include "../dataobj/translator.h"
 #include "../dataobj/umgebung.h"
 #include "../utils/simstring.h"
+#include "components/list_button.h"
 
 #include "stadt_info.h"
 
-extern "C" {
 #include "../simgraph.h"
-}
 
 
 // @author hsiegeln
@@ -36,7 +35,7 @@ const char hist_type[MAX_CITY_HISTORY][64] =
 
 const int hist_type_color[MAX_CITY_HISTORY] =
 {
-  7, 11, 15, 132
+  COL_CITICENS, COL_GROWTH, COL_TRANSPORTED, COL_FREE_CAPACITY
 };
 
 
@@ -46,17 +45,17 @@ stadt_info_t::stadt_info_t(stadt_t *stadt) :
 	this->stadt = stadt;
 
 	name_input.setze_text(stadt->access_name(), 30);
-	name_input.setze_groesse(koord(100, 14));
+	name_input.setze_groesse(koord(124, 14));
 	name_input.setze_pos(koord(8, 8));
 
 	setze_opaque(true);
 	add_komponente(&name_input);
-	setze_fenstergroesse(koord(368, 305));
+	setze_fenstergroesse(koord(410, 305));
 
 	//CHART YEAR
 	chart = new gui_chart_t();
 	chart->setze_pos(koord(1,1));
-	chart->setze_groesse(koord(320,120));
+	chart->setze_groesse(koord(360,120));
 	chart->set_dimension(MAX_CITY_HISTORY_YEARS, 10000);
 	chart->set_seed(stadt->gib_welt()->get_last_year());
 	chart->set_background(MN_GREY1);
@@ -69,7 +68,7 @@ stadt_info_t::stadt_info_t(stadt_t *stadt) :
 	//CHART MONTH
 	mchart = new gui_chart_t();
 	mchart->setze_pos(koord(1,1));
-	mchart->setze_groesse(koord(320,120));
+	mchart->setze_groesse(koord(360,120));
 	mchart->set_dimension(MAX_CITY_HISTORY_MONTHS, 10000);
 	mchart->set_seed(0);
 	mchart->set_background(MN_GREY1);
@@ -83,13 +82,13 @@ stadt_info_t::stadt_info_t(stadt_t *stadt) :
 	year_month_tabs.add_tab(chart, translator::translate("Years"));
 	year_month_tabs.add_tab(mchart, translator::translate("Months"));
 	year_month_tabs.setze_pos(koord(40,125));
-	year_month_tabs.setze_groesse(koord(310, 125));
+	year_month_tabs.setze_groesse(koord(360, 125));
 	add_komponente(&year_month_tabs);
 
 	// add filter buttons
 	for (int hist=0;hist<MAX_CITY_HISTORY;hist++)
 	{
-		filterButtons[hist].init(button_t::box, translator::translate(hist_type[hist]), koord(5+hist*91,270), koord(85, 15));
+		filterButtons[hist].init(button_t::box, translator::translate(hist_type[hist]), koord(4+hist*100,270), koord(96, BUTTON_HEIGHT));
 		filterButtons[hist].add_listener(this);
 		filterButtons[hist].background = hist_type_color[hist];
 		bFilterIsActive[hist] = hist<2;
@@ -101,11 +100,6 @@ stadt_info_t::stadt_info_t(stadt_t *stadt) :
 void
 stadt_info_t::zeichnen(koord pos, koord gr)
 {
-    const array2d_tpl<unsigned char> * pax_alt = stadt->gib_pax_ziele_alt();
-    const array2d_tpl<unsigned char> * pax_neu = stadt->gib_pax_ziele_neu();
-
-    char buf [4096];
-
     for(int i = 0;i<MAX_CITY_HISTORY;i++) {
 		filterButtons[i].pressed = bFilterIsActive[i];
 		// year_month_toggle.pressed = mchart->is_visible();
@@ -115,18 +109,16 @@ stadt_info_t::zeichnen(koord pos, koord gr)
 
     gui_frame_t::zeichnen(pos, gr);
 
+	static char buf[1024];
     stadt->info(buf);
 
-    display_multiline_text(pos.x+8, pos.y+48, buf, SCHWARZ);
+    display_multiline_text(pos.x+8, pos.y+48, buf, COL_BLACK);
 
-    tstrncpy(buf, translator::translate("Passagierziele"), 64);
-    display_proportional_clip(pos.x+144, pos.y+24, buf, ALIGN_LEFT, SCHWARZ, true);
+//    display_proportional_clip(pos.x+144, pos.y+24, translator::translate("Passagierziele"), ALIGN_LEFT, COL_BLACK, true);
+//    display_proportional_clip(pos.x+144, pos.y+24+LINESPACE, translator::translate("letzen Monat: diesen Monat:"), ALIGN_LEFT, COL_BLACK, true);
 
-    tstrncpy(buf, translator::translate("letzen Monat: diesen Monat:"), 64);
-    display_proportional_clip(pos.x+144, pos.y+36, buf, ALIGN_LEFT, SCHWARZ, true);
-
-    display_array_wh(pos.x+144, pos.y+52, 96, 96, pax_alt->to_array());
-    display_array_wh(pos.x+144 + 96 + 16, pos.y+52, 96, 96, pax_neu->to_array());
+    display_array_wh(pos.x+140, pos.y+24, 128, 128, stadt->gib_pax_ziele_alt()->to_array());
+    display_array_wh(pos.x+140 + 128 + 4, pos.y+24, 128, 128, stadt->gib_pax_ziele_neu()->to_array());
 
 #if 0
     sprintf(buf, "%s: %d/%d",
@@ -134,7 +126,7 @@ stadt_info_t::zeichnen(koord pos, koord gr)
             stadt->gib_pax_transport(),
             stadt->gib_pax_erzeugt());
 
-    display_proportional(pos.x+144, pos.y+180, buf, ALIGN_LEFT, SCHWARZ, true);
+    display_proportional(pos.x+144, pos.y+180, buf, ALIGN_LEFT, COL_BLACK, true);
 #endif
 }
 

@@ -257,9 +257,9 @@ void infowin_t::zeichnen(koord pos, koord gr)
     buf.clear();
     info(buf);
 
-    display_multiline_text(x+11, y+24, buf, SCHWARZ);
+    display_multiline_text(x+11, y+24, buf, COL_BLACK);
 
-    draw_buttons(pos, (gib_besitzer()!=NULL  &&  gib_besitzer() != welt->get_active_player()) ? GRAU2 : SCHWARZ );
+    draw_buttons(pos, (gib_besitzer()!=NULL  &&  gib_besitzer() != welt->get_active_player()) ? COL_GREY2 : COL_BLACK );
 }
 
 /**

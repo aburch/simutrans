@@ -46,6 +46,7 @@ public:
      */
     gui_vehicleinfo_t(convoihandle_t cnv);
 
+
     /**
      * Events werden hiermit an die GUI-Komponenten
      * gemeldet
@@ -69,7 +70,7 @@ public:
  * @author Hj. Malthaner
  * @date 22-Aug-01
  */
-class convoi_detail_t : public gui_frame_t
+class convoi_detail_t : public gui_frame_t , private action_listener_t
 {
 public:
 	enum sort_mode_t { by_destination=0, by_via=1, by_amount_via=2, by_amount=3, SORT_MODES=4 };
@@ -79,6 +80,7 @@ private:
 	gui_vehicleinfo_t veh_info;
 
 	convoihandle_t cnv;
+	button_t	sale_button;
 public:
 
     /**
@@ -103,7 +105,8 @@ public:
      */
     virtual void zeichnen(koord pos, koord gr);
 
-
+	// buttons are here
+	bool action_triggered(gui_komponente_t *komp);
 
     /**
      * resize window in response to a resize event

@@ -45,23 +45,23 @@ void goods_stats_t::zeichnen(koord offset) const
 		display_fillbox_wh_clip(offset.x + 3, yoff+1, 6, 6, 255 - (goodslist[i]-1)*4, true);
 
 		sprintf(buf, "%s", translator::translate(wtyp->gib_name()));
-		display_proportional_clip(offset.x + 14, yoff,	buf, ALIGN_LEFT, SCHWARZ, true);
+		display_proportional_clip(offset.x + 14, yoff,	buf, ALIGN_LEFT, COL_BLACK, true);
 
 		// prissi
 		const sint32 grundwert128 = wtyp->gib_preis()<<7;
 		const sint32 grundwert_bonus = wtyp->gib_preis()*(1000l+(bonus-100l)*wtyp->gib_speed_bonus());
 		const sint32 price = (grundwert128>grundwert_bonus ? grundwert128 : grundwert_bonus);
 		sprintf(buf, "%.2f$", price/300000.0);
-		display_proportional_clip(offset.x + 130, yoff, buf, 	ALIGN_RIGHT, 	SCHWARZ, true);
+		display_proportional_clip(offset.x + 130, yoff, buf, 	ALIGN_RIGHT, 	COL_BLACK, true);
 
 		sprintf(buf, "%d%%", wtyp->gib_speed_bonus());
-		display_proportional_clip(offset.x + 155, yoff, buf, ALIGN_RIGHT, SCHWARZ, true);
+		display_proportional_clip(offset.x + 155, yoff, buf, ALIGN_RIGHT, COL_BLACK, true);
 
 		sprintf(buf, "%s",	translator::translate(wtyp->gib_catg_name()));
-		display_proportional_clip(offset.x + 165, yoff, buf, 	ALIGN_LEFT, SCHWARZ, 	true);
+		display_proportional_clip(offset.x + 165, yoff, buf, 	ALIGN_LEFT, COL_BLACK, 	true);
 
 		sprintf(buf, "%dKg", wtyp->gib_weight_per_unit());
-		display_proportional_clip(offset.x + 310, yoff, buf, ALIGN_RIGHT, SCHWARZ, true);
+		display_proportional_clip(offset.x + 310, yoff, buf, ALIGN_RIGHT, COL_BLACK, true);
 
 		yoff += LINESPACE+1;
 	}

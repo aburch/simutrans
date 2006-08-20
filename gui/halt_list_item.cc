@@ -64,7 +64,7 @@ void halt_list_item_t::zeichnen(koord offset) const
 		buf.clear();
 		buf.append(nummer);
 		buf.append(".");
-		display_proportional_clip(pos.x+offset.x+4, pos.y+offset.y+8, buf, ALIGN_LEFT, SCHWARZ, true);
+		display_proportional_clip(pos.x+offset.x+4, pos.y+offset.y+8, buf, ALIGN_LEFT, COL_BLACK, true);
 */
 		// status now in front
 		display_fillbox_wh_clip(pos.x+offset.x+2, pos.y+offset.y+4, 24, 4, halt->gib_status_farbe(), false);
@@ -72,7 +72,7 @@ void halt_list_item_t::zeichnen(koord offset) const
 		// name
 		buf.clear();
 		buf.append(translator::translate(halt->gib_name()));
-		int left = 16+offset.x+display_proportional_clip(pos.x+offset.x+33, pos.y+offset.y+2, buf, ALIGN_LEFT, SCHWARZ, true);
+		int left = 16+offset.x+display_proportional_clip(pos.x+offset.x+33, pos.y+offset.y+2, buf, ALIGN_LEFT, COL_BLACK, true);
 
 		// what kind of stop
 		halttype = halt->get_station_type();
@@ -118,6 +118,6 @@ void halt_list_item_t::zeichnen(koord offset) const
 
 		buf.clear();
 		halt->get_short_freight_info(buf);
-		display_proportional_clip(pos.x+offset.x+33, pos_y, buf, ALIGN_LEFT, SCHWARZ, true);
+		display_proportional_clip(pos.x+offset.x+33, pos_y, buf, ALIGN_LEFT, COL_BLACK, true);
 	}
 }

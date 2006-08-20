@@ -807,7 +807,7 @@ grund_t::display_dinge(const int xpos, int ypos, bool dirty)
 				     width,
 				     0,
 				     text_farbe(),
-				     SCHWARZ,
+				     COL_BLACK,
 				     text,
 				     dirty || get_flag(grund_t::new_text));
 

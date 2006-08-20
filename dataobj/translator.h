@@ -66,8 +66,7 @@ private:
     /**
      * Checks whether or not the given language is in bounds.
      */
-    static inline bool is_in_bounds(int lang)
-    {
+    static inline bool is_in_bounds(int lang) {
         return 0 <= lang && lang < single_instance->get_language_count();
     }
 
@@ -115,11 +114,12 @@ public:
      * Translates a given string(key) to it's locale
      * specific counterpart, using the current language
      * table.
+     * the second variant just uses the language with the index
      * @return translated string, (null) if string is null,
      * or the string if the translation is not found
      */
     static const char * translate(const char *str);
-
+    static const char *translate_from_lang(const int index,const char *str);
 
     /**
      * Checks if the given string is in the translation table

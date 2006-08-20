@@ -10,13 +10,11 @@
 
 #include "../../simdebug.h"
 #include "../../simworld.h"
-#include "../../blockmanager.h"
 #include "../grund.h"
 #include "../../dataobj/loadsave.h"
 #include "../../utils/cbuffer_t.h"
-#include "../../besch/weg_besch.h"
-#include "../../bauer/hausbauer.h"
 #include "../../bauer/wegbauer.h"
+#include "../../besch/weg_besch.h"
 
 #include "runway.h"
 
@@ -55,64 +53,23 @@ runway_t::~runway_t()
 
 void runway_t::info(cbuffer_t & buf) const
 {
-  weg_t::info(buf);
+	weg_t::info(buf);
+/*
+	buf.append("\nRail block ");
+	buf.append(bs.get_id());
+	buf.append("\n");
 
-  buf.append("\nRail block ");
-  buf.append(bs.get_id());
-  buf.append("\n");
+	bs->info(buf);
 
-  bs->info(buf);
+	buf.append("\n\nRibi (unmasked) ");
+	buf.append(gib_ribi_unmasked());
 
-  buf.append("\n\nRibi (unmasked) ");
-  buf.append(gib_ribi_unmasked());
-
-  buf.append("\nRibi (masked) ");
-  buf.append(gib_ribi());
-  buf.append("\n");
+	buf.append("\nRibi (masked) ");
+	buf.append(gib_ribi());
+	buf.append("\n");
+*/
 }
 
-
-
-void
-runway_t::betrete(vehikel_basis_t *v)
-{
-//    printf("runway_t::betrete %d,%d", xpos, ypos);
-//    printf("    runway_t::betrete blockstrecke %p\n", bs);
-
-//    assert(bs.is_bound());
-//    bs->betrete( v );
-
-}
-
-
-
-void
-runway_t::verlasse(vehikel_basis_t *v)
-{
-//    printf("runway_t::verlasse %d,%d", xpos, ypos);
-//    printf("    runway_t::verlasse blockstrecke %p\n", bs);
-
-//    assert(bs.is_bound());
-//    bs->verlasse( v );
-}
-
-
-void
-runway_t::setze_blockstrecke(blockhandle_t bs)
-{
-    this->bs = bs;
-}
-
-
-
-bool runway_t::ist_frei() const
-{
-	if(!bs.is_bound()) {
-		dbg->warning("runway_t::ist_frei()","Runway  %p is not bound to a runway block!\n", this);
-		return true;
-	}
-	return bs->ist_frei();
-}
 
 
 void

@@ -121,7 +121,7 @@ static int display_gadget_box(simwin_gadget_et const  code,
 			      bool const pushed)
 {
     display_vline_wh(x,    y,   16, color+1, false);
-    display_vline_wh(x+15, y+1, 14, SCHWARZ, false);
+    display_vline_wh(x+15, y+1, 14, COL_BLACK, false);
     display_vline_wh(x+16, y+1, 14, color+1, false);
 
     if(pushed) {
@@ -233,12 +233,12 @@ static void win_draw_window_title(const koord pos, const koord gr,
 	PUSH_CLIP(pos.x, pos.y, gr.x, gr.y);
     display_fillbox_wh_clip(pos.x, pos.y, gr.x, 1, titel_farbe+1, true);
     display_fillbox_wh_clip(pos.x, pos.y+1, gr.x, 14, titel_farbe, true);
-    display_fillbox_wh_clip(pos.x, pos.y+15, gr.x, 1, SCHWARZ, true);
-    display_vline_wh_clip(pos.x+gr.x-1, pos.y,   15, SCHWARZ, true);
+    display_fillbox_wh_clip(pos.x, pos.y+15, gr.x, 1, COL_BLACK, true);
+    display_vline_wh_clip(pos.x+gr.x-1, pos.y,   15, COL_BLACK, true);
 
     // Draw the gadgets and then move left and draw text.
     int width = display_gadget_boxes( flags, pos.x+(REVERSE_GADGETS?0:gr.x-20), pos.y, titel_farbe, closing );
-    display_proportional_clip( pos.x + (REVERSE_GADGETS?width+4:4), pos.y+(16-large_font_height)/2, text, ALIGN_LEFT, WEISS, true );
+    display_proportional_clip( pos.x + (REVERSE_GADGETS?width+4:4), pos.y+(16-large_font_height)/2, text, ALIGN_LEFT, COL_WHITE, true );
     POP_CLIP();
 }
 
@@ -256,7 +256,7 @@ static void win_draw_window_dragger(koord pos, koord gr)
   for(int x=0; x<dragger_size; x++) {
     display_fillbox_wh(pos.x-x,
 		       pos.y-dragger_size+x,
-		       x, 1, (x & 1) ? SCHWARZ : MN_GREY4, true);
+		       x, 1, (x & 1) ? COL_BLACK : MN_GREY4, true);
   }
 }
 
@@ -987,7 +987,7 @@ void win_display_menu()
 	display_setze_clip_wh( 0, 32, width, start_y+32 );
 	if(ticker_t::get_instance()->count()>0) {
 		// maybe something is omitted of the message
-		display_fillbox_wh(0, start_y, width, 1, SCHWARZ, true);
+		display_fillbox_wh(0, start_y, width, 1, COL_BLACK, true);
 		display_fillbox_wh(0, start_y+1, width, 15, MN_GREY2, true);
 	}
 }
@@ -1038,7 +1038,7 @@ win_display_flush(int , int color, double konto)
 													width,
 													0,
 													2,
-													SCHWARZ,
+													COL_BLACK,
 													tooltip_text,
 													true);
 			// Hajo: clear tooltip to avoid sticky tooltips

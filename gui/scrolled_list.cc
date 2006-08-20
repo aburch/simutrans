@@ -217,7 +217,7 @@ void scrolled_list_gui_t::zeichnen(koord pos) const
   }
 
   display_fillbox_wh(x,y,w,h, MN_GREY3, true);
-  display_ddd_box(x,y-1,w,h+2, BLACK, WHITE);
+  display_ddd_box(x,y-1,w,h+2, COL_BLACK, COL_WHITE);
 
   PUSH_CLIP(x+1,y+1,w-2,h-2);
   int ycum = y+4-offset; // y cumulative
@@ -232,7 +232,7 @@ void scrolled_list_gui_t::zeichnen(koord pos) const
 				  ALIGN_LEFT, MN_GREY3, true);
       } else { // normal text is just black
 	display_proportional_clip(x+7, ycum, iter.get_current(),
-				  ALIGN_LEFT, BLACK, true);
+				  ALIGN_LEFT, COL_BLACK, true);
       }
       ycum += 11; i++;
     }
