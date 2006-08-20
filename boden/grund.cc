@@ -61,7 +61,8 @@
 // klassenlose funktionen und daten
 
 
-image_id grund_t::gib_back_bild(int leftback) const {
+image_id grund_t::gib_back_bild(int leftback) const
+{
 	if(back_bild_nr==0) {
 		return IMG_LEER;
 	}
@@ -130,7 +131,7 @@ void grund_t::calc_back_bild(const sint8 hgt,const sint8 slope_this)
 			if(diff_from_ground<0)  {
 				set_flag(grund_t::draw_as_ding);
 			}
-			else if(gr->get_flag(grund_t::draw_as_ding)  ||  gr->suche_obj(ding_t::gebaeude)) {
+			else if(gr->get_flag(grund_t::draw_as_ding)  ||  dynamic_cast<gebaeude_t*>(gr->obj_bei(0))) {
 				left_back_is_building = true;
 			}
 		}
@@ -155,7 +156,7 @@ void grund_t::calc_back_bild(const sint8 hgt,const sint8 slope_this)
 				back_bild_nr = get_backbild_from_diff( diff_from_ground_1, diff_from_ground_2 );
 			}
 			// avoid covering of slope by building ...
-			if(left_back_is_building  &&  gr->gib_back_bild(1)!=IMG_LEER) {
+			if(left_back_is_building  &&  (back_bild_nr>0  ||  gr->gib_back_bild(1)!=IMG_LEER)) {
 				set_flag(grund_t::draw_as_ding);
 			}
 			is_building = gr->gib_typ()==grund_t::fundament;
@@ -970,18 +971,30 @@ bool grund_t::get_neighbour(grund_t *&to, weg_t::typ type, koord dir) const
 		return false;
 	}
 
-	if(ist_bruecke() || ist_tunnel()) {
-		int vmove = ist_tunnel()?0:get_vmove(dir);
+	// tunnel is always flat
+	if(ist_tunnel()) {
+		gr = welt->lookup(pos + koord3d(dir,0));
+		// at the end of tunnels, we check for the ground too ...
+		if(!is_connected(gr, type, dir)  &&  gib_weg_hang()!=gib_grund_hang()) {
+			gr = plan->gib_kartenboden();
+		}
+	}
+	else if(ist_bruecke()) {
+		int vmove = get_vmove(dir);
 
-		// Kucken ob drüber oder drunter Anschluß ist
+//DBG_MESSAGE("grund_t::get_neighbour()","vmove %i at (%i,%i,%i)",vmove,pos.x,pos.y,pos.z);
+		// search for ground in this direction
 		if(vmove) {
 			gr = welt->lookup(pos + koord3d(dir, vmove));
+/* prissi: will alway fail for bridges!?!
 			if(gr && gr->get_vmove(-dir) != -vmove) {
 				gr = NULL;
 			}
+*/
 		}
-		// Wenn nicht, auf gleicher Höhe versuchen
+		// not connected => the try same height level
 		if(!is_connected(gr, type, dir)) {
+//DBG_MESSAGE("grund_t::get_neighbour()","not connected for (%i,%i,%i) to (%i,%i,%i)",pos.x,pos.y,pos.z, gr->gib_pos().x, gr->gib_pos().y, gr->gib_pos().z);
 			gr = welt->lookup(pos + dir);
 		}
 	}
@@ -999,26 +1012,26 @@ bool grund_t::get_neighbour(grund_t *&to, weg_t::typ type, koord dir) const
 
 bool grund_t::is_connected(const grund_t *gr, weg_t::typ wegtyp, koord dv) const
 {
-    if(!gr) {
-	return false;
-    }
-    if(wegtyp == weg_t::invalid) {
-	return true;
-    }
+	if(!gr) {
+		return false;
+	}
+	if(wegtyp==weg_t::invalid) {
+		return true;
+	}
 
 	const int ribi1 = gib_weg_ribi_unmasked(wegtyp);
 	const int ribi2 = gr->gib_weg_ribi_unmasked(wegtyp);
-//DBG_MESSAGE("grund_t::is_connected()","at (%i,%i) ribi1=%i ribi2=%i",pos.x,pos.y,ribi1,ribi2);
-    if(dv == koord::nord) {
-	return (ribi1 & ribi_t::nord) && (ribi2 & ribi_t::sued);
-    } else if(dv == koord::sued) {
-	return (ribi1 & ribi_t::sued) && (ribi2 & ribi_t::nord);
-    } else if(dv == koord::west) {
-	return (ribi1 & ribi_t::west) && (ribi2 & ribi_t::ost );
-    } else if(dv == koord::ost) {
-	return (ribi1 & ribi_t::ost ) && (ribi2 & ribi_t::west);
-    }
-    return false;
+	//DBG_MESSAGE("grund_t::is_connected()","at (%i,%i) ribi1=%i ribi2=%i",pos.x,pos.y,ribi1,ribi2);
+	if(dv == koord::nord) {
+		return (ribi1 & ribi_t::nord) && (ribi2 & ribi_t::sued);
+	} else if(dv == koord::sued) {
+		return (ribi1 & ribi_t::sued) && (ribi2 & ribi_t::nord);
+	} else if(dv == koord::west) {
+		return (ribi1 & ribi_t::west) && (ribi2 & ribi_t::ost );
+	} else if(dv == koord::ost) {
+		return (ribi1 & ribi_t::ost ) && (ribi2 & ribi_t::west);
+	}
+	return false;
 }
 
 
@@ -1047,8 +1060,7 @@ static char vmoves[15][4] = {	// hangtyp * destination (N O S W)
 
 	if(ist_bruecke() && weg_hang==0) {
 		if(ist_karten_boden()) {
-			// Spezialbehandlung für "alte" Brückenauffahrten, da
-			// der Weg hier komplett eine Ebene höher liegt.
+			// the way of bridges is one lwevel higher than the ground, if they are on a slope
 			hang_t::typ gr_hang = gib_grund_hang();
 
 			if(dir==koord::ost || dir==koord::west) {

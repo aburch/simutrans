@@ -58,7 +58,6 @@ void gebaeude_t::init(const haus_tile_besch_t *t)
 	fab = 0;
 
 	anim_time = 0;
-	tourist_time = 0;
 
 	sync = false;
 	count = 0;
@@ -112,13 +111,9 @@ gebaeude_t::~gebaeude_t()
 		welt->sync_remove(this);
 	}
 
-	// Hajo: if the PAK file was removed we end up with buildings
-	// that have no tile description. Thus we need to check that
-	// case here ...
-	if(tile && tile->gib_besch()) {
-		if(tile->gib_besch()->ist_ausflugsziel()) {
-			welt->remove_ausflugsziel(this);
-		}
+	// tiles might be invalid, if no description is found during loading
+	if(tile  &&  tile->gib_besch()  &&  tile->gib_besch()->ist_ausflugsziel()) {
+		welt->remove_ausflugsziel(this);
 	}
 
 	count = 0;
@@ -219,21 +214,21 @@ DBG_MESSAGE("gebaeude_t::zeige_info()", "at %d,%d - name is '%s'", gib_pos().x, 
  */
 void gebaeude_t::setze_sync(bool yesno)
 {
-    if(yesno) {
-	// already sync? and worth animating ?
-	if(!sync && tile->gib_phasen() > 1) {
-	    // no
-	    sync = true;
-	    anim_time = simrand(300);
-	    count = simrand(tile->gib_phasen());
-	    welt->sync_add(this);
+	if(yesno) {
+		// already sync? and worth animating ?
+		if(!sync && tile->gib_phasen()>1) {
+			// no
+			sync = true;
+			anim_time = simrand(300);
+			count = simrand(tile->gib_phasen());
+			welt->sync_add(this);
+		}
 	}
-    } else {
-	sync = false;
-
-	// always deregister ... doesn't hurt if we were not registered.
-	welt->sync_remove(this);
-    }
+	else {
+		sync = false;
+		// always deregister ... doesn't hurt if we were not registered.
+		welt->sync_remove(this);
+	}
 }
 
 
@@ -531,7 +526,9 @@ gebaeude_t::rdwr(loadsave_t *file)
 			}
 		}
 
-		file->rdwr_byte(sync, "\n");
+		uint8 dummy=sync;
+		file->rdwr_byte(dummy, "\n");
+		sync = dummy;
 
 		if(file->is_loading()) {
 			count = 0;
@@ -595,7 +592,7 @@ gebaeude_t::entferne(spieler_t *sp)
 		stadt_t *city=welt->suche_naechste_stadt(gib_pos().gib_2d());
 #ifdef COUNT_HOUSES
 		if(city) {
-			city->remove_building(this);
+			city->remove_gebaeude_from_stadt(this);
 		}
 #endif
 		sp->buche(umgebung_t::cst_multiply_remove_haus*(tile->gib_besch()->gib_level()+1), gib_pos().gib_2d(), COST_CONSTRUCTION);

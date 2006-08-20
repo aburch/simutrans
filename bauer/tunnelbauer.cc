@@ -257,6 +257,7 @@ DBG_MESSAGE("tunnelbauer_t::baue_einfahrt()","at end (%d,%d) for %s", end.x, end
 		blockmanager::gib_manager()->neue_schiene(welt, tunnel, sig);
 	}
 	tunnel->obj_add(new tunnel_t(welt, end, sp, besch));
+	tunnel->calc_bild();
 
 	cost += umgebung_t::cst_tunnel;
 	// no undo possible anymore
@@ -337,45 +338,46 @@ tunnelbauer_t::remove(karte_t *welt, spieler_t *sp, koord3d start, weg_t::typ we
 
   delete gr;
     }
-    // Und die Tunnelenden am Schluß
-    while(!end_list.is_empty()) {
-  pos = end_list.remove_first();
 
-  grund_t *gr = welt->lookup(pos);
-  ding_t *sig = NULL;
-  ribi_t::ribi ribi = gr->gib_weg_ribi_unmasked(wegtyp) &~ribi_typ(gr->gib_grund_hang());
+		// Und die Tunnelenden am Schluß
+		while(!end_list.is_empty()) {
+			pos = end_list.remove_first();
 
-  if(wegtyp == weg_t::schiene) {
-      sig = gr->suche_obj(ding_t::signal);
-      if(sig) { // Signal aufheben - kommt auf den neuen Boden!
-    gr->obj_remove(sig, sp);
-    ((schiene_t *)gr->gib_weg(weg_t::schiene))->gib_blockstrecke()->entferne_signal((signal_t *)sig);
-      }
-      bm->entferne_schiene(welt, gr->gib_pos());
-  }
-  weg_besch = gr->gib_weg(wegtyp)->gib_besch();
-  gr->weg_entfernen(wegtyp, false);
-  gr->obj_loesche_alle(sp);
-  cost += umgebung_t::cst_tunnel;
+			grund_t *gr = welt->lookup(pos);
+			ding_t *sig = NULL;
+			ribi_t::ribi ribi = gr->gib_weg_ribi_unmasked(wegtyp) &~ribi_typ(gr->gib_grund_hang());
 
-  gr = new boden_t(welt, pos);
-  welt->access(pos.gib_2d())->kartenboden_setzen(gr, false);
+			if(wegtyp == weg_t::schiene) {
+				sig = gr->suche_obj(ding_t::signal);
+				if(sig) { // Signal aufheben - kommt auf den neuen Boden!
+					gr->obj_remove(sig, sp);
+					((schiene_t *)gr->gib_weg(weg_t::schiene))->gib_blockstrecke()->entferne_signal((signal_t *)sig);
+				}
+				bm->entferne_schiene(welt, gr->gib_pos());
+			}
+			weg_besch = gr->gib_weg(wegtyp)->gib_besch();
+			gr->weg_entfernen(wegtyp, false);
+			gr->obj_loesche_alle(sp);
+			cost += umgebung_t::cst_tunnel;
 
-  // Neuen Boden wieder mit Weg versehen
-  if(wegtyp == weg_t::schiene) {
-  	weg_t *weg = new schiene_t(welt);
-  	weg->setze_besch( weg_besch );
-      gr->neuen_weg_bauen( weg, ribi, sp );
-      bm->neue_schiene(welt, gr, sig);
-  }
-  else {
-  	weg_t *weg = new strasse_t(welt);
-  	weg->setze_besch( weg_besch );
-      gr->neuen_weg_bauen( weg, ribi, sp );
-  }
-      gr->calc_bild();
-    }
-    welt->setze_dirty();
-    sp->buche(cost, start.gib_2d(), COST_CONSTRUCTION);
-    return NULL;
+			gr = new boden_t(welt, pos);
+			welt->access(pos.gib_2d())->kartenboden_setzen(gr, false);
+
+			// Neuen Boden wieder mit Weg versehen
+			if(wegtyp==weg_t::schiene) {
+				weg_t *weg = new schiene_t(welt);
+				weg->setze_besch( weg_besch );
+				gr->neuen_weg_bauen( weg, ribi, sp );
+				bm->neue_schiene(welt, gr, sig);
+			}
+			else {
+				weg_t *weg = new strasse_t(welt);
+				weg->setze_besch( weg_besch );
+				gr->neuen_weg_bauen( weg, ribi, sp );
+			}
+		gr->calc_bild();
+	}
+	welt->setze_dirty();
+	sp->buche(cost, start.gib_2d(), COST_CONSTRUCTION);
+	return NULL;
 }

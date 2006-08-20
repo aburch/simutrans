@@ -9,45 +9,100 @@
 
 
 #include "factorylist_frame_t.h"
-#include "factorylist_stats_t.h"
+#include "components/list_button.h"
 #include "../gui/gui_scrollpane.h"
 
+/**
+ * This variable defines the sort order (ascending or descending)
+ * Values: 1 = ascending, 2 = descending)
+ * @author Markus Weber
+ */
+bool factorylist_frame_t::sortreverse = false;
 
+/**
+ * This variable defines by which column the table is sorted
+ * Values: 0 = Station number
+ *         1 = Station name
+ *         2 = Waiting goods
+ *         3 = Station type
+ * @author Markus Weber
+ */
+factorylist::sort_mode_t factorylist_frame_t::sortby = factorylist::by_name;
 
-factorylist_frame_t::factorylist_frame_t(karte_t * welt) : gui_frame_t(translator::translate("fl_title"))
+const char *factorylist_frame_t::sort_text[factorylist::SORT_MODES] = {
+    "Fabrikname",
+    "Input",
+    "Output",
+    "Produktion",
+    "Rating",
+    "Power"
+};
+
+factorylist_frame_t::factorylist_frame_t(karte_t * welt) :
+    gui_frame_t(translator::translate("fl_title")),
+    sort_label(translator::translate("hl_txt_sort"))
 {
-	//DBG_DEBUG("factorylist_frame_t()","constructor begin");
-	stats = new factorylist_stats_t(welt);
-	//DBG_DEBUG("factorylist_frame_t()","constructor 1");
-	head = new factorylist_header_t(stats);
-	//DBG_DEBUG("factorylist_frame_t()","constructor 2");
-	head->setze_pos(koord(0,0));
-	add_komponente(head);
-	scrolly = new gui_scrollpane_t(stats);
-	scrolly->setze_pos(koord(0, 38));
-	add_komponente(scrolly);
+    sort_label.setze_pos(koord(BUTTON1_X, 4));
+    add_komponente(&sort_label);
 
-	setze_fenstergroesse(koord(350, 240));
-	// a min-size for the window
-	set_min_windowsize(koord(350, 240));
+    sortedby.init(button_t::roundbox, "", koord(BUTTON1_X, 14), koord(BUTTON_WIDTH,BUTTON_HEIGHT));
+    sortedby.add_listener(this);
+    add_komponente(&sortedby);
 
-	set_resizemode(diagonal_resize);
-	resize(koord(0,0));
+    sorteddir.init(button_t::roundbox, "", koord(BUTTON2_X, 14), koord(BUTTON_WIDTH,BUTTON_HEIGHT));
+    sorteddir.add_listener(this);
+    add_komponente(&sorteddir);
 
-	setze_opaque(true);
-	//DBG_DEBUG("factorylist_frame_t(): constructor ende","");
+    // name buttons
+    sortedby.setze_text(translator::translate(sort_text[gib_sortierung()]));
+    sorteddir.setze_text(translator::translate(gib_reverse() ? "hl_btn_sort_desc" : "hl_btn_sort_asc"));
+
+
+    //DBG_DEBUG("factorylist_frame_t()","constructor begin");
+    stats = new factorylist_stats_t(welt,sortby,sortreverse);
+    //DBG_DEBUG("factorylist_frame_t()","constructor 1");
+    scrolly = new gui_scrollpane_t(stats);
+    scrolly->setze_pos(koord(1, 30));
+    add_komponente(scrolly);
+
+    setze_fenstergroesse(koord(TOTAL_WIDTH, 240));
+    // a min-size for the window
+    set_min_windowsize(koord(TOTAL_WIDTH, 240));
+
+    set_resizemode(diagonal_resize);
+    resize(koord(0,0));
+
+    setze_opaque(true);
+    //DBG_DEBUG("factorylist_frame_t(): constructor ende","");
 }
 
 
 factorylist_frame_t::~factorylist_frame_t()
 {
-//DBG_DEBUG("factorylist_frame_t()","destructor");
-delete scrolly;
-scrolly = 0;
-delete head;
-head = 0;
-delete stats;
-stats = 0;
+    //DBG_DEBUG("factorylist_frame_t()","destructor");
+    delete scrolly;
+    scrolly = 0;
+    delete stats;
+    stats = 0;
+}
+
+/**
+ * This method is called if an action is triggered
+ * @author Markus Weber/Volker Meyer
+ */
+bool factorylist_frame_t::action_triggered(gui_komponente_t *komp)
+{
+    if(komp == &sortedby) {
+	setze_sortierung((factorylist::sort_mode_t)((gib_sortierung() + 1) % factorylist::SORT_MODES));
+	sortedby.setze_text(translator::translate(sort_text[gib_sortierung()]));
+	stats->sort(gib_sortierung(),gib_reverse());
+    }
+    else if(komp == &sorteddir) {
+	setze_reverse(!gib_reverse());
+	sorteddir.setze_text(translator::translate(gib_reverse() ? "hl_btn_sort_desc" : "hl_btn_sort_asc"));
+	stats->sort(gib_sortierung(),gib_reverse());
+    }
+    return true;
 }
 
 
@@ -58,8 +113,8 @@ stats = 0;
  */
 void factorylist_frame_t::resize(const koord delta)
 {
-gui_frame_t::resize(delta);
-// fensterhoehe - 16(title) -38 (header)
-koord groesse = gib_fenstergroesse()-koord(0,54);
-scrolly->setze_groesse(groesse);
+    gui_frame_t::resize(delta);
+    // fensterhoehe - 16(title) -30 (header)
+    koord groesse = gib_fenstergroesse()-koord(0,46);
+    scrolly->setze_groesse(groesse);
 }

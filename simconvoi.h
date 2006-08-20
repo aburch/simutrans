@@ -21,16 +21,14 @@
 #include "halthandle_t.h"
 
 
-#define MAX_CONVOI_COST   6 // Total number of cost items
+#define MAX_CONVOI_COST   5 // Total number of cost items
 #define MAX_MONTHS     12 // Max history
-#define MAX_CONVOI_NON_MONEY_TYPES 3 // number of non money types in convoi's financial statistic
+#define MAX_CONVOI_NON_MONEY_TYPES 2 // number of non money types in convoi's financial statistic
 #define CONVOI_CAPACITY   0 // the amount of ware that could be transported, theoretically
 #define CONVOI_TRANSPORTED_GOODS 1 // the amount of ware that has been transported
-#define CONVOI_VEHICLES		2 // the amount of vehicles that build this convoi
-#define CONVOI_REVENUE		3 // the income this CONVOI generated
-#define CONVOI_OPERATIONS         4 // the cost of operations this CONVOI generated
-#define CONVOI_PROFIT             5 // total profit of this convoi
-
+#define CONVOI_REVENUE		2 // the income this CONVOI generated
+#define CONVOI_OPERATIONS         3 // the cost of operations this CONVOI generated
+#define CONVOI_PROFIT             4 // total profit of this convoi
 
 class depot_t;
 class karte_t;
@@ -217,14 +215,6 @@ private:
      * @author Hj. Malthaner
      */
     int min_top_speed;
-
-
-    /**
-     * inititailisiert die Buttons fuers Fenster.
-     * Muss aus jedem Kinstruktor aufgerufen werden
-     * @author Hj. Malthaner
-     */
-    void init_buttons();
 
 
     /**
@@ -462,6 +452,9 @@ public:
      * @author Hj. Malthaner
      */
     virtual ~convoi_t();
+
+
+	void laden_abschliessen();
 
 
     /**

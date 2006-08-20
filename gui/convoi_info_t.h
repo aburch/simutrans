@@ -56,17 +56,18 @@ private:
     bool btoggled;
     bool bFilterIsActive[7];
 
-    convoihandle_t cnv;
-    sint16 mean_convoi_speed;
+	convoihandle_t cnv;
+	sint32 mean_convoi_speed;
+	sint32 max_convoi_speed;
 
 	// current pointer to route ...
 	sint32 cnv_route_index;
 
-    /**
-     * Buffer for freight info text string.
-     * @author Hj. Malthaner
-     */
-    cbuffer_t freight_info;
+	/**
+	* Buffer for freight info text string.
+	* @author Hj. Malthaner
+	*/
+	cbuffer_t freight_info;
 
 	sort_mode_t sortby;
 

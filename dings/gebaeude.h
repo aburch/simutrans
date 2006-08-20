@@ -71,13 +71,6 @@ private:
 
 
     /**
-     * Time control for tourist generation.
-     * @author Hj. Malthaner
-     */
-    uint16 tourist_time;
-
-
-    /**
      * Current anim frame
      * @author Hj. Malthaner
      */
@@ -88,7 +81,7 @@ private:
      * Is this a sync animated object?
      * @author Hj. Malthaner
      */
-    uint8 sync;
+    uint8 sync:1;
 
 
     /**
@@ -96,7 +89,7 @@ private:
      * shall be displayed.
      * @author Hj. Malthaner
      */
-    uint8 zeige_baugrube;
+    uint8 zeige_baugrube:1;
 
 
     /**

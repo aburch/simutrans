@@ -29,9 +29,9 @@ bool curiositylist_frame_t::sortreverse = false;
  *         3 = Station type
  * @author Markus Weber
  */
-sort_mode_t curiositylist_frame_t::sortby = by_name;
+curiositylist::sort_mode_t curiositylist_frame_t::sortby = curiositylist::by_name;
 
-const char *curiositylist_frame_t::sort_text[SORT_MODES] = {
+const char *curiositylist_frame_t::sort_text[curiositylist::SORT_MODES] = {
     "hl_btn_sort_name",
     "cl_btn_sort_paxlevel",
     "cl_btn_sort_maillevel"
@@ -54,7 +54,6 @@ curiositylist_frame_t::curiositylist_frame_t(karte_t * welt) :
 
     stats = new curiositylist_stats_t(welt,sortby,sortreverse);
 
-    //scrolly.setze_pos(koord(1, 30));
     setze_opaque(true);
     setze_fenstergroesse(koord(TOTAL_WIDTH, 240));
 
@@ -92,7 +91,7 @@ curiositylist_frame_t::~curiositylist_frame_t()
 bool curiositylist_frame_t::action_triggered(gui_komponente_t *komp)
 {
 	if(komp == &sortedby) {
-		setze_sortierung((sort_mode_t)((gib_sortierung() + 1) % SORT_MODES));
+		setze_sortierung((curiositylist::sort_mode_t)((gib_sortierung() + 1) % curiositylist::SORT_MODES));
 		display_list();
 	}
 	else if(komp == &sorteddir) {

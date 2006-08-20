@@ -460,7 +460,7 @@ bool wegbauer_t::is_allowed_step( const grund_t *from, const grund_t *to, long *
 	// ok, slopes are ok
 	bool ok = to->ist_natur()  &&  !to->ist_wasser();
 	bool fundament= to->gib_typ()==grund_t::fundament;
-	const gebaeude_t *gb=dynamic_cast<const gebaeude_t *>(to->suche_obj(ding_t::gebaeude));
+	const gebaeude_t *gb=dynamic_cast<const gebaeude_t *>(to->obj_bei(0));
 
 	switch(bautyp) {
 
@@ -511,13 +511,20 @@ bool wegbauer_t::is_allowed_step( const grund_t *from, const grund_t *to, long *
 					check_owner(to->gib_besitzer(),sp) &&
 					check_for_leitung(zv,to)  &&
 					!to->gib_depot();
+			// no crossings on halt
+			if(from->gib_halt().is_bound()) {
+				const weg_t *sch_f=from->gib_weg(weg_t::schiene);
+				if(sch_f==NULL  ||  ribi_t::ist_kreuzung(ribi_typ(to_pos,from_pos)|sch_f->gib_ribi_unmasked()) ) {
+					return false;
+				}
+			}
 			// check for end/start of bridge
 			if(to->gib_weg_hang()!=to->gib_grund_hang()  &&  (sch==NULL  ||  ribi_t::ist_kreuzung(ribi_typ(to_pos,from_pos)|sch->gib_ribi_unmasked()))) {
 				return false;
 			}
 			if(gb) {
 				// no halt => citybuilding => do not touch
-				if(sch==NULL  ||  !to->gib_halt().is_bound()  ||  !check_owner(gb->gib_besitzer(),sp)) {
+				if(sch==NULL  ||  !to->gib_halt().is_bound()  ||  from->gib_halt().is_bound()  ||  !check_owner(gb->gib_besitzer(),sp)) {
 					return false;
 				}
 				// now we have a halt => check for direction
@@ -612,6 +619,7 @@ bool wegbauer_t::is_allowed_step( const grund_t *from, const grund_t *to, long *
 					check_owner(to->gib_besitzer(),sp) &&
 					check_for_leitung(zv,to)  &&
 					!to->gib_depot();
+			// missing: check for crossings on halt!
 			// check for end/start of bridge
 			if(to->gib_weg_hang()!=to->gib_grund_hang()) {
 				return false;

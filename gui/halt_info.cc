@@ -35,8 +35,23 @@ static const char *sort_text[4] = {
 
 const char cost_type[MAX_HALT_COST][64] =
 {
-  "Arrived", "Departed", "Waiting", "Happy",
-  "Unhappy", "No Route", "Vehicles"
+  "Happy",
+  "Unhappy",
+  "No Route",
+  "Waiting",
+  "Arrived",
+  "Departed",
+  "Vehicles"
+};
+
+const uint8 index_of_haltinfo[MAX_HALT_COST] = {
+	HALT_HAPPY,
+	HALT_UNHAPPY,
+	HALT_NOROUTE,
+	HALT_WAITING,
+	HALT_ARRIVED,
+	HALT_DEPARTED,
+	HALT_CONVOIS_ARRIVED
 };
 
 const int cost_type_color[MAX_HALT_COST] =
@@ -88,7 +103,6 @@ halt_info_t::halt_info_t(karte_t *welt, halthandle_t halt)
 
 	add_komponente(&sort_button);
 	add_komponente(&button);
-
 	add_komponente(&input);
 
 	setze_opaque(true);
@@ -107,12 +121,9 @@ halt_info_t::halt_info_t(karte_t *welt, halthandle_t halt)
 	chart->set_dimension(12, 10000);
 	chart->set_visible(false);
 	chart->set_background(MN_GREY1);
-	for (int i = 0; i<MAX_HALT_COST; i++) {
-		chart->add_curve(cost_type_color[i], halt->get_finance_history(), MAX_HALT_COST, i, MAX_MONTHS, 0, false, true);
-	}
-	add_komponente(chart);
+	for (int cost = 0; cost<MAX_HALT_COST; cost++) {
+		chart->add_curve(cost_type_color[cost], halt->get_finance_history(), MAX_HALT_COST, index_of_haltinfo[cost], MAX_MONTHS, 0, false, true);
 
-	for (int cost=0;cost<MAX_HALT_COST;cost++) {
 		filterButtons[cost].init(button_t::box, cost_type[cost],
 			koord(BUTTON1_X+(BUTTON_WIDTH+BUTTON_SPACER)*(cost%4), 198+(BUTTON_HEIGHT+2)*(cost/4) ),
 			koord(BUTTON_WIDTH, BUTTON_HEIGHT));
@@ -122,6 +133,7 @@ halt_info_t::halt_info_t(karte_t *welt, halthandle_t halt)
 		bFilterIsActive[cost] = false;
 		add_komponente(filterButtons + cost);
     }
+    add_komponente(chart);
 
     add_komponente(&view);
     add_komponente(&scrolly);

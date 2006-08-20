@@ -54,16 +54,7 @@ char money_frame_t::digit[4];
  */
 const char *money_frame_t::display_money(int type, char *buf, int old)
 {
-	sint64 tmpcash;
-
-	tmpcash = 0;
-	tmpcash += sp->get_finance_history_year(old, type);
-
-    // Hajo: Money is counted in credit cents (100 cents = 1 Cr)
-    //    sprintf(buf, "%.2f$", tmpcash / 100.0);
-
-    money_to_string(buf, tmpcash / 100.0);
-
+    money_to_string(buf, sp->get_finance_history_year(old, type) / 100.0 );
     return(buf);
 }
 
@@ -73,11 +64,7 @@ const char *money_frame_t::display_money(int type, char *buf, int old)
  */
 int money_frame_t::get_money_colour(int type, int old)
 {
-	sint64 tmpcash;
-
-	tmpcash = 0;
-	tmpcash += sp->get_finance_history_year(old, type);
-	return (tmpcash < 0) ? MONEY_MINUS : MONEY_PLUS;
+	return (sp->get_finance_history_year(old, type) < 0) ? MONEY_MINUS : MONEY_PLUS;
 }
 
 /**
@@ -290,7 +277,7 @@ void money_frame_t::zeichnen(koord pos, koord gr)
     mmoney.set_color(get_money_colour(COST_MAINTENANCE, 0));
     imoney.set_color(get_money_colour(COST_INCOME, 0));
     tmoney.set_color(get_money_colour(COST_PROFIT, 0));
-    omoney.set_color(get_money_colour(COST_PROFIT, 0));
+    omoney.set_color(get_money_colour(COST_OPERATING_PROFIT, 0));
 
     old_conmoney.set_color(get_money_colour(COST_CONSTRUCTION, 1));
     old_nvmoney.set_color(get_money_colour(COST_NEW_VEHICLE, 1));
@@ -298,7 +285,7 @@ void money_frame_t::zeichnen(koord pos, koord gr)
     old_mmoney.set_color(get_money_colour(COST_MAINTENANCE, 1));
     old_imoney.set_color(get_money_colour(COST_INCOME, 1));
     old_tmoney.set_color(get_money_colour(COST_PROFIT, 1));
-    old_omoney.set_color(get_money_colour(COST_PROFIT, 1));
+    old_omoney.set_color(get_money_colour(COST_OPERATING_PROFIT, 1));
 
     gtmoney.setze_text(display_money(COST_CASH, str_buf[14], 0));
     gtmoney.set_color(get_money_colour(COST_CASH, 0));
@@ -326,7 +313,7 @@ void money_frame_t::zeichnen(koord pos, koord gr)
     // Hajo: Money is counted in credit cents (100 cents = 1 Cr)
     money_to_string(str_buf[16], sp->add_maintenance(0)/100);
     maintenance_money.setze_text(str_buf[16]);
-    maintenance_money.set_color(sp->add_maintenance(0)>0?MONEY_PLUS:MONEY_MINUS);
+    maintenance_money.set_color(sp->add_maintenance(0)>=0?MONEY_PLUS:MONEY_MINUS);
 
     for (int i = 0;i<MAX_COST;i++)
     {

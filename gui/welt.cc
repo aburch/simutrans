@@ -55,31 +55,31 @@ welt_gui_t::welt_gui_t(karte_t *welt, einstellungen_t *sets) : gui_frame_t("Neue
 
 	// select map stuff ..
 	map_number[0].setze_pos( koord(LEFT_ARROW,intTopOfButton) );
-	map_number[0].setze_typ( button_t::arrowleft );
+	map_number[0].setze_typ( button_t::repeatarrowleft );
 	map_number[0].add_listener( this );
 	add_komponente( map_number+0 );
 	map_number[1].setze_pos( koord(RIGHT_ARROW,intTopOfButton) );
-	map_number[1].setze_typ( button_t::arrowright );
+	map_number[1].setze_typ( button_t::repeatarrowright );
 	map_number[1].add_listener( this );
 	add_komponente( map_number+1 );
 	intTopOfButton += 12;
 
 	x_size[0].setze_pos( koord(LEFT_ARROW,intTopOfButton) );
-	x_size[0].setze_typ( button_t::arrowleft );
+	x_size[0].setze_typ( button_t::repeatarrowleft );
 	x_size[0].add_listener( this );
 	add_komponente( x_size+0 );
 	x_size[1].setze_pos( koord(RIGHT_ARROW,intTopOfButton) );
-	x_size[1].setze_typ( button_t::arrowright );
+	x_size[1].setze_typ( button_t::repeatarrowright );
 	x_size[1].add_listener( this );
 	add_komponente( x_size+1 );
 	intTopOfButton += 12;
 
 	y_size[0].setze_pos( koord(LEFT_ARROW,intTopOfButton) );
-	y_size[0].setze_typ( button_t::arrowleft );
+	y_size[0].setze_typ( button_t::repeatarrowleft );
 	y_size[0].add_listener( this );
 	add_komponente( y_size+0 );
 	y_size[1].setze_pos( koord(RIGHT_ARROW,intTopOfButton) );
-	y_size[1].setze_typ( button_t::arrowright );
+	y_size[1].setze_typ( button_t::repeatarrowright );
 	y_size[1].add_listener( this );
 	add_komponente( y_size+1 );
 	intTopOfButton += 12;
@@ -87,31 +87,31 @@ welt_gui_t::welt_gui_t(karte_t *welt, einstellungen_t *sets) : gui_frame_t("Neue
 	// mountian/water stuff
 	intTopOfButton += 5;
 	water_level[0].setze_pos( koord(LEFT_ARROW,intTopOfButton) );
-	water_level[0].setze_typ( button_t::arrowleft );
+	water_level[0].setze_typ( button_t::repeatarrowleft );
 	water_level[0].add_listener( this );
 	add_komponente( water_level+0 );
 	water_level[1].setze_pos( koord(RIGHT_ARROW,intTopOfButton) );
-	water_level[1].setze_typ( button_t::arrowright );
+	water_level[1].setze_typ( button_t::repeatarrowright );
 	water_level[1].add_listener( this );
 	add_komponente( water_level+1 );
 	intTopOfButton += 12;
 
 	mountain_height[0].setze_pos( koord(LEFT_ARROW,intTopOfButton) );
-	mountain_height[0].setze_typ( button_t::arrowleft );
+	mountain_height[0].setze_typ( button_t::repeatarrowleft );
 	mountain_height[0].add_listener( this );
 	add_komponente( mountain_height+0 );
 	mountain_height[1].setze_pos( koord(RIGHT_ARROW,intTopOfButton) );
-	mountain_height[1].setze_typ( button_t::arrowright );
+	mountain_height[1].setze_typ( button_t::repeatarrowright );
 	mountain_height[1].add_listener( this );
 	add_komponente( mountain_height+1 );
 	intTopOfButton += 12;
 
 	mountain_roughness[0].setze_pos( koord(LEFT_ARROW,intTopOfButton) );
-	mountain_roughness[0].setze_typ( button_t::arrowleft );
+	mountain_roughness[0].setze_typ( button_t::repeatarrowleft );
 	mountain_roughness[0].add_listener( this );
 	add_komponente( mountain_roughness+0 );
 	mountain_roughness[1].setze_pos( koord(RIGHT_ARROW,intTopOfButton) );
-	mountain_roughness[1].setze_typ( button_t::arrowright );
+	mountain_roughness[1].setze_typ( button_t::repeatarrowright );
 	mountain_roughness[1].add_listener( this );
 	add_komponente( mountain_roughness+1 );
 	intTopOfButton += 12;
@@ -134,41 +134,41 @@ welt_gui_t::welt_gui_t(karte_t *welt, einstellungen_t *sets) : gui_frame_t("Neue
 	// city stuff
 	intTopOfButton += 5;
 	number_of_towns[0].setze_pos( koord(LEFT_WIDE_ARROW,intTopOfButton) );
-	number_of_towns[0].setze_typ( button_t::arrowleft );
+	number_of_towns[0].setze_typ( button_t::repeatarrowleft );
 	number_of_towns[0].add_listener( this );
 	add_komponente( number_of_towns+0 );
 	number_of_towns[1].setze_pos( koord(RIGHT_WIDE_ARROW,intTopOfButton) );
-	number_of_towns[1].setze_typ( button_t::arrowright );
+	number_of_towns[1].setze_typ( button_t::repeatarrowright );
 	number_of_towns[1].add_listener( this );
 	add_komponente( number_of_towns+1 );
 	intTopOfButton += 12;
 
 	town_size[0].setze_pos( koord(LEFT_WIDE_ARROW,intTopOfButton) );
-	town_size[0].setze_typ( button_t::arrowleft );
+	town_size[0].setze_typ( button_t::repeatarrowleft );
 	town_size[0].add_listener( this );
 	add_komponente( town_size+0 );
 	town_size[1].setze_pos( koord(RIGHT_WIDE_ARROW,intTopOfButton) );
-	town_size[1].setze_typ( button_t::arrowright );
+	town_size[1].setze_typ( button_t::repeatarrowright );
 	town_size[1].add_listener( this );
 	add_komponente( town_size+1 );
 	intTopOfButton += 12;
 
 	intercity_road_len[0].setze_pos( koord(LEFT_WIDE_ARROW,intTopOfButton) );
-	intercity_road_len[0].setze_typ( button_t::arrowleft );
+	intercity_road_len[0].setze_typ( button_t::repeatarrowleft );
 	intercity_road_len[0].add_listener( this );
 	add_komponente( intercity_road_len+0 );
 	intercity_road_len[1].setze_pos( koord(RIGHT_WIDE_ARROW,intTopOfButton) );
-	intercity_road_len[1].setze_typ( button_t::arrowright );
+	intercity_road_len[1].setze_typ( button_t::repeatarrowright );
 	intercity_road_len[1].add_listener( this );
 	add_komponente( intercity_road_len+1 );
 	intTopOfButton += 12;
 
 	traffic_desity[0].setze_pos( koord(LEFT_WIDE_ARROW,intTopOfButton) );
-	traffic_desity[0].setze_typ( button_t::arrowleft );
+	traffic_desity[0].setze_typ( button_t::repeatarrowleft );
 	traffic_desity[0].add_listener( this );
 	add_komponente( traffic_desity+0 );
 	traffic_desity[1].setze_pos( koord(RIGHT_WIDE_ARROW,intTopOfButton) );
-	traffic_desity[1].setze_typ( button_t::arrowright );
+	traffic_desity[1].setze_typ( button_t::repeatarrowright );
 	traffic_desity[1].add_listener( this );
 	add_komponente( traffic_desity+1 );
 	intTopOfButton += 12;
@@ -176,31 +176,31 @@ welt_gui_t::welt_gui_t(karte_t *welt, einstellungen_t *sets) : gui_frame_t("Neue
 	// industry stuff
 	intTopOfButton += 5;
 	other_industries[0].setze_pos( koord(LEFT_WIDE_ARROW,intTopOfButton) );
-	other_industries[0].setze_typ( button_t::arrowleft );
+	other_industries[0].setze_typ( button_t::repeatarrowleft );
 	other_industries[0].add_listener( this );
 	add_komponente( other_industries+0 );
 	other_industries[1].setze_pos( koord(RIGHT_WIDE_ARROW,intTopOfButton) );
-	other_industries[1].setze_typ( button_t::arrowright );
+	other_industries[1].setze_typ( button_t::repeatarrowright );
 	other_industries[1].add_listener( this );
 	add_komponente( other_industries+1 );
 	intTopOfButton += 12;
 
 	town_industries[0].setze_pos( koord(LEFT_WIDE_ARROW,intTopOfButton) );
-	town_industries[0].setze_typ( button_t::arrowleft );
+	town_industries[0].setze_typ( button_t::repeatarrowleft );
 	town_industries[0].add_listener( this );
 	add_komponente( town_industries+0 );
 	town_industries[1].setze_pos( koord(RIGHT_WIDE_ARROW,intTopOfButton) );
-	town_industries[1].setze_typ( button_t::arrowright );
+	town_industries[1].setze_typ( button_t::repeatarrowright );
 	town_industries[1].add_listener( this );
 	add_komponente( town_industries+1 );
 	intTopOfButton += 12;
 
 	tourist_attractions[0].setze_pos( koord(LEFT_WIDE_ARROW,intTopOfButton) );
-	tourist_attractions[0].setze_typ( button_t::arrowleft );
+	tourist_attractions[0].setze_typ( button_t::repeatarrowleft );
 	tourist_attractions[0].add_listener( this );
 	add_komponente( tourist_attractions+0 );
 	tourist_attractions[1].setze_pos( koord(RIGHT_WIDE_ARROW,intTopOfButton) );
-	tourist_attractions[1].setze_typ( button_t::arrowright );
+	tourist_attractions[1].setze_typ( button_t::repeatarrowright );
 	tourist_attractions[1].add_listener( this );
 	add_komponente( tourist_attractions+1 );
 	intTopOfButton += 12;
@@ -212,11 +212,11 @@ welt_gui_t::welt_gui_t(karte_t *welt, einstellungen_t *sets) : gui_frame_t("Neue
 	use_intro_dates.add_listener( this );
 	add_komponente( &use_intro_dates );
 	intro_date[0].setze_pos( koord(LEFT_WIDE_ARROW,intTopOfButton) );
-	intro_date[0].setze_typ( button_t::arrowleft );
+	intro_date[0].setze_typ( button_t::repeatarrowleft );
 	intro_date[0].add_listener( this );
 	add_komponente( intro_date+0 );
 	intro_date[1].setze_pos( koord(RIGHT_WIDE_ARROW,intTopOfButton) );
-	intro_date[1].setze_typ( button_t::arrowright );
+	intro_date[1].setze_typ( button_t::repeatarrowright );
 	intro_date[1].add_listener( this );
 	add_komponente( intro_date+1 );
 	intTopOfButton += 12;
@@ -325,12 +325,20 @@ DBG_MESSAGE("welt_gui_t::update_from_heightfield()",buf);
 
 DBG_MESSAGE("welt_gui_t::update_from_heightfield()","success (%5f,%5f)",skip_x,skip_y);
 		fclose(file);
+
+		x_size[0].disable();
+		x_size[1].disable();
+		y_size[0].disable();
+		y_size[1].disable();
+		mountain_height[0].disable();
+		mountain_height[1].disable();
+		mountain_roughness[0].disable();
+		mountain_roughness[1].disable();
+
 		return true;
 	}
 	return false;
 }
-
-
 
 
 
@@ -352,6 +360,15 @@ welt_gui_t::update_preview()
 	}
 	sets->heightfield = "";
 	loaded_heightfield = false;
+
+	x_size[0].enable();
+	x_size[1].enable();
+	y_size[0].enable();
+	y_size[1].enable();
+	mountain_height[0].enable();
+	mountain_height[1].enable();
+	mountain_roughness[0].enable();
+	mountain_roughness[1].enable();
 }
 
 
@@ -372,13 +389,17 @@ welt_gui_t::action_triggered(gui_komponente_t *komp)
 {
 	if(komp==map_number+0) {
 		if(sets->gib_karte_nummer() > 0 ) {
-			sets->setze_karte_nummer( sets->gib_karte_nummer() - 1 );
+			if(!loaded_heightfield) {
+				sets->setze_karte_nummer( sets->gib_karte_nummer() - 1 );
+			}
 			update_preview();
 		}
 	}
 	else if(komp==map_number+1) {
 		if(sets->gib_karte_nummer() < 9999 ) {
-			sets->setze_karte_nummer( sets->gib_karte_nummer() + 1 );
+			if(!loaded_heightfield) {
+				sets->setze_karte_nummer( sets->gib_karte_nummer() + 1 );
+			}
 			update_preview();
 		}
 	}
@@ -477,8 +498,12 @@ welt_gui_t::action_triggered(gui_komponente_t *komp)
 		sets->setze_anzahl_staedte( sets->gib_anzahl_staedte() + 1 );
 	}
 	else if(komp==town_size+0) {
+		if(sets->gib_mittlere_einwohnerzahl()>100 ) {
+			sets->setze_mittlere_einwohnerzahl( sets->gib_mittlere_einwohnerzahl() - 100 );
+		}
 	}
 	else if(komp==town_size+1) {
+		sets->setze_mittlere_einwohnerzahl( sets->gib_mittlere_einwohnerzahl() + 100 );
 	}
 	else if(komp==intercity_road_len+0) {
 		umgebung_t::intercity_road_length -= 100;
@@ -627,7 +652,12 @@ void welt_gui_t::zeichnen(koord pos, koord gr)
 	display_array_wh(x+174, y+1, preview_size, preview_size, karte);
 
 	display_proportional_clip(x, y, translator::translate("2WORLD_CHOOSE"), ALIGN_LEFT, SCHWARZ, true);
-	display_proportional_clip(x+TEXT_RIGHT, y, ntos(sets->gib_karte_nummer(), "%3d"), ALIGN_RIGHT, WEISS, true);
+	if(!loaded_heightfield) {
+		display_proportional_clip(x+TEXT_RIGHT, y, ntos(sets->gib_karte_nummer(), "%3d"), ALIGN_RIGHT, WEISS, true);
+	}
+	else {
+		display_proportional_clip(x+TEXT_RIGHT, y, translator::translate("file"), ALIGN_RIGHT, WEISS, true);
+	}
 	y += 12;
 
 	const int x2 = sets->gib_groesse_x() * sets->gib_groesse_y();
@@ -662,7 +692,7 @@ void welt_gui_t::zeichnen(koord pos, koord gr)
 	display_proportional_clip(x+TEXT_WIDE_RIGHT, y, ntos(umgebung_t::intercity_road_length,"%3d"),ALIGN_RIGHT, WEISS, true);
 	y += 12;
 	display_proportional_clip(x, y, translator::translate("6WORLD_CHOOSE"), ALIGN_LEFT, SCHWARZ, true);
-	display_proportional_clip(x+TEXT_WIDE_RIGHT, y, ntos(16 - sets->gib_verkehr_level(),"%3d"), ALIGN_RIGHT, WEISS, true);
+	display_proportional_clip(x+TEXT_WIDE_RIGHT, y, ntos(sets->gib_verkehr_level(),"%3d"), ALIGN_RIGHT, WEISS, true);
 	y += 12+5;
 
 	display_proportional_clip(x, y, translator::translate("Land industries"), ALIGN_LEFT, SCHWARZ, true);

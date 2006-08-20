@@ -84,6 +84,7 @@ convoi_info_t::convoi_info_t(convoihandle_t cnv)
 {
 	this->cnv = cnv;
 	this->mean_convoi_speed = speed_to_kmh(cnv->gib_akt_speed()*4);
+	this->max_convoi_speed = speed_to_kmh(cnv->gib_min_top_speed()*4);
 	this->sortby = global_sortby;
 
 	input.setze_pos(koord(11,4));
@@ -129,9 +130,9 @@ convoi_info_t::convoi_info_t(convoihandle_t cnv)
 	filled_bar.add_color_value(&cnv->get_loading_level(), GREEN);
 	add_komponente(&filled_bar);
 
-	speed_bar.set_base(cnv->gib_vehikel(0)->gib_speed());
+	speed_bar.set_base(max_convoi_speed);
 	speed_bar.set_vertical(false);
-	speed_bar.add_color_value(&cnv->gib_akt_speed(), GREEN);
+	speed_bar.add_color_value(&mean_convoi_speed, GREEN);
 	add_komponente(&speed_bar);
 
 	// we update this ourself!
@@ -194,9 +195,7 @@ convoi_info_t::convoi_info_t(convoihandle_t cnv)
  * Destruktor.
  * @author Hj. Malthaner
  */
-convoi_info_t::~convoi_info_t()
-{
-}
+convoi_info_t::~convoi_info_t() { }
 
 
 /**

@@ -60,19 +60,21 @@ void
 simline_t::add_convoy(convoi_t * cnv)
 {
 	// only add convoy if not allready member of line
-	if (!line_managed_convoys.contains(cnv)) {
+	if(!line_managed_convoys.contains(cnv)) {
 		this->line_managed_convoys.insert(cnv);
-		financial_history[0][LINE_CONVOIS] = count_convoys();
 	}
+	// will not hurt ...
+	financial_history[0][LINE_CONVOIS] = count_convoys();
 }
 
 void
 simline_t::remove_convoy(convoi_t * cnv)
 {
-	if (line_managed_convoys.contains(cnv)) {
+	if(line_managed_convoys.contains(cnv)) {
 		this->line_managed_convoys.remove(cnv);
-		financial_history[0][LINE_CONVOIS] = count_convoys();
 	}
+	// will not hurt ...
+	financial_history[0][LINE_CONVOIS] = count_convoys();
 }
 
 fahrplan_t *
@@ -137,6 +139,8 @@ simline_t::rdwr(loadsave_t * file)
 			}
 		}
 	}
+	// otherwise inintialized to zero if loading ...
+	financial_history[0][LINE_CONVOIS] = count_convoys();
 }
 
 void

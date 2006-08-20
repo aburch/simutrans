@@ -24,6 +24,7 @@
 #include "../boden/brueckenboden.h"
 #include "../boden/wege/schiene.h"
 #include "../boden/wege/strasse.h"
+#include "../boden/wege/kanal.h"
 
 #include "../gui/messagebox.h"
 #include "../gui/werkzeug_parameter_waehler.h"
@@ -146,7 +147,7 @@ brueckenbauer_t::fill_menu(werkzeug_parameter_waehler_t *wzw,
 
 	for(unsigned int i = 0; i < bruecken.get_count(); i++) {
 		const bruecke_besch_t *besch = bruecken.get(i);
-		if(besch->gib_wegtyp() == wtyp) {
+		if(besch->gib_wegtyp()==wtyp) {
 			if(time==0  ||  (besch->get_intro_year_month()<=time  &&  besch->get_retire_year_month()>time)) {
 				// add int sorted
 				unsigned j;
@@ -252,22 +253,22 @@ brueckenbauer_t::finde_ende(karte_t *welt, koord3d pos, koord zv, weg_t::typ weg
 
 bool brueckenbauer_t::ist_ende_ok(spieler_t *sp, const grund_t *gr)
 {
-    if(gr->gib_typ() != grund_t::boden) {
-  return false;
-    }
-    if(gr->ist_uebergang()) {
-  return false;
-    }
-    if(gr->gib_besitzer() != sp && gr->gib_besitzer() != NULL) {
-  return false;
-    }
-    if(gr->gib_halt().is_bound()) {
-  return false;
-    }
-    if(gr->gib_depot()) {
-  return false;
-    }
-    return true;
+	if(gr->gib_typ() != grund_t::boden) {
+		return false;
+	}
+	if(gr->ist_uebergang()) {
+		return false;
+	}
+	if(gr->gib_besitzer() != sp && gr->gib_besitzer() != NULL) {
+		return false;
+	}
+	if(gr->gib_halt().is_bound()) {
+		return false;
+	}
+	if(gr->gib_depot()) {
+		return false;
+	}
+	return true;
 }
 
 /*
@@ -275,14 +276,14 @@ bool brueckenbauer_t::ist_ende_ok(spieler_t *sp, const grund_t *gr)
 */
 int brueckenbauer_t::baue(spieler_t *sp, karte_t *welt, koord pos, weg_t::typ wegtyp)
 {
-    for(int i = 0; i < bruecken.get_count(); i++) {
-  const bruecke_besch_t *besch = bruecken.get(i);
+	for(int i = 0; i < bruecken.get_count(); i++) {
+		const bruecke_besch_t *besch = bruecken.get(i);
 
-  if(besch && besch->gib_wegtyp() == wegtyp) {
-      return baue(sp, welt, pos, (long)besch);
-  }
-    }
-    return false;
+		if(besch && besch->gib_wegtyp() == wegtyp) {
+			return baue(sp, welt, pos, (long)besch);
+		}
+	}
+	return false;
 }
 
 
@@ -410,13 +411,13 @@ bool brueckenbauer_t::baue_bruecke(karte_t *welt, spieler_t *sp,
 {
 	ribi_t::ribi ribi;
 	blockhandle_t bs1;
-	weg_t *weg;
+	weg_t *weg=NULL;	// =NULL to keep compiler happy
 
 	DBG_MESSAGE("brueckenbauer_t::baue()", "build from %d,%d", pos.x, pos.y);
 	baue_auffahrt(welt, sp, pos, zv, besch, weg_besch );
 
 	ribi = welt->lookup(pos)->gib_weg_ribi_unmasked(besch->gib_wegtyp());
-	if(besch->gib_wegtyp() == weg_t::schiene) {
+	if(besch->gib_wegtyp()==weg_t::schiene) {
 		bs1 = ((schiene_t *)welt->lookup(pos)->gib_weg(besch->gib_wegtyp()))->gib_blockstrecke();
 	}
 	pos = pos + zv;
@@ -425,13 +426,20 @@ bool brueckenbauer_t::baue_bruecke(karte_t *welt, spieler_t *sp,
 		brueckenboden_t *bruecke = new  brueckenboden_t(welt, pos + koord3d(0, 0, 16), 0, 0);
 
 		if(besch->gib_wegtyp() == weg_t::schiene) {
-			weg = new schiene_t(welt,450);
+			weg = new schiene_t(welt);
 			((schiene_t *)weg)->setze_blockstrecke( bs1 );
 		}
+		else if(besch->gib_wegtyp()==weg_t::strasse) {
+			weg = new strasse_t(welt);
+		}
+		else if(besch->gib_wegtyp()==weg_t::wasser) {
+			weg = new kanal_t(welt);
+		}
 		else {
-			weg = new strasse_t(welt,450);
+			dbg->fatal("brueckenbauer_t::baue_bruecke()","unknown waytype (%i) for bridge",besch->gib_wegtyp() );
 		}
 
+		weg->setze_besch(weg_besch);
 		weg->setze_max_speed(besch->gib_topspeed());
 		welt->access(pos.gib_2d())->boden_hinzufuegen(bruecke);
 		bruecke->neuen_weg_bauen(weg, ribi_t::doppelt(ribi), sp);
@@ -462,7 +470,7 @@ void
 brueckenbauer_t::baue_auffahrt(karte_t *welt, spieler_t *sp, koord3d end, koord zv, const bruecke_besch_t *besch, const weg_besch_t *weg_besch)
 {
 	grund_t *alter_boden = welt->lookup(end);
-	weg_t *weg;
+	weg_t *weg=0;
 	ribi_t::ribi ribi_alt = alter_boden->gib_weg_ribi_unmasked(besch->gib_wegtyp());
 	ribi_t::ribi ribi_neu;
 	brueckenboden_t *bruecke;
@@ -496,7 +504,15 @@ brueckenbauer_t::baue_auffahrt(karte_t *welt, spieler_t *sp, koord3d end, koord 
 		}
 	}
 	else {
-		weg = new strasse_t(welt);
+		if(besch->gib_wegtyp()==weg_t::strasse) {
+			weg = new strasse_t(welt);
+		}
+		else if(besch->gib_wegtyp()==weg_t::wasser) {
+			weg = new kanal_t(welt);
+		}
+		else {
+			dbg->fatal("brueckenbauer_t::baue_bruecke()","unknown waytype (%i) for bridge",besch->gib_wegtyp() );
+		}
 		if(!alter_weg) {
 			weg->setze_besch(weg_besch);
 			sp->buche(weg_besch->gib_preis(), alter_boden->gib_pos().gib_2d(), COST_CONSTRUCTION);
@@ -506,9 +522,8 @@ brueckenbauer_t::baue_auffahrt(karte_t *welt, spieler_t *sp, koord3d end, koord 
 		}
 	}
 	weg->setze_max_speed( besch->gib_topspeed() );
-
 	welt->access(end.gib_2d())->kartenboden_setzen( bruecke, false );
-	bruecke->neuen_weg_bauen(weg, ribi_alt | ribi_neu, sp);
+	bruecke->neuen_weg_bauen(weg, ribi_t::doppelt(ribi_alt), sp);
 
 	if(sp!=NULL) {
 		// no undo possible anymore
@@ -644,14 +659,23 @@ brueckenbauer_t::remove(karte_t *welt, spieler_t *sp, koord3d pos, weg_t::typ we
 		welt->access(pos.gib_2d())->kartenboden_setzen(gr, false);
 
 		// Neuen Boden wieder mit Weg versehen
-		if(wegtyp == weg_t::schiene) {
+		if(wegtyp==weg_t::schiene) {
 			weg_t *weg = new schiene_t(welt);
 			weg->setze_besch(weg_besch);
 			gr->neuen_weg_bauen(weg, ribi, sp);
 			bm->neue_schiene(welt, gr, sig);
 		}
 		else {
-			weg_t *weg = new strasse_t(welt);
+			weg_t *weg=0;
+			if(wegtyp==weg_t::strasse) {
+				weg = new strasse_t(welt);
+			}
+			else if(wegtyp==weg_t::wasser) {
+				weg = new kanal_t(welt);
+			}
+			else {
+				dbg->fatal("brueckenbauer_t::remove()","unknown waytype (%i) for bridge",wegtyp );
+			}
 			weg->setze_besch(weg_besch);
 			gr->neuen_weg_bauen(weg, ribi, sp);
 		}

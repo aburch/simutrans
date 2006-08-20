@@ -81,7 +81,7 @@ protected:
     virtual void betrete_feld();
     virtual void fahre();
     virtual int  calc_height();		// Offset Bergauf/Bergab
-    virtual void calc_akt_speed(int /*h_alt*/, int /*h_neu*/) {};
+    virtual void calc_akt_speed(const grund_t *) {};
 
     virtual int  gib_dx() const = 0;
     virtual int  gib_dy() const = 0;
@@ -163,7 +163,7 @@ private:
      * @param h_alt alte Hoehe
      * @param h_neu neue Hoehe
      */
-    void calc_akt_speed(int h_alt, int h_neu);
+    virtual void calc_akt_speed(const grund_t *gr);
 
     void fahre();
 
@@ -421,7 +421,7 @@ public:
      * fahrzeug an haltestelle entladen
      * @author Hj. Malthaner
      */
-    void entladen(koord k, halthandle_t halt);
+    bool entladen(koord k, halthandle_t halt);
 
 
     /**
@@ -589,7 +589,7 @@ protected:
 	// how expensive to go here (for way search)
 	virtual int gib_kosten(const grund_t *,const uint32) const {return 1; };
 
-    virtual void calc_akt_speed(int , int );
+    void calc_akt_speed(const grund_t *);
 
     bool ist_befahrbar(const grund_t *bd) const;
 
@@ -701,7 +701,7 @@ public:
     virtual int calc_height();
 
 	// the speed calculation happens it calc_height
-    virtual void calc_akt_speed(const int , const int ) { };
+    void calc_akt_speed(const grund_t *) { };
 };
 
 #endif

@@ -367,67 +367,40 @@ void schedule_list_gui_t::zeichnen(koord pos, koord gr)
 void
 schedule_list_gui_t::display(koord pos)
 {
-  int icnv = 0;
-  icnv = line->get_finance_history(0,LINE_CONVOIS);
+	int icnv = line->count_convoys();
 
-  char buffer[8192];
-  char ctmp[128];
+	char buffer[8192];
+	char ctmp[128];
 
-  capacity = load = loadfactor = 0; // total capacity and load of line (=sum of all conv's cap/load)
+	capacity = load = loadfactor = 0; // total capacity and load of line (=sum of all conv's cap/load)
 
-  long profit = line->get_finance_history(0,LINE_PROFIT);
+	long profit = line->get_finance_history(0,LINE_PROFIT);
 
-  buffer[0] ='\0';
-
-  if (line != NULL) {
-
-    if (icnv > 0) {
-
-      for (int i = 0; i<icnv; i++) {
-
-	convoihandle_t cnv = line->get_convoy(i)->self;
-
-	// we do not want to count the capacity of depot convois
-	if (!cnv->in_depot()) {
-	for (unsigned j = 0; j<cnv->gib_vehikel_anzahl(); j++) {
-
-	  capacity += cnv->gib_vehikel(j)->gib_fracht_max();
-	  load += cnv->gib_vehikel(j)->gib_fracht_menge();
+	for (int i = 0; i<icnv; i++) {
+		convoihandle_t cnv = line->get_convoy(i)->self;
+		// we do not want to count the capacity of depot convois
+		if (!cnv->in_depot()) {
+			for (unsigned j = 0; j<cnv->gib_vehikel_anzahl(); j++) {
+				capacity += cnv->gib_vehikel(j)->gib_fracht_max();
+				load += cnv->gib_vehikel(j)->gib_fracht_menge();
+			}
+		}
 	}
+
+	// we check if cap is zero, since theoretically a
+	// conv can consist of only 1 vehicle, which has no cap (eg. locomotive)
+	// and we do not like to divide by zero, do we?
+	if (capacity > 0) {
+		loadfactor = (load * 100) / capacity;
 	}
-      }
-    }
-  }
 
-  // we check if cap is zero, since theoretically a
-  // conv can consist of only 1 vehicle, which has no cap (eg. locomotive)
-  // and we do not like to divide by zero, do we?
-  if (capacity > 0) {
-    loadfactor = (load * 100) / capacity;
-  }
+	money_to_string(ctmp, profit / 100.0);
+	sprintf(buffer, translator::translate("Convois: %d\nProfit: %s"), icnv, ctmp);
+	display_multiline_text(pos.x + groesse.x/2 + 2, pos.y + 229, buffer, BLACK);
 
-  money_to_string(ctmp, profit / 100.0);
-  sprintf(buffer,
-	  translator::translate("Convois: %d\nProfit: %s"),
-	  icnv,
-	  ctmp);
-
-  display_multiline_text(pos.x + groesse.x/2 + 2,
-			 pos.y + 229,
-			 buffer,
-			 BLACK);
-
-  number_to_string(ctmp, capacity);
-  sprintf(buffer,
-	  translator::translate("Capacity: %s\nLoad: %d (%d%%)"),
-	  ctmp,
-	  load,
-	  loadfactor);
-
-  display_multiline_text(pos.x + groesse.x/2 + 106,
-			 pos.y + 229,
-			 buffer,
-			 BLACK);
+	number_to_string(ctmp, capacity);
+	sprintf(buffer, translator::translate("Capacity: %s\nLoad: %d (%d%%)"), ctmp, load, loadfactor);
+	display_multiline_text(pos.x + groesse.x/2 + 106, pos.y + 229, buffer, BLACK);
 }
 
 void schedule_list_gui_t::resize(const koord delta)

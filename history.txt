@@ -7,6 +7,50 @@ Known bugs: (hard to fix)
 	sorting factories has an umlaute problem
 
 
+Release of 88.03.2
+
+29-Jan-2006(prissi):
+	FIX: display of number during new world dialog
+	FIX: renovation townhall works again as intended
+	FIX: convoi count during reloading fixed (leads to crash of line management window)
+
+Release of 88.03.1
+
+29-Jan-2006(prissi):
+	FIX: no crossings through stations/bus stops for normal tracks
+	FIX: station naming with industry (%s building %s %s) for industry stops
+
+28-Jan-2006(prissi):
+	FIX: loading lines
+	FIX: convoi info display: much less recalculations during loading/unloading
+	CHANGE: now only the free load in terms of categories is given (not goods)
+	FIX: removed several unused memory wasting variables from gebaeude_t
+	CHANGE: now town passenger skips tourist attractions during town loop iteration => not iterated twice
+	FIX: town statistics
+
+27-Jan-2006(prissi):
+	FIX: New year calculation for Autosave/timeline ...
+	FIX: diasble arrow buttons
+	CHANGE: goods list design
+	FIX: new world info some fixes
+	FIX: bridge builder for channels
+
+26-Jan-2006(prissi):
+	FIX: init line ids when destroying maps
+	CHANGE: order of buttons in halt list
+
+25-Jan-2006(prissi):
+	FIX: accelleration on slopes
+	ADD: Repeatbuttons
+	ADD: correctly routing through tunnels again
+	FIX: wrong color in finance window
+	FIX: monuments were not added to towns
+	FIX: tunnel next slopes fixed
+
+25-Jan-2006(mip):
+	FIX: factory list and curiosity list
+
+
 Release of 88.03
 
 23-Jan-2006(prissi):

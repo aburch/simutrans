@@ -17,9 +17,8 @@ class karte_t;
 class curiositylist_frame_t : public gui_frame_t, private action_listener_t
 {
  private:
-    static const char *sort_text[SORT_MODES];
+    static const char *sort_text[curiositylist::SORT_MODES];
 
-    gui_container_t cont;
     gui_scrollpane_t* scrolly;
     curiositylist_stats_t* stats;
 
@@ -31,7 +30,7 @@ class curiositylist_frame_t : public gui_frame_t, private action_listener_t
      * All filter settings are static, so they are not reset each
      * time the window closes.
      */
-    static sort_mode_t sortby;
+    static curiositylist::sort_mode_t sortby;
     static bool sortreverse;
 
  public:
@@ -68,11 +67,11 @@ class curiositylist_frame_t : public gui_frame_t, private action_listener_t
      */
     void display_list();
 
-    static sort_mode_t gib_sortierung() { return sortby; }
-    static void setze_sortierung(sort_mode_t sm) { sortby = sm; }
+    static curiositylist::sort_mode_t gib_sortierung() { return sortby; }
+    static void setze_sortierung(const curiositylist::sort_mode_t sm) { sortby = sm; }
 
     static bool gib_reverse() { return sortreverse; }
-    static void setze_reverse(bool reverse) { sortreverse = reverse; }
+    static void setze_reverse(const bool& reverse) { sortreverse = reverse; }
 };
 
 #endif // curiositylist_frame_t_h

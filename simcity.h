@@ -34,7 +34,7 @@ class stadt_info_t;
 
 #define MAX_CITY_HISTORY_YEARS  12 // number of years to keep history
 #define MAX_CITY_HISTORY_MONTHS  12 // number of months to keep history
-#define MAX_CITY_HISTORY      4 // Total number of items in array
+#define MAX_CITY_HISTORY 4      // Total number of items in array
 
 #define HIST_CITICENS 0	// total people
 #define HIST_GROWTH 1 // growth (just for convenience)
@@ -88,10 +88,6 @@ private:
      */
     static const int step_interval;
 
-#ifdef COUNT_HOUSES
-	weighted_vector_tpl <gebaeude_t *> buildings;
-#endif
-
 public:
 
     /**
@@ -104,6 +100,8 @@ private:
     static karte_t *welt;
     spieler_t *besitzer_p;
     char name[64];
+
+	weighted_vector_tpl <gebaeude_t *> buildings;
 
     array2d_tpl<unsigned char> pax_ziele_alt;
     array2d_tpl<unsigned char> pax_ziele_neu;
@@ -205,10 +203,11 @@ private:
      */
     void init_pax_ziele();
 
+	// this function adds houses to the city house list
+	void add_gebaeude_to_stadt(gebaeude_t *gb);
 
 	// recalculate house informations (used for target selection)
 	void recount_houses();
-
 
     /**
      * plant das bauen von Gebaeuden
@@ -329,10 +328,9 @@ public:
      */
     const weighted_vector_tpl<fabrik_t *> & gib_arbeiterziele() const {return arbeiterziele;};
 
-#ifdef COUNT_HOUSES
-	// remoes this building (called when removed by player)
-	void remove_building(gebaeude_t *gb);
-#endif
+	// this function removes houses from the city house list
+	// (called when removed by player, or by town)
+	void remove_gebaeude_from_stadt(gebaeude_t *gb);
 
     int gib_pax_erzeugt() const {return pax_erzeugt;};
     int gib_pax_transport() const {return pax_transport;};
@@ -342,11 +340,7 @@ public:
      * ermittelt die Einwohnerzahl der Stadt
      * @author Hj. Malthaner
      */
-#ifdef COUNT_HOUSES
 	sint32 gib_einwohner() const {return (buildings.get_sum_weight()*19)/4;}
-#else
-    int gib_einwohner() const {return bev;}
-#endif
 
     /**
      * Gibt den Namen der Stadt zurück.

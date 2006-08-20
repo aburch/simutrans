@@ -295,13 +295,11 @@ DBG_DEBUG("hausbauer_t::fill_menu()","at pos %i add %s",i,besch->gib_name());
  */
 void hausbauer_t::neue_karte()
 {
-    slist_iterator_tpl<const haus_besch_t *>  iter(denkmaeler);
-
-    ungebaute_denkmaeler.clear();
-
-    while(iter.next()) {
-	ungebaute_denkmaeler.append(iter.get_current());
-    }
+	slist_iterator_tpl<const haus_besch_t *>  iter(denkmaeler);
+	ungebaute_denkmaeler.clear();
+	while(iter.next()) {
+		ungebaute_denkmaeler.append(iter.get_current());
+	}
 }
 
 
@@ -319,20 +317,20 @@ void hausbauer_t::neue_karte()
  *
  * @author V. Meyer
  */
-void hausbauer_t::umbauen(karte_t *welt,
-                        gebaeude_t *gb,
-			const haus_besch_t *besch)
+void hausbauer_t::umbauen(karte_t *welt,gebaeude_t *gb, const haus_besch_t *besch)
 {
-    const haus_tile_besch_t *tile = besch->gib_tile(0, 0, 0);
+	const haus_tile_besch_t *tile = besch->gib_tile(0, 0, 0);
 
-    gb->setze_tile(tile);
-    gb->renoviere();
-
-    // Hajo: after staring a new map, build fake old buildings
-    if(welt->gib_zeit_ms() < 2) {
-	gb->add_alter(10000);
-    }
-    gb->setze_sync( true );
+	gb->setze_tile(tile);
+	gb->renoviere();
+#if 0
+// attendtion: currently not working
+	// Hajo: after staring a new map, build fake old buildings
+	if(welt->gib_zeit_ms() < 2) {
+		gb->add_alter(10000);
+	}
+#endif
+	gb->setze_sync( true );
 }
 
 

@@ -403,16 +403,10 @@ vehikel_basis_t::calc_height()
 // gesetzt
 
     const koord3d pos ( gib_pos() );
-    const int hoff_alt = gib_hoff();
 
     const planquadrat_t *plan = welt->lookup(pos.gib_2d());
     grund_t *gr = plan->gib_boden_in_hoehe(pos.z);
-    if(gr==NULL) {
-    	// may fail with planes ...
-    	plan->gib_kartenboden();
-    }
     int hoff = 0;
-
 
     switch(gr->gib_weg_hang()) {
     case 3:	// nordhang
@@ -471,7 +465,7 @@ vehikel_basis_t::calc_height()
     // geschwindigkeit berechnen
 
 	hoff = height_scaling(hoff);
-    calc_akt_speed(hoff_alt, hoff);
+    calc_akt_speed(gr);
 
     return hoff;
 }
@@ -770,19 +764,20 @@ vehikel_t::setze_speed_limit(int l)
  * @author prissi, HJ
  */
 void
-vehikel_t::calc_akt_speed(const int h_alt, const int h_neu)
+vehikel_t::calc_akt_speed(const grund_t *gr) //,const int h_alt, const int h_neu)
 {
 	// even track
 	current_friction = 1;
 	// or a hill?
-	if(h_neu != h_alt) {
-		if(h_neu < h_alt) {
+	const hang_t::typ hang = gr->gib_weg_hang();
+	if(hang!=hang_t::flach) {
+		if(ribi_typ(hang)==fahrtrichtung) {
 			// hill up, since height offsets are negative: heavy deccelerate
-			current_friction = 64;
+			current_friction = 16;
 		}
 		else {
 			// hill down: accelrate
-			current_friction = -32;
+			current_friction = -8;
 		}
 	}
 
@@ -995,16 +990,19 @@ vehikel_t::beladen(koord , halthandle_t halt)
  * fahrzeug an haltestelle entladen
  * @author Hj. Malthaner
  */
-void vehikel_t::entladen(koord, halthandle_t halt)
+bool vehikel_t::entladen(koord, halthandle_t halt)
 {
 	// printf("Vehikel %p entladen\n", this);
-	int menge = unload_freight(welt, halt, &fracht, gib_fracht_typ());
-	// add delivered goods to statistics
-	cnv->book(menge, CONVOI_TRANSPORTED_GOODS);
-	// add delivered goods to halt's statistics
-	halt->book(menge, HALT_ARRIVED);
-	// recalculate vehicles load (here is enough, because this routine is alsways called after beladen!?
-	sum_weight =  (gib_fracht_gewicht()+499)/1000 + besch->gib_gewicht();
+	long menge = unload_freight(welt, halt, &fracht, gib_fracht_typ());
+	if(menge>0) {
+		// add delivered goods to statistics
+		cnv->book(menge, CONVOI_TRANSPORTED_GOODS);
+		// add delivered goods to halt's statistics
+		halt->book(menge, HALT_ARRIVED);
+		// freight changed
+		return true;
+	}
+	return false;
 }
 
 
@@ -1265,7 +1263,6 @@ ribi_t::ribi
 automobil_t::gib_ribi(const grund_t *gr) const
 {
 	weg_t *weg = gr->gib_weg(weg_t::strasse);
-
 	if(weg) {
 		return weg->gib_ribi();
 	}
@@ -1846,14 +1843,14 @@ schiff_t::ist_befahrbar(const grund_t *bd) const
  * @author prissi
  */
 void
-schiff_t::calc_akt_speed(const int h_alt, const int h_neu)
+schiff_t::calc_akt_speed(const grund_t *gr)//const int h_alt, const int h_neu)
 {
 	// even track
 	current_friction = 1;
 	// or a hill?
-	if(h_neu != h_alt) {
+	if(gr->gib_weg_hang()) {
 		// hill up or down => in lock => deccelarte
-		current_friction = 128;
+		current_friction = 16;
 	}
 
 	// curve: higher friction

@@ -54,48 +54,32 @@ static int b_cap_right_p = -1;
  */
 static void init_button_images()
 {
-  if(square_button_pushed == -1) {
+	if(square_button_pushed == -1) {
 
-    square_button_normal =
-      skinverwaltung_t::window_skin->gib_bild(6)->gib_nummer();
-    square_button_pushed =
-      skinverwaltung_t::window_skin->gib_bild(7)->gib_nummer();
+		square_button_normal = skinverwaltung_t::window_skin->gib_bild(6)->gib_nummer();
+		square_button_pushed = skinverwaltung_t::window_skin->gib_bild(7)->gib_nummer();
 
-    arrow_left_normal =
-      skinverwaltung_t::window_skin->gib_bild(8)->gib_nummer();
-    arrow_left_pushed =
-      skinverwaltung_t::window_skin->gib_bild(9)->gib_nummer();
+		arrow_left_normal = skinverwaltung_t::window_skin->gib_bild(8)->gib_nummer();
+		arrow_left_pushed = skinverwaltung_t::window_skin->gib_bild(9)->gib_nummer();
 
-    arrow_right_normal =
-      skinverwaltung_t::window_skin->gib_bild(10)->gib_nummer();
-    arrow_right_pushed =
-      skinverwaltung_t::window_skin->gib_bild(11)->gib_nummer();
+		arrow_right_normal = skinverwaltung_t::window_skin->gib_bild(10)->gib_nummer();
+		arrow_right_pushed = skinverwaltung_t::window_skin->gib_bild(11)->gib_nummer();
 
-    b_cap_left =
-      skinverwaltung_t::window_skin->gib_bild(12)->gib_nummer();
-    b_cap_right =
-      skinverwaltung_t::window_skin->gib_bild(13)->gib_nummer();
-    b_body =
-      skinverwaltung_t::window_skin->gib_bild(14)->gib_nummer();
+		b_cap_left = skinverwaltung_t::window_skin->gib_bild(12)->gib_nummer();
+		b_cap_right = skinverwaltung_t::window_skin->gib_bild(13)->gib_nummer();
+		b_body = skinverwaltung_t::window_skin->gib_bild(14)->gib_nummer();
 
-    b_cap_left_p =
-      skinverwaltung_t::window_skin->gib_bild(15)->gib_nummer();
-    b_cap_right_p =
-      skinverwaltung_t::window_skin->gib_bild(16)->gib_nummer();
-    b_body_p =
-      skinverwaltung_t::window_skin->gib_bild(17)->gib_nummer();
+		b_cap_left_p = skinverwaltung_t::window_skin->gib_bild(15)->gib_nummer();
+		b_cap_right_p = skinverwaltung_t::window_skin->gib_bild(16)->gib_nummer();
+		b_body_p = skinverwaltung_t::window_skin->gib_bild(17)->gib_nummer();
 
 
-    arrow_up_normal =
-      skinverwaltung_t::window_skin->gib_bild(18)->gib_nummer();
-    arrow_up_pushed =
-      skinverwaltung_t::window_skin->gib_bild(19)->gib_nummer();
+		arrow_up_normal = skinverwaltung_t::window_skin->gib_bild(18)->gib_nummer();
+		arrow_up_pushed = skinverwaltung_t::window_skin->gib_bild(19)->gib_nummer();
 
-    arrow_down_normal =
-      skinverwaltung_t::window_skin->gib_bild(20)->gib_nummer();
-    arrow_down_pushed =
-      skinverwaltung_t::window_skin->gib_bild(21)->gib_nummer();
-  }
+		arrow_down_normal = skinverwaltung_t::window_skin->gib_bild(20)->gib_nummer();
+		arrow_down_pushed = skinverwaltung_t::window_skin->gib_bild(21)->gib_nummer();
+	}
 }
 
 
@@ -159,10 +143,7 @@ void button_t::add_listener(action_listener_t * l) {
  */
 void button_t::call_listeners()
 {
-  // printf("Message: button_t::call_listeners()\n");
-
   slist_iterator_tpl<action_listener_t *> iter (listeners);
-
   while(iter.next() && !iter.get_current()->action_triggered(this))
     ;
 }
@@ -213,7 +194,9 @@ void button_t::setze_typ(enum type t)
   switch (type) {
   case square:
   case arrowleft:
+  case repeatarrowleft:
   case arrowright:
+  case repeatarrowright:
   case arrowup:
   case arrowdown:
     groesse.x = 10;
@@ -254,11 +237,20 @@ void button_t::infowin_event(const event_t *ev)
 	}
 
 	// Hajo: check button state, if we should look depressed
-	pressed  =  (ev->button_state==1)  &&  enabled();
+	pressed  =  (ev->button_state==1)  &&  b_enabled;
+
+	if(!b_enabled) {
+		return;
+	}
 
 	if(IS_LEFTRELEASE(ev)) {
 		pressed = 0;
 		call_listeners();
+	}
+	else if(IS_LEFTREPEAT(ev)) {//  ||  IS_LEFTCLICK(ev)) {
+		if(type>=repeatarrowleft) {
+			call_listeners();
+		}
 	}
 }
 
@@ -371,9 +363,11 @@ void button_t::zeichnen(koord offset, int button_color) const
     break;
 
    case arrowleft:
+   case repeatarrowleft:
     display_button_image(bx, by, ARROW_LEFT, pressed);
     break;
    case arrowright:
+   case repeatarrowright:
     display_button_image(bx, by, ARROW_RIGHT, pressed);
     break;
 
@@ -457,24 +451,24 @@ void button_t::zeichnen(koord offset) const
 
 void button_t::operator= (const button_t & other)
 {
-  set_visible(other.is_visible());
-  pos = other.pos;
-  groesse = other.groesse;
+	set_visible(other.is_visible());
+	pos = other.pos;
+	groesse = other.groesse;
 
-  text = other.text;
-  pressed = other.pressed;
-  type = other.type;
-  kennfarbe = other.kennfarbe;
-  tooltip = other.tooltip;
-  background = other.background;
+	text = other.text;
+	pressed = other.pressed;
+	type = other.type;
+	kennfarbe = other.kennfarbe;
+	tooltip = other.tooltip;
+	background = other.background;
 
-  listeners = new slist_tpl < action_listener_t * >;
+	listeners = new slist_tpl < action_listener_t * >;
 
-  slist_iterator_tpl<action_listener_t *> iter (other.listeners);
+	slist_iterator_tpl<action_listener_t *> iter (other.listeners);
 
-  while( iter.next() ) {
-    listeners->append(iter.get_current());
-  }
+	while( iter.next() ) {
+		listeners->append(iter.get_current());
+	}
 
-  init_button_images();
+	init_button_images();
 }

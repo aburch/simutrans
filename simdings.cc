@@ -122,9 +122,8 @@ ding_t::~ding_t()
 	grund_t *gr = welt->lookup(pos);
 	if(gr) {
 
-		if(gr->obj_ist_da(this) ) {
+		if(gr->obj_remove(this, gib_besitzer())) {
 			// normal case
-			gr->obj_remove(this, gib_besitzer());
 			welt->markiere_dirty(pos);
 		}
 		else {

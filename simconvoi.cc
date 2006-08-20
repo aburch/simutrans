@@ -93,20 +93,6 @@ static int calc_min_top_speed(array_tpl <vehikel_t *> *fahr, int anz_vehikel)
 }
 
 
-void convoi_t::init_buttons()
-{
-    if(!in_depot()) {
-	if(!convoi_info) {
-	    convoi_info = new convoi_info_t(self);
-	}
-    } else {
-	//  V.Meyer: destroy convoi info when entering the depot
-	destroy_win(convoi_info);
-	delete convoi_info;
-	convoi_info = NULL;
-    }
-}
-
 
 /**
  * Initialize all variables with default values.
@@ -168,57 +154,60 @@ convoi_t::convoi_t(karte_t *wl, loadsave_t *file) :
 self(this)
 {
 	init(wl, 0);
-
 	rdwr(file);
-
-	// if a line is assigned, set line!
-	// @author hsiegeln
-	if (line_id != UNVALID_LINE_ID) {
-		register_with_line(line_id);
-	}
-
-	init_buttons();
 }
 
 
 convoi_t::convoi_t(karte_t *wl, spieler_t *sp) :
   self(this)
 {
-  init(wl, sp);
+	init(wl, sp);
 
-  tstrncpy(name, translator::translate("Unnamed"), 128);
+	tstrncpy(name, translator::translate("Unnamed"), 128);
 
-  anhalten(0);
+	anhalten(0);
 
-  welt->add_convoi( self );
+	welt->add_convoi( self );
 
-  init_financial_history();
-  init_buttons();
+	init_financial_history();
 }
 
 
 convoi_t::~convoi_t()
 {
-  // DBG_MESSAGE("convoi_t::~convoi_t()", "destroying %d, %p", self.get_id(), this);
-  destroy_win(convoi_info);
+	// DBG_MESSAGE("convoi_t::~convoi_t()", "destroying %d, %p", self.get_id(), this);
+	destroy_win(convoi_info);
 
-  welt->sync_remove( this );
-  welt->rem_convoi( self );
+	welt->sync_remove( this );
+	welt->rem_convoi( self );
 
-  // Hajo: finally clean up
-  self.detach();
+	// Hajo: finally clean up
+	self.detach();
 
-  // @author hsiegeln - deregister from line
-  unset_line();
+	// @author hsiegeln - deregister from line
+	unset_line();
 
-  delete fahr;
-  fahr = 0;
+	delete fahr;
+	fahr = 0;
 
-  delete convoi_info;
-  convoi_info = 0;
+	delete convoi_info;
+	convoi_info = 0;
 
-  fpl = 0;
+	fpl = 0;
 }
+
+
+
+void
+convoi_t::laden_abschliessen()
+{
+	// lines are still unknown during loading!
+	if(line_id != UNVALID_LINE_ID) {
+		// if a line is assigned, set line!
+		register_with_line(line_id);
+	}
+}
+
 
 
 /**
@@ -671,8 +660,6 @@ convoi_t::new_month()
 		}
 		financial_history[0][j] = 0;
 	}
-
-	financial_history[0][CONVOI_VEHICLES] = anz_vehikel;
 }
 
 
@@ -691,7 +678,13 @@ convoi_t::betrete_depot(depot_t *dep)
 	}
 
 	dep->convoi_arrived(self, true);
-	init_buttons();
+
+	if(!convoi_info) {
+		//  V.Meyer: destroy convoi info when entering the depot
+		destroy_win(convoi_info);
+		delete convoi_info;
+		convoi_info = NULL;
+	}
 }
 
 
@@ -1279,10 +1272,25 @@ dbg->fatal("convoi_t::rdwr()","invalid position %s for vehicle %s in state %d (s
 	//       used modulo 1024
 	sp_soll &= 1023;
 
-	// load statistics
-	for (int j = 0; j<MAX_LINE_COST; j++) {
-		for (int k = MAX_MONTHS-1; k>=0; k--) {
-			file->rdwr_longlong(financial_history[k][j], " ");
+	if(file->get_version()<=88003) {
+		// load statistics
+		for (int j = 0; j<3; j++) {
+			for (int k = MAX_MONTHS-1; k>=0; k--) {
+				file->rdwr_longlong(financial_history[k][j], " ");
+			}
+		}
+		for (int j = 2; j<5; j++) {
+			for (int k = MAX_MONTHS-1; k>=0; k--) {
+				file->rdwr_longlong(financial_history[k][j], " ");
+			}
+		}
+	}
+	else {
+		// load statistics
+		for (int j = 0; j<MAX_CONVOI_COST; j++) {
+			for (int k = MAX_MONTHS-1; k>=0; k--) {
+				file->rdwr_longlong(financial_history[k][j], " ");
+			}
 		}
 	}
 
@@ -1318,8 +1326,12 @@ convoi_t::zeige_info()
 			}
 		}
 
-		init_buttons();
-		destroy_win(convoi_info);
+		if(!convoi_info) {
+			convoi_info = new convoi_info_t(self);
+		}
+		else {
+			destroy_win(convoi_info);
+		}
 		create_win(-1, -1, convoi_info, w_info);
 	}
 }
@@ -1407,14 +1419,32 @@ void convoi_t::get_freight_info(cbuffer_t & buf)
 
 		// apend info on total capacity
 		slist_tpl <ware_t>capacity;
-		for(int i=0;  i<warenbauer_t::gib_waren_anzahl();  i++  ) {
+		for(unsigned i=0;  i<warenbauer_t::gib_waren_anzahl();  i++  ) {
 			if(max_loaded_waren[i]>0  &&  i!=2) {
 				ware_t ware(warenbauer_t::gib_info(i+1));
 				ware.menge = max_loaded_waren[i];
-				capacity.append( ware );
+				if(ware.gib_catg()==0) {
+					capacity.append( ware );
+				}
+				else {
+					// append to catgory?
+					unsigned j=0;
+					while(j<capacity.count()  &&  capacity.at(j).gib_catg()<ware.gib_catg()) {
+						j++;
+					}
+					if(j<capacity.count()  &&  capacity.at(j).gib_catg()==ware.gib_catg()) {
+						// not yet there
+						capacity.at(j).menge += max_loaded_waren[i];
+					}
+					else {
+						// not yet there
+						capacity.insert( ware, j );
+					}
+				}
 			}
 		}
 
+		// show new info
 		freight_list_sorter_t::sort_freight( welt, &total_fracht, buf, (freight_list_sorter_t::sort_mode_t)freight_info_order, &capacity, "loaded" );
 	}
 }
@@ -1624,18 +1654,20 @@ void convoi_t::hat_gehalten(koord k, halthandle_t /*halt*/)
 		if(halt.is_bound()) {
 			// Hajo: die waren wissen wohin sie wollen
 			// zuerst alle die hier aus/umsteigen wollen ausladen
-			v->entladen(k, halt);
+			freight_info_resort |= v->entladen(k, halt);
 
 			// Hajo: danach neue waren einladen
-			v->beladen(k, halt);
+			freight_info_resort |= v->beladen(k, halt);
 
 			// Jeder zusätzliche Waggon braucht etwas Zeit
 			wait_lock += (WTT_LOADING/4);
 		}
 	}
-	freight_info_resort = true;
-	calc_loading();
-	loading_limit = fpl->eintrag.get(fpl->aktuell).ladegrad;
+	// any loading went on?
+	if(freight_info_resort) {
+		calc_loading();
+		loading_limit = fpl->eintrag.get(fpl->aktuell).ladegrad;
+	}
 }
 
 
@@ -1888,14 +1920,11 @@ convoi_t::book(sint64 amount, int cost_type)
 void
 convoi_t::init_financial_history()
 {
-	for (int j = 0; j<MAX_CONVOI_COST; j++)
-	{
-		for (int k = MAX_MONTHS-1; k>=0; k--)
-		{
+	for (int j = 0; j<MAX_CONVOI_COST; j++) {
+		for (int k = MAX_MONTHS-1; k>=0; k--) {
 			financial_history[k][j] = 0;
 		}
 	}
-    financial_history[0][CONVOI_VEHICLES] = anz_vehikel;
 }
 
 sint32

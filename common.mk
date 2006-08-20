@@ -20,12 +20,13 @@ $(PROG): $(OBJECTS)
 clean:
 	@echo "===> Cleaning up"
 	$(Q)rm -f $(OBJECTS) $(DEPS)
-	$(Q)rm -r *.bak
 
+ifndef NO_DEPS
 depend: $(DEPS)
 
 ifeq ($(findstring $(MAKECMDGOALS), clean depend),)
 -include $(DEPS)
+endif
 endif
 
 # Silence stale header dependency errors

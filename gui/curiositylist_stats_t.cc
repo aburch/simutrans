@@ -24,12 +24,14 @@
 
 
 
-curiositylist_stats_t::curiositylist_stats_t(karte_t * w,const sort_mode_t& sortby,const bool& sortreverse) :
+curiositylist_stats_t::curiositylist_stats_t(karte_t * w,
+					     const curiositylist::sort_mode_t& sortby,
+					     const bool& sortreverse) :
     welt(w),
     attractions(10)
 {
-	get_unique_attractions(sortby,sortreverse);
-	setze_groesse(koord(210, attractions.get_count()*14 +14));
+    get_unique_attractions(sortby,sortreverse);
+    setze_groesse(koord(210, attractions.get_count()*14 +14));
 }
 
 curiositylist_stats_t::~curiositylist_stats_t()
@@ -39,7 +41,8 @@ curiositylist_stats_t::~curiositylist_stats_t()
 
 
 
-void curiositylist_stats_t::get_unique_attractions(const sort_mode_t& sortby,const bool& sortreverse)
+void curiositylist_stats_t::get_unique_attractions(const curiositylist::sort_mode_t& sortby,
+						   const bool& sortreverse)
 {
     attractions.clear();
     const weighted_vector_tpl<gebaeude_t *> &ausflugsziele = welt->gib_ausflugsziele();
@@ -56,7 +59,7 @@ void curiositylist_stats_t::get_unique_attractions(const sort_mode_t& sortby,con
 
 	bool append = true;
 	for (unsigned int j=0; j<attractions.get_count(); ++j) {
-	    if (sortby == by_name) {
+	    if (sortby == curiositylist::by_name) {
 		const char *desc = translator::translate(geb->gib_tile()->gib_besch()->gib_name());
 		char *token = strtok(const_cast<char*>(desc),"\n");
 		const char *check_desc = translator::translate(attractions.at(j)->gib_tile()->gib_besch()->gib_name());
@@ -74,7 +77,7 @@ void curiositylist_stats_t::get_unique_attractions(const sort_mode_t& sortby,con
 		    append = stricmp(token,check_token)>=0;
 #endif
 	    }
-	    else if (sortby == by_paxlevel) {
+	    else if (sortby == curiositylist::by_paxlevel) {
 		const int paxlevel = geb->gib_passagier_level();
 		const int check_paxlevel = attractions.at(j)->gib_passagier_level();
 
@@ -83,7 +86,7 @@ void curiositylist_stats_t::get_unique_attractions(const sort_mode_t& sortby,con
 		else
 		    append = (paxlevel >= check_paxlevel);
 	    }
-	    else if (sortby == by_maillevel) {
+	    else if (sortby == curiositylist::by_maillevel) {
 		const int maillevel = geb->gib_post_level();
 		const int check_maillevel = attractions.at(j)->gib_post_level();
 
@@ -119,31 +122,24 @@ void curiositylist_stats_t::get_unique_attractions(const sort_mode_t& sortby,con
  */
 void curiositylist_stats_t::infowin_event(const event_t * ev)
 {
-	const unsigned int line = (ev->cy) / 14;
+    const unsigned int line = (ev->cy) / 14;
 
-	if (IS_LEFTRELEASE(ev)) {
-		if( line < attractions.get_count() ) {
-			gebaeude_t * geb = attractions.at(line);
-			if(geb) {
-				const koord3d pos = geb->gib_pos();
-				if(welt->ist_in_kartengrenzen(pos.gib_2d())) {
-					//		    welt->setze_ij_off(pos.gib_2d() + koord(-5,-5));
-					geb->zeige_info();
-				}
-			}
-		}
+    if (line >= attractions.get_count())
+	return;
+
+    gebaeude_t * geb = attractions.at(line);
+    if (!geb)
+	return;
+
+    if (IS_LEFTRELEASE(ev)) {
+	geb->zeige_info();
+    }
+    else if (IS_RIGHTRELEASE(ev)) {
+	const koord3d pos = geb->gib_pos();
+	if(welt->ist_in_kartengrenzen(pos.gib_2d())) {
+	    welt->setze_ij_off(pos.gib_2d() + koord(-5,-5));
 	}
-	else if (IS_RIGHTRELEASE(ev)) {
-		if( line < attractions.get_count() ) {
-			gebaeude_t * geb = attractions.at(line);
-			if(geb) {
-				const koord3d pos = geb->gib_pos();
-				if(welt->ist_in_kartengrenzen(pos.gib_2d())) {
-					welt->setze_ij_off(pos.gib_2d() + koord(-5,-5));
-				}
-			}
-		}
-	}
+    }
 } // end of function curiositylist_stats_t::infowin_event(const event_t * ev)
 
 

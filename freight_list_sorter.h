@@ -35,7 +35,7 @@ private:
 
 	static int compare_ware(const void *td1, const void *td2);
 
-	static void add_ware_heading( cbuffer_t &buf, uint32 sum, uint32 max, const char *measure, const char *name, const char *what_doing );
+	static void add_ware_heading( cbuffer_t &buf, uint32 sum, uint32 max, const ware_t *ware, const char *what_doing );
 };
 
 

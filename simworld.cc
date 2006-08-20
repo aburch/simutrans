@@ -524,6 +524,9 @@ karte_t::destroy()
 	}
     }
 
+	// clear all ids
+	simlinemgmt_t::init_line_ids();
+
     // alle fabriken aufräumen
     slist_iterator_tpl<fabrik_t*> fab_iter(fab_list);
     while(fab_iter.next()) {
@@ -601,7 +604,6 @@ karte_t::init_felder()
     win_setze_welt( this );
     reliefkarte_t::gib_karte()->setze_welt(this);
 
-	simlinemgmt_t::init_line_ids();
     for(int i=0; i<MAX_PLAYER_COUNT ; i++) {
         spieler[i] = new spieler_t(this, i*4);
 /********************************************************************** automat
@@ -1777,8 +1779,8 @@ karte_t::sync_step(const long dt)
 	if(follow_convoi.is_bound()) {
 		const koord old_pos=gib_ij_off();
 		const koord new_pos=follow_convoi->gib_vehikel(0)->gib_pos().gib_2d()-koord(8,8);
-		const int new_xoff=-follow_convoi->gib_vehikel(0)->gib_xoff();
-		const int new_yoff=height_scaling(-follow_convoi->gib_vehikel(0)->gib_yoff()+follow_convoi->gib_vehikel(0)->gib_pos().z);
+		const int new_xoff=(-follow_convoi->gib_vehikel(0)->gib_xoff()*get_tile_raster_width())/64;
+		const int new_yoff=(height_scaling(-follow_convoi->gib_vehikel(0)->gib_yoff()+follow_convoi->gib_vehikel(0)->gib_pos().z)*get_tile_raster_width())/64;
 		if(new_pos!=old_pos  ||  new_xoff!=gib_x_off()  ||  new_yoff!=gib_y_off()) {
 			//position changed => update
 			setze_ij_off( new_pos );
@@ -2778,6 +2780,12 @@ DBG_DEBUG("karte_t::laden()","grundwasser %i",grundwasser);
     // register all line stops
 	for(int i=0; i<MAX_PLAYER_COUNT ; i++) {
 		spieler[i]->laden_abschliessen();
+	}
+
+	// assing lines and other stuff for convois
+	slist_iterator_tpl<convoihandle_t> citer (convoi_list);
+	while(citer.next()) {
+		citer.get_current()->laden_abschliessen();
 	}
 
 	// just keep the record for the last 12 years ... to allow infite long games
