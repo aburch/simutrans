@@ -117,7 +117,7 @@ void convoi_t::init(karte_t *wl, spieler_t *sp)
 
   fahr = new array_tpl<vehikel_t *> (max_vehicle);
 
-  fpl = NULL;
+  old_fpl = fpl = NULL;
   line = NULL;
   line_id = -1;
 
@@ -328,21 +328,19 @@ convoi_t::sync_step(long delta_t)
       // nach ROUTING_1 geht, das kann nicht automatisch gehen
       break;
 
-    case FAHRPLANEINGABE:
-      if((fpl != NULL) && (fpl->ist_abgeschlossen())) {
+	case FAHRPLANEINGABE:
+		if((fpl != NULL) && (fpl->ist_abgeschlossen())) {
 
-	setze_fahrplan(fpl);
+			setze_fahrplan(fpl);
 
-	// V.Meyer: If we are at destination - complete loading task!
-	state = gib_pos() == fpl->eintrag.get(fpl->aktuell).pos ? LOADING : ROUTING_1;
-	calc_loading();
-    }
-    break;
+			// V.Meyer: If we are at destination - complete loading task!
+			state = gib_pos() == fpl->eintrag.get(fpl->aktuell).pos ? LOADING : ROUTING_1;
+			calc_loading();
+		}
+	break;
 
     case ROUTING_1:
-
       wait_lock += WTT_LOADING;
-
       state = ROUTING_2;
 //     DBG_MESSAGE("convoi_t::sync_step()","Convoi wechselt von ROUTING_1 nach ROUTING_2\n");
       break;
@@ -611,33 +609,6 @@ void convoi_t::step()
 			break;
 
 		case ROUTING_2:
-			// rebuild destination (schedule may changed)
-			if(fpl) {
-				for(int i=0; i<=fpl->maxi; i++) {
-					// check, ob strecke frei
-					// check, if there is ground (or somebody removed a bridge/lowered the land)
-					const grund_t *bd = welt->lookup(fpl->eintrag.get(i).pos);
-					if(bd!=NULL) {
-
-						// did we perform a stop at a station?
-						halthandle_t halt=bd->gib_halt();
-						if(halt.is_bound()) {
-
-							const ware_besch_t *last_fracht_typ=NULL;
-							for(unsigned j=0; j<anz_vehikel; j++) {
-
-								if(fahr->at(j)->gib_fracht_typ()!=last_fracht_typ) {
-									last_fracht_typ = fahr->at(j)->gib_fracht_typ();
-									halt->hat_gehalten(0,last_fracht_typ, fpl );
-								}
-							}
-						}
-					}
-
-					INT_CHECK("convoi_t 384");
-				}
-			}
-
 			// Hajo: now calculate a new route
 			drive_to(fahr->at(0)->gib_pos(),
 			fpl->eintrag.at(fpl->get_aktuell()).pos);
@@ -719,6 +690,7 @@ convoi_t::start()
 				gr->obj_add( fahr->at(i) );
 			}
 		}
+
 
 		ist_fahrend = true;
 		alte_richtung = ribi_t::keine;
@@ -889,29 +861,113 @@ convoi_t::setze_erstes_letztes()
 bool
 convoi_t::setze_fahrplan(fahrplan_t * f)
 {
-  DBG_DEBUG("convoi_t::setze_fahrplan()", "new=%p, old=%p", f, fpl);
+	DBG_DEBUG("convoi_t::setze_fahrplan()", "new=%p, old=%p", f, fpl);
 
-    if(f == NULL) {
-	return false;
-    }
-
-    if((fpl != NULL) && (f != fpl)) {
-	delete fpl;
-    }
-
-
-    fpl = f;
-
-    for(unsigned i=0; i<anz_vehikel; i++) {
-	fahr->at(i)->remove_stale_freight();
-    }
-
-
-    fahr->at(anz_vehikel) = NULL;
-	if(state!=INITIAL) {
-	    state = ROUTING_1;
+	if(f == NULL) {
+		return false;
 	}
-    return true;
+
+	if((fpl != NULL) && (f != fpl)) {
+
+DBG_DEBUG("convoi_t::setze_fahrplan()", "rebuilding destinations (fpl)");
+
+		fahrplan_t *not_so_old_fpl = fpl;
+		fpl = f;
+
+		// rebuild destination (since halt may have been removed)
+		for(int i=0; i<=not_so_old_fpl->maxi; i++) {
+
+			// check, if this schedule is also contained within the new schedule (thus we can skip it)
+			int j=0;
+			for( j=0; j<=fpl->maxi  &&  not_so_old_fpl->eintrag.get(i).pos!=fpl->eintrag.get(j).pos; j++)
+				;
+			if(  j<=fpl->maxi  ) {
+				continue;
+			}
+
+//DBG_DEBUG("convoi_t::setze_fahrplan()", "rebuilt destinations at (%i,%i)",not_so_old_fpl->eintrag.get(i).pos.x,old_fpl->eintrag.get(i).pos.y);
+			// check, if there is ground (or somebody removed a bridge/lowered the land)
+			const grund_t *bd = welt->lookup(not_so_old_fpl->eintrag.get(i).pos);
+			if(bd!=NULL) {
+
+				// did we perform a stop at a station?
+				halthandle_t halt=bd->gib_halt();
+				if(halt.is_bound()) {
+					halt->rebuild_destinations();
+				}
+			}
+
+			INT_CHECK("convoi_t 384");
+		}
+
+		delete not_so_old_fpl;
+	}
+
+
+	// is there an old schedule?
+	if(old_fpl != NULL) {
+
+DBG_DEBUG("convoi_t::setze_fahrplan()", "rebuilding destinations (old_fpl=%p)",old_fpl);
+		fpl = f;
+
+		// rebuild destination (since halt may have been removed)
+		for(int i=0; i<=old_fpl->maxi; i++) {
+
+			// check, if this schedule is also contained within the new schedule (thus we can skip it)
+			int j;
+			for( j=0; j<=fpl->maxi  &&  old_fpl->eintrag.get(i).pos!=fpl->eintrag.get(j).pos; j++)
+				;
+			if(  j<=fpl->maxi  ) {
+				continue;
+			}
+
+//DBG_DEBUG("convoi_t::setze_fahrplan()", "rebuilt destinations at (%i,%i)",old_fpl->eintrag.get(i).pos.x,old_fpl->eintrag.get(i).pos.y);
+			// check, if there is ground (or somebody removed a bridge/lowered the land)
+			const grund_t *bd = welt->lookup(old_fpl->eintrag.get(i).pos);
+			if(bd!=NULL) {
+
+				// did we perform a stop at a station?
+				halthandle_t halt=bd->gib_halt();
+				if(halt.is_bound()) {
+					halt->rebuild_destinations();
+				}
+			}
+
+			INT_CHECK("convoi_t 384");
+		}
+		delete old_fpl;
+		old_fpl = NULL;
+	}
+
+	// rebuild destination for the new schedule
+	fpl = f;
+	for(int i=0; i<=fpl->maxi; i++) {
+
+		// check, if there is ground (or somebody removed a bridge/lowered the land)
+		const grund_t *bd = welt->lookup(fpl->eintrag.get(i).pos);
+		if(bd!=NULL) {
+
+			// did we perform a stop at a station?
+			halthandle_t halt=bd->gib_halt();
+			if(halt.is_bound()) {
+				halt->rebuild_destinations();
+			}
+		}
+
+		INT_CHECK("convoi_t 384");
+	}
+
+	// remove wrong freight
+	for(unsigned i=0; i<anz_vehikel; i++) {
+		fahr->at(i)->remove_stale_freight();
+	}
+
+	// ok, now we have a schedule
+	fahr->at(anz_vehikel) = NULL;
+	if(state!=INITIAL) {
+		state = FAHRPLANEINGABE;
+	}
+	return true;
 }
 
 
@@ -1333,6 +1389,8 @@ convoi_t::open_schedule_window()
 	state = FAHRPLANEINGABE;
 	alte_richtung = fahr->at(0)->gib_fahrtrichtung();
 
+	old_fpl = this->fpl->copy();
+
 	// Fahrplandialog oeffnen
 	fahrplan_gui_t *fpl_gui = new fahrplan_gui_t(welt, self, fahr->at(0)->gib_besitzer());
 	fpl_gui->zeige_info();
@@ -1501,10 +1559,12 @@ void convoi_t::hat_gehalten(koord k, halthandle_t halt)
 	// haltestellenquote neu berechnen
 	const int quote = anz_vehikel == 1 ? 32 : 16;
 
+/* should be no longer neccessary
 	for(unsigned i=0; i<anz_vehikel; i++) {
 		// recalculate connections ...
 		halt->hat_gehalten(quote, fahr->at(i)->gib_fracht_typ(), fpl);
 	}
+*/
 
 	// entladen und beladen
 	for(unsigned i=0; i<anz_vehikel; i++) {
@@ -1631,8 +1691,8 @@ void convoi_t::destroy()
 	slist_iterator_tpl <halthandle_t> iter (list);
 
 	while( iter.next() ) {
-	  iter.get_current()->rebuild_destinations();
-	  INT_CHECK("convoi_t 384");
+		iter.get_current()->rebuild_destinations();
+		INT_CHECK("convoi_t 384");
 	}
 
   delete this;
@@ -1750,6 +1810,11 @@ convoi_t::prepare_for_new_schedule(fahrplan_t *f)
 	anhalten(8);
 	state = FAHRPLANEINGABE;
 
+	if(fpl) {
+		old_fpl = this->fpl->copy();
+DBG_MESSAGE("convoi_t::prepare_for_new_schedule()","old=%p,fpl=%p,f=%p",old_fpl,fpl,f);
+	}
+
 	setze_fahrplan(f);
 	// Hajo: setze_fahrplan sets state to ROUTING_1
 	// need to undo that
@@ -1809,15 +1874,15 @@ void
 convoi_t::check_pending_updates()
 {
 	if (line_update_pending > -1) {
-			simline_t * line = welt->simlinemgmt->get_line_by_id(line_update_pending);
-			// the line could have been deleted in the meantime
-			// if line was deleted ignore line update; convoi will continue with existing schedule
-			if (line != NULL) {
-				int aktuell = fpl->get_aktuell(); // save current position of schedule
-	  		fpl = new fahrplan_t(line->get_fahrplan());
-	  		fpl->set_aktuell(aktuell); // set new schedule current position to old schedule current position
-	  		state = FAHRPLANEINGABE;
-	  	}
-			line_update_pending = -1;
-  	}
+		simline_t * line = welt->simlinemgmt->get_line_by_id(line_update_pending);
+		// the line could have been deleted in the meantime
+		// if line was deleted ignore line update; convoi will continue with existing schedule
+		if (line != NULL) {
+			int aktuell = fpl->get_aktuell(); // save current position of schedule
+			fpl = new fahrplan_t(line->get_fahrplan());
+			fpl->set_aktuell(aktuell); // set new schedule current position to old schedule current position
+			state = FAHRPLANEINGABE;
+		}
+		line_update_pending = -1;
+	}
 }

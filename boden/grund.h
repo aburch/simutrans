@@ -12,29 +12,17 @@
 #define boden_grund_h
 
 
-#ifndef halthandle_t_h
 #include "../halthandle_t.h"
-#endif
 
-#ifndef koord3d_h
 #include "../dataobj/koord3d.h"
-#endif
-
-#ifndef dingliste_h
 #include "../dataobj/dingliste.h"
-#endif
 
-#ifndef boden_wege_weg_h
 #include "wege/weg.h"
-#endif
 
-#ifndef __WEG_BESCH_H
 #include "../besch/weg_besch.h"
-#endif
 
-#ifndef tpl_vector_h
 #include "../tpl/vector_tpl.h"
-#endif
+#include "../tpl/minivec_tpl.h"
 
 class spieler_t;
 class vehikel_basis_t;
@@ -112,11 +100,11 @@ private:
     /**
      * stations which can be reached from this ground
      */
-    vector_tpl<halthandle_t> halt_list;
+    minivec_tpl<halthandle_t> halt_list;
 
     /**
      * Jeder Boden hat im Moment maximal 2 Wege (Kreuzungen sind 1 Weg).
-     * Dieses Array darf immer nur bei den niedrigsten Indices gefÅllt sein.
+     * Dieses Array darf immer nur bei den niedrigsten Indices gefuellt sein.
      */
     weg_t *wege[MAX_WEGE];
 
@@ -485,7 +473,7 @@ public:
      * returns the internal array of halts
      * @author prissi
      */
-    vector_tpl<halthandle_t> & get_haltlist() { return halt_list; };
+    minivec_tpl<halthandle_t> & get_haltlist() { return halt_list; };
 
 
     inline short gib_hoehe() const {return pos.z;};

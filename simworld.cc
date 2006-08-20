@@ -625,13 +625,8 @@ karte_t::destroy()
  */
 void karte_t::add_stadt(stadt_t *s)
 {
-	if(stadt->get_count()>=stadt->get_size()) {
-		// extend vector for more cities ...
-DBG_DEBUG("karte_t::add_stadt()","extended city array from %i with additional 64 entries.", stadt->get_size() );
-		stadt->resize(einstellungen->gib_anzahl_staedte()+64);
-	}
 	einstellungen->setze_anzahl_staedte(einstellungen->gib_anzahl_staedte()+1);
-	stadt->append(s);
+	stadt->append(s,64);
 }
 
 

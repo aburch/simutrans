@@ -385,9 +385,6 @@ void grund_t::add_to_haltlist(halthandle_t halt)
 				      ||  abs_distance( halt_list.get(insert_pos)->get_next_pos(pos.gib_2d()), pos.gib_2d() ) > abs_distance( halt->get_next_pos(pos.gib_2d()), pos.gib_2d() )  )
 				{
 //DBG_DEBUG("grund_t::add_to_haltlist()","Add at pos %i", insert_pos );
-					if(insert_pos>=halt_list.get_size()) {
-						halt_list.resize( halt_list.get_size()+8 );
-					}
 					halt_list.insert_at( insert_pos, halt );
 					return;
 				}
@@ -395,10 +392,7 @@ void grund_t::add_to_haltlist(halthandle_t halt)
 			// not found
 		}
 		// first or no passenger or append to the end ...
-		if(halt_list.get_count()>=halt_list.get_size()) {
-			halt_list.resize( halt_list.get_size()+8 );
-		}
-		halt_list.append_unique( halt );
+		halt_list.append_unique( halt, 2 );
 	}
 }
 

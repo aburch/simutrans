@@ -130,16 +130,31 @@ public:
      * Appends the element at the end of the vector.
      * @author Hj. Malthaner
      */
-    bool append(T elem)
-    {
-	if(count < size) {
-	    data[count ++] = elem;
-	    return true;
-	} else {
-	    ERROR("vector_tpl<T>::append()","capacity %i exceeded.",size);
-	    return false;
+	bool append(T elem)
+	{
+		if(count >= size) {
+			ERROR("vector_tpl<T>::append()","capacity %i exceeded.",size);
+			return false;
+		}
+		data[count ++] = elem;
+		return true;
 	}
-    }
+
+    /**
+     * Appends the element at the end of the vector.
+     * of out of spce, extend with this factor
+     * @author prissi
+     */
+	bool append(T elem,unsigned short extend)
+	{
+		if(count>=size) {
+			if(  !resize( count+extend )  ) {
+				return false;
+			}
+		}
+		data[count ++] = elem;
+		return true;
+	}
 
     /**
      * Checks if element is contained. Appends only new elements.
@@ -155,6 +170,19 @@ public:
 	}
     }
 
+    /**
+     * Checks if element is contained. Appends only new elements.
+     * extend vector if nessesary
+     * @author Hj. Malthaner
+     */
+	bool append_unique(T elem,unsigned short extend)
+	{
+		if(!is_contained(elem)) {
+			return append(elem);
+		}
+		return true;
+	}
+
 
 	/**
 	* removes element, if contained
@@ -162,7 +190,6 @@ public:
 	*/
 	bool remove(T elem)
 	{
-//printf("Removing from %i count \n",count);fflush(NULL);
 		unsigned int i,j;
 		for(i=j=0;  i<count;  i++,j++  ) {
 			if(data[i] == elem) {
@@ -175,7 +202,6 @@ public:
 				data[i] = data[j];
 			}
 		}
-//printf("Removed, new count %i",count);fflush(NULL);
 		return true;
 	}
 

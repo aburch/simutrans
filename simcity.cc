@@ -37,7 +37,6 @@
 #include "gui/stadt_info.h"
 
 #include "besch/haus_besch.h"
-#include "tpl/slist_mit_gewichten_tpl.h"
 
 #include "simintr.h"
 #include "simdebug.h"
@@ -56,6 +55,9 @@
 #include "bauer/wegbauer.h"
 #include "bauer/hausbauer.h"
 #include "bauer/fabrikbauer.h"
+
+#include "tpl/slist_mit_gewichten_tpl.h"
+#include "tpl/minivec_tpl.h"
 
 #include "utils/cstring_t.h"
 #include "utils/cbuffer_t.h"
@@ -552,7 +554,7 @@ stadt_t::verbinde_fabriken()
 
 	max_pax_arbeiterziele = 0;
 	arbeiterziele.clear();
-	for(int i=0; i<16; i++) {
+	for(int i=0; i<32; i++) {
 		slist_iterator_tpl<fabrik_t *> iter (fab_list);
 
 		// die arbeiter pendeln nicht allzu weit
@@ -828,8 +830,8 @@ stadt_t::step_passagiere()
 
 #ifdef START_ONLY_CORRECT
 				// suitable start search
-				const vector_tpl<halthandle_t> &start_list = welt->lookup(k)->gib_kartenboden()->get_haltlist();
-				vector_tpl <halthandle_t> halt_list(start_list.get_count());
+				const minivec_tpl<halthandle_t> &start_list = welt->lookup(k)->gib_kartenboden()->get_haltlist();
+				minivec_tpl <halthandle_t> halt_list(start_list.get_count());
 				for( unsigned h=0;  h<start_list.get_count();  h++ ) {
 					halthandle_t halt = start_list.at(h);
 					if(wtyp==warenbauer_t::post  &&  halt->get_post_enabled()) {
@@ -841,7 +843,7 @@ stadt_t::step_passagiere()
 				}
 #else
 				// suitable start search
-				const vector_tpl<halthandle_t> &halt_list = welt->lookup(k)->gib_kartenboden()->get_haltlist();
+				const minivec_tpl<halthandle_t> &halt_list = welt->lookup(k)->gib_kartenboden()->get_haltlist();
 #endif
 				// only continue, if this is a good start halt
 				if(halt_list.get_count()>0) {
@@ -865,7 +867,7 @@ stadt_t::step_passagiere()
 						const koord ziel = finde_passagier_ziel(&will_return);
 
 						// Dario: Check if there's a stop near destination
-						const vector_tpl <halthandle_t> &ziel_list = welt->lookup(ziel)->gib_kartenboden()->get_haltlist();
+						const minivec_tpl <halthandle_t> &ziel_list = welt->lookup(ziel)->gib_kartenboden()->get_haltlist();
 
 						if(ziel_list.get_count() == 0){
 // DBG_MESSAGE("stadt_t::step_passagiere()", "No stop near dest (%d, %d)", ziel.x, ziel.y);

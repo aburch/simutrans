@@ -70,8 +70,8 @@ void werkzeug_parameter_waehler_t::add_tool(int (* wz1)(spieler_t *, karte_t *, 
   tool.tooltip = tooltip;
 
   tools->append(tool);
-  tool_icon_width = MIN( (display_get_width()/32)-2, tools->count() );
-//DBG_DEBUG("werkzeug_parameter_waehler_t::add_param_tool()","at position %i (width %i)", tools->count(), tool_icon_width );
+  tool_icon_width = MIN( (display_get_width()/32)-2, tools->get_count() );
+//DBG_DEBUG("werkzeug_parameter_waehler_t::add_param_tool()","at position %i (width %i)", tools->get_count(), tool_icon_width );
 }
 
 
@@ -103,8 +103,8 @@ void werkzeug_parameter_waehler_t::add_param_tool(int (* wz1)(spieler_t *, karte
   tool.tooltip = tooltip;
 
   tools->append(tool);
-  tool_icon_width = MIN( (display_get_width()/32)-2, tools->count() );
-//DBG_DEBUG("werkzeug_parameter_waehler_t::add_param_tool()","at position %i (width %i)", tools->count(), tool_icon_width );
+  tool_icon_width = MIN( (display_get_width()/32)-2, tools->get_count() );
+//DBG_DEBUG("werkzeug_parameter_waehler_t::add_param_tool()","at position %i (width %i)", tools->get_count(), tool_icon_width );
 }
 
 
@@ -127,7 +127,7 @@ const char *werkzeug_parameter_waehler_t::gib_name() const
 koord werkzeug_parameter_waehler_t::gib_fenstergroesse() const
 {
 	if(tool_icon_width>0) {
-		return koord(tool_icon_width*32, (tools->count()/tool_icon_width)*32+16+32);
+		return koord(tool_icon_width*32, (tools->get_count()/tool_icon_width)*32+16+32);
 	}
 	else {
 		return koord(32, 16);
@@ -156,8 +156,8 @@ bool werkzeug_parameter_waehler_t::getroffen(int x, int y)
 {
 	int dx = x>>5;
 	int	dy = (y-16)>>5;
-	if(x>=0 && dx<tool_icon_width  &&  y>=0  &&  dy<tool_icon_width) {
-		return dx+(tool_icon_width*dy) < tools->count();
+	if(x>=0 && dx<tool_icon_width  &&  y>=0  &&  (y<16  ||  dy<tool_icon_width)) {
+		return (y<16)  ||  (dx+(tool_icon_width*dy) < tools->get_count());
 	}
 	return false;
 }
@@ -166,13 +166,14 @@ bool werkzeug_parameter_waehler_t::getroffen(int x, int y)
 void werkzeug_parameter_waehler_t::infowin_event(const event_t *ev)
 {
 	if(IS_LEFTCLICK(ev)) {
-
 		// tooltips?
 		const int x = (ev->mx) >> 5;
 		const int y = (ev->my-16) >> 5;
+
 		if(x>=0 && x<tool_icon_width  &&  y>=0) {
 			const int wz_idx = x+(tool_icon_width*y);
-			if(wz_idx<tools->count()) {
+
+			if(wz_idx<tools->get_count()) {
 				const struct werkzeug_t & tool = tools->at(wz_idx);
 
 				if(tool.has_param) {
@@ -195,15 +196,13 @@ void werkzeug_parameter_waehler_t::infowin_event(const event_t *ev)
 
 void werkzeug_parameter_waehler_t::zeichnen(koord pos, koord)
 {
-	for(unsigned int i=0; i<tools->count(); i++) {
+	for(unsigned int i=0; i<tools->get_count(); i++) {
 		const int icon = tools->at(i).icon;
 
 		const koord draw_pos=pos+koord((i%tool_icon_width)*32,16+(i/tool_icon_width)*32);
 		if(icon == -1) {
 			// Hajo: no icon image available, draw a blank
 			// DDD box as replacement
-
-//DBG_DEBUG("werkzeug_parameter_waehler_t::zeichnen()","at position (%i,%i) tool %i (no icon)", draw_pos.x, draw_pos.y, i );
 
 			// top
 			display_fillbox_wh(draw_pos.x, draw_pos.y, 32, 1, MN_GREY4, true);
@@ -226,7 +225,7 @@ void werkzeug_parameter_waehler_t::zeichnen(koord pos, koord)
 	const int ydiff = (gib_maus_y() - pos.y - 16) >> 5;
 	if(xdiff>=0  &&  xdiff<tool_icon_width  &&  ydiff>=0) {
 		const int tipnr = xdiff+(tool_icon_width*ydiff);
-		if(tipnr<tools->count()) {
+		if(tipnr<tools->get_count()) {
 			win_set_tooltip( gib_maus_x()+16, gib_maus_y()-16, tools->at(tipnr).tooltip);
 		}
 	}

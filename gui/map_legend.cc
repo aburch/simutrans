@@ -120,7 +120,7 @@ map_legend_t::map_legend_t(const karte_modell_t *welt) : gui_frame_t("Legend")
 		setze_fenstergroesse(size);
 	}
 	else {
-		factory_offset = ((legend_names.count()+1)/2)*14;
+		factory_offset = ((legend_names.get_count()+1)/2)*14;
 		button_offset = 4+16+16+8+( (MAX_MAP_TYPE+2)/ 3)*15;
 		setze_fenstergroesse(koord(260,button_offset+factory_offset));
 	}
@@ -145,7 +145,7 @@ void map_legend_t::setze_fenstergroesse(koord groesse)
 		groesse.x = 120;
 	}
 	int h = ((groesse.x-10)/110);
-	factory_offset = (legend_names.count()+(h-1)/h)*14;
+	factory_offset = (legend_names.get_count()+(h-1)/h)*14;
 	h = ((groesse.x-20)/80);
 	button_offset = 4+16+16+8+( (MAX_MAP_TYPE+(h-1))/ h)*15;
 	if( groesse.y<button_offset ) {
@@ -198,7 +198,7 @@ void map_legend_t::zeichnen(koord pos, koord gr)
 	// factories
 	const int rows = (size.x-10)/110;
 	const int width = (size.x-10)/rows;
-	for(unsigned u=0; u<legend_names.count(); u++) {
+	for(unsigned u=0; u<legend_names.get_count(); u++) {
 
 		const int xpos = pos.x + (u%rows)*width + 8;
 		const int ypos = pos.y+button_offset+(u/rows)*14;

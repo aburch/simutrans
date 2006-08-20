@@ -1176,10 +1176,7 @@ void fabrik_t::laden_abschliessen()
 void
 fabrik_t::add_supplier(koord pos)
 {
-	if(suppliers.get_count() >= suppliers.get_size()) {
-		suppliers.resize( suppliers.get_count()+max_suppliers );
-	}
-	suppliers.append_unique(pos);
+	suppliers.append_unique(pos,max_suppliers);
 }
 
 

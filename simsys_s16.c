@@ -545,8 +545,8 @@ static void internal_GetEvents(int wait)
 	      break;
 	    default:
     printf("unicode key (%X/%X) was pressed\n", event.key.keysym.sym,event.key.keysym.unicode);
-	      sys_event.code = event.key.keysym.sym;
-//	      sys_event.code = event.key.keysym.unicode;
+//	      sys_event.code = event.key.keysym.sym;
+	      sys_event.code = event.key.keysym.unicode;
 	    }
 	}
     }

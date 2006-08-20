@@ -44,7 +44,7 @@ static RECT WindowSize={0,0,0,0};
 static RECT MaxSize;
 HINSTANCE hInstance;
 
-static BITMAPINFOHEADER AllDib;
+static BITMAPINFOHEADER *AllDib = NULL;
 static unsigned short *AllDibData = NULL;
 
 static HDC hdc = NULL;
@@ -97,15 +97,27 @@ int dr_os_open(int w, int h,int fullscreen)
 	WindowSize.right = w;
 	WindowSize.bottom = h-1;
 
-	AllDib.biSize = sizeof(BITMAPINFOHEADER);
-	AllDib.biWidth = w;
-	AllDib.biHeight = h;
-	AllDib.biPlanes = 1;
-	AllDib.biBitCount = 16;
-	AllDib.biCompression = BI_RGB;
-	AllDib.biClrUsed =
-	AllDib.biClrImportant = 0;
+	AllDib = GlobalAlloc( GMEM_FIXED, sizeof(BITMAPINFOHEADER)+sizeof(DWORD)*3 );
+	AllDib->biSize = sizeof(BITMAPINFOHEADER);
+	AllDib->biCompression = BI_BITFIELDS;
+	*((DWORD *)(AllDib+1)+0) =  0x01;
+	*((DWORD *)(AllDib+1)+1) =  0x02;
+	*((DWORD *)(AllDib+1)+2) =  0x03;
 
+	AllDib->biSize = sizeof(BITMAPINFOHEADER);
+	AllDib->biWidth = w;
+	AllDib->biHeight = h;
+	AllDib->biPlanes = 1;
+	AllDib->biBitCount = 16;
+	AllDib->biCompression = BI_RGB;
+	AllDib->biClrUsed =
+	AllDib->biClrImportant = 0;
+#ifdef USE_16BIT_DIB
+	AllDib->biCompression = BI_BITFIELDS;
+	*((DWORD *)(AllDib+1)+0) =  0x0000001F;
+	*((DWORD *)(AllDib+1)+1) =  0x000007E0;
+	*((DWORD *)(AllDib+1)+2) =  0x0000F800;
+#endif
 	return TRUE;
 }
 
@@ -117,10 +129,6 @@ int dr_os_close(void)
 		ReleaseDC( hwnd, hdc );
 		hdc = NULL;
 	}
-	if(AllDibData!=NULL) {
-		GlobalFree( GlobalHandle( AllDibData ) );
-		AllDibData = NULL;
-	}
 	// terminate sound system
 	if(use_sound) {
 		int i;
@@ -130,8 +138,16 @@ int dr_os_close(void)
 		}
 		sample_number = 0;
 	}
-	if(hwnd) {
+	if(hwnd!=NULL) {
 		DestroyWindow( hwnd );
+	}
+	if(AllDibData!=NULL) {
+		GlobalFree( GlobalHandle( AllDibData ) );
+		AllDibData = NULL;
+	}
+	if(AllDib!=NULL) {
+		GlobalFree( AllDib );
+		AllDib = NULL;
 	}
 	return TRUE;
 }
@@ -141,7 +157,7 @@ int dr_os_close(void)
 // reiszes screen
 int dr_textur_resize(unsigned short **textur,int w, int h)
 {
-	AllDib.biWidth = w;
+	AllDib->biWidth = w;
 	WindowSize.right = w;
 	WindowSize.bottom = h-1;
 	return TRUE;
@@ -162,8 +178,11 @@ unsigned short *dr_textur_init()
  */
 unsigned int get_system_color(unsigned int r, unsigned int g, unsigned int b)
 {
-//	return ((r>>3)<<10) | ((g>>3)<<5) | (b>>3);
-	return ((r&0x00F8)<<7) | ((g&0x00F8)<<2) | (b>>3);
+#ifdef USE_16BIT_DIB
+	return ((r&0x00F8)<<8) | ((g&0x00FC)<<3) | (b>>3);
+#else
+	return ((r&0x00F8)<<7) | ((g&0x00F8)<<2) | (b>>3);	// 15 Bit
+#endif
 }
 
 
@@ -196,10 +215,10 @@ dr_textur(int xp, int yp, int w, int h)
 	if(hdc==NULL) {
 		hdc = GetDC(hwnd);
 	}
-	AllDib.biHeight = h;
+	AllDib->biHeight = h+1;
 	StretchDIBits( hdc, xp, yp, w, h,
-		xp, h, w, -h,
-		(LPSTR)(AllDibData+(yp*WindowSize.right)), (LPBITMAPINFO)&AllDib,
+		xp, h+1, w, -h,
+		(LPSTR)(AllDibData+(yp*WindowSize.right)), (LPBITMAPINFO)AllDib,
 		DIB_RGB_COLORS, SRCCOPY	 );
 }
 
@@ -306,10 +325,10 @@ LRESULT WINAPI WindowProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 
 			PAINTSTRUCT ps;
 			HDC hdcp = BeginPaint(hwnd, &ps);
-			AllDib.biHeight = WindowSize.bottom+1;
+			AllDib->biHeight = WindowSize.bottom+1;
 			StretchDIBits( hdcp, 0, 0, WindowSize.right, WindowSize.bottom,
-								0, AllDib.biHeight, WindowSize.right, -WindowSize.bottom,
-								(LPSTR)AllDibData, (LPBITMAPINFO)&AllDib,
+								0, WindowSize.bottom+1, WindowSize.right, -WindowSize.bottom,
+								(LPSTR)AllDibData, (LPBITMAPINFO)AllDib,
 								DIB_RGB_COLORS, SRCCOPY	 );
 			EndPaint(hwnd, &ps);
 			break;

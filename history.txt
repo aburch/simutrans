@@ -6,6 +6,19 @@ Known bugs: (hard to fix)
 	valgrind complains about errors in SDL and X?
 
 
+
+	FIX: wrong engine types for obsolete rail type "electrified_track" in old packages
+	FIX: SHIFT again dead key with SDL
+	FIX: after removing stops from a schedule, the removed stop was not updates => passengers waiting for non-existent lines
+	CHANGE: Allowing for 32 workers destinations (More would be easy, by may slowdown passenger generation a little.)
+	CHANGE: haltlist to minivec_tpl => saved about 2 bytes per tile
+	FIX: error check during scroll bar creation
+	CHANGE: tried yet another set of routines for GDI which seems to work on all machines I could test
+	CHANGE: newly arranged finace window, obsolete string now "Construction:", "New Vehicles:","Vehicle Running Costs:","Revenue:","Total:","Maintenance:","Balance:"
+
+
+Release of 86.08
+
 3-Sep-2005 (prissi)
 	FIX: convoi in depot which were assigned a line or a schedule started after reloading.
 	CHANGE: Separeted map and legend. Got rid of small font

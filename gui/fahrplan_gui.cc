@@ -10,6 +10,7 @@
 
 
 #include "../simconvoi.h"
+#include "../simvehikel.h"
 #include "../simline.h"
 #include "../simlinemgmt.h"
 #include "../simcolor.h"
@@ -260,36 +261,36 @@ fahrplan_gui_t::gib_fenstergroesse() const
 void
 fahrplan_gui_t::infowin_event(const event_t *ev)
 {
-  if (IS_LEFTCLICK(ev) &&
-      !line_selector.getroffen(ev->cx, ev->cy) &&
-      scrolly.getroffen(ev->cx+12, ev->cy)) {
+	if (IS_LEFTCLICK(ev) &&  !line_selector.getroffen(ev->cx, ev->cy)  &&  scrolly.getroffen(ev->cx+12, ev->cy)  	) {
 
-	const int line = ((ev->my - (40 - scrolly.get_scroll_y()))/LINESPACE)-3;
+		const int line = ((ev->my - (40 - scrolly.get_scroll_y()))/LINESPACE)-3;
 
-	if(line >= 0 && line <= fpl->maxi) {
-		fpl->aktuell = line;
+		if(line >= 0 && line <= fpl->maxi) {
+			fpl->aktuell = line;
 
-		if(mode == removing) {
-			fpl->remove();
+			if(mode == removing) {
+				fpl->remove();
+			}
 		}
 	}
-  } else if(ev->ev_class == INFOWIN && ev->ev_code == WIN_CLOSE) {
-	fpl->eingabe_abschliessen();
-     welt->setze_maus_funktion(wkz_abfrage, skinverwaltung_t::fragezeiger->gib_bild_nr(0), welt->Z_PLAN, 0, 0);
-    if (cnv.is_bound()) {
-		// if a line is selected
-		if (new_line != NULL) {
-			// if the selected line is different to the convoi's line, apply it
-			if (new_line != cnv->get_line()) {
-				cnv->set_line(new_line);
+	else if(ev->ev_class == INFOWIN && ev->ev_code == WIN_CLOSE) {
+		fpl->eingabe_abschliessen();
+		welt->setze_maus_funktion(wkz_abfrage, skinverwaltung_t::fragezeiger->gib_bild_nr(0), welt->Z_PLAN, 0, 0);
+		if (cnv.is_bound()) {
+			// if a line is selected
+			if (new_line != NULL) {
+				// if the selected line is different to the convoi's line, apply it
+				if (new_line != cnv->get_line()) {
+					cnv->set_line(new_line);
+				}
 			}
-		} else {
-			// no line is selected, so unset the line
+			else {
+				// no line is selected, so unset the line
 				cnv->unset_line();
+			}
 		}
-    }
-  }
-  gui_frame_t::infowin_event(ev);
+	}
+	gui_frame_t::infowin_event(ev);
 }
 
 

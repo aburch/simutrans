@@ -23,8 +23,6 @@
 #include "dataobj/loadsave.h"
 #include "dataobj/umgebung.h"
 
-
-
 #include "gui/karte.h"
 
 // debug!
@@ -36,7 +34,7 @@ grund_t *
 planquadrat_t::gib_boden_von_obj(ding_t *obj) const
 {
     if(this) {
-        for(int i = 0; i < boeden.count(); i++) {
+        for(int i = 0; i < boeden.get_count(); i++) {
             if(boeden.get(i)->obj_ist_da(obj)) {
                 return boeden.get(i);
             }
@@ -49,7 +47,7 @@ planquadrat_t::gib_boden_von_obj(ding_t *obj) const
 grund_t * planquadrat_t::gib_obersten_boden(spieler_t *sp) const
 {
     grund_t *bd = gib_kartenboden();
-    int i = boeden.count();
+    int i = boeden.get_count();
     grund_t *oben;
 
     if(bd->gib_besitzer() != sp) {
@@ -71,7 +69,7 @@ void planquadrat_t::boden_hinzufuegen(grund_t *bd)
     if(bd != NULL && !gib_boden_in_hoehe(bd->gib_hoehe())) {
 	// boeden[0] ist Kartengrund,
 	// danach folgen die Tunnels und Brücken höhensortiert.
-	for(i = 1; i < boeden.count(); i++) {
+	for(i = 1; i < boeden.get_count(); i++) {
 	    if(bd->gib_hoehe() < boeden.get(i)->gib_hoehe())
 		break;
 	}
@@ -97,7 +95,7 @@ planquadrat_t::kartenboden_setzen(grund_t *bd, bool mit_spieler)
 	if(bd != NULL) {
 		grund_t *tmp = gib_kartenboden();
 
-		if(boeden.count() > 0) {
+		if(boeden.get_count() > 0) {
 			boeden.at(0) = bd;
 		}
 		else {
@@ -113,7 +111,7 @@ planquadrat_t::kartenboden_setzen(grund_t *bd, bool mit_spieler)
 				bd->setze_besitzer(tmp->gib_besitzer());
 			}
 			// prissi: restore halt list
-			vector_tpl<halthandle_t> &haltlist=tmp->get_haltlist();
+			minivec_tpl<halthandle_t> &haltlist=tmp->get_haltlist();
 			for(unsigned i=0;i<haltlist.get_count();i++) {
 				bd->add_to_haltlist( haltlist.get(i) );
 			}
@@ -133,12 +131,12 @@ planquadrat_t::kartenboden_setzen(grund_t *bd, bool mit_spieler)
 void planquadrat_t::boden_ersetzen(grund_t *alt, grund_t *neu)
 {
     if(alt != NULL && neu != NULL) {
-	for(int i=0; i<boeden.count(); i++) {
+	for(int i=0; i<boeden.get_count(); i++) {
 	    if(boeden.get(i) == alt) {
 		grund_t *tmp = boeden.get(i);
 		if(i==0) {
 			// prissi: restore halt list
-			vector_tpl<halthandle_t> &haltlist=tmp->get_haltlist();
+			minivec_tpl<halthandle_t> &haltlist=tmp->get_haltlist();
 			for(unsigned i=0;i<haltlist.get_count();i++) {
 				neu->add_to_haltlist( haltlist.get(i) );
 			}
@@ -155,8 +153,8 @@ void planquadrat_t::boden_ersetzen(grund_t *alt, grund_t *neu)
 bool
 planquadrat_t::destroy(spieler_t *sp)
 {
-    while(boeden.count() > 0) {
-        grund_t *tmp = boeden.get(boeden.count() - 1);
+    while(boeden.get_count() > 0) {
+        grund_t *tmp = boeden.get(boeden.get_count() - 1);
 
 	assert(tmp);
 
@@ -172,7 +170,7 @@ void
 planquadrat_t::rdwr(karte_t *welt, loadsave_t *file)
 {
     if(file->is_saving()) {
-        for(int i = 0; i < boeden.count(); i++) {
+        for(int i = 0; i < boeden.get_count(); i++) {
             boeden.get(i)->rdwr(file);
         }
         file->wr_obj_id(-1);
@@ -227,7 +225,7 @@ void planquadrat_t::step(const long delta_t, const int steps)
 {
     static slist_tpl<ding_t *>loeschen;
 
-    for(unsigned int i = 0; i < boeden.count(); i++) {
+    for(unsigned int i = 0; i < boeden.get_count(); i++) {
         grund_t *gr = boeden.get(i);
 
 		// Hajo: play or don't play ground animation
@@ -307,7 +305,7 @@ void planquadrat_t::angehoben(karte_t *welt)
 void
 planquadrat_t::display_boden(const int xpos, const int ypos, bool dirty) const
 {
-    if(boeden.count() > 0) {
+    if(boeden.get_count() > 0) {
         boeden.get(0)->display_boden(xpos, ypos, dirty);
     }
 }
@@ -316,11 +314,11 @@ planquadrat_t::display_boden(const int xpos, const int ypos, bool dirty) const
 void
 planquadrat_t::display_dinge(const int xpos, const int ypos, bool dirty) const
 {
-    if(boeden.count() > 0) {
+    if(boeden.get_count() > 0) {
         boeden.get(0)->display_dinge(xpos, ypos, dirty);
     }
 
-    for(int i = 1; i < boeden.count(); i++) {
+    for(int i = 1; i < boeden.get_count(); i++) {
         boeden.get(i)->display_boden(xpos, ypos, dirty);
         boeden.get(i)->display_dinge(xpos, ypos, dirty);
     }

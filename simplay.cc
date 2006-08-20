@@ -577,12 +577,14 @@ spieler_t::buche(long betrag, int type)
 	finance_history_year[0][COST_CASH] = konto;
 	finance_history_year[0][COST_OPERATING_PROFIT] = finance_history_year[0][COST_INCOME] + finance_history_year[0][COST_VEHICLE_RUN] + finance_history_year[0][COST_MAINTENANCE];
 	finance_history_year[0][COST_MARGIN] = (finance_history_year[0][COST_VEHICLE_RUN] + finance_history_year[0][COST_MAINTENANCE]) != 0 ? finance_history_year[0][COST_OPERATING_PROFIT] * 100/ abs((finance_history_year[0][COST_VEHICLE_RUN] + finance_history_year[0][COST_MAINTENANCE])) : 0;
+	finance_history_year[0][COST_NETWEALTH] = konto+finance_history_month[1][COST_ASSETS];
 	// fill month history
 	finance_history_month[0][type] += (sint64)betrag;
 	finance_history_month[0][COST_PROFIT] += (sint64)betrag;
 	finance_history_month[0][COST_CASH] = konto;
 	finance_history_month[0][COST_OPERATING_PROFIT] = finance_history_month[0][COST_INCOME] + finance_history_month[0][COST_VEHICLE_RUN] + finance_history_month[0][COST_MAINTENANCE];
 	finance_history_month[0][COST_MARGIN] = (finance_history_month[0][COST_VEHICLE_RUN] + finance_history_month[0][COST_MAINTENANCE]) != 0 ? finance_history_month[0][COST_OPERATING_PROFIT] * 100/ abs((finance_history_month[0][COST_VEHICLE_RUN] + finance_history_month[0][COST_MAINTENANCE])) : 0;
+	finance_history_month[0][COST_NETWEALTH] = konto+finance_history_month[1][COST_ASSETS];
     }
 
     return konto;

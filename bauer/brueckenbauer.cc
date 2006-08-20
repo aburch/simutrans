@@ -75,7 +75,7 @@ bool brueckenbauer_t::laden_erfolgreich()
   bool strasse_da = false;
   bool schiene_da = false;
 
-  for(unsigned int i = 0; i < bruecken.count(); i++) {
+  for(unsigned int i = 0; i < bruecken.get_count(); i++) {
     const bruecke_besch_t *besch = bruecken.get(i);
 
     if(besch && besch->gib_wegtyp() == weg_t::schiene) {
@@ -112,7 +112,7 @@ brueckenbauer_t::fill_menu(werkzeug_parameter_waehler_t *wzw,
 	// list of matching types (sorted by speed)
 	slist_tpl <const bruecke_besch_t *> matching;
 
-	for(unsigned int i = 0; i < bruecken.count(); i++) {
+	for(unsigned int i = 0; i < bruecken.get_count(); i++) {
 		const bruecke_besch_t *besch = bruecken.get(i);
 		if(besch->gib_wegtyp() == wtyp) {
 			// add int sorted
@@ -233,7 +233,7 @@ bool brueckenbauer_t::ist_ende_ok(spieler_t *sp, const grund_t *gr)
 */
 int brueckenbauer_t::baue(spieler_t *sp, karte_t *welt, koord pos, weg_t::typ wegtyp)
 {
-    for(int i = 0; i < bruecken.count(); i++) {
+    for(int i = 0; i < bruecken.get_count(); i++) {
   const bruecke_besch_t *besch = bruecken.get(i);
 
   if(besch && besch->gib_wegtyp() == wegtyp) {
@@ -249,7 +249,7 @@ int brueckenbauer_t::baue(spieler_t *sp, karte_t *welt, koord pos, weg_t::typ we
 int brueckenbauer_t::baue(spieler_t *sp, karte_t *welt, koord pos, weg_t::typ wegtyp,int top_speed)
 {
   const bruecke_besch_t *besch=NULL;
-  for(int i = 0; i < bruecken.count(); i++) {
+  for(int i = 0; i < bruecken.get_count(); i++) {
     if(bruecken.get(i)->gib_wegtyp() == wegtyp) {
       if(besch==NULL
           ||  (besch->gib_topspeed()<top_speed  &&  besch->gib_topspeed()<bruecken.get(i)->gib_topspeed())

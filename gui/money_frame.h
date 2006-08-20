@@ -29,16 +29,6 @@ private:
     char money_frame_title[80];
 
     gui_chart_t *chart, *mchart;
-    gui_label_t clabel;
-    gui_label_t nvlabel;
-    gui_label_t vrlabel;
-    gui_label_t ilabel;
-    gui_label_t tlabel;
-    gui_label_t mlabel;
-
-    gui_label_t gtlabel;
-
-    gui_label_t maintenance_label;
 
     gui_label_t tylabel; // this year
     gui_label_t lylabel; // last year
@@ -49,9 +39,7 @@ private:
     gui_label_t imoney;
     gui_label_t tmoney;
     gui_label_t mmoney;
-
-
-    gui_label_t maintenance_money;
+    gui_label_t omoney;
 
     gui_label_t old_conmoney;
     gui_label_t old_nvmoney;
@@ -59,13 +47,22 @@ private:
     gui_label_t old_imoney;
     gui_label_t old_tmoney;
     gui_label_t old_mmoney;
+    gui_label_t old_omoney;
+
+    gui_label_t tylabel2; // this year, right column
 
     gui_label_t gtmoney; // balance (current)
+    gui_label_t vtmoney;
+    gui_label_t money;
+    gui_label_t margin;
+
+    gui_label_t maintenance_label;
+    gui_label_t maintenance_money;
 
     gui_label_t warn;
 
     // Hajo: each label needs its own buffer
-    char str_buf[15][128];
+    char str_buf[20][80];
 
     /**
      * fills buffer (char array) with finance info

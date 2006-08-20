@@ -7,199 +7,290 @@
  * in other projects without written permission of the author.
  */
 
-
 #ifndef tpl_minivec_h
 #define tpl_minivec_h
 
-#include <typeinfo>
+#include <stdlib.h>
 
-#include "no_such_element_exception.h"
+#include "debug_helper.h"
 
 /**
  * A template class for a simple vector type.
- * It can only store pointer types.
- * It is optimized to use as little memory as possible. It can only
- * hold up to 255 elements. Beware, this vector never shrinks.
  *
- * @date 24-Nov 2001
- * @author Hansjörg Malthaner
+ * @date November 2000
+ * @author Hj. Malthaner
  */
+
 template<class T> class minivec_tpl
 {
-private:
+protected:
+
+    T * data;
 
     /**
-     * Pointer to our data
-     * @author Hj. Malthaner
-     */
-    T* data;
-
-
-
-    /**
-     * Current size (number of elements)
+     * Capacity.
      * @author Hj. Malthaner
      */
     unsigned char size;
 
 
     /**
-     * Capacity.
+     * Number of elements in vector.
      * @author Hj. Malthaner
      */
-    unsigned char capacity;
-
+    unsigned char count;
 
 public:
 
     /**
-     * Constructs an empty minivec with initial_capacity elements.
-     *
-     * @param initial_capacity initial capacity
+     * Construct a vector for size elements.
+     * @param size The capacity of the new vector
      * @author Hj. Malthaner
      */
-    minivec_tpl(int initial_capacity) {
-	data = new T[initial_capacity];
-	size = 0;
-	capacity = initial_capacity;
-    };
+	minivec_tpl(unsigned int size)
+	{
+		this->size  = size;
+		if(size>0) {
+			data = new T[size];
+		} else {
+			data = 0;
+		}
+		count = 0;
+	}
 
 
-    ~minivec_tpl() {
-      delete [] data;
-      data = 0;            // paranoia - usually not needed
-      size = 0;            // paranoia - usually not needed
-      capacity = 0;        // paranoia - usually not needed
+    /**
+     * Destructor.
+     * @author Hj. Malthaner
+     */
+	~minivec_tpl()
+	{
+		if(data) {
+			delete [] data;
+		}
+	}
+
+    /**
+     * sets the vector to empty
+     * @author Hj. Malthaner
+     */
+    void clear()
+    {
+	count = 0;
     }
 
     /**
-     * Access element i. Throw no_such_element_exception if the
-     * element does not exist.
-     * @author Hj. Malthaner
+     * Resizes the maximum data that can be hold by this vector.
+     * Existing entries are preserved, new_size must be big enough
+     * to hold them.
+     *
+     * @author prissi
      */
-    T & at(unsigned int i) {
-	if(i<size) {
-	    return data[i];
-	} else {
-	    throw new no_such_element_exception("minivec_tpl<T>::at()",
-						typeid(T).name(),
-						i,
-						"Out of bounds");
-	}
-    };
-
-
-    /**
-     * Read element i. Throw no_such_element_exception if the
-     * element does not exist.
-     * @author Hj. Malthaner
-     */
-    const T & get(unsigned int i) const {
-	if(i<size) {
-	    return data[i];
-	} else {
-	    throw new no_such_element_exception("minivec_tpl<T>::get()",
-						typeid(T).name(),
-						i,
-						"Out of bounds");
-	}
-    };
-
-
-    /**
-     * Appends an element
-     * @author Hj. Malthaner
-     */
-    void append(T v) {
-	if(size < capacity) {
-	    // printf("minivec_tpl::append(): Using unused element\n");
-	    data[size++] = v;
-	} else if(capacity < 255) {
-	    // printf("minivec_tpl::append(): Growing, old cap %d, old size %d\n", capacity, size);
-	    T* old = data;
-	    data = new T[capacity+1];
-
-	    for(int i=0; i<capacity; i++) {
-		data[i] = old[i];
-	    }
-	    data[capacity++] = v;
-	    size++;
-	    delete [] old;
-	    // printf("minivec_tpl::append(): Growing, new cap %d, new size %d\n", capacity, size);
-	} else {
-	  throw no_such_element_exception("minivec_tpl<T>::append()",
-					  typeid(T).name(),
-					  256,
-					  "Capacity exceeded");
-	}
-    };
-
-
-    /**
-     * insert an element at a given position
-     * @author V. Meyer
-     */
-    void insert(int pos, T v) {
-	if(pos > size) {	// emergency
-	    pos = size;
-	}
-	// first increase array
-	if(size < capacity) {
-	    for(int i=pos; i<size; i++) {
-		data[i+1] = data[i];
-	    }
-	    data[pos] = v;
-	    size++;
-	} else {
-	    T* old = data;
-	    data = new T[capacity+1];
-	    int i;
-
-	    for(i=0; i<pos; i++) {
-		data[i] = old[i];
-	    }
-	    data[i] = v;
-	    for(; i<capacity; i++) {
-		data[i+1] = old[i];
-	    }
-	    capacity++;
-	    size++;
-	    delete [] old;
-	}
-    };
-
-
-    /**
-     * Removes an element - preserves sort order
-     * @author Hj. Malthaner
-     */
-    bool remove(T v) {
-	for(int i=0; i<size; i++) {
-	    if(data[i] == v) {
-                for(int j=i; j<size-1; j++) {
-		    data[j] = data[j+1];
+	bool resize(unsigned int new_size)
+	{
+		if(new_size>255) {
+			ERROR("minivec_tpl<T>::resize()", "new size %i too large (>255).");
+			return false;
 		}
-		size --;
-		data[size] = 0;
+
+		if(new_size<=size) {
+			return true;	// do nothing
+		}
+//DBG_DEBUG("<minivec_tpl>::resize()","old size %i, new size %i",size,new_size);
+		if(count > new_size) {
+			ERROR("minivec_tpl<T>::resize()", "cannot preserve elements.");
+			return false;
+		}
+		T *new_data = new T[new_size];
+
+		if(size>0  &&  data) {
+			for(unsigned int i = 0; i < count; i++) {
+				new_data[i] = data[i];
+			}
+			delete [] data;
+		}
+		size  = new_size;
+		data = new_data;
+		return true;
+	}
+
+    /**
+     * Checks if element elem is contained in vector.
+     * Uses the == operator for comparison.
+     * @author Hj. Malthaner
+     */
+    bool is_contained(T elem) const
+    {
+	for(unsigned int i=0; i<count; i++) {
+	    if(data[i] == elem) {
 		return true;
 	    }
 	}
 	return false;
-    };
-
-
-    void clear() {
-      size = 0;
     }
 
 
     /**
-     * Returns the number of elements in this vector
+     * Appends the element at the end of the vector.
+     * if out of space, extend with by add element(s)
+     * @author prissi
+     */
+	bool append(T elem,unsigned short add)
+	{
+		if(count>=size) {
+			if(  !resize( count+add )  ) {
+				return false;
+			}
+		}
+		data[count ++] = elem;
+		return true;
+	}
+
+    /**
+     * Appends the element at the end of the vector.
+     * if out of space, extend with by one element
+     * @author prissi
+     */
+	bool append(T elem)
+	{
+		return append(elem,1);
+	}
+
+    /**
+     * Checks if element is contained. Appends only new elements.
      * @author Hj. Malthaner
      */
-    unsigned char count() const {
-	return size;
-    };
+    bool append_unique(T elem)
+    {
+		if(!is_contained(elem)) {
+			return append(elem,1);
+		} else {
+			return true;
+		}
+    }
+
+    /**
+     * Checks if element is contained. Appends only new elements.
+     * @author Hj. Malthaner
+     */
+    bool append_unique(T elem,unsigned short add)
+    {
+		if(!is_contained(elem)) {
+			return append(elem,add);
+		} else {
+			return true;
+		}
+    }
+
+	/**
+	* removes element, if contained
+	* @author prisse
+	*/
+	bool remove(T elem)
+	{
+		unsigned int i,j;
+		for(i=j=0;  i<count;  i++,j++  ) {
+			if(data[i] == elem) {
+				// skip this one
+				j++;
+				count --;
+			}
+			// maybe we copy too often ...
+			if(j<size) {
+				data[i] = data[j];
+			}
+		}
+		return true;
+	}
+
+
+	/**
+	* insets data at a certain pos
+	* @author prissi
+	*/
+	bool insert_at(unsigned int pos,T elem)
+	{
+		if(  pos<size  &&  pos<count  ) {
+			// ok, a valid position, make space
+			count++;
+			const long num_elements = (count-pos-1)*sizeof(T);
+			memmove( data+pos+1, data+pos, num_elements );
+			data[pos] = elem;
+			return true;
+		}
+		else if(pos==size) {
+			return append(elem,1);
+		}
+		else {
+			ERROR("minivec_tpl<T>::append()","cannot insert at %i! Only %i elements.", pos, count);
+			return false;
+		}
+	}
+
+
+	/**
+	* removes element at position
+	* @author prissi
+	*/
+	bool remove_at(unsigned int pos)
+	{
+		if(  pos<size  &&  pos<count  ) {
+			unsigned int i,j;
+			for(i=pos, j=pos+1;  j<count;  i++,j++  ) {
+				data[i] = data[j];
+			}
+			count --;
+			return true;
+		}
+		return false;
+	}
+
+
+    /**
+     * Gets the element at position i
+     * @author Hj. Malthaner
+     */
+    const T& get(unsigned int i) const
+    {
+	if(i<count) {
+	    return data[i];
+	} else {
+	    ERROR("minivec_tpl<T>::get()",
+	          "index out of bounds: %i not in 0..%d", i, count-1);
+	    // return data[0];
+	    abort();
+	}
+    }
+
+    /**
+     * Accesses the element at position i
+     * @author Hj. Malthaner
+     */
+    T& at(unsigned int i) const
+    {
+	if(i<count) {
+	    return data[i];
+	} else {
+	    ERROR("minivec_tpl<T>::at()",
+	          "index out of bounds: %i not in 0..%d\n", i, count-1);
+	    // return data[0];
+	    abort();
+	}
+    }
+
+
+    /**
+     * Gets the number of elements in the vector.
+     * @author Hj. Malthaner
+     */
+    unsigned int get_count() const {return count;};
+
+
+    /**
+     * Gets the capacity.
+     * @author Hj. Malthaner
+     */
+    unsigned int get_size() const {return size;};
 };
 
 #endif

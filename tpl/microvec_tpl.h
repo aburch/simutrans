@@ -12,7 +12,10 @@
 #define tpl_microvec_h
 
 #include <typeinfo>
+#include <assert.h>
+
 #include "no_such_element_exception.h"
+#include "debug_helper.h"
 
 /**
  * A template class for a simple vector type.
@@ -68,27 +71,26 @@ public:
      * @param initial_capacity initial capacity
      * @author Hj. Malthaner
      */
-    microvec_tpl(int initial_capacity) {
+    microvec_tpl(int initial_capacity)
+    {
+		assert( sizeof(T)<=4 );
+		size = 0;
+		capacity = initial_capacity > 1 ? initial_capacity : 1;
 
-      size = 0;
-      capacity = initial_capacity > 1 ? initial_capacity : 1;
-
-      if(capacity > 1) {
-	data.some = new T[capacity];
-      }
+		if(capacity > 1) {
+			data.some = new T[capacity];
+		}
     };
 
 
-    ~microvec_tpl() {
-      size = 0;            // paranoia - usually not needed
-
-      if(capacity > 1) {
-	// printf("*** Old data %p\n", data);
-	delete [] data.some;
-      }
-      data.some = 0;            // paranoia - usually not needed
-
-      capacity = 0;        // paranoia - usually not needed
+    ~microvec_tpl()
+    {
+		size = 0;            // paranoia - usually not needed
+		if(capacity > 1) {
+			delete [] data.some;
+		}
+		data.some = 0;            // paranoia - usually not needed
+		capacity = 0;        // paranoia - usually not needed
     }
 
 
@@ -97,19 +99,20 @@ public:
      * element does not exist.
      * @author Hj. Malthaner
      */
-    T & at(unsigned int i) {
-	if(i<size) {
-	  if(capacity == 1) {
-	    return data.one;
-	  } else {
-	    return data.some[i];
-	  }
-	} else {
-	    throw new no_such_element_exception("microvec_tpl<T>::at()",
-						typeid(T).name(),
-						i,
-						"Out of bounds");
-	}
+    T & at(unsigned int i)
+    {
+		if(i<size) {
+			if(capacity == 1) {
+				return data.one;
+			} else {
+				return data.some[i];
+			}
+		} else {
+			throw new no_such_element_exception("microvec_tpl<T>::at()",
+																		typeid(T).name(),
+																		i,
+																		"Out of bounds");
+		}
     };
 
 
@@ -117,97 +120,94 @@ public:
      * Read element i. Returns NULL is no such element exists.
      * @author Hj. Malthaner
      */
-    T get(unsigned int i) const {
-      if(i<size) {
-	if(capacity == 1) {
-	  return data.one;
-	} else {
-	  return data.some[i];
-	}
-      } else {
-	return 0;
-      }
-    };
+	T get(unsigned int i) const
+	{
+		if(i<size) {
+			if(capacity == 1) {
+				return data.one;
+			} else {
+				return data.some[i];
+			}
+		} else {
+//			throw new no_such_element_exception("microvec_tpl<T>::at()",typeid(T).name(),i,"Out of bounds");
+			return 0;
+		}
+	};
 
 
     /**
      * insert an element at a given position
      * @author V. Meyer
      */
-    void insert(int pos, T v) {
-      if(pos > size) {	// emergency
-	pos = size;
-      }
+	void insert(int pos, T v) {
+		if(pos > size) {
+			// emergency
+			ERROR("microvec_tpl<T>::insert()","type=%s, size exeeded: pos=%i size=%i",typeid(T).name(), pos,size);
+			pos = size;
+		}
 
-      if(capacity == 1) {
-	if(size == 0) {
-	  // use base element
-	  data.one = v;
-	  size = 1;
-	} else {
-	  // growing non-heap vector;
-	  T old = data.one;
+		if(capacity == 1) {
+			if(size == 0) {
+				// use base element
+				data.one = v;
+				size = 1;
+			} else {
+				// growing non-heap vector;
+				T old = data.one;
 
-	  capacity = 2;
-	  data.some = new T[capacity];
+				capacity = 2;
+				data.some = new T[capacity];
 
-	  // printf("*** New data %p\n", data);
-
-	  if(pos == 0) {
-	    data.some[0] = v;
-	    data.some[1] = old;
-	  } else {
-	    data.some[0] = old;
-	    data.some[1] = v;
-	  }
-	  size = 2;
-	}
-      } else {
-
-	if(capacity < 255) {
-	  // first increase array
-	  if(size < capacity) {
-	    for(int i=pos; i<size; i++) {
-	      data.some[i+1] = data.some[i];
-	    }
-	    data.some[pos] = v;
-	    size++;
-	  } else {
-	    T* old = data.some;
-	    data.some = new T[capacity+1];
-	    int i;
-
-	    // printf("*** New data %p old data %p\n", data, old);
-
-
-	    for(i=0; i<pos; i++) {
-	      data.some[i] = old[i];
-	    }
-	    data.some[i] = v;
-	    for(; i<capacity; i++) {
-	      data.some[i+1] = old[i];
-	    }
-	    capacity++;
-	    size++;
-	    delete [] old;
-	  }
-	} else {
-	  throw no_such_element_exception("microvec_tpl<T>::insert()",
-					  typeid(T).name(),
-					  pos,
-					  "Capacity exceeded");
-	}
-      }
-    };
+				if(pos == 0) {
+					data.some[0] = v;
+					data.some[1] = old;
+				} else {
+					data.some[0] = old;
+					data.some[1] = v;
+				}
+				size = 2;
+			}
+		} else {
+			if(capacity < 255) {
+				// first increase array
+				if(size < capacity) {
+					for(int i=pos; i<size; i++) {
+						data.some[i+1] = data.some[i];
+					}
+					data.some[pos] = v;
+					size++;
+				} else {
+					T* old = data.some;
+					data.some = new T[capacity+1];
+					int i;
+					for(i=0; i<pos; i++) {
+						data.some[i] = old[i];
+					}
+					data.some[i] = v;
+					for(; i<capacity; i++) {
+						data.some[i+1] = old[i];
+					}
+					capacity++;
+					size++;
+					delete [] old;
+				}
+			} else {
+				throw no_such_element_exception("microvec_tpl<T>::insert()",
+																		typeid(T).name(),
+																		pos,
+																		"Capacity exceeded");
+			}
+		}
+	};
 
 
     /**
      * Appends an element
      * @author Hj. Malthaner
      */
-    void append(T v) {
-      insert(size, v);
-    };
+	void append(T v) {
+		insert(size, v);
+	};
 
 
     /**
@@ -240,18 +240,18 @@ public:
     };
 
 
-    void clear() {
-      size = 0;
-    }
+	void clear() {
+		size = 0;
+	}
 
 
     /**
      * Returns the number of elements in this vector
      * @author Hj. Malthaner
      */
-    unsigned char count() const {
-	return size;
-    };
+	unsigned char get_count() const {
+		return size;
+	};
 };
 
 #endif

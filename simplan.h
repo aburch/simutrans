@@ -104,7 +104,7 @@ public:
      */
     inline grund_t * gib_boden_in_hoehe(const int z) const
     {
-      for(unsigned int i = 0; i < boeden.count(); i++) {
+      for(unsigned int i = 0; i < boeden.get_count(); i++) {
 	grund_t * gr = boeden.get(i);
 	if(gr->gib_hoehe() == z) {
 	  return gr;
@@ -141,7 +141,7 @@ public:
      * @return Anzahl der Böden dieses Planquadrats
      * @author Hj. Malthaner
      */
-    unsigned int gib_boden_count() const { return boeden.count(); }
+    unsigned int gib_boden_count() const { return boeden.get_count(); }
 
 
 

@@ -54,6 +54,7 @@
 #include "besch/ware_besch.h"
 #include "bauer/warenbauer.h"
 
+#include "tpl/minivec_tpl.h"
 
 /**
  * This variable defines by which column the table is sorted
@@ -171,7 +172,7 @@ haltestelle_t::gib_halt(const karte_t */*welt*/, grund_t *gr )
 		halthandle_t halt = gr->gib_halt();
 		if(!halt.is_bound()  &&  gr->ist_wasser()) {
 			// ship actually stop next to a halt ...
-			const vector_tpl<halthandle_t> &haltlist = gr->get_haltlist();
+			const minivec_tpl<halthandle_t> &haltlist = gr->get_haltlist();
 #if 0
 			for(  int i=0;  i<haltlist.get_count();  i++  ) {
 				if(haltlist.get(i)->get_station_type()&dock) {
@@ -444,7 +445,7 @@ void haltestelle_t::neuer_monat()
 			ware_t & ware = ware_iter.access_current();
 
 			// since also the factory halt list is added to the ground, we can use just this ...
-			const vector_tpl <halthandle_t> &halt_list = welt->lookup(ware.gib_zielpos())->gib_kartenboden()->get_haltlist();
+			const minivec_tpl <halthandle_t> &halt_list = welt->lookup(ware.gib_zielpos())->gib_kartenboden()->get_haltlist();
 			if(halt_list.is_contained(self)) {
 				// we are already there!
 				if(warenbauer_t::ist_fabrik_ware(ware.gib_typ())) {
@@ -702,9 +703,9 @@ haltestelle_t::suche_route(ware_t &ware, koord *next_to_ziel)
 	const koord ziel = ware.gib_zielpos();
 
 	// since also the factory halt list is added to the ground, we can use just this ...
-	const vector_tpl <halthandle_t> &halt_list = welt->lookup(ziel)->gib_kartenboden()->get_haltlist();
+	const minivec_tpl <halthandle_t> &halt_list = welt->lookup(ziel)->gib_kartenboden()->get_haltlist();
 	// but we can only use a subset of these
-	vector_tpl <halthandle_t> ziel_list (halt_list.get_count());
+	minivec_tpl <halthandle_t> ziel_list (halt_list.get_count());
 	for( unsigned h=0;  h<halt_list.get_count();  h++ ) {
 		halthandle_t halt = halt_list.at(h);
 		if(	(warentyp == warenbauer_t::passagiere &&
@@ -1339,7 +1340,7 @@ dbg->warning("haltestelle_t::liefere_an()","%d %s delivered to %s have no longer
 	}
 
 	// since also the factory halt list is added to the ground, we can use just this ...
-	const vector_tpl <halthandle_t> &halt_list = welt->lookup(ware.gib_zielpos())->gib_kartenboden()->get_haltlist();
+	const minivec_tpl <halthandle_t> &halt_list = welt->lookup(ware.gib_zielpos())->gib_kartenboden()->get_haltlist();
 
 	// did we arrived?
 	if(halt_list.is_contained(self)) {

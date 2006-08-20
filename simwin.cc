@@ -47,12 +47,12 @@
 
 #include "simticker.h"
 
-#include "tpl/minivec_tpl.h"
+#include "tpl/microvec_tpl.h"
 
 #define dragger_size 12
 
 
-static minivec_tpl <int> kill_list (200);
+static microvec_tpl <int> kill_list (200);
 
 
 // (Mathew Hounsell)
@@ -471,12 +471,12 @@ destroy_win(const gui_fenster_t *gui)
 			if(inside_event_handling) {
 				// only add this, if not already added
 				int j;
-				for( j=0;  j<kill_list.count();  j++  ) {
+				for( j=0;  j<kill_list.get_count();  j++  ) {
 					if(kill_list.get(j)==i) {
 						break;
 					}
 				}
-				if(j==kill_list.count()) {
+				if(j==kill_list.get_count()) {
 					kill_list.append(i);
 				}
 			}
@@ -494,12 +494,12 @@ void destroy_all_win()
 		if(inside_event_handling) {
 			// only add this, if not already added
 			int j;
-			for( j=0;  j<kill_list.count();  j++  ) {
+			for( j=0;  j<kill_list.get_count();  j++  ) {
 				if(kill_list.get(j)==i) {
 					break;
 				}
 			}
-			if(j==kill_list.count()) {
+			if(j==kill_list.get_count()) {
 				kill_list.append(i);
 			}
 		}
@@ -646,7 +646,7 @@ void win_set_pos(gui_fenster_t *gui, int x, int y)
 
 static void process_kill_list()
 {
-  for(int i=0; i<kill_list.count(); i++) {
+  for(int i=0; i<kill_list.get_count(); i++) {
     destroy_framed_win(kill_list.get(i));
   }
   kill_list.clear();

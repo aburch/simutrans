@@ -5,8 +5,8 @@
 
 
 1 VERSIONINFO
-FILEVERSION 0, 86, 08, 0
-PRODUCTVERSION 0, 86, 08, 0
+FILEVERSION 0, 86, 08, 1
+PRODUCTVERSION 0, 86, 08, 1
 {
  BLOCK "StringFileInfo"
  {
@@ -14,12 +14,12 @@ PRODUCTVERSION 0, 86, 08, 0
   {
    VALUE "CompanyName", "Simutrans Team\000"
    VALUE "FileDescription", "Simutrans\000"
-   VALUE "FileVersion", "0.86.08.0\000"
+   VALUE "FileVersion", "0.86.08.1\000"
    VALUE "InternalName", "SIMUTRANS\000"
    VALUE "LegalCopyright", "\251 Hj. Malthaner '97-'04 Simutrans Team '05-\000"
    VALUE "OriginalFilename", "SIMUTRANS.EXE\000"
    VALUE "ProductName", "Simutrans\000"
-   VALUE "ProductVersion", "0.86.08.0\000"
+   VALUE "ProductVersion", "0.86.08.1\000"
   }
 
  }

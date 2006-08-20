@@ -25,7 +25,6 @@
 #include "../utils/cstring_t.h"
 #include "../dataobj/translator.h"
 #include "../besch/fabrik_besch.h"
-#include "../tpl/minivec_tpl.h"
 
 
 koord map_frame_t::size;
