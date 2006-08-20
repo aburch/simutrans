@@ -63,8 +63,7 @@ void gui_container_t::infowin_event(const event_t *ev)
   slist_iterator_tpl<gui_komponente_t *> iter (komponenten);
   // try to deliver event to gui komponente which has focus
   if (komp_focus != NULL) {
-    if(komp_focus->getroffen(ev->mx, ev->my) ||
-       komp_focus->getroffen(ev->cx, ev->cy)) {
+    if(komp_focus->getroffen(ev->mx, ev->my) || komp_focus->getroffen(ev->cx, ev->cy)) {
       event_t ev2 = *ev;
       translate_event(&ev2, -komp_focus->gib_pos().x, -komp_focus->gib_pos().y);
       komp_focus->infowin_event(&ev2);
@@ -80,8 +79,7 @@ void gui_container_t::infowin_event(const event_t *ev)
     // b) The event affects all components, this are WINDOW events
 
     if(komp) {
-      if(komp->getroffen(ev->mx, ev->my) ||
-	 komp->getroffen(ev->cx, ev->cy)) {
+      if(komp->getroffen(ev->mx, ev->my) || komp->getroffen(ev->cx, ev->cy)) {
 
 	// Hajo: if componet hit, translate coordinates and deliver event
 	event_t ev2 = *ev;

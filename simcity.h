@@ -88,6 +88,10 @@ private:
      */
     static const int step_interval;
 
+#ifdef COUNT_HOUSES
+	weighted_vector_tpl <gebaeude_t *> buildings;
+#endif
+
 public:
 
     /**
@@ -200,6 +204,10 @@ private:
      * @author Hj. Malthaner
      */
     void init_pax_ziele();
+
+
+	// recalculate house informations (used for target selection)
+	void recount_houses();
 
 
     /**
@@ -321,6 +329,11 @@ public:
      */
     const weighted_vector_tpl<fabrik_t *> & gib_arbeiterziele() const {return arbeiterziele;};
 
+#ifdef COUNT_HOUSES
+	// remoes this building (called when removed by player)
+	void remove_building(gebaeude_t *gb);
+#endif
+
     int gib_pax_erzeugt() const {return pax_erzeugt;};
     int gib_pax_transport() const {return pax_transport;};
     int gib_wachstum() const {return wachstum;};
@@ -329,8 +342,11 @@ public:
      * ermittelt die Einwohnerzahl der Stadt
      * @author Hj. Malthaner
      */
-    int gib_einwohner() const {return bev;};
-
+#ifdef COUNT_HOUSES
+	sint32 gib_einwohner() const {return (buildings.get_sum_weight()*19)/4;}
+#else
+    int gib_einwohner() const {return bev;}
+#endif
 
     /**
      * Gibt den Namen der Stadt zurück.

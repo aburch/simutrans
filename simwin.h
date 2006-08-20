@@ -11,14 +11,9 @@
 #ifndef simwin_h
 #define simwin_h
 
-#ifndef simevent_h
 #include "simevent.h"
-#endif
-
-#ifndef simtypes_h
 #include "simtypes.h"
-#endif
-
+#include "simconst.h"
 
 struct simwin;
 
@@ -68,7 +63,8 @@ enum magic_numbers {
     magic_edittools,
     magic_keyhelp,
     magic_map_legend,
-    magic_schedule_list_gui_t,
+    magic_schedule_list_gui_start_t,
+    magib_schedule_list_gui_ende_t=magic_schedule_list_gui_start_t+MAX_PLAYER_COUNT,
     magic_airtools
 };
 
@@ -107,6 +103,9 @@ int win_get_posy(gui_fenster_t *ig);
 void win_set_pos(gui_fenster_t *ig, int x, int y);
 
 const gui_fenster_t *win_get_top();
+
+// returns the window (if open) otherwise zero
+gui_fenster_t *win_get_magic(int magic);
 
 /**
  * Checks ifa window is a top level window

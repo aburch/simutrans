@@ -173,7 +173,7 @@ button_t::button_t()
 	text = 0;
 	pressed = false;
 	type = box;
-	kennfarbe = 0;
+	kennfarbe = SCHWARZ;
 	tooltip = 0;
 	background = MN_GREY3;
 	b_enabled = true;
@@ -281,8 +281,9 @@ void button_t::zeichnen(koord offset, int button_color) const
       display_ddd_box_clip(bx, by, bw, bh, GRAU6, GRAU3);
       display_fillbox_wh_clip(bx+1, by+1, bw-2, bh-2, background, false);
     }
-    PUSH_CLIP(bx, by, bw-2, bh+1);
-    display_proportional_clip(bx+4,by+(bh-large_font_height)/2, text, ALIGN_LEFT, b_enabled ? button_color : GRAU4, true);
+    PUSH_CLIP(bx, by, bw, bh);
+    int len = proportional_string_width(text);
+    display_proportional_clip(bx+max((bw-len)/2,0),by+(bh-large_font_height)/2, text, ALIGN_LEFT, b_enabled ? button_color : GRAU4, true);
     POP_CLIP();
     break;
    case roundbox: // new box with round corners
@@ -437,7 +438,7 @@ void button_t::zeichnen(koord offset, int button_color) const
 
 void button_t::zeichnen(koord offset) const
 {
-  zeichnen(offset, SCHWARZ);
+  zeichnen(offset, kennfarbe);
 
   if(tooltip &&
      gib_maus_x() >= offset.x + pos.x &&

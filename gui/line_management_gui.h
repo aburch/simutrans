@@ -11,6 +11,7 @@
  #include "gui_frame.h"
 
  class simline_t;
+ class spieler_t;
 
  class line_management_gui_t : public fahrplan_gui_t
  {
@@ -21,5 +22,5 @@
 	    virtual void infowin_event(const event_t *ev);
 	private:
 	    simline_t * line;
-	    karte_t * welt;
+	    spieler_t * sp;
 };

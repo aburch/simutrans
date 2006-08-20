@@ -24,6 +24,10 @@ public:
 
     color_gui_t(karte_t *welt);
 
+    /* return NULL->orange frame *
+     * @author Hj. Malthaner
+     */
+    virtual spieler_t* gib_besitzer() const { return NULL; }
 
     /**
      * Manche Fenster haben einen Hilfetext assoziiert.

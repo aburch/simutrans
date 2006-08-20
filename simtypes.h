@@ -26,6 +26,23 @@
 
 // Hajo: define machine independant types
 
+// inline funktionen
+
+static inline int sgn(int x)
+{
+    return (x > 0) ? 1 : (x < 0) ? -1 : 0;
+}
+
+static inline int min(const int a, const int b)
+{
+    return (a < b) ? a : b;
+}
+
+static inline int max(const int a, const int b)
+{
+    return (a > b) ? a : b;
+}
+
 
 typedef signed char          sint8;
 typedef unsigned char        uint8;

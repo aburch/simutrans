@@ -3,7 +3,7 @@
 #OSTYPE = cygwin
 #OSTYPE = freebsd
 #OSTYPE = linux
-#OSTYPE = mingw
+OSTYPE = mingw
 
 LN= $(CC)
 
@@ -42,24 +42,19 @@ OBJECTS=makeobj.o ../besch/writer/obj_node.o \
  ../besch/writer/crossing_writer.o  ../besch/writer/tunnel_writer.o \
  ../besch/writer/citycar_writer.o  ../besch/writer/pedestrian_writer.o \
  ../besch/writer/sim_writer.o ../besch/writer/roadsign_writer.o \
+ ../besch/writer/get_waytype.o \
  ../simdebug.o ../utils/log.o ../simtools.o
 
 all: makeobj
 
 makeobj: $(OBJECTS)
-	$(LN) $(CXXFLAGS) $(LDFLAGS) -o makeobj $(OBJECTS) $(LDLIBS)
-	strip makeobj
-
-win32: $(OBJECTS)
-	$(LN) -static $(CXXFLAGS) $(LDFLAGS) -o makeobj.exe $(OBJECTS) $(LDLIBS)
-
+	$(LN) -s $(CXXFLAGS) $(LDFLAGS) -o makeobj $(OBJECTS) $(LDLIBS)
 
 clean:
 	rm -f $(OBJECTS)
 
 depend:
 	makedepend $(SOURCES)
-
 
 dep: depdep
 

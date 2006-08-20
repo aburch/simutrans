@@ -28,7 +28,7 @@ public:
      */
     void info(cbuffer_t & buf) const;
 
-    virtual int calc_bild(koord3d pos) const;
+    virtual void calc_bild(koord3d) { weg_t::calc_bild(); }
 
     inline const char *gib_typ_name() const {return "Strasse";};
     inline typ gib_typ() const {return strasse;};

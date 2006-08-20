@@ -90,7 +90,7 @@ public:
 			delete [] data.some;
 		}
 		data.some = 0;            // paranoia - usually not needed
-		capacity = 0;        // paranoia - usually not needed
+		capacity = 1;        // paranoia - usually not needed
     }
 
 

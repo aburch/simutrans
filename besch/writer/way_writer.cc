@@ -33,57 +33,12 @@
 #include "obj_node.h"
 #include "obj_pak_exception.h"
 #include "../weg_besch.h"
-#include "../../boden/wege/weg.h"
 #include "text_writer.h"
 #include "imagelist_writer.h"
 #include "skin_writer.h"
 
+#include "get_waytype.h"
 #include "way_writer.h"
-
-#ifdef _MSC_VER
-#define STRICMP stricmp
-#else
-#define STRICMP strcasecmp
-#endif
-
-/**
- * Convert waytype string to enum wegtyp
- * @author Hj. Malthaner
- */
-static uint8 get_waytype(const char * waytype, tabfileobj_t &obj)
-{
-	uint8 uv8 = weg_t::strasse;
-
-	if(!STRICMP(waytype, "road")) {
-		uv8 = weg_t::strasse;
-	} else if(!STRICMP(waytype, "track")) {
-		uv8 = weg_t::schiene;
-	} else if(!STRICMP(waytype, "electrified_track")) {
-		uv8 = weg_t::overheadlines;
-	} else if(!STRICMP(waytype, "monorail_track")) {
-		uv8 = weg_t::schiene_monorail;
-	} else if(!STRICMP(waytype, "maglev_track")) {
-		uv8 = weg_t::schiene_maglev;
-	} else if(!STRICMP(waytype, "water")) {
-		uv8 = weg_t::wasser;
-	} else if(!STRICMP(waytype, "air")) {
-		uv8 = weg_t::luft;
-	} else if(!STRICMP(waytype, "schiene_tram")) {
-		uv8 = weg_t::schiene_strab;
-	} else if(!STRICMP(waytype, "tram_track")) {
-		uv8 = weg_t::schiene_strab;
-	} else if(!STRICMP(waytype, "power")) {
-		uv8 = weg_t::powerline;
-	} else {
-		cstring_t reason;
-		reason.printf("invalid waytype %s for way %s\n", waytype, obj.get("name"));
-		throw new obj_pak_exception_t("way_writer_t", reason);
-	}
-
-	return uv8;
-}
-
-
 
 /**
  * Write a waytype description node
@@ -115,7 +70,7 @@ void way_writer_t::write_obj(FILE *outfp, obj_node_t &parent, tabfileobj_t &obj)
 	uint16 retire  = obj.get_int("retire_year", DEFAULT_RETIRE_DATE) * 12;
 	intro +=        obj.get_int("retire_month", 1) - 1;
 
-	uint8 wtyp =    get_waytype(obj.get("waytype"), obj);
+	uint8 wtyp =    get_waytype(obj.get("waytype"));
 	uint8 styp =    obj.get_int("system_type", 0);
 	if(wtyp==weg_t::schiene  &&  styp==1) {
 //		styp = 1;

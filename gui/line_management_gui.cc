@@ -6,7 +6,7 @@
  */
 
 #include "line_management_gui.h"
-#include "../simworld.h"
+#include "../simplay.h"
 #include "../simline.h"
 #include "../simlinemgmt.h"
 
@@ -15,7 +15,7 @@ line_management_gui_t::line_management_gui_t(karte_t *welt, simline_t * line, sp
 	fahrplan_gui_t(welt, line->get_fahrplan(), sp)
 {
 	this->line = line;
-	this->welt = welt;
+	this->sp = sp;
 	line->prepare_for_update();
 	show_line_selector(false);
 }
@@ -37,7 +37,7 @@ line_management_gui_t::infowin_event(const event_t *ev)
     if(ev->ev_class == INFOWIN &&
        ev->ev_code == WIN_CLOSE) {
     	// update all convoys of this line!
-		welt->simlinemgmt->update_line(line);
+		sp->simlinemgmt.update_line(line);
     }
 
     fahrplan_gui_t::infowin_event(ev);

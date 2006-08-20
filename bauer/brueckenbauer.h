@@ -38,6 +38,13 @@ class brueckenbauer_t {
 private:
 
     /*
+     * Grund bestimmen, auf dem die Brücke enden soll.
+     *
+     * @author V. Meyer
+     */
+    static koord3d finde_ende(karte_t *welt, koord3d pos, koord zv, weg_t::typ wegtyp);
+
+    /*
      * Brückenendpunkte bei Rampen werden auf flachem Grund gebaut und müssen daher genauer
      * auf störende vorhandene Bauten überprüft werden.
      *
@@ -47,20 +54,11 @@ private:
 
 
     /*
-     * Grund bestimmen, auf dem die Brücke enden soll.
-     *
-     * @author V. Meyer
-     */
-    static koord3d finde_ende(karte_t *welt, koord3d pos, koord zv, weg_t::typ wegtyp);
-
-
-
-    /*
      * Baut Anfang oder Ende der Brücke.
      *
      * @author V. Meyer
      */
-    static void baue_auffahrt(karte_t *welt, spieler_t *sp, koord3d pos, koord zv, const bruecke_besch_t *besch);
+    static void baue_auffahrt(karte_t *welt, spieler_t *sp, koord3d pos, koord zv, const bruecke_besch_t *besch, const weg_besch_t *weg_besch);
 
 
     brueckenbauer_t() {} // private -> no instance please
@@ -73,7 +71,7 @@ public:
      *
      * @author V. Meyer
      */
-    static bool baue_bruecke(karte_t *welt, spieler_t *sp, koord3d pos, koord3d end, koord zv, const bruecke_besch_t *besch);
+    static bool baue_bruecke(karte_t *welt, spieler_t *sp, koord3d pos, koord3d end, koord zv, const bruecke_besch_t *besch, const weg_besch_t *weg_besch);
 
 
     /**

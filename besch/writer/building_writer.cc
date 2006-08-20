@@ -42,6 +42,7 @@
 #include "text_writer.h"
 #include "imagelist2d_writer.h"
 
+#include "get_waytype.h"
 #include "building_writer.h"
 #include "skin_writer.h"
 
@@ -158,28 +159,26 @@ void building_writer_t::write_obj(FILE *fp, obj_node_t &parent, tabfileobj_t &ob
 
     const char *type_name = obj.get("type");
 
+    besch.level = obj.get_int("level", 1) - 1;
     if(!STRICMP(type_name, "res")) {
 	besch.gtyp = gebaeude_t::wohnung;
-	besch.level = obj.get_int("level", 1) - 1;
     } else if(!STRICMP(type_name, "com")) {
 	besch.gtyp = gebaeude_t::gewerbe;
-        besch.level = obj.get_int("level", 1) - 1;
     } else if(!STRICMP(type_name, "ind")) {
 	besch.gtyp = gebaeude_t::industrie;
-	besch.level = obj.get_int("level", 1) - 1;
     } else if(!STRICMP(type_name, "cur")) {
 	besch.bauzeit = obj.get_int("build_time", 0);
-	besch.level = obj.get_int("passengers", 0);
+	besch.level = obj.get_int("passengers",  besch.level);
 	besch.utyp = besch.bauzeit == 0 ? hausbauer_t::sehenswuerdigkeit : hausbauer_t::special;
     } else if(!STRICMP(type_name, "mon")) {
 	besch.utyp = hausbauer_t::denkmal;
-	besch.level = obj.get_int("passengers", 0);
+	besch.level = obj.get_int("passengers",  besch.level);
     } else if(!STRICMP(type_name, "tow")) {
-	besch.level = obj.get_int("passengers", 0);
+	besch.level = obj.get_int("passengers",  besch.level);
 	besch.bauzeit = obj.get_int("build_time", 0);
 	besch.utyp = hausbauer_t::rathaus;
     } else if(!STRICMP(type_name, "hq")) {
-	besch.level = obj.get_int("passengers", 0);
+	besch.level = obj.get_int("passengers",  besch.level);
 	besch.bauzeit = obj.get_int("build_time", 0);
 	besch.utyp = hausbauer_t::firmensitz;
     } else if(!STRICMP(type_name, "station")) {
@@ -203,7 +202,6 @@ void building_writer_t::write_obj(FILE *fp, obj_node_t &parent, tabfileobj_t &ob
     } else if(!STRICMP(type_name, "fac")) {
 	besch.utyp = hausbauer_t::fabrik;
     } else if(!STRICMP(type_name, "any") || *type_name == '\0') {
-	besch.level = obj.get_int("level", 1) ;
 	besch.utyp = hausbauer_t::weitere;
     } else {
 	cstring_t reason;
@@ -228,6 +226,11 @@ void building_writer_t::write_obj(FILE *fp, obj_node_t &parent, tabfileobj_t &ob
 	}
 	if(besch.utyp==hausbauer_t::fabrik  ||  obj.get_int("enables_ware", 0) > 0 ) {
 		besch.enables |= 4;
+	}
+
+	// some station thing ...
+	if(besch.enables) {
+		besch.level ++;
 	}
 
     // Hajo: read chance - default is 100% chance to be built

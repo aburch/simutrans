@@ -60,6 +60,16 @@ class fahrplan_gui_t :	public gui_frame_t,
 			      int i,
 			      int max_chars);
 
+	/**
+	 * Fuellt buf mit Beschreibung des i-ten Eintrages des Fahrplanes
+	 * short version, without loading level and position ...
+	 * @author Hj. Malthaner
+	 */
+	static void fahrplan_gui_t::gimme_short_stop_name(cbuffer_t & buf,
+				     karte_t *welt,
+				     const fahrplan_t *fpl,
+				     int i,
+				     int max_chars);
 
 private:
 

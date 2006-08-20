@@ -332,7 +332,8 @@ LRESULT WINAPI WindowProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 			// read mod key state from SDL layer
 
 			// check for not numlock!
-			if((GetKeyState(VK_NUMLOCK)&1)==0) {
+			int numlock=(GetKeyState(VK_NUMLOCK)&1)==0;
+			if(numlock) {
 				// do low level special stuff here
 				switch(wParam) {
 					case VK_NUMPAD0:
@@ -351,16 +352,16 @@ LRESULT WINAPI WindowProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 						sys_event.code = '9';
 						break;
 					case VK_NUMPAD2:
-						sys_event.code = KEY_DOWN;
+						sys_event.code = SIM_KEY_DOWN;
 						break;
 					case VK_NUMPAD4:
-						sys_event.code = KEY_LEFT;
+						sys_event.code = SIM_KEY_LEFT;
 						break;
 					case VK_NUMPAD6:
-						sys_event.code = KEY_RIGHT;
+						sys_event.code = SIM_KEY_RIGHT;
 						break;
 					case VK_NUMPAD8:
-						sys_event.code = KEY_UP;
+						sys_event.code = SIM_KEY_UP;
 						break;
 					case VK_SEPARATOR	:
 						sys_event.code = 127;	//delete
@@ -368,23 +369,23 @@ LRESULT WINAPI WindowProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 				}
 				// check for numlock!
 				if(sys_event.code!=0) {
-					return 0;
+					break;
 				}
 			}
 
 			// do low level special stuff here
 			switch(wParam) {
 				case VK_LEFT:
-					sys_event.code = KEY_LEFT;
+					sys_event.code = SIM_KEY_LEFT;
 					break;
 				case VK_RIGHT:
-					sys_event.code = KEY_RIGHT;
+					sys_event.code = SIM_KEY_RIGHT;
 					break;
 				case VK_UP:
-					sys_event.code = KEY_UP;
+					sys_event.code = SIM_KEY_UP;
 					break;
 				case VK_DOWN:
-					sys_event.code = KEY_DOWN;
+					sys_event.code = SIM_KEY_DOWN;
 					break;
 				case VK_PRIOR:
 					sys_event.code = '>';
@@ -396,19 +397,15 @@ LRESULT WINAPI WindowProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 					sys_event.code = 127;
 					break;
 				case VK_HOME:
-					sys_event.code = KEY_HOME;
+					sys_event.code = SIM_KEY_HOME;
 					break;
 				case VK_END:
-					sys_event.code = KEY_END;
+					sys_event.code = SIM_KEY_END;
 					break;
-			}
-			// check for numkey!
-			if(sys_event.code==0  &&  wParam>=VK_NUMPAD0  &&  wParam<=VK_NUMPAD9) {
-				sys_event.code = '0' + (wParam-VK_NUMPAD0);
 			}
 			// check for F-Keys!
 			if(sys_event.code==0  &&  wParam>=VK_F1  &&  wParam<=VK_F15) {
-				sys_event.code = (wParam-VK_F1)+KEY_F1;
+				sys_event.code = (wParam-VK_F1)+SIM_KEY_F1;
 				sys_event.key_mod = (GetKeyState(VK_CONTROL)!=0)*2;	// control state
 //printf("WindowsEvent: Key %i, (state %i)\n",sys_event.code, sys_event.key_mod );
 			}

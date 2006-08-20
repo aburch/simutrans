@@ -17,7 +17,6 @@
 #include "../simworld.h"
 #include "../simwin.h"
 #include "../simplay.h"
-#include "../simcosts.h"
 #include "../blockmanager.h"
 
 
@@ -26,9 +25,10 @@
 
 #include "../boden/boden.h"
 #include "../boden/tunnelboden.h"
-
 #include "../boden/wege/schiene.h"
 #include "../boden/wege/strasse.h"
+
+#include "../dataobj/umgebung.h"
 
 #include "../dings/tunnel.h"
 
@@ -198,7 +198,7 @@ DBG_MESSAGE("tunnelbauer_t::baue()","build from (%d,%d)", pos.x, pos.y);
 		tunnel->neuen_weg_bauen(weg, ribi_t::doppelt(ribi), sp);
 // why on earth put a tunnel object here!?!
 //		tunnel->obj_add(new tunnel_t(welt, pos, sp, besch));
-		cost += CST_TUNNEL;
+		cost += umgebung_t::cst_tunnel;
 
 		pos = pos + zv;
 	}
@@ -243,8 +243,11 @@ DBG_MESSAGE("tunnelbauer_t::baue_einfahrt()","at end (%d,%d) for %s", end.x, end
 		besch = strassentunnel;
 	}
 
-	weg->setze_besch(weg_besch);
-	if(!alter_weg) {
+	if(alter_weg) {
+		weg->setze_besch(alter_weg->gib_besch());
+	}
+	else {
+		weg->setze_besch(weg_besch);
 		cost += weg_besch->gib_preis();
 	}
 
@@ -255,7 +258,7 @@ DBG_MESSAGE("tunnelbauer_t::baue_einfahrt()","at end (%d,%d) for %s", end.x, end
 	}
 	tunnel->obj_add(new tunnel_t(welt, end, sp, besch));
 
-	cost += CST_TUNNEL;
+	cost += umgebung_t::cst_tunnel;
 	// no undo possible anymore
 	if(sp!=NULL) {
 		sp->init_undo(wegtyp,0);
@@ -328,7 +331,7 @@ tunnelbauer_t::remove(karte_t *welt, spieler_t *sp, koord3d start, weg_t::typ we
   }
   gr->weg_entfernen(wegtyp, false);
   gr->obj_loesche_alle(sp);
-  cost += CST_TUNNEL;
+  cost += umgebung_t::cst_tunnel;
 
   welt->access(pos.gib_2d())->boden_entfernen(gr);
 
@@ -340,8 +343,7 @@ tunnelbauer_t::remove(karte_t *welt, spieler_t *sp, koord3d start, weg_t::typ we
 
   grund_t *gr = welt->lookup(pos);
   ding_t *sig = NULL;
-  ribi_t::ribi ribi = gr->gib_weg_ribi_unmasked(wegtyp) &
-          ~ribi_typ(gr->gib_grund_hang());
+  ribi_t::ribi ribi = gr->gib_weg_ribi_unmasked(wegtyp) &~ribi_typ(gr->gib_grund_hang());
 
   if(wegtyp == weg_t::schiene) {
       sig = gr->suche_obj(ding_t::signal);
@@ -354,7 +356,7 @@ tunnelbauer_t::remove(karte_t *welt, spieler_t *sp, koord3d start, weg_t::typ we
   weg_besch = gr->gib_weg(wegtyp)->gib_besch();
   gr->weg_entfernen(wegtyp, false);
   gr->obj_loesche_alle(sp);
-  cost += CST_TUNNEL;
+  cost += umgebung_t::cst_tunnel;
 
   gr = new boden_t(welt, pos);
   welt->access(pos.gib_2d())->kartenboden_setzen(gr, false);

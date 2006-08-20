@@ -33,6 +33,7 @@ static SDL_Surface *screen;
 static int width = 640;
 static int height = 480;
 
+// switch off is a little faster (<3%)
 static int sync_blit = 0;
 
 struct sys_event sys_event;
@@ -332,25 +333,25 @@ static void internal_GetEvents(int wait)
 				    		sys_event.code = '1';
 				    		break;
 					case SDLK_KP2:
-				      	sys_event.code = numlock ? '2' : KEY_DOWN;
+				      	sys_event.code = numlock ? '2' : SIM_KEY_DOWN;
 						break;
 					case SDLK_KP3:
 				  		sys_event.code = '3';
 				    		break;
 					case SDLK_KP4:
-				      	sys_event.code = numlock ? '4' : KEY_LEFT;
+				      	sys_event.code = numlock ? '4' : SIM_KEY_LEFT;
 				    		break;
 					case SDLK_KP5:
 						sys_event.code = '5';
 					    break;
 					case SDLK_KP6:
-				      	sys_event.code = numlock ? '6' : KEY_RIGHT;
+				      	sys_event.code = numlock ? '6' : SIM_KEY_RIGHT;
 			  			break;
 					case SDLK_KP7:
 			  			sys_event.code = '7';
 			  			break;
 					case SDLK_KP8:
-				      	sys_event.code = numlock ? '8' : KEY_UP;
+				      	sys_event.code = numlock ? '8' : SIM_KEY_UP;
 						break;
 					case SDLK_KP9:
 			  			sys_event.code = '9';
@@ -366,14 +367,42 @@ static void internal_GetEvents(int wait)
 	    			sys_event.code=event.key.keysym.unicode;
 			} else if(event.key.keysym.sym>=SDLK_F1  &&  event.key.keysym.sym<=SDLK_F15) {
 				printf("Function ");
-	      		sys_event.code = event.key.keysym.sym-SDLK_F1+KEY_F1;
+	      		sys_event.code = event.key.keysym.sym-SDLK_F1+SIM_KEY_F1;
       		}
       		else if(event.key.keysym.sym>0  &&  event.key.keysym.sym<127) {
 				printf("ASCII ");
 				sys_event.code = event.key.keysym.sym;	// try with the ASCII code ...
 			}
 			else {
-				sys_event.code = 0;
+				switch(event.key.keysym.sym) {
+					case SDLK_PAGEUP:
+				      	sys_event.code = '>';
+						break;
+					case SDLK_PAGEDOWN:
+				      	sys_event.code = '<';
+						break;
+					case SDLK_HOME:
+				      	sys_event.code = SIM_KEY_HOME;
+						break;
+					case SDLK_END:
+				      	sys_event.code = SIM_KEY_END;
+						break;
+					case SDLK_DOWN:
+				      	sys_event.code = SIM_KEY_DOWN;
+						break;
+					case SDLK_LEFT:
+				      	sys_event.code = SIM_KEY_LEFT;
+				    		break;
+					case SDLK_RIGHT:
+				      	sys_event.code = SIM_KEY_RIGHT;
+			  			break;
+					case SDLK_UP:
+				      	sys_event.code = SIM_KEY_UP;
+						break;
+					default:
+						sys_event.code = 0;
+						break;
+				}
 			}
     			printf("Event Key '%c' (%i) was generated\n", (int)sys_event.code, (int)sys_event.code);
     	}

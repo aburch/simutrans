@@ -16,26 +16,26 @@
 
 factorylist_frame_t::factorylist_frame_t(karte_t * welt) : gui_frame_t(translator::translate("fl_title"))
 {
-//DBG_DEBUG("factorylist_frame_t()","constructor begin");
-stats = new factorylist_stats_t(welt);
-//DBG_DEBUG("factorylist_frame_t()","constructor 1");
-head = new factorylist_header_t(stats);
-//DBG_DEBUG("factorylist_frame_t()","constructor 2");
-head->setze_pos(koord(0,0));
-add_komponente(head);
-scrolly = new gui_scrollpane_t(stats);
-scrolly->setze_pos(koord(0, 38));
-add_komponente(scrolly);
+	//DBG_DEBUG("factorylist_frame_t()","constructor begin");
+	stats = new factorylist_stats_t(welt);
+	//DBG_DEBUG("factorylist_frame_t()","constructor 1");
+	head = new factorylist_header_t(stats);
+	//DBG_DEBUG("factorylist_frame_t()","constructor 2");
+	head->setze_pos(koord(0,0));
+	add_komponente(head);
+	scrolly = new gui_scrollpane_t(stats);
+	scrolly->setze_pos(koord(0, 38));
+	add_komponente(scrolly);
 
-setze_fenstergroesse(koord(350, 240));
-// a min-size for the window
-set_min_windowsize(koord(350, 240));
+	setze_fenstergroesse(koord(350, 240));
+	// a min-size for the window
+	set_min_windowsize(koord(350, 240));
 
-set_resizemode(diagonal_resize);
-resize(koord(0,0));
+	set_resizemode(diagonal_resize);
+	resize(koord(0,0));
 
-setze_opaque(true);
-//DBG_DEBUG("factorylist_frame_t(): constructor ende","");
+	setze_opaque(true);
+	//DBG_DEBUG("factorylist_frame_t(): constructor ende","");
 }
 
 

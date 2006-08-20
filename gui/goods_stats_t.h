@@ -21,19 +21,20 @@ class karte_t;
 class goods_stats_t : public gui_komponente_t
 {
 	karte_t *welt;
+	unsigned short *goodslist;
+	int bonus;
 
- public:
+public:
 
+	goods_stats_t(karte_t *welt);
 
-  goods_stats_t(karte_t *welt);
+	void update_goodslist(unsigned short *g, int b) {goodslist = g; bonus = b; }
 
-
-  /**
-   * Zeichnet die Komponente
-   * @author Hj. Malthaner
-   */
-  void zeichnen(koord offset) const;
-
+	/**
+	* Zeichnet die Komponente
+	* @author Hj. Malthaner
+	*/
+	void zeichnen(koord offset) const;
 };
 
 #endif // good_stats_t_h

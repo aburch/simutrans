@@ -20,7 +20,7 @@ public:
     kanal_t(karte_t *welt, loadsave_t *file);
     kanal_t(karte_t *welt);
 
-    virtual int calc_bild(koord3d pos) const;
+    virtual void calc_bild(koord3d) { weg_t::calc_bild(); }
     inline const char *gib_typ_name() const {return "Kanal";};
     inline typ gib_typ() const {return wasser;};
     virtual void rdwr(loadsave_t *file);

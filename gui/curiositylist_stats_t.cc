@@ -11,38 +11,24 @@
 
 #include "../simgraph.h"
 #include "../simtypes.h"
-#include "../simskin.h"
 #include "../simcolor.h"
-#include "../simwin.h"
 #include "../simworld.h"
 #include "../simhalt.h"
-#include "../simplan.h"
 
+#include "../dings/gebaeude.h"
 #include "../besch/haus_besch.h"
-#include "../besch/skin_besch.h"
+
+#include "../dataobj/translator.h"
 
 #include "../utils/cbuffer_t.h"
 
-curiositylist_header_t::curiositylist_header_t(curiositylist_stats_t *s) : stats(s)
-{
-//SDBG_DEBUG("curiositylist_header_t()","constructor");
-	setze_groesse(koord(400, 19));
-}
 
 
-curiositylist_header_t::~curiositylist_header_t()
+curiositylist_stats_t::curiositylist_stats_t(karte_t * w,const sort_mode_t& sortby,const bool& sortreverse) :
+    welt(w),
+    attractions(10)
 {
-//DBG_DEBUG("curiositylist_header_t()","destructor");
-}
-
-void curiositylist_header_t::zeichnen(koord pos) const
-{
-	display_proportional_clip(pos.x+6, pos.y+6, translator::translate("curlist_legend"), ALIGN_LEFT, WEISS, true);
-}
-
-curiositylist_stats_t::curiositylist_stats_t(karte_t * w) : welt(w), attractions(10)
-{
-	get_unique_attractions();
+	get_unique_attractions(sortby,sortreverse);
 	setze_groesse(koord(210, attractions.get_count()*14 +14));
 }
 
@@ -51,37 +37,78 @@ curiositylist_stats_t::~curiositylist_stats_t()
 	//DBG_DEBUG("curiositylist_stats_t()","destructor");
 }
 
-void curiositylist_stats_t::get_unique_attractions()
+
+
+void curiositylist_stats_t::get_unique_attractions(const sort_mode_t& sortby,const bool& sortreverse)
 {
-	attractions.clear();
-	const weighted_vector_tpl<gebaeude_t *> &ausflugsziele = welt->gib_ausflugsziele();
+    attractions.clear();
+    const weighted_vector_tpl<gebaeude_t *> &ausflugsziele = welt->gib_ausflugsziele();
 
-	for (unsigned int i=0; i<ausflugsziele.get_count(); ++i)
-	{
-		gebaeude_t *geb = ausflugsziele.at(i);
-		// now check for paranoia, first tile on multitile buildings and real attraction
-		if (geb==NULL  ||  geb->gib_tile()->gib_offset()!=koord(0,0)  ||  geb->gib_passagier_level()==0) {
-			continue;
-		}
+    for (unsigned int i=0; i<ausflugsziele.get_count(); ++i) {
 
-		bool append = true;
-		for (unsigned int j=0; j<attractions.get_count(); ++j) {
-			const char *desc = translator::translate(geb->gib_tile()->gib_besch()->gib_name());
-			const char *check_desc = translator::translate(attractions.at(j)->gib_tile()->gib_besch()->gib_name());
-
-			append = STRICMP(desc,check_desc)>=0;
-
-			if (!append) {
-DBG_MESSAGE("curiositylist_stats_t::get_unique_attractions()","insert %s at (%i,%i)",geb->gib_tile()->gib_besch()->gib_name(),geb->gib_pos().x, geb->gib_pos().y );
-				attractions.insert_at(j,geb);
-				break;
-			}
-		}
-		if (append) {
-DBG_MESSAGE("curiositylist_stats_t::get_unique_attractions()","append %s at (%i,%i)",geb->gib_tile()->gib_besch()->gib_name(),geb->gib_pos().x, geb->gib_pos().y );
-			attractions.append(geb,4);
-		}
+	gebaeude_t *geb = ausflugsziele.at(i);
+	// now check for paranoia, first tile on multitile buildings and real attraction
+	if (geb==NULL  ||
+	    geb->gib_tile()->gib_offset()!=koord(0,0)  ||
+	    geb->gib_passagier_level()==0) {
+	    continue;
 	}
+
+	bool append = true;
+	for (unsigned int j=0; j<attractions.get_count(); ++j) {
+	    if (sortby == by_name) {
+		const char *desc = translator::translate(geb->gib_tile()->gib_besch()->gib_name());
+		char *token = strtok(const_cast<char*>(desc),"\n");
+		const char *check_desc = translator::translate(attractions.at(j)->gib_tile()->gib_besch()->gib_name());
+		char *check_token = strtok(const_cast<char*>(check_desc),"\n");
+
+#ifndef WIN32
+		if (sortreverse)
+		    append = strcasecmp(token,check_token)<0;
+		else
+		    append = strcasecmp(token,check_token)>=0;
+#else
+		if (sortreverse)
+		    append = stricmp(token,check_token)<0;
+		else
+		    append = stricmp(token,check_token)>=0;
+#endif
+	    }
+	    else if (sortby == by_paxlevel) {
+		const int paxlevel = geb->gib_passagier_level();
+		const int check_paxlevel = attractions.at(j)->gib_passagier_level();
+
+		if (sortreverse)
+		    append = (paxlevel < check_paxlevel);
+		else
+		    append = (paxlevel >= check_paxlevel);
+	    }
+	    else if (sortby == by_maillevel) {
+		const int maillevel = geb->gib_post_level();
+		const int check_maillevel = attractions.at(j)->gib_post_level();
+
+		if (sortreverse)
+		    append = (maillevel < check_maillevel);
+		else
+		    append = (maillevel >= check_maillevel);
+	    }
+
+	    if (!append) {
+		DBG_MESSAGE("curiositylist_stats_t::get_unique_attractions()","insert %s at (%i,%i)",
+			    geb->gib_tile()->gib_besch()->gib_name(),
+			    geb->gib_pos().x, geb->gib_pos().y );
+
+		attractions.insert_at(j,geb);
+		break;
+	    }
+	}
+	if (append) {
+	    DBG_MESSAGE("curiositylist_stats_t::get_unique_attractions()","append %s at (%i,%i)",
+			geb->gib_tile()->gib_besch()->gib_name(),
+			geb->gib_pos().x, geb->gib_pos().y );
+	    attractions.append(geb,4);
+	}
+    }
 }
 
 
@@ -92,22 +119,31 @@ DBG_MESSAGE("curiositylist_stats_t::get_unique_attractions()","append %s at (%i,
  */
 void curiositylist_stats_t::infowin_event(const event_t * ev)
 {
-
-if (IS_LEFTRELEASE(ev))
-{
 	const unsigned int line = (ev->cy) / 14;
 
-	if( line < attractions.get_count() ) {
-		gebaeude_t * geb = attractions.at(line);
-		if(geb) {
-			const koord3d pos = geb->gib_pos();
-			welt->setze_ij_off(pos.gib_2d() + koord(-5,-5));
-			if (event_get_last_control_shift() != 2) {
-				geb->zeige_info();
+	if (IS_LEFTRELEASE(ev)) {
+		if( line < attractions.get_count() ) {
+			gebaeude_t * geb = attractions.at(line);
+			if(geb) {
+				const koord3d pos = geb->gib_pos();
+				if(welt->ist_in_kartengrenzen(pos.gib_2d())) {
+					//		    welt->setze_ij_off(pos.gib_2d() + koord(-5,-5));
+					geb->zeige_info();
+				}
 			}
 		}
 	}
-}
+	else if (IS_RIGHTRELEASE(ev)) {
+		if( line < attractions.get_count() ) {
+			gebaeude_t * geb = attractions.at(line);
+			if(geb) {
+				const koord3d pos = geb->gib_pos();
+				if(welt->ist_in_kartengrenzen(pos.gib_2d())) {
+					welt->setze_ij_off(pos.gib_2d() + koord(-5,-5));
+				}
+			}
+		}
+	}
 } // end of function curiositylist_stats_t::infowin_event(const event_t * ev)
 
 
@@ -121,8 +157,7 @@ void curiositylist_stats_t::zeichnen(koord offset) const
 	const int start = cd.y-LINESPACE;
 	const int end = cd.yy;
 
-	const char *formatstr=translator::translate("%s (%i,%i) - (pax %i, post %i)");
-	static char name[64], buf[128];
+	static cbuffer_t buf(256);
 	int yoff = offset.y;
 
 	for (unsigned int i=0; i<attractions.get_count()  &&  yoff<end; i++) {
@@ -135,6 +170,8 @@ void curiositylist_stats_t::zeichnen(koord offset) const
 			yoff += LINESPACE+3;
 			continue;
 		}
+
+		buf.clear();
 
 		// is connected? => decide on indicatorcolor
 		int indicatorfarbe;
@@ -176,22 +213,24 @@ void curiositylist_stats_t::zeichnen(koord offset) const
 		display_ddd_box_clip(xoff+7, yoff+6, 8, 8, MN_GREY0, MN_GREY4);
 		display_fillbox_wh_clip(xoff+8, yoff+7, 6, 6, indicatorfarbe, true);
 
-		// trim the name
+		// the other infos
 		const char *desc = translator::translate(geb->gib_tile()->gib_besch()->gib_name());
-		int chr=0, dest=0;
-		while(desc[chr]<=32) {
-			chr ++;
-		}
-		while(dest<64  &&  desc[chr]>=32) {
-			name[dest++] = desc[chr++];
-		}
-		name[dest++] = 0;
+		char *token = strtok(const_cast<char*>(desc),"\n");
+		buf.append(token);
+		buf.append(" (");
+		buf.append(geb->gib_pos().gib_2d().x);
+		buf.append(", ");
+		buf.append(geb->gib_pos().gib_2d().y);
+		buf.append(") - (");
+		buf.append(geb->gib_passagier_level());
+		buf.append(", ");
+		buf.append(geb->gib_post_level());
+		buf.append(") ");
 
-		sprintf( buf, formatstr, name, geb->gib_pos().x, geb->gib_pos().y, geb->gib_passagier_level(), geb->gib_post_level() );
-		display_proportional_clip(xoff+26,yoff+6,buf,ALIGN_LEFT,SCHWARZ,true);
+		display_proportional_clip(xoff+20,yoff+6,buf,ALIGN_LEFT,SCHWARZ,true);
 
-		if (geb->gib_tile()->gib_besch()->gib_bauzeit() != 0)
-		    display_color_img(skinverwaltung_t::intown->gib_bild_nr(0), xoff+16, yoff+6, 0, false, false);
+		/*if (geb->gib_tile()->gib_besch()->gib_bauzeit() != 0)
+		    display_color_img(skinverwaltung_t::electricity->gib_bild_nr(0), xoff, yoff+6, 0, false, false);*/
 
 	    yoff +=LINESPACE+3;
 	}

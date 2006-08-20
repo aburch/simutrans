@@ -9,26 +9,32 @@
 
 #include <string.h>
 
-#include "../simdebug.h"
 #include "hausbauer.h"
+
+#include "../simdebug.h"
 #include "../simworld.h"
 #include "../simwerkz.h"
 #include "../simdepot.h"
 #include "../simhalt.h"
 #include "../simtools.h"
-#include "../dings/gebaeude.h"
+
 #include "../boden/grund.h"
 #include "../boden/fundament.h"
 
 #include "../besch/haus_besch.h"
 #include "../besch/spezial_obj_tpl.h"
+#include "../besch/skin_besch.h"
+
+#include "../dataobj/translator.h"
+
+#include "../dings/gebaeude.h"
 
 // Hajo: these are needed to build the menu entries
 #include "../gui/werkzeug_parameter_waehler.h"
-#include "../besch/skin_besch.h"
-#include "../dataobj/translator.h"
 
 #include "../tpl/weighted_vector_tpl.h"
+
+#include "../utils/simstring.h"
 
 #ifdef _MSC_VER
 #define STRICMP stricmp
@@ -204,7 +210,7 @@ void hausbauer_t::fill_menu(werkzeug_parameter_waehler_t *wzw,
 	int (* werkzeug)(spieler_t *, karte_t *, koord, value_t),
 	const int sound_ok,
 	const int sound_ko,
-	const int cost,
+	const sint64 cost,
 	const uint16 time)
 {
 DBG_DEBUG("hausbauer_t::fill_menu()","maximum %i",stops.count());
@@ -218,7 +224,8 @@ DBG_DEBUG("hausbauer_t::fill_menu()","try at pos %i to add %s(%p)",i,besch->gib_
 
 				// only add items with a cursor
 DBG_DEBUG("hausbauer_t::fill_menu()","at pos %i add %s",i,besch->gib_name());
-				sprintf(buf, "%s, %d$",translator::translate(besch->gib_name()),cost/(-100));
+				int n=sprintf(buf, "%s ",translator::translate(besch->gib_name()));
+				money_to_string(buf+n, (cost*(besch->gib_level())*besch->gib_b()*besch->gib_h())/-100.0);
 
 				wzw->add_param_tool(werkzeug,
 				  (const void *)besch,
@@ -245,7 +252,7 @@ void hausbauer_t::fill_menu(werkzeug_parameter_waehler_t *wzw,
 	int (* werkzeug)(spieler_t *, karte_t *, koord, value_t),
 	const int sound_ok,
 	const int sound_ko,
-	const int cost,
+	const sint64 cost,
 	const uint16 time)
 {
 DBG_DEBUG("hausbauer_t::fill_menu()","maximum %i",station_building.count());
@@ -259,7 +266,8 @@ DBG_DEBUG("hausbauer_t::fill_menu()","maximum %i",station_building.count());
 
 				// only add items with a cursor
 DBG_DEBUG("hausbauer_t::fill_menu()","at pos %i add %s",i,besch->gib_name());
-				sprintf(buf, "%s, %d$",translator::translate(besch->gib_name()),cost/(-100));
+				int n=sprintf(buf, "%s ",translator::translate(besch->gib_name()));
+				money_to_string(buf+n, (cost*(besch->gib_level()+1)*besch->gib_b()*besch->gib_h())/-100.0);
 
 				wzw->add_param_tool(werkzeug,
 				  (const void *)besch,
@@ -402,14 +410,22 @@ void hausbauer_t::baue(karte_t *welt,
 					gr->obj_loesche_alle(sp);	// alles weg
 				}
 				grund_t *gr2 = new fundament_t(welt, gr->gib_pos());
-
-//				gb->setze_bild(0, tile->gib_hintergrund(0, 0));	//prissi:???
 				welt->access(gr->gib_pos().gib_2d())->boden_ersetzen(gr, gr2);
 				gr = gr2;
-				gr->obj_add( gb );
 //DBG_DEBUG("hausbauer_t::baue()","ground count now %i",gr->obj_count());
 				gr->setze_besitzer(sp);
 				gr ->calc_bild();
+				gr->obj_add( gb );
+				gb->setze_pos( gr->gib_pos() );
+				if(welt->ist_in_kartengrenzen(pos.gib_2d()+koord(1,0))) {
+					welt->lookup(pos.gib_2d()+koord(1,0))->gib_kartenboden()->calc_bild();
+				}
+				if(welt->ist_in_kartengrenzen(pos.gib_2d()+koord(0,1))) {
+					welt->lookup(pos.gib_2d()+koord(0,1))->gib_kartenboden()->calc_bild();
+				}
+				if(welt->ist_in_kartengrenzen(pos.gib_2d()+koord(1,1))) {
+					welt->lookup(pos.gib_2d()+koord(0,1))->gib_kartenboden()->calc_bild();
+				}
 			}
 			if(besch->ist_ausflugsziel()) {
 				welt->add_ausflugsziel( gb );
@@ -445,49 +461,46 @@ gebaeude_t *hausbauer_t::neues_gebaeude(karte_t *welt,
 			const haus_besch_t *besch,
 			void *param)
 {
-    if(besch->gib_groesse(layout) != koord(1, 1)) {
-	dbg->fatal("hausbauer_t::neues_gebaeude()","building %s is not 1*1", besch->gib_name());
-	return NULL;
-    }
-    gebaeude_t *gb;
-    const haus_tile_besch_t *tile = besch->gib_tile(layout, 0, 0);
-    int pri = 0;
-    if(besch == bahn_depot_besch) {
-DBG_MESSAGE("hausbauer_t::neues_gebaeude()","Bahndepot");
-	gb = new bahndepot_t(welt, pos, sp, tile);
-	pri = PRI_DEPOT;
-    } else if(besch == tram_depot_besch) {
-			gb = new bahndepot_t(welt, pos, sp, tile);
-			pri = PRI_DEPOT;
-    } else if(besch == monorail_depot_besch) {
-			gb = new bahndepot_t(welt, pos, sp, tile);
-			pri = PRI_DEPOT;
-		} else if(besch == str_depot_besch) {
-	gb = new strassendepot_t(welt, pos, sp, tile);
-	pri = PRI_DEPOT;
-    } else if(besch == sch_depot_besch) {
-	gb = new schiffdepot_t(welt, pos, sp, tile);
-	pri = PRI_DEPOT;
-    } else {
-	gb = new gebaeude_t(welt, pos, sp, tile);
-    }
+	if(besch->gib_groesse(layout) != koord(1, 1)) {
+		dbg->fatal("hausbauer_t::neues_gebaeude()","building %s is not 1*1", besch->gib_name());
+		return NULL;
+	}
+	gebaeude_t *gb;
+	const haus_tile_besch_t *tile = besch->gib_tile(layout, 0, 0);
+	int pri = PRI_DEPOT;
 
-    grund_t *gr = welt->lookup(pos);
+	if(besch == bahn_depot_besch) {
+		gb = new bahndepot_t(welt, pos, sp, tile);
+	} else if(besch == tram_depot_besch) {
+		gb = new bahndepot_t(welt, pos, sp, tile);
+	} else if(besch == monorail_depot_besch) {
+		gb = new bahndepot_t(welt, pos, sp, tile);
+	} else if(besch == str_depot_besch) {
+		gb = new strassendepot_t(welt, pos, sp, tile);
+	} else if(besch == sch_depot_besch) {
+		gb = new schiffdepot_t(welt, pos, sp, tile);
+	} else if(air_depot.contains(besch)) {
+		gb = new airdepot_t(welt, pos, sp, tile);
+	} else {
+		pri = 0;
+		gb = new gebaeude_t(welt, pos, sp, tile);
+	}
 
-    gr->obj_pri_add(gb, pri);
+	grund_t *gr = welt->lookup(pos);
+	gr->obj_pri_add(gb, pri);
 
-    if(station_building.contains(besch)) {
-    	// is a station/bus stop
-	(*static_cast<halthandle_t *>(param))->add_grund(gr);
-	gr->calc_bild();
-    }
+	if(station_building.contains(besch)) {
+		// is a station/bus stop
+		(*static_cast<halthandle_t *>(param))->add_grund(gr);
+		gr->calc_bild();
+	}
 
-    gb->setze_sync( true );
-    if(besch->ist_ausflugsziel()) {
-	welt->add_ausflugsziel( gb );
-    }
+	gb->setze_sync( true );
+	if(besch->ist_ausflugsziel()) {
+		welt->add_ausflugsziel( gb );
+	}
 
-    return gb;
+	return gb;
 }
 
 

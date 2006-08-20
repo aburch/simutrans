@@ -80,7 +80,7 @@ public:
 
     virtual fahrplan_t * erzeuge_fahrplan(fahrplan_t * fpl = NULL) = 0;
 
-	virtual simline_t * create_line(karte_t * welt) = 0;
+	virtual simline_t * create_line() = 0;
 
     /**
      * Text of the passenger tab (for gui)
@@ -260,7 +260,7 @@ protected:
 
   fahrplan_t * erzeuge_fahrplan(fahrplan_t * fpl = NULL);
 
-	simline_t * create_line(karte_t * welt);
+	simline_t * create_line();
 
     bool can_convoi_start(int icnv) const;
 
@@ -334,7 +334,7 @@ protected:
 
     fahrplan_t * erzeuge_fahrplan(fahrplan_t * fpl = NULL);
 
-	simline_t * create_line(karte_t * welt);
+	simline_t * create_line();
 
     virtual const char * gib_passenger_name() {
 	return "Bus_tab";
@@ -399,7 +399,7 @@ protected:
 
     fahrplan_t * erzeuge_fahrplan(fahrplan_t * fpl = NULL);
 
-	simline_t * create_line(karte_t * welt);
+	simline_t * create_line();
 
     virtual const char * gib_passenger_name() {
 	return "Ferry_tab";
@@ -456,7 +456,7 @@ protected:
 
   fahrplan_t * erzeuge_fahrplan(fahrplan_t * fpl = NULL);
 
-	simline_t * create_line(karte_t * welt);
+	simline_t * create_line();
 
     virtual const char * gib_zieher_name() {
 	return "aircraft_tab";

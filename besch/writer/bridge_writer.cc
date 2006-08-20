@@ -37,39 +37,8 @@
 #include "imagelist_writer.h"
 #include "skin_writer.h"
 
+#include "get_waytype.h"
 #include "bridge_writer.h"
-
-#ifdef _MSC_VER
-#define STRICMP stricmp
-#else
-#define STRICMP strcasecmp
-#endif
-
-
-/**
- * Convert waytype string to enum wegtyp
- * @author Hj. Malthaner
- */
-static uint8 get_waytype (const char * waytype, const char * obj_name)
-{
-  uint8 wegtyp = weg_t::strasse;
-
-  if(!STRICMP(waytype, "road")) {
-    wegtyp = weg_t::strasse;
-  } else if(!STRICMP(waytype, "track")) {
-    wegtyp = weg_t::schiene;
-  } else {
-    cstring_t reason;
-
-    reason.printf("invalid waytype %s for bridge %s\n",
-		  waytype,
-		  obj_name);
-
-    throw new obj_pak_exception_t("way_writer_t", reason);
-  }
-
-  return wegtyp;
-}
 
 
 /**
@@ -81,8 +50,7 @@ void bridge_writer_t::write_obj(FILE *outfp, obj_node_t &parent, tabfileobj_t &o
     // Hajo: node size is 14 bytes
     obj_node_t	node(this, 19, &parent, false);
 
-    uint8 wegtyp = get_waytype(obj.get("waytype"), obj.get("name"));
-
+    uint8 wegtyp = get_waytype(obj.get("waytype"));
     uint16 topspeed = obj.get_int("topspeed", 999);
     uint32 preis = obj.get_int("cost", 0);
     uint32 maintenance= obj.get_int("maintenance", 1000);

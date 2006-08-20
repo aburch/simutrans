@@ -30,32 +30,34 @@ static spezial_obj_tpl<ware_besch_t> spezial_objekte[] = {
 
 bool warenbauer_t::alles_geladen()
 {
-    if(!::alles_geladen(spezial_objekte)) {
-	return false;
-    }
-    /**
-     * Put special items in front:
-     * Volker Meyer
-     */
-    waren.insert(post);
-    waren.insert(passagiere);
-    waren.insert(nichts);
-
-    return true;
+	if(!::alles_geladen(spezial_objekte)) {
+		return false;
+	}
+	/**
+	* Put special items in front:
+	* Volker Meyer
+	*/
+	waren.insert(post);
+	waren.insert(passagiere);
+	waren.insert(nichts);
+	return true;
 }
 
 
-bool warenbauer_t::register_besch(const ware_besch_t *besch)
+bool warenbauer_t::register_besch(ware_besch_t *besch)
 {
-  // int index = waren.count();
+	::register_besch(spezial_objekte, besch);
+	besch_names.put(besch->gib_name(), const_cast<ware_besch_t *>(besch));
 
-  ::register_besch(spezial_objekte, besch);
-  besch_names.put(besch->gib_name(), const_cast<ware_besch_t *>(besch));
-
-  if(besch != passagiere && besch != post && besch != nichts) {
-    waren.append(besch);
-  }
-  return true;
+	if(besch==passagiere) {
+		besch->ware_index = 0;
+	} else if(besch==post) {
+		besch->ware_index = 1;
+	} else if(besch != nichts) {
+		besch->ware_index = waren.count()+2;
+		waren.append(besch);
+	}
+	return true;
 }
 
 

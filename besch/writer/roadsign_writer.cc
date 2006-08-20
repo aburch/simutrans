@@ -34,27 +34,32 @@
 
 void roadsign_writer_t::write_obj(FILE *fp, obj_node_t &parent, tabfileobj_t &obj)
 {
-	obj_node_t	node(this, 5, &parent, false);	/* false, because we write this ourselves */
+	obj_node_t	node(this, 9, &parent, false);	/* false, because we write this ourselves */
 
 	// Hajodoc: Preferred height of this tree type
 	// Hajoval: int (useful range: 0-14)
 	roadsign_besch_t besch;
+	besch.cost = obj.get_int("cost", 500)*100;
 	besch.min_speed = obj.get_int("min_speed", 0);
 	besch.flags = (obj.get_int("single_way", 0)>0) + (obj.get_int("free_route", 0)>0)*2;
 
 	// Hajo: temp vars of appropriate size
+	uint32 v32;
 	uint16 v16;
 	uint8 v8;
 
 	// Hajo: write version data
-	v16 = 0x8001;
+	v16 = 0x8002;
 	node.write_data_at(fp, &v16, 0, sizeof(uint16));
 
 	v16 = (uint16) besch.min_speed;
-	node.write_data_at(fp, &v16, 2, sizeof(uint8));
+	node.write_data_at(fp, &v16, 2, sizeof(uint16));
+
+	v32 = (uint32) besch.min_speed;
+	node.write_data_at(fp, &v32, 4, sizeof(uint32));
 
 	v8 = (uint8)besch.flags;
-	node.write_data_at(fp, &v8, 4, sizeof(uint8));
+	node.write_data_at(fp, &v8, 8, sizeof(uint8));
 
 	write_head(fp, node, obj);
 
@@ -87,10 +92,3 @@ void roadsign_writer_t::write_obj(FILE *fp, obj_node_t &parent, tabfileobj_t &ob
 
 	node.write(fp);
 }
-
-/*
-Hajoexstart:
-Obj=roadsign
-Name=no_entry
-min_speed=0
-*/

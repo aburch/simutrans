@@ -10,9 +10,10 @@
 #ifndef boden_wege_weg_h
 #define boden_wege_weg_h
 
-#ifndef koord3d_h
+#include "../../simimg.h"
+#include "../../besch/weg_besch.h"
 #include "../../dataobj/koord3d.h"
-#endif
+
 
 class vehikel_basis_t;
 class karte_t;
@@ -82,7 +83,7 @@ private:
      * MAX_WAY_STATISTICS: see #define at top of file
      * @author hsiegeln
      */
-    unsigned int statistics[MAX_WAY_STAT_MONTHS][MAX_WAY_STATISTICS];
+    sint16 statistics[MAX_WAY_STAT_MONTHS][MAX_WAY_STATISTICS];
 
 
     /**
@@ -118,7 +119,13 @@ private:
      * Erlaubte Höchstgeschwindigkeit
      * @author Hj. Malthaner
      */
-    unsigned short max_speed;
+    uint16 max_speed;
+
+
+	/* we just save the offset unto the look up table; save memory
+	 * @author prissi
+	 */
+	image_id bild_nr;
 
 
     /**
@@ -144,8 +151,9 @@ protected:
      */
     static karte_t *welt;
 
+	/* actual image recalculation */
+    void calc_bild();
 
-    int calc_bild(koord3d pos, const weg_besch_t *besch) const;
 public:
 
 
@@ -174,7 +182,7 @@ public:
      * Ermittelt die erlaubte Höchstgeschwindigkeit
      * @author Hj. Malthaner
      */
-    int gib_max_speed() const {return max_speed;};
+    uint16 gib_max_speed() const {return max_speed;}
 
 
     /**
@@ -192,6 +200,8 @@ public:
     virtual ~weg_t();
 
     virtual void rdwr(loadsave_t *file);
+
+	virtual image_id gib_bild() const {return bild_nr;}
 
 
     /**
@@ -229,8 +239,12 @@ public:
      * Liefert das benötgte Bild für den Weg.
      * Funktioniert nicht bei Wegtypkreuzungen!
      */
-    virtual int calc_bild(koord3d /*pos*/) const { return -1; };
+    virtual void calc_bild(koord3d) { bild_nr = IMG_LEER; }
 
+    /**
+     * This sets the image i.e. for corssing ...
+     */
+    virtual void setze_bild(image_id bild) { bild_nr = bild; }
 
     /**
      * Setzt neue Richtungsbits für einen Weg.

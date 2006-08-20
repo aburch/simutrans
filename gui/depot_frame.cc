@@ -19,6 +19,7 @@
 #include "../simdebug.h"
 #include "../simgraph.h"
 #include "../simline.h"
+#include "../simplay.h"
 #include "../simlinemgmt.h"
 
 #include "../tpl/ptrhashtable_tpl.h"
@@ -226,7 +227,7 @@ DBG_DEBUG("depot_frame_t::depot_frame_t()","get_max_convoi_length()=%i",depot->g
     scrolly_loks->set_read_only(false);
 
     if(loks_vec->get_count() > 0) {
-	tabs.add_tab(scrolly_loks, depot->gib_zieher_name());
+		tabs.add_tab(scrolly_loks, depot->gib_zieher_name());
     }
 
     cont_waggons = new gui_container_t();
@@ -236,14 +237,12 @@ DBG_DEBUG("depot_frame_t::depot_frame_t()","get_max_convoi_length()=%i",depot->g
     scrolly_waggons->set_read_only(false);
 
     if(waggons_vec->get_count() > 0) {
-	tabs.add_tab(scrolly_waggons, depot->gib_haenger_name());
+		tabs.add_tab(scrolly_waggons, depot->gib_haenger_name());
     }
 
 
     add_komponente(&tabs);
-
     add_komponente(&div_tabbottom);
-
     add_komponente(&lb_veh_action);
 
     veh_action = va_append;
@@ -258,12 +257,10 @@ DBG_DEBUG("depot_frame_t::depot_frame_t()","get_max_convoi_length()=%i",depot->g
     bt_obsolete.set_tooltip(translator::translate("Show also vehicles no longer in production."));
     add_komponente(&bt_obsolete);
 
-    welt->simlinemgmt->sort_lines();
+    gib_besitzer()->simlinemgmt.sort_lines();
     koord gr = koord(0,0);
     layout(&gr);
-    update_data();
-//    gr = koord(0,0);
-//    layout(gr);
+
     gui_frame_t::setze_fenstergroesse(gr);
 
 	// Hajo: Trigger layouting
@@ -274,106 +271,105 @@ DBG_DEBUG("depot_frame_t::depot_frame_t()","get_max_convoi_length()=%i",depot->g
 
 void depot_frame_t::layout(koord *gr)
 {
-    koord placement;
-    koord grid;
-    int grid_dx;
-    int placement_dx;
+	koord placement;
+	koord grid;
+	int grid_dx;
+	int placement_dx;
 
-    koord fgr = (gr!=NULL)? *gr : gib_fenstergroesse();
+	koord fgr = (gr!=NULL)? *gr : gib_fenstergroesse();
 
-    /*
-     * These parameter are adjusted to resolution.
-     * - Some extra space looks nicer.
-     */
-    grid.x = depot->get_x_grid() * get_tile_raster_width() / 64 + 4;
-    grid.y = depot->get_y_grid() * get_tile_raster_width() / 64 + 6;
-    placement.x = depot->get_x_placement() * get_tile_raster_width() / 64 + 2;
-    placement.y = depot->get_y_placement() * get_tile_raster_width() / 64 + 2;
-    grid_dx = depot->get_x_grid() * get_tile_raster_width() / 64 / 2;
-    placement_dx = depot->get_x_grid() * get_tile_raster_width() / 64 / 4;
+	/*
+	* These parameter are adjusted to resolution.
+	* - Some extra space looks nicer.
+	*/
+	grid.x = depot->get_x_grid() * get_tile_raster_width() / 64 + 4;
+	grid.y = depot->get_y_grid() * get_tile_raster_width() / 64 + 6;
+	placement.x = depot->get_x_placement() * get_tile_raster_width() / 64 + 2;
+	placement.y = depot->get_y_placement() * get_tile_raster_width() / 64 + 2;
+	grid_dx = depot->get_x_grid() * get_tile_raster_width() / 64 / 2;
+	placement_dx = depot->get_x_grid() * get_tile_raster_width() / 64 / 4;
 
-    /*
-     *	Dialog format:
-     *
-     *	Main structure are these parts from top to bottom:
-     *
-     *	    [SELECT]		convoi-selector
-     *	    [CONVOI]		current convoi
-     *	    [ACTIONS]		convoi action buttons
-     *	    [PANEL]		vehicle panel
-     *	    [VINFO]		vehicle infotext
-     *
-     *
-     *	Structure of [SELECT] is:
-     *
-     *	    [Info]
-     *	    [PREV][LABEL][NEXT]
-     *
-     *  PREV and NEXT are small buttons - Label is adjusted to total width.
-     */
-    int SELECT_HEIGHT = 14;
+	/*
+	*	Dialog format:
+	*
+	*	Main structure are these parts from top to bottom:
+	*
+	*	    [SELECT]		convoi-selector
+	*	    [CONVOI]		current convoi
+	*	    [ACTIONS]		convoi action buttons
+	*	    [PANEL]		vehicle panel
+	*	    [VINFO]		vehicle infotext
+	*
+	*
+	*	Structure of [SELECT] is:
+	*
+	*	    [Info]
+	*	    [PREV][LABEL][NEXT]
+	*
+	*  PREV and NEXT are small buttons - Label is adjusted to total width.
+	*/
+	int SELECT_HEIGHT = 14;
 
-    /*
-     *	Structure of [CONVOI] is a image_list and an infos:
-     *
-     *	    [List]
-     *	    [Info]
-     *
-     * The image list is horizontally "condensed".
-     */
-    int CINFO_HEIGHT = 14;
-    int CLIST_WIDTH = depot->get_max_convoi_length() * (grid.x - grid_dx) + 2 * image_list_t::BORDER;
-    int CLIST_HEIGHT = grid.y + 2 * image_list_t::BORDER;
-    int CONVOI_WIDTH = CLIST_WIDTH + placement_dx;
-    // int CONVOI_HEIGHT = CLIST_HEIGHT + CINFO_HEIGHT;
+	/*
+	*	Structure of [CONVOI] is a image_list and an infos:
+	*
+	*	    [List]
+	*	    [Info]
+	*
+	* The image list is horizontally "condensed".
+	*/
+	int CINFO_HEIGHT = 14;
+	int CLIST_WIDTH = depot->get_max_convoi_length() * (grid.x - grid_dx) + 2 * image_list_t::BORDER;
+	int CLIST_HEIGHT = grid.y + 2 * image_list_t::BORDER;
+	int CONVOI_WIDTH = CLIST_WIDTH + placement_dx;
+// int CONVOI_HEIGHT = CLIST_HEIGHT + CINFO_HEIGHT;
 
-    /*
-     *	Structure of [ACTIONS] is a row of buttons:
-     *
-     *	    [Start][Schedule][Destroy][Sell]
-     *      [new Route][change Route][delete Route]
-     */
-    int ABUTTON_WIDTH = 96;
-    int ABUTTON_HEIGHT = 14;
-    int ACTIONS_WIDTH = 4 * ABUTTON_WIDTH;
-    int ACTIONS_HEIGHT = ABUTTON_HEIGHT + ABUTTON_HEIGHT; // @author hsiegeln: added "+ ABUTTON_HEIGHT"
+	/*
+	*	Structure of [ACTIONS] is a row of buttons:
+	*
+	*	    [Start][Schedule][Destroy][Sell]
+	*      [new Route][change Route][delete Route]
+	*/
+	int ABUTTON_WIDTH = 96;
+	int ABUTTON_HEIGHT = 14;
+	int ACTIONS_WIDTH = 4 * ABUTTON_WIDTH;
+	int ACTIONS_HEIGHT = ABUTTON_HEIGHT + ABUTTON_HEIGHT; // @author hsiegeln: added "+ ABUTTON_HEIGHT"
 
-    /*
-     *	Structure of [VINFO] is one multiline text.
-     */
-    int VINFO_HEIGHT = 82;
+	/*
+	*	Structure of [VINFO] is one multiline text.
+	*/
+	int VINFO_HEIGHT = 82;
 
-    /*
-     * Total width is the max from [CONVOI] and [ACTIONS] width.
-     */
-    int MIN_TOTAL_WIDTH = max(CONVOI_WIDTH, ACTIONS_WIDTH);
-    int TOTAL_WIDTH = max(fgr.x,max(CONVOI_WIDTH, ACTIONS_WIDTH));
+	/*
+	* Total width is the max from [CONVOI] and [ACTIONS] width.
+	*/
+	int MIN_TOTAL_WIDTH = max(CONVOI_WIDTH, ACTIONS_WIDTH);
+	int TOTAL_WIDTH = max(fgr.x,max(CONVOI_WIDTH, ACTIONS_WIDTH));
 
-    /*
-     *	Now we can do the first vertical adjustement:
-     */
-    int SELECT_VSTART = 16;
-    int CONVOI_VSTART = SELECT_VSTART + SELECT_HEIGHT + LINESPACE;
-    int CINFO_VSTART = CONVOI_VSTART + CLIST_HEIGHT;
-    int ACTIONS_VSTART = CINFO_VSTART + CINFO_HEIGHT + 2 + LINESPACE;
-    int PANEL_VSTART = ACTIONS_VSTART + ACTIONS_HEIGHT + 8;
+	/*
+	*	Now we can do the first vertical adjustement:
+	*/
+	int SELECT_VSTART = 16;
+	int CONVOI_VSTART = SELECT_VSTART + SELECT_HEIGHT + LINESPACE;
+	int CINFO_VSTART = CONVOI_VSTART + CLIST_HEIGHT;
+	int ACTIONS_VSTART = CINFO_VSTART + CINFO_HEIGHT + 2 + LINESPACE;
+	int PANEL_VSTART = ACTIONS_VSTART + ACTIONS_HEIGHT + 8;
 
-    /*
-     * Now we determine the row/col layout for the panel and the total panel
-     * size.
-     * build_vehicle_lists() fills loks_vec and waggon_vec.
-     * Total width will be expanded to match completo columns in panel.
-     */
+	/*
+	* Now we determine the row/col layout for the panel and the total panel
+	* size.
+	* build_vehicle_lists() fills loks_vec and waggon_vec.
+	* Total width will be expanded to match completo columns in panel.
+	*/
 //    int PANEL_COLS = (TOTAL_WIDTH - 2 * image_list_t::BORDER - 1) / grid.x;
 //    int PANEL_WIDTH = PANEL_COLS * grid.x + 2 * image_list_t::BORDER + 12;
-    int total_h = PANEL_VSTART+VINFO_HEIGHT + 17 + tab_panel_t::HEADER_VSIZE + 2 * image_list_t::BORDER;
-    int PANEL_ROWS = max(1, ((fgr.y-total_h)/grid.y) );
+	int total_h = PANEL_VSTART+VINFO_HEIGHT + 17 + tab_panel_t::HEADER_VSIZE + 2 * image_list_t::BORDER;
+	int PANEL_ROWS = max(1, ((fgr.y-total_h)/grid.y) );
 	if(gr  &&  gr->y==0) {
 		PANEL_ROWS = 3;
 	}
-    int PANEL_HEIGHT = PANEL_ROWS * grid.y + tab_panel_t::HEADER_VSIZE + 2 * image_list_t::BORDER;
-    int MIN_PANEL_HEIGHT = grid.y + tab_panel_t::HEADER_VSIZE + 2 * image_list_t::BORDER;
-
+	int PANEL_HEIGHT = PANEL_ROWS * grid.y + tab_panel_t::HEADER_VSIZE + 2 * image_list_t::BORDER;
+	int MIN_PANEL_HEIGHT = grid.y + tab_panel_t::HEADER_VSIZE + 2 * image_list_t::BORDER;
 
     /*
      *	Now we can do the complete vertical adjustement:
@@ -381,21 +377,19 @@ void depot_frame_t::layout(koord *gr)
     int TOTAL_HEIGHT = PANEL_VSTART + PANEL_HEIGHT + VINFO_HEIGHT + 17;
     int MIN_TOTAL_HEIGHT = PANEL_VSTART + MIN_PANEL_HEIGHT + VINFO_HEIGHT + 17;
 
-    /*
-     * DONE with layout planning - now build everything.
-     */
-
-    set_min_windowsize(koord(MIN_TOTAL_WIDTH, MIN_TOTAL_HEIGHT));
-    if(fgr.x<TOTAL_WIDTH) {
-	    gui_frame_t::setze_fenstergroesse(koord(MIN_TOTAL_WIDTH, max(fgr.y,MIN_TOTAL_HEIGHT) ));
-    }
-
-    if(gr  &&  gr->x==0) {
-    	gr->x = TOTAL_WIDTH;
-    }
-    if(gr  &&  gr->y==0) {
-    	gr->y = TOTAL_HEIGHT;
-    }
+	/*
+	* DONE with layout planning - now build everything.
+	*/
+	set_min_windowsize(koord(MIN_TOTAL_WIDTH, MIN_TOTAL_HEIGHT));
+	if(fgr.x<TOTAL_WIDTH) {
+		gui_frame_t::setze_fenstergroesse(koord(MIN_TOTAL_WIDTH, max(fgr.y,MIN_TOTAL_HEIGHT) ));
+	}
+	if(gr  &&  gr->x==0) {
+		gr->x = TOTAL_WIDTH;
+	}
+	if(gr  &&  gr->y==0) {
+		gr->y = TOTAL_HEIGHT;
+	}
 
     /*
      * [SELECT]:
@@ -413,7 +407,6 @@ void depot_frame_t::layout(koord *gr)
      * [SELECT ROUTE]:
      * @author hsiegeln
      */
-
     bt_prev_line.setze_pos(koord(5, SELECT_VSTART + 15));
 
     inp_name_line.setze_pos(koord(20, SELECT_VSTART + 13));
@@ -461,7 +454,6 @@ void depot_frame_t::layout(koord *gr)
      * ACTIONS for new route management buttons
      * @author hsiegeln
      */
-
     bt_new_line.setze_pos(koord(0, ACTIONS_VSTART+ABUTTON_HEIGHT));
     bt_new_line.setze_groesse(koord(TOTAL_WIDTH/4, ABUTTON_HEIGHT));
     bt_new_line.setze_text(translator::translate("New Line"));
@@ -478,48 +470,48 @@ void depot_frame_t::layout(koord *gr)
     bt_copy_convoi.setze_groesse(koord(TOTAL_WIDTH-TOTAL_WIDTH*3/4, ABUTTON_HEIGHT));
     bt_copy_convoi.setze_text(translator::translate("Copy Convoi"));
 
-    /*
-     * [PANEL]
-     */
-    tabs.setze_pos(koord(0, PANEL_VSTART));
-    tabs.setze_groesse(koord(TOTAL_WIDTH, PANEL_HEIGHT+8));
+	/*
+	* [PANEL]
+	*/
+	tabs.setze_pos(koord(0, PANEL_VSTART));
+	tabs.setze_groesse(koord(TOTAL_WIDTH, PANEL_HEIGHT+8));
 
-    pas->set_grid(grid);
-    pas->set_placement(placement);
+	pas->set_grid(grid);
+	pas->set_placement(placement);
 	pas->setze_groesse(tabs.gib_groesse());
 	pas->recalc_size();
 	pas->setze_pos(koord(1,1));
 	cont_pas->setze_groesse(pas->gib_groesse());
 	scrolly_pas->setze_groesse(scrolly_pas->gib_groesse());
 
-    loks->set_grid(grid);
-    loks->set_placement(placement);
+	loks->set_grid(grid);
+	loks->set_placement(placement);
 	loks->setze_groesse(tabs.gib_groesse());
 	loks->recalc_size();
 	loks->setze_pos(koord(1,1));
 	cont_loks->setze_groesse(loks->gib_groesse());
 	scrolly_loks->setze_groesse(scrolly_loks->gib_groesse());
 
-    waggons->set_grid(grid);
-    waggons->set_placement(placement);
+	waggons->set_grid(grid);
+	waggons->set_placement(placement);
 	waggons->setze_groesse(tabs.gib_groesse());
 	waggons->recalc_size();
 	waggons->setze_pos(koord(1,1));
 	cont_waggons->setze_groesse(waggons->gib_groesse());
 	scrolly_waggons->setze_groesse(scrolly_waggons->gib_groesse());
 
-    div_tabbottom.setze_pos(koord(0,PANEL_VSTART+PANEL_HEIGHT));
-    div_tabbottom.setze_groesse(koord(TOTAL_WIDTH,0));
+	div_tabbottom.setze_pos(koord(0,PANEL_VSTART+PANEL_HEIGHT));
+	div_tabbottom.setze_groesse(koord(TOTAL_WIDTH,0));
 
-    lb_veh_action.setze_pos(koord(TOTAL_WIDTH-ABUTTON_WIDTH, PANEL_VSTART + PANEL_HEIGHT+4));
-    lb_veh_action.setze_text(translator::translate("Fahrzeuge:"));
+	lb_veh_action.setze_pos(koord(TOTAL_WIDTH-ABUTTON_WIDTH, PANEL_VSTART + PANEL_HEIGHT+4));
+	lb_veh_action.setze_text(translator::translate("Fahrzeuge:"));
 
-    bt_veh_action.setze_pos(koord(TOTAL_WIDTH-ABUTTON_WIDTH, PANEL_VSTART + PANEL_HEIGHT + 14));
-    bt_veh_action.setze_groesse(koord(ABUTTON_WIDTH, 13));
+	bt_veh_action.setze_pos(koord(TOTAL_WIDTH-ABUTTON_WIDTH, PANEL_VSTART + PANEL_HEIGHT + 14));
+	bt_veh_action.setze_groesse(koord(ABUTTON_WIDTH, 13));
 
-    bt_obsolete.setze_pos(koord(TOTAL_WIDTH-(ABUTTON_WIDTH*5)/2, PANEL_VSTART + PANEL_HEIGHT + 14));
-    bt_obsolete.setze_groesse(koord(ABUTTON_WIDTH, 13));
-    bt_obsolete.pressed = show_retired_vehicles;
+	bt_obsolete.setze_pos(koord(TOTAL_WIDTH-(ABUTTON_WIDTH*5)/2, PANEL_VSTART + PANEL_HEIGHT + 14));
+	bt_obsolete.setze_groesse(koord(ABUTTON_WIDTH, 13));
+	bt_obsolete.pressed = show_retired_vehicles;
 }
 
 
@@ -529,6 +521,7 @@ void depot_frame_t::setze_fenstergroesse( koord gr )
 {
 	koord g=gr;
 	layout(&g);
+	update_data();
 	gui_frame_t::setze_fenstergroesse(gr);
 }
 
@@ -548,7 +541,36 @@ bool depot_frame_t::is_contained(const vehikel_besch_t *info)
 }
 
 
+// add a single vehicle (helper function)
+void depot_frame_t::add_to_vehicle_list(const vehikel_besch_t *info)
+{
+	// prissi: ist a non-electric track?
+	// Hajo: check for timeline
+	// prissi: and retirement date
+	image_list_t::image_data_t img_data;
 
+	img_data.image = info->gib_basis_bild();
+	img_data.count = 0;
+	img_data.lcolor = img_data.rcolor= -1;
+
+	// since they come "pre-sorted" for the vehikelbauer, we have to do nothing to keep them sorted
+	if(info->gib_ware()==warenbauer_t::passagiere  ||  info->gib_ware()==warenbauer_t::post) {
+		pas_vec->append(img_data);
+		vehicle_map.set(info, &pas_vec->at(pas_vec->get_count() - 1));
+	}
+	else if(info->gib_leistung() > 0  ||  info->gib_zuladung()==0) {
+		loks_vec->append(img_data);
+		vehicle_map.set(info, &loks_vec->at(loks_vec->get_count() - 1));
+	}
+	else {
+		waggons_vec->append(img_data);
+		vehicle_map.set(info, &waggons_vec->at(waggons_vec->get_count() - 1));
+	}
+}
+
+
+
+// add all current vehicles
 void depot_frame_t::build_vehicle_lists()
 {
 	const int month_now = welt->get_timeline_year_month();
@@ -583,122 +605,97 @@ DBG_DEBUG("depot_frame_t::build_vehicle_lists()","%i passenger vehicle, %i  engi
 		pas_vec->clear();
 	}
 
+	vehicle_map.clear();
+
 	// we do not allow to built electric vehicle in a depot without electrification
 	const schiene_t *sch = dynamic_cast<const schiene_t *>(welt->lookup(depot->gib_pos())->gib_weg(weg_t::schiene));
 	const bool schiene_electric = (sch==NULL)  ||  sch->ist_elektrisch();
 
 	i = 0;
 	while(depot->get_vehicle_type(i)) {
-		const vehikel_besch_t *info = depot->get_vehicle_type(i);
-
-		// prissi: ist a non-electric track?
-		// Hajo: check for timeline
-		// prissi: and retirement date
-		if(  (schiene_electric  ||  info->get_engine_type()!=vehikel_besch_t::electric)  &&
-			(!info->is_future(month_now))  &&  (show_retired_vehicles  ||  (!info->is_retired(month_now)) )
-			||  is_contained(info)
-		) {
-			image_list_t::image_data_t img_data;
-
-			img_data.image = info->gib_basis_bild();
-			img_data.count = 0;
-			img_data.lcolor = img_data.rcolor= -1;
-
-			// since they come "pre-sorted" for the vehikelbauer, we have to do nothing to keep them sorted
-
-			if(info->gib_ware()==warenbauer_t::passagiere  ||  info->gib_ware()==warenbauer_t::post) {
-				pas_vec->append(img_data);
-				vehicle_map.set(info, &pas_vec->at(pas_vec->get_count() - 1));
-			}
-			else if(info->gib_leistung() > 0  ||  info->gib_zuladung()==0) {
-				loks_vec->append(img_data);
-				vehicle_map.set(info, &loks_vec->at(loks_vec->get_count() - 1));
-			}
-			else {
-				waggons_vec->append(img_data);
-				vehicle_map.set(info, &waggons_vec->at(waggons_vec->get_count() - 1));
-			}
-		} else {
-//DBG_DEBUG("depot_frame_t::build_vehicle_lists()","now vehicle %s not available.", info->gib_name());
+		const vehikel_besch_t *info=depot->get_vehicle_type(i);
+		// current vehicle
+		if( is_contained(info)  ||
+			(schiene_electric  ||  info->get_engine_type()!=vehikel_besch_t::electric)  &&
+		     ((!info->is_future(month_now))  &&  (show_retired_vehicles  ||  (!info->is_retired(month_now)) )  ) ) {
+			add_to_vehicle_list( info );
 		}
-
 		i++;
 	}
-
 }
 
 
 void depot_frame_t::update_data()
 {
-    static const char *txt_veh_action[3] = {
-	"anhängen",
-	"voranstellen",
-	"verkaufen"
-    };
+	static const char *txt_veh_action[3] = { "anhängen", "voranstellen", "verkaufen" };
 
-	// change grren into blue for retired vehicles
-	const int month_now = welt->get_current_month();
+	// change green into blue for retired vehicles
+	const int month_now = welt->get_timeline_year_month();
 
-    bt_veh_action.setze_text(translator::translate(txt_veh_action[veh_action]));
+	bt_veh_action.setze_text(translator::translate(txt_veh_action[veh_action]));
 
-    // set line text: (line name or <no line>
-    if ((iroute > -1) && (iroute < (int)depot->get_line_list()->count()))
-    {
-    	box.setze_text(depot->get_line_list()->at(iroute)->get_name(), 128);
-    } else {
-    	box.setze_text(no_line_text, 128);
-    	iroute = -1;
-    }
-
-    switch(depot->convoi_count()) {
-    case 0:
-	tstrncpy(txt_convois, translator::translate("no convois"), 40);
-	break;
-    case 1:
-	if(icnv == -1) {
-    	    sprintf(txt_convois, translator::translate("1 convoi"));
-	} else {
-	    sprintf(txt_convois, translator::translate("convoi %d of %d"), icnv + 1, depot->convoi_count());
+	// set line text: (line name or <no line>
+	if ((iroute > -1) && (iroute < (int)depot->get_line_list()->count())) {
+		box.setze_text(depot->get_line_list()->at(iroute)->get_name(), 128);
 	}
-	break;
-    default:
-	if(icnv == -1) {
-	    sprintf(txt_convois, translator::translate("%d convois"), depot->convoi_count());
-	} else {
-	    sprintf(txt_convois, translator::translate("convoi %d of %d"), icnv + 1, depot->convoi_count());
+	else {
+		box.setze_text(no_line_text, 128);
+		iroute = -1;
 	}
-	break;
-    }
-    /*
-     * Reset counts and check for valid vehicles
-     */
-    ptrhashtable_iterator_tpl<const vehikel_besch_t *, image_list_t::image_data_t *> iter1(vehicle_map);
-    convoihandle_t cnv = depot->get_convoi(icnv);
-    const vehikel_besch_t *veh = NULL;
 
-    convoi_pics.clear();
-    if(cnv.is_bound() && cnv->gib_vehikel_anzahl() > 0) {
+	switch(depot->convoi_count()) {
+		case 0:
+			tstrncpy(txt_convois, translator::translate("no convois"), 40);
+			break;
+		case 1:
+			if(icnv == -1) {
+				sprintf(txt_convois, translator::translate("1 convoi"));
+			} else {
+				sprintf(txt_convois, translator::translate("convoi %d of %d"), icnv + 1, depot->convoi_count());
+			}
+			break;
+		default:
+			if(icnv == -1) {
+				sprintf(txt_convois, translator::translate("%d convois"), depot->convoi_count());
+			} else {
+				sprintf(txt_convois, translator::translate("convoi %d of %d"), icnv + 1, depot->convoi_count());
+			}
+			break;
+	}
+
+	/*
+	* Reset counts and check for valid vehicles
+	*/
+	convoihandle_t cnv = depot->get_convoi(icnv);
+	const vehikel_besch_t *veh = NULL;
+
+	convoi_pics.clear();
+	if(cnv.is_bound() && cnv->gib_vehikel_anzahl() > 0) {
 		inp_name.setze_text(cnv->access_name(), 48);
-	image_list_t::image_data_t img_data;
+		image_list_t::image_data_t img_data;
 
-	uint16 i;
-	for(i = 0; i < cnv->gib_vehikel_anzahl(); i++) {
-	    img_data.image = cnv->gib_vehikel(i)->gib_bild();
-	    img_data.count = 0;
-	    img_data.lcolor = img_data.rcolor= -1;
-	    convoi_pics.append(img_data);
-	}
+		for(int i=0; i<cnv->gib_vehikel_anzahl(); i++) {
 
-	/* color bars for current convoi: */
-	convoi_pics.at(0).lcolor = convoi_t::pruefe_vorgaenger(NULL,cnv->gib_vehikel(0)->gib_besch()) ? GREEN : GELB;
-	for(i = 1; i < cnv->gib_vehikel_anzahl(); i++) {
-	    convoi_pics.at(i - 1).rcolor =
-		convoi_t::pruefe_nachfolger(cnv->gib_vehikel(i - 1)->gib_besch(),cnv->gib_vehikel(i)->gib_besch()) ? GREEN : ROT;
-	    convoi_pics.at(i).lcolor =
-		convoi_t::pruefe_vorgaenger(cnv->gib_vehikel(i - 1)->gib_besch(),cnv->gib_vehikel(i)->gib_besch()) ? GREEN : ROT;
-	}
-	convoi_pics.at(i - 1).rcolor =
-	    convoi_t::pruefe_nachfolger(cnv->gib_vehikel(i - 1)->gib_besch(),NULL) ? GREEN : GELB;
+			// just make sure, there is this vehicle also here!
+			const vehikel_besch_t *info=cnv->gib_vehikel(i)->gib_besch();
+			if(vehicle_map.get(info)==NULL) {
+				add_to_vehicle_list( info );
+			}
+
+			img_data.image = cnv->gib_vehikel(i)->gib_bild();
+			img_data.count = 0;
+			img_data.lcolor = img_data.rcolor= -1;
+			convoi_pics.append(img_data);
+		}
+
+		/* color bars for current convoi: */
+		convoi_pics.at(0).lcolor = convoi_t::pruefe_vorgaenger(NULL,cnv->gib_vehikel(0)->gib_besch()) ? GREEN : GELB;
+		int i;
+		for(i=1;  i<cnv->gib_vehikel_anzahl(); i++) {
+			convoi_pics.at(i - 1).rcolor = convoi_t::pruefe_nachfolger(cnv->gib_vehikel(i - 1)->gib_besch(),cnv->gib_vehikel(i)->gib_besch()) ? GREEN : ROT;
+			convoi_pics.at(i).lcolor = convoi_t::pruefe_vorgaenger(cnv->gib_vehikel(i - 1)->gib_besch(),cnv->gib_vehikel(i)->gib_besch()) ? GREEN : ROT;
+		}
+		convoi_pics.at(i - 1).rcolor = convoi_t::pruefe_nachfolger(cnv->gib_vehikel(i - 1)->gib_besch(),NULL) ? GREEN : GELB;
 
 		// change grren into blue for retired vehicles
 		for(i=0;  i<cnv->gib_vehikel_anzahl(); i++) {
@@ -712,67 +709,67 @@ void depot_frame_t::update_data()
 			}
 		}
 
-	if(veh_action == va_insert) {
-	    veh = cnv->gib_vehikel(0)->gib_besch();
-	} else if(veh_action == va_append) {
-	    veh = cnv->gib_vehikel(cnv->gib_vehikel_anzahl() - 1)->gib_besch();
-	}
-    }
-    while(iter1.next()) {
-	const int ok_color = iter1.get_current_key()->is_future(month_now) || iter1.get_current_key()->is_retired(month_now) ? BLAU: GREEN;
-
-	iter1.get_current_value()->count = 0;
-	iter1.get_current_value()->lcolor = -1;
-	iter1.get_current_value()->rcolor = -1;
-
-	/*
-	 * color bars for current convoi:
-	 *  green/green	okay to append/insert
-	 *  red/red		cannot be appended/inserted
-	 *  green/yellow	append okay, cannot be end of train
-	 *  yellow/green	insert okay, cannot be start of train
-	 */
-
-	if(veh_action == va_insert) {
-	    if (!convoi_t::pruefe_nachfolger(iter1.get_current_key(), veh) ||
-			veh && !convoi_t::pruefe_vorgaenger(iter1.get_current_key(), veh)) {
-			iter1.get_current_value()->lcolor = ROT;
-			iter1.get_current_value()->rcolor = ROT;
-	    } else if(!convoi_t::pruefe_vorgaenger(NULL, iter1.get_current_key())) {
-			iter1.get_current_value()->lcolor = GELB;
-			iter1.get_current_value()->rcolor = ok_color;
-	    } else {
-			iter1.get_current_value()->lcolor = ok_color;
-			iter1.get_current_value()->rcolor = ok_color;
-	    }
-	} else if(veh_action == va_append) {
-	    if(!convoi_t::pruefe_vorgaenger(veh, iter1.get_current_key()) ||
-			veh && !convoi_t::pruefe_nachfolger(veh, iter1.get_current_key())) {
-			iter1.get_current_value()->lcolor = ROT;
-			iter1.get_current_value()->rcolor = ROT;
-	    } else if(!convoi_t::pruefe_nachfolger(iter1.get_current_key(), NULL)) {
-			iter1.get_current_value()->lcolor = ok_color;
-			iter1.get_current_value()->rcolor = GELB;
-	    } else {
-			iter1.get_current_value()->lcolor = ok_color;
-			iter1.get_current_value()->rcolor = ok_color;
-	    }
-	}
-    }
-
-    slist_iterator_tpl<vehikel_t *> iter2(depot->get_vehicle_list());
-
-    while(iter2.next()) {
-	vehicle_map.get(iter2.get_current()->gib_besch())->count++;
-		if(veh_action == va_sell) {
-		    vehicle_map.get(iter2.get_current()->gib_besch())->lcolor = GREEN;
-		    vehicle_map.get(iter2.get_current()->gib_besch())->rcolor = GREEN;
+		if(veh_action == va_insert) {
+			veh = cnv->gib_vehikel(0)->gib_besch();
+		} else if(veh_action == va_append) {
+			veh = cnv->gib_vehikel(cnv->gib_vehikel_anzahl() - 1)->gib_besch();
 		}
-    }
+	}
 
-    box.clear_elements();
-	if (welt->simlinemgmt->count_lines() > 0)
-	{
+	ptrhashtable_iterator_tpl<const vehikel_besch_t *, image_list_t::image_data_t *> iter1(vehicle_map);
+	while(iter1.next()) {
+		const int ok_color = iter1.get_current_key()->is_future(month_now) || iter1.get_current_key()->is_retired(month_now) ? BLAU: GREEN;
+
+		iter1.get_current_value()->count = 0;
+		iter1.get_current_value()->lcolor = -1;
+		iter1.get_current_value()->rcolor = -1;
+
+		/*
+		* color bars for current convoi:
+		*  green/green	okay to append/insert
+		*  red/red		cannot be appended/inserted
+		*  green/yellow	append okay, cannot be end of train
+		*  yellow/green	insert okay, cannot be start of train
+		*/
+
+		if(veh_action == va_insert) {
+			if (!convoi_t::pruefe_nachfolger(iter1.get_current_key(), veh) ||
+				veh && !convoi_t::pruefe_vorgaenger(iter1.get_current_key(), veh)) {
+				iter1.get_current_value()->lcolor = ROT;
+				iter1.get_current_value()->rcolor = ROT;
+			} else if(!convoi_t::pruefe_vorgaenger(NULL, iter1.get_current_key())) {
+				iter1.get_current_value()->lcolor = GELB;
+				iter1.get_current_value()->rcolor = ok_color;
+			} else {
+				iter1.get_current_value()->lcolor = ok_color;
+				iter1.get_current_value()->rcolor = ok_color;
+			}
+		} else if(veh_action == va_append) {
+			if(!convoi_t::pruefe_vorgaenger(veh, iter1.get_current_key()) ||
+				veh && !convoi_t::pruefe_nachfolger(veh, iter1.get_current_key())) {
+				iter1.get_current_value()->lcolor = ROT;
+				iter1.get_current_value()->rcolor = ROT;
+			} else if(!convoi_t::pruefe_nachfolger(iter1.get_current_key(), NULL)) {
+				iter1.get_current_value()->lcolor = ok_color;
+				iter1.get_current_value()->rcolor = GELB;
+			} else {
+				iter1.get_current_value()->lcolor = ok_color;
+				iter1.get_current_value()->rcolor = ok_color;
+			}
+		}
+	}
+
+	slist_iterator_tpl<vehikel_t *> iter2(depot->get_vehicle_list());
+	while(iter2.next()) {
+		vehicle_map.get(iter2.get_current()->gib_besch())->count++;
+		if(veh_action == va_sell) {
+			vehicle_map.get(iter2.get_current()->gib_besch())->lcolor = GREEN;
+			vehicle_map.get(iter2.get_current()->gib_besch())->rcolor = GREEN;
+		}
+	}
+
+	box.clear_elements();
+	if(gib_besitzer()->simlinemgmt.count_lines() > 0) {
 		slist_iterator_tpl<simline_t *> iter( depot->get_line_list() );
 		while( iter.next() ) {
 			simline_t *line = iter.get_current();
@@ -790,15 +787,15 @@ void depot_frame_t::update_data()
 
 int depot_frame_t::calc_restwert(const vehikel_besch_t *veh_type)
 {
-    int wert = 0;
+	int wert = 0;
 
-    slist_iterator_tpl<vehikel_t *> iter(depot->get_vehicle_list());
-    while(iter.next()) {
-	if(iter.get_current()->gib_besch() == veh_type) {
-	    wert += iter.get_current()->calc_restwert();
+	slist_iterator_tpl<vehikel_t *> iter(depot->get_vehicle_list());
+	while(iter.next()) {
+		if(iter.get_current()->gib_besch() == veh_type) {
+			wert += iter.get_current()->calc_restwert();
+		}
 	}
-    }
-    return wert;
+	return wert;
 }
 
 void
@@ -1078,7 +1075,7 @@ depot_frame_t::zeichnen(koord pos, koord groesse)
  */
 void depot_frame_t::new_line()
 {
-	simline_t * new_line = depot->create_line(welt);
+	simline_t * new_line = depot->create_line();
 	iroute = depot->get_line_list()->count() -1;
 
 	// newly created lines will be put into a sorted list of all lines

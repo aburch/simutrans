@@ -46,8 +46,8 @@ public:
      * @date   11-May-2002
      */
     enum resize_modes {
-      no_resize = 0, diagonal_resize = 3
-    }; // vertical_resize = 1, horizonal_resize = 2,
+      no_resize = 0, vertical_resize = 1, horizonal_resize = 2, diagonal_resize = 3
+    };
 
 
     /**

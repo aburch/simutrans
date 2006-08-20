@@ -249,6 +249,7 @@ bool depot_t::disassemble_convoi(int icnv, bool sell)
 		if( v ) {
 
 		    if(sell) {
+		    DBG_MESSAGE("depot_t::convoi_aufloesen()", "sell %p", v);
 			delete v;
 		    } else {
 			// Hajo: reset vehikel data
@@ -422,7 +423,7 @@ const char * depot_t::ist_entfernbar(const spieler_t *)
 
 void
 depot_t::build_line_list() {
-	welt->simlinemgmt->build_line_list(simline_t::line, &lines);
+	gib_besitzer()->simlinemgmt.build_line_list(simline_t::line, &lines);
 }
 
 int
@@ -474,9 +475,9 @@ bahndepot_t::erzeuge_fahrplan(fahrplan_t * fpl)
 }
 
 simline_t *
-bahndepot_t::create_line(karte_t * welt)
+bahndepot_t::create_line()
 {
-    return welt->simlinemgmt->create_line(simline_t::trainline);
+    return gib_besitzer()->simlinemgmt.create_line(simline_t::trainline);
 }
 
 bool
@@ -534,7 +535,7 @@ const weg_t::typ bahndepot_t::get_wegtyp() const
 
 void
 bahndepot_t::build_line_list() {
-	welt->simlinemgmt->build_line_list(simline_t::trainline, &lines);
+	gib_besitzer()->simlinemgmt.build_line_list(simline_t::trainline, &lines);
 }
 
 slist_tpl<simline_t *> *
@@ -563,9 +564,9 @@ strassendepot_t::erzeuge_fahrplan(fahrplan_t * fpl)
 }
 
 simline_t *
-strassendepot_t::create_line(karte_t * welt)
+strassendepot_t::create_line()
 {
-    return welt->simlinemgmt->create_line(simline_t::truckline);
+    return gib_besitzer()->simlinemgmt.create_line(simline_t::truckline);
 }
 
 const vehikel_besch_t *strassendepot_t::get_vehicle_type(int itype)
@@ -581,7 +582,7 @@ strassendepot_t::gib_name() const
 
 void
 strassendepot_t::build_line_list() {
-	welt->simlinemgmt->build_line_list(simline_t::truckline, &lines);
+	gib_besitzer()->simlinemgmt.build_line_list(simline_t::truckline, &lines);
 }
 
 slist_tpl<simline_t *> *
@@ -610,9 +611,9 @@ schiffdepot_t::erzeuge_fahrplan(fahrplan_t * fpl)
 }
 
 simline_t *
-schiffdepot_t::create_line(karte_t * welt)
+schiffdepot_t::create_line()
 {
-    return welt->simlinemgmt->create_line(simline_t::shipline);
+    return gib_besitzer()->simlinemgmt.create_line(simline_t::shipline);
 }
 
 const vehikel_besch_t *schiffdepot_t::get_vehicle_type(int itype)
@@ -629,7 +630,7 @@ schiffdepot_t::gib_name() const
 
 void
 schiffdepot_t::build_line_list() {
-	welt->simlinemgmt->build_line_list(simline_t::shipline, &lines);
+	gib_besitzer()->simlinemgmt.build_line_list(simline_t::shipline, &lines);
 }
 
 slist_tpl<simline_t *> *
@@ -670,9 +671,9 @@ airdepot_t::erzeuge_fahrplan(fahrplan_t * fpl)
 }
 
 simline_t *
-airdepot_t::create_line(karte_t * welt)
+airdepot_t::create_line()
 {
-    return welt->simlinemgmt->create_line(simline_t::airline);
+    return gib_besitzer()->simlinemgmt.create_line(simline_t::airline);
 }
 
 const vehikel_besch_t *airdepot_t::get_vehicle_type(int itype)
@@ -688,7 +689,7 @@ airdepot_t::gib_name() const
 
 void
 airdepot_t::build_line_list() {
-	welt->simlinemgmt->build_line_list(simline_t::airline, &lines);
+	gib_besitzer()->simlinemgmt.build_line_list(simline_t::airline, &lines);
 }
 
 slist_tpl<simline_t *> *

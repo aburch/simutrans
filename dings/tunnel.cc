@@ -18,7 +18,6 @@
 #include "../boden/wege/strasse.h"
 #include "../boden/wege/schiene.h"
 #include "../simimg.h"
-#include "../simcosts.h"
 #include "../utils/cbuffer_t.h"
 #include "../bauer/tunnelbauer.h"
 

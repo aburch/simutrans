@@ -14,6 +14,7 @@
 #include "simgraph.h"
 
 #include "simdings.h"
+#include "simconst.h"
 #include "dings/zeiger.h"
 
 

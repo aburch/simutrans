@@ -53,12 +53,12 @@ display_progress(int part, int total)
 void
 display_icon_leiste(const int color, int basis_bild)
 {
-    static int old_color = -1, old_basis_bild=-1;
+    static int old_color = 0;
     int dirty;
     extern int disp_width, old_my;
 //    extern int disp_height;
 
-	if(color != old_color  ||  color==-1
+	if(color!=old_color  ||  color==-1
 #ifdef USE_SOFTPOINTER
 		|| old_my <= 32
 #endif
@@ -91,18 +91,6 @@ display_icon_leiste(const int color, int basis_bild)
 }
 
 
-#if 0
-/**
- * Zeichnet eine Trennlinie
- * @author Niels Roest
- */
-void display_divider(int x, int y, int w)
-{
-  display_fillbox_wh(x,y   ,w,1, MN_GREY4, FALSE);
-  display_fillbox_wh(x,y+1 ,w,1, MN_GREY0, FALSE);
-}
-#endif
-
 
 /**
  * Kopiert Puffer ins Fenster
@@ -111,28 +99,24 @@ void display_divider(int x, int y, int w)
 void
 display_flush(int stunden4, int color, double konto, const char *day_str, const char *info, const char *player_name, const int player_color)
 {
-    char buffer[256];
-    extern int disp_width;
-    extern int disp_height;
+	char buffer[256];
+	extern int disp_width;
+	extern int disp_height;
 
-    display_fillbox_wh(0, disp_height-16, disp_width, 1, MN_GREY4, FALSE);
-    display_fillbox_wh(0, disp_height-15, disp_width, 15, MN_GREY1, FALSE);
+	display_fillbox_wh(0, disp_height-16, disp_width, 1, MN_GREY4, FALSE);
+	display_fillbox_wh(0, disp_height-15, disp_width, 15, MN_GREY1, FALSE);
 
-    sprintf(buffer,"%s %2d:%02dh", day_str, stunden4 >> 2, (stunden4 & 3)*15);
-    display_proportional(24, disp_height-12, buffer, ALIGN_LEFT, SCHWARZ, TRUE);
-    money_to_string(buffer, konto);
-
-    if(konto >= 0.0) {
-	display_proportional(344, disp_height-12, buffer, ALIGN_LEFT, SCHWARZ, TRUE);
-    } else {
-	display_proportional(344, disp_height-12, buffer, ALIGN_LEFT, DUNKELROT, TRUE);
-    }
-
-    display_proportional(480, disp_height-12, info, ALIGN_LEFT, BLACK, TRUE);
+	sprintf(buffer,"%s %2d:%02dh", day_str, stunden4 >> 2, (stunden4 & 3)*15);
+	display_proportional(16, disp_height-12, buffer, ALIGN_LEFT, SCHWARZ, TRUE);
 
 	if(player_name!=NULL) {
-		display_proportional(255, disp_height-12, player_name, ALIGN_MIDDLE, player_color, TRUE);
+		display_proportional(256, disp_height-12, player_name, ALIGN_MIDDLE, player_color, TRUE);
 	}
+
+	money_to_string(buffer, konto);
+	display_proportional(disp_width/2, disp_height-12, buffer, ALIGN_MIDDLE, konto >= 0.0?SCHWARZ:DUNKELROT, TRUE);
+
+	display_proportional(disp_width-30, disp_height-12, info, ALIGN_RIGHT, BLACK, TRUE);
 
 	display_flush_buffer();
 }

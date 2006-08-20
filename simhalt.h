@@ -52,18 +52,9 @@ class halt_info_t;
 struct event_t;
 class simline_t;
 class cbuffer_t;
+class freight_list_sorter_t;
 
 #include "halthandle_t.h"
-
-/*
- * struct hold travel details for wares that travel
- * @author hsiegeln
- */
-struct travel_details {
-	ware_t ware;
-	halthandle_t destination;
-	halthandle_t via_destination;
-};
 
 // -------------------------- Haltestelle ----------------------------
 
@@ -79,8 +70,6 @@ struct travel_details {
 class haltestelle_t
 {
 public:
-
-
   /**
    * Sets max number of hops in route calculation
    * @author Hj. Malthaner
@@ -120,6 +109,7 @@ private:
     void init_financial_history();
 
 	uint8 status_color;
+	uint16 capacity;
 	void recalc_status();
 
 public:
@@ -134,13 +124,8 @@ public:
      */
     static int erzeuge_fussgaenger(karte_t *welt, koord3d pos, int anzahl);
 
-
     //13-Jan-02     Markus Weber    Added
     enum stationtyp {invalid=0, loadingbay = 1 , railstation = 2, dock = 4, busstop = 8, airstop = 16 }; //could be combined with or!
-
-    // @author hsiegeln added
-    enum sort_mode_t { by_name=0, by_via=1, by_via_sum=2, by_amount=3};
-
 
     /* sucht Haltestelle an Koordinate pos.
      *
@@ -155,8 +140,6 @@ public:
 
     // Hajo: for future compatibility, migrate to this call!
     static halthandle_t gib_halt(karte_t *welt, const koord3d pos);
-
-
 
     /**
      * Prueft, ob halt auf eine Haltestelle zeigt
@@ -326,9 +309,6 @@ private:
     void liefere_an_fabrik(ware_t ware);
 
 
-
-
-
     haltestelle_t(karte_t *welt, loadsave_t *file);
     haltestelle_t(karte_t *welt, koord pos, spieler_t *sp);
 
@@ -336,17 +316,11 @@ private:
 
     /*
     * parameter to ease sorting
-    * sortby is static and set during rendering of halt_info frame
-    * @author hsiegeln
-    */
-    static sort_mode_t sortby;
-
-    /*
-    * parameter to ease sorting
     * sortierung is local and stores the sortorder for the individual station
     * @author hsiegeln
     */
-    sort_mode_t sortierung;
+    uint8 sortierung;
+	bool resort_freight_info;
 
 public:
 
@@ -354,8 +328,8 @@ public:
      * getter/setter for sortby
      * @author hsiegeln
      */
-    haltestelle_t::sort_mode_t get_sortby() { return sortierung; }
-    void set_sortby(sort_mode_t sm) { sortby = sm; sortierung = sm; }
+    uint8 get_sortby() { return sortierung; }
+    void set_sortby(uint8 sm) { resort_freight_info =true; sortierung = sm; }
 
 
     /**
@@ -486,7 +460,7 @@ public:
     bool add_grund(grund_t *gb);
     void rem_grund(grund_t *gb);
 
-    int gib_grund_count() const {return grund.count();};
+    int get_capacity() const {return capacity*32;};
 
     bool existiert_in_welt();
 
@@ -557,7 +531,6 @@ public:
 	 * @author prissi
 	 */
 	bool find_free_position(const weg_t::typ w ,const ding_t::typ d) const;
-
 
 
 

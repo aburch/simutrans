@@ -22,8 +22,8 @@ einstellungen_t::einstellungen_t() : heightfield("")
     /* new setting since version 0.85.01
      * @author prissi
      */
-    land_industry_chains = 1;
-    city_industry_chains = 0;
+    land_industry_chains = 6;
+    city_industry_chains = 1;
     tourist_attractions = 2;
 
     anzahl_staedte = 12;

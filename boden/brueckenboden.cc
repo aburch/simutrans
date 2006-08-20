@@ -1,6 +1,5 @@
 
 #include "../simdebug.h"
-#include "brueckenboden.h"
 
 #include "../gui/karte.h"
 #include "../simimg.h"
@@ -11,6 +10,7 @@
 #include "../dataobj/loadsave.h"
 #include "../dataobj/freelist.h"
 
+#include "brueckenboden.h"
 
 brueckenboden_t::brueckenboden_t(karte_t *welt, loadsave_t *file) : grund_t(welt)
 {
@@ -29,51 +29,56 @@ brueckenboden_t::brueckenboden_t(karte_t *welt, koord3d pos, int grund_hang, int
 
 void brueckenboden_t::calc_bild()
 {
-    if(ist_karten_boden()) {
-        reliefkarte_t::gib_karte()->recalc_relief_farbe(gib_pos().gib_2d());
-	setze_weg_bild(-1);
-	if(gib_hoehe() == welt->gib_grundwasser()) {
-	    setze_bild(grund_besch_t::ufer->gib_bild(gib_grund_hang()));
+	reliefkarte_t::gib_karte()->recalc_relief_farbe(gib_pos().gib_2d());
+	if(ist_karten_boden()) {
+		if(gib_hoehe()==welt->gib_grundwasser()) {
+			setze_bild(grund_besch_t::ufer->gib_bild(gib_grund_hang()));
+		}
+		else {
+			setze_bild(grund_besch_t::boden->gib_bild(gib_grund_hang()));
+		}
+		grund_t::calc_back_bild(gib_hoehe()/16,grund_hang);
 	}
 	else {
-	    setze_bild(grund_besch_t::boden->gib_bild(gib_grund_hang()));
+		setze_bild(IMG_LEER);
+		clear_back_bild();
 	}
-    } else {
-	setze_weg_bild(IMG_LEER);
-	setze_bild(IMG_LEER);
-    }
+	if(gib_weg_nr(0)) {
+		gib_weg_nr(0)->setze_bild(IMG_LEER);
+	}
 }
 
 
 void
 brueckenboden_t::rdwr(loadsave_t *file)
 {
-    grund_t::rdwr(file);
+	grund_t::rdwr(file);
+	if(file->get_version() <= 84004) {
+		short v;
+		v = grund_hang;
+		file->rdwr_short(v, " ");
+		grund_hang = v;
 
-    if(file->get_version() <= 84004) {
-      short v;
-      v = grund_hang;
-      file->rdwr_short(v, " ");
-      grund_hang = v;
+		v= weg_hang;
+		file->rdwr_short(v, "\n");
+		weg_hang = v;
 
-      v= weg_hang;
-      file->rdwr_short(v, "\n");
-      weg_hang = v;
-
-    } else {
-      file->rdwr_byte(grund_hang, " ");
-      file->rdwr_byte(weg_hang, "\n");
-    }
+	}
+	else {
+		file->rdwr_byte(grund_hang, " ");
+		file->rdwr_byte(weg_hang, "\n");
+	}
 }
 
 
 int brueckenboden_t::gib_weg_yoff() const
 {
-    if(ist_karten_boden() && weg_hang == 0) {
-	return height_scaling(16);
-    } else {
-	return 0;
-    }
+	if(ist_karten_boden() && weg_hang == 0) {
+		return height_scaling(16);
+	}
+	else {
+		return 0;
+	}
 }
 
 

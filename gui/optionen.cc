@@ -27,7 +27,7 @@
 #include "optionen.h"
 #include "colors.h"
 #include "sprachen.h"
-#include "spieler.h"
+#include "player_frame_t.h"
 #include "welt.h"
 #include "kennfarbe.h"
 #include "sound_frame.h"
@@ -110,16 +110,6 @@ const char *
 optionen_gui_t::gib_name() const
 {
     return "Einstellungen";
-}
-
-/**
- * gibt den Besitzer zurück
- *
- * @author Hj. Malthaner
- */
-spieler_t* optionen_gui_t::gib_besitzer() const
-{
-  return welt->get_active_player();
 }
 
 /**

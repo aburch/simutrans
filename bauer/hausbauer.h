@@ -127,7 +127,7 @@ public:
     static void fill_menu(werkzeug_parameter_waehler_t *wzw,
     		slist_tpl<const haus_besch_t *>&stops,
     		int (* werkzeug)(spieler_t *, karte_t *, koord, value_t),
-    		const int sound_ok, const int sound_ko,const int cost, const uint16 time);
+    		const int sound_ok, const int sound_ko,const sint64 cost, const uint16 time);
 
     /* Fill menu with icons of given stops of a given type
      * @author prissi
@@ -135,7 +135,7 @@ public:
     static void fill_menu(werkzeug_parameter_waehler_t *wzw,
     		hausbauer_t::utyp,
     		int (* werkzeug)(spieler_t *, karte_t *, koord, value_t),
-    		const int sound_ok, const int sound_ko,const int cost, const uint16 time);
+    		const int sound_ok, const int sound_ko,const sint64 cost, const uint16 time);
 
     /**
      * Sucht ein Gebäude, welches bei der gegebenen Bevölkerungszahl gebaut

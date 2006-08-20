@@ -72,19 +72,6 @@ void runway_t::info(cbuffer_t & buf) const
 }
 
 
-int runway_t::calc_bild(koord3d pos) const
-{
-    if(welt->ist_in_kartengrenzen( pos.gib_2d() )) {
-        // V.Meyer: weg_position_t removed
-        grund_t *gr = welt->lookup(pos);
-
-  if(gr) {
-      return weg_t::calc_bild(pos, gib_besch());
-  }
-    }
-    return -1;
-}
-
 
 void
 runway_t::betrete(vehikel_basis_t *v)
@@ -96,6 +83,7 @@ runway_t::betrete(vehikel_basis_t *v)
 //    bs->betrete( v );
 
 }
+
 
 
 void

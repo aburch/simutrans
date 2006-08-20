@@ -71,16 +71,3 @@ void kanal_t::info(cbuffer_t & buf) const
   buf.append(gib_ribi());
   buf.append("\n");
 }
-
-
-
-int kanal_t::calc_bild(koord3d pos) const
-{
-	if(welt->ist_in_kartengrenzen( pos.gib_2d() )) {
-		if(gib_besch()!=NULL) {
-			return weg_t::calc_bild(pos, gib_besch());
-		}
-		return grund_besch_t::wasser->gib_bild(hang_t::flach);
-	}
-	return -1;
-}

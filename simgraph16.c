@@ -3226,18 +3226,6 @@ display_multiline_text(int x, int y, const char *buf, int color)
 }
 
 
-/**
- * Loescht den Bildschirm
- * @author Hj. Malthaner
- */
-void
-display_clear()
-{
-    memset(textur+32*disp_width, 32, disp_width*(disp_height-17-32));
-
-    mark_rect_dirty_nc(0, 0, disp_width-1, disp_height-1);
-}
-
 
 void display_flush_buffer()
 {

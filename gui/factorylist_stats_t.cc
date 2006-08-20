@@ -53,7 +53,7 @@ void factorylist_header_t::infowin_event(const event_t *ev)
 		bt_filter.getroffen(ev->cx, ev->cy);
 	}
 
-		if(IS_LEFTRELEASE(ev)) {
+	if(IS_LEFTRELEASE(ev)) {
 		if(bt_filter.getroffen(ev->cx, ev->cy)) 	{
 			// next selection
 			bt_filter.pressed = false;
@@ -67,35 +67,35 @@ void factorylist_header_t::infowin_event(const event_t *ev)
 
 void factorylist_header_t::zeichnen(koord pos) const
 {
-  static cbuffer_t buf(64);
+	static cbuffer_t buf(64);
 
-  display_proportional_clip(pos.x+10, pos.y+8, translator::translate("hl_txt_sort"), ALIGN_LEFT, SCHWARZ, true);
-  bt_filter.zeichnen(pos);
+	display_proportional_clip(pos.x+10, pos.y+8, translator::translate("hl_txt_sort"), ALIGN_LEFT, SCHWARZ, true);
+	bt_filter.zeichnen(pos);
 
-  buf.clear();
-  buf.append(translator::translate(sort_text[FL_SM_STATUS]));
-  buf.append(" ");
-  buf.append(translator::translate(sort_text[FL_SM_POWER]));
-  buf.append(" : ");
-  buf.append(translator::translate(sort_text[FL_SM_NAME]));
-  buf.append(" (");
-  buf.append(translator::translate(sort_text[FL_SM_INPUT]));
-  buf.append(", ");
-  buf.append(translator::translate(sort_text[FL_SM_OUTPUT]));
-  buf.append(", ");
-  buf.append(translator::translate(sort_text[FL_SM_MAXPROD]));
-  buf.append(")");
-  display_proportional_clip(pos.x+6, pos.y+25, buf, ALIGN_LEFT, WEISS, true);
+	buf.clear();
+	buf.append(translator::translate(sort_text[FL_SM_STATUS]));
+	buf.append(" ");
+	buf.append(translator::translate(sort_text[FL_SM_POWER]));
+	buf.append(" : ");
+	buf.append(translator::translate(sort_text[FL_SM_NAME]));
+	buf.append(" (");
+	buf.append(translator::translate(sort_text[FL_SM_INPUT]));
+	buf.append(", ");
+	buf.append(translator::translate(sort_text[FL_SM_OUTPUT]));
+	buf.append(", ");
+	buf.append(translator::translate(sort_text[FL_SM_MAXPROD]));
+	buf.append(")");
+	display_proportional_clip(pos.x+6, pos.y+25, buf, ALIGN_LEFT, WEISS, true);
 }
 
 
 
 factorylist_stats_t::factorylist_stats_t(karte_t * w) : welt(w), sortmode(FL_SM_NAME)
 {
-setze_groesse(koord(210, welt->gib_fab_list().count()*14 +14));
-//DBG_DEBUG("factorylist_stats_t()","constructor");
-fab_list = new vector_tpl<fabrik_t*>(1);
-sort();
+	setze_groesse(koord(210, welt->gib_fab_list().count()*14 +14));
+	//DBG_DEBUG("factorylist_stats_t()","constructor");
+	fab_list = new vector_tpl<fabrik_t*>(1);
+	sort();
 }
 
 factorylist_stats_t::~factorylist_stats_t()

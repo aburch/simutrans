@@ -27,6 +27,8 @@
 #include "../bauer/warenbauer.h"
 #include "../dataobj/translator.h"
 
+#include "components/list_button.h"
+
  /**
  * All filter and sort settings are static, so the old settings are
  * used when the window is reopened.
@@ -170,31 +172,31 @@ convoi_frame_t::convoi_frame_t(spieler_t *sp, karte_t *welt) :
     this->welt = welt;
     filter_frame = NULL;
 
-    sort_label.setze_pos(koord(3, 4));
+    sort_label.setze_pos(koord(BUTTON1_X, 4));
     add_komponente(&sort_label);
-    sortedby.init(button_t::roundbox, "", koord(1, 14), koord(78,14));
+    sortedby.init(button_t::roundbox, "", koord(BUTTON1_X, 14), koord(BUTTON_WIDTH,BUTTON_HEIGHT));
     sortedby.add_listener(this);
     add_komponente(&sortedby);
 
-    sorteddir.init(button_t::roundbox, "", koord(80, 14), koord(78,14));
+    sorteddir.init(button_t::roundbox, "", koord(BUTTON2_X, 14), koord(BUTTON_WIDTH,BUTTON_HEIGHT));
     sorteddir.add_listener(this);
     add_komponente(&sorteddir);
 
-    filter_label.setze_pos(koord(164, 4));
+    filter_label.setze_pos(koord(BUTTON3_X, 4));
     add_komponente(&filter_label);
 
-    filter_on.init(button_t::roundbox, translator::translate(gib_filter(any_filter) ? "cl_btn_filter_enable" : "cl_btn_filter_disable"), koord(162, 14), koord(78,14));
+    filter_on.init(button_t::roundbox, translator::translate(gib_filter(any_filter) ? "cl_btn_filter_enable" : "cl_btn_filter_disable"), koord(BUTTON3_X, 14), koord(BUTTON_WIDTH,BUTTON_HEIGHT));
     filter_on.add_listener(this);
     add_komponente(&filter_on);
 
-    filter_details.init(button_t::roundbox, translator::translate("cl_btn_filter_settings"), koord(241, 14), koord(78,14));
+    filter_details.init(button_t::roundbox, translator::translate("cl_btn_filter_settings"), koord(BUTTON4_X, 14), koord(BUTTON_WIDTH,BUTTON_HEIGHT));
     filter_details.add_listener(this);
     add_komponente(&filter_details);
 
     scrolly.setze_pos(koord(1, 30));
     setze_opaque(true);
-    setze_fenstergroesse(koord(320, 191+16+16));
-	set_min_windowsize(koord(320, 191+16+16));
+    setze_fenstergroesse(koord(BUTTON4_X+BUTTON_WIDTH+2, 191+16+16));
+	set_min_windowsize(koord(BUTTON4_X+BUTTON_WIDTH+2, 191+16+16));
 	set_resizemode(diagonal_resize);
 
     display_list();

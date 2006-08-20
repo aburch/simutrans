@@ -11,6 +11,7 @@
 #ifndef warenbauer_t_h
 #define warenbauer_t_h
 
+#include "../besch/ware_besch.h"
 
 #include "../tpl/slist_tpl.h"
 #include "../tpl/ptrhashtable_tpl.h"
@@ -38,7 +39,7 @@ class warenbauer_t
   static const ware_besch_t *nichts;
 
   static bool alles_geladen();
-  static bool register_besch(const ware_besch_t *besch);
+  static bool register_besch(ware_besch_t *besch);
 
   /**
    * Sucht information zur ware 'name' und gibt die
@@ -61,7 +62,8 @@ class warenbauer_t
 
   static int gib_index(const ware_besch_t *ware)
   {
-      return waren.index_of(ware);
+  	return ware->gib_index();
+//      return waren.index_of(ware);
   }
 
   static unsigned int gib_waren_anzahl()

@@ -4,6 +4,9 @@
  * @author hsiegeln
  * 01/12/2003
  */
+#ifndef simline_h
+#define simline_h
+
 #include <string.h>
 
 #include "simtypes.h"
@@ -13,6 +16,7 @@
 
 #include "tpl/slist_tpl.h"
 #include "simconvoi.h"
+
 #include "simdebug.h"
 
 #define MAX_LINE_COST   6 // Total number of cost items
@@ -27,6 +31,7 @@
 
 class karte_t;
 class simlinemgmt_t;
+class convoi_t;
 
 class simline_t {
 	public:
@@ -79,7 +84,7 @@ class simline_t {
 	 */
 	char * get_name();
 
-	int get_id() const {return id;};
+	uint16 get_id() const {return id;};
 
  	/*
  	 * load or save the line
@@ -128,11 +133,11 @@ class simline_t {
 
 	void set_linetype(linetype lt) { type = lt; };
 
-	protected:
+protected:
 	fahrplan_t * fpl,  * old_fpl;
 	linetype type;
 
-	private:
+private:
 	karte_t * welt;
 	char name[128];
 
@@ -140,7 +145,7 @@ class simline_t {
 	 * the line id
 	 * @author hsiegeln
 	 */
-	int id;
+	uint16 id;
 
 	/*
 	 * a list of all convoys assigned to this line
@@ -217,3 +222,5 @@ class airline_t : public simline_t
 			set_fahrplan(new airfahrplan_t(fpl));
 		};
 };
+
+#endif

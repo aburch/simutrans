@@ -12,33 +12,15 @@
 
 #include "../tpl/vector_tpl.h"
 #include "../ifc/gui_komponente.h"
-#include "../dataobj/translator.h"
-#include "../simgraph.h"
-#include "../simcolor.h"
+//#include "../dings/gebaeude.h"
 #include "button.h"
-#include "../dings/gebaeude.h"
 
 class karte_t;
 class button_t;
 class curiositylist_stats_t;
+class gebaeude_t;
 
-class curiositylist_header_t : public gui_komponente_t
-{
- private:
-	curiositylist_stats_t *stats;
-
- public:
-
-  curiositylist_header_t(curiositylist_stats_t *s);
-  ~curiositylist_header_t();
-
-
-  /**
-   * Zeichnet die Komponente
-   * @author Hj. Malthaner
-   */
-  void zeichnen(koord offset) const;
-};
+enum sort_mode_t { by_name=0, by_paxlevel, by_maillevel, SORT_MODES };
 
 /**
  * Curiosity list stats display
@@ -53,24 +35,24 @@ class curiositylist_stats_t : public gui_komponente_t
 
 
  public:
-	curiositylist_stats_t(karte_t *welt);
+	curiositylist_stats_t(karte_t *welt,const sort_mode_t& sortby,const bool& sortreverse);
   	~curiositylist_stats_t();
 
-  	void get_unique_attractions();
+  	void get_unique_attractions(const sort_mode_t& sortby,const bool& reverse);
 
 
-  /**
-   * Events werden hiermit an die GUI-Komponenten
-   * gemeldet
-   * @author Hj. Malthaner
-   */
-  virtual void infowin_event(const event_t *);
+	/**
+	 * Events werden hiermit an die GUI-Komponenten
+	 * gemeldet
+	 * @author Hj. Malthaner
+	 */
+	virtual void infowin_event(const event_t *);
 
-  /**
-   * Zeichnet die Komponente
-   * @author Hj. Malthaner
-   */
-  void zeichnen(koord offset) const;
+	/**
+	 * Zeichnet die Komponente
+	 * @author Hj. Malthaner
+	 */
+	void zeichnen(koord offset) const;
 };
 
 #endif // curiositylist_stats_t_h

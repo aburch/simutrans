@@ -54,19 +54,6 @@ strasse_t::strasse_t(karte_t *welt,int top_speed) : weg_t (welt)
 }
 
 
-int strasse_t::calc_bild(koord3d pos) const
-{
-    if(welt->ist_in_kartengrenzen( pos.gib_2d() )) {
-        // V.Meyer: weg_position_t removed
-        grund_t *gr = welt->lookup(pos);
-
-  if(gr && !gr->hat_gebaeude(hausbauer_t::frachthof_besch)) {
-      return weg_t::calc_bild(pos, gib_besch());
-  }
-    }
-    return -1;
-}
-
 
 void strasse_t::info(cbuffer_t & buf) const
 {

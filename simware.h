@@ -1,11 +1,8 @@
 #ifndef simware_h
 #define simware_h
 
-#ifndef koord_h
 #include "dataobj/koord.h"
-#endif
 
-class cstring_t;
 struct ware_t;
 class ware_besch_t;
 

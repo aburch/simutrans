@@ -164,8 +164,7 @@ void vehikelbauer_t::sort_lists()
     int cmp = test->gib_ware()->gib_catg() - besch->gib_ware()->gib_catg();
 
     if(cmp == 0) {
-        cmp = warenbauer_t::gib_index(test->gib_ware()) -
-        warenbauer_t::gib_index(besch->gib_ware());
+        cmp = test->gib_ware()->gib_index() - besch->gib_ware()->gib_index();
 
         if(cmp == 0) {
       cmp = test->gib_zuladung() - besch->gib_zuladung();

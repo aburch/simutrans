@@ -19,6 +19,7 @@
 #include "../ifc/karte_modell.h"
 
 #include "../simworld.h"
+#include "../simwin.h"
 #include "../simgraph.h"
 #include "../simcolor.h"
 #include "../bauer/fabrikbauer.h"
@@ -38,38 +39,44 @@ koord map_frame_t::screenpos;
  */
 map_frame_t::map_frame_t(const karte_modell_t *welt) : gui_frame_t("Reliefkarte"), scrolly(reliefkarte_t::gib_karte())
 {
-    reliefkarte_t *karte = reliefkarte_t::gib_karte();
-    karte->setze_pos(koord(0, 0));
-    scrolly.setze_pos(koord(0, 0));
+	reliefkarte_t *karte = reliefkarte_t::gib_karte();
+	karte->setze_pos(koord(0, 0));
+	scrolly.setze_pos(koord(0, 0));
 
-    is_dragging = false;
+	is_dragging = false;
 
-    const koord ij = welt->gib_ij_off();
-    const koord gr = karte->gib_groesse();
+	const koord ij = welt->gib_ij_off();
+	const koord gr = karte->gib_groesse();
 
-    set_min_windowsize(koord(64+36,64+16));
+	set_min_windowsize(koord(64+36,64+16));
 
-    // Hajo: Hack: use static size if set by a former object
-    if(size != koord(0,0)) {
-      setze_fenstergroesse(size);
-      scrolly.setze_groesse(size-koord(0,16));
-    }
-    else {
-	    setze_fenstergroesse(koord(gr.x+12,gr.y+12+14));
-    }
-    add_komponente(&scrolly);
+	// Hajo: Hack: use static size if set by a former object
+	if(size != koord(0,0)) {
+		setze_fenstergroesse(size);
+		scrolly.setze_groesse(size-koord(0,16));
+	}
+	else {
+		setze_fenstergroesse(koord(gr.x+12,gr.y+12+14));
+	}
+	add_komponente(&scrolly);
 
 
-    // Clipping geändert - max. 250 war zu knapp für grosse Karten - V.Meyer
-    scrolly.setze_scroll_position(MAX(0, MIN(gr.x - (64+16),(ij.x+8) * 2-128)),
-				  MAX(0, MIN(gr.x - (64+16),(ij.y+8) * 2-128)) );
+	// Clipping geändert - max. 250 war zu knapp für grosse Karten - V.Meyer
+	scrolly.setze_scroll_position(MAX(0, MIN(gr.x - (64+16),(ij.x+8) * 2-128)),
+	MAX(0, MIN(gr.x - (64+16),(ij.y+8) * 2-128)) );
 
-    // Hajo: Trigger layouting
-    set_resizemode(diagonal_resize);
+	// Hajo: Trigger layouting
+	set_resizemode(diagonal_resize);
 
 	int x = CLIP(gib_maus_x() - size.x/2 - 260, 0, display_get_width()-size.x);
 	int y = CLIP(gib_maus_y() - size.y-32, 0, display_get_height()-size.y);
-    create_win(x, y, -1, new map_legend_t(welt), w_info, magic_map_legend);
+	create_win(x, y, -1, new map_legend_t(welt), w_info, magic_map_legend);
+	gui_fenster_t *f=win_get_magic(magic_map_legend);
+	x = win_get_posx(f)+f->gib_fenstergroesse().x;
+	y = win_get_posy(f);
+	// change own psoition ...
+	f=win_get_magic(magic_reliefmap);
+	win_set_pos(f , x, y );
 }
 
 

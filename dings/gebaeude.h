@@ -106,12 +106,6 @@ private:
     void init(const haus_tile_besch_t *t);
 
 
-    /**
-     * Berechnet offset, falls das Gebaeude am Hang gebaut wird
-     * @author Hj. Malthaner
-     */
-    void calc_yoff();
-
 protected:
     gebaeude_t(karte_t *welt);
 
@@ -181,6 +175,8 @@ public:
     bool ist_rathaus() const;
 
     bool ist_firmensitz() const;
+
+	bool is_monument() const;
 
     /**
      * setzt das Baudatum auf die aktuelle Zeit und das

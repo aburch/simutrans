@@ -24,6 +24,7 @@
 #include "weg.h"
 #include "../grund.h"
 #include "../../simworld.h"
+#include "../../simimg.h"
 #include "../../simhalt.h"
 #include "../../utils/cbuffer_t.h"
 #include "../../dataobj/translator.h"
@@ -155,7 +156,9 @@ void weg_t::rdwr(loadsave_t *file)
 
 	for (int type=0; type<MAX_WAY_STATISTICS; type++) {
 		for (int month=0; month<MAX_WAY_STAT_MONTHS; month++) {
-			file->rdwr_long(statistics[month][type], "\n");
+			long w=statistics[month][type];
+			file->rdwr_long(w, "\n");
+			statistics[month][type] = w;
 			// DBG_DEBUG("weg_t::rdwr()", "statistics[%d][%d]=%d", month, type, statistics[month][type]);
 		}
 	}
@@ -205,15 +208,21 @@ const char * weg_t::gib_name() const {
 }
 
 
-int weg_t::calc_bild(koord3d pos, const weg_besch_t *besch) const
+void
+weg_t::calc_bild()
 {
 	// V.Meyer: weg_position_t changed to grund_t::get_neighbour()
 	grund_t *from = welt->lookup(pos);
 	grund_t *to;
 
+	if(from==NULL  ||  besch==NULL) {
+		bild_nr = IMG_LEER;
+	}
+
 	hang_t::typ hang = from->gib_weg_hang();
 	if(hang != hang_t::flach) {
-		return besch->gib_hang_bild_nr(hang);
+		bild_nr = besch->gib_hang_bild_nr(hang);
+		return;
 	}
 
 	const ribi_t::ribi ribi = gib_ribi_unmasked();
@@ -224,72 +233,73 @@ int weg_t::calc_bild(koord3d pos, const weg_besch_t *besch) const
 		bool diagonal = false;
 		switch(ribi) {
 			case ribi_t::nordost:
-	  	  if(from->get_neighbour(to, gib_typ(), koord::ost))
+				if(from->get_neighbour(to, gib_typ(), koord::ost))
 					r1 = to->gib_weg_ribi_unmasked(gib_typ());
-	    	if(from->get_neighbour(to, gib_typ(), koord::nord))
+				if(from->get_neighbour(to, gib_typ(), koord::nord))
 					r2 = to->gib_weg_ribi_unmasked(gib_typ());
-	    	diagonal =
+				diagonal =
 					(r1 == ribi_t::suedwest || r2 == ribi_t::suedwest) &&
 					r1 != ribi_t::nordwest &&
 					r2 != ribi_t::suedost;
-				break;
+			break;
 
 			case ribi_t::suedost:
-	  	  if(from->get_neighbour(to, gib_typ(), koord::ost))
+				if(from->get_neighbour(to, gib_typ(), koord::ost))
 					r1 = to->gib_weg_ribi_unmasked(gib_typ());
-	    	if(from->get_neighbour(to, gib_typ(), koord::sued))
+				if(from->get_neighbour(to, gib_typ(), koord::sued))
 					r2 = to->gib_weg_ribi_unmasked(gib_typ());
-	    	diagonal =
+				diagonal =
 					(r1 == ribi_t::nordwest || r2 == ribi_t::nordwest) &&
 					r1 != ribi_t::suedwest &&
 					r2 != ribi_t::nordost;
-	    	break;
+			break;
 
 			case ribi_t::nordwest:
-	  	  if(from->get_neighbour(to, gib_typ(), koord::west))
+				if(from->get_neighbour(to, gib_typ(), koord::west))
 					r1 = to->gib_weg_ribi_unmasked(gib_typ());
-		    if(from->get_neighbour(to, gib_typ(), koord::nord))
+				if(from->get_neighbour(to, gib_typ(), koord::nord))
 					r2 = to->gib_weg_ribi_unmasked(gib_typ());
-	    	diagonal =
+				diagonal =
 					(r1 == ribi_t::suedost || r2 == ribi_t::suedost) &&
 					r1 != ribi_t::nordost &&
 					r2 != ribi_t::suedwest;
-	    	break;
+			break;
 
 			case ribi_t::suedwest:
-	  	  if(from->get_neighbour(to, gib_typ(), koord::west))
+				if(from->get_neighbour(to, gib_typ(), koord::west))
 					r1 = to->gib_weg_ribi_unmasked(gib_typ());
-		    if(from->get_neighbour(to, gib_typ(), koord::sued))
+				if(from->get_neighbour(to, gib_typ(), koord::sued))
 					r2 = to->gib_weg_ribi_unmasked(gib_typ());
-
-	    	diagonal =
+				diagonal =
 					(r1 == ribi_t::nordost || r2 == ribi_t::nordost) &&
 					r1 != ribi_t::suedost &&
 					r2 != ribi_t::nordwest;
-	    	break;
+				break;
 		}
 
 		if(diagonal) {
-	    static int rekursion = 0;
+			static int rekursion = 0;
 
-	    if(rekursion == 0) {
+			if(rekursion == 0) {
 				rekursion++;
 				for(int r = 0; r < 4; r++) {
-			    if(from->get_neighbour(to, gib_typ(), koord::nsow[r])) {
+					if(from->get_neighbour(to, gib_typ(), koord::nsow[r])) {
 						to->calc_bild();
-			    }
+					}
 				}
 				rekursion--;
-	    }
+			}
 
-	    int bild = besch->gib_diagonal_bild_nr(ribi);
-
-	    if(bild != -1) {
-				return bild;
-	    }
+			int bild = besch->gib_diagonal_bild_nr(ribi);
+			if(bild != -1) {
+				bild_nr = bild;
+				return;
+			}
 		}
 	}
-  return besch->gib_bild_nr(ribi);
+
+	bild_nr = besch->gib_bild_nr(ribi);
+//	DBG_MESSAGE("bild_nr_offset","%i",bild_nr);
 }
 
 
@@ -299,12 +309,10 @@ int weg_t::calc_bild(koord3d pos, const weg_besch_t *besch) const
  */
 void weg_t::neuer_monat()
 {
-  for (int type=0; type<MAX_WAY_STATISTICS; type++) {
-
-    for (int month=MAX_WAY_STAT_MONTHS-1; month>0; month--) {
-
-      statistics[month][type] = statistics[month-1][type];
-    }
-    statistics[0][type] = 0;
-  }
+	for (int type=0; type<MAX_WAY_STATISTICS; type++) {
+		for (int month=MAX_WAY_STAT_MONTHS-1; month>0; month--) {
+			statistics[month][type] = statistics[month-1][type];
+		}
+		statistics[0][type] = 0;
+	}
 }

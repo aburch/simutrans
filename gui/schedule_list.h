@@ -29,6 +29,7 @@ class schedule_list_gui_t : public gui_frame_t, public action_listener_t
 private:
 
   karte_t *welt;
+  spieler_t *sp;
 
   koord groesse;
   scrolled_list_gui_t *scl;
@@ -58,7 +59,7 @@ private:
 
 public:
 
-  schedule_list_gui_t(karte_t *welt);
+  schedule_list_gui_t(karte_t *welt,spieler_t *sp);
   ~schedule_list_gui_t();
 
   koord gib_fenstergroesse() const { return groesse; }
@@ -82,7 +83,7 @@ public:
      *
      * @author Hj. Malthaner
      */
-    spieler_t* gib_besitzer() const;
+	virtual spieler_t* gib_besitzer() { return sp; }
 
     /**
      * @return Einen Beschreibungsstext für das Objekt, der z.B. in einem

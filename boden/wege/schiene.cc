@@ -13,6 +13,7 @@
 #include "../../blockmanager.h"
 #include "../grund.h"
 #include "../../dataobj/loadsave.h"
+#include "../../dataobj/translator.h"
 #include "../../utils/cbuffer_t.h"
 #include "../../besch/weg_besch.h"
 #include "../../bauer/hausbauer.h"
@@ -74,40 +75,25 @@ void schiene_t::info(cbuffer_t & buf) const
   weg_t::info(buf);
 
   if(is_electrified) {
-    buf.append("\nelektrified");
+    buf.append(translator::translate("\nelektrified"));
   } else {
-    buf.append("\nnot elektrified");
+    buf.append(translator::translate("\nnot elektrified"));
   }
 
-  buf.append("\nRail block ");
+  buf.append(translator::translate("\nRail block "));
   buf.append(bs.get_id());
   buf.append("\n");
 
   bs->info(buf);
 
-  buf.append("\n\nRibi (unmasked) ");
+  buf.append(translator::translate("\n\nRibi (unmasked) "));
   buf.append(gib_ribi_unmasked());
 
-  buf.append("\nRibi (masked) ");
+  buf.append(translator::translate("\nRibi (masked) "));
   buf.append(gib_ribi());
   buf.append("\n");
 }
 
-
-int schiene_t::calc_bild(koord3d pos) const
-{
-    if(welt->ist_in_kartengrenzen( pos.gib_2d() )) {
-        // V.Meyer: weg_position_t removed
-        grund_t *gr = welt->lookup(pos);
-
-//  if(gr && !gr->hat_gebaeude(hausbauer_t::bahnhof_besch)) {
-  // with this simple if, we can have different rails in a station
-  if(gr) {
-      return weg_t::calc_bild(pos, gib_besch());
-  }
-    }
-    return -1;
-}
 
 
 void

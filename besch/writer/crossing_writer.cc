@@ -33,13 +33,8 @@
 #include "text_writer.h"
 #include "image_writer.h"
 
+#include "get_waytype.h"
 #include "crossing_writer.h"
-
-#ifdef _MSC_VER
-#define STRICMP stricmp
-#else
-#define STRICMP strcasecmp
-#endif
 
 //@ADOC
 /////////////////////////////////////////////////////////////////////////////
@@ -58,36 +53,19 @@
 //@EDOC
 void crossing_writer_t::write_obj(FILE *fp, obj_node_t &parent, tabfileobj_t &obj)
 {
-    kreuzung_besch_t besch;
+	kreuzung_besch_t besch;
 
-    obj_node_t	node(this, sizeof(besch), &parent, true);
+	obj_node_t	node(this, sizeof(besch), &parent, true);
 
-    write_head(fp, node, obj);
+	write_head(fp, node, obj);
 
-    const char *waytype = obj.get("waytype[ns]");
+	const char *waytype = obj.get("waytype[ns]");
+	besch.wegtyp_ns = get_waytype(obj.get("waytype[ns]"));
+	besch.wegtyp_ow = get_waytype(obj.get("waytype[ew]"));
 
-    if(!STRICMP(waytype, "road")) {
-	besch.wegtyp_ns = weg_t::strasse;
-    } else if(!STRICMP(waytype, "track")) {
-	besch.wegtyp_ns = weg_t::schiene;
-    } else {
+	if(besch.wegtyp_ns==NULL  ||  besch.wegtyp_ow==NULL) {
 	cstring_t reason;
-
-	reason.printf("invalid waytype %s for crossing %s\n", waytype, obj.get("name"));
-
-	throw new obj_pak_exception_t("crossing_writer_t", reason);
-    }
-    waytype = obj.get("waytype[ew]");
-
-    if(!STRICMP(waytype, "road")) {
-	besch.wegtyp_ow = weg_t::strasse;
-    } else if(!STRICMP(waytype, "track")) {
-	besch.wegtyp_ow = weg_t::schiene;
-    } else {
-	cstring_t reason;
-
-	reason.printf("invalid waytype %s for crossing %s\n", waytype, obj.get("name"));
-
+	reason.printf("invalid waytype for crossing %s\n", obj.get("name"));
 	throw new obj_pak_exception_t("crossing_writer_t", reason);
     }
     image_writer_t::instance()->write_obj(fp, node, obj.get("image"));

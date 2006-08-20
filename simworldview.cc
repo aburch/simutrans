@@ -93,10 +93,12 @@ void karte_vollansicht_t::display_dinge(const int i, const int j, const int xpos
 	grund_t *gr = plan->gib_boden_bei(0u);
 
 	if(gr) {
+#if 0
 		if(gr->gib_typ()==grund_t::fundament) {
 			// there may be slopes ...
 			gr->display_boden(xpos, ypos, dirty || welt->ist_dirty(gr->gib_pos()));
 		}
+#endif
  	    gr->display_dinge(xpos, ypos, dirty || welt->ist_dirty(gr->gib_pos()));
 	}
 

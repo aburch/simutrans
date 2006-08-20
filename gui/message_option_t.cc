@@ -50,13 +50,13 @@ message_option_t::message_option_t(karte_t *welt) : infowin_t(welt)
 		button_def.pos.x = 140;
 		button_def.pos.y = 34 + i*2*LINESPACE;
 		button_def.setze_typ(button_t::square);
-		button_def.pressed = (window_msg&(1<<i)) != 0;
+		button_def.pressed = (auto_msg&(1<<i)) != 0;
 		button_def.text = " ";
 		buttons->append(button_def);
 
 		button_def.pos.x = 160;
 		button_def.pos.y = 34 + i*2*LINESPACE;
-		button_def.pressed = (auto_msg&(1<<i)) != 0;
+		button_def.pressed = (window_msg&(1<<i)) != 0;
 		button_def.setze_typ(button_t::square);
 		button_def.text = " ";
 		buttons->append(button_def);
@@ -125,10 +125,10 @@ void message_option_t::infowin_event(const event_t *ev)
 				ticker_msg ^= (1<<i);
 			}
 			if(buttons->at(i*3+1).getroffen(ev->mx, ev->my)) {
-				window_msg ^= (1<<i);
+				auto_msg ^= (1<<i);
 			}
 			if(buttons->at(i*3+2).getroffen(ev->mx, ev->my)) {
-				auto_msg ^= (1<<i);
+				window_msg ^= (1<<i);
 			}
 		}
 		message_t::get_instance()->set_flags( ticker_msg, window_msg, auto_msg, ignore_msg );
@@ -141,8 +141,8 @@ message_option_t::gib_fensterbuttons()
 {
 	for(int i=0; i<9; i++) {
 		buttons->at(i*3+0).pressed = (ticker_msg&(1<<i))!=0;
-		buttons->at(i*3+1).pressed = (window_msg&(1<<i))!=0;
-		buttons->at(i*3+2).pressed = (auto_msg&(1<<i))!=0;
+		buttons->at(i*3+1).pressed = (auto_msg&(1<<i))!=0;
+		buttons->at(i*3+2).pressed = (window_msg&(1<<i))!=0;
 	}
 	return buttons;
 }

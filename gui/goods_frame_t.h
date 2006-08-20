@@ -12,25 +12,58 @@
 #define goods_frame_t_h
 
 #include "gui_frame.h"
+#include "button.h"
+#include "gui_label.h"
+#include "ifc/action_listener.h"
 
 class gui_scrollpane_t;
+class karte_t;
+class goods_stats_t;
 
 /**
  * Shows statistics. Only goods so far.
  * @author Hj. Malthaner
  */
-class goods_frame_t : public gui_frame_t
+class goods_frame_t : public gui_frame_t, private action_listener_t
 {
- private:
+private:
+	enum sort_mode_t { unsortiert=0, nach_name=1, nach_gewinn=2, nach_bonus=3, SORT_MODES=4 };
+	static const char *sort_text[SORT_MODES];
 
-  gui_scrollpane_t *scrolly;
+	// static, so we remember the last settings
+	static int relative_speed_change;
+	static bool sortreverse;
+	static sort_mode_t sortby;
 
- public:
+	karte_t * welt;
+	char	speed_message[256];
+	unsigned short *good_list;
 
-  goods_frame_t(karte_t *welt);
+	gui_scrollpane_t *scrolly;
+	gui_label_t sort_label;
+	button_t	sortedby;
+	button_t	sorteddir;
+	gui_label_t change_speed_label;
+	button_t	speed_up;
+	button_t	speed_down;
+
+	goods_stats_t *goods_stats;
+
+	// creates the list and pass it to the child finction good_stats, which does the display stuff ...
+	static int compare_goods(const void *p1, const void *p2);
+	void sort_list();
+
+public:
+
+  goods_frame_t(karte_t *wl);
   ~goods_frame_t();
 
 
+    /**
+     * This method is called if an action is triggered
+     * @author Hj. Malthaner
+     */
+    virtual bool action_triggered(gui_komponente_t *);
 
   /**
    * resize window in response to a resize event
@@ -45,6 +78,14 @@ class goods_frame_t : public gui_frame_t
      * @author V. Meyer
      */
     virtual const char * gib_hilfe_datei() const {return "goods_filter.txt"; }
+
+    /**
+     * komponente neu zeichnen. Die übergebenen Werte beziehen sich auf
+     * das Fenster, d.h. es sind die Bildschirkoordinaten des Fensters
+     * in dem die Komponente dargestellt wird.
+     * @author Hj. Malthaner
+     */
+    virtual void zeichnen(koord pos, koord gr);
 };
 
 #endif // goods_frame_t_h

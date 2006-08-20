@@ -67,69 +67,59 @@ void gui_convoiinfo_t::infowin_event(const event_t *ev)
  */
 void gui_convoiinfo_t::zeichnen(koord offset) const
 {
-    clip_dimension clip = display_gib_clip_wh();
+	clip_dimension clip = display_gib_clip_wh();
+	if(! ((pos.y+offset.y) > clip.yy ||  (pos.y+offset.y) < clip.y-32) &&  cnv.is_bound()) {
 
-    if(! ((pos.y+offset.y) > clip.yy ||  (pos.y+offset.y) < clip.y-32) &&
-	cnv.is_bound()) {
+		static char buf[256];
 
-	gui_container_t::zeichnen(pos + offset);
+/* prissi: no nummer
+		sprintf(buf, "%d.", nummer);
+		display_proportional_clip(pos.x+offset.x+4, pos.y+offset.y+8, buf, ALIGN_LEFT, SCHWARZ, true);
+*/
 
-	char buf[128];
+		display_proportional_clip(pos.x+offset.x+2,pos.y+offset.y+8+LINESPACE, translator::translate("Gewinn"), ALIGN_LEFT, SCHWARZ, true);
+		int max_x = proportional_string_width(translator::translate("Gewinn"));
 
-	sprintf(buf, "%d.", nummer);
-
-
-	display_proportional_clip(pos.x+offset.x+4, pos.y+offset.y+8,
-                                  buf,
-				  ALIGN_LEFT, SCHWARZ, true);
-
-	const int n = sprintf(buf, "%s ", translator::translate("Gewinn"));
-	money_to_string(buf+n, cnv->gib_jahresgewinn()/100);
+		money_to_string(buf, cnv->gib_jahresgewinn()/100);
+		display_proportional_clip(pos.x+offset.x+2+max_x+5,pos.y+offset.y+8+LINESPACE, buf, ALIGN_LEFT, cnv->gib_jahresgewinn()>0?MONEY_PLUS:MONEY_MINUS, true);
+		max_x += proportional_string_width(buf)+5;
 
 
-	display_proportional_clip(pos.x+offset.x+30,
-				  pos.y+offset.y+8+LINESPACE,
-				  buf,
-				  ALIGN_LEFT, SCHWARZ, true);
+		/*
+		* only show assigned line, if there is one!
+		*/
+		if (cnv->in_depot())
+		{
+			const char *txt=translator::translate("(in depot)");
+			display_proportional_clip(pos.x+offset.x+2, pos.y+offset.y+8+2*LINESPACE,txt,ALIGN_LEFT, SCHWARZ, true);
+			max_x = max(max_x,proportional_string_width(txt));
+		}
+		else if (cnv->get_line() != NULL)
+		{
+			sprintf(buf, "%s: %s", translator::translate("Line"), cnv->get_line()->get_name());
+			display_proportional_clip(pos.x+offset.x+2, pos.y+offset.y+8+2*LINESPACE,buf,ALIGN_LEFT, SCHWARZ, true);
+			max_x = max(max_x,proportional_string_width(buf));
+		}
 
-	/*
-	 * only show assigned line, if there is one!
-	 */
-	tstrncpy(buf, "", 1);
-	if (cnv->in_depot())
-	{
-		sprintf(buf, "%s", translator::translate("(in depot)"));
-	} else if (cnv->get_line() != NULL)
-	{
-		sprintf(buf, "%s: %s", translator::translate("Line"), cnv->get_line()->get_name());
-		// cut off too long line names, so they don't overwrite the load-bar
-		tstrncpy(buf, buf, 24);
+		// name
+		display_proportional_clip(pos.x+offset.x+2, pos.y+offset.y+8,translator::translate(cnv->gib_name()),ALIGN_LEFT, SCHWARZ, true);
+		max_x = max(max_x,proportional_string_width(cnv->gib_name()));
+
+		// vehicles
+		// we will use their images offests and width to shift them to their correct position
+		// this should work with any vehicle size ...
+		const int xoff = max(128, max_x);
+		int left = pos.x+offset.x+xoff+4;
+		for(unsigned i=0; i<cnv->gib_vehikel_anzahl();i++) {
+			int x, y, w, h;
+			const image_id bild=cnv->gib_vehikel(i)->gib_basis_bild();
+			display_get_image_offset(bild, &x, &y, &w, &h );
+			display_color_img(bild,left-x,pos.y+offset.y+13-y-h/2,cnv->gib_besitzer()->kennfarbe,false,true);
+			left += (w*2)/3;
+		}
+
+		// since the only object is the loading bar, we can alter its position this way ...
+		gui_container_t::zeichnen(pos + offset+koord(xoff-188+2,0));
+
 	}
-
-    display_proportional_clip(pos.x+offset.x+30, pos.y+offset.y+8+2*LINESPACE,
-                              buf,
-			  ALIGN_LEFT, SCHWARZ, true);
-
-
-	tstrncpy(buf, translator::translate(cnv->gib_name()), 128);
-
-        display_proportional_clip(pos.x+offset.x+30, pos.y+offset.y+8,
-                                  buf,
-				  ALIGN_LEFT, SCHWARZ, true);
-
-
-
-	const int xoff = MAX(168, proportional_string_width(buf) + 14);
-	const int yoff =
-	  get_tile_raster_width() == 64 ? -26 : -(128 >> get_zoom_factor());
-
-        for(unsigned i=0; i<cnv->gib_vehikel_anzahl();i++) {
-				display_color_img(cnv->gib_vehikel(i)->gib_basis_bild(),
-	                      pos.x+offset.x+xoff+i*16,
-			      pos.y+offset.y+yoff,
-			      cnv->gib_besitzer()->kennfarbe,
-			      false,
-			      true);
-        }
-    }
 }

@@ -16,12 +16,20 @@
 
 #include "dataobj/fahrplan.h"
 
+uint8 simlinemgmt_t::used_ids[8192];
+
 
 struct line_details_t {
 	simline_t * line;
 };
 
-slist_tpl<simline_t *> simlinemgmt_t::all_managed_lines;
+
+void simlinemgmt_t::init_line_ids()
+{
+	memset( used_ids, 8192, 0 );
+}
+
+
 
 int simlinemgmt_t::compare_lines(const void *p1, const void *p2)
 {
@@ -36,44 +44,37 @@ int simlinemgmt_t::compare_lines(const void *p1, const void *p2)
     return order;
 }
 
-simlinemgmt_t::simlinemgmt_t(karte_t * welt) :
-	line_counter(0),
-	welt(welt)
+simlinemgmt_t::simlinemgmt_t(karte_t * welt,spieler_t *sp) :
+	all_managed_lines(0)
 {
-
+	this->welt = welt;
+	this->besitzer = sp;
 }
 
 void
 simlinemgmt_t::add_line(simline_t * new_line)
 {
-	all_managed_lines.append(new_line);
-	line_counter++;
-        sort_lines();
-}
-
-
-simline_t *
-simlinemgmt_t::get_line(int iline)
-{
-	if ((iline > -1) && (iline < count_lines()))
-	{
-		return all_managed_lines.at(iline);
-	} else {
-		return NULL;
+	const uint16 id = new_line->get_id();
+	if(all_managed_lines.is_contained(new_line)) {
+		trap();
 	}
+	all_managed_lines.append_unique(new_line,16);
+	used_ids[id/8] |= 1<<(id&7);	// should be registered anyway ...
+	sort_lines();
 }
 
+
 simline_t *
-simlinemgmt_t::get_line_by_id(int id)
+simlinemgmt_t::get_line_by_id(uint16 id)
 {
 	int count = count_lines();
-	for (int i = 0; i<count; i++)
-	{
-		if (get_line(i)->get_id() == id)
-		{
-			return get_line(i);
+	for(int i = 0; i<count; i++) {
+		simline_t *line = all_managed_lines.at(i);
+		if (line->get_id()==id) {
+			return line;
 		}
 	}
+	dbg->warning("simlinemgmt_t::get_line_by_id()","no line for id=%i",id);
 	return NULL;
 }
 
@@ -94,33 +95,22 @@ simlinemgmt_t::get_line(fahrplan_t *fpl)
 	return NULL;
 }
 
-int
-simlinemgmt_t::count_lines()
-{
-	return all_managed_lines.count();
-}
-
-int
-simlinemgmt_t::get_line_counter()
-{
-	return line_counter;
-}
-
 void
 simlinemgmt_t::delete_line(int iroute)
 {
 	simline_t * line = get_line(iroute);
-	delete_line(line);
+	if(line) {
+		delete_line(line);
+	}
 }
 
 void
 simlinemgmt_t::delete_line(simline_t * line)
 {
-	if (line != NULL)
-	{
+	if (line != NULL) {
+		all_managed_lines.remove(line);
 		//destroy line object
 		delete (line);
-		all_managed_lines.remove(line);
 	}
 	//DBG_MESSAGE("simlinemgt_t::delete_line()", "line at index %d (%p) deleted", iroute, line);
 }
@@ -132,12 +122,10 @@ simlinemgmt_t::update_line(simline_t * line)
 	// when a line is updated, all managed convoys must get the new fahrplan!
 	int count = line->count_convoys();
 	convoi_t *cnv = NULL;
-	for (int i = 0; i<count; i++)
-	{
+	for (int i = 0; i<count; i++) {
 		cnv = line->get_convoy(i);
 		cnv->set_line_update_pending(line->get_id());
 	}
-
 	// finally de/register all stops
 	line->renew_stops();
 }
@@ -153,72 +141,78 @@ simlinemgmt_t::update_line(int iroute)
 void
 simlinemgmt_t::rdwr(karte_t * welt, loadsave_t *file)
 {
-    if(file->is_saving()) {
+	  if(file->is_saving()) {
 		file->wr_obj_id("Linemanagement");
 		int count = count_lines();
 		file->rdwr_long(count, " ");
-		for (int i = 0; i < count; i++)
-		{
+		for (int i = 0; i < count; i++) {
 			get_line(i)->rdwr(file);
 		}
-    } else {
-		int totalLines = 0;
-		file->rdwr_long(totalLines, " ");
-		for (int i = 0; i<totalLines; i++)
-		{
-			simline_t * line;
-			if (file->get_version() > 84003) {
-				simline_t::linetype lt;
-				file->rdwr_enum(lt, "\n");
-				switch(lt) {
-					case simline_t::truckline:
-						line = new truckline_t(welt, this, file);
-						break;
-					case simline_t::trainline:
-						line = new trainline_t(welt, this, file);
-						break;
-					case simline_t::shipline:
-						line = new shipline_t(welt, this, file);
-						break;
-					case simline_t::airline:
-						line = new airline_t(welt, this, file);
-						break;
-					default:
-						line = new simline_t(welt, this, file);
-						break;
+	}
+	else {
+		char buf[80];
+		file->rd_obj_id(buf, 79);
+		all_managed_lines.clear();
+		if(strcmp(buf, "Linemanagement")==0) {
+			int totalLines = 0;
+			file->rdwr_long(totalLines, " ");
+	DBG_MESSAGE("simlinemgmt_t::rdwr()","number of lines=%i",totalLines);
+			for (int i = 0; i<totalLines; i++) {
+				simline_t * line;
+				if (file->get_version() > 84003) {
+					simline_t::linetype lt;
+					file->rdwr_enum(lt, "\n");
+					switch(lt) {
+						case simline_t::truckline:
+							line = new truckline_t(welt, this, file);
+							break;
+						case simline_t::trainline:
+							line = new trainline_t(welt, this, file);
+							break;
+						case simline_t::shipline:
+							line = new shipline_t(welt, this, file);
+							break;
+						case simline_t::airline:
+							line = new airline_t(welt, this, file);
+							break;
+						default:
+							line = new simline_t(welt, this, file);
+							break;
 					}
-			} else {
-				// this else-block is for compatibility with old savegames!
-				line = new simline_t(welt, this, file);
-				// identify linetype by checking type of first stop in fahrplan
-				fahrplan_t * fpl = line->get_fahrplan();
-				fahrplan_t::fahrplan_type type;
-				type = fpl->get_type(welt);
-				// set linetype and correct fahrplan type
-				switch(type) {
-					case fahrplan_t::autofahrplan:
-						line->set_fahrplan(new autofahrplan_t(fpl));
-						line->set_linetype(simline_t::truckline);
-						break;
-					case fahrplan_t::zugfahrplan:
-						line->set_fahrplan(new zugfahrplan_t(fpl));
-						line->set_linetype(simline_t::trainline);
-						break;
-					case fahrplan_t::schifffahrplan:
-						line->set_fahrplan(new schifffahrplan_t(fpl));
-						line->set_linetype(simline_t::shipline);
-						break;
-					case fahrplan_t::airfahrplan:
-						line->set_fahrplan(new airfahrplan_t(fpl));
-						line->set_linetype(simline_t::airline);
-						break;
-					default:
-						line->set_fahrplan(new fahrplan_t(fpl));
-						line->set_linetype(simline_t::line);
-						break;
 				}
+				else {
+					// this else-block is for compatibility with old savegames! (may be not loadable anyway ... )
+					line = new simline_t(welt, this, file);
+					// identify linetype by checking type of first stop in fahrplan
+					fahrplan_t * fpl = line->get_fahrplan();
+					fahrplan_t::fahrplan_type type;
+					type = fpl->get_type(welt);
+					// set linetype and correct fahrplan type
+					switch(type) {
+						case fahrplan_t::autofahrplan:
+							line->set_fahrplan(new autofahrplan_t(fpl));
+							line->set_linetype(simline_t::truckline);
+							break;
+						case fahrplan_t::zugfahrplan:
+							line->set_fahrplan(new zugfahrplan_t(fpl));
+							line->set_linetype(simline_t::trainline);
+							break;
+						case fahrplan_t::schifffahrplan:
+							line->set_fahrplan(new schifffahrplan_t(fpl));
+							line->set_linetype(simline_t::shipline);
+							break;
+						case fahrplan_t::airfahrplan:
+							line->set_fahrplan(new airfahrplan_t(fpl));
+							line->set_linetype(simline_t::airline);
+							break;
+						default:
+							line->set_fahrplan(new fahrplan_t(fpl));
+							line->set_linetype(simline_t::line);
+							break;
+					}
+				}
+				add_line(line);
 			}
-			add_line(line);
 		}
     }
 }
@@ -239,14 +233,12 @@ simlinemgmt_t::sort_lines()
 	line_details_t a[count];
 #endif
         int i;
-	for (i = 0; i<count; i++)
-	{
+	for (i = 0; i<count; i++) {
 		a[i].line = get_line(i);
 	}
 	qsort((void *)a, count, sizeof (line_details_t), compare_lines);
 	all_managed_lines.clear();
-	for (i = 0; i<count; i++)
-	{
+	for (i = 0; i<count; i++) {
 		all_managed_lines.append(a[i].line);
 	}
 }
@@ -255,9 +247,8 @@ simlinemgmt_t::sort_lines()
 void
 simlinemgmt_t::register_all_stops()
 {
-	for (int i = 0; i<count_lines(); i++)
-	{
-		get_line(i)->register_stops();
+	for (int i = 0; i<count_lines(); i++) {
+		all_managed_lines.at(i)->register_stops();
 	}
 }
 
@@ -270,37 +261,28 @@ simlinemgmt_t::laden_abschliessen()
 
 
 /**
- * Creates a unique line id.
- * @author Hj. Malthaner
+ * Creates a unique line id. (max uint16, but this should be enough anyway)
+ * @author prissi
  */
-int simlinemgmt_t::get_unique_line_id()
+uint16 simlinemgmt_t::get_unique_line_id()
 {
-  slist_iterator_tpl<simline_t *> iter (all_managed_lines);
-
-  int low = 9999999;
-  int high = -1;
-
-  while( iter.next() ) {
-    if(iter.get_current()->get_id() < low) {
-      low = iter.get_current()->get_id();
-    }
-
-    if(iter.get_current()->get_id() > high) {
-      high = iter.get_current()->get_id();
-    }
-  }
-
-  DBG_MESSAGE("simlinemgmt_t::get_unique_line_id()", "low=%d, high=%d", low, high);
-
-  return high + 1;
+	for(uint16 i=1;  i<65530;  i++  ) {
+		if( (used_ids[i/8]&(1<<(i&7)))==0 ) {
+			used_ids[i/8] |= 1<<(i&7);
+DBG_MESSAGE("simlinemgmt_t::get_unique_line_id()","New id %i",i);
+			return i;
+		}
+	}
+	dbg->warning("simlinemgmt_t::get_unique_line_id()","No valid id found!");
+	// not found
+	return UNVALID_LINE_ID;
 }
 
 void
 simlinemgmt_t::new_month()
 {
-	for (int i = 0; i<count_lines(); i++)
-	{
-		get_line(i)->new_month();
+	for (int i = 0; i<count_lines(); i++) {
+		all_managed_lines.at(i)->new_month();
 	}
 }
 
@@ -343,45 +325,45 @@ simlinemgmt_t::create_line(int ltype, fahrplan_t * fpl)
 void
 simlinemgmt_t::build_line_list(int type, slist_tpl<simline_t *> * list)
 {
-  list->clear();
-  slist_iterator_tpl<simline_t *> iter (simlinemgmt_t::all_managed_lines);
-  while (iter.next()) {
-    simline_t * line = iter.get_current();
+//DBG_MESSAGE("simlinemgmt_t::build_line_list()","type=%i",type);
+	list->clear();
+	for( unsigned i=0;  i<count_lines();  i++  ) {
+		simline_t * line = all_managed_lines.at(i);
 
-    // Hajo: 11-Apr-04
-    // changed code to show generic lines (type == line)
-    // in all depots
-    //
-    // At some time in future, generic lines should be removed
-    // from Simutrans because they are unsafe (no checking if stop
-    // is set on correct ground type)
+		// Hajo: 11-Apr-04
+		// changed code to show generic lines (type == line)
+		// in all depots
+		//
+		// At some time in future, generic lines should be removed
+		// from Simutrans because they are unsafe (no checking if stop
+		// is set on correct ground type)
 
-    switch (type) {
+		switch (type) {
 
-    case simline_t::truckline:
-      if (line->get_linetype() == simline_t::truckline ||
-	  line->get_linetype() == simline_t::line) {
-	list->append(line);
-      }
-      break;
-    case simline_t::trainline:
-      if (line->get_linetype() == simline_t::trainline ||
-	  line->get_linetype() == simline_t::line) {
-	list->append(line);
-      }
-      break;
-    case simline_t::shipline:
-      if (line->get_linetype() == simline_t::shipline ||
-	  line->get_linetype() == simline_t::line) {
-	list->append(line);
-    }
-    break;
-    case simline_t::airline:
-      if (line->get_linetype() == simline_t::airline ||
-	  line->get_linetype() == simline_t::line) {
-	list->append(line);
-      }
-      break;
-    }
-  }
+			case simline_t::line:
+				// all lines
+				list->append(line);
+				break;
+			case simline_t::truckline:
+				if (line->get_linetype() == simline_t::truckline || line->get_linetype() == simline_t::line) {
+					list->append(line);
+				}
+				break;
+			case simline_t::trainline:
+				if (line->get_linetype() == simline_t::trainline || line->get_linetype() == simline_t::line) {
+					list->append(line);
+				}
+				break;
+			case simline_t::shipline:
+				if (line->get_linetype() == simline_t::shipline || line->get_linetype() == simline_t::line) {
+					list->append(line);
+				}
+				break;
+			case simline_t::airline:
+				if (line->get_linetype() == simline_t::airline || line->get_linetype() == simline_t::line) {
+					list->append(line);
+				}
+				break;
+		}
+	}
 }

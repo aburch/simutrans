@@ -16,6 +16,8 @@
 #ifndef simworld_h
 #define simworld_h
 
+#include "simconst.h"
+
 #include "ifc/karte_modell.h"
 #include "convoihandle_t.h"
 #include "halthandle_t.h"
@@ -36,7 +38,6 @@
 #include "simdebug.h"
 
 struct event_t;
-class simlinemgmt_t;
 class stadt_t;
 class ding_t;
 class fabrik_t;
@@ -54,8 +55,6 @@ class sync_steppable;
 class cstring_t;
 
 template <class T> class vector_tpl;
-
-#define TILE_HEIGHT_STEP 16
 
 /**
  * Die Karte ist der zentrale Bestandteil der Simulation. Sie
@@ -88,9 +87,6 @@ public:
      * @author Hj. Malthaner
      */
     static int perlin_hoehe(const int x, const int y, const double frequency, const double amplitude);
-
-    // @author hsiegeln
-    simlinemgmt_t * simlinemgmt;
 
 private:
 	struct save_mouse_func {
@@ -129,13 +125,6 @@ private:
     unsigned char max_no_of_trees_on_square;
 
     /**
-     * Max. number of players
-     * @author Hj. Malthaner
-     */
-    static const int anz_spieler;
-
-
-    /**
      * fuer softes scrolling
      */
     int x_off, y_off;
@@ -154,6 +143,13 @@ private:
      * @author Hj. Malthaner
      */
     bool scroll_lock;
+
+
+	/*
+	 * the current convoi to follow
+	 * @author prissi
+	 */
+	 convoihandle_t follow_convoi;
 
 
     /**
@@ -256,7 +252,7 @@ private:
      * Die Spieler
      * @author Hj. Malthaner
      */
-    spieler_t *spieler[8];                   // Mensch ist spieler Nr. 0
+    spieler_t *spieler[MAX_PLAYER_COUNT];                   // Mensch ist spieler Nr. 0
     uint8 active_player_nr;
     spieler_t	*active_player;
 
@@ -333,7 +329,6 @@ public:
     int gib_x_off() const {return x_off;};
     int gib_y_off() const {return y_off;};
 
-
     /**
      * If this is true, the map will not be scrolled
      * on right-drag
@@ -341,6 +336,11 @@ public:
      */
     void set_scroll_lock(bool yesno);
 
+	/* functions for following a convoi on the map
+	 * give an unboud handle to unset
+	 */
+	void set_follow_convoi(convoihandle_t cnv);
+	convoihandle_t get_follow_convoi() const { return follow_convoi; }
 
     //tree number related routines
     unsigned char gib_max_no_of_trees_on_square () const {

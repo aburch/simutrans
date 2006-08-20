@@ -49,18 +49,20 @@ const grund_besch_t *grund_besch_t::winter_boden = NULL;
 const grund_besch_t *grund_besch_t::winter_ufer = NULL;
 const grund_besch_t *grund_besch_t::wasser = NULL;
 const grund_besch_t *grund_besch_t::fundament = NULL;
+const grund_besch_t *grund_besch_t::slopes = NULL;
 const grund_besch_t *grund_besch_t::ausserhalb = NULL;
 
-static spezial_obj_tpl<grund_besch_t> spezial_objekte[] = {
+static spezial_obj_tpl<grund_besch_t> grounds[] = {
     { &grund_besch_t::standard_boden,	    "Gras" },
     { &grund_besch_t::standard_ufer,	    "Shore" },
     { &grund_besch_t::wasser,	    "Water" },
     { &grund_besch_t::fundament,    "Basement" },
+    { &grund_besch_t::slopes,    "Slopes" },
     { &grund_besch_t::ausserhalb,   "Outside" },
     { NULL, NULL }
 };
 
-static spezial_obj_tpl<grund_besch_t> winter_spezial_objekte[] = {
+static spezial_obj_tpl<grund_besch_t> winter_grounds[] = {
     { &grund_besch_t::winter_boden,	    "WinterGras" },
     { &grund_besch_t::winter_ufer,	    "WinterShore" },
     { NULL, NULL }
@@ -84,8 +86,8 @@ static spezial_obj_tpl<grund_besch_t> winter_spezial_objekte[] = {
  */
 bool grund_besch_t::register_besch(const grund_besch_t *besch)
 {
-	if(!::register_besch(spezial_objekte, besch)) {
-		return ::register_besch(winter_spezial_objekte, besch);
+	if(!::register_besch(grounds, besch)) {
+		return ::register_besch(winter_grounds, besch);
 	}
 	return true;
 }
@@ -106,11 +108,17 @@ bool grund_besch_t::register_besch(const grund_besch_t *besch)
 bool grund_besch_t::alles_geladen()
 {
 	DBG_MESSAGE("grund_besch_t::alles_geladen()","boden");
+#if 0
+	// if you want to know it in detail
 	// standard is "summer"
 	for(int i=0; i<78;  i++  ) {
 		DBG_MESSAGE("boden","%i=%p",i,static_cast<const bildliste2d_besch_t *>(grund_besch_t::standard_boden->gib_kind(2))->gib_liste(i) );
 	}
+	for(int i=0; i<18;  i++  ) {
+		DBG_MESSAGE("slopes","%i=%p",i,static_cast<const bildliste2d_besch_t *>(grund_besch_t::slopes->gib_kind(2))->gib_liste(i) );
+	}
+#endif
 	grund_besch_t::boden = grund_besch_t::standard_boden;
 	grund_besch_t::ufer = grund_besch_t::standard_ufer;
-	return ::alles_geladen(spezial_objekte);
+	return ::alles_geladen(grounds);
 }

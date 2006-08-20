@@ -49,129 +49,127 @@ const int schedule_list_gui_t::cost_type_color[MAX_LINE_COST] =
 // Hajo: 17-Jan-04: changed layout to make components fit into
 // a width of 400 pixels -> original size was unuseable in 640x480
 
-schedule_list_gui_t::schedule_list_gui_t(karte_t *welt)
- : gui_frame_t("Line Management"), scrolly(&cont), scrolly_haltestellen(&cont_haltestellen)
+schedule_list_gui_t::schedule_list_gui_t(karte_t *welt,spieler_t *sp)
+ : gui_frame_t("Line Management",sp->kennfarbe),
+ scrolly(&cont),
+ scrolly_haltestellen(&cont_haltestellen)
 {
-  SCL_HEIGHT = 170; // to enlarge scl window, increase this value!
+	SCL_HEIGHT = 170; // to enlarge scl window, increase this value!
 
-  this->welt = welt;
-  line = NULL;
-  capacity = load = 0;
-  selection = -1;
-  loadfactor = 0;
+	this->welt = welt;
+	this->sp = sp;
+	line = NULL;
+	capacity = load = 0;
+	selection = -1;
+	loadfactor = 0;
 
-  groesse = koord(400, 440);
-  button_t button_def;
+	groesse = koord(400, 440);
+	button_t button_def;
 
-  // Hajo: width of a column - the window has two columns
-  const int COLWIDTH = groesse.x/2 - 22;
+	// Hajo: width of a column - the window has two columns
+	const int COLWIDTH = groesse.x/2 - 22;
 
-  // Hajo: X Position of second column
-  const int COL2XPOS = groesse.x/2 + 11;
+	// Hajo: X Position of second column
+	const int COL2XPOS = groesse.x/2 + 11;
 
-  // editable line name
-  inp_name.add_listener(this);
-  inp_name.setze_pos(koord(groesse.x/2 + 11, 193));
-  inp_name.setze_groesse(koord(COLWIDTH, 14));
-  inp_name.set_visible(false);
-  add_komponente(&inp_name);
+	// editable line name
+	inp_name.add_listener(this);
+	inp_name.setze_pos(koord(groesse.x/2 + 11, 193));
+	inp_name.setze_groesse(koord(COLWIDTH, 14));
+	inp_name.set_visible(false);
+	add_komponente(&inp_name);
 
 
-  // load display
-  filled_bar.add_color_value(&loadfactor, GREEN);
-  filled_bar.set_visible(false);
-  add_komponente(&filled_bar);
+	// load display
+	filled_bar.add_color_value(&loadfactor, GREEN);
+	filled_bar.set_visible(false);
+	add_komponente(&filled_bar);
 
-  // init scrolled list
-  scl = new scrolled_list_gui_t(scrolled_list_gui_t::select);
-  scl->setze_groesse(koord(COLWIDTH, SCL_HEIGHT));
-  scl->setze_pos(koord(0,1));
-  scl->setze_highlight_color(gib_besitzer()->kennfarbe+1);
+	// init scrolled list
+	scl = new scrolled_list_gui_t(scrolled_list_gui_t::select);
+	scl->setze_groesse(koord(COLWIDTH, SCL_HEIGHT));
+	scl->setze_pos(koord(0,1));
+	scl->setze_highlight_color(gib_besitzer()->kennfarbe+1);
 
-  // tab panel
-  tabs.setze_pos(koord(11,5));
-  tabs.setze_groesse(koord(COLWIDTH, SCL_HEIGHT));
+	// tab panel
+	tabs.setze_pos(koord(11,5));
+	tabs.setze_groesse(koord(COLWIDTH, SCL_HEIGHT));
 
-  tabs.add_tab(scl, translator::translate("All"));
-  tabs.add_tab(scl, translator::translate("Truck"));
-  tabs.add_tab(scl, translator::translate("Train"));
-  tabs.add_tab(scl, translator::translate("Ship"));
-  tabs.add_tab(scl, translator::translate("Air"));
-  tabs.add_listener(this);
-  add_komponente(&tabs);
+	tabs.add_tab(scl, translator::translate("All"));
+	tabs.add_tab(scl, translator::translate("Truck"));
+	tabs.add_tab(scl, translator::translate("Train"));
+	tabs.add_tab(scl, translator::translate("Ship"));
+	tabs.add_tab(scl, translator::translate("Air"));
+	tabs.add_listener(this);
+	add_komponente(&tabs);
 
-  welt->simlinemgmt->sort_lines();
-  build_line_list(0);
+	sp->simlinemgmt.sort_lines();
+	build_line_list(0);
 
-  cont.setze_groesse(koord(500, 40));
+	cont.setze_groesse(koord(500, 40));
 
-  scrolly.setze_groesse(koord(groesse.x/2,
+	scrolly.setze_groesse(koord(groesse.x/2,
 			      gib_fenstergroesse().y - 240 ));
-  scrolly.set_visible(false);
-  add_komponente(&scrolly);
-  setze_opaque(true);
+	scrolly.set_visible(false);
+	add_komponente(&scrolly);
+	setze_opaque(true);
 
-  cont_haltestellen.setze_groesse(koord(500, 40));
-  scrolly_haltestellen.setze_pos(koord(0, 50 + SCL_HEIGHT));
-  scrolly_haltestellen.setze_groesse(koord(groesse.x/2,
+	cont_haltestellen.setze_groesse(koord(500, 40));
+	scrolly_haltestellen.setze_pos(koord(0, 50 + SCL_HEIGHT));
+	scrolly_haltestellen.setze_groesse(koord(groesse.x/2,
 					   gib_fenstergroesse().y - SCL_HEIGHT - 50 ));
-  scrolly_haltestellen.set_visible(false);
-  add_komponente(&scrolly_haltestellen);
-  setze_opaque(true);
+	scrolly_haltestellen.set_visible(false);
+	add_komponente(&scrolly_haltestellen);
+	setze_opaque(true);
 
 
-  // normal buttons edit new remove
-  bt_new_line.setze_pos(koord(10, 18 + SCL_HEIGHT));
-  bt_new_line.setze_groesse(koord(92,14));
-  bt_new_line.setze_typ(button_t::roundbox);
-  bt_new_line.text = translator::translate("New Line");
-  add_komponente(&bt_new_line);
-  bt_new_line.add_listener(this);
+	// normal buttons edit new remove
+	bt_new_line.setze_pos(koord(10, 18 + SCL_HEIGHT));
+	bt_new_line.setze_groesse(koord(92,14));
+	bt_new_line.setze_typ(button_t::roundbox);
+	bt_new_line.text = translator::translate("New Line");
+	add_komponente(&bt_new_line);
+	bt_new_line.add_listener(this);
 
-  bt_change_line.setze_pos(koord(102, 18 + SCL_HEIGHT));
-  bt_change_line.setze_groesse(koord(92,14));
-  bt_change_line.setze_typ(button_t::roundbox);
-  bt_change_line.text = translator::translate("Update Line");
-  add_komponente(&bt_change_line);
-  bt_change_line.add_listener(this);
-  bt_change_line.disable();
+	bt_change_line.setze_pos(koord(102, 18 + SCL_HEIGHT));
+	bt_change_line.setze_groesse(koord(92,14));
+	bt_change_line.setze_typ(button_t::roundbox);
+	bt_change_line.text = translator::translate("Update Line");
+	add_komponente(&bt_change_line);
+	bt_change_line.add_listener(this);
+	bt_change_line.disable();
 
-  bt_delete_line.setze_pos(koord(10, 32 + SCL_HEIGHT));
-  bt_delete_line.setze_groesse(koord(92,14));
-  bt_delete_line.setze_typ(button_t::roundbox);
-  bt_delete_line.text = translator::translate("Delete Line");
-  add_komponente(&bt_delete_line);
-  bt_delete_line.add_listener(this);
-  bt_delete_line.disable();
+	bt_delete_line.setze_pos(koord(10, 32 + SCL_HEIGHT));
+	bt_delete_line.setze_groesse(koord(92,14));
+	bt_delete_line.setze_typ(button_t::roundbox);
+	bt_delete_line.text = translator::translate("Delete Line");
+	add_komponente(&bt_delete_line);
+	bt_delete_line.add_listener(this);
+	bt_delete_line.disable();
 
-  //CHART
-  chart = new gui_chart_t();
-  chart->setze_pos(koord(COL2XPOS+26, 10));
-  chart->set_dimension(12, 1000);
-  chart->set_seed(0);
-  chart->set_background(MN_GREY1);
+	//CHART
+	chart = new gui_chart_t();
+	chart->setze_pos(koord(COL2XPOS+26, 10));
+	chart->set_dimension(12, 1000);
+	chart->set_seed(0);
+	chart->set_background(MN_GREY1);
 
-  add_komponente(chart);
-  //CHART END
+	add_komponente(chart);
+	//CHART END
 
-  // add filter buttons
-  for (int cost=0; cost<MAX_LINE_COST; cost++) {
-    filterButtons[cost].init(button_t::box,
-			     translator::translate(cost_type[cost]),
-			     koord(COL2XPOS+(COLWIDTH/2+4) * (cost%2),
-				   125+15*((int)cost/2+1)),
-			     koord(COLWIDTH/2+3, 14));
-    filterButtons[cost].add_listener(this);
-    filterButtons[cost].background = cost_type_color[cost];
-    add_komponente(filterButtons + cost);
-  }
+	// add filter buttons
+	for (int cost=0; cost<MAX_LINE_COST; cost++) {
+		filterButtons[cost].init(button_t::box,translator::translate(cost_type[cost]),koord(COL2XPOS+(COLWIDTH/2+4) * (cost%2), 125+15*((int)cost/2+1)), koord(COLWIDTH/2+3, 14));
+		filterButtons[cost].add_listener(this);
+		filterButtons[cost].background = cost_type_color[cost];
+		add_komponente(filterButtons + cost);
+	}
+	scl->request_groesse(scl->gib_groesse());
 
-  scl->request_groesse(scl->gib_groesse());
-
-  // resize button
-  set_min_windowsize(koord(400, 400));
-  set_resizemode(diagonal_resize);
-  resize(koord(0,0));
+	// resize button
+	set_min_windowsize(koord(400, 400));
+	set_resizemode(diagonal_resize);
+	resize(koord(0,0));
 }
 
 schedule_list_gui_t::~schedule_list_gui_t()
@@ -182,15 +180,7 @@ schedule_list_gui_t::~schedule_list_gui_t()
 	chart=0;
 }
 
-/**
- * gibt den Besitzer zurueck
- *
- * @author Hj. Malthaner
- */
-spieler_t* schedule_list_gui_t::gib_besitzer() const
-{
-    return welt->get_active_player();
-}
+
 
 char *schedule_list_gui_t::info(char *buf) const
 {
@@ -198,6 +188,8 @@ char *schedule_list_gui_t::info(char *buf) const
     buf[1]=0;
     return buf;
 }
+
+
 
 bool schedule_list_gui_t::action_triggered(gui_komponente_t *komp)           // 28-Dec-01    Markus Weber    Added
 {
@@ -212,13 +204,13 @@ bool schedule_list_gui_t::action_triggered(gui_komponente_t *komp)           // 
     {
     	if (tabs.get_active_tab_index() > 0) {
     	// create typed line
-		simline_t * new_line = welt->simlinemgmt->create_line(tabs.get_active_tab_index());
-		line_management_gui_t *line_gui = new line_management_gui_t(welt, new_line, welt->get_active_player());
+		simline_t * new_line = sp->simlinemgmt.create_line(tabs.get_active_tab_index());
+		line_management_gui_t *line_gui = new line_management_gui_t(welt, new_line, sp);
 		line_gui->zeige_info();
 
 		// once a new line is added we need to renew the SCL and sort the lines
 		// otherwise the selection of lines in the SCL gets messed up
-		  welt->simlinemgmt->sort_lines();
+		  sp->simlinemgmt.sort_lines();
 		  scl->clear_elements();
 		  build_line_list(tabs.get_active_tab_index());
 		} else {
@@ -230,7 +222,7 @@ bool schedule_list_gui_t::action_triggered(gui_komponente_t *komp)           // 
 		{
 			// remove elements from lists
 			lines.remove(line);
-			welt->simlinemgmt->delete_line(line);
+			sp->simlinemgmt.delete_line(line);
 			scl->remove_element(scl->gib_selection());
 
 			// clean up gui
@@ -458,17 +450,15 @@ void schedule_list_gui_t::resize(const koord delta)
 
 void schedule_list_gui_t::build_line_list(int filter)
 {
-  if (welt->simlinemgmt->count_lines() > 0)
-  {
-  	scl->clear_elements();
-  	lines.clear();
-    slist_iterator_tpl<simline_t *> iter( simlinemgmt_t::all_managed_lines );
-    while( iter.next() ) {
-      simline_t *line = iter.get_current();
-      if ((line->get_linetype() == filter) || (filter == 0)) {
-			scl->append_element( line->get_name() );
-			lines.append(line);
-	    }
-    }
-  }
+DBG_MESSAGE("schedule_list_gui_t::build_line_list()","count=%i",sp->simlinemgmt.count_lines());
+	if(sp->simlinemgmt.count_lines() > 0) {
+		scl->clear_elements();
+		lines.clear();
+		sp->simlinemgmt.build_line_list( filter==0 ? simline_t::line : filter, &lines );
+
+		slist_iterator_tpl<simline_t *> iter(lines);
+		while( iter.next() ) {
+			scl->append_element( iter.get_current()->get_name() );
+		}
+	}
 }

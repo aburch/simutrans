@@ -75,38 +75,33 @@ void gui_scrollpane_t::setze_groesse(koord groesse)
  */
 void gui_scrollpane_t::infowin_event(const event_t *ev)
 {
-//    printf("gui_scrollpane_t::infowin_event() at %d,%d\n", ev->cx, ev->cy);
+	if(scroll_y->getroffen(ev->mx, ev->my) || scroll_y->getroffen(ev->cx, ev->cy)) {
+		event_t ev2 = *ev;
+		translate_event(&ev2, -scroll_y->gib_pos().x, -scroll_y->gib_pos().y);
+		scroll_y->infowin_event(&ev2);
+	}
 
-    if(scroll_y->getroffen(ev->mx, ev->my) ||
-       scroll_y->getroffen(ev->cx, ev->cy)) {
+	else if(scroll_x->getroffen(ev->mx, ev->my) ||
+		scroll_x->getroffen(ev->cx, ev->cy)) {
+		event_t ev2 = *ev;
+		translate_event(&ev2, -scroll_x->gib_pos().x, -scroll_x->gib_pos().y);
+		scroll_x->infowin_event(&ev2);
+	}
 
-	event_t ev2 = *ev;
-	translate_event(&ev2, -scroll_y->gib_pos().x, -scroll_y->gib_pos().y);
+	else {
+		// translate according to scrolled position
+		event_t ev2 = *ev;
+		translate_event(&ev2,
+		scroll_x->gib_knob_offset(),
+		scroll_y->gib_knob_offset());
 
-	scroll_y->infowin_event(&ev2);
+		// hand event to component
+		komp->infowin_event(&ev2);
 
-    } else if(scroll_x->getroffen(ev->mx, ev->my) ||
-              scroll_x->getroffen(ev->cx, ev->cy)) {
-
-	event_t ev2 = *ev;
-	translate_event(&ev2, -scroll_x->gib_pos().x, -scroll_x->gib_pos().y);
-
-	scroll_x->infowin_event(&ev2);
-
-    } else {
-	// translate according to scrolled position
-	event_t ev2 = *ev;
-	translate_event(&ev2,
-                        scroll_x->gib_knob_offset(),
-			scroll_y->gib_knob_offset());
-
-	// hand event to component
-	komp->infowin_event(&ev2);
-
-	// Hajo: hack: componet could have changed size
-	// this recalculates the scrollbars
-	setze_groesse(gib_groesse());
-    }
+		// Hajo: hack: component could have changed size
+		// this recalculates the scrollbars
+		setze_groesse(gib_groesse());
+	}
 }
 
 /**
@@ -115,18 +110,20 @@ void gui_scrollpane_t::infowin_event(const event_t *ev)
  */
 void gui_scrollpane_t::setze_scroll_position(int x, int y)
 {
-    scroll_x->setze_knob_offset(x);
-    scroll_y->setze_knob_offset(y);
+	scroll_x->setze_knob_offset(x);
+	scroll_y->setze_knob_offset(y);
 }
 
 
-int gui_scrollpane_t::get_scroll_x() const {
-  return scroll_x->gib_knob_offset();
+int gui_scrollpane_t::get_scroll_x() const
+{
+	return scroll_x->gib_knob_offset();
 }
 
 
-int gui_scrollpane_t::get_scroll_y() const {
-  return scroll_y->gib_knob_offset();
+int gui_scrollpane_t::get_scroll_y() const
+{
+	return scroll_y->gib_knob_offset();
 }
 
 
@@ -137,20 +134,18 @@ int gui_scrollpane_t::get_scroll_y() const {
  */
 void gui_scrollpane_t::zeichnen(koord pos) const
 {
-    pos += this->pos;
+	pos += this->pos;
+
+	PUSH_CLIP(pos.x, pos.y, groesse.x-11*b_show_scroll_y, groesse.y-11*b_show_scroll_x);
+	komp->zeichnen(pos - koord(scroll_x->gib_knob_offset(), scroll_y->gib_knob_offset()));
+	POP_CLIP();
 
 	// sliding bar background color is now handled by scrollbar!
 	if (b_show_scroll_x) {
-	    scroll_x->zeichnen(pos);
+		scroll_x->zeichnen(pos);
 	}
 
 	if (b_show_scroll_y) {
 		scroll_y->zeichnen(pos);
 	}
-
-    PUSH_CLIP(pos.x, pos.y, groesse.x-11, groesse.y-11);
-
-    komp->zeichnen(pos - koord(scroll_x->gib_knob_offset(), scroll_y->gib_knob_offset()));
-
-    POP_CLIP();
 }

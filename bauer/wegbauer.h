@@ -94,6 +94,13 @@ public:
 
 private:
 
+	typedef struct
+	{
+		grund_t *gr;
+		long		cost;
+	} next_gr_t;
+	vector_tpl<next_gr_t> next_gr;
+
     enum { unseen = 9999999 };
     enum { max_route_laenge = 1024 };
 
@@ -136,6 +143,9 @@ private:
 	// allowed owner?
 	bool check_owner( const spieler_t *sp1, const spieler_t *sp2 );
 
+	// allowed slope?
+	bool check_slope( const grund_t *from, const grund_t *to );
+
 	/* This is the core routine for the way search
 	 * it will check
 	 * A) allowed step
@@ -145,8 +155,8 @@ private:
 	bool is_allowed_step( const grund_t *from, const grund_t *to, long *costs );
 
 	// checks, if we can built a bridge here ...
-	// may modify to!
-	bool check_for_bridge( const grund_t *parent_from, const grund_t *from, grund_t **to, long *costs );
+	// may modify next_gr array!
+	int check_for_bridge( const grund_t *parent_from, const grund_t *from, koord3d ziel );
 
     long intern_calc_route(koord start, const koord ziel);
     void intern_calc_straight_route(const koord start, const koord ziel);
@@ -207,6 +217,11 @@ public:
 
     void calc_straight_route(koord start, const koord ziel);
     void calc_route(koord start, const koord ziel);
+
+	/* returns the amount needed to built this way
+	 * author prissi
+	 */
+	long calc_costs();
 
   bool check_crossing(const koord zv, const grund_t *bd,weg_t::typ wtyp) const;
   bool check_for_leitung(const koord zv, const grund_t *bd) const;

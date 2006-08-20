@@ -270,6 +270,12 @@ obj_besch_t * building_reader_t::read_node(FILE *fp, obj_node_info_t &node)
     besch->obsolete_date = DEFAULT_RETIRE_DATE*12;
   }
 
+	// correct old station buildings ...
+	if(besch->level==0  &&  besch->utyp>=hausbauer_t::bahnhof) {
+		DBG_DEBUG("building_reader_t::read_node()","old station building -> set level to 4");
+		besch->level = 4;
+	}
+
   DBG_DEBUG("building_reader_t::read_node()",
 	     "version=%d"
 	     " gtyp=%d"

@@ -41,6 +41,7 @@ class vehikel_t;
 class vehikel_besch_t;
 class simline_t;
 class fahrplan_t;
+class cbuffer_t;
 
 struct event_t;
 
@@ -82,14 +83,12 @@ private:
      */
     route_t route;
 
-
     /**
      * assigned line
      * @author hsiegeln
      */
     simline_t * line;
-    int line_id;
-
+    uint16 line_id;
 
     /**
      * Name of the convoi.
@@ -98,13 +97,11 @@ private:
      */
     char name[128];
 
-
     /**
      * Information window for ourselves.
      * @author Hj. Malthaner
      */
     convoi_info_t *convoi_info;
-
 
     /**
      * Alle vehikel-fahrplanzeiger zeigen hierauf
@@ -122,7 +119,6 @@ private:
      */
     int loading_level;
 
-
     /**
      * At which loading level is the train allowed to start? 0 during driving.
      * Cached value calculated by calc_loading().
@@ -131,7 +127,6 @@ private:
      */
     int loading_limit;
 
-
     /**
      * The vehicles of this convoi
      *
@@ -139,13 +134,11 @@ private:
      */
     array_tpl <vehikel_t *> *fahr;
 
-
     /**
      * Während des Routings müssen zeitweise die pos gespeichert werden
      * @author Hj. Malthaner
      */
-    array_tpl <koord3d> tmp_pos;
-
+    static array_tpl <koord3d> tmp_pos;
 
     /**
      * Convoi owner
@@ -167,13 +160,25 @@ private:
      */
     bool ist_fahrend;
 
+    /**
+     * the convoi caches its freight info; it is only recalculation after loading or resorting
+     * @author prissi
+     */
+	bool freight_info_resort;
+
+    /**
+     * the convoi caches its freight info; it is only recalculation after loading or resorting
+     * @author prissi
+     */
+	uint8 freight_info_order;
 
     /**
      * Number of vehicles in this convoi.
      * @author Hj. Malthaner
      */
-    unsigned anz_vehikel;
+    uint8 anz_vehikel;
 
+    uint8 anz_ready;
 
     /**
      * Gesamtleistung. Wird nicht gespeichert, sondern aus den Einzelleistungen
@@ -215,13 +220,6 @@ private:
 
 
     /**
-     * returns the total running cost for all vehicles in convoi
-     * @author hsiegeln
-     */
-    int get_running_cost() const;
-
-
-    /**
      * inititailisiert die Buttons fuers Fenster.
      * Muss aus jedem Kinstruktor aufgerufen werden
      * @author Hj. Malthaner
@@ -241,7 +239,7 @@ private:
      * akkumulierter gewinn über ein jahr hinweg
      * @author Hanjsörg Malthaner
      */
-    long jahresgewinn;
+    sint64 jahresgewinn;
 
     /**
      * Set, when there was a income calculation (avoids some cheats)
@@ -259,8 +257,6 @@ private:
     int sp_soll;                   // Sollstrecke
 
     unsigned long next_wolke;                // zeit fuer naechste wolke
-
-    int anz_ready;
 
     enum states state;
 
@@ -354,30 +350,30 @@ private:
      */
     void init_financial_history();
 
-		/**
-		 * holds id of line with pendig update
-		 * -1 if no pending update
-		 * @author hsiegeln
-		 */
-		int line_update_pending;
+	/**
+	 * holds id of line with pendig update
+	 * -1 if no pending update
+	 * @author hsiegeln
+	 */
+	uint16 line_update_pending;
 
-		/**
-		 * the koordinate of the home depot of this convoi
-		 * the last depot visited is considered beeing the home depot
-		 * @author hsiegeln
-		 */
-		koord3d home_depot;
+	/**
+	 * the koordinate of the home depot of this convoi
+	 * the last depot visited is considered beeing the home depot
+	 * @author hsiegeln
+	 */
+	koord3d home_depot;
 
 public:
 
 
-		route_t * get_route() { return &route; };
+	route_t * get_route() { return &route; };
 
-    /**
-     * Checks if this convoi has a driveable route
-     * @author Hanjsörg Malthaner
-     */
-    bool hat_keine_route() const;
+	/**
+	 * Checks if this convoi has a driveable route
+	 * @author Hanjsörg Malthaner
+	 */
+	bool hat_keine_route() const;
 
 
     /**
@@ -408,7 +404,7 @@ public:
      * used only during convoi restoration from savegame!
      * @author hsiegeln
      */
-    void register_with_line(int line_id);
+    void register_with_line(uint16 line_id);
 
 
     /**
@@ -437,7 +433,14 @@ public:
      * Der Gewinn in diesem Jahr
      * @author Hanjsörg Malthaner
      */
-    const long & gib_jahresgewinn() const {return jahresgewinn;};
+    const sint64 & gib_jahresgewinn() const {return jahresgewinn;};
+
+
+    /**
+     * returns the total running cost for all vehicles in convoi
+     * @author hsiegeln
+     */
+    sint32 get_running_cost() const;
 
 
     /**
@@ -513,7 +516,14 @@ public:
     const int &gib_akt_speed() const {return akt_speed;};
 
 
-    int gib_min_top_speed() const {return min_top_speed;};
+    /**
+     * @return total power of this convoi
+     * @author Hj. Malthaner
+     */
+    const int & gib_sum_leistung() const {return sum_leistung;}
+    const int & gib_min_top_speed() const {return min_top_speed;}
+    const int & gib_sum_gewicht() const {return sum_gewicht;}
+    const int & gib_sum_gesamtgewicht() const {return sum_gesamtgewicht;}
 
 
     /**
@@ -521,7 +531,7 @@ public:
      * method
      * @author Hj. Malthaner
      */
-    void add_running_cost(int cost);
+    void add_running_cost(sint32 cost);
 
 
     /**
@@ -566,13 +576,6 @@ public:
      * @@author Hj. Malthaner
      */
     int calc_accelleration(int mini) const;
-
-
-    /**
-     * @return total power of this convoi
-     * @author Hj. Malthaner
-     */
-    int gib_sum_leistung() const {return sum_leistung;};
 
 
     /**
@@ -716,7 +719,7 @@ public:
      * @author Hj. Malthaner
      */
     void get_freight_info(cbuffer_t & buf);
-
+    void set_sort(int order);
 
     /**
      * Opens the schedule window

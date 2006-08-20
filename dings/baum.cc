@@ -15,7 +15,6 @@
 #include "../simimg.h"
 #include "../simplay.h"
 #include "../simmem.h"
-#include "../simcosts.h"
 #include "../simtools.h"
 
 #include "../boden/grund.h"
@@ -426,7 +425,7 @@ void
 baum_t::entferne(spieler_t *sp)
 {
 	if(sp != NULL) {
-		sp->buche(CST_BAUM_ENTFERNEN, gib_pos().gib_2d(), COST_CONSTRUCTION);
+		sp->buche(umgebung_t::cst_remove_tree, gib_pos().gib_2d(), COST_CONSTRUCTION);
 	}
 }
 

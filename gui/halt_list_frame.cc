@@ -26,6 +26,8 @@
 
 #include "../bauer/warenbauer.h"
 
+#include "components/list_button.h"
+
 /**
  * All filter and sort settings are static, so the old settings are
  * used when the window is reopened.
@@ -252,33 +254,33 @@ halt_list_frame_t::halt_list_frame_t(spieler_t *sp) :
     m_sp = sp;
     filter_frame = NULL;
 
-    sort_label.setze_pos(koord(3, 4));
+    sort_label.setze_pos(koord(BUTTON1_X, 4));
     add_komponente(&sort_label);
-    sortedby.init(button_t::roundbox, "", koord(1, 14), koord(78,14));
+    sortedby.init(button_t::roundbox, "", koord(BUTTON1_X, 14), koord(BUTTON_WIDTH,BUTTON_HEIGHT));
     sortedby.add_listener(this);
     add_komponente(&sortedby);
 
-    sorteddir.init(button_t::roundbox, "", koord(80, 14), koord(78,14));
+    sorteddir.init(button_t::roundbox, "", koord(BUTTON2_X, 14), koord(BUTTON_WIDTH,BUTTON_HEIGHT));
     sorteddir.add_listener(this);
     add_komponente(&sorteddir);
 
-    filter_label.setze_pos(koord(164, 4));
+    filter_label.setze_pos(koord(BUTTON3_X, 4));
     add_komponente(&filter_label);
 
-    filter_on.init(button_t::roundbox, translator::translate(gib_filter(any_filter) ? "hl_btn_filter_enable" : "hl_btn_filter_disable"), koord(162, 14), koord(78,14));
+    filter_on.init(button_t::roundbox, translator::translate(gib_filter(any_filter) ? "hl_btn_filter_enable" : "hl_btn_filter_disable"), koord(BUTTON3_X, 14), koord(BUTTON_WIDTH,BUTTON_HEIGHT));
     filter_on.add_listener(this);
     add_komponente(&filter_on);
 
-    filter_details.init(button_t::roundbox, translator::translate("hl_btn_filter_settings"), koord(241, 14), koord(78,14));
+    filter_details.init(button_t::roundbox, translator::translate("hl_btn_filter_settings"), koord(BUTTON4_X, 14), koord(BUTTON_WIDTH,BUTTON_HEIGHT));
     filter_details.add_listener(this);
     add_komponente(&filter_details);
 
     scrolly.setze_pos(koord(1, 30));
     setze_opaque(true);
-    setze_fenstergroesse(koord(320, 191+16+16));
+    setze_fenstergroesse(koord(BUTTON4_X+BUTTON_WIDTH+2, 191+16+16));
 
 	// use gui-resize
-	set_min_windowsize(koord(320,191+16+16));
+	set_min_windowsize(koord(BUTTON4_X+BUTTON_WIDTH+2,191+16+16));
 	set_resizemode(diagonal_resize);
 
     display_list();
@@ -346,10 +348,10 @@ void halt_list_frame_t::display_list(void)
 	halt_list_item_t *cinfo = new halt_list_item_t(a[i], a[i]->index_of()+1);
 
 	cinfo->setze_pos(koord(0, ypos));
-	cinfo->setze_groesse(koord(500, 32));
+	cinfo->setze_groesse(koord(500, 28));
 	cont.add_komponente(cinfo);
 
-        ypos += 32;
+        ypos += 28;
     }
     cont.setze_groesse(koord(500, ypos));
 #ifdef _MSC_VER

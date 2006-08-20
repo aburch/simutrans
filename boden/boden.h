@@ -10,7 +10,9 @@
 #ifndef boden_boden_h
 #define boden_boden_h
 
+#include "../simimg.h"
 #include "grund.h"
+#include "../besch/grund_besch.h"
 
 /**
  * Der Boden ist der 'Natur'-Untergrund in Simu. Er kann einen Besitzer haben.
@@ -20,7 +22,7 @@
 
 class boden_t : public grund_t
 {
-private:
+protected:
     static bool show_grid;
 
 public:
@@ -59,6 +61,7 @@ public:
 
 
     void calc_bild();
+
     inline const char *gib_name() const;
     inline enum typ gib_typ() const {return boden;};
 

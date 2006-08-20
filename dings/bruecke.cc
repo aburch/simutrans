@@ -17,7 +17,6 @@
 #include "../blockmanager.h"
 #include "../simimg.h"
 #include "../simmem.h"
-#include "../simcosts.h"
 #include "../bauer/brueckenbauer.h"
 #include "../utils/cbuffer_t.h"
 #include "../dataobj/loadsave.h"

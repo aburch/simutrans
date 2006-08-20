@@ -7,6 +7,7 @@
  * in other projects without written permission of the author.
  */
 
+#include <string.h>
 
 #include "../simdebug.h"
 #include "load_relief_frame.h"
@@ -20,8 +21,7 @@
  */
 void load_relief_frame_t::action(const char *filename)
 {
-    sets->heightfield = filename;
-    welt->load_heightfield(sets);
+	sets->heightfield = filename;
 }
 
 
@@ -41,6 +41,7 @@ load_relief_frame_t::load_relief_frame_t(karte_t * welt, einstellungen_t * sets)
 
     this->sets = sets;
     this->welt = welt;
+    sets->heightfield = "";
 }
 
 

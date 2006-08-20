@@ -4,9 +4,14 @@
  * @author hsiegeln
  * 01/12/2003
  */
+
+#ifndef simlinemgmt_h
+#define simlinemgmt_h
+
 #include <string.h>
 
 #include "simtypes.h"
+#include "simline.h"
 #include "dataobj/loadsave.h"
 #include "dataobj/translator.h"
 
@@ -17,11 +22,13 @@
 
 class fahrplan_t;
 
+#define UNVALID_LINE_ID ((uint16)(-1))
+
 class simlinemgmt_t
 {
- 	public:
+ public:
 
- 	simlinemgmt_t(karte_t * welt);
+ 	simlinemgmt_t(karte_t * welt, spieler_t *besitzer);
 	void destroy_all();
 
 	/*
@@ -48,33 +55,20 @@ class simlinemgmt_t
 	 * return number off lines
 	 * @author hsiegeln
 	 */
- 	int count_lines();
+ 	int count_lines() { return all_managed_lines.get_count(); }
 
 	/*
-	 * line counter will be increased by 1 for each new line, and always grow
-	 * @author hsiegeln
-	 */
- 	int get_line_counter();
+	* return a line
+	* @author hsiegeln
+	*/
+	simline_t * get_line(uint16 i) const {return i<all_managed_lines.get_count() ? all_managed_lines.at(i) : NULL; }
+	simline_t * get_line(fahrplan_t *fpl);
 
 	/*
-	 * return a line
-	 * @author hsiegeln
-	 */
- 	simline_t * get_line(int iroute);
-        simline_t * get_line(fahrplan_t *fpl);
-
-	/*
-	 * return a line by its ID
-	 * @author hsiegeln
-	 */
-        simline_t * get_line_by_id(int id);
-
-	/*
-	 * all managed lines as static
-	 * @author hsiegeln
-	 */
- 	static slist_tpl<simline_t *> all_managed_lines;
-
+	* return a line by its ID
+	* @author hsiegeln
+	*/
+	simline_t * get_line_by_id(uint16 line);
 
  	/*
  	 * load or save the linemanagement
@@ -100,7 +94,8 @@ class simlinemgmt_t
 	 * Creates a unique line id.
 	 * @author Hj. Malthaner
 	 */
-	int get_unique_line_id();
+	static uint16 get_unique_line_id();
+	static void init_line_ids();
 
 	void new_month();
 
@@ -115,11 +110,20 @@ class simlinemgmt_t
 	 */
 	 void build_line_list(int type, slist_tpl<simline_t *> * list);
 
- private:
+	/*
+	 * @author prissi
+	 */
+	spieler_t *gib_besitzer() const { return besitzer; }
 
-	int line_counter;
+ private:
+	static uint8 used_ids[8192];
+
+	vector_tpl<simline_t *> all_managed_lines;
+
 	static int compare_lines(const void *p1, const void *p2);
 
 	karte_t * welt;
-
+	spieler_t *besitzer;
 };
+
+#endif

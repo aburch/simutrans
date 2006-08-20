@@ -12,7 +12,8 @@
 class wasser_t : public grund_t
 {
 private:
-    int step_nr;
+    uint8 step_nr;
+    sint8 back_bild_nr;
 
 public:
     wasser_t(karte_t *welt, loadsave_t *file);

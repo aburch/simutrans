@@ -302,6 +302,25 @@ void release_focus()
 }
 
 
+
+// returns the window (if open) otherwise zero
+gui_fenster_t *
+win_get_magic(int magic)
+{
+	if(magic!= -1) {
+		// es kann nur ein fenster fuer jede pos. magic number geben
+		for(int i=0; i<ins_win; i++) {
+			if(wins[i].magic_number == magic) {
+				// if 'special' magic number, delete 'new'-ed object
+				return wins[i].gui;
+			}
+		}
+	}
+	return NULL;
+}
+
+
+
 /**
  * Returns top window
  * @author prissi
@@ -978,7 +997,7 @@ win_display_flush(int , int color, double konto)
 	display_setze_clip_wh( 0, 0, display_get_width(), display_get_height()+1 );
 	display_icon_leiste(color, skinverwaltung_t::hauptmenu->gib_bild(0)->bild_nr);
 #else
-	display_setze_clip_wh( 0, 32, display_get_width(), display_get_height()+1 );
+	display_setze_clip_wh( color, 32, display_get_width(), display_get_height()+1 );
 #endif
 
 	show_ticker = false;
@@ -1051,6 +1070,7 @@ win_display_flush(int , int color, double konto)
     char time [128];
     char info [256];
     char stretch_text[32];
+    char delta_pos[64];
 
     // @author hsiegeln - updated to show month
     if (umgebung_t::show_month)
@@ -1066,7 +1086,15 @@ win_display_flush(int , int color, double konto)
     }
 
 	sprintf(stretch_text, wl->is_fast_forward()?">>":"(T=%1.2f)", get_time_multi()/16.0 );
-    sprintf(info,"(%d,%d,%d)  %s  %s", pos.x, pos.y, pos.z / 16, stretch_text, translator::translate(wl->use_timeline()?"timeline":"no timeline") );
+
+	extern koord3d wkz_wegebau_start;
+	if(wkz_wegebau_start!=koord3d::invalid  &&  wkz_wegebau_start!=pos) {
+		sprintf(delta_pos,"(%d,%d,%d) -> ",wkz_wegebau_start.x,wkz_wegebau_start.y,wkz_wegebau_start.z/16);
+	}
+	else {
+		delta_pos[0] = 0;
+	}
+	sprintf(info,"%s(%d,%d,%d) %s  %s", delta_pos, pos.x, pos.y, pos.z / 16, stretch_text, translator::translate(wl->use_timeline()?"timeline":"no timeline") );
 
 	const char *active_player_name = wl->get_active_player()->kennfarbe==0 ? "" : wl->get_active_player()->gib_name();
 	display_flush(stunden4, color, konto, time, info, active_player_name, wl->get_active_player()->kennfarbe );

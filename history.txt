@@ -7,6 +7,127 @@ Known bugs: (hard to fix)
 	sorting factories has an umlaute problem
 
 
+Release of 88.03
+
+23-Jan-2006(prissi):
+	ADD: automatic alignment of station extension buildings (must be either defined with dim=x,y,layout (layout=1,2 or 4), x>=y and following order N E S W)
+
+22-Jan-2006(prissi):
+	CHANGE: now line management for every player
+
+21-Jan-2006(prissi):
+	CHANGE: station now have a capacity of 32*level; thus price reflect station capacity
+	CHANGE: changed owner of several dialoges
+	CHANGE: new world functional, new string "Intercity road len:", obsolete ones. "7WORLD_CHOOSE", "7WORLD_CHOOSE", "
+
+18-Jan-2006(prissi):
+	CHANGE: new town population/passenger destination system (takes into account only existing buildings)
+	CHANGE: new world dialog renovated
+
+17-Jan-2006(prissi):
+	ADD: automatic slider recalculation at halt info and convoi info
+	CHANGE: consistent colors for negative and positive amount in dialog (red/black)
+	FIX: wrong maintance calculation when replacing roads (include other players ones)
+
+16-Jan-2006(mip):
+	CHANGE: new attraction list
+	ADD: overlooked the following translations: "\nelektrified", "\nnot elektrified", "\nRail block ", "\n\nRibi (unmasked) ", "\nRibi (masked) "
+
+14-Jan-2006(prissi):
+	FIX: building constants now configurable in simuconf.tab (see there)
+	FIX: new player frame (mostly internal change)
+
+13-Jan-2006(prissi):
+	FIX: way is keeped when building/removing bridges
+	ADD: tooltip "Alters a schedule.", "loaded" for convoiinfo, further rearrangement
+	CHANGE: goods in convois and stops are sorted by the same rules => same sorting optins
+	CHANGE: convoi freight info and stop freight info only updated when needed => saving lots of time
+	ADD: tranlations "follow me", "Follow the convoi on the map", "Sort by"
+
+11-Jan-2006(prissi):
+	CHANGE: convoi_info new text "%i km/h (max. %ikm/h)"
+	FIX: (un)loading in harbours
+	CHANGE: following convois via convoi info
+	FIX: crash building tracks under pillared roadbridge
+	FIX: again schedules with only one stop possible
+
+10-Jan-2006(prissi):
+	CHANGE: following convois via convoi info
+	FIX: crash building tracks under pillared roadbridge
+	CHANGE: better error check before building harbours
+	CHANGE: definition of wege
+	FIX: first all down will flatten a tile (more intuitive), using a slope on identical couble slope will make it steeper
+
+9-Jan-2006(prissi):
+	CHANGE: coinvoi list: minus red, further polish of halt_info
+	CHANGE: halt_info: obsolete strings "Akzeptiert"
+	FIX: scroll_pane now clips correctly
+	CHANGE: speed bonus now in percentage instead of absolute speed => higher bonus for earlier fast stuff, lower for new stuff (may require new balancing :() (but effect not too much, only very fast things get a little less)
+	the formula is now speed_bonus_faktor = 100*speed/mean_speed-100 (i.e. the speed difference in percent) => goods_price*(1000+speed_bonus_faktor*bonus_faktor(10%=10))/1000;
+	CHANGE: new good list, obsolete translations: "Preis", "Bonus", "Category", "Speed boni for road %i km/h, for rail %i km/h, for ships %i km/h, and for air %i km/h."
+	CHANGE: new texts: "Speedbonus %i%%:\n    road %i km/h, rail %i km/h, ships %i km/h, planes %i km/h.", "gl_txt_filter", "gl_speed_up", "gl_speed_down", "gl_btn_unsort", "gl_btn_sort_name", "gl_btn_sort_revenue"
+	FIX: powerline construction now cost again money ...
+	FIX: wrong tunnel slopes solved
+	FIX: building on slopes not destroyed during reloading
+
+
+Release of 88.02.1
+
+8-Jan-2006(prissi):
+	FIX: error with slopes mostly fixed => you can even built a channel using slopes
+	FIX: monorails now display again correctly
+	FIX: no rails at tunnel start
+	FIX: station alignment on bridge start fixed
+	FIX: no automatic bridges and tunnels any more => no crashes for public road and other ocasions
+
+
+Release of 88.02
+
+7-Jan-2006(prissi):
+	FIX: aircraft did not accelerat after reaching flight level
+	CHANGE: "cooperate identity" exactly same dimensions for all list buttons started
+	CHANGE: halt info, new text "Passengers %d %c, %d %c, %d no route\n\nCapacity: %i\n" instead "Passengers today:\n %d %c, %d %c, %d no route\n\n%s\n"
+	CHANGE: elements of halt list rearranged => more compact design
+	CHANGE: adjustable costs for many things, level for station buildings ... (see simuconf.tab)
+	FIX: double character with GDI and numlock
+
+1-Jan-2006(prissi):
+	FIX: changed all income calculation to 64 bit => hopefully no overuns any more
+	FIX: wayfinder check now for artificial slopes and starting tile
+	CHANGE: cost of land changes more balanced, tunnels more expensive
+	CHANGE: nicer indicator in lower line
+	FIX: 8 bit SDL works again fine
+
+31-Dec-2005(prissi):
+	CHANGE: makeobj reconizes now all waytypes in all relevant objects
+	FIX: way finder now takes care of powerlines when building bridges
+	FIX: now slopes are correctly checked before built => more slopes possible
+	FIX: selling airplanes do not delete a depot
+
+29-Dec-2005 (prissi):
+	FIX: deleting order change => no crashes when quitting a game with vehicles in depot that are assigned to a line
+	CHANGE: ways now take care of their images themselves also for crossings
+	CHANGE: new slope calculation working (needs new graphics)
+
+28-Dec-2005 (prissi):
+	CHANGE: way image is now calculated by the way, not by the ground => 4 Byte less per tile
+	CHANGE: correct calculation of offset for double height slope building foundations
+
+27-Dec-2005 (prissi):
+	CHANGE: more flexible bridge search in wegebauer
+	CHANGE: using existing bridges/tunnels when calculating new ways
+	ADD: estimates cost for construction before building
+	ADD: show difference to start location when building ways
+	CHANGE: more prominent waiting display in the schedule window
+
+Release of 88.01.3
+
+26-Dec-2005(prissi):
+	FIX: cursor keys for SDL and Allegro
+	FIX: mouse pointer for Allegro
+	FIX: symbol alingment fixed for message options
+	FIX: missed airplanes again included into 64 pak
+
 Release of 88.01.2
 
 25-Dec-2005:

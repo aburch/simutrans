@@ -17,8 +17,11 @@
 #ifndef _simimg_h
 #define _simimg_h
 
+#include "simtypes.h"
 
-#define IMG_LEER         -1
+#define IMG_LEER         0xFFFF
+
+typedef uint16 image_id;
 
 // spezielle gebaeude
 

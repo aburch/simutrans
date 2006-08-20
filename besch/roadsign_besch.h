@@ -40,14 +40,14 @@ class skin_besch_t;
  *	2   Bildliste
  */
 class roadsign_besch_t : public obj_besch_t {
-    friend class roadsign_writer_t;
-    friend class roadsign_reader_t;
+	friend class roadsign_writer_t;
+	friend class roadsign_reader_t;
 
-    enum types {ONE_WAY=1, FREE_ROUTE=2 };
+	enum types {ONE_WAY=1, FREE_ROUTE=2 };
 
-    short flags;
-
-    int min_speed;	// max speed sign; 0==unused
+	uint8 flags;
+	uint16 min_speed;	// 0: unused
+	uint32 cost;
 
 public:
 	const char *gib_name() const
@@ -78,6 +78,11 @@ public:
 	int gib_min_speed() const
 	{
 		return min_speed;
+	}
+
+	sint32 gib_preis() const
+	{
+		return cost;
 	}
 
 	const skin_besch_t *gib_cursor() const

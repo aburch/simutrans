@@ -276,7 +276,7 @@ static void scroll_intro(const int xoff, const int yoff)
 
     line ++;
 
-    if(text_line>190-11) {
+    if(scrolltext[text_line+12]==0) {
 	line = 0;
     }
 }
@@ -458,6 +458,9 @@ int simu_cpp_main(int argc, char ** argv)
     int disp_height = 600;
     int fullscreen = false;
 
+	extern koord3d wkz_wegebau_start;
+	wkz_wegebau_start = koord3d::invalid;
+
     cstring_t loadgame = "";
     cstring_t objfilename = DEFAULT_OBJPATH;
 
@@ -588,6 +591,35 @@ int simu_cpp_main(int argc, char ** argv)
       (contents.get_int("crossconnect_factories", 0))!=0;
 #endif
       umgebung_t::just_in_time = (contents.get_int("just_in_time", 1))!=0;
+
+	/* now the cost section */
+	umgebung_t::cst_multiply_dock = contents.get_int("cost_multiply_dock", 500 )*(-100);
+	umgebung_t::cst_multiply_station= contents.get_int("cost_multiply_station", 600 )*(-100);
+	umgebung_t::cst_multiply_roadstop= contents.get_int("cost_multiply_roadstop", 400 )*(-100);
+	umgebung_t::cst_multiply_airterminal= contents.get_int("cost_multiply_airterminal", 3000 )*(-100);
+	umgebung_t::cst_multiply_post= contents.get_int("cost_multiply_post", 300 )*(-100);
+	umgebung_t::cst_multiply_headquarter= contents.get_int("cost_multiply_headquarter", 10000 )*(-100);
+	umgebung_t::cst_depot_rail= contents.get_int("cost_depot_rail", 1000 )*(-100);
+	umgebung_t::cst_depot_road= contents.get_int("cost_depot_road", 1300 )*(-100);
+	umgebung_t::cst_depot_ship= contents.get_int("cost_depot_ship", 2500 )*(-100);
+	umgebung_t::cst_signal= contents.get_int("cost_signal", 500 )*(-100);
+	umgebung_t::cst_tunnel= contents.get_int("cost_tunnel", 10000 )*(-100);
+	umgebung_t::cst_third_rail= contents.get_int("cost_third_rail", 80 )*(-100);
+	// alter landscape
+	umgebung_t::cst_alter_land= contents.get_int("cost_alter_land", 500 )*(-100);
+	umgebung_t::cst_set_slope= contents.get_int("cost_set_slope", 2500 )*(-100);
+	umgebung_t::cst_found_city= contents.get_int("cost_found_city", 5000000 )*(-100);
+	umgebung_t::cst_multiply_found_industry= contents.get_int("cost_multiply_found_industry", 1000000 )*(-100);
+	umgebung_t::cst_remove_tree= contents.get_int("cost_remove_tree", 100 )*(-100);
+	umgebung_t::cst_multiply_remove_haus= contents.get_int("cost_multiply_remove_haus", 1000 )*(-100);
+
+	/* now the way builder */
+	umgebung_t::way_count_curve= contents.get_int("way_curve", 10 );
+	umgebung_t::way_count_double_curve= contents.get_int("way_double_curve", 40 );
+	umgebung_t::way_count_90_curve= contents.get_int("way_90_curve", 2000 );
+	umgebung_t::way_count_slope= contents.get_int("way_slope", 80 );
+	umgebung_t::way_count_tunnel= contents.get_int("way_tunnel", 8 );
+	umgebung_t::way_max_bridge_len= contents.get_int("way_max_bridge_len", 15 );
 
       /*
        * Selection of savegame format through inifile
@@ -968,10 +1000,9 @@ display_show_pointer( true );
 		create_win(new loadsave_frame_t(welt, true), w_info, magic_load_t);
 	    } else if(wg->gib_load_heightfield()) {
 	        einstellungen_t *sets = wg->gib_sets();
+	        welt->load_heightfield(sets);
 		destroy_win( wg );
 		destroy_win( sg );
-
-		create_win(new load_relief_frame_t(welt, sets), w_info, magic_load_t);
 	    } else if(wg->gib_quit()) {
 		// quit the game
 		break;

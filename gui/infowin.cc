@@ -259,21 +259,7 @@ void infowin_t::zeichnen(koord pos, koord gr)
 
     display_multiline_text(x+11, y+24, buf, SCHWARZ);
 
-    /*
-    if(buf.len() == 0) {
-        display_proportional(x+4, y+32, translator::translate("Keine Info."), ALIGN_LEFT, SCHWARZ, true);
-    } else {
-	display_multiline_text(x+11, y+22, buf, SCHWARZ);
-    }
-    */
-
-    int button_farbe = SCHWARZ;
-
-    if(gib_besitzer() != welt->get_active_player()) {
-	button_farbe = GRAU2;
-    }
-
-    draw_buttons(pos, button_farbe);
+    draw_buttons(pos, (gib_besitzer()!=NULL  &&  gib_besitzer() != welt->get_active_player()) ? GRAU2 : SCHWARZ );
 }
 
 /**

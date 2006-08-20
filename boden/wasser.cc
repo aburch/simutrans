@@ -56,9 +56,13 @@ void
 wasser_t::calc_bild()
 {
     setze_hoehe( welt->gib_grundwasser() );
-    setze_weg_bild(-1);
-    setze_back_bild(-1);
+	if(gib_weg_nr(0)) {
+		gib_weg_nr(0)->setze_bild(IMG_LEER);
+	}
+	// artifical walls from here on ...
+	grund_t::calc_back_bild(gib_hoehe()/16,0);
 }
+
 
 
 ribi_t::ribi wasser_t::gib_weg_ribi(weg_t::typ typ) const

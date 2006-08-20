@@ -68,20 +68,21 @@ grund_t * planquadrat_t::gib_obersten_boden(spieler_t *sp) const
 
 void planquadrat_t::boden_hinzufuegen(grund_t *bd)
 {
-    int i;
-    if(bd != NULL && !gib_boden_in_hoehe(bd->gib_hoehe())) {
-	// boeden[0] ist Kartengrund,
-	// danach folgen die Tunnels und Brücken höhensortiert.
-	for(i = 1; i < boeden.get_count(); i++) {
-	    if(bd->gib_hoehe() < boeden.get(i)->gib_hoehe())
-		break;
+	if(bd!=NULL  &&  !gib_boden_in_hoehe(bd->gib_hoehe())) {
+		// boeden[0] ist Kartengrund,
+		// danach folgen die Tunnels und Brücken höhensortiert.
+		int i;
+		for(i=1; i<boeden.get_count(); i++) {
+			if(bd->gib_hoehe()<boeden.get(i)->gib_hoehe()) {
+				break;
+			}
+		}
+		boeden.insert(i, bd);
+		bd->calc_bild();
+		reliefkarte_t::gib_karte()->recalc_relief_farbe(bd->gib_pos().gib_2d());
 	}
-        boeden.insert(i, bd);
-
-        bd->calc_bild();
-        reliefkarte_t::gib_karte()->recalc_relief_farbe(bd->gib_pos().gib_2d());
-    }
 }
+
 
 bool planquadrat_t::boden_entfernen(grund_t *bd)
 {
@@ -98,13 +99,12 @@ planquadrat_t::kartenboden_setzen(grund_t *bd, bool mit_spieler)
 	if(bd != NULL) {
 		grund_t *tmp = gib_kartenboden();
 
-		if(boeden.get_count() > 0) {
+		if(boeden.get_count()>0) {
 			boeden.at(0) = bd;
 		}
 		else {
 			boeden.append(bd);
 		}
-
 		bd->calc_bild();
 
 		if( tmp ) {
@@ -160,56 +160,51 @@ planquadrat_t::destroy(spieler_t *sp)
 void
 planquadrat_t::rdwr(karte_t *welt, loadsave_t *file)
 {
-    if(file->is_saving()) {
-        for(int i = 0; i < boeden.get_count(); i++) {
-            boeden.get(i)->rdwr(file);
-        }
-        file->wr_obj_id(-1);
-    }
-    else {
-        grund_t *gr;
-//DBG_DEBUG("planquadrat_t::rdwr()","Reading boden");
-        do {
-            grund_t::typ gtyp = (grund_t::typ)file->rd_obj_id();
-
-            switch(gtyp) {
-            case -1:			    gr = NULL;				    break;
-            case grund_t::boden:	    gr = new boden_t(welt, file);	    break;
-            case grund_t::wasser:	    gr = new wasser_t(welt, file);	    break;
-            case grund_t::fundament:	    gr = new fundament_t(welt, file);	    break;
-            case grund_t::tunnelboden:	    gr = new tunnelboden_t(welt, file);	    break;
-            case grund_t::brueckenboden:    gr = new brueckenboden_t(welt, file);   break;
-            case grund_t::monorailboden:	    gr = new monorailboden_t(welt, file);	    break;
-            default:
-	        gr = 0; // Hajo: keep compiler happy, fatal() never returns
-                dbg->fatal("planquadrat_t::rdwr()",
-			   "Error while loading game: "
-			   "Unknown ground type '%d'",
-			   gtyp);
-            }
-
-		// check if we have a matching building here, otherwise set to nothing
-		if(gr  &&  gtyp==grund_t::fundament  &&  gr->suche_obj(ding_t::gebaeude)==0) {
-			koord3d pos = gr->gib_pos();
-			// show normal ground here
-			delete gr;
-			DBG_MESSAGE("gebaeude_t::rwdr", "try replace by normal ground!");
-			gr = new boden_t(welt, pos);
-			DBG_MESSAGE("gebaeude_t::rwdr", "unknown building at %d,%d replace by normal ground!", pos.x,pos.y);
+	if(file->is_saving()) {
+		for(int i = 0; i < boeden.get_count(); i++) {
+			boeden.get(i)->rdwr(file);
 		}
-		// we should also check for ground below factories
+		file->wr_obj_id(-1);
+	}
+	else {
+		grund_t *gr;
+		//DBG_DEBUG("planquadrat_t::rdwr()","Reading boden");
+		do {
+			grund_t::typ gtyp = (grund_t::typ)file->rd_obj_id();
 
-            if(gr) {
-                koord3d tmppos ( gr->gib_pos() );
-                if(gib_kartenboden() == NULL) {
-                    kartenboden_setzen(gr, false);
-                } else {
-                    boden_hinzufuegen(gr);
-                }
-                gr->setze_pos(tmppos);   // setze_boden macht pos kaputt!
-            }
-        } while(gr != 0);
-    }
+			switch(gtyp) {
+				case -1:			    gr = NULL;				    break;
+				case grund_t::boden:	    gr = new boden_t(welt, file);	    break;
+				case grund_t::wasser:	    gr = new wasser_t(welt, file);	    break;
+				case grund_t::fundament:	    gr = new fundament_t(welt, file);	    break;
+				case grund_t::tunnelboden:	    gr = new tunnelboden_t(welt, file);	    break;
+				case grund_t::brueckenboden:    gr = new brueckenboden_t(welt, file);   break;
+				case grund_t::monorailboden:	    gr = new monorailboden_t(welt, file);	    break;
+				default:
+					gr = 0; // Hajo: keep compiler happy, fatal() never returns
+					dbg->fatal("planquadrat_t::rdwr()","Error while loading game: Unknown ground type '%d'",gtyp);
+			}
+
+			// check if we have a matching building here, otherwise set to nothing
+			if(gr  &&  gtyp==grund_t::fundament  &&  gr->suche_obj(ding_t::gebaeude)==0) {
+				koord3d pos = gr->gib_pos();
+				// show normal ground here
+				delete gr;
+				gr = new boden_t(welt, pos);
+DBG_MESSAGE("gebaeude_t::rwdr", "unknown building at %d,%d replace by normal ground!", pos.x,pos.y);
+			}
+			// we should also check for ground below factories
+			if(gr) {
+//				koord3d tmppos( gr->gib_pos() );
+				if(gib_kartenboden()==NULL) {
+					kartenboden_setzen(gr, false);
+				} else {
+					boden_hinzufuegen(gr);
+				}
+//				gr->setze_pos(tmppos);   // setze_boden macht pos kaputt!
+			}
+		} while(gr != 0);
+	}
 }
 
 
@@ -259,37 +254,35 @@ void planquadrat_t::step(const long delta_t, const int steps)
 
 void planquadrat_t::abgesenkt(karte_t *welt)
 {
-    grund_t *gr = gib_kartenboden();
+	grund_t *gr = gib_kartenboden();
+	if(gr) {
+		gr->obj_loesche_alle(NULL);
+		koord k ( gr->gib_pos().gib_2d() );
 
-    if(gr) {
-        gr->obj_loesche_alle(NULL);
-	   gr->sync_height();
-        gr->calc_bild();
-
-        koord pos ( gr->gib_pos().gib_2d() );
-
-        if(welt->max_hgt(pos) <= welt->gib_grundwasser()) {
-            kartenboden_setzen(new wasser_t(welt, pos), true);
-        }
-    }
+		if(welt->max_hgt(k) <= welt->gib_grundwasser()) {
+			kartenboden_setzen(new wasser_t(welt, k), true);
+		}
+		else {
+			gr->setze_pos(koord3d(k,welt->min_hgt(k)));
+			gr->calc_bild();
+		}
+	}
 }
 
 void planquadrat_t::angehoben(karte_t *welt)
 {
-    grund_t *gr = gib_kartenboden();
-
-    if(gr) {
-	gr->sync_height();
-        gr->calc_bild();
-
-        koord3d pos ( gr->gib_pos() );
-
-        if (welt->max_hgt(pos.gib_2d()) > welt->gib_grundwasser()) {
-            gr->obj_loesche_alle(NULL);
-
-            kartenboden_setzen(new boden_t(welt, pos), true);
-        }
-    }
+	grund_t *gr = gib_kartenboden();
+	if(gr) {
+		koord k ( gr->gib_pos().gib_2d() );
+		gr->obj_loesche_alle(NULL);
+		gr->setze_pos(koord3d(k,welt->min_hgt(k)));
+		if (welt->max_hgt(k) > welt->gib_grundwasser()) {
+			kartenboden_setzen(new boden_t(welt, gr->gib_pos() ), true);
+		}
+		else {
+			gr->calc_bild();
+		}
+	}
 }
 
 

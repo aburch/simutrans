@@ -2,8 +2,6 @@
 #define simcolor_h
 
 // Menuefarben (aendern sich nicht von Tag zu Nacht)
-
-
 #define MN_GREY0  37
 #define MN_GREY1  38
 #define MN_GREY2  39
@@ -11,6 +9,7 @@
 #define MN_GREY4  41
 
 
+// these change
 #define SCHWARZ    88
 #define WEISS     102
 #define ROT       122
@@ -21,6 +20,7 @@
 #define DUNKELORANGE 131
 #define ORANGE    132
 #define VIOLETT 80
+
 
 #define CITY_KI 4
 #define NEW_VEHICLE 251
@@ -48,5 +48,8 @@
 #define MESG_WIN        120
 #define MESG_WIN_HELL   148
 #define MESG_WIN_DUNKEL 136
+
+#define MONEY_PLUS SCHWARZ
+#define MONEY_MINUS ROT
 
 #endif

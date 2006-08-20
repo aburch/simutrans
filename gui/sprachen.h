@@ -41,6 +41,10 @@ public:
      */
     virtual const char * gib_hilfe_datei() const {return "language.txt";};
 
+    /* return NULL->orange frame *
+     * @author Hj. Malthaner
+     */
+    virtual spieler_t* gib_besitzer() const { return NULL; }
 
     /**
      * in top-level fenstern wird der Name in der Titelzeile dargestellt

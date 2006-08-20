@@ -13,6 +13,7 @@
 
 
 #include "../halthandle_t.h"
+#include "../simimg.h"
 
 #include "../dataobj/koord3d.h"
 #include "../dataobj/dingliste.h"
@@ -29,7 +30,6 @@ class gebaeude_t;
 class grund_info_t;
 class haus_besch_t;
 class cbuffer_t;
-class haltestelle_t;
 
 template <class K, class V> class ptrhashtable_tpl;
 
@@ -65,7 +65,8 @@ public:
       new_text=2,
       has_text=4,
       world_spot_dirty = 8,  // Hajo: benutzt von karte_t::ist_dirty(koord3d)
-      // 16, 32,
+      draw_as_ding = 16, // is a slope etc => draw as one
+      // 32,
       is_bridge = 64,
       is_tunnel = 128,
       is_in_tunnel = 32
@@ -106,29 +107,15 @@ private:
     koord3d pos;
 
     /**
-     * Nummer des aktuellen Hintergrundbildes fuer den Untergrund.
+     * 0..100: slopenr, (bild_nr%100), normal ground
+     * (bild_nr/100)%17 left slope
+     * (bild_nr/1700) right slope
      * @author Hj. Malthaner
      */
-    sint16 back_bild_nr;
+    image_id bild_nr;
 
-    /**
-     * Nummer des aktuellen Basisbildes fuer den Untergrund.
-     * @author Hj. Malthaner
-     */
-    sint16 bild_nr;
-
-    /**
-     * Nummer des aktuellen Wegbildes fuer den Untergrund.
-     * @author Hj. Malthaner
-     */
-    sint16 weg_bild_nr;
-
-	/**
-		* Nummer des aktuellen 2. Wegbildes (so es ein gibt).
-		* Meistens der Fall bei Straßenbahnen!
-		* @author DarioK
-		*/
-	sint16 weg2_bild_nr;
+	/* image of the walls */
+    sint8 back_bild_nr;
 
     /**
      * Flags für das neuzeichnen geänderter Untergründe
@@ -189,6 +176,9 @@ private:
      */
     int get_vmove(koord dir) const;
 
+	// the actual drawing routine
+	inline void do_display_boden( const int xpos, const int ypos, const bool dirty ) const;
+
 protected:
 
 
@@ -200,14 +190,8 @@ public:
      * setzt die Bildnr. des anzuzeigenden Bodens
      * @author Hj. Malthaner
      */
-    inline void setze_bild(int n) {bild_nr = n; set_flag(dirty);};
+    inline void setze_bild(image_id n) {bild_nr = n; set_flag(dirty);};
 
-
-    /**
-     * setzt die Bildnr. des anzuzeigenden Hintergrundes
-     * @author Hj. Malthaner
-     */
-    inline void setze_back_bild(int n) {back_bild_nr = n; set_flag(dirty);};
 
 protected:
     /**
@@ -217,19 +201,8 @@ protected:
      */
     static karte_t *welt;
 
-
-    /**
-     * setzt die Bildnr. des anzuzeigenden Weges
-     * @author Hj. Malthaner
-     */
-    inline void setze_weg_bild(int n) {weg_bild_nr = n; set_flag(dirty);};
-
-
-		/**
-			* Setzt Bildnr. für 2. Wegbild (z.B. bei Straßenbahnen).
-			* @author DarioK
-			*/
-		inline void setze_weg2_bild(int n) {weg2_bild_nr = n; set_flag(dirty);};
+	// calculates the slope image and sets the draw_as_ding flag correctly
+	void grund_t::calc_back_bild(const sint8 hgt,const sint8 slope_this);
 
 public:
     enum typ {grund, boden, wasser, fundament, tunnelboden, brueckenboden, monorailboden };
@@ -270,7 +243,14 @@ public:
      * @return Die Nummer des Bildes des Untergrundes.
      * @author Hj. Malthaner
      */
-    inline const short & gib_bild() const {return bild_nr;};
+    inline const image_id & gib_bild() const {return bild_nr;}
+
+    /**
+     * Returns the number of an eventual foundation
+     * @author prissi
+     */
+	image_id gib_back_bild(int leftback) const;
+	virtual void clear_back_bild() {back_bild_nr=0;}
 
     /**
      * Gibt den Namen des Untergrundes zurueck.
@@ -437,11 +417,11 @@ public:
      * @return NULL wenn keine Haltestelle, sonst Zeiger auf Haltestelle
      * @author Hj. Malthaner
      */
-    const halthandle_t gib_halt() const {return halt;};
+    const halthandle_t gib_halt() const {return halt;}
 
 
 
-    inline short gib_hoehe() const {return pos.z;};
+    inline short gib_hoehe() const {return pos.z;}
 
     void setze_hoehe(int h) { pos.z = h;}
 
@@ -511,6 +491,13 @@ public:
 
 
     /**
+     * The only way to get the typ of a way on a tile
+     * @author Hj. Malthaner
+     */
+    weg_t *gib_weg_nr(int i) const { return (this  &&  wege[i]) ? wege[i] : NULL; }
+
+
+    /**
      * Inline da sehr oft aufgerufen.
      * Sucht einen Weg vom typ 'typ' auf diesem Untergrund.
      * @author Hj. Malthaner
@@ -530,44 +517,25 @@ public:
       return NULL;
     }
 
-		/**
-			* Returns the system type s_type of a way of type typ at this location
-			* Currently only needed for tramways or other different types of rails
-			*
-			* @author DarioK
-			* @see gib_weg
-			*/
-		const uint8 gib_styp(weg_t::typ typ) const {
-			if(this) {
-				int i = 0;
-				while(wege[i] && i<MAX_WEGE) {
-					if(wege[i]->gib_typ() == typ){
-						return wege[i]->gib_besch()->gib_styp();
-					}
-					i++;
-				}
-			}
-			return 0;
-		}
-
-
-
-    /**
-     * Gibt die Nummer des Bildes des/der Wege zurueck.
-     * Dies ist am Grund aufgeh„ngt, da sich hier Wege kreuzen k÷nnen.
-     *
-     * @return Die Nummer des Bildes des/der Wege.
-     * @author V. Meyer
-     */
-    inline short gib_weg_bild() const {return weg_bild_nr;};
-
 	/**
-	* Gibt die Nummer des 2. Wegbildes zurück.
-	* Für Straßenbahnen wichtig.
-	* @see gib_weg_bild()
-	* @author DarioK
-	*/
-	inline short gib_weg2_bild() const {return weg2_bild_nr;};
+		* Returns the system type s_type of a way of type typ at this location
+		* Currently only needed for tramways or other different types of rails
+		*
+		* @author DarioK
+		* @see gib_weg
+		*/
+	const uint8 gib_styp(weg_t::typ typ) const {
+		if(this) {
+			int i = 0;
+			while(wege[i] && i<MAX_WEGE) {
+				if(wege[i]->gib_typ() == typ){
+					return wege[i]->gib_besch()->gib_styp();
+				}
+				i++;
+			}
+		}
+		return 0;
+	}
 
      /**
      * Ermittelt die Richtungsbits furr den weg vom Typ 'typ'.
@@ -605,8 +573,7 @@ public:
 		 * Strassenbahnschienen duerfen nicht als Kreuzung erkannt werden!
      * @author V. Meyer, dariok
      */
-    //inline bool ist_uebergang() const {return wege[1] != NULL;}
-		bool ist_uebergang() const;
+	inline bool ist_uebergang() const {return (wege[1]  &&  wege[0]->gib_besch()->gib_wtyp()!=wege[1]->gib_besch()->gib_wtyp()  &&  wege[1]->gib_besch()->gib_styp()!=7); }
 
     /**
      * Liefert einen Text furr die Ueberschrift des Info-Fensters.
@@ -656,7 +623,7 @@ public:
      *
      * @author V. Meyer
      */
-    bool weg_entfernen(weg_t::typ wegtyp, bool ribi_rem);
+    sint32 weg_entfernen(weg_t::typ wegtyp, bool ribi_rem);
 
     /**
      * Description;

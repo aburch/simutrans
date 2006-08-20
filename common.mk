@@ -19,7 +19,8 @@ $(PROG): $(OBJECTS)
 
 clean:
 	@echo "===> Cleaning up"
-	$(Q)rm -f $(OBJECTS) $(DEPS) *~ *.bak
+	$(Q)rm -f $(OBJECTS) $(DEPS)
+	$(Q)rm -r *.bak
 
 depend: $(DEPS)
 

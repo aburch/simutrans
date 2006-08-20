@@ -8,13 +8,15 @@
  */
 
 #include "../simplay.h"
+
 #include "gui_frame.h"
-#include "gui_label.h"
 #include "ifc/action_listener.h"
 #include "button.h"
+#include "gui_label.h"
 #include "tab_panel.h"
 
 class gui_chart_t;
+class gui_label_t;
 
 /**
  * Finances dialog

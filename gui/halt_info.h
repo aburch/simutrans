@@ -11,6 +11,7 @@
 #define gui_halt_info_h
 
 #include "gui_frame.h"
+#include "gui_label.h"
 #include "gui_scrollpane.h"
 #include "components/gui_textarea.h"
 #include "components/gui_textinput.h"
@@ -41,6 +42,7 @@ private:
     gui_textarea_t text;
     gui_textinput_t input;
     gui_chart_t *chart;
+    gui_label_t sort_label;
     world_view_t view;
     button_t button;
     button_t sort_button;     // @author hsiegeln

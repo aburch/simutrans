@@ -37,6 +37,7 @@
 class ware_besch_t : public obj_besch_t {
     friend class good_writer_t;
     friend class good_reader_t;
+    friend class warenbauer_t;
 
     uint16 value;
 
@@ -59,6 +60,9 @@ class ware_besch_t : public obj_besch_t {
      */
     uint16 weight_per_unit;
 
+	// just for sorting etc.
+	// assinged during registration
+	uint16 ware_index;
 
 public:
     const char *gib_name() const
@@ -99,6 +103,16 @@ public:
     int gib_catg() const
     {
         return catg;
+    }
+
+
+    /**
+     * @return internal index (just a number, passenger, then mail, then something ... )
+     * @author prissi
+     */
+    uint16 gib_index() const
+    {
+        return ware_index;
     }
 
 

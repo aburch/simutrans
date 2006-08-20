@@ -52,82 +52,69 @@ void halt_list_item_t::infowin_event(const event_t *ev)
  */
 void halt_list_item_t::zeichnen(koord offset) const
 {
+	int halttype;       // 01-June-02    Markus Weber    Added
 
-    int halttype;       // 01-June-02    Markus Weber    Added
+	clip_dimension clip = display_gib_clip_wh();
 
-    clip_dimension clip = display_gib_clip_wh();
+	if(! ((pos.y+offset.y) > clip.yy ||  (pos.y+offset.y) < clip.y-32) && halt.is_bound()) {
 
-    if(! ((pos.y+offset.y) > clip.yy ||  (pos.y+offset.y) < clip.y-32) &&
-	halt.is_bound()) {
+		static cbuffer_t buf(8192);  // Hajo: changed from 128 to 8192 because get_short_freight_info requires that a large buffer
 
-	static cbuffer_t buf(8192);  // Hajo: changed from 128 to 8192 because get_short_freight_info requires that a large buffer
+/* prissi: no nummer any more ...
+		buf.clear();
+		buf.append(nummer);
+		buf.append(".");
+		display_proportional_clip(pos.x+offset.x+4, pos.y+offset.y+8, buf, ALIGN_LEFT, SCHWARZ, true);
+*/
+		// status now in front
+		display_fillbox_wh_clip(pos.x+offset.x+2, pos.y+offset.y+4, 24, 4, halt->gib_status_farbe(), false);
 
-	buf.clear();
-	buf.append(nummer);
-	buf.append(".");
+		// name
+		buf.clear();
+		buf.append(translator::translate(halt->gib_name()));
+		display_proportional_clip(pos.x+offset.x+33, pos.y+offset.y+2, buf, ALIGN_LEFT, SCHWARZ, true);
 
-	display_proportional_clip(pos.x+offset.x+4, pos.y+offset.y+8,
-                                  buf, ALIGN_LEFT, SCHWARZ, true);
+		// what kind of stop
+		int left = proportional_string_width( buf )+offset.x+33-16;
+		halttype = halt->get_station_type();
+		int pos_y = pos.y+offset.y-41;
+		if (halttype & haltestelle_t::railstation) {
+			display_color_img(skinverwaltung_t::zughaltsymbol->gib_bild_nr(0), pos.x+left, pos_y, 0, false, false);
+			left += 23;
+		}
+		if (halttype & haltestelle_t::loadingbay) {
+			display_color_img(skinverwaltung_t::autohaltsymbol->gib_bild_nr(0), pos.x+left, pos_y, 0, false, false);
+			left += 23;
+		}
+		if (halttype & haltestelle_t::busstop) {
+			display_color_img(skinverwaltung_t::bushaltsymbol->gib_bild_nr(0), pos.x+left, pos_y, 0, false, false);
+			left += 23;
+		}
+		if (halttype & haltestelle_t::dock) {
+			display_color_img(skinverwaltung_t::schiffshaltsymbol->gib_bild_nr(0), pos.x+left, pos_y, 0, false, false);
+			left += 23;
+		}
+		if (halttype & haltestelle_t::airstop) {
+			display_color_img(skinverwaltung_t::airhaltsymbol->gib_bild_nr(0), pos.x+left, pos_y, 0, false, false);
+		}
 
-	buf.clear();
-	buf.append(translator::translate(halt->gib_name()));
+		// now what do we accept here?
+		left = 2+offset.x;
+		pos_y = pos.y+offset.y+14;
+		if (halt->get_pax_enabled()) {
+			display_color_img(skinverwaltung_t::passagiere->gib_bild_nr(0), pos.x+left, pos_y, 0, false, false);
+			left += 10;
+		}
+		if (halt->get_post_enabled()) {
+			display_color_img(skinverwaltung_t::post->gib_bild_nr(0), pos.x+left, pos_y, 0, false, false);
+			left += 10;
+		}
+		if (halt->get_ware_enabled()) {
+			display_color_img(skinverwaltung_t::waren->gib_bild_nr(0), pos.x+left, pos_y, 0, false, false);
+		}
 
-        display_proportional_clip(pos.x+offset.x+33, pos.y+offset.y+8,
-                                  buf, ALIGN_LEFT, SCHWARZ, true);
-
-
-	// now what do we accept here?
-	int left = 2;
-	if (halt->get_pax_enabled()) {
-	    display_color_img(skinverwaltung_t::passagiere->gib_bild_nr(0), pos.x+offset.x+left, pos.y+offset.y+20, 0, false, false);
-	    left += 10;
+		buf.clear();
+		halt->get_short_freight_info(buf);
+		display_proportional_clip(pos.x+offset.x+33, pos_y, buf, ALIGN_LEFT, SCHWARZ, true);
 	}
-	if (halt->get_post_enabled()) {
-	    display_color_img(skinverwaltung_t::post->gib_bild_nr(0), pos.x+offset.x+left, pos.y+offset.y+20, 0, false, false);
-	    left += 10;
-	}
-	if (halt->get_ware_enabled()) {
-	    display_color_img(skinverwaltung_t::waren->gib_bild_nr(0), pos.x+offset.x+left, pos.y+offset.y+20, 0, false, false);
-	}
-
-	buf.clear();
- 	halt->get_short_freight_info(buf);
-        display_proportional_clip(pos.x+offset.x+33, pos.y+offset.y+20,
-                                  buf, ALIGN_LEFT, SCHWARZ, true);
-
-	left = 210;
-
-
- 	halttype = halt->get_station_type();
- 	if (halttype & haltestelle_t::railstation) {
-	    display_color_img(skinverwaltung_t::zughaltsymbol->gib_bild_nr(0), pos.x+offset.x+left, pos.y+offset.y-37, 0, false, false);
-	  left += 23;
- 	}
- 	if (halttype & haltestelle_t::loadingbay) {
-	    display_color_img(skinverwaltung_t::autohaltsymbol->gib_bild_nr(0), pos.x+offset.x+left, pos.y+offset.y-37, 0, false, false);
-	  left += 23;
- 	}
- 	if (halttype & haltestelle_t::busstop) {
-	    display_color_img(skinverwaltung_t::bushaltsymbol->gib_bild_nr(0), pos.x+offset.x+left, pos.y+offset.y-37, 0, false, false);
-	  left += 23;
- 	}
- 	if (halttype & haltestelle_t::dock) {
-	    display_color_img(skinverwaltung_t::schiffshaltsymbol->gib_bild_nr(0), pos.x+offset.x+left, pos.y+offset.y-37, 0, false, false);
-	  left += 23;
- 	}
- 	if (halttype & haltestelle_t::airstop) {
-	    display_color_img(skinverwaltung_t::airhaltsymbol->gib_bild_nr(0), pos.x+offset.x+left, pos.y+offset.y-37, 0, false, false);
-	  left += 23;
- 	}
-
-
-	const int color = halt->gib_status_farbe();
-
-	display_fillbox_wh_clip(pos.x+offset.x+210,
-				pos.y+offset.y+10,
-				20,
-				4,
-				color,
-				false);
-    }
 }

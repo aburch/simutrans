@@ -11,6 +11,8 @@
 #ifndef dataobj_ribi_t_h
 #define dataobj_ribi_t_h
 
+#include "../simtypes.h"
+
 class koord;
 
 class ribi_t;
@@ -26,7 +28,7 @@ class hang_t {
     enum { wegbar_ns = 1, wegbar_ow = 2, einfach = 4 };
 
 public:
-    typedef signed char typ;
+    typedef sint8 typ;
 
     /*
      * Eigentlich aus bits zusammengesetzt:
@@ -74,6 +76,7 @@ public:
     static bool ist_wegbar(typ x)  { return (flags[x] & (wegbar_ns | wegbar_ow)) != 0; }
     static bool ist_wegbar_ns(typ x)  { return (flags[x] & wegbar_ns) != 0; }
     static bool ist_wegbar_ow(typ x)  { return (flags[x] & wegbar_ow) != 0; }
+    static int get_flags(typ x) {return flags[x]; }
 };
 
 
@@ -113,7 +116,7 @@ public:
 	suedostwest = 14,
 	alle = 15
     };
-    typedef unsigned char ribi;
+    typedef uint8 ribi;
 
     enum _dir {
       dir_invalid = 0,  // Hajo: maybe we should define a more sensible
@@ -128,7 +131,7 @@ public:
 	dir_nordost = 6,
 	dir_nordwest = 7
    };
-    typedef unsigned char dir;
+    typedef uint8 dir;
 private:
     static const ribi rwr[16];
     static const ribi doppelr[16];
@@ -143,7 +146,7 @@ public:
     static ribi doppelt(ribi x) { return doppelr[x]; }
     static ribi rueckwaerts(ribi x) { return rwr[x]; }
 
-    static bool ist_exakt_orthogonal(ribi x, ribi y) { return ist_gerade(x) ? ist_orthogonal(x,y) : (x-y)%3==0; }	// also for curves ...
+    static bool ist_exakt_orthogonal(ribi x, ribi y) { return ist_gerade(x) ? ist_orthogonal(x,y) : ((x-y)%3)==0; }	// also for curves ...
     static bool ist_orthogonal(ribi x, ribi y) { return (doppelr[x] | doppelr[y]) == alle; }
     static bool ist_einfach(ribi x) { return (flags[x] & einfach) != 0; }
     static bool ist_kurve(ribi x) { return (flags[x] & kurve) != 0; }

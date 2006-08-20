@@ -19,6 +19,10 @@
 // this make KI2 try passenger transport
 #define TRY_PASSENGER
 
+// Costs for AI estimate calculations only (not booked in the game)
+#define CST_STRASSE -10000
+#define CST_MEDIUM_VEHIKEL -250000
+#define CST_FRACHTHOF -150000
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -38,7 +42,6 @@
 #include "besch/weg_besch.h"
 #include "simworld.h"
 #include "simplay.h"
-#include "simcosts.h"
 #include "simsfx.h"
 #include "railblocks.h"
 #include "simwerkz.h"
@@ -82,6 +85,7 @@
 #endif
 
 #include "gui/money_frame.h"
+#include "gui/schedule_list.h"
 
 #include "simcity.h"
 
@@ -98,7 +102,7 @@ static fabrik_t *baue_ziel=NULL;
  * @param color Kennfarbe des Spielers
  * @author Hj. Malthaner
  */
-spieler_t::spieler_t(karte_t *wl, int color) : last_built(0)
+spieler_t::spieler_t(karte_t *wl, int color) : simlinemgmt(wl,this), last_built(0)
 {
     halt_list = new slist_tpl <halthandle_t>;
 
@@ -166,6 +170,7 @@ spieler_t::spieler_t(karte_t *wl, int color) : last_built(0)
 	last_built.clear();
 
 	money_frame = NULL;
+	line_frame = NULL;
 
 	// we have different AI, try to find out our type:
 	int spieler_num=kennfarbe/4;
@@ -209,9 +214,15 @@ spieler_t::~spieler_t()
 		delete money_frame;
 	}
 	money_frame = NULL;
+	// maybe free line frame
+	if(line_frame!=NULL) {
+		delete line_frame;
+	}
+	line_frame = NULL;
 	// always there
 	delete halt_list;
 	halt_list = 0;
+	simlinemgmt.destroy_all();
 }
 
 
@@ -228,6 +239,21 @@ spieler_t::gib_money_frame(void)
 	}
 	return money_frame;
 }
+
+
+
+/* returns the line dialoge of a player
+ * @author prissi
+ */
+schedule_list_gui_t *
+spieler_t::get_line_frame(void)
+{
+	if(line_frame==NULL) {
+		line_frame = new schedule_list_gui_t(welt,this);
+	}
+	return line_frame;
+}
+
 
 
 
@@ -399,7 +425,7 @@ spieler_t::neuer_monat()
     static char buf[256];
 
     // Wartungskosten abziehen
-    buche(-maintenance, COST_MAINTENANCE);
+    buche((sint64)-maintenance, COST_MAINTENANCE);
 
     // Bankrott ?
     if(!umgebung_t::freeplay) {
@@ -431,6 +457,7 @@ spieler_t::neuer_monat()
     }
     roll_finance_history_month();
     calc_finance_history();
+    simlinemgmt.new_month();
 }
 
 
@@ -540,7 +567,7 @@ void spieler_t::calc_finance_history()
 
 
 sint64
-spieler_t::buche(const long betrag, const koord pos, const int type)
+spieler_t::buche(const sint64 betrag, const koord pos, const int type)
 {
     buche(betrag, type);
 
@@ -563,21 +590,21 @@ spieler_t::buche(const long betrag, const koord pos, const int type)
 
 
 sint64
-spieler_t::buche(long betrag, int type)
+spieler_t::buche(const sint64 betrag, int type)
 {
-    konto += (sint64)betrag;
+    konto += betrag;
 
     if (type < MAX_COST) {
 	// fill year history
-	finance_history_year[0][type] += (sint64)betrag;
-	finance_history_year[0][COST_PROFIT] += (sint64)betrag;
+	finance_history_year[0][type] += betrag;
+	finance_history_year[0][COST_PROFIT] += betrag;
 	finance_history_year[0][COST_CASH] = konto;
 	finance_history_year[0][COST_OPERATING_PROFIT] = finance_history_year[0][COST_INCOME] + finance_history_year[0][COST_VEHICLE_RUN] + finance_history_year[0][COST_MAINTENANCE];
 	finance_history_year[0][COST_MARGIN] = (finance_history_year[0][COST_VEHICLE_RUN] + finance_history_year[0][COST_MAINTENANCE]) != 0 ? finance_history_year[0][COST_OPERATING_PROFIT] * 100/ abs((finance_history_year[0][COST_VEHICLE_RUN] + finance_history_year[0][COST_MAINTENANCE])) : 0;
 	finance_history_year[0][COST_NETWEALTH] = konto+finance_history_month[1][COST_ASSETS];
 	// fill month history
-	finance_history_month[0][type] += (sint64)betrag;
-	finance_history_month[0][COST_PROFIT] += (sint64)betrag;
+	finance_history_month[0][type] += betrag;
+	finance_history_month[0][COST_PROFIT] += betrag;
 	finance_history_month[0][COST_CASH] = konto;
 	finance_history_month[0][COST_OPERATING_PROFIT] = finance_history_month[0][COST_INCOME] + finance_history_month[0][COST_VEHICLE_RUN] + finance_history_month[0][COST_MAINTENANCE];
 	finance_history_month[0][COST_MARGIN] = (finance_history_month[0][COST_VEHICLE_RUN] + finance_history_month[0][COST_MAINTENANCE]) != 0 ? finance_history_month[0][COST_OPERATING_PROFIT] * 100/ abs((finance_history_month[0][COST_VEHICLE_RUN] + finance_history_month[0][COST_MAINTENANCE])) : 0;
@@ -1743,7 +1770,7 @@ spieler_t::baue_bahnhof(koord3d quelle,koord *p, int anz_vehikel)
 		ok &= gr != NULL &&
 		(gr->ist_natur() || gr->gib_typ() == grund_t::fundament) &&
 		gr->kann_alle_obj_entfernen(this) == NULL &&
-		gr->gib_grund_hang() == hang_t::flach  &&  !gr->gib_halt().is_bound();
+		gr->gib_grund_hang() == hang_t::flach  &&  !gr->gib_halt().is_bound()  &&  !gr->ist_bruecke();
 
 
 		if(ok) {
@@ -1760,7 +1787,7 @@ spieler_t::baue_bahnhof(koord3d quelle,koord *p, int anz_vehikel)
 						gr->gib_weg(weg_t::schiene) != NULL &&
 						gr->gib_weg_ribi(weg_t::schiene) == ribi_t::doppelt(ribi) &&
 						gr->kann_alle_obj_entfernen(this) == NULL &&
-						welt->get_slope(*p-zv) == 0  &&  !gr->gib_halt().is_bound();
+						welt->get_slope(*p-zv) == 0  &&  !gr->gib_halt().is_bound()  &&  !gr->ist_bruecke();
 			if(ok) {
 				gr->obj_loesche_alle(this);
 				// ziel auf das ende des Bahnhofs setzen
@@ -2401,55 +2428,6 @@ DBG_MESSAGE("spieler_t::create_simple_road_transport()","building simple road fr
 		bauigel.baue();
 		return true;
 	}
-	else {
-#if 0
-		// built a route with this place in between (usually sucessful, but not straightest
-		koord mitte=(platz1+platz2)/2+koord(simrand(4)-2,simrand(4)-2);
-		INT_CHECK("simplay 2098");
-		bauigel.baubaer = false;
-		bauigel.set_keep_city_roads(true);
-		bauigel.calc_route(platz1,mitte);
-		// found half way
-		if(bauigel.max_n > 1) {
-			wegbauer_t bauhase(welt, this);
-
-			bauhase.route_fuer( wegbauer_t::strasse, road_weg );
-			bauhase.baubaer = false;
-			bauhase.set_keep_existing_faster_ways(true);
-			bauigel.set_keep_city_roads(true);
-			bauhase.set_maximum(10000);
-
-			INT_CHECK("simplay 2109");
-			bauhase.calc_route(platz2,mitte);
-			INT_CHECK("simplay 2111");
-			// found something back from here
-			if(bauhase.max_n > 1) {
-DBG_MESSAGE("spieler_t::create_simple_road_transport()","try to join overlong route");
-				// just remove doubles
-				while(bauigel.max_n>0  &&   bauhase.max_n>0  &&   bauigel.gib_route_bei(bauigel.max_n)==bauhase.gib_route_bei(bauhase.max_n)) {
-					mitte = bauigel.gib_route_bei(bauigel.max_n);
-					bauigel.max_n --;
-					bauhase.max_n --;
-				}
-				// in priciple, now we need to make the route simpler ...
-			    slist_tpl <koord> list;
-				// now add everything to road
-				for(  int i=0;  i<=bauigel.max_n;  i++  ) {
-					list.insert( bauigel.gib_route_bei(i) );
-				}
-				list.insert( mitte );
-				// now add everything to road
-				for(  int i=bauhase.max_n;  i>=0;  i--  ) {
-					list.insert( bauhase.gib_route_bei(i) );
-				}
-				// then built this road ...
-				bauigel.baue_strecke(list);
-DBG_MESSAGE("spieler_t::create_simple_road_transport()","building simple road from %d,%d to %d,%d by half waypoint",platz1.x, platz1.y, platz2.x, platz2.y);
-				return true;
-			}
-		}
-#endif
-	}
 DBG_MESSAGE("spieler_t::create_simple_road_transport()","building simple road from %d,%d to %d,%d failed",platz1.x, platz1.y, platz2.x, platz2.y);
 	return false;
 }
@@ -2766,8 +2744,23 @@ DBG_DEBUG("spieler_t::rdwr()","player %i: loading %i halts.",welt->sp2num( this 
 		}
 	}
 
-
+	// linemanagement
+	if(file->get_version()>=88003) {
+		simlinemgmt.rdwr(welt,file);
+	}
 }
+
+
+
+/*
+ * called after game is fully loaded;
+ */
+void
+spieler_t::laden_abschliessen()
+{
+	simlinemgmt.laden_abschliessen();
+}
+
 
 /**
  * Returns the amount of money for a certain finance section
@@ -2818,7 +2811,7 @@ spieler_t::get_finance_info_old(int type)
 void spieler_t::bescheid_station_voll(halthandle_t halt)
 {
 	if(welt->get_active_player()==this) {
-		char buf[128];
+		char buf[256];
 
 		sprintf(buf, translator::translate("!0_STATION_CROWDED"), halt->gib_name());
 //        ticker_t::get_instance()->add_msg(buf, halt->gib_basis_pos(), DUNKELROT);

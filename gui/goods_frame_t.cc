@@ -11,35 +11,182 @@
 #include "goods_frame_t.h"
 #include "goods_stats_t.h"
 #include "gui_scrollpane.h"
+#include "components/list_button.h"
+
+#include "../bauer/warenbauer.h"
+#include "../besch/ware_besch.h"
+#include "../dataobj/translator.h"
+
+#include "../simcolor.h"
+#include "../simworld.h"
+#include "../boden/wege/weg.h"
+
+/**
+ * This variable defines the current speed for bonus calculation
+ * @author prissi
+ */
+int goods_frame_t::relative_speed_change=100;
+
+/**
+ * This variable defines by which column the table is sorted
+ * Values: 0 = Unsorted (passengers and mail first)
+ *         1 = Alphabetical
+ *         2 = Revenue
+ * @author prissi
+ */
+goods_frame_t::sort_mode_t goods_frame_t::sortby = unsortiert;
+
+/**
+ * This variable defines the sort order (ascending or descending)
+ * Values: 1 = ascending, 2 = descending)
+ * @author Markus Weber
+ */
+bool goods_frame_t::sortreverse = false;
+
+const char *goods_frame_t::sort_text[SORT_MODES] = {
+    "gl_btn_unsort",
+    "gl_btn_sort_name",
+    "gl_btn_sort_revenue",
+    "gl_btn_sort_bonus"
+};
 
 
 
-goods_frame_t::goods_frame_t(karte_t *welt) : gui_frame_t("Goods list")
+goods_frame_t::goods_frame_t(karte_t *wl) :
+	gui_frame_t("Goods list"),
+	sort_label(translator::translate("hl_txt_sort")),
+	change_speed_label(translator::translate("gl_txt_filter"))
 {
-  goods_stats_t * goods_stats = new goods_stats_t(welt);
+	this->welt = wl;
+	good_list = new unsigned short[warenbauer_t::gib_waren_anzahl()-1];
 
-  scrolly = new gui_scrollpane_t(goods_stats);
+	int y=4+3*LINESPACE+4;
 
+	sort_label.setze_pos(koord(BUTTON1_X, y));
+	add_komponente(&sort_label);
+	change_speed_label.setze_pos(koord(BUTTON3_X, y));
+	add_komponente(&change_speed_label);
 
-  scrolly->setze_pos(koord(0, 0));
+	y += LINESPACE;
 
-  add_komponente(scrolly);
+	sortedby.init(button_t::roundbox, "", koord(BUTTON1_X, y), koord(BUTTON_WIDTH,BUTTON_HEIGHT));
+	sortedby.add_listener(this);
+	add_komponente(&sortedby);
 
-  setze_fenstergroesse(koord(400, 240));
+	sorteddir.init(button_t::roundbox, "", koord(BUTTON2_X, y), koord(BUTTON_WIDTH,BUTTON_HEIGHT));
+	sorteddir.add_listener(this);
+	add_komponente(&sorteddir);
 
-  set_resizemode(diagonal_resize);
-  resize(koord(0,0));
+	speed_down.init(button_t::roundbox, translator::translate("gl_speed_down"), koord(BUTTON3_X, y), koord(BUTTON_WIDTH,BUTTON_HEIGHT));
+	speed_down.add_listener(this);
+	add_komponente(&speed_down);
 
-  setze_opaque(true);
+	speed_up.init(button_t::roundbox, translator::translate("gl_speed_up"), koord(BUTTON4_X, y), koord(BUTTON_WIDTH,BUTTON_HEIGHT));
+	speed_up.add_listener(this);
+	add_komponente(&speed_up);
+
+	y += BUTTON_HEIGHT+2;
+
+	goods_stats = new goods_stats_t(welt);
+
+	scrolly = new gui_scrollpane_t(goods_stats);
+	scrolly->setze_pos(koord(1, y));
+	scrolly->set_show_scroll_x(false);
+	scrolly->setze_groesse(koord(TOTAL_WIDTH-16, 191+16+16-y));
+	add_komponente(scrolly);
+
+	setze_opaque(true);
+	int h = (warenbauer_t::gib_waren_anzahl()-1)*LINESPACE+y;
+	if(h>450) {
+		h = y+10*LINESPACE+2;
+	}
+	setze_fenstergroesse(koord(TOTAL_WIDTH, h));
+	set_min_windowsize(koord(TOTAL_WIDTH,y+4*LINESPACE+2));
+	set_resizemode(vertical_resize);
+
+	sort_list();
+
+	resize (koord(0,0));
 }
 
 
 goods_frame_t::~goods_frame_t()
 {
-  delete scrolly;
-  scrolly = 0;
+	delete scrolly;
+	delete [] good_list;
+	delete goods_stats;
+	scrolly = 0;
 }
 
+
+
+/**
+* @author Markus Weber
+*/
+int goods_frame_t::compare_goods(const void *p1, const void *p2)
+{
+	const ware_besch_t * w1 = warenbauer_t::gib_info(*(unsigned short *)p1);
+	const ware_besch_t * w2 = warenbauer_t::gib_info(*(unsigned short *)p2);
+
+	int order;
+
+	switch (sortby) {
+		default:
+		case 0: // sort by station number
+			order = *(unsigned short *)p1 - *(unsigned short *)p2;
+			break;
+		case 1: // sort by station name
+			order = 0;
+			break;
+		case 2: // sort by revenue
+			{
+				const sint32 grundwert1281 = w1->gib_preis()<<7;
+				const sint32 grundwert_bonus1 = w1->gib_preis()*(1000l+(relative_speed_change-100l)*w1->gib_speed_bonus());
+				const sint32 price1 = (grundwert1281>grundwert_bonus1 ? grundwert1281 : grundwert_bonus1);
+				const sint32 grundwert1282 = w2->gib_preis()<<7;
+				const sint32 grundwert_bonus2 = w2->gib_preis()*(1000l+(relative_speed_change-100l)*w2->gib_speed_bonus());
+				const sint32 price2 = (grundwert1282>grundwert_bonus2 ? grundwert1282 : grundwert_bonus2);
+				order = price2-price1;
+			}
+			break;
+		case 3: // sort by speed bonus
+			order = w2->gib_speed_bonus()-w1->gib_speed_bonus();
+			break;
+	}
+	/**
+	 * use name as an additional sort, to make sort more stable.
+	 */
+	if(order == 0) {
+		order = strcmp(w1->gib_name(), w2->gib_name());
+	}
+
+	return sortreverse ? -order : order;
+}
+
+
+
+// creates the list and pass it to the child finction good_stats, which does the display stuff ...
+void goods_frame_t::sort_list()
+{
+	sortedby.setze_text(translator::translate(sort_text[sortby]));
+	sorteddir.setze_text(translator::translate( sortreverse ? "hl_btn_sort_desc" : "hl_btn_sort_asc"));
+
+	int n=0;
+	for(unsigned int i=0; i<warenbauer_t::gib_waren_anzahl(); i++) {
+		const ware_besch_t * wtyp = warenbauer_t::gib_info(i);
+
+		// Hajo: we skip goods that don't generate income
+		//       this should only be true for the special good 'None'
+		if(wtyp->gib_preis()!=0) {
+			good_list[n++] = i;
+		}
+	}
+
+	// now sort
+	qsort((void *)good_list, n, sizeof(unsigned short), compare_goods);
+
+	goods_stats->update_goodslist( good_list, relative_speed_change );
+}
 
 /**
  * resize window in response to a resize event
@@ -48,9 +195,61 @@ goods_frame_t::~goods_frame_t()
  */
 void goods_frame_t::resize(const koord delta)
 {
-  gui_frame_t::resize(delta);
+	gui_frame_t::resize(delta);
+	koord groesse = gib_fenstergroesse()-koord(0,4+4*LINESPACE+4+BUTTON_HEIGHT+2+16);
+	scrolly->setze_groesse(groesse);
+}
 
-  koord groesse = gib_fenstergroesse()-koord(0,16);
 
-  scrolly->setze_groesse(groesse);
+
+
+/**
+ * This method is called if an action is triggered
+ * @author Hj. Malthaner
+ */
+bool goods_frame_t::action_triggered(gui_komponente_t *komp)
+{
+	if(komp == &sortedby) {
+		// sort by what
+		sortby = (sort_mode_t)((int)(sortby+1)%(int)SORT_MODES);
+		sort_list();
+	}
+	else if(komp == &sorteddir) {
+		// order
+		sortreverse ^= 1;
+		sort_list();
+	}
+	else if(komp == &speed_down) {
+		if(relative_speed_change>1) {
+			relative_speed_change --;
+//			goods_stats->update_goodslist( good_list, relative_speed_change );
+			sort_list();
+		}
+	}
+	else if(komp == &speed_up) {
+		relative_speed_change ++;
+//		goods_stats->update_goodslist( good_list, relative_speed_change );
+		sort_list();
+	}
+	return true;
+}
+
+
+
+/**
+ * Zeichnet die Komponente
+ * @author Hj. Malthaner
+ */
+void goods_frame_t::zeichnen(koord pos, koord gr)
+{
+	gui_frame_t::zeichnen(pos, gr);
+
+	sprintf(speed_message,translator::translate("Speedbonus %i%%:\n    road %i km/h, rail %i km/h, ships %i km/h, planes %i km/h."),
+		relative_speed_change-100,
+		(welt->get_average_speed(weg_t::strasse)*relative_speed_change)/100,
+		(welt->get_average_speed(weg_t::schiene)*relative_speed_change)/100,
+		(welt->get_average_speed(weg_t::wasser)*relative_speed_change)/100,
+		(welt->get_average_speed(weg_t::luft)*relative_speed_change)/100
+	);
+	display_multiline_text(pos.x+11, pos.y+BUTTON_HEIGHT+4, speed_message, WEISS);
 }

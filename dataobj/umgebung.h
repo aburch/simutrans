@@ -9,6 +9,8 @@
 #ifndef dataobj_umgebung_h
 #define dataobj_umgebung_h
 
+#include "../simtypes.h"
+
 class cstring_t;
 
 /**
@@ -244,6 +246,36 @@ class umgebung_t
 
 	/* prissi: drive on the left side of the road */
 	static bool drive_on_left;
+
+	/* the big cost section */
+	static sint64 cst_multiply_dock;
+	static sint64 cst_multiply_station;
+	static sint64 cst_multiply_roadstop;
+	static sint64 cst_multiply_airterminal;
+	static sint64 cst_multiply_post;
+	static sint64 cst_multiply_headquarter;
+	static sint64 cst_depot_rail;
+	static sint64 cst_depot_road;
+	static sint64 cst_depot_ship;
+//	static sint64 cst_depot_air;	// unused
+	static sint64 cst_signal;
+	static sint64 cst_tunnel;
+	static sint64 cst_third_rail;
+	// alter landscape
+	static sint64 cst_alter_land;
+	static sint64 cst_set_slope;
+	static sint64 cst_found_city;
+	static sint64 cst_multiply_found_industry;
+	static sint64 cst_remove_tree;
+	static sint64 cst_multiply_remove_haus;
+
+	// costs for the way searcher
+	static sint32 way_count_curve;
+	static sint32 way_count_double_curve;
+	static sint32 way_count_90_curve;
+	static sint32 way_count_slope;
+	static sint32 way_count_tunnel;
+	static sint32 way_max_bridge_len;
 };
 
 #endif

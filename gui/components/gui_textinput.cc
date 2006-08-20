@@ -60,24 +60,24 @@ void gui_textinput_t::infowin_event(const event_t *ev)
 		    const int len = strlen(text);
 
 		    switch(ev->ev_code) {
-		    case KEY_DOWN: // down arrow
+		    case SIM_KEY_DOWN: // down arrow
 		    	// not used currently
 			break;
-		    case KEY_LEFT: // left arrow
+		    case SIM_KEY_LEFT: // left arrow
 		    	if (cursor_pos > 0)
 		    		cursor_pos = unicode_get_previous_character(text,cursor_pos);
 			break;
-		    case KEY_RIGHT: // right arrow
+		    case SIM_KEY_RIGHT: // right arrow
 		    	if (cursor_pos < len)
 		    		cursor_pos = unicode_get_next_character(text,cursor_pos);
 			break;
-		    case KEY_UP: // rightarrow
+		    case SIM_KEY_UP: // rightarrow
 		    	// not used currently
 			break;
-			case KEY_HOME: // home
+			case SIM_KEY_HOME: // home
 				cursor_pos = 0;
 			break;
-			case KEY_END: // end
+			case SIM_KEY_END: // end
 				cursor_pos = strlen(text);
 			break;
 		    case 8:

@@ -51,6 +51,7 @@
 #include "xref_writer.h"
 #include "imagelist_writer.h"
 
+#include "get_waytype.h"
 #include "vehicle_writer.h"
 
 #ifdef _MSC_VER
@@ -58,43 +59,6 @@
 #else
 #define STRICMP strcasecmp
 #endif
-
-
-/**
- * Calculate numeric waytype from waytype string
- * @author Hj. Malthaner
- */
-static uint8 get_waytype(const char * waytype, tabfileobj_t &obj)
-{
-	uint8 uv8 = weg_t::strasse;
-
-	if(!STRICMP(waytype, "road")) {
-		uv8 = weg_t::strasse;
-	} else if(!STRICMP(waytype, "track")) {
-		uv8 = weg_t::schiene;
-	} else if(!STRICMP(waytype, "electrified_track")) {
-		uv8 = 4;
-	} else if(!STRICMP(waytype, "monorail_track")) {
-		uv8 = weg_t::schiene_monorail;
-	} else if(!STRICMP(waytype, "maglev_track")) {
-		uv8 = weg_t::schiene_maglev;
-	} else if(!STRICMP(waytype, "water")) {
-		uv8 = weg_t::wasser;
-	} else if(!STRICMP(waytype, "air")) {
-		uv8 = weg_t::luft;
-	} else if(!STRICMP(waytype, "schiene_tram")) {
-		uv8 = weg_t::schiene_strab;
-	} else if(!STRICMP(waytype, "tram_track")) {
-		uv8 = weg_t::schiene_strab;
-	} else {
-		cstring_t reason;
-		reason.printf("invalid waytype %s for vehicle %s\n", waytype, obj.get("name"));
-		throw new obj_pak_exception_t("vehicle_writer_t", reason);
-	}
-
-	return uv8;
-}
-
 
 
 /**
@@ -210,8 +174,8 @@ void vehicle_writer_t::write_obj(FILE *fp, obj_node_t &parent, tabfileobj_t &obj
     // Hajodoc: Type of way this vehicle drives on
     // Hajoval: road, track, electrified_track, monorail_track, maglev_track, water
     const char *waytype = obj.get("waytype");
-    const char waytype_uint = get_waytype(waytype, obj);
-    uv8 = (waytype_uint==4) ? weg_t::schiene : waytype_uint;
+    const char waytype_uint = get_waytype(waytype);
+    uv8 = (waytype_uint==weg_t::overheadlines) ? weg_t::schiene : waytype_uint;
     node.write_data_at(fp, &uv8, 24, sizeof(uint8));
 
 
@@ -221,7 +185,7 @@ void vehicle_writer_t::write_obj(FILE *fp, obj_node_t &parent, tabfileobj_t &obj
     node.write_data_at(fp, &sv8, 25, sizeof(sint8));
 
 
-    if(waytype_uint == 4) {
+    if(waytype_uint == weg_t::overheadlines) {
       // Hajo: compatibility for old style DAT files
       uv8 = vehikel_besch_t::electric;
     } else {

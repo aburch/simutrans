@@ -125,7 +125,7 @@ void fussgaenger_t::rdwr(loadsave_t *file)
 void fussgaenger_t::calc_bild()
 {
 	if(welt->lookup(gib_pos())->ist_im_tunnel()) {
-		setze_bild(0, -1);
+		setze_bild(0, IMG_LEER);
 	} else {
 		setze_bild(0,besch->gib_bild_nr(ribi_t::gib_dir(gib_fahrtrichtung())));
 	}

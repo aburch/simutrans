@@ -72,7 +72,7 @@ private:
 
 
 public:
-    int background; //@author hsiegeln
+    uint8 background; //@author hsiegeln
 
 
     /**
@@ -92,7 +92,7 @@ public:
     bool pressed;
 
 
-    int kennfarbe;
+    uint8 kennfarbe;
 
     button_t(const button_t & other);
 

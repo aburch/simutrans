@@ -61,9 +61,17 @@ void fahrplan_gui_t::gimme_stop_name(cbuffer_t & buf,
 	char tmp [256];
 
 	if(halt.is_bound()) {
-		sprintf(tmp, "%s (%d%%) (%d,%d)",
-		halt->gib_name(), fpl->eintrag.get(i).ladegrad,
-		fpl->eintrag.get(i).pos.x, fpl->eintrag.get(i).pos.y);
+		if(fpl->eintrag.get(i).ladegrad!=0) {
+			sprintf(tmp, "%d%% %s (%d,%d)",
+				fpl->eintrag.get(i).ladegrad,
+				halt->gib_name(),
+				fpl->eintrag.get(i).pos.x, fpl->eintrag.get(i).pos.y);
+		}
+		else {
+			sprintf(tmp, "%s (%d,%d)",
+				halt->gib_name(),
+				fpl->eintrag.get(i).pos.x, fpl->eintrag.get(i).pos.y);
+		}
 	}
 	else {
 		const grund_t *gr = welt->lookup(fpl->eintrag.get(i).pos);
@@ -80,6 +88,50 @@ void fahrplan_gui_t::gimme_stop_name(cbuffer_t & buf,
 }
 
 
+/**
+ * Fuellt buf mit Beschreibung des i-ten Eintrages des Fahrplanes
+ * short version, without loading level and position ...
+ * @author Hj. Malthaner
+ */
+void fahrplan_gui_t::gimme_short_stop_name(cbuffer_t & buf,
+				     karte_t *welt,
+				     const fahrplan_t *fpl,
+				     int i,
+				     int max_chars)
+{
+	if(i<0  ||  fpl==NULL  ||  i>=fpl->maxi()) {
+		dbg->warning("void fahrplan_gui_t::gimme_stop_name()","tried to recieved unused entry %i in schedule %p.",i,fpl);
+		return;
+	}
+	halthandle_t halt = haltestelle_t::gib_halt(welt,fpl->eintrag.get(i).pos);
+	const char *p;
+
+	if(halt.is_bound()) {
+		p = halt->gib_name();
+	}
+	else {
+		const grund_t *gr = welt->lookup(fpl->eintrag.get(i).pos);
+
+		if(gr && gr->gib_depot() != NULL) {
+			p = translator::translate("Depot");
+		}
+		else {
+			p = translator::translate("Wegpunkt");
+		}
+	}
+	// finally append
+	if(strlen(p)>max_chars) {
+		char tmp[max_chars+1];
+		strncpy( tmp, p, max_chars-3 );
+		strcpy( tmp+max_chars-3, "..." );
+		buf.append(tmp);
+	}
+	else {
+		buf.append(p);
+	}
+}
+
+
 fahrplan_gui_t::fahrplan_gui_t(karte_t *welt, convoihandle_t cnv, spieler_t *sp) :
 	gui_frame_t("", 0),
 	scrolly(&fpl_text),
@@ -88,14 +140,14 @@ fahrplan_gui_t::fahrplan_gui_t(karte_t *welt, convoihandle_t cnv, spieler_t *sp)
 	lb_load(translator::translate("Full load")),
 	buf(8192)
 {
-  this->welt = welt;
-  this->sp = sp;
-  this->fpl = cnv->gib_fahrplan();
-  this->cnv = cnv;
-  init();
-  if (cnv->has_line()) {
-    new_line = cnv->get_line();
-  }
+	this->welt = welt;
+	this->sp = sp;
+	this->fpl = cnv->gib_fahrplan();
+	this->cnv = cnv;
+	init();
+	if (cnv->has_line()) {
+		new_line = cnv->get_line();
+	}
 }
 
 
@@ -143,7 +195,6 @@ void fahrplan_gui_t::init()
   bt_insert.add_listener(this);
   add_komponente(&bt_insert);
 
-
   bt_remove.pos.x = 9*8+4 + 8*8+4;
   bt_remove.pos.y = gib_fenstergroesse().y-44;
   bt_remove.groesse.x = 8*8+4;
@@ -152,7 +203,6 @@ void fahrplan_gui_t::init()
   bt_remove.add_listener(this);
   add_komponente(&bt_remove);
 
-
   bt_done.pos.x = 9*8+4 + 8*8+4 + 8*8+4;
   bt_done.pos.y = gib_fenstergroesse().y-44;
   bt_done.groesse.x = 6*8+4;
@@ -160,7 +210,6 @@ void fahrplan_gui_t::init()
   bt_done.setze_typ(button_t::roundbox);
   bt_done.add_listener(this);
   add_komponente(&bt_done);
-
 
   bt_prev.pos.x = 85;
   bt_prev.pos.y = 23;
@@ -382,7 +431,7 @@ fahrplan_gui_t::action_triggered(gui_komponente_t *komp)
       new_line = NULL;
     }
   } else if (komp == &bt_promote_to_line) {
-    welt->simlinemgmt->create_line(fpl->get_type(), this->fpl);
+    sp->simlinemgmt.create_line(fpl->get_type(), this->fpl);
     init_line_selector();
     create_win(-1, -1, 120, new nachrichtenfenster_t(welt, translator::translate("New line created!\nYou can assign the line now\nby selecting it from the\nline selector above.")), w_autodelete);
   }
@@ -419,7 +468,7 @@ fahrplan_gui_t::zeichnen(koord pos, koord groesse)
 			sprintf(tmp, "%3d%%\n", 0);
 		}
 		else {
-			unsigned current = max( 0, min(fpl->aktuell,fpl->maxi() ) );
+			unsigned current = max( 0, min(fpl->aktuell,fpl->maxi()-1 ) );
 			sprintf(tmp, "%3d%%\n", fpl->eintrag.get(current).ladegrad);
 		}
 		display_multiline_text(pos.x+105, pos.y+40, tmp, SCHWARZ);
@@ -448,31 +497,29 @@ fahrplan_gui_t::get_fpl_text(cbuffer_t & buf)
 			gimme_stop_name(buf, welt, fpl, i, 240);
 			buf.append("\n");
 		}
-	buf.append("\n\n");
+		buf.append("\n\n");
 	}
-
-	// printf("%s\n", (const char *)buf);
 }
 
 void fahrplan_gui_t::init_line_selector()
 {
-  line_selector.clear_elements();
-  line_selector.append_element(no_line);
+	line_selector.clear_elements();
+	line_selector.append_element(no_line);
 
-  if (welt->simlinemgmt->count_lines() > 0) {
-  	welt->simlinemgmt->build_line_list(fpl->get_type(welt), &lines);
-    slist_iterator_tpl<simline_t *> iter( lines );
-    while( iter.next() ) {
-      simline_t *line = iter.get_current();
-      if (line) {
-	line_selector.append_element( line->get_name() );
-      }
-    }
-  }
-  line_selector.setze_text(no_line, 128);
-  if (cnv != NULL) {
-    if (cnv->has_line()){
-      line_selector.setze_text(cnv->get_line()->get_name(), 128);
-    }
-  }
+	if (sp->simlinemgmt.count_lines() > 0) {
+		sp->simlinemgmt.build_line_list(fpl->get_type(welt), &lines);
+		slist_iterator_tpl<simline_t *> iter( lines );
+		while( iter.next() ) {
+			simline_t *line = iter.get_current();
+			if (line) {
+				line_selector.append_element( line->get_name() );
+			}
+		}
+	}
+	line_selector.setze_text(no_line, 128);
+	if (cnv != NULL) {
+		if (cnv->has_line()){
+			line_selector.setze_text(cnv->get_line()->get_name(), 128);
+		}
+	}
 }

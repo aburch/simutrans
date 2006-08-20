@@ -32,6 +32,7 @@
 #include <math.h>
 
 #include "simsys.h"
+#include "simevent.h"
 #include "simmem.h"
 
 
@@ -68,9 +69,6 @@ static volatile int event_queue[queue_length*4 + 8];
 
 void my_mouse_callback(int flags)
 {
-
-//	printf("%x\n", flags);
-
     if(flags & MOUSE_FLAG_MOVE) {
         INSERT_EVENT( SIM_MOUSE_MOVE, SIM_MOUSE_MOVED, mouse_x, mouse_y)
     }
@@ -103,11 +101,136 @@ void my_mouse_callback(int flags)
 END_OF_FUNCTION(my_mouse_callback);
 
 
-int my_keyboard_callback(int key)
+int my_keyboard_callback(int this_key,int *scancode)
 {
-    INSERT_EVENT(SIM_KEYBOARD, (key & 0xFF), mouse_x, mouse_y);
+	if(this_key>0) {
+		// seems to be ASCII
+		INSERT_EVENT(SIM_KEYBOARD, this_key, mouse_x, mouse_y);
+		*scancode = 0;
+		return 0;
+	}
 
-    return 0;
+	int numlock = (key_shifts&KB_NUMLOCK_FLAG)!=0;
+	int ignore = 0;
+	switch(*scancode) {
+		case KEY_PGUP:
+			this_key = '>';
+			break;
+		case KEY_PGDN:
+			this_key = '<';
+			break;
+		case KEY_HOME:
+	      	this_key = SIM_KEY_HOME;
+			break;
+		case KEY_END:
+	      	this_key = SIM_KEY_END;
+	    		break;
+		case KEY_DOWN:
+	      	this_key = SIM_KEY_DOWN;
+			break;
+		case KEY_LEFT:
+	      	this_key = SIM_KEY_LEFT;
+	    		break;
+		case KEY_RIGHT:
+	      	this_key = SIM_KEY_RIGHT;
+  			break;
+		case KEY_UP:
+	      	this_key = SIM_KEY_UP;
+			break;
+		case KEY_0_PAD:
+			this_key = '0';
+	    		break;
+		case KEY_1_PAD:
+	    		this_key = '1';
+	    		break;
+		case KEY_2_PAD:
+	      	this_key = numlock ? '2' : SIM_KEY_DOWN;
+			break;
+		case KEY_3_PAD:
+	  		this_key = '3';
+	    		break;
+		case KEY_4_PAD:
+	      	this_key = numlock ? '4' : SIM_KEY_LEFT;
+	    		break;
+		case KEY_5_PAD:
+			this_key = '5';
+		    break;
+		case KEY_6_PAD:
+	      	this_key = numlock ? '6' : SIM_KEY_RIGHT;
+  			break;
+		case KEY_7_PAD:
+  			this_key = '7';
+  			break;
+		case KEY_8_PAD:
+	      	this_key = numlock ? '8' : SIM_KEY_UP;
+			break;
+		case KEY_9_PAD:
+  			this_key = '9';
+			break;
+		case KEY_F1:
+  			this_key = SIM_KEY_F1;
+			break;
+		case KEY_F2:
+  			this_key = SIM_KEY_F2;
+			break;
+		case KEY_F3:
+  			this_key = SIM_KEY_F3;
+			break;
+		case KEY_F4:
+  			this_key = SIM_KEY_F4;
+			break;
+		case KEY_F5:
+  			this_key = SIM_KEY_F5;
+			break;
+		case KEY_F6:
+  			this_key = SIM_KEY_F6;
+			break;
+		case KEY_F7:
+  			this_key = SIM_KEY_F7;
+			break;
+		case KEY_F8:
+  			this_key = SIM_KEY_F8;
+			break;
+		case KEY_F9:
+  			this_key = SIM_KEY_F9;
+			break;
+		case KEY_F10:
+  			this_key = SIM_KEY_F10;
+			break;
+		case KEY_F11:
+  			this_key = SIM_KEY_F11;
+			break;
+		case KEY_F12:
+  			this_key = SIM_KEY_F12;
+			break;
+		case KEY_ENTER_PAD:
+  			this_key = 13;
+			break;
+		case KEY_DEL:
+  			this_key = 127;
+			break;
+		case KEY_LSHIFT:
+		case KEY_RSHIFT:
+		case KEY_LCONTROL:
+		case KEY_RCONTROL:
+		case KEY_NUMLOCK:
+			ignore = 2;
+			break;
+		default:
+			ignore = 1;
+			break;
+	}
+	if(!ignore) {
+		INSERT_EVENT(SIM_KEYBOARD, this_key, mouse_x, mouse_y);
+		this_key = 0;
+		*scancode = 0;
+	}
+	if(ignore==2) {
+		// must further process keys ...
+		return this_key;
+	}
+	*scancode = 0;
+	return 0;
 }
 
 END_OF_FUNCTION(my_keyboard_callback);
@@ -163,7 +286,7 @@ int dr_os_open(int w, int h, int fullscreen)
         set_mouse_speed(1,1);
 
         mouse_callback = my_mouse_callback;
-        keyboard_callback = my_keyboard_callback;
+        keyboard_ucallback = my_keyboard_callback;
 
         sys_event.mx = mouse_x;
         sys_event.my = mouse_y;
@@ -260,6 +383,18 @@ int dr_screenshot(const char *filename)
 }
 
 
+int recalc_keys()
+{
+	int state = 0;
+	if(key[KEY_LSHIFT]!=0  ||  key[KEY_RSHIFT]!=0) {
+		state = 1;
+	}
+	if(key[KEY_LCONTROL]!=0  ||  key[KEY_RCONTROL]!=0) {
+		state |= 2;
+	}
+	return state;
+}
+
 void move_pointer(int x, int y)
 {
         position_mouse(x,y);
@@ -278,6 +413,8 @@ void internalGetEvents()
 	    sys_event.code  = event_queue[event_bot_mark++];
 	    sys_event.mx    = event_queue[event_bot_mark++];
 	    sys_event.my    = event_queue[event_bot_mark++];
+	    sys_event.key_mod = recalc_keys();
+
 
 	    if(event_bot_mark >= queue_length*4) {
 		event_bot_mark = 0;
@@ -300,7 +437,9 @@ void GetEvents()
 // MingW32 lacks usleep
 
 #ifndef __MINGW32__
+#ifndef __BEOS__
                 usleep(1000);
+#endif
 #endif
         }
 
@@ -318,7 +457,7 @@ void GetEventsNoWait()
         } else {
                 sys_event.type = SIM_NOEVENT;
                 sys_event.code  = SIM_NOEVENT;
-
+		     sys_event.key_mod = recalc_keys();
                 sys_event.mx = mouse_x;
                 sys_event.my = mouse_y;
         }

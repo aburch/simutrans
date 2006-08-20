@@ -19,12 +19,13 @@
 #include "../boden/wege/weg.h"
 
 #include "../dataobj/translator.h"
+#include "components/list_button.h"
 
 
 goods_stats_t::goods_stats_t(karte_t *welt)
 {
 	this->welt = welt;
-	setze_groesse(koord(210,warenbauer_t::gib_waren_anzahl()*LINESPACE+48+16));
+	setze_groesse(koord(BUTTON4_X+BUTTON_WIDTH+2,(warenbauer_t::gib_waren_anzahl()-1)*LINESPACE));
 }
 
 
@@ -34,119 +35,34 @@ goods_stats_t::goods_stats_t(karte_t *welt)
  */
 void goods_stats_t::zeichnen(koord offset) const
 {
-  int yoff = offset.y+10;
-  char buf[256];
+	int yoff = offset.y;
+	char buf[256];
 
-  sprintf(buf, translator::translate("Speed boni for road %i km/h, for rail %i km/h, for ships %i km/h, and for air %i km/h."), welt->get_average_speed(weg_t::strasse), welt->get_average_speed(weg_t::schiene), welt->get_average_speed(weg_t::wasser), welt->get_average_speed(weg_t::luft) );
-  display_proportional_clip( offset.x+20, yoff, buf, ALIGN_LEFT, WEISS, true );
-  yoff += 16;
+	for(unsigned int i=0; i<warenbauer_t::gib_waren_anzahl()-1; i++) {
+		const ware_besch_t * wtyp = warenbauer_t::gib_info(goodslist[i]);
 
-  // Hajo: Headline, list follows below
+		display_ddd_box_clip(offset.x + 2, yoff, 8, 8, MN_GREY0, MN_GREY4);
+		display_fillbox_wh_clip(offset.x + 3, yoff+1, 6, 6, 255 - (goodslist[i]-1)*4, true);
 
-  sprintf(buf, "%s:",
-	  translator::translate("Fracht"));
-  display_proportional_clip(offset.x + 20, yoff,
-			    buf,
-			    ALIGN_LEFT,
-			    WEISS,
-			    true);
+		sprintf(buf, "%s", translator::translate(wtyp->gib_name()));
+		display_proportional_clip(offset.x + 14, yoff,	buf, ALIGN_LEFT, SCHWARZ, true);
 
+		// prissi
+		const sint32 grundwert128 = wtyp->gib_preis()<<7;
+		const sint32 grundwert_bonus = wtyp->gib_preis()*(1000l+(bonus-100l)*wtyp->gib_speed_bonus());
+		const sint32 price = (grundwert128>grundwert_bonus ? grundwert128 : grundwert_bonus);
+		sprintf(buf, "%.2f$", price/300000.0);
+		display_proportional_clip(offset.x + 130, yoff, buf, 	ALIGN_RIGHT, 	SCHWARZ, true);
 
-  sprintf(buf, "%s:",
-	  translator::translate("Preis"));
-  display_proportional_clip(offset.x + 116, yoff,
-			    buf,
-			    ALIGN_LEFT,
-			    WEISS,
-			    true);
+		sprintf(buf, "%d%%", wtyp->gib_speed_bonus());
+		display_proportional_clip(offset.x + 155, yoff, buf, ALIGN_RIGHT, SCHWARZ, true);
 
-  sprintf(buf, "%s:",
-	  translator::translate("Bonus"));
-  display_proportional_clip(offset.x + 160, yoff,
-			    buf,
-			    ALIGN_LEFT,
-			    WEISS,
-			    true);
+		sprintf(buf, "%s",	translator::translate(wtyp->gib_catg_name()));
+		display_proportional_clip(offset.x + 165, yoff, buf, 	ALIGN_LEFT, SCHWARZ, 	true);
 
+		sprintf(buf, "%dKg", wtyp->gib_weight_per_unit());
+		display_proportional_clip(offset.x + 310, yoff, buf, ALIGN_RIGHT, SCHWARZ, true);
 
-  sprintf(buf, "%s:",
-	  translator::translate("Category"));
-  display_proportional_clip(offset.x + 220, yoff,
-			    buf,
-			    ALIGN_LEFT,
-			    WEISS,
-			    true);
-
-  sprintf(buf, "%s:",
-	  translator::translate("Gewicht"));
-  display_proportional_clip(offset.x + 308, yoff,
-			    buf,
-			    ALIGN_LEFT,
-			    WEISS,
-			    true);
-
-
-  yoff += LINESPACE+5;
-
-
-  // Hajo: now print the list
-
-
-  for(unsigned int i=0; i<warenbauer_t::gib_waren_anzahl(); i++) {
-    const ware_besch_t * wtyp = warenbauer_t::gib_info(i);
-
-    // Hajo: we skip goods that don't generate income
-    //       this should only be true for the special good 'None'
-    //       a strcmp() seems to be too wasteful here
-    if(wtyp->gib_preis() != 0) {
-
-      display_ddd_box_clip(offset.x + 20, yoff, 8, 8, MN_GREY0, MN_GREY4);
-      display_fillbox_wh_clip(offset.x + 21, yoff+1, 6, 6, 255 - (i-1)*4, true);
-
-
-      sprintf(buf, "%s",
-	      translator::translate(wtyp->gib_name()));
-      display_proportional_clip(offset.x + 32, yoff,
-				buf,
-				ALIGN_LEFT,
-				SCHWARZ,
-				true);
-
-
-      sprintf(buf, "%.2f$",
-	      wtyp->gib_preis()/100.0);
-      display_proportional_clip(offset.x + 150, yoff,
-				buf,
-				ALIGN_RIGHT,
-				SCHWARZ,
-				true);
-
-      sprintf(buf, "%d%%",
-	      wtyp->gib_speed_bonus());
-      display_proportional_clip(offset.x + 196, yoff,
-				buf,
-				ALIGN_RIGHT,
-				SCHWARZ,
-				true);
-
-
-      sprintf(buf, "%s",
-	      translator::translate(wtyp->gib_catg_name()));
-      display_proportional_clip(offset.x + 220, yoff,
-				buf,
-				ALIGN_LEFT,
-				SCHWARZ,
-				true);
-
-      sprintf(buf, "%dKg",
-	      wtyp->gib_weight_per_unit());
-      display_proportional_clip(offset.x + 356, yoff,
-				buf,
-				ALIGN_RIGHT,
-				SCHWARZ,
-				true);
-
-      yoff += LINESPACE+1;
-    }
-  }
+		yoff += LINESPACE+1;
+	}
 }

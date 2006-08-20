@@ -30,24 +30,32 @@ Stichpunkte
 - FastForward-Button: done
 - A* pfadsuche: done
 - cursor für up/down: finished
+- KI noch mehr auf Kette drillen, bessere Bahnhöfe: done
+- A* for ways: done
+- Warteschleife für Flugzeuge: done
 
-- KI noch mehr auf Kette drillen, bessere Bahnhöfe: halfway
-- A* for ways: halfways
-- Warteschleife für Flugzeuge, Oneway Rollbahnen: halfway
-- tile 2x height: halfway
+- tile 2x height: halfway-> slopes needed
 
+- Oneway Rollbahnen
 - details for convois
 - connection weighted by their intermediate stops => A* for goods routing
 - when import translation: ignore entries which are identical (saving runtime)
 - sound
 - Kurven auf Brücken
+- Kosten für Wege deckeln!
+- A* for goods
+- scripting for AI
+
+Fehler:
+Wege-Routing mit Slopes ...
+Farbbalken mit obsolete ...
+Beamen am Stoppwähler
 
 - Landfabrik alle x Jahre/Fakriken
 - Brücken an senkrechten Wänden
 - Felder: Grafiken da, fehlt noch code (vielleicht wie Wälder?)
 - schönerer Jahreszeitenwechsel => texturen statt fertiger tiles!
 - Winter höhenabhängig?
-- A* for goods and ways
 
 error:
 horses in tram depot ...

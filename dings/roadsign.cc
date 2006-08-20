@@ -10,7 +10,6 @@
 #include <stdio.h>
 
 #include "../simdebug.h"
-#include "../simcosts.h"
 #include "../simplay.h"
 #include "../simworld.h"
 #include "../simdings.h"
@@ -24,6 +23,7 @@
 #include "../dataobj/loadsave.h"
 #include "../dataobj/umgebung.h"
 
+#include "../utils/simstring.h"
 #include "../utils/cbuffer_t.h"
 
 #include "../tpl/stringhashtable_tpl.h"
@@ -323,7 +323,8 @@ DBG_DEBUG("roadsign_t::fill_menu()","try at pos %i to add %s(%p)",i,besch->gib_n
 		if(besch->gib_cursor()->gib_bild_nr(1) != IMG_LEER) {
 			// only add items with a cursor
 DBG_DEBUG("roadsign_t::fill_menu()","at pos %i add %s",i,besch->gib_name());
-			sprintf(buf, "%s, %d$",translator::translate(besch->gib_name()),CST_ROADSIGN/(-100));
+			int n=sprintf(buf, "%s ",translator::translate(besch->gib_name()));
+			money_to_string(buf+n, besch->gib_preis()/-100.0);
 
 			wzw->add_param_tool(werkzeug,
 			  (const void *)besch,
@@ -343,6 +344,6 @@ void
 roadsign_t::entferne(spieler_t *sp)
 {
 	if(sp!=NULL) {
-		sp->buche(-CST_ROADSIGN, gib_pos().gib_2d(), COST_CONSTRUCTION);
+		sp->buche(besch->gib_preis(), gib_pos().gib_2d(), COST_CONSTRUCTION);
 	}
 }

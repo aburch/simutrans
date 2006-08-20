@@ -31,10 +31,12 @@
 #include "simworld.h"
 #include "simintr.h"
 #include "simpeople.h"
-#include "simtime.h"
+#include "freight_list_sorter.h"
 
+#include "simtime.h"
 #include "simcolor.h"
 #include "simgraph.h"
+#include "freight_list_sorter.h"
 
 #include "gui/halt_info.h"
 #include "gui/halt_detail.h"
@@ -58,16 +60,6 @@
 #include "tpl/minivec_tpl.h"
 
 /**
- * This variable defines by which column the table is sorted
- * Values: 1 = station name
- *         2 = Waiting goods
- *         3 = Station type
- * @author hsiegeln
- */
-haltestelle_t::sort_mode_t haltestelle_t::sortby = by_name;
-
-
-/**
  * Max number of hops in route calculation
  * @author Hj. Malthaner
  */
@@ -87,67 +79,6 @@ void haltestelle_t::set_max_hops(int hops)
   max_hops = hops;
 }
 
-
-/** hsiegeln
- *  @param td1, td2: pointer to travel_details
- *  @return sortorder of the two passed elements; used in qsort
- *  @author hsiegeln
- *  @date 2003-11-02
- */
-int haltestelle_t::compare_ware(const void *td1, const void *td2)
-{
-  const travel_details * const td1p = (const travel_details*)td1;
-  const travel_details * const td2p = (const travel_details*)td2;
-
-	halthandle_t halt1 = td1p->destination;
-	halthandle_t halt2 = td2p->destination;
-	halthandle_t via_halt1 = td1p->via_destination;
-	halthandle_t via_halt2 = td2p->via_destination;
-
-	if(!halt1.is_bound()  ||  !via_halt1.is_bound()) {
-		return -1;
-	}
-
-	if( !halt2.is_bound()  ||    !via_halt2.is_bound() ) {
-		return -2;
-	}
-
-	int order = 0;
-	ware_t ware1 = td1p->ware;
-	ware_t ware2 = td2p->ware;
-
-	switch (sortby) {
-		default:
-dbg->error("haltestelle_t::compare_ware()","illegal sort mode!");
-		case by_name: //sort by destination name
-			order = strcmp(halt1->gib_name(), halt2->gib_name());
-			break;
-		case by_via: // sort by via_destination name
-			order = strcmp(via_halt1->gib_name(), via_halt2->gib_name());
-			// if the destination is different, bit the via_destination the same, sort it by the destination (2nd level sort)
-			if (order == 0)
-			{
-				order = strcmp(halt1->gib_name(), halt2->gib_name());
-			}
-			break;
-		case by_via_sum:
-		case by_amount: // sort by ware amount
-			order = ware2.menge - ware1.menge;
-			// if the same amount is transported, we sort by via_destination
-			if (order == 0)
-			{
-				order = strcmp(via_halt1->gib_name(), via_halt2->gib_name());
-				// if the same amount goes through the same via_destination, sort by destionation
-				if (order == 0)
-				{
-					order = strcmp(halt1->gib_name(), halt2->gib_name());
-				}
-			}
-			break;
-	}
-
-	return order;
-}
 
 // Helfer Klassen
 
@@ -185,6 +116,7 @@ haltestelle_t::gib_halt(karte_t *welt, grund_t *gr )
 #else
 			// may catch bus stops close to water ...
 			if(haltlist.get_count()>0) {
+//DBG_MESSAGE("haltestelle_t::gib_halt()","at %i,%i", gr->gib_pos().x, gr->gib_pos().y );
 				return haltlist.get(0);
 			}
 #endif
@@ -339,7 +271,8 @@ haltestelle_t::haltestelle_t(karte_t *wl, loadsave_t *file) : self(this)
 	enables = NOT_ENABLED;
 
     // @author hsiegeln
-    sortierung = haltestelle_t::by_name;
+    sortierung = freight_list_sorter_t::by_name;
+    resort_freight_info = true;
 
     rdwr(file);
 
@@ -366,7 +299,7 @@ haltestelle_t::haltestelle_t(karte_t *wl, koord pos, spieler_t *sp) : self(this)
     pax_unhappy = 0;
     pax_no_route = 0;
 
-    sortierung = haltestelle_t::by_name;
+    sortierung = freight_list_sorter_t::by_name;
     init_financial_history();
 
     init_gui();
@@ -406,11 +339,10 @@ haltestelle_t::~haltestelle_t()
 void
 haltestelle_t::setze_name(const char *name)
 {
-    tstrncpy(this->name, translator::translate(name), 128);
-
-    if(grund.count() > 0) {
-	grund.at(0)->setze_text(this->name);
-    }
+	tstrncpy(this->name, translator::translate(name), 128);
+	if(grund.count() > 0) {
+		grund.at(0)->setze_text(this->name);
+	}
 }
 
 
@@ -517,7 +449,7 @@ void haltestelle_t::recalc_status()
 	// check for goods
 	if(status_color!=ROT  &&  get_ware_enabled()) {
 		const int count = warenbauer_t::gib_waren_anzahl();
-		const int max_ware = gib_grund_count()<<7;
+		const int max_ware = get_capacity();
 
 		for( int i=0; i+1<count; i++) {
 			const ware_besch_t *wtyp = warenbauer_t::gib_info(i+1);
@@ -935,55 +867,48 @@ void haltestelle_t::add_pax_unhappy(int n)
 bool
 haltestelle_t::add_grund(grund_t *gr)
 {
-    // vielleicht sollte man hier auf eine maximale Anzahl
-    // gebaeude prufen
-
-    // append, damit grund.at(0) immer das erste Feld der Haltestelle darstellt
-
-    assert(gr != NULL);
+	assert(gr != NULL);
 
 	// neu halt?
-    if(!grund.contains(gr)) {
+	if(!grund.contains(gr)) {
 
-    	koord pos=gr->gib_pos().gib_2d();
+		koord pos=gr->gib_pos().gib_2d();
 
-	gr->setze_halt(self);
-	grund.append(gr);
+		gr->setze_halt(self);
+		grund.append(gr);
 
-	// appends this to the ground
-	// after that, the surrounding ground will know of this station
-	for(  int y=-welt->gib_einstellungen()->gib_station_coverage();  y<=welt->gib_einstellungen()->gib_station_coverage();  y++ ) {
-		for(  int x=-welt->gib_einstellungen()->gib_station_coverage();  x<=welt->gib_einstellungen()->gib_station_coverage();  x++ ) {
-			koord p=pos+koord(x,y);
-			if(welt->ist_in_kartengrenzen(p)) {
-				welt->access(p)->add_to_haltlist( self );
+		// appends this to the ground
+		// after that, the surrounding ground will know of this station
+		for(  int y=-welt->gib_einstellungen()->gib_station_coverage();  y<=welt->gib_einstellungen()->gib_station_coverage();  y++ ) {
+			for(  int x=-welt->gib_einstellungen()->gib_station_coverage();  x<=welt->gib_einstellungen()->gib_station_coverage();  x++ ) {
+				koord p=pos+koord(x,y);
+				if(welt->ist_in_kartengrenzen(p)) {
+					welt->access(p)->add_to_haltlist( self );
+				}
 			}
 		}
-	}
+		welt->access(pos)->setze_halt(self);
 
-	welt->access(pos)->setze_halt(self);
+		//DBG_MESSAGE("haltestelle_t::add_grund()","pos %i,%i,%i to %s added.",pos.x,pos.y,pos.z,gib_name());
 
-//DBG_MESSAGE("haltestelle_t::add_grund()","pos %i,%i,%i to %s added.",pos.x,pos.y,pos.z,gib_name());
-
-	vector_tpl<fabrik_t *> &fablist = fabrik_t::sind_da_welche( welt,
-																						pos-koord(welt->gib_einstellungen()->gib_station_coverage(), welt->gib_einstellungen()->gib_station_coverage()),
-																						pos+koord(welt->gib_einstellungen()->gib_station_coverage(), welt->gib_einstellungen()->gib_station_coverage())
-																						);
-	for(unsigned i=0; i<fablist.get_count(); i++) {
-		fabrik_t * fab = fablist.at(i);
-		if(!fab_list.contains(fab)) {
-			fab_list.insert(fab);
-			fab->link_halt(self);
+		vector_tpl<fabrik_t *> &fablist = fabrik_t::sind_da_welche( welt,
+			pos-koord(welt->gib_einstellungen()->gib_station_coverage(), welt->gib_einstellungen()->gib_station_coverage()),
+			pos+koord(welt->gib_einstellungen()->gib_station_coverage(), welt->gib_einstellungen()->gib_station_coverage())
+			);
+		for(unsigned i=0; i<fablist.get_count(); i++) {
+			fabrik_t * fab = fablist.at(i);
+			if(!fab_list.contains(fab)) {
+				fab_list.insert(fab);
+				fab->link_halt(self);
+			}
 		}
+
+		assert(gr->gib_halt() == self);
+		return true;
 	}
-
-	assert(gr->gib_halt() == self);
-
-
-	return true;
-    } else {
-	return false;
-  }
+	else {
+		return false;
+	}
 }
 
 void
@@ -991,57 +916,58 @@ haltestelle_t::rem_grund(grund_t *gb)
 {
     // namen merken
     const char *tmp = gib_name();
-
     if(gb) {
 
-	// was not part of station => do nothing
-	if(!grund.remove(gb)) {
-		return;
-	}
-
-	planquadrat_t *pl = welt->access( gb->gib_pos().gib_2d() );
-	if(pl) {
-		// no longer connected (upper level)
-		gb->setze_halt(halthandle_t());
-		// still connected elsewhere?
-		for(unsigned i=0;  i<pl->gib_boden_count();  i++  ) {
-			if(pl->gib_boden_bei(i)->gib_halt().is_bound()) {
-				// still connected => do not remove from ground ...
-				return;
-			}
+		// was not part of station => do nothing
+		if(!grund.remove(gb)) {
+			return;
 		}
+
+		planquadrat_t *pl = welt->access( gb->gib_pos().gib_2d() );
+		if(pl) {
+			// no longer connected (upper level)
+			gb->setze_halt(halthandle_t());
+			// still connected elsewhere?
+			for(unsigned i=0;  i<pl->gib_boden_count();  i++  ) {
+				if(pl->gib_boden_bei(i)->gib_halt().is_bound()) {
+					// still connected => do not remove from ground ...
+DBG_DEBUG("haltestelle_t::rem_grund()","keep floor, count=%i",grund.count());
+					return;
+				}
+			}
 DBG_DEBUG("haltestelle_t::rem_grund()","remove also floor, count=%i",grund.count());
-		// otherwise remove ground ...
-		pl->setze_halt(halthandle_t());
-	}
+			// otherwise remove ground ...
+			pl->setze_halt(halthandle_t());
+		}
 
-	for(  int y=-welt->gib_einstellungen()->gib_station_coverage();  y<=welt->gib_einstellungen()->gib_station_coverage();  y++  ) {
-		for(  int x=-welt->gib_einstellungen()->gib_station_coverage();  x<=welt->gib_einstellungen()->gib_station_coverage();  x++  ) {
-			planquadrat_t *pl = welt->access( gb->gib_pos().gib_2d()+koord(x,y) );
-			if(pl) {
-				pl->remove_from_haltlist(welt,self);
+		for(  int y=-welt->gib_einstellungen()->gib_station_coverage();  y<=welt->gib_einstellungen()->gib_station_coverage();  y++  ) {
+			for(  int x=-welt->gib_einstellungen()->gib_station_coverage();  x<=welt->gib_einstellungen()->gib_station_coverage();  x++  ) {
+				planquadrat_t *pl = welt->access( gb->gib_pos().gib_2d()+koord(x,y) );
+				if(pl) {
+					pl->remove_from_haltlist(welt,self);
+				}
 			}
 		}
+
+		if(!grund.is_empty()) {
+			grund_t *bd = grund.at(0);
+
+			if(bd->gib_text() != tmp) {
+				bd->setze_text( tmp );
+			}
+
+			verbinde_fabriken();
+		}
+		else {
+			slist_iterator_tpl <fabrik_t *> iter(fab_list);
+
+			while( iter.next() ) {
+				iter.get_current()->unlink_halt(self);
+			}
+
+			fab_list.clear();
+		}
 	}
-
-	if(!grund.is_empty()) {
-	    grund_t *bd = grund.at(0);
-
-	    if(bd->gib_text() != tmp) {
-		bd->setze_text( tmp );
-	    }
-
-	    verbinde_fabriken();
-	} else {
-	  slist_iterator_tpl <fabrik_t *> iter(fab_list);
-
-	  while( iter.next() ) {
-	    iter.get_current()->unlink_halt(self);
-	  }
-
-	  fab_list.clear();
-	}
-    }
 }
 
 bool
@@ -1167,6 +1093,7 @@ haltestelle_t::hole_ab(const ware_besch_t *wtyp, int maxi, fahrplan_t *fpl)
 									delete wliste;
 								}
 								book(neu.menge, HALT_DEPARTED);
+								resort_freight_info = true;
 								return neu;
 
 							}
@@ -1183,6 +1110,7 @@ haltestelle_t::hole_ab(const ware_besch_t *wtyp, int maxi, fahrplan_t *fpl)
 								tmp.menge -= maxi;
 
 								book(neu.menge, HALT_DEPARTED);
+								resort_freight_info = true;
 								return neu;
 							}
 						}
@@ -1284,6 +1212,7 @@ haltestelle_t::vereinige_waren(const ware_t &ware)
                         	||  (is_pax   &&   gib_halt(tmp.gib_ziel())==gib_halt(ware.gib_ziel()) )
                         ) {
                                 tmp.menge += ware.menge;
+						resort_freight_info = true;
                                 return true;
                         }
                 }
@@ -1324,6 +1253,7 @@ haltestelle_t::starte_mit_route(ware_t ware)
 		waren.set(ware.gib_typ(), wliste);
 	}
 	wliste->insert( ware );
+	resort_freight_info = true;
 
 	return ware.menge;
 }
@@ -1403,6 +1333,7 @@ dbg->warning("haltestelle_t::liefere_an()","%d %s delivered to %s have no longer
 		waren.set(ware.gib_typ(), wliste);
 	}
 	wliste->insert( ware );
+	resort_freight_info = true;
 
 	return ware.menge;
 }
@@ -1511,17 +1442,15 @@ void haltestelle_t::info(cbuffer_t & buf) const
   char tmp [512];
 
   sprintf(tmp,
-	  translator::translate("Passengers today:\n %d %c, %d %c, %d no route\n\n%s\n"),
+	  translator::translate("Passengers %d %c, %d %c, %d no route"),
 	  pax_happy,
 	  30,
 	  pax_unhappy,
 	  31,
 	  pax_no_route,
-	  translator::translate("Hier warten/lagern:")
+	  get_capacity()
 	  );
-
-
-  buf.append(tmp);
+	buf.append(tmp);
 }
 
 
@@ -1532,107 +1461,19 @@ void haltestelle_t::info(cbuffer_t & buf) const
  */
 void haltestelle_t::get_freight_info(cbuffer_t & buf)
 {
-	for(unsigned int i=0; i<warenbauer_t::gib_waren_anzahl(); i++) {
-		const ware_besch_t *wtyp = warenbauer_t::gib_info(i);
+	if(resort_freight_info) {
+		// resort only inf absolutely needed ...
+		resort_freight_info = false;
+		buf.clear();
 
-		slist_tpl<ware_t> * wliste = waren.get(wtyp);
-
-		if(wliste) {
-			slist_iterator_tpl<ware_t> iter (wliste);
-
-//DBG_MESSAGE("haltestelle_t::get_freight_info()","start for ware %s",wtyp->gib_name());
-			buf.append(" ");
-			buf.append(gib_ware_summe(wtyp));
-			buf.append(translator::translate(wtyp->gib_mass()));
-			buf.append(" ");
-			buf.append(translator::translate(wtyp->gib_name()));
-			buf.append(" ");
-			buf.append(translator::translate("waiting"));
-			buf.append("\n");
-
-			// hsiegeln
-			// added sorting to ware's destination list
-			int pos = 0;
-#ifdef _MSC_VER
-			travel_details *tdlist = (travel_details *)alloca(wliste->count() * sizeof(travel_details *));
-#else
-			travel_details tdlist [wliste->count()];
-#endif
-			while(iter.next()) {
-				ware_t ware = iter.get_current();
-//DBG_MESSAGE("haltestelle_t::get_freight_info()","for halt %i",pos);
-				tdlist[pos].ware = ware;
-				tdlist[pos].destination = gib_halt(ware.gib_ziel());
-				tdlist[pos].via_destination = gib_halt(ware.gib_zwischenziel());
-				// for the sorting via the number for the next stop we unify entries
-				if(sortby==by_via_sum  &&  pos>0) {
-//DBG_MESSAGE("haltestelle_t::get_freight_info()","for halt %i check connection",pos);
-					// only add it, if there is not another thing waiting with the same via but another destination
-					for( int i=0;  i<pos;  i++ ) {
-						if(/*tdlist[i].ware.gib_typ()==tdlist[pos].ware.gib_typ()  &&*/  tdlist[i].via_destination==tdlist[pos].via_destination  &&  tdlist[i].destination!=tdlist[i].via_destination) {
-							tdlist[i].ware.menge += tdlist[pos--].ware.menge;
-							break;
-						}
-					}
-				}
-//DBG_MESSAGE("haltestelle_t::get_freight_info()","for halt %i added",pos);
-				pos++;
+		for(unsigned int i=0; i<warenbauer_t::gib_waren_anzahl(); i++) {
+			const ware_besch_t *wtyp = warenbauer_t::gib_info(i);
+			slist_tpl<ware_t> * wliste = waren.get(wtyp);
+			if(wliste) {
+				freight_list_sorter_t::sort_freight( welt, wliste, buf, (freight_list_sorter_t::sort_mode_t)sortierung, NULL, "waiting" );
 			}
-//DBG_MESSAGE("haltestelle_t::get_freight_info()","sort %i positions mode=%i",pos,sortby);
-			// sort the ware's list
-			qsort((void *)tdlist, pos, sizeof (travel_details), compare_ware);
-//DBG_MESSAGE("haltestelle_t::get_freight_info()","added %i ware.",pos);
-			// print the ware's list to buffer - it should be in sortorder by now!
-			for (int j = 0; j<pos; j++) {
-				ware_t ware = tdlist[j].ware;
-
-				halthandle_t halt = tdlist[j].destination;
-				halthandle_t via_halt = tdlist[j].via_destination;
-
-				const char * name = "Error in Routing";
-				if(halt.is_bound()) {
-					name = halt->gib_name();
-				}
-
-				buf.append("   ");
-				buf.append(ware.menge);
-				buf.append(translator::translate(wtyp->gib_mass()));
-				buf.append(" ");
-				buf.append(translator::translate(wtyp->gib_name()));
-				buf.append(" > ");
-				// the target name is not correct for the via sort
-				if(sortby!=by_via_sum  ||  via_halt==halt  ) {
-					buf.append(name);
-				}
-
-				// for debugging
-				const char *via_name = "Error in Routing";
-				if(via_halt.is_bound()) {
-					via_name = via_halt->gib_name();
-				}
-
-				if(via_halt != halt) {
-					char tmp [512];
-					sprintf(tmp, translator::translate("   via %s\n"), via_name);
-					buf.append(tmp);
-				}
-				else {
-					buf.append("\n");
-				}
-				// debug ende
-
-			}
-
-			buf.append("\n");
 		}
 	}
-#ifdef LAGER_NOT_IN_USE
-	if(lager != NULL) {
-		buf.append("\n");
-		buf = lager->info_lagerbestand(buf);
-	}
-#endif
-	buf.append("\n");
 }
 
 
@@ -1735,6 +1576,7 @@ haltestelle_t::is_something_waiting() const
  * recalculated the station type(s)
  * since it iterates over all ground, this is better not done too often, because line management and station list
  * queries this information regularely; Thus, we do this, when adding new ground
+ * This recalculates also the capacity from the building levels ...
  * @author Weber/prissi
  */
 void
@@ -1742,6 +1584,7 @@ haltestelle_t::recalc_station_type()
 {
 	slist_iterator_tpl<grund_t *> iter( grund );
 	int new_station_type = 0;
+	capacity = 0;
 	enables &= CROWDED;	// clear flags
 
 	// iterate over all tiles
@@ -1756,6 +1599,7 @@ haltestelle_t::recalc_station_type()
 			// for water factories
 			if(besch) {
 				enables |= besch->get_enabled();
+				capacity += besch->gib_level();
 				DBG_MESSAGE("haltestelle_t::recalc_station_type()","factory enables %i",besch->get_enabled());
 			}
 			continue;
@@ -1791,11 +1635,12 @@ haltestelle_t::recalc_station_type()
 
 		// enabled the matching types
 		enables |= besch->get_enabled();
+		capacity += besch->gib_level();
 
 	}
 	station_type = (haltestelle_t::stationtyp)new_station_type;
 
-//DBG_DEBUG("haltestelle_t::recalc_station_type()","result %x",new_station_type);
+//DBG_DEBUG("haltestelle_t::recalc_station_type()","result=%x, capacity=%i",new_station_type,capacity);
 }
 
 

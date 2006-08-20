@@ -30,7 +30,6 @@
 
 class haltestelle_t;
 class inthashtable_t;
-class cstring_t;
 class vehikel_besch_t;
 class fahrplan_t;
 class presignal_t;
@@ -242,6 +241,7 @@ public:
     void setze_fahrtrichtung(ribi_t::ribi r) {fahrtrichtung=r;calc_bild();};
 
 	virtual bool calc_route(karte_t * welt, koord3d start, koord3d ziel, uint32 max_speed, route_t * route) { return route->calc_route(welt, start, ziel, this, max_speed ); };
+	const uint16 gib_route_index() const {return route_index;}
 
     void setze_offsets(int x, int y);
 
@@ -359,6 +359,8 @@ public:
 	inline const int gib_gesamtgewicht() const {return sum_weight;};
 
 
+	const slist_tpl<ware_t> & gib_fracht() const { return fracht;}   // liste der gerade transportierten güter
+
     /**
      * berechnet die gesamtmenge der beförderten waren
      */
@@ -412,7 +414,7 @@ public:
      * @return income total for last hop
      * @author Hj. Malthaner
      */
-    int  calc_gewinn(koord3d start, koord3d end) const;
+    sint64  calc_gewinn(koord3d start, koord3d end) const;
 
 
     /**
@@ -690,7 +692,6 @@ public:
 
     aircraft_t(karte_t *welt, loadsave_t *file);
     aircraft_t(karte_t *welt, koord3d pos, const vehikel_besch_t *besch, spieler_t *sp, convoi_t *cnv); // start und fahrplan
-    ~aircraft_t();
 
     fahrplan_t * erzeuge_neuen_fahrplan() const;
 

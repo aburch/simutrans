@@ -28,6 +28,7 @@ class depot_t;
 class vehikel_t;
 class image_list_t;
 class simline_t;
+class spieler_t;
 /**
  * Depot frame, handles all interaction with a vehicle depot.
  *
@@ -172,13 +173,13 @@ private:
      * @date  09.06.2003
      */
     int calc_restwert(const vehikel_besch_t *veh_type);
+
     /**
      * Do the dynamic dialog layout
      * @author Volker Meyer
      * @date  18.06.2003
      */
     void layout(koord *);
-
 
     /**
      * Does this window need a min size button in the title bar?
@@ -189,6 +190,9 @@ private:
 
 	// true if already stored here
 	bool is_contained(const vehikel_besch_t *info);
+
+	// add a single vehicle (helper function)
+	void add_to_vehicle_list(const vehikel_besch_t *info);
 
 public:
 
@@ -228,6 +232,7 @@ public:
      * @author Hj. Malthaner
      */
     void fahrplaneingabe();
+
     /**
      * Implementiert einen image_list_listener_t.
      * @author Hj. Malthaner
@@ -240,8 +245,9 @@ public:
      */
     virtual bool action_triggered(gui_komponente_t *komp);
 
-
     virtual void infowin_event(const event_t *ev);
+
+    virtual spieler_t *gib_besitzer() const { return depot->gib_besitzer(); }
 
     /**
      * Zeichnet das Frame

@@ -10,32 +10,23 @@
 #ifndef simplay_h
 #define simplay_h
 
-#ifndef simtypes_h
 #include "simtypes.h"
-#endif
-
-#ifndef halthandle_t_h
-#include "halthandle_t.h"
-#endif
-
-#ifndef convoihandle_t_h
-#include "convoihandle_t.h"
-#endif
-
-#ifndef koord_h
-#include "dataobj/koord.h"
-#endif
-
 #include "simware.h"
+#include "simlinemgmt.h"
+
+#include "halthandle_t.h"
+#include "convoihandle_t.h"
+
+#include "dataobj/koord.h"
 
 #include "boden/wege/weg.h"
+
+#include "besch/weg_besch.h"
+#include "besch/vehikel_besch.h"
 
 #include "tpl/vector_tpl.h"
 #include "tpl/array_tpl.h"
 #include "tpl/array2d_tpl.h"
-
-#include "besch/weg_besch.h"
-#include "besch/vehikel_besch.h"
 
 
 #define MAX_COST           12 // Total number of items in array
@@ -57,7 +48,7 @@
 
 
 // forward dekl
-
+class simlinemgmt_t;
 class karte_t;
 class fabrik_t;
 class stadt_t;
@@ -67,6 +58,7 @@ class slist_t;
 class Stack;
 class koord3d;
 class money_frame_t;
+class schedule_list_gui_t;
 
 template <class T> class slist_tpl;
 
@@ -100,6 +92,7 @@ public:
     enum { MAX_KONTO_VERZUG = 3 };
 
 private:
+
     char spieler_name_buf[16];
 
     /*
@@ -153,7 +146,7 @@ private:
      * Monthly maintenance cost
      * @author Hj. Malthaner
      */
-    uint32 maintenance;
+    sint32 maintenance;
 
     /**
      * Die Welt in der gespielt wird.
@@ -167,6 +160,10 @@ private:
      */
     money_frame_t *money_frame;
 
+    /* Line dialoge, unique for every player
+     * @author prissi
+     */
+    schedule_list_gui_t *line_frame;
 
     /**
      * Der Kontostand.
@@ -306,6 +303,9 @@ public:
      */
     bool automat;
 
+	// @author hsiegeln
+	simlinemgmt_t simlinemgmt;
+	schedule_list_gui_t *get_line_frame();
 
     /**
      * Age messages (move them upwards)
@@ -363,7 +363,7 @@ public:
      * @param betrag zu verbuchender Betrag
      * @author Hj. Malthaner
      */
-    sint64 buche(long betrag) {konto += betrag; return konto;};
+    sint64 buche(sint64 betrag) {konto += betrag; return konto;};
 
     /**
      * Adds somme amount to the maintenance costs
@@ -374,8 +374,8 @@ public:
     uint32 add_maintenance(sint32 change) {maintenance += change; return maintenance;};
 
     // Owen Rudge, finances
-    sint64 buche(long betrag, koord k, int type);
-    sint64 buche(long betrag, int type);
+    sint64 buche(sint64 betrag, koord k, int type);
+    sint64 buche(sint64 betrag, int type);
 
 
     /**
@@ -443,6 +443,11 @@ public:
      * @author Hj. Malthaner
      */
     void rdwr(loadsave_t *file);
+
+	/*
+	 * called after game is fully loaded;
+	 */
+	void laden_abschliessen();
 
 
     // fuer tests

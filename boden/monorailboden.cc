@@ -37,14 +37,15 @@ monorailboden_t::rdwr(loadsave_t *file)
 
 void monorailboden_t::calc_bild()
 {
-	if(hat_wege()) {
-		setze_weg_bild(gib_weg(weg_t::schiene)->calc_bild(gib_pos()));
-		setze_bild( IMG_LEER );
+	setze_bild( IMG_LEER );
+	clear_back_bild();
+	if(gib_weg_nr(0)) {
+		ding_t *dt = suche_obj(ding_t::oberleitung);
+		if(dt) {
+			dt->calc_bild();
+		}
+		gib_weg_nr(0)->calc_bild(gib_pos());
 	}
-	else {
-		setze_weg_bild( IMG_LEER );
-	}
-	setze_weg2_bild( IMG_LEER );
 }
 
 

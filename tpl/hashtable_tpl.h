@@ -88,6 +88,7 @@ public:
 	}
 	return value_t();
     }
+
     value_t *access(const key_t key)
     {
 	const int code = get_hash(key);

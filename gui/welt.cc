@@ -8,10 +8,13 @@
  * April 2000
  */
 
+#include <string.h>
+
 #include "welt.h"
 #include "karte.h"
 
 #include "../simdebug.h"
+#include "../simio.h"
 #include "../simworld.h"
 #include "../simwin.h"
 #include "../simimg.h"
@@ -25,132 +28,311 @@
 #include "../simgraph.h"
 #include "../simdisplay.h"
 
+#include "load_relief_frame.h"
 
-welt_gui_t::welt_gui_t(karte_t *welt, einstellungen_t *sets)
- : infowin_t(welt), buttons(35)
+#include "components/list_button.h"
+
+#define START_HEIGHT (28)
+
+#define LEFT_ARROW (110)
+#define RIGHT_ARROW (160)
+#define TEXT_RIGHT (145) // ten are offset in routine ..
+
+#define LEFT_WIDE_ARROW (185)
+#define RIGHT_WIDE_ARROW (235)
+#define TEXT_WIDE_RIGHT (220)
+
+
+welt_gui_t::welt_gui_t(karte_t *welt, einstellungen_t *sets) : gui_frame_t("Neue Welt")
 {
-    this->sets = sets;
-    load_heightfield = false;
-    load = start = close = quit = false;
+	this->welt = welt;
+	this->sets = sets;
+	this->old_lang = -1;
+	loaded_heightfield = load_heightfield = false;
+	load = start = close = false;
+	int intTopOfButton=START_HEIGHT;
+	sets->heightfield = "";
 
-    // init button_defs
-    button_t button_def;
-    int i;
-    int intTopOfButton=47;
-    int intLeftOfButton=113;
+	// select map stuff ..
+	map_number[0].setze_pos( koord(LEFT_ARROW,intTopOfButton) );
+	map_number[0].setze_typ( button_t::arrowleft );
+	map_number[0].add_listener( this );
+	add_komponente( map_number+0 );
+	map_number[1].setze_pos( koord(RIGHT_ARROW,intTopOfButton) );
+	map_number[1].setze_typ( button_t::arrowright );
+	map_number[1].add_listener( this );
+	add_komponente( map_number+1 );
+	intTopOfButton += 12;
 
-	button_def.setze_pos( koord(200-24,intTopOfButton) );
-	button_def.setze_typ( button_t::arrowleft );
-	buttons.append(button_def);
+	x_size[0].setze_pos( koord(LEFT_ARROW,intTopOfButton) );
+	x_size[0].setze_typ( button_t::arrowleft );
+	x_size[0].add_listener( this );
+	add_komponente( x_size+0 );
+	x_size[1].setze_pos( koord(RIGHT_ARROW,intTopOfButton) );
+	x_size[1].setze_typ( button_t::arrowright );
+	x_size[1].add_listener( this );
+	add_komponente( x_size+1 );
+	intTopOfButton += 12;
 
-	button_def.setze_pos( koord(250-24,intTopOfButton) );
-	button_def.setze_typ(button_t::arrowright);
-	buttons.append(button_def);
+	y_size[0].setze_pos( koord(LEFT_ARROW,intTopOfButton) );
+	y_size[0].setze_typ( button_t::arrowleft );
+	y_size[0].add_listener( this );
+	add_komponente( y_size+0 );
+	y_size[1].setze_pos( koord(RIGHT_ARROW,intTopOfButton) );
+	y_size[1].setze_typ( button_t::arrowright );
+	y_size[1].add_listener( this );
+	add_komponente( y_size+1 );
+	intTopOfButton += 12;
 
-    button_def.setze_pos( koord(10, intTopOfButton) );
-    button_def.setze_typ(button_t::square);
-    buttons.append(button_def);
-    intTopOfButton += 12+5;
+	// mountian/water stuff
+	intTopOfButton += 5;
+	water_level[0].setze_pos( koord(LEFT_ARROW,intTopOfButton) );
+	water_level[0].setze_typ( button_t::arrowleft );
+	water_level[0].add_listener( this );
+	add_komponente( water_level+0 );
+	water_level[1].setze_pos( koord(RIGHT_ARROW,intTopOfButton) );
+	water_level[1].setze_typ( button_t::arrowright );
+	water_level[1].add_listener( this );
+	add_komponente( water_level+1 );
+	intTopOfButton += 12;
 
-    for (i=3; i<27; i+=2) {
-		button_def.setze_pos( koord(intLeftOfButton,intTopOfButton) );
-		button_def.setze_typ( button_t::arrowleft );
-		buttons.append(button_def);
+	mountain_height[0].setze_pos( koord(LEFT_ARROW,intTopOfButton) );
+	mountain_height[0].setze_typ( button_t::arrowleft );
+	mountain_height[0].add_listener( this );
+	add_komponente( mountain_height+0 );
+	mountain_height[1].setze_pos( koord(RIGHT_ARROW,intTopOfButton) );
+	mountain_height[1].setze_typ( button_t::arrowright );
+	mountain_height[1].add_listener( this );
+	add_komponente( mountain_height+1 );
+	intTopOfButton += 12;
 
-		button_def.setze_pos( koord((i%25)?intLeftOfButton+37:intLeftOfButton+57,intTopOfButton) );
-		button_def.setze_typ(button_t::arrowright);
-		buttons.append(button_def);
-		intTopOfButton += 12;
+	mountain_roughness[0].setze_pos( koord(LEFT_ARROW,intTopOfButton) );
+	mountain_roughness[0].setze_typ( button_t::arrowleft );
+	mountain_roughness[0].add_listener( this );
+	add_komponente( mountain_roughness+0 );
+	mountain_roughness[1].setze_pos( koord(RIGHT_ARROW,intTopOfButton) );
+	mountain_roughness[1].setze_typ( button_t::arrowright );
+	mountain_roughness[1].add_listener( this );
+	add_komponente( mountain_roughness+1 );
+	intTopOfButton += 12;
 
-		switch(i)
-		{
-			case 7 :
-				intTopOfButton += 5;
-			break;
-			case 9 :
-				intTopOfButton += 5;
-			break;
-			case 17:
-				intTopOfButton += 5;
-				intLeftOfButton += 40;
-			break;
-			case 23:
-				intTopOfButton += 5;
-			break;
+	intTopOfButton += 5;
+	random_map.setze_pos( koord(11, intTopOfButton) );
+	random_map.setze_groesse( koord(104, BUTTON_HEIGHT) );
+	random_map.setze_typ(button_t::roundbox);
+	random_map.add_listener( this );
+	random_map.set_tooltip(translator::translate("chooses a random map"));
+	add_komponente( &random_map );
+	load_map.setze_pos( koord(104+11+30, intTopOfButton) );
+	load_map.setze_groesse( koord(104, BUTTON_HEIGHT) );
+	load_map.setze_typ(button_t::roundbox);
+	load_map.set_tooltip(translator::translate("load height data from file"));
+	load_map.add_listener( this );
+	add_komponente( &load_map );
+	intTopOfButton += BUTTON_HEIGHT;
+
+	// city stuff
+	intTopOfButton += 5;
+	number_of_towns[0].setze_pos( koord(LEFT_WIDE_ARROW,intTopOfButton) );
+	number_of_towns[0].setze_typ( button_t::arrowleft );
+	number_of_towns[0].add_listener( this );
+	add_komponente( number_of_towns+0 );
+	number_of_towns[1].setze_pos( koord(RIGHT_WIDE_ARROW,intTopOfButton) );
+	number_of_towns[1].setze_typ( button_t::arrowright );
+	number_of_towns[1].add_listener( this );
+	add_komponente( number_of_towns+1 );
+	intTopOfButton += 12;
+
+	town_size[0].setze_pos( koord(LEFT_WIDE_ARROW,intTopOfButton) );
+	town_size[0].setze_typ( button_t::arrowleft );
+	town_size[0].add_listener( this );
+	add_komponente( town_size+0 );
+	town_size[1].setze_pos( koord(RIGHT_WIDE_ARROW,intTopOfButton) );
+	town_size[1].setze_typ( button_t::arrowright );
+	town_size[1].add_listener( this );
+	add_komponente( town_size+1 );
+	intTopOfButton += 12;
+
+	intercity_road_len[0].setze_pos( koord(LEFT_WIDE_ARROW,intTopOfButton) );
+	intercity_road_len[0].setze_typ( button_t::arrowleft );
+	intercity_road_len[0].add_listener( this );
+	add_komponente( intercity_road_len+0 );
+	intercity_road_len[1].setze_pos( koord(RIGHT_WIDE_ARROW,intTopOfButton) );
+	intercity_road_len[1].setze_typ( button_t::arrowright );
+	intercity_road_len[1].add_listener( this );
+	add_komponente( intercity_road_len+1 );
+	intTopOfButton += 12;
+
+	traffic_desity[0].setze_pos( koord(LEFT_WIDE_ARROW,intTopOfButton) );
+	traffic_desity[0].setze_typ( button_t::arrowleft );
+	traffic_desity[0].add_listener( this );
+	add_komponente( traffic_desity+0 );
+	traffic_desity[1].setze_pos( koord(RIGHT_WIDE_ARROW,intTopOfButton) );
+	traffic_desity[1].setze_typ( button_t::arrowright );
+	traffic_desity[1].add_listener( this );
+	add_komponente( traffic_desity+1 );
+	intTopOfButton += 12;
+
+	// industry stuff
+	intTopOfButton += 5;
+	other_industries[0].setze_pos( koord(LEFT_WIDE_ARROW,intTopOfButton) );
+	other_industries[0].setze_typ( button_t::arrowleft );
+	other_industries[0].add_listener( this );
+	add_komponente( other_industries+0 );
+	other_industries[1].setze_pos( koord(RIGHT_WIDE_ARROW,intTopOfButton) );
+	other_industries[1].setze_typ( button_t::arrowright );
+	other_industries[1].add_listener( this );
+	add_komponente( other_industries+1 );
+	intTopOfButton += 12;
+
+	town_industries[0].setze_pos( koord(LEFT_WIDE_ARROW,intTopOfButton) );
+	town_industries[0].setze_typ( button_t::arrowleft );
+	town_industries[0].add_listener( this );
+	add_komponente( town_industries+0 );
+	town_industries[1].setze_pos( koord(RIGHT_WIDE_ARROW,intTopOfButton) );
+	town_industries[1].setze_typ( button_t::arrowright );
+	town_industries[1].add_listener( this );
+	add_komponente( town_industries+1 );
+	intTopOfButton += 12;
+
+	tourist_attractions[0].setze_pos( koord(LEFT_WIDE_ARROW,intTopOfButton) );
+	tourist_attractions[0].setze_typ( button_t::arrowleft );
+	tourist_attractions[0].add_listener( this );
+	add_komponente( tourist_attractions+0 );
+	tourist_attractions[1].setze_pos( koord(RIGHT_WIDE_ARROW,intTopOfButton) );
+	tourist_attractions[1].setze_typ( button_t::arrowright );
+	tourist_attractions[1].add_listener( this );
+	add_komponente( tourist_attractions+1 );
+	intTopOfButton += 12;
+
+	// other settings
+	intTopOfButton += 5;
+	use_intro_dates.setze_pos( koord(10,intTopOfButton) );
+	use_intro_dates.setze_typ( button_t::square );
+	use_intro_dates.add_listener( this );
+	add_komponente( &use_intro_dates );
+	intro_date[0].setze_pos( koord(LEFT_WIDE_ARROW,intTopOfButton) );
+	intro_date[0].setze_typ( button_t::arrowleft );
+	intro_date[0].add_listener( this );
+	add_komponente( intro_date+0 );
+	intro_date[1].setze_pos( koord(RIGHT_WIDE_ARROW,intTopOfButton) );
+	intro_date[1].setze_typ( button_t::arrowright );
+	intro_date[1].add_listener( this );
+	add_komponente( intro_date+1 );
+	intTopOfButton += 12;
+
+	intTopOfButton += 5;
+	allow_player_change.setze_pos( koord(10,intTopOfButton) );
+	allow_player_change.setze_typ( button_t::square );
+	allow_player_change.add_listener( this );
+	add_komponente( &allow_player_change );
+	intTopOfButton += 12;
+
+	// final stating buttons
+	intTopOfButton += 10;
+	load_game.setze_pos( koord(10, intTopOfButton) );
+	load_game.setze_groesse( koord(104, 14) );
+	load_game.setze_typ(button_t::roundbox);
+	load_game.add_listener( this );
+	add_komponente( &load_game );
+
+	// Start game
+	//----------------------
+	start_game.setze_pos( koord(104+11+30, intTopOfButton) );
+	start_game.setze_groesse( koord(104, 14) );
+	start_game.setze_typ(button_t::roundbox);
+	start_game.add_listener( this );
+	add_komponente( &start_game );
+
+	update_preview();
+	setze_opaque(true);
+}
+
+
+
+
+
+/**
+ * Calculates preview from height map
+ * @param filename name of heightfield file
+ * @author Hajo/prissi
+ */
+bool
+welt_gui_t::update_from_heightfield(const char *filename)
+{
+	DBG_MESSAGE("welt_gui_t::update_from_heightfield()",filename);
+	FILE *file = fopen(filename, "rb");
+	if(file) {
+		char buf [256];
+		int w, h;
+
+		read_line(buf, 255, file);
+		if(buf[0]!='P'  ||  buf[1]!='6') {
+			return false;
 		}
-    }
+
+		read_line(buf, 255, file);
+		sscanf(buf, "%d %d", &w, &h);
+
+		sets->setze_groesse_x(w);
+		sets->setze_groesse_y(h);
+
+		read_line(buf, 255, file);
+DBG_MESSAGE("welt_gui_t::update_from_heightfield()",buf);
+		if(buf[0]!='2'  ||  buf[1]!='5'  ||  buf[2]!='5') {
+			return false;
+		}
 
 
-    intTopOfButton += 10;
+		// ensure correct display under all circumstances
+		const float skip_x = (float)preview_size/(float)w;
+		const long skip_y = h>preview_size  ? h/preview_size :  1;
+		for(int karte_y=0, y=0; y<h  &&  karte_y<preview_size; y++) {
+			// new line?
+			if(y%skip_y==0) {
+				int karte_x=0;
+				float rest_x=0.0;
 
-    // 28-Oct-2001 Markus Weber  added Button
+				for(int x=0; x<w; x++) {
+					sint16 R = (unsigned char)fgetc(file);
+					sint16 G = (unsigned char)fgetc(file);
+					sint16 B = (unsigned char)fgetc(file);
 
-    // Random map
-    //----------------------
-    button_def.setze_pos( koord(10, intTopOfButton) );
-    button_def.setze_groesse( koord(104, 14) );
-    button_def.setze_typ(button_t::roundbox);
-    buttons.append(button_def);
-    intTopOfButton += 23;
+					while(karte_x<=rest_x  &&  karte_x<preview_size) {
+						karte[(karte_y*preview_size)+karte_x] = reliefkarte_t::calc_hoehe_farbe( (((R*2+G*3+B)/4 - 224+16)&(sint16)0xFFF0), sets->gib_grundwasser() );
+						karte_x ++;
+					}
+					rest_x += skip_x;
+				}
+				karte_y++;
+			}
+			else {
+				// just skip it
+				fseek(file,3*w, SEEK_CUR);
+			}
+		}
 
-    // single line switch button
-    //----------------------
+		// blow up y direction
+		if(h<preview_size) {
+			const long repeat_y = preview_size/h;
+			for(int oy=h-1, y=preview_size-1;  oy>0;  oy--  ) {
+				for( int i=0;  i<=repeat_y  &&  y>0;  i++  ) {
+					memcpy( karte+y, karte+oy, 3*preview_size );
+					y --;
+				}
+			}
+		}
 
-    button_def.setze_pos( koord(10, intTopOfButton) );
-    button_def.setze_typ(button_t::square);
-    buttons.append(button_def);
-    intTopOfButton += 12;
-
-    button_def.setze_pos( koord(10, intTopOfButton) );
-    button_def.setze_typ(button_t::square);
-    buttons.append(button_def);
-    intTopOfButton += 12;
-
-    button_def.setze_pos( koord(10, intTopOfButton) );
-    button_def.setze_typ(button_t::square);
-    buttons.append(button_def);
-    intTopOfButton += 28 ;
-
-
-    // Load game
-    //----------------------
-    button_def.setze_pos( koord(10, intTopOfButton) );
-    button_def.setze_groesse( koord(104, 14) );
-    button_def.setze_typ(button_t::roundbox);
-    buttons.append(button_def);
-    intTopOfButton += 18;
-
-    // Start game
-    //----------------------
-
-    button_def.setze_pos( koord(10, intTopOfButton) );
-    button_def.setze_groesse( koord(104, 14) );
-    button_def.setze_typ(button_t::roundbox);
-    buttons.append(button_def);
-
-
-    // Quit
-    //----------------------
-
-    button_def.setze_pos( koord(104+11+20, intTopOfButton) );
-    button_def.setze_groesse( koord(104, 14) );
-    button_def.setze_typ(button_t::roundbox);
-    buttons.append(button_def);
-
-    // Load relief
-    //----------------------
-
-    button_def.setze_pos( koord(104+11+20, intTopOfButton-18) );
-    button_def.setze_groesse( koord(104, 14) );
-    button_def.setze_typ(button_t::roundbox);
-    buttons.append(button_def);
-
-    update_preview();
+DBG_MESSAGE("welt_gui_t::update_from_heightfield()","success (%5f,%5f)",skip_x,skip_y);
+		fclose(file);
+		return true;
+	}
+	return false;
 }
 
-welt_gui_t::~welt_gui_t()
-{
-}
+
+
+
 
 /**
  * Berechnet Preview-Karte neu. Inititialisiert RNG neu!
@@ -162,263 +344,232 @@ welt_gui_t::update_preview()
 	const int mx = sets->gib_groesse_x()/preview_size;
 	const int my = sets->gib_groesse_y()/preview_size;
 
-	unsigned long old_seed = setsimrand( 0xFFFFFFFF, sets->gib_karte_nummer() );
-
+	setsimrand( 0xFFFFFFFF, sets->gib_karte_nummer() );
 	for(int j=0; j<preview_size; j++) {
 		for(int i=0; i<preview_size; i++) {
 			karte[j*preview_size+i] = reliefkarte_t::calc_hoehe_farbe(karte_t::perlin_hoehe(i*mx, j*my, sets->gib_map_roughness(), sets->gib_max_mountain_height())+16, sets->gib_grundwasser());
 		}
 	}
-//	setsimrand( 0xFFFFFFFF, old_seed );
+	sets->heightfield = "";
+	loaded_heightfield = false;
 }
 
-
-
-const char *
-welt_gui_t::gib_name() const
-{
-    return "Neue Welt";
-}
-
-int welt_gui_t::gib_bild() const
-{
-    return IMG_LEER;
-}
-
-koord welt_gui_t::gib_bild_offset() const {  return koord(-12,16); }
-
-
-void welt_gui_t::info(cbuffer_t &) const
-{
-}
 
 
 koord welt_gui_t::gib_fenstergroesse() const
 {
-    return koord(250, 304+48);
+    return koord(260, 300);
 }
 
-void welt_gui_t::infowin_event(const event_t *ev)
-{
-    infowin_t::infowin_event(ev);
-
-    if(IS_LEFTCLICK(ev) || IS_LEFTREPEAT(ev)) {
-	if(buttons.at(0).getroffen(ev->cx, ev->cy)) {
-	    if(sets->gib_karte_nummer() > -2500 ) {
-		sets->setze_starting_year( sets->gib_starting_year() - 1 );
-		update_preview();
-	    }
-	} else if(buttons.at(1).getroffen(ev->cx, ev->cy)) {
-	    if(sets->gib_karte_nummer() <2500 ) {
-	      sets->setze_starting_year( sets->gib_starting_year() + 1 );
-	      update_preview();
-	   }
-	} else if(buttons.at(2).getroffen(ev->cx, ev->cy)) {
-	      sets->setze_use_timeline( !sets->gib_use_timeline() );
-
-	} else if(buttons.at(3).getroffen(ev->cx, ev->cy)) {
-	    if(sets->gib_karte_nummer() > 0 ) {
-		sets->setze_karte_nummer( sets->gib_karte_nummer() - 1 );
-		update_preview();
-	    }
-	} else if(buttons.at(4).getroffen(ev->cx, ev->cy)) {
-	    if(sets->gib_karte_nummer() <9999 ) {
-	      sets->setze_karte_nummer( sets->gib_karte_nummer() + 1 );
-	      update_preview();
-	   }
-
-	} else if(buttons.at(5).getroffen(ev->cx, ev->cy)) {
-	    if(sets->gib_groesse_x() > 64 ) {
-		sets->setze_groesse_x( sets->gib_groesse_x() - 64 );
-		update_preview();
-	    }
-
-	} else if(buttons.at(6).getroffen(ev->cx, ev->cy)) {
-	    if(sets->gib_groesse_x() < 4096 ) {
-		sets->setze_groesse_x( sets->gib_groesse_x() + 64 );
-		update_preview();
-	    }
-	} else if(buttons.at(7).getroffen(ev->cx, ev->cy)) {
-	    if(sets->gib_groesse_y() > 64 ) {
-		sets->setze_groesse_y( sets->gib_groesse_y() - 64 );
-		update_preview();
-	    }
-
-	} else if(buttons.at(8).getroffen(ev->cx, ev->cy)) {
-	    if(sets->gib_groesse_y() < 4096 ) {
-		sets->setze_groesse_y( sets->gib_groesse_y() + 64 );
-		update_preview();
-	    }
-
-	} else if(buttons.at(9).getroffen(ev->cx, ev->cy)) {
-	    if(sets->gib_anzahl_staedte() > 0 ) {
-		sets->setze_anzahl_staedte( sets->gib_anzahl_staedte() - 1 );
-	    }
-	} else if(buttons.at(10).getroffen(ev->cx, ev->cy)) {
-	    // die Anzahl der städte is auf 64 begrenzt, da die stadtnummern
-	    // modulo 64 gerechnet werden beim step der staedte
-	    if(sets->gib_anzahl_staedte() < 64 ) {
-		sets->setze_anzahl_staedte( sets->gib_anzahl_staedte() + 1 );
-	    }
-	} else if(buttons.at(11).getroffen(ev->cx, ev->cy)) {
-	    if(sets->gib_verkehr_level() < 16 ) {
-		sets->setze_verkehr_level( sets->gib_verkehr_level() + 1 );
-	    }
-
-	} else if(buttons.at(12).getroffen(ev->cx, ev->cy)) {
-	    if(sets->gib_verkehr_level() > 0 ) {
-		sets->setze_verkehr_level( sets->gib_verkehr_level() - 1 );
-	    }
-
-            // Button 'Grundwasser'                                            // 25-Nov-01        Markus Weber    Added
-  	} else if(buttons.at(13).getroffen(ev->cx, ev->cy)) {
-	    if(sets->gib_grundwasser() > -160 ) {
-		sets->setze_grundwasser( sets->gib_grundwasser() - 32 );
-                update_preview();
-	    }
-
-	} else if(buttons.at(14).getroffen(ev->cx, ev->cy)) {
-	    if(sets->gib_grundwasser() < 0 ) {
-		sets->setze_grundwasser( sets->gib_grundwasser() + 32 );
-                update_preview();
-	    }
-
-
-            // Button 'Max. Mountain height'                                             // 01-Dec-01        Markus Weber    Added
-  	} else if(buttons.at(15).getroffen(ev->cx, ev->cy)) {
-	    if(sets->gib_max_mountain_height() > 0.0 ) {
-		sets->setze_max_mountain_height( sets->gib_max_mountain_height() - 10 );
-                update_preview();
-	    }
-
-   	} else if(buttons.at(16).getroffen(ev->cx, ev->cy)) {
-	    if(sets->gib_max_mountain_height() < 320.0 ) {
-		sets->setze_max_mountain_height( sets->gib_max_mountain_height() + 10 );
-                update_preview();
-	    }
-
-
-                // Button 'Map roughness'                                             // 01-Dec-01        Markus Weber    Added
-
-          // values of 0.5 .. 0.7 seem to be ok, less is boring flat, more is too crumbled
-
-  	} else if(buttons.at(17).getroffen(ev->cx, ev->cy)) {
-	    if(sets->gib_map_roughness() > 0.4 ) {
-		sets->setze_map_roughness( sets->gib_map_roughness() - 0.1 );
-                update_preview();
-	    }
-
-   	} else if(buttons.at(18).getroffen(ev->cx, ev->cy)) {
-	    if(sets->gib_map_roughness() < 0.7 ) {
-		sets->setze_map_roughness( sets->gib_map_roughness() + 0.1 );
-                update_preview();
-	    }
-
-	// finer industrie and tourist settings
-	} else if(buttons.at(19).getroffen(ev->cx, ev->cy)) {
-	    if(sets->gib_land_industry_chains() > 0) {
-		sets->setze_land_industry_chains( sets->gib_land_industry_chains() -1 );
-	    }
-	} else if(buttons.at(20).getroffen(ev->cx, ev->cy)) {
-	    if(sets->gib_land_industry_chains() < 100) {
-		sets->setze_land_industry_chains( sets->gib_land_industry_chains() + 1 );
-	    }
-	} else if(buttons.at(21).getroffen(ev->cx, ev->cy)) {
-	    if(sets->gib_city_industry_chains() > 0) {
-		sets->setze_city_industry_chains( sets->gib_city_industry_chains() - 1 );
-	    }
-	} else if(buttons.at(22).getroffen(ev->cx, ev->cy)) {
-	    if(sets->gib_city_industry_chains() < 100 ) {
-		sets->setze_city_industry_chains( sets->gib_city_industry_chains() + 1 );
-	    }
-	} else if(buttons.at(23).getroffen(ev->cx, ev->cy)) {
-	    if(sets->gib_tourist_attractions() > 0) {
-		sets->setze_tourist_attractions( sets->gib_tourist_attractions() - 1 );
-	    }
-	} else if(buttons.at(24).getroffen(ev->cx, ev->cy)) {
-	    if(sets->gib_tourist_attractions() < 500) {
-		sets->setze_tourist_attractions( sets->gib_tourist_attractions() + 1 );
-	    }
-	} else if(buttons.at(25).getroffen(ev->cx, ev->cy)) {
-	    if(sets->gib_mittlere_einwohnerzahl() > 0) {
-		sets->setze_mittlere_einwohnerzahl( sets->gib_mittlere_einwohnerzahl() - 25 );
-	    }
-	} else if(buttons.at(26).getroffen(ev->cx, ev->cy)) {
-	    if(sets->gib_mittlere_einwohnerzahl() < 15000) {
-		sets->setze_mittlere_einwohnerzahl( sets->gib_mittlere_einwohnerzahl() + 25 );
-	    }
-
-	    // Button 'Random map'                                                      // 28-Oct-2001 Markus Weber Added
-	} else if(buttons.at(27).getroffen(ev->cx, ev->cy)) {
-		sets->setze_karte_nummer(simrand(9999));
-		update_preview();
-
-
-	} else if(buttons.at(28).getroffen(ev->cx, ev->cy)) {
-	    sets->setze_show_pax( !sets->gib_show_pax() );
-
-	} else if(buttons.at(29).getroffen(ev->cx, ev->cy)) {
-            umgebung_t::night_shift = !umgebung_t::night_shift;
-	} else if(buttons.at(30).getroffen(ev->cx, ev->cy)) {
-	      sets->setze_allow_player_change( !sets->gib_allow_player_change() );
-
-	}  else if(buttons.at(31).getroffen(ev->mx, ev->my)) {
-	    if (IS_LEFTCLICK(ev)) {
-		load = true;
-	    }
-	}  else if(buttons.at(32).getroffen(ev->mx, ev->my)) {
-	    if (IS_LEFTCLICK(ev)) {
-		start = true;
-	    }
-	}  else if(buttons.at(33).getroffen(ev->mx, ev->my)) {
-	    if (IS_LEFTCLICK(ev)) {
-		quit = true;
-	    }
-	} else if(buttons.at(34).getroffen(ev->mx, ev->my)) {
-	    if (IS_LEFTCLICK(ev)) {
-		load_heightfield = true;
-	    }
-	}
-    }
-    else if(ev->ev_class == INFOWIN &&
-	    ev->ev_code == WIN_CLOSE) {
-	close = true;
-    }
-}
 
 
 /**
- *
+ * This method is called if an action is triggered
  * @author Hj. Malthaner
- * @return einen Vector von Buttons fuer das Beobachtungsfenster
  */
-vector_tpl<button_t>*
-welt_gui_t::gib_fensterbuttons()
+bool
+welt_gui_t::action_triggered(gui_komponente_t *komp)
 {
-	// enforce timeline
-    buttons.at(2).pressed = sets->gib_use_timeline();
-    buttons.at(2).text = translator::translate("Use timeline start year"),
-
-      //28-Oct-2001 Markus Weber added button
-    buttons.at(27).text = translator::translate("Random map");
-
-    // setze variable anteile der Buttons
-    buttons.at(28).pressed = sets->gib_show_pax();
-    buttons.at(28).text = translator::translate("7WORLD_CHOOSE"),
-
-    buttons.at(29).pressed = umgebung_t::night_shift;
-    buttons.at(29).text = translator::translate("8WORLD_CHOOSE"),
-
-    buttons.at(30).pressed = sets->gib_allow_player_change();
-    buttons.at(30).text = translator::translate("Allow player change"),
-
-    buttons.at(31).text = translator::translate("Lade Spiel");
-    buttons.at(32).text = translator::translate("Starte Spiel");
-    buttons.at(33).text = translator::translate("Beenden");
-    buttons.at(34).text = translator::translate("Lade Relief");
-
-    return &buttons;
+	if(komp==map_number+0) {
+		if(sets->gib_karte_nummer() > 0 ) {
+			sets->setze_karte_nummer( sets->gib_karte_nummer() - 1 );
+			update_preview();
+		}
+	}
+	else if(komp==map_number+1) {
+		if(sets->gib_karte_nummer() < 9999 ) {
+			sets->setze_karte_nummer( sets->gib_karte_nummer() + 1 );
+			update_preview();
+		}
+	}
+	else if(komp==x_size+0) {
+		if(sets->gib_groesse_x() > 512 ) {
+			sets->setze_groesse_x( (sets->gib_groesse_x()-1)&0x1F80 );
+			update_preview();
+		} else if(sets->gib_groesse_x() > 64 ) {
+			sets->setze_groesse_x( (sets->gib_groesse_x()-1)&0x1FC0 );
+			update_preview();
+		}
+	}
+	else if(komp==x_size+1) {
+		if(sets->gib_groesse_x() < 512 ) {
+			sets->setze_groesse_x( (sets->gib_groesse_x()+64)&0x1FC0 );
+			update_preview();
+		} else if(sets->gib_groesse_x() < 4096 ) {
+			sets->setze_groesse_x( (sets->gib_groesse_x()+128)&0x1F80 );
+			update_preview();
+		}
+	}
+	else if(komp==y_size+0) {
+		if(sets->gib_groesse_y() > 512 ) {
+			sets->setze_groesse_y( (sets->gib_groesse_y()-1)&0x1F80 );
+			update_preview();
+		} else if(sets->gib_groesse_y() > 64 ) {
+			sets->setze_groesse_y( (sets->gib_groesse_y()-1)&0x1FC0 );
+			update_preview();
+		}
+	}
+	else if(komp==y_size+1) {
+		if(sets->gib_groesse_y() < 512 ) {
+			sets->setze_groesse_y( (sets->gib_groesse_y()+64)&0x1FC0 );
+			update_preview();
+		} else if(sets->gib_groesse_y() < 4096 ) {
+			sets->setze_groesse_y( (sets->gib_groesse_y()+128)&0x1F80 );
+			update_preview();
+		}
+	}
+	else if(komp==water_level+0) {
+		if(sets->gib_grundwasser() > -160 ) {
+			sets->setze_grundwasser( sets->gib_grundwasser() - 32 );
+			if(loaded_heightfield) {
+				loaded_heightfield = 0;
+			}
+			else {
+				update_preview();
+			}
+		}
+	}
+	else if(komp==water_level+1) {
+		if(sets->gib_grundwasser() < 0 ) {
+			sets->setze_grundwasser( sets->gib_grundwasser() + 32 );
+			if(loaded_heightfield) {
+				loaded_heightfield = 0;
+			}
+			else {
+				update_preview();
+			}
+		}
+	}
+	else if(komp==mountain_height+0) {
+		if(sets->gib_max_mountain_height() > 0.0 ) {
+			sets->setze_max_mountain_height( sets->gib_max_mountain_height() - 10 );
+			update_preview();
+		}
+	}
+	else if(komp==mountain_height+1) {
+		if(sets->gib_max_mountain_height() < 320.0 ) {
+			sets->setze_max_mountain_height( sets->gib_max_mountain_height() + 10 );
+			update_preview();
+		}
+	}
+	else if(komp==mountain_roughness+0) {
+		if(sets->gib_map_roughness() > 0.4 ) {
+			sets->setze_map_roughness( sets->gib_map_roughness() - 0.05 );
+			update_preview();
+		}
+	}
+	else if(komp==mountain_roughness+1) {
+#ifndef DOUBLE_GROUNDS
+		if(sets->gib_map_roughness() < 0.7 ) {
+#else
+		if(sets->gib_map_roughness() < 1.00) {
+#endif
+			sets->setze_map_roughness( sets->gib_map_roughness() + 0.05 );
+			update_preview();
+		}
+	}
+	else if(komp==number_of_towns+0) {
+		if(sets->gib_anzahl_staedte()>0 ) {
+			sets->setze_anzahl_staedte( sets->gib_anzahl_staedte() - 1 );
+		}
+	}
+	else if(komp==number_of_towns+1) {
+		sets->setze_anzahl_staedte( sets->gib_anzahl_staedte() + 1 );
+	}
+	else if(komp==town_size+0) {
+	}
+	else if(komp==town_size+1) {
+	}
+	else if(komp==intercity_road_len+0) {
+		umgebung_t::intercity_road_length -= 100;
+		if(umgebung_t::intercity_road_length<0) {
+			umgebung_t::intercity_road_length = 0;
+		}
+	}
+	else if(komp==intercity_road_len+1) {
+		umgebung_t::intercity_road_length += 100;
+	}
+	else if(komp==traffic_desity+0) {
+		if(sets->gib_verkehr_level() > 0 ) {
+			sets->setze_verkehr_level( sets->gib_verkehr_level() - 1 );
+		}
+	}
+	else if(komp==traffic_desity+1) {
+		if(sets->gib_verkehr_level() < 16 ) {
+			sets->setze_verkehr_level( sets->gib_verkehr_level() + 1 );
+		}
+	}
+	else if(komp==other_industries+0) {
+		if(sets->gib_land_industry_chains() > 0) {
+			sets->setze_land_industry_chains( sets->gib_land_industry_chains() -1 );
+		}
+	}
+	else if(komp==other_industries+1) {
+		sets->setze_land_industry_chains( sets->gib_land_industry_chains() + 1 );
+	}
+	else if(komp==town_industries+0) {
+		if(sets->gib_city_industry_chains() > 0) {
+			sets->setze_city_industry_chains( sets->gib_city_industry_chains() - 1 );
+		}
+	}
+	else if(komp==town_industries+1) {
+		sets->setze_city_industry_chains( sets->gib_city_industry_chains() + 1 );
+	}
+	else if(komp==tourist_attractions+0) {
+		if(sets->gib_tourist_attractions() > 0) {
+			sets->setze_tourist_attractions( sets->gib_tourist_attractions() - 1 );
+		}
+	}
+	else if(komp==tourist_attractions+1) {
+		sets->setze_tourist_attractions( sets->gib_tourist_attractions() + 1 );
+	}
+	else if(komp==intro_date+0) {
+		sets->setze_starting_year( sets->gib_starting_year() - 1 );
+	}
+	else if(komp==intro_date+1) {
+		sets->setze_starting_year( sets->gib_starting_year() + 1 );
+	}
+	else if(komp==&random_map) {
+		sets->setze_karte_nummer(simrand(9999));
+		update_preview();
+	}
+	else if(komp==&load_map) {
+		// load relief
+		loaded_heightfield = false;
+		sets->heightfield = "";
+		create_win(new load_relief_frame_t(welt, sets), w_info, magic_load_t);
+	}
+	else if(komp==&use_intro_dates) {
+		sets->setze_use_timeline( !sets->gib_use_timeline() );
+	}
+	else if(komp==&allow_player_change) {
+		sets->setze_allow_player_change( !sets->gib_allow_player_change() );
+	}
+	else if(komp==&load_game) {
+		load = true;
+	}
+	else if(komp==&start_game) {
+		if(loaded_heightfield) {
+			load_heightfield = true;
+		}
+		else {
+			start = true;
+		}
+	}
+	return true;
 }
+
+
+
+void welt_gui_t::infowin_event(const event_t *ev)
+{
+	gui_frame_t::infowin_event(ev);
+
+	if(ev->ev_class==INFOWIN  &&  ev->ev_code==WIN_CLOSE) {
+		close = true;
+	}
+}
+
 
 
 static char *ntos(int number, const char *format)
@@ -440,90 +591,93 @@ static char *ntos(int number, const char *format)
 
 void welt_gui_t::zeichnen(koord pos, koord gr)
 {
-  const int x = pos.x;
-  const int y = pos.y;
+	if(!loaded_heightfield  && sets->heightfield.len()!=0) {
+		if(update_from_heightfield(sets->heightfield)) {
+			loaded_heightfield = true;
+		}
+		else {
+			sets->heightfield = "";
+		}
+	}
+	use_intro_dates.pressed = sets->gib_use_timeline();
+	allow_player_change.pressed = sets->gib_allow_player_change();
 
-  char buf[256];
+	if(old_lang!=translator::get_language()) {
+		// update button texts!
+		random_map.setze_text(translator::translate("Random map"));
+		load_map.setze_text(translator::translate("Lade Relief"));
+		use_intro_dates.setze_text(translator::translate("Use timeline start year"));
+		allow_player_change.setze_text(translator::translate("Allow player change"));
+		load_game.setze_text(translator::translate("Lade Spiel"));
+		start_game.setze_text(translator::translate("Starte Spiel"));
+//		quit_game.setze_text(translator::translate("Beenden"));
+		old_lang = translator::get_language();
+	}
 
-  infowin_t::zeichnen(pos, gr);
+	gui_frame_t::zeichnen(pos, gr);
 
-  display_ddd_box_clip(x+10, y+40, 230, 0, MN_GREY0, MN_GREY4);
-  display_ddd_box_clip(x+10, y+307, 230, 0, MN_GREY0, MN_GREY4);
+	char buf[256];
+	const int x = pos.x+10;
+	int y = pos.y+16+START_HEIGHT;
 
-  display_proportional_clip(x+10, y+22, translator::translate("1WORLD_CHOOSE"),ALIGN_LEFT, SCHWARZ, true);
+	display_proportional_clip(x, y-20, translator::translate("1WORLD_CHOOSE"),ALIGN_LEFT, SCHWARZ, true);
+	display_ddd_box_clip(x, y-5, 240, 0, MN_GREY0, MN_GREY4);		// seperator
 
-  int yo = y+60+4;
+	display_ddd_box_clip(x+173, y, preview_size+2, preview_size+2, MN_GREY0,MN_GREY4);
+	display_array_wh(x+174, y+1, preview_size, preview_size, karte);
 
-  display_proportional_clip(x+200, yo-17, ntos(sets->gib_starting_year(), "%3d"), ALIGN_MIDDLE, WEISS, true);
+	display_proportional_clip(x, y, translator::translate("2WORLD_CHOOSE"), ALIGN_LEFT, SCHWARZ, true);
+	display_proportional_clip(x+TEXT_RIGHT, y, ntos(sets->gib_karte_nummer(), "%3d"), ALIGN_RIGHT, WEISS, true);
+	y += 12;
 
-  display_proportional_clip(x+10, yo, translator::translate("2WORLD_CHOOSE"),
-		       ALIGN_LEFT, SCHWARZ, true);
-  display_proportional_clip(x+137, yo, ntos(sets->gib_karte_nummer(), "%3d"),
-		       ALIGN_MIDDLE, WEISS, true);
+	const int x2 = sets->gib_groesse_x() * sets->gib_groesse_y();
+	const int memory = 12 + x2/8192;
+	sprintf(buf, translator::translate("3WORLD_CHOOSE"), memory);
+	display_proportional_clip(x, y, buf, ALIGN_LEFT, SCHWARZ, true);
+	display_proportional_clip(x+TEXT_RIGHT, y, ntos(sets->gib_groesse_x(), "%3d"), ALIGN_RIGHT, WEISS, true);
+	y += 12;
+	display_proportional_clip(x+TEXT_RIGHT, y, ntos(sets->gib_groesse_y(), "%3d"), ALIGN_RIGHT, WEISS, true);
+	y += 12+5;
 
+      // water level       18-Nov-01       Markus W. Added
+	display_proportional_clip(x, y, translator::translate("Water level"), ALIGN_LEFT, SCHWARZ, true);
+	display_proportional_clip(x+TEXT_RIGHT, y, ntos(sets->gib_grundwasser()/32+5,"%3d"), ALIGN_RIGHT, WEISS, true);
+	y += 12;
+	display_proportional_clip(x, y, translator::translate("Mountain height"), ALIGN_LEFT, SCHWARZ, true);
+	display_proportional_clip(x+TEXT_RIGHT, y, ntos((int)(sets->gib_max_mountain_height()), "%3d"), ALIGN_RIGHT, WEISS, true);
+	y += 12;
+	display_proportional_clip(x, y, translator::translate("Map roughness"), ALIGN_LEFT, SCHWARZ, true);
+	display_proportional_clip(x+TEXT_RIGHT, y, ntos((int)(sets->gib_map_roughness()*20.0 + 0.5)-8 , "%3d") , ALIGN_RIGHT, WEISS, true);     // x = round(roughness * 10)-4  // 0.6 * 10 - 4 = 2    //29-Nov-01     Markus W. Added
+	y += 12+5;
 
-  const int x2 = sets->gib_groesse_x() * sets->gib_groesse_y();
-  const int memory = 12 + x2/8192;
+	y += BUTTON_HEIGHT+5;	// buttons
 
-  sprintf(buf, translator::translate("3WORLD_CHOOSE"), memory);
+	display_proportional_clip(x, y, translator::translate("5WORLD_CHOOSE"), ALIGN_LEFT, SCHWARZ, true);
+	display_proportional_clip(x+TEXT_WIDE_RIGHT, y, ntos(sets->gib_anzahl_staedte(), "%3d"), ALIGN_RIGHT, WEISS, true);
+	y += 12;
+	display_proportional_clip(x, y, translator::translate("Median Citizen per town"), ALIGN_LEFT, SCHWARZ, true);
+	display_proportional_clip(x+TEXT_WIDE_RIGHT, y, ntos(sets->gib_mittlere_einwohnerzahl(),"%3d"),ALIGN_RIGHT, WEISS, true);
+	y += 12;
+	display_proportional_clip(x, y, translator::translate("Intercity road len:"), ALIGN_LEFT, SCHWARZ, true);
+	display_proportional_clip(x+TEXT_WIDE_RIGHT, y, ntos(umgebung_t::intercity_road_length,"%3d"),ALIGN_RIGHT, WEISS, true);
+	y += 12;
+	display_proportional_clip(x, y, translator::translate("6WORLD_CHOOSE"), ALIGN_LEFT, SCHWARZ, true);
+	display_proportional_clip(x+TEXT_WIDE_RIGHT, y, ntos(16 - sets->gib_verkehr_level(),"%3d"), ALIGN_RIGHT, WEISS, true);
+	y += 12+5;
 
-  display_proportional_clip(x+10, yo+12, buf,
-		       ALIGN_LEFT, SCHWARZ, true);
+	display_proportional_clip(x, y, translator::translate("Land industries"), ALIGN_LEFT, SCHWARZ, true);
+	display_proportional_clip(x+TEXT_WIDE_RIGHT, y, ntos(sets->gib_land_industry_chains(),"%3d"), ALIGN_RIGHT, WEISS, true);
+	y += 12;
+	display_proportional_clip(x, y, translator::translate("City industries"), ALIGN_LEFT, SCHWARZ, true);
+	display_proportional_clip(x+TEXT_WIDE_RIGHT, y, ntos(sets->gib_city_industry_chains(),"%3d"), ALIGN_RIGHT, WEISS, true);
+	y += 12;
+	display_proportional_clip(x, y, translator::translate("Tourist attractions"), ALIGN_LEFT, SCHWARZ, true);
+	display_proportional_clip(x+TEXT_WIDE_RIGHT, y, ntos(sets->gib_tourist_attractions(),"%3d"), ALIGN_RIGHT, WEISS, true);
+	y += 12+5;
 
-  display_proportional_clip(x+137, yo+12, ntos(sets->gib_groesse_x(), "%3d"),
-		       ALIGN_MIDDLE, WEISS, true);
-  display_proportional_clip(x+137, yo+24, ntos(sets->gib_groesse_y(), "%3d"),
-		       ALIGN_MIDDLE, WEISS, true);
+	display_proportional_clip(x+TEXT_WIDE_RIGHT, y, ntos(sets->gib_starting_year(), "%3d"), ALIGN_RIGHT, WEISS, true);
+	y += 12+5;
+	y += 12+5;
 
-  display_proportional_clip(x+10, yo+41, translator::translate("5WORLD_CHOOSE"),
-		       ALIGN_LEFT, SCHWARZ, true);
-  display_proportional_clip(x+137, yo+41, ntos(sets->gib_anzahl_staedte(), "%3d"),
-			 ALIGN_MIDDLE, WEISS, true);
-  display_proportional_clip(x+10, yo+58, translator::translate("6WORLD_CHOOSE"),
-		       ALIGN_LEFT, SCHWARZ, true);
-  display_proportional_clip(x+137, yo+58, ntos(16 - sets->gib_verkehr_level(),"%3d"),
-			 ALIGN_MIDDLE, WEISS, true);
-
-
-        // water level       18-Nov-01       Markus W. Added
-  display_proportional_clip(x+10, yo+70, translator::translate("Water level"),
-		       ALIGN_LEFT, SCHWARZ, true);
-  display_proportional_clip(x+137, yo+70, ntos(sets->gib_grundwasser()/32+5,"%3d"),
-  			ALIGN_MIDDLE, WEISS, true);
-
-
-        // Height of mountains       29-Nov-01       Markus W. Added
-  display_proportional_clip(x+10, yo+82, translator::translate("Mountain height"),
-		       ALIGN_LEFT, SCHWARZ, true);
-  display_proportional_clip(x+137, yo+82, ntos((int)(sets->gib_max_mountain_height()),
-"%3d"), ALIGN_MIDDLE, WEISS, true);
-
-
-        // roughness of mountains       29-Nov-01       Markus W. Added
-  display_proportional_clip(x+10, yo+94, translator::translate("Map roughness"),
-		       ALIGN_LEFT, SCHWARZ, true);
-
-  display_proportional_clip(x+137, yo+94, ntos((int)(sets->gib_map_roughness()*10.0 + 0.5)-4 ,
-"%3d") , ALIGN_MIDDLE, WEISS, true);     // x = round(roughness * 10)-4  // 0.6 * 10 - 4 = 2    //29-Nov-01     Markus W. Added
-
-
-  display_proportional_clip(x+10, yo+111, translator::translate("Land industries"),
-		       ALIGN_LEFT, SCHWARZ, true);
-  display_proportional_clip(x+137+40, yo+111, ntos(sets->gib_land_industry_chains(),"%3d"),
-  			 ALIGN_MIDDLE, WEISS, true);
-  display_proportional_clip(x+10, yo+123, translator::translate("City industries"),
-		       ALIGN_LEFT, SCHWARZ, true);
-  display_proportional_clip(x+137+40, yo+123, ntos(sets->gib_city_industry_chains(),"%3d"),
-  			 ALIGN_MIDDLE, WEISS, true);
-  display_proportional_clip(x+10, yo+135, translator::translate("Tourist attractions"),
-		       ALIGN_LEFT, SCHWARZ, true);
-  display_proportional_clip(x+137+40, yo+135, ntos(sets->gib_tourist_attractions(),"%3d"),
-  			 ALIGN_MIDDLE, WEISS, true);
-  display_proportional_clip(x+10, yo+152, translator::translate("Median Citizen per town"),
-		       ALIGN_LEFT, SCHWARZ, true);
-  display_proportional_clip(x+137+50, yo+152, ntos(sets->gib_mittlere_einwohnerzahl(),"%3d"),
-  			 ALIGN_MIDDLE, WEISS, true);
-
-  display_ddd_box_clip(x+173, yo+2, preview_size+2, preview_size+2, MN_GREY0,MN_GREY4);
-  display_array_wh(x+174, yo+3, preview_size, preview_size, karte);
+	display_ddd_box_clip(x, y, 240, 0, MN_GREY0, MN_GREY4);
 }

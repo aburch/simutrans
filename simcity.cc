@@ -59,7 +59,6 @@
 #include "tpl/slist_mit_gewichten_tpl.h"
 #include "tpl/minivec_tpl.h"
 
-#include "utils/cstring_t.h"
 #include "utils/cbuffer_t.h"
 #include "utils/simstring.h"
 
@@ -317,6 +316,9 @@ stadt_t::~stadt_t()
 
 
 stadt_t::stadt_t(karte_t *wl, spieler_t *sp, koord pos,int citizens) :
+#ifdef COUNT_HOUSES
+	buildings(16),
+#endif
     pax_ziele_alt(96, 96),
     pax_ziele_neu(96, 96),
     arbeiterziele(4)
@@ -412,6 +414,9 @@ DBG_MESSAGE("stadt_t::stadt_t()","founding new city named '%s'",name);
 
 
 stadt_t::stadt_t(karte_t *wl, loadsave_t *file) :
+#ifdef COUNT_HOUSES
+	buildings(16),
+#endif
 	pax_ziele_alt(96, 96),
 	pax_ziele_neu(96, 96),
 	arbeiterziele(4)
@@ -514,6 +519,46 @@ DBG_DEBUG("stadt_t::rdwr()","is old version: No history!");
 }
 
 
+
+
+#ifdef COUNT_HOUSES
+// recalculate house informations (used for target selection)
+void
+stadt_t::recount_houses()
+{
+	buildings.clear();
+	for( sint16 y=ob;  y<=un;  y++  ) {
+		for( sint16 x=li;  x<=re; x++  ) {
+			grund_t *gr=welt->lookup(koord(x,y))->gib_kartenboden();
+			gebaeude_t *gb=dynamic_cast<gebaeude_t *>(gr->obj_bei(0));
+			if(gb  &&  (gb->ist_rathaus()  ||  gb->gib_haustyp()!=gebaeude_t::unbekannt)  && welt->suche_naechste_stadt(koord(x,y))==this) {
+				// no attraction, just normal buidlings or townhall
+				buildings.append(gb,gb->gib_tile()->gib_besch()->gib_level()+1,16);
+			}
+		}
+	}
+}
+
+
+
+// remoes this building (called when removed by player)
+void
+stadt_t::remove_building(gebaeude_t *gb)
+{
+	if(gb) {
+/* Arbeitslosenzahl erhöhen ...
+		int level=gb->gib_tile()->gib_besch()->gib_level();
+		switch(gb->gib_haustyp()) {
+			case gebaeude_t::
+		}
+*/
+		buildings.remove(gb);
+	}
+}
+#endif
+
+
+
 /**
  * Wird am Ende der Laderoutine aufgerufen, wenn die Welt geladen ist
  * und nur noch die Datenstrukturenneu verknüpft werden müssen.
@@ -534,6 +579,7 @@ void stadt_t::laden_abschliessen()
     welt->lookup(pos)->gib_kartenboden()->setze_text( name );
 
     init_pax_ziele();
+    recount_houses();
 }
 
 
@@ -902,7 +948,7 @@ stadt_t::step_passagiere()
 							bool overcrowded=true;
 							for( halte=0;  halte<halt_list.get_count();  halte++  ) {
 								start_halt = halt_list.get(halte);
-								if(start_halt->gib_ware_summe(wtyp) <= (start_halt->gib_grund_count() << 7)) {
+								if(start_halt->gib_ware_summe(wtyp) <= start_halt->get_capacity()) {
 									// prissi: not overcrowded so now try routing
 									overcrowded = false;
 									break;
@@ -961,7 +1007,7 @@ stadt_t::step_passagiere()
 								}
 
 								// now try to add them to the target halt
-								if(ret_halt->gib_ware_summe(wtyp)<=(ret_halt->gib_grund_count() << 7)) {
+								if(ret_halt->gib_ware_summe(wtyp)<=ret_halt->get_capacity()) {
 									// prissi: not overcrowded and can recieve => add them
 									if(found) {
 										ware_t return_pax (wtyp);
@@ -1039,22 +1085,24 @@ stadt_t::step_passagiere()
 koord
 stadt_t::gib_zufallspunkt() const
 {
-  koord ziel (li + simrand(re - li + 1), ob + simrand(un - ob + 1));
+#ifdef COUNT_HOUSES
+	gebaeude_t *gb=buildings.at_weight( simrand(buildings.get_sum_weight()) );
+	return gb->gib_pos().gib_2d();
+#else
+	koord ziel (li + simrand(re - li + 1), ob + simrand(un - ob + 1));
 
-  // Ist das Ziel geeignet?
-  const planquadrat_t * plan = welt->lookup(ziel);
-  const grund_t * gr = 0;
+	// Ist das Ziel geeignet?
+	const planquadrat_t * plan = welt->lookup(ziel);
+	const grund_t * gr = 0;
 
-  if(plan && (gr = plan->gib_kartenboden())) {
-    if(gr->ist_wasser()) {
-      // DBG_MESSAGE("stadt_t::finde_passagier_ziel()", "water -> reroll");
-
-      // ungeeignet -> 2. Versuch
-      ziel = koord(li + simrand(re - li + 1), ob + simrand(un - ob + 1));
-    }
-  }
-
-  return ziel;
+	if(plan && (gr = plan->gib_kartenboden())) {
+		if(gr->ist_wasser()) {
+			// ungeeignet -> 2. Versuch
+			ziel = koord(li + simrand(re - li + 1), ob + simrand(un - ob + 1));
+		}
+	}
+	return ziel;
+#endif
 }
 
 
@@ -1246,7 +1294,6 @@ void
 stadt_t::check_bau_rathaus(bool new_town)
 {
 	const haus_besch_t *besch = hausbauer_t::gib_rathaus(bev,welt->get_timeline_year_month());
-
 	if(besch) {
 		grund_t *gr = welt->lookup(pos)->gib_kartenboden();
 		gebaeude_t *gb = dynamic_cast<gebaeude_t *>(gr->obj_bei(0));
@@ -1290,15 +1337,22 @@ stadt_t::check_bau_rathaus(bool new_town)
 
 					if(!umziehen && k.x < besch->gib_b() && k.y < besch->gib_h()) {
 						// Platz für neues Rathaus freimachen
-						ding_t *gb = gr->obj_bei(0);
-						gr->obj_remove(gb, besitzer_p);
-						gb->setze_pos(koord3d::invalid); // Hajo: mark 'not on map'
-						delete gb;
+						if(gb) {
+							gr->obj_remove(gb, NULL);
+							buildings.remove(gb);
+							delete gb;
+						}
 					}
 					else {
+#ifdef COUNT_HOUSES
+						buildings.remove(gb);
+#endif
 						// Altes Rathaus durch Wohnhaus(0) ersetzen - Wohnhaus(0) muß 1x1 sein!
 						hausbauer_t::umbauen(welt, gb, hausbauer_t::gib_wohnhaus(0,welt->get_timeline_year_month()));
 						gb->setze_besitzer(NULL);
+#ifdef COUNT_HOUSES
+						buildings.append(gb,gb->gib_tile()->gib_besch()->gib_level()+1,16);
+#endif
 					}
 				}
 
@@ -1315,6 +1369,10 @@ stadt_t::check_bau_rathaus(bool new_town)
 			best_pos = rathausplatz_sucher_t(welt, besitzer_p).suche_platz(pos, besch->gib_b(layout), besch->gib_h(layout)+1);
 		}
 		hausbauer_t::baue(welt, besitzer_p,welt->lookup(best_pos)->gib_kartenboden()->gib_pos(), layout, besch);
+#ifdef COUNT_HOUSES
+		gebaeude_t *townhall = static_cast<gebaeude_t *>(welt->lookup(best_pos)->gib_kartenboden()->obj_bei(0));
+		buildings.append(townhall,townhall->gib_tile()->gib_besch()->gib_level()+1,16);
+#endif
 		DBG_MESSAGE("new townhall","use layout=%i",layout);
 
 		// Orstnamen hinpflanzen
@@ -1773,6 +1831,13 @@ stadt_t::baue_gebaeude(const koord k)
 			}
 		}
 
+#ifdef COUNT_HOUSES
+		gebaeude_t *gb = dynamic_cast<gebaeude_t *>(welt->lookup(k)->gib_kartenboden()->obj_bei(0));
+		if(gb) {
+			buildings.append(gb,gb->gib_tile()->gib_besch()->gib_level()+1,16);
+		}
+#endif
+
 		// check for pavement
 		for(  int i=0;  i<8;  i++ ) {
 			grund_t *gr = welt->lookup(k+neighbours[i])->gib_kartenboden();
@@ -1840,6 +1905,12 @@ stadt_t::renoviere_gebaeude(koord k)
 		dbg->error("stadt_t::renoviere_gebaeude()","could not find a building at (%d,%d) but there should be one!", k.x, k.y);
 		return;
 	}
+
+#ifdef COUNT_HOUSES
+	if(!buildings.is_contained(gb)) {
+		return; // not our town ...
+	}
+#endif
 
 	// hier sind wir sicher dass es ein Gebaeude ist
 	const int level = gb->gib_tile()->gib_besch()->gib_level();
@@ -1912,6 +1983,10 @@ stadt_t::renoviere_gebaeude(koord k)
 	if(sum>0  &&  h!=NULL) {
 //    DBG_MESSAGE("stadt_t::renoviere_gebaeude()","renovation at %i,%i (%i level) of typ %i to typ %i with desire %i",k.x,k.y,alt_typ,will_haben,sum);
 
+#ifdef COUNT_HOUSES
+		buildings.remove(gb);
+#endif
+
 		if(will_haben == gebaeude_t::wohnung) {
 			hausbauer_t::umbauen(welt, gb, h);
 			won += h->gib_level() * 10;
@@ -1922,6 +1997,13 @@ stadt_t::renoviere_gebaeude(koord k)
 			hausbauer_t::umbauen(welt, gb, h);
 			arb += h->gib_level() * 20;
 		}
+
+#ifdef COUNT_HOUSES
+		gb = dynamic_cast<gebaeude_t *>(welt->lookup(k)->gib_kartenboden()->obj_bei(0));
+		if(gb) {
+			buildings.append(gb,gb->gib_tile()->gib_besch()->gib_level()+1,16);
+		}
+#endif
 
 		if(alt_typ==gebaeude_t::industrie)
 			arb -= level * 20;
@@ -2161,13 +2243,15 @@ stadt_t::haltestellenname(koord k, const char *typ, int number)
 	{
 		const int n=sprintf(buf, translator::translate(base),
 			this->name,
-			translator::translate(typ));
+			building?building:translator::translate(typ));
+#if 0
 		// add the building name
 		if(building) {
 			char buf2[512];
-			sprintf(buf2, "%s %s",building,buf);
+			sprintf(buf2, "%s %s",buf,building);
 			strcpy(buf,buf2);
 		}
+#endif
 	}
 
 	const int len = strlen(buf) + 1;
@@ -2323,15 +2407,17 @@ bool stadt_t::init()
  */
 char * stadt_t::info(char *buf) const
 {
-
-  buf += sprintf(buf, "%s: %d (+%d)\n\n",
+  buf += sprintf(buf, "%s: %d (+%d)\n",
      translator::translate("City size"),
      gib_einwohner(),
      gib_wachstum()
      );
 
+#ifdef COUNT_HOUSES
+buf += sprintf(buf,"%i buildings\n",buildings.get_count());
+#endif
 
-  buf += sprintf(buf, "%d,%d - %d,%d\n\n",
+  buf += sprintf(buf, "\n%d,%d - %d,%d\n\n",
      li, ob, re , un
      );
 

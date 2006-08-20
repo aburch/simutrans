@@ -42,7 +42,6 @@ public:
 
   schedule_gui_t(karte_t *welt, spieler_t *sp);
 
-  spieler_t* gib_besitzer() const { return sp; }
   const char * gib_name() const { return "nESG Edit Schedule"; }
   const char * gib_fpl_name() const { return fpl_name; }
 

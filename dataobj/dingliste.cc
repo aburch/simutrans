@@ -596,7 +596,7 @@ void dingliste_t::rdwr(karte_t *welt, loadsave_t *file, koord3d current_pos)
 
 			if(d  &&  d->gib_pos()!=current_pos) {
 				DBG_DEBUG("dingliste_t::rdwr()","position error: %i,%i instead %i,%i",d->gib_pos().x,d->gib_pos().y,current_pos.x,current_pos.y);
-				DBG_DEBUG("dingliste_t::rdwr()","object ignored!");
+				DBG_DEBUG("dingliste_t::rdwr()","loaded object ignored!");
 				d = NULL;
 			}
 
@@ -608,14 +608,24 @@ void dingliste_t::rdwr(karte_t *welt, loadsave_t *file, koord3d current_pos)
 		}
 		else {
 			// here is the saving part ...
-			if( bei(i) &&  bei(i)->gib_pos()==current_pos  &&  bei(i)->gib_typ()!=ding_t::raucher) {
-				bei(i)->rdwr(file);
+			if(bei(i)) {
+				if(bei(i)->gib_pos()==current_pos  &&  bei(i)->gib_typ()!=ding_t::raucher) {
+					bei(i)->rdwr(file);
+				}
+				else 	if(bei(i)->gib_pos().gib_2d()==current_pos.gib_2d()) {
+					// ok, just error in z direction => we will correct it
+					DBG_DEBUG("dingliste_t::rdwr()","position error: z pos corrected on %i,%i from %i to %i",bei(i)->gib_pos().x,bei(i)->gib_pos().y,bei(i)->gib_pos().z,current_pos.z);
+					bei(i)->setze_pos( current_pos );
+					bei(i)->rdwr(file);
+				}
+				else {
+					DBG_DEBUG("dingliste_t::rdwr()","position error: %i,%i instead %i,%i",bei(i)->gib_pos().x,bei(i)->gib_pos().y,current_pos.x,current_pos.y);
+					DBG_DEBUG("dingliste_t::rdwr()","object not saved!");
+					file->wr_obj_id(-1);
+				}
 			}
 			else {
-				if( bei(i) &&  bei(i)->gib_pos()!=current_pos) {
-					DBG_DEBUG("dingliste_t::rdwr()","position error: %i,%i instead %i,%i",bei(i)->gib_pos().x,bei(i)->gib_pos().y,current_pos.x,current_pos.y);
-					DBG_DEBUG("dingliste_t::rdwr()","object ignored!");
-				}
+				// ignore this
 				file->wr_obj_id(-1);
 			}
 		}

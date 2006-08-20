@@ -18,8 +18,9 @@
 #include "dings/oberleitung.h"
 #include "boden/grund.h"
 #include "boden/wege/schiene.h"
-#include "simcosts.h"
+
 #include "dataobj/loadsave.h"
+#include "dataobj/umgebung.h"
 
 #include "tpl/slist_tpl.h"
 #include "tpl/array_tpl.h"
@@ -485,7 +486,7 @@ blockmanager::baue_neues_signal(karte_t *welt,
     bs2->setze_belegung( pr2.count );
 
     if(sp != NULL) {
-        sp->buche(CST_SIGNALE, pos.gib_2d(), COST_CONSTRUCTION);
+        sp->buche(umgebung_t::cst_signal, pos.gib_2d(), COST_CONSTRUCTION);
     }
     return NULL;
 }
@@ -886,12 +887,9 @@ blockmanager::tracktyp_ersetzer::neue_koord(koord3d pos)
 		gr->obj_add(obl);
 
 		if(sp) {
-		  sp->buche(CST_OBERLEITUNG,
-			    pos.gib_2d(),
-			    COST_CONSTRUCTION);
+		  sp->buche(umgebung_t::cst_third_rail,pos.gib_2d(),COST_CONSTRUCTION);
 		} else {
-		  dbg->error("blockmanager::tracktyp_ersetzer::neue_koord",
-			     "Owner of track is NULL");
+		  dbg->error("blockmanager::tracktyp_ersetzer::neue_koord","Owner of track is NULL");
 		}
 	      }
 

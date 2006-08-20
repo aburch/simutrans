@@ -112,6 +112,7 @@ reliefkarte_t::calc_hoehe_farbe(const int hoehe, const int grundwasser)
 	color = 147;
 	break;
     default:
+//	printf("\th=%i",(hoehe-grundwasser)>>4);
 	color = 199;
 	break;
     }
@@ -283,6 +284,7 @@ reliefkarte_t::infowin_event(const event_t *ev)
 	fab = fabrik_t::gib_fab(welt, koord(ev->mx / zoom, ev->my / zoom));
 
     if(IS_LEFTCLICK(ev) || IS_LEFTDRAG(ev)) {
+		welt->set_follow_convoi( convoihandle_t() );
 		welt->setze_ij_off(koord(ev->mx/zoom-8, ev->my/zoom-8)); // Offset empirisch ermittelt !
     }
 
@@ -523,8 +525,8 @@ reliefkarte_t::calc_map(int render_mode)
 	  if (halt.is_bound()   && (halt->gib_besitzer()==welt->get_active_player()  ||  halt->gib_besitzer()==welt->gib_spieler(1)) ) {
 	      setze_relief_farbe_area(k,
 				      3,
-				      calc_severity_color(halt->get_finance_history(0, HALT_WAITING),
-							  8*halt->gib_grund_count()));
+				      calc_severity_color(halt->get_finance_history(0, HALT_WAITING), halt->get_capacity() )
+				      );
 	    }
 	  }
 	  break;

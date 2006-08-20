@@ -802,7 +802,7 @@ void fabrik_t::verteile_waren(const uint32 produkt)
 					;
 
 				// Station can only store up to 128 units of goods per square
-				if(halt->gib_ware_summe(ware.gib_typ()) <(halt->gib_grund_count()<<7)) {
+				if(halt->gib_ware_summe(ware.gib_typ()) <halt->get_capacity()) {
 					// ok, still enough space
 					halt->suche_route(ware);
 

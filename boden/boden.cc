@@ -95,11 +95,6 @@ void boden_t::toggle_season(int season)
 
 		INT_CHECK("simworld 1890");
 	}
-#if 0
-// prissi: will be done by karte_t::neuer_monat()!
-	// recalc old settings (and maybe update the staops with the current values)
-	reliefkarte_t::gib_karte()->set_mode( reliefkarte_t::gib_karte()->get_mode());
-#endif
 }
 
 
@@ -144,7 +139,7 @@ boden_t::zeige_info()
 		return true;
 	}
 	else {
-		if(hat_wege()) {
+		if(hat_wege()|1) {	// if this is true, then all land info is shown
 			// there is some info!
 			if(!grund_infos->get(this)) {
 				grund_infos->put(this, new grund_info_t(welt, this));
@@ -170,46 +165,28 @@ void boden_t::sync_height()
 }
 
 
-#ifndef DOUBLE_GROUNDS
-static const uint8 double_slope_table[16] = {
-  0,     // 0 - unused entry, should be blank!
-    4,   // 1
-  3,     // 2
-    5,   // 3
-  1,     // 4
-   11,   // 5
-  12,    // 6
-    9,   // 7
-
-  2,     // 8
-   14,   // 9
-  13,    // 10
-   10,   // 11
-  0,     // 12
-    6,   // 13
-  7,     // 14
-    8,   // 15
-};
-
-
 
 void
 boden_t::calc_bild()
 {
 	const koord k = gib_pos().gib_2d();
-	uint8 slope_this =  welt->get_slope(k);
+	uint8 slope_this =  gib_grund_hang();
 
 	grund_t::calc_bild();
 
+	const int min_h=welt->min_hgt(k);
+	const int max_h=welt->max_hgt(k);
+
 	weg_t *weg = gib_weg(weg_t::strasse);
 
+#ifndef DOUBLE_GROUNDS
 	if(weg && dynamic_cast<strasse_t *>(weg)->hat_gehweg()) {
-		setze_bild(skinverwaltung_t::fussweg->gib_bild_nr(gib_grund_hang()));
+		setze_bild(skinverwaltung_t::fussweg->gib_bild_nr(slope_this));
 	} else if(gib_hoehe() == welt->gib_grundwasser()) {
-		setze_bild(grund_besch_t::ufer->gib_bild(gib_grund_hang()));
+		setze_bild(grund_besch_t::ufer->gib_bild(slope_this));
 	} else {
 		const int offset = show_grid * 19;
-		int hang = gib_grund_hang();
+		sint8 hang = slope_this;
 
 		if(hang == 0) {
 			const int chance = simrand(1000);
@@ -225,99 +202,24 @@ boden_t::calc_bild()
 			}
 		}
 		int bild=IMG_LEER;
-		if(slope_this!=0  &&  slope_this!=welt->calc_natural_slope(k)) {
-			bild = grund_besch_t::boden->gib_bild(53+(slope_this/3));
-//DBG_DEBUG("slope","%i",slope_this);
-		}
-		if(bild==IMG_LEER) {
-			bild = grund_besch_t::boden->gib_bild(hang + offset);
-		}
+		bild = grund_besch_t::boden->gib_bild(hang + offset);
 		setze_bild( bild );
 	}
-
-	int back_bild = IMG_LEER;
-
-	const planquadrat_t *left  = welt->lookup(k - koord(1,0));
-	const planquadrat_t *right = welt->lookup(k - koord(0,1));
-
-	if(left!=NULL  && right!=NULL) {
-		grund_t * lgr = left->gib_kartenboden();
-		grund_t * rgr = right->gib_kartenboden();
-
-		const int hh = gib_hoehe()/16;
-		int slope_wall = 0;
-
-		if(!lgr->ist_wasser()) {
-			// only, if not water to the left
-			const int lh = lgr->gib_hoehe()/16;
-			const uint8 slope_left =  welt->get_slope(k - koord(1,0));
-
-			// add corners of left slope
-			sint16 leftheights[2] = { ((slope_left&2)!=0)+lh, ((slope_left&4)!=0)+lh };
-			sint8 llhdiff = (leftheights[0]) - (((slope_this&1)!=0)+hh);
-			sint8 lhhdiff = (leftheights[1]) - (((slope_this&8)!=0) + hh);
-			slope_wall = (llhdiff>0)*4 + (lhhdiff>0)*8;
-			// only down-slopes in table
-			// thus upslopes are converted to solid walls
-			if(slope_wall>0  &&  leftheights[0]==leftheights[1]) {
-				slope_wall = 12;
-			}
-		}
-
-		if(!rgr->ist_wasser()) {
-			const int lr = rgr->gib_hoehe()/16;
-			const uint8 slope_right = welt->get_slope(k - koord(0,1));
-
-			// add corner of right slope
-			sint16 backheights[2] = { ((slope_right&1)!=0)+lr, ((slope_right&2)!=0)+lr };
-			sint8 hlhdiff = (backheights[0]) - (((slope_this&8)!=0) + hh);
-			sint8 hhhdiff = (backheights[1]) - (((slope_this&4)!=0) + hh);
-			slope_wall |= (hlhdiff>0)*2 + (hhhdiff>0)*1;
-			// only down-slopes in table
-			// thus upslopes are converted to solid walls
-			if((slope_wall&3)>0  &&  backheights[0]==backheights[1]) {
-					slope_wall |= 3;
-			}
-		}
-
-		// found a slope?
-		if(slope_wall!=0) {
-				back_bild = grund_besch_t::boden->gib_bild(38 + double_slope_table[slope_wall]);
-		}
-	}
-
-	setze_back_bild(back_bild);
-}
 #else
-// with double height ground tiles!
-
-void
-boden_t::calc_bild()
-{
-	const koord k = gib_pos().gib_2d();
-	uint8 slope_this =  welt->get_slope(k);
-
-	grund_t::calc_bild();
-
-	const int min_h=welt->min_hgt(k);
-	const int max_h=welt->max_hgt(k);
-
-	weg_t *weg = gib_weg(weg_t::strasse);
-
 	if(weg && dynamic_cast<strasse_t *>(weg)->hat_gehweg()) {
-		setze_bild(skinverwaltung_t::fussweg->gib_bild_nr(grund_besch_t::slopetable[gib_grund_hang()]));
+		setze_bild(skinverwaltung_t::fussweg->gib_bild_nr(grund_besch_t::slopetable[slope_this]));
 	} else if(max_h-min_h==16  &&  min_h==welt->gib_grundwasser()) {
-		setze_bild(grund_besch_t::ufer->gib_bild(grund_besch_t::ufer->get_double_hang(gib_grund_hang())));
+		setze_bild(grund_besch_t::ufer->gib_bild(grund_besch_t::ufer->get_double_hang(slope_this)));
 	} else if(min_h<welt->gib_grundwasser()) {
-		setze_bild(grund_besch_t::ufer->gib_bild(grund_besch_t::ufer->get_double_hang(gib_grund_hang())));
-//		setze_yoff(height_scaling(-16));
+		setze_bild(grund_besch_t::ufer->gib_bild(grund_besch_t::ufer->get_double_hang(slope_this)));
 	} else {
-		int hang = gib_grund_hang();
-		setze_bild( grund_besch_t::boden->gib_bild(grund_besch_t::boden->get_double_hang(hang)) );
+		setze_bild( grund_besch_t::boden->gib_bild(grund_besch_t::boden->get_double_hang(slope_this)) );
 	}
-	setze_back_bild(IMG_LEER);
-}
 #endif
+	grund_t::calc_back_bild(gib_hoehe()/16,slope_this);
+}
+
+
 
 void * boden_t::operator new(size_t /*s*/)
 {

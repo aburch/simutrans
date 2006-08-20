@@ -74,38 +74,38 @@ bool roadsign_reader_t::successfully_loaded() const
 obj_besch_t * roadsign_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 {
 #ifdef _MSC_VER /* no var array on the stack supported */
-    char *besch_buf = static_cast<char *>(alloca(node.size));
+	char *besch_buf = static_cast<char *>(alloca(node.size));
 #else
-  // Hajo: reading buffer is better allocated on stack
-  char besch_buf [node.size];
+	// Hajo: reading buffer is better allocated on stack
+	char besch_buf [node.size];
 #endif
 
-  char *info_buf = new char[sizeof(obj_besch_t) + node.children * sizeof(obj_besch_t *)];
+	char *info_buf = new char[sizeof(obj_besch_t) + node.children * sizeof(obj_besch_t *)];
+	roadsign_besch_t *besch = new roadsign_besch_t();
+	besch->node_info = reinterpret_cast<obj_besch_info_t *>(info_buf);
 
-  roadsign_besch_t *besch = new roadsign_besch_t();
+	// Hajo: Read data
+	fread(besch_buf, node.size, 1, fp);
+	char * p = besch_buf;
 
-  besch->node_info = reinterpret_cast<obj_besch_info_t *>(info_buf);
+	const uint16 v = decode_uint16(p);
+	const int version = v & 0x8000 ? v & 0x7FFF : 0;
 
-  // Hajo: Read data
-  fread(besch_buf, node.size, 1, fp);
-
-  char * p = besch_buf;
-
-  // Hajo: old versions of PAK files have no version stamp.
-  // But we know, the higher most bit was always cleared.
-
-  const uint16 v = decode_uint16(p);
-  const int version = v & 0x8000 ? v & 0x7FFF : 0;
-
-  if(version == 1) {
-    // Versioned node, version 1
-
-    besch->min_speed = kmh_to_speed(decode_uint16(p));
-    besch->flags = decode_uint8(p);
-DBG_DEBUG("roadsign_reader_t::read_node()","min_speed=%i, flags=%x",besch->min_speed,besch->flags);
-  }
-  else {
-  	dbg->fatal("roadsign_reader_t::read_node()","version 0 not supported. File corrupt?");
-  }
-  return besch;
+	if(version==2) {
+		// Versioned node, version 2
+		besch->min_speed = kmh_to_speed(decode_uint16(p));
+		besch->cost = decode_uint32(p);
+		besch->flags = decode_uint8(p);
+	}
+	else if(version==1) {
+		// Versioned node, version 1
+		besch->min_speed = kmh_to_speed(decode_uint16(p));
+		besch->cost = 50000;
+		besch->flags = decode_uint8(p);
+	}
+	else {
+		dbg->fatal("roadsign_reader_t::read_node()","version 0 not supported. File corrupt?");
+	}
+	DBG_DEBUG("roadsign_reader_t::read_node()","min_speed=%i, cost=%i, flags=%x",besch->min_speed,besch->cost/100,besch->flags);
+	return besch;
 }

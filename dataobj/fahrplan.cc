@@ -166,7 +166,7 @@ fahrplan_t::cleanup()
 	koord3d lastpos=eintrag.get( eintrag.get_count()-1 ).pos;
 	bool ok=true;
   	// now we have to check all entries ...
-	for(unsigned i = 0; i<eintrag.get_count(); i++) {
+	for(unsigned i = 0; i<eintrag.get_count()-1; i++) {
 		if (eintrag.get(i).pos==lastpos) {
 			// ingore double entries just one after the other
 			ok = false;
@@ -192,7 +192,7 @@ bool
 fahrplan_t::remove()
 {
 	bool ok=eintrag.remove_at(aktuell);
-	if( aktuell>=(int)eintrag.get_count()-1) {
+	if( aktuell>=(int)eintrag.get_count()) {
 		aktuell = eintrag.get_count()-1;
 	}
 	return ok;
@@ -307,13 +307,13 @@ DBG_MESSAGE("zugfahrplan_t::ist_halt_erlaubt()","Checking for stop");
 		return false;
 	}
 DBG_MESSAGE("zugfahrplan_t::ist_halt_erlaubt()","track ok");
-	const depot_t *gb = gr->gib_depot();
-	if(gb==NULL) {
+	const depot_t *dp = gr->gib_depot();
+	if(dp==NULL) {
 		// empty track => ok
 		return true;
 	}
 	// test for no street depot (may happen with trams)
-	if(gb->gib_tile()->gib_besch()==hausbauer_t::str_depot_besch) {
+	if(dp->gib_tile()->gib_besch()==hausbauer_t::str_depot_besch) {
 		return false;
 	}
 	return true;

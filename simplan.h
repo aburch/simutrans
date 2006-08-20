@@ -113,13 +113,13 @@ public:
      */
     inline grund_t * gib_boden_in_hoehe(const int z) const
     {
-      for(unsigned int i = 0; i < boeden.get_count(); i++) {
-	grund_t * gr = boeden.get(i);
-	if(gr->gib_hoehe() == z) {
-	  return gr;
-	}
-      }
-      return NULL;
+		for(unsigned int i = 0; i < boeden.get_count(); i++) {
+			grund_t * gr = boeden.get(i);
+			if(gr  &&  gr->gib_hoehe() == z) {
+				return gr;
+			}
+		}
+		return NULL;
     }
 
 
@@ -128,7 +128,7 @@ public:
      * @return NULL wenn boden nicht existiert
      * @author Hansjörg Malthaner
      */
-    inline grund_t * gib_kartenboden() const { return boeden.get(0); };
+    inline grund_t * gib_kartenboden() const { return boeden.get(0); }
 
     /**
      * Rückegabe des Bodens, der das gegebene Objekt enthält, falls vorhanden.

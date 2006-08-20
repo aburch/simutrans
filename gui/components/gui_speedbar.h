@@ -25,14 +25,14 @@ class gui_speedbar_t : public gui_komponente_t
 {
 private:
     struct info_t {
-	int color;
-	const int *value;
-	int last;
+	sint32 color;
+	const sint32 *value;
+	sint32 last;
     };
 
     slist_tpl <info_t> values;
 
-    int base;
+    sint32 base;
     bool vertical;
 
 public:
@@ -50,9 +50,9 @@ public:
     ~gui_speedbar_t() {}
 
 
-    void add_color_value(const int *value, int color);
+    void add_color_value(const sint32 *value, int color);
 
-    void set_base(int base) { this->base = base;  }
+    void set_base(sint32 base);
 
     void set_vertical(bool vertical) { this->vertical = vertical; }
 

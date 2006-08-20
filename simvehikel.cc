@@ -590,44 +590,44 @@ vehikel_t::vehikel_t(karte_t *welt,
 		     const vehikel_besch_t *besch,
 		     spieler_t *sp) : vehikel_basis_t(welt, pos)
 {
-  this->besch = besch;
+	this->besch = besch;
 
-  setze_besitzer( sp );
-  insta_zeit = welt->get_current_month();
-  cnv = NULL;
-  speed_limit = -1;
+	setze_besitzer( sp );
+	insta_zeit = welt->get_current_month();
+	cnv = NULL;
+	speed_limit = -1;
 
-  route_index = 1;
+	route_index = 1;
 
-  rauchen = true;
-  fahrtrichtung = ribi_t::keine;
+	rauchen = true;
+	fahrtrichtung = ribi_t::keine;
 
 	current_friction = 4;
 	sum_weight = besch->gib_gewicht();
 
-  ist_erstes = ist_letztes = false;
-  alte_fahrtrichtung = fahrtrichtung = ribi_t::keine;
+	ist_erstes = ist_letztes = false;
+	alte_fahrtrichtung = fahrtrichtung = ribi_t::keine;
 
-  setze_bild(0, besch->gib_basis_bild());
+	setze_bild(0, besch->gib_basis_bild());
 
-  list.insert( this );
-  // printf("Erzeuge Vehikle %x, Start %d,%d\n",(unsigned)this, x,y);
+	list.insert( this );
+	// printf("Erzeuge Vehikle %x, Start %d,%d\n",(unsigned)this, x,y);
 }
 
 
 vehikel_t::vehikel_t(karte_t *welt) :
     vehikel_basis_t(welt)
 {
-  rauchen = true;
+	rauchen = true;
 
-  besch = NULL;
-  cnv = NULL;
+	besch = NULL;
+	cnv = NULL;
 
-  route_index = 1;
+	route_index = 1;
 	current_friction = 4;
 	sum_weight = 10;
 
-  alte_fahrtrichtung = fahrtrichtung = ribi_t::keine;
+	alte_fahrtrichtung = fahrtrichtung = ribi_t::keine;
 }
 
 
@@ -872,35 +872,22 @@ vehikel_t::fahre()
  * @return income total for last hop
  * @author Hj. Malthaner
  */
-int vehikel_t::calc_gewinn(koord3d start, koord3d end) const
+sint64 vehikel_t::calc_gewinn(koord3d start, koord3d end) const
 {
     const long dist = abs(end.x - start.x) + abs(end.y - start.y);
 
-    const long ref_speed = welt->get_average_speed( gib_wegtyp() );
-    const long speed_base = speed_to_kmh(cnv->gib_min_top_speed()) - ref_speed;
+    const sint32 ref_speed = welt->get_average_speed( gib_wegtyp() );
+    const sint32 speed_base = (100*speed_to_kmh(cnv->gib_min_top_speed()))/ref_speed-100;
 
     sint64 value = 0;
     slist_iterator_tpl <ware_t> iter (fracht);
 
     while( iter.next() ) {
-      const ware_t & ware = iter.get_current();
+		const ware_t & ware = iter.get_current();
 
-#if 0
-      double price = (ware.gib_typ()->gib_preis() * dist * ware.menge) / 3.0;
-
-      // Hajo: add speed bonus
-      price += 0.001 * price * (speed_base * ware.gib_typ()->gib_speed_bonus());
-      // Hajo: sum up new price
-      value += price;
-    }
-
-    // Hajo: Rounded value, in cents
-    return (int)(value+0.5);
-#else
-		// prissi
 		const sint32 grundwert128 = ware.gib_typ()->gib_preis()<<7;
-		const sint32 grundwert_bonus = (ware.gib_typ()->gib_preis()*(1000l+speed_base*ware.gib_typ()->gib_speed_bonus()));
-		const sint32 price = (sint64)(grundwert128>grundwert_bonus ? grundwert128 : grundwert_bonus ) * (sint64)(dist * ware.menge);
+		const sint32 grundwert_bonus = (ware.gib_typ()->gib_preis()*(1000+speed_base*ware.gib_typ()->gib_speed_bonus()));
+		const sint64 price = (sint64)(grundwert128>grundwert_bonus ? grundwert128 : grundwert_bonus) * (sint64)dist * (sint64)ware.menge;
 
 		// sum up new price
 		value += price;
@@ -908,8 +895,7 @@ int vehikel_t::calc_gewinn(koord3d start, koord3d end) const
 
     // Hajo: Rounded value, in cents
     // prissi: Why on earth 1/3???
-    return (value+1500l)/3000l;
-#endif
+    return (value+1500ll)/3000ll;
 }
 
 
@@ -1386,25 +1372,23 @@ automobil_t::ist_weg_frei(int &restart_speed)
 				if(target  &&  target->gib_halt().is_bound()  &&  target->suche_obj(ding_t::automobil)) {
 					// if we fail, we will wait in a step, much more simulation friendly
 					if(cnv->get_state()!=convoi_t::WAITING_FOR_CLEARANCE) {
-						restart_speed = 0;
 						return false;
 					}
 					// check if there is a free position
 					// this is much faster than waysearch
 					target_halt = target->gib_halt();
 					if(!target_halt->find_free_position(weg_t::strasse,ding_t::automobil)) {
+						restart_speed = 0;
 						return false;
 					}
 					// now it make sense to search a route
 					route_t target_rt;
 					if(!target_rt.find_route( welt, pos_next, this, 50, richtung, 33 )) {
 						// nothing empty or not route with less than 33 tiles
+						restart_speed = 0;
 						return false;
 					}
 DBG_MESSAGE("automobil_t::ist_weg_frei()","found free stop near %i,%i,%i",target_rt.position_bei(target_rt.gib_max_n()).x,target_rt.position_bei(target_rt.gib_max_n()).y, target_rt.position_bei(target_rt.gib_max_n()).z );
-	//				rt->kopiere( &target_rt );
-	//				rt->insert(pos_cur);
-	//				route_index = 0;
 					rt->remove_koord_from(route_index);
 					rt->append( &target_rt );
 				}
@@ -2234,7 +2218,6 @@ aircraft_t::betrete_feld()
 
 
 
-
 aircraft_t::aircraft_t(karte_t *welt, loadsave_t *file) : vehikel_t(welt)
 {
 	rdwr(file, true);
@@ -2248,12 +2231,6 @@ aircraft_t::aircraft_t(karte_t *welt, koord3d pos, const vehikel_besch_t *besch,
 	state = taxiing;
 }
 
-aircraft_t::~aircraft_t()
-{
-	grund_t * gr = welt->lookup(gib_pos());
-	if (!gr) gr = welt->lookup(gib_pos().gib_2d())->gib_kartenboden();
-	gr->obj_remove(this, gib_besitzer());
-}
 
 
 void aircraft_t::calc_bild()
@@ -2534,8 +2511,8 @@ int aircraft_t::calc_height()
 	switch( state ) {
 		case departing:
 			current_friction = 14;
-			setze_speed_limit(-1);
 			cnv->setze_akt_speed_soll(gib_speed());
+			setze_speed_limit(-1);
 
 			// take off, when a) end of runway or b) last tile of runway or c) fast enough
 			if(w==NULL  ||  cnv->gib_akt_speed()>kmh_to_speed(besch->gib_geschw())/3 ) {
@@ -2543,7 +2520,6 @@ int aircraft_t::calc_height()
 				current_friction = 16;
 				flughoehe = height_scaling(gib_pos().z);
 				target_height = flughoehe+48;
-				cnv->setze_akt_speed_soll(gib_speed());
 			}
 			break;
 
@@ -2552,6 +2528,7 @@ int aircraft_t::calc_height()
 			const sint16 h_next=height_scaling(pos_next.z);
 			const sint16 h_cur=height_scaling(pos_cur.z);
 
+			cnv->setze_akt_speed_soll(gib_speed());
 			setze_speed_limit(-1);
 
 			// did we have to change our flight height?
@@ -2563,16 +2540,16 @@ int aircraft_t::calc_height()
 				// steigen
 				target_height += 32;
 			}
-			else {
-				// after reaching flight level, friction will be constant
-				current_friction = 1;
-			}
 			// now change flight level if required
 			if(flughoehe<target_height) {
 				flughoehe ++;
 			}
 			else if(flughoehe>target_height) {
 				flughoehe --;
+			}
+			else {
+				// after reaching flight level, friction will be constant
+				current_friction = 1;
 			}
 
 			new_hoff = h_cur-flughoehe;

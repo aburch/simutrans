@@ -1,4 +1,5 @@
 #include "umgebung.h"
+#include "../simtypes.h"
 
 
 // Hajo: hier Standardwerte belegen.
@@ -123,3 +124,32 @@ bool umgebung_t::just_in_time=true;
 
 /* prissi: drive on the left side of the road */
 bool umgebung_t::drive_on_left=false;
+
+/* the big cost section */
+sint64 umgebung_t::cst_multiply_dock=-200000;
+sint64 umgebung_t::cst_multiply_station=-240000;
+sint64 umgebung_t::cst_multiply_roadstop=-150000;
+sint64 umgebung_t::cst_multiply_airterminal=-1500000;
+sint64 umgebung_t::cst_multiply_post=-60000;
+sint64 umgebung_t::cst_multiply_headquarter=-1000000;
+sint64 umgebung_t::cst_depot_rail=-100000;
+sint64 umgebung_t::cst_depot_road=-130000;
+sint64 umgebung_t::cst_depot_ship=-250000;
+sint64 umgebung_t::cst_signal=-50000;
+sint64 umgebung_t::cst_tunnel=-1000000;
+sint64 umgebung_t::cst_third_rail=-8000;
+// alter landscape
+sint64 umgebung_t::cst_alter_land=-50000;
+sint64 umgebung_t::cst_set_slope=-250000;
+sint64 umgebung_t::cst_found_city=-500000000;
+sint64 umgebung_t::cst_multiply_found_industry=-100000000;
+sint64 umgebung_t::cst_remove_tree=-10000;
+sint64 umgebung_t::cst_multiply_remove_haus=-100000;
+
+// costs for the way searcher
+sint32 umgebung_t::way_count_curve=10;
+sint32 umgebung_t::way_count_double_curve=40;
+sint32 umgebung_t::way_count_90_curve=2000;
+sint32 umgebung_t::way_count_slope=80;
+sint32 umgebung_t::way_count_tunnel=8;
+sint32 umgebung_t::way_max_bridge_len=15;

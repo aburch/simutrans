@@ -16,7 +16,6 @@
 #include "../simhalt.h"
 #include "../simwin.h"
 #include "../simcity.h"
-#include "../simcosts.h"
 #include "../simplay.h"
 #include "../simmem.h"
 #include "../simtools.h"
@@ -75,24 +74,30 @@ gebaeude_t::gebaeude_t(karte_t *welt) : ding_t(welt)
 
 gebaeude_t::gebaeude_t(karte_t *welt, loadsave_t *file) : ding_t(welt)
 {
-    init(0);
-
-    rdwr(file);
+	init(0);
+	rdwr(file);
+	if(file->get_version()<88002) {
+		setze_yoff(0);
+	}
 }
 
 gebaeude_t::gebaeude_t(karte_t *welt, koord3d pos,spieler_t *sp, const haus_tile_besch_t *t) :
     ding_t(welt, pos)
 {
-    setze_besitzer( sp );
+	setze_besitzer( sp );
 
-    tile = t;
-    calc_yoff();
-    renoviere();
+	tile = t;
+	renoviere();
+	init(t);
 
-    init(t);
-    if(gib_besitzer()) {
-	gib_besitzer()->add_maintenance(umgebung_t::maint_building);
-    }
+	grund_t *gr=welt->lookup(pos);
+	if(gr!=0  &&  gr->gib_weg_hang()!=gr->gib_grund_hang()) {
+		setze_yoff(-16);
+	}
+
+	if(gib_besitzer()) {
+		gib_besitzer()->add_maintenance(umgebung_t::maint_building);
+	}
 }
 
 /**
@@ -123,24 +128,7 @@ gebaeude_t::~gebaeude_t()
 	}
 }
 
-void
-gebaeude_t::calc_yoff()
-{
-    const grund_t *gr = welt->lookup(gib_pos());
 
-    if(gr && !gr->ist_wasser()) {
-
-	const int ht = welt->get_slope(gib_pos().gib_2d());
-
-	if(ht != 0 ) {				// wenn uneben
-	    setze_yoff( height_scaling(-16) );			// dann sockel
-        } else {
-	    setze_yoff( 0 );
-	}
-    } else {
-	setze_yoff( 0 );
-    }
-}
 
 void
 gebaeude_t::add_alter(int a)
@@ -268,80 +256,6 @@ gebaeude_t::step(long delta_t)
 		}
 	}
 
-#if 0
-	/* will be now also handled by the city passenger generation! */
-	// generate passengers for attractions
-	if(tile->gib_besch()->ist_ausflugsziel()) {
-
-		// Ist es Zeit für einen neuen step?
-		if(welt->gib_zeit_ms() > tourist_time) {
-			// Alle 7 sekunden ein step (or we need to skip ... )
-			tourist_time = MAX( welt->gib_zeit_ms(), tourist_time+7000 );
-
-			INT_CHECK("gebaeude 228");
-
-			// erzeuge ein paar passagiere
-			const vector_tpl<halthandle_t> & halt_list = welt->lookup(gib_pos())->get_haltlist();
-
-			if(halt_list.get_count() > 0) {
-				const vector_tpl<stadt_t *>* staedte = welt->gib_staedte();
-				const stadt_t *stadt = staedte->get(simrand(welt->gib_einstellungen()->gib_anzahl_staedte()));
-
-				// prissi: post oder pax erzeugen ?
-				const ware_besch_t * wtyp;
-				if(simrand(400) < 300) {
-					wtyp = warenbauer_t::passagiere;
-				}
-				else {
-					wtyp = warenbauer_t::post;
-				}
-
-				// prissi: since now correctly numbers are used, double initially passengers
-				int num_pax =
-					(wtyp == warenbauer_t::passagiere) ?
-					(tile->gib_besch()->gib_level() >> 3):
-					(tile->gib_besch()->gib_post_level() >> 3);
-				// too low, so just generate one lonely passenger ...
-				if(num_pax==0  &&  tile->gib_besch()->gib_level()>0) {
-					num_pax = 1;
-				}
-									// create up to level passengers
-				for(int pax_left=num_pax; pax_left>0;  pax_left-=3  ) {
-					const koord ziel = stadt->gib_zufallspunkt();
-
-					ware_t pax (wtyp);
-					pax.menge = MIN(3,pax_left);
-					pax.setze_zielpos( ziel );
-
-					for(uint32 i=0; i<halt_list.get_count(); i++) {
-						halthandle_t halt = halt_list.get(i);
-						halt->suche_route(pax);
-
-						if(halt->gib_ware_summe(wtyp) > (halt->gib_grund_count() << 7)) {
-							// Hajo: Station crowded:
-							// some are appalled and will not try other
-							// stations
-							halt->add_pax_unhappy(pax.menge);
-
-						} else if(pax.gib_ziel() != koord::invalid) {
-							// ok success
-							halt->liefere_an(pax);
-							halt->add_pax_happy(pax.menge);
-							// prissi: now, since our passenger are on the way, we must stop adding them ...
-							break;
-						}
-						else {
-
-							halt->add_pax_no_route(pax.menge);
-						}
-					}
-					INT_CHECK("gebaeude 254");
-				}
-			}
-		}
-	} // Ausflugsziel
-#endif
-
 	// factory produce and passengers!
 	if(fab != NULL) {
 		fab->step(delta_t);
@@ -372,36 +286,39 @@ gebaeude_t::gib_bild() const
 int
 gebaeude_t::gib_bild(int nr) const
 {
-    if(zeige_baugrube || hide) {
-	return -1;
-    } else {
-	return tile->gib_hintergrund(count, nr);
-    }
+	if(zeige_baugrube || hide) {
+		return -1;
+	}
+	else {
+		return tile->gib_hintergrund(count, nr);
+	}
 }
 
 int
 gebaeude_t::gib_after_bild() const
 {
-    if(zeige_baugrube) {
-	return -1;
-    } else {
-	return tile->gib_vordergrund(count, 0);
-    }
+	if(zeige_baugrube) {
+		return -1;
+	}
+	else {
+		return tile->gib_vordergrund(count, 0);
+	}
 }
 
 int
 gebaeude_t::gib_after_bild(int nr) const
 {
-    if(zeige_baugrube) {
-	return -1;
-    } else {
-	return tile->gib_vordergrund(count, nr);
-    }
+	if(zeige_baugrube) {
+		return -1;
+	}
+	else {
+		return tile->gib_vordergrund(count, nr);
+	}
 }
 
 void gebaeude_t::setze_count(int count)
 {
-    this->count = count % tile->gib_phasen();
+	this->count = count % tile->gib_phasen();
 }
 
 // calculate also the size
@@ -456,6 +373,11 @@ bool gebaeude_t::ist_rathaus() const
     return tile->gib_besch()->ist_rathaus();
 }
 
+bool gebaeude_t::is_monument() const
+{
+    return tile->gib_besch()->gib_utyp()==hausbauer_t::denkmal;
+}
+
 bool gebaeude_t::ist_firmensitz() const
 {
     return tile->gib_besch()->ist_firmensitz();
@@ -507,7 +429,7 @@ void gebaeude_t::info(cbuffer_t & buf) const
 			buf.append("\n");
 			buf.append(translator::translate("Wert"));
 			buf.append(": ");
-			buf.append(-CST_HAUS_ENTFERNEN*(tile->gib_besch()->gib_level()+1)/100);
+			buf.append(-umgebung_t::cst_multiply_remove_haus*(tile->gib_besch()->gib_level()+1)/100);
 			buf.append("$\n");
 		}
 
@@ -524,7 +446,7 @@ void gebaeude_t::info(cbuffer_t & buf) const
 void
 gebaeude_t::rdwr(loadsave_t *file)
 {
-	if(fabrik() == NULL || file->is_loading()) {
+	if(fabrik()==NULL || file->is_loading()) {
 		// Gebaude, die zu einer Fabrik gehoeren werden beim laden
 		// der Fabrik neu erzeugt
 		ding_t::rdwr(file);
@@ -632,7 +554,6 @@ gebaeude_t::rdwr(loadsave_t *file)
 		file->wr_obj_id(-1);
 	}
 
-
 	if(file->is_loading()) {
 		if(gib_besitzer()) {
 			gib_besitzer()->add_maintenance(umgebung_t::maint_building);
@@ -671,8 +592,12 @@ void
 gebaeude_t::entferne(spieler_t *sp)
 {
 	if(sp != NULL && !ist_rathaus()) {
-		sp->buche(CST_HAUS_ENTFERNEN*(tile->gib_besch()->gib_level()+1),
-			gib_pos().gib_2d(),
-			COST_CONSTRUCTION);
+		stadt_t *city=welt->suche_naechste_stadt(gib_pos().gib_2d());
+#ifdef COUNT_HOUSES
+		if(city) {
+			city->remove_building(this);
+		}
+#endif
+		sp->buche(umgebung_t::cst_multiply_remove_haus*(tile->gib_besch()->gib_level()+1), gib_pos().gib_2d(), COST_CONSTRUCTION);
 	}
 }

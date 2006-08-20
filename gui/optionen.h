@@ -28,18 +28,14 @@ public:
      */
     virtual const char * gib_hilfe_datei() const {return "options.txt";};
 
+    /* return NULL->orange frame *
+     * @author Hj. Malthaner
+     */
+    virtual spieler_t* gib_besitzer() const { return NULL; }
 
     const char *gib_name() const;
 
     void info(cbuffer_t & buf) const;
-
-
-    /**
-     * gibt den Besitzer zurück
-     *
-     * @author Hj. Malthaner
-     */
-    spieler_t* gib_besitzer() const;
 
     /**
      * Jedes Objekt braucht ein Bild.

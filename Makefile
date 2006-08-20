@@ -5,7 +5,6 @@ CONFIG ?= config.default
 BACKENDS      = allegro gdi sdl x11
 COLOUR_DEPTHS = 8 16
 OSTYPES       = beos cygwin freebsd linux mingw
-OPTS          = debug debug_optimize optimize profile
 
 ifeq ($(findstring $(BACKEND), $(BACKENDS)),)
   $(error Unkown BACKEND "$(BACKEND)", must be one of "$(BACKENDS)")
@@ -19,10 +18,6 @@ ifeq ($(findstring $(OSTYPE), $(OSTYPES)),)
   $(error Unkown OSTYPE "$(OSTYPE)", must be one of "$(OSTYPES)")
 endif
 
-ifeq ($(findstring $(OPT), $(OPTS)),)
-  $(error Unkown OPT "$(OPT)", must be one of "$(OPTS)")
-endif
-
 
 ifeq ($(BACKEND), x11)
   $(warning ATTENTION: X11 backend is broken)
@@ -34,16 +29,16 @@ endif
 
 
 ifeq ($(OSTYPE),beos)
-#  ALLEGRO_CONFIG ?= allegro-config
-#  SDL_CONFIG     ?= sdl-config
+  ALLEGRO_CONFIG ?= allegro-config
+  SDL_CONFIG     ?= sdl-config
   STD_LIBS       ?= -lz
 endif
 
 ifeq ($(OSTYPE),cygwin)
   ALLEGRO_CONFIG ?= allegro-config
-  SDL_CONFIG     ?= sdl-config
   OS_INC         ?= -I/usr/include/mingw
   OS_OPT         ?= -mwin32
+  SDL_CONFIG     ?= sdl-config
   STD_LIBS       ?= -lgdi32 -lwinmm -lz -mno-cygwin
 endif
 
@@ -54,10 +49,10 @@ ifeq ($(OSTYPE),freebsd)
 endif
 
 ifeq ($(OSTYPE),mingw)
-#  ALLEGRO_CONFIG ?= allegro-config
-#  SDL_CONFIG     ?= sdl-config
+  ALLEGRO_CONFIG ?= allegro-config
   OS_OPT         ?= -mno-cygwin -DPNG_STATIC -DZLIB_STATIC
-  STD_LIBS       ?= -lgdi32 -lwinmm -lz
+  SDL_CONFIG     ?= sdl-config
+  STD_LIBS       ?= -lgdi32 -lwinmm -lz -lunicows
 endif
 
 ifeq ($(OSTYPE),linux)
@@ -67,51 +62,31 @@ ifeq ($(OSTYPE),linux)
 endif
 
 
-export CC
-export CXX
-
-# C compiler options
-ifeq ($(OSTYPE),beos)
-CFLAGS= -DUSE_C -O -g -fschedule-insns2 -fgcse -fstrict-aliasing -march=i586 -pipe
+ifneq ($(OPTIMISE),)
+  CFLAGS   += -O -fomit-frame-pointer -fschedule-insns2 -fexpensive-optimizations -fgcse -fstrict-aliasing -minline-all-stringops
+  CXXFLAGS += -O -fomit-frame-pointer -fschedule-insns2 -fregmove -fmove-all-movables -freorder-blocks -falign-functions
 else
-## other systems
-ifeq ($(OPT),profile)
-CFLAGS= -pg -O -pipe -fschedule-insns2 -fgcse -fstrict-aliasing -fexpensive-optimizations -march=i586 -g -minline-all-stringops
-LDFLAGS= -pg
-endif
-ifeq ($(OPT),optimize)
-CFLAGS= -O -fschedule-insns2 -fomit-frame-pointer -fgcse -fstrict-aliasing -fexpensive-optimizations -march=i586 -pipe -minline-all-stringops
-endif
-ifeq ($(OPT),debug)
-CFLAGS= -O -g -fschedule-insns2 -fgcse -fstrict-aliasing -fexpensive-optimizations -march=i586 -pipe -minline-all-stringops
-endif
-ifeq ($(OPT),debug_optimize)
-CFLAGS= -DDEBUG -O -g -fschedule-insns2 -fgcse -fstrict-aliasing -fexpensive-optimizations -march=i586 -pipe -minline-all-stringops
-endif
+  CFLAGS   += -O
+  CXXFLAGS += -O
 endif
 
-
-# C++ compiler options
-ifeq ($(OPT),profile)
-CXXFLAGS= -pg -pipe -O -march=i586
-LDFLAGS= -pg
-endif
-ifeq ($(OPT),optimize)
-CXXFLAGS= -Wcast-align -Wcast-qual -Wpointer-arith -O -fomit-frame-pointer -fregmove -fschedule-insns2 -fmove-all-movables -freorder-blocks -falign-functions  -march=i586 -pipe
-endif
-ifeq ($(OPT),debug)
-CXXFLAGS=  -DDEBUG -Wcast-align -Wcast-qual -Wpointer-arith -march=i586 -g -pipe
-endif
-ifeq ($(OPT),debug_optimize)
-CXXFLAGS= -DDEBUG -Wcast-align -Wcast-qual -Wpointer-arith -march=i586 -O -fregmove -fschedule-insns2 -fmove-all-movables -freorder-blocks -falign-functions -g -pipe
+ifneq ($(DEBUG),)
+  CFLAGS   += -DDEBUG -g -fno-omit-frame-pointer
+  CXXFLAGS += -DDEBUG -g -fno-omit-frame-pointer
 endif
 
-CFLAGS   += -Wall -W $(OS_INC) $(OS_OPT) $(FLAGS)
-CXXFLAGS += -Wall -W $(OS_INC) $(OS_OPT) $(FLAGS)
+ifneq ($(PROFILE),)
+  CFLAGS   += -pg
+  CXXFLAGS += -pg
+  LDFLAGS  += -pg
+endif
 
+ifeq ($(OSTYPE),beos)
+  CFLAGS += -DUSE_C
+endif
 
-export CFLAGS
-export CXXFLAGS
+CFLAGS   += -Wall -W -Wcast-qual -Wpointer-arith -Wcast-align $(OS_INC) $(OS_OPT) $(FLAGS)
+CXXFLAGS += -Wall -W -Wcast-qual -Wpointer-arith -Wcast-align $(OS_INC) $(OS_OPT) $(FLAGS)
 
 
 SOURCES += bauer/brueckenbauer.cc
@@ -246,13 +221,14 @@ SOURCES += gui/schedule_list.cc
 SOURCES += gui/scrollbar.cc
 SOURCES += gui/scrolled_list.cc
 SOURCES += gui/sound_frame.cc
-SOURCES += gui/spieler.cc
+SOURCES += gui/player_frame_t.cc
 SOURCES += gui/sprachen.cc
 SOURCES += gui/stadt_info.cc
 SOURCES += gui/tab_panel.cc
 SOURCES += gui/welt.cc
 SOURCES += gui/werkzeug_parameter_waehler.cc
 SOURCES += gui/world_view_t.cc
+SOURCES += freight_list_sorter.cc
 SOURCES += railblocks.cc
 SOURCES += simcity.cc
 SOURCES += simconvoi.cc
@@ -289,8 +265,8 @@ SOURCES += simworldview.cc
 SOURCES += sucher/platzsucher.cc
 SOURCES += tpl/debug_helper.c
 SOURCES += tpl/no_such_element_exception.cc
-SOURCES += utils/cbuffer_t.cc
 SOURCES += utils/cstring_t.cc
+SOURCES += utils/cbuffer_t.cc
 SOURCES += utils/log.cc
 SOURCES += utils/searchfolder.cc
 SOURCES += utils/simstring.c
@@ -298,6 +274,7 @@ SOURCES += utils/tocstring.cc
 
 
 SOURCES += simgraph$(COLOUR_DEPTH).c
+
 
 ifeq ($(BACKEND),allegro)
   SOURCES  += simsys_d$(COLOUR_DEPTH).c
@@ -308,15 +285,14 @@ ifeq ($(BACKEND),allegro)
     ALLEGRO_CFLAGS  := $(shell $(ALLEGRO_CONFIG) --cflags)
     ALLEGRO_LDFLAGS := $(shell $(ALLEGRO_CONFIG) --libs)
   endif
+  ALLEGRO_CFLAGS    += -DUSE_SOFTPOINTER
   CFLAGS   += $(ALLEGRO_CFLAGS)
   CXXFLAGS += $(ALLEGRO_CFLAGS)
   LIBS     += $(ALLEGRO_LDFLAGS)
-  FLAGS    += -DUSE_SOFTPOINTER
 endif
 
 ifeq ($(BACKEND),gdi)
   SOURCES += simsys_w$(COLOUR_DEPTH).c
-  LIBS += -lunicows
 endif
 
 ifeq ($(BACKEND),sdl)

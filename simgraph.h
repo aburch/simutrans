@@ -34,19 +34,6 @@ typedef enum {false=0, true=1 } bool;
 #define FALSE 0
 #endif
 
-
-#if defined(HALF_HEIGHT)  ||  defined(OTTD_LIKE)
-#define tile_raster_scale_x(v, rw)   (((v)*(rw)) >> 6)
-#define tile_raster_scale_y(v, rh)   (((v)*(rh)) >> 7)
-#define height_scaling(i) ((i)>>1)
-#define height_unscaling(i) ((i)>>1)
-#else
-#define tile_raster_scale_x(v, rw)   (((v)*(rw)) >> 6)
-#define tile_raster_scale_y(v, rh)   (((v)*(rh)) >> 6)
-#define height_scaling(i) (i)
-#define height_unscaling(i) (i)
-#endif
-
 #define DPY_WIDTH   12
 #define DPY_HEIGHT  28
 
