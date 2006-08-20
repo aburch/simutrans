@@ -655,9 +655,9 @@ private:
 
 //	bool ist_blockwechsel(koord3d k1, koord3d k2) const;
 
-	short flughoehe;
-	short target_height;
-	unsigned suchen, touchdown, takeoff;
+	sint16 flughoehe;
+	sint16 target_height;
+	uint32 suchen, touchdown, takeoff;
 
 protected:
 	bool ist_befahrbar(const grund_t *bd) const;
@@ -699,7 +699,8 @@ public:
 
     virtual int calc_height();
 
-    virtual void calc_akt_speed(const int h_alt, const int h_neu);
+	// the speed calculation happens it calc_height
+    virtual void calc_akt_speed(const int , const int ) { };
 };
 
 

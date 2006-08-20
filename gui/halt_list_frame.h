@@ -16,7 +16,6 @@
 #include "gui_scrollpane.h"
 #include "button.h"
 #include "gui_label.h"
-#include "components/gui_resizer.h"
 #include "ifc/action_listener.h"
 
 class spieler_t;
@@ -56,7 +55,6 @@ private:
      */
     gui_container_t cont;
     gui_scrollpane_t scrolly;
-    gui_resizer_t vresize;
 
     gui_label_t sort_label;
     button_t	sortedby;

@@ -7,8 +7,9 @@
 #
 
 
-#OSTYPE=mingw-sdl
-OSTYPE=mingw-gdi
+OSTYPE=mingw-sdl
+#OSTYPE=mingw-gdi
+#OSTYPE=mingw-allegro
 #OSTYPE=beos
 #OSTYPE=linux-gnu
 
@@ -25,12 +26,6 @@ export OSTYPE
 #OPT=debug
 #OPT=optimize
 OPT=debug_optimize
-
-
-#ifeq ($(SIM_OPTIMIZE),true)
-#OPT=optimize
-#endif
-
 
 
 ifeq ($(OSTYPE),cygwin)
@@ -58,6 +53,14 @@ OS_OPT=-mno-cygwin -DPNG_STATIC -DZLIB_STATIC
 STD_LIBS=-lunicows -lstdc++ -lz
 SDLLIBS= -lmingw32 -lgdi32 -lwinmm
 endif
+ifeq ($(OSTYPE),mingw-allegro)
+DISPLAY_OBJ= simsys_d16.o
+OS_INC=-I /usr/include/mingw
+OS_OPT=-mno-cygwin -DPNG_STATIC -DZLIB_STATIC
+#OS_OPT=-Wbad-function-cast
+STD_LIBS=-lunicows -lstdc++ -lz
+SDLLIBS= -lmingw32 -lalleg
+endif
 ifeq ($(OSTYPE),linux-gnu)
 #STD_LIBS= /usr/lib/libstdc++-3-libc6.1-2-2.10.0.a -lz
 DISPLAY_OBJ= simsys_s16.o
@@ -79,10 +82,6 @@ endif
 
 BESDLLIBS= -lSDL -lz
 
-# Compilers, C, C++
-CC= gcc
-CXX=g++
-
 # cross compilers
 #CC=/usr/local/src/gcc-2.95.2/gcc/xgcc -B/usr/local/src/gcc-2.95.2/gcc/ -B/usr/local/powerpc-unknown-linux/bin/  -I/usr/local/powerpc-unknown-linux/include
 #CXX=/usr/local/src/gcc-2.95.2/gcc/xgcc -B/usr/local/src/gcc-2.95.2/gcc/ -B/usr/local/powerpc-unknown-linux/bin/ -I/usr/local/powerpc-unknown-linux/include
@@ -99,8 +98,6 @@ endif
 
 export CC
 export CXX
-
-MAKE= make
 
 # C compiler options
 ifeq ($(OSTYPE),beos)
@@ -129,27 +126,18 @@ CXXFLAGS= -Wall -pg -pipe -O -march=i586 $(OS_OPT)
 LDFLAGS= -pg
 endif
 ifeq ($(OPT),optimize)
-CXXFLAGS= -Wall -W -Wcast-align -Wcast-qual -Wpointer-arith -O -fomit-frame-pointer -march=i586 -pipe $(OS_OPT)
+CXXFLAGS= -Wall -W -Wcast-align -Wcast-qual -Wpointer-arith -O -fomit-frame-pointer -fregmove -fschedule-insns2 -fmove-all-movables -freorder-blocks -falign-functions  -march=i586 -pipe $(OS_OPT)
 endif
 ifeq ($(OPT),debug)
 CXXFLAGS=  -DDEBUG -Wall -W -Wcast-align -Wcast-qual -Wpointer-arith -march=i586 -g -pipe $(OS_OPT)
 endif
 ifeq ($(OPT),debug_optimize)
-CXXFLAGS=  -DDEBUG -Wall -W -Wcast-align -march=i586 -O -g -pipe $(OS_OPT)
+CXXFLAGS=  -DDEBUG -Wall -W -Wcast-align -Wcast-qual -Wpointer-arith -march=i586 -O -fregmove -fschedule-insns2 -fmove-all-movables -freorder-blocks -falign-functions -g -pipe $(OS_OPT)
 endif
 
 
 export CFLAGS
 export CXXFLAGS
-
-
-# Link-time cc options:
-#
-# Profiler
-# LDFLAGS= -pg -L/usr/X11/lib/
-#
-# Standard
-##LDFLAGS= -L/usr/X11/lib/
 
 
 
@@ -221,13 +209,6 @@ SUB_OBJS=\
  besch/grund_besch.o\
  besch/tunnel_besch.o\
  besch/reader/sim_reader.o
-# mm/mempool.o mm/memblock.o \
-# utils/writepcx.o
-# utils/image_encoder.o
-# drivables/car_group_t.o\
-# drivables/car_t.o
-
-
 
 
 # SDL Include under X
@@ -248,37 +229,54 @@ AR2= ranlib
 
 
 # source files (independently compilable files)
-SOURCES= \
- tpl/debug_helper.c tpl/no_such_element_exception.cc\
- simgraph16.c simevent.c simdisplay.c\
- simdebug.cc simmem.cc simio.cc\
- simticker.cc simview.cc simworldview.cc\
- simtime.cc simtools.c\
- railblocks.cc blockmanager.cc simwin.cc simdepot.cc \
- simvehikel.cc simverkehr.cc simpeople.cc \
- simdings.cc simware.cc simfab.cc simplan.cc\
- simhalt.cc simconvoi.cc\
- simcity.cc simwerkz.cc simworld.cc simplay.cc simsound.cc simintr.cc \
- simmain.cc simskin.cc simlinemgmt.cc simline.cc \
- simmesg.cc
+SOURCES += blockmanager.cc
+SOURCES += railblocks.cc
+SOURCES += simcity.cc
+SOURCES += simconvoi.cc
+SOURCES += simdebug.cc
+SOURCES += simdepot.cc
+SOURCES += simdings.cc
+SOURCES += simdisplay.c
+SOURCES += simevent.c
+SOURCES += simfab.cc
+#SOURCES += simgraph16.c # seems to be unused
+SOURCES += simhalt.cc
+SOURCES += simintr.cc
+SOURCES += simio.cc
+SOURCES += simline.cc
+SOURCES += simlinemgmt.cc
+SOURCES += simmain.cc
+SOURCES += simmem.cc
+SOURCES += simmesg.cc
+SOURCES += simpeople.cc
+SOURCES += simplan.cc
+SOURCES += simplay.cc
+SOURCES += simskin.cc
+SOURCES += simsound.cc
+SOURCES += simticker.cc
+SOURCES += simtime.cc
+SOURCES += simtools.c
+SOURCES += simvehikel.cc
+SOURCES += simverkehr.cc
+SOURCES += simview.cc
+SOURCES += simware.cc
+SOURCES += simwerkz.cc
+SOURCES += simwin.cc
+SOURCES += simworld.cc
+SOURCES += simworldview.cc
+SOURCES += tpl/debug_helper.c
+SOURCES += tpl/no_such_element_exception.cc
 
-ASM_SOURCES= \
- asm/pixcopy.s asm/colorpixcopy.s asm/display_img.s asm/display_img16.s asm/display_img16w.s
+ifeq ($(OSTYPE),mingw-sdl)
+  SOURCES += simres.rc
+endif
+ifeq ($(OSTYPE),mingw-gdi)
+  SOURCES += simres.rc
+endif
 
-# objectfiles
-OBJECTS= \
- tpl/debug_helper.o tpl/no_such_element_exception.o\
- simevent.o simdisplay.o\
- simdebug.o simmem.o simio.o\
- simticker.o simview.o simworldview.o\
- simtime.o simtools.o\
- railblocks.o blockmanager.o simwin.o simdepot.o \
- simvehikel.o simverkehr.o simpeople.o \
- simdings.o simware.o simfab.o simplan.o\
- simhalt.o simconvoi.o\
- simcity.o simwerkz.o simworld.o simplay.o simsound.o simintr.o \
- simmain.o  simskin.o simlinemgmt.o simline.o simmesg.o
+SUBDIRS = bauer besch boden dataobj dings gui sucher utils
 
+include common.mk
 
 
 all:    16
@@ -291,40 +289,24 @@ cross:  subs wincross
 	mv simwin.exe ../simutrans/simutrans.exe
 
 
-subs:   gui_sub dataobj_sub dings_sub bauer_sub sucher_sub boden_sub utils_sub besch_sub
-#subs:   gui_sub dataobj_sub dings_sub bauer_sub sucher_sub boden_sub mm_sub utils_sub besch_sub car_sub
-
-clean:
-	rm -f *.o */*.o */*/*.o
-	rm -f *.bak */*.bak */*/*.bak
-	rm -f *~ */*~ */*/*~
+subs: $(SUBDIRS)
 
 normal:	$(OBJECTS) simsys_d.o simgraph.o
 	$(LN) $(LDFLAGS) -o sim $(OBJECTS) simsys_d.o simgraph.o /usr/local/lib/liballeg.a $(SUB_OBJS) $(STD_LIBS)
 
 
-normal16:	$(OBJECTS) $(DISPLAY_OBJ) simgraph16.o $(ASM_DISPLAY_IMG)
-ifeq ($(OSTYPE),mingw-sdl)
-	windres -O COFF simwin.rc simres.o
-	$(LN) $(LDFLAGS) -o sim $(OBJECTS) $(DISPLAY_OBJ) simgraph16.o $(SUB_OBJS) simres.o $(STD_LIBS) $(SDLLIBS)
-else
-ifeq ($(OSTYPE),mingw-gdi)
-	windres -O COFF simwin.rc simres.o
-	$(LN) $(LDFLAGS) -o sim $(OBJECTS) $(DISPLAY_OBJ) simgraph16.o $(SUB_OBJS) simres.o $(STD_LIBS) $(SDLLIBS)
-else
-	$(LN) $(LDFLAGS) -o sim $(OBJECTS) $(DISPLAY_OBJ) simgraph16.o $(ASM_DISPLAY_IMG) $(SUB_OBJS) $(STD_LIBS) $(SDLLIBS)
-endif
-endif
+normal16: $(OBJECTS) $(DISPLAY_OBJ) simgraph16.o
+	$(LN) $(LDFLAGS) -o sim $(OBJECTS) $(DISPLAY_OBJ) simgraph16.o $(SUB_OBJS) $(STD_LIBS) $(SDLLIBS)
 
 allegro16:	$(OBJECTS) simsys_d16.o simgraph16.o
-	$(LN) $(LDFLAGS) -o sim $(OBJECTS) simsys_d16.o simgraph16.o $(SUB_OBJS) -lefence /usr/local/lib/liballeg.a $(STD_LIBS)
+	$(LN) $(LDFLAGS) -o sim $(OBJECTS) simsys_d16.o simgraph16.o $(SUB_OBJS) -lalleg.a $(STD_LIBS)
 
 allegro_dyn: $(OBJECTS) simsys_d.o
-	gcc $(CFLAGS) -c -D"MSDOS" simgraph.c
+	$(CC) $(CFLAGS) -c -D"MSDOS" simgraph.c
 	$(LN) $(LDFLAGS) -o sim simsys_d.o $(OBJECTS) $(SUB_OBJS) -lm -lalleg-3.9.34 -lalleg_unsharable
 
 allegro: $(OBJECTS) simsys_d.o
-	gcc $(CFLAGS) -c -D"MSDOS" simgraph.c
+	$(CC) $(CFLAGS) -c -D"MSDOS" simgraph.c
 	$(LN) $(LDFLAGS) -o sim simsys_d.o $(OBJECTS) /usr/local/lib/liballeg.a $(SUB_OBJS) -lX11 -lXext -lesd
 
 newcars: subs car_sub $(OBJECTS)
@@ -339,8 +321,6 @@ autotest:
 
 testfiles: dataobj_sub dings_sub gui_sub utils_sub test_sub $(OBJECTS) simsys_s16.o simgraph16.o
 	$(LN) $(LDFLAGS) -o sim $(OBJECTS) simsys_s16.o simgraph16.o asm/display_img16w.o test/worldtest.o test/testtool.o $(SUB_OBJS) $(STD_LIBS)  $(SDLLIBS)
-
-# test/buildings_frame_t.o test/buildings_stats_t.o
 
 pak:
 	utils/makepak
@@ -383,34 +363,6 @@ demo:
 static:    $(OBJECTS) simsys_x.o
 	$(LN) -static $(LDFLAGS) -o simstat $(OBJECTS) simsys_x.o $(SUB_OBJS)
 
-# always use the "dep" target if possible!
-
-depend:
-	cd gui; make depend; cd ..
-	cd dings; make depend; cd ..
-	cd dataobj; make depend; cd ..
-	cd mm; make depend; cd ..
-	cd utils; make depend; cd ..
-	cd boden; make depend; cd ..
-	cd test; make depend; cd ..
-	makedepend $(SOURCES)
-
-# dependencies without makedepend
-
-dep: depdep
-	cd gui; make dep; cd ..
-	cd dings; make dep; cd ..
-	cd dataobj; make dep; cd ..
-	cd bauer; make dep; cd ..
-	cd sucher; make dep; cd ..
-	cd mm; make dep; cd ..
-	cd utils; make dep; cd ..
-	cd boden; make dep; cd ..
-
-
-depdep: $(SOURCES)
-	gcc -M $^ > .depend
-
 
 doc:
 	kdoc -d html -p Simutrans *.h */*.h *.h */*/*.h
@@ -420,77 +372,7 @@ lib:    $(OBJECTS)
 	ar d libsim.a simmain.o
 	ranlib libsim.a
 
-mm_sub:
-	$(MAKE) -e -C mm
-
-utils_sub:
-	$(MAKE) -e -C utils sim_obj
-
-besch_sub:
-	$(MAKE) -e -C besch
-
-bauer_sub:
-	$(MAKE) -e -C bauer
-
-sucher_sub:
-	$(MAKE) -e -C sucher
-
-adt_sub:
-	$(MAKE) -e -C adt
-
-gui_sub:
-	$(MAKE) -e -C gui
-
-dataobj_sub:
-	$(MAKE) -e -C dataobj
-
-dings_sub:
-	$(MAKE) -e -C dings
-
-boden_sub:
-	$(MAKE) -e -C boden
-
-#car_sub:
-#	$(MAKE) -e -C drivables
-
-test_sub:
-	$(MAKE) -e -C test
-
-
-
-asm/pixcopy.o: asm/pixcopy.s
-	$(CC) -c asm/pixcopy.s -o asm/pixcopy.o
-
-asm/colorpixcopy.o: asm/colorpixcopy.s
-	$(CC) -c asm/colorpixcopy.s -o asm/colorpixcopy.o
-
-asm/display_img.o: asm/display_img.s
-	$(CC) -c asm/display_img.s -o asm/display_img.o
-
-asm/display_img16.o: asm/display_img16.s
-	$(CC) -c asm/display_img16.s -o asm/display_img16.o
-
-asm/display_img16w.o: asm/display_img16w.s
-	$(CC) -c asm/display_img16w.s -o asm/display_img16w.o
-
-
-
-ifeq (.depend,$(wildcard .depend))
-    # include .depend only if it exists
-include .depend
-endif
-
-
-win:
-	./fix_vc.sh win
-
-unix:
-	./fix_vc.sh unix
-
-
 
 # some dependencies that make dep can't generate
 
 simsys_s16.o: simversion.h
-
-# DO NOT DELETE

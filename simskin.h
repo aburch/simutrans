@@ -104,6 +104,7 @@ public:
     static const skin_besch_t *stadtzeiger;
     static const skin_besch_t *baumzeiger;
     static const skin_besch_t *undoc_zeiger;
+    static const skin_besch_t *mouse_cursor;	// for allegro: Emulate mouse cursor
 
     static const skin_besch_t *signale;
     static const skin_besch_t *presignals;

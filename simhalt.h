@@ -264,9 +264,9 @@ private:
 	/* station flags (most what enabled) */
 	uint8 enables;
 
-    void set_pax_enabled(bool yesno) {yesno ? enables|PAX : enables&(~PAX);};
-    void set_post_enabled(bool yesno) {yesno ? enables|POST : enables&(~POST);};
-    void set_ware_enabled(bool yesno) {yesno ? enables|WARE : enables&(~WARE);};
+    void set_pax_enabled(bool yesno) {yesno ? enables|=PAX : enables&=(~PAX);};
+    void set_post_enabled(bool yesno) {yesno ? enables|=POST : enables&=(~POST);};
+    void set_ware_enabled(bool yesno) {yesno ? enables|=WARE : enables&=(~WARE);};
 
 
     /**
@@ -678,7 +678,7 @@ public:
     sint64 get_finance_history(int month, int cost_type) { return financial_history[month][cost_type]; };
 
 	// flags station for a crowded message at the beginning of next month
-	void bescheid_station_voll() { enables|CROWDED; };
+	void bescheid_station_voll() { enables|=CROWDED; };
 };
 
 

@@ -230,7 +230,7 @@ static void win_draw_window_title(const koord pos, const koord gr,
 				  const bool closing,
 				  const simwin_gadget_flags * const flags )
 {
-	PUSH_CLIP(pos.x, pos.y, gr.x-2, gr.y);
+	PUSH_CLIP(pos.x, pos.y, gr.x, gr.y);
     display_fillbox_wh_clip(pos.x, pos.y, gr.x, 1, titel_farbe+1, true);
     display_fillbox_wh_clip(pos.x, pos.y+1, gr.x, 14, titel_farbe, true);
     display_fillbox_wh_clip(pos.x, pos.y+15, gr.x, 1, SCHWARZ, true);

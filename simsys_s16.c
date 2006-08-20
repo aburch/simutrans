@@ -28,6 +28,7 @@
 #include "simmem.h"
 #include "simversion.h"
 #include "simsys16.h"
+#include "simevent.h"
 
 // try to use hardware double buffering ...
 // this is equivalent on 16 bpp and much slower on 32 bpp
@@ -472,91 +473,65 @@ static void internal_GetEvents(int wait)
             break;
         }
         break;
-    case SDL_KEYDOWN:   /* originally KeyPress */
-        sys_event.type=SIM_KEYBOARD;
-        // read mod key state from SDL layer
-        i = SDL_GetModState();
-        sys_event.key_mod = ((i&2)>>1) | ( i&1) | ((i&0x40)>>5) | ((i&0x80)>>6);
+		case SDL_KEYDOWN:   /* originally KeyPress */
+		{
+			sys_event.type=SIM_KEYBOARD;
+			// read mod key state from SDL layer
+			i = SDL_GetModState();
+			sys_event.key_mod = ((i&2)>>1) | ( i&1) | ((i&0x40)>>5) | ((i&0x80)>>6);
 
+			if(event.key.keysym.sym >= SDLK_0 && event.key.keysym.sym <= SDLK_9)  {
+				switch(event.key.keysym.sym) {
+					case SDLK_0:
+						sys_event.code = '0';
+				    		break;
+					case SDLK_1:
+				    		sys_event.code = '1';
+				    		break;
+					case SDLK_2:
+				      	sys_event.code = '2';
+						break;
+					case SDLK_3:
+				  		sys_event.code = '3';
+				    		break;
+					case SDLK_4:
+					  	sys_event.code = '4';
+				    		break;
+					case SDLK_5:
+							sys_event.code = '5';
+					    break;
+					case SDLK_6:
+				  			sys_event.code = '6';
+				  			break;
+					case SDLK_7:
+				  			sys_event.code = '7';
+				  			break;
+					case SDLK_8:
+							sys_event.code = '8';
+								break;
+					case SDLK_9:
+				  			sys_event.code = '9';
+								break;
+					default:
+				}
+			}
+			else if (event.key.keysym.sym == SDLK_DELETE) {
+	      		sys_event.code = 127;
+	    		}
+			else if ((event.key.keysym.sym >= 32) && (event.key.keysym.sym <= 255)) {
+	    			sys_event.code=event.key.keysym.unicode;
+	    			printf("Key '%c' (%d) was pressed\n", (int)sys_event.code, (int)sys_event.code);
+			} else if(event.key.keysym.sym>=SDLK_F1  &&  event.key.keysym.sym<=SDLK_F15) {
+	      			sys_event.code = event.key.keysym.sym-SDLK_F1+KEY_F1;
+      		}
+      		else {
+				printf("unicode key (%X/%X) was pressed\n", event.key.keysym.sym,event.key.keysym.unicode);
+				sys_event.code = event.key.keysym.unicode;
+			}
+    	}
+    	break;
 
-    // do low level special stuff here
-    switch(event.key.keysym.sym) {
-
-    case SDLK_KP0:
-      sys_event.code = '0';
-      break;
-    case SDLK_KP1:
-      sys_event.code = '1';
-      break;
-    case SDLK_KP2:
-    // case SDLK_DOWN:
-      sys_event.code = '2';
-      break;
-    case SDLK_KP3:
-      sys_event.code = '3';
-      break;
-    case SDLK_KP4:
-    // case SDLK_LEFT:
-      sys_event.code = '4';
-      break;
-    case SDLK_KP5:
-      sys_event.code = '5';
-      break;
-    case SDLK_KP6:
-    // case SDLK_RIGHT:
-      sys_event.code = '6';
-      break;
-    case SDLK_KP7:
-      sys_event.code = '7';
-      break;
-    case SDLK_KP8:
-    // case SDLK_UP:
-      sys_event.code = '8';
-      break;
-    case SDLK_KP9:
-      sys_event.code = '9';
-      break;
-    case SDLK_PAGEUP:
-      sys_event.code = '>';
-      break;
-    case SDLK_PAGEDOWN:
-      sys_event.code = '<';
-      break;
-
-    default:
-
-        // Hajo: process keys to report to application
-	if ((event.key.keysym.sym >= 32) && (event.key.keysym.sym <= 255)) {
-
-	    sys_event.code=event.key.keysym.unicode;
-
-	    // Hajo: some mapping of 'special' keys
-	    if (event.key.keysym.sym == SDLK_DELETE) {
-	      sys_event.code = 127;
-	    }
-
-    printf("Key '%c' (%d) was pressed\n", (int)sys_event.code, (int)sys_event.code);
-	} else {
-
-	    // Hajo: need to remap some codes
-	    switch(event.key.keysym.sym) {
-	    case SDLK_F1:
-	      sys_event.code = SIM_F1;
-	      break;
-	    default:
-    printf("unicode key (%X/%X) was pressed\n", event.key.keysym.sym,event.key.keysym.unicode);
-    		 if(event.key.keysym.sym>=256  &&  event.key.keysym.sym<=279) {
-    		 	sys_event.code = event.key.keysym.sym;
-		 }
-		 else {
-		      sys_event.code = event.key.keysym.unicode;
-		 }
-	    }
-	}
-    }
-    break;
-
-    case SDL_MOUSEMOTION:
+    	case SDL_MOUSEMOTION:
         sys_event.type=SIM_MOUSE_MOVE;
         sys_event.code= SIM_MOUSE_MOVED;
         sys_event.mx=event.motion.x;

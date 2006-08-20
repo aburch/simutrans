@@ -840,6 +840,10 @@ display_show_pointer( false );
     intr_refresh_display( true );
 
     // Hajo: give user a mouse to work with
+    if(dr_use_softpointer()  &&  skinverwaltung_t::mouse_cursor!=NULL) {
+    	// we must use our softpointer (only Allegro!)
+		display_set_pointer(skinverwaltung_t::mouse_cursor->gib_bild_nr(0));
+    }
     display_show_pointer(TRUE);
 
 

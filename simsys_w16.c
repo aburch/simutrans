@@ -35,7 +35,7 @@
 
 #include "simmem.h"
 #include "simversion.h"
-#include "simsys16.h"
+#include "simsys.h"
 #include "simevent.h"
 
 static HWND hwnd;
@@ -367,6 +367,9 @@ LRESULT WINAPI WindowProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 			if((GetKeyState(VK_NUMLOCK)&1)==0) {
 				// do low level special stuff here
 				switch(wParam) {
+					case VK_NUMPAD0:
+						sys_event.code = '0';
+						break;
 					case VK_NUMPAD1:
 						sys_event.code = '1';
 						break;
@@ -378,6 +381,9 @@ LRESULT WINAPI WindowProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 						break;
 					case VK_NUMPAD9:
 						sys_event.code = '9';
+						break;
+					case VK_NUMPAD2:
+						sys_event.code = KEY_DOWN;
 						break;
 					case VK_NUMPAD4:
 						sys_event.code = KEY_LEFT;
@@ -418,9 +424,6 @@ LRESULT WINAPI WindowProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 				case VK_NEXT:
 					sys_event.code = '<';
 					break;
-				case VK_F1:
-					sys_event.code = SIM_F1;
-					break;
 				case VK_DELETE:
 					sys_event.code = 127;
 					break;
@@ -431,7 +434,17 @@ LRESULT WINAPI WindowProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 					sys_event.code = KEY_END;
 					break;
 			}
-			// check for numlock!
+			// check for numkey!
+			if(sys_event.code==0  &&  wParam>=VK_NUMPAD0  &&  wParam<=VK_NUMPAD9) {
+				sys_event.code = '0' + (wParam-VK_NUMPAD0);
+			}
+			// check for F-Keys!
+			if(sys_event.code==0  &&  wParam>=VK_F1  &&  wParam<=VK_F15) {
+				sys_event.code = (wParam-VK_F1)+KEY_F1;
+				sys_event.key_mod = (GetKeyState(VK_CONTROL)!=0)*2;	// control state
+//printf("WindowsEvent: Key %i, (state %i)\n",sys_event.code, sys_event.key_mod );
+			}
+			// some result?
 			if(sys_event.code!=0) {
 				return 0;
 			}

@@ -1560,12 +1560,12 @@ DBG_MESSAGE("spieler_t::do_ki()","No roadway possible.");
 				if(cnv->gib_besitzer()==this) {
 					// check for empty vehicles (likely stucked) that are making no plus and remove them ...
 					// take care, that the vehicle is old enough ...
-					if((welt->get_current_month()-cnv->gib_vehikel(0)->gib_insta_zeit())>2  &&  cnv->gib_jahresgewinn()==0  ){
-						sint64 passenger=0;
+					if((welt->get_current_month()-cnv->gib_vehikel(0)->gib_insta_zeit())>12  &&  cnv->gib_jahresgewinn()==0  ){
+						sint64 goods=0;
 						for( int i=0;  i<MAX_MONTHS;  i ++) {
-							passenger += cnv->get_finance_history(i,CONVOI_TRANSPORTED_GOODS);
+							goods += cnv->get_finance_history(i,CONVOI_TRANSPORTED_GOODS);
 						}
-						if(passenger==0) {
+						if(goods==0) {
 							// now passengers for two months?
 							// well, then delete this (likely stucked somewhere)
 DBG_MESSAGE("spieler_t::do_ki()","convoi %s not needed!",cnv->gib_name());
@@ -1832,12 +1832,16 @@ DBG_MESSAGE("spieler_t::baue_bahnhof","Final station at (%i,%i)",p->x,p->y);
  * @author prissi
  */
 int
-spieler_t::rating_transport_quelle_ziel(fabrik_t */*qfab*/,const ware_t *ware,fabrik_t *zfab)
+spieler_t::rating_transport_quelle_ziel(fabrik_t *qfab,const ware_t *ware,fabrik_t *zfab)
 {
 	const vector_tpl<ware_t> *eingang = zfab->gib_eingang();
 	// we may have more than one input:
 	unsigned missing_input_ware=0;
 	unsigned missing_our_ware=0;
+
+	// does the source also produce => then we should try to connect it
+	// otherwise production will stop too early
+	bool 	is_manufacturer = qfab->gib_eingang()->get_count()>0;
 
 	// hat noch mehr als halbvolle Lager  and more then 35 (otherwise there might be also another transporter) ?
 	if(ware->menge < ware->max>>1  ||  ware->menge<(34<<fabrik_t::precision_bits)  ) {
@@ -1847,7 +1851,7 @@ spieler_t::rating_transport_quelle_ziel(fabrik_t */*qfab*/,const ware_t *ware,fa
 	// if not really full output storage:
 	if(  ware->menge < ware->max-(34<<fabrik_t::precision_bits)  ) {
 		// well consider, but others are surely better
-		return 1;
+		return is_manufacturer ? 4 : 1;
 	}
 
 	// so we do a loop
@@ -1856,7 +1860,7 @@ spieler_t::rating_transport_quelle_ziel(fabrik_t */*qfab*/,const ware_t *ware,fa
 			// so more would be helpful
 			missing_input_ware ++;
 			if(  eingang->get(i).gib_typ()==ware->gib_typ()  ) {
-				missing_our_ware = 1;
+				missing_our_ware = true;
 			}
 		}
 	}
@@ -1867,18 +1871,18 @@ DBG_MESSAGE("spieler_t::rating_transport_quelle_ziel","Missing our %i, total  mi
 		if(  missing_input_ware==1  ) {
 			if(  eingang->get_count()-missing_input_ware==1  ) {
 				// only our is missing of multiple produkts
-				return 16;
+				return is_manufacturer ? 64 : 16;
 			}
 		}
 		if(  missing_input_ware<eingang->get_count()  ) {
 			// factory is already supplied with mutiple sources, but our is missing
-			return 8;
+			return is_manufacturer ? 32 : 8;
 		}
-		return 4;
+		return is_manufacturer ? 16 : 4;
 	}
 
 	// else there is no high priority
-	return 2;
+	return is_manufacturer ? 8 : 2;
 }
 
 
@@ -3139,6 +3143,9 @@ spieler_t::undo()
 	bool ok = false;
 	for(unsigned short i=0;  i<last_built.get_count();  i++  ) {
 		grund_t *gr = welt->lookup(last_built.at(i))->gib_kartenboden();
+		if(undo_type==weg_t::schiene) {
+			blockmanager::gib_manager()->entferne_schiene(welt, gr->gib_pos());
+		}
 		ok |= gr->weg_entfernen(undo_type,true);
 DBG_DEBUG("spieler_t::add_undo()","undo tile %i at (%i,%i)",i,last_built.at(i).x,last_built.at(i).y);
 	}

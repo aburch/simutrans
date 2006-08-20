@@ -70,9 +70,8 @@ bool fundament_t::zeige_info()
 void
 fundament_t::calc_bild()
 {
-
 	grund_t::calc_bild();
-
+#ifndef DOUBLE_GROUNDS
 	const koord k = gib_pos().gib_2d();
 	const uint8 slope_this = welt->get_slope(k);
 
@@ -129,6 +128,7 @@ fundament_t::calc_bild()
 
 	setze_bild( grund_besch_t::fundament->gib_bild(welt->get_slope(k)) );
 	setze_back_bild(back_bild);
+#endif
 }
 
 

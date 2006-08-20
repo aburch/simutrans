@@ -31,14 +31,13 @@
 
 #include <math.h>
 
-#include "simsys16.h"
+#include "simsys.h"
 #include "simmem.h"
 
 
 // #define DIGMID_SUPPORT   // for Simutrans to work with DIGMID, define this
 
 static void simtimer_init();
-static int  simsound_init();
 
 static int width = 640;
 static int height = 480;
@@ -131,17 +130,17 @@ int dr_os_init(int n, int *parameter)
         LOCK_VARIABLE(event_queue);
         LOCK_FUNCTION(my_mouse_callback);
         LOCK_FUNCTION(my_keyboard_callback);
-
         if(ok == 0) {
                 simtimer_init();
-                simsound_init();
         }
-
 
         return ok == 0;
 }
 
-int dr_os_open(int w, int h)
+
+
+
+int dr_os_open(int w, int h, int fullscreen)
 {
         int ok;
 
@@ -212,6 +211,17 @@ dr_textur_init()
         return (unsigned short*)tex;
 }
 
+
+
+
+// reiszes screen (Not allowed)
+int dr_textur_resize(unsigned short **textur,int w, int h)
+{
+	return FALSE;
+}
+
+
+
 void
 dr_textur(int xp, int yp, int w, int h)
 {
@@ -226,10 +236,11 @@ dr_textur(int xp, int yp, int w, int h)
  */
 unsigned int get_system_color(unsigned int r, unsigned int g, unsigned int b)
 {
-  return
-    (r << 7) +
-    (g << 2) +
-    (b >> 3);
+#if 1// USE_16BIT_DIB
+	return ((r&0x00F8)<<8) | ((g&0x00FC)<<3) | (b>>3);
+#else
+	return ((r&0x00F8)<<7) | ((g&0x00F8)<<2) | (b>>3);	// 15 Bit
+#endif
 }
 
 
@@ -416,7 +427,7 @@ MIDI *midi_samples[MAX_MIDI];
  * initializes sound device
  * @author Hj. Malthaner
  */
-int simsound_init()
+void dr_init_sound()
 {
         int voices = detect_digi_driver(DIGI_AUTODETECT);
 
@@ -451,9 +462,18 @@ int simsound_init()
                 fprintf(stderr, "Warning: No sound available!\n");
                 sound_ok = 0;
         }
-
-        return TRUE;
 }
+
+
+
+/**
+ * nothing to do here
+ */
+void dr_init_midi()
+{
+}
+
+
 
 /*
  * loads a sample
@@ -610,6 +630,8 @@ void set_midi_pos(int pos)
 {
    midi_pos = pos;
 }
+
+
 
 
 int simu_main(int argc, char **argv);

@@ -41,6 +41,8 @@ extern "C" {
 #define SIM_MOUSE_WHEELDOWN         9 //2003-11-04 hsiegeln added
 
 #define SIM_SYSTEM_QUIT             1
+#define SIM_SYSTEM_RESIZE             2
+#define SIM_SYSTEM_UPDATE           3
 #define SIM_F1                      256
 
 /* Globale Variablen zur Messagebearbeitung */
@@ -58,7 +60,7 @@ extern struct sys_event sys_event;
 
 
 int dr_os_init(int n, int *parameter);
-int dr_os_open(int w, int h);
+int dr_os_open(int w, int h, int fullscreen);
 int dr_os_close();
 
 
@@ -75,7 +77,7 @@ void dr_init_sound();
 
 
 
-unsigned char * dr_textur_init();
+unsigned short * dr_textur_init();
 
 
 /**
@@ -87,9 +89,17 @@ int dr_use_softpointer();
 
 
 void dr_textur(int xp, int yp, int w, int h);
+int dr_textur_resize( unsigned short **textur,int w, int h);
 void dr_flush();
 
 void dr_setRGB8multi(int first, int count, unsigned char * data);
+
+/**
+ * Transform a 24 bit RGB color into the system format.
+ * @return converted color value
+ * @author Hj. Malthaner
+ */
+unsigned int get_system_color(unsigned int r, unsigned int g, unsigned int b);
 
 void show_pointer(int yesno);
 
@@ -168,6 +178,15 @@ long dr_midi_pos();
 void dr_destroy_midi();
 
 void set_midi_pos(int);
+
+/**
+ * Some wrappers can save screenshots.
+ * @return 1 on success, 0 if not implemented for a particular wrapper and -1
+ *         in case of error.
+ * @author Hj. Malthaner
+ */
+int dr_screenshot(const char *filename);
+
 
 #ifdef __cplusplus
 }

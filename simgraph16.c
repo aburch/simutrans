@@ -34,7 +34,7 @@
 
 #include "pathes.h"
 #include "simtypes.h"
-#include "simsys16.h"
+#include "simsys.h"
 #include "simmem.h"
 #include "simdebug.h"
 #include "besch/bild_besch.h"
@@ -80,10 +80,11 @@ typedef unsigned short PIXVAL;
  * assume yes by default, but the system wrapper
  * is inquired during initialisation
  */
-static int use_softpointer = 1;
+static int use_softpointer = 0;
 
 
-static int softpointer = 261;
+static int softpointer = -1;
+static int standard_pointer = -1;
 
 
 /*
@@ -758,6 +759,7 @@ static void rezoom_img( const unsigned int n )
 				unsigned int runlen;
 				unsigned int color = 0;
 				PIXVAL *p = line;
+				const int imgw=images[n].base_x+images[n].base_w;
 
 				// left offset, which was left by division
 				runlen = images[n].base_x%zoom_factor;
@@ -796,16 +798,16 @@ static void rezoom_img( const unsigned int n )
 					// encode this line
 					do {
 						// check length of transparent pixels
-						for(  i=0;  line[step]==0x73FE  &&  step<base_tile_raster_width;  i++, step+=zoom_factor  )
+						for(  i=0;  line[step]==0x73FE  &&  step<imgw;  i++, step+=zoom_factor  )
 							;
 						*dest++ = i;
 						// chopy for non-transparent
-						for(  i=0;  line[step]!=0x73FE  &&  step<base_tile_raster_width;  i++, step+=zoom_factor  ) {
+						for(  i=0;  line[step]!=0x73FE  &&  step<imgw;  i++, step+=zoom_factor  ) {
 							dest[i+1] = line[step];
 						}
 						*dest++ = i;
 						dest += i;
-					} while(step<base_tile_raster_width);
+					} while(step<imgw);
 					// mark line end
 					*dest++ = 0;
 					if(y_left==0) {
@@ -1684,12 +1686,35 @@ void register_image(struct bild_besch_t *bild)
 
 	bild->bild_nr = anz_images;
 
+	if(anz_images>=65535) {
+		printf("FATAL:\n*** Out of images (more than 65534!) ***\n\n");
+		getch();
+		fflush(NULL);
+		abort();
+	}
+/*
+	else {
+		printf("register_image() %i\n", anz_images );
+	}
+*/
 	if(base_tile_raster_width < bild->w) {
 		base_tile_raster_width = bild->w;
 		tile_raster_width = base_tile_raster_width;
 	}
 
 	anz_images ++;
+}
+
+
+
+// prissi: query offsets
+void display_get_image_offset( int bild, int *xoff, int *yoff, int *xw, int *yw ) {
+	if(bild<anz_images) {
+		*xoff = images[bild].base_x;
+		*yoff = images[bild].base_y;
+		*xw = images[bild].base_w;
+		*yw = images[bild].base_h;
+	}
 }
 
 
@@ -3232,9 +3257,9 @@ void display_flush_buffer()
 #endif
 
     if(use_softpointer) {
-	if(softpointer != 52) {
+	if(softpointer != -1) {
 	    ex_ord_update_mx_my();
-	    display_img_aux(softpointer, sys_event.mx, sys_event.my, true, false);
+	    display_color_img(standard_pointer, sys_event.mx, sys_event.my, 0, false, true);
 	}
 	old_my = sys_event.my;
     }
@@ -3329,15 +3354,23 @@ void display_move_pointer(int dx, int dy)
 void display_show_pointer(int yesno)
 {
     if(use_softpointer) {
-	if(yesno) {
-	    softpointer = 261;
-	} else {
-	    softpointer = 52;
-	}
+    softpointer = yesno;
     } else {
 	show_pointer(yesno);
     }
 }
+
+
+
+/**
+ * mouse pointer image
+ * @author prissi
+ */
+void display_set_pointer(int pointer)
+{
+	standard_pointer = pointer;
+}
+
 
 
 

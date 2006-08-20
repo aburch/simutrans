@@ -243,9 +243,9 @@ obj_besch_t * vehicle_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 
     besch->typ = decode_uint8(p);
     besch->sound = decode_sint8(p);
+    besch->engine_type = decode_uint8(p);
     besch->vorgaenger = decode_uint8(p);
     besch->nachfolger = decode_uint8(p);
-    besch->engine_type = decode_uint8(p);
 } else {
     // old node, version 0
 

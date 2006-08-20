@@ -453,6 +453,7 @@ gebaeude_t *hausbauer_t::neues_gebaeude(karte_t *welt,
     const haus_tile_besch_t *tile = besch->gib_tile(layout, 0, 0);
     int pri = 0;
     if(besch == bahn_depot_besch) {
+DBG_MESSAGE("hausbauer_t::neues_gebaeude()","Bahndepot");
 	gb = new bahndepot_t(welt, pos, sp, tile);
 	pri = PRI_DEPOT;
     } else if(besch == tram_depot_besch) {

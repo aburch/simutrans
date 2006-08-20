@@ -273,20 +273,16 @@ halt_list_frame_t::halt_list_frame_t(spieler_t *sp) :
     filter_details.add_listener(this);
     add_komponente(&filter_details);
 
-    //Resize button
-    vresize.setze_pos(koord(1,200));
-    vresize.setze_groesse(koord(318, 6));
-    vresize.set_type(gui_resizer_t::vertical_resize);
-
     scrolly.setze_pos(koord(1, 30));
     setze_opaque(true);
     setze_fenstergroesse(koord(320, 191+16+16));
 
+	// use gui-resize
+	set_min_windowsize(koord(320,191+16+16));
+	set_resizemode(diagonal_resize);
+
     display_list();
     add_komponente(&scrolly);
-
-    add_komponente(&vresize);
-    vresize.add_listener(this);
 
     resize (koord(0,0));
 }
@@ -356,7 +352,6 @@ void halt_list_frame_t::display_list(void)
         ypos += 32;
     }
     cont.setze_groesse(koord(500, ypos));
-    scrolly.setze_groesse(koord(318, gib_fenstergroesse().y - 1 - 16 - 16 - 20));
 #ifdef _MSC_VER
     delete [] a;
 #endif
@@ -381,26 +376,27 @@ void halt_list_frame_t::infowin_event(const event_t *ev)
  */
 bool halt_list_frame_t::action_triggered(gui_komponente_t *komp)
 {
-    if(komp == &vresize) {
-	resize (koord(vresize.get_hresize(), vresize.get_vresize()));
-    } else if(komp == &filter_on) {
-	setze_filter(any_filter, !gib_filter(any_filter));
-	filter_on.setze_text(translator::translate(gib_filter(any_filter) ? "hl_btn_filter_enable" : "hl_btn_filter_disable"));
-	display_list();
-    } else if(komp == &sortedby) {
+    if(komp == &filter_on) {
+		setze_filter(any_filter, !gib_filter(any_filter));
+		filter_on.setze_text(translator::translate(gib_filter(any_filter) ? "hl_btn_filter_enable" : "hl_btn_filter_disable"));
+		display_list();
+    }
+	else if(komp == &sortedby) {
     	setze_sortierung((sort_mode_t)((gib_sortierung() + 1) % SORT_MODES));
-	display_list();
-    } else if(komp == &sorteddir) {
+		display_list();
+    }
+	else if(komp == &sorteddir) {
     	setze_reverse(!gib_reverse());
-	display_list();
-    } else if(komp == &filter_details) {
-	if(filter_frame) {
-	    destroy_win(filter_frame);
-	}
-	else {
-	    filter_frame = new halt_list_filter_frame_t(m_sp, this);
-	    create_win(filter_frame, w_autodelete, -1);
-	}
+		display_list();
+    }
+	else if(komp == &filter_details) {
+		if (filter_frame) {
+	    	destroy_win(filter_frame);
+		}
+		else {
+	    	filter_frame = new halt_list_filter_frame_t(m_sp, this);
+	    	create_win(filter_frame, w_autodelete, -1);
+		}
     }
     return true;
 }
@@ -412,22 +408,9 @@ bool halt_list_frame_t::action_triggered(gui_komponente_t *komp)
  */
 void halt_list_frame_t::resize(koord size_change)
 {
-    koord new_windowsize = gib_fenstergroesse() + size_change;
-    int vresize_top = vresize.gib_pos().y + size_change.y;
-
-    if (new_windowsize.y < 100 )
-    {
-        new_windowsize.y = 100;
-        vresize_top=100-23 ;
-        vresize.cancelresize();
-    }
-
-    setze_fenstergroesse (new_windowsize);
-
-    scrolly.setze_groesse(koord(318, gib_fenstergroesse().y - 1 - 16 - 16 - 20));
-
-    vresize.setze_pos(koord(1,  vresize_top));
-
+	gui_frame_t::resize(size_change);
+	koord groesse = gib_fenstergroesse()-koord(0,47);
+	scrolly.setze_groesse(groesse);
 }
 
 void halt_list_frame_t::zeichnen(koord pos, koord gr)

@@ -1281,13 +1281,13 @@ depot_frame_t::draw_vehicle_info_text(koord pos)
       }
 
       if(veh_type->gib_leistung() > 0  &&  veh_type->get_gear()!=64) {
-	n+= sprintf(buf+n, "%s %0.2f : 1\n",
+			n+= sprintf(buf+n, "%s %0.2f : 1\n",
 		    translator::translate("Gear:"),
 		    veh_type->get_gear()/64.0);
       }
 
 		if(veh_type->gib_copyright()!=NULL  &&  veh_type->gib_copyright()[0]!=0) {
-			n+= sprintf(buf+n, "%s%s\n",translator::translate("Constructed by "),veh_type->gib_copyright());
+			n += sprintf(buf+n, "%s%s\n",translator::translate("Constructed by "),veh_type->gib_copyright());
 		}
 
 		if(value != -1) {

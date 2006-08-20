@@ -191,20 +191,14 @@ convoi_frame_t::convoi_frame_t(spieler_t *sp, karte_t *welt) :
     filter_details.add_listener(this);
     add_komponente(&filter_details);
 
-    //Resize button
-    vresize.setze_pos(koord(1,200));
-    vresize.setze_groesse(koord(318, 6));
-    vresize.set_type(gui_resizer_t::vertical_resize);
-
     scrolly.setze_pos(koord(1, 30));
     setze_opaque(true);
     setze_fenstergroesse(koord(320, 191+16+16));
+	set_min_windowsize(koord(320, 191+16+16));
+	set_resizemode(diagonal_resize);
 
     display_list();
     add_komponente(&scrolly);
-
-    add_komponente(&vresize);
-    vresize.add_listener(this);
 
     resize (koord(0,0));
 }
@@ -257,7 +251,7 @@ void convoi_frame_t::display_list(void)
         ypos += 40; // @author hsiegeln: changed from +=32 to +=40 to have more space for "serves line" info!
     }
     cont.setze_groesse(koord(500, ypos));
-    scrolly.setze_groesse(koord(318, gib_fenstergroesse().y - 1 - 16 - 16 - 20));
+    //scrolly.setze_groesse(koord(318, gib_fenstergroesse().y - 1 - 16 - 16 - 20));
 #ifdef _MSC_VER
     delete [] a;
 #endif
@@ -282,27 +276,28 @@ void convoi_frame_t::infowin_event(const event_t *ev)
  */
 bool convoi_frame_t::action_triggered(gui_komponente_t *komp)           // 28-Dec-01    Markus Weber    Added
 {
-    if(komp == &vresize) {
-	resize (koord(vresize.get_hresize(), vresize.get_vresize()));
-    } else if(komp == &filter_on) {
+    if(komp == &filter_on) {
 DBG_MESSAGE("convoi_frame_t::action_triggered()","toggle %i",gib_filter(any_filter));
-	setze_filter(any_filter, !gib_filter(any_filter));
-	filter_on.setze_text(translator::translate(gib_filter(any_filter) ? "cl_btn_filter_enable" : "cl_btn_filter_disable"));
-	display_list();
-    } else if(komp == &sortedby) {
+		setze_filter(any_filter, !gib_filter(any_filter));
+		filter_on.setze_text(translator::translate(gib_filter(any_filter) ? "cl_btn_filter_enable" : "cl_btn_filter_disable"));
+		display_list();
+    }
+    else if(komp == &sortedby) {
     	setze_sortierung((sort_mode_t)((gib_sortierung() + 1) % SORT_MODES));
-	display_list();
-    } else if(komp == &sorteddir) {
+		display_list();
+    }
+	else if(komp == &sorteddir) {
     	setze_reverse(!gib_reverse());
-	display_list();
-    } else if(komp == &filter_details) {
-	if(filter_frame) {
-	    destroy_win(filter_frame);
-	}
-	else {
-	    filter_frame = new convoi_filter_frame_t(owner, this);
-	    create_win(filter_frame, w_autodelete, -1);
-	}
+		display_list();
+    }
+	else if(komp == &filter_details) {
+		if(filter_frame) {
+	    	destroy_win(filter_frame);
+		}
+		else {
+	    	filter_frame = new convoi_filter_frame_t(owner, this);
+	    	create_win(filter_frame, w_autodelete, -1);
+		}
     }
     return true;
 }
@@ -310,22 +305,9 @@ DBG_MESSAGE("convoi_frame_t::action_triggered()","toggle %i",gib_filter(any_filt
 
 void convoi_frame_t::resize(koord size_change)                          // 28-Dec-01    Markus Weber    Added
 {
-
-    koord new_windowsize = gib_fenstergroesse() + size_change;
-    int vresize_top = vresize.gib_pos().y + size_change.y;
-
-
-    if (new_windowsize.y < 100 )
-    {
-        new_windowsize.y = 100;
-        vresize_top=100-23 ;
-        vresize.cancelresize();
-    }
-
-    setze_fenstergroesse (new_windowsize);
-
-    scrolly.setze_groesse(koord(318, gib_fenstergroesse().y - 1 - 16 - 16 - 20));
-    vresize.setze_pos(koord(1,  vresize_top));
+	gui_frame_t::resize(size_change);
+	koord groesse = gib_fenstergroesse()-koord(0,47);
+	scrolly.setze_groesse(groesse);
 }
 
 

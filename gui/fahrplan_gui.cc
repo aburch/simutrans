@@ -366,7 +366,8 @@ fahrplan_gui_t::action_triggered(gui_komponente_t *komp)
     fpl->add_return_way(welt);
   } else if (komp == &line_selector) {
     int selection = line_selector.get_selection()-1;
-    if (selection > -1) {
+//DBG_MESSAGE("fahrplan_gui_t::action_triggered()","line selection=%i",selection);
+    if (selection>-1  &&  selection<lines.count()) {
       new_line = lines.at(selection);
       line_selector.setze_text(new_line->get_name(), 128);
       fpl->copy_from( new_line->get_fahrplan() );

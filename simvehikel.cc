@@ -636,7 +636,7 @@ vehikel_t::hop_check()
 {
 	// check, ob strecke frei
 	const grund_t *bd = welt->lookup(pos_next);
-	if(bd==NULL  && gib_wegtyp()!=weg_t::luft) {
+	if(bd==NULL) {
 		// weg nicht existent -  wurde wohl abgerissen
 		if(ist_erstes ) {
 			// dann suchen wir eben einen anderen Weg!
@@ -1397,7 +1397,6 @@ automobil_t::ist_weg_frei(int &restart_speed)
 					}
 					// now it make sense to search a route
 					route_t target_rt;
-					sint8 d;	//dummy
 					if(!target_rt.find_route( welt, pos_next, this, 50, richtung, 33 )) {
 						// nothing empty or not route with less than 33 tiles
 						return false;
@@ -2109,8 +2108,18 @@ aircraft_t::ist_weg_frei(int & restart_speed)
 		return false;
 	}
 
-	if(route_index==suchen) {
+	if(route_index==takeoff  &&  state==taxiing) {
+		// stop shortly at the end of the runway
+		state = departing;
+		restart_speed = 0;
+		return false;
+	}
+
+	if(route_index==suchen  &&  state==landing) {
+		// stop shortly at the end of the runway
 		state = looking_for_parking;
+		restart_speed = 0;
+		return false;
 	}
 
 	if(state==looking_for_parking) {
@@ -2119,7 +2128,7 @@ aircraft_t::ist_weg_frei(int & restart_speed)
 		route_t *rt=cnv->get_route();
 		grund_t *target=welt->lookup(rt->position_bei(rt->gib_max_n()));
 
-		// is our target occupied
+		// is our target occupied?
 		if(target  &&  target->gib_halt().is_bound()  &&  target->suche_obj(ding_t::aircraft)) {
 			// if we fail, we will wait in a step, much more simulation friendly
 			if(cnv->get_state()!=convoi_t::WAITING_FOR_CLEARANCE) {
@@ -2170,18 +2179,11 @@ aircraft_t::betrete_feld()
 {
 	vehikel_t::betrete_feld();
 
-//DBG_MESSAGE("aircraft_t::betrete_feld()","%i,%i,%i   state=%i",gib_pos().x,gib_pos().y,gib_pos().z,state);
-
-	if(route_index==takeoff) {
-		state = departing;
-		// stop before take off
-		cnv->setze_akt_speed_soll(0);
-	}
-	else if(state==flying  &&  route_index+6>=touchdown) {
-		const short landehoehe=cnv->get_route()->position_bei(touchdown).z+16*(touchdown-route_index);
-		if(landehoehe<=flughoehe) {
+	if(state==flying  &&  route_index+6>=touchdown) {
+		const short landehoehe=height_scaling(cnv->get_route()->position_bei(touchdown).z)+16*(touchdown-route_index);
+		if(landehoehe<flughoehe) {
 			state = landing;
-			target_height = cnv->get_route()->position_bei(touchdown).z;
+			target_height = height_scaling(cnv->get_route()->position_bei(touchdown).z);
 		}
 	}
 	else {
@@ -2418,94 +2420,84 @@ aircraft_t::calc_route(karte_t * welt, koord3d start, koord3d ziel, uint32 max_s
 // well, the heihgt is of course most important for an aircraft ...
 int aircraft_t::calc_height()
 {
-	int new_hoff;
-	const weg_t *w=welt->lookup(pos_next)->gib_weg(weg_t::luft);
+	int new_hoff = 0;	// default: on ground ...
+	const weg_t *w=welt->lookup(pos_cur)->gib_weg(weg_t::luft);
 
-	if(state==departing) {
-		current_friction = 16;
-		cnv->setze_akt_speed_soll(0x7ffffffful);
+	switch( state ) {
+		case departing:
+			current_friction = 14;
+			setze_speed_limit(-1);
+			cnv->setze_akt_speed_soll(gib_speed());
 
-		// take off, when a) end of runway or b) last tile of runway or c) fast enough
-		if(w==NULL  ||  ribi_t::ist_einfach(w->gib_ribi())  ||  cnv->gib_akt_speed()>kmh_to_speed(besch->gib_geschw())/3 ) {
-			state = flying;
-			flughoehe = gib_pos().z;
-			target_height = flughoehe +48;
-		}
-	}
+			// take off, when a) end of runway or b) last tile of runway or c) fast enough
+			if(w==NULL  ||  cnv->gib_akt_speed()>kmh_to_speed(besch->gib_geschw())/3 ) {
+				state = flying;
+				current_friction = 16;
+				flughoehe = height_scaling(gib_pos().z);
+				target_height = flughoehe+48;
+			}
+			break;
 
-	if(state==flying  ||  state==landing) {
+		case flying:
+		{
+			const sint16 h_next=height_scaling(pos_next.z);
+			const sint16 h_cur=height_scaling(pos_cur.z);
 
-		// did we have to change our flight height?
-		if(state==landing) {
-			// target_height was calculated by betrete_feld()!
-//			target_height = pos_next.z;
-		}
-		else if(target_height-pos_next.z>16*5) {
-			// sinken
-			target_height -= 32;
-		}
-		else if(target_height-pos_next.z<32) {
-			// steigen
-			target_height += 32;
-		}
-		if(flughoehe<target_height) {
-			flughoehe ++;
-		}
-		else if(flughoehe>target_height) {
-			flughoehe --;
-		}
+			setze_speed_limit(-1);
+			cnv->setze_akt_speed_soll(gib_speed());
 
-		if(flughoehe<pos_cur.z) {
-			flughoehe = pos_cur.z;
-		}
-//DBG_MESSAGE("target_height","%i->%i",flughoehe,target_height);
+			// did we have to change our flight height?
+			if(target_height-h_next>16*5) {
+				// sinken
+				target_height -= 32;
+			}
+			else if(target_height-h_next<32) {
+				// steigen
+				target_height += 32;
+			}
+			else {
+				// after reaching flight level, friction will be constant
+				current_friction = 1;
+			}
+			// now change flight level if required
+			if(flughoehe<target_height) {
+				flughoehe ++;
+			}
+			else if(flughoehe>target_height) {
+				flughoehe --;
+			}
 
-		new_hoff = pos_cur.z-flughoehe;
-		calc_akt_speed( new_hoff, gib_hoff() );
-	}
-	else {
-		if(w) {
-			setze_speed_limit(kmh_to_speed(w->gib_max_speed()));
+			new_hoff = h_cur-flughoehe;
 		}
-		new_hoff = vehikel_t::calc_height();
+		break;
+
+		case landing:
+		{
+			const sint16 h_cur=height_scaling(pos_cur.z);
+
+			setze_speed_limit(-1);
+			if(flughoehe>target_height) {
+				// still decenting
+				flughoehe--;
+				cnv->setze_akt_speed_soll( kmh_to_speed(besch->gib_geschw())/2 );
+				current_friction = 64;
+				new_hoff = h_cur-flughoehe;
+			}
+			else {
+				// touchdown!
+				cnv->setze_akt_speed_soll( kmh_to_speed(besch->gib_geschw())/4 );
+				current_friction = 512;
+			}
+		}
+		break;
+
+	default:
+		// curve: higher friction
+		current_friction = (alte_fahrtrichtung != fahrtrichtung) ? 512 : 128;
+//		not needed, since these ways are currently only allowed on plain ground
+//		new_hoff = vehikel_t::calc_height();
+		break;
 	}
 
 	return new_hoff;
-}
-
-
-
-
-/* calculates the current friction coefficient based on the curent track
- * falt, slope, curve ...
- * @author prissi, HJ
- */
-void
-aircraft_t::calc_akt_speed(const int h_alt, const int h_neu)
-{
-	switch(state) {
-
-		case flying:
-			current_friction = (h_alt!=h_neu) ? 16 : 1;
-			break;
-
-		case landing:
-			// break stronger on runway
-			current_friction = (h_alt!=h_neu) ? 16 : 32;
-			cnv->setze_akt_speed_soll( (h_alt!=h_neu) ? kmh_to_speed(besch->gib_geschw())/2 : kmh_to_speed(besch->gib_geschw())/3 );
-			break;
-
-		case taxiing:
-		case looking_for_parking:
-			// curve: higher friction
-			current_friction = (alte_fahrtrichtung != fahrtrichtung) ? 512 : 128;
-			// just to accelerate: The actual speed takes care of all vehicles in the convoi
-			const int akt_speed = gib_speed();
-			if(get_speed_limit() != -1 && akt_speed > get_speed_limit()) {
-				cnv->setze_akt_speed_soll(get_speed_limit());
-			} else {
-				cnv->setze_akt_speed_soll(akt_speed);
-			}
-			break;
-	}
 }

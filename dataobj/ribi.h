@@ -17,11 +17,17 @@ class ribi_t;
 
 
 class hang_t {
+#ifndef DOUBLE_GROUNDS
     static const int flags[16];
+#else
+    static const int flags[81];
+#endif
 
     enum { wegbar_ns = 1, wegbar_ow = 2, einfach = 4 };
 
 public:
+    typedef signed char typ;
+
     /*
      * Eigentlich aus bits zusammengesetzt:
      * Bit 0: gesetzt, falls Suedwestecke erhöht
@@ -31,6 +37,7 @@ public:
      *
      * Und nicht verwirren lassen - der Suedhang ist im Norden hoch
      */
+#ifndef DOUBLE_GROUNDS
     enum _typ {
 	flach=0,
 	nord = 3, 	    // Nordhang
@@ -39,7 +46,25 @@ public:
 	sued = 12,	    // Suedhang
 	erhoben = 15	    // Speziell für Brückenanfänge
     };
-    typedef signed char typ;
+
+    // Ein bischen tricky implementiert:
+    static bool ist_gegenueber(typ x, typ y) { return ist_einfach(x) && ist_einfach(y) && x + y == erhoben; }
+    static typ gegenueber(typ x) { return ist_einfach(x) ? erhoben - x : flach; }
+
+#else
+    enum _typ {
+	flach=0,
+	nord = 3+1, 	    // Nordhang
+	west = 9+3, 	    // Westhang
+	ost = 27+1,	    // Osthang
+	sued = 27+9,	    // Suedhang
+	erhoben = 80	    // Speziell für Brückenanfänge
+    };
+
+    // Ein bischen tricky implementiert:
+    static bool ist_gegenueber(typ x, typ y) { return ist_einfach(x) && ist_einfach(y) && x + y == 40; }
+    static typ gegenueber(typ x) { return ist_einfach(x) ? 40 - x : flach; }
+#endif
 
     //
     // Ranges werden nicht geprüft!
@@ -48,10 +73,6 @@ public:
     static bool ist_wegbar(typ x)  { return (flags[x] & (wegbar_ns | wegbar_ow)) != 0; }
     static bool ist_wegbar_ns(typ x)  { return (flags[x] & wegbar_ns) != 0; }
     static bool ist_wegbar_ow(typ x)  { return (flags[x] & wegbar_ow) != 0; }
-
-    // Ein bischen tricky implementiert:
-    static bool ist_gegenueber(typ x, typ y) { return ist_einfach(x) && ist_einfach(y) && x + y == erhoben; }
-    static typ gegenueber(typ x) { return ist_einfach(x) ? erhoben - x : flach; }
 };
 
 

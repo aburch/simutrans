@@ -19,6 +19,7 @@
 #include "../simskin.h"
 #include "../besch/skin_besch.h"
 #include "../simcolor.h"
+#include "../simgraph.h"
 #include "../dataobj/translator.h"
 #include "../utils/cbuffer_t.h"
 
@@ -32,17 +33,22 @@ nachrichtenfenster_t::nachrichtenfenster_t(karte_t *welt, const char *text)
 }
 
 nachrichtenfenster_t::nachrichtenfenster_t(karte_t *welt, const char *text, int bild)
- : infowin_t(welt), bild_offset(-16,0)
+ : infowin_t(welt)
 {
-    meldung = text;
-    this->bild = bild;
+	meldung = text;
+	this->bild = bild;
+	int xoff, yoff, xw, yw;
+	xoff = yw = 0;
+	display_get_image_offset( bild, &xoff, &yoff, &xw, &yw );
+	this->bild_offset = koord(48-xw-xoff,72-yw-yoff);
 }
 
 nachrichtenfenster_t::nachrichtenfenster_t(karte_t *welt, const char *text, int bild, koord off)
- : infowin_t(welt), bild_offset(off)
+ : infowin_t(welt)
 {
-    meldung = text;
-    this->bild = bild;
+	meldung = text;
+	this->bild = bild;
+	this->bild_offset = off;
 }
 
 

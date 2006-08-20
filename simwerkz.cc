@@ -363,7 +363,7 @@ DBG_MESSAGE("wkz_remover_intern()","at (%d,%d)", pos.x, pos.y);
 	}
 
 	// check for signal
-	if(gr->suche_obj(ding_t::signal) != NULL  ||  gr->suche_obj(ding_t::presignal) != NULL) {
+	if(gr->suche_obj(ding_t::signal)!=NULL  ||  gr->suche_obj(ding_t::presignal)!=NULL) {
 DBG_MESSAGE("wkz_remover()",  "removing signal %d,%d",  pos.x, pos.y);
 		if(gr->gib_besitzer()==sp  ||  gr->gib_besitzer()==NULL) {
 			blockmanager *bm = blockmanager::gib_manager();
@@ -379,7 +379,7 @@ DBG_MESSAGE("wkz_remover()",  "removing signal %d,%d",  pos.x, pos.y);
 		}
 	}
 
-	if(gr->suche_obj(ding_t::roadsign) != NULL) {
+	if(gr->suche_obj(ding_t::roadsign)!=NULL) {
 DBG_MESSAGE("wkz_remover()",  "removing roadsign %d,%d",  pos.x, pos.y);
 		roadsign_t *rs = dynamic_cast<roadsign_t *>(gr->suche_obj(ding_t::roadsign));
 		if(rs->gib_besitzer()==sp  ||  rs->gib_besitzer()==NULL) {
@@ -418,7 +418,7 @@ DBG_MESSAGE("wkz_remover()", "bound=%i",halt.is_bound());
 DBG_MESSAGE("wkz_remover()", "check tunnel/bridge");
 
 	// beginning/end of bridge?
-	if(gr->ist_bruecke()) {
+	if(gr->ist_bruecke()  &&  gr->gib_typ()!=grund_t::monorailboden) {
 		if(gr==plan->gib_kartenboden()) {
 DBG_MESSAGE("wkz_remover()",  "removing bridge from %d,%d,%d",gr->gib_pos().x, gr->gib_pos().y, gr->gib_pos().z);
 			weg_t *weg = gr->gib_weg(weg_t::schiene);
@@ -806,8 +806,8 @@ DBG_MESSAGE("wkz_station_building_aux()", "building mail office/station building
 			halt->recalc_station_type();
 		}
 		else {
-			create_win(-1, -1, MESG_WAIT, new nachrichtenfenster_t(welt, "Post muss neben\nHaltestelle\nliegen!\n"), w_autodelete);
-//			create_win(-1, -1, MESG_WAIT, new nachrichtenfenster_t(welt, "Es ist ein\nObjekt im Weg!\n"), w_autodelete);
+			create_win(-1, -1, MESG_WAIT, new nachrichtenfenster_t(welt, "Post muss neben\nHaltestelle\nliegen!\n", besch->gib_cursor()->gib_bild_nr(0) ), w_autodelete);
+//			create_win(-1, -1, MESG_WAIT, new nachrichtenfenster_t(welt, "Post muss neben\nHaltestelle\nliegen!\n", besch->gib_tile(0)->gib_hintergrund(0,0), ), w_autodelete);
 		}
 		return true;
 	}
@@ -1886,6 +1886,7 @@ int wkz_schiffdepot(spieler_t *sp, karte_t *welt, koord pos, value_t value)
 int wkz_fahrplan_add(spieler_t *sp, karte_t *welt, koord pos,value_t f)
 {
 	fahrplan_t *fpl=(fahrplan_t *)f.p;
+	bool wrong_owner=false;
 	DBG_MESSAGE("wkz_fahrplan_add()", "Insert coordinate to schedule.");
 
 	// haben wir einen Fahrplan ?
@@ -1910,7 +1911,9 @@ int wkz_fahrplan_add(spieler_t *sp, karte_t *welt, koord pos,value_t f)
 	     		// now just for error messages, we assing a valid ground
 	     		// and check for ownership
 	     		bd = pl->gib_boden_bei(i);
-			if(sp!=welt->gib_spieler(1)  &&  bd->gib_besitzer()!=sp  &&  bd->gib_besitzer()!=NULL) {
+			wrong_owner = false;
+			if(bd->gib_besitzer()!=sp  &&  bd->gib_besitzer()!=NULL  &&  bd->gib_besitzer()!=welt->gib_spieler(1)) {
+				wrong_owner = true;
 				bd = 0;
 				continue;
 			}
@@ -1931,7 +1934,13 @@ DBG_MESSAGE("wkz_fahrplan_add()", "insert pos (%i,%i,%i)", bd->gib_pos().x, bd->
 			fpl->append(welt, bd );
 		}
 		else {
-			create_win(-1, -1, MESG_WAIT, new nachrichtenfenster_t(welt, "Das Feld gehoert\neinem anderen Spieler\n"), w_autodelete);
+			// here we failed
+			if(wrong_owner) {
+				create_win(-1, -1, MESG_WAIT, new nachrichtenfenster_t(welt, "Das Feld gehoert\neinem anderen Spieler\n"), w_autodelete);
+			}
+			else {
+				fpl->zeige_fehlermeldung(welt);
+			}
 		}
 	}
 
@@ -1943,6 +1952,7 @@ DBG_MESSAGE("wkz_fahrplan_add()", "insert pos (%i,%i,%i)", bd->gib_pos().x, bd->
 int wkz_fahrplan_ins(spieler_t *sp, karte_t *welt, koord pos,value_t f)
 {
 	fahrplan_t *fpl=(fahrplan_t *)f.p;
+	bool wrong_owner;
 	DBG_MESSAGE("wkz_fahrplan_ins()", "Insert coordinate to schedule.");
 
 	// haben wir einen Fahrplan ?
@@ -1966,8 +1976,10 @@ int wkz_fahrplan_ins(spieler_t *sp, karte_t *welt, koord pos,value_t f)
 	     		}
 	     		// now just for error messages, we assing a valid ground
 	     		// and check for ownership
+			wrong_owner = false;
 	     		bd = pl->gib_boden_bei(i);
-			if(sp!=welt->gib_spieler(1)  &&  bd->gib_besitzer()!=sp  &&  bd->gib_besitzer()!=NULL) {
+			if(bd->gib_besitzer()!=sp  &&  bd->gib_besitzer()!=NULL  &&  bd->gib_besitzer()!=welt->gib_spieler(1)) {
+				wrong_owner = true;
 				bd = 0;
 				continue;
 			}
@@ -1985,7 +1997,13 @@ int wkz_fahrplan_ins(spieler_t *sp, karte_t *welt, koord pos,value_t f)
 			fpl->insert(welt, bd );
 		}
 		else {
-			create_win(-1, -1, MESG_WAIT, new nachrichtenfenster_t(welt, "Das Feld gehoert\neinem anderen Spieler\n"), w_autodelete);
+			// here we failed
+			if(wrong_owner) {
+				create_win(-1, -1, MESG_WAIT, new nachrichtenfenster_t(welt, "Das Feld gehoert\neinem anderen Spieler\n"), w_autodelete);
+			}
+			else {
+				fpl->zeige_fehlermeldung(welt);
+			}
 		}
 	}
 

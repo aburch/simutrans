@@ -554,13 +554,12 @@ route_t::intern_calc_route(const koord3d ziel, const koord3d start, fahrer_t *fa
 
 	// arrays for A*
 	static vector_tpl <struct ANode *> open = vector_tpl <struct ANode *>(0);
-	vector_tpl <struct ANode *> close =vector_tpl <struct ANode *>(0);
 
 	const bool is_airplane = fahr->gib_wegtyp()==weg_t::luft;
 
 	// nothing in lists
 	open.clear();
-	close.clear();
+	welt->unmarkiere_alle();
 
 	// we clear it here probably twice: does not hurt ...
 	route.clear();
@@ -590,8 +589,8 @@ route_t::intern_calc_route(const koord3d ziel, const koord3d start, fahrer_t *fa
 		tmp = open.at( open.get_count()-1 );
 		open.remove_at( open.get_count()-1 );
 
-		close.append(tmp,16);
 		gr = tmp->gr;
+		welt->markiere(gr);
 
 //DBG_DEBUG("add to close","(%i,%i,%i) f=%i",gr->gib_pos().x,gr->gib_pos().y,gr->gib_pos().z,tmp->f);
 
@@ -619,19 +618,7 @@ route_t::intern_calc_route(const koord3d ziel, const koord3d start, fahrer_t *fa
 			}
 
 			// a way goes here, and it is not marked (i.e. in the closed list)
-			if((to  ||  gr->get_neighbour(to, wegtyp, koord::nsow[r]))  &&  fahr->ist_befahrbar(to) ) {
-
-				// already in closed list (i.e. all processed nodes)
-				unsigned index;
-				for( index=0;  index<close.get_count();  index++  ) {
-					if(  close.get(index)->gr==to  ) {
-						break;
-					}
-				}
-				// in close list => ignore this
-				if(index<close.get_count()) {
-					continue;
-				}
+			if((to  ||  gr->get_neighbour(to, wegtyp, koord::nsow[r]))  &&  fahr->ist_befahrbar(to)  &&  !welt->ist_markiert(to)) {
 
 				// new values for cost g
 				uint32 new_g = tmp->g + fahr->gib_kosten(to,max_speed);
@@ -653,27 +640,24 @@ route_t::intern_calc_route(const koord3d ziel, const koord3d start, fahrer_t *fa
 					 current_dir = ribi_typ( gr->gib_pos().gib_2d(), to->gib_pos().gib_2d() );
 				}
 
-				// already in open list ?
-				for(  index=0;  index<open.get_count();  index++  ) {
-					if(  open.get(index)->gr==gr  ) {
+				const uint32 new_f = new_g+calc_distance( to->gib_pos(), ziel );
+
+				// already in open list and better?
+				sint32 index;
+				for(  index=open.get_count()-1;  index>=0  &&   open.get(index)->f<=new_f;  index--  ) {
+					if(open.get(index)->gr==gr) {
 						break;
 					}
 				}
 
-				// it is already contained in the list
-				if(index<open.get_count()) {
-//DBG_DEBUG("check open","at %i index of %i",index,open.get_count());
-					// => check, if our is better
-					if(open.get(index)->g>new_g) {
-						// our is better
-						open.remove_at(index);
-//DBG_DEBUG("remove from open","%i,%i,%i",to->gib_pos().x,to->gib_pos().y,to->gib_pos().z);
-					}
-					else {
-						// ignore this one
-						continue;
-					}
+				if(index>=0  &&  open.get(index)->gr==gr) {
+					// it is already contained in the list
+					// and it is lower in f ...
+					continue;
 				}
+
+				// it may or may not be in the list; but since the arrays are sorted
+				// we find out about this during inserting!
 
 				// not in there or taken out => add new
 				struct ANode *k=&(nodes[step++]);
@@ -681,18 +665,23 @@ route_t::intern_calc_route(const koord3d ziel, const koord3d start, fahrer_t *fa
 				k->parent = tmp;
 				k->gr = to;
 				k->g = new_g;
-				k->f = new_g+calc_distance( to->gib_pos(), ziel );
+				k->f = new_f;
 				k->dir = current_dir;
 
 				// insert sorted
-				for(  index=0;  index<open.get_count();  index++  ) {
-					if(k->f>open.get(index)->f) {
-						// insert here
-						break;
+				for(  index=0;  index<open.get_count()  &&  new_f<open.get(index)->f;  index++  ) {
+					if(open.get(index)->gr==to) {
+						open.remove_at(index);
+						index --;
 					}
 				}
-				// insert here
-				open.insert_at(index,k);
+				// was best f so far => append
+				if(index>=open.get_count()) {
+					open.append(k,16);
+				}
+				else {
+					open.insert_at(index,k);
+				}
 
 //DBG_DEBUG("insert to open","(%i,%i,%i)  f=%i at %i",to->gib_pos().x,to->gib_pos().y,to->gib_pos().z,k->f, index);
 			}

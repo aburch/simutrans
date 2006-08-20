@@ -145,6 +145,7 @@ int display_get_font_height();
 
 void register_image(struct bild_besch_t *buffer);
 void display_set_image_offset( int bild, int xoff, int yoff );
+void display_get_image_offset( int bild, int *xoff, int *yoff, int *xw, int *yw );
 
 int gib_maus_x();
 int gib_maus_y();
@@ -191,7 +192,7 @@ void display_flush_buffer();
 
 void display_move_pointer(int dx, int dy);
 void display_show_pointer(int yesno);
-
+void display_set_pointer(int pointer);
 
 void display_pixel(int x, int y, int color);
 

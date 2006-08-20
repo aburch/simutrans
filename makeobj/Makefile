@@ -3,11 +3,6 @@
 OSTYPE=linux-gnu
 
 
-# Compilers, C, C++
-CC= gcc
-CXX=g++
-
-
 # Mingw32 cross compiler
 
 ifeq ($(SIM_CROSS),true)
@@ -73,7 +68,7 @@ dep: depdep
 
 
 depdep: $(SOURCES)
-	gcc -M $^ > .depend
+	$(CC) -M $^ > .depend
 
 
 ifeq (.depend,$(wildcard .depend))

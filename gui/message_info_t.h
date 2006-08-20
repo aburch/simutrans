@@ -70,6 +70,15 @@ public:
      * @author Hj. Malthaner
      */
     void info(cbuffer_t & buf) const;
+
+
+    /**
+     * Das Bild kann im Fenster über Offsets plaziert werden
+     *
+     * @author Hj. Malthaner
+     * @return den x,y Offset des Bildes im Infofenster
+     */
+    virtual koord gib_bild_offset() const;
 };
 
 #endif //message_frame_h

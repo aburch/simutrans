@@ -15,12 +15,26 @@
 
 #include <stdio.h>
 
+#include "../simdebug.h"
 #include "spezial_obj_tpl.h"
 #include "grund_besch.h"
 
 /* may change due to summer winter changes *
  * @author prissi
  */
+
+#ifdef DOUBLE_GROUNDS
+const uint8 grund_besch_t::slopetable[80] =
+{
+	0, 1 , 0xFF,
+	2 , 3 , 0xFF, 0xFF, 0xFF, 0xFF,
+	4 , 5, 0xFF, 6, 7, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF,
+	8, 9, 0xFF, 10, 11, 0xFF, 0xFF, 0xFF, 0xFF, 12, 13, 0xFF,  14, 0xFF, 0xFF,
+	0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF,
+	0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF,
+	0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF
+};
+#endif
 
 const grund_besch_t *grund_besch_t::boden = NULL;
 const grund_besch_t *grund_besch_t::ufer = NULL;
@@ -92,6 +106,9 @@ bool grund_besch_t::register_besch(const grund_besch_t *besch)
 bool grund_besch_t::alles_geladen()
 {
 	// standard is "summer"
+	for(int i=0; i<78;  i++  ) {
+		DBG_MESSAGE("boden","%i=%p",i,static_cast<const bildliste2d_besch_t *>(grund_besch_t::standard_boden->gib_kind(2))->gib_liste(i) );
+	}
 	grund_besch_t::boden = grund_besch_t::standard_boden;
 	grund_besch_t::ufer = grund_besch_t::standard_ufer;
 	return ::alles_geladen(spezial_objekte);

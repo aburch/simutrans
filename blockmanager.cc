@@ -258,38 +258,26 @@ blockmanager::entferne_signal(karte_t *welt, koord3d pos)
 
 	// look at all four corners
 	int anzahl;
-	array_tpl<koord3d> &nb = finde_nachbarn(welt, pos, sig->gib_richtung(), anzahl);
+	array_tpl<koord3d> &nb = finde_nachbarn(welt, pos, weg->gib_ribi_unmasked(), anzahl);
 
-
-	// Hajo: count signals nearby
-	int count = 0;
-	int i;
-	for(i=0; i<anzahl; i++) {
-		grund_t *gr = welt->lookup(nb.at(i));
-		count += (gr->suche_obj(ding_t::signal) != 0) ? 1 : 0;
-		// count also pre-signals ...
-		count += (gr->suche_obj(ding_t::presignal) != 0) ? 1 : 0;
-	}
-DBG_MESSAGE("blockmanager::entferne_signal()","%d neighbours, %d signals found", anzahl, count);
-
-	// Hajo: ambiguous signals ?
-	if(count>1) {
-		dbg->warning("blockmanager::entferne_signal()","ambiguous combination of %d signals found, break.", count);
-		return false;
-	}
-
-
-	for(i=0; i<anzahl; i++) {
+	for(int i=0; i<anzahl; i++) {
 		weg_t *nachbar_weg = welt->lookup(nb.at(i))->gib_weg(weg_t::schiene);
 		blockhandle_t bs = dynamic_cast<schiene_t *>(nachbar_weg)->gib_blockstrecke();
 
-		bs->loesche_signal_bei(nb.at(i));
+		if(bs != bs0) {
+			bs->loesche_signal_bei(nb.get(i));
+		}
+	}
+
+	for(int i=0; i<anzahl; i++) {
+		weg_t *nachbar_weg = welt->lookup(nb.at(i))->gib_weg(weg_t::schiene);
+		blockhandle_t bs = dynamic_cast<schiene_t *>(nachbar_weg)->gib_blockstrecke();
 
 		if(bs != bs0) {
 			block_ersetzer bes (welt, bs);
 			bes.neu = bs0;
 			marker.unmarkiere_alle();
-			traversiere_netz(welt, nb.at(i), &bes);
+			traversiere_netz(welt, nb.get(i), &bes);
 
 			bs->verdrahte_signale_neu();
 			strecken.remove(bs);

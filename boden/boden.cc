@@ -162,6 +162,7 @@ void boden_t::sync_height()
 }
 
 
+#ifndef DOUBLE_GROUNDS
 static const uint8 double_slope_table[16] = {
   0,     // 0 - unused entry, should be blank!
     4,   // 1
@@ -181,7 +182,6 @@ static const uint8 double_slope_table[16] = {
   7,     // 14
     8,   // 15
 };
-
 
 
 
@@ -280,7 +280,30 @@ boden_t::calc_bild()
 
 	setze_back_bild(back_bild);
 }
+#else
+// with double height ground tiles!
 
+void
+boden_t::calc_bild()
+{
+	const koord k = gib_pos().gib_2d();
+	uint8 slope_this =  welt->get_slope(k);
+
+	grund_t::calc_bild();
+
+	weg_t *weg = gib_weg(weg_t::strasse);
+
+	if(weg && dynamic_cast<strasse_t *>(weg)->hat_gehweg()) {
+		setze_bild(skinverwaltung_t::fussweg->gib_bild_nr(grund_besch_t::slopetable[gib_grund_hang()]));
+	} else if(gib_hoehe() == welt->gib_grundwasser()) {
+		setze_bild(grund_besch_t::ufer->gib_bild(grund_besch_t::ufer->get_double_hang(gib_grund_hang())));
+	} else {
+		int hang = gib_grund_hang();
+		setze_bild( grund_besch_t::boden->gib_bild(grund_besch_t::boden->get_double_hang(hang)) );
+	}
+	setze_back_bild(IMG_LEER);
+}
+#endif
 
 void * boden_t::operator new(size_t /*s*/)
 {

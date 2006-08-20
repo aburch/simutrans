@@ -22,6 +22,7 @@
 #include "simsound.h"
 
 #include "tpl/weighted_vector_tpl.h"
+#include "tpl/minivec_tpl.h"
 #include "tpl/vector_tpl.h"
 #include "tpl/slist_tpl.h"
 #include "tpl/array_tpl.h"
@@ -92,6 +93,14 @@ public:
     simlinemgmt_t * simlinemgmt;
 
 private:
+	struct save_mouse_func {
+			int (*save_mouse_funk)(spieler_t *, karte_t *, koord pos, value_t param);
+			value_t mouse_funk_param;
+	    	int mouse_funk_ok_sound;
+	   		int mouse_funk_ko_sound;
+			int zeiger_versatz;
+			int zeiger_bild;
+	};
 
     // die Einstellungen
     einstellungen_t *einstellungen;
@@ -169,6 +178,7 @@ private:
 
     weighted_vector_tpl<stadt_t *> *stadt;
 
+	minivec_tpl<save_mouse_func *> quick_shortcuts;
 
     /**
      * Fraktale, rekursive Landschaftserzeugung
@@ -604,6 +614,7 @@ public:
      * @author Hj. Malthaner
      */
     inline void markiere(koord3d k) { marker.markiere(lookup(k)); };
+    inline void markiere(const grund_t *gr) { marker.markiere(gr); };
 
 
     /**
@@ -611,6 +622,7 @@ public:
      * @author Hj. Malthaner
      */
     inline void unmarkiere(koord3d k) { marker.unmarkiere(lookup(k)); };
+    inline void unmarkiere(const grund_t *gr) { marker.unmarkiere(gr); };
 
 
     /**
@@ -626,6 +638,7 @@ public:
      * @author Hj. Malthaner
      */
     inline bool ist_markiert(koord3d k) const { return marker.ist_markiert(lookup(k)); };
+    inline bool ist_markiert(const grund_t *gr) const { return marker.ist_markiert(gr); };
 
 
      /**

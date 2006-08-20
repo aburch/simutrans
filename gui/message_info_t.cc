@@ -9,8 +9,10 @@
 
 #include "../simcolor.h"
 #include "../simwin.h"
+#include "../simgraph.h"
 #include "../utils/cbuffer_t.h"
 #include "../dataobj/translator.h"
+#include "../dataobj/koord.h"
 
 #include "message_info_t.h"
 #include "help_frame.h"
@@ -65,3 +67,20 @@ message_info_t::gib_fensterfarben() const {
 	f.dunkel = MN_GREY0;
 	return f;
 };
+
+
+
+
+/**
+ * Das Bild kann im Fenster über Offsets plaziert werden
+ *
+ * @author Hj. Malthaner
+ * @return den x,y Offset des Bildes im Infofenster
+ */
+koord message_info_t::gib_bild_offset() const
+{
+	int xoff, yoff, xw, yw;
+	xoff = yw = yoff = 0;
+	display_get_image_offset( bild, &xoff, &yoff, &xw, &yw );
+	return koord(48-xw-xoff,72-yw-yoff);
+}

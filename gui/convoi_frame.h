@@ -14,7 +14,6 @@
 #include "gui_container.h"
 #include "gui_scrollpane.h"
 #include "gui_label.h"
-#include "components/gui_resizer.h"                             // 28-Dec-2001  Markus Weber    Added
 #include "ifc/action_listener.h"                                // 28-Dec-2001  Markus Weber    Added
 #include "button.h"
 
@@ -47,7 +46,6 @@ private:
      */
     gui_container_t cont;
     gui_scrollpane_t scrolly;
-    gui_resizer_t vresize;                                  // 28-Dec-2001  Markus Weber    Added
 
     gui_label_t sort_label;
     button_t	sortedby;

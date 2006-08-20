@@ -960,8 +960,13 @@ DBG_DEBUG("karte_t::init()","prepare cities");
     }
 }
 
-karte_t::karte_t() : ausflugsziele(16), marker(0,0)
+karte_t::karte_t() : quick_shortcuts(0), ausflugsziele(16), marker(0,0)
 {
+	for (unsigned int i=0; i<10; i++) {
+//DBG_MESSAGE("karte_t::karte_t()","Append NULL to quick_shortcuts at %d\n",i);
+		quick_shortcuts.append(NULL);
+	}
+
 	setze_dirty();
 	//    set_rotation(0);
 	set_scroll_lock(false);
@@ -1776,7 +1781,7 @@ karte_t::sync_step(const long dt)
 		return;
 	}
 
-	const long delta_t = (fast_forward) ? 200 : (dt * get_time_multi()) >> 4;
+	const long delta_t = (dt<0) ? 200 : (dt * get_time_multi()) >> 4;
 	slist_iterator_tpl<sync_steppable*> iter (sync_list);
 
 	// Hajo: we use a slight hack here to remove the current
@@ -2201,11 +2206,17 @@ void karte_t::calc_slope(const koord pos)
 
     const int mini = min(min(h1,h2), min(h3,h4));
 
-    slopes[pos.x+pos.y*gib_groesse_x()]=
-      ((h1>mini)<<3) +
-      ((h2>mini)<<2) +
-      ((h3>mini)<<1) +
-      ((h4>mini));
+	const int d1=h1-mini;
+	const int d2=h2-mini;
+	const int d3=h3-mini;
+	const int d4=h4-mini;
+
+#ifndef DOUBLE_GROUNDS
+	const int slope = (d1<<3) + (d2<<2) + (d3<<1) + d4;
+#else
+	const int slope = (d1*27) + (d2*9) + (d3*3) + d4;
+#endif
+	slopes[pos.x+pos.y*gib_groesse_x()]= slope;
   }
 }
 
@@ -2943,8 +2954,9 @@ void karte_t::reset_timer()
 	// solution is way too difficult for a simple pause function ...
 	// init for a good separation
 	for(int i=0; i<GRUPPEN; i++) {
-		step_group_times[i] = (50*i)/GRUPPEN;
+		step_group_times[i] = (50*i)/GRUPPEN+1;
 	}
+	DBG_MESSAGE("karte_t::reset_timer()","ok");
 }
 
 
@@ -3468,6 +3480,45 @@ karte_t::interactive_event(event_t &ev)
 	    sound_play(click_sound);
 	    create_win(-1, -1, -1, new convoi_frame_t(get_active_player(), this), w_autodelete, magic_convoi_t);
 	    break;
+		case KEY_F2:
+		case KEY_F3:
+		case KEY_F4:
+		case KEY_F5:
+		case KEY_F6:
+		case KEY_F7:
+		case KEY_F8:
+		case KEY_F9:
+		case KEY_F10:
+		case KEY_F11:
+		case KEY_F12:
+		case KEY_F13:
+		case KEY_F14:
+		case KEY_F15:
+		{
+			int num = ev.ev_code - KEY_F2;
+			if (event_get_last_control_shift() == 2) {
+				DBG_MESSAGE("karte_t()","Save mouse_funk");
+				if(quick_shortcuts.at(num) == NULL)
+					quick_shortcuts.at(num) = new save_mouse_func;
+
+				quick_shortcuts.at(num)->save_mouse_funk = mouse_funk;
+				quick_shortcuts.at(num)->mouse_funk_param = mouse_funk_param;
+				quick_shortcuts.at(num)->mouse_funk_ok_sound = mouse_funk_ok_sound;
+				quick_shortcuts.at(num)->mouse_funk_ko_sound = mouse_funk_ko_sound;
+				quick_shortcuts.at(num)->zeiger_versatz = zeiger->gib_yoff();
+				quick_shortcuts.at(num)->zeiger_bild = zeiger->gib_bild();
+			}
+			else if (quick_shortcuts.at(num) != NULL) {
+				DBG_MESSAGE("karte_t()","Recall mouse_funk");
+				mouse_funk = quick_shortcuts.at(num)->save_mouse_funk;
+				mouse_funk_param = quick_shortcuts.at(num)->mouse_funk_param;
+				mouse_funk_ok_sound = quick_shortcuts.at(num)->mouse_funk_ok_sound;
+				mouse_funk_ko_sound = quick_shortcuts.at(num)->mouse_funk_ko_sound;
+				zeiger->setze_yoff(quick_shortcuts.at(num)->zeiger_versatz);
+				zeiger->setze_bild(0,quick_shortcuts.at(num)->zeiger_bild);
+			}
+		}
+		break;
 	case '9':
 	    setze_ij_off(gib_ij_off()+koord::nord);
 	    break;
@@ -4005,7 +4056,7 @@ karte_t::interactive_event(event_t &ev)
 						  wkz_airport,
 						  SFX_JACKHAMMER,
 						  SFX_FAILURE,
-						  CST_POST,
+						  CST_TERMINAL,
 						  get_timeline_year_month() );
 
 		    hausbauer_t::fill_menu(wzw,
@@ -4013,7 +4064,7 @@ karte_t::interactive_event(event_t &ev)
 						  wkz_station_building,
 						  SFX_JACKHAMMER,
 						  SFX_FAILURE,
-						  CST_POST,
+						  CST_TERMINAL,
 						  get_timeline_year_month() );
 
 					wzw->zeige_info(magic_airtools);

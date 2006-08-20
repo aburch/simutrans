@@ -62,7 +62,7 @@ struct bild_besch_t {
   uint8   y;
   uint8   h;
   sint32  len;
-  uint16  bild_nr;	// Speichern wir erstmal als Dummy mit
+  uint16  bild_nr;	// Speichern wir erstmal als Dummy mit, wird von register_image() ersetzt
   uint8   zoomable;   // Hajo: some image may not be zoomed i.e. icons
 };
 

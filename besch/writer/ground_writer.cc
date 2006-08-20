@@ -70,7 +70,7 @@ void ground_writer_t::write_obj(FILE *fp, obj_node_t &parent, tabfileobj_t &obj)
 
     slist_tpl< slist_tpl<cstring_t> > keys;
     // summer images
-    for(int hangtyp = 0; hangtyp < 58; hangtyp++) {
+    for(int hangtyp = 0; hangtyp < 128; hangtyp++) {
 	keys.append( slist_tpl<cstring_t>() );
 
 	for(int phase = 0; ; phase++) {
@@ -83,6 +83,10 @@ void ground_writer_t::write_obj(FILE *fp, obj_node_t &parent, tabfileobj_t &obj)
 		break;
 	    }
 	    keys.at(hangtyp).append(str);
+	}
+	// empty entries?
+	if(keys.at(hangtyp).count()==0) {
+		break;
 	}
     }
     imagelist2d_writer_t::instance()->write_obj(fp, node, keys);

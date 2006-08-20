@@ -60,8 +60,6 @@ extern "C" {
 /* normal keys have range 0-255, special key follow above 255 */
 /* other would be better for true unicode support :( */
 
-#define KEY_F1                  256
-
 // right arrow
 #define KEY_RIGHT               275
 
@@ -75,8 +73,25 @@ extern "C" {
 #define KEY_LEFT                276
 
 #define	KEY_HOME			278
-
 #define KEY_END				279
+
+/* Function keys */
+#define KEY_F1                  256
+#define KEY_F2                  257
+#define KEY_F3                  258
+#define KEY_F4                  259
+#define KEY_F5                  260
+#define KEY_F6                  261
+#define KEY_F7                  262
+#define KEY_F8                  263
+#define KEY_F9                  264
+#define KEY_F10                  265
+#define KEY_F11                  266
+#define KEY_F12                  267
+#define KEY_F13                  268
+#define KEY_F14                  269
+#define KEY_F15                  270
+
 
 /* makros */
 

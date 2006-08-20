@@ -97,6 +97,7 @@ const skin_besch_t *skinverwaltung_t::werftOWzeiger = NULL;
 const skin_besch_t *skinverwaltung_t::stadtzeiger = NULL;
 const skin_besch_t *skinverwaltung_t::baumzeiger = NULL;
 const skin_besch_t *skinverwaltung_t::undoc_zeiger = NULL;
+const skin_besch_t *skinverwaltung_t::mouse_cursor = NULL;
 
 const skin_besch_t *skinverwaltung_t::signale = NULL;
 const skin_besch_t *skinverwaltung_t::presignals = NULL;
@@ -164,6 +165,7 @@ static spezial_obj_tpl<skin_besch_t> symbol_objekte[] = {
 };
 
 static spezial_obj_tpl<skin_besch_t> cursor_objekte[] = {
+    { &skinverwaltung_t::mouse_cursor,		"Mouse" },
     { &skinverwaltung_t::fragezeiger,		"Query" },
     { &skinverwaltung_t::signalzeiger,		"Signal" },
     { &skinverwaltung_t::downzeiger,		"Down" },
@@ -179,7 +181,6 @@ static spezial_obj_tpl<skin_besch_t> cursor_objekte[] = {
     { &skinverwaltung_t::undoc_zeiger,		"Undocumented" },
     { NULL, NULL }
 };
-
 
 //@ADOC
 /////////////////////////////////////////////////////////////////////////////
@@ -206,13 +207,13 @@ bool skinverwaltung_t::alles_geladen(skintyp_t type)
 	sb = menu_objekte;
 	break;
     case cursor:
-	sb = cursor_objekte;
+	sb = cursor_objekte+1;
 	break;
     case symbol:
-	sb = symbol_objekte;
+	sb = symbol_objekte;	// forget about mouse cursor
 	break;
     case misc:
-	sb = misc_objekte + 2;
+	sb = misc_objekte;
 	break;
     case nothing:
 	return true;

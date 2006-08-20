@@ -51,16 +51,12 @@ signal_t::~signal_t()
     if(weg) {
 	// Weg wieder freigeben, wenn das Signal nicht mehr da ist.
 	dynamic_cast<schiene_t *>(weg)->setze_ribi_maske(ribi_t::keine);
-
 	blockhandle_t bs = dynamic_cast<schiene_t *>(weg)->gib_blockstrecke();
-
-        blockmanager::gib_manager()->entferne_signal(this, bs);
-
+     blockmanager::gib_manager()->entferne_signal(this, bs);
     } else {
         dbg->error("signal_t::~signal_t()",
 	           "Signal %p was deleted but ground was not an railroad track!");
     }
-
 }
 
 

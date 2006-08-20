@@ -1,74 +1,63 @@
-#CXX = g++
-CXXFLAGS = -O -Wall -g -c
+SOURCES += button.cc
+SOURCES += citylist_frame_t.cc
+SOURCES += citylist_stats_t.cc
+SOURCES += colors.cc
+SOURCES += convoi_filter_frame.cc
+SOURCES += convoi_frame.cc
+SOURCES += convoi_info_t.cc
+SOURCES += curiositylist_frame_t.cc
+SOURCES += curiositylist_stats_t.cc
+SOURCES += depot_frame.cc
+SOURCES += fabrik_info.cc
+SOURCES += factorylist_frame_t.cc
+SOURCES += factorylist_stats_t.cc
+SOURCES += fahrplan_gui.cc
+SOURCES += goods_frame_t.cc
+SOURCES += goods_stats_t.cc
+SOURCES += gui_container.cc
+SOURCES += gui_convoiinfo.cc
+SOURCES += gui_frame.cc
+SOURCES += gui_label.cc
+SOURCES += gui_scrollpane.cc
+SOURCES += halt_detail.cc
+SOURCES += halt_info.cc
+SOURCES += halt_list_filter_frame.cc
+SOURCES += halt_list_frame.cc
+SOURCES += halt_list_frame.cc
+SOURCES += halt_list_item.cc
+SOURCES += halt_list_item.cc
+SOURCES += help_frame.cc
+SOURCES += image_list.cc
+SOURCES += infowin.cc
+SOURCES += karte.cc
+SOURCES += kennfarbe.cc
+SOURCES += label_frame.cc
+SOURCES += line_management_gui.cc
+SOURCES += load_relief_frame.cc
+SOURCES += loadsave_frame.cc
+SOURCES += map_frame.cc
+SOURCES += map_legend.cc
+SOURCES += message_frame_t.cc
+SOURCES += message_info_t.cc
+SOURCES += message_option_t.cc
+SOURCES += message_stats_t.cc
+SOURCES += messagebox.cc
+SOURCES += money_frame.cc
+SOURCES += optionen.cc
+SOURCES += savegame_frame.cc
+SOURCES += schedule_gui.cc
+SOURCES += schedule_list.cc
+SOURCES += scrollbar.cc
+SOURCES += scrolled_list.cc
+SOURCES += sound_frame.cc
+SOURCES += spieler.cc
+SOURCES += sprachen.cc
+SOURCES += stadt_info.cc
+SOURCES += tab_panel.cc
+SOURCES += welt.cc
+SOURCES += werkzeug_parameter_waehler.cc
+SOURCES += world_view_t.cc
 
-SOURCES= button.cc\
- infowin.cc colors.cc karte.cc welt.cc\
- werkzeug_parameter_waehler.cc\
- goods_frame_t.cc goods_stats_t.cc\
- kennfarbe.cc halt_info.cc halt_detail.cc\
- halt_list_frame.cc halt_list_item.cc\
- help_frame.cc depot_frame.cc label_frame.cc\
- citylist_frame_t.cc citylist_stats_t.cc\
- message_frame_t.cc message_stats_t.cc message_option_t.cc message_info_t.cc\
- stadt_info.cc fabrik_info.cc fahrplan_gui.cc\
- messagebox.cc sprachen.cc optionen.cc spieler.cc\
- schedule_list.cc schedule_gui.cc scrolled_list.cc scrollbar.cc\
- tab_panel.cc image_list.cc gui_container.cc gui_frame.cc gui_scrollpane.cc\
- gui_label.cc gui_convoiinfo.cc world_view_t.cc\
- map_frame.cc map_legend.cc \
- sound_frame.cc savegame_frame.cc \
- savegame_frame.cc load_relief_frame.cc \
- loadsave_frame.cc money_frame.cc convoi_frame.cc convoi_info_t.cc \
- convoi_filter_frame.cc halt_list_frame.cc halt_list_item.cc halt_list_filter_frame.cc \
- line_management_gui.cc \
- factorylist_frame_t.cc factorylist_stats_t.cc  \
- curiositylist_frame_t.cc curiositylist_stats_t.cc
+SUBDIRS = components
 
-
-OBJECTS=button.o\
- infowin.o colors.o karte.o welt.o\
- werkzeug_parameter_waehler.o\
- goods_frame_t.o goods_stats_t.o\
- kennfarbe.o halt_info.o  halt_detail.o\
- halt_list_frame.o halt_list_item.o\
- help_frame.o depot_frame.o label_frame.o\
- citylist_frame_t.o citylist_stats_t.o\
- message_frame_t.o message_stats_t.o message_option_t.o message_info_t.o\
- stadt_info.o fabrik_info.o fahrplan_gui.o\
- messagebox.o sprachen.o optionen.o spieler.o \
- schedule_list.o schedule_gui.o scrolled_list.o scrollbar.o\
- tab_panel.o image_list.o gui_container.o gui_frame.o gui_scrollpane.o\
- gui_label.o gui_convoiinfo.o world_view_t.o\
- map_frame.o map_legend.o \
- sound_frame.o \
- savegame_frame.o load_relief_frame.o \
- loadsave_frame.o money_frame.o convoi_frame.o convoi_info_t.o \
- convoi_filter_frame.o halt_list_frame.o halt_list_item.o halt_list_filter_frame.o \
- line_management_gui.o \
- factorylist_frame_t.o factorylist_stats_t.o \
- curiositylist_frame_t.o curiositylist_stats_t.o
-
-
-all:   component_sub $(OBJECTS)
-
-component_sub:
-	$(MAKE) -e -C components
-
-
-depend:
-	makedepend $(SOURCES)
-
-
-dep: depdep
-	cd components; make dep; cd ..
-
-depdep: $(SOURCES)
-	gcc -M $^ > .depend
-
-
-ifeq (.depend,$(wildcard .depend))
-    # include .depend only if it exists
-include .depend
-endif
-
-# DO NOT DELETE
+include ../common.mk

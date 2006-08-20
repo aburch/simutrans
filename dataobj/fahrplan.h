@@ -45,13 +45,13 @@ protected:
 	 */
 	void init();
 
+public:
     /**
      * sollte eine Fehlermeldung ausgeben, wenn halt nicht erlaubt ist
      * @author Hj. Malthaner
      */
     virtual void zeige_fehlermeldung(karte_t *) const {};
 
-public:
     /**
      * der allgemeine Fahrplan erlaubt haltestellen überall.
      * diese Methode sollte in den unterklassen redefiniert werden.
@@ -150,13 +150,13 @@ class zugfahrplan_t : public fahrplan_t
 {
 protected:
     virtual bool ist_halt_erlaubt(const grund_t *) const;
-    virtual void zeige_fehlermeldung(karte_t *) const;
 
 public:
     zugfahrplan_t() : fahrplan_t() {type = zugfahrplan;};
     zugfahrplan_t(loadsave_t *file) : fahrplan_t(file) {type = zugfahrplan;};
     zugfahrplan_t(fahrplan_t * fpl) : fahrplan_t(fpl) {type = zugfahrplan;};
     fahrplan_t * copy() { return new zugfahrplan_t(this); };
+    virtual void zeige_fehlermeldung(karte_t *) const;
 };
 
 
@@ -170,13 +170,13 @@ class autofahrplan_t : public fahrplan_t
 {
 protected:
     virtual bool ist_halt_erlaubt(const grund_t *) const;
-    virtual void zeige_fehlermeldung(karte_t *) const;
 
 public:
     autofahrplan_t() : fahrplan_t() {type = autofahrplan;};
     autofahrplan_t(loadsave_t *file) : fahrplan_t(file) {type = autofahrplan;};
     autofahrplan_t(fahrplan_t * fpl) : fahrplan_t(fpl) {type = autofahrplan;};
     fahrplan_t * copy() { return new autofahrplan_t(this); };
+    virtual void zeige_fehlermeldung(karte_t *) const;
 };
 
 
@@ -190,13 +190,13 @@ class schifffahrplan_t : public fahrplan_t
 {
 protected:
     virtual bool ist_halt_erlaubt(const grund_t *) const;
-    virtual void zeige_fehlermeldung(karte_t *) const;
 
 public:
     schifffahrplan_t() : fahrplan_t() {type = schifffahrplan;};
     schifffahrplan_t(loadsave_t *file) : fahrplan_t(file) {type = schifffahrplan;};
     schifffahrplan_t(fahrplan_t * fpl) : fahrplan_t(fpl) {type = schifffahrplan;};
     fahrplan_t * copy() { return new schifffahrplan_t(this); };
+    virtual void zeige_fehlermeldung(karte_t *) const;
 };
 
 
@@ -207,13 +207,13 @@ class airfahrplan_t : public fahrplan_t
 {
 protected:
     virtual bool ist_halt_erlaubt(const grund_t *) const;
-    virtual void zeige_fehlermeldung(karte_t *) const;
 
 public:
     airfahrplan_t() : fahrplan_t() {type = airfahrplan;};
     airfahrplan_t(loadsave_t *file) : fahrplan_t(file) {type = airfahrplan;};
     airfahrplan_t(fahrplan_t * fpl) : fahrplan_t(fpl) {type = airfahrplan;};
     fahrplan_t * copy() { return new airfahrplan_t(this); };
+    virtual void zeige_fehlermeldung(karte_t *) const;
 };
 
 

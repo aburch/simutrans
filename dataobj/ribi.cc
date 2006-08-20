@@ -76,6 +76,9 @@ const ribi_t::ribi ribi_t::doppelr[16] = {
     keine			// alle
 };
 
+#ifndef DOUBLE_GROUNDS
+
+// single height hangs
 static const ribi_t::ribi from_hang[16] = {
     ribi_t::keine,		// 0:flach
     ribi_t::keine,		// 1:spitze SW
@@ -113,6 +116,177 @@ const int hang_t::flags[16] = {
     0,				// 14:tal SW
     wegbar_ns|wegbar_ow 	// 15:alles oben
 };
+
+
+#else
+//double height grounds
+static const ribi_t::ribi from_hang[81] = {
+    ribi_t::keine,	// ribi_t::keine:flach
+    ribi_t::keine,
+    ribi_t::keine,
+    ribi_t::keine,
+    ribi_t::sued,		// 4:nordhang
+    ribi_t::keine,
+    ribi_t::keine,
+    ribi_t::keine,
+    ribi_t::sued,		// 8: double height nord
+    ribi_t::keine,
+    ribi_t::keine,
+    ribi_t::keine,
+    ribi_t::ost,	// 12:westhang
+    ribi_t::keine,
+    ribi_t::keine,
+    ribi_t::keine,
+    ribi_t::keine,
+    ribi_t::keine,
+    ribi_t::keine,
+    ribi_t::keine,
+    ribi_t::keine,
+    ribi_t::keine,
+    ribi_t::keine,
+    ribi_t::ost,	// 24: double height west
+    ribi_t::keine,
+    ribi_t::keine,
+    ribi_t::keine,
+    ribi_t::west,	// 28:osthang
+    ribi_t::keine,
+    ribi_t::keine,
+    ribi_t::keine,
+    ribi_t::keine,
+    ribi_t::keine,
+    ribi_t::keine,
+    ribi_t::keine,
+    ribi_t::nord,		// 36:suedhang
+    ribi_t::keine,
+    ribi_t::keine,
+    ribi_t::keine,
+    ribi_t::keine,
+    ribi_t::keine,
+    ribi_t::keine,
+    ribi_t::keine,
+    ribi_t::keine,
+    ribi_t::keine,
+    ribi_t::keine,
+    ribi_t::keine,
+    ribi_t::keine,
+    ribi_t::keine,
+    ribi_t::keine,
+    ribi_t::keine,
+    ribi_t::keine,
+    ribi_t::keine,
+    ribi_t::keine,
+    ribi_t::keine,
+    ribi_t::west,	// 56:osthang
+    ribi_t::keine,
+    ribi_t::keine,
+    ribi_t::keine,
+    ribi_t::keine,
+    ribi_t::keine,
+    ribi_t::keine,
+    ribi_t::keine,
+    ribi_t::keine,
+    ribi_t::keine,
+    ribi_t::keine,
+    ribi_t::keine,
+    ribi_t::keine,
+    ribi_t::keine,
+    ribi_t::keine,
+    ribi_t::keine,
+    ribi_t::nord,	// double sued
+    ribi_t::keine,
+    ribi_t::keine,
+    ribi_t::keine,
+    ribi_t::keine,
+    ribi_t::keine,
+    ribi_t::keine,
+    ribi_t::keine,
+    ribi_t::keine		// 80:alles oben
+};
+
+const int hang_t::flags[81] = {
+    wegbar_ns|wegbar_ow,	// 0:flach
+    0,
+    0,
+    0,
+    wegbar_ns|einfach,		// 4:nordhang
+    0,
+    0,
+    0,
+    einfach,		// 8: double height nord
+    0,
+    0,
+    0,
+    wegbar_ow|einfach,	// 12:westhang
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    einfach,		// 24: double height west
+    0,
+    0,
+    0,
+    wegbar_ow|einfach,	// 28:osthang
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    wegbar_ns|einfach,		// 36:suedhang
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    einfach,	// 56:osthang
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    einfach,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    wegbar_ns|wegbar_ow 	// 80:alles oben
+};
+#endif
+
 
 const ribi_t::dir ribi_t::dirs[16] = {
     dir_invalid,		// keine

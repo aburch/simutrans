@@ -67,11 +67,9 @@ void curiositylist_stats_t::get_unique_attractions()
 		bool append = true;
 		for (unsigned int j=0; j<attractions.get_count(); ++j) {
 			const char *desc = translator::translate(geb->gib_tile()->gib_besch()->gib_name());
-			char *token = strtok(const_cast<char*>(desc),"\n");
 			const char *check_desc = translator::translate(attractions.at(j)->gib_tile()->gib_besch()->gib_name());
-			char *check_token = strtok(const_cast<char*>(check_desc),"\n");
 
-			append = STRICMP(token,check_token)>=0;
+			append = STRICMP(desc,check_desc)>=0;
 
 			if (!append) {
 DBG_MESSAGE("curiositylist_stats_t::get_unique_attractions()","insert %s at (%i,%i)",geb->gib_tile()->gib_besch()->gib_name(),geb->gib_pos().x, geb->gib_pos().y );
@@ -123,7 +121,8 @@ void curiositylist_stats_t::zeichnen(koord offset) const
 	const int start = cd.y-LINESPACE;
 	const int end = cd.yy;
 
-	static cbuffer_t buf(256);
+	const char *formatstr=translator::translate("%s (%i,%i) - (pax %i, post %i)");
+	static char name[64], buf[128];
 	int yoff = offset.y;
 
 	for (unsigned int i=0; i<attractions.get_count()  &&  yoff<end; i++) {
@@ -136,8 +135,6 @@ void curiositylist_stats_t::zeichnen(koord offset) const
 			yoff += LINESPACE+3;
 			continue;
 		}
-
-		buf.clear();
 
 		// is connected? => decide on indicatorcolor
 		int indicatorfarbe;
@@ -179,20 +176,18 @@ void curiositylist_stats_t::zeichnen(koord offset) const
 		display_ddd_box_clip(xoff+7, yoff+6, 8, 8, MN_GREY0, MN_GREY4);
 		display_fillbox_wh_clip(xoff+8, yoff+7, 6, 6, indicatorfarbe, true);
 
-		// the other infos
+		// trim the name
 		const char *desc = translator::translate(geb->gib_tile()->gib_besch()->gib_name());
-		char *token = strtok(const_cast<char*>(desc),"\n");
-		buf.append(token);
-		buf.append(" (");
-		buf.append(geb->gib_pos().gib_2d().x);
-		buf.append(", ");
-		buf.append(geb->gib_pos().gib_2d().y);
-		buf.append(") - (");
-		buf.append(geb->gib_passagier_level());
-		buf.append(", ");
-		buf.append(geb->gib_post_level());
-		buf.append(") ");
+		int chr=0, dest=0;
+		while(desc[chr]<=32) {
+			chr ++;
+		}
+		while(dest<64  &&  desc[chr]>=32) {
+			name[dest++] = desc[chr++];
+		}
+		name[dest++] = 0;
 
+		sprintf( buf, formatstr, name, geb->gib_pos().x, geb->gib_pos().y, geb->gib_passagier_level(), geb->gib_post_level() );
 		display_proportional_clip(xoff+26,yoff+6,buf,ALIGN_LEFT,SCHWARZ,true);
 
 		if (geb->gib_tile()->gib_besch()->gib_bauzeit() != 0)

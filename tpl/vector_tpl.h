@@ -256,13 +256,12 @@ public:
      */
     const T& get(unsigned int i) const
     {
-	if(i<count) {
-	    return data[i];
-	} else {
+	if(i>=count) {
 	    ERROR("vector_tpl<T>::get()","index out of bounds: %i not in 0..%d", i, count-1);
 	    trap();
-	    // return data[0];
+	    // will never go here
 	}
+	    return data[i];
     }
 
     /**
@@ -271,13 +270,12 @@ public:
      */
     T& at(unsigned int i) const
     {
-	if(i<count) {
-	    return data[i];
-	} else {
+	if(i>=count) {
 	    ERROR("vector_tpl<T>::at()","index out of bounds: %i not in 0..%d\n", i, count-1);
 	    trap();
-	    // return data[0];
+	    // will never go here
 	}
+    return data[i];
     }
 
 

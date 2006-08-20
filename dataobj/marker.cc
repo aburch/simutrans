@@ -48,43 +48,42 @@ void marker_t::unmarkiere_alle()
 
 void marker_t::markiere(const grund_t *gr)
 {
-    if(gr != NULL) {
-	if(!gr->ist_bruecke() && !gr->ist_tunnel()) {
-	    const int bit = gr->gib_pos().y*cached_groesse+gr->gib_pos().x;
-
-	    bits[bit/bit_unit] |= 1 << (bit & bit_mask);
+	if(gr != NULL) {
+		if(!gr->ist_bruecke() && !gr->ist_tunnel()) {
+			const int bit = gr->gib_pos().y*cached_groesse+gr->gib_pos().x;
+			bits[bit/bit_unit] |= 1 << (bit & bit_mask);
+		}
+		else if(!more.contains(gr)) {
+			more.insert(gr);
+		}
 	}
-	else if(!more.contains(gr))
-	    more.insert(gr);
-    }
 }
 
 void marker_t::unmarkiere(const grund_t *gr)
 {
-    if(gr != NULL) {
-	if(!gr->ist_bruecke() && !gr->ist_tunnel()) {
-	    const int bit = gr->gib_pos().y*cached_groesse+gr->gib_pos().x;
-
-	    bits[bit/bit_unit] &= ~(1 << (bit & bit_mask));
+	if(gr != NULL) {
+		if(!gr->ist_bruecke() && !gr->ist_tunnel()) {
+			const int bit = gr->gib_pos().y*cached_groesse+gr->gib_pos().x;
+			bits[bit/bit_unit] &= ~(1 << (bit & bit_mask));
+		}
+		else {
+			more.remove(gr);
+		}
 	}
-	else
-	    more.remove(gr);
-    }
 }
 
 bool marker_t::ist_markiert(const grund_t *gr) const
 {
-    if(gr != NULL) {
-	if(!gr->ist_bruecke() && !gr->ist_tunnel()) {
-	    const int bit = gr->gib_pos().y*cached_groesse+gr->gib_pos().x;
-
-	    return (bits[bit/bit_unit] & (1 << (bit & bit_mask))) != 0;
+	if(gr==NULL) {
+		return false;
 	}
-	else
-	    return more.contains(gr);
-    }
-    else
-	return false;
+	if(!gr->ist_bruecke() && !gr->ist_tunnel()) {
+		const int bit = gr->gib_pos().y*cached_groesse+gr->gib_pos().x;
+		return (bits[bit/bit_unit] & (1 << (bit & bit_mask))) != 0;
+	}
+	else {
+		return more.contains(gr);
+	}
 }
 
 

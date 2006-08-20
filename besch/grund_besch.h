@@ -40,6 +40,18 @@ class grund_besch_t : public obj_besch_t {
     friend class ground_writer_t;
 
 public:
+#ifdef DOUBLE_GROUNDS
+    static const uint8 slopetable[80];
+    // returns the correct hang number for this slope
+    int get_double_hang(hang_t::typ typ) const {
+	const bildliste_besch_t *liste = static_cast<const bildliste2d_besch_t *>(gib_kind(2))->gib_liste(65);
+	if(liste) {
+	    	return typ;
+	}
+	return slopetable[typ];
+    }
+#endif
+
     const char *gib_name() const
     {
         return static_cast<const text_besch_t *>(gib_kind(0))->gib_text();
@@ -48,6 +60,7 @@ public:
     {
         return static_cast<const text_besch_t *>(gib_kind(1))->gib_text();
     }
+
     int gib_phasen(hang_t::typ typ) const
     {
 	const bildliste_besch_t *liste = static_cast<const bildliste2d_besch_t *>(gib_kind(2))->gib_liste(typ);

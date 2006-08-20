@@ -7,10 +7,34 @@ Known bugs: (hard to fix)
 	sorting factories has an umlaute problem
 
 
+2-DEC-2005:
+	FIX(prissi): fiddled a little around with the signal deletion routine. No crashes, after a some tries
+	FIX(prissi): monorail again deletable
+	FIX(prissi): identical blocks on different tracks when using undo fixed
+	ADD(mip): Marko keys (set them with CNTRL+F2...F14) and recall them with simple F2...F14
+	FIX(prissi): tool bars again in more rows
+	FIX(prissi): cleaned up sources, took in Allegro support (wow, is the fastest so far!)
+
+30-Nov-2005 (prissi):
 	FIX: air depot/terminal alignment
 	FIX: only straight runways
-	FIX: power large than 65536 and gear larger than 255 are now handled
+	FIX: power large than 65536 and gear larger than 255 are now handled correctly
 	FIX: slower acceleration on runways
+	FIX: when ground was changed, airplanes were stucked
+	FIX: "nicer" calculation of speed during different flight positions
+	FIX: made planes compatible with half height version
+	FIX: error when zoomed out with different base tile sizes
+	FIX: A* route calculation was actually wrong and very badly implemented
+	FIX: AI even more biased towards networks
+	FIX: fiddled a little around with the signal deletion routine. No crashes, after a some tries
+	FIX: monorail again deletable
+	FIX: identical blocks on different tracks when using undo fixed
+
+28-Nov-2005:
+	FIX(mip): curiosity list used strtok, which wrote into the read-only strings from translation! (also customize display: "%s (%i,%i) - (pax %i, post %i)" for translation)
+	FIX(mip):
+	FIX(hsiegeln): divers error messages around schedules and station buildings
+
 
 Release of 88.00
 
