@@ -92,20 +92,24 @@ ware_t::~ware_t()
 void
 ware_t::rdwr(loadsave_t *file)
 {
-    file->rdwr_long(menge, " ");
-    file->rdwr_long(max, " ");
+	file->rdwr_long(menge, " ");
+	file->rdwr_long(max, " ");
 
-    const char *typ = NULL;
+	const char *typ = NULL;
 
-    if(file->is_saving()) {
-	typ = type->gib_name();
-    }
-    file->rdwr_str(typ, " ");
-    if(file->is_loading()) {
-	type = warenbauer_t::gib_info(typ);
-	guarded_free(const_cast<char *>(typ));
-    }
-    ziel.rdwr(file);
-    zwischenziel.rdwr(file);
-    zielpos.rdwr(file);
+	if(file->is_saving()) {
+		typ = type->gib_name();
+	}
+	file->rdwr_str(typ, " ");
+	if(file->is_loading()) {
+		type = warenbauer_t::gib_info(typ);
+		guarded_free(const_cast<char *>(typ));
+		if(type==NULL) {
+			DBG_MESSAGE("ware_t::rdwr()","unknown ware set to empty!");
+			menge = 0;
+		}
+	}
+	ziel.rdwr(file);
+	zwischenziel.rdwr(file);
+	zielpos.rdwr(file);
 }

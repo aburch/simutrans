@@ -578,7 +578,7 @@ grund_t::display_boden(const int xpos, int ypos, bool dirty) const
 	dirty |= get_flag(grund_t::dirty);
 	int raster_tile_width = get_tile_raster_width();
 
-	ypos -= (gib_hoehe() * raster_tile_width) >> 6;
+	ypos -= tile_raster_scale_y( gib_hoehe(), raster_tile_width);
 
 	/* we can save some time but just don't display at all
 	 * @author prissi
@@ -609,7 +609,7 @@ grund_t::display_dinge(const int xpos, int ypos, bool dirty)
 {
 	int n;
 	int raster_tile_width = get_tile_raster_width();
-	ypos -= (gib_hoehe() * raster_tile_width) >> 6;
+	ypos -= tile_raster_scale_y( gib_hoehe(), raster_tile_width);
 
 	dirty |= get_flag(grund_t::dirty);
 	clear_flag(grund_t::dirty);

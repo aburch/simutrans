@@ -143,7 +143,7 @@ roadsign_t::rdwr(loadsave_t *file)
 
 		besch = (const roadsign_besch_t *)table.get(bname);
 		if(!besch) {
-			DBG_MESSAGE("roadsign_t::rwdr", "description %s for tree at %d,%d not found, will be removed!", bname, gib_pos().x, gib_pos().y);
+			DBG_MESSAGE("roadsign_t::rwdr", "description %s for ropadsign at %d,%d not found, will be removed!", bname, gib_pos().x, gib_pos().y);
 		}
 	}
 }

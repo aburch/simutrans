@@ -67,8 +67,7 @@ const ware_besch_t *warenbauer_t::gib_info(const char* name)
     const ware_besch_t *t = (const ware_besch_t *)besch_names.get(name);
 
     if(t == NULL) {
-        dbg->error("warenbauer_t::gib_info()",
-	           "No info for good '%s' available", name);
+        dbg->error("warenbauer_t::gib_info()", "No info for good '%s' available", name);
     }
 
     return t;

@@ -227,7 +227,7 @@ private:
      * The name is saved with the first ground square. After creating and/
      * or loading a station the name must be copied into the name array.
      * This flag tells wether the name s has been copied yet or not.
-     * Set to true in all constructors. Setto flase in gib_name() after
+     * Set to true in all constructors. Setto false in gib_name() after
      * copying the name.
      * @author Hj. Malthaner
      */

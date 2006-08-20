@@ -7,6 +7,7 @@
  * in other projects without written permission of the author.
  */
 #include <string.h>
+#include <ctype.h>
 
 #include "../simworld.h"
 #include "../simdings.h"
@@ -529,8 +530,28 @@ gebaeude_t::rdwr(loadsave_t *file)
 
 	if(file->is_loading()) {
 	    tile = hausbauer_t::find_tile(buf, idx);
+
 	    if(!tile) {
-		DBG_MESSAGE("gebaeude_t::rwdr", "description %s for building at %d,%d not found (will be removed)!", buf, gib_pos().x, gib_pos().y);
+	    	// try to find a fitting building
+	    	char typ_str[16];
+	    	int i, level=0;
+	    	sscanf(buf,"%3s_%i_%i",typ_str,&i,&level);
+		typ_str[0] = toupper(typ_str[0]);
+		typ_str[1] = toupper(typ_str[1]);
+		typ_str[2] = toupper(typ_str[2]);
+//		DBG_MESSAGE("gebaeude_t::rwdr", "%s level %i",typ_str,level);
+	    	if(strcmp(typ_str,"RES")==0) {
+			DBG_MESSAGE("gebaeude_t::rwdr", "replace unknown building %s with residence level %i",buf,level);
+	    		tile = hausbauer_t::gib_wohnhaus(level)->gib_tile(0);
+	    	} else if(strcmp(typ_str,"COM")==0) {
+			DBG_MESSAGE("gebaeude_t::rwdr", "replace unknown building %s with commercial level %i",buf,level);
+	    		tile = hausbauer_t::gib_gewerbe(level)->gib_tile(0);
+	    	} else if(strcmp(typ_str,"IND")==0) {
+			DBG_MESSAGE("gebaeude_t::rwdr", "replace unknown building %s with industrie level %i",buf,level);
+	    		tile = hausbauer_t::gib_industrie(level)->gib_tile(0);
+	    	} else {
+			DBG_MESSAGE("gebaeude_t::rwdr", "description %s for building at %d,%d not found (will be removed)!", buf, gib_pos().x, gib_pos().y);
+	    }
 	    }
 
 
@@ -546,10 +567,10 @@ gebaeude_t::rdwr(loadsave_t *file)
 	}
 	file->rdwr_byte(sync, "\n");
 
-	if(file->is_loading() && tile) {
+	if(file->is_loading()) {
     	    count = 0;
 	    anim_time = 0;
-	    if(sync) {
+	    if(tile && sync) {
 		// Sicherstellen, dass alles wieder animiert wird!
 		// Ohne "sync=false" denkt setze_sync(), es dreht sich
 	        // schon alles.
@@ -558,7 +579,7 @@ gebaeude_t::rdwr(loadsave_t *file)
 	    }
 
 	    // Hajo: rebuild tourist attraction list
-	    if(tile->gib_besch()->ist_ausflugsziel()) {
+	    if(tile && tile->gib_besch()->ist_ausflugsziel()) {
 	      welt->add_ausflugsziel( this );
 	    }
 	}

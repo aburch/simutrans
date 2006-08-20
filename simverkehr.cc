@@ -38,25 +38,27 @@ stringhashtable_tpl<const stadtauto_besch_t *> stadtauto_t::table;
 
 void stadtauto_t::built_timeline_liste()
 {
-	// this list will contain all citycars
-	liste_timeline.clear();
-	const int month_now = welt->get_current_month();
+	if(liste.count()>0) {
+		// this list will contain all citycars
+		liste_timeline.clear();
+		const int month_now = welt->get_current_month();
 
 //DBG_DEBUG("stadtauto_t::built_timeline_liste()","year=%i, month=%i", month_now/12, month_now%12+1);
 
-	// check for every citycar, if still ok ...
-	slist_iterator_tpl <const stadtauto_besch_t *> iter (liste);
-	while(iter.next()) {
-		const stadtauto_besch_t *info = iter.get_current();
-		const int intro_month = info->get_intro_year() * 12 + info->get_intro_month();
-		const int retire_month = info->get_retire_year() * 12 + info->get_retire_month();
+		// check for every citycar, if still ok ...
+		slist_iterator_tpl <const stadtauto_besch_t *> iter (liste);
+		while(iter.next()) {
+			const stadtauto_besch_t *info = iter.get_current();
+			const int intro_month = info->get_intro_year() * 12 + info->get_intro_month();
+			const int retire_month = info->get_retire_year() * 12 + info->get_retire_month();
 
 //DBG_DEBUG("stadtauto_t::built_timeline_liste()","iyear=%i, imonth=%i", intro_month/12, intro_month%12+1);
 //DBG_DEBUG("stadtauto_t::built_timeline_liste()","ryear=%i, rmonth=%i", retire_month/12, retire_month%12+1);
 
-		if(	umgebung_t::use_timeline == false || (intro_month<=month_now  &&  retire_month>month_now)  ) {
-			liste_timeline.append(info);
+			if(	umgebung_t::use_timeline == false || (intro_month<=month_now  &&  retire_month>month_now)  ) {
+				liste_timeline.append(info);
 //DBG_DEBUG("stadtauto_t::built_timeline_liste()","adding %s to liste",info->gib_name());
+			}
 		}
 	}
 }

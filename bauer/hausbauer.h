@@ -55,11 +55,9 @@ private:
     static slist_tpl<const haus_besch_t *> ungebaute_denkmaeler;
 
 public:
-
     static slist_tpl<const haus_besch_t *> wohnhaeuser;
     static slist_tpl<const haus_besch_t *> gewerbehaeuser;
     static slist_tpl<const haus_besch_t *> industriehaeuser;
-
 
     /**
      * Gebäude, die das Programm direkt kennen muß
@@ -70,6 +68,7 @@ public:
     static const haus_besch_t *str_depot_besch;
     static const haus_besch_t *sch_depot_besch;
     static const haus_besch_t *muehle_besch;
+
     // to allow for an arbitary number, we use lists
     static slist_tpl<const haus_besch_t *> hausbauer_t::station_building;
     static slist_tpl<const haus_besch_t *> hausbauer_t::post_offices;
@@ -79,8 +78,6 @@ public:
     static slist_tpl<const haus_besch_t *> hausbauer_t::headquarter;
 
 private:
-
-
     /**
      * Liefert den Eintrag mit passendem Level aus der Liste,
      * falls es ihn gibt.
@@ -94,7 +91,6 @@ private:
      * @author Hj. Malthaner
      */
     static const haus_besch_t * gib_aus_liste(slist_tpl<const haus_besch_t *> &liste, int level);
-
 
     /**
      * Liefert einen zufälligen Eintrag aus der Liste.

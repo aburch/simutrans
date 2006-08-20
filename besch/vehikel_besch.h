@@ -23,6 +23,8 @@
 #include "skin_besch.h"
 #include "../dataobj/ribi.h"
 
+#include "../boden/wege/weg.h"
+
 /**
  * Vehicle type description - all attributes of a vehicle type
  *
@@ -48,7 +50,7 @@ class vehikel_besch_t : public obj_besch_t {
     friend class vehicle_reader_t;
 
 public:
-
+#if 0
     // Hajo: be careful, some of these values must match the entries
     // in schiene_t
     enum weg_t { strasse=0,
@@ -60,7 +62,7 @@ public:
 		 schiene_maglev=6,
 		 schiene_strab=7, // Dario: Tramway
     };
-
+#endif
 
     /**
      * Engine type
@@ -88,7 +90,7 @@ private:
     uint16  obsolete_date; //phase out at
     uint8   gear;       // Hajo: engine gear (power multiplier)
 
-    uint8  typ;         // Hajo: Das ist der weg_t
+    sint8  typ;         // Hajo: Das ist der weg_t
     sint8  sound;
 
     uint8  vorgaenger;	// Anzahl möglicher Vorgänger
@@ -171,9 +173,9 @@ public:
     {
 	return nachfolger;
     }
-    weg_t gib_typ() const
+    weg_t::typ gib_typ() const
     {
-	return static_cast<weg_t>(typ);
+	return static_cast<weg_t::typ>(typ);
     }
     int gib_zuladung() const
     {

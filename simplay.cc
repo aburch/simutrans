@@ -919,7 +919,7 @@ DBG_MESSAGE("spieler_t::do_passenger_ki()","no suitable hub found");
 					}
 
 					// we want the fastest we can get!
-					road_vehicle = vehikelbauer_t::vehikel_search( vehikel_besch_t::strasse, month_now, 10, 80, warenbauer_t::passagiere );
+					road_vehicle = vehikelbauer_t::vehikel_search( weg_t::strasse, month_now, 10, 80, warenbauer_t::passagiere );
 					if(road_vehicle!=NULL) {
 						// find cheapest road
 						road_weg = wegbauer_t::weg_search( weg_t::strasse, road_vehicle->gib_geschw() );
@@ -1035,7 +1035,7 @@ DBG_DEBUG("do_passenger_ki()","calling message_t()");
 							if(  umgebung_t::use_timeline == true   ) {
 								month_now = welt->get_current_month();
 							}
-							road_vehicle = vehikelbauer_t::vehikel_search( vehikel_besch_t::strasse, month_now, 10, 80, warenbauer_t::passagiere );
+							road_vehicle = vehikelbauer_t::vehikel_search( weg_t::strasse, month_now, 10, 80, warenbauer_t::passagiere );
 							koord list[2] = {halt->gib_basis_pos(),ware.gib_zwischenziel()};
 							create_bus_transport_vehikel( list[0], 1, list, 2, false );	// overcrowded line, so waiting does not make sense
 DBG_MESSAGE("spieler_t::do_passenger_ki()","add new convoi to crowded line from %s to %s",halt->gib_name(),is_my_halt(list[1])->gib_name());
@@ -1292,8 +1292,8 @@ DBG_MESSAGE("spieler_t::do_ki()","%s want to build a route from %s (%d,%d) to %s
 
 					// is rail transport allowed?
 					if(rail_transport) {
-						// any rail car that transport this good (actually this returns the largest)
-						rail_vehicle = vehikelbauer_t::vehikel_search( vehikel_besch_t::schiene, month_now, 0, best_rail_speed,  freight );
+						// any rail car that transport this good (actually this weg_t the largest)
+						rail_vehicle = vehikelbauer_t::vehikel_search( weg_t::schiene, month_now, 0, best_rail_speed,  freight );
 					}
 					rail_engine = NULL;
 					rail_weg = NULL;
@@ -1302,7 +1302,7 @@ DBG_MESSAGE("do_ki()","rail vehicle %p",rail_vehicle);
 					// is road transport allowed?
 					if(road_transport) {
 						// any road car that transport this good (actually this returns the largest)
-						road_vehicle = vehikelbauer_t::vehikel_search( vehikel_besch_t::strasse, month_now, 10, best_road_speed, freight );
+						road_vehicle = vehikelbauer_t::vehikel_search( weg_t::strasse, month_now, 10, best_road_speed, freight );
 					}
 					road_weg = NULL;
 DBG_MESSAGE("do_ki()","road vehicle %p",road_vehicle);
@@ -1320,7 +1320,7 @@ DBG_MESSAGE("do_ki()","road vehicle %p",road_vehicle);
 					 	best_rail_speed = MIN(80,rail_vehicle->gib_geschw());
 						// for engine: gues number of cars
 						count_rail = (prod*dist) / (rail_vehicle->gib_zuladung()*best_rail_speed)+1;
-						rail_engine = vehikelbauer_t::vehikel_search( vehikel_besch_t::schiene, month_now, 80*count_rail, best_rail_speed, NULL );
+						rail_engine = vehikelbauer_t::vehikel_search( weg_t::schiene, month_now, 80*count_rail, best_rail_speed, NULL );
 						if(  rail_engine!=NULL  ) {
 						  if(  best_rail_speed>rail_engine->gib_geschw()  ) {
 						    best_rail_speed = rail_engine->gib_geschw();

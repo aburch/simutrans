@@ -133,7 +133,7 @@ public:
 
     void setze_fab(fabrik_t *fb) { fab = fb; }
 
-    enum ding_t::typ gib_typ() const {return gebaeude;};
+    enum ding_t::typ gib_typ() const {return ding_t::gebaeude;};
 
     void setze_count(int count);
     void setze_anim_time(unsigned long t) {anim_time = t;};

@@ -133,9 +133,9 @@ class haus_besch_t : public obj_besch_t {     // Daten für ein ganzes Gebäude
 
     int                 level;          // or passengers;
     int                 bauzeit;        // == inhabitants at build time
-    koord               groesse;
+    koord          groesse;
     int                 layouts;        // 1 2 oder 4
-    flag_t              flags;
+    flag_t           flags;
     int                 chance;         // Hajo: chance to build
                                         // special buildings only
 

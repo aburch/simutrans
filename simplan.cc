@@ -197,6 +197,18 @@ planquadrat_t::rdwr(karte_t *welt, loadsave_t *file)
 			   "Unknown ground type '%d'",
 			   gtyp);
             }
+
+		// check if we have a matching building here, otherwise set to nothing
+		if(gr  &&  gtyp==grund_t::fundament  &&  gr->suche_obj(ding_t::gebaeude)==0) {
+			koord3d pos = gr->gib_pos();
+			// show normal ground here
+			delete gr;
+			DBG_MESSAGE("gebaeude_t::rwdr", "try replace by normal ground!");
+			gr = new boden_t(welt, pos);
+			DBG_MESSAGE("gebaeude_t::rwdr", "unknown building at %d,%d replace by normal ground!", pos.x,pos.y);
+		}
+		// we should also check for ground below factories
+
             if(gr) {
                 koord3d tmppos ( gr->gib_pos() );
                 if(gib_kartenboden() == NULL) {

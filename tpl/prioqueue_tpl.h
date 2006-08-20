@@ -13,6 +13,7 @@
 //#include <stdlib.h>
 
 #include "debug_helper.h"
+#include "../dataobj/freelist.h"
 
 
 // collect statistics
@@ -45,35 +46,32 @@ class prioqueue_tpl
 private:
     struct node_t
     {
-	struct node_t *next;
+public:
+	node_t *next;
 	T data;
     };
 
     node_t * head;
     node_t * tail;
-    node_t * freelist;
 
     int node_count;
 
-    //    friend class slist_iterator_tpl<T>;
-
-
-    node_t * gimme_node()
-    {
-    	if(freelist) {
-	    node_t * tmp = freelist;
-	    freelist = freelist->next;
-	    return tmp;
-	} else {
-	    return new node_t();
+	node_t * gimme_node()
+	{
+		return (node_t *)freelist_t::gimme_node(sizeof(node_t));
 	}
-    }
 
-    void putback_node(node_t *tmp)
-    {
-	tmp->next = freelist;
-	freelist = tmp;
-    }
+
+	void putback_node(node_t *tmp)
+	{
+		freelist_t::putback_node(sizeof(node_t),tmp);
+	}
+
+
+	void putback_nodes()
+	{
+		freelist_t::putback_nodes(sizeof(node_t),head);
+	}
 
 #ifdef PRIQ_STATS
     int insert_hops;
@@ -81,14 +79,12 @@ private:
     int insert_count;
 #endif
 
-
 public:
 
     prioqueue_tpl()
     {
 	head = 0;             // empty queue
-    tail = 0;
-	freelist = 0;
+     tail = 0;
 	node_count = 0;
 
 #ifdef PRIQ_STATS
@@ -107,7 +103,7 @@ public:
      */
     ~prioqueue_tpl()
     {
-	destroy();
+        clear();
 
 #ifdef PRIQ_STATS
 	printf("%d insert calls, total %d hops, total count %d\n",
@@ -241,45 +237,14 @@ public:
      */
     void clear()
     {
-	node_t *p = head;
-	while(p != 0) {
-	    node_t * tmp = p->next;
-	    putback_node( p );
-	    p = tmp;
+	if(head) {
+	    putback_nodes();
 	}
-
 	head = 0;
+      tail = 0;
 	node_count = 0;
     }
 
-    /**
-     * Deletes all nodes and the freelist. Doesn't delete the objects.
-     * Leaves the queue empty.
-     *
-     * @author Hj. Malthaner
-     */
-    void destroy()
-    {
-	node_t *p = head;
-	while(p != 0) {
-	    node_t * tmp = p->next;
-	    delete p;
-	    p = tmp;
-	}
-
-
-	while(freelist != 0) {
-	    node_t *tmp = freelist->next;
-	    delete freelist;
-	    freelist = tmp;
-	}
-
-	head = 0;
-    tail = 0;
-	freelist = 0;
-
-	node_count = 0;
-    }
 
 
     int count() const

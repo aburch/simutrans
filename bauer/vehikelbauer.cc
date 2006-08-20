@@ -7,20 +7,22 @@
  * in other projects without written permission of the author.
  */
 
-#include "../besch/vehikel_besch.h"
-#include "../bauer/warenbauer.h"
 #include "../simvehikel.h"
 #include "../simplay.h"
 #include "../simworld.h"  // for year/month
 #include "../simdebug.h"
 #include "../simtools.h"  // for simrand
 
-#include "vehikelbauer.h"
+#include "../besch/vehikel_besch.h"
+#include "../boden/wege/weg.h"
+
+#include "../bauer/warenbauer.h"
+#include "../bauer/vehikelbauer.h"
 
 
 inthashtable_tpl<int, const vehikel_besch_t *> vehikelbauer_t::_fahrzeuge;
 stringhashtable_tpl<const vehikel_besch_t *> vehikelbauer_t::name_fahrzeuge;
-inthashtable_tpl<vehikel_besch_t::weg_t, slist_tpl<const vehikel_besch_t *> > vehikelbauer_t::typ_fahrzeuge;
+inthashtable_tpl<weg_t::typ, slist_tpl<const vehikel_besch_t *> > vehikelbauer_t::typ_fahrzeuge;
 
 
 vehikel_t *
@@ -33,18 +35,21 @@ vehikelbauer_t::baue(karte_t *welt, koord3d k,
     if(vb) {
 
   switch(vb->gib_typ()) {
-  case vehikel_besch_t::strasse:
+  case weg_t::strasse:
       v = new automobil_t(welt, k, vb, sp, cnv);
       break;
-  case vehikel_besch_t::schiene:
-  case vehikel_besch_t::schiene_strab:
+  case weg_t::schiene:
+  case weg_t::schiene_strab:
       v = new waggon_t(welt, k, vb, sp, cnv);
       break;
-  case vehikel_besch_t::wasser:
+  case weg_t::wasser:
       v = new schiff_t(welt, k, vb, sp, cnv);
       break;
-  case vehikel_besch_t::luft:
+  case weg_t::luft:
       break;
+   case weg_t::invalid:
+   case weg_t::powerline:
+   	dbg->fatal("vehikelbauer_t::baue()","cannot built a vehicle with waytype %i",vb->gib_typ());
   }
 
   assert(v != NULL);
@@ -64,12 +69,10 @@ bool vehikelbauer_t::register_besch(const vehikel_besch_t *besch)
 {
   // printf("N=%s T=%d V=%d P=%d\n", besch->gib_name(), besch->gib_typ(), besch->gib_geschw(), besch->gib_leistung());
 
-
     name_fahrzeuge.put(besch->gib_name(), besch);
     _fahrzeuge.put(besch->gib_basis_bild(), besch);
 
-
-    vehikel_besch_t::weg_t typ = besch->gib_typ();
+    weg_t::typ typ = besch->gib_typ();
 
     slist_tpl<const vehikel_besch_t *> *typ_liste = typ_fahrzeuge.access(typ);
     if(!typ_liste) {
@@ -86,7 +89,7 @@ bool vehikelbauer_t::register_besch(const vehikel_besch_t *besch)
 
 void vehikelbauer_t::sort_lists()
 {
-    inthashtable_iterator_tpl<vehikel_besch_t::weg_t, slist_tpl<const vehikel_besch_t *> > typ_iter(typ_fahrzeuge);
+    inthashtable_iterator_tpl<weg_t::typ, slist_tpl<const vehikel_besch_t *> > typ_iter(typ_fahrzeuge);
 
     while(typ_iter.next()) {
   slist_tpl<const vehikel_besch_t *> *typ_liste = &typ_iter.access_current_value();
@@ -165,7 +168,7 @@ void vehikelbauer_t::sort_lists()
  */
 const vehikel_besch_t *
 vehikelbauer_t::gib_info(const ware_besch_t *wtyp,
-                             vehikel_besch_t::weg_t vtyp,
+                             weg_t::typ vtyp,
            int min_power)
 {
     inthashtable_iterator_tpl<int, const vehikel_besch_t *> iter(_fahrzeuge);
@@ -208,7 +211,7 @@ vehikelbauer_t::gib_info(int base_img)
 
 
 const vehikel_besch_t *
-vehikelbauer_t::gib_info(vehikel_besch_t::weg_t typ, unsigned int i)
+vehikelbauer_t::gib_info(weg_t::typ typ, unsigned int i)
 {
   slist_tpl<const vehikel_besch_t *> *typ_liste = typ_fahrzeuge.access(typ);
 
@@ -263,7 +266,7 @@ int vehikelbauer_t::vehikel_can_lead( const vehikel_besch_t *v )
  * tries to get best with but adds a little random action
  * @author prissi
  */
-const vehikel_besch_t *vehikelbauer_t::vehikel_search(vehikel_besch_t::weg_t typ,const unsigned month_now,const int target_power,const int target_speed,const ware_besch_t * target_freight)
+const vehikel_besch_t *vehikelbauer_t::vehikel_search(weg_t::typ typ,const unsigned month_now,const int target_power,const int target_speed,const ware_besch_t * target_freight)
 {
   // only needed for iteration
   inthashtable_iterator_tpl<int, const vehikel_besch_t *> iter(_fahrzeuge);
@@ -374,7 +377,7 @@ DBG_MESSAGE( "vehikelbauer_t::vehikel_search","Found engine %s",besch->gib_name(
 
 
 
-const vehikel_besch_t *vehikelbauer_t::vehikel_fuer_leistung(int leistung, vehikel_besch_t::weg_t typ,const unsigned month_now)
+const vehikel_besch_t *vehikelbauer_t::vehikel_fuer_leistung(int leistung, weg_t::typ typ,const unsigned month_now)
 {
   // only needed for iteration
   inthashtable_iterator_tpl<int, const vehikel_besch_t *> iter(_fahrzeuge);

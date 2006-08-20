@@ -240,7 +240,7 @@ karte_t::calc_hoehe_mit_heightfield(const cstring_t & filename)
 
     sscanf(buf, "%d %d", &w, &h);
 
-    if(w != gib_groesse_x()-1  || h != gib_groesse_y()-1) {
+    if(w != gib_groesse_x()  || h != gib_groesse_y()) {
       dbg->fatal("karte_t::load_heightfield()","Heightfield has wrong size %s", buf);
     }
 
@@ -712,6 +712,7 @@ karte_t::init(einstellungen_t *sets)
     letzter_monat = 0;
     letztes_jahr = umgebung_t::starting_year;
     current_month = letzter_monat + (letztes_jahr*12);
+    next_month_ticks =  1 << karte_t::ticks_bits_per_tag;
     season = 2;
     steps = 0;
 
@@ -827,8 +828,8 @@ DBG_DEBUG("karte_t::init()","hausbauer_t::neue_karte()");
 DBG_DEBUG("karte_t::init()","prepare cities");
 	stadt = new vector_tpl <stadt_t *> (einstellungen->gib_anzahl_staedte());
 	vector_tpl<koord> *pos = stadt_t::random_place(this, einstellungen->gib_anzahl_staedte());
-	if( pos ) {
 
+	if(pos!=NULL) {
 		// prissi if we could not generate enough positions ...
 		einstellungen->setze_anzahl_staedte( pos->get_count() );	// new number of towns ...
 
@@ -837,7 +838,7 @@ DBG_DEBUG("karte_t::init()","prepare cities");
 
 		for(i=0; i<einstellungen->gib_anzahl_staedte(); i++) {
 			int citizens=(int)(einstellungen->gib_mittlere_einwohnerzahl()*0.9);
-DBG_DEBUG("karte_t::init()","Erzeuge stadt %i",i);
+	DBG_DEBUG("karte_t::init()","Erzeuge stadt %i",i);
 			stadt->append( new stadt_t(this, spieler[1], pos->at(i),citizens/10+simrand(2*citizens+1)) );
 
 			if(is_display_init()) {
@@ -866,7 +867,6 @@ DBG_DEBUG("karte_t::init()","Erzeuge stadt %i",i);
 		bauigel.set_maximum(200);
 
 		// Hajo: search for road offset
-
 		koord roff (0,1);
 		if(lookup(pos->at(0)+roff)->gib_kartenboden()->gib_weg(weg_t::strasse) == 0) {
 			roff = koord(0,2);
@@ -886,11 +886,11 @@ DBG_DEBUG("karte_t::init()","Erzeuge stadt %i",i);
 						bauigel.baue();
 					}
 					else {
-DBG_DEBUG("karte_t::init()","no route found fom city %d to %d", i, j);
+	DBG_DEBUG("karte_t::init()","no route found fom city %d to %d", i, j);
 					}
 				}
 				else {
-DBG_DEBUG("karte_t::init()","cites %d and %d are too far away", i, j);
+	DBG_DEBUG("karte_t::init()","cites %d and %d are too far away", i, j);
 				}
 			} //for j
 
@@ -902,8 +902,8 @@ DBG_DEBUG("karte_t::init()","cites %d and %d are too far away", i, j);
 		} // for i
 
 		delete pos;
-		pos = NULL;
 	}
+	pos = NULL;
 
     // prissi: completely change format
      fabrikbauer_t::verteile_industrie(this,
@@ -1889,10 +1889,10 @@ karte_t::neuer_monat()
 	if(umgebung_t::use_timeline) {
 		char	buf[256];
 
-		for(int i=vehikel_besch_t::strasse; i<vehikel_besch_t::luft; i++) {
+		for(int i=weg_t::strasse; i<weg_t::luft; i++) {
 			int j=0;
 			const vehikel_besch_t *info;
-			while((info = vehikelbauer_t::gib_info((vehikel_besch_t::weg_t)i, j))) {
+			while((info = vehikelbauer_t::gib_info((weg_t::typ)i, j))) {
 				j++;
 
 				const int intro_month =info->get_intro_year() * 12 + info->get_intro_month();
@@ -2493,16 +2493,16 @@ DBG_DEBUG("karte_t::laden()","grundwasser %i",grundwasser);
     stadt = new vector_tpl <stadt_t *> (einstellungen->gib_anzahl_staedte());
     for(int i=0; i<einstellungen->gib_anzahl_staedte(); i++) {
 	stadt->append( new stadt_t(this, file) );
-	// printf("Loading city %s\n", stadt->get(i)->gib_name());
     }
 
+	DBG_MESSAGE("karte_t::laden()","loading blocks");
     blockmanager *bm = blockmanager::gib_manager();
     bm->setze_welt_groesse( gib_groesse_x(), gib_groesse_y() );
     bm->rdwr(this, file);
 
+	DBG_MESSAGE("karte_t::laden()","loading tiles");
     for(y=0; y<gib_groesse_y(); y++) {
 	for(x=0; x<gib_groesse_x(); x++) {
-//	    fprintf(stderr,"Lade Planquadrat (%d, %d).\n",i,j);
 
 	    if(file->is_eof()) {
 		dbg->fatal("karte_t::laden()","Savegame file mangled (too short)!");
@@ -2513,6 +2513,7 @@ DBG_DEBUG("karte_t::laden()","grundwasser %i",grundwasser);
 	display_flush(0, 0, 0, "", "", 0, 0);
     }
 
+	DBG_MESSAGE("karte_t::laden()","loading slopes");
     for(y=0; y<=gib_groesse_y(); y++) {
 	for(x=0; x<=gib_groesse_x(); x++) {
 	    int hgt;
@@ -2543,18 +2544,23 @@ DBG_DEBUG("karte_t::laden()","grundwasser %i",grundwasser);
     }
 
     int fabs;
-
     file->rdwr_long(fabs, "\n");
+    DBG_MESSAGE("karte_t::laden()", "prepare for %i factories", fabs);
 
     for(int i = 0; i < fabs; i++) {
 	// liste in gleicher reihenfolge wie vor dem speichern wieder aufbauen
-	fab_list.append( new fabrik_t(this, file) );
+	fabrik_t *fab = new fabrik_t(this, file);
+	if(fab->gib_besch()) {
+		fab_list.append( fab );
+	}
+	else {
+		dbg->error("karte_t::laden()","Unknown fabrik skipped!");
+	}
     }
-
+    DBG_MESSAGE("karte_t::laden()", "clean up factories");
     if (fab_list.count() > 0) {
       gib_fab(0)->laden_abschliessen();
     }
-
     DBG_MESSAGE("karte_t::laden()", "%d factories loaded", fab_list.count());
 
     // load linemanagement status (and lines)

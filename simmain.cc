@@ -66,6 +66,8 @@
 
 #include "bauer/hausbauer.h"
 
+#include "simverkehr.h"
+
 /*******************************************************************************
  * The follownig code is for moving files to new locations. It can be removed
  * afterwards.
@@ -1020,6 +1022,9 @@ display_show_pointer( true );
     dbg->fatal("simmain.cc","simu_cpp_main()",
 	       nse.message);
   }
+
+	// free all list memories (not working, since there seems to be unitialized list stiil waiting for automated destruction)
+//	freelist_t::free_all_nodes();
 
   return 0;
 }

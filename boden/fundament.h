@@ -12,7 +12,7 @@
  * @author Hj. Malthaner
  * @version $Revision: 1.9 $
  */
-class fundament_t : public boden_t
+class fundament_t : public grund_t
 {
 public:
 

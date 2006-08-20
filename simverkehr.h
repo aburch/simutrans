@@ -124,6 +124,7 @@ public:
 
 
 class stadtauto_t : public verkehrsteilnehmer_t {
+private:
     static slist_mit_gewichten_tpl<const stadtauto_besch_t *> stadtauto_t::liste_timeline;
     static slist_mit_gewichten_tpl<const stadtauto_besch_t *> liste;
     static stringhashtable_tpl<const stadtauto_besch_t *> table;

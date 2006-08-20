@@ -23,6 +23,8 @@ Stichpunkte
 - Brücken and senkrechten Wänden
 - Felder: Grafiken da, fehlt noch code (vielleicht wie Wälder?)
 
+- Winter höhenabhängig?
+
 Immer zu tun:
 - Aufräumen von Datentypen für bessere Portierbarkeit
 - Testen auf BeOS und PowerPC

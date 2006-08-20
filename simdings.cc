@@ -287,72 +287,53 @@ void ding_t::laden_abschliessen()
 void
 ding_t::display(int xpos, int ypos, bool dirty) const
 {
-    const int raster_width = get_tile_raster_width();
+	const int raster_width = get_tile_raster_width();
 
-    int bild = gib_bild();
-    int j = 1;
+	int bild = gib_bild();
 
-    ypos += tile_raster_scale(gib_yoff(), raster_width);
-    xpos += tile_raster_scale(gib_xoff(), raster_width);
+	ypos += tile_raster_scale_x(gib_yoff(), raster_width);
+	xpos += tile_raster_scale_x(gib_xoff(), raster_width);
 
-    dirty |= get_flag(ding_t::dirty);
+	dirty |= get_flag(ding_t::dirty);
 
-    if(dirty && bild == 0xFFFF) {
-      mark_rect_dirty_wc(xpos-8, ypos-32,
-			 xpos+80, ypos+76);
-    }
-
-
-    do {
-	if(gib_besitzer()) {
-	    display_color_img(bild,
-		              xpos,
-			      ypos,
-			      gib_besitzer()->kennfarbe,
-			      true,
-			      dirty);
-	} else {
-	    display_img(bild,
-		        xpos,
-			ypos,
-			dirty);
+	if(dirty && bild == 0xFFFF) {
+		mark_rect_dirty_wc(xpos-8, ypos-32, xpos+80, ypos+76);
 	}
-	ypos -= raster_width;
-	bild = gib_bild(j++);
-    } while(bild != -1);
+
+	int j = 1;
+	while(bild!=-1) {
+
+		if(gib_besitzer()) {
+			display_color_img(bild, xpos, ypos, gib_besitzer()->kennfarbe, true, dirty);
+		}
+		else {
+			display_img(bild, xpos, ypos, dirty);
+		}
+		// this ding has another image on top (e.g. skyscraper)
+		ypos -= raster_width;
+		bild = gib_bild(j++);
+	}
 }
 
 
 void
 ding_t::display_after(int xpos, int ypos, bool dirty) const
 {
-    int bild = gib_after_bild();
+	int bild = gib_after_bild();
 
-    if(bild != -1) {
-        const int raster_width = get_tile_raster_width();
-	int j = 1;
+	if(bild != -1) {
+		const int raster_width = get_tile_raster_width();
 
-	ypos += tile_raster_scale(gib_yoff(), raster_width);
-	xpos += tile_raster_scale(gib_xoff(), raster_width);
+		ypos += tile_raster_scale_x(gib_yoff(), raster_width);
+		xpos += tile_raster_scale_x(gib_xoff(), raster_width);
 
-	dirty |= get_flag(ding_t::dirty);
+		dirty |= get_flag(ding_t::dirty);
 
-	do {
-	    if(gib_besitzer()) {
-		display_color_img(bild,
-				  xpos,
-				  ypos,
-				  gib_besitzer()->kennfarbe,
-				  true,
-				  dirty);
-	    } else {
-		display_img(bild,
-			    xpos,
-		    	    ypos,
-			    dirty);
-	    }
-	    ypos -= raster_width;
-	    bild = gib_after_bild(j++);
-	} while(bild != -1);
-    }
+		if(gib_besitzer()) {
+			display_color_img(bild, xpos, ypos, gib_besitzer()->kennfarbe, true, dirty);
+		}
+		else {
+			display_img(bild, xpos, ypos, dirty);
+		}
+	}
 }

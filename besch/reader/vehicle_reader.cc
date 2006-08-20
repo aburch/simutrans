@@ -185,13 +185,6 @@ obj_besch_t * vehicle_reader_t::read_node(FILE *fp, obj_node_info_t &node)
     besch->vorgaenger = decode_uint8(p);
     besch->nachfolger = decode_uint8(p);
 
-    if(besch->typ == 4) {
-      besch->engine_type = vehikel_besch_t::electric;
-      besch->typ = vehikel_besch_t::schiene;
-    } else {
-      besch->engine_type = vehikel_besch_t::diesel;
-    }
-
     besch->obsolete_date = (2999*16);
   } else if(version == 2) {
     // Versioned node, version 2
@@ -212,14 +205,10 @@ obj_besch_t * vehicle_reader_t::read_node(FILE *fp, obj_node_info_t &node)
     besch->nachfolger = decode_uint8(p);
     besch->engine_type = decode_uint8(p);
 
-    // Hajo: compatibility for old dat file content
-    if(besch->typ == 4) {
-      besch->typ = vehikel_besch_t::schiene;
-    }
-
     besch->obsolete_date = (2999*16);
-} else if (version == 3 ) {
+} else if (version==3   ||  version==4) {
     // Versioned node, version 3 with retire date
+    // version 4 identical, just other values for the waytype
 
     besch->preis = decode_uint32(p);
     besch->zuladung = decode_uint16(p);
@@ -255,13 +244,20 @@ obj_besch_t * vehicle_reader_t::read_node(FILE *fp, obj_node_info_t &node)
     besch->obsolete_date = (2999*16);
     besch->gear = 64;
 
-    if(besch->typ == 4) {
-      besch->engine_type = vehikel_besch_t::electric;
-      besch->typ = vehikel_besch_t::schiene;
-    } else {
-      besch->engine_type = vehikel_besch_t::diesel;
-    }
   }
+	//change the vehicle type
+	if(version<4) {
+		if(besch->typ == 4) {
+			besch->engine_type = vehikel_besch_t::electric;
+			besch->typ = 2;
+		}
+		else {
+			besch->engine_type = vehikel_besch_t::diesel;
+		}
+		// convert to new standard
+		const weg_t::typ convert_from_old[8]={weg_t::strasse, weg_t::schiene, weg_t::wasser, weg_t::luft, weg_t::invalid, weg_t::schiene_monorail, weg_t::schiene_maglev, weg_t::schiene_strab };
+		besch->typ = convert_from_old[besch->typ];
+	}
 
   DBG_DEBUG("vehicle_reader_t::read_node()",
 	     "version=%d "

@@ -64,9 +64,9 @@ void karte_vollansicht_t::display_boden(const int i, const int j, const int xpos
 	    gr->display_boden(xpos, ypos, dirty || pos_dirty);
 	    if(pos_dirty) {
 		mark_rect_dirty_wc(xpos-8*scale,
-				   ypos-32*scale-gr->gib_hoehe()*scale,
+				   ypos-32*scale-height_scaling(gr->gib_hoehe()*scale),
 		                   xpos+80*scale,
-				   ypos+76*scale-gr->gib_hoehe()*scale);
+				   ypos+76*scale-height_scaling(gr->gib_hoehe()*scale));
 
 		welt->markiere_clean(gr->gib_pos());
 	    }
@@ -74,7 +74,7 @@ void karte_vollansicht_t::display_boden(const int i, const int j, const int xpos
     } else {
 	display_img(grund_besch_t::ausserhalb->gib_bild(hang_t::flach),
 		    xpos,
-		    ypos - ((welt->gib_grundwasser()*get_tile_raster_width()) >> 6),
+		    ypos - tile_raster_scale_y( welt->gib_grundwasser(), get_tile_raster_width() ),
 		    dirty);
     }
 }
@@ -104,8 +104,8 @@ void karte_vollansicht_t::display_dinge(const int i, const int j, const int xpos
  	    gr->display_dinge(xpos, ypos, dirty || welt->ist_dirty(pos));
 
 	    if(welt->ist_dirty(pos)) {
-		mark_rect_dirty_wc(xpos-8, ypos-32-gr->gib_hoehe()*scale,
-		                   xpos+80, ypos+76-gr->gib_hoehe()*scale);
+		mark_rect_dirty_wc(xpos-8, ypos-32-height_scaling(gr->gib_hoehe()*scale),
+		                   xpos+80, ypos+76-height_scaling(gr->gib_hoehe()*scale));
 
 		welt->markiere_clean(pos);
 	    }
@@ -114,9 +114,9 @@ void karte_vollansicht_t::display_dinge(const int i, const int j, const int xpos
 
     ding_t *zeiger = welt->gib_zeiger();
     if(zeiger->gib_pos().gib_2d() == koord(i,j)) {
-	zeiger->display(xpos,
-			ypos-zeiger->gib_pos().z  * (get_tile_raster_width() >> 6),
-			dirty);
+		zeiger->display(xpos,
+		ypos - tile_raster_scale_y( zeiger->gib_pos().z, get_tile_raster_width()),
+		dirty);
 
 	zeiger->clear_flag(ding_t::dirty);
     }

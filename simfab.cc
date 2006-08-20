@@ -145,6 +145,8 @@ fabrik_t::fabrik_t(karte_t *wl, loadsave_t *file) : lieferziele(max_lieferziele)
     eingang = NULL;
     ausgang = NULL;
 
+	besch = NULL;
+
     abgabe_sum = NULL;
     abgabe_letzt = NULL;
 
@@ -475,10 +477,12 @@ DBG_DEBUG("fabrik_t::rdwr()","loading factory '%s'",s);
 			prodfaktor = 16;
 		}
 		if(file->get_version() < 86001) {
-			koord k=besch->gib_haus()->gib_groesse();
+			if(besch) {
+				koord k=besch->gib_haus()->gib_groesse();
 DBG_DEBUG("fabrik_t::rdwr()","correction of production by %i",k.x*k.y);
-			// since we step from 86.01 per factory, not per tile!
-			prodbase *= k.x*k.y*2;
+				// since we step from 86.01 per factory, not per tile!
+				prodbase *= k.x*k.y*2;
+			}
 		}
 		// Hajo: restore factory owner
 		// Due to a omission in Volkers changes, there might be savegames
@@ -512,7 +516,7 @@ DBG_DEBUG("fabrik_t::rdwr()","correction of production by %i",k.x*k.y);
 		}
 	}
 
-	if(file->is_loading()) {
+	if(file->is_loading()  &&  besch) {
 		baue(rotate, false);
 	}
 }

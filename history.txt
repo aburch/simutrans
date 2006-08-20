@@ -3,6 +3,18 @@ Known bugs: (hard to fix)
 	Citycars are visible after loading even in a tunnel until they hop onto the next field
 	Citycars cannot go around a 180 degree road bend
 
+
+Release of 86.07.1
+
+15-Jul-2005 (prissi)
+	FIX: fundament as subtype of grund was a bad idea: no more objects were detected!
+	FIX: no new month after starting a new game!
+	FIX: error in routings could led to a crash of the sort routines displaying the station info!
+	CHANGE: extensive correction no done during loading of savegames. If you are lucky you may be able to load an 128 savegame (or a german) with the 64 and vice versa.
+	CHANGE: weg_t are now the only waytypes (vehikel_besch_t::strasse no longer valid)
+	CHANGE: made way for lower hills (actually there is a TTD-like graphic set under way ... )
+
+
 Release of 86.07
 
 13-Jul-2005 (prissi)

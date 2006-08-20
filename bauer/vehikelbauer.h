@@ -42,7 +42,7 @@ private:
     // beschreibungstabellen
     static inthashtable_tpl<int, const vehikel_besch_t *> _fahrzeuge;
     static stringhashtable_tpl <const vehikel_besch_t *> name_fahrzeuge;
-    static inthashtable_tpl<vehikel_besch_t::weg_t, slist_tpl<const vehikel_besch_t *> > typ_fahrzeuge;
+    static inthashtable_tpl<weg_t::typ, slist_tpl<const vehikel_besch_t *> > typ_fahrzeuge;
 
 public:
     static bool register_besch(const vehikel_besch_t *besch);
@@ -63,12 +63,12 @@ public:
      * @author Hansjörg Malthaner
      */
     static const vehikel_besch_t * gib_info(const ware_besch_t *wtyp,
-            enum vehikel_besch_t::weg_t vtyp,
+            weg_t::typ vtyp,
             int min_power);
 
     static const vehikel_besch_t * gib_info(int base_img);
     static const vehikel_besch_t * gib_info(const char *name);
-    static const vehikel_besch_t * gib_info(vehikel_besch_t::weg_t typ,
+    static const vehikel_besch_t * gib_info(weg_t::typ typ,
               unsigned int i);
 
   // only used by vehicle_search()
@@ -77,9 +77,9 @@ public:
   /* extended sreach for vehicles for KI
    * @author prissi
    */
-    static const vehikel_besch_t *vehikelbauer_t::vehikel_search(vehikel_besch_t::weg_t typ,const unsigned month_now,const int target_power,const int target_speed,const ware_besch_t * target_freight);
+    static const vehikel_besch_t *vehikelbauer_t::vehikel_search(weg_t::typ typ,const unsigned month_now,const int target_power,const int target_speed,const ware_besch_t * target_freight);
 
-    static const vehikel_besch_t *vehikel_fuer_leistung(int leistung, vehikel_besch_t::weg_t typ,const unsigned month_now);
+    static const vehikel_besch_t *vehikel_fuer_leistung(int leistung, weg_t::typ typ,const unsigned month_now);
     static int gib_preis(int base_img);
 };
 

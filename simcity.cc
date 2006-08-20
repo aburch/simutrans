@@ -1468,19 +1468,16 @@ stadt_t::bewerte_loc(const koord pos, const char *regel)
 
   switch(regel[(k.x-pos.x+1) + ((k.y-pos.y+1)<<2)]) {
   case 's':
-    ok = gr->gib_weg(weg_t::strasse) &&
-      (gr->gib_top() <= 0);
+    ok = gr->gib_weg(weg_t::strasse) && (gr->gib_top() <= 0);
     break;
   case 'S':
     ok = !gr->gib_weg(weg_t::strasse);
     break;
   case 'h':
-    ok = gr->obj_bei(0) != 0 &&
-      gr->obj_bei(0)->gib_typ() == ding_t::gebaeudefundament;
+    ok = gr->obj_bei(0)!=0 && gr->obj_bei(0)->gib_typ()==ding_t::gebaeudefundament;
     break;
   case 'H':
-    ok = gr->obj_bei(0) == 0 ||
-      gr->obj_bei(0)->gib_typ() != ding_t::gebaeudefundament;
+    ok = gr->obj_bei(0)==0 || gr->obj_bei(0)->gib_typ()!=ding_t::gebaeudefundament;
     break;
 
   case 'n':
@@ -1803,29 +1800,22 @@ stadt_t::renoviere_gebaeude(koord k)
     }
 
     // hier sind wir sicher dass es ein Gebaeude ist
-
     const int level = gb->gib_tile()->gib_besch()->gib_level();
 
     // bisher gibt es 2 Sorten Haeuser
     // arbeit-spendende und wohnung-spendende
-
     const int will_arbeit = (bev - arb) / 4;  // Nur ein viertel arbeitet
     const int will_wohnung = (bev - won);
 
     // der Bauplatz muss bewertet werden
-
     const int passt_industrie = bewerte_industrie(k);
     const int passt_gewerbe = bewerte_gewerbe(k);
     const int passt_wohnung = bewerte_wohnung(k);
 
     // verlust durch abriss
-
     const int sum_gewerbe = passt_gewerbe + will_arbeit;
     const int sum_industrie = passt_industrie + will_arbeit;
     const int sum_wohnung = passt_wohnung + will_wohnung;
-
-
-    // printf("Pruefe Renovierung\n");
 
     gebaeude_t::typ will_haben = gebaeude_t::unbekannt;
     int sum = 0;
@@ -1846,6 +1836,9 @@ stadt_t::renoviere_gebaeude(koord k)
     }
 
     if(sum > 0) {
+
+//    DBG_MESSAGE("stadt_t::renoviere_gebaeude()","renovation at %i,%i (%i level) of typ %i to typ %i with desire %i",k.x,k.y,alt_typ,will_haben,sum);
+
   const int neu_lev = (alt_typ == will_haben) ? level + 1 : level;
 
   if(will_haben == gebaeude_t::wohnung) {

@@ -43,6 +43,8 @@
 #include "../../dataobj/tabfile.h"
 
 #include "../vehikel_besch.h"
+#include "../boden/wege/weg.h"
+
 #include "obj_pak_exception.h"
 #include "obj_node.h"
 #include "text_writer.h"
@@ -64,22 +66,24 @@
  */
 static uint8 get_waytype(const char * waytype, tabfileobj_t &obj)
 {
-  uint8 uv8 = vehikel_besch_t::strasse;
+  uint8 uv8 = weg_t::strasse;
 
   if(!STRICMP(waytype, "road")) {
-    uv8 = vehikel_besch_t::strasse;
+    uv8 = weg_t::strasse;
   } else if(!STRICMP(waytype, "track")) {
-    uv8 = vehikel_besch_t::schiene;
+    uv8 = weg_t::schiene;
   } else if(!STRICMP(waytype, "electrified_track")) {
     uv8 = 4;
   } else if(!STRICMP(waytype, "monorail_track")) {
-    uv8 = vehikel_besch_t::schiene_monorail;
+    uv8 = weg_t::schiene_monorail;
   } else if(!STRICMP(waytype, "maglev_track")) {
-    uv8 = vehikel_besch_t::schiene_maglev;
+    uv8 = weg_t::schiene_maglev;
   } else if(!STRICMP(waytype, "water")) {
-	uv8 = vehikel_besch_t::wasser;
+	uv8 = weg_t::wasser;
+  } else if(!STRICMP(waytype, "air")) {
+	uv8 = weg_t::luft;
   } else if(!STRICMP(waytype, "schiene_tram")) {
-		uv8 = vehikel_besch_t::schiene_strab;
+		uv8 = weg_t::schiene_strab;
 	} else {
     cstring_t reason;
 
@@ -140,7 +144,7 @@ void vehicle_writer_t::write_obj(FILE *fp, obj_node_t &parent, tabfileobj_t &obj
     // Hajo: version number
     // Hajo: Version needs high bit set as trigger -> this is required
     //       as marker because formerly nodes were unversionend
-    uv16 = 0x8003;
+    uv16 = 0x8004;
     node.write_data_at(fp, &uv16, 0, sizeof(uint16));
 
 
@@ -202,7 +206,7 @@ void vehicle_writer_t::write_obj(FILE *fp, obj_node_t &parent, tabfileobj_t &obj
     // Hajoval: road, track, electrified_track, monorail_track, maglev_track, water
     const char *waytype = obj.get("waytype");
     const char waytype_uint = get_waytype(waytype, obj);
-    uv8 = (waytype_uint==4) ? vehikel_besch_t::schiene : waytype_uint;
+    uv8 = (waytype_uint==4) ? weg_t::schiene : waytype_uint;
     node.write_data_at(fp, &uv8, 21, sizeof(uint8));
 
 

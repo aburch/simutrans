@@ -205,6 +205,8 @@ private:
 
 protected:
 
+    sint32 get_speed_limit() { return speed_limit; };
+
     /**
      * Current index on the route
      * @author Hj. Malthaner

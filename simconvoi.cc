@@ -1145,7 +1145,10 @@ convoi_t::rdwr(loadsave_t *file)
 		sum_leistung += info->gib_leistung();
 		sum_gear_und_leistung += info->gib_leistung()*info->get_gear();
 		sum_gewicht += info->gib_gewicht();
-	    }
+	  }
+	  else {
+	  	DBG_MESSAGE("convoi_t::rdwr()","no vehikel info!");
+	  }
 
 
 	    if(state != INITIAL) {

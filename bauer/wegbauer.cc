@@ -607,6 +607,10 @@ wegbauer_t::calc_cost(koord pos)
 		if(bd->gib_weg(weg_t::strasse)) {
 			cost -= 4;
 		}
+		else if(!bd->ist_natur()) {
+			// here is a building
+			cost += 50;
+		}
 	}
 
 	if(bautyp == schiene_bot || bautyp == schiene_bot_bau) {

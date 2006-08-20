@@ -533,9 +533,9 @@ const vehikel_besch_t *bahndepot_t::get_vehicle_type(int itype)
 {
 	if(is_tram) {
 		// trams only?
-		return vehikelbauer_t::gib_info(vehikel_besch_t::schiene_strab, itype);
+		return vehikelbauer_t::gib_info(weg_t::schiene_strab, itype);
 	}
-	return vehikelbauer_t::gib_info(vehikel_besch_t::schiene, itype);
+	return vehikelbauer_t::gib_info(weg_t::schiene, itype);
 }
 
 const char *
@@ -583,7 +583,7 @@ strassendepot_t::create_line(karte_t * welt)
 
 const vehikel_besch_t *strassendepot_t::get_vehicle_type(int itype)
 {
-    return vehikelbauer_t::gib_info(vehikel_besch_t::strasse, itype);
+    return vehikelbauer_t::gib_info(weg_t::strasse, itype);
 }
 
 const char *
@@ -630,7 +630,7 @@ schiffdepot_t::create_line(karte_t * welt)
 
 const vehikel_besch_t *schiffdepot_t::get_vehicle_type(int itype)
 {
-    return vehikelbauer_t::gib_info(vehikel_besch_t::wasser, itype);
+    return vehikelbauer_t::gib_info(weg_t::wasser, itype);
 }
 
 

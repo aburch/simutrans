@@ -17,7 +17,6 @@
 #include "../dings/gebaeudefundament.h"
 #include "../dings/gebaeude.h"
 #include "../dings/signal.h"
-#include "../dings/roadsign.h"
 #ifdef LAGER_NOT_IN_USE
 #include "../dings/lagerhaus.h"
 #endif
@@ -25,12 +24,13 @@
 //#include "../dings/leitung.h"
 #include "../dings/leitung2.h"
 #include "../dings/oberleitung.h"
+#include "../dings/roadsign.h"
 
 #include "../simdepot.h"
 #include "../simmem.h"
 #include "../simverkehr.h"
 #include "../simpeople.h"
-#include "../simplan.h"
+
 #include "../besch/haus_besch.h"
 
 #include "../dataobj/translator.h"
@@ -38,34 +38,31 @@
 #include "../dataobj/freelist.h"
 
 
-
-
 static void dl_free(void *p, unsigned int size)
 {
-	assert((size & 7) == 0);
+  assert((size & 7) == 0);
 
-	if(size<=8) {
+  if(size == 7) {
 		freelist_t::putback_node(sizeof(ding_t *)*size,p);
-	} else {
-		guarded_free(p);
-	}
+  } else {
+    guarded_free(p);
+  }
 }
 
 
 static ding_t ** dl_alloc(unsigned int size)
 {
-	assert((size & 7) == 0);
+  void *p = 0;
 
-	void *p = 0;
+  assert((size & 7) == 0);
 
-	if(size<=8) {
+  if(size == 7) {
 		p = (ding_t **)freelist_t::gimme_node(size*sizeof(ding_t *));
-	}
-	else {
-		p = guarded_malloc(size*sizeof(ding_t *));
-	}
+  } else {
+    p = guarded_malloc(size * sizeof(ding_t *));
+  }
 
-	return (ding_t **)p;
+  return (ding_t **)p;
 }
 
 
@@ -161,28 +158,26 @@ dingliste_t::grow_capacity(const int pri)
 void
 dingliste_t::shrink_capacity(const int o_top)
 {
-	// if we go for speed we should not free this array
-	// because roads and railroads often change to 0 objects
-	// but need such an array again whn a train/truck arrives
+    // if we go for speed we should not free this array
+    // because roads and railroads often chnage to 0 objects
+    // but need such an array again whn a train/truck arrives
 
-#if 0
-	// we really wnat to save all we can ...
-	if(capacity > 0 && last_index == -1) {
-		// last vehicle left ...
-		dl_free(obj, capacity);
-		// Paranoia
-		top = 0;
-		capacity = 0;
-	}
-	else
-#endif
+    // if memory should be preserved this can be helpful
 
-	// strategy: avoid free'ing mem if not neccesary. Only if we hold lots
-	// of memory then free it.
-	if(capacity>16  &&  o_top<8) {
-		set_capacity(8);
-	}
+/*
+    if(capacity > 0 && last_index == -1) {
+	delete[] obj;
+	obj = NULL;
+	capacity = 0;
+    } else
+*/
 
+    // strategy: avoid free'ing mem if not neccesary. Only if we hold lots
+    // of memory then free it.
+
+    if(capacity > 32 && o_top < 8) {
+	set_capacity(8);
+    }
 }
 
 
@@ -339,7 +334,7 @@ dingliste_t::count() const
 
 void dingliste_t::rdwr(karte_t *welt, loadsave_t *file, koord3d current_pos)
 {
-    int max_object_index, load_index=0;
+    int max_object_index;
 
     if(file->is_saving()) {
         max_object_index = top-1;
@@ -350,14 +345,13 @@ void dingliste_t::rdwr(karte_t *welt, loadsave_t *file, koord3d current_pos)
         if(file->is_loading()) {
             ding_t::typ typ = (ding_t::typ)file->rd_obj_id();
 
- // DBG_DEBUG("dingliste_t::laden()", "Thing type %d", typ);
+	    // DBG_DEBUG("dingliste_t::laden()", "Thing type %d", typ);
 
     	    if(typ == -1) {
     	        continue;
 	    }
 
 	    ding_t *d = 0;
-	    bool is_depot=false;
 
 	    switch(typ) {
 	    case ding_t::baum:
@@ -366,8 +360,7 @@ void dingliste_t::rdwr(karte_t *welt, loadsave_t *file, koord3d current_pos)
 		    if(!b->gib_besch()) {
 			delete b;
 			b = 0;
-			dbg->warning("dingliste_t::rdwr()","baum_t with no matching besch!");
-		  	}
+		    }
 		    d = b;
 		}
 		break;
@@ -390,9 +383,9 @@ void dingliste_t::rdwr(karte_t *welt, loadsave_t *file, koord3d current_pos)
 	    case ding_t::async_wolke:	    d = new async_wolke_t (welt, file);	        break;
 	    case ding_t::verkehr:	    d = new stadtauto_t (welt, file);		break;
 	    case ding_t::fussgaenger:	    d = new fussgaenger_t (welt, file);	        break;
-	    case ding_t::bahndepot:	    d = new bahndepot_t (welt, file); is_depot=true;     break;
-	    case ding_t::strassendepot:	    d = new strassendepot_t (welt, file); is_depot=true;      break;
-	    case ding_t::schiffdepot:	    d = new schiffdepot_t (welt, file);	is_depot=true;        break;
+	    case ding_t::bahndepot:	    d = new bahndepot_t (welt, file);	        break;
+	    case ding_t::strassendepot:	    d = new strassendepot_t (welt, file);       break;
+	    case ding_t::schiffdepot:	    d = new schiffdepot_t (welt, file);	        break;
 	    case ding_t::bruecke:	    d = new bruecke_t (welt, file);	        break;
 	    case ding_t::tunnel:	    d = new tunnel_t (welt, file);	        break;
 	    case ding_t::pumpe:		    d = new pumpe_t (welt, file);	        break;
@@ -414,7 +407,7 @@ void dingliste_t::rdwr(karte_t *welt, loadsave_t *file, koord3d current_pos)
 	    default:
 		dbg->warning("dingliste_t::laden()", "Error while loading game:");
 		dbg->fatal("dingliste_t::laden()", "Unknown object type '%d'", typ);
-	  }
+	    }
 
 	  if(d  &&  d->gib_typ()!=typ) {
 DBG_DEBUG("dingliste_t::rdwr()","typ error: %i instead %i",d->gib_typ(),typ);
@@ -430,7 +423,7 @@ DBG_DEBUG("dingliste_t::rdwr()","object ignored!");
 
 //DBG_DEBUG("dingliste_t::rdwr()","Loading %d,%d #%d: %s", d->gib_pos().x, d->gib_pos().y, i, d->gib_name());
 	    if(d) {
-		add(d, is_depot?PRI_DEPOT:i);
+		add(d, i);
 	    }
 	}
         else {

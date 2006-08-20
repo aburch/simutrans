@@ -42,7 +42,7 @@ private:
     struct node_t
     {
 public:
-	struct node_t *next;
+	node_t *next;
 	T data;
     };
 
@@ -71,10 +71,10 @@ public:
 
 public:
 
-    int node_size() // debuging
-    {
-	return sizeof(node_t);
-    }
+	int node_size() // debuging
+	{
+		return sizeof(node_t);
+	}
 
 
     /**
@@ -84,8 +84,8 @@ public:
      */
     slist_tpl()
     {
-		head = NULL;             // leere liste
-		tail = NULL;
+		head = 0;             // leere liste
+		tail = 0;
 		node_count = 0;
     }
 
@@ -106,20 +106,20 @@ public:
      *
      * @author Hj. Malthaner
      */
-    void insert(T data)
-    {
-	node_t *tmp = gimme_node();
+	void insert(T data)
+	{
+		node_t *tmp = gimme_node();
 
-	// vorne einfuegen
-	tmp->next = head;
-	head = tmp;
-	head->data = data;
+		// vorne einfuegen
+		tmp->next = head;
+		head = tmp;
+		head->data = data;
 
-        if(tail == NULL) {
-	    tail = tmp;
+		if(tail == NULL) {
+			tail = tmp;
+		}
+		node_count++;
 	}
-        node_count++;
-    }
 
 
     /**
@@ -316,38 +316,15 @@ public:
 	node_count = 0;
     }
 
-#if 0
-    /**
-     * Deletes all nodes and the freelist. Doesn't delete the objects.
-     * Leaves the list empty.
-     * Please note that the freelist is global
-     * for all slist_tpl <class T> of same T!
-     *
-     * @author Hj. Malthaner
-     */
-    void destroy()
-    {
-    	if(head) {
-	      putback_nodes();
-    	}
-
-	head = 0;
-      tail = 0;
-	node_count = 0;
-    }
-#endif
-
     unsigned int count() const
     {
 	return node_count;
     }
 
-
     bool is_empty() const
     {
 	return head == 0;
     }
-
 
     T &at(unsigned int pos) const
     {
@@ -394,85 +371,83 @@ template<class T>
 class slist_iterator_tpl
 {
 private:
-
     typename slist_tpl<T>::node_t *current_node;
-    typename slist_tpl<T>::node_t lead;
+    typename slist_tpl<T>::node_t lead;	// element zero
 
 public:
-
-
-    slist_iterator_tpl(const slist_tpl<T> *list)
-    {
-	current_node = &lead;
-	lead.next = list->head;
-    }
-
-
-    slist_iterator_tpl(const slist_tpl<T> &list)
-    {
-	current_node = &lead;
-	lead.next = list.head;
-    }
-
-
-    slist_iterator_tpl<T> &operator = (const slist_iterator_tpl<T> &iter)
-    {
-	lead = iter.lead;
-	if(iter.current_node == &iter.lead) {
-	    current_node = &lead;
-	} else {
-	    current_node = iter.current_node;
+	slist_iterator_tpl(const slist_tpl<T> *list)
+	{
+		current_node = &lead;
+		lead.next = list->head;
 	}
-	return *this;
-    }
+
+	slist_iterator_tpl(const slist_tpl<T> &list)
+	{
+		current_node = &lead;
+		lead.next = list.head;
+	}
+
+	slist_iterator_tpl<T> &operator = (const slist_iterator_tpl<T> &iter)
+	{
+		lead = iter.lead;
+		if(iter.current_node == &iter.lead) {
+			current_node = &lead;
+		} else {
+			current_node = iter.current_node;
+		}
+		return *this;
+	}
+
+	/**
+	 * start iteration
+	 * @author Hj. Malthaner
+	 */
+	void begin()
+	{
+		current_node = &lead;
+	}
 
 
-    /**
-     * start iteration
-     * @author Hj. Malthaner
-     */
-    void begin()
-    {
-	current_node = &lead;
-    }
+	void begin(const slist_tpl<T> *list)
+	{
+		current_node = &lead;
+		lead.next = list->head;
+	}
+
+	/**
+	 * iterate next element
+	 * @return false, if no more elements
+	 * @author Hj. Malthaner
+	 */
+	bool next()
+	{
+		return (current_node = current_node->next) != 0;
+	}
+
+	/**
+	 * @return the current element (as const reference)
+	 * @author Hj. Malthaner
+	 */
+	const T& get_current() const
+	{
+		if(current_node==&lead) {
+			ERROR("class slist_iterator_tpl.get_current()","Iteration: accesed lead!");
+		}
+		return current_node->data;
+	}
 
 
-    void begin(const slist_tpl<T> *list)
-    {
-	current_node = &lead;
-	lead.next = list->head;
-    }
-
-
-    /**
-     * iterate next element
-     * @return false, if no more elements
-     * @author Hj. Malthaner
-     */
-    bool next()
-    {
-	return (current_node = current_node->next) != 0;
-    }
-
-
-    /**
-     * @return the current element (as const reference)
-     * @author Hj. Malthaner
-     */
-    const T& get_current() const
-    {
-	return current_node->data;
-    }
-
-
-    /**
-     * @return the current element (as reference)
-     * @author Hj. Malthaner
-     */
-    T& access_current()
-    {
-	return current_node->data;
-    }
+	/**
+	 * @return the current element (as reference)
+	 * @author Hj. Malthaner
+	 */
+	T& access_current()
+	{
+		if(current_node==&lead) {
+			ERROR("class slist_iterator_tpl.get_current()","Iteration: accesed lead!");
+		}
+		return current_node->data;
+	}
 };
 
 #endif

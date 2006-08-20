@@ -97,43 +97,54 @@ int haltestelle_t::compare_ware(const void *td1, const void *td2)
   const travel_details * const td1p = (const travel_details*)td1;
   const travel_details * const td2p = (const travel_details*)td2;
 
-	int order = 0;
 	halthandle_t halt1 = td1p->destination;
 	halthandle_t halt2 = td2p->destination;
 	halthandle_t via_halt1 = td1p->via_destination;
 	halthandle_t via_halt2 = td2p->via_destination;
+
+	if(!halt1.is_bound()  ||  !via_halt1.is_bound()) {
+		return -1;
+	}
+
+	if( !halt2.is_bound()  ||    !via_halt2.is_bound() ) {
+		return -2;
+	}
+
+	int order = 0;
 	ware_t ware1 = td1p->ware;
 	ware_t ware2 = td2p->ware;
 
 	switch (sortby) {
-	case by_name: //sort by destination name
-          order = strcmp(halt1->gib_name(), halt2->gib_name());
-          break;
-        case by_via: // sort by via_destination name
-          order = strcmp(via_halt1->gib_name(), via_halt2->gib_name());
-          // if the destination is different, bit the via_destination the same, sort it by the destination (2nd level sort)
-          if (order == 0)
-          {
-          	order = strcmp(halt1->gib_name(), halt2->gib_name());
-          }
-          break;
-        case by_via_sum:
-        case by_amount: // sort by ware amount
-          order = ware2.menge - ware1.menge;
-          // if the same amount is transported, we sort by via_destination
-          if (order == 0)
-          {
-          	order = strcmp(via_halt1->gib_name(), via_halt2->gib_name());
-	        // if the same amount goes through the same via_destination, sort by destionation
-	        if (order == 0)
-          	{
-          		order = strcmp(halt1->gib_name(), halt2->gib_name());
-          	}
-          }
-          break;
-        }
+		default:
+dbg->error("haltestelle_t::compare_ware()","illegal sort mode!");
+		case by_name: //sort by destination name
+			order = strcmp(halt1->gib_name(), halt2->gib_name());
+			break;
+		case by_via: // sort by via_destination name
+			order = strcmp(via_halt1->gib_name(), via_halt2->gib_name());
+			// if the destination is different, bit the via_destination the same, sort it by the destination (2nd level sort)
+			if (order == 0)
+			{
+				order = strcmp(halt1->gib_name(), halt2->gib_name());
+			}
+			break;
+		case by_via_sum:
+		case by_amount: // sort by ware amount
+			order = ware2.menge - ware1.menge;
+			// if the same amount is transported, we sort by via_destination
+			if (order == 0)
+			{
+				order = strcmp(via_halt1->gib_name(), via_halt2->gib_name());
+				// if the same amount goes through the same via_destination, sort by destionation
+				if (order == 0)
+				{
+					order = strcmp(halt1->gib_name(), halt2->gib_name());
+				}
+			}
+			break;
+	}
 
-        return order;
+	return order;
 }
 
 // Helfer Klassen
@@ -187,17 +198,15 @@ haltestelle_t::gib_halt(const karte_t */*welt*/, grund_t *gr )
 halthandle_t
 haltestelle_t::gib_halt(const karte_t *welt, const koord3d pos)
 {
-	if(welt->ist_in_kartengrenzen(pos.gib_2d())) {
-		return gib_halt( welt, welt->lookup(pos) );
-	}
-	return halthandle_t();
+	return gib_halt( welt,  welt->lookup(pos) );
 }
 
 halthandle_t
 haltestelle_t::gib_halt(const karte_t *welt, const koord pos)
 {
-	if(welt->ist_in_kartengrenzen(pos)) {
-		return gib_halt( welt, welt->lookup(pos)->gib_kartenboden() );
+	const planquadrat_t *plan = welt->lookup(pos);
+	if(plan) {
+		return gib_halt( welt, plan->gib_kartenboden() );
 	}
 	return halthandle_t();
 }
@@ -214,11 +223,11 @@ haltestelle_t::gib_halt(const koord pos) const
 halthandle_t
 haltestelle_t::gib_halt(const karte_t *welt, const koord * const pos)
 {
-    if(pos != NULL) {
-	return gib_halt(welt, *pos);
-    }
-    // not found; return unbound handle
-    return halthandle_t();
+	if(pos != NULL) {
+		return gib_halt(welt, *pos);
+	}
+	// not found; return unbound handle
+	return halthandle_t();
 }
 
 
@@ -232,7 +241,6 @@ haltestelle_t::gib_basis_pos() const
 		return koord::invalid;
 	}
 }
-
 
 void haltestelle_t::init_gui()
 {
@@ -1492,6 +1500,7 @@ void haltestelle_t::get_freight_info(cbuffer_t & buf)
 		if(wliste) {
 			slist_iterator_tpl<ware_t> iter (wliste);
 
+DBG_MESSAGE("haltestelle_t::get_freight_info()","start for ware %s",wtyp->gib_name());
 			buf.append(" ");
 			buf.append(gib_ware_summe(wtyp));
 			buf.append(translator::translate(wtyp->gib_mass()));
@@ -1511,28 +1520,31 @@ void haltestelle_t::get_freight_info(cbuffer_t & buf)
 #endif
 			while(iter.next()) {
 				ware_t ware = iter.get_current();
+DBG_MESSAGE("haltestelle_t::get_freight_info()","for halt %i",pos);
 				tdlist[pos].ware = ware;
 				tdlist[pos].destination = gib_halt(ware.gib_ziel());
 				tdlist[pos].via_destination = gib_halt(ware.gib_zwischenziel());
 				// for the sorting via the number for the next stop we unify entries
-				if(sortby==by_via_sum) {
+				if(sortby==by_via_sum  &&  pos>0) {
+DBG_MESSAGE("haltestelle_t::get_freight_info()","for halt %i check connection",pos);
 					// only add it, if there is not another thing waiting with the same via but another destination
 					for( int i=0;  i<pos;  i++ ) {
-						if(tdlist[i].ware.gib_typ()==tdlist[pos].ware.gib_typ()  &&  tdlist[i].via_destination==tdlist[pos].via_destination  &&  tdlist[i].destination!=tdlist[i].via_destination) {
+						if(/*tdlist[i].ware.gib_typ()==tdlist[pos].ware.gib_typ()  &&*/  tdlist[i].via_destination==tdlist[pos].via_destination  &&  tdlist[i].destination!=tdlist[i].via_destination) {
 							tdlist[i].ware.menge += tdlist[pos--].ware.menge;
 							break;
 						}
 					}
 				}
+DBG_MESSAGE("haltestelle_t::get_freight_info()","for halt %i added",pos);
 				pos++;
 			}
+DBG_MESSAGE("haltestelle_t::get_freight_info()","sort %i positions mode=%i",pos,sortby);
 			// sort the ware's list
 			qsort((void *)tdlist, pos, sizeof (travel_details), compare_ware);
-
+DBG_MESSAGE("haltestelle_t::get_freight_info()","added %i ware.",pos);
 			// print the ware's list to buffer - it should be in sortorder by now!
 			for (int j = 0; j<pos; j++) {
 				ware_t ware = tdlist[j].ware;
-
 
 				halthandle_t halt = tdlist[j].destination;
 				halthandle_t via_halt = tdlist[j].via_destination;
@@ -1549,7 +1561,7 @@ void haltestelle_t::get_freight_info(cbuffer_t & buf)
 				buf.append(translator::translate(wtyp->gib_name()));
 				buf.append(" > ");
 				// the target name is not correct for the via sort
-				if(sortby!=by_via_sum  ||  via_halt==halt) {
+				if(sortby!=by_via_sum  ||  via_halt==halt  ) {
 					buf.append(name);
 				}
 
@@ -1933,9 +1945,14 @@ dbg->warning("haltestelle_t::rdwr()", "will no longer add ground without buildin
 
 	  for(int i = 0; i < count; i++) {
 	    ware_t ware(file);
-	    wlist->insert(ware);
+	    if(ware.menge>0) {
+	    	wlist->insert(ware);
+	    }
 	  }
-	  waren.put(ware, wlist);
+	  count = wlist->count();
+	  if(count>0) {
+		  waren.put(ware, wlist);
+	}
 	}
 	file->rdwr_str(s, "N");
       }

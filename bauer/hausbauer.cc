@@ -94,25 +94,25 @@ bool hausbauer_t::alles_geladen()
 
 void hausbauer_t::insert_sorted(slist_tpl<const haus_besch_t *> &liste, const haus_besch_t *besch)
 {
-    slist_iterator_tpl<const haus_besch_t *>  iter(liste);
-    int pos = 0;
+	slist_iterator_tpl<const haus_besch_t *>  iter(liste);
+	int pos = 0;
 
-    while(iter.next()) {
-	int diff;
+	while(iter.next()) {
+		int diff;
 
-	diff = iter.get_current()->gib_level() - besch->gib_level();
-	if(diff == 0) {
-	    // Gleiches Level - wir führen eine künstliche, aber eindeutige
-	    // Sortierung über den Namen herbei.
-	    diff = strcmp(iter.get_current()->gib_name(), besch->gib_name());
+		diff = iter.get_current()->gib_level() - besch->gib_level();
+		if(diff == 0) {
+			// Gleiches Level - wir führen eine künstliche, aber eindeutige
+			// Sortierung über den Namen herbei.
+			diff = strcmp(iter.get_current()->gib_name(), besch->gib_name());
+		}
+		if(diff > 0) {
+			liste.insert(besch, pos);
+			return;
+		}
+		pos++;
 	}
-	if(diff > 0) {
-	    liste.insert(besch, pos);
-	    return;
-	}
-	pos++;
-    }
-    liste.append(besch);
+	liste.append(besch);
 }
 
 
@@ -460,35 +460,36 @@ gebaeude_t *hausbauer_t::neues_gebaeude(karte_t *welt,
  */
 const haus_besch_t * hausbauer_t::gib_aus_liste(slist_tpl<const haus_besch_t *> &liste, int level)
 {
-  slist_tpl <const haus_besch_t *> auswahl;
+	slist_tpl <const haus_besch_t *> auswahl;
 
-  // Hajo: to jump over gaps, we scan buildings up to a certain level offset
-  int offset = 0;
-  const int max_offset = 16;
+	// Hajo: to jump over gaps, we scan buildings up to a certain level offset
+	int offset = 0;
+	const int max_offset = 16;
+	auswahl.clear();
 
-  do {
-    slist_iterator_tpl <const haus_besch_t *> iter (liste);
+//	DBG_MESSAGE("hausbauer_t::gib_aus_liste()","target level %i", level );
+	do {
+		slist_iterator_tpl <const haus_besch_t *> iter (liste);
 
-    while(iter.next()) {
-      const int thislevel = iter.get_current()->gib_level();
+		while(iter.next()) {
+			const int thislevel = iter.get_current()->gib_level();
 
-      if(thislevel > (level+offset)) {
-	// Hajo: current level too high
-	break;
-      }
-      if(thislevel == (level+offset)) {
-	auswahl.append(iter.get_current());
-      }
-    }
+			if(thislevel>(level+offset)) {
+				// Hajo: current level too high
+				break;
+			}
+			if(thislevel == (level+offset)) {
+//				DBG_MESSAGE("hausbauer_t::gib_aus_liste()","appended %s at %i", iter.get_current()->gib_name(), thislevel );
+				auswahl.append(iter.get_current());
+			}
+		}
 
-    offset ++;
-  } while(auswahl.count() == 0 && offset < max_offset);
+		offset ++;
+	} while(auswahl.count()==0 && offset<max_offset);
 
-
-  return
-    auswahl.count() > 0 ?
-    auswahl.at(simrand(auswahl.count())) :
-    liste.at(liste.count() - 1);
+	return (auswahl.count() > 0) ?
+				auswahl.at( simrand(auswahl.count()) ) :
+				liste.at(liste.count() - 1);
 }
 
 

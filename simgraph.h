@@ -33,6 +33,19 @@ typedef enum {false=0, true=1 } bool;
 #endif
 
 
+// prissi: the next line will make a version using only 8px height (like TTDX)
+#define OTTD_LIKE
+
+#ifdef OTTD_LIKE
+#define tile_raster_scale_x(v, rw)   (((v)*(rw)) >> 6)
+#define tile_raster_scale_y(v, rh)   (((v)*(rh)) >> 7)
+#define height_scaling(i) ((i)>>1)
+#else
+#define tile_raster_scale_x(v, rw)   (((v)*(rw)) >> 6)
+#define tile_raster_scale_y(v, rh)   (((v)*(rh)) >> 6)
+#define height_scaling(i) (i)
+#endif
+
 #define DPY_WIDTH   12
 #define DPY_HEIGHT  28
 
@@ -72,10 +85,6 @@ display_setze_clip_wh(p_cr.x, p_cr.y, p_cr.w, p_cr.h); \
 // function prototypes
 
 struct bild_besch_t;
-
-
-
-#define tile_raster_scale(v, rw)   (((v)*(rw)) >> 6)
 
 
 /* Do no access directly, use the get_tile_raster_width()
