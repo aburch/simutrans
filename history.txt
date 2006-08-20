@@ -1,4 +1,23 @@
 
+Known bugs: (hard to fix)
+	Citycars are visible after loading even in a tunnel until the hop onto the next field
+	Citycars cannot go around a 180 degree road bend
+
+
+Release of 86.06
+
+6-Jul-2005 (prissi)
+	FIX: calculation of slopes after lowering lanscapes now correct
+	FIX: connection with a near stop could fail for non-symmetrical station buildings
+	FIX: full-window mode works more reliable
+	FIX: crash, when the land on a route was removed
+	FIX: From a stop under a bridge a vehicle can directly hop onto the bridge (error in koord3d comparison, might be also affected other places!)
+	FIX: railwindow and editwindow excluded each other
+	ADD: normal cars now also do not run over each other but wait like trucks etc.
+	ADD: roadsigns for no entry and minimum speed
+	ADD: name of current player in the bottom bar
+	ADD: many new help texts from Gotthardlok
+
 
 Release of 86.05.1
 

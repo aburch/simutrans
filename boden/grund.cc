@@ -815,43 +815,40 @@ bool grund_t::weg_entfernen(weg_t::typ wegtyp, bool ribi_rem)
 
 bool grund_t::get_neighbour(grund_t *&to, weg_t::typ type, koord dir) const
 {
-    if(dir != koord::nord && dir != koord::sued &&
-	dir != koord::ost && dir != koord::west) {
-	 return false;
-    }
-    grund_t *gr = NULL;
-
-
-    if(ist_bruecke() || ist_tunnel()) {
-	int vmove = get_vmove(dir);
-
-	// Kucken ob drüber oder drunter Anschluß ist
-	if(vmove) {
-	    gr = welt->lookup(pos + koord3d(dir, vmove));
-            if(gr && gr->get_vmove(-dir) != -vmove) {
-                gr = NULL;
-	    }
+	if(dir != koord::nord && dir != koord::sued && dir != koord::ost && dir != koord::west) {
+		return false;
 	}
-	// Wenn nicht, auf gleicher Höhe versuchen
+	grund_t *gr = NULL;
+
+	if(ist_bruecke() || ist_tunnel()) {
+		int vmove = get_vmove(dir);
+
+		// Kucken ob drüber oder drunter Anschluß ist
+		if(vmove) {
+			gr = welt->lookup(pos + koord3d(dir, vmove));
+			if(gr && gr->get_vmove(-dir) != -vmove) {
+				gr = NULL;
+			}
+		}
+		// Wenn nicht, auf gleicher Höhe versuchen
+		if(!is_connected(gr, type, dir)) {
+			gr = welt->lookup(pos + dir);
+		}
+	}
+	else {
+		// Hajo: check if we are on the map
+		const planquadrat_t * plan = welt->lookup(pos.gib_2d() + dir);
+		if(!plan) {
+			return false;
+		}
+		gr = plan->gib_kartenboden();
+	}
+	// Testen ob Wegverbindung existiert
 	if(!is_connected(gr, type, dir)) {
-	    gr = welt->lookup(pos + dir);
+		return false;
 	}
-    }
-    else {
-	// Hajo: check if we are on the map
-	const planquadrat_t * plan = welt->lookup(pos.gib_2d() + dir);
-	if(!plan) {
-	    return false;
-	}
-	gr = plan->gib_kartenboden();
-    }
-    // Testen ob Wegverbindung existiert
-    if(!is_connected(gr, type, dir)) {
-	return false;
-    }
-    to = gr;
-    return true;
-
+	to = gr;
+	return true;
 }
 
 bool grund_t::is_connected(const grund_t *gr, weg_t::typ wegtyp, koord dv) const
@@ -889,6 +886,8 @@ bool grund_t::is_connected(const grund_t *gr, weg_t::typ wegtyp, koord dv) const
     return false;
 }
 
+
+
 int grund_t::get_vmove(koord dir) const
 {
 static char vmoves[15][4] = {	// hangtyp * destination (N O S W)
@@ -908,38 +907,41 @@ static char vmoves[15][4] = {	// hangtyp * destination (N O S W)
     {  16,   0,   0,  16 },	// 13:tal SO
     {  16,  16,   0,   0 }};	// 14:tal SW
 
-    int	i;
-    hang_t::typ weg_hang = gib_weg_hang();
+	int	i;
+	hang_t::typ weg_hang = gib_weg_hang();
 
-    if(ist_bruecke() && weg_hang == 0 && ist_karten_boden()) {
-	// Spezialbehandlung für "alte" Brückenauffahrten, da
-	// der Weg hier komplett eine Ebene höher liegt.
-	hang_t::typ gr_hang = gib_grund_hang();
+	if(ist_bruecke() && weg_hang==0) {
+		if(ist_karten_boden()) {
+			// Spezialbehandlung für "alte" Brückenauffahrten, da
+			// der Weg hier komplett eine Ebene höher liegt.
+			hang_t::typ gr_hang = gib_grund_hang();
 
-	if(dir == koord::ost || dir == koord::west) {
-	    if(gr_hang == hang_t::ost || gr_hang == hang_t::west) {
-		return 16;
-	    }
+			if(dir==koord::ost || dir==koord::west) {
+				if(gr_hang==hang_t::ost || gr_hang==hang_t::west) {
+					return 16;
+				}
+			}
+			else if(dir==koord::sued || dir==koord::nord) {
+				if(gr_hang==hang_t::sued || gr_hang==hang_t::nord) {
+					return 16;
+				}
+			}
+		}
 	}
-	else if(dir == koord::sued || dir == koord::nord) {
-	    if(gr_hang == hang_t::sued || gr_hang == hang_t::nord) {
-		return 16;
-	    }
+
+	if(dir == koord::ost) {
+		i = 1; // ost
+	} else if(dir == koord::west) {
+		i = 3; // west
+	} else if(dir == koord::sued) {
+		i = 2; // sued
+	} else if(dir == koord::nord) {
+		i = 0; // nord
+	} else {
+		assert(false);
+		return 0;   // ?? Fehler
 	}
-    }
-    if(dir == koord::ost) {
-	i = 1; // ost
-    } else if(dir == koord::west) {
-	i = 3; // west
-    } else if(dir == koord::sued) {
-	i = 2; // sued
-    } else if(dir == koord::nord) {
-	i = 0; // nord
-    } else {
-        assert(false);
-	return 0;   // ?? Fehler
-    }
-    return vmoves[weg_hang][i];
+	return vmoves[weg_hang][i];
 }
 
 int grund_t::get_max_speed()

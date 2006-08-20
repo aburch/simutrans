@@ -23,7 +23,10 @@
 #include "dataobj/loadsave.h"
 #include "dataobj/umgebung.h"
 
+#include "dings/roadsign.h"
+
 #include "besch/stadtauto_besch.h"
+#include "besch/roadsign_besch.h"
 
 #include "simimg.h"
 
@@ -81,8 +84,8 @@ int stadtauto_t::gib_anzahl_besch()
 stadtauto_t::stadtauto_t(karte_t *welt, loadsave_t *file)
  : verkehrsteilnehmer_t(welt)
 {
-    rdwr(file);
-    welt->sync_add(this);
+	rdwr(file);
+	welt->sync_add(this);
 }
 
 stadtauto_t::stadtauto_t(karte_t *welt, koord3d pos)
@@ -90,7 +93,8 @@ stadtauto_t::stadtauto_t(karte_t *welt, koord3d pos)
 {
 	besch = liste_timeline.gib_gewichted(simrand(liste_timeline.gib_gesamtgewicht()));
 	time_to_life = umgebung_t::stadtauto_duration;
-	setze_max_speed( kmh_to_speed(besch->gib_geschw()) );
+	current_speed = 48;
+	setze_max_speed( besch->gib_geschw() );
 }
 
 
@@ -130,7 +134,8 @@ void stadtauto_t::rdwr(loadsave_t *file)
 		if(besch == 0) {
 			dbg->fatal("stadtauto_t::rdwr()", "loading game with private cars, but no private car objects found in PAK files.");
 		}
-		setze_max_speed( kmh_to_speed(besch->gib_geschw()) );
+		setze_max_speed( besch->gib_geschw() );
+		setze_bild(0,besch->gib_bild_nr(ribi_t::gib_dir(gib_fahrtrichtung())));
 	}
 
 	if(file->get_version() <= 86001) {
@@ -139,27 +144,103 @@ void stadtauto_t::rdwr(loadsave_t *file)
 	else {
 		file->rdwr_int(time_to_life, "\n");
 	}
+
+	if(file->get_version() <= 86004) {
+		// default starting speed for old games
+		if(file->is_loading()) {
+			current_speed = 48;
+		}
+	}
+	else {
+		file->rdwr_int(current_speed, "\n");
+	}
 }
 
 
 void stadtauto_t::calc_bild()
 {
-    if(welt->lookup(gib_pos())->ist_tunnel()) {
-	setze_bild(0, -1);
-    } else {
-	setze_bild(0,
-		   besch->gib_bild_nr(ribi_t::gib_dir(gib_fahrtrichtung())));
-    }
+	if(welt->lookup(gib_pos())->ist_tunnel()) {
+		setze_bild(0, -1);
+	} else {
+		setze_bild(0,besch->gib_bild_nr(ribi_t::gib_dir(gib_fahrtrichtung())));
+	}
 }
 
 
-void verkehrsteilnehmer_t::calc_current_speed()
+bool
+stadtauto_t::ist_weg_frei() const
 {
-  const weg_t * weg = welt->lookup(gib_pos())->gib_weg(weg_t::strasse);
+	// no change, or invalid
+	if(pos_next==gib_pos()) {
+		return true;
+	}
 
-  const int speed_limit = weg ? kmh_to_speed(weg->gib_max_speed()) : max_speed;
+	const grund_t *gr = welt->lookup(pos_next);
+	if(gr==NULL) {
+		return false;
+	}
 
-  current_speed = speed_limit < max_speed ? speed_limit : max_speed;
+	// pruefe auf Schienenkreuzung
+	if(gr->gib_weg(weg_t::schiene) && gr->gib_weg(weg_t::strasse)) {
+		// das ist eine Kreuzung, ist sie frei ?
+		if(gr->suche_obj(ding_t::waggon)) {
+			return false;
+		}
+	}
+
+    bool frei = true;
+
+	// suche vehikel
+	automobil_t *at = dynamic_cast<automobil_t *>(welt->lookup(pos_next)->suche_obj(ding_t::automobil));
+	if(at != NULL) {
+		if(at->gib_fahrtrichtung() == gib_fahrtrichtung()) {
+
+			// da ist ein fahrzeug in unserer fahrtrichtung im weg
+			frei = false;
+
+		} else if(ribi_t::ist_orthogonal(at->gib_fahrtrichtung(), gib_fahrtrichtung())) {
+
+			// da ist ein fahrzeug quer zu unserer fahrtrichtung im weg
+			frei = false;
+		}
+	}
+	else {
+		if(at == NULL) {
+			// checke verkehr
+			vehikel_basis_t *v = dynamic_cast<vehikel_basis_t *>(welt->lookup(pos_next)->suche_obj(ding_t::verkehr));
+//			verkehrsteilnehmer_t *v = dynamic_cast<verkehrsteilnehmer_t *>(welt->lookup(pos_next)->suche_obj(ding_t::verkehr));
+
+			if(v!=NULL) {
+				if(v->gib_fahrtrichtung() == gib_fahrtrichtung()) {
+					// da ist ein fahrzeug in unserer fahrtrichtung im weg
+					frei = false;
+
+				} else if(ribi_t::ist_orthogonal(v->gib_fahrtrichtung(), gib_fahrtrichtung())) {
+
+					// da ist ein fahrzeug quer zu unserer fahrtrichtung im weg
+					frei = false;
+				}
+			}
+		}
+	}
+
+	return frei;
+}
+
+
+
+void
+verkehrsteilnehmer_t::calc_current_speed()
+{
+	const weg_t * weg = welt->lookup(gib_pos())->gib_weg(weg_t::strasse);
+	const int speed_limit = weg ? kmh_to_speed(weg->gib_max_speed()) : max_speed;
+	current_speed += max_speed>>2;
+	if(current_speed > max_speed) {
+		current_speed = max_speed;
+	}
+	if(current_speed > speed_limit) {
+		current_speed = speed_limit;
+	}
 }
 
 
@@ -217,9 +298,9 @@ verkehrsteilnehmer_t::verkehrsteilnehmer_t(karte_t *welt, koord3d pos) :
     }
     if(count) {
 	from->get_neighbour(to, weg_t::strasse, fahrtrichtung);
-	naechstes_feld = to->gib_pos();
+	pos_next = to->gib_pos();
     } else {
-	naechstes_feld = welt->lookup(pos.gib_2d() + koord(fahrtrichtung))->gib_kartenboden()->gib_pos();
+	pos_next = welt->lookup(pos.gib_2d() + koord(fahrtrichtung))->gib_kartenboden()->gib_pos();
     }
     setze_besitzer( welt->gib_spieler(1) );
 }
@@ -246,51 +327,79 @@ verkehrsteilnehmer_t::info(char *buf) const
 }
 
 
+bool
+stadtauto_t::hop_check()
+{
+	bool frei = ist_weg_frei();
+	if(!frei) {
+		current_speed = 64;
+	}
+	return frei;
+}
+
+
+
 void
 verkehrsteilnehmer_t::hop()
 {
-    verlasse_feld();
-
-    if(naechstes_feld.z == -1) {
-	// Altes Savegame geladen
-	naechstes_feld = welt->lookup(naechstes_feld.gib_2d())->gib_kartenboden()->gib_pos();
-    }
-    // V.Meyer: weg_position_t changed to grund_t::get_neighbour()
-    grund_t *from = welt->lookup(naechstes_feld);
-    grund_t *to;
-
-    grund_t *liste[4];
-    int count = 0;
-
-    int ribi = from->gib_weg_ribi(weg_t::strasse);
-    ribi_t::ribi gegenrichtung = ribi_t::rueckwaerts( gib_fahrtrichtung() );
-
-    ribi = ribi & (~gegenrichtung);
-
-    // verfügbare ribis in liste eintragen
-    for(int r = 0; r < 4; r++) {
-	if(!(ribi_t::nsow[r] & gegenrichtung) &&
-	    from->get_neighbour(to, weg_t::strasse, koord::nsow[r])) {
-	    liste[count++] = to;
+	if(pos_next.z == -1) {
+		// Altes Savegame geladen
+		pos_next = welt->lookup(pos_next.gib_2d())->gib_kartenboden()->gib_pos();
 	}
-    }
-    if(count > 0) {
-	naechstes_feld = liste[simrand(count)]->gib_pos();
-	fahrtrichtung = calc_richtung(gib_pos().gib_2d(), naechstes_feld.gib_2d(), dx, dy);
-    } else {
-	fahrtrichtung = gegenrichtung;
-	dx = -dx;
-	dy = -dy;
+	// V.Meyer: weg_position_t changed to grund_t::get_neighbour()
+	grund_t *from = welt->lookup(pos_next);
+	grund_t *to;
 
-	naechstes_feld = gib_pos();
-    }
-    setze_pos(from->gib_pos());
+	grund_t *liste[4];
+	int count = 0;
 
-    calc_current_speed();
+	// 1) find the allowed directions
+	const weg_t *weg = from->gib_weg(weg_t::strasse);
+	if(weg==NULL) {
+		// no gound here any more?
+		pos_next = gib_pos();
+		return;
+	}
 
-    calc_bild();
-    betrete_feld();
+	int ribi = weg->gib_ribi_unmasked();
+	// 2) take care of roadsigns
+	if(weg->gib_ribi_maske()!=0) {
+		// since routefinding is backwards, the allowed directions at a roadsign are also backwards
+		ribi &= ~( ribi_t::rueckwaerts(weg->gib_ribi_maske()) );
+	}
+	ribi_t::ribi gegenrichtung = ribi_t::rueckwaerts( gib_fahrtrichtung() );
 
+	ribi = ribi & (~gegenrichtung);
+
+	// add all good ribis here
+	for(int r = 0; r < 4; r++) {
+		if(  (ribi & ribi_t::nsow[r])!=0  &&  (ribi_t::nsow[r]&gegenrichtung)==0 &&
+			from->get_neighbour(to, weg_t::strasse, koord::nsow[r])
+		) {
+			const roadsign_t *rs = dynamic_cast<roadsign_t *>(to->suche_obj(ding_t::roadsign));
+if(rs)DBG_MESSAGE("hop()","%i and %i",rs->gib_besch()->gib_min_speed(),gib_max_speed());
+			if(rs==NULL  ||  rs->gib_besch()->gib_min_speed()==0  ||  rs->gib_besch()->gib_min_speed()<=gib_max_speed()) {
+				liste[count++] = to;
+			}
+		}
+	}
+
+	if(count > 0) {
+		pos_next = liste[simrand(count)]->gib_pos();
+		fahrtrichtung = calc_richtung(gib_pos().gib_2d(), pos_next.gib_2d(), dx, dy);
+	} else {
+		fahrtrichtung = gegenrichtung;
+		current_speed = 1;
+		dx = -dx;
+		dy = -dy;
+		pos_next = gib_pos();
+	}
+
+	verlasse_feld();
+	setze_pos(from->gib_pos());
+	calc_current_speed();
+	calc_bild();
+	betrete_feld();
 	age();
 }
 
@@ -309,10 +418,11 @@ verkehrsteilnehmer_t::calc_bild()
 bool verkehrsteilnehmer_t::sync_step(long delta_t)
 {
   // DBG_MESSAGE("verkehrsteilnehmer_t::sync_step()", "%p called", this);
+//	if(current_speed==0) {
+//		calc_current_speed();
+//	}
 
     weg_next += (current_speed*delta_t) / 64;
-
-//    printf("verkehrsteilnehmer_t::sync_step weg=%d, weg_next=%d\n", weg, weg_next);
 
     // Funktionsaufruf vermeiden, wenn möglich
     // if ist schneller als Aufruf!
@@ -323,7 +433,6 @@ bool verkehrsteilnehmer_t::sync_step(long delta_t)
     while(1024 < weg_next)
     {
 	weg_next -= 1024;
-
 	fahre();
     }
 
@@ -347,35 +456,33 @@ bool verkehrsteilnehmer_t::sync_step(long delta_t)
 
 void verkehrsteilnehmer_t::rdwr(loadsave_t *file)
 {
-  int dummy = 0;
+	int dummy = 0;
 
-  vehikel_basis_t::rdwr(file);
+	vehikel_basis_t::rdwr(file);
 
-  file->rdwr_int(max_speed, "\n");
-  file->rdwr_int(dummy, " ");
-  file->rdwr_int(weg_next, "\n");
-  file->rdwr_int(dx, " ");
-  file->rdwr_int(dy, "\n");
-  file->rdwr_enum(fahrtrichtung, " ");
-  file->rdwr_int(hoff, "\n");
+	file->rdwr_int(max_speed, "\n");
+	file->rdwr_int(dummy, " ");
+	file->rdwr_int(weg_next, "\n");
+	file->rdwr_int(dx, " ");
+	file->rdwr_int(dy, "\n");
+	file->rdwr_enum(fahrtrichtung, " ");
+	file->rdwr_int(hoff, "\n");
 
-  naechstes_feld.rdwr(file);
+	pos_next.rdwr(file);
+	// Hajo: avoid endless growth of the values
+	// this causes lockups near 2**32
 
-  // Hajo: avoid endless growth of the values
-  // this causes lockups near 2**32
+	weg_next &= 1023;
 
-  weg_next &= 1023;
+	if(file->is_loading()) {
 
-  if(file->is_loading()) {
-    calc_current_speed();
+		// Hajo: pre-speed limit game had city cars with max speed of
+		// 60 km/h, since city raods now have a speed limit of 50 km/h
+		// we can use 80 for the cars so that they speed up on
+		// intercity roads
+		if(file->get_version() <= 84000 && max_speed==kmh_to_speed(60)) {
+			max_speed = kmh_to_speed(80);
+		}
 
-    // Hajo: pre-speed limit game had city cars with max speed of
-    // 60 km/h, since city raods now have a speed limit of 50 km/h
-    // we can use 80 for the cars so that they speed up on
-    // intercity roads
-    if(file->get_version() <= 84000 && max_speed == kmh_to_speed(60)) {
-      max_speed = kmh_to_speed(80);
-    }
-
-  }
+	}
 }

@@ -25,7 +25,10 @@
 #include <stdlib.h>
 
 #include "simwin.h"
+
 #include "simworld.h"
+#include "simplay.h"
+
 #include "simtime.h"
 #include "dings/zeiger.h"
 
@@ -1030,7 +1033,9 @@ win_display_flush(int ticks, int color, double konto)
     }
 
     sprintf(info,"(%d,%d,%d)  (T=%1.2f)", pos.x, pos.y, pos.z / 16, get_time_multi()/16.0);
-    display_flush(stunden4, color, konto, time, info);
+
+	const char *active_player_name = wl->get_active_player()->kennfarbe==0 ? "" : wl->get_active_player()->gib_name();
+	display_flush(stunden4, color, konto, time, info, active_player_name, wl->get_active_player()->kennfarbe );
 }
 
 void win_setze_welt(karte_t *welt)

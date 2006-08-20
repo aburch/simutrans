@@ -127,6 +127,14 @@ s.wuttich@web.de
 
 * Georg "MHZ" Moers: buildings and vehicles
 
+* sanchimaru: big harbour crane
+
+* timeshock: many small graphics
+
+* erin: many busses for the german set
+
+*singaporkid: german steamers, different station graphics
+
 
 Translation
 -----------
@@ -197,6 +205,7 @@ deep-dream@narod.ru
 * Danilo Schöneberg: Russian BDF-font
 champcarracer@hotmail.com
 
+
 User manual, documentation and in-game texts
 --------------------------------------------
 
@@ -220,6 +229,8 @@ masato@gmx.de
 * Joachim Baum: german tree descriptions
 
 * Isaak Eiland-Hall: hosting the Simutrans Wiki
+
+* Gotthardlok: Many german/english/french help texts
 
 
 Help with assembly coding
@@ -247,4 +258,5 @@ vkem@kolumbus.fi
 
 
 Written by Hansjörg Malthaner, October 2000
-Last update: 30-Aug-2004 - hansjoerg.malthaner@gmx.de
+added by Markus Pristovsek
+Last update: 6-Jul-2005 - markus@pristovsek.de

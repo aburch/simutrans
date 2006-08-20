@@ -371,77 +371,88 @@ int dr_screenshot(const char *filename)
 
 static void internal_GetEvents(int wait)
 {
-    SDL_Event event;
-    event.type = 1;
+	SDL_Event event;
+	event.type = 1;
 
-    if(wait) {
-        int n = 0;
+	if(wait) {
+		int n = 0;
 
-        do {
-            SDL_WaitEvent(&event);
-            n = SDL_PollEvent(NULL);
-        }  while (n != 0 && (event.type==SDL_MOUSEMOTION  ||   event.type==SDL_VIDEORESIZE)  );
+		do {
+			SDL_WaitEvent(&event);
+			n = SDL_PollEvent(NULL);
+		}  while (n != 0 && event.type==SDL_MOUSEMOTION  );
 
-    } else {
-        int n = 0;
-        int got_one = FALSE;
+	}
+	else {
+		int n = 0;
+		int got_one = FALSE;
 
-        do {
-            n = SDL_PollEvent(&event);
+		do {
+			n = SDL_PollEvent(&event);
 
-	    if(n != 0) {
-		got_one = TRUE;
+			if(n != 0) {
+				got_one = TRUE;
 
-	    	if(event.type == SDL_MOUSEMOTION) {
-        		sys_event.type=SIM_MOUSE_MOVE;
-        		sys_event.code= SIM_MOUSE_MOVED;
-        		sys_event.mx=event.motion.x;
-        		sys_event.my=event.motion.y;
-	    	}
-	    }
+				if(event.type == SDL_MOUSEMOTION) {
+					sys_event.type=SIM_MOUSE_MOVE;
+					sys_event.code= SIM_MOUSE_MOVED;
+					sys_event.mx=event.motion.x;
+					sys_event.my=event.motion.y;
+				}
+			}
 
-	} while (n != 0 && (event.type==SDL_MOUSEMOTION  ||   event.type==SDL_VIDEORESIZE)  );
+		}  while (n != 0 && event.type==SDL_MOUSEMOTION  );
 
-        if(!got_one) {
-            return;
-        }
-    }
-
-	// read mod key state from SDL layer
-	sys_event.key_mod = SDL_GetModState();
+		if(!got_one) {
+			return;
+		}
+	}
 
     switch(event.type) {
-    case SDL_VIDEORESIZE:
-    {
-        sys_event.type=SIM_SYSTEM;
-        sys_event.code=SIM_SYSTEM_RESIZE;
-        sys_event.mx=event.resize.w;
-        sys_event.my=event.resize.h;
-	}
-       break;
-    case SDL_MOUSEBUTTONDOWN:     /* originally ButtonPress */
-        sys_event.type=SIM_MOUSE_BUTTONS;
-        sys_event.mx=event.button.x;
-        sys_event.my=event.button.y;
-        switch(event.button.button) {
-        case 1:
-            sys_event.code=SIM_MOUSE_LEFTBUTTON;
-            break;
-        case 2:
-            sys_event.code=SIM_MOUSE_MIDBUTTON;
-            break;
-        case 3:
-            sys_event.code=SIM_MOUSE_RIGHTBUTTON;
-            break;
-        case 4:
-            sys_event.code=SIM_MOUSE_WHEELUP;
-            break;
-        case 5:
-            sys_event.code=SIM_MOUSE_WHEELDOWN;
-            break;
-        }
-        break;
+		case SDL_VIDEORESIZE:
+		{
+			sys_event.type=SIM_SYSTEM;
+			sys_event.code=SIM_SYSTEM_RESIZE;
+			sys_event.mx=event.resize.w;
+			sys_event.my=event.resize.h;
+			printf("expose: x=%i, y=%i\n",sys_event.mx,sys_event.my);
+		}
+		break;
+
+		case SDL_VIDEOEXPOSE:
+		{
+			// will be ignored ...
+			sys_event.type=SIM_SYSTEM;
+			sys_event.code=SIM_SYSTEM_UPDATE;
+		}
+		break;
+
+		case SDL_MOUSEBUTTONDOWN:     /* originally ButtonPress */
+			// read mod key state from SDL layer
+			sys_event.key_mod = SDL_GetModState();
+			sys_event.type=SIM_MOUSE_BUTTONS;
+			sys_event.mx=event.button.x;
+			sys_event.my=event.button.y;
+			switch(event.button.button) {
+				case 1:
+					sys_event.code=SIM_MOUSE_LEFTBUTTON;
+				break;
+				case 2:
+					sys_event.code=SIM_MOUSE_MIDBUTTON;
+				break;
+				case 3:
+					sys_event.code=SIM_MOUSE_RIGHTBUTTON;
+				break;
+				case 4:
+					sys_event.code=SIM_MOUSE_WHEELUP;
+				break;
+				case 5:
+					sys_event.code=SIM_MOUSE_WHEELDOWN;
+				break;
+			}
+		break;
    case SDL_MOUSEBUTTONUP:     /* originally ButtonRelease */
+        sys_event.key_mod = SDL_GetModState();
         sys_event.type=SIM_MOUSE_BUTTONS;
         sys_event.mx=event.button.x;
         sys_event.my=event.button.y;
@@ -459,6 +470,8 @@ static void internal_GetEvents(int wait)
         break;
     case SDL_KEYDOWN:   /* originally KeyPress */
         sys_event.type=SIM_KEYBOARD;
+	// read mod key state from SDL layer
+	sys_event.key_mod = SDL_GetModState();
 
     // do low level special stuff here
     switch(event.key.keysym.sym) {

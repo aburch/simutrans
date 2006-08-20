@@ -56,6 +56,7 @@
 #include "dings/zeiger.h"
 #include "dings/tunnel.h"
 #include "dings/signal.h"
+#include "dings/roadsign.h"
 #include "dings/leitung2.h"
 #include "dings/baum.h"
 #ifdef LAGER_NOT_IN_USE
@@ -71,6 +72,7 @@
 #include "bauer/hausbauer.h"
 
 #include "besch/weg_besch.h"
+#include "besch/roadsign_besch.h"
 
 #include "gui/karte.h"	// to update map after construction of new industry
 #include "sucher/bauplatz_sucher.h"
@@ -230,6 +232,15 @@ wkz_lower(spieler_t *sp, karte_t *welt, koord pos)
 				sp->buche(CST_BAU*n, pos, COST_CONSTRUCTION);
 			}
 //      DBG_MESSAGE("wkz_lower()", "%d squares changed", n);
+
+			// update image
+			for(int j=-1; j<=1; j++) {
+				for(int i=-1; i<=1; i++) {
+					if(welt->ist_in_gittergrenzen(pos.x+i,pos.y+j)  &&  welt->lookup(pos+koord(i,j))->gib_kartenboden()) {
+						welt->lookup(pos+koord(i,j))->gib_kartenboden()->calc_bild();
+					}
+				}
+			}
 
 		} else {
 //      DBG_MESSAGE("wkz_lower()", "Minimum height reached");
@@ -663,7 +674,7 @@ DBG_MESSAGE("wkz_post()", "building mail office/station building on square %d,%d
 			halthandle_t halt2 = suche_nahe_haltestelle(sp, welt, pos, size.y, size.x);
 			hat_platz = true;
 			if(halt2.is_bound()) {
-				if(!halt.is_bound() || simrand(2) == 1) {
+				if(halt.is_bound() || simrand(2) == 1) {
 					halt = halt2;
 					rotate = 1;
 				}
@@ -1228,6 +1239,106 @@ int wkz_presignals(spieler_t *sp, karte_t *welt, koord pos)
   return false;
     }
 }
+
+
+int wkz_roadsign(spieler_t *sp, karte_t *welt, koord pos, value_t lParam)
+{
+	DBG_MESSAGE("wkz_roadsign()","called on %d,%d", pos.x, pos.y);
+	const roadsign_besch_t * besch = (const roadsign_besch_t *) (lParam.p);
+
+	if(welt->ist_in_kartengrenzen(pos)) {
+
+		const char * error = "Hier kann kein\nSignal aufge-\nstellt werden!\n";
+		const planquadrat_t *plan = welt->lookup(pos);
+		grund_t *gr = plan->gib_kartenboden();
+
+		weg_t *weg = gr->gib_weg(weg_t::strasse);
+		if(  (gr->gib_besitzer()==sp  ||  gr->gib_besitzer()==NULL)  &&  weg!=NULL) {
+
+			// get the sign dirction
+			ribi_t::ribi dir = weg->gib_ribi_unmasked();
+			if(ribi_t::ist_gerade(dir)) {
+
+				// if single way, we need to reduce the allowed ribi to one
+DBG_MESSAGE("wkz_roadsign()","dir is %i", dir);
+				if(besch->is_single_way()) {
+					for( int i=0;  i<=4;  i++) {
+						if((dir&ribi_t::nsow[i])!=0) {
+							dir = ribi_t::nsow[i];
+							break;
+						}
+					}
+DBG_MESSAGE("wkz_roadsign()","single dir is %i", dir);
+				}
+
+				// if there is already a sing, we might need to inverse the direction
+				roadsign_t *rs = dynamic_cast<roadsign_t *>(gr->suche_obj(ding_t::roadsign));
+				if(rs!=NULL) {
+					// revers only if single way sign
+					if(besch->is_single_way()) {
+DBG_MESSAGE("wkz_roadsign()","reverse ribi %i", ribi_t::rueckwaerts(dir) );
+						rs->set_dir( ribi_t::rueckwaerts(rs->get_dir()) );
+					}
+				}
+				else {
+					// add a new roadsign
+					rs = new roadsign_t( welt, gr->gib_pos(), dir, besch );
+					gr->obj_add(rs);
+				}
+				error = NULL;
+			}
+		}
+#if 0
+		// not on bridges yet
+		else {
+			slist_tpl<grund_t *> gr_liste;
+			unsigned int i;
+
+			for(i = 0; i < plan->gib_boden_count(); i++) {
+				if(plan->gib_boden_bei(i)->gib_besitzer() == sp &&
+					plan->gib_boden_bei(i)->gib_hoehe() > gr->gib_hoehe()  &&
+					gr->gib_weg(weg_t::strasse)) {
+					gr_liste.append(plan->gib_boden_bei(i));
+				}
+			}
+			while(!gr_liste.is_empty() && error != NULL) {
+				grund_t *best = gr_liste.at(0);
+				for(i = 1; i < gr_liste.count(); i++) {
+					if(gr->gib_hoehe() > best->gib_hoehe()) {
+						best = gr;
+					}
+				}
+				gr_liste.remove(best);
+				ribi_t::ribi dir = weg->gib_ribi_unmasked();
+				if(ribi_t::ist_gerade(dir)) {
+					for( int i=0;  i<4;  i++) {
+						if(dir&ribi_t::nsow[i]!=0) {
+							dir = ribi_t::nsow[i];
+							break;
+						}
+					}
+					roadsign_t *rs = dynamic_cast<roadsign_t *>(gr->suche_obj(ding_t::roadsign));
+					if(rs!=NULL) {
+						rs->set_dir( ribi_t::rueckwaerts(rs->get_dir()) );
+					}
+					else {
+						rs = new roadsign_t( welt, gr->gib_pos(), dir, besch );
+						gr->obj_add(rs);
+					}
+					error = NULL;
+				}
+			}
+		}
+#endif
+		if(error != NULL) {
+			create_win(-1, -1, MESG_WAIT, new nachrichtenfenster_t(welt, error), w_autodelete);
+		}
+		return error == NULL;
+	} else {
+		return false;
+	}
+}
+
 
 
 int wkz_bahndepot(spieler_t *sp, karte_t *welt, koord pos)

@@ -37,6 +37,7 @@ int wkz_senke(spieler_t *sp, karte_t *welt, koord pos);
 
 int wkz_signale(spieler_t *sp, karte_t *welt, koord pos);
 int wkz_presignals(spieler_t *sp, karte_t *welt, koord pos);
+int wkz_roadsign(spieler_t *sp, karte_t *welt, koord pos, value_t value);
 
 int wkz_bahndepot(spieler_t *sp, karte_t *welt, koord pos);
 int wkz_tramdepot(spieler_t *sp, karte_t *welt, koord pos);

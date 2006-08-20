@@ -121,7 +121,7 @@ void display_divider(int x, int y, int w)
  * @author Hj. Malthaner
  */
 void
-display_flush(int stunden4, int color, double konto, const char *day_str, const char *info)
+display_flush(int stunden4, int color, double konto, const char *day_str, const char *info, const char *player_name, const int player_color)
 {
     char buffer[256];
     extern int disp_width;
@@ -141,5 +141,10 @@ display_flush(int stunden4, int color, double konto, const char *day_str, const 
     }
 
     display_proportional(480, disp_height-12, info, ALIGN_LEFT, BLACK, TRUE);
+
+	if(player_name!=NULL) {
+		display_proportional(255, disp_height-12, player_name, ALIGN_MIDDLE, player_color, TRUE);
+	}
+
     display_flush_buffer();
 }

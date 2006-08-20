@@ -372,7 +372,7 @@ fabrikbauer_t::verteile_tourist(karte_t * welt, spieler_t *sp, int max_number)
 
 	      if(is_display_init()) {
 		    display_progress(display_offset + (display_part *current_number)/max_number, display_total);
-		    display_flush(0, 0, 0, "", "");
+		    display_flush(0, 0, 0, "", "", 0, 0);
 		}
 	}
 	// update an open map
@@ -420,7 +420,7 @@ fabrikbauer_t::verteile_industrie(karte_t * welt, spieler_t *sp, int max_number_
 
 	      if(is_display_init()) {
 		    display_progress(display_offset + (display_part *current_number)/max_number_of_factories, display_total);
-		    display_flush(0, 0, 0, "", "");
+		    display_flush(0, 0, 0, "", "", 0, 0);
 		}
 	}
 	print("Constructed %i industries ...\n",factory_number);

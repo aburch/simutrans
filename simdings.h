@@ -229,7 +229,8 @@ public:
 	      car = 64,
 
 	      // other new dings
-	      presignal = 96
+	      presignal = 96,
+	      roadsign = 97
 	      };
 
 

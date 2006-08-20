@@ -17,6 +17,7 @@
 #include "../dings/gebaeudefundament.h"
 #include "../dings/gebaeude.h"
 #include "../dings/signal.h"
+#include "../dings/roadsign.h"
 #ifdef LAGER_NOT_IN_USE
 #include "../dings/lagerhaus.h"
 #endif
@@ -409,6 +410,7 @@ void dingliste_t::rdwr(karte_t *welt, loadsave_t *file)
 
 	    case ding_t::raucher:	    d = new raucher_t (welt, file);	        break;
 	    case ding_t::zeiger:	    d = new zeiger_t (welt, file);	        break;
+	    case ding_t::roadsign:	    d = new roadsign_t (welt, file);	        break;
 	    default:
 		dbg->warning("dingliste_t::laden()", "Error while loading game:");
 		dbg->fatal("dingliste_t::laden()", "Unknown object type '%d'", typ);

@@ -29,6 +29,7 @@ template<class T> class slist_mit_gewichten_tpl;
  */
 class verkehrsteilnehmer_t : public vehikel_basis_t, public sync_steppable
 {
+protected:
     /**
      * Hoechstgeschwindigkeit
      * @author Hj. Malthaner
@@ -60,11 +61,13 @@ class verkehrsteilnehmer_t : public vehikel_basis_t, public sync_steppable
     ribi_t::ribi fahrtrichtung;
 
 
-    koord3d naechstes_feld;
+    koord3d pos_next;
 
 
     int hoff;
 
+
+    virtual bool ist_weg_frei() const {return 1; };	// always free
 
 protected:
 
@@ -129,6 +132,9 @@ class stadtauto_t : public verkehrsteilnehmer_t {
 
 	// prissi: time to life in blocks
     int time_to_life;
+
+    virtual bool hop_check();
+    virtual bool ist_weg_frei() const;
 
 protected:
     void rdwr(loadsave_t *file);

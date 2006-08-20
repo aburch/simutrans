@@ -163,7 +163,7 @@ SUB_OBJS=\
  dings/oberleitung.o\
  dings/wolke.o dings/raucher.o dings/zeiger.o dings/baum.o dings/bruecke.o\
  dings/tunnel.o dings/gebaeudefundament.o dings/gebaeude.o\
- dings/signal.o dings/leitung2.o dings/lagerhaus.o\
+ dings/signal.o dings/leitung2.o dings/roadsign.o dings/lagerhaus.o\
  boden/boden.o  boden/fundament.o  boden/grund.o  boden/wasser.o\
  boden/brueckenboden.o  boden/tunnelboden.o \
  boden/wege/dock.o boden/wege/strasse.o \
@@ -198,7 +198,7 @@ SUB_OBJS=\
  besch/reader/skin_reader.o besch/reader/image_reader.o besch/reader/factory_reader.o \
  besch/reader/bridge_reader.o besch/reader/vehicle_reader.o besch/reader/tunnel_reader.o \
  besch/reader/way_reader.o besch/reader/ground_reader.o besch/reader/crossing_reader.o \
- besch/reader/citycar_reader.o  besch/reader/pedestrian_reader.o \
+ besch/reader/citycar_reader.o  besch/reader/pedestrian_reader.o besch/reader/roadsign_reader.o \
  besch/ware_besch.o\
  besch/haus_besch.o\
  besch/bruecke_besch.o\

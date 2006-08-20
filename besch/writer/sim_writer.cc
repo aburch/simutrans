@@ -21,6 +21,7 @@
 #include "bridge_writer.h"
 #include "tunnel_writer.h"
 #include "building_writer.h"
+#include "roadsign_writer.h"
 #include "citycar_writer.h"
 #include "pedestrian_writer.h"
 #include "crossing_writer.h"
@@ -78,6 +79,7 @@ factory_smoke_writer_t factory_smoke_writer_t::the_instance;
 
 vehicle_writer_t vehicle_writer_t::the_instance;
 
+roadsign_writer_t roadsign_writer_t::the_instance;
 citycar_writer_t citycar_writer_t::the_instance;
 pedestrian_writer_t pedestrian_writer_t::the_instance;
 

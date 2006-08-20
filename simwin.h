@@ -65,6 +65,7 @@ enum magic_numbers {
     magic_autosave_t,	    // comes later
     magic_specialtools,
     magic_listtools,
+    magic_edittools
 };
 
 // Haltezeit für Nachrichtenfenster

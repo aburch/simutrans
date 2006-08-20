@@ -93,18 +93,12 @@ inline const koord3d& operator-= (koord3d & a, const koord3d & b)
 
 inline bool operator== (const koord3d & a, const koord3d &b)
 {
-  // return (a.x == b.x && a.y == b.y && a.z == b.z);
-
-  // Hajo: dirty trick to speed things up
-  return *((const int*)&a) == *((const int*)&b);
+  return (a.x==b.x && a.y==b.y && a.z==b.z);
 }
 
 inline bool operator!= (const koord3d & a, const koord3d & b)
 {
-  // return (a.x != b.x) || (a.y != b.y) || (a.z != b.z);
-
-  // Hajo: dirty trick to speed things up
-  return *((const int*)&a) != *((const int*)&b);
+  return (a.x != b.x) || (a.y != b.y) || (a.z != b.z);
 }
 
 inline koord3d operator- (koord3d & a)

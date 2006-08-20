@@ -6,7 +6,7 @@ SOURCES=obj_reader.cc root_reader.cc xref_reader.cc \
  image_reader.cc sim_reader.cc \
  bridge_reader.cc tunnel_reader.cc vehicle_reader.cc \
  way_reader.cc ground_reader.cc crossing_reader.cc \
- citycar_reader.cc pedestrian_reader.cc
+ citycar_reader.cc pedestrian_reader.cc roadsign_reader.cc
 
 
 OBJECTS=obj_reader.o root_reader.o xref_reader.o \
@@ -14,7 +14,7 @@ OBJECTS=obj_reader.o root_reader.o xref_reader.o \
  image_reader.o sim_reader.o \
  bridge_reader.o tunnel_reader.o vehicle_reader.o \
  way_reader.o ground_reader.o crossing_reader.o \
- citycar_reader.o pedestrian_reader.o
+ citycar_reader.o pedestrian_reader.o roadsign_reader.o
 
 
 all:   $(OBJECTS)

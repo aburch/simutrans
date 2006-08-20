@@ -65,6 +65,7 @@
 #include "dings/zeiger.h"
 #include "dings/baum.h"
 #include "dings/signal.h"
+#include "dings/roadsign.h"
 #include "dings/oberleitung.h"
 #include "dings/gebaeude.h"
 
@@ -276,7 +277,7 @@ karte_t::calc_hoehe_mit_heightfield(const cstring_t & filename)
 
       if(is_display_init()) {
 	display_progress(y/2, groesse+einstellungen->gib_anzahl_staedte()*12);
-	display_flush(0, 0, 0, "", "");
+	display_flush(0, 0, 0, "", "", 0, 0);
       }
     }
 
@@ -315,7 +316,7 @@ karte_t::calc_hoehe_mit_perlin()
 
 	if(is_display_init()) {
 	    display_progress(y/2, groesse+einstellungen->gib_anzahl_staedte()*12);
-	    display_flush(0, 0, 0, "", "");
+	    display_flush(0, 0, 0, "", "", 0, 0);
 	} else {
 	    print("%3d/%3d\r", y, groesse-1);
 	    fflush(stdout);
@@ -829,7 +830,7 @@ DBG_DEBUG("karte_t::init()","Erzeuge stadt %i",i);
 
 			if(is_display_init()) {
 				display_progress(gib_groesse()/2+i*2, gib_groesse()+einstellungen->gib_anzahl_staedte()*12);
-				display_flush(0, 0, 0, "", "");
+				display_flush(0, 0, 0, "", "", 0, 0);
 			}
 		}
 
@@ -883,7 +884,7 @@ DBG_DEBUG("karte_t::init()","cites %d and %d are too far away", i, j);
 			if(is_display_init()) {
 				display_progress(gib_groesse()/2+i*8 + einstellungen->gib_anzahl_staedte()*2,
 				gib_groesse()+einstellungen->gib_anzahl_staedte()*12);
-				display_flush(0, 0, 0, "", "");
+				display_flush(0, 0, 0, "", "", 0, 0);
 			}
 		} // for i
 
@@ -1253,7 +1254,6 @@ int karte_t::lower_to(int x, int y, int h)
       calc_slope(pos - koord(1, 0));
       calc_slope(pos - koord(0, 1));
       calc_slope(pos - koord(1, 1));
-
 
       if(plan) {
 	plan->abgesenkt( this );
@@ -1767,9 +1767,7 @@ bool
 karte_t::sync_add(sync_steppable *obj)
 {
     assert(obj != NULL);
-
     sync_list.insert( obj );
-
     return true;
 }
 
@@ -1777,7 +1775,6 @@ bool
 karte_t::sync_remove(sync_steppable *obj)	// entfernt alle dinge == obj aus der Liste
 {
     assert(obj != NULL);
-
     return sync_list.remove( obj );
 }
 
@@ -1801,7 +1798,6 @@ karte_t::sync_step(const long delta_t)
   // object from the list without wrecking the iterator
 
   bool ok = iter.next();
-
   while(ok) {
     sync_steppable *ss = iter.get_current();
 
@@ -1820,7 +1816,6 @@ karte_t::sync_step(const long delta_t)
     // if(T1-T0 > 40) {
     //    dbg->warning("karte_t::sync_step()", "%p needed %d ms for step", ss, T1-T0);
     // }
-
   }
 
   for(int x=0; x<8; x++) {
@@ -2304,7 +2299,7 @@ karte_t::speichern(loadsave_t *file,bool silent)
 	}
 	else {
 		display_progress(j, gib_groesse());
-		display_flush(0, 0, 0, "", "");
+		display_flush(0, 0, 0, "", "", 0, 0);
 	}
     }
 	DBG_MESSAGE("karte_t::speichern(loadsave_t *file)", "saved access");
@@ -2509,7 +2504,7 @@ DBG_DEBUG("karte_t::laden()","grundwasser %i",grundwasser);
 	    access(i, j)->rdwr(this, file);
 	}
 	display_progress(j, gib_groesse());
-	display_flush(0, 0, 0, "", "");
+	display_flush(0, 0, 0, "", "", 0, 0);
     }
 
     for(j=0; j<=gib_groesse(); j++) {
@@ -3036,7 +3031,7 @@ void karte_t::switch_active_player()
 			  skinverwaltung_t::undoc_zeiger->gib_bild_nr(0),
 			  translator::translate("Build city market"));
 
-		wzw->zeige_info(magic_railtools);
+		wzw->zeige_info(magic_edittools);
 	}
 }
 
@@ -3537,6 +3532,12 @@ karte_t::interactive_event(event_t &ev)
 		    hausbauer_t::fill_menu(wzw,
 					  hausbauer_t::car_stops,
 					  wkz_bushalt,
+					  SFX_JACKHAMMER,
+					  SFX_FAILURE,
+					  CST_BUSHALT);
+
+		    roadsign_t::fill_menu(wzw,
+					  wkz_roadsign,
 					  SFX_JACKHAMMER,
 					  SFX_FAILURE,
 					  CST_BUSHALT);

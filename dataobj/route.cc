@@ -83,19 +83,19 @@ static inline bool am_i_there(karte_t *welt,
             koord3d ziel,
             bool block_test)
 {
-  bool ok = false;
+	bool ok = false;
 
-  if(block_test) {
-    halthandle_t halt1 = haltestelle_t::gib_halt(welt, pos);
-    halthandle_t halt2 = haltestelle_t::gib_halt(welt, ziel);
+	if(block_test) {
+		halthandle_t halt1 = haltestelle_t::gib_halt(welt, pos);
+		halthandle_t halt2 = haltestelle_t::gib_halt(welt, ziel);
 
-    ok = halt1.is_bound() ? (halt1 == halt2) : (pos == ziel);
-  }
-  else {
-    ok = (pos == ziel);
-  }
+		ok = halt1.is_bound() ? (halt1 == halt2) : (pos == ziel);
+	}
+	else {
+		ok = (pos == ziel);
+	}
 
-  return ok;
+	return ok;
 }
 
 
@@ -104,6 +104,11 @@ route_t::intern_calc_route(const koord3d ziel, const koord3d start,
                            fahrer_t *fahr)
 {
 	bool ok = false;
+
+	// check for existing koordinates
+	if(welt->lookup(start)==NULL  ||  welt->lookup(ziel)==NULL) {
+		return false;
+	}
 
 	const int MAX_STEP = umgebung_t::max_route_steps;	// may need very much memory => configurable
 	static KNode *nodes = NULL;
@@ -151,7 +156,7 @@ route_t::intern_calc_route(const koord3d ziel, const koord3d start,
 	// V.Meyer: weg_position_t changed to grund_t::get_neighbour()
 	grund_t *to;
 
-//DBG_MESSAGE("route_t::itern_calc_route()","calc route from %d,%d to %d,%d",ziel.x, ziel.y, start.x, start.y);
+//DBG_MESSAGE("route_t::itern_calc_route()","calc route from %d,%d,%d to %d,%d,%d",ziel.x, ziel.y, ziel.z, start.x, start.y, start.z);
 	do {
 		// Hajo: this is too expensive to be called each step
 		if((step & 127) == 0) {
@@ -159,6 +164,7 @@ route_t::intern_calc_route(const koord3d ziel, const koord3d start,
 		}
 
 		tmp = queue.pop();
+//DBG_DEBUG("now at ","%i,%i,%i",tmp->pos.x,tmp->pos.y,tmp->pos.z);
 		// already there?
 		if(tmp->pos != ziel) {
 
@@ -180,7 +186,7 @@ route_t::intern_calc_route(const koord3d ziel, const koord3d start,
 						k->dist = is_ship ? ABS(k_next.x-ziel.x) + ABS(k_next.y-ziel.y) : 0;
 						k->total = tmp->total+1;
 						k->pos = k_next;
-//DBG_DEBUG("search","%i,%i",k->pos.x,k->pos.y);
+//DBG_DEBUG("search","%i,%i,%i",k->pos.x,k->pos.y,k->pos.z);
 
 						queue.insert( k );
 						welt->markiere(k->pos);  // betretene Felder markieren
@@ -188,7 +194,7 @@ route_t::intern_calc_route(const koord3d ziel, const koord3d start,
 				} //for
 			}
 		}
-	} while(!queue.is_empty()  && !am_i_there(welt, tmp->pos, ziel, false)  &&  step<MAX_STEP);
+	} while(!queue.is_empty()  && 	!am_i_there(welt, tmp->pos, ziel, false)  &&  step<MAX_STEP);
 
 	// we clear it here probably twice: does not hurt ...
 	route.clear();
@@ -254,6 +260,7 @@ DBG_MESSAGE("route_t::calc_route()","No route from %d,%d to %d,%d found",start.x
 		// only needed for stations: go to the very end
 		if(halt.is_bound()) {
 
+			// does only make sence for trains
 			if(welt->lookup(start)->gib_weg(weg_t::schiene) != NULL) {
 
 				int max_n = route.get_count()-1;

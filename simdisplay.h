@@ -23,15 +23,15 @@
 extern "C" {
 #endif
 
-
 void display_progress(int part, int total);
 void display_icon_leiste(const int color, int basi_bild_nr);
 //void display_divider(int x, int y, int w);
 
-void display_flush(int stunden, int color,
-                   double konto,
-                   const char *day,
-		   const char *info);
+/**
+ * Kopiert Puffer ins Fenster
+ * @author Hj. Malthaner
+ */
+ void display_flush(int stunden4, int color, double konto, const char *day_str, const char *info, const char *player_name, const int player_color);
 
 #ifdef __cplusplus
 }

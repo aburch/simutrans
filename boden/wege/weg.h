@@ -276,6 +276,7 @@ public:
      * @param ribi Richtungsbits
      */
     void setze_ribi_maske(ribi_t::ribi ribi) { ribi_maske = ribi; }
+    ribi_t::ribi gib_ribi_maske() const { return ribi_maske; };
 
 
     /**

@@ -343,7 +343,7 @@ convoi_t::sync_step(long delta_t)
       wait_lock += WTT_LOADING;
 
       state = ROUTING_2;
-      // printf("Convoi wechselt von ROUTING_1 nach ROUTING_2\n");
+//     DBG_MESSAGE("convoi_t::sync_step()","Convoi wechselt von ROUTING_1 nach ROUTING_2\n");
       break;
 
     case ROUTING_2:
@@ -391,7 +391,7 @@ convoi_t::sync_step(long delta_t)
 				if(sum_gesamtgewicht != 0) {
 				/*
 				* The parameter consist of two parts (optimized for good looking):
-				*  - every vehicle in a convoi has a constant friction of 32 per vehicle.
+				*  - every vehicle in a convoi has a the friction of its weight
 				*  - the dynamic friction is calculated that way, that v^2*weight*frictionfactor = 200 kW
 				* => the more heavy and the more fast the less power for acceleration is available!
 				* since delta_t can have any value, we have to scale the step size by this value.
@@ -399,7 +399,7 @@ convoi_t::sync_step(long delta_t)
 				* @author prissi
 				*/
 				/* with floats, one would write: akt_speed*ak_speed*iTotalFriction*100 / (12,8*12,8) + 32*anz_vehikel;
-				* but for interger, we have to use the order below and calculate actualle 64*deccel, like the sum_gear_und_leistung */
+				* but for interger, we have to use the order below and calculate actually 64*deccel, like the sum_gear_und_leistung */
 				/* since akt_speed=10/128 km/h and we want 64*200kW=(100km/h)^2*100t, we must multiply by (128*2)/100 */
 				/* But since the acceleration was too fast, we just deccelerate 4x more => >>6 instead >>8 */
 				int deccel = ( ( (akt_speed*sum_friction_weight)>>6 )*akt_speed ) / 100 + (sum_gesamtgewicht*64);	// this order is needed to prevent overflows!
@@ -621,16 +621,22 @@ void convoi_t::step()
 			// rebuild destination (schedule may changed)
 			if(fpl) {
 				for(int i=0; i<=fpl->maxi; i++) {
+					// check, ob strecke frei
+					// check, if there is ground (or somebody removed a bridge/lowered the land)
+					const grund_t *bd = welt->lookup(fpl->eintrag.get(i).pos);
+					if(bd!=NULL) {
 
-					halthandle_t halt=welt->lookup(fpl->eintrag.get(i).pos)->gib_halt();
-					if(halt.is_bound()) {
+						// did we perform a stop at a station?
+						halthandle_t halt=bd->gib_halt();
+						if(halt.is_bound()) {
 
-						const ware_besch_t *last_fracht_typ=NULL;
-						for(int j=0; j<anz_vehikel; j++) {
+							const ware_besch_t *last_fracht_typ=NULL;
+							for(int j=0; j<anz_vehikel; j++) {
 
-							if(fahr->at(j)->gib_fracht_typ()!=last_fracht_typ) {
-								last_fracht_typ = fahr->at(j)->gib_fracht_typ();
-								halt->hat_gehalten(0,last_fracht_typ, fpl );
+								if(fahr->at(j)->gib_fracht_typ()!=last_fracht_typ) {
+									last_fracht_typ = fahr->at(j)->gib_fracht_typ();
+									halt->hat_gehalten(0,last_fracht_typ, fpl );
+								}
 							}
 						}
 					}
@@ -701,37 +707,30 @@ convoi_t::betrete_depot(depot_t *dep)
 void
 convoi_t::start()
 {
-  if(state == INITIAL || state == ROUTING_1) {
+	if(state == INITIAL || state == ROUTING_1) {
 
 		// set home depot to location of depot convoi is leaving
 		set_home_depot(gib_pos());
 
-    for(int i=0; i<anz_vehikel; i++) {
-      grund_t * gr = welt->lookup(fahr->at(i)->gib_pos());
+		for(int i=0; i<anz_vehikel; i++) {
+			grund_t * gr = welt->lookup(fahr->at(i)->gib_pos());
 
-      if(!gr->obj_ist_da(fahr->at(i))) {
-	gr->obj_add( fahr->at(i) );
-      }
-    }
+			if(!gr->obj_ist_da(fahr->at(i))) {
+				gr->obj_add( fahr->at(i) );
+			}
+		}
 
-    ist_fahrend = true;
-    alte_richtung = ribi_t::keine;
-
-
-    state = ROUTING_1;
-    calc_loading();
-
-    DBG_MESSAGE("convoi_t::start()",
-		 "Convoi %s wechselt von INITIAL nach ROUTING_1",
-		 name);
+		ist_fahrend = true;
+		alte_richtung = ribi_t::keine;
 
 
+		state = ROUTING_1;
+		calc_loading();
 
-  } else {
-    dbg->warning("convoi_t::start()",
-		 "called with state=%s\n",
-		 state_names[state]);
-  }
+		DBG_MESSAGE("convoi_t::start()","Convoi %s wechselt von INITIAL nach ROUTING_1", name);
+	} else {
+		dbg->warning("convoi_t::start()","called with state=%s\n",state_names[state]);
+	}
 }
 
 

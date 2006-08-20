@@ -261,7 +261,7 @@ void planquadrat_t::abgesenkt(karte_t *welt)
 
     if(gr) {
         gr->obj_loesche_alle(NULL);
-	gr->sync_height();
+	   gr->sync_height();
         gr->calc_bild();
 
         koord pos ( gr->gib_pos().gib_2d() );

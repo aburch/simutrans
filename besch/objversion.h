@@ -81,7 +81,8 @@ enum obj_type {
     obj_tunnel      = C4ID('T','U','N','L'),
     obj_miscimages  = C4ID('M','I','S','C'),
     obj_citycar	    = C4ID('C','C','A','R'),
-    obj_pedestrian  = C4ID('P','A','S','S')
+    obj_pedestrian  = C4ID('P','A','S','S'),
+    obj_roadsign	    = C4ID('S','I','G','N')
 };
 
 /*

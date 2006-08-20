@@ -12,6 +12,8 @@
 #define CST_BUSHALT       -60000
 #define CST_POST          -60000
 
+#define CST_ROADSIGN -50000
+
 #define CST_SIGNALE       -5000
 
 #define CST_BAHNDEPOT     -100000

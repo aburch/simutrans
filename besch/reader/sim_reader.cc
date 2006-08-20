@@ -10,6 +10,7 @@
 #include "bridge_reader.h"
 #include "tunnel_reader.h"
 #include "building_reader.h"
+#include "roadsign_reader.h"
 #include "citycar_reader.h"
 #include "pedestrian_reader.h"
 #include "crossing_reader.h"
@@ -68,6 +69,7 @@ factory_smoke_reader_t factory_smoke_reader_t::the_instance;
 
 vehicle_reader_t vehicle_reader_t::the_instance;
 
+roadsign_reader_t roadsign_reader_t::the_instance;
 citycar_reader_t citycar_reader_t::the_instance;
 pedestrian_reader_t pedestrian_reader_t::the_instance;
 

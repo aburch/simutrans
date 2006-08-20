@@ -48,11 +48,13 @@
 
 #include "dings/wolke.h"
 #include "dings/signal.h"
+#include "dings/roadsign.h"
 
 #include "gui/karte.h"
 
 #include "besch/ware_besch.h"
 #include "besch/skin_besch.h"
+#include "besch/roadsign_besch.h"
 
 #include "tpl/inthashtable_tpl.h"
 
@@ -337,7 +339,7 @@ void vehikel_basis_t::fahre()
 
 	if( !hop_check() ) {
 
-//	    printf("vehikel %p hop_check failed\n", this);
+	    printf("vehikel %p hop_check failed at (%i,%i,%i)\n", this,gib_pos().x,gib_pos().y,gib_pos().z);fflush(NULL);
 	    return;
 	} else {
             change = true;
@@ -616,35 +618,41 @@ vehikel_t::vehikel_t(karte_t *welt) :
 bool
 vehikel_t::hop_check()
 {
-    // check, ob strecke frei
-
-    const grund_t *bd = welt->lookup(pos_next);
-
-    if( ist_befahrbar(bd) ) {
-	if(ist_erstes) {
-	    int restart_speed = 1;
-
-	    // ist_weg_frei() berechnet auch die Geschwindigkeit
-	    // mit der spaeter weitergefahren wird
-	    if(!ist_weg_frei(restart_speed)) {
-
-		// convoi anhalten, wenn strecke nicht frei
-		cnv->warten_bis_weg_frei(restart_speed);
-
-		// nicht weiterfahren
+	// check, ob strecke frei
+	const grund_t *bd = welt->lookup(pos_next);
+	if(bd==NULL) {
+		// weg nicht existent -  wurde wohl abgerissen
+		if(ist_erstes ) {
+			// dann suchen wir eben einen anderen Weg!
+			cnv->suche_neue_route();
+		}
 		return false;
-	    }
 	}
-	return true;
-    } else {
-	// weg nicht befahrbar  -  wurde wohl abgerissen
-	if(ist_erstes ) {
 
-	    // dann suchen wir eben einen anderen Weg!
-	    cnv->suche_neue_route();
+	if(ist_befahrbar(bd)) {
+		if(ist_erstes) {
+			int restart_speed = 1;
+
+			// ist_weg_frei() berechnet auch die Geschwindigkeit
+			// mit der spaeter weitergefahren wird
+			if(!ist_weg_frei(restart_speed)) {
+
+				// convoi anhalten, wenn strecke nicht frei
+				cnv->warten_bis_weg_frei(restart_speed);
+
+				// nicht weiterfahren
+				return false;
+			}
+		}
+		return true;
+	} else {
+		// weg nicht befahrbar  -  wurde wohl abgerissen
+		if(ist_erstes ) {
+			// dann suchen wir eben einen anderen Weg!
+			cnv->suche_neue_route();
+		}
+		return false;
 	}
-	return false;
-    }
 }
 
 
@@ -1060,7 +1068,6 @@ vehikel_t::rdwr(loadsave_t *file)
     pos_cur.rdwr(file);
     pos_next.rdwr(file);
 
-
     const char *s = NULL;
 
     if(file->is_saving()) {
@@ -1071,9 +1078,7 @@ vehikel_t::rdwr(loadsave_t *file)
 	besch = vehikelbauer_t::gib_info(s);
 
 	if(besch == 0) {
-	  dbg->warning("vehikel_t::rdwr()",
-		       "no vehicle pak for '%s' using standard bus", s);
-
+	  dbg->warning("vehikel_t::rdwr()","no vehicle pak for '%s' using standard bus", s);
 	  besch = vehikelbauer_t::gib_info("Bus");
 	}
 
@@ -1223,152 +1228,152 @@ automobil_t::gib_ribi(const grund_t *gr) const
 bool
 automobil_t::ist_befahrbar(const grund_t *bd) const
 {
-    return bd->gib_weg(weg_t::strasse) != NULL;
+	if(bd->gib_weg(weg_t::strasse)==NULL) {
+		return false;
+	}
+	const roadsign_t *rs = dynamic_cast<roadsign_t *>(bd->suche_obj(ding_t::roadsign));
+	if(rs!=NULL  &&  rs->gib_besch()->gib_min_speed()>0  &&  rs->gib_besch()->gib_min_speed()>kmh_to_speed(gib_besch()->gib_geschw())) {
+		return false;
+	}
+	return true;
 }
 
 
 bool
 automobil_t::ist_weg_frei(int &restart_speed) const
 {
-    // pruefe auf Schienenkreuzung
-    {
-	const grund_t *gr = welt->lookup( pos_next );
-	if(gr->gib_weg(weg_t::schiene) && gr->gib_weg(weg_t::strasse)) {
-            // das ist eine Kreuzung, ist sie frei ?
+	// pruefe auf Schienenkreuzung
+	{
+		const grund_t *gr = welt->lookup( pos_next );
+		if(gr->gib_weg(weg_t::schiene) && gr->gib_weg(weg_t::strasse)) {
+			// das ist eine Kreuzung, ist sie frei ?
 
-	    if(gr->suche_obj(ding_t::waggon)) {
-		restart_speed = 8;
-		return false;
-	    }
+			if(gr->suche_obj(ding_t::waggon)) {
+				restart_speed = 8;
+				return false;
+			}
+		}
 	}
-    }
-
 
     bool frei = true;
 
-    // suche vehikel
-    automobil_t *at =
-      dynamic_cast<automobil_t *>(welt->lookup(pos_next)->suche_obj(ding_t::automobil));
+	// suche vehikel
+	automobil_t *at = dynamic_cast<automobil_t *>(welt->lookup(pos_next)->suche_obj(ding_t::automobil));
+	if(at != NULL && at->cnv != cnv) {
+		if(at->gib_fahrtrichtung() == gib_fahrtrichtung()) {
 
-    if(at != NULL && at->cnv != cnv) {
-	if(at->gib_fahrtrichtung() == gib_fahrtrichtung()) {
+			// da ist ein fahrzeug in unserer fahrtrichtung im weg
+			frei = false;
 
-	    // printf("%p hat gleiche richtung wie %p\n", at, this);
+			// mit der alten geschwindigkeit fortsetzen
+			restart_speed = at->cnv->gib_akt_speed()/2;
 
-	    // da ist ein fahrzeug in unserer fahrtrichtung im weg
-	    frei = false;
-	    // mit der alten geschwindigkeit fortsetzen
+		} else if(ribi_t::ist_orthogonal(at->gib_fahrtrichtung(), gib_fahrtrichtung())) {
 
-	    restart_speed = at->cnv->gib_akt_speed()/2;
+			// da ist ein fahrzeug quer zu unserer fahrtrichtung im weg
+			frei = false;
 
-	} else if(ribi_t::ist_orthogonal(at->gib_fahrtrichtung(), gib_fahrtrichtung())) {
-
-//	    printf("%p hat orthogonale richtung\n", at);
-
-	    // da ist ein fahrzeug quer zu unserer fahrtrichtung im weg
-	    frei = false;
-	    // langsam anfahren
-	    restart_speed = 8;
-	}
-    } else {
-	if(at == NULL) {
-	    // checke verkehr
-	    vehikel_basis_t *v =
-	      dynamic_cast<vehikel_basis_t*>(welt->lookup(pos_next)->suche_obj(ding_t::verkehr));
-
-	    if(v != 0) {
-		if(v->gib_fahrtrichtung() == gib_fahrtrichtung()) {
-		    // da ist ein fahrzeug in unserer fahrtrichtung im weg
-		    frei = false;
-
-		    restart_speed = 512;
-
-                } else if(ribi_t::ist_orthogonal(v->gib_fahrtrichtung(), gib_fahrtrichtung())) {
-		    // da ist ein fahrzeug quer zu unserer fahrtrichtung im weg
-		    frei = false;
-		    // langsam anfahren
-		    restart_speed = 8;
+			// langsam anfahren
+			restart_speed = 8;
 		}
-	    }
-	} else {
-	    restart_speed = -1;
 	}
-    }
+	else {
+		if(at == NULL) {
+			// checke verkehr
+			vehikel_basis_t *v = dynamic_cast<vehikel_basis_t *>(welt->lookup(pos_next)->suche_obj(ding_t::verkehr));
 
-    return frei;
+			if(v != 0) {
+				if(v->gib_fahrtrichtung() == gib_fahrtrichtung()) {
+					// da ist ein fahrzeug in unserer fahrtrichtung im weg
+					frei = false;
+
+					restart_speed = 512;
+
+				} else if(ribi_t::ist_orthogonal(v->gib_fahrtrichtung(), gib_fahrtrichtung())) {
+
+					// da ist ein fahrzeug quer zu unserer fahrtrichtung im weg
+					frei = false;
+					// langsam anfahren
+					restart_speed = 8;
+				}
+			}
+		}
+		else {
+			restart_speed = -1;
+		}
+	}
+
+	return frei;
 }
 
 
 void
 automobil_t::betrete_feld()
 {
-  vehikel_t::betrete_feld();
+	vehikel_t::betrete_feld();
 
-  // vehikel neu anorden wg. sichbarkeit
+	// vehikel neu anorden wg. sichbarkeit
+	grund_t *gr = welt->lookup( gib_pos() );
+	ding_t *zweites_vehikel = NULL;
+	ding_t *drittes_vehikel = NULL;
 
-  grund_t *gr = welt->lookup( gib_pos() );
-  ding_t *zweites_vehikel = NULL;
-  ding_t *drittes_vehikel = NULL;
+	// Hajo: vehikel_basis_t added us, but we want to reorder ourselves
+	// thus we first need to remove us again
+	gr->obj_remove(this, gib_besitzer());
 
+	bool ok = true;
 
-  // Hajo: vehikel_basis_t added us, but we want to reorder ourselves
-  // thus we first need to remove us again
-  gr->obj_remove(this, gib_besitzer());
+	for(int i=0; i<gr->gib_top(); i++) {
+		ding_t *dt = gr->obj_bei(i);
+		if(dt != NULL && dt->gib_typ() >= 32 && dt->gib_typ() <= 40) {
+			if(zweites_vehikel == NULL) {
+				zweites_vehikel = dt;
+				gr->obj_remove(dt, gib_besitzer());
+			}
+			else {
 
-
-  bool ok = true;
-
-  for(int i=0; i<gr->gib_top(); i++) {
-    ding_t *dt = gr->obj_bei(i);
-    if(dt != NULL && dt->gib_typ() >= 32 && dt->gib_typ() <= 40) {
-      if(zweites_vehikel == NULL) {
-	zweites_vehikel = dt;
-	gr->obj_remove(dt, gib_besitzer());
-      } else {
-
-	if(!(gib_fahrtrichtung() == ribi_t::nord || gib_fahrtrichtung() == ribi_t::west)) {
-	  drittes_vehikel = dt;
-	  gr->obj_remove(dt, gib_besitzer());
+				if(!(gib_fahrtrichtung() == ribi_t::nord || gib_fahrtrichtung() == ribi_t::west)) {
+					drittes_vehikel = dt;
+					gr->obj_remove(dt, gib_besitzer());
+				}
+				break;
+			}
+		}
 	}
-	break;
-      }
-    }
-  }
 
-  if(zweites_vehikel != NULL) {
+	int offset = gr->gib_top();
+	if(zweites_vehikel != NULL) {
 
-    if(gib_fahrtrichtung() == ribi_t::nord || gib_fahrtrichtung() == ribi_t::west) {
+		if(gib_fahrtrichtung() == ribi_t::nord || gib_fahrtrichtung() == ribi_t::west) {
 
-      ok &= (gr->obj_pri_add(zweites_vehikel, 0) != 0);
-      ok &= (gr->obj_pri_add(this, 2) != 0);
+			ok &= (gr->obj_pri_add(zweites_vehikel, offset) != 0);
+			ok &= (gr->obj_pri_add(this, 2) != 0);
 
-    } else {
+		}
+		else {
 
-      ok &= (gr->obj_pri_add(this, 0) != 0);
-      ok &= (gr->obj_pri_add(zweites_vehikel, 2) != 0);
+			ok &= (gr->obj_pri_add(this, offset) != 0);
+			ok &= (gr->obj_pri_add(zweites_vehikel, 2) != 0);
+		}
 
-    }
+		if(drittes_vehikel != NULL) {
+			ok &= (gr->obj_pri_add(drittes_vehikel, 2) != 0);
+		}
 
-    if(drittes_vehikel != NULL) {
-      ok &= (gr->obj_pri_add(drittes_vehikel, 2) != 0);
-    }
+	}
+	else {
+		ok &= (gr->obj_pri_add(this, offset) != 0);
+	}
 
-  } else {
-    ok &= (gr->obj_pri_add(this, 0) != 0);
-  }
+	if(!ok) {
+		dbg->error("automobil_t::betrete_feld()","vehicel '%s' %p could not be added to %d, %d, %d",gib_pos().x, gib_pos().y, gib_pos().z);
+	}
 
-  if(!ok) {
-    dbg->error("automobil_t::betrete_feld()",
-	       "vehicel '%s' %p could not be added to %d, %d, %d",
-	       gib_pos().x, gib_pos().y, gib_pos().z);
-  }
-
-
-  const int cargo = gib_fracht_menge();
-  gr->gib_weg(weg_t::strasse)->book(cargo, WAY_STAT_GOODS);
-  if (ist_erstes)  {
-    gr->gib_weg(weg_t::strasse)->book(1, WAY_STAT_CONVOIS);
-  }
+	const int cargo = gib_fracht_menge();
+	gr->gib_weg(weg_t::strasse)->book(cargo, WAY_STAT_GOODS);
+	if (ist_erstes)  {
+		gr->gib_weg(weg_t::strasse)->book(1, WAY_STAT_CONVOIS);
+	}
 }
 
 

@@ -234,8 +234,6 @@ DBG_DEBUG("hausbauer_t::fill_menu()","at pos %i add %s",i,besch->gib_name());
 
 
 
-
-
 /**
  * hausbauer_t::neue_karte:
  *
