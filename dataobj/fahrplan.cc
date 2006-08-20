@@ -1,3 +1,5 @@
+/* completely overhauled by prissi Oct-2005 */
+
 #include <stdio.h>
 
 #include "../simdebug.h"
@@ -29,225 +31,122 @@
  */
 static slist_tpl<fahrplan_t *> alle_fahrplaene;
 
-#define STOPS 32
-
 void fahrplan_t::init()
 {
     aktuell = 0;
-    maxi = -1;
-    eintrag.at(0).pos = koord3d(0,0,0);
-    eintrag.at(0).ladegrad = 0;
-
-    for(int i=0; i<STOPS; i++) {
-	stops.at(i) = NULL;
-    }
-
     abgeschlossen = false;
-
     alle_fahrplaene.insert(this);
-
     type = fahrplan_t::fahrplan;
 }
 
-fahrplan_t::fahrplan_t() : stops(STOPS), eintrag(STOPS)
+fahrplan_t::fahrplan_t() : eintrag(0)
 {
 	init();
 }
 
 // copy constructor
 // @author hsiegeln
-fahrplan_t::fahrplan_t(fahrplan_t * old) : stops(STOPS), eintrag(STOPS)
+fahrplan_t::fahrplan_t(fahrplan_t * old) : eintrag(0)
 {
 	if (old == NULL) {
 		init();
-	} else {
-	    aktuell = old->aktuell;
-	    maxi = old->maxi;
+	}
+	else {
+		aktuell = old->aktuell;
+		type = old->type;
 
-	    for(int i=0; i<STOPS; i++) {
-	    	eintrag.at(i).pos = old->eintrag.at(i).pos;
-		eintrag.at(i).ladegrad = old->eintrag.at(i).ladegrad;
-		stops.at(i) = old->stops.at(i);
-	    }
-
-	    abgeschlossen = true;
-
-	    alle_fahrplaene.insert(this);
-
-	    type = old->type;
+		for(unsigned i=0; i<old->eintrag.get_count(); i++) {
+			eintrag.append(old->eintrag.at(i));
+		}
+		abgeschlossen = true;
+		alle_fahrplaene.insert(this);
 	}
 }
 
-fahrplan_t::fahrplan_t(loadsave_t *file) : stops(STOPS), eintrag(STOPS)
+fahrplan_t::fahrplan_t(loadsave_t *file) : eintrag(0)
 {
-    for(int i=0; i<STOPS; i++) {
-	stops.at(i) = NULL;
-    }
-
-    type = fahrplan_t::fahrplan;
-
-    rdwr(file);
+	type = fahrplan_t::fahrplan;
+	rdwr(file);
 }
 
 
 fahrplan_t::~fahrplan_t()
 {
-  const  bool ok = alle_fahrplaene.remove(this);
-
-  if(ok) {
-    DBG_MESSAGE("fahrplan_t::~fahrplan_t()", "Schedule %p destructed", this);
-  } else {
-    dbg->error("fahrplan_t::~fahrplan_t()", "Schedule %p was not registered!", this);
-  }
-}
-
-
-void
-fahrplan_t::eingabe_abschliessen()
-{
-//    aktuell = 0;
-
-    for(int i=0; i<STOPS; i++) {
-	if(stops.at(i) != NULL) {
-	    delete stops.at(i);
-	    stops.at(i) = NULL;
+	const  bool ok = alle_fahrplaene.remove(this);
+	if(ok) {
+		DBG_MESSAGE("fahrplan_t::~fahrplan_t()", "Schedule %p destructed", this);
 	}
-    }
-
-    abgeschlossen = true;
+	else {
+		dbg->error("fahrplan_t::~fahrplan_t()", "Schedule %p was not registered!", this);
+	}
 }
 
-void
-fahrplan_t::eingabe_beginnen()
-{
-    abgeschlossen = false;
-}
 
 
 bool
-fahrplan_t::insert(karte_t *welt, koord3d k)
+fahrplan_t::insert(karte_t *welt, koord3d k,int ladegrad)
 {
-	if(maxi < STOPS-1) {
-
-		grund_t *gr = welt->lookup(k);
-		// not allowed here?
-		if(!ist_halt_erlaubt(gr)) {
-			// try all grounds
-			const planquadrat_t *plan = welt->lookup(k.gib_2d());
-			grund_t *gr2 = gr;
-			for( int i=0;  i<plan->gib_boden_count();  i++  ) {
-				gr = plan->gib_boden_bei(i);
-				if(gr!=gr2  &&  ist_halt_erlaubt(gr)) {
-					break;
-				}
+	grund_t *gr = welt->lookup(k);
+	// not allowed here?
+	if(!ist_halt_erlaubt(gr)) {
+		// try all grounds
+		const planquadrat_t *plan = welt->lookup(k.gib_2d());
+		grund_t *gr2 = gr;
+		for( unsigned i=0;  i<plan->gib_boden_count();  i++  ) {
+			gr = plan->gib_boden_bei(i);
+			if(gr!=gr2  &&  ist_halt_erlaubt(gr)) {
+				break;
 			}
 		}
+	}
 
-		if(ist_halt_erlaubt(gr)) {
-			k = gr->gib_pos();
+	aktuell = max(aktuell,0);
+	struct linieneintrag_t stop = { gr->gib_pos(), ladegrad, 0 };
 
-			if(aktuell < 0 || maxi < 0) {
-				// neuer Fahrplan
-				aktuell = 0;
-				maxi = 0;
-				eintrag.at(0).pos = k;
-				eintrag.at(0).ladegrad = 0;
-			} else if(maxi == 0) {
-				aktuell = 0;
-
-				if(k != eintrag.at(0).pos) {
-					eintrag.at(1) = eintrag.at(0);
-					eintrag.at(0).pos = k;
-					eintrag.at(0).ladegrad = 0;
-				}
-				maxi ++;
-			}
-			else {
-				// maxi ist hier größer als 0
-
-				// wir müssen prüfen, ob der eintrag ungleich
-				// dem aktuellen und ungleich dem vorgänger ist
-				const int akt_pruef = aktuell;
-				const int vor_pruef = aktuell > 0 ? aktuell-1 : maxi;
-
-
-				if(k != eintrag.at(akt_pruef).pos &&
-					k != eintrag.at(vor_pruef).pos) {
-
-					// Einträge verschieben
-					for(int i=maxi; i>=aktuell; i--) {
-						eintrag.at(i+1) = eintrag.at(i);
-					}
-					// neuen Eintrag einfügen
-					eintrag.at(aktuell).pos = k;
-					eintrag.at(aktuell).ladegrad = 0;
-					maxi ++;
-				}
-			}
-
-			return true;
-		}
-		else {
-			zeige_fehlermeldung(welt);
-			return false;
-		}
-
+	if(ist_halt_erlaubt(gr)  &&  eintrag.insert_at(aktuell,stop) ) {
+		// ok
+		return true;
 	}
 	else {
-		// kein Eintrag mehr frei
+		// too many stops or wrong kind of stop
+		zeige_fehlermeldung(welt);
 		return false;
 	}
 }
 
+
+
 bool
-fahrplan_t::append(karte_t *welt, koord3d k)
+fahrplan_t::append(karte_t *welt, koord3d k,int ladegrad)
 {
-    if(maxi < STOPS-1) {
+	grund_t *gr = welt->lookup(k);
 
-		grund_t *gr = welt->lookup(k);
-
-		// not allowed here?
-		if(!ist_halt_erlaubt(gr)) {
-			// try all grounds
-			const planquadrat_t *plan = welt->lookup(k.gib_2d());
-			grund_t *gr2 = gr;
-			for( int i=0;  i<plan->gib_boden_count();  i++  ) {
-				gr = plan->gib_boden_bei(i);
-				if(gr!=gr2  &&  ist_halt_erlaubt(gr)) {
-					break;
-				}
+	// not allowed here?
+	if(!ist_halt_erlaubt(gr)) {
+		// try all grounds
+		const planquadrat_t *plan = welt->lookup(k.gib_2d());
+		grund_t *gr2 = gr;
+		for( unsigned i=0;  i<plan->gib_boden_count();  i++  ) {
+			gr = plan->gib_boden_bei(i);
+			if(gr!=gr2  &&  ist_halt_erlaubt(gr)) {
+				break;
 			}
 		}
-
-		if(ist_halt_erlaubt(gr)) {
-			k = gr->gib_pos();
-
-	    if(aktuell < 0 || maxi < 0) {
-			// neuer fahrplan
-			aktuell = 0;
-			maxi = 0;
-	        eintrag.at(0).pos = k;
-			eintrag.at(0).ladegrad = 0;
-	    } else {
-		if(k != eintrag.at(0).pos &&
-		   k != eintrag.at(maxi).pos) {
-
-		    maxi ++;
-		    eintrag.at(maxi).pos = k;
-		    eintrag.at(maxi).ladegrad = 0;
-		}
-	    }
-
-	    return true;
-	} else {
-	    zeige_fehlermeldung(welt);
-	    return false;
 	}
 
-    } else {
-	// kein Eintrag mehr frei
-	return false;
-    }
+	aktuell = max(aktuell,0);
+	struct linieneintrag_t stop = { gr->gib_pos(), ladegrad, 0 };
+
+	if(ist_halt_erlaubt(gr)  &&  eintrag.append(stop) ) {
+		// ok
+		aktuell = eintrag.get_count()-1;
+		return true;
+	}
+	else {
+		// error
+		zeige_fehlermeldung(welt);
+		return false;
+	}
 }
 
 
@@ -255,46 +154,56 @@ fahrplan_t::append(karte_t *welt, koord3d k)
 bool
 fahrplan_t::remove()
 {
-    if(maxi > -1 && aktuell >= 0 && aktuell <= maxi) {
-
-	for(int i=aktuell; i<maxi; i++) {
-	    eintrag.at(i) = eintrag.at(i+1);
+	bool ok=eintrag.remove_at(aktuell);
+	if( aktuell>=eintrag.get_count()-1) {
+		aktuell = eintrag.get_count()-1;
 	}
-	eintrag.at(maxi).pos = koord3d::invalid;
-	eintrag.at(maxi).ladegrad = 0;
-
-	maxi --;
-
-	if(aktuell > maxi) {
-	    aktuell = maxi;
-	}
-
-	return true;
-    } else {
-	return false;
-    }
+	return ok;
 }
+
+
 
 void
 fahrplan_t::rdwr(loadsave_t *file)
 {
-    file->rdwr_long(aktuell, " ");
-    file->rdwr_long(maxi, " ");
+	long dummy=aktuell;
+	file->rdwr_long(dummy, " ");
+	aktuell = dummy;
 
-    if(file->is_loading()) {
-	abgeschlossen = true;
-    }
-    for(int i=0; i<=maxi; i++) {
-	eintrag.at(i).pos.rdwr( file );
+	long maxi=eintrag.get_count();
+	file->rdwr_long(maxi, " ");
+	DBG_MESSAGE("fahrplan_t::rdwr()","read schedule %p with %i entries",this,maxi);
 
-	file->rdwr_long(eintrag.at(i).ladegrad, "\n");
-    }
+	if(file->is_loading()) {
+		if(file->get_version()<86010) {
+			// old array had different maxi-counter
+			maxi ++;
+		}
 
-    if(file->is_loading()) {
-      // Hajo: enable this once the line management is ready to be used
-      // linie_t::vereinige(&eintrag);
-    }
+//		eintrag.clear();
+//		eintrag.resize(maxi);
+		for(int i=0; i<maxi; i++) {
+	DBG_MESSAGE("fahrplan_t::rdwr()","read pos");
+			koord3d pos;
+			pos.rdwr(file);
+	DBG_MESSAGE("fahrplan_t::rdwr()","read dummy");
+			file->rdwr_long(dummy, "\n");
+
+			struct linieneintrag_t stop = { pos, dummy, 0 };
+			eintrag.append(stop);
+		}
+		abgeschlossen = true;
+	}
+	else {
+		// saving
+		for(unsigned i=0; i<eintrag.get_count(); i++) {
+			eintrag.at(i).pos.rdwr(file);
+			dummy = eintrag.at(i).ladegrad;
+			file->rdwr_long(dummy, "\n");
+		}
+	}
 }
+
 
 
 /*
@@ -302,63 +211,50 @@ fahrplan_t::rdwr(loadsave_t *file)
  * @author hsiegeln
  */
 bool
-fahrplan_t::matches(fahrplan_t *fpl) {
-  int MAX_STOPS = STOPS; // max stops
-
-  if (fpl == NULL) {
-    return false;
-  }
-
-  for (int i = 0; i<MAX_STOPS; i++) {
-    if (fpl->eintrag.at(i).pos != eintrag.at(i).pos) {
-      return false;
-    }
-  }
-  return true;
-}
-
-/**
- * set the current stop of the fahrplan
- * if new value is bigger than stops available, the max stop will be used
- * @author hsiegeln
- */
-void
-fahrplan_t::set_aktuell(int new_aktuell)
+fahrplan_t::matches(fahrplan_t *fpl)
 {
-	// if the passed value is greater than available stops, set current stop to highes stop available
-	// otherwise set value as expected
-	if (maxi < new_aktuell)
-	{
-		aktuell = maxi;
-	} else {
-		aktuell = new_aktuell;
+	if (fpl == NULL) {
+		return false;
 	}
+  	if(fpl->eintrag.get_count()!=eintrag.get_count()) {
+  		return false;
+  	}
+	for(unsigned i = 0; i<eintrag.get_count(); i++) {
+		if (fpl->eintrag.at(i).pos != eintrag.at(i).pos) {
+			return false;
+		}
+	}
+	return true;
 }
 
 void
-fahrplan_t::add_return_way(karte_t * welt)
+fahrplan_t::add_return_way(karte_t *)
 {
-	for (int i=maxi; i>0; i--) {
-		append(welt, eintrag.at(i).pos);
-	    eintrag.at(maxi).ladegrad = eintrag.at(i).ladegrad;
+	int maxi = eintrag.get_count();
+	while(  --maxi>=0   ) {
+		eintrag.append( eintrag.at(maxi) );
 	}
 }
 
 
 fahrplan_t::fahrplan_type fahrplan_t::get_type(karte_t * welt) const
 {
-  const grund_t *gr = welt->lookup(eintrag.get(0).pos);
-  if ( type != fahrplan_t::fahrplan ) {
-    return type;
-  } else if (gr->gib_weg(weg_t::strasse) != NULL) {
-    return fahrplan_t::autofahrplan;
-  } else if (gr->gib_weg(weg_t::schiene) != NULL) {
-    return fahrplan_t::zugfahrplan;
-  } else if (gr->gib_weg(weg_t::wasser) != NULL) {
-    return fahrplan_t::schifffahrplan;
-  } else {
-    return fahrplan_t::fahrplan;
-  }
+	if(eintrag.get_count()==0) {
+		return type;
+	}
+	const grund_t *gr = welt->lookup(eintrag.get(0).pos);
+	if ( type != fahrplan_t::fahrplan ) {
+		//
+	} else if (gr->gib_weg(weg_t::strasse) != NULL) {
+		return fahrplan_t::autofahrplan;
+	} else if (gr->gib_weg(weg_t::schiene) != NULL) {
+		return fahrplan_t::zugfahrplan;
+	} else if (gr->gib_weg(weg_t::wasser) != NULL) {
+		return fahrplan_t::schifffahrplan;
+	} else {
+		return fahrplan_t::fahrplan;
+	}
+	return type;
 }
 
 

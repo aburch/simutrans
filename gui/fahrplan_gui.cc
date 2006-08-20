@@ -43,26 +43,30 @@ void fahrplan_gui_t::gimme_stop_name(cbuffer_t & buf,
 				     int i,
 				     int max_chars)
 {
-  halthandle_t halt = haltestelle_t::gib_halt(welt,fpl->eintrag.get(i).pos);
-  char tmp [256];
+	if(i<0  ||  fpl==NULL  ||  i>=fpl->maxi()) {
+		dbg->warning("void fahrplan_gui_t::gimme_stop_name()","tried to recieved unused entry %i in schedule %p.",i,fpl);
+		return;
+	}
+	halthandle_t halt = haltestelle_t::gib_halt(welt,fpl->eintrag.get(i).pos);
+	char tmp [256];
 
-  if(halt.is_bound()) {
-    sprintf(tmp, "%s (%d%%) (%d,%d)",
-	    halt->gib_name(), fpl->eintrag.get(i).ladegrad,
-	    fpl->eintrag.get(i).pos.x, fpl->eintrag.get(i).pos.y);
-  } else {
-    const grund_t *gr = welt->lookup(fpl->eintrag.get(i).pos);
+	if(halt.is_bound()) {
+		sprintf(tmp, "%s (%d%%) (%d,%d)",
+		halt->gib_name(), fpl->eintrag.get(i).ladegrad,
+		fpl->eintrag.get(i).pos.x, fpl->eintrag.get(i).pos.y);
+	}
+	else {
+		const grund_t *gr = welt->lookup(fpl->eintrag.get(i).pos);
 
-    if(gr && gr->gib_depot() != NULL) {
-      sprintf(tmp, "%s (%d,%d)", translator::translate("Depot"), fpl->eintrag.get(i).pos.x, fpl->eintrag.get(i).pos.y);
-    } else {
-      sprintf(tmp, "%s (%d,%d)", translator::translate("Wegpunkt"), fpl->eintrag.get(i).pos.x, fpl->eintrag.get(i).pos.y);
-    }
-  }
-
-  sprintf(tmp+max_chars-4, "...");
-
-  buf.append(tmp);
+		if(gr && gr->gib_depot() != NULL) {
+			sprintf(tmp, "%s (%d,%d)", translator::translate("Depot"), fpl->eintrag.get(i).pos.x, fpl->eintrag.get(i).pos.y);
+		}
+		else {
+			sprintf(tmp, "%s (%d,%d)", translator::translate("Wegpunkt"), fpl->eintrag.get(i).pos.x, fpl->eintrag.get(i).pos.y);
+		}
+	}
+	sprintf(tmp+max_chars-4, "...");
+	buf.append(tmp);
 }
 
 
@@ -196,7 +200,7 @@ void fahrplan_gui_t::init()
   lb_load.setze_pos(koord(11, 23));
   add_komponente(&lb_load);
 
-  if(fpl->maxi > 0) {
+  if(fpl->maxi() > 0) {
     mode = none;
 	welt->setze_maus_funktion(wkz_abfrage, skinverwaltung_t::fragezeiger->gib_bild_nr(0), welt->Z_PLAN, 0, 0);
   } else {
@@ -265,7 +269,7 @@ fahrplan_gui_t::infowin_event(const event_t *ev)
 
 		const int line = ((ev->my - (40 - scrolly.get_scroll_y()))/LINESPACE)-3;
 
-		if(line >= 0 && line <= fpl->maxi) {
+		if(line >= 0 && line < fpl->maxi()) {
 			fpl->aktuell = line;
 
 			if(mode == removing) {
@@ -334,8 +338,8 @@ fahrplan_gui_t::action_triggered(gui_komponente_t *komp)
   } else if(komp == &bt_done) {
     destroy_win(this);
   } else if(komp == &bt_prev) {
-    if(fpl->maxi >= 0) {
-      int & load = fpl->eintrag.at(fpl->aktuell).ladegrad;
+    if(fpl->maxi() > 0) {
+      char & load = fpl->eintrag.at(fpl->aktuell).ladegrad;
 
       if(load > 20 ) {
 	load -= 20;
@@ -346,8 +350,8 @@ fahrplan_gui_t::action_triggered(gui_komponente_t *komp)
       }
     }
   } else if(komp == &bt_next) {
-    if(fpl->maxi >= 0) {
-      int & load = fpl->eintrag.at(fpl->aktuell).ladegrad;
+    if(fpl->maxi() > 0) {
+      char & load = fpl->eintrag.at(fpl->aktuell).ladegrad;
 
       if(load == 0) {
 	load = 1;           // Hajo: 1% special case
@@ -407,10 +411,11 @@ fahrplan_gui_t::zeichnen(koord pos, koord groesse)
 
   if(fpl) {
     char tmp[128];
-    if(fpl->maxi < 0) {
+    if(fpl->maxi() <= 0) {
       sprintf(tmp, "%3d%%\n", 0);
     } else {
-      sprintf(tmp, "%3d%%\n", fpl->eintrag.get(fpl->aktuell).ladegrad);
+    	unsigned current = max( 0, min(fpl->aktuell,fpl->maxi() ) );
+      sprintf(tmp, "%3d%%\n", fpl->eintrag.get(current).ladegrad);
     }
     display_multiline_text(pos.x+105,
 			   pos.y+ 40,
@@ -429,14 +434,12 @@ fahrplan_gui_t::get_fpl_text(cbuffer_t & buf)
 {
 	if(fpl) {
 		buf.clear();
-		if(fpl->maxi >= 0) {
-			for(int i=0; i<=fpl->maxi; i++) {
-				buf.append(i==fpl->aktuell ? "» " : "   ");
-				buf.append(i+1);
-				buf.append(".) ");
-				gimme_stop_name(buf, welt, fpl, i, 240);
-				buf.append("\n");
-			}
+		for(int i=0; i<fpl->maxi(); i++) {
+			buf.append(i==fpl->aktuell ? "» " : "   ");
+			buf.append(i+1);
+			buf.append(".) ");
+			gimme_stop_name(buf, welt, fpl, i, 240);
+			buf.append("\n");
 		}
 	buf.append("\n\n");
 	}

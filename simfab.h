@@ -13,6 +13,7 @@
 
 #include "simware.h"
 #include "dataobj/koord3d.h"
+#include "dataobj/translator.h"
 
 #include "tpl/slist_tpl.h"
 #include "tpl/vector_tpl.h"
@@ -79,13 +80,6 @@ private:
 
 
     /**
-     * Back-link of haltestelle_t::fab_list
-     * @author Hj. Malthaner
-     */
-    slist_tpl<halthandle_t> halt_list;
-
-
-    /**
      * Die erzeugten waren auf die Haltestellen verteilen
      * @author Hj. Malthaner
      */
@@ -94,20 +88,6 @@ private:
     /* still needed for the info dialog; otherwise useless
      */
     slist_tpl<stadt_t *> arbeiterziele;
-#ifdef FAB_PAX
-    /**
-     * for passenger generation
-     * @author prissi
-     */
-    int pax_zeit;
-    int pax_intervall;
-
-    /**
-     * Die arbeiter wollen auch wieder nach hause zurueck
-     * @author Hj. Malthaner
-     */
-    void verteile_passagiere();
-#endif
 
     spieler_t *besitzer_p;
     karte_t *welt;
@@ -219,7 +199,7 @@ public:
     void  rem_arbeiterziel(stadt_t *stadt);
     const slist_tpl <stadt_t *> & gib_arbeiterziele() const {return arbeiterziele;};
 
-    const slist_tpl<halthandle_t> gib_halt_list () const { return halt_list; }
+//    const slist_tpl<halthandle_t> gib_halt_list() { return halt_list; };
 
     /**
      * Fügt ein neues Lieferziel hinzu
@@ -268,7 +248,7 @@ public:
     void step(long delta_t);                  // fabrik muss auch arbeiten
     void neuer_monat();
 
-    const char *gib_name() const { return besch ? besch->gib_name() : "unnamed"; }
+    const char *gib_name() const { return besch ? translator::translate(besch->gib_name()) : "unnamed"; }
     int gib_kennfarbe() const { return besch ? besch->gib_kennfarbe() : 0; }
 
     void info(cbuffer_t & buf);
@@ -308,7 +288,6 @@ public:
      * @author Hj. Malthaner
      */
     static bool ist_da_eine(karte_t *welt, koord min, koord max);
-
     static bool ist_bauplatz(karte_t *welt, koord pos, koord groesse = koord(2, 2),bool water=false);
 
 
@@ -329,7 +308,6 @@ public:
      * @author Hj. Malthaner
      */
     void set_eingang(vector_tpl<ware_t> * typen);
-
     const vector_tpl<ware_t> * gib_eingang() const {return eingang;};
 
     /**
@@ -338,7 +316,6 @@ public:
      * @author Hj. Malthaner
      */
     void set_ausgang(vector_tpl<ware_t> * typen);
-
     const vector_tpl<ware_t> * gib_ausgang() const {return ausgang;};
 
 
@@ -354,7 +331,12 @@ public:
      * @author Hj. Malthaner
      */
   void set_prodfaktor(int i) {prodfaktor= (i<16)?16:i;};
-  int get_prodfaktor(void) {return prodfaktor;};
+  int get_prodfaktor(void) const {return prodfaktor;};
+
+   /* prissi: returns the status of the current factory, as well as output */
+   static unsigned status_to_color[5];
+   enum { bad, medium, good, inactive, nothing };
+   unsigned calc_factory_status(unsigned long *input, unsigned long *output) const;
 
     /**
      * Crossconnects all factories

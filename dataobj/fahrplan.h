@@ -3,7 +3,7 @@
 
 #include "linieneintrag.h"
 
-#include "../tpl/array_tpl.h"
+#include "../tpl/minivec_tpl.h"
 
 
 // forward decl
@@ -30,7 +30,7 @@ public:
   };
 
 private:
-    array_tpl<zeiger_t *> stops;
+//    array_tpl<zeiger_t *> stops;
 
     bool abgeschlossen;
 
@@ -61,34 +61,31 @@ protected:
 
 
 public:
+    minivec_tpl<struct linieneintrag_t> eintrag;
+    short aktuell;
+
+    int maxi() const { return eintrag.get_count(); };
 
     fahrplan_type get_type() const {return type;};
-
-
-    array_tpl<class linieneintrag_t> eintrag;
-
 
     /**
      * get current stop of fahrplan
      * @author hsiegeln
      */
-    int get_aktuell() { return aktuell; };
+    int get_aktuell() const { return aktuell; };
 
-
-    /**
-     * set current stop of fahrplan
-     * @author hsiegeln
-     */
-    void set_aktuell(int new_aktuell);
-
-
-    int aktuell;
-    int maxi;
+	/**
+	 * set the current stop of the fahrplan
+	 * if new value is bigger than stops available, the max stop will be used
+	 * @author hsiegeln
+	 */
+    void set_aktuell(int new_aktuell) { aktuell = (unsigned)new_aktuell>=eintrag.get_count() ? eintrag.get_count()-1 : new_aktuell; };
 
     inline bool ist_abgeschlossen() const {return abgeschlossen;};
+    void eingabe_abschliessen() {abgeschlossen = true;};
+    void eingabe_beginnen() {abgeschlossen = false;};
 
     fahrplan_t();
-
 
     /**
      * Copy constructor
@@ -96,29 +93,21 @@ public:
      */
     fahrplan_t(fahrplan_t *);
 
-
     virtual ~fahrplan_t();
 
-
     fahrplan_t(loadsave_t *file);
-
-
-    void eingabe_abschliessen();
-    void eingabe_beginnen();
 
 
     /**
      * fügt eine koordinate an stelle aktuell in den Fahrplan ein
      * alle folgenden Koordinaten verschieben sich dadurch
      */
-    bool insert(karte_t *welt, koord3d k);
-
+    bool insert(karte_t *welt, koord3d k,int ladegrad=0);
 
     /**
      * hängt eine koordinate an den fahrplan an
      */
-    bool append(karte_t *welt, koord3d k);
-
+    bool append(karte_t *welt, koord3d k,int ladegrad=0);
 
     /**
      * entfern eintrag[aktuell] aus dem fahrplan
@@ -126,9 +115,7 @@ public:
      */
     bool remove();
 
-
     void rdwr(loadsave_t *file);
-
 
     /**
      * if the passed in fahrplan matches "this", then return true
@@ -136,14 +123,12 @@ public:
      */
     bool matches(fahrplan_t *fpl);
 
-
     /**
      * calculates a return way for this schedule
      * will add elements 1 to maxi-1 in reverse order to schedule
      * @author hsiegeln
      */
      void add_return_way(karte_t * welt);
-
 
      fahrplan_type get_type(karte_t * welt) const;
 

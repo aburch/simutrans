@@ -333,9 +333,15 @@ convoi_t::sync_step(long delta_t)
 
 			setze_fahrplan(fpl);
 
-			// V.Meyer: If we are at destination - complete loading task!
-			state = gib_pos() == fpl->eintrag.get(fpl->aktuell).pos ? LOADING : ROUTING_1;
-			calc_loading();
+			if(fpl->maxi()==0) {
+				// no entry => no route ...
+				state = ROUTING_2;
+			}
+			else {
+				// V.Meyer: If we are at destination - complete loading task!
+				state = gib_pos() == fpl->eintrag.get(fpl->aktuell).pos ? LOADING : ROUTING_1;
+				calc_loading();
+			}
 		}
 	break;
 
@@ -556,7 +562,7 @@ void convoi_t::drive_to_next_stop()
 
   assert(fpl != NULL);
 
-  if(fpl->aktuell < fpl->maxi) {
+  if(fpl->aktuell+1 < fpl->maxi()) {
     fpl->aktuell ++;
   } else {
     fpl->aktuell = 0;
@@ -609,13 +615,19 @@ void convoi_t::step()
 			break;
 
 		case ROUTING_2:
-			// Hajo: now calculate a new route
-			drive_to(fahr->at(0)->gib_pos(),
-			fpl->eintrag.at(fpl->get_aktuell()).pos);
+			if(fpl->maxi()==0) {
+				// no entries => no route ...
+				state = ROUTING_2;
+				gib_besitzer()->bescheid_vehikel_problem(self,fahr->at(0)->gib_pos());
+			}
+			else {
+				// Hajo: now calculate a new route
+				drive_to(fahr->at(0)->gib_pos(),fpl->eintrag.at(fpl->get_aktuell()).pos);
 
-			if(route.gib_max_n() > 0) {
-				// Hajo: ROUTING_3 is no more, go to ROUTING_4 directly
-				state = ROUTING_4;
+				if(route.gib_max_n() > 0) {
+					// Hajo: ROUTING_3 is no more, go to ROUTING_4 directly
+					state = ROUTING_4;
+				}
 			}
 			break;
 
@@ -878,15 +890,16 @@ DBG_DEBUG("convoi_t::setze_fahrplan()", "rebuilding destinations (fpl)");
 		fpl = f;
 
 		// rebuild destination (since halt may have been removed)
-		for(int i=0; i<=not_so_old_fpl->maxi; i++) {
+		for(int i=0; i<not_so_old_fpl->maxi(); i++) {
 
 			// check, if this schedule is also contained within the new schedule (thus we can skip it)
 			int j=0;
-			for( j=0; j<=fpl->maxi  &&  not_so_old_fpl->eintrag.get(i).pos!=fpl->eintrag.get(j).pos; j++)
+			for( j=0; j<fpl->maxi()  &&  not_so_old_fpl->eintrag.get(i).pos!=fpl->eintrag.get(j).pos; j++)
 				;
-			if(  j<=fpl->maxi  ) {
+			if(  j<fpl->maxi()  ) {
 				continue;
 			}
+			// ok, contains in both => do not touch
 
 //DBG_DEBUG("convoi_t::setze_fahrplan()", "rebuilt destinations at (%i,%i)",not_so_old_fpl->eintrag.get(i).pos.x,old_fpl->eintrag.get(i).pos.y);
 			// check, if there is ground (or somebody removed a bridge/lowered the land)
@@ -914,13 +927,13 @@ DBG_DEBUG("convoi_t::setze_fahrplan()", "rebuilding destinations (old_fpl=%p)",o
 		fpl = f;
 
 		// rebuild destination (since halt may have been removed)
-		for(int i=0; i<=old_fpl->maxi; i++) {
+		for(int i=0; i<old_fpl->maxi(); i++) {
 
 			// check, if this schedule is also contained within the new schedule (thus we can skip it)
 			int j;
-			for( j=0; j<=fpl->maxi  &&  old_fpl->eintrag.get(i).pos!=fpl->eintrag.get(j).pos; j++)
+			for( j=0; j<fpl->maxi()  &&  old_fpl->eintrag.get(i).pos!=fpl->eintrag.get(j).pos; j++)
 				;
-			if(  j<=fpl->maxi  ) {
+			if(  j<fpl->maxi()  ) {
 				continue;
 			}
 
@@ -944,7 +957,7 @@ DBG_DEBUG("convoi_t::setze_fahrplan()", "rebuilding destinations (old_fpl=%p)",o
 
 	// rebuild destination for the new schedule
 	fpl = f;
-	for(int i=0; i<=fpl->maxi; i++) {
+	for(int i=0; i<fpl->maxi(); i++) {
 
 		// check, if there is ground (or somebody removed a bridge/lowered the land)
 		const grund_t *bd = welt->lookup(fpl->eintrag.get(i).pos);

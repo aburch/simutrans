@@ -116,6 +116,7 @@ public:
     static const skin_besch_t *senke;
 
     static const skin_besch_t *oberleitung;
+    static const skin_besch_t *electricity;
 
     /**
      * Window skin images

@@ -190,7 +190,6 @@ boden_t::calc_bild()
 {
 	const koord k = gib_pos().gib_2d();
 	uint8 slope_this =  welt->get_slope(k);
-	const uint8 natural_slope_this = welt->calc_natural_slope(k);
 
 	grund_t::calc_bild();
 
@@ -218,7 +217,7 @@ boden_t::calc_bild()
 			}
 		}
 		int bild=IMG_LEER;
-		if(slope_this!=0  &&  slope_this!=natural_slope_this) {
+		if(slope_this!=0  &&  slope_this!=welt->calc_natural_slope(k)) {
 			bild = grund_besch_t::boden->gib_bild(53+(slope_this/3));
 //DBG_DEBUG("slope","%i",slope_this);
 		}

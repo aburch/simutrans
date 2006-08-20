@@ -16,16 +16,17 @@ Stichpunkte
 - nur 2x1 und nur 1x2 Gebäude: done
 - Linksverkehr: done
 - Pfeiler für Brücken: done
+- Monorail als Brückenstrecke: done
+- Fabrikliste: done
 
-- Fabrikliste + Sehenwürdigkeitenliste
+
+- Sehenwürdigkeitenliste
 - Landfabrik alle x Jahre/Fakriken
 - oberstes Fenster schließen
 - Brücken an senkrechten Wänden
 - Felder: Grafiken da, fehlt noch code (vielleicht wie Wälder?)
 - schönerer Jahreszeitenwechsel
-- Monorail als Brückenstrecke
 - Bahnhöfe auf Brücken
-
 - Winter höhenabhängig?
 
 

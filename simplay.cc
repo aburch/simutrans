@@ -1104,15 +1104,8 @@ DBG_MESSAGE("spieler_t::do_passenger_ki()","waiting: %s (%i) and %s (%i)",h0->gi
 							new_cnv->add_vehikel( v );
 							fahrplan_t *fpl = new_cnv->gib_vehikel(0)->erzeuge_neuen_fahrplan();
 							// do not start at current stop => wont work ...
+							fpl = f->copy();
 							fpl->aktuell = (f->eintrag.at(0).pos==startpos)?1:0;
-							// now copy scedule
-							fpl->maxi = f->maxi;
-							for(int j=0;  j<=f->maxi;  j++) {
-								fpl->eintrag.at(j).pos = f->eintrag.at(j).pos;
-								// waiting on a overcrowded line does not make sense!
-								// fpl->eintrag.at(j).ladegrad = f->eintrag.at(j).ladegrad;
-								fpl->eintrag.at(j).ladegrad = 0;
-							}
 							// and start new convoi
 							welt->sync_add( new_cnv );
 							new_cnv->setze_fahrplan(fpl);
@@ -1601,16 +1594,10 @@ DBG_MESSAGE("spieler_t::do_passenger_ki()","waiting: %s (%i) and %s (%i)",h0->gi
 							new_cnv->setze_name( v->gib_besch()->gib_name() );
 							new_cnv->add_vehikel( v );
 							fahrplan_t *fpl = new_cnv->gib_vehikel(0)->erzeuge_neuen_fahrplan();
+							// now copy scedule
+							fpl = f->copy()
 							// do not start at current stop => wont work ...
 							fpl->aktuell = (f->eintrag.at(0).pos==startpos)?1:0;
-							// now copy scedule
-							fpl->maxi = f->maxi;
-							for(int j=0;  j<=f->maxi;  j++) {
-								fpl->eintrag.at(j).pos = f->eintrag.at(j).pos;
-								// waiting on a overcrowded line does not make sense!
-								// fpl->eintrag.at(j).ladegrad = f->eintrag.at(j).ladegrad;
-								fpl->eintrag.at(j).ladegrad = 0;
-							}
 							// and start new convoi
 							welt->sync_add( new_cnv );
 							new_cnv->setze_fahrplan(fpl);
@@ -2186,12 +2173,10 @@ DBG_MESSAGE("spieler_t::create_bus_transport_vehikel()","bus at (%i,%i)",startpo
 		fpl = cnv->gib_vehikel(0)->erzeuge_neuen_fahrplan();
 
 		// do not start at current stop => wont work ...
-		fpl->aktuell = (stops[0]==startpos2d);
 		for(int j=0;  j<anzahl;  j++) {
-			fpl->eintrag.at(j).pos = welt->lookup(stops[j])->gib_kartenboden()->gib_pos();
-			fpl->eintrag.at(j).ladegrad = (j==0  ||  !do_wait)?0:10;	// do not wait at hubs ...
+			fpl->append( welt, welt->lookup(stops[j])->gib_kartenboden()->gib_pos(), (j==0  ||  !do_wait)?0:10 );
 		}
-		fpl->maxi = anzahl-1;
+		fpl->aktuell = (stops[0]==startpos2d);
 
 		welt->sync_add( cnv );
 		cnv->setze_fahrplan(fpl);
@@ -2210,8 +2195,8 @@ spieler_t::create_road_transport_vehikel(fabrik_t *qfab, int anz_vehikel)
 	// succeed in frachthof creation
     if(hausbauer_t::frachthof_besch  &&  wkz_frachthof(this, welt, platz1)  &&  wkz_frachthof(this, welt, platz2)  ) {
 
-     const koord3d pos1 ( welt->lookup(platz1)->gib_kartenboden()->gib_pos() );
-     const koord3d pos2 ( welt->lookup(platz2)->gib_kartenboden()->gib_pos() );
+     koord3d pos1 = welt->lookup(platz1)->gib_kartenboden()->gib_pos();
+     koord3d pos2 = welt->lookup(platz2)->gib_kartenboden()->gib_pos();
 
 	int	start_location=0;
     	// sometimes, when factories are very close, we need exakt calculation
@@ -2240,11 +2225,8 @@ spieler_t::create_road_transport_vehikel(fabrik_t *qfab, int anz_vehikel)
 	    fpl = cnv->gib_vehikel(0)->erzeuge_neuen_fahrplan();
 
 	    fpl->aktuell = 0;
-	    fpl->maxi = 1;
-	    fpl->eintrag.at(0).pos = pos1;
-	    fpl->eintrag.at(0).ladegrad = 0;
-	    fpl->eintrag.at(1).pos = pos2;
-	    fpl->eintrag.at(1).ladegrad = 0;
+	    fpl->append(welt,pos1,0);
+	    fpl->append(welt,pos2,0);
 	    fpl->eintrag.at(start_location).ladegrad = 100;
 
 	    welt->sync_add( cnv );
@@ -2265,8 +2247,8 @@ spieler_t::create_rail_transport_vehikel(const koord platz1, const koord platz2,
 
     fahrplan_t *fpl;
     convoi_t *cnv = new convoi_t(welt, this);
-   const koord3d pos1 ( welt->lookup(platz1)->gib_kartenboden()->gib_pos() );
-   const koord3d pos2 ( welt->lookup(platz2)->gib_kartenboden()->gib_pos() );
+   koord3d pos1= welt->lookup(platz1)->gib_kartenboden()->gib_pos();
+   koord3d pos2 = welt->lookup(platz2)->gib_kartenboden()->gib_pos();
 
     // lokomotive bauen
     unsigned month_now = welt->get_current_month();
@@ -2298,11 +2280,8 @@ spieler_t::create_rail_transport_vehikel(const koord platz1, const koord platz2,
     fpl = cnv->gib_vehikel(0)->erzeuge_neuen_fahrplan();
 
     fpl->aktuell = 0;
-    fpl->maxi = 1;
-    fpl->eintrag.at(0).pos = pos1;
-    fpl->eintrag.at(0).ladegrad = ladegrad;
-    fpl->eintrag.at(1).pos = pos2;
-    fpl->eintrag.at(1).ladegrad = 0;
+    fpl->append( welt, pos1, ladegrad );
+    fpl->append( welt, pos2, 0 );
 
     cnv->setze_fahrplan(fpl);
     welt->sync_add( cnv );

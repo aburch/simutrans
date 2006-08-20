@@ -167,7 +167,7 @@ public:
 		if(!is_contained(elem)) {
 			return append(elem);
 		}
-		return true;
+		return false;
 	}
 
     /**
@@ -180,7 +180,7 @@ public:
 		if(!is_contained(elem)) {
 			return append(elem,extend);
 		}
-		return true;
+		return false;
 	}
 
 

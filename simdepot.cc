@@ -266,7 +266,7 @@ bool depot_t::disassemble_convoi(int icnv, bool sell)
 	fahrplan_t * fpl = cnv->gib_fahrplan();
 	if(fpl) {
 
-	  for(int i=0; i<=fpl->maxi; i++) {
+	  for(int i=0; i<fpl->maxi(); i++) {
 
 	    halthandle_t halt;
 
@@ -296,7 +296,7 @@ depot_t::start_convoi(int icnv)
     if(cnv.is_bound() &&
        cnv->gib_fahrplan() != NULL &&
        cnv->gib_fahrplan()->ist_abgeschlossen() &&
-       cnv->gib_fahrplan()->maxi >= 0) {
+       cnv->gib_fahrplan()->maxi() > 0) {
 
 	// pruefen ob zug vollstaendig
 	if(cnv->gib_sum_leistung() == 0 || !cnv->pruefe_alle()) {
@@ -309,7 +309,7 @@ depot_t::start_convoi(int icnv)
 		// daß sie jetzt angefahren werden.
 		fahrplan_t *fpl = cnv->gib_fahrplan();
 
-		for(int i=0; i<=fpl->maxi; i++) {
+		for(int i=0; i<fpl->maxi(); i++) {
 		    halthandle_t halt = haltestelle_t::gib_halt(welt, fpl->eintrag.at(i).pos.gib_2d());
 
 		    if(halt.is_bound()) {

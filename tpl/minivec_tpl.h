@@ -50,6 +50,7 @@ public:
 	minivec_tpl(unsigned int size)
 	{
 		this->size  = size;
+		count = 0;
 		if(size>0) {
 			data = new T[size];
 		} else {
@@ -211,7 +212,7 @@ public:
 	bool insert_at(unsigned int pos,T elem)
 	{
 		if(  pos<count  ) {
-			if(count<size  &&  resize( count+1 )) {
+			if(count<size  ||  resize( count+1 )) {
 				// ok, a valid position, make space
 				const long num_elements = (count-pos)*sizeof(T);
 				memmove( data+pos+1, data+pos, num_elements );

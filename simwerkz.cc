@@ -52,6 +52,7 @@
 #include "gui/convoi_filter_frame.h"
 #include "gui/citylist_frame_t.h"
 #include "gui/goods_frame_t.h"
+#include "gui/factorylist_frame_t.h"
 
 #include "dings/zeiger.h"
 #include "dings/tunnel.h"
@@ -458,7 +459,7 @@ DBG_MESSAGE("wkz_remover()", "removing %s %p from %d,%d",	dp->gib_name(), dp, po
 				fabrik_t *fab=gb->fabrik();
 DBG_MESSAGE("wkz_remover()", "removing factory:  %p");
 
-				if(fab->gib_halt_list().count()!=0) {
+				if(welt->lookup(fab->gib_pos())->get_haltlist().get_count()!=0) {
 					// remove from all stops
 					msg = "Das Feld gehoert\neinem anderen Spieler\n";
 					return false;
@@ -598,20 +599,20 @@ wkz_remover(spieler_t *sp, karte_t *welt, koord pos)
  * erster aufruf setzt start
  * zweiter aufruf setzt ende und baut
  */
-
+const weg_besch_t *default_track=NULL;
+const weg_besch_t *default_road=NULL;
 
 int
 wkz_wegebau(spieler_t *sp, karte_t *welt,  koord pos, value_t lParam)
 {
-  static bool erster = true;
-  static koord start, ziel;
-  static zeiger_t *bauer = NULL;
+	static bool erster = true;
+	static koord start, ziel;
+	static zeiger_t *bauer = NULL;
 
+	const weg_besch_t * besch = (const weg_besch_t *) (lParam.p);
+	enum wegbauer_t::bautyp bautyp = wegbauer_t::strasse;
 
-  const weg_besch_t * besch = (const weg_besch_t *) (lParam.p);
-  enum wegbauer_t::bautyp bautyp = wegbauer_t::strasse;
-
-  if(besch->gib_wtyp() == weg_t::schiene) {
+	if(besch->gib_wtyp() == weg_t::schiene) {
 		if(besch->gib_styp() == 7){ // Dario: Tramway
 			bautyp = wegbauer_t::schiene_tram;
 		}
@@ -621,10 +622,14 @@ wkz_wegebau(spieler_t *sp, karte_t *welt,  koord pos, value_t lParam)
 		else {
 			bautyp = wegbauer_t::schiene;
 		}
-  }
-  if(besch->gib_wtyp() == weg_t::powerline) {
-    bautyp = wegbauer_t::leitung;
-  }
+		default_track = besch;
+	}
+	if(besch->gib_wtyp() == weg_t::powerline) {
+		bautyp = wegbauer_t::leitung;
+	}
+	if(besch->gib_wtyp() == weg_t::strasse) {
+		default_road = besch;
+	}
 
   if(pos==INIT || pos == EXIT) {  // init strassenbau
     erster = true;
@@ -2049,6 +2054,19 @@ int wkz_list_good_tool(spieler_t *, karte_t *welt,koord k)
 }
 
 
+
+/* open the list of factories */
+int wkz_list_factory_tool(spieler_t *, karte_t *welt,koord k)
+{
+	if(k == INIT) {
+		create_win(0, 0,new factorylist_frame_t(welt), w_autodelete);
+		welt->setze_maus_funktion(wkz_abfrage, skinverwaltung_t::fragezeiger->gib_bild_nr(0), welt->Z_PLAN, 0, 0);
+	}
+	return false;
+}
+
+
+
 /* prissi: undo building */
 int wkz_undo(spieler_t *sp, karte_t *welt)
 {
@@ -2057,6 +2075,9 @@ int wkz_undo(spieler_t *sp, karte_t *welt)
 	}
 	return false;
 }
+
+
+
 // Werkzeuge ende
 
 

@@ -7,21 +7,26 @@
  * Ein Fahrplaneintrag.
  * @author Hj. Malthaner
  */
-class linieneintrag_t {
+struct linieneintrag_t
+{
+public:
+	/**
+	* Halteposition
+	* @author Hj. Malthaner
+	*/
+	koord3d pos;
 
- public:
+	/**
+	* Geforderter Beladungsgrad an diesem Halt
+	* @author Hj. Malthaner
+	*/
+	char ladegrad;
 
-  /**
-   * Halteposition
-   * @author Hj. Malthaner
-   */
-  koord3d pos;
-
-  /**
-   * Geforderter Beladungsgrad an diesem Halt
-   * @author Hj. Malthaner
-   */
-  int ladegrad;
+	/**
+	* unused
+	* @author prissi
+	*/
+	char flags;
 };
 
 

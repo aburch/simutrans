@@ -4,7 +4,25 @@ Known bugs: (hard to fix)
 	Citycars cannot go around a 180 degree road bend
 	Monorails have no appropriate crossing
 	valgrind complains about errors in SDL and X?
+	sorting factories has an umlaute problem
 
+
+Release of 86.10.2
+
+5-Oct-2005 (prissi)
+	FIX: fundament slope drawing errors corrected
+	FIX: showing attraction in the minimap removed all attraction from the internal vector => crash
+	FIX: crash when deleting the last stop of a schedule (revolved to increase the maxi-counter in fahrplan_t) => savegameversion 86.10
+	CHANGE: removed halt_list from factory, changed fpl to minivec_tpl (now max. 255 stops in a schedule)
+	CHANGE: route of goods was calculated twice when delivering to a station
+	FIX: stealing from competitor works now (and also more intelligent goods distribution from factories)
+	ADD: status now also shown in factory image
+	FIX: more than two near stops (error in inset template)
+	FIX: correct translation (and maybe also player issues) solved with line management
+	CHANGE: 't' and 's' remembers last used track/road type for construction
+	FIX: update errors in depot
+ 4-Oct-2005 (mip)
+	ADD: factorylist (new entries in translation: fl_title, Fabrikname, Input, Output, Rating)
 
 
 Release of 86.10.1

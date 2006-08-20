@@ -28,6 +28,7 @@
 #include "simdebug.h"
 #include "simio.h"
 #include "simimg.h"
+#include "simcolor.h"
 #include "boden/grund.h"
 #include "boden/wege/dock.h"
 #include "simfab.h"
@@ -72,49 +73,28 @@ static const int FAB_MAX_INPUT = 15000;
 
 fabrik_t * fabrik_t::gib_fab(const karte_t *welt, const koord pos)
 {
-  const planquadrat_t *plan = welt->lookup(pos);
-
-  if(plan) {
-    const grund_t *gr = plan->gib_kartenboden();
-
-    if(gr) {
-
-      for(int n=0; n<gr->gib_top(); n++) {
-	ding_t * dt = gr->obj_bei(n);
-
-	if(dt && dt->fabrik()) {
-
-	  // printf("gib_fab(): Factory at %d,%d is %p\n", pos.x, pos.y, dt->fabrik());
-
-	  // wir haben alle Daten, liefere halt
-	  return dt->fabrik();
+	if(welt->ist_in_kartengrenzen(pos)) {
+		const grund_t *gr = welt->lookup(pos)->gib_kartenboden();
+		if(gr  &&  gr->obj_bei(0)!=NULL  &&  gr->obj_bei(0)->fabrik()!=NULL) {
+			return gr->obj_bei(0)->fabrik();
+		}
 	}
-      }
-    }
-  }
-
-  // printf("gib_fab(): No Factory at %d,%d\n", pos.x, pos.y);
-
-  // not found
-  return 0;
+	// not found
+	return 0;
 }
 
 
 
 void fabrik_t::link_halt(halthandle_t halt)
 {
-  if(halt_list.contains(halt) == false) {
-    halt_list.insert(halt);
-    welt->lookup(pos)->add_to_haltlist(halt);
-  }
+	welt->lookup(pos.gib_2d())->gib_kartenboden()->add_to_haltlist(halt);
 }
 
 
 
 void fabrik_t::unlink_halt(halthandle_t halt)
 {
-  halt_list.remove(halt);
-  welt->lookup(pos)->remove_from_haltlist(halt);
+	welt->lookup(pos.gib_2d())->gib_kartenboden()->remove_from_haltlist(halt);
 }
 
 
@@ -138,23 +118,23 @@ fabrik_t::rem_lieferziel(koord ziel)
 
 fabrik_t::fabrik_t(karte_t *wl, loadsave_t *file) : lieferziele(0), suppliers(0)
 {
-    welt = wl;
+	welt = wl;
 
-    eingang = NULL;
-    ausgang = NULL;
+	eingang = NULL;
+	ausgang = NULL;
 
 	besch = NULL;
 
-    abgabe_sum = NULL;
-    abgabe_letzt = NULL;
+	abgabe_sum = NULL;
+	abgabe_letzt = NULL;
 
-    besitzer_p = NULL;
+	besitzer_p = NULL;
 
-    rdwr(file);
-    aktionszeit = 0;
+	rdwr(file);
+	aktionszeit = welt->gib_zeit_ms() + 8192;
 
-    delta_sum = 0;
-    last_lieferziel_start = 0;
+	delta_sum = 0;
+	last_lieferziel_start = 0;
 }
 
 
@@ -298,62 +278,38 @@ fabrik_t::ist_bauplatz(karte_t *welt, koord pos, koord groesse,bool wasser)
 vector_tpl<fabrik_t *> &
 fabrik_t::sind_da_welche(karte_t *welt, koord min_pos, koord max_pos)
 {
-    int i,j;
-    static vector_tpl <fabrik_t*> fablist(0);
+	static vector_tpl <fabrik_t*> fablist(16);
+	fablist.clear();
 
-    fablist.clear();
-
-    for(j=min_pos.y; j<=max_pos.y; j++) {
-	for(i=min_pos.x; i<=max_pos.x; i++) {
-	    const koord pos(i,j);
-	    const planquadrat_t * plan = welt->lookup(pos);
-	    if(plan) {
-		const grund_t *gr = plan->gib_kartenboden();
-
-		for(int n=0; gr && n<gr->gib_top(); n++) {
-		    ding_t *dt = gr->obj_bei(n);
-
-		   if(dt != NULL && dt->fabrik() != NULL) {
-
-			fabrik_t * fab = dt->fabrik();
-
-			// fabrik nur einmal in liste eintragen
-			fablist.append_unique( fab, 4 );
-//DBG_MESSAGE("fabrik_t::sind_da_welche()","appended factory %s at (%i,%i)",fab->gib_besch()->gib_name(),i,j);
-
-		    }
+	for(int y=min_pos.y; y<=max_pos.y; y++) {
+		for(int x=min_pos.x; x<=max_pos.x; x++) {
+			if(welt->ist_in_kartengrenzen(x, y)) {
+				const grund_t *gr = welt->lookup(koord(x,y))->gib_kartenboden();
+				if(gr->obj_bei(0)!=NULL  &&  gr->obj_bei(0)->fabrik() != NULL) {
+					if( fablist.append_unique( gr->obj_bei(0)->fabrik(), 4 )  ) {
+						DBG_MESSAGE("fabrik_t::sind_da_welche()","appended factory %s at (%i,%i)",gr->obj_bei(0)->fabrik()->gib_besch()->gib_name(),x,y);
+					}
+				}
+			}
 		}
-	    }
 	}
-    }
-
-    return fablist;
+	return fablist;
 }
 
 bool
 fabrik_t::ist_da_eine(karte_t *welt, koord min_pos, koord max_pos )
 {
-    int i,j;
-
-    for(j=min_pos.y; j<=max_pos.y; j++) {
-	for(i=min_pos.x; i<=max_pos.x; i++) {
-	    if(welt->ist_in_kartengrenzen(i, j)) {
-	        const koord pos(i,j);
-		const grund_t *gr = welt->lookup(pos)->gib_kartenboden();
-
-		for(int n=0; n<gr->gib_top(); n++) {
-
-		    if(gr->obj_bei(n) != NULL &&
-		       gr->obj_bei(n)->fabrik() != NULL) {
-
-			return true;
-		    }
+	for(int y=min_pos.y; y<=max_pos.y; y++) {
+		for(int x=min_pos.x; x<=max_pos.x; x++) {
+			if(welt->ist_in_kartengrenzen(x, y)) {
+				const grund_t *gr = welt->lookup(koord(x,y))->gib_kartenboden();
+				if(gr->obj_count()>0  &&  gr->obj_bei(0)->fabrik() != NULL) {
+					return true;
+				}
+			}
 		}
-	    }
 	}
-    }
-
-    return false;
+	return false;
 }
 
 
@@ -797,22 +753,28 @@ fabrik_t::step(long delta_t)
 void fabrik_t::verteile_waren(const uint32 produkt)
 {
 	// wohin liefern ?
-	if(lieferziele.get_count() == 0) {
+	if(lieferziele.get_count()==0) {
+		return;
+	}
+
+	// not connected?
+	minivec_tpl<halthandle_t> &haltlist = welt->lookup(pos)->get_haltlist();
+	if(haltlist.get_count()==0) {
 		return;
 	}
 
 	slist_tpl<halthandle_t> halt_ok;
 	slist_tpl<ware_t> ware_ok;
-	// Über alle Haltestellen iterieren
-	slist_iterator_tpl <halthandle_t> iter (halt_list);
 	int min_vorrat = 0x7FFFFFFF;
+	bool still_overflow = true;
 
 	// ok, first send everything away
-	while(iter.next()) {
-		halthandle_t halt = iter.get_current();
+	for(  unsigned i=0;  i<haltlist.get_count();  i++  ) {
+		halthandle_t halt = haltlist.get(i);
 
 		// Über alle Ziele iterieren
 		for(uint32 n=0; n<lieferziele.get_count(); n++) {
+
 			// prissi: this way, the halt, that is tried first, will change. As a result, if all destinations are empty, it will be spread evenly
 			const koord lieferziel = lieferziele.get((n+last_lieferziel_start)%lieferziele.get_count());
 
@@ -821,22 +783,34 @@ void fabrik_t::verteile_waren(const uint32 produkt)
 
 			if(ziel_fab &&	(vorrat=ziel_fab->verbraucht(ausgang->at(produkt).gib_typ()))>= 0) {
 
-//DBG_DEBUG("verteile_waren()","vorrat %i at %s",vorrat,ziel_fab->gib_name());
-
 				ware_t ware (ausgang->at(produkt).gib_typ());
 				ware.menge = 1;
 				ware.setze_zielpos( lieferziel );
+
+				unsigned w;
+				// find the index in the target factory
+				for( w=0;  w<ziel_fab->gib_eingang()->get_count()  &&  ziel_fab->gib_eingang()->at(w).gib_typ()!=ware.gib_typ();  w++  )
+					;
 
 				// Station can only store up to 128 units of goods per square
 				if(halt->gib_ware_summe(ware.gib_typ()) <(halt->gib_grund_count()<<7)) {
 					// ok, still enough space
 					halt->suche_route(ware);
 
+//DBG_MESSAGE("verteile_waren()","searched for route for %s with result %i,%i",translator::translate(ware.gib_name()),ware.gib_ziel().x,ware.gib_ziel().y);
 					if(ware.gib_ziel() != koord::invalid) {
-						if(vorrat<min_vorrat) {
+						// if only overflown factories found => deliver to first
+						// else deliver to non-overflown factory
+						bool overflown = ziel_fab->gib_eingang()->at(w).menge >= ziel_fab->gib_eingang()->at(w).max;
+						if(still_overflow  &&  !overflown) {
+							// not overflowing factory found
+							still_overflow = false;
+							halt_ok.clear();
+							ware_ok.clear();
+						}
+						if(still_overflow  ||  !overflown) {
 							halt_ok.insert(halt);
 							ware_ok.insert(ware);
-							min_vorrat = vorrat;
 						}
 					}
 
@@ -844,7 +818,6 @@ void fabrik_t::verteile_waren(const uint32 produkt)
 				else {
 					// Station too full, notify player
 					halt->gib_besitzer()->bescheid_station_voll(halt);
-					break;
 				}
 			}
 		}
@@ -866,10 +839,10 @@ void fabrik_t::verteile_waren(const uint32 produkt)
 		}
 #else
 
+//DBG_MESSAGE("verteile_waren()","halts %i",halt_ok.count());
+
 		// Hajo: distribute goods to station that has the least amount stored
 		if(menge > 1) {
-			ausgang->at(produkt).menge -= menge << precision_bits;
-
 			slist_iterator_tpl<halthandle_t> iter (halt_ok);
 			slist_iterator_tpl<ware_t> ware_iter (ware_ok);
 
@@ -889,68 +862,27 @@ void fabrik_t::verteile_waren(const uint32 produkt)
 					best_halt = halt;
 					best_amount = amount;
 				}
+//DBG_MESSAGE("verteile_waren()","best_amount %i %s",best_amount,translator::translate(ware.gib_name()));
 			}
 
-			best_halt->liefere_an(best_ware);
+			ausgang->at(produkt).menge -= menge << precision_bits;
+			best_halt->starte_mit_route(best_ware);
 		}
 #endif
 	}
 }
 
-
-#ifdef FAB_PAX
-void
-fabrik_t::verteile_passagiere()
-{
-	slist_iterator_tpl <halthandle_t> iter (halt_list);
-
-	while(iter.next()) {
-		halthandle_t halt = iter.get_current();
-
-		// die Arbeiter wollen auch wieder nach hause
-		slist_iterator_tpl<stadt_t *> stadt_iter (arbeiterziele);
-
-		while(stadt_iter.next()) {
-			stadt_t * stadt = stadt_iter.get_current();
-
-			// Hajo: call simrand() only once, use different
-			// bits for different purposes
-			const int r = simrand(0xFFFF);
-
-			ware_t pax (((r & 3) == 0) ? warenbauer_t::post : warenbauer_t::passagiere);
-			pax.menge = 1;
-
-			const koord ziel = stadt->gib_zufallspunkt();
-			pax.setze_zielpos( ziel );
-
-			halt->suche_route(pax);
-
-			if(pax.gib_ziel()!=koord::invalid) {
-				if(halt->gib_ware_summe(pax.gib_typ()) > (halt->gib_grund_count() << 7)) {
-					halt->add_pax_unhappy(pax.menge);
-				}
-				else {
-					halt->liefere_an(pax);
-					halt->add_pax_happy(pax.menge);
-				}
-			}
-			else {
-				halt->add_pax_no_route(pax.menge);
-			}
-		}
-	}
-}
-#endif
 
 
 void
 fabrik_t::neuer_monat()
 {
-    for(uint32 index = 0; index < ausgang->get_count(); index ++) {
-	abgabe_letzt->at(index) = abgabe_sum->at(index);
-        abgabe_sum->at(index) = 0;
-    }
+	for(uint32 index = 0; index < ausgang->get_count(); index ++) {
+		abgabe_letzt->at(index) = abgabe_sum->at(index);
+		abgabe_sum->at(index) = 0;
+	}
 }
+
 
 
 static void info_add_ware_description(cbuffer_t & buf, const ware_t & ware)
@@ -970,6 +902,149 @@ static void info_add_ware_description(cbuffer_t & buf, const ware_t & ware)
     buf.append(translator::translate(type->gib_catg_name()));
   }
 }
+
+
+// static !
+unsigned fabrik_t::status_to_color[5] = {ROT, ORANGE, GREEN, GELB, WHITE };
+
+#define FL_WARE_NULL           1
+#define FL_WARE_ALLENULL       2
+#define FL_WARE_LIMIT          4
+#define FL_WARE_ALLELIMIT      8
+#define FL_WARE_UEBER75        16
+#define FL_WARE_ALLEUEBER75    32
+#define FL_WARE_HATWAS         64
+
+/* returns the status of the current factory, as well as output */
+unsigned
+fabrik_t::calc_factory_status(unsigned long *input, unsigned long *output) const
+{
+	unsigned status;
+	unsigned long warenlager;
+	char status_ein;
+	char status_aus;
+
+	int haltcount=welt->lookup(pos)->get_haltlist().get_count();
+
+	// set bits for input
+	warenlager = 0;
+	status_ein = FL_WARE_ALLELIMIT;
+	for (unsigned int j=0;j<eingang->get_count();j++) {
+
+		if (eingang->at(j).menge >= eingang->at(j).max ) {
+			status_ein |= FL_WARE_LIMIT;
+		}
+		else {
+			status_ein &= ~FL_WARE_ALLELIMIT;
+		}
+		warenlager += eingang->at(j).menge;
+		status_ein |= FL_WARE_HATWAS;
+
+	}
+	warenlager >>= fabrik_t::precision_bits;
+	if(warenlager==0) {
+		status_ein |= FL_WARE_ALLENULL;
+	}
+	if(input) {
+		*input = warenlager;
+	}
+
+	// set bits for output
+	warenlager = 0;
+	status_aus = FL_WARE_ALLEUEBER75|FL_WARE_ALLENULL;
+	for (unsigned int j=0;j<ausgang->get_count();j++)
+	{
+		if (ausgang->at(j).menge > 0) {
+
+			status_aus &= ~FL_WARE_ALLENULL;
+			if (ausgang->at(j).menge >= 0.75*ausgang->at(j).max ) {
+				status_aus |= FL_WARE_UEBER75;
+			}
+			else {
+				status_aus &= ~FL_WARE_ALLEUEBER75;
+			}
+			warenlager += ausgang->at(j).menge;
+			status_aus &= ~FL_WARE_ALLENULL;
+		}
+		else {
+			// menge = 0
+			status_aus &= ~FL_WARE_ALLEUEBER75;
+		}
+	}
+	warenlager >>= fabrik_t::precision_bits;
+	if(output) {
+		*output = warenlager;
+	}
+
+	// now calculate status bar
+	if(status_ein==(FL_WARE_ALLELIMIT|FL_WARE_ALLENULL)) {
+		// does not consume anything, should just produce
+
+		if(status_aus==(FL_WARE_ALLEUEBER75|FL_WARE_ALLENULL)) {
+			// does also not produce anything
+			status = nothing;
+		}
+		else if(status_aus&FL_WARE_ALLEUEBER75  ||  status_aus&FL_WARE_UEBER75) {
+			status = inactive;	// not connected?
+			if(haltcount>0) {
+				if(status_aus&FL_WARE_ALLEUEBER75) {
+					status = bad;	// connect => needs better service
+				}
+				else {
+					status = medium;	// connect => needs better service for at least one product
+				}
+			}
+		}
+		else {
+			status = good;
+		}
+	}
+	else if(status_aus==(FL_WARE_ALLEUEBER75|FL_WARE_ALLENULL)) {
+		// does not produce anything, just consumes
+
+		if(status_ein&FL_WARE_ALLELIMIT) {
+			// we assume not served
+			status = bad;
+		}
+		else if(status_ein&FL_WARE_LIMIT) {
+			// served, but still one at limit
+			status = medium;
+		}
+		else if(status_ein&FL_WARE_ALLENULL) {
+			status = inactive;	// assume not served
+			if(haltcount>0) {
+				// there is a halt => needs better service
+				status = bad;
+			}
+		}
+		else {
+			status = good;
+		}
+	}
+	else {
+		// produces and consumes
+		if((status_ein&FL_WARE_ALLELIMIT)!=0  &&  (status_aus&FL_WARE_ALLEUEBER75)!=0) {
+			status = bad;
+		}
+		else if(status_ein&FL_WARE_ALLELIMIT!=0  ||  status_aus&FL_WARE_ALLEUEBER75!=0) {
+			status = medium;
+		}
+		else if(status_ein&FL_WARE_ALLENULL!=0  &&  status_aus&FL_WARE_ALLENULL!=0) {
+			// not producing
+			status = inactive;
+		}
+		else if(haltcount>0  &&  ((status_ein&FL_WARE_ALLENULL)!=0  ||  (status_aus&FL_WARE_ALLENULL)!=0)) {
+			// not producing but out of supply
+			status = medium;
+		}
+		else {
+			status = good;
+		}
+	}
+
+	return status;
+}
+
 
 
 void fabrik_t::info(cbuffer_t & buf)
@@ -1100,16 +1175,11 @@ void fabrik_t::info(cbuffer_t & buf)
     }
   }
 
-  // debug - alle Haltestellen iterieren
-  /*
-  slist_iterator_tpl <halthandle_t> iter (halt_list);
-
-  while(iter.next()) {
-    halthandle_t halt = iter.get_current();
-    buf.append(halt->gib_name());
-    buf.append("\n");
-  }
-  */
+	minivec_tpl<halthandle_t> &haltlist = welt->lookup(pos)->get_haltlist();
+	for(unsigned i=0;  i<haltlist.get_count();  i++  ) {
+	     buf.append("\n");
+		buf.append(haltlist.at(i)->gib_name());
+	}
 }
 
 void fabrik_t::laden_abschliessen()

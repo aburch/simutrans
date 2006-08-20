@@ -333,7 +333,7 @@ haltestelle_t::haltestelle_t(karte_t *wl, loadsave_t *file) : self(this)
 
     rdwr(file);
 
-    verbinde_fabriken();
+//    verbinde_fabriken();
 
     init_gui();
 }
@@ -564,45 +564,44 @@ void haltestelle_t::display_status(int xpos, int ypos) const
 void
 haltestelle_t::verbinde_fabriken()
 {
-    if(!grund.is_empty()) {
+	if(!grund.is_empty()) {
 
-	int minX=99999;
-	int minY=99999;
-	int maxX=0;
-	int maxY=0;
+		int minX=99999;
+		int minY=99999;
+		int maxX=0;
+		int maxY=0;
 
-	slist_iterator_tpl<grund_t *> iter( grund );
+		slist_iterator_tpl<grund_t *> iter( grund );
 
-	while(iter.next()) {
-	    grund_t *gb = iter.get_current();
-	    koord p = gb->gib_pos().gib_2d();
+		while(iter.next()) {
+			grund_t *gb = iter.get_current();
+			koord p = gb->gib_pos().gib_2d();
 
-	    if(p.x < minX) minX = p.x;
-	    if(p.y < minY) minY = p.y;
-	    if(p.x > maxX) maxX = p.x;
-            if(p.y > maxY) maxY = p.y;
-	}
+			if(p.x < minX) minX = p.x;
+			if(p.y < minY) minY = p.y;
+			if(p.x > maxX) maxX = p.x;
+			if(p.y > maxY) maxY = p.y;
+		}
 
-	slist_iterator_tpl <fabrik_t *> fab_iter(fab_list);
+		slist_iterator_tpl <fabrik_t *> fab_iter(fab_list);
 
-	while( fab_iter.next() ) {
-	  fab_iter.get_current()->unlink_halt(self);
-	}
+		while( fab_iter.next() ) {
+			fab_iter.get_current()->unlink_halt(self);
+		}
 
 // check this !!!!!!!!!!!!!!!!!!!!
-	vector_tpl<fabrik_t *> &fablist = fabrik_t::sind_da_welche( welt,
+		vector_tpl<fabrik_t *> &fablist = fabrik_t::sind_da_welche( welt,
                                                   koord( minX-welt->gib_einstellungen()->gib_station_coverage(), minY-welt->gib_einstellungen()->gib_station_coverage()),
                                                   koord(maxX+welt->gib_einstellungen()->gib_station_coverage(), maxY+welt->gib_einstellungen()->gib_station_coverage())
                                                   );
-        fab_list.clear();
+		fab_list.clear();
 
-	for(uint32 i=0; i<fablist.get_count(); i++) {
-	  fabrik_t * fab = fablist.at(i);
-	  fab_list.insert(fab);
-
-	  fab->link_halt(self);
+		for(unsigned i=0; i<fablist.get_count(); i++) {
+			fabrik_t * fab = fablist.at(i);
+			fab_list.insert(fab);
+			fab->link_halt(self);
+		}
 	}
-    }
 }
 
 
@@ -649,7 +648,7 @@ void haltestelle_t::rebuild_destinations()
 
 			fahrplan_t *fpl = cnv->gib_fahrplan();
 			if(fpl) {
-				for(int i=0; i<=fpl->maxi; i++) {
+				for(int i=0; i<fpl->maxi(); i++) {
 
 					// Hajo: Hält dieser convoi hier?
 					if(gib_halt(welt,fpl->eintrag.get(i).pos)==self) {
@@ -710,6 +709,9 @@ haltestelle_t::suche_route(ware_t &ware, koord *next_to_ziel)
 		halthandle_t halt = halt_list.at(h);
 		if(	halt->is_enabled(warentyp)  ) {
 			ziel_list.append( halt );
+		}
+		else {
+//DBG_MESSAGE("suche_route()","halt %s near (%i,%i) does not accept  %s!",halt->gib_name(),ziel.x,ziel.y,warentyp->gib_name());
 		}
 	}
 
@@ -941,8 +943,10 @@ haltestelle_t::add_grund(grund_t *gr)
 
 	welt->lookup(gr->gib_pos().gib_2d())->gib_kartenboden()->setze_halt(self);
 
+DBG_MESSAGE("haltestelle_t::add_grund()","pos %i,%i,%i to %s added.",gr->gib_pos().x,gr->gib_pos().y,gr->gib_pos().z,gib_name());
 	verbinde_fabriken();
 	assert(gr->gib_halt() == self);
+
 
 	return true;
     } else {
@@ -1071,19 +1075,19 @@ haltestelle_t::hole_ab(const ware_besch_t *wtyp, int maxi, fahrplan_t *fpl)
 	// might be a little slower, but ensures that passengers to nearest stop are served first
 	// this allows for separate high speed and normal service
 
-	const int count = fpl->maxi + 1;
+	const int count = fpl->maxi();
 
 	// da wir schon an der aktuellem haltestelle halten
 	// startet die schleife ab 1, d.h. dem naechsten halt
 
-	for(int i=1; i<count; i++) {
+	for(int i=0; i<count; i++) {
 		const int wrap_i = (i + fpl->aktuell) % count;
 
 		halthandle_t plan_halt = gib_halt(fpl->eintrag.get(wrap_i).pos.gib_2d());
 
 		if(plan_halt == self) {
-			// wi will come later here again ...
-			break;;
+			// we will come later here again ...
+			continue;
 		}
 		else {
 
@@ -1289,6 +1293,9 @@ dbg->warning("haltestelle_t::liefere_an()","%d %s delivered to %s have no longer
 		return ware.menge;
 	}
 
+if(ware.gib_typ()!=warenbauer_t::passagiere  &&  ware.gib_typ()!=warenbauer_t::post)
+DBG_MESSAGE("haltestelle_t::liefere_an()","%s: took %i %s",gib_name(), ware.menge, translator::translate(ware.gib_name()) );		// dann sind wir schon fertig;
+
 	// since also the factory halt list is added to the ground, we can use just this ...
 	const minivec_tpl <halthandle_t> &halt_list = welt->lookup(ware.gib_zielpos())->gib_kartenboden()->get_haltlist();
 
@@ -1298,7 +1305,7 @@ dbg->warning("haltestelle_t::liefere_an()","%d %s delivered to %s have no longer
 			// muss an fabrik geliefert werden
 			liefere_an_fabrik(ware);
 		}
-		else if(ware.gib_typ() == warenbauer_t::passagiere) {
+		else if(ware.gib_typ()==warenbauer_t::passagiere) {
 			// arriving passenger may create pedestrians
 			if(welt->gib_einstellungen()->gib_show_pax()) {
 				slist_iterator_tpl<grund_t *> iter (grund);
@@ -1317,7 +1324,8 @@ dbg->warning("haltestelle_t::liefere_an()","%d %s delivered to %s have no longer
 
 	// passt das zu bereits wartender ware ?
 	if(vereinige_waren(ware)) {
-		// dann sind wir schon fertig;
+if(ware.gib_typ()!=warenbauer_t::passagiere  &&  ware.gib_typ()!=warenbauer_t::post)
+DBG_MESSAGE("haltestelle_t::liefere_an()","%s: joint %i %s to waitng one (1)",gib_name(), ware.menge, translator::translate(ware.gib_name()) );		// dann sind wir schon fertig;
 		return ware.menge;
 	}
 
@@ -1326,13 +1334,14 @@ dbg->warning("haltestelle_t::liefere_an()","%d %s delivered to %s have no longer
 
 	// target no longer there => delete
 	if(!gib_halt(ware.gib_ziel()).is_bound() ||  !gib_halt(ware.gib_zwischenziel()).is_bound()) {
-		DBG_MESSAGE("haltestelle_t::liefere_an()","%s: delivered goods (%d %s) to ??? via ??? could not be routed to their destination!",gib_name(),
-									ware.menge, translator::translate(ware.gib_name()) );
+		DBG_MESSAGE("haltestelle_t::liefere_an()","%s: delivered goods (%d %s) to ??? via ??? could not be routed to their destination!",gib_name(), ware.menge, translator::translate(ware.gib_name()) );
 		return ware.menge;
 	}
 
 	// passt das zu bereits wartender ware ?
 	if(vereinige_waren(ware)) {
+if(ware.gib_typ()!=warenbauer_t::passagiere  &&  ware.gib_typ()!=warenbauer_t::post)
+DBG_MESSAGE("haltestelle_t::liefere_an()","%s: joint %i %s to waitng one (2)",gib_name(), ware.menge, translator::translate(ware.gib_name()) );
 		// dann sind wir schon fertig;
 		return ware.menge;
 	}
@@ -1374,7 +1383,7 @@ void
 haltestelle_t::hat_gehalten(int /*number_of_cars*/,const ware_besch_t *type, const fahrplan_t *fpl)
 {
 	if(type != warenbauer_t::nichts) {
-		for(int i=0; i<=fpl->maxi; i++) {
+		for(int i=0; i<fpl->maxi(); i++) {
 
 			// Hajo: Haltestelle selbst wird nicht in Zielliste aufgenommen
 			halthandle_t halt = gib_halt(welt,fpl->eintrag.get(i).pos);

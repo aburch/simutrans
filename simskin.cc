@@ -109,6 +109,7 @@ const skin_besch_t *skinverwaltung_t::pumpe = NULL;
 const skin_besch_t *skinverwaltung_t::senke = NULL;
 
 const skin_besch_t *skinverwaltung_t::oberleitung = NULL;
+const skin_besch_t *skinverwaltung_t::electricity = NULL;
 
 
 /**
@@ -154,6 +155,7 @@ static spezial_obj_tpl<skin_besch_t> symbol_objekte[] = {
     { &skinverwaltung_t::autohaltsymbol,    "CarStop" },
     { &skinverwaltung_t::shiffshaltsymbol,  "ShipStop" },
     { &skinverwaltung_t::bushaltsymbol,	    "BusStop" },
+    { &skinverwaltung_t::electricity,	    "Electricity" },
     { NULL, NULL }
 };
 

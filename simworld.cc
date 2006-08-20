@@ -2714,6 +2714,7 @@ DBG_DEBUG("karte_t::laden()","grundwasser %i",grundwasser);
 	slist_iterator_tpl <halthandle_t> iter (list);
 
 	while( iter.next() ) {
+//		iter.get_current()->verbinde_fabriken();
 		iter.get_current()->rebuild_destinations();
 	}
 
@@ -3082,6 +3083,8 @@ void karte_t::switch_active_player()
 void
 karte_t::interactive_event(event_t &ev)
 {
+	extern const weg_besch_t *default_track;
+	extern const weg_besch_t *default_road;
     struct sound_info click_sound;
 
     click_sound.index = SFX_SELECT;
@@ -3204,23 +3207,27 @@ karte_t::interactive_event(event_t &ev)
 	    break;
 */
 	case 's':
-	    setze_maus_funktion(wkz_wegebau, wegbauer_t::gib_besch("asphalt_road")->gib_cursor()->gib_bild_nr(0), Z_PLAN,
-				(long)wegbauer_t::gib_besch("asphalt_road"), 0, 0);
+	    if(default_track==NULL) {
+			default_road = wegbauer_t::gib_besch("asphalt_road");
+	    }
+	    setze_maus_funktion(wkz_wegebau, default_road->gib_cursor()->gib_bild_nr(0), Z_PLAN, (long)default_road, 0, 0);
 	    break;
 	case 'v':
 	    umgebung_t::station_coverage_show = !umgebung_t::station_coverage_show;
 	    setze_dirty();
 	    break;
 	case 't':
-	    setze_maus_funktion(wkz_wegebau, wegbauer_t::gib_besch("wooden_sleeper_track")->gib_cursor()->gib_bild_nr(0), Z_PLAN,
-				(long)wegbauer_t::gib_besch("wooden_sleeper_track"), 0, 0);
+	    if(default_track==NULL) {
+			default_track = wegbauer_t::gib_besch("wooden_sleeper_track");
+	    }
+	    setze_maus_funktion(wkz_wegebau, default_track->gib_cursor()->gib_bild_nr(0), Z_PLAN,	(long)default_track, 0, 0);
 	    break;
 	case 'u':
 	    setze_maus_funktion(wkz_raise, skinverwaltung_t::upzeiger->gib_bild_nr(0), Z_GRID, 0, 0);
 	    break;
 	case 'w':
 	    sound_play(click_sound);
-	    create_win(0, 0, -1, new schedule_list_gui_t(this), w_info);
+	    create_win(0, 0, -1, new schedule_list_gui_t(this), w_info, magic_schedule_list_gui_t);
 	    break;
 	case '+':
 	    display_set_light(display_get_light()+1);
@@ -3727,7 +3734,7 @@ karte_t::interactive_event(event_t &ev)
 						SFX_FAILURE,
 						hausbauer_t::monorail_depot_besch->gib_cursor()->gib_bild_nr(1),
 						hausbauer_t::monorail_depot_besch->gib_cursor()->gib_bild_nr(0),
-						tool_tip_with_price(translator::translate("Build tram depot"), CST_BAHNDEPOT) );
+						tool_tip_with_price(translator::translate("Build monorail depot"), CST_BAHNDEPOT) );
 				}
 
 
@@ -3823,7 +3830,7 @@ karte_t::interactive_event(event_t &ev)
 	    break;
 	    case 14:
 	      sound_play(click_sound);
-	      create_win(0, 0, -1, schedule_list_gui, w_info, magic_none);
+	      create_win(0, 0, -1, new schedule_list_gui_t(this), w_info, magic_schedule_list_gui_t);
 	      break;
 	    case 15:
           {
@@ -3863,6 +3870,14 @@ karte_t::interactive_event(event_t &ev)
 					  skinverwaltung_t::listen_werkzeug->gib_bild_nr(3),
 					 IMG_LEER,
 					 translator::translate("gl_title"));
+
+		      wzw->add_tool(wkz_list_factory_tool,
+					  Z_PLAN,
+					  -1,
+					  -1,
+					  skinverwaltung_t::listen_werkzeug->gib_bild_nr(4),
+					 IMG_LEER,
+					 translator::translate("fl_title"));
 
 		    sound_play(click_sound);
 

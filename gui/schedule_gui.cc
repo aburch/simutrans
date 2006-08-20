@@ -104,7 +104,7 @@ void schedule_gui_t::button_view_pressed()
 /*
  * little reminder of fahrplan interface:
  *
- * fpl->maxi       is highest index of stops
+ * fpl->maxi       is highest index+1 of stops
  * fpl->aktuell    current index being edited
  * fpl->eintrag[i] accesses index i
  */

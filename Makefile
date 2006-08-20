@@ -205,6 +205,7 @@ SUB_OBJS=\
  gui/sound_frame.o gui/savegame_frame.o \
  gui/load_relief_frame.o gui/loadsave_frame.o \
  gui/money_frame.o gui/convoi_frame.o gui/convoi_filter_frame.o gui/convoi_info_t.o gui/label_frame.o \
+ gui/factorylist_frame_t.o gui/factorylist_stats_t.o \
  besch/reader/obj_reader.o besch/reader/root_reader.o besch/reader/xref_reader.o \
  besch/reader/building_reader.o besch/reader/good_reader.o besch/reader/tree_reader.o \
  besch/reader/skin_reader.o besch/reader/image_reader.o besch/reader/factory_reader.o \

@@ -357,8 +357,14 @@ reliefkarte_t::calc_map(int render_mode)
 	// since we do iterate the tourist info list, this must be done here
 	// find tourist spots
 	if(render_mode==MAP_TOURIST) {
-		const weighted_vector_tpl<gebaeude_t *> ausflugsziele = welt->gib_ausflugsziele();
-		int steps=MAX(1,ausflugsziele.get_sum_weight()/12);
+		const weighted_vector_tpl<gebaeude_t *> &ausflugsziele = welt->gib_ausflugsziele();
+		int max=1;
+		for( unsigned i=0;  i<ausflugsziele.get_count();  i++ ) {
+			if(max<ausflugsziele.at(i)->gib_passagier_level()) {
+				max = ausflugsziele.at(i)->gib_passagier_level();
+			}
+		}
+		int steps=MAX(1,max/11);
 		for( unsigned i=0;  i<ausflugsziele.get_count();  i++ ) {
 			setze_relief_farbe_area(ausflugsziele.at(i)->gib_pos().gib_2d(), 7, calc_severity_color(ausflugsziele.at(i)->gib_passagier_level(),steps) );
 		}

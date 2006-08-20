@@ -104,35 +104,33 @@ simline_t::count_convoys()
 void
 simline_t::rdwr(loadsave_t * file)
 {
-
 	// only create a new fahrplan if we are loading a savegame!
-	if (file->is_loading())
-	{
+	if (file->is_loading()) {
 		fpl = new fahrplan_t();
-	} else {
+	}
+	else {
 		file->rdwr_enum(type, "\n");
 	}
 
 	file->rdwr_str(name, sizeof(name));
 	file->rdwr_long(id, " ");
 	fpl->rdwr(file);
+
 	//financial history
-	if (file->get_version() >= 83001)
-	{
-		for (int j = 0; j<MAX_LINE_COST; j++)
-		{
-			for (int k = MAX_MONTHS-1; k>=0; k--)
-			{
+	if (file->get_version() >= 83001) {
+		for (int j = 0; j<MAX_LINE_COST; j++) {
+			for (int k = MAX_MONTHS-1; k>=0; k--) {
 				file->rdwr_longlong(financial_history[k][j], " ");
 			}
 		}
-	} else {
-	  // Hajo: added compatibility code
-	  for (int j = 0; j<MAX_LINE_COST; j++) {
-	    for (int k = MAX_MONTHS-1; k>=0; k--) {
-	      financial_history[k][j] = 0;
-	    }
-	  }
+	}
+	else {
+		// Hajo: added compatibility code
+		for (int j = 0; j<MAX_LINE_COST; j++) {
+			for (int k = MAX_MONTHS-1; k>=0; k--) {
+				financial_history[k][j] = 0;
+			}
+		}
 	}
 }
 
@@ -147,9 +145,9 @@ simline_t::register_stops(fahrplan_t * fpl)
 {
 	halthandle_t halt;
 
-DBG_DEBUG("simline_t::register_stops()", "%d fpl entries", fpl->maxi+1);
+DBG_DEBUG("simline_t::register_stops()", "%d fpl entries", fpl->maxi());
 
-	for (int i = 0; i<=fpl->maxi; i++)
+	for (int i = 0; i<fpl->maxi(); i++)
 	{
 		halt = haltestelle_t::gib_halt(welt, fpl->eintrag.get(i).pos.gib_2d());
 		if (halt.is_bound())
@@ -172,7 +170,7 @@ void
 simline_t::unregister_stops(fahrplan_t * fpl)
 {
 	halthandle_t halt;
-	for (int i = 0; i<=fpl->maxi; i++)
+	for (int i = 0; i<fpl->maxi(); i++)
 	{
 		halt = haltestelle_t::gib_halt(welt, fpl->eintrag.get(i).pos.gib_2d());
 		if (halt.is_bound())

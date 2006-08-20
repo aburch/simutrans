@@ -328,7 +328,7 @@ schedule_list_gui_t::infowin_event(const event_t *ev)
       cont_haltestellen.remove_all();
       ypos = 5;
       slist_tpl<koord> tmp; // stores koords of stops that are allready displayed
-      for (i = 0; i<=line->get_fahrplan()->maxi; i++) {
+      for (i = 0; i<line->get_fahrplan()->maxi(); i++) {
 	const koord fahrplan_koord = line->get_fahrplan()->eintrag.get(i).pos.gib_2d();
 	halthandle_t halt = haltestelle_t::gib_halt(welt, fahrplan_koord);
 	if (halt.is_bound()) {

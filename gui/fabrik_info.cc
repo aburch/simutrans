@@ -19,6 +19,7 @@
 #include "../simcity.h"
 #include "../simwin.h"
 #include "../simworld.h"
+#include "../simskin.h"
 #include "../dataobj/translator.h"
 
 
@@ -126,8 +127,8 @@ fabrik_info_t::fabrik_info_t(fabrik_t *fab, gebaeude_t *gb, karte_t *welt) :
   cont.setze_groesse(koord((short)290, height-20));
 
 
-  scrolly.setze_groesse(gib_fenstergroesse()-koord(1, 26));
-  scrolly.setze_pos(koord(1,20));
+  scrolly.setze_groesse(gib_fenstergroesse()-koord(1, 8));
+  scrolly.setze_pos(koord(1,1));
   scrolly.set_show_scroll_x(false);
   scrolly.set_read_only(true);
   add_komponente(&scrolly);
@@ -159,6 +160,7 @@ const char * fabrik_info_t::gib_name() const {
 }
 
 
+
 /**
  * komponente neu zeichnen. Die übergebenen Werte beziehen sich auf
  * das Fenster, d.h. es sind die Bildschirkoordinaten des Fensters
@@ -168,16 +170,21 @@ const char * fabrik_info_t::gib_name() const {
  */
 void fabrik_info_t::zeichnen(koord pos, koord gr)
 {
-  info_buf.clear();
-  fab->info(info_buf);
+	info_buf.clear();
+	fab->info(info_buf);
+	gui_frame_t::zeichnen(pos, gr);
 
+	fensterfarben f = gib_fensterfarben();
+	// Rahmen um view
+	display_ddd_box(pos.x + view.pos.x, pos.y + view.pos.y + 15, 66, 57, f.dunkel, f.hell);
 
-  gui_frame_t::zeichnen(pos, gr);
+	unsigned indikatorfarbe = fabrik_t::status_to_color[ fab->calc_factory_status( NULL, NULL ) ];
 
-  fensterfarben f = gib_fensterfarben();
-
-  // Rahmen um view
-  display_ddd_box(pos.x + view.pos.x, pos.y + view.pos.y + 15, 66, 57, f.dunkel, f.hell);
+	display_ddd_box_clip(pos.x + view.pos.x, pos.y + view.pos.y + 75, 66, 8, MN_GREY0, MN_GREY4);
+	display_fillbox_wh_clip(pos.x + view.pos.x+1, pos.y + view.pos.y + 76, 64, 6, indikatorfarbe, true);
+	if (fab->get_prodfaktor() > 16) {
+		display_color_img(skinverwaltung_t::electricity->gib_bild_nr(0), pos.x + view.pos.x+4, pos.y + view.pos.y+18, 0, false, false);
+	}
 }
 
 

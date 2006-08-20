@@ -439,7 +439,7 @@ public:
 
 	// check, if we accepts this good
 	// often called, thus inline ...
-	bool is_enabled( const ware_besch_t *wtyp ) const {
+	bool is_enabled( const ware_besch_t *wtyp ) {
 		if(wtyp==warenbauer_t::passagiere) {
 			return pax_enabled;
 		}
