@@ -43,6 +43,7 @@ private:
     bool load_heightfield;
     bool load;
     bool start;
+    bool close;
     bool quit;
 
     /**
@@ -67,6 +68,7 @@ public:
     bool gib_load_heightfield() const {return load_heightfield;};
     bool gib_load() const {return load;};
     bool gib_start() const {return start;};
+    bool gib_close() const {return close;};
     bool gib_quit() const {return quit;};
 
     einstellungen_t *gib_sets() const {return sets;};

@@ -723,6 +723,14 @@ haltestelle_t::suche_route(ware_t &ware, koord *next_to_ziel)
 		return;
 	}
 
+	// check, if the shortest connection is not right to us ...
+	if(ziel_list.is_contained(self)) {
+		ware.setze_ziel(pos);
+		ware.setze_zwischenziel(koord::invalid);
+		if(next_to_ziel!=NULL) {
+			*next_to_ziel = koord::invalid;
+		}
+	}
 
 	static HNode nodes[10000];
 	static uint32 current_mark = 0;
@@ -1091,14 +1099,14 @@ haltestelle_t::hole_ab(const ware_besch_t *wtyp, int maxi, fahrplan_t *fpl)
 	// da wir schon an der aktuellem haltestelle halten
 	// startet die schleife ab 1, d.h. dem naechsten halt
 
-	for(int i=0; i<count; i++) {
+	for(int i=1; i<count; i++) {
 		const int wrap_i = (i + fpl->aktuell) % count;
 
 		halthandle_t plan_halt = gib_halt(fpl->eintrag.get(wrap_i).pos.gib_2d());
 
 		if(plan_halt == self) {
 			// we will come later here again ...
-			continue;
+			break;
 		}
 		else {
 
@@ -1265,6 +1273,10 @@ int
 haltestelle_t::starte_mit_route(ware_t ware)
 {
 	if(ware.gib_ziel()==gib_basis_pos()  ||  ware.gib_zielpos()==gib_basis_pos()) {
+		if(warenbauer_t::ist_fabrik_ware(ware.gib_typ())) {
+			// muss an fabrik geliefert werden
+			liefere_an_fabrik(ware);
+		}
 		// already there: finished (may be happen with overlapping areas and returning passengers)
 		return ware.menge;
 	}

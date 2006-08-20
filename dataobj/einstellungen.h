@@ -55,6 +55,9 @@ private:
     double max_mountain_height;                  //01-Dec-01        Markus Weber    Added
     double map_roughness;                        //01-Dec-01        Markus Weber    Added
 
+    unsigned char allow_player_change;
+    unsigned char use_timeline;
+    short starting_year;
 
 
 public:
@@ -121,6 +124,14 @@ public:
     void setze_station_coverage(unsigned short n) {station_coverage_size=n;};	// prissi, May-2005
     unsigned short gib_station_coverage() const {return station_coverage_size;};
 
+    void setze_allow_player_change(char n) {allow_player_change=n;};	// prissi, Oct-2005
+    unsigned char gib_allow_player_change() const {return allow_player_change;};
+
+    void setze_use_timeline(char n) {use_timeline=n;};	// prissi, Oct-2005
+    unsigned char gib_use_timeline() const {return use_timeline;};
+
+    void setze_starting_year(short n) {starting_year=n;};	// prissi, Oct-2005
+    short gib_starting_year() const {return starting_year;};
 };
 
 

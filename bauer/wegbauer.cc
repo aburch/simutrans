@@ -393,72 +393,89 @@ wegbauer_t::check_for_leitung(const koord zv, const grund_t *bd) const
 bool
 wegbauer_t::ist_grund_fuer_strasse(koord pos, const koord zv, koord start, koord ziel) const
 {
-    bool ok = false;
+	bool ok = false;
 
-    if(welt->ist_in_kartengrenzen(pos.x, pos.y)) {
-  const grund_t *bd = welt->lookup(pos)->gib_kartenboden();
+	if(!welt->ist_in_kartengrenzen(pos)) {
+		return false;
+	}
 
+	const grund_t *bd = welt->lookup(pos)->gib_kartenboden();
 
-  if( welt->ist_markiert(bd->gib_pos()))  // als ungeeignet markiert
-      return false;
+	if( welt->ist_markiert(bd->gib_pos())) { // als ungeeignet markiert
+		return false;
+	}
 
-  ok = bd->ist_natur() &&  !bd->ist_wasser();
+	ok = bd->ist_natur() &&  !bd->ist_wasser();
 
-  switch(bautyp) {
-  case strasse:
-      ok =
-    (ok || bd->gib_weg(weg_t::strasse)  || check_crossing(zv,bd,weg_t::schiene)) &&
-    (bd->gib_weg(weg_t::strasse)  ||  bd->gib_besitzer() == NULL || bd->gib_besitzer() == sp) &&
-    !bd->hat_gebaeude(hausbauer_t::frachthof_besch) &&
-    check_for_leitung(zv,bd)  &&
-    !bd->gib_depot();
-      break;
-  case schiene:
-      ok = (ok || bd->gib_weg(weg_t::schiene)  || check_crossing(zv,bd,weg_t::strasse)) &&
-    (bd->gib_besitzer() == NULL || bd->gib_besitzer() == sp) &&
-    check_for_leitung(zv,bd)  &&
-    !bd->gib_depot();
-      break;
-  case leitung:
-// built too many      ok = ok ||  (bd->gib_grund_hang()==0  &&  (bd->gib_besitzer() == NULL || bd->gib_besitzer() == sp) && ribi_t::ist_gerade(ribi_typ(zv)));
-      ok = ( bd->ist_natur() ||  bd->ist_wasser())  ||  (
-//					     (bd->gib_besitzer() == NULL || bd->gib_besitzer() == sp) &&
-     						(
-      						(bd->gib_weg(weg_t::strasse)!=NULL  &&  check_crossing(zv,bd,weg_t::strasse))  ||
-      				 		(bd->gib_weg(weg_t::schiene)!=NULL  &&  check_crossing(zv,bd,weg_t::schiene))
-      				 	)
-      				 );
-      break;
-      // like strasse but allow for railroad crossing
-  case strasse_bot:
-      ok = (ok || bd->gib_weg(weg_t::strasse)  || check_crossing(zv,bd,weg_t::schiene)) &&
-    (bd->gib_weg(weg_t::strasse)  ||  bd->gib_besitzer() == NULL || bd->gib_besitzer() == sp) &&
-    check_for_leitung(zv,bd)
-      &&  !bd->hat_gebaeude(hausbauer_t::frachthof_besch);
-      break;
-  case schiene_bot:
-      ok = ok || bd->gib_weg(weg_t::strasse) != NULL || bd->gib_weg(weg_t::schiene) != NULL;
-      break;
-     // like schiene, but allow for railroad crossings
-     // avoid crossings with any (including our) railroad tracks
-  case schiene_bot_bau:
-      ok = ok || (pos==start || pos==ziel);
-      ok = ok &&  (bd->gib_weg(weg_t::strasse)==NULL  ||  check_crossing(zv,bd,weg_t::strasse));
-      ok = ok && bd->gib_weg(weg_t::schiene)==NULL  &&  (bd->gib_besitzer()==sp  ||  bd->gib_besitzer()==NULL)  &&  check_for_leitung(zv,bd);
-      break;
-	case schiene_monorail:
-	case schiene_tram: // Dario: Tramway
-      ok = (ok || bd->gib_weg(weg_t::schiene)  || bd->gib_weg(weg_t::strasse)) &&
-    (bd->gib_besitzer() == NULL || bd->gib_besitzer() == sp) &&
-    check_for_leitung(zv,bd)  &&
-    !bd->gib_depot();
+	switch(bautyp) {
+
+		case strasse:
+			ok =	(ok || bd->gib_weg(weg_t::strasse)  || check_crossing(zv,bd,weg_t::schiene)) &&
+					(bd->gib_weg(weg_t::strasse)  ||  bd->gib_besitzer() == NULL || bd->gib_besitzer() == sp) &&
+					!bd->hat_gebaeude(hausbauer_t::frachthof_besch) &&
+					check_for_leitung(zv,bd)  &&
+					!bd->gib_depot();
 		break;
 
-  default:
-      break;
-  }
-    }
-    return ok;
+		case schiene:
+			ok =	(ok || bd->gib_weg(weg_t::schiene)  || check_crossing(zv,bd,weg_t::strasse)) &&
+					(bd->gib_besitzer()==NULL || bd->gib_besitzer()==sp) &&
+					check_for_leitung(zv,bd)  &&
+					!bd->gib_depot();
+		break;
+
+		case leitung:
+			ok = ( bd->ist_natur() ||  bd->ist_wasser())  ||  (
+					//					     (bd->gib_besitzer() == NULL || bd->gib_besitzer() == sp) &&
+					(
+						(bd->gib_weg(weg_t::strasse)!=NULL  &&  check_crossing(zv,bd,weg_t::strasse))  ||
+						(bd->gib_weg(weg_t::schiene)!=NULL  &&  check_crossing(zv,bd,weg_t::schiene))
+					)
+					);
+		break;
+
+		// like strasse but check for frachthof
+		case strasse_bot:
+			ok =	(ok || bd->gib_weg(weg_t::strasse)  || check_crossing(zv,bd,weg_t::schiene)) &&
+					(bd->gib_besitzer()==NULL || bd->gib_besitzer()==sp) &&
+					check_for_leitung(zv,bd)
+					&&  !bd->hat_gebaeude(hausbauer_t::frachthof_besch);
+		break;
+
+		case schiene_bot:
+			ok = ok || bd->gib_weg(weg_t::strasse) != NULL || bd->gib_weg(weg_t::schiene) != NULL;
+		break;
+
+		// like schiene, but allow for railroad crossings
+		// avoid crossings with any (including our) railroad tracks
+		case schiene_bot_bau:
+			ok = ok || (pos==start || pos==ziel);
+			ok = ok &&  (bd->gib_weg(weg_t::strasse)==NULL  ||  check_crossing(zv,bd,weg_t::strasse));
+			ok = ok && bd->gib_weg(weg_t::schiene)==NULL  &&  (bd->gib_besitzer()==sp  ||  bd->gib_besitzer()==NULL)  &&  check_for_leitung(zv,bd);
+		break;
+
+		// like tram, but checks for bridges too
+		case schiene_monorail:
+			ok =	(ok || bd->gib_weg(weg_t::schiene)  || bd->gib_weg(weg_t::strasse)) &&
+					(bd->gib_besitzer() == NULL || bd->gib_besitzer() == sp) &&
+					check_for_leitung(zv,bd)  &&
+					!bd->gib_depot();
+			if(ok) {
+				bd =  welt->lookup(pos)->gib_boden_in_hoehe(bd->gib_pos().z+16);
+				if(bd  &&  bd->gib_typ()!=grund_t::monorailboden) {
+					ok = false;
+				}
+			}
+		break;
+
+		case schiene_tram: // Dario: Tramway
+			ok =	(ok || bd->gib_weg(weg_t::schiene)  || bd->gib_weg(weg_t::strasse)) &&
+					(bd->gib_besitzer() == NULL || bd->gib_besitzer() == sp) &&
+					check_for_leitung(zv,bd)  &&
+					!bd->gib_depot();
+		break;
+	}
+	return ok;
 }
 
 
@@ -1528,8 +1545,15 @@ wegbauer_t::baue_leitung()
 		grund_t *gr = welt->lookup(k)->gib_kartenboden();
 
 		leitung_t *lt = dynamic_cast <leitung_t *> (gr->suche_obj(ding_t::leitung));
-		printf("powerline %p at (%i,%i)\n",lt,k.x,k.y);
+		if(lt==0) {
+			lt = (leitung_t *)gr->suche_obj(ding_t::pumpe);
+		}
+		if(lt==0) {
+			lt = (leitung_t *)gr->suche_obj(ding_t::senke);
+		}
+		// ok, really no lt here ...
 		if(lt == 0) {
+//			DBG_MESSGAE("no powerline %p at (%i,%i)\n",lt,k.x,k.y);
 			lt = new leitung_t(welt, gr->gib_pos(), sp);
 			if(gr->ist_natur()) {
 				// remove trees etc.

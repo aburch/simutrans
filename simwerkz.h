@@ -123,4 +123,7 @@ int wkz_grow_city(spieler_t *, karte_t *welt, koord pos, value_t lParam);
  */
  int wkz_add_attraction(spieler_t *, karte_t *welt, koord pos);
 
+// protects map from further change
+int wkz_lock( spieler_t *, karte_t *welt, koord pos);
+
 #endif

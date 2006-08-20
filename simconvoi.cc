@@ -876,68 +876,32 @@ convoi_t::setze_erstes_letztes()
 bool
 convoi_t::setze_fahrplan(fahrplan_t * f)
 {
+	enum states old_state = state;
+	state = INITIAL;	// because during a sync-step we might be called twice ...
+
 	DBG_DEBUG("convoi_t::setze_fahrplan()", "new=%p, old=%p", f, fpl);
 
 	if(f == NULL) {
 		return false;
 	}
 
-	if((fpl != NULL) && (f != fpl)) {
-
-DBG_DEBUG("convoi_t::setze_fahrplan()", "rebuilding destinations (fpl)");
-
-		fahrplan_t *not_so_old_fpl = fpl;
-		fpl = f;
-
-		// rebuild destination (since halt may have been removed)
-		for(int i=0; i<not_so_old_fpl->maxi(); i++) {
-
-			// check, if this schedule is also contained within the new schedule (thus we can skip it)
-			int j=0;
-			for( j=0; j<fpl->maxi()  &&  not_so_old_fpl->eintrag.get(i).pos!=fpl->eintrag.get(j).pos; j++)
-				;
-			if(  j<fpl->maxi()  ) {
-				continue;
-			}
-			// ok, contains in both => do not touch
-
-//DBG_DEBUG("convoi_t::setze_fahrplan()", "rebuilt destinations at (%i,%i)",not_so_old_fpl->eintrag.get(i).pos.x,old_fpl->eintrag.get(i).pos.y);
-			// check, if there is ground (or somebody removed a bridge/lowered the land)
-			const grund_t *bd = welt->lookup(not_so_old_fpl->eintrag.get(i).pos);
-			if(bd!=NULL) {
-
-				// did we perform a stop at a station?
-				halthandle_t halt=bd->gib_halt();
-				if(halt.is_bound()) {
-					halt->rebuild_destinations();
-				}
-			}
-
-			INT_CHECK("convoi_t 384");
-		}
-
-		delete not_so_old_fpl;
-	}
-
-
 	// is there an old schedule?
-	if(old_fpl != NULL) {
+	if(old_fpl != NULL  &&  !old_fpl->matches(f)) {
 
-DBG_DEBUG("convoi_t::setze_fahrplan()", "rebuilding destinations (old_fpl=%p)",old_fpl);
-		fpl = f;
+DBG_DEBUG("convoi_t::setze_fahrplan()", "removing old destinations (old_fpl=%p) f=%p",old_fpl, f);
 
 		// rebuild destination (since halt may have been removed)
 		for(int i=0; i<old_fpl->maxi(); i++) {
 
 			// check, if this schedule is also contained within the new schedule (thus we can skip it)
 			int j;
-			for( j=0; j<fpl->maxi()  &&  old_fpl->eintrag.get(i).pos!=fpl->eintrag.get(j).pos; j++)
+			for( j=0; j<f->maxi()  &&  old_fpl->eintrag.get(i).pos!=f->eintrag.get(j).pos; j++)
 				;
-			if(  j<fpl->maxi()  ) {
+			if(  j<f->maxi()  ) {
 				continue;
 			}
 
-//DBG_DEBUG("convoi_t::setze_fahrplan()", "rebuilt destinations at (%i,%i)",old_fpl->eintrag.get(i).pos.x,old_fpl->eintrag.get(i).pos.y);
+DBG_DEBUG("convoi_t::setze_fahrplan()", "remove destinations at (%i,%i)",old_fpl->eintrag.get(i).pos.x,old_fpl->eintrag.get(i).pos.y);
 			// check, if there is ground (or somebody removed a bridge/lowered the land)
 			const grund_t *bd = welt->lookup(old_fpl->eintrag.get(i).pos);
 			if(bd!=NULL) {
@@ -951,13 +915,60 @@ DBG_DEBUG("convoi_t::setze_fahrplan()", "rebuilding destinations (old_fpl=%p)",o
 
 			INT_CHECK("convoi_t 384");
 		}
-		delete old_fpl;
-		old_fpl = NULL;
 	}
+	if(old_fpl!=NULL) {
+		delete old_fpl;
+	}
+	old_fpl = NULL;
+
+	// happens to be identical?
+	if(fpl!=f) {
+DBG_DEBUG("convoi_t::setze_fahrplan()", "fpl!=f");
+
+		if(fpl!=NULL  &&  !fpl->matches(f)) {
+
+	DBG_DEBUG("convoi_t::setze_fahrplan()", "rebuilding destinations (fpl=%p), f=%p", fpl, f );
+
+			// rebuild destination (since halt may have been removed)
+			for(int i=0; i<fpl->maxi(); i++) {
+
+				// check, if this schedule is also contained within the new schedule (thus we can skip it)
+				int j=0;
+				for( j=0; j<f->maxi()  &&  fpl->eintrag.get(i).pos!=f->eintrag.get(j).pos; j++)
+					;
+				if(  j<f->maxi()  ) {
+					continue;
+				}
+				// ok, contains in both => do not touch
+
+	DBG_DEBUG("convoi_t::setze_fahrplan()", "remove destinations at (%i,%i)",fpl->eintrag.get(i).pos.x,fpl->eintrag.get(i).pos.y);
+				// check, if there is ground (or somebody removed a bridge/lowered the land)
+				const grund_t *bd = welt->lookup(fpl->eintrag.get(i).pos);
+				if(bd!=NULL) {
+
+					// did we perform a stop at a station?
+					halthandle_t halt=bd->gib_halt();
+					if(halt.is_bound()) {
+						halt->rebuild_destinations();
+					}
+				}
+
+				INT_CHECK("convoi_t 384");
+			}
+		}
+
+		// delete, if not equal
+		if(fpl) {
+			delete fpl;
+		}
+	}
+	fpl = NULL;
 
 	// rebuild destination for the new schedule
 	fpl = f;
 	for(int i=0; i<fpl->maxi(); i++) {
+
+DBG_DEBUG("convoi_t::setze_fahrplan()", "add destinations at (%i,%i)",fpl->eintrag.get(i).pos.x,fpl->eintrag.get(i).pos.y);
 
 		// check, if there is ground (or somebody removed a bridge/lowered the land)
 		const grund_t *bd = welt->lookup(fpl->eintrag.get(i).pos);
@@ -982,7 +993,7 @@ DBG_DEBUG("convoi_t::setze_fahrplan()", "rebuilding destinations (old_fpl=%p)",o
 //	fahr->at(anz_vehikel) = NULL;
 
 	// ok, now we have a schedule
-	if(state!=INITIAL) {
+	if(old_state!=INITIAL) {
 		state = FAHRPLANEINGABE;
 	}
 	return true;
@@ -1405,7 +1416,7 @@ convoi_t::open_schedule_window()
 	state = FAHRPLANEINGABE;
 	alte_richtung = fahr->at(0)->gib_fahrtrichtung();
 
-	old_fpl = this->fpl->copy();
+	old_fpl =new fahrplan_t( fpl );
 
 	// Fahrplandialog oeffnen
 	fahrplan_gui_t *fpl_gui = new fahrplan_gui_t(welt, self, fahr->at(0)->gib_besitzer());
@@ -1779,7 +1790,7 @@ void convoi_t::set_line(simline_t * line)
 	}
 	this->line = line;
 	this->line_id = line->get_id();
-	fahrplan_t * new_fpl = line->get_fahrplan()->copy();
+	fahrplan_t * new_fpl= new fahrplan_t( line->get_fahrplan() );
 	setze_fahrplan(new_fpl);
 	line->add_convoy(this);
 }
@@ -1824,19 +1835,19 @@ convoi_t::prepare_for_new_schedule(fahrplan_t *f)
 {
 	alte_richtung = fahr->at(0)->gib_fahrtrichtung();
 	anhalten(8);
-	state = FAHRPLANEINGABE;
 
 	if(fpl) {
-		old_fpl = this->fpl->copy();
+		old_fpl = new fahrplan_t( fpl );
 DBG_MESSAGE("convoi_t::prepare_for_new_schedule()","old=%p,fpl=%p,f=%p",old_fpl,fpl,f);
 	}
 
+	state = FAHRPLANEINGABE;
 	setze_fahrplan(f);
+
 	// Hajo: setze_fahrplan sets state to ROUTING_1
 	// need to undo that
 	state = FAHRPLANEINGABE;
 
-	this->fpl->eingabe_beginnen();
 	weiterfahren();
 }
 

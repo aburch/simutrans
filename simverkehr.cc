@@ -55,7 +55,7 @@ void stadtauto_t::built_timeline_liste()
 //DBG_DEBUG("stadtauto_t::built_timeline_liste()","iyear=%i, imonth=%i", intro_month/12, intro_month%12+1);
 //DBG_DEBUG("stadtauto_t::built_timeline_liste()","ryear=%i, rmonth=%i", retire_month/12, retire_month%12+1);
 
-			if(	umgebung_t::use_timeline == false || (intro_month<=month_now  &&  retire_month>month_now)  ) {
+			if(	welt->use_timeline() == false || (intro_month<=month_now  &&  retire_month>month_now)  ) {
 				liste_timeline.append(info);
 //DBG_DEBUG("stadtauto_t::built_timeline_liste()","adding %s to liste",info->gib_name());
 			}

@@ -368,7 +368,7 @@ fahrplan_gui_t::action_triggered(gui_komponente_t *komp)
     if (selection > -1) {
       new_line = lines.at(selection);
       line_selector.setze_text(new_line->get_name(), 128);
-      this->fpl = new_line->get_fahrplan();
+      fpl->copy_from( new_line->get_fahrplan() );
       fpl->eingabe_beginnen();
     } else {
     	// remove line from convoy
@@ -387,46 +387,47 @@ fahrplan_gui_t::action_triggered(gui_komponente_t *komp)
 void
 fahrplan_gui_t::zeichnen(koord pos, koord groesse)
 {
-  if (mode == adding) {
-    bt_add.pressed = true;
-    bt_insert.pressed = false;
-    bt_remove.pressed = false;
-  } else if (mode == inserting) {
-    bt_add.pressed = false;
-    bt_insert.pressed = true;
-    bt_remove.pressed = false;
-  } else if (mode == removing) {
-    bt_add.pressed = false;
-    bt_insert.pressed = false;
-    bt_remove.pressed = true;
-  }
+	if (mode == adding) {
+		bt_add.pressed = true;
+		bt_insert.pressed = false;
+		bt_remove.pressed = false;
+	} else if (mode == inserting) {
+		bt_add.pressed = false;
+		bt_insert.pressed = true;
+		bt_remove.pressed = false;
+	} else if (mode == removing) {
+		bt_add.pressed = false;
+		bt_insert.pressed = false;
+		bt_remove.pressed = true;
+	}
 
-  get_fpl_text(buf);
-  fpl_text.setze_text(buf);
-  scrolly.setze_groesse(scrolly.gib_groesse());
+	get_fpl_text(buf);
+	fpl_text.setze_text(buf);
+	scrolly.setze_groesse(scrolly.gib_groesse());
 
-  gui_frame_t::zeichnen(pos, groesse);
+	gui_frame_t::zeichnen(pos, groesse);
 
-  // printf("%d, %d\n", pos.x, pos.y);
-
-  if(fpl) {
-    char tmp[128];
-    if(fpl->maxi() <= 0) {
-      sprintf(tmp, "%3d%%\n", 0);
-    } else {
-    	unsigned current = max( 0, min(fpl->aktuell,fpl->maxi() ) );
-      sprintf(tmp, "%3d%%\n", fpl->eintrag.get(current).ladegrad);
-    }
-    display_multiline_text(pos.x+105,
-			   pos.y+ 40,
-			   tmp,
-			   SCHWARZ);
-  }
+	if(fpl) {
+		char tmp[128];
+		if(fpl->maxi() <= 0) {
+			sprintf(tmp, "%3d%%\n", 0);
+		}
+		else {
+			unsigned current = max( 0, min(fpl->aktuell,fpl->maxi() ) );
+			sprintf(tmp, "%3d%%\n", fpl->eintrag.get(current).ladegrad);
+		}
+		display_multiline_text(pos.x+105, pos.y+40, tmp, SCHWARZ);
+	}
 
 
-  if (line_selector.is_visible()) {
-    line_selector.zeichnen(pos+koord(0,16));
-  }
+	if (line_selector.is_visible()) {
+		// unequal to line => remove from line ...
+		if(new_line!=NULL  &&   !fpl->matches(new_line->get_fahrplan())) {
+			new_line = NULL;
+			line_selector.setze_text(no_line, 128);
+		}
+		line_selector.zeichnen(pos+koord(0,16));
+	}
 }
 
 void

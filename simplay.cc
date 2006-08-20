@@ -930,7 +930,7 @@ DBG_MESSAGE("spieler_t::do_passenger_ki()","no suitable hub found");
 				{
 				  	// obey timeline
 					unsigned month_now = welt->get_current_month();
-					if(  umgebung_t::use_timeline == false   ) {
+					if(  welt->use_timeline() == false   ) {
 						month_now = 0xFFFFFFFFu;
 					}
 
@@ -1048,7 +1048,7 @@ DBG_DEBUG("do_passenger_ki()","calling message_t()");
 							// we want the fastest we can get
 						  	// obey timeline
 							unsigned month_now = 0xFFFFFFFFu;
-							if(  umgebung_t::use_timeline == true   ) {
+							if(  welt->use_timeline() == true   ) {
 								month_now = welt->get_current_month();
 							}
 							road_vehicle = vehikelbauer_t::vehikel_search( weg_t::strasse, month_now, 10, 80, warenbauer_t::passagiere );
@@ -1293,7 +1293,7 @@ DBG_MESSAGE("spieler_t::do_ki()","%s want to build a route from %s (%d,%d) to %s
 
 				  	// obey timeline
 					unsigned month_now = welt->get_current_month();
-					if(  umgebung_t::use_timeline == false   ) {
+					if(  welt->use_timeline() == false   ) {
 						month_now = 0xFFFFFFFFu;
 					}
 
@@ -2252,7 +2252,7 @@ spieler_t::create_rail_transport_vehikel(const koord platz1, const koord platz2,
 
     // lokomotive bauen
     unsigned month_now = welt->get_current_month();
-    if(  umgebung_t::use_timeline == false   ) {
+    if(  welt->use_timeline() == false   ) {
     		month_now = 0xFFFFFFFFu;
     	}
 

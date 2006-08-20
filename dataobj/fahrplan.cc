@@ -83,6 +83,28 @@ fahrplan_t::~fahrplan_t()
 
 
 
+// copy all entries from schedule src to this and adjusts aktuell
+void fahrplan_t::copy_from(const fahrplan_t *src)
+{
+	// make sure, we can access both
+	if(src==NULL) {
+		dbg->error("fahrplan_t::copy_to()","cannot copy from NULL");
+		return;
+	}
+	eintrag.clear();
+	for(unsigned i=0; i<src->eintrag.get_count(); i++) {
+		eintrag.append(src->eintrag.get(i));
+	}
+	if(aktuell>=eintrag.get_count()) {
+		aktuell = eintrag.get_count()-1;
+	}
+	if(aktuell<0) {
+		aktuell = 0;
+	}
+	// do not touch abgeschlossen!
+}
+
+
 bool
 fahrplan_t::insert(karte_t *welt, koord3d k,int ladegrad)
 {
@@ -139,7 +161,6 @@ fahrplan_t::append(karte_t *welt, koord3d k,int ladegrad)
 
 	if(ist_halt_erlaubt(gr)  &&  eintrag.append(stop) ) {
 		// ok
-		aktuell = eintrag.get_count()-1;
 		return true;
 	}
 	else {
@@ -209,27 +230,35 @@ fahrplan_t::rdwr(loadsave_t *file)
  * @author hsiegeln
  */
 bool
-fahrplan_t::matches(fahrplan_t *fpl)
+fahrplan_t::matches(const fahrplan_t *fpl)
 {
-	if (fpl == NULL) {
+	if(fpl == NULL) {
 		return false;
 	}
+	// same pointer => equal!
+	if(this==fpl) {
+		return true;
+	}
+	// unequal count => not equal
   	if(fpl->eintrag.get_count()!=eintrag.get_count()) {
   		return false;
   	}
+  	// now we have to check all entries ...
 	for(unsigned i = 0; i<eintrag.get_count(); i++) {
-		if (fpl->eintrag.at(i).pos != eintrag.at(i).pos) {
+		if (fpl->eintrag.get(i).pos!=eintrag.get(i).pos) {	// ladegrad ignored?
 			return false;
 		}
 	}
 	return true;
 }
 
+
+
 void
 fahrplan_t::add_return_way(karte_t *)
 {
 	int maxi = eintrag.get_count();
-	while(  --maxi>=0   ) {
+	while(  --maxi>0   ) {
 		eintrag.append( eintrag.at(maxi) );
 	}
 }

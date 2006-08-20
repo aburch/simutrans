@@ -31,6 +31,10 @@ bool umgebung_t::tree_info = false;
 
 bool umgebung_t::townhall_info = false;
 
+bool umgebung_t::single_info = false;
+
+bool umgebung_t::window_buttons_right = false;
+
 bool umgebung_t::verbose_debug = false;
 
 int umgebung_t::starting_money = 15000000;

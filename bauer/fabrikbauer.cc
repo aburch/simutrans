@@ -431,41 +431,8 @@ fabrikbauer_t::verteile_industrie(karte_t * welt, spieler_t *, int max_number_of
 fabrik_t *
 fabrikbauer_t::baue_fabrik(karte_t * welt, koord3d *parent, const fabrik_besch_t *info, int rotate, koord3d pos, spieler_t *spieler)
 {
-	halthandle_t halt=halthandle_t();
 	// no passengers for fish swarms
 	bool make_passenger = strcmp("fish_swarm",info->gib_name())!=0;
-
-	// make all water a station
-	if(info->gib_platzierung() == fabrik_besch_t::Wasser) {
-		const haus_besch_t *besch = hausbauer_t::finde_fabrik(info->gib_name());
-		koord dim = besch->gib_groesse(rotate);
-
-		koord k;
-		halt = welt->gib_spieler(1)->halt_add(pos.gib_2d());
-
-		welt->lookup(pos)->setze_text( translator::translate(info->gib_name()) );
-		halt->set_pax_enabled( make_passenger );
-		halt->set_ware_enabled( true );
-		halt->set_post_enabled( make_passenger );
-
-		for(k.x=pos.x; k.x<pos.x+dim.x; k.x++) {
-			for(k.y=pos.y; k.y<pos.y+dim.y; k.y++) {
-				if(!halt->ist_da(k)) {
-					const planquadrat_t *plan = welt->lookup(k);
-
-					// add all water to station
-					if(plan != NULL) {
-						grund_t *gr = plan->gib_kartenboden();
-
-						if(gr->ist_wasser() && gr->gib_weg(weg_t::wasser) == 0) {
-							gr->neuen_weg_bauen(new dock_t(welt), ribi_t::alle, welt->gib_spieler(0));
-							halt->add_grund( gr );
-						}
-					}
-				}
-			}
-		}
-	}
 
 	fabrik_t * fab = new fabrik_t(welt, pos, spieler, info);
 	int i;
@@ -508,19 +475,46 @@ fabrikbauer_t::baue_fabrik(karte_t * welt, koord3d *parent, const fabrik_besch_t
 	fab->baue(rotate, true);
 	welt->add_fab(fab);
 
-	// connenct factory to stations
-	if(halt.is_bound()) {
-		// is in water
-		halt->verbinde_fabriken();
+	// make all water a station
+	if(info->gib_platzierung() == fabrik_besch_t::Wasser) {
+		const haus_besch_t *besch = hausbauer_t::finde_fabrik(info->gib_name());
+		koord dim = besch->gib_groesse(rotate);
+
+		koord k;
+		halthandle_t halt = welt->gib_spieler(1)->halt_add(pos.gib_2d());
+
+		if(halt.is_bound()) {
+
+			welt->lookup(pos)->setze_text( translator::translate(info->gib_name()) );
+			halt->set_pax_enabled( make_passenger );
+			halt->set_ware_enabled( true );
+			halt->set_post_enabled( make_passenger );
+
+			for(k.x=pos.x; k.x<pos.x+dim.x; k.x++) {
+				for(k.y=pos.y; k.y<pos.y+dim.y; k.y++) {
+					if(welt->ist_in_kartengrenzen(k)) {
+						// add all water to station
+						grund_t *gr = welt->lookup(k)->gib_kartenboden();
+						if(gr->ist_wasser() && gr->gib_weg(weg_t::wasser) == 0) {
+	//						gr->neuen_weg_bauen(new dock_t(welt), ribi_t::alle, welt->gib_spieler(0));
+							halt->add_grund( gr );
+						}
+					}
+				}
+			}
+			// is in water
+			halt->verbinde_fabriken();
+		}
 	}
 	else {
+		// connenct factory to stations
 		// search for near stations and connect factory to them
 		koord dim = info->gib_haus()->gib_groesse(rotate);
 		koord k;
 
 		for(k.x=pos.x-3; k.x<=pos.x+dim.x+2; k.x++) {
 			for(k.y=pos.y-3; k.y<=pos.y+dim.y+2; k.y++) {
-				halthandle_t verbinde_halt = halt->gib_halt(welt,k);
+				halthandle_t verbinde_halt = haltestelle_t::gib_halt(welt,k);
 				if(verbinde_halt!=NULL) {
 					verbinde_halt->verbinde_fabriken();
 				}

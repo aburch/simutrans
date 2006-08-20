@@ -326,9 +326,17 @@ ribi_t::ribi leitung_t::gib_ribi()
 void leitung_t::calc_bild()
 {
 	const koord pos = gib_pos().gib_2d();
+
+	grund_t *gr = NULL;
+	if(welt->lookup(pos)!=NULL) {
+		gr = welt->lookup(pos)->gib_kartenboden();
+	}
+	if(gr==NULL) {
+		// no valid gound; usually happens during building ...
+		return;
+	}
+
 	const ribi_t::ribi ribi=gib_ribi();
-	// V.Meyer: weg_position_t changed to grund_t::get_neighbour()
-	grund_t *gr = welt->lookup(pos)->gib_kartenboden();
 	hang_t::typ hang = gr->gib_grund_hang();
 	if(hang != hang_t::flach) {
 		setze_bild(0, wegbauer_t::leitung_besch->gib_hang_bild_nr(hang));
@@ -449,9 +457,10 @@ void leitung_t::rdwr(loadsave_t *file)
 pumpe_t::pumpe_t(karte_t *welt, loadsave_t *file) : leitung_t(welt , file)
 {
 	fab = NULL;
-	power_there = false;
-	calc_bild();
+//	power_there = false;
+//	calc_bild();
 	calc_neighbourhood();
+	step_frequency = 0;
 	welt->sync_add(this);
 }
 
@@ -459,9 +468,10 @@ pumpe_t::pumpe_t(karte_t *welt, loadsave_t *file) : leitung_t(welt , file)
 pumpe_t::pumpe_t(karte_t *welt, koord3d pos, spieler_t *sp) : leitung_t(welt , pos, sp)
 {
 	fab = NULL;
-	power_there = false;
-	calc_bild();
+//	power_there = false;
+//	calc_bild();
 	calc_neighbourhood();
+	step_frequency = 0;
 	welt->sync_add(this);
 }
 
@@ -476,26 +486,6 @@ pumpe_t::~pumpe_t()
 }
 
 
-/**
- * Dient zur Neuberechnung des Bildes
- * @author Hj. Malthaner
- */
-void pumpe_t::calc_bild()
-{
-  setze_bild(0, skinverwaltung_t::pumpe->gib_bild_nr(0));
-}
-
-
-/**
- * recalculates only the image
- */
-bool pumpe_t::step(long /*delta_t*/)
-{
-    setze_bild(0, skinverwaltung_t::pumpe->gib_bild_nr(power_there?1:0) );
-    return true;
-}
-
-
 void
 pumpe_t::sync_prepare()
 {
@@ -504,7 +494,7 @@ pumpe_t::sync_prepare()
 		if(fab) {
 			fab->set_prodfaktor( fab->get_prodfaktor()*2 );
 		}
-		step_frequency = 1;
+//		step_frequency = 1;
 	}
 }
 
@@ -516,12 +506,12 @@ pumpe_t::sync_step(long delta_t)
 		return false;
 	}
 	if(  fab==0 || (fab->gib_eingang()->get_count()>0  &&  fab->gib_eingang()->get(0).menge<=0)  ) {
-		power_there = false;
+		setze_bild(0, skinverwaltung_t::pumpe->gib_bild_nr(0) );
 	}
 	else {
 		// no input needed or has something to consume
-		power_there = true;
 		get_net()->add_power(delta_t*fab->get_prodbase()*32);
+		setze_bild(0, skinverwaltung_t::pumpe->gib_bild_nr(1) );
 	}
 	return true;
 }
@@ -535,7 +525,7 @@ senke_t::senke_t(karte_t *welt, loadsave_t *file) : leitung_t(welt , file)
 	fab = NULL;
 	einkommen = 1;
 	max_einkommen = 1;
-	calc_bild();
+//	calc_bild();
 	calc_neighbourhood();
 	welt->sync_add(this);
 }
@@ -546,19 +536,9 @@ senke_t::senke_t(karte_t *welt, koord3d pos, spieler_t *sp) : leitung_t(welt , p
 	fab = NULL;
 	einkommen = 1;
 	max_einkommen = 1;
-	calc_bild();
+//	calc_bild();
 	calc_neighbourhood();
 	welt->sync_add(this);
-}
-
-
-/**
- * Dient zur Neuberechnung des Bildes
- * @author Hj. Malthaner
- */
-void senke_t::calc_bild()
-{
-	setze_bild(0, skinverwaltung_t::senke->gib_bild_nr(0));
 }
 
 
@@ -577,13 +557,15 @@ senke_t::~senke_t()
  */
 bool senke_t::step(long /*delta_t*/)
 {
-    int faktor = (16*einkommen+16)/max_einkommen;
-    gib_besitzer()->buche(einkommen >> 11, gib_pos().gib_2d(), COST_INCOME);
-    einkommen = 0;
-    max_einkommen = 1;
-    fab->set_prodfaktor( 16+faktor );
-    setze_bild(0, skinverwaltung_t::senke->gib_bild_nr(faktor==16?1:0) );
-    return true;
+	int faktor = (16*einkommen+16)/max_einkommen;
+	if(max_einkommen>(2000<<11)) {
+		gib_besitzer()->buche(einkommen >> 11, gib_pos().gib_2d(), COST_INCOME);
+		einkommen = 0;
+		max_einkommen = 1;
+	}
+	fab->set_prodfaktor( 16+faktor );
+//	setze_bild(0, skinverwaltung_t::senke->gib_bild_nr(faktor==16?1:0) );
+	return true;
 }
 
 
@@ -592,7 +574,7 @@ senke_t::sync_prepare()
 {
 	if(fab==NULL) {
 		fab = leitung_t::suche_fab_4(gib_pos().gib_2d());
-		step_frequency = 1;
+		step_frequency = 7;
 	}
 }
 
@@ -606,6 +588,12 @@ senke_t::sync_step(long time)
 //DBG_MESSAGE("senke_t::sync_step()", "called");
 	int want_power = time*(PROD/3);
 	int get_power = get_net()->withdraw_power(want_power);
+	if(get_power>want_power/2) {
+		setze_bild(0, skinverwaltung_t::senke->gib_bild_nr(1) );
+	}
+	else {
+		setze_bild(0, skinverwaltung_t::senke->gib_bild_nr(0) );
+	}
 	max_einkommen += want_power;
 	einkommen += get_power;
 	return true;

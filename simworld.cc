@@ -702,7 +702,7 @@ karte_t::init(einstellungen_t *sets)
     // ticks = 0x7FFFF800;  // Testing the 31->32 bit step
 
     letzter_monat = 0;
-    letztes_jahr = umgebung_t::starting_year;
+    letztes_jahr = sets->gib_starting_year();//umgebung_t::starting_year;
     current_month = letzter_monat + (letztes_jahr*12);
     next_month_ticks =  1 << karte_t::ticks_bits_per_tag;
     season = 2;
@@ -1869,7 +1869,7 @@ karte_t::neuer_monat()
 	}
 
 	// prissi: check for new/retired vehicles
-	if(umgebung_t::use_timeline) {
+	if(use_timeline()) {
 		char	buf[256];
 
 		for(int i=weg_t::strasse; i<weg_t::luft; i++) {
@@ -3002,11 +3002,20 @@ void karte_t::switch_active_player()
 	// cheat: play as AI
 	char buf[512];
 
-	active_player_nr ++;
-	active_player_nr &= 7;
-	active_player = spieler[active_player_nr];
-	sprintf(buf, translator::translate("Now active as %s.\n"), get_active_player()->gib_name() );
-	message_t::get_instance()->add_message(buf,koord(-1,-simrand(63)),message_t::problems,get_active_player()->kennfarbe,IMG_LEER);
+	// no cheating allowed?
+	if(!einstellungen->gib_allow_player_change()) {
+		active_player_nr = 0;
+		active_player = spieler[0];
+		sprintf(buf, translator::translate("On this map, you are not\nallowed to change player!\n"), get_active_player()->gib_name() );
+		message_t::get_instance()->add_message(buf,koord(-1,-simrand(63)),message_t::problems,get_active_player()->kennfarbe,IMG_LEER);
+	}
+	else {
+		active_player_nr ++;
+		active_player_nr &= 7;
+		active_player = spieler[active_player_nr];
+		sprintf(buf, translator::translate("Now active as %s.\n"), get_active_player()->gib_name() );
+		message_t::get_instance()->add_message(buf,koord(-1,-simrand(63)),message_t::problems,get_active_player()->kennfarbe,IMG_LEER);
+	}
 	// open edit tools
 	if(active_player_nr==1) {
 	    werkzeug_parameter_waehler_t *wzw = new werkzeug_parameter_waehler_t(this, "EDITTOOLS");
@@ -3073,6 +3082,14 @@ void karte_t::switch_active_player()
 			  skinverwaltung_t::special_werkzeug->gib_bild_nr(4),
 			  skinverwaltung_t::undoc_zeiger->gib_bild_nr(0),
 			  translator::translate("Build city market"));
+
+	    wzw->add_tool(wkz_lock,
+			  Z_PLAN,
+			  SFX_JACKHAMMER,
+			  SFX_FAILURE,
+			  skinverwaltung_t::edit_werkzeug->gib_bild_nr(5),
+			  skinverwaltung_t::edit_werkzeug->gib_bild_nr(5),
+			  translator::translate("Lock game"));
 
 		wzw->zeige_info(magic_edittools);
 	}
@@ -3207,7 +3224,7 @@ karte_t::interactive_event(event_t &ev)
 	    break;
 */
 	case 's':
-	    if(default_track==NULL) {
+	    if(default_road==NULL) {
 			default_road = wegbauer_t::gib_besch("asphalt_road");
 	    }
 	    setze_maus_funktion(wkz_wegebau, default_road->gib_cursor()->gib_bild_nr(0), Z_PLAN, (long)default_road, 0, 0);

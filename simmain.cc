@@ -565,6 +565,12 @@ int simu_cpp_main(int argc, char ** argv)
       umgebung_t::townhall_info =
 	(contents.get_int("townhall_info", 0) != 0);
 
+      umgebung_t::single_info =
+	contents.get_int("only_single_info", 0);
+
+      umgebung_t::window_buttons_right =
+	contents.get_int("window_buttons_right", false);
+
       umgebung_t::starting_money =
 	(contents.get_int("starting_money", 15000000));
 
@@ -939,6 +945,9 @@ display_show_pointer( true );
     sets->setze_tourist_attractions(12);
     sets->setze_karte_nummer(simrand(999));
     sets->setze_station_coverage( umgebung_t::station_coverage_size );
+    sets->setze_allow_player_change( true );
+    sets->setze_use_timeline( umgebung_t::use_timeline );
+    sets->setze_starting_year( umgebung_t::starting_year );
 
     do {
 	check_midi();
@@ -963,6 +972,7 @@ display_show_pointer( true );
 	    } while(! (wg->gib_load() ||
 		       wg->gib_load_heightfield() ||
 		       wg->gib_start() ||
+		       wg->gib_close() ||
 		       wg->gib_quit())
 		    );
 
@@ -999,6 +1009,10 @@ display_show_pointer( true );
 	    } else if(wg->gib_quit()) {
 		// quit the game
 		break;
+	    } else {
+		// just closed
+		destroy_win( wg );
+		destroy_win( sg );
 	    }
 	}
 	loadgame = "";    // only first time

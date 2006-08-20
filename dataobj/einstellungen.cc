@@ -41,6 +41,11 @@ einstellungen_t::einstellungen_t() : heightfield("")
     map_roughness = 0.6;                        //can be 0-1      01-Dec-01        Markus Weber    Added
 
     station_coverage_size = 2;	//added May 05, valid 1...x
+
+	// some settigns more
+    allow_player_change = true;
+    use_timeline = true;
+    starting_year = 1930;
 }
 
 
@@ -81,6 +86,10 @@ einstellungen_t::einstellungen_t(const einstellungen_t *other)
     heightfield = other->heightfield;
 
     station_coverage_size = other->station_coverage_size;
+
+    allow_player_change = other->allow_player_change;
+    use_timeline = other->use_timeline;
+    starting_year = other->starting_year;
 }
 
 void
@@ -156,6 +165,18 @@ dbg->warning("einstellungen_t::rdwr()","This game has too many cities! (%i of ma
 		}
 		else {
 			groesse_y = groesse_x;
+		}
+
+		if(file->get_version() >= 86011) {
+			// some more settings
+			file->rdwr_byte(allow_player_change, " ");
+			file->rdwr_byte(use_timeline, " " );
+			file->rdwr_short(starting_year, "\n");
+		}
+		else {
+		    allow_player_change = 1;
+		    use_timeline = 1;
+		    starting_year = 1930;
 		}
 
 	}

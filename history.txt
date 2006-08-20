@@ -7,8 +7,29 @@ Known bugs: (hard to fix)
 	sorting factories has an umlaute problem
 
 
+Release of 86.10.4
+
+13-Oct-2005 (prissi)
+	FIX: no power generation in foreign languages fixed
+	FIX: after assigning the same line twice, convoi did not move anymore
+	FIX: may be fixed problem in industry chain building
+	FIX: current entry not changed when appending to a schedule
+	FIX: vehicle will only load people up to the next time it reaches a stop
+	CHANGE: CNTRL+roadbuilder will replace also fast by slower road
+	FIX: first use of 's' for roadbuilding -> crashed program
+	FIX: setting new schedule could crash on fast computers or long lines due to recursive calling
+	ADD: two new settings to simiconf.tab "only_single_info" and "window_buttons_right"
+	CHANGE: configure, that always a single window opens up
+	CHANGE: for you ariabic and hebrew writers and all brainwashed by gates: close button configurable to the right (goes best with Win98 skin ... )
+	ADD: timeline, starting year and cheating mode can be set in the starting menue (and will be fixed further one, allowing for competitions)
+	ADD: new edit tool to protect a map from further change
+	CHANGE: new spanish, portugese and dutch translation for 64 set
+	CHANGE: further reordering of deletion order ...
+	FIX: if factories were connected via station areas, goods disappeared ...
+
 Release of 86.10.3
 
+09-Oct-2005 (prissi)
 	FIX: size of station coverage wrongly calculated
 	FIX: order of object deletion a little adjusted
 	CHANGE: can delete pedestrians (sound really like hitman on the nearby roof :()

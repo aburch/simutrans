@@ -534,14 +534,14 @@ void depot_frame_t::setze_fenstergroesse( koord gr )
 bool depot_frame_t::is_future(const vehikel_besch_t *info,const int month_now)
 {
 	const int intro_month = info->get_intro_year() * 12 + info->get_intro_month();
-	return umgebung_t::use_timeline  &&  intro_month > month_now;
+	return welt->use_timeline()  &&  intro_month > month_now;
 }
 
 // true if obsolete
 bool depot_frame_t::is_retired(const vehikel_besch_t *info,const int month_now)
 {
 	const int retire_month = info->get_retire_year() * 12 + info->get_retire_month();
-	return umgebung_t::use_timeline  &&  retire_month <= month_now;
+	return welt->use_timeline()  &&  retire_month <= month_now;
 }
 
 // true if already stored here

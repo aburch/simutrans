@@ -120,6 +120,17 @@ class umgebung_t
 	*/
 	static bool townhall_info;
 
+	/**
+	* Only one info window
+	* @author prissi
+	*/
+	static bool single_info;
+
+	/**
+	* Only one info window
+	* @author prissi
+	*/
+	static bool window_buttons_right;
 
 	/**
 	* Produce more debug info ?

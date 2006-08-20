@@ -169,15 +169,23 @@ wkz_abfrage(spieler_t *, karte_t *welt, koord pos)
 					gr->gib_depot()->zeige_info();
 					return true;
 				}
-				gr->zeige_info();
+
+				// remember top window
+				const gui_fenster_t *old_top = win_get_top();
 
 				for(int n=0; n<gr->gib_top(); n++) {
 					ding_t *dt = gr->obj_bei(n);
 					if(dt  &&  (dt->gib_typ()!=ding_t::oberleitung  ||  dt->gib_typ()!=ding_t::pillar)) {
 						DBG_MESSAGE("wkz_abfrage()", "index %d", n);
 						gr->obj_bei(n)->zeige_info();
+						// did some new window open?
+						if(umgebung_t::single_info  &&  old_top!=win_get_top()) {
+							return true;
+						}
 					}
 				}
+
+				gr->zeige_info();
 				ok = true;
 			}
 		}
@@ -320,7 +328,7 @@ DBG_MESSAGE("wkz_remover_intern()","at (%d,%d)", pos.x, pos.y);
 	grund_t *gr=0;
       if(event_get_last_control_shift()==2) {
       	// remove lower ground first with CNTRL
-	     	for(int i=0;  i<plan->gib_boden_count();  i++  ) {
+	     	for(unsigned i=0;  i<plan->gib_boden_count();  i++  ) {
 	     		if(plan->gib_boden_bei(i)->ist_im_tunnel()) {
 	     			// do not remove tunnel ground
 	     			continue;
@@ -334,7 +342,7 @@ DBG_MESSAGE("wkz_remover_intern()","at (%d,%d)", pos.x, pos.y);
 				// still something to remove
 				break;
 			}
-			else if(i>0  &&  gr->hat_wege()  &&  gr->gib_besitzer()==sp) {
+			else if(i>0  &&  gr->gib_typ()==grund_t::monorailboden  &&  gr->gib_besitzer()==sp  &&  gr->obj_count()==0) {
 				// some upper ground (channel/monorail/...)
 				int cost_sum = gr->weg_entfernen(weg_t::schiene, true);
 				cost_sum += gr->weg_entfernen(weg_t::strasse, true);
@@ -361,7 +369,7 @@ DBG_MESSAGE("wkz_remover_intern()","at (%d,%d)", pos.x, pos.y);
 			if(!gr->ist_bruecke()  &&  gr->obj_count()>0) {
 				break;
 			}
-			else if(i>0  &&  gr->hat_wege()  &&  gr->gib_besitzer()==sp  &&  gr->obj_count()==0) {
+			else if(i>0  &&  gr->gib_typ()==grund_t::monorailboden  &&  gr->gib_besitzer()==sp  &&  gr->obj_count()==0) {
 				// some upper ground (channel/monorail/...)
 				int cost_sum = gr->weg_entfernen(weg_t::schiene, true);
 				cost_sum += gr->weg_entfernen(weg_t::strasse, true);
@@ -378,6 +386,51 @@ DBG_MESSAGE("wkz_remover_intern()","at (%d,%d)", pos.x, pos.y);
 	}
 	assert(gr);
 
+	// prissi: Leitung prüfen (can cross ground of another player)
+	leitung_t *lt=dynamic_cast<leitung_t *>(gr->suche_obj(ding_t::leitung));
+	if(lt!=NULL  &&  lt->gib_besitzer()==sp) {
+		gr->obj_remove(lt,sp);
+		delete lt;
+		return true;
+	}
+
+	// check for signal
+	if(gr->suche_obj(ding_t::signal) != NULL  ||  gr->suche_obj(ding_t::presignal) != NULL) {
+DBG_MESSAGE("wkz_remover()",  "removing signal %d,%d",  pos.x, pos.y);
+		if(gr->gib_besitzer()==sp) {
+			blockmanager *bm = blockmanager::gib_manager();
+			const bool ok = bm->entferne_signal(welt, gr->gib_pos());
+			if(!ok) {
+				create_win(-1, -1, MESG_WAIT, new nachrichtenfenster_t(welt, "Ambiguous signal combination.\nTry removing by clicking the\nother side of the signal.\n"), w_autodelete);
+			}
+			return ok;
+		}
+		else {
+			msg = "Das Feld gehoert\neinem anderen Spieler\n";
+			return false;
+		}
+	}
+
+	if(gr->suche_obj(ding_t::roadsign) != NULL) {
+DBG_MESSAGE("wkz_remover()",  "removing roadsign %d,%d",  pos.x, pos.y);
+		roadsign_t *rs = dynamic_cast<roadsign_t *>(gr->suche_obj(ding_t::roadsign));
+		if(rs->gib_besitzer()==sp  ||  rs->gib_besitzer()==NULL) {
+			delete rs;
+			return true;
+		}
+		else {
+			msg = "Das Feld gehoert\neinem anderen Spieler\n";
+			return false;
+		}
+	}
+
+	// Haltestelle prüfen
+	halthandle_t halt = sp->is_my_halt( pos);
+	if( halt.is_bound() ) {
+		entferne_haltestelle(welt, sp, halt, gr->gib_pos());
+		return true;
+	}
+
 	// citycar? (we allow always)
 	if(gr->suche_obj(ding_t::verkehr)) {
 		stadtauto_t *citycar = dynamic_cast<stadtauto_t *>(gr->suche_obj(ding_t::verkehr));
@@ -392,52 +445,9 @@ DBG_MESSAGE("wkz_remover_intern()","at (%d,%d)", pos.x, pos.y);
 		return true;
 	}
 
-	msg = gr->kann_alle_obj_entfernen(sp);
-	if( msg ) {
-		return false;
-	}
-
-	// prissi: Leitung prüfen (can cross ground of another player)
-	leitung_t *lt=dynamic_cast<leitung_t *>(gr->suche_obj(ding_t::leitung));
-	if(lt!=NULL  &&  lt->gib_besitzer()==sp) {
-		gr->obj_remove(lt,sp);
-		delete lt;
-		return true;
-	}
-
-	// prüfen, ob boden entfernbar
-	if(gr->gib_besitzer() != NULL && gr->gib_besitzer() != sp) {
-		msg = "Das Feld gehoert\neinem anderen Spieler\n";
-		return false;
-	}
-
-	// check for signal
-	if(gr->suche_obj(ding_t::signal) != NULL  ||  gr->suche_obj(ding_t::presignal) != NULL) {
-DBG_MESSAGE("wkz_remover()",  "removing signal %d,%d",  pos.x, pos.y);
-		blockmanager *bm = blockmanager::gib_manager();
-		const bool ok = bm->entferne_signal(welt, gr->gib_pos());
-		if(!ok) {
-			create_win(-1, -1, MESG_WAIT, new nachrichtenfenster_t(welt, "Ambiguous signal combination.\nTry removing by clicking the\nother side of the signal.\n"), w_autodelete);
-		}
-		return ok;
-	}
-
-	if(gr->suche_obj(ding_t::roadsign) != NULL) {
-DBG_MESSAGE("wkz_remover()",  "removing roadsign %d,%d",  pos.x, pos.y);
-		roadsign_t *rs = dynamic_cast<roadsign_t *>(gr->suche_obj(ding_t::roadsign));
-		delete rs;
-		return true;
-	}
-
-	// Haltestelle prüfen
-	halthandle_t halt = sp->is_my_halt( pos);
-	if( halt.is_bound() ) {
-		entferne_haltestelle(welt, sp, halt, gr->gib_pos());
-		return true;
-	}
-
 	// Brückenanfang prüfen
 	if(gr->ist_bruecke()) {
+DBG_MESSAGE("wkz_remover()",  "removing everything from %d,%d,%d",gr->gib_pos().x, gr->gib_pos().y, gr->gib_pos().z);
 		weg_t *weg = gr->gib_weg(weg_t::schiene);
 		if(!weg  ||  weg->gib_besch()->gib_styp()!=1) {
 			if(!weg) {
@@ -467,6 +477,11 @@ DBG_MESSAGE("wkz_remover()", "removing %s %p from %d,%d",	dp->gib_name(), dp, po
 		dp->entferne(sp);
 		delete dp;
 		return true;
+	}
+
+	msg = gr->kann_alle_obj_entfernen(sp);
+	if( msg ) {
+		return false;
 	}
 
 #if 1
@@ -538,23 +553,31 @@ DBG_MESSAGE("wkz_remover()", "removing building: cleanup");
 			if(gr->gib_typ()==grund_t::fundament) {
 				for(k.y = 0; k.y < size.y; k.y ++) {
 					for(k.x = 0; k.x < size.x; k.x ++) {
-						if(k!=koord(0,0)) {
-							grund_t *gr = welt->lookup(k+pos)->gib_kartenboden();
-							gr->obj_loesche_alle(sp);
-							welt->access(k+pos)->kartenboden_setzen(new boden_t(welt, gr->gib_pos()), false);
-						}
+						grund_t *gr = welt->lookup(k+pos)->gib_kartenboden();
+						gr->obj_loesche_alle(sp);
+						welt->access(k+pos)->kartenboden_setzen(new boden_t(welt, gr->gib_pos()), false);
 					}
 				}
 			}
 
 		}
 		welt->rem_fab((fabrik_t*)1);
+		return true;
 	}
 #endif
 
 	// remove everything else ...
+	if(gr->obj_count()>0) {
 DBG_MESSAGE("wkz_remover()",  "removing everything from %d,%d,%d",gr->gib_pos().x, gr->gib_pos().y, gr->gib_pos().z);
-	gr->obj_loesche_alle(sp);
+		gr->obj_loesche_alle(sp);
+		return true;
+	}
+
+	// prüfen, ob boden entfernbar
+	if(gr->gib_besitzer() != NULL && gr->gib_besitzer() != sp) {
+		msg = "Das Feld gehoert\neinem anderen Spieler\n";
+		return false;
+	}
 
 	// ok, now we removed every object, that should be removed one by one.
 	// the following objects will be removed together
@@ -572,6 +595,10 @@ DBG_MESSAGE("wkz_remover()",  "removing everything from %d,%d,%d",gr->gib_pos().
 	* gehen kaputt.
 	*/
 	int cost_sum = gr->weg_entfernen(weg_t::schiene, true);
+	if(cost_sum>0  &&  gr->gib_weg(weg_t::strasse)) {
+		// remove only railway track
+		return true;
+	}
 	cost_sum += gr->weg_entfernen(weg_t::strasse, true);
 	cost_sum += gr->weg_entfernen(weg_t::wasser, true);
 
@@ -662,82 +689,80 @@ wkz_wegebau(spieler_t *sp, karte_t *welt,  koord pos, value_t lParam)
 		default_road = besch;
 	}
 
-  if(pos==INIT || pos == EXIT) {  // init strassenbau
-    erster = true;
+	if(pos==INIT || pos == EXIT) {  // init strassenbau
+		erster = true;
 
-    if(bauer != NULL) {
-      delete bauer;
-      bauer = NULL;
-    }
-  } else {
-    const planquadrat_t *plan = welt->lookup(pos);
+		if(bauer != NULL) {
+			delete bauer;
+			bauer = NULL;
+		}
+	}
+	else {
+		const planquadrat_t *plan = welt->lookup(pos);
 
-    // Hajo: check if it's safe to build here
-    if(plan == NULL) {
-      return false;
-    } else {
-      grund_t *gr = welt->lookup(pos)->gib_kartenboden();
-      if(gr == NULL ||
-   gr->ist_wasser() ||
-   gr->kann_alle_obj_entfernen(sp)) {
-
-  return false;
-      }
-    }
-
-
-    if( erster ) {
-      DBG_MESSAGE("wkz_wegebau()", "Setting start to %d,%d",pos.x, pos.y);
-
-      start = pos;
-      erster = false;
-
-      // symbol für strassenanfang setzen
-      grund_t *gr = welt->lookup(pos)->gib_kartenboden();
-      bauer = new zeiger_t(welt, gr->gib_pos(), sp);
-      bauer->setze_bild(0, skinverwaltung_t::bauigelsymbol->gib_bild_nr(0));
-      gr->obj_pri_add(bauer, PRI_NIEDRIG);
-    } else {
-      // Hajo: symbol für strassenanfang entfernen
-      delete( bauer );
-      bauer = NULL;
-
-      wegbauer_t bauigel(welt, sp);
-
-      // Hajo: to test building as disguised AI player
-      // wegbauer_t bauigel(welt, welt->gib_spieler(2));
+		// Hajo: check if it's safe to build here
+		if(plan == NULL) {
+			return false;
+		}
+		else {
+			grund_t *gr = welt->lookup(pos)->gib_kartenboden();
+			if(gr == NULL ||  gr->ist_wasser() ||  gr->kann_alle_obj_entfernen(sp)) {
+				return false;
+			}
+		}
 
 
-      erster = true;
+		if( erster ) {
+			DBG_MESSAGE("wkz_wegebau()", "Setting start to %d,%d",pos.x, pos.y);
 
-      DBG_MESSAGE("wkz_wegebau()", "Setting end to %d,%d",pos.x, pos.y);
+			start = pos;
+			erster = false;
 
-      ziel = pos;
+			// symbol für strassenanfang setzen
+			grund_t *gr = welt->lookup(pos)->gib_kartenboden();
+			bauer = new zeiger_t(welt, gr->gib_pos(), sp);
+			bauer->setze_bild(0, skinverwaltung_t::bauigelsymbol->gib_bild_nr(0));
+			gr->obj_pri_add(bauer, PRI_NIEDRIG);
+		}
+		else {
+			// Hajo: symbol für strassenanfang entfernen
+			delete( bauer );
+			bauer = NULL;
 
-      // Hajo: to test baubaer mode (only for AI)
-      // bauigel.baubaer = true;
+			wegbauer_t bauigel(welt, sp);
 
-      bauigel.route_fuer(bautyp, besch);
-      bauigel.set_keep_existing_faster_ways(true);
-      if(event_get_last_control_shift()==2) {
+			// Hajo: to test building as disguised AI player
+			// wegbauer_t bauigel(welt, welt->gib_spieler(2));
+			erster = true;
+
+			DBG_MESSAGE("wkz_wegebau()", "Setting end to %d,%d",pos.x, pos.y);
+			ziel = pos;
+
+			// Hajo: to test baubaer mode (only for AI)
+			// bauigel.baubaer = true;
+
+			bauigel.route_fuer(bautyp, besch);
+			if(event_get_last_control_shift()==2) {
 DBG_MESSAGE("wkz_wegebau()", "try straight route");
-      	bauigel.calc_straight_route(start,ziel);
-    	 }
-      else {
-      	bauigel.calc_route(start,ziel);
-      }
+				bauigel.set_keep_existing_ways(false);
+				bauigel.calc_straight_route(start,ziel);
+			}
+			else {
+				bauigel.set_keep_existing_faster_ways(true);
+				bauigel.calc_route(start,ziel);
+			}
 
-      // sp->platz1 = start;
-      // sp->platz2 = ziel;
-      // sp->create_complex_rail_transport();
-      // sp->create_complex_road_transport();
+			// sp->platz1 = start;
+			// sp->platz2 = ziel;
+			// sp->create_complex_rail_transport();
+			// sp->create_complex_road_transport();
 
-      DBG_MESSAGE("wkz_wegebau()", "builder found route with %d sqaures length.", bauigel.max_n);
+			DBG_MESSAGE("wkz_wegebau()", "builder found route with %d sqaures length.", bauigel.max_n);
 
-      bauigel.baue();
-    }
-  }
-  return true;
+			bauigel.baue();
+		}
+	}
+	return true;
 }
 
 
@@ -1181,8 +1206,8 @@ DBG_MESSAGE("wkz_senke()","no factory near (%i,%i)",pos.x, pos.y);
 		}
 		// now decide from the string whether a source or drain is built
 		grund_t *gr = welt->lookup(pos)->gib_kartenboden();
-		int fab_name_len = strlen( fab->gib_name() );
-		if(fab_name_len>11   &&  (strcmp(fab->gib_name()+fab_name_len-9, "kraftwerk")==0  ||  strcmp(fab->gib_name()+fab_name_len-11, "Power Plant")==0)) {
+		int fab_name_len = strlen( fab->gib_besch()->gib_name() );
+		if(fab_name_len>11   &&  (strcmp(fab->gib_besch()->gib_name()+fab_name_len-9, "kraftwerk")==0  ||  strcmp(fab->gib_besch()->gib_name()+fab_name_len-11, "Power Plant")==0)) {
 			gr->obj_add( new pumpe_t(welt, gr->gib_pos(), sp) );
 		}
 		else {
@@ -2236,6 +2261,20 @@ int wkz_add_attraction(spieler_t *, karte_t *welt, koord pos)
 			hausbauer_t::baue(welt, welt->gib_spieler(1), welt->lookup(pos)->gib_kartenboden()->gib_pos(), rotation, attraction);
 			return true;
 		}
+	}
+	return false;
+}
+
+
+
+// protects map from further change
+int wkz_lock( spieler_t *, karte_t *welt, koord pos)
+{
+	if(pos!=INIT  && pos!=EXIT) {
+		welt->setze_maus_funktion(wkz_abfrage, skinverwaltung_t::fragezeiger->gib_bild_nr(0), welt->Z_PLAN, 0, 0);
+		welt->gib_einstellungen()->setze_allow_player_change( false );
+		destroy_all_win();
+		welt->switch_active_player();
 	}
 	return false;
 }

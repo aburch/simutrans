@@ -106,6 +106,7 @@ static void destroy_framed_win(int win);
 //=========================================================================
 // Helper Functions
 
+#define REVERSE_GADGETS (umgebung_t::window_buttons_right==false)
 // (Mathew Hounsell) A "Gadget Box" is a windows control button.
 enum simwin_gadget_et { GADGET_CLOSE, GADGET_HELP, GADGET_SIZE, GADGET_PREV, GADGET_NEXT, COUNT_GADGET };
 
@@ -147,62 +148,79 @@ static int display_gadget_boxes(
                bool const pushed
 ) {
     int width = 0;
+    const int w=(REVERSE_GADGETS?16:-16);
 
-    // Only the close gadget can be pushed.
-    if( flags->close ) {
-        width += display_gadget_box( GADGET_CLOSE, x + width, y, color, pushed );
-    }
-    // %TODO: Move this before help after debugged clicking.
-    if( flags->size ) {
-        width += display_gadget_box( GADGET_SIZE, x + width, y, color, false );
-    }
-    if( flags->prev) {
-        width += display_gadget_box( GADGET_PREV, x + width, y, color, false );
-    }
-    if( flags->next) {
-        width += display_gadget_box( GADGET_NEXT, x + width, y, color, false );
-    }
-    if( flags->help ) {
-        width += display_gadget_box( GADGET_HELP, x + width, y, color, false );
-    }
-    return ( width );
-};
+	// Only the close gadget can be pushed.
+	if( flags->close ) {
+	    display_gadget_box( GADGET_CLOSE, x +w*width, y, color, pushed );
+	    width ++;
+	}
+	if( flags->size ) {
+	    display_gadget_box( GADGET_SIZE, x + w*width, y, color, false );
+	    width++;
+	}
+	if( flags->help ) {
+	    display_gadget_box( GADGET_HELP, x + w*width, y, color, false );
+	    width++;
+	}
+	if( flags->prev) {
+	    display_gadget_box( GADGET_PREV, x + w*width, y, color, false );
+	    width++;
+	}
+	if( flags->next) {
+	    display_gadget_box( GADGET_NEXT, x + w*width, y, color, false );
+	    width++;
+	}
+
+    return abs( w*width );
+}
 
 static simwin_gadget_et decode_gadget_boxes(
                simwin_gadget_flags const * const flags,
                int const x,
                int const px
 ) {
-    simwin_gadget_et code = COUNT_GADGET ;
-    int offset = x;
+	int offset = px-x;
+	const int w=(REVERSE_GADGETS?-16:16);
 
-    // Only the close gadget can be pushed.
-    if( flags->close ) {
-        if( px >= offset ) code = GADGET_CLOSE ;
-        offset += 16;
-    }
-    // %TODO: Move this before help after debugged clicking.
-    if( flags->size ) {
-        if( px >= offset ) code = GADGET_SIZE ;
-        offset += 16;
-    }
-    if( flags->prev) {
-        if( px >= offset ) code = GADGET_PREV;
-        offset += 16;
-    }
-    if( flags->prev) {
-        if( px >= offset ) code = GADGET_NEXT;
-        offset += 16;
-    }
-    if( flags->help ) {
-        if( px >= offset ) code = GADGET_HELP ;
-        offset += 16;
-    }
+//DBG_MESSAGE("simwin_gadget_et decode_gadget_boxes()","offset=%i, w=%i",offset, w );
 
-    if( px >= offset ) code = COUNT_GADGET ;
-
-    return ( code );
-};
+	// Only the close gadget can be pushed.
+	if( flags->close ) {
+		if( offset >= 0  &&  offset<16  ) {
+//DBG_MESSAGE("simwin_gadget_et decode_gadget_boxes()","close" );
+			return GADGET_CLOSE;
+		}
+		offset += w;
+	}
+	if( flags->size ) {
+		if( offset >= 0  &&  offset<16  ) {
+//DBG_MESSAGE("simwin_gadget_et decode_gadget_boxes()","size" );
+			return GADGET_SIZE ;
+		}
+		offset += w;
+	}
+	if( flags->help ) {
+		if( offset >= 0  &&  offset<16  ) {
+//DBG_MESSAGE("simwin_gadget_et decode_gadget_boxes()","help" );
+			return GADGET_HELP ;
+		}
+		offset += w;
+	}
+	if( flags->prev ) {
+		if( offset >= 0  &&  offset<16  ) {
+			return GADGET_PREV ;
+		}
+		offset += w;
+	}
+	if( flags->next ) {
+		if( offset >= 0  &&  offset<16  ) {
+			return GADGET_NEXT ;
+		}
+		offset += w;
+	}
+	return COUNT_GADGET;
+}
 
 //-------------------------------------------------------------------------
 // (Mathew Hounsell) Refactored
@@ -219,8 +237,8 @@ static void win_draw_window_title(const koord pos, const koord gr,
     display_vline_wh_clip(pos.x+gr.x-1, pos.y,   15, SCHWARZ, true);
 
     // Draw the gadgets and then move left and draw text.
-    int width = display_gadget_boxes( flags, pos.x, pos.y, titel_farbe, closing );
-    display_proportional_clip( pos.x + width + 8, pos.y+(16-large_font_height)/2, text, ALIGN_LEFT, WEISS, true );
+    int width = display_gadget_boxes( flags, pos.x+(REVERSE_GADGETS?0:gr.x-20), pos.y, titel_farbe, closing );
+    display_proportional_clip( pos.x + (REVERSE_GADGETS?width+4:4), pos.y+(16-large_font_height)/2, text, ALIGN_LEFT, WEISS, true );
     POP_CLIP();
 }
 
@@ -281,6 +299,16 @@ void release_focus()
 	dbg->warning("void release_focus()",
 		     "Focus was already released");
     }
+}
+
+
+/**
+ * Returns top window
+ * @author prissi
+ */
+const gui_fenster_t *win_get_top()
+{
+	return (ins_win - 1>=0) ? wins[ins_win-1].gui : NULL;
 }
 
 
@@ -716,18 +744,25 @@ check_pos_win(event_t *ev)
 				wins[i].flags.help = ( wins[i].gui->gib_hilfe_datei() != NULL );
 
 				// Where Was It ?
-				simwin_gadget_et code = decode_gadget_boxes( ( & wins[i].flags ), wins[i].pos.x, ev->cx );
+				simwin_gadget_et code = decode_gadget_boxes( ( & wins[i].flags ), wins[i].pos.x + (REVERSE_GADGETS?0:wins[i].gui->gib_fenstergroesse().x-20), ev->cx );
 
 				switch( code ) {
 					case GADGET_CLOSE :
 						if (IS_LEFTCLICK(ev)) {
 							wins[i].closing = true;
 						} else if  (IS_LEFTRELEASE(ev)) {
-							if (x < wins[i].pos.x+16 && y < wins[i].pos.y+16) {
+							if (y>=wins[i].pos.y  &&  y<wins[i].pos.y+16  &&  decode_gadget_boxes( ( & wins[i].flags ), wins[i].pos.x + (REVERSE_GADGETS?0:wins[i].gui->gib_fenstergroesse().x-20), x )==GADGET_CLOSE) {
 								destroy_win(wins[i].gui);
 							} else {
 								wins[i].closing = false;
 							}
+						}
+						break;
+					case GADGET_SIZE: // (Mathew Hounsell)
+						if (IS_LEFTCLICK(ev)) {
+							ev->ev_class = WINDOW_MAKE_MIN_SIZE;
+							ev->ev_code = 0;
+							wins[i].gui->infowin_event( ev );
 						}
 						break;
 					case GADGET_HELP :
@@ -749,13 +784,6 @@ check_pos_win(event_t *ev)
 						if (IS_LEFTCLICK(ev)) {
 							ev->ev_class = WINDOW_CHOOSE_NEXT;
 							ev->ev_code = NEXT_WINDOW;  // forward
-							wins[i].gui->infowin_event( ev );
-						}
-						break;
-					case GADGET_SIZE: // (Mathew Hounsell)
-						if (IS_LEFTCLICK(ev)) {
-							ev->ev_class = WINDOW_MAKE_MIN_SIZE;
-							ev->ev_code = 0;
 							wins[i].gui->infowin_event( ev );
 						}
 						break;

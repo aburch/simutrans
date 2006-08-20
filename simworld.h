@@ -16,34 +16,20 @@
 #ifndef simworld_h
 #define simworld_h
 
-#ifndef ifc_karte_modell_h
 #include "ifc/karte_modell.h"
-#endif
-
-#ifndef convoihandle_t_h
 #include "convoihandle_t.h"
-#endif
-
-#ifndef halthandle_t_h
 #include "halthandle_t.h"
-#endif
-
-#ifndef simsound_h
 #include "simsound.h"
-#endif
 
 #include "tpl/weighted_vector_tpl.h"
 #include "tpl/vector_tpl.h"
 #include "tpl/slist_tpl.h"
 #include "tpl/array_tpl.h"
 
-#ifndef __MARKER_H
 #include "dataobj/marker.h"
-#endif
+#include "dataobj/einstellungen.h"
 
-#ifndef simplan_h
 #include "simplan.h"
-#endif
 
 #include "simgraph.h"
 #include "simdebug.h"
@@ -366,6 +352,9 @@ public:
     static const int Z_LINES;
 
     einstellungen_t * gib_einstellungen() const {return einstellungen;};
+
+    // often used, therefore found here
+    bool use_timeline() const {return einstellungen->gib_use_timeline(); };
 
     /**
      * sollte einen const zeiger_t * zurueckgeben, aber wegen der Tests

@@ -121,7 +121,7 @@ public:
      * if the passed in fahrplan matches "this", then return true
      * @author hsiegeln
      */
-    bool matches(fahrplan_t *fpl);
+    bool matches(const fahrplan_t *fpl);
 
     /**
      * calculates a return way for this schedule
@@ -133,6 +133,9 @@ public:
      fahrplan_type get_type(karte_t * welt) const;
 
      virtual fahrplan_t * copy() { return new fahrplan_t(this); };
+
+	// copy all entries from schedule src to this and adjusts aktuell
+	void copy_from(const fahrplan_t *src);
 };
 
 
