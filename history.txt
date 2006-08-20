@@ -5,8 +5,13 @@ Known bugs: (hard to fix)
 
 
 
+Release of 89.03.1
+
+17-Aug-2006: (prissi)
 	FIX: reward for boats in harbours
 	FIX: beginner mode restored after reloading
+	FIX: selection for scrolled list (like in the line dialog) fixed
+	FIX: some corrections for SimuTTD and half tile height in minimap and other places
 
 
 Release of 89.03

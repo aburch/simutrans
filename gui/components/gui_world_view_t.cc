@@ -82,7 +82,7 @@ world_view_t::zeichnen(koord offset) const
 	sint16 y_offset=0;
 	// offsets?
 	if(ding) {
-		fine_here = koord( 	tile_raster_scale_x(-ding->gib_xoff(),raster), tile_raster_scale_y(-ding->gib_yoff()%32,raster) );
+		fine_here = koord( 	tile_raster_scale_x(-ding->gib_xoff(),raster), tile_raster_scale_x(-ding->gib_yoff()%32,raster) );
 		y_offset = (ding->gib_yoff()/32);
 	}
 
@@ -135,7 +135,7 @@ world_view_t::zeichnen(koord offset) const
 
 			plan = welt->lookup(k);
 			if(plan  &&  plan->gib_kartenboden()) {
-				const sint16 yypos = display_off.y + tile_raster_scale_y((offsets.get(i).y+offsets.get(i).x)*16,raster) - tile_raster_scale_y( plan->gib_kartenboden()->gib_hoehe(), raster);
+				const sint16 yypos = display_off.y + tile_raster_scale_x((offsets.get(i).y+offsets.get(i).x)*16,raster) - tile_raster_scale_y( plan->gib_kartenboden()->gib_hoehe(), raster);
 				if(yypos-(raster*2)<gr.y  &&  yypos+raster>=0) {
 					plan->display_dinge(pos.x+off_x,pos.y+yypos,raster,false);
 				}

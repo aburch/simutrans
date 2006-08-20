@@ -1627,8 +1627,9 @@ karte_t::sync_step(const long dt)
 	if(follow_convoi.is_bound()) {
 		const koord old_pos=gib_ij_off();
 		const koord new_pos=follow_convoi->gib_vehikel(0)->gib_pos().gib_2d()-koord(8,8);
-		const int new_xoff=(-follow_convoi->gib_vehikel(0)->gib_xoff()*get_tile_raster_width())/64;
-		const int new_yoff=(height_scaling(-follow_convoi->gib_vehikel(0)->gib_yoff()+follow_convoi->gib_vehikel(0)->gib_pos().z)*get_tile_raster_width())/64;
+		const int rw=get_tile_raster_width();
+		const int new_xoff=tile_raster_scale_x(-follow_convoi->gib_vehikel(0)->gib_xoff(),rw);
+		const int new_yoff=tile_raster_scale_x(-follow_convoi->gib_vehikel(0)->gib_yoff(),rw)+tile_raster_scale_y(follow_convoi->gib_vehikel(0)->gib_pos().z,rw);
 		if(new_pos!=old_pos  ||  new_xoff!=gib_x_off()  ||  new_yoff!=gib_y_off()) {
 			//position changed => update
 			setze_ij_off( new_pos );

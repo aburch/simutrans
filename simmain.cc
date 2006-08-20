@@ -750,7 +750,9 @@ print("Reading simuconf.tab successful!\n");
 		exit(11);
 	}
 
-
+#ifdef DEBUG
+	DBG_MESSAGE("size of structures","planquadrat_t=%i, boden_t=%i, baum_t=%i",sizeof(planquadrat_t),sizeof(boden_t),sizeof(baum_t) );
+#endif
 
     if(gimme_arg(argc, argv, "-load", 0) != NULL) {
 	char buf[128];
