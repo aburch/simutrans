@@ -1193,8 +1193,7 @@ stadt_t::check_bau_rathaus(bool new_town)
 
   if(!neugruendung) {
       if(gb->gib_tile()->gib_besch()->gib_level() == besch->gib_level())  {
-        DBG_MESSAGE("check_bau_rathaus()",
-         "town hall already ok.");
+        DBG_MESSAGE("check_bau_rathaus()","town hall already ok.");
 
     return; // Rathaus ist schon okay
       }
@@ -1251,8 +1250,7 @@ stadt_t::check_bau_rathaus(bool new_town)
       best_pos = rathausplatz_sucher_t(welt, besitzer_p).suche_platz(
     pos, besch->gib_b(), besch->gib_h() + 1);
   }
-        hausbauer_t::baue(welt, besitzer_p,
-      welt->lookup(best_pos)->gib_kartenboden()->gib_pos(), 0, besch);
+        hausbauer_t::baue(welt, besitzer_p,welt->lookup(best_pos)->gib_kartenboden()->gib_pos(), simrand(besch->gib_all_layouts()), besch);
 
   // Orstnamen hinpflanzen
   welt->lookup(best_pos)->gib_kartenboden()->setze_text(name);

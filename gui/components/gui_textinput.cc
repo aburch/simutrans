@@ -16,6 +16,8 @@
 #include "../../simcolor.h"
 #include "../../simwin.h"
 
+#include "../../dataobj/translator.h"
+
 gui_komponente_t * gui_komponente_t::focus;
 
 /**
@@ -115,22 +117,50 @@ void gui_textinput_t::infowin_event(const event_t *ev)
 		    default:
 			// Buchstaben, Ziffern und Sonderzeichen einfügen:
 			if (ev->ev_code <= 255) {
-				if((len+1 < max) && (ev->ev_code != 0)) {
-					// insert into text?
-					if (cursor_pos < len) {
-						for (int pos = len+1; pos >= cursor_pos; pos--) {
-							text[pos] = text[pos-1];
-						}
-						text[cursor_pos] = ev->ev_code;
-					} else {
-						// append to text
-					    text[len] = ev->ev_code;
-					    text[len+1] = 0;
+
+				// text, if we have top convert letter
+				char letter[8];
+
+				if(ev->ev_code>=128) {
+					sprintf( letter, "CHR%X", ev->ev_code );
+//printf( "%s\n",letter);
+					const char *more_letter=translator::translate(letter);
+					// could not convert ...
+					if( letter==more_letter) {
+						letter[0] = ev->ev_code;
+						letter[1] = 0;
 					}
-				    cursor_pos++;
+					else {
+						strcpy( letter, more_letter );
+//printf( "->%s\n",letter);
+					}
 				}
+				else {
+					letter[0] = ev->ev_code;
+					letter[1] = 0;
+				}
+
+				int num_letter = strlen(letter);
+
+				if(cursor_pos+num_letter>=max) {
+					// too many chars ...
+					break;
+				}
+
+				// insert into text?
+				if (cursor_pos < len) {
+					for (int pos = len+num_letter; pos >= cursor_pos; pos--) {
+						text[pos] = text[pos-num_letter];
+					}
+					memcpy( text+cursor_pos, letter, num_letter );
+				} else {
+				    // append to text
+				    memcpy( text+len, letter, num_letter );
+				    text[len+num_letter] = 0;
+				}
+			    cursor_pos += num_letter;
 			}
-		    }
+	  	}
 		} else {
 		    printf("Warning: gui_textinput_t::infowin_event() called but text is NULL\n");
 		}

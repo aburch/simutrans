@@ -639,16 +639,16 @@ DBG_MESSAGE("fabrikbauer_t::baue_hierarchie","lieferanten %i, lcount %i (need %i
 			if(fab->vorrat_an(ware) > -1) {
 
 				const int distance = koord_distance(fab->gib_pos(),*pos);
-				const bool ok = distance < 60 || distance < simrand(240);
+				const bool ok = distance < DISTANCE || distance < simrand((welt->gib_groesse()*3)/4);
 
-				if(ok  &&  distance>4) {
+				if(ok  &&  distance>6) {
 					found = true;
 					fab->add_lieferziel(pos->gib_2d());
 
 					// now guess, how much this factory can 05.05.05 22:39supply
 					for(int gg=0;gg<fab->gib_besch()->gib_produkte();gg++) {
 						if(fab->gib_besch()->gib_produkt(gg)->gib_ware()==ware  &&  fab->gib_lieferziele().get_count()<fabrik_t::max_lieferziele) {
-							int produktion=(fab->max_produktion()*fab->gib_besch()->gib_produkt(gg)->gib_faktor()*100)/256;
+							int produktion=(fab->max_produktion()*fab->gib_besch()->gib_produkt(gg)->gib_faktor())/(fab->gib_lieferziele().get_count()*2);
 							// search consumer
 							const vector_tpl <koord> & lieferziele = fab->gib_lieferziele();
 							const int lieferziel_anzahl=lieferziele.get_count();

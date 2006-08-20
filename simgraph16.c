@@ -1313,6 +1313,7 @@ int display_get_height()
 }
 
 
+
 /**
  * Holt Helligkeitseinstellungen
  * @author Hj. Malthaner
@@ -3290,6 +3291,7 @@ void display_show_pointer(int yesno)
 }
 
 
+
 /**
  * Initialises the graphics module
  * @author Hj. Malthaner
@@ -3390,6 +3392,36 @@ simgraph_exit()
 
     return dr_os_close();
 }
+
+
+/* changes display size
+ * @author prissi
+ */
+void
+simgraph_resize( int w, int h )
+{
+	disp_width = (w+15)&0x7FF0;
+	disp_height = h;
+
+    guarded_free(tile_dirty);
+    guarded_free(tile_dirty_old);
+
+	textur = dr_textur_resize( disp_width, disp_height );
+
+    // allocate dirty tile flags
+    tiles_per_line = (disp_width + DIRTY_TILE_SIZE - 1) / DIRTY_TILE_SIZE;
+    tile_lines = (disp_height + DIRTY_TILE_SIZE - 1) / DIRTY_TILE_SIZE;
+    tile_buffer_length = (tile_lines*tiles_per_line+7) / 8;
+
+    tile_dirty = (unsigned char *)guarded_malloc( tile_buffer_length );
+    tile_dirty_old = (unsigned char *)guarded_malloc( tile_buffer_length );
+
+    memset(tile_dirty, 255, tile_buffer_length);
+    memset(tile_dirty_old, 255, tile_buffer_length);
+
+    display_setze_clip_wh(0, 0, disp_width, disp_height);
+}
+
 
 
 /**

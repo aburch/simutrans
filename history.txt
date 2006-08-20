@@ -1,3 +1,24 @@
+Release of 86.04
+
+11-Jun-2005 (prissi)
+	FIX: Jumping trains with no route/wrong depot fixed.
+	FIX: rotation for townhalls.
+	CHANGE: add schedule will be resetted after closing a window.
+	ADD: Window resize of main window.
+	ADD: Input conversion for non-latin languages. CHRxx (xx is hex between 80 and FF) will be translated from tab-file. Missing entry will give default.
+	FIX: check when building docks
+
+
+Release of 86.03.4
+
+03-Jun-2005 (prissi)
+	FIX: crash during return to depot.
+	FIX: problems at signals/depot exit to 75% solved.
+	CHANGE: now a change for connecting even to distance industries.
+	FIX: error with calculation of left over productivity of a factory.
+	FIX: slower aging of messages.
+
+
 Release of 86.03.3
 
 01-Jun-2005 (prissi)

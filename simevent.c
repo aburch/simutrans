@@ -55,7 +55,7 @@ static void fill_event(struct event_t *ev)
     switch(sys_event.type) {
      case SIM_KEYBOARD:
       ev->ev_class = EVENT_KEYBOARD;
-	  ev->ev_code = sys_event.code;
+	 ev->ev_code = sys_event.code;
       break;
      case SIM_MOUSE_BUTTONS:
 	// press only acknowledged when no buttons are pressed

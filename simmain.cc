@@ -818,8 +818,8 @@ display_show_pointer( false );
     intr_set(welt, view, refresh);
 
     win_setze_welt( welt );
+    win_display_menu();
     view->display( true );
-    view->display_menu();
 
     // Bringe welt in ansehnlichen Zustand
     // bevor sie als Hintergrund für das intro dient

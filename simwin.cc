@@ -913,6 +913,25 @@ static const char * seasons[] =
 };
 
 
+
+// draw the menu
+void win_display_menu()
+{
+	const int start_y=display_get_height()-32;
+	const int width = display_get_width();
+
+	display_setze_clip_wh( 0, 0, width, 33 );
+	display_icon_leiste(0, skinverwaltung_t::hauptmenu->gib_bild(0)->bild_nr);
+	display_setze_clip_wh( 0, 32, width, start_y+32 );
+	if(ticker_t::get_instance()->count()>0) {
+		// maybe something is omitted of the message
+		display_fillbox_wh(0, start_y, width, 1, SCHWARZ, true);
+		display_fillbox_wh(0, start_y+1, width, 15, MN_GREY2, true);
+	}
+}
+
+
+
 void
 win_display_flush(int ticks, int color, double konto)
 {

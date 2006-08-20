@@ -272,9 +272,9 @@ fahrplan_gui_t::infowin_event(const event_t *ev)
 			fpl->remove();
 		}
 	}
-  } else if(ev->ev_class == INFOWIN &&
-	    ev->ev_code == WIN_CLOSE) {
+  } else if(ev->ev_class == INFOWIN && ev->ev_code == WIN_CLOSE) {
 	fpl->eingabe_abschliessen();
+     welt->setze_maus_funktion(wkz_abfrage, skinverwaltung_t::fragezeiger->gib_bild_nr(0), welt->Z_PLAN, 0, 0);
     if (cnv.is_bound()) {
 		// if a line is selected
 		if (new_line != NULL) {

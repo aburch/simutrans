@@ -44,6 +44,7 @@ extern "C" {
 #define SIM_MOUSE_WHEELDOWN         9 //2004-11-03 hsiegeln added
 
 #define SIM_SYSTEM_QUIT             1
+#define SIM_SYSTEM_RESIZE             2
 #define SIM_F1                      256
 
 /* Globale Variablen zur Messagebearbeitung */
@@ -65,6 +66,7 @@ int dr_os_open(int w, int h, int fullscreen);
 int dr_os_close();
 
 unsigned short * dr_textur_init();
+unsigned short * dr_textur_resize(int w, int h);
 
 
 

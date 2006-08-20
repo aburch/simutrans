@@ -61,6 +61,15 @@ public:
      */
     enum { max_vehicle=2, max_rail_vehicle = 24 };
 
+    enum states {INITIAL,
+		FAHRPLANEINGABE,
+		ROUTING_1, ROUTING_2,
+		ROUTING_4, ROUTING_5,
+		DRIVING,
+		LOADING,
+		WAITING_FOR_CLEARANCE,
+		SELF_DESTRUCT};
+
 private:
 
 
@@ -244,16 +253,6 @@ private:
     unsigned long next_wolke;                // zeit fuer naechste wolke
 
     int anz_ready;
-
-
-    enum states {INITIAL,
-	         FAHRPLANEINGABE,
-                 ROUTING_1, ROUTING_2,
-		 ROUTING_4, ROUTING_5,
-		 DRIVING,
-		 LOADING,
-                 WAITING_FOR_CLEARANCE,
-                 SELF_DESTRUCT};
 
     enum states state;
 

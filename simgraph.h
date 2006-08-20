@@ -96,6 +96,9 @@ void set_zoom_factor(int rw);
  * @author Hj. Malthaner
  */
 int simgraph_init(int width, int height, int use_shm, int do_sync, int fullscreen);
+int is_display_init();
+int simgraph_exit();
+void simgraph_resize(int w, int h);
 
 /*
  * uncomment to enable unicode
@@ -129,10 +132,6 @@ int display_get_font_height();
 void init_images(const char *filename);
 
 void register_image(struct bild_besch_t *buffer);
-
-
-int is_display_init();
-int simgraph_exit();
 
 int gib_maus_x();
 int gib_maus_y();

@@ -857,8 +857,6 @@ static void dock_add_halt_grund_um(karte_t *welt, spieler_t *sp, halthandle_t ha
 int
 wkz_dockbau(spieler_t *sp, karte_t *welt, koord pos, value_t value)
 {
-DBG_MESSAGE("wkz_dockbau()","building dock on square %d,%d", pos.x, pos.y);
-
 	const haus_besch_t *besch=(const haus_besch_t *)value.p;
 	bool ok = false;
 
@@ -875,10 +873,11 @@ DBG_MESSAGE("wkz_dockbau()","building dock on square %d,%d", pos.x, pos.y);
 	koord dx = koord((hang_t::typ)hang);
 	koord last_pos = pos - dx*len;
 
+DBG_MESSAGE("wkz_dockbau()","building dock from square (%d,%d) to (%d,%d)", pos.x, pos.y, last_pos.x, last_pos.y);
 	if(hang_t::ist_einfach(hang) &&
-		pos.x>=len+1 && pos.y>=len+1 && pos.x<welt->gib_groesse()-len+1 && pos.y<welt->gib_groesse()-len+1  &&
-		!welt->lookup(pos)->gib_kartenboden()->ist_wasser()  &&
-		welt->lookup(pos-dx)->gib_kartenboden()->ist_wasser()) {
+		welt->ist_in_kartengrenzen(pos) && welt->ist_in_kartengrenzen(last_pos)  &&
+		welt->lookup(pos-dx)->gib_kartenboden()->ist_wasser()  &&
+		welt->lookup(last_pos)->gib_kartenboden()->ist_wasser()) {
 
 		int layout = 0;
 		koord3d bau_pos = welt->lookup(pos)->gib_kartenboden()->gib_pos();
@@ -903,19 +902,9 @@ DBG_MESSAGE("wkz_dockbau()","building dock on square %d,%d", pos.x, pos.y);
 
 		if(neu) { // neues dock
 			halt = sp->halt_add(pos);
-//			halt = haltestelle_t::create(welt, pos, sp);
 		}
 		halt->set_pax_enabled( true );
 		halt->set_ware_enabled( true );
-
-/*
-		// remove the water below (not a good idea, prissi)
-		for(int i=1;  i<=len;  i++ ) {
-			koord p=pos-dx*i;
-			grund_t *gr = new boden_t(welt, welt->lookup(p)->gib_kartenboden()->gib_pos());
-			welt->access(p)->kartenboden_setzen(gr, false);
-		}
-*/
 
 		hausbauer_t::baue(welt, sp, bau_pos, layout,besch, 0, &halt);
 
@@ -926,10 +915,6 @@ DBG_MESSAGE("wkz_dockbau()","building dock on square %d,%d", pos.x, pos.y);
 			sp->buche(CST_DOCK, p, COST_CONSTRUCTION);
 			// dock-land anbindung gehört auch zur haltestelle
 			halt->add_grund(gr);
-#if 0
-			// if you use this, then removal do not work anymore (prissi)!
-			dock_add_halt_grund_um(welt, sp, halt, p);
-#endif
 		}
 		halt->recalc_station_type();
 

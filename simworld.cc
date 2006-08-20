@@ -86,7 +86,6 @@
 #include "gui/help_frame.h"
 #include "gui/goods_frame_t.h"
 
-#include "dataobj/fahrplan.h"
 #include "dataobj/translator.h"
 #include "dataobj/loadsave.h"
 #include "dataobj/einstellungen.h"
@@ -2868,9 +2867,7 @@ karte_t::interactive_event(event_t &ev)
 
 
     if(ev.ev_class == EVENT_KEYBOARD) {
-	DBG_MESSAGE("karte_t::interactive_event()",
-		     "Keyboard event with code %d '%c'",
-		     ev.ev_code, ev.ev_code);
+	DBG_MESSAGE("karte_t::interactive_event()","Keyboard event with code %d '%c'", ev.ev_code, ev.ev_code);
 
 	switch(ev.ev_code) {
 	case ',':
@@ -3677,6 +3674,14 @@ karte_t::interactive_event(event_t &ev)
         // hellmade 15.05.2002
         // Beenden des Programms wenn das Fenster geschlossen wird.
         switch(ev.ev_code) {
+			case SYSTEM_RESIZE:
+			{
+				// main window resized
+				simgraph_resize( ev.mx, ev.my );
+				win_display_menu();
+				setze_dirty();
+			}
+			break;
 	case SYSTEM_QUIT:
             sound_play(click_sound);
 	    destroy_all_win();

@@ -58,8 +58,8 @@ void
 route_t::kopiere(const route_t *r)
 {
 	assert(r != NULL);
-	const unsigned int hops = r->gib_max_n()+1;
-	route.resize(hops);
+	const unsigned int hops = r->gib_max_n();
+	route.resize(hops+1);
 	for( unsigned int i=0;  i<=hops;  i++ ) {
 		route.append(r->route.at(i));
 	}
@@ -103,6 +103,8 @@ bool
 route_t::intern_calc_route(const koord3d ziel, const koord3d start,
                            fahrer_t *fahr)
 {
+	bool ok = false;
+
 	const int MAX_STEP = umgebung_t::max_route_steps;	// may need very much memory => configurable
 	static KNode *nodes = NULL;
 	if(nodes==NULL) {
@@ -188,11 +190,11 @@ route_t::intern_calc_route(const koord3d ziel, const koord3d start,
 		}
 	} while(!queue.is_empty()  && !am_i_there(welt, tmp->pos, ziel, false)  &&  step<MAX_STEP);
 
-    INT_CHECK("route 194");
-
+	// we clear it here probably twice: does not hurt ...
 	route.clear();
 
-	bool ok = false;
+	INT_CHECK("route 194");
+
 //DBG_DEBUG("reached","%i,%i",tmp->pos.x,tmp->pos.y);
 	// target reached?
 	if(!am_i_there(welt, tmp->pos, ziel, false)  || step >= MAX_STEP  ||  tmp->link==NULL) {
@@ -226,10 +228,11 @@ route_t::calc_route(karte_t *w,
 {
 	welt = w;
 	block_tester = 0;
+	route.clear();
 
 	INT_CHECK("route 336");
 
-	intern_calc_route(ziel, start, fahr);
+	bool ok = intern_calc_route(ziel, start, fahr);
 
 	INT_CHECK("route 343");
 
@@ -237,12 +240,11 @@ route_t::calc_route(karte_t *w,
 
 	INT_CHECK("route 347");
 
-	if( route.get_count()==0 ) {
+	if( !ok ) {
 DBG_MESSAGE("route_t::calc_route()","No route from %d,%d to %d,%d found",start.x, start.y, ziel.x, ziel.y);
 		// no route found
-		route.resize(2);
+		route.resize(1);
 		route.append(start);	// just to be save
-		route.append(start);
 		return false;
 
 	}

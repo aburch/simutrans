@@ -268,24 +268,9 @@ bool convoi_info_t::action_triggered(gui_komponente_t *komp)
 	{
 		// limit update to certain states that are considered to be save for fahrplan updates
 		int state = cnv->get_state();
-		if ((state == 4) || (state == 5)) {
+		if(state==convoi_t::FAHRPLANEINGABE  ||  state==convoi_t::ROUTING_4  ||  state==convoi_t::ROUTING_5) {
 			return true;
 		}
-/*	bool b_depot_found = false;
-		koord3d home = cnv->get_home_depot();
-		const grund_t *gr = cnv->gib_welt()->lookup(home);
-		if (gr) {
-			depot_t * dp = gr->gib_depot();
-			if(dp) {
-				fahrplan_t *fpl = cnv->gib_fahrplan();
-				fpl->insert(cnv->gib_welt(), home);
-				b_depot_found = cnv->setze_fahrplan(fpl);
-			}
-		}
-		if (!b_depot_found) {
-			create_win(-1, -1, 120, new nachrichtenfenster_t(cnv->gib_welt(), translator::translate("Home depot not found!\nYou need to send the\nconvoi to the depot\nmanually.")), w_autodelete);
-		}
-		*/
 
 		// find all depots
 		slist_tpl<koord3d> all_depots;
@@ -338,9 +323,11 @@ bool convoi_info_t::action_triggered(gui_komponente_t *komp)
 		// if route to a depot has been found, update the convoi's schedule
 		bool b_depot_found = false;
 		if (shortest_route->gib_max_n() > -1) {
+			cnv->anhalten(0);
 			fahrplan_t *fpl = cnv->gib_fahrplan();
 			fpl->insert(welt, home);
 			b_depot_found = cnv->setze_fahrplan(fpl);
+			cnv->weiterfahren();
 		}
 
 		// show result

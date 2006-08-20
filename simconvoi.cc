@@ -665,14 +665,18 @@ convoi_t::new_month()
 void
 convoi_t::betrete_depot(depot_t *dep)
 {
-  // Hajo: remove vehicles from world data structure
-  for(int i=0; i<anz_vehikel; i++) {
-    welt->lookup(fahr->at(i)->gib_pos())->obj_remove(fahr->at(i), fahr->at(i)->gib_besitzer());
-  }
+	// Hajo: remove vehicles from world data structure
+	for(int i=0; i<anz_vehikel; i++) {
+	  welt->lookup(fahr->at(i)->gib_pos())->obj_remove(fahr->at(i), fahr->at(i)->gib_besitzer());
+	}
 
-  dep->convoi_arrived(self, true);
+	// reset railblocks
+	for(int i=0; i<anz_vehikel; i++) {
+		blockmanager::gib_manager()->pruefe_blockstrecke(welt, tmp_pos.at(i));
+	}
 
-  init_buttons();
+	dep->convoi_arrived(self, true);
+	init_buttons();
 }
 
 
@@ -721,7 +725,6 @@ void convoi_t::ziel_erreicht(vehikel_t *)
 {
   wait_lock += 8*50;
   anz_ready ++;
-
   // Wir sind am Ziel, sagt uns ein Fahrzeug.
 }
 
@@ -743,18 +746,13 @@ void convoi_t::warten_bis_weg_frei(int restart_speed)
 
 void convoi_t::anhalten(int restart_speed)
 {
-  if(ist_fahrend == true) {
-
-    ist_fahrend = false;
-
-    if(restart_speed != -1) {
-      // langsam anfahren
-      akt_speed = restart_speed;
-    }
-
-    // printf("convoi_t::anhalten: convoi %p hält an, restart_speed=%d.\n", this, akt_speed);
-
-  }
+	if(ist_fahrend == true) {
+		ist_fahrend = false;
+		if(restart_speed != -1) {
+			// langsam anfahren
+			akt_speed = restart_speed;
+		}
+	}
 }
 
 
@@ -856,27 +854,18 @@ convoi_t::remove_vehikel_bei(int i)
 void
 convoi_t::setze_erstes_letztes()
 {
-    // anz_vehikel muss korrekt init sein
-
-    if(anz_vehikel == 1) {
-	fahr->at(0)->setze_erstes(true);
-	fahr->at(0)->setze_letztes(true);
-
-    } else if(anz_vehikel > 1) {
-	fahr->at(0)->setze_erstes(true);
-	fahr->at(0)->setze_letztes(false);
-
-	for(int i=1; i<anz_vehikel-1; i++) {
-	    fahr->at(i)->setze_erstes(false);
-	    fahr->at(i)->setze_letztes(false);
+	// anz_vehikel muss korrekt init sein
+	if(anz_vehikel>0) {
+		fahr->at(0)->setze_erstes(true);
+		for(int i=1; i<anz_vehikel; i++) {
+			fahr->at(i)->setze_erstes(false);
+			fahr->at(i-1)->setze_letztes(false);
+		}
+		fahr->at(anz_vehikel-1)->setze_letztes(true);
 	}
-
-	fahr->at(anz_vehikel-1)->setze_erstes(false);
-	fahr->at(anz_vehikel-1)->setze_letztes(true);
-
-    } else {
-	dbg->warning("convoi_t::setze_erstes_letzes()", "called with anz_vehikel==0!");
-    }
+	else {
+		dbg->warning("convoi_t::setze_erstes_letzes()", "called with anz_vehikel==0!");
+	}
 }
 
 
@@ -973,106 +962,87 @@ convoi_t::go_neue_richtung()
 void
 convoi_t::vorfahren()
 {
-  // Hajo: init speed settings
-  sp_soll = 0;
-  akt_speed = 8;
-  setze_akt_speed_soll(fahr->at(0)->gib_speed());
-  anz_ready = 0;
+	// Hajo: init speed settings
+	sp_soll = 0;
+	akt_speed = 8;
+	setze_akt_speed_soll(fahr->at(0)->gib_speed());
+	anz_ready = 0;
+
+	int dummy1, dummy2;
+	ribi_t::ribi neue_richtung =  fahr->at(0)->calc_richtung(route.position_bei(0).gib_2d(), route.position_bei(1).gib_2d(), dummy1, dummy2);
+
+	INT_CHECK("simconvoi 651");
+
+	int i;
+	for(i=0; i<anz_vehikel; i++) {
+		tmp_pos.at(i) = fahr->at(i)->gib_pos();
+		const bool ok = welt->lookup(tmp_pos.get(i))->obj_remove(fahr->at(i), besitzer_p)  != NULL;
+
+		if(!ok) {
+			dbg->error("convoi_t::vorfahren()", "Vehicle %d couldn't be removed.", i);
+		}
+	}
 
 
-  int dummy1, dummy2;
+	if(alte_richtung == neue_richtung) {
+		go_alte_richtung();
+	}
+	else {
+		go_neue_richtung();
+	}
 
-  ribi_t::ribi neue_richtung =
-    fahr->at(0)->calc_richtung(route.position_bei(0).gib_2d(),
-			       route.position_bei(1).gib_2d(),
-			       dummy1, dummy2);
-  /*
-  DBG_MESSAGE("convoi_t::vorfahren()",
-	       "alte_richtung=%d, neue_richtung=%d.",
-	       alte_richtung, neue_richtung);
-  */
+	for(i=0; i<anz_vehikel; i++) {
+		switch(neue_richtung) {
+			case ribi_t::west:
+				fahr->at(i)->setze_offsets(10,5);
+				break;
+			case ribi_t::ost :
+				fahr->at(i)->setze_offsets(-2,-1);
+				break;
+			case ribi_t::nord:
+				fahr->at(i)->setze_offsets(-10,5);
+				break;
+			case ribi_t::sued:
+				fahr->at(i)->setze_offsets(2,-1);
+				break;
+			default:
+				fahr->at(i)->setze_offsets(0,0);
+				break;
+		}
+	}
 
-  INT_CHECK("simconvoi 651");
-  int i;
-  for(i=0; i<anz_vehikel; i++) {
-    tmp_pos.at(i) = fahr->at(i)->gib_pos();
+	// reset railblocks
+	for(i=0; i<anz_vehikel; i++) {
+		blockmanager::gib_manager()->pruefe_blockstrecke(welt, tmp_pos.at(i));
+	}
 
-    const bool ok = welt->lookup(tmp_pos.get(i))->obj_remove(fahr->at(i),
-							     besitzer_p)  != NULL;
+	// einige richtungen brauchen extra anfahrsteps
+	int extra = 0;
+	if(alte_richtung == neue_richtung) {
+		if((anz_vehikel & 1) == 1) {
+			extra = 8;
+		}
+	}
 
-    if(!ok) {
-      dbg->error("convoi_t::vorfahren()", "Vehicle %d couldn't be removed.", i);
-    }
-  }
+	fahr->at(0)->setze_erstes( false );
+	for(i=0; i<anz_vehikel; i++) {
 
+		// raucher beim vorfahren abschalten
+		fahr->at(i)->darf_rauchen(false);
 
-  if(alte_richtung == neue_richtung) {
-    go_alte_richtung();
-  } else {
-    go_neue_richtung();
-  }
+		const int steps = (anz_vehikel-i-1)*8 + extra;
+		for(int j=0; j<steps; j++) {
+			fahr->at(i)->sync_step();
+		}
 
+		fahr->at(i)->darf_rauchen(true);
+	}
+	fahr->at(0)->setze_erstes( true );
 
-  for(i=0; i<anz_vehikel; i++) {
-    switch(neue_richtung) {
-    case ribi_t::west:
-      fahr->at(i)->setze_offsets(10,5);
-      break;
-    case ribi_t::ost :
-      fahr->at(i)->setze_offsets(-2,-1);
-      break;
-    case ribi_t::nord:
-      fahr->at(i)->setze_offsets(-10,5);
-      break;
-    case ribi_t::sued:
-      fahr->at(i)->setze_offsets(2,-1);
-      break;
-    default:
-      fahr->at(i)->setze_offsets(0,0);
-      break;
-    }
-  }
+	INT_CHECK("simconvoi 711");
 
-
-  // reset railblocks
-  for(i=0; i<anz_vehikel; i++) {
-    blockmanager::gib_manager()->pruefe_blockstrecke(welt, tmp_pos.at(i));
-  }
-
-
-  // einige richtungen brauchen extra anfahrsteps
-
-  int extra = 0;
-
-  if(alte_richtung == neue_richtung) {
-    if((anz_vehikel & 1) == 1) {
-      extra = 8;
-    }
-  }
-
-
-  for(i=0; i<anz_vehikel; i++) {
-
-    // raucher beim vorfahren abschalten
-    fahr->at(i)->darf_rauchen(false);
-
-    const int steps = (anz_vehikel-i-1)*8 + extra;
-
-    // printf("%d needs %d steps\n", i, steps);
-
-    for(int j=0; j<steps; j++) {
-      fahr->at(i)->sync_step();
-    }
-
-    fahr->at(i)->darf_rauchen(true);
-  }
-
-
-  INT_CHECK("simconvoi 711");
-
-  state = DRIVING;
-  calc_loading();
-  // printf("Convoi wechselt von ROUTING_5 nach DRIVING\n");
+	state = DRIVING;
+	calc_loading();
 }
 
 
@@ -1317,44 +1287,32 @@ void convoi_t::get_freight_info(cbuffer_t & buf)
 void
 convoi_t::open_schedule_window()
 {
-  DBG_MESSAGE("convoi_t::open_schedule_window()",
-	       "Id = %ld, State = %d, Lock = %d",
-	       self.get_id(), state, wait_lock);
-  /*
-  DBG_MESSAGE("convoi_t::open_schedule_window()",
-	       "fahr[0] = %p", fahr->at(0));
+	DBG_MESSAGE("convoi_t::open_schedule_window()","Id = %ld, State = %d, Lock = %d",self.get_id(), state, wait_lock);
 
-  fahr->at(0)->dump();
-  */
+	// darf der spieler diesen convoi umplanen ?
+	if(gib_besitzer() != NULL &&
+		gib_besitzer() != welt->gib_spieler(0)) {
+		return;
+	}
 
-    // darf der spieler diesen convoi umplanen ?
-    if(gib_besitzer() != NULL &&
-       gib_besitzer() != welt->gib_spieler(0)) {
-	return;
-    }
-
-    // manipulation of schedule not allowd while:
-    // -convoi is in routing state 4 or 5
-    // -a line update is pending
-    if(state == ROUTING_4 || state == ROUTING_5 || line_update_pending > -1) {
-			create_win(-1, -1, 120, new nachrichtenfenster_t(welt, translator::translate("Not allowed!\nThe convoi's schedule can\nnot be changed currently.\nTry again later!")), w_autodelete);
-			return;
-    }
+	// manipulation of schedule not allowd while:
+	// -convoi is in routing state 4 or 5
+	// -a line update is pending
+	if(state==FAHRPLANEINGABE  ||  state == ROUTING_4 || state == ROUTING_5 || line_update_pending > -1) {
+		create_win(-1, -1, 120, new nachrichtenfenster_t(welt, translator::translate("Not allowed!\nThe convoi's schedule can\nnot be changed currently.\nTry again later!")), w_autodelete);
+		return;
+	}
 
 	calc_gewinn();
-    anhalten(8);
+	anhalten(8);
+	state = FAHRPLANEINGABE;
+	alte_richtung = fahr->at(0)->gib_fahrtrichtung();
 
-    state = FAHRPLANEINGABE;
+	// Fahrplandialog oeffnen
+	fahrplan_gui_t *fpl_gui = new fahrplan_gui_t(welt, self, fahr->at(0)->gib_besitzer());
+	fpl_gui->zeige_info();
 
-    alte_richtung = fahr->at(0)->gib_fahrtrichtung();
-
-
-    // Fahrplandialog oeffnen
-
-    fahrplan_gui_t *fpl_gui = new fahrplan_gui_t(welt, self, fahr->at(0)->gib_besitzer());
-    fpl_gui->zeige_info();
-
-    weiterfahren();
+	weiterfahren();
 }
 
 

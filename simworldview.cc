@@ -130,17 +130,6 @@ void karte_vollansicht_t::display_dinge(const int i, const int j, const int xpos
 
 
 
-
-
-// draw the menu (is only called a single time!
-void karte_vollansicht_t::display_menu()
-{
-	display_setze_clip_wh( 0, 0, 32000, 33 );
-	display_icon_leiste(0, skinverwaltung_t::hauptmenu->gib_bild(0)->bild_nr);
-}
-
-
-
 // draw the map
 void karte_vollansicht_t::display(bool dirty)
 {

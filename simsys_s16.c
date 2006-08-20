@@ -145,6 +145,8 @@ int dr_os_init(int n, int *parameter)
 }
 
 
+
+
 // open the window
 int dr_os_open(int w, int h,int fullscreen)
 {
@@ -156,7 +158,7 @@ int dr_os_open(int w, int h,int fullscreen)
 		printf( "hw_available=%i, video_mem=%i, blit_sw=%i\n", vi->hw_available, vi->video_mem, vi->blit_sw );
 		printf( "bpp=%i, bytes=%i\n", vi->vfmt->BitsPerPixel, vi->vfmt->BytesPerPixel );
 	}
-	flags |= SDL_HWSURFACE|SDL_DOUBLEBUF; // bltcopy in graphic memory should be faster ...
+	flags |= SDL_HWSURFACE|SDL_DOUBLEBUF|SDL_RESIZABLE; // bltcopy in graphic memory should be faster ...
 #endif
 
   width = w;
@@ -170,6 +172,11 @@ int dr_os_open(int w, int h,int fullscreen)
 
     flags |= SDL_FULLSCREEN;
   }
+
+	if((flags&SDL_FULLSCREEN)==0) {
+		// if in wondow, allow resize
+		flags |= SDL_RESIZABLE;
+	}
 
   // open the window now
   screen = SDL_SetVideoMode(w, h, 16, flags);
@@ -263,6 +270,24 @@ void dr_init_sound()
 
 
   use_sound &= sound_ok;
+}
+
+
+
+// reiszes screen
+unsigned short *dr_textur_resize(int w, int h)
+{
+#ifdef USE_HW
+	SDL_UnlockSurface( screen );
+#endif
+	width = w;
+	height = h;
+	int flags = screen->flags;
+
+//	SDL_FreeSurface(screen);
+	screen = SDL_SetVideoMode(width, height, 16, flags);
+	printf("textur_resize()::screen=%p\n",screen);fflush(NULL);
+	return (unsigned short *)(screen->pixels);
 }
 
 
@@ -361,7 +386,7 @@ static void internal_GetEvents(int wait)
         do {
             SDL_WaitEvent(&event);
             n = SDL_PollEvent(NULL);
-        }  while (n != 0 && event.type==SDL_MOUSEMOTION);
+        }  while (n != 0 && (event.type==SDL_MOUSEMOTION  ||   event.type==SDL_VIDEORESIZE)  );
 
     } else {
         int n = 0;
@@ -381,7 +406,7 @@ static void internal_GetEvents(int wait)
 	    	}
 	    }
 
-	} while (n != 0 && event.type==SDL_MOUSEMOTION);
+	} while (n != 0 && (event.type==SDL_MOUSEMOTION  ||   event.type==SDL_VIDEORESIZE)  );
 
         if(!got_one) {
             return;
@@ -392,6 +417,14 @@ static void internal_GetEvents(int wait)
 	sys_event.key_mod = SDL_GetModState();
 
     switch(event.type) {
+    case SDL_VIDEORESIZE:
+    {
+        sys_event.type=SIM_SYSTEM;
+        sys_event.code=SIM_SYSTEM_RESIZE;
+        sys_event.mx=event.resize.w;
+        sys_event.my=event.resize.h;
+	}
+       break;
     case SDL_MOUSEBUTTONDOWN:     /* originally ButtonPress */
         sys_event.type=SIM_MOUSE_BUTTONS;
         sys_event.mx=event.button.x;
@@ -489,6 +522,7 @@ static void internal_GetEvents(int wait)
 	      sys_event.code = 127;
 	    }
 
+    printf("Key '%c' (%d) was pressed\n", (int)sys_event.code, (int)sys_event.code);
 	} else {
 
 	    // Hajo: need to remap some codes
@@ -497,11 +531,12 @@ static void internal_GetEvents(int wait)
 	      sys_event.code = SIM_F1;
 	      break;
 	    default:
+    printf("unicode key (%X/%X) was pressed\n", event.key.keysym.sym,event.key.keysym.unicode);
 	      sys_event.code = event.key.keysym.sym;
+//	      sys_event.code = event.key.keysym.unicode;
 	    }
 	}
     }
-    printf("Key '%c' (%d) was pressed\n", (int)sys_event.code, (int)sys_event.code);
     break;
 
     case SDL_MOUSEMOTION:

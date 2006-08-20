@@ -332,7 +332,7 @@ spieler_t::age_messages(long delta_t)
 {
   for(int n=0; n<=last_message_index; n++) {
     if(text_alter[n] >= -80) {
-      text_alter[n] -= 20;
+      text_alter[n] -= 5;//delta_t>>2;
     }
   }
 }
