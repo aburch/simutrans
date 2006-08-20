@@ -104,10 +104,17 @@ class umgebung_t
 
   /**
    * Info-Fenster für Bäume
-   *
-   * @author Hj. Malthaner
+   * @author prissi
    */
   static bool tree_info;
+
+
+
+  /**
+   * Info-Fenster für Townhall
+   * @author prissi
+   */
+  static bool townhall_info;
 
 
   /**

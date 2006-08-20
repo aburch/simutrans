@@ -9,14 +9,12 @@
 
 #include "dr_rdpng.h"
 
-#define IMG_SIZE 64
-
 
 static int bit_depth, color_type, interlace_type;
 
 
 static void
-read_png(unsigned char **block, unsigned *width, unsigned *height, FILE *file)
+read_png(unsigned char **block, unsigned *width, unsigned *height, FILE *file, const int base_img_size)
 {
     png_structp png_ptr;
     png_infop   info_ptr;
@@ -65,7 +63,7 @@ read_png(unsigned char **block, unsigned *width, unsigned *height, FILE *file)
                  width, height, &bit_depth, &color_type,
 		 &interlace_type, NULL, NULL);
 
-    if(*height % IMG_SIZE != 0 || *width % IMG_SIZE != 0) {
+    if(*height % base_img_size != 0 || *width % base_img_size != 0) {
 	printf("read_png: Invalid image size.\n");
 	exit(1);
     }
@@ -131,14 +129,14 @@ read_png(unsigned char **block, unsigned *width, unsigned *height, FILE *file)
 }
 
 
-int load_block(unsigned char **block, unsigned *width, unsigned *height, const char *fname)
+int load_block(unsigned char **block, unsigned *width, unsigned *height, const char *fname,const int base_img_size)
 {
     FILE *file;
 
     file = fopen(fname, "rb");
 
     if(file) {
-	read_png(block, width, height, file);
+	read_png(block, width, height, file,base_img_size);
 	fclose(file);
     } else {
 	perror("Error:");

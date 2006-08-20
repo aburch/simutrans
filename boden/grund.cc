@@ -348,6 +348,17 @@ void grund_t::info(cbuffer_t & buf) const
 
 
 
+/**
+ * Manche Böden können zu Haltestellen gehören.
+ * Der Zeiger auf die Haltestelle wird hiermit gesetzt.
+ * @author Hj. Malthaner
+ */
+void grund_t::setze_halt(halthandle_t halt) {
+    this->halt = halt;
+}
+
+
+
 /* The following three functions takes about 132 bytes of memory per tile but can speed up passenger generation *
  * Some stations may be reachable from this ground
  * @author prissi
@@ -651,14 +662,8 @@ grund_t::display_dinge(const int xpos, int ypos, bool dirty)
 	}
 }
 
-/**
- * Manche Böden können zu Haltestellen gehören.
- * Der Zeiger auf die Haltestelle wird hiermit gesetzt.
- * @author Hj. Malthaner
- */
-void grund_t::setze_halt(halthandle_t halt) {
-    this->halt = halt;
-}
+
+
 
 /**
  * Bauhilfsfunktion - die ribis eines vorhandenen weges werden erweitert

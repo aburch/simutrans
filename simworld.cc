@@ -567,13 +567,13 @@ karte_t::destroy()
         // there is code that can call stadt::step() while we are in
         // this loop, deleting the cities
 
-        array_tpl<stadt_t *> * tmp = stadt;
+        vector_tpl <stadt_t *> * tmp = stadt;
 	stadt = 0;
 
-	for(i=0; i<tmp->get_size(); i++) {
+	for(i=0; i<tmp->get_count(); i++) {
             delete tmp->at(i);
-            tmp->at(i) = 0;
 	}
+	tmp->clear();
 
 	delete tmp;
 	tmp = 0;
@@ -631,20 +631,9 @@ karte_t::destroy()
  */
 void karte_t::add_stadt(stadt_t *s)
 {
+	// fixme: not check for overflow ...
     einstellungen->setze_anzahl_staedte(einstellungen->gib_anzahl_staedte()+1);
-
-    array_tpl <stadt_t *> * neu_stadt  = new array_tpl<stadt_t *> (einstellungen->gib_anzahl_staedte());
-
-    for(unsigned int i=0; i<stadt->get_size() ; i++) {
-	neu_stadt->at(i) = stadt->at(i);
-    }
-
-
-    neu_stadt->at(stadt->get_size()) = s;
-
-    delete stadt;
-
-    stadt = neu_stadt;
+    stadt->append(s);
 }
 
 
@@ -662,13 +651,6 @@ karte_t::init_felder()
 
 
     marker.init(groesse);
-
-    stadt = new array_tpl<stadt_t *> (einstellungen->gib_anzahl_staedte());
-
-    for(unsigned int n=0; n<stadt->get_size(); n++) {
-        stadt->at(n) = 0;
-    }
-
 
     blockmanager::gib_manager()->setze_welt_groesse( groesse );
     win_setze_welt( this );
@@ -694,7 +676,7 @@ karte_t::init(einstellungen_t *sets)
 
     if(is_display_init()) {
 	display_show_pointer(false);
-    }
+  }
 
     setze_ij_off(koord(0,0));
 
@@ -802,95 +784,93 @@ karte_t::init(einstellungen_t *sets)
 
     hausbauer_t::neue_karte();
 
-    array_tpl<koord> *pos = stadt_t::random_place(this, einstellungen->gib_anzahl_staedte() + 1);
-    if( pos ) {
+	stadt = new vector_tpl <stadt_t *> (128);
+	vector_tpl<koord> *pos = stadt_t::random_place(this, einstellungen->gib_anzahl_staedte());
+	if( pos ) {
 
-      // Ansicht auf erste Stadt zentrieren
+		// prissi if we could not generate enough positions ...
+		einstellungen->setze_anzahl_staedte( pos->get_count() );	// new number of towns ...
 
-      setze_ij_off(pos->at(0) + koord(-8, -8));
+		// Ansicht auf erste Stadt zentrieren
+		setze_ij_off(pos->at(0) + koord(-8, -8));
 
-      for(i=0; i<einstellungen->gib_anzahl_staedte(); i++) {
-	//	printf("City #%d at %d, %d\n",i+1, pos[i].x, pos[i].y);
-	int citizens=(int)(einstellungen->gib_mittlere_einwohnerzahl()*0.9);
-	stadt->at(i) = new stadt_t(this, spieler[1], pos->at(i),citizens/10+simrand(2*citizens+1));
+		for(i=0; i<einstellungen->gib_anzahl_staedte(); i++) {
+			int citizens=(int)(einstellungen->gib_mittlere_einwohnerzahl()*0.9);
+DBG_DEBUG("karte_t::init()","Erzeuge stadt %i",i);
+			stadt->append( new stadt_t(this, spieler[1], pos->at(i),citizens/10+simrand(2*citizens+1)) );
+
+			if(is_display_init()) {
+				display_progress(gib_groesse()/2+i*2, gib_groesse()+einstellungen->gib_anzahl_staedte()*12);
+				display_flush(0, 0, 0, "", "");
+			}
+		}
 
 
-	if(is_display_init()) {
-	    display_progress(gib_groesse()/2+i*2, gib_groesse()+einstellungen->gib_anzahl_staedte()*12);
-	    display_flush(0, 0, 0, "", "");
+		// Hajo: connect some cities with roads
+
+		const weg_besch_t * besch = wegbauer_t::gib_besch(umgebung_t::intercity_road_type->chars());
+
+		if(besch == 0) {
+			dbg->warning("karte_t::init()","road type '%s' not found",umgebung_t::intercity_road_type->chars());
+			// Hajo: try some default
+			besch = wegbauer_t::gib_besch("asphalt_road");
+		}
+
+		// Hajo: No owner so that roads can be removed!
+		wegbauer_t bauigel (this, 0);
+		bauigel.baubaer = false;
+		bauigel.route_fuer(wegbauer_t::strasse, besch);
+		bauigel.set_keep_existing_ways(true);
+		bauigel.set_maximum(200);
+
+		// Hajo: search for road offset
+
+		koord roff (0,1);
+		if(lookup(pos->at(0)+roff)->gib_kartenboden()->gib_weg(weg_t::strasse) == 0) {
+			roff = koord(0,2);
+		}
+
+		for(i=0; i<einstellungen->gib_anzahl_staedte(); i++) {
+			for(int j=i+1; j<einstellungen->gib_anzahl_staedte(); j++) {
+				const koord k1 = pos->at(i) + roff;
+				const koord k2 = pos->at(j) + roff;
+				const koord diff = k1-k2;
+				const int d = diff.x*diff.x + diff.y*diff.y;
+
+				if(d < umgebung_t::intercity_road_length) {
+					bauigel.calc_route(k1, k2);
+
+					if(bauigel.max_n >= 1) {
+						bauigel.baue();
+					}
+					else {
+DBG_DEBUG("karte_t::init()","no route found fom city %d to %d", i, j);
+					}
+				}
+				else {
+DBG_DEBUG("karte_t::init()","cites %d and %d are too far away", i, j);
+				}
+			} //for j
+
+			if(is_display_init()) {
+				display_progress(gib_groesse()/2+i*8 + einstellungen->gib_anzahl_staedte()*2,
+				gib_groesse()+einstellungen->gib_anzahl_staedte()*12);
+				display_flush(0, 0, 0, "", "");
+			}
+		} // for i
+
+#if 0
+		// prissi: obsolete, not used any more
+		// built as tourist attraction ...
+		if(hausbauer_t::muehle_besch) {
+			grund_t *gr = access(pos->at(einstellungen->gib_anzahl_staedte()))->gib_kartenboden();
+			hausbauer_t::baue(this, NULL, gr->gib_pos(), 0, hausbauer_t::muehle_besch);
+		}
+#endif
+
+		delete pos;
+		pos = NULL;
 	}
-      }
-
-
-      // Hajo: connect some cities with roads
-
-      const weg_besch_t * besch =
-	wegbauer_t::gib_besch(umgebung_t::intercity_road_type->chars());
-
-      if(besch == 0) {
-	dbg->warning("karte_t::init()",
-                     "road type '%s' not found",
-		     umgebung_t::intercity_road_type->chars());
-	// Hajo: try some default
-	besch = wegbauer_t::gib_besch("asphalt_road");
-      }
-
-      // Hajo: No owner so that roads can be removed!
-      wegbauer_t bauigel (this, 0);
-      bauigel.baubaer = false;
-      bauigel.route_fuer(wegbauer_t::strasse, besch);
-      bauigel.set_keep_existing_ways(true);
-      bauigel.set_maximum(200);
-
-      // Hajo: search for road offset
-
-      koord roff (0,1);
-
-      if(lookup(pos->at(0)+roff)->gib_kartenboden()->gib_weg(weg_t::strasse) == 0) {
-	roff = koord(0,2);
-      }
-
-      for(i=0; i<einstellungen->gib_anzahl_staedte(); i++) {
-	for(int j=i+1; j<einstellungen->gib_anzahl_staedte(); j++) {
-	  const koord k1 = pos->at(i) + roff;
-	  const koord k2 = pos->at(j) + roff;
-	  const koord diff = k1-k2;
-	  const int d = diff.x*diff.x + diff.y*diff.y;
-
-	  if(d < umgebung_t::intercity_road_length) {
-	    bauigel.calc_route(k1, k2);
-
-	    if(bauigel.max_n >= 1) {
-	      bauigel.baue();
-	    } else {
-	      DBG_DEBUG("karte_t::init()",
-			 "no route found fom city %d to %d", i, j);
-
-	    }
-
-	  } else {
-	    DBG_DEBUG("karte_t::init()",
-		       "cites %d and %d are too far away", i, j);
-	  }
-	}
-
-	if(is_display_init()) {
-	  display_progress(gib_groesse()/2+i*8 + einstellungen->gib_anzahl_staedte()*2,
-			   gib_groesse()+einstellungen->gib_anzahl_staedte()*12);
-	  display_flush(0, 0, 0, "", "");
-	}
-      }
-
-
-      if(hausbauer_t::muehle_besch) {
-	grund_t *gr = access(pos->at(einstellungen->gib_anzahl_staedte()))->gib_kartenboden();
-
-	hausbauer_t::baue(this, NULL, gr->gib_pos(), 0, hausbauer_t::muehle_besch);
-      }
-
-      delete pos;
-      pos = NULL;
-    }
 
     // prissi: completely change format
      fabrikbauer_t::verteile_industrie(this,
@@ -907,12 +887,12 @@ karte_t::init(einstellungen_t *sets)
 		gib_fab(0)->laden_abschliessen();
 	}
 */
-    for(i=0; i<einstellungen->gib_anzahl_staedte(); i++) {
-	// Hajo: do final init after world was loaded/created
-        if(stadt->at(i)) {
-	    stadt->at(i)->laden_abschliessen();
+	for(i=0; i<einstellungen->gib_anzahl_staedte(); i++) {
+		// Hajo: do final init after world was loaded/created
+		if(stadt->at(i)) {
+			stadt->at(i)->laden_abschliessen();
+		}
 	}
-    }
 
     print("Preparing startup ...\n");
 
@@ -2373,9 +2353,9 @@ DBG_DEBUG("karte_t::laden()","grundwasser %i",grundwasser);
     steps = 0;
 
     DBG_DEBUG("karte_t::laden", "init %i cities",einstellungen->gib_anzahl_staedte());
+    stadt = new vector_tpl <stadt_t *> (einstellungen->gib_anzahl_staedte());
     for(i=0; i<einstellungen->gib_anzahl_staedte(); i++) {
-	stadt->at(i) = new stadt_t(this, file);
-
+	stadt->append( new stadt_t(this, file) );
 	// printf("Loading city %s\n", stadt->get(i)->gib_name());
     }
 
@@ -3244,7 +3224,7 @@ karte_t::interactive_event(event_t &ev)
 				  Z_LINES,
 				  SFX_GAVEL,
 				  SFX_FAILURE,
-				  skinverwaltung_t::schienen_werkzeug->gib_bild_nr(0),
+				  skinverwaltung_t::schienen_werkzeug->gib_bild_nr(7),
 				  skinverwaltung_t::signalzeiger->gib_bild_nr(0),
 				  tool_tip_with_price(translator::translate("Build presignals"), CST_SIGNALE));
 
@@ -3408,31 +3388,6 @@ karte_t::interactive_event(event_t &ev)
 					  skinverwaltung_t::werftNSzeiger->gib_bild_nr(0),
 					  tool_tip_with_price(translator::translate("Build ship depot"), CST_SCHIFFDEPOT));
 			}
-
-/*
-		    werkzeug_waehler_t *wzw =
-                        new werkzeug_waehler_t(this, skinverwaltung_t::schiffs_werkzeug, "SHIPTOOLS");
-		    wzw->setze_hilfe_datei("shiptools.txt");
-
-		    if(hausbauer_t::ship_stops.contains("ShipStop")) {
-			wzw->setze_werkzeug(0, wkz_small_dockbau, skinverwaltung_t::anlegerzeiger->gib_bild_nr(0), Z_PLAN, SFX_DOCK, SFX_FAILURE);
-			wzw->set_tooltip(0, translator::translate("Build dock"));
-		    }
-
-		    if(hausbauer_t::ship_stops.contains("LargeShipStop")) {
-			wzw->setze_werkzeug(1, wkz_large_dockbau, skinverwaltung_t::grosser_anlegerzeiger->gib_bild_nr(0), Z_PLAN, SFX_DOCK, SFX_FAILURE);
-			wzw->set_tooltip(1, translator::translate("Build large dock"));
-		    }
-
-		    if(hausbauer_t::sch_depot_besch  && 0) {
-    			wzw->setze_werkzeug(4, wkz_schiffdepot_ns, skinverwaltung_t::werftNSzeiger->gib_bild_nr(0), Z_PLAN, SFX_DOCK, SFX_FAILURE);
-			wzw->setze_werkzeug(5, wkz_schiffdepot_ow, skinverwaltung_t::werftOWzeiger->gib_bild_nr(0), Z_PLAN, SFX_DOCK, SFX_FAILURE);
-
-			wzw->set_tooltip(4, translator::translate("Build ship depot"));
-			wzw->set_tooltip(5, translator::translate("Build ship depot"));
-
-		    }
-*/
 		    sound_play(click_sound);
 
 		    wzw->zeige_info(magic_shiptools);
@@ -3453,7 +3408,15 @@ karte_t::interactive_event(event_t &ev)
 					7
 				);
 
-				wzw->add_tool(wkz_signale,
+		    wzw->add_tool(wkz_electrify_block,
+				  Z_PLAN,
+				  SFX_JACKHAMMER,
+				  SFX_FAILURE,
+				  skinverwaltung_t::schienen_werkzeug->gib_bild_nr(4),
+				  skinverwaltung_t::oberleitung->gib_bild_nr(8),
+				  tool_tip_with_price(translator::translate("Electrify track"), CST_OBERLEITUNG));
+
+			wzw->add_tool(wkz_signale,
 					Z_LINES,
 					SFX_GAVEL,
 					SFX_FAILURE,
@@ -3468,6 +3431,13 @@ karte_t::interactive_event(event_t &ev)
 						  SFX_JACKHAMMER,
 						  SFX_FAILURE,
 						  CST_BAHNHOF);
+
+		    hausbauer_t::fill_menu(wzw,
+					  hausbauer_t::car_stops,
+					  wkz_bushalt,
+					  SFX_JACKHAMMER,
+					  SFX_FAILURE,
+					  CST_BUSHALT);
 
 				wzw->add_tool(wkz_tramdepot,
 					Z_PLAN,
@@ -3787,7 +3757,7 @@ karte_t::interactive()
         interactive_update();
 
 	if(stadt) {
-	  for(unsigned int n=0; n<stadt->get_size(); n++) {
+	  for(unsigned int n=0; n<stadt->get_count(); n++) {
 	    if(stadt->at(n)) {
 	      stadt->at(n)->step();
 	    }

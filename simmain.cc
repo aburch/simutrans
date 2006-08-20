@@ -539,6 +539,9 @@ int simu_cpp_main(int argc, char ** argv)
       umgebung_t::tree_info =
 	(contents.get_int("tree_info", 0) != 0);
 
+      umgebung_t::tree_info =
+	(contents.get_int("townhall_info", 0) != 0);
+
       umgebung_t::starting_money =
 	(contents.get_int("starting_money", 15000000));
 
@@ -841,8 +844,28 @@ display_show_pointer( false );
 	int i;
 	long ms=get_current_time_millis();
 	for(i=0;  i<300000;  i++ )
-		display_img( 2000, 100, 100, 0 );
-	printf( "%i iterations took %i ms\n", i, get_current_time_millis()-ms );
+		display_img( 2000, 100, 100, 1 );
+	printf( "display_img(): %i iterations took %i ms\n", i, get_current_time_millis()-ms );fflush(NULL);
+	ms=get_current_time_millis();
+	for(i=0;  i<300000;  i++ )
+		display_color_img( 2000, 120, 100, 16, 1, 1 );
+	printf( "display_color_img(): %i iterations took %i ms\n", i, get_current_time_millis()-ms );fflush(NULL);
+	ms=get_current_time_millis();
+	for(i=0;  i<300000;  i++ )
+		display_color_img( 2000, 120, 100, 20, 1, 1 );
+	printf( "display_color_img(), other AI: %i iterations took %i ms\n", i, get_current_time_millis()-ms );fflush(NULL);
+	ms=get_current_time_millis();
+	for(i=0;  i<300;  i++ )
+		display_flush_buffer();
+	printf( "display_flush_buffer(): %i iterations took %i ms\n", i, get_current_time_millis()-ms );fflush(NULL);
+	ms=get_current_time_millis();
+	for(i=0;  i<300000;  i++ )
+		display_text_proportional_len_clip( 100, 120, "Dies ist ein kurzer Textetxt ...", 0, 0, false, true, -1, false );fflush(NULL);
+	printf( "display_text_proportional_len_clip(): %i iterations took %i ms\n", i, get_current_time_millis()-ms );
+	ms=get_current_time_millis();
+	for(i=0;  i<300000;  i++ )
+		display_fillbox_wh( 100, 120, 300, 50, 0, false );
+	printf( "display_fillbox_wh(): %i iterations took %i ms\n", i, get_current_time_millis()-ms );
 }
 #endif
 

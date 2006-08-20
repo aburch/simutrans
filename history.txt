@@ -1,3 +1,54 @@
+Release of 86.00.2
+
+9-Apr-2005 (prissi)
+	FIX/CHANGE: datatype for city array_tpl now vector_tpl -> more access checks
+	CHANGE: townhall_info added to simuconf.tab to avoid passenger level info window of townhalls
+	CHANGE: calculation intense station type is now only recalculated after construction work
+	FIX: AI busses waited also on overcrowded lines and always created only one bus ...
+	FIX: player images were displayed two times using slow and fast routines ... urg!
+	FIX: tourist and city building passenger amount per time now comparable
+
+8-Apr-2005 (prissi)
+	CHANGE: new signals for 64
+	CHANGE: different signal graphics for electrified and normal tracks (if more than 8 images defined)
+	CHANGE: passenger AI will removed stucked or unused busses
+	FIX: passenger AI will no longer built lines to unconnecting factories
+	FIX: pax at tourist attractions were added to all stops!?!
+
+7-Apr-2005 (prissi)
+	FIX: several routines replacing groung also destroyed binding to halt
+	FIX: tourist attractions now generate mail again
+	FIX: unhappy mail was also omitted
+	FIX: presignals were not correctly removed
+	CHANGE: 64pak: two rail roofed station added
+
+5-Apr-2005 (prissi)
+	CHANGE: assembler for display_text (17% faster) and display_fillbox (150% faster)
+	FIX: variation of non-rotable houses was ignored for special buildings
+	CHANGE: tourist attraction are no longer built next to each other, but at least 1+b+h away
+
+Changes to Makeobj20 (prissi)
+(for Simutrans 86.xx and higher. Factories created with this version will crash Simutrans 85.04.1 and earlier.)
+	CHANGE: pax_level for factories added.
+	FIX: 96 and any other even size should work again.
+	FIX: citycars were broken.
+	CHANGE: "schiene_tram" added as waytype to accomodate for Trams.
+
+3-Apr-2005 (prissi)
+	FIX: station window display
+	FIX: station bar indicator also included good None (therefore the color were one off)
+	FIX: map crashed, when there was not a place for every town
+
+29-Mar-2005 (prissi)
+	FIX: removing a tile was killing all station info => station no longer connected
+	FIX/CHANGE: tooltips are now only allowed for topmost windows
+	CHANGE: some more assembler, now 999ms instead of 1462ms for display_img() (45% faster)
+	CHANGE: added busstops to tram menu
+	FIX: Finally nailed down bug of stealing goods from other companies
+	FIX: Only own stops could be added to a schedule (so no stops where nobody could unload/load)
+	FIX: factories tried to connect to overconnected suppliers
+		=> ok, there is then an error message, that too many pointers were added, but simutrans exists anyway
+
 
 Release of 86.00.1
 
@@ -5,6 +56,7 @@ Release of 86.00.1
 	FIX: coded the display_img new, now 40% faster than before
 	FIX: city statistics were wrongly initialized
 	FIX: docks: water ground left, catchment area now checked + dock removal possible
+	FIX: makeobj allows now also for sizes != 64 and 128
 
 26-Mar-2005 (prissi)
 	FIX: factory catchment area was assymetric (2x3) => change also to 2x2

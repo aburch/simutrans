@@ -70,7 +70,7 @@ typedef unsigned short PIXVAL;
 /*
  * Use C implementation of image drawing routines
  */
-#define USE_C
+//#define USE_C
 
 // --------------      static data    --------------
 
@@ -199,7 +199,7 @@ struct imd {
 
   int len;            // base image data size (used for allocation purposes only)
 
-  char recode_flags[4]; // first byte: needs recode, second byte: code normal, second byte: code for player1
+  unsigned char recode_flags[4]; // first byte: needs recode, second byte: code normal, second byte: code for player1
 
   PIXVAL * data;      // current data, zoomed and adapted to output format RGB 555 or RGB 565
 
@@ -207,16 +207,15 @@ struct imd {
 
   PIXVAL * base_data;  // original image data
 
-  PIXVAL * player1_data; // current data coded for player1 (since many building belong to him)
+  PIXVAL * player_data; // current data coded for player1 (since many building belong to him)
 
   unsigned char zoomable;  // Flag if this image can be zoomed
 };
 
 // offsets in the recode array
-#define NEED_RECODE (0)
+#define NEED_REZOOM (0)
 #define NEED_NORMAL_RECODE (1)
-//#define NEED_PLAYER1_RECODE (2)
-#define NEED_REZOOM (3)
+#define NEED_PLAYER_RECODE (2)
 
 
 
@@ -332,11 +331,7 @@ static int zoom_factor = 1;
 
 
 // -------------- Function prototypes --------------
-#ifdef USE_C
 void display_img_nc(int h, const int xp, const int yp, const PIXVAL *);
-#else
-extern void display_img_nc(int h, const int xp, const int yp, const PIXVAL *);
-#endif
 
 static void rezoom();
 static void recode();
@@ -357,7 +352,7 @@ display_img_wc(int h, const int xp, const int yp, const PIXVAL *sp);
 static void recode_img_src_target( const int h, PIXVAL *src, PIXVAL *target);
 
 
-#ifdef NEED_PLAYER1_RECODE
+#ifdef NEED_PLAYER_RECODE
 /**
  * Convert a certain image data to actual output data
  * @author prissi
@@ -500,8 +495,20 @@ static void mark_rect_dirty_nc(int x1, int y1, int x2, int y2)
 */
 
     for(; y1<=y2; y1++) {
+#if 1//def USE_C
 	mark_tiles_dirty(x1, x2, y1);
-    }
+#else
+    int bit = y1 * tiles_per_line + x1;
+    const int end = bit + (x2-x1);
+
+    do {
+	// assert(bit/8 < tile_buffer_length);
+
+	tile_dirty[bit >> 3] |= 1 << (bit & 7);
+	bit++;
+    } while(bit <= end);
+#endif
+  }
 }
 
 
@@ -546,7 +553,8 @@ static void recode()
 	int n;
 	for(n=0; n<anz_images; n++) {
 		// tut jetzt on demand recode_img() für jedes Bild einzeln
-		images[n].recode_flags[NEED_RECODE] = true;
+		images[n].recode_flags[NEED_NORMAL_RECODE] = 128;
+		images[n].recode_flags[NEED_PLAYER_RECODE] = 128;
 	}
 }
 
@@ -555,45 +563,23 @@ static void recode()
 
 /**
  * Handles the conversion of an image to the output color
- * @author Hj. Malthaner
+ * @author prissi
  */
-static void recode_img( const unsigned int n )
+static void recode_normal_img( const unsigned int n )
 {
 	PIXVAL *src = images[n].base_data;
-	// need rezoom?
-	if(images[n].recode_flags[NEED_REZOOM]) {
-		rezoom_img(n);
-	}
-	// this is ok, when ready, but the size may be so small after rezoom, we can stop here ...
-	images[n].recode_flags[NEED_RECODE] = false;
-	// too small => do nothing
-	if(images[n].h<=0) {
-		return;
-	}
 	// then use the right data
 	if(zoom_factor>1) {
 		if(images[n].zoom_data!=NULL) {
 			src = images[n].zoom_data;
 		}
 	}
-	// two recode modi, normal (normal player) and ...
-	if(images[n].recode_flags[NEED_NORMAL_RECODE]) {
-		if(images[n].data==NULL) {
-			images[n].data = (PIXVAL *)guarded_malloc( sizeof(PIXVAL)*images[n].len );
-		}
-		// now do normal recode
-		recode_img_src_target( images[n].h, src, images[n].data);
+	if(images[n].data==NULL) {
+		images[n].data = (PIXVAL *)guarded_malloc( sizeof(PIXVAL)*images[n].len );
 	}
-#ifdef NEED_PLAYER1_RECODE
-	// second recode modi, for player one (city and factory AI)
-	if(images[n].recode_flags[NEED_PLAYER1_RECODE]) {
-		if(images[n].player1_data==NULL) {
-			images[n].player1_data = (PIXVAL *)guarded_malloc( sizeof(PIXVAL)*images[n].len );
-		}
-		// now do player 1 recode
-		recode_img_src_target_color( images[n].h, src, images[n].player1_data,8*4);
-	}
-#endif
+	// now do normal recode
+	recode_img_src_target( images[n].h, src, images[n].data);
+	images[n].recode_flags[NEED_NORMAL_RECODE] = 0;
 }
 
 
@@ -627,8 +613,32 @@ static void recode_img_src_target( int h, PIXVAL *src, PIXVAL *target )
 
 
 
+#ifdef NEED_PLAYER_RECODE
+/**
+ * Handles the conversion of an image to the output color
+ * @author prissi
+ */
+static void recode_color_img( const unsigned int n, const unsigned char color )
+{
+	PIXVAL *src = images[n].base_data;
 
-#ifdef NEED_PLAYER1_RECODE
+	images[n].recode_flags[NEED_PLAYER_RECODE] = color;
+	// then use the right data
+	if(zoom_factor>1) {
+		if(images[n].zoom_data!=NULL) {
+			src = images[n].zoom_data;
+		}
+	}
+	// second recode modi, for player one (city and factory AI)
+	if(images[n].player_data==NULL) {
+		images[n].player_data = (PIXVAL *)guarded_malloc( sizeof(PIXVAL)*images[n].len );
+	}
+	// contains now the player color ...
+	recode_img_src_target_color( images[n].h, src, images[n].player_data, color<<2 );
+}
+
+
+
 /**
  * Convert a certain image data to actual output data for a certain player
  * @author prissi
@@ -648,8 +658,9 @@ static void recode_img_src_target_color( int h, PIXVAL *src, PIXVAL *target, con
 				while(runlen--) {
 					PIXVAL pix = *src++;
 					if((0x8000^pix)<=0x000F) {
-						*target++ = specialcolormap_day_night[(pix&0x000F) + color];
-					} else {
+						*target++ = specialcolormap_day_night[((unsigned char)pix & 0x0F) + color];
+					}
+					else {
 						*target++ = rgbmap_day_night[pix];
 					}
 				}
@@ -675,7 +686,8 @@ static void rezoom()
 
 	for(n=0; n<anz_images; n++) {
 		images[n].recode_flags[NEED_REZOOM] = images[n].zoomable  &&  (images[n].base_h>0);
-		images[n].recode_flags[NEED_RECODE] = TRUE;
+		images[n].recode_flags[NEED_NORMAL_RECODE] = 128;
+		images[n].recode_flags[NEED_PLAYER_RECODE] = 128;	// color will be set next time
 //		rezoom_img(n);
 	} // for
 }
@@ -693,7 +705,8 @@ static void rezoom_img( const unsigned int n )
 
 		// we may need night conversion afterwards
 		images[n].recode_flags[NEED_REZOOM] = FALSE;
-		images[n].recode_flags[NEED_RECODE] = TRUE;
+		images[n].recode_flags[NEED_NORMAL_RECODE] = 128;
+		images[n].recode_flags[NEED_PLAYER_RECODE] = 128;
 
 		// just restore original size?
 		if(zoom_factor<=1) {
@@ -1622,22 +1635,20 @@ void register_image(struct bild_besch_t *bild)
 	}
 
 	// allocate and copy if needed
-	images[anz_images].recode_flags[NEED_RECODE] = (images[anz_images].h>0);
-	images[anz_images].recode_flags[NEED_NORMAL_RECODE] = false;
-#ifdef NEED_PLAYER1_RECODE
-	images[anz_images].recode_flags[NEED_PLAYER1_RECODE] = false;
+	images[anz_images].recode_flags[NEED_NORMAL_RECODE] = 128;
+#ifdef NEED_PLAYER_RECODE
+	images[anz_images].recode_flags[NEED_PLAYER_RECODE] = 128;
 #endif
-	images[anz_images].recode_flags[NEED_REZOOM] = false;
+	images[anz_images].recode_flags[NEED_REZOOM] = true;
 
 	images[anz_images].base_data = NULL;
 
 	images[anz_images].zoom_data = NULL;
 
 	images[anz_images].data = NULL;
-	images[anz_images].base_data = (PIXVAL *)guarded_malloc(images[anz_images].len*sizeof(PIXVAL));
+	images[anz_images].player_data = NULL;	// chaches data for one AI
 
-	// unused, only because of the assembly code ...
-	images[anz_images].player1_data = NULL;
+	images[anz_images].base_data = (PIXVAL *)guarded_malloc(images[anz_images].len*sizeof(PIXVAL));
 
 	images[anz_images].zoomable = bild->zoomable;
 
@@ -1700,13 +1711,42 @@ static int clip_wh(int *x, int *width, const int min_width, const int max_width)
     return 0;
 }
 
+// like above, but no return value
+#define CLIP_WH_NR(x,width,min_width,max_width) { \
+	if(x < min_width) { \
+		const int xoff = (min_width) - (x); \
+		width += (x)-(min_width); \
+		x = min_width; \
+		if((x)+(width) >= max_width) { width = (max_width) - (x); } \
+	} else if(*x + *width >= max_width) { \
+		width = max_width - x; \
+	} esle {\
+	0; \
+	} } \
+}
+
+// like above, but with return value
+#define CLIP_WH_WR(x,width,min_width,max_width,ret) { \
+	if(x < min_width) { \
+		const int xoff = (min_width) - (x); \
+		width += (x)-(min_width); \
+		x = min_width; \
+		if((x)+(width) >= max_width) { width = (max_width) - (x); } \
+		ret = xoff; \
+	} else { \
+		ret = 0; \
+		if((x) + (width) >= max_width) { \
+			width = (max_width) - (x); \
+	} } \
+}
+
 
 /**
  * places x and w within bounds left and right
  * if nothing to show, returns FALSE
  * @author Niels Roest
- **/
-static int clip_lr(int *x, int *w, const int left, const int right)
+ */
+inline int clip_lr(int *x, int *w, const int left, const int right)
 {
   const int l = *x;      // leftmost pixel
   const int r = *x+*w-1; // rightmost pixel
@@ -1738,6 +1778,7 @@ struct clip_dimension display_gib_clip_wh(void)
  */
 void display_setze_clip_wh(int x, int y, int w, int h)
 {
+//    clip_wh(&x, &w, 0, disp_width);
     clip_wh(&x, &w, 0, disp_width);
     clip_wh(&y, &h, 0, disp_height);
 
@@ -1758,7 +1799,16 @@ void display_setze_clip_wh(int x, int y, int w, int h)
 // scrolls horizontally, will ignore clipping etc.
 void	display_scroll_band( const int start_y, const int x_offset, const int h )
 {
+#ifdef USE_C
 	memmove( textur+start_y*disp_width, textur+start_y*disp_width+x_offset, sizeof(PIXVAL)*(h*disp_width-x_offset) );
+#else
+asm(
+	"rep\n\t"
+	"movsl\n\t"
+	:
+	: "c" ((sizeof(PIXVAL)*(h*disp_width-x_offset))/4), "S" (textur+start_y*disp_width+x_offset), "D" (textur+start_y*disp_width)
+	);
+#endif
 }
 
 
@@ -1900,16 +1950,15 @@ display_img_wc( int h, const int xp, const int yp, const PIXVAL *sp)
 
 
 
-#ifdef USE_C
 /**
  * Zeichnet Bild ohne Clipping
- * @author Hj. Malthaner
+ * @author Hj. Malthaner/prissi
  */
 void
 display_img_nc(int h, const int xp, const int yp, const PIXVAL *sp)
 {
 	if(h > 0) {
-#if 0
+#ifdef USE_C
 	    PIXVAL *tp = textur + xp + yp*disp_width;
 	    // bild darstellen
 
@@ -1975,10 +2024,7 @@ asm(
 		"je .Lrlev\n\t"
 		// Copy first word
 		// *p++ = *img_p++;
-		"movw (%%esi),%%bx\n\t"
-		"movw %%bx,(%%edi)\n\t"
-		"addl $2,%%esi\n\t"
-		"addl $2,%%edi\n"
+		"movsw\n\t"
 ".Lrlev:\n\t"
 		// now we copy long words ...
 		// *((long *)p)++ = *((long *)img_p)++
@@ -1992,7 +2038,7 @@ asm(
 		// while(runlen)
 		: "=D" (p), "=S" (img_p)
 		: "c" (runlen), "D" (p), "S" (img_p)
-		: "cc", "ebx"
+		: "cc"
 		);
 		} while(runlen);
 
@@ -2004,41 +2050,45 @@ asm(
 	}
 }
 
-#endif
 
 
 /**
- * Zeichnet Bild
- * @author Hj. Malthaner
+ * Zeichnet Bild mit verticalem clipping (schnell) und horizontalem (langsam)
+ * @author prissi
  */
-void display_img(const int n, const int xp, int yp, const int dirty)
+void display_img_aux(const int n, const int xp, int yp, const int dirty, bool use_player)
 {
 	if(n >= 0 && n < anz_images) {
 		// need to go to nightmode and or rezoomed?
-		images[n].recode_flags[NEED_NORMAL_RECODE] = true;
-		if(images[n].recode_flags[NEED_RECODE]) {
-			recode_img(n);
+		PIXVAL *sp;
+		if(use_player) {
+			sp = images[n].player_data;
+
+if(sp==NULL){ printf("CImg %i failed!\n", n );return;}
+		}
+	  	else {
+	  		if(images[n].recode_flags[NEED_REZOOM]) {
+	  			rezoom_img(n);
+				recode_normal_img(n);
+	  		}
+	  		else {
+		  		if(images[n].recode_flags[NEED_NORMAL_RECODE]) {
+					recode_normal_img(n);
+				}
+			}
+			sp = images[n].data;
+if(sp==NULL){ printf("Img %i failed!\n", n );return;}
 		}
 		// now, since zooming may have change this image
-		PIXVAL *sp=images[n].data;
-		const int x = images[n].x;
-		const int w = images[n].w;
-		int y = images[n].y;
-		int h = images[n].h;
-
-		if(dirty) {
-			mark_rect_dirty_wc(xp+x,
-				yp+y,
-				xp+x+w-1,
-				yp+y+h-1);
-		}
+		yp += images[n].y;
+		int h = images[n].h;	// may change due to vertical clipping
 
 		// in the next line the vertical clipping will be handled
 		// by that way the drawing routines must only take into account the horizontal clipping
 		// this should be much faster in most cases
 
 		// must the height be reduced?
-		int reduce_h=(yp+y+h-1)-clip_rect.yy;
+		int reduce_h=(yp+h-1)-clip_rect.yy;
 		if(reduce_h>0) {
 			h -= reduce_h;
 		}
@@ -2047,14 +2097,14 @@ void display_img(const int n, const int xp, int yp, const int dirty)
 			return;
 		}
 		// vertically lines to skip (only bottom is visible
-		int skip_lines = clip_rect.y-(int)(yp+y);
+		int skip_lines = clip_rect.y-(int)yp;
 		if(skip_lines>0) {
 			if(skip_lines>=h) {
 				// not visible at all
 				return;
 			}
 			h -= skip_lines;
-			y += skip_lines;
+			yp += skip_lines;
 			// now skip them
 			while(skip_lines--) {
 				do {
@@ -2067,15 +2117,28 @@ void display_img(const int n, const int xp, int yp, const int dirty)
 			// now sp is the new start of an image with height h
 		}
 
+		// needed now ...
+		const int x = images[n].x;
+		const int w = images[n].w;
+
+		// since height may be reduced, start marking here
+		if(dirty) {
+			mark_rect_dirty_wc(xp+x,
+				yp,
+				xp+x+w-1,
+				yp+h-1);
+		}
+
 		// use horzontal clipping or skip it?
 		if(xp+x>=clip_rect.x &&  xp+x+w-1 <= clip_rect.xx) {
-			display_img_nc(h, xp, yp+y, sp);
+			display_img_nc(h, xp, yp, sp);
 		}
 		else if( xp <= clip_rect.xx && xp+x+w>clip_rect.x ) {
-			display_img_wc(h, xp, yp+y, sp);
+			display_img_wc(h, xp, yp, sp);
 		}
 	}
 }
+
 
 
 /**
@@ -2089,7 +2152,9 @@ display_color_img_aux(const int n, const int xp, const int yp,
 {
 	int h = images[n].h;
 	int y = yp + images[n].y;
-	int yoff = clip_wh(&y, &h, clip_rect.y, clip_rect.yy);
+	int yoff;
+	CLIP_WH_WR(y, h, clip_rect.y, clip_rect.yy,yoff);
+//	int yoff = clip_wh(&y, &h, clip_rect.y, clip_rect.yy);
 
 	if(h>0) {	// clipping may have reduced it
 
@@ -2154,14 +2219,26 @@ display_color_img(const int n, const int xp, const int yp, const int color,
 	// only use the expensive replacement routine for colored images
 	// of other players
 	// Hajo: player 1 does not need any recoloring, too
-	if(color<8  &&  daynight == true) {
-		display_img( n, xp, yp, dirty );
+	if(color<8  &&  daynight) {
+		display_img_aux( n, xp, yp, dirty, false );
+		return;
 	}
 
 	if(n>=0 && n<anz_images) {
 
 		if(images[n].recode_flags[NEED_REZOOM]) {
 			rezoom_img(n);
+		}
+
+		// first test, if there is a cached version (or we can built one ... )
+		const unsigned char player_flag = images[n].recode_flags[NEED_PLAYER_RECODE]&0x7F;
+		if(daynight  &&  (player_flag==0  ||  player_flag==color)  ) {
+			if(images[n].recode_flags[NEED_PLAYER_RECODE]==128  ||  player_flag==0) {
+				recode_color_img( n, color );
+			}
+			// ok, now we could use the same faster code as for the normal images
+			display_img_aux( n, xp, yp, dirty, true );
+			return;
 		}
 
 		if(dirty) {
@@ -2220,7 +2297,7 @@ display_pixel(int x, int y, int color)
  */
 static
 #ifndef _MSC_VER
-inline
+//inline
 #endif
 void display_fb_internal(int xp, int yp, int w, int h,
 			 const int color, const int dirty,
@@ -2230,26 +2307,62 @@ void display_fb_internal(int xp, int yp, int w, int h,
     clip_lr(&yp, &h, cT, cB-1);
 
     if(w > 0 && h > 0) {
-        PIXVAL *p = textur + xp + yp*disp_width;
-	const PIXVAL colval = color >= 0x8000 ? specialcolormap_all_day[(color & 0x7FFF)]: rgbcolormap[color];
-	const unsigned long longcolval = (colval << 16) | colval;
+		if(dirty) {
+			mark_rect_dirty_nc(xp, yp, xp+w-1, yp+h-1);
+		}
 
-	if(dirty) {
-	    mark_rect_dirty_nc(xp, yp, xp+w-1, yp+h-1);
-	}
-	do {
+#ifdef USE_C
+		const PIXVAL colval = color >= 0x8000 ? specialcolormap_all_day[(color & 0x7FFF)]: rgbcolormap[color];
+		PIXVAL *p = textur + xp + yp*disp_width;
+		const unsigned long longcolval = (colval << 16) | colval;
+		const dx=disp_width-w;
 
-	  int count = w >> 1;
-	  while(count--) {
-	    *((unsigned long*)p)++ = longcolval;
-	  }
-	  if(w & 1) {
-	    *p++ = colval;
-	  }
+		do {
+			int count = w >> 1;
+			while(count--) {
+				*((unsigned long*)p)++ = longcolval;
+			}
+			if(w & 1) {
+				*p++ = colval;
+			}
 
-	  p += disp_width-w;
+			p += dx;
 
-	} while(--h);
+		} while(--h);
+#else
+	// attention: prissi tries with gcc inline assembler ...
+	// the following takes the best of C and asm with the worst syntax possible
+	// it is equivalent to the above, but only faster ...
+
+__asm__(	"cld\n\t"
+		"movw	_rgbcolormap(%%eax,%%eax),%%cx\n\t"	// load ax with the right color ...
+		"btrw $15,%%ax\n\t"	//>=0x8000
+		"cmovcw	_specialcolormap_all_day(%%eax,%%eax),%%cx\n\t"	// move, if carry set (i.e. bit was set)
+		"movw %%cx,%%ax\n\t"	// couble colorval for lowbyte
+		"shll $16,%%eax\n\t"
+		"movw %%cx,%%ax\n\t"
+		"shll %%ebx\n"	// since the linewidth is 2x  the bytewidth
+".LpHght:\n\t"
+		"movl %%esi,%%ecx\n\t"
+		// uneven words to copy?
+		// if(w&1)
+		"testb $1,%%cl\n"
+		"je .LrSev\n\t"
+		// set first word
+		"stosw\n"
+".LrSev:\n\t"
+		// now we set long words ...
+		"shrw %%cx\n\t"
+		"rep\n\t"
+		"stosl\n\t"
+		"addl %%ebx,%%edi\n\t"
+		"dec %%dx\n\t"
+		"jne .LpHght\n\t"
+		:
+		: "a" (color), "b" (disp_width-w), "d" (h), "D" (textur + xp + yp*disp_width), "S" (w)
+		: "ecx", "cc"
+		);
+#endif
     }
 }
 
@@ -2325,25 +2438,54 @@ display_array_wh(int xp, int yp, int w, int h, const unsigned char *arr)
     const int yoff = clip_wh(&yp, &h, clip_rect.y, clip_rect.yy);
 
     if(w > 0 && h > 0) {
-        PIXVAL *p = textur + xp + yp*disp_width;
+#ifdef USE_C
+        register PIXVAL *p;
+        register unsigned char *arr_src;
+        register unsigned short ww;
+#else
+		// GCC needs a little help ...
+        register PIXVAL *p asm("%edi");
+        register unsigned char *arr_src asm("%esi");
+        register unsigned short ww asm("ecx");
+#endif
+        p = textur + xp + yp*disp_width;
+        arr_src = arr;
 
 	mark_rect_dirty_nc(xp, yp, xp+w-1, yp+h-1);
 
 	if(xp == clip_rect.x) {
-  	    arr += xoff;
+  	    arr_src += xoff;
 	}
 	if(yp == clip_rect.y) {
-  	    arr += yoff*arr_w;
+  	    arr_src += yoff*arr_w;
 	}
 
 	do {
-	    const PIXVAL *const pe = p + w;
+	    ww = w;
+#if 1//def USE_C
 	    do {
-		*p++ = rgbcolormap[*arr++];
-	    } while(p < pe);
-
-	    arr += arr_w - w;
-            p += disp_width - w;
+		*p++ = rgbcolormap[*arr_src++];
+		ww--;
+	    } while(ww>0);
+#else
+// prissi: the optimize will skip this completely :-(
+asm("cld\n"
+//		"\tmovw _rgbcolormap(%%eax,%%eax),%%ax\n\trep\n\movsw\n\t"
+//		"xorl %%edx,%%edx\n"
+".Ldaw:\n\t"
+//		"movl %%edx,%%eax\n\t"
+		"xorl %%ax,%%ax\n\t"
+		"lodsb\n\t"
+		"movw _rgbcolormap(%%eax,%%eax),%%ax\n\t"
+		"stosw\n\t"
+		"loopl .Ldaw\n\t"
+		: "=D" (p), "=S" (arr_src)
+		: "c" (ww), "D" (p), "S" (arr_src)
+		: "eax"
+		);
+#endif
+	    arr_src += arr_w - w;
+          p += disp_width - w;
 	} while(--h);
     }
 }
@@ -2598,6 +2740,8 @@ inline unsigned char get_v_mask( const int yT, const int yB, const int cT, const
 	return mask;
 }
 
+
+
 /*
  * len parameter added - use -1 for previous bvbehaviour.
  * completely renovated for unicode and 10 bit width and variable height
@@ -2731,6 +2875,7 @@ void display_text_proportional_len_clip(int x, int y, const char *txt,
 		int h;
 		for (h=y_offset; h<char_height; h++) {
 			int dat = (*p++)&mask1;
+#ifdef USE_C
 			if(  dat!=0  ) {
 				if (dat & 128) textur[screen_pos+0]   = color;
 				if (dat &  64) textur[screen_pos+1] = color;
@@ -2741,6 +2886,11 @@ void display_text_proportional_len_clip(int x, int y, const char *txt,
 				if (dat &   2) textur[screen_pos+6] = color;
 				if (dat &   1) textur[screen_pos+7] = color;
 			}
+#else
+// assemble variant of the above, using table and string instructions:
+// optimized for long pipelines ...
+#include "text_pixel.c"
+#endif
 			screen_pos += disp_width;
 		}
 		// extra two bit for overwidth characters (up to 10 pixel supported for unicode)
@@ -2967,7 +3117,6 @@ display_clear()
 }
 
 
-
 void display_flush_buffer()
 {
     int x, y;
@@ -2980,7 +3129,7 @@ void display_flush_buffer()
     if(use_softpointer) {
 	if(softpointer != 52) {
 	    ex_ord_update_mx_my();
-	    display_img(softpointer, sys_event.mx, sys_event.my, TRUE);
+	    display_img_aux(softpointer, sys_event.mx, sys_event.my, true, false);
 	}
 	old_my = sys_event.my;
     }

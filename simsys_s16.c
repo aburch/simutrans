@@ -29,6 +29,9 @@
 #include "simversion.h"
 #include "simsys16.h"
 
+// try to use hardware double buffering ...
+// this is equivalent on 16 bpp and much slower on 32 bpp
+//#define USE_HW
 
 /*
  * Hajo: flag if sound module should be used
@@ -46,56 +49,35 @@ static int use_sound = 0;
  * this structure contains the data for one sample
  */
 typedef struct {
-    /*
-     * the buffer containing the data for the sample, the format
+    /* the buffer containing the data for the sample, the format
      * must always be identical to the one of the system output
-     * format
-     */
+     * format */
     Uint8 *audio_data;
 
-    /*
-     * number of samples in the adiop data
-     */
-    Uint32 audio_len;
+    Uint32 audio_len;		    /* number of samples in the adiop data */
 } sample;
 
 
-/*
- * this list contains all the samples
+/* this list contains all the samples
  */
 static sample samples[32];
 
 
-/*
- * this structure contains the information about one channel
+/* this structure contains the information about one channel
  */
 typedef struct {
-
-    /*
-     * the current position inside this sample
-     */
-    Uint32 sample_pos;
-
-    /*
-     * which sample is played, 255 for no sample
-     */
-    Uint8 sample;
-
-    /*
-     * the volume this channel should be played
-     */
-    Uint8 volume;
+    Uint32 sample_pos; /* the current position inside this sample */
+    Uint8 sample;		/* which sample is played, 255 for no sample */
+    Uint8 volume;		/* the volume this channel should be played */
 } channel;
 
 
-/*
- * this array contains all the information of the currently played samples
+/* this array contains all the information of the currently played samples
  */
 static channel channels[CHANNELS];
 
 
-/*
- * the format of the output audio channel in use
+/* the format of the output audio channel in use
  * all loaded waved need to be converted to this format
  */
 static SDL_AudioSpec output_audio_format;
@@ -167,6 +149,15 @@ int dr_os_init(int n, int *parameter)
 int dr_os_open(int w, int h)
 {
   Uint32 flags = sync_blit ? 0 : SDL_ASYNCBLIT;
+
+#ifdef USE_HW
+	{
+		SDL_VideoInfo *vi=SDL_GetVideoInfo();
+		printf( "hw_available=%i, video_mem=%i, blit_sw=%i\n", vi->hw_available, vi->video_mem, vi->blit_sw );
+		printf( "bpp=%i, bytes=%i\n", vi->vfmt->BitsPerPixel, vi->vfmt->BytesPerPixel );
+	}
+	flags |= SDL_HWSURFACE|SDL_DOUBLEBUF; // bltcopy in graphic memory should be faster ...
+#endif
 
   width = w;
   height = h;
@@ -278,6 +269,9 @@ void dr_init_sound()
 
 unsigned short *dr_textur_init()
 {
+#ifdef USE_HW
+	SDL_LockSurface( screen );
+#endif
     return (unsigned short *) (screen->pixels);
 }
 
@@ -307,16 +301,24 @@ int dr_use_softpointer()
 void dr_flush()
 {
 //    SDL_UpdateRect(screen, 0, 0, width, height);
+#ifdef USE_HW
+	SDL_UnlockSurface( screen );
+	SDL_Flip(screen);
+	SDL_LockSurface( screen );
+#endif
 }
 
 
 void
 dr_textur(int xp, int yp, int w, int h)
 {
+#ifdef USE_HW
+#else
   // make sure the given rectangle is completely on screen
   if ((xp + w) > screen->w) w = screen->w-xp;
   if ((yp + h) > screen->h) h = screen->h-yp;
   SDL_UpdateRect(screen, xp, yp, w, h);
+#endif
 }
 
 

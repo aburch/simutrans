@@ -160,11 +160,11 @@ bool hausbauer_t::register_besch(const haus_besch_t *besch)
 	{
 		int checkpos=strlen(besch->gib_name())-4;
 		if(  strcmp("BusStop",besch->gib_name()+checkpos-3)==0  ) {
-DBG_DEBUG("hausbauer_t::register_besch()","Road %s",besch->gib_name());
+DBG_DEBUG("hausbauer_t::register_besch()","Bus %s",besch->gib_name());
 			car_stops.append(besch);
 		}
 		else if(  strcmp("TrainStop",besch->gib_name()+checkpos-5)==0  ) {
-DBG_DEBUG("hausbauer_t::register_besch()","Train %s",besch->gib_name());
+DBG_DEBUG("hausbauer_t::register_besch()","Bf %s",besch->gib_name());
 			train_stops.append(besch);
 		}
 		else if(  strcmp("ShipStop",besch->gib_name()+checkpos-4)==0  ) {
@@ -213,7 +213,7 @@ DBG_DEBUG("hausbauer_t::fill_menu()","maximum %i",stops.count());
 		char buf[128];
 		const haus_besch_t *besch=stops.at(i);
 
-DBG_DEBUG("hausbauer_t::fill_menu()","try at pos %i to add %s",i,besch->gib_name());
+DBG_DEBUG("hausbauer_t::fill_menu()","try at pos %i to add %s(%p)",i,besch->gib_name(),besch);
 		if(besch->gib_cursor()->gib_bild_nr(1) != -1) {
 			// only add items with a cursor
 DBG_DEBUG("hausbauer_t::fill_menu()","at pos %i add %s",i,besch->gib_name());
@@ -340,6 +340,7 @@ void hausbauer_t::baue(karte_t *welt,
 	    else if( ship_stops.contains(besch) ) {
 	    	// its a dock!
 		gb->add_alter(gebaeude_t::ALT);
+DBG_DEBUG("hausbauer_t::baue()","building dock");
 	    }
 	    else if(welt->gib_zeit_ms() < 2) {
 	        // Hajo: after staring a new map, build fake old buildings^

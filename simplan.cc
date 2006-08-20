@@ -94,27 +94,35 @@ bool planquadrat_t::boden_entfernen(grund_t *bd)
 void
 planquadrat_t::kartenboden_setzen(grund_t *bd, bool mit_spieler)
 {
-    if(bd != NULL) {
-        const grund_t *tmp = gib_kartenboden();
+	if(bd != NULL) {
+		grund_t *tmp = gib_kartenboden();
 
-	if(boeden.count() > 0) {
-	    boeden.at(0) = bd;
-	} else {
-	    boeden.append(bd);
+		if(boeden.count() > 0) {
+			boeden.at(0) = bd;
+		}
+		else {
+			boeden.append(bd);
+		}
+
+		bd->calc_bild();
+
+		if( tmp ) {
+			// transfer old properties ...
+			bd->setze_text(tmp->gib_text());
+			if(mit_spieler) {
+				bd->setze_besitzer(tmp->gib_besitzer());
+			}
+			// prissi: restore halt list
+			vector_tpl<halthandle_t> &haltlist=tmp->get_haltlist();
+			for(int i=0;i<haltlist.get_count();i++) {
+				bd->add_to_haltlist( haltlist.get(i) );
+			}
+			// now delete everything
+			delete tmp;
+		}
+
+		reliefkarte_t::gib_karte()->recalc_relief_farbe(bd->gib_pos().gib_2d());
 	}
-
-        bd->calc_bild();
-
-        if( tmp ) {		// erst freigeben, nachdem der neue Boden gesetzt ist
-            bd->setze_text(tmp->gib_text());
-	    if(mit_spieler) {
-		bd->setze_besitzer(tmp->gib_besitzer());
-	    }
-            delete tmp;
-        }
-
-        reliefkarte_t::gib_karte()->recalc_relief_farbe(bd->gib_pos().gib_2d());
-    }
 }
 
 
@@ -128,6 +136,13 @@ void planquadrat_t::boden_ersetzen(grund_t *alt, grund_t *neu)
 	for(int i=0; i<boeden.count(); i++) {
 	    if(boeden.get(i) == alt) {
 		grund_t *tmp = boeden.get(i);
+		if(i==0) {
+			// prissi: restore halt list
+			vector_tpl<halthandle_t> &haltlist=tmp->get_haltlist();
+			for(int i=0;i<haltlist.get_count();i++) {
+				neu->add_to_haltlist( haltlist.get(i) );
+			}
+		}
 		boeden.at(i) = neu;
 		delete tmp;
 		return;

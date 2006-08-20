@@ -152,7 +152,7 @@ public:
 
 
     //13-Jan-02     Markus Weber    Added
-    enum stationtyp {invalid=-1, loadingbay = 1 ,
+    enum stationtyp {invalid=0, loadingbay = 1 ,
                      railstation = 2, dock = 4, busstop = 8}; //could be combined with or!
 
     // @author hsiegeln added
@@ -255,6 +255,13 @@ private:
      * @author Hj. Malthaner
      */
     slist_tpl<grund_t *> grund;
+
+
+    /**
+     * What is that for a station (for the image)
+     * @author prissi
+     */
+	stationtyp station_type;
 
 
     // fuer die zielverwaltung
@@ -632,8 +639,8 @@ public:
      * (combination of: railstation, loading bay, dock)
      * @author Markus Weber
      */
-    int get_station_type() const;           //13-Jan-2002    Markus Weber    Added
-
+    stationtyp get_station_type() const {return station_type; };
+    void recalc_station_type();
 
 
     /**

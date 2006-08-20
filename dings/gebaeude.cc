@@ -175,34 +175,37 @@ ding_info_t *gebaeude_t::new_info()
 void
 gebaeude_t::zeige_info()
 {
-    //
-    // Für die Anzeige ist bei mehrteiliggen Gebäuden immer
-    // das erste laut Layoutreihenfolge zuständig.
-    // Sonst gibt es für eine 2x2-Fabrik bis zu 4 Infofenster.
-    koord k = tile->gib_offset();
-    if(k != koord(0, 0)) {
-	ding_t *gb = welt->lookup(gib_pos() - k)->obj_bei(1);
+	// Für die Anzeige ist bei mehrteiliggen Gebäuden immer
+	// das erste laut Layoutreihenfolge zuständig.
+	// Sonst gibt es für eine 2x2-Fabrik bis zu 4 Infofenster.
+	koord k = tile->gib_offset();
+	if(k != koord(0, 0)) {
+		ding_t *gb = welt->lookup(gib_pos() - k)->obj_bei(1);
 
-	if(gb)
-	    gb->zeige_info();	// an den ersten deligieren
-    }
-    else {
-	DBG_MESSAGE("gebaeude_t::zeige_info()", "at %d,%d - name is '%s'", gib_pos().x, gib_pos().y, gib_name());
+		if(gb)
+			gb->zeige_info();	// an den ersten deligieren
+		}
+		else {
+DBG_MESSAGE("gebaeude_t::zeige_info()", "at %d,%d - name is '%s'", gib_pos().x, gib_pos().y, gib_name());
 
-	if(!tile->gib_besch()->ist_ohne_info()) {
+			if(!tile->gib_besch()->ist_ohne_info()) {
 
-	  if(ist_rathaus()) {
+				if(ist_rathaus()) {
 
-	    create_win(-1, -1, -1,
-		       new stadt_info_t(welt->suche_naechste_stadt(gib_pos().gib_2d())),
-		       w_autodelete,
-		       magic_city_info_t);
-	  }
-//	  else {
-	    ding_t::zeige_info();
-//	  }
+				create_win(-1, -1, -1,
+					new stadt_info_t(welt->suche_naechste_stadt(gib_pos().gib_2d())),
+					w_autodelete,
+					magic_city_info_t);
+
+				if(umgebung_t::townhall_info) {
+					ding_t::zeige_info();
+				}
+			}
+			else {
+				ding_t::zeige_info();
+			}
+		}
 	}
-    }
 }
 
 /**
@@ -249,8 +252,8 @@ gebaeude_t::step(long delta_t)
 		tourist_time += delta_t;
 
 //		const int waiting_time = 5000
-		if(tourist_time > 5000) {
-			tourist_time -= 5000;
+		if(tourist_time > 3500) {
+			tourist_time -= 3500;
 
 			INT_CHECK("gebaeude 228");
 
@@ -258,34 +261,47 @@ gebaeude_t::step(long delta_t)
 			const vector_tpl<halthandle_t> & halt_list = welt->suche_nahe_haltestellen(gib_pos().gib_2d(), 4, 0, 8);
 
 			if(halt_list.get_count() > 0) {
-				const array_tpl<stadt_t *>* staedte = welt->gib_staedte();
+				const vector_tpl<stadt_t *>* staedte = welt->gib_staedte();
 				const stadt_t *stadt = staedte->get(simrand(welt->gib_einstellungen()->gib_anzahl_staedte()));
 
-				// create up to level passengers
-				for(int j=0; j<tile->gib_besch()->gib_level();  j+=17  ) {
+				// prissi: post oder pax erzeugen ?
+				const ware_besch_t * wtyp;
+				if(simrand(400) < 300) {
+					wtyp = warenbauer_t::passagiere;
+				}
+				else {
+					wtyp = warenbauer_t::post;
+				}
+
+				// prissi: since now correctly numbers are used, double initially passengers
+				const int num_pax =
+					(wtyp == warenbauer_t::passagiere) ?
+					((gib_passagier_level() + 6) >> 4) +1:
+					((gib_post_level() + 3) >> 4)+1;
+									// create up to level passengers
+				for(int pax_left=num_pax; pax_left>0;  pax_left-=3  ) {
 					const koord ziel = stadt->gib_zufallspunkt();
 
-					ware_t pax (warenbauer_t::passagiere);
-					pax.menge = (delta_t&3)+1;
+					ware_t pax (wtyp);
+					pax.menge = MIN(3,pax_left);
 					pax.setze_zielpos( ziel );
 
 					for(uint32 i=0; i<halt_list.get_count(); i++) {
 						halthandle_t halt = halt_list.get(i);
-
 						halt->suche_route(pax, halt);
 
-						// printf("7 Tourists generated\n");
-
-						if(halt->gib_ware_summe(warenbauer_t::passagiere) > (halt->gib_grund_count() << 7)) {
+						if(halt->gib_ware_summe(wtyp) > (halt->gib_grund_count() << 7)) {
 							// Hajo: Station crowded:
 							// some are appalled and will not try other
 							// stations
 							halt->add_pax_unhappy(pax.menge);
 
 						} else if(pax.gib_ziel() != koord::invalid) {
-
+							// ok success
 							halt->liefere_an(pax);
 							halt->add_pax_happy(pax.menge);
+							// prissi: now, since our passenger are on the way, we must stop adding them ...
+							break;
 						}
 						else {
 

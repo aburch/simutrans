@@ -168,10 +168,13 @@ public:
     {
         return (layout & 1) ? groesse.x: groesse.y;
     }
-
     int gib_b(int layout = 0) const
     {
         return (layout & 1) ? groesse.y : groesse.x;
+    }
+    int gib_all_layouts() const
+    {
+        return layouts;
     }
     int gib_bauzeit() const
     {

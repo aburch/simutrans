@@ -352,9 +352,9 @@ reliefkarte_t::zeichnen(koord pos) const
     display_direct_line(pos.x+xpos+12*zf, pos.y+ypos, pos.x+xpos, pos.y+ypos+12*zf, WEISS);
     display_direct_line(pos.x+xpos-12*zf, pos.y+ypos, pos.x+xpos, pos.y+ypos+12*zf, WEISS);
 
-    const array_tpl<stadt_t *> * staedte = welt->gib_staedte();
+    const vector_tpl <stadt_t *> * staedte = welt->gib_staedte();
 
-    for(i=0; i<staedte->get_size(); i++) {
+    for(i=0; i<staedte->get_count(); i++) {
       const stadt_t *stadt = staedte->get(i);
 
       koord p = stadt->gib_pos();

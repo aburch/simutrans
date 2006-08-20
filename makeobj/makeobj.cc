@@ -14,8 +14,10 @@
 
 #ifdef _MSC_VER
 #define STRICMP stricmp
+#define STRNICMP strnicmp
 #else
 #define STRICMP strcasecmp
+#define STRNICMP strncasecmp
 #endif
 
 
@@ -45,13 +47,13 @@ int main(int argc, char* argv[])
     }
     else {
 	puts(
-	    "\nMakeobj v0.1.10 by V. Meyer (c) 2002, 2003, 2004 and Hj. Malthaner\n"
+	    "\nMakeobj v0.1.20 by V. Meyer (c) 2002, 2003, 2004, 2005 and Hj. Malthaner\n"
 	    "   This program creates .pak files for Simutrans - a great game from\n"
 	    "   Hj. Malthaner. Makeobj replaces Makepak and Makepak16 starting with\n"
 	    "   version 0.81.1 of Simutrans.\n"
 	    "   If you have questions about Simutrans or Makeobj contact the authors\n"
 	    "   at:\n"
-	    "      volker.meyer@thales-is.com  or  hansjoerg.malthaner@gmx.de\n");
+	    "      volker.meyer@thales-is.com  or  markus@pristovsek.de\n");
     }
     if(argc && !STRICMP(argv[0], "capabilities")) {
 	argv++, argc--;
@@ -77,7 +79,7 @@ int main(int argc, char* argv[])
 	}
 	return 0;
     }
-    if(argc && cstring_t(argv[0]).left(3) == "pak") {
+    if(argc && STRNICMP(argv[0],"pak",3)==0) {
 	int img_size = atoi(argv[0] + 3);
 
         if(img_size >= 16 && img_size < 256) {
@@ -137,7 +139,7 @@ int main(int argc, char* argv[])
 	"         Gives the list of objects, this program can read\n"
 	"      MakeObj PAK <pak file> <dat file(s)>\n"
 	"         Creates a ready to use pak file for Simutrans from the dat files\n"
-	"      MakeObj PAK128 <pak file> <dat file(s)>\n"
+	"      MakeObj pak128 <pak file> <dat file(s)>\n"
 	"         Creates a special pak file for with 128x128 images\n"
 	"         Should work with PAK16 up to PAK255 but only 64 and 128 are tested\n"
 	"      MakeObj LIST <pak file(s)>\n"

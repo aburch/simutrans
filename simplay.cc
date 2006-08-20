@@ -731,8 +731,8 @@ spieler_t::do_passenger_ki()
 			// assume fail
 			state = CHECK_CONVOI;
 
-			const array_tpl<stadt_t *> *staedte = welt->gib_staedte();
-			int anzahl = staedte->get_size();
+			const vector_tpl<stadt_t *> *staedte = welt->gib_staedte();
+			int anzahl = staedte->get_count();
 			int offset = (anzahl>1)?simrand(anzahl-1):0;
 			// start with previous target
 			const stadt_t* last_star_stadt=start_stadt;
@@ -757,14 +757,20 @@ DBG_MESSAGE("spieler_t::do_passenger_ki()","using city %s for start",start_stadt
 //DBG_MESSAGE("spieler_t::do_passenger_ki()","searching attraction");
 				// 25 % of all connections are tourist attractions
 				const slist_tpl<gebaeude_t*> &ausflugsziele = welt->gib_ausflugsziele();
-				const slist_tpl<fabrik_t *> &fabriken = welt->gib_fab_list();
+				// this way, we are sure, our factory is connected to this town ...
+				const slist_tpl<fabrik_t *> &fabriken = start_stadt->gib_arbeiterziele();
 				int	last_dist = 0xFFFF;
 				bool ausflug=simrand(2)!=0;	// holidays first ...
-				int count=ausflug?ausflugsziele.count():fabriken.count();
-				for( int i=0;  i<count;  i++  ) {
+				int ziel_count=ausflug?ausflugsziele.count():fabriken.count();
+				count = 1;	// one vehicle
+				for( int i=0;  i<ziel_count;  i++  ) {
 					int	dist;
 					koord pos, size;
 					if(ausflug) {
+						if(ausflugsziele.at(i)->gib_post_level()<=2) {
+							// not a good object to go to ...
+							continue;
+						}
 						pos=ausflugsziele.at(i)->gib_pos().gib_2d();
 						size=ausflugsziele.at(i)->gib_tile()->gib_besch()->gib_groesse(ausflugsziele.at(i)->gib_tile()->gib_layout());
 					}
@@ -785,13 +791,15 @@ DBG_MESSAGE("spieler_t::do_passenger_ki()","using city %s for start",start_stadt
 								// but closer than the others
 								if(ausflug) {
 									end_ausflugsziel = ausflugsziele.at(i);
+									count = 1 + end_ausflugsziel->gib_passagier_level()/128;
+//DBG_MESSAGE("spieler_t::do_passenger_ki()","testing attraction %s with %i busses",end_ausflugsziel->gib_tile()->gib_besch()->gib_name(), count);
 								}
 								else {
 									ziel = fabriken.at(i);
+									count = 1;// + (ziel->gib_besch()->gib_pax_level()*ziel->gib_groesse().x*ziel->gib_groesse().y)/128;
 								}
 								last_dist = dist;
 								platz2 = test_platz;
-//DBG_MESSAGE("spieler_t::do_passenger_ki()","testing attraction %s",end_ausflugsziel->gib_name());
 							}
 						}
 					}
@@ -806,6 +814,7 @@ DBG_MESSAGE("spieler_t::do_passenger_ki()","decision: %s wants to built network 
 			}
 			else {
 //DBG_MESSAGE("spieler_t::do_passenger_ki()","searching town");
+				count = 1;
 				// find a good route
 				for( int i=0;  i<anzahl;  i++  ) {
 					const int nr = (i+offset)%anzahl;
@@ -913,7 +922,7 @@ DBG_MESSAGE("spieler_t::do_passenger_ki()","using %s on %s",road_vehicle->gib_na
 					  ) {
 						koord list[2]={ platz1, platz2 };
 						// wait only, if traget is not a hub but an attraction/factory
-						create_bus_transport_vehikel(platz1,1,list,2,end_stadt==NULL);
+						create_bus_transport_vehikel(platz1,count,list,2,end_stadt==NULL);
 //						create_bus_transport_vehikel(platz2,1,list,2);
 						substate = NR_ROAD_SUCCESS;
 					}
@@ -930,8 +939,7 @@ DBG_MESSAGE("spieler_t::do_passenger_ki()","using %s on %s",road_vehicle->gib_na
 					  ) {
 						koord list[2]={ platz1, platz2 };
 						// wait only, if traget is not a hub but an attraction/factory
-						create_bus_transport_vehikel(platz1,1,list,2,end_stadt==NULL);
-	//					create_bus_transport_vehikel(platz2,1,list,2);
+						create_bus_transport_vehikel(platz1,count,list,2,end_stadt==NULL);
 						substate = NR_ROAD_SUCCESS;
 					}
 					else {
@@ -1013,41 +1021,62 @@ DBG_MESSAGE("spieler_t::do_passenger_ki()","add new convoi to crowded line from 
 			slist_iterator_tpl<convoihandle_t> iter (welt->gib_convoi_list());
 			while(iter.next()) {
 				const convoihandle_t cnv = iter.get_current();
-				if(cnv->gib_besitzer()==this  &&  cnv->gib_vehikel(0)->gib_fracht_menge()==cnv->gib_vehikel(0)->gib_fracht_max()) {
-					INT_CHECK("simplay 889");
-					// this is our vehicle, and is 100% loaded
-					fahrplan_t  *f = cnv->gib_fahrplan();
-					koord3d startpos= cnv->gib_pos();
-					// next checkpoint also crowed with things for us?
-					halthandle_t h0=welt->lookup( f->eintrag.at(0).pos )->gib_halt();
-					halthandle_t h1=welt->lookup( f->eintrag.at(1).pos )->gib_halt();
+				if(cnv->gib_besitzer()==this) {
+					// check for empty vehicles (likely stucked) that are making no plus and remove them ...
+					// take care, that the vehicle is old enough ...
+					if((welt->gib_zeit_ms()-cnv->gib_vehikel(0)->gib_insta_zeit())>>(karte_t::ticks_bits_per_tag+1)>2  &&  cnv->gib_jahresgewinn()<=0  ){
+						sint64 passenger=0;
+						for( int i=0;  i<MAX_MONTHS;  i ++) {
+							passenger += cnv->get_finance_history(i,CONVOI_TRANSPORTED_GOODS);
+						}
+						if(passenger==0) {
+							// now passengers for two months?
+							// well, then delete this (likely stucked somewhere)
+DBG_MESSAGE("spieler_t::do_passenger_ki()","convoi %s not needed!",cnv->gib_name());
+							buche( -cnv->calc_restwert(), cnv->gib_pos().gib_2d(), COST_NEW_VEHICLE );
+							cnv->self_destruct();
+							break;
+						}
+					}
+					// then check for overcrowded lines
+					if(cnv->gib_vehikel(0)->gib_fracht_menge()==cnv->gib_vehikel(0)->gib_fracht_max()) {
+						INT_CHECK("simplay 889");
+						// this is our vehicle, and is 100% loaded
+						fahrplan_t  *f = cnv->gib_fahrplan();
+						koord3d startpos= cnv->gib_pos();
+						// next checkpoint also crowed with things for us?
+						halthandle_t h0=welt->lookup( f->eintrag.at(0).pos )->gib_halt();
+						halthandle_t h1=welt->lookup( f->eintrag.at(1).pos )->gib_halt();
 DBG_MESSAGE("spieler_t::do_passenger_ki()","checking our convoi %s between %s and %s",cnv->gib_name(),h0->gib_name(),h1->gib_name());
 DBG_MESSAGE("spieler_t::do_passenger_ki()","waiting: %s (%i) and %s (%i)",h0->gib_name(),h0->gib_ware_fuer_zwischenziel(warenbauer_t::passagiere,f->eintrag.at(1).pos.gib_2d()),h1->gib_name(),h1->gib_ware_fuer_zwischenziel(warenbauer_t::passagiere,f->eintrag.at(0).pos.gib_2d()));
 
-					// we assume crowed for more than 129 waiting passengers
-					if(	h0->gib_ware_fuer_zwischenziel(warenbauer_t::passagiere,f->eintrag.at(1).pos.gib_2d())>250   ||
-						h1->gib_ware_fuer_zwischenziel(warenbauer_t::passagiere,f->eintrag.at(0).pos.gib_2d())>250   ) {
-DBG_MESSAGE("spieler_t::do_passenger_ki()","copy convoi %s on route %s to %s",cnv->gib_name(),h0->gib_name(),h1->gib_name());
-						vehikel_t * v = vehikelbauer_t::baue(welt, startpos, this,NULL, cnv->gib_vehikel(0)->gib_besch());
-						convoi_t *new_cnv = new convoi_t(welt, this);
-						// V.Meyer: give the new convoi name from first vehicle
-						new_cnv->setze_name( v->gib_besch()->gib_name() );
-						new_cnv->add_vehikel( v );
-						fahrplan_t *fpl = new_cnv->gib_vehikel(0)->erzeuge_neuen_fahrplan();
-						// do not start at current stop => wont work ...
-						fpl->aktuell = (f->eintrag.at(0).pos==startpos)?1:0;
-						// now copy scedule
-						fpl->maxi = f->maxi;
-						for(int j=0;  j<=f->maxi;  j++) {
-							fpl->eintrag.at(j).pos = f->eintrag.at(j).pos;
-							fpl->eintrag.at(j).ladegrad = f->eintrag.at(j).ladegrad;
+						// we assume crowed for more than 129 waiting passengers
+						if(	h0->gib_ware_fuer_zwischenziel(warenbauer_t::passagiere,f->eintrag.at(1).pos.gib_2d())>250   ||
+							h1->gib_ware_fuer_zwischenziel(warenbauer_t::passagiere,f->eintrag.at(0).pos.gib_2d())>250   ) {
+	DBG_MESSAGE("spieler_t::do_passenger_ki()","copy convoi %s on route %s to %s",cnv->gib_name(),h0->gib_name(),h1->gib_name());
+							vehikel_t * v = vehikelbauer_t::baue(welt, startpos, this,NULL, cnv->gib_vehikel(0)->gib_besch());
+							convoi_t *new_cnv = new convoi_t(welt, this);
+							// V.Meyer: give the new convoi name from first vehicle
+							new_cnv->setze_name( v->gib_besch()->gib_name() );
+							new_cnv->add_vehikel( v );
+							fahrplan_t *fpl = new_cnv->gib_vehikel(0)->erzeuge_neuen_fahrplan();
+							// do not start at current stop => wont work ...
+							fpl->aktuell = (f->eintrag.at(0).pos==startpos)?1:0;
+							// now copy scedule
+							fpl->maxi = f->maxi;
+							for(int j=0;  j<=f->maxi;  j++) {
+								fpl->eintrag.at(j).pos = f->eintrag.at(j).pos;
+								// waiting on a overcrowded line does not make sense!
+								// fpl->eintrag.at(j).ladegrad = f->eintrag.at(j).ladegrad;
+								fpl->eintrag.at(j).ladegrad = 0;
+							}
+							// and start new convoi
+							welt->sync_add( new_cnv );
+							new_cnv->setze_fahrplan(fpl);
+							new_cnv->start();
+							// we do not want too many copies, just copy once!
+							break;
 						}
-						// and start new convoi
-						welt->sync_add( new_cnv );
-						new_cnv->setze_fahrplan(fpl);
-						new_cnv->start();
-						// we do not want too many copies, just copy once!
-						break;
 					}
 				}
 			}
@@ -1608,20 +1637,31 @@ DBG_MESSAGE("spieler_t::baue_bahnhof","try to remove last segment");
 	// to avoid broken stations, they will be always built next to an existing
 	bool make_all_bahnhof=false;
 
+	// find a freight train station
+	const haus_besch_t * besch=hausbauer_t::train_stops.at(0);
+	for( int i=1;  i<hausbauer_t::train_stops.count();  i++  ) {
+		if(strstr(hausbauer_t::train_stops.at(i)->gib_name(),"Freight")) {
+			besch = hausbauer_t::train_stops.at(i);
+			if(simrand(20)<7) {
+				break;
+			}
+		}
+	}
+
 	// first one direction
      koord pos;
 	for(  pos=*p;  pos!=t+zv;  pos+=zv ) {
 		if(  make_all_bahnhof  ||  is_my_halt(pos+koord(-1,-1)).is_bound()  ||  is_my_halt(pos+koord(-1,1)).is_bound()  ||  is_my_halt(pos+koord(1,-1)).is_bound()  ||  is_my_halt(pos+koord(1,1)).is_bound()  ) {
 			// start building, if next to an existing station
 			make_all_bahnhof = true;
-			wkz_bahnhof(this, welt, pos, hausbauer_t::train_stops.at(0));
+			wkz_bahnhof(this, welt, pos, besch);
 		}
 		INT_CHECK("simplay 753");
 	}
 	// now add the other squares (going backwards)
 	for(  pos=t;  pos!=*p-zv;  pos-=zv ) {
 		if(  !is_my_halt(pos).is_bound()  ) {
-			wkz_bahnhof(this, welt, pos, hausbauer_t::train_stops.at(0));
+			wkz_bahnhof(this, welt, pos, besch);
 		}
 		baulaenge ++;
 	}
@@ -2881,7 +2921,8 @@ DBG_MESSAGE("spieler_t::bescheid_vehikel_problem","Vehicle %s can't find a route
 void
 spieler_t::init_undo( weg_t::typ wtype, int max )
 {
-	if(automat) {
+	if(kennfarbe!=4) {
+		// this is an KI
 		return;
 	}
 	// only human player

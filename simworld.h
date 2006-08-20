@@ -93,6 +93,11 @@ public:
      */
     enum { ticks_per_tag = (1 << ticks_bits_per_tag) };
 
+    /**
+     * maximum number of towns
+     * @author prissi
+     */
+    enum { max_stadt = 64 };
 
     /**
      * Hoehe eines Punktes der Karte mit "perlin noise"
@@ -176,7 +181,7 @@ private:
 
     slist_tpl<koord> labels;
 
-    array_tpl<stadt_t *> *stadt;
+    vector_tpl<stadt_t *> *stadt;
 
 
     /**
@@ -410,7 +415,7 @@ public:
      * Zugriff auf das Städte Array.
      * @author Hj. Malthaner
      */
-    inline const array_tpl<stadt_t *> * gib_staedte() const { return stadt; };
+    inline const vector_tpl<stadt_t *> * gib_staedte() const { return stadt; };
 
 
     /**

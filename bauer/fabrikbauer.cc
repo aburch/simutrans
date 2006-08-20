@@ -522,8 +522,8 @@ fabrikbauer_t::baue_fabrik(karte_t * welt, koord3d *parent, const fabrik_besch_t
 
 	// add passenger targets: take care of fish_swarm, which do not accepts sucide divers ...
 	if(make_passenger) {
-		const array_tpl<stadt_t *> *staedte=welt->gib_staedte();
-		const int anz_staedte = staedte->get_size();
+		const vector_tpl<stadt_t *> *staedte=welt->gib_staedte();
+		const int anz_staedte = staedte->get_count();
 		for(  int j=0;  j<anz_staedte;  j++  ) {
 			// noch keine stadt mit diesem namen?
 			if(staedte->get(j)!=NULL) {
@@ -638,7 +638,7 @@ DBG_MESSAGE("fabrikbauer_t::baue_hierarchie","lieferanten %i, lcount %i (need %i
 
 					// now guess, how much this factory can supply
 					for(int gg=0;gg<fab->gib_besch()->gib_produkte();gg++) {
-						if(fab->gib_besch()->gib_produkt(gg)->gib_ware()==ware) {
+						if(fab->gib_besch()->gib_produkt(gg)->gib_ware()==ware  &&  fab->gib_lieferziele().get_count()<fabrik_t::max_lieferziele) {
 							int produktion=(fab->max_produktion()*fab->gib_besch()->gib_produkt(gg)->gib_faktor()*100)/256;
 							// search consumer
 							const vector_tpl <koord> & lieferziele = fab->gib_lieferziele();

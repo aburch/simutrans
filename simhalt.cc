@@ -488,8 +488,8 @@ void haltestelle_t::display_status(int xpos, int ypos) const
   // all variables in the bracket MUST be signed, otherwise nothing may be drawn at all
   xpos -= (count*4 - get_tile_raster_width())/2;
 
-  for(unsigned int i=0; i<count; i++) {
-    const ware_besch_t *wtyp = warenbauer_t::gib_info(i);
+  for(unsigned int i=0; i+1<count; i++) {
+    const ware_besch_t *wtyp = warenbauer_t::gib_info(i+1);
 
     const int v = MIN((gib_ware_summe(wtyp) >> 2) + 2, 128);
 
@@ -733,11 +733,12 @@ haltestelle_t::suche_route(ware_t &ware,
 	// passagiere+post gehen bis zu 4 felder zu Fuß zu ihrem ziel
 
 	const koord pos = halt->gib_basis_pos();
+
 	const int distance = MAX(ABS(pos.x-ziel.x),ABS(pos.y-ziel.y));
 
 	// printf("distance from %d %d to  %d %d is %d\n", ziel.x, ziel.y, pos.x, pos.y, distance);
 
-	if(distance < 4) {
+	if(  distance<=2*umgebung_t::station_coverage_size  ) {
 	  // ziel gefunden
 
 	  // printf("distance from %d %d to  %d %d is %d\n", ziel.x, ziel.y, pos.x, pos.y, distance);
@@ -941,7 +942,7 @@ haltestelle_t::add_grund(grund_t *gr)
 	return true;
     } else {
 	return false;
-    }
+  }
 }
 
 void
@@ -1266,36 +1267,32 @@ haltestelle_t::nimmt_an(const ware_besch_t* wtyp)
 }
 
 
+
 bool
 haltestelle_t::vereinige_waren(const ware_t &ware)
 {
-    // pruefen ob die ware mit bereits wartender ware vereinigt
-    // werden kann
+        // pruefen ob die ware mit bereits wartender ware vereinigt werden kann
+        slist_tpl<ware_t> * wliste = waren.get(ware.gib_typ());
+        const bool is_pax = (ware.gib_typ()==warenbauer_t::passagiere  ||  ware.gib_typ()==warenbauer_t::post);
 
-//    printf("prüfe Warenrekombination: %s nach %s\n", ware->name(), gib_halt(ware->gib_ziel())->gib_name());
-    slist_tpl<ware_t> * wliste = waren.get(ware.gib_typ());
-    if(wliste) {
-	slist_iterator_tpl<ware_t> iter(wliste);
+        if(wliste) {
+                slist_iterator_tpl<ware_t> iter(wliste);
 
-	while(iter.next()) {
-	    ware_t &tmp = iter.access_current();
+                while(iter.next()) {
+                        ware_t &tmp = iter.access_current();
 
-//	    printf("  mit %s nach %s\n", tmp->name(), gib_halt(tmp->gib_ziel())->gib_name());
+                        // es wird auf basis von Haltestellen vereinigt
+                        // prissi: das ist aber ein Fehler für alle anderen Güter, daher Zielkoordinaten für alles, was kein passagier ist ...
+                        if(  tmp.gib_zielpos()==ware.gib_zielpos()
+                        	||  (is_pax   &&   gib_halt(tmp.gib_ziel())==gib_halt(ware.gib_ziel()) )
+                        ) {
+                                tmp.menge += ware.menge;
+                                return true;
+                        }
+                }
+        }
 
-	    // es wird auf basis von Haltestellen vereinigt
-	    if(gib_halt(tmp.gib_ziel()) == gib_halt(ware.gib_ziel())) {
-		tmp.menge += ware.menge;
-
-//		printf("  passt!\n");
-
-		return true;
-	    }
-	}
-    }
-
-//    printf("  nix passt...\n");
-
-    return false;
+        return false;
 }
 
 
@@ -1676,50 +1673,53 @@ haltestelle_t::is_something_waiting() const
 }
 
 
-int haltestelle_t::get_station_type() const      //13-Jan-02     Markus Weber    Added
-{
-	int type=0;
 
+/*
+ * recalculated the station type(s)
+ * since it iterates over all ground, this is better not done too often, because line management and station list
+ * queries this information regularely; Thus, we do this, when adding new ground
+ * @author Weber/prissi
+ */
+void
+haltestelle_t::recalc_station_type()
+{
 	slist_iterator_tpl<grund_t *> iter( grund );
+	int new_station_type = 0;
 
 	// iterate over all tiles
 	while(iter.next()) {
 		grund_t *gr = iter.get_current();
+		gebaeude_t *gb = static_cast<gebaeude_t *>(gr->suche_obj(ding_t::gebaeude));
+		const haus_besch_t *besch=gb?gb->gib_tile()->gib_besch():NULL;
 
+		if(besch==NULL) {
+			// no besch?!?
+			dbg->fatal("haltestelle_t::get_station_type()","ground belongs to halt but no besch?");
+			continue;
+		}
+//if(besch) DBG_DEBUG("haltestelle_t::get_station_type()","besch(%p)=%s",besch,besch->gib_name());
+
+		// there is only one loading bay ...
+		if(besch==hausbauer_t::frachthof_besch) {
+			new_station_type |= loadingbay;
+		}
 		// check for trainstation
-		if(  type&railstation==0  ) {
-			for( int i=0;  i<hausbauer_t::train_stops.count();  i++  ) {
-				if (gr->hat_gebaeude(hausbauer_t::train_stops.at(i))) {
-					type |= railstation;
-					break;
-				}
-			}
-		}
-		// check for roadstop
-		if(  type&busstop==0  ) {
-			for( int i=0;  i<hausbauer_t::car_stops.count();  i++  ) {
-				if (gr->hat_gebaeude(hausbauer_t::car_stops.at(i))) {
-					type |= busstop;
-					break;
-				}
-			}
-		}
-		if (gr->hat_gebaeude(hausbauer_t::frachthof_besch)) {
-			type |= loadingbay;
+		else if((new_station_type&railstation)==0  &&  hausbauer_t::train_stops.contains(besch)) {
+			new_station_type |= railstation;
 		}
 		// check for dock
-		if(  type&dock==0  ) {
-			for( int i=0;  i<hausbauer_t::ship_stops.count();  i++  ) {
-				if (gr->hat_gebaeude(hausbauer_t::ship_stops.at(i))) {
-					type |= dock;
-					break;
-				}
-			}
+		else if((new_station_type&dock)==0  &&  hausbauer_t::ship_stops.contains(besch)) {
+			new_station_type |= dock;
+		}
+		// check for roadstop
+		else if((new_station_type&busstop)==0  &&  hausbauer_t::car_stops.contains(besch)) {
+			new_station_type |= busstop;
 		}
 
 	}
+	station_type = (haltestelle_t::stationtyp)new_station_type;
 
-	return type;
+DBG_DEBUG("haltestelle_t::recalc_station_type()","result %x",new_station_type);
 }
 
 
@@ -1850,7 +1850,15 @@ haltestelle_t::rdwr(loadsave_t *file)
 				 k3_to_cstr(k).chars(),
 				 k3_to_cstr(gr->gib_pos()).chars());
 		}
-		add_grund(gr);
+		// prissi: now check, if there is a building -> we allow no longer ground without building!
+		gebaeude_t *gb = static_cast<gebaeude_t *>(gr->suche_obj(ding_t::gebaeude));
+		const haus_besch_t *besch=gb?gb->gib_tile()->gib_besch():NULL;
+		if(besch) {
+			add_grund(gr);
+		}
+		else {
+dbg->warning("haltestelle_t::rdwr()", "will no longer add ground without building at %s!",k3_to_cstr(k).chars());
+		}
 
 		// Hajo: some versions generated oil rigs that did not accept
 		// passengers. This line will change all water-based stations

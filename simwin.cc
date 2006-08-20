@@ -555,6 +555,10 @@ display_all_win()
 
     for(i=0; i<ins_win; i++) {
 	display_win(i);
+	// prissi: tooltips are only allowed for the uppermost window
+	if(i<ins_win-1) {
+		tooltip_text = NULL;
+	}
     }
 }
 
@@ -899,20 +903,19 @@ static const char*  tooltips[22] =
     ""
 };
 
+
+
+// menu tooltips
 static void win_display_tooltips()
 {
-    if(gib_maus_y() <= 32 && gib_maus_x() < 704) {
-	if(*tooltips[gib_maus_x() / 32] != 0) {
+	if(gib_maus_y() <= 32 && gib_maus_x() < 704) {
+		if(*tooltips[gib_maus_x() / 32] != 0) {
 
-	    const char *text = translator::translate(tooltips[gib_maus_x() / 32]);
-
-            const int len = proportional_string_width(text) + 7;
-	    int x = ((gib_maus_x() & 0xFFE0)+16)-(len/2);
-
-	    x = CLIP(x, 4, display_get_width()-len);
-	    display_ddd_proportional(x, 32+8, len, 0, 2, SCHWARZ, text, true);
+			tooltip_text = translator::translate(tooltips[gib_maus_x() / 32]);
+			tooltip_xpos = ((gib_maus_x() & 0xFFE0)+16);
+			tooltip_ypos = 39;
+		}
 	}
-    }
 }
 
 static const int hours2night[] =
@@ -961,17 +964,18 @@ win_display_flush(int ticks, int color, double konto)
 		extern int disp_height;
 		const int diff_y = 15+16*show_ticker;
 		disp_height -= diff_y;
+
 		display_all_win();
 		remove_old_win();
 
-//		win_display_tooltips();
+		win_display_tooltips();
 
 		// Hajo: check if there is a tooltip to display
-		if(tooltip_text!=NULL&&0) {
+		if(tooltip_text!=NULL) {
 			const int width = proportional_string_width(tooltip_text)+7;
 
 			display_ddd_proportional(tooltip_xpos,
-													tooltip_ypos,
+													MAX(39,tooltip_ypos),
 													width,
 													0,
 													2,

@@ -297,7 +297,7 @@ PIXVAL* image_writer_t::encode_image(int x, int y, dimension *dim, int *len)
 //@EDOC
 bool image_writer_t::block_laden(const char *fname)
 {
-    if(last_img_file == fname || load_block(&block, &width, &height, fname)) {
+    if(last_img_file == fname || load_block(&block, &width, &height, fname,img_size)) {
 	last_img_file = fname;
 	return true;
     } else {

@@ -14,6 +14,7 @@
 #include "dings/gebaeude.h"
 
 #include "tpl/slist_tpl.h"
+#include "tpl/vector_tpl.h"
 #include "tpl/array_tpl.h"
 #include "tpl/array2d_tpl.h"
 
@@ -304,7 +305,10 @@ private:
 
 
 public:
-
+    /* returns all factories connected to this city ...
+     * @author: prissi
+     */
+    const slist_tpl <fabrik_t *> & gib_arbeiterziele() const {return arbeiterziele;};
 
     int gib_pax_erzeugt() const {return pax_erzeugt;};
     int gib_pax_transport() const {return pax_transport;};
@@ -445,7 +449,7 @@ public:
      * @param anzahl die Anzahl der zu liefernden Koordinaten
      * @author Hj. Malthaner
      */
-    static array_tpl<koord> *random_place(const karte_t *wl, int anzahl);	// geeigneten platz zur Stadtgruendung durch Zufall ermitteln
+    static vector_tpl<koord> *random_place(const karte_t *wl, int anzahl);	// geeigneten platz zur Stadtgruendung durch Zufall ermitteln
 
 
     /**

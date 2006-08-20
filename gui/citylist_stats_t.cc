@@ -24,8 +24,7 @@ citylist_stats_t::citylist_stats_t(karte_t * w)
 {
   welt = w;
 
-  setze_groesse(koord(600,
-		      welt->gib_staedte()->get_size()*14 + 30));
+  setze_groesse(koord(600, welt->gib_staedte()->get_count()*14 + 30));
 }
 
 
@@ -41,9 +40,9 @@ void citylist_stats_t::infowin_event(const event_t * ev)
 
     printf("%d\n", line);
 
-    const array_tpl<stadt_t *> * cities = welt->gib_staedte();
+    const vector_tpl<stadt_t *> * cities = welt->gib_staedte();
 
-    if(line < cities->get_size()) {
+    if(line < cities->get_count()) {
       stadt_t * stadt = cities->get(line);
       if(stadt) {
 	create_win(320, 0,
@@ -72,9 +71,9 @@ void citylist_stats_t::zeichnen(koord offset) const
 {
   static cbuffer_t buf (1024);
 
-  const array_tpl<stadt_t *> * cities = welt->gib_staedte();
+  const vector_tpl<stadt_t *> * cities = welt->gib_staedte();
 
-  for(unsigned int i=0; i<cities->get_size(); i++) {
+  for(unsigned int i=0; i<cities->get_count(); i++) {
     const stadt_t * stadt = cities->get(i);
 
     if(stadt) {

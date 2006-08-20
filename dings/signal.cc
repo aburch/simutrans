@@ -103,30 +103,32 @@ void signal_t::calc_bild()
     // das Feld neuzeichnen lassen
     welt->markiere_dirty(gib_pos());
   } else {
+  schiene_t * sch = dynamic_cast<schiene_t *>(welt->lookup(gib_pos())->gib_weg(weg_t::schiene));
+  const int offset = (sch->ist_elektrisch()  &&  skinverwaltung_t::signale->gib_bild_anzahl()==16)?8:0;
 
     switch(dir) {
     case ribi_t::nord:
       setze_xoff(-2);
       setze_yoff(-12);
-      setze_bild(0, skinverwaltung_t::signale->gib_bild_nr(1+zustand*4));
+      setze_bild(0, skinverwaltung_t::signale->gib_bild_nr(1+zustand*4)+offset);
       break;
 
     case ribi_t::sued:
       setze_xoff(2);
       setze_yoff(12);
-      setze_bild(0, skinverwaltung_t::signale->gib_bild_nr(0+zustand*4));
+      setze_bild(0, skinverwaltung_t::signale->gib_bild_nr(0+zustand*4)+offset);
       break;
 
     case ribi_t::ost:
       setze_xoff(24);
       setze_yoff(0);
-      setze_bild(0, skinverwaltung_t::signale->gib_bild_nr(2+zustand*4));
+      setze_bild(0, skinverwaltung_t::signale->gib_bild_nr(2+zustand*4)+offset);
       break;
 
     case ribi_t::west:
       setze_xoff(-24);
       setze_yoff(0);
-      setze_bild(0, skinverwaltung_t::signale->gib_bild_nr(3+zustand*4));
+      setze_bild(0, skinverwaltung_t::signale->gib_bild_nr(3+zustand*4)+offset);
       break;
 
     default:
@@ -189,30 +191,32 @@ void presignal_t::calc_bild()
     // das Feld neuzeichnen lassen
     welt->markiere_dirty(gib_pos());
   } else {
+  schiene_t * sch = dynamic_cast<schiene_t *>(welt->lookup(gib_pos())->gib_weg(weg_t::schiene));
+  const int offset = (sch->ist_elektrisch()  &&  skinverwaltung_t::presignals->gib_bild_anzahl()==16)?8:0;
 
     switch(dir) {
     case ribi_t::nord:
       setze_xoff(-2);
       setze_yoff(-12);
-      setze_bild(0, skinverwaltung_t::presignals->gib_bild_nr(1+zustand*4));
+      setze_bild(0, skinverwaltung_t::presignals->gib_bild_nr(1+zustand*4)+offset);
       break;
 
     case ribi_t::sued:
       setze_xoff(2);
       setze_yoff(12);
-      setze_bild(0, skinverwaltung_t::presignals->gib_bild_nr(0+zustand*4));
+      setze_bild(0, skinverwaltung_t::presignals->gib_bild_nr(0+zustand*4)+offset);
       break;
 
     case ribi_t::ost:
       setze_xoff(24);
       setze_yoff(0);
-      setze_bild(0, skinverwaltung_t::presignals->gib_bild_nr(2+zustand*4));
+      setze_bild(0, skinverwaltung_t::presignals->gib_bild_nr(2+zustand*4)+offset);
       break;
 
     case ribi_t::west:
       setze_xoff(-24);
       setze_yoff(0);
-      setze_bild(0, skinverwaltung_t::presignals->gib_bild_nr(3+zustand*4));
+      setze_bild(0, skinverwaltung_t::presignals->gib_bild_nr(3+zustand*4)+offset);
       break;
 
     default:

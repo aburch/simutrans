@@ -323,8 +323,8 @@ stadt_t::stadt_t(karte_t *wl, spieler_t *sp, koord pos,int citizens) :
 DBG_MESSAGE("stadt_t::stadt_t()","Welt %p",welt);fflush(NULL);
     /* get a unique cityname */
     /* 9.1.2005, prissi */
-    const array_tpl<stadt_t *> *staedte=welt->gib_staedte();
-    const int anz_staedte = staedte->get_size()-1;
+    const vector_tpl<stadt_t *> *staedte=welt->gib_staedte();
+    const int anz_staedte = staedte->get_count()-1;
     const int name_list_count = translator::get_count_city_name();
     bool not_unique=true;
 
@@ -573,10 +573,11 @@ stadt_t::step()
 {
 	// Ist es Zeit für einen neuen step?
 	if(welt->gib_zeit_ms() > next_step) {
-		const long delta_t = welt->gib_zeit_ms() - next_step;
+//		const long delta_t -= welt->gib_zeit_ms() - next_step;
 
-		// Alle 10 sekunden ein step
-		next_step = welt->gib_zeit_ms()+MAX(0, step_interval-delta_t);
+		// Alle 7 sekunden ein step
+//		next_step = welt->gib_zeit_ms()+MAX(0, step_interval-delta_t);
+		next_step += step_interval;
 
 		// Zaehlt steps seit instanziierung
 		step_count ++;
@@ -800,25 +801,11 @@ stadt_t::step_passagiere()
 							welt->suche_nahe_haltestellen(ziel, 4, 0, 1);
 
 						if(ziel_list.get_count() == 0){
-#if 0
-// before 0.86.00
-							// Dario: suche_nahe_haltestellen doesn't check ziel itself.
-							// So search for a stop on ziel
-							// is required additionally
-
-							if(halt->gib_halt(welt, ziel) == NULL){
-								// ziel itself is no stop either. Thus, routing is not possible and we do not need to do a calculation.
-								// Mark ziel as destination without route and continue.
 // DBG_MESSAGE("stadt_t::step_passagiere()", "No stop near dest (%d, %d)", ziel.x, ziel.y);
-								merke_passagier_ziel(ziel, DUNKELORANGE);
-
-								continue;
-							}
-#else
-							// prissi: gound tile contains also information for this direkt position
+							// ziel itself is no stop either. Thus, routing is not possible and we do not need to do a calculation.
+							// Mark ziel as destination without route and continue.
 							merke_passagier_ziel(ziel, DUNKELORANGE);
 							continue;
-#endif
 						}
 						else {
 //DBG_DEBUG("stadt_t::step_passagiere()", "Stop near dest (%d, %d)", ziel.x, ziel.y);
@@ -831,21 +818,51 @@ stadt_t::step_passagiere()
 						pax.setze_zielpos( ziel );
 						pax.menge = pax_left_to_do;
 
-						if(halt->gib_ware_summe(wtyp) > (halt->gib_grund_count() << 7)) {
-							// Hajo: Station crowded:
-							// some are appalled and will not try other
-							// stations
-							halt->add_pax_unhappy(pax.menge);
-							// prissi: 11-Mar-2005
-							// however, we could try other stations, since to above list is now complete!
+						// prissi: 11-Mar-2005
+						// we try all stations to find one not overcrowded
+						int halte;
+						for(halte=0;  halte<halt_list.get_count();  halte++  ) {
+							halt = halt_list.get(halte);
+							if(halt->gib_ware_summe(wtyp) <= (halt->gib_grund_count() << 7)) {
+								// prissi: not overcrowded
+								// so now try routing
+								break;
+							}
+							else {
+								// Hajo: Station crowded:
+								// they are appalled but will try other stations
+								halt->add_pax_unhappy(pax_left_to_do);
+							}
+						}
+						if(halte==halt_list.get_count()) {
+							// prissi: only overcrowded stations found ...
 							continue;
 						}
-
-
+#if 0
+						// prissi:
+						// Especially for crowded stops there might be
+						// already some passengers waiting for the same destination
+						if(halt->vereinige_ware(pax)) {
+							const slist_tpl<ware_t> *wl = halt->gib_warenliste(wtyp)
+							if(wliste) {
+								slist_iterator_tpl<ware_t> iter (wliste);
+								bool found=flase;
+								while(!found  &&  iter.next()) {
+									// just iterate until found
+									found = ziel_list.contains(iter.get_current().gib_ziel());
+								}
+								if(found) {
+									halt->add_pax_happy(pax_left_to_do);
+									continue;
+								}
+							}
+						}
+#endif
 						// Hajo: for efficiency we try to route not every
 						// single pax, but packets.
 						// the last packet might have less then 7 pax
-
+						// prissi: since we got also a comprehensive list of target destinations,
+						// there should be a way suche_route should profit from this
 						const bool schon_da = halt->suche_route(pax, halt);
 
 						if(!schon_da) {
@@ -857,11 +874,11 @@ stadt_t::step_passagiere()
 								pax_transport += pax.menge;
 
 								halt->liefere_an(pax);
-								halt->add_pax_happy(pax.menge);
+								halt->add_pax_happy(pax_left_to_do);
 
 							}
 							else {
-								halt->add_pax_no_route(pax.menge);
+								halt->add_pax_no_route(pax_left_to_do);
 								merke_passagier_ziel(ziel, DUNKELORANGE);
 							}
 						}
@@ -871,13 +888,12 @@ stadt_t::step_passagiere()
 				else {
 					// no halt are in the list
 					// Hajo: fake a ride to get a proper display of destinations
-
 						const koord ziel = finde_passagier_ziel();
 						merke_passagier_ziel(ziel, DUNKELORANGE);
-					}
 				}
 			}
 
+		}
 		INT_CHECK("simcity 525");
 	}
 
@@ -937,8 +953,8 @@ stadt_t::finde_passagier_ziel()
       // DBG_MESSAGE("stadt_t::finde_passagier_ziel()", "created a tourist to %d,%d", ziel.x, ziel.y);
 
   } else {
-      const array_tpl<stadt_t *> *staedte = welt->gib_staedte();
-      const int anz_staedte = staedte->get_size();
+      const vector_tpl<stadt_t *> *staedte = welt->gib_staedte();
+      const int anz_staedte = staedte->get_count();
 
       const stadt_t *zielstadt = staedte->get(simrand(anz_staedte));
 
@@ -986,6 +1002,63 @@ stadt_t::merke_passagier_ziel(koord k, int pax)
 */
 
 
+/**
+ * bauplatz_mit_strasse_sucher_t:
+ * Sucht einen freien Bauplatz mithilfe der Funktion suche_platz().
+ * added: Minimum distance between monuments
+ * @author V. Meyer/prissi
+ */
+class bauplatz_mit_strasse_sucher_t: public bauplatz_sucher_t  {
+
+	public:
+		bauplatz_mit_strasse_sucher_t(karte_t *welt) : bauplatz_sucher_t (welt) {}
+
+	// get distance to next factory
+	int find_dist_next_special(koord pos) const {
+		const slist_tpl<gebaeude_t *> & list = welt->gib_ausflugsziele();
+		slist_iterator_tpl <gebaeude_t *> iter (list);
+		int dist = welt->gib_groesse()*2;
+		while(iter.next()) {
+			gebaeude_t * gb = iter.get_current();
+			int d = koord_distance(gb->gib_pos(),pos);
+			if(d<dist) {
+				dist = d;
+			}
+		}
+		return dist;
+	}
+
+	bool strasse_bei(int x, int y) const {
+		grund_t *bd = welt->lookup(koord(x, y))->gib_kartenboden();
+		return bd && bd->gib_weg(weg_t::strasse);
+	}
+
+	virtual bool ist_platz_ok(koord pos, int b, int h) const {
+		if(bauplatz_sucher_t::ist_platz_ok(pos, b, h)) {
+			// try to built a little away from previous factory
+			if(find_dist_next_special(pos)<b+h) {
+				return false;
+			}
+			// now check for road connection
+			int i;
+			for(i = pos.y; i < pos.y + h; i++) {
+				if(strasse_bei(pos.x - 1, i) ||  strasse_bei(pos.x + b, i)) {
+					return true;
+				}
+			}
+			for(i = pos.x; i < pos.x + b; i++) {
+				if(strasse_bei(i, pos.y - 1) ||  strasse_bei(i, pos.y + h)) {
+					return true;
+				}
+			}
+		}
+		return false;
+	}
+};
+
+
+
+
 void
 stadt_t::check_bau_spezial(bool new_town)
 {
@@ -994,12 +1067,21 @@ stadt_t::check_bau_spezial(bool new_town)
 	if(besch) {
 		if(simrand(100) < besch->gib_chance()) {
 			// baue was immer es ist
-			bool rotate;
-			koord best_pos ( bauplatz_sucher_t(welt).suche_platz(pos, besch->gib_b(), besch->gib_h(), &rotate)  );
+			int rotate;
+			bool is_rotate;
+//			koord best_pos ( bauplatz_sucher_t(welt).suche_platz(pos, besch->gib_b(), besch->gib_h(), &rotate)  );
+			koord best_pos = bauplatz_mit_strasse_sucher_t(welt).suche_platz(pos,  besch->gib_b(), besch->gib_h(),&is_rotate);
 
 			if(best_pos != koord::invalid) {
 				// then built it
-				hausbauer_t::baue(welt, besitzer_p, welt->lookup(best_pos)->gib_kartenboden()->gib_pos(), rotate ? 1 : 0, besch);
+				if(besch->gib_b()==besch->gib_h()) {
+					// do we have more versions?
+					rotate = simrand(3);
+				}
+				else {
+					rotate = (simrand(20)&2) + is_rotate;
+				}
+				hausbauer_t::baue(welt, besitzer_p, welt->lookup(best_pos)->gib_kartenboden()->gib_pos(), rotate, besch);
 				// tell the player, if not during initialization
 				if(!new_town) {
 					char buf[256];
@@ -1912,11 +1994,11 @@ stadt_t::haltestellenname(koord k, const char *typ, int number)
 
 
 // geeigneten platz zur Stadtgruendung durch Zufall ermitteln
-array_tpl<koord> *
+vector_tpl<koord> *
 stadt_t::random_place(const karte_t *wl, const int anzahl)
 {
 	slist_tpl<koord> *list = wl->finde_plaetze(2,3);
-	array_tpl<koord> *result = new array_tpl<koord> (anzahl);
+	vector_tpl<koord> *result = new vector_tpl<koord> (anzahl);
 
 	for(int  i=0;  i<anzahl;  i++) {
 
@@ -1938,16 +2020,20 @@ stadt_t::random_place(const karte_t *wl, const int anzahl)
 			len --;
 			if(  minimum_dist>minimum_city_distance  ) {
 				// all citys are far enough => ok, find next place
-				result->at(i) = k;
+				result->append( k );
 				break;
 			}
 			// if we reached here, the city was not far enough => try again
 		}
 
 		if(len<=0  &&  i<anzahl-1) {
-dbg->error("stadt_t::random_place()","No enough places found!");
-			delete result;
-			return NULL;
+			if(i<=0) {
+dbg->fatal("stadt_t::random_place()","Not a single place found!");
+				delete result;
+				return NULL;
+			}
+dbg->warning("stadt_t::random_place()","Not enough places found!");
+			break;
 		}
 	}
 	list->clear();

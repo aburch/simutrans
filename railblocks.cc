@@ -153,8 +153,7 @@ void blockstrecke_t::verdrahte_signale_neu()
         signale.remove( sig );
     }
 
-//    DBG_MESSAGE("blockstrecke_t::verdrahte_signale_neu()",
-//		 "rail block %p has now %d signals", this, signale.count());
+//DBG_MESSAGE("blockstrecke_t::verdrahte_signale_neu()","rail block %p has now %d signals", this, signale.count());
 }
 
 void blockstrecke_t::add_signal(signal_t *sig)
@@ -242,10 +241,7 @@ signal_t * blockstrecke_t::gib_signal_bei(koord3d k)
 	}
     }
 
-#ifdef DEBUG
-    DBG_MESSAGE("blockstrecke_t::gib_signal_bei()",
-		 "found signal %p at %d,%d.\n", sig, k.x, k.y);
-#endif
+DBG_MESSAGE("blockstrecke_t::gib_signal_bei()","found signal %p at %d,%d.\n", sig, k.x, k.y);
 
     return sig;
 }

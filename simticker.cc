@@ -179,8 +179,8 @@ void ticker_t::zeichnen(void)
 			display_fillbox_wh(0, start_y+1, width, 15, MN_GREY2, true);
 		}
 		else {
-			display_scroll_band( start_y+1, X_DIST, 15 );
-			display_fillbox_wh(width-X_DIST, start_y, X_DIST, 1, SCHWARZ, true);
+			display_scroll_band( start_y+4, X_DIST, 12 );
+//			display_fillbox_wh(width-X_DIST, start_y, X_DIST, 1, SCHWARZ, true);
 			display_fillbox_wh(width-X_DIST, start_y+1, X_DIST, 15, MN_GREY2, true);
 			// ok, ready for the text
 			PUSH_CLIP(width-X_DIST-1,start_y+1,X_DIST+1,15);

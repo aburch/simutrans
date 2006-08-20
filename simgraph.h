@@ -161,11 +161,11 @@ void display_set_player_color(int entry);
 void	display_scroll_band( const int start_y, const int x_offset, const int h );
 
 // display image with day and night change
-void display_img(const int n, const int xp, int yp, const int dirty);
+void display_img_aux(const int n, const int xp, int yp, const int dirty, bool player);
+#define display_img( n, x, y, d ) display_img_aux( (n), (x), (y), (d), 0 )
 
 // dispaly image with color (if there) and optinal day and nightchange
-void display_color_img(const int n, const int xp, const int yp,
-		       const int color, const int daynight, const int dirty);
+void display_color_img(const int n, const int xp, const int yp, const int color, const int daynight, const int dirty);
 
 void display_fillbox_wh(int xp, int yp, int w, int h, int color, int dirty);
 void display_fillbox_wh_clip(int xp, int yp, int w, int h, int color, int d);
