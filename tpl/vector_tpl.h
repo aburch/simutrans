@@ -24,7 +24,7 @@
 template<class T>
 class vector_tpl
 {
-private:
+protected:
 
     T * data;
 
@@ -48,22 +48,28 @@ public:
      * @param size The capacity of the new vector
      * @author Hj. Malthaner
      */
-    vector_tpl(unsigned int size)
-    {
-        this->size  = size;
-        data = new T[size];
-        count = 0;
-    }
+	vector_tpl(unsigned int size)
+	{
+		this->size  = size;
+		if(size>0) {
+			data = new T[size];
+		} else {
+			data = 0;
+		}
+		count = 0;
+	}
 
 
     /**
      * Destructor.
      * @author Hj. Malthaner
      */
-    ~vector_tpl()
-    {
-        delete [] data;
-    }
+	~vector_tpl()
+	{
+		if(data) {
+			delete [] data;
+		}
+	}
 
     /**
      * sets the vector to empty
@@ -79,24 +85,27 @@ public:
      * Existing entries are preserved, new_size must be big enough
      * to hold them.
      *
-     * @author Volker Meyer
+     * @author prissi
      */
-    bool resize(unsigned int new_size)
-    {
-	if(count > new_size) {
-	    ERROR("vector_tpl<T>::resize()", "cannot preserve elements.");
-	    return false;
-	}
-        T *new_data = new T[new_size];
+	bool resize(unsigned int new_size)
+	{
+DBG_DEBUG("<vector_tpl>::resize()","old size %i, new size %i",size,new_size);
+		if(count > new_size) {
+			ERROR("vector_tpl<T>::resize()", "cannot preserve elements.");
+			return false;
+		}
+		T *new_data = new T[new_size];
 
-	for(int i = 0; i < count; i++) {
-	    new_data[i] = data[i];
+		if(size>0  &&  data) {
+			for(int i = 0; i < count; i++) {
+				new_data[i] = data[i];
+			}
+			delete [] data;
+		}
+		size  = new_size;
+		data = new_data;
+		return true;
 	}
-	size  = new_size;
-	delete data;
-	data = new_data;
-	return true;
-    }
 
     /**
      * Checks if element elem is contained in vector.
@@ -171,7 +180,7 @@ public:
 
 	/**
 	* insets data at a certain pos
-	* @author prisse
+	* @author prissi
 	*/
 	bool insert_at(unsigned int pos,T elem)
 	{
@@ -188,6 +197,24 @@ public:
 				}
 			}
 			data[pos] = elem;
+			return true;
+		}
+		return false;
+	}
+
+
+	/**
+	* removes element at position
+	* @author prissi
+	*/
+	bool remove_at(unsigned int pos)
+	{
+		if(  pos<size  &&  pos<=count  ) {
+			unsigned int i,j;
+			for(i=pos, j=pos+1;  j<count;  i++,j++  ) {
+				data[i] = data[j];
+			}
+			count --;
 			return true;
 		}
 		return false;

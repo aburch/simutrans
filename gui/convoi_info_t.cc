@@ -351,7 +351,7 @@ bool convoi_info_t::action_triggered(gui_komponente_t *komp)
 
 	if(komp == &kill_button)     // Destroy convoi -> deletes us, too!
 	{
-	        destroy_win(dynamic_cast <gui_fenster_t *> (this));
+	      destroy_win(dynamic_cast <gui_fenster_t *> (this));
 		cnv->self_destruct();
 		return true;
 	}

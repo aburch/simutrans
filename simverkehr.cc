@@ -93,12 +93,12 @@ void stadtauto_t::rdwr(loadsave_t *file)
     file->rdwr_str(s, "N");
     if(file->is_loading()) {
 	besch = table.get(s);
-	guarded_free(const_cast<char *>(s));
 
 	if(besch == 0 && liste.count() > 0) {
-	  dbg->warning("stadtauto_t::rdwr()", "Object '%s' not found in table, trying first stadtauto object type");
+	  dbg->warning("stadtauto_t::rdwr()", "Object '%s' not found in table, trying first stadtauto object type",s);
 	  besch = liste.at(0);
 	}
+	guarded_free(const_cast<char *>(s));
 
 	if(besch == 0) {
 	  dbg->fatal("stadtauto_t::rdwr()",

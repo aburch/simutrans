@@ -44,7 +44,7 @@ void building_reader_t::register_obj(obj_besch_t *&data)
     haus_besch_t *besch = static_cast<haus_besch_t *>(data);
 
     hausbauer_t::register_besch(besch);
-    DBG_DEBUG("building_reader_t::register_obj", "Loaded '%s'\n", besch->gib_name());
+    DBG_DEBUG("building_reader_t::register_obj", "Loaded '%s'", besch->gib_name());
 }
 
 

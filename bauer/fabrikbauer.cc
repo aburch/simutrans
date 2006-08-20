@@ -223,7 +223,14 @@ const fabrik_besch_t *fabrikbauer_t::gib_fabesch(const char *fabtype)
 
 void fabrikbauer_t::register_besch(fabrik_besch_t *besch)
 {
-    table.put(besch->gib_name(), besch);
+ 	uint16 p=besch->gib_produktivitaet();
+ 	if(p&0x8000) {
+ 		koord k=besch->gib_haus()->gib_groesse();
+ 		// to be compatible with old factories, since new code only steps once per factory, not per tile
+ 		besch->setze_produktivitaet( (p&0x7FFF)*k.x*k.y );
+DBG_DEBUG("fabrikbauer_t::register_besch()","Correction for old factory: Increase poduction from %i by %i",p&0x7FFF,k.x*k.y);
+ 	}
+	table.put(besch->gib_name(), besch);
 }
 
 
@@ -504,7 +511,7 @@ fabrikbauer_t::baue_fabrik(karte_t * welt, koord3d *parent, const fabrik_besch_t
 	}
 	else {
 		// search for near stations and connect factory to them
-		koord dim = fab->gib_groesse();
+		koord dim = info->gib_haus()->gib_groesse(rotate);
 		koord k;
 
 		for(k.x=pos.x-3; k.x<=pos.x+dim.x+2; k.x++) {
@@ -522,12 +529,10 @@ fabrikbauer_t::baue_fabrik(karte_t * welt, koord3d *parent, const fabrik_besch_t
 		const vector_tpl<stadt_t *> *staedte=welt->gib_staedte();
 		const int anz_staedte = staedte->get_count();
 		for(  int j=0;  j<anz_staedte;  j++  ) {
-			// noch keine stadt mit diesem namen?
-			if(staedte->get(j)!=NULL) {
-				koord city_dist = staedte->get(j)->gib_pos()-pos.gib_2d();
-				if(  (city_dist.x*city_dist.x)+(city_dist.y*city_dist.y)<5000) {
-					staedte->get(j)->add_factory_arbeiterziel(fab);
-				}
+			// connect, if closer than 5000
+			koord city_dist = staedte->get(j)->gib_pos()-pos.gib_2d();
+			if(  (city_dist.x*city_dist.x)+(city_dist.y*city_dist.y)<5000) {
+				staedte->get(j)->add_factory_arbeiterziel(fab);
 			}
 		}
 	}
@@ -555,7 +560,7 @@ fabrikbauer_t::baue_hierarchie(karte_t * welt, koord3d *parent, const fabrik_bes
 		stadt_fabrik_t sf;
 		koord k=pos->gib_2d();
 
-		koord size=info->gib_haus()->gib_groesse();
+		koord size=info->gib_haus()->gib_groesse(rotate);
 DBG_MESSAGE("fabrikbauer_t::baue_hierarchie","Search place for city factory (%i,%i) size.",size.x,size.y);
 
 		sf.stadt = welt->suche_naechste_stadt(k);

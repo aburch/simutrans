@@ -241,7 +241,7 @@ signal_t * blockstrecke_t::gib_signal_bei(koord3d k)
 	}
     }
 
-DBG_MESSAGE("blockstrecke_t::gib_signal_bei()","found signal %p at %d,%d.\n", sig, k.x, k.y);
+//DBG_MESSAGE("blockstrecke_t::gib_signal_bei()","found signal %p at %d,%d.\n", sig, k.x, k.y);
 
     return sig;
 }

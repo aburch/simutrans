@@ -180,7 +180,7 @@ DBG_DEBUG("factory_reader_t::read_node()","version=1, platz=%i, lieferanten=%i, 
 DBG_DEBUG("factory_reader_t::read_node()","version=0");
     besch->platzierung = (enum fabrik_besch_t::platzierung)v;
     decode_uint16(p);	// alsways zero
-    besch->produktivitaet = decode_uint16(p);
+    besch->produktivitaet = decode_uint16(p)|0x8000;
     besch->bereich = decode_uint16(p);
     besch->gewichtung = decode_uint16(p);
     besch->kennfarbe = decode_uint16(p);

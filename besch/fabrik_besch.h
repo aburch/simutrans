@@ -240,6 +240,7 @@ public:
 
     int gib_kennfarbe() const { return kennfarbe; }
 
+    void setze_produktivitaet(int p) { produktivitaet=p; };
     int gib_produktivitaet() const { return produktivitaet; };
     int gib_bereich() const { return bereich; }
 

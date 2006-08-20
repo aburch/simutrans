@@ -261,10 +261,12 @@ void building_writer_t::write_obj(FILE *fp, obj_node_t &parent, tabfileobj_t &ob
     		// if this is a special building
 		slist_tpl<cstring_t> cursorkeys;
 
-		cursorkeys.append(cstring_t(obj.get("cursor")));
-		cursorkeys.append(cstring_t(obj.get("icon")));
-
-		cursorskin_writer_t::instance()->write_obj(fp, node, obj, cursorkeys);
+		cstring_t c=cstring_t(obj.get("cursor")), i=cstring_t(obj.get("icon"));
+		cursorkeys.append(c);
+		cursorkeys.append(i);
+		if(c.len()>0  ||  i.len()>0) {
+			cursorskin_writer_t::instance()->write_obj(fp, node, obj, cursorkeys);
+		}
     }
     node.write(fp);
 }

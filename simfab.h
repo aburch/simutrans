@@ -29,8 +29,8 @@ class stadt_t;
 class stringhashtable_t;
 
 
-// production happens in these time steps
-#define PRODUCTION_DELTA_T (4096)
+// production happens in every second
+#define PRODUCTION_DELTA_T (1024)
 // error of shifting
 #define BASEPRODSHIFT (8)
 // base production=1 is 16 => shift 4
@@ -120,12 +120,6 @@ private:
     unsigned char rotate;
 
     /**
-     * Factory procution depends on factory size
-     * @author Hj. Malthaner
-     */
-    int number_of_tiles;
-
-    /**
      * produktionsgrundmenge
      * @author Hj. Malthaner
      */
@@ -198,13 +192,6 @@ public:
      * @author Hj. Malthaner
      */
     koord3d pos;
-
-
-    /**
-     * Ermittelt die Groesse der Fabrik in Feldern
-     * @author Hj. Malthaner
-     */
-    koord gib_groesse() const;
 
 
     void link_halt(halthandle_t halt);

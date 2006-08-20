@@ -165,7 +165,7 @@ bool grund_t::setze_besitzer(spieler_t *s)
 }
 
 
-grund_t::grund_t(karte_t *wl) : halt_list(10)
+grund_t::grund_t(karte_t *wl) : halt_list(0)
 {
     memset(wege, 0, sizeof(wege));
     welt = wl;
@@ -178,7 +178,7 @@ grund_t::grund_t(karte_t *wl) : halt_list(10)
 }
 
 
-grund_t::grund_t(karte_t *wl, loadsave_t *file) : halt_list(10)
+grund_t::grund_t(karte_t *wl, loadsave_t *file) : halt_list(0)
 {
 	// only used for saving?
     memset(wege, 0, sizeof(wege));
@@ -269,7 +269,7 @@ void grund_t::rdwr(loadsave_t *file)
 }
 
 
-grund_t::grund_t(karte_t *wl, koord3d pos) : halt_list(10)
+grund_t::grund_t(karte_t *wl, koord3d pos) : halt_list(0)
 {
     this->pos = pos;
     flags = 0;
@@ -385,6 +385,9 @@ void grund_t::add_to_haltlist(halthandle_t halt)
 				      ||  abs_distance( halt_list.get(insert_pos)->get_next_pos(pos.gib_2d()), pos.gib_2d() ) > abs_distance( halt->get_next_pos(pos.gib_2d()), pos.gib_2d() )  )
 				{
 //DBG_DEBUG("grund_t::add_to_haltlist()","Add at pos %i", insert_pos );
+					if(insert_pos>=halt_list.get_size()) {
+						halt_list.resize( halt_list.get_size()+8 );
+					}
 					halt_list.insert_at( insert_pos, halt );
 					return;
 				}
@@ -392,6 +395,9 @@ void grund_t::add_to_haltlist(halthandle_t halt)
 			// not found
 		}
 		// first or no passenger or append to the end ...
+		if(halt_list.get_count()>=halt_list.get_size()) {
+			halt_list.resize( halt_list.get_size()+8 );
+		}
 		halt_list.append_unique( halt );
 	}
 }

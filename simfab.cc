@@ -100,25 +100,6 @@ fabrik_t * fabrik_t::gib_fab(const karte_t *welt, const koord pos)
 }
 
 
-/**
- * Ermittelt die Groesse der Fabrik in Feldern
- * @author Hj. Malthaner
- */
-koord fabrik_t::gib_groesse() const
-{
-	koord size=besch->gib_haus()->gib_groesse(0);
-//DBG_MESSAGE("fabrik_t::gib_groesse()","(%i,%i) rot %i",size.x,size.y,rotate);
-	switch(rotate) {
-		case 0:
-		case 2:
-			return size;
-		case 1:
-		case 3:
-			return koord(size.y,size.x);
-	}
-	return koord::invalid;
-}
-
 
 void fabrik_t::link_halt(halthandle_t halt)
 {
@@ -127,6 +108,7 @@ void fabrik_t::link_halt(halthandle_t halt)
     welt->lookup(pos)->add_to_haltlist(halt);
   }
 }
+
 
 
 void fabrik_t::unlink_halt(halthandle_t halt)
@@ -178,9 +160,6 @@ fabrik_t::fabrik_t(karte_t *wl, loadsave_t *file) : lieferziele(max_lieferziele)
     pax_intervall = 262144/besch->gib_pax_level();
 #endif
     delta_sum = 0;
-
-	koord size=besch->gib_haus()->gib_groesse(0);
-	number_of_tiles = size.x * size.y;
 }
 
 
@@ -207,9 +186,6 @@ fabrik_t::fabrik_t(karte_t *wl, koord3d pos, spieler_t *spieler, const fabrik_be
     pax_intervall = 262144/besch->gib_pax_level();
 #endif
     delta_sum = 0;
-
-	koord size=besch->gib_haus()->gib_groesse(0);
-	number_of_tiles = size.x * size.y;
 }
 
 
@@ -466,6 +442,12 @@ fabrik_t::rdwr(loadsave_t *file)
 		if(prodfaktor==1  ||  prodfaktor>16) {
 			prodfaktor = 16;
 		}
+		if(file->get_version() < 86001) {
+			koord k=besch->gib_haus()->gib_groesse();
+DBG_DEBUG("fabrik_t::rdwr()","correction of production by %i",k.x*k.y);
+			// since we step from 86.01 per factory, not per tile!
+			prodbase *= k.x*k.y;
+		}
 		// Hajo: restore factory owner
 		// Due to a omission in Volkers changes, there might be savegames
 		// in which factories were saved without an owner. In this case
@@ -540,25 +522,6 @@ void fabrik_t::set_ausgang(vector_tpl<ware_t> * typen)
 	}
 }
 
-/*
-int
-fabrik_t::get_free_production_of(ware_besch_t *ware)
-{
-	if(ware==NULL) {
-		return -1;	// nothing there
-	}
-	const vector_tpl<ware_t> *ausgang = gib_ausgang();
-	const int waren_anzahl = ausgang->get_count();
-	// for all products
-	for(int ware_nr=0;  ware_nr<waren_anzahl ;  ware_nr++  ) {
-		if(  ware==ausgang->get(ware_nr)  ) {
-		{
-			int produktion = (max_produktion()*besch->gib_verbrauch()*100)/128;
-DBG_MESSAGE("fabrik_t::get_free_production_of()","supplier %s can supply approx %i of %s",besch->gib_name(),produktion,ware->gib_name());
-		}
-	}
-}
-*/
 
 
 /*
@@ -567,7 +530,8 @@ DBG_MESSAGE("fabrik_t::get_free_production_of()","supplier %s can supply approx 
  */
 uint32 fabrik_t::produktion(const uint32 produkt) const
 {
-	uint32 menge = (prodbase * prodfaktor) >> (BASEPRODSHIFT+MAX_PRODBASE_SHIFT-precision_bits);
+//	uint32 menge = (prodbase * prodfaktor) >> (BASEPRODSHIFT+MAX_PRODBASE_SHIFT-precision_bits);
+	uint32 menge = (prodbase * prodfaktor*4) >> (BASEPRODSHIFT+MAX_PRODBASE_SHIFT-precision_bits);
 
 	if(ausgang->get_count() > produkt) {
 		// wenn das lager voller wird, produziert eine Fabrik weniger pro step
@@ -586,7 +550,8 @@ uint32 fabrik_t::produktion(const uint32 produkt) const
 		}
 	}
 
-	return (menge*PRODUCTION_DELTA_T) >> BASEPRODSHIFT;
+//	return (menge*PRODUCTION_DELTA_T) >> BASEPRODSHIFT;
+	return menge;
 }
 
 
@@ -596,11 +561,12 @@ int fabrik_t::max_produktion() const
   // P = prod_base * anz_gebaeude * prodfaktor; (prodfaktor 16=1.0)
   // theoretische Menge pro tick
   const uint32 menge = (prodbase * prodfaktor) >> (BASEPRODSHIFT+MAX_PRODBASE_SHIFT-precision_bits);
-  const koord k = besch->gib_haus()->gib_groesse();
-  const int n = k.x * k.y;
+//  const koord k = besch->gib_haus()->gib_groesse();
+//  const int n = k.x * k.y;
+//  return (((menge*welt->ticks_per_tag) >> BASEPRODSHIFT) >> precision_bits)*n;
 
   // monat mit 1(!) tag
-  return (((menge*welt->ticks_per_tag) >> BASEPRODSHIFT) >> precision_bits) * n;
+  return (((menge*welt->ticks_per_tag) >> BASEPRODSHIFT) >> precision_bits);
 }
 
 
@@ -683,95 +649,103 @@ fabrik_t::verbraucht(const ware_besch_t *typ)
 void
 fabrik_t::step(long delta_t)
 {
-  delta_sum += delta_t;
+	delta_sum += delta_t;
 
-  if(delta_sum > PRODUCTION_DELTA_T) {
-    INT_CHECK("simfab 558");
+	if(delta_sum > PRODUCTION_DELTA_T) {
+		INT_CHECK("simfab 558");
+//DBG_DEBUG("fabrik_t::step()","%s",gib_name());
 
-    const uint32 ecount = eingang->get_count();
-    uint32 index = 0;
-    uint32 produkt;
+		const uint32 ecount = eingang->get_count();
+		uint32 index = 0;
+		uint32 produkt;
 
-    // ware(n) erzeugen
-    for(produkt = 0; produkt < ausgang->get_count(); produkt ++) {
-      uint32 menge = 9999999;
+		if(ausgang->get_count()==0) {
+			// consumer only ...
+			uint32 menge = produktion(produkt) * (delta_sum/PRODUCTION_DELTA_T);
 
-      if(ecount > 0) {   // Verbraucher
-	// verbrauch berechnen
+			// finally consume stock
+			for(index = 0; index<ecount; index ++) {
 
-	//Hajo: reine verbraucher verbrauchen Material aller arten gleichmässig
-	if(ausgang->get_count() > 0) {
-	  for(index = 0; index < ecount; index ++) {
-	    // verbrauch fuer eine Einheit des Produktes (in 1/256)
-	    uint32 vb = besch->gib_lieferant(index)->gib_verbrauch();
-	    uint32 n;
+				const uint32 vb = besch->gib_lieferant(index)->gib_verbrauch();
+				const uint32 v = (menge*vb) >> 8;
 
-	    if((n = (eingang->get(index).menge * 256)/vb) < menge) {
-	      menge = n;    // finde geringsten vorrat
-	    }
-	  }
+				if((uint32)(eingang->get(index).menge) > v) {
+					eingang->at(index).menge -= v;
+				}
+				else {
+					eingang->at(index).menge = 0;
+				}
+			}
+		}
+		else {
+			// produces something
+			for(produkt = 0; produkt < ausgang->get_count(); produkt ++) {
+				uint32 menge = 9999999;
+
+				// consumer?
+				if(ecount > 0) {
+					// ok, calulate consumption
+
+					// also producer?
+					if(ausgang->get_count() > 0) {
+
+						for(index = 0; index < ecount; index ++) {
+							// verbrauch fuer eine Einheit des Produktes (in 1/256)
+							uint32 vb = besch->gib_lieferant(index)->gib_verbrauch();
+							uint32 n;
+
+							if((n = (eingang->get(index).menge * 256)/vb) < menge) {
+								menge = n;    // finde geringsten vorrat
+							}
+						}
+					}
+
+					// calculate production
+					uint32 p_menge = produktion(produkt) * (delta_sum/PRODUCTION_DELTA_T);
+					menge = p_menge < menge ? p_menge : menge;  // production smaller than possible due to consumption
+
+					// finally consume stock
+					for(index = 0; index<ecount; index ++) {
+
+						const uint32 vb = besch->gib_lieferant(index)->gib_verbrauch();
+						const uint32 v = (menge*vb) >> 8;
+
+						if((uint32)(eingang->get(index).menge) > v) {
+							eingang->at(index).menge -= v;
+						}
+						else {
+							eingang->at(index).menge = 0;
+						}
+					}
+				}
+				else {
+					// source producer
+					menge = produktion(produkt) * (delta_sum/PRODUCTION_DELTA_T);
+				}
+				const uint32 pb = besch->gib_produkt(produkt)->gib_faktor();
+				const uint32 p = (menge*pb) >> 8;
+
+				// finally produce
+				if(ausgang->at(produkt).menge < ausgang->at(produkt).max) {
+					ausgang->at(produkt).menge += p;
+				} else {
+					ausgang->at(produkt).menge = ausgang->at(produkt).max-1;
+				}
+			}
+		}
+
+		// Zeituhr zurücksetzen
+		while(  delta_sum>PRODUCTION_DELTA_T) {
+			delta_sum -= PRODUCTION_DELTA_T;
+		}
 	}
-
-	const uint32 p_menge = produktion(produkt);
-	menge = p_menge < menge ? p_menge : menge;  // beschraenkt produktion verbrauch ?
-
-	// vorraete verbrauchen
-	for(index = 0; index < ecount; index ++) {
-
-	  const uint32 vb = besch->gib_lieferant(index)->gib_verbrauch();
-	  const uint32 v = (menge*vb) >> 8;
-
-	  if((uint32)(eingang->get(index).menge) > v) {
-	    eingang->at(index).menge -= v;
-	  } else {
-	    eingang->at(index).menge = 0;
-	  }
-	}
-      } else {                                      // reiner Erzeuger
-	menge = produktion(produkt);
-      }
-
-
-      const uint32 pb = besch->gib_produkt(produkt)->gib_faktor();
-      const uint32 p = (menge*pb) >> 8;
-
-      if(ausgang->at(produkt).menge < ausgang->at(produkt).max) {
-	ausgang->at(produkt).menge += p;
-      }
-    }
-
-
-    // Reine Verbraucher erzeugen nichts, müssen aber
-    // trotzdem waren verbrauchen
-
-    if(ausgang->get_count() == 0) {
-      const uint32 menge = produktion(0);
-
-      // vorraete verbrauchen
-      for(index = 0; index < ecount; index ++) {
-
-	const uint32 vb = besch->gib_lieferant(index)->gib_verbrauch();
-	const uint32 v = (menge*vb) >> 8;
-
-	if((uint32)(eingang->get(index).menge) > v) {
-	  eingang->at(index).menge -= v;
-	} else {
-	  eingang->at(index).menge = 0;
-	}
-      }
-    }
-
-
-    // Zeituhr zurücksetzen
-    delta_sum -= PRODUCTION_DELTA_T;
-  }
 
 	// verteilung frühestens alle 8 sekunden
 	if(welt->gib_zeit_ms() > aktionszeit) {
 		aktionszeit = welt->gib_zeit_ms() + 8192;
 
 		for(uint32 produkt = 0; produkt < ausgang->get_count(); produkt ++) {
-			if(ausgang->at(produkt).menge > (32<<precision_bits)) {
+			if(ausgang->at(produkt).menge > (10<<precision_bits)) {
 
 				verteile_waren(produkt);
 				INT_CHECK("simfab 636");
@@ -1070,7 +1044,7 @@ void fabrik_t::info(cbuffer_t & buf)
 
     }
     // give a passenger level for orientation
-    int passagier_rate = besch->gib_pax_level()*gib_groesse().x*gib_groesse().y;
+    int passagier_rate = besch->gib_pax_level();
     buf.append("\n");
     buf.append(translator::translate("Passagierrate"));
     buf.append(": ");

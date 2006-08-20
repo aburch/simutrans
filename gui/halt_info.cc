@@ -76,8 +76,8 @@ halt_info_t::halt_info_t(karte_t *welt, halthandle_t halt)
 
     scrolly.setze_pos(koord(1, 90));
 
-    // Hajo: only available if player owns this station
-    if(halt->gib_besitzer() == welt->gib_spieler(0)) {
+    // Hajo: only available if player owns this station or public
+    if(halt->gib_besitzer()==welt->gib_spieler(0)  ||  halt->gib_besitzer()==welt->gib_spieler(1)) {
       add_komponente(&sort_button);
       add_komponente(&button);
       add_komponente(&input);

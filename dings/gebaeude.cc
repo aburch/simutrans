@@ -247,7 +247,7 @@ gebaeude_t::step(long delta_t)
 			zeige_baugrube = false;
 			set_flag(dirty);
 			// factories needs more frequent steps
-			if(fab) {
+			if(fab   &&  fab->gib_pos()==gib_pos()) {
 				step_frequency = 1;
 			}
 			else {
@@ -336,22 +336,6 @@ gebaeude_t::step(long delta_t)
 		INT_CHECK("gebaeude 250");
 	}
 
-#if 0
-	if(tile->gib_phasen()>1) {
-		/* animation here is too unreliable */
-		anim_time += delta_t;
-		if(anim_time > 300) {
-			anim_time -= 300;
-			count ++;
-
-			if(count >= tile->gib_phasen()) {
-				count = 0;
-			}
-
-			set_flag(dirty);
-		}
-	}
-#endif
   return true;
 }
 

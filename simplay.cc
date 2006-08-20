@@ -776,7 +776,7 @@ DBG_MESSAGE("spieler_t::do_passenger_ki()","using city %s for start",start_stadt
 					}
 					else {
 						pos=fabriken.at(i)->gib_pos().gib_2d();
-						size=fabriken.at(i)->gib_groesse();
+						size=fabriken.at(i)->gib_besch()->gib_haus()->gib_groesse();
 					}
 					const stadt_t *next_town = welt->suche_naechste_stadt(pos);
 					if(next_town==NULL  ||  start_stadt==next_town) {
@@ -2169,9 +2169,9 @@ spieler_t::suche_platz1_platz2(fabrik_t *qfab, fabrik_t *zfab)
 
     bool ok = false;
 
-    if(  suche_platz(start.x, start.y, ziel.x, ziel.y, qfab->gib_groesse(), &platz1) ) {
+    if(  suche_platz(start.x, start.y, ziel.x, ziel.y, qfab->gib_besch()->gib_haus()->gib_groesse(), &platz1) ) {
     	// found a place, search for target
-	    ok = suche_platz(ziel.x, ziel.y, platz1.x, platz1.y, zfab->gib_groesse(), &platz2);
+	    ok = suche_platz(ziel.x, ziel.y, platz1.x, platz1.y, zfab->gib_besch()->gib_haus()->gib_groesse(), &platz2);
 	}
 
     INT_CHECK("simplay 969");
@@ -2921,7 +2921,7 @@ DBG_MESSAGE("spieler_t::bescheid_vehikel_problem","Vehicle %s can't find a route
 void
 spieler_t::init_undo( weg_t::typ wtype, int max )
 {
-	if(kennfarbe!=4) {
+	if(kennfarbe>=4) {
 		// this is an KI
 		last_built = NULL;
 		return;

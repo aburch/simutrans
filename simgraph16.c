@@ -1907,6 +1907,19 @@ decode_img16(unsigned short *tp, const unsigned short *sp,
 
 
 /**
+ * Returns image width
+ * @author prissi
+ */
+int display_get_img_width( int n ) {
+	if(n >= 0 && n < anz_images) {
+		return images[n].w;
+	}
+	return 0;
+}
+
+
+
+/**
  * Zeichnet Bild mit Clipping
  * @author Hj. Malthaner
  */
@@ -2337,11 +2350,20 @@ void display_fb_internal(int xp, int yp, int w, int h,
 	// it is equivalent to the above, but only faster ...
 
 __asm__(	"cld\n\t"
+#if defined( __MINGW32__)
 		"movw	_rgbcolormap(%%eax,%%eax),%%cx\n"	// load ax with the right color ...
+#else
+		"movw	_rgbcolormap(%%eax,%%eax),%%cx\n"	// load ax with the right color ...
+#endif
 		"btrw $15,%%ax\n\t"	//>=0x8000
 		"jnc .Lvok\n\t"
+#if defined( __MINGW32__)
 //		"movcw	_specialcolormap_all_day(%%eax,%%eax),%%cx\n\t"	// move, if carry set (i.e. bit was set): crashes on older machines before Pentium Pro
 		"movw	_specialcolormap_all_day(%%eax,%%eax),%%cx\n"	// move, if carry set (i.e. bit was set)
+#else
+//		"movcw	specialcolormap_all_day(%%eax,%%eax),%%cx\n\t"	// move, if carry set (i.e. bit was set): crashes on older machines before Pentium Pro
+		"movw	specialcolormap_all_day(%%eax,%%eax),%%cx\n"	// move, if carry set (i.e. bit was set)
+#endif
 ".Lvok:\n\t"
 		"movw %%cx,%%ax\n\t"	// couble colorval for lowbyte
 		"shll $16,%%eax\n\t"

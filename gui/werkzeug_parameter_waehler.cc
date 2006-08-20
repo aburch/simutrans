@@ -70,6 +70,8 @@ void werkzeug_parameter_waehler_t::add_tool(int (* wz1)(spieler_t *, karte_t *, 
   tool.tooltip = tooltip;
 
   tools->append(tool);
+  tool_icon_width = MIN( (display_get_width()/32)-2, tools->count() );
+//DBG_DEBUG("werkzeug_parameter_waehler_t::add_param_tool()","at position %i (width %i)", tools->count(), tool_icon_width );
 }
 
 
@@ -101,6 +103,8 @@ void werkzeug_parameter_waehler_t::add_param_tool(int (* wz1)(spieler_t *, karte
   tool.tooltip = tooltip;
 
   tools->append(tool);
+  tool_icon_width = MIN( (display_get_width()/32)-2, tools->count() );
+//DBG_DEBUG("werkzeug_parameter_waehler_t::add_param_tool()","at position %i (width %i)", tools->count(), tool_icon_width );
 }
 
 
@@ -122,7 +126,12 @@ const char *werkzeug_parameter_waehler_t::gib_name() const
  */
 koord werkzeug_parameter_waehler_t::gib_fenstergroesse() const
 {
-  return koord(tools->count()*32, 32+16);
+	if(tool_icon_width>0) {
+		return koord(tool_icon_width*32, (tools->count()/tool_icon_width+1)*32+16);
+	}
+	else {
+		return koord(32, 32+16);
+	}
 }
 
 
@@ -145,104 +154,69 @@ fensterfarben werkzeug_parameter_waehler_t::gib_fensterfarben() const
 
 void werkzeug_parameter_waehler_t::infowin_event(const event_t *ev)
 {
-  if(IS_LEFTCLICK(ev)) {
+	if(IS_LEFTCLICK(ev)) {
 
-    const int x = ev->mx/32;
-    const int wz_idx = x;
+		// tooltips?
+		const int x = (ev->mx) >> 5;
+		const int y = (ev->my-16) >> 5;
+		if(x >= 0 && x<tool_icon_width  &&  y>=0) {
+			const int wz_idx = x+(tool_icon_width*y);
+			if(wz_idx<tools->count()) {
+				const struct werkzeug_t & tool = tools->at(wz_idx);
 
-    //    printf("%d\n", wz_idx);
-
-    if(wz_idx >= 0 && wz_idx < tools->count()) {
-      const struct werkzeug_t & tool = tools->at(wz_idx);
-
-      if(tool.has_param) {
-	welt->setze_maus_funktion(tool.wzwp,
-				  tool.cursor,
-				  tool.versatz,
-				  tool.param,
-				  tool.sound_ok,
-				  tool.sound_ko);
-      } else {
-	welt->setze_maus_funktion(tool.wzwop,
-				  tool.cursor,
-				  tool.versatz,
-				  tool.sound_ok,
-				  tool.sound_ko);
-      }
-
-
-    }
-  } else if(ev->ev_class == INFOWIN &&
-	    ev->ev_code == WIN_CLOSE) {
-    welt->setze_maus_funktion(wkz_abfrage,
-			      skinverwaltung_t::fragezeiger->gib_bild_nr(0),
-			      karte_t::Z_PLAN,
-			      0,
-			      0);
-
-  }
+				if(tool.has_param) {
+					welt->setze_maus_funktion(tool.wzwp,  tool.cursor, tool.versatz, tool.param, tool.sound_ok, tool.sound_ko);
+				}
+				else {
+					welt->setze_maus_funktion(tool.wzwop, tool.cursor, tool.versatz, tool.sound_ok, tool.sound_ko);
+				}
+			}
+		}
+	} else if(ev->ev_class==INFOWIN &&  ev->ev_code==WIN_CLOSE) {
+		welt->setze_maus_funktion(wkz_abfrage,
+		      skinverwaltung_t::fragezeiger->gib_bild_nr(0),
+		      karte_t::Z_PLAN,
+		      0,
+		      0);
+	}
 }
 
 
 void werkzeug_parameter_waehler_t::zeichnen(koord pos, koord)
 {
-  for(unsigned int i=0; i<tools->count(); i++) {
-    const int icon = tools->at(i).icon;
+	for(unsigned int i=0; i<tools->count(); i++) {
+		const int icon = tools->at(i).icon;
 
-    if(icon == -1) {
-      // Hajo: no icon image available, draw a blank
-      // DDD box as replacement
+		const koord draw_pos=pos+koord((i%tool_icon_width)*32,16+(i/tool_icon_width)*32);
+		if(icon == -1) {
+			// Hajo: no icon image available, draw a blank
+			// DDD box as replacement
 
-      // top
-      display_fillbox_wh(pos.x + i*32,
-			 pos.y + 16,
-			 32, 1,
-			 MN_GREY4,
-			 true);
-      // body
-      display_fillbox_wh(pos.x + i*32+1,
-			 pos.y + 16+1,
-			 30, 30,
-			 MN_GREY2,
-			 true);
-      // bottom
-      display_fillbox_wh(pos.x + i*32,
-			 pos.y + 16+31,
-			 32, 1,
-			 MN_GREY0,
-			 true);
-      // Left
-      display_fillbox_wh(pos.x + i*32,
-			 pos.y + 16,
-			 1, 32,
-			 MN_GREY4,
-			 true);
-      // Right
-      display_fillbox_wh(pos.x + i*32+31,
-			 pos.y + 16,
-			 1, 32,
-			 MN_GREY0,
-			 true);
-    } else {
-      display_color_img(tools->at(i).icon,
-			pos.x + i*32,
-			pos.y + 16,
-			0,
-			false,
-			true);
-    }
-  }
+//DBG_DEBUG("werkzeug_parameter_waehler_t::zeichnen()","at position (%i,%i) tool %i (no icon)", draw_pos.x, draw_pos.y, i );
 
-  const int xdiff = (gib_maus_x() - pos.x) >> 5;
-  const int ydiff = (gib_maus_y() - pos.y - 16) >> 5;
+			// top
+			display_fillbox_wh(draw_pos.x, draw_pos.y, 32, 1, MN_GREY4, true);
+			// body
+			display_fillbox_wh(draw_pos.x+1, draw_pos.y+1, 30, 30, MN_GREY2, true);
+			// bottom
+			display_fillbox_wh(draw_pos.x, draw_pos.y+31, 32, 1, MN_GREY0, true);
+			// Left
+			display_fillbox_wh(draw_pos.x, draw_pos.y, 1, 32, MN_GREY4, true);
+			// Right
+			display_fillbox_wh(draw_pos.x+31, draw_pos.y, 1, 32, MN_GREY0, true);
+		}
+		else {
+			display_color_img(tools->at(i).icon, draw_pos.x, draw_pos.y, 0, false, true);
+		}
+	}
 
-  // print("%d %d\n", xdiff, ydiff);
-
-  if(xdiff >= 0 && xdiff <tools->count() && ydiff >= 0 && ydiff < 1) {
-    const int tipnr = xdiff;
-
-    win_set_tooltip(gib_maus_x() + 16,
-		    gib_maus_y() - 16,
-		    tools->at(tipnr).tooltip);
-  }
+	// tooltips?
+	const int xdiff = (gib_maus_x() - pos.x) >> 5;
+	const int ydiff = (gib_maus_y() - pos.y - 16) >> 5;
+	if(xdiff>=0  &&  xdiff<tool_icon_width  &&  ydiff>=0) {
+		const int tipnr = xdiff+(tool_icon_width*ydiff);
+		if(tipnr<tools->count()) {
+			win_set_tooltip( gib_maus_x()+16, gib_maus_y()-16, tools->at(tipnr).tooltip);
+		}
+	}
 }

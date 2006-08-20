@@ -350,38 +350,31 @@ void karte_t::raise_clean(int x, int y, int h)
 
 void karte_t::cleanup_karte()
 {
-    int i,j;
-
-    int *hgts = new int[(gib_groesse()+1)*(gib_groesse()+1)];
-    int *p = hgts;
-
-    for(j=0; j<=gib_groesse(); j++) {
-	for(i=0; i<=gib_groesse(); i++) {
-	    *p++ = lookup_hgt(koord(i, j));
+	// we need a copy to smoothen the map to a realistic level
+	sint8 *grid_hgts_cpy = new sint8[(gib_groesse()+1)*(gib_groesse()+1)];
+	memcpy(grid_hgts_cpy,grid_hgts,(gib_groesse()+1)*(gib_groesse()+1));
+	// now connect the heights
+	int i,j;
+	for(j=0; j<=gib_groesse(); j++) {
+		for(i=0; i<=gib_groesse(); i++) {
+			raise_clean(i,j, (grid_hgts_cpy[j*(gib_groesse()+1)+i]<<4)+16);
+		}
 	}
-    }
+	delete [] grid_hgts_cpy;
 
-    p=hgts;
-    for(j=0; j<=gib_groesse(); j++) {
+	// now lower the corners to ground level
 	for(i=0; i<=gib_groesse(); i++) {
-	    raise_clean(i,j, (*p++)+16);
+		lower_to(i, 0, grundwasser);
+		lower_to(0, i, grundwasser);
+		lower_to(i, gib_groesse(), grundwasser);
+		lower_to(gib_groesse(), i, grundwasser);
 	}
-    }
-
-    for(i=0; i<=gib_groesse(); i++) {
-	lower_to(i, 0, grundwasser);
-	lower_to(0, i, grundwasser);
-	lower_to(i, gib_groesse(), grundwasser);
-	lower_to(gib_groesse(), i, grundwasser);
-    }
-
-    for(i=0; i<=gib_groesse(); i++) {
-	raise_to(i, 0, grundwasser);
-	raise_to(0, i, grundwasser);
-	raise_to(i, gib_groesse(), grundwasser);
-	raise_to(gib_groesse(), i, grundwasser);
-    }
-    delete [] hgts;
+	for(i=0; i<=gib_groesse(); i++) {
+		raise_to(i, 0, grundwasser);
+		raise_to(0, i, grundwasser);
+		raise_to(i, gib_groesse(), grundwasser);
+		raise_to(gib_groesse(), i, grundwasser);
+	}
 }
 
 
@@ -632,7 +625,7 @@ karte_t::destroy()
 void karte_t::add_stadt(stadt_t *s)
 {
 	// fixme: not check for overflow ...
-	if(einstellungen->gib_anzahl_staedte()>=stadt->get_size()) {
+	if(einstellungen->gib_anzahl_staedte()>stadt->get_size()) {
 		// extend vector for more cities ...
 DBG_DEBUG("karte_t::add_stadt()","extended city array from %i with additional 64 entries.", stadt->get_size() );
 		stadt->resize(einstellungen->gib_anzahl_staedte()+64);
@@ -791,7 +784,7 @@ karte_t::init(einstellungen_t *sets)
 
     hausbauer_t::neue_karte();
 
-	stadt = new vector_tpl <stadt_t *> (128);
+	stadt = new vector_tpl <stadt_t *> (einstellungen->gib_anzahl_staedte());
 	vector_tpl<koord> *pos = stadt_t::random_place(this, einstellungen->gib_anzahl_staedte());
 	if( pos ) {
 
@@ -1559,8 +1552,7 @@ karte_t::suche_naechste_stadt(const koord pos) const
     int min_dist = 99999999;
     stadt_t * best = NULL;
 
-    for(int n=0; n<einstellungen->gib_anzahl_staedte(); n++) {
-	if( stadt->at(n) ) {
+    for(int n=0; n<stadt->get_count(); n++) {
 	    const koord k = stadt->at(n)->gib_pos();
 
 	    const int dist = (pos.x-k.x)*(pos.x-k.x) + (pos.y-k.y)*(pos.y-k.y);
@@ -1571,7 +1563,6 @@ karte_t::suche_naechste_stadt(const koord pos) const
 		min_dist = dist;
 		best = stadt->at(n);
 	    }
-	}
     }
     return best;
 }
@@ -1585,8 +1576,7 @@ karte_t::suche_naechste_stadt(const koord pos, const stadt_t *letzte) const
     const int letzte_dist = (letzte_pos.x-pos.x)*(letzte_pos.x-pos.x) + (letzte_pos.y-pos.y)*(letzte_pos.y-pos.y);
     bool letzte_gefunden = false;
 
-    for(int n=0; n<einstellungen->gib_anzahl_staedte(); n++) {
-	if( stadt->at(n) ) {
+    for(int n=0; n<stadt->get_count(); n++) {
 	    const koord k = stadt->at(n)->gib_pos();
 
 	    const int dist = (pos.x-k.x)*(pos.x-k.x) + (pos.y-k.y)*(pos.y-k.y);
@@ -1601,7 +1591,6 @@ karte_t::suche_naechste_stadt(const koord pos, const stadt_t *letzte) const
 		    best = stadt->at(n);
 		}
 	    }
-	}
     }
     return best;
 }
@@ -1829,7 +1818,7 @@ DBG_MESSAGE("karte_t::neuer_monat()","Month %d has started", letzter_monat);
 
     INT_CHECK("simworld 1278");
 
-    for(i=0; i<einstellungen->gib_anzahl_staedte(); i++) {
+    for(i=0; i<stadt->get_count(); i++) {
 	stadt->at(i)->neuer_monat();
 	INT_CHECK("simworld 1282");
     }
@@ -1919,6 +1908,7 @@ void karte_t::neues_jahr()
 static long step_group_times[GRUPPEN];
 
 
+
 void karte_t::step(const long delta_t)
 {
 	const int step_group = steps % GRUPPEN;
@@ -1938,6 +1928,8 @@ void karte_t::step(const long delta_t)
 		step_group_times[step_group] = 0;
 		// how many steps passed?
 		const int step_group_step = (steps / GRUPPEN);
+		// true delta t ...
+//		const long all_delta_t = delta_t_sum-step_group_times[(step_group+1)%GRUPPEN];
 
 		int check_counter = 0;
 		for(i=step_group; i<cached_groesse2; i+=GRUPPEN) {
@@ -1949,24 +1941,36 @@ void karte_t::step(const long delta_t)
 			}
 		}
 
-		// now step all towns
-		if(stadt) {
-			for(unsigned int n=0; n<stadt->get_count(); n++) {
-				if(stadt->at(n)) {
-					stadt->at(n)->step();
+		// Hajo: Convois need extra frequent steps to avoid unneccesary
+		// long waiting times
+		{
+			slist_iterator_tpl <convoihandle_t> iter (convoi_list);
+
+			while( iter.next() ) {
+				if(iter.get_current().is_bound()) {
+					iter.get_current()->step();
+					INT_CHECK("simworld 1947");
 				}
-				INT_CHECK("simworld 2396");
-				interactive_update();
 			}
+		}
+		interactive_update();
+
+		// now step all towns
+		for(unsigned int n=0; n<stadt->get_count(); n++) {
+			stadt->at(n)->step();
+			INT_CHECK("simworld 1959");
+			interactive_update();
 		}
 
 		// then step all players
-		INT_CHECK("simworld 2170");
+		INT_CHECK("simworld 1975");
 		interactive_update();
 		spieler[steps & 7]->step();
 
 		// ok, next step
 		steps ++;
+		INT_CHECK("simworld 1975");
+		interactive_update();
 
 		if(ticks > ((letzter_monat + 1)) << ticks_bits_per_tag) {
 			// neuer monat
@@ -1978,6 +1982,7 @@ void karte_t::step(const long delta_t)
 		}
 	}
 }
+
 
 
 /**
@@ -2512,7 +2517,7 @@ DBG_DEBUG("karte_t::laden()","grundwasser %i",grundwasser);
     bm->laden_abschliessen();
 
     // auch die fabrikverbindungen können jetzt neu init werden
-    for(i=0; i<einstellungen->gib_anzahl_staedte(); i++) {
+    for(i=0; i<stadt->get_count(); i++) {
 	stadt->at(i)->laden_abschliessen();
     }
 
@@ -3723,9 +3728,6 @@ karte_t::interactive_update()
 #define MIN_FPS 10
 #define MAX_FPS 50
 
-//void
-//karte_t::interactive()        //02-Nov-2001   Markus Weber    returns true, if simutrans should be unloaded
-
 bool
 karte_t::interactive()
 {
@@ -3747,23 +3749,7 @@ karte_t::interactive()
 		// check if we need to play a new midi file
 		check_midi();
 
-		INT_CHECK("simworld 2135");
-		interactive_update();
-
-		// Hajo: Convois need extra frequent steps to avoid unneccesary
-		// long waiting times
-		{
-			slist_iterator_tpl <convoihandle_t> iter (convoi_list);
-
-			while( iter.next() ) {
-				if(iter.get_current().is_bound()) {
-					iter.get_current()->step();
-					INT_CHECK("simworld 3154");
-				}
-			}
-		}
-
-		INT_CHECK("simworld 2142");
+		INT_CHECK("simworld 3763");
 		interactive_update();
 
 		// welt steppen
@@ -3772,7 +3758,7 @@ karte_t::interactive()
 		step((long)(this_step_time-last_step_time));
 		last_step_time = this_step_time;
 
-		INT_CHECK("simworld 2155");
+		INT_CHECK("simworld 3772");
 		interactive_update();
 
 		const unsigned long t = get_current_time_millis();
@@ -3799,9 +3785,12 @@ karte_t::interactive()
 				reduce_frame_time();
 			}
 
+			interactive_update();
 			if(sleep_time>0) {
 				simusleep( sleep_time );
 			}
+			INT_CHECK("simworld 3808");
+			interactive_update();
 
 			now = t;
 			steps_bis_jetzt = steps;

@@ -168,17 +168,20 @@ void simusleep(unsigned long usec)
 
   } else {
     long ms = usec >> 10;
-    INT_CHECK("simtime 133");
+    INT_CHECK("simtime 171");
 
-    do {
+    while(ms>20)  {
     	// wait at most 10 ms
       const unsigned long T0 = dr_time();
-      dr_sleep(MIN(10244,usec));
-      INT_CHECK("simtime 137");
+      dr_sleep(10240);
+      INT_CHECK("simtime 177");
 
       const long diff = (long)(dr_time() - T0);
       ms -= diff;
-    } while(ms > 0);
+    }
+    if(ms>0) {
+       dr_sleep(ms<<10);
+    }
   }
 #endif
 }

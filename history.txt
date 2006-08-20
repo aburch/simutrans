@@ -1,3 +1,27 @@
+01-May-2005 (prissi)
+	FIX: error when loading UTF8 citylists fixed
+	FIX: rebuild destinations, when convoi was removed by x => no more stale freight waiting
+	FIX: when convoi self_detructs, its value is booked back to the owner
+	FIX: when station already is already destination => just happy
+
+24-Apr-2005 (prissi)
+	FIX: no route found, when factory was to close
+	FIX: crashes, if deliverey with unknown route?!?
+
+20-Apr-2005 (prissi)
+	FIX: ware could not unload at a dock => internal connect calculation no with halt basis_pos
+	FIX: again detailed information from public stops
+	CHANGE: allow more than one row in the tools
+	CHANGE: color indicator on simloops and FPS
+	CHANGE: random pedestrian now switch off also in dialog (6LIGHT_CHOOSE), 7WORLD_CHOOSE removed (identical)
+	CHANGE: year now also updated in city chart
+	FIX: UNDO repaired
+	FIX/CHANGE: factory production from dat-files is now per whole factory and independent of the load of simutrans
+	FIX/CHANGE: distribution now when more than 10 produced (instead 32)
+	FIX: makeobj always appended a cursor and a symbol, even if none defined.
+	CHANGE: factory list to vector_tpl, halt_list of grund_t now on demand -> should save lots of memory
+
+
 Release of 86.01
 
 19-Apr-2005 (prissi)

@@ -787,9 +787,10 @@ stadt_t::step_passagiere()
 					for(int pax_routed=0;  pax_routed<num_pax;  pax_routed+=7) {
 
 						// number of passengers that want to travel
-						// if possible, we do 7 passengers at a time
+						// Hajo: for efficiency we try to route not every
+						// single pax, but packets. If possible, we do 7 passengers at a time
+						// the last packet might have less then 7 pax
 						int pax_left_to_do = MIN(7, num_pax - pax_routed);
-//						pax_routed += pax_left_to_do;  // pax_menge are routed this step
 
 						// Hajo: track number of generated passengers.
 						// prissi: we do it inside the loop to take also care of non-routable passengers
@@ -843,19 +844,10 @@ stadt_t::step_passagiere()
 							continue;
 						}
 
-						// Hajo: for efficiency we try to route not every
-						// single pax, but packets.
-						// the last packet might have less then 7 pax
+						// now, finally search a route; this consumes most of the time
+						// so wie must take care to avoid it
 						koord return_zwischenziel;	// for people going back ...
-						bool schon_da;
-						// prissi: since we got also a comprehensive list of target destinations,
-						// we can avoid the search, if there is a target station next to us
-						if(ziel_list.is_contained(halt)) {
-							schon_da = true;
-						}
-						else {
-							schon_da = halt->suche_route(pax, halt, will_return?&return_zwischenziel:NULL );
-						}
+						bool schon_da = halt->suche_route(pax, halt, will_return?&return_zwischenziel:NULL );
 
 						if(!schon_da) {
 							if(pax.gib_ziel() != koord::invalid) {

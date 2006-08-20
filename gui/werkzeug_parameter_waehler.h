@@ -69,6 +69,12 @@ private:
 
 
   /**
+   * window width in toolboxes
+   * @author Hj. Malthaner
+   */
+  int tool_icon_width;
+
+  /**
    * Fenstertitel
    * @author Hj. Malthaner
    */

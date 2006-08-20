@@ -77,7 +77,11 @@ char *recode(const char *src,bool translate_from_utf,bool translate_to_utf)
 			*dst++ = c = '\n';
 		}
 		else {
-			if(  translate_to_utf  ) {
+			if(  translate_from_utf==translate_from_utf  ) {
+				// both true or false => do noting
+				// just copy
+				*dst++ = c = *src++;
+			} else if(  translate_to_utf  ) {
 				// make UTF8 from latin
 				dst += (char)unicode2utf8( (unsigned char)*src++, (unsigned char *)dst );
 			}
@@ -86,10 +90,6 @@ char *recode(const char *src,bool translate_from_utf,bool translate_to_utf)
 				int len=0;
 				*dst++ = c = (char)utf82unicode( (const unsigned char *)src, &len );
 				src += len;
-			}
-			else {
-				// just copy
-				*dst++ = c = *src++;
 			}
 		}
 	} while(c != 0);
@@ -178,17 +178,17 @@ int  init_city_names(bool is_utf_language)
 	// @author prissi: first try in scenario
 	cstring_t local_file_name(szenario_path);
 	local_file_name = local_file_name+"text/citylist_"+translator::get_language_name_iso(translator::get_language()) + ".txt";
-DBG_MESSAGE("translator::init_city_names()","try to read city name list '%s'",local_file_name.chars());
+DBG_DEBUG("translator::init_city_names()","try to read city name list '%s'",local_file_name.chars());
 	file=fopen(local_file_name, "rb");
-DBG_MESSAGE("translator::init_city_names()","file %p",file);fflush(NULL);
+DBG_DEBUG("translator::init_city_names()","file %p",file);fflush(NULL);
 	// not found => try usual location
 	if(file==NULL) {
 		cstring_t local_file_name("text/citylist_");
 		local_file_name = local_file_name+translator::get_language_name_iso(translator::get_language()) + ".txt";
-DBG_MESSAGE("translator::init_city_names()","try to read city name list '%s'",local_file_name.chars());
+DBG_DEBUG("translator::init_city_names()","try to read city name list '%s'",local_file_name.chars());
 		file = fopen(local_file_name.chars(), "rb");
 	}
-DBG_MESSAGE("translator::init_city_names()","file %p",file);fflush(NULL);
+DBG_DEBUG("translator::init_city_names()","file %p",file);fflush(NULL);
 
 	if(file!=NULL) {
 		// ok, could open file

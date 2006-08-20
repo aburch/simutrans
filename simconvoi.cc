@@ -518,6 +518,9 @@ convoi_t::sync_step(long delta_t)
       }
       break;
     case SELF_DESTRUCT:
+	 for(int f=0; f<anz_vehikel; f++) {
+      	besitzer_p->buche(fahr->at(f)->calc_restwert(), fahr->at(f)->gib_pos().gib_2d(), COST_NEW_VEHICLE);
+      }
       destroy();
       break;
     default:
@@ -1627,6 +1630,16 @@ void convoi_t::destroy()
   for(i=0; i<anz_vehikel; i++) {
     blockmanager::gib_manager()->pruefe_blockstrecke(welt, pos[i]);
   }
+
+
+	// rebuild destination lists after convoi has has been changed removed
+	const slist_tpl<halthandle_t> & list = haltestelle_t::gib_alle_haltestellen();
+	slist_iterator_tpl <halthandle_t> iter (list);
+
+	while( iter.next() ) {
+	  iter.get_current()->rebuild_destinations();
+	  INT_CHECK("convoi_t 384");
+	}
 
   delete this;
 }

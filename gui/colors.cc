@@ -54,17 +54,22 @@ color_gui_t::color_gui_t(karte_t *welt)
   button_def.setze_typ(button_t::arrowright);
   buttons.append(button_def);
 
-  button_def.setze_pos( koord(10,74) );
+  button_def.setze_pos( koord(10,69) );
   button_def.setze_typ(button_t::square);
   button_def.text = translator::translate("4LIGHT_CHOOSE");
   buttons.append(button_def);
 
-  button_def.setze_pos( koord(10,89) );
+  button_def.setze_pos( koord(10,82) );
   button_def.setze_typ(button_t::square);
   button_def.text = translator::translate("5LIGHT_CHOOSE");
   buttons.append(button_def);
 
-  button_def.setze_pos( koord(10,104) );
+  button_def.setze_pos( koord(10,95) );
+  button_def.setze_typ(button_t::square);
+  button_def.text = translator::translate("6LIGHT_CHOOSE");
+  buttons.append(button_def);
+
+  button_def.setze_pos( koord(10,108) );
   button_def.setze_typ(button_t::square);
   button_def.text = translator::translate("8WORLD_CHOOSE");
   buttons.append(button_def);
@@ -161,7 +166,12 @@ void color_gui_t::infowin_event(const event_t *ev)
 	    welt->gib_einstellungen()->setze_show_pax( !welt->gib_einstellungen()->gib_show_pax() );
 	  }
 
-	} else if(buttons.at(8).getroffen(ev->cx, ev->cy)) {
+	} else if(buttons.at(8).getroffen(ev->mx, ev->my)) {
+	  if (IS_LEFTCLICK(ev)) {
+            umgebung_t::fussgaenger = !umgebung_t::fussgaenger;
+	  }
+
+	} else if(buttons.at(9).getroffen(ev->cx, ev->cy)) {
             umgebung_t::night_shift = !umgebung_t::night_shift;
 	}
     }
@@ -199,8 +209,11 @@ color_gui_t::gib_fensterbuttons()
   buttons.at(7).text = translator::translate("5LIGHT_CHOOSE");
   buttons.at(7).pressed = welt->gib_einstellungen()->gib_show_pax();
 
-  buttons.at(8).text = translator::translate("8WORLD_CHOOSE");
-  buttons.at(8).pressed = umgebung_t::night_shift;
+  buttons.at(8).text = translator::translate("6LIGHT_CHOOSE");
+  buttons.at(8).pressed = umgebung_t::fussgaenger;
+
+  buttons.at(9).text = translator::translate("8WORLD_CHOOSE");
+  buttons.at(9).pressed = umgebung_t::night_shift;
 
   return &buttons;
 }
@@ -215,7 +228,7 @@ void color_gui_t::zeichnen(koord pos, koord gr)
 
   infowin_t::zeichnen(pos, gr);
 
-  display_ddd_box_clip(pos.x+10, pos.y+122, 149, 0, MN_GREY0, MN_GREY4);
+  display_ddd_box_clip(pos.x+10, pos.y+126, 149, 0, MN_GREY0, MN_GREY4);
 
   display_proportional_clip(x+10, y+26, translator::translate("1LIGHT_CHOOSE"),
 		       ALIGN_LEFT, SCHWARZ, true);
@@ -245,10 +258,31 @@ void color_gui_t::zeichnen(koord pos, koord gr)
 		       ALIGN_LEFT, WEISS, true);
   display_proportional_clip(x+37, y+144, ntos(welt->gib_schlaf_zeit(), "%d µs"),
 		       ALIGN_LEFT, WEISS, true);
-  display_proportional_clip(x+37, y+154, ntos(welt->gib_FPS(), "%d fps"),
-		       ALIGN_LEFT, WEISS, true);
-  display_proportional_clip(x+37, y+164, ntos(welt->gib_simloops(), "%d loops"),
-		       ALIGN_LEFT, WEISS, true);
+   int farbe, loops;
+   loops=welt->gib_FPS();
+   farbe = WEISS;
+   if(loops<=10) {
+   	if(loops<=7) {
+   		farbe = ROT;
+   	}
+   	else {
+   		farbe = GELB;
+   	}
+  }
+  display_proportional_clip(x+37, y+154, ntos(loops, "%d fps"),
+		       ALIGN_LEFT, farbe, true);
+   loops=welt->gib_simloops();
+   farbe = WEISS;
+   if(loops<=5) {
+   	if(loops<=2) {
+   		farbe = ROT;
+   	}
+   	else {
+   		farbe = GELB;
+   	}
+  }
+  display_proportional_clip(x+37, y+164, ntos(loops, "%d loops"),
+		       ALIGN_LEFT, farbe, true);
 
 
 }

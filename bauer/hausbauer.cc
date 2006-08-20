@@ -66,14 +66,7 @@ const haus_besch_t *hausbauer_t::tram_depot_besch = NULL;
 const haus_besch_t *hausbauer_t::str_depot_besch = NULL;
 const haus_besch_t *hausbauer_t::sch_depot_besch = NULL;
 const haus_besch_t *hausbauer_t::muehle_besch = NULL;
-/*
-const haus_besch_t *hausbauer_t::post_besch = NULL;
-const haus_besch_t *hausbauer_t::bushalt_besch = NULL;
-const haus_besch_t *hausbauer_t::dock_besch = NULL;
-const haus_besch_t *hausbauer_t::large_dock_besch = NULL;
-const haus_besch_t *hausbauer_t::bahnhof_besch = NULL;
-const haus_besch_t *hausbauer_t::gueterbahnhof_besch = NULL;
-*/
+
 slist_tpl<const haus_besch_t *> hausbauer_t::train_stops;
 slist_tpl<const haus_besch_t *> hausbauer_t::car_stops;
 slist_tpl<const haus_besch_t *> hausbauer_t::ship_stops;
@@ -86,8 +79,6 @@ static spezial_obj_tpl<haus_besch_t> spezial_objekte[] = {
     { &hausbauer_t::tram_depot_besch,   "TramDepot" },
     { &hausbauer_t::str_depot_besch,	"CarDepot" },
     { &hausbauer_t::sch_depot_besch,	"ShipDepot" },
-//    { &hausbauer_t::post_besch,		"PostOffice" },
-    { &hausbauer_t::muehle_besch,	"Windmill.obsolete" },
     { NULL, NULL }
 };
 

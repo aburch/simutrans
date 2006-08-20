@@ -110,6 +110,8 @@ stadt_info_t::zeichnen(koord pos, koord gr)
 		filterButtons[i].pressed = bFilterIsActive[i];
 		// year_month_toggle.pressed = mchart->is_visible();
     }
+    // Hajo: update chart seed
+    chart->set_seed(umgebung_t::starting_year+stadt->gib_welt()->get_last_year());
 
     gui_frame_t::zeichnen(pos, gr);
 

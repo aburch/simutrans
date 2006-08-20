@@ -179,16 +179,16 @@ haltestelle_t::gib_halt(const karte_t *welt, grund_t *gr )
 			const vector_tpl<halthandle_t> &haltlist = gr->get_haltlist();
 #if 0
 			for(  int i=0;  i<haltlist.get_count();  i++  ) {
-				if(haltlist.at(i)->get_station_type()&dock) {
+				if(haltlist.get(i)->get_station_type()&dock) {
 					// ok, this is a ship stop
-					halt = haltlist.at(i);
+					halt = haltlist.get(i);
 					break;
 				}
 			}
 #else
 			// may catch bus stops close to water ...
 			if(haltlist.get_count()>0) {
-				return haltlist.at(0);
+				return haltlist.get(0);
 			}
 #endif
 		}
@@ -217,6 +217,15 @@ haltestelle_t::gib_halt(const karte_t *welt, const koord pos)
 	}
 	return halthandle_t();
 }
+
+
+
+halthandle_t
+haltestelle_t::gib_halt(const koord pos) const
+{
+    return gib_halt(welt, pos);
+}
+
 
 halthandle_t
 haltestelle_t::gib_halt(const karte_t *welt, const koord * const pos)
@@ -670,6 +679,9 @@ haltestelle_t::suche_route(ware_t &ware, halthandle_t start, koord *next_to_ziel
 		const vector_tpl <halthandle_t> &halt_list = welt->lookup(ware.gib_zielpos())->gib_kartenboden()->get_haltlist();
 		if(halt_list.is_contained(start)) {
 			// das zeugs braucht nicht zu reisen, es ist schon am ziel
+			// aber wir müssen dennoch eine gültige Zwischenstation angeben
+			ware.setze_ziel( start->gib_basis_pos() );
+			ware.setze_zwischenziel( start->gib_basis_pos() );
 //DBG_DEBUG("suche_route()","already at %s",start->gib_name() );
 			return true;
 		}
@@ -1071,12 +1083,6 @@ haltestelle_t::pruefe_ziel(const ware_t &ware, const fahrplan_t *fpl) const
 }
 
 
-halthandle_t
-haltestelle_t::gib_halt(const koord pos) const
-{
-    return gib_halt(welt, pos);
-}
-
 
 ware_t
 haltestelle_t::hole_ab(const ware_besch_t *wtyp, int maxi, fahrplan_t *fpl)
@@ -1351,10 +1357,6 @@ haltestelle_t::liefere_an(ware_t ware)
 	return ware.menge;
     }
 
-    // debug-info
-    const char * halt_name = gib_halt(ware.gib_ziel())->gib_name();
-    const char * via_name = gib_halt(ware.gib_zwischenziel())->gib_name();
-
     // ware passte zu nichts
     // ware neu routen
     bool schon_da = suche_route(ware, self);
@@ -1378,12 +1380,10 @@ haltestelle_t::liefere_an(ware_t ware)
 
 	// kein zielhalt  ?!
         DBG_MESSAGE("haltestelle_t::liefere_an()",
-		     "%s: delivered goods (%d %s) to %s via %s could not be routed to their destination!",
+		     "%s: delivered goods (%d %s) to ??? via ??? could not be routed to their destination!",
 		     gib_name(),
 		     ware.menge,
-		     translator::translate(ware.gib_name()),
-		     halt_name,
-		     via_name);
+		     translator::translate(ware.gib_name()) );
 	return ware.menge;
     }
 
@@ -1431,7 +1431,6 @@ haltestelle_t::hat_gehalten(int /*wert*/, const ware_besch_t *type, const fahrpl
 {
 	if(type != warenbauer_t::nichts) {
 		for(int i=0; i<=fpl->maxi; i++) {
-			const warenziel_t wz (fpl->eintrag.get(i).pos.gib_2d(), type);
 
 			// Hajo: Haltestelle selbst wird nicht in Zielliste aufgenommen
 			halthandle_t halt = gib_halt(welt,fpl->eintrag.get(i).pos);
@@ -1439,6 +1438,8 @@ haltestelle_t::hat_gehalten(int /*wert*/, const ware_besch_t *type, const fahrpl
 			if(!halt.is_bound()  ||  halt==self) {
 				continue;
 			}
+			// we need to do this here; otherwise the position of the stop (if in water) may not directly be a halt!
+			const warenziel_t wz (halt->gib_basis_pos(), type);
 
 			slist_iterator_tpl<warenziel_t> iter(warenziele);
 			while(iter.next()) {

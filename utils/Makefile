@@ -12,7 +12,7 @@ MP_LDLIBS=-lpng -lz
 LDFLAGS=
 
 SOURCES=dr_rdpng.c makepak.c \
-simstring.c cstring_t.cc tocstring.cc\
+simstring.c log.cc cstring_t.cc tocstring.cc\
 cbuffer_t.cc searchfolder.cc
 #writepcx.c log.cc image_encoder.c\
 
