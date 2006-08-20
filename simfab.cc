@@ -842,7 +842,7 @@ void fabrik_t::verteile_waren(const uint32 produkt)
 						// else deliver to non-overflown factory
 						bool overflown = ziel_fab->gib_eingang()->at(w).menge >= ziel_fab->gib_eingang()->at(w).max;
 
-						if(!umgebung_t::just_in_time) {
+						if(!welt->gib_einstellungen()->gib_just_in_time()) {
 
 							// distribution also to overflowing factories
 							if(still_overflow  &&  !overflown) {

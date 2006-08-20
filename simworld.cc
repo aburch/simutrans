@@ -654,7 +654,7 @@ karte_t::init(einstellungen_t *sets)
 
 	if(sets->gib_beginner_mode()) {
 		warenbauer_t::set_multiplier( umgebung_t::beginner_price_factor );
-		umgebung_t::just_in_time = 0;
+		sets->setze_just_in_time( 0 );
 	}
 
 	// wird gecached, um den Pointerzugriff zu sparen, da
@@ -911,6 +911,10 @@ karte_t::karte_t() : convoi_array(0), ausflugsziele(16), quick_shortcuts(15), ma
 	sets->setze_starting_year( umgebung_t::starting_year );
 	sets->setze_use_timeline( umgebung_t::use_timeline==1 );
 	sets->setze_bits_per_month( umgebung_t::bits_per_month );
+	sets->setze_just_in_time( umgebung_t::just_in_time );
+
+	// standard prices
+	warenbauer_t::set_multiplier( 1000 );
 
 	stadt = 0;
 	zeiger = 0;
@@ -1425,11 +1429,8 @@ karte_t::add_fab(fabrik_t *fab)
 bool
 karte_t::rem_fab(fabrik_t *fab)
 {
-DBG_MESSAGE("karte_t::rem_fab()","fab = %p",fab);
-//DBG_MESSAGE("karte_t::rem_fab()","fab_list index = %i",fab_list.index_of(fab));
 	assert(fab != NULL);
-	bool ok=fab_list.remove( fab );
-//DBG_MESSAGE("karte_t::rem_fab()","fab_list now %i(%i)",fab_list.count(),ok);
+	fab_list.remove( fab );
 	return true;
 }
 
@@ -2352,7 +2353,6 @@ void karte_t::laden(loadsave_t *file)
 	}
 	if(einstellungen->gib_beginner_mode()) {
 		warenbauer_t::set_multiplier( umgebung_t::beginner_price_factor );
-		umgebung_t::just_in_time = 0;
 	}
 DBG_DEBUG("karte_t::laden", "einstellungen loaded (groesse %i,%i) timeline=%i beginner=%i",einstellungen->gib_groesse_x(),einstellungen->gib_groesse_y(),umgebung_t::use_timeline,einstellungen->gib_beginner_mode());
 

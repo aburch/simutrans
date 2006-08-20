@@ -5,6 +5,10 @@ Known bugs: (hard to fix)
 
 
 
+	FIX: just_in_time is saved with a map
+	FIX: beginner mode properly set/reset with maps
+
+
 Release of 89.03.1
 
 17-Aug-2006: (prissi)

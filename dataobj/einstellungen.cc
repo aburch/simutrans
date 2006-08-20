@@ -8,6 +8,7 @@
  */
 
 #include "einstellungen.h"
+#include "umgebung.h"
 #include "../simtypes.h"
 #include "../simdebug.h"
 #include "loadsave.h"
@@ -83,6 +84,7 @@ einstellungen_t::einstellungen_t(const einstellungen_t *other)
 
     allow_player_change = other->allow_player_change;
     beginner_mode = other->beginner_mode;
+    just_in_time = other->just_in_time;
 
     use_timeline = other->use_timeline;
     starting_year = other->starting_year;
@@ -191,6 +193,12 @@ einstellungen_t::rdwr(loadsave_t *file)
 		}
 		else {
 			beginner_mode = false;
+		}
+		if(file->get_version()>=89004) {
+			file->rdwr_bool(just_in_time,"\n");
+		}
+		else {
+			just_in_time = umgebung_t::just_in_time;
 		}
 
 		// clear the name when loading ...

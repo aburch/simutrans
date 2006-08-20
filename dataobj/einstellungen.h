@@ -65,6 +65,7 @@ private:
 	cstring_t filename;
 
 	bool beginner_mode;
+	bool just_in_time;
 
 public:
 
@@ -147,6 +148,9 @@ public:
 
 	void setze_beginner_mode(bool yesno) {beginner_mode=yesno;}	// prissi, Aug-06
 	const bool gib_beginner_mode() const {return beginner_mode;}
+
+	void setze_just_in_time(bool yesno) {just_in_time=yesno;}	// prissi, Aug-06
+	const bool gib_just_in_time() const {return just_in_time;}
 };
 
 #endif // dataobj_einstellungen_h
