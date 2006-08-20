@@ -1443,7 +1443,7 @@ stadt_t::bewerte_loc(const koord pos, const char *regel)
     ok = gr->gib_typ() != grund_t::fundament;
     break;
   case 'n':
-    ok = gr->ist_natur() && !gr->gib_besitzer();
+    ok = gr->ist_natur() && !gr->kann_alle_obj_entfernen(NULL);
     break;
   }
       } else {

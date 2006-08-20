@@ -67,6 +67,8 @@ public:
     static const haus_besch_t *tram_depot_besch;
     static const haus_besch_t *str_depot_besch;
     static const haus_besch_t *sch_depot_besch;
+    static const haus_besch_t *monorail_depot_besch;
+    static const haus_besch_t *monorail_foundation_besch;
     static const haus_besch_t *muehle_besch;
 
     // to allow for an arbitary number, we use lists

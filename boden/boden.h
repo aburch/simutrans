@@ -47,7 +47,7 @@ public:
      * Öffnet ein Info-Fenster für diesen Boden
      * @author Hj. Malthaner
      */
-    virtual void zeige_info();
+    virtual bool zeige_info();
 
 
     /**

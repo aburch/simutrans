@@ -1656,6 +1656,31 @@ spieler_t::is_my_halt(koord pos) const
 }
 
 
+/* return true, if my bahnhof is here
+ * @author prissi
+ */
+halthandle_t
+spieler_t::is_my_halt(koord3d pos) const
+{
+	halthandle_t halt;
+
+	const planquadrat_t *plan = welt->lookup(pos.gib_2d());
+	if(plan) {
+
+		for(unsigned i=0;  i<plan->gib_boden_count();  i++  ) {
+			grund_t *gr=plan->gib_boden_bei(i);
+			halt = gr->gib_halt();
+			if(  halt.is_bound()  &&  halt->gib_besitzer()==this  ) {
+				return halt;
+			}
+		}
+	}
+	// nothing here
+	halthandle_t unbound;
+	return unbound;
+}
+
+
 /* try farder to built a station:
  * check also sidewards
  * @author prissi

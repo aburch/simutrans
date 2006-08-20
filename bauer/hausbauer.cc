@@ -64,6 +64,8 @@ const haus_besch_t *hausbauer_t::bahn_depot_besch = NULL;
 const haus_besch_t *hausbauer_t::tram_depot_besch = NULL;
 const haus_besch_t *hausbauer_t::str_depot_besch = NULL;
 const haus_besch_t *hausbauer_t::sch_depot_besch = NULL;
+const haus_besch_t *hausbauer_t::monorail_depot_besch = NULL;
+const haus_besch_t *hausbauer_t::monorail_foundation_besch = NULL;
 const haus_besch_t *hausbauer_t::muehle_besch = NULL;
 
 slist_tpl<const haus_besch_t *> hausbauer_t::train_stops;
@@ -78,6 +80,8 @@ static spezial_obj_tpl<haus_besch_t> spezial_objekte[] = {
     { &hausbauer_t::frachthof_besch,   "CarStop" },
     { &hausbauer_t::bahn_depot_besch,   "TrainDepot" },
     { &hausbauer_t::tram_depot_besch,   "TramDepot" },
+    { &hausbauer_t::monorail_depot_besch,   "MonorailDepot" },
+    { &hausbauer_t::monorail_foundation_besch,   "MonorailGround" },
     { &hausbauer_t::str_depot_besch,	"CarDepot" },
     { &hausbauer_t::sch_depot_besch,	"ShipDepot" },
     { NULL, NULL }
@@ -417,7 +421,9 @@ gebaeude_t *hausbauer_t::neues_gebaeude(karte_t *welt,
 	pri = PRI_DEPOT;
     } else if(besch == tram_depot_besch) {
 			gb = new bahndepot_t(welt, pos, sp, tile);
-//			gb = new strabdepot_t(welt, pos, sp, tile);
+			pri = PRI_DEPOT;
+    } else if(besch == monorail_depot_besch) {
+			gb = new bahndepot_t(welt, pos, sp, tile);
 			pri = PRI_DEPOT;
 		} else if(besch == str_depot_besch) {
 	gb = new strassendepot_t(welt, pos, sp, tile);

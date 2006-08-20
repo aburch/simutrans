@@ -78,6 +78,7 @@ public:
 	schiene_bot_bau,
 	strasse_bot,
 	schiene_tram, // Dario: Tramway
+	schiene_monorail
     };
 
     bool kann_ribis_setzen(const grund_t *bd, const koord zv);
@@ -186,7 +187,7 @@ private:
     void baue_strasse();
     void baue_schiene();
     void baue_leitung();
-
+    void baue_monorail();
 
 public:
 

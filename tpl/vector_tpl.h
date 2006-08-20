@@ -212,16 +212,23 @@ public:
 	*/
 	bool insert_at(unsigned int pos,T elem)
 	{
-		if(  pos<size  &&  pos<count  ) {
-			// ok, a valid position, make space
-			count++;
-			const long num_elements = (count-pos-1)*sizeof(T);
-			memmove( data+pos+1, data+pos, num_elements );
-			data[pos] = elem;
-			return true;
+		if(  pos<count  ) {
+			if(  count<size  ||  resize(count+1)) {
+				// ok, a valid position, make space
+				const long num_elements = (count-pos)*sizeof(T);
+				memmove( data+pos+1, data+pos, num_elements );
+				data[pos] = elem;
+				count ++;
+				return true;
+			}
+			else {
+				ERROR("vector_tpl<T>::insert_at()","cannot insert at %i! Only %i elements.", pos, count);
+				return false;
+			}
 		}
-		ERROR("vector_tpl<T>::insert_at()","cannot insert at %i! Only %i elements.", pos, count);
-		return false;
+		else {
+			return append(elem,1);
+		}
 	}
 
 

@@ -49,6 +49,7 @@ roadsign_t::roadsign_t(karte_t *welt, loadsave_t *file) : ding_t (welt)
 	rdwr(file);
 	step_frequency = besch->gib_bild_anzahl()>4 ? 7 : 0;
 	set_dir(dir);
+	calc_bild();
 }
 
 roadsign_t::roadsign_t(karte_t *welt, koord3d pos, ribi_t::ribi dir, const roadsign_besch_t *besch) :  ding_t(welt, pos)
@@ -60,6 +61,7 @@ DBG_MESSAGE("roadsign_t::roadsign_t()","at (%i,%i,%i) with dir=%i and min=%i",po
 	set_dir(dir);
 	// if more than one state, we will switch direction and phase
 	step_frequency = besch->gib_bild_anzahl()>4 ? 7 : 0;
+	calc_bild();
 }
 
 

@@ -37,7 +37,7 @@ public:
      * Auffforderung, ein Infofenster zu öffnen.
      * @author Hj. Malthaner
      */
-    virtual void zeige_info();
+    virtual bool zeige_info();
 
 
     inline enum typ gib_typ() const {return fundament;};

@@ -41,6 +41,7 @@ int wkz_roadsign(spieler_t *sp, karte_t *welt, koord pos, value_t value);
 
 int wkz_bahndepot(spieler_t *sp, karte_t *welt, koord pos);
 int wkz_tramdepot(spieler_t *sp, karte_t *welt, koord pos);
+int wkz_monoraildepot(spieler_t *sp, karte_t *welt, koord pos);
 
 int wkz_strassendepot(spieler_t *sp, karte_t *welt, koord pos);
 int wkz_schiffdepot(spieler_t *sp, karte_t *welt, koord pos, value_t value);

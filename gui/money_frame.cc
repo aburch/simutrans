@@ -7,7 +7,7 @@
  * in other projects without written permission of the author.
  */
 
-#include <strings.h>
+#include <string.h>
 
 #include "../simworld.h"
 #include "money_frame.h"

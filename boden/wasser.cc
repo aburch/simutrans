@@ -32,12 +32,14 @@ wasser_t::wasser_t(karte_t *welt, koord pos) : grund_t(welt, koord3d(pos, welt->
 }
 
 
-void
+bool
 wasser_t::zeige_info()
 {
     if(gib_halt().is_bound()) {
         gib_halt()->zeige_info();
+        return true;
     }
+    return false;
 }
 
 

@@ -127,61 +127,76 @@ fahrplan_t::eingabe_beginnen()
 bool
 fahrplan_t::insert(karte_t *welt, koord3d k)
 {
-    if(maxi < STOPS-1) {
+	if(maxi < STOPS-1) {
 
-	const grund_t *gr = welt->lookup(k);
-
-	if(ist_halt_erlaubt(gr)) {
-
-	    if(aktuell < 0 || maxi < 0) {
-		// neuer Fahrplan
-		aktuell = 0;
-		maxi = 0;
-		eintrag.at(0).pos = k;
-		eintrag.at(0).ladegrad = 0;
-	    } else if(maxi == 0) {
-		aktuell = 0;
-
-		if(k != eintrag.at(0).pos) {
-		    eintrag.at(1) = eintrag.at(0);
-		    eintrag.at(0).pos = k;
-		    eintrag.at(0).ladegrad = 0;
+		grund_t *gr = welt->lookup(k);
+		// not allowed here?
+		if(!ist_halt_erlaubt(gr)) {
+			// try all grounds
+			const planquadrat_t *plan = welt->lookup(k.gib_2d());
+			grund_t *gr2 = gr;
+			for( int i=0;  i<plan->gib_boden_count();  i++  ) {
+				gr = plan->gib_boden_bei(i);
+				if(gr!=gr2  &&  ist_halt_erlaubt(gr)) {
+					break;
+				}
+			}
 		}
-		maxi ++;
-	    } else {
-		// maxi ist hier größer als 0
 
-		// wir müssen prüfen, ob der eintrag ungleich
-		// dem aktuellen und ungleich dem vorgänger ist
+		if(ist_halt_erlaubt(gr)) {
+			k = gr->gib_pos();
 
-		const int akt_pruef = aktuell;
-		const int vor_pruef = aktuell > 0 ? aktuell-1 : maxi;
+			if(aktuell < 0 || maxi < 0) {
+				// neuer Fahrplan
+				aktuell = 0;
+				maxi = 0;
+				eintrag.at(0).pos = k;
+				eintrag.at(0).ladegrad = 0;
+			} else if(maxi == 0) {
+				aktuell = 0;
+
+				if(k != eintrag.at(0).pos) {
+					eintrag.at(1) = eintrag.at(0);
+					eintrag.at(0).pos = k;
+					eintrag.at(0).ladegrad = 0;
+				}
+				maxi ++;
+			}
+			else {
+				// maxi ist hier größer als 0
+
+				// wir müssen prüfen, ob der eintrag ungleich
+				// dem aktuellen und ungleich dem vorgänger ist
+				const int akt_pruef = aktuell;
+				const int vor_pruef = aktuell > 0 ? aktuell-1 : maxi;
 
 
-		if(k != eintrag.at(akt_pruef).pos &&
-		   k != eintrag.at(vor_pruef).pos) {
+				if(k != eintrag.at(akt_pruef).pos &&
+					k != eintrag.at(vor_pruef).pos) {
 
-		    // Einträge verschieben
-		    for(int i=maxi; i>=aktuell; i--) {
-			eintrag.at(i+1) = eintrag.at(i);
-		    }
-		    // neuen Eintrag einfügen
-		    eintrag.at(aktuell).pos = k;
-		    eintrag.at(aktuell).ladegrad = 0;
-		    maxi ++;
+					// Einträge verschieben
+					for(int i=maxi; i>=aktuell; i--) {
+						eintrag.at(i+1) = eintrag.at(i);
+					}
+					// neuen Eintrag einfügen
+					eintrag.at(aktuell).pos = k;
+					eintrag.at(aktuell).ladegrad = 0;
+					maxi ++;
+				}
+			}
+
+			return true;
 		}
-	    }
+		else {
+			zeige_fehlermeldung(welt);
+			return false;
+		}
 
-	    return true;
-	} else {
-	    zeige_fehlermeldung(welt);
-	    return false;
 	}
-
-    } else {
-	// kein Eintrag mehr frei
-	return false;
-    }
+	else {
+		// kein Eintrag mehr frei
+		return false;
+	}
 }
 
 bool
@@ -189,9 +204,23 @@ fahrplan_t::append(karte_t *welt, koord3d k)
 {
     if(maxi < STOPS-1) {
 
-	const grund_t *gr = welt->lookup(k);
+		grund_t *gr = welt->lookup(k);
 
-	if(ist_halt_erlaubt(gr)) {
+		// not allowed here?
+		if(!ist_halt_erlaubt(gr)) {
+			// try all grounds
+			const planquadrat_t *plan = welt->lookup(k.gib_2d());
+			grund_t *gr2 = gr;
+			for( int i=0;  i<plan->gib_boden_count();  i++  ) {
+				gr = plan->gib_boden_bei(i);
+				if(gr!=gr2  &&  ist_halt_erlaubt(gr)) {
+					break;
+				}
+			}
+		}
+
+		if(ist_halt_erlaubt(gr)) {
+			k = gr->gib_pos();
 
 	    if(aktuell < 0 || maxi < 0) {
 			// neuer fahrplan
@@ -341,6 +370,7 @@ DBG_MESSAGE("zugfahrplan_t::ist_halt_erlaubt()","Checking for stop");
 		// no track
 		return false;
 	}
+DBG_MESSAGE("zugfahrplan_t::ist_halt_erlaubt()","track ok");
 	const depot_t *gb = gr->gib_depot();
 	if(gb==NULL) {
 		// empty track => ok

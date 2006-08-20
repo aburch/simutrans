@@ -429,6 +429,7 @@ public:
      * @author prissi
      */
     halthandle_t is_my_halt(koord pos) const;
+    halthandle_t is_my_halt(koord3d pos) const;
 
     /**
      * Gets haltcount, for naming purposes

@@ -249,7 +249,7 @@ protected:
 		inline void setze_weg2_bild(int n) {weg2_bild_nr = n; set_flag(dirty);};
 
 public:
-    enum typ {grund, boden, wasser, fundament, tunnelboden, brueckenboden };
+    enum typ {grund, boden, wasser, fundament, tunnelboden, brueckenboden, monorailboden };
 
     grund_t(karte_t *welt, loadsave_t *file);
     grund_t(karte_t *welt, koord3d pos);
@@ -325,7 +325,7 @@ public:
      * Oeffnet standardmaessig kein Infofenster.
      * @author Hj. Malthaner
      */
-    virtual void zeige_info() {};
+    virtual bool zeige_info() { return false; };
 
 
     /**

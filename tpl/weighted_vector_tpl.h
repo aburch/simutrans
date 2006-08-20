@@ -68,7 +68,7 @@ public:
 		if(size>0) {
 			nodes = new nodestruct[size];
 			for( unsigned i=0; i<size; i++ ) {
-				nodes[size].weight = 0;
+				nodes[i].weight = 0;
 			}
 		} else {
 			nodes = 0;
@@ -112,7 +112,7 @@ public:
 			return true;	// do nothing
 		}
 		if(count > new_size) {
-			ERROR("vector_tpl<T>::resize()", "cannot preserve elements.");
+			ERROR("weighted_vector_tpl<T>::resize()", "cannot preserve elements.");
 			return false;
 		}
 		nodestruct *new_nodes = new nodestruct[new_size];
@@ -158,7 +158,7 @@ public:
 		}
 #endif
 		if(count >= size) {
-			ERROR("vector_tpl<T>::append()","capacity %i exceeded.",size);
+			ERROR("weighted_vector_tpl<T>::append()","capacity %i exceeded.",size);
 			return false;
 		}
 		nodes[count].data = elem;
@@ -173,7 +173,7 @@ public:
      * of out of spce, extend with this factor
      * @author prissi
      */
-	bool append(T elem,unsigned long weight,unsigned short extend)
+	bool append(T elem,unsigned long weight,unsigned extend)
 	{
 #ifdef IGNORE_ZERO_WEIGHT
 		if(weight==0) {
@@ -183,7 +183,7 @@ public:
 #endif
 		if(count>=size) {
 			if(  !resize( count+extend )  ) {
-				ERROR("vector_tpl<T>::append(,)","could not extend capacity %i.",size);
+				ERROR("weighted_vector_tpl<T>::append(,)","could not extend capacity %i.",size);
 				return false;
 			}
 		}
@@ -212,7 +212,7 @@ public:
      * extend vector if nessesary
      * @author Hj. Malthaner
      */
-	bool append_unique(T elem,unsigned long weight,unsigned short extend)
+	bool append_unique(T elem,unsigned long weight,unsigned extend)
 	{
 		if(!is_contained(elem)) {
 			return append(elem,weight,extend);
@@ -233,20 +233,27 @@ public:
 			return false;
 		}
 #endif
-		if(  pos<size  &&  pos<count  ) {
-			// ok, a valid position, make space
-			count++;
-			const long num_elements = (count-pos-1)*sizeof(nodestruct);
-			memmove( data+pos+1, data+pos, num_elements );
-			nodes[pos].data = elem;
-			for(unsigned i=pos+1;  i<count;  i++ ) {
-				nodes[i].weight += weight;
+		if(  pos<count  ) {
+			if(  count<size  ||  resize(count+1)) {
+				// ok, a valid position, make space
+				const long num_elements = (count-pos)*sizeof(nodestruct);
+				memmove( nodes+pos+1, nodes+pos, num_elements );
+				nodes[pos].data = elem;
+				for(unsigned i=pos+1;  i<=count;  i++ ) {
+					nodes[i].weight += weight;
+				}
+				total_weight += weight;
+				count ++;
+				return true;
 			}
-			total_weight += weight;
-			return true;
+			else {
+				ERROR("weighted_vector_tpl<T>::insert_at()","cannot insert at %i! Only %i elements.", pos, count);
+				return false;
+			}
 		}
-		ERROR("vector_tpl<T>::insert_at()","cannot insert at %i! Only %i elements.", pos, count);
-		return false;
+		else {
+			return append(elem,weight,1);
+		}
 	}
 
 
@@ -284,7 +291,7 @@ public:
 	*/
 	bool remove_at(unsigned int pos)
 	{
-		if(  pos<size  &&  pos<count  ) {
+		if(  pos<count  ) {
 			unsigned int i,j;
 			// get the change in the weight; must check, if it isn't the last element
 			const unsigned long diff_weight = (pos+1<count) ? nodes[pos+1].weight-nodes[pos].weight : total_weight-nodes[pos].weight;
@@ -332,7 +339,7 @@ public:
 	* returns the weight at a position
 	* @author prissi
 	*/
-	unsigned long weight_at(unsigned short pos) const
+	unsigned long weight_at(unsigned pos) const
 	{
 		return (pos<count) ? nodes[pos].weight : total_weight+1;
 	}
@@ -355,7 +362,7 @@ public:
 			return nodes[pos].data;
 #else
 			// ... and that the much faster binary search
-			unsigned short diff = 1;
+			unsigned diff = 1;
 			sint8 counter=0;
 			// now make sure, diff is 2^n
 			while(diff <= count) {
@@ -364,7 +371,7 @@ public:
 			}
 			diff >>= 1;
 
-			unsigned short pos = diff;
+			unsigned pos = diff;
 
 			// now search
 			while(counter-->0) {

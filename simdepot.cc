@@ -472,13 +472,15 @@ depot_t::get_oldest_vehicle(int id)
 
 bahndepot_t::bahndepot_t(karte_t *welt, loadsave_t *file) : depot_t(welt)
 {
-  rdwr(file);
-  is_tram = gib_tile()->gib_besch()==hausbauer_t::tram_depot_besch;
+	rdwr(file);
+	is_tram = gib_tile()->gib_besch()==hausbauer_t::tram_depot_besch;
+	is_monorail = gib_tile()->gib_besch()==hausbauer_t::monorail_depot_besch;
 }
 
 bahndepot_t::bahndepot_t(karte_t *welt, koord3d pos,spieler_t *sp, const haus_tile_besch_t *t) : depot_t(welt, pos, sp, t)
 {
 	is_tram = t->gib_besch()==hausbauer_t::tram_depot_besch;
+	is_monorail = gib_tile()->gib_besch()==hausbauer_t::monorail_depot_besch;
 }
 
 void
@@ -534,6 +536,9 @@ const vehikel_besch_t *bahndepot_t::get_vehicle_type(int itype)
 	if(is_tram) {
 		// trams only?
 		return vehikelbauer_t::gib_info(weg_t::schiene_strab, itype);
+	} else if(is_monorail) {
+		// monorails only?
+		return vehikelbauer_t::gib_info(weg_t::schiene_monorail, itype);
 	}
 	return vehikelbauer_t::gib_info(weg_t::schiene, itype);
 }
@@ -541,7 +546,7 @@ const vehikel_besch_t *bahndepot_t::get_vehicle_type(int itype)
 const char *
 bahndepot_t::gib_name() const
 {
-	return is_tram?"Tramdepot":"Bahndepot";
+	return is_tram?"Tramdepot":(is_monorail?"Monoraildepot":"Bahndepot");
 }
 
 

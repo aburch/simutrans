@@ -250,6 +250,7 @@ void guarded_free(void *p)
 
 #include "dataobj/freelist.h"
 
+#ifdef USE_KEYLOCK
 void * operator new(size_t size)
 {
 	return guarded_malloc(size);
@@ -259,5 +260,6 @@ void operator delete(void *p)
 {
 	guarded_free(p);
 }
+#endif
 
 #endif

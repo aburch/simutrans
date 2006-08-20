@@ -939,18 +939,10 @@ haltestelle_t::add_grund(grund_t *gr)
 		}
 	}
 
+	welt->lookup(gr->gib_pos().gib_2d())->gib_kartenboden()->setze_halt(self);
+
 	verbinde_fabriken();
 	assert(gr->gib_halt() == self);
-
-	// rebuild destination lists (since maybe a convoi stopped here, but there was no station yet)
-//DBG_MESSAGE("haltestelle_t::add_grund()","->rebuild_destinations()");
-	const slist_tpl<halthandle_t> & list = haltestelle_t::gib_alle_haltestellen();
-	slist_iterator_tpl <halthandle_t> iter (list);
-
-	while( iter.next() ) {
-		iter.get_current()->rebuild_destinations();
-		INT_CHECK("simhalt 952");
-	}
 
 	return true;
     } else {
@@ -1007,8 +999,7 @@ haltestelle_t::rem_grund(grund_t *gb,bool final)
 bool
 haltestelle_t::existiert_in_welt()
 {
-//    printf("Haltestelle %p halt %d Flächen.\n", this, grund.count());
-    return !grund.is_empty();
+	return !grund.is_empty();
 }
 
 

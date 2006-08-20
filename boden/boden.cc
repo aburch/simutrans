@@ -128,17 +128,24 @@ const char *boden_t::gib_name() const
 }
 
 
-void
+bool
 boden_t::zeige_info()
 {
-    if(gib_halt().is_bound()) {
-        gib_halt()->zeige_info();
-    } else {
-	if(!grund_infos->get(this)) {
-	    grund_infos->put(this, new grund_info_t(welt, this));
+	if(gib_halt().is_bound()) {
+		gib_halt()->zeige_info();
+		return true;
 	}
-        create_win(-1, -1, grund_infos->get(this), w_autodelete);
-    }
+	else {
+		if(hat_wege()) {
+			// there is some info!
+			if(!grund_infos->get(this)) {
+				grund_infos->put(this, new grund_info_t(welt, this));
+			}
+			create_win(-1, -1, grund_infos->get(this), w_autodelete);
+			return true;
+		}
+	}
+	return false;
 }
 
 

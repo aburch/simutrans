@@ -431,7 +431,7 @@ fabrikbauer_t::verteile_industrie(karte_t * welt, spieler_t *, int max_number_of
 fabrik_t *
 fabrikbauer_t::baue_fabrik(karte_t * welt, koord3d *parent, const fabrik_besch_t *info, int rotate, koord3d pos, spieler_t *spieler)
 {
-	halthandle_t halt;
+	halthandle_t halt=halthandle_t();
 	// no passengers for fish swarms
 	bool make_passenger = strcmp("fish_swarm",info->gib_name())!=0;
 

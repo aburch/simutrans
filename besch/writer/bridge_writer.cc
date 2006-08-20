@@ -91,7 +91,7 @@ void bridge_writer_t::write_obj(FILE *outfp, obj_node_t &parent, tabfileobj_t &o
 
     // Hajo: Version needs high bit set as trigger -> this is required
     //       as marker because formerly nodes were unversionend
-    uint16 version = 0x8004;
+    uint16 version = 0x8005;
     node.write_data_at(outfp, &version, 0, 2);
 
     node.write_data_at(outfp, &topspeed, 2, 2);

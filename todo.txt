@@ -13,19 +13,21 @@ Stichpunkte
 - Hauptquartier: done
 - bevorzugt für nächsten Halt einsteigen lassen: done
 - step für citycars/vehicles (für turnaround/stau): done
+- nur 2x1 und nur 1x2 Gebäude: done
+- Linksverkehr: done
+- Pfeiler für Brücken: done
 
 - Fabrikliste + Sehenwürdigkeitenliste
-- powernet nach liste ändern => Karte besser, keine Speicherverschwendung
 - Landfabrik alle x Jahre/Fakriken
 - oberstes Fenster schließen
-- Linksverkehr
-- Pfeiler für Brücken
-- Brücken and senkrechten Wänden
+- Brücken an senkrechten Wänden
 - Felder: Grafiken da, fehlt noch code (vielleicht wie Wälder?)
 - schönerer Jahreszeitenwechsel
-- nur 2x1 und nur 1x2 Gebäude
+- Monorail als Brückenstrecke
+- Bahnhöfe auf Brücken
 
 - Winter höhenabhängig?
+
 
 Immer zu tun:
 - Aufräumen von Datentypen für bessere Portierbarkeit
@@ -38,6 +40,5 @@ Unmögliches ...
 Fehler:
 Stadtautos kommen nicht um 180 Kurve
 Linienverwaltung kollidiert mit AI Spieler
-Städte ohne Rathaus
-Zweimal Karte klicken/Legende verkleinern -> crash
+Städte ohne Rathaus?
 Powerlines und Trackupdate? (seems ok)

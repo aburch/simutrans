@@ -16,14 +16,20 @@
 
 #include "../boden/wege/strasse.h"
 #include "../boden/wege/schiene.h"
+#include "../boden/brueckenboden.h"
+#include "../boden/monorailboden.h"
 #include "../boden/grund.h"
+
 #include "../simworld.h"
 #include "../simwerkz.h"
 #include "../simcosts.h"
 #include "../simplay.h"
+#include "../simplan.h"
 #include "../simdepot.h"
 #include "../blockmanager.h"
+
 #include "../dings/gebaeude.h"
+#include "../dings/bruecke.h"
 
 #include "../simintr.h"
 
@@ -140,26 +146,24 @@ void wegbauer_t::fill_menu(werkzeug_parameter_waehler_t *wzw,
 	while(iter.next()) {
 		const weg_besch_t * besch = iter.get_current_value();
 
-		if(besch->gib_styp() == styp || styp == 0){ // DarioK: load only if the given styp maches!
-			//Note: This doesn't avoid tramway tracks to be loaded together with the usual rails!!!!
+		if((besch->gib_styp()!=0  &&  styp!=0) ||  (styp==0  &&  besch->gib_styp()==0)) {
+			 // DarioK: load only if the given styp maches!
 			if(besch->gib_wtyp() == wtyp &&
 				besch->gib_cursor()->gib_bild_nr(1) != -1) {
 
-				if((styp == 0 && besch->gib_styp() != 7) || styp == 7){
-					// this should avoid tram-tracks to be loaded into rail-menu
-					unsigned i;
-					for( i=0;  i<matching.count();  i++  ) {
-						// insert sorted
-						if(matching.at(i)->gib_topspeed()>besch->gib_topspeed()) {
-							matching.insert(besch,i);
-							break;
-						}
+				// this should avoid tram-tracks to be loaded into rail-menu
+				unsigned i;
+				for( i=0;  i<matching.count();  i++  ) {
+					// insert sorted
+					if(matching.at(i)->gib_topspeed()>besch->gib_topspeed()) {
+						matching.insert(besch,i);
+						break;
 					}
-					if(i==matching.count()) {
-						matching.append(besch);
-					}
-
 				}
+				if(i==matching.count()) {
+					matching.append(besch);
+				}
+
 			}
 		}
 	}
@@ -442,6 +446,7 @@ wegbauer_t::ist_grund_fuer_strasse(koord pos, const koord zv, koord start, koord
       ok = ok &&  (bd->gib_weg(weg_t::strasse)==NULL  ||  check_crossing(zv,bd,weg_t::strasse));
       ok = ok && bd->gib_weg(weg_t::schiene)==NULL  &&  (bd->gib_besitzer()==sp  ||  bd->gib_besitzer()==NULL)  &&  check_for_leitung(zv,bd);
       break;
+	case schiene_monorail:
 	case schiene_tram: // Dario: Tramway
       ok = (ok || bd->gib_weg(weg_t::schiene)  || bd->gib_weg(weg_t::strasse)) &&
     (bd->gib_besitzer() == NULL || bd->gib_besitzer() == sp) &&
@@ -1532,9 +1537,6 @@ wegbauer_t::baue_leitung()
 			}
 			sp->buche(CST_LEITUNG, gr->gib_pos().gib_2d(), COST_CONSTRUCTION);
 			gr->obj_add(lt);
-//			if(gr->gib_besitzer()==NULL) {
-//				gr->setze_besitzer(sp);
-//			}
 		}
 		lt->calc_neighbourhood();
 	}
@@ -1545,63 +1547,59 @@ void
 wegbauer_t::baue_schiene()
 {
 	int i;
-  if(max_n >= 1) {
+	if(max_n >= 1) {
 
-        // blockstrecken verwalten
+		// rails have blocks
+		blockmanager * bm = blockmanager::gib_manager();
 
-        blockmanager * bm = blockmanager::gib_manager();
+		for(i=1; i<max_n; i++) {
+			if(baubaer) {
+				optimiere_stelle(i);
+			}
+		}
 
-        for(i=1; i<max_n; i++) {
+		// init undo
+		sp->init_undo(weg_t::schiene,max_n);
 
-            if(baubaer) {
-    optimiere_stelle(i);
-            }
-        }
+		// built tracks
+		for(i=0; i<=max_n; i++) {
+			int cost = 0;
+			grund_t *gr = welt->lookup(route->at(i))->gib_kartenboden();
+			ribi_t::ribi ribi = calc_ribi(i);
 
-	// init undo
-	sp->init_undo(weg_t::schiene,max_n);
+			if(gr->weg_erweitern(weg_t::schiene, ribi)) {
+				weg_t * weg = gr->gib_weg(weg_t::schiene);
+				if(weg->gib_besch() != besch && !keep_existing_ways) {
+					// Hajo: den typ des weges aendern, kosten berechnen
 
-        // schienen legen
+					if(sp) {
+						sp->add_maintenance(besch->gib_wartung() - weg->gib_besch()->gib_wartung());
+					}
 
-        for(i=0; i<=max_n; i++) {
-    int cost = 0;
-    grund_t *gr = welt->lookup(route->at(i))->gib_kartenboden();
-    ribi_t::ribi ribi = calc_ribi(i);
+					weg->setze_besch(besch);
+					gr->calc_bild();
+					cost = -besch->gib_preis();
+				}
 
-    if(gr->weg_erweitern(weg_t::schiene, ribi)) {
-      weg_t * weg = gr->gib_weg(weg_t::schiene);
-      if(weg->gib_besch() != besch && !keep_existing_ways) {
-        // Hajo: den typ des weges aendern, kosten berechnen
+				bm->schiene_erweitern(welt, gr);
+			}
+			else {
+				schiene_t * sch = new schiene_t(welt);
+				sch->setze_besch(besch);
+				gr->neuen_weg_bauen(sch, ribi, sp);
 
-        if(sp) {
-    sp->add_maintenance(besch->gib_wartung() - weg->gib_besch()->gib_wartung());
-        }
+				// prissi: into UNDO-list, so wie can remove it later
+				sp->add_undo( route->at(i) );
 
-        weg->setze_besch(besch);
-        gr->calc_bild();
-        cost = -besch->gib_preis();
-      }
+				bm->neue_schiene(welt, gr);
+				cost = -besch->gib_preis();
+			}
 
-      bm->schiene_erweitern(welt, gr);
+			if(cost) {
+				sp->buche(cost, gr->gib_pos().gib_2d(), COST_CONSTRUCTION);
+			}
 
-  }
-  else {
-      schiene_t * sch = new schiene_t(welt);
-      sch->setze_besch(besch);
-      gr->neuen_weg_bauen(sch, ribi, sp);
-
-	// prissi: into UNDO-list, so wie can remove it later
-	sp->add_undo( route->at(i) );
-
-      bm->neue_schiene(welt, gr);
-      cost = -besch->gib_preis();
-    }
-
-		  if(cost) {
-	  	  sp->buche(cost, gr->gib_pos().gib_2d(), COST_CONSTRUCTION);
-		  }
-
-		  gr->calc_bild();
+			gr->calc_bild();
 		}
 
 		// V.Meyer: weg_position_t changed to grund_t::get_neighbour()
@@ -1610,7 +1608,7 @@ wegbauer_t::baue_schiene()
 		grund_t *to;
 
 		for (i=0; i <= 4; i++) {
-  		if (start->get_neighbour(to, weg_t::schiene, koord::nsow[i])) {
+			if (start->get_neighbour(to, weg_t::schiene, koord::nsow[i])) {
 				to->calc_bild();
 			}
 			if (end->get_neighbour(to, weg_t::schiene, koord::nsow[i])) {
@@ -1620,6 +1618,82 @@ wegbauer_t::baue_schiene()
 	}
 
 	baue_tunnel_und_bruecken();
+}
+
+
+
+void
+wegbauer_t::baue_monorail()
+{
+	if(max_n >= 1) {
+
+		// rails have blocks
+		blockmanager * bm = blockmanager::gib_manager();
+
+		// init undo
+		sp->init_undo(weg_t::schiene,max_n);
+
+		// built elevated track ... non-trivial
+		for(int i=0; i<=max_n; i++) {
+
+			int cost = 0;
+			ribi_t::ribi ribi = calc_ribi(i);
+			planquadrat_t *plan = welt->access(route->at(i));
+			grund_t *monorail = plan->gib_boden_in_hoehe(plan->gib_kartenboden()->gib_pos().z+16);
+
+			// here is already a track => try to connect
+			if(monorail) {
+				monorail->weg_erweitern(weg_t::schiene, ribi);
+				weg_t * weg = monorail->gib_weg(weg_t::schiene);
+				if(weg->gib_besch()!=besch) {
+					if(sp) {
+						sp->add_maintenance(besch->gib_wartung() - weg->gib_besch()->gib_wartung());
+					}
+					weg->setze_besch(besch);
+					cost = -besch->gib_preis();
+				}
+				bm->schiene_erweitern(welt, monorail);
+				monorail->calc_bild();
+			}
+			else {
+				monorail = new  monorailboden_t( welt, plan->gib_kartenboden()->gib_pos()+koord3d(0, 0, 16) );
+
+				schiene_t * sch = new schiene_t(welt);
+				sch->setze_besch(besch);
+				sch->setze_max_speed(besch->gib_topspeed());
+				plan->boden_hinzufuegen(monorail);
+				monorail->neuen_weg_bauen(sch, ribi, sp);
+
+				// prissi: into UNDO-list, so wie can remove it later
+	//			sp->add_undo( route->at(i) );
+
+				bm->neue_schiene(welt, monorail);
+				cost = -besch->gib_preis();
+				monorail->calc_bild();
+			}
+
+			if(cost) {
+				sp->buche(cost, route->at(i), COST_CONSTRUCTION);
+			}
+#if 0
+			// recalc images
+			grund_t *start_bd = welt->lookup(route->at(0))->gib_kartenboden();
+			grund_t *start=welt->lookup(start_bd->gib_pos()+koord3d(0,0,16));
+			grund_t *end_bd = welt->lookup(route->at(max_n))->gib_kartenboden();
+			grund_t *end=welt->lookup(end_bd->gib_pos()+koord3d(0,0,16));
+			grund_t *to;
+
+			for (int j=0; j <= 4; j++) {
+				if (start  &&  start->get_neighbour(to, weg_t::schiene, koord::nsow[j])) {
+					monorail->calc_bild();
+				}
+				if (end &&  end->get_neighbour(to, weg_t::schiene, koord::nsow[j])) {
+					monorail->calc_bild();
+				}
+			}
+#endif
+		}
+	}
 }
 
 
@@ -1672,6 +1746,10 @@ wegbauer_t::baue()
 		case schiene_tram: // Dario: Tramway
 			DBG_MESSAGE("wegbauer_t::baue", "schiene_tram");
 			baue_schiene();
+			break;
+		case schiene_monorail:
+			DBG_MESSAGE("wegbauer_t::baue", "schiene_monorail");
+			baue_monorail();
 			break;
   }
  	INT_CHECK("simbau 1087");

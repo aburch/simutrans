@@ -272,6 +272,7 @@ protected:
 	void build_line_list();
 
 	bool is_tram;	// flag for tram depot
+	bool is_monorail;	// flag for monorail depot
 
 public:
 

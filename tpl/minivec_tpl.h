@@ -96,7 +96,7 @@ public:
 		if(new_size<=size) {
 			return true;	// do nothing
 		}
-//DBG_DEBUG("<minivec_tpl>::resize()","old size %i, new size %i",size,new_size);
+//MESSAGE("<minivec_tpl>::resize()","old size %i, new size %i",size,new_size);
 		if(count > new_size) {
 			ERROR("minivec_tpl<T>::resize()", "cannot preserve elements.");
 			return false;
@@ -210,15 +210,21 @@ public:
 	*/
 	bool insert_at(unsigned int pos,T elem)
 	{
-		if(  pos<size  &&  pos<count  ) {
-			// ok, a valid position, make space
-			count++;
-			const long num_elements = (count-pos-1)*sizeof(T);
-			memmove( data+pos+1, data+pos, num_elements );
-			data[pos] = elem;
-			return true;
+		if(  pos<count  ) {
+			if(count<size  &&  resize( count+1 )) {
+				// ok, a valid position, make space
+				const long num_elements = (count-pos)*sizeof(T);
+				memmove( data+pos+1, data+pos, num_elements );
+				data[pos] = elem;
+				count ++;
+				return true;
+			}
+			else {
+				// could not extend
+				return false;
+			}
 		}
-		else if(pos==size) {
+		else if(pos==count) {
 			return append(elem,1);
 		}
 		else {

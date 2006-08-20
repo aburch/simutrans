@@ -57,11 +57,13 @@ fundament_t::fundament_t(karte_t *welt, koord3d pos) : grund_t(welt, pos)
  * Auffforderung, ein Infofenster zu öffnen.
  * @author Hj. Malthaner
  */
-void fundament_t::zeige_info()
+bool fundament_t::zeige_info()
 {
 	if(gib_halt().is_bound()) {
 		gib_halt()->zeige_info();
+		return true;
 	}
+	return false;
 }
 
 

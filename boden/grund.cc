@@ -351,8 +351,8 @@ void grund_t::info(cbuffer_t & buf) const
   }
 
   if(buf.len() == 0) {
-    buf.append("\n");
-    buf.append(translator::translate("Keine Info."));
+//    buf.append("\n");
+//    buf.append(translator::translate("Keine Info."));
   }
 }
 
@@ -822,6 +822,11 @@ bool grund_t::get_neighbour(grund_t *&to, weg_t::typ type, koord dir) const
 	}
 	grund_t *gr = NULL;
 
+	const planquadrat_t * plan = welt->lookup(pos.gib_2d() + dir);
+	if(!plan) {
+		return false;
+	}
+
 	if(ist_bruecke() || ist_tunnel()) {
 		int vmove = get_vmove(dir);
 
@@ -839,10 +844,6 @@ bool grund_t::get_neighbour(grund_t *&to, weg_t::typ type, koord dir) const
 	}
 	else {
 		// Hajo: check if we are on the map
-		const planquadrat_t * plan = welt->lookup(pos.gib_2d() + dir);
-		if(!plan) {
-			return false;
-		}
 		gr = plan->gib_kartenboden();
 	}
 	// Testen ob Wegverbindung existiert

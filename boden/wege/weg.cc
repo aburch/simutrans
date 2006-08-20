@@ -202,12 +202,6 @@ const char * weg_t::gib_name() const {
 
 int weg_t::calc_bild(koord3d pos, const weg_besch_t *besch) const
 {
-  if(besch == 0) {
-    // Hajo: ohne besch kein Bild -> das kann passieren, wenn
-    // man savegames mit anderen PAK files laedt
-    return -1;
-  }
-
 	// V.Meyer: weg_position_t changed to grund_t::get_neighbour()
 	grund_t *from = welt->lookup(pos);
 	grund_t *to;

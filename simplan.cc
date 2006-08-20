@@ -19,6 +19,7 @@
 #include "boden/wasser.h"
 #include "boden/tunnelboden.h"
 #include "boden/brueckenboden.h"
+#include "boden/monorailboden.h"
 
 #include "dataobj/loadsave.h"
 #include "dataobj/umgebung.h"
@@ -188,6 +189,7 @@ planquadrat_t::rdwr(karte_t *welt, loadsave_t *file)
             case grund_t::fundament:	    gr = new fundament_t(welt, file);	    break;
             case grund_t::tunnelboden:	    gr = new tunnelboden_t(welt, file);	    break;
             case grund_t::brueckenboden:    gr = new brueckenboden_t(welt, file);   break;
+            case grund_t::monorailboden:	    gr = new monorailboden_t(welt, file);	    break;
             default:
 	        gr = 0; // Hajo: keep compiler happy, fatal() never returns
                 dbg->fatal("planquadrat_t::rdwr()",

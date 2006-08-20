@@ -7,8 +7,8 @@
 #
 
 
-OSTYPE=mingw-sdl
-#OSTYPE=mingw-gdi
+#OSTYPE=mingw-sdl
+OSTYPE=mingw-gdi
 #OSTYPE=beos
 #OSTYPE=linux-gnu
 
@@ -178,7 +178,7 @@ SUB_OBJS=\
  dings/tunnel.o dings/gebaeude.o \
  dings/signal.o dings/leitung2.o dings/roadsign.o dings/dummy.o dings/lagerhaus.o\
  boden/boden.o  boden/fundament.o  boden/grund.o  boden/wasser.o\
- boden/brueckenboden.o  boden/tunnelboden.o \
+ boden/brueckenboden.o  boden/tunnelboden.o boden/monorailboden.o \
  boden/wege/dock.o boden/wege/strasse.o \
  boden/wege/schiene.o boden/wege/weg.o \
  gui/components/gui_textinput.o gui/components/gui_resizer.o \

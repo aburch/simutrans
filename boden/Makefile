@@ -2,10 +2,10 @@ CFLAGS = -Wall -O -g -c
 CXXFLAGS = -Wall -O -g -c
 
 SOURCES= boden.cc  fundament.cc  grund.cc  wasser.cc \
- brueckenboden.cc tunnelboden.cc
+ brueckenboden.cc tunnelboden.cc monorailboden.cc
 
 OBJECTS= boden.o  fundament.o  grund.o  wasser.o \
- brueckenboden.o tunnelboden.o
+ brueckenboden.o tunnelboden.o monorailboden.o
 
 
 all:   wege_sub $(OBJECTS)

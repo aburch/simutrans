@@ -818,7 +818,7 @@ DBG_DEBUG("karte_t::init()","hausbauer_t::neue_karte()");
     hausbauer_t::neue_karte();
 
 DBG_DEBUG("karte_t::init()","prepare cities");
-	stadt = new weighted_vector_tpl <stadt_t *> (einstellungen->gib_anzahl_staedte());
+	stadt = new weighted_vector_tpl <stadt_t *>(0);
 	vector_tpl<koord> *pos = stadt_t::random_place(this, einstellungen->gib_anzahl_staedte());
 
 	if(pos!=NULL  &&  pos->get_count()>0) {
@@ -3719,6 +3719,17 @@ karte_t::interactive_event(event_t &ev)
 					hausbauer_t::tram_depot_besch->gib_cursor()->gib_bild_nr(1),
 					hausbauer_t::tram_depot_besch->gib_cursor()->gib_bild_nr(0),
 					tool_tip_with_price(translator::translate("Build tram depot"), CST_BAHNDEPOT) );
+
+				if(hausbauer_t::monorail_depot_besch!=NULL) {
+					wzw->add_tool(wkz_monoraildepot,
+						Z_PLAN,
+						SFX_GAVEL,
+						SFX_FAILURE,
+						hausbauer_t::monorail_depot_besch->gib_cursor()->gib_bild_nr(1),
+						hausbauer_t::monorail_depot_besch->gib_cursor()->gib_bild_nr(0),
+						tool_tip_with_price(translator::translate("Build tram depot"), CST_BAHNDEPOT) );
+				}
+
 
 				sound_play(click_sound);
 
