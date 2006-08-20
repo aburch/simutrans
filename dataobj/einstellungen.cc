@@ -76,14 +76,15 @@ einstellungen_t::einstellungen_t(const einstellungen_t *other)
 void
 einstellungen_t::rdwr(loadsave_t *file)
 {
-    int dummy = 450;
     file->rdwr_int(groesse, " ");
     file->rdwr_int(nummer, "\n");
+    // to be compatible with previous savegames
+    int dummy = ((land_industry_chains&1023)<<20) | ((city_industry_chains&1023)<<10) | (tourist_attractions&1023);
     file->rdwr_int(dummy, " ");	//dummy!
-    file->rdwr_int(anzahl_staedte, " ");
-    file->rdwr_int(land_industry_chains, " ");
-    file->rdwr_int(city_industry_chains, " ");
-    file->rdwr_int(tourist_attractions, "\n");
+    land_industry_chains = dummy>>20;
+    city_industry_chains = (dummy>>10)&1023;
+    tourist_attractions = dummy&1023;
+    file->rdwr_int(anzahl_staedte, "\n");
     file->rdwr_int(scroll_multi, " ");
     file->rdwr_int(verkehr_level, "\n");
     file->rdwr_int(show_pax, "\n");

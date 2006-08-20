@@ -114,36 +114,42 @@ leitung_t::~leitung_t()
     entferne(gib_besitzer());
 }
 
+
+
 static int gimme_neighbours(karte_t *welt, koord base_pos, leitung_t **conn)
 {
-  int count = 0;
+	int count = 0;
 
-  for(int i=0; i<4; i++) {
-    const koord pos = base_pos + koord::nsow[i];
-    const planquadrat_t * plan = welt->lookup(pos);
-    grund_t * gr = plan ? plan->gib_kartenboden() : 0;
+	for(int i=0; i<4; i++) {
+		const koord pos = base_pos + koord::nsow[i];
+		const planquadrat_t * plan = welt->lookup(pos);
+		grund_t * gr = plan ? plan->gib_kartenboden() : 0;
 
-    if(gr) {
-      leitung_t * line = dynamic_cast<leitung_t *> (gr->suche_obj(ding_t::leitung));
-//printf("gimme_neighbours() leitung %p on pos (%i,%i)\n",line,pos.x,pos.y);
-      if(line == 0) {
-	line = dynamic_cast<leitung_t *> (gr->suche_obj(ding_t::pumpe));
-//printf("gimme_neighbours() pumpe %p on pos (%i,%i)\n",line,pos.x,pos.y);
-      }
+		if(gr) {
+			leitung_t * line = NULL;
+			if(line == 0) {
+				line = dynamic_cast<leitung_t *> (gr->suche_obj(ding_t::pumpe));
+if(line!=NULL)
+printf("gimme_neighbours() pumpe %p on pos (%i,%i)\n",line,pos.x,pos.y);
+			}
 
-      if(line == 0) {
-	line = dynamic_cast<leitung_t *> (gr->suche_obj(ding_t::senke));
-//printf("gimme_neighbours() senke %p on pos (%i,%i)\n",line,pos.x,pos.y);
-      }
+			if(line == 0) {
+				line = dynamic_cast<leitung_t *> (gr->suche_obj(ding_t::senke));
+if(line!=NULL)
+printf("gimme_neighbours() senke %p on pos (%i,%i)\n",line,pos.x,pos.y);
+			}
+			if(line == 0) {
+				line = dynamic_cast<leitung_t *> (gr->suche_obj(ding_t::leitung));
+if(line!=NULL)
+printf("gimme_neighbours() leitung %p on pos (%i,%i)\n",line,pos.x,pos.y);
+			}
 
-
-      if(line) {
-	conn[count ++] = line;
-      }
-    }
-  }
-
-  return count;
+			if(line) {
+				conn[count ++] = line;
+			}
+		}
+	}
+	return count;
 }
 
 
@@ -504,7 +510,7 @@ senke_t::~senke_t()
  */
 bool senke_t::step(long /*delta_t*/)
 {
-    gib_besitzer()->buche(einkommen >> 3, gib_pos().gib_2d(), COST_INCOME);
+    gib_besitzer()->buche(einkommen >> 10, gib_pos().gib_2d(), COST_INCOME);
 
     einkommen = 0;
     return true;
@@ -525,7 +531,7 @@ senke_t::sync_step(long time)
 {
   //dbg->message("senke_t::sync_step()", "called");
 
-  einkommen = get_net()->withdraw_power(time*PROD);
+  einkommen += get_net()->withdraw_power(time*PROD);
 
   return true;
 }

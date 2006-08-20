@@ -128,6 +128,7 @@ convoi_info_t::convoi_info_t(convoihandle_t cnv)
     set_resizemode(diagonal_resize);
     resize(koord(0,0));
 
+dbg->message("convoi_info_t::convoi_info_t()","This convoi belong to $%p.",cnv->gib_besitzer());
     if(cnv->gib_besitzer()->automat==false) {
        // this convoi belongs not to an AI
        button.setze_groesse(koord(10*8+4, 14));

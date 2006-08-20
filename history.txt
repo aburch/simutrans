@@ -1,3 +1,20 @@
+
+24-Jan-2005
+	FIX: powerline income was based on last consumption, now integfrating
+	   and reduced
+	FIX: during loading the AI was not marked as AI => convois had remove
+	   buttons again
+	FIX: roadbuilder did not checked, whether I owned the ground or not
+	   => crossing with AI possible
+	   => removing road => strange things happened
+
+
+Released Simutrans 0.85.01.1
+
+23-Jan-2005:
+	FIX: loading old savegames again
+
+
 Released Simutrans 0.85.01.0
 
 20-Jan-2005:

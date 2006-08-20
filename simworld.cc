@@ -678,6 +678,10 @@ karte_t::init_felder()
 
     for(i=0; i<anz_spieler ; i++) {
         spieler[i] = new spieler_t(this, i*4);
+        if(i>=2) {
+        	// otherwise during loading things are not belonging to an AI ...
+        	spieler[i]->automat = true;
+        }
     }
 
     schedule_list_gui = new schedule_list_gui_t(this);

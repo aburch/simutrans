@@ -197,7 +197,7 @@ schiene_t::rdwr(loadsave_t *file)
     if(old_max_speed>0) {
         setze_max_speed(old_max_speed);
     }
-dbg->message("schiene_t::rdwr","track %s at (%i,%i) max_speed %i",bname,gib_pos().x,gib_pos().y,old_max_speed);
+//dbg->message("schiene_t::rdwr","track %s at (%i,%i) max_speed %i",bname,gib_pos().x,gib_pos().y,old_max_speed);
     if(gib_besch() == 0) {
       dbg->warning("schiene_t::rwdr",
        "description %s for track at %d,%d not found!",

@@ -1214,7 +1214,13 @@ int wkz_schienenkreuz(spieler_t *sp, karte_t *welt, koord pos)
   grund_t *bd = welt->lookup(pos)->gib_kartenboden();
   int hang = welt->get_slope(pos);
 
-  if(bd && hang==0) {
+    // prüfen, ob boden entfernbar
+    if(bd->gib_besitzer() != NULL && bd->gib_besitzer() != sp) {
+      create_win(-1, -1, MESG_WAIT, new nachrichtenfenster_t(welt, "Das Feld gehoert\neinem anderen Spieler\n"), w_autodelete);
+  	return false;
+  	}
+
+    if(bd && hang==0) {
 
       if(bd->gib_weg(weg_t::schiene) && !bd->gib_weg(weg_t::strasse)) {
     const ribi_t::ribi ribi = bd->gib_weg_ribi_unmasked(weg_t::schiene);

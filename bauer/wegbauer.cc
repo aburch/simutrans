@@ -372,6 +372,7 @@ wegbauer_t::ist_grund_fuer_strasse(koord pos, const koord zv, koord start, koord
   case strasse:
       ok =
     (ok || bd->gib_weg(weg_t::strasse)  || check_crossing(zv,bd,sp,weg_t::schiene)) &&
+    (bd->gib_besitzer() == NULL || bd->gib_besitzer() == sp) &&
     !bd->hat_gebaeude(hausbauer_t::frachthof_besch) &&
     check_for_leitung(zv,bd)  &&
     !bd->gib_depot();
@@ -395,6 +396,7 @@ wegbauer_t::ist_grund_fuer_strasse(koord pos, const koord zv, koord start, koord
       // like strasse but allow for railroad crossing
   case strasse_bot:
       ok = (ok || bd->gib_weg(weg_t::strasse)  || check_crossing(zv,bd,false,weg_t::schiene)) &&
+    (bd->gib_besitzer() == NULL || bd->gib_besitzer() == sp) &&
     check_for_leitung(zv,bd)  &&
     !bd->hat_gebaeude(hausbauer_t::frachthof_besch);
       break;
