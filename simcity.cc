@@ -766,16 +766,32 @@ stadt_t::step_passagiere()
 					(gb->gib_tile()->gib_besch()->gib_level() + 6) >> 1 :
 					(gb->gib_post_level() + 3) >> 1;
 
-					// create pedestrians?
-					if(umgebung_t::fussgaenger) {
-						haltestelle_t::erzeuge_fussgaenger(welt, welt->lookup(k)->gib_kartenboden()->gib_pos(), (num_pax>>3)+1);
-						INT_CHECK("simcity 269");
-					}
+				// create pedestrians?
+				if(umgebung_t::fussgaenger) {
+					haltestelle_t::erzeuge_fussgaenger(welt, welt->lookup(k)->gib_kartenboden()->gib_pos(), (num_pax>>3)+1);
+					INT_CHECK("simcity 269");
+				}
 
-				// starthaltestelle suchen (no start -> finished)
+#ifdef START_ONLY_CORRECT
+				// suitable start search
+				const vector_tpl<halthandle_t> &start_list = welt->lookup(k)->gib_kartenboden()->get_haltlist();
+				vector_tpl <halthandle_t> halt_list(start_list.get_count());
+				for( unsigned h=0;  h<start_list.get_count();  h++ ) {
+					halthandle_t halt = start_list.at(h);
+					if(wtyp==warenbauer_t::post  &&  halt->get_post_enabled()) {
+						halt_list.append( halt );
+					}
+					if(wtyp==warenbauer_t::passagiere  &&  halt->get_pax_enabled()) {
+						halt_list.append( halt );
+					}
+				}
+#else
+				// suitable start search
 				const vector_tpl<halthandle_t> &halt_list = welt->lookup(k)->gib_kartenboden()->get_haltlist();
-				if(halt_list.get_count() > 0) {
-					halthandle_t halt = halt_list.get(0);
+#endif
+				// only continue, if this is a good start halt
+				if(halt_list.get_count()>0) {
+					halthandle_t halt = halt_list.at(0);
 
 					// Find passenger destination
 					for(int pax_routed=0;  pax_routed<num_pax;  pax_routed+=7) {
@@ -795,8 +811,7 @@ stadt_t::step_passagiere()
 						const koord ziel = finde_passagier_ziel(&will_return);
 
 						// Dario: Check if there's a stop near destination
-						const vector_tpl <halthandle_t> &ziel_list =
-							welt->lookup(ziel)->gib_kartenboden()->get_haltlist();
+						const vector_tpl <halthandle_t> &ziel_list = welt->lookup(ziel)->gib_kartenboden()->get_haltlist();
 
 						if(ziel_list.get_count() == 0){
 // DBG_MESSAGE("stadt_t::step_passagiere()", "No stop near dest (%d, %d)", ziel.x, ziel.y);
@@ -813,13 +828,12 @@ stadt_t::step_passagiere()
 
 						// prissi: 11-Mar-2005
 						// we try all stations to find one not overcrowded
-						int halte;
-						for(halte=0;  halte<halt_list.get_count();  halte++  ) {
-							halt = halt_list.get(halte);
+						unsigned halte;
+						for( halte=0;  halte<halt_list.get_count();  halte++  ) {
+							halthandle_t halt = halt_list.get(halte);
 							if(halt->gib_ware_summe(wtyp) <= (halt->gib_grund_count() << 7)) {
-								// prissi: not overcrowded
-								// so now try routing
-								break;
+								// prissi: not overcrowded so now try routing
+								goto not_overcrowded;
 							}
 							else {
 								// Hajo: Station crowded:
@@ -827,13 +841,11 @@ stadt_t::step_passagiere()
 								halt->add_pax_unhappy(pax_left_to_do);
 							}
 						}
-						if(halte==halt_list.get_count()) {
-							// prissi: only overcrowded stations found ...
-							// ### maybe we should still send them back
-							continue;
-						}
+						// prissi: only overcrowded or wrong stations found ...
+						// ### maybe we should still send them back
+						continue;
 
-
+not_overcrowded:
 						if(!ziel_list.is_contained(halt)) {
 							// ok, they are not in walking distance
 							// now, finally search a route; this consumes most of the time
@@ -857,37 +869,20 @@ stadt_t::step_passagiere()
 									return_pax.setze_ziel( halt->gib_basis_pos() );
 									return_pax.setze_zwischenziel( return_zwischenziel );
 									// now try to add them to the target halt
-									// we try all stations to find one not overcrowded
-									halthandle_t zwischen_halt=haltestelle_t::gib_halt( welt, return_zwischenziel );
-if(!zwischen_halt.is_bound()) dbg->error("stadt_t::step_passagiere()","Unbound halt on return!");
-//DBG_DEBUG("will_return","from %s to %s via %s",halt->gib_name(),ziel_list.get(0)->gib_name(),zwischen_halt->gib_name());
-									if(ziel_list.is_contained(halt)) {
-										// ok, no need to transport => happy
-										ziel_list.at(0)->add_pax_happy(pax_left_to_do);
-										pax_transport += pax.menge;
+// we try all stations to find one not overcrowded
+//									halthandle_t zwischen_halt=haltestelle_t::gib_halt( welt, return_zwischenziel );
+//if(!zwischen_halt.is_bound()) dbg->error("stadt_t::step_passagiere()","Unbound halt on return!");
+									halthandle_t ret_halt = halt->gib_halt(welt,pax.gib_ziel());
+									if(ret_halt->gib_ware_summe(wtyp)<=(halt->gib_grund_count() << 7)) {
+										// prissi: not overcrowded
+										// so add them
+										ret_halt->starte_mit_route(return_pax);
+										ret_halt->add_pax_happy(pax_left_to_do);
+										break;
 									}
 									else {
-										for(halte=0;  halte<ziel_list.get_count();  halte++  ) {
-											halthandle_t ret_halt = ziel_list.get(halte);
-
-											if(ret_halt->is_connected(zwischen_halt,wtyp)) {
-												if(ret_halt->gib_ware_summe(wtyp)<=(halt->gib_grund_count() << 7)) {
-													// prissi: not overcrowded
-													// so add them
-													ret_halt->starte_mit_route(return_pax);
-													ret_halt->add_pax_happy(pax_left_to_do);
-													break;
-												}
-												else {
-													// Hajo: Station crowded:
-													// they are appalled but will try other stations
-													ret_halt->add_pax_unhappy(pax_left_to_do);
-												}
-											}
-											else {
-												ret_halt->add_pax_no_route(pax_left_to_do);
-											}
-										}
+										// Hajo: Station crowded:
+										ret_halt->add_pax_unhappy(pax_left_to_do);
 									}
 								}
 							}
@@ -1338,17 +1333,19 @@ stadt_t::check_bau_factory(bool new_town)
 		for(int i=0;  i<8;  i++  ) {
 			if(industry_increase_every[i]==bev) {
 				const fabrik_besch_t *market=fabrikbauer_t::get_random_consumer(true);
-		//		koord size=market->gib_haus()->gib_groesse();
-				bool	rotate=false;
+				if(market!=NULL) {
+			//		koord size=market->gib_haus()->gib_groesse();
+					bool	rotate=false;
 
-				koord3d	market_pos=welt->lookup(pos)->gib_kartenboden()->gib_pos();
-DBG_MESSAGE("stadt_t::check_bau_factory","adding new industry at %i inhabitants.",bev);
-				int n=fabrikbauer_t::baue_hierarchie(welt, NULL, market, rotate, &market_pos, welt->gib_spieler(1) );
-				// tell the player
-				char buf[256];
-				sprintf(buf, translator::translate("New factory chain\nfor %s near\n%s built with\n%i factories."), translator::translate(market->gib_name()), gib_name(), n );
-				message_t::get_instance()->add_message(buf,market_pos.gib_2d(),message_t::industry,CITY_KI,market->gib_haus()->gib_tile(0)->gib_hintergrund(0,0) );
-				break;
+					koord3d	market_pos=welt->lookup(pos)->gib_kartenboden()->gib_pos();
+	DBG_MESSAGE("stadt_t::check_bau_factory","adding new industry at %i inhabitants.",bev);
+					int n=fabrikbauer_t::baue_hierarchie(welt, NULL, market, rotate, &market_pos, welt->gib_spieler(1) );
+					// tell the player
+					char buf[256];
+					sprintf(buf, translator::translate("New factory chain\nfor %s near\n%s built with\n%i factories."), translator::translate(market->gib_name()), gib_name(), n );
+					message_t::get_instance()->add_message(buf,market_pos.gib_2d(),message_t::industry,CITY_KI,market->gib_haus()->gib_tile(0)->gib_hintergrund(0,0) );
+					break;
+				}
 			}
 		}
 	}

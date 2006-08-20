@@ -203,13 +203,13 @@ void welt_gui_t::infowin_event(const event_t *ev)
 	   }
 
 	} else if(buttons.at(2).getroffen(ev->cx, ev->cy)) {
-	    if(sets->gib_groesse() > 128 ) {
+	    if(sets->gib_groesse() > 64 ) {
 		sets->setze_groesse( sets->gib_groesse() - 64 );
 		update_preview();
 	    }
 
 	} else if(buttons.at(3).getroffen(ev->cx, ev->cy)) {
-	    if(sets->gib_groesse() < 1024 ) {
+	    if(sets->gib_groesse() < 4096 ) {
 		sets->setze_groesse( sets->gib_groesse() + 64 );
 		update_preview();
 	    }

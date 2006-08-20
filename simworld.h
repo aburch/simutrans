@@ -113,7 +113,6 @@ private:
 
     // aus performancegruenden werden einige Einstellungen local gecached
     unsigned int cached_groesse;
-    unsigned int cached_groesse2;
 
     // die mausfunktion
     int (* mouse_funk)(spieler_t *, karte_t *, koord pos, value_t param);
@@ -286,7 +285,7 @@ private:
      * fuer performancevergleiche
      * @author Hj. Malthaner
      */
-    int thisFPS, lastFPS;
+    int thisFPS, lastFPS, realFPS;
 
     int last_simloops;
 
@@ -396,10 +395,17 @@ public:
 
 
     /**
-     * Anzahl frames in der letzten Sekunde. Kann sehr ungenau sein!
+     * Anzahl frames in der letzten Sekunde Spielzeit. Kann sehr ungenau sein!
      * @author Hj. Malthaner
      */
     inline int gib_FPS() const { return lastFPS; };
+
+
+    /**
+     * Anzahl frames in der letzten Sekunde Realzeit
+     * @author prissi
+     */
+    inline int gib_realFPS() const { return realFPS; };
 
 
     /**
@@ -797,8 +803,7 @@ public:
      * @return true, wenn Platz an Stelle i,j mit Groesse w,h bebaubar
      * @author Hj. Malthaner
      */
-    bool ist_platz_frei(koord pos, int w, int h, int *last_y = NULL) const;
-
+    bool ist_platz_frei(koord pos, int w, int h, int *last_y = NULL, bool check_slope=true ) const;
 
     /**
      * @return eine Liste aller bebaubaren Plaetze mit Groesse w,h

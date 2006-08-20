@@ -41,6 +41,8 @@ extern "C" void intr_enable();
 extern "C" void intr_disable();
 
 
+// force sync_step (done before sleeping)
+void interrupt_force();
 
 void interrupt_check();
 void interrupt_check(char *caller_info);

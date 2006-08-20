@@ -443,6 +443,7 @@ int simu_cpp_main(int argc, char ** argv)
 
     int disp_width = 800;
     int disp_height = 600;
+    int fullscreen = false;
 
     cstring_t loadgame = "";
     cstring_t objfilename = "pak/";
@@ -507,7 +508,7 @@ int simu_cpp_main(int argc, char ** argv)
     umgebung_t::testlauf = (gimme_arg(argc, argv, "-test", 0) != NULL);
     umgebung_t::freeplay = (gimme_arg(argc, argv, "-freeplay", 0) != NULL);
     umgebung_t::verbose_debug = (gimme_arg(argc, argv, "-debug", 0) != NULL);
-    umgebung_t::night_shift = true;
+    umgebung_t::verbose_debug = (gimme_arg(argc, argv, "-debug", 0) != NULL);
 
     print("Reading low level config data ...\n");
     tabfile_t simuconf;
@@ -522,6 +523,7 @@ int simu_cpp_main(int argc, char ** argv)
       convoihandle_t::init(contents.get_int("convoys", 8192));
       blockhandle_t::init(contents.get_int("railblocks", 8192));
       halthandle_t::init(contents.get_int("stations", 8192));
+      umgebung_t::max_route_steps = contents.get_int("max_route_steps", 100000);
 
       umgebung_t::station_coverage_size = contents.get_int("station_coverage", 2);
 
@@ -534,10 +536,13 @@ int simu_cpp_main(int argc, char ** argv)
       umgebung_t::verkehrsteilnehmer_info =
 	(contents.get_int("pedes_and_car_info", 0) != 0);
 
+      umgebung_t::stadtauto_duration =
+	(contents.get_int("citycar_life", 35000));
+
       umgebung_t::tree_info =
 	(contents.get_int("tree_info", 0) != 0);
 
-      umgebung_t::tree_info =
+      umgebung_t::townhall_info =
 	(contents.get_int("townhall_info", 0) != 0);
 
       umgebung_t::starting_money =
@@ -582,9 +587,6 @@ int simu_cpp_main(int argc, char ** argv)
       umgebung_t::starting_year =
 	(contents.get_int("starting_year", 1930));
 
-
-
-
       /*
        * Selection of savegame format through inifile
        * @author Volker Meyer
@@ -606,6 +608,7 @@ int simu_cpp_main(int argc, char ** argv)
        */
       disp_width  = contents.get_int("display_width",  800);
       disp_height = contents.get_int("display_height", 600);
+      fullscreen = contents.get_int("fullscreen", 0);
 
       /*
        * Default pak file path
@@ -688,6 +691,7 @@ int simu_cpp_main(int argc, char ** argv)
 	}
     }
 
+	fullscreen = (gimme_arg(argc, argv, "-fullscreen", 0) != NULL);
 
     if(gimme_arg(argc, argv, "-screensize", 0) != NULL) {
 	const char * res_str = gimme_arg(argc, argv, "-screensize", 1);
@@ -739,11 +743,10 @@ int simu_cpp_main(int argc, char ** argv)
     // einige einstellungen setzen
     config = fopen("simworld.cfg","rb");
 
+    int sprache = -1;
     if(config) {
 	int dn = 0;
-	int sprache = 0;
 	fscanf(config, "Lang=%d\n", &sprache);
-        translator::set_language(sprache);
 
 	fscanf(config, "DayNight=%d\n", &dn);
 
@@ -769,7 +772,7 @@ int simu_cpp_main(int argc, char ** argv)
     const char * do_sync = gimme_arg(argc, argv, "-async", 0);
 
     print("Preparing display ...\n");
-    simgraph_init(disp_width, disp_height, use_shm == NULL, do_sync == NULL);
+    simgraph_init(disp_width, disp_height, use_shm == NULL, do_sync == NULL, fullscreen);
 
     karte_vollansicht_t *view = new karte_vollansicht_t(welt);
 
@@ -800,12 +803,11 @@ display_show_pointer( false );
 
     // suche nach refresh-einstellungen
 
-    int refresh = 1;
+    int refresh = 2;
     const char *ref_str = gimme_arg(argc, argv, "-refresh", 1);
 
     if(ref_str != NULL) {
 	int want_refresh = atoi(ref_str);
-
 	refresh = want_refresh < 1 ? 1 : want_refresh > 16 ? 16 : want_refresh;
     }
 
@@ -867,10 +869,14 @@ display_show_pointer( false );
 }
 #endif
 
+    translator::set_language("en");
     zeige_banner();
 
     // Hajo: simgraph init loads default fonts, now we need to load
     // the real fonts for the current language
+    if(sprache!=-1) {
+	    translator::set_language(sprache);
+	}
     sprachengui_t::init_font_from_lang();
 
     welt->setze_dirty();
@@ -892,7 +898,7 @@ display_show_pointer( true );
     sets->setze_city_industry_chains(0);
     sets->setze_tourist_attractions(12);
     sets->setze_karte_nummer(simrand(999));
-
+    sets->setze_station_coverage( umgebung_t::station_coverage_size );
 
     do {
 	check_midi();
@@ -913,7 +919,7 @@ display_show_pointer( true );
 		win_poll_event(&ev);
 		check_pos_win(&ev);
 
-		simusleep(1024);
+		simusleep(10);
 	    } while(! (wg->gib_load() ||
 		       wg->gib_load_heightfield() ||
 		       wg->gib_start() ||

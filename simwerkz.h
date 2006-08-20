@@ -15,8 +15,6 @@
 #define INIT  koord(-1,-1)
 #define EXIT  koord(-2,-2)
 
-class fahrplan_t;
-
 int wkz_abfrage(spieler_t *, karte_t *welt, koord pos);
 int wkz_raise(spieler_t *sp, karte_t *welt, koord pos);
 int wkz_lower(spieler_t *sp, karte_t *welt, koord pos);
@@ -26,7 +24,8 @@ int wkz_wegebau(spieler_t *sp, karte_t *welt, koord pos, value_t lParam);
 
 int wkz_frachthof(spieler_t *sp, karte_t *welt, koord pos);
 int wkz_post(spieler_t *sp, karte_t *welt, koord pos, value_t value);
-int wkz_lagerhaus(spieler_t *sp, karte_t *welt, koord pos);
+int wkz_station_building(spieler_t *sp, karte_t *welt, koord pos, value_t value);
+//int wkz_lagerhaus(spieler_t *sp, karte_t *welt, koord pos);
 int wkz_bahnhof(spieler_t *sp, karte_t *welt, koord pos, value_t lParam);
 int wkz_bushalt(spieler_t *sp, karte_t *welt, koord pos,value_t value);
 
@@ -50,9 +49,8 @@ int wkz_schienenkreuz(spieler_t *sp, karte_t *welt, koord pos);
 
 // sonderwerkzeuge
 
-void wkz_fahrplan_setze(fahrplan_t *f);
-int wkz_fahrplan_add(spieler_t *sp, karte_t *welt, koord pos);
-int wkz_fahrplan_ins(spieler_t *sp, karte_t *welt, koord pos);
+int wkz_fahrplan_add(spieler_t *sp, karte_t *welt, koord pos,value_t f);
+int wkz_fahrplan_ins(spieler_t *sp, karte_t *welt, koord pos,value_t f);
 
 // das testwerkzeug
 

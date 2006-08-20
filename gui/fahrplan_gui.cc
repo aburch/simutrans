@@ -95,6 +95,7 @@ fahrplan_gui_t::fahrplan_gui_t(karte_t *welt, fahrplan_t *fpl, spieler_t *sp) :
   this->welt = welt;
   this->sp = sp;
   this->fpl = fpl;
+DBG_DEBUG("fahrplan_gui_t::fahrplan_gui_t()","fahrplan %p",fpl);
   this->cnv = NULL;
   show_line_selector(false);
   init();
@@ -153,7 +154,6 @@ void fahrplan_gui_t::init()
   bt_prev.add_listener(this);
   add_komponente(&bt_prev);
 
-
   bt_next.pos.x = 140;
   bt_next.pos.y = 23;
   bt_next.text = "";
@@ -197,18 +197,12 @@ void fahrplan_gui_t::init()
 
   if(fpl->maxi > 0) {
     mode = none;
-    wkz_fahrplan_setze(NULL);
-    welt->setze_maus_funktion(wkz_abfrage,
-			      skinverwaltung_t::fragezeiger->gib_bild_nr(0),
-			      welt->Z_PLAN,
-			      0,
-			      0);
   } else {
     mode = adding;
-    wkz_fahrplan_setze(fpl);
     welt->setze_maus_funktion(wkz_fahrplan_add,
 			      skinverwaltung_t::fahrplanzeiger->gib_bild_nr(0),
 			      welt->Z_PLAN,
+				(value_t)fpl,
 			      0,
 			      0);
   }
@@ -293,13 +287,6 @@ fahrplan_gui_t::infowin_event(const event_t *ev)
 				cnv->unset_line();
 		}
     }
-    wkz_fahrplan_setze(NULL);
-    welt->setze_maus_funktion(wkz_abfrage,
-			      skinverwaltung_t::fragezeiger->gib_bild_nr(0),
-			      welt->Z_PLAN,
-			      0,
-			      0);
-
   }
   gui_frame_t::infowin_event(ev);
 }
@@ -311,10 +298,10 @@ fahrplan_gui_t::action_triggered(gui_komponente_t *komp)
   if(komp == &bt_add) {
     if(mode != adding) {
       mode = adding;
-      wkz_fahrplan_setze(fpl);
       welt->setze_maus_funktion(wkz_fahrplan_add,
 				skinverwaltung_t::fahrplanzeiger->gib_bild_nr(0),
 				welt->Z_PLAN,
+				(value_t)fpl,
 				0,
 				0);
     }
@@ -322,10 +309,10 @@ fahrplan_gui_t::action_triggered(gui_komponente_t *komp)
   } else if(komp == &bt_insert) {
     if(mode != inserting) {
       mode = inserting;
-      wkz_fahrplan_setze(fpl);
       welt->setze_maus_funktion(wkz_fahrplan_ins,
 				skinverwaltung_t::fahrplanzeiger->gib_bild_nr(0),
 				welt->Z_PLAN,
+				(value_t)fpl,
 				0,
 				0);
     }
@@ -333,7 +320,6 @@ fahrplan_gui_t::action_triggered(gui_komponente_t *komp)
   } else if(komp == &bt_remove) {
     if(mode != removing) {
       mode = removing;
-      wkz_fahrplan_setze(NULL);
       welt->setze_maus_funktion(wkz_abfrage,
 				skinverwaltung_t::fragezeiger->gib_bild_nr(0),
 				welt->Z_PLAN,

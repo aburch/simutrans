@@ -27,8 +27,34 @@
 
 #include "simimg.h"
 
+slist_mit_gewichten_tpl<const stadtauto_besch_t *> stadtauto_t::liste_timeline;
 slist_mit_gewichten_tpl<const stadtauto_besch_t *> stadtauto_t::liste;
 stringhashtable_tpl<const stadtauto_besch_t *> stadtauto_t::table;
+
+void stadtauto_t::built_timeline_liste()
+{
+	// this list will contain all citycars
+	liste_timeline.clear();
+	const int month_now = (welt->gib_zeit_ms() >> karte_t::ticks_bits_per_tag) + (umgebung_t::starting_year * 12);
+
+//DBG_DEBUG("stadtauto_t::built_timeline_liste()","year=%i, month=%i", month_now/12, month_now%12+1);
+
+	// check for every citycar, if still ok ...
+	slist_iterator_tpl <const stadtauto_besch_t *> iter (liste);
+	while(iter.next()) {
+		const stadtauto_besch_t *info = iter.get_current();
+		const int intro_month = info->get_intro_year() * 12 + info->get_intro_month();
+		const int retire_month = info->get_retire_year() * 12 + info->get_retire_month();
+
+//DBG_DEBUG("stadtauto_t::built_timeline_liste()","iyear=%i, imonth=%i", intro_month/12, intro_month%12+1);
+//DBG_DEBUG("stadtauto_t::built_timeline_liste()","ryear=%i, rmonth=%i", retire_month/12, retire_month%12+1);
+
+		if(	umgebung_t::use_timeline == false || (intro_month<=month_now  &&  retire_month>month_now)  ) {
+			liste_timeline.append(info);
+//DBG_DEBUG("stadtauto_t::built_timeline_liste()","adding %s to liste",info->gib_name());
+		}
+	}
+}
 
 bool stadtauto_t::register_besch(const stadtauto_besch_t *besch)
 {
@@ -48,7 +74,7 @@ bool stadtauto_t::laden_erfolgreich()
 
 int stadtauto_t::gib_anzahl_besch()
 {
-    return liste.count();
+    return liste_timeline.count();
 }
 
 
@@ -56,14 +82,15 @@ stadtauto_t::stadtauto_t(karte_t *welt, loadsave_t *file)
  : verkehrsteilnehmer_t(welt)
 {
     rdwr(file);
-
     welt->sync_add(this);
 }
 
 stadtauto_t::stadtauto_t(karte_t *welt, koord3d pos)
  : verkehrsteilnehmer_t(welt, pos)
 {
-    besch = liste.gib_gewichted(simrand(liste.gib_gesamtgewicht()));
+	besch = liste_timeline.gib_gewichted(simrand(liste_timeline.gib_gesamtgewicht()));
+	time_to_life = umgebung_t::stadtauto_duration;
+	setze_max_speed( kmh_to_speed(besch->gib_geschw()) );
 }
 
 
@@ -83,27 +110,35 @@ stadtauto_t::~stadtauto_t()
 
 void stadtauto_t::rdwr(loadsave_t *file)
 {
-    verkehrsteilnehmer_t::rdwr(file);
+	verkehrsteilnehmer_t::rdwr(file);
 
-    const char *s = NULL;
-
-    if(file->is_saving()) {
-	s = besch->gib_name();
-    }
-    file->rdwr_str(s, "N");
-    if(file->is_loading()) {
-	besch = table.get(s);
-
-	if(besch == 0 && liste.count() > 0) {
-	  dbg->warning("stadtauto_t::rdwr()", "Object '%s' not found in table, trying first stadtauto object type",s);
-	  besch = liste.at(0);
+	const char *s = NULL;
+	if(file->is_saving()) {
+		s = besch->gib_name();
 	}
-	guarded_free(const_cast<char *>(s));
 
-	if(besch == 0) {
-	  dbg->fatal("stadtauto_t::rdwr()", "loading game with private cars, but no private car objects found in PAK files.");
+	file->rdwr_str(s, "N");
+	if(file->is_loading()) {
+		besch = table.get(s);
+
+		if(besch == 0 && liste_timeline.count() > 0) {
+			dbg->warning("stadtauto_t::rdwr()", "Object '%s' not found in table, trying first stadtauto object type",s);
+			besch = liste_timeline.gib_gewichted(simrand(liste_timeline.gib_gesamtgewicht()));
+		}
+		guarded_free(const_cast<char *>(s));
+
+		if(besch == 0) {
+			dbg->fatal("stadtauto_t::rdwr()", "loading game with private cars, but no private car objects found in PAK files.");
+		}
+		setze_max_speed( kmh_to_speed(besch->gib_geschw()) );
 	}
-    }
+
+	if(file->get_version() <= 86001) {
+		time_to_life = simrand(100000);
+	}
+	else {
+		file->rdwr_int(time_to_life, "\n");
+	}
 }
 
 
@@ -255,6 +290,8 @@ verkehrsteilnehmer_t::hop()
 
     calc_bild();
     betrete_feld();
+
+	age();
 }
 
 
@@ -298,6 +335,12 @@ bool verkehrsteilnehmer_t::sync_step(long delta_t)
 	setze_yoff( gib_yoff() + hoff );
     }
 
+	if(gib_age()<=0) {
+		// remove obj
+		verlasse_feld();
+  		return false;
+	}
+
     return true;
 }
 
@@ -333,5 +376,6 @@ void verkehrsteilnehmer_t::rdwr(loadsave_t *file)
     if(file->get_version() <= 84000 && max_speed == kmh_to_speed(60)) {
       max_speed = kmh_to_speed(80);
     }
+
   }
 }

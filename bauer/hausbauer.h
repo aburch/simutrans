@@ -71,7 +71,7 @@ public:
     static const haus_besch_t *sch_depot_besch;
     static const haus_besch_t *muehle_besch;
     // to allow for an arbitary number, we use lists
-//    static const haus_besch_t *post_besch;
+    static slist_tpl<const haus_besch_t *> hausbauer_t::station_building;
     static slist_tpl<const haus_besch_t *> hausbauer_t::post_offices;
     static slist_tpl<const haus_besch_t *> hausbauer_t::train_stops;
     static slist_tpl<const haus_besch_t *> hausbauer_t::car_stops;

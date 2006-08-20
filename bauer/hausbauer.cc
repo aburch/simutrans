@@ -71,6 +71,7 @@ slist_tpl<const haus_besch_t *> hausbauer_t::train_stops;
 slist_tpl<const haus_besch_t *> hausbauer_t::car_stops;
 slist_tpl<const haus_besch_t *> hausbauer_t::ship_stops;
 slist_tpl<const haus_besch_t *> hausbauer_t::post_offices;
+slist_tpl<const haus_besch_t *> hausbauer_t::station_building;
 
 
 static spezial_obj_tpl<haus_besch_t> spezial_objekte[] = {
@@ -149,22 +150,26 @@ bool hausbauer_t::register_besch(const haus_besch_t *besch)
 	    break;
 	case weitere:
 	{
-		int checkpos=strlen(besch->gib_name())-4;
-		if(  strcmp("BusStop",besch->gib_name()+checkpos-3)==0  ) {
+		int checkpos=strlen(besch->gib_name());
+		if(  strcmp("BusStop",besch->gib_name()+checkpos-7)==0  ) {
 DBG_DEBUG("hausbauer_t::register_besch()","Bus %s",besch->gib_name());
 			car_stops.append(besch);
 		}
-		else if(  strcmp("TrainStop",besch->gib_name()+checkpos-5)==0  ) {
+		else if(  strcmp("TrainStop",besch->gib_name()+checkpos-9)==0  ) {
 DBG_DEBUG("hausbauer_t::register_besch()","Bf %s",besch->gib_name());
 			train_stops.append(besch);
 		}
-		else if(  strcmp("ShipStop",besch->gib_name()+checkpos-4)==0  ) {
+		else if(  strcmp("ShipStop",besch->gib_name()+checkpos-8)==0  ) {
 DBG_DEBUG("hausbauer_t::register_besch()","Ship %s",besch->gib_name());
 			ship_stops.append(besch);
 		}
-		else if(  strcmp("PostOffice",besch->gib_name()+checkpos-6)==0  ) {
+		else if(  strcmp("PostOffice",besch->gib_name()+checkpos-10)==0  ) {
 DBG_DEBUG("hausbauer_t::register_besch()","Post %s",besch->gib_name());
 			post_offices.append(besch);
+		}
+		else if(  strcmp("StationBlg",besch->gib_name()+checkpos-10)==0  ) {
+DBG_DEBUG("hausbauer_t::register_besch()","Station building %s",besch->gib_name());
+			station_building.append(besch);
 		}
 	}
 	break;
@@ -373,6 +378,9 @@ DBG_DEBUG("hausbauer_t::baue()","building dock");
 		else if(post_offices.contains(besch)) {
 		    (*static_cast<halthandle_t *>(param))->add_grund(gr);
 		    (*static_cast<halthandle_t *>(param))->set_post_enabled( true );
+		}
+		else if(station_building.contains(besch)) {
+		    (*static_cast<halthandle_t *>(param))->add_grund(gr);
 		}
 	    else if( ship_stops.contains(besch) ) {
                // its a dock!

@@ -8,33 +8,17 @@
 #ifndef simconvoi_h
 #define simconvoi_h
 
-#ifndef simtypes_h
 #include "simtypes.h"
-#endif
 
-#ifndef sync_steppable_h
 #include "ifc/sync_steppable.h"
-#endif
 
-#ifndef route_h
 #include "dataobj/route.h"
-#endif
 
-#ifndef tpl_array_tpl_h
 #include "tpl/array_tpl.h"
-#endif
-
-#ifndef tpl_id_handle_tpl
 #include "tpl/id_handle_tpl.h"
-#endif
 
-#ifndef convoihandle_t_h
 #include "convoihandle_t.h"
-#endif
-
-#ifndef halthandle_t_h
 #include "halthandle_t.h"
-#endif
 
 
 #define MAX_CONVOI_COST   6 // Total number of cost items
@@ -70,6 +54,13 @@ struct event_t;
  */
 class convoi_t : public sync_steppable
 {
+public:
+
+    /* Konstanten
+     * @author prissi
+     */
+    enum { max_vehicle=2, max_rail_vehicle = 24 };
+
 private:
 
 
@@ -632,7 +623,7 @@ public:
      * @return Vehicle count
      * @author Hj. Malthaner
      */
-    const int & gib_vehikel_anzahl() const {return anz_vehikel;};
+    const unsigned int gib_vehikel_anzahl() const {return anz_vehikel;};
 
 
     /**
@@ -640,7 +631,7 @@ public:
      * @author Hj. Malthaner
      */
     vehikel_t * gib_vehikel(int i) const {
-	if(i>=0 && i<16) return fahr->at(i); else return NULL;
+	if(i>=0 && i<fahr->get_size()) return fahr->at(i); else return NULL;
     };
 
 

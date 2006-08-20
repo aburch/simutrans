@@ -386,6 +386,18 @@ void translator::set_language(int lang)
 }
 
 
+void translator::set_language(char *iso)
+{
+	for(int i=0; i<single_instance->lang_count; i++) {
+      	const char *iso_base = get_language_name_iso_base(i);
+      	if(iso_base[1] == iso[0] && iso_base[2] == iso[1]) {
+			set_language(i);
+			return;
+		}
+	}
+}
+
+
 const char * translator::translate(const char *str)
 {
     if(str == NULL)

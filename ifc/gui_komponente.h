@@ -160,8 +160,9 @@ public:
      * Events werden hiermit an die GUI-Komponenten
      * gemeldet
      * @author Hj. Malthaner
+     * prissi: default -> do nothing
      */
-    virtual void infowin_event(const event_t *) {};
+    virtual void infowin_event(const event_t *) { };
 
 
     /**

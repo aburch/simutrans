@@ -42,7 +42,7 @@ void citycar_writer_t::write_obj(FILE *fp, obj_node_t &parent, tabfileobj_t &obj
     stadtauto_besch_t besch;
     int i;
 
-    obj_node_t	node(this, 8, &parent, true);
+    obj_node_t	node(this, 10, &parent, false);
 
     besch.gewichtung = obj.get_int("distributionweight", 1);
 
@@ -52,7 +52,25 @@ void citycar_writer_t::write_obj(FILE *fp, obj_node_t &parent, tabfileobj_t &obj
     besch.obsolete_date  = obj.get_int("retire_year", 2999) * 16;
     besch.obsolete_date += obj.get_int("retire_month", 1) - 1;
 
-    write_head(fp, node, obj);
+    besch.geschw  = obj.get_int("speed", 80) * 16;
+
+    // new version with intro and obsolete dates
+    uint16 data = 0x8001;
+    node.write_data_at(fp, &data, 0, sizeof(uint16));
+
+    data = (uint16)besch.gewichtung;
+    node.write_data_at(fp, &data, 2, sizeof(uint16));
+
+    data = (uint16)besch.geschw;
+    node.write_data_at(fp, &data, 4, sizeof(uint16));
+
+    data = besch.intro_date;
+    node.write_data_at(fp, &data, 6, sizeof(uint16));
+
+    data = besch.obsolete_date;
+    node.write_data_at(fp, &data, 8, sizeof(uint16));
+
+   write_head(fp, node, obj);
 
     static const char * dir_codes[] = {
 	"s", "w", "sw", "se", "n", "e", "ne", "nw"
@@ -68,20 +86,6 @@ void citycar_writer_t::write_obj(FILE *fp, obj_node_t &parent, tabfileobj_t &obj
 	keys.append(str);
     }
     imagelist_writer_t::instance()->write_obj(fp, node, keys);
-
-    // new version with intro and obsolete dates
-    uint16 data = 0x8001;
-    uint32 data32;
-    node.write_data_at(fp, &data, 0, sizeof(uint16));
-
-    data = (uint16)besch.gewichtung;
-    node.write_data_at(fp, &data, 2, sizeof(uint16));
-
-    data = besch.intro_date;
-    node.write_data_at(fp, &data, 4, sizeof(uint16));
-
-    data = besch.obsolete_date;
-    node.write_data_at(fp, &data, 6, sizeof(uint16));
 
     node.write(fp);
 }

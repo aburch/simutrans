@@ -115,7 +115,6 @@ protected:
 public:
     ribi_t::ribi calc_richtung(koord start, koord ende, int &dx, int &dy);
 
-
     /**
      * Checks if this vehicle must change the square upon next move
      * @author Hj. Malthaner

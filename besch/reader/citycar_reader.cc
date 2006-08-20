@@ -21,6 +21,8 @@
 #include "citycar_reader.h"
 #include "../obj_node_info.h"
 
+#include "../../simdebug.h"
+
 /*
  *  member function:
  *      citycar_reader_t::register_obj()
@@ -99,13 +101,17 @@ obj_besch_t * citycar_reader_t::read_node(FILE *fp, obj_node_info_t &node)
     // Versioned node, version 1
 
     besch->gewichtung = decode_uint16(p);
+    besch->geschw = decode_uint16(p);
     besch->intro_date = decode_uint16(p);
     besch->obsolete_date = decode_uint16(p);
   }
   else {
     besch->gewichtung = v;
+    besch->geschw = 80;
     besch->intro_date = 1900*16;
     besch->obsolete_date = 2999*16;
   }
+DBG_DEBUG("citycar_reader_t::read_node()","version=%i, weight=%i, intro=%i.%i, retire=%i,%i",
+	version,besch->gewichtung,besch->intro_date&15+1,besch->intro_date/16,besch->obsolete_date&15+1,besch->obsolete_date/16);
   return besch;
 }

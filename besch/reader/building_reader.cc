@@ -100,7 +100,7 @@ obj_besch_t * building_reader_t::read_node(FILE *fp, obj_node_info_t &node)
   // But we know, the highest bit was always cleared.
 
   const uint16 v = decode_uint16(p);
-  const int version = v & 0x8000 ? v & 0x7FFF : 0;
+  const int version = (v & 0x8000)!=0 ? v&0x7FFF : 0;
 
   if(version == 1) {
     // Versioned node, version 1

@@ -114,13 +114,13 @@ void convoi_t::init(karte_t *wl, spieler_t *sp)
   previous_delta_v = 0;
   min_top_speed = 9999999;
 
-  fahr = new array_tpl<vehikel_t *> (16);
+  fahr = new array_tpl<vehikel_t *> (max_vehicle);
 
   fpl = NULL;
   line = NULL;
   line_id = -1;
 
-  for(int i=0; i<16; i++) {
+  for(int i=0; i<fahr->get_size(); i++) {
     fahr->at(i) = NULL;
   }
 
@@ -155,7 +155,7 @@ void convoi_t::init(karte_t *wl, spieler_t *sp)
 
 
 convoi_t::convoi_t(karte_t *wl, loadsave_t *file) :
-  tmp_pos(16), self(this)
+  tmp_pos(max_rail_vehicle), self(this)
 {
   init(wl, 0);
 
@@ -172,7 +172,7 @@ convoi_t::convoi_t(karte_t *wl, loadsave_t *file) :
 
 
 convoi_t::convoi_t(karte_t *wl, spieler_t *sp) :
-  tmp_pos(16), self(this)
+  tmp_pos(max_rail_vehicle), self(this)
 {
   init(wl, sp);
 
@@ -373,137 +373,133 @@ convoi_t::sync_step(long delta_t)
       break;
 
 
-    case DRIVING:
-      // teste, ob wir neu ansetzen müssen ?
-      if(anz_ready == 0) {
-	// wir sind noch nicht am ziel
+	case DRIVING:
+		// teste, ob wir neu ansetzen müssen ?
+		if(anz_ready == 0) {
 
-	// jetzt wird gefahren
-	if(ist_fahrend) {
-	  // Prissi: more pleasant and a little more "physical" model *
+			// wir sind noch nicht am ziel
+			// jetzt wird gefahren
+			if(ist_fahrend) {
+				// Prissi: more pleasant and a little more "physical" model *
 
-	  // first set speed limit
-	  int speed_limit=MIN(akt_speed_soll,min_top_speed);
+				// first set speed limit
+				int speed_limit=MIN(akt_speed_soll,min_top_speed);
 
-	  int sum_friction_weight = 0;
-	  sum_gesamtgewicht = 0;
-	  // calculate total friction
-	  for(int i=0; i < anz_vehikel; i++) {
-	    int total_vehicle_weight;
+				int sum_friction_weight = 0;
+				sum_gesamtgewicht = 0;
+				// calculate total friction
+				for(int i=0; i < anz_vehikel; i++) {
+					int total_vehicle_weight;
 
-	    total_vehicle_weight = fahr->at(i)->gib_gesamtgewicht();
-	    sum_friction_weight += fahr->at(i)->gib_frictionfactor()*total_vehicle_weight;
-	    sum_gesamtgewicht += total_vehicle_weight;
-	  }
+					total_vehicle_weight = fahr->at(i)->gib_gesamtgewicht();
+					sum_friction_weight += fahr->at(i)->gib_frictionfactor()*total_vehicle_weight;
+					sum_gesamtgewicht += total_vehicle_weight;
+				}
 
-	  // try to simulate quadratic friction
-	  if(sum_gesamtgewicht != 0) {
-	    /*
-	     * The parameter consist of two parts (optimized for good looking):
-	     *  - every vehicle in a convoi has a constant friction of 32 per vehicle.
-	     *  - the dynamic friction is calculated that way, that v^2*weight*frictionfactor = 200 kW
-	     * => the more heavy and the more fast the less power for acceleration is available!
-	     * since delta_t can have any value, we have to scale the step size by this value.
-	     * however, there is a quadratic friction term => if delta_t is too large the calculation may get weird results
-	     * @author prissi
-	     */
-	    /* with floats, one would write: akt_speed*ak_speed*iTotalFriction*100 / (12,8*12,8) + 32*anz_vehikel;
-	     * but for interger, we have to use the order below and calculate actualle 64*deccel, like the sum_gear_und_leistung */
-	    /* since akt_speed=10/128 km/h and we want 64*200kW=(100km/h)^2*100t, we must multiply by (128*2)/100 */
-	    /* But since the acceleration was too fast, we just deccelerate 4x more => >>6 instead >>8 */
-	    int deccel = ( ( (akt_speed*sum_friction_weight)>>6 )*akt_speed ) / 100 + (sum_gesamtgewicht*64);	// this order is needed to prevent overflows!
-	    // we normalize delta_t to 1/64th and check for speed limit */
-	    int delta_v = ( ( (akt_speed>speed_limit?0:sum_gear_und_leistung) - deccel) *delta_t)/sum_gesamtgewicht;
-	    // we need more accurate arithmetik, so we store the previous value
-	    delta_v += previous_delta_v;
-	    previous_delta_v = delta_v & 0xFFF;
-	    // and finally calculate new speed
-	    akt_speed = MAX(speed_limit>>4, akt_speed+(delta_v>>12) );
-	    //DBG_MESSAGE("convoi_t::sync_step","accel %d, deccel %d, akt_speed %d, delta_t %d, delta_v %d",sum_gear_und_leistung,deccel,akt_speed,delta_t,delta_v );
-	  }
-	  else {
-	    // very old vehicle ...
-	    akt_speed += 16;
-	  }
-      // obey speed maximum with additional const brake ...
-	  if(akt_speed > speed_limit) {
-	   	akt_speed -= 24;
-    }
+				// try to simulate quadratic friction
+				if(sum_gesamtgewicht != 0) {
+				/*
+				* The parameter consist of two parts (optimized for good looking):
+				*  - every vehicle in a convoi has a constant friction of 32 per vehicle.
+				*  - the dynamic friction is calculated that way, that v^2*weight*frictionfactor = 200 kW
+				* => the more heavy and the more fast the less power for acceleration is available!
+				* since delta_t can have any value, we have to scale the step size by this value.
+				* however, there is a quadratic friction term => if delta_t is too large the calculation may get weird results
+				* @author prissi
+				*/
+				/* with floats, one would write: akt_speed*ak_speed*iTotalFriction*100 / (12,8*12,8) + 32*anz_vehikel;
+				* but for interger, we have to use the order below and calculate actualle 64*deccel, like the sum_gear_und_leistung */
+				/* since akt_speed=10/128 km/h and we want 64*200kW=(100km/h)^2*100t, we must multiply by (128*2)/100 */
+				/* But since the acceleration was too fast, we just deccelerate 4x more => >>6 instead >>8 */
+				int deccel = ( ( (akt_speed*sum_friction_weight)>>6 )*akt_speed ) / 100 + (sum_gesamtgewicht*64);	// this order is needed to prevent overflows!
+				// we normalize delta_t to 1/64th and check for speed limit */
+				int delta_v = ( ( (akt_speed>speed_limit?0:sum_gear_und_leistung) - deccel) *delta_t)/sum_gesamtgewicht;
+				// we need more accurate arithmetik, so we store the previous value
+				delta_v += previous_delta_v;
+				previous_delta_v = delta_v & 0xFFF;
+				// and finally calculate new speed
+				akt_speed = MAX(speed_limit>>4, akt_speed+(delta_v>>12) );
+//DBG_MESSAGE("convoi_t::sync_step","accel %d, deccel %d, akt_speed %d, delta_t %d, delta_v %d",sum_gear_und_leistung,deccel,akt_speed,delta_t,delta_v );
+			}
+			else {
+				// very old vehicle ...
+				akt_speed += 16;
+			}
+			// obey speed maximum with additional const brake ...
+			if(akt_speed > speed_limit) {
+				akt_speed -= 24;
+			}
 
-	  sp_soll += (akt_speed*delta_t) / 64;
-	  while(1024 < sp_soll && anz_ready == 0) {
-	    sp_soll -= 1024;
-	    // printf("convoi: steppe vehikel\n");
-	    // for(int i=anz_vehikel-1; i >= 0; i--) {
-	    for(int i=0; i < anz_vehikel && state != WAITING_FOR_CLEARANCE; i++) {
-	      fahr->at(i)->sync_step();
-	    }
-	  }
-	}
+			sp_soll += (akt_speed*delta_t) / 64;
+			while(1024 < sp_soll && anz_ready == 0) {
+				sp_soll -= 1024;
 
-	// smoke for the engines (only first can smoke )
+				// for(int i=anz_vehikel-1; i >= 0; i--) {
+				for(int i=0; i < anz_vehikel && state != WAITING_FOR_CLEARANCE; i++) {
+					fahr->at(i)->sync_step();
+				}
+			}
+		}
+
+		// smoke for the engines (only first can smoke )
 #if 0
-	// correct but slower ...
-	if(welt->gib_zeit_ms() > next_wolke) {
-	  fahr->at(0)->rauche();
-	  next_wolke += 500;
-	  if(next_wolke < welt->gib_zeit_ms()+100) {
-	    next_wolke = welt->gib_zeit_ms()+100;
-	  }
-	}
+		// correct but slower ...
+		if(welt->gib_zeit_ms() > next_wolke) {
+			fahr->at(0)->rauche();
+			next_wolke += 500;
+			if(next_wolke < welt->gib_zeit_ms()+100) {
+				next_wolke = welt->gib_zeit_ms()+100;
+			}
+		}
 #else
-	if(welt->gib_zeit_ms() > next_wolke) {
-	  next_wolke = welt->gib_zeit_ms()+500;
-	  fahr->at(0)->rauche();
-	}
+		if(welt->gib_zeit_ms() > next_wolke) {
+			next_wolke = welt->gib_zeit_ms()+500;
+			fahr->at(0)->rauche();
+		}
 #endif
-      } // end if(anz_ready==0)
-      else {
-	// Ziel erreicht
-	alte_richtung = fahr->at(0)->gib_fahrtrichtung();
-	state = LOADING;
-	akt_speed = 0;
+	} // end if(anz_ready==0)
+	else {
+		// Ziel erreicht
+		alte_richtung = fahr->at(0)->gib_fahrtrichtung();
+		state = LOADING;
+		akt_speed = 0;
 
-	// pruefen ob wir ein depot erreicht haben
+		// pruefen ob wir ein depot erreicht haben
+		const grund_t *gr = welt->lookup(fahr->at(0)->gib_pos());
+		depot_t * dp = gr->gib_depot();
 
-	const grund_t *gr = welt->lookup(fahr->at(0)->gib_pos());
-	depot_t * dp = gr->gib_depot();
+		if(dp) {
+			// ok, we are entering a depot
+			char buf[128];
+			sprintf(buf, translator::translate("!1_DEPOT_REACHED"), gib_name());
+			message_t::get_instance()->add_message(buf,fahr->at(0)->gib_pos().gib_2d(),message_t::convoi,gib_besitzer()->kennfarbe,IMG_LEER);
 
-	if(dp) {
-	  char buf[128];
-	  sprintf(buf, translator::translate("!1_DEPOT_REACHED"), gib_name());
-	  message_t::get_instance()->add_message(buf,fahr->at(0)->gib_pos().gib_2d(),message_t::convoi,gib_besitzer()->kennfarbe,IMG_LEER);
+			// Hajo: Fenster zu sonst Absturz bei Verkauf
+			destroy_win(convoi_info);
+			betrete_depot(dp);
 
+			// Hajo: since 0.81.5exp it's safe to
+			// remove the current sync object from
+			// the sync list from inside sync_step()
+			welt->sync_remove(this);
 
-	  // Hajo: Fenster zu sonst Absturz bei Verkauf
-	  destroy_win(convoi_info);
+			state = INITIAL;
+			return true;  // Hajo: convoi is still alive
+		}
+		else {
+			// no depot reached, so book values for stop!
+			halthandle_t halt = haltestelle_t::gib_halt(welt, fahr->at(0)->gib_pos());
+			// we could have reached a non-haltestelle stop, so check before booking!
+			if (halt.is_bound()) {
+				halt->book(1, HALT_CONVOIS_ARRIVED);
+			}
+		}
 
-
-	  betrete_depot(dp);
-
-	  // Hajo: since 0.81.5exp it's safe to
-	  // remove the current sync object from
-	  // the sync list from inside sync_step()
-
-	  welt->sync_remove(this);
-
-
-	  state = INITIAL;
-	  return true;  // Hajo: convoi is still alive
-	} else {
-	  // no depot reached, so book values for stop!
-	  halthandle_t halt = haltestelle_t::gib_halt(welt, fahr->at(0)->gib_pos());
-	  // we could have reached a non-haltestelle stop, so check before booking!
-	  if (halt.is_bound()) {
-	    halt->book(1, HALT_CONVOIS_ARRIVED);
-	  }
+		// Gewinn für transport einstreichen
+		calc_gewinn();
 	}
 
-	// Gewinn für transport einstreichen
-	calc_gewinn();
-      }
-
-      break;
+	break;
 
     case LOADING:
       // Hajo: loading is an async task, see laden()
@@ -632,7 +628,6 @@ void convoi_t::step()
       // Hajo: ROUTING_3 is no more, go to ROUTING_4 directly
       state = ROUTING_4;
     }
-
     break;
 
   case ROUTING_5:
@@ -776,31 +771,47 @@ void convoi_t::weiterfahren()
 bool
 convoi_t::add_vehikel(vehikel_t *v, bool infront)
 {
-    if(anz_vehikel < 16) {
-	v->setze_convoi(this);
-
-	if(infront) {
-	    for(int i = anz_vehikel; i > 0; i--) {
-		fahr->at(i) = fahr->at(i - 1);
-	    }
-	    fahr->at(0) = v;
-	} else {
-	    fahr->at(anz_vehikel) = v;
+	// extend array if requested (only needed for trains)
+	if(anz_vehikel == max_vehicle) {
+		array_tpl <vehikel_t *> *f = new array_tpl<vehikel_t *> (max_rail_vehicle);
+		for(int i=0; i<max_vehicle; i++) {
+			f->at(i) = fahr->at(i);
+		}
+		for(int i=max_vehicle;  i<max_rail_vehicle; i++) {
+			f->at(i) = NULL;
+		}
+		delete fahr;
+		fahr = f;
 	}
-	anz_vehikel ++;
+	// now append
+	if(anz_vehikel < fahr->get_size()) {
+		v->setze_convoi(this);
 
-	const vehikel_besch_t *info = v->gib_besch();
-	sum_leistung += info->gib_leistung();
-	sum_gear_und_leistung += info->gib_leistung()*info->get_gear();
-	sum_gewicht += info->gib_gewicht();
-	min_top_speed = MIN(min_top_speed, v->gib_speed());
-    }
+		if(infront) {
+			for(int i = anz_vehikel; i > 0; i--) {
+				fahr->at(i) = fahr->at(i - 1);
+			}
+			fahr->at(0) = v;
+		} else {
+			fahr->at(anz_vehikel) = v;
+		}
+		anz_vehikel ++;
 
-	sum_gesamtgewicht = sum_gewicht;
-    // der convoi hat jetzt ein neues ende
-    setze_erstes_letztes();
+		const vehikel_besch_t *info = v->gib_besch();
+		sum_leistung += info->gib_leistung();
+		sum_gear_und_leistung += info->gib_leistung()*info->get_gear();
+		sum_gewicht += info->gib_gewicht();
+		min_top_speed = MIN(min_top_speed, v->gib_speed());
+		sum_gesamtgewicht = sum_gewicht;
+	}
+	else {
+		return false;
+	}
 
-    return anz_vehikel < 16;
+	// der convoi hat jetzt ein neues ende
+	setze_erstes_letztes();
+
+	return true;
 }
 
 
@@ -1095,6 +1106,14 @@ convoi_t::rdwr(loadsave_t *file)
 
 
     if(file->is_loading()) {
+
+		// extend array if requested (only needed for trains)
+		if(anz_vehikel > max_vehicle) {
+			fahr = new array_tpl<vehikel_t *> (max_rail_vehicle);
+			for(int i=0; i<max_rail_vehicle; i++) {
+				fahr->at(i) =NULL;
+			}
+		}
 
         besitzer_p = welt->gib_spieler( besitzer_n );
 

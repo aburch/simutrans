@@ -14,6 +14,7 @@
 #include "../simworld.h"
 #include "../simimg.h"
 #include "../simintr.h"
+#include "../simtime.h"
 #include "../simcolor.h"
 #include "../dataobj/einstellungen.h"
 #include "../dataobj/umgebung.h"
@@ -252,11 +253,11 @@ void color_gui_t::zeichnen(koord pos, koord gr)
   display_proportional_clip(x+10, y+164, "Sim:",
 		       ALIGN_LEFT, SCHWARZ, true);
 
-  sprintf(buf,"%ld/%ld/%ld ms", get_actual_frame_time(), get_average_frame_time(), get_frame_time());
+  sprintf(buf,"%ld/%ld/%ld ms", 1000/max(1,welt->gib_realFPS()), get_frame_time(), welt->gib_realFPS() );
 
   display_proportional_clip(x+77, y+134, buf,
 		       ALIGN_LEFT, WEISS, true);
-  display_proportional_clip(x+37, y+144, ntos(welt->gib_schlaf_zeit(), "%d µs"),
+  display_proportional_clip(x+37, y+144, ntos(welt->gib_schlaf_zeit(), "%d ms"),
 		       ALIGN_LEFT, WEISS, true);
    int farbe, loops;
    loops=welt->gib_FPS();

@@ -109,6 +109,11 @@ void halt_detail_t::halt_detail_info(cbuffer_t & buf)
     }
 
     buf.append("\n");
+    buf.append(translator::translate("Storage capacity"));
+    buf.append(":\n ");
+    buf.append(halt->gib_grund_count()<<7);
+    buf.append("\n\n");
+
     buf.append(translator::translate("Angenommene Waren"));
     buf.append(":\n");
 

@@ -73,7 +73,7 @@ public:
 	    return data[i];
 	} else {
 	    ERROR("array_tpl<T>::at()",
-	          "index out of bounds: %d not in 0..%d, T=%s",
+	          "index out of bounds: %d not in 0..%d, T=%s ",
 		  i, size-1, typeid(T).name());
 
 	    return dummy;
@@ -86,7 +86,7 @@ public:
 	    return data[i];
 	} else {
 	    ERROR("array_tpl<T>::get()",
-	          "index out of bounds: %d not in 0..%d, T=%s",
+	          "index out of bounds: %d not in 0..%d, T=%s ",
 		  i, size-1, typeid(T).name());
 
 	    return dummy;

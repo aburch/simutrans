@@ -23,6 +23,9 @@
 void sync_last_time_now();
 
 
+unsigned long get_system_ms();
+
+
 /**
  * <p>Gibt die aktuelle Zeit in Millisekunden zurueck.</p>
  *
@@ -58,11 +61,11 @@ long get_time_multi();
 
 
 /**
- * wartet usec mikrosekunden
- * ruft INT_CHECK falls mehr als 10000 mikrosekunden gewartet werden muss
+ * idle wait ms milleseconds
+ * may update the display if time is over or more than 10ms wait
  * @author Hj. Malthaner
  */
-void simusleep(unsigned long usec);
+void simusleep(unsigned ms);
 
 
 /**

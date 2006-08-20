@@ -1,3 +1,65 @@
+Release of 86.03.3
+
+01-Jun-2005 (prissi)
+	FIX: long routes also found on large maps by increasing the number of steps of the variable "max_route_steps" in simuconf.tab (default=100000, useful maximum size^2 [16 Byte/entry])
+	FIX: crash when town growth requires new industry, but nothing found.
+	FIX: to fast disappearing of income messages.
+	FIX: bug during entering a schedule when open multiple windows
+	FIX: raise height until level 14.
+	FIX: wrong season when loaded.
+
+
+Release of 86.03.2
+
+
+25-May-2005 (prissi)
+	CHANGE: station_coverage_size now saved with a savegame. For old map, default is 3.
+	FIX: opening the minimap on faster systems yield FPS>1000. hopefully fixed (+ default refresh=2)
+	FIX: retire messages now appear
+	FIX: outdated or future vehicles now display with a blue bar instead crashing in a depot
+	FIX: finetuning number of trucks for AI
+	ADD: parameter "-fullscreen" for command line resp. "fullscreen = 0/1" in simuconf.tab
+
+
+Release of 86.03.1
+
+23-May-2005 (prissi)
+	FIX: overflow in vehicle array position (was not extended)
+	CHANGE: made the drawing a little more fluid: everything will move smoother than before (just forced redraws before idle wait) With -refresh 2 even the 128 can be played very fast.
+	FIX: Pause could cause a hangup/division by zero.
+	FIX: Hopefully no longer factories on slopes or roads
+
+
+Release of 86.03
+
+18-May-2005 (prissi)
+	ADD: "citycar_life" to simuconf.tab (How many tiles can a simutrans car go, before it forever breaks ...) Answer about 2500 per year (depends on speed), default 35000
+	ADD: citycars now obey timeline (if switched on)
+	ADD: sorting of road and bridges by their speed
+	FIX: hopefully fixed some bugs relating to passengers at attractions
+	FIX: some bug relation to AI and vehicles with trailer fixed?
+	ADD: building post offices on slopes
+	ADD: station buildings possible (name must end with "...StationBlg") Will also extend the storage by 128.
+	ADD: allow larger maps (but will need lots of memory) and longer trains (up to 24 cars).
+	ADD: display of station capacity ("Storage capacity")
+	FIX: not starting up when japanese was selected
+	CHANGE: calculation of FPS change to a real time based system to avoid very high FPS with high accelarations (downside: at very high stretch times vehicle movement less smooth)
+
+New entries for citycars are:
+speed, intro_year, intor_month, retire_year, retire_month
+
+15-May-2005 (prissi)
+	CHANGE: Trams only in tram depot (tram only if "waytype=schiene_tram")
+	CHANGE: obsolete vehicles can be hidden if the timeline is on
+	CHANGE: no electric units shown, if depot did not have catenaries
+	CHANGE: new tab for passenger vehicles (to show EMU heads, use freigth=Passagiere and payload=0, to add them here) Name is "Pas_tab" (trains), "Bus_tab" (cars), and "Ferry_tab" for ships.
+	FIX: depot window can be now redraw by clicking the obsolete button (will fix display after electricfication or rezoom)
+	FIX: second row should be selectable after rezoom in depots
+	FIX: several small things increasing compatibilty to standard C++ (compiles on GCC 2.95)
+	FIX: citycar_writer fixed
+	FIX: click with tool windows now obey used/unused images
+
+
 Release of 86.02.2
 
 11-May-2005 (prissi)

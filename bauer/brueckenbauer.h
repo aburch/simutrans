@@ -126,7 +126,6 @@ public:
      */
     static void fill_menu(werkzeug_parameter_waehler_t *wzw,
         weg_t::typ wtyp,
-        int (* wz1)(spieler_t *, karte_t *, koord, value_t),
         int sound_ok, int sound_ko);
 };
 

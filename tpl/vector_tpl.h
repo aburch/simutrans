@@ -90,6 +90,9 @@ public:
 	bool resize(unsigned int new_size)
 	{
 DBG_DEBUG("<vector_tpl>::resize()","old size %i, new size %i",size,new_size);
+		if(new_size<=size) {
+			return true;	// do nothing
+		}
 		if(count > new_size) {
 			ERROR("vector_tpl<T>::resize()", "cannot preserve elements.");
 			return false;
@@ -97,7 +100,7 @@ DBG_DEBUG("<vector_tpl>::resize()","old size %i, new size %i",size,new_size);
 		T *new_data = new T[new_size];
 
 		if(size>0  &&  data) {
-			for(int i = 0; i < count; i++) {
+			for(unsigned int i = 0; i < count; i++) {
 				new_data[i] = data[i];
 			}
 			delete [] data;
@@ -133,8 +136,7 @@ DBG_DEBUG("<vector_tpl>::resize()","old size %i, new size %i",size,new_size);
 	    data[count ++] = elem;
 	    return true;
 	} else {
-	    ERROR("vector_tpl<T>::append()",
-	          "capacity exceeded.");
+	    ERROR("vector_tpl<T>::append()","capacity %i exceeded.",size);
 	    return false;
 	}
     }
@@ -184,21 +186,15 @@ DBG_DEBUG("<vector_tpl>::resize()","old size %i, new size %i",size,new_size);
 	*/
 	bool insert_at(unsigned int pos,T elem)
 	{
-		if(  pos<size  &&  pos<=count  ) {
+		if(  pos<size  &&  pos<count  ) {
 			// ok, a valid position, make space
-			if(count<size) {
-				// we should catch error, if we throw something away?!?
-				count++;
-			}
-			// insert data
-			for(int i=pos+1;  i<count;  i++  ) {
-				if(i<size) {
-					data[i] = data[i-1];
-				}
-			}
+			count++;
+			const long num_elements = (count-pos-1)*sizeof(T);
+			memmove( data+pos+1, data+pos, num_elements );
 			data[pos] = elem;
 			return true;
 		}
+		ERROR("vector_tpl<T>::append()","cannot insert at %i! Only %i elements.", pos, count);
 		return false;
 	}
 
@@ -209,7 +205,7 @@ DBG_DEBUG("<vector_tpl>::resize()","old size %i, new size %i",size,new_size);
 	*/
 	bool remove_at(unsigned int pos)
 	{
-		if(  pos<size  &&  pos<=count  ) {
+		if(  pos<size  &&  pos<count  ) {
 			unsigned int i,j;
 			for(i=pos, j=pos+1;  j<count;  i++,j++  ) {
 				data[i] = data[j];

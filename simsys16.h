@@ -61,7 +61,7 @@ extern struct sys_event sys_event;
 
 
 int dr_os_init(int n, int *parameter);
-int dr_os_open(int w, int h);
+int dr_os_open(int w, int h, int fullscreen);
 int dr_os_close();
 
 unsigned short * dr_textur_init();

@@ -394,6 +394,7 @@ void set_zoom_factor(int z)
 {
 	if(z>0) {
 		zoom_factor = z;
+		tile_raster_width = base_tile_raster_width/z;
 	}
 	fprintf(stderr, "set_zoom_factor() : factor=%d\n", zoom_factor);
 
@@ -711,7 +712,6 @@ static void rezoom_img( const unsigned int n )
 
 		// just restore original size?
 		if(zoom_factor<=1) {
-			tile_raster_width = base_tile_raster_width;
 			// this we can do be a simple copy ...
 			images[n].x = images[n].base_x;
 			images[n].w = images[n].base_w;
@@ -726,7 +726,6 @@ static void rezoom_img( const unsigned int n )
 
 		// now we want to downsize the image
 		// just divede the sizes
-		tile_raster_width = base_tile_raster_width/zoom_factor;
 		images[n].x = images[n].base_x/zoom_factor;
 		images[n].y = images[n].base_y/zoom_factor;
 		images[n].w = (images[n].base_x+images[n].base_w)/zoom_factor - images[n].x;
@@ -735,21 +734,22 @@ static void rezoom_img( const unsigned int n )
 
 		if(images[n].h>0) {
 			// just recalculate the image in the new size
+			unsigned char y_left = (images[n].base_y+zoom_factor-1)%zoom_factor;
+			unsigned char h = images[n].base_h;
+
 			PIXVAL line[128];
+			PIXVAL *src = images[n].base_data;
+			PIXVAL *dest, *last_dest;
+
+			// decode/recode linewise
+			unsigned int last_color;
 
 			if(images[n].zoom_data==NULL) {
 				// normal len is ok, since we are only skipping parts ...
 				images[n].zoom_data = guarded_malloc( sizeof(PIXVAL)*images[n].len );
 			}
+			last_dest = dest = images[n].zoom_data;
 
-			PIXVAL *sp=images[n].base_data;
-			PIXVAL *dest=images[n].zoom_data;
-			unsigned char y_left = (images[n].base_y+zoom_factor-1)%zoom_factor;
-			unsigned char h = images[n].base_h;
-
-			// decode/recode linewise
-			unsigned int last_color;
-			PIXVAL *last_dest=dest;
 			do { // decode/recode line
 
 				unsigned int runlen;
@@ -763,7 +763,7 @@ static void rezoom_img( const unsigned int n )
 				}
 
 				// decode line
-				runlen = *sp++;
+				runlen = *src++;
 				color -= runlen;
 				do {
 					// clear run
@@ -771,12 +771,12 @@ static void rezoom_img( const unsigned int n )
 						*p++ = 0x73FE;
 					}
 					// color pixel
-					runlen = *sp++;
+					runlen = *src++;
 					color += runlen;
 					while(  runlen--  ) {
-						*p++ = *sp++;
+						*p++ = *src++;
 					}
-				} while( (runlen = *sp++) );
+				} while( (runlen = *src++) );
 
 				if(y_left==0  ||  last_color<color) {
 					// required; but if the following are longer, take them instead (aviods empty pixels)
@@ -816,13 +816,16 @@ static void rezoom_img( const unsigned int n )
 
 			} while(--h);
 
-			int zoom_len = dest-images[n].zoom_data;
-			if(zoom_len>images[n].len) {
-				printf("*** FATAL ***\nzoom_len (%i) > image_len (%i)",zoom_len,images[n].len);fflush(NULL);
-				exit(0);
-			}
-			if(zoom_len==0) {
-				images[n].h = 0;
+			// something left?
+			{
+				const int zoom_len = dest-images[n].zoom_data;
+				if(zoom_len>images[n].len) {
+					printf("*** FATAL ***\nzoom_len (%i) > image_len (%i)",zoom_len,images[n].len);fflush(NULL);
+					exit(0);
+				}
+				if(zoom_len==0) {
+					images[n].h = 0;
+				}
 			}
 		}
 
@@ -1200,14 +1203,26 @@ void	display_check_fonts(void)
 {
 	// replace missing font, if none there (better than crashing ... )
 	if(  small_font.screen_width==NULL  &&  large_font.screen_width!=NULL ) {
+		printf("Warning: replacing small  with large font!\n" );
 		copy_font( &small_font, &large_font );
 	}
 	if(  large_font.screen_width==NULL  &&  small_font.screen_width!=NULL ) {
+		printf("Warning: replacing large  with small font!\n" );
 		copy_font( &large_font, &small_font );
 	}
 }
 
 
+
+int display_get_font_height_small()
+{
+	return small_font.height;
+}
+
+int display_get_font_height()
+{
+	return large_font.height;
+}
 
 /**
  * Laedt die Palette
@@ -2080,6 +2095,8 @@ void display_img_aux(const int n, const int xp, int yp, const int dirty, bool us
 	if(n >= 0 && n < anz_images) {
 		// need to go to nightmode and or rezoomed?
 		PIXVAL *sp;
+		int h, reduce_h, skip_lines;
+
 		if(use_player) {
 			sp = images[n].player_data;
 
@@ -2100,14 +2117,13 @@ if(sp==NULL){ printf("Img %i failed!\n", n );return;}
 		}
 		// now, since zooming may have change this image
 		yp += images[n].y;
-		int h = images[n].h;	// may change due to vertical clipping
-
+		h = images[n].h;	// may change due to vertical clipping
 		// in the next line the vertical clipping will be handled
 		// by that way the drawing routines must only take into account the horizontal clipping
 		// this should be much faster in most cases
 
 		// must the height be reduced?
-		int reduce_h=(yp+h-1)-clip_rect.yy;
+		reduce_h=(yp+h-1)-clip_rect.yy;
 		if(reduce_h>0) {
 			h -= reduce_h;
 		}
@@ -2115,8 +2131,9 @@ if(sp==NULL){ printf("Img %i failed!\n", n );return;}
 		if(h<=0) {
 			return;
 		}
+
 		// vertically lines to skip (only bottom is visible
-		int skip_lines = clip_rect.y-(int)yp;
+		skip_lines = clip_rect.y-(int)yp;
 		if(skip_lines>0) {
 			if(skip_lines>=h) {
 				// not visible at all
@@ -2136,24 +2153,27 @@ if(sp==NULL){ printf("Img %i failed!\n", n );return;}
 			// now sp is the new start of an image with height h
 		}
 
-		// needed now ...
-		const int x = images[n].x;
-		const int w = images[n].w;
+		// new block for new variables
+		{
+			// needed now ...
+			const int x = images[n].x;
+			const int w = images[n].w;
 
-		// since height may be reduced, start marking here
-		if(dirty) {
-			mark_rect_dirty_wc(xp+x,
-				yp,
-				xp+x+w-1,
-				yp+h-1);
-		}
+			// since height may be reduced, start marking here
+			if(dirty) {
+				mark_rect_dirty_wc(xp+x,
+					yp,
+					xp+x+w-1,
+					yp+h-1);
+			}
 
-		// use horzontal clipping or skip it?
-		if(xp+x>=clip_rect.x &&  xp+x+w-1 <= clip_rect.xx) {
-			display_img_nc(h, xp, yp, sp);
-		}
-		else if( xp <= clip_rect.xx && xp+x+w>clip_rect.x ) {
-			display_img_wc(h, xp, yp, sp);
+			// use horzontal clipping or skip it?
+			if(xp+x>=clip_rect.x &&  xp+x+w-1 <= clip_rect.xx) {
+				display_img_nc(h, xp, yp, sp);
+			}
+			else if( xp <= clip_rect.xx && xp+x+w>clip_rect.x ) {
+				display_img_wc(h, xp, yp, sp);
+			}
 		}
 	}
 }
@@ -2257,27 +2277,31 @@ display_color_img(const int n, const int xp, const int yp, const int color,
 			rezoom_img(n);
 		}
 
-		// first test, if there is a cached version (or we can built one ... )
-		const unsigned char player_flag = images[n].recode_flags[NEED_PLAYER_RECODE]&0x7F;
-		if(daynight  &&  (player_flag==0  ||  player_flag==color)  ) {
-			if(images[n].recode_flags[NEED_PLAYER_RECODE]==128  ||  player_flag==0) {
-				recode_color_img( n, color );
+		{
+			// first test, if there is a cached version (or we can built one ... )
+			const unsigned char player_flag = images[n].recode_flags[NEED_PLAYER_RECODE]&0x7F;
+			if(daynight  &&  (player_flag==0  ||  player_flag==color)  ) {
+				if(images[n].recode_flags[NEED_PLAYER_RECODE]==128  ||  player_flag==0) {
+					recode_color_img( n, color );
+				}
+				// ok, now we could use the same faster code as for the normal images
+				display_img_aux( n, xp, yp, false, true );
+				return;
 			}
-			// ok, now we could use the same faster code as for the normal images
-			display_img_aux( n, xp, yp, false, true );
-			return;
 		}
 
 		// prissi: now test if visible and clipping needed
-		const int x = images[n].x;
-		const int y = images[n].y;
-		const int w = images[n].w;
-		const int h = images[n].h;
+		{
+			const int x = images[n].x;
+			const int y = images[n].y;
+			const int w = images[n].w;
+			const int h = images[n].h;
 
-		if(  h==0  ||  xp>clip_rect.xx   ||   yp+y>clip_rect.yy   ||   xp+x+w<=clip_rect.x  ||   yp+y+h<=clip_rect.y  ) {
-			// not visible => we are done
-			// happens quite often ...
-			return;
+			if(  h==0  ||  xp>clip_rect.xx   ||   yp+y>clip_rect.yy   ||   xp+x+w<=clip_rect.x  ||   yp+y+h<=clip_rect.y  ) {
+				// not visible => we are done
+				// happens quite often ...
+				return;
+			}
 		}
 
 		// Hajo: choose mapping table
@@ -2299,14 +2323,12 @@ display_color_img(const int n, const int xp, const int yp, const int color,
 void
 display_pixel(int x, int y, int color)
 {
-    if(x >= clip_rect.x && x<=clip_rect.xx &&
-       y >= clip_rect.y && y<=clip_rect.yy) {
+	if(x >= clip_rect.x && x<=clip_rect.xx && y >= clip_rect.y && y<=clip_rect.yy) {
 
-        PIXVAL * const p = textur + x + y*disp_width;
-	*p = rgbcolormap[color];
-
-	mark_tile_dirty(x >> DIRTY_TILE_SHIFT, y >> DIRTY_TILE_SHIFT);
-    }
+		PIXVAL * const p = textur + x + y*disp_width;
+		*p = rgbcolormap[color];
+		mark_tile_dirty(x >> DIRTY_TILE_SHIFT, y >> DIRTY_TILE_SHIFT);
+	}
 }
 
 
@@ -2868,6 +2890,8 @@ void display_text_proportional_len_clip(int x, int y, const char *txt,
 
 	// big loop, char by char
 	while(  iTextPos<len  &&  txt[iTextPos]!=0  ) {
+		int h;
+
 #ifdef UNICODE_SUPPORT
 		// decode char
 		if(  has_unicode  ) {
@@ -2904,7 +2928,6 @@ void display_text_proportional_len_clip(int x, int y, const char *txt,
 		screen_pos = y0*disp_width + x;
 
 		p = char_data+y_offset;
-		int h;
 		for (h=y_offset; h<char_height; h++) {
 			int dat = (*p++)&mask1;
 #ifdef USE_C
@@ -3272,7 +3295,7 @@ void display_show_pointer(int yesno)
  * @author Hj. Malthaner
  */
 int
-simgraph_init(int width, int height, int use_shm, int do_sync)
+simgraph_init(int width, int height, int use_shm, int do_sync, int full_screen)
 {
     int parameter[2];
     int ok;
@@ -3282,7 +3305,7 @@ simgraph_init(int width, int height, int use_shm, int do_sync)
 
     dr_os_init(2, parameter);
 
-    ok = dr_os_open(width, height);
+    ok = dr_os_open(width, height, full_screen);
 
     if(ok) {
 	unsigned int i;

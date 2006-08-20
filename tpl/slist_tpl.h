@@ -52,9 +52,9 @@ private:
 	 */
 	void *operator new (size_t, void *mem) {
 	  return mem;
-	}
+	};
         void operator delete(void *pMem, void *mem) {
-        }
+        };
     };
 
     node_t * head;

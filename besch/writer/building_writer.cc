@@ -256,18 +256,15 @@ void building_writer_t::write_obj(FILE *fp, obj_node_t &parent, tabfileobj_t &ob
     v8 = (uint8)besch.chance;
     node.write_data_at(fp, &v8, 16, sizeof(uint8));
 
-    // probably add some icons
-    if(  besch.flags&haus_besch_t::FLAG_KEINE_INFO!=0  ) {
-    		// if this is a special building
-		slist_tpl<cstring_t> cursorkeys;
+    // probably add some icons, if defined
+	slist_tpl<cstring_t> cursorkeys;
 
-		cstring_t c=cstring_t(obj.get("cursor")), i=cstring_t(obj.get("icon"));
-		cursorkeys.append(c);
-		cursorkeys.append(i);
-		if(c.len()>0  ||  i.len()>0) {
-			cursorskin_writer_t::instance()->write_obj(fp, node, obj, cursorkeys);
-		}
-    }
+	cstring_t c=cstring_t(obj.get("cursor")), i=cstring_t(obj.get("icon"));
+	cursorkeys.append(c);
+	cursorkeys.append(i);
+	if(c.len()>0  ||  i.len()>0) {
+		cursorskin_writer_t::instance()->write_obj(fp, node, obj, cursorkeys);
+	}
     node.write(fp);
 }
 

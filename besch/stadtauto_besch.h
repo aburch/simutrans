@@ -42,6 +42,8 @@ class stadtauto_besch_t : public obj_besch_t {
     friend class citycar_reader_t;
 
     uint16 gewichtung;
+    // max speed
+    uint16 geschw;
     // when was this car used?
     uint16 intro_date;
     uint16 obsolete_date;
@@ -63,6 +65,39 @@ public:
     int gib_gewichtung() const
     {
 	return gewichtung;
+  }
+
+	int gib_geschw() const
+	{
+		return geschw;
+	}
+
+      /**
+     * @return introduction year
+     * @author Hj. Malthaner
+     */
+    int get_intro_year() const {
+      return intro_date >> 4;
+    }
+
+    /**
+     * @return introduction month
+     * @author Hj. Malthaner
+     */
+    int get_intro_month() const {
+      return intro_date & 15;
+    }
+
+    /**
+     * @return time when obsolete
+     * @author prissi
+     */
+    int get_retire_year() const {
+      return obsolete_date >> 4;
+    }
+
+    int get_retire_month() const {
+      return obsolete_date & 15;
     }
 };
 

@@ -37,6 +37,7 @@ vehikelbauer_t::baue(karte_t *welt, koord3d k,
       v = new automobil_t(welt, k, vb, sp, cnv);
       break;
   case vehikel_besch_t::schiene:
+  case vehikel_besch_t::schiene_strab:
       v = new waggon_t(welt, k, vb, sp, cnv);
       break;
   case vehikel_besch_t::wasser:
@@ -289,8 +290,11 @@ DBG_MESSAGE( "vehikelbauer_t::vehikel_search()","for speed %i, power %i",target_
         int speed = iter.get_current_value()->gib_geschw();
 
         // we want a car
-        if(  target_freight!=NULL  ) {
-          if(  iter.get_current_value()->gib_zuladung()>0   &&  power>=target_power  ) {
+        if(  target_freight!=NULL ) {
+        	if( iter.get_current_value()->gib_zuladung()>0
+        		&&  target_power==0
+        			||  (power>=target_power  &&  vehikel_can_lead(iter.get_current_value())  &&  (iter.get_current_value()->gib_nachfolger_count()==0  ||  iter.get_current_value()->gib_nachfolger(0)==0))
+        	) {
             // it is a good car (and road vehicles need power)
             if(  iter.get_current_value()->gib_ware()->is_interchangeable( target_freight )  ) {
 DBG_MESSAGE( "vehikelbauer_t::vehikel_search","try freight car %s",iter.get_current_value()->gib_name());
@@ -332,7 +336,7 @@ DBG_MESSAGE( "vehikelbauer_t::vehikel_search","Found freight car %s",iter.get_cu
         else {
 
           // so we have power: this is an engine, which can lead a track and have no constrains
-          if(  power>0  &&  target_freight==NULL    &&  vehikel_can_lead(iter.get_current_value())  &&  iter.get_current_value()->gib_nachfolger_count()==0  ) {
+          if(  power>0  &&  vehikel_can_lead(iter.get_current_value())  &&  iter.get_current_value()->gib_nachfolger_count()==0  ) {
             // we cannot use an engine with freight
             if(  besch==NULL  ||  power>=target_power  ||   speed>=target_speed  ) {
               // we found a useful engine

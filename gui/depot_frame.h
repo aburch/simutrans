@@ -62,8 +62,13 @@ private:
      * @author Volker Meyer
      * @date  09.06.2003
      */
-    int		icnv;
+    int	icnv;
     int iroute;// @author hsiegeln
+
+	/* show retired vehicles
+	 * @author prissi
+	 */
+	bool show_retired_vehicles;
 
     /**
      * Gui elements
@@ -85,12 +90,17 @@ private:
     button_t bt_destroy;
     button_t bt_sell;
 
+    button_t bt_obsolete;
+
     tab_panel_t tabs;
     gui_divider_t   div_tabbottom;
+    image_list_t    *pas;
     image_list_t    *loks;
     image_list_t    *waggons;
+    gui_scrollpane_t *scrolly_pas;
     gui_scrollpane_t *scrolly_loks;
     gui_scrollpane_t *scrolly_waggons;
+    gui_container_t *cont_pas;
     gui_container_t *cont_loks;
     gui_container_t *cont_waggons;
 
@@ -125,6 +135,7 @@ private:
     char txt_convoi_value[40];
     char txt_convoi_line[128];
 
+    vector_tpl<image_list_t::image_data_t> *pas_vec;
     vector_tpl<image_list_t::image_data_t> *loks_vec;
     vector_tpl<image_list_t::image_data_t> *waggons_vec;
 
@@ -167,11 +178,21 @@ private:
      * @date  18.06.2003
      */
     void layout();
+
+
+	// true if future
+	bool is_future(const vehikel_besch_t *info,const int time_now);
+
+	// true if obsolete
+	bool is_retired(const vehikel_besch_t *info,const int time_now);
+
+	// true if already stored here
+	bool is_contained(const vehikel_besch_t *info);
+
 public:
 
 
     depot_frame_t(karte_t *welt, depot_t *depot, int &farbe);
-
 
     /**
      * Create and fill loks_vec and waggons_vec.
@@ -212,7 +233,7 @@ public:
     virtual bool action_triggered(gui_komponente_t *komp);
 
 
-    void infowin_event(const event_t *ev);
+    virtual void infowin_event(const event_t *ev);
 
     /**
      * Zeichnet das Frame

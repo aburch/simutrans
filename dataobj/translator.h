@@ -100,7 +100,7 @@ public:
      * an error message, leaving the language as it is
      */
     static void set_language(int lang);
-
+    static void set_language(char *iso);
 
     /**
      * Returns the number of loaded languages.

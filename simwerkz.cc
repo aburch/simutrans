@@ -23,10 +23,14 @@
 #include "simcity.h"
 #include "simcosts.h"
 
+#include "bauer/fabrikbauer.h"
+
+#include "boden/boden.h"
 #include "boden/grund.h"
 #include "boden/wege/strasse.h"
 #include "boden/wege/schiene.h"
 #include "boden/wege/dock.h"
+#include "boden/tunnelboden.h"
 
 #include "simvehikel.h"
 #include "simworld.h"
@@ -44,9 +48,10 @@
 
 #include "gui/messagebox.h"
 #include "gui/label_frame.h"
-
-#include "boden/boden.h"
-#include "boden/tunnelboden.h"
+#include "gui/halt_list_filter_frame.h"
+#include "gui/convoi_filter_frame.h"
+#include "gui/citylist_frame_t.h"
+#include "gui/goods_frame_t.h"
 
 #include "dings/zeiger.h"
 #include "dings/tunnel.h"
@@ -187,7 +192,7 @@ wkz_raise(spieler_t *sp, karte_t *welt, koord pos)
   const int hgt = welt->lookup_hgt(pos);
   int n=1;
 
-  if(hgt < 144) {
+  if(hgt < 224) {
 
       n = welt->raise(pos);
       sp->buche(CST_BAU*n, pos, COST_CONSTRUCTION);
@@ -553,32 +558,26 @@ wkz_wegebau(spieler_t *sp, karte_t *welt,  koord pos, value_t lParam)
 }
 
 
-/**
- * wkz_post:
- *
- * Die Routine ist in der Lage, auch eine Post ungleich 1x1 zu bauen.
- *
+/* build all kind of station buildings
  * @author V. Meyer
  */
-int wkz_post(spieler_t *sp, karte_t *welt, koord pos, value_t value)
+int wkz_station_building_aux(spieler_t *sp, karte_t *welt, koord pos, const haus_besch_t * besch, bool is_post)
 {
-DBG_MESSAGE("wkz_post()", "building mail office on square %d,%d", pos.x, pos.y);
-
-	const haus_besch_t * post_besch = (const haus_besch_t *) value.p;
+DBG_MESSAGE("wkz_post()", "building mail office/station building on square %d,%d", pos.x, pos.y);
 
 	if(welt->ist_in_kartengrenzen(pos)) {
-		koord size = post_besch->gib_groesse();
+		koord size = besch->gib_groesse();
 		int rotate = 0;
 
 		bool hat_platz = false;
 		halthandle_t halt;
 
-		if(welt->ist_platz_frei(pos, size.x, size.y)) {
+		if(welt->ist_platz_frei(pos, size.x, size.y, NULL, false)) {
 			hat_platz = true;
 			halt = suche_nahe_haltestelle(sp, welt, pos, size.x, size.y);
 		}
 
-		if(size.y != size.x && welt->ist_platz_frei(pos, size.y, size.x)) {
+		if(size.y != size.x && welt->ist_platz_frei(pos, size.y, size.x, NULL, false)) {
 			halthandle_t halt2 = suche_nahe_haltestelle(sp, welt, pos, size.y, size.x);
 			hat_platz = true;
 			if(halt2.is_bound()) {
@@ -591,11 +590,11 @@ DBG_MESSAGE("wkz_post()", "building mail office on square %d,%d", pos.x, pos.y);
 
 		// is there already a halt to connect?
 		if(halt.is_bound()) {
-			if(halt->get_post_enabled()) {
+			if(is_post  &&  halt->get_post_enabled()) {
 				create_win(-1, -1, MESG_WAIT, new nachrichtenfenster_t(welt, "Station already\nhas a post office!\n"), w_autodelete);
 			}
 			else {
-				hausbauer_t::baue(welt, sp, welt->lookup(pos)->gib_kartenboden()->gib_pos(), rotate, post_besch, true, &halt);
+				hausbauer_t::baue(welt, sp, welt->lookup(pos)->gib_kartenboden()->gib_pos(), rotate, besch, true, &halt);
 				sp->buche(CST_POST, pos, COST_CONSTRUCTION * size.x * size.y);
 			}
 		}
@@ -611,6 +610,20 @@ DBG_MESSAGE("wkz_post()", "building mail office on square %d,%d", pos.x, pos.y);
 	}
 	return false;
 }
+
+
+
+int wkz_post(spieler_t *sp, karte_t *welt, koord pos, value_t value)
+{
+	wkz_station_building_aux(sp, welt, pos, (const haus_besch_t *)value.p, true);
+}
+
+
+int wkz_station_building(spieler_t *sp, karte_t *welt, koord pos, value_t value)
+{
+	wkz_station_building_aux(sp, welt, pos, (const haus_besch_t *)value.p, false);
+}
+
 
 #ifdef LAGER_NOT_IN_USE
 int
@@ -646,6 +659,7 @@ wkz_lagerhaus(spieler_t *sp, karte_t *welt, koord pos)
     }
 }
 #endif
+
 
 static int
 wkz_bahnhof_aux(spieler_t *sp,
@@ -1296,74 +1310,15 @@ int wkz_schiffdepot(spieler_t *sp, karte_t *welt, koord pos, value_t value)
 }
 
 
-#if 0
-// since 85.xx unused
-int wkz_schienenkreuz(spieler_t *sp, karte_t *welt, koord pos)
-{
-    DBG_MESSAGE("wkz_schienenkreuz()",
-     "called on %d,%d", pos.x, pos.y);
-
-    bool ok = false;
-
-    if(welt->ist_in_kartengrenzen(pos)) {
-  grund_t *bd = welt->lookup(pos)->gib_kartenboden();
-  int hang = welt->get_slope(pos);
-
-    // prüfen, ob boden entfernbar
-    if(bd->gib_besitzer() != NULL && bd->gib_besitzer() != sp) {
-      create_win(-1, -1, MESG_WAIT, new nachrichtenfenster_t(welt, "Das Feld gehoert\neinem anderen Spieler\n"), w_autodelete);
-  	return false;
-  	}
-
-    if(bd && hang==0) {
-
-      if(bd->gib_weg(weg_t::schiene) && !bd->gib_weg(weg_t::strasse)) {
-    const ribi_t::ribi ribi = bd->gib_weg_ribi_unmasked(weg_t::schiene);
-
-    if(ribi == ribi_t::nordsued || ribi == ribi_t::ostwest) {
-        DBG_MESSAGE("wkz_schienenkreuz()",
-         "New crossing, adding road to rails");
-
-        bd->neuen_weg_bauen(new strasse_t(welt), ribi_t::alle - ribi, sp);
-        ok = true;
-    }
-      } else if(bd->gib_weg(weg_t::strasse)
-          && !bd->gib_weg(weg_t::schiene)) {
-
-    const int ribi = bd->gib_weg_ribi_unmasked(weg_t::strasse);
-
-    if(ribi == ribi_t::nordsued || ribi == ribi_t::ostwest) {
-        bd->neuen_weg_bauen(new schiene_t(welt), ribi_t::keine, sp);
-        blockmanager::gib_manager()->neue_schiene(welt, bd);
-        sp->buche(CST_SCHIENE, bd->gib_pos().gib_2d(), COST_CONSTRUCTION);
-        ok = true;
-    }
-      }
-      bd->calc_bild();
-  }
-    }
-
-    return ok;
-}
-#endif
-
-
-
-static fahrplan_t *fpl = NULL;
-
-void wkz_fahrplan_setze(fahrplan_t *f)
-{
-    fpl = f;
-    DBG_MESSAGE("wkz_fahrplan_setze()","schedule is now %p", fpl);
-}
 
 /* the following two routines add points to a schedule
  *  by we do not like to stop at AIs stop, but we want still force the truck to use AI roads
  * So if there is a halt, then it must be either public or our!
  * @autor prissi
  */
-int wkz_fahrplan_add(spieler_t *sp, karte_t *welt, koord pos)
+int wkz_fahrplan_add(spieler_t *sp, karte_t *welt, koord pos,value_t f)
 {
+	fahrplan_t *fpl=(fahrplan_t *)f.p;
 	DBG_MESSAGE("wkz_fahrplan_add()", "Add coordinate to schedule.");
 
 	// haben wir einen Fahrplan ?
@@ -1397,8 +1352,9 @@ int wkz_fahrplan_add(spieler_t *sp, karte_t *welt, koord pos)
 	return true;
 }
 
-int wkz_fahrplan_ins(spieler_t *sp, karte_t *welt, koord pos)
+int wkz_fahrplan_ins(spieler_t *sp, karte_t *welt, koord pos,value_t f)
 {
+	fahrplan_t *fpl=(fahrplan_t *)f.p;
 	DBG_MESSAGE("wkz_fahrplan_add()", "Insert coordinate to schedule.");
 
 	// haben wir einen Fahrplan ?
@@ -1678,24 +1634,6 @@ int wkz_test(spieler_t *, karte_t *welt, koord pos)
 */
 
 
-#ifdef USE_DRIVABLES
-#include "drivables/car_group_t.h"
-
-int wkz_test_new_cars(spieler_t *, karte_t *welt, koord pos)
-{
-    if(welt->ist_in_kartengrenzen(pos)) {
-  car_group_t *vt =
-    new car_group_t(welt,
-        welt->lookup(pos)->gib_kartenboden()->gib_pos());
-
-  welt->sync_add( vt );
-    }
-    return true;
-}
-#endif
-
-
-#include "bauer/fabrikbauer.h"
 
 /* builts a random industry chain, either in the next town */
 int wkz_build_industries_land(spieler_t *sp, karte_t *welt, koord pos)
@@ -1736,11 +1674,6 @@ int wkz_build_industries_city(spieler_t *sp, karte_t *welt, koord pos)
   return plan != 0;
 }
 
-
-#include "gui/halt_list_filter_frame.h"
-#include "gui/convoi_filter_frame.h"
-#include "gui/citylist_frame_t.h"
-#include "gui/goods_frame_t.h"
 
 /* open the list of halt */
 int wkz_list_halt_tool(spieler_t *sp, karte_t *welt,koord k)

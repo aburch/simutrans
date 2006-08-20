@@ -650,32 +650,35 @@ static void process_kill_list()
 }
 
 
+/* main window event handler
+ * renovated may 2005 by prissi to take care of irregularly shaped windows
+ * also remove some unneccessary calls
+ */
 bool
 check_pos_win(event_t *ev)
 {
-  static bool is_resizing = false;
+	static bool is_resizing = false;
 
-  int i;
-  bool swallowed = false;
+	int i;
+	bool swallowed = false;
 
-  const int x = ev->mx;
-  const int y = ev->my;
+	const int x = ev->mx;
+	const int y = ev->my;
 
+	inside_event_handling = true;
 
-  inside_event_handling = true;
+	// for the moment, no none events
+	if (ev->ev_class == EVENT_NONE) {
+		process_kill_list();
+		inside_event_handling = false;
+		return false;
+	}
 
-  // for the moment, no none events
-  if (ev->ev_class == EVENT_NONE) {
-    process_kill_list();
-    inside_event_handling = false;
-    return swallowed;
-  }
-
-  // we stop resizing once the user releases the button
-  if(is_resizing && IS_LEFTRELEASE(ev)) {
-    is_resizing = false;
-    // printf("Leave resizing mode\n");
-  }
+	// we stop resizing once the user releases the button
+	if(is_resizing && IS_LEFTRELEASE(ev)) {
+		is_resizing = false;
+		// printf("Leave resizing mode\n");
+	}
 
 	// swallow all events in the infobar
 	if(ev->cy>display_get_height()-32) {
@@ -689,158 +692,128 @@ check_pos_win(event_t *ev)
 		}
 	}
 
-  for(i=ins_win-1; i>=0; i--) {
 
-    // printf("checking Fenster %d bei %d %d\n",i, x,y);
+	for(i=ins_win-1; i>=0; i--) {
 
-    koord gr = wins[i].gui->gib_fenstergroesse();
+		// check click inside window
+		if((ev->ev_class != EVENT_NONE && wins[i].gui->getroffen( ev->cx-wins[i].pos.x, ev->cy-wins[i].pos.y ))
+			||  (is_resizing && i==ins_win-1)) {
 
-    // check click inside window
-    if((ev->ev_class != EVENT_NONE &&
-	ev->cx > wins[i].pos.x && ev->cx < wins[i].pos.x+gr.x &&
-	ev->cy > wins[i].pos.y && ev->cy < wins[i].pos.y+gr.y)
-       ||
-       (is_resizing && i==ins_win-1)) {
+			// Top first
+			if (IS_LEFTCLICK(ev)) {
+				i = top_win(i);
+			}
 
-      // Top first
-      if (IS_LEFTCLICK(ev)) {
-	i = top_win(i);
-      }
+			// all events in window are swallowed
+			swallowed = true;
 
-      // all events in window are swallowed
-      swallowed = true;
+			// Hajo: if within title bar && window needs decoration
+			if( ev->cy < wins[i].pos.y+16 &&  wins[i].wt != w_frameless) {
 
-      // Hajo: if within title bar && window needs decoration
-      if( ev->cy < wins[i].pos.y+16 &&
-	  wins[i].wt != w_frameless) {
+				// %HACK (Mathew Hounsell) So decode will know if gadget is needed.
+				wins[i].flags.help = ( wins[i].gui->gib_hilfe_datei() != NULL );
 
-	// %HACK (Mathew Hounsell) So decode will know if gadget is needed.
-	wins[i].flags.help = ( wins[i].gui->gib_hilfe_datei() != NULL );
+				// Where Was It ?
+				simwin_gadget_et code = decode_gadget_boxes( ( & wins[i].flags ), wins[i].pos.x, ev->cx );
 
-	// Where Was It ?
-	simwin_gadget_et code = decode_gadget_boxes( ( & wins[i].flags ), wins[i].pos.x, ev->cx );
+				switch( code ) {
+					case GADGET_CLOSE :
+						if (IS_LEFTCLICK(ev)) {
+							wins[i].closing = true;
+						} else if  (IS_LEFTRELEASE(ev)) {
+							if (x < wins[i].pos.x+16 && y < wins[i].pos.y+16) {
+								destroy_win(wins[i].gui);
+							} else {
+								wins[i].closing = false;
+							}
+						}
+						break;
+					case GADGET_HELP :
+						if (IS_LEFTCLICK(ev)) {
+							create_win(new help_frame_t(wins[i].gui->gib_hilfe_datei()), w_autodelete, magic_none);
+							process_kill_list();
+							inside_event_handling = false;
+							return swallowed;
+						}
+						break;
+					case GADGET_PREV:
+						if (IS_LEFTCLICK(ev)) {
+							ev->ev_class = WINDOW_CHOOSE_NEXT;
+							ev->ev_code = PREV_WINDOW;  // backward
+							wins[i].gui->infowin_event( ev );
+						}
+						break;
+					case GADGET_NEXT:
+						if (IS_LEFTCLICK(ev)) {
+							ev->ev_class = WINDOW_CHOOSE_NEXT;
+							ev->ev_code = NEXT_WINDOW;  // forward
+							wins[i].gui->infowin_event( ev );
+						}
+						break;
+					case GADGET_SIZE: // (Mathew Hounsell)
+						if (IS_LEFTCLICK(ev)) {
+							ev->ev_class = WINDOW_MAKE_MIN_SIZE;
+							ev->ev_code = 0;
+							wins[i].gui->infowin_event( ev );
+						}
+						break;
+					default : // Title
+						if (IS_LEFTDRAG(ev)) {
+							i = top_win(i);
+							move_win(i, ev);
+						}
 
-	switch( code ) {
-	case GADGET_CLOSE : {
-	  if (IS_LEFTCLICK(ev)) {
-	    wins[i].closing = true;
-	  } else if  (IS_LEFTRELEASE(ev)) {
-	    if (x < wins[i].pos.x+16 && y < wins[i].pos.y+16) {
-	      destroy_win(wins[i].gui);
-	    } else {
-	      wins[i].closing = false;
-	    }
-	  }
-	  break; }
-	case GADGET_HELP : {
-	  if (IS_LEFTCLICK(ev)) {
-	    create_win(new help_frame_t(wins[i].gui->gib_hilfe_datei()), w_autodelete, magic_none);
-	    process_kill_list();
-	    inside_event_handling = false;
-	    return swallowed;
-	  }
-	  break; }
-	case GADGET_PREV: {
-	  if (IS_LEFTCLICK(ev)) {
-	    ev->ev_class = WINDOW_CHOOSE_NEXT;
-	    ev->ev_code = PREV_WINDOW;  // backward
-	    wins[i].gui->infowin_event( ev );
-	  }
-	  break; }
-	case GADGET_NEXT: {
-	  if (IS_LEFTCLICK(ev)) {
-	    ev->ev_class = WINDOW_CHOOSE_NEXT;
-	    ev->ev_code = NEXT_WINDOW;  // forward
-	    wins[i].gui->infowin_event( ev );
-	  }
-	  break; }
-	case GADGET_SIZE : { // (Mathew Hounsell)
-	  if (IS_LEFTCLICK(ev)) {
-	    ev->ev_class = WINDOW_MAKE_MIN_SIZE;
-	    ev->ev_code = 0;
-	    wins[i].gui->infowin_event( ev );
-	  }
-	  break; }
-	default : { // Title
-	  if (IS_LEFTDRAG(ev)) {
-	    i = top_win(i);
-	    move_win(i, ev);
-	  }
+				}
+
+				// It has been handled so stop checking.
+				break;
+
+			}
+			else {
+				// click in Window / Resize?
+				//11-May-02   markus weber added
+
+				gui_fenster_t *gui = wins[i].gui;
+				koord gr = gui->gib_fenstergroesse();
+
+				// resizer hit ?
+				const bool canresize = is_resizing ||
+													(ev->mx > wins[i].pos.x + gr.x - dragger_size &&
+													ev->my > wins[i].pos.y + gr.y - dragger_size);
+
+				if((IS_LEFTCLICK(ev) || IS_LEFTDRAG(ev)) && canresize && gui->get_resizemode() != gui_fenster_t::no_resize) {
+					// Hajo: go into resize mode
+					is_resizing = true;
+
+					// printf("Enter resizing mode\n");
+					ev->ev_class = WINDOW_RESIZE;
+					ev->ev_code = 0;
+					event_t wev = *ev;
+					translate_event(&wev, -wins[i].pos.x, -wins[i].pos.y);
+					gui->infowin_event( &wev );
+				}
+				else if(wins[i].gui->getroffen( ev->cx-wins[i].pos.x, ev->cy-wins[i].pos.y )) {
+					// click in Window
+					event_t wev = *ev;
+					translate_event(&wev, -wins[i].pos.x, -wins[i].pos.y);
+					wins[i].gui->infowin_event( &wev );
+					break;
+				}
+				break;
+			}
+			continue;
+		}
 	}
+
+	// if no focused, we do not deliver keyboard input
+	if(!focus_granted && ev->ev_class == EVENT_KEYBOARD) {
+		swallowed = false;
 	}
 
-	// It has been handled so stop checking.
-	break;
+	process_kill_list();
+	inside_event_handling = false;
 
-	// click in Window / Resize
-      } else {
-
-	gui_fenster_t *gui = wins[i].gui;
-	if(gui != NULL) {
-
-	  //11-May-02   markus weber added
-
-	  // resizer hit ?
-	  const bool canresize =
-	    is_resizing ||
-	    (ev->mx > wins[i].pos.x + gr.x - dragger_size &&
-	     ev->my > wins[i].pos.y + gr.y - dragger_size);
-
-	  if((IS_LEFTCLICK(ev) || IS_LEFTDRAG(ev)) &&
-	     canresize &&
-	     gui->get_resizemode() != gui_fenster_t::no_resize) {
-	    // Hajo: go into resize mode
-	    is_resizing = true;
-	    // printf("Enter resizing mode\n");
-
-
-	    ev->ev_class = WINDOW_RESIZE;
-	    ev->ev_code = 0;
-	    event_t wev = *ev;
-	    translate_event(&wev, -wins[i].pos.x, -wins[i].pos.y);
-
-	    gui->infowin_event( &wev );
-	  } else {
-	    // click in Window
-
-	    event_t wev = *ev;
-	    translate_event(&wev, -wins[i].pos.x, -wins[i].pos.y);
-
-	    wins[i].gui->infowin_event( &wev );
-	  }
-	} //if(gui != NULL)
-	break;
-      }
-      continue;
-    }
-
-    // check moved window
-    if (ev->ev_class != EVENT_NONE &&
-	ev->mx > wins[i].pos.x && ev->mx < wins[i].pos.x+gr.x &&
-	ev->my > wins[i].pos.y+16 && ev->my < wins[i].pos.y+gr.y) {
-
-      gui_fenster_t *gui = wins[i].gui;
-
-      if(gui != NULL) {
-	event_t wev = *ev;
-	translate_event(&wev, -wins[i].pos.x, -wins[i].pos.y);
-
-	gui->infowin_event( &wev );
-      }
-      break;
-    }
-  }
-
-  // if no focused, we do not deliver keyboard input
-  if(!focus_granted && ev->ev_class == EVENT_KEYBOARD) {
-    swallowed = false;
-  }
-
-
-  process_kill_list();
-  inside_event_handling = false;
-
-  return swallowed;
+	return swallowed;
 }
 
 

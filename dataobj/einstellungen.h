@@ -34,6 +34,8 @@ private:
 
     int scroll_multi;
 
+    unsigned short station_coverage_size;
+
     /**
      * ab welchem level erzeugen gebaeude verkehr ?
      */
@@ -112,6 +114,9 @@ public:
 
     void setze_map_roughness(double n) {map_roughness=n;};                      //01-Dec-01        Markus Weber    Added
     double gib_map_roughness() const {return map_roughness;};
+
+    void setze_station_coverage(unsigned short n) {station_coverage_size=n;};	// prissi, May-2005
+    unsigned short gib_station_coverage() const {return station_coverage_size;};
 
 };
 

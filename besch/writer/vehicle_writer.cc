@@ -188,39 +188,38 @@ void vehicle_writer_t::write_obj(FILE *fp, obj_node_t &parent, tabfileobj_t &obj
 
     // Hajodoc: retire date (year*16+month)
     // Hajoval: int
-    uv16  = obj.get_int("retire_year", 1900) * 16;
+    uv16 = obj.get_int("retire_year", 2999) * 16;
     uv16 += obj.get_int("retire_month", 1) - 1;
-    node.write_data_at(fp, &uv16, 16, sizeof(uint16));
+    node.write_data_at(fp, &uv16, 18, sizeof(uint16));
 
     // Hajodoc: Engine gear (power multiplier)
     // Hajoval: int
     uv8 = (obj.get_int("gear", 100) * 64) / 100;
-    node.write_data_at(fp, &uv8, 18, sizeof(uint8));
+    node.write_data_at(fp, &uv8, 20, sizeof(uint8));
 
 
     // Hajodoc: Type of way this vehicle drives on
     // Hajoval: road, track, electrified_track, monorail_track, maglev_track, water
     const char *waytype = obj.get("waytype");
-    uv8 = get_waytype(waytype, obj);
-
-    node.write_data_at(fp, &uv8, 19, sizeof(uint8));
+    const char waytype_uint = get_waytype(waytype, obj);
+    uv8 = (waytype_uint==4) ? vehikel_besch_t::schiene : waytype_uint;
+    node.write_data_at(fp, &uv8, 21, sizeof(uint8));
 
 
     // Hajodoc: The sound to play on start, -1 for no sound
     // Hajoval: int
     sv8 = obj.get_int("sound", -1);
-    node.write_data_at(fp, &sv8, 20, sizeof(sint8));
+    node.write_data_at(fp, &sv8, 22, sizeof(sint8));
 
 
-    if(uv8 == 4) {
+    if(waytype_uint == 4) {
       // Hajo: compatibility for old style DAT files
       uv8 = vehikel_besch_t::electric;
     } else {
       const char *engine_type = obj.get("engine_type");
       uv8 = get_engine_type(engine_type, obj);
     }
-    node.write_data_at(fp, &uv8, 23, sizeof(uint8));
-
+    node.write_data_at(fp, &uv8, 25, sizeof(uint8));
 
 
     // Hajodoc: The freight type
@@ -324,8 +323,8 @@ void vehicle_writer_t::write_obj(FILE *fp, obj_node_t &parent, tabfileobj_t &obj
 	}
     } while (str.len() > 0);
 
-    node.write_data_at(fp, &besch_vorgaenger, 21, sizeof(sint8));
-    node.write_data_at(fp, &besch_nachfolger, 22, sizeof(sint8));
+    node.write_data_at(fp, &besch_vorgaenger, 23, sizeof(sint8));
+    node.write_data_at(fp, &besch_nachfolger, 24, sizeof(sint8));
 
     node.write(fp);
 }

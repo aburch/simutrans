@@ -78,6 +78,8 @@ protected:
 
     virtual bool hop_check() {return true;};
     virtual void hop();
+    virtual void age() { };
+   virtual int gib_age() { return 1; };
 
     virtual void calc_bild();
 
@@ -119,10 +121,15 @@ public:
 
 
 class stadtauto_t : public verkehrsteilnehmer_t {
+    static slist_mit_gewichten_tpl<const stadtauto_besch_t *> stadtauto_t::liste_timeline;
     static slist_mit_gewichten_tpl<const stadtauto_besch_t *> liste;
     static stringhashtable_tpl<const stadtauto_besch_t *> table;
 
     const stadtauto_besch_t *besch;
+
+	// prissi: time to life in blocks
+    int time_to_life;
+
 protected:
     void rdwr(loadsave_t *file);
 public:
@@ -136,9 +143,17 @@ public:
      */
     virtual ~stadtauto_t();
 
+   virtual void age() { time_to_life--; };
+   virtual int gib_age() { return time_to_life; };
 
     virtual void calc_bild();
 
+
+    /* this function builts the list of the allowed citycars
+     * it should be called every month and in the beginning of a new game
+     * @author prissi
+     */
+    static void built_timeline_liste();
     static int gib_anzahl_besch();
 
     static bool register_besch(const stadtauto_besch_t *besch);

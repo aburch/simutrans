@@ -25,6 +25,8 @@ bool umgebung_t::fussgaenger = false;
 
 bool umgebung_t::verkehrsteilnehmer_info = false;
 
+long umgebung_t::stadtauto_duration = 100000;
+
 bool umgebung_t::tree_info = false;
 
 bool umgebung_t::townhall_info = false;
@@ -90,3 +92,7 @@ bool umgebung_t::use_timeline = 0;
  * @author Hj. Malthaner
  */
 int umgebung_t::starting_year;
+
+
+/* prissi: maximum number of steps for breath search */
+int umgebung_t::max_route_steps = 10000;

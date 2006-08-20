@@ -210,7 +210,6 @@ public:
       return intro_date >> 4;
     }
 
-
     /**
      * @return introduction month
      * @author Hj. Malthaner
@@ -219,6 +218,17 @@ public:
       return intro_date & 15;
     }
 
+    /**
+     * @return time when obsolete
+     * @author prissi
+     */
+    int get_retire_year() const {
+      return obsolete_date >> 4;
+    }
+
+    int get_retire_month() const {
+      return obsolete_date & 15;
+    }
 
     /**
      * 64 = 1.00

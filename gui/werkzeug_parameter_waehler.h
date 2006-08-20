@@ -163,9 +163,12 @@ public:
      */
     fensterfarben gib_fensterfarben() const;
 
+    /* returns true, if inside window area ...
+     * @author Hj. Malthaner
+     */
+    virtual bool getroffen(int x, int y);
 
-    /**
-     * Events werden hiermit an die GUI-Komponenten
+    /* Events werden hiermit an die GUI-Komponenten
      * gemeldet
      * @author Hj. Malthaner
      */

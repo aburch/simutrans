@@ -81,6 +81,14 @@ long get_time_multi()
 }
 
 
+
+unsigned long get_system_ms()
+{
+	return dr_time();
+}
+
+
+
 /**
  * <p>Gibt die aktuelle Zeit in Millisekunden zurueck.</p>
  *
@@ -126,63 +134,36 @@ static void wait_msec(long msec)
 
 
 /**
- * wartet usec mikrosekunden
- * ruft INT_CHECK falls mehr als 10000 mikrosekunden gewartet werden muss
+ * wartet millisekunden
  * @author Hj. Malthaner
  */
-void simusleep(unsigned long usec)
+void simusleep(unsigned milli)
 {
-#if 0
-  // das ist zu betriebssystemabhängig und wird deshalb
-  // an einen systemwraper delegiert
-
-  if(usec < 11) {
-    // ist wohl schon durch aufruf dieser methode langsamer als 11µs
-  } else if(usec < 1024) {
-
-    // busy wait one millisecond
-    wait_msec(1);
-
-  } else {
-    long ms = usec >> 10;
-
-    do {
-      const unsigned long T0 = dr_time();
-      dr_sleep(2048);
-      INT_CHECK("simtime 137");
-
-      const long diff = (long)(dr_time() - T0);
-      ms -= diff;
-      // printf("Try to wait 1ms, time passed %d, still to wait %d\n", diff, ms);
-    } while(ms > 0);
-  }
-#else
-  if(usec < 11) {
-    // ist wohl schon durch aufruf dieser methode langsamer als 11µs
-  } else if(usec < 1024) {
-
-    // busy wait one millisecond => vetter do an display check ...
-    INT_CHECK("simtime 133");
-
-  } else {
-    long ms = usec >> 10;
-    INT_CHECK("simtime 171");
-
-    while(ms>20)  {
-    	// wait at most 10 ms
-      const unsigned long T0 = dr_time();
-      dr_sleep(10240);
-      INT_CHECK("simtime 177");
-
-      const long diff = (long)(dr_time() - T0);
-      ms -= diff;
-    }
-    if(ms>0) {
-       dr_sleep(ms<<10);
-    }
-  }
-#endif
+	signed ms = milli;
+	if(ms==0) {
+		// busy wait one millisecond => better do a display check ...
+		INT_CHECK("simtime 133");
+	}
+	else {
+		INT_CHECK("simtime 171");
+		while(ms>20)  {
+			// wait at most 10 ms
+			const unsigned long T0 = dr_time();
+			dr_sleep(10240);
+			const long diff = (long)(dr_time() - T0);
+			ms -= diff;
+		}
+		while(ms>0) {
+			INT_CHECK("simtime 177");
+			const unsigned long T0 = dr_time();
+			dr_sleep(ms<<10);
+			const long diff = (long)(dr_time() - T0);
+			ms -= diff;
+		}
+		INT_CHECK("simtime 177");
+	}
 }
+
 
 
 void

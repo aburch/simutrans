@@ -38,26 +38,26 @@ class ware_besch_t : public obj_besch_t {
     friend class good_writer_t;
     friend class good_reader_t;
 
-    int value;
+    uint16 value;
 
     /**
      * Category of the good
      * @author Hj. Malthaner
      */
-    int catg;
+    uint16 catg;
 
     /**
      * Bonus for fast transport given in percent!
      * @author Hj. Malthaner
      */
-    int speed_bonus;
+    uint16 speed_bonus;
 
 
     /**
      * Weight in KG per unit of this good
      * @author Hj. Malthaner
      */
-    int weight_per_unit;
+    uint16 weight_per_unit;
 
 
 public:

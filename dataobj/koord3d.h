@@ -33,15 +33,18 @@ public:
     // Hajo: 6-byte variant, bad for alignment :(
     // short x, y, z;
 
+/*
     signed int x : 11;
     signed int y : 11;
     signed int z : 10;
+*/
+	signed short x, y, z;
 
     // 6 byte, clear code
-    // koord3d() {x=y=z=0;};
+	koord3d() {x=y=z=0;};
 
     // Hajo: performance hack
-    koord3d() {/*x=y=z=0;*/  *((int *)this) = 0;};
+//    koord3d() {/*x=y=z=0;*/  *((int *)this) = 0;};
 
     koord3d(short xp, short yp, short zp) {x=xp; y=yp; z=zp;};
     koord3d(koord xyp, short zp) {x=xyp.x; y=xyp.y; z=zp;};

@@ -19,15 +19,7 @@
 #include <string.h>
 #include <math.h>
 
-#ifndef simdebug_h
 #include "simdebug.h"
-#endif
-
-#ifndef tpl_vector_h
-#include "tpl/vector_tpl.h"
-#endif
-
-
 #include "boden/boden.h"
 #include "boden/wasser.h"
 #include "simplay.h"
@@ -38,11 +30,9 @@
 #include "simcosts.h"
 #include "simwin.h"
 #include "simhalt.h"
-#include "simdepot.h"
 #include "simversion.h"
-#include "simmesg.h"
+#include "simticker.h"
 #include "simcolor.h"
-#include "simlinemgmt.h"
 
 #include "simtime.h"
 #include "simintr.h"
@@ -51,7 +41,6 @@
 #include "simimg.h"
 #include "blockmanager.h"
 #include "simvehikel.h"
-#include "simverkehr.h"
 #include "simworld.h"
 
 #include "simwerkz.h"
@@ -74,17 +63,13 @@
 #include "gui/optionen.h"
 #include "gui/spieler.h"
 #include "gui/werkzeug_waehler.h"
-#include "gui/werkzeug_parameter_waehler.h"
+#include "gui/schedule_list.h"
 #include "gui/messagebox.h"
 #include "gui/loadsave_frame.h"
 #include "gui/money_frame.h"
-#include "gui/schedule_list.h"
 #include "gui/convoi_frame.h"
 #include "gui/halt_list_frame.h"        //30-Dec-01     Markus Weber    Added
-#include "gui/citylist_frame_t.h"
-#include "gui/message_frame_t.h"
 #include "gui/help_frame.h"
-#include "gui/goods_frame_t.h"
 
 #include "dataobj/fahrplan.h"
 #include "dataobj/translator.h"
@@ -92,30 +77,28 @@
 #include "dataobj/einstellungen.h"
 #include "dataobj/umgebung.h"
 #include "dataobj/tabfile.h"
-#include "dataobj/powernet.h"
 
-#include "utils/simstring.h"
 
 #include "besch/grund_besch.h"
 
 #include "bauer/brueckenbauer.h"
 #include "bauer/tunnelbauer.h"
+#include "bauer/factorybuilder.h"
 #include "bauer/fabrikbauer.h"
 #include "bauer/wegbauer.h"
 #include "bauer/hausbauer.h"
-#include "bauer/vehikelbauer.h"
+
+// #include "adt/ifc/iterator.h"
+// #include "adt/queue.h"
+// #include "adt/vector.h"
 
 #include "ifc/sync_steppable.h"
 
 #ifdef AUTOTEST
 #include "test/worldtest.h"
 #include "test/testtool.h"
-//#include "test/buildings_frame_t.h"
 #endif
 
-
-
-static schedule_list_gui_t * schedule_list_gui = 0;
 
 
 //#define DEMO
@@ -131,18 +114,6 @@ void
 karte_t::setze_scroll_multi(int n)
 {
     einstellungen->setze_scroll_multi(n);
-}
-
-
-/**
- * Creates an artificial slope at position k
- * @author Hj. Malthaner
- */
-void karte_t::set_slope(koord k, uint8 slope)
-{
-  if(ist_in_kartengrenzen(k)) {
-    slopes[k.x + k.y*cached_groesse] = slope;
-  }
 }
 
 
@@ -255,14 +226,8 @@ karte_t::calc_hoehe_mit_heightfield(const cstring_t & filename)
       dbg->fatal("karte_t::load_heightfield()",
 		 "Heightfield has wrong color depth %s", buf);
     }
-    int y;
-    for(y=0; y<groesse+1; y++) {
-      for(int x=0; x<groesse+1; x++) {
-	setze_grid_hgt(koord(x,y), grundwasser);
-      }
-    }
 
-    for(y=0; y<groesse; y++) {
+    for(int y=0; y<groesse; y++) {
       for(int x=0; x<groesse; x++) {
 	int R = fgetc(file);
 	int G = fgetc(file);
@@ -270,18 +235,16 @@ karte_t::calc_hoehe_mit_heightfield(const cstring_t & filename)
 
 
 	setze_grid_hgt(koord(x,y),
-		       ((R*2+G*3+B)/4 - 224) & 0xFFF0
+		       ((R*2+G*3+B)/16 - 80) & 0xFFF0
 		       );
 
       }
 
       if(is_display_init()) {
-	display_progress(y/2, groesse+einstellungen->gib_anzahl_staedte()*12);
+	display_progress(y/2, groesse+einstellungen->gib_anzahl_staedte()*4);
 	display_flush(0, 0, 0, "", "");
       }
     }
-
-    fclose(file);
   } else {
     perror("Error:");
   }
@@ -292,9 +255,9 @@ karte_t::calc_hoehe_mit_perlin()
 {
     const int groesse = gib_groesse();
 
-    for(int y=0; y<=groesse; y++) {
+    for(int y=0; y<groesse; y++) {
 
-	for(int x=0; x<=groesse; x++) {
+	for(int x=0; x<groesse; x++) {
 	  // Hajo: to Markus: replace the fixed values with your
           // settings. Amplitude is the top highness of the
           // montains, frequency is something like landscape 'roughness'
@@ -315,7 +278,7 @@ karte_t::calc_hoehe_mit_perlin()
 	}
 
 	if(is_display_init()) {
-	    display_progress(y/2, groesse+einstellungen->gib_anzahl_staedte()*12);
+	    display_progress(y/2, groesse+einstellungen->gib_anzahl_staedte()*4);
 	    display_flush(0, 0, 0, "", "");
 	} else {
 	    print("%3d/%3d\r", y, groesse-1);
@@ -328,54 +291,62 @@ karte_t::calc_hoehe_mit_perlin()
 
 void karte_t::raise_clean(int x, int y, int h)
 {
-  if(ist_in_gittergrenzen(x, y)) {
-    const koord k (x,y);
+    const planquadrat_t *plan = lookup(koord(x,y));
 
-    if(lookup_hgt(k) < h) {
-      setze_grid_hgt(k, h);
+    if(plan) {
 
-      raise_clean(x-1, y-1, h-16);
-      raise_clean(x  , y-1, h-16);
-      raise_clean(x+1, y-1, h-16);
-      raise_clean(x-1, y  , h-16);
-      // Punkt selbst hat schon die neue Hoehe
-      raise_clean(x+1, y  , h-16);
-      raise_clean(x-1, y+1, h-16);
-      raise_clean(x  , y+1, h-16);
-      raise_clean(x+1, y+1, h-16);
+	if(lookup_hgt(koord(x, y)) < h) {
+	    setze_grid_hgt(koord(x, y), h);
 
+	    raise_clean(x-1, y-1, h-16);
+	    raise_clean(x  , y-1, h-16);
+	    raise_clean(x+1, y-1, h-16);
+	    raise_clean(x-1, y  , h-16);
+	    // Punkt selbst hat schon die neue Hoehe
+	    raise_clean(x+1, y  , h-16);
+	    raise_clean(x-1, y+1, h-16);
+	    raise_clean(x  , y+1, h-16);
+	    raise_clean(x+1, y+1, h-16);
+
+	}
     }
-  }
 }
-
 
 void karte_t::cleanup_karte()
 {
-	// we need a copy to smoothen the map to a realistic level
-	sint8 *grid_hgts_cpy = new sint8[(gib_groesse()+1)*(gib_groesse()+1)];
-	memcpy(grid_hgts_cpy,grid_hgts,(gib_groesse()+1)*(gib_groesse()+1));
-	// now connect the heights
-	int i,j;
-	for(j=0; j<=gib_groesse(); j++) {
-		for(i=0; i<=gib_groesse(); i++) {
-			raise_clean(i,j, (grid_hgts_cpy[j*(gib_groesse()+1)+i]<<4)+16);
-		}
-	}
-	delete [] grid_hgts_cpy;
+    int i,j;
 
-	// now lower the corners to ground level
+    int *hgts = new int [(gib_groesse()+1)*(gib_groesse()+1)];
+    int *p = hgts;
+
+    for(j=0; j<=gib_groesse(); j++) {
 	for(i=0; i<=gib_groesse(); i++) {
-		lower_to(i, 0, grundwasser);
-		lower_to(0, i, grundwasser);
-		lower_to(i, gib_groesse(), grundwasser);
-		lower_to(gib_groesse(), i, grundwasser);
+	    *p++ = lookup_hgt(koord(i, j));
 	}
+    }
+
+    p=hgts;
+    for(j=0; j<=gib_groesse(); j++) {
 	for(i=0; i<=gib_groesse(); i++) {
-		raise_to(i, 0, grundwasser);
-		raise_to(0, i, grundwasser);
-		raise_to(i, gib_groesse(), grundwasser);
-		raise_to(gib_groesse(), i, grundwasser);
+	    raise_clean(i,j, (*p++)+16);
 	}
+    }
+
+    for(i=0; i<=gib_groesse(); i++) {
+	lower_to(i, 0, grundwasser);
+	lower_to(0, i, grundwasser);
+	lower_to(i, gib_groesse(), grundwasser);
+	lower_to(gib_groesse(), i, grundwasser);
+    }
+
+    for(i=0; i<=gib_groesse(); i++) {
+	raise_to(i, 0, grundwasser);
+	raise_to(0, i, grundwasser);
+	raise_to(i, gib_groesse(), grundwasser);
+	raise_to(gib_groesse(), i, grundwasser);
+    }
+
+    delete[] hgts;
 }
 
 
@@ -424,11 +395,10 @@ void karte_t::verteile_baeume(int dichte)
   //	Number of trees on square 2 - minimal usable, 3 good, 5 very nice looking
   setze_max_no_of_trees_on_square (3);
 
-  //now forest configuration data will be read form forrestconf.tab
+  //now forest configuration data will be read form simuconf.tab
   tabfile_t simuconf;
 
-
-  if(simuconf.open("config/forrestconf.tab")) {
+  if(simuconf.open("simuconf.tab")) {
     tabfileobj_t contents;
 
     simuconf.read(contents);
@@ -443,7 +413,6 @@ void karte_t::verteile_baeume(int dichte)
 
     setze_max_no_of_trees_on_square (contents.get_int("max_no_of_trees_on_square", 3));
 
-    simuconf.close();
   } else {
     // nothing here, if reading fails, default values will remain
   }
@@ -514,19 +483,17 @@ void karte_t::verteile_baeume(int dichte)
 void
 karte_t::destroy()
 {
-    DBG_MESSAGE("karte_t::destroy()", "destroying world");
+    dbg->message("karte_t::destroy()", "destroying world");
 
-    printf("Destroying world ... ");
+    // hier nur entfernen, aber nicht löschen
+    ausflugsziele.clear();
 
     labels.clear();
 
     unsigned int i,j;
 
-    // alle haltestellen aufräumen
-    haltestelle_t::destroy_all();
-
     // dinge aufräumen
-    if(plan) {
+    if(plan != NULL) {
 	for(j=0; j<(unsigned int)gib_groesse(); j++) {
 	    for(i=0; i<(unsigned int)gib_groesse(); i++) {
 		access(i, j)->destroy(NULL);
@@ -534,51 +501,37 @@ karte_t::destroy()
 	}
 
 	delete [] plan;
-	plan = 0;
+	plan = NULL;
     }
     // entfernt alle synchronen objekte aus der liste
     sync_list.clear();
 
     // gitter aufräumen
-    if(grid_hgts) {
+    if(grid_hgts != NULL) {
 	delete [] grid_hgts;
-	grid_hgts = 0;
+	grid_hgts = NULL;
     }
-
-    if(slopes) {
-      delete [] slopes;
-      slopes = 0;
-    }
-
-
     // marker aufräumen
     marker.init(0);
+    dirty.init(0);
 
 
     // städte aufräumen
-    if(stadt) {
-        // Hajo: unreference the city list before deleting the cities.
-        // there is code that can call stadt::step() while we are in
-        // this loop, deleting the cities
-
-        vector_tpl <stadt_t *> * tmp = stadt;
-	stadt = 0;
-
-	for(i=0; i<tmp->get_count(); i++) {
-            delete tmp->at(i);
+    if(stadt != NULL) {
+	for(i=0; i<stadt->get_size(); i++) {
+            delete stadt->at(i);
 	}
-	tmp->clear();
 
-	delete tmp;
-	tmp = 0;
+	delete stadt;
+	stadt = NULL;
     }
 
 
     // spieler aufräumen
     for(i=0; i<(unsigned int)anz_spieler ; i++) {
-	if(spieler[i]) {
+	if(spieler[i] != NULL) {
 	    delete spieler[i];
-	    spieler[i] = 0;
+	    spieler[i] = NULL;
 	}
     }
 
@@ -594,28 +547,20 @@ karte_t::destroy()
 
     // alle fabriken aufräumen
     slist_iterator_tpl<fabrik_t*> fab_iter(fab_list);
+
     while(fab_iter.next()) {
 	delete fab_iter.get_current();
     }
+
     fab_list.clear();
 
-    // hier nur entfernen, aber nicht löschen
-    ausflugsziele.clear();
-    ausflugsziel_max_pax = 0;
-    all_ausflugsziele_top_pax = 0;
+    // alle haltestellen aufräumen
+    haltestelle_t::destroy_all();
 
     // rail blocks aufraeumen
     blockmanager::gib_manager()->delete_all_blocks();
 
-    // @author hsiegeln: re-initialize simlinemgmt;
-    simlinemgmt->destroy_all();
-
-
-    delete schedule_list_gui;
-    schedule_list_gui = 0;
-
-    DBG_MESSAGE("karte_t::destroy()", "world destroyed");
-    printf("destroyed.\n");
+    dbg->message("karte_t::destroy()", "world destroyed");
 }
 
 
@@ -625,14 +570,20 @@ karte_t::destroy()
  */
 void karte_t::add_stadt(stadt_t *s)
 {
-	// fixme: not check for overflow ...
-	if(stadt->get_count()>=stadt->get_size()) {
-		// extend vector for more cities ...
-DBG_DEBUG("karte_t::add_stadt()","extended city array from %i with additional 64 entries.", stadt->get_size() );
-		stadt->resize(einstellungen->gib_anzahl_staedte()+64);
-	}
-	einstellungen->setze_anzahl_staedte(einstellungen->gib_anzahl_staedte()+1);
-	stadt->append(s);
+    einstellungen->setze_anzahl_staedte(einstellungen->gib_anzahl_staedte()+1);
+
+    array_tpl <stadt_t *> * neu_stadt  = new array_tpl<stadt_t *> (einstellungen->gib_anzahl_staedte());
+
+    for(unsigned int i=0; i<stadt->get_size() ; i++) {
+	neu_stadt->at(i) = stadt->at(i);
+    }
+
+
+    neu_stadt->at(stadt->get_size()) = s;
+
+    delete stadt;
+
+    stadt = neu_stadt;
 }
 
 
@@ -642,16 +593,10 @@ karte_t::init_felder()
     const int groesse = gib_groesse();
 
     plan   = new planquadrat_t[groesse*groesse];
-    slopes = new uint8[groesse*groesse];
-    grid_hgts = new sint8[(groesse+1)*(groesse+1)];
-    ausflugsziele_accumulated_level = new array_tpl<int> (64);
-    ausflugsziel_max_pax = 0;
-    all_ausflugsziele_top_pax = 0;
-
-    memset(slopes, 0 , sizeof(uint8)*groesse*groesse);
-    memset(grid_hgts, 0, sizeof(sint8)*(groesse+1)*(groesse+1));
-
+    grid_hgts = new short[(groesse+1)*(groesse+1)];
     marker.init(groesse);
+    dirty.init(groesse);
+    stadt  = new array_tpl<stadt_t *> (einstellungen->gib_anzahl_staedte());
 
     blockmanager::gib_manager()->setze_welt_groesse( groesse );
     win_setze_welt( this );
@@ -659,16 +604,9 @@ karte_t::init_felder()
 
     for(i=0; i<anz_spieler ; i++) {
         spieler[i] = new spieler_t(this, i*4);
-/********************************************************************** automat
-        if(i>=2) {
-        	// otherwise during loading things are not belonging to an AI ...
-        	spieler[i]->automat = true;
-        }
-*/
-    }
-    schedule_list_gui = new schedule_list_gui_t(this);
-}
 
+    }
+}
 
 void
 karte_t::init(einstellungen_t *sets)
@@ -677,18 +615,15 @@ karte_t::init(einstellungen_t *sets)
 
     if(is_display_init()) {
 	display_show_pointer(false);
-  }
+    }
 
     setze_ij_off(koord(0,0));
 
     x_off = y_off = 0;
 
     ticks = 0;
-    // ticks = 0x7FFFF800;  // Testing the 31->32 bit step
-
     letzter_monat = 0;
     letztes_jahr = 0;
-    season = 2;
     steps = 0;
 
     //grundwasser = -32;        29-Nov-01       Markus Weber    Changed
@@ -704,59 +639,39 @@ karte_t::init(einstellungen_t *sets)
     // wird gecached, um den Pointerzugriff zu sparen, da
     // die groesse _sehr_ oft referenziert wird
     cached_groesse = einstellungen->gib_groesse();
+    cached_groesse2 = cached_groesse*cached_groesse;
 
-DBG_DEBUG("karte_t::init()","init_felder");
     init_felder();
 
-DBG_DEBUG("karte_t::init()","setze_grid_hgt");
     for(j=0; j<=gib_groesse(); j++) {
 	for(i=0; i<=gib_groesse(); i++) {
 	    setze_grid_hgt(koord(i, j), 0);
 	}
     }
 
-DBG_DEBUG("karte_t::init()","calc_slope");
-    // Hajo: init slopes
     koord k;
-    for(k.y=0; k.y<gib_groesse(); k.y++) {
-	for(k.x=0; k.x<gib_groesse(); k.x++) {
-	    calc_slope(k);
-	}
-    }
 
-DBG_DEBUG("karte_t::init()","kartenboden_setzen");
     for(k.y=0; k.y<gib_groesse(); k.y++) {
 	for(k.x=0; k.x<gib_groesse(); k.x++) {
-//DBG_DEBUG("karte_t::init()","kartenboden_setzen %i,%i",k.x,k.y);
 	    access(k)->kartenboden_setzen( new boden_t(this, koord3d(k, 0) ), false);
 	}
     }
 
     print("Creating landscape shape...\n");
+
     // calc_hoehe(0, 0, gib_groesse()-1, gib_groesse()-1);
 
-DBG_DEBUG("karte_t::init()","calc_hoehe_mit_heightfield");
     unsigned long old_seed = setsimrand( einstellungen->gib_karte_nummer() );
     if(einstellungen->heightfield.len() > 0) {
       calc_hoehe_mit_heightfield(einstellungen->heightfield);
     } else {
       calc_hoehe_mit_perlin();
     }
-
     // Wenn man den Zufall kaputtmacht, sollte man ihn auch wieder heil machen
     if(gib_groesse() != 64)
 	setsimrand( old_seed );
 
     cleanup_karte();
-
-
-    // Hajo: init slopes
-    for(k.y=0; k.y<gib_groesse(); k.y++) {
-	for(k.x=0; k.x<gib_groesse(); k.x++) {
-	    calc_slope(k);
-	}
-    }
-
 
     print("Creating landscape ground ...\n");
 
@@ -782,132 +697,114 @@ DBG_DEBUG("karte_t::init()","calc_hoehe_mit_heightfield");
 
     verteile_baeume(3);
 
-    stadtauto_t::built_timeline_liste();
 
     print("Creating cities ...\n");
 
     hausbauer_t::neue_karte();
 
-	stadt = new vector_tpl <stadt_t *> (einstellungen->gib_anzahl_staedte());
-	vector_tpl<koord> *pos = stadt_t::random_place(this, einstellungen->gib_anzahl_staedte());
-	if( pos ) {
+    stadt_t::init_namen();
+    array_tpl<koord> *pos = stadt_t::random_place(this, einstellungen->gib_anzahl_staedte() + 1);
+    if( pos ) {
 
-		// prissi if we could not generate enough positions ...
-		einstellungen->setze_anzahl_staedte( pos->get_count() );	// new number of towns ...
+      // Ansicht auf erste Stadt zentrieren
 
-		// Ansicht auf erste Stadt zentrieren
-		setze_ij_off(pos->at(0) + koord(-8, -8));
+      setze_ij_off(pos->at(0) + koord(-8, -8));
 
-		for(i=0; i<einstellungen->gib_anzahl_staedte(); i++) {
-			int citizens=(int)(einstellungen->gib_mittlere_einwohnerzahl()*0.9);
-DBG_DEBUG("karte_t::init()","Erzeuge stadt %i",i);
-			stadt->append( new stadt_t(this, spieler[1], pos->at(i),citizens/10+simrand(2*citizens+1)) );
+      for(i=0; i<einstellungen->gib_anzahl_staedte(); i++) {
+	//	printf("City #%d at %d, %d\n",i+1, pos[i].x, pos[i].y);
+	stadt->at(i) = new stadt_t(this, spieler[1], pos->at(i));
 
-			if(is_display_init()) {
-				display_progress(gib_groesse()/2+i*2, gib_groesse()+einstellungen->gib_anzahl_staedte()*12);
-				display_flush(0, 0, 0, "", "");
-			}
+
+	if(is_display_init()) {
+	    display_progress(gib_groesse()/2+i*2, gib_groesse()+einstellungen->gib_anzahl_staedte()*4);
+	    display_flush(0, 0, 0, "", "");
+	}
+      }
+
+	grund_t *gr = access(pos->at(einstellungen->gib_anzahl_staedte()))->gib_kartenboden();
+
+	hausbauer_t::baue(this, NULL, gr->gib_pos(), 0, hausbauer_t::muehle_besch);
+
+	delete pos;
+	pos = NULL;
+    }
+
+	////////////////////////
+	////////////////////////
+	////////////////////////
+	////////////////////////
+	////////////////////////
+    // fabrikbauer_t::verteile_industrie(this, gib_spieler(1), einstellungen->gib_industrie_dichte());
+	try
+	{
+		factory_builder_t tmp (this, spieler[1]);
+
+		//acceptable industry density is from 1-12
+		//current variable ranges from 140 (hghest density) to 1220 (lowest density)
+		//conversion needed
+		const uint16 industry_density = ((800 / (1+ (einstellungen->gib_industrie_dichte() / 2))) > 1)?(800 / (1+(einstellungen->gib_industrie_dichte() / 2))):1;
+
+		tmp.Build_Industries (industry_density);
+		//dbg->message("factory_builder_t::Build_Industries()", "einstellungen->gib_industrie_dichte() = %i", einstellungen->gib_industrie_dichte());
+
+	} catch (int error_from_factory_builder)
+	{
+		switch (error_from_factory_builder)
+		{
+			case 0 :
+				dbg->message("factory_builder_t::Build_Industries()", "Cell size not set or set incorrectly");
+				break;
+			case 1 :
+				dbg->message("factory_builder_t::Build_Industries()", "World size not set or 0");
+				break;
+			case 2 :
+				dbg->message("factory_builder_t::Build_Industries()", "Cell size too small");
+				break;
+			case 100 :
+				dbg->message("factory_builder_t::Build_Industries()", "Cannot find suppliers for some type of goods! Check if there are not some industry packs missing");
+				break;
+			case 101 :
+				dbg->message("factory_builder_t::Build_Industries()", "Found no industries. Check the location of pak files!");
+				break;
+			case 102 :
+				dbg->message("factory_builder_t::Build_Industries()", "Found no end consumers!. Check the location of pak files!");
+				break;
+
+			default:
+				dbg->message("factory_builder_t::Build_Industries()", "Some exception occured during industry distribution process.");
+				break;
+
 		}
 
-
-		// Hajo: connect some cities with roads
-
-		const weg_besch_t * besch = wegbauer_t::gib_besch(umgebung_t::intercity_road_type->chars());
-
-		if(besch == 0) {
-			dbg->warning("karte_t::init()","road type '%s' not found",umgebung_t::intercity_road_type->chars());
-			// Hajo: try some default
-			besch = wegbauer_t::gib_besch("asphalt_road");
-		}
-
-		// Hajo: No owner so that roads can be removed!
-		wegbauer_t bauigel (this, 0);
-		bauigel.baubaer = false;
-		bauigel.route_fuer(wegbauer_t::strasse, besch);
-		bauigel.set_keep_existing_ways(true);
-		bauigel.set_maximum(200);
-
-		// Hajo: search for road offset
-
-		koord roff (0,1);
-		if(lookup(pos->at(0)+roff)->gib_kartenboden()->gib_weg(weg_t::strasse) == 0) {
-			roff = koord(0,2);
-		}
-
-		for(i=0; i<einstellungen->gib_anzahl_staedte(); i++) {
-			for(int j=i+1; j<einstellungen->gib_anzahl_staedte(); j++) {
-				const koord k1 = pos->at(i) + roff;
-				const koord k2 = pos->at(j) + roff;
-				const koord diff = k1-k2;
-				const int d = diff.x*diff.x + diff.y*diff.y;
-
-				if(d < umgebung_t::intercity_road_length) {
-					bauigel.calc_route(k1, k2);
-
-					if(bauigel.max_n >= 1) {
-						bauigel.baue();
-					}
-					else {
-DBG_DEBUG("karte_t::init()","no route found fom city %d to %d", i, j);
-					}
-				}
-				else {
-DBG_DEBUG("karte_t::init()","cites %d and %d are too far away", i, j);
-				}
-			} //for j
-
-			if(is_display_init()) {
-				display_progress(gib_groesse()/2+i*8 + einstellungen->gib_anzahl_staedte()*2,
-				gib_groesse()+einstellungen->gib_anzahl_staedte()*12);
-				display_flush(0, 0, 0, "", "");
-			}
-		} // for i
-
-#if 0
-		// prissi: obsolete, not used any more
-		// built as tourist attraction ...
-		if(hausbauer_t::muehle_besch) {
-			grund_t *gr = access(pos->at(einstellungen->gib_anzahl_staedte()))->gib_kartenboden();
-			hausbauer_t::baue(this, NULL, gr->gib_pos(), 0, hausbauer_t::muehle_besch);
-		}
-#endif
-
-		delete pos;
-		pos = NULL;
 	}
 
-    // prissi: completely change format
-     fabrikbauer_t::verteile_industrie(this,
-				gib_spieler(1),
-				einstellungen->gib_land_industry_chains(),false);
-     fabrikbauer_t::verteile_industrie(this,
-				gib_spieler(1),
-				einstellungen->gib_city_industry_chains(),true);
-     fabrikbauer_t::verteile_tourist(this,
-				gib_spieler(1),
-				einstellungen->gib_tourist_attractions());
 
-	for(i=0; i<einstellungen->gib_anzahl_staedte(); i++) {
-		// Hajo: do final init after world was loaded/created
-		if(stadt->at(i)) {
-			stadt->at(i)->laden_abschliessen();
-		}
+	////////////////////////
+	////////////////////////
+	////////////////////////
+	////////////////////////
+	////////////////////////
+
+
+    for(i=0; i<einstellungen->gib_anzahl_staedte(); i++) {
+	// Hajo: do final init after world was loaded/created
+        if(stadt->at(i)) {
+	    stadt->at(i)->laden_abschliessen();
 	}
+    }
 
     print("Preparing startup ...\n");
 
-    if(zeiger == 0) {
-      zeiger = new zeiger_t(this, koord3d(0,0,0), spieler[0]);
-    }
+    zeiger = new zeiger_t(this, koord3d(0,0,0), spieler[0]);
 
     mouse_funk = NULL;
-    setze_maus_funktion(wkz_abfrage, skinverwaltung_t::fragezeiger->gib_bild_nr(0), Z_PLAN, 0, 0);
+    setze_maus_funktion(wkz_abfrage, skinverwaltung_t::fragezeiger->gib_bild_nr(0), Z_PLAN);
 
     reliefkarte_t::gib_karte(this)->init();
 
 #ifndef DEMO
     for(i = 0; i < 6; i++) {
-	spieler[i + 2]->set_active( umgebung_t::automaten[i] );
+	spieler[i + 2]->automat = umgebung_t::automaten[i];
     }
 #endif
 
@@ -921,47 +818,36 @@ DBG_DEBUG("karte_t::init()","cites %d and %d are too far away", i, j);
 karte_t::karte_t()
 {
     setze_dirty();
-//    set_rotation(0);
-    set_scroll_lock(false);
 
     einstellungen_t * sets = new einstellungen_t();
 
     if(umgebung_t::testlauf) {
 	sets->setze_groesse(256);
 	sets->setze_anzahl_staedte(16);
-	sets->setze_land_industry_chains(8);
-	sets->setze_city_industry_chains(4);
-	sets->setze_tourist_attractions(8);
+	sets->setze_industrie_dichte(800);
 	sets->setze_verkehr_level(7);
 	sets->setze_karte_nummer( 33 );
-	sets->setze_station_coverage( umgebung_t::station_coverage_size );
 
     } else {
 	sets->setze_groesse(64);
 	sets->setze_anzahl_staedte(1);
-	sets->setze_land_industry_chains(1);
-	sets->setze_city_industry_chains(0);
-	sets->setze_tourist_attractions(1);
+	sets->setze_industrie_dichte(800);
 	sets->setze_verkehr_level(7);
 	sets->setze_karte_nummer( 33 );
-	sets->setze_station_coverage( umgebung_t::station_coverage_size );
+
     }
 
-    stadt = 0;
-    zeiger = 0;
-    plan = 0;
-    slopes = 0;
-    grid_hgts = 0;
-    einstellungen = 0;
+    stadt = NULL;
+    zeiger = NULL;
+    plan = NULL;
+    grid_hgts = NULL;
+    einstellungen = NULL;
 
     for(i=0; i<anz_spieler ; i++) {
-	spieler[i] = 0;
+	spieler[i] = NULL;
     }
 
     init(sets);
-
-    // @author hsiegeln
-    simlinemgmt = new simlinemgmt_t(this);
 }
 
 karte_t::~karte_t()
@@ -1092,58 +978,43 @@ int karte_t::raise_to(int x, int y, int h)
 {
 //    printf("karte_t::raise_to %d %d %d\n", x, y, h);
 
-  const koord pos (x,y);
+    planquadrat_t *plan = access(x,y);
 
-  planquadrat_t *plan = access(pos);
+    int n = 0;
 
-  int n = 0;
+    if(ist_in_gittergrenzen(x,y)) {
+	if(lookup_hgt(koord(x, y)) < h) {
+	    setze_grid_hgt(koord(x, y), h);
 
-  if(ist_in_gittergrenzen(x,y)) {
-    if(lookup_hgt(pos) < h) {
-      setze_grid_hgt(pos, h);
+	    n = 1;
 
-      n = 1;
+	    n += raise_to(x-1, y-1, h-16);
+	    n += raise_to(x  , y-1, h-16);
+	    n += raise_to(x+1, y-1, h-16);
+	    n += raise_to(x-1, y  , h-16);
 
-      n += raise_to(x-1, y-1, h-16);
-      n += raise_to(x  , y-1, h-16);
-      n += raise_to(x+1, y-1, h-16);
-      n += raise_to(x-1, y  , h-16);
+	    n += raise_to(x, y, h);
 
-      n += raise_to(x, y, h);
+	    n += raise_to(x+1, y  , h-16);
+	    n += raise_to(x-1, y+1, h-16);
+	    n += raise_to(x  , y+1, h-16);
+	    n += raise_to(x+1, y+1, h-16);
 
-      n += raise_to(x+1, y  , h-16);
-      n += raise_to(x-1, y+1, h-16);
-      n += raise_to(x  , y+1, h-16);
-      n += raise_to(x+1, y+1, h-16);
+	    if(plan)
+		plan->angehoben(this);
 
-      calc_slope(pos);
-      calc_slope(pos - koord(1, 0));
-      calc_slope(pos - koord(0, 1));
-      calc_slope(pos - koord(1, 1));
+	    if((plan = access(x-1,y)) != NULL)
+		plan->angehoben(this);
 
-      if(plan) {
-	plan->angehoben(this);
-      }
+	    if((plan = access(x,y-1)) != NULL)
+		plan->angehoben(this);
 
-      if((plan = access(x-1,y))) {
-	plan->angehoben(this);
-      }
-
-      if((plan = access(x,y-1))) {
-	plan->angehoben(this);
-      }
-
-      if((plan = access(x-1,y-1))) {
-	plan->angehoben(this);
-      }
-
-      wkz_set_slope(0, this, pos, get_slope(pos));
+	    if((plan = access(x-1,y-1)) != NULL)
+		plan->angehoben(this);
+	}
     }
-  }
-
-  return n;
+    return n;
 }
-
 
 int karte_t::raise(koord pos)
 {
@@ -1188,8 +1059,6 @@ bool karte_t::can_lower_to(int x, int y, int h) const
     return ok;
 }
 
-
-
 bool karte_t::can_lower(int x, int y) const
 {
     if(x >= 0 && y >= 0 && x <= gib_groesse() && y<= gib_groesse()) {
@@ -1199,63 +1068,47 @@ bool karte_t::can_lower(int x, int y) const
     }
 }
 
-
-
 int karte_t::lower_to(int x, int y, int h)
 {
-  const koord pos (x, y);
+    planquadrat_t *plan = access(x,y);
 
-  planquadrat_t *plan = access(pos);
+    int n = 0;
 
-  int n = 0;
+    if(ist_in_gittergrenzen(x,y)) {
+	if(lookup_hgt(koord(x, y)) > h) {
+	    setze_grid_hgt(koord(x, y), h);
 
-  if(ist_in_gittergrenzen(x,y)) {
-    if(lookup_hgt(pos) > h) {
-      setze_grid_hgt(pos, h);
+	    n = 1;
 
-      n = 1;
+	    n += lower_to(x-1, y-1, h+16);
+	    n += lower_to(x  , y-1, h+16);
+	    n += lower_to(x+1, y-1, h+16);
+	    n += lower_to(x-1, y  , h+16);
 
-      n += lower_to(x-1, y-1, h+16);
-      n += lower_to(x  , y-1, h+16);
-      n += lower_to(x+1, y-1, h+16);
-      n += lower_to(x-1, y  , h+16);
+	    n += lower_to(x, y, h);
 
-      n += lower_to(x, y, h);
+	    n += lower_to(x+1, y  , h+16);
+	    n += lower_to(x-1, y+1, h+16);
+	    n += lower_to(x  , y+1, h+16);
+	    n += lower_to(x+1, y+1, h+16);
 
-      n += lower_to(x+1, y  , h+16);
-      n += lower_to(x-1, y+1, h+16);
-      n += lower_to(x  , y+1, h+16);
-      n += lower_to(x+1, y+1, h+16);
+	    if(plan)
+		plan->abgesenkt( this );
 
-      calc_slope(pos);
-      calc_slope(pos - koord(1, 0));
-      calc_slope(pos - koord(0, 1));
-      calc_slope(pos - koord(1, 1));
+	    if((plan = access(x-1,y)) != NULL)
+		plan->abgesenkt( this );
 
+	    if((plan = access(x,y-1)) != NULL)
+		plan->abgesenkt( this );
 
-      if(plan) {
-	plan->abgesenkt( this );
-      }
+	    if((plan = access(x-1,y-1)) != NULL)
+		plan->abgesenkt( this );
 
-      if((plan = access(x-1,y))) {
-	plan->abgesenkt( this );
-      }
-
-      if((plan = access(x,y-1))) {
-	plan->abgesenkt( this );
-      }
-
-      if((plan = access(x-1,y-1))) {
-	plan->abgesenkt( this );
-      }
-
-      wkz_set_slope(0, this, pos, get_slope(pos));
+	}
     }
-  }
 
-  return n;
+    return n;
 }
-
 
 
 int karte_t::lower(koord pos)
@@ -1270,8 +1123,6 @@ int karte_t::lower(koord pos)
 
     return n;
 }
-
-
 
 bool
 karte_t::ebne_planquadrat(koord pos, int hgt)
@@ -1303,35 +1154,27 @@ karte_t::ebne_planquadrat(koord pos, int hgt)
 }
 
 
-
 void
 karte_t::setze_maus_funktion(int (* funktion)(spieler_t *, karte_t *, koord),
                              int zeiger_bild,
 			     int zeiger_versatz,
-			     int ok_sound,
-			     int ko_sound)
+			     int ok_sound /*= 0*/,
+			     int ko_sound /*= 0*/)
 {
     setze_maus_funktion(
-	(int (*)(spieler_t *, karte_t *, koord, value_t))funktion,
-	zeiger_bild, zeiger_versatz, 0l, ok_sound, ko_sound);
+	(int (*)(spieler_t *, karte_t *, koord, long))funktion,
+	zeiger_bild, zeiger_versatz, 0, ok_sound, ko_sound);
 }
 
 
-
-/**
- * Spezialvarainte mit einem Parameter, der immer übergeben wird
- * Hajo: changed parameter type from long to value_t because some
- *       parts of the code pass pointers
- * @author V. Meyer, Hj. Malthaner
- */
 void
 karte_t::setze_maus_funktion(int (* funktion)(spieler_t *, karte_t *, koord,
-					      value_t param),
+					      long),
                              int zeiger_bild,
 			     int zeiger_versatz,
-			     value_t param,
-			     int ok_sound,
-			     int ko_sound)
+			     long param,
+			     int ok_sound /*= 0*/,
+			     int ko_sound /*= 0*/)
 {
     // gibt es eien neue funktion ?
     if(funktion != NULL) {
@@ -1363,7 +1206,7 @@ void karte_t::new_mountain(int x, int y, int w, int h, int t)
 {
     int i,j,n;
 
-    DBG_MESSAGE("karte_t::new_mountain()",
+    dbg->message("karte_t::new_mountain()",
 		 "New mountain %d+%d, %d+%d, %d",x,w,y,h,t);
 
     for(n=0; n<abs(t); n++){
@@ -1392,15 +1235,15 @@ karte_t::access(const int i, const int j)
 
 
 /**
- * Sets grid height.
- * Never set grid_hgts manually, always
+ * Sets grid height. Synchronized map grounds with
+ * new height. Never set grid_hgts manually, always
  * use this method.
  * @author Hj. Malthaner
  */
-void karte_t::setze_grid_hgt(koord k, int hgt)
+void karte_t::setze_grid_hgt(koord k, short hgt)
 {
   if(ist_in_gittergrenzen(k.x, k.y)) {
-    grid_hgts[k.x + k.y*(cached_groesse+1)] = (hgt >> 4);
+    grid_hgts[k.x + k.y*(cached_groesse+1)] = hgt;
   }
 }
 
@@ -1431,121 +1274,109 @@ karte_t::max_hgt(const koord pos) const
 
 // -------- Verwaltung von Fabriken -----------------------------
 
-
 bool
 karte_t::add_fab(fabrik_t *fab)
 {
-	assert(fab != NULL);
-	fab_list.insert( fab );
-	return true;
+    assert(fab != NULL);
+    fab_list.insert( fab );
+    return true;
 }
 
 bool
 karte_t::rem_fab(fabrik_t *fab)
 {
-	assert(fab != NULL);
-	return fab_list.remove( fab );
+    assert(fab != NULL);
+    return fab_list.remove( fab );
 }
+
+int
+karte_t::gib_fab_index(fabrik_t *fab)
+{
+    return fab_list.index_of(fab);
+}
+
 
 fabrik_t *
-karte_t::get_random_fab() const
+karte_t::gib_fab(int index)
 {
-	const int anz = fab_list.count();
-	fabrik_t *result = NULL;
-
-	if(anz > 0) {
-		const int end = simrand( anz );
-		result = (fabrik_t *)fab_list.at(end);
-	}
-	return result;
+    return (fabrik_t *)fab_list.at(index);
 }
 
-
-/*----------------------------------------------------------------------------------------------------------------------*/
-/* same procedure for tourist attractions */
+const slist_tpl<fabrik_t *> &
+karte_t::gib_fab_list() const
+{
+    return fab_list;
+}
 
 void
 karte_t::add_ausflugsziel(gebaeude_t *gb)
 {
-	assert(gb != NULL);
-	ausflugsziele.append( gb );
-	if(gb->gib_passagier_level()>ausflugsziel_max_pax) {
-		ausflugsziel_max_pax = gb->gib_passagier_level();
-	}
-
-	// add it to pax destination search array
-	if(ausflugsziele_accumulated_level->get_size()<=ausflugsziele.count()) {
-		array_tpl<int> *new_ausflugsziele_accumulated_level = new array_tpl<int> ( ausflugsziele_accumulated_level->get_size()+64 );
-		for( int i=0;  i<ausflugsziele_accumulated_level->get_size();  i++ ) {
-			new_ausflugsziele_accumulated_level->at(i) = ausflugsziele_accumulated_level->at(i);
-		}
-		delete ausflugsziele_accumulated_level;
-		ausflugsziele_accumulated_level = new_ausflugsziele_accumulated_level;
-	}
-
-	// this is an array for weigthing pax destinations
-	ausflugsziele_accumulated_level->at(ausflugsziele.count()-1) = all_ausflugsziele_top_pax;
-	all_ausflugsziele_top_pax += gb->gib_tile()->gib_besch()->gib_level();
-DBG_DEBUG("karte_t::add_ausflugsziel()","ausflugziel %s added at pos %i (top level %i)", gb->gib_tile()->gib_besch()->gib_name(), ausflugsziele.count()-1,  all_ausflugsziele_top_pax );
+    assert(gb != NULL);
+    ausflugsziele.insert( gb );
 }
 
-void
-karte_t::remove_ausflugsziel(gebaeude_t *gb)
+const slist_tpl<gebaeude_t*> &
+karte_t::gib_ausflugsziele() const
 {
-	assert(gb != NULL);
-
-	const int pax_level = gb->gib_tile()->gib_besch()->gib_level();
-	all_ausflugsziele_top_pax -= pax_level;
-	// first remove from passenger generation array ...
-	int index = ausflugsziele.index_of( gb );
-DBG_DEBUG("karte_t::remove_ausflugsziel()","ausflugziel %s removed at pos %i (top level %i)", gb->gib_tile()->gib_besch()->gib_name(), index,  all_ausflugsziele_top_pax );
-	while(index+1<ausflugsziele.count()) {
-		ausflugsziele_accumulated_level->at(index) = ausflugsziele_accumulated_level->at(index+1)-pax_level;
-		index ++;
-	}
-	ausflugsziele.remove( gb );
+    return ausflugsziele;
 }
 
 
-#if 0
-/* binary search: always searches whole array, since they might be duplicated entries */
-static int binary_search_of_array_of_int(array_tpl<int> *arr, const int top, const int target)
+void karte_t::add_label(koord pos)
 {
-	int lower, middle, upper;
-	lower = 0;    upper = top;
-
-	while(upper >= lower) {
-		middle = (upper + lower) / 2;
-		if(arr->at(middle)<target) {
-			lower = middle + 1;
-		}
-		else {
-			upper = middle - 1;
-		}
-	}
-	return upper;
+    if(!labels.contains(pos)) {
+	labels.append(pos);
+    }
 }
 
-#endif
-
-
-/* select a random target for a tourist; targets are weighted by their importance */
-const gebaeude_t *
-karte_t::gib_random_ausflugsziel() const
+void karte_t::remove_label(koord pos)
 {
-	if(all_ausflugsziele_top_pax>0  &&  ausflugsziele.count()>0) {
-		const int target = simrand(all_ausflugsziele_top_pax);
-		int i;
-		// faster would be a bsearch ...
-		for( i=1;  i<ausflugsziele.count()  &&  ausflugsziele_accumulated_level->at(i)<target;  i++  ) {
-			;
-		}
-//DBG_DEBUG("karte_t::gib_random_ausflugsziel()","found attraction %s at %i.", ausflugsziele.at(i-1)->gib_tile()->gib_besch()->gib_name(), i-1 );
-		return ausflugsziele.at(i-1);
-	}
-	// so there are no destinations ... should never occur ...
-	dbg->fatal("karte_t::gib_random_ausflugsziel()","nothing found.");
-	return NULL;
+    labels.remove(pos);
+}
+
+
+const slist_tpl<koord> &
+karte_t::gib_label_list() const
+{
+    return labels;
+}
+
+
+const slist_tpl<convoihandle_t> &
+karte_t::gib_convoi_list() const
+{
+    return convoi_list;
+}
+
+
+bool
+karte_t::add_convoi(convoihandle_t &cnv)
+{
+    assert(cnv.is_bound());
+    convoi_list.insert( cnv );
+    return true;
+}
+
+
+bool
+karte_t::rem_convoi(convoihandle_t &cnv)
+{
+    return convoi_list.remove( cnv );
+}
+
+
+fabrik_t *
+karte_t::get_random_fab() const
+{
+    const int anz = fab_list.count();
+    fabrik_t *result = NULL;
+
+    if(anz > 0) {
+        const int end = simrand( anz );
+	result = (fabrik_t *)fab_list.at(end);
+
+    }
+    return result;
 }
 
 
@@ -1557,7 +1388,8 @@ karte_t::suche_naechste_stadt(const koord pos) const
     int min_dist = 99999999;
     stadt_t * best = NULL;
 
-    for(int n=0; n<stadt->get_count(); n++) {
+    for(int n=0; n<einstellungen->gib_anzahl_staedte(); n++) {
+	if( stadt->at(n) ) {
 	    const koord k = stadt->at(n)->gib_pos();
 
 	    const int dist = (pos.x-k.x)*(pos.x-k.x) + (pos.y-k.y)*(pos.y-k.y);
@@ -1568,6 +1400,7 @@ karte_t::suche_naechste_stadt(const koord pos) const
 		min_dist = dist;
 		best = stadt->at(n);
 	    }
+	}
     }
     return best;
 }
@@ -1581,7 +1414,8 @@ karte_t::suche_naechste_stadt(const koord pos, const stadt_t *letzte) const
     const int letzte_dist = (letzte_pos.x-pos.x)*(letzte_pos.x-pos.x) + (letzte_pos.y-pos.y)*(letzte_pos.y-pos.y);
     bool letzte_gefunden = false;
 
-    for(int n=0; n<stadt->get_count(); n++) {
+    for(int n=0; n<einstellungen->gib_anzahl_staedte(); n++) {
+	if( stadt->at(n) ) {
 	    const koord k = stadt->at(n)->gib_pos();
 
 	    const int dist = (pos.x-k.x)*(pos.x-k.x) + (pos.y-k.y)*(pos.y-k.y);
@@ -1596,12 +1430,12 @@ karte_t::suche_naechste_stadt(const koord pos, const stadt_t *letzte) const
 		    best = stadt->at(n);
 		}
 	    }
+	}
     }
     return best;
 }
 
 
-#if 0
 /**
  * suche Haltestellen fuer einen Passagier/fracht
  * um den Punkt k herum - k selbst wird nicht geprüft!!!
@@ -1710,7 +1544,6 @@ karte_t::suche_nahe_haltestellen(const koord k,
 
     return halt_list;
 }
-#endif
 
 
 
@@ -1748,6 +1581,7 @@ karte_t::sync_prepare()
 void
 karte_t::sync_step(const long delta_t)
 {
+
   slist_iterator_tpl<sync_steppable*> iter (sync_list);
 
   // Hajo: we use a slight hack here to remove the current
@@ -1757,6 +1591,7 @@ karte_t::sync_step(const long delta_t)
 
   while(ok) {
     sync_steppable *ss = iter.get_current();
+
 
     // unsigned long T0 = get_current_time_millis();
 
@@ -1770,14 +1605,11 @@ karte_t::sync_step(const long delta_t)
     }
 
     // unsigned long T1 = get_current_time_millis();
+
     // if(T1-T0 > 40) {
     //    dbg->warning("karte_t::sync_step()", "%p needed %d ms for step", ss, T1-T0);
     // }
 
-  }
-
-  for(int x=0; x<8; x++) {
-    gib_spieler(x)->age_messages(delta_t);
   }
 
   ticks += delta_t;
@@ -1792,27 +1624,12 @@ karte_t::neuer_monat()
 {
     letzter_monat ++;
 
-DBG_MESSAGE("karte_t::neuer_monat()","Month %d has started", letzter_monat);
-
-	// change grounds to winter?
-	const int tage = 1+(ticks >> karte_t::ticks_bits_per_tag);
-	const int current_season=(2+tage/3)&3; // summer always zero
-	if(  season!=current_season  ) {
-		season = current_season;
-		boden_t::toggle_season( current_season );
-//		setze_dirty();
-	}
-
-    // hsiegeln - call new month for convois
-    slist_iterator_tpl<convoihandle_t> citer (convoi_list);
-    while(citer.next()) {
-	convoihandle_t cnv = citer.get_current();
-	cnv->new_month();
-    }
-
-    INT_CHECK("simworld 1701");
+    dbg->message("karte_t::neuer_monat()",
+		 "Month %d has started", letzter_monat);
 
     slist_iterator_tpl<fabrik_t*> iter (fab_list);
+    int i;
+
     while(iter.next()) {
 	fabrik_t * fab = iter.get_current();
 	fab->neuer_monat();
@@ -1820,8 +1637,7 @@ DBG_MESSAGE("karte_t::neuer_monat()","Month %d has started", letzter_monat);
 
     INT_CHECK("simworld 1278");
 
-    int i;
-    for(i=0; i<stadt->get_count(); i++) {
+    for(i=0; i<einstellungen->gib_anzahl_staedte(); i++) {
 	stadt->at(i)->neuer_monat();
 	INT_CHECK("simworld 1282");
     }
@@ -1834,53 +1650,6 @@ DBG_MESSAGE("karte_t::neuer_monat()","Month %d has started", letzter_monat);
     }
 
     INT_CHECK("simworld 1289");
-    slist_iterator_tpl <halthandle_t> halt_iter (haltestelle_t::gib_alle_haltestellen());
-    while( halt_iter.next() ) {
-      halt_iter.get_current()->neuer_monat();
-    }
-
-    stadtauto_t::built_timeline_liste();
-    INT_CHECK("simworld 1299");
-
-    simlinemgmt->new_month();
-    INT_CHECK("simworld 1301");
-
-    slist_iterator_tpl <weg_t *> weg_iter (weg_t::gib_alle_wege());
-    while( weg_iter.next() ) {
-      weg_iter.get_current()->neuer_monat();
-    }
-
-	// prissi: check for new/retired vehicles
-	if(umgebung_t::use_timeline) {
-		const int month_now = (gib_zeit_ms() >> karte_t::ticks_bits_per_tag) + (umgebung_t::starting_year * 12);
-		char	buf[256];
-
-		for(i=vehikel_besch_t::strasse; i<vehikel_besch_t::luft; i++) {
-			int j=0;
-			const vehikel_besch_t *info;
-			while((info = vehikelbauer_t::gib_info((vehikel_besch_t::weg_t)i, j))) {
-				j++;
-
-				const int intro_month =info->get_intro_year() * 12 + info->get_intro_month();
-				if(intro_month == month_now) {
-					sprintf(buf,
-						translator::translate("New vehicle now available:\n%s\n"),
-						translator::translate(info->gib_name()));
-						message_t::get_instance()->add_message(buf,koord::invalid,message_t::new_vehicle,NEW_VEHICLE,info->gib_basis_bild());
-				}
-
-				const int retire_month =info->get_retire_year() * 12 + info->get_retire_month();
-				if(retire_month == month_now) {
-					sprintf(buf,
-						translator::translate("Production of vehicle has been stopped:\n%s\n"),
-						translator::translate(info->gib_name()));
-						message_t::get_instance()->add_message(buf,koord::invalid,message_t::new_vehicle,NEW_VEHICLE,info->gib_basis_bild());
-				}
-
-			}
-		}
-	}
-
 }
 
 
@@ -1888,10 +1657,8 @@ void karte_t::neues_jahr()
 {
     letztes_jahr ++;
 
-    DBG_MESSAGE("karte_t::neues_jahr()","Year %d has started", letztes_jahr);
-    char buf[256];
-    sprintf(buf,translator::translate("Year %i has started."),letztes_jahr+umgebung_t::starting_year);
-    message_t::get_instance()->add_message(buf,koord::invalid,message_t::general,SCHWARZ,skinverwaltung_t::neujahrsymbol->gib_bild_nr(0));
+    dbg->message("karte_t::neues_jahr()",
+		 "Year %d has started", letztes_jahr);
 
     slist_iterator_tpl<convoihandle_t> iter (convoi_list);
 
@@ -1910,127 +1677,72 @@ void karte_t::neues_jahr()
 static long step_group_times[GRUPPEN];
 
 
-
 void karte_t::step(const long delta_t)
 {
-	const int step_group = steps % GRUPPEN;
-	unsigned int i;
+    const int step_group = steps % GRUPPEN;
+    const int step_group_step = steps / GRUPPEN;
+    unsigned int i;
 
-	// due to the scheduling in several parts, we must remember the last number of intervalls
-	for(i=0; i<GRUPPEN; i++) {
-		step_group_times[i] += delta_t;
+    for(i=0; i<GRUPPEN; i++) {
+	step_group_times[i] += delta_t;
+    }
+
+    const long delta_t_sum = step_group_times[step_group];
+    step_group_times[step_group] = 0;
+
+    int check_counter = 0;
+
+
+    for(i=step_group; i < cached_groesse2; i+=GRUPPEN) {
+
+	plan[i].step(delta_t_sum, step_group_step);
+
+	if(((++check_counter) & 63) == 0) {
+	    INT_CHECK("simworld 1076");
+	    interactive_update();
 	}
-	// the we use this accumulated value
-	const long delta_t_sum = step_group_times[step_group];
+    }
 
-	// did the at least 25 ms passed (this makes maximum simloop something below 40)
-	if(delta_t_sum>350) {
+    steps ++;
 
-		// and reset it
-		step_group_times[step_group] = 0;
-		// how many steps passed?
-		const int step_group_step = (steps / GRUPPEN);
-		// true delta t ...
-//		const long all_delta_t = delta_t_sum-step_group_times[(step_group+1)%GRUPPEN];
+    if(ticks > ((letzter_monat + 1)) << ticks_bits_per_tag) {
+	// neuer monat
 
-		int check_counter = 0;
-		const int cached_groesse2 = cached_groesse*cached_groesse;
-		for(i=step_group; i<cached_groesse2; i+=GRUPPEN) {
-			plan[i].step(delta_t_sum, step_group_step);
+	neuer_monat();
 
-			if(((++check_counter) & 63) == 0) {	// every 64 one update ...
-				INT_CHECK("simworld 1076");
-				interactive_update();
-			}
-		}
-
-		// Hajo: Convois need extra frequent steps to avoid unneccesary
-		// long waiting times
-		{
-			slist_iterator_tpl <convoihandle_t> iter (convoi_list);
-
-			while( iter.next() ) {
-				if(iter.get_current().is_bound()) {
-					iter.get_current()->step();
-					INT_CHECK("simworld 1947");
-				}
-			}
-		}
-		interactive_update();
-
-		// now step all towns
-		for(unsigned int n=0; n<stadt->get_count(); n++) {
-			stadt->at(n)->step();
-			INT_CHECK("simworld 1959");
-			interactive_update();
-		}
-
-		// then step all players
-		INT_CHECK("simworld 1975");
-		interactive_update();
-		spieler[steps & 7]->step();
-
-		// ok, next step
-		steps ++;
-		INT_CHECK("simworld 1975");
-		interactive_update();
-
-		if(ticks > ((letzter_monat + 1)) << ticks_bits_per_tag) {
-			// neuer monat
-			neuer_monat();
-
-			if(letzter_monat % 12 == 0) {
-				neues_jahr();
-			}
-		}
+	if(letzter_monat % 12 == 0) {
+            neues_jahr();
 	}
-}
-
-
-
-/**
- * If this is true, the map will not be scrolled
- * on right-drag
- * @author Hj. Malthaner
- */
-void karte_t::set_scroll_lock(bool yesno)
-{
-  scroll_lock = yesno;
+    }
 }
 
 
 void
 karte_t::blick_aendern(event_t *ev)
 {
-  if(!scroll_lock) {
-    const int raster = get_tile_raster_width();
-    const int xmask = raster - 1;
-    const int ymask = raster/2 - 1;
+  const int raster = get_tile_raster_width();
+  const int xmask = raster - 1;
+  const int ymask = raster/2 - 1;
 
-    int xd = -x_off/2;
-    int yd = -y_off/2;
+  int xd = -x_off/2;
+  int yd = -y_off/2;
 
-    xd += (ev->mx - ev->cx) * einstellungen->gib_scroll_multi();
-    yd += (ev->my - ev->cy) * einstellungen->gib_scroll_multi();
+  xd += (ev->mx - ev->cx) * einstellungen->gib_scroll_multi();
+  yd += (ev->my - ev->cy) * einstellungen->gib_scroll_multi();
 
-    const int dx = (xd & ~xmask) / (raster/2);
-    const int dy = (yd & ~ymask) / (raster/4);
+  const int dx = (xd & ~xmask) / (raster/2);
+  const int dy = (yd & ~ymask) / (raster/4);
 
-    x_off = -(xd & xmask)*2;
-    y_off = -(yd & ymask)*2;
+  x_off = -(xd & xmask)*2;
+  y_off = -(yd & ymask)*2;
 
-    setze_ij_off(gib_ij_off() + koord(dx+dy, dy-dx));
+  // koord(i_off + (dx+dy), j_off + (dy-dx));
+  setze_ij_off(gib_ij_off() + koord(dx+dy, dy-dx));
 
 
-    if ((ev->mx - ev->cx) != 0 || (ev->my - ev->cy) != 0) {
-      intr_refresh_display( true );
-
-#ifdef __BEOS__
-      change_drag_start(ev->mx - ev->cx, ev->my - ev->cy);
-#else
-      display_move_pointer(ev->cx, ev->cy);
-#endif
-    }
+  if ((ev->mx - ev->cx) != 0 || (ev->my - ev->cy) != 0) {
+    intr_refresh_display( true );
+    display_move_pointer(ev->cx, ev->cy);
   }
 }
 
@@ -2038,15 +1750,12 @@ karte_t::blick_aendern(event_t *ev)
 // nordhang = 3
 // suedhang = 12
 
-/**
- * Calculates slope for grid at pos.
- * @author Hj. Malthaner
- */
-void karte_t::calc_slope(const koord pos)
+int
+karte_t::calc_hang_typ(const koord pos) const
 {
   if(ist_in_kartengrenzen(pos.x, pos.y)) {
 
-    const sint8 * p = &grid_hgts[pos.x + pos.y*(cached_groesse+1)];
+    short * p = &grid_hgts[pos.x + pos.y*(cached_groesse+1)];
 
     const int h1 = *p;
     const int h2 = *(p+1);
@@ -2055,14 +1764,14 @@ void karte_t::calc_slope(const koord pos)
 
     const int mini = min(min(h1,h2), min(h3,h4));
 
-    slopes[pos.x+pos.y*cached_groesse]=
-      ((h1>mini)<<3) +
+    return ((h1>mini)<<3) +
       ((h2>mini)<<2) +
       ((h3>mini)<<1) +
       ((h4>mini));
+  } else {
+    return 0;  // Hajo: Annahme: ausserhalb der Karte ist alles Flach
   }
 }
-
 
 bool
 karte_t::ist_wasser(koord pos, koord dim) const
@@ -2080,7 +1789,7 @@ karte_t::ist_wasser(koord pos, koord dim) const
 }
 
 bool
-karte_t::ist_platz_frei(koord pos, int w, int h, int *last_y, bool slope_check ) const
+karte_t::ist_platz_frei(koord pos, int w, int h, int *last_y) const
 {
     koord k;
 
@@ -2095,7 +1804,8 @@ karte_t::ist_platz_frei(koord pos, int w, int h, int *last_y, bool slope_check )
 	for(k.x=pos.x; k.x<pos.x+w; k.x++) {
 	    const grund_t *gr = lookup( k )->gib_kartenboden();
 
-	    if(  (slope_check && gr->gib_grund_hang() != hang_t::flach) ||  !gr->ist_natur() ||
+	    if(gr->gib_grund_hang() != hang_t::flach ||
+	       !gr->ist_natur() ||
 	       /*gr->ist_wasser() || *//*Wasser liefert als ist_natur() false */
 	       gr->kann_alle_obj_entfernen(NULL) != NULL)
 	    {
@@ -2108,8 +1818,6 @@ karte_t::ist_platz_frei(koord pos, int w, int h, int *last_y, bool slope_check )
     }
     return true;
 }
-
-
 
 slist_tpl<koord> *
 karte_t::finde_plaetze(int w, int h) const
@@ -2180,10 +1888,10 @@ karte_t::speichern(const char *filename)
 #ifndef DEMO
     loadsave_t  file;
 
-    DBG_MESSAGE("karte_t::speichern()", "saving game to '%s'", filename);
+    dbg->message("karte_t::speichern()", "saving game to '%s'", filename);
 
 
-    if(!file.wr_open(filename)) {
+    if(!file.wr_open(filename, true)) {
 	create_win(-1, -1, new nachrichtenfenster_t(this, "Kann Spielstand\nnicht speichern.\n"), w_autodelete);
 	perror("Error");
     } else {
@@ -2204,18 +1912,16 @@ karte_t::speichern(loadsave_t *file)
 
     einstellungen->rdwr(file);
 
-    file->rdwr_long(ticks, " ");
+    file->rdwr_int(ticks, " ");
     file->rdwr_int(letzter_monat, " ");
     file->rdwr_int(letztes_jahr, "\n");
 
     for(i=0; i<einstellungen->gib_anzahl_staedte(); i++) {
 	stadt->at(i)->rdwr(file);
     }
-	DBG_MESSAGE("karte_t::speichern(loadsave_t *file)", "saved cities");
 
     blockmanager *bm = blockmanager::gib_manager();
     bm->rdwr(this, file);
-	DBG_MESSAGE("karte_t::speichern(loadsave_t *file)", "saved bm");
 
     for(j=0; j<gib_groesse(); j++) {
 	for(i=0; i<gib_groesse(); i++) {
@@ -2224,7 +1930,6 @@ karte_t::speichern(loadsave_t *file)
 	display_progress(j, gib_groesse());
 	display_flush(0, 0, 0, "", "");
     }
-	DBG_MESSAGE("karte_t::speichern(loadsave_t *file)", "saved access");
 
     for(j=0; j<=gib_groesse(); j++) {
 	for(i=0; i<=gib_groesse(); i++) {
@@ -2232,17 +1937,6 @@ karte_t::speichern(loadsave_t *file)
 	    file->rdwr_int(hgt, "\n");
 	}
     }
-	DBG_MESSAGE("karte_t::speichern(loadsave_t *file)", "saved hgt");
-
-    // Hajo: save slopes
-
-    for(j=0; j<gib_groesse(); j++) {
-      for(i=0; i<gib_groesse(); i++) {
-	sint8 slope = get_slope(koord(i, j));
-	file->rdwr_signed_char(slope, ",");
-      }
-    }
-	DBG_MESSAGE("karte_t::speichern(loadsave_t *file)", "saved slopes");
 
     int fabs = fab_list.count();
 
@@ -2252,12 +1946,6 @@ karte_t::speichern(loadsave_t *file)
     while(fiter.next()) {
 	(fiter.get_current())->rdwr(file);
     }
-	DBG_MESSAGE("karte_t::speichern(loadsave_t *file)", "saved fabs");
-
-    // save linemanagement status (and lines)
-    // @author hsiegeln
-    simlinemgmt->rdwr(this, file);
-    DBG_MESSAGE("karte_t::speichern(loadsave_t *file)", "saved lines");
 
     slist_iterator_tpl<convoihandle_t> citer ( convoi_list );
 
@@ -2266,12 +1954,10 @@ karte_t::speichern(loadsave_t *file)
     }
 
     file->wr_obj_id("Ende Convois");
-    DBG_MESSAGE("karte_t::speichern(loadsave_t *file)", "saved convois");
 
     for(i=0; i<8 ; i++) {
 	spieler[i]->rdwr(file);
     }
-	DBG_MESSAGE("karte_t::speichern(loadsave_t *file)", "saved players");
 
     i = gib_ij_off().x;
     j = gib_ij_off().y;
@@ -2279,11 +1965,9 @@ karte_t::speichern(loadsave_t *file)
     file->rdwr_int(i, " ");
     file->rdwr_int(j, "\n");
 
-    // Hajo: once this should be removed -> it makes IMO
-    // no sense to save the UI language with a game ?!
-    // translator::rdwr( file );
+    translator::rdwr( file );
 
-    display_speichern( file->gib_file(), file->is_zipped());
+    display_speichern( file->gib_file() );
 }
 
 
@@ -2295,7 +1979,7 @@ karte_t::laden(const char *filename)
 #ifndef DEMO
     loadsave_t file;
 
-    DBG_MESSAGE("karte_t::laden", "loading game from '%s'", filename);
+    dbg->message("karte_t::laden", "loading game from '%s'", filename);
 
     if(!file.rd_open(filename)) {
 
@@ -2305,20 +1989,13 @@ karte_t::laden(const char *filename)
         else {
 	    create_win(-1, -1, new nachrichtenfenster_t(this, "Kann Spielstand\nnicht laden.\n"), w_autodelete);
         }
-    } else if(file.get_version() < 84006) {
+    } else if(file.get_version() < 81009) {
 	create_win(-1, -1, new nachrichtenfenster_t(this, "WRONGSAVE"), w_autodelete);
 
-  }
-  else {
-	// close all open windows
-	{
-		destroy_all_win();
-		event_t ev;
-		ev.ev_class=EVENT_NONE;
-		check_pos_win(&ev);
-	}
+    } else {
+	destroy_all_win();
 
-	DBG_MESSAGE("karte_t::laden()","Savegame version is %d", file.get_version());
+	dbg->message("karte_t::laden()","Savegame version is %d", file.get_version());
 
 	laden(&file);
 	file.close();
@@ -2330,20 +2007,15 @@ karte_t::laden(const char *filename)
     display_show_pointer(true);
 }
 
-
-void karte_t::laden(loadsave_t *file)
+void
+karte_t::laden(loadsave_t *file)
 {
     char buf[80];
     int i,j;
 
-    setze_maus_funktion(wkz_abfrage, skinverwaltung_t::fragezeiger->gib_bild_nr(0), Z_PLAN, 0, 0);
+    setze_maus_funktion(wkz_abfrage, skinverwaltung_t::fragezeiger->gib_bild_nr(0), Z_PLAN);
 
     intr_disable();
-
-
-    // powernets zum laden vorbereiten -> tabelle loeschen
-    powernet_t::prepare_loading();
-
 
     // alte werte merken fuer neuen Zeiger
     const int bild = zeiger->gib_bild();
@@ -2360,37 +2032,32 @@ void karte_t::laden(loadsave_t *file)
     // Datenstrukturen loeschen
     destroy();
 
+
     // jetzt geht das laden los
-    DBG_MESSAGE("karte_t::laden", "Fileversion: %d", file->get_version());
+
     einstellungen->rdwr(file);
-    DBG_DEBUG("karte_t::laden", "einstellungen loaded (groesse %i)",einstellungen->gib_groesse());
 
     // wird gecached, um den Pointerzugriff zu sparen, da
     // die groesse _sehr_ oft referenziert wird
     cached_groesse = einstellungen->gib_groesse();
+    cached_groesse2 = cached_groesse*cached_groesse;
 
-    // Reliefkarte an neue welt anpassen
-    reliefkarte_t::gib_karte( this )->setze_welt(this);
 
     //12-Jan-02     Markus Weber added
     grundwasser = einstellungen->gib_grundwasser();
-DBG_DEBUG("karte_t::laden()","grundwasser %i",grundwasser);
 
-    DBG_DEBUG("karte_t::laden", "init felder ... ");
+
     init_felder();
-    DBG_DEBUG("karte_t::laden", "init felder ok");
-
     hausbauer_t::neue_karte();
 
-    file->rdwr_long(ticks, " ");
+    file->rdwr_int(ticks, " ");
     file->rdwr_int(letzter_monat, " ");
     file->rdwr_int(letztes_jahr, "\n");
     steps = 0;
 
-    DBG_DEBUG("karte_t::laden", "init %i cities",einstellungen->gib_anzahl_staedte());
-    stadt = new vector_tpl <stadt_t *> (einstellungen->gib_anzahl_staedte());
     for(i=0; i<einstellungen->gib_anzahl_staedte(); i++) {
-	stadt->append( new stadt_t(this, file) );
+	stadt->at(i) = new stadt_t(this, file);
+
 	// printf("Loading city %s\n", stadt->get(i)->gib_name());
     }
 
@@ -2420,88 +2087,47 @@ DBG_DEBUG("karte_t::laden()","grundwasser %i",grundwasser);
 	}
     }
 
+    if(file->get_version() < 80005) {
+	while( true ) {
+	    file->rd_obj_id(buf, 79);
 
-    if(file->get_version() < 82001) {
+    //	printf("%s", buf);
 
-      // Hajo: init slopes
-      for(j=0; j<gib_groesse(); j++) {
-	for(i=0; i<gib_groesse(); i++) {
-	  calc_slope(koord(i, j));
+	    if(strequ(buf, "Ende Fablist")) {
+		break;
+	    } else {
+		// liste in gleicher reihenfolge wie vor dem speichern wieder aufbauen
+		fab_list.append( new fabrik_t(this, file) );
+	    }
 	}
-      }
     } else {
-      // Hajo: load slopes
+	int fabs;
 
-      for(j=0; j<gib_groesse(); j++) {
-	for(i=0; i<gib_groesse(); i++) {
-	  sint8 slope;
-	  file->rdwr_signed_char(slope, ",");
-	  set_slope(koord(i, j), slope);
+	file->rdwr_int(fabs, "\n");
+
+	for(i = 0; i < fabs; i++) {
+	    // liste in gleicher reihenfolge wie vor dem speichern wieder aufbauen
+	    fab_list.append( new fabrik_t(this, file) );
 	}
-      }
     }
 
-    int fabs;
-
-    file->rdwr_int(fabs, "\n");
-
-    for(i = 0; i < fabs; i++) {
-	// liste in gleicher reihenfolge wie vor dem speichern wieder aufbauen
-	fab_list.append( new fabrik_t(this, file) );
-    }
-
-    if (fab_list.count() > 0) {
-      gib_fab(0)->laden_abschliessen();
-    }
-
-    DBG_MESSAGE("karte_t::laden()", "%d factories loaded", fab_list.count());
-
-    // load linemanagement status (and lines)
-    // @author hsiegeln
-    if (file->get_version() > 82003)
-    {
-      file->rd_obj_id(buf, 79);
-      if(tstrequ(buf, "Linemanagement")) {
-	simlinemgmt->rdwr(this, file);
-      }
-      DBG_MESSAGE("karte_t::laden()", "%d lines loaded", simlinemgmt->count_lines());
-    }
-    // end load linemanagement
+    dbg->message("karte_t::laden()", "%d factories loaded", fab_list.count());
 
     while( true ) {
         file->rd_obj_id(buf, 79);
 
-	// printf("'%s'\n", buf);
+//	printf("%s", buf);
 
-	if(tstrequ(buf, "Ende Convois")) {
+	if(strequ(buf, "Ende Convois")) {
 	    break;
 	} else {
 	    convoi_t *cnv = new convoi_t(this, file);
 	    convoi_list.insert( cnv->self );
-
-	    // printf("----\n%s\n", cnv->gib_name());
-	    // cnv->dump();
-
-
-	    if(cnv->in_depot()) {
-	        grund_t * gr = lookup(cnv->gib_pos());
-
-		depot_t *dep = gr ? gr->gib_depot() : 0;
-
-		if(dep) {
-		    dep->convoi_arrived(cnv, false);
-		} else {
-		    dbg->warning("karte_t::laden()", "no depot for convoi");
-		    delete cnv;
-		}
-	    }
-	    else {
-		sync_add( cnv );
-	    }
+	    sync_add( cnv );
 	}
     }
 
-    DBG_MESSAGE("karte_t::laden()", "%d convois/trains loaded", convoi_list.count());
+    dbg->message("karte_t::laden()", "%d convois/trains loaded", convoi_list.count());
 
     // reinit pointer with new pointer object and old values
     zeiger = new zeiger_t(this, koord3d(0,0,0), spieler[0]);	// Zeiger ist spezialobjekt
@@ -2512,9 +2138,8 @@ DBG_DEBUG("karte_t::laden()","grundwasser %i",grundwasser);
     for(i=0; i<8 ; i++) {
 	spieler[i]->rdwr(file);
     }
-    DBG_MESSAGE("karte_t::laden()", "players loaded");
     for(i = 0; i < 6; i++) {
-	umgebung_t::automaten[i] = spieler[i + 2]->is_active();
+	umgebung_t::automaten[i] = spieler[i + 2]->automat;
     }
 
     // nachdem die welt jetzt geladen ist können die Blockstrecken neu
@@ -2522,25 +2147,20 @@ DBG_DEBUG("karte_t::laden()","grundwasser %i",grundwasser);
     bm->laden_abschliessen();
 
     // auch die fabrikverbindungen können jetzt neu init werden
-    for(i=0; i<stadt->get_count(); i++) {
+    for(i=0; i<einstellungen->gib_anzahl_staedte(); i++) {
 	stadt->at(i)->laden_abschliessen();
     }
+
 
     file->rdwr_delim("View ");
     file->rdwr_int(i, " ");
     file->rdwr_int(j, "\n");
-    DBG_MESSAGE("karte_t::laden()", "Setting view to %d,%d", i, j);
+    dbg->message("karte_t::laden()", "Setting view to %d,%d", i, j);
     setze_ij_off(koord(i, j));
 
+    translator::rdwr( file );
 
-    if(file->get_version() < 84001) {
-      translator::rdwr( file );
-    }
-
-    display_laden(file->gib_file(), file->is_zipped());
-
-    DBG_MESSAGE("karte_t::laden()", "%d ways loaded",
-		 weg_t::gib_alle_wege().count());
+    display_laden( file->gib_file());
 
     for(j=0; j<gib_groesse(); j++) {
 	for(i=0; i<gib_groesse(); i++) {
@@ -2559,32 +2179,40 @@ DBG_DEBUG("karte_t::laden()","grundwasser %i",grundwasser);
 
 	      if(d) {
 		d->laden_abschliessen();
+
+		/* Hajo: not needed anymore
+		switch(d->gib_typ()) {
+		case ding_t::gebaeudefundament:
+		  d->setze_bild(0, grund_besch_t::fundament->gib_bild(calc_hang_typ(koord(i,j))));
+		  break;
+		case ding_t::signal:
+		  dynamic_cast<signal_t *>(d)->calc_bild();
+		  break;
+		case ding_t::oberleitung:
+		  dynamic_cast<oberleitung_t *>(d)->calc_bild();
+		  break;
+		default:
+		  // Hajo: do nothing
+		  break;
+		}
+		*/
 	      }
 	    }
 	  }
 	}
     }
 
-    // register all line stops
-    simlinemgmt->laden_abschliessen();
 
     // Reliefkarte an neue welt anpassen
     win_setze_welt( this );
     reliefkarte_t::gib_karte( this )->init();
 
-	// change grounds to winter?
-	const int tage = 1+(ticks >> karte_t::ticks_bits_per_tag);
-	const int current_season=(2+tage/3)&3; // summer always zero
-	if(  season!=current_season  ) {
-		season = current_season;
-		boden_t::toggle_season( current_season );
-	}
     setze_dirty();
 
     intr_enable();
 }
 
-// Hilfsfunktionen zum Speichern
+// Hilffunktionen zum Speichern
 
 int
 karte_t::sp2num(spieler_t *sp)
@@ -2672,13 +2300,11 @@ static void warte_auf_mausklick_oder_taste(event_t *ev)
     do {
 	win_get_event(ev);
     }while( !(IS_LEFTRELEASE(ev) ||
-	      (ev->ev_class == EVENT_KEYBOARD &&
-	       (ev->ev_code >= 32 && ev->ev_code < 256))));
+	      (ev->ev_class == EVENT_KEYBOARD && ev->ev_code < 256)));
 }
 
 
-void karte_t::do_pause()
-{
+static void do_pause() {
     display_fillbox_wh(display_get_width()/2-100, display_get_height()/2-50,
                                200,100, MN_GREY2, true);
     display_ddd_box(display_get_width()/2-100, display_get_height()/2-50,
@@ -2694,35 +2320,12 @@ void karte_t::do_pause()
     event_t ev;
     display_flush_buffer();
     warte_auf_mausklick_oder_taste(&ev);
-
-    // Reset timers
-    sync_last_time_now();
-    intr_set_last_time(get_system_ms());
-    last_step_time = get_current_time_millis();
-
-    // Hajo: this actually is too conservative but the correct
-    // solution is way too difficult for a simple pause function ...
-	// init for a good separation
-	for(int i=0; i<GRUPPEN; i++) {
-		step_group_times[i] = (350*i)/GRUPPEN;
-	}
+    intr_set_last_time(get_current_time_millis());
 }
 
-
-/**
- * I tried to make it more centering than the old -5,-5.
- * Looks okay, but still map height effects position.
- * @author Volker Meyer
- * @date  20.06.2003
- */
 void karte_t::zentriere_auf(koord k)
 {
-    //setze_ij_off(k + koord(-5,-5));
-
-
-    const int dp_height = display_get_height() / get_tile_raster_width();
-
-    setze_ij_off(k - koord(dp_height - 3, dp_height - 2));
+  setze_ij_off(k + koord(-5,-5));
 }
 
 
@@ -2842,21 +2445,6 @@ void karte_t::bewege_zeiger(const event_t *ev)
     }
 }
 
-
-/**
- * Creates a tooltip from tip text and money value
- * @author Hj. Malthaner
- */
-static char * tool_tip_with_price(const char * tip, int price)
-{
-  static char buf[256];
-
-  const int n = sprintf(buf, "%s, ", tip);
-  money_to_string(buf+n, price/-100.0);
-  return buf;
-}
-
-
 void
 karte_t::interactive_event(event_t &ev)
 {
@@ -2868,7 +2456,7 @@ karte_t::interactive_event(event_t &ev)
 
 
     if(ev.ev_class == EVENT_KEYBOARD) {
-	DBG_MESSAGE("karte_t::interactive_event()",
+	dbg->message("karte_t::interactive_event()",
 		     "Keyboard event with code %d '%c'",
 		     ev.ev_code, ev.ev_code);
 
@@ -2883,13 +2471,12 @@ karte_t::interactive_event(event_t &ev)
 	    break;
 	case '!':
 	    sound_play(click_sound);
-            umgebung_t::show_names = (umgebung_t::show_names+1) & 3;
+            umgebung_t::show_names = !umgebung_t::show_names;
 	    setze_dirty();
 	    break;
 	case '"':
 	    sound_play(click_sound);
 	    gebaeude_t::hide = !gebaeude_t::hide;
-	    baum_t::hide = !baum_t::hide;
 	    setze_dirty();
 	    break;
 	case '#':
@@ -2900,16 +2487,11 @@ karte_t::interactive_event(event_t &ev)
 	case 167:    // Hajo: '§'
 	    verteile_baeume(3);
 	    break;
-
 	case 'a':
-	  setze_maus_funktion(wkz_abfrage, skinverwaltung_t::fragezeiger->gib_bild_nr(0), Z_PLAN, 0, 0);
+	    setze_maus_funktion(wkz_abfrage, skinverwaltung_t::fragezeiger->gib_bild_nr(0), Z_PLAN);
 	    break;
 	case 'b':
-	    setze_maus_funktion(wkz_blocktest, skinverwaltung_t::signalzeiger->gib_bild_nr(0), Z_PLAN, 0, 0);
-	    break;
-	case 'B':
-	    sound_play(click_sound);
-	    create_win(0, 0, new message_frame_t(this), w_info);
+	    setze_maus_funktion(wkz_blocktest, skinverwaltung_t::signalzeiger->gib_bild_nr(0), Z_PLAN);
 	    break;
 	case 'c':
 	    sound_play(click_sound);
@@ -2917,25 +2499,25 @@ karte_t::interactive_event(event_t &ev)
 	    create_win(-1, -1, 60, new nachrichtenfenster_t(this, "Screenshot\ngespeichert.\n"), w_autodelete);
             break;
 	case 'd':
-	    setze_maus_funktion(wkz_lower, skinverwaltung_t::downzeiger->gib_bild_nr(0), Z_GRID, 0, 0);
+	    setze_maus_funktion(wkz_lower, skinverwaltung_t::downzeiger->gib_bild_nr(0), Z_GRID);
 	    break;
 	case 'e':
 	    setze_maus_funktion(wkz_electrify_block,
 				skinverwaltung_t::oberleitung->gib_bild_nr(8),
-				Z_PLAN, 0, 0);
+				Z_PLAN);
 	    break;
 	case 'f': /* OCR: Finances */
 	    sound_play(click_sound);
-         create_win(-1, -1, -1, gib_spieler(0)->gib_money_frame(), w_info);
+	    create_win(-1, -1, -1, new money_frame_t(gib_spieler(0)), w_autodelete, magic_finances_t);
 	    break;
 	case 'g':
 	    if(skinverwaltung_t::senke) {
-		setze_maus_funktion(wkz_senke, skinverwaltung_t::undoc_zeiger->gib_bild_nr(0), Z_PLAN, 0, 0);
+		setze_maus_funktion(wkz_senke, skinverwaltung_t::undoc_zeiger->gib_bild_nr(0), Z_PLAN);
 	    }
 	    break;
 
 	case 'I':
-	  setze_maus_funktion(wkz_build_industries_land, skinverwaltung_t::undoc_zeiger->gib_bild_nr(0), Z_PLAN, 0, 0);
+	  setze_maus_funktion(wkz_build_industries, skinverwaltung_t::undoc_zeiger->gib_bild_nr(0), Z_PLAN);
 	    break;
 
 	case 'k':
@@ -2943,23 +2525,16 @@ karte_t::interactive_event(event_t &ev)
 	    break;
 	case 'l':
 	    if(wegbauer_t::leitung_besch) {
-			setze_maus_funktion(wkz_wegebau,
-					wegbauer_t::leitung_besch->gib_cursor()->gib_bild_nr(0),
-					    Z_PLAN,
-					    (const void *)wegbauer_t::leitung_besch, 0, 0);
+		setze_maus_funktion(wkz_wegebau, skinverwaltung_t::undoc_zeiger->gib_bild_nr(0), Z_PLAN,
+		    (long)wegbauer_t::leitung);
 	    }
 	    break;
 	case 'm':
 	    create_win(-1, -1, -1, new map_frame_t(this), w_info, magic_reliefmap);
 	    break;
 	case 'M':
-	    setze_maus_funktion(wkz_marker, skinverwaltung_t::belegtzeiger->gib_bild_nr(0), Z_PLAN, 0, 0);
+	    setze_maus_funktion(wkz_marker, skinverwaltung_t::belegtzeiger->gib_bild_nr(0), Z_PLAN);
 	    break;
-#ifdef USE_DRIVABLES
-        case 'n':
-            setze_maus_funktion(wkz_test_new_cars, skinverwaltung_t::belegtzeiger->gib_bild_nr(0), Z_PLAN, 0, 0);
-            break;
-#endif
 	case 'p':
 	    sound_play(click_sound);
 	    do_pause();
@@ -2967,48 +2542,34 @@ karte_t::interactive_event(event_t &ev)
 	case 'r':
 	    setze_maus_funktion(wkz_remover, skinverwaltung_t::killzeiger->gib_bild_nr(0), Z_PLAN, SFX_REMOVER, SFX_FAILURE);
 	    break;
-/*
-	case 'R':
-		// rotate the view
-	    set_rotation( (get_rotation()+1)&1 );
-	    break;
-*/
 	case 's':
-	    setze_maus_funktion(wkz_wegebau, wegbauer_t::gib_besch("asphalt_road")->gib_cursor()->gib_bild_nr(0), Z_PLAN,
-				(long)wegbauer_t::gib_besch("asphalt_road"), 0, 0);
-	    break;
-	case 'v':
-	    umgebung_t::station_coverage_show = !umgebung_t::station_coverage_show;
-	    setze_dirty();
+	    setze_maus_funktion(wkz_wegebau, skinverwaltung_t::strassenzeiger->gib_bild_nr(0), Z_PLAN,
+		(long)wegbauer_t::strasse);
 	    break;
 	case 't':
-	    setze_maus_funktion(wkz_wegebau, wegbauer_t::gib_besch("wooden_sleeper_track")->gib_cursor()->gib_bild_nr(0), Z_PLAN,
-				(long)wegbauer_t::gib_besch("wooden_sleeper_track"), 0, 0);
+	    setze_maus_funktion(wkz_wegebau, skinverwaltung_t::schienenzeiger->gib_bild_nr(0), Z_PLAN,
+		(long)wegbauer_t::schiene);
 	    break;
 	case 'u':
-	    setze_maus_funktion(wkz_raise, skinverwaltung_t::upzeiger->gib_bild_nr(0), Z_GRID, 0, 0);
+	    setze_maus_funktion(wkz_raise, skinverwaltung_t::upzeiger->gib_bild_nr(0), Z_GRID);
 	    break;
 	case 'w':
-	    sound_play(click_sound);
-	    create_win(0, 0, -1, new schedule_list_gui_t(this), w_info);
+	    create_win(272,160, -1,
+		       new schedule_list_gui_t(this),
+		       w_info,
+		       magic_schedule_list_gui_t);
 	    break;
 	case '+':
 	    display_set_light(display_get_light()+1);
-	    setze_dirty();
 	    break;
 	case '-':
 	    display_set_light(display_get_light()-1);
-	    setze_dirty();
 	    break;
+
 	case 'C':
 	    sound_play(click_sound);
-	    setze_maus_funktion(wkz_add_city, skinverwaltung_t::stadtzeiger->gib_bild_nr(0), Z_GRID, 0, 0);
+	    setze_maus_funktion(wkz_add_city, skinverwaltung_t::stadtzeiger->gib_bild_nr(0), Z_GRID);
 	    break;
-
-	case 'G':
-	  create_win(0, 0,new goods_frame_t(), w_autodelete);
-	  break;
-
 	case 'Q':
 	case 'X':
 	    sound_play(click_sound);
@@ -3016,13 +2577,18 @@ karte_t::interactive_event(event_t &ev)
 	    //beenden();        // 02-Nov-2001  Markus Weber    Function has a new parameter
             beenden(false);
 	    break;
+	case 'P':
+	    if(wegbauer_t::leitung_besch) {
+		setze_maus_funktion(wkz_pumpe, skinverwaltung_t::undoc_zeiger->gib_bild_nr(0), Z_PLAN);
+	    }
+	    break;
 	case 'L':
 	    sound_play(click_sound);
 	    create_win(new loadsave_frame_t(this, true), w_info, magic_load_t);
 	    break;
 #ifdef AUTOTEST
 	case 'R':
-	    setze_maus_funktion(tst_railtest, skinverwaltung_t::undoc_zeiger->gib_bild_nr(0), Z_PLAN, 0, 0);
+	    setze_maus_funktion(tst_railtest, skinverwaltung_t::undoc_zeiger->gib_bild_nr(0), Z_PLAN);
 	    break;
 #endif
 	case 'S':
@@ -3030,15 +2596,6 @@ karte_t::interactive_event(event_t &ev)
 	    create_win(new loadsave_frame_t(this, false), w_info, magic_save_t);
 	    break;
 
-	case 'T':
-	    sound_play(click_sound);
-	    create_win(0, 0, new citylist_frame_t(this), w_info);
-	    break;
-
-	case 'z':
-		wkz_undo(gib_spieler(0),this);
-		break;
-	    /*
 #ifdef AUTOTEST
 	case 'T':
 	    {
@@ -3047,17 +2604,6 @@ karte_t::interactive_event(event_t &ev)
 	    }
 	    break;
 #endif
-	    */
-	    /*
-#ifdef AUTOTEST
-	case '%':
-	  create_win(0, 0,
-		     new buildings_frame_t(),
-		     w_autodelete);
-	    break;
-#endif
-		*/
-
 	case 'V':
 	    sound_play(click_sound);
 	    create_win(-1, -1, -1, new convoi_frame_t(gib_spieler(0), this), w_autodelete, magic_convoi_t);
@@ -3076,30 +2622,26 @@ karte_t::interactive_event(event_t &ev)
 	    break;
 
 	case '6':
-	case KEY_RIGHT:
 	    setze_ij_off(gib_ij_off()+koord(+1,-1));
 	    break;
 	case '2':
-	case KEY_DOWN:
 	    setze_ij_off(gib_ij_off()+koord(+1,+1));
 	    break;
 	case '8':
-	case KEY_UP:
 	    setze_ij_off(gib_ij_off()+koord(-1,-1));
 	    break;
 	case '4':
-	case KEY_LEFT:
 	    setze_ij_off(gib_ij_off()+koord(-1,+1));
 	    break;
 
 
-	case '>':
-	  win_set_zoom_factor(get_zoom_factor() > 1 ? get_zoom_factor()-1 : 1);
+	case '<':
+	  set_zoom_factor(get_zoom_factor() > 1 ? get_zoom_factor()-1 : 1);
 	  setze_dirty();
 	  break;
 
-	case '<':
-	  win_set_zoom_factor(get_zoom_factor() < 4 ? get_zoom_factor()+1 : 4);
+	case '>':
+	  set_zoom_factor(get_zoom_factor() < 4 ? get_zoom_factor()+1 : 4);
 	  setze_dirty();
 	  break;
 
@@ -3114,17 +2656,13 @@ karte_t::interactive_event(event_t &ev)
 
 	    break;
 	case 0:
-	case 13:
 	    // just ignore the key
 	    break;
 	default:
-	// ignore special keys
-	if (ev.ev_code <= 255) {
-	    DBG_MESSAGE("karte_t::interactive_event()",
+	    dbg->message("karte_t::interactive_event()",
 			 "key `%c` is not bound to a function.",ev.ev_code);
 
 	    create_win(new help_frame_t("keys.txt"), w_autodelete, magic_none);
-	}
 	}
     }
 
@@ -3142,501 +2680,136 @@ karte_t::interactive_event(event_t &ev)
 		create_win(-1, -1, -1, new map_frame_t(this), w_info, magic_reliefmap);
 		break;
 	    case 2:
-		setze_maus_funktion(wkz_abfrage, skinverwaltung_t::fragezeiger->gib_bild_nr(0), Z_PLAN, 0, 0);
+		setze_maus_funktion(wkz_abfrage, skinverwaltung_t::fragezeiger->gib_bild_nr(0), Z_PLAN);
 		break;
 	    case 3:
-		setze_maus_funktion(wkz_raise, skinverwaltung_t::upzeiger->gib_bild_nr(0), Z_GRID, 0, 0);
+		setze_maus_funktion(wkz_raise, skinverwaltung_t::upzeiger->gib_bild_nr(0), Z_GRID);
 		break;
 	    case 4:
-		setze_maus_funktion(wkz_lower, skinverwaltung_t::downzeiger->gib_bild_nr(0), Z_GRID, 0, 0);
+		setze_maus_funktion(wkz_lower, skinverwaltung_t::downzeiger->gib_bild_nr(0), Z_GRID);
 		break;
 	    case 5:
                 {
 		    werkzeug_waehler_t *wzw =
-                        new werkzeug_waehler_t(this,
-					       skinverwaltung_t::hang_werkzeug,
-					       "SLOPETOOLS");
-
-		    // wzw->setze_hilfe_datei("railtools.txt");
-
-		    wzw->setze_werkzeug(0,
-					wkz_set_slope,
-					skinverwaltung_t::slopezeiger->gib_bild_nr(0),
-					Z_PLAN,
-					(long)0,
-					SFX_JACKHAMMER,
-					SFX_FAILURE);
-		    wzw->set_tooltip(0, "Experimental feature, use at your own risk!");
-
-		    wzw->setze_werkzeug(1,
-					wkz_set_slope,
-					skinverwaltung_t::slopezeiger->gib_bild_nr(0),
-					Z_PLAN,
-					(long)3,
-					SFX_JACKHAMMER,
-					SFX_FAILURE);
-		    wzw->set_tooltip(1, "Experimental feature, use at your own risk!");
-
-
-		    wzw->setze_werkzeug(2,
-					wkz_set_slope,
-					skinverwaltung_t::slopezeiger->gib_bild_nr(0),
-					Z_PLAN,
-					(long)6,
-					SFX_JACKHAMMER,
-					SFX_FAILURE);
-		    wzw->set_tooltip(2, "Experimental feature, use at your own risk!");
-
-
-		    wzw->setze_werkzeug(3,
-					wkz_set_slope,
-					skinverwaltung_t::slopezeiger->gib_bild_nr(0),
-					Z_PLAN,
-					(long)9,
-					SFX_JACKHAMMER,
-					SFX_FAILURE);
-		    wzw->set_tooltip(3, "Experimental feature, use at your own risk!");
-
-
-		    wzw->setze_werkzeug(4,
-					wkz_set_slope,
-					skinverwaltung_t::slopezeiger->gib_bild_nr(0),
-					Z_PLAN,
-					(long)12,
-					SFX_JACKHAMMER,
-					SFX_FAILURE);
-		    wzw->set_tooltip(4, "Experimental feature, use at your own risk!");
-
-
-		    wzw->setze_werkzeug(5,
-					wkz_set_slope,
-					skinverwaltung_t::slopezeiger->gib_bild_nr(0),
-					Z_PLAN,
-					(long)16,
-					SFX_JACKHAMMER,
-					SFX_FAILURE);
-		    wzw->set_tooltip(5, "Experimental feature, use at your own risk!");
-
-
-		    wzw->setze_werkzeug(6,
-					wkz_set_slope,
-					skinverwaltung_t::slopezeiger->gib_bild_nr(0),
-					Z_PLAN,
-					(long)17,
-					SFX_JACKHAMMER,
-					SFX_FAILURE);
-		    wzw->set_tooltip(6, "Experimental feature, use at your own risk!");
-
-
-		    sound_play(click_sound);
-
-		    wzw->zeige_info(magic_slopetools);
-                }
-		break;
-	    case 6:
-                {
-		    werkzeug_parameter_waehler_t *wzw =
-                        new werkzeug_parameter_waehler_t(this, "RAILTOOLS");
+                        new werkzeug_waehler_t(this, skinverwaltung_t::schienen_werkzeug, "RAILTOOLS");
 
 		    wzw->setze_hilfe_datei("railtools.txt");
 
-		    wegbauer_t::fill_menu(wzw,
-					  weg_t::schiene,
-					  wkz_wegebau,
-					  SFX_JACKHAMMER,
-					  SFX_FAILURE
-					  );
-
-		    brueckenbauer_t::fill_menu(wzw,
-					  weg_t::schiene,
-					  SFX_JACKHAMMER,
-					  SFX_FAILURE
-					  );
-
-		    wzw->add_tool(wkz_signale,
-				  Z_LINES,
-				  SFX_GAVEL,
-				  SFX_FAILURE,
-				  skinverwaltung_t::schienen_werkzeug->gib_bild_nr(0),
-				  skinverwaltung_t::signalzeiger->gib_bild_nr(0),
-				  tool_tip_with_price(translator::translate("Build signals"), CST_SIGNALE));
-
-		    wzw->add_tool(wkz_presignals,
-				  Z_LINES,
-				  SFX_GAVEL,
-				  SFX_FAILURE,
-				  skinverwaltung_t::schienen_werkzeug->gib_bild_nr(7),
-				  skinverwaltung_t::signalzeiger->gib_bild_nr(0),
-				  tool_tip_with_price(translator::translate("Build presignals"), CST_SIGNALE));
-
-		    hausbauer_t::fill_menu(wzw,
-					  hausbauer_t::train_stops,
-					  wkz_bahnhof,
-					  SFX_JACKHAMMER,
-					  SFX_FAILURE,
-					  CST_BAHNHOF);
-
-		    if(hausbauer_t::bahn_depot_besch) {
-		      wzw->add_tool(wkz_bahndepot,
-				    Z_PLAN,
-				    SFX_GAVEL,
-				    SFX_FAILURE,
-					hausbauer_t::bahn_depot_besch->gib_cursor()->gib_bild_nr(1),
-					hausbauer_t::bahn_depot_besch->gib_cursor()->gib_bild_nr(0),
-				    tool_tip_with_price(translator::translate("Build train depot"), CST_BAHNDEPOT));
-		    }
-
-
-		    if(tunnelbauer_t::schienentunnel) {
-		      wzw->add_param_tool(&tunnelbauer_t::baue,
-					  weg_t::schiene,
-					  Z_PLAN,
-					  SFX_JACKHAMMER,
-					  SFX_FAILURE,
-					  skinverwaltung_t::schienen_werkzeug->gib_bild_nr(3),
-					  skinverwaltung_t::schienentunnelzeiger->gib_bild_nr(0),
-					  tool_tip_with_price(translator::translate("Schienentunnel"), CST_TUNNEL));
-		    }
-
-
-		    wzw->add_tool(wkz_electrify_block,
-				  Z_PLAN,
-				  SFX_JACKHAMMER,
-				  SFX_FAILURE,
-				  skinverwaltung_t::schienen_werkzeug->gib_bild_nr(4),
-				  skinverwaltung_t::oberleitung->gib_bild_nr(8),
-				  tool_tip_with_price(translator::translate("Electrify track"), CST_OBERLEITUNG));
-
-/*
-		    wzw->add_tool(wkz_schienenkreuz,
-				  Z_PLAN,
-				  SFX_JACKHAMMER,
-				  SFX_FAILURE,
-				  skinverwaltung_t::schienen_werkzeug->gib_bild_nr(5),
-				  skinverwaltung_t::kreuzungzeiger->gib_bild_nr(0),
-				  translator::translate("Build level crossing"));
-*/
+		    wzw->setze_werkzeug(0, wkz_wegebau, skinverwaltung_t::schienenzeiger->gib_bild_nr(0), Z_PLAN, (long)wegbauer_t::schiene, SFX_JACKHAMMER, SFX_FAILURE);
+		    wzw->setze_werkzeug(1, wkz_signale, skinverwaltung_t::signalzeiger->gib_bild_nr(0), Z_LINES, SFX_GAVEL, SFX_FAILURE);
+		    if(tunnelbauer_t::schienentunnel)
+			wzw->setze_werkzeug(2, &tunnelbauer_t::baue, skinverwaltung_t::schienentunnelzeiger->gib_bild_nr(0), Z_PLAN, (long)weg_t::schiene, SFX_JACKHAMMER, SFX_FAILURE);
+		    if(hausbauer_t::bahnhof_besch)
+			wzw->setze_werkzeug(4, wkz_bahnhof, skinverwaltung_t::bahnhofzeiger->gib_bild_nr(0), Z_PLAN, SFX_GAVEL, SFX_FAILURE);
+		    if(hausbauer_t::bahn_depot_besch)
+			wzw->setze_werkzeug(5, wkz_bahndepot, skinverwaltung_t::bahndepotzeiger->gib_bild_nr(0), Z_PLAN, SFX_GAVEL, SFX_FAILURE);
+		    wzw->setze_werkzeug(6, wkz_schienenkreuz, skinverwaltung_t::kreuzungzeiger->gib_bild_nr(0), Z_PLAN, SFX_JACKHAMMER, SFX_FAILURE);
+		    wzw->setze_werkzeug(3, wkz_electrify_block, skinverwaltung_t::oberleitung->gib_bild_nr(8), Z_PLAN, SFX_JACKHAMMER, SFX_FAILURE);
 
 		    sound_play(click_sound);
 
 		    wzw->zeige_info(magic_railtools);
                 }
 		break;
-	    case 7:
+	    case 6:
                 {
-		    werkzeug_parameter_waehler_t *wzw =
-                        new werkzeug_parameter_waehler_t(this, "ROADTOOLS");
+		    werkzeug_waehler_t *wzw =
+                        new werkzeug_waehler_t(this, skinverwaltung_t::strassen_werkzeug, "ROADTOOLS");
 
 		    wzw->setze_hilfe_datei("roadtools.txt");
 
-		    wegbauer_t::fill_menu(wzw,
-					  weg_t::strasse,
-					  wkz_wegebau,
-					  SFX_JACKHAMMER,
-					  SFX_FAILURE
-					  );
+		    wzw->setze_werkzeug(0,
+					wkz_wegebau,
+					skinverwaltung_t::strassenzeiger->gib_bild_nr(0),
+					Z_PLAN,
+					(long)wegbauer_t::strasse,
+					SFX_JACKHAMMER,
+					SFX_FAILURE);
 
-		    brueckenbauer_t::fill_menu(wzw,
-					  weg_t::strasse,
-					  SFX_JACKHAMMER,
-					  SFX_FAILURE
-					  );
-
-		    hausbauer_t::fill_menu(wzw,
-					  hausbauer_t::car_stops,
-					  wkz_bushalt,
-					  SFX_JACKHAMMER,
-					  SFX_FAILURE,
-					  CST_BUSHALT);
-
-		    if(hausbauer_t::frachthof_besch) {
-		      wzw->add_tool(wkz_frachthof,
-				    Z_PLAN,
-				    SFX_JACKHAMMER,
-				    SFX_FAILURE,
-				    skinverwaltung_t::strassen_werkzeug->gib_bild_nr(1),
-				    skinverwaltung_t::frachthofzeiger->gib_bild_nr(0),
-				    tool_tip_with_price(translator::translate("Frachthof"), CST_FRACHTHOF));
-		    }
-
-		    if(hausbauer_t::str_depot_besch) {
-			wzw->add_tool(wkz_strassendepot,
-				      Z_PLAN,
-				      SFX_GAVEL,
-				      SFX_FAILURE,
-					hausbauer_t::str_depot_besch->gib_cursor()->gib_bild_nr(1),
-					hausbauer_t::str_depot_besch->gib_cursor()->gib_bild_nr(0),
-				      tool_tip_with_price(translator::translate("Build truck depot"), CST_STRASSENDEPOT));
-		    }
-
-		    if(tunnelbauer_t::strassentunnel) {
-		      wzw->add_param_tool(&tunnelbauer_t::baue,
-					  (long)weg_t::strasse,
-					  Z_PLAN,
-					  SFX_JACKHAMMER,
-					  SFX_FAILURE,
-					  skinverwaltung_t::strassen_werkzeug->gib_bild_nr(3),
-					  skinverwaltung_t::strassentunnelzeiger->gib_bild_nr(0),
-					  tool_tip_with_price(translator::translate("Strassentunnel"), CST_TUNNEL));
-		    }
-
-/*
-		    wzw->add_tool(wkz_schienenkreuz,
-				  Z_PLAN,
-				  SFX_JACKHAMMER,
-				  SFX_FAILURE,
-				      skinverwaltung_t::strassen_werkzeug->gib_bild_nr(4),
-				  skinverwaltung_t::kreuzungzeiger->gib_bild_nr(0),
-				  translator::translate("Build level crossing"));
-*/
+		    if(hausbauer_t::bushalt_besch)
+			wzw->setze_werkzeug(1, wkz_bushalt, skinverwaltung_t::bushaltzeiger->gib_bild_nr(0), Z_PLAN, SFX_JACKHAMMER, SFX_FAILURE);
+		    if(tunnelbauer_t::strassentunnel)
+			wzw->setze_werkzeug(2, &tunnelbauer_t::baue, skinverwaltung_t::strassentunnelzeiger->gib_bild_nr(0), Z_PLAN, (long)weg_t::strasse, SFX_JACKHAMMER, SFX_FAILURE);
+		    if(hausbauer_t::frachthof_besch)
+			wzw->setze_werkzeug(4, wkz_frachthof, skinverwaltung_t::frachthofzeiger->gib_bild_nr(0), Z_PLAN, SFX_JACKHAMMER, SFX_FAILURE);
+		    if(hausbauer_t::str_depot_besch)
+			wzw->setze_werkzeug(5, wkz_strassendepot, skinverwaltung_t::strassendepotzeiger->gib_bild_nr(0), Z_PLAN, SFX_GAVEL, SFX_FAILURE);
+		    wzw->setze_werkzeug(6, wkz_schienenkreuz, skinverwaltung_t::kreuzungzeiger->gib_bild_nr(0), Z_PLAN, SFX_JACKHAMMER, SFX_FAILURE);
 
 		    sound_play(click_sound);
 
 		    wzw->zeige_info(magic_roadtools);
                 }
 		break;
-	    case 8:
+	    case 7:
                 {
-		    werkzeug_parameter_waehler_t *wzw =
-                        new werkzeug_parameter_waehler_t(this, "SHIPTOOLS");
+		    werkzeug_waehler_t *wzw =
+                        new werkzeug_waehler_t(this, skinverwaltung_t::schiffs_werkzeug, "SHIPTOOLS");
 
 		    wzw->setze_hilfe_datei("shiptools.txt");
 
-		    hausbauer_t::fill_menu(wzw,
-					  hausbauer_t::ship_stops,
-					  wkz_dockbau,
-					  SFX_JACKHAMMER,
-					  SFX_FAILURE,
-					  CST_DOCK);
-
+		    if(hausbauer_t::dock_besch)
+			wzw->setze_werkzeug(0, wkz_dockbau, skinverwaltung_t::anlegerzeiger->gib_bild_nr(0), Z_PLAN, SFX_DOCK, SFX_FAILURE);
 		    if(hausbauer_t::sch_depot_besch) {
-			    wzw->add_param_tool(wkz_schiffdepot,
-			             (long int)0,
-					  Z_LINES,
-					  SFX_GAVEL,
-					  SFX_FAILURE,
-					  skinverwaltung_t::schiffs_werkzeug->gib_bild_nr(0),
-					  skinverwaltung_t::werftNSzeiger->gib_bild_nr(0),
-					  tool_tip_with_price(translator::translate("Build ship depot"), CST_SCHIFFDEPOT));
-
-			    wzw->add_param_tool(wkz_schiffdepot,
-			             (long int)1,
-					  Z_LINES,
-					  SFX_GAVEL,
-					  SFX_FAILURE,
-					  skinverwaltung_t::schiffs_werkzeug->gib_bild_nr(1),
-					  skinverwaltung_t::werftNSzeiger->gib_bild_nr(0),
-					  tool_tip_with_price(translator::translate("Build ship depot"), CST_SCHIFFDEPOT));
-			}
+    			wzw->setze_werkzeug(4, wkz_schiffdepot_ns, skinverwaltung_t::werftNSzeiger->gib_bild_nr(0), Z_PLAN, SFX_DOCK, SFX_FAILURE);
+			wzw->setze_werkzeug(5, wkz_schiffdepot_ow, skinverwaltung_t::werftOWzeiger->gib_bild_nr(0), Z_PLAN, SFX_DOCK, SFX_FAILURE);
+		    }
 		    sound_play(click_sound);
 
 		    wzw->zeige_info(magic_shiptools);
                 }
 		break;
+	    case 8:
+		if(hausbauer_t::post_besch)
+		    setze_maus_funktion(wkz_post, skinverwaltung_t::postzeiger->gib_bild_nr(0),  Z_PLAN);
+		break;
 	    case 9:
-			if(hausbauer_t::tram_depot_besch!=NULL) {
-				werkzeug_parameter_waehler_t *wzw =
-					new werkzeug_parameter_waehler_t(this, "TRAMTOOLS");
-
-				wzw->setze_hilfe_datei("tramtools.txt");
-
-				wegbauer_t::fill_menu(wzw,
-					weg_t::schiene,
-					wkz_wegebau,
-					SFX_JACKHAMMER,
-					SFX_FAILURE,
-					7
-				);
-
-		    wzw->add_tool(wkz_electrify_block,
-				  Z_PLAN,
-				  SFX_JACKHAMMER,
-				  SFX_FAILURE,
-				  skinverwaltung_t::schienen_werkzeug->gib_bild_nr(4),
-				  skinverwaltung_t::oberleitung->gib_bild_nr(8),
-				  tool_tip_with_price(translator::translate("Electrify track"), CST_OBERLEITUNG));
-
-			wzw->add_tool(wkz_signale,
-					Z_LINES,
-					SFX_GAVEL,
-					SFX_FAILURE,
-					skinverwaltung_t::schienen_werkzeug->gib_bild_nr(0),
-					skinverwaltung_t::signalzeiger->gib_bild_nr(0),
-					tool_tip_with_price(translator::translate("Build signals"), CST_SIGNALE)
-				);
-
-			    hausbauer_t::fill_menu(wzw,
-						  hausbauer_t::train_stops,
-						  wkz_bahnhof,
-						  SFX_JACKHAMMER,
-						  SFX_FAILURE,
-						  CST_BAHNHOF);
-
-		    hausbauer_t::fill_menu(wzw,
-					  hausbauer_t::car_stops,
-					  wkz_bushalt,
-					  SFX_JACKHAMMER,
-					  SFX_FAILURE,
-					  CST_BUSHALT);
-
-				wzw->add_tool(wkz_tramdepot,
-					Z_PLAN,
-					SFX_GAVEL,
-					SFX_FAILURE,
-					hausbauer_t::tram_depot_besch->gib_cursor()->gib_bild_nr(1),
-					hausbauer_t::tram_depot_besch->gib_cursor()->gib_bild_nr(0),
-					tool_tip_with_price(translator::translate("Build tram depot"), CST_BAHNDEPOT) );
-
-				sound_play(click_sound);
-
-				wzw->zeige_info(magic_tramtools);
-		    }
-			break;
-
-	    case 10:
-		break;
-	    case 11:
-          {
-		    werkzeug_parameter_waehler_t *wzw =
-                        new werkzeug_parameter_waehler_t(this, "SPECIALTOOLS");
-
-		    wzw->setze_hilfe_datei("special.txt");
-
-		    hausbauer_t::fill_menu(wzw,
-					  hausbauer_t::post_offices,
-					  wkz_post,
-					  SFX_JACKHAMMER,
-					  SFX_FAILURE,
-					  CST_POST);
-
-		    hausbauer_t::fill_menu(wzw,
-					  hausbauer_t::station_building,
-					  wkz_station_building,
-					  SFX_JACKHAMMER,
-					  SFX_FAILURE,
-					  CST_POST);
-
-		      wzw->add_tool(wkz_add_city,
-					  Z_PLAN,
-					  SFX_JACKHAMMER,
-					  SFX_FAILURE,
-					  skinverwaltung_t::special_werkzeug->gib_bild_nr(0),
-					  skinverwaltung_t::stadtzeiger->gib_bild_nr(0),
-					  tool_tip_with_price(translator::translate("Found new city"), -500000000));
-
-		    wzw->add_tool(wkz_pflanze_baum,
-				  Z_PLAN,
-				  SFX_SELECT,
-				  SFX_FAILURE,
-				  skinverwaltung_t::special_werkzeug->gib_bild_nr(6),
-				  skinverwaltung_t::baumzeiger->gib_bild_nr(0),
-				  translator::translate("Plant tree"));
-
-		    wzw->add_tool(wkz_build_industries_land,
-				  Z_PLAN,
-				  SFX_JACKHAMMER,
-				  SFX_FAILURE,
-				  skinverwaltung_t::special_werkzeug->gib_bild_nr(3),
-				  skinverwaltung_t::undoc_zeiger->gib_bild_nr(0),
-				  translator::translate("Build land consumer"));
-
-		    wzw->add_tool(wkz_build_industries_city,
-				  Z_PLAN,
-				  SFX_JACKHAMMER,
-				  SFX_FAILURE,
-				  skinverwaltung_t::special_werkzeug->gib_bild_nr(4),
-				  skinverwaltung_t::undoc_zeiger->gib_bild_nr(0),
-				  translator::translate("Build city market"));
-
-	    if(wegbauer_t::leitung_besch) {
-		    wzw->add_param_tool(wkz_wegebau,
-				  (const void *)wegbauer_t::leitung_besch,
-				  Z_PLAN,
-				  SFX_JACKHAMMER,
-				  SFX_FAILURE,
-				  wegbauer_t::leitung_besch->gib_cursor()->gib_bild_nr(1),
-				  wegbauer_t::leitung_besch->gib_cursor()->gib_bild_nr(0),
-				  tool_tip_with_price(translator::translate("Build powerline"), 800));
-
-		      wzw->add_tool(wkz_senke,
-					  Z_PLAN,
-					  SFX_JACKHAMMER,
-					  SFX_FAILURE,
-					  skinverwaltung_t::special_werkzeug->gib_bild_nr(2),
-					  skinverwaltung_t::undoc_zeiger->gib_bild_nr(0),
-					 translator::translate("Build drain"));
-			}
-
-		      wzw->add_tool(wkz_marker,
-					  Z_PLAN,
-					  SFX_JACKHAMMER,
-					  SFX_FAILURE,
-					  skinverwaltung_t::special_werkzeug->gib_bild_nr(5),
-					 skinverwaltung_t::belegtzeiger->gib_bild_nr(0),
-					 translator::translate("Marker"));
-
-		    sound_play(click_sound);
-		    wzw->zeige_info(magic_specialtools);
-                }
-		break;
-	    case 12:
 		setze_maus_funktion(wkz_remover, skinverwaltung_t::killzeiger->gib_bild_nr(0), Z_PLAN, SFX_REMOVER, SFX_FAILURE);
 		break;
+	    case 10:
+		brueckenbauer_t::create_menu(this);
+		break;
+	    case 11:
+		setze_maus_funktion(wkz_marker, skinverwaltung_t::belegtzeiger->gib_bild_nr(0), Z_PLAN);
+		break;
+	    case 12:
+		break;
 	    case 13:
-	      // left empty
-	    break;
+		break;
 	    case 14:
 	      sound_play(click_sound);
-	      create_win(0, 0, -1, schedule_list_gui, w_info, magic_none);
-	      break;
+	      setze_maus_funktion(wkz_add_city,
+				  skinverwaltung_t::stadtzeiger->gib_bild_nr(0),
+				  Z_GRID);
+		break;
 	    case 15:
-          {
-		    werkzeug_waehler_t *wzw =
-                        new werkzeug_waehler_t(this, skinverwaltung_t::listen_werkzeug, "LISTTOOLS");
-
-		    wzw->setze_hilfe_datei("list.txt");
-
-			wzw->setze_werkzeug(0, wkz_list_halt_tool, IMG_LEER, Z_PLAN, SFX_SELECT, SFX_SELECT);
-			wzw->set_tooltip(0, translator::translate("hl_title"));
-
-			wzw->setze_werkzeug(1, wkz_list_vehicle_tool, IMG_LEER, Z_PLAN, SFX_SELECT, SFX_SELECT);
-			wzw->set_tooltip(1, translator::translate("cl_title"));
-
-			wzw->setze_werkzeug(2, wkz_list_town_tool, IMG_LEER, Z_PLAN, SFX_SELECT, SFX_SELECT);
-			wzw->set_tooltip(2, translator::translate("tl_title"));
-
-			wzw->setze_werkzeug(3, wkz_list_good_tool, IMG_LEER, Z_PLAN, SFX_SELECT, SFX_SELECT);
-			wzw->set_tooltip(3, translator::translate("gl_title"));
-
-		    sound_play(click_sound);
-
-		    wzw->zeige_info(magic_listtools);
-         }
+		// Pause: warten auf die nächste Taste
+		do_pause();
+		setze_dirty();
 		break;
-	    case 16:
+            case 16: // Station-List-Button    // 29-Dec-01    Markus Weber Added
 		sound_play(click_sound);
-	    create_win(0, 0, new message_frame_t(this), w_info);
-		break;
+		create_win(-1, -1, -1, new halt_list_frame_t(gib_spieler(0)), w_autodelete, magic_halt_list_t);
+                break;
 	    case 17:
 		sound_play(click_sound);
-           create_win(-1, -1, -1, gib_spieler(0)->gib_money_frame(), w_info);
+		create_win(-1, -1, -1, new convoi_frame_t(gib_spieler(0), this), w_autodelete, magic_convoi_t);
+		break;
+	    case 18:
+		sound_play(click_sound);
+		create_win(-1, -1, -1, new money_frame_t(gib_spieler(0)), w_autodelete, magic_finances_t);
 		break;
 	    case 19:
 		sound_play(click_sound);
                 display_snapshot();
 		create_win(-1, -1, 60, new nachrichtenfenster_t(this, "Screenshot\ngespeichert.\n"), w_autodelete);
 		break;
-	    case 20:
-		// Pause: warten auf die nächste Taste
-		do_pause();
-		setze_dirty();
-		break;
 	    }
 	} else {
 	    if(mouse_funk != NULL) {
 		koord pos (i,j);
 
-		DBG_MESSAGE("karte_t::interactive_event(event_t &ev)",
+		dbg->message("karte_t::interactive_event(event_t &ev)",
 			     "calling a tool");
 		const int ok = mouse_funk(spieler[0], this, pos, mouse_funk_param);
 
@@ -3659,20 +2832,6 @@ karte_t::interactive_event(event_t &ev)
 	}
     }
 
-    // mouse wheel scrolled -> rezoom
-    if (ev.ev_class == EVENT_CLICK) {
-    	switch (ev.ev_code) {
-    		case MOUSE_WHEELUP:
-	  			win_set_zoom_factor(get_zoom_factor() > 1 ? get_zoom_factor()-1 : 1);
-				  setze_dirty();
-    		break;
-    		case MOUSE_WHEELDOWN:
-	  			win_set_zoom_factor(get_zoom_factor() < 4 ? get_zoom_factor()+1 : 4);
-				  setze_dirty();
-    		break;
-    	}
-  	}
-
     if(ev.ev_class == EVENT_SYSTEM) {
         // hellmade 15.05.2002
         // Beenden des Programms wenn das Fenster geschlossen wird.
@@ -3694,17 +2853,13 @@ karte_t::interactive_update()
     event_t ev;
     bool swallowed = false;
 
-//    const long frame_time = get_frame_time();
+    const long frame_time = get_frame_time();
 
     do {
 	win_poll_event(&ev);
 
 	if(ev.ev_class != EVENT_NONE &&
 	   ev.ev_class != IGNORE_EVENT) {
-
-
-	  swallowed = check_pos_win(&ev);
-
 
 	  if(IS_RIGHTCLICK(&ev)) {
 	    display_show_pointer(false);
@@ -3713,6 +2868,8 @@ karte_t::interactive_update()
 	  } else if(ev.ev_class == EVENT_DRAG && ev.ev_code == MOUSE_RIGHTBUTTON) {
 	    blick_aendern(&ev);
 	  }
+
+	  swallowed = check_pos_win(&ev);
 
 	  if(ev.button_state == 0 && ev.ev_class == EVENT_MOVE) {
 	    bewege_zeiger(&ev);
@@ -3724,7 +2881,7 @@ karte_t::interactive_update()
     } while(ev.button_state != 0);
 
 
-//    set_frame_time(frame_time);
+    set_frame_time(frame_time);
 
     if (!swallowed) {
 	interactive_event(ev);
@@ -3733,104 +2890,119 @@ karte_t::interactive_update()
 
 
 
-#define MIN_LOOPS 5
-#define MAX_LOOPS 15
-#define MIN_FPS 50
-#define MAX_FPS 100
+//void
+//karte_t::interactive()        //02-Nov-2001   Markus Weber    returns true, if simutrans should be unloaded
 
 bool
 karte_t::interactive()
 {
-	unsigned long now = get_system_ms();
-	unsigned long this_step_time = 0;
+    sleep_time = 4000;
 
-	last_step_time = get_current_time_millis();
-	steps_bis_jetzt = steps;
+    doit = true;
 
-	sleep_time = 5000;
-	doit = true;
+    long now = get_current_time_millis();
 
-	// init for a good separation
-	for(int i=0; i<GRUPPEN; i++) {
-		step_group_times[i] = (350*i)/GRUPPEN;
+    long last_step_time = now;
+    long this_step_time = 0;
+
+    steps_bis_jetzt = steps;
+
+    ticker_t::get_instance()->add_msg("Welcome to Simutrans, a game created by Hj. Malthaner.", BLAU);
+
+    do {
+	// check if we need to play a new midi file
+	check_midi();
+
+//	printf("karte_t::step()\n");
+
+	INT_CHECK("simworld 2135");
+	interactive_update();
+       	simusleep(sleep_time);
+
+	INT_CHECK("simworld 2139");
+        interactive_update();
+       	simusleep(sleep_time);
+
+	INT_CHECK("simworld 2142");
+        interactive_update();
+
+	// welt steppen
+	this_step_time = get_current_time_millis();
+	step((long)(this_step_time-last_step_time));
+	last_step_time = this_step_time;
+
+	INT_CHECK("simworld 2151");
+	interactive_update();
+	simusleep(sleep_time);
+
+	INT_CHECK("simworld 2155");
+        interactive_update();
+
+        for(int n=0; n<einstellungen->gib_anzahl_staedte(); n++) {
+	  stadt->at(n)->step();
+
+	  INT_CHECK("simworld 2396");
+	  interactive_update();
 	}
 
-	// change grounds to winter?
-	season=(2+(1+(ticks >> karte_t::ticks_bits_per_tag))/3)&3; // summer always zero
-	boden_t::toggle_season( season );
-	//	setze_dirty();
+	INT_CHECK("simworld 2166");
+	interactive_update();
+	simusleep(sleep_time);
 
-	do {
-		INT_CHECK("simworld 3746");
-		interactive_update();
+	INT_CHECK("simworld 2170");
+	interactive_update();
+	spieler[steps & 7]->step();
 
-		// check if we need to play a new midi file
-		check_midi();
+	INT_CHECK("simworld 2174");
+	interactive_update();
+	simusleep(sleep_time);
 
-		INT_CHECK("simworld 3763");
-		interactive_update();
+	const long t = get_current_time_millis();
 
-		// welt steppen
-		// but this will not neccessarily result in a step!
-		this_step_time = get_current_time_millis();
-		step((long)(this_step_time-last_step_time));
-		last_step_time = this_step_time;
+	if(t > now+1000) {
+	    last_simloops = steps - steps_bis_jetzt;
 
-		INT_CHECK("simworld 3772");
-		interactive_update();
+//          printf("%d simloops, %d sleep in der letzten sekunde.\n", dt, sleep_time);
 
-		const unsigned long t = get_system_ms();
+	    const int soll = 5;
 
-		if(t > now+1000) {
-			// every second is enough ...
+            if(last_simloops < soll) {
 
-			const long stretch_factor = get_time_multi();
-			last_simloops = ( (steps - steps_bis_jetzt) * 16) / stretch_factor;
-			realFPS = (thisFPS * 1000) / (t-now);
-			lastFPS = (thisFPS * 16) / stretch_factor;
-			thisFPS = 0;
-
-			if(last_simloops<MIN_LOOPS) {
-				sleep_time = 0;
-				increase_frame_time();
-			}
-			else if(last_simloops>MAX_LOOPS) {
-				sleep_time += 1;
-			}
-			else if(last_simloops<MAX_LOOPS  &&  sleep_time>=1) {
-				sleep_time -= 1;
-			}
-
-			if(realFPS>MAX_FPS  ||  last_simloops<MIN_LOOPS) {
-				increase_frame_time();
-			} else if(realFPS<MIN_FPS  &&  last_simloops>MIN_LOOPS) {
-				reduce_frame_time();
-			}
-
-			steps_bis_jetzt = steps;
-
-			now = t;
+		// Hajo: emergency case, try to get it running,
+		// reduce idle tile to 0
+		if(last_simloops <= 1) {
+		    sleep_time = 0;
 		}
 
-		if(sleep_time>0) {
-			interactive_update();
-			if(sleep_time>25) {
-				sleep_time = 25;
-			}
-			simusleep( sleep_time );
+		if(sleep_time > 10) {
+		    sleep_time -= sleep_time/4;
 		}
+		else {
+		    increase_frame_time();
+		}
+	    }
 
+            if(last_simloops > soll) {
+		if(!reduce_frame_time()) {
+		    if(sleep_time == 0) {
+			sleep_time = 10;
+		    } else {
+			sleep_time += sleep_time/4;
+		    }
+		} else {
+		    if(sleep_time > 10) {
+			sleep_time -= sleep_time/4;
+		    }
+		}
+	    }
 
-	}while(doit);
+	    now = t;
+	    steps_bis_jetzt = steps;
+	    lastFPS = thisFPS;
+	    thisFPS = 0;
+	}
 
-	return m_quit_simutrans;      // 02-Nov-2001    Markus Weber    Added
+    }while(doit);
+
+    return m_quit_simutrans;      // 02-Nov-2001    Markus Weber    Added
 }
-
-
-
-/*
-
-if(t > now+1000) {
-last_simloops = steps - steps_bis_jetzt;
-
-*/

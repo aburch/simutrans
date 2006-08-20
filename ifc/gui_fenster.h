@@ -10,9 +10,8 @@
 #ifndef ifc_gui_fenster_h
 #define ifc_gui_fenster_h
 
-#ifndef koord_h
 #include "../dataobj/koord.h"
-#endif
+#include "../simgraph.h"
 
 struct event_t;
 
@@ -41,7 +40,6 @@ struct fensterfarben
 class gui_fenster_t
 {
 public:
-
     /**
      * Resize modes
      * @author Markus Weber
@@ -116,6 +114,18 @@ public:
      * @author Hj. Malthaner
      */
     virtual koord gib_fenstergroesse() const = 0;
+
+
+    /**
+     * Prüft, ob eine Position innerhalb der Komponente liegt.
+     * @author Hj. Malthaner
+     */
+    virtual bool getroffen(int x, int y)
+    {
+      koord	groesse = gib_fenstergroesse();
+	 return (x>=0 && y>=0 && groesse.x >= x && groesse.y >= y);
+    };
+
 
 
     /**

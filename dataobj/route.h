@@ -23,12 +23,15 @@
 #include "../ifc/fahrer.h"
 #endif
 
+#include "../tpl/vector_tpl.h"
 #include "../simdings.h"
 
 class KNode;
 class karte_t;
 class Stack;
 class route_block_tester_t;
+
+template <class T> class vector_tpl;
 
 /**
  * Routen, zB für Fahrzeuge
@@ -47,21 +50,11 @@ private:
     bool intern_calc_route(koord3d start, koord3d ziel, fahrer_t *fahr);
 
 
-    /**
-     * Während der Routensuche werden Felder markiert. Diese Methode
-     * entfernt die markierungen wieder
-     * @author Hj. Malthaner
-     */
-    void entferne_markierungen();
-
-
-    koord3d route[512];           // Die Koordinaten fuer die Fahrtroute
-
-    int max_n;
+    vector_tpl <koord3d> route;           // Die Koordinaten fuer die Fahrtroute
 
     karte_t *welt;
 
-
+#if 0
     /**
      * Hajo: 22-Jun-03 route_t was expanded to be able to check
      * blockings (i.e. red signals) while searching a path. This flag
@@ -69,7 +62,9 @@ private:
      * criteria: if the destination is a station, it is suffcient to find
      * any path to that station, not the precise coordinate.
      */
+    // only used by drivables
     route_block_tester_t *block_tester;
+#endif
 
 public:
 
@@ -85,20 +80,15 @@ public:
      * @return Koordinate an index n
      * @author Hj. Malthaner
      */
-    const koord3d & position_bei(const unsigned int n) const {
-	if(max_n < (signed int)n) {
-	    dbg->warning("route_t::position_bei()", "n (%d) > max_n (%d)", n, max_n);
-	    return route[max_n > 0 ? max_n : 0];
-	}
-	return route[n];
-    };
+    const koord3d & position_bei(const unsigned int n) const { return route.at(n); };
 
 
     /**
      * @return letzer index in der Koordinatenliste
      * @author Hj. Malthaner
      */
-    inline int gib_max_n() const {return max_n;};
+    int gib_max_n() const { return ((signed int)route.get_count())-1; };
+
 
 
     /**
@@ -121,11 +111,16 @@ public:
      */
     bool calc_route(karte_t *welt, koord3d start, koord3d ziel, fahrer_t *fahr);
 
+#if 0
+    // only used by drivables
     bool calc_unblocked_route(karte_t *w,
 			      const koord3d ziel,
 			      const koord3d start,
 			      fahrer_t *fahr,
 			      route_block_tester_t *tester);
+
+	bool find_path(karte_t * welt, const koord3d start, fahrer_t * fahr, ding_t::typ typ);
+#endif
 
     /**
      * Lädt/speichert eine Route
@@ -133,9 +128,7 @@ public:
      */
     void rdwr(loadsave_t *file);
 
-		bool is_ding_there(karte_t * welt, const koord3d pos, ding_t::typ typ);
-
-		bool find_path(karte_t * welt, const koord3d start, fahrer_t * fahr, ding_t::typ typ);
+	bool is_ding_there(karte_t * welt, const koord3d pos, ding_t::typ typ);
 };
 
 #endif

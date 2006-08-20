@@ -44,7 +44,8 @@ fabrik_info_t::fabrik_info_t(fabrik_t *fab, gebaeude_t *gb, karte_t *welt) :
   const vector_tpl <koord> & lieferziele =  fab->gib_lieferziele();
   //#ifdef _MSC_VER
   // V.Meyer: MFC has a bug with "new x[0]"
-  lieferbuttons = new button_t [MAX(1, lieferziele.get_count())];
+//  lieferbuttons = new button_t [MAX(1, lieferziele.get_count())];
+  lieferbuttons = new button_t [fabrik_t::max_lieferziele];
   //#else
   // lieferbuttons = new button_t [lieferziele.get_count()];
   //#endif
@@ -61,7 +62,8 @@ fabrik_info_t::fabrik_info_t(fabrik_t *fab, gebaeude_t *gb, karte_t *welt) :
   int y_off = lieferziele.get_count() ? (int)lieferziele.get_count()*11-11 : -33;
 
   const vector_tpl <koord> & suppliers =  fab->get_suppliers();
-  supplierbuttons = new button_t [MAX(1, suppliers.get_count())];
+//  supplierbuttons = new button_t [MAX(1, suppliers.get_count())];
+  supplierbuttons = new button_t [fabrik_t::max_suppliers];
   for(i=0; i<suppliers.get_count(); i++) {
     supplierbuttons[i].setze_pos(koord(16, 83+y_off+i*11));
     supplierbuttons[i].setze_typ(button_t::arrowright);

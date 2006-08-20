@@ -63,7 +63,7 @@
  * Table of ground texts
  * @author Hj. Malthaner
  */
-inthashtable_tpl <unsigned int, const char*> ground_texts;
+inthashtable_tpl <unsigned long, const char*> ground_texts;
 
 
 /**
@@ -99,7 +99,7 @@ void grund_t::setze_text(const char *text)
 {
   // printf("Height %x\n", (pos.z - welt->gib_grundwasser()) >> 4);
 
-  const unsigned int n =
+  const unsigned long n =
     (pos.x << 19)
     + (pos.y << 6)
     + ((pos.z - welt->gib_grundwasser()) >> 4);
@@ -131,7 +131,7 @@ const char* grund_t::gib_text() const
   const char * result = 0;
 
   if(flags & has_text) {
-    const unsigned int n =
+    const unsigned long n =
       (pos.x << 19)
       + (pos.y << 6)
       + ((pos.z - welt->gib_grundwasser()) >> 4);

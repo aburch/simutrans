@@ -449,7 +449,7 @@ DBG_DEBUG("fabrik_t::rdwr()","loading factory '%s'",s);
 			koord k=besch->gib_haus()->gib_groesse();
 DBG_DEBUG("fabrik_t::rdwr()","correction of production by %i",k.x*k.y);
 			// since we step from 86.01 per factory, not per tile!
-			prodbase *= k.x*k.y;
+			prodbase *= k.x*k.y*2;
 		}
 		// Hajo: restore factory owner
 		// Due to a omission in Volkers changes, there might be savegames

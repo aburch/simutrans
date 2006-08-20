@@ -95,7 +95,7 @@ void set_zoom_factor(int rw);
  * Initialises the graphics module
  * @author Hj. Malthaner
  */
-int simgraph_init(int width, int height, int use_shm, int do_sync);
+int simgraph_init(int width, int height, int use_shm, int do_sync, int fullscreen);
 
 /*
  * uncomment to enable unicode
@@ -123,6 +123,8 @@ bool display_load_font(const char *fname, bool large );
  */
 void	display_check_fonts(void);
 
+int display_get_font_height_small();
+int display_get_font_height();
 
 void init_images(const char *filename);
 

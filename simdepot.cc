@@ -11,11 +11,11 @@
 #include <stdio.h>
 #include <string.h>
 
+#include "simconvoi.h"
 #include "simvehikel.h"
 #include "simwin.h"
 #include "simware.h"
 #include "simhalt.h"
-#include "simconvoi.h"
 #include "simplay.h"
 #include "simworld.h"
 #include "blockmanager.h"
@@ -31,8 +31,10 @@
 #include "dataobj/loadsave.h"
 #include "dataobj/translator.h"
 
+#include "bauer/hausbauer.h"
 #include "bauer/vehikelbauer.h"
 
+#include "besch/haus_besch.h"
 
 depot_t::depot_t(karte_t *welt) :
     gebaeude_t(welt)
@@ -117,17 +119,18 @@ bool depot_t::can_convoi_start(int /*icnv*/) const
 int depot_t::buy_vehicle(int image)
 {
     if(image != -1) {
-	// Offen: prüfen ob noch platz im depot ist???
-	const vehikel_besch_t * info = vehikelbauer_t::gib_info(image);
+		// Offen: prüfen ob noch platz im depot ist???
+		const vehikel_besch_t * info = vehikelbauer_t::gib_info(image);
+DBG_DEBUG("depot_t::buy_vehicle()",info->gib_name());
+		vehikel_t *veh = vehikelbauer_t::baue(welt, gib_pos(), gib_besitzer(), NULL, info);
+DBG_DEBUG("depot_t::buy_vehicle()","vehiclebauer %p",veh);
 
-        vehikel_t *veh = vehikelbauer_t::baue(welt, gib_pos(), gib_besitzer(), NULL, info);
-
-        if(veh) {
-	    vehicles.append(veh);
-
-	    return vehicles.count() - 1;
+		if(veh) {
+			vehicles.append(veh);
+DBG_DEBUG("depot_t::buy_vehicle()","appended %i vehicle", vehicles.count());
+			return vehicles.count() - 1;
+		}
 	}
-    }
     return -1;
 }
 
@@ -470,14 +473,13 @@ depot_t::get_oldest_vehicle(int id)
 bahndepot_t::bahndepot_t(karte_t *welt, loadsave_t *file) : depot_t(welt)
 {
   rdwr(file);
+  is_tram = gib_tile()->gib_besch()==hausbauer_t::tram_depot_besch;
 }
-
 
 bahndepot_t::bahndepot_t(karte_t *welt, koord3d pos,spieler_t *sp, const haus_tile_besch_t *t) : depot_t(welt, pos, sp, t)
 {
-
+	is_tram = t->gib_besch()==hausbauer_t::tram_depot_besch;
 }
-
 
 void
 bahndepot_t::convoi_arrived(convoihandle_t cnv, bool fpl_adjust)
@@ -487,14 +489,6 @@ bahndepot_t::convoi_arrived(convoihandle_t cnv, bool fpl_adjust)
     blockmanager::gib_manager()->pruefe_blockstrecke(welt, gib_pos());
 }
 
-
-
-/*fahrplan_t *
-bahndepot_t::erzeuge_fahrplan()
-{
-    return new zugfahrplan_t();
-}
-*/
 fahrplan_t *
 bahndepot_t::erzeuge_fahrplan(fahrplan_t * fpl)
 {
@@ -517,9 +511,9 @@ bahndepot_t::can_convoi_start(int icnv) const
     blockhandle_t bs = bm->finde_blockstrecke(welt, gib_pos());
 
     // prüfe ob blockstrecke frei
-    if(bs.get_id() >= 0 && bs->ist_frei()) {
+    if(bs.is_bound() && bs->ist_frei()) {
 	// blockstrecke ist frei, wir können starten
-
+///////////////////////////Signal
 	// simuliere überfahren des ersten feldes der blockstrecke
 	int i = 0;
 
@@ -537,21 +531,19 @@ bahndepot_t::can_convoi_start(int icnv) const
 
 const vehikel_besch_t *bahndepot_t::get_vehicle_type(int itype)
 {
-    return vehikelbauer_t::gib_info(vehikel_besch_t::schiene, itype);
-}
-
-const vehikel_besch_t *strabdepot_t::get_vehicle_type(int itype){
-	return vehikelbauer_t::gib_info(vehikel_besch_t::schiene_strab, itype);
+	if(is_tram) {
+		// trams only?
+		return vehikelbauer_t::gib_info(vehikel_besch_t::schiene_strab, itype);
+	}
+	return vehikelbauer_t::gib_info(vehikel_besch_t::schiene, itype);
 }
 
 const char *
 bahndepot_t::gib_name() const
 {
-    return "Bahndepot";
+	return is_tram?"Tramdepot":"Bahndepot";
 }
 
-const char * strabdepot_t::gib_name() const {
-	return "Straßenbahndepot"; }
 
 void
 bahndepot_t::build_line_list() {
@@ -577,13 +569,6 @@ strassendepot_t::strassendepot_t(karte_t *welt, koord3d pos,spieler_t *sp, const
 
 }
 
-
-/*fahrplan_t *
-strassendepot_t::erzeuge_fahrplan()
-{
-    return new autofahrplan_t();
-}
-*/
 fahrplan_t *
 strassendepot_t::erzeuge_fahrplan(fahrplan_t * fpl)
 {
@@ -600,7 +585,6 @@ const vehikel_besch_t *strassendepot_t::get_vehicle_type(int itype)
 {
     return vehikelbauer_t::gib_info(vehikel_besch_t::strasse, itype);
 }
-
 
 const char *
 strassendepot_t::gib_name() const
@@ -625,7 +609,6 @@ schiffdepot_t::schiffdepot_t(karte_t *welt, loadsave_t *file) : depot_t(welt)
     rdwr(file);
 }
 
-
 schiffdepot_t::schiffdepot_t(karte_t *welt, koord3d pos, spieler_t *sp, const haus_tile_besch_t *t) : depot_t(welt, pos, sp, t)
 {
 
@@ -633,12 +616,6 @@ schiffdepot_t::schiffdepot_t(karte_t *welt, koord3d pos, spieler_t *sp, const ha
 
 
 
-/*fahrplan_t *
-schiffdepot_t::erzeuge_fahrplan()
-{
-    return  new schifffahrplan_t();
-}
-*/
 fahrplan_t *
 schiffdepot_t::erzeuge_fahrplan(fahrplan_t * fpl)
 {

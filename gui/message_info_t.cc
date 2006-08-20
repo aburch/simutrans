@@ -65,10 +65,3 @@ message_info_t::gib_fensterfarben() const {
 	f.dunkel = MN_GREY0;
 	return f;
 };
-
-
-/* draw it *
-message_info_t::zeichnen(koord offset)
-{
-	display_multiline_text(offset.x,offset.y,text,SCHWARZ);
-}*/

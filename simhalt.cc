@@ -513,13 +513,13 @@ int haltestelle_t::gib_status_farbe() const
  */
 void haltestelle_t::display_status(int xpos, int ypos) const
 {
-  const signed int count = warenbauer_t::gib_waren_anzahl();
+  const int count = warenbauer_t::gib_waren_anzahl();
 
   ypos -= 11;
   // all variables in the bracket MUST be signed, otherwise nothing may be drawn at all
   xpos -= (count*4 - get_tile_raster_width())/2;
 
-  for(unsigned int i=0; i+1<count; i++) {
+  for( int i=0; i+1<count; i++) {
     const ware_besch_t *wtyp = warenbauer_t::gib_info(i+1);
 
     const int v = MIN((gib_ware_summe(wtyp) >> 2) + 2, 128);
@@ -587,8 +587,8 @@ haltestelle_t::verbinde_fabriken()
 
 // check this !!!!!!!!!!!!!!!!!!!!
 	vector_tpl<fabrik_t *> &fablist = fabrik_t::sind_da_welche(welt,
-                                                  minX-umgebung_t::station_coverage_size, minY-umgebung_t::station_coverage_size,
-                                                  maxX+umgebung_t::station_coverage_size, maxY+umgebung_t::station_coverage_size);
+                                                  minX-welt->gib_einstellungen()->gib_station_coverage(), minY-welt->gib_einstellungen()->gib_station_coverage(),
+                                                  maxX+welt->gib_einstellungen()->gib_station_coverage(), maxY+welt->gib_einstellungen()->gib_station_coverage());
         fab_list.clear();
 
 	for(uint32 i=0; i<fablist.get_count(); i++) {
@@ -608,7 +608,7 @@ haltestelle_t::verbinde_fabriken()
  */
 void haltestelle_t::rebuild_destinations()
 {
-DBG_DEBUG("haltestelle_t::rebuild_destinations()", "called");
+// DBG_DEBUG("haltestelle_t::rebuild_destinations()", "called");
 
 	// Hajo: first, remove all old entries
 	warenziele.clear();
@@ -674,9 +674,39 @@ haltestelle_t::liefere_an_fabrik(const ware_t ware)
 void
 haltestelle_t::suche_route(ware_t &ware, koord *next_to_ziel)
 {
+	const ware_besch_t * warentyp = ware.gib_typ();
 	const koord ziel = ware.gib_zielpos();
+
 	// since also the factory halt list is added to the ground, we can use just this ...
 	const vector_tpl <halthandle_t> &halt_list = welt->lookup(ziel)->gib_kartenboden()->get_haltlist();
+	// but we can only use a subset of these
+	vector_tpl <halthandle_t> ziel_list (halt_list.get_count());
+	for( unsigned h=0;  h<halt_list.get_count();  h++ ) {
+		halthandle_t halt = halt_list.at(h);
+		if(	(warentyp == warenbauer_t::passagiere &&
+				halt->pax_enabled) ||
+
+				(warentyp == warenbauer_t::post &&
+				halt->post_enabled) ||
+
+				(warentyp != warenbauer_t::post &&
+				warentyp != warenbauer_t::passagiere &&
+				halt->ware_enabled)
+		) {
+			ziel_list.append( halt );
+		}
+	}
+
+	if(ziel_list.get_count()==0) {
+		ware.setze_ziel(koord::invalid);
+		ware.setze_zwischenziel(koord::invalid);
+		// printf("keine route zu %d,%d nach %d steps\n", ziel.x, ziel.y, step);
+		if(next_to_ziel!=NULL) {
+			*next_to_ziel = koord::invalid;
+		}
+//DBG_MESSAGE("suche_route()","no target near (%i,%i) out of %i stations!",ziel.x,ziel.y,halt_list.get_count());
+		return;
+	}
 
 
 	static HNode nodes[10000];
@@ -703,7 +733,6 @@ haltestelle_t::suche_route(ware_t &ware, koord *next_to_ziel)
 	static slist_tpl <HNode *> queue;
 	queue.clear();
 
-	const ware_besch_t * warentyp = ware.gib_typ();
 	int step = 1;
 	HNode *tmp;
 
@@ -722,7 +751,7 @@ haltestelle_t::suche_route(ware_t &ware, koord *next_to_ziel)
 		tmp = queue.remove_first();
 		const halthandle_t halt = tmp->halt;
 
-		if(halt_list.is_contained(halt)) {
+		if(ziel_list.is_contained(halt)) {
 			// ziel gefunden
 			goto found;
 		}
@@ -895,8 +924,8 @@ haltestelle_t::add_grund(grund_t *gr)
 
 	// appends this to the ground
 	// after that, the surrounding ground will know of this station
-	for(  int y=-umgebung_t::station_coverage_size;  y<=umgebung_t::station_coverage_size;  y++ ) {
-		for(  int x=-umgebung_t::station_coverage_size;  x<=umgebung_t::station_coverage_size;  x++ ) {
+	for(  int y=-welt->gib_einstellungen()->gib_station_coverage();  y<=welt->gib_einstellungen()->gib_station_coverage();  y++ ) {
+		for(  int x=-welt->gib_einstellungen()->gib_station_coverage();  x<=welt->gib_einstellungen()->gib_station_coverage();  x++ ) {
 			koord p=gr->gib_pos().gib_2d()+koord(x,y);
 			if(welt->ist_in_kartengrenzen(p)) {
 				welt->lookup(p)->gib_kartenboden()->add_to_haltlist( self );
@@ -930,8 +959,8 @@ haltestelle_t::rem_grund(grund_t *gb,bool final)
 	// remove this square from all grounds
 	// (only will removed, if no longer reachable)
 	if(!final) {
-		for(  int y=-umgebung_t::station_coverage_size;  y<=umgebung_t::station_coverage_size;  y++  ) {
-			for(  int x=-umgebung_t::station_coverage_size;  x<=umgebung_t::station_coverage_size;  x++  ) {
+		for(  int y=-welt->gib_einstellungen()->gib_station_coverage();  y<=welt->gib_einstellungen()->gib_station_coverage();  y++  ) {
+			for(  int x=-welt->gib_einstellungen()->gib_station_coverage();  x<=welt->gib_einstellungen()->gib_station_coverage();  x++  ) {
 				const planquadrat_t *pl = welt->lookup( gb->gib_pos().gib_2d()+koord(x,y) );
 				if(pl  &&  pl->gib_kartenboden()) {
 					pl->gib_kartenboden()->remove_from_haltlist(self);

@@ -25,7 +25,7 @@ public:
     bauplatz_sucher_t(karte_t *welt) : platzsucher_t(welt) {}
 
     virtual bool ist_platz_ok(koord pos, int b, int h) const {
-	return welt->ist_platz_frei(pos, b, h);
+	return welt->ist_platz_frei(pos, b, h, NULL, true);
     }
 };
 

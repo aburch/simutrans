@@ -7,12 +7,13 @@
  * in other projects without written permission of the author.
  */
 
-#ifndef _simgui_h
-#define _simgui_h
+#ifndef _simdepot_h
+#define _simdepot_h
 
 #include "tpl/slist_tpl.h"
 #include "dings/gebaeude.h"
 #include "convoihandle_t.h"
+#include "simconvoi.h"
 
 class karte_t;
 class vehikel_t;
@@ -38,7 +39,6 @@ private:
      * @author Hj. Malthaner
      */
     depot_frame_t *depot_info;
-
 
     /**
      * Reworked depot data!
@@ -83,11 +83,16 @@ public:
 	virtual simline_t * create_line(karte_t * welt) = 0;
 
     /**
+     * Text of the passenger tab (for gui)
+     * @author Hj. Malthaner
+     */
+    virtual const char * gib_passenger_name() = 0;
+
+    /**
      * Text of the engine tab (for gui)
      * @author Hj. Malthaner
      */
     virtual const char * gib_zieher_name() = 0;
-
 
     /**
      * Text of the car/trailer tab (for gui)
@@ -241,8 +246,6 @@ class bahndepot_t : public depot_t
 {
 protected:
 
-//fahrplan_t * erzeuge_fahrplan();
-
   fahrplan_t * erzeuge_fahrplan(fahrplan_t * fpl = NULL);
 
 	simline_t * create_line(karte_t * welt);
@@ -257,7 +260,13 @@ protected:
 	return "Waggon_tab";
     };
 
+    virtual const char * gib_passenger_name() {
+	return "Pas_tab";
+    };
+
 	void build_line_list();
+
+	bool is_tram;	// flag for tram depot
 
 public:
 
@@ -277,7 +286,7 @@ public:
     int get_y_placement() const {return -28; }
     int get_x_grid() const { return 24; }
     int get_y_grid() const { return 24; }
-    int get_max_convoi_length() const { return 16; }
+    int get_max_convoi_length() const { return convoi_t::max_rail_vehicle; }
 
     /**
      * Access to vehicle types which can be bought in the depot.
@@ -289,62 +298,7 @@ public:
     const char *gib_name() const;
 };
 
-/**
-	* Depot für Straßenbahnen
-	* @author DarioK
-	* @see bahndepot_t
-	* @see depot_t
-	* @see gebaeude_t
-	*/
-class strabdepot_t : public depot_t
-{
-protected:
 
-    fahrplan_t * erzeuge_fahrplan(fahrplan_t * fpl = NULL);
-
-	simline_t * create_line(karte_t * welt);
-
-    bool can_convoi_start(int icnv) const;
-
-    virtual const char * gib_zieher_name() {
-	return "Lokomotive_tab";
-    };
-
-    virtual const char * gib_haenger_name() {
-	return "Waggon_tab";
-    };
-
-	void build_line_list();
-
-public:
-
-	slist_tpl<simline_t *> *get_line_list();
-
-    strabdepot_t(karte_t *welt, loadsave_t *file);
-    strabdepot_t(karte_t *welt, koord3d pos,spieler_t *sp, const haus_tile_besch_t *t);
-
-    virtual void convoi_arrived(convoihandle_t cnv, bool fpl_adjust);
-
-    /**
-     * Parameters to determine layout and behaviour of the depot_frame_t.
-     * @author Volker Meyer
-     * @date  09.06.2003
-     */
-    int get_x_placement() const {return -25; }
-    int get_y_placement() const {return -28; }
-    int get_x_grid() const { return 24; }
-    int get_y_grid() const { return 24; }
-    int get_max_convoi_length() const { return 16; }
-
-    /**
-     * Access to vehicle types which can be bought in the depot.
-     * @author Volker Meyer
-     */
-    virtual const vehikel_besch_t *get_vehicle_type(int itype);
-
-    enum ding_t::typ gib_typ() const {return bahndepot;};
-    const char *gib_name() const;
-};
 
 /**
  * Depots für Straßenfahrzeuge
@@ -361,6 +315,10 @@ protected:
     fahrplan_t * erzeuge_fahrplan(fahrplan_t * fpl = NULL);
 
 	simline_t * create_line(karte_t * welt);
+
+    virtual const char * gib_passenger_name() {
+	return "Bus_tab";
+    };
 
     virtual const char * gib_zieher_name() {
 	return "LKW_tab";
@@ -415,6 +373,10 @@ protected:
     fahrplan_t * erzeuge_fahrplan(fahrplan_t * fpl = NULL);
 
 	simline_t * create_line(karte_t * welt);
+
+    virtual const char * gib_passenger_name() {
+	return "Ferry_tab";
+    };
 
     virtual const char * gib_zieher_name() {
 	return "Schiff_tab";

@@ -326,6 +326,7 @@ bool convoi_info_t::action_triggered(gui_komponente_t *komp)
 		}
 		DBG_MESSAGE("shortest route has ", "%i hops", shortest_route->gib_max_n());
 
+#if 0
 		// shortest path by Hajo
 /*		karte_t * welt = cnv->gib_welt();
 		route_t * shortest_route = new route_t();
@@ -333,6 +334,7 @@ bool convoi_info_t::action_triggered(gui_komponente_t *komp)
 		const koord3d home = shortest_route->position_bei(0);
 		DBG_MESSAGE("Depot at: ", "%i,%i,%i", home.x, home.y, home.z);
 */
+#endif
 		// if route to a depot has been found, update the convoi's schedule
 		bool b_depot_found = false;
 		if (shortest_route->gib_max_n() > -1) {

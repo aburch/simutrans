@@ -101,6 +101,10 @@ class umgebung_t
    */
   static bool verkehrsteilnehmer_info;
 
+  /* How many tiles can a simutrans car go, before it forever break ...
+   * @author prissi
+   */
+   static long stadtauto_duration;
 
   /**
    * Info-Fenster für Bäume
@@ -202,6 +206,10 @@ class umgebung_t
    * @author Hj. Malthaner
    */
   static int starting_year;
+
+
+  /* prissi: maximum number of steps for breath search */
+  static int max_route_steps;
 };
 
 #endif

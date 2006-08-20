@@ -181,92 +181,82 @@ static const uint8 double_slope_table[16] = {
 void
 boden_t::calc_bild()
 {
-    grund_t::calc_bild();
+	grund_t::calc_bild();
 
-    weg_t *weg = gib_weg(weg_t::strasse);
+	weg_t *weg = gib_weg(weg_t::strasse);
 
-    if(weg && dynamic_cast<strasse_t *>(weg)->hat_gehweg()) {
-        setze_bild(skinverwaltung_t::fussweg->gib_bild_nr(gib_grund_hang()));
-    } else if(gib_hoehe() == welt->gib_grundwasser()) {
-	setze_bild(grund_besch_t::ufer->gib_bild(gib_grund_hang()));
-    } else {
-      const int offset = show_grid * 19;
-      int hang = gib_grund_hang();
+	if(weg && dynamic_cast<strasse_t *>(weg)->hat_gehweg()) {
+		setze_bild(skinverwaltung_t::fussweg->gib_bild_nr(gib_grund_hang()));
+	} else if(gib_hoehe() == welt->gib_grundwasser()) {
+		setze_bild(grund_besch_t::ufer->gib_bild(gib_grund_hang()));
+	} else {
+		const int offset = show_grid * 19;
+		int hang = gib_grund_hang();
 
-      if(hang == 0) {
-	const int chance = simrand(1000);
-	// Hajo: variant tiles
-	if(chance < 20) {
-	  hang += 15;
-	} else if(chance < 80) {
-	  hang += 16;
-	} else if(chance < 300) {
-	  hang += 17;
-	} else if(chance < 310) {
-	  hang += 18;
+		if(hang == 0) {
+			const int chance = simrand(1000);
+			// Hajo: variant tiles
+			if(chance < 20) {
+				hang += 15;
+			} else if(chance < 80) {
+				hang += 16;
+			} else if(chance < 300) {
+				hang += 17;
+			} else if(chance < 310) {
+				hang += 18;
+			}
+		}
+		setze_bild(grund_besch_t::boden->gib_bild(hang + offset));
 	}
-      }
 
-      setze_bild(grund_besch_t::boden->gib_bild(hang + offset));
-    }
+	int back_bild = -1;
+	const koord k = gib_pos().gib_2d();
 
+	const planquadrat_t *left  = welt->lookup(k - koord(1,0));
+	const planquadrat_t *right = welt->lookup(k - koord(0,1));
+	const int height = gib_pos().z;
 
-    int back_bild = -1;
+	if(left && right) {
+		grund_t * lgr = left->gib_kartenboden();
+		grund_t * rgr = right->gib_kartenboden();
 
-    const koord k = gib_pos().gib_2d();
+		const int lhdiff = lgr->ist_wasser() ? -1 : lgr->gib_hoehe() - height;
+		const int lrdiff = rgr->ist_wasser() ? -1 : rgr->gib_hoehe() - height;
 
-    const planquadrat_t *left  = welt->lookup(k - koord(1,0));
-    const planquadrat_t *right = welt->lookup(k - koord(0,1));
-    const int height = gib_pos().z;
+		const uint8 slope_this =  welt->get_slope(k);
+		const uint8 slope_left =  welt->get_slope(k - koord(1,0));
+		const uint8 slope_right = welt->get_slope(k - koord(0,1));
 
+		uint8 idl = ((slope_left & 4) >> 1) + ((slope_left & 2) >> 1);
+		uint8 idr = ((slope_right & 1) << 1) + ((slope_right & 2) >> 1);
 
-    if(left && right) {
-      grund_t * lgr = left->gib_kartenboden();
-      grund_t * rgr = right->gib_kartenboden();
+		// Hajo: cases for height difference
+		if(lhdiff > 0) {
+			idl = 3;
+		} else if(lhdiff < 0) {
+			idl = 0;
+		}
 
-      const int lhdiff = lgr->ist_wasser() ? -1 : lgr->gib_hoehe() - height;
-
-      const int lrdiff = rgr->ist_wasser() ? -1 : rgr->gib_hoehe() - height;
-
-      const uint8 slope_this =  welt->get_slope(k);
-      const uint8 slope_left =  welt->get_slope(k - koord(1,0));
-      const uint8 slope_right = welt->get_slope(k - koord(0,1));
-
-      uint8 idl = ((slope_left & 4) >> 1) + ((slope_left & 2) >> 1);
-      uint8 idr = ((slope_right & 1) << 1) + ((slope_right & 2) >> 1);
-
-      // Hajo: cases for height difference
-      if(lhdiff > 0) {
-	idl = 3;
-      } else if(lhdiff < 0) {
-	idl = 0;
-      }
-
-      if(lrdiff > 0) {
-	idr = 3;
-      } else if(lrdiff < 0) {
-	idr = 0;
-      }
+		if(lrdiff > 0) {
+			idr = 3;
+		} else if(lrdiff < 0) {
+			idr = 0;
+		}
 
 
-      if(slope_this != 0 &&
-	 slope_this != 3 && slope_this != 6 &&
-	 slope_this != 9 && slope_this != 12) {
-	idl = idr = 0;
-      }
+		if(slope_this != 0 &&
+			slope_this != 3 && slope_this != 6 &&
+			slope_this != 9 && slope_this != 12) {
+			idl = idr = 0;
+		}
 
-      const uint8 both = (idl << 2) + idr;
-
-      if(both != 0) {
-	// printf("idl=%d idr=%d both=%x dslope=%d\n", idl, idr, both, double_slope_table[both]);
-
-	back_bild = grund_besch_t::boden->gib_bild(38 + double_slope_table[both]);
-      }
-
-    }
-
-    setze_back_bild(back_bild);
-
+		const uint8 both = (idl << 2) + idr;
+		if(both != 0) {
+			// printf("idl=%d idr=%d both=%x dslope=%d\n", idl, idr, both, double_slope_table[both]);
+			back_bild = grund_besch_t::boden->gib_bild(38 + double_slope_table[both]);
+		}
+	}
+	setze_back_bild(back_bild);
 }
 
 

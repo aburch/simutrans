@@ -75,8 +75,16 @@ class factory_bauplatz_mit_strasse_sucher_t: public bauplatz_sucher_t  {
 			if(find_dist_next_factory(pos)<3+b+h) {
 				return false;
 			}
+			int i, j;
+			// check to not built on a road
+			for(j=pos.x; j<pos.x+b; j++) {
+				for(i=pos.y; i<pos.y+h; i++) {
+					if(strasse_bei(j,i)) {
+						return false;
+					}
+				}
+			}
 			// now check for road connection
-			int i;
 			for(i = pos.y; i < pos.y + h; i++) {
 				if(strasse_bei(pos.x - 1, i) ||  strasse_bei(pos.x + b, i)) {
 					return true;
@@ -547,7 +555,6 @@ int
 fabrikbauer_t::baue_hierarchie(karte_t * welt, koord3d *parent, const fabrik_besch_t *info, int rotate, koord3d *pos, spieler_t *sp)
 {
 	int n = 1;
-	bool	is_rotate=(rotate&1);
 
 	if(info==NULL) {
 		// no industry found
@@ -559,7 +566,7 @@ fabrikbauer_t::baue_hierarchie(karte_t * welt, koord3d *parent, const fabrik_bes
 		stadt_fabrik_t sf;
 		koord k=pos->gib_2d();
 
-		koord size=info->gib_haus()->gib_groesse(rotate);
+		koord size=info->gib_haus()->gib_groesse(0);
 DBG_MESSAGE("fabrikbauer_t::baue_hierarchie","Search place for city factory (%i,%i) size.",size.x,size.y);
 
 		sf.stadt = welt->suche_naechste_stadt(k);
@@ -573,8 +580,9 @@ DBG_MESSAGE("fabrikbauer_t::baue_hierarchie","Search place for city factory (%i,
 		// Das könnte ein Zeitproblem geben, wenn eine Stadt keine solchen Bauplatz
 		// hat und die Suche bis zur nächsten Stadt weiterläuft
 		// Ansonsten erscheint mir das am realistischtsten..
+		bool	is_rotate;
 		k = factory_bauplatz_mit_strasse_sucher_t(welt).suche_platz(sf.stadt->gib_pos(), size.x, size.y,&is_rotate);
-		rotate = is_rotate;
+		rotate = is_rotate?1:0;
 		DBG_MESSAGE("fabrikbauer_t::baue_hierarchie","Construction at (%i,%i).",k.x,k.y);
 		// B:
 		// Gefällt mir auch. Die Endfabriken stehen eventuell etwas außerhalb der Stadt
@@ -596,7 +604,7 @@ DBG_MESSAGE("fabrikbauer_t::baue_hierarchie","Search place for city factory (%i,
 DBG_MESSAGE("fabrikbauer_t::baue_hierarchie","Construction of %s at (%i,%i).",info->gib_name(),pos->x,pos->y);
 INT_CHECK("fabrikbauer 594");
 
-	const fabrik_t *our_fab=baue_fabrik(welt, parent, info, rotate&1, *pos, sp);
+	const fabrik_t *our_fab=baue_fabrik(welt, parent, info, rotate, *pos, sp);
 
 INT_CHECK("fabrikbauer 596");
 

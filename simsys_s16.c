@@ -146,7 +146,7 @@ int dr_os_init(int n, int *parameter)
 
 
 // open the window
-int dr_os_open(int w, int h)
+int dr_os_open(int w, int h,int fullscreen)
 {
   Uint32 flags = sync_blit ? 0 : SDL_ASYNCBLIT;
 
@@ -166,8 +166,7 @@ int dr_os_open(int w, int h)
      width == 800 ||
      width == 1024 ||
      width == 1280 ||
-     width == 1400 ||
-     width == 1600) {
+     fullscreen) {
 
     flags |= SDL_FULLSCREEN;
   }

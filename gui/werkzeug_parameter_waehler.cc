@@ -127,10 +127,10 @@ const char *werkzeug_parameter_waehler_t::gib_name() const
 koord werkzeug_parameter_waehler_t::gib_fenstergroesse() const
 {
 	if(tool_icon_width>0) {
-		return koord(tool_icon_width*32, (tools->count()/tool_icon_width+1)*32+16);
+		return koord(tool_icon_width*32, (tools->count()/tool_icon_width)*32+16+32);
 	}
 	else {
-		return koord(32, 32+16);
+		return koord(32, 16);
 	}
 }
 
@@ -152,6 +152,17 @@ fensterfarben werkzeug_parameter_waehler_t::gib_fensterfarben() const
 }
 
 
+bool werkzeug_parameter_waehler_t::getroffen(int x, int y)
+{
+	int dx = x>>5;
+	int	dy = (y-16)>>5;
+	if(x>=0 && dx<tool_icon_width  &&  y>=0  &&  dy<tool_icon_width) {
+		return dx+(tool_icon_width*dy) < tools->count();
+	}
+	return false;
+}
+
+
 void werkzeug_parameter_waehler_t::infowin_event(const event_t *ev)
 {
 	if(IS_LEFTCLICK(ev)) {
@@ -159,7 +170,7 @@ void werkzeug_parameter_waehler_t::infowin_event(const event_t *ev)
 		// tooltips?
 		const int x = (ev->mx) >> 5;
 		const int y = (ev->my-16) >> 5;
-		if(x >= 0 && x<tool_icon_width  &&  y>=0) {
+		if(x>=0 && x<tool_icon_width  &&  y>=0) {
 			const int wz_idx = x+(tool_icon_width*y);
 			if(wz_idx<tools->count()) {
 				const struct werkzeug_t & tool = tools->at(wz_idx);

@@ -136,8 +136,10 @@ void wegbauer_t::fill_menu(werkzeug_parameter_waehler_t *wzw,
 			   int sound_ko,
 				 uint8 styp)
 {
-	stringhashtable_iterator_tpl<const weg_besch_t *> iter(alle_wegtypen);
+	// list of matching types (sorted by speed)
+	slist_tpl <const weg_besch_t *> matching;
 
+	stringhashtable_iterator_tpl<const weg_besch_t *> iter(alle_wegtypen);
 	while(iter.next()) {
 		const weg_besch_t * besch = iter.get_current_value();
 
@@ -148,28 +150,48 @@ void wegbauer_t::fill_menu(werkzeug_parameter_waehler_t *wzw,
 
 				if((styp == 0 && besch->gib_styp() != 7) || styp == 7){
 					// this should avoid tram-tracks to be loaded into rail-menu
+					int i;
+					for( i=0;  i<matching.count();  i++  ) {
+						// insert sorted
+						if(matching.at(i)->gib_topspeed()>besch->gib_topspeed()) {
+							matching.insert(besch,i);
+							break;
+						}
+					}
+					if(i==matching.count()) {
+						matching.append(besch);
+					}
 
-					char buf[128];
-
-					sprintf(buf, "%s, %d$ (%d$), %dkm/h",
-						translator::translate(besch->gib_name()),
-						besch->gib_preis()/100,
-						besch->gib_wartung()/100,
-						besch->gib_topspeed());
-
-					wzw->add_param_tool(werkzeug,
-						(const void *)besch,
-						karte_t::Z_PLAN,
-						sound_ok,
-						sound_ko,
-						besch->gib_cursor()->gib_bild_nr(1),
-						besch->gib_cursor()->gib_bild_nr(0),
-						buf );
 				}
 			}
 		}
 	}
+
+	// now sorted ...
+	while(matching.count()>0) {
+		const weg_besch_t * besch = matching.at(0);
+		matching.remove_at(0);
+
+		char buf[128];
+
+		sprintf(buf, "%s, %d$ (%d$), %dkm/h",
+			translator::translate(besch->gib_name()),
+			besch->gib_preis()/100,
+			besch->gib_wartung()/100,
+			besch->gib_topspeed());
+
+		wzw->add_param_tool(werkzeug,
+			(const void *)besch,
+			karte_t::Z_PLAN,
+			sound_ok,
+			sound_ko,
+			besch->gib_cursor()->gib_bild_nr(1),
+			besch->gib_cursor()->gib_bild_nr(0),
+			buf );
+	}
 }
+
+
 
 /**
  * Finds a way with a given speed limit for a given waytype

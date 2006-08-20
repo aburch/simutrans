@@ -37,7 +37,10 @@ einstellungen_t::einstellungen_t() : heightfield("")
 
     max_mountain_height = 160;                  //can be 0-160.0  01-Dec-01        Markus Weber    Added
     map_roughness = 0.6;                        //can be 0-1      01-Dec-01        Markus Weber    Added
+
+    station_coverage_size = 2;	//added May 05, valid 1...x
 }
+
 
 /**
  * Copy constructor, needed becuase of cstring
@@ -73,8 +76,9 @@ einstellungen_t::einstellungen_t(const einstellungen_t *other)
     map_roughness =
       other->map_roughness;
 
-    heightfield =
-      other->heightfield;
+    heightfield = other->heightfield;
+
+    station_coverage_size = other->station_coverage_size;
 }
 
 void
@@ -110,6 +114,8 @@ dbg->warning("einstellungen_t::rdwr()","This game has too many cities! (%i of ma
 		file->rdwr_int(grundwasser, "\n");
 		file->rdwr_double(max_mountain_height, "\n");
 		file->rdwr_double(map_roughness, "\n");
+
+		station_coverage_size = 3;
 	}
 	else {
 		// newer versions
@@ -133,5 +139,11 @@ dbg->warning("einstellungen_t::rdwr()","This game has too many cities! (%i of ma
 		file->rdwr_int(grundwasser, "\n");
 		file->rdwr_double(max_mountain_height, "\n");
 		file->rdwr_double(map_roughness, "\n");
+
+		if(file->get_version() >= 86003) {
+			int dummy = station_coverage_size;
+			file->rdwr_int(dummy, " ");
+			station_coverage_size = dummy;
+		}
 	}
 }

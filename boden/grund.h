@@ -598,13 +598,13 @@ public:
      */
     inline short gib_weg_bild() const {return weg_bild_nr;};
 
-		/**
-			* Gibt die Nummer des 2. Wegbildes zurück.
-			* Für Straßenbahnen wichtig.
-			* @see gib_weg_bild()
-			* @author DarioK
-			*/
-		inline short gib_weg2_bild() const {return weg2_bild_nr;};
+	/**
+	* Gibt die Nummer des 2. Wegbildes zurück.
+	* Für Straßenbahnen wichtig.
+	* @see gib_weg_bild()
+	* @author DarioK
+	*/
+	inline short gib_weg2_bild() const {return weg2_bild_nr;};
 
      /**
      * Ermittelt die Richtungsbits fr den weg vom Typ 'typ'.

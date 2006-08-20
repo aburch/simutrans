@@ -22,6 +22,7 @@
 #include "../simlinemgmt.h"
 
 #include "../tpl/ptrhashtable_tpl.h"
+#include "../tpl/slist_tpl.h"
 
 #include "fahrplan_gui.h"
 #include "line_management_gui.h"
@@ -36,6 +37,10 @@
 #include "../dataobj/umgebung.h"
 #include "../utils/simstring.h"
 
+#include "../bauer/warenbauer.h"
+
+#include "../boden/wege/weg.h"
+#include "../boden/wege/schiene.h"
 
 static const char * engine_type_names [6] =
 {
@@ -62,8 +67,10 @@ depot_frame_t::depot_frame_t(karte_t *welt, depot_t *depot, int &farbe) :
     lb_veh_action(NULL, SCHWARZ, gui_label_t::left),
     convoi_pics(depot->get_max_convoi_length())
 {
+DBG_DEBUG("depot_frame_t::depot_frame_t()","get_max_convoi_length()=%i",depot->get_max_convoi_length());
   waggons_vec = 0;
   loks_vec = 0;
+  pas_vec = 0;
 
     tstrncpy(no_line_text, translator::translate("<no line>"), 124);
 
@@ -185,6 +192,10 @@ depot_frame_t::depot_frame_t(karte_t *welt, depot_t *depot, int &farbe) :
     /*
      * [PANEL]
      */
+    pas = new image_list_t(pas_vec);
+    pas->set_player_color(kennfarbe);
+    pas->add_listener(this);
+
     loks = new image_list_t(loks_vec);
     loks->set_player_color(kennfarbe);
     loks->add_listener(this);
@@ -192,6 +203,16 @@ depot_frame_t::depot_frame_t(karte_t *welt, depot_t *depot, int &farbe) :
     waggons = new image_list_t(waggons_vec);
     waggons->set_player_color(kennfarbe);
     waggons->add_listener(this);
+
+    cont_pas = new gui_container_t();
+    cont_pas->add_komponente(pas);
+    scrolly_pas = new gui_scrollpane_t(cont_pas);
+    scrolly_pas->set_show_scroll_x(false);
+    scrolly_pas->set_read_only(false);
+
+    if(pas_vec->get_count() > 0  ||  (loks_vec->get_count()==0  && waggons_vec->get_count()==0)  ) {
+	tabs.add_tab(scrolly_pas, depot->gib_passenger_name());
+    }
 
     cont_loks = new gui_container_t();
     cont_loks->add_komponente(loks);
@@ -224,12 +245,18 @@ depot_frame_t::depot_frame_t(karte_t *welt, depot_t *depot, int &farbe) :
     bt_veh_action.setze_typ(button_t::roundbox);
     bt_veh_action.add_listener(this);
     bt_veh_action.set_tooltip(translator::translate("Choose operation executed on clicking stored/new vehicles"));
-
     add_komponente(&bt_veh_action);
 
-	welt->simlinemgmt->sort_lines();
+    bt_obsolete.setze_typ(button_t::square);
+    bt_obsolete.setze_text(translator::translate("Show obsolete"));
+    bt_obsolete.add_listener(this);
+    bt_obsolete.set_tooltip(translator::translate("Show also vehicles no longer in production."));
+    add_komponente(&bt_obsolete);
+
+    welt->simlinemgmt->sort_lines();
     layout();
     update_data();
+    layout();
 }
 
 
@@ -375,9 +402,7 @@ void depot_frame_t::layout()
     convoi->setze_groesse(koord(CLIST_WIDTH, CLIST_HEIGHT));
 
     lb_convoi_count.setze_pos(koord(4, CINFO_VSTART));
-
     lb_convoi_value.setze_pos(koord(4 + 100, CINFO_VSTART));
-
     lb_convoi_line.setze_pos(koord(4, CINFO_VSTART + LINESPACE));
 
     /*
@@ -426,6 +451,14 @@ void depot_frame_t::layout()
     tabs.setze_pos(koord(0, PANEL_VSTART));
     tabs.setze_groesse(koord(PANEL_WIDTH, PANEL_HEIGHT));
 
+    pas->set_grid(grid);
+    pas->set_placement(placement);
+	pas->setze_groesse(tabs.gib_groesse());
+	pas->recalc_size();
+	pas->setze_pos(koord(1,1));
+	cont_pas->setze_groesse(pas->gib_groesse());
+	scrolly_pas->setze_groesse(scrolly_pas->gib_groesse());
+
     loks->set_grid(grid);
     loks->set_placement(placement);
 	loks->setze_groesse(tabs.gib_groesse());
@@ -450,75 +483,121 @@ void depot_frame_t::layout()
 
     bt_veh_action.setze_pos(koord(PANEL_WIDTH-ABUTTON_WIDTH, PANEL_VSTART + PANEL_HEIGHT + 14));
     bt_veh_action.setze_groesse(koord(ABUTTON_WIDTH, 13));
-    bt_veh_action.setze_typ(button_t::roundbox);
+
+    bt_obsolete.setze_pos(koord(PANEL_WIDTH-(ABUTTON_WIDTH*5)/2, PANEL_VSTART + PANEL_HEIGHT + 14));
+    bt_obsolete.setze_groesse(koord(ABUTTON_WIDTH, 13));
+    bt_obsolete.pressed = show_retired_vehicles;
 }
+
+
+
+
+// true if future
+bool depot_frame_t::is_future(const vehikel_besch_t *info,const int month_now)
+{
+	const int intro_month = info->get_intro_year() * 12 + info->get_intro_month();
+	return umgebung_t::use_timeline  &&  intro_month > month_now;
+}
+
+// true if obsolete
+bool depot_frame_t::is_retired(const vehikel_besch_t *info,const int month_now)
+{
+	const int retire_month = info->get_retire_year() * 12 + info->get_retire_month();
+	return umgebung_t::use_timeline  &&  retire_month <= month_now;
+}
+
+// true if already stored here
+bool depot_frame_t::is_contained(const vehikel_besch_t *info)
+{
+	if(depot->vehicle_count()>0) {
+		const slist_tpl<vehikel_t *> *vehicle_list = depot->get_vehicle_list();
+		slist_iterator_tpl<vehikel_t *> iter(vehicle_list);
+		while(iter.next()) {
+			if(iter.get_current()->gib_besch()==info) {
+				return true;
+			}
+		}
+	}
+	return false;
+}
+
 
 
 void depot_frame_t::build_vehicle_lists()
 {
-  const int month_now =
-    (welt->gib_zeit_ms() >> karte_t::ticks_bits_per_tag) +
-    (umgebung_t::starting_year * 12);
+	const int month_now = (welt->gib_zeit_ms() >> karte_t::ticks_bits_per_tag) + (umgebung_t::starting_year * 12);
+	int i = 0;
 
-  int i = 0;
+	if(waggons_vec == 0) {
 
-  if(waggons_vec == 0) {
+		int loks = 0, waggons = 0, pax=0;
+		while(depot->get_vehicle_type(i)) {
+			const vehikel_besch_t *info = depot->get_vehicle_type(i);
 
-    int loks = 0, waggons = 0;
-    while(depot->get_vehicle_type(i)) {
-      const vehikel_besch_t *info = depot->get_vehicle_type(i);
+			if(info->gib_ware()==warenbauer_t::passagiere) {
+				pax++;
+			}
+			else if(info->gib_leistung() > 0) {
+				loks++;
+			}
+			else {
+				waggons++;
+			}
+			i++;
+		}
 
-      if(info->gib_leistung() > 0) {
-	loks++;
-      } else {
-	waggons++;
-      }
+		waggons_vec = new vector_tpl<image_list_t::image_data_t>(waggons+1);
+		loks_vec = new vector_tpl<image_list_t::image_data_t>(loks+1);
+		pas_vec = new vector_tpl<image_list_t::image_data_t>(pax+1);
+DBG_DEBUG("depot_frame_t::build_vehicle_lists()","%i passenger vehicle, %i  engines, %i good wagons",pax,loks,waggons);
+	}
+	else {
+		waggons_vec->clear();
+		loks_vec->clear();
+		pas_vec->clear();
+	}
 
-      i++;
-    }
+	vehicle_map.clear();
 
-    waggons_vec = new vector_tpl<image_list_t::image_data_t>(waggons);
-    loks_vec = new vector_tpl<image_list_t::image_data_t>(loks);
-  } else {
-    waggons_vec->clear();
-    loks_vec->clear();
-  }
-
-
-  vehicle_map.clear();
+	// we do not allow to built electric vehicle in a depot without electrification
+	const schiene_t *sch = dynamic_cast<const schiene_t *>(welt->lookup(depot->gib_pos())->gib_weg(weg_t::schiene));
+	const bool schiene_electric = (sch==NULL)  ||  sch->ist_elektrisch();
 
 
-  i = 0;
-  while(depot->get_vehicle_type(i)) {
-    const vehikel_besch_t *info = depot->get_vehicle_type(i);
-    image_list_t::image_data_t img_data;
+	i = 0;
+	while(depot->get_vehicle_type(i)) {
+		const vehikel_besch_t *info = depot->get_vehicle_type(i);
+		image_list_t::image_data_t img_data;
 
-    const int month =
-      info->get_intro_year() * 12 + info->get_intro_month();
+		// prissi: ist a non-electric track?
+		// Hajo: check for timeline
+		// prissi: and retirement date
+		if(  (schiene_electric  ||  info->get_engine_type()!=vehikel_besch_t::electric)  &&
+			(!is_future(info,month_now))  &&  (show_retired_vehicles  ||  (!is_retired(info,month_now)) )   ||  is_contained(info)
+		) {
 
-    // Hajo: check for timeline
+			img_data.image = info->gib_basis_bild();
+			img_data.count = 0;
+			img_data.lcolor = img_data.rcolor= -1;
 
-    if(umgebung_t::use_timeline == false || month <= month_now) {
+			if(info->gib_ware()==warenbauer_t::passagiere) {
+				pas_vec->append(img_data);
+				vehicle_map.set(info, &pas_vec->at(pas_vec->get_count() - 1));
+			}
+			else if(info->gib_leistung() > 0) {
+				loks_vec->append(img_data);
+				vehicle_map.set(info, &loks_vec->at(loks_vec->get_count() - 1));
+			}
+			else {
+				waggons_vec->append(img_data);
+				vehicle_map.set(info, &waggons_vec->at(waggons_vec->get_count() - 1));
+			}
+		} else {
+//DBG_DEBUG("depot_frame_t::build_vehicle_lists()","now vehicle %s not available.", info->gib_name());
+		}
 
-      img_data.image = info->gib_basis_bild();
-      img_data.count = 0;
-      img_data.lcolor = img_data.rcolor= -1;
-
-      if(info->gib_leistung() > 0) {
-	loks_vec->append(img_data);
-	vehicle_map.set(info, &loks_vec->at(loks_vec->get_count() - 1));
-      } else {
-	waggons_vec->append(img_data);
-	vehicle_map.set(info, &waggons_vec->at(waggons_vec->get_count() - 1));
-      }
-    } else {
-      DBG_DEBUG("depot_frame_t::build_vehicle_lists()",
-		 "Now (%d) < intro (%d) -> vehicle %s not yet available.",
-		 month_now, month, info->gib_name());
-    }
-
-    i++;
-  }
+		i++;
+	}
 }
 
 
@@ -529,6 +608,9 @@ void depot_frame_t::update_data()
 	"voranstellen",
 	"verkaufen"
     };
+
+	// change grren into blue for retired vehicles
+	const int month_now = (welt->gib_zeit_ms() >> karte_t::ticks_bits_per_tag) + (umgebung_t::starting_year * 12);
 
     bt_veh_action.setze_text(translator::translate(txt_veh_action[veh_action]));
 
@@ -581,24 +663,27 @@ void depot_frame_t::update_data()
 	}
 
 	/* color bars for current convoi: */
-	convoi_pics.at(0).lcolor = convoi_t::pruefe_vorgaenger(
-	    NULL,
-	    cnv->gib_vehikel(0)->gib_besch()) ? GREEN : GELB;
-
+	convoi_pics.at(0).lcolor = convoi_t::pruefe_vorgaenger(NULL,cnv->gib_vehikel(0)->gib_besch()) ? GREEN : GELB;
 	for(i = 1; i < cnv->gib_vehikel_anzahl(); i++) {
 	    convoi_pics.at(i - 1).rcolor =
-		convoi_t::pruefe_nachfolger(
-		    cnv->gib_vehikel(i - 1)->gib_besch(),
-		    cnv->gib_vehikel(i)->gib_besch()) ? GREEN : ROT;
+		convoi_t::pruefe_nachfolger(cnv->gib_vehikel(i - 1)->gib_besch(),cnv->gib_vehikel(i)->gib_besch()) ? GREEN : ROT;
 	    convoi_pics.at(i).lcolor =
-		convoi_t::pruefe_vorgaenger(
-		    cnv->gib_vehikel(i - 1)->gib_besch(),
-		    cnv->gib_vehikel(i)->gib_besch()) ? GREEN : ROT;
+		convoi_t::pruefe_vorgaenger(cnv->gib_vehikel(i - 1)->gib_besch(),cnv->gib_vehikel(i)->gib_besch()) ? GREEN : ROT;
 	}
 	convoi_pics.at(i - 1).rcolor =
-	    convoi_t::pruefe_nachfolger(
-		cnv->gib_vehikel(i - 1)->gib_besch(),
-		NULL) ? GREEN : GELB;
+	    convoi_t::pruefe_nachfolger(cnv->gib_vehikel(i - 1)->gib_besch(),NULL) ? GREEN : GELB;
+
+		// change grren into blue for retired vehicles
+		for(i=0;  i<cnv->gib_vehikel_anzahl(); i++) {
+			if(is_future(cnv->gib_vehikel(i)->gib_besch(),month_now) || is_retired(cnv->gib_vehikel(i)->gib_besch(),month_now)) {
+				if(convoi_pics.at(i).lcolor==GREEN) {
+					convoi_pics.at(i).lcolor = BLAU;
+				}
+				if(convoi_pics.at(i).rcolor==GREEN) {
+					convoi_pics.at(i).rcolor = BLAU;
+				}
+			}
+		}
 
 	if(veh_action == va_insert) {
 	    veh = cnv->gib_vehikel(0)->gib_besch();
@@ -607,6 +692,8 @@ void depot_frame_t::update_data()
 	}
     }
     while(iter1.next()) {
+	const int ok_color = is_future(iter1.get_current_key(),month_now) || is_retired(iter1.get_current_key(),month_now) ? BLAU: GREEN;
+
 	iter1.get_current_value()->count = 0;
 	iter1.get_current_value()->lcolor = -1;
 	iter1.get_current_value()->rcolor = -1;
@@ -626,10 +713,10 @@ void depot_frame_t::update_data()
 			iter1.get_current_value()->rcolor = ROT;
 	    } else if(!convoi_t::pruefe_vorgaenger(NULL, iter1.get_current_key())) {
 			iter1.get_current_value()->lcolor = GELB;
-			iter1.get_current_value()->rcolor = GREEN;
+			iter1.get_current_value()->rcolor = ok_color;
 	    } else {
-			iter1.get_current_value()->lcolor = GREEN;
-			iter1.get_current_value()->rcolor = GREEN;
+			iter1.get_current_value()->lcolor = ok_color;
+			iter1.get_current_value()->rcolor = ok_color;
 	    }
 	} else if(veh_action == va_append) {
 	    if(!convoi_t::pruefe_vorgaenger(veh, iter1.get_current_key()) ||
@@ -637,11 +724,11 @@ void depot_frame_t::update_data()
 			iter1.get_current_value()->lcolor = ROT;
 			iter1.get_current_value()->rcolor = ROT;
 	    } else if(!convoi_t::pruefe_nachfolger(iter1.get_current_key(), NULL)) {
-			iter1.get_current_value()->lcolor = GREEN;
+			iter1.get_current_value()->lcolor = ok_color;
 			iter1.get_current_value()->rcolor = GELB;
 	    } else {
-			iter1.get_current_value()->lcolor = GREEN;
-			iter1.get_current_value()->rcolor = GREEN;
+			iter1.get_current_value()->lcolor = ok_color;
+			iter1.get_current_value()->rcolor = ok_color;
 	    }
 	}
     }
@@ -690,8 +777,8 @@ int depot_frame_t::calc_restwert(const vehikel_besch_t *veh_type)
 void
 depot_frame_t::bild_gewaehlt(image_list_t *lst, int bild_index)
 {
-    if(lst == loks || lst == waggons) {
-	image_list_t::image_data_t *bild_data = &(lst == loks ? loks_vec : waggons_vec)->at(bild_index);
+    if(lst == loks || lst == waggons  ||  lst == pas) {
+	image_list_t::image_data_t *bild_data = &(lst == loks ? loks_vec : (lst==pas? pas_vec :waggons_vec))->at(bild_index);
 
 	if(bild_data->lcolor != ROT && bild_data->rcolor != ROT) {
 	    int bild = bild_data->image;
@@ -721,6 +808,7 @@ depot_frame_t::bild_gewaehlt(image_list_t *lst, int bild_index)
 		/*
 		 *	We sell the newest vehicle - gives most money back.
 		 */
+DBG_DEBUG("depot_frame_t::bild_gewaehlt()","sell %i",newest_veh);
 		depot->sell_vehicle(newest_veh);
 	    } else {
 		const convoihandle_t cnv = depot->get_convoi(icnv);
@@ -734,21 +822,25 @@ depot_frame_t::bild_gewaehlt(image_list_t *lst, int bild_index)
 		    }
 		    if(oldest_veh != -1) {
 			depot->append_vehicle(icnv, oldest_veh, veh_action == va_insert);
+DBG_DEBUG("depot_frame_t::bild_gewaehlt()","appended vehicle");
 			if(icnv == -1) {
 			    icnv = depot->convoi_count() - 1;
 			    depot->get_convoi(icnv)->setze_name(
 				depot->get_convoi(icnv)->gib_vehikel(0)->gib_besch()->gib_name());
 
 			} // endif (icnv == -1)
+DBG_DEBUG("depot_frame_t::bild_gewaehlt()","icnv");
 		    } // endif (oldest_veh != -1)
 		}  // endif (!cnv.is_bound() || cnv->gib_vehikel_anzahl() < depot->get_max_convoi_length())
 	    }
  	    update_data();
+ 	    layout();
 
 	}
     } else if(lst == convoi) {
 	const convoihandle_t cnv = depot->get_convoi(icnv);
 
+DBG_DEBUG("depot_frame_t::bild_gewaehlt()","convoi index %i",bild_index);
 	if(cnv.is_bound() && bild_index < cnv->gib_vehikel_anzahl() ) {
 	    if(cnv->gib_vehikel_anzahl() == 1) {
 		depot->disassemble_convoi(icnv, false);
@@ -756,7 +848,9 @@ depot_frame_t::bild_gewaehlt(image_list_t *lst, int bild_index)
 	    } else {
 		depot->remove_vehicle(icnv, bild_index);
 	    }
+	    build_vehicle_lists();
 	    update_data();
+	    layout();
 	}
     }
 }
@@ -790,7 +884,10 @@ depot_frame_t::action_triggered(gui_komponente_t *komp)
 	    if(icnv-- == -1) {
 		icnv = depot->convoi_count() - 1;
 	    }
-	} else if(komp == &bt_veh_action) {
+	} else if(komp == &bt_obsolete) {
+	    show_retired_vehicles = !show_retired_vehicles;
+         build_vehicle_lists();
+    	} else if(komp == &bt_veh_action) {
 	    if(veh_action++ == va_sell) {
 		veh_action = va_append;
 	    }
@@ -805,6 +902,7 @@ depot_frame_t::action_triggered(gui_komponente_t *komp)
 	    // automatically select newly created convoi
 	    icnv = depot->convoi_count()-1;
 	    update_data();
+	    layout();
 	    return true;
 	} else if(komp == &bt_apply_line) {
 	    apply_line();
@@ -826,6 +924,7 @@ depot_frame_t::action_triggered(gui_komponente_t *komp)
 	}
     }
     update_data();
+    layout();
     return true;
 }
 
@@ -889,15 +988,15 @@ void depot_frame_t::infowin_event(const event_t *ev)
 	 * Volker Meyer
 	 */
         welt->zentriere_auf(pos);
-    } else if(IS_WINDOW_REZOOM(ev)) {
+	} else if(IS_WINDOW_REZOOM(ev)) {
 		layout();
-    } else if(ev->ev_class == INFOWIN &&
-	      ev->ev_code == WIN_OPEN) {
-      // Hajo: this seems to be needed to refresh the list of lines
-      update_data();
+	} else if(ev->ev_class == INFOWIN && ev->ev_code == WIN_OPEN) {
+		// Hajo: this seems to be needed to refresh the list of lines
+		update_data();
+		layout();
     } else {
 		gui_frame_t::infowin_event(ev);
-    }
+	}
 }
 
 
@@ -937,6 +1036,7 @@ depot_frame_t::zeichnen(koord pos, koord groesse)
 	*txt_convoi_line = '\0';
     }
 
+    bt_obsolete.pressed = show_retired_vehicles;
     gui_frame_t::zeichnen(pos, groesse);
     if(!cnv.is_bound()) {
 	display_proportional_clip(pos.x+inp_name.gib_pos().x+2,
@@ -974,6 +1074,7 @@ void depot_frame_t::new_line()
 	line_management_gui_t *line_gui = new line_management_gui_t(welt, new_line, welt->gib_spieler(0));
 	line_gui->zeige_info();
 	update_data();
+	layout();
 }
 
 void depot_frame_t::apply_line()
@@ -1051,7 +1152,7 @@ depot_frame_t::draw_vehicle_info_text(koord pos)
     switch(depot->vehicle_count()) {
     case 0:
 	tstrncpy(buf, translator::translate("Keine Einzelfahrzeuge im Depot"), 128);
-        break;
+	break;
     case 1:
 	tstrncpy(buf, translator::translate("1 Einzelfahrzeug im Depot"), 128);
         break;
@@ -1059,16 +1160,16 @@ depot_frame_t::draw_vehicle_info_text(koord pos)
 	sprintf(buf, translator::translate("%d Einzelfahrzeuge im Depot"), depot->vehicle_count());
         break;
     }
-    image_list_t *lst = dynamic_cast<image_list_t *>(tabs.get_active_tab_index() == 0 ? loks : waggons);
+    image_list_t *lst = dynamic_cast<image_list_t *>(tabs.get_active_tab_index() == 0 ? pas :(tabs.get_active_tab_index() == 1 ? loks : waggons));
     int x = gib_maus_x();
     int y = gib_maus_y();
     int value = -1;
     const vehikel_besch_t *veh_type = NULL;
-    koord relpos = (tabs.get_active_tab_index() == 0 ? koord(0, scrolly_loks->get_scroll_y()) : koord(0, scrolly_waggons->get_scroll_y()));
+    koord relpos = (tabs.get_active_tab_index() == 0 ? koord(0, scrolly_pas->get_scroll_y()) : (tabs.get_active_tab_index() == 1 ? koord(0, scrolly_loks->get_scroll_y()) : koord(0, scrolly_waggons->get_scroll_y()) ));
 
     int sel_index = lst->index_at(pos + tabs.gib_pos() - relpos, x, y - 16 - tab_panel_t::HEADER_VSIZE);
     if ((sel_index != -1) && (tabs.getroffen(x-pos.x,y-pos.y))) {
-			vector_tpl<image_list_t::image_data_t> *vec = (lst == loks ? loks_vec : waggons_vec);
+			vector_tpl<image_list_t::image_data_t> *vec = (lst == pas ? pas_vec : (lst == loks ? loks_vec : waggons_vec));
 			veh_type = vehikelbauer_t::gib_info(vec->at(sel_index).image);
 			if(vec->at(sel_index).count > 0) {
 	    	value = calc_restwert(veh_type) / 100;
@@ -1144,8 +1245,14 @@ depot_frame_t::draw_vehicle_info_text(koord pos)
       int n = sprintf(buf, "%s %s %04d\n",
 		      translator::translate("Intro. date:"),
 		      translator::translate(month_names[veh_type->get_intro_month()]),
-		    veh_type->get_intro_year());
+		      veh_type->get_intro_year() );
 
+      if(veh_type->get_retire_year() !=2999) {
+      n += sprintf(buf+n, "%s %s %04d\n",
+		      translator::translate("Retire. date:"),
+		      translator::translate(month_names[veh_type->get_retire_month()]),
+		      veh_type->get_retire_year() );
+      }
 
       if(veh_type->gib_leistung() > 0) {
 	n+= sprintf(buf+n, "%s %0.2f : 1\n",

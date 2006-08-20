@@ -102,35 +102,55 @@ bool brueckenbauer_t::laden_erfolgreich()
  * Fill menu with icons of given waytype
  * @author Hj. Malthaner
  */
-void brueckenbauer_t::fill_menu(werkzeug_parameter_waehler_t *wzw,
+void
+brueckenbauer_t::fill_menu(werkzeug_parameter_waehler_t *wzw,
          weg_t::typ wtyp,
-         int (* werkzeug)(spieler_t *, karte_t *, koord, value_t),
          int sound_ok,
          int sound_ko)
 {
-  for(unsigned int i = 0; i < bruecken.count(); i++) {
-    const bruecke_besch_t *besch = bruecken.get(i);
-    if(besch->gib_wegtyp() == wtyp) {
-	    int icon = besch->gib_cursor()->gib_bild_nr(1);
+	// list of matching types (sorted by speed)
+	slist_tpl <const bruecke_besch_t *> matching;
 
-	    char buf[128];
+	for(unsigned int i = 0; i < bruecken.count(); i++) {
+		const bruecke_besch_t *besch = bruecken.get(i);
+		if(besch->gib_wegtyp() == wtyp) {
+			// add int sorted
+			int j;
+			for( j=0;  j<matching.count();  j++  ) {
+				// insert sorted
+				if(matching.at(j)->gib_topspeed()>besch->gib_topspeed()) {
+					matching.insert(besch,j);
+					break;
+				}
+			}
+			if(j==matching.count()) {
+				matching.append(besch);
+			}
+		}
+	}
 
-	    sprintf(buf, "%s, %d$ (%d$), %dkm/h",
-	      translator::translate(besch->gib_name()),
-	      besch->gib_preis()/100,
-	      besch->gib_wartung()/100,
-	      besch->gib_topspeed());
+	// now sorted ...
+	while(matching.count()>0) {
+		const bruecke_besch_t * besch = matching.at(0);
+		matching.remove_at(0);
+		int icon = besch->gib_cursor()->gib_bild_nr(1);
+		char buf[128];
 
-	    wzw->add_param_tool(werkzeug,
-	      (const void*) besch,
-	      karte_t::Z_PLAN,
-	      sound_ok,
-	      sound_ko,
-	      icon,
-	      besch->gib_cursor()->gib_bild_nr(0),
-	      cstring_t(buf));
-	 }
-  }
+		sprintf(buf, "%s, %d$ (%d$), %dkm/h",
+			  translator::translate(besch->gib_name()),
+			  besch->gib_preis()/100,
+			  besch->gib_wartung()/100,
+			  besch->gib_topspeed());
+
+		wzw->add_param_tool(baue,
+			  (const void*) besch,
+			  karte_t::Z_PLAN,
+			  sound_ok,
+			  sound_ko,
+			  icon,
+			  besch->gib_cursor()->gib_bild_nr(0),
+			  cstring_t(buf));
+	}
 }
 
 
@@ -247,7 +267,8 @@ int brueckenbauer_t::baue(spieler_t *sp, karte_t *welt, koord pos, weg_t::typ we
 }
 
 
-int brueckenbauer_t::baue(spieler_t *sp, karte_t *welt, koord pos, value_t param)
+int
+brueckenbauer_t::baue(spieler_t *sp, karte_t *welt, koord pos, value_t param)
 {
     const bruecke_besch_t *besch = (const bruecke_besch_t *)param.p;
 

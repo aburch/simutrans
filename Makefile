@@ -8,6 +8,7 @@
 
 
 OSTYPE=mingw
+#OSTYPE=beos
 #OSTYPE=linux-gnu
 
 
@@ -57,6 +58,11 @@ STD_LIBS= -lz
 SDLLIBS= -lSDL -lpthread
 OS_OPT=
 endif
+ifeq ($(OSTYPE),beos)
+STD_LIBS= -lz
+SDLLIBS= -lSDL
+OS_OPT=
+endif
 
 BESDLLIBS= -lSDL -lz
 
@@ -84,6 +90,10 @@ export CXX
 MAKE= make
 
 # C compiler options
+ifeq ($(OSTYPE),beos)
+CFLAGS= -DUSE_C -Wall -O -g -fschedule-insns2 -fgcse -fstrict-aliasing -march=i586 -pipe
+else
+## other systems
 ifeq ($(OPT),profile)
 CFLAGS= -Wall -pg -O -pipe -fschedule-insns2 -fgcse -fstrict-aliasing -fexpensive-optimizations -march=i586 -g -minline-all-stringops
 LDFLAGS= -pg
@@ -96,6 +106,7 @@ CFLAGS= -Wall -O -g -fschedule-insns2 -fgcse -fstrict-aliasing -fexpensive-optim
 endif
 ifeq ($(OPT),debug_optimize)
 CFLAGS= -Wall -O -g -fschedule-insns2 -fgcse -fstrict-aliasing -fexpensive-optimizations -march=i586 -pipe -minline-all-stringops
+endif
 endif
 
 
