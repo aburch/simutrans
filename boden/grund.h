@@ -63,7 +63,7 @@ public:
     enum flag_values {
 		keine_flags=0,
 		dirty=1,
-		new_text=2,
+		is_kartenboden=2,
 		has_text=4,
 		world_spot_dirty = 8,  // Hajo: benutzt von karte_t::ist_dirty(koord3d)
 		draw_as_ding = 16, // is a slope etc => draw as one
@@ -216,6 +216,7 @@ public:
 
     virtual ~grund_t();
 
+		karte_t *gib_welt() const {return welt;}
 
     /**
      * Setzt Flags für das neuzeichnen geänderter Untergründe
@@ -361,10 +362,9 @@ public:
      */
     inline bool ist_im_tunnel() const {return (flags & is_in_tunnel) != 0;};
 
-
-
-
-    int ist_karten_boden() const;
+		/* this will be stored locally, since it is called many, many times */
+		uint8 ist_karten_boden() const {return (flags&is_kartenboden);}
+		void set_kartenboden(bool tf) {if(tf) {flags|=is_kartenboden;} else {flags&=~is_kartenboden;} }
 
     /**
      * L„dt oder speichert die Daten des Untergrundes in eine Datei.

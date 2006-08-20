@@ -502,23 +502,24 @@ public:
 	inline int gib_groesse_max() const {return cached_groesse_max;};
 
 	inline bool ist_in_kartengrenzen(koord k) const {
-	// prissi: since negative values will make the whole result negative, we can use bitwise or
-	// faster, since pentiums and other long pipeline processors do not like jumps
-//		return (k.x|k.y|(cached_groesse_karte_x-k.x)|(cached_groesse_karte_y-k.y))>=0;
-		return k.x>=0 &&  k.y>=0  &&  cached_groesse_karte_x>=k.x  &&  cached_groesse_karte_y>=k.y;
+		// prissi: since negative values will make the whole result negative, we can use bitwise or
+		// faster, since pentiums and other long pipeline processors do not like jumps
+		return (k.x|k.y|(cached_groesse_karte_x-k.x)|(cached_groesse_karte_y-k.y))>=0;
+		// this is omly 67% of the above speed
+		//return k.x>=0 &&  k.y>=0  &&  cached_groesse_karte_x>=k.x  &&  cached_groesse_karte_y>=k.y;
 	}
 
 	inline bool ist_in_kartengrenzen(int x, int y) const {
 	// prissi: since negative values will make the whole result negative, we can use bitwise or
 	// faster, since pentiums and other long pipeline processors do not like jumps
-//		return (x|y|(cached_groesse_karte_x-x)|(cached_groesse_karte_y-y))>=0;
-		return x>=0 &&  y>=0  &&  cached_groesse_karte_x>=x  &&  cached_groesse_karte_y>=y;
+		return (x|y|(cached_groesse_karte_x-x)|(cached_groesse_karte_y-y))>=0;
+//		return x>=0 &&  y>=0  &&  cached_groesse_karte_x>=x  &&  cached_groesse_karte_y>=y;
 	}
-
+/*
 	inline bool ist_in_kartengrenzen(unsigned x, unsigned y) const {
 		return (x<=(unsigned)cached_groesse_karte_x && y<=(unsigned)cached_groesse_karte_y);
 	}
-
+*/
 	inline bool ist_in_gittergrenzen(koord k) const {
 	// prissi: since negative values will make the whole result negative, we can use bitwise or
 	// faster, since pentiums and other long pipeline processors do not like jumps

@@ -110,7 +110,7 @@ public:
     {
 		for(unsigned int i = 0; i < boeden.get_count(); i++) {
 			grund_t * gr = boeden.get(i);
-			if(gr  &&  gr->gib_hoehe() == z) {
+			if(/*gr  &&  */gr->gib_hoehe() == z) {
 				return gr;
 			}
 		}

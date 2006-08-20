@@ -91,6 +91,19 @@ fussgaenger_t::~fussgaenger_t()
 }
 
 
+void
+fussgaenger_t::calc_bild()
+{
+	if(welt->lookup(gib_pos())->ist_im_tunnel()) {
+		setze_bild(0, IMG_LEER);
+	}
+	else {
+		setze_bild(0,besch->gib_bild_nr(ribi_t::gib_dir(gib_fahrtrichtung())));
+	}
+}
+
+
+
 bool fussgaenger_t::sync_step(long delta_t)
 {
     verkehrsteilnehmer_t::sync_step(delta_t);
@@ -98,6 +111,7 @@ bool fussgaenger_t::sync_step(long delta_t)
     sum += delta_t;
     return (is_sync = sum < schritte);
 }
+
 
 
 void fussgaenger_t::rdwr(loadsave_t *file)
@@ -117,16 +131,5 @@ void fussgaenger_t::rdwr(loadsave_t *file)
 		    besch = liste.gib_gewichted(simrand(liste.gib_gesamtgewicht()));
 		}
 		guarded_free(const_cast<char *>(s));
-	}
-}
-
-
-
-void fussgaenger_t::calc_bild()
-{
-	if(welt->lookup(gib_pos())->ist_im_tunnel()) {
-		setze_bild(0, IMG_LEER);
-	} else {
-		setze_bild(0,besch->gib_bild_nr(ribi_t::gib_dir(gib_fahrtrichtung())));
 	}
 }

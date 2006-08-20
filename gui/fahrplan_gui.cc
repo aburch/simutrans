@@ -372,7 +372,7 @@ DBG_MESSAGE("fahrplan_gui_t::action_triggered()","komp=%p combo=%p",komp,&line_s
     }
   } else if(komp == &bt_prev) {
     if(fpl->maxi() > 0) {
-      char & load = fpl->eintrag.at(fpl->aktuell).ladegrad;
+      uint8 & load = fpl->eintrag.at(fpl->aktuell).ladegrad;
       uint8 index=0;
       while(load>ladegrade[index]) {
       	index ++;
@@ -381,7 +381,7 @@ DBG_MESSAGE("fahrplan_gui_t::action_triggered()","komp=%p combo=%p",komp,&line_s
     }
   } else if(komp == &bt_next) {
     if(fpl->maxi() > 0) {
-      char & load = fpl->eintrag.at(fpl->aktuell).ladegrad;
+      uint8 & load = fpl->eintrag.at(fpl->aktuell).ladegrad;
       uint8 index=0;
       while(load>ladegrade[index]) {
       	index ++;

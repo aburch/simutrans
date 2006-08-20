@@ -124,6 +124,8 @@ private:
 
     char txt_convois[40];
 
+	char txt_cnv_name[118];
+
     char txt_convoi_count[40];
     char txt_convoi_value[40];
     char txt_convoi_line[128];

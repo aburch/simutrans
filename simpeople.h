@@ -34,17 +34,14 @@ private:
 protected:
 	void rdwr(loadsave_t *file);
 
+	void calc_bild();
+
 public:
 
 	fussgaenger_t(karte_t *welt, loadsave_t *file);
 	fussgaenger_t(karte_t *welt, koord3d pos);
 
 	~fussgaenger_t();
-
-	static bool register_besch(const fussgaenger_besch_t *besch);
-	static bool laden_erfolgreich();
-
-	static int gib_anzahl_besch();
 
 	const char *gib_name() const {return "Fussgaenger";};
 	enum ding_t::typ gib_typ() const {return fussgaenger;};
@@ -55,7 +52,11 @@ public:
 	virtual bool ist_weg_frei() { return 1; };
 	virtual bool hop_check() { return 1; };
 
-	void calc_bild();
+	// class register functions
+	static bool register_besch(const fussgaenger_besch_t *besch);
+	static bool laden_erfolgreich();
+
+	static int gib_anzahl_besch();
 };
 
 #endif

@@ -65,6 +65,9 @@
 /* shows with block needed update and which not */
 //#define DEBUG_FLUSH_BUFFER
 
+/* shows reserved tiles */
+//#define DEBUG_PDS
+
 /**************************** automatic stuff ********************************/
 
 // inclination types

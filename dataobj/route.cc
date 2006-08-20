@@ -20,8 +20,6 @@
 #include "../boden/wege/weg.h"
 #include "../boden/grund.h"
 #include "../ifc/fahrer.h"
-// history, since no longer support for drivables
-//#include "../ifc/route_block_tester_t.h"
 static const void * block_tester=NULL;
 
 
@@ -354,7 +352,7 @@ route_t::find_route(karte_t *welt,
 //DBG_DEBUG("add","%i,%i",tmp->pos.x,tmp->pos.y);
 			tmp = tmp->parent;
 		}
-		ok = true;
+		ok = route.get_count()>0;
   }
 
 	RELEASE_NODE();

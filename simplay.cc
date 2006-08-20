@@ -41,7 +41,6 @@
 #include "besch/skin_besch.h"
 #include "besch/sound_besch.h"
 #include "besch/weg_besch.h"
-#include "besch/way_obj_besch.h"
 #include "simworld.h"
 #include "simplay.h"
 #include "simwerkz.h"
@@ -623,6 +622,22 @@ spieler_t::halt_add(koord pos)
 	}
 	return halt;
 }
+
+
+
+/**
+ * Erzeugt eine neue Haltestelle des Spielers an Position pos
+ * @author Hj. Malthaner
+ */
+void
+spieler_t::halt_add(halthandle_t halt)
+{
+	if(!halt_list->contains(halt)) {
+		halt_list->append( halt );
+		haltcount ++;
+	}
+}
+
 
 
 /**
@@ -1299,8 +1314,8 @@ DBG_MESSAGE("spieler_t::do_ki()","%s want to build a route from %s (%d,%d) to %s
 					const ware_besch_t *freight = start->gib_ausgang()->get(start_ware).gib_typ();
 
 					// guess the "optimum" speed (usually a little too low)
-				  	int best_rail_speed = 80;// is ok enough for goods, was: min(60+freight->gib_speed_bonus()*5, 140 );
-				  	int best_road_speed = min(60+freight->gib_speed_bonus()*5, 130 );
+				  	uint32 best_rail_speed = 80;// is ok enough for goods, was: min(60+freight->gib_speed_bonus()*5, 140 );
+				  	uint32 best_road_speed = min(60+freight->gib_speed_bonus()*5, 130 );
 
 				  	// obey timeline
 					unsigned month_now = welt->get_current_month();
@@ -1342,7 +1357,7 @@ DBG_MESSAGE("do_ki()","check railway");
 						// for engine: gues number of cars
 						count_rail = (prod*dist) / (rail_vehicle->gib_zuladung()*best_rail_speed)+1;
 						// assume the engine weight 100 tons for power needed calcualtion
-						long power_needed=(long)((best_rail_speed*best_rail_speed)/2500.0+1.0)*(100.0+count_rail*(rail_vehicle->gib_gewicht()+rail_vehicle->gib_zuladung()*freight->gib_weight_per_unit()*0.001));
+						long power_needed=(long)(((best_rail_speed*best_rail_speed)/2500.0+1.0)*(100.0+count_rail*(rail_vehicle->gib_gewicht()+rail_vehicle->gib_zuladung()*freight->gib_weight_per_unit()*0.001)));
 						rail_engine = vehikelbauer_t::vehikel_search( weg_t::schiene, month_now, power_needed, best_rail_speed, NULL );
 						if(  rail_engine!=NULL  ) {
 						 	best_rail_speed = min(rail_engine->gib_geschw(),rail_vehicle->gib_geschw());
@@ -1461,7 +1476,7 @@ DBG_MESSAGE("spieler_t::do_ki()","No roadway possible.");
 									month_now = 0;
 								}
 								// for engine: gues number of cars
-								long power_needed=(long)((best_rail_speed*best_rail_speed)/2500.0+1.0)*(100.0+count_rail*(rail_vehicle->gib_gewicht()+rail_vehicle->gib_zuladung()*freight->gib_weight_per_unit()*0.001));
+								long power_needed=(long)(((best_rail_speed*best_rail_speed)/2500.0+1.0)*(100.0+count_rail*(rail_vehicle->gib_gewicht()+rail_vehicle->gib_zuladung()*freight->gib_weight_per_unit()*0.001)));
 								const vehikel_besch_t *v=vehikelbauer_t::vehikel_search( weg_t::schiene, month_now, power_needed, best_rail_speed, NULL );
 								if(v->gib_betriebskosten()<rail_engine->gib_betriebskosten()) {
 									rail_engine = v;
@@ -2277,7 +2292,7 @@ spieler_t::create_rail_transport_vehikel(const koord platz1, const koord platz2,
 	if(  rail_engine->get_engine_type()==vehikel_besch_t::electric  ) {
 		// we need overhead wires
 		value_t v;
-		v.p = (void *)wayobj_t::wayobj_search(weg_t::schiene,weg_t::overheadlines,welt->get_timeline_year_month());
+		v.p = (const void *)(wayobj_t::wayobj_search(weg_t::schiene,weg_t::overheadlines,welt->get_timeline_year_month()));
 		wkz_wayobj(this,welt,INIT,v);
 		wkz_wayobj(this,welt,platz1,v);
 		wkz_wayobj(this,welt,platz2,v);

@@ -67,7 +67,7 @@ class roadsign_besch_t : public obj_besch_t {
 	uint16 obsolete_date;
 
 public:
-	enum types {ONE_WAY=1, FREE_ROUTE=2, PRIVATE_ROAD=4, SIGN_SIGNAL=8, SIGN_PRE_SIGNAL=16 };
+	enum types {ONE_WAY=1, FREE_ROUTE=2, PRIVATE_ROAD=4, SIGN_SIGNAL=8, SIGN_PRE_SIGNAL=16, ONLY_BACKIMAGE=32 };
 
 	const char *gib_name() const
 	{

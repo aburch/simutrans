@@ -43,7 +43,7 @@ void roadsign_writer_t::write_obj(FILE *fp, obj_node_t &parent, tabfileobj_t &ob
 	besch.cost = obj.get_int("cost", 500)*100;
 	besch.min_speed = obj.get_int("min_speed", 0);
 	besch.flags = (obj.get_int("single_way", 0)>0) + (obj.get_int("free_route", 0)>0)*2 + (obj.get_int("is_private", 0)>0)*4 +
-						(obj.get_int("is_signal", 0)>0)*8 + (obj.get_int("is_presignal", 0)>0)*16;
+						(obj.get_int("is_signal", 0)>0)*8 + (obj.get_int("is_presignal", 0)>0)*16 + (obj.get_int("no_foreground", 0)>0)*32;
 	besch.wtyp =  get_waytype(obj.get("waytype"));
 
 	// Hajo: temp vars of appropriate size
@@ -81,7 +81,7 @@ void roadsign_writer_t::write_obj(FILE *fp, obj_node_t &parent, tabfileobj_t &ob
 	slist_tpl<cstring_t> keys;
 	cstring_t str;
 
-	for(int i=0; i<16; i++) {
+	for(int i=0; i<24; i++) {
 		char buf[40];
 
 		sprintf(buf, "image[%i]", i);

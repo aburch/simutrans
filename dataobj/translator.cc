@@ -45,11 +45,12 @@ is_unicode_file(FILE *f)
 {
 	unsigned char	str[2];
 	int	pos = ftell(f);
-DBG_DEBUG("is_unicode_file()", "checking for unicode");fflush(NULL);
+//DBG_DEBUG("is_unicode_file()", "checking for unicode");fflush(NULL);
 	fread( str, 1, 2,  f );
-DBG_DEBUG("is_unicode_file()", "file starts with %x%x",str[0],str[1]);fflush(NULL);
+//DBG_DEBUG("is_unicode_file()", "file starts with %x%x",str[0],str[1]);fflush(NULL);
 	if(  str[0]==0xC2  &&  str[1]==0xA7  ) {
 		// the first line must contain an UTF8 coded paragraph (Latin A7, UTF8 C2 A7), then it is unicode
+DBG_DEBUG("is_unicode_file()", "file is UTF-8");
 		return true;
 	}
 	fseek( f, pos, SEEK_SET );
@@ -298,11 +299,13 @@ DBG_MESSAGE("translator::load()", "%d languages to load", num_lang_dat);
 	while(num_lang_dat-->0  &&  loc>0) {
 		cstring_t fileName(folder.at(num_lang_dat));
 		cstring_t testFolderName("text/");
-		cstring_t iso = fileName.substr(5, fileName.len() - 4);
+		cstring_t iso = fileName.substr(fileName.find_back('/')+1, fileName.len() - 4);
 
 		FILE *file = NULL;
-		file = fopen(testFolderName + iso + ".tab", "rb");
+//		file = fopen(testFolderName + iso + ".tab", "rb");
+		file = fopen(fileName.chars(), "rb");
 		if(file) {
+DBG_MESSAGE("translator::load()","base file \"%s\" - iso: \"%s\"",fileName.chars(),iso.chars());
 			load_language_iso(iso);
 			load_language_file(file);
 			fclose(file);
@@ -315,13 +318,15 @@ DBG_MESSAGE("translator::load()", "%d languages to load", num_lang_dat);
 	// there can be more than one file per language, provided it is name like iso_xyz.tab
 	cstring_t folderName(scenario_path+"text/");
 	int num_pak_lang_dat = folder.search(folderName, "tab");
+DBG_MESSAGE("translator::load()","search folder \"%s\" and found %i files",folderName.chars(),num_pak_lang_dat);
 	//read now the basic language infos
 	while(num_pak_lang_dat-->0) {
 		cstring_t fileName(folder.at(num_pak_lang_dat));
-		cstring_t iso = fileName.substr(folderName.len(), fileName.len()-4);
+		cstring_t iso = fileName.substr(fileName.find_back('/')+1, fileName.len()-4);
 
 		int iso_nr=get_language_iso(iso.chars());
 		if(iso_nr>=0) {
+DBG_MESSAGE("translator::load()","loading pak translations from %s for iso nr %i",fileName.chars(),iso_nr);
 			FILE *file = fopen(fileName.chars(), "rb");
 			if(file) {
 				bool file_is_utf = is_unicode_file(file);
@@ -376,13 +381,13 @@ DBG_MESSAGE("translator::load()", "%d languages to load", num_lang_dat);
 
 void translator::load_language_iso(cstring_t & iso)
 {
-    cstring_t base(iso);
-    single_instance->language_names_iso[single_instance->lang_count] = strdup(iso.chars()+1);
-    int loc = iso.find('_');
-    if(loc != -1) {
-        base = iso.left(loc);
-    }
-    single_instance->language_names_iso_base[single_instance->lang_count] = strdup(base.chars());
+	cstring_t base(iso);
+	single_instance->language_names_iso[single_instance->lang_count] = strdup(iso.chars()+1);
+	int loc = iso.find('_');
+	if(loc != -1) {
+		base = iso.left(loc);
+	}
+	single_instance->language_names_iso_base[single_instance->lang_count] = strdup(base.chars());
 }
 
 

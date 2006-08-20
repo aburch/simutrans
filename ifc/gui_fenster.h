@@ -41,10 +41,10 @@ public:
      * @author Markus Weber
      * @date   25-May-2002
      */
-    virtual resize_modes get_resizemode(void) {return no_resize;};
+    virtual resize_modes get_resizemode(void) {return no_resize;}
 
 
-    virtual ~gui_fenster_t() {};
+    virtual ~gui_fenster_t() {}
 
 
     /**
@@ -52,7 +52,7 @@ public:
      * @return den Dateinamen für die Hilfe, oder NULL
      * @author Hj. Malthaner
      */
-    virtual const char * gib_hilfe_datei() const {return NULL;};
+    virtual const char * gib_hilfe_datei() const {return NULL;}
 
 
     /**
@@ -60,7 +60,7 @@ public:
      * @return true if such a button is needed
      * @author Hj. Malthaner
      */
-    virtual bool has_min_sizer() const {return false;};
+    virtual bool has_min_sizer() const {return false;}
 
 
     /**
@@ -68,7 +68,7 @@ public:
      * @return true if such a button is needed
      * @author Volker Meyer
      */
-    virtual bool has_next() const {return false;};
+    virtual bool has_next() const {return false;}
 
 
     /**
@@ -76,7 +76,7 @@ public:
      * @return true if such a button is needed
      * @author Volker Meyer
      */
-    virtual bool has_prev() const {return has_next();};
+    virtual bool has_prev() const {return has_next();}
 
 
     /**
@@ -110,7 +110,7 @@ public:
     {
       koord	groesse = gib_fenstergroesse();
 	 return (x>=0 && y>=0 && groesse.x >= x && groesse.y >= y);
-    };
+    }
 
 
 

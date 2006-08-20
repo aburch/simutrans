@@ -6,6 +6,29 @@ Known bugs: (hard to fix)
 	valgrind complains about errors in SDL and X?
 
 
+Release of 89.02.2
+
+02-Aug-2006: (prissi)
+	FIX: loading pak translations fixed
+	ADD: ids displayed for convois ("cl_btn_sort_id" sort by convoi ids)
+	FIX: wayobj were not displayed
+	FIX: minspeed signs (and many others) work again for cars (fixed the sprite sorter)
+	FIX: trains ignoring signals after reloading
+	ADD: trams rail over road bridges and through road tunnels
+	FIX: public owner can now build stops anywhere; adjacent stop will be taken over by the public owner; the price is 36*monthly maint.*level!
+	FIX: no depots for public service, since this player is not intended to run any convois
+	FIX: display error with diagonal wayobjects
+	ADD: generic help for factory window
+
+
+Release of 89.02.1
+
+30-Jul-2006: (prissi)
+	ADD: braking before red signals and at the end of stations in the following steps 200,100,50,25 (only stations)
+	FIX: no airplanes servicing oil riggs any more
+	ADD: new text "\nis reserved by:" for showing reservation on tracks
+	FIX: bus checks for electric route
+
 
 Release of 89.02
 

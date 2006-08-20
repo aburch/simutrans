@@ -10,6 +10,7 @@
 
 #include "../simworld.h"
 #include "../simdings.h"
+#include "../boden/grund.h"
 #include "../boden/wege/strasse.h"
 #include "../boden/wege/schiene.h"
 #include "../boden/grund.h"
@@ -27,13 +28,12 @@
 
 bruecke_t::bruecke_t(karte_t *welt, loadsave_t *file) : ding_t(welt)
 {
-	besch = NULL;
 	rdwr(file);
 	if(gib_besitzer()) {
 		gib_besitzer()->add_maintenance(besch->gib_wartung());
 	}
-	setze_bild(0, besch->gib_hintergrund(img));
 	step_frequency = 0;
+	setze_bild(0,besch->gib_hintergrund(img));
 }
 
 bruecke_t::bruecke_t(karte_t *welt, koord3d pos, const int y_off, spieler_t *sp,
@@ -42,16 +42,13 @@ bruecke_t::bruecke_t(karte_t *welt, koord3d pos, const int y_off, spieler_t *sp,
 {
 	this->besch = besch;
 	this->img = img;
-
-	setze_bild(0, besch->gib_hintergrund(img));
 	setze_besitzer( sp );
-	setze_yoff( height_scaling(y_off) );
-
 	if(gib_besitzer()) {
 		gib_besitzer()->buche(-besch->gib_preis(), gib_pos().gib_2d(), COST_CONSTRUCTION);
 		gib_besitzer()->add_maintenance(besch->gib_wartung());
 	}
 	step_frequency = 0;
+	setze_bild(0,besch->gib_hintergrund(img));
 }
 
 
@@ -60,6 +57,21 @@ bruecke_t::~bruecke_t()
 	if(gib_besitzer()) {
 		gib_besitzer()->buche(-besch->gib_preis(), gib_pos().gib_2d(), COST_CONSTRUCTION);
 		gib_besitzer()->add_maintenance(-besch->gib_wartung());
+	}
+}
+
+
+void
+bruecke_t::calc_bild()
+{
+	grund_t *gr=welt->lookup(gib_pos());
+	if(gr) {
+		// if we are on the bridge, put the image into the ground, so we can have two ways ...
+		if(gr->gib_weg_nr(0)) {
+			gr->gib_weg_nr(0)->setze_bild(besch->gib_hintergrund(img));
+		}
+		setze_bild(0,IMG_LEER);
+		setze_yoff( -gr->gib_weg_yoff() );
 	}
 }
 
@@ -103,6 +115,9 @@ void bruecke_t::rdwr(loadsave_t *file)
 
 	if(file->is_loading()) {
 		besch = brueckenbauer_t::gib_besch(s);
+		if(besch==NULL) {
+			besch = brueckenbauer_t::gib_besch(translator::compatibility_name(s));
+		}
 		if(besch==NULL) {
 			if(strstr(s,"onorail") ) {
 				besch = brueckenbauer_t::find_bridge(weg_t::monorail,50,0);

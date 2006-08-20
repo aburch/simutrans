@@ -28,21 +28,21 @@ tunnelboden_t::tunnelboden_t(karte_t *welt, koord3d pos, hang_t::typ hang_typ) :
 
 void tunnelboden_t::calc_bild()
 {
-	if(gib_weg_nr(0)) {
-		gib_weg_nr(0)->setze_bild(IMG_LEER);
-	}
 	if(ist_karten_boden()  &&  suche_obj(ding_t::tunnel)) {
 		clear_flag(grund_t::is_in_tunnel);
 		boden_t::calc_bild();
 //		setze_bild(grund_besch_t::boden->gib_bild(gib_grund_hang()));
-		if(gib_weg_nr(0)) {
-			gib_weg_nr(0)->setze_bild(IMG_LEER);
-		}
 	}
 	else {
 		clear_back_bild();
 		setze_bild(IMG_LEER);
 		set_flag(grund_t::is_in_tunnel);
+	}
+	if(wege[0]) {
+		wege[0]->setze_bild(IMG_LEER);
+	}
+	if(wege[1]) {
+		wege[1]->setze_bild(IMG_LEER);
 	}
 }
 

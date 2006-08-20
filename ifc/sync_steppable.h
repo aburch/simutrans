@@ -26,7 +26,7 @@ public:
      */
     virtual bool sync_step(long delta_t) = 0;
 
-    virtual ~sync_steppable() {};
+    virtual ~sync_steppable() {}
 };
 
 #endif

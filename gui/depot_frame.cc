@@ -624,7 +624,8 @@ void depot_frame_t::update_data()
 
 	convoi_pics.clear();
 	if(cnv.is_bound() && cnv->gib_vehikel_anzahl() > 0) {
-		inp_name.setze_text(cnv->access_name(), 48);
+		tstrncpy( txt_cnv_name, cnv->gib_internal_name(), 116 );
+		inp_name.setze_text(txt_cnv_name, 116);
 		gui_image_list_t::image_data_t img_data;
 
 		unsigned i;
@@ -843,11 +844,15 @@ depot_frame_t::image_from_convoi_list(int nr)
 bool
 depot_frame_t::action_triggered(gui_komponente_t *komp,value_t p)
 {
-   if(komp != NULL) {	// message from outside!
-       if(komp == &bt_start) {
-	   if(depot->start_convoi(icnv)) {
-	   	icnv--;
-	    }
+	if(komp != NULL) {	// message from outside!
+		if(komp == &bt_start) {
+			convoihandle_t cnv=depot->get_convoi(icnv);
+			if(cnv.is_bound()) {
+				cnv->setze_name(txt_cnv_name);
+			}
+			if(depot->start_convoi(icnv)) {
+				icnv--;
+			}
 	} else if(komp == &bt_schedule) {
 	    fahrplaneingabe();
 	    return true;

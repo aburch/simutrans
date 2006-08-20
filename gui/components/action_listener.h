@@ -22,6 +22,7 @@ class gui_komponente_t;
 class action_listener_t
 {
 public:
+	virtual ~action_listener_t() {}
 
     /**
      * This method is called if an action is triggered

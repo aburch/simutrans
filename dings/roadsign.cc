@@ -91,19 +91,24 @@ roadsign_t::~roadsign_t()
 void roadsign_t::set_dir(ribi_t::ribi dir)
 {
 	this->dir = dir;
+	weg_t *weg = welt->lookup(gib_pos())->gib_weg((weg_t::typ)besch->gib_wtyp());
+	if(besch->gib_wtyp()!=weg_t::schiene  &&   besch->gib_wtyp()!=weg_t::monorail) {
+		weg->count_sign();
+	}
 	if(besch->is_single_way()  ||  besch->is_signal()  ||  besch->is_pre_signal()) {
-		weg_t *weg = welt->lookup(gib_pos())->gib_weg((weg_t::typ)besch->gib_wtyp());
-		if(weg) {
-			// set mask, if it is a signle way ...
-			if(ribi_t::ist_einfach(dir)) {
-				weg->setze_ribi_maske(dir);
-			}
-			else {
-				weg->setze_ribi_maske(ribi_t::keine);
-			}
-			weg->count_sign();
-DBG_MESSAGE("roadsign_t::set_dir()","ribi %i",dir);
+		// set mask, if it is a signle way ...
+		weg->count_sign();
+		if(ribi_t::ist_einfach(dir)) {
+			weg->setze_ribi_maske(dir);
 		}
+		else {
+			weg->setze_ribi_maske(ribi_t::keine);
+		}
+DBG_MESSAGE("roadsign_t::set_dir()","ribi %i",dir);
+	}
+	step_frequency = 0;
+	if(flags&SWITCH_AUTOMATIC) {
+		step_frequency = 1;
 	}
 	setze_bild(0,IMG_LEER);
 	after_bild = IMG_LEER;
@@ -134,25 +139,50 @@ void roadsign_t::info(cbuffer_t & buf) const
 
 
 
+// coulb be still better aligned for drive_left settings ...
 void roadsign_t::calc_bild()
 {
 	if(step_frequency==0) {
 
-		if(dir&ribi_t::nord) {
-			after_bild = besch->gib_bild_nr(0+zustand*4);
+		image_id bild=IMG_LEER;
+		after_bild = IMG_LEER;
+
+		if(dir&ribi_t::west) {
+			after_bild = besch->gib_bild_nr(3+zustand*4);
 		}
 
 		if(dir&ribi_t::sued) {
-			setze_bild(0, besch->gib_bild_nr(1+zustand*4));
+			if(after_bild!=IMG_LEER) {
+				bild = besch->gib_bild_nr(0+zustand*4);
+			}
+			else {
+				after_bild = besch->gib_bild_nr(0+zustand*4);
+			}
 		}
 
 		if(dir&ribi_t::ost) {
-			setze_bild(0, besch->gib_bild_nr(3+zustand*4));
+			bild = besch->gib_bild_nr(2+zustand*4);
 		}
 
-		if(dir&ribi_t::west) {
-			after_bild = besch->gib_bild_nr(2+zustand*4);
+		if(dir&ribi_t::nord) {
+			if(bild!=IMG_LEER) {
+				after_bild = besch->gib_bild_nr(1+zustand*4);
+			}
+			else {
+				bild = besch->gib_bild_nr(1+zustand*4);
+			}
 		}
+
+		// some signs on roads must not have a background (but then they have only two rotations
+		if(besch->get_flags()&roadsign_besch_t::ONLY_BACKIMAGE) {
+			if(after_bild!=IMG_LEER) {
+				bild = after_bild;
+			}
+			after_bild = IMG_LEER;
+		}
+
+		setze_bild( 0, bild );
+
 	}
 	else {
 		// traffic light
@@ -295,9 +325,7 @@ void roadsign_t::laden_abschliessen()
 {
 	// after loading restore directions
 	set_dir(dir);
-	if((flags&SWITCH_AUTOMATIC)==0) {
-		step_frequency = 1;
-	}
+	welt->lookup(gib_pos())->gib_weg(besch->gib_wtyp())->count_sign();
 }
 
 
@@ -371,7 +399,7 @@ DBG_DEBUG("roadsign_t::fill_menu()","try at pos %i to add %s(%p)",i,besch->gib_n
 				// only add items with a cursor
 DBG_DEBUG("roadsign_t::fill_menu()","at pos %i add %s",i,besch->gib_name());
 				int n=sprintf(buf, "%s ",translator::translate(besch->gib_name()));
-				money_to_string(buf+n, besch->gib_preis()/-100.0);
+				money_to_string(buf+n, besch->gib_preis()/100.0);
 
 				wzw->add_param_tool(werkzeug,
 				  (const void *)besch,

@@ -65,14 +65,14 @@ public:
      * Virtueller Destruktor, damit Klassen sauber abgeleitet werden können
      * @author Hj. Malthaner
      */
-    virtual ~gui_komponente_t() {};
+    virtual ~gui_komponente_t() {}
 
 
     void set_read_only(bool yesno) {
       read_only = yesno;
     }
 
-    bool get_allow_focus() { return !read_only; };
+    bool get_allow_focus() { return !read_only; }
 
 
     /**
@@ -88,7 +88,7 @@ public:
      * Checks if component should be displayed
      * @author Hj. Malthaner
      */
-    bool is_visible() const {return visible;};
+    bool is_visible() const {return visible;}
 
     /**
      * Position der Komponente. Eintraege sind relativ zu links/oben der
@@ -153,7 +153,7 @@ public:
     virtual bool getroffen(int x, int y)
     {
 	return (pos.x <= x && pos.y <= y && (pos.x+groesse.x) >= x && (pos.y+groesse.y) >= y);
-    };
+    }
 
 
     /**
@@ -162,7 +162,7 @@ public:
      * @author Hj. Malthaner
      * prissi: default -> do nothing
      */
-    virtual void infowin_event(const event_t *) { };
+    virtual void infowin_event(const event_t *) { }
 
 
     /**

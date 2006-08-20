@@ -23,6 +23,8 @@ class grund_t;
 class fahrer_t
 {
 public:
+	virtual ~fahrer_t() {}
+
 	virtual bool ist_befahrbar(const grund_t* ) const = 0;
 
 	/**

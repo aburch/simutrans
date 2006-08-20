@@ -338,6 +338,22 @@ const gui_fenster_t *win_get_top()
 	return (ins_win - 1>=0) ? wins[ins_win-1].gui : NULL;
 }
 
+// brings a window to front, if open
+bool
+top_win(const gui_fenster_t *gui)
+{
+	int i;
+	for(i=ins_win-1; i>=0; i--) {
+		if(wins[i].gui==gui) {
+			if(ins_win-1!=i) {
+				top_win(i);
+			}
+			return true;
+		}
+	}
+	// not open
+	return false;
+}
 
 /**
  * Checks if a window is a top level window

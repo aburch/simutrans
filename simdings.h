@@ -30,8 +30,6 @@ class convoi_t;
 class spieler_t;
 struct event_t;
 
-// Klassenhierarchie Spielobjekte
-
 /**
  * Von der Klasse ding_t sind alle Objekte in Simutrans abgeleitet.
  *
@@ -206,6 +204,9 @@ public:
 
      inline const sint8 gib_xoff() const {return xoff;};
      inline const sint8 gib_yoff() const {return yoff;};
+
+	// true for all moving objects
+	inline bool is_moving() const { return (gib_typ()&96)==32; }
 
 	// while in principle, this should trigger the dirty, it takes just too much time to do it
 	// so prissi removed this routines

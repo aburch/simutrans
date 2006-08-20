@@ -128,6 +128,7 @@ bool win_is_top(const gui_fenster_t *ig);
 void destroy_win(const gui_fenster_t *ig);
 void destroy_all_win();
 
+bool top_win(const gui_fenster_t *ig);
 int top_win(int win);
 void display_win(int win);
 void display_all_win();

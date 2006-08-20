@@ -30,70 +30,72 @@ template<class T> class slist_mit_gewichten_tpl;
 class verkehrsteilnehmer_t : public vehikel_basis_t, public sync_steppable
 {
 protected:
-    /**
-     * Hoechstgeschwindigkeit
-     * @author Hj. Malthaner
-     */
-    sint32 max_speed;
+	/**
+	 * Hoechstgeschwindigkeit
+	 * @author Hj. Malthaner
+	 */
+	sint32 max_speed;
 
 
-    /**
-     * Aktuelle Geschwindigkeit
-     * @author Hj. Malthaner
-     */
-    sint32 current_speed;
+	/**
+	 * Aktuelle Geschwindigkeit
+	 * @author Hj. Malthaner
+	 */
+	sint32 current_speed;
 
 
-    /**
-     * Entfernungszaehler
-     * @author Hj. Malthaner
-     */
-    uint32 weg_next;
+	/**
+	 * Entfernungszaehler
+	 * @author Hj. Malthaner
+	 */
+	uint32 weg_next;
 
-    virtual bool ist_weg_frei() {return 1; }	// always free
+	virtual bool ist_weg_frei() {return 1; }	// always free
 
 protected:
+	virtual weg_t::typ gib_wegtyp() const { return weg_t::strasse; }
 
-    virtual weg_t::typ gib_wegtyp() const { return weg_t::strasse; }
+	virtual bool hop_check() {return true;}
+	virtual void hop();
+	virtual void age() { }
+	virtual int gib_age() { return 1; }
 
-    virtual bool hop_check() {return true;}
-    virtual void hop();
-    virtual void age() { }
-   virtual int gib_age() { return 1; }
+	void setze_max_speed(int s) {max_speed = s;}
+	int gib_max_speed() const {return max_speed;}
 
-    void setze_max_speed(int s) {max_speed = s;}
-    int gib_max_speed() const {return max_speed;}
+	void calc_current_speed();
 
-    void calc_current_speed();
-
-    verkehrsteilnehmer_t(karte_t *welt);
-    verkehrsteilnehmer_t(karte_t *welt, koord3d pos);
+	verkehrsteilnehmer_t(karte_t *welt);
+	verkehrsteilnehmer_t(karte_t *welt, koord3d pos);
 
 public:
-    const char *gib_name() const = 0;
-    enum ding_t::typ gib_typ() const  = 0;
+	const char *gib_name() const = 0;
+	enum ding_t::typ gib_typ() const  = 0;
 
 
-    void sync_prepare() {};
-    bool sync_step(long delta_t);
+	void sync_prepare() {};
+	bool sync_step(long delta_t);
 
 
-    /**
-     * Öffnet ein neues Beobachtungsfenster für das Objekt.
-     * @author Hj. Malthaner
-     */
-    virtual void zeige_info();
+	/**
+	 * Öffnet ein neues Beobachtungsfenster für das Objekt.
+	 * @author Hj. Malthaner
+	 */
+	virtual void zeige_info();
 
 
-    /**
-     * @return Einen Beschreibungsstring für das Objekt, der z.B. in einem
-     * Beobachtungsfenster angezeigt wird.
-     * @author Hj. Malthaner
-     * @see simwin
-     */
-    virtual char *info(char *buf) const;
+	/**
+	 * @return Einen Beschreibungsstring für das Objekt, der z.B. in einem
+	 * Beobachtungsfenster angezeigt wird.
+	 * @author Hj. Malthaner
+	 * @see simwin
+	 */
+	virtual char *info(char *buf) const;
 
-    void rdwr(loadsave_t *file);
+	void rdwr(loadsave_t *file);
+
+	// finalizes direction
+	void laden_abschliessen(){calc_bild();}
 
 	// we allow to remove all cars etc.
 	const char *ist_entfernbar(const spieler_t *) { return NULL; }
@@ -102,64 +104,64 @@ public:
 
 class stadtauto_t : public verkehrsteilnehmer_t {
 private:
-    static slist_mit_gewichten_tpl<const stadtauto_besch_t *> liste_timeline;
-    static slist_mit_gewichten_tpl<const stadtauto_besch_t *> liste;
-    static stringhashtable_tpl<const stadtauto_besch_t *> table;
+	static slist_mit_gewichten_tpl<const stadtauto_besch_t *> liste_timeline;
+	static slist_mit_gewichten_tpl<const stadtauto_besch_t *> liste;
+	static stringhashtable_tpl<const stadtauto_besch_t *> table;
 
-    const stadtauto_besch_t *besch;
+	const stadtauto_besch_t *besch;
 
 	// prissi: time to life in blocks
 #ifdef DESTINATION_CITYCARS
 	koord target;
 #endif
-    int time_to_life;
-    sint32 ms_traffic_jam;
+	int time_to_life;
+	sint32 ms_traffic_jam;
 
-    virtual bool hop_check();
-    virtual bool ist_weg_frei();
+	virtual bool hop_check();
+	virtual bool ist_weg_frei();
 
 protected:
-    void rdwr(loadsave_t *file);
+	void rdwr(loadsave_t *file);
 
 	void calc_bild();
 
 public:
-    stadtauto_t(karte_t *welt, loadsave_t *file);
-    stadtauto_t(karte_t *welt, koord3d pos, koord target);
+	stadtauto_t(karte_t *welt, loadsave_t *file);
+	stadtauto_t(karte_t *welt, koord3d pos, koord target);
 
-    /**
-     * Ensures that this object is removed correctly from the list
-     * of sync steppable things!
-     * @author Hj. Malthaner
-     */
-    virtual ~stadtauto_t();
+	/**
+	 * Ensures that this object is removed correctly from the list
+	 * of sync steppable things!
+	 * @author Hj. Malthaner
+	 */
+	virtual ~stadtauto_t();
 
-    virtual void hop();
-   virtual void age() { time_to_life--; }
-   virtual int gib_age() { return time_to_life; }
-   void destroy() {time_to_life=0; }
+	virtual void hop();
+	virtual void age() { time_to_life--; }
+	virtual int gib_age() { return time_to_life; }
+	void destroy() {time_to_life=0; }
 
-    /* this function builts the list of the allowed citycars
-     * it should be called every month and in the beginning of a new game
-     * @author prissi
-     */
-    static void built_timeline_liste();
-    static int gib_anzahl_besch();
+	virtual void betrete_feld();
 
-    static bool register_besch(const stadtauto_besch_t *besch);
-    static bool laden_erfolgreich();
+	/**
+	 * Methode für asynchrone Funktionen eines Objekts.
+	 * @return false to be deleted after the step, true to live on
+	 * @author Hj. Malthaner
+	 */
+	virtual bool step(long delta_t);
 
-   virtual void betrete_feld();
+	const char *gib_name() const {return "Verkehrsteilnehmer";}
+	enum ding_t::typ gib_typ() const {return verkehr;}
 
-    /**
-     * Methode für asynchrone Funktionen eines Objekts.
-     * @return false to be deleted after the step, true to live on
-     * @author Hj. Malthaner
-     */
-    virtual bool step(long delta_t);
+	/* this function builts the list of the allowed citycars
+	 * it should be called every month and in the beginning of a new game
+	 * @author prissi
+	 */
+	static void built_timeline_liste();
+	static int gib_anzahl_besch();
 
-    const char *gib_name() const {return "Verkehrsteilnehmer";}
-    enum ding_t::typ gib_typ() const {return verkehr;}
+	static bool register_besch(const stadtauto_besch_t *besch);
+	static bool laden_erfolgreich();
 };
 
 #endif

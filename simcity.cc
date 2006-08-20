@@ -2114,7 +2114,7 @@ stadt_t::renoviere_gebaeude(koord k)
 			won += h->gib_level() * 10;
 		} else if(will_haben == gebaeude_t::gewerbe) {
 			arb += h->gib_level() * 20;
-		} else if(will_haben == gebaeude_t::industrie, streetdir) {
+		} else if(will_haben == gebaeude_t::industrie) {
 			arb += h->gib_level() * 20;
 		}
 

@@ -20,13 +20,13 @@ public:
 	* Geforderter Beladungsgrad an diesem Halt
 	* @author Hj. Malthaner
 	*/
-	char ladegrad;
+	uint8 ladegrad;
 
 	/**
 	* unused
 	* @author prissi
 	*/
-	char flags;
+	uint8 flags;
 };
 
 #endif // linieneintrag_t_h

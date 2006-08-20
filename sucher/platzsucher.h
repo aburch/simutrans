@@ -98,6 +98,7 @@ protected:
 
     bool ist_randfeld(koord d) const;
     platzsucher_t(karte_t *welt) { this->welt = welt; }
+    virtual ~platzsucher_t() {}
 public:
     koord suche_platz(koord start, int b, int h, bool *r = NULL);
 };

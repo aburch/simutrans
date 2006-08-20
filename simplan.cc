@@ -107,6 +107,7 @@ bool planquadrat_t::kartenboden_insert(grund_t *bd)
 		boeden.insert(0, bd);
 		if(already_there) {
 			bd->set_flag(grund_t::is_cover_tile);
+			bd->set_kartenboden(false);
 		}
 		bd->calc_bild();
 		reliefkarte_t::gib_karte()->calc_map_pixel(bd->gib_pos().gib_2d());
@@ -146,6 +147,7 @@ planquadrat_t::kartenboden_setzen(grund_t *bd, bool mit_spieler)
 			// now delete everything
 			delete tmp;
 		}
+		bd->set_kartenboden(true);
 		bd->calc_bild();
 
 		reliefkarte_t::gib_karte()->calc_map_pixel(bd->gib_pos().gib_2d());
@@ -161,8 +163,9 @@ void planquadrat_t::boden_ersetzen(grund_t *alt, grund_t *neu)
 {
 	if(alt != NULL && neu != NULL) {
 		for(int i=0; i<boeden.get_count(); i++) {
-			if(boeden.get(i) == alt) {
+			if(boeden.get(i)==alt) {
 				grund_t *tmp = boeden.get(i);
+				neu->set_kartenboden(i==0);
 				boeden.at(i) = neu;
 				if(tmp->get_flag(grund_t::is_cover_tile)) {
 					neu->set_flag(grund_t::is_cover_tile);
@@ -178,17 +181,14 @@ void planquadrat_t::boden_ersetzen(grund_t *alt, grund_t *neu)
 bool
 planquadrat_t::destroy(spieler_t *sp)
 {
-    while(boeden.get_count() > 0) {
-        grund_t *tmp = boeden.get(boeden.get_count() - 1);
-
-	assert(tmp);
-
-        tmp->obj_loesche_alle(sp);
-
-        boeden.remove(tmp);
-        delete tmp;
-    }
-    return true;
+	while(boeden.get_count()>0) {
+		grund_t *tmp = boeden.get(boeden.get_count() - 1);
+		assert(tmp);
+		tmp->obj_loesche_alle(sp);
+		boeden.remove(tmp);
+		delete tmp;
+	}
+	return true;
 }
 
 void
@@ -320,7 +320,7 @@ void planquadrat_t::angehoben(karte_t *welt)
 
 
 void
-planquadrat_t::display_boden(const sint16 xpos, const sint16 ypos, const sint16 raster, bool dirty) const
+planquadrat_t::display_boden(const sint16 xpos, const sint16 ypos, const sint16 /*raster*/, bool dirty) const
 {
 	if(boeden.get_count() > 0) {
 #ifdef COVER_TILES

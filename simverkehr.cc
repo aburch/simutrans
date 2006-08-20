@@ -217,28 +217,26 @@ stadtauto_t::ist_weg_frei()
 	}
 
 	const grund_t *gr = welt->lookup(pos_next);
-	if(gr==NULL) {
+	if(gr==NULL  ||  gr->obj_count()>200) {
 		return false;
 	}
 
-	if(gr->obj_count()>200) {
-		// too many cars here
+	weg_t *str=gr->gib_weg(weg_t::strasse);
+	if(!str) {
 		return false;
 	}
 
-	// pruefe auf Schienenkreuzung
-	if(gr->gib_weg(weg_t::schiene) && gr->gib_weg(weg_t::strasse)) {
-		// das ist eine Kreuzung, ist sie frei ?
 
+	if(gr->gib_weg(weg_t::schiene)) {
+		// railway crossing
 		if(gr->suche_obj_ab(ding_t::waggon,PRI_RAIL_AND_ROAD)) {
 			return false;
 		}
 	}
 
 	// check for traffic lights
-	ding_t *dt = gr->obj_bei(0);
-	if(dt  &&  dt->gib_typ()==ding_t::roadsign) {
-		const roadsign_t *rs = (roadsign_t *)dt;
+	if(str->has_sign()) {
+		roadsign_t *rs = (roadsign_t *)gr->suche_obj(ding_t::roadsign);
 		const int richtung = ribi_typ(gib_pos().gib_2d(),pos_next.gib_2d());
 		if(rs->gib_besch()->is_traffic_light()  &&  (rs->get_dir()&richtung)==0) {
 			fahrtrichtung = richtung;
@@ -363,17 +361,6 @@ stadtauto_t::step(long delta_t)
 
 
 
-void stadtauto_t::calc_bild()
-{
-	if(welt->lookup(gib_pos())->ist_im_tunnel()) {
-		setze_bild(0,IMG_LEER);
-	} else {
-		setze_bild(0,besch->gib_bild_nr(ribi_t::gib_dir(gib_fahrtrichtung())));
-	}
-}
-
-
-
 void
 stadtauto_t::hop()
 {
@@ -397,48 +384,69 @@ stadtauto_t::hop()
 	}
 
 	ribi_t::ribi ribi = weg->gib_ribi() & ribi_t::gib_forward(fahrtrichtung);
-	if(ribi==ribi_t::keine) {
+	if(ribi_t::ist_einfach(ribi)  &&  from->get_neighbour(to, weg_t::strasse, koord(ribi))) {
+		// we should add here
+		bool add=true;
+		// check, if roadsign forbid next step ...
+		if(to->gib_weg(weg_t::strasse)->has_sign()) {
+			const roadsign_besch_t *rs_besch = ((roadsign_t *)to->suche_obj(ding_t::roadsign))->gib_besch();
+			add = (rs_besch->is_traffic_light()  ||  rs_besch->gib_min_speed()<=gib_max_speed())  &&  !rs_besch->is_private_way();
+		}
+		if(add) {
+			pos_next = to->gib_pos();
+			fahrtrichtung = calc_richtung(gib_pos().gib_2d(), pos_next.gib_2d(), dx, dy);
+		}
+		else {
+			// turn around
+			fahrtrichtung = ribi_t::rueckwaerts(fahrtrichtung);
+			pos_next = gib_pos();
+			current_speed = 1;
+			dx = -dx;
+			dy = -dy;
+		}
+	}
+	else if(ribi==ribi_t::keine) {
 		fahrtrichtung = ribi_t::rueckwaerts(fahrtrichtung);
 		pos_next = gib_pos();
 		current_speed = 1;
 		dx = -dx;
 		dy = -dy;
 	}
-	else if(ribi_t::ist_einfach(ribi)  &&  from->get_neighbour(to, weg_t::strasse, koord(ribi))) {
-		// ok, not choice, next field is this!
-		pos_next = to->gib_pos();
-		fahrtrichtung = calc_richtung(gib_pos().gib_2d(), pos_next.gib_2d(), dx, dy);
-	}
 	else {
 		// add all good ribis here
 		for(int r = 0; r < 4; r++) {
 			if(  (ribi&ribi_t::nsow[r])!=0  &&  from->get_neighbour(to, weg_t::strasse, koord::nsow[r]) ) {
 				// check, if this is just a single tile deep
-				int next_ribi =  to->gib_weg(weg_t::strasse)->gib_ribi();
+				weg_t *w=to->gib_weg(weg_t::strasse);
+				int next_ribi =  w->gib_ribi();
 				if((ribi&next_ribi)!=0  ||  !ribi_t::ist_einfach(next_ribi)) {
-					const roadsign_t *rs = dynamic_cast<roadsign_t *>(to->obj_bei(0));
-					if(rs==NULL  ||  rs->gib_besch()->is_traffic_light()  ||  rs->gib_besch()->gib_min_speed()==0  ||  rs->gib_besch()->gib_min_speed()<=gib_max_speed()) {
-						// do not enter private roads
-						if(rs==NULL  ||  !rs->gib_besch()->is_private_way()) {
-	#ifdef DESTINATION_CITYCARS
-							unsigned long dist=abs_distance( to->gib_pos().gib_2d(), target );
-							liste.append( to, dist*dist );
-	#else
-							liste.append( to, 1 );
-	#endif
-						}
+					bool add=true;
+					// check, if roadsign forbid next step ...
+					if(w->has_sign()) {
+						const roadsign_besch_t *rs_besch = ((roadsign_t *)to->suche_obj(ding_t::roadsign))->gib_besch();
+						add = (rs_besch->is_traffic_light()  ||  rs_besch->gib_min_speed()<=gib_max_speed())  &&  !rs_besch->is_private_way();
+DBG_MESSAGE("stadtauto_t::hop()","roadsign");
+					}
+					// ok;
+					if(add) {
+#ifdef DESTINATION_CITYCARS
+						unsigned long dist=abs_distance( to->gib_pos().gib_2d(), target );
+						liste.append( to, dist*dist );
+#else
+						liste.append( to, 1 );
+#endif
 					}
 				}
 			}
 		}
 
 		if(liste.get_count()>1) {
-	#ifdef DESTINATION_CITYCARS
+#ifdef DESTINATION_CITYCARS
 			if(target!=koord::invalid) {
 				pos_next = liste.at_weight(simrand(liste.get_sum_weight()))->gib_pos();
 			}
 			else
-	#endif
+#endif
 			{
 				pos_next = liste.get(simrand(liste.get_count()))->gib_pos();
 			}
@@ -475,6 +483,19 @@ stadtauto_t::hop_check()
 		step_frequency = 1;
 	}
 	return frei;
+}
+
+
+
+void
+stadtauto_t::calc_bild()
+{
+	if(welt->lookup(gib_pos())->ist_im_tunnel()) {
+		setze_bild(0, IMG_LEER);
+	}
+	else {
+		setze_bild(0,besch->gib_bild_nr(ribi_t::gib_dir(gib_fahrtrichtung())));
+	}
 }
 
 
@@ -680,6 +701,7 @@ DBG_MESSAGE("verkehrsteilnehmer_t::sync_step()","sopped");
 
 	return true;
 }
+
 
 
 void verkehrsteilnehmer_t::rdwr(loadsave_t *file)

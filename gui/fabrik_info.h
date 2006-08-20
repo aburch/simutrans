@@ -62,6 +62,13 @@ class fabrik_info_t : public ding_infowin_t, public action_listener_t
     const char * gib_name() const { return fab->gib_name(); }
 
     /**
+     * Manche Fenster haben einen Hilfetext assoziiert.
+     * @return den Dateinamen für die Hilfe, oder NULL
+     * @author Hj. Malthaner
+     */
+    const char * gib_hilfe_datei() const {return "industry_info.txt";};
+
+    /**
      * @return the text to display in the info window
      *
      * @author Hj. Malthaner

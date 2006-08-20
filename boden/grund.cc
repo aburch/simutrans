@@ -272,7 +272,7 @@ void grund_t::setze_text(const char *text)
       set_flag(has_text);
     }
 
-    set_flag(new_text);
+    set_flag(dirty);
     welt->setze_dirty();
   }
 }
@@ -625,7 +625,7 @@ void grund_t::setze_halt(halthandle_t halt) {
 void grund_t::calc_bild()
 {
 	// recalc way image
-	if(ist_uebergang()) {
+	if(ist_uebergang()  &&  wegbauer_t::gib_kreuzung(wege[1]->gib_typ(), wege[0]->gib_typ())) {
 		ribi_t::ribi ribi0 = wege[0]->gib_ribi();
 		ribi_t::ribi ribi1 = wege[1]->gib_ribi();
 
@@ -653,11 +653,14 @@ void grund_t::calc_bild()
 	}
 }
 
-
+/*
 int grund_t::ist_karten_boden() const
 {
-    return welt->lookup(pos.gib_2d())->gib_kartenboden() == this;
+	return welt->lookup(pos.gib_2d())->gib_kartenboden() == this;
 }
+*/
+
+
 
 /**
  * Wir gehen davon aus, das pro Feld nur ein Gebauede erlaubt ist!
@@ -767,11 +770,11 @@ void grund_t::do_display_boden( const sint16 xpos, const sint16 ypos, const bool
 
 	if(wege[0]) {
 		display_img(wege[0]->gib_bild(), xpos, ypos - gib_weg_yoff(), dirty);
-/* for PBS-debugging*/
+#ifdef DEBUG_PDS
 		if((wege[0]->gib_typ()==weg_t::schiene)  &&  ((schiene_t *)wege[0])->is_reserved()) {
 			display_fillbox_wh_clip( xpos+64/2, ypos+(64*3)/4, 16, 16, 0, dirty);
 		}
-/* */
+#endif
 	}
 
 	if(wege[1]){
@@ -802,8 +805,7 @@ grund_t::display_dinge(const sint16 xpos, sint16 ypos, bool dirty)
 		const sint16 raster_tile_width = get_tile_raster_width();
 		const int width = proportional_string_width(text)+7;
 
-		display_ddd_proportional_clip(xpos - (width - raster_tile_width)/2, ypos, width, 0, text_farbe(), COL_BLACK, text, dirty || get_flag(grund_t::new_text));
-		clear_flag(grund_t::new_text);
+		display_ddd_proportional_clip(xpos - (width - raster_tile_width)/2, ypos, width, 0, text_farbe(), COL_BLACK, text, dirty || get_flag(grund_t::dirty));
 	}
 
 	// display station waiting information/status
@@ -1099,11 +1101,8 @@ grund_t::get_max_speed() const
  */
 bool grund_t::remove_everything_from_way(spieler_t *sp,weg_t::typ wt,ribi_t::ribi rem)
 {
-DBG_MESSAGE("grund_t::remove_everything()","at %d,%d,%d for waytype %i and ribi %i",pos.x,pos.y,pos.z,wt,rem);
-
-	const bool is_rail = (wt==weg_t::schiene  ||  wt==weg_t::monorail);	// since we must delete overhead and block info
-
-	// then check, if the way must be totally removed?
+//DBG_MESSAGE("grund_t::remove_everything()","at %d,%d,%d for waytype %i and ribi %i",pos.x,pos.y,pos.z,wt,rem);
+	// check, if the way must be totally removed?
 	weg_t *weg = gib_weg(wt);
 	if(weg) {
 

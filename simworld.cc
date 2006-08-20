@@ -863,7 +863,7 @@ DBG_DEBUG("karte_t::init()","Erzeuge stadt %i with %ld inhabitants",i,(s->get_ci
 	mute_sound(false);
 }
 
-karte_t::karte_t() : ausflugsziele(16), quick_shortcuts(15), marker(0,0), convoi_array(0)
+karte_t::karte_t() : convoi_array(0), ausflugsziele(16), quick_shortcuts(15), marker(0,0)
 {
 	for (unsigned int i=0; i<15; i++) {
 //DBG_MESSAGE("karte_t::karte_t()","Append NULL to quick_shortcuts at %d\n",i);
@@ -2974,7 +2974,7 @@ void karte_t::switch_active_player(uint8 new_player)
 		// cityroads
 		const weg_besch_t *besch = get_city_road();
 		if(besch!=NULL) {
-			sprintf(buf, "%s, %d$ (%d$), %dkm/h",
+			sprintf(buf, "%s, %ld$ (%ld$), %dkm/h",
 				translator::translate(besch->gib_name()),
 				besch->gib_preis()/100,
 				besch->gib_wartung()/100,
@@ -3151,12 +3151,6 @@ karte_t::interactive_event(event_t &ev)
 	case 'r':
 	    setze_maus_funktion(wkz_remover, skinverwaltung_t::killzeiger->gib_bild_nr(0), Z_PLAN, SFX_REMOVER, SFX_FAILURE);
 	    break;
-/*
-	case 'R':
-		// rotate the view
-	    set_rotation( (get_rotation()+1)&1 );
-	    break;
-*/
 	case 's':
 	    if(default_road==NULL) {
 			default_road = wegbauer_t::weg_search(weg_t::strasse,90,get_timeline_year_month());
@@ -3504,15 +3498,6 @@ karte_t::interactive_event(event_t &ev)
 					get_timeline_year_month()
 					);
 
-/*
-		    wzw->add_tool(wkz_electrify_block,
-				  Z_PLAN,
-				  SFX_JACKHAMMER,
-				  SFX_FAILURE,
-				  skinverwaltung_t::schienen_werkzeug->gib_bild_nr(3),
-				  skinverwaltung_t::oberleitung->gib_bild_nr(8),
-				  tool_tip_with_price(translator::translate("Electrify track"), umgebung_t::cst_third_rail));
-*/
 		    wzw->add_param_tool(&wkz_wayremover,
 				  (const int)weg_t::schiene,
 	  			  Z_PLAN,
@@ -3606,6 +3591,14 @@ karte_t::interactive_event(event_t &ev)
 					1
 				);
 
+			wayobj_t::fill_menu(wzw,
+					weg_t::monorail,
+					wkz_wayobj,
+					SFX_JACKHAMMER,
+					SFX_FAILURE,
+					get_timeline_year_month()
+					);
+
 		    wzw->add_param_tool(&wkz_wayremover,
 				  (const int)weg_t::monorail,
 	  			  Z_PLAN,
@@ -3678,6 +3671,14 @@ karte_t::interactive_event(event_t &ev)
 					get_timeline_year_month(),
 					7
 				);
+
+			wayobj_t::fill_menu(wzw,
+					weg_t::schiene,
+					wkz_wayobj,
+					SFX_JACKHAMMER,
+					SFX_FAILURE,
+					get_timeline_year_month()
+					);
 
 				wzw->add_param_tool(&wkz_wayremover,
 				  (const int)weg_t::schiene,
@@ -3753,6 +3754,14 @@ karte_t::interactive_event(event_t &ev)
 				get_timeline_year_month(),
 				1
 			);
+
+			wayobj_t::fill_menu(wzw,
+					weg_t::strasse,
+					wkz_wayobj,
+					SFX_JACKHAMMER,
+					SFX_FAILURE,
+					get_timeline_year_month()
+					);
 
 		    wzw->add_param_tool(&wkz_wayremover,
 				  (const int)weg_t::strasse,
@@ -3853,6 +3862,14 @@ karte_t::interactive_event(event_t &ev)
 					  get_timeline_year_month()
 					  );
 
+			wayobj_t::fill_menu(wzw,
+					weg_t::wasser,
+					wkz_wayobj,
+					SFX_JACKHAMMER,
+					SFX_FAILURE,
+					get_timeline_year_month()
+					);
+
 		    wzw->add_param_tool(&wkz_wayremover,
 				  (const int)weg_t::wasser,
 	  			  Z_PLAN,
@@ -3949,6 +3966,22 @@ karte_t::interactive_event(event_t &ev)
 				get_timeline_year_month(),
 				1
 			);
+
+			wayobj_t::fill_menu(wzw,
+					weg_t::luft,
+					wkz_wayobj,
+					SFX_JACKHAMMER,
+					SFX_FAILURE,
+					get_timeline_year_month()
+					);
+
+			roadsign_t::fill_menu(wzw,
+					weg_t::luft,
+					wkz_roadsign,
+					SFX_JACKHAMMER,
+					SFX_FAILURE,
+					get_timeline_year_month()
+					);
 
 /* since the route calculation is different for air, the tool will simply crash :( */
 		    wzw->add_param_tool(&wkz_wayremover,
@@ -4203,13 +4236,13 @@ DBG_MESSAGE("karte_t::interactive_event(event_t &ev)", "calling a tool");
 				if(ok) {
 					if(mouse_funk_ok_sound!=NO_SOUND) {
 						struct sound_info info = {mouse_funk_ok_sound,255,0};
-DBG_MESSAGE("karte_t::interactive_event(event_t &ev)", "play sound %i",mouse_funk_ok_sound);
+//DBG_MESSAGE("karte_t::interactive_event(event_t &ev)", "play sound %i",mouse_funk_ok_sound);
 						sound_play(info);
 					}
 				} else {
 					if(mouse_funk_ko_sound!=NO_SOUND) {
 						struct sound_info info = {mouse_funk_ko_sound,255,0};
-DBG_MESSAGE("karte_t::interactive_event(event_t &ev)", "play sound %i",mouse_funk_ko_sound);
+//DBG_MESSAGE("karte_t::interactive_event(event_t &ev)", "play sound %i",mouse_funk_ko_sound);
 						sound_play(info);
 					}
 				}

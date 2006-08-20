@@ -128,7 +128,8 @@ void convoi_t::init(karte_t *wl, spieler_t *sp)
 
 	state = INITIAL;
 
-	*name = 0;
+	*name_and_id = 0;
+	name_offset = 0;
 
 	freight_info_resort = true;
 	freight_info_order = 0;
@@ -138,6 +139,8 @@ void convoi_t::init(karte_t *wl, spieler_t *sp)
 	akt_speed_soll = 0;            // Sollgeschwindigkeit
 	akt_speed = 0;                 // momentane Geschwindigkeit
 	sp_soll = 0;
+
+	next_stop_index = 65535;
 
 	line_update_pending = UNVALID_LINE_ID;
 
@@ -158,8 +161,7 @@ convoi_t::convoi_t(karte_t *wl, spieler_t *sp)
 {
 	self = convoihandle_t(this);
 	init(wl, sp);
-	tstrncpy(name, translator::translate("Unnamed"), 128);
-	akt_speed = 0;
+	setze_name( "Unnamed" );
 	welt->add_convoi( self );
 	init_financial_history();
 }
@@ -212,6 +214,7 @@ convoi_t::laden_abschliessen()
 			// this sets the convoi and will renew the block reservation, if needed!
 			fahr->at(i)->setze_convoi( this );
 		}
+DBG_MESSAGE("convoi_t::laden_abschliessen()","state=%s, next_stop_index=%d", state_names[state], next_stop_index );
 		// lines are still unknown during loading!
 		if(line_id!=UNVALID_LINE_ID) {
 			// if a line is assigned, set line!
@@ -249,7 +252,10 @@ convoi_t::gib_pos() const
 void
 convoi_t::setze_name(const char *name)
 {
-  tstrncpy(this->name, translator::translate(name), 128);
+	char buf[128];
+	name_offset = sprintf(buf,"(%i) ",self.get_id() );
+	tstrncpy(buf+name_offset, translator::translate(name), 116);
+	tstrncpy(name_and_id,buf,128);
 }
 
 
@@ -589,9 +595,7 @@ void convoi_t::drive_to_next_stop()
  */
 void convoi_t::suche_neue_route()
 {
-  // XXX ?
-
-  state = ROUTING_1;
+  state = ROUTING_2;
 }
 
 
@@ -748,7 +752,7 @@ convoi_t::start()
 		state = ROUTING_1;
 		calc_loading();
 
-		DBG_MESSAGE("convoi_t::start()","Convoi %s wechselt von INITIAL nach ROUTING_1", name);
+		DBG_MESSAGE("convoi_t::start()","Convoi %s wechselt von INITIAL nach ROUTING_1", name_and_id);
 	} else {
 		dbg->warning("convoi_t::start()","called with state=%s\n",state_names[state]);
 	}
@@ -1213,7 +1217,10 @@ convoi_t::rdwr(loadsave_t *file)
 		}
 	}
 
-    file->rdwr_str(name, sizeof(name));
+    file->rdwr_str(name_and_id+name_offset,116);
+	if(file->is_loading()) {
+		setze_name(name_and_id+name_offset);	// will add id automatically
+	}
 
 	koord3d dummy_pos=koord3d(0,0,0);
 	for(unsigned i=0; i<anz_vehikel; i++) {
@@ -1362,11 +1369,13 @@ convoi_t::zeige_info()
 
 		if(!convoi_info) {
 			convoi_info = new convoi_info_t(self);
+			create_win(-1, -1, convoi_info, w_info);
 		}
 		else {
-			destroy_win(convoi_info);
+			if(!top_win(convoi_info)) {
+				create_win(-1, -1, convoi_info, w_info);
+			}
 		}
-		create_win(-1, -1, convoi_info, w_info);
 	}
 }
 
@@ -1780,7 +1789,7 @@ void convoi_t::dump() const
     fprintf(stderr, "alte_richtung = %d\n", alte_richtung);
     fprintf(stderr, "jahresgewinn = %lld\n", jahresgewinn);
 
-    fprintf(stderr, "name = '%s'\n", name);
+    fprintf(stderr, "name = '%s'\n", name_and_id);
     fprintf(stderr, "line_id = '%d'\n", line_id);
     fprintf(stderr, "fpl = '%p'\n", fpl);
 }
@@ -1829,7 +1838,7 @@ void convoi_t::set_line(linehandle_t org_line)
 */
 void convoi_t::register_with_line(uint16 id)
 {
-	DBG_DEBUG("convoi_t::register_with_line()","%s registers for %d", name, id);
+	DBG_DEBUG("convoi_t::register_with_line()","%s registers for %d", name_and_id, id);
 
 	linehandle_t new_line = besitzer_p->simlinemgmt.get_line_by_id(id);
 	if(new_line.is_bound()) {

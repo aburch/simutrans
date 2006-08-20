@@ -283,6 +283,15 @@ void vehikel_basis_t::betrete_feld()
 	grund_t * gr = welt->lookup(gib_pos());
 
 	uint8 end=gr->gib_top();
+	uint8 start=0;	// this is the first car etc. thing. We can start to insert things after this index.
+	while(start<end) {
+		ding_t *dt=gr->obj_bei(start);
+		if(dt==NULL  ||  dt->is_moving()) {
+			break;
+		}
+		start ++;
+	}
+
 	if(gr->gib_weg(weg_t::strasse)) {
 		// this is very complicated: we may have many objects in two lanes (actually five with tram and pedestrians)
 		if(umgebung_t::drive_on_left) {
@@ -291,14 +300,14 @@ void vehikel_basis_t::betrete_feld()
 
 				if((fahrtrichtung&(~ribi_t::suedost))==0) {
 					// if we are going east we must be drawn as the first in east direction
-					gr->obj_insert_at(this,0);
+					gr->obj_insert_at(this,start);
 				}
 				else {
 					// we must be drawn before south or west (thus insert after)
-					for(uint8 i=0;  i<end;  i++  ) {
+					for(uint8 i=start;  i<end;  i++  ) {
 						// scan for similar types
 						ding_t *dt = gr->obj_bei(i);
-						if(dt  &&  (dt->gib_typ()&96)==32  &&  (((vehikel_t*)dt)->gib_fahrtrichtung()&ribi_t::suedwest)!=0) {
+						if(dt  &&  dt->is_moving()  &&  (((vehikel_t*)dt)->gib_fahrtrichtung()&ribi_t::suedwest)!=0) {
 							gr->obj_insert_at(this,i);
 							return;
 						}
@@ -313,10 +322,10 @@ void vehikel_basis_t::betrete_feld()
 
 				if((fahrtrichtung&(~ribi_t::suedost))==0) {
 					// if we are going south or suotheast we must be drawn as the first in east direction (after nord and nordeast)
-					for(uint8 i=0;  i<end;  i++  ) {
+					for(uint8 i=start;  i<end;  i++  ) {
 						// scan for similar types
 						ding_t *dt = gr->obj_bei(i);
-						if(dt  &&  (dt->gib_typ()&96)==32  &&  (((vehikel_t*)dt)->gib_fahrtrichtung()&ribi_t::suedwest)!=0) {
+						if(dt  &&  dt->is_moving()  &&  (((vehikel_t*)dt)->gib_fahrtrichtung()&ribi_t::suedwest)!=0) {
 							gr->obj_insert_at(this,i);
 							return;
 						}
@@ -337,10 +346,10 @@ void vehikel_basis_t::betrete_feld()
 				if((fahrtrichtung&(~ribi_t::suedost))==0) {
 
 					// if we are going east we must be drawn as the first in east direction (after nord and nordeast)
-					for(uint8 i=0;  i<end;  i++  ) {
+					for(uint8 i=start;  i<end;  i++  ) {
 						// scan for similar types
 						ding_t *dt = gr->obj_bei(i);
-						if(dt  &&  (dt->gib_typ()&96)==32  &&  (((vehikel_t*)dt)->gib_fahrtrichtung()&ribi_t::nordost)!=0) {
+						if(dt  &&  dt->is_moving()  &&  (((vehikel_t*)dt)->gib_fahrtrichtung()&ribi_t::nordost)!=0) {
 							gr->obj_insert_at(this,i);
 							return;
 						}
@@ -359,14 +368,14 @@ void vehikel_basis_t::betrete_feld()
 
 				if((fahrtrichtung&(~ribi_t::suedost))==0) {
 					// going south or southeast, insert as first in this dirs
-					gr->obj_insert_at(this,0);
+					gr->obj_insert_at(this,start);
 				}
 				else {
-					for(uint8 i=0;  i<end;  i++  ) {
+					for(uint8 i=start;  i<end;  i++  ) {
 						// scan for similar types
 						ding_t *dt = gr->obj_bei(i);
 						// west or northwest: append after all westwards
-						if(dt  &&  (dt->gib_typ()&96)==32  &&  (((vehikel_t*)dt)->gib_fahrtrichtung()&ribi_t::suedwest)==0) {
+						if(dt  &&  dt->is_moving()  &&  (((vehikel_t*)dt)->gib_fahrtrichtung()&ribi_t::suedwest)==0) {
 							gr->obj_insert_at(this,i);
 							return;
 						}
@@ -384,7 +393,7 @@ void vehikel_basis_t::betrete_feld()
 		// => much simpler to handle
 		if((fahrtrichtung&(~ribi_t::suedost))==0) {
 			// if we are going east or south, we must be drawn before (i.e. put first)
-			gr->obj_insert_at(this,0);
+			gr->obj_insert_at(this,start);
 		}
 		else {
 			// for north east we must be draw last
@@ -467,6 +476,8 @@ void vehikel_basis_t::fahre()
   set_flag(ding_t::dirty);
 }
 
+
+
 ribi_t::ribi
 vehikel_basis_t::calc_richtung(koord start, koord ende, sint8 &dx, sint8 &dy) const
 {
@@ -510,6 +521,8 @@ vehikel_basis_t::calc_richtung(koord start, koord ende, sint8 &dx, sint8 &dy) co
     }
     return richtung;
 }
+
+
 
 int
 vehikel_basis_t::calc_height()
@@ -585,12 +598,15 @@ vehikel_basis_t::calc_height()
     return hoff;
 }
 
+
+
 void
 vehikel_t::setze_convoi(convoi_t *c)
 {
     // c darf NULL sein, wenn das vehikel aus dem Convoi entfernt wird
     cnv = c;
 }
+
 
 
 void
@@ -779,7 +795,7 @@ vehikel_t::verlasse_feld()
     vehikel_basis_t::verlasse_feld();
 #ifndef DEBUG_ROUTES
     if(ist_letztes  &&  reliefkarte_t::is_visible) {
-        reliefkarte_t::gib_karte()->calc_map_pixel(gib_pos().gib_2d());
+        reliefkarte_t::gib_karte()->calc_map_pixel(pos_cur.gib_2d());
     }
 #endif
 }
@@ -798,7 +814,6 @@ vehikel_t::betrete_feld()
 	}
 
 	vehikel_basis_t::betrete_feld();
-
 }
 
 
@@ -886,13 +901,25 @@ vehikel_t::calc_akt_speed(const grund_t *gr) //,const int h_alt, const int h_neu
 
 	if(ist_erstes) {
 		// just to accelerate: The actual speed takes care of all vehicles in the convoi
-		const int akt_speed = gib_speed();
-		if(speed_limit != -1 && akt_speed > speed_limit) {
-			cnv->setze_akt_speed_soll(speed_limit);
+		sint32 akt_speed = gib_speed();
+
+		if(speed_limit!=-1 && akt_speed>speed_limit) {
+			akt_speed = speed_limit;
 		}
-		else {
-			cnv->setze_akt_speed_soll(akt_speed);
+
+		// break at the end of the route
+		sint32 brake_speed_soll = akt_speed;
+		switch(cnv->get_next_stop_index()+1-route_index) {
+			case 3: brake_speed_soll = kmh_to_speed(200); break;
+			case 2: brake_speed_soll = kmh_to_speed(100); break;
+			case 1: brake_speed_soll = kmh_to_speed(50); break;
+			case 0: brake_speed_soll = kmh_to_speed(25); break;
+			default: break;
 		}
+		if(brake_speed_soll<akt_speed) {
+			akt_speed = brake_speed_soll;
+		}
+		cnv->setze_akt_speed_soll( akt_speed );
 	}
 }
 
@@ -1157,6 +1184,19 @@ vehikel_t::richtung()
 
 
 void
+vehikel_t::calc_bild()
+{
+	if(welt->lookup(pos_cur) &&  welt->lookup(pos_cur)->ist_im_tunnel() ) {
+		// tunnel
+		setze_bild(0, IMG_LEER);
+	}
+	else {
+		setze_bild(0, besch->gib_bild_nr(ribi_t::gib_dir(gib_fahrtrichtung()),fracht.is_empty()));
+	}
+}
+
+
+void
 vehikel_t::rdwr(loadsave_t *file)
 {
     int fracht_count = fracht.count();	// we try to have one freight count to geuss the right when no besch is given
@@ -1400,7 +1440,7 @@ bool
 automobil_t::ist_befahrbar(const grund_t *bd) const
 {
 	strasse_t *str=(strasse_t *)bd->gib_weg(weg_t::strasse);
-	if(str==NULL) {
+	if(str==NULL || (besch->get_engine_type()==vehikel_besch_t::electric  &&  !str->is_electrified()) ) {
 		return false;
 	}
 	// check for signs
@@ -1600,27 +1640,15 @@ automobil_t::betrete_feld()
 {
 	vehikel_t::betrete_feld();
 
-	grund_t *gr = welt->lookup( gib_pos() );
-
 	const int cargo = gib_fracht_menge();
-	gr->gib_weg(weg_t::strasse)->book(cargo, WAY_STAT_GOODS);
+	weg_t *str=welt->lookup( pos_cur )->gib_weg(weg_t::strasse);
+	str->book(cargo, WAY_STAT_GOODS);
 	if (ist_erstes)  {
-		gr->gib_weg(weg_t::strasse)->book(1, WAY_STAT_CONVOIS);
+		str->book(1, WAY_STAT_CONVOIS);
 	}
 }
 
 
-void
-automobil_t::calc_bild()
-{
-    if(welt->lookup(pos_cur) &&
-       welt->lookup(pos_cur)->ist_im_tunnel() ) {	// tunnel ?
-	setze_bild(0, IMG_LEER);
-    } else {
-	setze_bild(0, besch->gib_bild_nr(ribi_t::gib_dir(gib_fahrtrichtung()),
-					 fracht.is_empty()));
-    }
-}
 
 
 fahrplan_t * automobil_t::erzeuge_neuen_fahrplan() const
@@ -1712,7 +1740,7 @@ waggon_t::~waggon_t()
 {
 	if(cnv  &&  ist_erstes  &&  route_index<cnv->get_route()->gib_max_n()+1) {
 		// free als reserved blocks
-		block_reserver( cnv->get_route(), target_halt.is_bound()?1000:1, false );
+		block_reserver( cnv->get_route(), 0, target_halt.is_bound()?1000:1, false );
 	}
 	grund_t *gr = welt->lookup(gib_pos());
 	if(gr) {
@@ -1730,21 +1758,44 @@ waggon_t::setze_convoi(convoi_t *c)
 {
 	if(c!=cnv) {
 		DBG_MESSAGE("waggon_t::setze_convoi()","new=%p old=%p",c,cnv);
-		if(ist_erstes  &&  c!=NULL) {
-			if(cnv!=NULL  &&  (long)cnv!=1) {
+		if(ist_erstes) {
+			if(cnv!=NULL) {
 				if(route_index<cnv->get_route()->gib_max_n()+1) {
 					// free all reserved blocks
-					block_reserver( cnv->get_route(), target_halt.is_bound()?1000:1, false );
+					block_reserver( cnv->get_route(), route_index, 1000, false );
 					target_halt = halthandle_t();
 				}
 			}
 			else {
+				cnv = c;
 				if(c->get_state()==convoi_t::DRIVING) {
-					DBG_MESSAGE("waggon_t::setze_convoi()","new route %p, route_index %i",c->get_route(),route_index);
+DBG_MESSAGE("waggon_t::setze_convoi()","new route %p, route_index %i",c->get_route(),route_index);
 					long num_index = (long)cnv==1?1001:0;
 					// rereserve next block, if needed
-					cnv = c;
-					block_reserver( cnv->get_route(), num_index, true );
+					uint16 n = block_reserver( cnv->get_route(), route_index, num_index, true );
+					if(n) {
+						cnv->set_next_stop_index( n );
+					}
+					else {
+						cnv->warten_bis_weg_frei(-1);
+					}
+				}
+				if(c->get_state()>=convoi_t::WAITING_FOR_CLEARANCE) {
+DBG_MESSAGE("waggon_t::setze_convoi()","new route %p, route_index %i",c->get_route(),route_index);
+					// find about next signal after loading
+					uint16 next_signal_index=65535;
+					route_t *route=c->get_route();
+					for(  uint16 i=route_index;  i<=route->gib_max_n();  i++) {
+						schiene_t * sch = (schiene_t *) welt->lookup(route->position_bei(i))->gib_weg(gib_wegtyp());
+						if(sch==NULL) {
+							break;
+						}
+						if(sch->has_sign()) {
+							next_signal_index = i+1;
+							break;
+						}
+					}
+					c->set_next_stop_index( next_signal_index );
 				}
 			}
 		}
@@ -1761,7 +1812,7 @@ waggon_t::calc_route(karte_t * welt, koord3d start, koord3d ziel, uint32 max_spe
 	DBG_MESSAGE("waggon_t::calc_route","%i,%i",route_index,cnv->get_route()->gib_max_n());
 	if(ist_erstes  &&  route_index<cnv->get_route()->gib_max_n()) {
 		// free all reserved blocks
-		block_reserver( cnv->get_route(), target_halt.is_bound()?1000:1, false );
+		block_reserver( cnv->get_route(), route_index, target_halt.is_bound()?1000:1, false );
 	}
 	target_halt = halthandle_t();	// no block reserved
 	return route->calc_route(welt, start, ziel, this, max_speed );
@@ -1776,7 +1827,7 @@ waggon_t::ist_befahrbar(const grund_t *bd) const
 
 	// Hajo: diesel and steam engines can use electrifed track as well.
 	// also allow driving on foreign tracks ...
-	const bool ok = (sch!=0) && (besch->get_engine_type() == vehikel_besch_t::electric ? sch->is_electrified() : true);
+	const bool ok = (sch!=0) && (besch->get_engine_type()!=vehikel_besch_t::electric  ||  sch->is_electrified());
 
 	if(!ok  ||  !target_halt.is_bound()  ||  !cnv->is_waiting()) {
 		return ok;
@@ -1819,15 +1870,12 @@ waggon_t::gib_kosten(const grund_t *gr,const uint32 max_speed) const
 
 
 signal_t *
-waggon_t::ist_blockwechsel(koord3d k1, koord3d k2) const
+waggon_t::ist_blockwechsel(koord3d k2) const
 {
-//	DBG_MESSAGE("waggon_t::ist_blockwechsel()","%i,%i->%i,%i",k1.x,k1.y,k2.x,k2.y);
-//	const schiene_t * sch0 = (const schiene_t *) welt->lookup( k1 )->gib_weg(gib_wegtyp());
 	const schiene_t * sch1 = (const schiene_t *) welt->lookup( k2 )->gib_weg(gib_wegtyp());
 	if(sch1  &&  sch1->has_sign()) {
-		//const ribi_t::ribi dir= ribi_typ(k1.gib_2d()-k2.gib_2d());
 		signal_t *sig=(signal_t *)welt->lookup(k2)->suche_obj(ding_t::signal);
-		if(sig) {//  &&  (sig->get_dir() & dir)!=0) {
+		if(sig) {
 			// a signal for us
 			return sig;
 		}
@@ -1870,11 +1918,14 @@ waggon_t::ist_weg_frei(int & restart_speed)
 {
 	if(ist_erstes  &&  (cnv->get_state()==convoi_t::CAN_START  ||  cnv->get_state()==convoi_t::CAN_START_ONE_MONTH)) {
 		// reserve first block at the start until the next signal
-		bool ok=block_reserver(cnv->get_route(), 0, true);
-		if(!ok) {
+		uint16 n=block_reserver(cnv->get_route(), max(route_index,2)-2, 0, true);
+		if(n==0) {
+//DBG_MESSAGE("cannot","start at index %i",route_index);
 			restart_speed = 0;
+			return false;
 		}
-		return ok;
+		cnv->set_next_stop_index(n);
+		return true;
 	}
 
 	const grund_t *gr = welt->lookup(pos_next);
@@ -1887,20 +1938,24 @@ waggon_t::ist_weg_frei(int & restart_speed)
 	if(sch1==NULL) {
 		return false;
 	}
-	if(!ist_erstes  ||  !ist_blockwechsel(pos_cur,pos_next)) {
+	if(!ist_erstes) {
 		restart_speed = -1;
 		return true;
 	}
-	else {
-		bool frei = false;
-		signal_t *sig = (signal_t *)gr->suche_obj(ding_t::signal);
-		// action dedend on the next signal
+
+	uint16 next_block=cnv->get_next_stop_index()-1;
+	if(next_block<=route_index+3) {
+		route_t *rt=cnv->get_route();
+		koord3d block_pos=rt->position_bei(next_block);
+		signal_t *sig = ist_blockwechsel(block_pos);
 		if(sig) {
+			// action dedend on the next signal
+			uint16 next_stop = 0;
 			const roadsign_besch_t *sig_besch=sig->gib_besch();
-			route_t *rt=cnv->get_route();
-			grund_t *target=NULL;
 
 			if(sig_besch->is_free_route()) {
+				grund_t *target=NULL;
+
 				// choose signal here
 				target=welt->lookup(rt->position_bei(rt->gib_max_n()));
 
@@ -1908,10 +1963,9 @@ waggon_t::ist_weg_frei(int & restart_speed)
 					target_halt = target->gib_halt();
 				}
 			}
+			next_stop = block_reserver(cnv->get_route(),next_block+1,(target_halt.is_bound()?1000:sig_besch->is_pre_signal()),true);
 
-			frei = block_reserver(cnv->get_route(),target_halt.is_bound()?1000:sig_besch->is_pre_signal(),true);
-
-			if(!frei  &&  target_halt.is_bound()  &&  sig_besch->is_free_route()) {
+			if(next_stop==0  &&  target_halt.is_bound()  &&  sig_besch->is_free_route()) {
 
 				// no free route to target!
 				// note: any old reservations should be invalid after the block reserver call.
@@ -1920,6 +1974,11 @@ waggon_t::ist_weg_frei(int & restart_speed)
 				// if we fail, we will wait in a step, much more simulation friendly
 				// thus we ensure correct convoi state!
 				if(!cnv->is_waiting()) {
+					// do not stop before the signal ...
+					if(route_index<=next_block) {
+						restart_speed = -1;
+						return true;
+					}
 					restart_speed = -1;
 					return false;
 				}
@@ -1937,31 +1996,30 @@ waggon_t::ist_weg_frei(int & restart_speed)
 				}
 				else {
 					// try to alloc the whole route
-					frei = block_reserver(&target_rt,1000,true);
-					if(frei) {
-						frei = true;
-						rt->remove_koord_from(route_index-1);
-						rt->append( &target_rt );
-					}
+					rt->remove_koord_from(route_index);
+					rt->append( &target_rt );
+					next_stop = block_reserver(rt,next_block+1,1000,true);
 				}
-				 // reserved route to target (or not)
+				// reserved route to target (or not)
 			}
-		}
-
-		if(frei) {
-			restart_speed = -1;
-			if(sig) {
+			// next signal can be passed
+			if(next_stop!=0) {
+				restart_speed = -1;
+				cnv->set_next_stop_index(next_stop);
 				sig->setze_zustand(roadsign_t::gruen);
 			}
-		}
-		else {
-			if(sig) {
+			else {
+				// cannot be passed
 				sig->setze_zustand(roadsign_t::rot);
+				if(route_index==cnv->get_next_stop_index()) {
+//DBG_MESSAGE("cannot","continue");
+					restart_speed = 0;
+					return false;
+				}
 			}
-			restart_speed = 0;
 		}
-		return frei;
 	}
+	return true;
 }
 
 
@@ -1973,48 +2031,34 @@ waggon_t::ist_weg_frei(int & restart_speed)
  * return the last checked block
  * @author prissi
  */
-bool
-waggon_t::block_reserver(const route_t *route,int count, bool reserve) const
+uint16
+waggon_t::block_reserver(const route_t *route, uint16 start_index, int count, bool reserve) const
 {
-	schiene_t * sch0 = (schiene_t *) welt->lookup( pos_next )->gib_weg(gib_wegtyp());
-	if(sch0==NULL) {
-		return false;
-	}
-
-	if(pos_next!=gib_pos()) {
-		// could not even reserve first tile ...
-		if(reserve  &&  !sch0->reserve(cnv->self)) {
-			return false;
-		}
-
-		// could not even free first tile ...
-		if(!reserve  &&  !sch0->unreserve(cnv->self)) {
-			return false;
-		}
-	}
-
 	bool success=true;
 #ifdef MAX_CHOOSE_BLOCK_TILES
-	int max_tiles=2*MAX_CHOOSE_BLOCK_TILES; // max tiles to check for choosignals
+	int max_tiles=2*MAX_CHOOSE_BLOCK_TILES; // max tiles to check for choosesignals
 #endif
 
+	if(start_index>route->gib_max_n()) {
+		return 0;
+	}
+
+	if(route->position_bei(start_index)==pos_cur) {
+		start_index++;
+	}
+
 	// find next blocksegment enroute
-	int i=route_index+1;
-	koord3d pos1=pos_next, pos2;
+	uint16 i=start_index;
+	uint16 next_signal_index=65535, skip_index=65535;
 	for ( ; success  &&  count>=0  &&  i<=route->gib_max_n(); i++) {
 
-		pos2 = route->position_bei(i);
-		schiene_t * sch1 = (schiene_t *) welt->lookup(pos2)->gib_weg(gib_wegtyp());
-		if(sch1==NULL) {
-			dbg->warning("waggon_t::is_next_block_free()","invalid route");
-			success = false;
+		koord3d pos = route->position_bei(i);
+		schiene_t * sch1 = (schiene_t *) welt->lookup(pos)->gib_weg(gib_wegtyp());
+		if(sch1==NULL  &&  reserve) {
+			// reserve until the end of track
 			break;
 		}
-
-		if(ist_blockwechsel(pos1,pos2)) {
-			count --;
-		}
-		pos1 = pos2;
+		// we unreserve also nonexisting tiles! (may happen during deletion)
 
 #ifdef MAX_CHOOSE_BLOCK_TILES
 		max_tiles--;
@@ -2022,36 +2066,47 @@ waggon_t::block_reserver(const route_t *route,int count, bool reserve) const
 			break;
 		}
 #endif
-		// otherwise we might check one tile too much
-		// but ignore own tile ...
-		if(count>=0  &&  gib_pos()!=route->position_bei(i)) {
-			if(reserve) {
-				if(!sch1->reserve(cnv->self)) {
-					success = false;
-				}
+		if(reserve) {
+			if(i!=start_index  &&  sch1->has_sign()) {
+				count --;
+				next_signal_index = i;
 			}
-			else {
-				// free a previous reservation
-				// we can stop here ...
-				if(!sch1->unreserve(cnv->self)) {
-					return true;
-				}
+			if(!sch1->reserve(cnv->self)) {
+				success = false;
 			}
 		}
-
+		else if(sch1  &&  !sch1->unreserve(cnv->self)) {
+			// reached an reserved or free track => finished
+			return 65535;
+		}
 	}
+
+	if(!reserve) {
+		return 65535;
+	}
+	// here we go only with reserve
+
+//DBG_MESSAGE("block_reserver()","signals at %i, sucess=%d",next_signal_index,success);
 
 	// free, in case of unreserve or no sucess in reservation
-	if(reserve  &&  !success) {
+	if( !success) {
 		// free reservation
-		sch0->unreserve(cnv->self);
-		for ( int j=route_index+1; j<i-1; j++) {
-			schiene_t * sch1 = (schiene_t *)welt->lookup( route->position_bei(j))->gib_weg(gib_wegtyp());
-			sch1->unreserve(cnv->self);
+		for ( int j=start_index; j<i; j++) {
+			if(i!=skip_index) {
+				schiene_t * sch1 = (schiene_t *)welt->lookup( route->position_bei(j))->gib_weg(gib_wegtyp());
+				sch1->unreserve(cnv->self);
+			}
 		}
-		return false;
+		return 0;
 	}
-	return true;
+
+	// stop at station or signals, not at waypoints
+	if(next_signal_index==65535) {
+		// find out if stop or waypoint, waypoint: do not brake at waypoints
+		grund_t *gr=welt->lookup(route->position_bei(route->gib_max_n()));
+		return (gr  &&  gr->gib_halt().is_bound()) ? i-1 : 65535;
+	}
+	return next_signal_index+1;
 }
 
 
@@ -2066,10 +2121,12 @@ waggon_t::verlasse_feld()
 	if(ist_letztes) {
 		sch0->unreserve(this);
 		// tell next signal?
-		// and siwth to red
-		signal_t *sig=(signal_t*)welt->lookup(pos_cur)->suche_obj(ding_t::signal);
-		if(sig) {
-			sig->setze_zustand(roadsign_t::rot);
+		// and swith to red
+		if(sch0->has_sign()) {
+			signal_t *sig=(signal_t*)welt->lookup(pos_cur)->suche_obj(ding_t::signal);
+			if(sig) {
+				sig->setze_zustand(roadsign_t::rot);
+			}
 		}
 	}
 }
@@ -2081,31 +2138,18 @@ waggon_t::betrete_feld()
 {
 	vehikel_t::betrete_feld();
 
-	schiene_t * sch0 = (schiene_t *) welt->lookup( pos_cur )->gib_weg(gib_wegtyp());
+	schiene_t * sch0 = (schiene_t *) welt->lookup(pos_cur)->gib_weg(gib_wegtyp());
 	if(sch0) {
-		const schiene_t * sch1 = (const schiene_t *) welt->lookup( pos_prev )->gib_weg(gib_wegtyp());
 		sch0->reserve(cnv->self);
-
 		// way statistics
 		const int cargo = gib_fracht_menge();
 		sch0->book(cargo, WAY_STAT_GOODS);
-		if (ist_erstes) {
+		if(ist_erstes) {
 			sch0->book(1, WAY_STAT_CONVOIS);
 		}
 	}
 }
 
-
-
-void waggon_t::calc_bild()
-{
-    if(welt->lookup( pos_cur ) &&
-       welt->lookup( pos_cur )->ist_im_tunnel() ) {	// tunnel ?
-	setze_bild(0, IMG_LEER);
-    } else  {
-	setze_bild(0, besch->gib_bild_nr(ribi_t::gib_dir(gib_fahrtrichtung()), fracht.is_empty()));
-    }
-}
 
 
 fahrplan_t * waggon_t::erzeuge_neuen_fahrplan() const
@@ -2167,7 +2211,7 @@ dbg->error("waggon_t::rdwr()","no matching besch found for %s!",w->gib_name());
 				fracht.remove_first();
 			}
 		}
-    }
+	}
 }
 
 
@@ -2223,11 +2267,11 @@ schiff_t::calc_akt_speed(const grund_t *gr)//const int h_alt, const int h_neu)
 
 	if(ist_erstes) {
 		// just to accelerate: The actual speed takes care of all vehicles in the convoi
- 	        const int akt_speed = gib_speed();
-	        if(get_speed_limit() != -1 && akt_speed > get_speed_limit()) {
-		  cnv->setze_akt_speed_soll(get_speed_limit());
+		const int akt_speed = gib_speed();
+		if(get_speed_limit() != -1 && akt_speed > get_speed_limit()) {
+			cnv->setze_akt_speed_soll(get_speed_limit());
 		} else {
-		  cnv->setze_akt_speed_soll(akt_speed);
+			cnv->setze_akt_speed_soll(akt_speed);
 		}
 	}
 }
@@ -2242,17 +2286,12 @@ schiff_t::ist_weg_frei(int &restart_speed)
 }
 
 
-void
-schiff_t::calc_bild()
-{
-    setze_bild(0, besch->gib_bild_nr(ribi_t::gib_dir(gib_fahrtrichtung()), fracht.is_empty()));
-}
-
 
 fahrplan_t * schiff_t::erzeuge_neuen_fahrplan() const
 {
   return new schifffahrplan_t();
 }
+
 
 
 void
@@ -2269,11 +2308,10 @@ schiff_t::rdwr(loadsave_t *file)
 void
 schiff_t::rdwr(loadsave_t *file, bool force)
 {
-    assert(force == true);
-
-    if(file->is_saving() && cnv != NULL && !force) {
- 		file->wr_obj_id(-1);
-    } else {
+	assert(force == true);
+	if(file->is_saving() && cnv != NULL && !force) {
+		file->wr_obj_id(-1);
+	} else {
 		vehikel_t::rdwr(file);
 		// try to find a matching vehivle
 		if(file->is_loading()  &&  besch==NULL) {
@@ -2283,7 +2321,7 @@ schiff_t::rdwr(loadsave_t *file, bool force)
 				calc_bild();
 			}
 		}
-    }
+	}
 }
 
 
@@ -2301,7 +2339,7 @@ bool aircraft_t::ist_ziel(const grund_t *gr,const grund_t *) const
 
 //DBG_MESSAGE("aircraft_t::ist_ziel()","testing at %i,%i",gr->gib_pos().x,gr->gib_pos().y);
 			// ok here is a runway
-			ribi_t::ribi ribi= w->gib_ribi();
+			ribi_t::ribi ribi= w->gib_ribi_unmasked();
 //DBG_MESSAGE("aircraft_t::ist_ziel()","ribi=%i target_ribi=%i",ribi,approach_dir);
 			if(ribi_t::ist_einfach(ribi)  &&  (ribi&approach_dir)!=0) {
 				// pointing in our direction
@@ -2347,41 +2385,6 @@ aircraft_t::gib_ribi(const grund_t *gr) const
 		case flying2:
 			return ribi_t::alle;
 	}
-#if 0
-	weg_t *weg = gr->gib_weg(weg_t::luft);
-	if(state==flying) {
-		// during waysearch
-		koord3d pos=gr->gib_pos();
-		// do we need straight departing vector?
-		if(abs(pos.x-search_start.x)+abs(pos.y-search_start.y)<7) {
-			weg_t *w=welt->lookup(search_start)->gib_weg(weg_t::luft);
-			if(w!=NULL) {
-				if(pos.x==search_start.x  ||  pos.y==search_start.y) {
-					return ribi_t::rueckwaerts(w->gib_ribi());
-				}
-				// because we are not on a straight line here ...
-				return ribi_t::keine;
-			}
-			// here we start in mid-air; thus we will ignore everything
-			return ribi_t::alle;
-		}
-		// do we need straight approach vector?
-		else if(abs(pos.x-search_end.x)+abs(pos.y-search_end.y)<7) {
-			if(pos.x==search_end.x  ||  pos.y==search_end.y) {
-				weg_t *w = welt->lookup(search_end)->gib_weg(weg_t::luft);
-				if(w!=NULL) {
-					return w->gib_ribi();
-				}
-			}
-			// becuase we are not on a straight line here ...
-			return ribi_t::keine;
-		}
-		return ribi_t::alle;
-	}
-	if(weg) {
-		return weg->gib_ribi();
-	}
-#endif
 	return ribi_t::keine;
 }
 
@@ -2479,6 +2482,7 @@ aircraft_t::find_route_to_stop_position()
 	}
 
 	// is our target occupied?
+//	DBG_MESSAGE("aircraft_t::find_route_to_stop_position()","state %i",state);
 	if(!target_halt->find_free_position(weg_t::luft,cnv->self,ding_t::aircraft)  ) {
 		target_halt = halthandle_t();
 		DBG_MESSAGE("aircraft_t::find_route_to_stop_position()","no free prosition found!");
@@ -2668,16 +2672,12 @@ aircraft_t::setze_convoi(convoi_t *c)
 
 
 
-void aircraft_t::calc_bild()
-{
-	setze_bild(0, besch->gib_bild_nr(ribi_t::gib_dir(gib_fahrtrichtung()), fracht.is_empty()));
-}
-
 
 fahrplan_t * aircraft_t::erzeuge_neuen_fahrplan() const
 {
   return new airfahrplan_t();
 }
+
 
 
 void

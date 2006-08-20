@@ -95,7 +95,8 @@ private:
      * @see setze_name
      * @author V. Meyer
      */
-    char name[128];
+    uint8 name_offset;
+    char name_and_id[128];
 
     /**
      * Information window for ourselves.
@@ -203,6 +204,14 @@ private:
      * @author Hj. Malthaner
      */
     sint32 min_top_speed;
+
+    /**
+     * this give the index of the next signal or the end of the route
+		 * convois will slow down before it, if this is not a waypoint or the cannot pass
+		 * The slowdown ist done by the vehicle routines
+     * @author prissi
+     */
+		uint16 next_stop_index;
 
     /**
      * manchmal muss eine bestimmte Zeit gewartet werden.
@@ -394,7 +403,7 @@ public:
      * get state
      * @author hsiegeln
      */
-    bool is_waiting() { return (state>=WAITING_FOR_CLEARANCE); }
+		bool is_waiting() { return (state==WAITING_FOR_CLEARANCE)||(state==WAITING_FOR_CLEARANCE_ONE_MONTH);}
 
 
     /**
@@ -455,15 +464,24 @@ public:
      * @return Name des Convois
      * @author Hj. Malthaner
      */
-    const char *gib_name() const {return name;};
+    const char *gib_internal_name() const {return name_and_id+name_offset;}
 
 
     /**
-     * Erlaubt Änderung des Namens
+     * Allows editing ...
      * @return Name des Convois
      * @author Hj. Malthaner
      */
-    char *access_name() {return name;};
+    char *access_internal_name() {return name_and_id+name_offset;}
+
+
+    /**
+     * Gibt Namen des Convois zurück.
+     * @return Name des Convois
+     * @author Hj. Malthaner
+     */
+    const char *gib_name() const {return name_and_id;}
+
 
     /**
      * Sets the name. Copies name into this->name and translates it.
@@ -484,7 +502,8 @@ public:
      * der Grundgeschwindigkeit zu melden. Berechnet (Brems-) Beschleunigung
      * @author Hj. Malthaner
      */
-    void setze_akt_speed_soll(int akt_speed);
+    void setze_akt_speed_soll(sint32 akt_speed);
+		sint32 get_akt_speed_soll() const {return akt_speed;}
 
 
     /**
@@ -807,6 +826,16 @@ public:
 	void set_home_depot(koord3d hd) { home_depot = hd; }
 
 	koord3d get_home_depot() { return home_depot; }
+
+    /**
+     * this give the index of the next signal or the end of the route
+		 * convois will slow down before it, if this is not a waypoint or the cannot pass
+		 * The slowdown ist done by the vehicle routines
+     * @author prissi
+     */
+	const uint16 get_next_stop_index() const {return next_stop_index;}
+	void set_next_stop_index(uint16 n) {next_stop_index=n;}
+
 };
 
 #endif

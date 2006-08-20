@@ -271,7 +271,7 @@ void wegbauer_t::fill_menu(werkzeug_parameter_waehler_t *wzw,
 
 		char buf[128];
 
-		sprintf(buf, "%s, %d$ (%d$), %dkm/h",
+		sprintf(buf, "%s, %ld$ (%ld$), %dkm/h",
 			translator::translate(besch->gib_name()),
 			besch->gib_preis()/100l,
 			(besch->gib_wartung()<<shift_maintanance)/100l,
@@ -711,9 +711,11 @@ DBG_MESSAGE("elevated_monorail","ground");
 					!to->gib_depot();
 			// missing: check for crossings on halt!
 			// check for end/start of bridge
+/*
 			if(to->gib_weg_hang()!=to->gib_grund_hang()) {
 				return false;
 			}
+*/
 			// calculate costs
 			if(ok) {
 				*costs = to->gib_weg(weg_t::schiene) ? 2 : 4;	// only prefer existing rails a little

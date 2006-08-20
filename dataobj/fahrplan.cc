@@ -5,7 +5,7 @@
 #include "../simdebug.h"
 #include "../simwin.h"
 #include "../simworld.h"
-#include "../halthandle_t.h"
+#include "../simhalt.h"
 #include "../simimg.h"
 
 #include "../gui/messagebox.h"
@@ -394,7 +394,7 @@ schifffahrplan_t::zeige_fehlermeldung(karte_t *welt) const
 bool
 airfahrplan_t::ist_halt_erlaubt(const grund_t *gr) const
 {
-	return gr->gib_weg(weg_t::luft)!=NULL  ||  !gr->gib_halt().is_bound();
+	return !(gr->gib_weg(weg_t::luft)==NULL  &&  haltestelle_t::gib_halt(gr->gib_welt(),gr->gib_pos()).is_bound());
 }
 
 void

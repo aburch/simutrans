@@ -65,9 +65,9 @@
  */
 void bridge_reader_t::register_obj(obj_besch_t *&data)
 {
-    bruecke_besch_t *besch = static_cast<bruecke_besch_t *>(data);
+bruecke_besch_t *besch = static_cast<bruecke_besch_t *>(data);
 
-    brueckenbauer_t::register_besch(besch);
+brueckenbauer_t::register_besch(besch);
 }
 
 

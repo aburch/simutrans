@@ -70,8 +70,8 @@ private:
 
 	static const char *sort_text[SORT_MODES];
 	static sort_mode_t global_sortby;
-public:
 
+public:
     /**
      * Konstruktor.
      * @author Hj. Malthaner

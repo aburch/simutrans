@@ -253,7 +253,7 @@ public:
 		}
 		// ok, a valid position, make space
 		data[pos] = elem;
-		if(pos>count) {
+		if(pos>=count) {
 			count = pos+1;
 		}
 		return true;

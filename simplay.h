@@ -421,6 +421,12 @@ public:
     halthandle_t halt_add(koord pos);
 
     /**
+     * needed to transfer ownership
+     * @author prissi
+     */
+    void halt_add(halthandle_t h);
+
+    /**
      * Entfernt eine Haltestelle des Spielers aus der Liste
      * @author Hj. Malthaner
      */

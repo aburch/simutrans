@@ -88,7 +88,7 @@ convoi_info_t::convoi_info_t(convoihandle_t cnv)
 	this->sortby = global_sortby;
 
 	input.setze_pos(koord(11,4));
-	input.setze_text(cnv->access_name(), 48);
+	input.setze_text( cnv->access_internal_name(), 116);
 	add_komponente(&input);
 
 	add_komponente(&sort_label);
@@ -182,6 +182,7 @@ convoi_info_t::convoi_info_t(convoihandle_t cnv)
 	set_resizemode(diagonal_resize);
 	resize(koord(0,0));
 }
+
 
 
 

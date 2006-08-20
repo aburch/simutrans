@@ -44,40 +44,44 @@ void signal_t::calc_bild()
 
 	grund_t *gr = welt->lookup(gib_pos());
 	if(gr) {
-		weg_t * sch = gr->gib_weg(besch->gib_wtyp());
-		uint16 offset=0;
-		if(sch  &&  sch->is_electrified()  &&  (besch->gib_bild_anzahl()/8)>1) {
-			offset = besch->is_pre_signal() ? 12 : 8;
-		}
-
-		if(dir&ribi_t::west) {
-			after_bild = besch->gib_bild_nr(3+zustand*4+offset);
-		}
-
-		if(dir&ribi_t::sued) {
-			if(after_bild!=IMG_LEER) {
-				bild = besch->gib_bild_nr(0+zustand*4+offset);
+		weg_t *sch = gr->gib_weg(besch->gib_wtyp());
+		if(sch) {
+			uint16 offset=0;
+			ribi_t::ribi dir = sch->gib_ribi();
+			if(sch->is_electrified()  &&  (besch->gib_bild_anzahl()/8)>1) {
+				offset = besch->is_pre_signal() ? 12 : 8;
 			}
-			else {
-				after_bild = besch->gib_bild_nr(0+zustand*4+offset);
+
+			if(dir&ribi_t::ost) {
+				after_bild = besch->gib_bild_nr(3+zustand*4+offset);
+			}
+
+			if(dir&ribi_t::nord) {
+				if(after_bild==IMG_LEER) {
+					after_bild = besch->gib_bild_nr(0+zustand*4+offset);
+				}
+				else {
+					bild = besch->gib_bild_nr(0+zustand*4+offset);
+				}
+			}
+
+			if(dir&ribi_t::west) {
+				bild = besch->gib_bild_nr(2+zustand*4+offset);
+			}
+
+			if(dir&ribi_t::sued) {
+				if(bild==IMG_LEER) {
+					bild = besch->gib_bild_nr(1+zustand*4+offset);
+				}
+				else {
+					after_bild = besch->gib_bild_nr(1+zustand*4+offset);
+				}
 			}
 		}
-
-		if(dir&ribi_t::ost) {
-			bild = besch->gib_bild_nr(2+zustand*4+offset);
-		}
-
-		if(dir&ribi_t::nord) {
-			if(bild!=IMG_LEER) {
-				after_bild = besch->gib_bild_nr(1+zustand*4+offset);
-			}
-			else {
-				bild = besch->gib_bild_nr(1+zustand*4+offset);
-			}
-		}
-
 	}
 	setze_bild(0,bild);
+
+	step_frequency = 0;
 }
 
 
@@ -85,7 +89,6 @@ void signal_t::calc_bild()
 // establish direction
 void signal_t::laden_abschliessen()
 {
-	step_frequency = 0;
 	set_dir(dir);
 	calc_bild();
 }

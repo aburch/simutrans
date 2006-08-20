@@ -45,7 +45,8 @@ slist_tpl<const ware_besch_t *> convoi_frame_t::waren_filter;
 const char *convoi_frame_t::sort_text[SORT_MODES] = {
     "cl_btn_sort_name",
     "cl_btn_sort_income",
-    "cl_btn_sort_type"
+    "cl_btn_sort_type",
+    "cl_btn_sort_id"
 };
 
 
@@ -66,33 +67,36 @@ int convoi_frame_t::compare_convois(const void *p1, const void *p2)
     convoihandle_t cnv2 = *(const convoihandle_t *)p2;
 
     switch (sortby) {
-    default:
-    case nach_name:
-	result = 0;
-	break;
-    case nach_gewinn:
-	result = cnv1->gib_jahresgewinn() - cnv2->gib_jahresgewinn();
-	break;
-    case nach_typ:
-	{
-	    vehikel_t *fahr1 = cnv1->gib_vehikel(0);
-	    vehikel_t *fahr2 = cnv2->gib_vehikel(0);
+	    default:
+	    case nach_name:
+			result = 0;
+			break;
+	    case nach_gewinn:
+			result = cnv1->gib_jahresgewinn() - cnv2->gib_jahresgewinn();
+			break;
+	    case nach_typ:
+			{
+			    vehikel_t *fahr1 = cnv1->gib_vehikel(0);
+			    vehikel_t *fahr2 = cnv2->gib_vehikel(0);
 
-	    result = fahr1->gib_typ() - fahr2->gib_typ();
-	    if(result == 0) {
-    		result = fahr1->gib_fracht_typ() - fahr2->gib_fracht_typ();
-		if(result == 0) {
-    	   	    result = fahr1->gib_basis_bild() - fahr2->gib_basis_bild();
-		}
-	    }
-	}
-	break;
+			    result = fahr1->gib_typ() - fahr2->gib_typ();
+			    if(result == 0) {
+		    		result = fahr1->gib_fracht_typ() - fahr2->gib_fracht_typ();
+				if(result == 0) {
+		    	   	    result = fahr1->gib_basis_bild() - fahr2->gib_basis_bild();
+				}
+			    }
+			}
+			break;
+	    case nach_id:
+			result = cnv1.get_id()-cnv2.get_id();
+			break;
     }
     /**
      * use name as an additional sort, to make sort more stable.
      */
     if(result == 0) {
-	result = strcmp(cnv1->gib_name(), cnv2->gib_name());
+		result = strcmp(cnv1->gib_internal_name(), cnv2->gib_internal_name());
     }
     return sortreverse ? -result : result;
 }

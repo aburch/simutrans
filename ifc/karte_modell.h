@@ -37,44 +37,41 @@ private:
     koord ij_off;
 
 public:
+	virtual ~karte_modell_t() {}
+
     /**
      * Setzt das globale dirty flag.
      * @author Hj. Malthaner
      */
-    void setze_dirty() {dirty=true;};
+    void setze_dirty() {dirty=true;}
 
 
     /**
      * Löscht das globale dirty flag.
      * @author Hj. Malthaner
      */
-    void setze_dirty_zurueck() {dirty=false;};
+    void setze_dirty_zurueck() {dirty=false;}
 
 
     /**
      * Frägt das globale dirty flag ab.
      * @author Hj. Malthaner
      */
-    bool ist_dirty() const {return dirty;};
+    bool ist_dirty() const {return dirty;}
 
-    /* to rotate the view (without the buildings)
-     * @author prissi
-     */
-    void set_rotation(int r) {dirty=true; rotation=r; };
-    int get_rotation() const {return rotation; };
 
     /**
      * Ermittelt ij-Koordinate des Blickpunkts auf der Karte.
      * @author Hj. Malthaner
      */
-    virtual koord gib_ij_off() const {return ij_off;};
+    virtual koord gib_ij_off() const {return ij_off;}
 
 
     /**
      * Setzt i-Koordinate des Blickpunkts auf der Karte.
      * @author Hj. Malthaner
      */
-    void setze_ij_off(koord ij) {ij_off=ij; dirty=true;};
+    void setze_ij_off(koord ij) {ij_off=ij; dirty=true;}
 
 
     /**

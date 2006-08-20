@@ -221,7 +221,7 @@ convoihandle_t depot_t::copy_convoi(int icnv)
     if (old_cnv.is_bound()) {
 	    convoihandle_t new_cnv = add_convoi();
 	    char new_name[128];
-	    sprintf(new_name, "%s", old_cnv->gib_name());
+	    sprintf(new_name, "%s", old_cnv->gib_internal_name());
 	    new_cnv->setze_name(new_name);
 			int vehicle_count = old_cnv->gib_vehikel_anzahl();
 			for (int i = 0; i<vehicle_count; i++) {
@@ -232,23 +232,25 @@ convoihandle_t depot_t::copy_convoi(int icnv)
 					if (oldest_vehicle != -1) {
 						// append existing vehicle
 						append_vehicle(convoi_count()-1, oldest_vehicle, false);
-					} else {
+					}
+					else {
 						// buy new vehicle
-			    	vehikel_t *veh = vehikelbauer_t::baue(welt, gib_pos(), gib_besitzer(), NULL, info);
+						vehikel_t *veh = vehikelbauer_t::baue(welt, gib_pos(), gib_besitzer(), NULL, info);
 						veh->setze_pos(gib_pos());
 						new_cnv->add_vehikel(veh, false);
-			    }
+					}
 				}
 			}
 			if (old_cnv->get_line().is_bound()) {
 				new_cnv->set_line(old_cnv->get_line());
-			} else {
+			}
+			else {
 				if (old_cnv->gib_fahrplan() != NULL) {
 					new_cnv->setze_fahrplan(old_cnv->gib_fahrplan()->copy());
 				}
 			}
-	    return new_cnv->self;
-	  }
+		return new_cnv->self;
+	}
 	return NULL;
 }
 

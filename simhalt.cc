@@ -1782,6 +1782,39 @@ haltestelle_t::is_something_waiting() const
 
 
 
+// changes this to a publix transfer exchange stop
+void
+haltestelle_t::transfer_to_public_owner()
+{
+	spieler_t *public_owner=welt->gib_spieler(1);
+	if(besitzer_p==public_owner) {
+		// already a public stop
+		return;
+	}
+
+	// iterate over all tiles
+	slist_iterator_tpl<grund_t *> iter( grund );
+	while(iter.next()) {
+		grund_t *gr = iter.get_current();
+		gebaeude_t *gb = static_cast<gebaeude_t *>(gr->suche_obj(ding_t::gebaeude));
+		if(gb) {
+			// there are also water tiles, which may not have a buidling
+			spieler_t *gb_sp=gb->gib_besitzer();
+			if(public_owner!=gb_sp) {
+				gb_sp->add_maintenance(-umgebung_t::maint_building);
+				gb_sp->buche(umgebung_t::maint_building*36*(gb->gib_tile()->gib_besch()->gib_level()+1), gr->gib_pos().gib_2d(), COST_CONSTRUCTION);
+				gb->setze_besitzer(public_owner);
+				public_owner->add_maintenance(umgebung_t::maint_building);
+			}
+		}
+	}
+	besitzer_p->halt_remove(self);
+	besitzer_p = public_owner;
+	public_owner->halt_add(self);
+}
+
+
+
 /*
  * recalculated the station type(s)
  * since it iterates over all ground, this is better not done too often, because line management and station list

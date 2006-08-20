@@ -51,13 +51,13 @@ wayobj_t::wayobj_t(karte_t *welt, loadsave_t *file) : ding_t (welt)
 
 wayobj_t::wayobj_t(karte_t *welt, koord3d pos, spieler_t *besitzer, ribi_t::ribi dir, const way_obj_besch_t *besch) :  ding_t(welt, pos)
 {
-  setze_besitzer(besitzer);
+	setze_besitzer(besitzer);
 	this->besch = besch;
 	this->dir = dir;
 	step_frequency =  0;
-  if(gib_besitzer()) {
-    gib_besitzer()->add_maintenance(umgebung_t::maint_overhead);
-  }
+	if(gib_besitzer()) {
+		gib_besitzer()->add_maintenance(umgebung_t::maint_overhead);
+	}
 }
 
 
@@ -170,7 +170,7 @@ wayobj_t::find_next_ribi(const grund_t *start, const koord dir) const
 {
 	grund_t *to;
 	ribi_t::ribi r1 = ribi_t::keine;
-	if(start->get_neighbour(to, (weg_t::typ)besch->gib_wtyp(), koord::ost)) {
+	if(start->get_neighbour(to, (weg_t::typ)besch->gib_wtyp(),dir)) {
 		wayobj_t *wo=(wayobj_t *)to->suche_obj(ding_t::wayobj);
 		if(wo) {
 			r1 = wo->get_dir();
@@ -200,6 +200,8 @@ wayobj_t::calc_bild()
 			delete this;
 			return;
 		}
+
+		setze_yoff( -gr->gib_weg_yoff() );
 		dir &= w->gib_ribi_unmasked();
 
 		// if there is a slope, we are finished, only four choices here (so far)
@@ -225,14 +227,14 @@ wayobj_t::calc_bild()
 						r2 != ribi_t::suedost;
 				break;
 
-				case ribi_t::suedost:
-					r1 = find_next_ribi( gr, koord::ost );
+				case ribi_t::suedwest:
+					r1 = find_next_ribi( gr, koord::west );
 					r2 = find_next_ribi( gr, koord::sued );
 					diagonal =
-						(r1 == ribi_t::nordwest || r2 == ribi_t::nordwest) &&
-						r1 != ribi_t::suedwest &&
-						r2 != ribi_t::nordost;
-				break;
+						(r1 == ribi_t::nordost || r2 == ribi_t::nordost) &&
+						r1 != ribi_t::suedost &&
+						r2 != ribi_t::nordwest;
+					break;
 
 				case ribi_t::nordwest:
 					r1 = find_next_ribi( gr, koord::west );
@@ -243,14 +245,14 @@ wayobj_t::calc_bild()
 						r2 != ribi_t::suedwest;
 				break;
 
-				case ribi_t::suedwest:
-					r1 = find_next_ribi( gr, koord::west );
+				case ribi_t::suedost:
+					r1 = find_next_ribi( gr, koord::ost );
 					r2 = find_next_ribi( gr, koord::sued );
 					diagonal =
-						(r1 == ribi_t::nordost || r2 == ribi_t::nordost) &&
-						r1 != ribi_t::suedost &&
-						r2 != ribi_t::nordwest;
-					break;
+						(r1 == ribi_t::nordwest || r2 == ribi_t::nordwest) &&
+						r1 != ribi_t::suedwest &&
+						r2 != ribi_t::nordost;
+				break;
 			}
 
 			if(diagonal) {
@@ -371,8 +373,11 @@ DBG_DEBUG("wayobj_t::fill_menu()","try at pos %i to add %s(%p)",i,besch->gib_nam
 			if(besch->gib_cursor()->gib_bild_nr(1)!=IMG_LEER  &&  wtyp==besch->gib_wtyp()) {
 				// only add items with a cursor
 DBG_DEBUG("wayobj_t::fill_menu()","at pos %i add %s",i,besch->gib_name());
-				int n=sprintf(buf, "%s ",translator::translate(besch->gib_name()));
-				money_to_string(buf+n, besch->gib_preis()/-100.0);
+				sprintf(buf, "%s, %ld$ (%ld$), %dkm/h",
+					translator::translate(besch->gib_name()),
+					besch->gib_preis()/-100l,
+					(besch->gib_wartung()<<(karte_t::ticks_bits_per_tag-18))/100l,
+					besch->gib_topspeed());
 
 				wzw->add_param_tool(werkzeug,
 				  (const void *)besch,

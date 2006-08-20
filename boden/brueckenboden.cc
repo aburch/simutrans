@@ -42,12 +42,19 @@ void brueckenboden_t::calc_bild()
 		grund_t::calc_back_bild(gib_hoehe()/16,slope);
 	}
 	else {
-		setze_bild(IMG_LEER);
 		clear_back_bild();
+		setze_bild(IMG_LEER);
 	}
-	if(gib_weg_nr(0)) {
-		gib_weg_nr(0)->setze_bild(IMG_LEER);
+	if(wege[1]) {
+		wege[1]->calc_bild(pos);
 	}
+	for(uint8 i=0;  i<gib_top();  i++  ) {
+		ding_t *dt=obj_bei(i);
+		if(dt) {
+			dt->calc_bild();
+		}
+	}
+	set_flag(draw_as_ding);
 }
 
 

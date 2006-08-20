@@ -134,7 +134,7 @@ static halthandle_t suche_nahe_haltestelle(spieler_t *sp, karte_t *welt, koord3d
 	// first try to connect to our own
 	for(  int i=0;  i<iAnzahl;  i++ ) {
 		halt = haltestelle_t::gib_halt( welt, pos.gib_2d()+next_try_dir[i] );
-		if(halt.is_bound()  &&  sp->check_owner(halt->gib_besitzer())) {
+		if(halt.is_bound()  &&  (sp->check_owner(halt->gib_besitzer())  ||  welt->gib_spieler(1)==sp)) {
 			return halt;
 		}
 	}
@@ -144,7 +144,7 @@ static halthandle_t suche_nahe_haltestelle(spieler_t *sp, karte_t *welt, koord3d
 	for(k.x=pos.x-1; k.x<=pos.x+b; k.x++) {
 		for(k.y=pos.y-1; k.y<=pos.y+h; k.y++) {
 			halt = haltestelle_t::gib_halt( welt, k );
-			if(halt.is_bound()  &&  sp->check_owner(halt->gib_besitzer())) {
+			if(halt.is_bound()  &&  (sp->check_owner(halt->gib_besitzer())  ||  welt->gib_spieler(1)==sp)) {
 				return halt;
 			}
 		}
@@ -322,7 +322,7 @@ DBG_MESSAGE("wkz_remover_intern()","at (%d,%d)", pos.x, pos.y);
 	// check for signal
 	roadsign_t *rs=(roadsign_t *)gr->suche_obj(ding_t::signal);
 	if(rs==NULL) {
-		roadsign_t *rs=(roadsign_t *)gr->suche_obj(ding_t::roadsign);
+		rs=(roadsign_t *)gr->suche_obj(ding_t::roadsign);
 	}
 	if(rs!=NULL) {
 		if(!sp->check_owner(rs->gib_besitzer())) {
@@ -767,7 +767,6 @@ wkz_intern_koord_to_weg_grund(spieler_t *sp, karte_t *welt, koord pos, weg_t::ty
 		wt = weg_t::schiene;
 	}
 
-
 	const bool backwards=event_get_last_control_shift()==2;
 
 	grund_t *gr=NULL;
@@ -787,7 +786,7 @@ wkz_intern_koord_to_weg_grund(spieler_t *sp, karte_t *welt, koord pos, weg_t::ty
 			continue;
 		}
 		// check for ownership
-		if(!sp->check_owner(gr->gib_besitzer())){
+		if(sp!=NULL  &&  !sp->check_owner(gr->gib_besitzer())){
 			gr = NULL;
 			continue;
 		}
@@ -1419,28 +1418,10 @@ int wkz_roadsign(spieler_t *sp, karte_t *welt, koord pos, value_t lParam)
 
 			if(ribi_t::doppelt(dir)  ||  (two_way  &&  ribi_t::is_twoway(dir))  ||  (besch->is_traffic_light()  &&  ribi_t::is_threeway(dir))) {
 
-				// if single way, we need to reduce the allowed ribi to one
-DBG_MESSAGE("wkz_roadsign()","dir is %i", dir);
-				if(besch->is_single_way()  ||  besch->is_free_route()) {
-					for( int i=0;  i<=4;  i++) {
-						if((dir&ribi_t::nsow[i])!=0) {
-							dir = ribi_t::nsow[i];
-							break;
-						}
-					}
-DBG_MESSAGE("wkz_roadsign()","single dir is %i", dir);
-				}
-
 				// if there is already a sign, we might need to inverse the direction
 				roadsign_t *rs = dynamic_cast<roadsign_t *>(gr->suche_obj(typ));
 				if(rs) {
-					// revers only if single way sign
-					if(besch->is_single_way()  ||  besch->is_free_route()) {
-						dir = (~rs->get_dir()) & weg->gib_ribi_unmasked();
-						rs->set_dir( dir );
-DBG_MESSAGE("wkz_roadsign()","reverse ribi %i", dir );
-					}
-					else if(typ==ding_t::signal) {
+					if(typ==ding_t::signal) {
 						// signals have three options
 						ribi_t::ribi sig_dir=rs->get_dir();
 						uint8 i=0;
@@ -1462,13 +1443,30 @@ DBG_MESSAGE("wkz_roadsign()","reverse ribi %i", dir );
 						// if nothing found, we have two ways again ...
 						rs->set_dir(dir);
 					}
+					// revers only if single way sign
+					else if(besch->is_single_way()  ||  besch->is_free_route()) {
+						dir = (~rs->get_dir()) & weg->gib_ribi_unmasked();
+						rs->set_dir( dir );
+DBG_MESSAGE("wkz_roadsign()","reverse ribi %i", dir );
+					}
 				}
 				else {
 					// add a new roadsign at position zero!
 					if(typ==ding_t::signal) {
 						rs = new signal_t( welt, gr->gib_pos(), dir, besch );
+DBG_MESSAGE("wkz_roadsign()","new signal, dir is %i", dir);
 					}
 					else {
+						// if single way, we need to reduce the allowed ribi to one
+						if(besch->is_single_way()  ||  besch->is_free_route()) {
+							for( int i=0;  i<=4;  i++) {
+								if((dir&ribi_t::nsow[i])!=0) {
+									dir = ribi_t::nsow[i];
+									break;
+								}
+							}
+						}
+DBG_MESSAGE("wkz_roadsign()","new roadsign, dir is %i", dir);
 						rs = new roadsign_t( welt, gr->gib_pos(), dir, besch );
 					}
 					gr->insert_before_moving(rs);
@@ -1563,6 +1561,11 @@ wkz_depot_aux(spieler_t *sp, karte_t *welt, koord pos,const haus_besch_t *besch,
  * otherwise will return true to try again ... */
 int wkz_depot(spieler_t *sp, karte_t *welt, koord pos,value_t w)
 {
+	if(sp==welt->gib_spieler(1)) {
+		// no depots for player 1
+		return false;
+	}
+
 	if(pos==INIT  ||  pos==EXIT) {
 		return true;
 	}
@@ -1610,9 +1613,9 @@ wkz_halt_aux(spieler_t *sp, karte_t *welt, koord pos,const haus_besch_t *besch,w
 DBG_MESSAGE("wkz_halt_aux()", "building %s on square %d,%d for waytype %x", besch->gib_name(), pos.x, pos.y, wegtype);
 	const char *p_error=(besch->gib_all_layouts()==4)?"No terminal station here!":"No through station here!";
 
-	grund_t *bd = wkz_intern_koord_to_weg_grund(sp,welt,pos,wegtype);
+	grund_t *bd = wkz_intern_koord_to_weg_grund(sp==welt->gib_spieler(1)?NULL:sp,welt,pos,wegtype);
 	if(!bd  &&  weg_t::schiene) {
-		bd = wkz_intern_koord_to_weg_grund(sp,welt,pos,weg_t::monorail);
+		bd = wkz_intern_koord_to_weg_grund(sp==welt->gib_spieler(1)?NULL:sp,welt,pos,weg_t::monorail);
 	}
 	if(!bd  ||  bd->gib_weg_hang()!=hang_t::flach  ||  bd->gib_halt().is_bound()) {
 		create_win(-1, -1, MESG_WAIT, new nachrichtenfenster_t(welt, p_error), w_autodelete);
@@ -1672,9 +1675,15 @@ DBG_MESSAGE("wkz_halt_aux()", "founding new station");
 	}
 	else {
 DBG_MESSAGE("wkz_halt_aux()", "new segment for station");
+		if(sp==welt->gib_spieler(1)) {
+			halt->transfer_to_public_owner();
+		}
 	}
 
-	bd->setze_besitzer(halt->gib_besitzer());
+	if(sp!=welt->gib_spieler(1)) {
+		bd->setze_besitzer(halt->gib_besitzer());
+	}
+
 	hausbauer_t::neues_gebaeude( welt, halt->gib_besitzer(), bd->gib_pos(), layout, besch, &halt);
 	halt->recalc_station_type();
 

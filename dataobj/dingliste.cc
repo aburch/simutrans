@@ -304,16 +304,15 @@ dingliste_t::insert_at(ding_t *ding, uint8 pri)
 		}
 
 		// or move it into the in the array
-		if(obj.some[index] == NULL) {
+		if(obj.some[index]==NULL) {
 
 			// ok, shift everything up for the new entry, if it is not a depot and not empty ...
 			ding_t *new_ding = ding;
-			while( pri<capacity  &&  new_ding!=NULL) {
+			while(pri<capacity  &&  new_ding!=NULL) {
 
 				ding_t *old_dt = obj.some[pri];
-
-				if(old_dt  &&  (old_dt->gib_typ()<32  ||  old_dt->gib_typ()>42)) {
-					// skip everything that is not a moving car
+				if(pri==PRI_DEPOT  &&  old_dt  &&  old_dt->is_moving()) {
+					// skip depots
 				}
 				else {
 					obj.some[pri] = new_ding;
@@ -340,7 +339,7 @@ dingliste_t::insert_before_moving(ding_t *ding)
 {
 	for(uint8 i=0;  i<top;  i++) {
 		ding_t *d=bei(i);
-		if(d==NULL  ||  d->gib_typ()>=32) {
+		if(d==NULL  ||  d->is_moving()) {
 			return insert_at(ding,i);
 		}
 	}
