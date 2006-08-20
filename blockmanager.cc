@@ -26,6 +26,7 @@
 #include "tpl/array_tpl.h"
 
 #include "blockmanager.h"
+#include "find_block_way.h"
 
 //------------------------- blockmanager ----------------------------
 
@@ -33,39 +34,31 @@ array_tpl<koord3d> &
 blockmanager::finde_nachbarn(const karte_t *welt, const koord3d pos,
                              const ribi_t::ribi ribi, int &index)
 {
-    static array_tpl<koord3d> nb(4);
+	static array_tpl<koord3d> nb(4);
 
-    // V.Meyer: weg_position_t changed to grund_t::get_neighbour()
-    grund_t *from = welt->lookup(pos);
-    grund_t *to;
+	// V.Meyer: weg_position_t changed to grund_t::get_neighbour()
+	grund_t *from = welt->lookup(pos);
+	const weg_t::typ way_type=from->gib_weg(weg_t::schiene) ? weg_t::schiene : weg_t::schiene_monorail;
+	grund_t *to;
 
-    index = 0;
-
-    for(int r = 0; r < 4; r++) {
-        if((ribi & ribi_t::nsow[r]) &&
-	    from->get_neighbour(to, weg_t::invalid, koord::nsow[r]) &&
-	((to->gib_weg_ribi_unmasked(weg_t::schiene)|to->gib_weg_ribi_unmasked(weg_t::schiene_monorail)) & ribi_t::rueckwaerts(ribi_t::nsow[r]))) {
-    	    nb.at(index++) = to->gib_pos();
+	index = 0;
+	for(int r = 0; r < 4; r++) {
+		if(
+			(ribi & ribi_t::nsow[r])  &&
+			from->get_neighbour(to, way_type, koord::nsow[r])
+//			((to->gib_weg_ribi_unmasked(weg_t::schiene)|to->gib_weg_ribi_unmasked(weg_t::schiene_monorail)) & ribi_t::rueckwaerts(ribi_t::nsow[r]))
+		) {
+			nb.at(index++) = to->gib_pos();
+		}
 	}
-    }
 
-    return nb;
+	return nb;
 }
 
 
 blockmanager * blockmanager::single_instance = NULL;
 
 
-// since all blocks are derived from schiene_t, we can use this helper function
-static schiene_t *get_block_way(const grund_t *gr)
-{
-	schiene_t *sch = dynamic_cast<schiene_t *>(gr->gib_weg_nr(0));
-	if(!sch) {
-		sch = dynamic_cast<schiene_t *>(gr->gib_weg_nr(1));
-	}
-//	if(!sch) DBG_MESSAGE("blockmanager::get_block_way()","no block at %i,%i,%i",gr->gib_pos().x,gr->gib_pos().y,gr->gib_pos().z);
-	return sch;
-}
 
 blockmanager::blockmanager() : marker(0,0)
 {
@@ -663,13 +656,14 @@ blockmanager::traversiere_netz(const karte_t *welt, const koord3d start, koord_b
 		dbg->error("blockmanager::traversiere_netz()","unknown waytype!");
 		return;	// nothing found
 	}
+//	DBG_MESSAGE("blockmanager::traversiere_netz()","waytype %i",wegtype);
 
 	// die Berechnung erfolgt durch eine Breitensuche fuer Graphen
 	slist_tpl <koord3d> queue;         // Warteschlange fuer Breitensuche
 	koord3d tmp (start);
 	queue.append( tmp );        // init queue mit erstem feld
 
-		// Breitensuche
+	// Breitensuche
 	do {
 		tmp = queue.remove_first();
 		marker.markiere(welt->lookup(tmp));  // betretene Felder markieren
@@ -798,14 +792,11 @@ blockmanager::block_ersetzer::wieder_koord(koord3d )
 
 
 
-blockmanager::tracktyp_ersetzer::tracktyp_ersetzer(karte_t *welt,
-						   blockhandle_t alt,
-						   uint8 is_electric)
+blockmanager::tracktyp_ersetzer::tracktyp_ersetzer(karte_t *welt, blockhandle_t alt, uint8 is_electric)
 {
      this->welt = welt;
      this->alt = alt;
      this->electric = is_electric;
-
      DBG_MESSAGE("blockmanager::tracktyp_ersetzer::tracktyp_ersetzer()","replacing rail block %ld to electric track type %d",alt.get_id(), is_electric);
 }
 

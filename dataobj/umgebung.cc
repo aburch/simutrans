@@ -61,13 +61,6 @@ int umgebung_t::maint_overhead = 200;
 bool umgebung_t::numbered_stations = false;
 
 /**
- * show month in date?
- *
- * @author hsiegeln
- */
-bool umgebung_t::show_month = false;
-
-/**
  * Max. Länge für initiale Stadtverbindungen
  *
  * @author Hj. Malthaner
@@ -98,13 +91,22 @@ cstring_t * umgebung_t::city_road_type = 0;
  */
 char umgebung_t::use_timeline = 2;	// do not care
 
+/**
+ * show month in date?
+ *
+ * @author hsiegeln
+ */
+sint8 umgebung_t::show_month = 0;
 
 /**
  * Starting year of the game
  *
  * @author Hj. Malthaner
  */
-int umgebung_t::starting_year;
+sint16 umgebung_t::starting_year;
+
+/* prissi: 1<<bits_per_day is the duration of a month in ms */
+sint16 umgebung_t::bits_per_month=18;
 
 
 /* prissi: maximum number of steps for breath search */

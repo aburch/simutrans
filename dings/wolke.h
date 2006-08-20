@@ -16,16 +16,14 @@ class karte_t;
  */
 class wolke_t : public ding_t
 {
-private:
-    unsigned long insta_zeit;	// Wolken verschwinden, wenn alter max. erreicht
-
 protected:
+    sint32 insta_zeit;	// Wolken verschwinden, wenn alter max. erreicht
 
     wolke_t(karte_t *welt);
     wolke_t(karte_t *welt, koord3d pos, int xoff, int yoff, int bild);
 
 public:
-    inline int gib_insta_zeit() const {return insta_zeit;};
+    inline sint32 gib_insta_zeit() const {return insta_zeit;};
 
     const char *gib_name() const {return "Wolke";};
     enum ding_t::typ gib_typ() const {return wolke;};

@@ -1,14 +1,6 @@
 #ifndef _simstring_h
 #define _simstring_h
 
-#ifdef _MSC_VER
-#define STRICMP stricmp
-#define STRNICMP strnicmp
-#else
-#define STRICMP strcasecmp
-#define STRNICMP strncasecmp
-#endif
-
 
 #ifdef __cplusplus
 extern "C" {

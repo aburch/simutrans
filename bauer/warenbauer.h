@@ -70,6 +70,10 @@ class warenbauer_t
   {
     return waren.count();
   }
+
+	// ware by catg
+	static const ware_besch_t *gib_info_catg(const sint8 catg);
+
 };
 
 #endif // warenbauer_t_h

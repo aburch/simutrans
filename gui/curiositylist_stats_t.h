@@ -21,7 +21,7 @@ class curiositylist_stats_t;
 class gebaeude_t;
 
 namespace curiositylist {
-    enum sort_mode_t { by_name=0, by_paxlevel, by_maillevel, SORT_MODES };
+    enum sort_mode_t { by_name=0, by_paxlevel/*, by_maillevel*/, SORT_MODES };
 };
 
 /**

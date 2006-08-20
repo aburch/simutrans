@@ -175,10 +175,10 @@ halt_info_t::zeichnen(koord pos, koord gr)
 
 		unsigned indikatorfarbe = halt->gib_status_farbe();
 //		display_ddd_box_clip(pos.x + view.pos.x, pos.y + view.pos.y + 75, 66, 8, MN_GREY0, MN_GREY4);
-		display_fillbox_wh_clip(pos.x+11, pos.y + 42, 16, 6, indikatorfarbe, true);
+		display_fillbox_wh_clip(pos.x+11, pos.y + 42, INDICATOR_WIDTH, INDICATOR_HEIGHT, indikatorfarbe, true);
 
 		// now what do we accept here?
-		int left = 30;
+		int left = 11+INDICATOR_WIDTH+2;
 		if (halt->get_pax_enabled()) {
 			display_color_img(skinverwaltung_t::passagiere->gib_bild_nr(0), pos.x+left, pos.y+40, 0, false, false);
 			left += 10;

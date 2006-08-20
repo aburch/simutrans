@@ -15,6 +15,8 @@ class strasse_t : public weg_t
     bool gehweg;
 
 public:
+	static const weg_besch_t *default_strasse;
+
     void setze_gehweg(bool janein);
     inline bool hat_gehweg() const {return gehweg; };
 

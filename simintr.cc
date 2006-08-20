@@ -120,14 +120,6 @@ interrupt_check(char *caller_info)
 	if(now-last_call_time<frame_time) {
 		return;
 	}
-#if 0
-	if(now - last_call_time > 2) {
-		if(strncmp(caller_info, "simtime", 7)) {
-			DBG_MESSAGE("interrupt_check()","%ld from %s - %s", now-last_call_time, last_caller, caller_info);
-		}
-	}
-#endif
-
 	if(enabled) {
 		enabled = false;
 		const long diff = now - last_time;

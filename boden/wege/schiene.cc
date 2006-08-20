@@ -49,7 +49,7 @@ schiene_t::schiene_t(karte_t *welt) : weg_t(welt)
 schiene_t::schiene_t(karte_t *welt,int top_speed) : weg_t(welt)
 {
 	is_electrified = false;
-	setze_besch(wegbauer_t::weg_search(weg_t::schiene,top_speed));
+	setze_besch(wegbauer_t::weg_search(gib_typ(),top_speed));
 }
 
 
@@ -176,7 +176,7 @@ schiene_t::rdwr(loadsave_t *file)
 		int old_max_speed=gib_max_speed();
 		const weg_besch_t *besch = wegbauer_t::gib_besch(bname);
 		if(besch==NULL) {
-			besch = wegbauer_t::weg_search(weg_t::schiene,old_max_speed>0 ? old_max_speed : 120 );
+			besch = wegbauer_t::weg_search(gib_typ(),old_max_speed>0 ? old_max_speed : 120 );
 			dbg->warning("schiene_t::rwdr()", "Unknown rail %s replaced by a rail %s (old_max_speed %i)", bname, besch->gib_name(), old_max_speed );
 		}
 		setze_besch(besch);

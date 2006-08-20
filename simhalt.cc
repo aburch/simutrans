@@ -1640,6 +1640,10 @@ haltestelle_t::recalc_station_type()
 		else if(besch->gib_utyp()==hausbauer_t::airport) {
 			new_station_type |= airstop;
 		}
+		// check for trainstation
+		else if(besch->gib_utyp()==hausbauer_t::monorailstop) {
+			new_station_type |= monorailstop;
+		}
 
 		// enabled the matching types
 		enables |= besch->get_enabled();

@@ -479,7 +479,7 @@ DBG_MESSAGE("wkz_remover()", "check tunnel/bridge");
 	if(gr->ist_bruecke()) {
 		if(gr==plan->gib_kartenboden()) {
 DBG_MESSAGE("wkz_remover()",  "removing bridge from %d,%d,%d",gr->gib_pos().x, gr->gib_pos().y, gr->gib_pos().z);
-			bruecke_t *br = dynamic_cast<bruecke_t *>(gr->obj_bei(0));
+			bruecke_t *br = dynamic_cast<bruecke_t *>(gr->suche_obj(ding_t::bruecke));
 			if(br) {
 				msg = brueckenbauer_t::remove(welt, sp, gr->gib_pos(), br->gib_besch()->gib_wegtyp());
 			}
@@ -1620,6 +1620,9 @@ wkz_halt(spieler_t *sp, karte_t *welt, koord pos, value_t value)
 	const haus_besch_t *besch=(const haus_besch_t *)value.p;
 	if(besch->gib_utyp()==hausbauer_t::bahnhof) {
 		return wkz_halt_aux( sp, welt, pos, besch, weg_t::schiene, umgebung_t::cst_multiply_station, "BF" );
+	}
+	else if(besch->gib_utyp()==hausbauer_t::monorailstop) {
+		return wkz_halt_aux( sp, welt, pos, besch, weg_t::schiene_monorail, umgebung_t::cst_multiply_station, "BF" );
 	}
 	else if(besch->gib_utyp()==hausbauer_t::bushalt  ||  besch->gib_utyp()==hausbauer_t::ladebucht) {
 		return wkz_halt_aux( sp, welt, pos, besch, weg_t::strasse, umgebung_t::cst_multiply_roadstop, "H" );

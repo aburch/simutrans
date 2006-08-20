@@ -1059,8 +1059,18 @@ win_display_flush(int , int color, double konto)
 		ticks = wl->gib_zeit_ms();
 	}
 
-	const int tage = ticks >> karte_t::ticks_bits_per_tag;
-	const int stunden4 = ((ticks - (tage << karte_t::ticks_bits_per_tag)) * 96) >> karte_t::ticks_bits_per_tag;
+	// calculate also days if desired
+	const uint32 ticks_this_month = ticks & ((1<<karte_t::ticks_bits_per_tag)-1);
+	uint32 tage, stunden4;
+	if(umgebung_t::show_month>1) {
+		static sint32 tage_per_month[12]={31,28,31,30,31,30,31,31,30,31,30,31};
+		tage = ((ticks_this_month*tage_per_month[month]) >> karte_t::ticks_bits_per_tag) + 1;
+		stunden4 = ((ticks_this_month*tage_per_month[month]*96) >> karte_t::ticks_bits_per_tag)%96;
+	}
+	else {
+		tage = 0;
+		stunden4 = (ticks_this_month * 96) >> karte_t::ticks_bits_per_tag;
+	}
 
 	// change to night mode?
 	// images will be recalculated only, when there has been a change, so we set always
@@ -1076,18 +1086,46 @@ win_display_flush(int , int color, double konto)
     char stretch_text[32];
     char delta_pos[64];
 
-    // @author hsiegeln - updated to show month
-    if (umgebung_t::show_month)
-    {
-    	sprintf(time, "%s, %s %d",
-		translator::translate(month_names[month%12]),
-		translator::translate(seasons[wl->gib_jahreszeit()]),
-		year);
-    } else {
-    	sprintf(time, "%s %d",
-		translator::translate(seasons[wl->gib_jahreszeit()]),
-		year);
-    }
+//DBG_MESSAGE("umgebung_t::show_month","%d",umgebung_t::show_month);
+	// @author hsiegeln - updated to show month
+	// @author prissi - also show date if desired
+	switch(umgebung_t::show_month) {
+		// german style
+		case 4:	sprintf(time, "%s, %d. %s %d",
+						translator::translate(seasons[wl->gib_jahreszeit()]),
+						tage,
+						translator::translate(month_names[month%12]),
+						year
+						);
+					break;
+		// us style
+		case 3:	sprintf(time, "%s, %s %d %d",
+						translator::translate(seasons[wl->gib_jahreszeit()]),
+						translator::translate(month_names[month%12]),
+						tage,
+						year
+						);
+					break;
+		// japanese style
+		case 2:	sprintf(time, "%s, %d/%s/%d",
+						translator::translate(seasons[wl->gib_jahreszeit()]),
+						year,
+						translator::translate(month_names[month%12]),
+						tage
+						);
+					break;
+		// just month
+		case 1:	sprintf(time, "%s, %s %d",
+						translator::translate(month_names[month%12]),
+						translator::translate(seasons[wl->gib_jahreszeit()]),
+						year);
+					break;
+		// just only season
+		default:	sprintf(time, "%s %d",
+						translator::translate(seasons[wl->gib_jahreszeit()]),
+						year);
+					break;
+	}
 
 	sprintf(stretch_text, wl->is_fast_forward()?">>":"(T=%1.2f)", get_time_multi()/16.0 );
 

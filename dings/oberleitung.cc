@@ -55,7 +55,10 @@ oberleitung_t::~oberleitung_t()
 	koord3d	pos = gib_pos();
 	grund_t *gr=welt->lookup(pos);
 	if(gr) {
-		schiene_t *sch = dynamic_cast<schiene_t *> (gr->gib_weg(weg_t::schiene));
+		schiene_t *sch = dynamic_cast<schiene_t *> (gr->gib_weg_nr(0));
+		if(sch==0) {
+			schiene_t *sch = dynamic_cast<schiene_t *> (gr->gib_weg_nr(1));
+		}
 		if(sch) {
 			sch->setze_elektrisch( false );
 		}
@@ -98,7 +101,10 @@ void oberleitung_t::calc_bild()
 
 
   hang_t::typ hang = gr->gib_weg_hang();
-  const ribi_t::ribi ribi = gr->gib_weg_ribi_unmasked(weg_t::schiene);
+  ribi_t::ribi ribi = gr->gib_weg_ribi_unmasked(weg_t::schiene);
+  if(ribi==0) {
+  	ribi = gr->gib_weg_ribi_unmasked(weg_t::schiene_monorail);
+  }
 
 
   if(hang != gr->gib_grund_hang() &&

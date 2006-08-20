@@ -570,7 +570,11 @@ int simu_cpp_main(int argc, char ** argv)
       umgebung_t::numbered_stations = (contents.get_int("numbered_stations", 0)) != 0;
       umgebung_t::station_coverage_size = contents.get_int("station_coverage", 2);
 
-      umgebung_t::show_month = (contents.get_int("show_month", 0)) != 0;
+	// time stuff
+      umgebung_t::show_month = (contents.get_int("show_month", 0));
+      umgebung_t::bits_per_month = (contents.get_int("bits_per_month", 18));
+      umgebung_t::use_timeline = contents.get_int("use_timeline", 2);
+      umgebung_t::starting_year = (contents.get_int("starting_year", 1930));
 
       umgebung_t::intercity_road_length = (contents.get_int("intercity_road_length", 8000));
       umgebung_t::intercity_road_type = new cstring_t(ltrim(contents.get("intercity_road_type")));
@@ -578,9 +582,6 @@ int simu_cpp_main(int argc, char ** argv)
 	if(umgebung_t::city_road_type->len()==0) {
 		*umgebung_t::city_road_type = "city_road";
 	}
-
-      umgebung_t::use_timeline = contents.get_int("use_timeline", 2);
-      umgebung_t::starting_year = (contents.get_int("starting_year", 1930));
 
       umgebung_t::autosave = (contents.get_int("autosave", 0));
 

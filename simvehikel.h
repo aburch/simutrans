@@ -120,11 +120,6 @@ public:
 class vehikel_t : public vehikel_basis_t, public fahrer_t
 {
 private:
-
-#ifdef COUNT_ALL_VEHICLES
-    static slist_tpl<const vehikel_t *> list;	// Liste der Vehikel (alle !)
-#endif
-
     /**
      * Kaufdatum in months
      * @author Hj. Malthaner

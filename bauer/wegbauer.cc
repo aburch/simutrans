@@ -81,7 +81,12 @@ static stringhashtable_tpl <const weg_besch_t *> alle_wegtypen;
 
 bool wegbauer_t::alle_wege_geladen()
 {
-	schiene_t::default_schiene = wegbauer_t::weg_search(weg_t::schiene,1,0);
+	// some defaults to avoid hardcoded values
+	strasse_t::default_strasse = wegbauer_t::weg_search(weg_t::strasse,50,0);
+	schiene_t::default_schiene = wegbauer_t::weg_search(weg_t::schiene,80,0);
+	monorail_t::default_monorail = wegbauer_t::weg_search(weg_t::schiene_monorail,120,0);
+	kanal_t::default_kanal = wegbauer_t::weg_search(weg_t::wasser,20,0);
+	runway_t::default_runway = wegbauer_t::weg_search(weg_t::luft,20,0);
 	return ::alles_geladen(spezial_objekte + 1);
 }
 
@@ -256,6 +261,7 @@ void wegbauer_t::fill_menu(werkzeug_parameter_waehler_t *wzw,
 		}
 	}
 
+	const sint32 shift_maintanance = (karte_t::ticks_bits_per_tag-18);
 	// now sorted ...
 	while(matching.count()>0) {
 		const weg_besch_t * besch = matching.at(0);
@@ -266,7 +272,7 @@ void wegbauer_t::fill_menu(werkzeug_parameter_waehler_t *wzw,
 		sprintf(buf, "%s, %d$ (%d$), %dkm/h",
 			translator::translate(besch->gib_name()),
 			besch->gib_preis()/100,
-			besch->gib_wartung()/100,
+			(besch->gib_wartung()<<shift_maintanance)/100,
 			besch->gib_topspeed());
 
 		wzw->add_param_tool(werkzeug,
@@ -344,24 +350,24 @@ bool wegbauer_t::check_slope( const grund_t *from, const grund_t *to )
 	}
 
 	// check for valid slopes
-	if(from->gib_grund_hang()!=0) {
-		if(!hang_t::ist_wegbar(from->gib_grund_hang())) {
+	if(from->gib_weg_hang()!=0) {
+		if(!hang_t::ist_wegbar(from->gib_weg_hang())) {
 			// not valid
 			return false;
 		}
-		const sint8 hang_ribi=ribi_typ(from->gib_grund_hang());
+		const sint8 hang_ribi=ribi_typ(from->gib_weg_hang());
 		if(ribi!=hang_ribi  &&  ribi!=ribi_t::rueckwaerts(hang_ribi)) {
 			// not down or up ...
 			return false;
 		}
 	}
 	// ok, now check destination hang
-	if(to->gib_grund_hang()!=0) {
-		if(!hang_t::ist_wegbar(to->gib_grund_hang())) {
+	if(to->gib_weg_hang()!=0) {
+		if(!hang_t::ist_wegbar(to->gib_weg_hang())) {
 			// not valid
 			return false;
 		}
-		const sint8 hang_ribi=ribi_typ(to->gib_grund_hang());
+		const sint8 hang_ribi=ribi_typ(to->gib_weg_hang());
 		if(ribi!=hang_ribi  &&  ribi!=ribi_t::rueckwaerts(hang_ribi)) {
 			// not down or up ...
 			return false;
@@ -369,10 +375,10 @@ bool wegbauer_t::check_slope( const grund_t *from, const grund_t *to )
 	}
 
 	// now check offsets before changing the slope ...
-	const sint8 slope_this = from->gib_grund_hang();
+	const sint8 slope_this = from->gib_weg_hang();
 	const sint16 hgt=from->gib_hoehe()/16;
 	const sint16 to_hgt=to->gib_hoehe()/16;
-	const sint8 to_slope=to->gib_grund_hang();
+	const sint8 to_slope=to->gib_weg_hang();
 
 	if(ribi==ribi_t::west) {
 #ifndef DOUBLE_GROUNDS
@@ -450,20 +456,39 @@ bool wegbauer_t::is_allowed_step( const grund_t *from, const grund_t *to, long *
 	const koord to_pos=to->gib_pos().gib_2d();
 	const koord zv=to_pos-from_pos;
 
-	if(bautyp==luft  &&  from->gib_grund_hang()+to->gib_grund_hang()!=0  ) {
-		// absolutely no slopes for runways
+	if(bautyp==luft  &&  (from->gib_grund_hang()+to->gib_grund_hang()!=0  ||  (from->hat_wege()  &&  from->gib_weg(weg_t::luft)==0))) {
+		// absolutely no slopes for runways, neither other ways
 		return false;
 	}
 
+/*
 	if(!check_slope(from,to)) {
 		// wrong slopes
+		DBG_MESSAGE("wron slopes between","%i,%i and %i,%i",from_pos.x,from_pos.y,to_pos.x,to_pos.y);
 		return false;
+	}
+*/
+	if(from==to) {
+		if(!hang_t::ist_wegbar(from->gib_weg_hang())) {
+			DBG_MESSAGE("wrong slopes at","%i,%i ribi1=%d",from_pos.x,from_pos.y,ribi_typ(from->gib_weg_hang()));
+			return false;
+		}
+	}
+	else {
+		if(from->gib_weg_hang()  &&  ribi_t::doppelt(ribi_typ(from->gib_weg_hang()))!=ribi_t::doppelt(ribi_typ(zv))) {
+			DBG_MESSAGE("wrong slopes between","%i,%i and %i,%i, ribi1=%d, ribi2=%d",from_pos.x,from_pos.y,to_pos.x,to_pos.y,ribi_typ(from->gib_weg_hang()),ribi_typ(zv));
+			return false;
+		}
+		if(to->gib_weg_hang()  &&  ribi_t::doppelt(ribi_typ(to->gib_weg_hang()))!=ribi_t::doppelt(ribi_typ(zv))) {
+			DBG_MESSAGE("wrong slopes between","%i,%i and %i,%i, ribi1=%d, ribi2=%d",from_pos.x,from_pos.y,to_pos.x,to_pos.y,ribi_typ(to->gib_weg_hang()),ribi_typ(zv));
+			return false;
+		}
 	}
 
 	// ok, slopes are ok
 	bool ok = to->ist_natur()  &&  !to->ist_wasser();
 	bool fundament= to->gib_typ()==grund_t::fundament;
-	const gebaeude_t *gb=dynamic_cast<const gebaeude_t *>(to->obj_bei(0));
+	const gebaeude_t *gb=dynamic_cast<const gebaeude_t *>(to->suche_obj(ding_t::gebaeude));
 
 	switch(bautyp) {
 
@@ -513,7 +538,7 @@ bool wegbauer_t::is_allowed_step( const grund_t *from, const grund_t *to, long *
 		case schiene:
 		{
 			const weg_t *sch=to->gib_weg(weg_t::schiene);
-			ok =	(ok&!fundament || (sch  &&  sch->gib_besch()->gib_styp()==0)  || check_crossing(zv,to,weg_t::strasse)) &&
+			ok =	(ok&!fundament || (sch)  || check_crossing(zv,to,weg_t::strasse)) &&
 					check_owner(to->gib_besitzer(),sp) &&
 					check_for_leitung(zv,to)  &&
 					!to->gib_depot();
@@ -769,7 +794,7 @@ int wegbauer_t::check_for_bridge( const grund_t *parent_from, const grund_t *fro
 	const int start_count = next_gr.get_count();
 	grund_t *gr, *gr2;
 	long internal_cost;
-	const long cost_difference=(bruecke_besch->gib_wartung()*4l+3l)/besch->gib_wartung();
+	const long cost_difference=besch->gib_wartung()>0 ? (bruecke_besch->gib_wartung()*4l+3l)/besch->gib_wartung() : 16;
 
 	if(from->gib_grund_hang()==0) {
 		// try bridge on even ground
@@ -1096,6 +1121,7 @@ wegbauer_t::intern_calc_route(const koord start, const koord ziel)
 	// is valid ground?
 	long dummy;
 	if(!is_allowed_step(tmp->gr,tmp->gr,&dummy)) {
+		DBG_MESSAGE("wegbauer_t::intern_calc_route()","cannot start on (%i,%i)",start.x,start.y);
 		return false;
 	}
 
@@ -1126,6 +1152,7 @@ wegbauer_t::intern_calc_route(const koord start, const koord ziel)
 		// the four possible directions plus any additional stuff due to already existing brides plus new ones ...
 		next_gr.clear();
 
+/*
 		// try to build a bridge or tunnel here
 //DBG_MESSAGE("wegbauer_t::bridge()","at %i,%i,%i weg=%i/%i",gr->gib_pos().x,gr->gib_pos().y,gr->gib_pos().z,gr->gib_weg_hang(),gr->gib_grund_hang());
 		if(gr->gib_weg_hang()!=gr->gib_grund_hang()) {
@@ -1139,6 +1166,8 @@ wegbauer_t::intern_calc_route(const koord start, const koord ziel)
 				check_for_bridge(tmp->parent->gr,gr,ziel3d);
 			}
 #endif
+*/
+
 			// only one direction allowed ...
 			const koord bridge_nsow=tmp->parent!=NULL ? gr->gib_pos().gib_2d()-tmp->parent->gr->gib_pos().gib_2d() : koord::invalid;
 
@@ -1147,8 +1176,8 @@ wegbauer_t::intern_calc_route(const koord start, const koord ziel)
 
 				to = NULL;
 				const planquadrat_t *pl=welt->lookup(gr_pos.gib_2d()+koord::nsow[r]);
-				if(pl) {
-					to = pl->gib_kartenboden();
+				if(!gr->get_neighbour(to,weg_t::invalid,koord::nsow[r])) {
+					continue;
 				}
 
 				// something valid?
@@ -1189,7 +1218,7 @@ wegbauer_t::intern_calc_route(const koord start, const koord ziel)
 					check_for_bridge(tmp->parent->gr,gr,ziel3d);
 				}
 			}
-		}
+//		}
 
 		// now check all valid ones ...
 		for(unsigned r=0; r<next_gr.get_count(); r++) {
@@ -1625,8 +1654,6 @@ wegbauer_t::calc_costs()
 void
 wegbauer_t::baue_strasse()
 {
-	int cost = 0;
-
 	// construct city road?
 	const weg_besch_t *cityroad = gib_besch("city_road");
 	bool add_sidewalk = besch==cityroad;
@@ -1648,6 +1675,7 @@ wegbauer_t::baue_strasse()
 
 		const koord k = route->at(i).gib_2d();
 		grund_t *gr = welt->lookup(route->at(i));
+		long cost = 0;
 
 		if(gr->weg_erweitern(weg_t::strasse, calc_ribi(i))) {
 			weg_t * weg = gr->gib_weg(weg_t::strasse);
@@ -1656,12 +1684,12 @@ wegbauer_t::baue_strasse()
 			if(weg->gib_besch()==besch  ||  keep_existing_ways  ||  (keep_existing_city_roads  && weg->gib_besch()==cityroad)  ||  (keep_existing_faster_ways  &&  weg->gib_besch()->gib_topspeed()>besch->gib_topspeed())  ) {
 				//nothing to be done
 //DBG_MESSAGE("wegbauer_t::baue_strasse()","nothing to do at (%i,%i)",k.x,k.y);
-				cost = 0;
 			}
 			else {
 //DBG_MESSAGE("wegbauer_t::baue_strasse()","updating %s to %s at (%i,%i)",weg->gib_besch()->gib_name(),besch->gib_name(),k.x,k.y);
 
-				// we take ownershipe => we take care to maintain the roads completely ...
+				// we take ownership => we take care to maintain the roads completely ...
+//				cost += weg->gib_besch()->gib_preis();
 				if(gr->gib_besitzer()) {
 					gr->gib_besitzer()->add_maintenance( -weg->gib_besch()->gib_wartung() );
 				}
@@ -1672,7 +1700,7 @@ wegbauer_t::baue_strasse()
 
 				weg->setze_besch(besch);
 				gr->calc_bild();
-				cost = -besch->gib_preis();
+				cost -= besch->gib_preis();
 			}
 		}
 		else {

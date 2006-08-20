@@ -47,22 +47,21 @@ class ware_besch_t : public obj_besch_t {
      */
     uint16 catg;
 
+	// just for sorting etc.
+	// assinged during registration
+	uint16 ware_index;
+
     /**
      * Bonus for fast transport given in percent!
      * @author Hj. Malthaner
      */
     uint16 speed_bonus;
 
-
     /**
      * Weight in KG per unit of this good
      * @author Hj. Malthaner
      */
     uint16 weight_per_unit;
-
-	// just for sorting etc.
-	// assinged during registration
-	uint16 ware_index;
 
 public:
     const char *gib_name() const

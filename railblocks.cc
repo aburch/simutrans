@@ -32,6 +32,9 @@
 //#define DEBUG 1
 
 
+#include "find_block_way.h"
+
+
 /**
  * Rail block factory method. Returns handles instead of pointers.
  * @author Hj. Malthaner
@@ -78,22 +81,22 @@ blockstrecke_t::blockstrecke_t(karte_t *w, loadsave_t *file)
 
 void blockstrecke_t::laden_abschliessen()
 {
+	slist_iterator_tpl<signal_t *> iter( signale );
 
-    slist_iterator_tpl<signal_t *> iter( signale );
+	while(iter.next()) {
+		signal_t *sig = iter.get_current();
 
-    while(iter.next()) {
-	signal_t *sig = iter.get_current();
+		assert(welt->lookup(sig->gib_pos())!=NULL);
+		assert(get_block_way(welt->lookup(sig->gib_pos()))!=NULL);
 
-	assert(welt->lookup( sig->gib_pos() ) != NULL);
-	assert(welt->lookup( sig->gib_pos() )->gib_weg(weg_t::schiene) != NULL);
-	ribi_t::ribi dir = sig->gib_richtung();
-
-	if(dir == ribi_t::nord || dir == ribi_t::ost) {
-	    welt->lookup(sig->gib_pos())->obj_add(sig);
-	} else {
-	    welt->lookup(sig->gib_pos())->obj_pri_add(sig, PRI_HOCH);
+		ribi_t::ribi dir = sig->gib_richtung();
+		if(dir == ribi_t::nord || dir == ribi_t::ost) {
+			welt->lookup(sig->gib_pos())->obj_add(sig);
+		}
+		else {
+			welt->lookup(sig->gib_pos())->obj_pri_add(sig, PRI_HOCH);
+		}
 	}
-    }
 }
 
 
@@ -131,7 +134,7 @@ void blockstrecke_t::verdrahte_signale_neu()
     while(iter.next()) {
 	signal_t *sig = iter.get_current();
 
-	schiene_t *sch = dynamic_cast<schiene_t*> (welt->lookup(sig->gib_pos())->gib_weg(weg_t::schiene));
+	schiene_t *sch = get_block_way( welt->lookup(sig->gib_pos()) );
 
 	if(sch == NULL) {
 	    dbg->error("blockstrecke_t::verdrahte_signale_neu()", "signal on square without railroad track, skipping signal!");

@@ -525,7 +525,7 @@ void fabrik_t::set_ausgang(vector_tpl<ware_t> * typen)
 uint32 fabrik_t::produktion(const uint32 produkt) const
 {
 	// default prodfaktor = 16 => shift 4, default time = 1024 => shift 10, rest precion
-	uint32 menge = (prodbase * prodfaktor) >> (karte_t::ticks_bits_per_tag-10+4-fabrik_t::precision_bits);
+	uint32 menge = (prodbase * prodfaktor) >> (18-10+4-fabrik_t::precision_bits);
 
 	if(ausgang->get_count() > produkt) {
 		// wenn das lager voller wird, produziert eine Fabrik weniger pro step

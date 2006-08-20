@@ -120,6 +120,20 @@ static bool fast_forward = false;
 //#define DEMO
 //#undef DEMO
 
+/**
+ * anzahl ticks pro tag in bits
+ * @see ticks_per_tag
+ * @author Hj. Malthaner
+ */
+uint32 karte_t::ticks_bits_per_tag = 20;
+
+/**
+ * anzahl ticks pro tag
+ * @author Hj. Malthaner
+ */
+uint32 karte_t::ticks_per_tag = (1 << 20);
+
+// offsets for mouse pointer
 const int karte_t::Z_PLAN      = 8;
 const int karte_t::Z_GRID      = 0;
 const int karte_t::Z_LINES     = 4;
@@ -644,6 +658,7 @@ karte_t::init(einstellungen_t *sets)
     letzter_monat = 0;
     letztes_jahr = sets->gib_starting_year();//umgebung_t::starting_year;
     current_month = letzter_monat + (letztes_jahr*12);
+    setze_ticks_bits_per_tag(sets->gib_bits_per_month());
     next_month_ticks =  1 << karte_t::ticks_bits_per_tag;
     season = 2;
     steps = 0;
@@ -880,9 +895,9 @@ DBG_DEBUG("karte_t::init()","prepare cities");
     }
 }
 
-karte_t::karte_t() : ausflugsziele(16), quick_shortcuts(0), marker(0,0)
+karte_t::karte_t() : ausflugsziele(16), quick_shortcuts(15), marker(0,0)
 {
-	for (unsigned int i=0; i<10; i++) {
+	for (unsigned int i=0; i<15; i++) {
 //DBG_MESSAGE("karte_t::karte_t()","Append NULL to quick_shortcuts at %d\n",i);
 		quick_shortcuts.append(NULL);
 	}
@@ -917,6 +932,7 @@ karte_t::karte_t() : ausflugsziele(16), quick_shortcuts(0), marker(0,0)
 
 	sets->setze_starting_year( umgebung_t::starting_year );
 	sets->setze_use_timeline( umgebung_t::use_timeline==1 );
+	sets->setze_bits_per_month( umgebung_t::bits_per_month );
 
 	stadt = 0;
 	zeiger = 0;
@@ -1943,7 +1959,7 @@ karte_t::neuer_monat()
 // recalculated speed boni for different vehicles
 void karte_t::recalc_average_speed()
 {
-	DBG_MESSAGE("karte_t::recalc_average_speed()","");
+//	DBG_MESSAGE("karte_t::recalc_average_speed()","");
 	if(use_timeline()) {
 		int num_averages[4]={0,0,0,0};
 		int speed_sum[4]={0,0,0,0};
@@ -2072,9 +2088,9 @@ void karte_t::step(const long delta_t)
 		}
 		interactive_update();
 
-		// now step all towns
+		// now step all towns (to generate passengers)
 		for(unsigned int n=0; n<stadt->get_count(); n++) {
-			stadt->at(n)->step();
+			stadt->at(n)->step(delta_t);
 			INT_CHECK("simworld 1959");
 		}
 		interactive_update();
@@ -2089,9 +2105,16 @@ void karte_t::step(const long delta_t)
 		INT_CHECK("simworld 1975");
 
 		if(ticks > next_month_ticks) {
+
 			next_month_ticks += karte_t::ticks_per_tag;
 
-			// neuer monat
+			// avoid overflow here ...
+			if(ticks>next_month_ticks) {
+				ticks %= karte_t::ticks_per_tag;
+				next_month_ticks = ticks+karte_t::ticks_per_tag;
+			}
+
+			// now handle new month (and maybe new year too)
 			neuer_monat();
 		}
 		interactive_update();
@@ -3315,9 +3338,7 @@ karte_t::interactive_event(event_t &ev)
 	    setze_maus_funktion(wkz_lower, skinverwaltung_t::downzeiger->gib_bild_nr(0), Z_GRID,  NO_SOUND, NO_SOUND );
 	    break;
 	case 'e':
-	    setze_maus_funktion(wkz_electrify_block,
-				skinverwaltung_t::oberleitung->gib_bild_nr(8),
-				Z_PLAN, 0, 0);
+	    setze_maus_funktion(wkz_electrify_block,skinverwaltung_t::oberleitung->gib_bild_nr(8),	Z_PLAN, 0, 0);
 	    break;
 	case 'f': /* OCR: Finances */
 	    sound_play(click_sound);
@@ -3847,8 +3868,16 @@ karte_t::interactive_event(event_t &ev)
 				tool_tip_with_price(translator::translate("Build monotrail depot"), umgebung_t::cst_depot_rail));
 
 		    hausbauer_t::fill_menu(wzw,
-						  hausbauer_t::bahnhof,
+						  hausbauer_t::monorailstop,
 						  wkz_halt,
+						  SFX_JACKHAMMER,
+						  SFX_FAILURE,
+						  umgebung_t::cst_multiply_station,
+						  get_timeline_year_month() );
+
+		    hausbauer_t::fill_menu(wzw,
+						  hausbauer_t::monorail_geb,
+						  wkz_station_building,
 						  SFX_JACKHAMMER,
 						  SFX_FAILURE,
 						  umgebung_t::cst_multiply_station,
@@ -3943,13 +3972,23 @@ karte_t::interactive_event(event_t &ev)
 
 		    wzw->setze_hilfe_datei("roadtools.txt");
 
-		    wegbauer_t::fill_menu(wzw,
-					  weg_t::strasse,
-					  wkz_wegebau,
-					  SFX_JACKHAMMER,
-					  SFX_FAILURE,
-					  get_timeline_year_month()
-					  );
+			wegbauer_t::fill_menu(wzw,
+				weg_t::strasse,
+				wkz_wegebau,
+				SFX_JACKHAMMER,
+				SFX_FAILURE,
+				get_timeline_year_month(),
+				0
+			);
+
+			wegbauer_t::fill_menu(wzw,
+				weg_t::strasse,
+				wkz_wegebau,
+				SFX_JACKHAMMER,
+				SFX_FAILURE,
+				get_timeline_year_month(),
+				1
+			);
 
 		    brueckenbauer_t::fill_menu(wzw,
 					  weg_t::strasse,
@@ -4101,12 +4140,23 @@ karte_t::interactive_event(event_t &ev)
 
 					wzw->setze_hilfe_datei("airtools.txt");
 
-					wegbauer_t::fill_menu(wzw,
-						weg_t::luft,
-						wkz_wegebau,
-						SFX_JACKHAMMER,
-						SFX_FAILURE
-					);
+			wegbauer_t::fill_menu(wzw,
+				weg_t::luft,
+				wkz_wegebau,
+				SFX_JACKHAMMER,
+				SFX_FAILURE,
+				get_timeline_year_month(),
+				0
+			);
+
+			wegbauer_t::fill_menu(wzw,
+				weg_t::luft,
+				wkz_wegebau,
+				SFX_JACKHAMMER,
+				SFX_FAILURE,
+				get_timeline_year_month(),
+				1
+			);
 
 		    hausbauer_t::fill_menu(wzw,
 						  hausbauer_t::air_depot,
@@ -4145,6 +4195,24 @@ karte_t::interactive_event(event_t &ev)
                         new werkzeug_parameter_waehler_t(this, "SPECIALTOOLS");
 
 		    wzw->setze_hilfe_datei("special.txt");
+
+			wegbauer_t::fill_menu(wzw,
+				weg_t::strasse,
+				wkz_wegebau,
+				SFX_JACKHAMMER,
+				SFX_FAILURE,
+				get_timeline_year_month(),
+				255
+			);
+
+			wegbauer_t::fill_menu(wzw,
+				weg_t::schiene,
+				wkz_wegebau,
+				SFX_JACKHAMMER,
+				SFX_FAILURE,
+				get_timeline_year_month(),
+				255
+			);
 
 		    hausbauer_t::fill_menu(wzw,
 					  hausbauer_t::post,
@@ -4474,7 +4542,6 @@ karte_t::interactive()
 			sync_step( -987 );
 
 			step(ticks-last_step_time);
-
 		}
 		else {
 			INT_CHECK("simworld 3746");

@@ -12,7 +12,7 @@
 #include "curiositylist_stats_t.h"
 #include "components/list_button.h"
 #include "../gui/gui_scrollpane.h"
-
+#include "../simcolor.h"
 
 /**
  * This variable defines the sort order (ascending or descending)
@@ -33,46 +33,50 @@ curiositylist::sort_mode_t curiositylist_frame_t::sortby = curiositylist::by_nam
 
 const char *curiositylist_frame_t::sort_text[curiositylist::SORT_MODES] = {
     "hl_btn_sort_name",
-    "Passagierrate",
-    "Postrate"
+    "Passagierrate"/*,
+		     "Postrate"*/
 };
 
 curiositylist_frame_t::curiositylist_frame_t(karte_t * welt) :
     gui_frame_t(translator::translate("curlist_title")),
     sort_label(translator::translate("hl_txt_sort"))
+//    header_label(translator::translate("status - name (coordinates) - (passenger level,mail level)"),COL_WHITE)
 {
-    sort_label.setze_pos(koord(BUTTON1_X, 4));
-    add_komponente(&sort_label);
+	sort_label.setze_pos(koord(BUTTON1_X, 4));
+	add_komponente(&sort_label);
 
-    sortedby.init(button_t::roundbox, "", koord(BUTTON1_X, 14), koord(BUTTON_WIDTH,BUTTON_HEIGHT));
-    sortedby.add_listener(this);
-    add_komponente(&sortedby);
+	sortedby.init(button_t::roundbox, "", koord(BUTTON1_X, 14), koord(BUTTON_WIDTH,BUTTON_HEIGHT));
+	sortedby.add_listener(this);
+	add_komponente(&sortedby);
 
-    sorteddir.init(button_t::roundbox, "", koord(BUTTON2_X, 14), koord(BUTTON_WIDTH,BUTTON_HEIGHT));
-    sorteddir.add_listener(this);
-    add_komponente(&sorteddir);
+	sorteddir.init(button_t::roundbox, "", koord(BUTTON2_X, 14), koord(BUTTON_WIDTH,BUTTON_HEIGHT));
+	sorteddir.add_listener(this);
+	add_komponente(&sorteddir);
 
-    stats = new curiositylist_stats_t(welt,sortby,sortreverse);
+//	header_label.setze_pos(koord(BUTTON1_X,31));
+//	add_komponente(&header_label);
 
-    setze_opaque(true);
-    setze_fenstergroesse(koord(TOTAL_WIDTH, 240));
+	stats = new curiositylist_stats_t(welt,sortby,sortreverse);
 
-    scrolly = new gui_scrollpane_t(stats);
-    scrolly->setze_pos(koord(1,30));
-    add_komponente(scrolly);
+	setze_opaque(true);
+	setze_fenstergroesse(koord(TOTAL_WIDTH, 240));
 
-    display_list();
+	scrolly = new gui_scrollpane_t(stats);
+	scrolly->setze_pos(koord(1,14+BUTTON_HEIGHT+2));
+	scrolly->set_show_scroll_x(false);
+	add_komponente(scrolly);
 
-    add_komponente(scrolly);
+	display_list();
 
-    // a min-size for the window
-    set_min_windowsize(koord(TOTAL_WIDTH, 240));
+	add_komponente(scrolly);
 
-    set_resizemode(diagonal_resize);
-    resize(koord(0,0));
+	// a min-size for the window
+	set_min_windowsize(koord(TOTAL_WIDTH, 240));
 
-    //DBG_DEBUG("curiositylist_frame_t(): constructor ende","");
+	set_resizemode(diagonal_resize);
+	resize(koord(0,0));
 }
+
 
 
 curiositylist_frame_t::~curiositylist_frame_t()
@@ -109,8 +113,8 @@ bool curiositylist_frame_t::action_triggered(gui_komponente_t *komp)
 void curiositylist_frame_t::resize(const koord delta)
 {
 	gui_frame_t::resize(delta);
-	// fensterhoehe - 16(title) - 30 (header)
-	koord groesse = gib_fenstergroesse()-koord(0,46);
+	// fensterhoehe - 16(title) -offset (header)
+	koord groesse = gib_fenstergroesse()-koord(0,14+BUTTON_HEIGHT+2+16);
 	scrolly->setze_groesse(groesse);
 }
 

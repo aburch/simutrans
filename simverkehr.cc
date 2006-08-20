@@ -330,7 +330,7 @@ stadtauto_t::betrete_feld()
 
 
 bool
-stadtauto_t::step(long /*delta_t*/)
+stadtauto_t::step(long delta_t)
 {
 	// if we get here, we are stucked somewhere
 	// since this test takes some time, we do not do it too often
@@ -341,7 +341,8 @@ stadtauto_t::step(long /*delta_t*/)
 	}
 	else {
 		// still stucked
-		if(ms_traffic_jam<welt->gib_zeit_ms()) {
+		ms_traffic_jam -= delta_t;
+		if(ms_traffic_jam<0) {
 			// try to turn around
 			fahrtrichtung = ribi_t::rueckwaerts( fahrtrichtung );
 			koord3d old_pos_next = pos_next;
@@ -358,7 +359,7 @@ stadtauto_t::step(long /*delta_t*/)
 				fahrtrichtung = ribi_t::rueckwaerts( fahrtrichtung );
 				setze_pos( pos_next );
 				pos_next = old_pos_next;
-				ms_traffic_jam = welt->gib_zeit_ms()+(3<<karte_t::ticks_bits_per_tag);
+				ms_traffic_jam = (3<<karte_t::ticks_bits_per_tag);
 				koord about_pos = gib_pos().gib_2d();
 				message_t::get_instance()->add_message(
 					translator::translate("To heavy traffic\nresults in traffic jam.\n"),
@@ -474,7 +475,7 @@ stadtauto_t::hop_check()
 {
 	bool frei = ist_weg_frei();
 	if(!frei) {
-		ms_traffic_jam = welt->gib_zeit_ms() + (3<<karte_t::ticks_bits_per_tag);
+		ms_traffic_jam = (3<<karte_t::ticks_bits_per_tag);
 		step_frequency = 1;
 	}
 	return frei;

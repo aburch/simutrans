@@ -101,7 +101,7 @@ private:
     spieler_t *besitzer_p;
     char name[64];
 
-	weighted_vector_tpl <gebaeude_t *> buildings;
+	weighted_vector_tpl <const gebaeude_t *> buildings;
 
     array2d_tpl<unsigned char> pax_ziele_alt;
     array2d_tpl<unsigned char> pax_ziele_neu;
@@ -204,7 +204,7 @@ private:
     void init_pax_ziele();
 
 	// this function adds houses to the city house list
-	void add_gebaeude_to_stadt(gebaeude_t *gb);
+	void add_gebaeude_to_stadt(const gebaeude_t *gb);
 
 	// recalculate house informations (used for target selection)
 	void recount_houses();
@@ -330,7 +330,7 @@ public:
 
 	// this function removes houses from the city house list
 	// (called when removed by player, or by town)
-	void remove_gebaeude_from_stadt(gebaeude_t *gb);
+	void remove_gebaeude_from_stadt(const gebaeude_t *gb);
 
     int gib_pax_erzeugt() const {return pax_erzeugt;}
     int gib_pax_transport() const {return pax_transport;}
@@ -340,7 +340,7 @@ public:
      * ermittelt die Einwohnerzahl der Stadt
      * @author Hj. Malthaner
      */
-	sint32 gib_einwohner() const {return (buildings.get_sum_weight()*19)/4;}
+	sint32 gib_einwohner() const {return (buildings.get_sum_weight()*6)+((2*bev-arb-won)>>1);}
 
     /**
      * Gibt den Namen der Stadt zurück.
@@ -420,7 +420,7 @@ public:
 	 * @author prissi */
 	void change_size( long delta_citicens );
 
-    void step();
+    void step(long delta_t);
 
     void neuer_monat();
 

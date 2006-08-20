@@ -436,9 +436,12 @@ convoi_t::sync_step(long delta_t)
 		}
 
 		// smoke for the engines (only first can smoke )
-		if(welt->gib_zeit_ms() > next_wolke) {
-			next_wolke = welt->gib_zeit_ms()+500;
-			fahr->at(0)->rauche();
+		next_wolke += delta_t;
+		if(next_wolke>500) {
+			next_wolke = 0;
+			for(int i=0;  i<anz_vehikel;  i++  ) {
+				fahr->at(i)->rauche();
+			}
 		}
 
 	} // end if(anz_ready==0)

@@ -41,39 +41,43 @@ const char *factorylist_frame_t::sort_text[factorylist::SORT_MODES] = {
 factorylist_frame_t::factorylist_frame_t(karte_t * welt) :
     gui_frame_t(translator::translate("fl_title")),
     sort_label(translator::translate("hl_txt_sort"))
+//    header_label(translator::translate("service - name (input,output,production) (power)"),COL_WHITE)
 {
-    sort_label.setze_pos(koord(BUTTON1_X, 4));
-    add_komponente(&sort_label);
+	sort_label.setze_pos(koord(BUTTON1_X, 4));
+	add_komponente(&sort_label);
 
-    sortedby.init(button_t::roundbox, "", koord(BUTTON1_X, 14), koord(BUTTON_WIDTH,BUTTON_HEIGHT));
-    sortedby.add_listener(this);
-    add_komponente(&sortedby);
+	sortedby.init(button_t::roundbox, "", koord(BUTTON1_X, 14), koord(BUTTON_WIDTH,BUTTON_HEIGHT));
+	sortedby.add_listener(this);
+	add_komponente(&sortedby);
 
-    sorteddir.init(button_t::roundbox, "", koord(BUTTON2_X, 14), koord(BUTTON_WIDTH,BUTTON_HEIGHT));
-    sorteddir.add_listener(this);
-    add_komponente(&sorteddir);
+	sorteddir.init(button_t::roundbox, "", koord(BUTTON2_X, 14), koord(BUTTON_WIDTH,BUTTON_HEIGHT));
+	sorteddir.add_listener(this);
+	add_komponente(&sorteddir);
 
-    // name buttons
-    sortedby.setze_text(translator::translate(sort_text[gib_sortierung()]));
-    sorteddir.setze_text(translator::translate(gib_reverse() ? "hl_btn_sort_desc" : "hl_btn_sort_asc"));
+//    header_label.setze_pos(koord(BUTTON1_X,30));
+//    add_komponente(&header_label);
+
+	// name buttons
+	sortedby.setze_text(translator::translate(sort_text[gib_sortierung()]));
+	sorteddir.setze_text(translator::translate(gib_reverse() ? "hl_btn_sort_desc" : "hl_btn_sort_asc"));
 
 
-    //DBG_DEBUG("factorylist_frame_t()","constructor begin");
-    stats = new factorylist_stats_t(welt,sortby,sortreverse);
-    //DBG_DEBUG("factorylist_frame_t()","constructor 1");
-    scrolly = new gui_scrollpane_t(stats);
-    scrolly->setze_pos(koord(1, 30));
-    add_komponente(scrolly);
+	//DBG_DEBUG("factorylist_frame_t()","constructor begin");
+	stats = new factorylist_stats_t(welt,sortby,sortreverse);
+	//DBG_DEBUG("factorylist_frame_t()","constructor 1");
+	scrolly = new gui_scrollpane_t(stats);
+	scrolly->setze_pos(koord(1, 14+BUTTON_HEIGHT+2));
+	scrolly->set_show_scroll_x(false);
+	add_komponente(scrolly);
 
-    setze_fenstergroesse(koord(TOTAL_WIDTH, 240));
-    // a min-size for the window
-    set_min_windowsize(koord(TOTAL_WIDTH, 240));
+	setze_fenstergroesse(koord(TOTAL_WIDTH, 240));
+	// a min-size for the window
+	set_min_windowsize(koord(TOTAL_WIDTH, 240));
 
-    set_resizemode(diagonal_resize);
-    resize(koord(0,0));
+	set_resizemode(diagonal_resize);
+	resize(koord(0,0));
 
-    setze_opaque(true);
-    //DBG_DEBUG("factorylist_frame_t(): constructor ende","");
+	setze_opaque(true);
 }
 
 
@@ -114,7 +118,7 @@ bool factorylist_frame_t::action_triggered(gui_komponente_t *komp)
 void factorylist_frame_t::resize(const koord delta)
 {
     gui_frame_t::resize(delta);
-    // fensterhoehe - 16(title) -30 (header)
-    koord groesse = gib_fenstergroesse()-koord(0,46);
+    // fensterhoehe - 16(title) -offset (header)
+    koord groesse = gib_fenstergroesse()-koord(0,14+BUTTON_HEIGHT+2+16);
     scrolly->setze_groesse(groesse);
 }

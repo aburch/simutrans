@@ -473,10 +473,6 @@ vehikel_basis_t::calc_height()
     return hoff;
 }
 
-#ifdef COUNT_ALL_VEHICLES
-slist_tpl<const vehikel_t *> vehikel_t::list;	// Liste der Vehikel (alle !)
-#endif
-
 void
 vehikel_t::setze_convoi(convoi_t *c)
 {
@@ -605,11 +601,6 @@ vehikel_t::vehikel_t(karte_t *welt,
 	alte_fahrtrichtung = fahrtrichtung = ribi_t::keine;
 
 	setze_bild(0, besch->gib_basis_bild());
-
-#ifdef COUNT_ALL_VEHICLES
-	list.insert( this );
-	// printf("Erzeuge Vehikle %x, Start %d,%d\n",(unsigned)this, x,y);
-#endif
 }
 
 
@@ -1061,7 +1052,7 @@ vehikel_t::rdwr(loadsave_t *file)
 {
     int fracht_count = fracht.count();
     if(fracht_count==0) {
-    	fracht_count++;
+    	fracht_count = 1;
    }
 
     ding_t::rdwr(file);
@@ -1132,35 +1123,35 @@ vehikel_t::rdwr(loadsave_t *file)
     	  	ware.setze_zwischenziel( gib_pos().gib_2d() );
     	  	ware.setze_zielpos( gib_pos().gib_2d() );
     	  	ware.rdwr(file);
+//DBG_MESSAGE("rrddwwrr()","fracht count=%d",fracht_count);
     	  }
-        slist_iterator_tpl<ware_t> iter(fracht);
-        while(iter.next()) {
-	    ware_t ware = iter.get_current();
-	    ware.rdwr(file);
-        }
+    	  else {
+	        slist_iterator_tpl<ware_t> iter(fracht);
+	        while(iter.next()) {
+		    ware_t ware = iter.get_current();
+		    ware.rdwr(file);
+	      }
+	    }
     }
-    else {
-        for(int i=0; i<fracht_count; i++) {
-	    ware_t ware(file);
-	    if(ware.menge>0) {
-		    fracht.insert(ware);
+	else {
+		for(int i=0; i<fracht_count; i++) {
+			ware_t ware(file);
+			if(besch==NULL  ||  ware.menge>0) {	// also add, of the besch is unknown to find matching replacement
+				fracht.insert(ware);
+			}
+		}
 	}
-  }
-    }
 
-    file->rdwr_bool(ist_erstes, " ");
-    file->rdwr_bool(ist_letztes, " ");
+	file->rdwr_bool(ist_erstes, " ");
+	file->rdwr_bool(ist_letztes, " ");
 
-    if(file->is_loading()) {
-#ifdef COUNT_ALL_VEHICLES
-        list.insert( this );
-#endif
-        if(besch) {
-		calc_bild();
-	// full weight after loading
-		sum_weight =  (gib_fracht_gewicht()+499)/1000 + besch->gib_gewicht();
+	if(file->is_loading()) {
+		if(besch) {
+			calc_bild();
+			// full weight after loading
+			sum_weight =  (gib_fracht_gewicht()+499)/1000 + besch->gib_gewicht();
+		}
 	}
-    }
 }
 
 
@@ -1235,9 +1226,6 @@ vehikel_t::ist_entfernbar(const spieler_t *)
  */
 vehikel_t::~vehikel_t()
 {
-#ifdef COUNT_ALL_VEHICLES
-  list.remove(this);
-#endif
 }
 
 
@@ -1525,6 +1513,10 @@ automobil_t::rdwr(loadsave_t *file, bool force)
 				// still wrong load ...
 				calc_bild();
 			}
+			if(fracht.count()>0  &&  fracht.at(0).menge==0) {
+				// this was only there to find a matchin vehicle
+				fracht.remove_first();
+			}
 		}
     }
 }
@@ -1787,12 +1779,13 @@ waggon_t::rdwr(loadsave_t *file, bool force)
 		vehikel_t::rdwr(file);
 		// try to find a matching vehivle
 		if(file->is_loading()  &&  besch==NULL) {
-			int power = (fracht.count()==0  ||  fracht.at(0)==warenbauer_t::nichts) ? 500 : 0;
-			const ware_besch_t *w= (fracht.count()>0) ? fracht.at(0).gib_typ() : warenbauer_t::passagiere;
-			DBG_MESSAGE("waggon_t::rdwr()","try to find a fitting vehicle %s.", power>0 ? "engine": w->gib_name() );
+			int power = (ist_erstes  ||  fracht.count()==0  ||  fracht.at(0)==warenbauer_t::nichts) ? 500 : 0;
+			const ware_besch_t *w= power?warenbauer_t::nichts:fracht.at(0).gib_typ();
+			DBG_MESSAGE("waggon_t::rdwr()","try to find a fitting vehicle for %s.", power>0 ? "engine": w->gib_name() );
 			if(!ist_erstes  &&  last_besch!=NULL  &&  last_besch->gib_ware()==w  &&
 				(
-					(power>0  &&  last_besch->gib_leistung()>0)  ||  (power==0  &&  last_besch->gib_leistung()>=0)
+					(power>0  &&  last_besch->gib_leistung()>0)
+//					||  (power==0  &&  last_besch->gib_leistung()>=0)
 				)
 			) {
 				// same as previously ...
@@ -1805,6 +1798,13 @@ waggon_t::rdwr(loadsave_t *file, bool force)
 			if(besch) {
 DBG_MESSAGE("waggon_t::rdwr()","replaced by %s",besch->gib_name());
 				calc_bild();
+			}
+			else {
+dbg->error("waggon_t::rdwr()","no matching besch found for %s!",w->gib_name());
+			}
+			if(fracht.count()>0  &&  fracht.at(0).menge==0) {
+				// this was only there to find a matchin vehicle
+				fracht.remove_first();
 			}
 		}
     }
@@ -1968,7 +1968,7 @@ bool aircraft_t::ist_ziel(const grund_t *gr) const
 
 		// search for the end of the runway
 		const weg_t *w=gr->gib_weg(weg_t::luft);
-		if(w  &&  w->gib_max_speed()>=250) {
+		if(w  &&  w->gib_besch()->gib_styp()==1) {
 
 //DBG_MESSAGE("aircraft_t::ist_ziel()","testing at %i,%i",gr->gib_pos().x,gr->gib_pos().y);
 			// ok here is a runway
@@ -2053,7 +2053,7 @@ aircraft_t::gib_kosten(const grund_t *gr,const uint32 ) const
 			costs += 1;
 		}
 		else {
-			if(w->gib_max_speed()<250) {
+			if(w->gib_besch()->gib_styp()==0) {
 				costs += 25;
 			}
 		}
@@ -2062,7 +2062,7 @@ aircraft_t::gib_kosten(const grund_t *gr,const uint32 ) const
 		// only, if not flying ...
 		assert(w);
 
-		if(w->gib_max_speed()<250) {
+		if(w->gib_besch()->gib_styp()==0) {
 			costs += 3;
 		}
 		else {
@@ -2089,13 +2089,6 @@ aircraft_t::ist_befahrbar(const grund_t *bd) const
 		case departing:
 		case flying:
 		{
-#if 0
-			// allow only runways
-			const weg_t *w=bd->gib_weg(weg_t::luft);
-			if(w  &&  w->gib_max_speed()<250  &&  ) {
-				return false;
-			}
-#endif
 			// prissi: here a height check could avoid too height montains
 			return true;
 		}
@@ -2357,7 +2350,7 @@ aircraft_t::calc_route(karte_t * welt, koord3d start, koord3d ziel, uint32 max_s
 		}
 	}
 
-	if(start_in_the_air  ||  (w->gib_max_speed()>=250  &&  ribi_t::ist_einfach(w->gib_ribi())) ) {
+	if(start_in_the_air  ||  (w->gib_besch()->gib_styp()==1  &&  ribi_t::ist_einfach(w->gib_ribi())) ) {
 		// we start here, if we are in the air or at the end of a runway
 		search_start = start;
 		start_in_the_air = true;

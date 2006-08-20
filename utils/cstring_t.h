@@ -3,6 +3,15 @@
 
 #include <stdarg.h>
 
+
+#ifdef _MSC_VER
+#define STRICMP stricmp
+#define STRNICMP strnicmp
+#else
+#define STRICMP strcasecmp
+#define STRNICMP strncasecmp
+#endif
+
 /**
  * A simple string class.
  * @author Hj. Malthaner

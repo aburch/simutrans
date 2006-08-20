@@ -22,4 +22,7 @@
 
 #define TOTAL_WIDTH (4*(BUTTON_WIDTH+BUTTON_SPACER))
 
+#define INDICATOR_WIDTH (20)
+#define INDICATOR_HEIGHT (4)
+
 #endif

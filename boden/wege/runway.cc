@@ -18,11 +18,13 @@
 
 #include "runway.h"
 
+const weg_besch_t *runway_t::default_runway=NULL;
+
 
 runway_t::runway_t(karte_t *welt) : weg_t(welt)
 {
   // Hajo: set a default
-  setze_besch(wegbauer_t::gib_besch("runway_modern"));
+  setze_besch(default_runway);
 }
 
 
@@ -54,20 +56,6 @@ runway_t::~runway_t()
 void runway_t::info(cbuffer_t & buf) const
 {
 	weg_t::info(buf);
-/*
-	buf.append("\nRail block ");
-	buf.append(bs.get_id());
-	buf.append("\n");
-
-	bs->info(buf);
-
-	buf.append("\n\nRibi (unmasked) ");
-	buf.append(gib_ribi_unmasked());
-
-	buf.append("\nRibi (masked) ");
-	buf.append(gib_ribi());
-	buf.append("\n");
-*/
 }
 
 
@@ -86,7 +74,9 @@ runway_t::rdwr(loadsave_t *file)
 		file->rd_str_into(bname, "\n");
 		const weg_besch_t *besch = wegbauer_t::gib_besch(bname);
 		if(besch==NULL) {
-			besch = wegbauer_t::gib_besch("runway_modern");
+			int old_max_speed=gib_max_speed();
+			besch = wegbauer_t::weg_search(weg_t::luft,old_max_speed>0 ? old_max_speed : 20 );
+			dbg->warning("strasse_t::rwdr()", "Unknown channel %s replaced by a channel %s (old_max_speed %i)", bname, besch->gib_name(), old_max_speed );
 		}
 		setze_besch(besch);
 	}

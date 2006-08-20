@@ -17,6 +17,8 @@ class kanal_t : public weg_t
 {
 
 public:
+	static const weg_besch_t *default_kanal;
+
     kanal_t(karte_t *welt, loadsave_t *file);
     kanal_t(karte_t *welt);
 

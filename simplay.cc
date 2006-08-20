@@ -172,6 +172,8 @@ spieler_t::spieler_t(karte_t *wl, int color) : simlinemgmt(wl,this), last_built(
 	money_frame = NULL;
 	line_frame = NULL;
 
+	passenger_transport = true;
+
 	// we have different AI, try to find out our type:
 	int spieler_num=kennfarbe/4;
 	sprintf(spieler_name_buf,"player %i",spieler_num-1);
@@ -425,7 +427,7 @@ spieler_t::neuer_monat()
     static char buf[256];
 
     // Wartungskosten abziehen
-    buche((sint64)-maintenance, COST_MAINTENANCE);
+    buche((sint64)(-maintenance)<<((sint32)karte_t::ticks_bits_per_tag-18), COST_MAINTENANCE);
     calc_finance_history();
     roll_finance_history_month();
     simlinemgmt.new_month();

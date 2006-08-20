@@ -70,14 +70,15 @@ public:
      * @see ticks_per_tag
      * @author Hj. Malthaner
      */
-    enum { ticks_bits_per_tag = 18 };
-
+    static uint32 ticks_bits_per_tag;
 
     /**
      * anzahl ticks pro tag
      * @author Hj. Malthaner
      */
-    enum { ticks_per_tag = (1 << ticks_bits_per_tag) };
+    static uint32 ticks_per_tag;
+
+	static void setze_ticks_bits_per_tag(uint32 bits) {ticks_bits_per_tag = bits; ticks_per_tag = (1 << ticks_bits_per_tag); }
 
     /**
      * Hoehe eines Punktes der Karte mit "perlin noise"

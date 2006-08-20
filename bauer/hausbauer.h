@@ -45,14 +45,15 @@ public:
      * Unbekannte Gebäude sind nochmal unterteilt
      */
     enum utyp { unbekannt=0, special=1, sehenswuerdigkeit=2, denkmal=3, fabrik=4, rathaus=5, weitere=6, firmensitz=7,
-    					 bahnhof=8, bushalt=9, ladebucht=10, hafen=11, binnenhafen=12, airport=13,
-    					 bahnhof_geb=16, bushalt_geb=17, ladebucht_geb=18, hafen_geb=19, binnenhafen_geb=20, airport_geb=21,
+    					 bahnhof=8, bushalt=9, ladebucht=10, hafen=11, binnenhafen=12, airport=13, monorailstop=14,
+    					 bahnhof_geb=16, bushalt_geb=17, ladebucht_geb=18, hafen_geb=19, binnenhafen_geb=20, airport_geb=21, monorail_geb=22,
     					 wartehalle=30, post=31, lagerhalle=32 };
 
 private:
     static slist_tpl<const haus_besch_t *> alle;
-    static slist_tpl<const haus_besch_t *> sehenswuerdigkeiten;
-    static slist_tpl<const haus_besch_t *> spezials;
+    static slist_tpl<const haus_besch_t *> sehenswuerdigkeiten_land;
+    static slist_tpl<const haus_besch_t *> sehenswuerdigkeiten_city;
+    static slist_tpl<const haus_besch_t *> rathaeuser;
     static slist_tpl<const haus_besch_t *> denkmaeler;
     static slist_tpl<const haus_besch_t *> ungebaute_denkmaeler;
     static slist_tpl<const haus_besch_t *> fabriken;
@@ -189,7 +190,7 @@ public:
      * die bei Kartenerstellung gebaut werden kann.
      * @author V. Meyer
      */
-    static const haus_besch_t *waehle_sehenswuerdigkeit(uint16 time) { return waehle_aus_liste(sehenswuerdigkeiten,time); };
+    static const haus_besch_t *waehle_sehenswuerdigkeit(uint16 time) { return waehle_aus_liste(sehenswuerdigkeiten_land,time); };
 
     /**
      * Liefert per Zufall die Beschreibung eines ungebauten Denkmals.

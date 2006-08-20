@@ -78,7 +78,6 @@ ware_t::~ware_t()
 {
     menge = 0;
     max = 0;
-
     type = 0;
 }
 
@@ -90,17 +89,22 @@ ware_t::rdwr(loadsave_t *file)
 	file->rdwr_long(max, " ");
 
 	const char *typ = NULL;
+	sint8 catg=0;
 
 	if(file->is_saving()) {
 		typ = type->gib_name();
+	}
+	if(file->get_version()>=88005) {
+		file->rdwr_byte(catg,"c");
 	}
 	file->rdwr_str(typ, " ");
 	if(file->is_loading()) {
 		type = warenbauer_t::gib_info(typ);
 		guarded_free(const_cast<char *>(typ));
 		if(type==NULL) {
-			dbg->warning("ware_t::rdwr()","unknown ware set to passengers!");
-			type = warenbauer_t::gib_info("Passagiere");
+			dbg->warning("ware_t::rdwr()","unknown ware of catg %d!",catg);
+			type = warenbauer_t::gib_info_catg(catg);
+			menge = 0;
 		}
 	}
 	ziel.rdwr(file);

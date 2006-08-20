@@ -158,6 +158,8 @@ brueckenbauer_t::fill_menu(werkzeug_parameter_waehler_t *wzw,
 		}
 	}
 
+	const sint32 shift_maintanance = (karte_t::ticks_bits_per_tag-18);	// same costs per intervall => correct display
+
 	// now sorted ...
 	while(matching.count()>0) {
 		const bruecke_besch_t * besch = matching.at(0);
@@ -169,7 +171,7 @@ brueckenbauer_t::fill_menu(werkzeug_parameter_waehler_t *wzw,
 			sprintf(buf, "%s, %d$ (%d$), %dkm/h, %dkm",
 				  translator::translate(besch->gib_name()),
 				  besch->gib_preis()/100,
-				  besch->gib_wartung()/100,
+				  (besch->gib_wartung()<<shift_maintanance)/100,
 				  besch->gib_topspeed(),
 				  besch->gib_max_length());
 		}
@@ -177,7 +179,7 @@ brueckenbauer_t::fill_menu(werkzeug_parameter_waehler_t *wzw,
 			sprintf(buf, "%s, %d$ (%d$), %dkm/h",
 				  translator::translate(besch->gib_name()),
 				  besch->gib_preis()/100,
-				  besch->gib_wartung()/100,
+				  (besch->gib_wartung()<<shift_maintanance)/100,
 				  besch->gib_topspeed());
 		}
 
@@ -206,9 +208,8 @@ brueckenbauer_t::finde_ende(karte_t *welt, koord3d pos, koord zv, weg_t::typ weg
 			return koord3d::invalid;
 		}
 		gr1 = welt->lookup(pos + koord3d(0, 0, 16));
-		if(gr1 && gr1->gib_grund_hang()==hang_t::flach) {
+		if(gr1 && gr1->gib_weg_hang()==hang_t::flach) {
 			return gr1->gib_pos();        // Ende an Querbrücke
-//			return koord3d::invalid;
 		}
 		gr2 = welt->lookup(pos);
 		if(gr2) {
@@ -450,7 +451,7 @@ bool brueckenbauer_t::baue_bruecke(karte_t *welt, spieler_t *sp,
 		pos = pos + zv;
 	}
 
-	if(weg_besch->gib_wtyp()!=weg_t::schiene_monorail  ||  pos.z==end.z) {
+	if(pos.z==end.z) {
 		// not ending at a bridge
 		baue_auffahrt(welt, sp, pos, -zv, besch, weg_besch);
 	}

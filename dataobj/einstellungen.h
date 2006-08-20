@@ -2,6 +2,7 @@
 #define dataobj_einstellungen_h
 
 #include "../utils/cstring_t.h"
+#include "../simtypes.h"
 
 /**
  * einstellungen.h
@@ -57,7 +58,8 @@ private:
 
     unsigned char allow_player_change;
     unsigned char use_timeline;
-    short starting_year;
+    sint16 starting_year;
+    sint16 bits_per_month;
 
 
 public:
@@ -132,6 +134,9 @@ public:
 
     void setze_starting_year(short n) {starting_year=n;};	// prissi, Oct-2005
     short gib_starting_year() const {return starting_year;};
+
+    void setze_bits_per_month(short n) {bits_per_month=n;};	// prissi, Oct-2005
+    short gib_bits_per_month() const {return bits_per_month;};
 };
 
 #endif // dataobj_einstellungen_h

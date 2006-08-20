@@ -181,13 +181,6 @@ class umgebung_t
 	*/
 	static bool numbered_stations;
 
-	/**
-	* show month in date?
-	*
-	* @author hsiegeln
-	*/
-	static bool show_month;
-
 
 	/**
 	* Max. Länge für initiale Stadtverbindungen
@@ -218,13 +211,26 @@ class umgebung_t
 	*/
 	static char use_timeline;
 
+	/**
+	* show month in date?
+	*
+	* @author hsiegeln
+	*/
+	static sint8 show_month;
 
 	/**
 	* Starting year of the game
 	*
 	* @author Hj. Malthaner
 	*/
-	static int starting_year;
+	static sint16 starting_year;
+
+	/**
+	* 1<<bits_per_month is the duration of a day in ms
+	*
+	* @author Hj. Malthaner
+	*/
+	static sint16 bits_per_month;
 
 
 	/* prissi: maximum number of steps for breath search */

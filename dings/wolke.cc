@@ -29,7 +29,7 @@ wolke_t::wolke_t(karte_t *welt, koord3d pos, int x_off, int y_off, int bild) :
     setze_bild( 0, bild );
     setze_yoff( y_off-8 );
     setze_xoff( x_off );
-    insta_zeit = welt->gib_zeit_ms();
+    insta_zeit = 0;
 }
 
 void
@@ -41,8 +41,12 @@ wolke_t::zeige_info()
 void
 wolke_t::rdwr(loadsave_t *file)
 {
-    ding_t::rdwr( file );
-    file->rdwr_long(insta_zeit, "\n");
+	ding_t::rdwr( file );
+
+	file->rdwr_long(insta_zeit, "\n");
+	if(file->get_version()<88005) {
+		insta_zeit = simrand(2500);
+	}
 }
 
 
@@ -72,17 +76,13 @@ sync_wolke_t::rdwr(loadsave_t *file)
 
 
 bool
-sync_wolke_t::sync_step(long /*delta_t*/)
+sync_wolke_t::sync_step(long delta_t)
 {
-    // DBG_MESSAGE("sync_wolke_t::sync_step()", "%p called", this);
+	insta_zeit += delta_t;
+	setze_yoff(base_y_off - (insta_zeit >> 7));
+	setze_bild(0, base_image+(insta_zeit >> 9));
 
-    const uint32 delta = welt->gib_zeit_ms() - gib_insta_zeit();
-
-    setze_yoff(base_y_off - (delta >> 7));
-    setze_bild(0, base_image+(delta >> 9));
-
-    // aus sync liste entfernen
-    return delta < 2500;
+	return (insta_zeit<2500);
 }
 
 
@@ -113,27 +113,26 @@ void sync_wolke_t::operator delete(void *p)
 
 async_wolke_t::async_wolke_t(karte_t *welt, loadsave_t *file) : wolke_t(welt)
 {
-    rdwr(file);
+	rdwr(file);
+	step_frequency = 1;
 }
 
 
 async_wolke_t::async_wolke_t(karte_t *welt, koord3d pos, int x_off, int y_off, int bild) :
    wolke_t(welt, pos, x_off, y_off, bild)
 {
+	step_frequency = 1;
 }
 
 bool
-async_wolke_t::step(long /*delta_t*/)
+async_wolke_t::step(long delta_t)
 {
-    const int yoff = gib_yoff();
-
-    if(yoff > -120 &&
-       welt->gib_zeit_ms() - gib_insta_zeit() < 15000 ) {
-	setze_yoff( yoff - 2 );
-
-	return true;
-    }
-
-    // remove cloud
-    return false;
+	const int yoff = gib_yoff();
+	insta_zeit -= delta_t;
+	if(yoff>-120 &&  insta_zeit<15000 ) {
+		setze_yoff( yoff - 2 );
+		return true;
+	}
+	// remove cloud
+	return false;
 }

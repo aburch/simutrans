@@ -158,13 +158,14 @@ DBG_MESSAGE("tunnelbauer_t::baue()","build from (%d,%d)", pos.x, pos.y);
 		weg = welt->lookup(end)->gib_weg(wegtyp);
 	}
 	if(weg==NULL) {
-		einfahrt_besch = wegbauer_t::weg_search(wegtyp,450);
+		einfahrt_besch = wegbauer_t::weg_search(wegtyp,999);
 	}
 	else {
 		einfahrt_besch = weg->gib_besch();
 	}
 
 	baue_einfahrt(welt, sp, pos, zv, wegtyp, einfahrt_besch, cost);
+
 	ribi = welt->lookup(pos)->gib_weg_ribi_unmasked(wegtyp);
 	if(wegtyp == weg_t::schiene) {
 		besch = schienentunnel;
@@ -179,11 +180,11 @@ DBG_MESSAGE("tunnelbauer_t::baue()","build from (%d,%d)", pos.x, pos.y);
 		tunnelboden_t *tunnel = new tunnelboden_t(welt, pos, 0);
 
 		if(wegtyp == weg_t::schiene) {
-			weg = new schiene_t(welt,450);
+			weg = new schiene_t(welt,999);
 			((schiene_t *)weg)->setze_blockstrecke( bs1 );
 		}
 		else {
-			weg = new strasse_t(welt,450);
+			weg = new strasse_t(welt,999);
 		}
 
 		welt->access(pos.gib_2d())->boden_hinzufuegen(tunnel);
@@ -194,6 +195,7 @@ DBG_MESSAGE("tunnelbauer_t::baue()","build from (%d,%d)", pos.x, pos.y);
 
 		pos = pos + zv;
 	}
+
 	baue_einfahrt(welt, sp, pos, -zv, wegtyp, einfahrt_besch, cost);
 
 	sp->buche(cost, start.gib_2d(), COST_CONSTRUCTION);
@@ -213,6 +215,7 @@ tunnelbauer_t::baue_einfahrt(karte_t *welt, spieler_t *sp, koord3d end, koord zv
 	ding_t *sig = NULL;
 	const tunnel_besch_t *besch;
 	weg_t *weg;
+	blockhandle_t bs;
 
 DBG_MESSAGE("tunnelbauer_t::baue_einfahrt()","at end (%d,%d) for %s", end.x, end.y, weg_besch->gib_name());
 
@@ -221,8 +224,7 @@ DBG_MESSAGE("tunnelbauer_t::baue_einfahrt()","at end (%d,%d) for %s", end.x, end
 		weg = new schiene_t(welt);
 		besch = schienentunnel;
 		if(alter_weg!=NULL) {
-			blockhandle_t bs = ((schiene_t *)alter_weg)->gib_blockstrecke();
-			((schiene_t *)weg)->setze_blockstrecke( bs );
+			bs = ((schiene_t *)alter_weg)->gib_blockstrecke();
 			sig = (ding_t *)alter_boden->suche_obj(ding_t::signal);
 			if(sig) { // Signal aufheben - kommt auf den neuen Boden!
 				alter_boden->obj_remove(sig, sp);
@@ -245,10 +247,10 @@ DBG_MESSAGE("tunnelbauer_t::baue_einfahrt()","at end (%d,%d) for %s", end.x, end
 
 	tunnel->neuen_weg_bauen(weg, ribi, sp);
 	tunnel->obj_add(new tunnel_t(welt, end, sp, besch));
-	if(wegtyp == weg_t::schiene) {
+	welt->access(end.gib_2d())->kartenboden_setzen( tunnel, false );
+	if(wegtyp==weg_t::schiene) {
 		blockmanager::gib_manager()->neue_schiene(welt, tunnel, sig);
 	}
-	welt->access(end.gib_2d())->kartenboden_setzen( tunnel, false );
 	tunnel->calc_bild();
 
 	cost += umgebung_t::cst_tunnel;

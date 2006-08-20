@@ -25,11 +25,13 @@
 class monorail_t : public schiene_t
 {
 public:
+	static const weg_besch_t *default_monorail;
+
     /**
      * Basic constructor.
      * @author prissi
      */
-    monorail_t(karte_t *welt) : schiene_t(welt) {}
+    monorail_t(karte_t *welt) : schiene_t(welt) { setze_besch(default_monorail); }
 
     /**
      * File loading constructor.

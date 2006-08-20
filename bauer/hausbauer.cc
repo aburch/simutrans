@@ -44,8 +44,9 @@ slist_tpl<const haus_besch_t *> hausbauer_t::wohnhaeuser;
 slist_tpl<const haus_besch_t *> hausbauer_t::gewerbehaeuser;
 slist_tpl<const haus_besch_t *> hausbauer_t::industriehaeuser;
 slist_tpl<const haus_besch_t *> hausbauer_t::fabriken;
-slist_tpl<const haus_besch_t *> hausbauer_t::sehenswuerdigkeiten;
-slist_tpl<const haus_besch_t *> hausbauer_t::spezials;
+slist_tpl<const haus_besch_t *> hausbauer_t::sehenswuerdigkeiten_land;
+slist_tpl<const haus_besch_t *> hausbauer_t::sehenswuerdigkeiten_city;
+slist_tpl<const haus_besch_t *> hausbauer_t::rathaeuser;
 slist_tpl<const haus_besch_t *> hausbauer_t::denkmaeler;
 slist_tpl<const haus_besch_t *> hausbauer_t::ungebaute_denkmaeler;
 
@@ -141,15 +142,17 @@ bool hausbauer_t::register_besch(const haus_besch_t *besch)
 				denkmaeler.append(besch);
 				break;
 			case sehenswuerdigkeit:
-				sehenswuerdigkeiten.append(besch);
+				sehenswuerdigkeiten_land.append(besch);
 				break;
 			case firmensitz:
 				headquarter.append(besch);
 				break;
 			case rathaus:
 				// printf("Rathaus mit bev=%d\n", besch->gib_bauzeit());
-				case special:
-				spezials.append(besch);
+				rathaeuser.append(besch);
+				break;
+			case special:
+				sehenswuerdigkeiten_city.append(besch);
 				break;
 			case weitere:
 				{
@@ -313,13 +316,6 @@ void hausbauer_t::umbauen(karte_t *welt,gebaeude_t *gb, const haus_besch_t *besc
 
 	gb->setze_tile(tile);
 	gb->renoviere();
-#if 0
-// attendtion: currently not working
-	// Hajo: after staring a new map, build fake old buildings
-	if(welt->gib_zeit_ms() < 2) {
-		gb->add_alter(10000);
-	}
-#endif
 	gb->setze_sync( true );
 }
 
@@ -538,7 +534,7 @@ const haus_besch_t *hausbauer_t::gib_random_station(const enum utyp utype,const 
 		if(besch->gib_utyp()==utype  &&  (besch->get_enabled()&enables)!=0) {
 			// ok, now check timeline
 			if(time==0  ||  (besch->get_intro_year_month()<=time  &&  besch->get_retire_year_month()>time)) {
-				stops.append(besch);;
+				stops.append(besch);
 			}
 		}
 	}
@@ -554,18 +550,27 @@ const haus_besch_t *hausbauer_t::gib_random_station(const enum utyp utype,const 
 
 const haus_besch_t *hausbauer_t::gib_special_intern(int bev, utyp utype,uint16 time)
 {
-	slist_iterator_tpl<const haus_besch_t *> iter(spezials);
+	weighted_vector_tpl<const haus_besch_t *> auswahl(16);
+	slist_iterator_tpl<const haus_besch_t *> iter( utype==rathaus ? rathaeuser : (bev==-1 ? sehenswuerdigkeiten_land : sehenswuerdigkeiten_city) );
 
 	while(iter.next()) {
 		const haus_besch_t *besch = iter.get_current();
-		if(  (bev == -1 || besch->gib_bauzeit() == bev) && besch->gib_utyp() == utype) {
+		if(bev == -1 || besch->gib_bauzeit() == bev) {
 			// ok, now check timeline
 			if(time==0  ||  (besch->get_intro_year_month()<=time  &&  besch->get_retire_year_month()>time)) {
-				return besch;
+				auswahl.append(besch,besch->gib_chance(),4);
 			}
 		}
 	}
-	return NULL;
+	if(auswahl.get_sum_weight()==0) {
+		// this is some level below, but at least it is something
+		return NULL;
+	}
+	if(auswahl.get_count()==1) {
+		return auswahl.at(0);
+	}
+	// now there is something to choose
+	return auswahl.at_weight( simrand(auswahl.get_sum_weight()) );
 }
 
 /**

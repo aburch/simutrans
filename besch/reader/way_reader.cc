@@ -117,7 +117,7 @@ obj_besch_t * way_reader_t::read_node(FILE *fp, obj_node_info_t &node)
     version = v & 0x7FFF;
 
     if(version == 2) {
-      // Versioned node, version 1
+      // Versioned node, version 2
 
       besch->price = decode_uint32(p);
       besch->maintenance = decode_uint32(p);
@@ -151,6 +151,10 @@ obj_besch_t * way_reader_t::read_node(FILE *fp, obj_node_info_t &node)
   }
   else if(besch->styp==1  && besch->wtyp==weg_t::schiene) {
   	besch->wtyp = weg_t::schiene_monorail;
+  }
+  if(version<=2  &&  besch->wtyp==weg_t::luft  &&  besch->topspeed>=250) {
+  	// runway!
+  	besch->styp = 1;
   }
 
   DBG_DEBUG("way_reader_t::read_node()",

@@ -19,6 +19,7 @@
 #include "../../bauer/hausbauer.h"
 #include "../../bauer/wegbauer.h"
 
+const weg_besch_t *strasse_t::default_strasse=NULL;
 
 void strasse_t::setze_gehweg(bool janein)
 {
@@ -37,10 +38,8 @@ strasse_t::strasse_t(karte_t *welt, loadsave_t *file) : weg_t (welt)
 
 strasse_t::strasse_t(karte_t *welt) : weg_t (welt)
 {
-  setze_gehweg(false);
-
-  // Hajo: set a default
-  setze_besch(wegbauer_t::gib_besch("asphalt_road"));
+	setze_gehweg(false);
+	setze_besch(default_strasse);
 }
 
 
@@ -49,8 +48,8 @@ strasse_t::strasse_t(karte_t *welt) : weg_t (welt)
  */
 strasse_t::strasse_t(karte_t *welt,int top_speed) : weg_t (welt)
 {
-  setze_gehweg(false);
-  setze_besch(wegbauer_t::weg_search(weg_t::strasse,top_speed));
+	setze_gehweg(false);
+	setze_besch(wegbauer_t::weg_search(weg_t::strasse,top_speed));
 }
 
 
@@ -58,11 +57,6 @@ strasse_t::strasse_t(karte_t *welt,int top_speed) : weg_t (welt)
 void strasse_t::info(cbuffer_t & buf) const
 {
 	weg_t::info(buf);
-/* debug
-	if(gehweg) {
-		buf.append("\nSidewalk\n ");
-	}
-*/
 }
 
 

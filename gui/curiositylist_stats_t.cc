@@ -14,15 +14,19 @@
 #include "../simcolor.h"
 #include "../simworld.h"
 #include "../simhalt.h"
+#include "../simskin.h"
 
 #include "../dings/gebaeude.h"
+
 #include "../besch/haus_besch.h"
+#include "../besch/skin_besch.h"
 
 #include "../dataobj/translator.h"
 
 #include "../utils/simstring.h"
 #include "../utils/cbuffer_t.h"
 
+#include "components/list_button.h"
 
 curiositylist_stats_t::curiositylist_stats_t(karte_t * w,
 					     const curiositylist::sort_mode_t& sortby,
@@ -31,7 +35,7 @@ curiositylist_stats_t::curiositylist_stats_t(karte_t * w,
     attractions(10)
 {
     get_unique_attractions(sortby,sortreverse);
-    setze_groesse(koord(210, attractions.get_count()*14 +14));
+    setze_groesse(koord(210, attractions.get_count()*(LINESPACE+1)-10));
 }
 
 curiositylist_stats_t::~curiositylist_stats_t()
@@ -77,15 +81,6 @@ void curiositylist_stats_t::get_unique_attractions(const curiositylist::sort_mod
 		else
 		    append = (paxlevel >= check_paxlevel);
 	    }
-	    else if (sortby == curiositylist::by_maillevel) {
-		const int maillevel = geb->gib_post_level();
-		const int check_maillevel = attractions.at(j)->gib_post_level();
-
-		if (sortreverse)
-		    append = (maillevel < check_maillevel);
-		else
-		    append = (maillevel >= check_maillevel);
-	    }
 
 	    if (!append) {
 		DBG_MESSAGE("curiositylist_stats_t::get_unique_attractions()","insert %s at (%i,%i)",
@@ -115,7 +110,7 @@ void curiositylist_stats_t::get_unique_attractions(const curiositylist::sort_mod
  */
 void curiositylist_stats_t::infowin_event(const event_t * ev)
 {
-    const unsigned int line = (ev->cy) / 14;
+    const unsigned int line = (ev->cy) / (LINESPACE+1);
 
     if (line >= attractions.get_count())
 	return;
@@ -143,7 +138,7 @@ void curiositylist_stats_t::infowin_event(const event_t * ev)
 void curiositylist_stats_t::zeichnen(koord offset) const
 {
 	const struct clip_dimension cd = display_gib_clip_wh();
-	const int start = cd.y-LINESPACE;
+	const int start = cd.y-LINESPACE+1;
 	const int end = cd.yy;
 
 	static cbuffer_t buf(256);
@@ -156,7 +151,7 @@ void curiositylist_stats_t::zeichnen(koord offset) const
 
 		// skip invisible lines
 		if(yoff<start) {
-			yoff += LINESPACE+3;
+			yoff += LINESPACE+1;
 			continue;
 		}
 
@@ -199,35 +194,48 @@ void curiositylist_stats_t::zeichnen(koord offset) const
 		else {
 			indicatorfarbe = post ? COL_BLUE : COL_YELLOW;
 		}
-		display_ddd_box_clip(xoff+7, yoff+6, 8, 8, MN_GREY0, MN_GREY4);
-		display_fillbox_wh_clip(xoff+8, yoff+7, 6, 6, indicatorfarbe, true);
+//		display_ddd_box_clip(xoff+7, yoff, 8, 8, MN_GREY0, MN_GREY4);
+		display_fillbox_wh_clip(xoff+7, yoff+2, INDICATOR_WIDTH, INDICATOR_HEIGHT, indicatorfarbe, true);
 
 		// the other infos
-		const char *name = ltrim( translator::translate(geb->gib_tile()->gib_besch()->gib_name()) );
+		const unsigned char *name = (const unsigned char *)ltrim( translator::translate(geb->gib_tile()->gib_besch()->gib_name()) );
 		char short_name[256];
-		short_name[255] = 0;
-		int i;
-		for( i=0;  i<255  &&  name[i]>=' ';  i++  ) {
-			short_name[i] = name[i];
+		int i=0, cr=0;
+		for( int j=0;  j<255  &&  name[j]>='\n'  &&  cr<2;  j++  ) {
+			if(name[j]>0  &&  name[j]<=' ') {
+				cr++;
+				if(i>0  &&  short_name[i-1]!=' ') {
+					short_name[i++] = ' ';
+				}
+			}
+			else {
+				short_name[i++] = name[j];
+			}
 		}
 		short_name[i] = 0;
 		// now we have a short name ...
 		buf.append(short_name);
 		buf.append(" (");
+		buf.append(geb->gib_passagier_level());
+		buf.append(") ");
+
+/*	too many useless information
+		buf.append(" (");
 		buf.append(geb->gib_pos().gib_2d().x);
 		buf.append(", ");
 		buf.append(geb->gib_pos().gib_2d().y);
 		buf.append(") - (");
+
 		buf.append(geb->gib_passagier_level());
 		buf.append(", ");
 		buf.append(geb->gib_post_level());
 		buf.append(") ");
+*/
+		display_proportional_clip(xoff+INDICATOR_WIDTH+10+9,yoff,buf,ALIGN_LEFT,COL_BLACK,true);
 
-		display_proportional_clip(xoff+20,yoff+6,buf,ALIGN_LEFT,COL_BLACK,true);
+		if (geb->gib_tile()->gib_besch()->gib_bauzeit() != 0)
+		    display_color_img(skinverwaltung_t::intown->gib_bild_nr(0), xoff+INDICATOR_WIDTH+9, yoff, 0, false, false);
 
-		/*if (geb->gib_tile()->gib_besch()->gib_bauzeit() != 0)
-		    display_color_img(skinverwaltung_t::electricity->gib_bild_nr(0), xoff, yoff+6, 0, false, false);*/
-
-	    yoff +=LINESPACE+3;
+	    yoff +=LINESPACE+1;
 	}
 }

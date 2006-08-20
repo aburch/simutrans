@@ -7,11 +7,53 @@ Known bugs: (hard to fix)
 	sorting factories has an umlaute problem
 	set color broken?
 
+
+
+	FIX: townhall added wrong buildings during renovation => crash when generated passengers afterwards
+	FIX: connecting to the end of an unconnected bridge (now again going through tunnel and bridges for way calculation)
+
+Release of 88.05
+
+25-Feb-2006: (prissi)
+	CHANGE: runways now system_type=1, independet of max speed
+	FIX: traffic density=0 => no cars generated
+	FIX: townhall construction with uneven grounds
+	FIX: maintainace adjusted according acceleration factor
+	FIX: no longer roads through depots, bus stops or loading bays (hopefully)
+	FIX: sound hashes were wrongly calculated => hopefully fixed
+	FIX: player initialisation during map creation not allowed for passenger stations for player 0 and 1
+
+24-Feb-2006: (prissi)
+	FIX: crash in waybuilder when runway starts on streets or when a way costs no maintainance
+	FIX: wrong slope display (was back to old state?!?)
+	FIX: tunnel block connection
+	FIX: connection rails with tram rails
+	FIX: deleting bridges with roadsigns and stops
+	CHANGE: ectended bridge search for unknown bridges during loading
+	CHANGE: all vehicles somke, if requested
+	FIX: stop of passenger generation when timer overflowed fixed
+	CHANGE: only relative time steps used => much faster and more reliable for the game
+	FIX: nearly complete renovation of blockmanager
+	FIX: F12 key does not crash game anymore
+	CHANGE: bridge may end at vertical slopes
+	FIX: "harbour tunnel" works again (as some other complex tunnels too)
+
+23-Feb-2006: (mip)
+	ADD: citylist including sorting
+
+21-Feb-2006: (prissi)
+	FIX: checking all schedules during loading for illegal entries
+	CHANGE: try even harder to find the right vehicle during loading (=> more chances of loading broken savegames/games from other paks)
+	ADD: new type "monorailstop" for monorail stations and extension buildings (=> makeobj=33)
+	ADD: slower timespeed possible (set bits_per_month in simuconf to values higher 18) and display of day possible (show_month>=2) see simuconf.tab
+
+
 Release of 88.04.4
 
 19-Feb-2006: (prissi)
 	FIX: saving depots
 	FIX: display of attractions
+
 
 Release of 88.04.3
 

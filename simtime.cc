@@ -63,7 +63,7 @@ void sync_last_time_now()
 void set_time_multi(long m)
 {
 	// smaller 1.0 does not work
-	if(m>=16) {
+	if(m>=1) {
 		multi = m;
 	}
 }

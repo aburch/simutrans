@@ -177,6 +177,10 @@ void building_writer_t::write_obj(FILE *fp, obj_node_t &parent, tabfileobj_t &ob
 	besch.utyp = hausbauer_t::firmensitz;
     } else if(!STRICMP(type_name, "station")) {
 	besch.utyp = hausbauer_t::bahnhof;
+    } else if(!STRICMP(type_name, "railstop")) {
+	besch.utyp = hausbauer_t::bahnhof;
+    } else if(!STRICMP(type_name, "monorailstop")) {
+	besch.utyp = hausbauer_t::monorail;
     } else if(!STRICMP(type_name, "busstop")) {
 	besch.utyp = hausbauer_t::bushalt;
     } else if(!STRICMP(type_name, "carstop")) {

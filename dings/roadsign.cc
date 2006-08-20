@@ -49,6 +49,7 @@ roadsign_t::roadsign_t(karte_t *welt, loadsave_t *file) : ding_t (welt)
 {
 	rdwr(file);
 	step_frequency = besch->gib_bild_anzahl()>4 ? 7 : 0;
+	last_switch = 0;
 	set_dir(dir);
 	calc_bild();
 }
@@ -58,10 +59,11 @@ roadsign_t::roadsign_t(karte_t *welt, koord3d pos, ribi_t::ribi dir, const roads
 DBG_MESSAGE("roadsign_t::roadsign_t()","at (%i,%i,%i) with dir=%i and min=%i",pos.x,pos.y,pos.z,dir,besch->gib_min_speed());
 	this->besch = besch;
 	zustand = 0;
+	last_switch = 0;
 	blockend = false;
 	set_dir(dir);
 	// if more than one state, we will switch direction and phase
-	step_frequency = besch->gib_bild_anzahl()>4 ? 7 : 0;
+	step_frequency = besch->gib_bild_anzahl()>4 ? 1 : 0;
 	calc_bild();
 }
 
@@ -206,10 +208,12 @@ void roadsign_t::calc_bild()
 
 
 // only used for traffic light: change the current state
-bool roadsign_t::step(long)
+bool roadsign_t::step(long delta_t)
 {
-	if(  (welt->gib_zeit_ms()-last_switch) > karte_t::ticks_per_tag/24  ) {
-		last_switch = welt->gib_zeit_ms();
+	// change every 24 hours in normal speed = (1<<18)/24
+	last_switch += delta_t;
+	if(last_switch > 10922) {
+		last_switch -= 10922;
 		zustand = (zustand+1)&1;
 		dir = (zustand==0) ? ribi_t::nordsued : ribi_t::ostwest;
 		calc_bild();

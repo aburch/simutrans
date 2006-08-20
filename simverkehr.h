@@ -132,7 +132,7 @@ private:
 	koord target;
 #endif
     int time_to_life;
-    uint32 ms_traffic_jam;
+    sint32 ms_traffic_jam;
 
     virtual bool hop_check();
     virtual bool ist_weg_frei();
@@ -175,7 +175,7 @@ public:
      * @return false to be deleted after the step, true to live on
      * @author Hj. Malthaner
      */
-    virtual bool step(long /*delta_t*/);
+    virtual bool step(long delta_t);
 
     const char *gib_name() const {return "Verkehrsteilnehmer";};
     enum ding_t::typ gib_typ() const {return verkehr;};

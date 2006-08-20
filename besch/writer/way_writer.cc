@@ -88,7 +88,6 @@ void way_writer_t::write_obj(FILE *outfp, obj_node_t &parent, tabfileobj_t &obj)
 	node.write_data_at(outfp, &wtyp, 22, 1);
 	node.write_data_at(outfp, &styp, 23, 1);
 
-
 	write_head(outfp, node, obj);
 
 

@@ -67,6 +67,9 @@ fahrplan_t::fahrplan_t(loadsave_t *file) : eintrag(0)
 {
 	type = fahrplan_t::fahrplan;
 	rdwr(file);
+	if(file->is_loading()) {
+		cleanup();
+	}
 }
 
 

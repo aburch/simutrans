@@ -26,6 +26,8 @@ class runway_t : public weg_t
 private:
 
 public:
+	static const weg_besch_t *default_runway;
+
     /**
      * File loading constructor.
      *

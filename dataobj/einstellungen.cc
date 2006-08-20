@@ -46,6 +46,7 @@ einstellungen_t::einstellungen_t() : heightfield("")
     allow_player_change = true;
     use_timeline = true;
     starting_year = 1930;
+    bits_per_month = 19;
 }
 
 
@@ -90,6 +91,7 @@ einstellungen_t::einstellungen_t(const einstellungen_t *other)
     allow_player_change = other->allow_player_change;
     use_timeline = other->use_timeline;
     starting_year = other->starting_year;
+    bits_per_month = other->bits_per_month;
 }
 
 void
@@ -177,6 +179,13 @@ dbg->warning("einstellungen_t::rdwr()","This game has too many cities! (%i of ma
 		    allow_player_change = 1;
 		    use_timeline = 1;
 		    starting_year = 1930;
+		}
+
+		if(file->get_version()>=88005) {
+			file->rdwr_short(bits_per_month,"b");
+		}
+		else {
+			bits_per_month = 18;
 		}
 
 	}

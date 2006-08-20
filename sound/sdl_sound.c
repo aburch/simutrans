@@ -15,7 +15,6 @@
  */
 static int use_sound = 0;
 
-
 /*
  * defines the number of channels avaiable
  */
@@ -37,7 +36,11 @@ typedef struct {
 
 /* this list contains all the samples
  */
-static sample samples[32];
+static sample samples[64];
+
+/* all samples are stored chronologically there
+ */
+static int samplenumber = 0;
 
 
 /* this structure contains the information about one channel
@@ -158,11 +161,7 @@ void dr_init_sound()
  */
 int dr_load_sample(const char *filename)
 {
-  if(use_sound>0) {
-
-    static int samplenumber = 0;
-
-    if(use_sound>0) {
+    if(use_sound>0  &&  samplenumber<64) {
 
       SDL_AudioSpec wav_spec;
       SDL_AudioCVT  wav_cvt;
@@ -202,11 +201,10 @@ int dr_load_sample(const char *filename)
       smp.audio_data = wav_cvt.buf;
       smp.audio_len = wav_cvt.len_cvt;
       samples[samplenumber] = smp;
+	printf("Loaded %s to sample %i.\n",filename,samplenumber);
 
       return samplenumber++;
     }
-  }
-
   return -1;
 }
 

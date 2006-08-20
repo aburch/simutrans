@@ -16,6 +16,8 @@
 #include "../simwin.h"
 #include "../simworld.h"
 
+#include "components/list_button.h"
+
 #include "../bauer/warenbauer.h"
 #include "../utils/cbuffer_t.h"
 
@@ -24,7 +26,7 @@ factorylist_stats_t::factorylist_stats_t(karte_t * w,
 					 const bool& sortreverse) :
     welt(w)
 {
-    setze_groesse(koord(210, welt->gib_fab_list().count()*14 +14));
+    setze_groesse(koord(210, welt->gib_fab_list().count()*(LINESPACE+1)-10));
     //DBG_DEBUG("factorylist_stats_t()","constructor");
     fab_list = new vector_tpl<fabrik_t*>(1);
     sort(sortby,sortreverse);
@@ -44,7 +46,7 @@ factorylist_stats_t::~factorylist_stats_t()
  */
 void factorylist_stats_t::infowin_event(const event_t * ev)
 {
-    const unsigned int line = (ev->cy) / 14;
+    const unsigned int line = (ev->cy) / (LINESPACE+1);
     if (line >= fab_list->get_count())
 	return;
 
@@ -78,8 +80,8 @@ void factorylist_stats_t::zeichnen(koord offset) const
 {
     //DBG_DEBUG("factorylist_stats_t()","zeichnen()");
     const struct clip_dimension cd = display_gib_clip_wh();
-    const int start = cd.y-LINESPACE-3;
-    const int end = cd.yy+LINESPACE+3;
+    const int start = cd.y-LINESPACE-1;
+    const int end = cd.yy+LINESPACE+1;
 
     static cbuffer_t buf(256);
     int xoff = offset.x;
@@ -89,7 +91,7 @@ void factorylist_stats_t::zeichnen(koord offset) const
 
 	// skip invisible lines
 	if(yoff<start) {
-	    yoff += LINESPACE+3;
+	    yoff += LINESPACE+1;
 	    continue;
 	}
 
@@ -126,20 +128,22 @@ void factorylist_stats_t::zeichnen(koord offset) const
 	    buf.append(") ");
 
 
-	    display_ddd_box_clip(xoff+7, yoff+6, 8, 8, MN_GREY0, MN_GREY4);
-	    display_fillbox_wh_clip(xoff+8, yoff+7, 6, 6, indikatorfarbe, true);
+	    //display_ddd_box_clip(xoff+7, yoff+2, 8, 8, MN_GREY0, MN_GREY4);
+	    display_fillbox_wh_clip(xoff+2, yoff+2, INDICATOR_WIDTH, INDICATOR_HEIGHT, indikatorfarbe, true);
 
 	    if (fab->get_prodfaktor() > 16) {
-		display_color_img(skinverwaltung_t::electricity->gib_bild_nr(0), xoff+17, yoff+6, 0, false, false);
+		display_color_img(skinverwaltung_t::electricity->gib_bild_nr(0), xoff+4+INDICATOR_WIDTH, yoff, 0, false, false);
 	    }
 
 	    // show text
-	    display_proportional_clip(xoff+25,yoff+6,buf,ALIGN_LEFT,COL_BLACK,true);
+	    display_proportional_clip(xoff+INDICATOR_WIDTH+6+10,yoff,buf,ALIGN_LEFT,COL_BLACK,true);
 	}
-	yoff += LINESPACE+3;
+	yoff += LINESPACE+1;
     }
     //DBG_DEBUG("factorylist_stats_t()","zeichnen() ende");
 }
+
+
 
 void factorylist_stats_t::sort(const factorylist::sort_mode_t& sortby,const bool& sortreverse)
 {

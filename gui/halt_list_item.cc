@@ -17,18 +17,21 @@
 #include "halt_list_item.h"
 #include "../simhalt.h"
 #include "../simskin.h"
-#include "../besch/skin_besch.h"
 #include "../simcolor.h"
 #include "../simgraph.h"
 #include "../simplay.h"
 #include "../simevent.h"
 #include "../simworld.h"
+#include "../simimg.h"
+
 #include "../dataobj/translator.h"
+
+#include "../besch/skin_besch.h"
+
 #include "../utils/cbuffer_t.h"
 #include "../utils/simstring.h"
 
-#include "../simimg.h"
-
+#include "components/list_button.h"
 
 /**
  * Events werden hiermit an die GUI-Komponenten
@@ -67,12 +70,12 @@ void halt_list_item_t::zeichnen(koord offset) const
 		display_proportional_clip(pos.x+offset.x+4, pos.y+offset.y+8, buf, ALIGN_LEFT, COL_BLACK, true);
 */
 		// status now in front
-		display_fillbox_wh_clip(pos.x+offset.x+2, pos.y+offset.y+4, 24, 4, halt->gib_status_farbe(), false);
+		display_fillbox_wh_clip(pos.x+offset.x+2, pos.y+offset.y+4, INDICATOR_WIDTH, INDICATOR_HEIGHT, halt->gib_status_farbe(), false);
 
 		// name
 		buf.clear();
 		buf.append(translator::translate(halt->gib_name()));
-		int left = 16+offset.x+display_proportional_clip(pos.x+offset.x+33, pos.y+offset.y+2, buf, ALIGN_LEFT, COL_BLACK, true);
+		int left = INDICATOR_WIDTH+6+offset.x+display_proportional_clip(pos.x+offset.x+INDICATOR_WIDTH+2+2, pos.y+offset.y+2, buf, ALIGN_LEFT, COL_BLACK, true);
 
 		// what kind of stop
 		halttype = halt->get_station_type();
@@ -118,6 +121,6 @@ void halt_list_item_t::zeichnen(koord offset) const
 
 		buf.clear();
 		halt->get_short_freight_info(buf);
-		display_proportional_clip(pos.x+offset.x+33, pos_y, buf, ALIGN_LEFT, COL_BLACK, true);
+		display_proportional_clip(pos.x+offset.x+INDICATOR_WIDTH+4, pos_y, buf, ALIGN_LEFT, COL_BLACK, true);
 	}
 }

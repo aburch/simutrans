@@ -121,6 +121,8 @@ gebaeude_t::~gebaeude_t()
 	if(gib_besitzer()) {
 		gib_besitzer()->add_maintenance(-umgebung_t::maint_building);
 	}
+
+	setze_pos( koord3d(-2,-3,-4) );
 }
 
 
@@ -610,13 +612,11 @@ void
 gebaeude_t::entferne(spieler_t *sp)
 {
 //	DBG_MESSAGE("gebaeude_t::entferne()","gb %i");
-	if(sp != NULL && !ist_rathaus()) {
+	if(sp != NULL) {
 		stadt_t *city=welt->suche_naechste_stadt(gib_pos().gib_2d());
-#ifdef COUNT_HOUSES
 		if(city) {
 			city->remove_gebaeude_from_stadt(this);
 		}
-#endif
 		sp->buche(umgebung_t::cst_multiply_remove_haus*(tile->gib_besch()->gib_level()+1), gib_pos().gib_2d(), COST_CONSTRUCTION);
 	}
 }

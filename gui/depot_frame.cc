@@ -610,7 +610,7 @@ DBG_DEBUG("depot_frame_t::build_vehicle_lists()","%i passenger vehicle, %i  engi
 	// we do not allow to built electric vehicle in a depot without electrification
 	const schiene_t *sch = dynamic_cast<const schiene_t *>(welt->lookup(depot->gib_pos())->gib_weg(weg_t::schiene));
 	const bool schiene_electric = (sch==NULL)  ||  sch->ist_elektrisch();
-
+DBG_MESSAGE("void depot_frame_t::build_vehicle_lists()","sch=%p, el=%i",sch,schiene_electric);
 	i = 0;
 	while(depot->get_vehicle_type(i)) {
 		const vehikel_besch_t *info=depot->get_vehicle_type(i);

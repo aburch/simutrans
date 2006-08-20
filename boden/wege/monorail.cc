@@ -21,6 +21,8 @@
 
 #include "monorail.h"
 
+const weg_besch_t *monorail_t::default_monorail=NULL;
+
 void monorail_t::info(cbuffer_t & buf) const
 {
 	weg_t::info(buf);

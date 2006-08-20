@@ -109,16 +109,17 @@ void bruecke_t::rdwr(loadsave_t *file)
 
 	if(file->is_loading()) {
 		besch = brueckenbauer_t::gib_besch(s);
-		if(besch==0) {
-			if(strstr(s,"ail")) {
-				besch = brueckenbauer_t::gib_besch("ClassicRail");
-				dbg->warning("bruecke_t::rdwr()","Unknown bridge %s replaced by ClassicRail",s);
+		if(besch==NULL) {
+			if(strstr(s,"onorail") ) {
+				besch = brueckenbauer_t::find_bridge(weg_t::schiene_monorail,50,0);
 			}
-			else if(strstr(s,"oad")) {
-				besch = brueckenbauer_t::gib_besch("ClassicRoad");
-				dbg->warning("bruecke_t::rdwr()","Unknown bridge %s replaced by ClassicRoad",s);
+			else if(strstr(s,"ail") ) {
+				besch = brueckenbauer_t::find_bridge(weg_t::schiene,50,0);
 			}
 			else {
+				besch = brueckenbauer_t::find_bridge(weg_t::strasse,50,0);
+			}
+			if(besch==NULL) {
 				dbg->fatal("bruecke_t::rdwr()","Unknown bridge %s",s);
 			}
 		}

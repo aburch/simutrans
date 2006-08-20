@@ -71,11 +71,12 @@ void planquadrat_t::boden_hinzufuegen(grund_t *bd)
 	if(bd!=NULL  &&  !gib_boden_in_hoehe(bd->gib_hoehe())) {
 		// boeden[0] ist Kartengrund,
 		// danach folgen die Tunnels und Brücken höhensortiert.
-		int i;
-		for(i=1; i<boeden.get_count(); i++) {
+		int i=1;
+		while(i<boeden.get_count()) {
 			if(bd->gib_hoehe()<boeden.get(i)->gib_hoehe()) {
 				break;
 			}
+			i ++;
 		}
 		boeden.insert(i, bd);
 		if(bd->gib_typ()==grund_t::boden) {

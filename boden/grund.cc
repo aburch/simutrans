@@ -555,6 +555,8 @@ void grund_t::info(cbuffer_t & buf) const
 		//    buf.append("\n");
 		//    buf.append(translator::translate("Keine Info."));
 	}
+	buf.append("\nway slope");
+	buf.append((int)gib_weg_hang());
 	buf.append("\npos: ");
 	buf.append(pos.x);
 	buf.append(", ");
@@ -750,16 +752,18 @@ void grund_t::do_display_boden( const int xpos, const int ypos, const bool dirty
 void
 grund_t::display_boden(const int xpos, int ypos, bool dirty) const
 {
-	dirty |= get_flag(grund_t::dirty);
-	int raster_tile_width = get_tile_raster_width();
+	if(!get_flag(grund_t::draw_as_ding)) {
+		dirty |= get_flag(grund_t::dirty);
+		int raster_tile_width = get_tile_raster_width();
 
-	ypos -= tile_raster_scale_y( gib_hoehe(), raster_tile_width);
+		ypos -= tile_raster_scale_y( gib_hoehe(), raster_tile_width);
 
-	/* we can save some time but just don't display at all
-	 * @author prissi
-	 */
-	if(  ypos>32-raster_tile_width  &&  ypos<display_get_height()-raster_tile_width/4) {
-		do_display_boden( xpos, ypos, dirty );
+		/* we can save some time but just don't display at all
+		 * @author prissi
+		 */
+		if(  ypos>32-raster_tile_width  &&  ypos<display_get_height()-raster_tile_width/4) {
+			do_display_boden( xpos, ypos, dirty );
+		}
 	}
 }
 
@@ -773,6 +777,10 @@ grund_t::display_dinge(const int xpos, int ypos, bool dirty)
 
 	dirty |= get_flag(grund_t::dirty);
 	clear_flag(grund_t::dirty);
+
+	if(get_flag(grund_t::draw_as_ding)) {
+		do_display_boden( xpos, ypos, dirty );
+	}
 
 	/* we can save some time but just don't display at all
 	 * @author prissi
@@ -999,7 +1007,7 @@ bool grund_t::get_neighbour(grund_t *&to, weg_t::typ type, koord dir) const
 		if(gr->get_vmove(-dir)==this_height) {
 			// test, if connected
 			if(!is_connected(gr, type, dir)) {
-				return false;
+				continue;
 			}
 			to = gr;
 			return true;
@@ -1020,7 +1028,7 @@ bool grund_t::is_connected(const grund_t *gr, weg_t::typ wegtyp, koord dv) const
 
 	const int ribi1 = gib_weg_ribi_unmasked(wegtyp);
 	const int ribi2 = gr->gib_weg_ribi_unmasked(wegtyp);
-	//DBG_MESSAGE("grund_t::is_connected()","at (%i,%i) ribi1=%i ribi2=%i",pos.x,pos.y,ribi1,ribi2);
+//	DBG_MESSAGE("grund_t::is_connected()","at (%i,%i,%i) ribi1=%i at (%i,%i,%i) ribi2=%i",pos.x,pos.y,pos.z,ribi1,gr->gib_pos().x,gr->gib_pos().y,gr->gib_pos().z,ribi2);
 	if(dv == koord::nord) {
 		return (ribi1 & ribi_t::nord) && (ribi2 & ribi_t::sued);
 	} else if(dv == koord::sued) {
@@ -1040,7 +1048,7 @@ int grund_t::get_vmove(koord dir) const
 {
 	const sint8 slope=gib_weg_hang();
 	sint16 h=gib_hoehe();
-	if(ist_bruecke()  &&  gib_grund_hang()!=0) {
+	if(ist_bruecke()  &&  gib_grund_hang()!=0  &&  welt->lookup(pos)==this) {
 		h += 16;	// end or start of a bridge
 	}
 

@@ -221,7 +221,7 @@ int dr_screenshot(const char *filename)
 		bf.bfReserved1 = 0;
 		bf.bfReserved2 = 0;
 		bf.bfOffBits = sizeof(BITMAPFILEHEADER)+sizeof(BITMAPINFOHEADER)+sizeof(DWORD)*3;
-		bf.bfSize = (bf.bfOffBits +  AllDib->biHeight*AllDib->biWidth*2 +3)/4;
+		bf.bfSize = (bf.bfOffBits +  AllDib->biHeight*AllDib->biWidth*2l +3l)/4l;
 		fwrite( &bf, sizeof(BITMAPFILEHEADER), 1, fBmp );
 
 		fwrite( AllDib, sizeof(BITMAPINFOHEADER)+sizeof(DWORD)*3, 1, fBmp );

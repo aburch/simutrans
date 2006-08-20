@@ -26,6 +26,7 @@ class factorylist_frame_t : public gui_frame_t, private action_listener_t
     factorylist_stats_t* stats;
 
     gui_label_t sort_label;
+//    gui_label_t header_label;
     button_t	sortedby;
     button_t	sorteddir;
 
