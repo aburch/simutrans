@@ -1756,6 +1756,7 @@ haltestelle_t::recalc_station_type()
 			// for water factories
 			if(besch) {
 				enables |= besch->get_enabled();
+				DBG_MESSAGE("haltestelle_t::recalc_station_type()","factory enables %i",besch->get_enabled());
 			}
 			continue;
 		}

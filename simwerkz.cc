@@ -1034,7 +1034,7 @@ DBG_MESSAGE("wkz_bushalt()", "building bus stop on square %d,%d", pos.x, pos.y);
 		for(unsigned i=0;  i<plan->gib_boden_count();  i++  ) {
 			bd=plan->gib_boden_bei( backwards ? plan->gib_boden_count()-1-i : i );
 			// ignore tunnel
-	     		if(bd->ist_im_tunnel()) {
+	     		if(bd->gib_typ()==grund_t::tunnelboden) {
 	     			bd = NULL;
 	     			continue;
 	     		}

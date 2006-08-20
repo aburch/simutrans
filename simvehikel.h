@@ -639,8 +639,8 @@ class aircraft_t : public vehikel_t
 {
 private:
 	// only used for ist_ziel() (do not need saving)
-#ifdef USE_DIFFERENT_WIND
 	ribi_t::ribi approach_dir;
+#ifdef USE_DIFFERENT_WIND
 	static uint8 get_approach_ribi( koord3d start, koord3d ziel );
 #endif
 	halthandle_t target_halt;

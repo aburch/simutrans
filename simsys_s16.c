@@ -27,7 +27,7 @@
 
 #include "simmem.h"
 #include "simversion.h"
-#include "simsys16.h"
+#include "simsys.h"
 #include "simevent.h"
 
 // try to use hardware double buffering ...
@@ -480,54 +480,60 @@ static void internal_GetEvents(int wait)
 			i = SDL_GetModState();
 			sys_event.key_mod = ((i&2)>>1) | ( i&1) | ((i&0x40)>>5) | ((i&0x80)>>6);
 
-			if(event.key.keysym.sym >= SDLK_0 && event.key.keysym.sym <= SDLK_9)  {
+			if(event.key.keysym.sym>=SDLK_KP0  &&  event.key.keysym.sym<=SDLK_KP9)  {
+				const int numlock=(KMOD_NUM&i)!=0;
 				switch(event.key.keysym.sym) {
-					case SDLK_0:
+					case SDLK_KP0:
 						sys_event.code = '0';
 				    		break;
-					case SDLK_1:
+					case SDLK_KP1:
 				    		sys_event.code = '1';
 				    		break;
-					case SDLK_2:
-				      	sys_event.code = '2';
+					case SDLK_KP2:
+				      	sys_event.code = numlock ? '2' : KEY_DOWN;
 						break;
-					case SDLK_3:
+					case SDLK_KP3:
 				  		sys_event.code = '3';
 				    		break;
-					case SDLK_4:
-					  	sys_event.code = '4';
+					case SDLK_KP4:
+				      	sys_event.code = numlock ? '4' : KEY_LEFT;
 				    		break;
-					case SDLK_5:
-							sys_event.code = '5';
+					case SDLK_KP5:
+						sys_event.code = '5';
 					    break;
-					case SDLK_6:
-				  			sys_event.code = '6';
-				  			break;
-					case SDLK_7:
-				  			sys_event.code = '7';
-				  			break;
-					case SDLK_8:
-							sys_event.code = '8';
-								break;
-					case SDLK_9:
-				  			sys_event.code = '9';
-								break;
+					case SDLK_KP6:
+				      	sys_event.code = numlock ? '6' : KEY_RIGHT;
+			  			break;
+					case SDLK_KP7:
+			  			sys_event.code = '7';
+			  			break;
+					case SDLK_KP8:
+				      	sys_event.code = numlock ? '8' : KEY_UP;
+						break;
+					case SDLK_KP9:
+			  			sys_event.code = '9';
+						break;
 					default:
 				}
 			}
 			else if (event.key.keysym.sym == SDLK_DELETE) {
 	      		sys_event.code = 127;
 	    		}
-			else if ((event.key.keysym.sym >= 32) && (event.key.keysym.sym <= 255)) {
+			else if (event.key.keysym.unicode>0) {
+				printf("Unicode ");
 	    			sys_event.code=event.key.keysym.unicode;
-	    			printf("Key '%c' (%d) was pressed\n", (int)sys_event.code, (int)sys_event.code);
 			} else if(event.key.keysym.sym>=SDLK_F1  &&  event.key.keysym.sym<=SDLK_F15) {
-	      			sys_event.code = event.key.keysym.sym-SDLK_F1+KEY_F1;
+				printf("Function ");
+	      		sys_event.code = event.key.keysym.sym-SDLK_F1+KEY_F1;
       		}
-      		else {
-				printf("unicode key (%X/%X) was pressed\n", event.key.keysym.sym,event.key.keysym.unicode);
-				sys_event.code = event.key.keysym.unicode;
+      		else if(event.key.keysym.sym>0  &&  event.key.keysym.sym<127) {
+				printf("ASCII ");
+				sys_event.code = event.key.keysym.sym;	// try with the ASCII code ...
 			}
+			else {
+				sys_event.code = 0;
+			}
+    			printf("Event Key '%c' (%i) was generated\n", (int)sys_event.code, (int)sys_event.code);
     	}
     	break;
 

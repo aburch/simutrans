@@ -68,6 +68,7 @@ void citylist_stats_t::zeichnen(koord offset) const
 {
   static cbuffer_t buf (1024);
   long total_bev=0;
+  long total_growth=0;
 
   const weighted_vector_tpl<stadt_t *> * cities = welt->gib_staedte();
 
@@ -81,6 +82,7 @@ void citylist_stats_t::zeichnen(koord offset) const
       buf.append(".) ");
 
       total_bev += stadt->gib_einwohner();
+      total_growth += stadt->gib_wachstum();
       stadt->get_short_info(buf);
       display_multiline_text(offset.x+10, 19+ offset.y+i*14, buf, SCHWARZ);
     }
@@ -89,5 +91,8 @@ void citylist_stats_t::zeichnen(koord offset) const
   buf.append(total_bev_string);
   buf.append(" ");
   buf.append(total_bev);
+  buf.append(" (+");
+  buf.append(total_growth);
+  buf.append(")");
   display_multiline_text(offset.x+10, offset.y+4, buf, SCHWARZ);
 }

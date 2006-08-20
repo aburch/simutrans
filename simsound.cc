@@ -136,9 +136,7 @@ sound_play(const struct sound_info info)
     dr_play_sample(info.index, (info.volume*global_volume)>>8);
 
   } else {
-    dbg->warning("sound_play()",
-		 "sound index %hd not in %d..%d",
-		 info.index, 0, max_sound);
+//    dbg->warning("sound_play()", "sound index %hd not in %d..%d", info.index, 0, max_sound);
   }
 }
 

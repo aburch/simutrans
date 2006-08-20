@@ -736,12 +736,12 @@ static void rezoom_img( const unsigned int n )
 		images[n].h = images[n].base_h/zoom_factor;
 //		images[n].h = ((images[n].base_y%zoom_factor)+images[n].base_h)/zoom_factor;
 
-		if(images[n].h>0) {
+		if(images[n].h>0  &&  images[n].w>0) {
 			// just recalculate the image in the new size
 			unsigned char y_left = (images[n].base_y+zoom_factor-1)%zoom_factor;
 			unsigned char h = images[n].base_h;
 
-			PIXVAL line[128];
+			static PIXVAL line[512];
 			PIXVAL *src = images[n].base_data;
 			PIXVAL *dest, *last_dest;
 
@@ -1688,7 +1688,7 @@ void register_image(struct bild_besch_t *bild)
 
 	if(anz_images>=65535) {
 		printf("FATAL:\n*** Out of images (more than 65534!) ***\n\n");
-		getch();
+		getchar();
 		fflush(NULL);
 		abort();
 	}

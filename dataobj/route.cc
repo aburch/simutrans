@@ -142,22 +142,6 @@ static inline bool am_i_there(karte_t *welt,
 
 
 
-
-struct ANode {
-    ANode *parent;
-    const grund_t *gr;
-    uint32  f,g;
-    uint8 dir;
-};
-
-static struct ANode *nodes = NULL;
-
-static inline uint32 calc_distance( const koord3d p1, const koord3d p2 )
-{
-	return (abs(p1.x-p2.x)+abs(p1.y-p2.y)+abs(p1.z-p2.z)/16)*4;
-}
-
-
 #if 0
 /* find the route to an unknow location
  * Astar does not work here
@@ -191,8 +175,8 @@ route_t::find_route_astar(karte_t *welt,
 	INT_CHECK("route 347");
 
 	// arrays for A*
-	static vector_tpl <struct ANode *> open = vector_tpl <struct ANode *>(0);
-	vector_tpl <struct ANode *> close =vector_tpl <struct ANode *>(0);
+	static vector_tpl <ANode *> open = vector_tpl <ANode *>(0);
+	vector_tpl <ANode *> close =vector_tpl <ANode *>(0);
 
 	// nothing in lists
 	open.clear();
@@ -201,7 +185,7 @@ route_t::find_route_astar(karte_t *welt,
 	// we clear it here probably twice: does not hurt ...
 	route.clear();
 
-	struct ANode *tmp = &(nodes[step++]);
+	ANode *tmp = &(nodes[step++]);
 	tmp->parent = NULL;
 	tmp->gr = welt->lookup(start);
 	tmp->f = 0;
@@ -324,7 +308,7 @@ route_t::find_route_astar(karte_t *welt,
 				}
 
 				// not in there or taken out => add new
-				struct ANode *k=&(nodes[step++]);
+				ANode *k=&(nodes[step++]);
 
 				k->parent = tmp;
 				k->gr = to;
@@ -370,6 +354,8 @@ DBG_DEBUG("add","%i,%i",tmp->gr->gib_pos().x,tmp->gr->gib_pos().y);
 }
 #endif
 
+// onde arrays
+route_t::nodestruct* route_t::nodes=NULL;
 
 /* find the route to an unknow location
  * @author prissi
@@ -392,7 +378,7 @@ route_t::find_route(karte_t *welt,
 	grund_t *to;
 
 	// memory in static list ...
-	const int MAX_STEP = max(65530,umgebung_t::max_route_steps);	// may need very much memory => configurable
+	const int MAX_STEP = 65530;	// may need very much memory => configurable
 	if(nodes==NULL) {
 		nodes = new ANode[MAX_STEP+4+1];
 	}
@@ -402,17 +388,17 @@ route_t::find_route(karte_t *welt,
 	INT_CHECK("route 347");
 
 	// arrays for A*
-	static vector_tpl <struct ANode *> open = vector_tpl <struct ANode *>(0);
-	vector_tpl <struct ANode *> close =vector_tpl <struct ANode *>(0);
+	static vector_tpl <ANode *> open = vector_tpl <ANode *>(0);
+	vector_tpl <ANode *> close =vector_tpl <ANode *>(0);
 
 	// nothing in lists
 	open.clear();
-	close.clear();
+	close.clear();	// close list may be short than mark/unmark (hopefully)
 
 	// we clear it here probably twice: does not hurt ...
 	route.clear();
 
-	struct ANode *tmp = &(nodes[step++]);
+	ANode *tmp = &(nodes[step++]);
 	tmp->parent = NULL;
 	tmp->gr = welt->lookup(start);
 
@@ -486,7 +472,7 @@ route_t::find_route(karte_t *welt,
 				}
 
 				// not in there or taken out => add new
-				struct ANode *k=&(nodes[step++]);
+				ANode *k=&(nodes[step++]);
 
 				k->parent = tmp;
 				k->gr = to;
@@ -528,7 +514,7 @@ route_t::find_route(karte_t *welt,
 
 
 bool
-route_t::intern_calc_route(const koord3d ziel, const koord3d start, fahrer_t *fahr, const uint32 max_speed)
+route_t::intern_calc_route(const koord3d ziel, const koord3d start, fahrer_t *fahr, const uint32 max_speed, const uint32 max_cost)
 {
 	bool ok = false;
 
@@ -553,7 +539,7 @@ route_t::intern_calc_route(const koord3d ziel, const koord3d start, fahrer_t *fa
 	INT_CHECK("route 347");
 
 	// arrays for A*
-	static vector_tpl <struct ANode *> open = vector_tpl <struct ANode *>(0);
+	static vector_tpl <ANode *> open = vector_tpl <ANode *>(0);
 
 	const bool is_airplane = fahr->gib_wegtyp()==weg_t::luft;
 
@@ -564,7 +550,7 @@ route_t::intern_calc_route(const koord3d ziel, const koord3d start, fahrer_t *fa
 	// we clear it here probably twice: does not hurt ...
 	route.clear();
 
-	struct ANode *tmp = &(nodes[step++]);
+	ANode *tmp = &(nodes[step++]);
 	tmp->parent = NULL;
 	tmp->gr = welt->lookup(start);
 	tmp->f = calc_distance(start,ziel);
@@ -581,11 +567,6 @@ route_t::intern_calc_route(const koord3d ziel, const koord3d start, fahrer_t *fa
 
 //DBG_MESSAGE("route_t::itern_calc_route()","calc route from %d,%d,%d to %d,%d,%d",ziel.x, ziel.y, ziel.z, start.x, start.y, start.z);
 	do {
-		// Hajo: this is too expensive to be called each step
-		if((step & 15) == 0) {
-			INT_CHECK("route 161");
-		}
-
 		tmp = open.at( open.get_count()-1 );
 		open.remove_at( open.get_count()-1 );
 
@@ -660,7 +641,12 @@ route_t::intern_calc_route(const koord3d ziel, const koord3d start, fahrer_t *fa
 				// we find out about this during inserting!
 
 				// not in there or taken out => add new
-				struct ANode *k=&(nodes[step++]);
+				ANode *k=&(nodes[step++]);
+
+				// Hajo: this is too expensive to be called each step
+				if((step & 15) == 0) {
+					INT_CHECK("route 161");
+				}
 
 				k->parent = tmp;
 				k->gr = to;
@@ -686,7 +672,7 @@ route_t::intern_calc_route(const koord3d ziel, const koord3d start, fahrer_t *fa
 //DBG_DEBUG("insert to open","(%i,%i,%i)  f=%i at %i",to->gib_pos().x,to->gib_pos().y,to->gib_pos().z,k->f, index);
 			}
 		}
-	} while(open.get_count()>0  &&  !am_i_there(welt, gr->gib_pos(), ziel, false)  &&  step<MAX_STEP);
+	} while(open.get_count()>0  &&  !am_i_there(welt, gr->gib_pos(), ziel, false)  &&  step<MAX_STEP  &&  tmp->g<max_cost);
 
 	INT_CHECK("route 194");
 
@@ -718,7 +704,7 @@ route_t::intern_calc_route(const koord3d ziel, const koord3d start, fahrer_t *fa
 bool
 route_t::calc_route(karte_t *w,
                     const koord3d ziel, const koord3d start,
-                    fahrer_t *fahr, const uint32 max_khm)
+                    fahrer_t *fahr, const uint32 max_khm, const uint32 max_cost)
 {
 	welt = w;
 	block_tester = 0;
@@ -726,7 +712,7 @@ route_t::calc_route(karte_t *w,
 
 	INT_CHECK("route 336");
 
-	bool ok = intern_calc_route(ziel, start, fahr, max_khm);
+	bool ok = intern_calc_route(ziel, start, fahr, max_khm,max_cost);
 
 	INT_CHECK("route 343");
 

@@ -101,6 +101,37 @@ bool brueckenbauer_t::laden_erfolgreich()
 
 
 /**
+ * Find a matchin bridge
+ * @author Hj. Malthaner
+ */
+const bruecke_besch_t *
+brueckenbauer_t::find_bridge(const weg_t::typ wtyp, const uint32 min_speed,const uint16 time)
+{
+	const bruecke_besch_t *find_besch=NULL;
+
+	// list of matching types (sorted by speed)
+	slist_tpl <const bruecke_besch_t *> matching;
+
+	for(unsigned int i = 0; i < bruecken.get_count(); i++) {
+		const bruecke_besch_t *besch = bruecken.get(i);
+		if(besch->gib_wegtyp() == wtyp) {
+			if(time==0  ||  (besch->get_intro_year_month()<=time  &&  besch->get_retire_year_month()>time)) {
+				if(find_besch==NULL  ||
+					(find_besch->gib_topspeed()<min_speed  &&  find_besch->gib_topspeed()<besch->gib_topspeed())  ||
+					(besch->gib_topspeed()>=min_speed  &&  besch->gib_wartung()<find_besch->gib_wartung())
+				) {
+					find_besch = besch;
+				}
+			}
+		}
+	}
+	return find_besch;
+}
+
+
+
+
+/**
  * Fill menu with icons of given waytype
  * @author Hj. Malthaner
  */

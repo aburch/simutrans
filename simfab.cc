@@ -31,7 +31,6 @@
 #include "simmem.h"
 #include "simcolor.h"
 #include "boden/grund.h"
-//#include "boden/wege/dock.h"
 #include "simfab.h"
 #include "simcity.h"
 #include "simhalt.h"
@@ -50,6 +49,7 @@
 //#include "dings/leitung2.h"
 
 #include "dataobj/einstellungen.h"
+#include "dataobj/umgebung.h"
 #include "dataobj/translator.h"
 #include "dataobj/loadsave.h"
 
@@ -799,25 +799,29 @@ void fabrik_t::verteile_waren(const uint32 produkt)
 						// if only overflown factories found => deliver to first
 						// else deliver to non-overflown factory
 						bool overflown = ziel_fab->gib_eingang()->at(w).menge >= ziel_fab->gib_eingang()->at(w).max;
-#if 0
-// use this for distribution also to overflowing factories
-						if(still_overflow  &&  !overflown) {
-							// not overflowing factory found
-							still_overflow = false;
-							halt_ok.clear();
-							ware_ok.clear();
+
+						if(!umgebung_t::just_in_time) {
+
+							// distribution also to overflowing factories
+							if(still_overflow  &&  !overflown) {
+								// not overflowing factory found
+								still_overflow = false;
+								halt_ok.clear();
+								ware_ok.clear();
+							}
+							if(still_overflow  ||  !overflown) {
+								halt_ok.insert(halt);
+								ware_ok.insert(ware);
+							}
 						}
-						if(still_overflow  ||  !overflown) {
-							halt_ok.insert(halt);
-							ware_ok.insert(ware);
+						else {
+
+							// only distribute to no-overflowed factories
+							if(!overflown) {
+								halt_ok.insert(halt);
+								ware_ok.insert(ware);
+							}
 						}
-#else
-// only distribute to no-overflowed factories
-						if(!overflown) {
-							halt_ok.insert(halt);
-							ware_ok.insert(ware);
-						}
-#endif
 					}
 
 				}
@@ -835,15 +839,6 @@ void fabrik_t::verteile_waren(const uint32 produkt)
 		// prissi: distribute goods to factory, that has not an overflowing input storage
 		// if all have, then distribute evenly
 		const int menge = (ausgang->at(produkt).menge >> precision_bits);
-
-#if 0
-
-		if(menge > 1) {
-			ausgang->at(produkt).menge -= menge << precision_bits;
-			ware_ok.at(0).menge = menge;
-			halt_ok.at(0)->liefere_an(ware_ok.at(0));
-		}
-#else
 
 //DBG_MESSAGE("verteile_waren()","halts %i",halt_ok.count());
 
@@ -874,7 +869,7 @@ void fabrik_t::verteile_waren(const uint32 produkt)
 			ausgang->at(produkt).menge -= menge << precision_bits;
 			best_halt->starte_mit_route(best_ware);
 		}
-#endif
+
 	}
 }
 

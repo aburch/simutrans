@@ -900,7 +900,7 @@ int vehikel_t::calc_gewinn(koord3d start, koord3d end) const
 		// prissi
 		const sint32 grundwert128 = ware.gib_typ()->gib_preis()<<7;
 		const sint32 grundwert_bonus = (ware.gib_typ()->gib_preis()*(1000l+speed_base*ware.gib_typ()->gib_speed_bonus()));
-		const sint32 price = (grundwert128>grundwert_bonus ? grundwert128 : grundwert_bonus ) * dist * ware.menge;
+		const sint32 price = (sint64)(grundwert128>grundwert_bonus ? grundwert128 : grundwert_bonus ) * (sint64)(dist * ware.menge);
 
 		// sum up new price
 		value += price;
@@ -1958,12 +1958,8 @@ bool aircraft_t::ist_ziel(const grund_t *gr) const
 //DBG_MESSAGE("aircraft_t::ist_ziel()","testing at %i,%i",gr->gib_pos().x,gr->gib_pos().y);
 			// ok here is a runway
 			ribi_t::ribi ribi= w->gib_ribi();
-#ifdef USE_DIFFERENT_WIND
 //DBG_MESSAGE("aircraft_t::ist_ziel()","ribi=%i target_ribi=%i",ribi,approach_dir);
 			if(ribi_t::ist_einfach(ribi)  &&  (ribi&approach_dir)!=0) {
-#else
-			if(ribi_t::ist_einfach(ribi)  &&  (ribi&ribi_t::nordost)!=0) {
-#endif
 				// pointing in our direction
 				// here we should check for length, but we assume everything is ok
 //DBG_MESSAGE("aircraft_t::ist_ziel()","success at %i,%i",gr->gib_pos().x,gr->gib_pos().y);
@@ -2162,7 +2158,7 @@ aircraft_t::ist_weg_frei(int & restart_speed)
 		return true;
 	}
 
-	if(gr->gib_halt().is_bound()  &&  gr->suche_obj(ding_t::aircraft)) {
+	if(flughoehe<=target_height  &&  gr->gib_halt().is_bound()  &&  gr->suche_obj(ding_t::aircraft)) {
 		// the next step is a parking position. We do not enter, if occupied!
 		restart_speed = 8;
 		return false;
@@ -2299,9 +2295,9 @@ aircraft_t::calc_route(karte_t * welt, koord3d start, koord3d ziel, uint32 max_s
 	suchen = takeoff = touchdown = 0x7ffffffful;
 	if(!start_in_the_air) {
 
-		// see, if we find a direct route: We are finished
+		// see, if we find a direct route within 150 boxes: We are finished
 		state = taxiing;
-		if(route->calc_route( welt, start, ziel, this, max_speed )) {
+		if(route->calc_route( welt, start, ziel, this, max_speed, 600 )) {
 			// ok, we can taxi to our location
 			return true;
 		}
@@ -2323,6 +2319,7 @@ aircraft_t::calc_route(karte_t * welt, koord3d start, koord3d ziel, uint32 max_s
 		approach_dir = get_approach_ribi( ziel, start );	// reverse
 		DBG_MESSAGE("aircraft_t::calc_route()","search runway start near %i,%i,%i with corner in %x",start.x,start.y,start.z, approach_dir);
 #else
+		approach_dir = ribi_t::nordost;	// reverse
 		DBG_MESSAGE("aircraft_t::calc_route()","search runway start near %i,%i,%i",start.x,start.y,start.z);
 #endif
 		if(!route->find_route( welt, start, this, max_speed, ribi_t::alle, 100 )) {
@@ -2341,6 +2338,7 @@ aircraft_t::calc_route(karte_t * welt, koord3d start, koord3d ziel, uint32 max_s
 	approach_dir = get_approach_ribi( start, ziel );	// reverse
 	DBG_MESSAGE("aircraft_t::calc_route()","search runway target near %i,%i,%i in corners %x",ziel.x,ziel.y,ziel.z,approach_dir);
 #else
+	approach_dir = ribi_t::suedwest;	// reverse
 	DBG_MESSAGE("aircraft_t::calc_route()","search runway target near %i,%i,%i in corners %x",ziel.x,ziel.y,ziel.z);
 #endif
 	route_t end_route;

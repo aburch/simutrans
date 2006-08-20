@@ -140,6 +140,9 @@ runway_t::rdwr(loadsave_t *file)
 		char bname[128];
 		file->rd_str_into(bname, "\n");
 		const weg_besch_t *besch = wegbauer_t::gib_besch(bname);
+		if(besch==NULL) {
+			besch = wegbauer_t::gib_besch("runway_modern");
+		}
 		setze_besch(besch);
 	}
 }

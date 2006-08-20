@@ -54,13 +54,6 @@ private:
     static koord3d finde_ende(karte_t *welt, koord3d pos, koord zv, weg_t::typ wegtyp);
 
 
-    /*
-     * Baut die Brücke wirklich, vorher sollte alles gerprüft sein.
-     *
-     * @author V. Meyer
-     */
-    static bool baue_bruecke(karte_t *welt, spieler_t *sp, koord3d pos, koord3d end, koord zv, const bruecke_besch_t *besch);
-
 
     /*
      * Baut Anfang oder Ende der Brücke.
@@ -74,6 +67,13 @@ private:
 
 
 public:
+
+    /*
+     * Baut die Brücke wirklich, vorher sollte alles gerprüft sein.
+     *
+     * @author V. Meyer
+     */
+    static bool baue_bruecke(karte_t *welt, spieler_t *sp, koord3d pos, koord3d end, koord zv, const bruecke_besch_t *besch);
 
 
     /**
@@ -119,6 +119,13 @@ public:
      */
     static const char *remove(karte_t *welt, spieler_t *sp, koord3d pos, weg_t::typ wegtyp);
 
+
+	/**
+	 * Find a matching bridge
+	 * @author prissi
+	 */
+	static const bruecke_besch_t *
+	find_bridge(const weg_t::typ wtyp, const uint32 min_speed,const uint16 time);
 
     /**
      * Fill menu with icons of given waytype

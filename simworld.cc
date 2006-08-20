@@ -326,6 +326,7 @@ void karte_t::raise_clean(int x, int y, int h)
     if(lookup_hgt(k) < h) {
       setze_grid_hgt(k, h);
 
+#ifndef DOUBLE_GROUNDS
       raise_clean(x-1, y-1, h-16);
       raise_clean(x  , y-1, h-16);
       raise_clean(x+1, y-1, h-16);
@@ -335,6 +336,17 @@ void karte_t::raise_clean(int x, int y, int h)
       raise_clean(x-1, y+1, h-16);
       raise_clean(x  , y+1, h-16);
       raise_clean(x+1, y+1, h-16);
+#else
+      raise_clean(x-1, y-1, h-32);
+      raise_clean(x  , y-1, h-32);
+      raise_clean(x+1, y-1, h-32);
+      raise_clean(x-1, y  , h-32);
+      // Punkt selbst hat schon die neue Hoehe
+      raise_clean(x+1, y  , h-32);
+      raise_clean(x-1, y+1, h-32);
+      raise_clean(x  , y+1, h-32);
+      raise_clean(x+1, y+1, h-32);
+#endif
 
     }
   }
@@ -867,7 +879,7 @@ DBG_DEBUG("karte_t::init()","prepare cities");
 		bauigel.baubaer = false;
 		bauigel.route_fuer(wegbauer_t::strasse, besch);
 		bauigel.set_keep_existing_ways(true);
-		bauigel.set_maximum(200);
+		bauigel.set_maximum(umgebung_t::intercity_road_length);
 
 		// Hajo: search for road offset
 		koord roff (0,1);
@@ -1833,6 +1845,14 @@ karte_t::neuer_monat()
 	}
 	INT_CHECK("simworld 1701");
 
+	// this should be done before a map update, since the map may want an update of the way usage
+//	DBG_MESSAGE("karte_t::neuer_monat()","ways");
+	slist_iterator_tpl <weg_t *> weg_iter (weg_t::gib_alle_wege());
+	while( weg_iter.next() ) {
+		weg_iter.get_current()->neuer_monat();
+	}
+	INT_CHECK("simworld 1890");
+
 //	DBG_MESSAGE("karte_t::neuer_monat()","process seasons");
 	// change grounds to winter?
 	const int current_season=(2+letzter_monat/3)&3; // summer always zero
@@ -1841,6 +1861,9 @@ karte_t::neuer_monat()
 		boden_t::toggle_season( current_season );
 //		setze_dirty();
 	}
+
+	// recalc old settings (and maybe update the staops with the current values)
+	reliefkarte_t::gib_karte()->set_mode( reliefkarte_t::gib_karte()->get_mode());
 
 	INT_CHECK("simworld 1701");
 
@@ -1902,13 +1925,6 @@ karte_t::neuer_monat()
 //	DBG_MESSAGE("karte_t::neuer_monat()","lines");
 	simlinemgmt->new_month();
 	INT_CHECK("simworld 1301");
-
-//	DBG_MESSAGE("karte_t::neuer_monat()","ways");
-	slist_iterator_tpl <weg_t *> weg_iter (weg_t::gib_alle_wege());
-	while( weg_iter.next() ) {
-		weg_iter.get_current()->neuer_monat();
-	}
-	INT_CHECK("simworld 1890");
 
 	DBG_MESSAGE("karte_t::neuer_monat()","timeline");
 

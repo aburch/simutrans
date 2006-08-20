@@ -785,7 +785,7 @@ DBG_MESSAGE("spieler_t::do_passenger_ki()","searching attraction");
 					int	dist;
 					koord pos, size;
 					if(ausflug) {
-						if(ausflugsziele.at(i)->gib_post_level()<=2) {
+						if(ausflugsziele.at(i)->gib_post_level()<=25) {
 							// not a good object to go to ...
 							continue;
 						}
@@ -793,6 +793,10 @@ DBG_MESSAGE("spieler_t::do_passenger_ki()","searching attraction");
 						size=ausflugsziele.at(i)->gib_tile()->gib_besch()->gib_groesse(ausflugsziele.at(i)->gib_tile()->gib_layout());
 					}
 					else {
+						if(fabriken.at(i)->gib_besch()->gib_pax_level()<=10) {
+							// not a good object to go to ... we want more action ...
+							continue;
+						}
 						pos=fabriken.at(i)->gib_pos().gib_2d();
 						size=fabriken.at(i)->gib_besch()->gib_haus()->gib_groesse();
 					}
@@ -1551,13 +1555,13 @@ DBG_MESSAGE("spieler_t::do_ki()","No roadway possible.");
 			}
 		break;
 
-		// remove stucked vehicles
+		// remove stucked vehicles (only from roads!)
 		case CHECK_CONVOI:
 		{
 			slist_iterator_tpl<convoihandle_t> iter (welt->gib_convoi_list());
 			while(iter.next()) {
 				const convoihandle_t cnv = iter.get_current();
-				if(cnv->gib_besitzer()==this) {
+				if(cnv->gib_besitzer()==this  &&  cnv->gib_vehikel(0)->gib_typ()==weg_t::strasse) {
 					// check for empty vehicles (likely stucked) that are making no plus and remove them ...
 					// take care, that the vehicle is old enough ...
 					if((welt->get_current_month()-cnv->gib_vehikel(0)->gib_insta_zeit())>12  &&  cnv->gib_jahresgewinn()==0  ){
@@ -1712,6 +1716,14 @@ spieler_t::baue_bahnhof(koord3d quelle,koord *p, int anz_vehikel)
 	for(i=0; i<laenge-1; i++) {
 		t += zv;
 		welt->ebne_planquadrat(t, hoehe);
+		// update image
+		for(int j=-1; j<=1; j++) {
+			for(int i=-1; i<=1; i++) {
+				if(welt->ist_in_kartengrenzen(t.x+i,t.y+j)) {
+					welt->lookup(t+koord(i,j))->gib_kartenboden()->calc_bild();
+				}
+			}
+		}
 	}
 
 	t = *p;
@@ -1919,7 +1931,7 @@ spieler_t::guess_gewinn_transport_quelle_ziel(fabrik_t *qfab,const ware_t *ware,
 			                 ( qfab->max_produktion() * qfab->gib_besch()->gib_produkt(ware_nr)->gib_faktor() )/256 - qfab->gib_abgabe_letzt(ware_nr) * 2 );
 
 			gewinn = (grundwert *prod-5)+simrand(15000);
-			if(dist>200) {
+			if(dist>100) {
 				gewinn /= 2;
 			}
 
@@ -2347,10 +2359,26 @@ spieler_t::create_simple_road_transport()
 {
 	INT_CHECK("simplay 837");
 
+	// is there already a connection?
+	{
+    		vehikel_t *test_driver=new automobil_t(welt,koord3d(platz1,0),road_vehicle,this,NULL);;
+		route_t verbindung;
+		if(	verbindung.calc_route(welt,welt->lookup(platz1)->gib_kartenboden()->gib_pos(),welt->lookup(platz2)->gib_kartenboden()->gib_pos(),(fahrer_t *)test_driver,0)  &&
+			verbindung.gib_max_n()<2*abs_distance(platz1,platz2))  {
+DBG_MESSAGE("spieler_t::create_simple_road_transport()","Already connection between %d,%d to %d,%d is only %i",platz1.x, platz1.y, platz2.x, platz2.y, verbindung.gib_max_n() );
+			// found something with the nearly same lenght
+			delete test_driver;
+			return true;
+		}
+		delete test_driver;
+	}
+
+	// no connection => built one!
 	wegbauer_t bauigel(welt, this);
 
-	bauigel.route_fuer( wegbauer_t::strasse, road_weg );
+	bauigel.route_fuer( wegbauer_t::strasse, road_weg, brueckenbauer_t::find_bridge(weg_t::strasse,road_vehicle->gib_geschw(),welt->get_timeline_year_month()) );
 	bauigel.baubaer = true;
+
 	// we won't destroy cities (and save the money)
 	bauigel.set_keep_existing_faster_ways(true);
 	bauigel.set_keep_city_roads(true);
@@ -2369,19 +2397,7 @@ DBG_MESSAGE("spieler_t::create_simple_road_transport()","building simple road fr
 		return true;
 	}
 	else {
-		// is there already a connection
-		{
-      		vehikel_t *test_driver=new automobil_t(welt,koord3d(platz1,0),road_vehicle,this,NULL);;
-			route_t verbindung;
-			if(	verbindung.calc_route(welt,welt->lookup(platz1)->gib_kartenboden()->gib_pos(),welt->lookup(platz2)->gib_kartenboden()->gib_pos(),(fahrer_t *)test_driver,0)  &&
-				verbindung.gib_max_n()*2<3*abs_distance(platz1,platz2))  {
-DBG_MESSAGE("spieler_t::create_simple_road_transport()","But connection between %d,%d to %d,%d is only %i",platz1.x, platz1.y, platz2.x, platz2.y, verbindung.gib_max_n() );
-				// found something with the nearly same lenght
-				delete test_driver;
-				return true;
-			}
-			delete test_driver;
-		}
+#if 0
 		// built a route with this place in between (usually sucessful, but not straightest
 		koord mitte=(platz1+platz2)/2+koord(simrand(4)-2,simrand(4)-2);
 		INT_CHECK("simplay 2098");
@@ -2427,102 +2443,16 @@ DBG_MESSAGE("spieler_t::create_simple_road_transport()","building simple road fr
 				return true;
 			}
 		}
-DBG_MESSAGE("spieler_t::create_simple_road_transport()","building simple road from %d,%d to %d,%d failed",platz1.x, platz1.y, platz2.x, platz2.y);
-		return false;
+#endif
 	}
+DBG_MESSAGE("spieler_t::create_simple_road_transport()","building simple road from %d,%d to %d,%d failed",platz1.x, platz1.y, platz2.x, platz2.y);
+	return false;
 }
 
 bool
 spieler_t::create_complex_road_transport()
 {
-    INT_CHECK("simplay 865");
-
-    wegbauer_t bauigel(welt, this);
-
-    INT_CHECK("simplay 867");
-
-    bauigel.baubaer = true;
-	bauigel.set_keep_city_roads(true);
-    bauigel.set_keep_existing_faster_ways(true);
-    bauigel.set_maximum(32000);
-    bauigel.route_fuer( wegbauer_t::strasse_bot, 0 );
-
-    bauigel.calc_route(platz1,platz2);
-
-    INT_CHECK("simplay 768");
-
-    // Strasse muss min. 3 Felder lang sein, sonst kann man keine
-    // zwei verschiedene stops bauen
-
-    if(bauigel.max_n <= 3) {
-        DBG_MESSAGE("spieler_t::create_complex_road_transport()",
-		     "no suitable route was found, aborting roadbuilding");
 	return false;
-    }
-
-
-    slist_tpl <koord> list;
-
-    list.insert( platz1 );
-
-    for(int i=1; i<bauigel.max_n-1; i++) {
-	koord p = bauigel.gib_route_bei(i);
-        grund_t *bd = welt->lookup(p)->gib_kartenboden();
-
-
-        if(bd->gib_weg(weg_t::schiene) != NULL) {
-            DBG_MESSAGE("spieler_t::create_complex_road_transport()",
-	                 "try to cross railroad track");
-
-	    ribi_t::ribi ribi = bd->gib_weg_ribi(weg_t::schiene);
-
-		INT_CHECK("simplay 2415");
-	    const bool ok = versuche_brueckenbau(p, &i, ribi, bauigel, list);
-
-	    if(!ok) {
-	      DBG_MESSAGE("spieler_t::create_complex_road_transport()",
-			   "bridge failed, aborting roadbuilding");
-	      return false;
-	    } else {
-	      DBG_MESSAGE("spieler_t::create_complex_road_transport()",
-			   "using bridge");
-	    }
-	}
-    }
-
-    INT_CHECK("simplay 895");
-
-    bauigel.route_fuer( wegbauer_t::strasse, road_weg );
-
-    list.insert( platz2 );
-
-    bauigel.baubaer = true;
-
-    if(!checke_streckenbau(bauigel, list)) {
-        DBG_MESSAGE("spieler_t::create_complex_road_transport()",
-		     "checke_streckenbau() returned false, aborting roadbuilding");
-	return false;
-    }
-
-    INT_CHECK("simplay 2443");
-    bauigel.baue_strecke(list);
-
-    slist_iterator_tpl <koord> iter (list);
-
-    if(iter.next()) {
-
-      while(iter.next()) {
-	const koord k = iter.get_current();
-
-	if(!iter.next()) {
-	  break;
-	}
-
-//	was brueckenbauer_t::baue(this, welt, k, weg_t::sschiene);
-	brueckenbauer_t::baue(this, welt, k, weg_t::strasse,road_weg->gib_topspeed());
-      }
-    }
-    return true;
 }
 
 
@@ -2535,7 +2465,7 @@ bool
 spieler_t::create_simple_rail_transport()
 {
 	wegbauer_t bauigel(welt, this);
-	bauigel.route_fuer( wegbauer_t::schiene_bot_bau, rail_weg );
+	bauigel.route_fuer( wegbauer_t::schiene_bot_bau, rail_weg, brueckenbauer_t::find_bridge(weg_t::schiene,rail_engine->gib_geschw(),welt->get_timeline_year_month()) );
 	bauigel.set_keep_existing_ways(false);
 	bauigel.baubaer = false;	// no tunnels, no bridges
 	bauigel.calc_route(platz1,platz2);
@@ -2547,23 +2477,6 @@ DBG_MESSAGE("spieler_t::create_simple_rail_transport()","building simple track f
 		INT_CHECK("simplay 2480");
 		return true;
 	}
-	else {
-		bauigel.route_fuer( wegbauer_t::schiene_bot_bau, rail_weg );
-		bauigel.set_keep_existing_ways(false);
-		bauigel.baubaer = true;	// ok, try tunnels and bridges
-		bauigel.calc_route(platz1,platz2);
-		INT_CHECK("simplay 2478");
-		if(bauigel.max_n > 3) {
-DBG_MESSAGE("spieler_t::create_simple_rail_transport()","building simple track (baubaer) from %d,%d to %d,%d",platz1.x, platz1.y, platz2.x, platz2.y);
-			bauigel.baue();
-			INT_CHECK("simplay 2493");
-			return true;
-		}
-		else {
-DBG_MESSAGE("spieler_t::create_simple_rail_transport()","building simple track from %d,%d to %d,%d failed", platz1.x, platz1.y, platz2.x, platz2.y);
-			return false;
-		}
-	}
 }
 
 
@@ -2571,135 +2484,14 @@ DBG_MESSAGE("spieler_t::create_simple_rail_transport()","building simple track f
 bool
 spieler_t::create_complex_rail_transport()
 {
-    DBG_MESSAGE("spieler_t::create_complex_rail_transport()",
-		 "try to build complex railroads");
-
-    INT_CHECK("simplay 957");
-
-    wegbauer_t bauigel(welt, this);
-
-    INT_CHECK("simplay 961");
-
-    bauigel.baubaer = false;
-    // was schiene_bot
-    bauigel.route_fuer( wegbauer_t::schiene_bot, 0 );
-
-    bauigel.calc_route(platz1, platz2);
-
-    INT_CHECK("simplay 968");
-
-    // Strecke muss min. 3 Felder lang sein, sonst kann man keine
-    // zwei verschiedene stops bauen
-
-    if(bauigel.max_n < 3) {
-        DBG_MESSAGE("spieler_t::create_complex_rail_transport()",
-		     "no suitable route was found, aborting trackbuilding");
-
 	return false;
-    }
-
-    slist_tpl <koord> list;
-
-    list.insert( platz1 );
-
-    for(int i=1; i<bauigel.max_n-1; i++) {
-	koord p = bauigel.gib_route_bei(i);
-        grund_t *bd = welt->lookup(p)->gib_kartenboden();
-
-
-	if(  bd->gib_weg(weg_t::strasse) != NULL  ||  bd->gib_weg(weg_t::schiene) != NULL) {
-            DBG_MESSAGE("spieler_t::create_complex_rail_transport()","try to cross way");
-
-	    ribi_t::ribi ribi = 0;
-
-	    bool ok = false;
-
-	    if(bd->gib_weg(weg_t::schiene)) {
-	      ribi = bd->gib_weg_ribi(weg_t::schiene);
-	    } else {
-	      ribi = bd->gib_weg_ribi(weg_t::strasse);
-	      // perhaps we can built a crossing?
-		if(  i>1  &&  (bd->gib_besitzer()==0  ||  bd->gib_besitzer()==this)  &&  bd->gib_halt()==NULL) {
-		      ribi_t::ribi ribi_route = ribi_typ(bauigel.gib_route_bei(i+1),bauigel.gib_route_bei(i-1));
-DBG_MESSAGE("spieler_t::create_complex_rail_transport()","crossing ribi $%02x mit $%02x",ribi_route,ribi);
-			ok = 	ribi_t::ist_gerade(ribi)
-					&&  !ribi_t::ist_einfach(ribi)
-					&&  ribi_t::ist_gerade(ribi_route)
-					&&  (ribi & ribi_route)==0;
-DBG_MESSAGE("spieler_t::create_complex_rail_transport()","railroad crossing is%s possible",ok==true?" ":" not");
-	    	}
-	    }
-
-	    if(!ok) {
-	    	// we must built a bridge
-		ok = versuche_brueckenbau(p, &i, ribi, bauigel, list);
-		}
-
-	    if(!ok) {
-	      DBG_MESSAGE("spieler_t::create_complex_rail_transport()","bridge failed, aborting trackbuilding");
-	      return false;
-	    } else {
-	      DBG_MESSAGE("spieler_t::create_complex_rail_transport()","using bridge/crossing");
-	    }
-	}
-    }
-
-    INT_CHECK("simplay 980");
-
-    list.insert( koord(platz2) );
-
-    bauigel.route_fuer( wegbauer_t::schiene_bot_bau, rail_weg );
-    bauigel.baubaer = true;
-
-    if(!checke_streckenbau(bauigel, list)) {
-        DBG_MESSAGE("spieler_t::create_complex_rail_transport()",
-		     "checke_streckenbau() returned false, aborting trackbuilding");
-	return false;
-    }
-
-    bauigel.baue_strecke(list);
-
-    slist_iterator_tpl <koord> iter (list);
-
-    if(iter.next()) {
-
-      while(iter.next()) {
-	const koord k = iter.get_current();
-
-	if(!iter.next()) {
-	  break;
-	}
-
-	brueckenbauer_t::baue(this, welt, k, weg_t::schiene,rail_weg->gib_topspeed());
-      }
-    }
-    return true;
 }
 
 
 bool
 spieler_t::checke_streckenbau(wegbauer_t &bauigel, slist_tpl<koord> &list)
 {
-    INT_CHECK("simplay 1034");
-
-    bool ok = true;
-    slist_iterator_tpl <koord> iter (list);
-
-    while(iter.next()) {
-	const koord k1 = iter.get_current();
-
-	iter.next();
-	const koord k2 = iter.get_current();
-
-	bauigel.calc_route(k1, k2);
-
-	if(bauigel.max_n <= 0) {
-	    ok = false;
-            break;
-	}
-    }
-
-    return ok;
+	return false;
 }
 
 
@@ -2718,50 +2510,6 @@ spieler_t::versuche_brueckenbau(koord , int *index, ribi_t::ribi,
                                 wegbauer_t &bauigel,
 				slist_tpl <koord> &list)
 {
-	// too short for a bridge?
-	if(*index<2  ||  bauigel.max_n<5) {
-		return false;
-	}
-	bool ok = true;
-
-	const koord p1 = bauigel.gib_route_bei(*index-1);
-	if(  welt->get_slope(p1)!=0 ) {	// only on flat ground
-		return false;
-	}
-
-	// find an end; must be straight and on flat unowned ground!
-	for(  int i=*index+1;  i<bauigel.max_n-2;  i++  )
-	{
-		const koord p2 = bauigel.gib_route_bei(i+1);
-		const grund_t *bd = welt->lookup(p2)->gib_kartenboden();
-		koord zv = p2 - p1;
-
-		if(  (zv.x != 0 && zv.y != 0) ||     // Hajo: only straight bridges possible
-			welt->get_slope(p2)!=0  ||
-			bd==NULL  ) {
-			return false;    // Hajo: only straight bridges possible with no height difference at the moment
-		}
-		if(  !bd->ist_natur()  ) {
-			// not empty, try next!
-			continue;
-		}
-
-		// Hajo: Bridge might be possible, check if
-		// way ends are straight.
-
-		zv.x = sgn(zv.x);
-		zv.y = sgn(zv.y);
-
-		ok &= bauigel.gib_route_bei(*index-2) == p1 - zv;
-		ok &= bauigel.gib_route_bei(i+1) == p2 + zv;
-
-		if(ok) {
-			list.insert( p1 );
-			list.insert( p2 );
-			*index = i;
-			return true;
-		}
-	}
 	// gets here, if no bridge possible
 	return false;
 }

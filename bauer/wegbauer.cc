@@ -273,123 +273,6 @@ void wegbauer_t::fill_menu(werkzeug_parameter_waehler_t *wzw,
 
 
 
-bool
-wegbauer_t::kann_mit_strasse_erreichen(const grund_t *bd, const koord zv)
-{
-    switch(bd->gib_grund_hang()) {
-    case hang_t::flach:
-    case hang_t::erhoben:
-        return true;
-    case hang_t::nord:
-    case hang_t::sued:
-  return zv.x == 0;
-    case hang_t::ost:
-    case hang_t::west:
-  return zv.y == 0;
-    default:
-        return false;
-    }
-}
-
-bool wegbauer_t::kann_ribis_setzen(const grund_t *bd, const koord zv)
-{
-  /*
-    if( bd->hat_gebaeude(hausbauer_t::bushalt_besch) ||
-  bd->hat_gebaeude(hausbauer_t::bahnhof_besch))
-  */
-    if( bd->gib_halt().is_bound() )
-    {
-  weg_t::typ wtyp = bautyp == strasse ? weg_t::strasse : weg_t::schiene;
-
-  return ribi_t::ist_gerade(bd->gib_weg_ribi_unmasked(wtyp) | ribi_typ(zv));
-    } else {
-  return true;
-    }
-}
-
-
-bool
-wegbauer_t::ist_bruecke_tunnel_ok(grund_t *bd_von, koord zv, grund_t *bd_nach)
-{
-    hang_t::typ hang;
-    hang_t::typ hang_zv = hang_typ(zv); // zv=sued -> hang:nord
-
-    if(bd_von->gib_typ() == grund_t::brueckenboden) {
-  hang = bd_von->gib_grund_hang();
-        if(hang != hang_t::flach) {
-	    // nur Brueckenstart auf Nordhang nach sueden erlauben
-	    if(hang_zv != hang) {
-		return false;
-	    }
-	}
-	else {
-	    // allow only south bridge ramp
-	    hang = bd_von->gib_weg_hang();
-	    if(hang_zv != hang_t::gegenueber(hang)) {
-		return false;
-	    }
-	}
-    }
-    else if(bd_von->gib_typ() == grund_t::tunnelboden) {
-	// nur Tunnelausgaene nach sueden erlauben
-	hang = bd_von->gib_grund_hang();
-	if(hang_zv != hang_t::gegenueber(hang)) {
-	    return false;
-	}
-    }
-    if(bd_nach->gib_typ() == grund_t::brueckenboden) {
-  hang = bd_nach->gib_grund_hang();
-        if(hang != hang_t::flach) {
-	    // nur bruecke auf Nordhang von norden erlauben
-	    if(hang_zv != hang_t::gegenueber(hang)) {
-		return false;
-	    }
-	}
-	else {
-	    // nur Brueckenrampe mit Nordhang von norden erlauben
-	    hang = bd_nach->gib_weg_hang();
-	    if(hang_zv != hang) {
-		return false;
-	    }
-	}
-    }
-    else if(bd_nach->gib_typ() == grund_t::tunnelboden) {
-	// nur Tunnelausgaenge mit Nordhang von norden erlauben
-	hang = bd_nach->gib_grund_hang();
-	if(hang_zv != hang) {
-	    return false;
-	}
-    }
-    return true;
-}
-
-koord3d
-wegbauer_t::bruecke_finde_ende(karte_t *welt, koord3d pos, koord zv)
-{
-    do {
-  pos = pos + zv;
-  if(!welt->ist_in_kartengrenzen(pos.gib_2d())) {
-      return koord3d::invalid;
-  }
-    } while(!welt->lookup(pos + koord3d(0, 0, 16)) );   // keine Brcke im Weg
-
-    // Hajo: we went one step too far (until it's plain again)
-    return pos-zv;
-}
-
-
-koord3d
-wegbauer_t::tunnel_finde_ende(karte_t *welt, koord3d pos, const koord zv)
-{
-    do {
-  pos = pos + zv;
-  if(!welt->ist_in_kartengrenzen(pos.gib_2d()))
-      return koord3d::invalid;
-    } while(!welt->lookup(pos));
-
-    return pos;
-}
-
 
 /* allow for railroad crossing
  * @author prissi
@@ -440,110 +323,425 @@ wegbauer_t::check_for_leitung(const koord zv, const grund_t *bd) const
 
 
 
-/* heaviely extended to allow for crossing between rail and road
+// allowed owner?
+bool wegbauer_t::check_owner( const spieler_t *sp1, const spieler_t *sp2 )
+{
+	// unowned, mine or public property?
+	return sp1==NULL  ||  sp1==sp2  ||  sp1==welt->gib_spieler(1);
+}
+
+
+
+
+#define CST_WAY_SLOPE (30)
+
+/* This is the core routine for the way search
+ * it will check
+ * A) allowed step
+ * B) if allowed, calculate the cost for the step from from to to
  * @author prissi
  */
-bool
-wegbauer_t::ist_grund_fuer_strasse(koord pos, const koord zv, koord start, koord ziel) const
+bool wegbauer_t::is_allowed_step( const grund_t *from, const grund_t *to, long *costs )
 {
-	bool ok = false;
+	const koord from_pos=from->gib_pos().gib_2d();
+	const koord to_pos=to->gib_pos().gib_2d();
+	const koord zv=to_pos-from_pos;
 
-	if(!welt->ist_in_kartengrenzen(pos)) {
+	if(bautyp==luft  &&  from->gib_grund_hang()+to->gib_grund_hang()!=0  ) {
+		// absolutely no slopes for runways
 		return false;
 	}
 
-	const grund_t *bd = welt->lookup(pos)->gib_kartenboden();
-
-	if( welt->ist_markiert(bd->gib_pos())) { // als ungeeignet markiert
-		return false;
+	// check for valid slopes
+	if(from->gib_grund_hang()!=0) {
+		// we checked before, if this was a valid slope ...
+		if(!hang_t::ist_wegbar(from->gib_grund_hang())) {
+			// not straight ahead only
+			return false;
+		}
+	}
+	// ok, now check destination hang
+	if(to->gib_grund_hang()!=0) {
+		ribi_t::ribi hang=ribi_typ( from->gib_pos().z>to->gib_pos().z ?hang_t::gegenueber(to->gib_grund_hang()) : to->gib_grund_hang() );
+//DBG_MESSAGE("wegbauer_t::is_allowed_step()","dir=%i, hang=%i",ribi_typ(from_pos,to_pos), hang );
+		if(!hang_t::ist_wegbar(to->gib_grund_hang())  ||  ribi_typ(from_pos,to_pos)!=hang  ) {
+			// not straight and straight ahead only
+			return false;
+		}
 	}
 
-	ok = bd->ist_natur() &&  !bd->ist_wasser();
+	// ok, slopes are ok
+	bool ok = to->ist_natur()  &&  !to->ist_wasser();
+	bool fundament= to->gib_typ()==grund_t::fundament;
+	const gebaeude_t *gb=dynamic_cast<const gebaeude_t *>(to->suche_obj(ding_t::gebaeude));
 
 	switch(bautyp) {
 
 		case strasse:
-			ok =	(ok || bd->gib_weg(weg_t::strasse)  || check_crossing(zv,bd,weg_t::schiene)) &&
-					(bd->gib_weg(weg_t::strasse)  ||  bd->gib_besitzer() == NULL || bd->gib_besitzer() == sp) &&
-					!bd->hat_gebaeude(hausbauer_t::frachthof_besch) &&
-					check_for_leitung(zv,bd)  &&
-					!bd->gib_depot();
+		case strasse_bot:
+		{
+			const weg_t *str=to->gib_weg(weg_t::strasse);
+			ok =	(str  ||  ok&!fundament  ||  check_crossing(zv,to,weg_t::schiene)) &&
+					(str  ||  check_owner(to->gib_besitzer(),sp)) &&
+					check_for_leitung(zv,to)  &&
+					!to->gib_depot();
+			// check for end/start of bridge
+			if(to->gib_weg_hang()!=to->gib_grund_hang()) {
+				return false;
+			}
+			if(gb) {
+				// no halt => citybuilding => do not touch
+				if(str==NULL  ||  !to->gib_halt().is_bound()  ||  !check_owner(gb->gib_besitzer(),sp)) {
+					return false;
+				}
+			}
+			// now check for stops (no crossings here
+			if(str  &&  to->gib_halt().is_bound()  &&
+				!ribi_t::ist_gerade(ribi_typ(to_pos,from_pos)|str->gib_ribi_unmasked())  ) {
+				// no crossings on stops
+				return false;
+			}
+			const weg_t *from_str=from->gib_weg(weg_t::strasse);
+			// now check for stops
+			if(from_str  &&  from->gib_halt().is_bound()  &&  !ribi_t::ist_gerade(ribi_typ(to_pos,from_pos)|from_str->gib_ribi_unmasked())  ) {
+				// no crossings on stops
+				return false;
+			}
+			// calculate costs
+			if(ok) {
+				*costs = str ? 1 : 5;
+				*costs += from_str ? 1 : 5;
+				if(to->gib_weg(weg_t::schiene)) {
+					*costs += 4;	// avoid crossings
+				}
+				if(to->gib_grund_hang()!=0) {
+					*costs += CST_WAY_SLOPE;
+				}
+			}
+		}
 		break;
 
 		case schiene:
-			ok =	(ok || bd->gib_weg(weg_t::schiene)  || check_crossing(zv,bd,weg_t::strasse)) &&
-					(bd->gib_besitzer()==NULL || bd->gib_besitzer()==sp) &&
-					check_for_leitung(zv,bd)  &&
-					!bd->gib_depot();
-		break;
-
-		case leitung:
-			ok = ( bd->ist_natur() ||  bd->ist_wasser())  ||  (
-					//					     (bd->gib_besitzer() == NULL || bd->gib_besitzer() == sp) &&
-					(
-						(bd->gib_weg(weg_t::wasser)!=NULL  &&  check_crossing(zv,bd,weg_t::wasser))  ||
-						(bd->gib_weg(weg_t::strasse)!=NULL  &&  check_crossing(zv,bd,weg_t::strasse))  ||
-						(bd->gib_weg(weg_t::schiene)!=NULL  &&  check_crossing(zv,bd,weg_t::schiene))
-					)
-					);
-		break;
-
-		// like strasse but check for frachthof
-		case strasse_bot:
-			ok =	(ok || bd->gib_weg(weg_t::strasse)  || check_crossing(zv,bd,weg_t::schiene)) &&
-					(bd->gib_besitzer()==NULL || bd->gib_besitzer()==sp) &&
-					check_for_leitung(zv,bd)
-					&&  !bd->hat_gebaeude(hausbauer_t::frachthof_besch);
-		break;
-
-		case schiene_bot:
-			ok = ok || bd->gib_weg(weg_t::strasse) != NULL || bd->gib_weg(weg_t::schiene) != NULL;
+		{
+			const weg_t *sch=to->gib_weg(weg_t::schiene);
+			ok =	(ok&!fundament || sch  || check_crossing(zv,to,weg_t::strasse)) &&
+					check_owner(to->gib_besitzer(),sp) &&
+					check_for_leitung(zv,to)  &&
+					!to->gib_depot();
+			// check for end/start of bridge
+			if(to->gib_weg_hang()!=to->gib_grund_hang()) {
+				return false;
+			}
+			if(gb) {
+				// no halt => citybuilding => do not touch
+				if(sch==NULL  ||  !to->gib_halt().is_bound()  ||  !check_owner(gb->gib_besitzer(),sp)) {
+					return false;
+				}
+				// now we have a halt => check for direction
+				if(sch  &&  ribi_t::ist_kreuzung(ribi_typ(to_pos,from_pos)|sch->gib_ribi_unmasked())  ) {
+					// no crossings on stops
+					return false;
+				}
+			}
+			// calculate costs
+			if(ok) {
+				*costs = sch ? 3 : 4;	// only prefer existing rails a little
+				if(to->gib_weg(weg_t::strasse)) {
+					*costs += 4;	// avoid crossings
+				}
+				if(to->gib_grund_hang()!=0) {
+					*costs += CST_WAY_SLOPE;
+				}
+			}
+		}
 		break;
 
 		// like schiene, but allow for railroad crossings
 		// avoid crossings with any (including our) railroad tracks
+		case schiene_bot:
 		case schiene_bot_bau:
-			ok = ok || (pos==start || pos==ziel);
-			ok = ok &&  (bd->gib_weg(weg_t::strasse)==NULL  ||  check_crossing(zv,bd,weg_t::strasse));
-			ok = ok && bd->gib_weg(weg_t::schiene)==NULL  &&  (bd->gib_besitzer()==sp  ||  bd->gib_besitzer()==NULL)  &&  check_for_leitung(zv,bd);
-		break;
-
-		// like tram, but checks for bridges too
-		case schiene_monorail:
-			if(!ok  &&  bd->gib_typ()==grund_t::fundament) {
-				const gebaeude_t *gb=dynamic_cast<const gebaeude_t *>(bd->suche_obj(ding_t::gebaeude));
-				ok = (gb!=NULL  &&  gb->gib_tile()->gib_hintergrund(0,1)==-1);
+			if(gb  ||   to->gib_halt().is_bound()  ||  to->gib_weg(weg_t::schiene)) {
+				return false;
 			}
-			ok =	(ok || bd->gib_weg(weg_t::schiene)  || bd->gib_weg(weg_t::strasse)) &&
-					(bd->gib_besitzer() == NULL || bd->gib_besitzer() == sp) &&
-					check_for_leitung(zv,bd)  &&
-					!bd->gib_depot();
+			ok =	(ok&!fundament || check_crossing(zv,to,weg_t::strasse)) &&
+					check_owner(to->gib_besitzer(),sp) &&
+					check_for_leitung(zv,to)  &&
+					!to->gib_depot();
+			// calculate costs
 			if(ok) {
-				bd =  welt->lookup(pos)->gib_boden_in_hoehe(bd->gib_pos().z+16);
-				if(bd  &&  bd->gib_typ()!=grund_t::monorailboden) {
-					ok = false;
+				*costs = 4;
+				if(to->gib_weg(weg_t::strasse)) {
+					*costs += 4;	// avoid crossings
+				}
+				if(to->gib_grund_hang()!=0) {
+					*costs += CST_WAY_SLOPE;
 				}
 			}
 		break;
 
+		// like tram, but checks for bridges too
+		case schiene_monorail:
+		{
+			ok =	(ok  ||  fundament || to->gib_weg(weg_t::schiene)  || to->gib_weg(weg_t::strasse)) &&  !to->gib_weg(weg_t::luft)  &&
+					check_owner(to->gib_besitzer(),sp) &&
+					check_for_leitung(zv,to)  &&
+					!to->gib_depot();
+			if(ok) {
+				const grund_t *bd =  welt->lookup(to_pos)->gib_boden_in_hoehe(to->gib_pos().z+16);
+				if(bd  &&  bd->gib_typ()!=grund_t::monorailboden) {
+					ok = false;
+				}
+			}
+			if(gb) {
+				const weg_t *sch=to->gib_weg(weg_t::schiene);
+				// no halt => citybuilding => do not touch
+				if(!to->gib_halt().is_bound()  ||  !check_owner(gb->gib_besitzer(),sp)
+					||  gb->gib_tile()->gib_hintergrund(0,1)!=-1) {  // also check for too high buildings ...
+					return false;
+				}
+				// now we have a halt => check for direction
+				if(sch  &&  ribi_t::ist_kreuzung(ribi_typ(to_pos,from_pos)|sch->gib_ribi_unmasked())  ) {
+					// no crossings on stops
+					return false;
+				}
+			}
+			// calculate costs
+			if(ok) {
+				*costs = 4;
+				// ontop of city buildings is expensive
+				if(to->gib_typ()==grund_t::fundament) {
+					*costs += 4;
+				}
+				// perfer ontop of ways
+				if(to->hat_wege()) {
+					*costs -= 2;
+				}
+				if(to->gib_grund_hang()!=0) {
+					*costs += CST_WAY_SLOPE;
+				}
+			}
+		}
+		break;
+
 		case schiene_tram: // Dario: Tramway
-			ok =	(ok || bd->gib_weg(weg_t::schiene)  || bd->gib_weg(weg_t::strasse)) &&
-					(bd->gib_besitzer() == NULL || bd->gib_besitzer() == sp) &&
-					check_for_leitung(zv,bd)  &&
-					!bd->gib_depot();
+		{
+			ok =	(ok || to->gib_weg(weg_t::schiene)  || to->gib_weg(weg_t::strasse)) &&
+					check_owner(to->gib_besitzer(),sp) &&
+					check_for_leitung(zv,to)  &&
+					!to->gib_depot();
+			// check for end/start of bridge
+			if(to->gib_weg_hang()!=to->gib_grund_hang()) {
+				return false;
+			}
+			// calculate costs
+			if(ok) {
+				*costs = to->gib_weg(weg_t::schiene) ? 2 : 4;	// only prefer existing rails a little
+				// perfer own track
+				if(to->gib_weg(weg_t::strasse)) {
+					*costs += 2;
+				}
+				if(to->gib_grund_hang()!=0) {
+					*costs += CST_WAY_SLOPE;
+				}
+			}
+		}
+		break;
+
+		case leitung:
+			ok = (!fundament  ||  !to->ist_wasser())  &&
+					(
+						(to->gib_weg(weg_t::wasser)!=NULL  &&  check_crossing(zv,to,weg_t::wasser))  ||
+						(to->gib_weg(weg_t::strasse)!=NULL  &&  check_crossing(zv,to,weg_t::strasse))  ||
+						(to->gib_weg(weg_t::schiene)!=NULL  &&  check_crossing(zv,to,weg_t::schiene))
+					)  &&  to->gib_weg(weg_t::luft)==NULL;
+			// calculate costs
+			if(ok) {
+				*costs = to->hat_wege() ? 8 : 1;
+				if(to->gib_grund_hang()!=0) {
+					*costs += CST_WAY_SLOPE;
+				}
+			}
 		break;
 
 		case wasser:
-			ok = (ok  ||  bd->ist_wasser()  ||  bd->gib_weg(weg_t::wasser))  &&
-					(bd->gib_besitzer() == NULL || bd->gib_besitzer() == sp);
+			ok = (ok  ||  to->ist_wasser()  ||  to->gib_weg(weg_t::wasser))  &&
+					check_owner(to->gib_besitzer(),sp) &&
+					check_for_leitung(zv,to);
+			// calculate costs
+			if(ok) {
+				*costs = to->ist_wasser()  ||  to->gib_weg(weg_t::wasser) ? 1 : 10;	// prefer water very much ...
+				if(to->gib_grund_hang()!=0) {
+					*costs += CST_WAY_SLOPE*2;
+				}
+			}
 			break;
 
 	case luft: // hsiegeln: runway
-		ok = ( ok || bd->gib_weg(weg_t::luft)) &&  (bd->gib_besitzer() == NULL || bd->gib_besitzer() == sp) &&  check_for_leitung(zv,bd)  &&  !bd->gib_depot()  &&  bd->gib_grund_hang()==0;
+		ok = ( ok || to->gib_weg(weg_t::luft)) &&
+				  to->suche_obj(ding_t::leitung)==NULL   &&  !to->gib_depot();
+			// calculate costs
+		*costs = 4;
 		break;
 	}
 	return ok;
 }
+
+
+
+#define MAX_BRIDGE_LEN 12
+
+bool wegbauer_t::check_for_bridge( const grund_t *parent_from, const grund_t *from, grund_t **to, long *costs )
+{
+	// bridge not enabled or wrong starting slope or tile already occupied with a way ...
+	if(bruecke_besch==NULL  ||  !hang_t::ist_wegbar(from->gib_grund_hang())  ||  from->hat_wege()) {
+		return false;
+	}
+
+	// ok, so now we do a closer investigation
+	grund_t *gr, *gr2;
+	long internal_cost;
+	const koord to_pos=(*to)->gib_pos().gib_2d();
+	const koord zv=to_pos-from->gib_pos().gib_2d();
+	const koord zv3=from->gib_pos().gib_2d()-parent_from->gib_pos().gib_2d();
+
+	if(zv3!=zv) {
+		// only straight bridges ...
+		return false;
+	}
+
+	if(from->gib_grund_hang()==0) {
+		// try bridge on even ground
+		const unsigned max_lenght=bruecke_besch->gib_max_length()==0 ? 50 : bruecke_besch->gib_max_length()-2;
+		for(unsigned i=0;  i<max_lenght;  i++ ) {
+			// not on map or already something there => fail
+			if(!welt->ist_in_kartengrenzen(to_pos+zv*(i+1))  ||  welt->lookup((*to)->gib_pos()+zv*i+koord3d(0,0,16))) {
+				return false;
+			}
+			gr = welt->lookup(to_pos+zv*i)->gib_kartenboden();
+			gr2 = welt->lookup(to_pos+zv*(i+1))->gib_kartenboden();
+			// some articial tiles here?!?
+			if(gr->gib_pos().z>from->gib_pos().z) {
+				return false;
+			}
+			// check for runways ...
+			if(gr->gib_weg(weg_t::luft)) {
+				return false;
+			}
+			// make sure, the bridge is not too short
+			if(i==0) {
+				continue;
+			}
+			// here is a hang
+			if(gr->gib_pos().z==from->gib_pos().z  &&  gr->gib_grund_hang()!=0) {
+				if(ribi_typ(zv)!=ribi_typ(gr->gib_grund_hang())  ||  !hang_t::ist_einfach(gr->gib_grund_hang())) {
+					// non-manable slope
+					return false;
+				}
+				// ok, qualify for endpos
+				if(!gr->hat_wege()  &&  gr->ist_natur()  &&  !gr->ist_wasser()  &&  is_allowed_step(gr, gr2, &internal_cost )) {
+					// ok, here we may end
+					// we return the koord3d AFTER we came down!
+					*to = gr;
+					*costs = (i*7)+7+CST_WAY_SLOPE;
+					return true;
+				}
+			}
+			// check for flat landing
+			if(gr->gib_pos().z==from->gib_pos().z) {
+				// ok, height qualify for endpos
+				if(!gr->hat_wege()  &&  gr->ist_natur()  &&  !gr->ist_wasser()  &&  !gr2->hat_wege()  &&  is_allowed_step(gr, gr2, &internal_cost )) {
+					// ok, here we may end
+					if(gr2->gib_grund_hang()  &&  gr2->gib_pos().z==from->gib_pos().z) {
+						// next tile is an upwards slope ...
+						// we will prefer this!
+						continue;
+					}
+					// we return the koord3d AFTER we came down!
+					*to = gr;
+					*costs = (i*7)+7+CST_WAY_SLOPE*2;
+					return true;
+				}
+			}
+		}
+	}
+
+	// downhill hang ...
+	if(ribi_typ(from->gib_grund_hang())==ribi_t::rueckwaerts(ribi_typ(zv))) {
+		// try bridge
+
+		const unsigned max_lenght=bruecke_besch->gib_max_length()==0 ? 50 : bruecke_besch->gib_max_length()-2;
+		for(unsigned i=0;  i<max_lenght;  i++ ) {
+			// not on map or already something there => fail
+			if(!welt->ist_in_kartengrenzen(to_pos+zv*(i+1))  ||  welt->lookup((*to)->gib_pos()+zv*i)) {
+				return false;
+			}
+			gr = welt->lookup(to_pos+zv*i)->gib_kartenboden();
+			gr2 = welt->lookup(to_pos+zv*(i+1))->gib_kartenboden();
+			// some articial tiles here?!?
+			if(gr->gib_pos().z>from->gib_pos().z) {
+				return false;
+			}
+			// check for runways ...
+			if(gr->gib_weg(weg_t::luft)) {
+				return false;
+			}
+			// make sure, the bridge is not too short
+			if(i==0) {
+				continue;
+			}
+			// here is a hang
+			if(gr->gib_pos().z==from->gib_pos().z  &&  gr->gib_grund_hang()!=0) {
+				if(ribi_typ(zv)!=ribi_typ(gr->gib_grund_hang())  ||  !hang_t::ist_einfach(gr->gib_grund_hang())) {
+					// non-manable slope
+					return false;
+				}
+				// ok, qualify for endpos
+				if(!gr->hat_wege()  &&  gr->ist_natur()  &&  !gr->ist_wasser()  &&  is_allowed_step(gr, gr2, &internal_cost )) {
+					// ok, here we may end
+					// we return the koord3d AFTER we came down!
+					*to = gr;
+					*costs = (i*7);
+					return true;
+				}
+			}
+			// we do not check for flat landing here. These bridges are more intended to span valleys or go to islands
+		}
+	}
+
+	// uphill hang ... may be tunnel?
+	if(ribi_typ(from->gib_grund_hang())==ribi_typ(zv)) {
+
+		for(unsigned i=1;  i<50;  i++ ) {
+			// not on map or already something there => fail
+			if(!welt->ist_in_kartengrenzen(to_pos+zv*(i+1))  ||  welt->lookup((*to)->gib_pos()+zv*i)) {
+				return false;
+			}
+			gr = welt->lookup(to_pos+zv*i)->gib_kartenboden();
+			gr2 = welt->lookup(to_pos+zv*(i+1))->gib_kartenboden();
+			// here is a hang
+			if(gr->gib_pos().z==from->gib_pos().z  &&  gr->gib_grund_hang()!=0) {
+				if(ribi_t::rueckwaerts(ribi_typ(zv))!=ribi_typ(gr->gib_grund_hang())  ||  !hang_t::ist_einfach(gr->gib_grund_hang())) {
+					// non, manable slope
+					return false;
+				}
+				// ok, qualify for endpos
+				if(!gr->hat_wege()  &&  gr->ist_natur()  &&  !gr->ist_wasser()  &&  is_allowed_step(gr, gr2, &internal_cost )) {
+					// ok, here we may end
+					// we return the koord3d AFTER we came down!
+					*to = gr;
+					*costs = (i*9)-CST_WAY_SLOPE;
+					return true;
+				}
+			}
+		}
+	}
+
+	return false;
+}
+
+
+
+
 
 
 wegbauer_t::wegbauer_t(karte_t *wl, spieler_t *spl)
@@ -554,24 +752,19 @@ wegbauer_t::wegbauer_t(karte_t *wl, spieler_t *spl)
     sp     = spl;
     welt   = wl;
     bautyp = strasse;   // kann mit route_fuer() gesetzt werden
-    maximum = 500;
+    maximum = 2000;// CA $ PER TILE
 
     keep_existing_ways = false;
     keep_existing_city_roads = false;
     keep_existing_faster_ways = false;
 
-    info = new array2d_tpl<info_t> (welt->gib_groesse_x(), welt->gib_groesse_y());
-
-    INT_CHECK("simbau 142");
-
-    route = new array_tpl<koord> (max_route_laenge);
+    route = new vector_tpl<koord3d> (0);
 }
 
 
 wegbauer_t::~wegbauer_t()
 {
     delete route;
-    delete info;
 }
 
 
@@ -597,14 +790,24 @@ void wegbauer_t::set_keep_existing_faster_ways(bool yesno)
 
 
 void
-wegbauer_t::route_fuer(enum bautyp wt, const weg_besch_t *b)
+wegbauer_t::route_fuer(enum bautyp wt, const weg_besch_t *b, const bruecke_besch_t *br)
 {
   bautyp = wt;
   besch = b;
+  bruecke_besch = br;
+  if(sp==NULL) {
+  	br = NULL;
+  }
+  else if(bruecke_besch==NULL) {
+  	bruecke_besch = brueckenbauer_t::find_bridge((weg_t::typ)b->gib_wtyp(),25,0);
+  }
 
   DBG_MESSAGE("wegbauer_t::route_fuer()",
-         "setting way type to %d, besch=%s",
-         bautyp, besch ? besch->gib_name() : "NULL");
+         "setting way type to %d, besch=%s, bruecke_besch=%s",
+         bautyp,
+         besch ? besch->gib_name() : "NULL",
+         bruecke_besch ? bruecke_besch->gib_name() : "NULL"
+         );
 }
 
 
@@ -615,636 +818,227 @@ wegbauer_t::set_maximum(int mx)
 }
 
 
-koord
-wegbauer_t::forces_lookup(koord k)
-{
-    slist_iterator_tpl<dir_force_t *> iter (dir_forces);
 
-//    printf("forces: lookup bei %d %d \n", k.x, k.y);
 
-
-    while(iter.next()) {
-  dir_force_t *df = iter.get_current();
-
-//  printf("forces: vergleich mit %d %d \n", df->k.x, df->k.y);
-
-  if(df->k == k) {
-      koord fd = df->force_dir;
-//      printf("forces: found dir force %d %d bei %d %d\n", fd.x, fd.y, k.x, k.y);
-
-      return fd;
-  }
-    }
-    return koord(0,0); // alle richtungen erlaubt
-}
-
-void
-wegbauer_t::forces_update(koord k, koord force_dir)
-{
-    dir_force_t *df = NULL;
-
-    slist_iterator_tpl<dir_force_t *> iter (dir_forces);
-
-    while(iter.next()) {
-  df = iter.get_current();
-  if(df->k == k) {
-      break;
-  }
-    }
-
-    // check if found
-    if(df != NULL && df->k != k) {
-  // not found
-  df = NULL;
-    }
-
-    if(df == NULL) {
-  // nicht vorhanden
-  if(force_dir != koord(0, 0)) {
-
-//      printf("forces: new dir force %d %d bei %d %d\n", force_dir->x, force_dir->y, k.x, k.y);
-
-      dir_force_t *ndf = new dir_force_t;
-      ndf->k = k;
-      ndf->force_dir = force_dir;
-      dir_forces.insert( ndf );
-  }
-    } else {
-  // update
-  if(force_dir != koord(0, 0)) {
-      df->force_dir = force_dir;
-//      printf("forces: new dir force %d %d bei %d %d\n", force_dir->x, force_dir->y, k.x, k.y);
-  } else {
-//      printf("forces: deleting dir force bei %d %d\n", k.x, k.y);
-      // remove
-      dir_forces.remove(df);
-      delete(df);
-  }
-    }
-}
-
-
-
-int
-wegbauer_t::calc_cost(koord pos)
-{
-	grund_t *bd = welt->lookup(pos)->gib_kartenboden();
-	int     cost = 10;
-
-	if(bautyp == strasse) {
-		if(bd->gib_weg(weg_t::strasse)) {
-			cost -= 4;
-		}
-		else if(!bd->ist_natur()) {
-			// here is a building
-			cost += 50;
-		}
-	}
-
-	if(bautyp == schiene_bot || bautyp == schiene_bot_bau) {
-		// versuche fuer allgemeine routen eigene wege zu finden
-
-		if(  bd->ist_natur()  ||  (bd->gib_weg(weg_t::strasse)!=NULL  &&  (bd->gib_besitzer()==NULL  ||  bd->gib_besitzer()==sp)) ) {
-			// natur or a our street crossing with a rail (direction will be enforce by check_crossing)
-			// so we do not have to add any cost
-		}
-		else {
-			// obstacle, which is not our street (which we may cross)
-			cost += 20;
-			//DBG_MESSAGE("wegbauer_t::calc_cost","obstatcle at (%i,%i)",pos.x,pos.y);
-		}
-
-	}
-
-	if(bautyp == strasse_bot) {
-		// versuche fuer allgemeine routen eigene wege zu finden
-
-		if(!bd->ist_natur()) {
-			if(bd->gib_weg(weg_t::strasse)) {
-				cost -= 5;
-			}
-			else {
-				cost += 50;
-			}
-		}
-	}
-
-	if(bd->gib_weg_hang() != hang_t::flach) {
-		cost += 10;
-	}
-	return cost;
-}
-
-
-koord
-wegbauer_t::remove()
-{
-    slist_iterator_tpl<info_t *> iter(queue);
-
-    info_t * best = NULL;
-    int maxi = -unseen;
-
-    while(iter.next()) {
-  info_t *inf = iter.get_current();
-
-  if(inf->val > maxi) {
-      maxi = inf->val;
-      best = inf;
-  }
-    }
-
-//    printf("SB: best ist %p bei (%d,%d) mit %d\n", best, best->k.x, best->k.y, best->val);
-
-    koord k = best->k;
-
-    queue.remove( best );
-
-    delete best;
-
-    return k;
-}
-
-bool
-wegbauer_t::update(koord k, int val)
-{
-//    printf("SB: update (%d,%d) %d ", k.x, k.y, val);
-
-    if(val < -600) {
-  return false;
-    }
-
-    slist_iterator_tpl<info_t *> iter(queue);
-
-    while(iter.next()) {
-  info_t *inf = iter.get_current();
-
-  if(inf->k == k) {
-      if(inf->val <= val) {
-//    printf("-> changed from %d to %d\n", inf->val, val);
-    inf->val = val;
-    return true;
-      } else {
-//    printf("-> done\n");
-    return false;
-      }
-  }
-
-    }
-
-    info_t *inf = new info_t();
-    inf->val = val;
-    inf->k = k;
-
-//    printf("-> insert\n");
-    queue.insert( inf );
-
-    return true;
-
-}
-
-bool
-wegbauer_t::check_step(const koord k, const koord t,
-                            const koord start, const koord /*ziel*/,
-                            int cost,
-          koord force_dir)
-{
-	//    printf("check_step %d,%d cost %d (%d)\n", t.x, t.y, cost, info->at(t).val);
-
-	bool found = false;
-	const int val = info->at(k).val;
-	const int priority = val == unseen ? -cost : info->at(k).val-cost;
-
-	if(info->at(t).val == unseen || info->at(t).val < priority) {
-
-		if(update(t, priority)) {
-
-			info->at(t).val = priority;
-			info->at(t).k = k;
-
-			if(t == start) {
-				found = true;
-			}
-
-			forces_update(t, force_dir);
-		}
-	}
-	return found;
-}
-
-koord
-wegbauer_t::calc_tunnel_ziel(const koord pos1, const koord pos2)
-{
-    if(pos1.x < 0 || pos1.y < 0) {
-  return koord::invalid;
-    }
-
-    const koord d = pos2 - pos1;
-
-    if(d.x > 1 || d.x < -1 || d.y > 1 || d.y < -1) {
-  return koord::invalid;
-    }
-
-    grund_t *bd = welt->lookup(pos2)->gib_kartenboden();
-
-    const hang_t::typ hang = bd->gib_weg_hang();
-
-    if(!hang_t::ist_einfach(hang)) {
-  // kann keinen Tunnel bauen;
-  return koord::invalid;
-    }
-    koord zv(hang);
-
-    // printf("calc_tunnel_ziel (%d, %d), (%d, %d) -> (%d, %d)\n", pos1.x, pos1.y, pos2.x, pos2.y, zv.x, zv.y);
-
-    if(pos2+zv == pos1) {
-  // kann keinen Tunnel rueckwaerts bauen;
-  return koord(-2,-2);
-    }
-
-    koord3d ziel = tunnel_finde_ende(welt, welt->access(pos2)->gib_kartenboden()->gib_pos(), zv);
-
-    hang_t::typ hang2 = welt->get_slope(ziel.gib_2d());
-
-    if(!hang_t::ist_gegenueber(hang, hang2)) {
-  return koord::invalid;
-    }
-
-    // printf("calc_tunnel_ziel: ziel (%d, %d)", ziel.gib_2d().x, ziel.gib_2d().y);
-
-    return ziel.gib_2d();
-}
-
-
-koord
-wegbauer_t::calc_bruecke_ziel(const koord pos1, const koord pos2)
-{
-    if(pos1.x < 0 || pos1.y < 0) {
-  return koord::invalid;;
-    }
-
-    const koord d = pos2 - pos1;
-
-    if(d.x > 1 || d.x < -1 || d.y > 1 || d.y < -1) {
-  return koord::invalid;;
-    }
-
-    grund_t *bd = welt->lookup(pos2)->gib_kartenboden();
-
-  if(  bd==NULL  ||   !(bd->gib_besitzer()==NULL  ||  bd->gib_besitzer()==sp)  ) {
-      // can only end on unowned/our land
-      return koord::invalid;
-  }
-  if(  !bd->ist_natur()  ) {
-    // can only end on nature
-    return koord::invalid;
-  }
-
-    const hang_t::typ hang = bd->gib_weg_hang();
-
-    if(!hang_t::ist_einfach(hang)) {
-  // kann keine Bruecke bauen;
-  return koord::invalid;
-    }
-    koord zv (hang);//hang_t::gegenueber(hang));
-
-    zv = -zv;
-
-    // printf("Brueckenprufung start=%d,%d  end=%d,%d  zv=%d,%d\n", pos1.x, pos1.y, pos2.x, pos2.y, zv.x, zv.y);
-
-    if(pos2+zv == pos1) {
-  // kann keine Bruecke rueckwaerts bauen;
-  return koord(-2,-2);
-    }
-    koord3d ziel = bruecke_finde_ende(welt, welt->access(pos2)->gib_kartenboden()->gib_pos(), zv);
-
-    if(!welt->ist_in_kartengrenzen(ziel.x, ziel.y)) {
-        // printf("Brueckenprufung ziel ungltig\n");
-
-  return koord::invalid;
-    }
-
-    hang_t::typ hang2 = welt->get_slope(ziel.gib_2d());
-
-    if(!hang_t::ist_gegenueber(hang, hang2)) {
-        // printf("Brueckenprufung zielhang an %d, %d ungeeignet\n", ziel.gib_2d().x, ziel.gib_2d().y);
-  return koord::invalid;
-    }
-    return ziel.gib_2d();
-}
-
-
-bool
-wegbauer_t::check_tunnelbau(const koord k, const koord t,
-                                 const koord start, const koord ziel)
-{
-    // berechne kosten fr den Schritt
-
-    const koord d = t - k;
-    int dist = (ABS(d.x) + ABS(d.y)+1);
-
-//    printf("Tunneldistanz %d\n", dist);
-
-    if(dist > 1) {
-  int cost;
-
-  if(dist < 5) {
-      cost = 18 * dist;
-  } else if(dist < 7) {
-      cost = 20 * dist;
-  } else if(dist < 11) {
-      cost = 24 * dist;
-  } else {
-      cost = 36 * dist;
-  }
-
-  //    printf("dist %d cost %d\n", dist, cost);
-
-  if(check_step(k, t, start, ziel, cost, koord(sgn(d.x), sgn(d.y)))) {
-      return true;
-  }
-
-    }
-    return false;
-}
-
-bool
-wegbauer_t::check_brueckenbau(const koord k, const koord t,
-                                   const koord start, const koord ziel)
-{
-    // berechne kosten fr den Schritt
-
-    const koord d = t - k;
-    int dist = (ABS(d.x) + ABS(d.y)+1);
-
-    if(dist > 1) {
-  int cost;
-
-  if(dist < 5) {
-      cost = 9 * dist;
-  } else if(dist < 7) {
-      cost = 10 * dist;
-  } else if(dist < 11) {
-      cost = 12 * dist;
-  } else {
-      cost = 18 * dist;
-  }
-  //    printf("dist %d cost %d\n", dist, cost);
-
-  if(check_step(k, t, start, ziel, cost, koord(sgn(d.x), sgn(d.y)))) {
-      return true;
-  }
-
-    }
-    return false;
-}
-
-void
-wegbauer_t::calc_route_init()
-{
-	// alle info's aufraeumen
-	slist_iterator_tpl<info_t *> queue_iter(queue);
-	while(queue_iter.next()) {
-		delete queue_iter.get_current();
-	}
-	queue.clear();
-
-	// alle dir_forces aufraeumen
-	slist_iterator_tpl<dir_force_t *> forces_iter(dir_forces);
-	while(forces_iter.next()) {
-		delete forces_iter.get_current();
-	}
-	dir_forces.clear();
-
-	INT_CHECK("simbau 583");
-
-	for(int x=0; x<welt->gib_groesse_x(); x++) {
-		for(int y=0; y<welt->gib_groesse_y(); y++) {
-			info->at(x,y).val = unseen;
-		}
-	}
-}
-
-
-void
+/* this routine uses A* to calculate the best route
+ * beware: change the cost and you will mess up the system!
+ */
+long
 wegbauer_t::intern_calc_route(const koord start, const koord ziel)
 {
-	koord k = ziel;
+	// we assume fail
+	max_n = -1;
 
-	// try to built extra straight track for these road types
-	bool  straight_track = (bautyp==schiene_bot  ||  bautyp==schiene_bot_bau  ||  bautyp==leitung);
+	// we clear it here probably twice: does not hurt ...
+	route->clear();
 
-	// at the beginning try biggest distance first;
-	// after half time try smallest minimize first
-	int   dist=abs(start.x-ziel.x)+abs(start.y-ziel.y);
-	int   dist_straight_start=1+(dist*3)/4;
-	int   dist_straight_ziel=1+dist/4;
-
-	//DBG_MESSAGE("wegbauer_t::intern_calc_route","From (%i,%i) to (%i,%i) [low %i] [high %i]",ziel.x,ziel.y,start.x,start.y,dist_straight_start,dist_straight_ziel);
-	calc_route_init();
-
-	INT_CHECK("simbau 608");
-
-	// Verhindern, dass wir auf einem Depot enden!
-	if(!ist_grund_fuer_strasse(ziel, koord(0,0), start, ziel)) {
-		return;
+	// check for existing koordinates
+	if(welt->lookup(start)==NULL  ||  welt->lookup(ziel)==NULL) {
+		return -1;
 	}
 
-	// Verhindern, das wir eine Strasse der Laenge 1 auf einem schiefen Hang bauen:
-	if(!hang_t::ist_wegbar(welt->lookup(start)->gib_kartenboden()->gib_grund_hang())) {
-		return;
-	}
-	if(update(k, 0)) {
-		info->at(k).k = koord::invalid;;
-		info->at(k).val = 0;
-	}
+	// some thing for the search
+	const grund_t *gr;
+	grund_t *to;
 
+	const koord3d start3d = welt->lookup(start)->gib_kartenboden()->gib_pos();
+	const koord3d ziel3d = welt->lookup(ziel)->gib_kartenboden()->gib_pos();
 
+	koord3d gr_pos;	// just the last valid pos ...
+
+	// memory in static list ...
+	const int MAX_STEP = 65530;	// may need very much memory => configurable
+	if(route_t::nodes==NULL) {
+		route_t::nodes = new route_t::ANode[MAX_STEP+4+1];
+	}
+	int step = 0;
+
+	INT_CHECK("wegbauer 347");
+
+	// arrays for A*
+	static vector_tpl <route_t::ANode *> open = vector_tpl <route_t::ANode *>(0);
+
+	// nothing in lists
+	open.clear();
+	welt->unmarkiere_alle();
+
+	route_t::ANode *tmp = &(route_t::nodes[step++]);
+	tmp->parent = NULL;
+	tmp->gr = welt->lookup(start3d);
+	tmp->f = route_t::calc_distance(start3d,ziel3d);
+	tmp->g = 0;
+	tmp->dir = 0;
+
+	// assume first tile is valid!
+
+	// start in open
+	open.append(tmp,256);
+
+//DBG_MESSAGE("route_t::itern_calc_route()","calc route from %d,%d,%d to %d,%d,%d",ziel.x, ziel.y, ziel.z, start.x, start.y, start.z);
 	do {
-		k = remove();
+		tmp = open.at( open.get_count()-1 );
+		open.remove_at( open.get_count()-1 );
 
-		koord t;
+		gr = tmp->gr;
+		gr_pos = gr->gib_pos();
+		welt->markiere(gr);
 
-		if(baubaer == true && k != start && k != ziel) {
-			// tunnelbau checken
+//DBG_DEBUG("add to close","(%i,%i,%i) f=%i",gr->gib_pos().x,gr->gib_pos().y,gr->gib_pos().z,tmp->f);
 
-			t = calc_tunnel_ziel(info->at(k).k, k);
+		// already there
+		if(gr_pos==ziel3d  ||  tmp->g>maximum) {
+			// we added a target to the closed list: we are finished
+			break;
+		}
 
-			if(t.x != -1 && t.y != -1 && t != start && t != ziel) {
-				// gꂲs tunnelziel gefunden
+		// testing all four possible directions
+		for(int r=0; r<4; r++) {
 
-				if(t.x == -2 && t.y == -2) {
-					// tunnelziel gefunden
-					// aber tunnel nicht betretbar -> zweite chance
-					//		    info[k.x][k.y].val = unseen;
-					//		    continue;
+			to = NULL;
+			const planquadrat_t *pl=welt->lookup(gr_pos.gib_2d()+koord::nsow[r]);
+			if(pl) {
+				to = pl->gib_kartenboden();
+			}
+
+			// something valid?
+			if(to==NULL  ||   welt->ist_markiert(to)) {
+				continue;
+			}
+
+			long new_cost = 0;
+
+			bool is_ok = is_allowed_step(gr,to,&new_cost);
+
+			// we check here for 180� turns and the end of bridges ...
+			if(tmp->parent) {
+
+				// no 180 deg turns ...
+				if(tmp->parent->gr==to) {
+					continue;
+				}
+
+				// ok, check if previous was tunnel or bridge (i.e. there is a gap)
+				const koord parent_pos=tmp->parent->gr->gib_pos().gib_2d();
+				const koord to_pos=to->gib_pos().gib_2d();
+				// distance>1
+				if(abs(parent_pos.x-gr_pos.x)>1  ||   abs(parent_pos.y-gr_pos.y)>1) {
+					if(ribi_typ(parent_pos,to_pos)!=ribi_typ(gr_pos.gib_2d(),to_pos)) {
+						// not a straight line
+						continue;
+					}
+				}
+
+				// try to build a bridge or tunnel here
+				if(!is_ok  ||  to->gib_grund_hang()!=0) {
+					long bridge_cost;
+					bool bridge_ok = check_for_bridge(tmp->parent->gr,gr,&to,&bridge_cost);
+					if(bridge_ok  &&  to->gib_pos()!=ziel3d) {
+						// we MUST NOT end on the last tile with bridge or tunnel!
+						is_ok = true;
+						new_cost = bridge_cost;
+					}
+				}
+			}
+
+			if(is_ok) {
+
+				// new values for cost g
+				uint32 new_g = tmp->g + new_cost;
+
+				// check for curves (usually, one would need the lastlast and the last;
+				// if not there, then we could just take the last
+				uint8 current_dir;
+				if(tmp->parent!=NULL) {
+					current_dir = ribi_typ( tmp->parent->gr->gib_pos().gib_2d(), to->gib_pos().gib_2d() );
+//					ribi_t::ribi current_dir1 = ribi_typ( tmp->parent->gr->gib_pos().gib_2d(), tmp->gr->gib_pos().gib_2d() );
+//					ribi_t::ribi current_dir2 = ribi_typ( tmp->gr->gib_pos().gib_2d(), to->gib_pos().gib_2d() );
+
+					if(tmp->dir!=current_dir) {
+						new_g += ribi_t::ist_exakt_orthogonal(tmp->parent->dir,current_dir) ? 30 : 15;
+					}
 
 				}
 				else {
-					if(check_tunnelbau(k, t, start, ziel)) {
-						// Ziel gefunden
-						k = t;
-						goto found;
-					}
+					 current_dir = ribi_typ( gr->gib_pos().gib_2d(), to->gib_pos().gib_2d() );
 				}
-			}
 
-			t = calc_bruecke_ziel(info->at(k).k, k);
+				const uint32 new_f = new_g+route_t::calc_distance( to->gib_pos(), ziel3d );
 
-			if(t.x != -1 && t.y != -1 && t != start && t != ziel) {
-				// brueckenziel gefunden
-
-				if(t.x == -2 && t.y == -2) {
-					// brueckenziel gefunden
-					// aber bruecke nicht betretbar -> zweite chance
-					//			info[k.x][k.y].val = unseen;
-					//			continue;
-
-				} else {
-					if(check_brueckenbau(k, t, start, ziel)) {
-						// Ziel gefunden
-						k = t;
-						goto found;
+				// already in open list and better?
+				sint32 index;
+				for(  index=open.get_count()-1;  index>=0  &&   open.get(index)->f<=new_f;  index--  ) {
+					if(open.get(index)->gr==gr) {
+						break;
 					}
 				}
 
-			}
-		} // if(baubaer == true)
+				if(index>=0  &&  open.get(index)->gr==gr) {
+					// it is already contained in the list
+					// and it is lower in f ...
+					continue;
+				}
+				// it may or may not be in the list; but since the arrays are sorted
+				// we find out about this during inserting!
 
-		koord force_dir = forces_lookup(k);
-		koord next_try_dir[4];  // will be updated each step: biggest distance try first ...
+				// Hajo: this is too expensive to be called each step
+				if((step & 7) == 0) {
+					INT_CHECK("wegbauer 161");
+				}
 
-		int current_dist =  abs(start.x-k.x)+abs(start.y-k.y);
+				// not in there or taken out => add new
+				route_t::ANode *k=&(route_t::nodes[step++]);
 
-		if(straight_track) {
-			// we want to arrive straight at the target for the KI to be able to built a station
-			bool  choose_x_first=abs(start.x-k.x)>abs(start.y-k.y);
-			// then try to go straight to the start (after half of the distance)
-			choose_x_first ^= (current_dist<=dist/2);
+				k->parent = tmp;
+				k->gr = to;
+				k->g = new_g;
+				k->f = new_f;
+				k->dir = current_dir;
 
-			//DBG_MESSAGE("wegbauer_t::intern_calc_route","choose_x_first %i",choose_x_first);
-			if(   (start.y==k.y   ||  choose_x_first)  &&  start.x!=k.x    ) {
-				// just decide east/west
-				next_try_dir[start.x>k.x ? 0 : 3] = koord(1,0);
-				next_try_dir[start.x>k.x ? 3 : 0] = koord(-1,0);
-				next_try_dir[start.y>k.y ? 1 : 2] = koord(0,1);
-				next_try_dir[start.y>k.y ? 2 : 1] = koord(0,-1);
-			}
-			else {
-				// just decide north south first
-				next_try_dir[start.y>k.y ? 0 : 3] = koord(0,1);
-				next_try_dir[start.y>k.y ? 3 : 0] = koord(0,-1);
-				next_try_dir[start.x>k.x ? 1 : 2] = koord(1,0);
-				next_try_dir[start.x>k.x ? 2 : 1] = koord(-1,0);
-			}
-			//DBG_MESSAGE("wegbauer_t::intern_calc_route","At (%i,%i) [dist %i] dir (%i,%i) (%i,%i) (%i,%i) (%i,%i)",k.x,k.y,current_dist,next_try_dir[0].x,next_try_dir[0].y,next_try_dir[1].x,next_try_dir[1].y,next_try_dir[2].x,next_try_dir[2].y,next_try_dir[3].x,next_try_dir[3].y);
-		}
-		else {
-//DBG_MESSAGE("wegbauer_t::intern_calc_route","choose_x_first %i",choose_x_first);
-			if(   (start.y==k.y)  &&  start.x!=k.x    ) {
-				// just decide east/west
-				next_try_dir[start.x>=k.x ? 0 : 3] = koord(1,0);
-				next_try_dir[start.x>=k.x ? 3 : 0] = koord(-1,0);
-				next_try_dir[start.y>=k.y ? 1 : 2] = koord(0,1);
-				next_try_dir[start.y>=k.y ? 2 : 1] = koord(0,-1);
-			}
-			else {
-				// just decide north south first
-				next_try_dir[start.y>=k.y ? 0 : 3] = koord(0,1);
-				next_try_dir[start.y>=k.y ? 3 : 0] = koord(0,-1);
-				next_try_dir[start.x>=k.x ? 1 : 2] = koord(1,0);
-				next_try_dir[start.x>=k.x ? 2 : 1] = koord(-1,0);
+				// insert sorted
+				for(  index=0;  index<open.get_count()  &&  new_f<open.get(index)->f;  index++  ) {
+					if(open.get(index)->gr==to) {
+						open.remove_at(index);
+						index --;
+					}
+				}
+				// was best f so far => append
+				if(index>=open.get_count()) {
+					open.append(k,16);
+				}
+				else {
+					open.insert_at(index,k);
+				}
+
+//DBG_DEBUG("insert to open","(%i,%i,%i)  f=%i at %i",to->gib_pos().x,to->gib_pos().y,to->gib_pos().z,k->f, index);
 			}
 		}
+	} while(open.get_count()>0  &&  step<MAX_STEP  &&  gr->gib_pos()!=ziel3d);
 
-		for(int r=0; r<4; r++) {
+	INT_CHECK("wegbauer 194");
 
-			// use straight track algorithm?
-			koord zv;
-			if(straight_track) {
-				zv = next_try_dir[r];
-			}
-			else {
-//				zv = koord::nsow[r];
-				zv = next_try_dir[r];
-			}
-
-			if(force_dir != koord(0,0) && zv != force_dir) {
-				continue;
-			}
-
-			t = k + zv;
-
-			if(welt->ist_in_kartengrenzen(t)) {
-				//      if(t.x > 0 && t.y > 0 &&  t.x < welt->gib_groesse()-1 && t.y < welt->gib_groesse()-1) {
-				// test if we are allowed to go there
-
-				grund_t *bd_von = welt->lookup(k)->gib_kartenboden();
-				grund_t *bd_nach = welt->lookup(t)->gib_kartenboden();
-
-				// spezielle checks, hanglage
-				if(!hang_t::ist_wegbar(bd_nach->gib_grund_hang())) {
-					continue;
-				}
-
-				// spezielle checks, Uferlage
-				if(welt->get_active_player() == sp && bd_nach->gib_hoehe() <= welt->gib_grundwasser()) {
-					continue;
-				}
-
-				if(!kann_mit_strasse_erreichen(bd_von, zv)) {
-					continue;
-				}
-				if(!kann_ribis_setzen(bd_von, zv)) {
-					continue;
-				}
-				if(!kann_ribis_setzen(bd_nach, -zv)) {
-					continue;
-				}
-				if(!ist_bruecke_tunnel_ok(bd_von, zv, bd_nach)) {
-				continue;
-				}
-
-				// allgemeine checks, untergrund
-				if(!ist_grund_fuer_strasse(t, zv, start, ziel)) {
-					continue;
-				}
-
-				// calculate costs
-				int cost = calc_cost(t);
-				// make it cheaper to go straight
-				if(  straight_track  &&  (current_dist>=dist_straight_start  ||  current_dist<=dist_straight_ziel)  ) {
-					cost += ((r+1)&0x06)*8;
-				}
-
-				if(check_step(k, t, start, ziel, cost, koord(0, 0))) {
-					// Ziel gefunden
-					k = t;
-					goto found;
-				}
-			}
-		}
-
-		INT_CHECK("simbau 1042");
-	} while(k != start && !queue.is_empty() && queue.count() < 500);
-
-found:;
-
-	if(k != start) {
-		n = -1;
-		max_n = -1;
+//DBG_DEBUG("reached","%i,%i",tmp->pos.x,tmp->pos.y);
+	// target reached?
+	if(gr->gib_pos()!=ziel3d  || step >= MAX_STEP  ||  tmp->parent==NULL) {
+		dbg->warning("wegbauer_t::intern_calc_route()","Too many steps (%i>=max %i) in route (too long/complex)",step,MAX_STEP);
+		return -1;
 	}
 	else {
+		const long cost = tmp->g;
+		// reached => construct route
+		while(tmp != NULL) {
+			route->append( tmp->gr->gib_pos(), 256 );
+//DBG_DEBUG("add","%i,%i",tmp->pos.x,tmp->pos.y);
+			tmp = tmp->parent;
+		}
 
-		n = 0;
-		do {
-			route->at(n++) = k;
-			k = info->at(k).k;
-		} while(n<maximum && n<max_route_laenge && k != koord::invalid);
+		// maybe here bridges should be optimized ...
+		max_n = route->get_count()-1;
+		return cost;
+  }
 
-		max_n = n-1;
-		n = 0;
-	}
+    return -1;
 }
+
 
 
 void
@@ -1267,23 +1061,19 @@ wegbauer_t::intern_calc_straight_route(const koord start, const koord ziel)
 
 		grund_t *bd_von = welt->lookup(pos)->gib_kartenboden();
 		grund_t *bd_nach = welt->lookup(pos+diff)->gib_kartenboden();
+		long dummy_cost;
 
 		// allowed ground?
 		ok = ok  &&  bd_von  &&  bd_nach
-					&&  bd_von->gib_typ()!=grund_t::fundament
-					&&  kann_mit_strasse_erreichen(bd_von, diff)
-					&&  ist_grund_fuer_strasse(pos, diff, start, ziel)
-					&&  kann_ribis_setzen(bd_von, diff)
-					&&  kann_ribis_setzen(bd_nach, -diff)
-					&&  hang_t::ist_wegbar(bd_von->gib_grund_hang());
+					&&  is_allowed_step(bd_von,bd_nach,&dummy_cost);
 DBG_MESSAGE("wegbauer_t::calc_straight_route()","step %i,%i = %i",diff.x,diff.y,ok);
 		pos += diff;
 	}
+	route->clear();
 	// we can built a straight route?
 	if(ok) {
-		unsigned n = 0;
 		pos = start;
-		route->at(n++) = pos;
+		route->append( welt->lookup(pos)->gib_kartenboden()->gib_pos(), 16 );
 		while(pos!=ziel) {
 			// shortest way
 			koord diff;
@@ -1294,113 +1084,133 @@ DBG_MESSAGE("wegbauer_t::calc_straight_route()","step %i,%i = %i",diff.x,diff.y,
 				diff = (pos.y>ziel.y) ? koord(0,-1) : koord(0,1);
 			}
 			pos += diff;
-			route->at(n++) = pos;
+			route->append( welt->lookup(pos)->gib_kartenboden()->gib_pos(), 16 );
 		}
-		max_n = n-1;
+		max_n = route->get_count()-1;
 DBG_MESSAGE("wegbauer_t::intern_calc_straight_route()","found straight route max_n=%i",max_n);
 	}
 }
 
 
+
+// special for starting/landing runways
+bool
+wegbauer_t::intern_calc_route_runways(koord start, const koord ziel)
+{
+	// assume, we will fail
+	max_n = -1;
+	// check for straight line!
+	const ribi_t::ribi ribi = ribi_typ( start, ziel );
+	if(!ribi_t::ist_gerade(ribi)) {
+		// only straight runways!
+		return false;
+	}
+	// now try begin and endpoint
+	const koord zv(ribi);
+	// end start
+	const grund_t *gr = welt->lookup(start)->gib_kartenboden();
+	const weg_t *weg=gr->gib_weg(weg_t::luft);
+	if(weg  &&  (weg->gib_besch()->gib_topspeed()<250  ||  ribi_t::ist_kurve(weg->gib_ribi()|ribi))) {
+		// cannot connect to taxiway at the start and no curve possible
+		return false;
+	}
+	// check end
+	gr = welt->lookup(ziel)->gib_kartenboden();
+	weg=gr->gib_weg(weg_t::luft);
+	if(weg  &&  (weg->gib_besch()->gib_topspeed()<250  ||  ribi_t::ist_kurve(weg->gib_ribi()|ribi))) {
+		// cannot connect to taxiway at the end and no curve at the end
+		return false;
+	}
+	// now try a straight line with no crossings and no curves at the end
+	const int dist=abs(ziel.x-start.x)+abs(ziel.y-start.y);
+	for(  int i=0;  i<=dist;  i++  ) {
+		if(!welt->ist_in_kartengrenzen(start+zv*i)) {
+			// out of map!?
+			return false;
+		}
+		gr=welt->lookup(start+zv*i)->gib_kartenboden();
+		// no slopes!
+		if(gr->gib_grund_hang()!=0) {
+			return false;
+		}
+		if(gr->hat_wege()  &&  gr->gib_weg(weg_t::luft)==0) {
+			// cannot cross another way
+			return false;
+		}
+	}
+	// now we can built here ...
+	route->clear();
+	route->resize( dist+2 );
+	for(  int i=0;  i<=dist;  i++  ) {
+		route->append( welt->lookup(start+zv*i)->gib_kartenboden()->gib_pos() );
+	}
+	max_n = dist;
+}
+
+
+
+
+/* calc_straight_route (maximum one curve, including diagonals)
+ *
+ */
 void
 wegbauer_t::calc_straight_route(koord start, const koord ziel)
 {
-	intern_calc_straight_route(start,ziel);
-	if(max_n==-1) {
-		intern_calc_straight_route(ziel,start);
+	if(bautyp==luft  &&  besch->gib_topspeed()>=250) {
+		// these are straight anyway ...
+		intern_calc_route_runways(start, ziel);
+	}
+	else {
+		intern_calc_straight_route(start,ziel);
+		if(max_n==-1) {
+			intern_calc_straight_route(ziel,start);
+		}
 	}
 }
+
 
 
 /* calc_route
  *
  */
-
 void
 wegbauer_t::calc_route(koord start, const koord ziel)
 {
 	INT_CHECK("simbau 740");
 
 	if(bautyp==luft  &&  besch->gib_topspeed()>=250) {
-		// assume, we will fail
-		max_n = -1;
-		// make sure no curves for runway
-		if(start.x!=ziel.x  &&  start.y!=ziel.y) {
-			// only straight runways!
+		intern_calc_route_runways(start, ziel);
+	}
+	else {
+		keep_existing_city_roads |= (bautyp==strasse_bot);
+		long cost2 = intern_calc_route(start, ziel);
+		INT_CHECK("wegbauer 1165");
+
+		if(cost2<0) {
+			// not sucessful: try backwards
+			intern_calc_route(ziel,start);
 			return;
 		}
-		// ok, straight line!
-		const sint8 ribi = ribi_typ( start, ziel );
-		const weg_t *w1=welt->lookup(start)->gib_kartenboden()->gib_weg(weg_t::luft);
-		if(w1  &&  w1->gib_max_speed()>=250  &&  (ribi&w1->gib_ribi_unmasked())==0) {
-			// this would generate a curve onthe start tile!
-			return;
+
+		vector_tpl<koord3d> *route2 = route;
+		route = new vector_tpl<koord3d>(0);
+		long cost = intern_calc_route(start, ziel);
+		INT_CHECK("wegbauer 1165");
+
+		// the ceaper will survive ...
+		if(cost2<cost) {
+			delete route;
+			route = route2;
 		}
-		const weg_t *w2=welt->lookup(ziel)->gib_kartenboden()->gib_weg(weg_t::luft);
-		if(w2  &&  w2->gib_max_speed()>=250  &&  (ribi&w2->gib_ribi_unmasked())==0) {
-			// this would generate a curve on the end tile!
-			return;
+		else {
+			delete route2;
 		}
+		max_n = route->get_count()-1;
+
 	}
-
-	keep_existing_city_roads |= (bautyp==strasse_bot);
-    if(baubaer) {
-	intern_calc_route(start, ziel);
-	const int len2 = max_n;
-
-	INT_CHECK("simbau 745");
-	intern_calc_route(ziel, start);
-
-	INT_CHECK("simbau 755");
-
-	const int len1 = max_n;
-	if(len1 == -1 && len2 == -1) {
-	    return;
-	}
-
-	if(len1 == -1 && len2 > 0) {
-	    return;
-	}
-
-	if(len2 == -1 && len1 > 0) {
-	    intern_calc_route(start, ziel);
-	}
-
-	if(len2 <= len1) {
-	    return;
-	} else {
-	    intern_calc_route(start, ziel);
-//	    return;
-	}
-
-    } else {
-  INT_CHECK("simbau 773");
-  intern_calc_route(start, ziel);
-    }
-
-    INT_CHECK("simbau 778");
-
-    // alle info's aufraeumen
-    slist_iterator_tpl<info_t *> queue_iter(queue);
-
-    while(queue_iter.next()) {
-  delete queue_iter.get_current();
-    }
-
-    queue.clear();
-
-
-    // alle dir_forces aufraeumen
-    slist_iterator_tpl<dir_force_t*> forces_iter(dir_forces);
-
-    while(forces_iter.next()) {
-  delete forces_iter.get_current();
-    }
-
-    dir_forces.clear();
-
-    INT_CHECK("simbau 797");
+	INT_CHECK("wegbauer 778");
 }
+
 
 
 ribi_t::ribi
@@ -1410,14 +1220,14 @@ wegbauer_t::calc_ribi(int step)
 
     if(step < max_n) {
   // check distance, only neighbours
-  const koord zv = route->at(step+1) - route->at(step);
+  const koord zv = (route->at(step+1) - route->at(step)).gib_2d();
   if(abs(zv.x) <= 1 && abs(zv.y) <= 1) {
       ribi |= ribi_typ(zv);
   }
     }
     if(step > 0) {
   // check distance, only neighbours
-  const koord zv = route->at(step-1) - route->at(step);
+  const koord zv = (route->at(step-1) - route->at(step)).gib_2d();
   if(abs(zv.x) <= 1 && abs(zv.y) <= 1) {
       ribi |= ribi_typ(zv);
   }
@@ -1425,124 +1235,42 @@ wegbauer_t::calc_ribi(int step)
     return ribi;
 }
 
-bool
-wegbauer_t::pruefe_route()
-{
-    int i;
-    bool ok = true;
-    for(i=0; i<= max_n; i++) {
-  ok &= hang_t::ist_wegbar(welt->get_slope(route->at(i)));
-    }
 
-    if( !ok ) {
-//  printf("Bauigel hat fehlerhafte route erzeugt !\n");
-  max_n = -1;
-    }
-    return ok;
-}
 
 void
 wegbauer_t::baue_tunnel_und_bruecken()
 {
-    // tunnel pruefen
+	// tunnel pruefen
+	for(int i=1; i<max_n; i++) {
+		koord d = (route->at(i+1) - route->at(i)).gib_2d();
 
-    for(int i=0; i<max_n; i++) {
-  koord d = route->at(i+1) - route->at(i);
+		// ok, here is a gap ...
+		if(d.x > 1 || d.y > 1 || d.x < -1 || d.y < -1) {
 
-  if(d.x > 1 || d.y > 1 || d.x < -1 || d.y < -1) {
+			koord zv = koord (sgn(d.x), sgn(d.y));
 
-      koord zv = koord (sgn(d.x), sgn(d.y));
+DBG_MESSAGE("wegbauer_t::baue_tunnel_und_bruecken","built bridge %p between %i,%i,%i and %i,%i,%i",bruecke_besch, route->at(i).x, route->at(i).y, route->at(i).z, route->at(i+1).x, route->at(i+1).y, route->at(i+1).z );
 
-      if(welt->lookup(route->at(i))->gib_kartenboden()->gib_hoehe() < welt->lookup(route->at(i)+zv)->gib_kartenboden()->gib_hoehe()) {
+			const grund_t *start=welt->lookup(route->at(i));
+			const grund_t *end=welt->lookup(route->at(i+1));
 
-    if(bautyp == strasse) {
-        tunnelbauer_t::baue(sp, welt, route->at(i), weg_t::strasse);
-    } else if(bautyp == schiene || bautyp == schiene_bot_bau){
-        tunnelbauer_t::baue(sp, welt, route->at(i), weg_t::schiene);
-          }
-
-      } else {
-
-    if(bautyp == strasse) {
-DBG_MESSAGE("wegbauer_t::baue_tunnel_und_bruecken","built road bridge %p",besch);
-DBG_MESSAGE("wegbauer_t::baue_tunnel_und_bruecken","built road bridge with top speed %i",besch->gib_topspeed());
-        brueckenbauer_t::baue(sp, welt, route->at(i), weg_t::strasse,besch->gib_topspeed());
-    } else if(bautyp == schiene || bautyp == schiene_bot_bau){
-DBG_MESSAGE("wegbauer_t::baue_tunnel_und_bruecken","built rail bridge %p",besch);
-DBG_MESSAGE("wegbauer_t::baue_tunnel_und_bruecken","built rail bridge with top speed %i",besch->gib_topspeed());
-        brueckenbauer_t::baue(sp, welt, route->at(i), weg_t::schiene,besch->gib_topspeed());
-          }
-      }
-  }
-    }
+			if(start->gib_grund_hang()==0  ||  start->gib_grund_hang()==hang_typ(zv*(-1))) {
+				// bridge here
+DBG_MESSAGE("wegbauer_t::baue_tunnel_und_bruecken","built bridge %p",bruecke_besch);
+				brueckenbauer_t::baue_bruecke(welt, sp, route->at(i), route->at(i+1), zv, bruecke_besch);
+			}
+			else {
+				// tunnel
+				tunnelbauer_t::baue(sp, welt, route->at(i).gib_2d(), (weg_t::typ)besch->gib_wtyp()  );
+			}
+		}
+	}
 }
+
+
 
 void wegbauer_t::optimiere_stelle(int index)
 {
-    if(index > 0 && index < max_n-1) {
-	const ribi_t::ribi ribi = calc_ribi(index);
-	koord p = route->at(index);
-	koord p2 = route->at(index+1);
-
-	koord d = p2-p;
-
-	if(ABS(d.x) > 1 || ABS(d.y) > 1) {
-	    // das ist ein brꂲtunnelansatz
-	    return;
-	}
-
-
-	if(p.x > p2.x || p.y > p2.y) {
-	    koord tmp = p2;
-			p2 = p;
-	    p = tmp;
-	}
-
-
-  const hang_t::typ hang1 = welt->get_slope( p );
-  const hang_t::typ hang2 = welt->get_slope( p2 );
-
-  bool ok;
-
-  if(ribi == ribi_t::nordsued) {
-      if(hang1 == hang_t::sued && hang2 == hang_t::nord) {
-    ok = welt->can_raise(p.x, p.y+1);
-    ok &= welt->can_raise(p.x+1, p.y+1);
-    if(ok) {
-        welt->raise(p+koord(0,1));
-        welt->raise(p+koord(1,1));
-    }
-
-      }else if(hang1 == hang_t::nord && hang2 == hang_t::sued) {
-    ok = welt->can_lower(p.x, p.y+1);
-    ok &= welt->can_lower(p.x+1, p.y+1);
-    if(ok) {
-        welt->lower(p+koord(0,1));
-        welt->lower(p+koord(1,1));
-    }
-
-      }
-
-  } else if(ribi == ribi_t::ostwest) {
-      if(hang1 == hang_t::ost && hang2 == hang_t::west) {
-    ok = welt->can_raise(p.x+1, p.y);
-    ok &= welt->can_raise(p.x+1, p.y+1);
-    if(ok) {
-        welt->raise(p+koord(1,0));
-        welt->raise(p+koord(1,1));
-    }
-
-      } else if(hang1 == hang_t::west && hang2 == hang_t::ost) {
-    ok = welt->can_lower(p.x+1, p.y);
-    ok &= welt->can_lower(p.x+1, p.y+1);
-    if(ok) {
-        welt->lower(p+koord(1,0));
-        welt->lower(p+koord(1,1));
-    }
-
-      }
-  }
-    }
 }
 
 
@@ -1567,12 +1295,8 @@ wegbauer_t::baue_strasse()
 	}
 
 	for(int i=0; i<=max_n; i++) {
-		const koord k = route->at(i);
-
-		if(baubaer) {
-			optimiere_stelle(i);
-		}
-		grund_t *gr = welt->lookup(k)->gib_kartenboden();
+		const koord k = route->at(i).gib_2d();
+		grund_t *gr = welt->lookup(route->at(i));
 
 		if(gr->weg_erweitern(weg_t::strasse, calc_ribi(i))) {
 			weg_t * weg = gr->gib_weg(weg_t::strasse);
@@ -1610,7 +1334,7 @@ wegbauer_t::baue_strasse()
 			// prissi: into UNDO-list, so wie can remove it later
 			if(sp!=NULL) {
 				// intercity raods have no owner, so we must check for an owner
-				sp->add_undo(route->at(i));
+				sp->add_undo( position_bei(i));
 			}
 
 			cost = -besch->gib_preis();
@@ -1624,8 +1348,6 @@ wegbauer_t::baue_strasse()
 			INT_CHECK( "wegbauer 1584" );
 		}
 	} // for
-
-	baue_tunnel_und_bruecken();
 }
 
 
@@ -1634,8 +1356,8 @@ wegbauer_t::baue_leitung()
 {
 	int i;
 	for(i=0; i<=max_n; i++) {
-		const koord k = route->at(i);
-		grund_t *gr = welt->lookup(k)->gib_kartenboden();
+		const koord k = position_bei(i);
+		grund_t *gr = welt->lookup(route->at(i));
 
 		leitung_t *lt = dynamic_cast <leitung_t *> (gr->suche_obj(ding_t::leitung));
 		if(lt==0) {
@@ -1652,7 +1374,7 @@ wegbauer_t::baue_leitung()
 				// remove trees etc.
 				gr->obj_loesche_alle(sp);
 			}
-			sp->buche(CST_LEITUNG, gr->gib_pos().gib_2d(), COST_CONSTRUCTION);
+			sp->buche(CST_LEITUNG, k, COST_CONSTRUCTION);
 			gr->obj_add(lt);
 		}
 		lt->calc_neighbourhood();
@@ -1684,7 +1406,7 @@ wegbauer_t::baue_schiene()
 		// built tracks
 		for(i=0; i<=max_n; i++) {
 			int cost = 0;
-			grund_t *gr = welt->lookup(route->at(i))->gib_kartenboden();
+			grund_t *gr = welt->lookup(route->at(i));
 			ribi_t::ribi ribi = calc_ribi(i);
 
 			if(gr->weg_erweitern(weg_t::schiene, ribi)) {
@@ -1709,7 +1431,7 @@ wegbauer_t::baue_schiene()
 				gr->neuen_weg_bauen(sch, ribi, sp);
 
 				// prissi: into UNDO-list, so wie can remove it later
-				sp->add_undo( route->at(i) );
+				sp->add_undo( position_bei(i) );
 
 				bm->neue_schiene(welt, gr);
 				cost = -besch->gib_preis();
@@ -1727,8 +1449,8 @@ wegbauer_t::baue_schiene()
 		}
 
 		// V.Meyer: weg_position_t changed to grund_t::get_neighbour()
-		grund_t *start = welt->lookup(route->at(0))->gib_kartenboden();
-		grund_t *end = welt->lookup(route->at(max_n))->gib_kartenboden();
+		grund_t *start = welt->lookup(route->at(0));
+		grund_t *end = welt->lookup(route->at(max_n));
 		grund_t *to;
 
 		for (i=0; i <= 4; i++) {
@@ -1743,8 +1465,6 @@ wegbauer_t::baue_schiene()
 			}
 		}
 	}
-
-	baue_tunnel_und_bruecken();
 }
 
 
@@ -1765,7 +1485,7 @@ wegbauer_t::baue_monorail()
 
 			int cost = 0;
 			ribi_t::ribi ribi = calc_ribi(i);
-			planquadrat_t *plan = welt->access(route->at(i));
+			planquadrat_t *plan = welt->access(route->at(i).gib_2d());
 			grund_t *monorail = plan->gib_boden_in_hoehe(plan->gib_kartenboden()->gib_pos().z+16);
 
 			// here is already a track => try to connect
@@ -1792,7 +1512,7 @@ wegbauer_t::baue_monorail()
 				monorail->neuen_weg_bauen(sch, ribi, sp);
 
 				// prissi: into UNDO-list, so wie can remove it later
-	//			sp->add_undo( route->at(i) );
+	//			sp->add_undo( position_bei(i) );
 
 				bm->neue_schiene(welt, monorail);
 				cost = -besch->gib_preis();
@@ -1800,7 +1520,7 @@ wegbauer_t::baue_monorail()
 			}
 
 			if(cost) {
-				sp->buche(cost, route->at(i), COST_CONSTRUCTION);
+				sp->buche(cost, route->at(i).gib_2d(), COST_CONSTRUCTION);
 			}
 #if 0
 			// recalc images
@@ -1847,7 +1567,7 @@ wegbauer_t::baue_kanal()
 		// built tracks
 		for(i=0; i<=max_n; i++) {
 			int cost = 0;
-			grund_t *gr = welt->lookup(route->at(i))->gib_kartenboden();
+			grund_t *gr = welt->lookup(route->at(i));
 			ribi_t::ribi ribi = calc_ribi(i);
 
 			// extended ribi calculation for first and last tile
@@ -1855,10 +1575,10 @@ wegbauer_t::baue_kanal()
 				// see slope!
 				if(gr->gib_hoehe()==welt->gib_grundwasser()) {
 					if(i>0) {
-						ribi |= ribi_typ( route->at(max_n-1), route->at(max_n) );
+						ribi |= ribi_typ( position_bei(max_n-1), position_bei(max_n) );
 					}
 					else {
-						ribi |= ribi_typ( route->at(1), route->at(0) );
+						ribi |= ribi_typ( position_bei(1), position_bei(0) );
 					}
 DBG_MESSAGE("wegbauer_t::baue_kanal()","extend ribi_t at (%i,%i) with %i",route->at(i).x,route->at(i).y, ribi );
 				}
@@ -1885,7 +1605,7 @@ DBG_MESSAGE("wegbauer_t::baue_kanal()","extend ribi_t at (%i,%i) with %i",route-
 					gr->neuen_weg_bauen(w, ribi, sp);
 
 					// prissi: into UNDO-list, so wie can remove it later
-					sp->add_undo( route->at(i) );
+					sp->add_undo( position_bei(i) );
 
 					cost = -besch->gib_preis();
 				}
@@ -1904,8 +1624,8 @@ DBG_MESSAGE("wegbauer_t::baue_kanal()","extend ribi_t at (%i,%i) with %i",route-
 	}
 
 	// V.Meyer: weg_position_t changed to grund_t::get_neighbour()
-	grund_t *start = welt->lookup(route->at(0))->gib_kartenboden();
-	grund_t *end = welt->lookup(route->at(max_n))->gib_kartenboden();
+	grund_t *start = welt->lookup(route->at(0));
+	grund_t *end = welt->lookup(route->at(max_n));
 	grund_t *to;
 
 	for (i=0; i <= 4; i++) {
@@ -1939,17 +1659,17 @@ wegbauer_t::baue_runway()
 		// built tracks
 		for(i=0; i<=max_n; i++) {
 			int cost = 0;
-			grund_t *gr = welt->lookup(route->at(i))->gib_kartenboden();
+			grund_t *gr = welt->lookup(route->at(i));
 			ribi_t::ribi ribi = calc_ribi(i);
 			// extended ribi calculation for first and last tile
 			if(i==0  ||  i==max_n) {
 				// see slope!
 				if(gr->gib_hoehe()==welt->gib_grundwasser()) {
 					if(i>0) {
-						ribi |= ribi_typ( route->at(max_n-1), route->at(max_n) );
+						ribi |= ribi_typ( position_bei(max_n-1), position_bei(max_n) );
 					}
 					else {
-						ribi |= ribi_typ( route->at(1), route->at(0) );
+						ribi |= ribi_typ( position_bei(1), position_bei(0) );
 					}
 DBG_MESSAGE("wegbauer_t::baue_runway()","extend ribi_t at (%i,%i) with %i",route->at(i).x,route->at(i).y, ribi );
 				}
@@ -1975,7 +1695,7 @@ DBG_MESSAGE("wegbauer_t::baue_runway()","extend ribi_t at (%i,%i) with %i",route
 					gr->neuen_weg_bauen(w, ribi, sp);
 
 					// prissi: into UNDO-list, so wie can remove it later
-					sp->add_undo( route->at(i) );
+					sp->add_undo( position_bei(i) );
 
 					cost = -besch->gib_preis();
 				}
@@ -1994,8 +1714,8 @@ DBG_MESSAGE("wegbauer_t::baue_runway()","extend ribi_t at (%i,%i) with %i",route
 	}
 
 	// V.Meyer: weg_position_t changed to grund_t::get_neighbour()
-	grund_t *start = welt->lookup(route->at(0))->gib_kartenboden();
-	grund_t *end = welt->lookup(route->at(max_n))->gib_kartenboden();
+	grund_t *start = welt->lookup(route->at(0));
+	grund_t *end = welt->lookup(route->at(max_n));
 	grund_t *to;
 
 	for (i=0; i <= 4; i++) {
@@ -2019,9 +1739,10 @@ wegbauer_t::baue_strecke( slist_tpl <koord> &list )
 {
 	max_n = list.count()-1;
 	for(  int i=0;  i<=max_n;  i++  ) {
-		route->at(i) = list.at(i);
+		route->at(i) = welt->lookup(list.at(i))->gib_kartenboden()->gib_pos();
 	}
 	baue();
+	baue_tunnel_und_bruecken();
 }
 
 
@@ -2029,7 +1750,7 @@ wegbauer_t::baue_strecke( slist_tpl <koord> &list )
 void
 wegbauer_t::baue()
 {
-	if(max_n<0) {
+	if(max_n<0  ||  max_n>maximum) {
 		DBG_MESSAGE("wegbauer_t::baue()","called, but no valid route.");
 		// no valid route here ...
 		return;
@@ -2072,5 +1793,7 @@ wegbauer_t::baue()
 			baue_runway();
 			break;
   }
+ 	INT_CHECK("simbau 1087");
+	baue_tunnel_und_bruecken();
  	INT_CHECK("simbau 1087");
 }

@@ -551,7 +551,18 @@ reliefkarte_t::calc_map(int render_mode)
       }
     }
   }
-  is_map_locked = (render_mode != -1);
+
+	// switch off the update for some kind of modes
+	switch(render_mode) {
+		case MAP_FREIGHT:
+		case MAP_TRAFFIC:
+		case MAP_TRACKS:
+		case MAX_SPEEDLIMIT:
+			is_map_locked = true;
+			break;
+		default:
+			break;
+	}
 }
 
 

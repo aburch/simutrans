@@ -136,6 +136,7 @@ void signal_t::calc_bild()
 void
 signal_t::rdwr(loadsave_t *file)
 {
+	// loading from dingliste
     if(file->is_loading()) {
         ding_t::rdwr(file);
 
@@ -156,6 +157,7 @@ signal_t::rdwr(loadsave_t *file)
 void
 signal_t::rdwr(loadsave_t *file, bool force)
 {
+	// loading from blockmanager!
     assert(force == true);
     ding_t::rdwr(file);
 

@@ -11,6 +11,7 @@
 #include "../simhalt.h"
 #include "../simwin.h"
 #include "../simskin.h"
+#include "../simintr.h"
 
 #include "../gui/ground_info.h"
 #include "../gui/karte.h"
@@ -49,6 +50,8 @@ void boden_t::toggle_grid()
 				gr->calc_bild();
 			}
 		}
+
+		INT_CHECK("simworld 1890");
 	}
 	// recalc old settings (since gr->calc_bild() will recalculate height)
 	reliefkarte_t::gib_karte()->set_mode( reliefkarte_t::gib_karte()->get_mode());
@@ -89,9 +92,14 @@ void boden_t::toggle_season(int season)
 				gr->calc_bild();
 			}
 		}
+
+		INT_CHECK("simworld 1890");
 	}
-	// recalc old settings (since gr->calc_bild() will recalculate height)
+#if 0
+// prissi: will be done by karte_t::neuer_monat()!
+	// recalc old settings (and maybe update the staops with the current values)
 	reliefkarte_t::gib_karte()->set_mode( reliefkarte_t::gib_karte()->get_mode());
+#endif
 }
 
 

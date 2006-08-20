@@ -239,6 +239,9 @@ class umgebung_t
 	/* prissi: crossconnect all factories (like OTTD and similar games) */
 	static bool crossconnect_factories;
 
+	/* prissi: do not distribute goods to overflowing factories */
+	static bool just_in_time;
+
 	/* prissi: drive on the left side of the road */
 	static bool drive_on_left;
 };

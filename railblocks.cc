@@ -140,9 +140,13 @@ void blockstrecke_t::verdrahte_signale_neu()
 
 	if(sch->gib_blockstrecke().operator->() != this) {
 	    // signal neu verdrahten
-
-	    sch->gib_blockstrecke()->add_signal(sig);
-	    kill_list.insert( sig );
+		if(sch->gib_blockstrecke().operator->()==NULL) {
+			dbg->error("blockstrecke_t::verdrahte_signale_neu()","invalid blockstrecke at signal!");
+		}
+		else {
+		    sch->gib_blockstrecke()->add_signal(sig);
+		  }
+		    kill_list.insert( sig );
 	}
     }
 
@@ -161,10 +165,8 @@ void blockstrecke_t::add_signal(signal_t *sig)
     assert(sig != NULL);
 
     if(!signale.contains( sig )) {
-
 	signale.insert(sig);
 	sig->setze_zustand(ist_frei() ? signal_t::gruen : signal_t::rot);
-
     } else {
 	dbg->warning("blockstrecke_t::add_signal()",
 		     "Signal %p already attached to rail block %p.",

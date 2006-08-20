@@ -11,7 +11,7 @@
 #define simbau_h
 
 #include "../boden/wege/weg.h"
-#include "../tpl/array_tpl.h"
+#include "../tpl/vector_tpl.h"
 #include "../tpl/array2d_tpl.h"
 #include "../tpl/slist_tpl.h"
 #include "../simtypes.h"
@@ -19,6 +19,7 @@
 
 class weg_besch_t;
 class kreuzung_besch_t;
+class bruecke_besch_t;
 class karte_t;
 class spieler_t;
 class grund_t;
@@ -96,35 +97,7 @@ private:
     enum { unseen = 9999999 };
     enum { max_route_laenge = 1024 };
 
-
-    class info_t
-    {
-    public:
-  int val;
-  koord k;
-    };
-
-    class dir_force_t
-    {
-    public:
-       koord k;
-       koord force_dir;
-    };
-
-    // an manchen stellen, z.B. Brücken und tunnelenden darf man nur in
-    // einer richtung weitermachen. dir_forces verwaltet diese info
-
-    slist_tpl<dir_force_t *> dir_forces;
-
-    koord forces_lookup(koord k);
-    void  forces_update(koord k, koord force_dir);
-
-    array2d_tpl<info_t> *info;
-
-    slist_tpl<info_t *> queue;
-
     spieler_t *sp;
-
 
     /**
      * Type of building operation
@@ -132,13 +105,17 @@ private:
      */
     enum bautyp bautyp;
 
-
     /**
      * Type of way to build
      * @author Hj. Malthaner
      */
     const weg_besch_t * besch;
 
+    /**
+     * Type of bridges to build (zero=>no bridges)
+     * @author Hj. Malthaner
+     */
+    const bruecke_besch_t * bruecke_besch;
 
     /**
      * If a way is built on top of another way, should the type
@@ -149,37 +126,33 @@ private:
     bool keep_existing_faster_ways;
     bool keep_existing_city_roads;
 
-
     karte_t *welt;
     int maximum;    // hoechste Suchtiefe
 
-    array_tpl<koord> *route;
+    vector_tpl<koord3d> *route;
 
+    inline const koord position_bei(unsigned i) const { return route->get(i).gib_2d(); };
 
-    int calc_cost(koord pos);
+	// allowed owner?
+	bool check_owner( const spieler_t *sp1, const spieler_t *sp2 );
 
+	/* This is the core routine for the way search
+	 * it will check
+	 * A) allowed step
+	 * B) if allowed, calculate the cost for the step from from to to
+	 * @author prissi
+	 */
+	bool is_allowed_step( const grund_t *from, const grund_t *to, long *costs );
 
-    koord remove();
-    bool  update(koord k, int pri);
+	// checks, if we can built a bridge here ...
+	// may modify to!
+	bool check_for_bridge( const grund_t *parent_from, const grund_t *from, grund_t **to, long *costs );
 
-    koord calc_bruecke_ziel(const koord pos1, const koord pos2);
-    bool check_brueckenbau(const koord k, const koord t,
-                           const koord start, const koord ziel);
-
-
-    koord calc_tunnel_ziel(const koord pos1, const koord pos2);
-    bool check_tunnelbau(const koord k, const koord t,
-                         const koord start, const koord ziel);
-
-    bool check_step(const koord k, const koord t,
-                    const koord start, const koord ziel, int cost,
-        koord force_dir);
-
-    void calc_route_init();
-    void intern_calc_route(koord start, const koord ziel);
+    long intern_calc_route(koord start, const koord ziel);
     void intern_calc_straight_route(const koord start, const koord ziel);
 
-    bool pruefe_route();
+	// runways need to meet some special conditions enforced here
+    bool intern_calc_route_runways(koord start, const koord ziel);
 
     ribi_t::ribi calc_ribi(int step);
 
@@ -200,7 +173,7 @@ private:
 public:
 
 
-    koord gib_route_bei(int i) const {return route->at(i);};
+    koord gib_route_bei(int i) const {return route->at(i).gib_2d();};
 
     int n,max_n;
 
@@ -226,7 +199,7 @@ public:
     void set_keep_city_roads(bool yesno) {keep_existing_city_roads=yesno;};
 
 
-    void route_fuer(enum bautyp wt, const weg_besch_t * besch);
+    void route_fuer(enum bautyp wt, const weg_besch_t * besch, const bruecke_besch_t *bruecke_besch=NULL);
 
     void set_maximum(int n);
 
@@ -239,7 +212,6 @@ public:
 
   bool check_crossing(const koord zv, const grund_t *bd,weg_t::typ wtyp) const;
   bool check_for_leitung(const koord zv, const grund_t *bd) const;
-    bool ist_grund_fuer_strasse(koord pos, const koord zv, koord start, koord ziel) const;
 
 /* built a corrdinate list
  * @author prissi

@@ -132,9 +132,11 @@ ifeq ($(OPT),debug)
 CXXFLAGS=  -DDEBUG -Wall -W -Wcast-align -Wcast-qual -Wpointer-arith -march=i586 -g -pipe $(OS_OPT)
 endif
 ifeq ($(OPT),debug_optimize)
-CXXFLAGS=  -DDEBUG -Wall -W -Wcast-align -Wcast-qual -Wpointer-arith -march=i586 -O -fregmove -fschedule-insns2 -fmove-all-movables -freorder-blocks -falign-functions -g -pipe $(OS_OPT)
+CXXFLAGS= -DDEBUG -Wall -W -Wcast-align -Wcast-qual -Wpointer-arith -march=i586 -O -fregmove -fschedule-insns2 -fmove-all-movables -freorder-blocks -falign-functions -g -pipe $(OS_OPT)
 endif
 
+#CXXFLAGS+= -DDOUBLE_GROUNDS
+#CXXFLAGS+= -DOTTD_LIKE
 
 export CFLAGS
 export CXXFLAGS

@@ -408,9 +408,6 @@ fabrikbauer_t::verteile_industrie(karte_t * welt, spieler_t *, int max_number_of
 fabrik_t *
 fabrikbauer_t::baue_fabrik(karte_t * welt, koord3d *parent, const fabrik_besch_t *info, int rotate, koord3d pos, spieler_t *spieler)
 {
-	// no passengers for fish swarms
-	bool make_passenger = strcmp("fish_swarm",info->gib_name())!=0;
-
 	fabrik_t * fab = new fabrik_t(welt, pos, spieler, info);
 	int i;
 
@@ -463,7 +460,6 @@ fabrikbauer_t::baue_fabrik(karte_t * welt, koord3d *parent, const fabrik_besch_t
 		if(halt.is_bound()) {
 
 			welt->lookup(pos)->setze_text( translator::translate(info->gib_name()) );
-			halt->recalc_station_type();
 
 			for(k.x=pos.x; k.x<pos.x+dim.x; k.x++) {
 				for(k.y=pos.y; k.y<pos.y+dim.y; k.y++) {
@@ -479,6 +475,7 @@ fabrikbauer_t::baue_fabrik(karte_t * welt, koord3d *parent, const fabrik_besch_t
 			}
 			// is in water
 			halt->verbinde_fabriken();
+			halt->recalc_station_type();
 		}
 	}
 	else {
@@ -497,8 +494,8 @@ fabrikbauer_t::baue_fabrik(karte_t * welt, koord3d *parent, const fabrik_besch_t
 		}
 	}
 
-	// add passenger targets: take care of fish_swarm, which do not accepts sucide divers ...
-	if(make_passenger) {
+	// add passenger to pax>0, (so no sucide diver at the fish swarm)
+	if(info->gib_pax_level()>0) {
 		const weighted_vector_tpl<stadt_t *> *staedte=welt->gib_staedte();
 		for(  unsigned i=0;  i<staedte->get_count();  i++  ) {
 			staedte->get(i)->add_factory_arbeiterziel(fab);
@@ -605,8 +602,9 @@ DBG_MESSAGE("fabrikbauer_t::baue_hierarchie","lieferanten %i, lcount %i (need %i
 			// connect to an existing one, if this is an producer
 			if(fab->vorrat_an(ware) > -1) {
 
+				// for sources (oil fields, forests ... ) prefer thoses with a smaller distance
 				const int distance = koord_distance(fab->gib_pos(),*pos);
-				const bool ok = distance < DISTANCE || distance < simrand((welt->gib_groesse_x()*3)/4);
+				const bool ok = fab->gib_eingang()->get_count()>0  ||  distance < DISTANCE || distance < simrand((welt->gib_groesse_x()*3)/4);
 
 				if(ok  &&  distance>6) {
 					found = true;

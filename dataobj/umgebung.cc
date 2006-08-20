@@ -81,6 +81,7 @@ int umgebung_t::intercity_road_length = 8000;
  */
 cstring_t * umgebung_t::intercity_road_type = 0;
 
+
 /**
  * Typ (Name) initiale Stadtstrassen
  *
@@ -116,6 +117,9 @@ int umgebung_t::autosave = 3;
 
 /* prissi: crossconnect all factories (like OTTD and similar games) */
 bool umgebung_t::crossconnect_factories=false;
+
+/* prissi: do not distribute goods to overflowing factories */
+bool umgebung_t::just_in_time=true;
 
 /* prissi: drive on the left side of the road */
 bool umgebung_t::drive_on_left=false;

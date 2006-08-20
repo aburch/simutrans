@@ -587,6 +587,7 @@ int simu_cpp_main(int argc, char ** argv)
 #else
       (contents.get_int("crossconnect_factories", 0))!=0;
 #endif
+      umgebung_t::just_in_time = (contents.get_int("just_in_time", 1))!=0;
 
       /*
        * Selection of savegame format through inifile
