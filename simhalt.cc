@@ -253,7 +253,7 @@ void haltestelle_t::destroy_all()
 
 // Konstruktoren
 
-haltestelle_t::haltestelle_t(karte_t *wl, loadsave_t *file) : self(this)
+haltestelle_t::haltestelle_t(karte_t *wl, loadsave_t *file) : self(this), reservation(0)
 {
     alle_haltestellen.insert(self);
 
@@ -264,7 +264,7 @@ haltestelle_t::haltestelle_t(karte_t *wl, loadsave_t *file) : self(this)
     pax_unhappy = 0;
     pax_no_route = 0;
 
-	reroute_counter = self.get_id()&255;
+	reroute_counter = welt->get_schedule_counter();
 
 	enables = NOT_ENABLED;
 
@@ -278,7 +278,7 @@ haltestelle_t::haltestelle_t(karte_t *wl, loadsave_t *file) : self(this)
 }
 
 
-haltestelle_t::haltestelle_t(karte_t *wl, koord pos, spieler_t *sp) : self(this)
+haltestelle_t::haltestelle_t(karte_t *wl, koord pos, spieler_t *sp) : self(this), reservation(0)
 {
     alle_haltestellen.insert(self);
 
@@ -293,7 +293,7 @@ haltestelle_t::haltestelle_t(karte_t *wl, koord pos, spieler_t *sp) : self(this)
 
 	enables = NOT_ENABLED;
 
-	reroute_counter = self.get_id()&255;
+	reroute_counter = welt->get_schedule_counter();
 
     pax_happy = 0;
     pax_unhappy = 0;
@@ -349,11 +349,14 @@ haltestelle_t::setze_name(const char *name)
 void
 haltestelle_t::step()
 {
+//	DBG_MESSAGE("haltestelle_t::step()","%s (cnt %i)",gib_name(),reroute_counter);
 	// hsiegeln: update amount of waiting ware
 	financial_history[0][HALT_WAITING] = sum_all_waiting_goods();
-	if(reroute_counter ++==0) {
+	if(reroute_counter!=welt->get_schedule_counter()) {
 		// every 255 steps
 		reroute_goods();
+		reroute_counter = welt->get_schedule_counter();
+//		DBG_MESSAGE("haltestelle_t::step()","rerouting goods at %s",gib_name());
 	}
 	recalc_status();
 }
@@ -435,7 +438,9 @@ void haltestelle_t::reroute_goods()
 		}
 
 		while( waren_kill_queue.count() ) {
-			wliste->remove( waren_kill_queue.remove_first() );
+			ware_t w = waren_kill_queue.remove_first();
+DBG_MESSAGE("haltestelle_t::reroute_goods()","removing %i %s",w.menge,w.gib_name() );
+			wliste->remove(w);
 		}
 	}
 }
@@ -890,6 +895,7 @@ haltestelle_t::add_grund(grund_t *gr)
 
 		gr->setze_halt(self);
 		grund.append(gr);
+		reservation.append(0,16);
 
 		// appends this to the ground
 		// after that, the surrounding ground will know of this station
@@ -932,10 +938,15 @@ haltestelle_t::rem_grund(grund_t *gb)
     const char *tmp = gib_name();
     if(gb) {
 
-		// was not part of station => do nothing
-		if(!grund.remove(gb)) {
+		int idx=grund.index_of(gb);
+		if(idx==-1) {
+			// was not part of station => do nothing
+			dbg->error("haltestelle_t::rem_grund()","removed illegal ground from halt");
 			return;
 		}
+
+		reservation.remove_at(idx);
+		grund.remove(gb);
 
 		planquadrat_t *pl = welt->access( gb->gib_pos().gib_2d() );
 		if(pl) {
@@ -1408,31 +1419,122 @@ haltestelle_t::hat_gehalten(int /*number_of_cars*/,const ware_besch_t *type, con
  * @author prissi
  */
 bool
-haltestelle_t::find_free_position(const weg_t::typ w,const ding_t::typ d) const
+haltestelle_t::find_free_position(const weg_t::typ w,convoihandle_t cnv,const ding_t::typ d) const
 {
 	// iterate over all tiles
 	slist_iterator_tpl<grund_t *> iter( grund );
+	unsigned i=0;
 	while(iter.next()) {
-		grund_t *gr = iter.get_current();
-		if(gr) {
-			// found a stop for this waytype but without object d ...
-			const weg_t *weg=gr->gib_weg(w);
-			if(weg  &&  weg->ist_frei()  &&  gr->suche_obj(d)==NULL) {
-				return true;
+		if(reservation.get(i)==cnv  ||  !reservation.get(i).is_bound()) {
+			// not reseved
+			grund_t *gr = iter.get_current();
+			if(gr) {
+				// found a stop for this waytype but without object d ...
+				const weg_t *weg=gr->gib_weg(w);
+				if(weg  &&  weg->ist_frei()  &&  gr->suche_obj(d)==NULL) {
+					// not occipied
+					return true;
+				}
+			}
+			else {
+				dbg->error("haltestelle_t::find_free_position()","contains zero ground!");
 			}
 		}
-		else {
-			dbg->error("haltestelle_t::find_free_position()","contains zero ground!");
-		}
+		i++;
 	}
 	return false;
 }
 
 
+
+/* reserves a position (caution: railblocks work differently!
+ * @author prissi
+ */
+bool
+haltestelle_t::reserve_position(grund_t *gr,convoihandle_t cnv)
+{
+	int idx=grund.index_of(gr);
+	if(idx>=0) {
+		if(reservation.get(idx)==cnv) {
+DBG_MESSAGE("haltestelle_t::reserve_position()","gr=%d,%d already reserved by cnv=%d",gr->gib_pos().x,gr->gib_pos().y,cnv.get_id());
+			return true;
+		}
+		// not reseved
+		if(!reservation.get(idx).is_bound()) {
+			grund_t *gr = grund.at(idx);
+			if(gr) {
+				// found a stop for this waytype but without object d ...
+				const weg_t *weg=gr->gib_weg(cnv->gib_vehikel(0)->gib_wegtyp());
+				if(weg  &&  weg->ist_frei()  &&  gr->suche_obj(cnv->gib_vehikel(0)->gib_typ())==NULL) {
+					// not occipied
+DBG_MESSAGE("haltestelle_t::reserve_position()","sucess for gr=%i,%i cnv=%d",gr->gib_pos().x,gr->gib_pos().y,cnv.get_id());
+					reservation.at(idx) = cnv;
+					return true;
+				}
+			}
+		}
+	}
+DBG_MESSAGE("haltestelle_t::reserve_position()","failed for gr=%i,%i, cnv=%d",gr->gib_pos().x,gr->gib_pos().y,cnv.get_id());
+	return false;
+}
+
+
+
+/* frees a reserved  position (caution: railblocks work differently!
+ * @author prissi
+ */
+bool
+haltestelle_t::unreserve_position(grund_t *gr, convoihandle_t cnv)
+{
+	int idx=grund.index_of(gr);
+	if(idx>=0) {
+		if(reservation.get(idx)==cnv) {
+			reservation.at(idx) = convoihandle_t();
+			return true;
+		}
+	}
+DBG_MESSAGE("haltestelle_t::unreserve_position()","failed for gr=%p",gr);
+	return false;
+}
+
+
+
+/* can a convoi reserve this position?
+ * @author prissi
+ */
+bool
+haltestelle_t::is_reservable(grund_t *gr,convoihandle_t cnv)
+{
+	int idx=grund.index_of(gr);
+	if(idx>=0) {
+		if(reservation.get(idx)==cnv) {
+DBG_MESSAGE("haltestelle_t::is_reservable()","gr=%d,%d already reserved by cnv=%d",gr->gib_pos().x,gr->gib_pos().y,cnv.get_id());
+			return true;
+		}
+		// not reseved
+		if(!reservation.get(idx).is_bound()) {
+			grund_t *gr = grund.at(idx);
+			if(gr) {
+				// found a stop for this waytype but without object d ...
+				const weg_t *weg=gr->gib_weg(cnv->gib_vehikel(0)->gib_wegtyp());
+				if(weg  &&  weg->ist_frei()  &&  gr->suche_obj(cnv->gib_vehikel(0)->gib_typ())==NULL) {
+					// not occipied
+DBG_MESSAGE("haltestelle_t::is_reservable()","sucess for gr=%i,%i cnv=%d",gr->gib_pos().x,gr->gib_pos().y,cnv.get_id());
+					return true;
+				}
+			}
+		}
+	}
+DBG_MESSAGE("haltestelle_t::reserve_position()","failed for gr=%i,%i, cnv=%d",gr->gib_pos().x,gr->gib_pos().y,cnv.get_id());
+	return false;
+}
+
+
+
 #ifdef USE_QUOTE
 // rating of this place ...
 const char *
-haltestelle_t::quote_bezeichnung(int quote) const
+haltestelle_t::quote_bezeichnung(int quote, convoihandle_t cnv) const
 {
     const char *str = "unbekannt";
 
@@ -1641,7 +1743,7 @@ haltestelle_t::recalc_station_type()
 		}
 		// check for trainstation
 		else if(besch->gib_utyp()==hausbauer_t::bahnhof) {
-			if(gr->gib_weg(weg_t::schiene_monorail)) {
+			if(gr->gib_weg(weg_t::monorail)) {
 				new_station_type |= monorailstop;
 			}
 			else {

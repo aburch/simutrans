@@ -48,7 +48,7 @@ stringhashtable_tpl<const roadsign_besch_t *> table;
 roadsign_t::roadsign_t(karte_t *welt, loadsave_t *file) : ding_t (welt)
 {
 	rdwr(file);
-	step_frequency = besch->gib_bild_anzahl()>4 ? 7 : 0;
+	step_frequency = besch->gib_bild_anzahl()>4 ? 1 : 0;
 	last_switch = 0;
 	set_dir(dir);
 	calc_bild();

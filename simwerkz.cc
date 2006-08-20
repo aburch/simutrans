@@ -622,7 +622,7 @@ DBG_MESSAGE("wkz_remover()", "removing way");
 		// remove only railway track
 		return true;
 	}
-	cost_sum += gr->weg_entfernen(weg_t::schiene_monorail, true);
+	cost_sum += gr->weg_entfernen(weg_t::monorail, true);
 	if(cost_sum>0  &&  gr->gib_weg(weg_t::strasse)) {
 		// remove only railway track
 		return true;
@@ -717,7 +717,7 @@ wkz_wegebau(spieler_t *sp, karte_t *welt,  koord pos, value_t lParam)
 		}
 		default_track = besch;
 	}
-	else if(besch->gib_wtyp() == weg_t::schiene_monorail) {
+	else if(besch->gib_wtyp() == weg_t::monorail) {
 		bautyp = besch->gib_styp()==1 ? wegbauer_t::schiene_elevated_monorail : wegbauer_t::schiene_monorail;
 	} else if(besch->gib_wtyp() == weg_t::powerline) {
 		bautyp = wegbauer_t::leitung;
@@ -1142,7 +1142,7 @@ int wkz_signale(spieler_t *sp, karte_t *welt, koord pos,value_t lParam)
 	     			gr = NULL;
 	     			continue;
 	     		}
-			if((gr->gib_weg(weg_t::schiene)!=NULL  ||  gr->gib_weg(weg_t::schiene_monorail)!=NULL)  &&  (gr->gib_besitzer()==sp  ||  gr->gib_besitzer()==NULL)) {
+			if((gr->gib_weg(weg_t::schiene)!=NULL  ||  gr->gib_weg(weg_t::monorail)!=NULL)  &&  (gr->gib_besitzer()==sp  ||  gr->gib_besitzer()==NULL)) {
 				// found ground
 				break;
 			}
@@ -1260,7 +1260,7 @@ wkz_depot_aux(spieler_t *sp, karte_t *welt, koord pos,const haus_besch_t *besch,
 		int ribi = 0;
 
 DBG_MESSAGE("wkz_depot_aux()","for depot %s with waytype %d",besch->gib_name(),wegtype);
-		if(wegtype==weg_t::schiene_monorail) {
+		if(wegtype==weg_t::monorail) {
 			weg_t *w=bd->gib_weg(wegtype);
 			if(w==NULL) {
 				// since we built on ground level2 ...
@@ -1336,7 +1336,7 @@ int wkz_depot(spieler_t *sp, karte_t *welt, koord pos,value_t w)
 	}
 	else if(hausbauer_t::monorail_depot_besch==besch) {
 		// since it need also a foundations, ots slightly more complex ...
-		if( wkz_depot_aux( sp, welt, pos, besch, weg_t::schiene_monorail, umgebung_t::cst_depot_rail ) ) {
+		if( wkz_depot_aux( sp, welt, pos, besch, weg_t::monorail, umgebung_t::cst_depot_rail ) ) {
 			grund_t *bd = welt->lookup(pos)->gib_kartenboden();
 			if(bd->gib_depot()==NULL  &&  bd->obj_bei(0)==NULL) {
 				hausbauer_t::baue( welt, sp, bd->gib_pos(), 0, hausbauer_t::monorail_foundation_besch, true );
@@ -1397,7 +1397,7 @@ DBG_MESSAGE("wkz_halt_aux()", "test_gr(%d)=%p",i,test_gr);
 			weg = test_gr->gib_weg(wegtype);
 			if(weg==NULL) {
 				if(weg_t::schiene==wegtype) {
-					weg = test_gr->gib_weg(weg_t::schiene_monorail);
+					weg = test_gr->gib_weg(weg_t::monorail);
 				}
 				if(weg==NULL) {
 					continue;
@@ -1537,7 +1537,7 @@ wkz_halt(spieler_t *sp, karte_t *welt, koord pos, value_t value)
 		return wkz_halt_aux( sp, welt, pos, besch, weg_t::schiene, umgebung_t::cst_multiply_station, "BF" );
 	}
 	else if(besch->gib_utyp()==hausbauer_t::monorailstop) {
-		return wkz_halt_aux( sp, welt, pos, besch, weg_t::schiene_monorail, umgebung_t::cst_multiply_station, "BF" );
+		return wkz_halt_aux( sp, welt, pos, besch, weg_t::monorail, umgebung_t::cst_multiply_station, "BF" );
 	}
 	else if(besch->gib_utyp()==hausbauer_t::bushalt  ||  besch->gib_utyp()==hausbauer_t::ladebucht) {
 		return wkz_halt_aux( sp, welt, pos, besch, weg_t::strasse, umgebung_t::cst_multiply_roadstop, "H" );
@@ -1686,7 +1686,7 @@ int wkz_electrify_block(spieler_t *sp, karte_t *welt, koord pos)
 	     			continue;
 	     		}
 			// has some rail or monorail?
-			if(!bd->hat_wege()  ||  (bd->gib_weg(weg_t::schiene)==NULL   &&  bd->gib_weg(weg_t::schiene_monorail)==NULL) ) {
+			if(!bd->hat_wege()  ||  (bd->gib_weg(weg_t::schiene)==NULL   &&  bd->gib_weg(weg_t::monorail)==NULL) ) {
 	     			bd = 0;
 	     			continue;
 	     		}

@@ -46,7 +46,7 @@ public:
     virtual ~monorail_t() {}
 
     virtual const char *gib_typ_name() const {return "Monorail";}
-    virtual typ gib_typ() const {return schiene_monorail;}
+    virtual typ gib_typ() const {return monorail;}
 
     /**
      * @return Infotext zur Schiene

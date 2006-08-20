@@ -375,14 +375,14 @@ void grund_t::rdwr(loadsave_t *file)
 //		  DBG_DEBUG("grund_t::rdwr()", "road");
 		  wege[i] = new strasse_t (welt, file);
 		  break;
-		case weg_t::schiene_monorail:
+		case weg_t::monorail:
 		  wege[i] = new monorail_t (welt, file);
 //		  DBG_DEBUG("grund_t::rdwr()", "monorail");
 		  break;
 		case weg_t::schiene:
 		{
 		  schiene_t *sch = new schiene_t (welt, file);
-		  if(sch->gib_besch()->gib_wtyp()==weg_t::schiene_monorail) {
+		  if(sch->gib_besch()->gib_wtyp()==weg_t::monorail) {
 		  	dbg->warning("grund_t::rdwr()", "converting railroad to monorail at (%i,%i)",gib_pos().x, gib_pos().y);
 		  	// compatibility code: Convert to monorail
 		  	monorail_t *w= new monorail_t(welt);

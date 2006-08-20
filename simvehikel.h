@@ -135,8 +135,6 @@ private:
      */
     sint8 dx, dy;
 
-    bool rauchen;
-
     /**
      * Offsets fuer Bergauf/Bergab
      * @author Hj. Malthaner
@@ -171,6 +169,9 @@ protected:
 
     ribi_t::ribi alte_fahrtrichtung;
     ribi_t::ribi fahrtrichtung;
+
+	// for target reservation and search
+	halthandle_t target_halt;
 
      /* The friction is calculated new every step, so we save it too
      * @author prissi
@@ -212,8 +213,9 @@ protected:
 
     convoi_t *cnv;		// != NULL falls das vehikel zu einem Convoi gehoert
 
-    bool ist_erstes;            // falls vehikel im convoi fährt, geben diese
-    bool ist_letztes;           // flags auskunft über die psosition
+    bool ist_erstes:1;            // falls vehikel im convoi fährt, geben diese
+    bool ist_letztes:1;           // flags auskunft über die psosition
+    bool rauchen:1;
 
 
     virtual int  gib_dx() const {return dx;};
@@ -433,12 +435,12 @@ public:
     void setze_erstes(bool janein) {ist_erstes = janein;};
     void setze_letztes(bool janein) {ist_letztes = janein;};
 
-    void setze_convoi(convoi_t *c);
+    virtual void setze_convoi(convoi_t *c);
     convoihandle_t get_convoi() const { return cnv->self; }
 
     /**
      * Remove freight that no longer can reach it's destination
-     * i.e. becuase of a changed schedule
+     * i.e. because of a changed schedule
      * @author Hj. Malthaner
      */
     void remove_stale_freight();
@@ -479,20 +481,24 @@ class automobil_t : public vehikel_t
 protected:
     bool ist_befahrbar(const grund_t *bd) const;
 
-    virtual weg_t::typ gib_wegtyp() const { return weg_t::strasse; };
-
     virtual void betrete_feld();
 
     void calc_bild();
 
 public:
+    virtual weg_t::typ gib_wegtyp() const { return weg_t::strasse; };
+
     automobil_t(karte_t *welt, loadsave_t *file);
     automobil_t(karte_t *welt, koord3d pos, const vehikel_besch_t *besch, spieler_t *sp, convoi_t *cnv); // start und fahrplan
+
+    virtual void setze_convoi(convoi_t *c);
 
 	// how expensive to go here (for way search)
 	virtual int gib_kosten(const grund_t *,const uint32 ) const;
 
-    virtual bool ist_weg_frei(int &restart_speed);
+	virtual bool calc_route(karte_t * welt, koord3d start, koord3d ziel, uint32 max_speed, route_t * route);
+
+	virtual bool ist_weg_frei(int &restart_speed);
 
     /**
      * Ermittelt die für das Fahrzeug geltenden Richtungsbits,
@@ -503,7 +509,6 @@ public:
     virtual ribi_t::ribi gib_ribi(const grund_t* ) const;
 
 	// returns true for the way search to an unknown target.
-	halthandle_t target_halt;
 	virtual bool ist_ziel(const grund_t *) const;
 
     ding_t::typ gib_typ() const {return automobil;};
@@ -533,11 +538,11 @@ protected:
 
     void betrete_feld();
 
-    virtual weg_t::typ gib_wegtyp() const { return weg_t::schiene; };
-
     void calc_bild();
 
 public:
+    virtual weg_t::typ gib_wegtyp() const { return weg_t::schiene; };
+
 	// since we might need to unreserve previously used blocks, we must do this before calculation a new route
 	bool calc_route(karte_t * welt, koord3d start, koord3d ziel, uint32 max_speed, route_t * route);
 
@@ -545,7 +550,6 @@ public:
 	virtual int gib_kosten(const grund_t *,const uint32 ) const;
 
 	// returns true for the way search to an unknown target.
-	halthandle_t target_halt;
 	virtual bool ist_ziel(const grund_t *) const;
 
 	// handles all block stuff and route choosing ...
@@ -572,6 +576,8 @@ public:
     waggon_t(karte_t *welt, koord3d pos, const vehikel_besch_t *besch, spieler_t *sp, convoi_t *cnv); // start und fahrplan
     ~waggon_t();
 
+    virtual void setze_convoi(convoi_t *c);
+
     virtual fahrplan_t * erzeuge_neuen_fahrplan() const;
 
     void rdwr(loadsave_t *file);
@@ -591,9 +597,10 @@ private:
 
 protected:
     bool ist_befahrbar(const grund_t *bd) const;
-    virtual weg_t::typ gib_wegtyp() const { return weg_t::schiene_monorail; }
 
 public:
+    virtual weg_t::typ gib_wegtyp() const { return weg_t::monorail; }
+
 	// all handled by waggon_t
 	monorail_waggon_t(karte_t *welt, loadsave_t *file) : waggon_t(welt, file) {}
 	monorail_waggon_t(karte_t *welt, koord3d pos, const vehikel_besch_t *besch, spieler_t *sp, convoi_t *cnv) : waggon_t(welt, pos, besch, sp, cnv ) {}
@@ -631,11 +638,10 @@ protected:
 
     bool ist_befahrbar(const grund_t *bd) const;
 
-    virtual weg_t::typ gib_wegtyp() const { return weg_t::wasser; };
-
     void calc_bild();
 
 public:
+    virtual weg_t::typ gib_wegtyp() const { return weg_t::wasser; };
 
     virtual bool ist_weg_frei(int &restart_speed);
 
@@ -677,13 +683,11 @@ private:
 #ifdef USE_DIFFERENT_WIND
 	static uint8 get_approach_ribi( koord3d start, koord3d ziel );
 #endif
-	halthandle_t target_halt;
-
 	// only used for route search and approach vectors of gib_ribi() (do not need saving)
 	koord3d search_start;
 	koord3d search_end;
 
-  	enum flight_state { taxiing=0, departing=1, flying=2, landing=3, looking_for_parking=4  };
+  	enum flight_state { taxiing=0, departing=1, flying=2, landing=3, looking_for_parking=4, flying2=5  };
 
   	enum flight_state state;	// functions needed for the search without destination from find_route
 
@@ -698,11 +702,14 @@ protected:
 
     void betrete_feld();
 
-    virtual weg_t::typ gib_wegtyp() const { return weg_t::luft; };
-
     void calc_bild();
 
+	// find a route and reserve the stop position
+	bool find_route_to_stop_position();
+
 public:
+    virtual weg_t::typ gib_wegtyp() const { return weg_t::luft; };
+
 	// and this returns true, if a suitable destination is tested by find_route
 	virtual bool ist_ziel(const grund_t *gr) const;
 
@@ -712,10 +719,9 @@ public:
 	// how expensive to go here (for way search)
 	virtual int gib_kosten(const grund_t *,const uint32 ) const;
 
-    virtual bool ist_weg_frei(int &restart_speed);
+	virtual bool ist_weg_frei(int &restart_speed);
 
-	// prissi: neede???d important for route finding
-	void reset_state() { state = taxiing; };
+    virtual void setze_convoi(convoi_t *c);
 
 	bool calc_route(karte_t * welt, koord3d start, koord3d ziel, uint32 max_speed, route_t * route);
 

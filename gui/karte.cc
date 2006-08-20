@@ -142,7 +142,7 @@ reliefkarte_t::calc_relief_farbe(const karte_t *welt, const koord k)
 					case weg_t::strasse: color = STRASSE_KENN; break;
 					case weg_t::schiene_strab:
 					case weg_t::schiene: color = SCHIENE_KENN; break;
-					case weg_t::schiene_monorail: color = MONORAIL_KENN; break;
+					case weg_t::monorail: color = MONORAIL_KENN; break;
 					case weg_t::wasser: color = CHANNEL_KENN; break;
 					case weg_t::luft: color = RUNWAY_KENN; break;
 				}

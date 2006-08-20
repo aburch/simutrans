@@ -8,6 +8,17 @@ Known bugs: (hard to fix)
 	set color broken?
 
 
+10-Mar-2006: (prissi)
+	FIX: after passing a choose signal a single time, all presignals will stop the trains, if not the complete route is free
+	FIX: faster rescheduling of goods now works on demand (after changing a schedule)
+	FIX: error with choose signal fixed, if target tile was not a station
+	FIX: changing ladegrad in schedule first selected invisible item on top of a scrolled list
+	FIX: ladegrad was ignored, if absolutely nothing was there to load or unload
+	CHANGE: choose signal will reserve the full way until the target location
+	FIX: traffic light switched to seldom after reloading
+	FIX: zoom out error with 128 pak and electricfication
+
+
 Release of 88.06.1
 
 05-Mar-2006: (prissi)
@@ -24,6 +35,7 @@ Release of 88.06.1
 	FIX: when vehicle braking was larger than acceleration in curves => acceleration to insane speeds
 	FIX: removing halt with no ground during load
 	FIX: only removing really empty bridges without stops
+	FIX: several translator text adjusted with program texts
 
 04-Mar-2006: (prissi)
 	FIX: choose trains go to the end of a plattform again

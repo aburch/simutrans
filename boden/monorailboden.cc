@@ -64,7 +64,7 @@ monorailboden_t::zeige_info()
 	}
 	else {
 		if(hat_wege()) {	// if this is true, then all land info is shown
-DBG_MESSAGE("monorailboden_t::zeige_info()","with ribis %x",grund_t::gib_weg_ribi_unmasked(weg_t::schiene_monorail));
+DBG_MESSAGE("monorailboden_t::zeige_info()","with ribis %x",grund_t::gib_weg_ribi_unmasked(weg_t::monorail));
 			// there is some info!
 			if(!grund_infos->get(this)) {
 				grund_infos->put(this, new grund_info_t(welt, this));

@@ -307,7 +307,7 @@ public:
     monoraildepot_t(karte_t *welt, loadsave_t *file):bahndepot_t(welt,file) {}
     monoraildepot_t(karte_t *welt, koord3d pos,spieler_t *sp, const haus_tile_besch_t *t): bahndepot_t(welt,pos,sp,t) {}
 
-   virtual  const weg_t::typ get_wegtyp() const {return weg_t::schiene_monorail;}
+   virtual  const weg_t::typ get_wegtyp() const {return weg_t::monorail;}
     virtual enum ding_t::typ gib_typ() const {return monoraildepot;};
     virtual const char *gib_name() const {return "Monoraildepot"; }
 };

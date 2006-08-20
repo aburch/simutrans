@@ -20,7 +20,7 @@ uint8 get_waytype(const char * waytype)
 	} else if(!STRICMP(waytype, "electrified_track")) {
 		uv8 = weg_t::overheadlines;
 	} else if(!STRICMP(waytype, "monorail_track")) {
-		uv8 = weg_t::schiene_monorail;
+		uv8 = weg_t::monorail;
 	} else if(!STRICMP(waytype, "maglev_track")) {
 		uv8 = weg_t::schiene_maglev;
 	} else if(!STRICMP(waytype, "water")) {

@@ -255,8 +255,16 @@ private:
      * @author Hj. Malthaner
      */
     spieler_t *spieler[MAX_PLAYER_COUNT];                   // Mensch ist spieler Nr. 0
-    uint8 active_player_nr;
     spieler_t	*active_player;
+    uint8 active_player_nr;
+
+	/*
+	 * counter for schedules
+	 * if a new schedule is active, this counter will increment
+	 * stations check this counter and will reroute their goods if changed
+	 * @author prissi
+	 */
+	uint8 schedule_counter;
 
 
     /**
@@ -383,6 +391,11 @@ public:
     spieler_t *get_active_player() {return active_player; };
     void switch_active_player();
 
+
+	// if a schedule is changed, it will increment the schedule counter
+	// every step the haltstelle will check and reroute the goods if needed
+	uint8 get_schedule_counter() const { return schedule_counter; }
+	void set_schedule_counter() { schedule_counter++; }
 
     /**
      * 0=winter, 1=spring, 2=summer, 3=autumn

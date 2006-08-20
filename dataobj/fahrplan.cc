@@ -380,7 +380,7 @@ airfahrplan_t::zeige_fehlermeldung(karte_t *welt) const
 bool
 monorailfahrplan_t::ist_halt_erlaubt(const grund_t *gr) const
 {
-	return gr->gib_weg(weg_t::schiene_monorail)!=NULL;
+	return gr->gib_weg(weg_t::monorail)!=NULL;
 }
 
 void

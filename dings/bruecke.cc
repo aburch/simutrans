@@ -111,7 +111,7 @@ void bruecke_t::rdwr(loadsave_t *file)
 		besch = brueckenbauer_t::gib_besch(s);
 		if(besch==NULL) {
 			if(strstr(s,"onorail") ) {
-				besch = brueckenbauer_t::find_bridge(weg_t::schiene_monorail,50,0);
+				besch = brueckenbauer_t::find_bridge(weg_t::monorail,50,0);
 			}
 			else if(strstr(s,"ail") ) {
 				besch = brueckenbauer_t::find_bridge(weg_t::schiene,50,0);

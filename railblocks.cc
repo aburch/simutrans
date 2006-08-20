@@ -393,34 +393,29 @@ blockstrecke_t::rdwr(loadsave_t *file)
 	// counters
 	if(file->get_version()<=88005) {
 		// old style
-		uint32 dummy=v_rein;
+		long dummy = 0;
 		file->rdwr_long(dummy, " ");
-		v_rein = dummy;
-		dummy = v_raus;
 		file->rdwr_long(dummy, "\n");
-		v_raus = dummy;
-		v_rein -= v_raus;
-		v_raus = 0;
-		if(file->is_loading()) {
-			v_raus = (uint16)-1;	// new convoihandle => unbound
-		}
+		v_rein = 0;
+		v_raus = -1;	// unbound!
 	}
-	else {
+	else  {
 		// new style => 16 Bit counter and a reservation handle
 		// not yet reserved (should be different!)
 		if(file->is_loading()) {
 			v_rein = 0;	// will be set by the new vehicles anyway ...
 			// since convois are not loaded, read the current number of the convoi
 			file->rdwr_short(v_raus, "\n");
-DBG_MESSAGE("blockstrecke_t::rdwr()","lade: v_rein=%d, reservation=%d",v_rein,v_raus);
+			cnv_reserved = convoihandle_t();
 		}
 		else {
 			uint16 id=(uint16)welt->gib_convoi_list().index_of(cnv_reserved);
 			file->rdwr_short(id, "\n");
-DBG_MESSAGE("blockstrecke_t::rdwr()","save: v_rein=%d, reservation=%d",v_rein,id);
-if(cnv_reserved.is_bound()) DBG_MESSAGE("blockstrecke_t::laden_abschliessen()","was reserved by %s",cnv_reserved->gib_name() );
 		}
 	}
+
+	// the v_rein and v_raus are better not saved
+	// the counter will be regenerated automatically during reloading!
 }
 
 
@@ -429,12 +424,6 @@ if(cnv_reserved.is_bound()) DBG_MESSAGE("blockstrecke_t::laden_abschliessen()","
 // however it will temporary contain the number of the last convoi that reseverd that block
 void blockstrecke_t::laden_abschliessen()
 {
-	// reset invalid block counters ...
-	if(v_rein>32) {
-		dbg->warning("blockstrecke_t::rdwr()","suspicious counter values (rein=%i)!", v_rein);
-		v_rein = 0;
-	}
-
 	// reassign reservations
 	if(v_raus==(uint16)-1) {
 		cnv_reserved = convoihandle_t();

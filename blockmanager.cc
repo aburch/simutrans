@@ -38,7 +38,7 @@ blockmanager::finde_nachbarn(const karte_t *welt, const koord3d pos,
 
 	// V.Meyer: weg_position_t changed to grund_t::get_neighbour()
 	grund_t *from = welt->lookup(pos);
-	const weg_t::typ way_type=from->gib_weg(weg_t::schiene) ? weg_t::schiene : weg_t::schiene_monorail;
+	const weg_t::typ way_type=from->gib_weg(weg_t::schiene) ? weg_t::schiene : weg_t::monorail;
 	grund_t *to;
 
 	index = 0;
@@ -46,7 +46,7 @@ blockmanager::finde_nachbarn(const karte_t *welt, const koord3d pos,
 		if(
 			(ribi & ribi_t::nsow[r])  &&
 			from->get_neighbour(to, way_type, koord::nsow[r])
-//			((to->gib_weg_ribi_unmasked(weg_t::schiene)|to->gib_weg_ribi_unmasked(weg_t::schiene_monorail)) & ribi_t::rueckwaerts(ribi_t::nsow[r]))
+//			((to->gib_weg_ribi_unmasked(weg_t::schiene)|to->gib_weg_ribi_unmasked(weg_t::monorail)) & ribi_t::rueckwaerts(ribi_t::nsow[r]))
 		) {
 			nb.at(index++) = to->gib_pos();
 		}

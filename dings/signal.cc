@@ -48,7 +48,7 @@ signal_t::~signal_t()
 {
 	weg_t *weg = welt->lookup(gib_pos())->gib_weg(weg_t::schiene);
 	if(!weg) {
-		weg = welt->lookup(gib_pos())->gib_weg(weg_t::schiene_monorail);
+		weg = welt->lookup(gib_pos())->gib_weg(weg_t::monorail);
 	}
 
 	if(weg) {
@@ -72,7 +72,7 @@ void signal_t::info(cbuffer_t & buf) const
 {
 	schiene_t * sch = dynamic_cast<schiene_t *>(welt->lookup(gib_pos())->gib_weg(weg_t::schiene));
 	if(!sch) {
-		sch = dynamic_cast<schiene_t *>(welt->lookup(gib_pos())->gib_weg(weg_t::schiene_monorail));
+		sch = dynamic_cast<schiene_t *>(welt->lookup(gib_pos())->gib_weg(weg_t::monorail));
 	}
 
   if(sch) {
@@ -105,7 +105,7 @@ void signal_t::calc_bild()
   } else {
   schiene_t * sch = dynamic_cast<schiene_t *>(welt->lookup(gib_pos())->gib_weg(weg_t::schiene));
   if(!sch) {
-	sch = dynamic_cast<schiene_t *>(welt->lookup(gib_pos())->gib_weg(weg_t::schiene_monorail));
+	sch = dynamic_cast<schiene_t *>(welt->lookup(gib_pos())->gib_weg(weg_t::monorail));
   }
   const int offset = (sch->ist_elektrisch()  &&  skinverwaltung_t::signale->gib_bild_anzahl()==16)?8:0;
 
@@ -233,7 +233,7 @@ void presignal_t::calc_bild()
 	else {
 		schiene_t * sch = dynamic_cast<schiene_t *>(welt->lookup(gib_pos())->gib_weg(weg_t::schiene));
 		if(!sch) {
-			sch = dynamic_cast<schiene_t *>(welt->lookup(gib_pos())->gib_weg(weg_t::schiene_monorail));
+			sch = dynamic_cast<schiene_t *>(welt->lookup(gib_pos())->gib_weg(weg_t::monorail));
 		}
 		int offset = (sch->ist_elektrisch()  &&  skinverwaltung_t::presignals->gib_bild_anzahl()>16)?8:0;
 
@@ -298,7 +298,7 @@ void choosesignal_t::calc_bild()
 	else {
 		schiene_t * sch = dynamic_cast<schiene_t *>(welt->lookup(gib_pos())->gib_weg(weg_t::schiene));
 		if(!sch) {
-			sch = dynamic_cast<schiene_t *>(welt->lookup(gib_pos())->gib_weg(weg_t::schiene_monorail));
+			sch = dynamic_cast<schiene_t *>(welt->lookup(gib_pos())->gib_weg(weg_t::monorail));
 		}
 		int offset = (sch->ist_elektrisch()  &&  skinverwaltung_t::choosesignals->gib_bild_anzahl()>16)?8:0;
 

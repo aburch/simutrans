@@ -171,111 +171,112 @@ DBG_DEBUG("fahrplan_gui_t::fahrplan_gui_t()","fahrplan %p",fpl);
 
 void fahrplan_gui_t::init()
 {
-  new_line = NULL;
+	new_line = NULL;
 
-  setze_opaque( true );
+	setze_opaque( true );
 
-  fpl->eingabe_beginnen();
-  no_line = new char[128];
-  sprintf(no_line, translator::translate("<no line>"));
+	fpl->eingabe_beginnen();
+	no_line = new char[128];
+	sprintf(no_line, translator::translate("<no line>"));
 
-  bt_add.pos.x = 0;
-  bt_add.pos.y = gib_fenstergroesse().y-44;
-  bt_add.groesse.x = 8*9+4;
-  bt_add.setze_text("Add Stop");
-  bt_add.setze_typ(button_t::roundbox);
-  bt_add.add_listener(this);
-  add_komponente(&bt_add);
+	bt_add.pos.x = 0;
+	bt_add.pos.y = gib_fenstergroesse().y-44;
+	bt_add.groesse.x = 8*9+4;
+	bt_add.setze_text("Add Stop");
+	bt_add.setze_typ(button_t::roundbox);
+	bt_add.add_listener(this);
+	add_komponente(&bt_add);
 
-  bt_insert.pos.x = 9*8+4;
-  bt_insert.pos.y = gib_fenstergroesse().y-44;
-  bt_insert.groesse.x = 8*8+4;
-  bt_insert.setze_text("Ins Stop");
-  bt_insert.setze_typ(button_t::roundbox);
-  bt_insert.add_listener(this);
-  add_komponente(&bt_insert);
+	bt_insert.pos.x = 9*8+4;
+	bt_insert.pos.y = gib_fenstergroesse().y-44;
+	bt_insert.groesse.x = 8*8+4;
+	bt_insert.setze_text("Ins Stop");
+	bt_insert.setze_typ(button_t::roundbox);
+	bt_insert.add_listener(this);
+	add_komponente(&bt_insert);
 
-  bt_remove.pos.x = 9*8+4 + 8*8+4;
-  bt_remove.pos.y = gib_fenstergroesse().y-44;
-  bt_remove.groesse.x = 8*8+4;
-  bt_remove.setze_text("Del Stop");
-  bt_remove.setze_typ(button_t::roundbox);
-  bt_remove.add_listener(this);
-  add_komponente(&bt_remove);
+	bt_remove.pos.x = 9*8+4 + 8*8+4;
+	bt_remove.pos.y = gib_fenstergroesse().y-44;
+	bt_remove.groesse.x = 8*8+4;
+	bt_remove.setze_text("Del Stop");
+	bt_remove.setze_typ(button_t::roundbox);
+	bt_remove.add_listener(this);
+	add_komponente(&bt_remove);
 
-  bt_done.pos.x = 9*8+4 + 8*8+4 + 8*8+4;
-  bt_done.pos.y = gib_fenstergroesse().y-44;
-  bt_done.groesse.x = 6*8+4;
-  bt_done.setze_text("Fertig");
-  bt_done.setze_typ(button_t::roundbox);
-  bt_done.add_listener(this);
-  add_komponente(&bt_done);
+	bt_done.pos.x = 9*8+4 + 8*8+4 + 8*8+4;
+	bt_done.pos.y = gib_fenstergroesse().y-44;
+	bt_done.groesse.x = 6*8+4;
+	bt_done.setze_text("Fertig");
+	bt_done.setze_typ(button_t::roundbox);
+	bt_done.add_listener(this);
+	add_komponente(&bt_done);
 
-  bt_prev.pos.x = 85;
-  bt_prev.pos.y = 23;
-  bt_prev.setze_typ(button_t::arrowleft);
-  bt_prev.add_listener(this);
-  add_komponente(&bt_prev);
+	bt_prev.pos.x = 85;
+	bt_prev.pos.y = 23;
+	bt_prev.setze_typ(button_t::arrowleft);
+	bt_prev.add_listener(this);
+	add_komponente(&bt_prev);
 
-  bt_next.pos.x = 140;
-  bt_next.pos.y = 23;
-  bt_next.setze_typ(button_t::arrowright);
-  bt_next.add_listener(this);
-  add_komponente(&bt_next);
+	bt_next.pos.x = 140;
+	bt_next.pos.y = 23;
+	bt_next.setze_typ(button_t::arrowright);
+	bt_next.add_listener(this);
+	add_komponente(&bt_next);
 
-  bt_promote_to_line.pos.x = bt_add.pos.x;
-  bt_promote_to_line.pos.y = gib_fenstergroesse().y-30;
-  bt_promote_to_line.groesse.x = bt_add.groesse.x + bt_insert.groesse.x;
-  bt_promote_to_line.setze_text("promote to line");
-  bt_promote_to_line.set_tooltip("Create a new line based on this schedule");
-  bt_promote_to_line.setze_typ(button_t::roundbox);
-  bt_promote_to_line.add_listener(this);
-  add_komponente(&bt_promote_to_line);
+	bt_promote_to_line.pos.x = bt_add.pos.x;
+	bt_promote_to_line.pos.y = gib_fenstergroesse().y-30;
+	bt_promote_to_line.groesse.x = bt_add.groesse.x + bt_insert.groesse.x;
+	bt_promote_to_line.setze_text("promote to line");
+	bt_promote_to_line.set_tooltip("Create a new line based on this schedule");
+	bt_promote_to_line.setze_typ(button_t::roundbox);
+	bt_promote_to_line.add_listener(this);
+	add_komponente(&bt_promote_to_line);
 
-  bt_return.pos.x = bt_remove.pos.x;
-  bt_return.pos.y = gib_fenstergroesse().y-30;
-  bt_return.groesse.x = bt_remove.groesse.x + bt_done.groesse.x;
-  bt_return.setze_text("return ticket");
-  bt_return.set_tooltip("Add stops for backward travel");
-  bt_return.setze_typ(button_t::roundbox);
-  bt_return.add_listener(this);
-  add_komponente(&bt_return);
+	bt_return.pos.x = bt_remove.pos.x;
+	bt_return.pos.y = gib_fenstergroesse().y-30;
+	bt_return.groesse.x = bt_remove.groesse.x + bt_done.groesse.x;
+	bt_return.setze_text("return ticket");
+	bt_return.set_tooltip("Add stops for backward travel");
+	bt_return.setze_typ(button_t::roundbox);
+	bt_return.add_listener(this);
+	add_komponente(&bt_return);
 
-  line_selector.setze_pos(koord(90, 5));
-  line_selector.setze_groesse(koord(164, 14));
-  line_selector.set_max_size(koord(164, 100));
-  line_selector.set_highlight_color(welt->get_active_player()->kennfarbe+1);
-  line_selector.clear_elements();
-  init_line_selector();
-  line_selector.set_selection(-1);
-  line_selector.add_listener(this);
-  add_komponente(&line_selector);
+	line_selector.setze_pos(koord(90, 5));
+	line_selector.setze_groesse(koord(164, 14));
+	line_selector.set_max_size(koord(164, 100));
+	line_selector.set_highlight_color(welt->get_active_player()->kennfarbe+1);
+	line_selector.clear_elements();
+	init_line_selector();
+	line_selector.set_selection(-1);
+	line_selector.add_listener(this);
+	add_komponente(&line_selector);
 
-  lb_line.setze_pos(koord(11, 7));
-  add_komponente(&lb_line);
+	lb_line.setze_pos(koord(11, 7));
+	add_komponente(&lb_line);
 
-  lb_load.setze_pos(koord(11, 23));
-  add_komponente(&lb_load);
+	lb_load.setze_pos(koord(11, 23));
+	add_komponente(&lb_load);
 
-  if(fpl->maxi() > 0) {
-    mode = none;
-	welt->setze_maus_funktion(wkz_abfrage, skinverwaltung_t::fragezeiger->gib_bild_nr(0), welt->Z_PLAN, NO_SOUND, NO_SOUND);
-  } else {
-    mode = adding;
-    welt->setze_maus_funktion(wkz_fahrplan_add, skinverwaltung_t::fahrplanzeiger->gib_bild_nr(0), welt->Z_PLAN, (value_t)fpl, NO_SOUND, NO_SOUND);
-  }
+	if(fpl->maxi() > 0) {
+		mode = none;
+		welt->setze_maus_funktion(wkz_abfrage, skinverwaltung_t::fragezeiger->gib_bild_nr(0), welt->Z_PLAN, NO_SOUND, NO_SOUND);
+	}
+	else {
+		mode = adding;
+		welt->setze_maus_funktion(wkz_fahrplan_add, skinverwaltung_t::fahrplanzeiger->gib_bild_nr(0), welt->Z_PLAN, (value_t)fpl, NO_SOUND, NO_SOUND);
+	}
 
-  // fill buffer with halt detail
-  buf.clear();
+	// fill buffer with halt detail
+	buf.clear();
 
-  fpl_text.setze_text(buf);
-  fpl_text.setze_pos(koord(10,10));
+	fpl_text.setze_text(buf);
+	fpl_text.setze_pos(koord(10,10));
 
-  // add scrollbar
-  scrolly.setze_pos(koord(0, 39));
-  scrolly.setze_groesse(gib_fenstergroesse() + koord(0, -(83)));
-  // scrolly.set_show_scroll_x(false);
-  add_komponente(&scrolly);
+	// add scrollbar
+	scrolly.setze_pos(koord(0, 39));
+	scrolly.setze_groesse(gib_fenstergroesse() + koord(0, -(83)));
+	// scrolly.set_show_scroll_x(false);
+	add_komponente(&scrolly);
 }
 
 
@@ -286,7 +287,7 @@ void fahrplan_gui_t::init()
 const char *
 fahrplan_gui_t::gib_name() const
 {
-    return "Fahrplan";
+	return "Fahrplan";
 }
 
 
@@ -296,7 +297,7 @@ fahrplan_gui_t::gib_name() const
 void
 fahrplan_gui_t::zeige_info()
 {
-    create_win(-1, -1, this, w_info);
+	create_win(-1, -1, this, w_info);
 }
 
 
@@ -306,7 +307,7 @@ fahrplan_gui_t::zeige_info()
 koord
 fahrplan_gui_t::gib_fenstergroesse() const
 {
-    return koord(264, 280);
+	return koord(264, 280);
 }
 
 
@@ -317,13 +318,12 @@ fahrplan_gui_t::gib_fenstergroesse() const
 void
 fahrplan_gui_t::infowin_event(const event_t *ev)
 {
-	if (IS_LEFTCLICK(ev) &&  !line_selector.getroffen(ev->cx, ev->cy)  &&  scrolly.getroffen(ev->cx+12, ev->cy)  	) {
-
-		const int line = ((ev->my - (40 - scrolly.get_scroll_y()))/LINESPACE)-3;
+	if (IS_LEFTCLICK(ev) &&  !line_selector.getroffen(ev->cx, ev->cy)  &&  scrolly.getroffen(ev->cx+12, ev->cy)  &&  ev->my>=40+16) {
+		// we are now in the multiline region ...
+		const int line = ((ev->my - (39 - scrolly.get_scroll_y()))/LINESPACE)-3;
 
 		if(line >= 0 && line < fpl->maxi()) {
 			fpl->aktuell = line;
-
 			if(mode == removing) {
 				fpl->remove();
 			}

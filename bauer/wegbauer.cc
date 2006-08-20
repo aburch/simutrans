@@ -84,7 +84,7 @@ bool wegbauer_t::alle_wege_geladen()
 	// some defaults to avoid hardcoded values
 	strasse_t::default_strasse = wegbauer_t::weg_search(weg_t::strasse,50,0);
 	schiene_t::default_schiene = wegbauer_t::weg_search(weg_t::schiene,80,0);
-	monorail_t::default_monorail = wegbauer_t::weg_search(weg_t::schiene_monorail,120,0);
+	monorail_t::default_monorail = wegbauer_t::weg_search(weg_t::monorail,120,0);
 	kanal_t::default_kanal = wegbauer_t::weg_search(weg_t::wasser,20,0);
 	runway_t::default_runway = wegbauer_t::weg_search(weg_t::luft,20,0);
 	return ::alles_geladen(spezial_objekte + 1);
@@ -530,7 +530,8 @@ bool wegbauer_t::is_allowed_step( const grund_t *from, const grund_t *to, long *
 		{
 			const weg_t *str=to->gib_weg(weg_t::strasse);
 			ok =	(str  ||  ok&!fundament  ||  check_crossing(zv,to,weg_t::schiene)) &&
-					(str  ||  check_owner(to->gib_besitzer(),sp)) &&
+ 					!to->gib_weg(weg_t::luft)  &&  !to->gib_weg(weg_t::wasser)  &&    !to->gib_weg(weg_t::monorail)  &&
+ 					(str  ||  check_owner(to->gib_besitzer(),sp)) &&
 					check_for_leitung(zv,to);
 			if(ok) {
 				const weg_t *from_str=from->gib_weg(weg_t::strasse);
@@ -555,6 +556,7 @@ bool wegbauer_t::is_allowed_step( const grund_t *from, const grund_t *to, long *
 		{
 			const weg_t *sch=to->gib_weg(weg_t::schiene);
 			ok =	(ok&!fundament || sch  || check_crossing(zv,to,weg_t::strasse)) &&
+					!to->gib_weg(weg_t::luft)  &&  !to->gib_weg(weg_t::wasser)  &&    !to->gib_weg(weg_t::monorail)  &&
 					check_owner(to->gib_besitzer(),sp) &&
 					check_for_leitung(zv,to);
 			if(ok) {
@@ -593,6 +595,7 @@ bool wegbauer_t::is_allowed_step( const grund_t *from, const grund_t *to, long *
 				return false;
 			}
 			ok =	(ok&!fundament || check_crossing(zv,to,weg_t::strasse)) &&
+					 !to->gib_weg(weg_t::luft)  &&  !to->gib_weg(weg_t::wasser)  &&    !to->gib_weg(weg_t::monorail)  &&
 					check_owner(to->gib_besitzer(),sp) &&
 					check_for_leitung(zv,to)  &&
 					!to->gib_depot();
@@ -612,9 +615,9 @@ bool wegbauer_t::is_allowed_step( const grund_t *from, const grund_t *to, long *
 		case schiene_monorail:
 		{
 			ok =	!to->ist_wasser()  &&  !fundament  &&
-					(to->hat_wege()==0  ||  to->gib_weg(weg_t::schiene_monorail))  &&  (from->hat_wege()==0  ||  from->gib_weg(weg_t::schiene_monorail))
+					(to->hat_wege()==0  ||  to->gib_weg(weg_t::monorail))  &&  (from->hat_wege()==0  ||  from->gib_weg(weg_t::monorail))
 					&&  check_owner(to->gib_besitzer(),sp) && check_for_leitung(zv,to)  && !to->gib_depot();
-			const weg_t *sch=to->gib_weg(weg_t::schiene_monorail);
+			const weg_t *sch=to->gib_weg(weg_t::monorail);
 			// check for end/start of bridge
 			if(to->gib_weg_hang()!=to->gib_grund_hang()  &&  (sch==NULL  ||  ribi_t::ist_kreuzung(ribi_typ(to_pos,from_pos)|sch->gib_ribi_unmasked()))) {
 				return false;
@@ -647,7 +650,7 @@ bool wegbauer_t::is_allowed_step( const grund_t *from, const grund_t *to, long *
 		// like tram, but checks for bridges too
 		case schiene_elevated_monorail:
 		{
-			ok =	(ok  || fundament || to->gib_weg(weg_t::schiene)  || to->gib_weg(weg_t::schiene_monorail)  || to->gib_weg(weg_t::strasse)) &&  !to->gib_weg(weg_t::luft)  &&
+			ok =	(ok  || fundament || to->gib_weg(weg_t::schiene)  || to->gib_weg(weg_t::monorail)  || to->gib_weg(weg_t::strasse)) &&  !to->gib_weg(weg_t::luft)  &&
 					check_owner(to->gib_besitzer(),sp) &&
 					check_for_leitung(zv,to);
 			if(ok) {
@@ -663,7 +666,7 @@ bool wegbauer_t::is_allowed_step( const grund_t *from, const grund_t *to, long *
 				}
 				if(bd  &&  bd->gib_halt().is_bound()) {
 					// now we have a halt => check for direction
-					if(!ribi_t::ist_gerade(ribi_typ(zv)|bd->gib_weg_ribi_unmasked(weg_t::schiene_monorail))  ) {
+					if(!ribi_t::ist_gerade(ribi_typ(zv)|bd->gib_weg_ribi_unmasked(weg_t::monorail))  ) {
 						// no crossings on stops
 						return false;
 					}
@@ -1876,7 +1879,7 @@ wegbauer_t::baue_monorail()
 		}
 
 		// init undo
-		sp->init_undo(weg_t::schiene_monorail,max_n);
+		sp->init_undo(weg_t::monorail,max_n);
 
 		// built elevated track ... non-trivial
 		for(int i=0; i<=max_n; i++) {
@@ -1888,8 +1891,8 @@ wegbauer_t::baue_monorail()
 
 			// here is already a track => try to connect
 			if(monorail) {
-				if(monorail->weg_erweitern(weg_t::schiene_monorail, ribi)) {
-					weg_t *weg=monorail->gib_weg(weg_t::schiene_monorail);
+				if(monorail->weg_erweitern(weg_t::monorail, ribi)) {
+					weg_t *weg=monorail->gib_weg(weg_t::monorail);
 					// keep faster ways or if it is the same way ... (@author prissi)
 					if(weg->gib_besch()==besch  ||  keep_existing_ways  ||  (keep_existing_faster_ways  &&  weg->gib_besch()->gib_topspeed()>besch->gib_topspeed())  ) {
 						//nothing to be done

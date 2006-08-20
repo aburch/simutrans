@@ -80,7 +80,7 @@ void vehicle_reader_t::register_obj(obj_besch_t *&data)
 			break;
 
 			case weg_t::schiene:
-			case 5: // weg_t::schiene_monorail:
+			case 5: // weg_t::monorail:
 			case 6: // weg_t::schiene_maglev:
 			case 7: // weg_t::schiene_strab:
 				// diagonal length
@@ -297,7 +297,7 @@ obj_besch_t * vehicle_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 		else {
 		}
 		// convert to new standard
-		const weg_t::typ convert_from_old[8]={weg_t::strasse, weg_t::schiene, weg_t::wasser, weg_t::luft, weg_t::invalid, weg_t::schiene_monorail, weg_t::schiene_maglev, weg_t::schiene_strab };
+		const weg_t::typ convert_from_old[8]={weg_t::strasse, weg_t::schiene, weg_t::wasser, weg_t::luft, weg_t::invalid, weg_t::monorail, weg_t::schiene_maglev, weg_t::schiene_strab };
 		besch->typ = convert_from_old[besch->typ];
 	}
 
@@ -329,7 +329,7 @@ DBG_MESSAGE("vehicle_reader_t::register_obj()","old sound %i to %i",old_id,besch
 	     "version=%d "
 	     "typ=%d zuladung=%d preis=%d geschw=%d gewicht=%d leistung=%d "
 	     "betrieb=%d sound=%d vor=%d nach=%d "
-	     "date=%d gear=%d engine_type=%d",
+	     "date=%d/%d gear=%d engine_type=%d",
 	     version,
 	     besch->typ,
 	     besch->zuladung,
@@ -341,7 +341,8 @@ DBG_MESSAGE("vehicle_reader_t::register_obj()","old sound %i to %i",old_id,besch
 	     besch->sound,
 	     besch->vorgaenger,
 	     besch->nachfolger,
-	     besch->intro_date,
+	     (besch->intro_date%12)+1,
+	     besch->intro_date/12,
 	     besch->gear,
 	     besch->engine_type);
 

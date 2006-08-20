@@ -1032,6 +1032,11 @@ static void rezoom_img( const unsigned int n )
 				}
 			}
 		}
+		else if(images[n].w==0) {
+			// h=0 will be ignored, with w=0 there was an error!
+			printf("WARNING: image%d w=0!\n",n);
+			images[n].h = 0;
+		}
 
 	} // if(images[n].recode_flags[ZOOMABLE]) {
 }

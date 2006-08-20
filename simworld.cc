@@ -642,88 +642,84 @@ karte_t::init_felder()
 void
 karte_t::init(einstellungen_t *sets)
 {
-    int i, j;
+	int i, j;
 
-    if(is_display_init()) {
-	display_show_pointer(false);
-  }
+	destroy();
+	intr_disable();
 
-    setze_ij_off(koord(0,0));
+	if(is_display_init()) {
+		display_show_pointer(false);
+	}
+	setze_ij_off(koord(0,0));
 
-    x_off = y_off = 0;
+	x_off = y_off = 0;
 
-    ticks = 0;
-    // ticks = 0x7FFFF800;  // Testing the 31->32 bit step
+	ticks = 0;
+	schedule_counter = 0;
+	// ticks = 0x7FFFF800;  // Testing the 31->32 bit step
 
-    letzter_monat = 0;
-    letztes_jahr = sets->gib_starting_year();//umgebung_t::starting_year;
-    current_month = letzter_monat + (letztes_jahr*12);
-    setze_ticks_bits_per_tag(sets->gib_bits_per_month());
-    next_month_ticks =  1 << karte_t::ticks_bits_per_tag;
-    season = 2;
-    steps = 0;
+	letzter_monat = 0;
+	letztes_jahr = sets->gib_starting_year();//umgebung_t::starting_year;
+	current_month = letzter_monat + (letztes_jahr*12);
+	setze_ticks_bits_per_tag(sets->gib_bits_per_month());
+	next_month_ticks =  1 << karte_t::ticks_bits_per_tag;
+	season = 2;
+	steps = 0;
 
-    //grundwasser = -32;        29-Nov-01       Markus Weber    Changed
+	einstellungen = sets;
 
-    destroy();
+	grundwasser = sets->gib_grundwasser();      //29-Nov-01     Markus Weber    Changed
 
-    intr_disable();
-
-    einstellungen = sets;
-
-    grundwasser = sets->gib_grundwasser();      //29-Nov-01     Markus Weber    Changed
-
-    // wird gecached, um den Pointerzugriff zu sparen, da
-    // die groesse _sehr_ oft referenziert wird
-    cached_groesse_gitter_x = einstellungen->gib_groesse_x();
-    cached_groesse_gitter_y = einstellungen->gib_groesse_y();
-    cached_groesse_max = max(cached_groesse_gitter_x,cached_groesse_gitter_y);
-    cached_groesse_karte_x = cached_groesse_gitter_x-1;
-    cached_groesse_karte_y = cached_groesse_gitter_y-1;
+	// wird gecached, um den Pointerzugriff zu sparen, da
+	// die groesse _sehr_ oft referenziert wird
+	cached_groesse_gitter_x = einstellungen->gib_groesse_x();
+	cached_groesse_gitter_y = einstellungen->gib_groesse_y();
+	cached_groesse_max = max(cached_groesse_gitter_x,cached_groesse_gitter_y);
+	cached_groesse_karte_x = cached_groesse_gitter_x-1;
+	cached_groesse_karte_y = cached_groesse_gitter_y-1;
 
 DBG_DEBUG("karte_t::init()","init_felder");
-    init_felder();
-
+	init_felder();
 
 DBG_DEBUG("karte_t::init()","setze_grid_hgt");
-    for(j=0; j<=gib_groesse_y(); j++) {
-	for(i=0; i<=gib_groesse_x(); i++) {
-	    setze_grid_hgt(koord(i, j), 0);
+	for(j=0; j<=gib_groesse_y(); j++) {
+		for(i=0; i<=gib_groesse_x(); i++) {
+			setze_grid_hgt(koord(i, j), 0);
+		}
 	}
-    }
 
 DBG_DEBUG("karte_t::init()","calc_slope");
-    // Hajo: init slopes
-    koord k;
+	// Hajo: init slopes
+	koord k;
 	for(k.y=0; k.y<gib_groesse_y(); k.y++) {
 		for(k.x=0; k.x<gib_groesse_x(); k.x++) {
-	    calc_slope(k);
+			calc_slope(k);
+		}
 	}
-    }
 
 DBG_DEBUG("karte_t::init()","kartenboden_setzen");
 	for(k.y=0; k.y<gib_groesse_y(); k.y++) {
 		for(k.x=0; k.x<gib_groesse_x(); k.x++) {
-	    access(k)->kartenboden_setzen( new boden_t(this, koord3d(k, 0) ), false);
+			access(k)->kartenboden_setzen( new boden_t(this, koord3d(k, 0) ), false);
+		}
 	}
-    }
 
-    print("Creating landscape shape...\n");
-    // calc_hoehe(0, 0, gib_groesse()-1, gib_groesse()-1);
+	print("Creating landscape shape...\n");
+	// calc_hoehe(0, 0, gib_groesse()-1, gib_groesse()-1);
 
 DBG_DEBUG("karte_t::init()","calc_hoehe_mit_heightfield");
 	setsimrand( 0xFFFFFFFF, einstellungen->gib_karte_nummer() );
-    if(einstellungen->heightfield.len() > 0) {
-      calc_hoehe_mit_heightfield(einstellungen->heightfield);
-    } else {
-      calc_hoehe_mit_perlin();
-    }
+	if(einstellungen->heightfield.len() > 0) {
+		calc_hoehe_mit_heightfield(einstellungen->heightfield);
+	}
+	else {
+		calc_hoehe_mit_perlin();
+	}
 
-	DBG_DEBUG("karte_t::init()","cleanup karte");
+DBG_DEBUG("karte_t::init()","cleanup karte");
 	cleanup_karte();
 
-	DBG_DEBUG("karte_t::init()","calc slopes");
-
+DBG_DEBUG("karte_t::init()","calc slopes");
 	// Hajo: init slopes
 	for(k.y=0; k.y<gib_groesse_y(); k.y++) {
 		for(k.x=0; k.x<gib_groesse_x(); k.x++) {
@@ -731,10 +727,8 @@ DBG_DEBUG("karte_t::init()","calc_hoehe_mit_heightfield");
 		}
 	}
 
-
-	DBG_DEBUG("karte_t::init()","set ground");
+DBG_DEBUG("karte_t::init()","set ground");
 	print("Creating landscape ground ...\n");
-
 	for(k.y=0; k.y<gib_groesse_y(); k.y++) {
 		for(k.x=0; k.x<gib_groesse_x(); k.x++) {
 			access(k)->abgesenkt(this);
@@ -2007,7 +2001,7 @@ int karte_t::get_average_speed(weg_t::typ typ) const
 	switch(typ) {
 		case weg_t::strasse: return average_speed[0];
 		case weg_t::schiene:
-		case weg_t::schiene_monorail:
+		case weg_t::monorail:
 		case weg_t::schiene_maglev:
 		case weg_t::schiene_strab: return average_speed[1];
 		case weg_t::wasser: return average_speed[2];
@@ -2561,7 +2555,7 @@ void karte_t::laden(loadsave_t *file)
 		einstellungen->setze_use_timeline( umgebung_t::use_timeline );
 		DBG_DEBUG("karte_t::laden", "timeline: reset to %i", umgebung_t::use_timeline );
 	}
-	DBG_DEBUG("karte_t::laden", "einstellungen loaded (groesse %i,%i)",einstellungen->gib_groesse_x(),einstellungen->gib_groesse_y());
+DBG_DEBUG("karte_t::laden", "einstellungen loaded (groesse %i,%i)",einstellungen->gib_groesse_x(),einstellungen->gib_groesse_y());
 
     // wird gecached, um den Pointerzugriff zu sparen, da
     // die groesse _sehr_ oft referenziert wird
@@ -2578,11 +2572,11 @@ void karte_t::laden(loadsave_t *file)
     grundwasser = einstellungen->gib_grundwasser();
 DBG_DEBUG("karte_t::laden()","grundwasser %i",grundwasser);
 
-    DBG_DEBUG("karte_t::laden", "init felder ... ");
-    init_felder();
-    DBG_DEBUG("karte_t::laden", "init felder ok");
+DBG_DEBUG("karte_t::laden", "init felder ... ");
+	init_felder();
+DBG_DEBUG("karte_t::laden", "init felder ok");
 
-    hausbauer_t::neue_karte();
+	hausbauer_t::neue_karte();
 
 	file->rdwr_long(ticks, " ");
 	file->rdwr_long(letzter_monat, " ");
@@ -2594,22 +2588,22 @@ DBG_DEBUG("karte_t::laden()","grundwasser %i",grundwasser);
 	current_month = letzter_monat + (letztes_jahr*12);
 	steps = 0;
 
-	DBG_MESSAGE("karte_t::laden()","savegame loading at tick count %i",ticks);
+DBG_MESSAGE("karte_t::laden()","savegame loading at tick count %i",ticks);
 
-	DBG_DEBUG("karte_t::laden()","built timeline for citycars");
+DBG_DEBUG("karte_t::laden()","built timeline for citycars");
 	stadtauto_t::built_timeline_liste();
 
-    DBG_DEBUG("karte_t::laden", "init %i cities",einstellungen->gib_anzahl_staedte());
-    stadt = new weighted_vector_tpl <stadt_t *> (einstellungen->gib_anzahl_staedte());
-    for(int i=0; i<einstellungen->gib_anzahl_staedte(); i++) {
-    	stadt_t *s=new stadt_t(this, file);
-	stadt->append( s, s->gib_einwohner(), 64 );
-    }
+DBG_DEBUG("karte_t::laden", "init %i cities",einstellungen->gib_anzahl_staedte());
+	stadt = new weighted_vector_tpl <stadt_t *> (einstellungen->gib_anzahl_staedte());
+	for(int i=0; i<einstellungen->gib_anzahl_staedte(); i++) {
+		stadt_t *s=new stadt_t(this, file);
+		stadt->append( s, s->gib_einwohner(), 64 );
+	}
 
 	DBG_MESSAGE("karte_t::laden()","loading blocks");
-    blockmanager *bm = blockmanager::gib_manager();
-    bm->setze_welt_groesse( gib_groesse_x(), gib_groesse_y() );
-    bm->rdwr(this, file);
+	blockmanager *bm = blockmanager::gib_manager();
+	bm->setze_welt_groesse( gib_groesse_x(), gib_groesse_y() );
+	bm->rdwr(this, file);
 
 	DBG_MESSAGE("karte_t::laden()","loading tiles");
 	for(y=0; y<gib_groesse_y(); y++) {
@@ -2623,7 +2617,7 @@ DBG_DEBUG("karte_t::laden()","grundwasser %i",grundwasser);
 		display_flush(IMG_LEER,0, 0, 0, "", "", 0, 0);
 	}
 
-	DBG_MESSAGE("karte_t::laden()","loading slopes");
+DBG_MESSAGE("karte_t::laden()","loading slopes");
 	for(y=0; y<=gib_groesse_y(); y++) {
 		for(x=0; x<=gib_groesse_x(); x++) {
 			int hgt;
@@ -2754,21 +2748,21 @@ DBG_DEBUG("karte_t::laden()","grundwasser %i",grundwasser);
 			}
 		}
 	}
-	DBG_MESSAGE("karte_t::laden()", "%d convois/trains loaded", convoi_list.count());
+DBG_MESSAGE("karte_t::laden()", "%d convois/trains loaded", convoi_list.count());
 
     // reinit pointer with new pointer object and old values
     zeiger = new zeiger_t(this, koord3d(0,0,0), spieler[0]);	// Zeiger ist spezialobjekt
     zeiger->setze_bild(0, bild);
     zeiger->setze_yoff( yoff );
 
-    // jetzt können die spieler geladen werden
-    for(int i=0; i<MAX_PLAYER_COUNT; i++) {
-	spieler[i]->rdwr(file);
-    }
-    for(int i=0; i<MAX_PLAYER_COUNT-2; i++) {
-	umgebung_t::automaten[i] = spieler[i+2]->is_active();
-    }
-    DBG_MESSAGE("karte_t::laden()", "players loaded");
+	// jetzt können die spieler geladen werden
+	for(int i=0; i<MAX_PLAYER_COUNT; i++) {
+		spieler[i]->rdwr(file);
+	}
+	for(int i=0; i<MAX_PLAYER_COUNT-2; i++) {
+		umgebung_t::automaten[i] = spieler[i+2]->is_active();
+	}
+DBG_MESSAGE("karte_t::laden()", "players loaded");
 
     // nachdem die welt jetzt geladen ist können die Blockstrecken neu
     // angelegt werden
@@ -2782,37 +2776,29 @@ DBG_DEBUG("karte_t::laden()","grundwasser %i",grundwasser);
     setze_ij_off(koord(mi,mj));
 
 
-    if(file->get_version() < 84001) {
-      translator::rdwr( file );
-    }
-
-    display_laden(file->gib_file(), file->is_zipped());
-
-    DBG_MESSAGE("karte_t::laden()", "%d ways loaded",
-		 weg_t::gib_alle_wege().count());
-
-    for(y=0; y<gib_groesse_y(); y++) {
-	for(x=0; x<gib_groesse_x(); x++) {
-
-	  const planquadrat_t *plan = lookup(koord(x,y));
-	  const int boden_count = plan->gib_boden_count();
-
-	  for(int schicht=0; schicht<boden_count; schicht++) {
-
-	    grund_t *gr = plan->gib_boden_bei(schicht);
-
-	    gr->calc_bild();
-
-	    for(int n=0; n<gr->gib_top(); n++) {
-	      ding_t *d = gr->obj_bei(n);
-
-	      if(d) {
-		d->laden_abschliessen();
-	      }
-	    }
-	  }
+	if(file->get_version() < 84001) {
+		translator::rdwr( file );
 	}
-  }
+
+	display_laden(file->gib_file(), file->is_zipped());
+
+DBG_MESSAGE("karte_t::laden()", "%d ways loaded",weg_t::gib_alle_wege().count());
+	for(y=0; y<gib_groesse_y(); y++) {
+		for(x=0; x<gib_groesse_x(); x++) {
+			const planquadrat_t *plan = lookup(koord(x,y));
+			const int boden_count = plan->gib_boden_count();
+			for(int schicht=0; schicht<boden_count; schicht++) {
+				grund_t *gr = plan->gib_boden_bei(schicht);
+				gr->calc_bild();
+				for(int n=0; n<gr->gib_top(); n++) {
+					ding_t *d = gr->obj_bei(n);
+					if(d) {
+						d->laden_abschliessen();
+					}
+				}
+			}
+		}
+	}
 
   	// recalc karte
     reliefkarte_t::gib_karte()->set_mode(-1);
@@ -2863,6 +2849,7 @@ DBG_DEBUG("karte_t::laden()","grundwasser %i",grundwasser);
 		iter.get_current()->recalc_station_type();	// fix broken post flags
 		iter.get_current()->rebuild_destinations();
 	}
+	schedule_counter++;	// force check for unroutable goods
 
 	reset_timer();
      recalc_average_speed();
@@ -3828,14 +3815,14 @@ karte_t::interactive_event(event_t &ev)
               }
 		break;
 	    case 5:
-	    		if(wegbauer_t::weg_search(weg_t::schiene_monorail,1,get_timeline_year_month())!=NULL  &&  hausbauer_t::monorail_depot_besch!=NULL) {
+	    		if(wegbauer_t::weg_search(weg_t::monorail,1,get_timeline_year_month())!=NULL  &&  hausbauer_t::monorail_depot_besch!=NULL) {
 				werkzeug_parameter_waehler_t *wzw =
 					new werkzeug_parameter_waehler_t(this, "MONORAILTOOLS");
 
 				wzw->setze_hilfe_datei("monorailtools.txt");
 
 				wegbauer_t::fill_menu(wzw,
-					weg_t::schiene_monorail,
+					weg_t::monorail,
 					wkz_wegebau,
 					SFX_JACKHAMMER,
 					SFX_FAILURE,
@@ -3844,7 +3831,7 @@ karte_t::interactive_event(event_t &ev)
 				);
 
 				wegbauer_t::fill_menu(wzw,
-					weg_t::schiene_monorail,
+					weg_t::monorail,
 					wkz_wegebau,
 					SFX_JACKHAMMER,
 					SFX_FAILURE,
@@ -3853,7 +3840,7 @@ karte_t::interactive_event(event_t &ev)
 				);
 
 		    brueckenbauer_t::fill_menu(wzw,
-					  weg_t::schiene_monorail,
+					  weg_t::monorail,
 					  SFX_JACKHAMMER,
 					  SFX_FAILURE,
   					  get_timeline_year_month()

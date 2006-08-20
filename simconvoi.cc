@@ -205,10 +205,22 @@ DBG_MESSAGE("convoi_t::~convoi_t()", "destroying %d, %p", self.get_id(), this);
 void
 convoi_t::laden_abschliessen()
 {
-	// lines are still unknown during loading!
-	if(line_id != UNVALID_LINE_ID) {
-		// if a line is assigned, set line!
-		register_with_line(line_id);
+	if(anz_vehikel>0) {
+		for( unsigned i=0;  i<anz_vehikel;  i++ ) {
+			fahr->at(i)->setze_erstes( i==0 );
+			fahr->at(i)->setze_letztes( i==(anz_vehikel-1) );
+			// this sets the convoi and will renew the block reservation, if needed!
+			fahr->at(i)->setze_convoi( this );
+		}
+		// lines are still unknown during loading!
+		if(line_id != UNVALID_LINE_ID) {
+			// if a line is assigned, set line!
+			register_with_line(line_id);
+		}
+	}
+	else {
+		// no vehicles in this convoi?!?
+		destroy();
 	}
 }
 
@@ -334,6 +346,7 @@ convoi_t::sync_step(long delta_t)
 		if((fpl != NULL) && (fpl->ist_abgeschlossen())) {
 
 			setze_fahrplan(fpl);
+			welt->set_schedule_counter();
 
 			if(fpl->maxi()==0) {
 				// no entry => no route ...
@@ -1218,7 +1231,6 @@ convoi_t::rdwr(loadsave_t *file)
 
 			assert(v != 0);
 			fahr->at(i)  = v;
-			v->setze_convoi( this );
 
 			const vehikel_besch_t *info = v->gib_besch();
 
@@ -1673,8 +1685,8 @@ void convoi_t::hat_gehalten(koord k, halthandle_t /*halt*/)
 	// any loading went on?
 	if(freight_info_resort) {
 		calc_loading();
-		loading_limit = fpl->eintrag.get(fpl->aktuell).ladegrad;
 	}
+	loading_limit = fpl->eintrag.get(fpl->aktuell).ladegrad;
 }
 
 

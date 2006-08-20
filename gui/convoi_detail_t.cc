@@ -268,7 +268,7 @@ void gui_vehicleinfo_t::zeichnen(koord offset) const
 
 			// power
 			if(v->gib_besch()->gib_leistung()>0) {
-				sprintf( buf, "%s %i %s %.2f", translator::translate("Power:"), v->gib_besch()->gib_leistung(), translator::translate("Gear:"), v->gib_besch()->get_gear()/64.0 );
+				sprintf( buf, "%s %i kW, %s %.2f", translator::translate("Power:"), v->gib_besch()->gib_leistung(), translator::translate("Gear:"), v->gib_besch()->get_gear()/64.0 );
 				display_proportional_clip( pos.x+w+offset.x, pos.y+offset.y+total_height+extra_y, buf, ALIGN_LEFT, MONEY_PLUS, true );
 				extra_y += LINESPACE;
 			}

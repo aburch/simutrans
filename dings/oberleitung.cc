@@ -103,7 +103,7 @@ void oberleitung_t::calc_bild()
   hang_t::typ hang = gr->gib_weg_hang();
   ribi_t::ribi ribi = gr->gib_weg_ribi_unmasked(weg_t::schiene);
   if(ribi==0) {
-  	ribi = gr->gib_weg_ribi_unmasked(weg_t::schiene_monorail);
+  	ribi = gr->gib_weg_ribi_unmasked(weg_t::monorail);
   }
 
 

@@ -401,7 +401,7 @@ bool brueckenbauer_t::baue_bruecke(karte_t *welt, spieler_t *sp,
 	baue_auffahrt(welt, sp, pos, zv, besch, weg_besch );
 
 	ribi = welt->lookup(pos)->gib_weg_ribi_unmasked(besch->gib_wegtyp());
-	if(besch->gib_wegtyp()==weg_t::schiene  ||  besch->gib_wegtyp()==weg_t::schiene_monorail) {
+	if(besch->gib_wegtyp()==weg_t::schiene  ||  besch->gib_wegtyp()==weg_t::monorail) {
 		bs1 = ((schiene_t *)welt->lookup(pos)->gib_weg(besch->gib_wegtyp()))->gib_blockstrecke();
 		DBG_MESSAGE("brueckenbauer_t::baue()", "blockstrecke %i",bs1.get_id());
 	}
@@ -414,7 +414,7 @@ bool brueckenbauer_t::baue_bruecke(karte_t *welt, spieler_t *sp,
 			weg = new schiene_t(welt);
 			((schiene_t *)weg)->setze_blockstrecke( bs1 );
 		}
-		else if(besch->gib_wegtyp() == weg_t::schiene_monorail) {
+		else if(besch->gib_wegtyp() == weg_t::monorail) {
 			weg = new monorail_t(welt);
 			((monorail_t *)weg)->setze_blockstrecke( bs1 );
 		}
@@ -459,7 +459,7 @@ bool brueckenbauer_t::baue_bruecke(karte_t *welt, spieler_t *sp,
 		// just connect to existing way
 		grund_t *gr=welt->lookup(end);
 		if(gr->weg_erweitern(besch->gib_wegtyp(),ribi_t::doppelt(ribi))) {
-			if(besch->gib_wegtyp()==weg_t::schiene  ||  besch->gib_wegtyp()==weg_t::schiene_monorail) {
+			if(besch->gib_wegtyp()==weg_t::schiene  ||  besch->gib_wegtyp()==weg_t::monorail) {
 				((schiene_t *)gr->gib_weg(besch->gib_wegtyp()))->setze_blockstrecke( bs1 );
 				DBG_MESSAGE("brueckenbauer_t::baue()", "blockstrecke %i",bs1.get_id());
 				blockmanager::gib_manager()->schiene_erweitern(welt,gr);
@@ -491,7 +491,7 @@ brueckenbauer_t::baue_auffahrt(karte_t *welt, spieler_t *sp, koord3d end, koord 
 	weg_t *alter_weg = alter_boden->gib_weg(besch->gib_wegtyp());
 	ding_t *sig = NULL;
 
-	if(besch->gib_wegtyp()==weg_t::schiene_monorail) {
+	if(besch->gib_wegtyp()==weg_t::monorail) {
 		weg = new monorail_t(welt);
 	}
 	else if(besch->gib_wegtyp()==weg_t::schiene) {
@@ -512,7 +512,7 @@ brueckenbauer_t::baue_auffahrt(karte_t *welt, spieler_t *sp, koord3d end, koord 
 	}
 	else {
 		weg->setze_besch(alter_weg->gib_besch());
-		if(besch->gib_wegtyp() == weg_t::schiene  ||  besch->gib_wegtyp() == weg_t::schiene_monorail) {
+		if(besch->gib_wegtyp() == weg_t::schiene  ||  besch->gib_wegtyp() == weg_t::monorail) {
 			blockhandle_t bs = ((schiene_t *)alter_weg)->gib_blockstrecke();
 			((schiene_t *)weg)->setze_blockstrecke( bs );
 			sig = (ding_t *)alter_boden->suche_obj(ding_t::signal);
@@ -529,7 +529,7 @@ brueckenbauer_t::baue_auffahrt(karte_t *welt, spieler_t *sp, koord3d end, koord 
 		// no undo possible anymore
 		sp->init_undo(besch->gib_wegtyp(),0);
 	}
-	if(besch->gib_wegtyp() == weg_t::schiene  ||  besch->gib_wegtyp() == weg_t::schiene_monorail) {
+	if(besch->gib_wegtyp() == weg_t::schiene  ||  besch->gib_wegtyp() == weg_t::monorail) {
 		blockmanager::gib_manager()->neue_schiene(welt, bruecke, sig);
 	}
 	if(bruecke->gib_grund_hang() == hang_t::flach) {
@@ -606,7 +606,7 @@ brueckenbauer_t::remove(karte_t *welt, spieler_t *sp, koord3d pos, weg_t::typ we
 
 		grund_t *gr = welt->lookup(pos);
 
-		if(wegtyp==weg_t::schiene  ||  wegtyp==weg_t::schiene_monorail) {
+		if(wegtyp==weg_t::schiene  ||  wegtyp==weg_t::monorail) {
 			bm->entferne_schiene(welt, pos);
 		}
 		gr->weg_entfernen(wegtyp, false);
@@ -641,7 +641,7 @@ brueckenbauer_t::remove(karte_t *welt, spieler_t *sp, koord3d pos, weg_t::typ we
 			ribi &= ~ribi_typ(gr->gib_weg_hang());
 		}
 		const weg_besch_t *weg_besch=gr->gib_weg(wegtyp)->gib_besch();
-		if(wegtyp==weg_t::schiene  ||  wegtyp==weg_t::schiene_monorail) {
+		if(wegtyp==weg_t::schiene  ||  wegtyp==weg_t::monorail) {
 			sig = gr->suche_obj(ding_t::signal);
 			if(sig) { // Signal aufheben - kommt auf den neuen Boden!
 				gr->obj_remove(sig, sp);
@@ -663,7 +663,7 @@ brueckenbauer_t::remove(karte_t *welt, spieler_t *sp, koord3d pos, weg_t::typ we
 			gr->neuen_weg_bauen(weg, ribi, sp);
 			bm->neue_schiene(welt, gr, sig);
 		}
-		else if(wegtyp==weg_t::schiene_monorail) {
+		else if(wegtyp==weg_t::monorail) {
 			weg_t *weg = new monorail_t(welt);
 			weg->setze_besch(weg_besch);
 			gr->neuen_weg_bauen(weg, ribi, sp);

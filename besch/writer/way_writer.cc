@@ -73,7 +73,7 @@ void way_writer_t::write_obj(FILE *outfp, obj_node_t &parent, tabfileobj_t &obj)
 	uint8 wtyp =    get_waytype(obj.get("waytype"));
 	uint8 styp =    obj.get_int("system_type", 0);
 	if(wtyp==weg_t::schiene  &&  styp==1) {
-		wtyp = weg_t::schiene_monorail;
+		wtyp = weg_t::monorail;
 	} else if(wtyp==weg_t::schiene  &&  styp==7) {
 		wtyp = weg_t::schiene_strab;
 	}

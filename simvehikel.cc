@@ -478,7 +478,6 @@ void
 vehikel_t::setze_convoi(convoi_t *c)
 {
     // c darf NULL sein, wenn das vehikel aus dem Convoi entfernt wird
-
     cnv = c;
 }
 
@@ -600,6 +599,7 @@ vehikel_t::vehikel_t(karte_t *welt,
 
 	ist_erstes = ist_letztes = false;
 	alte_fahrtrichtung = fahrtrichtung = ribi_t::keine;
+	target_halt = halthandle_t();
 
 	setze_bild(0, besch->gib_basis_bild());
 }
@@ -665,11 +665,10 @@ vehikel_t::hop_check()
 void
 vehikel_t::ziel_erreicht()
 {
-  // printf("%d %d\n",n, route.gib_max_n());
-
-  if(ist_erstes) {
-    cnv->ziel_erreicht(this);	// Ja, bereit melden
-  }
+	// printf("%d %d\n",n, route.gib_max_n());
+	if(ist_erstes) {
+		cnv->ziel_erreicht(this);	// Ja, bereit melden
+	}
 }
 
 
@@ -1094,6 +1093,23 @@ vehikel_t::rdwr(loadsave_t *file)
 		file->rdwr_long(fracht_count, " ");
 		file->rdwr_short(route_index, "\n");
 	}
+	// information about the target halt
+	if(file->get_version()>=88007) {
+		bool target_info;
+		if(file->is_loading()) {
+			file->rdwr_bool(target_info," ");
+			cnv = (convoi_t *)target_info;	// will be checked during convoi reassignement
+		}
+		else {
+			target_info = target_halt.is_bound();
+			file->rdwr_bool(target_info, " ");
+		}
+	}
+	else {
+		if(file->is_loading()) {
+			cnv = NULL;	// no reservation too
+		}
+	}
 
     pos_prev.rdwr(file);
     pos_cur.rdwr(file);
@@ -1143,10 +1159,15 @@ vehikel_t::rdwr(loadsave_t *file)
 		}
 	}
 
-	file->rdwr_bool(ist_erstes, " ");
-	file->rdwr_bool(ist_letztes, " ");
+	// skip first last info (the convoi will know this better than we!
+	if(file->get_version()<88007) {
+		bool dummy = 0;
+		file->rdwr_bool(dummy, " ");
+		file->rdwr_bool(dummy, " ");
+	}
 
 	if(file->is_loading()) {
+		ist_erstes = ist_letztes = false;	// dummy, will be setz by convoi afterwards
 		if(besch) {
 			calc_bild();
 			// full weight after loading
@@ -1191,8 +1212,7 @@ void vehikel_t::info(cbuffer_t & buf) const
  */
 char * vehikel_t::debug_info(char *buf) const
 {
-  buf += sprintf(buf, "ist_erstes = %d, ist_letztes = %d\n",
-		 ist_erstes, ist_letztes);
+  buf += sprintf(buf, "ist_erstes = %d, ist_letztes = %d\n",	 ist_erstes, ist_letztes);
 
   return buf;
 }
@@ -1239,10 +1259,31 @@ automobil_t::automobil_t(karte_t *welt, koord3d pos, const vehikel_besch_t *besc
     cnv = cn;
 }
 
+
+
 automobil_t::automobil_t(karte_t *welt, loadsave_t *file) : vehikel_t(welt)
 {
     rdwr(file, true);
 }
+
+
+
+// ned to reset halt reservation (if there was one)
+bool
+automobil_t::calc_route(karte_t * welt, koord3d start, koord3d ziel, uint32 max_speed, route_t * route)
+{
+	// free target reservation
+	if(ist_erstes  &&  alte_fahrtrichtung!=ribi_t::keine  &&  cnv  &&  target_halt.is_bound() ) {
+		route_t *rt=cnv->get_route();
+		grund_t *target=welt->lookup(rt->position_bei(rt->gib_max_n()));
+		if(target) {
+			target_halt->unreserve_position(target,cnv->self);
+		}
+	}
+	target_halt = halthandle_t();	// no block reserved
+	return route->calc_route(welt, start, ziel, this, max_speed );
+}
+
 
 
 ribi_t::ribi
@@ -1305,11 +1346,9 @@ automobil_t::gib_kosten(const grund_t *gr,const uint32 max_speed) const
 bool automobil_t::ist_ziel(const grund_t *gr) const
 {
 	//  just check, if we reached a free stop position of this halt
-	if(gr->gib_halt()==target_halt) {
-		if(gr->suche_obj(ding_t::automobil)==NULL) {
-//DBG_MESSAGE("is_target()","success at %i,%i",gr->gib_pos().x,gr->gib_pos().y);
-			return true;
-		}
+	if(gr->gib_halt()==target_halt  &&  target_halt->is_reservable((grund_t *)gr,cnv->self)) {
+DBG_MESSAGE("is_target()","success at %i,%i",gr->gib_pos().x,gr->gib_pos().y);
+		return true;
 	}
 	return false;
 }
@@ -1352,29 +1391,40 @@ automobil_t::ist_weg_frei(int &restart_speed)
 				grund_t *target=welt->lookup(rt->position_bei(rt->gib_max_n()));
 
 				// is our target occupied?
-				if(target  &&  target->gib_halt().is_bound()  &&  target->suche_obj(ding_t::automobil)) {
-					// if we fail, we will wait in a step, much more simulation friendly
-					if(!cnv->is_waiting()) {
-						restart_speed = -1;
-						return false;
-					}
-					// check if there is a free position
-					// this is much faster than waysearch
+				if(target) {
 					target_halt = target->gib_halt();
-					if(!target_halt->find_free_position(weg_t::strasse,ding_t::automobil)) {
-						restart_speed = 0;
-						return false;
-					}
-					// now it make sense to search a route
-					route_t target_rt;
-					if(!target_rt.find_route( welt, pos_next, this, 50, richtung, 33 )) {
-						// nothing empty or not route with less than 33 tiles
-						restart_speed = 0;
-						return false;
-					}
+					if(target_halt.is_bound()  &&  target_halt->reserve_position(target,cnv->self)==false) {
+
+						// if we fail, we will wait in a step, much more simulation friendly
+						if(!cnv->is_waiting()) {
+							restart_speed = -1;
+							target_halt = halthandle_t();
+							return false;
+						}
+
+						// check if there is a free position
+						// this is much faster than waysearch
+						if(!target_halt->find_free_position(weg_t::strasse,cnv->self,ding_t::automobil)) {
+							restart_speed = 0;
+							target_halt = halthandle_t();
+DBG_MESSAGE("automobil_t::ist_weg_frei()","cnv=%d nothing free found!",cnv->self.get_id());
+							return false;
+						}
+
+						// now it make sense to search a route
+						route_t target_rt;
+						if(!target_rt.find_route( welt, pos_next, this, 50, richtung, 33 )) {
+							// nothing empty or not route with less than 33 tiles
+							target_halt = halthandle_t();
+							restart_speed = 0;
+							return false;
+						}
+						// now reserve our choice ...
+						target_halt->reserve_position(welt->lookup(target_rt.position_bei(target_rt.gib_max_n())),cnv->self);
 DBG_MESSAGE("automobil_t::ist_weg_frei()","found free stop near %i,%i,%i",target_rt.position_bei(target_rt.gib_max_n()).x,target_rt.position_bei(target_rt.gib_max_n()).y, target_rt.position_bei(target_rt.gib_max_n()).z );
-					rt->remove_koord_from(route_index);
-					rt->append( &target_rt );
+						rt->remove_koord_from(route_index);
+						rt->append( &target_rt );
+					}
 				}
 			}
 			else if(rs->gib_besch()->is_traffic_light()  &&  (rs->get_dir()&richtung)==0) {
@@ -1525,10 +1575,34 @@ automobil_t::rdwr(loadsave_t *file, bool force)
 }
 
 
+void
+automobil_t::setze_convoi(convoi_t *c)
+{
+	DBG_MESSAGE("automobil_t::setze_convoi()","%p",c);
+	if(c!=NULL) {
+		bool target=(bool)cnv;
+		cnv = c;
+		if(target  &&  ist_erstes) {
+			// reintitialize the target halt
+			route_t *rt=cnv->get_route();
+			grund_t *target=welt->lookup(rt->position_bei(rt->gib_max_n()));
+			target_halt = target->gib_halt();
+			if(target_halt.is_bound()) {
+				target_halt->reserve_position(target,cnv->self);
+			}
+		}
+	}
+	else {
+		cnv = NULL;
+	}
+}
+
+
+
 /* from now on rail vehicles (and other vehicles using blocks) */
 
-// maximum distance to look ahead for tiles
-#define MAX_CHOOSE_BLOCK_TILES (64)
+// maximum distance to look ahead for tiles (if undefined, uses map width + map height ...
+//#define MAX_CHOOSE_BLOCK_TILES (64)
 
 waggon_t::waggon_t(karte_t *welt, loadsave_t *file) : vehikel_t(welt)
 {
@@ -1563,6 +1637,32 @@ waggon_t::~waggon_t()
 
 
 
+void
+waggon_t::setze_convoi(convoi_t *c)
+{
+	DBG_MESSAGE("waggon_t::setze_convoi()","%p",c);
+	if(c!=NULL) {
+		bool target=(bool)cnv;
+		cnv = c;
+		if(target  &&  ist_erstes) {
+			// reintitialize the target halt
+			route_t *rt=cnv->get_route();
+			grund_t *target=welt->lookup(rt->position_bei(rt->gib_max_n()));
+			target_halt = target->gib_halt();
+			if(target_halt.is_bound()) {
+				// next is waypoint => work like a normal presignal
+				block_reserver(1000,true);
+			}
+		}
+	}
+	else {
+		cnv = NULL;
+	}
+}
+
+
+
+// ned to reset halt reservation (if there was one)
 bool
 waggon_t::calc_route(karte_t * welt, koord3d start, koord3d ziel, uint32 max_speed, route_t * route)
 {
@@ -1570,6 +1670,7 @@ waggon_t::calc_route(karte_t * welt, koord3d start, koord3d ziel, uint32 max_spe
 		// free als reserved blocks
 		block_reserver( target_halt.is_bound()?1000:1, false );
 	}
+	target_halt = halthandle_t();	// no block reserved
 	return route->calc_route(welt, start, ziel, this, max_speed );
 }
 
@@ -1701,12 +1802,24 @@ waggon_t::ist_weg_frei(int & restart_speed)
 							target_halt = target->gib_halt();
 						}
 
+						if(!target_halt.is_bound()) {
+							// next is waypoint => work like a normal presignal
+							blockhandle_t bs=block_reserver(1,true);
+							if(bs.is_bound()) {
+								(dynamic_cast<presignal_t *>(sig))->set_next_block_pos( bs );
+								frei = true;
+							}
+							break;
+						}
+
+						// choose signal behaviour
 						blockhandle_t bs=block_reserver(target_halt.is_bound()?1000:1,true);
 						if(bs.is_bound()) {
 							(dynamic_cast<choosesignal_t *>(sig))->set_next_block_pos( bs );
 							frei = true;
 							break;
 						}
+
 						// target occupied!
 						// note: any old reservations should be invalid after the block reserver call.
 						//           We can now start freshly all over
@@ -1720,14 +1833,20 @@ waggon_t::ist_weg_frei(int & restart_speed)
 
 						// check if there is a free position
 						// this is much faster than waysearch
-						if(!target_halt->find_free_position(gib_wegtyp(),this->gib_typ())) {
+						if(!target_halt->find_free_position(gib_wegtyp(),cnv->self,gib_typ())) {
+							target_halt = halthandle_t();
 							break;
 						}
 
 						// now it make sense to search a route
 						route_t target_rt;
+#ifdef MAX_CHOOSE_BLOCK_TILES
 						if(!target_rt.find_route( welt, pos_next, this, speed_to_kmh(cnv->gib_min_top_speed()), fahrtrichtung, MAX_CHOOSE_BLOCK_TILES )) {
+#else
+						if(!target_rt.find_route( welt, pos_next, this, speed_to_kmh(cnv->gib_min_top_speed()), fahrtrichtung, welt->gib_groesse_x()+welt->gib_groesse_y() )) {
+#endif
 							// nothing empty or not route with less than MAX_CHOOSE_BLOCK_TILES tiles
+							target_halt = halthandle_t();
 							break;
 						}
 
@@ -1793,7 +1912,9 @@ waggon_t::block_reserver(int count, bool reserve) const
 	blockhandle_t bs0=sch0->gib_blockstrecke();
 	const route_t * route = cnv->get_route();
 	bool success=true;
+#ifdef MAX_CHOOSE_BLOCK_TILES
 	int max_tiles=2*MAX_CHOOSE_BLOCK_TILES; // max tiles to check for choosignals
+#endif
 	static vector_tpl <blockhandle_t> all_bs(10);
 	all_bs.clear();
 	all_bs.append(bs0);
@@ -1809,10 +1930,13 @@ waggon_t::block_reserver(int count, bool reserve) const
 			dbg->warning("waggon_t::is_next_block_free()","invalid route");
 			break;
 		}
+
+#ifdef MAX_CHOOSE_BLOCK_TILES
 		max_tiles--;
 		if(max_tiles<0  &&   count>1) {
 			break;
 		}
+#endif
 
 		if(bs0 != sch1->gib_blockstrecke()) {
 			if(!sch1->gib_blockstrecke().is_bound()) {
@@ -1991,7 +2115,7 @@ dbg->error("waggon_t::rdwr()","no matching besch found for %s!",w->gib_name());
  */
 bool monorail_waggon_t::ist_befahrbar(const grund_t *bd) const
 {
-	return dynamic_cast<const monorail_t *> (bd->gib_weg(weg_t::schiene_monorail))!=NULL;
+	return dynamic_cast<const monorail_t *> (bd->gib_weg(weg_t::monorail))!=NULL;
 }
 
 
@@ -2004,7 +2128,7 @@ bool monorail_waggon_t::ist_befahrbar(const grund_t *bd) const
 */
 ribi_t::ribi monorail_waggon_t::gib_ribi(const grund_t* gr) const
 {
-	weg_t *weg = gr->gib_weg(weg_t::schiene_monorail);
+	weg_t *weg = gr->gib_weg(weg_t::monorail);
 	if(weg) {
 		return weg->gib_ribi();
 	}
@@ -2158,11 +2282,8 @@ bool aircraft_t::ist_ziel(const grund_t *gr) const
 	}
 	else {
 		// otherwise we just check, if we reached a free stop position of this halt
-		if(gr->gib_halt()==target_halt) {
-			if(gr->suche_obj(ding_t::aircraft)==NULL) {
-//DBG_MESSAGE("is_target()","success at %i,%i",gr->gib_pos().x,gr->gib_pos().y);
-				return true;
-			}
+		if(gr->gib_halt()==target_halt  &&  target_halt->is_reservable((grund_t *)gr,cnv->self)) {
+			return true;
 		}
 	}
 //DBG_MESSAGE("is_target()","failed at %i,%i",gr->gib_pos().x,gr->gib_pos().y);
@@ -2262,13 +2383,78 @@ aircraft_t::ist_befahrbar(const grund_t *bd) const
 		case landing:
 		case departing:
 		case flying:
+		case flying2:
 		{
+DBG_MESSAGE("aircraft_t::ist_befahrbar()","(cnv %i) in idx %i",cnv->self.get_id(),route_index );
 			// prissi: here a height check could avoid too height montains
 			return true;
 		}
 	}
 	return false;
 }
+
+
+
+/* finds a free stop, calculates a route and reserve the position
+ * else return false
+ */
+bool
+aircraft_t::find_route_to_stop_position()
+{
+	if(target_halt.is_bound()) {
+DBG_MESSAGE("aircraft_t::find_route_to_stop_position()","bound! (cnv %i)",cnv->self.get_id());
+		return true;	// already searched with success
+	}
+
+	// check for skipping circle
+	route_t *rt=cnv->get_route();
+	grund_t *target=welt->lookup(rt->position_bei(rt->gib_max_n()));
+
+DBG_MESSAGE("aircraft_t::find_route_to_stop_position()","can approach? (cnv %i)",cnv->self.get_id());
+
+	target_halt = target ? target->gib_halt() : halthandle_t();
+	if(!target_halt.is_bound()) {
+		return true;	// no halt to search
+	}
+
+	// is our target occupied?
+	if(!target->gib_halt()->find_free_position(weg_t::luft,cnv->self,ding_t::aircraft)  ) {
+		target_halt = halthandle_t();
+		return false;
+	}
+	else {
+		// calculate route to free position:
+
+		// if we fail, we will wait in a step, much more simulation friendly
+		// and the route finder is not reentrant!
+		if(!cnv->is_waiting()) {
+			target_halt = halthandle_t();
+			return false;
+		}
+
+		// now search a route
+DBG_MESSAGE("aircraft_t::find_route_to_stop_position()","some free: find route from index %i",suchen);
+		route_t target_rt;
+		flight_state prev_state = state;
+		state = looking_for_parking;
+		if(!target_rt.find_route( welt, rt->position_bei(suchen), this, 500, ribi_t::alle, 100 )) {
+DBG_MESSAGE("aircraft_t::find_route_to_stop_position()","found no route to free one");
+			// circle slowly another round ...
+			target_halt = halthandle_t();
+			state = prev_state;
+			return false;
+		}
+		state = prev_state;
+
+		// now reserve our choice ...
+		target_halt->reserve_position(welt->lookup(target_rt.position_bei(target_rt.gib_max_n())),cnv->self);
+DBG_MESSAGE("aircraft_t::find_route_to_stop_position()","found free stop near %i,%i,%i",target_rt.position_bei(target_rt.gib_max_n()).x,target_rt.position_bei(target_rt.gib_max_n()).y, target_rt.position_bei(target_rt.gib_max_n()).z );
+		rt->remove_koord_from(suchen);
+		rt->append( &target_rt );
+		return true;
+	}
+}
+
 
 
 
@@ -2291,89 +2477,56 @@ aircraft_t::ist_weg_frei(int & restart_speed)
 	if(route_index==takeoff  &&  state==taxiing) {
 		// stop shortly at the end of the runway
 		state = departing;
-		restart_speed = 8;
+		restart_speed = 0;
 		return false;
 	}
 
-	// check for another circle ...
-	if(route_index==touchdown-4  &&  route_index>16) {
-		// check for skipping circle
-		route_t *rt=cnv->get_route();
-		grund_t *target=welt->lookup(rt->position_bei(rt->gib_max_n()));
+DBG_MESSAGE("aircraft_t::ist_weg_frei()","index %i<>%i",route_index,touchdown);
 
-		// is our target occupied?
-		if(target  &&  target->gib_halt().is_bound()  &&  target->suche_obj(ding_t::aircraft)  &&  !target->gib_halt()->find_free_position(weg_t::luft,ding_t::aircraft)  ) {
-			// circle slowly
-			cnv->setze_akt_speed_soll( kmh_to_speed(besch->gib_geschw())/2 );
-			route_index -= 16;
-			return false;
-		}
+	// check for another circle ...
+	if(route_index==(touchdown-4)  &&  !target_halt.is_bound()) {
+		// circle slowly next round
+		route_t *rt=cnv->get_route();
+		cnv->setze_akt_speed_soll( kmh_to_speed(besch->gib_geschw())/2 );
+		route_index -= 16;
+		state = flying;
+		return true;
 	}
 
-	if(route_index==touchdown-16-3) {
-		// check for skipping circle
-		route_t *rt=cnv->get_route();
-		grund_t *target=welt->lookup(rt->position_bei(rt->gib_max_n()));
-
-		// is our target occupied?
-		if(  target==0  ||  !target->gib_halt().is_bound()  ||  target->suche_obj(ding_t::aircraft)==0  ||  target->gib_halt()->find_free_position(weg_t::luft,ding_t::aircraft)  ) {
-			// everything free => skip circle
-DBG_MESSAGE("aircraft_t::calc_height()","%i,%i,%i->%i,%i,%i",pos_cur.x,pos_cur.y,pos_cur.z,pos_next.x,pos_next.y,pos_next.z);
-			route_index += 15;
-			if(pos_next==rt->position_bei(route_index+1)) {
-				route_index ++;
-			}
-//DBG_MESSAGE("aircraft_t::calc_height()","%i,%i,%i->%i,%i,%i",pos_cur.x,pos_cur.y,pos_cur.z,pos_next.x,pos_next.y,pos_next.z);
+	if(route_index==touchdown-16-3  &&  state!=flying2) {
+		// if we fail, we will wait in a step, much more simulation friendly
+		// and the route finder is not reentrant!
+		if(!cnv->is_waiting()) {
 			return false;
 		}
-		// circle slowly
-		cnv->setze_akt_speed_soll( kmh_to_speed(besch->gib_geschw())/2 );
+
+		if(find_route_to_stop_position()) {
+			// stop reservation successful
+			route_t *rt=cnv->get_route();
+			route_index += 16;
+			pos_next==rt->position_bei(route_index);
+			state = flying2;
+		}
+		else {
+			// circle slowly
+			cnv->setze_akt_speed_soll( kmh_to_speed(besch->gib_geschw())/2 );
+			route_t *rt=cnv->get_route();
+			pos_next==rt->position_bei(route_index);
+			state = flying2;
+DBG_MESSAGE("aircraft_t::ist_weg_frei()","%i circles from idx %i",cnv->self.get_id(),route_index );
+		}
+		return true;
 	}
 
 	if(route_index==suchen  &&  state==landing) {
 		// stop shortly at the end of the runway
-		state = looking_for_parking;
+		state = taxiing;
 		restart_speed = 0;
 		return false;
 	}
 
 	if(state==looking_for_parking) {
-		// here we search a free position or else fail ...
-//DBG_MESSAGE("aircraft_t::ist_weg_frei()","searching for free stop");
-		route_t *rt=cnv->get_route();
-		grund_t *target=welt->lookup(rt->position_bei(rt->gib_max_n()));
-
-		// is our target occupied?
-		if(target  &&  target->gib_halt().is_bound()  &&  target->suche_obj(ding_t::aircraft)) {
-			// if we fail, we will wait in a step, much more simulation friendly
-			if(!cnv->is_waiting()) {
-				restart_speed = -1;
-				return false;
-			}
-			// check if there is a free position
-			// this is much faster than waysearch (target_halt is class variable, sicne the target searcher needs this too)
-			target_halt = target->gib_halt();
-			if(!target_halt->find_free_position(weg_t::luft,ding_t::aircraft)) {
-//DBG_MESSAGE("aircraft_t::ist_weg_frei()","all occupied => WAIT MODE");
-				return false;
-			}
-			// now it make sense to search a route
-//DBG_MESSAGE("aircraft_t::ist_weg_frei()","some free: find route");
-			route_t target_rt;
-			if(!target_rt.find_route( welt, pos_cur, this, 500, ribi_t::alle, 100 )) {
-				// now we will wait in a step, thus time enough to calculate a new route
-//DBG_MESSAGE("aircraft_t::ist_weg_frei()","found no route to free one");
-				return false;
-			}
-//DBG_MESSAGE("aircraft_t::ist_weg_frei()","found free stop near %i,%i,%i",target_rt.position_bei(target_rt.gib_max_n()).x,target_rt.position_bei(target_rt.gib_max_n()).y, target_rt.position_bei(target_rt.gib_max_n()).z );
-			rt->kopiere( &target_rt );
-			rt->insert(pos_cur);
-			route_index = 0;
-			suchen = touchdown = takeoff = 0x7FFFFFFFul;
-		}
-		// an now go there (even if it is occupied in the meantime)
 		state = taxiing;
-		return true;
 	}
 
 	if(state==taxiing  &&  gr->gib_halt().is_bound()  &&  gr->suche_obj(ding_t::aircraft)) {
@@ -2393,7 +2546,7 @@ aircraft_t::betrete_feld()
 {
 	vehikel_t::betrete_feld();
 
-	if(state==flying  &&  route_index+6>=touchdown) {
+	if((state==flying2  ||  state==flying)  &&  route_index+6>=touchdown) {
 		const short landehoehe=height_scaling(cnv->get_route()->position_bei(touchdown).z)+16*(touchdown-route_index);
 		if(landehoehe<flughoehe) {
 			state = landing;
@@ -2426,6 +2579,30 @@ aircraft_t::aircraft_t(karte_t *welt, koord3d pos, const vehikel_besch_t *besch,
 {
 	cnv = cn;
 	state = taxiing;
+}
+
+
+
+void
+aircraft_t::setze_convoi(convoi_t *c)
+{
+	DBG_MESSAGE("automobil_t::setze_convoi()","%p",c);
+	if(c!=NULL) {
+		bool target=(bool)cnv;
+		cnv = c;
+		if(target  &&  ist_erstes) {
+			// reintitialize the target halt
+			route_t *rt=cnv->get_route();
+			grund_t *target=welt->lookup(rt->position_bei(rt->gib_max_n()));
+			target_halt = target->gib_halt();
+			if(target_halt.is_bound()) {
+				target_halt->reserve_position(target,cnv->self);
+			}
+		}
+	}
+	else {
+		cnv = NULL;
+	}
 }
 
 
@@ -2469,14 +2646,6 @@ aircraft_t::rdwr(loadsave_t *file, bool force)
 		file->rdwr_long(suchen," ");
 		file->rdwr_long(touchdown," ");
 		file->rdwr_long(takeoff,"\n");
-/*
-		if(file->get_version()<88001) {
-			circle = 0x7FFF;	// no circle yet
-		}
-		else {
-			file->rdwr_long(circle,"\n");
-		}
-*/
 	}
 }
 
@@ -2507,6 +2676,16 @@ bool
 aircraft_t::calc_route(karte_t * welt, koord3d start, koord3d ziel, uint32 max_speed, route_t *route )
 {
 	DBG_MESSAGE("aircraft_t::calc_route()","search route from %i,%i,%i to %i,%i,%i state=%i",start.x,start.y,start.z,ziel.x,ziel.y,ziel.z);
+
+	// free target reservation
+	if(ist_erstes  &&  alte_fahrtrichtung!=ribi_t::keine  &&  cnv  &&  target_halt.is_bound() ) {
+		route_t *rt=cnv->get_route();
+		grund_t *target=welt->lookup(rt->position_bei(rt->gib_max_n()));
+		if(target) {
+			target_halt->unreserve_position(target,cnv->self);
+		}
+	}
+	target_halt = halthandle_t();	// no block reserved
 
 	const weg_t *w=welt->lookup(start)->gib_weg(weg_t::luft);
 	bool start_in_the_air = (w==NULL);
@@ -2662,24 +2841,21 @@ dbg->error("aircraft_t::calc_route()","Invalid route calculation: start is a sin
 
 	if(!end_in_air) {
 
-		// now make a curve
-		koord circlepos=landing_start.gib_2d();
-		koord dir = circlepos - route->position_bei( route->gib_max_n()-2 ).gib_2d();
-		static const koord circle_dir[8]={ koord(0,1), koord(1,1), koord(1,0), koord(1,-1), koord(0,-1), koord(-1,-1), koord(-1,0), koord(-1,1) };
-		static const koord circle_koord[16]={ koord(0,1), koord(0,1), koord(1,0), koord(0,1), koord(1,0), koord(1,0), koord(0,-1), koord(1,0), koord(0,-1), koord(0,-1), koord(-1,0), koord(0,-1), koord(-1,0), koord(-1,0), koord(0,1), koord(-1,0) };
-
 		// find starting direction
-		int offset;
-		for(  offset=0;  offset<8;  offset++  ) {
-			if(circle_dir[offset]==dir) {
-				break;
-			}
+		int offset = 0;
+		switch(welt->lookup(search_end)->gib_weg_ribi(weg_t::luft)) {
+			case ribi_t::nord: offset = 0; break;
+			case ribi_t::west: offset = 4; break;
+			case ribi_t::sued: offset = 8; break;
+			case ribi_t::ost: offset = 12; break;
 		}
 
-		DBG_MESSAGE("aircraft_t::calc_route()","circledir %i,%i, offset=%i", dir.x,dir.y, offset );
+		// now make a curve
+		koord circlepos=landing_start.gib_2d();
+		static const koord circle_koord[16]={ koord(0,1), koord(0,1), koord(1,0), koord(0,1), koord(1,0), koord(1,0), koord(0,-1), koord(1,0), koord(0,-1), koord(0,-1), koord(-1,0), koord(0,-1), koord(-1,0), koord(-1,0), koord(0,1), koord(-1,0) };
 
 		// circle to the left
-		offset = ((offset*2)+2)%16;
+		route->append( welt->lookup(circlepos)->gib_kartenboden()->gib_pos() );
 		for(  int  i=0;  i<16;  i++  ) {
 			circlepos += circle_koord[(offset+i+16)%16];
 			if(welt->ist_in_kartengrenzen(circlepos)) {
@@ -2693,7 +2869,6 @@ dbg->error("aircraft_t::calc_route()","Invalid route calculation: start is a sin
 			}
 		}
 
-//		route->append( landing_start );	// this will remove any extra double values ...
 		touchdown = route->gib_max_n()+3;
 		route->append_straight_route(welt,search_end);
 
@@ -2734,6 +2909,7 @@ int aircraft_t::calc_height()
 			break;
 
 		case flying:
+		case flying2:
 		{
 			const sint16 h_next=height_scaling(pos_next.z);
 			const sint16 h_cur=height_scaling(pos_cur.z);

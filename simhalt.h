@@ -11,6 +11,8 @@
 #ifndef simhalt_h
 #define simhalt_h
 
+#include "convoihandle_t.h"
+
 #include "simdebug.h"
 #include "simware.h"
 #include "simtypes.h"
@@ -24,6 +26,7 @@
 #include "dataobj/koord3d.h"
 
 #include "tpl/slist_tpl.h"
+#include "tpl/vector_tpl.h"
 #include "tpl/ptrhashtable_tpl.h"
 
 
@@ -200,6 +203,7 @@ private:
      * @author Hj. Malthaner
      */
     slist_tpl<grund_t *> grund;
+    vector_tpl<convoihandle_t> reservation;
 
     // fuer die zielverwaltung
     slist_tpl<warenziel_t> warenziele;
@@ -518,8 +522,22 @@ public:
 	/* checks, if there is an unoccupied loading bay for this kind of thing
 	 * @author prissi
 	 */
-	bool find_free_position(const weg_t::typ w ,const ding_t::typ d) const;
+	bool find_free_position(const weg_t::typ w ,convoihandle_t cnv,const ding_t::typ d) const;
 
+	/* reserves a position (caution: railblocks work differently!
+	 * @author prissi
+	 */
+	bool reserve_position(grund_t *gr,convoihandle_t cnv);
+
+	/* frees a reserved  position (caution: railblocks work differently!
+	 * @author prissi
+	 */
+	bool unreserve_position(grund_t *gr, convoihandle_t cnv);
+
+	/* true, if this can be reserved
+	 * @author prissi
+	 */
+	bool is_reservable(grund_t *gr, convoihandle_t cnv);
 
 
     void info(cbuffer_t & buf) const;
