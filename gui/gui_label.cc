@@ -67,7 +67,7 @@ const char *gui_label_t::gib_text()
  */
 void gui_label_t::setze_text(const char *text)
 {
-    this->text = text;
+    this->text = translator::translate(text);
 }
 
 /**
@@ -112,7 +112,7 @@ void gui_label_t::zeichnen(koord offset) const
 		*const_cast<char *>(separator) = ',';
 	    } else {
 		display_proportional_clip(pos.x+offset.x, pos.y+offset.y,
-				     translator::translate(text),
+				     text,
 				     ALIGN_RIGHT, color, true);
 	    }
 	}
@@ -134,7 +134,7 @@ void gui_label_t::zeichnen(koord offset) const
 	    al = ALIGN_LEFT;
 	}
 	display_proportional_clip(pos.x+offset.x, pos.y+offset.y,
-                             translator::translate(text),
+                             text,
 			     al, color, true);
     }
 }

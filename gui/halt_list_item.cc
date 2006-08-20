@@ -72,10 +72,9 @@ void halt_list_item_t::zeichnen(koord offset) const
 		// name
 		buf.clear();
 		buf.append(translator::translate(halt->gib_name()));
-		display_proportional_clip(pos.x+offset.x+33, pos.y+offset.y+2, buf, ALIGN_LEFT, SCHWARZ, true);
+		int left = 16+offset.x+display_proportional_clip(pos.x+offset.x+33, pos.y+offset.y+2, buf, ALIGN_LEFT, SCHWARZ, true);
 
 		// what kind of stop
-		int left = proportional_string_width( buf )+offset.x+33-16;
 		halttype = halt->get_station_type();
 		int pos_y = pos.y+offset.y-41;
 		if (halttype & haltestelle_t::railstation) {
@@ -96,6 +95,10 @@ void halt_list_item_t::zeichnen(koord offset) const
 		}
 		if (halttype & haltestelle_t::airstop) {
 			display_color_img(skinverwaltung_t::airhaltsymbol->gib_bild_nr(0), pos.x+left, pos_y, 0, false, false);
+			left += 23;
+		}
+		if (halttype & haltestelle_t::monorailstop) {
+			display_color_img(skinverwaltung_t::monorailhaltsymbol->gib_bild_nr(0), pos.x+left, pos_y, 0, false, false);
 		}
 
 		// now what do we accept here?

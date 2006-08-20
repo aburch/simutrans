@@ -42,8 +42,10 @@ private:
   button_t filterButtons[MAX_LINE_COST];
   tab_panel_t tabs;
 
-  static const char cost_type[MAX_LINE_COST][64];
-  static const int cost_type_color[MAX_LINE_COST];
+	static const char cost_type[MAX_LINE_COST][64];
+	static const int cost_type_color[MAX_LINE_COST];
+	static uint8 statistic[MAX_LINE_COST];
+	static uint8 statistic_type[MAX_LINE_COST];
 
   int selection, capacity, load, loadfactor;
 
@@ -52,8 +54,6 @@ private:
   simline_t * line;
 
   slist_tpl <simline_t *> lines;
-
-  int SCL_HEIGHT;
 
   void build_line_list(int filter);
 

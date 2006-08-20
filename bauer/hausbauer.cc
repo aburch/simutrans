@@ -65,9 +65,6 @@ stringhashtable_tpl<const haus_besch_t *> hausbauer_t::besch_names;
  * Alle Gebäude, die die Anwendung direkt benötigt, kriegen feste IDs.
  * Außerdem müssen wir dafür sorgen, dass sie alle da sind.
  */
- // the is needed, since it has only one exist and no road below ...
-const haus_besch_t *hausbauer_t::frachthof_besch = NULL;
-
 const haus_besch_t *hausbauer_t::bahn_depot_besch = NULL;
 const haus_besch_t *hausbauer_t::tram_depot_besch = NULL;
 const haus_besch_t *hausbauer_t::str_depot_besch = NULL;
@@ -225,7 +222,7 @@ DBG_DEBUG("hausbauer_t::fill_menu()","try at pos %i to add %s(%p)",i,besch->gib_
 				// only add items with a cursor
 DBG_DEBUG("hausbauer_t::fill_menu()","at pos %i add %s",i,besch->gib_name());
 				int n=sprintf(buf, "%s ",translator::translate(besch->gib_name()));
-				money_to_string(buf+n, (cost*(besch->gib_level())*besch->gib_b()*besch->gib_h())/-100.0);
+				money_to_string(buf+n, (cost*besch->gib_level()*besch->gib_b()*besch->gib_h())/-100.0);
 
 				wzw->add_param_tool(werkzeug,
 				  (const void *)besch,
@@ -267,7 +264,7 @@ DBG_DEBUG("hausbauer_t::fill_menu()","maximum %i",station_building.count());
 				// only add items with a cursor
 DBG_DEBUG("hausbauer_t::fill_menu()","at pos %i add %s",i,besch->gib_name());
 				int n=sprintf(buf, "%s ",translator::translate(besch->gib_name()));
-				money_to_string(buf+n, (cost*(besch->gib_level()+1)*besch->gib_b()*besch->gib_h())/-100.0);
+				money_to_string(buf+n, (cost*besch->gib_level()*besch->gib_b()*besch->gib_h())/-100.0);
 
 				wzw->add_param_tool(werkzeug,
 				  (const void *)besch,

@@ -68,25 +68,6 @@ message_option_t::~message_option_t()
 	delete buttons;
 }
 
-const char *
-message_option_t::gib_name() const
-{
-    return "Mailbox Options";
-}
-
-
-/**
- * gibt den Besitzer zurück
- *
- * @author Hj. Malthaner
- */
-spieler_t*
-message_option_t::gib_besitzer() const
-{
-  return welt->get_active_player();
-}
-
-
 int message_option_t::gib_bild() const
 {
     return skinverwaltung_t::message_options==NULL?IMG_LEER:skinverwaltung_t::message_options->gib_bild_nr(0);
@@ -105,7 +86,7 @@ message_option_t::gib_bild_offset() const
 
 void message_option_t::info(cbuffer_t & buf) const
 {
-	buf.append(translator::translate("\nNew Year\n\nAI\n\nCity\n\nNo Route\n\nIndustry\n\nTourist\n\nNew Vehicle\n\nStation full\n\nProblems"));
+	buf.append(translator::translate("MessageOptionsText"));
 }
 
 

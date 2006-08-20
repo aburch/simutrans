@@ -8,12 +8,6 @@
  */
 
 
-#ifndef _MSC_VER
-#include <unistd.h>
-#include <dirent.h>
-#else
-#include <io.h>
-#endif
 #include <string.h>
 
 #include "../simdebug.h"
@@ -100,10 +94,7 @@ label_frame_t::label_frame_t(karte_t *welt, spieler_t *sp, koord pos) : gui_fram
     }
     else {
         // Text
-	sprintf(txlabel, "(%d,%d) owned by someone else!", pos.x, pos.y);
-	fnlabel.setze_pos (koord(10,12));
-        fnlabel.setze_text (txlabel);
-
+        fnlabel.setze_text ("Das Feld gehoert\neinem anderen Spieler\n");
 	add_komponente(&fnlabel);
 
     }

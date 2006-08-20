@@ -49,10 +49,12 @@ enum magic_numbers {
     magic_finances_t,
     magic_bridgetools,
     magic_railtools,
+    magic_monorailtools,
+    magic_tramtools, // Dario: Tramway
     magic_roadtools,
     magic_shiptools,
+    magic_airtools,
     magic_slopetools,
-    magic_tramtools, // Dario: Tramway
     magic_convoi_t,
     magic_halt_list_t,
     magic_label_frame,
@@ -62,10 +64,8 @@ enum magic_numbers {
     magic_listtools,
     magic_edittools,
     magic_keyhelp,
-    magic_map_legend,
-    magic_schedule_list_gui_start_t,
-    magib_schedule_list_gui_ende_t=magic_schedule_list_gui_start_t+MAX_PLAYER_COUNT,
-    magic_airtools
+    magic_mainhelp,
+    magic_map_legend
 };
 
 // Haltezeit für Nachrichtenfenster

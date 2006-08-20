@@ -340,6 +340,6 @@ public:
      * @author hsiegeln
      */
     void neuer_monat();
-};
+} GCC_PACKED;
 
 #endif

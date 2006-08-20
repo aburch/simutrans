@@ -63,7 +63,7 @@ void crossing_writer_t::write_obj(FILE *fp, obj_node_t &parent, tabfileobj_t &ob
 	besch.wegtyp_ns = get_waytype(obj.get("waytype[ns]"));
 	besch.wegtyp_ow = get_waytype(obj.get("waytype[ew]"));
 
-	if(besch.wegtyp_ns==NULL  ||  besch.wegtyp_ow==NULL) {
+	if((besch.wegtyp_ns==0)  ||  (besch.wegtyp_ow==0)) {
 	cstring_t reason;
 	reason.printf("invalid waytype for crossing %s\n", obj.get("name"));
 	throw new obj_pak_exception_t("crossing_writer_t", reason);

@@ -63,6 +63,7 @@
 #include "dataobj/translator.h"
 
 #include "besch/reader/obj_reader.h"
+#include "besch/sound_besch.h"
 
 #include "bauer/hausbauer.h"
 
@@ -522,8 +523,7 @@ int simu_cpp_main(int argc, char ** argv)
 	exit(0);
     }
 
-    DBG_MESSAGE("simmain::main()" ,
-		 "Version: " VERSION_NUMBER "  Date: " VERSION_DATE);
+    DBG_MESSAGE("simmain::main()", "Version: " VERSION_NUMBER "  Date: " VERSION_DATE);
 
     // unmgebung init
     umgebung_t::testlauf = (gimme_arg(argc, argv, "-test", 0) != NULL);
@@ -649,13 +649,10 @@ int simu_cpp_main(int argc, char ** argv)
        */
       objfilename = ltrim(contents.get_string("pak_file_path", DEFAULT_OBJPATH));
 
-
       /*
        * Max number of steps in goods pathfinding
        */
-      haltestelle_t::set_max_hops(
-      	contents.get_int("max_hops", 300));
-
+      haltestelle_t::set_max_hops(contents.get_int("max_hops", 300));
 
       /*
        * Max number of transfers in goods pathfinding
@@ -666,46 +663,15 @@ print("Reading simuconf.tab successful!\n");
 
       simuconf.close();
     } else {
-      fprintf(stderr, "reading low level config failed, using defaults.\n");
-
-      convoihandle_t::init(8192);
-      blockhandle_t::init(8192);
-      halthandle_t::init(8192);
-
-      umgebung_t::starting_money = 15000000;
-
-      umgebung_t::maint_building = 5000;
-      umgebung_t::maint_way = 800;
-
-      haltestelle_t::set_max_hops(300);
+      fprintf(stderr, "*** No simuconf.tab found ***\n\nPlease install a complete system\n");
+      getc(stdin);
+      return (0);
     }
 
 
     if(gimme_arg(argc, argv, "-objects", 1)) {
       objfilename = gimme_arg(argc, argv, "-objects", 1);
     }
-
-
-    // Adam - Moved away loading from simmain and placed into translator for
-    // better modularisation
-    if(translator::load(objfilename) == false)
-    {
-        dbg->fatal("simmain::main()", "Unable to load any language files\n*** PLEASE INSTALL PROPER BASE FILES ***\n");
-        exit(11);
-    }
-
-
-    print("Reading city configuration ...\n");
-    stadt_t::init();
-
-
-
-    print("Reading object data from %s...\n", objfilename.chars());
-    if(!obj_reader_t::init(objfilename)) {
-	fprintf(stderr, "reading object data failed.\n");
-	exit(11);
-    }
-
 
     if(gimme_arg(argc, argv, "-res", 0) != NULL) {
 	const char * res_str = gimme_arg(argc, argv, "-res", 1);
@@ -741,12 +707,46 @@ print("Reading simuconf.tab successful!\n");
 	    n = sscanf(res_str, "%dx%d", &disp_width, &disp_height);
 	}
 
-
 	if(n != 2) {
 	    print("invalid argument for -screensize option\n");
 	    print("argument must be of format like 800x600\n");
 	    return 0;
 	}
+    }
+
+    const char * use_shm = gimme_arg(argc, argv, "-net", 0);
+    const char * do_sync = gimme_arg(argc, argv, "-async", 0);
+
+    print("Preparing display ...\n");
+    simgraph_init(disp_width, disp_height, use_shm == NULL, do_sync == NULL, fullscreen);
+
+    print("Init timer module ...\n");
+    time_init();
+
+	// just check before loading objects
+    if(!gimme_arg(argc, argv, "-nosound", 0)) {
+      print("Reading compatibility sound data ...\n");
+      sound_besch_t::init(objfilename);
+    }
+
+    // Adam - Moved away loading from simmain and placed into translator for
+    // better modularisation
+    if(translator::load(objfilename) == false)
+    {
+        dbg->fatal("simmain::main()", "Unable to load any language files\n*** PLEASE INSTALL PROPER BASE FILES ***\n");
+        exit(11);
+    }
+
+
+    print("Reading city configuration ...\n");
+    stadt_t::init();
+
+
+
+    print("Reading object data from %s...\n", objfilename.chars());
+    if(!obj_reader_t::init(objfilename)) {
+	fprintf(stderr, "reading object data failed.\n");
+	exit(11);
     }
 
     if(gimme_arg(argc, argv, "-load", 0) != NULL) {
@@ -807,21 +807,7 @@ print("Reading simuconf.tab successful!\n");
 
     karte_t *welt = new karte_t();
 
-    const char * use_shm = gimme_arg(argc, argv, "-net", 0);
-    const char * do_sync = gimme_arg(argc, argv, "-async", 0);
-
-    print("Preparing display ...\n");
-    simgraph_init(disp_width, disp_height, use_shm == NULL, do_sync == NULL, fullscreen);
-
     karte_vollansicht_t *view = new karte_vollansicht_t(welt);
-
-    print("Init timer module ...\n");
-    time_init();
-
-    if(!gimme_arg(argc, argv, "-nosound", 0)) {
-      print("Reading sound data ...\n");
-      sound_init();
-    }
 
     if(!gimme_arg(argc, argv, "-nomidi", 0)) {
       print("Reading midi data ...\n");
@@ -834,14 +820,7 @@ print("Reading simuconf.tab successful!\n");
 	exit(0);
     }
 
-    /*
-#if defined(MSDOS) || defined(__MINGW32__)
-display_show_pointer( false );
-#endif
-    */
-
     // suche nach refresh-einstellungen
-
     int refresh = 2;
     const char *ref_str = gimme_arg(argc, argv, "-refresh", 1);
 

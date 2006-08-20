@@ -74,6 +74,8 @@ public:
      */
     map_frame_t(const karte_modell_t *welt);
 
+	// destructor needed for closing mapwindow legend
+	virtual ~map_frame_t();
 
     /**
      * Events werden hiermit an die GUI-Komponenten

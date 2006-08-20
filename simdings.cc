@@ -134,8 +134,7 @@ ding_t::~ding_t()
 			koord k;
 			for(k.y=0; k.y<welt->gib_groesse_y(); k.y++) {
 				for(k.x=0; k.x<welt->gib_groesse_x(); k.x++) {
-					grund_t *gr = welt->access( k )->gib_boden_von_obj(this);
-
+					grund_t *gr = welt->access(k)->gib_boden_von_obj(this);
 					if(gr && gr->obj_remove(this, gib_besitzer())) {
 						dbg->warning("ding_t::~ding_t()",
 							"removed %p from %d,%d,%d, but it should have been on %d,%d,%d",
@@ -153,18 +152,14 @@ ding_t::~ding_t()
 
 void ding_t::info(cbuffer_t & buf) const
 {
-  if(besitzer_n == 1) {
-    if(fabrik() != NULL) {
-      buf.append(translator::translate("Privatbesitz\n"));
-    } else {
-      buf.append(translator::translate("Eigenbesitz\n"));
-    }
-  } else if(besitzer_n == 0 || besitzer_n > 1) {
-    buf.append(translator::translate("Spieler"));
-    buf.append(" ");
-    buf.append(besitzer_n);
-    buf.append("\n");
-  }
+	if(besitzer_n==1) {
+		buf.append(translator::translate("Eigenbesitz\n"));
+	} else if(besitzer_n==0 || besitzer_n > 1) {
+		buf.append(translator::translate("Spieler"));
+		buf.append(" ");
+		buf.append(besitzer_n);
+		buf.append("\n");
+	}
 }
 
 
@@ -236,18 +231,22 @@ ding_t::ist_entfernbar(const spieler_t *sp)
 void
 ding_t::rdwr(loadsave_t *file)
 {
-    file->wr_obj_id(gib_typ());
-    pos.rdwr( file );
+	file->wr_obj_id(gib_typ());
+	pos.rdwr( file );
 
-    file->rdwr_byte(xoff, " ");
-    file->rdwr_byte(yoff, "\n");
-    uint8 owner = besitzer_n;
-    file->rdwr_byte(owner, "\n");
-    besitzer_n = owner;
+	sint8 byte=xoff;
+	file->rdwr_byte(byte, " ");
+	xoff = byte;
+	byte=yoff;
+	file->rdwr_byte(byte, "\n");
+	yoff = byte;
+	byte = besitzer_n;
+	file->rdwr_byte(byte, "\n");
+	besitzer_n = byte;
 
-    if(file->is_loading()) {
-	bild = static_cast<uint16>(IMG_LEER);
-    }
+	if(file->is_loading()) {
+		bild = static_cast<uint16>(IMG_LEER);
+	}
 }
 
 

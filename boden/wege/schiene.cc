@@ -21,6 +21,8 @@
 
 #include "schiene.h"
 
+const weg_besch_t *schiene_t::default_schiene=NULL;
+
 
 void schiene_t::setze_elektrisch(bool yesno)
 {
@@ -36,10 +38,8 @@ uint8 schiene_t::ist_elektrisch() const
 
 schiene_t::schiene_t(karte_t *welt) : weg_t(welt)
 {
-  is_electrified = false;
-
-  // Hajo: set a default
-  setze_besch(wegbauer_t::gib_besch("wooden_sleeper_track"));
+	is_electrified = false;
+	setze_besch(schiene_t::default_schiene);
 }
 
 
@@ -48,15 +48,15 @@ schiene_t::schiene_t(karte_t *welt) : weg_t(welt)
  */
 schiene_t::schiene_t(karte_t *welt,int top_speed) : weg_t(welt)
 {
-  is_electrified = false;
-  setze_besch(wegbauer_t::weg_search(weg_t::schiene,top_speed));
+	is_electrified = false;
+	setze_besch(wegbauer_t::weg_search(weg_t::schiene,top_speed));
 }
 
 
 schiene_t::schiene_t(karte_t *welt, loadsave_t *file) : weg_t(welt)
 {
-  is_electrified = false;
-  rdwr(file);
+	is_electrified = false;
+	rdwr(file);
 }
 
 

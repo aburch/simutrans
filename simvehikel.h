@@ -565,15 +565,49 @@ public:
     enum ding_t::typ gib_typ() const {return waggon;};
 
     waggon_t(karte_t *welt, loadsave_t *file);
-    waggon_t(karte_t *welt, koord3d pos, const vehikel_besch_t *besch,
-             spieler_t *sp, convoi_t *cnv); // start und fahrplan
+    waggon_t(karte_t *welt, koord3d pos, const vehikel_besch_t *besch, spieler_t *sp, convoi_t *cnv); // start und fahrplan
     ~waggon_t();
 
-    fahrplan_t * erzeuge_neuen_fahrplan() const;
+    virtual fahrplan_t * erzeuge_neuen_fahrplan() const;
 
     void rdwr(loadsave_t *file);
     void rdwr(loadsave_t *file, bool force);
 };
+
+
+
+/**
+ * very similar to normal railroad, so wie can implement it here completely ...
+ * @author prissi
+ * @see vehikel_t
+ */
+class monorail_waggon_t : public waggon_t
+{
+private:
+
+protected:
+    bool ist_befahrbar(const grund_t *bd) const;
+    virtual weg_t::typ gib_wegtyp() const { return weg_t::schiene_monorail; }
+
+public:
+	// all handled by waggon_t
+	monorail_waggon_t(karte_t *welt, loadsave_t *file) : waggon_t(welt, file) {}
+	monorail_waggon_t(karte_t *welt, koord3d pos, const vehikel_besch_t *besch, spieler_t *sp, convoi_t *cnv) : waggon_t(welt, pos, besch, sp, cnv ) {}
+	monorail_waggon_t::~monorail_waggon_t() {}
+
+	/**
+	* Ermittelt die für das Fahrzeug geltenden Richtungsbits,
+	* abhängig vom Untergrund.
+	*
+	* @author Hj. Malthaner, 04.01.01
+	*/
+	virtual ribi_t::ribi gib_ribi(const grund_t* ) const;
+
+	enum ding_t::typ gib_typ() const {return monorailwaggon;};
+
+	fahrplan_t * erzeuge_neuen_fahrplan() const;
+};
+
 
 
 /**

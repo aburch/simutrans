@@ -83,6 +83,7 @@ public:
 	strasse_bot,
 	schiene_tram, // Dario: Tramway
 	schiene_monorail,
+	schiene_elevated_monorail,
 	leitung,
 	wasser,
 	luft

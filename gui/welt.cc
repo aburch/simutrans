@@ -20,9 +20,16 @@
 #include "../simimg.h"
 #include "../simplay.h"
 #include "../simtools.h"
+
 #include "../dataobj/einstellungen.h"
 #include "../dataobj/umgebung.h"
 #include "../dataobj/translator.h"
+
+// just for their structure size ...
+#include "../boden/wege/schiene.h"
+#include "../simcity.h"
+#include "../simvehikel.h"
+
 #include "../simcolor.h"
 
 #include "../simgraph.h"
@@ -42,9 +49,12 @@
 #define RIGHT_WIDE_ARROW (235)
 #define TEXT_WIDE_RIGHT (220)
 
+#include <sys/stat.h>
+#include <time.h>
 
 welt_gui_t::welt_gui_t(karte_t *welt, einstellungen_t *sets) : gui_frame_t("Neue Welt")
 {
+DBG_MESSAGE("","sizeof(stat)=%d, sizeof(tm)=%d",sizeof(struct stat),sizeof(struct tm) );
 	this->welt = welt;
 	this->sets = sets;
 	this->old_lang = -1;
@@ -369,6 +379,8 @@ welt_gui_t::update_preview()
 	mountain_height[1].enable();
 	mountain_roughness[0].enable();
 	mountain_roughness[1].enable();
+
+DBG_MESSAGE("sizes","grund_t=%i, planquadrat_t=%d, ding_t=%d",sizeof(grund_t),sizeof(planquadrat_t),sizeof(ding_t));
 }
 
 
@@ -660,8 +672,8 @@ void welt_gui_t::zeichnen(koord pos, koord gr)
 	}
 	y += 12;
 
-	const int x2 = sets->gib_groesse_x() * sets->gib_groesse_y();
-	const int memory = 12 + x2/8192;
+	const long x2 = sets->gib_groesse_x() * sets->gib_groesse_y();
+	const long memory = (sizeof(karte_t)+8l*sizeof(spieler_t)+ 100*sizeof(convoi_t) + (sets->gib_groesse_x()+sets->gib_groesse_y())*(sizeof(schiene_t)+sizeof(vehikel_t)) + (sizeof(stadt_t)*sets->gib_anzahl_staedte()) + x2*(sizeof(grund_t)+sizeof(planquadrat_t)+4*sizeof(ding_t)) )/(1024l*1024l);
 	sprintf(buf, translator::translate("3WORLD_CHOOSE"), memory);
 	display_proportional_clip(x, y, buf, ALIGN_LEFT, SCHWARZ, true);
 	display_proportional_clip(x+TEXT_RIGHT, y, ntos(sets->gib_groesse_x(), "%3d"), ALIGN_RIGHT, WEISS, true);

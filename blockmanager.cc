@@ -44,7 +44,7 @@ blockmanager::finde_nachbarn(const karte_t *welt, const koord3d pos,
     for(int r = 0; r < 4; r++) {
         if((ribi & ribi_t::nsow[r]) &&
 	    from->get_neighbour(to, weg_t::invalid, koord::nsow[r]) &&
-	(to->gib_weg_ribi_unmasked(weg_t::schiene) & ribi_t::rueckwaerts(ribi_t::nsow[r]))) {
+	((to->gib_weg_ribi_unmasked(weg_t::schiene)|to->gib_weg_ribi_unmasked(weg_t::schiene_monorail)) & ribi_t::rueckwaerts(ribi_t::nsow[r]))) {
     	    nb.at(index++) = to->gib_pos();
 	}
     }
@@ -55,6 +55,17 @@ blockmanager::finde_nachbarn(const karte_t *welt, const koord3d pos,
 
 blockmanager * blockmanager::single_instance = NULL;
 
+
+// since all blocks are derived from schiene_t, we can use this helper function
+static schiene_t *get_block_way(const grund_t *gr)
+{
+	schiene_t *sch = dynamic_cast<schiene_t *>(gr->gib_weg_nr(0));
+	if(!sch) {
+		sch = dynamic_cast<schiene_t *>(gr->gib_weg_nr(1));
+	}
+//	if(!sch) DBG_MESSAGE("blockmanager::get_block_way()","no block at %i,%i,%i",gr->gib_pos().x,gr->gib_pos().y,gr->gib_pos().z);
+	return sch;
+}
 
 blockmanager::blockmanager() : marker(0,0)
 {
@@ -78,7 +89,7 @@ blockmanager * blockmanager::gib_manager()
 
 void blockmanager::neue_schiene(karte_t *welt, grund_t *gr, ding_t *sig)
 {
-    schiene_t *sch = (schiene_t *)gr->gib_weg(weg_t::schiene);
+    schiene_t *sch = get_block_way(gr);
     ribi_t::ribi ribi = sch->gib_ribi_unmasked();
     int anzahl;
 
@@ -91,7 +102,7 @@ void blockmanager::neue_schiene(karte_t *welt, grund_t *gr, ding_t *sig)
     }
     array_tpl<koord3d>  &nb = finde_nachbarn(welt, gr->gib_pos(), ribi, anzahl);
     blockhandle_t bs1, bs2;
-    weg_t *nachbar_weg;
+    schiene_t *nachbar_weg;
 
     switch(anzahl) {
     case 0:
@@ -100,17 +111,16 @@ void blockmanager::neue_schiene(karte_t *welt, grund_t *gr, ding_t *sig)
         sch->setze_blockstrecke( bs1 );
 	break;
     case 1:
-        nachbar_weg = welt->lookup(nb.at(0))->gib_weg(weg_t::schiene);
-        bs1 = dynamic_cast<schiene_t *>(nachbar_weg)->gib_blockstrecke();
+        nachbar_weg = get_block_way(welt->lookup(nb.at(0)));
+        bs1 = nachbar_weg->gib_blockstrecke();
         sch->setze_blockstrecke( bs1 );
 	break;
     case 2:
-        nachbar_weg = welt->lookup(nb.at(0))->gib_weg(weg_t::schiene);
-        bs1 = dynamic_cast<schiene_t *>(nachbar_weg)->gib_blockstrecke();
-        nachbar_weg = welt->lookup(nb.at(1))->gib_weg(weg_t::schiene);
-        bs2 = dynamic_cast<schiene_t *>(nachbar_weg)->gib_blockstrecke();
-
+        nachbar_weg = get_block_way(welt->lookup(nb.at(0)));
+        bs1 = nachbar_weg->gib_blockstrecke();
         sch->setze_blockstrecke( bs1 );
+        nachbar_weg = get_block_way(welt->lookup(nb.at(1)));
+        bs2 = nachbar_weg->gib_blockstrecke();
         if(bs1 != bs2) {
             vereinige(welt, bs1, bs2);
         }
@@ -129,12 +139,12 @@ void blockmanager::neue_schiene(karte_t *welt, grund_t *gr, ding_t *sig)
 
 void blockmanager::schiene_erweitern(karte_t *welt, grund_t *gr)
 {
-    schiene_t *sch = (schiene_t *)gr->gib_weg(weg_t::schiene);
+    schiene_t *sch = get_block_way(gr);
     ribi_t::ribi ribi = sch->gib_ribi_unmasked();
     int anzahl;
     array_tpl<koord3d>  &nb = finde_nachbarn(welt, gr->gib_pos(), ribi, anzahl);
     blockhandle_t bs1, bs2;
-    weg_t *nachbar_weg;
+    schiene_t *nachbar_weg;
     signal_t *sig;
 
     // falls wir nachbarn haben
@@ -149,8 +159,8 @@ void blockmanager::schiene_erweitern(karte_t *welt, grund_t *gr)
 
         // nachbarn verbinden
         for(int i=0; i<anzahl; i++) {
-	    nachbar_weg = welt->lookup(nb.at(i))->gib_weg(weg_t::schiene);
-            bs2 = dynamic_cast<schiene_t *>(nachbar_weg)->gib_blockstrecke();
+	        nachbar_weg = get_block_way(welt->lookup(nb.at(i)));
+	        bs2 = nachbar_weg->gib_blockstrecke();
 
             if(bs1 != bs2 &&
 		(!sig || sig->gib_richtung() != ribi_typ(gr->gib_pos().gib_2d(), nb.at(i).gib_2d()))) {
@@ -165,78 +175,65 @@ void blockmanager::schiene_erweitern(karte_t *welt, grund_t *gr)
 blockhandle_t
 blockmanager::finde_blockstrecke(karte_t * welt, koord3d pos)
 {
-    // sanity check
-
-    blockhandle_t bs;
-
-    if(welt != NULL && welt->lookup(pos) != NULL) {
-        weg_t *weg = welt->lookup(pos)->gib_weg(weg_t::schiene);
-        if(weg) {
-            bs = dynamic_cast<schiene_t *>(weg)->gib_blockstrecke();
-        }
-    }
-
-    DBG_MESSAGE("blockmanager::finde_blockstrecke()",
-                 "found rail block %ld at %d,%d", bs.get_id(), pos.x, pos.y);
-
-    return bs;
+	// sanity check
+	blockhandle_t bs;
+	if(welt != NULL && welt->lookup(pos) != NULL) {
+		schiene_t *sch = dynamic_cast<schiene_t*>(welt->lookup(pos)->gib_weg_nr(0));
+		if(!sch) {
+			sch = dynamic_cast<schiene_t*>(welt->lookup(pos)->gib_weg_nr(1));
+		}
+		if(sch) {
+			bs = sch->gib_blockstrecke();
+		}
+		else {
+			dbg->error("blockmanager::finde_blockstrecke()","not found at %i,%i,%i", pos.x, pos.y, pos.z);
+		}
+	}
+	DBG_MESSAGE("blockmanager::finde_blockstrecke()","found rail block %ld at %d,%d", bs.get_id(), pos.x, pos.y);
+	return bs;
 }
 
 void
-blockmanager::vereinige(karte_t *welt,
-                        blockhandle_t  bs1,
-                        blockhandle_t  bs2)
+blockmanager::vereinige(karte_t *welt, blockhandle_t  bs1, blockhandle_t  bs2)
 {
-    DBG_MESSAGE("blockmanager::vereinige()",
-                 "joining rail blocks %ld and %ld.",
-                 bs1.get_id(), bs2.get_id());
+	DBG_MESSAGE("blockmanager::vereinige()","joining rail blocks %ld and %ld.", bs1.get_id(), bs2.get_id());
 
-    assert(bs1.is_bound());
+	assert(bs1.is_bound());
 
-    // prüfe, ob nur eine strecke
-    if(bs1 == bs2) {
-        return;
-    }
+	// prüfe, ob nur eine strecke
+	if(bs1 == bs2) {
+		return;
+	}
 
-    if(!bs2.is_bound()) {
-        return;
-    }
+	if(!bs2.is_bound()) {
+		return;
+	}
 
-	for(int y=0; y<welt->gib_groesse_y(); y++) {
-		for(int x=0; x<welt->gib_groesse_x(); x++) {
-            const planquadrat_t *plan = welt->lookup(koord(x, y));
-
-            for(unsigned int k = 0; k < plan->gib_boden_count(); k++) {
-                weg_t *weg = plan->gib_boden_bei(k)->gib_weg(weg_t::schiene);
-                if(weg) {
-                    blockhandle_t bs = dynamic_cast<schiene_t *>(weg)->gib_blockstrecke();
-
+	slist_iterator_tpl <weg_t *> iter (weg_t::gib_alle_wege());
+	while(iter.next()) {
+		schiene_t *sch = dynamic_cast<schiene_t *>(iter.get_current());
+		if(sch) {
+                if(sch) {
+                    blockhandle_t bs = sch->gib_blockstrecke();
                     assert(bs.is_bound());
-
                     if(bs == bs2) {
-                        dynamic_cast<schiene_t *>(weg)->setze_blockstrecke(bs1);
+                        sch->setze_blockstrecke(bs1);
                     }
                 }
-            }
-        }
-    }
+		}
+	}
 
+	// vereinige signale
+	bs2->verdrahte_signale_neu();
+	strecken.remove( bs2 );
 
-    // vereinige signale
+	// pruefe, ob strecke frei
+	bs1->vereinige_vehikel_counter(bs2);
 
-    bs2->verdrahte_signale_neu();
+DBG_MESSAGE("blockmanager::vereinige()", "deleting rail block %ld", bs2.get_id());
+	blockstrecke_t::destroy( bs2 );
 
-    strecken.remove( bs2 );
-
-    // pruefe, ob strecke frei
-
-    bs1->vereinige_vehikel_counter(bs2);
-
-    DBG_MESSAGE("blockmanager::vereinige()", "deleting rail block %ld", bs2.get_id());
-    blockstrecke_t::destroy( bs2 );
-
-    DBG_MESSAGE("blockmanager::vereinige()", "%d rail blocks left after join", strecken.count());
-
+DBG_MESSAGE("blockmanager::vereinige()", "%d rail blocks left after join", strecken.count());
 }
 
 
@@ -248,8 +245,9 @@ blockmanager::entferne_signal(karte_t *welt, koord3d pos)
 {
 	// partner des signals suchen
 	grund_t * gr = welt->lookup(pos);
-	weg_t *weg = gr->gib_weg(weg_t::schiene);
-	blockhandle_t bs0 = dynamic_cast<schiene_t *>(weg)->gib_blockstrecke();
+	schiene_t *sch=get_block_way(gr);
+
+	blockhandle_t bs0 = sch->gib_blockstrecke();
 
 	signal_t *sig = dynamic_cast <signal_t *> (gr->suche_obj(ding_t::signal));
 	// prissi: to delete a presignal, we must use also this routine!
@@ -259,20 +257,18 @@ blockmanager::entferne_signal(karte_t *welt, koord3d pos)
 
 	// look at all four corners
 	int anzahl;
-	array_tpl<koord3d> &nb = finde_nachbarn(welt, pos, weg->gib_ribi_unmasked(), anzahl);
+	array_tpl<koord3d> &nb = finde_nachbarn(welt, pos, sch->gib_ribi_unmasked(), anzahl);
 
 	for(int i=0; i<anzahl; i++) {
-		weg_t *nachbar_weg = welt->lookup(nb.at(i))->gib_weg(weg_t::schiene);
-		blockhandle_t bs = dynamic_cast<schiene_t *>(nachbar_weg)->gib_blockstrecke();
-
+		blockhandle_t bs=get_block_way(welt->lookup(nb.at(i)))->gib_blockstrecke();
 		if(bs != bs0) {
 			bs->loesche_signal_bei(nb.get(i));
 		}
 	}
 
 	for(int i=0; i<anzahl; i++) {
-		weg_t *nachbar_weg = welt->lookup(nb.at(i))->gib_weg(weg_t::schiene);
-		blockhandle_t bs = dynamic_cast<schiene_t *>(nachbar_weg)->gib_blockstrecke();
+		schiene_t *nachbar_weg = get_block_way(welt->lookup(nb.at(i)));
+		blockhandle_t bs = nachbar_weg->gib_blockstrecke();
 
 		if(bs != bs0) {
 			block_ersetzer bes (welt, bs);
@@ -301,13 +297,12 @@ blockmanager::entferne_signal(karte_t *welt, koord3d pos)
 bool
 blockmanager::entferne_schiene(karte_t *welt, koord3d pos)
 {
-    weg_t *weg = welt->lookup(pos)->gib_weg(weg_t::schiene);
+    schiene_t *sch=get_block_way(welt->lookup(pos));
     int i;
 
-    if(weg) {
-        blockhandle_t bs0 = dynamic_cast<schiene_t *>(weg)->gib_blockstrecke();
-
-        const ribi_t::ribi ribi = weg->gib_ribi();
+    if(sch) {
+        blockhandle_t bs0 = sch->gib_blockstrecke();
+        const ribi_t::ribi ribi = sch->gib_ribi();
         int anzahl;
 
         array_tpl<koord3d> &nb = finde_nachbarn(welt, pos, ribi, anzahl);
@@ -321,9 +316,8 @@ blockmanager::entferne_schiene(karte_t *welt, koord3d pos)
             // ein einziges sein, da signale mit min. 1 feld
             // abstand gebaut werden müssen
             for(int i=0; i<anzahl; i++) {
-                weg_t *nachbar_weg = welt->lookup(nb.at(i))->gib_weg(weg_t::schiene);
-                blockhandle_t bs = dynamic_cast<schiene_t *>(nachbar_weg)->gib_blockstrecke();
-
+                schiene_t *nachbar_weg = get_block_way(welt->lookup(nb.at(i)));
+                blockhandle_t bs = nachbar_weg->gib_blockstrecke();
                 bs->loesche_signal_bei(nb.at(i));
             }
         }
@@ -333,19 +327,13 @@ blockmanager::entferne_schiene(karte_t *welt, koord3d pos)
         if(anzahl == 0) {
             // das war das letze stueck einer schiene
             // die blockstrecke wird aufgelöst
-
-//	    printf("%d Blockstrecken, entferne strecke %p\n", strecken.count(), bs0);
             strecken.remove( bs0 );
-//	    printf("%d Blockstrecken\n", strecken.count());
-
             blockstrecke_t::destroy( bs0 );
-
-            dynamic_cast<schiene_t *>(weg)->setze_blockstrecke(blockhandle_t());
+            sch->setze_blockstrecke(blockhandle_t());
         } else if(anzahl == 1) {
             // das war ende einer schiene,
             // nichts weiter zu tun
-
-            dynamic_cast<schiene_t *>(weg)->setze_blockstrecke(blockhandle_t());
+            sch->setze_blockstrecke(blockhandle_t());
         } else {
             // es gibt jetzt offene enden
             // dafuer muessen neue Blockstrecken angelegt werden
@@ -355,12 +343,11 @@ blockmanager::entferne_schiene(karte_t *welt, koord3d pos)
             bs.at(0) = bs0;
 
             block_ersetzer *bes = new block_ersetzer(welt, bs.at(0));
-            dynamic_cast<schiene_t *>(weg)->setze_blockstrecke(blockhandle_t());
+            sch->setze_blockstrecke(blockhandle_t());
 
             // max 3 davon ducrh neue bs ersetzen
             for(i=1; i<anzahl; i++) {
                 bes->neu = bs.at(i) = blockstrecke_t::create(welt);
-
                 marker.unmarkiere_alle();
                 traversiere_netz(welt, nb.at(i), bes);
             }
@@ -378,9 +365,8 @@ blockmanager::entferne_schiene(karte_t *welt, koord3d pos)
                 bool exists = false;
 
                 for(int j=0; j<anzahl; j++) {
-                    weg_t *nachbar_weg = welt->lookup(nb.at(j))->gib_weg(weg_t::schiene);
-
-                    if(bs.at(i) == dynamic_cast<schiene_t *>(nachbar_weg)->gib_blockstrecke()) {
+                    schiene_t *nachbar_weg = get_block_way(welt->lookup(nb.at(j)));
+                    if(bs.at(i) == nachbar_weg->gib_blockstrecke()) {
                         exists = true;
                         break;
                     }
@@ -401,9 +387,8 @@ blockmanager::entferne_schiene(karte_t *welt, koord3d pos)
 
             // alle bs pruefen, ob sie frei sind
             for(i=0; i<anzahl; i++) {
-                weg_t *nachbar_weg = welt->lookup(nb.at(i))->gib_weg(weg_t::schiene);
-                blockhandle_t bs = dynamic_cast<schiene_t *>(nachbar_weg)->gib_blockstrecke();
-
+                schiene_t *nachbar_weg = get_block_way(welt->lookup(nb.at(i)));
+                blockhandle_t bs = nachbar_weg->gib_blockstrecke();
                 pruefer_ob_strecke_frei *pr = new pruefer_ob_strecke_frei(welt, bs);
                 marker.unmarkiere_alle();
                 traversiere_netz(welt, nb.at(i), pr);
@@ -413,82 +398,72 @@ blockmanager::entferne_schiene(karte_t *welt, koord3d pos)
         }
 //	reset_nachbar_ribis(welt, pos, ribi);
     }
-    return weg != NULL;
+    return sch != NULL;
 }
 
 
 
 const char *
-blockmanager::baue_neues_signal(karte_t *welt,
-                                spieler_t *sp,
-                                koord3d pos, koord3d pos2, schiene_t *sch,
-                                ribi_t::ribi dir, bool presignal)
+blockmanager::baue_neues_signal(karte_t *welt, spieler_t *sp, koord3d pos, koord3d pos2, schiene_t *sch, ribi_t::ribi dir, bool presignal)
 {
-    DBG_MESSAGE("blockmanager::baue_neues_signal()", "build a new signal between %d,%d and %d,%d",
-           pos.x, pos.y, pos2.x, pos2.y);
+    DBG_MESSAGE("blockmanager::baue_neues_signal()", "build a new signal between %d,%d and %d,%d", pos.x, pos.y, pos2.x, pos2.y);
 
     blockhandle_t bs1 = sch->gib_blockstrecke();
     blockhandle_t bs2 = blockstrecke_t::create(welt);
 
-
     // zweite blockstrecke erzeugen
-
     marker.unmarkiere_alle();
+    schiene_t *sch2 = get_block_way(welt->lookup(pos2));
 
-    weg_t *weg2 = welt->lookup(pos2)->gib_weg(weg_t::schiene);
-    weg2->ribi_rem(ribi_t::rueckwaerts(dir));
-
+    sch2->ribi_rem(ribi_t::rueckwaerts(dir));
     block_ersetzer *bes = new block_ersetzer(welt, bs1);
     bes->neu = bs2;
     traversiere_netz(welt, pos2, bes);
-
     strecken.insert( bs2 );
 
     // signale neu verdrahten
     bs1->verdrahte_signale_neu();
 
-    // war es eine ringstrecke ?
-    if(sch->gib_blockstrecke() == bs2) {
-        // dann wird bs1 nicht mehr verwendet
-        strecken.remove(bs1);
-        blockstrecke_t::destroy(bs1);
+	// war es eine ringstrecke ?
+	if(sch->gib_blockstrecke() == bs2) {
+		// dann wird bs1 nicht mehr verwendet
+		strecken.remove(bs1);
+		blockstrecke_t::destroy(bs1);
+		bs1 = bs2;
+		dbg->error("blockmanager::baue_neues_signal()", "circular rail block detected.");
+	}
 
-        bs1 = bs2;
+	sch2->ribi_add(ribi_t::rueckwaerts(dir));
 
-        DBG_MESSAGE("blockmanager::baue_neues_signal()", "circular rail block detected.");
-    }
+	signal_t *sig1 = presignal ? new presignal_t (welt, pos, dir) : new signal_t(welt, pos, dir);
+	signal_t *sig2 = presignal ? new presignal_t(welt, pos2, ribi_t::rueckwaerts(dir)) : new signal_t(welt, pos2, ribi_t::rueckwaerts(dir));
 
-    weg2->ribi_add(ribi_t::rueckwaerts(dir));
+	bs1->add_signal(sig1);
+	bs2->add_signal(sig2);
 
-    signal_t *sig1 = presignal ? new presignal_t (welt, pos, dir) : new signal_t(welt, pos, dir);
-    signal_t *sig2 = presignal ? new presignal_t(welt, pos2, ribi_t::rueckwaerts(dir)) : new signal_t(welt, pos2, ribi_t::rueckwaerts(dir));
+	welt->lookup(pos)->obj_add(sig1);
+	welt->lookup(pos2)->obj_pri_add(sig2, PRI_HOCH);
 
-    bs1->add_signal(sig1);
-    bs2->add_signal(sig2);
+	sig1->setze_blockiert( false );
+	sig2->setze_blockiert( false );
 
-    welt->lookup(pos)->obj_add(sig1);
-    welt->lookup(pos2)->obj_pri_add(sig2, PRI_HOCH);
+	// jetzt muss man noch prüfen welche der beiden bs belegt ist
+	// da bs1 jetzt evtl (Ringstrecke!) nicht mehr exitiert müssen
+	// sicherheitshalber beide strecken geprüft werden
+	pruefer_ob_strecke_frei pr1(welt, bs1);
+	marker.unmarkiere_alle();
+	traversiere_netz(welt, pos, &pr1);
+	bs1->setze_belegung( pr1.count );
 
-    sig1->setze_blockiert( false );
-    sig2->setze_blockiert( false );
+	pruefer_ob_strecke_frei pr2(welt, bs2);
+	marker.unmarkiere_alle();
+	traversiere_netz(welt, pos2, &pr2);
+	bs2->setze_belegung( pr2.count );
 
-    // jetzt muss man noch prüfen welche der beiden bs belegt ist
-    // da bs1 jetzt evtl (Ringstrecke!) nicht mehr exitiert müssen
-    // sicherheitshalber beide strecken geprüft werden
-    pruefer_ob_strecke_frei pr1(welt, bs1);
-    marker.unmarkiere_alle();
-    traversiere_netz(welt, pos, &pr1);
-    bs1->setze_belegung( pr1.count );
-
-    pruefer_ob_strecke_frei pr2(welt, bs2);
-    marker.unmarkiere_alle();
-    traversiere_netz(welt, pos2, &pr2);
-    bs2->setze_belegung( pr2.count );
-
-    if(sp != NULL) {
-        sp->buche(umgebung_t::cst_signal, pos.gib_2d(), COST_CONSTRUCTION);
-    }
-    return NULL;
+	if(sp != NULL) {
+		sp->buche(umgebung_t::cst_signal, pos.gib_2d(), COST_CONSTRUCTION);
+	}
+	return NULL;
 }
 
 const char *
@@ -553,10 +528,9 @@ blockmanager::baue_andere_signale(koord3d pos1, koord3d pos2,
 const char *
 blockmanager::neues_signal(karte_t *welt, spieler_t *sp, koord3d pos, ribi_t::ribi dir, bool presignal)
 {
-    weg_t *weg = welt->lookup(pos)->gib_weg(weg_t::schiene);
-
-    if(weg) {
-        const ribi_t::ribi ribi = weg->gib_ribi();
+    schiene_t *sch = get_block_way(welt->lookup(pos));
+    if(sch) {
+        const ribi_t::ribi ribi = sch->gib_ribi();
 
         // pruefe ob dir gültig
         if(dir != ribi_t::nord && dir != ribi_t::west) {
@@ -575,9 +549,8 @@ blockmanager::neues_signal(karte_t *welt, spieler_t *sp, koord3d pos, ribi_t::ri
         }
 
         // pruefe ob an pos2 geeignete schienen sind
-        weg_t *weg2 = welt->lookup(pos2)->gib_weg(weg_t::schiene);
-
-        if(!weg2) {
+        schiene_t *sch2 = get_block_way(welt->lookup(pos2));
+        if(!sch2) {
             // keine schiene
             dbg->warning("blockmanager::neues_signal()", "no railroad track on square!");
             return "Hier kann kein\nSignal aufge-\nstellt werden!\n";
@@ -585,13 +558,13 @@ blockmanager::neues_signal(karte_t *welt, spieler_t *sp, koord3d pos, ribi_t::ri
 
         // pruefe ob schon signale da
 
-        signal_t *sig1 = dynamic_cast<schiene_t *>(weg)->gib_blockstrecke()->gib_signal_bei(pos);
-        signal_t *sig2 = dynamic_cast<schiene_t *>(weg2)->gib_blockstrecke()->gib_signal_bei(pos2);
+        signal_t *sig1 = sch->gib_blockstrecke()->gib_signal_bei(pos);
+        signal_t *sig2 = sch2->gib_blockstrecke()->gib_signal_bei(pos2);
 
         if(sig1 != NULL && sig2 != NULL) {
             // es gibt signale
 
-            return baue_andere_signale(pos, pos2, dynamic_cast<schiene_t *>(weg), dynamic_cast<schiene_t *>(weg2), dir, presignal);
+            return baue_andere_signale(pos, pos2, sch, sch2, dir, presignal);
         } else if(sig1 == NULL && sig2 == NULL) {
             // es gibt noch keine Signale
 
@@ -599,7 +572,7 @@ blockmanager::neues_signal(karte_t *welt, spieler_t *sp, koord3d pos, ribi_t::ri
                 dbg->warning("blockmanger_t::neues_signal()", "direction mismatch: dir=%d, ribi=%d!", dir, ribi);
                 return "Hier kann kein\nSignal aufge-\nstellt werden!\n";
             }
-            return baue_neues_signal(welt, sp, pos, pos2, dynamic_cast<schiene_t *>(weg), dir, presignal);
+            return baue_neues_signal(welt, sp, pos, pos2, sch, dir, presignal);
 
         } else {
             // ein signal muss verlorengegangen sein
@@ -647,17 +620,14 @@ blockmanager::pruefe_blockstrecke(karte_t *welt, koord3d k)
     const grund_t *gr = welt->lookup(k);
 
     if(gr) {
-        weg_t *weg = gr->gib_weg(weg_t::schiene);
-
-        if(weg) {
-            blockhandle_t bs = dynamic_cast<schiene_t *>(weg)->gib_blockstrecke();
-
+        schiene_t *sch = get_block_way(gr);
+        if(sch) {
+            blockhandle_t bs = sch->gib_blockstrecke();
             pruefer_ob_strecke_frei pr (welt, bs);
             marker.unmarkiere_alle();
             traversiere_netz(welt, k, &pr);
             bs->setze_belegung( pr.count );
-
-            // DBG_MESSAGE("blockmanager::pruefe_blockstrecke()", "setting waggon counter to %d waggons", pr.count);
+// DBG_MESSAGE("blockmanager::pruefe_blockstrecke()", "setting waggon counter to %d waggons", pr.count);
         }
     }
 }
@@ -666,13 +636,10 @@ blockmanager::pruefe_blockstrecke(karte_t *welt, koord3d k)
 void blockmanager::setze_tracktyp(karte_t *welt, koord3d k, uint8 styp)
 {
     const grund_t *gr = welt->lookup(k);
-
     if(gr) {
-        weg_t *weg = gr->gib_weg(weg_t::schiene);
-
-        if(weg) {
-            blockhandle_t bs = dynamic_cast<schiene_t *>(weg)->gib_blockstrecke();
-
+        schiene_t *sch = get_block_way(gr);
+        if(sch) {
+            blockhandle_t bs = sch->gib_blockstrecke();
             tracktyp_ersetzer pr (welt, bs, styp);
             marker.unmarkiere_alle();
             traversiere_netz(welt, k, &pr);
@@ -682,50 +649,51 @@ void blockmanager::setze_tracktyp(karte_t *welt, koord3d k, uint8 styp)
 
 
 void
-blockmanager::traversiere_netz(const karte_t *welt,
-			       const koord3d start,
-                               koord_beobachter *cmd)
+blockmanager::traversiere_netz(const karte_t *welt, const koord3d start, koord_beobachter *cmd)
 {
-  // die Berechnung erfolgt durch eine Breitensuche fuer Graphen
-
-  slist_tpl <koord3d> queue;         // Warteschlange fuer Breitensuche
-
-  koord3d tmp (start);
-
-  queue.append( tmp );        // init queue mit erstem feld
-
-//    printf("Start ist %d %d\n", start.x, start.y);
-//    printf("pos ist %d %d ziel ist %d %d\n", tmp->pos.x, tmp->pos.y, ziel.x, ziel.y);
-
-  // Breitensuche
-
-  do {
-    tmp = queue.remove_first();
-
-    marker.markiere(welt->lookup(tmp));  // betretene Felder markieren
-
-    //printf("Checking koord %d %d\n", tmp->x, tmp->y);
-
-    if(cmd->neue_koord(tmp) == false) {    // noch nicht fertig ?
-    // V.Meyer: weg_position_t changed to grund_t::get_neighbour()
-      grund_t *from = welt->lookup(tmp);
-      grund_t *to;
-
-      for(int r=0; r<4; r++) {
-	if(from->get_neighbour(to, weg_t::schiene, koord::nsow[r])) {
-	  if(cmd->ist_uebergang_ok(tmp, to->gib_pos())) {
-	    if(!marker.ist_markiert(to)) {
-	      //printf("found koord %d %d\n", nach.gib_pos().x, nach.gib_pos().y);
-	      queue.append( to->gib_pos() );
-	    } else {
-	      // nochmal angefasst
-	      cmd->wieder_koord(to->gib_pos());
-	    }
-	  }
+	weg_t::typ wegtype;
+	grund_t *test_gr = welt->lookup(start);
+	if(dynamic_cast<schiene_t *>(test_gr->gib_weg_nr(0))) {
+		wegtype = test_gr->gib_weg_nr(0)->gib_typ();
 	}
-      }
-    }
-  } while(queue.count());
+	else 	if(dynamic_cast<schiene_t *>(test_gr->gib_weg_nr(1))) {
+		wegtype = test_gr->gib_weg_nr(1)->gib_typ();
+	}
+	else {
+		dbg->error("blockmanager::traversiere_netz()","unknown waytype!");
+		return;	// nothing found
+	}
+
+	// die Berechnung erfolgt durch eine Breitensuche fuer Graphen
+	slist_tpl <koord3d> queue;         // Warteschlange fuer Breitensuche
+	koord3d tmp (start);
+	queue.append( tmp );        // init queue mit erstem feld
+
+		// Breitensuche
+	do {
+		tmp = queue.remove_first();
+		marker.markiere(welt->lookup(tmp));  // betretene Felder markieren
+
+		if(cmd->neue_koord(tmp) == false) {    // noch nicht fertig ?
+			// V.Meyer: weg_position_t changed to grund_t::get_neighbour()
+			grund_t *from = welt->lookup(tmp);
+			grund_t *to;
+
+			for(int r=0; r<4; r++) {
+				if(from->get_neighbour(to, wegtype, koord::nsow[r])) {
+					if(cmd->ist_uebergang_ok(tmp, to->gib_pos())) {
+						if(!marker.ist_markiert(to)) {
+//DBG_MESSAGE("blockmanager::traversiere_netz()","to (%d,%d,%d)", to->gib_pos().x, to->gib_pos().y, to->gib_pos().z);
+							queue.append( to->gib_pos() );
+						} else {
+							// nochmal angefasst
+							cmd->wieder_koord(to->gib_pos());
+						}
+					}
+				}
+			}
+		}
+	} while(queue.count());
 }
 
 
@@ -765,7 +733,6 @@ void
 blockmanager::laden_abschliessen()
 {
     slist_iterator_tpl< blockhandle_t > iter ( strecken );
-
     while(iter.next()) {
         blockhandle_t bs = iter.get_current();
         bs->laden_abschliessen();
@@ -777,13 +744,12 @@ blockmanager::laden_abschliessen()
 void
 blockmanager::delete_all_blocks()
 {
-    while(strecken.count() > 0) {
-        blockhandle_t bs = strecken.at(0);
-
-	strecken.remove(bs);
-        blockstrecke_t::destroy( bs );
-    }
-    strecken.clear();
+	while(strecken.count() > 0) {
+		blockhandle_t bs = strecken.at(0);
+		strecken.remove(bs);
+		blockstrecke_t::destroy( bs );
+	}
+	strecken.clear();
 }
 
 
@@ -796,32 +762,22 @@ blockmanager::block_ersetzer::block_ersetzer(karte_t *welt,
      this->welt = welt;
      this->alt = alt;
 
-     DBG_MESSAGE("blockmanager::block_ersetzer::block_ersetzer()",
-                  "replacing rail block %ld", alt.get_id());
+     DBG_MESSAGE("blockmanager::block_ersetzer::block_ersetzer()","replacing rail block %ld", alt.get_id());
 }
 
 bool
 blockmanager::block_ersetzer::neue_koord(koord3d pos)
 {
-    bool ok = true;   // assume we break traversal here
-
-    schiene_t *weg = dynamic_cast<schiene_t *>(welt->lookup(pos)->gib_weg(weg_t::schiene));
-
-    if(weg) {
-        if(weg->gib_blockstrecke() == alt) {
-//	    DBG_MESSAGE("blockmanager::block_ersetzer::neue_koord()",
-//                 "on %d %d: %d -> %d", pos.x, pos.y, alt.get_id(), neu.get_id());
-            weg->setze_blockstrecke( neu );
-            ok = false;   // do not stop traversal yet
+	bool ok = true;   // assume we break traversal here
+	schiene_t *sch = get_block_way(welt->lookup(pos));
+	if(sch) {
+		if(sch->gib_blockstrecke() == alt) {
+//DBG_MESSAGE("blockmanager::block_ersetzer::neue_koord()","on %d %d: %d -> %d", pos.x, pos.y, alt.get_id(), neu.get_id());
+			sch->setze_blockstrecke( neu );
+			ok = false;   // do not stop traversal yet
+		}
 	}
-    }
-
-//    DBG_MESSAGE("blockmanager::block_ersetzer::neue_koord()",
-//                 "called on %d %d, result %d", pos.x, pos.y, ok);
-
-
-    return ok;
-
+	return ok;
 }
 
 bool
@@ -850,9 +806,7 @@ blockmanager::tracktyp_ersetzer::tracktyp_ersetzer(karte_t *welt,
      this->alt = alt;
      this->electric = is_electric;
 
-     DBG_MESSAGE("blockmanager::tracktyp_ersetzer::tracktyp_ersetzer()",
-                  "replacing rail block %ld to electric track type %d",
-		  alt.get_id(), is_electric);
+     DBG_MESSAGE("blockmanager::tracktyp_ersetzer::tracktyp_ersetzer()","replacing rail block %ld to electric track type %d",alt.get_id(), is_electric);
 }
 
 bool
@@ -861,9 +815,7 @@ blockmanager::tracktyp_ersetzer::neue_koord(koord3d pos)
     bool ok = true;   // assume we break traversal here
 
     grund_t *gr = welt->lookup(pos);
-
-    schiene_t *weg = dynamic_cast<schiene_t *>(gr->gib_weg(weg_t::schiene));
-
+    schiene_t *weg = get_block_way(gr);
     if(weg) {
         if(weg->gib_blockstrecke() == alt) {
 //	    DBG_MESSAGE("blockmanager::tracktyp_ersetzer::neue_koord()",
@@ -940,9 +892,8 @@ blockmanager::pruefer_ob_strecke_frei::pruefer_ob_strecke_frei(karte_t *w, block
 bool blockmanager::pruefer_ob_strecke_frei::neue_koord(koord3d k)
 {
     const grund_t *gr = welt->lookup(k);
-
     if(gr) {
-        schiene_t *weg = dynamic_cast<schiene_t *>(gr->gib_weg(weg_t::schiene));
+        schiene_t *weg = get_block_way(gr);
 
         if(weg && weg->gib_blockstrecke() == bs) {
 
@@ -954,8 +905,7 @@ bool blockmanager::pruefer_ob_strecke_frei::neue_koord(koord3d k)
 
 //		    printf("Typ %d, %s bei %d, %d\n", typ, dt->name(), k.x, k.y);
 
-                    if(typ == ding_t::waggon ||
-		       typ == ding_t::car) {
+                    if(typ == ding_t::waggon ||  typ == ding_t::monorailwaggon) {
                         count ++;
                     }
                 }

@@ -78,10 +78,40 @@ void planquadrat_t::boden_hinzufuegen(grund_t *bd)
 			}
 		}
 		boeden.insert(i, bd);
+		if(bd->gib_typ()==grund_t::boden) {
+			bd->set_flag(grund_t::is_cover_tile);
+		}
 		bd->calc_bild();
 		reliefkarte_t::gib_karte()->recalc_relief_farbe(bd->gib_pos().gib_2d());
 	}
 }
+
+
+
+bool planquadrat_t::kartenboden_insert(grund_t *bd)
+{
+	if(bd!=NULL) {
+		int already_there=0;
+		// boeden[0] ist Kartengrund,
+		// danach folgen die Tunnels und Brücken höhensortiert.
+		for(int i=0; i<boeden.get_count(); i++) {
+			if(boeden.get(i)->gib_typ()==grund_t::boden) {
+				already_there ++;
+				if(boeden.get(i)->get_flag(grund_t::is_cover_tile)) {
+					return 0;
+				}
+			}
+		}
+		boeden.insert(0, bd);
+		if(already_there) {
+			bd->set_flag(grund_t::is_cover_tile);
+		}
+		bd->calc_bild();
+		reliefkarte_t::gib_karte()->recalc_relief_farbe(bd->gib_pos().gib_2d());
+	}
+	return 1;
+}
+
 
 
 bool planquadrat_t::boden_entfernen(grund_t *bd)
@@ -128,16 +158,19 @@ planquadrat_t::kartenboden_setzen(grund_t *bd, bool mit_spieler)
  */
 void planquadrat_t::boden_ersetzen(grund_t *alt, grund_t *neu)
 {
-    if(alt != NULL && neu != NULL) {
-	for(int i=0; i<boeden.get_count(); i++) {
-	    if(boeden.get(i) == alt) {
-		grund_t *tmp = boeden.get(i);
-		boeden.at(i) = neu;
-		delete tmp;
-		return;
-	    }
+	if(alt != NULL && neu != NULL) {
+		for(int i=0; i<boeden.get_count(); i++) {
+			if(boeden.get(i) == alt) {
+				grund_t *tmp = boeden.get(i);
+				boeden.at(i) = neu;
+				if(tmp->get_flag(grund_t::is_cover_tile)) {
+					neu->set_flag(grund_t::is_cover_tile);
+				}
+				delete tmp;
+				return;
+			}
+		}
 	}
-    }
 }
 
 
@@ -290,23 +323,43 @@ void planquadrat_t::angehoben(karte_t *welt)
 void
 planquadrat_t::display_boden(const int xpos, const int ypos, bool dirty) const
 {
-    if(boeden.get_count() > 0) {
-        boeden.get(0)->display_boden(xpos, ypos, dirty);
-    }
+	if(boeden.get_count() > 0) {
+		if(boeden.get(0)->get_flag(grund_t::is_cover_tile)) {
+			for(int i=boeden.get_count()-1; i>0;  i--) {
+				if(boeden.get(i)->gib_typ()==grund_t::boden) {
+//					boeden.get(i)->display_boden(xpos, ypos, dirty);
+//					boeden.get(i)->display_dinge(xpos, ypos, dirty);
+				}
+			}
+		}
+		// normal ground will be drawn before to avoid overlap with badly aligned vehicles
+		grund_t *gr=boeden.get(0);
+		if(gr->get_flag(grund_t::draw_as_ding)==0) {
+			gr->display_boden( xpos, ypos, dirty );
+		}
+	}
 }
 
 
 void
 planquadrat_t::display_dinge(const int xpos, const int ypos, bool dirty) const
 {
-    if(boeden.get_count() > 0) {
-        boeden.get(0)->display_dinge(xpos, ypos, dirty);
-    }
+	if(boeden.get_count()>0) {
+		grund_t *gr=boeden.get(0);
+		// this is a foundation/upslope
+		if(gr->get_flag(grund_t::draw_as_ding)) {
+			gr->display_boden( xpos, ypos, dirty );
+		}
+		boeden.get(0)->display_dinge(xpos, ypos, dirty);
 
-    for(int i = 1; i < boeden.get_count(); i++) {
-        boeden.get(i)->display_boden(xpos, ypos, dirty);
-        boeden.get(i)->display_dinge(xpos, ypos, dirty);
-    }
+		for(int i=1; i<boeden.get_count(); i++) {
+			gr=boeden.get(i);
+			if(gr->gib_typ()!=grund_t::boden) {
+	//			gr->display_boden(xpos, ypos, dirty);
+	//			gr->display_dinge(xpos, ypos, dirty);
+			}
+		}
+	}
 }
 
 

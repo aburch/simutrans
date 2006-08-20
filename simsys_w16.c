@@ -11,6 +11,8 @@
 #error "Only Windows has GDI!"
 #endif
 
+#pragma
+
 #ifndef _MSC_VER
 #include <unistd.h>
 #include <sys/time.h>

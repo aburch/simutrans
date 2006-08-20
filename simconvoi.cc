@@ -445,7 +445,6 @@ convoi_t::sync_step(long delta_t)
 	else {
 		// Ziel erreicht
 		alte_richtung = fahr->at(0)->gib_fahrtrichtung();
-		state = LOADING;
 
 		// pruefen ob wir ein depot erreicht haben
 		const grund_t *gr = welt->lookup(fahr->at(0)->gib_pos());
@@ -477,15 +476,20 @@ convoi_t::sync_step(long delta_t)
 		}
 		else {
 			// no depot reached, so book values for stop!
+			const grund_t *gr = welt->lookup(fahr->at(0)->gib_pos());
 			halthandle_t halt = haltestelle_t::gib_halt(welt, fahr->at(0)->gib_pos());
 			// we could have reached a non-haltestelle stop, so check before booking!
-			if(halt.is_bound()) {
+			if(halt.is_bound()  &&  gr->gib_weg_ribi(fahr->at(0)->gib_wegtyp())!=0) {
 				// Gewinn für transport einstreichen
 				calc_gewinn();
 				akt_speed = 0;
 				halt->book(1, HALT_CONVOIS_ARRIVED);
+//DBG_MESSAGE("convoi_t::sync_step()","reached station at (%i,%i)",gr->gib_pos().x,gr->gib_pos().y);
+				state = LOADING;
+				calc_loading();
 			}
 			else {
+//DBG_MESSAGE("convoi_t::sync_step()","passed waypoint at (%i,%i)",gr->gib_pos().x,gr->gib_pos().y);
 				// Neither depot nor station: waypoint
 				drive_to_next_stop();
 				state = ROUTING_2;
@@ -501,13 +505,9 @@ convoi_t::sync_step(long delta_t)
       break;
 
     case WAITING_FOR_CLEARANCE:
-      {
-	int restart_speed;
-	if(fahr->at(0)->ist_weg_frei(restart_speed)) {
-	  state = DRIVING;
-	}
-      }
+      // Hajo: waiting is asynchronous => fixed waiting order and route search
       break;
+
     case SELF_DESTRUCT:
 	 for(unsigned f=0; f<anz_vehikel; f++) {
       	besitzer_p->buche(fahr->at(f)->calc_restwert(), fahr->at(f)->gib_pos().gib_2d(), COST_NEW_VEHICLE);
@@ -554,15 +554,15 @@ int convoi_t::drive_to(koord3d start, koord3d ziel)
  */
 void convoi_t::drive_to_next_stop()
 {
-  fahrplan_t *fpl = gib_fahrplan();
+	fahrplan_t *fpl = gib_fahrplan();
+	assert(fpl != NULL);
 
-  assert(fpl != NULL);
-
-  if(fpl->aktuell+1 < fpl->maxi()) {
-    fpl->aktuell ++;
-  } else {
-    fpl->aktuell = 0;
-  }
+	if(fpl->aktuell+1 < fpl->maxi()) {
+		fpl->aktuell ++;
+	}
+	else {
+		fpl->aktuell = 0;
+	}
 }
 
 
@@ -619,7 +619,6 @@ void convoi_t::step()
 			else {
 				// Hajo: now calculate a new route
 				drive_to(fahr->at(0)->gib_pos(),fpl->eintrag.at(fpl->get_aktuell()).pos);
-
 				if(route.gib_max_n() > 0) {
 					// Hajo: ROUTING_3 is no more, go to ROUTING_4 directly
 					state = ROUTING_4;
@@ -629,6 +628,15 @@ void convoi_t::step()
 
 		case ROUTING_5:
 			vorfahren();
+			break;
+
+		case WAITING_FOR_CLEARANCE:
+			{
+				int restart_speed;
+				if(fahr->at(0)->ist_weg_frei(restart_speed)) {
+					state = DRIVING;
+				}
+			}
 			break;
 
 		default:	/* keeps compiler silent*/
@@ -986,15 +994,14 @@ DBG_DEBUG("convoi_t::setze_fahrplan()", "add destinations at (%i,%i)",fpl->eintr
 fahrplan_t *
 convoi_t::erzeuge_fahrplan()
 {
-    if(fpl == NULL) {
-	if(fahr->at(0) != NULL) {
-	    fpl = fahr->at(0)->erzeuge_neuen_fahrplan();
-
-	    fpl->eingabe_abschliessen();
+	if(fpl == NULL) {
+		if(fahr->at(0) != NULL) {
+			fpl = fahr->at(0)->erzeuge_neuen_fahrplan();
+			fpl->eingabe_abschliessen();
+		}
 	}
-    }
 
-    return fpl;
+	return fpl;
 };
 
 
@@ -1203,6 +1210,7 @@ convoi_t::rdwr(loadsave_t *file)
 				case ding_t::waggon:    v = new waggon_t(welt, file);     break;
 				case ding_t::schiff:    v = new schiff_t(welt, file);     break;
 				case ding_t::aircraft:    v = new aircraft_t(welt, file);     break;
+				case ding_t::monorailwaggon:    v = new monorail_waggon_t(welt, file);     break;
 				default:
 				dbg->fatal("convoi_t::convoi_t()","Can't load vehicle type %d", typ);
 			}
@@ -1909,7 +1917,7 @@ convoi_t::book(sint64 amount, int cost_type)
 
 	financial_history[0][cost_type] += amount;
 	if (has_line()) {
-		line->book(amount, cost_type);
+		line->book(amount, simline_t::convoi_to_line_catgory[cost_type] );
 	}
 
 	if (cost_type == CONVOI_TRANSPORTED_GOODS) {

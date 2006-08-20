@@ -15,6 +15,7 @@
 #include "../../simdebug.h"
 #include "../../bauer/vehikelbauer.h"
 #include "../../boden/wege/weg.h"
+#include "../sound_besch.h"
 #include "../vehikel_besch.h"
 
 #include "vehicle_reader.h"
@@ -125,7 +126,6 @@ void vehicle_reader_t::register_obj(obj_besch_t *&data)
     vehikelbauer_t::register_besch(besch);
 
     obj_for_xref(get_type(), besch->gib_name(), data);
-//    printf("...Vehikel %s geladen\n", besch->gib_name());
 }
 
 bool vehicle_reader_t::successfully_loaded() const
@@ -143,128 +143,142 @@ bool vehicle_reader_t::successfully_loaded() const
 obj_besch_t * vehicle_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 {
 #ifdef _MSC_VER /* no var array on the stack supported */
-    char *besch_buf = static_cast<char *>(alloca(node.size));
+	char *besch_buf = static_cast<char *>(alloca(node.size));
 #else
-  // Hajo: reading buffer is better allocated on stack
-  char besch_buf [node.size];
+	// Hajo: reading buffer is better allocated on stack
+	char besch_buf [node.size];
 #endif
 
+	char *info_buf = new char[sizeof(obj_besch_t) + node.children * sizeof(obj_besch_t *)];
+	vehikel_besch_t *besch = new vehikel_besch_t();
+	besch->node_info = reinterpret_cast<obj_besch_info_t *>(info_buf);
 
-  char *info_buf = new char[sizeof(obj_besch_t) + node.children * sizeof(obj_besch_t *)];
+	// Hajo: Read data
+	fread(besch_buf, node.size, 1, fp);
+	char * p = besch_buf;
 
-  vehikel_besch_t *besch = new vehikel_besch_t();
+	// Hajo: old versions of PAK files have no version stamp.
+	// But we know, the higher most bit was always cleared.
 
-  besch->node_info = reinterpret_cast<obj_besch_info_t *>(info_buf);
+	const uint16 v = decode_uint16(p);
+	const int version = v & 0x8000 ? v & 0x7FFF : 0;
 
-  // Hajo: Read data
-  fread(besch_buf, node.size, 1, fp);
+	if(version == 1) {
+		// Versioned node, version 1
 
-  char * p = besch_buf;
+		besch->preis = decode_uint32(p);
+		besch->zuladung = decode_uint16(p);
+		besch->geschw = decode_uint16(p);
+		besch->gewicht = decode_uint16(p);
+		besch->leistung = decode_uint16(p);
+		besch->betriebskosten = decode_uint16(p);
 
-  // Hajo: old versions of PAK files have no version stamp.
-  // But we know, the higher most bit was always cleared.
+		besch->intro_date = decode_uint16(p);
+		besch->gear = decode_uint8(p);
 
-  const uint16 v = decode_uint16(p);
-  const int version = v & 0x8000 ? v & 0x7FFF : 0;
+		besch->typ = decode_uint8(p);
+		besch->sound = decode_sint8(p);
+		besch->vorgaenger = decode_uint8(p);
+		besch->nachfolger = decode_uint8(p);
 
-  if(version == 1) {
-    // Versioned node, version 1
+		besch->obsolete_date = (DEFAULT_RETIRE_DATE*16);
+	} else if(version == 2) {
+		// Versioned node, version 2
 
-    besch->preis = decode_uint32(p);
-    besch->zuladung = decode_uint16(p);
-    besch->geschw = decode_uint16(p);
-    besch->gewicht = decode_uint16(p);
-    besch->leistung = decode_uint16(p);
-    besch->betriebskosten = decode_uint16(p);
+		besch->preis = decode_uint32(p);
+		besch->zuladung = decode_uint16(p);
+		besch->geschw = decode_uint16(p);
+		besch->gewicht = decode_uint16(p);
+		besch->leistung = decode_uint16(p);
+		besch->betriebskosten = decode_uint16(p);
 
-    besch->intro_date = decode_uint16(p);
-    besch->gear = decode_uint8(p);
+		besch->intro_date = decode_uint16(p);
+		besch->gear = decode_uint8(p);
 
-    besch->typ = decode_uint8(p);
-    besch->sound = decode_sint8(p);
-    besch->vorgaenger = decode_uint8(p);
-    besch->nachfolger = decode_uint8(p);
+		besch->typ = decode_uint8(p);
+		besch->sound = decode_sint8(p);
+		besch->vorgaenger = decode_uint8(p);
+		besch->nachfolger = decode_uint8(p);
+		besch->engine_type = decode_uint8(p);
 
-    besch->obsolete_date = (DEFAULT_RETIRE_DATE*16);
-  } else if(version == 2) {
-    // Versioned node, version 2
+		besch->obsolete_date = (DEFAULT_RETIRE_DATE*16);
+	} else if (version==3   ||  version==4  ||  version==5) {
+		// Versioned node, version 3 with retire date
+		// version 4 identical, just other values for the waytype
+		// version 5 just uses the new scheme for data calculation
 
-    besch->preis = decode_uint32(p);
-    besch->zuladung = decode_uint16(p);
-    besch->geschw = decode_uint16(p);
-    besch->gewicht = decode_uint16(p);
-    besch->leistung = decode_uint16(p);
-    besch->betriebskosten = decode_uint16(p);
+		besch->preis = decode_uint32(p);
+		besch->zuladung = decode_uint16(p);
+		besch->geschw = decode_uint16(p);
+		besch->gewicht = decode_uint16(p);
+		besch->leistung = decode_uint16(p);
+		besch->betriebskosten = decode_uint16(p);
 
-    besch->intro_date = decode_uint16(p);
-    besch->gear = decode_uint8(p);
+		besch->intro_date = decode_uint16(p);
+		besch->obsolete_date = decode_uint16(p);
+		besch->gear = decode_uint8(p);
 
-    besch->typ = decode_uint8(p);
-    besch->sound = decode_sint8(p);
-    besch->vorgaenger = decode_uint8(p);
-    besch->nachfolger = decode_uint8(p);
-    besch->engine_type = decode_uint8(p);
+		besch->typ = decode_uint8(p);
+		besch->sound = decode_sint8(p);
+		besch->vorgaenger = decode_uint8(p);
+		besch->nachfolger = decode_uint8(p);
+		besch->engine_type = decode_uint8(p);
+	} else if (version==6) {
+		// version 5 just 32 bit for power and 16 Bit for gear
 
-    besch->obsolete_date = (DEFAULT_RETIRE_DATE*16);
-} else if (version==3   ||  version==4  ||  version==5) {
-    // Versioned node, version 3 with retire date
-    // version 4 identical, just other values for the waytype
-    // version 5 just uses the new scheme for data calculation
+		besch->preis = decode_uint32(p);
+		besch->zuladung = decode_uint16(p);
+		besch->geschw = decode_uint16(p);
+		besch->gewicht = decode_uint16(p);
+		besch->leistung = decode_uint32(p);
+		besch->betriebskosten = decode_uint16(p);
 
-    besch->preis = decode_uint32(p);
-    besch->zuladung = decode_uint16(p);
-    besch->geschw = decode_uint16(p);
-    besch->gewicht = decode_uint16(p);
-    besch->leistung = decode_uint16(p);
-    besch->betriebskosten = decode_uint16(p);
+		besch->intro_date = decode_uint16(p);
+		besch->obsolete_date = decode_uint16(p);
+		besch->gear = decode_uint16(p);
 
-    besch->intro_date = decode_uint16(p);
-    besch->obsolete_date = decode_uint16(p);
-    besch->gear = decode_uint8(p);
+		besch->typ = decode_uint8(p);
+		besch->sound = decode_sint8(p);
+		besch->engine_type = decode_uint8(p);
+		besch->vorgaenger = decode_uint8(p);
+		besch->nachfolger = decode_uint8(p);
+	} else if (version==7) {
+		// new sound handling ...
 
-    besch->typ = decode_uint8(p);
-    besch->sound = decode_sint8(p);
-    besch->vorgaenger = decode_uint8(p);
-    besch->nachfolger = decode_uint8(p);
-    besch->engine_type = decode_uint8(p);
-} else if (version==6) {
-    // version 5 just 32 bit for power and 16 Bit for gear
+		besch->preis = decode_uint32(p);
+		besch->zuladung = decode_uint16(p);
+		besch->geschw = decode_uint16(p);
+		besch->gewicht = decode_uint16(p);
+		besch->leistung = decode_uint32(p);
+		besch->betriebskosten = decode_uint16(p);
 
-    besch->preis = decode_uint32(p);
-    besch->zuladung = decode_uint16(p);
-    besch->geschw = decode_uint16(p);
-    besch->gewicht = decode_uint16(p);
-    besch->leistung = decode_uint32(p);
-    besch->betriebskosten = decode_uint16(p);
+		besch->intro_date = decode_uint16(p);
+		besch->obsolete_date = decode_uint16(p);
+		besch->gear = decode_uint16(p);
 
-    besch->intro_date = decode_uint16(p);
-    besch->obsolete_date = decode_uint16(p);
-    besch->gear = decode_uint16(p);
+		besch->typ = decode_uint8(p);
+		besch->sound = decode_sint8(p);
+		besch->engine_type = decode_uint8(p);
+		besch->vorgaenger = decode_uint8(p);
+		besch->nachfolger = decode_uint8(p);
+	} else {
+		// old node, version 0
 
-    besch->typ = decode_uint8(p);
-    besch->sound = decode_sint8(p);
-    besch->engine_type = decode_uint8(p);
-    besch->vorgaenger = decode_uint8(p);
-    besch->nachfolger = decode_uint8(p);
-} else {
-    // old node, version 0
+		besch->typ = v;
+		besch->zuladung = decode_uint16(p);
+		besch->preis = decode_uint32(p);
+		besch->geschw = decode_uint16(p);
+		besch->gewicht = decode_uint16(p);
+		besch->leistung = decode_uint16(p);
+		besch->betriebskosten = decode_uint16(p);
+		besch->sound = decode_sint16(p);
+		besch->vorgaenger = decode_uint16(p);
+		besch->nachfolger = decode_uint16(p);
 
-    besch->typ = v;
-    besch->zuladung = decode_uint16(p);
-    besch->preis = decode_uint32(p);
-    besch->geschw = decode_uint16(p);
-    besch->gewicht = decode_uint16(p);
-    besch->leistung = decode_uint16(p);
-    besch->betriebskosten = decode_uint16(p);
-    besch->sound = decode_sint16(p);
-    besch->vorgaenger = decode_uint16(p);
-    besch->nachfolger = decode_uint16(p);
-
-    besch->intro_date = DEFAULT_INTRO_DATE*16;
-    besch->obsolete_date = (DEFAULT_RETIRE_DATE*16);
-    besch->gear = 64;
-
-  }
+		besch->intro_date = DEFAULT_INTRO_DATE*16;
+		besch->obsolete_date = (DEFAULT_RETIRE_DATE*16);
+		besch->gear = 64;
+	}
 
 
 	// correct the engine type for old vehicles
@@ -293,6 +307,22 @@ obj_besch_t * vehicle_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 		besch->intro_date = (date/16)*12 + (date%16);
 		date=besch->obsolete_date;
 		besch->obsolete_date = (date/16)*12 + (date%16);
+	}
+
+	if(besch->sound==LOAD_SOUND) {
+		uint8 len=decode_sint8(p);
+		char wavname[256];
+		wavname[len] = 0;
+		for(uint8 i=0; i<len; i++) {
+			wavname[i] = decode_sint8(p);
+		}
+		besch->sound = sound_besch_t::gib_sound_id(wavname);
+DBG_MESSAGE("vehicle_reader_t::register_obj()","sound %s to %i",wavname,besch->sound);
+	}
+	else if(besch->sound!=NO_SOUND) {
+		sint16 old_id = besch->sound;
+		besch->sound = sound_besch_t::get_compatible_sound_id(old_id);
+DBG_MESSAGE("vehicle_reader_t::register_obj()","old sound %i to %i",old_id,besch->sound);
 	}
 
   DBG_DEBUG("vehicle_reader_t::read_node()",

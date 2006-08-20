@@ -52,14 +52,6 @@ public:
     virtual bool zeige_info();
 
 
-    /**
-     * Needed to synchronize map ground with map height. Should do
-     * nothing for ground types which are not linked to map height
-     * @author Hj. Malthaner
-     */
-    virtual void sync_height();
-
-
     void calc_bild();
 
     inline const char *gib_name() const;

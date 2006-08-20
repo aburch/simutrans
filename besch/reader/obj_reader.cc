@@ -61,7 +61,12 @@
 // uncomment for intel, comment for POWER_PC Macintosh
 #define NATIVE_LITTLE_ENDIAN
 
+// for the progress bar
+#include "../../simcolor.h"
+#include "../../simgraph.h"
+#include "../../simdisplay.h"
 
+// normal stuff
 #include "../../utils/searchfolder.h"
 
 #include "../../tpl/inthashtable_tpl.h"
@@ -199,67 +204,90 @@ void obj_reader_t::register_reader()
 bool obj_reader_t::init(const char *liste)
 {
     DBG_MESSAGE("obj_reader_t::init()","reading from '%s'", liste);
+    bool drawing=is_display_init();
 
     searchfolder_t find;
     cstring_t name = find.complete(liste, "dat");
     int i;
 
-    if(name.right(1) != "/") {
-        FILE *listfp = fopen(name,"rt");
 
-	if(listfp) {
-	    while(!feof(listfp)) {
-		char buf[256];
+	if(name.right(1) != "/") {
+		FILE *listfp = fopen(name,"rt");
+		if(listfp) {
+			while(!feof(listfp)) {
+				char buf[256];
 
-		if(fgets(buf, 255, listfp) == 0) {
-		    continue;
-		}
+				if(fgets(buf, 255, listfp) == 0) {
+					continue;
+				}
 
-		buf[255] = '\0';
+				buf[255] = '\0';
 
-		if(*buf == '#') {
-		    continue;
-		}
-		i = strlen(buf);
+				if(*buf == '#') {
+					continue;
+				}
+				i = strlen(buf);
+				while(i && buf[i] < 32) {
+					buf[i--] = '\0';
+				}
+				if(!i) {
+					continue;
+				}
 
-		while(i && buf[i] < 32) {
-		    buf[i--] = '\0';
+				// with nice progress indicator ...
+				int max=find.search(buf, "pak");
+				for(i=max;  i-->0; ) {
+					read_file(find.at(i));
+				}
+			}
+			fclose(listfp);
 		}
-		if(!i) {
-		    continue;
-		}
-		for(i = find.search(buf, "pak"); i-- > 0; ) {
-		    read_file(find.at(i));
-		}
-	    }
-	    fclose(listfp);
-    	}
-    }
-    else {
-	// Keine dat-file? dann ist liste ein Verzeichnis?
-	for(i = find.search(liste, "pak"); i-- > 0; ) {
-	    read_file(find.at(i));
 	}
-    }
-    resolve_xrefs();
+	else {
+		// Keine dat-file? dann ist liste ein Verzeichnis?
 
-    inthashtable_iterator_tpl<obj_type, obj_reader_t *> iter(obj_reader);
+		// with nice progress indicator ...
+		const int max=find.search(liste, "pak");
+		int teilung=-7;
+		for(long bit=1;  bit<max;  bit+=bit) {
+			teilung ++;
+		}
+		if(teilung<0) {
+			teilung = 0;
+		}
+		teilung = (2<<teilung)-1;
+		if(drawing) {
+			display_proportional((display_get_width()-max-4)/2,display_get_height()/2-20,"Loading paks ...",ALIGN_LEFT,WEISS,0);
+		}
 
-    while(iter.next()) {
-    	DBG_MESSAGE("obj_reader_t::init()",
-		     "Checking %s objects...",
-		     iter.get_current_value()->get_type_name());
-
-	if(!iter.get_current_value()->successfully_loaded()) {
-	  dbg->warning("obj_reader_t::init()",
-		       "... failed!");
-
-	  return false;
+		for(i=max;  i-->0; ) {
+			read_file(find.at(i));
+			if(((max-i)&teilung)==0  &&  drawing) {
+				display_progress(max-i,max);
+				display_flush(0, 0, 0, "", "", 0, 0);
+			}
+		}
 	}
-    }
+	resolve_xrefs();
 
-    dbg->warning("obj_reader_t::init()", "done");
-    return true;
+	inthashtable_iterator_tpl<obj_type, obj_reader_t *> iter(obj_reader);
+
+	while(iter.next()) {
+DBG_MESSAGE("obj_reader_t::init()","Checking %s objects...",iter.get_current_value()->get_type_name());
+
+		if(!iter.get_current_value()->successfully_loaded()) {
+			dbg->warning("obj_reader_t::init()","... failed!");
+			return false;
+		}
+	}
+
+	// clean screen
+	if(drawing) {
+		display_fillbox_wh( 0, display_get_height()/2-20, display_get_width(), display_get_height()/2+20, SCHWARZ, true );
+	}
+
+	dbg->warning("obj_reader_t::init()", "done");
+	return true;
 }
 
 

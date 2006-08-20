@@ -53,18 +53,18 @@ private:
     static bool ist_ende_ok(spieler_t *sp, const grund_t *gr);
 
 
-    /*
-     * Baut Anfang oder Ende der Brücke.
-     *
-     * @author V. Meyer
-     */
-    static void baue_auffahrt(karte_t *welt, spieler_t *sp, koord3d pos, koord zv, const bruecke_besch_t *besch, const weg_besch_t *weg_besch);
-
-
     brueckenbauer_t() {} // private -> no instance please
 
 
 public:
+
+    /*
+     * Baut Anfang oder Ende der Brücke.
+     * (also used for monorail ramps ...)
+     * @author V. Meyer
+     */
+    static void baue_auffahrt(karte_t *welt, spieler_t *sp, koord3d pos, koord zv, const bruecke_besch_t *besch, const weg_besch_t *weg_besch);
+
 
     /*
      * Baut die Brücke wirklich, vorher sollte alles gerprüft sein.

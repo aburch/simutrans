@@ -21,7 +21,8 @@
 
 #define MAX_LINE_COST   6 // Total number of cost items
 #define MAX_MONTHS     12 // Max history
-#define MAX_NON_MONEY_TYPES 3 // number of non money types in line's financial statistic
+#define MAX_NON_MONEY_TYPES 2 // number of non money types in line's financial statistic
+
 #define LINE_CAPACITY   0 // the amount of ware that could be transported, theoretically
 #define LINE_TRANSPORTED_GOODS 1 // the amount of ware that has been transported
 #define LINE_CONVOIS		2 // the amount of ware that has been transported
@@ -36,7 +37,8 @@ class convoi_t;
 class simline_t {
 	public:
 
-	enum linetype { line = 0, truckline = 1, trainline = 2, shipline = 3, airline = 4};
+	enum linetype { line = 0, truckline = 1, trainline = 2, shipline = 3, airline = 4, monorailline=5};
+	static uint8 convoi_to_line_catgory[MAX_CONVOI_COST];
 
 	/*
 	 * constructor/destructor
@@ -116,11 +118,11 @@ class simline_t {
 		return ! (*this == s);
 	}
 
-	sint64* get_finance_history() { return *financial_history; };
+	sint64* get_finance_history() { return *financial_history; }
 
-	sint64 get_finance_history(int month, int cost_type) { return financial_history[month][cost_type]; };
+	sint64 get_finance_history(int month, int cost_type) { return financial_history[month][cost_type]; }
 
-	void book(sint64 amount, int cost_type) { financial_history[0][cost_type] += amount; };
+	void book(sint64 amount, int cost_type) { financial_history[0][cost_type] += amount; }
 
 	void new_month();
 
@@ -220,6 +222,21 @@ class airline_t : public simline_t
 		{
 			type = simline_t::airline;
 			set_fahrplan(new airfahrplan_t(fpl));
+		};
+};
+
+class monorailline_t : public simline_t
+{
+	public:
+		monorailline_t(karte_t * welt, simlinemgmt_t * simlinemgmt, fahrplan_t * fpl) : simline_t(welt, simlinemgmt, fpl)
+		{
+			type = simline_t::monorailline;
+		};
+
+		monorailline_t(karte_t * welt, simlinemgmt_t * simlinemgmt, loadsave_t * file) : simline_t(welt, simlinemgmt, file)
+		{
+			type = simline_t::monorailline;
+			set_fahrplan(new monorailfahrplan_t(fpl));
 		};
 };
 

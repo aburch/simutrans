@@ -21,6 +21,7 @@
 #include "ware_besch.h"
 #include "bildliste_besch.h"
 #include "skin_besch.h"
+#include "sound_besch.h"
 #include "../dataobj/ribi.h"
 
 #include "../boden/wege/weg.h"

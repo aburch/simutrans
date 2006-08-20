@@ -61,7 +61,7 @@ slist_tpl<const ware_besch_t *> halt_list_frame_t::waren_filter_ab;
 slist_tpl<const ware_besch_t *> halt_list_frame_t::waren_filter_an;
 
 const char *halt_list_frame_t::sort_text[SORT_MODES] = {
-    "hl_btn_sort_number",
+    "gl_btn_unsort",
     "hl_btn_sort_name",
     "hl_btn_sort_waiting",
     "hl_btn_sort_type"

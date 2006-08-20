@@ -353,16 +353,6 @@ public:
 
     void zentriere_auf(koord k);
 
-    /**
-     * offsets für zeigerposition
-     * @author Hj. Malthaner
-     */
-    static const int Z_PLAN;
-    static const int Z_GRID;
-
-    // das ist eher ein flag als ein offset
-    static const int Z_LINES;
-
     einstellungen_t * gib_einstellungen() const {return einstellungen;};
 
     // often used, therefore found here
@@ -458,6 +448,14 @@ public:
      */
     int gib_grundwasser() const { return grundwasser; };
 
+
+    /**
+     * offsets für zeigerposition
+     * @author Hj. Malthaner
+     */
+    static const int Z_PLAN;
+    static const int Z_GRID;
+    static const int Z_LINES;    // das ist eher ein flag als ein offset
 
     /**
      * Bindet einen Funktionsaufruf an einen Mausklick. Spielt zusaätzlich

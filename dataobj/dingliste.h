@@ -72,6 +72,6 @@ public:
      * @author Hj. Malthaner
      */
     const char * kann_alle_entfernen(const spieler_t *) const;
-};
+} GCC_PACKED;
 
 #endif

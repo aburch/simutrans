@@ -186,9 +186,10 @@ void savegame_frame_t::add_file(const char *filename)
     char * name = new char [strlen(filename)+10];
     char * date = new char[18];
 
+//DBG_MESSAGE("","sizeof(stat)=%d, sizeof(tm)=%d",sizeof(struct stat),sizeof(struct tm) );
     sprintf(name, SAVE_PATH_X "%s", filename);
 
-    struct stat sb;
+    struct stat  sb;
     stat(name, &sb);
     struct tm *tm = localtime(&sb.st_mtime);
     if(tm) {

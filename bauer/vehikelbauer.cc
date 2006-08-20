@@ -40,9 +40,11 @@ vehikelbauer_t::baue(karte_t *welt, koord3d k,
   case weg_t::strasse:
       v = new automobil_t(welt, k, vb, sp, cnv);
       break;
+  case weg_t::schiene_monorail:
+      v = new monorail_waggon_t(welt, k, vb, sp, cnv);
+      break;
   case weg_t::schiene:
   case weg_t::schiene_strab:
-  case weg_t::schiene_monorail:
       v = new waggon_t(welt, k, vb, sp, cnv);
       break;
   case weg_t::wasser:

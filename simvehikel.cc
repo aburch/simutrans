@@ -28,7 +28,10 @@
 #include "simvehikel.h"
 
 #include "boden/grund.h"
+#include "boden/wege/runway.h"
+#include "boden/wege/kanal.h"
 #include "boden/wege/schiene.h"
+#include "boden/wege/monorail.h"
 #include "boden/wege/strasse.h"
 
 #include "bauer/warenbauer.h"
@@ -548,7 +551,6 @@ vehikel_t::play_sound() const
     info.index = besch->gib_sound();
     info.volume = 255;
     info.pri = 0;
-
     welt->play_sound_area_clipped(pos, info);
   }
 }
@@ -1533,30 +1535,33 @@ automobil_t::rdwr(loadsave_t *file, bool force)
 }
 
 
+
+/* from here on waggon routines (also used by monorail_waggon_t)
+ * for the implementation of monorailwaggon_t see simvehikel.h!
+ */
 ribi_t::ribi
 waggon_t::gib_ribi(const grund_t *gr) const
 {
-    weg_t *weg = gr->gib_weg(weg_t::schiene);
-
-    if(weg) {
-	return weg->gib_ribi();
-    }
-    return ribi_t::keine;
+	weg_t *weg = gr->gib_weg(weg_t::schiene);
+	if(weg) {
+		return weg->gib_ribi();
+	}
+	return ribi_t::keine;
 }
+
 
 
 bool
 waggon_t::ist_befahrbar(const grund_t *bd) const
 {
-  const schiene_t * sch = dynamic_cast<const schiene_t *> (bd->gib_weg(weg_t::schiene));
+	const schiene_t * sch = dynamic_cast<const schiene_t *> (bd->gib_weg(weg_t::schiene));
 
-  // Hajo: diesel and steam engines can use electrifed track as well.
-  // also allow driving on foreign tracks ...
-  const bool ok = sch != 0 && (besch->get_engine_type() == vehikel_besch_t::electric ? sch->ist_elektrisch() : true);
+	// Hajo: diesel and steam engines can use electrifed track as well.
+	// also allow driving on foreign tracks ...
+	const bool ok = sch != 0 && (besch->get_engine_type() == vehikel_besch_t::electric ? sch->ist_elektrisch() : true);
 
-  return ok;
+	return ok;
 }
-
 
 
 
@@ -1566,7 +1571,7 @@ int
 waggon_t::gib_kosten(const grund_t *gr,const uint32 max_speed) const
 {
 	// first favor faster ways
-	const weg_t *w=gr->gib_weg(weg_t::schiene);
+	const weg_t *w=gr->gib_weg(gib_wegtyp());
 	uint32 max_tile_speed = w ? w->gib_max_speed() : 999;
 	// add cost for going (with maximum spoeed, cost is 1 ...
 	int costs = ( (max_speed<=max_tile_speed) ? 4 :  (max_speed*4+max_tile_speed)/max_tile_speed );
@@ -1586,14 +1591,11 @@ waggon_t::gib_kosten(const grund_t *gr,const uint32 max_speed) const
 bool
 waggon_t::ist_blockwechsel(koord3d k1, koord3d k2) const
 {
-  const schiene_t * sch0 =
-    (const schiene_t *) welt->lookup( k1 )->gib_weg(gib_wegtyp());
-
-  const schiene_t * sch1 =
-    (const schiene_t *) welt->lookup( k2 )->gib_weg(gib_wegtyp());
-
-  return sch0->gib_blockstrecke() != sch1->gib_blockstrecke();
+	const schiene_t * sch0 = (const schiene_t *) welt->lookup( k1 )->gib_weg(gib_wegtyp());
+	const schiene_t * sch1 = (const schiene_t *) welt->lookup( k2 )->gib_weg(gib_wegtyp());
+	return sch0->gib_blockstrecke() != sch1->gib_blockstrecke();
 }
+
 
 
 bool
@@ -1612,7 +1614,6 @@ waggon_t::ist_weg_frei(int & restart_speed)
 	}
 	else {
 		const schiene_t * sch1 = (const schiene_t *) welt->lookup( pos_next )->gib_weg(gib_wegtyp());
-
 		bool frei = sch1->ist_frei();
 		// ok, next is free; check for presignal
 		if(frei) {
@@ -1633,6 +1634,8 @@ waggon_t::ist_weg_frei(int & restart_speed)
 	}
 }
 
+
+
 bool
 waggon_t::is_next_block_free(presignal_t * sig) const
 {
@@ -1641,7 +1644,7 @@ waggon_t::is_next_block_free(presignal_t * sig) const
 	assert(sch0!=NULL);
 
 	// find next blocksegment enroute
-	for (int i = route_index+1; i < route->gib_max_n(); i++) {
+	for (int i = route_index+1; i<=route->gib_max_n(); i++) {
 
 		const schiene_t * sch1 = (const schiene_t *) welt->lookup( route->position_bei(i))->gib_weg(gib_wegtyp());
 		if(sch1==NULL) {
@@ -1664,11 +1667,10 @@ waggon_t::is_next_block_free(presignal_t * sig) const
 void
 waggon_t::verlasse_feld()
 {
-  vehikel_t::verlasse_feld();
-
-  if(ist_blockwechsel(pos_cur, pos_next)) {
-    welt->lookup(gib_pos())->verlasse(this);
-  }
+	vehikel_t::verlasse_feld();
+	if(ist_blockwechsel(pos_cur, pos_next)) {
+		welt->lookup(gib_pos())->verlasse(this);
+	}
 }
 
 void
@@ -1724,9 +1726,9 @@ waggon_t::betrete_feld()
 	}
 
 	const int cargo = gib_fracht_menge();
-	gr->gib_weg(weg_t::schiene)->book(cargo, WAY_STAT_GOODS);
+	gr->gib_weg(gib_wegtyp())->book(cargo, WAY_STAT_GOODS);
 	if (ist_erstes) {
-		gr->gib_weg(weg_t::schiene)->book(1, WAY_STAT_CONVOIS);
+		gr->gib_weg(gib_wegtyp())->book(1, WAY_STAT_CONVOIS);
 	}
 }
 
@@ -1803,7 +1805,7 @@ waggon_t::rdwr(loadsave_t *file, bool force)
 			}
 			else {
 				// we have to search
-				last_besch = besch = vehikelbauer_t::vehikel_search(weg_t::schiene, 0xFFFFFFFFul, ist_erstes ? 500 : power, speed_to_kmh(get_speed_limit()), power>0 ? NULL : w, false );
+				last_besch = besch = vehikelbauer_t::vehikel_search(gib_wegtyp(), 0xFFFFFFFFul, ist_erstes ? 500 : power, speed_to_kmh(get_speed_limit()), power>0 ? NULL : w, false );
 			}
 			if(besch) {
 DBG_MESSAGE("waggon_t::rdwr()","replaced by %s",besch->gib_name());
@@ -1812,6 +1814,43 @@ DBG_MESSAGE("waggon_t::rdwr()","replaced by %s",besch->gib_name());
 		}
     }
 }
+
+
+
+/* here comes the monorail_waggon_t class ...
+ * most of it are identical to waggon_t
+ */
+bool monorail_waggon_t::ist_befahrbar(const grund_t *bd) const
+{
+	return dynamic_cast<const monorail_t *> (bd->gib_weg(weg_t::schiene_monorail))!=NULL;
+}
+
+
+
+/**
+* Ermittelt die für das Fahrzeug geltenden Richtungsbits,
+* abhängig vom Untergrund.
+*
+* @author Hj. Malthaner, 04.01.01
+*/
+ribi_t::ribi monorail_waggon_t::gib_ribi(const grund_t* gr) const
+{
+	weg_t *weg = gr->gib_weg(weg_t::schiene_monorail);
+	if(weg) {
+		return weg->gib_ribi();
+	}
+	return ribi_t::keine;
+}
+
+
+
+fahrplan_t * monorail_waggon_t::erzeuge_neuen_fahrplan() const
+{
+	return new monorailfahrplan_t();
+}
+
+
+
 
 
 schiff_t::schiff_t(karte_t *welt, koord3d pos, const vehikel_besch_t *besch, spieler_t *sp, convoi_t *cn) :

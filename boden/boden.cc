@@ -139,7 +139,7 @@ boden_t::zeige_info()
 		return true;
 	}
 	else {
-		if(hat_wege()|1) {	// if this is true, then all land info is shown
+		if(hat_wege()) {	// if this is true, then all land info is shown
 			// there is some info!
 			if(!grund_infos->get(this)) {
 				grund_infos->put(this, new grund_info_t(welt, this));
@@ -152,71 +152,83 @@ boden_t::zeige_info()
 }
 
 
-/**
- * Needed to synchronize map ground with map height. Should do
- * nothing for ground types which are not linked to map height
- * @author Hj. Malthaner
- */
-void boden_t::sync_height()
-{
-    // planquadrathoehe = minimale planquadrateckpunkthoehe
-
-    setze_hoehe( welt->min_hgt(gib_pos().gib_2d()) );
-}
-
-
-
 void
 boden_t::calc_bild()
 {
-	const koord k = gib_pos().gib_2d();
-	uint8 slope_this =  gib_grund_hang();
-
 	grund_t::calc_bild();
 
-	const int min_h=welt->min_hgt(k);
-	const int max_h=welt->max_hgt(k);
+	if(get_flag(grund_t::is_cover_tile)) {
+		grund_t::calc_back_bild(gib_hoehe()/16,0);
 
-	weg_t *weg = gib_weg(weg_t::strasse);
+		// this covers some other ground. MUST be flat!
+		strasse_t *weg = static_cast<strasse_t *>(gib_weg(weg_t::strasse));
+		if(weg && weg->hat_gehweg()) {
+			setze_bild(skinverwaltung_t::fussweg->gib_bild_nr(0));
+		}
+		else {
+			setze_bild( grund_besch_t::boden->gib_bild(0) );
+		}
+DBG_MESSAGE("boden_t::calc_bild()","at pos %i,%i,%i", gib_pos().x,gib_pos().y,gib_pos().z );
+		set_flag(grund_t::draw_as_ding);
+
+		if(welt->lookup(gib_pos().gib_2d())->gib_kartenboden()!=this) {
+DBG_MESSAGE("boden_t::calc_bild()","ERROR: covered tile not ground?!?");
+		}
+	}
+	else {
+		const koord k = gib_pos().gib_2d();
+		uint8 slope_this =  gib_grund_hang();
+
+		const int min_h=welt->min_hgt(k);
+		const int max_h=welt->max_hgt(k);
+
+		weg_t *weg = gib_weg(weg_t::strasse);
 
 #ifndef DOUBLE_GROUNDS
-	if(weg && dynamic_cast<strasse_t *>(weg)->hat_gehweg()) {
-		setze_bild(skinverwaltung_t::fussweg->gib_bild_nr(slope_this));
-	} else if(gib_hoehe() == welt->gib_grundwasser()) {
-		setze_bild(grund_besch_t::ufer->gib_bild(slope_this));
-	} else {
-		const int offset = show_grid * 19;
-		sint8 hang = slope_this;
+		if(weg && dynamic_cast<strasse_t *>(weg)->hat_gehweg()) {
+			setze_bild(skinverwaltung_t::fussweg->gib_bild_nr(slope_this));
+		} else if(gib_hoehe() == welt->gib_grundwasser()) {
+			setze_bild(grund_besch_t::ufer->gib_bild(slope_this));
+		} else {
+			const int offset = show_grid * 19;
+			sint8 hang = slope_this;
 
-		if(hang == 0) {
-			const int chance = simrand(1000);
-			// Hajo: variant tiles
-			if(chance < 20) {
-				hang += 15;
-			} else if(chance < 80) {
-				hang += 16;
-			} else if(chance < 300) {
-				hang += 17;
-			} else if(chance < 310) {
-				hang += 18;
+			if(hang == 0) {
+				const int chance = simrand(1000);
+				// Hajo: variant tiles
+				if(chance < 20) {
+					hang += 15;
+				} else if(chance < 80) {
+					hang += 16;
+				} else if(chance < 300) {
+					hang += 17;
+				} else if(chance < 310) {
+					hang += 18;
+				}
 			}
+			int bild=IMG_LEER;
+			bild = grund_besch_t::boden->gib_bild(hang + offset);
+			setze_bild( bild );
 		}
-		int bild=IMG_LEER;
-		bild = grund_besch_t::boden->gib_bild(hang + offset);
-		setze_bild( bild );
-	}
 #else
-	if(weg && dynamic_cast<strasse_t *>(weg)->hat_gehweg()) {
-		setze_bild(skinverwaltung_t::fussweg->gib_bild_nr(grund_besch_t::slopetable[slope_this]));
-	} else if(max_h-min_h==16  &&  min_h==welt->gib_grundwasser()) {
-		setze_bild(grund_besch_t::ufer->gib_bild(grund_besch_t::ufer->get_double_hang(slope_this)));
-	} else if(min_h<welt->gib_grundwasser()) {
-		setze_bild(grund_besch_t::ufer->gib_bild(grund_besch_t::ufer->get_double_hang(slope_this)));
-	} else {
-		setze_bild( grund_besch_t::boden->gib_bild(grund_besch_t::boden->get_double_hang(slope_this)) );
-	}
+		if(weg && dynamic_cast<strasse_t *>(weg)->hat_gehweg()) {
+			setze_bild(skinverwaltung_t::fussweg->gib_bild_nr(grund_besch_t::slopetable[slope_this]));
+		} else if(max_h-min_h==16  &&  min_h==welt->gib_grundwasser()) {
+			setze_bild(grund_besch_t::ufer->gib_bild(grund_besch_t::ufer->get_double_hang(slope_this)));
+		} else if(min_h<welt->gib_grundwasser()) {
+			setze_bild(grund_besch_t::ufer->gib_bild(grund_besch_t::ufer->get_double_hang(slope_this)));
+		} else {
+			setze_bild( grund_besch_t::boden->gib_bild(grund_besch_t::boden->get_double_hang(slope_this)) );
+		}
 #endif
-	grund_t::calc_back_bild(gib_hoehe()/16,slope_this);
+		grund_t::calc_back_bild(gib_hoehe()/16,slope_this);
+
+		if(welt->lookup(gib_pos().gib_2d())->gib_kartenboden()!=this) {
+DBG_MESSAGE("boden_t::calc_bild()","covered at pos %i,%i,%i", gib_pos().x,gib_pos().y,gib_pos().z );
+			clear_flag(grund_t::draw_as_ding);
+			clear_flag(grund_t::is_cover_tile);
+		}
+	}
 }
 
 

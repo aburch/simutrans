@@ -208,6 +208,10 @@ halt_info_t::zeichnen(koord pos, koord gr)
 			display_color_img(skinverwaltung_t::airhaltsymbol->gib_bild_nr(0), pos.x+left, pos.y-4, 0, false, false);
 			left += 23;
 		}
+		if (halttype & haltestelle_t::monorailstop) {
+			display_color_img(skinverwaltung_t::monorailhaltsymbol->gib_bild_nr(0), pos.x+left, pos.y-4, 0, false, false);
+			left += 23;
+		}
 
 		// capacity
 		static cbuffer_t info_buf(256);

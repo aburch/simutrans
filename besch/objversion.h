@@ -82,43 +82,8 @@ enum obj_type {
     obj_miscimages  = C4ID('M','I','S','C'),
     obj_citycar	    = C4ID('C','C','A','R'),
     obj_pedestrian  = C4ID('P','A','S','S'),
-    obj_roadsign	    = C4ID('S','I','G','N')
+    obj_roadsign	    = C4ID('S','I','G','N'),
+    obj_sound	    = C4ID('S','O','U','N')
 };
-
-/*
-
-typedef unsigned char obj_type;
-
-enum {
-    obj_root	    ,
-    obj_xref	    ,
-    obj_text	    ,
-    obj_image	    ,
-    obj_imagelist   ,
-    obj_building    ,
-    obj_tile	    ,
-    obj_tree	    ,
-    obj_good	    ,
-    obj_imagelist2d ,
-    obj_smoke	    ,
-    obj_factory     ,
-    obj_fsmoke	    ,
-    obj_fsupplier   ,
-    obj_fproduct    ,
-    obj_menu	    ,
-    obj_cursor	    ,
-    obj_symbol      ,
-    obj_intlist	    ,
-    obj_bridge	    ,
-    obj_vehicle	    ,
-    obj_ground	    ,
-    obj_way	    ,
-    obj_crossing    ,
-    obj_tunnel      ,
-    obj_miscimages  ,
-    obj_citycar	    ,
-    obj_pedestrian
-};
-*/
 
 #endif // __OBJVERSION_H

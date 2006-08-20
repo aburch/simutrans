@@ -365,12 +365,23 @@ schifffahrplan_t::zeige_fehlermeldung(karte_t *welt) const
 bool
 airfahrplan_t::ist_halt_erlaubt(const grund_t *gr) const
 {
-//    return gr->gib_weg(weg_t::luft) != NULL;
-	return true;
+	return gr->gib_weg(weg_t::luft)!=NULL  ||  !gr->gib_halt().is_bound();
 }
 
 void
 airfahrplan_t::zeige_fehlermeldung(karte_t *welt) const
 {
     create_win(-1, -1, 60, new nachrichtenfenster_t(welt, "Flugzeughalt muss auf\nRunway liegen!\n"), w_autodelete);
+}
+
+bool
+monorailfahrplan_t::ist_halt_erlaubt(const grund_t *gr) const
+{
+	return gr->gib_weg(weg_t::schiene_monorail)!=NULL;
+}
+
+void
+monorailfahrplan_t::zeige_fehlermeldung(karte_t *welt) const
+{
+    create_win(-1, -1, 60, new nachrichtenfenster_t(welt, "Monorailhalt muss auf\nRunway liegen!\n"), w_autodelete);
 }

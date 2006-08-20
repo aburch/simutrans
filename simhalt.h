@@ -125,7 +125,7 @@ public:
     static int erzeuge_fussgaenger(karte_t *welt, koord3d pos, int anzahl);
 
     //13-Jan-02     Markus Weber    Added
-    enum stationtyp {invalid=0, loadingbay = 1 , railstation = 2, dock = 4, busstop = 8, airstop = 16 }; //could be combined with or!
+    enum stationtyp {invalid=0, loadingbay = 1 , railstation = 2, dock = 4, busstop = 8, airstop = 16, monorailstop = 32 }; //could be combined with or!
 
     /* sucht Haltestelle an Koordinate pos.
      *
@@ -280,10 +280,13 @@ private:
      * hat eine eindeutige marke
      * @author Hj. Malthaner
      */
-    unsigned int marke;
+    uint32 marke;
 
+
+#ifdef USE_QUOTE
+	// for station rating
     const char * quote_bezeichnung(int quote) const;
-
+#endif
 
     halt_info_t *halt_info;
 

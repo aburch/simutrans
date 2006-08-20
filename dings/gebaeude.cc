@@ -349,7 +349,7 @@ const char *gebaeude_t::gib_name() const
     default:
 	switch(tile->gib_besch()->gib_utyp()) {
 	case hausbauer_t::special:
-	    return "Besonderes Gebäude";
+	    return "Besonderes Gebaeude";
 	case hausbauer_t::sehenswuerdigkeit:
 	    return "Sehenswürdigkeit";
 	case hausbauer_t::denkmal:
@@ -420,7 +420,7 @@ void gebaeude_t::info(cbuffer_t & buf) const
 		}
 
 		buf.append("\n");
-		if(gib_besitzer() == NULL) {
+		if(gib_besitzer()==NULL) {
 			buf.append("\n");
 			buf.append(translator::translate("Wert"));
 			buf.append(": ");

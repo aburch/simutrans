@@ -67,27 +67,30 @@ bruecke_t::~bruecke_t()
  */
 void bruecke_t::info(cbuffer_t & buf) const
 {
-  ding_t::info(buf);
+	ding_t::info(buf);
 
-  buf.append("\n");
-  buf.append(translator::translate("Max. speed:"));
-  buf.append(" ");
-  buf.append(besch->gib_topspeed());
-  buf.append("km/h\n");
+	buf.append("\n");
+	buf.append(translator::translate("Max. speed:"));
+	buf.append(" ");
+	buf.append(besch->gib_topspeed());
+	buf.append("km/h\n");
 
-  schiene_t *sch = dynamic_cast <schiene_t *> (welt->lookup(gib_pos())->gib_weg(weg_t::schiene));
+	schiene_t *sch = dynamic_cast <schiene_t *> (welt->lookup(gib_pos())->gib_weg(weg_t::schiene));
+	if(sch) {
+		buf.append("Rail block ");
+		buf.append(sch->gib_blockstrecke().get_id());
+		buf.append("\n");
 
-  if(sch) {
-
-    buf.append("Rail block ");
-    buf.append(sch->gib_blockstrecke().get_id());
-    buf.append("\n");
-
-    buf.append("Ribi ");
-    buf.append(sch->gib_ribi());
-    buf.append("\n");
-
-  }
+		buf.append("Ribi ");
+		buf.append(sch->gib_ribi());
+		buf.append("\n");
+	}
+	buf.append("\npos: ");
+	buf.append(gib_pos().x);
+	buf.append(", ");
+	buf.append(gib_pos().y);
+	buf.append(", ");
+	buf.append(gib_pos().z);
 }
 
 

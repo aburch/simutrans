@@ -89,6 +89,7 @@ public:
     static const skin_besch_t *autohaltsymbol;
     static const skin_besch_t *schiffshaltsymbol;
     static const skin_besch_t *airhaltsymbol;
+    static const skin_besch_t *monorailhaltsymbol;
     static const skin_besch_t *bushaltsymbol;
 
     static const skin_besch_t *fragezeiger;

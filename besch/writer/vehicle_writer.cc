@@ -39,10 +39,12 @@
 /////////////////////////////////////////////////////////////////////////////
 //@EDOC
 
+#include "../../utils/simstring.h"
 #include "../../utils/cstring_t.h"
 #include "../../dataobj/tabfile.h"
 
 #include "../vehikel_besch.h"
+#include "../sound_besch.h"
 #include "../../boden/wege/weg.h"
 
 #include "obj_pak_exception.h"
@@ -78,7 +80,7 @@ static uint8 get_engine_type(const char * engine_type, tabfileobj_t &obj)
   } else if(!STRICMP(engine_type, "bio")) {
     uv8 = vehikel_besch_t::bio;
   } else if(!STRICMP(engine_type, "sail")) {
-    uv8 = vehikel_besch_t::fuel_cell;
+    uv8 = vehikel_besch_t::sail;
   } else if(!STRICMP(engine_type, "fuel_cell")) {
     uv8 = vehikel_besch_t::fuel_cell;
   } else if(!STRICMP(engine_type, "hydrogene")) {
@@ -105,7 +107,29 @@ void vehicle_writer_t::write_obj(FILE *fp, obj_node_t &parent, tabfileobj_t &obj
     uint8  uv8;
     sint8  sv8;
 
-    obj_node_t	node(this, 29, &parent, false);
+	int total_len = 29;
+
+	// prissi: must be done here, since it may affect the len of the header!
+	cstring_t sound_str = ltrim( obj.get("sound") );
+	sint8 sound_id=NO_SOUND;
+	if(sound_str.len()>0) {
+		// ok, there is some sound
+		sound_id = atoi(sound_str.chars());
+		if(sound_id==0  &&  sound_str.chars()[0]=='0') {
+			sound_id = 0;
+			sound_str = "";
+		}
+		else if(sound_id!=0) {
+			// old style id
+			sound_str = "";
+		}
+		if(sound_str.len()>0) {
+			sound_id = LOAD_SOUND;
+			total_len += sound_str.len()+1;
+		}
+	}
+
+    obj_node_t	node(this, total_len, &parent, false);
 
     write_head(fp, node, obj);
 
@@ -177,23 +201,6 @@ void vehicle_writer_t::write_obj(FILE *fp, obj_node_t &parent, tabfileobj_t &obj
     const char waytype_uint = get_waytype(waytype);
     uv8 = (waytype_uint==weg_t::overheadlines) ? weg_t::schiene : waytype_uint;
     node.write_data_at(fp, &uv8, 24, sizeof(uint8));
-
-
-    // Hajodoc: The sound to play on start, -1 for no sound
-    // Hajoval: int
-    sv8 = obj.get_int("sound", -1);
-    node.write_data_at(fp, &sv8, 25, sizeof(sint8));
-
-
-    if(waytype_uint == weg_t::overheadlines) {
-      // Hajo: compatibility for old style DAT files
-      uv8 = vehikel_besch_t::electric;
-    } else {
-      const char *engine_type = obj.get("engine_type");
-      uv8 = get_engine_type(engine_type, obj);
-    }
-    node.write_data_at(fp, &uv8, 26, sizeof(uint8));
-
 
     // Hajodoc: The freight type
     // Hajoval: string
@@ -296,8 +303,26 @@ void vehicle_writer_t::write_obj(FILE *fp, obj_node_t &parent, tabfileobj_t &obj
 	}
     } while (str.len() > 0);
 
+	node.write_data_at(fp, &sound_id, 25, sizeof(sint8));
+
+    if(waytype_uint == weg_t::overheadlines) {
+      // Hajo: compatibility for old style DAT files
+      uv8 = vehikel_besch_t::electric;
+    } else {
+      const char *engine_type = obj.get("engine_type");
+      uv8 = get_engine_type(engine_type, obj);
+    }
+    node.write_data_at(fp, &uv8, 26, sizeof(uint8));
+
+
     node.write_data_at(fp, &besch_vorgaenger, 27, sizeof(sint8));
     node.write_data_at(fp, &besch_nachfolger, 28, sizeof(sint8));
+
+	if(sound_str.len()>0) {
+		sv8 = sound_str.len();
+		node.write_data_at(fp, &sv8, 29, sizeof(sint8));
+		node.write_data_at(fp, sound_str.chars(), 30, sound_str.len());
+	}
 
     node.write(fp);
 }

@@ -238,7 +238,7 @@ freight_list_sorter_t::sort_freight( karte_t *welt, const slist_tpl <ware_t>*wli
 
 		if(via_halt != halt) {
 			char tmp [512];
-			sprintf(tmp, translator::translate("   via %s\n"), via_name);
+			sprintf(tmp, translator::translate("via %s\n"), via_name);
 			buf.append(tmp);
 		}
 		else {

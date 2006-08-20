@@ -101,32 +101,24 @@ int tunnelbauer_t::baue(spieler_t *sp, karte_t *welt, koord pos, weg_t::typ wegt
     if(!welt->ist_in_kartengrenzen(pos)) {
   return false;
     }
-    const grund_t *gr = welt->lookup(pos)->gib_kartenboden();
-    koord zv;
-    const weg_t *weg = gr->gib_weg(wegtyp);
+	const grund_t *gr = welt->lookup(pos)->gib_kartenboden();
+	koord zv;
+	const weg_t *weg = gr->gib_weg(wegtyp);
 
-    if(!weg || gr->gib_typ() != grund_t::boden) {
+	if(!weg || gr->gib_typ() != grund_t::boden) {
 		if(welt->get_active_player()==sp) {
-	  if(wegtyp == weg_t::strasse) {
-	      create_win(-1, -1, MESG_WAIT, new nachrichtenfenster_t(welt, "Tunnel muss an\nStraße beginnen!\n"), w_autodelete);
-	  } else {
-	      create_win(-1, -1, MESG_WAIT, new nachrichtenfenster_t(welt,"Tunnel muss an\nSchiene beginnen!\n"), w_autodelete);
-	  }
-  }
-  return false;
-    }
-    if(!hang_t::ist_einfach(gr->gib_grund_hang())) {
-  create_win(-1, -1, MESG_WAIT, new nachrichtenfenster_t(welt,"Tunnel muss an\neinfachem\nHang beginnen!\n"), w_autodelete);
-  return false;
-    }
-    if(weg->gib_ribi_unmasked() & ~ribi_t::rueckwaerts(ribi_typ(gr->gib_grund_hang()))) {
-  if(wegtyp == weg_t::strasse) {
-      create_win(-1, -1, MESG_WAIT, new nachrichtenfenster_t(welt,"Tunnel muss auf\nStrassenende\nbeginnen!\n"), w_autodelete);
-  } else {
-      create_win(-1, -1, MESG_WAIT, new nachrichtenfenster_t(welt,"Tunnel muss auf\nSchienenende\nbeginnen!\n"), w_autodelete);
-  }
-  return false;
-    }
+			create_win(-1, -1, MESG_WAIT, new nachrichtenfenster_t(welt, "Tunnel must start on single way!"), w_autodelete);
+		}
+		return false;
+	}
+	if(!hang_t::ist_einfach(gr->gib_grund_hang())) {
+		create_win(-1, -1, MESG_WAIT, new nachrichtenfenster_t(welt,"Tunnel muss an\neinfachem\nHang beginnen!\n"), w_autodelete);
+		return false;
+	}
+	if(weg->gib_ribi_unmasked() & ~ribi_t::rueckwaerts(ribi_typ(gr->gib_grund_hang()))) {
+		create_win(-1, -1, MESG_WAIT, new nachrichtenfenster_t(welt, "Tunnel must end on single way!"), w_autodelete);
+		return false;
+	}
     zv = koord(gr->gib_grund_hang());
 
     // Tunnelende suchen

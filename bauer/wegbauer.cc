@@ -19,6 +19,7 @@
 
 #include "../boden/wege/strasse.h"
 #include "../boden/wege/schiene.h"
+#include "../boden/wege/monorail.h"
 #include "../boden/wege/kanal.h"
 #include "../boden/wege/runway.h"
 #include "../boden/brueckenboden.h"
@@ -26,6 +27,7 @@
 #include "../boden/grund.h"
 
 #include "../dataobj/umgebung.h"
+#include "../dataobj/route.h"
 
 #include "../simworld.h"
 #include "../simwerkz.h"
@@ -79,7 +81,8 @@ static stringhashtable_tpl <const weg_besch_t *> alle_wegtypen;
 
 bool wegbauer_t::alle_wege_geladen()
 {
-    return ::alles_geladen(spezial_objekte + 1);
+	schiene_t::default_schiene = wegbauer_t::weg_search(weg_t::schiene,1,0);
+	return ::alles_geladen(spezial_objekte + 1);
 }
 
 
@@ -128,7 +131,8 @@ DBG_MESSAGE("wegbauer_t::weg_search","Search cheapest for limit %i, year=%i, mon
 
 
 		if(
-			(test_weg->gib_wtyp()==wtyp ||  (wtyp==weg_t::schiene_strab  &&  test_weg->gib_wtyp()==weg_t::schiene  &&  test_weg->gib_styp()==7)
+			(test_weg->gib_wtyp()==wtyp
+				||  (wtyp==weg_t::schiene_strab  &&  test_weg->gib_wtyp()==weg_t::schiene  &&  test_weg->gib_styp()==7)
 			)  &&  iter.get_current_value()->gib_cursor()->gib_bild_nr(1) != -1) {
 
 			if(  besch==NULL  ||  (besch->gib_topspeed()<speed_limit  &&  besch->gib_topspeed()<iter.get_current_value()->gib_topspeed()) ||  (iter.get_current_value()->gib_topspeed()>=speed_limit  &&  iter.get_current_value()->gib_wartung()<besch->gib_wartung())  ) {
@@ -230,10 +234,9 @@ void wegbauer_t::fill_menu(werkzeug_parameter_waehler_t *wzw,
 
 		if(time==0  ||  (besch->get_intro_year_month()<=time  &&  besch->get_retire_year_month()>time)) {
 
-			if((besch->gib_styp()!=0  &&  styp!=0) ||  (styp==0  &&  besch->gib_styp()==0)) {
+			if(besch->gib_styp()==styp) {
 				 // DarioK: load only if the given styp maches!
-				if(besch->gib_wtyp() == wtyp &&
-					besch->gib_cursor()->gib_bild_nr(1) != -1) {
+				if(besch->gib_wtyp()==wtyp &&  besch->gib_cursor()->gib_bild_nr(1)!=-1) {
 
 					// this should avoid tram-tracks to be loaded into rail-menu
 					unsigned i;
@@ -477,10 +480,13 @@ bool wegbauer_t::is_allowed_step( const grund_t *from, const grund_t *to, long *
 				if(str==NULL  ||  !to->gib_halt().is_bound()  ||  !check_owner(gb->gib_besitzer(),sp)) {
 					return false;
 				}
+				// loading bay
+				if(gb->gib_tile()->gib_besch()->gib_all_layouts()==4) {
+					return false;
+				}
 			}
 			// now check for stops or bridges (no crossings here)
-			if(str  &&  (to->gib_halt().is_bound()  ||  to->gib_weg_hang()!=to->gib_grund_hang())  &&
-				!ribi_t::ist_gerade(ribi_typ(to_pos,from_pos)|str->gib_ribi_unmasked())  ) {
+			if(str  &&  (to->gib_halt().is_bound()  ||  to->gib_weg_hang()!=to->gib_grund_hang())  &&  !ribi_t::ist_gerade(ribi_typ(to_pos,from_pos)|str->gib_ribi_unmasked())  ) {
 				// no crossings on stops
 				return false;
 			}
@@ -507,34 +513,34 @@ bool wegbauer_t::is_allowed_step( const grund_t *from, const grund_t *to, long *
 		case schiene:
 		{
 			const weg_t *sch=to->gib_weg(weg_t::schiene);
-			ok =	(ok&!fundament || sch  || check_crossing(zv,to,weg_t::strasse)) &&
+			ok =	(ok&!fundament || (sch  &&  sch->gib_besch()->gib_styp()==0)  || check_crossing(zv,to,weg_t::strasse)) &&
 					check_owner(to->gib_besitzer(),sp) &&
 					check_for_leitung(zv,to)  &&
 					!to->gib_depot();
-			// no crossings on halt
-			if(from->gib_halt().is_bound()) {
-				const weg_t *sch_f=from->gib_weg(weg_t::schiene);
-				if(sch_f==NULL  ||  ribi_t::ist_kreuzung(ribi_typ(to_pos,from_pos)|sch_f->gib_ribi_unmasked()) ) {
-					return false;
-				}
-			}
-			// check for end/start of bridge
-			if(to->gib_weg_hang()!=to->gib_grund_hang()  &&  (sch==NULL  ||  ribi_t::ist_kreuzung(ribi_typ(to_pos,from_pos)|sch->gib_ribi_unmasked()))) {
-				return false;
-			}
-			if(gb) {
-				// no halt => citybuilding => do not touch
-				if(sch==NULL  ||  !to->gib_halt().is_bound()  ||  from->gib_halt().is_bound()  ||  !check_owner(gb->gib_besitzer(),sp)) {
-					return false;
-				}
-				// now we have a halt => check for direction
-				if(sch  &&  ribi_t::ist_kreuzung(ribi_typ(to_pos,from_pos)|sch->gib_ribi_unmasked())  ) {
-					// no crossings on stops
-					return false;
-				}
-			}
-			// calculate costs
 			if(ok) {
+				// no crossings on halt
+				if(from->gib_halt().is_bound()) {
+					const weg_t *sch_f=from->gib_weg(weg_t::schiene);
+					if(sch_f==NULL  ||  ribi_t::ist_kreuzung(ribi_typ(to_pos,from_pos)|sch_f->gib_ribi_unmasked()) ) {
+						return false;
+					}
+				}
+				// check for end/start of bridge
+				if(to->gib_weg_hang()!=to->gib_grund_hang()  &&  (sch==NULL  ||  ribi_t::ist_kreuzung(ribi_typ(to_pos,from_pos)|sch->gib_ribi_unmasked()))) {
+					return false;
+				}
+				if(gb) {
+					// no halt => citybuilding => do not touch
+					if(sch==NULL  ||  !to->gib_halt().is_bound()  ||  from->gib_halt().is_bound()  ||  !check_owner(gb->gib_besitzer(),sp)) {
+						return false;
+					}
+					// now we have a halt => check for direction
+					if(sch  &&  ribi_t::ist_kreuzung(ribi_typ(to_pos,from_pos)|sch->gib_ribi_unmasked())  ) {
+						// no crossings on stops
+						return false;
+					}
+				}
+				// calculate costs
 				*costs = sch ? 3 : 4;	// only prefer existing rails a little
 				if(to->gib_weg(weg_t::strasse)) {
 					*costs += 4;	// avoid crossings
@@ -572,7 +578,34 @@ bool wegbauer_t::is_allowed_step( const grund_t *from, const grund_t *to, long *
 		// like tram, but checks for bridges too
 		case schiene_monorail:
 		{
-			ok =	(ok  ||  fundament || to->gib_weg(weg_t::schiene)  || to->gib_weg(weg_t::strasse)) &&  !to->gib_weg(weg_t::luft)  &&
+			ok =	!to->ist_wasser()  &&  !fundament  &&
+					(to->hat_wege()==0  ||  to->gib_weg(weg_t::schiene_monorail))  &&  (from->hat_wege()==0  ||  from->gib_weg(weg_t::schiene_monorail))
+					&&  check_owner(to->gib_besitzer(),sp) && check_for_leitung(zv,to)  && !to->gib_depot();
+			if(gb) {
+				const weg_t *sch=to->gib_weg(weg_t::schiene_monorail);
+				// no halt => citybuilding => do not touch
+				if(!to->gib_halt().is_bound()  ||  !check_owner(gb->gib_besitzer(),sp)) {
+					return false;
+				}
+			}
+			// calculate costs
+			if(ok) {
+				*costs = 4;
+				// perfer ontop of ways
+				if(to->hat_wege()) {
+					*costs = 3;
+				}
+				if(to->gib_grund_hang()!=0) {
+					*costs += umgebung_t::way_count_slope;
+				}
+			}
+		}
+		break;
+
+		// like tram, but checks for bridges too
+		case schiene_elevated_monorail:
+		{
+			ok =	(ok  ||  fundament || to->gib_weg(weg_t::schiene)  || to->gib_weg(weg_t::schiene_monorail)  || to->gib_weg(weg_t::strasse)) &&  !to->gib_weg(weg_t::luft)  &&
 					check_owner(to->gib_besitzer(),sp) &&
 					check_for_leitung(zv,to)  &&
 					!to->gib_depot();
@@ -1058,6 +1091,8 @@ wegbauer_t::intern_calc_route(const koord start, const koord ziel)
 		return false;
 	}
 
+	route_t::GET_NODE();
+
 	// assume first tile is valid!
 
 	// start in open
@@ -1230,6 +1265,8 @@ wegbauer_t::intern_calc_route(const koord start, const koord ziel)
 	} while(open.get_count()>0  &&  step<MAX_STEP  &&  gr->gib_pos()!=ziel3d);
 
 	INT_CHECK("wegbauer 194");
+
+	route_t::RELEASE_NODE();
 
 //DBG_DEBUG("reached","%i,%i",tmp->pos.x,tmp->pos.y);
 	// target reached?
@@ -1776,8 +1813,13 @@ wegbauer_t::baue_monorail()
 		// rails have blocks
 		blockmanager * bm = blockmanager::gib_manager();
 
+		sint16 z_offset=0;
+		if(bautyp==schiene_elevated_monorail) {
+			z_offset = 16;
+		}
+
 		// init undo
-		sp->init_undo(weg_t::schiene,max_n);
+		sp->init_undo(weg_t::schiene_monorail,max_n);
 
 		// built elevated track ... non-trivial
 		for(int i=0; i<=max_n; i++) {
@@ -1785,30 +1827,43 @@ wegbauer_t::baue_monorail()
 			int cost = 0;
 			ribi_t::ribi ribi = calc_ribi(i);
 			planquadrat_t *plan = welt->access(route->at(i).gib_2d());
-			grund_t *monorail = plan->gib_boden_in_hoehe(plan->gib_kartenboden()->gib_pos().z+16);
+			grund_t *monorail = plan->gib_boden_in_hoehe(plan->gib_kartenboden()->gib_pos().z+z_offset);
 
 			// here is already a track => try to connect
 			if(monorail) {
-				monorail->weg_erweitern(weg_t::schiene, ribi);
-				weg_t * weg = monorail->gib_weg(weg_t::schiene);
-				if(weg->gib_besch()!=besch) {
-					if(sp) {
-						sp->add_maintenance(besch->gib_wartung() - weg->gib_besch()->gib_wartung());
+				if(monorail->weg_erweitern(weg_t::schiene_monorail, ribi)) {
+					weg_t *weg=monorail->gib_weg(weg_t::schiene_monorail);
+					if(weg->gib_besch()!=besch) {
+						if(sp) {
+							sp->add_maintenance(besch->gib_wartung() - weg->gib_besch()->gib_wartung());
+						}
+						weg->setze_besch(besch);
+						cost = -besch->gib_preis();
 					}
-					weg->setze_besch(besch);
+					bm->schiene_erweitern(welt, monorail);
+					monorail->calc_bild();
+				}
+				else {
+					// must built new way here (is on kartenboden!)
+					monorail_t * mono = new monorail_t(welt);
+					mono->setze_besch(besch);
+					monorail->neuen_weg_bauen(mono, ribi, sp);
+
+					// prissi: into UNDO-list, so wie can remove it later
+					sp->add_undo( position_bei(i) );
+
+					bm->neue_schiene(welt, monorail);
 					cost = -besch->gib_preis();
 				}
-				bm->schiene_erweitern(welt, monorail);
-				monorail->calc_bild();
 			}
 			else {
 				monorail = new  monorailboden_t( welt, plan->gib_kartenboden()->gib_pos()+koord3d(0, 0, 16) );
 
-				schiene_t * sch = new schiene_t(welt);
-				sch->setze_besch(besch);
-				sch->setze_max_speed(besch->gib_topspeed());
+				monorail_t *mono = new monorail_t(welt);
+				mono->setze_besch(besch);
+				mono->setze_max_speed(besch->gib_topspeed());
 				plan->boden_hinzufuegen(monorail);
-				monorail->neuen_weg_bauen(sch, ribi, sp);
+				monorail->neuen_weg_bauen(mono, ribi, sp);
 
 				// prissi: into UNDO-list, so wie can remove it later
 	//			sp->add_undo( position_bei(i) );
@@ -1821,23 +1876,7 @@ wegbauer_t::baue_monorail()
 			if(cost  &&  sp) {
 				sp->buche(cost, route->at(i).gib_2d(), COST_CONSTRUCTION);
 			}
-#if 0
-			// recalc images
-			grund_t *start_bd = welt->lookup(route->at(0))->gib_kartenboden();
-			grund_t *start=welt->lookup(start_bd->gib_pos()+koord3d(0,0,16));
-			grund_t *end_bd = welt->lookup(route->at(max_n))->gib_kartenboden();
-			grund_t *end=welt->lookup(end_bd->gib_pos()+koord3d(0,0,16));
-			grund_t *to;
 
-			for (int j=0; j <= 4; j++) {
-				if (start  &&  start->get_neighbour(to, weg_t::schiene, koord::nsow[j])) {
-					monorail->calc_bild();
-				}
-				if (end &&  end->get_neighbour(to, weg_t::schiene, koord::nsow[j])) {
-					monorail->calc_bild();
-				}
-			}
-#endif
 			if(i&3==0) {
 				INT_CHECK( "wegbauer 1584" );
 			}
@@ -2074,6 +2113,7 @@ long ms=get_current_time_millis();
 			baue_schiene();
 			break;
 		case schiene_monorail:
+		case schiene_elevated_monorail:
 			DBG_MESSAGE("wegbauer_t::baue", "schiene_monorail");
 			baue_monorail();
 			break;

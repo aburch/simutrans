@@ -39,7 +39,6 @@ struct event_t;
  * @author Hj. Malthaner
  * @see planqadrat_t
  */
-
 class ding_t
 {
 public:
@@ -195,7 +194,7 @@ public:
 
 	      // vehikel sind von 32 bis 40
 	      automobil=32, waggon=33,
-	      schiff=34, aircraft=35,
+	      schiff=34, aircraft=35, monorailwaggon=36,
 
 	      // individualverkehr
 	      verkehr=41,
@@ -210,8 +209,8 @@ public:
 	      pillar = 98
 	};
 
-     inline const sint8 & gib_xoff() const {return xoff;};
-     inline const sint8 & gib_yoff() const {return yoff;};
+     inline const sint8 gib_xoff() const {return xoff;};
+     inline const sint8 gib_yoff() const {return yoff;};
 
      void setze_xoff(int xoff) {
 		if(this->xoff != xoff) {
@@ -407,6 +406,6 @@ public:
      * @author Hj. Malthaner
      */
     virtual void calc_bild() {};
-};
+} GCC_PACKED;
 
 #endif

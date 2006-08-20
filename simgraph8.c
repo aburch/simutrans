@@ -2678,7 +2678,7 @@ inline unsigned char get_v_mask( const int yT, const int yB, const int cT, const
  * @author Volker Meyer, prissi
  * @date  15.06.2003, 2.1.2005
  */
-void display_text_proportional_len_clip(int x, int y, const char *txt,
+int display_text_proportional_len_clip(int x, int y, const char *txt,
 			int align,
 			const int color_index,
 			int dirty,
@@ -2744,7 +2744,7 @@ void display_text_proportional_len_clip(int x, int y, const char *txt,
  	// still something to display?
  	if(x>cR  ||  y>cB  ||  y+fnt->height<=cT) {
  		// nothing to display
- 		return;
+ 		return 0;
  	}
 	// x0 contains the startin x
 	x0 = x;
@@ -2896,6 +2896,8 @@ void display_text_proportional_len_clip(int x, int y, const char *txt,
 		// here, because only now we know the lenght also for ALIGN_LEFT text
 		mark_rect_dirty_wc(x0, y,x-1, y+10-1);
 	}
+	// warning: aktual len might be longer, due to clipping!
+	return x-x0;
 }
 
 

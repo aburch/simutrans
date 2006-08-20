@@ -47,14 +47,14 @@ private:
   microvec_tpl <grund_t *> boeden;
 
     /**
-     * The station this ground is bound to
-     */
-    halthandle_t halt;
-
-    /**
      * stations which can be reached from this ground
      */
     minivec_tpl<halthandle_t> halt_list;
+
+    /**
+     * The station this ground is bound to
+     */
+    halthandle_t halt;
 
 
 public:
@@ -89,6 +89,13 @@ public:
      * @author V. Meyer
      */
     void boden_hinzufuegen(grund_t *bd);
+
+    /**
+     * Gound covering another ground; use with care ;)
+     * @author prissi
+     */
+	bool kartenboden_insert(grund_t *bd);
+
 
     /**
      * Löschen eines Brücken- oder Tunnelbodens
@@ -208,6 +215,6 @@ public:
     void display_boden(const int xpos, const int ypos, const bool dirty) const;
 
     void display_dinge(const int xpos, const int ypos, const bool dirty) const;
-};
+} GCC_PACKED;
 
 #endif

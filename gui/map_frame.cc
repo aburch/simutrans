@@ -80,6 +80,17 @@ map_frame_t::map_frame_t(const karte_modell_t *welt) : gui_frame_t("Reliefkarte"
 }
 
 
+map_frame_t::~map_frame_t()
+{
+	// close the map window
+	gui_fenster_t *f=win_get_magic(magic_map_legend);
+	if(f) {
+DBG_MESSAGE("map_frame_t::~map_frame_t()","close legend");
+		destroy_win(f);
+	}
+}
+
+
 /**
  * Events werden hiermit an die GUI-Komponenten
  * gemeldet

@@ -55,17 +55,29 @@ const char *goods_frame_t::sort_text[SORT_MODES] = {
 goods_frame_t::goods_frame_t(karte_t *wl) :
 	gui_frame_t("Goods list"),
 	sort_label(translator::translate("hl_txt_sort")),
-	change_speed_label(translator::translate("gl_txt_filter"))
+	change_speed_label(speed_bonus,WEISS,gui_label_t::right)
 {
 	this->welt = wl;
 	good_list = new unsigned short[warenbauer_t::gib_waren_anzahl()-1];
 
-	int y=4+3*LINESPACE+4;
+	int y=BUTTON_HEIGHT+4-16;
+
+	speed_bonus[0] = 0;
+	change_speed_label.setze_pos(koord(BUTTON4_X+5, y));
+	add_komponente(&change_speed_label);
+
+	speed_down.init(button_t::repeatarrowleft, "", koord(BUTTON4_X-20, y), koord(10,BUTTON_HEIGHT));
+	speed_down.add_listener(this);
+	add_komponente(&speed_down);
+
+	speed_up.init(button_t::repeatarrowright, "", koord(BUTTON4_X+10, y), koord(10,BUTTON_HEIGHT));
+	speed_up.add_listener(this);
+	add_komponente(&speed_up);
+
+	y=4+3*LINESPACE+4;
 
 	sort_label.setze_pos(koord(BUTTON1_X, y));
 	add_komponente(&sort_label);
-	change_speed_label.setze_pos(koord(BUTTON3_X, y));
-	add_komponente(&change_speed_label);
 
 	y += LINESPACE;
 
@@ -76,14 +88,6 @@ goods_frame_t::goods_frame_t(karte_t *wl) :
 	sorteddir.init(button_t::roundbox, "", koord(BUTTON2_X, y), koord(BUTTON_WIDTH,BUTTON_HEIGHT));
 	sorteddir.add_listener(this);
 	add_komponente(&sorteddir);
-
-	speed_down.init(button_t::roundbox, translator::translate("gl_speed_down"), koord(BUTTON3_X, y), koord(BUTTON_WIDTH,BUTTON_HEIGHT));
-	speed_down.add_listener(this);
-	add_komponente(&speed_down);
-
-	speed_up.init(button_t::roundbox, translator::translate("gl_speed_up"), koord(BUTTON4_X, y), koord(BUTTON_WIDTH,BUTTON_HEIGHT));
-	speed_up.add_listener(this);
-	add_komponente(&speed_up);
 
 	y += BUTTON_HEIGHT+2;
 
@@ -244,8 +248,9 @@ void goods_frame_t::zeichnen(koord pos, koord gr)
 {
 	gui_frame_t::zeichnen(pos, gr);
 
-	sprintf(speed_message,translator::translate("Speedbonus %i%%:\n    road %i km/h, rail %i km/h, ships %i km/h, planes %i km/h."),
-		relative_speed_change-100,
+	sprintf(speed_bonus,"%i",relative_speed_change-100);
+
+	sprintf(speed_message,translator::translate("Speedbonus\nroad %i km/h, rail %i km/h\nships %i km/h, planes %i km/h."),
 		(welt->get_average_speed(weg_t::strasse)*relative_speed_change)/100,
 		(welt->get_average_speed(weg_t::schiene)*relative_speed_change)/100,
 		(welt->get_average_speed(weg_t::wasser)*relative_speed_change)/100,

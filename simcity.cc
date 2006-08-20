@@ -1404,6 +1404,7 @@ DBG_MESSAGE("new townhall","use layout=%i",layout);
 			bauer.route_fuer(wegbauer_t::strasse, welt->get_city_road() );
 			bauer.calc_route(alte_str, best_pos + koord(0, besch->gib_h(layout)));
 			bauer.baue();
+			pruefe_grenzen(best_pos);
 		}
 		else if(neugruendung) {
 			li = best_pos.x - 2;
@@ -1516,6 +1517,8 @@ stadt_t::trans_r(const char *regel, char *tr)
  * n = muss Natur sein
  * H = darf kein Haus sein
  * h = muss Haus sein
+ * T = not a stop	// added in 88.03.3
+ * t = is a stop // added in 88.03.3
  * . = beliebig
  *
  * @param pos position to check
@@ -1526,41 +1529,50 @@ stadt_t::trans_r(const char *regel, char *tr)
 bool
 stadt_t::bewerte_loc(const koord pos, const char *regel)
 {
-  koord k;
-  bool ok=true;
+	koord k;
+	bool ok=true;
 
-  for(k.y=pos.y-1; ok && k.y<=pos.y+1; k.y++) {
-    for(k.x=pos.x-1; ok && k.x<=pos.x+1; k.x++) {
-      const planquadrat_t * plan = welt->lookup(k);
-      grund_t *gr;
+	for(k.y=pos.y-1; ok && k.y<=pos.y+1; k.y++) {
+		for(k.x=pos.x-1; ok && k.x<=pos.x+1; k.x++) {
+			const planquadrat_t * plan = welt->lookup(k);
+			grund_t *gr;
 
-      if(plan && (gr = plan->gib_kartenboden())) {
+			if(plan && (gr = plan->gib_kartenboden())) {
 
-  switch(regel[(k.x-pos.x+1) + ((k.y-pos.y+1)<<2)]) {
-  case 's':
-    ok = gr->gib_weg(weg_t::strasse);
-    break;
-  case 'S':
-    ok = !gr->gib_weg(weg_t::strasse);
-    break;
-  case 'h':
-  	// is house
-    ok = gr->gib_typ() == grund_t::fundament;
-    break;
-  case 'H':
-  	// no house
-    ok = gr->gib_typ() != grund_t::fundament;
-    break;
-  case 'n':
-    ok = gr->ist_natur() && gr->kann_alle_obj_entfernen(NULL)==NULL;
-    break;
-  }
-      } else {
-  ok = false;
-      }
-    }
-  }
-  return ok;
+				switch(regel[(k.x-pos.x+1) + ((k.y-pos.y+1)<<2)]) {
+					case 's':
+						ok = gr->gib_weg(weg_t::strasse);
+						break;
+					case 'S':
+						ok = !gr->gib_weg(weg_t::strasse);
+						break;
+					case 'h':
+						// is house
+						ok = gr->gib_typ() == grund_t::fundament;
+						break;
+					case 'H':
+						// no house
+						ok = gr->gib_typ() != grund_t::fundament;
+						break;
+					case 'n':
+						ok = gr->ist_natur() && gr->kann_alle_obj_entfernen(NULL)==NULL;
+						break;
+					case 't':
+						// here is a stop/extension building
+						ok = gr->gib_halt().is_bound();
+						break;
+					case 'T':
+						// no stop
+						ok = !gr->gib_halt().is_bound();
+						break;
+				}
+			}
+			else {
+				ok = false;
+			}
+		}
+	}
+	return ok;
 }
 
 
@@ -2042,8 +2054,7 @@ stadt_t::baue_strasse(koord k, spieler_t *sp, bool forced)
     return false;
   }
 
-  const hang_t::typ typ = welt->get_slope( k );
-
+  const hang_t::typ typ = bd->gib_grund_hang();
   if( hang_t::ist_wegbar(typ) &&
       bd->kann_alle_obj_entfernen(welt->gib_spieler(1)) == NULL) {
 
@@ -2396,7 +2407,7 @@ char * stadt_t::info(char *buf) const
      gib_wachstum()
      );
 
-buf += sprintf(buf,"%i buildings\n",buildings.get_count());
+buf += sprintf(buf,translator::translate("%d buildings\n"),buildings.get_count());
 
   buf += sprintf(buf, "\n%d,%d - %d,%d\n\n",
      li, ob, re , un

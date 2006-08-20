@@ -11,8 +11,8 @@ Additional programming
 * Andreas Röver: small patches
 andreas_roever@yahoo.com
 
-* Hellmade: Small patches
-nomad@sms-amore.de
+* Rainer Bertram: Small patches
+hellmade@hellmade.de
 
 * Niels Roest: Many additional UI routines
                Simutrans' proportional font

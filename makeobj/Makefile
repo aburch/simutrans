@@ -28,7 +28,7 @@ SOURCES=makeobj.cc
 OBJECTS=makeobj.o ../besch/writer/obj_node.o \
  ../simmem.o \
  ../dataobj/freelist.o \
- ../dataobj/tabfile.o ../utils/cstring_t.o ../utils/searchfolder.o \
+ ../dataobj/tabfile.o ../utils/cstring_t.o ../utils/simstring.o ../utils/searchfolder.o \
  ../tpl/debug_helper.o ../tpl/no_such_element_exception.o \
  ../makepak16/dr_rdpng.o \
  ../besch/writer/building_writer.o ../besch/writer/good_writer.o \
@@ -39,6 +39,7 @@ OBJECTS=makeobj.o ../besch/writer/obj_node.o \
  ../besch/writer/tree_writer.o ../besch/writer/factory_writer.o \
  ../besch/writer/bridge_writer.o ../besch/writer/vehicle_writer.o \
  ../besch/writer/way_writer.o ../besch/writer/ground_writer.o \
+ ../besch/writer/sound_writer.o \
  ../besch/writer/crossing_writer.o  ../besch/writer/tunnel_writer.o \
  ../besch/writer/citycar_writer.o  ../besch/writer/pedestrian_writer.o \
  ../besch/writer/sim_writer.o ../besch/writer/roadsign_writer.o \

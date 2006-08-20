@@ -47,14 +47,5 @@ gui_divider_t::~gui_divider_t()
  */
 void gui_divider_t::zeichnen(koord offset) const
 {
-    display_ddd_box_clip(pos.x+offset.x, pos.y+offset.y, groesse.x, groesse.y, MN_GREY0, MN_GREY4);
-
-/*    if(text) {
-	const int width = proportional_string_width(text);
-
-	display_proportional(pos.x+offset.x+2, pos.y+offset.y-2,
-                             text,
-			     ALIGN_LEFT, SCHWARZ, true);
-
-    }*/
+	display_ddd_box_clip(pos.x+offset.x, pos.y+offset.y, groesse.x, groesse.y, MN_GREY0, MN_GREY4);
 }

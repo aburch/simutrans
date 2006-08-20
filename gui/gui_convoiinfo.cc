@@ -77,12 +77,10 @@ void gui_convoiinfo_t::zeichnen(koord offset) const
 		display_proportional_clip(pos.x+offset.x+4, pos.y+offset.y+8, buf, ALIGN_LEFT, SCHWARZ, true);
 */
 
-		display_proportional_clip(pos.x+offset.x+2,pos.y+offset.y+8+LINESPACE, translator::translate("Gewinn"), ALIGN_LEFT, SCHWARZ, true);
-		int max_x = proportional_string_width(translator::translate("Gewinn"));
+		int max_x = display_proportional_clip(pos.x+offset.x+2,pos.y+offset.y+8+LINESPACE, translator::translate("Gewinn"), ALIGN_LEFT, SCHWARZ, true);
 
 		money_to_string(buf, cnv->gib_jahresgewinn()/100);
-		display_proportional_clip(pos.x+offset.x+2+max_x+5,pos.y+offset.y+8+LINESPACE, buf, ALIGN_LEFT, cnv->gib_jahresgewinn()>0?MONEY_PLUS:MONEY_MINUS, true);
-		max_x += proportional_string_width(buf)+5;
+		max_x += display_proportional_clip(pos.x+offset.x+2+max_x+5,pos.y+offset.y+8+LINESPACE, buf, ALIGN_LEFT, cnv->gib_jahresgewinn()>0?MONEY_PLUS:MONEY_MINUS, true);
 
 
 		/*
@@ -91,19 +89,19 @@ void gui_convoiinfo_t::zeichnen(koord offset) const
 		if (cnv->in_depot())
 		{
 			const char *txt=translator::translate("(in depot)");
-			display_proportional_clip(pos.x+offset.x+2, pos.y+offset.y+8+2*LINESPACE,txt,ALIGN_LEFT, SCHWARZ, true);
-			max_x = max(max_x,proportional_string_width(txt));
+			int w=display_proportional_clip(pos.x+offset.x+2, pos.y+offset.y+8+2*LINESPACE,txt,ALIGN_LEFT, SCHWARZ, true);
+			max_x = max(max_x,w);
 		}
 		else if (cnv->get_line() != NULL)
 		{
 			sprintf(buf, "%s: %s", translator::translate("Line"), cnv->get_line()->get_name());
-			display_proportional_clip(pos.x+offset.x+2, pos.y+offset.y+8+2*LINESPACE,buf,ALIGN_LEFT, SCHWARZ, true);
-			max_x = max(max_x,proportional_string_width(buf));
+			int w = display_proportional_clip(pos.x+offset.x+2, pos.y+offset.y+8+2*LINESPACE,buf,ALIGN_LEFT, SCHWARZ, true);
+			max_x = max(max_x,w);
 		}
 
 		// name
-		display_proportional_clip(pos.x+offset.x+2, pos.y+offset.y+8,translator::translate(cnv->gib_name()),ALIGN_LEFT, SCHWARZ, true);
-		max_x = max(max_x,proportional_string_width(cnv->gib_name()));
+		int w=display_proportional_clip(pos.x+offset.x+2, pos.y+offset.y+8,translator::translate(cnv->gib_name()),ALIGN_LEFT, SCHWARZ, true);
+		max_x = max(max_x,w);
 
 		// vehicles
 		// we will use their images offests and width to shift them to their correct position

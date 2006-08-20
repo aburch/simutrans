@@ -26,37 +26,40 @@
 
 signal_t::signal_t(karte_t *welt, loadsave_t *file) : ding_t (welt)
 {
-  rdwr(file, true);
-  step_frequency = 0;
+	rdwr(file, true);
+	step_frequency = 0;
 }
 
 
 signal_t::signal_t(karte_t *welt, koord3d pos, ribi_t::ribi dir) :  ding_t(welt, pos)
 {
-  this->dir = dir;
+	this->dir = dir;
 
-  zustand = rot;
-  blockend = false;
+	zustand = rot;
+	blockend = false;
 
-  calc_bild();
+	calc_bild();
 
-  step_frequency = 0;
+	step_frequency = 0;
 }
 
 
 signal_t::~signal_t()
 {
-    weg_t *weg = welt->lookup(gib_pos())->gib_weg(weg_t::schiene);
+	weg_t *weg = welt->lookup(gib_pos())->gib_weg(weg_t::schiene);
+	if(!weg) {
+		weg = welt->lookup(gib_pos())->gib_weg(weg_t::schiene_monorail);
+	}
 
-    if(weg) {
-	// Weg wieder freigeben, wenn das Signal nicht mehr da ist.
-	dynamic_cast<schiene_t *>(weg)->setze_ribi_maske(ribi_t::keine);
-	blockhandle_t bs = dynamic_cast<schiene_t *>(weg)->gib_blockstrecke();
-     blockmanager::gib_manager()->entferne_signal(this, bs);
-    } else {
-        dbg->error("signal_t::~signal_t()",
-	           "Signal %p was deleted but ground was not an railroad track!");
-    }
+	if(weg) {
+		// Weg wieder freigeben, wenn das Signal nicht mehr da ist.
+		dynamic_cast<schiene_t *>(weg)->setze_ribi_maske(ribi_t::keine);
+		blockhandle_t bs = dynamic_cast<schiene_t *>(weg)->gib_blockstrecke();
+		blockmanager::gib_manager()->entferne_signal(this, bs);
+	}
+	else {
+		dbg->error("signal_t::~signal_t()","Signal %p was deleted but ground was not an railroad track!");
+	}
 }
 
 
@@ -67,7 +70,10 @@ signal_t::~signal_t()
  */
 void signal_t::info(cbuffer_t & buf) const
 {
-  schiene_t * sch = dynamic_cast<schiene_t *>(welt->lookup(gib_pos())->gib_weg(weg_t::schiene));
+	schiene_t * sch = dynamic_cast<schiene_t *>(welt->lookup(gib_pos())->gib_weg(weg_t::schiene));
+	if(!sch) {
+		sch = dynamic_cast<schiene_t *>(welt->lookup(gib_pos())->gib_weg(weg_t::schiene_monorail));
+	}
 
   if(sch) {
     blockhandle_t bs = sch->gib_blockstrecke();
@@ -98,6 +104,9 @@ void signal_t::calc_bild()
     welt->markiere_dirty(gib_pos());
   } else {
   schiene_t * sch = dynamic_cast<schiene_t *>(welt->lookup(gib_pos())->gib_weg(weg_t::schiene));
+  if(!sch) {
+	sch = dynamic_cast<schiene_t *>(welt->lookup(gib_pos())->gib_weg(weg_t::schiene_monorail));
+  }
   const int offset = (sch->ist_elektrisch()  &&  skinverwaltung_t::signale->gib_bild_anzahl()==16)?8:0;
 
     switch(dir) {
@@ -175,21 +184,21 @@ signal_t::rdwr(loadsave_t *file, bool force)
  */
 void signal_t::laden_abschliessen()
 {
-  calc_bild();
+	calc_bild();
 }
 
 
 presignal_t::presignal_t(karte_t *welt, loadsave_t *file) : signal_t(welt, file)
 {
-  this->related_block = blockhandle_t();
-  step_frequency = 1;
+	this->related_block = blockhandle_t();
+	step_frequency = 1;
 }
 
 
 presignal_t::presignal_t(karte_t *welt, koord3d pos, ribi_t::ribi dir) : signal_t(welt, pos, dir)
 {
-  this->related_block = blockhandle_t();
-  step_frequency = 0;
+	this->related_block = blockhandle_t();
+	step_frequency = 0;
 }
 
 

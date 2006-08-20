@@ -341,7 +341,7 @@ reliefkarte_t::zeichnen(koord pos) const
 			const char * name = stadt->gib_name();
 
 			int w = proportional_string_width(name);
-			p.x = MAX( pos.x+(p.x*zoom)-(w/2), pos.x );
+			p.x = max( pos.x+(p.x*zoom)-(w/2), pos.x );
 			display_proportional_clip( p.x, pos.y+p.y*zoom, name, ALIGN_LEFT, WEISS, true);
 		}
 	}

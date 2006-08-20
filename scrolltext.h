@@ -30,7 +30,7 @@
 " Markus Pristovsek","patches",
 " Owen Rudge","MIDI, patches",
 " Tomas Kubes","misc. patches",
-" Hellmade","misc. patches",
+" Rainer Bertram","misc. patches",
 " Andreas Röver","misc. patches",
 " Tilman Raatz","misc. patches",
 " Pasi Ruhanen","BeOS, SDL",

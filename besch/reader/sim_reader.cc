@@ -20,6 +20,7 @@
 #include "way_reader.h"
 #include "root_reader.h"
 #include "xref_reader.h"
+#include "sound_reader.h"
 #include "skin_reader.h"
 #include "tree_reader.h"
 #include "vehicle_reader.h"
@@ -43,6 +44,8 @@ imagelist_reader_t imagelist_reader_t::the_instance;
 imagelist2d_reader_t imagelist2d_reader_t::the_instance;
 root_reader_t root_reader_t::the_instance;
 xref_reader_t xref_reader_t::the_instance;
+
+sound_reader_t sound_reader_t::the_instance;
 
 menuskin_reader_t menuskin_reader_t::the_instance;
 cursorskin_reader_t cursorskin_reader_t::the_instance;

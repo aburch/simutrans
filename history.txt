@@ -5,7 +5,70 @@ Known bugs: (hard to fix)
 	Monorails have no appropriate crossing
 	valgrind complains about errors in SDL and X?
 	sorting factories has an umlaute problem
+	set color broken?
 
+
+Release of 88.04.1
+
+11-Feb-2006: (prissi)
+	FINISHED: full monorail support including ramps (using a bridge)
+	FIX: line financial calculation fixed
+	FIX: line window
+
+8-Feb-2006: (prissi)
+	CHANGE: monorail line
+	FIX: deleting habours
+	CHANGE: goods (bonus) frame
+	FIX: aircraft in depot broke savegame
+	CHANGE: further monorail support
+
+7-Feb-2006: (prissi)
+	FIX: curiosity list was cutting names
+	FIX: no passengers generated after loading of a map
+	CHANGE: unified schedule routines
+	FIX: covoy wait for loading on empty stations work again
+	FIX: convoiinfo help window again
+	FIX: connection neightbours rewritten to check all ground levels => should work with subways too (if they come)
+	FIX: deleting busstops
+	CHANGE: monorail now separate from rail vehicles
+	CHANGE: blockmanager reworked in many aspects
+
+6-Feb-2006:
+	CHANGE: all station buildings routines unified => no crashes of no city there, only two error messages: "No terminal station here!" (4 layout) "No through station here!" (2 layout) => also terminal stations for bus stops, trains or channels
+	CHANGE: all depot buildings routines unified => only one error messages: "Cannot built depot here!"
+	CHANGE: cursor normal after building depot
+	still not fixed: connection code
+
+5-Feb-2006:
+	FIX: line window crashed when opened twice
+	ADD: covertiles over vertial trogs
+	FIX: no vehicle beaming any more (was waiting in sync_step instead step!)
+
+Release of 88.04
+
+3-Feb-2006(prissi):
+	CHANGE: big code cleanup, german translation cleaned of all unneccessary strings => all official strings now there
+	CHANGE: map legend now closes with main map
+	FIX: linking order for gdi (=> again wav sound)
+	ADD: error message, if a feature is not yet available.
+
+2-Feb-2006(prissi):
+	CHANGE: sound system now working; all sound are save under pak*/sound with a description either in sound.tab in the same folder or a wavefilename in the vehicle description
+	CHANGE: new menu order, seperated monorail and tram; Help button. New text RAILTOOLS, MONORAILTOOLS, TRAMTOOLS, ROADTOOLS, SHIPTOOLS, AIRTOOLS, Help and Fast forward
+	CHANGE: loading indicator and dummy message if no simuconf.tab is found (to avoid 80% of the complains I get via mail!)
+
+31-Jan-2006(prissi):
+	ADD: cityrule T and t for not a stop/stop
+	CHANGE: schedule do not allow waypoints for airplanes over stops
+	FIX: deleting water bidges
+	CHANGE: sound paks halfway done
+
+30-Jan-2006(prissi):
+	FIX: building/destroying bridges, wayfinder for bridges
+	FIX: cost of houses
+	FIX: crash when deleting stations
+	FIX: go home button reactivated
+	ADD: convoi details (new strings: "Manufactured:", "Power:", "Gear:")
 
 Release of 88.03.2
 

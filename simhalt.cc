@@ -1409,7 +1409,8 @@ haltestelle_t::find_free_position(const weg_t::typ w,const ding_t::typ d) const
 }
 
 
-
+#ifdef USE_QUOTE
+// rating of this place ...
 const char *
 haltestelle_t::quote_bezeichnung(int quote) const
 {
@@ -1435,6 +1436,8 @@ haltestelle_t::quote_bezeichnung(int quote) const
 
     return str;
 }
+#endif
+
 
 
 void haltestelle_t::info(cbuffer_t & buf) const
@@ -1618,7 +1621,12 @@ haltestelle_t::recalc_station_type()
 		}
 		// check for trainstation
 		else if(besch->gib_utyp()==hausbauer_t::bahnhof) {
-			new_station_type |= railstation;
+			if(gr->gib_weg(weg_t::schiene_monorail)) {
+				new_station_type |= monorailstop;
+			}
+			else {
+				new_station_type |= railstation;
+			}
 		}
 		// check for habour
 		else if(besch->gib_utyp()==hausbauer_t::hafen  ||  besch->gib_utyp()==hausbauer_t::binnenhafen) {

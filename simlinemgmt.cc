@@ -175,6 +175,9 @@ simlinemgmt_t::rdwr(karte_t * welt, loadsave_t *file)
 						case simline_t::airline:
 							line = new airline_t(welt, this, file);
 							break;
+						case simline_t::monorailline:
+							line = new monorailline_t(welt, this, file);
+							break;
 						default:
 							line = new simline_t(welt, this, file);
 							break;
@@ -314,6 +317,10 @@ simlinemgmt_t::create_line(int ltype, fahrplan_t * fpl)
 			line = new airline_t(welt, this, new airfahrplan_t(fpl));
 			DBG_MESSAGE("simlinemgmt_t::create_line()", "airline created");
 			break;
+		case simline_t::monorailline:
+			line = new airline_t(welt, this, new monorailfahrplan_t(fpl));
+			DBG_MESSAGE("simlinemgmt_t::create_line()", "monorailline created");
+			break;
 		default:
 		    line = new simline_t(welt, this, new fahrplan_t(fpl));
 			DBG_MESSAGE("simlinemgmt_t::create_line()", "default line created");
@@ -361,6 +368,11 @@ simlinemgmt_t::build_line_list(int type, slist_tpl<simline_t *> * list)
 				break;
 			case simline_t::airline:
 				if (line->get_linetype() == simline_t::airline || line->get_linetype() == simline_t::line) {
+					list->append(line);
+				}
+				break;
+			case simline_t::monorailline:
+				if (line->get_linetype() == simline_t::monorailline || line->get_linetype() == simline_t::line) {
 					list->append(line);
 				}
 				break;

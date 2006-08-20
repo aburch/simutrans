@@ -39,10 +39,10 @@
 #include "boden/wege/schiene.h"
 #include "simskin.h"
 #include "besch/skin_besch.h"
+#include "besch/sound_besch.h"
 #include "besch/weg_besch.h"
 #include "simworld.h"
 #include "simplay.h"
-#include "simsfx.h"
 #include "railblocks.h"
 #include "simwerkz.h"
 #include "simfab.h"
@@ -426,6 +426,9 @@ spieler_t::neuer_monat()
 
     // Wartungskosten abziehen
     buche((sint64)-maintenance, COST_MAINTENANCE);
+    calc_finance_history();
+    roll_finance_history_month();
+    simlinemgmt.new_month();
 
     // Bankrott ?
     if(!umgebung_t::freeplay) {
@@ -455,9 +458,6 @@ spieler_t::neuer_monat()
 	    konto_ueberzogen = 0;
 	}
     }
-    roll_finance_history_month();
-    calc_finance_history();
-    simlinemgmt.new_month();
 }
 
 
@@ -467,9 +467,8 @@ spieler_t::neuer_monat()
  */
 void spieler_t::neues_jahr()
 {
-
     roll_finance_history_year();
-
+    calc_finance_history();
 }
 
 /**
@@ -480,16 +479,13 @@ void spieler_t::neues_jahr()
 void spieler_t::roll_finance_history_month()
 {
         int i;
-	for (i=MAX_HISTORY_MONTHS-1; i>0; i--)
-	{
-		for (int cost_type = 0; cost_type<MAX_COST; cost_type++)
-		{
+	for (i=MAX_HISTORY_MONTHS-1; i>0; i--) {
+		for (int cost_type = 0; cost_type<MAX_COST; cost_type++) {
 			finance_history_month[i][cost_type] = finance_history_month[i-1][cost_type];
 		}
 	}
 
-	for (int i=0;i<MAX_COST;i++)
-	{
+	for (int i=0;i<MAX_COST;i++) {
 		finance_history_month[0][i] = 0;
 		if ((i == COST_ASSETS) || (i == COST_NETWEALTH)) {
 			finance_history_month[0][i] = finance_history_month[1][i];
@@ -500,16 +496,13 @@ void spieler_t::roll_finance_history_month()
 void spieler_t::roll_finance_history_year()
 {
         int i;
-	for (i=MAX_HISTORY_YEARS-1; i>0; i--)
-	{
-		for (int cost_type = 0; cost_type<MAX_COST; cost_type++)
-		{
+	for (i=MAX_HISTORY_YEARS-1; i>0; i--) {
+		for (int cost_type = 0; cost_type<MAX_COST; cost_type++) {
 			finance_history_year[i][cost_type] = finance_history_year[i-1][cost_type];
 		}
 	}
 
-	for (int i=0;i<MAX_COST;i++)
-	{
+	for (int i=0;i<MAX_COST;i++) {
 		finance_history_year[0][i] = 0;
 		if ((i == COST_ASSETS) || (i == COST_NETWEALTH)) {
 			finance_history_year[0][i] = finance_history_year[1][i];
@@ -547,22 +540,13 @@ void spieler_t::calc_finance_history()
     finance_history_year[0][COST_ASSETS] = assets;
     finance_history_year[0][COST_NETWEALTH] = assets + konto;
     finance_history_year[0][COST_CASH] = konto;
-		finance_history_year[0][COST_MARGIN] = (finance_history_year[0][COST_VEHICLE_RUN] + finance_history_year[0][COST_MAINTENANCE]) != 0 ? finance_history_year[0][COST_OPERATING_PROFIT] / abs((finance_history_year[0][COST_VEHICLE_RUN] + finance_history_year[0][COST_MAINTENANCE])) : 0;
+    long margin_div = (finance_history_year[0][COST_VEHICLE_RUN] + finance_history_year[0][COST_MAINTENANCE]);
+	finance_history_year[0][COST_MARGIN] = (margin_div!=0) ? finance_history_year[0][COST_OPERATING_PROFIT] / labs(margin_div) : 0;
     finance_history_month[0][COST_ASSETS] = assets;
     finance_history_month[0][COST_NETWEALTH] = assets + konto;
     finance_history_month[0][COST_CASH] = konto;
-		finance_history_month[0][COST_MARGIN] = (finance_history_month[0][COST_VEHICLE_RUN] + finance_history_month[0][COST_MAINTENANCE]) != 0 ? finance_history_month[0][COST_OPERATING_PROFIT] / abs((finance_history_month[0][COST_VEHICLE_RUN] + finance_history_month[0][COST_MAINTENANCE])) : 0;
-
-    /*
-    char x1[128], y1[128], x2[128], y2[128], y3[128], buffer[128];
-    sprintf(x1, "%d", assets);
-    sprintf(y1, "%d", finance_history_year[0][COST_ASSETS]);
-    sprintf(x2, "%d", konto);
-    sprintf(y2, "%d", finance_history_year[0][COST_NETWEALTH]);
-    sprintf(y3, "%f", assets + konto);
-    sprintf(buffer, "%s, %s, %s, %s, %s", x1, y1, x2, y2, y3);
-    DBG_MESSAGE("draw chart: ", buffer);
-    */
+    margin_div = (finance_history_month[0][COST_VEHICLE_RUN] + finance_history_month[0][COST_MAINTENANCE]);
+	finance_history_month[0][COST_MARGIN] = margin_div!= 0 ? finance_history_month[0][COST_OPERATING_PROFIT] / labs(margin_div) : 0;
 }
 
 
@@ -986,8 +970,8 @@ DBG_MESSAGE("spieler_t::do_passenger_ki()","using %s on %s",road_vehicle->gib_na
 				{
 					const haus_besch_t *bs=hausbauer_t::gib_random_station( hausbauer_t::bushalt, welt->get_timeline_year_month(), haltestelle_t::PAX );
 					if(bs  &&  create_simple_road_transport()  &&
-						(is_my_halt(platz1)  ||  wkz_bushalt(this, welt, platz1, bs ))  &&
-						(is_my_halt(platz2)  ||  wkz_bushalt(this, welt, platz2, bs ))
+						(is_my_halt(platz1)  ||  wkz_halt(this, welt, platz1, bs ))  &&
+						(is_my_halt(platz2)  ||  wkz_halt(this, welt, platz2, bs ))
 					  ) {
 						koord list[2]={ platz1, platz2 };
 						// wait only, if traget is not a hub but an attraction/factory
@@ -1006,8 +990,8 @@ DBG_MESSAGE("spieler_t::do_passenger_ki()","using %s on %s",road_vehicle->gib_na
 				{
 					const haus_besch_t *bs=hausbauer_t::gib_random_station( hausbauer_t::bushalt, welt->get_timeline_year_month(), haltestelle_t::PAX );
 					if(bs  &&  create_complex_road_transport()  &&
-						(is_my_halt(platz1)  ||  wkz_bushalt(this, welt, platz1,bs))  &&
-						(is_my_halt(platz2)  ||  wkz_bushalt(this, welt, platz2,bs))
+						(is_my_halt(platz1)  ||  wkz_halt(this, welt, platz1,bs))  &&
+						(is_my_halt(platz2)  ||  wkz_halt(this, welt, platz2,bs))
 					  ) {
 						koord list[2]={ platz1, platz2 };
 						// wait only, if traget is not a hub but an attraction/factory
@@ -1836,14 +1820,14 @@ DBG_MESSAGE("spieler_t::baue_bahnhof","try to remove last segment");
 		if(  make_all_bahnhof  ||  is_my_halt(pos+koord(-1,-1))  ||  is_my_halt(pos+koord(-1,1))  ||  is_my_halt(pos+koord(1,-1))  ||  is_my_halt(pos+koord(1,1))  ) {
 			// start building, if next to an existing station
 			make_all_bahnhof = true;
-			wkz_bahnhof(this, welt, pos, besch);
+			wkz_halt(this, welt, pos, besch);
 		}
 		INT_CHECK("simplay 753");
 	}
 	// now add the other squares (going backwards)
 	for(  pos=t;  pos!=*p-zv;  pos-=zv ) {
 		if(  !is_my_halt(pos)  ) {
-			wkz_bahnhof(this, welt, pos, besch);
+			wkz_halt(this, welt, pos, besch);
 		}
 		baulaenge ++;
 	}
@@ -2245,7 +2229,7 @@ spieler_t::create_road_transport_vehikel(fabrik_t *qfab, int anz_vehikel)
 {
 	const haus_besch_t *fh=hausbauer_t::gib_random_station( hausbauer_t::ladebucht, welt->get_timeline_year_month(), haltestelle_t::WARE );
 	// succeed in frachthof creation
-    if(fh  &&  wkz_frachthof(this, welt, platz1,fh)  &&  wkz_frachthof(this, welt, platz2,fh)  ) {
+    if(fh  &&  wkz_halt(this, welt, platz1,fh)  &&  wkz_halt(this, welt, platz2,fh)  ) {
 
      koord3d pos1 = welt->lookup(platz1)->gib_kartenboden()->gib_pos();
      koord3d pos2 = welt->lookup(platz2)->gib_kartenboden()->gib_pos();

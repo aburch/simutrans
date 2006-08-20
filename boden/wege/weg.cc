@@ -139,10 +139,7 @@ void weg_t::rdwr(loadsave_t *file)
 	uint8 ribi8;
 	if(file->is_saving()) {
 		// reading has been done by grund_t!
-		file->wr_obj_id(
-//			(gib_typ()==weg_t::schiene  &&  besch->gib_styp()==7) ? weg_t::schiene_strab : gib_typ()
-			gib_typ()
-		 );
+		file->wr_obj_id( gib_typ() );
 		 // init ribi
 		ribi8 = ribi | (ribi_maske << 4);
 	}
@@ -152,7 +149,9 @@ void weg_t::rdwr(loadsave_t *file)
 		ribi_maske = ribi8 >> 4;
 	}
 
-	file->rdwr_short(max_speed, "\n");
+	sint16 dummy16 = max_speed;
+	file->rdwr_short(dummy16, "\n");
+	max_speed = dummy16;
 
 	for (int type=0; type<MAX_WAY_STATISTICS; type++) {
 		for (int month=0; month<MAX_WAY_STAT_MONTHS; month++) {

@@ -96,58 +96,58 @@ void sdl_sound_callback(void *ptr, Uint8 * stream, int len)
  */
 void dr_init_sound()
 {
-  int sound_ok = 0;
+	int sound_ok = 0;
+	if(use_sound!=0) {
+		return;	// avoid init twice
+	}
+	use_sound = 1;
 
-  use_sound = 1;
+	// initialize SDL sound subsystem
+	if (SDL_InitSubSystem(SDL_INIT_AUDIO) != -1) {
 
+		// open an audio channel
+		SDL_AudioSpec desired;
 
-  // initialize SDL sound subsystem
-  if (SDL_InitSubSystem(SDL_INIT_AUDIO) != -1) {
+		desired.freq = 22500;
+		desired.channels = 1;
+		desired.format = AUDIO_S16SYS;
+		desired.samples = 1024;
+		desired.userdata = NULL;
 
-    // open an audio channel
-    SDL_AudioSpec desired;
+		desired.callback = sdl_sound_callback;
 
-    desired.freq = 22500;
-    desired.channels = 1;
-    desired.format = AUDIO_S16SYS;
-    desired.samples = 1024;
-    desired.userdata = NULL;
+		if (SDL_OpenAudio(&desired, &output_audio_format) != -1) {
 
-    desired.callback = sdl_sound_callback;
+			// check if we got the right audi format
+			if (output_audio_format.format == AUDIO_S16SYS) {
 
-    if (SDL_OpenAudio(&desired, &output_audio_format) != -1) {
+				int i;
 
-      // check if we got the right audi format
-      if (output_audio_format.format == AUDIO_S16SYS) {
+				// finished initializing
+				sound_ok = 1;
 
-	int i;
+				for (i = 0; i < CHANNELS; i++)
+				channels[i].sample = 255;
 
-	// finished initializing
-	sound_ok = 1;
+				// start playing sounds
+				SDL_PauseAudio(0);
 
-	for (i = 0; i < CHANNELS; i++)
-	  channels[i].sample = 255;
-
-	// start playing sounds
-	SDL_PauseAudio(0);
-
-      } else {
-	printf("Open audio channel doesn't meet requirements. Muting\n");
-	SDL_CloseAudio();
-	SDL_QuitSubSystem(SDL_INIT_AUDIO);
-      }
-
-
-    } else {
-      printf("Could not open required audio channel. Muting\n");
-      SDL_QuitSubSystem(SDL_INIT_AUDIO);
-    }
-  } else {
-    printf("Could not initialize sound system. Muting\n");
-  }
+			} else {
+				printf("Open audio channel doesn't meet requirements. Muting\n");
+				SDL_CloseAudio();
+				SDL_QuitSubSystem(SDL_INIT_AUDIO);
+			}
 
 
-  use_sound &= sound_ok;
+		} else {
+			printf("Could not open required audio channel. Muting\n");
+			SDL_QuitSubSystem(SDL_INIT_AUDIO);
+		}
+	} else {
+		printf("Could not initialize sound system. Muting\n");
+	}
+
+	use_sound = sound_ok ? 1: -1;
 }
 
 
@@ -158,11 +158,11 @@ void dr_init_sound()
  */
 int dr_load_sample(const char *filename)
 {
-  if(use_sound) {
+  if(use_sound>0) {
 
     static int samplenumber = 0;
 
-    if(use_sound) {
+    if(use_sound>0) {
 
       SDL_AudioSpec wav_spec;
       SDL_AudioCVT  wav_cvt;
@@ -218,7 +218,7 @@ int dr_load_sample(const char *filename)
  */
 void dr_play_sample(int sample_number, int volume)
 {
-  if(use_sound) {
+  if(use_sound>0) {
 
     int c;
 

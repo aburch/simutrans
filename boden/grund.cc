@@ -13,6 +13,7 @@
 #include "fundament.h"
 
 #include "wege/weg.h"
+#include "wege/monorail.h"
 #include "wege/schiene.h"
 #include "wege/strasse.h"
 #include "wege/kanal.h"
@@ -109,13 +110,13 @@ get_backbild_from_diff( sint8 h1, sint8 h2 )
 #define corner4(i) (i/27)
 #endif
 
+// artifical walls from here on ...
 void grund_t::calc_back_bild(const sint8 hgt,const sint8 slope_this)
 {
 	sint8 back_bild_nr=0;
 	sint8 is_building=0;
 	const koord k = gib_pos().gib_2d();
 
-	// artifical walls from here on ...
 	clear_flag(grund_t::draw_as_ding);
 	bool	left_back_is_building = false;
 
@@ -189,6 +190,12 @@ void grund_t::calc_back_bild(const sint8 hgt,const sint8 slope_this)
 			}
 		}
 	}
+
+	// not ground -> then not draw first ...
+	if(welt->lookup(k)->gib_kartenboden()!=this) {
+		clear_flag(grund_t::draw_as_ding);
+	}
+
 	back_bild_nr %= 121;
 	this->back_bild_nr = (is_building!=0)? -back_bild_nr : back_bild_nr;
 }
@@ -349,7 +356,9 @@ void grund_t::rdwr(loadsave_t *file)
 	if(file->is_loading() && label) {
 		welt->add_label(gib_pos().gib_2d());
 	}
-	file->rdwr_byte(besitzer_n, "\n");
+	sint8 dummy8=besitzer_n;
+	file->rdwr_byte(dummy8, "\n");
+	besitzer_n = dummy8;
 
     if(file->is_loading()) {
 	weg_t::typ wtyp;
@@ -366,9 +375,30 @@ void grund_t::rdwr(loadsave_t *file)
 //		  DBG_DEBUG("grund_t::rdwr()", "road");
 		  wege[i] = new strasse_t (welt, file);
 		  break;
+		case weg_t::schiene_monorail:
+		  wege[i] = new monorail_t (welt, file);
+		  DBG_DEBUG("grund_t::rdwr()", "monorail");
+		  break;
 		case weg_t::schiene:
-		  wege[i] = new schiene_t (welt, file);
+		{
+		  schiene_t *sch = new schiene_t (welt, file);
+		  if(sch->gib_besch()->gib_wtyp()==weg_t::schiene_monorail) {
+		  	dbg->warning("grund_t::rdwr()", "converting railroad to monorail at (%i,%i)",gib_pos().x, gib_pos().y);
+		  	// compatibility code: Convert to monorail
+		  	monorail_t *w= new monorail_t(welt);
+		  	w->setze_besch(sch->gib_besch());
+		  	w->setze_blockstrecke(sch->gib_blockstrecke());
+		  	w->setze_max_speed(sch->gib_max_speed());
+		  	w->setze_ribi(sch->gib_ribi_unmasked());
+		  	w->setze_ribi_maske(sch->gib_ribi_maske());
+		  	delete sch;
+		  	wege[i] = w;
+		  }
+		  else {
+			  wege[i] = sch;
 //		  DBG_DEBUG("grund_t::rdwr()", "railroad");
+			}
+		}
 		  break;
 		case weg_t::schiene_strab:
 		  wege[i] = new schiene_t (welt, file);
@@ -495,13 +525,10 @@ void grund_t::info(cbuffer_t & buf) const
 	for(int i = 0; i < MAX_WEGE; i++) {
 		if(wege[i]) {
 
-			if(wege[i]->gib_typ() == weg_t::schiene) {
+			if(wege[i]->gib_typ()==weg_t::wasser  &&  !ist_wasser()) {
 				wege[i]->info(buf);
 			}
-			if(wege[i]->gib_typ() == weg_t::strasse) {
-				wege[i]->info(buf);
-			}
-			if(wege[i]->gib_typ() == weg_t::wasser  &&  !ist_wasser()) {
+			else {
 				wege[i]->info(buf);
 			}
 		}
@@ -528,6 +555,12 @@ void grund_t::info(cbuffer_t & buf) const
 		//    buf.append("\n");
 		//    buf.append(translator::translate("Keine Info."));
 	}
+	buf.append("\npos: ");
+	buf.append(pos.x);
+	buf.append(", ");
+	buf.append(pos.y);
+	buf.append(", ");
+	buf.append(pos.z);
 #endif
 }
 
@@ -614,7 +647,7 @@ depot_t *grund_t::gib_depot() const
 
 const char * grund_t::gib_weg_name(weg_t::typ typ) const
 {
-    weg_t   *weg = typ == weg_t::invalid ? wege[0] : gib_weg(typ);
+    weg_t   *weg = (typ==weg_t::invalid) ? wege[0] : gib_weg(typ);
 
     if(weg) {
 	return weg->gib_name();
@@ -717,11 +750,6 @@ void grund_t::do_display_boden( const int xpos, const int ypos, const bool dirty
 void
 grund_t::display_boden(const int xpos, int ypos, bool dirty) const
 {
-	if(get_flag(grund_t::draw_as_ding)) {
-		// draw later ...
-		return;
-	}
-
 	dirty |= get_flag(grund_t::dirty);
 	int raster_tile_width = get_tile_raster_width();
 
@@ -750,11 +778,6 @@ grund_t::display_dinge(const int xpos, int ypos, bool dirty)
 	 * @author prissi
 	 */
 	if(  ypos>32-raster_tile_width  &&  ypos<display_get_height()+32+raster_tile_width) {
-
-		// this is a foundation/upslope
-		if(get_flag(grund_t::draw_as_ding)) {
-			do_display_boden( xpos, ypos, dirty );
-		}
 
 		// background
 		for(n=0; n<gib_top(); n++) {
@@ -831,15 +854,13 @@ grund_t::display_dinge(const int xpos, int ypos, bool dirty)
  */
 bool grund_t::weg_erweitern(weg_t::typ wegtyp, ribi_t::ribi ribi)
 {
-    weg_t   *weg = gib_weg(wegtyp);
-
-    if(weg) {
-	weg->ribi_add(ribi);
-	calc_bild();
-	return true;
-
-    }
-    return false;
+	weg_t   *weg = gib_weg(wegtyp);
+	if(weg) {
+		weg->ribi_add(ribi);
+		calc_bild();
+		return true;
+	}
+	return false;
 }
 
 /**
@@ -971,43 +992,21 @@ bool grund_t::get_neighbour(grund_t *&to, weg_t::typ type, koord dir) const
 		return false;
 	}
 
-	// tunnel is always flat
-	if(ist_tunnel()) {
-		gr = welt->lookup(pos + koord3d(dir,0));
-		// at the end of tunnels, we check for the ground too ...
-		if(!is_connected(gr, type, dir)  &&  gib_weg_hang()!=gib_grund_hang()) {
-			gr = plan->gib_kartenboden();
-		}
-	}
-	else if(ist_bruecke()) {
-		int vmove = get_vmove(dir);
-
-//DBG_MESSAGE("grund_t::get_neighbour()","vmove %i at (%i,%i,%i)",vmove,pos.x,pos.y,pos.z);
-		// search for ground in this direction
-		if(vmove) {
-			gr = welt->lookup(pos + koord3d(dir, vmove));
-/* prissi: will alway fail for bridges!?!
-			if(gr && gr->get_vmove(-dir) != -vmove) {
-				gr = NULL;
+	// find ground in the same height: This work always!
+	const sint16 this_height = get_vmove(dir);
+	for( int i=0;  i<plan->gib_boden_count();  i++  ) {
+		gr = plan->gib_boden_bei(i);
+		if(gr->get_vmove(-dir)==this_height) {
+			// test, if connected
+			if(!is_connected(gr, type, dir)) {
+				return false;
 			}
-*/
-		}
-		// not connected => the try same height level
-		if(!is_connected(gr, type, dir)) {
-//DBG_MESSAGE("grund_t::get_neighbour()","not connected for (%i,%i,%i) to (%i,%i,%i)",pos.x,pos.y,pos.z, gr->gib_pos().x, gr->gib_pos().y, gr->gib_pos().z);
-			gr = welt->lookup(pos + dir);
+			to = gr;
+			return true;
 		}
 	}
-	else {
-		// Hajo: check if we are on the map
-		gr = plan->gib_kartenboden();
-	}
-	// Testen ob Wegverbindung existiert
-	if(!is_connected(gr, type, dir)) {
-		return false;
-	}
-	to = gr;
-	return true;
+//	DBG_MESSAGE("grund_t::get_neighbour()","No ground connection from %i,%i,%i to dir %i,%i",pos.x,pos.y,pos.z,dir.x,dir.y);
+	return false;
 }
 
 bool grund_t::is_connected(const grund_t *gr, weg_t::typ wegtyp, koord dv) const
@@ -1036,59 +1035,31 @@ bool grund_t::is_connected(const grund_t *gr, weg_t::typ wegtyp, koord dv) const
 
 
 
+// now we need a more sophisticated calculations ...
 int grund_t::get_vmove(koord dir) const
 {
-static char vmoves[15][4] = {	// hangtyp * destination (N O S W)
-    { -16, -16, -16, -16 },	// 0:flach
-    { -16, -16,   0,   0 },	// 1:spitze SW
-    { -16,   0,   0, -16 },	// 2:spitze SO
-    { -16,   0,  16,   0 },	// 3:nordhang
-    {   0,   0, -16, -16 },	// 4:spitze NO
-    {   0,   0,   0,   0 },	// 5:spitzen SW+NO
-    {   0,  16,   0, -16 },	// 6:westhang
-    {   0,  16,  16,   0 },	// 7:tal NW
-    {   0, -16, -16,   0 },	// 8:spitze NW
-    {   0, -16,   0,  16 },	// 9:osthang
-    {   0,   0,   0,   0 },	// 10:spitzen NW+SO
-    {   0,   0,  16,  16 },	// 11:tal NO
-    {  16,   0, -16,   0 },	// 12:suedhang
-    {  16,   0,   0,  16 },	// 13:tal SO
-    {  16,  16,   0,   0 }};	// 14:tal SW
-
-	int	i;
-	hang_t::typ weg_hang = gib_weg_hang();
-
-	if(ist_bruecke() && weg_hang==0) {
-		if(ist_karten_boden()) {
-			// the way of bridges is one lwevel higher than the ground, if they are on a slope
-			hang_t::typ gr_hang = gib_grund_hang();
-
-			if(dir==koord::ost || dir==koord::west) {
-				if(gr_hang==hang_t::ost || gr_hang==hang_t::west) {
-					return 16;
-				}
-			}
-			else if(dir==koord::sued || dir==koord::nord) {
-				if(gr_hang==hang_t::sued || gr_hang==hang_t::nord) {
-					return 16;
-				}
-			}
-		}
+	const sint8 slope=gib_weg_hang();
+	sint16 h=gib_hoehe();
+	if(ist_bruecke()  &&  gib_grund_hang()!=0) {
+		h += 16;	// end or start of a bridge
 	}
 
 	if(dir == koord::ost) {
-		i = 1; // ost
+		h += corner3(slope)*16;
+//		h += corner2(slope)*16;
 	} else if(dir == koord::west) {
-		i = 3; // west
+		h += corner1(slope)*16;
+//		h += corner4(slope)*16;
 	} else if(dir == koord::sued) {
-		i = 2; // sued
+		h += corner1(slope)*16;
+//		h += corner2(slope)*16;
 	} else if(dir == koord::nord) {
-		i = 0; // nord
+		h += corner3(slope)*16;
+//		h += corner4(slope)*16;
 	} else {
-		assert(false);
-		return 0;   // ?? Fehler
+		trap();	// error: not a direction ...
 	}
-	return vmoves[weg_hang][i];
+	return h;   // no way slope
 }
 
 int grund_t::get_max_speed()

@@ -36,6 +36,7 @@ private:
 	static sort_mode_t sortby;
 
 	karte_t * welt;
+	char	speed_bonus[6];
 	char	speed_message[256];
 	unsigned short *good_list;
 

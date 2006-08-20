@@ -33,8 +33,8 @@ curiositylist::sort_mode_t curiositylist_frame_t::sortby = curiositylist::by_nam
 
 const char *curiositylist_frame_t::sort_text[curiositylist::SORT_MODES] = {
     "hl_btn_sort_name",
-    "cl_btn_sort_paxlevel",
-    "cl_btn_sort_maillevel"
+    "Passagierrate",
+    "Postrate"
 };
 
 curiositylist_frame_t::curiositylist_frame_t(karte_t * welt) :

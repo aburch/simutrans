@@ -33,6 +33,7 @@
 #include "components/gui_chart.h"
 #include "components/list_button.h"
 
+#include "convoi_detail_t.h"
 
 const char cost_type[MAX_CONVOI_COST][64] =
 {
@@ -176,7 +177,7 @@ convoi_info_t::convoi_info_t(convoihandle_t cnv)
 	go_home_button.setze_typ(button_t::roundbox);
 	go_home_button.set_tooltip(translator::translate("Sends the convoi to the last depot it departed from!"));
 	add_komponente(&go_home_button);
-	follow_button.add_listener(this);
+	go_home_button.add_listener(this);
 
 	follow_button.setze_groesse(koord(66, BUTTON_HEIGHT));
 	follow_button.text = translator::translate("follow me");
@@ -260,11 +261,9 @@ convoi_info_t::zeichnen(koord pos, koord gr)
 		// next important: income stuff
 		info_buf.clear();
 		info_buf.append( translator::translate("Gewinn") );
-		display_proportional( pos.x+11, pos.y+16+20+1*LINESPACE, info_buf, ALIGN_LEFT, SCHWARZ, true );
-		int len = proportional_string_width( info_buf )+5;
+		int len = display_proportional( pos.x+11, pos.y+16+20+1*LINESPACE, info_buf, ALIGN_LEFT, SCHWARZ, true )+5;
 		money_to_string( tmp, cnv->gib_jahresgewinn()/100.0 );
-		display_proportional( pos.x+11+len, pos.y+16+20+1*LINESPACE, tmp, ALIGN_LEFT, cnv->gib_jahresgewinn()>0?MONEY_PLUS:MONEY_MINUS, true );
-		len += proportional_string_width( tmp )+5;
+		len += display_proportional( pos.x+11+len, pos.y+16+20+1*LINESPACE, tmp, ALIGN_LEFT, cnv->gib_jahresgewinn()>0?MONEY_PLUS:MONEY_MINUS, true )+5;
 		sprintf(tmp," (%1.2f$/km)", cnv->get_running_cost()/100.0 );
 		display_proportional( pos.x+11+len, pos.y+16+20+1*LINESPACE, tmp, ALIGN_LEFT, SCHWARZ, true );
 
@@ -284,10 +283,10 @@ convoi_info_t::zeichnen(koord pos, koord gr)
 		info_buf.append(translator::translate("Fahrtziel:"));
 		info_buf.append(" ");
 		fahrplan_gui_t::gimme_short_stop_name(info_buf, cnv->gib_welt(), fpl, fpl->aktuell, 34);
-		display_proportional( pos.x+11, pos.y+16+20+3*LINESPACE, info_buf, ALIGN_LEFT, SCHWARZ, true );
+		len = display_proportional( pos.x+11, pos.y+16+20+3*LINESPACE, info_buf, ALIGN_LEFT, SCHWARZ, true );
 
 		// convoi load indicator
-		const int offset = max( proportional_string_width(info_buf)+11, 167)+3;
+		const int offset = max( len, 167)+3;
 		route_bar.setze_pos(koord(offset,22+3*LINESPACE));
 		route_bar.setze_groesse(koord(view.gib_pos().x-offset-5, 4));
 
@@ -324,7 +323,13 @@ bool convoi_info_t::action_triggered(gui_komponente_t *komp)
 		return true;
 	}
 
-	// follow convoi on map?
+	// datails?
+	if(komp == &details_button) {
+		create_win(20, 20, -1, new convoi_detail_t(cnv), w_autodelete);
+		return true;
+	}
+
+	// sort by what
 	if(komp == &sort_button) {
 		// sort by what
 		sortby = (sort_mode_t)((int)(sortby+1)%(int)SORT_MODES);
@@ -348,6 +353,7 @@ bool convoi_info_t::action_triggered(gui_komponente_t *komp)
 			// limit update to certain states that are considered to be save for fahrplan updates
 			int state = cnv->get_state();
 			if(state==convoi_t::FAHRPLANEINGABE  ||  state==convoi_t::ROUTING_4  ||  state==convoi_t::ROUTING_5) {
+DBG_MESSAGE("convoi_info_t::action_triggered()","convoi state %i => cannot change schedule ... ", state );
 				return true;
 			}
 
@@ -392,15 +398,6 @@ DBG_MESSAGE("convoi_info_t::action_triggered()","search depot: found on %i,%i",g
 			delete route;
 			DBG_MESSAGE("shortest route has ", "%i hops", shortest_route->gib_max_n());
 
-#if 0
-		// shortest route
-/*		karte_t * welt = cnv->gib_welt();
-		route_t * shortest_route = new route_t();
-		shortest_route->find_path(welt, cnv->gib_pos(), cnv->gib_vehikel(0), ding_t::bahndepot);
-		const koord3d home = shortest_route->position_bei(0);
-		DBG_MESSAGE("Depot at: ", "%i,%i,%i", home.x, home.y, home.z);
-*/
-#endif
 			// if route to a depot has been found, update the convoi's schedule
 			bool b_depot_found = false;
 			if (shortest_route->gib_max_n() > -1) {

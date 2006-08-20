@@ -60,16 +60,16 @@ public:
      * @author Hj. Malthaner
      */
     enum flag_values {
-      keine_flags=0,
-      dirty=1,
-      new_text=2,
-      has_text=4,
-      world_spot_dirty = 8,  // Hajo: benutzt von karte_t::ist_dirty(koord3d)
-      draw_as_ding = 16, // is a slope etc => draw as one
-      // 32,
-      is_bridge = 64,
-      is_tunnel = 128,
-      is_in_tunnel = 32
+		keine_flags=0,
+		dirty=1,
+		new_text=2,
+		has_text=4,
+		world_spot_dirty = 8,  // Hajo: benutzt von karte_t::ist_dirty(koord3d)
+		draw_as_ding = 16, // is a slope etc => draw as one
+		is_cover_tile = 32,	// is a ground; however, below is another ground ...
+		is_bridge = 64,
+		is_tunnel = 128,
+		is_in_tunnel = 32
     };
 
 
@@ -243,7 +243,7 @@ public:
      * @return Die Nummer des Bildes des Untergrundes.
      * @author Hj. Malthaner
      */
-    inline const image_id & gib_bild() const {return bild_nr;}
+    inline const image_id gib_bild() const {return bild_nr;}
 
     /**
      * Returns the number of an eventual foundation
@@ -297,14 +297,6 @@ public:
      * @author Hj. Malthaner
      */
     int text_farbe() const;
-
-
-    /**
-     * Needed to synchronize map ground with map height. Should do
-     * nothing for ground types which are not linked to map height
-     * @author Hj. Malthaner
-     */
-    virtual void sync_height() {};
 
 
     /**
@@ -467,10 +459,6 @@ public:
      * TRUE, falls es hier ein Gebaeude des speziellen Typs gibt.
      * Dient insbesondere dazu, festzustellen ob eine bestimmte Haltestelle
      * vorhanden ist:
-     *	hat_gebaeude(hausbauer_t::frachthof_besch)
-     *	hat_gebaeude(hausbauer_t::bahnhof_besch)
-     *  hat_gebaeude(hausbauer_t::dock_besch)
-     *	hat_gebaeude(hausbauer_t::bushalt_besch)
      * @author Volker Meyer
      */
     bool hat_gebaeude(const haus_besch_t *besch) const;
@@ -503,18 +491,16 @@ public:
      * @author Hj. Malthaner
      */
     weg_t *gib_weg(weg_t::typ typ) const {
-      if(this) {
-	int i = 0;
-
-	while(wege[i] && i<MAX_WEGE) {
-	  if(wege[i]->gib_typ() == typ) {
-	    return wege[i];
-	  }
-	  i++;
-	}
-      }
-
-      return NULL;
+		if(this) {
+			int i = 0;
+			while(wege[i] && i<MAX_WEGE) {
+				if(wege[i]->gib_typ() == typ) {
+					return wege[i];
+				}
+				i++;
+			}
+		}
+		return NULL;
     }
 
 	/**
@@ -660,6 +646,7 @@ public:
 		 * @author hsiegeln
 		 */
     int get_max_speed();
-};
+} GCC_PACKED;
+
 
 #endif

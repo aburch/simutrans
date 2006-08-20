@@ -19,13 +19,13 @@
 monorailboden_t::monorailboden_t(karte_t *welt, loadsave_t *file) : grund_t(welt)
 {
     rdwr(file);
-    set_flag(grund_t::is_bridge);
+    clear_flag(grund_t::is_bridge);
 }
 
 
 monorailboden_t::monorailboden_t(karte_t *welt, koord3d pos) : grund_t(welt, pos)
 {
-    set_flag(grund_t::is_bridge);
+    clear_flag(grund_t::is_bridge);
 }
 
 
@@ -57,11 +57,15 @@ monorailboden_t::zeige_info()
 		return true;
 	}
 	else {
-		if(!grund_infos->get(this)) {
-			grund_infos->put(this, new grund_info_t(welt, this));
+		if(hat_wege()) {	// if this is true, then all land info is shown
+DBG_MESSAGE("monorailboden_t::zeige_info()","with ribis %x",grund_t::gib_weg_ribi_unmasked(weg_t::schiene_monorail));
+			// there is some info!
+			if(!grund_infos->get(this)) {
+				grund_infos->put(this, new grund_info_t(welt, this));
+			}
+			create_win(-1, -1, grund_infos->get(this), w_autodelete);
+			return true;
 		}
-		create_win(-1, -1, grund_infos->get(this), w_autodelete);
-		return true;
 	}
 	return false;
 }

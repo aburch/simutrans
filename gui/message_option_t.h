@@ -29,17 +29,17 @@ public:
      * @return den Dateinamen für die Hilfe, oder NULL
      * @author Hj. Malthaner
      */
-    virtual const char * gib_hilfe_datei() const {return "mailbox.txt";};
+    virtual const char * gib_hilfe_datei() const {return "mailbox.txt";}
 
 
-    const char *gib_name() const;
+    const char *gib_name() const { return "Mailbox Options";}
 
     /**
      * gibt den Besitzer zurück
      *
      * @author Hj. Malthaner
      */
-    spieler_t* gib_besitzer() const;
+    virtual spieler_t* gib_besitzer() const { return NULL;}
 
     int gib_bild() const;
     koord gib_bild_offset() const;

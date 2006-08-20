@@ -81,13 +81,18 @@ public:
      */
     convoi_info_t(convoihandle_t cnv);
 
-
     /**
      * Destruktor.
      * @author Hj. Malthaner
      */
     ~convoi_info_t();
 
+    /**
+     * Manche Fenster haben einen Hilfetext assoziiert.
+     * @return den Dateinamen für die Hilfe, oder NULL
+     * @author V. Meyer
+     */
+    virtual const char * gib_hilfe_datei() const {return "convoiinfo.txt"; }
 
     /**
      * komponente neu zeichnen. Die übergebenen Werte beziehen sich auf

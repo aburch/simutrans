@@ -204,7 +204,7 @@ int display_calc_proportional_string_len_width(const char *text, int len,bool us
  * @author Volker Meyer, prissi
  * @date  15.06.2003, 2.1.2005
  */
-void display_text_proportional_len_clip(int x, int y, const char *txt, int align, const int color_index, int dirty, bool use_large_font, int len, bool use_clipping );
+int display_text_proportional_len_clip(int x, int y, const char *txt, int align, const int color_index, int dirty, bool use_large_font, int len, bool use_clipping );
 /* macro are for compatibility */
 #define display_small_proportional( x,  y, txt,  align, color, dirty) display_text_proportional_len_clip(x, y, txt, align, color, dirty, false, -1, false )
 #define display_small_proportional_clip( x,  y, txt,  align, color, dirty) display_text_proportional_len_clip(x, y, txt, align, color, dirty, false, -1, true )

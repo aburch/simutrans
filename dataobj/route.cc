@@ -403,8 +403,9 @@ DBG_DEBUG("add","%i,%i",tmp->gr->gib_pos().x,tmp->gr->gib_pos().y);
 
 
 
-// onde arrays
+// node arrays
 route_t::nodestruct* route_t::nodes=NULL;
+bool route_t::node_in_use=false;
 
 /* find the route to an unknow location
  * @author prissi
@@ -427,7 +428,7 @@ route_t::find_route(karte_t *welt,
 	grund_t *to;
 
 	// memory in static list ...
-	const int MAX_STEP = 65530;	// may need very much memory => configurable
+	const int MAX_STEP = 65536;
 	if(nodes==NULL) {
 		nodes = new ANode[MAX_STEP+4+1];
 	}
@@ -455,6 +456,8 @@ route_t::find_route(karte_t *welt,
 	if(!fahr->ist_befahrbar(tmp->gr)) {
 		return false;
 	}
+
+	GET_NODE();
 
 	// start in open
 	open.append(tmp,256);
@@ -556,7 +559,8 @@ route_t::find_route(karte_t *welt,
 		ok = true;
     }
 
-    return ok;
+	RELEASE_NODE();
+	return ok;
 }
 
 
@@ -610,6 +614,8 @@ route_t::intern_calc_route(karte_t *welt, const koord3d ziel, const koord3d star
 	if(!fahr->ist_befahrbar(tmp->gr)) {
 		return false;
 	}
+
+	GET_NODE();
 
 	// start in open
 	open.append(tmp,256);
@@ -740,7 +746,9 @@ route_t::intern_calc_route(karte_t *welt, const koord3d ziel, const koord3d star
 		ok = true;
     }
 
-    return ok;
+	RELEASE_NODE();
+
+	return ok;
 }
 
 

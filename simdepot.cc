@@ -65,6 +65,14 @@ depot_t::~depot_t()
 }
 
 
+// works with all vehicles perfectly!
+fahrplan_t *
+depot_t::erzeuge_fahrplan()
+{
+	vehikel_t *v=get_vehicle(0);
+	return (v==NULL) ? new fahrplan_t() : v->erzeuge_neuen_fahrplan();
+}
+
 void
 depot_t::convoi_arrived(convoihandle_t acnv, bool fpl_adjust)
 {
@@ -360,14 +368,13 @@ depot_t::rdwr_vehikel(slist_tpl<vehikel_t *> &list, loadsave_t *file)
 	    case automobil: v = new automobil_t(welt, file);    break;
 	    case waggon:    v = new waggon_t(welt, file);       break;
 	    case schiff:    v = new schiff_t(welt, file);       break;
+	    case aircraft: v = new aircraft_t(welt,file);  break;
+	    case monorailwaggon: v = new monorail_waggon_t(welt,file);  break;
 	    default:
-	        dbg->fatal("depot_t::vehikel_laden()",
-		           "invalid vehicle type %s", buf);
+	        dbg->fatal("depot_t::vehikel_laden()","invalid vehicle type $%X", typ);
 	    }
 
-	    DBG_MESSAGE("depot_t::vehikel_laden()",
-			 "loaded %s", v->gib_besch()->gib_name());
-
+	    DBG_MESSAGE("depot_t::vehikel_laden()","loaded %s", v->gib_besch()->gib_name());
 	    list.insert( v );
         }
     }
@@ -408,17 +415,17 @@ depot_t::rdwr(loadsave_t *file)
  */
 const char * depot_t::ist_entfernbar(const spieler_t *)
 {
-    if(vehicles.count()>0) {
-        return "There are still vehicles\nstored in this depot!\n";
-    }
-    slist_iterator_tpl<convoihandle_t> iter(convois);
-
-    while(iter.next()) {
-	if(iter.get_current()->gib_vehikel_anzahl() > 0) {
-	    return "There are still convois\nstored in this depot!\n";
+	if(vehicles.count()>0) {
+		return "There are still vehicles\nstored in this depot!\n";
 	}
-    }
-    return NULL;
+	slist_iterator_tpl<convoihandle_t> iter(convois);
+
+	while(iter.next()) {
+		if(iter.get_current()->gib_vehikel_anzahl() > 0) {
+			return "There are still vehicles\nstored in this depot!\n";
+		}
+	}
+	return NULL;
 }
 
 void
@@ -464,20 +471,13 @@ void
 bahndepot_t::convoi_arrived(convoihandle_t cnv, bool fpl_adjust)
 {
     depot_t::convoi_arrived(cnv, fpl_adjust);
-
     blockmanager::gib_manager()->pruefe_blockstrecke(welt, gib_pos());
-}
-
-fahrplan_t *
-bahndepot_t::erzeuge_fahrplan(fahrplan_t * fpl)
-{
-    return new zugfahrplan_t(fpl);
 }
 
 simline_t *
 bahndepot_t::create_line()
 {
-    return gib_besitzer()->simlinemgmt.create_line(simline_t::trainline);
+	return gib_besitzer()->simlinemgmt.create_line( is_monorail? simline_t::monorailline : simline_t::trainline);
 }
 
 bool
@@ -557,12 +557,6 @@ strassendepot_t::strassendepot_t(karte_t *welt, koord3d pos,spieler_t *sp, const
 
 }
 
-fahrplan_t *
-strassendepot_t::erzeuge_fahrplan(fahrplan_t * fpl)
-{
-    return new autofahrplan_t(fpl);
-}
-
 simline_t *
 strassendepot_t::create_line()
 {
@@ -600,14 +594,6 @@ schiffdepot_t::schiffdepot_t(karte_t *welt, loadsave_t *file) : depot_t(welt)
 schiffdepot_t::schiffdepot_t(karte_t *welt, koord3d pos, spieler_t *sp, const haus_tile_besch_t *t) : depot_t(welt, pos, sp, t)
 {
 
-}
-
-
-
-fahrplan_t *
-schiffdepot_t::erzeuge_fahrplan(fahrplan_t * fpl)
-{
-    return new schifffahrplan_t(fpl);
 }
 
 simline_t *
@@ -660,14 +646,6 @@ airdepot_t::convoi_arrived(convoihandle_t cnv, bool fpl_adjust)
     depot_t::convoi_arrived(cnv, fpl_adjust);
 
     blockmanager::gib_manager()->pruefe_blockstrecke(welt, gib_pos());
-}
-
-
-
-fahrplan_t *
-airdepot_t::erzeuge_fahrplan(fahrplan_t * fpl)
-{
-    return new airfahrplan_t(fpl);
 }
 
 simline_t *

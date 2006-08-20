@@ -4,6 +4,8 @@
 #include "simtypes.h"
 
 
+uint8 simline_t::convoi_to_line_catgory[MAX_CONVOI_COST]={LINE_CAPACITY, LINE_TRANSPORTED_GOODS, LINE_REVENUE, LINE_OPERATIONS, LINE_PROFIT };
+
 simline_t::simline_t(karte_t * welt,
 		     simlinemgmt_t * simlinemgmt,
 		     fahrplan_t * fpl)
@@ -114,7 +116,7 @@ simline_t::rdwr(loadsave_t * file)
 
 	file->rdwr_str(name, sizeof(name));
 	if(file->get_version()<88003) {
-		long dummy=0;
+		long dummy=id;
 		file->rdwr_long(dummy, " ");
 		id = dummy;
 	}

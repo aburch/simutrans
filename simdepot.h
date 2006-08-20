@@ -75,10 +75,7 @@ public:
     depot_t(karte_t *welt, koord3d pos, spieler_t *sp, const haus_tile_besch_t *t);
     virtual ~depot_t();
 
-
-    //virtual fahrplan_t * erzeuge_fahrplan() = 0;
-
-    virtual fahrplan_t * erzeuge_fahrplan(fahrplan_t * fpl = NULL) = 0;
+	fahrplan_t * erzeuge_fahrplan();
 
 	virtual simline_t * create_line() = 0;
 
@@ -257,9 +254,6 @@ public:
 class bahndepot_t : public depot_t
 {
 protected:
-
-  fahrplan_t * erzeuge_fahrplan(fahrplan_t * fpl = NULL);
-
 	simline_t * create_line();
 
     bool can_convoi_start(int icnv) const;
@@ -329,11 +323,6 @@ public:
 class strassendepot_t : public depot_t
 {
 protected:
-
-    //fahrplan_t * erzeuge_fahrplan();
-
-    fahrplan_t * erzeuge_fahrplan(fahrplan_t * fpl = NULL);
-
 	simline_t * create_line();
 
     virtual const char * gib_passenger_name() {
@@ -394,11 +383,6 @@ public:
 class schiffdepot_t : public depot_t
 {
 protected:
-
-    //fahrplan_t * erzeuge_fahrplan();
-
-    fahrplan_t * erzeuge_fahrplan(fahrplan_t * fpl = NULL);
-
 	simline_t * create_line();
 
     virtual const char * gib_passenger_name() {
@@ -451,11 +435,6 @@ public:
 class airdepot_t : public depot_t
 {
 protected:
-
-//fahrplan_t * erzeuge_fahrplan();
-
-  fahrplan_t * erzeuge_fahrplan(fahrplan_t * fpl = NULL);
-
 	simline_t * create_line();
 
     virtual const char * gib_zieher_name() {

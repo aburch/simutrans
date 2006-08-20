@@ -27,39 +27,39 @@ static int vc;
  */
 void dr_init_sound()
 {
-        int voices = detect_digi_driver(DIGI_AUTODETECT);
+	if(sound_ok) {
+		return; // already initialized
+	}
+	int voices = detect_digi_driver(DIGI_AUTODETECT);
 
-        if(voices > 0) {
-                int ok;
+	if(voices > 0) {
+		int ok;
 
-                // assume: all ok, override on error
-                sound_ok = 1;
+		// assume: all ok, override on error
+		sound_ok = 1;
 
-                fprintf(stderr, "Message: %d voices available\n", voices);
+		fprintf(stderr, "Message: %d voices available\n", voices);
 
 #ifndef DIGMID_SUPPORT
-                reserve_voices(MIN(voices,4), 0);
+		reserve_voices(MIN(voices,4), 0);
 #endif
 
-                ok = install_sound(DIGI_AUTODETECT, MIDI_AUTODETECT, NULL); /***** OCR *****/
+		ok = install_sound(DIGI_AUTODETECT, MIDI_AUTODETECT, NULL); /***** OCR *****/
+		if(ok == -1) {
+			fprintf(stderr, "Error: %s\n", allegro_error);
+			sound_ok = 0;
+		}
 
-                if(ok == -1) {
-                        fprintf(stderr, "Error: %s\n", allegro_error);
-                        sound_ok = 0;
-                } else {
+		voice[0] = -1;
+		voice[1] = -1;
+		voice[2] = -1;
+		voice[3] = -1;
 
-               	}
-
-               	voice[0] = -1;
-               	voice[1] = -1;
-               	voice[2] = -1;
-               	voice[3] = -1;
-
-                set_volume(255, 128);
-        } else {
-                fprintf(stderr, "Warning: No sound available!\n");
-                sound_ok = 0;
-        }
+		set_volume(255, 128);
+	} else {
+		fprintf(stderr, "Warning: No sound available!\n");
+		sound_ok = 0;
+	}
 }
 
 

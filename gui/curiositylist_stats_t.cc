@@ -20,8 +20,8 @@
 
 #include "../dataobj/translator.h"
 
+#include "../utils/simstring.h"
 #include "../utils/cbuffer_t.h"
-
 
 
 curiositylist_stats_t::curiositylist_stats_t(karte_t * w,
@@ -60,10 +60,8 @@ void curiositylist_stats_t::get_unique_attractions(const curiositylist::sort_mod
 	bool append = true;
 	for (unsigned int j=0; j<attractions.get_count(); ++j) {
 	    if (sortby == curiositylist::by_name) {
-		const char *desc = translator::translate(geb->gib_tile()->gib_besch()->gib_name());
-		char *token = strtok(const_cast<char*>(desc),"\n");
-		const char *check_desc = translator::translate(attractions.at(j)->gib_tile()->gib_besch()->gib_name());
-		char *check_token = strtok(const_cast<char*>(check_desc),"\n");
+		const char *token = translator::translate(geb->gib_tile()->gib_besch()->gib_name());
+		const char *check_token = translator::translate(attractions.at(j)->gib_tile()->gib_besch()->gib_name());
 
 #ifndef WIN32
 		if (sortreverse)
@@ -105,12 +103,14 @@ void curiositylist_stats_t::get_unique_attractions(const curiositylist::sort_mod
 		break;
 	    }
 	}
+/*
 	if (append) {
 	    DBG_MESSAGE("curiositylist_stats_t::get_unique_attractions()","append %s at (%i,%i)",
 			geb->gib_tile()->gib_besch()->gib_name(),
 			geb->gib_pos().x, geb->gib_pos().y );
 	    attractions.append(geb,4);
 	}
+*/
     }
 }
 
@@ -210,9 +210,16 @@ void curiositylist_stats_t::zeichnen(koord offset) const
 		display_fillbox_wh_clip(xoff+8, yoff+7, 6, 6, indicatorfarbe, true);
 
 		// the other infos
-		const char *desc = translator::translate(geb->gib_tile()->gib_besch()->gib_name());
-		char *token = strtok(const_cast<char*>(desc),"\n");
-		buf.append(token);
+		const char *name = ltrim( translator::translate(geb->gib_tile()->gib_besch()->gib_name()) );
+		char short_name[256];
+		short_name[255] = 0;
+		int i;
+		for( i=0;  i<255  &&  name[i]>=' ';  i++  ) {
+			short_name[i] = name[i];
+		}
+		short_name[i] = 0;
+		// now we have a short name ...
+		buf.append(short_name);
 		buf.append(" (");
 		buf.append(geb->gib_pos().gib_2d().x);
 		buf.append(", ");

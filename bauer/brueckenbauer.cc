@@ -15,13 +15,14 @@
 #include "../simworld.h"
 #include "../simgraph.h"
 #include "../simwin.h"
-#include "../simsfx.h"
+#include "../besch/sound_besch.h"
 #include "../simplay.h"
 #include "../simskin.h"
 #include "../blockmanager.h"
 
 #include "../boden/boden.h"
 #include "../boden/brueckenboden.h"
+#include "../boden/wege/monorail.h"
 #include "../boden/wege/schiene.h"
 #include "../boden/wege/strasse.h"
 #include "../boden/wege/kanal.h"
@@ -213,9 +214,9 @@ brueckenbauer_t::finde_ende(karte_t *welt, koord3d pos, koord zv, weg_t::typ weg
 			return koord3d::invalid;
 		}
 		gr1 = welt->lookup(pos + koord3d(0, 0, 16));
-		if(gr1 && gr1->gib_grund_hang() == hang_t::flach) {
-			//return gr1->gib_pos();        // Ende an Querbrücke
-			return koord3d::invalid;
+		if(gr1 && gr1->gib_grund_hang()==hang_t::flach) {
+			return gr1->gib_pos();        // Ende an Querbrücke
+//			return koord3d::invalid;
 		}
 		gr2 = welt->lookup(pos);
 		if(gr2) {
@@ -246,14 +247,14 @@ brueckenbauer_t::finde_ende(karte_t *welt, koord3d pos, koord zv, weg_t::typ weg
 			}
 		}
 	} while(!gr1 &&                             // keine Brücke im Weg
-		(!gr2 || gr2->gib_grund_hang() == hang_t::flach) ); // Boden kommt nicht hoch
+		(!gr2 || gr2->gib_grund_hang()==hang_t::flach  ||  gr2->gib_hoehe()<pos.z ) ); // Boden kommt nicht hoch
 
 	return koord3d::invalid;
 }
 
 bool brueckenbauer_t::ist_ende_ok(spieler_t *sp, const grund_t *gr)
 {
-	if(gr->gib_typ() != grund_t::boden) {
+	if(gr->gib_typ()!=grund_t::boden  &&  gr->gib_typ()!=grund_t::monorailboden) {
 		return false;
 	}
 	if(gr->ist_uebergang()) {
@@ -333,19 +334,16 @@ DBG_MESSAGE("brueckenbauer_t::baue()", "called on %d,%d for bridge type '%s'",
 	const weg_t *weg = gr->gib_weg(besch->gib_wegtyp());
 
 	if(!weg || !ist_ende_ok(sp, gr)) {
+DBG_MESSAGE("brueckenbauer_t::baue()", "no way %x found",besch->gib_wegtyp());
 		if(welt->get_active_player()==sp) {
-			if(besch->gib_wegtyp() == weg_t::strasse) {
-				create_win(-1, -1, MESG_WAIT, new nachrichtenfenster_t(welt,"Bruecke muss auf\nStraße beginnen!\n"), w_autodelete);
-			} else {
-				create_win(-1, -1, MESG_WAIT, new nachrichtenfenster_t(welt,"Bruecke muss auf\nSchiene beginnen!\n"), w_autodelete);
-			}
+			create_win(-1, -1, MESG_WAIT, new nachrichtenfenster_t(welt,"A bridge must start on a way!"), w_autodelete);
 		}
 		return false;
 	}
 
 	bool hat_oberleitung = (gr->suche_obj(ding_t::oberleitung) != 0);
 	if(gr->obj_count() > (hat_oberleitung ? 1 : 0)) {
-		create_win(-1, -1, MESG_WAIT, new nachrichtenfenster_t(welt, "Es ist ein\nObjekt im Weg!\n"), w_autodelete);
+		create_win(-1, -1, MESG_WAIT, new nachrichtenfenster_t(welt, "Tile not empty."), w_autodelete);
 		return false;
 	}
 
@@ -367,11 +365,7 @@ DBG_MESSAGE("brueckenbauer_t::baue()", "called on %d,%d for bridge type '%s'",
 		}
 	}
 	if(!ribi) {
-		if(besch->gib_wegtyp() == weg_t::strasse) {
-			create_win(-1, -1, MESG_WAIT, new nachrichtenfenster_t(welt,"Bruecke muss auf\nStrassenende\nbeginnen!\n"), w_autodelete);
-		} else {
-			create_win(-1, -1, MESG_WAIT, new nachrichtenfenster_t(welt,"Bruecke muss auf\nSchienenende\nbeginnen!\n"), w_autodelete);
-		}
+		create_win(-1, -1, MESG_WAIT, new nachrichtenfenster_t(welt,"A bridge must start on a way!"), w_autodelete);
 		return false;
 	}
 
@@ -386,18 +380,15 @@ DBG_MESSAGE("brueckenbauer_t::baue()", "called on %d,%d for bridge type '%s'",
 
 	// pruefe ob bruecke auf strasse/schiene endet
 	if(!welt->ist_in_kartengrenzen(end.gib_2d()) || !ist_ende_ok(sp, welt->lookup(end))) {
-		if(besch->gib_wegtyp() == weg_t::strasse) {
-			create_win(-1, -1, MESG_WAIT, new nachrichtenfenster_t(welt,"Bruecke muss auf\nStrassenende enden!\n"), w_autodelete);
-		} else {
-			create_win(-1, -1, MESG_WAIT, new nachrichtenfenster_t(welt,"Bruecke muss auf\nSchienenende enden!\n"), w_autodelete);
-		}
+DBG_MESSAGE("brueckenbauer_t::baue()", "end not ok");
+		create_win(-1, -1, MESG_WAIT, new nachrichtenfenster_t(welt,"A bridge must end on a way!"), w_autodelete);
 		return false;
 	}
 
 	grund_t * gr_end = welt->lookup(end);
 	hat_oberleitung = (gr_end->suche_obj(ding_t::oberleitung) != 0);
 	if(gr_end->obj_count() > (hat_oberleitung ? 1 : 0)) {
-		create_win(-1, -1, MESG_WAIT, new nachrichtenfenster_t(welt, "Es ist ein\nObjekt im Weg!\n"), w_autodelete);
+		create_win(-1, -1, MESG_WAIT, new nachrichtenfenster_t(welt, "Tile not empty."), w_autodelete);
 		return false;
 	}
 	// Anfang und ende sind geprueft, wir konnen endlich bauen
@@ -417,8 +408,9 @@ bool brueckenbauer_t::baue_bruecke(karte_t *welt, spieler_t *sp,
 	baue_auffahrt(welt, sp, pos, zv, besch, weg_besch );
 
 	ribi = welt->lookup(pos)->gib_weg_ribi_unmasked(besch->gib_wegtyp());
-	if(besch->gib_wegtyp()==weg_t::schiene) {
+	if(besch->gib_wegtyp()==weg_t::schiene  ||  besch->gib_wegtyp()==weg_t::schiene_monorail) {
 		bs1 = ((schiene_t *)welt->lookup(pos)->gib_weg(besch->gib_wegtyp()))->gib_blockstrecke();
+		DBG_MESSAGE("brueckenbauer_t::baue()", "blockstrecke %i",bs1.get_id());
 	}
 	pos = pos + zv;
 
@@ -428,6 +420,10 @@ bool brueckenbauer_t::baue_bruecke(karte_t *welt, spieler_t *sp,
 		if(besch->gib_wegtyp() == weg_t::schiene) {
 			weg = new schiene_t(welt);
 			((schiene_t *)weg)->setze_blockstrecke( bs1 );
+		}
+		else if(besch->gib_wegtyp() == weg_t::schiene_monorail) {
+			weg = new monorail_t(welt);
+			((monorail_t *)weg)->setze_blockstrecke( bs1 );
 		}
 		else if(besch->gib_wegtyp()==weg_t::strasse) {
 			weg = new strasse_t(welt);
@@ -462,7 +458,21 @@ bool brueckenbauer_t::baue_bruecke(karte_t *welt, spieler_t *sp,
 		pos = pos + zv;
 	}
 
-	baue_auffahrt(welt, sp, pos, -zv, besch, weg_besch);
+	if(weg_besch->gib_wtyp()!=weg_t::schiene_monorail  ||  pos.z==end.z) {
+		// not ending at a bridge
+		baue_auffahrt(welt, sp, pos, -zv, besch, weg_besch);
+	}
+	else {
+		// just connect to existing way
+		grund_t *gr=welt->lookup(end);
+		if(gr->weg_erweitern(besch->gib_wegtyp(),ribi_t::doppelt(ribi))) {
+			if(besch->gib_wegtyp()==weg_t::schiene  ||  besch->gib_wegtyp()==weg_t::schiene_monorail) {
+				((schiene_t *)gr->gib_weg(besch->gib_wegtyp()))->setze_blockstrecke( bs1 );
+				DBG_MESSAGE("brueckenbauer_t::baue()", "blockstrecke %i",bs1.get_id());
+				blockmanager::gib_manager()->schiene_erweitern(welt,gr);
+			}
+		}
+	}
 	return true;
 }
 
@@ -488,13 +498,28 @@ brueckenbauer_t::baue_auffahrt(karte_t *welt, spieler_t *sp, koord3d end, koord 
 	weg_t *alter_weg = alter_boden->gib_weg(besch->gib_wegtyp());
 	ding_t *sig = NULL;
 
-	if(besch->gib_wegtyp() == weg_t::schiene) {
+	if(besch->gib_wegtyp()==weg_t::schiene_monorail) {
+		weg = new monorail_t(welt);
+	}
+	else if(besch->gib_wegtyp()==weg_t::schiene) {
 		weg = new schiene_t(welt);
-		if(!alter_weg) {
-			weg->setze_besch(weg_besch);
-			sp->buche(weg_besch->gib_preis(), alter_boden->gib_pos().gib_2d(), COST_CONSTRUCTION);
-		} else {
-			weg->setze_besch(alter_weg->gib_besch());
+	}
+	else if(besch->gib_wegtyp()==weg_t::strasse) {
+		weg = new strasse_t(welt);
+	}
+	else if(besch->gib_wegtyp()==weg_t::wasser) {
+		weg = new kanal_t(welt);
+	}
+	else {
+		dbg->fatal("brueckenbauer_t::baue_bruecke()","unknown waytype (%i) for bridge",besch->gib_wegtyp() );
+	}
+	if(!alter_weg) {
+		weg->setze_besch(weg_besch);
+		sp->buche(weg_besch->gib_preis(), alter_boden->gib_pos().gib_2d(), COST_CONSTRUCTION);
+	}
+	else {
+		weg->setze_besch(alter_weg->gib_besch());
+		if(besch->gib_wegtyp() == weg_t::schiene  ||  besch->gib_wegtyp() == weg_t::schiene_monorail) {
 			blockhandle_t bs = ((schiene_t *)alter_weg)->gib_blockstrecke();
 			((schiene_t *)weg)->setze_blockstrecke( bs );
 			sig = (ding_t *)alter_boden->suche_obj(ding_t::signal);
@@ -503,33 +528,15 @@ brueckenbauer_t::baue_auffahrt(karte_t *welt, spieler_t *sp, koord3d end, koord 
 			}
 		}
 	}
-	else {
-		if(besch->gib_wegtyp()==weg_t::strasse) {
-			weg = new strasse_t(welt);
-		}
-		else if(besch->gib_wegtyp()==weg_t::wasser) {
-			weg = new kanal_t(welt);
-		}
-		else {
-			dbg->fatal("brueckenbauer_t::baue_bruecke()","unknown waytype (%i) for bridge",besch->gib_wegtyp() );
-		}
-		if(!alter_weg) {
-			weg->setze_besch(weg_besch);
-			sp->buche(weg_besch->gib_preis(), alter_boden->gib_pos().gib_2d(), COST_CONSTRUCTION);
-		}
-		else {
-			weg->setze_besch(alter_weg->gib_besch());
-		}
-	}
 	weg->setze_max_speed( besch->gib_topspeed() );
 	welt->access(end.gib_2d())->kartenboden_setzen( bruecke, false );
-	bruecke->neuen_weg_bauen(weg, ribi_t::doppelt(ribi_alt), sp);
+	bruecke->neuen_weg_bauen(weg, ribi_t::doppelt(ribi_neu), sp);
 
 	if(sp!=NULL) {
 		// no undo possible anymore
 		sp->init_undo(besch->gib_wegtyp(),0);
 	}
-	if(besch->gib_wegtyp() == weg_t::schiene) {
+	if(besch->gib_wegtyp() == weg_t::schiene  ||  besch->gib_wegtyp() == weg_t::schiene_monorail) {
 		blockmanager::gib_manager()->neue_schiene(welt, bruecke, sig);
 	}
 	if(bruecke->gib_grund_hang() == hang_t::flach) {
@@ -581,7 +588,7 @@ brueckenbauer_t::remove(karte_t *welt, spieler_t *sp, koord3d pos, weg_t::typ we
 			}
 			end_list.insert(pos);
 		}
-		else {
+		else if(from->ist_bruecke()) {
 			part_list.insert(pos);
 		}
 		// Alle Brückenteile auf Entfernbarkeit prüfen!
@@ -593,9 +600,7 @@ brueckenbauer_t::remove(karte_t *welt, spieler_t *sp, koord3d pos, weg_t::typ we
 
 		// Nachbarn raussuchen
 		for(int r = 0; r < 4; r++) {
-			if((zv == koord::invalid || zv == koord::nsow[r]) &&
-			from->get_neighbour(to, wegtyp, koord::nsow[r]) &&
-			!marker.ist_markiert(to)) {
+			if((zv == koord::invalid || zv == koord::nsow[r]) &&  	from->get_neighbour(to, wegtyp, koord::nsow[r]) &&  !marker.ist_markiert(to) &&  to->ist_bruecke()) {
 				tmp_list.insert(to->gib_pos());
 				marker.markiere(to);
 			}
@@ -608,7 +613,7 @@ brueckenbauer_t::remove(karte_t *welt, spieler_t *sp, koord3d pos, weg_t::typ we
 
 		grund_t *gr = welt->lookup(pos);
 
-		if(wegtyp == weg_t::schiene) {
+		if(wegtyp==weg_t::schiene  ||  wegtyp==weg_t::schiene_monorail) {
 			bm->entferne_schiene(welt, pos);
 		}
 		gr->weg_entfernen(wegtyp, false);
@@ -643,11 +648,11 @@ brueckenbauer_t::remove(karte_t *welt, spieler_t *sp, koord3d pos, weg_t::typ we
 			ribi &= ~ribi_typ(gr->gib_weg_hang());
 		}
 		const weg_besch_t *weg_besch=gr->gib_weg(wegtyp)->gib_besch();
-		if(wegtyp == weg_t::schiene) {
+		if(wegtyp==weg_t::schiene  ||  wegtyp==weg_t::schiene_monorail) {
 			sig = gr->suche_obj(ding_t::signal);
 			if(sig) { // Signal aufheben - kommt auf den neuen Boden!
 				gr->obj_remove(sig, sp);
-				((schiene_t *)gr->gib_weg(weg_t::schiene))->gib_blockstrecke()->entferne_signal((signal_t *)sig);
+				((schiene_t *)gr->gib_weg(wegtyp))->gib_blockstrecke()->entferne_signal((signal_t *)sig);
 			}
 			bm->entferne_schiene(welt, gr->gib_pos());
 		}
@@ -661,6 +666,12 @@ brueckenbauer_t::remove(karte_t *welt, spieler_t *sp, koord3d pos, weg_t::typ we
 		// Neuen Boden wieder mit Weg versehen
 		if(wegtyp==weg_t::schiene) {
 			weg_t *weg = new schiene_t(welt);
+			weg->setze_besch(weg_besch);
+			gr->neuen_weg_bauen(weg, ribi, sp);
+			bm->neue_schiene(welt, gr, sig);
+		}
+		else if(wegtyp==weg_t::schiene_monorail) {
+			weg_t *weg = new monorail_t(welt);
 			weg->setze_besch(weg_besch);
 			gr->neuen_weg_bauen(weg, ribi, sp);
 			bm->neue_schiene(welt, gr, sig);

@@ -444,7 +444,7 @@ void depot_frame_t::layout(koord *gr)
 
     bt_destroy.setze_pos(koord(TOTAL_WIDTH*2/4, ACTIONS_VSTART));
     bt_destroy.setze_groesse(koord(TOTAL_WIDTH*3/4-TOTAL_WIDTH*2/4, ABUTTON_HEIGHT));
-    bt_destroy.setze_text(translator::translate("Auflösen"));
+    bt_destroy.setze_text(translator::translate("Aufloesen"));
 
     bt_sell.setze_pos(koord(TOTAL_WIDTH*3/4, ACTIONS_VSTART));
     bt_sell.setze_groesse(koord(TOTAL_WIDTH-TOTAL_WIDTH*3/4, ABUTTON_HEIGHT));
@@ -627,7 +627,7 @@ DBG_DEBUG("depot_frame_t::build_vehicle_lists()","%i passenger vehicle, %i  engi
 
 void depot_frame_t::update_data()
 {
-	static const char *txt_veh_action[3] = { "anhängen", "voranstellen", "verkaufen" };
+	static const char *txt_veh_action[3] = { "anhaengen", "voranstellen", "verkaufen" };
 
 	// change green into blue for retired vehicles
 	const int month_now = welt->get_timeline_year_month();
@@ -1032,7 +1032,7 @@ depot_frame_t::zeichnen(koord pos, koord groesse)
 	    sprintf(txt_convoi_count, "%s %d",
 		translator::translate("Fahrzeuge:"),
 		cnv->gib_vehikel_anzahl());
-	    sprintf(txt_convoi_value, "%s %d Cr",
+	    sprintf(txt_convoi_value, "%s %d$",
 		translator::translate("Restwert:"),
 		cnv->calc_restwert()/100);
 	    if (cnv->get_line() != NULL)

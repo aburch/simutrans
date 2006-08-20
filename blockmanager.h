@@ -120,9 +120,7 @@ private:
      * diese zurück. Dabei wird bs2 zu bs1 zugeschlagen, bs2 geloescht.
      * bs1 bleibt uebrig.
      */
-    void vereinige(karte_t *welt,
-                   blockhandle_t  bs1,
-                   blockhandle_t  bs2);
+    void vereinige(karte_t *welt, blockhandle_t  bs1, blockhandle_t  bs2);
 
 public:
 

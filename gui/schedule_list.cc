@@ -13,7 +13,6 @@
 #include "messagebox.h"
 #include "schedule_list.h"
 #include "scrolled_list.h"
-#include "schedule_gui.h"
 #include "line_management_gui.h"
 #include "gui_convoiinfo.h"
 
@@ -32,18 +31,35 @@
 #include "../dataobj/translator.h"
 #include "../dataobj/linie.h"
 #include "components/gui_chart.h"
+#include "components/list_button.h"
 #include "halt_list_item.h"
 
 
 const char schedule_list_gui_t::cost_type[MAX_LINE_COST][64] =
 {
-  "Free Capacity", "Transported Goods", "Convoys", "Revenue", "Operation", "Profit"
+	"Free Capacity",
+	"Transported Goods",
+	"Revenue",
+	"Operation",
+	"Profit",
+	"Convoys"
 };
 
 const int schedule_list_gui_t::cost_type_color[MAX_LINE_COST] =
 {
-  7, 35, 15, 132, 23, 27
+  7, 11, 132, 23, 27, 15
 };
+
+uint8 schedule_list_gui_t::statistic[MAX_LINE_COST]={
+	LINE_CAPACITY, LINE_TRANSPORTED_GOODS, LINE_REVENUE, LINE_OPERATIONS, LINE_PROFIT, LINE_CONVOIS
+};
+
+uint8 schedule_list_gui_t::statistic_type[MAX_LINE_COST]={
+	STANDARD, STANDARD, MONEY, MONEY, MONEY, STANDARD
+};
+
+#define LINE_NAME_COLUMN_WIDTH ((BUTTON_WIDTH*3)+11+11)
+#define SCL_HEIGHT (170)
 
 
 // Hajo: 17-Jan-04: changed layout to make components fit into
@@ -54,8 +70,6 @@ schedule_list_gui_t::schedule_list_gui_t(karte_t *welt,spieler_t *sp)
  scrolly(&cont),
  scrolly_haltestellen(&cont_haltestellen)
 {
-	SCL_HEIGHT = 170; // to enlarge scl window, increase this value!
-
 	this->welt = welt;
 	this->sp = sp;
 	line = NULL;
@@ -63,84 +77,74 @@ schedule_list_gui_t::schedule_list_gui_t(karte_t *welt,spieler_t *sp)
 	selection = -1;
 	loadfactor = 0;
 
-	groesse = koord(400, 440);
+	groesse = koord(500, 440);
 	button_t button_def;
-
-	// Hajo: width of a column - the window has two columns
-	const int COLWIDTH = groesse.x/2 - 22;
-
-	// Hajo: X Position of second column
-	const int COL2XPOS = groesse.x/2 + 11;
-
-	// editable line name
-	inp_name.add_listener(this);
-	inp_name.setze_pos(koord(groesse.x/2 + 11, 193));
-	inp_name.setze_groesse(koord(COLWIDTH, 14));
-	inp_name.set_visible(false);
-	add_komponente(&inp_name);
-
-
-	// load display
-	filled_bar.add_color_value(&loadfactor, GREEN);
-	filled_bar.set_visible(false);
-	add_komponente(&filled_bar);
 
 	// init scrolled list
 	scl = new scrolled_list_gui_t(scrolled_list_gui_t::select);
-	scl->setze_groesse(koord(COLWIDTH, SCL_HEIGHT));
+	scl->setze_groesse(koord(LINE_NAME_COLUMN_WIDTH-22, SCL_HEIGHT-14));
 	scl->setze_pos(koord(0,1));
 	scl->setze_highlight_color(gib_besitzer()->kennfarbe+1);
+	scl->request_groesse(scl->gib_groesse());
 
 	// tab panel
 	tabs.setze_pos(koord(11,5));
-	tabs.setze_groesse(koord(COLWIDTH, SCL_HEIGHT));
-
+	tabs.setze_groesse(koord(LINE_NAME_COLUMN_WIDTH-22, SCL_HEIGHT));
 	tabs.add_tab(scl, translator::translate("All"));
 	tabs.add_tab(scl, translator::translate("Truck"));
 	tabs.add_tab(scl, translator::translate("Train"));
 	tabs.add_tab(scl, translator::translate("Ship"));
 	tabs.add_tab(scl, translator::translate("Air"));
+	tabs.add_tab(scl, translator::translate("Monorail"));
 	tabs.add_listener(this);
 	add_komponente(&tabs);
 
-	sp->simlinemgmt.sort_lines();
-	build_line_list(0);
+	// editable line name
+	inp_name.add_listener(this);
+	inp_name.setze_pos(koord(LINE_NAME_COLUMN_WIDTH, 14 + SCL_HEIGHT));
+	inp_name.set_visible(false);
+	add_komponente(&inp_name);
 
-	cont.setze_groesse(koord(500, 40));
+	// load display
+	filled_bar.add_color_value(&loadfactor, GREEN);
+	filled_bar.setze_pos(koord(LINE_NAME_COLUMN_WIDTH, 6 + SCL_HEIGHT));
+	filled_bar.set_visible(false);
+	add_komponente(&filled_bar);
 
-	scrolly.setze_groesse(koord(groesse.x/2,
-			      gib_fenstergroesse().y - 240 ));
+	// vonvois?
+	cont.setze_groesse(koord(LINE_NAME_COLUMN_WIDTH, 40));
+
+	// convoi list?
+	scrolly.setze_pos(koord(LINE_NAME_COLUMN_WIDTH-11, 14 + SCL_HEIGHT+14+4+2*LINESPACE+2));
 	scrolly.set_visible(false);
 	add_komponente(&scrolly);
 	setze_opaque(true);
 
+	// halt list?
 	cont_haltestellen.setze_groesse(koord(500, 40));
-	scrolly_haltestellen.setze_pos(koord(0, 50 + SCL_HEIGHT));
-	scrolly_haltestellen.setze_groesse(koord(groesse.x/2,
-					   gib_fenstergroesse().y - SCL_HEIGHT - 50 ));
+	scrolly_haltestellen.setze_pos(koord(0, 14 + SCL_HEIGHT+BUTTON_HEIGHT+2));
 	scrolly_haltestellen.set_visible(false);
 	add_komponente(&scrolly_haltestellen);
 	setze_opaque(true);
 
-
 	// normal buttons edit new remove
-	bt_new_line.setze_pos(koord(10, 18 + SCL_HEIGHT));
-	bt_new_line.setze_groesse(koord(92,14));
+	bt_new_line.setze_pos(koord(11, 14 + SCL_HEIGHT));
+	bt_new_line.setze_groesse(koord(BUTTON_WIDTH,BUTTON_HEIGHT));
 	bt_new_line.setze_typ(button_t::roundbox);
 	bt_new_line.text = translator::translate("New Line");
 	add_komponente(&bt_new_line);
 	bt_new_line.add_listener(this);
 
-	bt_change_line.setze_pos(koord(102, 18 + SCL_HEIGHT));
-	bt_change_line.setze_groesse(koord(92,14));
+	bt_change_line.setze_pos(koord(11+BUTTON_WIDTH, 14 + SCL_HEIGHT));
+	bt_change_line.setze_groesse(koord(BUTTON_WIDTH,BUTTON_HEIGHT));
 	bt_change_line.setze_typ(button_t::roundbox);
 	bt_change_line.text = translator::translate("Update Line");
 	add_komponente(&bt_change_line);
 	bt_change_line.add_listener(this);
 	bt_change_line.disable();
 
-	bt_delete_line.setze_pos(koord(10, 32 + SCL_HEIGHT));
-	bt_delete_line.setze_groesse(koord(92,14));
+	bt_delete_line.setze_pos(koord(11+2*BUTTON_WIDTH, 14 + SCL_HEIGHT));
+	bt_delete_line.setze_groesse(koord(BUTTON_WIDTH,BUTTON_HEIGHT));
 	bt_delete_line.setze_typ(button_t::roundbox);
 	bt_delete_line.text = translator::translate("Delete Line");
 	add_komponente(&bt_delete_line);
@@ -149,8 +153,8 @@ schedule_list_gui_t::schedule_list_gui_t(karte_t *welt,spieler_t *sp)
 
 	//CHART
 	chart = new gui_chart_t();
-	chart->setze_pos(koord(COL2XPOS+26, 10));
 	chart->set_dimension(12, 1000);
+	chart->setze_pos( koord(LINE_NAME_COLUMN_WIDTH+15,11) );
 	chart->set_seed(0);
 	chart->set_background(MN_GREY1);
 
@@ -158,16 +162,18 @@ schedule_list_gui_t::schedule_list_gui_t(karte_t *welt,spieler_t *sp)
 	//CHART END
 
 	// add filter buttons
-	for (int cost=0; cost<MAX_LINE_COST; cost++) {
-		filterButtons[cost].init(button_t::box,translator::translate(cost_type[cost]),koord(COL2XPOS+(COLWIDTH/2+4) * (cost%2), 125+15*((int)cost/2+1)), koord(COLWIDTH/2+3, 14));
-		filterButtons[cost].add_listener(this);
-		filterButtons[cost].background = cost_type_color[cost];
-		add_komponente(filterButtons + cost);
+	for (int i=0; i<MAX_LINE_COST; i++) {
+		filterButtons[i].init(button_t::box,translator::translate(cost_type[i]),koord(0,0), koord(BUTTON_WIDTH,BUTTON_HEIGHT));
+		filterButtons[i].add_listener(this);
+		filterButtons[i].background = cost_type_color[i];
+		add_komponente(filterButtons + i);
 	}
-	scl->request_groesse(scl->gib_groesse());
+
+	sp->simlinemgmt.sort_lines();
+	build_line_list(0);
 
 	// resize button
-	set_min_windowsize(koord(400, 400));
+	set_min_windowsize(koord(480, 400));
 	set_resizemode(diagonal_resize);
 	resize(koord(0,0));
 }
@@ -247,10 +253,8 @@ bool schedule_list_gui_t::action_triggered(gui_komponente_t *komp)           // 
     } else {
     	if (line != NULL)
     	{
-    	    for ( int i = 0; i<MAX_LINE_COST; i++)
-		    {
-		    	if (komp == &filterButtons[i])
-		    	{
+    	    for ( int i = 0; i<MAX_LINE_COST; i++) {
+		    	if (komp == &filterButtons[i]) {
 		    		chart->is_visible(i) == true ? chart->hide_curve(i) : chart->show_curve(i);
 		    		break;
 		    	}
@@ -341,8 +345,8 @@ schedule_list_gui_t::infowin_event(const event_t *ev)
 
       // chart
       chart->remove_curves();
-      for (i = 0; i<MAX_LINE_COST; i++)  {
-	chart->add_curve(cost_type_color[i], (sint64 *)line->get_finance_history(), MAX_LINE_COST, i, MAX_MONTHS, i < MAX_NON_MONEY_TYPES ? STANDARD : MONEY, filterButtons[i].pressed, true);
+      for (int i=0; i<MAX_LINE_COST; i++)  {
+	chart->add_curve(cost_type_color[i], (sint64 *)line->get_finance_history(), MAX_LINE_COST, statistic[i], MAX_MONTHS, statistic_type[i], filterButtons[i].pressed, true);
       }
       chart->set_visible(true);
     }
@@ -396,29 +400,33 @@ schedule_list_gui_t::display(koord pos)
 
 	money_to_string(ctmp, profit / 100.0);
 	sprintf(buffer, translator::translate("Convois: %d\nProfit: %s"), icnv, ctmp);
-	display_multiline_text(pos.x + groesse.x/2 + 2, pos.y + 229, buffer, BLACK);
+	display_multiline_text(pos.x + LINE_NAME_COLUMN_WIDTH + 2, pos.y+16 + 14 + SCL_HEIGHT+14+4, buffer, BLACK);
 
 	number_to_string(ctmp, capacity);
 	sprintf(buffer, translator::translate("Capacity: %s\nLoad: %d (%d%%)"), ctmp, load, loadfactor);
-	display_multiline_text(pos.x + groesse.x/2 + 106, pos.y + 229, buffer, BLACK);
+	display_multiline_text(pos.x + LINE_NAME_COLUMN_WIDTH + 106, pos.y+16 + 14 + SCL_HEIGHT + 14 +6 , buffer, BLACK);
 }
 
 void schedule_list_gui_t::resize(const koord delta)
 {
-  gui_frame_t::resize(delta);
-  this->groesse = get_client_windowsize() + koord(0, 16);
+	gui_frame_t::resize(delta);
+	this->groesse = get_client_windowsize() + koord(0, 16);
 
-  scrolly.setze_pos(koord(groesse.x/2, 240));
-  scrolly.setze_groesse(koord(groesse.x/2,
-			      get_client_windowsize().y-scrolly.gib_pos().y));
+	int rest_width = get_client_windowsize().x-LINE_NAME_COLUMN_WIDTH;
+	int button_per_row=max(1,rest_width/BUTTON_WIDTH);
+	int button_rows=(MAX_LINE_COST)/button_per_row;
 
-  scrolly_haltestellen.setze_groesse(koord(groesse.x/2,
-					   get_client_windowsize().y-scrolly_haltestellen.gib_pos().y));
+	scrolly.setze_groesse( koord(rest_width+11, get_client_windowsize().y-scrolly.gib_pos().y) );
+	scrolly_haltestellen.setze_groesse( koord(LINE_NAME_COLUMN_WIDTH-11, get_client_windowsize().y-scrolly_haltestellen.gib_pos().y) );
 
-  chart->setze_groesse(koord(groesse.x - 242, 110));
+	chart->setze_groesse(koord(rest_width-11-15, SCL_HEIGHT-11-14-(button_rows*BUTTON_HEIGHT)));
+	inp_name.setze_groesse(koord(rest_width-11, 14));
+	filled_bar.setze_groesse(koord(rest_width-11, 4));
 
-  filled_bar.setze_groesse(koord(groesse.x/2-32, 4));
-  filled_bar.setze_pos(koord(groesse.x/2+11, 236));
+	int y=SCL_HEIGHT-11-(button_rows*BUTTON_HEIGHT)+14;
+	for (int i=0; i<MAX_LINE_COST; i++) {
+		filterButtons[i].setze_pos( koord(LINE_NAME_COLUMN_WIDTH+(i%button_per_row)*BUTTON_WIDTH,y+(i/button_per_row)*BUTTON_HEIGHT)  );
+	}
 }
 
 void schedule_list_gui_t::build_line_list(int filter)

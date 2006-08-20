@@ -66,7 +66,7 @@ public:
 	} else {
 	    ERROR("array2d_tpl<T>::at()",
 	          "index out of bounds: (%d,%d) not in (0..%d, 0..%d)", x, y, w-1, h-1);
-
+		trap();
 	    return dummy;
 	}
     }

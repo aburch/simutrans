@@ -32,6 +32,7 @@
 #include "root_writer.h"
 #include "xref_writer.h"
 #include "skin_writer.h"
+#include "sound_writer.h"
 #include "tree_writer.h"
 #include "vehicle_writer.h"
 
@@ -53,6 +54,8 @@ imagelist_writer_t imagelist_writer_t::the_instance;
 imagelist2d_writer_t imagelist2d_writer_t::the_instance;
 root_writer_t root_writer_t::the_instance;
 xref_writer_t xref_writer_t::the_instance;
+
+sound_writer_t sound_writer_t::the_instance;
 
 menuskin_writer_t menuskin_writer_t::the_instance;
 cursorskin_writer_t cursorskin_writer_t::the_instance;

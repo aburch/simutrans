@@ -72,7 +72,7 @@ int money_frame_t::get_money_colour(int type, int old)
  * @author Hj. Malthaner, Owen Rudge
  */
 money_frame_t::money_frame_t(spieler_t *sp)
-  : gui_frame_t("Finances", sp->kennfarbe),
+  : gui_frame_t("Finanzen", sp->kennfarbe),
     tylabel("This Year", WEISS, gui_label_t::right),
     lylabel("Last Year", WEISS, gui_label_t::right),
     conmoney(NULL, WEISS, gui_label_t::money),
@@ -99,7 +99,7 @@ money_frame_t::money_frame_t(spieler_t *sp)
     warn("", ROT)
 {
 	if(sp->gib_welt()->gib_spieler(0)!=sp) {
-		sprintf(money_frame_title,"Finances of %s",translator::translate(sp->gib_name()) );
+		sprintf(money_frame_title,translator::translate("Finances of %s"),translator::translate(sp->gib_name()) );
 		setze_name(money_frame_title);
 	}
 
@@ -302,7 +302,7 @@ void money_frame_t::zeichnen(koord pos, koord gr)
     margin.set_color(get_money_colour(COST_MARGIN, 0));
 
     if(sp->gib_konto_ueberzogen()) {
-	sprintf(str_buf[15], translator::translate("Du hast %d Monate Zeit, deine Schulden zurückzuzahlen"),
+	sprintf(str_buf[15], translator::translate("Du hast %d Monate Zeit, deine Schulden zurueckzuzahlen"),
 	    spieler_t::MAX_KONTO_VERZUG-sp->gib_konto_ueberzogen()+1);
     }
     else {

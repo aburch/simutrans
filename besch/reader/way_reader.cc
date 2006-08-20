@@ -149,9 +149,8 @@ obj_besch_t * way_reader_t::read_node(FILE *fp, obj_node_info_t &node)
   	besch->styp = 7;
   	besch->wtyp = weg_t::schiene;
   }
-  if(besch->wtyp==weg_t::schiene_monorail) {
-  	besch->styp = 1;
-  	besch->wtyp = weg_t::schiene;
+  else if(besch->styp==1  && besch->wtyp==weg_t::schiene) {
+  	besch->wtyp = weg_t::schiene_monorail;
   }
 
   DBG_DEBUG("way_reader_t::read_node()",

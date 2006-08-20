@@ -45,7 +45,7 @@ const char *halt_list_filter_frame_t::filter_buttons_text[FILTER_BUTTONS] = {
     "hlf_chk_anleger",
     "hlf_chk_airport",
     "hlf_chk_spezial_filter",
-    "hlf_chk_überfüllt",
+    "hlf_chk_overflow",
     "hlf_chk_keine_verb",
     "hlf_chk_waren_annahme",
     "hlf_chk_waren_abgabe"

@@ -55,7 +55,7 @@ public:
     static const koord3d invalid;
 
     koord gib_2d() const { return koord(x, y); }
-};
+} __attribute__((packed));
 
 /**
  * operatoren für 3d Koordinaten:

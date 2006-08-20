@@ -65,7 +65,6 @@ public:
     /**
      * Geb‰ude, die das Programm direkt kennen muﬂ
      */
-    static const haus_besch_t *frachthof_besch;
     static const haus_besch_t *bahn_depot_besch;
     static const haus_besch_t *tram_depot_besch;
     static const haus_besch_t *str_depot_besch;

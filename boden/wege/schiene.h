@@ -44,6 +44,7 @@ private:
 
 
 public:
+	static const weg_besch_t *default_schiene;
 
     void setze_elektrisch(bool yesno);
     uint8 ist_elektrisch() const;

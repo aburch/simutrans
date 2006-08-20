@@ -311,7 +311,7 @@ win_get_magic(int magic)
 		// es kann nur ein fenster fuer jede pos. magic number geben
 		for(int i=0; i<ins_win; i++) {
 			if(wins[i].magic_number == magic) {
-				// if 'special' magic number, delete 'new'-ed object
+				// if 'special' magic number, return it
 				return wins[i].gui;
 			}
 		}
@@ -361,83 +361,89 @@ create_win(int x, int y, int dauer, gui_fenster_t *gui,
            enum wintype wt, int magic)
 {
 DBG_DEBUG("create_win()","ins_win=%d", ins_win);
-    assert(ins_win >= 0);
+	assert(ins_win >= 0);
 
-    if(ins_win < MAX_WIN) {
+	if(ins_win < MAX_WIN) {
 
-	// (Mathew Hounsell) Make Sure Closes Aren't Forgotten.
-        // Must Reset as the entries and thus flags are reused
-        wins[ins_win].flags.close = true;
-        wins[ins_win].flags.help = ( gui->gib_hilfe_datei() != NULL );
-	wins[ins_win].flags.prev = gui->has_prev();
-	wins[ins_win].flags.next = gui->has_next();
-	wins[ins_win].flags.size = gui->has_min_sizer();
+		// (Mathew Hounsell) Make Sure Closes Aren't Forgotten.
+		// Must Reset as the entries and thus flags are reused
+		wins[ins_win].flags.close = true;
+		wins[ins_win].flags.help = ( gui->gib_hilfe_datei() != NULL );
+		wins[ins_win].flags.prev = gui->has_prev();
+		wins[ins_win].flags.next = gui->has_next();
+		wins[ins_win].flags.size = gui->has_min_sizer();
 
-	if(magic != -1) {
-	    // es kann nur ein fenster fuer jede pos. magic number geben
+		if(magic != -1) {
+			// es kann nur ein fenster fuer jede pos. magic number geben
 
-	    for(int i=0; i<ins_win; i++) {
-		if(wins[i].magic_number == magic) {
-		    // gibts schon, wir machen kein neues
-		    // aber wir machen es sichtbar, falls verdeckt
-		    top_win(i);
-		    // if 'special' magic number, delete 'new'-ed object
-                    if (magic >= magic_sprachengui_t) { delete gui; }
-		    return -1;
+			for(int i=0; i<ins_win; i++) {
+				if(wins[i].magic_number == magic) {
+					// gibts schon, wir machen kein neues
+					// aber wir machen es sichtbar, falls verdeckt
+DBG_DEBUG("create_win()","magic=%d already there, bring to fornt", magic);
+					top_win(i);
+
+					// if 'special' magic number, delete 'new'-ed object
+					if (magic >= magic_sprachengui_t) {
+						delete gui;
+					}
+					return -1;
+				}
+			}
 		}
-	    }
-	}
 
-	// Hajo: Notify window to be shown
-	if(gui) {
-	  event_t ev;
+		// Hajo: Notify window to be shown
+		if(gui) {
+			event_t ev;
 
-	  ev.ev_class = INFOWIN;
-	  ev.ev_code = WIN_OPEN;
-	  ev.mx = 0;
-	  ev.my = 0;
-	  ev.cx = 0;
-	  ev.cy = 0;
-	  ev.button_state = 0;
+			ev.ev_class = INFOWIN;
+			ev.ev_code = WIN_OPEN;
+			ev.mx = 0;
+			ev.my = 0;
+			ev.cx = 0;
+			ev.cy = 0;
+			ev.button_state = 0;
 
-	  gui->infowin_event(&ev);
-	}
+			gui->infowin_event(&ev);
+		}
 
-        // let's see if Hajo's tip really works.... it does!
-        int i;
-        for (i=0; i<ins_win; i++) {
-	  if (wins[i].gui == gui) {
-	    top_win(i);
-	    return -1;
-	  }
-	}
+		// this window already open?
+		// prissi: (why do we have these magic cookies???)
+		for (int i=0; i<ins_win; i++) {
+			if (wins[i].gui == gui) {
+				top_win(i);
+				return -1;
+			}
+		}
 
-	wins[ins_win].gui = gui;
-	wins[ins_win].wt = wt;
-	wins[ins_win].dauer = dauer;
-	wins[ins_win].magic_number = magic;
-	wins[ins_win].closing = false;
+		wins[ins_win].gui = gui;
+		wins[ins_win].wt = wt;
+		wins[ins_win].dauer = dauer;
+		wins[ins_win].magic_number = magic;
+		wins[ins_win].closing = false;
 
-	koord gr;
+		koord gr;
 
-	if(gui != NULL) {
-	    gr = gui->gib_fenstergroesse();
-	} else {
-	    gr = koord(192, 92);
-	}
+		if(gui != NULL) {
+			gr = gui->gib_fenstergroesse();
+		}
+		else {
+			gr = koord(192, 92);
+		}
 
-	if(x == -1) {
-		x = MIN(gib_maus_x() - gr.x/2, display_get_width()-gr.x);
-		y = MIN(gib_maus_y() - gr.y-32, display_get_height()-gr.y);
-	}
-	wins[ins_win].pos.x = MAX(x,0);
-	wins[ins_win].pos.y = MAX(32, y);
+		if(x == -1) {
+			x = MIN(gib_maus_x() - gr.x/2, display_get_width()-gr.x);
+			y = MIN(gib_maus_y() - gr.y-32, display_get_height()-gr.y);
+		}
+		wins[ins_win].pos.x = MAX(x,0);
+		wins[ins_win].pos.y = MAX(32, y);
 
 DBG_DEBUG("create_win()","new ins_win=%d", ins_win+1);
-	return ins_win ++;
-    } else {
-	return -1;
-    }
+		return ins_win ++;
+	}
+	else {
+		return -1;
+	}
 }
 
 /**
@@ -558,14 +564,15 @@ void destroy_all_win()
 
 int top_win(int win)
 {
-    if (win == ins_win-1) {
-	return win;
-    } // already topped
+DBG_MESSAGE("top_win()","win=%i ins_win=%i",win,ins_win);
+	if (win==ins_win-1) {
+		return win;
+	} // already topped
 
-    simwin tmp = wins[win];
-    memmove(&wins[win], &wins[win+1], sizeof(struct simwin) * (ins_win - win - 1));
-    wins[ins_win-1] = tmp;
-    return ins_win-1;
+	simwin tmp = wins[win];
+	memmove(&wins[win], &wins[win+1], sizeof(struct simwin) * (ins_win - win - 1));
+	wins[ins_win-1] = tmp;
+	return ins_win-1;
 }
 
 
@@ -600,30 +607,27 @@ void display_win(int win)
 void
 display_all_win()
 {
-    int i;
-
-    for(i=0; i<ins_win; i++) {
-	display_win(i);
-	// prissi: tooltips are only allowed for the uppermost window
-	if(i<ins_win-1) {
-		tooltip_text = NULL;
+	for(int i=0; i<ins_win; i++) {
+		display_win(i);
+		// prissi: tooltips are only allowed for the uppermost window
+		if(i<ins_win-1) {
+			tooltip_text = NULL;
+		}
 	}
-    }
 }
 
 
 static void remove_old_win()
 {
-  // alte fenster entfernen, falls dauer abgelaufen
-
-  for(int i=ins_win-1; i>=0; i--) {
-    if(wins[i].dauer > 0) {
-      wins[i].dauer --;
-      if(wins[i].dauer == 0) {
-	destroy_framed_win(i);
-      }
-    }
-  }
+	// alte fenster entfernen, falls dauer abgelaufen
+	for(int i=ins_win-1; i>=0; i--) {
+		if(wins[i].dauer > 0) {
+			wins[i].dauer --;
+			if(wins[i].dauer == 0) {
+				destroy_framed_win(i);
+			}
+		}
+	}
 }
 
 void
@@ -913,14 +917,13 @@ static const char*  tooltips[22] =
     "Einstellungsfenster",
     "Reliefkarte",
     "Abfrage",
-    "Anheben",
-    "Absenken",
     "SLOPETOOLS",
-    "Schienenbau",
-    "Strassenbau",
-    "Wasserbau",
-    "Trams",
-    "Flugzeuge",
+    "RAILTOOLS",
+    "MONORAILTOOLS",
+    "TRAMTOOLS",
+    "ROADTOOLS",
+    "SHIPTOOLS",
+    "AIRTOOLS",
     "SPECIALTOOLS",
     "Abriss",
     "",
@@ -931,7 +934,8 @@ static const char*  tooltips[22] =
     "",
     "Screenshot",
     "Pause",
-    ""
+    "Fast forward",
+    "Help"
 };
 
 

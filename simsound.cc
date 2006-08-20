@@ -15,6 +15,7 @@
 #include <stdio.h>
 #include <string.h>
 #include "music/music.h"
+#include "besch/sound_besch.h"
 #include "sound/sound.h"
 #include "simsound.h"
 #include "simsys.h"
@@ -28,9 +29,6 @@
  * max sound index
  * @author hj. Malthaner
  */
-static int max_sound = -1;
-
-
 static int new_midi = 0;
 
 
@@ -62,46 +60,6 @@ static int current_midi = -1;  // Hajo: init with error condition,
 
 
 /**
- * liest alle samples, die in sound.tab aufgelistet sind
- * @author Hj. Malthaner
- */
-void sound_init()
-{
-  // read a list of soundfiles
-
-  FILE * file = fopen("sound.tab", "rb");
-
-  if(file) {
-
-    dr_init_sound();
-
-    while(!feof(file)) {
-      char buf[80];
-      int len;
-
-      read_line(buf, 80, file);
-      if(!feof(file)) {
-	len = strlen(buf);
-
-	while(buf[--len] < 32) {
-	  buf[len] = 0;
-	}
-	if(len > 1) {
-	  print("  Reading  sample '%s'\n", buf);
-	  max_sound = dr_load_sample(buf);
-	}
-      }
-    }
-
-    fclose(file);
-  } else {
-    dbg->warning("sound_init()",
-		 "can't open file 'sound.tab' for reading, turning sound off.");
-  }
-}
-
-
-/**
  * setzt lautstaärke für alle effekte
  * @author Hj. Malthaner
  */
@@ -129,17 +87,10 @@ int sound_get_global_volume()
 void
 sound_play(const struct sound_info info)
 {
-  if(info.index < 0 && max_sound+info.index+1 >= 0) {
-    // negative offsets are taken from the end of the list
-    dr_play_sample(max_sound+info.index+1, (info.volume*global_volume)>>8);
-
-  } else if(info.index >= 0 && info.index <= max_sound) {
-    // positive offsets are taken from the beginning of the list
-    dr_play_sample(info.index, (info.volume*global_volume)>>8);
-
-  } else {
-//    dbg->warning("sound_play()", "sound index %hd not in %d..%d", info.index, 0, max_sound);
-  }
+	if(info.index!=NO_SOUND) {
+DBG_MESSAGE("karte_t::interactive_event(event_t &ev)", "play sound %i",info.index);
+		dr_play_sample(info.index, (info.volume*global_volume)>>8);
+	}
 }
 
 

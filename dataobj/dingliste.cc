@@ -413,11 +413,10 @@ dingliste_t::kann_alle_entfernen(const spieler_t *sp) const
 			if(obj.some[i] != NULL) {
 				msg = obj.some[i]->ist_entfernbar(sp);
 				if(msg != NULL) {
-					break;
+					return msg;
 				}
 			}
 		}
-		return msg;
 	}
 	return NULL;
 }
