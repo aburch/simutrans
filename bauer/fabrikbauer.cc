@@ -310,9 +310,6 @@ fabrikbauer_t::finde_zufallsbauplatz(karte_t * welt, const koord3d pos, const in
 void
 fabrikbauer_t::verteile_tourist(karte_t * welt, spieler_t *, int max_number)
 {
-	// stuff for the progress bar
-	const int groesse=welt->gib_groesse_y();	// only used for progrss bar!!!
-	const int staedte = welt->gib_einstellungen()->gib_anzahl_staedte();
 	// current count
 	int current_number=0;
 
@@ -357,8 +354,6 @@ void
 fabrikbauer_t::verteile_industrie(karte_t * welt, spieler_t *, int max_number_of_factories,bool in_city)
 {
 	// stuff for the progress bar
-	const int groesse = welt->gib_groesse_y();	// only for progress bar!!!
-	const int staedte = welt->gib_einstellungen()->gib_anzahl_staedte();
 	const int display_offset = 16 + welt->gib_einstellungen()->gib_anzahl_staedte()*4 + (in_city? welt->gib_einstellungen()->gib_land_industry_chains() : 0);
 	const int display_total = 16 + welt->gib_einstellungen()->gib_anzahl_staedte()*4 + welt->gib_einstellungen()->gib_land_industry_chains() + welt->gib_einstellungen()->gib_city_industry_chains();
 	// current count

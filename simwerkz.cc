@@ -709,50 +709,6 @@ DBG_MESSAGE("wkz_wegebau()", "try straight route");
 }
 
 
-
-int wkz_electrify_block(spieler_t *sp, karte_t *welt, koord pos, value_t lParam)
-{
-	if(welt->lookup(pos)) {
-		const planquadrat_t *pl = welt->lookup(pos);
-		const bool backwards=event_get_last_control_shift()==2;
-		const grund_t *bd=0;
-		// search all grounds for match
-		for(  unsigned cnt=0;  cnt<pl->gib_boden_count();  cnt++  ) {
-			// with control backwards
-			const unsigned i = (backwards) ? pl->gib_boden_count()-1-cnt : cnt;
-	     		bd = pl->gib_boden_bei(i);
-			// ignore tunnel
-	     		if(bd->ist_im_tunnel()) {
-	     			bd = 0;
-	     			continue;
-	     		}
-			// has some rail or monorail?
-			if(!bd->hat_wege()  ||  (bd->gib_weg(weg_t::schiene)==NULL   &&  bd->gib_weg(weg_t::monorail)==NULL) ) {
-	     			bd = 0;
-	     			continue;
-	     		}
-	     		// check for ownership
-			if(bd->gib_besitzer()!=sp) {
-				bd = 0;
-				continue;
-			}
-			// ok, now we have a valid ground
-			break;
-		}
-
-		if(bd) {
-			dbg->error("","NOT WORKING");
-			return false;
-//			blockmanager::gib_manager()->setze_tracktyp(welt, bd->gib_pos(),true);
-			sp->init_undo( weg_t::invalid, 0 );	// forbid undo
-		}
-		return true;
-	}
-	return false;
-}
-
-
-
 // converts a 2d koord to a suitable ground pointer
 grund_t *
 wkz_intern_koord_to_weg_grund(spieler_t *sp, karte_t *welt, koord pos, weg_t::typ wt)
