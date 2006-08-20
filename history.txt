@@ -1,4 +1,18 @@
 
+
+Released Simutrans 0.85.03.1
+
+7-Feb-2005:
+	CHANGE: added UNDO for road and rail building ('z') +"UNDO failed!" error
+	FIX: simworld.cfg was wrongly initialized => no messages at all
+	FIX: city AI was also ignoring transformers during building
+	FIX: for calculating of possible passengers only these who found a
+		station near the destination was counted. Now also the one, who
+		gave up, because no station was there are counted
+		=> city growth rates much lower, need a good service over whole map
+	FIX: Renovation of townhalls: now all with roof texture and "real" grass
+
+
 Released Simutrans 0.85.03
 
 6-Feb-2005:

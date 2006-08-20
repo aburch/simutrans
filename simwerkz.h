@@ -99,5 +99,7 @@ int wkz_list_town_tool(spieler_t *sp, karte_t *welt, koord v);
 /* open the list of goods */
 int wkz_list_good_tool(spieler_t *sp, karte_t *welt, koord v);
 
+/* undo building */
+int wkz_undo(spieler_t *sp, karte_t *welt);
 
 #endif

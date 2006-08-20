@@ -2981,6 +2981,9 @@ karte_t::interactive_event(event_t &ev)
 	    create_win(0, 0, new citylist_frame_t(this), w_info);
 	    break;
 
+	case 'z':
+		wkz_undo(gib_spieler(0),this);
+		break;
 	    /*
 #ifdef AUTOTEST
 	case 'T':

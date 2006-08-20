@@ -139,6 +139,9 @@ spieler_t::spieler_t(karte_t *wl, int color)
     steps = simrand(16);
 
     init_texte();
+
+	// UNDO array empty
+	last_built = NULL;
 }
 
 
@@ -2093,6 +2096,7 @@ spieler_t::rdwr(loadsave_t *file)
 dbg->message("spieler_t::rdwr","Save ok");
     }
     else {
+    		// loading
 	    start = NULL;
         if(start_index != -1) {
 	    	start = welt->gib_fab(start_index);
@@ -2116,6 +2120,8 @@ dbg->message("spieler_t::rdwr","Save ok");
 	    halt_list->insert( halt );
         }
         init_texte();
+        // empty undo buffer
+        init_undo(weg_t::strasse,0);
    }
 }
 
@@ -2206,4 +2212,62 @@ dbg->message("spieler_t::bescheid_vehikel_problem","Vehicle %s can't find a rout
 int spieler_t::get_haltcount() const
 {
 	return haltcount;
+}
+
+
+
+/* Here functions for UNDO
+ * @date 7-Feb-2005
+ * @author prissi
+ */
+
+void
+spieler_t::init_undo( weg_t::typ wtype, int max )
+{
+	if(automat) {
+		return;
+	}
+	// only human player
+	// prissi: allow for UNDO for real player
+	if(last_built) {
+		delete last_built;
+		last_built = NULL;
+	}
+	last_built_count = 0;
+	if(max>0) {
+		last_built = new array_tpl<koord> (max);
+		undo_type = wtype;
+	}
+
+}
+
+
+void
+spieler_t::add_undo(koord k)
+{
+	if(last_built!=NULL) {
+		last_built->at(last_built_count++) = k;
+	}
+dbg->message("spieler_t::add_undo()","tile %i at (%i,%i)",last_built_count,k.x,k.y);
+}
+
+
+
+bool
+spieler_t::undo()
+{
+	if(last_built_count==0  ||  last_built==NULL) {
+		// nothing to UNDO
+		return false;
+	}
+	// try to remove everything last built
+	bool ok = false;
+	for(int i=0;  i<last_built_count;  i++  ) {
+		grund_t *gr = welt->lookup(last_built->at(i))->gib_kartenboden();
+		ok |= gr->weg_entfernen(undo_type,true);
+dbg->message("spieler_t::add_undo()","undo tile %i at (%i,%i)",i,last_built->at(i).x,last_built->at(i).y);
+	}
+	delete last_built;
+	last_built = NULL;
+	return ok;
 }

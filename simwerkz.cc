@@ -1658,4 +1658,11 @@ int wkz_list_good_tool(spieler_t *sp, karte_t *welt,koord k)
 }
 
 
+/* prissi: undo building */
+int wkz_undo(spieler_t *sp, karte_t *welt)
+{
+  if(!sp->undo()) {
+      create_win(-1, -1, MESG_WAIT, new nachrichtenfenster_t(welt, translator::translate("UNDO failed!")), w_autodelete);
+  }
+}
 // Werkzeuge ende

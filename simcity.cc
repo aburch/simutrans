@@ -37,8 +37,10 @@
 #include "tpl/slist_mit_gewichten_tpl.h"
 
 #include "simintr.h"
+#include "simdebug.h"
 
 #include "dings/gebaeude.h"
+#include "dings/leitung2.h"
 
 #include "dataobj/translator.h"
 #include "dataobj/einstellungen.h"
@@ -279,15 +281,15 @@ const int stadt_t::step_interval = 7000;
 void
 stadt_t::init_pax_ziele()
 {
-    const int gr = welt->gib_groesse();
+	const int gr = welt->gib_groesse();
 
-    for(int j=0; j<96; j++) {
-  for(int i=0; i<96; i++) {
-      const koord pos (i*gr/96, j*gr/96);
-      pax_ziele_alt.at(i, j) = pax_ziele_neu.at(i ,j) = reliefkarte_t::calc_relief_farbe(welt, pos);
-//      pax_ziele_alt.at(i, j) = pax_ziele_neu.at(i ,j) = 0;
-  }
-    }
+	for(int j=0; j<96; j++) {
+		for(int i=0; i<96; i++) {
+			const koord pos (i*gr/96, j*gr/96);
+			pax_ziele_alt.at(i, j) = pax_ziele_neu.at(i ,j) = reliefkarte_t::calc_relief_farbe(welt, pos);
+			//      pax_ziele_alt.at(i, j) = pax_ziele_neu.at(i ,j) = 0;
+		}
+	}
 }
 
 stadt_t::stadt_t(karte_t *wl, spieler_t *sp, koord pos,int citizens) :
@@ -556,6 +558,8 @@ stadt_t::neuer_monat()
     pax_transport = 0;
 }
 
+
+
 void
 stadt_t::step_bau()
 {
@@ -589,144 +593,149 @@ stadt_t::step_bau()
   }
 }
 
+
+
 void
 stadt_t::step_passagiere()
 {
-  // long t0 = get_current_time_millis();
-  // printf("%s step_passagiere called (%d,%d - %d,%d)\n", name, li,ob,re,un);
+// long t0 = get_current_time_millis();
+// printf("%s step_passagiere called (%d,%d - %d,%d)\n", name, li,ob,re,un);
 
-  // post oder pax erzeugen ?
+	INT_CHECK("simcity 434");
 
-  INT_CHECK("simcity 434");
+	// post oder pax erzeugen ?
+	const ware_besch_t * wtyp;
+	if(simrand(400) < 300) {
+		wtyp = warenbauer_t::passagiere;
+	}
+	else {
+		wtyp = warenbauer_t::post;
+	}
 
-  const ware_besch_t * wtyp;
+	const int row = (step_count & 7);
+	const int col = ((step_count >> 3) & 1);
+	koord k;
 
-  if(simrand(400) < 300) {
-    wtyp = warenbauer_t::passagiere;
-  } else {
-    wtyp = warenbauer_t::post;
-  }
-
-
-  const int row = (step_count & 7);
-  const int col = ((step_count >> 3) & 1);
-  koord k;
-
-  // printf("row=%d, col=%d\n", row, col);
+// printf("row=%d, col=%d\n", row, col);
 
     // nur jede achte Zeile bearbeiten
-  for(k.y = ob+row; k.y <= un; k.y += 8) {
-    for(k.x = li+col; k.x <= re; k.x += 2) {
-      const gebaeude_t *gb = dynamic_cast<const gebaeude_t *> (welt->lookup(k)->gib_kartenboden()->obj_bei(1));
+	for(k.y = ob+row; k.y <= un; k.y += 8) {
+		for(k.x = li+col; k.x <= re; k.x += 2) {
+			const gebaeude_t *gb = dynamic_cast<const gebaeude_t *> (welt->lookup(k)->gib_kartenboden()->obj_bei(1));
 
-      // ist das dort ein gebaeude ?
-      if(gb != NULL) {
+			// ist das dort ein gebaeude ?
+			if(gb != NULL) {
 
-  const int num_pax =
-    (wtyp == warenbauer_t::passagiere) ?
-    (gb->gib_level() + 6) >> 2 :
-    (gb->gib_post_level() + 3) >> 2;
+				const int num_pax =
+					(wtyp == warenbauer_t::passagiere) ?
+					(gb->gib_level() + 6) >> 2 :
+					(gb->gib_post_level() + 3) >> 2;
+
+				// starthaltestelle suchen
+				const vector_tpl<halthandle_t> &halt_list = welt->suche_nahe_haltestellen(k, 4, 0, 1);
+
+				if(halt_list.get_count() > 0) {
+					halthandle_t halt = halt_list.get(0);
+
+					int pax_routed = 0;
+
+//				// Hajo: track number of generated passengers.
+//				pax_erzeugt += num_pax;
+// prissi: see below
+					//printf("  distributing %d pax\n", num_pax);
+
+					// Find passenger destination
+					while(pax_routed < num_pax) {
+
+						// number of passengers that want to travel
+						int pax_left_to_do = MIN(7, num_pax - pax_routed);
+
+						// Ziel für Passagier suchen
+						const koord ziel = finde_passagier_ziel();
+
+						// Hajo: track number of generated passengers.
+						// prissi: we do it inside the loop to take also care of non-routable passengers
+						pax_erzeugt += pax_left_to_do;
+
+						// Dario: Check if there's a stop near destination
+						const vector_tpl <halthandle_t> &ziel_list =
+							welt->suche_nahe_haltestellen(ziel, 4, 0, 1);
+
+						if(ziel_list.get_count() == 0){
+							// Dario: suche_nahe_haltestellen doesn't check ziel itself.
+							// So search for a stop on ziel
+							// is required additionally
+
+							if(halt->gib_halt(welt, ziel) == NULL){
+								// ziel itself is no stop either. Thus, routing is not needed.
+								// Mark ziel as destination without route and continue.
+
+// dbg->message("stadt_t::step_passagiere()", "No stop near dest (%d, %d)", ziel.x, ziel.y);
+								merke_passagier_ziel(ziel, DUNKELORANGE);
+
+								continue;
+							}
+						}
+						else {
+//dbg->debug("stadt_t::step_passagiere()", "Stop near dest (%d, %d)", ziel.x, ziel.y);
+						} // End: Check if there's a stop near destination
+
+						// Passgierziel in Passagierzielkarte eintragen
+						merke_passagier_ziel(ziel, GELB);
+
+						ware_t pax (wtyp);
+						pax.setze_zielpos( ziel );
+						pax.menge = pax_left_to_do;	// if possible, we do 7 passengers at a time
+						pax_routed += pax.menge;  // pax_menge are routed this step
+
+						if(halt->gib_ware_summe(wtyp) > (halt->gib_grund_count() << 7)) {
+							// Hajo: Station crowded:
+							// some are appalled and will not try other
+							// stations
+							halt->add_pax_unhappy(pax.menge);
+
+							continue;
+						}
 
 
-  // starthaltestelle suchen
-  const vector_tpl<halthandle_t> &halt_list = welt->suche_nahe_haltestellen(k, 4, 0, 1);
+						// Hajo: for efficiency we try to route not every
+						// single pax, but packets.
+						// the last packet might have less then 7 pax
 
-  if(halt_list.get_count() > 0) {
-    halthandle_t halt = halt_list.get(0);
+						const bool schon_da = halt->suche_route(pax, halt);
 
-    int pax_routed = 0;
+						if(!schon_da) {
+							if(pax.gib_ziel() != koord::invalid) {
 
-    // Hajo: track number of generated passengers.
-    pax_erzeugt += num_pax;
+								// printf("  adding %d pax to station %s\n", pax->menge, halt->gib_name());
 
-    //printf("  distributing %d pax\n", num_pax);
+								// Hajo: keep track of transported passengers
+								pax_transport += pax.menge;
 
-    while(pax_routed < num_pax) {
-      // passagier erzeugen;
+								halt->liefere_an(pax);
+								halt->add_pax_happy(pax.menge);
 
-      // Ziel für Passagier suchen
-      const koord ziel = finde_passagier_ziel();
+							}
+							else {
+								halt->add_pax_no_route(pax.menge);
+								merke_passagier_ziel(ziel, DUNKELORANGE);
+							}
+						}
 
+					} // while
+				}
+				else {
+					// no halt are in the list
+					// Hajo: fake a ride to get a proper display of destinations
 
-      // Dario: Check if there's a stop near destination
-      const vector_tpl <halthandle_t> &ziel_list =
-        welt->suche_nahe_haltestellen(ziel, 4, 0, 1);
+						const koord ziel = finde_passagier_ziel();
+						merke_passagier_ziel(ziel, DUNKELORANGE);
+					}
+				}
+			}
 
-      if(ziel_list.get_count() == 0){
-        // Dario: suche_nahe_haltestellen doesn't check ziel itself.
-        // So search for a stop on ziel
-        // is required additionally
-
-        if(halt->gib_halt(welt, ziel) == NULL){
-    // ziel itself is no stop either. Thus, routing is not needed.
-    // Mark ziel as destination without route and continue.
-
-    // dbg->message("stadt_t::step_passagiere()", "No stop near dest (%d, %d)", ziel.x, ziel.y);
-    merke_passagier_ziel(ziel, DUNKELORANGE);
-
-    continue;
-        }
-      } else {
-        // dbg->debug("stadt_t::step_passagiere()", "Stop near dest (%d, %d)", ziel.x, ziel.y);
-      } // End: Check if there's a stop near destination
-
-
-      // Passgierziel in Passagierzielkarte eintragen
-      merke_passagier_ziel(ziel, GELB);
-
-
-      ware_t pax (wtyp);
-      pax.setze_zielpos( ziel );
-      pax.menge = MIN(7, num_pax - pax_routed);
-      pax_routed += pax.menge;  // pax_menge are routed this step
-
-      if(halt->gib_ware_summe(wtyp) > (halt->gib_grund_count() << 7)) {
-        // Hajo: Station crowded:
-        // some are appalled and will not try other
-        // stations
-
-        halt->add_pax_unhappy(pax.menge);
-
-        continue;
-      }
-
-
-      // Hajo: for efficiency we try to route not every
-      // single pax, but packets.
-      // the last packet might have less then 7 pax
-
-      const bool schon_da = halt->suche_route(pax, halt);
-
-      if(!schon_da) {
-        if(pax.gib_ziel() != koord::invalid) {
-
-    // printf("  adding %d pax to station %s\n", pax->menge, halt->gib_name());
-
-    // Hajo: keep track of transported passengers
-    pax_transport += pax.menge;
-
-    halt->liefere_an(pax);
-    halt->add_pax_happy(pax.menge);
-
-        } else {
-    halt->add_pax_no_route(pax.menge);
-    merke_passagier_ziel(ziel, DUNKELORANGE);
-        }
-      }
-
-    } // while
-
-  } else {
-    // Hajo: fake a ride to get a proper display of destinations
-
-      const koord ziel = finde_passagier_ziel();
-      merke_passagier_ziel(ziel, DUNKELORANGE);
-  }
-      }
-    }
-
-    INT_CHECK("simcity 525");
-  }
+		INT_CHECK("simcity 525");
+	}
 
   // long t1 = get_current_time_millis();
   // printf("Zeit für Passagierstep: %ld ms\n", (long)(t1-t0));
@@ -1407,7 +1416,10 @@ stadt_t::baue_gebaeude(const koord k)
 {
   const koord3d pos ( welt->lookup(k)->gib_kartenboden()->gib_pos() );
 
-  if(welt->lookup(pos)->ist_natur()  &&  welt->lookup(pos)->suche_obj(ding_t::leitung)==NULL) {
+  if(welt->lookup(pos)->ist_natur()  &&
+  	welt->lookup(pos)->suche_obj(ding_t::leitung)==NULL  &&
+  	welt->lookup(pos)->suche_obj(ding_t::pumpe)==NULL  &&
+  	welt->lookup(pos)->suche_obj(ding_t::senke)==NULL) {
 
     // bisher gibt es 2 Sorten Haeuser
     // arbeit-spendende und wohnung-spendende

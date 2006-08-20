@@ -914,14 +914,15 @@ display_show_pointer( true );
 	loadgame = "";    // only first time
 
 	// 05-Feb-2005 Added message service here
-    message_t msg = message_t(welt);
-    msg.add_message("Welcome to Simutrans, a game created by Hj. Malthaner.", koord::invalid, message_t::general, welt->gib_spieler(0)->kennfarbe);
-    msg.set_flags( umgebung_t::message_flags[0],  umgebung_t::message_flags[1],  umgebung_t::message_flags[2],  umgebung_t::message_flags[3] );
+    message_t *msg = new message_t(welt);
+    msg->add_message("Welcome to Simutrans, a game created by Hj. Malthaner.", koord::invalid, message_t::general, welt->gib_spieler(0)->kennfarbe);
+    msg->set_flags( umgebung_t::message_flags[0],  umgebung_t::message_flags[1],  umgebung_t::message_flags[2],  umgebung_t::message_flags[3] );
 
         // 02-Nov-2001     Markus Weber    Function returns a boolean now
 	quit_simutrans = welt->interactive();
 
-    msg.get_flags( &umgebung_t::message_flags[0],  &umgebung_t::message_flags[1],  &umgebung_t::message_flags[2],  &umgebung_t::message_flags[3] );
+    msg->get_flags( &umgebung_t::message_flags[0],  &umgebung_t::message_flags[1],  &umgebung_t::message_flags[2],  &umgebung_t::message_flags[3] );
+    delete msg;
 
     } while(!(umgebung_t::testlauf || quit_simutrans));
 

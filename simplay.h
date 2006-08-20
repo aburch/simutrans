@@ -28,6 +28,11 @@
 
 #include "simware.h"
 
+#include "boden/wege/weg.h"
+
+#include "tpl/array_tpl.h"
+#include "tpl/array2d_tpl.h"
+
 #include "besch/weg_besch.h"
 #include "besch/vehikel_besch.h"
 
@@ -253,7 +258,6 @@ private:
 
 
 public:
-
     /**
      * Age messages (move them upwards)
      * @author Hj. Malthaner
@@ -468,6 +472,18 @@ public:
      */
     void bescheid_vehikel_problem(convoihandle_t cnv,const koord3d ziel);
 
+private:
+	/* undo informations *
+	 * @author prissi
+	 */
+	array_tpl<koord> *last_built;
+	int last_built_count;
+	weg_t::typ undo_type;
+
+public:
+	void init_undo(weg_t::typ t, int max );
+	void add_undo(koord k);
+	bool undo();
 };
 
 #endif

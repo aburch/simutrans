@@ -49,6 +49,7 @@
 
 
 slist_tpl<const kreuzung_besch_t *> wegbauer_t::kreuzungen;
+
 const weg_besch_t *wegbauer_t::leitung_besch = NULL;
 
 static spezial_obj_tpl<weg_besch_t> spezial_objekte[] = {
@@ -1339,6 +1340,12 @@ wegbauer_t::baue_strasse()
 {
     int cost = 0;
 
+	// init undo
+	if(sp!=NULL) {
+		// intercity raods have no owner, so we must check for an owner
+		sp->init_undo(weg_t::strasse,max_n);
+	}
+
     for(int i=0; i<=max_n; i++) {
   const koord k = route->at(i);
 
@@ -1367,6 +1374,12 @@ wegbauer_t::baue_strasse()
       str->setze_besch(besch);
 
       gr->neuen_weg_bauen(str, calc_ribi(i), sp);
+
+	// prissi: into UNDO-list, so wie can remove it later
+	if(sp!=NULL) {
+		// intercity raods have no owner, so we must check for an owner
+		sp->add_undo(route->at(i));
+	}
 
       cost = -besch->gib_preis();
   }
@@ -1421,6 +1434,9 @@ wegbauer_t::baue_schiene()
             }
         }
 
+	// init undo
+	sp->init_undo(weg_t::schiene,max_n);
+
         // schienen legen
 
         for(i=0; i<=max_n; i++) {
@@ -1449,6 +1465,9 @@ wegbauer_t::baue_schiene()
       schiene_t * sch = new schiene_t(welt);
       sch->setze_besch(besch);
       gr->neuen_weg_bauen(sch, ribi, sp);
+
+	// prissi: into UNDO-list, so wie can remove it later
+	sp->add_undo( route->at(i) );
 
       bm->neue_schiene(welt, gr);
       cost = -besch->gib_preis();
@@ -1482,12 +1501,9 @@ wegbauer_t::baue_schiene()
 void
 wegbauer_t::baue()
 {
-  dbg->message("wegbauer_t::baue()",
-         "type=%d max_n=%d start=%d,%d end=%d,%d",
-         bautyp, max_n,
-         route->at(0).x, route->at(0).y,
-         route->at(max_n).x, route->at(max_n).y);
-
+	dbg->message("wegbauer_t::baue()","type=%d max_n=%d start=%d,%d end=%d,%d",bautyp, max_n,
+		route->at(0).x, route->at(0).y,
+		route->at(max_n).x, route->at(max_n).y);
 
     INT_CHECK("simbau 1072");
     switch(bautyp) {

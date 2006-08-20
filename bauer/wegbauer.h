@@ -219,6 +219,8 @@ public:
     bool ist_grund_fuer_strasse(koord pos, const koord zv, koord start, koord ziel) const;
 
     void baue();
+
+    bool undo();
 };
 
 #endif
