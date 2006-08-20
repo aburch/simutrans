@@ -678,11 +678,8 @@ void haltestelle_t::rebuild_destinations()
 // DBG_MESSAGE("haltestelle_t::rebuild_destinations()", "Adding new table entries");
 	// Hajo: second, calculate new entries
 
-	const slist_tpl <convoihandle_t> & convois = welt->gib_convoi_list();
-	slist_iterator_tpl <convoihandle_t> iter ( convois);
-
-	while( iter.next() ) {
-		convoihandle_t cnv = iter.get_current();
+	for(unsigned i=0;  i<welt->get_convoi_count();  i++ ) {
+		convoihandle_t cnv = welt->get_convoi_array().get(i);
 		// DBG_MESSAGE("haltestelle_t::rebuild_destinations()", "convoi %d %p", cnv.get_id(), cnv.get_rep());
 
 		if(gib_besitzer()==welt->gib_spieler(1)  ||  cnv->gib_besitzer()==gib_besitzer()) {

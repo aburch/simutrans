@@ -36,6 +36,8 @@
 #include "bauer/hausbauer.h"
 #include "bauer/vehikelbauer.h"
 
+#include "boden/wege/schiene.h"
+
 #include "besch/haus_besch.h"
 
 
@@ -260,7 +262,7 @@ bool depot_t::disassemble_convoi(int icnv, bool sell)
 	    vehikel_t *v = NULL;
 
 	    if(sell) {
-		gib_besitzer()->buche(cnv->calc_restwert(), gib_pos().gib_2d(), COST_NEW_VEHICLE);
+			gib_besitzer()->buche(cnv->calc_restwert(), gib_pos().gib_2d(), COST_NEW_VEHICLE);
 	    }
 	    do {
 		v = cnv->remove_vehikel_bei(0);
@@ -495,26 +497,50 @@ bahndepot_t::convoi_arrived(convoihandle_t cnv, bool fpl_adjust)
 bool
 bahndepot_t::can_convoi_start(int icnv) const
 {
-    bool ok = false;
+	convoihandle_t cnv=get_convoi(icnv);
+	weg_t::typ wt=cnv->gib_vehikel(0)->gib_wegtyp();
+	int tiles=0;
+	unsigned i;
+	for(i=0;  i<cnv->gib_vehikel_anzahl();  i++) {
+		tiles += cnv->gib_vehikel(i)->gib_besch()->get_length();
+	}
+	tiles = (tiles+15)/16;
 
-    // teste, ob abfahrt erlaubt
-    blockmanager *bm = blockmanager::gib_manager();
-    blockhandle_t bs = bm->finde_blockstrecke(welt, gib_pos());
+	schiene_t* sch0 = (schiene_t *)welt->lookup(gib_pos())->gib_weg(wt);
+	if(sch0==NULL) {
+		// no rail here???
+		return false;
+	}
 
-    // prüfe ob blockstrecke frei
-    if(bs.is_bound() && bs->ist_frei()) {
-	// blockstrecke ist frei, wir können starten
+	if(!sch0->reserve(cnv)) {
+		// could not even reserve first tile ...
+		return false;
+	}
 
-	// simuliere überfahren des ersten feldes der blockstrecke
-	int i = 0;
+	// reserve the next segments of the train
+	route_t *route=cnv->get_route();
+	i=0;
+	bool success = true;
+	for ( ; success  &&  i<tiles  &&  i<=route->gib_max_n(); i++) {
+		schiene_t * sch1 = (schiene_t *) welt->lookup( route->position_bei(i))->gib_weg(wt);
+		if(sch1==NULL) {
+			dbg->warning("waggon_t::is_next_block_free()","invalid route");
+			success = false;
+			break;
+		}
+		// otherwise we might check one tile too much
+		if(!sch1->reserve(cnv)) {
+			success = false;
+		}
+	}
 
-	do {
-	    vehikel_t *v = get_convoi(icnv)->gib_vehikel( i++ );
-
-	    bs->betrete( v );
-	} while(get_convoi(icnv)->gib_vehikel( i ) != NULL);
-
-	ok = true;
-    }
-    return ok;
+	if(!success) {
+		// free reservation, since we were not sucessfull
+		sch0->unreserve(cnv);
+		for(int j=0; j<i-1; j++) {
+			schiene_t *sch1 = (schiene_t *)(welt->lookup(route->position_bei(j))->gib_weg(wt));
+			sch1->unreserve(cnv);
+		}
+	}
+	return  success;
 }

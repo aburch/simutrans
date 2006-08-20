@@ -16,7 +16,7 @@
 #include "../dataobj/freelist.h"
 
 #include "no_such_element_exception.h"
-#include "debug_helper.h"
+#include "../simdebug.h"
 
 #ifdef _MSC_VER
 #pragma warning(disable:4786)
@@ -130,7 +130,7 @@ public:
     void insert(T data, unsigned int pos)
     {
 		if(pos > node_count) {
-			ERROR("slist_tpl<T>::insert()","<%s> index %d is out of bounds (<%d)",typeid(T).name(),pos,count());
+			dbg->fatal("slist_tpl<T>::insert()","<%s> index %d is out of bounds (<%d)",typeid(T).name(),pos,count());
 		}
 
 		if(pos == 0) { // insert at front
@@ -240,8 +240,7 @@ public:
     void remove_at(unsigned int pos)
     {
 		if(pos >= node_count) {
-			ERROR("slist_tpl<T>::remove_at()","<%s> index %d is out of bounds",typeid(T).name(),pos);
-			trap();
+			dbg->fatal("slist_tpl<T>::remove_at()","<%s> index %d is out of bounds",typeid(T).name(),pos);
 		}
 
 		if(pos == 0) {
@@ -279,8 +278,7 @@ public:
 	T remove_first()
 	{
 		if(node_count==0) {
-			ERROR("slist_tpl<T>::remove_first()","List of <%s> is empty",typeid(T).name());
-			trap();
+			dbg->fatal("slist_tpl<T>::remove_first()","List of <%s> is empty",typeid(T).name());
 		}
 
 		T tmp = head->data;
@@ -336,8 +334,7 @@ public:
 			p = p->next;
 		}
 
-		ERROR("slist_tpl<T>::at()","<%s> index %d is out of bounds",typeid(T).name(),pos);
-		trap();
+		dbg->fatal("slist_tpl<T>::at()","<%s> index %d is out of bounds",typeid(T).name(),pos);
 		return head->data;	// to keep compiler silent
     }
 
@@ -430,7 +427,7 @@ public:
 	const T& get_current() const
 	{
 		if(current_node==&lead) {
-			ERROR("class slist_iterator_tpl.get_current()","Iteration: accesed lead!");
+			dbg->error("class slist_iterator_tpl.get_current()","Iteration: accesed lead!");
 		}
 		return current_node->data;
 	}
@@ -443,7 +440,7 @@ public:
 	T& access_current()
 	{
 		if(current_node==&lead) {
-			ERROR("class slist_iterator_tpl.get_current()","Iteration: accesed lead!");
+			dbg->error("class slist_iterator_tpl.get_current()","Iteration: accesed lead!");
 		}
 		return current_node->data;
 	}

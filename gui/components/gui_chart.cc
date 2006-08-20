@@ -155,7 +155,7 @@ gui_chart_t::zeichnen(koord offset) const
 			display_fillbox_wh_clip(offset.x+(groesse.x / (x_elements - 1))*i-2, offset.y+baseline- (int)(tmp/scale)-2, 5, 5, c.color, false);
 
 				// display tooltip?
-				if(i==tooltip_n  &&  abs(baseline-(int)(tmp/scale)-tooltipkoord.y)<10) {
+				if(i==tooltip_n  &&  abs((int)(baseline-(int)(tmp/scale)-tooltipkoord.y))<10) {
 					number_to_string(tooltip, tmp);
 					win_set_tooltip( gib_maus_x()+16, gib_maus_y()-16, tooltip );
 				}

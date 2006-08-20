@@ -12,8 +12,10 @@ uint8 simline_t::convoi_to_line_catgory[MAX_CONVOI_COST]={LINE_CAPACITY, LINE_TR
 karte_t *simline_t::welt=NULL;
 
 
-simline_t::simline_t(karte_t * welt, simlinemgmt_t * simlinemgmt, fahrplan_t * fpl) : self(this), line_managed_convoys(0)
+simline_t::simline_t(karte_t * welt, simlinemgmt_t * simlinemgmt, fahrplan_t * fpl) :
+	line_managed_convoys(0)
 {
+	self = linehandle_t(this);
 	init_financial_history();
 	const int i = simlinemgmt->get_unique_line_id();
 	memset(this->name, 0, 128);
@@ -28,8 +30,10 @@ DBG_MESSAGE("simline_t::simline_t(karte_t,simlinemgmt,fahrplan_t)","create with 
 }
 
 
-simline_t::simline_t(karte_t * welt, simlinemgmt_t * /*unused*/, loadsave_t * file) : self(this), line_managed_convoys(0)
+simline_t::simline_t(karte_t * welt, simlinemgmt_t * /*unused*/, loadsave_t * file) :
+	line_managed_convoys(0)
 {
+	self = linehandle_t(this);
 	init_financial_history();
 	rdwr(file);
 DBG_MESSAGE("simline_t::simline_t(karte_t,simlinemgmt,loadsave_t)","load line id=%d",id);

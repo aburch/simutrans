@@ -12,6 +12,11 @@
 
 #include "simtypes.h"
 
+/* internal functions: Only for AI (gives no error messages) */
+int
+wkz_remover_intern(spieler_t *sp, karte_t *welt, koord pos, const char *&msg);
+
+
 #define INIT  koord(-1,-1)
 #define EXIT  koord(-2,-2)
 

@@ -1,6 +1,8 @@
 #include "simstring.h"
 #include "../tpl/debug_helper.h"
 
+#include <assert.h>
+
 #include <string.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -22,8 +24,7 @@ char *ntos(int number, const char *format)
     } else {
           r = sprintf(tempstring, "%d", number);
     }
-
-    if(r>=16) ERROR("ntos","overflow");
+    assert(r<16);
 
     return tempstring;
 }

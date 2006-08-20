@@ -166,7 +166,7 @@ private:
     slist_tpl<sync_steppable *> sync_add_list;	// after calling sync_prepare, the objects are move to the sync_list
     slist_tpl<sync_steppable *> sync_list;
 
-    slist_tpl<convoihandle_t> convoi_list;
+    vector_tpl<convoihandle_t> convoi_array;
 
     slist_tpl<fabrik_t *> fab_list;
 
@@ -272,8 +272,8 @@ private:
 
     int season;	// current season
 
-    int steps;          // Anzahl steps seit Erzeugung
-    int steps_bis_jetzt;
+    long steps;          // Anzahl steps seit Erzeugung
+    long steps_bis_jetzt;
     bool is_sound;	// flag, that now no sound will play
     bool doit;          // flag fuer simulationsabbruch (false == abbruch)
     bool m_quit_simutrans;// true = unload simutrans      //02-Nov-2001   Markus Weber    Added
@@ -377,7 +377,7 @@ public:
      */
     ding_t * gib_zeiger() const;
 
-    spieler_t * gib_spieler(int n);
+	spieler_t * gib_spieler(int n) const {assert(((uint8)n)<MAX_PLAYER_COUNT); return spieler[n]; }
     spieler_t *get_active_player() const {return active_player; };
     uint8 get_active_player_nr() const {return active_player_nr; };
     void switch_active_player(uint8 nr);
@@ -416,7 +416,7 @@ public:
      * Anzahl steps seit Kartenerzeugung
      * @author Hj. Malthaner
      */
-    inline int gib_steps() const { return steps; };
+    inline long gib_steps() const { return steps; };
 
 
     /**
@@ -689,13 +689,13 @@ public:
      */
     void new_mountain(int x, int y, int w, int h, int t);
 
-
     void add_convoi(convoihandle_t &cnv) {
         assert(cnv.is_bound());
-        convoi_list.insert( cnv );
-    };
-    bool rem_convoi(convoihandle_t &cnv) { return convoi_list.remove( cnv ); };
-    const slist_tpl<convoihandle_t> &gib_convoi_list() const {return convoi_list;};
+        convoi_array.append_unique(cnv,4);
+    }
+    bool rem_convoi(convoihandle_t &cnv) { return convoi_array.remove(cnv); }
+    const vector_tpl<convoihandle_t> &get_convoi_array() const {return convoi_array;}
+    const unsigned get_convoi_count() const {return convoi_array.get_count();}
 
     /**
      * Zugriff auf das Städte Array.

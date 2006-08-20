@@ -8,6 +8,7 @@
  */
 
 #include <string.h>
+#include <stdio.h>
 
 #include "../simdebug.h"
 #include "load_relief_frame.h"
@@ -27,7 +28,11 @@ void load_relief_frame_t::action(const char *filename)
 
 void load_relief_frame_t::del_action(const char *filename)
 {
-    remove(filename);
+#if defined(_MSC_VER)  &&  _MSC_VER<=1200
+	DeleteFileA(filename);
+#else
+	remove(filename);
+#endif
 }
 
 

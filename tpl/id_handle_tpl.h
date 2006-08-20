@@ -12,7 +12,7 @@
 
 #include <typeinfo>
 
-#include "debug_helper.h"
+#include "../simdebug.h"
 #include "../tpl/inthashtable_tpl.h"
 
 /* forward declarations */
@@ -111,16 +111,16 @@ private:
 	    p = tombstones.get(tombstone_id);
 
 	    if(p == NULL) {
-		ERROR("handle_as_id_tpl<T>::retrieve_bound_object()",
+		dbg->fatal("handle_as_id_tpl<T>::retrieve_bound_object()",
 		    "the %s bound to this %s-handle with tombstone id %ld is no longer available!",
 		    typeid(p).name(), typeid(T).name(), tombstone_id);
 	    }
 	} else if(tombstone_id == UNBOUND) {
-	    ERROR("handle_as_id_tpl<T>::retrieve_bound_object()",
+	    dbg->fatal("handle_as_id_tpl<T>::retrieve_bound_object()",
 		"there is no object bound to this %s-handle!",
 		typeid(T).name());
 	} else {
-	    ERROR("handle_as_id_tpl<T>::retrieve_bound_object()",
+	    dbg->fatal("handle_as_id_tpl<T>::retrieve_bound_object()",
 		"a %s-handle has the invalid tombstone id %ld!",
 		typeid(T).name(), tombstone_id);
 	}
@@ -336,16 +336,16 @@ private:
 	    p = tombstones.get(*this);
 
 	    if(p == NULL) {
-		ERROR("handle_as_refcount_tpl<T>::retrieve_bound_object()",
+		dbg->fatal("handle_as_refcount_tpl<T>::retrieve_bound_object()",
 		    "the %s bound to this %s-handle with tombstone id %ld is no longer available!",
 		    typeid(p).name(), typeid(T).name(), tombstone_id);
 	    }
 	} else if(tombstone_id == UNBOUND) {
-	    ERROR("handle_as_refcount_tpl<T>::retrieve_bound_object()",
+	    dbg->fatal("handle_as_refcount_tpl<T>::retrieve_bound_object()",
 		"there is no object bound to this %s-handle!",
 		typeid(T).name());
 	} else {
-	    ERROR("handle_as_refcount_tpl<T>::retrieve_bound_object()",
+	    dbg->fatal("handle_as_refcount_tpl<T>::retrieve_bound_object()",
 		"a %s-handle has the invalid tombstone id %ld!",
 		typeid(T).name(), tombstone_id);
 	}
@@ -483,7 +483,7 @@ private:
         ~entry()
         {
             if(refs > 0) {
-		dbg->error("handle_as_refcount_tombstones_tpl::entry::~entry()", "%s-object refcount greater than 0 (%d)",
+		dbg->fatal("handle_as_refcount_tombstones_tpl::entry::~entry()", "%s-object refcount greater than 0 (%d)",
                     typeid(T).name(), refs);
             }
         }
@@ -529,7 +529,7 @@ public:
         entry *e = table.get(handle.get_id());
 
         if(!e) {
-            dbg->error("handle_as_refcount_tombstones_tpl::remove", "%s-handle invalid (%d)",
+            dbg->fatal("handle_as_refcount_tombstones_tpl::remove", "%s-handle invalid (%d)",
                 typeid(T).name(), handle.get_id());
             return NULL;
         }

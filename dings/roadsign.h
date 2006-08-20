@@ -12,6 +12,7 @@
 
 #include "../simdings.h"
 #include "../besch/roadsign_besch.h"
+#include "../boden/wege/weg.h"
 
 class roadsign_besch_t;
 class werkzeug_parameter_waehler_t;
@@ -22,16 +23,17 @@ class werkzeug_parameter_waehler_t;
  */
 class roadsign_t : public ding_t
 {
-private:
+protected:
      // foreground
     image_id after_bild;
 
-protected:
-	unsigned char zustand;	// counter for steps ...
+	enum { SHOW_FONT=1, SHOW_BACK=2, SWITCH_AUTOMATIC=16 };
 
-	unsigned char blockend;
+	uint8 zustand;	// counter for steps ...
 
-	unsigned char dir;
+	uint8 flags;
+
+	uint8 dir;
 
 	const roadsign_besch_t *besch;
 
@@ -71,32 +73,19 @@ public:
 	 */
 	void calc_bild();
 
-
 	// true, if a free route choose point (these are always single way the avoid recalculation of long return routes)
 	bool is_free_route(uint8 check_dir) const { return besch->is_free_route() &&  check_dir == dir; }
-
-
 
 	// changes the state of a traffic light
 	virtual bool step(long);
 
-
-
     /**
-     * Falls etwas nach den Vehikeln gemalt werden muß.
-     * @author V. Meyer
+     * For the front image hiding vehicles
+     * @author prissi
      */
-    virtual image_id gib_after_bild() const {return after_bild;};
+    virtual image_id gib_after_bild() const {return after_bild;}
 
     	void rdwr(loadsave_t *file);
-
-	/**
-	 * Wird nach dem Laden der Welt aufgerufen - üblicherweise benutzt
-	 * um das Aussehen des Dings an Boden und Umgebung anzupassen
-	 *
-	 * @author Hj. Malthaner
-	 */
-	virtual void laden_abschliessen();
 
 	// substracts cost
 	void entferne(spieler_t *sp);
@@ -109,11 +98,11 @@ public:
 	 * @author Hj. Malthaner
 	 */
 	static void fill_menu(werkzeug_parameter_waehler_t *wzw,
+		weg_t::typ wtyp,
 		int (* werkzeug)(spieler_t *, karte_t *, koord, value_t),
 		int sound_ok,
 		int sound_ko,
-		int cost);
-
+		uint16 time);
 };
 
 #endif

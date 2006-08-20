@@ -142,7 +142,7 @@ public:
 	void insert(int pos, T v) {
 		if(pos > size) {
 			// emergency
-			ERROR("microvec_tpl<T>::insert()","type=%s, size exeeded: pos=%i size=%i",typeid(T).name(), pos,size);
+			dbg->fatal("microvec_tpl<T>::insert()","type=%s, size exeeded: pos=%i size=%i",typeid(T).name(), pos,size);
 			pos = size;
 		}
 

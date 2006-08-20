@@ -79,6 +79,9 @@ public:
     void fatal(const char *who, const char *format, ...);
 
 
+	void trap();
+
+
     void close();
 
 

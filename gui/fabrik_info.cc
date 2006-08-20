@@ -46,13 +46,14 @@ fabrik_info_t::fabrik_info_t(fabrik_t *fab, gebaeude_t *gb, karte_t *welt) :
 #else
 	lieferbuttons = new button_t [lieferziele.get_count()];
 #endif
+	{
 	for(unsigned i=0; i<lieferziele.get_count(); i++) {
 		lieferbuttons[i].setze_pos(koord(16, 50+i*11));
 		lieferbuttons[i].setze_typ(button_t::arrowright);
 		lieferbuttons[i].add_listener(this);
 		cont.add_komponente(&lieferbuttons[i]);
 	}
-
+	}
 	int y_off = lieferziele.get_count() ? (int)lieferziele.get_count()*11-11 : -33;
 
 	const vector_tpl <koord> & suppliers =  fab->get_suppliers();
@@ -62,13 +63,14 @@ fabrik_info_t::fabrik_info_t(fabrik_t *fab, gebaeude_t *gb, karte_t *welt) :
 #else
 	supplierbuttons = new button_t [suppliers.get_count()];
 #endif
+	{
 	for(unsigned i=0; i<suppliers.get_count(); i++) {
 		supplierbuttons[i].setze_pos(koord(16, 83+y_off+i*11));
 		supplierbuttons[i].setze_typ(button_t::arrowright);
 		supplierbuttons[i].add_listener(this);
 		cont.add_komponente(&supplierbuttons[i]);
 	}
-
+	}
 	int yy_off = suppliers.get_count() ? (int)suppliers.get_count()*11-11 : -33;
 	y_off += yy_off;
 

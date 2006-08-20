@@ -62,12 +62,14 @@ public:
 
     enum states {INITIAL,
 		FAHRPLANEINGABE,
-		ROUTING_1, ROUTING_2,
-		ROUTING_4, ROUTING_5,
+		ROUTING_1,
+		DUMMY4, DUMMY5,
+		ROUTING_2,
 		DRIVING,
 		LOADING,
 		WAITING_FOR_CLEARANCE,
 		WAITING_FOR_CLEARANCE_ONE_MONTH,
+		CAN_START, CAN_START_ONE_MONTH,
 		SELF_DESTRUCT,
 	};
 
@@ -345,6 +347,11 @@ public:
 	 */
 	bool hat_keine_route() const;
 
+    /**
+     * force rerouting
+     * @author hsiegeln
+     */
+	void recalc_route() { state = ROUTING_2; }
 
     /**
      * get line

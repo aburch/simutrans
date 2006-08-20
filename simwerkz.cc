@@ -280,7 +280,7 @@ wkz_lower(spieler_t *sp, karte_t *welt, koord pos)
 
 
 
-static int
+int
 wkz_remover_intern(spieler_t *sp, karte_t *welt, koord pos, const char *&msg)
 {
 DBG_MESSAGE("wkz_remover_intern()","at (%d,%d)", pos.x, pos.y);
@@ -519,13 +519,6 @@ DBG_MESSAGE("wkz_remover()",  "add again powerline");
 
 	// ok, now we removed every object, that should be removed one by one.
 	// the following objects will be removed together
-	if(gr->gib_weg(weg_t::schiene)!=NULL  ||  gr->gib_weg(weg_t::monorail)!=NULL) {
-		DBG_MESSAGE("wkz_remover()",  "removing block" );
-		if(!blockmanager::gib_manager()->entferne_schiene(welt, gr->gib_pos())) {
-			return false;
-		}
-	}
-
 DBG_MESSAGE("wkz_remover()", "removing way");
 	/*
 	* Eigentlich müssen wir hier noch verhindern, daß ein Bahnhofsgebäude oder eine
@@ -736,7 +729,7 @@ wkz_wayremover(spieler_t *sp, karte_t *welt,  koord pos, value_t lParam)
 	if(pos==INIT || pos == EXIT) {  // init strassenbau
 		erster = true;
 
-		if(wkz_wayremover_bauer != NULL) {
+		if(wkz_wayremover_bauer!=NULL) {
 			delete wkz_wayremover_bauer;
 			wkz_wayremover_bauer = NULL;
 		}
@@ -778,6 +771,7 @@ wkz_wayremover(spieler_t *sp, karte_t *welt,  koord pos, value_t lParam)
 
 		// sucessful?
 		if(gr==NULL) {
+			DBG_MESSAGE("wkz_wayremover()", "no ground on %i,%i",pos.x, pos.y);
 			// wrong ground or not this way here => exit
 			return false;
 		}
@@ -792,8 +786,10 @@ wkz_wayremover(spieler_t *sp, karte_t *welt,  koord pos, value_t lParam)
 			DBG_MESSAGE("wkz_wayremover()", "Setting start to %d,%d,%d",start.x, start.y,start.z);
 		}
 		else {
+			DBG_MESSAGE("wkz_wayremover()", "Setting end to %d,%d,%d",gr->gib_pos().x, gr->gib_pos().y,gr->gib_pos().z);
+
 			// remove marker
-			delete( wkz_wayremover_bauer );
+			delete wkz_wayremover_bauer ;
 			wkz_wayremover_bauer = NULL;
 			erster = true;
 
@@ -1197,7 +1193,7 @@ DBG_MESSAGE("wkz_senke()","called on %d,%d", pos.x, pos.y);
 	}
 
 	grund_t *gr=welt->lookup(pos)->gib_kartenboden();
-	if(gr->gib_grund_hang()==0  &&  !gr->ist_wasser()  &&  	gr->kann_alle_obj_entfernen(sp)==NULL) {
+	if(gr->gib_grund_hang()==0  &&  !gr->ist_wasser()  &&  	!gr->hat_wege()  &&  gr->kann_alle_obj_entfernen(sp)==NULL) {
 
 		fabrik_t *fab=leitung_t::suche_fab_4(pos);
 		if(fab==NULL) {
@@ -1289,7 +1285,7 @@ int wkz_roadsign(spieler_t *sp, karte_t *welt, koord pos, value_t lParam)
 	     			gr = NULL;
 	     			continue;
 	     		}
-			weg = gr->gib_weg(weg_t::strasse);
+			weg = gr->gib_weg((weg_t::typ)besch->gib_wtyp());
 			if(  (gr->gib_besitzer()==sp  ||  gr->gib_besitzer()==NULL)  &&  weg!=NULL) {
 				// found ground
 				break;
@@ -1301,7 +1297,7 @@ int wkz_roadsign(spieler_t *sp, karte_t *welt, koord pos, value_t lParam)
 
 			// get the sign dirction
 			ribi_t::ribi dir = weg->gib_ribi_unmasked();
-			if(ribi_t::ist_gerade(dir)  ||  (besch->is_traffic_light()  &&  ribi_t::ist_kreuzung(dir))) {
+			if(ribi_t::ist_gerade(dir)  ||  (besch->is_traffic_light()  &&  !ribi_t::ist_einfach(dir))) {
 
 				// if single way, we need to reduce the allowed ribi to one
 DBG_MESSAGE("wkz_roadsign()","dir is %i", dir);
@@ -1315,13 +1311,16 @@ DBG_MESSAGE("wkz_roadsign()","dir is %i", dir);
 DBG_MESSAGE("wkz_roadsign()","single dir is %i", dir);
 				}
 
-				// if there is already a sing, we might need to inverse the direction
+				// if there is already a sign, we might need to inverse the direction
 				roadsign_t *rs = dynamic_cast<roadsign_t *>(gr->suche_obj(ding_t::roadsign));
 				if(rs) {
 					// revers only if single way sign
 					if(besch->is_single_way()  ||  besch->is_free_route()) {
-DBG_MESSAGE("wkz_roadsign()","reverse ribi %i", ribi_t::rueckwaerts(dir) );
-						rs->set_dir( ribi_t::rueckwaerts(rs->get_dir()) );
+						if(dir==rs->get_dir()) {
+							dir = ribi_t::rueckwaerts(dir);
+						}
+DBG_MESSAGE("wkz_roadsign()","reverse ribi %i", dir );
+						rs->set_dir( dir );
 					}
 				}
 				else {

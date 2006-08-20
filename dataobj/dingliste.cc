@@ -183,11 +183,13 @@ dingliste_t::grow_capacity(uint8 pri)
 		return (top-1==pri) ? pri+1 : pri;
 	}
 	else if(capacity==254) {
-		// scannen ob noch was frei ist
-		for(int i=pri; i<capacity; i++) {
-			if(obj.some[i] == NULL) {
-				// platz gefunden
-				return i;
+		{
+			// scannen ob noch was frei ist
+			for(int i=pri; i<capacity; i++) {
+				if(obj.some[i] == NULL) {
+					// platz gefunden
+					return i;
+				}
 			}
 		}
 		// scannen ob noch was frei ist
@@ -731,11 +733,13 @@ void dingliste_t::display_dinge( const sint16 xpos, const sint16 ypos, const boo
 					return;
 
 		default:	// background
-					for(uint8 n=0; n<top; n++) {
-						ding_t * dt = obj.some[n];
-						if(dt) {
-							// ist dort ein objekt ?
-							dt->display(xpos, ypos, dirty||dt->get_flag(ding_t::dirty) );
+					{
+						for(uint8 n=0; n<top; n++) {
+							ding_t * dt = obj.some[n];
+							if(dt) {
+								// ist dort ein objekt ?
+								dt->display(xpos, ypos, dirty||dt->get_flag(ding_t::dirty) );
+							}
 						}
 					}
 					// foreground

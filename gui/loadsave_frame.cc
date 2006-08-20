@@ -30,7 +30,11 @@ void loadsave_frame_t::action(const char *filename)
 
 void loadsave_frame_t::del_action(const char *filename)
 {
-    remove(filename);
+#if defined(_MSC_VER)  &&  _MSC_VER<=1200
+	DeleteFileA(filename);
+#else
+	remove(filename);
+#endif
 }
 
 /**

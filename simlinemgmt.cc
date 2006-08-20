@@ -267,11 +267,8 @@ simlinemgmt_t::new_month()
 	}
 }
 
-linehandle_t
-simlinemgmt_t::create_line(int ltype)
-{
-	return create_line(ltype, NULL);
-}
+
+
 
 linehandle_t
 simlinemgmt_t::create_line(int ltype, fahrplan_t * fpl)

@@ -26,12 +26,27 @@ public:
 	enum signalzustand {rot=0, gruen=1, naechste_rot=2 };
 
 protected:
+	uint8 zustand:2;
+	uint8 blockend:1;
+	uint8 dir:5;
 
-	unsigned char zustand;
-	unsigned char blockend;
-	unsigned char dir;
+	// realted railblock
+	blockhandle_t bs;
 
 public:
+    /**
+     * Sets the rail block to which this rail track belongs
+     *
+     * @author Hj. Malthaner
+     */
+    void set_block(blockhandle_t bs) {this->bs=bs; }
+
+    /**
+     * gibt ein Handle für die Blockstercke zu dem Signal
+     * gehört zurück.
+     * @author Hj. Malthaner
+     */
+	const blockhandle_t & get_block() const {return bs;}
 
     /*
      * @return direction of the signal (one of nord, sued, ost, west)
@@ -83,6 +98,9 @@ public:
     virtual void laden_abschliessen();
 };
 
+
+
+// two block signal
 class presignal_t : public signal_t
 {
 private:
@@ -97,7 +115,7 @@ public:
     presignal_t(karte_t *welt, loadsave_t *file);
     presignal_t(karte_t *welt, koord3d pos, ribi_t::ribi dir);
 
-    void set_next_block_pos( blockhandle_t bs ) {related_block = bs; };
+    void set_next_block( blockhandle_t bs ) {related_block = bs; };
 
     virtual void setze_zustand(enum signal_t::signalzustand z);
 	/* recalculate image */
@@ -106,6 +124,9 @@ public:
     void calc_bild();
 };
 
+
+
+// way chossing signal
 class choosesignal_t : public presignal_t
 {
 public:

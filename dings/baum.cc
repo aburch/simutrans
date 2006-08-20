@@ -71,11 +71,11 @@ bool baum_t::plant_tree_on_coordinate(karte_t * welt,
 
     if( gr ){
 
-      if(gr != NULL
+      if(gr!=NULL
 	 && gr->ist_natur()
-	 && gib_anzahl_besch() > 0
-	 && gr->gib_hoehe() > welt->gib_grundwasser()
-	 && gr->obj_count() < maximum_count ) {
+	 && gib_anzahl_besch()>0
+	 && gr->gib_hoehe()>welt->gib_grundwasser()
+	 && gr->obj_count()<maximum_count ) {
 
 	gr->obj_add( new baum_t(welt, gr->gib_pos()) ); //plants the tree
 

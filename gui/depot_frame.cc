@@ -559,6 +559,9 @@ void depot_frame_t::build_vehicle_lists()
 			}
 			i++;
 		}
+		pas_vec.resize(pax);
+		loks_vec.resize(loks);
+		waggons_vec.resize(waggons);
 	}
 	pas_vec.clear();
 	loks_vec.clear();
@@ -624,7 +627,8 @@ void depot_frame_t::update_data()
 		inp_name.setze_text(cnv->access_name(), 48);
 		gui_image_list_t::image_data_t img_data;
 
-		for(unsigned i=0; i<cnv->gib_vehikel_anzahl(); i++) {
+		unsigned i;
+		for(i=0; i<cnv->gib_vehikel_anzahl(); i++) {
 
 			// just make sure, there is this vehicle also here!
 			const vehikel_besch_t *info=cnv->gib_vehikel(i)->gib_besch();
@@ -640,12 +644,11 @@ void depot_frame_t::update_data()
 
 		/* color bars for current convoi: */
 		convoi_pics.at(0).lcolor = convoi_t::pruefe_vorgaenger(NULL,cnv->gib_vehikel(0)->gib_besch()) ? COL_GREEN : COL_YELLOW;
-		unsigned i;
 		for(  i=1;  i<cnv->gib_vehikel_anzahl(); i++) {
 			convoi_pics.at(i - 1).rcolor = convoi_t::pruefe_nachfolger(cnv->gib_vehikel(i - 1)->gib_besch(),cnv->gib_vehikel(i)->gib_besch()) ? COL_GREEN : COL_RED;
 			convoi_pics.at(i).lcolor = convoi_t::pruefe_vorgaenger(cnv->gib_vehikel(i - 1)->gib_besch(),cnv->gib_vehikel(i)->gib_besch()) ? COL_GREEN : COL_RED;
 		}
-		convoi_pics.at(i - 1).rcolor = convoi_t::pruefe_nachfolger(cnv->gib_vehikel(i - 1)->gib_besch(),NULL) ? COL_GREEN : COL_YELLOW;
+		convoi_pics.at(i-1).rcolor = convoi_t::pruefe_nachfolger(cnv->gib_vehikel(i - 1)->gib_besch(),NULL) ? COL_GREEN : COL_YELLOW;
 
 		// change grren into blue for retired vehicles
 		for(i=0;  i<cnv->gib_vehikel_anzahl(); i++) {

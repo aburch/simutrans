@@ -76,7 +76,9 @@ monorail_t::rdwr(loadsave_t *file)
 		setze_blockstrecke(bs);
 	}
 
-	file->rdwr_byte(is_electrified, "\n");
+	uint8 dummy = is_electrified;
+	file->rdwr_byte(dummy, "\n");
+	is_electrified = dummy;
 
 	if(file->is_saving()) {
 		const char *s = gib_besch()->gib_name();

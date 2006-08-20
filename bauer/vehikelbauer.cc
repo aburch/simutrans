@@ -237,28 +237,26 @@ void vehikelbauer_t::sort_lists()
 const vehikel_besch_t *
 vehikelbauer_t::gib_info(const ware_besch_t *wtyp,weg_t::typ vtyp,uint32 min_power)
 {
-    inthashtable_iterator_tpl<int, const vehikel_besch_t *> iter(_fahrzeuge);
+	min_power *= 64;
 
-    while(iter.next()) {
-  const vehikel_besch_t *vb = iter.get_current_value();
+	inthashtable_iterator_tpl<int, const vehikel_besch_t *> iter(_fahrzeuge);
+	while(iter.next()) {
+		const vehikel_besch_t *vb = iter.get_current_value();
 
-  if(vb->gib_typ() == vtyp &&
-     wtyp->is_interchangeable(vb->gib_ware()) &&
-     vb->gib_leistung() >= min_power) {
+		if(vb->gib_typ()==vtyp  &&  wtyp->is_interchangeable(vb->gib_ware())  &&  vb->gib_leistung()*vb->get_gear() >= min_power) {
+			return vb;
+		}
+	}
 
-      return vb;
-  }
-    }
-
-    DBG_MESSAGE("vehikelbauer_t::gib_info()","no vehicle matches way type %d, good %d, min. power %d", vtyp, wtyp, min_power);
-    return NULL;
+	DBG_MESSAGE("vehikelbauer_t::gib_info()","no vehicle matches way type %d, good %d, min. power %d", vtyp, wtyp, min_power);
+	return NULL;
 }
 
 
 const vehikel_besch_t *
 vehikelbauer_t::gib_info(const char *name)
 {
-    return name_fahrzeuge.get(name);
+	return name_fahrzeuge.get(name);
 }
 
 
@@ -348,9 +346,9 @@ DBG_MESSAGE( "vehikelbauer_t::vehikel_search()","for speed %i, power %i",target_
     // check for wegetype
     const vehikel_besch_t *test_besch = iter.get_current_value();
     // correct type and useable=
-    if(test_besch->gib_typ()==typ  &&  !test_besch->is_future(month_now)) {
+    if(test_besch->gib_typ()==typ  &&  !test_besch->is_future(month_now)  &&  !test_besch->is_retired(month_now)) {
         // finally, we might be able to use this vehicle
-        int power = test_besch->gib_leistung();
+        int power = (test_besch->gib_leistung()*test_besch->get_gear())/64;
         int speed = test_besch->gib_geschw();
 
         // we want a car
@@ -363,36 +361,26 @@ DBG_MESSAGE( "vehikelbauer_t::vehikel_search()","for speed %i, power %i",target_
             if(  test_besch->gib_ware()->is_interchangeable( target_freight )  ) {
 DBG_MESSAGE( "vehikelbauer_t::vehikel_search","try freight car %s",test_besch->gib_name());
               // freight category ok
-#if 1
               int difference=0;	// smaller is better
               // assign this vehicle, if we have none found one yet, or we found only a too week one
               if(  besch!=NULL  ) {
                 // it is cheaper to run? (this is most important)
-                difference = besch->gib_zuladung()-test_besch->gib_zuladung();
-                difference += (test_besch->gib_betriebskosten() - besch->gib_betriebskosten())/2;
+                difference = (besch->gib_zuladung()*1000)/besch->gib_betriebskosten() > (test_besch->gib_zuladung()*1000)/test_besch->gib_betriebskosten() ? 25 : 0;
                 if(  target_power>0  ) {
 	             // it is strongerer?
-     	             difference += (besch->gib_leistung() < power)? -10 : 10;
+     	             difference += (besch->gib_leistung()*besch->get_gear())/64 < power ? -10 : 10;
      	           }
                 // it is faster? (although we support only up to 120km/h for goods)
-                difference += (besch->gib_geschw() < test_besch->gib_geschw())? -20 : 20;
+                difference += (besch->gib_geschw() < test_besch->gib_geschw())? -10 : 10;
                 // it is cheaper? (not so important)
-                difference += (besch->gib_preis() > test_besch->gib_preis())? -10 : 10;
+                difference += (besch->gib_preis() > test_besch->gib_preis())? -5 : 5;
               }
               // ok, final check
-              if(  besch==NULL  ||  difference<(int)simrand(30)    ) {
+              if(  besch==NULL  ||  difference<(int)simrand(25)    ) {
                   // then we want this vehicle!
                   besch = test_besch;
 DBG_MESSAGE( "vehikelbauer_t::vehikel_search","Found engine %s",besch->gib_name());
               }
-#else
-              if(  besch==NULL  ||  (besch->gib_zuladung()+besch->gib_geschw())<(test_besch->gib_zuladung()+test_besch->gib_geschw())  ) {
-DBG_MESSAGE( "vehikelbauer_t::vehikel_search","Found freight car %s",test_besch->gib_name());
-                // we have more freigth here ....
-                // then we want this vehicle!
-                besch = test_besch;
-              }
-#endif
             }
           }
         }
@@ -411,16 +399,16 @@ DBG_MESSAGE( "vehikelbauer_t::vehikel_search","Found freight car %s",test_besch-
               // assign this vehicle, if we have none found one yet, or we found only a too week one
               if(  besch!=NULL  ) {
                 // it is cheaper to run? (this is most important)
-                difference = test_besch->gib_betriebskosten() - besch->gib_betriebskosten();
-                // it is strongerer?
-                difference += (besch->gib_leistung() < power)? -40 : 40;
-                // it is faster? (although we support only up to 120km/h for goods)
-                difference += (besch->gib_geschw() < test_besch->gib_geschw())? -40 : 40;
+                difference = (test_besch->gib_betriebskosten() > besch->gib_betriebskosten()) ? -50 : 50;
+                // it is weaker?
+                difference += (besch->gib_leistung()*besch->get_gear())/64 > power ? -30 : 30;
+                // it is slower? (although we support only up to 120km/h for goods)
+                difference += (besch->gib_geschw() > test_besch->gib_geschw())? -10 : 10;
                 // it is cheaper? (not so important)
-                difference += (besch->gib_preis() > test_besch->gib_preis())? -20 : 20;
+                difference += (besch->gib_preis() < test_besch->gib_preis())? -10 : 10;
               }
               // ok, final check
-              if(  besch==NULL  ||  besch->gib_leistung()<target_power  ||  besch->gib_geschw()<target_speed  ||  difference<(int)simrand(100)    )
+              if(  besch==NULL  ||  (besch->gib_leistung()*besch->get_gear())/64<target_power  ||  besch->gib_geschw()<target_speed  ||  difference<(int)simrand(30)    )
               {
                   // then we want this vehicle!
                   besch = test_besch;
@@ -445,6 +433,8 @@ const vehikel_besch_t *vehikelbauer_t::vehikel_fuer_leistung(int leistung, weg_t
   // only needed for iteration
   inthashtable_iterator_tpl<int, const vehikel_besch_t *> iter(_fahrzeuge);
   const vehikel_besch_t *besch = NULL;
+
+dbg->fatal("vehikelbauer_t::vehikel_fuer_leistung","obsolete");
 
 //  leistung <<= 6; // to account for gear
   while(iter.next()) {

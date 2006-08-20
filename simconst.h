@@ -40,6 +40,9 @@
  * needed i.e. for MSVC and PowerPC */
 //#define USE_C
 
+// maximum distance to look ahead for tiles (if undefined, uses all the route, recommended)
+//#define MAX_CHOOSE_BLOCK_TILES (64)
+
 /******************************* obsolete stuf ******************************/
 
 /* prissi: if uncommented, also support for a small size font will be enabled (by not used at the moment) */

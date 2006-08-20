@@ -39,7 +39,8 @@ public:
 	virtual int gib_kosten(const grund_t *,const uint32) const = 0;
 
 	// returns true for the way search to an unknown target.
-	virtual bool ist_ziel(const grund_t *) const = 0;
+	// first is current ground, second is starting ground
+	virtual bool ist_ziel(const grund_t *,const grund_t *) const = 0;
 };
 
 #endif

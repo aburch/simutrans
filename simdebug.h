@@ -56,8 +56,10 @@ void init_logging(const char *logname, bool force_flush, bool log_debug);
 
 #else
 
-#define DBG_MESSAGE(i,...) dbg->message(i,__VA_ARGS__)
-#define DBG_DEBUG(i,...) dbg->message(i,__VA_ARGS__)
+//#define DBG_MESSAGE(i,...) dbg->message(i,__VA_ARGS__)
+//#define DBG_DEBUG(i,...) dbg->message(i,__VA_ARGS__)
+#define DBG_MESSAGE dbg->message
+#define DBG_DEBUG dbg->message
 
 #endif
 

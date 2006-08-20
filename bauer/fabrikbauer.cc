@@ -486,7 +486,6 @@ fabrikbauer_t::baue_fabrik(karte_t * welt, koord3d *parent, const fabrik_besch_t
 
 		for(k.x=pos.x; k.x<=pos.x+dim.x; k.x++) {
 			for(k.y=pos.y; k.y<=pos.y+dim.y; k.y++) {
-				planquadrat_t *plan=welt->access(k);
 				const minivec_tpl<halthandle_t> &halt_list = welt->access(k)->get_haltlist();
 				for( unsigned i=0;  i<halt_list.get_count();  i++  ) {
 					halt_list.at(i)->verbinde_fabriken();

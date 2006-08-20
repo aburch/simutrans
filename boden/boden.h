@@ -43,7 +43,7 @@ public:
 
     ~boden_t();
 
-    inline bool ist_natur() const { return !hat_wege(); };
+    inline bool ist_natur() const { return !hat_wege(); }
 
     /**
      * Öffnet ein Info-Fenster für diesen Boden
@@ -55,7 +55,7 @@ public:
     void calc_bild();
 
     inline const char *gib_name() const;
-    inline enum typ gib_typ() const {return boden;};
+    inline enum typ gib_typ() const {return boden;}
 
 
     void * operator new(size_t s);

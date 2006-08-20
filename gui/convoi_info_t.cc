@@ -325,7 +325,7 @@ bool convoi_info_t::action_triggered(gui_komponente_t *komp,value_t /* */)
 		{
 			// limit update to certain states that are considered to be save for fahrplan updates
 			int state = cnv->get_state();
-			if(state==convoi_t::FAHRPLANEINGABE  ||  state==convoi_t::ROUTING_4  ||  state==convoi_t::ROUTING_5) {
+			if(state==convoi_t::FAHRPLANEINGABE  /*||  state==convoi_t::ROUTING_4  ||  state==convoi_t::ROUTING_5*/) {
 DBG_MESSAGE("convoi_info_t::action_triggered()","convoi state %i => cannot change schedule ... ", state );
 				return true;
 			}

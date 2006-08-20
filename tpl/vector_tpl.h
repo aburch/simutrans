@@ -13,7 +13,7 @@
 #include <stdlib.h>
 
 #include "../simtypes.h"
-#include "debug_helper.h"
+#include "../simdebug.h"
 
 /**
  * A template class for a simple vector type.
@@ -95,7 +95,7 @@ public:
 		}
 //DBG_DEBUG("<vector_tpl>::resize()","old size %i, new size %i",size,new_size);
 		if(count > new_size) {
-			ERROR("vector_tpl<T>::resize()", "cannot preserve elements.");
+			dbg->fatal("vector_tpl<T>::resize()", "cannot preserve elements.");
 			return false;
 		}
 		T *new_data = new T[new_size];
@@ -134,7 +134,7 @@ public:
 	bool append(T elem)
 	{
 		if(count >= size) {
-			ERROR("vector_tpl<T>::append()","capacity %i exceeded.",size);
+			dbg->fatal("vector_tpl<T>::append()","capacity %i exceeded.",size);
 			return false;
 		}
 		data[count ++] = elem;
@@ -150,7 +150,7 @@ public:
 	{
 		if(count>=size) {
 			if(  !resize( count+extend )  ) {
-				ERROR("vector_tpl<T>::append(,)","could not extend capacity %i.",size);
+				dbg->fatal("vector_tpl<T>::append(,)","could not extend capacity %i.",size);
 				return false;
 			}
 		}
@@ -223,7 +223,7 @@ public:
 				return true;
 			}
 			else {
-				ERROR("vector_tpl<T>::insert_at()","cannot insert at %i! Only %i elements.", pos, count);
+				dbg->fatal("vector_tpl<T>::insert_at()","cannot insert at %i! Only %i elements.", pos, count);
 				return false;
 			}
 		}
@@ -258,8 +258,7 @@ public:
     const T& get(unsigned int i) const
     {
 	if(i>=count) {
-	    ERROR("vector_tpl<T>::get()","index out of bounds: %i not in 0..%d", i, count-1);
-	    trap();
+	    dbg->fatal("vector_tpl<T>::get()","index out of bounds: %i not in 0..%d", i, count-1);
 	    // will never go here
 	}
 	    return data[i];
@@ -272,8 +271,7 @@ public:
     T& at(unsigned int i) const
     {
 	if(i>=count) {
-	    ERROR("vector_tpl<T>::at()","index out of bounds: %i not in 0..%d\n", i, count-1);
-	    trap();
+	    dbg->fatal("vector_tpl<T>::at()","index out of bounds: %i not in 0..%d\n", i, count-1);
 	    // will never go here
 	}
     return data[i];
@@ -292,6 +290,6 @@ public:
      * @author Hj. Malthaner
      */
     unsigned int get_size() const {return size;};
-};
+} GCC_PACKED;
 
 #endif

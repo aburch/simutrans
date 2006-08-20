@@ -450,103 +450,101 @@ void karte_t::verteile_baeume(int dichte)
 void
 karte_t::destroy()
 {
-    DBG_MESSAGE("karte_t::destroy()", "destroying world");
+DBG_MESSAGE("karte_t::destroy()", "destroying world");
 
-    printf("Destroying world ... ");
+	printf("Destroying world ... ");
 
-    labels.clear();
+	labels.clear();
 
-    unsigned int i,j;
+	unsigned int i,j;
 
 	// alle convois aufräumen
-	while(convoi_list.count() > 0) {
-		convoihandle_t cnv = convoi_list.at(0);
-		rem_convoi(cnv);
-		convoi_t *p = cnv.detach();
-		delete p;
+	while(convoi_array.get_count() > 0) {
+		convoihandle_t cnv = convoi_array.at(convoi_array.get_count()-1);
+		delete cnv.get_rep();	// since the convoi unbinds himself
 	}
-	convoi_list.clear();
-    DBG_MESSAGE("karte_t::destroy()", "convois destroyed");
+	convoi_array.clear();
+DBG_MESSAGE("karte_t::destroy()", "convois destroyed");
 
-    // alle haltestellen aufräumen
-    haltestelle_t::destroy_all();
-    DBG_MESSAGE("karte_t::destroy()", "stops destroyed");
+	// alle haltestellen aufräumen
+	haltestelle_t::destroy_all();
+DBG_MESSAGE("karte_t::destroy()", "stops destroyed");
 
 	// städte aufräumen
 	if(stadt) {
 		weighted_vector_tpl <stadt_t *> * tmp = stadt;
 		stadt = 0;
-		for(i=0; i<tmp->get_count(); i++) {
-			delete tmp->at(i);
+			for(i=0; i<tmp->get_count(); i++) {
+		delete tmp->at(i);
 		}
 		tmp->clear();
-
 		delete tmp;
 		tmp = 0;
 	}
-    DBG_MESSAGE("karte_t::destroy()", "towns destroyed");
+DBG_MESSAGE("karte_t::destroy()", "towns destroyed");
 
-    // dinge aufräumen
-    if(plan) {
-	for(j=0; j<(unsigned int)gib_groesse_y(); j++) {
-	    for(i=0; i<(unsigned int)gib_groesse_x(); i++) {
-		access(i, j)->destroy(NULL);
-//    DBG_MESSAGE("karte_t::destroy()", "planquadrat %i,%i destroyed",i,j);
-	    }
+	// rail blocks aufraeumen
+	blockmanager::gib_manager()->delete_all_blocks();
+DBG_MESSAGE("karte_t::destroy()", "blocks destroyed");
+
+	// entfernt alle synchronen objekte aus der liste
+	sync_list.clear();
+DBG_MESSAGE("karte_t::destroy()", "sync list cleared");
+
+	// dinge aufräumen
+	if(plan) {
+		for(j=0; j<(unsigned int)gib_groesse_y(); j++) {
+		for(i=0; i<(unsigned int)gib_groesse_x(); i++) {
+			access(i, j)->destroy(NULL);
+//			DBG_MESSAGE("karte_t::destroy()", "planquadrat %i,%i destroyed",i,j);
+		}
 	}
 
 	delete [] plan;
 	plan = 0;
-    }
-    DBG_MESSAGE("karte_t::destroy()", "planquadrat destroyed");
-
-    // entfernt alle synchronen objekte aus der liste
-    sync_list.clear();
-    DBG_MESSAGE("karte_t::destroy()", "sync list cleared");
-
-    // gitter aufräumen
-    if(grid_hgts) {
-	delete [] grid_hgts;
-	grid_hgts = 0;
-    }
-
-    // marker aufräumen
-    marker.init(0,0);
-    DBG_MESSAGE("karte_t::destroy()", "marker destroyed");
-
-    // spieler aufräumen
-    for(i=0; i<MAX_PLAYER_COUNT ; i++) {
-	if(spieler[i]) {
-	    delete spieler[i];
-	    spieler[i] = 0;
 	}
-    }
-    DBG_MESSAGE("karte_t::destroy()", "player destroyed");
+	DBG_MESSAGE("karte_t::destroy()", "planquadrat destroyed");
+
+	// gitter aufräumen
+	if(grid_hgts) {
+		delete [] grid_hgts;
+		grid_hgts = 0;
+	}
+
+	// marker aufräumen
+	marker.init(0,0);
+DBG_MESSAGE("karte_t::destroy()", "marker destroyed");
+
+	// spieler aufräumen
+	for(i=0; i<MAX_PLAYER_COUNT ; i++) {
+		if(spieler[i]) {
+			delete spieler[i];
+			spieler[i] = 0;
+		}
+	}
+DBG_MESSAGE("karte_t::destroy()", "player destroyed");
 
 	// clear all ids
 	simlinemgmt_t::init_line_ids();
-    DBG_MESSAGE("karte_t::destroy()", "lines destroyed");
+DBG_MESSAGE("karte_t::destroy()", "lines destroyed");
 
-    // alle fabriken aufräumen
-    slist_iterator_tpl<fabrik_t*> fab_iter(fab_list);
-    while(fab_iter.next()) {
-	delete fab_iter.get_current();
-    }
-    fab_list.clear();
-    DBG_MESSAGE("karte_t::destroy()", "factories destroyed");
+	// alle fabriken aufräumen
+	slist_iterator_tpl<fabrik_t*> fab_iter(fab_list);
+	while(fab_iter.next()) {
+		delete fab_iter.get_current();
+	}
+	fab_list.clear();
+DBG_MESSAGE("karte_t::destroy()", "factories destroyed");
 
-    // hier nur entfernen, aber nicht löschen
-    ausflugsziele.clear();
-    DBG_MESSAGE("karte_t::destroy()", "attraction list destroyed");
-
-    // rail blocks aufraeumen
-    blockmanager::gib_manager()->delete_all_blocks();
+	// hier nur entfernen, aber nicht löschen
+	ausflugsziele.clear();
+DBG_MESSAGE("karte_t::destroy()", "attraction list destroyed");
 
 //    delete schedule_list_gui;
 //    schedule_list_gui = 0;
 
-    DBG_MESSAGE("karte_t::destroy()", "world destroyed");
-    printf("destroyed.\n");
+DBG_MESSAGE("karte_t::destroy()", "world destroyed");
+	printf("destroyed.\n");
 }
 
 
@@ -870,7 +868,7 @@ DBG_DEBUG("karte_t::init()","Erzeuge stadt %i with %ld inhabitants",i,(s->get_ci
 	mute_sound(false);
 }
 
-karte_t::karte_t() : ausflugsziele(16), quick_shortcuts(15), marker(0,0)
+karte_t::karte_t() : ausflugsziele(16), quick_shortcuts(15), marker(0,0), convoi_array(0)
 {
 	for (unsigned int i=0; i<15; i++) {
 //DBG_MESSAGE("karte_t::karte_t()","Append NULL to quick_shortcuts at %d\n",i);
@@ -1681,9 +1679,8 @@ karte_t::neuer_monat()
 
 //	DBG_MESSAGE("karte_t::neuer_monat()","convois");
 	// hsiegeln - call new month for convois
-	slist_iterator_tpl<convoihandle_t> citer (convoi_list);
-	while(citer.next()) {
-		convoihandle_t cnv = citer.get_current();
+	for(unsigned i=0;  i<convoi_array.get_count();  i++ ) {
+		convoihandle_t cnv = convoi_array.at(i);
 		cnv->new_month();
 	}
 
@@ -1844,9 +1841,8 @@ DBG_MESSAGE("karte_t::neues_jahr()","Year %d has started", letztes_jahr);
 	sprintf(buf,translator::translate("Year %i has started."),letztes_jahr);
 	message_t::get_instance()->add_message(buf,koord::invalid,message_t::general,COL_BLACK,skinverwaltung_t::neujahrsymbol->gib_bild_nr(0));
 
-	slist_iterator_tpl<convoihandle_t> iter (convoi_list);
-	while(iter.next()) {
-		convoihandle_t cnv = iter.get_current();
+	for(unsigned i=0;  i<convoi_array.get_count();  i++ ) {
+		convoihandle_t cnv = convoi_array.at(i);
 		cnv->neues_jahr();
 	}
 
@@ -1901,13 +1897,13 @@ void karte_t::step(const long delta_t)
 
 		// Hajo: Convois need extra frequent steps to avoid unneccesary
 		// long waiting times
-		{
-			slist_iterator_tpl <convoihandle_t> iter (convoi_list);
-			while( iter.next() ) {
-				if(iter.get_current().is_bound()) {
-					iter.get_current()->step();
-					INT_CHECK("simworld 1947");
-				}
+		// the convois goes alternating up and down to avoid a preferred
+		// order and loading only of the train highest in the game
+		for(unsigned i=0; i<convoi_array.get_count();  i++) {
+			convoihandle_t cnv=convoi_array.get(i);
+			cnv->step();
+			if((i&7)==0) {
+				INT_CHECK("simworld 1947");
 			}
 		}
 		interactive_update();
@@ -2244,15 +2240,15 @@ karte_t::speichern(loadsave_t *file,bool silent)
     }
 	DBG_MESSAGE("karte_t::speichern(loadsave_t *file)", "saved fabs");
 
-	slist_iterator_tpl<convoihandle_t> citer ( convoi_list );
-	while(citer.next()) {
-		(citer.get_current())->rdwr(file);
+	for(unsigned i=0;  i<convoi_array.get_count();  i++ ) {
+		convoihandle_t cnv = convoi_array.at(i);
+		cnv->rdwr(file);
 	}
 	if(silent) {
 		INT_CHECK("saving");
 	}
 	file->wr_obj_id("Ende Convois");
-	DBG_MESSAGE("karte_t::speichern(loadsave_t *file)", "saved %i convois",convoi_list.count());
+	DBG_MESSAGE("karte_t::speichern(loadsave_t *file)", "saved %i convois",convoi_array.get_count());
 
     for(i=0; i<MAX_PLAYER_COUNT; i++) {
 	spieler[i]->rdwr(file);
@@ -2527,7 +2523,7 @@ DBG_MESSAGE("karte_t::laden()","loading grid");
 		}
 		else {
 			convoi_t *cnv = new convoi_t(this, file);
-			convoi_list.append( cnv->self );
+			convoi_array.append( cnv->self, 16 );
 
 			if(cnv->in_depot()) {
 				grund_t * gr = lookup(cnv->gib_pos());
@@ -2545,7 +2541,7 @@ DBG_MESSAGE("karte_t::laden()","loading grid");
 			}
 		}
 	}
-DBG_MESSAGE("karte_t::laden()", "%d convois/trains loaded", convoi_list.count());
+DBG_MESSAGE("karte_t::laden()", "%d convois/trains loaded", convoi_array.get_count());
 
     // reinit pointer with new pointer object and old values
     zeiger = new zeiger_t(this, koord3d(0,0,0), spieler[0]);	// Zeiger ist spezialobjekt
@@ -2593,9 +2589,9 @@ DBG_MESSAGE("karte_t::laden()", "%d ways loaded",weg_t::gib_alle_wege().count())
 	}
 
 	// assing lines and other stuff for convois
-	slist_iterator_tpl<convoihandle_t> citer (convoi_list);
-	while(citer.next()) {
-		citer.get_current()->laden_abschliessen();
+	for(unsigned i=0;  i<convoi_array.get_count();  i++ ) {
+		convoihandle_t cnv = convoi_array.at(i);
+		cnv->laden_abschliessen();
 	}
 
     // register all line stops and change line types, if needed
@@ -2817,15 +2813,6 @@ ding_t *
 karte_t::gib_zeiger() const
 {
     return zeiger;
-}
-
-
-spieler_t *
-karte_t::gib_spieler(int n)
-{
-    assert(n>=0 && n<MAX_PLAYER_COUNT);
-    assert(spieler[n] != NULL);
-    return spieler[n];
 }
 
 
@@ -3596,6 +3583,14 @@ karte_t::interactive_event(event_t &ev)
 				  tool_tip_with_price(translator::translate("Build choosesignals"), umgebung_t::cst_signal));
 		}
 
+			roadsign_t::fill_menu(wzw,
+					weg_t::schiene,
+					wkz_roadsign,
+					SFX_JACKHAMMER,
+					SFX_FAILURE,
+					get_timeline_year_month()
+					);
+
 		      wzw->add_param_tool(wkz_depot,
 				hausbauer_t::bahn_depot_besch,
 				Z_PLAN,
@@ -3701,6 +3696,14 @@ karte_t::interactive_event(event_t &ev)
 				  tool_tip_with_price(translator::translate("Build choosesignals"), umgebung_t::cst_signal));
 		}
 
+			roadsign_t::fill_menu(wzw,
+					weg_t::monorail,
+					wkz_roadsign,
+					SFX_JACKHAMMER,
+					SFX_FAILURE,
+					get_timeline_year_month()
+					);
+
 		      wzw->add_param_tool(wkz_depot,
 				hausbauer_t::monorail_depot_besch,
 				Z_PLAN,
@@ -3798,6 +3801,14 @@ karte_t::interactive_event(event_t &ev)
 				  tool_tip_with_price(translator::translate("Build choosesignals"), umgebung_t::cst_signal));
 		}
 
+			roadsign_t::fill_menu(wzw,
+					weg_t::schiene,
+					wkz_roadsign,
+					SFX_JACKHAMMER,
+					SFX_FAILURE,
+					get_timeline_year_month()
+					);
+
 		      wzw->add_param_tool(wkz_depot,
 				hausbauer_t::tram_depot_besch,
 				Z_PLAN,
@@ -3883,11 +3894,13 @@ karte_t::interactive_event(event_t &ev)
 					  tool_tip_with_price(translator::translate("Strassentunnel"), umgebung_t::cst_tunnel));
 		    }
 
-		    roadsign_t::fill_menu(wzw,
-					  wkz_roadsign,
-					  SFX_JACKHAMMER,
-					  SFX_FAILURE,
-					  umgebung_t::cst_multiply_roadstop);
+			roadsign_t::fill_menu(wzw,
+					weg_t::strasse,
+					wkz_roadsign,
+					SFX_JACKHAMMER,
+					SFX_FAILURE,
+					get_timeline_year_month()
+					);
 
 		      wzw->add_param_tool(wkz_depot,
 				hausbauer_t::str_depot_besch,
@@ -3968,6 +3981,14 @@ karte_t::interactive_event(event_t &ev)
 					  SFX_FAILURE,
 					  get_timeline_year_month()
 					  );
+
+			roadsign_t::fill_menu(wzw,
+					weg_t::wasser,
+					wkz_roadsign,
+					SFX_JACKHAMMER,
+					SFX_FAILURE,
+					get_timeline_year_month()
+					);
 
 		    hausbauer_t::fill_menu(wzw,
 					  hausbauer_t::binnenhafen,

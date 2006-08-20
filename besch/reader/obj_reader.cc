@@ -49,12 +49,12 @@
 //@EDOC
 
 #include <string.h>
-#include <sys/stat.h>
 
 #ifndef _MSC_VER
 #include <unistd.h>
 #include <dirent.h>
 #else
+#include <sys/stat.h>
 #include <io.h>
 #endif
 

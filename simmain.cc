@@ -424,14 +424,12 @@ static void zeige_banner()
 int sim_new_handler(unsigned int)
 {
     dbg->fatal("sim_new_handler()","OUT OF MEMORY");
-    trap();
 	return 0;
 }
 #else
 void sim_new_handler()
 {
     dbg->fatal("sim_new_handler()","OUT OF MEMORY");
-    trap();
 }
 #endif
 

@@ -278,7 +278,7 @@ route_t::find_route(karte_t *welt,
 
 //DBG_DEBUG("add to close","(%i,%i,%i) f=%i",gr->gib_pos().x,gr->gib_pos().y,gr->gib_pos().z,tmp->f);
 		// already there
-		if(fahr->ist_ziel(gr)) {
+		if(fahr->ist_ziel(gr,tmp->parent==NULL?NULL:tmp->parent->gr)) {
 			// we added a target to the closed list: we are finished
 			break;
 		}
@@ -346,8 +346,8 @@ route_t::find_route(karte_t *welt,
 
 //DBG_DEBUG("reached","");
 	// target reached?
-	if(!fahr->ist_ziel(gr)  ||  step >= MAX_STEP) {
-		DBG_MESSAGE("route_t::find_route()","Too many steps (%i>=max %i) in route (too long/complex)",step,MAX_STEP);
+	if(!fahr->ist_ziel(gr,tmp->parent==NULL?NULL:tmp->parent->gr)  ||  step >= MAX_STEP) {
+		dbg->warning("route_t::find_route()","Too many steps (%i>=max %i) in route (too long/complex)",step,MAX_STEP);
 	}
 	else {
 		// reached => construct route

@@ -2410,7 +2410,8 @@ bool stadt_t::init()
 
     minimum_city_distance = contents.get_int("minimum_city_distance", 16);
     int ind_increase = contents.get_int("industry_increase_every", 0);
-    for( int i=0;  i<8;  i++  ) {
+    int i;
+    for(i=0;  i<8;  i++  ) {
     	industry_increase_every[i] = (ind_increase<<i);
     }
 
@@ -2442,7 +2443,6 @@ bool stadt_t::init()
     house_rules = new struct rule_t [num_house_rules];
     road_rules = new struct rule_t [num_road_rules];
 
-    int i;
     for(i=0; i<num_house_rules; i++) {
       sprintf(buf, "house_%d", i+1);
       const char * rule = contents.get_string(buf, "");

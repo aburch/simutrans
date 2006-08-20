@@ -34,28 +34,25 @@ signal_t::signal_t(karte_t *welt, loadsave_t *file) : ding_t (welt)
 signal_t::signal_t(karte_t *welt, koord3d pos, ribi_t::ribi dir) :  ding_t(welt, pos)
 {
 	this->dir = dir;
-
 	zustand = rot;
-	blockend = false;
-
 	calc_bild();
-
 	step_frequency = 0;
 }
 
 
 signal_t::~signal_t()
 {
-	weg_t *weg = welt->lookup(gib_pos())->gib_weg(weg_t::schiene);
-	if(!weg) {
-		weg = welt->lookup(gib_pos())->gib_weg(weg_t::monorail);
-	}
+	if(welt->lookup(gib_pos())) {
+		weg_t *weg = welt->lookup(gib_pos())->gib_weg(weg_t::schiene);
+		if(!weg) {
+			weg = welt->lookup(gib_pos())->gib_weg(weg_t::monorail);
+		}
 
-	if(weg) {
-		// Weg wieder freigeben, wenn das Signal nicht mehr da ist.
-		dynamic_cast<schiene_t *>(weg)->setze_ribi_maske(ribi_t::keine);
-		blockhandle_t bs = dynamic_cast<schiene_t *>(weg)->gib_blockstrecke();
-		blockmanager::gib_manager()->entferne_signal(this, bs);
+		if(weg) {
+			// Weg wieder freigeben, wenn das Signal nicht mehr da ist.
+			weg->setze_ribi_maske(ribi_t::keine);
+			dynamic_cast<schiene_t *>(weg)->count_signals();
+		}
 	}
 	else {
 		dbg->error("signal_t::~signal_t()","Signal %p was deleted but ground was not an railroad track!");
@@ -70,38 +67,30 @@ signal_t::~signal_t()
  */
 void signal_t::info(cbuffer_t & buf) const
 {
-	schiene_t * sch = dynamic_cast<schiene_t *>(welt->lookup(gib_pos())->gib_weg(weg_t::schiene));
-	if(!sch) {
-		sch = dynamic_cast<schiene_t *>(welt->lookup(gib_pos())->gib_weg(weg_t::monorail));
+	if(bs.is_bound()) {
+		bs->info(buf);
+
+		buf.append("\n");
+		buf.append(bs.get_id());
+		buf.append("\n");
+
+		buf.append("Direction: ");
+		buf.append(dir);
+		buf.append("\n");
 	}
-
-  if(sch) {
-    blockhandle_t bs = sch->gib_blockstrecke();
-
-    bs->info(buf);
-
-    buf.append("\n");
-    buf.append(bs.get_id());
-    buf.append("\n");
-
-    buf.append("Direction: ");
-    buf.append(dir);
-    buf.append("\n");
-
-  } else {
-    ding_t::info(buf);
-  }
+	else {
+		ding_t::info(buf);
+	}
 }
 
 
 void signal_t::calc_bild()
 {
-	grund_t *gr = welt->lookup(gib_pos());
 	if(blockend) {
-		gr->set_flag(grund_t::world_spot_dirty);
 		setze_bild(0, IMG_LEER);
 	}
 	else {
+		grund_t *gr = welt->lookup(gib_pos());
 		schiene_t * sch = dynamic_cast<schiene_t *>(gr->gib_weg(weg_t::schiene));
 		if(!sch) {
 			sch = dynamic_cast<schiene_t *>(gr->gib_weg(weg_t::monorail));
@@ -157,12 +146,12 @@ void signal_t::calc_bild()
 				break;
 
 			default:
-				setze_xoff(0);
-				setze_yoff(0);
-				setze_bild(0, skinverwaltung_t::signale->gib_bild_nr(0));
+				setze_bild(0, IMG_LEER);
 		}
 	}
 }
+
+
 
 void
 signal_t::rdwr(loadsave_t *file)
@@ -171,31 +160,34 @@ signal_t::rdwr(loadsave_t *file)
     if(file->is_loading()) {
         ding_t::rdwr(file);
 
-	// Hajo: should never be called ?
-	abort();
-	/*
-        file->rdwr_bool(blockend, " ");
-        file->rdwr_enum(zustand, " ");
-        file->rdwr_long(nach_rechts, "\n");
-	*/
-
+		// Hajo: should never be called ?
+		dbg->fatal("signal_t::rdwr()","should never be called on loading ... ");
     } else {
         // signale werden von der blockstrecke gespeichert und geladen
         file->wr_obj_id(-1);
     }
 }
 
+
+
 void
 signal_t::rdwr(loadsave_t *file, bool force)
 {
 	// loading from blockmanager!
-    assert(force == true);
-    ding_t::rdwr(file);
+	assert(force == true);
+	ding_t::rdwr(file);
 
-    file->rdwr_byte(blockend, " ");
-    file->rdwr_byte(zustand, " ");
-    file->rdwr_byte(dir, "\n");
+	uint8 dummy=blockend;
+	file->rdwr_byte(dummy, " ");
+	blockend = dummy;
+	dummy = zustand;
+	file->rdwr_byte(dummy, " ");
+	zustand = dummy;
+	dummy = dir;
+	file->rdwr_byte(dummy, "\n");
+	dir = dummy;
 }
+
 
 
 /**
@@ -246,7 +238,6 @@ presignal_t::setze_zustand(enum signal_t::signalzustand z)
 void presignal_t::calc_bild()
 {
 	if(blockend) {
-		welt->lookup(gib_pos())->set_flag(grund_t::world_spot_dirty);
 		setze_bild(0, IMG_LEER);
 	}
 	else {
@@ -295,9 +286,7 @@ void presignal_t::calc_bild()
 			break;
 
 			default:
-				setze_xoff(0);
-				setze_yoff(0);
-				setze_bild(0, skinverwaltung_t::presignals->gib_bild_nr(0));
+				setze_bild(0, IMG_LEER);
 		}
 	}
 }
@@ -308,7 +297,6 @@ void presignal_t::calc_bild()
 void choosesignal_t::calc_bild()
 {
 	if(blockend) {
-		welt->lookup(gib_pos())->set_flag(grund_t::world_spot_dirty);
 		setze_bild(0, IMG_LEER);
 	}
 	else {
@@ -357,9 +345,7 @@ void choosesignal_t::calc_bild()
 			break;
 
 			default:
-				setze_xoff(0);
-				setze_yoff(0);
-				setze_bild(0, skinverwaltung_t::choosesignals->gib_bild_nr(0));
+				setze_bild(0, IMG_LEER);
 		}
 	}
 }

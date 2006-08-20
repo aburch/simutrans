@@ -35,7 +35,7 @@
 #include "../simplay.h"
 #include "../simplan.h"
 #include "../simdepot.h"
-#include "../blockmanager.h"
+//#include "../blockmanager.h"
 
 #include "../dings/gebaeude.h"
 #include "../dings/bruecke.h"
@@ -271,10 +271,10 @@ void wegbauer_t::fill_menu(werkzeug_parameter_waehler_t *wzw,
 
 		char buf[128];
 
-		sprintf(buf, "%s, %d$ (%d$), %dkm/h",
+		sprintf(buf, "%s, %l$ (%l$), %dkm/h",
 			translator::translate(besch->gib_name()),
-			besch->gib_preis()/100,
-			(besch->gib_wartung()<<shift_maintanance)/100,
+			besch->gib_preis()/100l,
+			(besch->gib_wartung()<<shift_maintanance)/100l,
 			besch->gib_topspeed());
 
 		wzw->add_param_tool(werkzeug,
@@ -1865,10 +1865,6 @@ wegbauer_t::baue_schiene()
 {
 	int i;
 	if(max_n >= 1) {
-
-		// rails have blocks
-		blockmanager * bm = blockmanager::gib_manager();
-
 		// init undo
 		sp->init_undo(weg_t::schiene,max_n);
 
@@ -1894,18 +1890,13 @@ wegbauer_t::baue_schiene()
 					gr->calc_bild();
 					cost = -besch->gib_preis();
 				}
-
-				bm->schiene_erweitern(welt, gr);
 			}
 			else {
 				schiene_t * sch = new schiene_t(welt);
 				sch->setze_besch(besch);
 				cost = -gr->neuen_weg_bauen(sch, ribi, sp)-besch->gib_preis();
-
 				// prissi: into UNDO-list, so wie can remove it later
 				sp->add_undo( position_bei(i) );
-
-				bm->neue_schiene(welt, gr);
 			}
 
 			if(cost  &&  sp) {
@@ -1918,7 +1909,7 @@ wegbauer_t::baue_schiene()
 				INT_CHECK( "wegbauer 1584" );
 			}
 		}
-
+/*
 		// V.Meyer: weg_position_t changed to grund_t::get_neighbour()
 		grund_t *start = welt->lookup(route->at(0));
 		grund_t *end = welt->lookup(route->at(max_n));
@@ -1935,6 +1926,7 @@ wegbauer_t::baue_schiene()
 				INT_CHECK( "wegbauer 1584" );
 			}
 		}
+*/
 	}
 }
 
@@ -1944,10 +1936,6 @@ void
 wegbauer_t::baue_monorail()
 {
 	if(max_n >= 1) {
-
-		// rails have blocks
-		blockmanager * bm = blockmanager::gib_manager();
-
 		sint16 z_offset=0;
 		if(bautyp==elevated_monorail) {
 			z_offset = 16;
@@ -1981,7 +1969,6 @@ wegbauer_t::baue_monorail()
 						monorail->calc_bild();
 						cost = -besch->gib_preis();
 					}
-					bm->schiene_erweitern(welt, monorail);
 					monorail->calc_bild();
 				}
 				else {
@@ -1992,8 +1979,6 @@ wegbauer_t::baue_monorail()
 
 					// prissi: into UNDO-list, so wie can remove it later
 					sp->add_undo( position_bei(i) );
-
-					bm->neue_schiene(welt, monorail);
 				}
 			}
 			else {
@@ -2007,8 +1992,6 @@ wegbauer_t::baue_monorail()
 
 				// prissi: into UNDO-list, so wie can remove it later
 	//			sp->add_undo( position_bei(i) );
-
-				bm->neue_schiene(welt, monorail);
 				cost = -besch->gib_preis();
 				monorail->calc_bild();
 			}

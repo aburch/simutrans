@@ -7,12 +7,34 @@ Known bugs: (hard to fix)
 
 
 
+Release of 89.01
+
+15-Jul-2006: (prissi)
+	FIX: depot with wrongly initialize vehicle list could crash
+	FIX: crash, when selling just under the last line
+	FIX: crash when selling trains with PBS
+	CHANGE: convoi list to array
+	FIX: unreserve route when reserved track is deleted
+	FIX: find route until station end without help
+	FIX: AI now knows about short vehicles and can built smarter stations more often
+	FIX: clipping of lists
+	FIX: one way signals on platforms have been ignored
+	ADD: dates and waytypes for signs (not only roadsigns, although only the no enter sign will work on all ways)
+	FIX: crash when deleting world
+
+
+Release of 89.00 (preview)
+
+1-Jul-2006: (prissi)
+	ADD: path based signaling (PBS): There can be many trains in a block as long as their path do not intersect.
+
+
 Release of 88.10.5 (stable)
 
 1-Jul-2006: (prissi)
 	FIX: maintainace for bridges works again
 	FIX: values in finance history init to zero at the start of new year
-	ADD: fences on slope borders (obj=ground, name=Fence, first three=natural fence, last three=building fence)
+	ADD: fences at slopes
 
 
 Release of 88.10.4

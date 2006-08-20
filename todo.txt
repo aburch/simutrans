@@ -5,7 +5,6 @@ monorail on slope on top of track
 Stichpunkte
 
 - mehrere Stationen: done
-- Mehr KI: halfway
 - Statistiken für Stadtfenster: done
 - Einzugsbereich einstellbar: done
 - Vorsignale: done
@@ -33,17 +32,19 @@ Stichpunkte
 - KI noch mehr auf Kette drillen, bessere Bahnhöfe: done
 - A* for ways: done
 - Warteschleife für Flugzeuge: done
-- details for convois: done
 - sound: done
 - Kurven auf Brücken: well, monorails
-- Brücken an senkrechten Wänden: done
+- Linienverwaltung kollidiert mit AI Spieler: done
 
+- details for convois: halfway
+- Brücken an senkrechten Wänden: done/halfway
 - tile 2x height: halfway-> slopes needed
 - Jahreszeiten: halfway done
 
 - Oneway Rollbahnen
 - connection weighted by their intermediate stops => A* for goods routing
 - when import translation: ignore entries which are identical (saving runtime)
+- more than one translation
 - Kosten für Wege deckeln!
 - A* for goods
 - scripting for AI
@@ -62,4 +63,3 @@ Unmögliches ...
 
 Fehler:
 Stadtautos kommen nicht um 180 Kurve
-Linienverwaltung kollidiert mit AI Spieler

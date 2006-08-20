@@ -363,11 +363,13 @@ planquadrat_t::display_dinge(const sint16 xpos, const sint16 ypos, const sint16 
 #else
 		// first some action with the kartenboden (i.e. level ground)
 		grund_t *gr = boeden.get(0);
+		bool this_dirty = dirty ||  gr->get_flag(grund_t::dirty)  ||  gr->get_flag(grund_t::world_spot_dirty);
+		gr->clear_flag(grund_t::dirty);
+		gr->clear_flag(grund_t::world_spot_dirty);
 		if(gr->get_flag(grund_t::draw_as_ding)) {
-			gr->display_boden(xpos, ypos, dirty || gr->get_flag(grund_t::world_spot_dirty));
-			gr->clear_flag(grund_t::dirty);
+			gr->display_boden(xpos, ypos, this_dirty );
 		}
-		gr->display_dinge(xpos, ypos, dirty );
+		gr->display_dinge(xpos, ypos, this_dirty );
 
 		// display station owner boxes
 		if(umgebung_t::station_coverage_show  &&  halt_list.get_count()>0) {
@@ -385,9 +387,11 @@ planquadrat_t::display_dinge(const sint16 xpos, const sint16 ypos, const sint16 
 		for(uint8 i=1; i<boeden.get_count(); i++) {
 			gr = gib_boden_bei(i);
 			const sint16 yypos = ypos -tile_raster_scale_y( gr->gib_hoehe()-h0, raster_tile_width);
-			gr->display_boden(xpos, yypos, dirty || gr->get_flag(grund_t::world_spot_dirty) );
+			const bool this_dirty = dirty ||  gr->get_flag(grund_t::dirty)  ||  gr->get_flag(grund_t::world_spot_dirty);
 			gr->clear_flag(grund_t::dirty);
-			gr->display_dinge(xpos, yypos, dirty );
+			gr->clear_flag(grund_t::world_spot_dirty);
+			gr->display_boden(xpos, yypos, this_dirty );
+			gr->display_dinge(xpos, yypos, this_dirty );
 		}
 #endif
 	}

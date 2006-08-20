@@ -60,8 +60,7 @@ freelist_t::gimme_node(int size)
 				list = &node1624;
 				break;
 			default:
-				ERROR("freelist_t::gimme_node()","No list with size %i! (only up to 64 and %i, 1220, 1624)", size, message_node_size );
-				trap();
+				dbg->fatal("freelist_t::gimme_node()","No list with size %i! (only up to 64 and %i, 1220, 1624)", size, message_node_size );
 		}
 	}
 	else {
@@ -97,8 +96,7 @@ freelist_t::putback_check_node(nodelist_node_t ** list,nodelist_node_t *p)
 {
 	if(*list<p) {
 		if(p==*list) {
-			ERROR("freelist_t::putback_check_node()","node %p already freeded!",p);
-			trap();
+			dbg->fatal("freelist_t::putback_check_node()","node %p already freeded!",p);
 		}
 		p->next = *list;
 		*list = p;
@@ -109,8 +107,7 @@ freelist_t::putback_check_node(nodelist_node_t ** list,nodelist_node_t *p)
 			tmp = tmp->next;
 		}
 		if(p==tmp->next) {
-			ERROR("freelist_t::putback_check_node()","node %p already freeded!",p);
-			trap();
+			dbg->fatal("freelist_t::putback_check_node()","node %p already freeded!",p);
 		}
 		p->next = tmp->next;
 		tmp->next = p;
@@ -138,8 +135,7 @@ freelist_t::putback_node(int size,void *p)
 				list = &node1624;
 				break;
 			default:
-				ERROR("freelist_t::gimme_node()","No list with size %i! (only up to 64 and %i, 1220, 1624)", size, message_node_size );
-				trap();
+				dbg->fatal("freelist_t::gimme_node()","No list with size %i! (only up to 64 and %i, 1220, 1624)", size, message_node_size );
 		}
 	}
 	else {
@@ -177,8 +173,7 @@ freelist_t::putback_nodes(int size,void *p)
 				list = &node1624;
 				break;
 			default:
-				ERROR("freelist_t::gimme_node()","No list with size %i! (only up to 64 and %i, 1220, 1624)", size, message_node_size );
-				trap();
+				dbg->fatal("freelist_t::gimme_node()","No list with size %i! (only up to 64 and %i, 1220, 1624)", size, message_node_size );
 		}
 	}
 	else {

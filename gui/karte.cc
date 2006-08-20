@@ -512,9 +512,8 @@ reliefkarte_t::calc_map()
 	}
 
 	// mark all vehicle positions
-	slist_iterator_tpl<convoihandle_t> citer (welt->gib_convoi_list());
-	while(citer.next()) {
-		convoihandle_t cnv = citer.get_current();
+	for(unsigned i=0;  i<welt->get_convoi_count();  i++ ) {
+		convoihandle_t cnv = welt->get_convoi_array().get(i);
 		vehikel_t *v;
 		for( uint16 i=0;  (v=cnv->gib_vehikel(i))!=0;  i++ ) {
 			setze_relief_farbe( v->gib_pos().gib_2d(), VEHIKEL_KENN );
@@ -535,8 +534,10 @@ reliefkarte_t::calc_map()
 				max_tourist_ziele = ausflugsziele.at(i)->gib_passagier_level();
 			}
 		}
-		for( unsigned i=0;  i<ausflugsziele.get_count();  i++ ) {
-			setze_relief_farbe_area(ausflugsziele.at(i)->gib_pos().gib_2d(), 7, calc_severity_color(ausflugsziele.at(i)->gib_passagier_level(),max_tourist_ziele) );
+		{
+			for( unsigned i=0;  i<ausflugsziele.get_count();  i++ ) {
+				setze_relief_farbe_area(ausflugsziele.get(i)->gib_pos().gib_2d(), 7, calc_severity_color(ausflugsziele.get(i)->gib_passagier_level(),max_tourist_ziele) );
+			}
 		}
 		return;
 	}

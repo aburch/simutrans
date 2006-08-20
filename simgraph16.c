@@ -935,7 +935,10 @@ dsp_read_bdf_glyph( FILE *fin, unsigned char *data, unsigned char *screen_w, boo
 			data[16*char_nr+14] = 0;
 
 			// maximum size 10 pixels
-			h = min( h+top, 12 );
+			h += top;
+			if(h>12) {
+				h = 12;
+			}
 
 			// read for height times
 			for(  y=top;  y<h;  y++  ) {
@@ -1010,7 +1013,17 @@ dsp_read_bdf_font( FILE *fin, bool *is_unicode, font_type *font )
 				return false;
 			}
 			data[32*16] = 0;	// screen width of space
-			screen_widths[32] = CLIP( f_height/2, 3, 12 );
+			if(f_height>=6) {
+				if(f_height<24) {
+					screen_widths[32] = f_height/2;
+				}
+				else {
+					screen_widths[32] = 12;
+				}
+			}
+			else {
+				screen_widths[32] = 3;
+			}
 			continue;
 		}
 
@@ -3517,7 +3530,7 @@ int is_display_init()
  */
 int simgraph_exit()
 {
-	int n;
+	unsigned n;
 
 	guarded_free(tile_dirty);
 	guarded_free(tile_dirty_old);

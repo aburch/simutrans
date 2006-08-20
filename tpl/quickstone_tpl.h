@@ -3,7 +3,7 @@
 
 #include <stdlib.h>
 #include "../simtypes.h"
-#include "debug_helper.h"
+#include "../simdebug.h"
 
 /**
  * An implementation of the tombstone pointer checking method.
@@ -62,7 +62,7 @@ template <class T> class quickstone_tpl
     }
 
     // no free entry found, can't continue
-    trap();
+	dbg->fatal("quickstone<T>::find_next()","no free index found (size=%i)",size);
 	return 0; //dummy for compiler
   };
 
@@ -203,7 +203,7 @@ template <class T> class quickstone_tpl
     return entry != other.entry;
   };
 
-};
+} GCC_PACKED;
 
 template <class T> T** quickstone_tpl<T>::data = 0;
 

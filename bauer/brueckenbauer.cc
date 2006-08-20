@@ -19,7 +19,6 @@
 #include "../besch/sound_besch.h"
 #include "../simplay.h"
 #include "../simskin.h"
-#include "../blockmanager.h"
 
 #include "../boden/boden.h"
 #include "../boden/brueckenboden.h"
@@ -36,6 +35,7 @@
 
 #include "../dings/bruecke.h"
 #include "../dings/pillar.h"
+#include "../dings/signal.h"
 
 #include "../dataobj/translator.h"
 
@@ -395,29 +395,22 @@ bool brueckenbauer_t::baue_bruecke(karte_t *welt, spieler_t *sp,
                  koord3d pos, koord3d end, koord zv, const bruecke_besch_t *besch, const weg_besch_t *weg_besch)
 {
 	ribi_t::ribi ribi;
-	blockhandle_t bs1;
 	weg_t *weg=NULL;	// =NULL to keep compiler happy
 
 	DBG_MESSAGE("brueckenbauer_t::baue()", "build from %d,%d", pos.x, pos.y);
 	baue_auffahrt(welt, sp, pos, zv, besch, weg_besch );
 
 	ribi = welt->lookup(pos)->gib_weg_ribi_unmasked(besch->gib_wegtyp());
-	if(besch->gib_wegtyp()==weg_t::schiene  ||  besch->gib_wegtyp()==weg_t::monorail) {
-		bs1 = ((schiene_t *)welt->lookup(pos)->gib_weg(besch->gib_wegtyp()))->gib_blockstrecke();
-		DBG_MESSAGE("brueckenbauer_t::baue()", "blockstrecke %i",bs1.get_id());
-	}
 	pos = pos + zv;
 
-	while(pos.gib_2d() != end.gib_2d()) {
+	while(pos.gib_2d()!=end.gib_2d()) {
 		brueckenboden_t *bruecke = new  brueckenboden_t(welt, pos + koord3d(0, 0, 16), 0, 0);
 
 		if(besch->gib_wegtyp() == weg_t::schiene) {
 			weg = new schiene_t(welt);
-			((schiene_t *)weg)->setze_blockstrecke( bs1 );
 		}
 		else if(besch->gib_wegtyp() == weg_t::monorail) {
 			weg = new monorail_t(welt);
-			((monorail_t *)weg)->setze_blockstrecke( bs1 );
 		}
 		else if(besch->gib_wegtyp()==weg_t::strasse) {
 			weg = new strasse_t(welt);
@@ -459,13 +452,7 @@ bool brueckenbauer_t::baue_bruecke(karte_t *welt, spieler_t *sp,
 	else {
 		// just connect to existing way
 		grund_t *gr=welt->lookup(end);
-		if(gr->weg_erweitern(besch->gib_wegtyp(),ribi_t::doppelt(ribi))) {
-			if(besch->gib_wegtyp()==weg_t::schiene  ||  besch->gib_wegtyp()==weg_t::monorail) {
-				((schiene_t *)gr->gib_weg(besch->gib_wegtyp()))->setze_blockstrecke( bs1 );
-				DBG_MESSAGE("brueckenbauer_t::baue()", "blockstrecke %i",bs1.get_id());
-				blockmanager::gib_manager()->schiene_erweitern(welt,gr);
-			}
-		}
+		gr->weg_erweitern(besch->gib_wegtyp(),ribi_t::doppelt(ribi));
 	}
 	return true;
 }
@@ -489,8 +476,6 @@ brueckenbauer_t::baue_auffahrt(karte_t *welt, spieler_t *sp, koord3d end, koord 
 	bruecke = new brueckenboden_t(welt, end, grund_hang, weg_hang);
 
 	weg_t *alter_weg = alter_boden->gib_weg(besch->gib_wegtyp());
-	ding_t *sig = NULL;
-
 	if(besch->gib_wegtyp()==weg_t::monorail) {
 		weg = new monorail_t(welt);
 	}
@@ -506,20 +491,34 @@ brueckenbauer_t::baue_auffahrt(karte_t *welt, spieler_t *sp, koord3d end, koord 
 	else {
 		dbg->fatal("brueckenbauer_t::baue_bruecke()","unknown waytype (%i) for bridge",besch->gib_wegtyp() );
 	}
-	if(!alter_weg) {
+
+	// add the ramp
+	if(bruecke->gib_grund_hang() == hang_t::flach) {
+		yoff = 0;
+		img = besch->gib_rampe(ribi_neu);
+	}
+	else {
+		yoff = -16;
+		img = besch->gib_start(ribi_neu);
+	}
+	bruecke->obj_pri_add(new bruecke_t(welt, end, yoff, sp, besch, img),0);
+
+	if(alter_weg==NULL) {
 		weg->setze_besch(weg_besch);
 		sp->buche(weg_besch->gib_preis(), alter_boden->gib_pos().gib_2d(), COST_CONSTRUCTION);
 	}
 	else {
+		// here was a way before
 		weg->setze_besch(alter_weg->gib_besch());
-		if(besch->gib_wegtyp() == weg_t::schiene  ||  besch->gib_wegtyp() == weg_t::monorail) {
-			blockhandle_t bs = ((schiene_t *)alter_weg)->gib_blockstrecke();
-			((schiene_t *)weg)->setze_blockstrecke( bs );
-			sig = (ding_t *)alter_boden->suche_obj(ding_t::signal);
-			if(sig) { // Signal aufheben - kommt auf den neuen Boden!
-				alter_boden->obj_remove(sig, sp);
+		weg->setze_ribi_maske( alter_weg->gib_ribi_maske() );
+		// take care of everything on that tile ...
+		for( uint8 i=0;  i<alter_boden->obj_count();  i++  ) {
+			ding_t *d=alter_boden->obj_takeout(i);
+			if(d) {
+				bruecke->obj_pri_add(d,i);
 			}
 		}
+		alter_boden->weg_entfernen(weg->gib_typ(),false);
 	}
 	weg->setze_max_speed( besch->gib_topspeed() );
 	welt->access(end.gib_2d())->kartenboden_setzen( bruecke, false );
@@ -529,18 +528,6 @@ brueckenbauer_t::baue_auffahrt(karte_t *welt, spieler_t *sp, koord3d end, koord 
 		// no undo possible anymore
 		sp->init_undo(besch->gib_wegtyp(),0);
 	}
-	if(besch->gib_wegtyp() == weg_t::schiene  ||  besch->gib_wegtyp() == weg_t::monorail) {
-		blockmanager::gib_manager()->neue_schiene(welt, bruecke, sig);
-	}
-	if(bruecke->gib_grund_hang() == hang_t::flach) {
-		yoff = 0;
-		img = besch->gib_rampe(ribi_neu);
-	}
-	else {
-		yoff = -16;
-		img = besch->gib_start(ribi_neu);
-	}
-	bruecke->obj_add(new bruecke_t(welt, end, yoff, sp, besch, img));
 }
 
 
@@ -549,8 +536,6 @@ brueckenbauer_t::baue_auffahrt(karte_t *welt, spieler_t *sp, koord3d end, koord 
 const char *
 brueckenbauer_t::remove(karte_t *welt, spieler_t *sp, koord3d pos, weg_t::typ wegtyp)
 {
-	blockmanager *bm = blockmanager::gib_manager();
-
 	marker_t    marker(welt->gib_groesse_x(),welt->gib_groesse_y());
 	slist_tpl<koord3d> end_list;
 	slist_tpl<koord3d> part_list;
@@ -606,10 +591,6 @@ brueckenbauer_t::remove(karte_t *welt, spieler_t *sp, koord3d pos, weg_t::typ we
 		pos = part_list.remove_first();
 
 		grund_t *gr = welt->lookup(pos);
-
-		if(wegtyp==weg_t::schiene  ||  wegtyp==weg_t::monorail) {
-			bm->entferne_schiene(welt, pos);
-		}
 		gr->weg_entfernen(wegtyp, false);
 		gr->remove_everything_from_way(sp,wegtyp,ribi_t::keine);	// removes stop and signals correctly
 		gr->obj_loesche_alle(sp);
@@ -633,7 +614,6 @@ brueckenbauer_t::remove(karte_t *welt, spieler_t *sp, koord3d pos, weg_t::typ we
 		pos = end_list.remove_first();
 
 		grund_t *gr = welt->lookup(pos);
-		ding_t *sig = NULL;
 		ribi_t::ribi ribi = gr->gib_weg_ribi_unmasked(wegtyp);
 
 		if(gr->gib_grund_hang() != hang_t::flach) {
@@ -643,49 +623,39 @@ brueckenbauer_t::remove(karte_t *welt, spieler_t *sp, koord3d pos, weg_t::typ we
 			ribi &= ~ribi_typ(gr->gib_weg_hang());
 		}
 		const weg_besch_t *weg_besch=gr->gib_weg(wegtyp)->gib_besch();
-		if(wegtyp==weg_t::schiene  ||  wegtyp==weg_t::monorail) {
-			sig = gr->suche_obj(ding_t::signal);
-			if(sig) { // Signal aufheben - kommt auf den neuen Boden!
-				gr->obj_remove(sig, sp);
-				((schiene_t *)gr->gib_weg(wegtyp))->gib_blockstrecke()->entferne_signal((signal_t *)sig);
+
+		grund_t *gr_new = new boden_t(welt, pos,gr->gib_grund_hang());
+
+		// take care of everything on that tile ... (zero is the bridge itself)
+		for( uint8 i=1;  i<gr->obj_count();  i++  ) {
+			ding_t *d=gr->obj_takeout(i);
+			if(d) {
+				gr_new->obj_pri_add(d,0);
 			}
-			bm->entferne_schiene(welt, gr->gib_pos());
 		}
-
 		gr->weg_entfernen(wegtyp, false);
-		gr->obj_loesche_alle(sp);
 
-		gr = new boden_t(welt, pos,gr->gib_grund_hang());
-		welt->access(pos.gib_2d())->kartenboden_setzen(gr, false);
+		welt->access(pos.gib_2d())->kartenboden_setzen(gr_new, false);
 
 		// Neuen Boden wieder mit Weg versehen
+		weg_t *weg=0;
 		if(wegtyp==weg_t::schiene) {
-			weg_t *weg = new schiene_t(welt);
-			weg->setze_besch(weg_besch);
-			gr->neuen_weg_bauen(weg, ribi, sp);
-			bm->neue_schiene(welt, gr, sig);
+			weg = new schiene_t(welt);
 		}
 		else if(wegtyp==weg_t::monorail) {
-			weg_t *weg = new monorail_t(welt);
-			weg->setze_besch(weg_besch);
-			gr->neuen_weg_bauen(weg, ribi, sp);
-			bm->neue_schiene(welt, gr, sig);
+			weg = new monorail_t(welt);
+		} else if(wegtyp==weg_t::strasse) {
+			weg = new strasse_t(welt);
+		}
+		else if(wegtyp==weg_t::wasser) {
+			weg = new kanal_t(welt);
 		}
 		else {
-			weg_t *weg=0;
-			if(wegtyp==weg_t::strasse) {
-				weg = new strasse_t(welt);
-			}
-			else if(wegtyp==weg_t::wasser) {
-				weg = new kanal_t(welt);
-			}
-			else {
-				dbg->fatal("brueckenbauer_t::remove()","unknown waytype (%i) for bridge",wegtyp );
-			}
-			weg->setze_besch(weg_besch);
-			gr->neuen_weg_bauen(weg, ribi, sp);
+			dbg->fatal("brueckenbauer_t::remove()","unknown waytype (%i) for bridge",wegtyp );
 		}
-		gr->calc_bild();
+		weg->setze_besch(weg_besch);
+		gr_new->neuen_weg_bauen(weg, ribi, sp);
+		gr_new->calc_bild();
 	}
 
 	welt->setze_dirty();

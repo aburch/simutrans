@@ -46,9 +46,7 @@ karte_t *blockstrecke_t::welt=NULL;
 blockhandle_t blockstrecke_t::create(karte_t *welt)
 {
     blockstrecke_t * p = new blockstrecke_t(welt);
-    blockhandle_t   h(p);
-
-    return h;
+    return p->self;
 }
 
 
@@ -58,10 +56,8 @@ blockhandle_t blockstrecke_t::create(karte_t *welt)
  */
 blockhandle_t blockstrecke_t::create(karte_t *welt, loadsave_t *file)
 {
-    blockstrecke_t * p = new blockstrecke_t(welt, file);
-    blockhandle_t   h(p);
-
-    return h;
+	blockstrecke_t * p = new blockstrecke_t(welt, file);
+	return p->self;
 }
 
 
@@ -78,8 +74,8 @@ void blockstrecke_t::destroy(blockhandle_t &bs)
 
 blockstrecke_t::blockstrecke_t(karte_t *w, loadsave_t *file)
 {
+	self = blockhandle_t(this);
 	welt = w;
-	cnv_reserved = convoihandle_t();
 	rdwr(file);
 }
 
@@ -87,8 +83,8 @@ blockstrecke_t::blockstrecke_t(karte_t *w, loadsave_t *file)
 
 blockstrecke_t::blockstrecke_t(karte_t *w)
 {
+	self = blockhandle_t(this);
 	v_rein = v_raus = 0;
-	cnv_reserved = convoihandle_t();
 	welt = w;
 }
 
@@ -154,7 +150,7 @@ void blockstrecke_t::verdrahte_signale_neu()
 			}
 		}
 
-		if(sig  &&  sch->gib_blockstrecke().operator->() != this) {
+		if(sig  &&  (sig->get_block()!=self  ||  sch->gib_blockstrecke()!=self)) {
 			if(!sch->gib_blockstrecke().is_bound()) {
 				dbg->error("blockstrecke_t::verdrahte_signale_neu()","invalid blockstrecke at signal on square (%i,%i,%i): removing!",sig->gib_pos().x,sig->gib_pos().y,sig->gib_pos().z);
 			}
@@ -172,7 +168,6 @@ void blockstrecke_t::verdrahte_signale_neu()
 		signal_t *sig = killer.get_current();
 		signale.remove( sig );
 	}
-
 //DBG_MESSAGE("blockstrecke_t::verdrahte_signale_neu()","rail block %p has now %d signals", this, signale.count());
 }
 
@@ -185,6 +180,12 @@ void blockstrecke_t::add_signal(signal_t *sig)
 	if(!signale.contains( sig )) {
 		signale.insert(sig);
 		sig->setze_zustand(ist_frei() ? signal_t::gruen : signal_t::rot);
+		sig->set_block(self);
+		grund_t *gr=welt->lookup(sig->gib_pos());
+		schiene_t *sch = get_block_way( gr );
+		if(sch) {
+			sch->count_signals();
+		}
 	} else {
 		dbg->warning("blockstrecke_t::add_signal()","Signal %p already attached to rail block %p.",sig, this);
 	}
@@ -204,6 +205,7 @@ bool blockstrecke_t::loesche_signal_bei(koord3d k)
 	if(sig) {
 DBG_MESSAGE("blockstrecke_t::loesche_signal_bei()","rail block %p removes signal %p at %hd,%hd", this, sig, k.x, k.y);
 		// der Destruktor entfernt das Signal aus allen Listen
+		entferne_signal(sig);
 		delete sig;
 		del = true;
 	}
@@ -267,10 +269,14 @@ signal_t * blockstrecke_t::gib_signal_bei(koord3d k)
 
 
 
-bool
+blockstrecke_t::blockstate
 blockstrecke_t::ist_frei() const
 {
 	if(v_rein==v_raus) {
+		return BLOCK_RESERVED;
+	}
+	return BLOCK_EMPTY;
+#if 0
 		// is empty => check reservation
 		if(cnv_reserved.is_bound()) {
 			// another convoi wants to enter here already
@@ -279,51 +285,9 @@ blockstrecke_t::ist_frei() const
 		return true;
 	}
 	return false;
+#endif
 }
 
-
-
-bool
-blockstrecke_t::can_reserve_block(convoihandle_t cnv)
-{
-	if(v_rein==v_raus) {
-		// is empty => check reservation
-		if(cnv_reserved!=cnv  &&  cnv_reserved.is_bound()) {
-			// not our reservation => fail
-			return false;
-		}
-		return true;
-	}
-	return false;
-}
-
-
-
-bool
-blockstrecke_t::reserve_block(convoihandle_t cnv)
-{
-	if(v_rein==v_raus) {
-		// is empty => check reservation
-		if(cnv_reserved==cnv  ||  !cnv_reserved.is_bound()) {
-			// our reservation => ok
-			cnv_reserved = cnv;
-			return true;
-		}
-	}
-	return false;
-}
-
-
-
-bool
-blockstrecke_t::unreserve_block(convoihandle_t cnv)
-{
-	if(cnv_reserved==cnv) {
-		cnv_reserved = convoihandle_t();
-		return true;
-	}
-	return false;
-}
 
 
 
@@ -340,28 +304,25 @@ void blockstrecke_t::schalte_signale()
 
 
 
-void blockstrecke_t::betrete(vehikel_basis_t *)
+/* vehicle enters a block => change block state */
+void
+blockstrecke_t::betrete(vehikel_t *v)
 {
 	v_rein ++;
-	if(cnv_reserved.is_bound()) {
-		cnv_reserved = convoihandle_t();
-	}
 	schalte_signale();
-//    printf("   betrete %p: zustand  %d, %d\n", this, v_rein, v_raus);
 }
 
 
 
-void blockstrecke_t::verlasse(vehikel_basis_t *)
+/* vehilce leaves a block and removes the reservation */
+void
+blockstrecke_t::verlasse(vehikel_t *)
 {
 	v_raus ++;
-	schalte_signale();
-
 	if(v_raus >= v_rein) {
-		// vermeide Zaehlerueberlauf
 		v_raus = v_rein = 0;
 	}
-//    printf("   verlasse %p: zustand %d, %d\n", this, v_rein, v_raus);
+	schalte_signale();
 }
 
 
@@ -370,7 +331,6 @@ void blockstrecke_t::setze_belegung(int count)
 {
 	v_raus = 0;
 	v_rein = count;
-	cnv_reserved = convoihandle_t();
 	schalte_signale();
 }
 
@@ -381,7 +341,6 @@ blockstrecke_t::vereinige_vehikel_counter(blockhandle_t bs)
 {
 	v_rein += bs->v_rein;
 	v_raus += bs->v_raus;
-	cnv_reserved = convoihandle_t();
 	schalte_signale();
 }
 
@@ -447,10 +406,10 @@ blockstrecke_t::rdwr(loadsave_t *file)
 			// since convois are not yet loaded, read the current number of the convoi
 			file->rdwr_short(v_raus, "\n");
 DBG_MESSAGE("blockstrecke_t::laden_abschliessen()","v_raus = %i",v_raus );
-			cnv_reserved = convoihandle_t();
+//			cnv_reserved = convoihandle_t();
 		}
 		else {
-			uint16 id = cnv_reserved.is_bound() ? (uint16)welt->gib_convoi_list().index_of(cnv_reserved) : (uint16)-1;
+			uint16 id = 0xFFFF;//cnv_reserved.is_bound() ? (uint16)welt->gib_convoi_list().index_of(cnv_reserved) : (uint16)-1;
 			file->rdwr_short(id, "\n");
 		}
 	}
@@ -465,14 +424,6 @@ DBG_MESSAGE("blockstrecke_t::laden_abschliessen()","v_raus = %i",v_raus );
 // however it will temporary contain the number of the last convoi that reseverd that block
 void blockstrecke_t::laden_abschliessen()
 {
-	// reassign reservations
-	if(v_raus==(uint16)-1) {
-		cnv_reserved = convoihandle_t();
-	}
-	else {
-		cnv_reserved = welt->gib_convoi_list().at(v_raus)->self;
-DBG_MESSAGE("blockstrecke_t::laden_abschliessen()","was reserved by %s (%i)",cnv_reserved->gib_name(),v_raus );
-	}
 	v_raus = 0;
 
 	// add signals to map
@@ -484,13 +435,12 @@ DBG_MESSAGE("blockstrecke_t::laden_abschliessen()","was reserved by %s (%i)",cnv
 		assert(gr!=NULL);
 		assert(get_block_way(welt->lookup(sig->gib_pos()))!=NULL);
 
-		ribi_t::ribi dir = sig->gib_richtung();
-		if(dir == ribi_t::nord || dir == ribi_t::ost) {
-			gr->obj_add(sig);
+		gr->obj_pri_add( sig, sig->gib_richtung()&ribi_t::nordost ? 0 : PRI_HOCH );
+		schiene_t *sch = get_block_way( gr );
+		if(sch) {
+			sch->count_signals();
 		}
-		else {
-			gr->obj_pri_add(sig, PRI_HOCH);
-		}
+		sig->set_block(self);
 	}
 
 	// remove wrong signals
@@ -504,9 +454,6 @@ void blockstrecke_t::info(cbuffer_t & buf) const
 	buf.append(v_rein-v_raus);
 	buf.append(" ");
 	buf.append(translator::translate("Wagen im Block"));
-	if(cnv_reserved.is_bound()) {
-		buf.append(translator::translate("(reserved)"));
-	}
 #if 1
 	// debug:
 	buf.append("\nnumber of signals ");buf.append(signale.count());

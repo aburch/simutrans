@@ -15,8 +15,8 @@
 #include <io.h>
 #include <direct.h>
 #endif
-#include <string.h>
 #include <sys/stat.h>
+#include <string.h>
 #include <time.h>
 
 #include "../pathes.h"
@@ -42,6 +42,7 @@ savegame_frame_t::savegame_frame_t(const char *suffix) :
     this->suffix = suffix;
 
 #ifdef WIN32
+//	CreateDirectoryA(SAVE_PATH);
 	mkdir(SAVE_PATH);
 #else
 	mkdir(SAVE_PATH, 0700);

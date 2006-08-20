@@ -12,7 +12,7 @@
 
 #include <stdlib.h>
 
-#include "debug_helper.h"
+#include "../simdebug.h"
 
 /**
  * A template class for a simple vector type.
@@ -112,7 +112,7 @@ public:
 			return true;	// do nothing
 		}
 		if(count > new_size) {
-			ERROR("weighted_vector_tpl<T>::resize()", "cannot preserve elements.");
+			dbg->fatal("weighted_vector_tpl<T>::resize()", "cannot preserve elements.");
 			return false;
 		}
 		nodestruct *new_nodes = new nodestruct[new_size];
@@ -158,7 +158,7 @@ public:
 		}
 #endif
 		if(count >= size) {
-			ERROR("weighted_vector_tpl<T>::append()","capacity %i exceeded.",size);
+			dbg->fatal("weighted_vector_tpl<T>::append()","capacity %i exceeded.",size);
 			return false;
 		}
 		nodes[count].data = elem;
@@ -183,7 +183,7 @@ public:
 #endif
 		if(count>=size) {
 			if(  !resize( count+extend )  ) {
-				ERROR("weighted_vector_tpl<T>::append(,)","could not extend capacity %i.",size);
+				dbg->fatal("weighted_vector_tpl<T>::append(,)","could not extend capacity %i.",size);
 				return false;
 			}
 		}
@@ -247,7 +247,7 @@ public:
 				return true;
 			}
 			else {
-				ERROR("weighted_vector_tpl<T>::insert_at()","cannot insert at %i! Only %i elements.", pos, count);
+				dbg->fatal("weighted_vector_tpl<T>::insert_at()","cannot insert at %i! Only %i elements.", pos, count);
 				return false;
 			}
 		}
@@ -316,10 +316,8 @@ public:
 		if(i<count) {
 			return nodes[i].data;
 		} else {
-			ERROR("weighted_vector_tpl<T>::get()","index out of bounds: %i not in 0..%d", i, count-1);
-			trap();
-			// to keep compiler silent
-			return nodes[0].data;
+			dbg->fatal("weighted_vector_tpl<T>::get()","index out of bounds: %i not in 0..%d", i, count-1);
+			return nodes[0].data;	// dummy
 		}
 	}
 
@@ -332,10 +330,8 @@ public:
 		if(i<count) {
 			return nodes[i].data;
 		} else {
-			ERROR("weighted_vector_tpl<T>::at()","index out of bounds: %i not in 0..%d", i, count-1);
-			trap();
-			// to keep compiler silent
-			return nodes[0].data;
+			dbg->fatal("weighted_vector_tpl<T>::at()","index out of bounds: %i not in 0..%d", i, count-1);
+			return nodes[0].data;	// dummy
 		}
 	}
 
@@ -394,10 +390,8 @@ public:
 			return nodes[pos].data;
 #endif
 		} else {
-			ERROR("weighted_vector_tpl<T>::at_weight()","weight out of bounds: %i not in 0..%d", target_weight, total_weight);
-			trap();
-			// to keep compiler silent
-			return nodes[0].data;
+			dbg->fatal("weighted_vector_tpl<T>::at_weight()","weight out of bounds: %i not in 0..%d", target_weight, total_weight);
+			return nodes[0].data;	// dummy
 		}
 	}
 

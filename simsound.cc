@@ -14,13 +14,13 @@
 
 #include <stdio.h>
 #include <string.h>
-#include "simdebug.h"
 #include "music/music.h"
 #include "besch/sound_besch.h"
 #include "sound/sound.h"
 #include "simsound.h"
 #include "simsys.h"
 #include "simio.h"
+#include "simdebug.h"
 
 #include "utils/simstring.h"
 
@@ -232,7 +232,8 @@ void check_midi()
       current_midi = 0;
 
     midi_play(current_midi);
-    DBG_MESSAGE("check_midi()", "Playing MIDI %d", current_midi);
+    DBG_MESSAGE("check_midi()",
+		 "Playing MIDI %d", current_midi);
     new_midi = 0;
   }
 }

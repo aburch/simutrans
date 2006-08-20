@@ -209,9 +209,7 @@ convoi_frame_t::convoi_frame_t(spieler_t *sp, karte_t *welt) :
 
 void convoi_frame_t::display_list(void)
 {
-    slist_iterator_tpl<convoihandle_t> iter (welt->gib_convoi_list());
-    const int count = welt->gib_convoi_list().count();
-
+    const unsigned count = welt->get_convoi_count();
 #ifdef _MSC_VER
     convoihandle_t *a = new convoihandle_t[count];
 #else
@@ -219,10 +217,10 @@ void convoi_frame_t::display_list(void)
 #endif
     int n = 0;
     int ypos = 0;
-    int i;
+    unsigned i;
 
-    while(iter.next()) {
-	convoihandle_t cnv = iter.get_current();
+	for(i=0;  i<count;  i++ ) {
+		convoihandle_t cnv = welt->get_convoi_array().get(i);
 
 	if(cnv->gib_besitzer() == owner && passes_filter(cnv)) {
 	    a[n++] = cnv;

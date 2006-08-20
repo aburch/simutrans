@@ -48,7 +48,11 @@ stringhashtable_tpl<const roadsign_besch_t *> table;
 roadsign_t::roadsign_t(karte_t *welt, loadsave_t *file) : ding_t (welt)
 {
 	rdwr(file);
-	step_frequency = besch->gib_bild_anzahl()>4 ? 1 : 0;
+	step_frequency = 1;
+	if(besch->gib_bild_anzahl()>4) {
+		flags |= SWITCH_AUTOMATIC;
+		step_frequency =  1;
+	}
 	last_switch = 0;
 	set_dir(dir);
 	calc_bild();
@@ -60,21 +64,25 @@ DBG_MESSAGE("roadsign_t::roadsign_t()","at (%i,%i,%i) with dir=%i and min=%i",po
 	this->besch = besch;
 	zustand = 0;
 	last_switch = 0;
-	blockend = false;
+	flags = 3;
 	set_dir(dir);
 	// if more than one state, we will switch direction and phase
-	step_frequency = besch->gib_bild_anzahl()>4 ? 1 : 0;
+	step_frequency =  0;
+	if(besch->gib_bild_anzahl()>4) {
+		flags |= SWITCH_AUTOMATIC;
+		step_frequency =  1;
+	}
 	calc_bild();
 }
 
 
 roadsign_t::~roadsign_t()
 {
-	weg_t *weg = welt->lookup(gib_pos())->gib_weg(weg_t::strasse);
+	weg_t *weg = welt->lookup(gib_pos())->gib_weg((weg_t::typ)besch->gib_wtyp());
 	if(weg  &&  besch->is_single_way()) {
 		DBG_MESSAGE("roadsign_t::~roadsign_t()","restore dir");
 		// Weg wieder freigeben, wenn das Signal nicht mehr da ist.
-		dynamic_cast<strasse_t *>(weg)->setze_ribi_maske(ribi_t::keine);
+		weg->setze_ribi_maske(ribi_t::keine);
 	} else {
 		DBG_MESSAGE("roadsign_t::~roadsign_t()","roadsign_t %p was deleted but ground was not a road!");
 	}
@@ -86,7 +94,7 @@ void roadsign_t::set_dir(ribi_t::ribi dir)
 {
 	this->dir = dir;
 	if(besch->is_single_way()) {
-		weg_t *weg = welt->lookup(gib_pos())->gib_weg(weg_t::strasse);
+		weg_t *weg = welt->lookup(gib_pos())->gib_weg((weg_t::typ)besch->gib_wtyp());
 		if(weg) {
 			// Weg wieder freigeben, wenn das Signal nicht mehr da ist.
 			weg->setze_ribi_maske(dir);
@@ -122,9 +130,9 @@ void roadsign_t::info(cbuffer_t & buf) const
 
 void roadsign_t::calc_bild()
 {
+	setze_bild(0,IMG_LEER);
+	after_bild = IMG_LEER;
 	if(step_frequency==0) {
-		setze_bild(0,IMG_LEER);
-		after_bild = IMG_LEER;
 
 		if(dir&ribi_t::nord) {
 			after_bild = besch->gib_bild_nr(1+zustand*4);
@@ -234,7 +242,7 @@ roadsign_t::rdwr(loadsave_t *file)
 {
 	ding_t::rdwr(file);
 
-	file->rdwr_byte(blockend, " ");
+	file->rdwr_byte(flags, " ");
 	file->rdwr_byte(zustand, " ");
 	file->rdwr_byte(dir, "\n");
 
@@ -255,16 +263,6 @@ roadsign_t::rdwr(loadsave_t *file)
 }
 
 
-/**
- * Wird nach dem Laden der Welt aufgerufen - üblicherweise benutzt
- * um das Aussehen des Dings an Boden und Umgebung anzupassen
- *
- * @author Hj. Malthaner
- */
-void roadsign_t::laden_abschliessen()
-{
-	calc_bild();
-}
 
 bool roadsign_t::alles_geladen()
 {
@@ -278,9 +276,8 @@ bool roadsign_t::register_besch(roadsign_besch_t *besch)
 {
 	table.put(besch->gib_name(), besch);
 	liste.append(besch);
-	// correct for driving on left side
-	if(umgebung_t::drive_on_left) {
-
+	if(umgebung_t::drive_on_left  &&  besch->gib_wtyp()==weg_t::strasse) {
+		// correct for driving on left side
 		if(besch->is_traffic_light()) {
 			const int XOFF=(48*get_tile_raster_width())/64;
 			const int YOFF=(26*get_tile_raster_width())/64;
@@ -304,7 +301,6 @@ bool roadsign_t::register_besch(roadsign_besch_t *besch)
 			display_set_image_offset( besch->gib_bild_nr(3), +XOFF, -YOFF );
 		}
 	}
-
 DBG_DEBUG( "roadsign_t::register_besch()","%s", besch->gib_name() );
 	return true;
 }
@@ -317,31 +313,35 @@ DBG_DEBUG( "roadsign_t::register_besch()","%s", besch->gib_name() );
  * @author Hj. Malthaner
  */
 void roadsign_t::fill_menu(werkzeug_parameter_waehler_t *wzw,
+	weg_t::typ wtyp,
 	int (* werkzeug)(spieler_t *, karte_t *, koord, value_t),
 	int sound_ok,
 	int sound_ko,
-	int /*cost*/)
+	const uint16 time)
 {
 DBG_DEBUG("roadsign_t::fill_menu()","maximum %i",liste.count());
 	for( unsigned i=0;  i<liste.count();  i++  ) {
 		char buf[128];
 		const roadsign_besch_t *besch=liste.at(i);
 
-DBG_DEBUG("roadsign_t::fill_menu()","try at pos %i to add %s(%p)",i,besch->gib_name(),besch);
-		if(besch->gib_cursor()->gib_bild_nr(1) != IMG_LEER) {
-			// only add items with a cursor
-DBG_DEBUG("roadsign_t::fill_menu()","at pos %i add %s",i,besch->gib_name());
-			int n=sprintf(buf, "%s ",translator::translate(besch->gib_name()));
-			money_to_string(buf+n, besch->gib_preis()/-100.0);
+		if(time==0  ||  (besch->get_intro_year_month()<=time  &&  besch->get_retire_year_month()>time)) {
 
-			wzw->add_param_tool(werkzeug,
-			  (const void *)besch,
-			  karte_t::Z_PLAN,
-			  sound_ok,
-			  sound_ko,
-			  besch->gib_cursor()->gib_bild_nr(1),
-			  besch->gib_cursor()->gib_bild_nr(0),
-			  buf );
+DBG_DEBUG("roadsign_t::fill_menu()","try at pos %i to add %s(%p)",i,besch->gib_name(),besch);
+			if(besch->gib_cursor()->gib_bild_nr(1) != IMG_LEER) {
+				// only add items with a cursor
+DBG_DEBUG("roadsign_t::fill_menu()","at pos %i add %s",i,besch->gib_name());
+				int n=sprintf(buf, "%s ",translator::translate(besch->gib_name()));
+				money_to_string(buf+n, besch->gib_preis()/-100.0);
+
+				wzw->add_param_tool(werkzeug,
+				  (const void *)besch,
+				  karte_t::Z_PLAN,
+				  sound_ok,
+				  sound_ko,
+				  besch->gib_cursor()->gib_bild_nr(1),
+				  besch->gib_cursor()->gib_bild_nr(0),
+				  buf );
+			}
 		}
 	}
 }

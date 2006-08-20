@@ -122,7 +122,8 @@ money_frame_t::money_frame_t(spieler_t *sp)
     chart.set_dimension(MAX_HISTORY_YEARS, 10000);
     chart.set_seed(sp->gib_welt()->get_last_year());
     chart.set_background(MN_GREY1);
-    for (int i = 0; i<MAX_COST; i++) {
+	int i;
+    for (i = 0; i<MAX_COST; i++) {
     	chart.add_curve(cost_type_color[i], (sint64 *)sp->get_finance_history_year(), MAX_COST, i, 12, i<MAX_COST-2 ? MONEY: STANDARD, false, false);
     }
     //CHART YEAR END
@@ -133,7 +134,7 @@ money_frame_t::money_frame_t(spieler_t *sp)
     mchart.set_dimension(MAX_HISTORY_MONTHS, 10000);
     mchart.set_seed(0);
     mchart.set_background(MN_GREY1);
-    for (int i = 0; i<MAX_COST; i++) {
+    for (i = 0; i<MAX_COST; i++) {
     	mchart.add_curve(cost_type_color[i], (sint64 *)sp->get_finance_history_month(), MAX_COST, i, 12, i<MAX_COST-2 ? MONEY: STANDARD, false, false);
     }
     mchart.set_visible(false);
@@ -209,7 +210,7 @@ money_frame_t::money_frame_t(spieler_t *sp)
     add_komponente(&warn);
 
 	// add filter buttons
-	for(int i=0;  i<7;  i++) {
+	for(i=0;  i<7;  i++) {
 		int ibutton=button_order[i];
 		filterButtons[ibutton].init(button_t::box, translator::translate(cost_type[ibutton]), koord(left, top+i*BUTTONSPACE-2), koord(120, BUTTONSPACE));
 		filterButtons[ibutton].add_listener(this);
@@ -217,7 +218,7 @@ money_frame_t::money_frame_t(spieler_t *sp)
 		bFilterIsActive[ibutton] = false;
 		add_komponente(filterButtons + ibutton);
 	}
-	for(int i=7;  i<10;  i++) {
+	for(i=7;  i<10;  i++) {
 		int ibutton=button_order[i];
 		filterButtons[ibutton].init(button_t::box, translator::translate(cost_type[ibutton]), koord(left+335, top+(i-7)*BUTTONSPACE-2), koord(120, BUTTONSPACE));
 		filterButtons[ibutton].add_listener(this);

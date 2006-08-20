@@ -100,29 +100,29 @@ world_view_t::zeichnen(koord offset) const
 		const bool station_coverage_show=umgebung_t::station_coverage_show;
 		umgebung_t::show_names = 0;
 		umgebung_t::station_coverage_show = false;
+		{
+			// display grounds
+			for(uint32 i=0; i<offsets.get_count(); i++) {
+				const koord k = here + offsets.get(i) + koord(y_offset,y_offset);
+				const sint16 off_x = (((offsets.get(i).x-offsets.get(i).y)*32)*raster)/64+display_off.x;
 
-		// display grounds
-		for(uint32 i=0; i<offsets.get_count(); i++) {
-			const koord k = here + offsets.get(i) + koord(y_offset,y_offset);
-			const sint16 off_x = (((offsets.get(i).x-offsets.get(i).y)*32)*raster)/64+display_off.x;
-
-			if(off_x+raster<0  ||  off_x>gr.x) {
-				continue;
-			}
-
-			plan = welt->lookup(k);
-			if(plan  &&  plan->gib_kartenboden()) {
-				const sint16 yypos = display_off.y + ((offsets.get(i).y+offsets.get(i).x)*16*raster)/64 - tile_raster_scale_y( plan->gib_kartenboden()->gib_hoehe(), raster);
-				if(yypos+(raster/4)>gr.y) {
-					// enough with grounds ...
-					break;
+				if(off_x+raster<0  ||  off_x>gr.x) {
+					continue;
 				}
-				if(yypos+raster>=0) {
-					plan->display_boden(pos.x+off_x,pos.y+yypos,raster,false);
+
+				plan = welt->lookup(k);
+				if(plan  &&  plan->gib_kartenboden()) {
+					const sint16 yypos = display_off.y + ((offsets.get(i).y+offsets.get(i).x)*16*raster)/64 - tile_raster_scale_y( plan->gib_kartenboden()->gib_hoehe(), raster);
+					if(yypos+(raster/4)>gr.y) {
+						// enough with grounds ...
+						break;
+					}
+					if(yypos+raster>=0) {
+						plan->display_boden(pos.x+off_x,pos.y+yypos,raster,false);
+					}
 				}
 			}
 		}
-
 		// display things
 		for(uint32 i=0; i<offsets.get_count(); i++) {
 			const koord k = here + offsets.get(i) + koord(y_offset,y_offset);
@@ -180,9 +180,11 @@ void world_view_t::setze_groesse(koord size)
 
 	offsets.clear();
 	for( sint16 dy=-max_dy;  dy<=2;  ) {
+		{
 		for( sint16 dx=-2;  dx<max_dx;  dx+=2  ) {
 			offsets.append( koord( (dy+dx)/2, (dy-dx)/2 ), max_dy );
 //			DBG_MESSAGE("world_view_t::setze_groesse()","offset %d,%d added",offsets.get(offsets.get_count()-1).x,offsets.get(offsets.get_count()-1).y );
+		}
 		}
 		dy++;
 		for( sint16 dx=-1;  dx<max_dx;  dx+=2  ) {

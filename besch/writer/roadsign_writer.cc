@@ -30,18 +30,21 @@
 #include "imagelist_writer.h"
 
 #include "roadsign_writer.h"
+#include "get_waytype.h"
 #include "skin_writer.h"
 
 void roadsign_writer_t::write_obj(FILE *fp, obj_node_t &parent, tabfileobj_t &obj)
 {
-	obj_node_t	node(this, 9, &parent, false);	/* false, because we write this ourselves */
+	obj_node_t	node(this, 14, &parent, false);	/* false, because we write this ourselves */
 
 	// Hajodoc: Preferred height of this tree type
 	// Hajoval: int (useful range: 0-14)
 	roadsign_besch_t besch;
 	besch.cost = obj.get_int("cost", 500)*100;
 	besch.min_speed = obj.get_int("min_speed", 0);
-	besch.flags = (obj.get_int("single_way", 0)>0) + (obj.get_int("free_route", 0)>0)*2 + (obj.get_int("is_private", 0)>0)*4;
+	besch.flags = (obj.get_int("single_way", 0)>0) + (obj.get_int("free_route", 0)>0)*2 + (obj.get_int("is_private", 0)>0)*4 +
+						(obj.get_int("is_signal", 0)>0)*8 + (obj.get_int("is_presignal", 0)>0)*16;
+	besch.wtyp =  get_waytype(obj.get("waytype"));
 
 	// Hajo: temp vars of appropriate size
 	uint32 v32;
@@ -49,7 +52,7 @@ void roadsign_writer_t::write_obj(FILE *fp, obj_node_t &parent, tabfileobj_t &ob
 	uint8 v8;
 
 	// Hajo: write version data
-	v16 = 0x8002;
+	v16 = 0x8003;
 	node.write_data_at(fp, &v16, 0, sizeof(uint16));
 
 	v16 = (uint16) besch.min_speed;
@@ -60,6 +63,17 @@ void roadsign_writer_t::write_obj(FILE *fp, obj_node_t &parent, tabfileobj_t &ob
 
 	v8 = (uint8)besch.flags;
 	node.write_data_at(fp, &v8, 8, sizeof(uint8));
+
+	v8 = (uint8)besch.wtyp;
+	node.write_data_at(fp, &v8, 9, sizeof(uint8));
+
+	uint16 intro  = obj.get_int("intro_year", DEFAULT_INTRO_DATE) * 12;
+	intro += obj.get_int("intro_month", 1) - 1;
+	node.write_data_at(fp, &intro, 10, sizeof(uint16));
+
+	uint16 retire  = obj.get_int("retire_year", DEFAULT_RETIRE_DATE) * 12;
+	retire += obj.get_int("retire_month", 1) - 1;
+	node.write_data_at(fp, &retire, 12, sizeof(uint16));
 
 	write_head(fp, node, obj);
 

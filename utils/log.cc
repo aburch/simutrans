@@ -13,6 +13,7 @@
 #include <stdarg.h>
 
 #include "log.h"
+#include "../simdebug.h"
 
 
 /**
@@ -172,8 +173,11 @@ void log_t::fatal(const char *who, const char *format, ...)
     }
 
     va_end(argptr);
+#ifdef DEBUG
+	log_t::trap();	// to debug
+#endif
+    exit(0);
 
-    abort();
 }
 
 log_t::log_t(const char *logfilename,
@@ -225,4 +229,21 @@ log_t::~log_t()                         /* die logdatei schliessen */
     if( log ) {
 	close();
     }
+}
+
+
+// generate a division be zero error
+void
+log_t::trap()
+{
+#ifdef DEBUG
+	int i=32, j;
+	for( j=1; j>=0;  j-- )
+	{
+		i += (i/j);
+		printf("%*d",i);
+	}
+#else
+	assert(0);
+#endif
 }

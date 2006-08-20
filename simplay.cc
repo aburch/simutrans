@@ -524,9 +524,8 @@ spieler_t::calc_finance_history()
 
 	if(finance_history_month[0][COST_ASSETS]==0) {
 		// new month has started
-		slist_iterator_tpl<convoihandle_t> iter (welt->gib_convoi_list());
-		while(iter.next()) {
-			convoihandle_t cnv = iter.get_current();
+		for(unsigned i=0;  i<welt->get_convoi_count();  i++ ) {
+			convoihandle_t cnv = welt->get_convoi_array().get(i);
 			if(cnv->gib_besitzer()==this) {
 				assets += cnv->calc_restwert();
 			}
@@ -955,7 +954,7 @@ DBG_MESSAGE("spieler_t::do_passenger_ki()","no suitable hub found");
 				  	// obey timeline
 					unsigned month_now = welt->get_current_month();
 					if(  welt->use_timeline() == false   ) {
-						month_now = 0xFFFFFFFFu;
+						month_now = 0;
 					}
 
 					// we want the fastest we can get!
@@ -1063,7 +1062,7 @@ DBG_DEBUG("do_passenger_ki()","calling message_t()");
 						if(ware.menge>129) {
 							// we want the fastest we can get
 						  	// obey timeline
-							unsigned month_now = 0xFFFFFFFFu;
+							unsigned month_now = 0;
 							if(  welt->use_timeline() == true   ) {
 								month_now = welt->get_current_month();
 							}
@@ -1077,9 +1076,8 @@ DBG_MESSAGE("spieler_t::do_passenger_ki()","add new convoi to crowded line from 
 				}
 			}
 #else
-			slist_iterator_tpl<convoihandle_t> iter (welt->gib_convoi_list());
-			while(iter.next()) {
-				const convoihandle_t cnv = iter.get_current();
+			for(unsigned i=0;  i<welt->get_convoi_count();  i++ ) {
+				const convoihandle_t cnv = welt->get_convoi_array().get(i);
 				if(cnv->gib_besitzer()==this) {
 					// check for empty vehicles (likely stucked) that are making no plus and remove them ...
 					// take care, that the vehicle is old enough ...
@@ -1098,7 +1096,7 @@ DBG_MESSAGE("spieler_t::do_passenger_ki()","convoi %s not needed!",cnv->gib_name
 						}
 					}
 					// then check for overcrowded lines
-					if(cnv->gib_vehikel(0)->gib_fracht_menge()==cnv->gib_vehikel(0)->gib_fracht_max()) {
+					if(cnv->gib_vehikel(0)->gib_fracht_menge()==cnv->gib_vehikel(0)->gib_fracht_max()  &&  cnv->get_line().is_bound()) {
 						INT_CHECK("simplay 889");
 						// this is our vehicle, and is 100% loaded
 						fahrplan_t  *f = cnv->gib_fahrplan();
@@ -1110,21 +1108,17 @@ DBG_MESSAGE("spieler_t::do_passenger_ki()","checking our convoi %s between %s an
 DBG_MESSAGE("spieler_t::do_passenger_ki()","waiting: %s (%i) and %s (%i)",h0->gib_name(),h0->gib_ware_fuer_zwischenziel(warenbauer_t::passagiere,f->eintrag.at(1).pos.gib_2d()),h1->gib_name(),h1->gib_ware_fuer_zwischenziel(warenbauer_t::passagiere,f->eintrag.at(0).pos.gib_2d()));
 
 						// we assume crowed for more than 129 waiting passengers
-						if(	h0->gib_ware_fuer_zwischenziel(warenbauer_t::passagiere,f->eintrag.at(1).pos.gib_2d())>250   ||
-							h1->gib_ware_fuer_zwischenziel(warenbauer_t::passagiere,f->eintrag.at(0).pos.gib_2d())>250   ) {
-	DBG_MESSAGE("spieler_t::do_passenger_ki()","copy convoi %s on route %s to %s",cnv->gib_name(),h0->gib_name(),h1->gib_name());
+						if(	h0->gib_ware_fuer_zwischenziel(warenbauer_t::passagiere,f->eintrag.at(1).pos.gib_2d())>h0->get_capacity()   ||
+							h1->gib_ware_fuer_zwischenziel(warenbauer_t::passagiere,f->eintrag.at(0).pos.gib_2d())>h1->get_capacity()   ) {
+DBG_MESSAGE("spieler_t::do_passenger_ki()","copy convoi %s on route %s to %s",cnv->gib_name(),h0->gib_name(),h1->gib_name());
 							vehikel_t * v = vehikelbauer_t::baue(welt, startpos, this,NULL, cnv->gib_vehikel(0)->gib_besch());
 							convoi_t *new_cnv = new convoi_t(welt, this);
 							// V.Meyer: give the new convoi name from first vehicle
 							new_cnv->setze_name( v->gib_besch()->gib_name() );
 							new_cnv->add_vehikel( v );
-							fahrplan_t *fpl = new_cnv->gib_vehikel(0)->erzeuge_neuen_fahrplan();
-							// do not start at current stop => wont work ...
-							fpl = f->copy();
-							fpl->aktuell = (f->eintrag.at(0).pos==startpos)?1:0;
 							// and start new convoi
 							welt->sync_add( new_cnv );
-							new_cnv->setze_fahrplan(fpl);
+							new_cnv->set_line(cnv->get_line());
 							new_cnv->start();
 							// we do not want too many copies, just copy once!
 							break;
@@ -1306,13 +1300,13 @@ DBG_MESSAGE("spieler_t::do_ki()","%s want to build a route from %s (%d,%d) to %s
 					const ware_besch_t *freight = start->gib_ausgang()->get(start_ware).gib_typ();
 
 					// guess the "optimum" speed (usually a little too low)
-				  	int best_rail_speed = min(60+freight->gib_speed_bonus()*5, 140 );
+				  	int best_rail_speed = 80;// is ok enough for goods, was: min(60+freight->gib_speed_bonus()*5, 140 );
 				  	int best_road_speed = min(60+freight->gib_speed_bonus()*5, 130 );
 
 				  	// obey timeline
 					unsigned month_now = welt->get_current_month();
 					if(  welt->use_timeline() == false   ) {
-						month_now = 0xFFFFFFFFu;
+						month_now = 0;
 					}
 
 					INT_CHECK("simplay 1265");
@@ -1344,15 +1338,15 @@ DBG_MESSAGE("do_ki()","check railway");
 					/* calculate number of cars for railroad */
 					count_rail=255;	// no cars yet
 					if(  rail_vehicle!=NULL  ) {
-						// if our car is faster: well use faster speed
-					 	best_rail_speed = min(80,rail_vehicle->gib_geschw());
+						// if our car is faster: well use slower speed to save money
+					 	best_rail_speed = min(51,rail_vehicle->gib_geschw());
 						// for engine: gues number of cars
 						count_rail = (prod*dist) / (rail_vehicle->gib_zuladung()*best_rail_speed)+1;
-						rail_engine = vehikelbauer_t::vehikel_search( weg_t::schiene, month_now, 80*count_rail, best_rail_speed, NULL );
+						// assume the engine weight 100 tons for power needed calcualtion
+						long power_needed=(long)((best_rail_speed*best_rail_speed)/2500.0+1.0)*(100.0+count_rail*(rail_vehicle->gib_gewicht()+rail_vehicle->gib_zuladung()*freight->gib_weight_per_unit()*0.001));
+						rail_engine = vehikelbauer_t::vehikel_search( weg_t::schiene, month_now, power_needed, best_rail_speed, NULL );
 						if(  rail_engine!=NULL  ) {
-						  if(  best_rail_speed>rail_engine->gib_geschw()  ) {
-						    best_rail_speed = rail_engine->gib_geschw();
-						  }
+						 	best_rail_speed = min(rail_engine->gib_geschw(),rail_vehicle->gib_geschw());
 						  // find cheapest track with that speed
 						 rail_weg = wegbauer_t::weg_search( weg_t::schiene, best_rail_speed );
 						 if(  rail_weg!=NULL  ) {
@@ -1450,10 +1444,43 @@ DBG_MESSAGE("spieler_t::do_ki()","No roadway possible.");
 				// built a simple railroad
 				case NR_BAUE_SIMPLE_SCHIENEN_ROUTE:
 					if(create_simple_rail_transport()) {
-						count_rail = baue_bahnhof(start->pos,&platz1, count_rail)-1;
-						count_rail = baue_bahnhof(ziel->pos,&platz2, count_rail)-1;
-						create_rail_transport_vehikel(platz1,platz2, count_rail, 100 );
-						substate = NR_RAIL_SUCCESS;
+						sint16 org_count_rail = count_rail;
+						count_rail = baue_bahnhof(start->pos,&platz1, count_rail,ziel);
+						if(count_rail!=0) {
+							count_rail = baue_bahnhof(ziel->pos,&platz2, count_rail,start);
+						}
+						if(count_rail!=0) {
+							if(count_rail<org_count_rail) {
+								// rethink engine
+							 	int best_rail_speed = min(51,rail_vehicle->gib_geschw());
+								// needed for search
+								// first we have to find a suitable car
+								const ware_besch_t *freight = start->gib_ausgang()->get(start_ware).gib_typ();
+							  	// obey timeline
+								unsigned month_now = welt->get_current_month();
+								if(  welt->use_timeline() == false   ) {
+									month_now = 0;
+								}
+								// for engine: gues number of cars
+								long power_needed=(long)((best_rail_speed*best_rail_speed)/2500.0+1.0)*(100.0+count_rail*(rail_vehicle->gib_gewicht()+rail_vehicle->gib_zuladung()*freight->gib_weight_per_unit()*0.001));
+								const vehikel_besch_t *v=vehikelbauer_t::vehikel_search( weg_t::schiene, month_now, power_needed, best_rail_speed, NULL );
+								if(v->gib_betriebskosten()<rail_engine->gib_betriebskosten()) {
+									rail_engine = v;
+								}
+							}
+							create_rail_transport_vehikel(platz1,platz2, count_rail, 100 );
+							substate = NR_RAIL_SUCCESS;
+						}
+						else {
+DBG_MESSAGE("spieler_t::step()","remove already constructed rail between %i,%i and %i,%i and try road",platz1.x,platz1.y,platz2.x,platz2.y);
+							value_t v;
+							// no sucess: clean route
+							v.i = (int)weg_t::schiene;
+							wkz_wayremover(this,welt,INIT,v);
+							wkz_wayremover(this,welt,platz1,v);
+							wkz_wayremover(this,welt,platz2,v);
+							substate = NR_BAUE_STRASSEN_ROUTE;
+						}
 					}
 					else {
 						substate = NR_BAUE_STRASSEN_ROUTE;
@@ -1533,9 +1560,8 @@ DBG_MESSAGE("spieler_t::do_ki()","No roadway possible.");
 		// remove stucked vehicles (only from roads!)
 		case CHECK_CONVOI:
 		{
-			slist_iterator_tpl<convoihandle_t> iter (welt->gib_convoi_list());
-			while(iter.next()) {
-				const convoihandle_t cnv = iter.get_current();
+			for(unsigned i=0;  i<welt->get_convoi_count();  i++ ) {
+				const convoihandle_t cnv = welt->get_convoi_array().get(i);
 				if(cnv->gib_besitzer()==this  &&  cnv->gib_vehikel(0)->gib_besch()->gib_typ()==weg_t::strasse) {
 					// check for empty vehicles (likely stucked) that are making no plus and remove them ...
 					// take care, that the vehicle is old enough ...
@@ -1653,9 +1679,9 @@ DBG_MESSAGE("spieler_t::is_my_halt()","grund %i exists",i);
  * @author prissi
  */
 int
-spieler_t::baue_bahnhof(koord3d quelle,koord *p, int anz_vehikel)
+spieler_t::baue_bahnhof(koord3d quelle,koord *p, int anz_vehikel,fabrik_t *fab)
 {
-	int laenge = max((anz_vehikel+1)/2,1);       // aufrunden!
+	int laenge = max(((rail_vehicle->get_length()*anz_vehikel)+rail_engine->get_length()+15)/16,1);
 	koord t = *p;
 
 	int baulaenge = 0;
@@ -1667,9 +1693,7 @@ spieler_t::baue_bahnhof(koord3d quelle,koord *p, int anz_vehikel)
 	zv.x = -zv.x;
 	zv.y = -zv.y;
 
-	DBG_MESSAGE("spieler_t::baue_bahnhof()",
-	 "try to build a train station of length %d (%d vehicles) at (%i,%i) (ribi %i)",
-	 laenge, anz_vehikel, p->x, p->y, ribi);
+DBG_MESSAGE("spieler_t::baue_bahnhof()","try to build a train station of length %d (%d vehicles) at (%i,%i) (ribi %i)", laenge, anz_vehikel, p->x, p->y, ribi);
 
 	if(abs(zv.x)+abs(zv.y)!=1) {
 		dbg->error("spieler_t::baue_bahnhof()","Not allowed here!");
@@ -1702,52 +1726,74 @@ spieler_t::baue_bahnhof(koord3d quelle,koord *p, int anz_vehikel)
 		const planquadrat_t *plan = welt->lookup(t);
 		grund_t *gr = plan ? plan->gib_kartenboden() : 0;
 
-		ok &= gr != NULL &&
-		(gr->ist_natur() || gr->gib_typ() == grund_t::fundament) &&
-		gr->kann_alle_obj_entfernen(this) == NULL &&
-		gr->gib_grund_hang() == hang_t::flach  &&  !gr->gib_halt().is_bound()  &&  !gr->ist_bruecke();
-
+		ok &= (gr != NULL) &&
+				(gr->ist_natur() || gr->gib_typ() == grund_t::fundament) &&
+				gr->kann_alle_obj_entfernen(this)==NULL &&  gr->gib_weg_nr(1)==NULL  &&
+				gr->gib_weg_hang() == hang_t::flach  &&  !gr->gib_halt().is_bound();
 
 		if(ok) {
-			// gr->obj_loesche_alle(this);
-			wkz_remover(this, welt, t);
-
-		} else {
-
+			// remove city building here
+			gebaeude_t *gb = static_cast<gebaeude_t *>(gr->suche_obj(ding_t::gebaeude));
+			if(gb  &&  gr->gib_besitzer()==NULL) {
+				const char *msg=NULL;
+				wkz_remover_intern(this,welt,t,msg);
+			}
+		}
+		else {
+			// not ok? then try to extend station into the other direction
 			const planquadrat_t *plan = welt->lookup(*p-zv);
 			gr = plan ? plan->gib_kartenboden(): 0;
 
-			// wenns nicht mehr vorwaerts geht, dann vielleicht zurueck ?
-			ok = gr != NULL &&
-						gr->gib_weg(weg_t::schiene) != NULL &&
-						gr->gib_weg_ribi(weg_t::schiene) == ribi_t::doppelt(ribi) &&
-						gr->kann_alle_obj_entfernen(this) == NULL &&
-						gr->gib_grund_hang()== 0  &&  !gr->gib_halt().is_bound()  &&  !gr->ist_bruecke();
+			// try to extend station into the other direction
+			ok = (gr != NULL) &&
+					gr->gib_weg(weg_t::schiene) != NULL &&
+					gr->gib_weg_ribi(weg_t::schiene) == ribi_t::doppelt(ribi) &&
+					gr->kann_alle_obj_entfernen(this) == NULL &&  gr->gib_weg_nr(1)==NULL  &&
+					gr->gib_weg_hang()== hang_t::flach  &&  !gr->gib_halt().is_bound();
 			if(ok) {
-				gr->obj_loesche_alle(this);
-				// ziel auf das ende des Bahnhofs setzen
 DBG_MESSAGE("spieler_t::baue_bahnhof","go back one segment");
+				// remove city building here
+				gebaeude_t *gb = static_cast<gebaeude_t *>(gr->suche_obj(ding_t::gebaeude));
+				if(gb  &&  gr->gib_besitzer()==NULL) {
+					const char *msg=NULL;
+					wkz_remover_intern(this,welt,*p-zv,msg);
+				}
+				// change begin of station
 				(*p) -= zv;
 			}
-			else {
-				// try to extend to fabrik, if not already done
-				koord test = koord(p->x-quelle.x,p->y-quelle.y);
-				if(  gr!=NULL  &&  ribi_t::ist_kurve(gr->gib_weg_ribi(weg_t::schiene))  &&  ribi_typ(test)!=ribi_typ(zv)  ) {
-DBG_MESSAGE("spieler_t::baue_bahnhof","try to remove last segment");
-					wkz_remover(this, welt, *p);
-					// one back
-					// ziel auf das ende des Bahnhofs setzen
-					(*p) -= zv;
-					t = (*p);
-					i = -1;
-					ribi = welt->lookup(*p)->gib_kartenboden()->gib_weg_ribi(weg_t::schiene);
-					zv = ( ribi );
-					continue;
-				}
-			}
-
 			t -= zv;
 		}
+	}
+
+	baulaenge = abs_distance(t+zv,*p);
+DBG_MESSAGE("spieler_t::baue_bahnhof","achieved length %i",baulaenge);
+	if(baulaenge==1  &&  laenge>1  &&  fab) {
+		// ok, maximum station length in one tile, better try something else
+		const koord coverage_koord(welt->gib_einstellungen()->gib_station_coverage(),welt->gib_einstellungen()->gib_station_coverage());
+		koord pos=*p;
+		sint32 cost = 0;
+		koord last_dir = koord((ribi_t::ribi)welt->lookup(*p)->gib_kartenboden()->gib_weg_ribi(weg_t::schiene));
+		while(1) {
+			grund_t *gr=welt->lookup(pos)->gib_kartenboden();
+			if(gr==NULL  ||  gr->ist_bruecke()  ||  gr->ist_tunnel()) {
+				break;
+			}
+			koord dir((ribi_t::ribi)gr->gib_weg_ribi(weg_t::schiene));
+			if(!fabrik_t::sind_da_welche(welt,pos-coverage_koord,pos+coverage_koord).is_contained(fab)) {
+				*p = pos;
+				break;
+			}
+			cost = gr->weg_entfernen(weg_t::schiene, true);
+			pos += dir;
+			buche(-cost, pos, COST_CONSTRUCTION);
+			if(dir!=last_dir  ||  welt->lookup(pos)->gib_kartenboden()->gib_weg_hang()!=hang_t::flach) {
+				// was a curve or a slope: try again
+				*p = pos;
+				return baue_bahnhof( quelle, p, anz_vehikel, fab );
+			}
+		}
+DBG_MESSAGE("spieler_t::baue_bahnhof","failed");
+		return 0;
 	}
 
 	INT_CHECK("simplay 593");
@@ -1776,6 +1822,7 @@ DBG_MESSAGE("spieler_t::baue_bahnhof","try to remove last segment");
 		INT_CHECK("simplay 753");
 	}
 	// now add the other squares (going backwards)
+	baulaenge = 0;
 	for(  pos=t;  pos!=*p-zv;  pos-=zv ) {
 		if(  !is_my_halt(pos)  ) {
 			wkz_halt(this, welt, pos, besch);
@@ -1783,27 +1830,13 @@ DBG_MESSAGE("spieler_t::baue_bahnhof","try to remove last segment");
 		baulaenge ++;
 	}
 
-/*
-	if(  p->x>t.x    ||  p->y>t.y  ) {
-		// built other way round
-		start = t-zv;
-		end = *p-zv;
-		zv.x = -zv.x;
-		zv.y = -zv.y;
-	}
-	do {
-		wkz_bahnhof(this, welt, start, hausbauer_t::gueterbahnhof_besch);
+DBG_MESSAGE("spieler_t::baue_bahnhof","set pos *p %i,%i to %i,%i",p->x,p->y,t.x,t.y);
+	// return endpos
+	*p = t;
 
-		start += zv;
-		baulaenge ++;
-
-		INT_CHECK("simplay 753");
-	} while(start != end);
-*/
-
-//	p -= zv;
-DBG_MESSAGE("spieler_t::baue_bahnhof","Final station at (%i,%i)",p->x,p->y);
-	return baulaenge*2;
+	laenge = min( anz_vehikel, (baulaenge*16 - rail_engine->get_length())/rail_vehicle->get_length() );
+//DBG_MESSAGE("spieler_t::baue_bahnhof","Final station at (%i,%i) with %i tiles for %i cars",p->x,p->y,baulaenge,laenge);
+	return laenge;
 }
 
 
@@ -2145,7 +2178,16 @@ DBG_MESSAGE("spieler_t::create_bus_transport_vehikel()","bus at (%i,%i)",startpo
 	// now start all vehicle one field before, so they load immediately
 	koord3d startpos = welt->lookup(startpos2d)->gib_kartenboden()->gib_pos();
 
-	fahrplan_t *fpl;
+	// since 86.01 we use lines for road vehicles ...
+	fahrplan_t *fpl=new autofahrplan_t();
+	// do not start at current stop => wont work ...
+	for(int j=0;  j<anzahl;  j++) {
+		fpl->append( welt, welt->lookup(stops[j])->gib_kartenboden(), (j==0  ||  !do_wait)?0:10 );
+	}
+	fpl->aktuell = (stops[0]==startpos2d);
+	linehandle_t line=simlinemgmt.create_line(simline_t::truckline,fpl);
+	delete fpl;
+
 	// now create all vehicles as convois
 	for(int i=0;  i<anz_vehikel;  i++) {
 
@@ -2156,16 +2198,8 @@ DBG_MESSAGE("spieler_t::create_bus_transport_vehikel()","bus at (%i,%i)",startpo
 		cnv->setze_name(v->gib_besch()->gib_name());
 		cnv->add_vehikel( v );
 
-		fpl = cnv->gib_vehikel(0)->erzeuge_neuen_fahrplan();
-
-		// do not start at current stop => wont work ...
-		for(int j=0;  j<anzahl;  j++) {
-			fpl->append( welt, welt->lookup(stops[j])->gib_kartenboden(), (j==0  ||  !do_wait)?0:10 );
-		}
-		fpl->aktuell = (stops[0]==startpos2d);
-
 		welt->sync_add( cnv );
-		cnv->setze_fahrplan(fpl);
+		cnv->set_line(line);
 		cnv->start();
 	}
 }
@@ -2180,46 +2214,44 @@ spieler_t::create_road_transport_vehikel(fabrik_t *qfab, int anz_vehikel)
 {
 	const haus_besch_t *fh=hausbauer_t::gib_random_station( hausbauer_t::ladebucht, welt->get_timeline_year_month(), haltestelle_t::WARE );
 	// succeed in frachthof creation
-    if(fh  &&  wkz_halt(this, welt, platz1,fh)  &&  wkz_halt(this, welt, platz2,fh)  ) {
+	if(fh  &&  wkz_halt(this, welt, platz1,fh)  &&  wkz_halt(this, welt, platz2,fh)  ) {
+		koord3d pos1 = welt->lookup(platz1)->gib_kartenboden()->gib_pos();
+		koord3d pos2 = welt->lookup(platz2)->gib_kartenboden()->gib_pos();
 
-     koord3d pos1 = welt->lookup(platz1)->gib_kartenboden()->gib_pos();
-     koord3d pos2 = welt->lookup(platz2)->gib_kartenboden()->gib_pos();
+		int	start_location=0;
+		// sometimes, when factories are very close, we need exakt calculation
+		if(  (qfab->pos.x - platz1.x)* (qfab->pos.x - platz1.x) + (qfab->pos.y - platz1.y)*(qfab->pos.y - platz1.y)  >
+			(qfab->pos.x - platz2.x)*(qfab->pos.x - platz2.x) + (qfab->pos.y - platz2.y)*(qfab->pos.y - platz2.y)  ) {
+			start_location = 1;
+		}
 
-	int	start_location=0;
-    	// sometimes, when factories are very close, we need exakt calculation
-	if(  (qfab->pos.x - platz1.x)* (qfab->pos.x - platz1.x) + (qfab->pos.y - platz1.y)*(qfab->pos.y - platz1.y)  >
-	  	(qfab->pos.x - platz2.x)*(qfab->pos.x - platz2.x) + (qfab->pos.y - platz2.y)*(qfab->pos.y - platz2.y)  ) {
-	  	start_location = 1;
-	 }
+		// calculate vehicle start position
+		koord3d startpos=(start_location==0)?pos1:pos2;
+		ribi_t::ribi w_ribi = welt->lookup(startpos)->gib_weg_ribi_unmasked(weg_t::strasse);
+		// now start all vehicle one field before, so they load immediately
+		startpos = welt->lookup(koord(startpos.gib_2d())+koord(w_ribi))->gib_kartenboden()->gib_pos();
 
-	// calculate vehicle start position
-     koord3d startpos=(start_location==0)?pos1:pos2;
-	ribi_t::ribi w_ribi = welt->lookup(startpos)->gib_weg_ribi_unmasked(weg_t::strasse);
-	// now start all vehicle one field before, so they load immediately
-	startpos = welt->lookup(koord(startpos.gib_2d())+koord(w_ribi))->gib_kartenboden()->gib_pos();
+		// since 86.01 we use lines for road vehicles ...
+		fahrplan_t *fpl=new autofahrplan_t();
+		fpl->append(welt,welt->lookup(pos1),(start_location==0)?100:0);
+		fpl->append(welt,welt->lookup(pos2),(start_location==1)?100:0);
+		fpl->aktuell = start_location;
+		linehandle_t line=simlinemgmt.create_line(simline_t::truckline,fpl);
+		delete fpl;
 
-	fahrplan_t *fpl;
-	// now create all vehicles as convois
-	for(int i=0;  i<anz_vehikel;  i++) {
+		// now create all vehicles as convois
+		for(int i=0;  i<anz_vehikel;  i++) {
+			vehikel_t * v = vehikelbauer_t::baue(welt, startpos, this,NULL, road_vehicle);
 
-	    vehikel_t * v = vehikelbauer_t::baue(welt, startpos, this,NULL, road_vehicle);
+			convoi_t *cnv = new convoi_t(welt, this);
+			// V.Meyer: give the new convoi name from first vehicle
+			cnv->setze_name(v->gib_besch()->gib_name());
+			cnv->add_vehikel( v );
 
-	    convoi_t *cnv = new convoi_t(welt, this);
-	    // V.Meyer: give the new convoi name from first vehicle
-	    cnv->setze_name(v->gib_besch()->gib_name());
-	    cnv->add_vehikel( v );
-
-	    fpl = cnv->gib_vehikel(0)->erzeuge_neuen_fahrplan();
-
-	    fpl->aktuell = 0;
-	    fpl->append(welt,welt->lookup(pos1),0);
-	    fpl->append(welt,welt->lookup(pos2),0);
-	    fpl->eintrag.at(start_location).ladegrad = 100;
-
-	    welt->sync_add( cnv );
-	    cnv->setze_fahrplan(fpl);
-	    cnv->start();
-	    }
+			welt->sync_add( cnv );
+			cnv->set_line(line);
+			cnv->start();
+		}
 	}
 }
 
@@ -2231,38 +2263,40 @@ spieler_t::create_road_transport_vehikel(fabrik_t *qfab, int anz_vehikel)
 void
 spieler_t::create_rail_transport_vehikel(const koord platz1, const koord platz2, int anz_vehikel, int ladegrad)
 {
-
-    fahrplan_t *fpl;
-    convoi_t *cnv = new convoi_t(welt, this);
-   koord3d pos1= welt->lookup(platz1)->gib_kartenboden()->gib_pos();
-   koord3d pos2 = welt->lookup(platz2)->gib_kartenboden()->gib_pos();
+	fahrplan_t *fpl;
+	convoi_t *cnv = new convoi_t(welt, this);
+	koord3d pos1= welt->lookup(platz1)->gib_kartenboden()->gib_pos();
+	koord3d pos2 = welt->lookup(platz2)->gib_kartenboden()->gib_pos();
 
     // lokomotive bauen
-    unsigned month_now = welt->get_current_month();
-    if(  welt->use_timeline() == false   ) {
-    		month_now = 0xFFFFFFFFu;
-    	}
+	unsigned month_now = welt->get_current_month();
+	if(  welt->use_timeline() == false   ) {
+		month_now = 0;
+	}
 
-    	// probably need to electrify the track?
+	// probably need to electrify the track?
 	if(  rail_engine->get_engine_type()==vehikel_besch_t::electric  ) {
 		// we need overhead wires
 		DBG_MESSAGE( "spieler_t::create_rail_transport_vehikel","Spieler needs to eletrify track.");
 		blockmanager * bm = blockmanager::gib_manager();
 		bm->setze_tracktyp( welt, pos1, 1 );
 	}
-   vehikel_t * v = vehikelbauer_t::baue(welt, pos2, this, NULL, rail_engine);
-    // V.Meyer: give the new convoi name from first vehicle
+	vehikel_t * v = vehikelbauer_t::baue(welt, pos2, this, NULL, rail_engine);
+
+	// V.Meyer: give the new convoi name from first vehicle
     cnv->setze_name(rail_engine->gib_name());
     cnv->add_vehikel( v );
+
+	DBG_MESSAGE( "spieler_t::create_rail_transport_vehikel","for %i cars",anz_vehikel);
 
 	/* now we add cars:
 	 * check here also for introduction years
 	 */
-    for(int i = 0; i < anz_vehikel; i++) {
-    	// use the vehicle we searched before
-	vehikel_t * v = vehikelbauer_t::baue(welt, pos2, this,NULL,rail_vehicle);
-	cnv->add_vehikel( v );
-    }
+	for(int i = 0; i < anz_vehikel; i++) {
+		// use the vehicle we searched before
+		vehikel_t * v = vehikelbauer_t::baue(welt, pos2, this,NULL,rail_vehicle);
+		cnv->add_vehikel( v );
+	}
 
     fpl = cnv->gib_vehikel(0)->erzeuge_neuen_fahrplan();
 
@@ -2327,8 +2361,8 @@ spieler_t::create_simple_road_transport()
 	INT_CHECK("simplay 837");
 
 	// is there already a connection?
-	{
-    		vehikel_t *test_driver=new automobil_t(welt,koord3d(platz1,0),road_vehicle,this,NULL);;
+	if(road_vehicle) {
+    	vehikel_t *test_driver=new automobil_t(welt,koord3d(platz1,0),road_vehicle,this,NULL);;
 		route_t verbindung;
 		if(	verbindung.calc_route(welt,welt->lookup(platz1)->gib_kartenboden()->gib_pos(),welt->lookup(platz2)->gib_kartenboden()->gib_pos(),(fahrer_t *)test_driver,0)  &&
 			verbindung.gib_max_n()<2*(sint32)abs_distance(platz1,platz2))  {
@@ -2338,6 +2372,9 @@ DBG_MESSAGE("spieler_t::create_simple_road_transport()","Already connection betw
 			return true;
 		}
 		delete test_driver;
+	}
+	else {
+		return false;
 	}
 
 	// no connection => built one!
@@ -2755,9 +2792,6 @@ spieler_t::undo()
 	uint32 cost=0;
 	for(unsigned short i=0;  i<last_built.get_count();  i++  ) {
 		grund_t *gr = welt->lookup(last_built.at(i))->gib_kartenboden();
-		if(undo_type==weg_t::schiene  ||  undo_type==weg_t::schiene_strab  ||  undo_type==weg_t::monorail) {
-			blockmanager::gib_manager()->entferne_schiene(welt, gr->gib_pos());
-		}
 		cost += gr->weg_entfernen(undo_type,true);
 //DBG_DEBUG("spieler_t::add_undo()","undo tile %i at (%i,%i)",i,last_built.at(i).x,last_built.at(i).y);
 	}

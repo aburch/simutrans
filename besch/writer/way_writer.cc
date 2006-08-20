@@ -68,7 +68,7 @@ void way_writer_t::write_obj(FILE *outfp, obj_node_t &parent, tabfileobj_t &obj)
 	intro +=        obj.get_int("intro_month", 1) - 1;
 
 	uint16 retire  = obj.get_int("retire_year", DEFAULT_RETIRE_DATE) * 12;
-	intro +=        obj.get_int("retire_month", 1) - 1;
+	retire +=        obj.get_int("retire_month", 1) - 1;
 
 	uint8 wtyp =    get_waytype(obj.get("waytype"));
 	uint8 styp =    obj.get_int("system_type", 0);

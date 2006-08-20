@@ -346,7 +346,6 @@ void hausbauer_t::baue(karte_t *welt, spieler_t *sp, koord3d pos, int layout, co
 {
 	koord k;
 	koord dim;
-	int count = 0;
 
 	layout = besch->layout_anpassen(layout);
 	dim = besch->gib_groesse(layout);
@@ -387,7 +386,6 @@ void hausbauer_t::baue(karte_t *welt, spieler_t *sp, koord3d pos, int layout, co
 				if(clear) {
 					gr->obj_loesche_alle(sp);	// alles weg
 				}
-				koord3d this_pos=gr->gib_pos();
 				grund_t *gr2 = new fundament_t(welt, gr->gib_pos(),gr->gib_grund_hang());
 				welt->access(gr->gib_pos().gib_2d())->boden_ersetzen(gr, gr2);
 				gr = gr2;

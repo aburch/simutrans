@@ -447,7 +447,7 @@ public:
     bool add_grund(grund_t *gb);
     void rem_grund(grund_t *gb);
 
-    int get_capacity() const {return capacity*32;};
+    int get_capacity() const {return capacity*32;}
 
     bool existiert_in_welt();
 

@@ -160,7 +160,7 @@ gui_scrolled_list_t::infowin_event(const event_t *ev)
 		selection = (y-(border/2)-2+offset);
 		if (selection>=0) {
 		    selection/=LINESPACE;
-		    if((unsigned)selection>item_list.count()) {
+		    if((unsigned)selection>=item_list.count()) {
 		    	selection = -1;
 		    }
 DBG_MESSAGE("gui_scrolled_list_t::infowin_event()","selected %i",selection);

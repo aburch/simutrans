@@ -395,12 +395,12 @@ void schedule_list_gui_t::update_lineinfo(linehandle_t new_line)
 		// fill container with info of line's convoys
 		// we do it here, since this list needs only to be
 		// refreshed when the user selects a new line
-		int icnv = 0;
+		int i, icnv = 0;
 		icnv = new_line->count_convoys();
 		// display convoys of line
 		cont.remove_all();
 		int ypos = 5;
-		for(int i = 0;  i<icnv;  i++  ) {
+		for(i = 0;  i<icnv;  i++  ) {
 			gui_convoiinfo_t *cinfo = new gui_convoiinfo_t(new_line->get_convoy(i)->self, i + 1);
 			cinfo->setze_pos(koord(0, ypos));
 			cinfo->setze_groesse(koord(400, 40));
@@ -420,7 +420,7 @@ void schedule_list_gui_t::update_lineinfo(linehandle_t new_line)
 		cont_haltestellen.remove_all();
 		ypos = 5;
 		slist_tpl<koord> tmp; // stores koords of stops that are allready displayed
-		for(int i = 0; i<new_line->get_fahrplan()->maxi(); i++) {
+		for(i=0; i<new_line->get_fahrplan()->maxi(); i++) {
 			const koord fahrplan_koord = new_line->get_fahrplan()->eintrag.get(i).pos.gib_2d();
 			halthandle_t halt = haltestelle_t::gib_halt(welt, fahrplan_koord);
 			if (halt.is_bound()) {
@@ -439,7 +439,7 @@ void schedule_list_gui_t::update_lineinfo(linehandle_t new_line)
 
 		// chart
 		chart.remove_curves();
-		for (int i=0; i<MAX_LINE_COST; i++)  {
+		for(i=0; i<MAX_LINE_COST; i++)  {
 			chart.add_curve(cost_type_color[i], (sint64 *)new_line->get_finance_history(), MAX_LINE_COST, statistic[i], MAX_MONTHS, statistic_type[i], filterButtons[i].pressed, true);
 		}
 		chart.set_visible(true);

@@ -335,8 +335,8 @@ public:
     bool setze_besitzer(spieler_t *s);
 
 
-    virtual bool ist_natur() const {return false;};
-    virtual bool ist_wasser() const {return false;};
+    virtual bool ist_natur() const {return false;}
+    virtual bool ist_wasser() const {return false;}
 
 
     /**
@@ -387,20 +387,6 @@ public:
 
     hang_t::typ gib_grund_hang() const { return (hang_t::typ)slope; }
     virtual bool setze_grund_hang(hang_t::typ sl);
-
-    /**
-     * einige sorten untergrund k÷nnen betreten werden. Die Aktionen werden
-     * an den zug÷rigen Weg weitergeleitet.
-     * @author V. Meyer
-     */
-    void betrete(vehikel_basis_t *v);
-
-    /**
-     * Gegenstueck zu betrete()
-     * @author V. Meyer
-     */
-    void verlasse(vehikel_basis_t *v);
-
 
     /**
      * Manche Böden können zu Haltestellen gehören.

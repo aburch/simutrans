@@ -253,7 +253,7 @@ private:
     koord built_hub( const koord pos, int radius );
     void create_bus_transport_vehikel(koord startpos,int anz_vehikel,koord *stops,int anzahl,bool do_wait);
 
-    int baue_bahnhof(koord3d quelle,koord *p, int anz_vehikel);
+    int baue_bahnhof(koord3d quelle,koord *p, int anz_vehikel,fabrik_t *fab);
 
     /* these two routines calculate the income
      * @author prissi

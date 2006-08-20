@@ -299,22 +299,22 @@ public:
     void setze_ribi_maske(ribi_t::ribi ribi) { ribi_maske = ribi; }
     ribi_t::ribi gib_ribi_maske() const { return ribi_maske; };
 
-
+#if 0
     /**
      * einige Wege können betreten werden. Manche Wege z.B.
      * schienen und strassen können aktionen ausführen z.b. ein signal
      * stellen wenn sie betreten werden.
      * @author Hj. Malthaner
      */
-    virtual void betrete(vehikel_basis_t *) {};
+    virtual void betrete(vehikel_t *) {};
 
 
     /**
      * Gegenstueck zu betrete()
      * @author Hj. Malthaner
      */
-    virtual void verlasse(vehikel_basis_t *) {};
-
+    virtual void verlasse(vehikel_t *) {};
+#endif
 
     /**
      * book statistics - is called very often and therefore inline

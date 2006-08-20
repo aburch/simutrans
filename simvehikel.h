@@ -216,10 +216,10 @@ protected:
 
     virtual void calc_bild() {};
 
-    virtual bool ist_befahrbar(const grund_t* ) const {return false;};
+    virtual bool ist_befahrbar(const grund_t* ) const {return false;}
 
 public:
-    virtual bool ist_weg_frei(int &/*restart_speed*/) {return true;};
+    virtual bool ist_weg_frei(int &/*restart_speed*/) {return true;}
 
     virtual void betrete_feld();
 
@@ -420,9 +420,12 @@ public:
      */
     bool beladen(koord k, halthandle_t halt);
 
+	// sets or querey begin and end of convois
+	void setze_erstes(bool janein) {ist_erstes = janein;}
+	bool is_first() {return ist_erstes;}
 
-    void setze_erstes(bool janein) {ist_erstes = janein;};
-    void setze_letztes(bool janein) {ist_letztes = janein;};
+	void setze_letztes(bool janein) {ist_letztes = janein;}
+	bool is_last() {return ist_letztes;}
 
     virtual void setze_convoi(convoi_t *c);
     convoihandle_t get_convoi() const { return cnv->self; }
@@ -498,7 +501,7 @@ public:
     virtual ribi_t::ribi gib_ribi(const grund_t* ) const;
 
 	// returns true for the way search to an unknown target.
-	virtual bool ist_ziel(const grund_t *) const;
+	virtual bool ist_ziel(const grund_t *,const grund_t *) const;
 
     ding_t::typ gib_typ() const {return automobil;};
 
@@ -539,7 +542,7 @@ public:
 	virtual int gib_kosten(const grund_t *,const uint32 ) const;
 
 	// returns true for the way search to an unknown target.
-	virtual bool ist_ziel(const grund_t *) const;
+	virtual bool ist_ziel(const grund_t *,const grund_t *) const;
 
 	// handles all block stuff and route choosing ...
 	virtual bool ist_weg_frei(int &restart_speed);
@@ -582,13 +585,6 @@ public:
  */
 class monorail_waggon_t : public waggon_t
 {
-private:
-
-protected:
-    bool ist_befahrbar(const grund_t *bd) const;
-
-    void betrete_feld() { waggon_t::betrete_feld(); }
-
 public:
     virtual weg_t::typ gib_wegtyp() const { return weg_t::monorail; }
 
@@ -645,7 +641,7 @@ public:
     virtual ribi_t::ribi gib_ribi(const grund_t* ) const;
 
 	// returns true for the way search to an unknown target.
-	virtual bool ist_ziel(const grund_t *) const {return 0;};
+	virtual bool ist_ziel(const grund_t *,const grund_t *) const {return 0;}
 
     schiff_t(karte_t *welt, loadsave_t *file);
     schiff_t(karte_t *welt, koord3d pos, const vehikel_besch_t *besch, spieler_t *sp, convoi_t *cnv); // start und fahrplan
@@ -701,8 +697,8 @@ protected:
 public:
     virtual weg_t::typ gib_wegtyp() const { return weg_t::luft; };
 
-	// and this returns true, if a suitable destination is tested by find_route
-	virtual bool ist_ziel(const grund_t *gr) const;
+	// returns true for the way search to an unknown target.
+	virtual bool ist_ziel(const grund_t *,const grund_t *) const;
 
 	// return valid direction
 	virtual ribi_t::ribi gib_ribi(const grund_t* ) const;

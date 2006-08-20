@@ -11,20 +11,13 @@
 #ifndef route_h
 #define route_h
 
-#ifndef koord3d_h
-#include "koord3d.h"
-#endif
-
-#ifndef simdebug_h
 #include "../simdebug.h"
-#endif
-
-#ifndef fahrer_h
-#include "../ifc/fahrer.h"
-#endif
-
-#include "../tpl/vector_tpl.h"
 #include "../simdings.h"
+
+#include "../dataobj/koord3d.h"
+
+#include "../ifc/fahrer.h"
+#include "../tpl/vector_tpl.h"
 
 class KNode;
 class karte_t;
@@ -67,11 +60,11 @@ public:
 	static uint32 MAX_STEP;
 #ifdef DEBUG
 	static bool node_in_use;
-	static void GET_NODE() {if(node_in_use) trap(); node_in_use =1; };
-	static void RELEASE_NODE() {if(!node_in_use) trap(); node_in_use =0; };
+	static void GET_NODE() {if(node_in_use){ dbg->fatal("GET_NODE","called while list in use");} node_in_use =1; }
+	static void RELEASE_NODE() {if(!node_in_use){ dbg->fatal("RELEASE_NODE","called while list free");} node_in_use =0; }
 #else
-	static void GET_NODE() {}
-	static void RELEASE_NODE() {}
+	static void GET_NODE() const {;}
+	static void RELEASE_NODE() const {;}
 #endif
 
 	static inline uint32 calc_distance( const koord3d p1, const koord3d p2 )

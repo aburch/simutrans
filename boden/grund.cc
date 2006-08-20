@@ -19,6 +19,8 @@
 #include "wege/kanal.h"
 #include "wege/runway.h"
 
+#include "../blockmanager.h"
+
 #include "../gui/karte.h"
 #include "../gui/ground_info.h"
 
@@ -31,6 +33,7 @@
 #include "../simdepot.h"
 #include "../simfab.h"
 #include "../simhalt.h"
+
 #include "../blockmanager.h"
 
 #include "../dings/baum.h"
@@ -736,24 +739,6 @@ grund_t::text_farbe() const
 }
 
 
-void grund_t::betrete(vehikel_basis_t *v)
-{
-    weg_t *weg = gib_weg(v->gib_wegtyp());
-
-    if(weg) {
-	weg->betrete(v);
-    }
-}
-
-void grund_t::verlasse(vehikel_basis_t *v)
-{
-    weg_t *weg = gib_weg(v->gib_wegtyp());
-
-    if(weg) {
-	weg->verlasse(v);
-    }
-}
-
 
 inline
 void grund_t::do_display_boden( const sint16 xpos, const sint16 ypos, const bool dirty ) const
@@ -793,6 +778,11 @@ void grund_t::do_display_boden( const sint16 xpos, const sint16 ypos, const bool
 
 	if(wege[0]) {
 		display_img(wege[0]->gib_bild(), xpos, ypos - gib_weg_yoff(), dirty);
+/* for PBS-debugging*/
+		if((wege[0]->gib_typ()==weg_t::schiene)  &&  ((schiene_t *)wege[0])->is_reserved()) {
+			display_fillbox_wh_clip( xpos+64/2, ypos+(64*3)/4, 16, 16, 0, dirty);
+		}
+/* */
 	}
 
 	if(wege[1]){
@@ -856,6 +846,9 @@ bool grund_t::weg_erweitern(weg_t::typ wegtyp, ribi_t::ribi ribi)
 	weg_t   *weg = gib_weg(wegtyp);
 	if(weg) {
 		weg->ribi_add(ribi);
+		if(wegtyp==weg_t::schiene  ||  wegtyp==weg_t::monorail) {
+			blockmanager::gib_manager()->schiene_erweitern(welt, this);
+		}
 		calc_bild();
 		return true;
 	}
@@ -893,12 +886,12 @@ long grund_t::neuen_weg_bauen(weg_t *weg, ribi_t::ribi ribi, spieler_t *sp)
 			// new way here
 
 			// remove all trees
-			for( int i=dinge.count()-1;  i>=0;  i--  ) {
+			for( int i=dinge.count();  i>=0;  i--  ) {
 				ding_t *d=dinge.bei(i);
 				if(d  &&  d->gib_typ()==ding_t::baum) {
 					dinge.remove_at(i);
 					delete d;
-					cost += umgebung_t::cst_remove_tree;
+					cost -= umgebung_t::cst_remove_tree;
 				}
 			}
 
@@ -929,6 +922,10 @@ long grund_t::neuen_weg_bauen(weg_t *weg, ribi_t::ribi ribi, spieler_t *sp)
 		weg->setze_ribi(ribi);
 		weg->setze_pos(pos);
 
+		if(weg->gib_typ()==weg_t::schiene  ||  weg->gib_typ()==weg_t::monorail) {
+			blockmanager::gib_manager()->neue_schiene(welt, this);
+		}
+
 		// may result in a crossing
 		calc_bild();
 
@@ -953,13 +950,18 @@ sint32 grund_t::weg_entfernen(weg_t::typ wegtyp, bool ribi_rem)
 
 	if(weg) {
 		if(ribi_rem) {
+			// remove the block infoe with this type
+			if(wegtyp==weg_t::schiene  ||  wegtyp==weg_t::monorail) {
+				blockmanager::gib_manager()->entferne_schiene(welt, pos);
+			}
 			ribi_t::ribi ribi = weg->gib_ribi();
 			grund_t *to;
 
 			for(int r = 0; r < 4; r++) {
 				if((ribi & ribi_t::nsow[r]) && get_neighbour(to, wegtyp, koord::nsow[r])) {
 					weg_t *weg2 = to->gib_weg(wegtyp);
-					if(weg2  &&  !ist_tunnel()   &&  !ist_bruecke()) {
+//					if(weg2  &&  !ist_tunnel()   &&  !ist_bruecke()) {
+					if(weg2) {
 						weg2->ribi_rem(ribi_t::rueckwaerts(ribi_t::nsow[r]));
 						to->calc_bild();
 					}
@@ -1079,7 +1081,7 @@ int grund_t::get_vmove(koord dir) const
 		h += corner3(slope)*16;
 //		h += corner4(slope)*16;
 	} else {
-		trap();	// error: not a direction ...
+		dbg->fatal("grund_t::get_vmove()","no valid direction given (%x)",ribi_typ(dir));	// error: not a direction ...
 	}
 	return h;   // no way slope
 }
@@ -1166,9 +1168,6 @@ DBG_MESSAGE("wkz_wayremover()","remove roadsign");
 		if(add==ribi_t::keine ) {
 DBG_MESSAGE("wkz_wayremover()","remove all way");
 			if(is_rail) {
-				if(!blockmanager::gib_manager()->entferne_schiene(welt, gib_pos())) {
-					return false;
-				}
 				if(suche_obj(ding_t::oberleitung)!=NULL) {
 					oberleitung_t *ol = dynamic_cast<oberleitung_t *>(suche_obj(ding_t::oberleitung));
 					obj_remove(ol,sp);

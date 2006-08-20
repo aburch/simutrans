@@ -112,8 +112,14 @@ bool
 fahrplan_t::insert(karte_t *welt, const grund_t *gr,int ladegrad)
 {
 	aktuell = max(aktuell,0);
+#ifndef _MSC_VER
 	struct linieneintrag_t stop = { gr->gib_pos(), ladegrad, 0 };
-
+#else
+	struct linieneintrag_t stop;
+	stop.pos = gr->gib_pos();
+	stop.ladegrad = ladegrad;
+	stop.flags = 0;
+#endif
 	if(ist_halt_erlaubt(gr)) {
 		bool ok= eintrag.insert_at(aktuell,stop);
 		if(!ok) {
@@ -136,7 +142,14 @@ bool
 fahrplan_t::append(karte_t *welt, const grund_t *gr,int ladegrad)
 {
 	aktuell = max(aktuell,0);
+#ifndef _MSC_VER
 	struct linieneintrag_t stop = { gr->gib_pos(), ladegrad, 0 };
+#else
+	struct linieneintrag_t stop;
+	stop.pos = gr->gib_pos();
+	stop.ladegrad = ladegrad;
+	stop.flags = 0;
+#endif
 
 	if(ist_halt_erlaubt(gr)) {
 		bool ok= eintrag.append(stop,4);
@@ -231,7 +244,14 @@ fahrplan_t::rdwr(loadsave_t *file)
 			pos.rdwr(file);
 			file->rdwr_long(dummy, "\n");
 
+#ifndef _MSC_VER
 			struct linieneintrag_t stop = { pos, (sint8)dummy, 0 };
+#else
+			struct linieneintrag_t stop;
+			stop.pos = pos;
+			stop.ladegrad = (sint8)dummy;
+			stop.flags = 0;
+#endif
 			eintrag.append(stop);
 		}
 		abgeschlossen = true;

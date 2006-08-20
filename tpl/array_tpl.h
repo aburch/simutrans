@@ -12,7 +12,7 @@
 #define tpl_array_tpl_h
 
 #include <typeinfo>
-#include "debug_helper.h"
+#include "../simdebug.h"
 
 /**
  * A template class for bounds checked 1-dimesnional arrays.
@@ -35,8 +35,6 @@ private:
      *
      * @author Hj. Malthaner
      */
-    T dummy;
-
     T* data;
     unsigned int size;
 
@@ -72,9 +70,8 @@ public:
 	if(i<size) {
 	    return data[i];
 	} else {
-	    ERROR("array_tpl<T>::at()", "index out of bounds: %d not in 0..%d, T=%s ", i, size-1, typeid(T).name());
-	    trap();
-	    return dummy;
+	    dbg->fatal("array_tpl<T>::at()", "index out of bounds: %d not in 0..%d, T=%s ", i, size-1, typeid(T).name());
+	    return data[0];	//dummy
 	}
     }
 
@@ -83,9 +80,8 @@ public:
 	if(i<size) {
 	    return data[i];
 	} else {
-	    ERROR("array_tpl<T>::get()", "index out of bounds: %d not in 0..%d, T=%s ", i, size-1, typeid(T).name());
-	    trap();
-	    return dummy;
+	    dbg->fatal("array_tpl<T>::get()", "index out of bounds: %d not in 0..%d, T=%s ", i, size-1, typeid(T).name());
+	    return data[0];	//dummy
 	}
     }
 };

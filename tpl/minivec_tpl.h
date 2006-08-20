@@ -12,7 +12,7 @@
 
 #include <stdlib.h>
 
-#include "debug_helper.h"
+#include "../simdebug.h"
 
 /**
  * A template class for a simple vector type.
@@ -90,7 +90,7 @@ public:
 	bool resize(unsigned int new_size)
 	{
 		if(new_size>255) {
-			ERROR("minivec_tpl<T>::resize()", "new size %i too large (>255).");
+			dbg->fatal("minivec_tpl<T>::resize()", "new size %i too large (>255).");
 			return false;
 		}
 
@@ -99,7 +99,7 @@ public:
 		}
 //MESSAGE("<minivec_tpl>::resize()","old size %i, new size %i",size,new_size);
 		if(count > new_size) {
-			ERROR("minivec_tpl<T>::resize()", "cannot preserve elements.");
+			dbg->fatal("minivec_tpl<T>::resize()", "cannot preserve elements.");
 			return false;
 		}
 		T *new_data = new T[new_size];
@@ -196,6 +196,7 @@ public:
 				j++;
 				count --;
 			}
+	///###
 			// maybe we copy too often ...
 			if(j<size) {
 				data[i] = data[j];
@@ -229,7 +230,7 @@ public:
 			return append(elem,1);
 		}
 		else {
-			ERROR("minivec_tpl<T>::append()","cannot insert at %i! Only %i elements.", pos, count);
+			dbg->fatal("minivec_tpl<T>::append()","cannot insert at %i! Only %i elements.", pos, count);
 			return false;
 		}
 	}
@@ -262,9 +263,8 @@ public:
 	if(i<count) {
 	    return data[i];
 	} else {
-	    ERROR("minivec_tpl<T>::get()","index out of bounds: %i not in 0..%d", i, count-1);
-	    trap();
-	    return data[0];	// silence for compiler
+		dbg->fatal("minivec_tpl<T>::get()","index out of bounds: %i not in 0..%d", i, count-1);
+	    return data[0];	// silence for compiler: dummy
 	}
     }
 
@@ -277,10 +277,7 @@ public:
 	if(i<count) {
 	    return data[i];
 	} else {
-	    ERROR("minivec_tpl<T>::at()",
-	          "index out of bounds: %i not in 0..%d\n", i, count-1);
-	    // return data[0];
-	    trap();
+		dbg->fatal("minivec_tpl<T>::at()","index out of bounds: %i not in 0..%d\n", i, count-1);
 		return data[0]; // to keep compiler silence
 	}
     }

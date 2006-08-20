@@ -12,7 +12,7 @@
 #define tpl_array2d_tpl_h
 
 #include "../dataobj/koord.h"
-#include "debug_helper.h"
+#include "../simdebug.h"
 
 /**
  * A template class for bounds checked 2-dimesnional arrays.
@@ -27,15 +27,6 @@ template <class T>
 class array2d_tpl
 {
 private:
-
-    /**
-     * if someone tries to make an out of bounds access to this
-     * array, he'll get a reference to dummy. This is save, because
-     * no one can expect that values read from or written to an
-     * a out of bounds index are stored in the array
-     */
-    T dummy;
-
     T* data;
     unsigned int w, h;
 
@@ -64,10 +55,8 @@ public:
 	if(x<w && y<h) {
 	    return data[y*w + x];
 	} else {
-	    ERROR("array2d_tpl<T>::at()",
-	          "index out of bounds: (%d,%d) not in (0..%d, 0..%d)", x, y, w-1, h-1);
-		trap();
-	    return dummy;
+		dbg->fatal("array2d_tpl<T>::at()","index out of bounds: (%d,%d) not in (0..%d, 0..%d)", x, y, w-1, h-1);
+	    return data[0];//dummy
 	}
     }
 
@@ -87,8 +76,7 @@ public:
 	if(h == other.h && w == other.w) {
 	    memcpy(data, other.data, sizeof(T)*w*h);
 	} else {
-	    ERROR("array2d_tpl<T>::copy_from()",
-	          "source has different size!");
+	    dbg->fatal("array2d_tpl<T>::copy_from()","source has different size!");
 	}
     }
 

@@ -102,8 +102,7 @@ class simlinemgmt_t
 	/**
 	 * @author hsiegeln
 	 */
-	linehandle_t create_line(int ltype);
-	linehandle_t create_line(int ltype, fahrplan_t * fpl);
+	linehandle_t create_line(int ltype, fahrplan_t * fpl=NULL);
 
 	/**
 	 * @author hsiegeln

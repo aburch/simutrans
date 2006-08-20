@@ -259,10 +259,12 @@ blockmanager::entferne_signal(karte_t *welt, koord3d pos)
 	int anzahl;
 	array_tpl<koord3d> &nb = finde_nachbarn(welt, pos, sch->gib_ribi_unmasked(), anzahl);
 
-	for(int i=0; i<anzahl; i++) {
-		blockhandle_t bs=get_block_way(welt->lookup(nb.at(i)))->gib_blockstrecke();
-		if(bs != bs0) {
-			bs->loesche_signal_bei(nb.get(i));
+	{
+		for(int i=0; i<anzahl; i++) {
+			blockhandle_t bs=get_block_way(welt->lookup(nb.at(i)))->gib_blockstrecke();
+			if(bs != bs0) {
+				bs->loesche_signal_bei(nb.get(i));
+			}
 		}
 	}
 
@@ -302,6 +304,15 @@ blockmanager::entferne_schiene(karte_t *welt, koord3d pos)
 
     if(sch) {
         blockhandle_t bs0 = sch->gib_blockstrecke();
+		if(!bs0.is_bound()) {
+			dbg->fatal("blockmanager::entferne_schiene()","unbound rail at (%i,%i,%i)",pos.x,pos.y,pos.z);
+		}
+		//remove reservation
+		if(sch->is_reserved()) {
+			convoihandle_t cnv = sch->get_reserved_convoi();
+			cnv->recalc_route();
+			cnv->step();	// reservation should be now lifted
+		}
         const ribi_t::ribi ribi = sch->gib_ribi();
         int anzahl;
 
@@ -453,14 +464,14 @@ blockmanager::baue_neues_signal(karte_t *welt, spieler_t *sp, koord3d pos, koord
 			dbg->fatal("blockmanager::baue_neues_signal()","illegal signal type %d used!",type);
 	}
 
-	bs1->add_signal(sig1);
-	bs2->add_signal(sig2);
-
 	welt->lookup(pos)->obj_add(sig1);
 	welt->lookup(pos2)->obj_pri_add(sig2, PRI_HOCH);
 
 	sig1->setze_blockiert( false );
 	sig2->setze_blockiert( false );
+
+	bs1->add_signal(sig1);
+	bs2->add_signal(sig2);
 
 	// jetzt muss man noch prüfen welche der beiden bs belegt ist
 	// da bs1 jetzt evtl (Ringstrecke!) nicht mehr exitiert müssen

@@ -35,27 +35,26 @@ typedef quickstone_tpl<blockstrecke_t> blockhandle_t;
 class blockstrecke_t
 {
 private:
-    slist_tpl <signal_t *> signale;
+	slist_tpl <signal_t *> signale;
 
-    static karte_t *welt;
+	static karte_t *welt;
 
-    /**
-     * Anzahl vehikel in der blockstrecke. Muss ein zaehler sein, da ein
-     * aus n wagen bestehen kann, und die strecke erst freigegeben werden
-     * kann wenn der letzte wagen die strecke verlassen hat.
-     * @author Hj. Malthaner
-     */
+	uint16 v_rein, v_raus;
 
-    uint16 v_rein;         // anzahl betreten
-    uint16 v_raus;         // anzahl verlassen
+	/**
+	* Das Handle für uns selbst. In Anlehnung an 'this' aber mit
+	* allen checks beim Zugriff.
+	* @author Hanjsörg Malthaner
+	*/
+	blockhandle_t self;
 
-	convoihandle_t cnv_reserved;	// this convoi wants to enter next
-
-    blockstrecke_t(karte_t *welt);
-    blockstrecke_t(karte_t *welt, loadsave_t *file);
+	blockstrecke_t(karte_t *welt);
+	blockstrecke_t(karte_t *welt, loadsave_t *file);
 
 public:
     ~blockstrecke_t();
+
+	typedef enum { BLOCK_EMPTY=0, BLOCK_RESERVED=1, BLOCK_FILLED=2 } blockstate;
 
 	karte_t *gib_welt() { return welt; }
 
@@ -94,12 +93,8 @@ public:
 
     void schalte_signale();
 
-    void betrete(vehikel_basis_t *v);
-    void verlasse(vehikel_basis_t *v);
-
-	bool can_reserve_block(convoihandle_t cnv);	// we can enter here?
-	bool reserve_block(convoihandle_t cnv);	// ok, we want to enter here (false, if not possible)
-	bool unreserve_block(convoihandle_t cnv);	// we wanted to enter here but now changed our intention
+    void betrete(vehikel_t *v);
+    void verlasse(vehikel_t *v);
 
     /**
      * da am anfang und am ende einer blockstrecke gezaehlt wird
@@ -107,11 +102,9 @@ public:
      * ausserdem muessen genauso viele "raus" sein wie "rein" damit
      * die Strecke leer ist.
      */
-    bool ist_frei() const;
+    blockstate ist_frei() const;
 
     void setze_belegung(int count);
-
-//    void clone_vehikel_counter(blockhandle_t bs) { v_rein = bs->v_rein; v_raus = bs->v_raus; schalte_signale(); }
 
     void vereinige_vehikel_counter(blockhandle_t bs);
 
