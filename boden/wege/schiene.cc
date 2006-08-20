@@ -181,9 +181,7 @@ schiene_t::rdwr(loadsave_t *file)
     }
   }
 
-
   file->rdwr_char(is_electrified, "\n");
-
 
   if(file->is_saving()) {
     const char *s = gib_besch()->gib_name();
@@ -194,8 +192,12 @@ schiene_t::rdwr(loadsave_t *file)
     char bname[128];
     file->rd_str_into(bname, "\n");
 
+    int old_max_speed=gib_max_speed();
     setze_besch(wegbauer_t::gib_besch(bname));
-
+    if(old_max_speed>0) {
+        setze_max_speed(old_max_speed);
+    }
+dbg->message("schiene_t::rdwr","track %s at (%i,%i) max_speed %i",bname,gib_pos().x,gib_pos().y,old_max_speed);
     if(gib_besch() == 0) {
       dbg->warning("schiene_t::rwdr",
        "description %s for track at %d,%d not found!",

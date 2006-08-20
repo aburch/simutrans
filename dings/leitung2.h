@@ -53,6 +53,8 @@ protected:
 
 public:
 
+  ribi_t::ribi leitung_t::gib_ribi();
+
   static fabrik_t * suche_fab_4(koord pos);
 
   leitung_t(karte_t *welt, loadsave_t *file);

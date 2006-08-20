@@ -42,7 +42,8 @@ static const char * measures[] =
 };
 
 
-static bool ist_leitung(karte_t *welt, koord pos)
+static bool
+ist_leitung(karte_t *welt, koord pos)
 {
   bool result = false;
   const planquadrat_t * plan = welt->lookup(pos);
@@ -103,7 +104,6 @@ leitung_t::leitung_t(karte_t *welt,
 		     spieler_t *sp) : ding_t(welt, pos)
 {
   net = 0;
-
   setze_besitzer( sp );
   verbinde();
 }
@@ -149,16 +149,16 @@ static int gimme_neighbours(karte_t *welt, koord base_pos, leitung_t **conn)
 
 void leitung_t::replace(koord base_pos, powernet_t *alt, powernet_t *neu)
 {
-  leitung_t * conn[4];
-  const int count = gimme_neighbours(welt, base_pos, conn);
+	leitung_t * conn[4];
+	const int count = gimme_neighbours(welt, base_pos, conn);
 
-  for(int i=0; i<count; i++) {
-    if(conn[i]->net == alt && alt != neu) {
-      conn[i]->net = neu;
+	for(int i=0; i<count; i++) {
+		if(conn[i]->net == alt && alt != neu) {
+			conn[i]->net = neu;
 
-      replace(conn[i]->gib_pos().gib_2d(), alt, neu);
-    }
-  }
+			replace(conn[i]->gib_pos().gib_2d(), alt, neu);
+		}
+	}
 }
 
 
@@ -169,28 +169,27 @@ void leitung_t::replace(koord base_pos, powernet_t *alt, powernet_t *neu)
  */
 void leitung_t::verbinde()
 {
-  leitung_t * conn[4];
-  const int count = gimme_neighbours(welt, gib_pos().gib_2d(), conn);
+	leitung_t * conn[4];
+	const int count = gimme_neighbours(welt, gib_pos().gib_2d(), conn);
 
+	if(count == 0) {
+		net = new powernet_t();
+		welt->sync_add(net);
+	}
+	else {
+		if(count == 1) {
+			net = conn[0]->net;
+		}
+		else {
+			net = new powernet_t();
+			welt->sync_add(net);
 
-  if(count == 0) {
-    net = new powernet_t();
-    welt->sync_add(net);
-
-  } else if(count == 1) {
-    net = conn[0]->net;
-
-  } else {
-
-    net = new powernet_t();
-    welt->sync_add(net);
-
-    for(int i=0; i<count; i++) {
-      // memory leak!
-
-      replace(conn[i]->gib_pos().gib_2d(), conn[i]->net, net);
-    }
-  }
+			for(int i=0; i<count; i++) {
+				// memory leak!
+				replace(conn[i]->gib_pos().gib_2d(), conn[i]->net, net);
+			}
+		}
+	}
 }
 
 
@@ -225,7 +224,6 @@ void leitung_t::entferne(const spieler_t *)
     }
   }
 
-
   this->net = 0;
 
   setze_pos(koord3d::invalid);
@@ -235,20 +233,33 @@ void leitung_t::entferne(const spieler_t *)
 void leitung_t::display(int xpos, int ypos, bool dirty) const
 {
   ding_t::display(xpos, ypos, dirty);
-
   // display_fillbox_wh(xpos+20, ypos, 24, 6, ((int) net) & 0x7FFF, dirty);
 }
+
+
+ribi_t::ribi leitung_t::gib_ribi()
+{
+	const koord pos = gib_pos().gib_2d();
+	const ribi_t::ribi ribi =
+			(ist_leitung(welt, pos + koord(0,-1)) ? ribi_t::nord : ribi_t::keine) |
+			(ist_leitung(welt, pos + koord(0, 1)) ? ribi_t::sued : ribi_t::keine) |
+			(ist_leitung(welt, pos + koord( 1,0)) ? ribi_t::ost  : ribi_t::keine) |
+			(ist_leitung(welt, pos + koord(-1,0)) ? ribi_t::west : ribi_t::keine);
+	return ribi;
+}
+
 
 
 void leitung_t::calc_bild()
 {
 	const koord pos = gib_pos().gib_2d();
+	const ribi_t::ribi ribi=gib_ribi();
+/*
 	ribi_t::ribi ribi =
 			(ist_leitung(welt, pos + koord(0,-1)) ? ribi_t::nord : ribi_t::keine) |
 			(ist_leitung(welt, pos + koord(0, 1)) ? ribi_t::sued : ribi_t::keine) |
 			(ist_leitung(welt, pos + koord( 1,0)) ? ribi_t::ost  : ribi_t::keine) |
 			(ist_leitung(welt, pos + koord(-1,0)) ? ribi_t::west : ribi_t::keine);
-/*
 // dbg->message("leitung_t::calc_bild()", "ribi=%d", ribi);
 setze_bild(0, wegbauer_t::leitung_besch->gib_bild_nr(ribi));
 */
@@ -267,11 +278,22 @@ setze_bild(0, wegbauer_t::leitung_besch->gib_bild_nr(ribi));
 				setze_bild(0, wegbauer_t::leitung_besch->gib_diagonal_bild_nr(ribi_t::nord|ribi_t::ost));
 			}
 			else {
-				setze_bild(0, wegbauer_t::leitung_besch->gib_diagonal_bild_nr(ribi_t::sued|ribi_t::west));
+				setze_bild(0, wegbauer_t::leitung_besch->gib_diagonal_bild_nr(ribi_t::sued|ribi_t::ost));
 			}
 		}
 		else {
-			setze_bild(0, wegbauer_t::leitung_besch->gib_bild_nr(ribi));
+			if(ribi_t::ist_gerade(ribi)  &&  !ribi_t::ist_einfach(ribi)  &&  (pos.x+pos.y)&1) {
+				// every second skip mast
+				if(ribi_t::ist_gerade_ns(ribi)) {
+					setze_bild(0, wegbauer_t::leitung_besch->gib_diagonal_bild_nr(ribi_t::nord|ribi_t::west));
+				}
+				else {
+					setze_bild(0, wegbauer_t::leitung_besch->gib_diagonal_bild_nr(ribi_t::sued|ribi_t::west));
+				}
+			}
+			else {
+				setze_bild(0, wegbauer_t::leitung_besch->gib_bild_nr(ribi));
+			}
 		}
 	}
 // printf("Hangbild %i=>%i\n",hang,wegbauer_t::leitung_besch->gib_hang_bild_nr(hang));
@@ -298,7 +320,6 @@ void leitung_t::calc_neighbourhood()
       }
     }
   }
-
   calc_bild();
 }
 
@@ -343,7 +364,6 @@ void leitung_t::rdwr(loadsave_t *file)
   unsigned long value;
 
   ding_t::rdwr(file);
-
   if(file->get_version() <= 82001) {
     net = new powernet_t();
   } else {
@@ -361,9 +381,8 @@ void leitung_t::rdwr(loadsave_t *file)
 pumpe_t::pumpe_t(karte_t *welt, loadsave_t *file) : leitung_t(welt , file)
 {
   fab = 0;
-
   calc_bild();
-
+  verbinde();
   welt->sync_add(this);
 }
 
@@ -371,9 +390,8 @@ pumpe_t::pumpe_t(karte_t *welt, loadsave_t *file) : leitung_t(welt , file)
 pumpe_t::pumpe_t(karte_t *welt, koord3d pos, spieler_t *sp) : leitung_t(welt , pos, sp)
 {
   fab = 0;
-
+  verbinde();
   calc_bild();
-
   welt->sync_add(this);
 }
 
@@ -407,9 +425,6 @@ bool
 pumpe_t::sync_step(long delta_t)
 {
   // dbg->message("pumpe_t::sync_step()", "fab=%p", fab);
-
-
-
   if(fab == 0 || fab->gib_eingang()->get_count() == 0 || fab->gib_eingang()->get(0).menge <= 0)
   {
     // nothing to do ?
@@ -450,7 +465,7 @@ senke_t::senke_t(karte_t *welt, loadsave_t *file) : leitung_t(welt , file)
   einkommen = 0;
 
   calc_bild();
-
+  verbinde();
   welt->sync_add(this);
 }
 
@@ -462,7 +477,7 @@ senke_t::senke_t(karte_t *welt, koord3d pos, spieler_t *sp) : leitung_t(welt , p
   einkommen = 0;
 
   calc_bild();
-
+  verbinde();
   welt->sync_add(this);
 }
 
@@ -499,9 +514,9 @@ bool senke_t::step(long /*delta_t*/)
 void
 senke_t::sync_prepare()
 {
-    if(fab == NULL) {
-	fab = leitung_t::suche_fab_4(gib_pos().gib_2d());
-    }
+	if(fab==NULL) {
+		fab = leitung_t::suche_fab_4(gib_pos().gib_2d());
+	}
 }
 
 

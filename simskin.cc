@@ -67,7 +67,7 @@ const skin_besch_t *skinverwaltung_t::hauptmenu = NULL;
 const skin_besch_t *skinverwaltung_t::schienen_werkzeug = NULL;
 const skin_besch_t *skinverwaltung_t::strassen_werkzeug = NULL;
 const skin_besch_t *skinverwaltung_t::schiffs_werkzeug = NULL;
-const skin_besch_t *skinverwaltung_t::bruecken_werkzeug = NULL;
+//const skin_besch_t *skinverwaltung_t::bruecken_werkzeug = NULL;
 const skin_besch_t *skinverwaltung_t::hang_werkzeug = NULL;
 const skin_besch_t *skinverwaltung_t::special_werkzeug = NULL;
 const skin_besch_t *skinverwaltung_t::farbmenu = NULL;
@@ -143,7 +143,7 @@ static spezial_obj_tpl<skin_besch_t> menu_objekte[] = {
     { &skinverwaltung_t::hang_werkzeug,     "SlopeTools" },
     { &skinverwaltung_t::special_werkzeug,     "SpecialTools" },
     { &skinverwaltung_t::farbmenu,	    "ColorMenu" },
-    { &skinverwaltung_t::bruecken_werkzeug, "BridgeTools" },
+//    { &skinverwaltung_t::bruecken_werkzeug, "BridgeTools" },
     { NULL, NULL }
 };
 

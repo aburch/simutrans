@@ -72,7 +72,7 @@ static spezial_obj_tpl<haus_besch_t> spezial_objekte[] = {
     { &hausbauer_t::str_depot_besch,	"CarDepot" },
     { &hausbauer_t::sch_depot_besch,	"ShipDepot" },
     { &hausbauer_t::post_besch,		"PostOffice" },
-    { &hausbauer_t::muehle_besch,	"Windmill" },
+    { &hausbauer_t::muehle_besch,	"Windmill.obsolete" },
     { &hausbauer_t::gueterbahnhof_besch,	"FreightTrainStop" },
     { NULL, NULL }
 };

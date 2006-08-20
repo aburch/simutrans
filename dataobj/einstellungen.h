@@ -17,14 +17,17 @@ class loadsave_t;
 
 class einstellungen_t
 {
-public:
-  enum consts {MIN_INDUSTRY_DENSITY=120, MAX_INDUSTRY_DENSITY=1200};
-
 private:
     int groesse;
     int nummer;
 
-    int industrie_dichte;
+    /* new setting since version 0.85.01
+     * @author prissi
+     * not used any more:    int industrie_dichte;
+     */
+    int land_industry_chains;
+    int city_industry_chains;
+    int tourist_attractions;
 
     int anzahl_staedte;
 
@@ -74,8 +77,14 @@ public:
     void setze_karte_nummer(int n) {nummer=n;};
     int gib_karte_nummer() const {return nummer;};
 
-    void setze_industrie_dichte(int d) {industrie_dichte=d;};
-    int gib_industrie_dichte() const {return industrie_dichte;};
+    void setze_land_industry_chains(int d) {land_industry_chains=d;};
+    int gib_land_industry_chains() const {return land_industry_chains;};
+
+    void setze_city_industry_chains(int d) {city_industry_chains=d;};
+    int gib_city_industry_chains() const {return city_industry_chains;};
+
+    void setze_tourist_attractions(int d) {tourist_attractions=d;};
+    int gib_tourist_attractions() const {return tourist_attractions;};
 
     void setze_anzahl_staedte(int n) {anzahl_staedte=n;};
     int gib_anzahl_staedte() const {return anzahl_staedte;};

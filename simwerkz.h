@@ -34,7 +34,6 @@ int wkz_dockbau(spieler_t *sp, karte_t *welt, koord pos);
 
 int wkz_marker(spieler_t *sp, karte_t *welt, koord pos);
 
-int wkz_pumpe(spieler_t *sp, karte_t *welt, koord pos);
 int wkz_senke(spieler_t *sp, karte_t *welt, koord pos);
 
 int wkz_signale(spieler_t *sp, karte_t *welt, koord pos);
@@ -81,8 +80,9 @@ int wkz_set_slope(spieler_t *sp, karte_t *welt, koord pos, value_t param);
  */
 int wkz_pflanze_baum(spieler_t *, karte_t *welt, koord pos);
 
-
+#ifdef USE_DRIVABLES
 int wkz_test_new_cars(spieler_t *, karte_t *welt, koord pos);
+#endif
 
 int wkz_build_industries_land(spieler_t *sp, karte_t *welt, koord pos);
 int wkz_build_industries_city(spieler_t *sp, karte_t *welt, koord pos);

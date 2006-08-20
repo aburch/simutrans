@@ -16,7 +16,12 @@ einstellungen_t::einstellungen_t() : heightfield("")
     groesse = 256;
     nummer = 0;
 
-    industrie_dichte = 25*30;
+    /* new setting since version 0.85.01
+     * @author prissi
+     */
+    land_industry_chains = 1;
+    city_industry_chains = 0;
+    tourist_attractions = 2;
 
     anzahl_staedte = 12;
 
@@ -42,8 +47,13 @@ einstellungen_t::einstellungen_t(const einstellungen_t *other)
       other->groesse;
     nummer =
       other->nummer;
-    industrie_dichte =
-      other->industrie_dichte;
+    land_industry_chains =
+      other->land_industry_chains;
+    city_industry_chains =
+      other->city_industry_chains;
+    tourist_attractions =
+      other->tourist_attractions;
+
     anzahl_staedte =
       other->anzahl_staedte;
     scroll_multi =
@@ -66,10 +76,14 @@ einstellungen_t::einstellungen_t(const einstellungen_t *other)
 void
 einstellungen_t::rdwr(loadsave_t *file)
 {
+    int dummy = 450;
     file->rdwr_int(groesse, " ");
     file->rdwr_int(nummer, "\n");
-    file->rdwr_int(industrie_dichte, " ");
-    file->rdwr_int(anzahl_staedte, "\n");
+    file->rdwr_int(dummy, " ");	//dummy!
+    file->rdwr_int(anzahl_staedte, " ");
+    file->rdwr_int(land_industry_chains, " ");
+    file->rdwr_int(city_industry_chains, " ");
+    file->rdwr_int(tourist_attractions, "\n");
     file->rdwr_int(scroll_multi, " ");
     file->rdwr_int(verkehr_level, "\n");
     file->rdwr_int(show_pax, "\n");

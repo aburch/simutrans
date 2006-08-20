@@ -174,14 +174,14 @@ fabrik_t::fabrik_t(karte_t *wl, loadsave_t *file) : lieferziele(max_lieferziele)
 }
 
 
-fabrik_t::fabrik_t(karte_t *wl, koord3d pos, spieler_t *sp, const fabrik_besch_t *fabesch) : lieferziele(max_lieferziele), suppliers(max_suppliers)
+fabrik_t::fabrik_t(karte_t *wl, koord3d pos, spieler_t *spieler, const fabrik_besch_t *fabesch) : lieferziele(max_lieferziele), suppliers(max_suppliers)
 {
     this->pos = pos;
     besch = fabesch;
 
     welt = wl;
 
-    besitzer_p = sp;
+    besitzer_p = spieler;
     prodfaktor = 16;
     prodbase = 0;
 
@@ -215,7 +215,10 @@ fabrik_t::~fabrik_t()
 void
 fabrik_t::add_arbeiterziel(stadt_t *stadt)
 {
-    arbeiterziele.insert(stadt);
+	// do not add a city twice!
+	if(!arbeiterziele.contains(stadt)) {
+		arbeiterziele.insert(stadt);
+	}
 }
 
 

@@ -120,16 +120,9 @@ public:
     static const char *remove(karte_t *welt, spieler_t *sp, koord3d pos, weg_t::typ wegtyp);
 
 
-    /*
-     * Werkzeugwaehler_t mit dynamischem Brückenmenuü erzeugen
-     *
-     * @author V. Meyer
-     */
-    static void create_menu(karte_t *welt);
-
     /**
      * Fill menu with icons of given waytype
-     * @author Hj. Malthaner
+     * @author priss
      */
     static void fill_menu(werkzeug_parameter_waehler_t *wzw,
         weg_t::typ wtyp,

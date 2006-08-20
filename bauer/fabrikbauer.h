@@ -75,7 +75,15 @@ class fabrikbauer_t
 public:
     static void register_besch(fabrik_besch_t *besch);
 
-    static void verteile_industrie(karte_t * welt, spieler_t *sp, int dichte);
+	/* Create a certain numer of tourist attractions
+	 * @author prissi
+	 */
+	static void fabrikbauer_t::verteile_tourist(karte_t * welt, spieler_t *sp, int max_number);
+
+	/* Create a certain numer of industries
+	 * @author prissi
+	 */
+	static void verteile_industrie(karte_t * welt, spieler_t *sp, int max_number, bool in_city);
 
 
     /**

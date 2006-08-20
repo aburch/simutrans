@@ -888,16 +888,21 @@ karte_t::init(einstellungen_t *sets)
       pos = NULL;
     }
 
-    // Hajo: do not generate industries on minimum setting
-    if (einstellungen->gib_industrie_dichte() < einstellungen_t::MAX_INDUSTRY_DENSITY) {
-      fabrikbauer_t::verteile_industrie(this,
-					gib_spieler(1),
-					einstellungen->gib_industrie_dichte());
-    }
+    // prissi: completely change format
+     fabrikbauer_t::verteile_industrie(this,
+				gib_spieler(1),
+				einstellungen->gib_land_industry_chains(),false);
+     fabrikbauer_t::verteile_industrie(this,
+				gib_spieler(1),
+				einstellungen->gib_city_industry_chains(),true);
+     fabrikbauer_t::verteile_tourist(this,
+				gib_spieler(1),
+				einstellungen->gib_tourist_attractions());
+/*
 	if (gib_fab_list().count() > 0) {
 		gib_fab(0)->laden_abschliessen();
 	}
-
+*/
     for(i=0; i<einstellungen->gib_anzahl_staedte(); i++) {
 	// Hajo: do final init after world was loaded/created
         if(stadt->at(i)) {
@@ -939,14 +944,18 @@ karte_t::karte_t()
     if(umgebung_t::testlauf) {
 	sets->setze_groesse(256);
 	sets->setze_anzahl_staedte(16);
-	sets->setze_industrie_dichte(25*30);
+	sets->setze_land_industry_chains(8);
+	sets->setze_city_industry_chains(4);
+	sets->setze_tourist_attractions(8);
 	sets->setze_verkehr_level(7);
 	sets->setze_karte_nummer( 33 );
 
     } else {
 	sets->setze_groesse(64);
 	sets->setze_anzahl_staedte(1);
-	sets->setze_industrie_dichte(25*30);
+	sets->setze_land_industry_chains(1);
+	sets->setze_city_industry_chains(0);
+	sets->setze_tourist_attractions(1);
 	sets->setze_verkehr_level(7);
 	sets->setze_karte_nummer( 33 );
 
@@ -2839,20 +2848,7 @@ karte_t::interactive_event(event_t &ev)
 	case 167:    // Hajo: '§'
 	    verteile_baeume(3);
 	    break;
-	case '/':
-	    setze_maus_funktion(wkz_pflanze_baum,
-				skinverwaltung_t::baumzeiger->gib_bild_nr(0),
-				Z_PLAN, SFX_SELECT, SFX_FAILURE);
-	    break;
 
-
-/*
-	case '$':
-	  {
-	    wkz_set_slope(spieler[0], this, zeiger->gib_pos().gib_2d(), 12);
-	    break;
-	  }
-*/
 	case 'a':
 	  setze_maus_funktion(wkz_abfrage, skinverwaltung_t::fragezeiger->gib_bild_nr(0), Z_PLAN, 0, 0);
 	    break;
@@ -2892,12 +2888,9 @@ karte_t::interactive_event(event_t &ev)
 	case 'l':
 	    if(wegbauer_t::leitung_besch) {
 			setze_maus_funktion(wkz_wegebau,
-//				    skinverwaltung_t::undoc_zeiger->gib_bild_nr(0),
 					wegbauer_t::leitung_besch->gib_cursor()->gib_bild_nr(0),
 					    Z_PLAN,
-					    (const void *)wegbauer_t::leitung_besch,
-					    0,
-				    		0);
+					    (const void *)wegbauer_t::leitung_besch, 0, 0);
 	    }
 	    break;
 	case 'm':
@@ -2906,10 +2899,12 @@ karte_t::interactive_event(event_t &ev)
 	case 'M':
 	    setze_maus_funktion(wkz_marker, skinverwaltung_t::belegtzeiger->gib_bild_nr(0), Z_PLAN, 0, 0);
 	    break;
+#ifdef USE_DRIVABLES
         case 'n':
             setze_maus_funktion(wkz_test_new_cars, skinverwaltung_t::belegtzeiger->gib_bild_nr(0), Z_PLAN, 0, 0);
             break;
-	    /*
+#endif
+/*
         case 'N':
 	    create_win(0, display_get_height()-32, -1, new ticker_view_t(this), w_frameless_autodelete);
             break;
@@ -2950,7 +2945,6 @@ karte_t::interactive_event(event_t &ev)
 	    break;
 
 	case 'G':
-
 	  create_win(0, 0,
 		     new goods_frame_t(),
 		     w_autodelete);
@@ -2962,11 +2956,6 @@ karte_t::interactive_event(event_t &ev)
 	    destroy_all_win();
 	    //beenden();        // 02-Nov-2001  Markus Weber    Function has a new parameter
             beenden(false);
-	    break;
-	case 'P':
-	    if(wegbauer_t::leitung_besch) {
-		setze_maus_funktion(wkz_pumpe, skinverwaltung_t::undoc_zeiger->gib_bild_nr(0), Z_PLAN, 0, 0);
-	    }
 	    break;
 	case 'L':
 	    sound_play(click_sound);
@@ -3415,6 +3404,14 @@ karte_t::interactive_event(event_t &ev)
 					  skinverwaltung_t::special_werkzeug->gib_bild_nr(0),
 					  skinverwaltung_t::stadtzeiger->gib_bild_nr(0),
 					  tool_tip_with_price(translator::translate("Found new city"), 500000000));
+
+		    wzw->add_tool(wkz_pflanze_baum,
+				  Z_PLAN,
+				  SFX_SELECT,
+				  SFX_FAILURE,
+				  skinverwaltung_t::special_werkzeug->gib_bild_nr(6),
+				  skinverwaltung_t::baumzeiger->gib_bild_nr(0),
+				  translator::translate("Plant tree"));
 
 		    wzw->add_tool(wkz_build_industries_land,
 				  Z_PLAN,

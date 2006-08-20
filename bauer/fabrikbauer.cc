@@ -43,30 +43,51 @@
  * @author V. Meyer
  */
 class bauplatz_mit_strasse_sucher_t: public bauplatz_sucher_t  {
-public:
-    bauplatz_mit_strasse_sucher_t(karte_t *welt) : bauplatz_sucher_t (welt) {}
 
-    bool strasse_bei(int x, int y) const {
-  grund_t *bd = welt->lookup(koord(x, y))->gib_kartenboden();
+	public:
+		bauplatz_mit_strasse_sucher_t(karte_t *welt) : bauplatz_sucher_t (welt) {}
 
-  return bd && bd->gib_weg(weg_t::strasse);
-    }
-    virtual bool ist_platz_ok(koord pos, int b, int h) const {
-  if(bauplatz_sucher_t::ist_platz_ok(pos, b, h)) {
-      int i;
-      for(i = pos.y; i < pos.y + h; i++) {
-    if(strasse_bei(pos.x - 1, i) ||  strasse_bei(pos.x + b, i)) {
-        return true;
-    }
-      }
-      for(i = pos.x; i < pos.x + b; i++) {
-    if(strasse_bei(i, pos.y - 1) ||  strasse_bei(i, pos.y + h)) {
-        return true;
-    }
-      }
-  }
-  return false;
-    }
+	// get distance to next factory
+	int find_dist_next_factory(koord pos) const {
+		const slist_tpl<fabrik_t *> & list = welt->gib_fab_list();
+		slist_iterator_tpl <fabrik_t *> iter (list);
+		int dist = welt->gib_groesse()*2;
+		while(iter.next()) {
+			fabrik_t * fab = iter.get_current();
+			int d = koord_distance(fab->gib_pos(),pos);
+			if(d<dist) {
+				dist = d;
+			}
+		}
+		return dist;
+	}
+
+	bool strasse_bei(int x, int y) const {
+		grund_t *bd = welt->lookup(koord(x, y))->gib_kartenboden();
+		return bd && bd->gib_weg(weg_t::strasse);
+	}
+
+	virtual bool ist_platz_ok(koord pos, int b, int h) const {
+		if(bauplatz_sucher_t::ist_platz_ok(pos, b, h)) {
+			// try to built a little away from previous factory
+			if(find_dist_next_factory(pos)<3+b+h) {
+				return false;
+			}
+			// now check for road connection
+			int i;
+			for(i = pos.y; i < pos.y + h; i++) {
+				if(strasse_bei(pos.x - 1, i) ||  strasse_bei(pos.x + b, i)) {
+					return true;
+				}
+			}
+			for(i = pos.x; i < pos.x + b; i++) {
+				if(strasse_bei(i, pos.y - 1) ||  strasse_bei(i, pos.y + h)) {
+					return true;
+				}
+			}
+		}
+		return false;
+	}
 };
 
 
@@ -294,283 +315,109 @@ fabrikbauer_t::finde_zufallsbauplatz(karte_t * welt, const koord3d pos, const in
 
 
 
-/* Create a certain numer of industries
+/* Create a certain numer of tourist attractions
+ * @author prissi
  */
 void
-fabrikbauer_t::verteile_industrie(karte_t * welt, spieler_t *sp, int max_number_of_factories)
+fabrikbauer_t::verteile_tourist(karte_t * welt, spieler_t *sp, int max_number)
 {
 	// stuff for the progress bar
 	const int groesse = welt->gib_groesse();
 	const int staedte = welt->gib_einstellungen()->gib_anzahl_staedte();
-	const int display_offset = groesse/2 + staedte*12;
-	const int display_part = groesse/2;
+	const int display_offset = (5*groesse)/6 + staedte*12;
+	const int display_part = groesse/6;
 	const int display_total = groesse+staedte*12;
 	// current count
 	int current_number=0;
 
-	// no consumer at all?
-	if(get_random_consumer(true)==NULL  &&  get_random_consumer(false)) {
+	// nothing at all?
+	if(hausbauer_t::waehle_sehenswuerdigkeit()==NULL) {
 		return;
 	}
 
-	max_number_of_factories = (max_number_of_factories*welt->gib_groesse()*welt->gib_groesse())/(1024*1024);
-	print("Distributing about %i industries ...\n",max_number_of_factories);fflush(NULL);
+	print("Distributing %i tourist attractions ...\n",max_number);fflush(NULL);
 
 	// try to built 25% city consumer (if there)
 	int city=0;
+	while(current_number<max_number)
+	{
+		int	rotation=simrand(4);
+		koord3d	pos=koord3d(simrand(welt->gib_groesse()),simrand(welt->gib_groesse()),1);
+		const haus_besch_t *attraction=hausbauer_t::waehle_sehenswuerdigkeit();
+
+		if(attraction==NULL) {
+			continue;
+		}
+
+		pos = finde_zufallsbauplatz(welt, pos, 20, attraction->gib_groesse(rotation),false);	// so far -> land only
+		if(welt->lookup(pos)) {
+			// Platz gefunden ...
+			hausbauer_t::baue(welt, welt->gib_spieler(1), pos, rotation, attraction);
+			current_number ++;
+		}
+
+	      if(is_display_init()) {
+		    display_progress(display_offset + (display_part *current_number)/max_number, display_total);
+		    display_flush(0, 0, 0, "", "");
+		}
+	}
+	// update an open map
+	reliefkarte_t::gib_karte()->set_mode(-1);
+}
+
+
+
+/* Create a certain numer of industries
+ * @author prissi
+ */
+void
+fabrikbauer_t::verteile_industrie(karte_t * welt, spieler_t *sp, int max_number_of_factories,bool in_city)
+{
+	// stuff for the progress bar
+	const int groesse = welt->gib_groesse();
+	const int staedte = welt->gib_einstellungen()->gib_anzahl_staedte();
+	const int display_offset = ( (in_city?4:3)*groesse )/6 + staedte*12;
+	const int display_part = groesse/6;
+	const int display_total = groesse+staedte*12;
+	// current count
+	int factory_number=0;
+	int current_number=0;
+
+	// no consumer at all?
+	if(get_random_consumer(in_city)==NULL) {
+		return;
+	}
+
+//	max_number_of_factories = (max_number_of_factories*welt->gib_groesse()*welt->gib_groesse())/(1024*1024);
+	print("Distributing about %i industries ...\n",max_number_of_factories);fflush(NULL);
+
 	while(current_number<max_number_of_factories)
 	{
 		int	rotation=simrand(4);
 		koord3d	pos=koord3d(simrand(welt->gib_groesse()),simrand(welt->gib_groesse()),1);
-		const fabrik_besch_t *fab=get_random_consumer((city++&0x3)==0);
-
-		if(fab==NULL) {
-			continue;
-		}
+		const fabrik_besch_t *fab=get_random_consumer(in_city);
 
 		pos = finde_zufallsbauplatz(welt, pos, 20, fab->gib_haus()->gib_groesse(rotation),fab->gib_platzierung()==fabrik_besch_t::Wasser);
 		if(welt->lookup(pos)) {
 			// Platz gefunden ...
-			current_number += baue_hierarchie(welt, &pos, fab, rotation, &pos, welt->gib_spieler(1));
+			factory_number += baue_hierarchie(welt, NULL, fab, rotation, &pos, welt->gib_spieler(1));
+			current_number ++;
 		}
 
 	      if(is_display_init()) {
-		    display_progress(display_offset + display_part *MIN(current_number,max_number_of_factories)/max_number_of_factories, display_total);
+		    display_progress(display_offset + (display_part *current_number)/max_number_of_factories, display_total);
 		    display_flush(0, 0, 0, "", "");
 		}
 	}
-	print("Constructed about %i industries ...\n",current_number);
+	print("Constructed %i industries ...\n",factory_number);
+	// update an open map
+	reliefkarte_t::gib_karte()->set_mode(-1);
 }
-
-
-#if 0
-void
-verteile_industrie_alt(karte_t * welt, spieler_t *sp, int dichte)
-{
-    bau_info_t wasser_bau;
-    bau_info_t land_bau;
-
-    print("Distributing industries ...\n");
-
-    slist_tpl <const fabrik_besch_t *> wasser_fab, land_fab;
-
-    // fabriken aufteilen
-    // - auf Wasser gebaute
-    // - auf Land gebaute
-    // - an Stadt gebaute
-    stringhashtable_iterator_tpl<const fabrik_besch_t *> iter(table);
-
-    while(iter.next()) {
-  const fabrik_besch_t *info = iter.get_current_value();
-
-  if(info->gib_platzierung() == fabrik_besch_t::Wasser) {
-      wasser_fab.insert(info);
-  } else {
-      // nur endverbraucher eintragen
-      if(info->gib_produkt(0) == NULL) {
-    land_fab.insert(info);
-      }
-  }
-    }
-    const int groesse = welt->gib_groesse();
-    const int staedte = welt->gib_einstellungen()->gib_anzahl_staedte();
-    const int display_offset = groesse/2 + staedte*12;
-    const int display_part = groesse/2;
-    const int display_total = groesse+staedte*12;
-
-    gebaut.clear();
-
-    wasser_bau.random(wasser_fab);
-    land_bau.random_land(land_fab);
-
-    //
-    // Zur Verteilung der Industrien legen unsere Karte mit quadratischen Kacheln aus .
-    // Auf jeder Kachel wird versucht, etwas zu bauen.
-    // Die Anzahl der Kachel wird quadratisch aus dem Parameter Industriedichte
-    // abgeleteitet und natürlich der Größe der Karte.
-    // (2 Reihen am Rand lasen wir dabei aus - da baut sichs nicht so gut)
-    //
-    const int reihen = MAX(1, groesse * DISTANCE / (dichte*3));
-    int i, j, n;
-
-    for(i = 0; i < reihen; i++) {
-  for(j = 0; j < reihen; j++) {
-      if(is_display_init()) {
-    display_progress(display_offset + display_part * (i * reihen + j) / reihen / reihen,
-        display_total);
-
-    display_flush(0, 0, 0, "", "");
-      }
-      /*
-       * Geben wir uns weitere Chancen, wenn kein Bau zustande kam?
-       * n = 1: Verteilung dünner und ungleichmäßiger als n = 2
-       * ...
-       * n = 4: recht gleichmäßige Verteilung
-       * n = 9: kaum noch "Löcher" zu sehen
-       */
-      for(n = 2; n > 0; n--) {
-    // Wir wählen unseren Bauplatz irgendwo im Viereck
-    // um unseren Bauplatz herum.
-    koord k(
-        2 + (groesse - 4) * i / reihen + simrand((groesse - 5) / reihen + 1),
-        2 + (groesse - 4) * j / reihen + simrand((groesse - 5) / reihen + 1));
-
-
-    if(welt->ist_wasser(k, wasser_bau.dim)) {
-        // Wasserbau:
-        if(wasser_bau.info &&
-      k.x >= 2 && k.x + wasser_bau.dim.x < groesse-2 &&
-           k.y >= 2 && k.y + wasser_bau.dim.y < groesse-2)
-        {
-      koord p;
-      bool ok = true;
-
-      for(p.x=k.x-2; ok && p.x<k.x+wasser_bau.dim.x+2; p.x++) {
-          for(p.y=k.y-2; ok && p.y<k.y+wasser_bau.dim.y+2; p.y++) {
-        ok = welt->lookup(p)->gib_kartenboden()->ist_wasser();
-          }
-      }
-      if(ok && !fabrik_t::ist_da_eine(welt, k.x-5, k.y-5, k.x+wasser_bau.dim.x+4, k.y+wasser_bau.dim.y+4))
-      {
-          baue_fabrik(welt, NULL, wasser_bau.info, wasser_bau.rotate, welt->lookup(k)->gib_kartenboden()->gib_pos(), sp);
-          wasser_bau.random(wasser_fab);
-          n = 0;
-      }
-        }
-    }
-    else if(!land_bau.info || land_bau.info->gib_platzierung() == fabrik_besch_t::Land) {
-        // Landbau:
-        if(fabrik_t::ist_bauplatz(welt, k, land_bau.dim) && land_bau.besch) {
-      koord3d pos = welt->lookup(k)->gib_kartenboden()->gib_pos();
-
-      if(land_bau.info) {
-          baue_hierarchie(welt, NULL, land_bau.info, land_bau.rotate, &pos, welt->gib_spieler( 1 ));
-      } else {
-          hausbauer_t::baue(welt, welt->gib_spieler(1), pos, land_bau.rotate, land_bau.besch);
-      }
-      n = 0;
-      land_bau.random_land(land_fab);
-        }
-
-    }
-    else {
-        // Staddtbau:
-        stadt_fabrik_t sf;
-
-        sf.stadt = welt->suche_naechste_stadt(k);
-        sf.info = land_bau.info;
-        // Ein Stadt suchen, die noch am wengisten dieser Fabriken hat.
-        while(sf.stadt && gebaut.contains(sf)) {
-      sf.stadt = welt->suche_naechste_stadt(k, sf.stadt);
-        }
-        if(!sf.stadt) {
-      // Alle habe gleich viel, da fange wir von vorne an
-      // zu rechnen:
-      for(unsigned int i = 0; i < welt->gib_staedte()->get_size(); i++) {
-          sf.stadt = welt->gib_staedte()->get(i);
-          gebaut.remove(sf);
-      }
-      sf.stadt = welt->suche_naechste_stadt(k);
-      }
-      // the placement inside towns wiil be done by baue_hierarchie
-        if(k != koord::invalid) {
-      koord3d pos = welt->lookup(k)->gib_kartenboden()->gib_pos();
-      baue_hierarchie(welt, NULL, land_bau.info, land_bau.rotate, &pos, welt->gib_spieler( 1 ));
-      gebaut.insert(sf);
-      n = 0;
-      land_bau.random_land(land_fab);
-        }
-    }
-      }
-  }
-    }
-    {
-  slist_iterator_tpl<fabrik_t *> iter (welt->gib_fab_list());
-
-  while(iter.next()) {
-      fabrik_t *fab = iter.get_current();
-
-      if(strcmp(fab->gib_name(), "Oelbohrinsel") == 0) {
-
-    int dist = 9999999;
-    fabrik_t *best = NULL;
-    slist_iterator_tpl<fabrik_t*> iter2 (welt->gib_fab_list());
-    while(iter2.next()) {
-        fabrik_t *fab2 = iter2.get_current();
-
-        if(strcmp(fab2->gib_name(), "Raffinerie") == 0) {
-      const koord dv = fab2->gib_pos().gib_2d() - fab->gib_pos().gib_2d();
-      const int d = ABS(dv.x) + ABS(dv.y);
-
-      if(d < dist) {
-          dist = d;
-          best = fab2;
-      }
-        }
-    }
-    if(best) {
-        fab->add_lieferziel(best->gib_pos().gib_2d());
-    }
-      } else if(strcmp(fab->gib_name(), "Kohlekraftwerk") == 0  ||  strcmp(fab->gib_name(), "Oil Power Plant") == 0) {
-    koord3d pos = fab->gib_pos()+koord3d(2,0,0);
-
-    if(skinverwaltung_t::pumpe && welt->lookup(pos)) {
-        // too near to edge of map or wrong level?
-        pumpe_t *pumpe = new pumpe_t(welt, pos, welt->gib_spieler(0));
-        pumpe->setze_fabrik(fab);
-
-        welt->lookup(pos)->obj_loesche_alle(NULL);
-        welt->lookup(pos)->obj_add(pumpe);
-    }
-      }
-  }
-    }
-    // Nun können noch zusätzliche Lieferziele ermittelt werden.
-
-    const slist_tpl <fabrik_t *> & list = welt->gib_fab_list();
-
-    slist_iterator_tpl <fabrik_t *> quellen (list);
-
-    while(quellen.next()) {
-
-  const vector_tpl <ware_t> * aus = quellen.get_current()->gib_ausgang();
-
-  for(uint32 i=0; i<aus->get_count(); i++) {
-      ware_t ware = aus->get(i);
-
-      slist_iterator_tpl <fabrik_t *> ziele (list);
-
-      while(ziele.next()) {
-    const vector_tpl <ware_t> * ein = ziele.get_current()->gib_eingang();
-
-    bool ok = false;
-
-    for(uint32 i=0; i<ein->get_count(); i++) {
-        if(ein->get(i).gib_typ() == ware.gib_typ()) {
-      ok = true;
-      break;
-        }
-    }
-
-    if(ok) {
-        const koord pos1 = quellen.get_current()->gib_pos().gib_2d();
-        const koord pos2 = ziele.get_current()->gib_pos().gib_2d();
-        const int dist = abs(pos1.x - pos2.x) + abs(pos1.y - pos2.y);
-
-        if(dist < 60 || dist < simrand(300)) {
-      quellen.get_current()->add_lieferziel(ziele.get_current()->gib_pos().gib_2d());
-        }
-    }
-      }
-  }
-    }
-}
-#endif
 
 
 
 fabrik_t *
-fabrikbauer_t::baue_fabrik(karte_t * welt, koord3d *parent, const fabrik_besch_t *info, int rotate, koord3d pos, spieler_t *sp)
+fabrikbauer_t::baue_fabrik(karte_t * welt, koord3d *parent, const fabrik_besch_t *info, int rotate, koord3d pos, spieler_t *spieler)
 {
     halthandle_t halt;
 
@@ -604,7 +451,7 @@ fabrikbauer_t::baue_fabrik(karte_t * welt, koord3d *parent, const fabrik_besch_t
   }
     }
 
-    fabrik_t * fab = new fabrik_t(welt, pos, sp, info);
+    fabrik_t * fab = new fabrik_t(welt, pos, spieler, info);
     int i;
 
     vector_tpl<ware_t> *eingang = new vector_tpl<ware_t> (info->gib_lieferanten());
@@ -650,20 +497,33 @@ fabrikbauer_t::baue_fabrik(karte_t * welt, koord3d *parent, const fabrik_besch_t
     if(halt.is_bound()) {
       halt->verbinde_fabriken();
     }
-/*
+#if 0
+	// check moved to leitung2.cc
 	if(strcmp(fab->gib_name(), "Kohlekraftwerk") == 0  ||  strcmp(fab->gib_name(), "Oil Power Plant") == 0) {
 		koord3d pos = fab->gib_pos()+koord3d(2,0,0);
 
 		if(skinverwaltung_t::pumpe && welt->lookup(pos)) {
 		// too near to edge of map or wrong level?
-		pumpe_t *pumpe = new pumpe_t(welt, pos, sp);
+		pumpe_t *pumpe = new pumpe_t(welt, pos, spieler);
 		pumpe->setze_fabrik(fab);
 
 		welt->lookup(pos)->obj_loesche_alle(NULL);
 		welt->lookup(pos)->obj_add(pumpe);
 		}
 	}
-*/
+#endif
+	// add passenger targets
+	const array_tpl<stadt_t *> *staedte=welt->gib_staedte();
+	const int anz_staedte = staedte->get_size();
+	for(  int j=0;  j<anz_staedte;  j++  ) {
+		// noch keine stadt mit diesem namen?
+		if(staedte->get(j)!=NULL) {
+			koord city_dist = staedte->get(j)->gib_pos()-pos.gib_2d();
+			if(  (city_dist.x*city_dist.x)+(city_dist.y*city_dist.y)<5000) {
+				staedte->get(j)->add_factory_arbeiterziel(fab);
+			}
+		}
+	}
 	return fab;
 }
 
@@ -686,7 +546,7 @@ fabrikbauer_t::baue_hierarchie(karte_t * welt, koord3d *parent, const fabrik_bes
 	if(info->gib_platzierung() == fabrik_besch_t::Stadt) {
 		// built consumer (factory) intown:
 		stadt_fabrik_t sf;
-		koord k=koord(pos->x,pos->y);
+		koord k=pos->gib_2d();
 
 		koord size=info->gib_haus()->gib_groesse();
 dbg->message("fabrikbauer_t::baue_hierarchie","Search place for city factory (%i,%i) size.",size.x,size.y);
@@ -717,8 +577,6 @@ dbg->message("fabrikbauer_t::baue_hierarchie","Search place for city factory (%i
 
 		if(k != koord::invalid) {
 			*pos = welt->lookup(k)->gib_kartenboden()->gib_pos();
-			//			baue_hierarchie(welt, NULL, land_bau.info, land_bau.rotate, &pos, welt->gib_spieler( 1 ));
-			//			gebaut.insert(sf);
 		}
 		else
 			return 0;
@@ -738,39 +596,36 @@ dbg->message("fabrikbauer_t::baue_hierarchie","Construction of %s at (%i,%i).",i
 
 dbg->message("fabrikbauer_t::baue_hierarchie","lieferanten %i, lcount %i",info->gib_lieferanten(),lcount);
 
-		if(lcount<4) {
-			// Hajo: search if there already is one or two (crossconnect everything if possible)
-			const slist_tpl<fabrik_t *> & list = welt->gib_fab_list();
-			slist_iterator_tpl <fabrik_t *> iter (list);
-			bool found = false;
+		// Hajo: search if there already is one or two (crossconnect everything if possible)
+		const slist_tpl<fabrik_t *> & list = welt->gib_fab_list();
+		slist_iterator_tpl <fabrik_t *> iter (list);
+		bool found = false;
 
-			while( iter.next() &&  lcount>=0) {
-				fabrik_t * fab = iter.get_current();
+		while( iter.next() &&  lcount>=lfound*2) {
+			fabrik_t * fab = iter.get_current();
 
-				// connect to an existing one, if this is an producer
-				if(fab->vorrat_an(ware) > -1) {
+			// connect to an existing one, if this is an producer
+			if(fab->vorrat_an(ware) > -1) {
 
-					const koord3d d = fab->gib_pos() - *pos;
-					const int distance = abs(d.x) + abs(d.y);
-					const bool ok = distance < 60 || distance < simrand(240);
+				const int distance = koord_distance(fab->gib_pos(),*pos);
+				const bool ok = distance < 60 || distance < simrand(240);
 
-					if(ok  &&  distance>0) {
-						found = true;
-						fab->add_lieferziel(pos->gib_2d());
-						lfound ++;
-					}
+				if(ok  &&  distance>4) {
+					found = true;
+					fab->add_lieferziel(pos->gib_2d());
+					lfound ++;
 				}
 			}
-			// this is a source?
-			const fabrik_besch_t *hersteller = finde_hersteller(ware,0);
-			if(hersteller->gib_lieferanten()==0) {
-				// at least three producers please
-				lcount = 3-(lfound/2);
-			}
-			else {
-				// Hajo: if none exist, build one
-				lcount = (lfound>0)?0:1;
-			}
+		}
+		// this is a source?
+//		const fabrik_besch_t *hersteller = finde_hersteller(ware,0);
+		if(lcount!=0) {
+			// at least three producers please
+			lcount = MAX(0,lcount-(lfound/2));
+		}
+		else {
+			// Hajo: if none exist, build one
+			lcount = (lfound>0)?0:1;
 		}
 
 		// try to add all types of factories
@@ -778,6 +633,7 @@ dbg->message("fabrikbauer_t::baue_hierarchie","lieferanten %i, lcount %i",info->
 dbg->message("fabrikbauer_t::baue_hierarchie","find lieferant for %s.",info->gib_name());
 			const fabrik_besch_t *hersteller = finde_hersteller(ware,j%anzahl_hersteller);
 			if(info==hersteller) {
+dbg->message("fabrikbauer_t::baue_hierarchie()","found myself!");
 				return n;
 			}
 			int rotate = simrand(4);
@@ -789,7 +645,10 @@ dbg->message("fabrikbauer_t::baue_hierarchie","Try to built lieferant %s at (%i,
 			}
 		}
 	}
-	// update an open map
-	reliefkarte_t::gib_karte()->set_mode(-1);
+	// finally
+	if(parent==NULL) {
+		// update an open map
+		reliefkarte_t::gib_karte()->set_mode(-1);
+	}
 	return n;
 }

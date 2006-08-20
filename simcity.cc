@@ -495,6 +495,19 @@ stadt_t::verbinde_fabriken()
 }
 
 
+/* add workers to factory list */
+void
+stadt_t::add_factory_arbeiterziel(fabrik_t *fab)
+{
+	fab->add_arbeiterziel( this );
+	// do not add a factory twice!
+	if(!arbeiterziele.contains(fab)){
+		arbeiterziele.insert( fab );
+	}
+}
+
+
+
 void
 stadt_t::step()
 {

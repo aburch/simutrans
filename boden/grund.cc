@@ -50,6 +50,7 @@
 #include "../tpl/ptrhashtable_tpl.h"
 #include "../tpl/inthashtable_tpl.h"
 
+#include "../dings/leitung2.h"	// for construction of new ways ...
 
 
 
@@ -590,31 +591,42 @@ bool grund_t::neuen_weg_bauen(weg_t *weg, ribi_t::ribi ribi, spieler_t *sp)
 	setze_besitzer( sp );
     }
 
-    const weg_t * alter_weg = gib_weg(weg->gib_typ());
-    if(alter_weg == NULL) {
-
-      	// Hajo: nur fuer neubau 'planieren'
-        if(wege[0] == 0) {
-	    obj_loesche_alle(sp);
+	// has a powerline before
+	// @author prissi
+	leitung_t *lt=dynamic_cast<leitung_t *>(suche_obj(ding_t::leitung));
+	spieler_t *lt_sp=NULL;
+	if(lt) {
+		lt_sp = lt->gib_besitzer();
+		obj_remove(lt,sp);
 	}
 
-	for(int i = 0; i < MAX_WEGE; i++) {
-	    if(!wege[i]) {
-		wege[i] = weg;
-		if(gib_besitzer() && !ist_wasser()) {
-		    gib_besitzer()->add_maintenance(weg->gib_besch()->gib_wartung());
+	const weg_t * alter_weg = gib_weg(weg->gib_typ());
+	if(alter_weg == NULL) {
+		// Hajo: nur fuer neubau 'planieren'
+		if(wege[0] == 0) {
+			obj_loesche_alle(sp);
 		}
-		break;
-	    }
+
+		for(int i = 0; i < MAX_WEGE; i++) {
+			if(!wege[i]) {
+				wege[i] = weg;
+				if(gib_besitzer() && !ist_wasser()) {
+					gib_besitzer()->add_maintenance(weg->gib_besch()->gib_wartung());
+				}
+				break;
+			}
+		}
+		weg->setze_ribi(ribi);
+		weg->setze_pos(pos);
+		calc_bild();
+		// readd powerline
+		if(lt_sp!=NULL) {
+			obj_add(lt);
+			lt->calc_neighbourhood();
+		}
+		return true;
 	}
-	weg->setze_ribi(ribi);
-	weg->setze_pos(pos);
-	calc_bild();
-
-	return true;
-    }
-
-    return false;
+	return false;
 }
 
 

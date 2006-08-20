@@ -11,6 +11,8 @@
 #ifndef koord3d_h
 #define koord3d_h
 
+#include <stdlib.h>
+
 #ifndef koord_h
 #include "koord.h"
 #endif
@@ -135,6 +137,26 @@ inline const koord3d& operator-= (koord3d & a, const koord & b)
     a.x-=b.x;
     a.y-=b.y;
     return a;
+}
+
+
+/* distance functions
+ * @author prissi
+ */
+inline int koord_distance(koord a,koord b) {
+	return abs(a.x-b.x)+abs(a.y-b.y);
+}
+
+inline int koord_distance(koord3d a,koord b) {
+	return abs(a.x-b.x)+abs(a.y-b.y);
+}
+
+inline int koord_distance(koord a,koord3d b) {
+	return abs(a.x-b.x)+abs(a.y-b.y);
+}
+
+inline int koord_distance(koord3d a,koord3d b) {
+	return abs(a.x-b.x)+abs(a.y-b.y);
 }
 
 

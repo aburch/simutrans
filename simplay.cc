@@ -875,7 +875,7 @@ dbg->message("spieler_t::do_ki()","Netto credits per day for rail transport %.2f
 			if(  count_road<255  ) {
 				// for short distance: reduce number of cars
 				// calculated here, since the above number was based on production
-				count_road = MAX( 2, MIN( dist/2, count_road ) );
+				count_road = CLIP( (dist*15)/best_road_speed, 2, count_road );
 				int freight_price = (freight->gib_preis()*road_vehicle->gib_zuladung()*count_road)/24*((8000+(best_road_speed-80)*freight->gib_speed_bonus())/1000);
 				cost_road = road_weg->gib_wartung() + 300/dist + (count_road*road_vehicle->gib_betriebskosten()*best_road_speed)/(2*dist+5);
 				income_road = (freight_price*best_road_speed)/(2*dist+5);

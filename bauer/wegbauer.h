@@ -214,7 +214,8 @@ public:
 
 
     void calc_route(koord start, const koord ziel);
-  bool check_crossing(const koord zv, const grund_t *bd,weg_t::typ wtyp) const;
+  bool check_crossing(const koord zv, const grund_t *bd,bool ignore_spieler,weg_t::typ wtyp) const;
+  bool check_for_leitung(const koord zv, const grund_t *bd) const;
     bool ist_grund_fuer_strasse(koord pos, const koord zv, koord start, koord ziel) const;
 
     void baue();

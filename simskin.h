@@ -72,7 +72,7 @@ public:
     static const skin_besch_t *schienen_werkzeug;
     static const skin_besch_t *strassen_werkzeug;
     static const skin_besch_t *schiffs_werkzeug;
-    static const skin_besch_t *bruecken_werkzeug;
+//    static const skin_besch_t *bruecken_werkzeug;
     static const skin_besch_t *hang_werkzeug;
     static const skin_besch_t *special_werkzeug;
     static const skin_besch_t *farbmenu;

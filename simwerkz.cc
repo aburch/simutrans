@@ -67,6 +67,8 @@
 
 #include "besch/weg_besch.h"
 
+#include "gui/karte.h"	// to update map after construction of new industry
+
 // hilfsfunktionen
 
 
@@ -300,6 +302,14 @@ wkz_remover_intern(spieler_t *sp, karte_t *welt, koord pos, const char *&msg)
   return false;
     }
 
+  // Leitung prüfen (can cross ground of another player)
+  leitung_t *lt=dynamic_cast<leitung_t *>(gr->suche_obj(ding_t::leitung));
+  if(lt!=NULL  &&  lt->gib_besitzer()==sp) {
+    gr->obj_remove(lt,sp);
+    delete lt;
+    return true;
+  }
+
     // prüfen, ob boden entfernbar
     if(gr->gib_besitzer() != NULL && gr->gib_besitzer() != sp) {
   msg = "Das Feld gehoert\neinem anderen Spieler\n";
@@ -374,7 +384,8 @@ wkz_remover_intern(spieler_t *sp, karte_t *welt, koord pos, const char *&msg)
   gr->obj_remove(dp, sp);
   delete dp;
   return true;
-    }
+  }
+
     dbg->message("wkz_remover()",  "removing everything from %d,%d,%d",
   gr->gib_pos().x, gr->gib_pos().y, gr->gib_pos().z);
 
@@ -895,29 +906,6 @@ wkz_dockbau(spieler_t *sp, karte_t *welt, koord pos)
 }
 
 
-int
-wkz_pumpe(spieler_t *sp, karte_t *welt, koord pos)
-{
-    dbg->message("wkz_pumpe()",
-     "called on %d,%d", pos.x, pos.y);
-
-    bool ok = false;
-
-    if(welt->ist_in_kartengrenzen(pos)) {
-
-  int top = welt->lookup(pos)->gib_kartenboden()->gib_top();
-        int hangtyp = welt->get_slope(pos);
-
-  if(hangtyp == 0 && top <= 0) {
-      grund_t *gr = welt->lookup(pos)->gib_kartenboden();
-      gr->obj_add(new pumpe_t(welt, gr->gib_pos(), sp));
-      ok = true;
-  }
-    }
-
-    return ok;
-}
-
 
 int
 wkz_senke(spieler_t *sp, karte_t *welt, koord pos)
@@ -1410,7 +1398,8 @@ int wkz_add_city(spieler_t *sp, karte_t *welt, koord pos)
       }
     }
   }
-
+	// update an open map
+	reliefkarte_t::gib_karte()->set_mode(-1);
   return ok;
 }
 
@@ -1574,6 +1563,7 @@ int wkz_test(spieler_t *, karte_t *welt, koord pos)
 */
 
 
+#ifdef USE_DRIVABLES
 #include "drivables/car_group_t.h"
 
 int wkz_test_new_cars(spieler_t *, karte_t *welt, koord pos)
@@ -1587,7 +1577,7 @@ int wkz_test_new_cars(spieler_t *, karte_t *welt, koord pos)
     }
     return true;
 }
-
+#endif
 
 
 #include "bauer/fabrikbauer.h"
@@ -1599,7 +1589,7 @@ int wkz_build_industries_land(spieler_t *sp, karte_t *welt, koord pos)
   if(plan) {
     const fabrik_besch_t *info = fabrikbauer_t::get_random_consumer(false);
     koord3d pos3d = plan->gib_kartenboden()->gib_pos();
-    fabrikbauer_t::baue_hierarchie(welt, NULL, info, false, &pos3d,sp);
+    fabrikbauer_t::baue_hierarchie(welt, NULL, info, false, &pos3d,welt->gib_spieler(1));
   }
 
   return plan != 0;
@@ -1613,7 +1603,7 @@ int wkz_build_industries_city(spieler_t *sp, karte_t *welt, koord pos)
   if(plan) {
     const fabrik_besch_t *info = fabrikbauer_t::get_random_consumer(true);
     koord3d pos3d = plan->gib_kartenboden()->gib_pos();
-    fabrikbauer_t::baue_hierarchie(welt, NULL, info, false, &pos3d,sp);
+    fabrikbauer_t::baue_hierarchie(welt, NULL, info, false, &pos3d,welt->gib_spieler(1));
   }
 
   return plan != 0;

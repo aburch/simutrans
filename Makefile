@@ -193,9 +193,9 @@ SUB_OBJS=\
  besch/bruecke_besch.o\
  besch/grund_besch.o\
  besch/tunnel_besch.o\
- besch/reader/sim_reader.o\
- drivables/car_group_t.o\
- drivables/car_t.o
+ besch/reader/sim_reader.o
+# drivables/car_group_t.o\
+# drivables/car_t.o
 
 
 
@@ -268,7 +268,8 @@ cross:  subs wincross
 	mv simwin.exe ../simutrans/simutrans.exe
 
 
-subs:   gui_sub dataobj_sub dings_sub bauer_sub sucher_sub boden_sub mm_sub utils_sub besch_sub car_sub
+subs:   gui_sub dataobj_sub dings_sub bauer_sub sucher_sub boden_sub mm_sub utils_sub besch_sub
+#subs:   gui_sub dataobj_sub dings_sub bauer_sub sucher_sub boden_sub mm_sub utils_sub besch_sub car_sub
 
 clean:
 	rm -f *.o */*.o */*/*.o
@@ -291,7 +292,6 @@ allegro_dyn: $(OBJECTS) simsys_d.o
 allegro: $(OBJECTS) simsys_d.o
 	gcc $(CFLAGS) -c -D"MSDOS" simgraph.c
 	$(LN) $(LDFLAGS) -o sim simsys_d.o $(OBJECTS) /usr/local/lib/liballeg.a $(SUB_OBJS) -lX11 -lXext -lesd
-
 
 newcars: subs car_sub $(OBJECTS)
 	$(LN) $(LDFLAGS) -o sim $(OBJECTS) simsys_s16.o simgraph16.o $(SUB_OBJS) drivables/*.o $(STD_LIBS) $(SDLLIBS)
@@ -416,8 +416,8 @@ dings_sub:
 boden_sub:
 	$(MAKE) -e -C boden
 
-car_sub:
-	$(MAKE) -e -C drivables
+#car_sub:
+#	$(MAKE) -e -C drivables
 
 test_sub:
 	$(MAKE) -e -C test

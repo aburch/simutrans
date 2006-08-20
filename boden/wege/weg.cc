@@ -147,6 +147,9 @@ void weg_t::rdwr(loadsave_t *file)
 
   file->rdwr_short(max_speed, "\n");
 
+if(gib_typ()==weg_t::schiene)
+dbg->message("weg_t::rdwr","schiene at (%i,%i) max_speed %i",gib_pos().x,gib_pos().y,max_speed);
+
   for (int type=0; type<MAX_WAY_STATISTICS; type++) {
     for (int month=0; month<MAX_WAY_STAT_MONTHS; month++) {
       file->rdwr_int(statistics[month][type], "\n");

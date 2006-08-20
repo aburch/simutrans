@@ -1,3 +1,38 @@
+Released Simutrans 0.85.01.0
+
+20-Jan-2005:
+	FIX: linux: running in windows (again?)
+	FIX: factories were not connected with cities
+	FIX: tourist attractions again
+	FIX: bridges obey speed limit again after loading (must be broken
+	   since before 0.84.17)
+	CHANGE: animated cinema now with night colors
+	CHANGE: some industrial building renovated, night pixels removed
+	CHANGE: city factories have a minimum distance of 6
+	CHANGE: removed "BRIDGETOOL", "5WORLD_CHOOSE"
+	CHANGE: now seperate settings for land industry, city industry, and torism called
+	   "Land industries", "City industries", "Tourist attractions"
+	CHANGE: added a second power plant "Oil Power Plant"
+
+18-Jan-2005:
+	FIX: Adding transformer now connects more reliable with powerline
+	FIX: powerline ground has no owner (unlike ways),
+	   so one can built a powerline on other grounds, like a bridge
+	FIX: Romanian helpfile included
+	FIX: AI won't destroy your powerlines any more
+	FIX : AI now uses a little less trucks to prevent traffic jams and
+	   shift calculation a little towards trains
+	FIX: factories belong to the player => could be removed
+	CHANGE: Every second powerline is now just line, powerline bridges
+	CHANGE: tool added "Plant tree" (key '/' now without function)
+	CHANGE: removed drivables (key 'n') since they crashed anyway
+	CHANGE: removed add pump (key 'P'), since now add transformer does the
+	   right type automatically
+	CHANGE: removed uneccessary bridge menu pak-file
+
+
+Released Simutrans 0.85.00.0
+
 16-Jan-2005:
 	FIX: powerline works again (please, built from source to traget!)
 	FIX: powerline on slopes added

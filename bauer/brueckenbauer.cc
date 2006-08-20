@@ -56,17 +56,6 @@ static stringhashtable_tpl<const bruecke_besch_t *> bruecken_by_name;
  */
 void brueckenbauer_t::register_besch(const bruecke_besch_t *besch)
 {
-  /*
-    if(besch->gib_menupos() < 0 || besch->gib_menupos() > 7) {
-        dbg->fatal("brueckenbauer_t::register_besch()",
-                 "invalid or missing menupos in %s", besch->gib_name());
-    }
-    if(bruecken.get(besch->gib_menupos())) {
-        dbg->fatal("brueckenbauer_t::register_besch()",
-                 "duplicate menupos in %s", besch->gib_name());
-    }
-  */
-
   bruecken_by_name.put(besch->gib_name(), besch);
   bruecken.append(besch);
 }
@@ -107,49 +96,6 @@ bool brueckenbauer_t::laden_erfolgreich()
   return true;
 }
 
-
-void brueckenbauer_t::create_menu(karte_t *welt)
-{
-  werkzeug_parameter_waehler_t *wzw =
-    new werkzeug_parameter_waehler_t(welt,
-             "BRIDGETOOLS");
-
-
-  for(unsigned int i = 0; i < bruecken.count(); i++) {
-    const bruecke_besch_t *besch = bruecken.get(i);
-
-    int icon = besch->gib_cursor()->gib_bild_nr(1);
-
-    char buf[128];
-
-    sprintf(buf, "%s, %d$ (%d$), %dkm/h",
-      translator::translate(besch->gib_name()),
-      besch->gib_preis()/100,
-      besch->gib_wartung()/100,
-      besch->gib_topspeed());
-
-
-    wzw->add_param_tool(baue,
-      (const void*) besch,
-      karte_t::Z_PLAN,
-      SFX_GAVEL,
-      SFX_FAILURE,
-      icon,
-      besch->gib_cursor()->gib_bild_nr(0),
-      cstring_t(buf));
-  }
-
-
-  struct sound_info click_sound;
-
-  click_sound.index = SFX_SELECT;
-  click_sound.volume = 255;
-  click_sound.pri = 0;
-
-  sound_play(click_sound);
-
-  wzw->zeige_info(magic_bridgetools);
-}
 
 
 /**
@@ -416,10 +362,10 @@ bool brueckenbauer_t::baue_bruecke(karte_t *welt, spieler_t *sp,
   brueckenboden_t *bruecke = new  brueckenboden_t(welt, pos + koord3d(0, 0, 16), 0, 0);
 
   if(besch->gib_wegtyp() == weg_t::schiene) {
-      weg = new schiene_t(welt);
+      weg = new schiene_t(welt,450);
       ((schiene_t *)weg)->setze_blockstrecke( bs1 );
         } else {
-      weg = new strasse_t(welt);
+      weg = new strasse_t(welt,450);
   }
 
   weg->setze_max_speed(besch->gib_topspeed());
@@ -463,7 +409,7 @@ brueckenbauer_t::baue_auffahrt(karte_t *welt, spieler_t *sp, koord3d end, koord 
     ding_t *sig = NULL;
 
     if(besch->gib_wegtyp() == weg_t::schiene) {
-        weg = new schiene_t(welt);
+    	  weg = new schiene_t(welt,besch->gib_topspeed());
   if(!alter_weg) {
           sp->buche(CST_SCHIENE, alter_boden->gib_pos().gib_2d(), COST_CONSTRUCTION);
   } else {
@@ -475,7 +421,7 @@ brueckenbauer_t::baue_auffahrt(karte_t *welt, spieler_t *sp, koord3d end, koord 
       }
   }
     } else {
-  weg = new strasse_t(welt);
+  weg = new strasse_t(welt,besch->gib_topspeed());
   if(!alter_weg) {
           sp->buche(CST_STRASSE, alter_boden->gib_pos().gib_2d(), COST_CONSTRUCTION);
   }
@@ -602,11 +548,11 @@ brueckenbauer_t::remove(karte_t *welt, spieler_t *sp, koord3d pos, weg_t::typ we
 
   // Neuen Boden wieder mit Weg versehen
   if(wegtyp == weg_t::schiene) {
-      gr->neuen_weg_bauen(new schiene_t(welt), ribi, sp);
+      gr->neuen_weg_bauen(new schiene_t(welt,450), ribi, sp);
       bm->neue_schiene(welt, gr, sig);
   }
   else {
-      gr->neuen_weg_bauen(new strasse_t(welt), ribi, sp);
+      gr->neuen_weg_bauen(new strasse_t(welt,450), ribi, sp);
   }
       gr->calc_bild();
     }

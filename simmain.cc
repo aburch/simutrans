@@ -835,6 +835,9 @@ display_show_pointer( true );
     einstellungen_t *sets = new einstellungen_t( *welt->gib_einstellungen() );
     sets->setze_groesse(256);
     sets->setze_anzahl_staedte(16);
+    sets->setze_land_industry_chains(6);
+    sets->setze_city_industry_chains(0);
+    sets->setze_tourist_attractions(12);
     sets->setze_karte_nummer(simrand(999));
 
 
