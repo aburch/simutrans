@@ -1,12 +1,5 @@
 /*
- * stringhashtable_tpl.h
- *
- * Copyright (c) 1997 - 2002 Hj.Malthaner / V. Meyer
- *
  * a template class which implements a hashtable with string keys
- *
- * This file is part of the Simutrans project and may not be used
- * in other projects without written permission of the author.
  */
 
 #ifndef stringhashtable_tpl_h
@@ -17,17 +10,9 @@
 #include "hashtable_tpl.h"
 
 
-//@ADOC
-/////////////////////////////////////////////////////////////////////////////
-//  class:
-//	stringhash_t()
-//
-//---------------------------------------------------------------------------
-//  Description:
-//	Define the key characteristica for hashing "const char *".
-//
-/////////////////////////////////////////////////////////////////////////////
-//@EDOC
+/*
+ * Define the key characteristica for hashing "const char *".
+ */
 class stringhash_t {
 public:
     static int hash(const char *key)
@@ -52,18 +37,11 @@ public:
     }
 };
 
-//@ADOC
-/////////////////////////////////////////////////////////////////////////////
-//  class:
-//	stringhash2_t()
-//
-//---------------------------------------------------------------------------
-//  Description:
-//	Define the key characteristica for hashing "const char *".
-// 	Alternate implementation with whole string for hashcode.
-//
-/////////////////////////////////////////////////////////////////////////////
-//@EDOC
+
+/*
+ * Define the key characteristica for hashing "const char *".
+ * Alternate implementation with whole string for hashcode.
+ */
 class stringhash2_t {
 public:
     static int hash(const char *key)
@@ -87,32 +65,17 @@ public:
     }
 };
 
-//@ADOC
-/////////////////////////////////////////////////////////////////////////////
-//  class:
-//	template <class T> stringhashtable_tpl()
-//
-//---------------------------------------------------------------------------
-//  Description:
-//	Ready to use class for hashing strings. Hashkey is calculated from
-//	first and second char.
-/////////////////////////////////////////////////////////////////////////////
-//@EDOC
+
+/*
+ * Ready to use class for hashing strings. Hashkey is calculated from first and
+ * second char.
+ */
 template <class value_t>
 class stringhashtable_tpl : public hashtable_tpl<const char *, value_t, stringhash_t>
 {
 };
 
-//@ADOC
-/////////////////////////////////////////////////////////////////////////////
-//  class:
-//      inthashtable_iterator_tpl()
-//
-//---------------------------------------------------------------------------
-//  Description:
-//      ...
-/////////////////////////////////////////////////////////////////////////////
-//@EDOC
+
 template<class value_t>
 class stringhashtable_iterator_tpl : public hashtable_iterator_tpl<const char *, value_t, stringhash_t>
 {
@@ -127,32 +90,17 @@ public:
     }
 };
 
-//@ADOC
-/////////////////////////////////////////////////////////////////////////////
-//  class:
-//	template <class T> stringhashtable2_tpl()
-//
-//---------------------------------------------------------------------------
-//  Description:
-//	Ready to use class for hashing strings. Hashkey is calculated from
-//	while string.
-/////////////////////////////////////////////////////////////////////////////
-//@EDOC
+
+/*
+ * Ready to use class for hashing strings. Hashkey is calculated from whole
+ * string.
+ */
 template <class value_t>
 class stringhashtable2_tpl : public hashtable_tpl<const char *, value_t, stringhash2_t>
 {
 };
 
-//@ADOC
-/////////////////////////////////////////////////////////////////////////////
-//  class:
-//      inthashtable_iterator_tpl()
-//
-//---------------------------------------------------------------------------
-//  Description:
-//      ...
-/////////////////////////////////////////////////////////////////////////////
-//@EDOC
+
 template<class value_t>
 class stringhashtable2_iterator_tpl : public hashtable_iterator_tpl<const char *, value_t, stringhash2_t>
 {

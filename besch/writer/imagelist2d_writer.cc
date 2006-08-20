@@ -1,29 +1,3 @@
-//@ADOC
-/////////////////////////////////////////////////////////////////////////////
-//
-//  imagelist2d_writer.cpp
-//
-//  (c) 2002 by Volker Meyer, Lohsack 1, D-23843 Lohsack
-//
-//---------------------------------------------------------------------------
-//     Project: MakeObj                      Compiler: MS Visual C++ v6.00
-//  SubProject: ...                              Type: C/C++ Source
-//  $Workfile:: imagelist2d_writer.cp$       $Author: hajo $
-//  $Revision: 1.2 $         $Date: 2002/09/25 19:31:17 $
-//---------------------------------------------------------------------------
-//  Module Description:
-//      ...
-//
-//---------------------------------------------------------------------------
-//  Revision History:
-//  $Log: imagelist2d_writer.cc,v $
-//  Revision 1.2  2002/09/25 19:31:17  hajo
-//  Volker: new objects
-//
-//
-/////////////////////////////////////////////////////////////////////////////
-//@EDOC
-
 #include "../../utils/cstring_t.h"
 #include "../../tpl/slist_tpl.h"
 
@@ -33,21 +7,7 @@
 
 #include "imagelist2d_writer.h"
 
-//@ADOC
-/////////////////////////////////////////////////////////////////////////////
-//  member function:
-//      imagelist2d_writer_t::write_obj()
-//
-//---------------------------------------------------------------------------
-//  Description:
-//      ...
-//
-//  Arguments:
-//      FILE *fp
-//      obj_node_t &parent
-//      const slist_tpl<cstring_t> &keys
-/////////////////////////////////////////////////////////////////////////////
-//@EDOC
+
 void imagelist2d_writer_t::write_obj(FILE *fp, obj_node_t &parent,
 				     const slist_tpl< slist_tpl<cstring_t> > &keys)
 {

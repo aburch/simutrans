@@ -1,12 +1,3 @@
-/*
- * vehicle_reader.cc
- *
- * Copyright (c) 2002 - 2003 Hansjörg Malthaner
- *
- * This file is part of the Simutrans project and may not be used
- * in other projects without written permission of the author.
- */
-
 #include <stdio.h>
 #ifdef _MSC_VER
 #include <malloc.h> // for alloca
@@ -47,19 +38,6 @@ static offset_koord xy_rail[8] =
 */
 
 
-//@ADOC
-/////////////////////////////////////////////////////////////////////////////
-//  member function:
-//      vehicle_reader_t::register_obj()
-//
-//---------------------------------------------------------------------------
-//  Description:
-//      ...
-//
-//  Arguments:
-//      obj_besch_t *&data
-/////////////////////////////////////////////////////////////////////////////
-//@EDOC
 void vehicle_reader_t::register_obj(obj_besch_t *&data)
 {
     vehikel_besch_t *besch = static_cast<vehikel_besch_t *>(data);
@@ -140,11 +118,6 @@ bool vehicle_reader_t::successfully_loaded() const
 }
 
 
-/**
- * Read a goods info node. Does version check and
- * compatibility transformations.
- * @author Hj. Malthaner
- */
 obj_besch_t * vehicle_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 {
 #ifdef _MSC_VER /* no var array on the stack supported */

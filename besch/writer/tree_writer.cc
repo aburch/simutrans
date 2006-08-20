@@ -1,35 +1,3 @@
-//@ADOC
-/////////////////////////////////////////////////////////////////////////////
-//
-//  tree_writer.cpp
-//
-//  (c) 2002 by Volker Meyer, Lohsack 1, D-23843 Lohsack
-//
-//---------------------------------------------------------------------------
-//     Project: MakeObj                      Compiler: MS Visual C++ v6.00
-//  SubProject: ...                              Type: C/C++ Source
-//  $Workfile:: tree_writer.cpp      $       $Author: hajo $
-//  $Revision: 1.4 $         $Date: 2004/01/16 21:35:20 $
-//---------------------------------------------------------------------------
-//  Module Description:
-//      ...
-//
-//---------------------------------------------------------------------------
-//  Revision History:
-//  $Log: tree_writer.cc,v $
-//  Revision 1.4  2004/01/16 21:35:20  hajo
-//  Hajo: sync with Hendrik
-//
-//  Revision 1.3  2004/01/01 11:34:43  hajo
-//  Hajo: merge with Hendriks update
-//
-//  Revision 1.2  2002/09/25 19:31:18  hajo
-//  Volker: new objects
-//
-//
-/////////////////////////////////////////////////////////////////////////////
-//@EDOC
-
 #include "../../utils/cstring_t.h"
 #include "../../dataobj/tabfile.h"
 
@@ -40,13 +8,6 @@
 
 #include "tree_writer.h"
 
-// Hajodoc: Tree object type
-// Hajoval: string ("tree")
-// "obj"
-//
-// Hajodoc: Tree name (must be unique)
-// Hajoval: string
-// "name"
 
 void tree_writer_t::write_obj(FILE *fp, obj_node_t &parent, tabfileobj_t &obj)
 {
@@ -103,16 +64,3 @@ void tree_writer_t::write_obj(FILE *fp, obj_node_t &parent, tabfileobj_t &obj)
 
 	node.write(fp);
 }
-
-/*
-Hajoexstart:
-Obj=tree
-Name=Tree1
-Height=0
-Image[0][0]=../images/ls-trees01.0.0
-Image[1][0]=../images/ls-trees01.0.1
-Image[2][0]=../images/ls-trees01.0.2
-Image[3][0]=../images/ls-trees01.0.3
-Image[4][0]=../images/ls-trees01.0.4
-Hajoexend:
-*/

@@ -1,50 +1,3 @@
-//@ADOC
-/////////////////////////////////////////////////////////////////////////////
-//
-//  simskin.cpp
-//
-//  (c) 2002 by Volker Meyer, Lohsack 1, D-23843 Lohsack
-//
-//---------------------------------------------------------------------------
-//     Project: sim                          Compiler: MS Visual C++ v6.00
-//  SubProject: ...                              Type: C/C++ Source
-//  $Workfile:: simskin.cpp          $       $Author: hajo $
-//  $Revision: 1.6 $         $Date: 2004/10/30 09:20:48 $
-//---------------------------------------------------------------------------
-//  Module Description:
-//      ...
-//
-//---------------------------------------------------------------------------
-//  Revision History:
-//  $Log: simskin.cc,v $
-//  Revision 1.6  2004/10/30 09:20:48  hajo
-//  sync for Dario
-//
-//  Revision 1.5  2004/02/03 19:26:11  hajo
-//  Hajo: sync for Hendrik
-//
-//  Revision 1.4  2003/07/23 19:55:52  hajo
-//  Hajo: sync for Volker
-//
-//  Revision 1.3  2003/02/26 09:41:37  hajo
-//  Hajo: sync for 0.81.23exp
-//
-//  Revision 1.2  2003/01/08 19:54:02  hajo
-//  Hajo: preparation for delivery to volker
-//
-//  Revision 1.1  2002/09/18 19:25:52  hajo
-//  Volker: new config system
-//
-//
-/////////////////////////////////////////////////////////////////////////////
-//@EDOC
-
-/////////////////////////////////////////////////////////////////////////////
-//
-//  static data
-//
-/////////////////////////////////////////////////////////////////////////////
-
 #include <string.h>
 
 #include "simdebug.h"
@@ -175,22 +128,7 @@ static spezial_obj_tpl<skin_besch_t> cursor_objekte[] = {
     { NULL, NULL }
 };
 
-//@ADOC
-/////////////////////////////////////////////////////////////////////////////
-//  member function:
-//      skinverwaltung_t::alles_geladen()
-//
-//---------------------------------------------------------------------------
-//  Description:
-//      ...
-//
-//  Return type:
-//      bool
-//
-//  Arguments:
-//      skintyp_t type
-/////////////////////////////////////////////////////////////////////////////
-//@EDOC
+
 bool skinverwaltung_t::alles_geladen(skintyp_t type)
 {
     spezial_obj_tpl<skin_besch_t> *sb;
@@ -217,23 +155,6 @@ bool skinverwaltung_t::alles_geladen(skintyp_t type)
 }
 
 
-
-//@ADOC
-/////////////////////////////////////////////////////////////////////////////
-//  member function:
-//      skinverwaltung_t::register_besch()
-//
-//---------------------------------------------------------------------------
-//  Description:
-//      ...
-//
-//  Return type:
-//      bool
-//
-//  Arguments:
-//      const skin_besch_t *besch
-/////////////////////////////////////////////////////////////////////////////
-//@EDOC
 bool skinverwaltung_t::register_besch(skintyp_t type, const skin_besch_t *besch)
 {
     spezial_obj_tpl<skin_besch_t> *sb;

@@ -1,56 +1,11 @@
-//@ADOC
-/////////////////////////////////////////////////////////////////////////////
-//
-//  obj_reader.h
-//
-//  (c) 2002 by Volker Meyer, Lohsack 1, D-23843 Lohsack
-//
-//---------------------------------------------------------------------------
-//     Project: sim                          Compiler: MS Visual C++ v6.00
-//  SubProject: ...                              Type: C/C++ Header
-//  $Workfile:: obj_reader.h         $       $Author: hajo $
-//  $Revision: 1.5 $         $Date: 2004/01/16 21:35:20 $
-//---------------------------------------------------------------------------
-//  Module Description:
-//      ...
-//
-//---------------------------------------------------------------------------
-//  Revision History:
-//  $Log: obj_reader.h,v $
-//  Revision 1.5  2004/01/16 21:35:20  hajo
-//  Hajo: sync with Hendrik
-//
-//  Revision 1.4  2003/11/22 16:53:50  hajo
-//  Hajo: integrated Hendriks changes
-//
-//  Revision 1.3  2003/10/29 22:00:39  hajo
-//  Hajo: sync for Hendrik Siegeln
-//
-//  Revision 1.2  2002/09/25 19:31:17  hajo
-//  Volker: new objects
-//
-//
-/////////////////////////////////////////////////////////////////////////////
-//@EDOC
 #ifndef __OBJ_READER_H
 #define __OBJ_READER_H
-
-/////////////////////////////////////////////////////////////////////////////
-//
-//  includes
-//
-/////////////////////////////////////////////////////////////////////////////
 
 #include <stdio.h>
 
 #include "../obj_besch.h"
 #include "../objversion.h"
 
-/////////////////////////////////////////////////////////////////////////////
-//
-//  forward declarations
-//
-/////////////////////////////////////////////////////////////////////////////
 
 struct obj_node_info_t;
 template<class key_t, class value_t> class inthashtable_tpl;
@@ -112,17 +67,6 @@ inline uint32 decode_uint32(char * &data)
 }
 
 
-
-//@ADOC
-/////////////////////////////////////////////////////////////////////////////
-//  class:
-//      obj_reader_t()
-//
-//---------------------------------------------------------------------------
-//  Description:
-//      ...
-/////////////////////////////////////////////////////////////////////////////
-//@EDOC
 class obj_reader_t {
     //
     // table of registered obj readers sorted by id

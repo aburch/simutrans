@@ -1,39 +1,3 @@
-//@ADOC
-/////////////////////////////////////////////////////////////////////////////
-//
-//  factory_writer.cpp
-//
-//  (c) 2002 by Volker Meyer, Lohsack 1, D-23843 Lohsack
-//
-//---------------------------------------------------------------------------
-//     Project: MakeObj                      Compiler: MS Visual C++ v6.00
-//  SubProject: ...                              Type: C/C++ Source
-//  $Workfile:: factory_writer.cpp   $       $Author: hajo $
-//  $Revision: 1.5 $         $Date: 2005/02/26 22:00:39 $
-//---------------------------------------------------------------------------
-//  Module Description:
-//      ...
-//
-//---------------------------------------------------------------------------
-//  Revision History:
-//  $Log: factory_writer.cc,v $
-//
-//  Revision 1.5  2005/02/26 22:00:39  prissi
-//  prissi: pax level added
-//
-//  Revision 1.4  2003/10/29 22:00:39  hajo
-//  Hajo: sync for Hendrik Siegeln
-//
-//  Revision 1.3  2003/02/26 09:41:37  hajo
-//  Hajo: sync for 0.81.23exp
-//
-//  Revision 1.2  2002/09/25 19:31:17  hajo
-//  Volker: new objects
-//
-//
-/////////////////////////////////////////////////////////////////////////////
-//@EDOC
-
 #include "../../dataobj/tabfile.h"
 
 #include "obj_node.h"
@@ -44,21 +8,7 @@
 #include "factory_writer.h"
 #include "xref_writer.h"
 
-//@ADOC
-/////////////////////////////////////////////////////////////////////////////
-//  member function:
-//      factory_smoke_writer_t::write_obj()
-//
-//---------------------------------------------------------------------------
-//  Description:
-//      ...
-//
-//  Arguments:
-//      FILE *outfp
-//      obj_node_t &parent
-//      tabfileobj_t &obj
-/////////////////////////////////////////////////////////////////////////////
-//@EDOC
+
 void factory_smoke_writer_t::write_obj(FILE *outfp, obj_node_t &parent, tabfileobj_t &obj)
 {
     rauch_besch_t besch;
@@ -76,22 +26,7 @@ void factory_smoke_writer_t::write_obj(FILE *outfp, obj_node_t &parent, tabfileo
     node.write(outfp);
 }
 
-//@ADOC
-/////////////////////////////////////////////////////////////////////////////
-//  member function:
-//      factory_product_writer_t::write_obj()
-//
-//---------------------------------------------------------------------------
-//  Description:
-//      ...
-//
-//  Arguments:
-//      FILE *outfp
-//      obj_node_t &parent
-//      int capacity
-//      const char *warename
-/////////////////////////////////////////////////////////////////////////////
-//@EDOC
+
 void factory_product_writer_t::write_obj(FILE *outfp,
 					 obj_node_t &parent,
 					 int capacity,
@@ -117,23 +52,7 @@ void factory_product_writer_t::write_obj(FILE *outfp,
     node.write(outfp);
 }
 
-//@ADOC
-/////////////////////////////////////////////////////////////////////////////
-//  member function:
-//      factory_supplier_writer_t::write_obj()
-//
-//---------------------------------------------------------------------------
-//  Description:
-//      ...
-//
-//  Arguments:
-//      FILE *outfp
-//      obj_node_t &parent
-//      int capacity
-//      int count
-//      const char *warename
-/////////////////////////////////////////////////////////////////////////////
-//@EDOC
+
 void factory_supplier_writer_t::write_obj(FILE *outfp, obj_node_t &parent, int capacity, int count, int verbrauch, const char *warename)
 {
     fabrik_lieferant_besch_t besch;
@@ -150,21 +69,7 @@ void factory_supplier_writer_t::write_obj(FILE *outfp, obj_node_t &parent, int c
     node.write(outfp);
 }
 
-//@ADOC
-/////////////////////////////////////////////////////////////////////////////
-//  member function:
-//      factory_writer_t::write_obj()
-//
-//---------------------------------------------------------------------------
-//  beschription:
-//      ...
-//
-//  Arguments:
-//      FILE *fp
-//      obj_node_t &parent
-//      tabfileobj_t &obj
-/////////////////////////////////////////////////////////////////////////////
-//@EDOC
+
 void factory_writer_t::write_obj(FILE *fp, obj_node_t &parent, tabfileobj_t &obj)
 {
     fabrik_besch_t besch;
@@ -263,22 +168,6 @@ void factory_writer_t::write_obj(FILE *fp, obj_node_t &parent, tabfileobj_t &obj
 }
 
 
-//@ADOC
-/////////////////////////////////////////////////////////////////////////////
-//  member function:
-//      factory_writer_t::get_node_name()
-//
-//---------------------------------------------------------------------------
-//  Description:
-//      ...
-//
-//  Return type:
-//      cstring_t
-//
-//  Arguments:
-//      (FILE *fp
-/////////////////////////////////////////////////////////////////////////////
-//@EDOC
 cstring_t factory_writer_t::get_node_name(FILE *fp) const
 {
     obj_node_info_t node;   // Gebäude - wehe nicht

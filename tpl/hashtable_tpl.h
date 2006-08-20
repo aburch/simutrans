@@ -1,12 +1,3 @@
-/*
- * hashtable_tpl.h
- *
- * Copyright (c) 1997 - 2001 Hansjörg Malthaner / V. Meyer
- *
- * This file is part of the Simutrans project and may not be used
- * in other projects without written permission of the author.
- */
-
 #ifndef tpl_hashtable_tpl_h
 #define tpl_hashtable_tpl_h
 
@@ -18,18 +9,12 @@
 
 template<class key_t, class value_t, class hash_t>  class hashtable_iterator_tpl;
 
-//@ADOC
-/////////////////////////////////////////////////////////////////////////////
-//  class:
-//	template<class key_t, class value_t, class hash_t> hashtable_tpl
-//
-//---------------------------------------------------------------------------
-//  Description:
-//	Generic hashtable, which maps key_t to value_t. key_t depended
-//	functions like the hash generation is implement by the third template
-//	parameter hash_t (see ifc/hash_tpl.h).
-/////////////////////////////////////////////////////////////////////////////
-//@EDOC
+
+/*
+ * Generic hashtable, which maps key_t to value_t. key_t depended functions
+ * like the hash generation is implemented by the third template parameter
+ * hash_t (see ifc/hash_tpl.h)
+ */
 template<class key_t, class value_t, class hash_t>
 class hashtable_tpl : public hash_t
 {
@@ -212,16 +197,9 @@ public:
 };
 
 
-//@ADOC
-/////////////////////////////////////////////////////////////////////////////
-//  class:
-//	template<class key_t, class value_t, class hash_t> hashtable_iterator_tpl
-//
-//---------------------------------------------------------------------------
-//  Description:
-//	Generic iteratot for hashtable.
-/////////////////////////////////////////////////////////////////////////////
-//@EDOC
+/*
+ * Generic iterator for hashtable
+ */
 template<class key_t, class value_t, class hash_t>
 class hashtable_iterator_tpl {
     const slist_tpl < typename hashtable_tpl<key_t, value_t, hash_t>::node_t> *bags;

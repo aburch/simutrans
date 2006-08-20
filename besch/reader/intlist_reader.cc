@@ -1,29 +1,3 @@
-//@ADOC
-/////////////////////////////////////////////////////////////////////////////
-//
-//  intlist_reader.cpp
-//
-//  (c) 2002 by Volker Meyer, Lohsack 1, D-23843 Lohsack
-//
-//---------------------------------------------------------------------------
-//     Project: sim                          Compiler: MS Visual C++ v6.00
-//  SubProject: ...                              Type: C/C++ Source
-//  $Workfile:: intlist_reader.cpp   $       $Author: hajo $
-//  $Revision: 1.1 $         $Date: 2002/09/18 19:13:21 $
-//---------------------------------------------------------------------------
-//  Module Description:
-//      ...
-//
-//---------------------------------------------------------------------------
-//  Revision History:
-//  $Log: intlist_reader.cc,v $
-//  Revision 1.1  2002/09/18 19:13:21  hajo
-//  Volker: new config system
-//
-//
-/////////////////////////////////////////////////////////////////////////////
-//@EDOC
-
 #include <stdio.h>
 #include <stdlib.h>
 #ifdef _MSC_VER
@@ -36,17 +10,7 @@
 #include "intlist_reader.h"
 #include "../obj_node_info.h"
 
-/////////////////////////////////////////////////////////////////////////////
-//
-//  static data
-//
-/////////////////////////////////////////////////////////////////////////////
 
-/**
- * Read a goods info node. Does version check and
- * compatibility transformations.
- * @author Hj. Malthaner
- */
 obj_besch_t * intlist_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 {
 #ifdef _MSC_VER /* no var array on the stack supported */

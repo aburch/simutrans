@@ -1,4 +1,3 @@
-
 #include <stdio.h>
 
 #include "../../dataobj/ribi.h"
@@ -9,19 +8,6 @@
 #include "../../bauer/tunnelbauer.h"
 
 
-//@ADOC
-/////////////////////////////////////////////////////////////////////////////
-//  member function:
-//      tunnel_reader_t::register_obj()
-//
-//---------------------------------------------------------------------------
-//  Description:
-//      ...
-//
-//  Arguments:
-//      char *&data
-/////////////////////////////////////////////////////////////////////////////
-//@EDOC
 void tunnel_reader_t::register_obj(obj_besch_t *&data)
 {
     tunnel_besch_t *besch = static_cast<tunnel_besch_t *>(data);

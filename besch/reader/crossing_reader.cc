@@ -1,38 +1,3 @@
-//@ADOC
-/////////////////////////////////////////////////////////////////////////////
-//
-//  crossing_reader.cpp
-//
-//  (c) 2002 by Volker Meyer, Lohsack 1, D-23843 Lohsack
-//
-//---------------------------------------------------------------------------
-//     Project: sim                          Compiler: MS Visual C++ v6.00
-//  SubProject: ...                              Type: C/C++ Source
-//  $Workfile:: crossing_reader.cpp  $       $Author: hajo $
-//  $Revision: 1.3 $         $Date: 2002/09/28 14:47:40 $
-//---------------------------------------------------------------------------
-//  Module Description:
-//      ...
-//
-//---------------------------------------------------------------------------
-//  Revision History:
-//  $Log: crossing_reader.cc,v $
-//  Revision 1.3  2002/09/28 14:47:40  hajo
-//  Hajo: restructurings
-//
-//  Revision 1.2  2002/09/25 19:31:17  hajo
-//  Volker: new objects
-//
-//
-/////////////////////////////////////////////////////////////////////////////
-//@EDOC
-
-/////////////////////////////////////////////////////////////////////////////
-//
-//  static data
-//
-/////////////////////////////////////////////////////////////////////////////
-
 #include <stdio.h>
 
 #include "../../bauer/wegbauer.h"
@@ -44,19 +9,7 @@
 
 #include "../../simdebug.h"
 
-//@ADOC
-/////////////////////////////////////////////////////////////////////////////
-//  member function:
-//      crossing_reader_t::register_obj()
-//
-//---------------------------------------------------------------------------
-//  Description:
-//      ...
-//
-//  Arguments:
-//      char *&data
-/////////////////////////////////////////////////////////////////////////////
-//@EDOC
+
 void crossing_reader_t::register_obj(obj_besch_t *&data)
 {
     kreuzung_besch_t *besch = static_cast<kreuzung_besch_t *>(data);
@@ -72,13 +25,6 @@ bool crossing_reader_t::successfully_loaded() const
 }
 
 
-
-
-/**
- * Read a goods info node. Does version check and
- * compatibility transformations.
- * @author Hj. Malthaner
- */
 obj_besch_t * crossing_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 {
 #ifdef _MSC_VER /* no var array on the stack supported */

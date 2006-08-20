@@ -1,4 +1,3 @@
-
 #include "../../utils/cstring_t.h"
 #include "../../dataobj/tabfile.h"
 
@@ -9,28 +8,7 @@
 
 #include "citycar_writer.h"
 
-/////////////////////////////////////////////////////////////////////////////
-//
-//  static data
-//
-/////////////////////////////////////////////////////////////////////////////
 
-
-//@ADOC
-/////////////////////////////////////////////////////////////////////////////
-//  member function:
-//      citycar_writer_t::write_obj()
-//
-//---------------------------------------------------------------------------
-//  Description:
-//      ...
-//
-//  Arguments:
-//      FILE *fp
-//      obj_node_t &parent
-//      tabfileobj_t &obj
-/////////////////////////////////////////////////////////////////////////////
-//@EDOC
 void citycar_writer_t::write_obj(FILE *fp, obj_node_t &parent, tabfileobj_t &obj)
 {
     stadtauto_besch_t besch;

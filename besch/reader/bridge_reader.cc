@@ -1,41 +1,3 @@
-//@ADOC
-/////////////////////////////////////////////////////////////////////////////
-//
-//  bridge_reader.cpp
-//
-//  (c) 2002 by Volker Meyer, Lohsack 1, D-23843 Lohsack
-//
-//---------------------------------------------------------------------------
-//     Project: sim                          Compiler: MS Visual C++ v6.00
-//  SubProject: ...                              Type: C/C++ Source
-//  $Workfile:: bridge_reader.cpp    $       $Author: hajo $
-//  $Revision: 1.4 $         $Date: 2004/10/30 09:20:49 $
-//---------------------------------------------------------------------------
-//  Module Description:
-//      ...
-//
-//---------------------------------------------------------------------------
-//  Revision History:
-//  $Log: bridge_reader.cc,v $
-//  Revision 1.4  2004/10/30 09:20:49  hajo
-//  sync for Dario
-//
-//  Revision 1.3  2002/09/28 14:47:40  hajo
-//  Hajo: restructurings
-//
-//  Revision 1.2  2002/09/25 19:31:17  hajo
-//  Volker: new objects
-//
-//
-/////////////////////////////////////////////////////////////////////////////
-//@EDOC
-
-/////////////////////////////////////////////////////////////////////////////
-//
-//  static data
-//
-/////////////////////////////////////////////////////////////////////////////
-
 #include <stdio.h>
 #ifdef _MSC_VER
 #include <malloc.h> // for alloca
@@ -49,20 +11,6 @@
 #include "../obj_node_info.h"
 
 
-
-/*
- *  member function:
- *      bridge_reader_t::register_obj()
- *
- *  Autor:
- *      Volker Meyer
- *
- *  Beschreibung:
- *      ...
- *
- *  Argumente:
- *      obj_besch_t *&data
- */
 void bridge_reader_t::register_obj(obj_besch_t *&data)
 {
 bruecke_besch_t *besch = static_cast<bruecke_besch_t *>(data);
@@ -71,31 +19,12 @@ brueckenbauer_t::register_besch(besch);
 }
 
 
-//@ADOC
-/////////////////////////////////////////////////////////////////////////////
-//  member function:
-//      bridge_reader_t::successfully_loaded()
-//
-//---------------------------------------------------------------------------
-//  Description:
-//      ...
-//
-//  Return type:
-//      bool
-/////////////////////////////////////////////////////////////////////////////
-//@EDOC
 bool bridge_reader_t::successfully_loaded() const
 {
     return brueckenbauer_t::laden_erfolgreich();
 }
 
 
-
-/**
- * Read a bridge info node. Does version check and
- * compatibility transformations.
- * @author Hj. Malthaner
- */
 obj_besch_t * bridge_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 {
   // DBG_DEBUG("bridge_reader_t::read_node()", "called");

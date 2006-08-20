@@ -1,31 +1,3 @@
-//@ADOC
-/////////////////////////////////////////////////////////////////////////////
-//
-//  objversion.h
-//
-//  (c) 2002 by Volker Meyer, Lohsack 1, D-23843 Lohsack
-//
-//---------------------------------------------------------------------------
-//     Project: sim                          Compiler: MS Visual C++ v6.00
-//  SubProject: ...                              Type: C/C++ Header
-//  $Workfile:: objversion.h         $       $Author: hajo $
-//  $Revision: 1.2 $         $Date: 2003/06/14 15:52:09 $
-//---------------------------------------------------------------------------
-//  Module Description:
-//      ...
-//
-//---------------------------------------------------------------------------
-//  Revision History:
-//  $Log: objversion.h,v $
-//  Revision 1.2  2003/06/14 15:52:09  hajo
-//  Hajo: preparing 0.82
-//
-//  Revision 1.1  2002/09/18 19:13:21  hajo
-//  Volker: new config system
-//
-//
-/////////////////////////////////////////////////////////////////////////////
-//@EDOC
 #ifndef __OBJVERSION_H
 #define __OBJVERSION_H
 
@@ -33,23 +5,14 @@
 #define COMPILER_VERSION	"0.1.2exp"
 #define COMPILER_VERSION_CODE	(0 * 1000000 + 1 * 1000 + 1)
 
-//@ADOC
-/////////////////////////////////////////////////////////////////////////////
-//  enum:
-//      obj_type()
-//
-//---------------------------------------------------------------------------
-//  Description:
-//      obj_type value are stored inside the pak-files.Values are choosen to
-//      make them somewhat readable (up to uppercase letter describing the
-//      type).
-//	    obj as 4 byte: 3073094 bytes total
-//	    obj as 2 byte: 3063046 bytes total
-//	    obj as 1 byte: 3058022 bytes total
-//	    saves 4 to 1:  15072 bytes = 0,5% not worth it
-//
-/////////////////////////////////////////////////////////////////////////////
-//@EDOC
+/*
+ * obj_type value are stored inside the pak-files.Values are choosen to make
+ * them somewhat readable (up to 4 uppercase letters describing the type).
+ * obj as 4 byte: 3073094 bytes total
+ * obj as 2 byte: 3063046 bytes total
+ * obj as 1 byte: 3058022 bytes total
+ * saves 4 to 1:  15072 bytes = 0,5% not worth it
+ */
 #define	C4ID(a,b,c,d)	    ((a) + ((b)<<8) + ((c)<<16) + ((d)<<24))
 
 

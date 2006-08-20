@@ -1,53 +1,3 @@
-//@ADOC
-/////////////////////////////////////////////////////////////////////////////
-//
-//  obj_reader.cpp
-//
-//  (c) 2002 by Volker Meyer, Lohsack 1, D-23843 Lohsack
-//
-//---------------------------------------------------------------------------
-//     Project: sim                          Compiler: MS Visual C++ v6.00
-//  SubProject: ...                              Type: C/C++ Source
-//  $Workfile:: obj_reader.cpp       $       $Author: hajo $
-//  $Revision: 1.11 $         $Date: 2004/02/03 19:26:12 $
-//---------------------------------------------------------------------------
-//  Module Description:
-//      ...
-//
-//---------------------------------------------------------------------------
-//  Revision History:
-//  $Log: obj_reader.cc,v $
-//  Revision 1.11  2004/02/03 19:26:12  hajo
-//  Hajo: sync for Hendrik
-//
-//  Revision 1.10  2004/01/16 21:35:20  hajo
-//  Hajo: sync with Hendrik
-//
-//  Revision 1.9  2004/01/01 11:34:43  hajo
-//  Hajo: merge with Hendriks update
-//
-//  Revision 1.8  2003/11/22 16:53:50  hajo
-//  Hajo: integrated Hendriks changes
-//
-//  Revision 1.7  2003/10/29 22:00:39  hajo
-//  Hajo: sync for Hendrik Siegeln
-//
-//  Revision 1.6  2003/02/26 09:41:37  hajo
-//  Hajo: sync for 0.81.23exp
-//
-//  Revision 1.5  2003/02/02 10:15:42  hajo
-//  Hajo: sync for 0.81.21exp
-//
-//  Revision 1.4  2002/12/05 20:33:55  hajo
-//  Hajo: checking for sync with Volker, 0.81.10exp
-//
-//  Revision 1.2  2002/09/25 19:31:17  hajo
-//  Volker: new objects
-//
-//
-/////////////////////////////////////////////////////////////////////////////
-//@EDOC
-
 #include <string.h>
 
 #ifndef _MSC_VER
@@ -78,28 +28,12 @@
 
 #include "obj_reader.h"
 
-/////////////////////////////////////////////////////////////////////////////
-//
-//  static data
-//
-/////////////////////////////////////////////////////////////////////////////
 
 inthashtable_tpl<obj_type, stringhashtable_tpl<obj_besch_t *> > obj_reader_t::loaded;
 inthashtable_tpl<obj_type, stringhashtable_tpl< slist_tpl<obj_besch_t **> > > obj_reader_t::unresolved;
 ptrhashtable_tpl<obj_besch_t **, int> obj_reader_t::fatals;
 
 
-
-//@ADOC
-/////////////////////////////////////////////////////////////////////////////
-//  member function:
-//      obj_reader_t::register_reader()
-//
-//---------------------------------------------------------------------------
-//  Description:
-//      ...
-/////////////////////////////////////////////////////////////////////////////
-//@EDOC
 void obj_reader_t::register_reader()
 {
     if(!obj_reader) {
@@ -110,19 +44,6 @@ void obj_reader_t::register_reader()
 }
 
 
-//@ADOC
-/////////////////////////////////////////////////////////////////////////////
-//  member function:
-//      obj_reader_t::init()
-//
-//---------------------------------------------------------------------------
-//  Description:
-//      ...
-//
-//  Arguments:
-//      const char *liste
-/////////////////////////////////////////////////////////////////////////////
-//@EDOC
 bool obj_reader_t::init(const char *liste)
 {
     DBG_MESSAGE("obj_reader_t::init()","reading from '%s'", liste);
@@ -216,20 +137,6 @@ DBG_MESSAGE("obj_reader_t::init()","Checking %s objects...",iter.get_current_val
 }
 
 
-
-//@ADOC
-/////////////////////////////////////////////////////////////////////////////
-//  member function:
-//      obj_reader_t::read_file()
-//
-//---------------------------------------------------------------------------
-//  Description:
-//      ...
-//
-//  Arguments:
-//      const char *name
-/////////////////////////////////////////////////////////////////////////////
-//@EDOC
 void obj_reader_t::read_file(const char *name)
 {
 	// Hajo: added trace
@@ -282,22 +189,6 @@ void obj_reader_t::read_file(const char *name)
 }
 
 
-
-//@ADOC
-/////////////////////////////////////////////////////////////////////////////
-//  member function:
-//      obj_reader_t::read_node()
-//
-//---------------------------------------------------------------------------
-//  Description:
-//      ...
-//
-//  Arguments:
-//      FILE *fp
-//      obj_besch_t *parent
-//	obj_besch_t &*data	    where to put the data address
-/////////////////////////////////////////////////////////////////////////////
-//@EDOC
 void obj_reader_t::read_nodes(FILE *fp, obj_besch_t * /*parent*/, obj_besch_t *&data)
 {
 	obj_node_info_t node;
@@ -333,24 +224,6 @@ void obj_reader_t::read_nodes(FILE *fp, obj_besch_t * /*parent*/, obj_besch_t *&
 }
 
 
-
-//@ADOC
-/////////////////////////////////////////////////////////////////////////////
-//  member function:
-//      obj_reader_t::read_node()
-//
-//---------------------------------------------------------------------------
-//  Description:
-//      ...
-//
-//  Return type:
-//      obj_besch_t *
-//
-//  Arguments:
-//      FILE *fp
-//      obj_node_info_t &node
-/////////////////////////////////////////////////////////////////////////////
-//@EDOC
 obj_besch_t *obj_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 {
 	char *besch_buf = (char *)malloc( sizeof(obj_besch_t *) + node.size );
@@ -369,20 +242,6 @@ obj_besch_t *obj_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 }
 
 
-
-//@ADOC
-/////////////////////////////////////////////////////////////////////////////
-//  member function:
-//      obj_reader_t::skip_nodes()
-//
-//---------------------------------------------------------------------------
-//  Description:
-//      ...
-//
-//  Arguments:
-//      FILE *fp
-/////////////////////////////////////////////////////////////////////////////
-//@EDOC
 void obj_reader_t::skip_nodes(FILE *fp)
 {
 	obj_node_info_t node;
@@ -402,20 +261,6 @@ void obj_reader_t::skip_nodes(FILE *fp)
 }
 
 
-
-//@ADOC
-/////////////////////////////////////////////////////////////////////////////
-//  member function:
-//      obj_reader_t::delete_node()
-//
-//---------------------------------------------------------------------------
-//  Description:
-//      ...
-//
-//  Arguments:
-//      obj_besch_t *node
-/////////////////////////////////////////////////////////////////////////////
-//@EDOC
 void obj_reader_t::delete_node(obj_besch_t *data)
 {
     char *besch_buf = reinterpret_cast<char *>(data);
@@ -426,17 +271,6 @@ void obj_reader_t::delete_node(obj_besch_t *data)
 }
 
 
-
-//@ADOC
-/////////////////////////////////////////////////////////////////////////////
-//  member function:
-//      obj_reader_t::resolve_xrefs()
-//
-//---------------------------------------------------------------------------
-//  Description:
-//      ...
-/////////////////////////////////////////////////////////////////////////////
-//@EDOC
 void obj_reader_t::resolve_xrefs()
 {
 	slist_tpl<obj_besch_t *> xref_nodes;
@@ -480,22 +314,6 @@ void obj_reader_t::resolve_xrefs()
 }
 
 
-
-//@ADOC
-/////////////////////////////////////////////////////////////////////////////
-//  member function:
-//      obj_reader_t::obj_for_xref()
-//
-//---------------------------------------------------------------------------
-//  Description:
-//      ...
-//
-//  Arguments:
-//      obj_type type
-//      const char *name
-//      obj_besch_t *data
-/////////////////////////////////////////////////////////////////////////////
-//@EDOC
 void obj_reader_t::obj_for_xref(obj_type type, const char *name, obj_besch_t *data)
 {
 	stringhashtable_tpl<obj_besch_t *> *objtype_loaded = loaded.access(type);
@@ -510,22 +328,6 @@ void obj_reader_t::obj_for_xref(obj_type type, const char *name, obj_besch_t *da
 }
 
 
-
-//@ADOC
-/////////////////////////////////////////////////////////////////////////////
-//  member function:
-//      obj_reader_t::xref_to_resolve()
-//
-//---------------------------------------------------------------------------
-//  Description:
-//      ...
-//
-//  Arguments:
-//      obj_type type
-//      const char *name
-//      char **dest
-/////////////////////////////////////////////////////////////////////////////
-//@EDOC
 void obj_reader_t::xref_to_resolve(obj_type type, const char *name, obj_besch_t **dest, bool fatal)
 {
 	stringhashtable_tpl< slist_tpl<obj_besch_t **> > *typeunresolved = unresolved.access(type);

@@ -1,4 +1,3 @@
-
 #include "../../utils/cstring_t.h"
 #include "../../dataobj/tabfile.h"
 
@@ -9,21 +8,7 @@
 
 #include "pedestrian_writer.h"
 
-//@ADOC
-/////////////////////////////////////////////////////////////////////////////
-//  member function:
-//      pedestrian_writer_t::write_obj()
-//
-//---------------------------------------------------------------------------
-//  Description:
-//      ...
-//
-//  Arguments:
-//      FILE *fp
-//      obj_node_t &parent
-//      tabfileobj_t &obj
-/////////////////////////////////////////////////////////////////////////////
-//@EDOC
+
 void pedestrian_writer_t::write_obj(FILE *fp, obj_node_t &parent, tabfileobj_t &obj)
 {
     fussgaenger_besch_t besch;

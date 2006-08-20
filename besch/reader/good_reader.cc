@@ -1,41 +1,3 @@
-//@ADOC
-/////////////////////////////////////////////////////////////////////////////
-//
-//  good_reader.cpp
-//
-//  (c) 2002 by Volker Meyer, Lohsack 1, D-23843 Lohsack
-//
-//---------------------------------------------------------------------------
-//     Project: sim                          Compiler: MS Visual C++ v6.00
-//  SubProject: ...                              Type: C/C++ Source
-//  $Workfile:: good_reader.cpp      $       $Author: hajo $
-//  $Revision: 1.6 $         $Date: 2004/10/30 09:20:49 $
-//---------------------------------------------------------------------------
-//  Module Description:
-//      ...
-//
-//---------------------------------------------------------------------------
-//  Revision History:
-//  $Log: good_reader.cc,v $
-//  Revision 1.6  2004/10/30 09:20:49  hajo
-//  sync for Dario
-//
-//  Revision 1.5  2003/12/10 19:41:45  hajo
-//  Hajo: sync for Hendrik
-//
-//  Revision 1.4  2003/10/29 22:00:39  hajo
-//  Hajo: sync for Hendrik Siegeln
-//
-//  Revision 1.3  2002/09/28 14:47:40  hajo
-//  Hajo: restructurings
-//
-//  Revision 1.2  2002/09/25 19:31:17  hajo
-//  Volker: new objects
-//
-//
-/////////////////////////////////////////////////////////////////////////////
-//@EDOC
-
 #include <stdio.h>
 #ifdef _MSC_VER
 #include <malloc.h> // for alloca
@@ -49,19 +11,7 @@
 #include "../obj_node_info.h"
 #include "../ware_besch.h"
 
-//@ADOC
-/////////////////////////////////////////////////////////////////////////////
-//  member function:
-//      good_reader_t::register_obj()
-//
-//---------------------------------------------------------------------------
-//  Description:
-//      ...
-//
-//  Arguments:
-//      obj_besch_t *&data
-/////////////////////////////////////////////////////////////////////////////
-//@EDOC
+
 void good_reader_t::register_obj(obj_besch_t *&data)
 {
   ware_besch_t *besch = static_cast<ware_besch_t *>(data);
@@ -74,31 +24,12 @@ void good_reader_t::register_obj(obj_besch_t *&data)
 }
 
 
-//@ADOC
-/////////////////////////////////////////////////////////////////////////////
-//  member function:
-//      good_reader_t::successfully_loaded()
-//
-//---------------------------------------------------------------------------
-//  Description:
-//      ...
-//
-//  Return type:
-//      bool
-/////////////////////////////////////////////////////////////////////////////
-//@EDOC
 bool good_reader_t::successfully_loaded() const
 {
     return warenbauer_t::alles_geladen();
 }
 
 
-
-/**
- * Read a goods info node. Does version check and
- * compatibility transformations.
- * @author Hj. Malthaner
- */
 obj_besch_t * good_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 {
   // DBG_DEBUG("good_reader_t::read_node()", "called");

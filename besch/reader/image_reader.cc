@@ -1,32 +1,3 @@
-//@ADOC
-/////////////////////////////////////////////////////////////////////////////
-//
-//  image_reader.cpp
-//
-//  (c) 2002 by Volker Meyer, Lohsack 1, D-23843 Lohsack
-//
-//---------------------------------------------------------------------------
-//     Project: sim                          Compiler: MS Visual C++ v6.00
-//  SubProject: ...                              Type: C/C++ Source
-//  $Workfile:: image_reader.cpp     $       $Author: hajo $
-//  $Revision: 1.3 $         $Date: 2003/02/02 10:15:41 $
-//---------------------------------------------------------------------------
-//  Module Description:
-//      ...
-//
-//---------------------------------------------------------------------------
-//  Revision History:
-//  $Log: image_reader.cc,v $
-//  Revision 1.3  2003/02/02 10:15:41  hajo
-//  Hajo: sync for 0.81.21exp
-//
-//  Revision 1.2  2002/09/25 19:31:17  hajo
-//  Volker: new objects
-//
-//
-/////////////////////////////////////////////////////////////////////////////
-//@EDOC
-
 #include <stdio.h>
 #include <string.h>
 
@@ -40,19 +11,6 @@
 #include "../obj_node_info.h"
 
 
-//@ADOC
-/////////////////////////////////////////////////////////////////////////////
-//  member function:
-//      image_reader_t::register_obj()
-//
-//---------------------------------------------------------------------------
-//  Description:
-//      ...
-//
-//  Arguments:
-//      char *&data
-/////////////////////////////////////////////////////////////////////////////
-//@EDOC
 void image_reader_t::register_obj(obj_besch_t *&data)
 {
     bild_besch_t *besch = static_cast<bild_besch_t *>(data);
@@ -77,11 +35,6 @@ void image_reader_t::register_obj(obj_besch_t *&data)
 }
 
 
-/**
- * Read an info node. Does version check and
- * compatibility transformations.
- * @author Hj. Malthaner
- */
 obj_besch_t *  image_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 {
 #ifdef _MSC_VER /* no var array on the stack supported */

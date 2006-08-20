@@ -1,50 +1,10 @@
-//@ADOC
-/////////////////////////////////////////////////////////////////////////////
-//
-//  skin_writer.h
-//
-//  (c) 2002 by Volker Meyer, Lohsack 1, D-23843 Lohsack
-//
-//---------------------------------------------------------------------------
-//     Project: MakeObj                      Compiler: MS Visual C++ v6.00
-//  SubProject: ...                              Type: C/C++ Header
-//  $Workfile:: skin_writer.h        $       $Author: hajo $
-//  $Revision: 1.2 $         $Date: 2002/09/25 19:31:18 $
-//---------------------------------------------------------------------------
-//  Module Description:
-//      ...
-//
-//---------------------------------------------------------------------------
-//  Revision History:
-//  $Log: skin_writer.h,v $
-//  Revision 1.2  2002/09/25 19:31:18  hajo
-//  Volker: new objects
-//
-//
-/////////////////////////////////////////////////////////////////////////////
-//@EDOC
 #ifndef __SKIN_WRITER_H
 #define __SKIN_WRITER_H
-
-/////////////////////////////////////////////////////////////////////////////
-//
-//  includes
-//
-/////////////////////////////////////////////////////////////////////////////
 
 #include "obj_writer.h"
 #include "../objversion.h"
 
-//@ADOC
-/////////////////////////////////////////////////////////////////////////////
-//  class:
-//      skin_writer_t()
-//
-//---------------------------------------------------------------------------
-//  Description:
-//      ...
-/////////////////////////////////////////////////////////////////////////////
-//@EDOC
+
 class skin_writer_t : public obj_writer_t {
 protected:
     virtual cstring_t get_node_name(FILE *fp) const { return name_from_next_node(fp); }
@@ -58,16 +18,6 @@ public:
 };
 
 
-//@ADOC
-/////////////////////////////////////////////////////////////////////////////
-//  class:
-//      menuskin_writer_t()
-//
-//---------------------------------------------------------------------------
-//  Description:
-//      ...
-/////////////////////////////////////////////////////////////////////////////
-//@EDOC
 class menuskin_writer_t : public skin_writer_t {
     static menuskin_writer_t the_instance;
 
@@ -80,16 +30,6 @@ public:
 };
 
 
-//@ADOC
-/////////////////////////////////////////////////////////////////////////////
-//  class:
-//      cursorskin_writer_t()
-//
-//---------------------------------------------------------------------------
-//  Description:
-//      ...
-/////////////////////////////////////////////////////////////////////////////
-//@EDOC
 class cursorskin_writer_t : public skin_writer_t {
     static cursorskin_writer_t the_instance;
 
@@ -102,16 +42,6 @@ public:
 };
 
 
-//@ADOC
-/////////////////////////////////////////////////////////////////////////////
-//  class:
-//      symbolskin_writer_t()
-//
-//---------------------------------------------------------------------------
-//  Description:
-//      ...
-/////////////////////////////////////////////////////////////////////////////
-//@EDOC
 class symbolskin_writer_t : public skin_writer_t {
     static symbolskin_writer_t the_instance;
 
@@ -124,17 +54,6 @@ public:
 };
 
 
-
-//@ADOC
-/////////////////////////////////////////////////////////////////////////////
-//  class:
-//      smoke_writer_t()
-//
-//---------------------------------------------------------------------------
-//  Description:
-//      ...
-/////////////////////////////////////////////////////////////////////////////
-//@EDOC
 class smoke_writer_t : public skin_writer_t {
     static smoke_writer_t the_instance;
 
@@ -146,17 +65,10 @@ public:
     virtual const char *get_type_name() const { return "smoke"; }
 };
 
-//@ADOC
-/////////////////////////////////////////////////////////////////////////////
-//  class:
-//      miscimages_writer_t()
-//
-//---------------------------------------------------------------------------
-//  Description:
-//      Used for images needed by the game but not yet integrated as real
-//      objects.
-/////////////////////////////////////////////////////////////////////////////
-//@EDOC
+
+/*
+ * Used for images needed by the game but not yet integrated as real objects
+ */
 class miscimages_writer_t : public skin_writer_t {
     static miscimages_writer_t the_instance;
 

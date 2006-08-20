@@ -1,6 +1,3 @@
-// SIMOBJECTS.cpp : Defines the entry point for the console application.
-//
-
 #include <stdio.h>
 #include <string.h>
 #include "../utils/cstring_t.h"
@@ -14,23 +11,6 @@
 #include "../besch/writer/image_writer.h"
 
 
-//@ADOC
-/////////////////////////////////////////////////////////////////////////////
-//  function:
-//      main()
-//
-//---------------------------------------------------------------------------
-//  Description:
-//      ...
-//
-//  Return type:
-//      int
-//
-//  Arguments:
-//      int argc
-//      char* argv[]
-/////////////////////////////////////////////////////////////////////////////
-//@EDOC
 int main(int argc, char* argv[])
 {
     argv++, argc--;

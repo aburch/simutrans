@@ -1,38 +1,3 @@
-//@ADOC
-/////////////////////////////////////////////////////////////////////////////
-//
-//  building_writer.cpp
-//
-//  (c) 2002 by Volker Meyer, Lohsack 1, D-23843 Lohsack
-//
-//---------------------------------------------------------------------------
-//     Project: MakeObj                      Compiler: MS Visual C++ v6.00
-//  SubProject: ...                              Type: C/C++ Source
-//  $Workfile:: building_writer.cpp  $       $Author: hajo $
-//  $Revision: 1.5 $         $Date: 2004/01/01 11:34:43 $
-//---------------------------------------------------------------------------
-//  Module Description:
-//      ...
-//
-//---------------------------------------------------------------------------
-//  Revision History:
-//  $Log: building_writer.cc,v $
-//  Revision 1.5  2004/01/01 11:34:43  hajo
-//  Hajo: merge with Hendriks update
-//
-//  Revision 1.4  2003/11/22 16:53:50  hajo
-//  Hajo: integrated Hendriks changes
-//
-//  Revision 1.3  2003/01/08 19:54:02  hajo
-//  Hajo: preparation for delivery to volker
-//
-//  Revision 1.2  2002/09/25 19:31:17  hajo
-//  Volker: new objects
-//
-//
-/////////////////////////////////////////////////////////////////////////////
-//@EDOC
-
 #include "../../utils/cstring_t.h"
 #include "../../dataobj/tabfile.h"
 
@@ -47,23 +12,6 @@
 #include "skin_writer.h"
 
 
-//@ADOC
-/////////////////////////////////////////////////////////////////////////////
-//  member function:
-//      tile_writer_t::write_obj()
-//
-//---------------------------------------------------------------------------
-//  Description:
-//      ...
-//
-//  Arguments:
-//      FILE *fp
-//      obj_node_t &parent
-//      int index
-//      const slist_tpl< slist_tpl<cstring_t> > &backkeys
-//      const slist_tpl< slist_tpl<cstring_t> > &frontkeys
-/////////////////////////////////////////////////////////////////////////////
-//@EDOC
 void tile_writer_t::write_obj(FILE *fp, obj_node_t &parent,
     int index, const slist_tpl< slist_tpl<cstring_t> > &backkeys,
     const slist_tpl< slist_tpl<cstring_t> > &frontkeys)
@@ -108,10 +56,6 @@ void tile_writer_t::write_obj(FILE *fp, obj_node_t &parent,
 }
 
 
-/**
- * 01-Nov-03: Hajo: changed this method to write versioned
- * nodes
- */
 void building_writer_t::write_obj(FILE *fp, obj_node_t &parent, tabfileobj_t &obj)
 {
     haus_besch_t besch;

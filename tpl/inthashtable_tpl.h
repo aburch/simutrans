@@ -1,12 +1,5 @@
 /*
- * inthashtable_tpl.h
- *
- * Copyright (c) 1997 - 2002 Hj.Malthaner / V. Meyer
- *
  * a template class which implements a hashtable with integer keys
- *
- * This file is part of the Simutrans project and may not be used
- * in other projects without written permission of the author.
  */
 
 #ifndef inthashtable_tpl_h
@@ -14,17 +7,10 @@
 
 #include "hashtable_tpl.h"
 
-//@ADOC
-/////////////////////////////////////////////////////////////////////////////
-//  class:
-//	template<class key_t> class inthash_tpl:
-//
-//---------------------------------------------------------------------------
-//  Description:
-//	Define the key characteristica for hashing integer types
-//
-/////////////////////////////////////////////////////////////////////////////
-//@EDOC
+
+/*
+ * Define the key characteristica for hashing integer types
+ */
 template<class key_t>
 class inthash_tpl {
 public:
@@ -47,32 +33,16 @@ public:
 };
 
 
-//@ADOC
-/////////////////////////////////////////////////////////////////////////////
-//  class:
-//	template<class key_t, class value_t> inthashtable_tpl
-//
-//---------------------------------------------------------------------------
-//  Description:
-//	Ready to use class for hashing integer types. Note that key can be of
-//	any integer type including enums.
-/////////////////////////////////////////////////////////////////////////////
-//@EDOC
+/*
+ * Ready to use class for hashing integer types. Note that key can be of any
+ * integer type including enums.
+ */
 template<class key_t, class value_t>
 class inthashtable_tpl : public hashtable_tpl<key_t, value_t, inthash_tpl<key_t> >
 {
 };
 
-//@ADOC
-/////////////////////////////////////////////////////////////////////////////
-//  class:
-//      inthashtable_iterator_tpl()
-//
-//---------------------------------------------------------------------------
-//  Description:
-//      ...
-/////////////////////////////////////////////////////////////////////////////
-//@EDOC
+
 template<class key_t, class value_t>
 class inthashtable_iterator_tpl : public hashtable_iterator_tpl<key_t, value_t, inthash_tpl<key_t> >
 {

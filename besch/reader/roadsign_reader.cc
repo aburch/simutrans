@@ -1,16 +1,3 @@
-/*
- *
- *  citycar_reader.cpp
- *
- *  Copyright (c) 1997 - 2002 by Volker Meyer & Hansjörg Malthaner
- *
- *  This file is part of the Simutrans project and may not be used in other
- *  projects without written permission of the authors.
- *
- *  Modulbeschreibung:
- *      ...
- *
- */
 #include <stdio.h>
 
 #include "../../tpl/stringhashtable_tpl.h"
@@ -24,19 +11,7 @@
 
 #include "../../simdebug.h"
 
-/*
- *  member function:
- *      citycar_reader_t::register_obj()
- *
- *  Autor:
- *      Volker Meyer
- *
- *  Beschreibung:
- *      ...
- *
- *  Argumente:
- *      obj_besch_t *&data
- */
+
 void roadsign_reader_t::register_obj(obj_besch_t *&data)
 {
     roadsign_besch_t *besch = static_cast<roadsign_besch_t *>(data);
@@ -46,31 +21,12 @@ void roadsign_reader_t::register_obj(obj_besch_t *&data)
 }
 
 
-//@ADOC
-/////////////////////////////////////////////////////////////////////////////
-//  member function:
-//      citycar_reader_t::successfully_loaded()
-//
-//---------------------------------------------------------------------------
-//  Description:
-//      ...
-//
-//  Return type:
-//      bool
-/////////////////////////////////////////////////////////////////////////////
-//@EDOC
 bool roadsign_reader_t::successfully_loaded() const
 {
     return roadsign_t::alles_geladen();
 }
 
 
-
-/**
- * Read a goods info node. Does version check and
- * compatibility transformations.
- * @author Hj. Malthaner
- */
 obj_besch_t * roadsign_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 {
 #ifdef _MSC_VER /* no var array on the stack supported */

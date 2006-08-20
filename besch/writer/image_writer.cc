@@ -1,38 +1,3 @@
-//@ADOC
-/////////////////////////////////////////////////////////////////////////////
-//
-//  image_writer.cpp
-//
-//  (c) 2002 by Volker Meyer, Lohsack 1, D-23843 Lohsack
-//
-//---------------------------------------------------------------------------
-//     Project: MakeObj                      Compiler: MS Visual C++ v6.00
-//  SubProject: ...                              Type: C/C++ Source
-//  $Workfile:: image_writer.cpp     $       $Author: hajo $
-//  $Revision: 1.5 $         $Date: 2003/07/23 19:55:53 $
-//---------------------------------------------------------------------------
-//  Module Description:
-//      ...
-//
-//---------------------------------------------------------------------------
-//  Revision History:
-//  $Log: image_writer.cc,v $
-//  Revision 1.5  2003/07/23 19:55:53  hajo
-//  Hajo: sync for Volker
-//
-//  Revision 1.4  2003/06/14 15:52:09  hajo
-//  Hajo: preparing 0.82
-//
-//  Revision 1.3  2003/02/02 10:15:42  hajo
-//  Hajo: sync for 0.81.21exp
-//
-//  Revision 1.2  2002/09/25 19:31:17  hajo
-//  Volker: new objects
-//
-//
-/////////////////////////////////////////////////////////////////////////////
-//@EDOC
-
 #include <stdlib.h>
 #include <string.h>
 
@@ -45,12 +10,6 @@
 #include "obj_pak_exception.h"
 
 #include "image_writer.h"
-
-/////////////////////////////////////////////////////////////////////////////
-//
-//  local types and defines
-//
-/////////////////////////////////////////////////////////////////////////////
 
 //#define TRANSPARENT 0x808088
 #define TRANSPARENT 0xE7FFFF
@@ -67,13 +26,6 @@ struct dimension  {
 // #define SPECIAL 4
 // #define SPECIAL 17
 #define SPECIAL 29
-
-
-/////////////////////////////////////////////////////////////////////////////
-//
-//  static data
-//
-/////////////////////////////////////////////////////////////////////////////
 
 
 /*
@@ -181,20 +133,6 @@ static PIXVAL pixrgb_to_pixval(int rgb)
 }
 
 
-//@ADOC
-/////////////////////////////////////////////////////////////////////////////
-//  static function:
-//      init_dim()
-//
-//---------------------------------------------------------------------------
-//  Description:
-//      ...
-//
-//  Arguments:
-//      PIXRGB *image
-//      dimension *dim
-/////////////////////////////////////////////////////////////////////////////
-//@EDOC
 static void init_dim(PIXRGB *image, dimension *dim, int img_size)
 {
     int x,y;
@@ -279,24 +217,9 @@ PIXVAL* image_writer_t::encode_image(int x, int y, dimension *dim, int *len)
 }
 
 
-//@ADOC
-/////////////////////////////////////////////////////////////////////////////
-//  member function:
-//      image_writer_t::block_laden()
-//
-//---------------------------------------------------------------------------
-//  Description:
-//      The last png-file is cached.
-//
-//  Return type:
-//      bool
-//
-//  Arguments:
-//      const char *fname
-/////////////////////////////////////////////////////////////////////////////
-//@EDOC
 bool image_writer_t::block_laden(const char *fname)
 {
+	// The last png-file is cached
     if(last_img_file == fname || load_block(&block, &width, &height, fname,img_size)) {
 	last_img_file = fname;
 	return true;
@@ -307,21 +230,6 @@ bool image_writer_t::block_laden(const char *fname)
 }
 
 
-//@ADOC
-/////////////////////////////////////////////////////////////////////////////
-//  member function:
-//      image_writer_t::write_obj()
-//
-//---------------------------------------------------------------------------
-//  Description:
-//      ...
-//
-//  Arguments:
-//      FILE *outfp
-//      obj_node_t &parent
-//      cstring_t imagekey
-/////////////////////////////////////////////////////////////////////////////
-//@EDOC
 void image_writer_t::write_obj(FILE *outfp, obj_node_t &parent, cstring_t an_imagekey)
 {
     bild_besch_t bild;

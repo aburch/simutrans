@@ -1,16 +1,3 @@
-/*
- *
- *  root_writer.cpp
- *
- *  Copyright (c) 1997 - 2002 by Volker Meyer & Hansjörg Malthaner
- *
- *  This file is part of the Simutrans project and may not be used in other
- *  projects without written permission of the authors.
- *
- *  Modulbeschreibung:
- *      ...
- *
- */
 #include "../../utils/cstring_t.h"
 #include "../../dataobj/tabfile.h"
 #include "../../utils/searchfolder.h"
@@ -21,25 +8,10 @@
 
 #include "root_writer.h"
 
-/*
- *  static data
- */
+
 cstring_t root_writer_t::inpath;
 
 
-/*
- *  member function:
- *      root_writer_t::write_header()
- *
- *  Autor:
- *      Volker Meyer
- *
- *  Beschreibung:
- *      ...
- *
- *  Argumente:
- *      FILE *fp
- */
 void root_writer_t::write_header(FILE *fp)
 {
     uint32 l;
@@ -54,21 +26,7 @@ void root_writer_t::write_header(FILE *fp)
     obj_node_t::set_start_offset(ftell(fp));
 }
 
-/*
- *  member function:
- *      root_writer_t::write()
- *
- *  Autor:
- *      Volker Meyer
- *
- *  Beschreibung:
- *      ...
- *
- *  Argumente:
- *      const char *filename
- *      int argc
- *      char *argv[]
- */
+
 void root_writer_t::write(const char *filename, int argc, char *argv[])
 {
     searchfolder_t find;
@@ -151,20 +109,6 @@ void root_writer_t::write(const char *filename, int argc, char *argv[])
 }
 
 
-/*
- *  member function:
- *      root_writer_t::dump()
- *
- *  Autor:
- *      Volker Meyer
- *
- *  Beschreibung:
- *      ...
- *
- *  Argumente:
- *      int argc
- *      char *argv[]
- */
 void root_writer_t::dump(int argc, char *argv[])
 {
     searchfolder_t find;
@@ -199,20 +143,6 @@ void root_writer_t::dump(int argc, char *argv[])
 }
 
 
-/*
- *  member function:
- *      root_writer_t::list()
- *
- *  Autor:
- *      Volker Meyer
- *
- *  Beschreibung:
- *      ...
- *
- *  Argumente:
- *      int argc
- *      char *argv[]
- */
 void root_writer_t::list(int argc, char *argv[])
 {
     searchfolder_t find;
@@ -254,21 +184,6 @@ void root_writer_t::list(int argc, char *argv[])
 }
 
 
-/*
- *  member function:
- *      root_writer_t::copy()
- *
- *  Autor:
- *      Volker Meyer
- *
- *  Beschreibung:
- *      ...
- *
- *  Argumente:
- *      const char *name
- *      int argc
- *      char *argv[]
- */
 void root_writer_t::copy(const char *name, int argc, char *argv[])
 {
     searchfolder_t find;
@@ -335,21 +250,6 @@ void root_writer_t::copy(const char *name, int argc, char *argv[])
 }
 
 
-//@ADOC
-/////////////////////////////////////////////////////////////////////////////
-//  member function:
-//      root_writer_t::copy_nodes()
-//
-//---------------------------------------------------------------------------
-//  Description:
-//      ...
-//
-//  Arguments:
-//      FILE *outfp
-//      FILE *infp
-//      obj_node_info_t &info
-/////////////////////////////////////////////////////////////////////////////
-//@EDOC
 void root_writer_t::copy_nodes(FILE *outfp, FILE *infp, obj_node_info_t &info)
 {
     for(int i = 0; i < info.children; i++) {
@@ -366,16 +266,6 @@ void root_writer_t::copy_nodes(FILE *outfp, FILE *infp, obj_node_info_t &info)
 }
 
 
-//@ADOC
-/////////////////////////////////////////////////////////////////////////////
-//  member function:
-//      root_writer_t::capabilites()
-//
-//---------------------------------------------------------------------------
-//  Description:
-//      ...
-/////////////////////////////////////////////////////////////////////////////
-//@EDOC
 void root_writer_t::capabilites()
 {
     printf("This program can pack the following object types (pak version %d) :\n", COMPILER_VERSION_CODE);

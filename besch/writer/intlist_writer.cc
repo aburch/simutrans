@@ -5,21 +5,7 @@
 
 #include "intlist_writer.h"
 
-//@ADOC
-/////////////////////////////////////////////////////////////////////////////
-//  member function:
-//      intlist_writer_t::write_obj()
-//
-//---------------------------------------------------------------------------
-//  Description:
-//      ...
-//
-//  Arguments:
-//      FILE *fp
-//      obj_node_t &parent
-//      const cstring_t &image_keys
-/////////////////////////////////////////////////////////////////////////////
-//@EDOC
+
 void intlist_writer_t::write_obj(FILE *fp, obj_node_t &parent, const slist_tpl <int> &values)
 {
     intliste_besch_t besch;

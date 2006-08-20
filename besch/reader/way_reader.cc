@@ -1,4 +1,3 @@
-
 #include <stdio.h>
 #ifdef _MSC_VER
 #include <malloc.h> // for alloca
@@ -13,19 +12,7 @@
 #include "way_reader.h"
 #include "../obj_node_info.h"
 
-//@ADOC
-/////////////////////////////////////////////////////////////////////////////
-//  member function:
-//      way_reader_t::register_obj()
-//
-//---------------------------------------------------------------------------
-//  Description:
-//      ...
-//
-//  Arguments:
-//      obj_besch_t *&data
-/////////////////////////////////////////////////////////////////////////////
-//@EDOC
+
 void way_reader_t::register_obj(obj_besch_t *&data)
 {
     weg_besch_t *besch = static_cast<weg_besch_t *>(data);
@@ -35,30 +22,12 @@ void way_reader_t::register_obj(obj_besch_t *&data)
 }
 
 
-//@ADOC
-/////////////////////////////////////////////////////////////////////////////
-//  member function:
-//      way_reader_t::successfully_loaded()
-//
-//---------------------------------------------------------------------------
-//  Description:
-//      ...
-//
-//  Return type:
-//      bool
-/////////////////////////////////////////////////////////////////////////////
-//@EDOC
 bool way_reader_t::successfully_loaded() const
 {
     return wegbauer_t::alle_wege_geladen();
 }
 
 
-/**
- * Read a way info node. Does version check and
- * compatibility transformations.
- * @author Hj. Malthaner
- */
 obj_besch_t * way_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 {
 #ifdef _MSC_VER /* no var array on the stack supported */

@@ -1,29 +1,3 @@
-//@ADOC
-/////////////////////////////////////////////////////////////////////////////
-//
-//  sound_reader_t.cpp
-//
-//  (c) 2002 by Volker Meyer, Lohsack 1, D-23843 Lohsack
-//
-//---------------------------------------------------------------------------
-//     Project: sim                          Compiler: MS Visual C++ v6.00
-//  SubProject: ...                              Type: C/C++ Source
-//  $Workfile:: ground_reader.cpp    $       $Author: hajo $
-//  $Revision: 1.2 $         $Date: 2002/09/25 19:31:17 $
-//---------------------------------------------------------------------------
-//  Module Description:
-//      ...
-//
-//---------------------------------------------------------------------------
-//  Revision History:
-//  $Log: ground_reader.cc,v $
-//  Revision 1.2  2002/09/25 19:31:17  hajo
-//  Volker: new objects
-//
-//
-/////////////////////////////////////////////////////////////////////////////
-//@EDOC
-
 #include <stdio.h>
 
 #include "../sound_besch.h"
@@ -35,19 +9,6 @@
 #include "../../simdebug.h"
 
 
-//@ADOC
-/////////////////////////////////////////////////////////////////////////////
-//  member function:
-//      ground_reader_t::register_obj()
-//
-//---------------------------------------------------------------------------
-//  Description:
-//      ...
-//
-//  Arguments:
-//      obj_besch_t *&data
-/////////////////////////////////////////////////////////////////////////////
-//@EDOC
 void sound_reader_t::register_obj(obj_besch_t *&data)
 {
 	sound_besch_t *besch = static_cast<sound_besch_t *>(data);
@@ -56,11 +17,6 @@ void sound_reader_t::register_obj(obj_besch_t *&data)
 }
 
 
-/**
- * Read a goods info node. Does version check and
- * compatibility transformations.
- * @author Hj. Malthaner
- */
 obj_besch_t * sound_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 {
 #ifdef _MSC_VER /* no var array on the stack supported */
@@ -92,19 +48,7 @@ obj_besch_t * sound_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 	return besch;
 }
 
-//@ADOC
-/////////////////////////////////////////////////////////////////////////////
-//  member function:
-//      ground_reader_t::successfully_loaded()
-//
-//---------------------------------------------------------------------------
-//  Description:
-//      ...
-//
-//  Return type:
-//      bool
-/////////////////////////////////////////////////////////////////////////////
-//@EDOC
+
 bool sound_reader_t::successfully_loaded() const
 {
     return sound_besch_t::alles_geladen();

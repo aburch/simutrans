@@ -1,35 +1,3 @@
-//@ADOC
-/////////////////////////////////////////////////////////////////////////////
-//
-//  factory_reader.cpp
-//
-//  (c) 2002 by Volker Meyer, Lohsack 1, D-23843 Lohsack
-//
-//---------------------------------------------------------------------------
-//     Project: sim                          Compiler: MS Visual C++ v6.00
-//  SubProject: ...                              Type: C/C++ Source
-//  $Workfile:: factory_reader.cpp   $       $Author: hajo $
-//  $Revision: 1.4 $         $Date: 2003/10/29 22:00:39 $
-//---------------------------------------------------------------------------
-//  Module Description:
-//      ...
-//
-//---------------------------------------------------------------------------
-//  Revision History:
-//  $Log: factory_reader.cc,v $
-//  Revision 1.4  2003/10/29 22:00:39  hajo
-//  Hajo: sync for Hendrik Siegeln
-//
-//  Revision 1.3  2002/09/28 14:47:40  hajo
-//  Hajo: restructurings
-//
-//  Revision 1.2  2002/09/25 19:31:17  hajo
-//  Volker: new objects
-//
-//
-/////////////////////////////////////////////////////////////////////////////
-//@EDOC
-
 #include <stdio.h>
 #ifdef _MSC_VER
 #include <malloc.h> // for alloca
@@ -46,12 +14,6 @@
 #include "factory_reader.h"
 
 
-
-/**
- * Read a factory product node. Does version check and
- * compatibility transformations.
- * @author Hj. Malthaner
- */
 obj_besch_t *
 factory_smoke_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 {
@@ -86,21 +48,6 @@ factory_smoke_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 }
 
 
-
-
-///@ADOC
-/////////////////////////////////////////////////////////////////////////////
-//  member function:
-//      factory_smoke_reader_t::register_obj()
-//
-//---------------------------------------------------------------------------
-//  Description:
-//      ...
-//
-//  Arguments:
-//      obj_besch_t *&data
-/////////////////////////////////////////////////////////////////////////////
-//@EDOC
 void factory_smoke_reader_t::register_obj(obj_besch_t *&data)
 {
     rauch_besch_t *besch = static_cast<rauch_besch_t *>(data);
@@ -112,11 +59,6 @@ void factory_smoke_reader_t::register_obj(obj_besch_t *&data)
 }
 
 
-/**
- * Read a factory product node. Does version check and
- * compatibility transformations.
- * @author Hj. Malthaner
- */
 obj_besch_t *
 factory_supplier_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 {
@@ -163,13 +105,6 @@ factory_supplier_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 }
 
 
-
-
-/**
- * Read a factory product node. Does version check and
- * compatibility transformations.
- * @author Hj. Malthaner
- */
 obj_besch_t *
 factory_product_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 {
@@ -222,13 +157,6 @@ factory_product_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 }
 
 
-
-
-/**
- * Read a factory product. Does version check and
- * compatibility transformations.
- * @author Hj. Malthaner
- */
 obj_besch_t *
 factory_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 {
@@ -287,21 +215,6 @@ DBG_DEBUG("factory_reader_t::read_node()","version=0");
 }
 
 
-
-
-//@ADOC
-/////////////////////////////////////////////////////////////////////////////
-//  member function:
-//      factory_reader_t::register_obj()
-//
-//---------------------------------------------------------------------------
-//  Description:
-//      ...
-//
-//  Arguments:
-//      obj_besch_t *&data
-/////////////////////////////////////////////////////////////////////////////
-//@EDOC
 void factory_reader_t::register_obj(obj_besch_t *&data)
 {
     fabrik_besch_t *besch = reinterpret_cast<fabrik_besch_t *>(data);

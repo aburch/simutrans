@@ -1,32 +1,3 @@
-//@ADOC
-/////////////////////////////////////////////////////////////////////////////
-//
-//  building_reader.cpp
-//
-//  (c) 2002 by Volker Meyer, Lohsack 1, D-23843 Lohsack
-//
-//---------------------------------------------------------------------------
-//     Project: sim                          Compiler: MS Visual C++ v6.00
-//  SubProject: ...                              Type: C/C++ Source
-//  $Workfile:: building_reader.cpp  $       $Author: hajo $
-//  $Revision: 1.3 $         $Date: 2003/11/22 16:53:50 $
-//---------------------------------------------------------------------------
-//  Module Description:
-//      ...
-//
-//---------------------------------------------------------------------------
-//  Revision History:
-//  $Log: building_reader.cc,v $
-//  Revision 1.3  2003/11/22 16:53:50  hajo
-//  Hajo: integrated Hendriks changes
-//
-//  Revision 1.2  2002/09/25 19:31:17  hajo
-//  Volker: new objects
-//
-//
-/////////////////////////////////////////////////////////////////////////////
-//@EDOC
-
 #include <stdio.h>
 #ifdef _MSC_VER
 #include <malloc.h> // for alloca
@@ -38,12 +9,6 @@
 #include "building_reader.h"
 
 
-
-/**
- * Read a goods info node. Does version check and
- * compatibility transformations.
- * @author Hj. Malthaner
- */
 obj_besch_t * tile_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 {
 #ifdef _MSC_VER /* no var array on the stack supported */
@@ -146,31 +111,12 @@ void building_reader_t::register_obj(obj_besch_t *&data)
 }
 
 
-
-//@ADOC
-/////////////////////////////////////////////////////////////////////////////
-//  member function:
-//      building_reader_t::successfully_loaded()
-//
-//---------------------------------------------------------------------------
-//  Description:
-//      ...
-//
-//  Return type:
-//      bool
-/////////////////////////////////////////////////////////////////////////////
-//@EDOC
 bool building_reader_t::successfully_loaded() const
 {
     return hausbauer_t::alles_geladen();
 }
 
 
-/**
- * Read a goods info node. Does version check and
- * compatibility transformations.
- * @author Hj. Malthaner
- */
 obj_besch_t * building_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 {
   // DBG_DEBUG("good_reader_t::read_node()", "called");

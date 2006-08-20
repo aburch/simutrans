@@ -1,27 +1,3 @@
-//@ADOC
-/////////////////////////////////////////////////////////////////////////////
-//
-//  way_obj_writer.cpp
-//
-//  (c) 2002 by Volker Meyer, Lohsack 1, D-23843 Lohsack
-//
-//---------------------------------------------------------------------------
-//     Project: MakeObj                      Compiler: MS Visual C++ v6.00
-//  SubProject: ...                              Type: C/C++ Source
-//  $Workfile:: way_writer.cpp       $       $Author: hajo $
-//  $Revision: 1.3 $         $Date: 2004/10/30 09:20:49 $
-//---------------------------------------------------------------------------
-//  Module Description:
-//      ...
-//
-//---------------------------------------------------------------------------
-//  Revision 1.0  2006/08/20 19:31:18  prissi
-//  Volker: new object
-//
-//
-/////////////////////////////////////////////////////////////////////////////
-//@EDOC
-
 #include "../../utils/cstring_t.h"
 #include "../../dataobj/tabfile.h"
 
@@ -35,9 +11,9 @@
 #include "get_waytype.h"
 #include "way_obj_writer.h"
 
+
 /**
  * Write a way object (lamps, overheadwires)
- * @author Hj. Malthaner
  */
 void way_obj_writer_t::write_obj(FILE *outfp, obj_node_t &parent, tabfileobj_t &obj)
 {

@@ -1,44 +1,3 @@
-//@ADOC
-/////////////////////////////////////////////////////////////////////////////
-//
-//  vehicle_writer.cpp
-//
-//  (c) 2002 by Volker Meyer, Lohsack 1, D-23843 Lohsack
-//
-//---------------------------------------------------------------------------
-//     Project: MakeObj                      Compiler: MS Visual C++ v6.00
-//  SubProject: ...                              Type: C/C++ Source
-//  $Workfile:: vehicle_writer.cpp   $       $Author: hajo $
-//  $Revision: 1.7 $         $Date: 2004/10/30 09:20:49 $
-//---------------------------------------------------------------------------
-//  Module Description:
-//      ...
-//
-//---------------------------------------------------------------------------
-//  Revision History:
-//  $Log: vehicle_writer.cc,v $
-//  Revision 1.7  2004/10/30 09:20:49  hajo
-//  sync for Dario
-//
-//  Revision 1.6  2004/01/16 21:35:20  hajo
-//  Hajo: sync with Hendrik
-//
-//  Revision 1.5  2003/11/22 16:53:50  hajo
-//  Hajo: integrated Hendriks changes
-//
-//  Revision 1.4  2003/06/29 10:33:38  hajo
-//  Hajo: added Volkers changes
-//
-//  Revision 1.3  2003/01/08 19:54:02  hajo
-//  Hajo: preparation for delivery to volker
-//
-//  Revision 1.2  2002/09/25 19:31:18  hajo
-//  Volker: new objects
-//
-//
-/////////////////////////////////////////////////////////////////////////////
-//@EDOC
-
 #include "../../utils/simstring.h"
 #include "../../utils/cstring_t.h"
 #include "../../dataobj/tabfile.h"
@@ -56,9 +15,9 @@
 #include "get_waytype.h"
 #include "vehicle_writer.h"
 
+
 /**
  * Calculate numeric engine type from engine type string
- * @author Hj. Malthaner
  */
 static uint8 get_engine_type(const char * engine_type, tabfileobj_t &obj)
 {
@@ -90,7 +49,6 @@ static uint8 get_engine_type(const char * engine_type, tabfileobj_t &obj)
 
 /**
  * Writes vehicle node data to file
- * @author Hj. Malthaner
  */
 void vehicle_writer_t::write_obj(FILE *fp, obj_node_t &parent, tabfileobj_t &obj)
 {
