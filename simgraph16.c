@@ -410,15 +410,10 @@ void set_zoom_factor(int z)
 
 
 #ifdef _MSC_VER
-#define mark_tile_dirty(x,y) \
-    do { \
-	const int bit = (int)(x)+(int)(y)*tiles_per_line; \
-	\
-        /* assert(bit/8 < tile_buffer_length); */ \
-	\
-        tile_dirty[bit >> 3] |= 1 << (bit & 7); \
-    } while(FALSE)
-#else
+#	define inline _inline
+#endif
+
+
 static inline void mark_tile_dirty(const int x, const int y)
 {
     const int bit = x+y*tiles_per_line;
@@ -427,21 +422,8 @@ static inline void mark_tile_dirty(const int x, const int y)
 
     tile_dirty[bit >> 3] |= 1 << (bit & 7);
 }
-#endif
 
-#ifdef _MSC_VER
-#define mark_tiles_dirty(x1, x2, y) \
-    do { \
-	int bit = y * tiles_per_line + x1; \
-        const int end = bit + ((int)(x2)-(int)(x1)); \
-	\
-	do {  \
-	    /* assert(bit/8 < tile_buffer_length);*/ \
-	    \
-	    tile_dirty[bit >> 3] |= 1 << (bit & 7); \
-	} while(++bit <= end); \
-    } while(FALSE)
-#else
+
 static inline void mark_tiles_dirty(const int x1, const int x2, const int y)
 {
     int bit = y * tiles_per_line + x1;
@@ -453,25 +435,16 @@ static inline void mark_tiles_dirty(const int x1, const int x2, const int y)
 	tile_dirty[bit >> 3] |= 1 << (bit & 7);
     } while(++bit <= end);
 }
-#endif
 
-#ifdef _MSC_VER
-static int is_tile_dirty(const int x, const int y) {
+
+static inline int is_tile_dirty(const int x, const int y)
+{
      const int bit = x+y*tiles_per_line;
      const int bita = bit >> 3;
      const int bitb = 1 << (bit & 7);
 
      return (tile_dirty[bita]|tile_dirty_old[bita]) & bitb;
 }
-#else
-static inline int is_tile_dirty(const int x, const int y) {
-     const int bit = x+y*tiles_per_line;
-     const int bita = bit >> 3;
-     const int bitb = 1 << (bit & 7);
-
-     return (tile_dirty[bita]|tile_dirty_old[bita]) & bitb;
-}
-#endif
 
 
 /**
@@ -2021,38 +1994,12 @@ asm(
 
 
 /************ display all king of images from here on ********/
-#ifndef _MSC_VER
-static inline void pixcopy(PIXVAL *dest,
-                    const PIXVAL *src,
-                    unsigned int len); // __attribute__ ((regparm(3)));
-
-
-static inline void colorpixcopy(PIXVAL *dest,
-				const PIXVAL *src,
-				const PIXVAL * const end,
-				const COLOR_VAL color);
-#endif
-
-
 
 
 /**
  * Kopiert Pixel von src nach dest
  * @author Hj. Malthaner
  */
-#ifdef _MSC_VER
-#define pixcopy(_dest, _src,  len)  \
-    do {  \
-        PIXVAL *dest = _dest; \
-        const PIXVAL *src = _src; \
-	\
-	/* for gcc this seems to produce the optimal code ...*/ \
-	const PIXVAL *const end = dest+len; \
-	while(dest < end) { \
-    	    *dest ++ = *src++; \
-	}  \
-    } while(FALSE)
-#else
 static inline void pixcopy(PIXVAL *dest,
                     const PIXVAL *src,
                     const unsigned int len)
@@ -2063,31 +2010,12 @@ static inline void pixcopy(PIXVAL *dest,
 	*dest ++ = *src++;
     }
 }
-#endif
-
 
 
 /**
  * Kopiert Pixel, ersetzt Spielerfarben
  * @author Hj. Malthaner
  */
-#ifdef _MSC_VER
-#define colorpixcopy(_dest, _src, _end, color) \
-    do { \
-	PIXVAL *dest = _dest; \
-	const PIXVAL *src = _src; \
-	const PIXVAL * const end = _end; \
-	\
-	while(src < end) { \
-            PIXVAL pix = *src++; \
-            if((0x8000^pix)<=0x000F) { \
-	        *dest++ = specialcolormap_current[((unsigned char)pix & 0x000F) + color]; \
-	    } else { \
-	        *dest++ = rgbmap_current[pix]; \
-	    } \
-	} \
-    } while(FALSE)
-#else
 static inline void colorpixcopy(PIXVAL *dest,
 				const PIXVAL *src,
 				const PIXVAL * const end,
@@ -2104,8 +2032,6 @@ static inline void colorpixcopy(PIXVAL *dest,
 		}
 	}
 }
-#endif
-
 
 
 /**
