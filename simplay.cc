@@ -558,14 +558,16 @@ spieler_t::suche_platz(int xpos, int ypos, koord *start)
 {
 	const koord pos = koord(xpos, ypos);
 
-	if(ist_halt(pos).is_bound()) {
+	// not on the map => illegal of course ...
+	// or a station?
+	if(  xpos<1  ||  ypos<1  ||  !welt->ist_in_kartengrenzen(pos)  ||  ist_halt(pos).is_bound()) {
 	    return false;
 	}
 
 	const planquadrat_t * plan = welt->lookup(pos);
-	const grund_t * gr = plan ? plan->gib_kartenboden() : 0;
+	const grund_t * gr = plan ? plan->gib_kartenboden() : NULL;
 
-	if(gr &&
+	if(gr=NULL &&
 	   welt->get_slope(pos) == 0 &&
 	   // (gr->ist_natur() || gr->gib_typ() == grund_t::fundament) &&
 	   gr->ist_natur() &&

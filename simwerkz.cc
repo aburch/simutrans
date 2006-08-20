@@ -385,9 +385,9 @@ wkz_remover_intern(spieler_t *sp, karte_t *welt, koord pos, const char *&msg)
     gr->obj_loesche_alle(sp);
 
     /*
-     * Eigentlich müßssen wir hier noch verhindern, daß ein Bahnhofsgebäude oder eine
+     * Eigentlich müssen wir hier noch verhindern, daß ein Bahnhofsgebäude oder eine
      * Bushaltestelle vereinzelt wird!
-     * Soinst läßt sich danach die Richtung der Haltestelle verdrehen und die Bilder
+     * Sonst lässt sich danach die Richtung der Haltestelle verdrehen und die Bilder
      * gehen kaputt.
      */
 
@@ -1573,25 +1573,29 @@ int wkz_test_new_cars(spieler_t *, karte_t *welt, koord pos)
 
 
 #include "bauer/fabrikbauer.h"
-int wkz_build_industries(spieler_t *sp, karte_t *welt, koord pos)
+
+/* builts a random industry chain, either in the next town */
+int wkz_build_industries_land(spieler_t *sp, karte_t *welt, koord pos)
 {
-
   const planquadrat_t *plan = welt->lookup(pos);
-
   if(plan) {
-
     const fabrik_besch_t *info = fabrikbauer_t::get_random_consumer(false);
-//      fabrikbauer_t::gib_fabesch("Materialswholesale");
-
-
     koord3d pos3d = plan->gib_kartenboden()->gib_pos();
+    fabrikbauer_t::baue_hierarchie(welt, NULL, info, false, &pos3d,sp);
+  }
 
-    fabrikbauer_t::baue_hierarchie(welt,
-           NULL,
-           info,
-           false,
-           &pos3d,
-           sp);
+  return plan != 0;
+}
+
+
+/* builts a random industry chain, either in the next town */
+int wkz_build_industries_city(spieler_t *sp, karte_t *welt, koord pos)
+{
+  const planquadrat_t *plan = welt->lookup(pos);
+  if(plan) {
+    const fabrik_besch_t *info = fabrikbauer_t::get_random_consumer(true);
+    koord3d pos3d = plan->gib_kartenboden()->gib_pos();
+    fabrikbauer_t::baue_hierarchie(welt, NULL, info, false, &pos3d,sp);
   }
 
   return plan != 0;

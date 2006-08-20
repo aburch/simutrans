@@ -2883,7 +2883,7 @@ karte_t::interactive_event(event_t &ev)
 	    break;
 
 	case 'I':
-	  setze_maus_funktion(wkz_build_industries, skinverwaltung_t::undoc_zeiger->gib_bild_nr(0), Z_PLAN, 0, 0);
+	  setze_maus_funktion(wkz_build_industries_land, skinverwaltung_t::undoc_zeiger->gib_bild_nr(0), Z_PLAN, 0, 0);
 	    break;
 
 	case 'k':
@@ -2891,12 +2891,13 @@ karte_t::interactive_event(event_t &ev)
 	    break;
 	case 'l':
 	    if(wegbauer_t::leitung_besch) {
-		setze_maus_funktion(wkz_wegebau,
-				    skinverwaltung_t::undoc_zeiger->gib_bild_nr(0),
-				    Z_PLAN,
-				    (const void *)wegbauer_t::leitung_besch,
-				    0,
-				    0);
+			setze_maus_funktion(wkz_wegebau,
+//				    skinverwaltung_t::undoc_zeiger->gib_bild_nr(0),
+					wegbauer_t::leitung_besch->gib_cursor()->gib_bild_nr(0),
+					    Z_PLAN,
+					    (const void *)wegbauer_t::leitung_besch,
+					    0,
+				    		0);
 	    }
 	    break;
 	case 'm':
@@ -3302,7 +3303,66 @@ karte_t::interactive_event(event_t &ev)
 		brueckenbauer_t::create_menu(this);
 		break;
 	    case 11:
-		setze_maus_funktion(wkz_marker, skinverwaltung_t::belegtzeiger->gib_bild_nr(0), Z_PLAN, 0, 0);
+          {
+		    werkzeug_parameter_waehler_t *wzw =
+                        new werkzeug_parameter_waehler_t(this, "SPECIALTOOLS");
+
+		    wzw->setze_hilfe_datei("special_tool.txt");
+
+		      wzw->add_tool(wkz_add_city,
+					  Z_PLAN,
+					  SFX_JACKHAMMER,
+					  SFX_FAILURE,
+					  skinverwaltung_t::special_werkzeug->gib_bild_nr(0),
+					  skinverwaltung_t::stadtzeiger->gib_bild_nr(0),
+					  tool_tip_with_price(translator::translate("Found new city"), 500000000));
+
+		    wzw->add_tool(wkz_build_industries_land,
+				  Z_PLAN,
+				  SFX_JACKHAMMER,
+				  SFX_FAILURE,
+				  skinverwaltung_t::special_werkzeug->gib_bild_nr(3),
+				  skinverwaltung_t::undoc_zeiger->gib_bild_nr(0),
+				  translator::translate("Build land consumer"));
+
+		    wzw->add_tool(wkz_build_industries_city,
+				  Z_PLAN,
+				  SFX_JACKHAMMER,
+				  SFX_FAILURE,
+				  skinverwaltung_t::special_werkzeug->gib_bild_nr(4),
+				  skinverwaltung_t::undoc_zeiger->gib_bild_nr(0),
+				  translator::translate("Build city market"));
+
+	    if(wegbauer_t::leitung_besch) {
+		    wzw->add_param_tool(wkz_wegebau,
+				  (const void *)wegbauer_t::leitung_besch,
+				  Z_PLAN,
+				  SFX_JACKHAMMER,
+				  SFX_FAILURE,
+				  skinverwaltung_t::special_werkzeug->gib_bild_nr(1),
+				 wegbauer_t::leitung_besch->gib_cursor()->gib_bild_nr(0),
+				  tool_tip_with_price(translator::translate("Build powerline"), 800));
+
+		      wzw->add_tool(wkz_senke,
+					  Z_PLAN,
+					  SFX_JACKHAMMER,
+					  SFX_FAILURE,
+					  skinverwaltung_t::special_werkzeug->gib_bild_nr(2),
+					  skinverwaltung_t::undoc_zeiger->gib_bild_nr(0),
+					 translator::translate("Build drain"));
+			}
+
+		      wzw->add_tool(wkz_marker,
+					  Z_PLAN,
+					  SFX_JACKHAMMER,
+					  SFX_FAILURE,
+					  skinverwaltung_t::special_werkzeug->gib_bild_nr(5),
+					 skinverwaltung_t::belegtzeiger->gib_bild_nr(0),
+					 translator::translate("Marker"));
+
+		    sound_play(click_sound);
+		    wzw->zeige_info(magic_specialtools);
+                }
 		break;
 	    case 12:
                 {
@@ -3400,11 +3460,8 @@ karte_t::interactive_event(event_t &ev)
 
 	      break;
 	    case 14:
-	      sound_play(click_sound);
-	      setze_maus_funktion(wkz_add_city,
-				  skinverwaltung_t::stadtzeiger->gib_bild_nr(0),
-				  Z_GRID, 0 ,0);
-		break;
+	      // left empty for trams
+	    break;
 	    case 15:
 		// Pause: warten auf die nächste Taste
 		do_pause();

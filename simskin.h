@@ -74,6 +74,7 @@ public:
     static const skin_besch_t *schiffs_werkzeug;
     static const skin_besch_t *bruecken_werkzeug;
     static const skin_besch_t *hang_werkzeug;
+    static const skin_besch_t *special_werkzeug;
     static const skin_besch_t *farbmenu;
 
     static const skin_besch_t *logosymbol;

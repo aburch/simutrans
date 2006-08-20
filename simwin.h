@@ -62,6 +62,7 @@ enum magic_numbers {
     magic_label_frame,
     magic_city_info_t,
     magic_autosave_t,	    // comes later
+    magic_specialtools,
 };
 
 // Haltezeit für Nachrichtenfenster

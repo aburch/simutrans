@@ -4,8 +4,11 @@
 	FIX: Create new industry (shift+i) new creates a random consumer instead of "Materialswholesale"
 	FIX: Several nightpixel removed, some buildings renovated, skyscrapers now with streetlights
 	FIX: AI had problems which rectangular factories, if they were rotated
+	FIX: AI crashed, when a factory was too close to the map borders
+	CHANGE: new menu for "half documented" features:
+		SPECIALTOOLS, FOund new city, Build land consumer, Build city market,  Build powerline, Build drain, Marker
 	CHANGE: MHz shipyard, special cursor, new depot icon
-	CHANGE: City builts new industry after some time (see cityconf.tab)
+	CHANGE: City builts new industry after some time (see cityconf.tab), also crossconnected
 	CHANGE: complete hingary and romanian translation, preliminary russian one
 
 9-Jan-2005:

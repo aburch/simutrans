@@ -83,6 +83,8 @@ int wkz_pflanze_baum(spieler_t *, karte_t *welt, koord pos);
 
 
 int wkz_test_new_cars(spieler_t *, karte_t *welt, koord pos);
-int wkz_build_industries(spieler_t *sp, karte_t *welt, koord pos);
+
+int wkz_build_industries_land(spieler_t *sp, karte_t *welt, koord pos);
+int wkz_build_industries_city(spieler_t *sp, karte_t *welt, koord pos);
 
 #endif

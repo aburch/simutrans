@@ -47,7 +47,7 @@ public:
      * Finds a way with a given speed limit for a given waytype
      * @author prissi
      */
-    static const weg_besch_t *  wegbauer_t::weg_search(weg_t::typ wtyp,int speed_limit);
+    static const weg_besch_t *  weg_search(weg_t::typ wtyp,int speed_limit);
 
     /**
      * Tries to look up description for way, described by way type,
