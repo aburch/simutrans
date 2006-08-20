@@ -21,7 +21,7 @@ uint8 simlinemgmt_t::used_ids[8192];
 
 void simlinemgmt_t::init_line_ids()
 {
-//	DBG_MESSAGE("simlinemgmt_t::init_line_ids()","done");
+	DBG_MESSAGE("simlinemgmt_t::init_line_ids()","done");
 	for(int i=0;  i<8192;  i++  ) {
 		used_ids[i] = 0;
 	}
@@ -52,10 +52,10 @@ simlinemgmt_t::simlinemgmt_t(karte_t * welt,spieler_t *sp) :
 void
 simlinemgmt_t::add_line(linehandle_t new_line)
 {
-//DBG_MESSAGE("simlinemgmt_t::add_line()","id=%d",new_line.get_id());
 	uint16 id = new_line->get_line_id();
-	if((used_ids[id/8]&(1<<(id&7)))!=0) {
-		dbg->error("simlinemgmt_t::add_line()","Line id %i doubled!",id);
+DBG_MESSAGE("simlinemgmt_t::add_line()","id=%d",new_line.get_id());
+	if( (used_ids[id/8] & (1<<(id&7)) ) !=0 ) {
+		dbg->error("simlinemgmt_t::add_line()","Line id %i doubled! (0x%X)",id,used_ids[id/8]);
 		id += 12345+(7*id)&0x0FFF;
 		dbg->message("simlinemgmt_t::add_line()","new line id %i!",id);
 		new_line->set_line_id( id );
@@ -284,9 +284,9 @@ uint16 simlinemgmt_t::get_unique_line_id()
 	for(uint16 i=0;  i<8192;  i++  ) {
 		if(used_ids[i]!=255) {
 DBG_MESSAGE("simlinemgmt_t::get_unique_line_id()","free id near %i",i*8);
-			for(uint16 id=0;  id<7;  id++ ) {
+			for(uint16 id=0;  id<8;  id++ ) {
 				if((used_ids[i]&(1<<id))==0) {
-					used_ids[i] |= (1<<(id&7));
+//					used_ids[i] |= (1<<(id&7));
 DBG_MESSAGE("simlinemgmt_t::get_unique_line_id()","New id %i",i*8+id);
 					return (i*8)+id;
 				}

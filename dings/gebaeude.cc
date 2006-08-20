@@ -195,7 +195,7 @@ gebaeude_t::add_alter(uint32 a)
 		step_frequency = 0;
 	}
 	set_flag(ding_t::dirty);
-	DBG_MESSAGE("gebaeude_t::add_alter()","");
+//	DBG_MESSAGE("gebaeude_t::add_alter()","");
 }
 
 

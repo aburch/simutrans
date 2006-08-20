@@ -389,6 +389,7 @@ void grund_t::rdwr(loadsave_t *file)
 	}
 	else {
 		// safe init for old version
+DBG_MESSAGE("grund_t::rdwr()","old version: no slope");
 		slope = 0;
 	}
 

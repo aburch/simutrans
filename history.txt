@@ -7,6 +7,10 @@ Known bugs: (hard to fix)
 	set color broken? yes
 
 
+	FIX: loading slopes for bridge heads
+	FIX: assignement of more than 6 lines ...
+	CHANGE: reader more endian compatible
+
 
 Release of 88.09.3
 

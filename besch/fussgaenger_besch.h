@@ -38,6 +38,7 @@
  */
 class fussgaenger_besch_t : public obj_besch_t {
     friend class pedestrian_writer_t;
+    friend class pedestrian_reader_t;
 
     uint16 gewichtung;
 public:

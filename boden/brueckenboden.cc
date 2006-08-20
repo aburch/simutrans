@@ -69,7 +69,7 @@ brueckenboden_t::rdwr(loadsave_t *file)
 
 	}
 	else {
-		if(file->get_version()<=88009) {
+		if(file->get_version()<88009) {
 			uint8 sl;
 			file->rdwr_byte( sl, " " );
 			slope = sl;

@@ -74,7 +74,7 @@ typedef unsigned short PIXVAL;
 //#define USE_C
 #ifdef USE_C
 // bug alert for GCC 4.03
-#define USE_C_FOR_IMAGE
+//#define USE_C_FOR_IMAGE
 #endif
 
 // --------------      static data    --------------
@@ -1645,6 +1645,18 @@ void display_set_player_color(int entry)
  */
 void register_image(struct bild_besch_t *bild)
 {
+	/* valid image? */
+	if(bild->len==0  ||  bild->h==0) {
+		printf("Warning: ignoring image %d because of missing data\n",anz_images);
+/*
+		images[anz_images].len = 1;
+		images[anz_images].base_h = 0;
+		images[anz_images].h = 0;
+*/
+		bild->bild_nr = -1;
+		return;
+	}
+
 	if(anz_images == alloc_images) {
 		alloc_images += 128;
 		images = (struct imd *)guarded_realloc(images, sizeof(struct imd)*alloc_images);
@@ -1661,11 +1673,6 @@ void register_image(struct bild_besch_t *bild)
 	images[anz_images].base_h = bild->h;
 
 	images[anz_images].len = bild->len;
-	if(images[anz_images].len==0) {
-		images[anz_images].len = 1;
-		images[anz_images].base_h = 0;
-		images[anz_images].h = 0;
-	}
 
 	// allocate and copy if needed
 	images[anz_images].recode_flags[NEED_NORMAL_RECODE] = 128;
@@ -1687,8 +1694,6 @@ void register_image(struct bild_besch_t *bild)
 
 	memcpy(images[anz_images].base_data, (PIXVAL *)(bild + 1),images[anz_images].len*sizeof(PIXVAL));
 
-	bild->bild_nr = anz_images;
-
 	if(anz_images>=65535) {
 		printf("FATAL:\n*** Out of images (more than 65534!) ***\n\n");
 		getchar();
@@ -1704,6 +1709,8 @@ void register_image(struct bild_besch_t *bild)
 		base_tile_raster_width = bild->w;
 		tile_raster_width = base_tile_raster_width;
 	}
+
+	bild->bild_nr = anz_images;
 
 	anz_images ++;
 }

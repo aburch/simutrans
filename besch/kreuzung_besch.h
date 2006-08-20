@@ -39,6 +39,7 @@
  */
 class kreuzung_besch_t : public obj_besch_t {
     friend class crossing_writer_t;
+    friend class crossing_reader_t;
 
     uint16  wegtyp_ns;
     uint16  wegtyp_ow;

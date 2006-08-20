@@ -65,35 +65,51 @@ template<class T> class slist_tpl;
  * Reads uint8 from memory area. Advances pointer by 1 byte.
  * @author Hj. Malthaner
  */
-extern uint8 decode_uint8(char * &data);
+inline uint8 decode_uint8(char * &data)
+{
+  const sint8 v = *((sint8 *)data);
+  data ++;
+  return v;
+}
 
-
-/**
- * Reads sint8 from memory area. Advances pointer by 1 byte.
- * @author Hj. Malthaner
- */
-extern sint8 decode_sint8(char * &data);
-
+#define decode_sint8(data)  (sint8)decode_uint8(data)
 
 /**
  * Reads uint16 from memory area. Advances pointer by 2 bytes.
  * @author Hj. Malthaner
  */
-extern uint16 decode_uint16(char * &data);
+inline uint16 decode_uint16(char * &data)
+{
+#ifdef LITTLE_ENDIAN
+  const uint16 v = *((uint16 *)data);
+  data += 2;
+#else
+  uint16 v = ((uint8) *data++);
+  v |= ((uint8) *data++)<<8;
+#endif
+  return v;
+}
 
-
-/**
- * Reads sint16 from memory area. Advances pointer by 2 bytes.
- * @author Hj. Malthaner
- */
-extern sint16 decode_sint16(char * &data);
+#define decode_sint16(data)  (sint16)decode_uint16(data)
 
 
 /**
  * Reads uint32 from memory area. Advances pointer by 4 bytes.
  * @author Hj. Malthaner
  */
-extern uint32 decode_uint32(char * &data);
+inline uint32 decode_uint32(char * &data)
+{
+#ifdef LITTLE_ENDIAN
+  const uint32 v = *((uint32 *)data);
+  data += 4;
+#else
+  uint32 v = ((uint8) *data++);
+  v |= ((uint8) *data++) << 8;
+  v |= ((uint8) *data++) << 16;
+  v |= ((uint8) *data++) << 24;
+#endif
+  return v;
+}
 
 
 

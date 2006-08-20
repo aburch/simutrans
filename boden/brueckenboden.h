@@ -15,10 +15,10 @@ public:
 
 	virtual int gib_weg_yoff() const;
 
-	inline bool ist_bruecke() const { return true; };
+	inline bool ist_bruecke() const { return true; }
 
-	bool set_slope(hang_t::typ) { return false; }
-	hang_t::typ gib_weg_hang() const { return weg_hang; };
+	bool setze_grund_hang(hang_t::typ sl) const { return false; }
+	hang_t::typ gib_weg_hang() const { return weg_hang; }
 
 	void calc_bild();
 
@@ -28,8 +28,8 @@ public:
 	*/
 	virtual bool zeige_info();
 
-	inline const char *gib_name() const {return "Brueckenboden";};
-	inline enum typ gib_typ() const {return brueckenboden;};
+	inline const char *gib_name() const {return "Brueckenboden";}
+	inline enum typ gib_typ() const {return brueckenboden;}
 
 	void * operator new(size_t s);
 	void operator delete(void *p);

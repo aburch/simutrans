@@ -637,8 +637,13 @@ void dingliste_t::rdwr(karte_t *welt, loadsave_t *file, koord3d current_pos)
 		else {
 			// here is the saving part ...
 			if(bei(i)) {
-				if(bei(i)->gib_pos()==current_pos  &&  bei(i)->gib_typ()!=ding_t::raucher) {
-					bei(i)->rdwr(file);
+				if(bei(i)->gib_pos()==current_pos) {
+					if(bei(i)->gib_typ()!=ding_t::raucher) {
+						bei(i)->rdwr(file);
+					}
+					else {
+						file->wr_obj_id(-1);
+					}
 				}
 				else 	if(bei(i)->gib_pos().gib_2d()==current_pos.gib_2d()) {
 					// ok, just error in z direction => we will correct it

@@ -58,9 +58,6 @@
 #include <io.h>
 #endif
 
-// uncomment for intel, comment for POWER_PC Macintosh
-#define NATIVE_LITTLE_ENDIAN
-
 // for the progress bar
 #include "../../simcolor.h"
 #include "../../simimg.h"
@@ -91,82 +88,6 @@ inthashtable_tpl<obj_type, stringhashtable_tpl<obj_besch_t *> > obj_reader_t::lo
 inthashtable_tpl<obj_type, stringhashtable_tpl< slist_tpl<obj_besch_t **> > > obj_reader_t::unresolved;
 ptrhashtable_tpl<obj_besch_t **, int> obj_reader_t::fatals;
 
-
-/**
- * Reads uint8 from memory area. Advances pointer by 1 byte.
- * @author Hj. Malthaner
- */
-uint8 decode_uint8(char * &data)
-{
-  const uint8 v = *((uint8 *)data);
-  data ++;
-  return v;
-}
-
-
-/**
- * Reads sint8 from memory area. Advances pointer by 1 byte.
- * @author Hj. Malthaner
- */
-sint8 decode_sint8(char * &data)
-{
-  const sint8 v = *((sint8 *)data);
-  data ++;
-  return v;
-}
-
-
-/**
- * Reads uint16 from memory area. Advances pointer by 2 bytes.
- * @author Hj. Malthaner
- */
-uint16 decode_uint16(char * &data)
-{
-#ifdef LITTLE_ENDIAN
-  const uint16 v = *((uint16 *)data);
-  data += 2;
-#else
-  uint16 v = ((uint8) *data++);
-  v |= ((uint8) *data++)<<8;
-#endif
-  return v;
-}
-
-
-/**
- * Reads sint16 from memory area. Advances pointer by 2 bytes.
- * @author Hj. Malthaner
- */
-sint16 decode_sint16(char * &data)
-{
-#ifdef LITTLE_ENDIAN
-  const sint16 v = *((sint16 *)data);
-  data += 2;
-#else
-  sint16 v = ((sint8) *data++);
-  v |= ((sint8) *data++)<<8;
-#endif
-  return v;
-}
-
-
-/**
- * Reads uint32 from memory area. Advances pointer by 4 bytes.
- * @author Hj. Malthaner
- */
-uint32 decode_uint32(char * &data)
-{
-#ifdef LITTLE_ENDIAN
-  const uint32 v = *((uint32 *)data);
-  data += 4;
-#else
-  uint32 v = ((uint8) *data++);
-  v |= ((uint8) *data++) << 8;
-  v |= ((uint8) *data++) << 16;
-  v |= ((uint8) *data++) << 24;
-#endif
-  return v;
-}
 
 
 //@ADOC

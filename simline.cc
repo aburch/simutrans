@@ -17,7 +17,7 @@ simline_t::simline_t(karte_t * welt, simlinemgmt_t * simlinemgmt, fahrplan_t * f
 	init_financial_history();
 	const int i = simlinemgmt->get_unique_line_id();
 	memset(this->name, 0, 128);
-	sprintf(this->name, "%s (%d)", translator::translate("Line"), i);
+	sprintf(this->name, "%s (%02d)", translator::translate("Line"), i);
 	this->fpl = fpl;
 	this->old_fpl = new fahrplan_t(fpl);
 	this->id = i;
