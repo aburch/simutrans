@@ -153,9 +153,6 @@ void	translator::get_city_name(char *name, int nr)
 int  init_city_names(bool is_utf_language)
 {
 	FILE * file;
-	// rember old directory to go back there
-	char oldpath[1024];
-	getcwd( oldpath, 1024 );
 
 	// alle namen aufräumen
 	namen_liste.clear();
@@ -197,10 +194,6 @@ dbg->message("translator::init_city_names()","file %p",file);fflush(NULL);
 		}
 		fclose(file);
 
-		file = fopen( oldpath, "rb" );
-		if(file) {
-			fclose( file );
-		}
 	}
 
 dbg->message("translator::init_city_names", "reading failed, creating random names.");fflush(NULL);

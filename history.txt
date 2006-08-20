@@ -1,11 +1,20 @@
+Released Simutrans 0.85.03.3
+
+10-Feb-2005:
+	CHANGE: Any "... Power Palnt" or "...kraftwerk" will produce power
+		=> Wind Power Station (and Solar Power Station) possible
+	CHANGE: Power production now proportional to factory production
+	FIX: uneccessary commands in citylist reading remove (V. Meyer)
+	FIX: transformer was built and then immediately removed
+
+
 Released Simutrans 0.85.03.2
 
 9-Feb-2005:
-	FIX: reduced passenger numger again to initally intended value
-		This is about 1/5 of the current value. Thus I double the number
+	FIX: reduced passenger number again to initally intended value
+		This is about 1/4 of the current value. Thus I doubled the number
 		per building.
 	FIX: no undo after bridges or tunnels
-	FIX: superflous checks from wegebauer removed
 	FIX: UNDO failed for spieler=NULL (intercity roads)
 	FIX: corrected season timing
 	FIX: building transformer removes everything on that tile
@@ -17,7 +26,7 @@ Released Simutrans 0.85.03.2
 Released Simutrans 0.85.03.1
 
 7-Feb-2005:
-	CHANGE: added UNDO for road and rail building ('z') +"UNDO failed!" error
+	CHANGE: added UNDO for road and rail buildings ('z') +"UNDO failed!" error
 	FIX: simworld.cfg was wrongly initialized => no messages at all
 	FIX: city AI was also ignoring transformers during building
 	FIX: for calculating of possible passengers only these who found a
@@ -26,8 +35,8 @@ Released Simutrans 0.85.03.1
 		=> city growth rates much lower, need a good service over whole map
 	FIX: Renovation of townhalls: now all with roof texture and "real" grass
 	FIX: Power station production increased after loading: check on load time
-	FIX: error of an character allowcation array
-	FIX: superfluous parameters in check_for_crossing() removed.
+	FIX: error of an character allowcation array (V. Meyer)
+	FIX: superfluous parameters in check_for_crossing() removed.  (V. Meyer)
 
 
 Released Simutrans 0.85.03

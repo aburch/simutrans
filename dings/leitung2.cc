@@ -63,12 +63,6 @@ fabrik_t *
 leitung_t::suche_fab_4(const koord pos)
 {
 	for(int k=0; k<4; k++) {
-/*
-		fabrik_t *f=fabrik_t::gib_fab(welt,pos);
-		if(f) {
-			return f;
-		}
-*/
 		const grund_t *gr = welt->lookup(pos+koord::nsow[k])->gib_kartenboden();
 		const int n = gr->gib_top();
 
@@ -513,7 +507,7 @@ pumpe_t::pumpe_t(karte_t *welt, koord3d pos, spieler_t *sp) : leitung_t(welt , p
 pumpe_t::~pumpe_t()
 {
 	if(fab) {
-		fab->set_prodfaktor( MAX(16,fab->get_prodfaktor()/3) );
+		fab->set_prodfaktor( MAX(16,fab->get_prodfaktor()/2) );
 	}
 	welt->sync_remove(this);
 }
@@ -545,7 +539,7 @@ pumpe_t::sync_prepare()
 	if(fab==NULL) {
 		fab = leitung_t::suche_fab_4(gib_pos().gib_2d());
 		if(fab) {
-			fab->set_prodfaktor( fab->get_prodfaktor()*3 );
+			fab->set_prodfaktor( fab->get_prodfaktor()*2 );
 		}
 	}
 }
@@ -554,12 +548,13 @@ pumpe_t::sync_prepare()
 bool
 pumpe_t::sync_step(long delta_t)
 {
-	if(fab == 0 || fab->gib_eingang()->get_count() == 0 || fab->gib_eingang()->get(0).menge <= 0) {
+	if(  fab==0 || (fab->gib_eingang()->get_count()>0  &&  fab->gib_eingang()->get(0).menge<=0)  ) {
 		power_there = false;
 	}
 	else {
+		// no input needed or has something to consume
 		power_there = true;
-		get_net()->add_power(delta_t * PROD);
+		get_net()->add_power(delta_t*fab->get_prodbase()*32);
 	}
 	return true;
 }
