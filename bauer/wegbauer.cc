@@ -1780,7 +1780,7 @@ wegbauer_t::baue_leitung()
 			gr->obj_add(lt);
 		}
 		lt->calc_neighbourhood();
-		if(i&3==0) {
+		if((i&3)==0) {
 			INT_CHECK( "wegbauer 1584" );
 		}
 	}
@@ -1842,7 +1842,7 @@ wegbauer_t::baue_schiene()
 
 			gr->calc_bild();
 
-			if(i&3==0) {
+			if((i&3)==0) {
 				INT_CHECK( "wegbauer 1584" );
 			}
 		}
@@ -1859,7 +1859,7 @@ wegbauer_t::baue_schiene()
 			if (end->get_neighbour(to, weg_t::schiene, koord::nsow[i])) {
 				to->calc_bild();
 			}
-			if(i&3==0) {
+			if((i&3)==0) {
 				INT_CHECK( "wegbauer 1584" );
 			}
 		}
@@ -1946,7 +1946,7 @@ wegbauer_t::baue_monorail()
 				sp->buche(cost, route->at(i).gib_2d(), COST_CONSTRUCTION);
 			}
 
-			if(i&3==0) {
+			if((i&3)==0) {
 				INT_CHECK( "wegbauer 1584" );
 			}
 		}
@@ -2015,7 +2015,7 @@ DBG_MESSAGE("wegbauer_t::baue_kanal()","extend ribi_t at (%i,%i) with %i",route-
 
 				gr->calc_bild();
 
-				if(i&3==0) {
+				if((i&3)==0) {
 					INT_CHECK( "wegbauer 1584" );
 				}
 			}
@@ -2099,7 +2099,7 @@ DBG_MESSAGE("wegbauer_t::baue_runway()","extend ribi_t at (%i,%i) with %i",route
 
 				gr->calc_bild();
 
-				if(i&3==0) {
+				if((i&3)==0) {
 					INT_CHECK( "wegbauer 1880" );
 				}
 			}

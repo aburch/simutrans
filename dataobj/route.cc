@@ -206,7 +206,9 @@ static inline bool am_i_there(karte_t *welt,
 // node arrays
 route_t::nodestruct* route_t::nodes=NULL;
 uint32 route_t::MAX_STEP=0;
+#ifdef DEBUG
 bool route_t::node_in_use=false;
+#endif
 
 /* find the route to an unknow location
  * @author prissi
@@ -593,8 +595,8 @@ DBG_DEBUG("sizes","KNode=%i, ANode=%i",sizeof(KNode),sizeof(ANode));
 
 // or this to save time (imho better)
 #ifndef SAVE_MEMORY
-				if(open_count==0  ||  new_f<open[open_count-1]->f>=new_f) {
-					index =open_count;
+				if(open_count==0  ||  new_f<open[open_count-1]->f) {
+					index = open_count;
 				}
 				else {
 					// ... and that the much faster binary search

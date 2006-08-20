@@ -23,7 +23,7 @@
 #include "simwin.h"
 
 #include "tpl/slist_tpl.h"
-#include "gui/message_info_t.h"
+#include "gui/messagebox.h"
 
 
 
@@ -124,7 +124,7 @@ message_t::get_node(unsigned i)
  * @param bild images assosiated with message
  * @author prissi
  */
-void message_t::add_message(const char *text, koord pos, msg_typ what, int color, int bild )
+void message_t::add_message(const char *text, koord pos, msg_typ what, uint8 color, image_id bild )
 {
 DBG_MESSAGE("message_t::add_msg()","%40s (at %i,%i)", text, pos.x, pos.y );
 
@@ -134,9 +134,15 @@ DBG_MESSAGE("message_t::add_msg()","%40s (at %i,%i)", text, pos.x, pos.y );
 		return;
 	}
 
+	// correct for player color
+	PLAYER_COLOR_VAL colorval=color;
+	if(color<8) {
+		colorval = PLAYER_FLAG|((welt->gib_spieler(color)->get_player_color()*4)+0);
+	}
+
       // should we send this message to a ticker? (always done)
       if(art&ticker_flags) {
-		ticker_t::get_instance()->add_msg(text,pos,color);
+		ticker_t::get_instance()->add_msg(text,pos,colorval);
       }
 
 	// we will not add messages two times to the list if it was within the last 20 messages or within last three months
@@ -154,7 +160,7 @@ DBG_MESSAGE("message_t::add_msg()","%40s (at %i,%i)", text, pos.x, pos.y );
 	strncpy( n.msg, text, 256 );
 	n.msg[256] = 0;
 	n.pos = pos;
-	n.color = color;
+	n.color = colorval;
 	n.time = welt->get_current_month();
 	n.bild = bild;
 
@@ -163,11 +169,11 @@ DBG_MESSAGE("message_t::add_msg()","%40s (at %i,%i)", text, pos.x, pos.y );
 	char *p = list->at(0).msg;
 	// should we open an autoclose windows?
 	if(art&auto_win_flags  &&  welt!=NULL) {
-		create_win(-1, -1, MESG_WAIT, new message_info_t(welt,color,p,pos,bild), w_autodelete );
+		create_win(-1, -1, MESG_WAIT, new nachrichtenfenster_t(welt,p,bild,pos,colorval), w_autodelete );
 	}
 
 	// should we open a normal windows?
 	if(art&win_flags  &&  welt!=NULL) {
-		create_win(-1, -1,new message_info_t(welt,color,p,pos,bild),w_autodelete);
+		create_win(-1, -1,new nachrichtenfenster_t(welt,p,bild,pos,colorval),w_autodelete);
 	}
 }

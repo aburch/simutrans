@@ -46,8 +46,8 @@ private:
 
     // Hajo: getc got a name clash on my system
     int lsgetc();
-    int write(const void * buf, unsigned len);
-    int read (void *buf, unsigned len);
+    long write(const void * buf, unsigned long len);
+    long read (void *buf, unsigned long len);
 
 public:
     loadsave_t();

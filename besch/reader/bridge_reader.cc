@@ -134,7 +134,7 @@ obj_besch_t * bridge_reader_t::read_node(FILE *fp, obj_node_info_t &node)
   if(version == 1) {
     // Versioned node, version 1
 
-    besch->wegtyp = decode_uint16(p);
+    besch->wegtyp = (uint8)decode_uint16(p);
     besch->topspeed = decode_uint16(p);
     besch->preis = decode_uint32(p);
 
@@ -188,7 +188,7 @@ obj_besch_t * bridge_reader_t::read_node(FILE *fp, obj_node_info_t &node)
   } else {
     // old node, version 0
 
-    besch->wegtyp = v;
+    besch->wegtyp = (uint8)v;
     decode_uint16(p);                    // Menupos, no more used
     besch->preis = decode_uint32(p);
     besch->topspeed = 999;               // Safe default ...

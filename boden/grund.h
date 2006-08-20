@@ -14,6 +14,7 @@
 
 #include "../halthandle_t.h"
 #include "../simimg.h"
+#include "../simcolor.h"
 
 #include "../dataobj/koord3d.h"
 #include "../dataobj/dingliste.h"
@@ -299,7 +300,7 @@ public:
      * @return die Farbe des Beschreibungstexthintergrundes.
      * @author Hj. Malthaner
      */
-    int text_farbe() const;
+    PLAYER_COLOR_VAL text_farbe() const;
 
 
     /**

@@ -216,7 +216,12 @@ reliefkarte_t::calc_relief_farbe(const grund_t *gr)
 					}
 				}
 				else {
-					color = calc_hoehe_farbe((gr->gib_hoehe()>>4)+(gr->gib_grund_hang()>0), welt->gib_grundwasser()>>4);
+#ifndef DOUBLE_GROUNDS
+					sint16 height = (gr->gib_grund_hang()&1);
+#else
+					sint16 height = (gr->gib_grund_hang()%3);
+#endif
+					color = calc_hoehe_farbe((gr->gib_hoehe()>>4)+height, welt->gib_grundwasser()>>4);
 				}
 				break;
 		}
@@ -435,13 +440,13 @@ reliefkarte_t::calc_map()
 	// find tourist spots
 	if(mode==MAP_TOURIST) {
 		const weighted_vector_tpl<gebaeude_t *> &ausflugsziele = welt->gib_ausflugsziele();
-		int max=1;
+		int maxziele=1;
 		for( unsigned i=0;  i<ausflugsziele.get_count();  i++ ) {
-			if(max<ausflugsziele.at(i)->gib_passagier_level()) {
-				max = ausflugsziele.at(i)->gib_passagier_level();
+			if(maxziele<ausflugsziele.at(i)->gib_passagier_level()) {
+				maxziele = ausflugsziele.at(i)->gib_passagier_level();
 			}
 		}
-		int steps=MAX(1,max/11);
+		int steps=max(1,maxziele/11);
 		for( unsigned i=0;  i<ausflugsziele.get_count();  i++ ) {
 			setze_relief_farbe_area(ausflugsziele.at(i)->gib_pos().gib_2d(), 7, calc_severity_color(ausflugsziele.at(i)->gib_passagier_level(),steps) );
 		}

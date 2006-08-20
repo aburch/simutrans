@@ -51,7 +51,7 @@ void out_message(const char *who, const char *format, ...)
 	fprintf(stderr,"\n");
 }
 
-
+/*
 // generate a division be zero error
 void trap()
 {
@@ -66,3 +66,4 @@ void trap()
 	assert(0);
 #endif
 }
+*/

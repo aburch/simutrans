@@ -163,7 +163,7 @@ bool convoi_frame_t::passes_filter(convoihandle_t cnv)
  * @author Hj. Malthaner
  */
 convoi_frame_t::convoi_frame_t(spieler_t *sp, karte_t *welt) :
-	gui_frame_t("cl_title", sp->get_player_color()),
+	gui_frame_t("cl_title", sp),
 	scrolly(&cont),
 	sort_label(translator::translate("cl_txt_sort")),
 	filter_label(translator::translate("cl_txt_filter"))

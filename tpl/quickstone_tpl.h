@@ -3,6 +3,7 @@
 
 #include <stdlib.h>
 #include "../simtypes.h"
+#include "debug_helper.h"
 
 /**
  * An implementation of the tombstone pointer checking method.
@@ -61,7 +62,8 @@ template <class T> class quickstone_tpl
     }
 
     // no free entry found, can't continue
-    abort();
+    trap();
+	return 0; //dummy for compiler
   };
 
 

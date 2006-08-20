@@ -47,7 +47,7 @@ gui_scrolled_list_t::gui_scrolled_list_t(enum type type) :
 
 
 bool
-gui_scrolled_list_t::action_triggered(gui_komponente_t */* comp */, value_t extra)
+gui_scrolled_list_t::action_triggered(gui_komponente_t * /* comp */, value_t extra)
 {
     // search/replace all offsets with sb.gib_offset() is also an option
     offset = extra.i;

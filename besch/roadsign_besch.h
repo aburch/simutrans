@@ -72,7 +72,7 @@ public:
 
 	bool is_single_way() const
 	{
-		return flags&ONE_WAY!=0;
+		return (flags&ONE_WAY)!=0;
 	}
 
 	int gib_min_speed() const

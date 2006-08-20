@@ -92,7 +92,7 @@ help_frame_t::help_frame_t(cstring_t filename) :
 	}
 
 	if(file) {
-		const int len = fread(buf, 1, 8191, file);
+		const long len = fread(buf, 1, 8191, file);
 		buf[len] = '\0';
 		fclose(file);
 	}
@@ -114,7 +114,7 @@ help_frame_t::help_frame_t(cstring_t filename) :
  * @author Hj. Malthaner
  */
 bool
-help_frame_t::action_triggered(gui_komponente_t */**/, value_t extra)
+help_frame_t::action_triggered(gui_komponente_t *, value_t extra)
 {
 	create_win(new help_frame_t((const char *)(extra.p)), w_autodelete, magic_none);
 	return true;

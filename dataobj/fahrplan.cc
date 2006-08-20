@@ -214,7 +214,7 @@ fahrplan_t::rdwr(loadsave_t *file)
 {
 	long dummy=aktuell;
 	file->rdwr_long(dummy, " ");
-	aktuell = dummy;
+	aktuell = (sint16)dummy;
 
 	long maxi=eintrag.get_count();
 	file->rdwr_long(maxi, " ");
@@ -231,7 +231,7 @@ fahrplan_t::rdwr(loadsave_t *file)
 			pos.rdwr(file);
 			file->rdwr_long(dummy, "\n");
 
-			struct linieneintrag_t stop = { pos, dummy, 0 };
+			struct linieneintrag_t stop = { pos, (sint8)dummy, 0 };
 			eintrag.append(stop);
 		}
 		abgeschlossen = true;

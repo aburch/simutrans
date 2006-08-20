@@ -28,7 +28,7 @@
 
 
 halt_detail_t::halt_detail_t(spieler_t * sp, karte_t *welt, halthandle_t halt) :
-	gui_frame_t(translator::translate("Details"), sp->get_player_color()),
+	gui_frame_t(translator::translate("Details"), sp),
 	scrolly(&txt_info),
 	txt_info(" \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n"
        " \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n"

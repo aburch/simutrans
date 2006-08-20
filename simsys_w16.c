@@ -7,7 +7,7 @@
  * in other projects without written permission of the author.
  */
 
-#ifndef __WIN32__
+#ifndef WIN32
 #error "Only Windows has GDI!"
 #endif
 
@@ -70,19 +70,35 @@ int dr_os_open(int w, int h,int fullscreen)
 {
 	// fake fullscreen
 	if(fullscreen  &&  w==MaxSize.right  &&  h==MaxSize.bottom) {
+#ifdef _MSC_VER
+		hwnd = CreateWindowEx(WS_EX_TOPMOST	,
+				L"Simu",  L"Simutrans "  WIDE_VERSION_NUMBERS, WS_POPUP,
+				0, 0,
+				w, h-1,
+				NULL, NULL, hInstance, NULL);
+#else
 		hwnd = CreateWindowEx(WS_EX_TOPMOST	,
 				L"Simu",  L"" SAVEGAME_PREFIX " " VERSION_NUMBER " - " VERSION_DATE, WS_POPUP,
 				0, 0,
 				w, h-1,
 				NULL, NULL, hInstance, NULL);
+#endif
 		ShowWindow (hwnd, SW_SHOW);
 	}
 	else {
+#ifdef _MSC_VER
+		hwnd = CreateWindow(
+					L"Simu", L"Simutrans " WIDE_VERSION_NUMBER, WS_OVERLAPPEDWINDOW,
+					CW_USEDEFAULT, CW_USEDEFAULT,
+					w+GetSystemMetrics(SM_CXFRAME), h-1+2*GetSystemMetrics(SM_CYFRAME)+GetSystemMetrics(SM_CYCAPTION),
+					NULL, NULL, hInstance, NULL);
+#else
 		hwnd = CreateWindow(
 					L"Simu", L"" SAVEGAME_PREFIX " " VERSION_NUMBER " - " VERSION_DATE, WS_OVERLAPPEDWINDOW,
 					CW_USEDEFAULT, CW_USEDEFAULT,
 					w+GetSystemMetrics(SM_CXFRAME), h-1+2*GetSystemMetrics(SM_CYFRAME)+GetSystemMetrics(SM_CYCAPTION),
 					NULL, NULL, hInstance, NULL);
+#endif
 		ShowWindow (hwnd, SW_SHOW);
 	}
 	WindowSize.right = w;
@@ -312,13 +328,15 @@ LRESULT WINAPI WindowProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 
 		case WM_PAINT:
 		{
+			PAINTSTRUCT ps;
+			HDC hdcp;
+
 			if(hdc!=NULL) {
 				ReleaseDC( hwnd, hdc );
 				hdc = NULL;
 			}
 
-			PAINTSTRUCT ps;
-			HDC hdcp = BeginPaint(hwnd, &ps);
+			hdcp = BeginPaint(hwnd, &ps);
 			AllDib->biHeight = WindowSize.bottom+1;
 			StretchDIBits( hdcp, 0, 0, WindowSize.right, WindowSize.bottom,
 								0, WindowSize.bottom+1, WindowSize.right, -WindowSize.bottom,
@@ -329,94 +347,97 @@ LRESULT WINAPI WindowProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 		}
 
 		case WM_KEYDOWN:   /* originally KeyPress */
-			sys_event.type = SIM_KEYBOARD;
-			sys_event.code = 0;
-			// read mod key state from SDL layer
+			{
+				// check for not numlock!
+				int numlock=(GetKeyState(VK_NUMLOCK)&1)==0;
 
-			// check for not numlock!
-			int numlock=(GetKeyState(VK_NUMLOCK)&1)==0;
-			if(numlock) {
+				sys_event.type = SIM_KEYBOARD;
+				sys_event.code = 0;
+				// read mod key state from SDL layer
+
+				if(numlock) {
+					// do low level special stuff here
+					switch(wParam) {
+						case VK_NUMPAD0:
+							sys_event.code = '0';
+							break;
+						case VK_NUMPAD1:
+							sys_event.code = '1';
+							break;
+						case VK_NUMPAD3:
+							sys_event.code = '3';
+							break;
+						case VK_NUMPAD7:
+							sys_event.code = '7';
+							break;
+						case VK_NUMPAD9:
+							sys_event.code = '9';
+							break;
+						case VK_NUMPAD2:
+							sys_event.code = SIM_KEY_DOWN;
+							break;
+						case VK_NUMPAD4:
+							sys_event.code = SIM_KEY_LEFT;
+							break;
+						case VK_NUMPAD6:
+							sys_event.code = SIM_KEY_RIGHT;
+							break;
+						case VK_NUMPAD8:
+							sys_event.code = SIM_KEY_UP;
+							break;
+						case VK_SEPARATOR	:
+							sys_event.code = 127;	//delete
+							break;
+					}
+					// check for numlock!
+					if(sys_event.code!=0) {
+						break;
+					}
+				}
+
 				// do low level special stuff here
 				switch(wParam) {
-					case VK_NUMPAD0:
-						sys_event.code = '0';
-						break;
-					case VK_NUMPAD1:
-						sys_event.code = '1';
-						break;
-					case VK_NUMPAD3:
-						sys_event.code = '3';
-						break;
-					case VK_NUMPAD7:
-						sys_event.code = '7';
-						break;
-					case VK_NUMPAD9:
-						sys_event.code = '9';
-						break;
-					case VK_NUMPAD2:
-						sys_event.code = SIM_KEY_DOWN;
-						break;
-					case VK_NUMPAD4:
+					case VK_LEFT:
 						sys_event.code = SIM_KEY_LEFT;
 						break;
-					case VK_NUMPAD6:
+					case VK_RIGHT:
 						sys_event.code = SIM_KEY_RIGHT;
 						break;
-					case VK_NUMPAD8:
+					case VK_UP:
 						sys_event.code = SIM_KEY_UP;
 						break;
-					case VK_SEPARATOR	:
-						sys_event.code = 127;	//delete
+					case VK_DOWN:
+						sys_event.code = SIM_KEY_DOWN;
+						break;
+					case VK_PRIOR:
+						sys_event.code = '>';
+						break;
+					case VK_NEXT:
+						sys_event.code = '<';
+						break;
+					case VK_DELETE:
+						sys_event.code = 127;
+						break;
+					case VK_HOME:
+						sys_event.code = SIM_KEY_HOME;
+						break;
+					case VK_END:
+						sys_event.code = SIM_KEY_END;
 						break;
 				}
-				// check for numlock!
-				if(sys_event.code!=0) {
-					break;
+				// check for F-Keys!
+				if(sys_event.code==0  &&  wParam>=VK_F1  &&  wParam<=VK_F15) {
+					sys_event.code = (wParam-VK_F1)+SIM_KEY_F1;
+					sys_event.key_mod = (GetKeyState(VK_CONTROL)!=0)*2;	// control state
+	//printf("WindowsEvent: Key %i, (state %i)\n",sys_event.code, sys_event.key_mod );
 				}
+				// some result?
+				if(sys_event.code!=0) {
+					return 0;
+				}
+				sys_event.type = SIM_NOEVENT;
+				sys_event.code = 0;
 			}
-
-			// do low level special stuff here
-			switch(wParam) {
-				case VK_LEFT:
-					sys_event.code = SIM_KEY_LEFT;
-					break;
-				case VK_RIGHT:
-					sys_event.code = SIM_KEY_RIGHT;
-					break;
-				case VK_UP:
-					sys_event.code = SIM_KEY_UP;
-					break;
-				case VK_DOWN:
-					sys_event.code = SIM_KEY_DOWN;
-					break;
-				case VK_PRIOR:
-					sys_event.code = '>';
-					break;
-				case VK_NEXT:
-					sys_event.code = '<';
-					break;
-				case VK_DELETE:
-					sys_event.code = 127;
-					break;
-				case VK_HOME:
-					sys_event.code = SIM_KEY_HOME;
-					break;
-				case VK_END:
-					sys_event.code = SIM_KEY_END;
-					break;
-			}
-			// check for F-Keys!
-			if(sys_event.code==0  &&  wParam>=VK_F1  &&  wParam<=VK_F15) {
-				sys_event.code = (wParam-VK_F1)+SIM_KEY_F1;
-				sys_event.key_mod = (GetKeyState(VK_CONTROL)!=0)*2;	// control state
-//printf("WindowsEvent: Key %i, (state %i)\n",sys_event.code, sys_event.key_mod );
-			}
-			// some result?
-			if(sys_event.code!=0) {
-				return 0;
-			}
-			sys_event.type = SIM_NOEVENT;
-			sys_event.code = 0;
 		break;
 
 		case WM_CHAR:   /* originally KeyPress */

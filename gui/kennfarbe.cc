@@ -19,7 +19,7 @@
 
 
 farbengui_t::farbengui_t(spieler_t *sp) :
-	gui_frame_t("Meldung",sp->get_player_color()),
+	gui_frame_t("Meldung",sp),
 	txt(translator::translate("COLOR_CHOOSE\n"))
 {
 	this->sp = sp;

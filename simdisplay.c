@@ -32,8 +32,8 @@
 void
 display_progress(int part, int total)
 {
-    extern int disp_width;
-    extern int disp_height;
+    const int disp_width=display_get_width();
+    const int disp_height=display_get_height();
 
     // umriﬂ
     display_ddd_box((disp_width-total-4)/2, disp_height/2-9, total+3, 18, COL_GREY6, COL_GREY4);
@@ -56,7 +56,7 @@ display_icon_leiste(const int color, int basis_bild)
 {
     static int old_color = 0;
     int dirty;
-    extern int disp_width, old_my;
+    extern int old_my;
 //    extern int disp_height;
 
 	if(color!=old_color  ||  color==-1
@@ -73,7 +73,7 @@ display_icon_leiste(const int color, int basis_bild)
 		return;
 	}
 
-    display_fillbox_wh(0,0, disp_width, 32, MN_GREY1, dirty);
+    display_fillbox_wh(0,0, display_get_width(), 32, MN_GREY1, dirty);
 
     display_color_img(basis_bild++,0,0, old_color, FALSE, dirty);
     display_color_img(basis_bild++,64,0, old_color, FALSE, dirty);
@@ -98,11 +98,11 @@ display_icon_leiste(const int color, int basis_bild)
  * @author Hj. Malthaner
  */
 void
-display_flush(const int season_img,int stunden4, int color, double konto, const char *day_str, const char *info, const char *player_name, const int player_color)
+display_flush(const int season_img,int stunden4, COLOR_VAL color, double konto, const char *day_str, const char *info, const char *player_name, const COLOR_VAL player_color)
 {
 	char buffer[256];
-	extern int disp_width;
-	extern int disp_height;
+	const int disp_width=display_get_width();
+	const int disp_height=display_get_height();
 
 	display_setze_clip_wh( 0, 0, disp_width, disp_height );
 	display_fillbox_wh(0, disp_height-16, disp_width, 1, MN_GREY4, FALSE);
@@ -116,7 +116,7 @@ display_flush(const int season_img,int stunden4, int color, double konto, const 
 	display_proportional(20, disp_height-12, buffer, ALIGN_LEFT, COL_BLACK, TRUE);
 
 	if(player_name!=NULL) {
-		display_proportional(256, disp_height-12, player_name, ALIGN_MIDDLE, player_color, TRUE);
+		display_proportional(256, disp_height-12, player_name, ALIGN_MIDDLE, PLAYER_FLAG|(player_color*4), TRUE);
 	}
 
 	money_to_string(buffer, konto);

@@ -68,7 +68,7 @@ uint8 schedule_list_gui_t::statistic_type[MAX_LINE_COST]={
 // a width of 400 pixels -> original size was unuseable in 640x480
 
 schedule_list_gui_t::schedule_list_gui_t(karte_t *welt,spieler_t *sp)
- : gui_frame_t("Line Management",sp->get_player_color()),
+ : gui_frame_t("Line Management",sp),
  scrolly(&cont),
  scrolly_haltestellen(&cont_haltestellen),
  scl(gui_scrolled_list_t::select)

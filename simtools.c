@@ -17,13 +17,14 @@ int mersenne_twister_index=MERSENNE_TWISTER_N+1; /* mersenne_twister_index==N+1 
 /* define before including simtools.h! */
 
 
+#include "simtypes.h"
 #include "simtools.h"
 #include "simmem.h"
 
 
 
 /* initializes mersenne_twister[N] with a seed */
-void init_genrand(unsigned long s)
+void init_genrand(uint32 s)
 {
     mersenne_twister[0]= s & 0xffffffffUL;
     for (mersenne_twister_index=1; mersenne_twister_index<MERSENNE_TWISTER_N; mersenne_twister_index++) {
@@ -42,9 +43,9 @@ void init_genrand(unsigned long s)
 /* generate N words at one time */
  void	MTgenerate(void)
  {
-	static unsigned long mag01[2]={0x0UL, MATRIX_A};
-	unsigned long y;
-     int kk;
+	static uint32 mag01[2]={0x0UL, MATRIX_A};
+	uint32 y;
+    int kk;
 
 	if (mersenne_twister_index == MERSENNE_TWISTER_N+1)   /* if init_genrand() has not been called, */
 		init_genrand(5489UL); /* a default initial seed is used */
@@ -66,9 +67,9 @@ void init_genrand(unsigned long s)
 
 
 /* generates a random number on [0,0xffffffff]-interval */
-unsigned long simrand_plain(void)
+uint32 simrand_plain(void)
 {
-	unsigned long y;
+	uint32 y;
 
 	if (mersenne_twister_index >= MERSENNE_TWISTER_N) { /* generate N words at one time */
 		MTgenerate();
@@ -85,12 +86,41 @@ unsigned long simrand_plain(void)
 }
 
 
-
-static unsigned long noise_seed = 0;
-
-unsigned long setsimrand(unsigned long seed,unsigned long ns)
+/* generates a random number on [0,max-1]-interval */
+uint32 simrand(const uint32 max)
 {
-	unsigned long old_noise_seed = noise_seed;
+#ifndef MERSENNE_TWISTER_N
+	// defined in simtools.h!
+	#define MERSENNE_TWISTER_N 624
+	extern unsigned long mersenne_twister[MERSENNE_TWISTER_N];
+	extern unsigned long mersenne_twister_index;
+#endif
+	uint32 y;
+
+	if(max<=1) {	// may rather assert this?
+		return 0;
+	}
+
+	if (mersenne_twister_index >= MERSENNE_TWISTER_N) { /* generate N words at one time */
+		MTgenerate();
+	}
+	y = mersenne_twister[mersenne_twister_index++];
+
+	/* Tempering */
+	y ^= (y >> 11);
+	y ^= (y << 7) & 0x9d2c5680UL;
+	y ^= (y << 15) & 0xefc60000UL;
+	y ^= (y >> 18);
+
+	return y%max;
+}
+
+
+static uint32 noise_seed = 0;
+
+uint32 setsimrand(uint32 seed,uint32 ns)
+{
+	uint32 old_noise_seed = noise_seed;
 
 	if(seed!=0xFFFFFFFF) {
 		init_genrand( seed );
@@ -180,7 +210,7 @@ smoothed_noise(const int x, const int y)
 //   return int_noise(x,y);
 }
 
-static inline double
+static double
 linear_interpolate(const double a, const double b, const double x)
 {
 //    return  a*(1.0-x) + b*x;

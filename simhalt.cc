@@ -633,29 +633,19 @@ void haltestelle_t::display_status(int xpos, int ypos) const
 
     const int v = min((gib_ware_summe(wtyp) >> 2) + 2, 128);
 
-    display_fillbox_wh_clip(xpos+i*4, ypos-v-1, 1, v,
-			    COL_GREY4,
-			    true);
+    display_fillbox_wh_clip(xpos+i*4, ypos-v-1, 1, v, COL_GREY4, true);
 
     display_fillbox_wh_clip(xpos+i*4+1, ypos-v-1, 2, v,
 			    // (i & 7) * 4 + 1,
-			    255 - i*4,
-			    true);
+			    255 - i*4, true);
 
-    display_fillbox_wh_clip(xpos+i*4+3, ypos-v-1, 1, v,
-			    COL_GREY1,
-			    true);
+    display_fillbox_wh_clip(xpos+i*4+3, ypos-v-1, 1, v, COL_GREY1, true);
 
     // Hajo: show up arrow for capped values
     if(v == 128) {
-      display_fillbox_wh_clip(xpos+i*4+1, ypos-v-6, 2, 4,
-			      COL_WHITE,
-			      true);
-      display_fillbox_wh_clip(xpos+i*4, ypos-v-5, 4, 1,
-			      COL_WHITE,
-			      true);
+      display_fillbox_wh_clip(xpos+i*4+1, ypos-v-6, 2, 4, COL_WHITE, true);
+      display_fillbox_wh_clip(xpos+i*4, ypos-v-5, 4, 1, COL_WHITE, true);
     }
-
   }
 
   const int color = gib_status_farbe();

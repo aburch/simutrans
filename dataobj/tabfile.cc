@@ -174,7 +174,7 @@ bool tabfile_t::read(tabfileobj_t &objinfo)
 bool tabfile_t::read_line(char *s, int size)
 {
     char *r;
-    int l;
+    long l;
 
     do {
 	r = fgets(s, size, file);
@@ -228,7 +228,7 @@ void tabfile_t::format_key(char *key)
 
 void tabfile_t::format_value(char *value)
 {
-    int len = strlen(value);
+    long len = strlen(value);
 
     // trim right
     while(len && value[len - 1] == ' ') {

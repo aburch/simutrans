@@ -52,8 +52,8 @@ void scrollbar_t::setze_knob(int size, int area)
 	if(size<1  ||  area<1) {
 		dbg->warning("scrollbar_t::setze_knob()","size=%i, area=%i not in 1...x",size,area);
 	}
-    knob_size = MAX(1,size);
-    knob_area = MAX(1,area);
+    knob_size = max(1,size);
+    knob_area = max(1,area);
     reposition_buttons();
 }
 

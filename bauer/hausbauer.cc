@@ -157,7 +157,7 @@ bool hausbauer_t::register_besch(const haus_besch_t *besch)
 			case weitere:
 				{
 				// allow for more than one air depot
-					int checkpos=strlen(besch->gib_name());
+					long checkpos=strlen(besch->gib_name());
 					if(  strcmp("AirDepot",besch->gib_name()+checkpos-8)==0  ) {
 DBG_DEBUG("hausbauer_t::register_besch()","AirDepot %s",besch->gib_name());
 						air_depot.append(besch);
@@ -310,7 +310,7 @@ void hausbauer_t::neue_karte()
  *
  * @author V. Meyer
  */
-void hausbauer_t::umbauen(karte_t */*welt*/,gebaeude_t *gb, const haus_besch_t *besch)
+void hausbauer_t::umbauen(karte_t * /*welt*/,gebaeude_t *gb, const haus_besch_t *besch)
 {
 	const haus_tile_besch_t *tile = besch->gib_tile(0, 0, 0);
 

@@ -241,7 +241,7 @@ simlinemgmt_t::sort_lines()
 {
 	int count = count_lines();
 #ifdef _MSC_VER
-	linehandle_t *a = (line_details_t *)alloca(count * sizeof(line_details_t));
+	linehandle_t *a = (linehandle_t *)alloca(count * sizeof(linehandle_t));
 #else
 	linehandle_t a[count];
 #endif

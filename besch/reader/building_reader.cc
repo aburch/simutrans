@@ -108,7 +108,7 @@ void building_reader_t::register_obj(obj_besch_t *&data)
 
 	if(besch->utyp==hausbauer_t::weitere  &&  besch->enables==0x80) {
 		// this stuff is just for compatibility
-		int checkpos=strlen(besch->gib_name());
+		long checkpos=strlen(besch->gib_name());
 		besch->enables = 0;
 		// before station buildings were identified by their name ...
 		if(  strcmp("BusStop",besch->gib_name()+checkpos-7)==0  ) {

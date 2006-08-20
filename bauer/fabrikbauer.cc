@@ -634,7 +634,7 @@ DBG_MESSAGE("fabrikbauer_t::baue_hierarchie","supplier %s can supply approx %i o
 		// this is a source?
 		if(lcount!=0) {
 			// at least three producers please
-			lcount = MAX(0,lcount-(lfound/2));
+			lcount = max(0,lcount-(lfound/2));
 		}
 		else {
 			// Hajo: if none exist, build one

@@ -345,3 +345,27 @@ Do not use:
 
 Reason:
 	VC code crashes when deleting a zero sized array.
+
+
+
+4. How the UI works
+-------------------
+
+If you want to add a new dialoge, I strongly recommend to derive it from the
+gui_frame class. Then add components out of the gui/components folder. You
+will find almost all components there you could need. Scroll bar are best
+used as scroll panes: the containing component will be clipped and can be
+drawn as normal.
+
+After initlizing a component you have to add it to your dialog
+(add_lomponente). Failing to do so will just not show it. Certain active
+thing like button and many more can give a feedback. Use action_listener for
+them, you do not need to handle events for them yourself. Comboboxes are
+an exception, since you have to close them, when you get a mouse click event
+outside of them.
+
+If you use only components from gui/components, you just have to init your
+dialog and you are done. It can be as easy as that.
+
+Written by prissi
+Initial version: June 2006

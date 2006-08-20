@@ -38,6 +38,7 @@ int __cdecl _purecall()
 	dbg->error("Pure virtual function call","-> DEBUGGER will be activated!");
 	b /= make_this_a_division_by_zero;
 	printf("%i",b);
+	return 0;	// to keep compiler happy
 }
 
 #else

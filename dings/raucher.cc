@@ -45,8 +45,8 @@ raucher_t::raucher_t(karte_t *welt, koord3d pos, const rauch_besch_t *besch) :
     ding_t(welt, pos)
 {
     this->besch = besch;
-    setze_yoff( besch->gib_xy_off().y);
-    setze_xoff( besch->gib_xy_off().x);
+    setze_yoff( besch->gib_xy_off().y );
+    setze_xoff( besch->gib_xy_off().x );
 }
 
 bool

@@ -29,7 +29,7 @@ cbuffer_t grund_info_t::gr_info(1024);
 
 
 grund_info_t::grund_info_t(karte_t *welt, grund_t *gr) :
-	gui_frame_t(gr->gib_name()),
+	gui_frame_t(gr->gib_name(),gr->gib_besitzer()),
 	view(welt, gr->gib_pos())
 {
 	this->gr = gr;

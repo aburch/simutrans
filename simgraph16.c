@@ -65,7 +65,7 @@ typedef unsigned int   PIXRGB;
 /*
  * Hajo: RGB 1555
  */
-typedef unsigned short PIXVAL;
+typedef uint16 PIXVAL;
 
 
 /*
@@ -74,7 +74,7 @@ typedef unsigned short PIXVAL;
 //#define USE_C
 #ifdef USE_C
 // bug alert for GCC 4.03
-//#define USE_C_FOR_IMAGE
+#define USE_C_FOR_IMAGE
 #endif
 
 // --------------      static data    --------------
@@ -223,8 +223,8 @@ struct imd {
 
 
 
-int disp_width = 640;
-int disp_height = 480;
+sint16 disp_width = 640;
+sint16 disp_height = 480;
 
 
 /*
@@ -334,7 +334,7 @@ static int zoom_factor = 1;
 
 
 // -------------- Function prototypes --------------
-void display_img_nc(int h, const int xp, const int yp, const PIXVAL *);
+void display_img_nc(KOORD_VAL h, const KOORD_VAL xp, const KOORD_VAL yp, const PIXVAL *);
 
 static void rezoom();
 static void recode();
@@ -346,13 +346,13 @@ static void calc_base_pal_from_night_shift(const int night);
  * @author Hj. Malthaner
  */
 static void
-display_img_wc(int h, const int xp, const int yp, const PIXVAL *sp);
+display_img_wc(KOORD_VAL h, const KOORD_VAL xp, const KOORD_VAL yp, const PIXVAL *sp);
 
 /**
  * Convert a certain image data to actual output data
  * @author Hj. Malthaner
  */
-static void recode_img_src_target( const int h, PIXVAL *src, PIXVAL *target);
+static void recode_img_src_target( KOORD_VAL h, PIXVAL *src, PIXVAL *target);
 
 
 #ifdef NEED_PLAYER_RECODE
@@ -360,7 +360,7 @@ static void recode_img_src_target( const int h, PIXVAL *src, PIXVAL *target);
  * Convert a certain image data to actual output data
  * @author prissi
  */
-static void recode_img_src_target_color( const int h, PIXVAL *src, PIXVAL *target, const unsigned char color);
+static void recode_img_src_target_color( const KOORD_VAL h, PIXVAL *src, PIXVAL *target, const unsigned char color);
 #endif
 
 /**
@@ -478,7 +478,7 @@ static inline int is_tile_dirty(const int x, const int y) {
  * Markiert ein Tile as schmutzig, ohne Clipping
  * @author Hj. Malthaner
  */
-static void mark_rect_dirty_nc(int x1, int y1, int x2, int y2)
+static void mark_rect_dirty_nc(KOORD_VAL x1, KOORD_VAL y1, KOORD_VAL x2, KOORD_VAL y2)
 {
     // floor to tile size
 
@@ -520,7 +520,7 @@ static void mark_rect_dirty_nc(int x1, int y1, int x2, int y2)
  * Markiert ein Tile as schmutzig, mit Clipping
  * @author Hj. Malthaner
  */
-void mark_rect_dirty_wc(int x1, int y1, int x2, int y2)
+void mark_rect_dirty_wc(KOORD_VAL x1, KOORD_VAL y1, KOORD_VAL x2, KOORD_VAL y2)
 {
     // Hajo: inside display ?
     if(x2 >= 0 &&
@@ -592,7 +592,7 @@ static void recode_normal_img( const unsigned int n )
  * Convert a certain image data to actual output data
  * @author Hj. Malthaner
  */
-static void recode_img_src_target( int h, PIXVAL *src, PIXVAL *target )
+static void recode_img_src_target( KOORD_VAL h, PIXVAL *src, PIXVAL *target )
 {
 	if(h>0) {
 		do {
@@ -647,7 +647,7 @@ static void recode_color_img( const unsigned int n, const unsigned char color )
  * Convert a certain image data to actual output data for a certain player
  * @author prissi
  */
-static void recode_img_src_target_color( int h, PIXVAL *src, PIXVAL *target, const unsigned char color )
+static void recode_img_src_target_color( KOORD_VAL h, PIXVAL *src, PIXVAL *target, const unsigned char color )
 {
 	if(h>0) {
 		do {
@@ -944,7 +944,7 @@ dsp_read_bdf_glyph( FILE *fin, unsigned char *data, unsigned char *screen_w, boo
 			data[16*char_nr+14] = 0;
 
 			// maximum size 10 pixels
-			h = MIN( h+top, 12 );
+			h = min( h+top, 12 );
 
 			// read for height times
 			for(  y=top;  y<h;  y++  ) {
@@ -1312,15 +1312,22 @@ load_special_palette()
 
 
 
-int display_get_width()
+sint16 display_get_width()
 {
     return disp_width;
 }
 
 
-int display_get_height()
+sint16 display_get_height()
 {
     return disp_height;
+}
+
+sint16 display_set_height(KOORD_VAL h)
+{
+	sint16 old=disp_height;
+	disp_height = h;
+    return old;
 }
 
 
@@ -1862,31 +1869,29 @@ int gib_maus_y()
  * so check the value after calling and before displaying
  * @author Hj. Malthaner
  */
-static int clip_wh(int *x, int *width, const int min_width, const int max_width)
+static int clip_wh(KOORD_VAL *x, KOORD_VAL *width, const KOORD_VAL min_width, const KOORD_VAL max_width)
 {
-    // doesnt check "wider than image" case
+	if(*x < min_width) {
+		const KOORD_VAL xoff = min_width - (*x);
 
-    if(*x < min_width) {
-	const int xoff = min_width - (*x);
+		*width += *x-min_width;
+		*x = min_width;
 
-	*width += *x-min_width;
-	*x = min_width;
+		if(*x + *width >= max_width) {
+			*width = max_width - *x;
+		}
 
-	if(*x + *width >= max_width) {
-	    *width = max_width - *x;
+		return xoff;
+	} else if(*x + *width >= max_width) {
+		*width = max_width - *x;
 	}
-
-	return xoff;
-    } else if(*x + *width >= max_width) {
-	*width = max_width - *x;
-    }
-    return 0;
+	return 0;
 }
 
 // like above, but no return value
 #define CLIP_WH_NR(x,width,min_width,max_width) { \
 	if(x < min_width) { \
-		const int xoff = (min_width) - (x); \
+		const KOORD_VAL xoff = (min_width) - (x); \
 		width += (x)-(min_width); \
 		x = min_width; \
 		if((x)+(width) >= max_width) { width = (max_width) - (x); } \
@@ -1900,7 +1905,7 @@ static int clip_wh(int *x, int *width, const int min_width, const int max_width)
 // like above, but with return value
 #define CLIP_WH_WR(x,width,min_width,max_width,ret) { \
 	if(x < min_width) { \
-		const int xoff = (min_width) - (x); \
+		const KOORD_VAL xoff = (min_width) - (x); \
 		width += (x)-(min_width); \
 		x = min_width; \
 		if((x)+(width) >= max_width) { width = (max_width) - (x); } \
@@ -1918,19 +1923,25 @@ static int clip_wh(int *x, int *width, const int min_width, const int max_width)
  * if nothing to show, returns FALSE
  * @author Niels Roest
  */
-inline int clip_lr(int *x, int *w, const int left, const int right)
+short clip_lr(KOORD_VAL *x, KOORD_VAL *w, const KOORD_VAL left, const KOORD_VAL right)
 {
-  const int l = *x;      // leftmost pixel
-  const int r = *x+*w-1; // rightmost pixel
+	const KOORD_VAL l = *x;      // leftmost pixel
+	const KOORD_VAL r = *x+*w; // rightmost pixel
 
-  if (l > right || r < left) {
-    *w = 0; return FALSE;
-  }
+	if (l > right || r < left) {
+		*w = 0;
+		return FALSE;
+	}
 
-  // there is something to show.
-  if (l < left)  { *w -= left - l;  *x = left; }
-  if (r > right) { *w -= r - right;}
-  return TRUE;
+	// there is something to show.
+	if (l < left)  {
+		*w -= left - l;
+		*x = left;
+	}
+	if (r > right) {
+		*w -= r - right;
+	}
+	return (*w>0);
 }
 
 
@@ -1948,7 +1959,7 @@ struct clip_dimension display_gib_clip_wh(void)
  * Setzt Clipping Rechteck
  * @author Hj. Malthaner
  */
-void display_setze_clip_wh(int x, int y, int w, int h)
+void display_setze_clip_wh(KOORD_VAL x, KOORD_VAL y, KOORD_VAL w, KOORD_VAL h)
 {
 //    clip_wh(&x, &w, 0, disp_width);
     clip_wh(&x, &w, 0, disp_width);
@@ -1959,8 +1970,8 @@ void display_setze_clip_wh(int x, int y, int w, int h)
     clip_rect.w = w;
     clip_rect.h = h;
 
-    clip_rect.xx = x+w-1;
-    clip_rect.yy = y+h-1;
+    clip_rect.xx = x+w;
+    clip_rect.yy = y+h;
 }
 
 
@@ -1969,7 +1980,7 @@ void display_setze_clip_wh(int x, int y, int w, int h)
 
 
 // scrolls horizontally, will ignore clipping etc.
-void	display_scroll_band( const int start_y, const int x_offset, const int h )
+void	display_scroll_band( const KOORD_VAL start_y, const KOORD_VAL x_offset, const KOORD_VAL h )
 {
 #ifdef USE_C
 	memmove( textur+start_y*disp_width, textur+start_y*disp_width+x_offset, sizeof(PIXVAL)*(h*disp_width-x_offset) );
@@ -1991,10 +2002,10 @@ static inline void pixcopy(PIXVAL *dest,
                     unsigned int len); // __attribute__ ((regparm(3)));
 
 
-static inline void colorpixcopy(PIXVAL *dest, const PIXVAL *src,
-                         const PIXVAL * const end,
-                         const int color); // __attribute__ ((regparm(3)));
-
+static inline void colorpixcopy(PIXVAL *dest,
+				const PIXVAL *src,
+				const PIXVAL * const end,
+				const COLOR_VAL color);
 #endif
 
 
@@ -2055,7 +2066,7 @@ static inline void pixcopy(PIXVAL *dest,
 static inline void colorpixcopy(PIXVAL *dest,
 				const PIXVAL *src,
 				const PIXVAL * const end,
-				const int color)
+				const COLOR_VAL color)
 {
 	while(src < end) {
 		PIXVAL pix = *src++;
@@ -2077,7 +2088,7 @@ static inline void colorpixcopy(PIXVAL *dest,
  * @author Hj. Malthaner
  */
 static void
-display_img_wc( int h, const int xp, const int yp, const PIXVAL *sp)
+display_img_wc( KOORD_VAL h, const KOORD_VAL xp, const KOORD_VAL yp, const PIXVAL *sp)
 {
 	if(h > 0) {
 	    PIXVAL *tp = textur + yp*disp_width;
@@ -2122,7 +2133,7 @@ display_img_wc( int h, const int xp, const int yp, const PIXVAL *sp)
  * @author Hj. Malthaner/prissi
  */
 void
-display_img_nc(int h, const int xp, const int yp, const PIXVAL *sp)
+display_img_nc(KOORD_VAL h, const KOORD_VAL xp, const KOORD_VAL yp, const PIXVAL *sp)
 {
 	if(h > 0) {
 #ifdef USE_C_FOR_IMAGE
@@ -2223,12 +2234,12 @@ asm(
  * Zeichnet Bild mit verticalem clipping (schnell) und horizontalem (langsam)
  * @author prissi
  */
-void display_img_aux(const unsigned n, const int xp, int yp, const int dirty, bool use_player)
+void display_img_aux(const unsigned n, const KOORD_VAL xp, KOORD_VAL yp, const int dirty, bool use_player)
 {
 	if(n<anz_images) {
 		// need to go to nightmode and or rezoomed?
 		PIXVAL *sp;
-		int h, reduce_h, skip_lines;
+		KOORD_VAL h, reduce_h, skip_lines;
 
 		if(use_player) {
 			sp = images[n].player_data;
@@ -2256,7 +2267,7 @@ if(sp==NULL){ printf("Img %i failed!\n", n );return;}
 		// this should be much faster in most cases
 
 		// must the height be reduced?
-		reduce_h=(yp+h-1)-clip_rect.yy;
+		reduce_h = (yp+h)-clip_rect.yy;
 		if(reduce_h>0) {
 			h -= reduce_h;
 		}
@@ -2289,8 +2300,8 @@ if(sp==NULL){ printf("Img %i failed!\n", n );return;}
 		// new block for new variables
 		{
 			// needed now ...
-			const int x = images[n].x;
-			const int w = images[n].w;
+			const KOORD_VAL x = images[n].x;
+			const KOORD_VAL w = images[n].w;
 
 			// use horzontal clipping or skip it?
 			if(xp+x>=clip_rect.x  &&  xp+x+w-1<=clip_rect.xx) {
@@ -2300,7 +2311,7 @@ if(sp==NULL){ printf("Img %i failed!\n", n );return;}
 				}
 				display_img_nc(h, xp, yp, sp);
 			}
-			else if( xp <= clip_rect.xx && xp+x+w>clip_rect.x ) {
+			else if(xp<=clip_rect.xx  &&  xp+x+w>clip_rect.x ) {
 				display_img_wc(h, xp, yp, sp);
 				// since height may be reduced, start marking here
 				if(dirty) {
@@ -2319,14 +2330,14 @@ if(sp==NULL){ printf("Img %i failed!\n", n );return;}
  * @author hajo/prissi
  */
 static void
-display_color_img_aux(const unsigned n, const int xp, const int yp,
-		      const int color)
+display_color_img_aux(const unsigned n, const KOORD_VAL xp, const KOORD_VAL yp,
+		      const COLOR_VAL color)
 {
-	int h = images[n].h;
-	int y = yp + images[n].y;
-	int yoff;
-	CLIP_WH_WR(y, h, clip_rect.y, clip_rect.yy,yoff);
-//	int yoff = clip_wh(&y, &h, clip_rect.y, clip_rect.yy);
+	KOORD_VAL h = images[n].h;
+	KOORD_VAL y = yp + images[n].y;
+//	KOORD_VAL yoff;
+//	CLIP_WH_WR(y, h, clip_rect.y, clip_rect.yy,yoff);
+	KOORD_VAL yoff = clip_wh(&y, &h, clip_rect.y, clip_rect.yy);
 
 	if(h>0) {	// clipping may have reduced it
 
@@ -2384,7 +2395,7 @@ display_color_img_aux(const unsigned n, const int xp, const int yp,
  * @author Hj. Malthaner
  */
 void
-display_color_img(const unsigned n, const int xp, const int yp, const int color,
+display_color_img(const unsigned n, const KOORD_VAL xp, const KOORD_VAL yp, const COLOR_VAL color,
 		  const int daynight, const int dirty)
 {
 	if(n<anz_images) {
@@ -2425,10 +2436,10 @@ display_color_img(const unsigned n, const int xp, const int yp, const int color,
 
 		// prissi: now test if visible and clipping needed
 		{
-			const int x = images[n].x;
-			const int y = images[n].y;
-			const int w = images[n].w;
-			const int h = images[n].h;
+			const KOORD_VAL x = images[n].x;
+			const KOORD_VAL y = images[n].y;
+			const KOORD_VAL w = images[n].w;
+			const KOORD_VAL h = images[n].h;
 
 			if(  h==0  ||  xp>clip_rect.xx   ||   yp+y>clip_rect.yy   ||   xp+x+w<=clip_rect.x  ||   yp+y+h<=clip_rect.y  ) {
 				// not visible => we are done
@@ -2454,12 +2465,12 @@ display_color_img(const unsigned n, const int xp, const int yp, const int color,
  * @author Hj. Malthaner
  */
 void
-display_pixel(int x, int y, int color)
+display_pixel(KOORD_VAL x, KOORD_VAL y, PIXVAL color)
 {
 	if(x >= clip_rect.x && x<=clip_rect.xx && y >= clip_rect.y && y<=clip_rect.yy) {
 
 		PIXVAL * const p = textur + x + y*disp_width;
-		*p = rgbcolormap[color];
+		*p = color;
 		mark_tile_dirty(x >> DIRTY_TILE_SHIFT, y >> DIRTY_TILE_SHIFT);
 	}
 }
@@ -2471,19 +2482,16 @@ display_pixel(int x, int y, int color)
  * @author Hj. Malthaner
  */
 static
-void display_fb_internal(int xp, int yp, int w, int h,
+void display_fb_internal(KOORD_VAL xp, KOORD_VAL yp, KOORD_VAL w, KOORD_VAL h,
 			 const int color, const int dirty,
-			 const int cL, const int cR, const int cT, const int cB)
+			 const KOORD_VAL cL, const KOORD_VAL cR, const KOORD_VAL cT, const KOORD_VAL cB)
 {
-    clip_lr(&xp, &w, cL, cR);
-    clip_lr(&yp, &h, cT, cB-1);
-
-    if(w > 0 && h > 0) {
+    if(clip_lr(&xp, &w, cL, cR)  &&  clip_lr(&yp, &h, cT, cB)) {
 #ifdef USE_C
-		const PIXVAL colval = color >= 0x8000 ? specialcolormap_all_day[(color & 0x7FFF)]: rgbcolormap[color];
+		const PIXVAL colval = color >= PLAYER_FLAG ? specialcolormap_all_day[(color & 0xFF)]: rgbcolormap[color];
 		PIXVAL *p = textur + xp + yp*disp_width;
 		const unsigned long longcolval = (colval << 16) | colval;
-		const int dx = disp_width - w;
+		const KOORD_VAL dx = disp_width - w;
 
 		if(dirty) {
 			mark_rect_dirty_nc(xp, yp, xp+w-1, yp+h-1);
@@ -2513,11 +2521,6 @@ void display_fb_internal(int xp, int yp, int w, int h,
 		// it is equivalent to the above, but only faster ...
 
 __asm__(	"cld\n\t"
-#if defined(__MINGW32__) || defined(__CYGWIN__)
-		"movw	_rgbcolormap(%%eax,%%eax),%%cx\n"	// load ax with the right color ...
-#else
-		"movw	rgbcolormap(%%eax,%%eax),%%cx\n"	// load ax with the right color ...
-#endif
 		"btrw $15,%%ax\n\t"	//>=0x8000
 		"jnc .Lvok\n\t"
 #if defined(__MINGW32__) || defined(__CYGWIN__)
@@ -2527,7 +2530,14 @@ __asm__(	"cld\n\t"
 //		"movcw	specialcolormap_all_day(%%eax,%%eax),%%cx\n\t"	// move, if carry set (i.e. bit was set): crashes on older machines before Pentium Pro
 		"movw	specialcolormap_all_day(%%eax,%%eax),%%cx\n"	// move, if carry set (i.e. bit was set)
 #endif
+		"jmp	.Lvdr\n"
 ".Lvok:\n\t"
+#if defined(__MINGW32__) || defined(__CYGWIN__)
+		"movw	_rgbcolormap(%%eax,%%eax),%%cx\n"	// load ax with the right color ...
+#else
+		"movw	rgbcolormap(%%eax,%%eax),%%cx\n"	// load ax with the right color ...
+#endif
+".Lvdr:\n\t"
 		"movw %%cx,%%ax\n\t"	// couble colorval for lowbyte
 		"shll $16,%%eax\n\t"
 		"movw %%cx,%%ax\n\t"
@@ -2557,19 +2567,15 @@ __asm__(	"cld\n\t"
 }
 
 void
-display_fillbox_wh(int xp, int yp, int w, int h,
-		   int color, int dirty)
+display_fillbox_wh(KOORD_VAL xp, KOORD_VAL yp, KOORD_VAL w, KOORD_VAL h, PLAYER_COLOR_VAL color, int dirty)
 {
-  display_fb_internal(xp,yp,w,h,color,dirty,
-		      0,disp_width-1,0,disp_height);
+  display_fb_internal(xp,yp,w,h,color,dirty,0,disp_width,0,disp_height);
 }
 
 void
-display_fillbox_wh_clip(int xp, int yp, int w, int h,
-			int color, int dirty)
+display_fillbox_wh_clip(KOORD_VAL xp, KOORD_VAL yp, KOORD_VAL w, KOORD_VAL h,PLAYER_COLOR_VAL color, int dirty)
 {
-  display_fb_internal(xp,yp,w,h,color,dirty,
-		      clip_rect.x, clip_rect.xx, clip_rect.y, clip_rect.yy);
+  display_fb_internal(xp,yp,w,h,color,dirty,clip_rect.x, clip_rect.xx, clip_rect.y, clip_rect.yy);
 }
 
 
@@ -2578,40 +2584,35 @@ display_fillbox_wh_clip(int xp, int yp, int w, int h,
  * @author Hj. Malthaner
  */
 void
-display_vl_internal(const int xp, int yp, int h, const int color, int dirty,
-		    int cL, int cR, int cT, int cB)
+display_vl_internal(const KOORD_VAL xp, KOORD_VAL yp, KOORD_VAL h, const PLAYER_COLOR_VAL color, int dirty, KOORD_VAL cL, KOORD_VAL cR, KOORD_VAL cT, KOORD_VAL cB)
 {
-    clip_lr(&yp, &h, cT, cB-1);
+	if(xp >= cL && xp <= cR &&  clip_lr(&yp, &h, cT, cB)) {
+		PIXVAL *p = textur + xp + yp*disp_width;
+		const PIXVAL colval = color >= PLAYER_FLAG ? specialcolormap_all_day[(color & 0xFF)]: rgbcolormap[color];
 
-    if(xp >= cL && xp <= cR && h > 0) {
-        PIXVAL *p = textur + xp + yp*disp_width;
-	const PIXVAL colval = rgbcolormap[color];
+		if (dirty) {
+			mark_rect_dirty_nc(xp, yp, xp, yp+h-1);
+		}
 
-        if (dirty) {
-	  mark_rect_dirty_nc(xp, yp, xp, yp+h-1);
+		do {
+			*p = colval;
+			p += disp_width;
+		} while(--h);
 	}
-
-	do {
-	    *p = colval;
-            p += disp_width;
-	} while(--h);
-    }
 }
 
 
 void
-display_vline_wh(const int xp, int yp, int h, const int color, int dirty)
+display_vline_wh(const KOORD_VAL xp, KOORD_VAL yp, KOORD_VAL h, const PLAYER_COLOR_VAL color, int dirty)
 {
-  display_vl_internal(xp,yp,h,color,dirty,
-		      0,disp_width-1,0,disp_height-1);
+	display_vl_internal(xp,yp,h,color,dirty,0,disp_width,0,disp_height);
 }
 
 
 void
-display_vline_wh_clip(const int xp, int yp, int h, const int color, int dirty)
+display_vline_wh_clip(const KOORD_VAL xp, KOORD_VAL yp, KOORD_VAL h, const PLAYER_COLOR_VAL color, int dirty)
 {
-  display_vl_internal(xp,yp,h,color,dirty,
-		      clip_rect.x, clip_rect.xx, clip_rect.y, clip_rect.yy);
+	display_vl_internal(xp,yp,h,color,dirty,clip_rect.x, clip_rect.xx, clip_rect.y, clip_rect.yy);
 }
 
 
@@ -2621,11 +2622,11 @@ display_vline_wh_clip(const int xp, int yp, int h, const int color, int dirty)
  */
 
 void
-display_array_wh(int xp, int yp, int w, int h, const unsigned char *arr)
+display_array_wh(KOORD_VAL xp, KOORD_VAL yp, KOORD_VAL w, KOORD_VAL h, const COLOR_VAL *arr)
 {
     const int arr_w = w;
-    const int xoff = clip_wh(&xp, &w, clip_rect.x, clip_rect.xx);
-    const int yoff = clip_wh(&yp, &h, clip_rect.y, clip_rect.yy);
+    const KOORD_VAL xoff = clip_wh(&xp, &w, clip_rect.x, clip_rect.xx);
+    const KOORD_VAL yoff = clip_wh(&yp, &h, clip_rect.y, clip_rect.yy);
 
     if(w > 0 && h > 0) {
 #ifdef USE_C_FOR_IMAGE
@@ -2872,7 +2873,7 @@ static const unsigned char byte_to_mask_array[9]={0xFF,0x7F,0x3F,0x1F,0x0F,0x07,
  * @author priss
  * @date  29.11.04
  */
-inline unsigned char get_h_mask( const int xL, const int xR, const int cL, const int cR)
+unsigned char get_h_mask( const int xL, const int xR, const int cL, const int cR)
 {
 	// do not mask
 	unsigned char mask;
@@ -2906,7 +2907,7 @@ static const unsigned char right_byte_to_v_mask_array[5]={0xFF,0xFC,0xF0,0xC0,0x
  * @author priss
  * @date  29.11.04
  */
-inline unsigned char get_v_mask( const int yT, const int yB, const int cT, const int cB)
+unsigned char get_v_mask( const int yT, const int yB, const int cT, const int cB)
 {
 	// do not mask
 	unsigned char mask;
@@ -2938,26 +2939,26 @@ inline unsigned char get_v_mask( const int yT, const int yB, const int cT, const
  * @author Volker Meyer, prissi
  * @date  15.06.2003, 2.1.2005
  */
-int display_text_proportional_len_clip(int x, int y, const char *txt,
+int display_text_proportional_len_clip(KOORD_VAL x, KOORD_VAL y, const char *txt,
 			int align,
-			const int color_index,
+			const PLAYER_COLOR_VAL color_index,
 			int dirty,
 			bool use_large_font, int len, bool use_clipping )
 {
 	font_type *fnt=use_large_font ? &large_font : &small_font;
-	int cL, cR, cT, cB;
+	KOORD_VAL cL, cR, cT, cB;
 	unsigned c;
 	int	iTextPos=0;	// pointer on text position: prissi
 	int char_width_1, char_width_2; // 1 is char only, 2 includes room
 	int screen_pos;
 	unsigned char *char_data;
 	unsigned char *p;
-	int yy = y+fnt->height;
-	int x0;	// store the inital x (for dirty marking)
-	int y0, y_offset, char_height;	// real y for display with clipping
+	KOORD_VAL yy = y+fnt->height;
+	KOORD_VAL x0;	// store the inital x (for dirty marking)
+	KOORD_VAL y0, y_offset, char_height;	// real y for display with clipping
 	bool v_clip;
 	unsigned char mask1, mask2;	// for horizontal clipping
-	const PIXVAL color = rgbcolormap[color_index];
+	const PIXVAL color = color_index >= PLAYER_FLAG ? specialcolormap_all_day[(color_index & 0xFF)]: rgbcolormap[color_index];
 #ifndef USE_C
 	// faster drawing with assembler
 	const unsigned long color2 = (color<<16)|color;
@@ -2966,25 +2967,13 @@ int display_text_proportional_len_clip(int x, int y, const char *txt,
 	// TAKE CARE: Clipping area may be larger than actual screen size ...
 	if(  use_clipping  ) {
 		cL = clip_rect.x;
-		if(cL>=disp_width) {
-			cL = disp_width;
-		}
 		cR = clip_rect.xx;
-		if(cR>=disp_width) {
-			cR = disp_width;
-		}
 		cT = clip_rect.y;
-		if(cT>disp_height) {
-			cT = disp_height;
-		}
 		cB = clip_rect.yy;
-		if(cB>disp_height) {
-			cB = disp_height+1;
-		}
 	}
 	else {
 		cL = 0;
-		cR = disp_width+1;
+		cR = disp_width;
 		cT = 0;
 		cB = disp_height;
  	}
@@ -3178,7 +3167,7 @@ int display_text_proportional_len_clip(int x, int y, const char *txt,
  * @author Hj. Malthaner
  */
 void
-display_ddd_box(int x1, int y1, int w, int h, int tl_color, int rd_color)
+display_ddd_box(KOORD_VAL x1, KOORD_VAL y1, KOORD_VAL w, KOORD_VAL h, PLAYER_COLOR_VAL tl_color, PLAYER_COLOR_VAL rd_color)
 {
     display_fillbox_wh(x1, y1, w, 1, tl_color, TRUE);
     display_fillbox_wh(x1, y1+h-1, w, 1, rd_color, TRUE);
@@ -3196,7 +3185,7 @@ display_ddd_box(int x1, int y1, int w, int h, int tl_color, int rd_color)
  * @author Hj. Malthaner
  */
 void
-display_ddd_box_clip(int x1, int y1, int w, int h, int tl_color, int rd_color)
+display_ddd_box_clip(KOORD_VAL x1, KOORD_VAL y1, KOORD_VAL w, KOORD_VAL h, PLAYER_COLOR_VAL tl_color, PLAYER_COLOR_VAL rd_color)
 {
     display_fillbox_wh_clip(x1, y1, w, 1, tl_color, TRUE);
     display_fillbox_wh_clip(x1, y1+h-1, w, 1, rd_color, TRUE);
@@ -3210,8 +3199,8 @@ display_ddd_box_clip(int x1, int y1, int w, int h, int tl_color, int rd_color)
 
 
 // if width equals zero, take default value
-void display_ddd_proportional(int xpos, int ypos, int width, int hgt,
-			      int ddd_farbe, int text_farbe,
+void display_ddd_proportional(KOORD_VAL xpos, KOORD_VAL ypos, KOORD_VAL width, KOORD_VAL hgt,
+			      PLAYER_COLOR_VAL ddd_farbe, PLAYER_COLOR_VAL text_farbe,
 			      const char *text, int dirty)
 {
   int halfheight=(large_font_height/2)+1;
@@ -3232,8 +3221,8 @@ void display_ddd_proportional(int xpos, int ypos, int width, int hgt,
  * display text in 3d box with clipping
  * @author: hsiegeln
  */
-void display_ddd_proportional_clip(int xpos, int ypos, int width, int hgt,
-			      int ddd_farbe, int text_farbe,
+void display_ddd_proportional_clip(KOORD_VAL xpos, KOORD_VAL ypos, KOORD_VAL width, KOORD_VAL hgt,
+			      PLAYER_COLOR_VAL ddd_farbe, PLAYER_COLOR_VAL text_farbe,
 			      const char *text, int dirty)
 {
   int halfheight=(large_font_height/2)+1;
@@ -3283,7 +3272,7 @@ count_char(const char *str, const char c)
  * @date  15.06.2003
  */
 void
-display_multiline_text(int x, int y, const char *buf, int color)
+display_multiline_text(KOORD_VAL x, KOORD_VAL y, const char *buf, PLAYER_COLOR_VAL color)
 {
     if(buf && *buf) {
 	char *next;
@@ -3396,7 +3385,7 @@ void display_flush_buffer()
  * Bewegt Mauszeiger
  * @author Hj. Malthaner
  */
-void display_move_pointer(int dx, int dy)
+void display_move_pointer(KOORD_VAL dx, KOORD_VAL dy)
 {
     move_pointer(dx, dy);
 }
@@ -3434,7 +3423,7 @@ void display_set_pointer(int pointer)
  * @author Hj. Malthaner
  */
 int
-simgraph_init(int width, int height, int use_shm, int do_sync, int full_screen)
+simgraph_init(KOORD_VAL width, KOORD_VAL height, int use_shm, int do_sync, int full_screen)
 {
     int parameter[2];
     int ok;
@@ -3520,15 +3509,13 @@ int is_display_init()
  * Schliest das Grafikmodul
  * @author Hj. Malthaner
  */
-int
-simgraph_exit()
+int simgraph_exit()
 {
-	// printf("Old images:\n");
+	int n;
 
 	guarded_free(tile_dirty);
 	guarded_free(tile_dirty_old);
-	// free images
-	int n;
+	/* free images */
 	for(n=0;  n<anz_images;  n++) {
 		if(images[n].zoom_data!=NULL) {
 			guarded_free( images[n].zoom_data );
@@ -3553,7 +3540,7 @@ simgraph_exit()
  * @author prissi
  */
 void
-simgraph_resize( int w, int h )
+simgraph_resize( KOORD_VAL w, KOORD_VAL h )
 {
 	if(disp_width!=w  ||  disp_height!=h) {
 		disp_width = (w+15)&0x7FF0;
@@ -3591,7 +3578,7 @@ void display_snapshot()
 
     char buf[80];
 
-#ifdef __WIN32__
+#ifdef WIN32
     mkdir(SCRENSHOT_PATH);
 #else
     mkdir(SCRENSHOT_PATH, 0700);
@@ -3665,7 +3652,7 @@ void display_speichern(void * file, int zipped)
 **/
 
 void
-display_direct_line(const int x,const int y,const int xx,const int yy, const int color)
+display_direct_line(const KOORD_VAL x,const KOORD_VAL y,const KOORD_VAL xx,const KOORD_VAL yy, const PLAYER_COLOR_VAL color)
 {
    int i, steps;
    int xp,yp;
@@ -3673,6 +3660,7 @@ display_direct_line(const int x,const int y,const int xx,const int yy, const int
 
    const int dx=xx-x;
    const int dy=yy-y;
+   const PIXVAL colval = color >= PLAYER_FLAG? specialcolormap_all_day[(color & 0xFF)]: rgbcolormap[color];
 
    if(abs(dx)>abs(dy)) steps=abs(dx); else steps=abs(dy);
 
@@ -3685,7 +3673,7 @@ display_direct_line(const int x,const int y,const int xx,const int yy, const int
    yp=(y << 16);
 
    for(i = 0; i <= steps; i++) {
-	 display_pixel(xp >> 16,yp >> 16, color);
+	 display_pixel(xp >> 16,yp >> 16, colval);
 	 xp+=xs;
 	 yp+=ys;
    }

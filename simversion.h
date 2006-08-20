@@ -1,13 +1,16 @@
 #ifndef simversion_h
 #define simversion_h
 
-#define VERSION_NUMBER "88.10"
+#define VERSION_NUMBER "88.10.1"
+#define WIDE_VERSION_NUMBER L"88.10.1"
+
 #define VERSION_DATE __DATE__
 
 #define SAVEGAME_PREFIX  "Simutrans "
+
 #define SAVEGAME_VER_NR  "0.88.09"
 #define SAVEGAME_VERSION (SAVEGAME_PREFIX SAVEGAME_VER_NR)
 
-#define RES_VERSION_NUMBER  0, 88, 10, 0
+#define RES_VERSION_NUMBER  0, 88, 10, 1
 
 #endif

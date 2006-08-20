@@ -126,8 +126,9 @@ getchar();
 #else
 		FILE *fIn=fopen(filename,"rb");
 		if(fIn) {
+			long len;
 			fseek( fIn, 0, SEEK_END );
-			long len = ftell( fIn );
+			len = ftell( fIn );
 
 			if(len>0) {
 				samples[sample_number] = GlobalLock( GlobalAlloc(  GMEM_MOVEABLE, (len+4)&0x7FFFFFFCu ) );

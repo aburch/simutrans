@@ -44,7 +44,7 @@ fabrik_info_t::fabrik_info_t(fabrik_t *fab, gebaeude_t *gb, karte_t *welt) :
   const vector_tpl <koord> & lieferziele =  fab->gib_lieferziele();
 #ifdef _MSC_VER
   // V.Meyer: MFC has a bug with "new x[0]"
-	lieferbuttons = new button_t [MAX(1, lieferziele.get_count())];
+  lieferbuttons = new button_t [lieferziele.get_count()+1];
 #else
   lieferbuttons = new button_t [lieferziele.get_count()];
 #endif
@@ -63,7 +63,7 @@ fabrik_info_t::fabrik_info_t(fabrik_t *fab, gebaeude_t *gb, karte_t *welt) :
   const vector_tpl <koord> & suppliers =  fab->get_suppliers();
 #ifdef _MSC_VER
   // V.Meyer: MFC has a bug with "new x[0]"
-  supplierbuttons = new button_t [MAX(1, suppliers.get_count())];
+  supplierbuttons = new button_t [1+suppliers.get_count()];
 #else
   supplierbuttons = new button_t [suppliers.get_count()];
 #endif
@@ -82,7 +82,7 @@ fabrik_info_t::fabrik_info_t(fabrik_t *fab, gebaeude_t *gb, karte_t *welt) :
 
 #ifdef _MSC_VER
   // V.Meyer: MFC has a bug with "new x[0]"
-  stadtbuttons = new button_t [MAX(1, arbeiterziele.count())];
+  stadtbuttons = new button_t [arbeiterziele.count()+1];
 #else
   stadtbuttons = new button_t [arbeiterziele.count()];
 #endif
@@ -135,7 +135,7 @@ fabrik_info_t::fabrik_info_t(fabrik_t *fab, gebaeude_t *gb, karte_t *welt) :
   view.setze_groesse( koord(64,56) );	// in the moment only this size works
   add_komponente(&view);
 
-  gui_frame_t::set_title_color( gib_besitzer() ? gib_besitzer()->get_player_color() : COL_ORANGE );
+  gui_frame_t::set_owner( fab->gib_besitzer() );
 }
 
 

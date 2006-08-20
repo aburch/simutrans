@@ -37,13 +37,13 @@ protected:
      * Maximallänge des Stringbuffers
      * @author Hj. Malthaner
      */
-    int max;
+    long max;
 
     /**
      * position of text cursor
      * @author hsiegeln
      */
-     int cursor_pos;
+     long cursor_pos;
 
 public:
     /**

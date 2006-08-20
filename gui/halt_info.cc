@@ -65,7 +65,7 @@ const int cost_type_color[MAX_HALT_COST] =
 };
 
 halt_info_t::halt_info_t(karte_t *welt, halthandle_t halt)
- : gui_frame_t(halt->access_name(), halt->gib_besitzer()->get_player_color()),
+ : gui_frame_t(halt->access_name(), halt->gib_besitzer()),
   scrolly(&text),
   text("                                                                                     "
        " \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n"

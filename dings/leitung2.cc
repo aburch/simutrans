@@ -405,7 +405,7 @@ void leitung_t::info(cbuffer_t & buf) const
 	buf.append(": ");
 	buf.append(get_net()->get_capacity());
 	buf.append("\nNet: ");
-	buf.append((int)get_net());
+	buf.append((unsigned long)get_net());
 }
 
 
@@ -439,7 +439,7 @@ void leitung_t::rdwr(loadsave_t *file)
     set_net(NULL);
   } else {
     if(file->is_saving()) {
-      value = (unsigned long) get_net();
+      value = (unsigned long)get_net();
       file->rdwr_long(value, "\n");
     } else {
       file->rdwr_long(value, "\n");
@@ -480,7 +480,7 @@ pumpe_t::pumpe_t(karte_t *welt, koord3d pos, spieler_t *sp) : leitung_t(welt , p
 pumpe_t::~pumpe_t()
 {
 	if(fab) {
-		fab->set_prodfaktor( MAX(16,fab->get_prodfaktor()/2) );
+		fab->set_prodfaktor( max(16,fab->get_prodfaktor()/2) );
 	}
 	welt->sync_remove(this);
 }
@@ -612,5 +612,5 @@ senke_t::info(cbuffer_t & buf) const
 	buf.append(": ");
 	buf.append((200*einkommen+1)/(2*max_einkommen));
 	buf.append("\nNet: ");
-	buf.append((int)get_net());
+	buf.append((unsigned long)get_net());
 }

@@ -5,7 +5,7 @@
 #include "debug_helper.h"
 
 
-void out_error(const char *who, const char *format, ...)
+void c_out_error(const char *who, const char *format, ...)
 {
     va_list argptr;
     va_start(argptr, format);
@@ -15,7 +15,7 @@ void out_error(const char *who, const char *format, ...)
     fprintf(stderr,"\n");
 }
 
-void out_warning(const char *who, const char *format, ...)
+void c_out_warning(const char *who, const char *format, ...)
 {
     va_list argptr;
     va_start(argptr, format);
@@ -25,7 +25,7 @@ void out_warning(const char *who, const char *format, ...)
     fprintf(stderr,"\n");
 }
 
-void out_message(const char *who, const char *format, ...)
+void c_out_message(const char *who, const char *format, ...)
 {
     va_list argptr;
     va_start(argptr, format);
@@ -35,7 +35,6 @@ void out_message(const char *who, const char *format, ...)
     fprintf(stderr,"\n");
 }
 
-
 // generate a division be zero error
 void trap()
 {
@@ -43,8 +42,8 @@ void trap()
 	int i=32, j;
 	for( j=1; j>=0;  j-- )
 	{
-		i += (i/j);
-		printf("%*d",i);
+		i += (i/(j-1));
+		printf("%d",i);
 	}
 #else
 	assert(0);

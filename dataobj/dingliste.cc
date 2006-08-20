@@ -141,7 +141,7 @@ dingliste_t::set_capacity(unsigned new_cap)
 		ding_t **tmp = dl_alloc(new_cap);
 
 		// copy list
-		const uint8 end = MIN(capacity, new_cap);
+		const uint8 end = min(capacity, new_cap);
 		uint8 i=0;
 		for(; i<end; i++) {
 			tmp[i] = obj.some[i];
@@ -320,7 +320,7 @@ dingliste_t::remove_at(uint8 pos)
 
 
 uint8
-dingliste_t::remove(ding_t *ding, spieler_t */*sp*/)
+dingliste_t::remove(ding_t *ding, spieler_t * /*sp*/)
 {
 	uint8 i, number=0;
 	bool found = false;

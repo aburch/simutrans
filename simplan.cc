@@ -375,7 +375,7 @@ planquadrat_t::display_dinge(const sint16 xpos, const sint16 ypos, const sint16 
 			const sint16 y=ypos+(raster_tile_width*3)/4-r - (gr->gib_grund_hang()? tile_raster_scale_y(8,raster_tile_width): 0);
 			// suitable start search
 			for(sint16 h=halt_list.get_count()-1;  h>=0;  h--  ) {
-				display_fillbox_wh_clip( x-h*2, y+h*2, r, r, halt_list.at(h)->gib_besitzer()->get_player_color()+2, dirty);
+				display_fillbox_wh_clip( x-h*2, y+h*2, r, r, PLAYER_FLAG|((halt_list.at(h)->gib_besitzer()->get_player_color())*4+4), dirty);
 			}
 		}
 

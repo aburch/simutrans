@@ -14,13 +14,10 @@
 #ifndef gui_gui_frame_h
 #define gui_gui_frame_h
 
-#ifndef ifc_gui_fenster_h
 #include "../ifc/gui_fenster.h"
-#endif
-
-#ifndef gui_container_h
 #include "gui_container.h"
-#endif
+#include "../simplay.h"
+#include "../simcolor.h"
 
 
 /**
@@ -51,7 +48,7 @@ private:
 
     enum resize_modes resize_mode ;      //25-may-02	markus weber added
 
-    fensterfarben farben;
+    const spieler_t *owner;
 
     bool opaque;
 
@@ -65,24 +62,17 @@ protected:
      */
     virtual void resize(const koord delta);
 
-	void set_title_color( uint16 col ) { farben.titel = col; }
+	void set_owner( const spieler_t *sp ) { owner = sp; }
 
 public:
 
     /**
      * Konstruktor
-     * @author Hj. Malthaner
-     */
-    gui_frame_t(const char *name);
-
-
-    /**
-     * Konstruktor
      * @param name Fenstertitel
-     * @param color Besitzerfarbe
+     * @param sp owner for color
      * @author Hj. Malthaner
      */
-    gui_frame_t(const char *name, int color);
+    gui_frame_t(const char *name, const spieler_t *sp=NULL);
 
 
     /**
@@ -111,21 +101,18 @@ public:
      */
     void setze_name(const char *name);
 
-
     /**
      * setzt die Transparenz
      * @author Hj. Malthaner
      */
     void setze_opaque(bool janein);
 
-
     /**
      * gibt farbinformationen fuer Fenstertitel, -ränder und -körper
      * zurück
      * @author Hj. Malthaner
      */
-    virtual fensterfarben gib_fensterfarben() const;
-
+    virtual PLAYER_COLOR_VAL get_titelcolor() const { return owner ? PLAYER_FLAG|((owner->get_player_color()*4)+1) : WIN_TITEL; }
 
     /**
      * @return gibt wunschgroesse für das Darstellungsfenster zurueck

@@ -122,7 +122,11 @@ void fahrplan_gui_t::gimme_short_stop_name(cbuffer_t & buf,
 	}
 	// finally append
 	if(strlen(p)>(unsigned)max_chars) {
+#ifdef _MSC_VER /* no var array on the stack supported */
+		char *tmp = static_cast<char *>(alloca(max_chars+1));
+#else
 		char tmp[max_chars+1];
+#endif
 		strncpy( tmp, p, max_chars-3 );
 		strcpy( tmp+max_chars-3, "..." );
 		buf.append(tmp);
@@ -134,7 +138,7 @@ void fahrplan_gui_t::gimme_short_stop_name(cbuffer_t & buf,
 
 
 fahrplan_gui_t::fahrplan_gui_t(karte_t *welt, convoihandle_t cnv, spieler_t *sp) :
-	gui_frame_t("Fahrplan", sp->get_player_color()),
+	gui_frame_t("Fahrplan", sp),
 	scrolly(&fpl_text),
 	fpl_text("\n"),
 	lb_line("Serves Line:"),
@@ -154,7 +158,7 @@ fahrplan_gui_t::fahrplan_gui_t(karte_t *welt, convoihandle_t cnv, spieler_t *sp)
 
 
 fahrplan_gui_t::fahrplan_gui_t(karte_t *welt, fahrplan_t *fpl, spieler_t *sp) :
-	gui_frame_t("Fahrplan", sp->get_player_color()),
+	gui_frame_t("Fahrplan", sp),
 	scrolly(&fpl_text),
 	fpl_text("\n"),
 	lb_line("Serves Line:"),

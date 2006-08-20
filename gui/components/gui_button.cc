@@ -131,7 +131,7 @@ button_t::button_t()
 	text = empty;
 	pressed = false;
 	type = box;
-	kennfarbe = COL_BLACK;
+	foreground = COL_BLACK;
 	tooltip = 0;
 	background = MN_GREY3;
 	b_enabled = true;
@@ -245,7 +245,7 @@ void button_t::infowin_event(const event_t *ev)
 
 
 // draw button. x,y is top left of window.
-void button_t::zeichnen(koord offset, int button_color) const
+void button_t::zeichnen(koord offset, PLAYER_COLOR_VAL button_color) const
 {
   int bx = offset.x + pos.x;
   int by = offset.y + pos.y;
@@ -351,7 +351,7 @@ void button_t::zeichnen(koord offset, int button_color) const
 
 void button_t::zeichnen(koord offset) const
 {
-  zeichnen(offset, kennfarbe);
+  zeichnen(offset, foreground);
 
   if(tooltip &&
      gib_maus_x() >= offset.x + pos.x &&
@@ -377,7 +377,7 @@ void button_t::operator= (const button_t & other)
 	text = other.text;
 	pressed = other.pressed;
 	type = other.type;
-	kennfarbe = other.kennfarbe;
+	foreground = other.foreground;
 	tooltip = other.tooltip;
 	background = other.background;
 

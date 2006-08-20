@@ -41,14 +41,14 @@ savegame_frame_t::savegame_frame_t(const char *suffix) :
 {
     this->suffix = suffix;
 
-#ifdef __WIN32__
-    mkdir(SAVE_PATH);
+#ifdef WIN32
+	mkdir(SAVE_PATH);
 #else
-    mkdir(SAVE_PATH, 0700);
+	mkdir(SAVE_PATH, 0700);
 #endif
 
 #ifndef _MSC_VER
-    // find filenames
+	// find filenames
     DIR     *dir;                      /* Schnittstellen  zum BS */
     struct  dirent  *entry;
 
@@ -72,7 +72,7 @@ savegame_frame_t::savegame_frame_t(const char *suffix) :
 	closedir(dir);
     }
 #else
-    struct _finddata_t entry;
+	struct _finddata_t entry;
     long hfind;
 
     char wild[32];

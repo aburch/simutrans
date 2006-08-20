@@ -225,21 +225,21 @@ static simwin_gadget_et decode_gadget_boxes(
 //-------------------------------------------------------------------------
 // (Mathew Hounsell) Refactored
 static void win_draw_window_title(const koord pos, const koord gr,
-                                  const int titel_farbe,
-				  const char * const text,
-				  const bool closing,
-				  const simwin_gadget_flags * const flags )
+		const PLAYER_COLOR_VAL titel_farbe,
+		const char * const text,
+		const bool closing,
+		const simwin_gadget_flags * const flags )
 {
 	PUSH_CLIP(pos.x, pos.y, gr.x, gr.y);
-    display_fillbox_wh_clip(pos.x, pos.y, gr.x, 1, titel_farbe+1, true);
-    display_fillbox_wh_clip(pos.x, pos.y+1, gr.x, 14, titel_farbe, true);
-    display_fillbox_wh_clip(pos.x, pos.y+15, gr.x, 1, COL_BLACK, true);
-    display_vline_wh_clip(pos.x+gr.x-1, pos.y,   15, COL_BLACK, true);
+	display_fillbox_wh_clip(pos.x, pos.y, gr.x, 1, titel_farbe+1, true);
+	display_fillbox_wh_clip(pos.x, pos.y+1, gr.x, 14, titel_farbe, true);
+	display_fillbox_wh_clip(pos.x, pos.y+15, gr.x, 1, COL_BLACK, true);
+	display_vline_wh_clip(pos.x+gr.x-1, pos.y,   15, COL_BLACK, true);
 
-    // Draw the gadgets and then move left and draw text.
-    int width = display_gadget_boxes( flags, pos.x+(REVERSE_GADGETS?0:gr.x-20), pos.y, titel_farbe, closing );
-    display_proportional_clip( pos.x + (REVERSE_GADGETS?width+4:4), pos.y+(16-large_font_height)/2, text, ALIGN_LEFT, COL_WHITE, true );
-    POP_CLIP();
+	// Draw the gadgets and then move left and draw text.
+	int width = display_gadget_boxes( flags, pos.x+(REVERSE_GADGETS?0:gr.x-20), pos.y, titel_farbe, closing );
+	display_proportional_clip( pos.x + (REVERSE_GADGETS?width+4:4), pos.y+(16-large_font_height)/2, text, ALIGN_LEFT, COL_WHITE, true );
+	POP_CLIP();
 }
 
 
@@ -445,8 +445,8 @@ DBG_DEBUG("create_win()","magic=%d already there, bring to fornt", magic);
 			x = min(gib_maus_x() - gr.x/2, display_get_width()-gr.x);
 			y = min(gib_maus_y() - gr.y-32, display_get_height()-gr.y);
 		}
-		wins[ins_win].pos.x = MAX(x,0);
-		wins[ins_win].pos.y = MAX(32, y);
+		wins[ins_win].pos.x = max(x,0);
+		wins[ins_win].pos.y = max(32, y);
 
 DBG_DEBUG("create_win()","new ins_win=%d", ins_win+1);
 		return ins_win ++;
@@ -590,7 +590,7 @@ void display_win(int win)
 {
     gui_fenster_t *komp = wins[win].gui;
     koord gr = komp->gib_fenstergroesse();
-    int titel_farbe = komp->gib_fensterfarben().titel;
+    int titel_farbe = komp->get_titelcolor();
 
     // %HACK (Mathew Hounsell) So draw will know if gadget is needed.
     wins[win].flags.help = ( komp->gib_hilfe_datei() != NULL );
@@ -1027,12 +1027,10 @@ win_display_flush(int , int color, double konto)
 	}
 
 	// ok, we want to clip the height for everything!
-	// prissi: but we have to use this HACK!
 	// unfourtunately, the easiest way is by manipulating the global high
 	{
-		extern int disp_height;
-		const int diff_y = 15+16*show_ticker;
-		disp_height -= diff_y;
+		sint16 oldh = display_get_height();
+		display_set_height( oldh-16-16*show_ticker );
 
 		display_all_win();
 		remove_old_win();
@@ -1044,7 +1042,7 @@ win_display_flush(int , int color, double konto)
 			const int width = proportional_string_width(tooltip_text)+7;
 
 			display_ddd_proportional(tooltip_xpos,
-													MAX(39,tooltip_ypos),
+													max(39,tooltip_ypos),
 													width,
 													0,
 													2,
@@ -1055,7 +1053,7 @@ win_display_flush(int , int color, double konto)
 			tooltip_text = 0;
 		}
 
-		disp_height += diff_y;
+		display_set_height( oldh );
 	}
 
     koord3d pos;
@@ -1189,6 +1187,6 @@ void win_set_zoom_factor(int rw)
 void win_set_tooltip(int xpos, int ypos, const char *text)
 {
   tooltip_xpos = xpos;
-  tooltip_ypos = MAX(32+7,ypos);
+  tooltip_ypos = max(32+7,ypos);
   tooltip_text = text;
 }

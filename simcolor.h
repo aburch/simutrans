@@ -1,6 +1,12 @@
 #ifndef simcolor_h
 #define simcolor_h
 
+// this is a player color => use different table for conversion
+#define PLAYER_FLAG (0x8000)
+
+typedef  unsigned short PLAYER_COLOR_VAL;
+typedef unsigned char COLOR_VAL;
+
 // Menuefarben (aendern sich nicht von Tag zu Nacht)
 #define MN_GREY0  37
 #define MN_GREY1  38
@@ -21,8 +27,8 @@
 #define COL_ORANGE    132
 #define COL_PURPLE 80
 
-
-#define CITY_KI 4
+// message colors
+#define CITY_KI 1
 #define NEW_VEHICLE 251
 
 // by niels

@@ -23,7 +23,7 @@ char *ntos(int number, const char *format)
           r = sprintf(tempstring, "%d", number);
     }
 
-    if(r>=16) out_error("ntos","overflow");
+    if(r>=16) ERROR("ntos","overflow");
 
     return tempstring;
 }

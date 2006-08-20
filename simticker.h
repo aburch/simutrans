@@ -10,9 +10,8 @@
 #ifndef simticker_h
 #define simticker_h
 
-#ifndef koord3d_h
 #include "dataobj/koord.h"
-#endif
+#include "simcolor.h"
 
 // forward decl
 template <class T> class slist_tpl;
@@ -30,9 +29,9 @@ public:
     struct node {
       char msg[256];
       koord pos;
-      int color;
-      int xpos;
-      int w;
+      PLAYER_COLOR_VAL color;
+      sint16 xpos;
+      long w;
     };
 
 private:

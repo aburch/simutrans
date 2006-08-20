@@ -190,7 +190,7 @@ blockmanager::finde_blockstrecke(karte_t * welt, koord3d pos)
 
 
 void
-blockmanager::vereinige(karte_t */*welt*/, blockhandle_t  bs1, blockhandle_t  bs2)
+blockmanager::vereinige(karte_t *, blockhandle_t  bs1, blockhandle_t  bs2)
 {
 	DBG_MESSAGE("blockmanager::vereinige()","joining rail blocks %ld and %ld.", bs1.get_id(), bs2.get_id());
 

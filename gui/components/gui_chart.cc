@@ -82,7 +82,7 @@ gui_chart_t::zeichnen(koord offset) const
     offset += pos;
 
     sint64 last_year=0, tmp=0;
-    char cmin[128] = "0", cmax[128] = "0", digit[4];
+    char cmin[128] = "0", cmax[128] = "0", digit[8];
 
     sint64 baseline = 0;
     sint64* pbaseline = &baseline;
@@ -142,7 +142,7 @@ gui_chart_t::zeichnen(koord offset) const
 		{
 			// display x-axis
 			sprintf(digit, "%i", abs(seed-i));
-			display_proportional_clip(offset.x+(groesse.x / (x_elements - 1))*i - (seed != i ? (int)(2*log(abs((seed-i)))) : 0),
+			display_proportional_clip(offset.x+(groesse.x / (x_elements - 1))*i - (seed != i ? (int)(2*log((double)abs((seed-i)))) : 0),
 					     offset.y+groesse.y+6,
 					     digit, ALIGN_LEFT, 4, false );
 		}

@@ -71,7 +71,7 @@ const int cost_type_color[MAX_CONVOI_COST] =
  * @author Hj. Malthaner
  */
 convoi_info_t::convoi_info_t(convoihandle_t cnv)
-: gui_frame_t(cnv->gib_name(), cnv->gib_besitzer()->get_player_color()),
+: gui_frame_t(cnv->gib_name(), cnv->gib_besitzer()),
   scrolly(&text),
   text(" \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n"
        " \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n"

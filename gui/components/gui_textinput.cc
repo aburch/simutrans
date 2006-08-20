@@ -179,9 +179,18 @@ void gui_textinput_t::infowin_event(const event_t *ev)
 		    printf("Warning: gui_textinput_t::infowin_event() called but text is NULL\n");
 		}
 
-    } else if(getroffen(ev->cx, ev->cy)  &&  (IS_LEFTRELEASE(ev) || IS_LEFTCLICK(ev))) {
-        request_focus(this);
-        cursor_pos = strlen(text);
+    } else if(IS_LEFTRELEASE(ev) || IS_LEFTCLICK(ev)) {
+		if(!has_focus(this)) {
+			request_focus(this);
+		}
+		cursor_pos = 0;
+		for( int i=strlen(text); i>0;  i-- ) {
+			if(ev->cx>display_calc_proportional_string_len_width(text,i,true)) {
+				cursor_pos = i;
+				break;
+			}
+		}
+DBG_DEBUG("gui_textinput_t::gui_textinput_t()","cursor_pos=%i, cx=%i",cursor_pos,ev->cx);
     } else if(ev->ev_class == INFOWIN && ev->ev_code == WIN_CLOSE && has_focus(this)) {
         	release_focus(this);
     }

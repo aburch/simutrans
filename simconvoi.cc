@@ -495,7 +495,7 @@ convoi_t::sync_step(long delta_t)
 
 			akt_speed = 0;
 			sprintf(buf, translator::translate("!1_DEPOT_REACHED"), gib_name());
-			message_t::get_instance()->add_message(buf,fahr->at(0)->gib_pos().gib_2d(),message_t::convoi,gib_besitzer()->get_player_color(),IMG_LEER);
+			message_t::get_instance()->add_message(buf,fahr->at(0)->gib_pos().gib_2d(),message_t::convoi,gib_besitzer()->get_player_nr(),IMG_LEER);
 
 			betrete_depot(dp);
 
@@ -1164,7 +1164,7 @@ convoi_t::rdwr(loadsave_t *file)
 	if(file->get_version()<88003) {
 		dummy=0;
 		file->rdwr_long(dummy, " ");
-		line_id = dummy;
+		line_id = (uint16)dummy;
 	}
 	else {
 		file->rdwr_short(line_id, " ");
@@ -1172,10 +1172,10 @@ convoi_t::rdwr(loadsave_t *file)
 
 	dummy=anz_vehikel;
 	file->rdwr_long(dummy, " ");
-	anz_vehikel = dummy;
+	anz_vehikel = (uint8)dummy;
 	dummy=anz_ready;
 	file->rdwr_long(dummy, " ");
-	anz_ready=dummy;
+	anz_ready = (uint8)dummy;
 	file->rdwr_long(wait_lock, " ");
 	bool dummy_bool=false;
 	file->rdwr_bool(dummy_bool, " ");
@@ -1185,7 +1185,7 @@ convoi_t::rdwr(loadsave_t *file)
 	file->rdwr_long(sp_soll, " ");
 	file->rdwr_enum(state, " ");
 	file->rdwr_enum(alte_richtung, " ");
-	dummy=jahresgewinn;
+	dummy = jahresgewinn;
 	file->rdwr_long(dummy, "\n");
 	jahresgewinn = dummy;
 	route.rdwr(file);
@@ -1376,7 +1376,7 @@ void convoi_t::info(cbuffer_t & buf) const
     sprintf(tmp," %s: ", translator::translate("Gewinn")  );
     buf.append(tmp);
 
-    money_to_string( tmp, jahresgewinn );
+    money_to_string( tmp, (double)jahresgewinn );
     buf.append(tmp);
     buf.append("\n");
   }
@@ -1396,7 +1396,11 @@ void convoi_t::get_freight_info(cbuffer_t & buf)
 		// rebuilt the list with goods ...
 		slist_tpl<ware_t> total_fracht;
 
+#ifdef _MSC_VER
+		uint32 *max_loaded_waren = static_cast<uint32 *>(_alloca(warenbauer_t::gib_waren_anzahl()*4+4));
+#else
 		uint32 max_loaded_waren[warenbauer_t::gib_waren_anzahl()];
+#endif
 		memset( max_loaded_waren, 0, sizeof(uint32)*warenbauer_t::gib_waren_anzahl() );
 
 		for(unsigned i=0; i<anz_vehikel; i++) {

@@ -7,6 +7,10 @@
  * in other projects without written permission of the author.
  */
 
+#ifdef _MSC_VER
+#include <malloc.h>
+#endif
+
 #ifdef __cplusplus
 extern "C" {
 #endif

@@ -31,7 +31,7 @@ void display_icon_leiste(const int color, int basi_bild_nr);
  * Kopiert Puffer ins Fenster
  * @author Hj. Malthaner
  */
- void display_flush(const int season_img, int stunden4, int color, double konto, const char *day_str, const char *info, const char *player_name, const int player_color);
+ void display_flush(const int season_img, int stunden4, COLOR_VAL color, double konto, const char *day_str, const char *info, const char *player_name, const COLOR_VAL player_color);
 
 #ifdef __cplusplus
 }

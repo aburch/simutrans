@@ -1033,10 +1033,10 @@ void fabrik_t::recalc_factory_status()
 		if((status_ein&FL_WARE_ALLELIMIT)!=0  &&  (status_aus&FL_WARE_ALLEUEBER75)!=0) {
 			status = bad;
 		}
-		else if(status_ein&FL_WARE_ALLELIMIT!=0  ||  status_aus&FL_WARE_ALLEUEBER75!=0) {
+		else if((status_ein&FL_WARE_ALLELIMIT)!=0  ||  (status_aus&FL_WARE_ALLEUEBER75)!=0) {
 			status = medium;
 		}
-		else if(status_ein&FL_WARE_ALLENULL!=0  &&  status_aus&FL_WARE_ALLENULL!=0) {
+		else if((status_ein&FL_WARE_ALLENULL)!=0  &&  (status_aus&FL_WARE_ALLENULL)!=0) {
 			// not producing
 			status = inactive;
 		}

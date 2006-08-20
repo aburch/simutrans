@@ -189,7 +189,7 @@ private:
     uint16 produktivitaet;
     uint16 bereich;
     uint16 gewichtung;	// Wie wahrscheinlich soll der Bau sein?
-    uint16 kennfarbe;
+    uint8 kennfarbe;
     uint16 lieferanten;
     uint16 produkte;
     uint16 pax_level;
@@ -238,7 +238,7 @@ public:
     enum platzierung gib_platzierung() const { return platzierung; }
     int gib_gewichtung() const { return gewichtung;     }
 
-    int gib_kennfarbe() const { return kennfarbe; }
+    uint8 gib_kennfarbe() const { return kennfarbe; }
 
     void setze_produktivitaet(int p) { produktivitaet=p; };
     int gib_produktivitaet() const { return produktivitaet; };

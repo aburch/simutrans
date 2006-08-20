@@ -4,7 +4,15 @@ Known bugs: (hard to fix)
 	Citycars cannot go around a 180 degree road bend
 	Monorails have no appropriate crossing, nor tunnel
 	valgrind complains about errors in SDL and X?
-	set color broken? yes
+
+
+Release of 88.10.1
+
+4-Jun-2006: (prissi)
+	FIX: texinput fields work again as expected, mouse sets cursor position
+	FIX: several places were handling player colors incorrect or not at all
+	FIX: several small clipping errors fixed
+	CHANGE: compiles again with MS Visual C++ Express => better debugging, some little errors fixed, esp. overuns
 
 
 Release of 88.10

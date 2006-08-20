@@ -21,29 +21,6 @@
 #include "../besch/skin_besch.h"
 
 
-/**
- * Konstruktor
- * @param name Fenstertitel
- * @author Hj. Malthaner
- */
-gui_frame_t::gui_frame_t(const char *name)
-{
-    this->name = name;
-
-    groesse = koord(200, 100);
-
-    farben.titel  = WIN_TITEL;
-    farben.hell   = MN_GREY4;
-    farben.mittel = MN_GREY2;
-    farben.dunkel = MN_GREY0;
-
-    opaque = false;
-
-    container.setze_pos(koord(0,16));
-
-    set_resizemode (no_resize); //25-may-02	markus weber	added
-}
-
 
 /**
  * Konstruktor
@@ -51,21 +28,13 @@ gui_frame_t::gui_frame_t(const char *name)
  * @param color Besitzerfarbe
  * @author Hj. Malthaner
  */
-gui_frame_t::gui_frame_t(const char *name, int color)
+gui_frame_t::gui_frame_t(const char *name, const spieler_t *sp)
 {
     this->name = name;
-
     groesse = koord(200, 100);
-
-    farben.titel  = color;
-    farben.hell   = MN_GREY4;
-    farben.mittel = MN_GREY2;
-    farben.dunkel = MN_GREY0;
-
+    owner = sp;
     opaque = false;
-
     container.setze_pos(koord(0,16));
-
     set_resizemode (no_resize); //25-may-02	markus weber	added
 }
 
@@ -121,18 +90,6 @@ void gui_frame_t::setze_opaque(bool janein)
 {
     opaque = janein;
 }
-
-/**
- * gibt farbinformationen fuer Fenstertitel, -ränder und -körper
- * zurück
- * @author Hj. Malthaner
- */
-fensterfarben gui_frame_t::gib_fensterfarben() const
-{
-    return farben;
-}
-
-
 
 /**
  * @return gibt wunschgroesse für das Darstellungsfenster zurueck
@@ -253,32 +210,26 @@ void gui_frame_t::resize(const koord delta)
  */
 void gui_frame_t::zeichnen(koord pos, koord gr)
 {
-  if(opaque) {
-    const fensterfarben f = gib_fensterfarben();
+	if(opaque) {
+		// Hajo: skinned windows code
+		// draw background
+		PUSH_CLIP(pos.x+1,pos.y+16,gr.x-2,gr.y-16);
 
-    // Hajo: skinned windows code
-    // fensterkoerper zeichnen
-    PUSH_CLIP(pos.x+1,pos.y+16,gr.x-2,gr.y-16);
+		const int img = skinverwaltung_t::window_skin->gib_bild(0)->gib_nummer();
 
-    const int img = skinverwaltung_t::window_skin->gib_bild(0)->gib_nummer();
+		for(int j=0; j<gr.y; j+=64) {
+			for(int i=0; i<gr.x; i+=64) {
+				display_color_img(img, pos.x+1 + i, pos.y+16 + j, 0, false, true);
+			}
+		}
+		POP_CLIP();
 
-    for(int j=0; j<gr.y; j+=64) {
-      for(int i=0; i<gr.x; i+=64) {
-	display_color_img(img, pos.x+1 + i, pos.y+16 + j, 0, false, true);
-      }
-    }
+		// Hajo: left, right
+		display_vline_wh(pos.x, pos.y+16, gr.y-16, MN_GREY4, true);
+		display_vline_wh(pos.x+gr.x-1, pos.y+16, gr.y-16, MN_GREY0, true);
 
-    POP_CLIP();
-
-
-    // Hajo: left, right
-    display_vline_wh(pos.x, pos.y+16, gr.y-16, f.hell, true);
-    display_vline_wh(pos.x+gr.x-1, pos.y+16, gr.y-16, f.dunkel, true);
-
-    // Hajo: bottom line
-    display_fillbox_wh(pos.x, pos.y+gr.y-1, gr.x, 1, f.dunkel, true);
-
-  }
-
-  container.zeichnen(pos);
+		// Hajo: bottom line
+		display_fillbox_wh(pos.x, pos.y+gr.y-1, gr.x, 1, MN_GREY0, true);
+	}
+	container.zeichnen(pos);
 }

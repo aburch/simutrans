@@ -127,21 +127,21 @@ int loadsave_t::lsgetc()
     }
 }
 
-int loadsave_t::write(const void *buf, unsigned len)
+long loadsave_t::write(const void *buf, unsigned long len)
 {
     if(is_zipped()) {
 	return gzwrite(fp, const_cast<void *>(buf), len);
     } else {
-	return fwrite(buf, 1, len, fp);
+	return (long)fwrite(buf, 1, len, fp);
     }
 }
 
-int loadsave_t::read (void *buf, unsigned len)
+long loadsave_t::read (void *buf, unsigned long len)
 {
     if(is_zipped()) {
 	return gzread(fp, buf, len);
     } else {
-	return fread(buf, 1, len, fp);
+	return (long)fread(buf, 1, len, fp);
     }
 }
 

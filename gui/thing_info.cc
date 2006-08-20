@@ -29,7 +29,7 @@ cbuffer_t ding_infowin_t::buf (8192);
 
 
 ding_infowin_t::ding_infowin_t(karte_t *welt,ding_t *ding) :
-	gui_frame_t(""),
+	gui_frame_t("",ding->gib_besitzer()),
 	view(welt, koord3d::invalid)
 {
 	this->welt = welt;
@@ -66,8 +66,6 @@ void ding_infowin_t::zeichnen(koord pos, koord gr)
 	view.set_location(gib_pos());
 
 	gui_frame_t::setze_name( gib_name() );
-	gui_frame_t::set_title_color( gib_besitzer() ? gib_besitzer()->get_player_color() : COL_ORANGE );
-
 	gui_frame_t::zeichnen(pos,gr);
 
 	buf.clear();

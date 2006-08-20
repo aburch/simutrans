@@ -137,7 +137,7 @@ simline_t::rdwr(loadsave_t * file)
 	if(file->get_version()<88003) {
 		long dummy=id;
 		file->rdwr_long(dummy, " ");
-		id = dummy;
+		id = (uint16)dummy;
 	}
 	else {
 		file->rdwr_short(id, " ");

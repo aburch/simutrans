@@ -40,7 +40,7 @@
  * @author Hj. Malthaner
  */
 convoi_detail_t::convoi_detail_t(convoihandle_t cnv)
-: gui_frame_t(cnv->gib_name(), cnv->gib_besitzer()->get_player_color()),
+: gui_frame_t(cnv->gib_name(), cnv->gib_besitzer()),
   scrolly(&veh_info),
   veh_info(cnv)
 {

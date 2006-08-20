@@ -102,7 +102,9 @@ static fabrik_t *baue_ziel=NULL;
  * @param color Kennfarbe des Spielers
  * @author Hj. Malthaner
  */
-spieler_t::spieler_t(karte_t *wl, uint8 color, uint8 nr) : simlinemgmt(wl,this), last_built(0)
+spieler_t::spieler_t(karte_t *wl, uint8 color, uint8 nr) :
+	simlinemgmt(wl,this),
+	last_built(0)
 {
     halt_list = new slist_tpl <halthandle_t>;
 
@@ -333,9 +335,8 @@ spieler_t::display_messages(const int xoff, const int yoff, const int width)
 		      welt->lookup_hgt(text_pos[n]);
 
 	if(text_alter[n] >= -80) {
-
 	    display_proportional_clip( x+xoff+1, y+yoff+1, texte[n], ALIGN_LEFT, COL_BLACK, true);
-	    display_proportional_clip( x+xoff, y+yoff, texte[n], ALIGN_LEFT, kennfarbe+3, true);
+	    display_proportional_clip( x+xoff, y+yoff, texte[n], ALIGN_LEFT, PLAYER_FLAG|(kennfarbe*4)+3, true);
 
 	    last_displayed_message = n;
 	}
@@ -440,11 +441,11 @@ spieler_t::neuer_monat()
 			char buf[256];
 		    sprintf(buf,translator::translate("Verschuldet:\n\nDu hast %d Monate Zeit,\ndie Schulden zurueckzuzahlen.\n"),
 		    	MAX_KONTO_VERZUG-konto_ueberzogen+1);
-		    message_t::get_instance()->add_message(buf,koord::invalid,message_t::problems,kennfarbe,IMG_LEER);
+		    message_t::get_instance()->add_message(buf,koord::invalid,message_t::problems,player_nr,IMG_LEER);
 		} else if(konto_ueberzogen <= MAX_KONTO_VERZUG) {
 		    sprintf(buf,translator::translate("Verschuldet:\n\nDu hast %d Monate Zeit,\ndie Schulden zurueckzuzahlen.\n"),
 		            MAX_KONTO_VERZUG-konto_ueberzogen+1);
-		    message_t::get_instance()->add_message(buf,koord::invalid,message_t::problems,kennfarbe,IMG_LEER);
+		    message_t::get_instance()->add_message(buf,koord::invalid,message_t::problems,player_nr,IMG_LEER);
            } else {
 		    destroy_all_win();
 		    create_win(280, 40, new nachrichtenfenster_t(welt, "Bankrott:\n\nDu bist bankrott.\n"), w_autodelete);
@@ -556,7 +557,7 @@ spieler_t::buche(const sint64 betrag, const koord pos, const int type)
     if(betrag != 0) {
 	add_message(pos, betrag);
 
-	if(ABS(betrag) > 10000) {
+	if(labs(betrag) > 10000) {
 	    struct sound_info info;
 
 	    info.index = SFX_CASH;
@@ -582,14 +583,14 @@ spieler_t::buche(const sint64 betrag, int type)
 		finance_history_year[0][COST_PROFIT] += betrag;
 		finance_history_year[0][COST_CASH] = konto;
 		finance_history_year[0][COST_OPERATING_PROFIT] = finance_history_year[0][COST_INCOME] + finance_history_year[0][COST_VEHICLE_RUN] + finance_history_year[0][COST_MAINTENANCE];
-		finance_history_year[0][COST_MARGIN] = (finance_history_year[0][COST_VEHICLE_RUN] + finance_history_year[0][COST_MAINTENANCE]) != 0 ? finance_history_year[0][COST_OPERATING_PROFIT] * 100/ abs((finance_history_year[0][COST_VEHICLE_RUN] + finance_history_year[0][COST_MAINTENANCE])) : 0;
+		finance_history_year[0][COST_MARGIN] = (finance_history_year[0][COST_VEHICLE_RUN] + finance_history_year[0][COST_MAINTENANCE]) != 0 ? finance_history_year[0][COST_OPERATING_PROFIT] * 100/ labs((finance_history_year[0][COST_VEHICLE_RUN] + finance_history_year[0][COST_MAINTENANCE])) : 0;
 		finance_history_year[0][COST_NETWEALTH] = konto+finance_history_month[1][COST_ASSETS];
 		// fill month history
 		finance_history_month[0][type] += betrag;
 		finance_history_month[0][COST_PROFIT] += betrag;
 		finance_history_month[0][COST_CASH] = konto;
 		finance_history_month[0][COST_OPERATING_PROFIT] = finance_history_month[0][COST_INCOME] + finance_history_month[0][COST_VEHICLE_RUN] + finance_history_month[0][COST_MAINTENANCE];
-		finance_history_month[0][COST_MARGIN] = (finance_history_month[0][COST_VEHICLE_RUN] + finance_history_month[0][COST_MAINTENANCE]) != 0 ? finance_history_month[0][COST_OPERATING_PROFIT] * 100/ abs((finance_history_month[0][COST_VEHICLE_RUN] + finance_history_month[0][COST_MAINTENANCE])) : 0;
+		finance_history_month[0][COST_MARGIN] = (finance_history_month[0][COST_VEHICLE_RUN] + finance_history_month[0][COST_MAINTENANCE]) != 0 ? finance_history_month[0][COST_OPERATING_PROFIT] * 100/ labs((finance_history_month[0][COST_VEHICLE_RUN] + finance_history_month[0][COST_MAINTENANCE])) : 0;
 		finance_history_month[0][COST_NETWEALTH] = konto+finance_history_month[1][COST_ASSETS];
 	}
 
@@ -1020,7 +1021,7 @@ DBG_DEBUG("do_passenger_ki()","factory success1");
 						sprintf(buf, translator::translate("Travellers now\nuse %s's\nbusses between\n%s \nand %s.\n"), gib_name(), start_stadt->gib_name(), end_stadt->gib_name() );
 					}
 DBG_DEBUG("do_passenger_ki()","calling message_t()");
-					message_t::get_instance()->add_message(buf,platz1,message_t::ai,kennfarbe,road_vehicle->gib_basis_bild());
+					message_t::get_instance()->add_message(buf,platz1,message_t::ai,player_nr,road_vehicle->gib_basis_bild());
 				}
 				break;
 
@@ -1280,7 +1281,7 @@ DBG_MESSAGE("spieler_t::do_ki()","%s want to build a route from %s (%d,%d) to %s
 	     gewinn);
 
 					koord zv = start->gib_pos().gib_2d() - ziel->gib_pos().gib_2d();
-					int dist = ABS(zv.x) + ABS(zv.y);
+					int dist = abs(zv.x) + abs(zv.y);
 
 					/* for the calculation we need:
 					 * a suitable car (and engine)
@@ -1396,7 +1397,7 @@ DBG_MESSAGE("spieler_t::do_ki()","No roadway possible.");
 						int freight_price = (freight->gib_preis()*rail_vehicle->gib_zuladung()*count_rail)/24*((8000+(best_rail_speed-80)*freight->gib_speed_bonus())/1000);
 						// calculated here, since the above number was based on production
 						// only uneven number of cars bigger than 3 makes sense ...
-						count_rail = MAX( 3, count_rail );
+						count_rail = max( 3, count_rail );
 						income_rail = (freight_price*best_rail_speed)/(2*dist+count_rail);
 						cost_rail = rail_weg->gib_wartung() + (((count_rail+1)/2)*300)/dist + ((count_rail*rail_vehicle->gib_betriebskosten()+rail_engine->gib_betriebskosten())*best_rail_speed)/(2*dist+count_rail);
 						DBG_MESSAGE("spieler_t::do_ki()","Netto credits per day for rail transport %.2f (income %.2f)",cost_rail/100.0, income_rail/100.0 );
@@ -1491,7 +1492,7 @@ DBG_MESSAGE("spieler_t::do_ki()","No roadway possible.");
 					// tell the player
 					char buf[256];
 					sprintf(buf, translator::translate("%s\nopened a new railway\nbetween %s\nat (%i,%i) and\n%s at (%i,%i)."), gib_name(), translator::translate(start->gib_name()), start->pos.x, start->pos.y, translator::translate(ziel->gib_name()), ziel->pos.x, ziel->pos.y );
-					message_t::get_instance()->add_message(buf,start->pos.gib_2d(),message_t::ai,kennfarbe,rail_engine->gib_basis_bild());
+					message_t::get_instance()->add_message(buf,start->pos.gib_2d(),message_t::ai,player_nr,rail_engine->gib_basis_bild());
 
 					baue = false;
 					state = CHECK_CONVOI;
@@ -1504,7 +1505,7 @@ DBG_MESSAGE("spieler_t::do_ki()","No roadway possible.");
 					// tell the player
 					char buf[256];
 					sprintf(buf, translator::translate("%s\nnow operates\n%i trucks between\n%s at (%i,%i)\nand %s at (%i,%i)."), gib_name(), count_road, translator::translate(start->gib_name()), start->pos.x, start->pos.y, translator::translate(ziel->gib_name()), ziel->pos.x, ziel->pos.y );
-					message_t::get_instance()->add_message(buf,start->pos.gib_2d(),message_t::ai,kennfarbe,road_vehicle->gib_basis_bild());
+					message_t::get_instance()->add_message(buf,start->pos.gib_2d(),message_t::ai,player_nr,road_vehicle->gib_basis_bild());
 
 					baue = false;
 					state = CHECK_CONVOI;
@@ -1653,7 +1654,7 @@ DBG_MESSAGE("spieler_t::is_my_halt()","grund %i exists",i);
 int
 spieler_t::baue_bahnhof(koord3d quelle,koord *p, int anz_vehikel)
 {
-	int laenge = MAX((anz_vehikel+1)/2,1);       // aufrunden!
+	int laenge = max((anz_vehikel+1)/2,1);       // aufrunden!
 	koord t = *p;
 
 	int baulaenge = 0;
@@ -1730,7 +1731,7 @@ DBG_MESSAGE("spieler_t::baue_bahnhof","go back one segment");
 			else {
 				// try to extend to fabrik, if not already done
 				koord test = koord(p->x-quelle.x,p->y-quelle.y);
-				if(  gr!=NULL  &&  gr->gib_weg_ribi(weg_t::schiene) == ribi_t::ist_kurve(ribi)  &&  ribi_typ(test)!=ribi_typ(zv)  ) {
+				if(  gr!=NULL  &&  ribi_t::ist_kurve(gr->gib_weg_ribi(weg_t::schiene))  &&  ribi_typ(test)!=ribi_typ(zv)  ) {
 DBG_MESSAGE("spieler_t::baue_bahnhof","try to remove last segment");
 					wkz_remover(this, welt, *p);
 					// one back
@@ -2417,7 +2418,7 @@ DBG_DEBUG("spieler_t::rdwr()","%i has %i halts.",welt->sp2num( this ),halt_count
 	file->rdwr_long(steps, " ");
 	long farbe = kennfarbe;
 	file->rdwr_long(farbe, " ");
-	kennfarbe = farbe;
+	kennfarbe = (uint8)farbe;
 	file->rdwr_long(halt_count, " ");
 	// @author hsiegeln
 	if (file->get_version() < 82003)
@@ -2729,7 +2730,7 @@ void spieler_t::bescheid_station_voll(halthandle_t halt)
 		char buf[256];
 
 		sprintf(buf, translator::translate("!0_STATION_CROWDED"), halt->gib_name());
-		message_t::get_instance()->add_message(buf, halt->gib_basis_pos(),message_t::full, kennfarbe,IMG_LEER);
+		message_t::get_instance()->add_message(buf, halt->gib_basis_pos(),message_t::full, player_nr,IMG_LEER);
 	}
 }
 
@@ -2749,7 +2750,7 @@ DBG_MESSAGE("spieler_t::bescheid_vehikel_problem","Vehicle %s can't find a route
 			if(this==welt->get_active_player()) {
 				char buf[256];
 				sprintf(buf,translator::translate("Vehicle %s can't find a route!"), cnv->gib_name());
-				message_t::get_instance()->add_message(buf, cnv->gib_pos().gib_2d(),message_t::convoi,kennfarbe,cnv->gib_vehikel(0)->gib_basis_bild());
+				message_t::get_instance()->add_message(buf, cnv->gib_pos().gib_2d(),message_t::convoi,player_nr,cnv->gib_vehikel(0)->gib_basis_bild());
 			}
 			else if(this != welt->gib_spieler(0)) {
 				cnv->self_destruct();
@@ -2761,7 +2762,7 @@ DBG_MESSAGE("spieler_t::bescheid_vehikel_problem","Vehicle %s stucked.!", cnv->g
 			if(this==welt->get_active_player()) {
 				char buf[256];
 				sprintf(buf,translator::translate("Vehicle %s is stucked!"), cnv->gib_name());
-				message_t::get_instance()->add_message(buf, cnv->gib_pos().gib_2d(),message_t::convoi,kennfarbe,cnv->gib_vehikel(0)->gib_basis_bild());
+				message_t::get_instance()->add_message(buf, cnv->gib_pos().gib_2d(),message_t::convoi,player_nr,cnv->gib_vehikel(0)->gib_basis_bild());
 			}
 			break;
 
@@ -2820,7 +2821,7 @@ spieler_t::undo()
 		if(undo_type==weg_t::schiene  ||  undo_type==weg_t::schiene_strab  ||  undo_type==weg_t::monorail) {
 			blockmanager::gib_manager()->entferne_schiene(welt, gr->gib_pos());
 		}
-		ok |= gr->weg_entfernen(undo_type,true);
+		ok |= gr->weg_entfernen(undo_type,true)!=0;
 //DBG_DEBUG("spieler_t::add_undo()","undo tile %i at (%i,%i)",i,last_built.at(i).x,last_built.at(i).y);
 	}
 	last_built.clear();

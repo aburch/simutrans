@@ -62,7 +62,7 @@ bool  depot_frame_t::show_retired_vehicles = false;
 
 
 depot_frame_t::depot_frame_t(karte_t *welt, depot_t *depot) :
-    gui_frame_t(txt_title, depot->gib_besitzer()->get_player_color()),
+    gui_frame_t(txt_title, depot->gib_besitzer()),
     welt(welt),
     depot(depot),
     icnv(depot->convoi_count()-1),
@@ -109,7 +109,7 @@ DBG_DEBUG("depot_frame_t::depot_frame_t()","get_max_convoi_length()=%i",depot->g
     /*
      * [SELECT ROUTE]:
      */
-	line_selector.set_highlight_color(kennfarbe+1);
+	line_selector.set_highlight_color(PLAYER_FLAG|kennfarbe+1);
 	line_selector.add_listener(this);
 	add_komponente(&line_selector);
 	depot->gib_besitzer()->simlinemgmt.sort_lines();

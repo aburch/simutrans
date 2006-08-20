@@ -34,10 +34,15 @@ typedef enum {false=0, true=1 } bool;
 #define FALSE 0
 #endif
 
+#include "simcolor.h"
+
 #define DPY_WIDTH   12
 #define DPY_HEIGHT  28
 
 #define LINESPACE 11
+
+// size of koordinates
+typedef short KOORD_VAL;
 
 
 typedef struct
@@ -92,10 +97,10 @@ void set_zoom_factor(int rw);
  * Initialises the graphics module
  * @author Hj. Malthaner
  */
-int simgraph_init(int width, int height, int use_shm, int do_sync, int fullscreen);
+int simgraph_init(KOORD_VAL width, KOORD_VAL height, int use_shm, int do_sync, int fullscreen);
 int is_display_init();
 int simgraph_exit();
-void simgraph_resize(int w, int h);
+void simgraph_resize(KOORD_VAL w, KOORD_VAL h);
 
 /*
  * uncomment to enable unicode
@@ -135,10 +140,11 @@ void display_get_image_offset( unsigned bild, int *xoff, int *yoff, int *xw, int
 int gib_maus_x();
 int gib_maus_y();
 
-void mark_rect_dirty_wc(int x1, int y1, int x2, int y2);
+void mark_rect_dirty_wc(KOORD_VAL x1, KOORD_VAL y1, KOORD_VAL x2, KOORD_VAL y2);
 
-int display_get_width();
-int display_get_height();
+KOORD_VAL display_get_width();
+KOORD_VAL display_get_height();
+KOORD_VAL display_set_height(KOORD_VAL);
 
 
 int  display_get_light();
@@ -158,36 +164,36 @@ void display_day_night_shift(int night);
 void display_set_player_color(int entry);
 
 // scrolls horizontally, will ignore clipping etc.
-void	display_scroll_band( const int start_y, const int x_offset, const int h );
+void	display_scroll_band( const KOORD_VAL start_y, const KOORD_VAL x_offset, const KOORD_VAL h );
 
 // display image with day and night change
-void display_img_aux(const unsigned n, const int xp, int yp, const int dirty, bool player);
+void display_img_aux(const unsigned n, const KOORD_VAL xp, KOORD_VAL yp, const int dirty, bool player);
 #define display_img( n, x, y, d ) display_img_aux( (n), (x), (y), (d), 0 )
 
 // dispaly image with color (if there) and optinal day and nightchange
-void display_color_img(const unsigned n, const int xp, const int yp, const int color, const int daynight, const int dirty);
+void display_color_img(const unsigned n, const KOORD_VAL xp, const KOORD_VAL yp, const COLOR_VAL color, const int daynight, const int dirty);
 
-void display_fillbox_wh(int xp, int yp, int w, int h, int color, int dirty);
-void display_fillbox_wh_clip(int xp, int yp, int w, int h, int color, int d);
-void display_vline_wh(const int xp, int yp, int h, const int color, int dirty);
-void display_vline_wh_clip(const int xp, int yp, int h, const int c, int d);
+void display_fillbox_wh(KOORD_VAL xp, KOORD_VAL yp, KOORD_VAL w, KOORD_VAL h, PLAYER_COLOR_VAL color, int dirty);
+void display_fillbox_wh_clip(KOORD_VAL xp, KOORD_VAL yp, KOORD_VAL w, KOORD_VAL h, PLAYER_COLOR_VAL color, int d);
+void display_vline_wh(const KOORD_VAL xp, KOORD_VAL yp, KOORD_VAL h, const PLAYER_COLOR_VAL color, int dirty);
+void display_vline_wh_clip(const KOORD_VAL xp, KOORD_VAL yp, KOORD_VAL h, const PLAYER_COLOR_VAL c, int d);
 void display_clear();
 
 void display_flush_buffer();
 
-void display_move_pointer(int dx, int dy);
+void display_move_pointer(KOORD_VAL dx, KOORD_VAL dy);
 void display_show_pointer(int yesno);
 void display_set_pointer(int pointer);
 
-void display_pixel(int x, int y, int color);
+void display_pixel(KOORD_VAL x, KOORD_VAL y, PLAYER_COLOR_VAL color);
 
 
-void display_array_wh(int xp, int yp, int w, int h, const unsigned char *arr);
+void display_array_wh(KOORD_VAL xp, KOORD_VAL yp, KOORD_VAL w, KOORD_VAL h, const COLOR_VAL *arr);
 
 // compound painting routines
 
-void display_ddd_box(int x1, int y1, int w, int h, int tl_color, int rd_color);
-void display_ddd_box_clip(int x1, int y1, int w, int h, int tl_color, int rd_color);
+void display_ddd_box(KOORD_VAL x1, KOORD_VAL y1, KOORD_VAL w, KOORD_VAL h, PLAYER_COLOR_VAL tl_color, PLAYER_COLOR_VAL rd_color);
+void display_ddd_box_clip(KOORD_VAL x1, KOORD_VAL y1, KOORD_VAL w, KOORD_VAL h, PLAYER_COLOR_VAL tl_color, PLAYER_COLOR_VAL rd_color);
 
 #define ALIGN_LEFT 0
 #define ALIGN_MIDDLE 1
@@ -206,7 +212,7 @@ int display_calc_proportional_string_len_width(const char *text, int len,bool us
  * @author Volker Meyer, prissi
  * @date  15.06.2003, 2.1.2005
  */
-int display_text_proportional_len_clip(int x, int y, const char *txt, int align, const int color_index, int dirty, bool use_large_font, int len, bool use_clipping );
+int display_text_proportional_len_clip(KOORD_VAL x, KOORD_VAL y, const char *txt, int align, const PLAYER_COLOR_VAL color_index, int dirty, bool use_large_font, int len, bool use_clipping );
 /* macro are for compatibility */
 #define display_small_proportional( x,  y, txt,  align, color, dirty) display_text_proportional_len_clip(x, y, txt, align, color, dirty, false, -1, false )
 #define display_small_proportional_clip( x,  y, txt,  align, color, dirty) display_text_proportional_len_clip(x, y, txt, align, color, dirty, false, -1, true )
@@ -215,16 +221,16 @@ int display_text_proportional_len_clip(int x, int y, const char *txt, int align,
 #define display_proportional_clip( x,  y, txt,  align, color, dirty) display_text_proportional_len_clip(x, y, txt, align, color, dirty, true, -1, true )
 #define display_proportional_len_clip( x,  y, txt,  len, align, color, dirty) display_text_proportional_len_clip(x, y, txt, align, color, dirty, true, len, true )
 
-void display_ddd_proportional(int xpos, int ypos, int width, int hgt,int ddd_farbe, int text_farbe,const char *text, int dirty);
-void display_ddd_proportional_clip(int xpos, int ypos, int width, int hgt,int ddd_farbe, int text_farbe, const char *text, int dirty);
+void display_ddd_proportional(KOORD_VAL xpos, KOORD_VAL ypos, KOORD_VAL width, KOORD_VAL hgt,PLAYER_COLOR_VAL ddd_farbe, PLAYER_COLOR_VAL text_farbe,const char *text, int dirty);
+void display_ddd_proportional_clip(KOORD_VAL xpos, KOORD_VAL ypos, KOORD_VAL width, KOORD_VAL hgt,PLAYER_COLOR_VAL ddd_farbe, PLAYER_COLOR_VAL text_farbe, const char *text, int dirty);
 
-void display_multiline_text(int x, int y, const char *inbuf, int color);
+void display_multiline_text(KOORD_VAL x, KOORD_VAL y, const char *inbuf, PLAYER_COLOR_VAL color);
 
-void display_direct_line(const int x, const int y, const int xx, const int yy, const int color);
+void display_direct_line(const KOORD_VAL x, const KOORD_VAL y, const KOORD_VAL xx, const KOORD_VAL yy, const PLAYER_COLOR_VAL color);
 
 int count_char(const char *str, const char c);
 
-void display_setze_clip_wh(int x, int y, int w, int h);
+void display_setze_clip_wh(KOORD_VAL x, KOORD_VAL y, KOORD_VAL w, KOORD_VAL h);
 struct clip_dimension display_gib_clip_wh(void);
 
 void display_snapshot(void);
@@ -236,8 +242,6 @@ void display_snapshot(void);
  */
 void display_laden(void* file, int zipped);
 void display_speichern(void* file, int zipped);
-
-void line(int x1s, int y1s, int x2s, int y2s, int col);
 
 #ifdef __cplusplus
 }

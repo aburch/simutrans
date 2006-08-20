@@ -135,7 +135,7 @@ freight_list_sorter_t::sort_freight( karte_t *welt, const slist_tpl <ware_t>*wli
 	// added sorting to ware's destination list
 	int pos = 0;
 #ifdef _MSC_VER
-	travel_details *tdlist = (travel_details *)alloca(wliste->count() * sizeof(travel_details *));
+	travel_details *tdlist = (travel_details *)alloca((wliste->count()+1) * sizeof(travel_details));
 #else
 	travel_details tdlist [wliste->count()];
 #endif

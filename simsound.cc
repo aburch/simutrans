@@ -170,7 +170,7 @@ midi_init()
     while(!feof(file)) {
       char buf[80];
       char title[80];
-      int len;
+      long len;
 
       read_line(buf, 80, file);
       read_line(title, 80, file);

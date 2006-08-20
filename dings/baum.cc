@@ -293,7 +293,7 @@ baum_t::saee_baum()
 			bd->obj_count()<welt->gib_max_no_of_trees_on_square())
 		{
 			// take care of height level
-			const int guete = 140 - ABS(bd->gib_hoehe() - besch->gib_hoehenlage()*16);
+			const int guete = 140 - abs(bd->gib_hoehe() - besch->gib_hoehenlage()*16);
 			if(guete>(int)simrand(128)) {
 				bd->obj_add( new baum_t(welt, bd->gib_pos(), besch) );
 			}

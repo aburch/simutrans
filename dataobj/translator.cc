@@ -146,8 +146,8 @@ void	translator::get_city_name(char *name, int nr)
   	return;
   }
   cstring_t &list_name = namen_liste.at( nr%namen_liste.count() );
-  tstrncpy(name, list_name, 64);
-  name[64] = 0;
+  tstrncpy(name, list_name, 63);
+  name[63] = 0;
 }
 
 

@@ -26,7 +26,7 @@ slist_tpl<linie_t *> & linie_t::gib_alle_linien()
  * @author Hj. Malthaner
  */
 
-linie_t * linie_t::vereinige(array_tpl<class linieneintrag_t> * alt)
+linie_t * linie_t::vereinige(array_tpl<struct linieneintrag_t> * alt)
 {
 
  slist_iterator_tpl<linie_t *> iter (alle_linien);
@@ -58,7 +58,7 @@ linie_t * linie_t::vereinige(array_tpl<class linieneintrag_t> * alt)
 }
 
 
-linie_t::linie_t(array_tpl<class linieneintrag_t> *alt) : eintrag(16)
+linie_t::linie_t(array_tpl<struct linieneintrag_t> *alt) : eintrag(16)
 {
   for(unsigned int i=0; i<eintrag.get_size(); i++) {
 

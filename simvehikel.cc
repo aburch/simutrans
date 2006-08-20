@@ -1051,18 +1051,18 @@ vehikel_t::rdwr(loadsave_t *file)
 		long l;
 		file->rdwr_long(insta_zeit, "\n");
 		file->rdwr_long(l, " ");
-		dx = l;
+		dx = (sint8)l;
 		file->rdwr_long(l, "\n");
-		dy = l;
+		dy = (sint8)l;
 		file->rdwr_long(l, "\n");
-		hoff = l;
+		hoff = (sint16)l;
 		file->rdwr_long(speed_limit, "\n");
 		file->rdwr_enum(fahrtrichtung, " ");
 		file->rdwr_enum(alte_fahrtrichtung, "\n");
 		file->rdwr_delim("Wre: ");
 		file->rdwr_long(fracht_count, " ");
 		file->rdwr_long(l, "\n");
-		route_index = l;
+		route_index = (uint16)l;
 		insta_zeit = ((welt->gib_zeit_ms()-insta_zeit) >> karte_t::ticks_bits_per_tag) + (umgebung_t::starting_year*12);
 DBG_MESSAGE("vehicle_t::rdwr()","bought at %i/%i.",(insta_zeit%12)+1,insta_zeit/12);
 	}
@@ -1166,7 +1166,7 @@ DBG_MESSAGE("vehicle_t::rdwr()","bought at %i/%i.",(insta_zeit%12)+1,insta_zeit/
 int vehikel_t::calc_restwert() const
 {
 	// after 20 year, it has only half value
-    return (int)((double)besch->gib_preis() * pow(0.997, (welt->get_current_month() - gib_insta_zeit())));
+    return (int)((double)besch->gib_preis() * pow(0.997, (int)(welt->get_current_month() - gib_insta_zeit())));
 }
 
 

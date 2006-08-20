@@ -217,7 +217,6 @@ SOURCES += gui/map_frame.cc
 SOURCES += gui/message_frame_t.cc
 SOURCES += gui/message_option_t.cc
 SOURCES += gui/message_stats_t.cc
-SOURCES += gui/message_info.cc
 SOURCES += gui/messagebox.cc
 SOURCES += gui/money_frame.cc
 SOURCES += gui/optionen.cc

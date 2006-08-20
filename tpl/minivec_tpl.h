@@ -262,10 +262,9 @@ public:
 	if(i<count) {
 	    return data[i];
 	} else {
-	    ERROR("minivec_tpl<T>::get()",
-	          "index out of bounds: %i not in 0..%d", i, count-1);
-	    // return data[0];
-	    abort();
+	    ERROR("minivec_tpl<T>::get()","index out of bounds: %i not in 0..%d", i, count-1);
+	    trap();
+	    return data[0];	// silence for compiler
 	}
     }
 
@@ -281,7 +280,8 @@ public:
 	    ERROR("minivec_tpl<T>::at()",
 	          "index out of bounds: %i not in 0..%d\n", i, count-1);
 	    // return data[0];
-	    abort();
+	    trap();
+		return data[0]; // to keep compiler silence
 	}
     }
 

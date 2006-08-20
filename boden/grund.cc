@@ -725,20 +725,20 @@ ribi_t::ribi grund_t::gib_weg_ribi_unmasked(weg_t::typ typ) const
 }
 
 
-int
+PLAYER_COLOR_VAL
 grund_t::text_farbe() const
 {
 	// if this gund belongs to a halt, the color should reflect the halt owner, not the grund owner!
 	if(halt.is_bound()  &&  halt->gib_besitzer()) {
-		return halt->gib_besitzer()->get_player_color()+2;
+		return PLAYER_FLAG|((halt->gib_besitzer()->get_player_color()*4)+4);
 	}
 
 	// else color according to current owner
 	const spieler_t *sp = gib_besitzer();
 	if(sp) {
-		return sp->get_player_color()+2;
+		return PLAYER_FLAG|((sp->get_player_color()*4)+4);
 	} else {
-		return 101;
+		return COL_WHITE;
 	}
 }
 
@@ -814,9 +814,7 @@ grund_t::display_dinge(const sint16 xpos, sint16 ypos, bool dirty)
 		const sint16 raster_tile_width = get_tile_raster_width();
 		const int width = proportional_string_width(text)+7;
 
-		display_ddd_proportional_clip(xpos - (width - raster_tile_width)/2, ypos,
-			     width, 0, text_farbe(), COL_BLACK,
-			     text, dirty || get_flag(grund_t::new_text));
+		display_ddd_proportional_clip(xpos - (width - raster_tile_width)/2, ypos, width, 0, text_farbe(), COL_BLACK, text, dirty || get_flag(grund_t::new_text));
 		clear_flag(grund_t::new_text);
 	}
 

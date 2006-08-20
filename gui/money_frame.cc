@@ -80,7 +80,7 @@ int money_frame_t::get_money_colour(int type, int old)
  * @author Hj. Malthaner, Owen Rudge
  */
 money_frame_t::money_frame_t(spieler_t *sp)
-  : gui_frame_t("Finanzen", sp->get_player_color() ),
+  : gui_frame_t("Finanzen", sp),
     tylabel("This Year", COL_WHITE, gui_label_t::right),
     lylabel("Last Year", COL_WHITE, gui_label_t::right),
     conmoney(NULL, COL_WHITE, gui_label_t::money),

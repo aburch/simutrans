@@ -991,7 +991,7 @@ stadt_t::step_passagiere()
 			// Hajo: for efficiency we try to route not every
 			// single pax, but packets. If possible, we do 7 passengers at a time
 			// the last packet might have less then 7 pax
-			int pax_left_to_do = MIN(7, num_pax - pax_routed);
+			int pax_left_to_do = min(7, num_pax - pax_routed);
 
 			// Hajo: track number of generated passengers.
 			// prissi: we do it inside the loop to take also care of non-routable passengers
@@ -1039,7 +1039,7 @@ stadt_t::step_passagiere()
 				// ok, they are not in walking distance
 				ware_t pax (wtyp);
 				pax.setze_zielpos( ziel );
-				pax.menge = (wtyp==warenbauer_t::passagiere)?pax_left_to_do:MAX(1,pax_left_to_do>>2);
+				pax.menge = (wtyp==warenbauer_t::passagiere)?pax_left_to_do:max(1,pax_left_to_do>>2);
 
 				// prissi: 11-Mar-2005
 				// we try all stations to find one not overcrowded
@@ -1224,7 +1224,7 @@ stadt_t::finde_passagier_ziel(pax_zieltyp *will_return)
 		const stadt_t *zielstadt = welt->get_random_stadt();
 
 		// we like nearer towns more
-		if(ABS(zielstadt->pos.x - pos.x)+ABS(zielstadt->pos.y - pos.y)>120  ) {
+		if(abs(zielstadt->pos.x - pos.x)+abs(zielstadt->pos.y - pos.y)>120  ) {
 			// retry once ...
 			zielstadt = welt->get_random_stadt();
 		}
@@ -2329,7 +2329,7 @@ stadt_t::haltestellenname(koord k, const char *typ, int number)
 			translator::translate(typ));
 	}
 
-	const int len = strlen(buf) + 1;
+	const long len = strlen(buf) + 1;
 	char *name = new char[len];
 	tstrncpy(name, buf, len);
 

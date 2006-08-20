@@ -155,13 +155,12 @@ public:
      */
     virtual koord gib_fenstergroesse() const;
 
-
     /**
      * gibt farbinformationen fuer Fenstertitel, -ränder und -körper
      * zurück
      * @author Hj. Malthaner
      */
-    fensterfarben gib_fensterfarben() const;
+    PLAYER_COLOR_VAL get_titelcolor() const;
 
     /* returns true, if inside window area ...
      * @author Hj. Malthaner

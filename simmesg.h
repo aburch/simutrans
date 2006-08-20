@@ -1,15 +1,14 @@
-#include "simgraph.h"
-#include "simcolor.h"
 
 #ifndef simmesg_h
 #define simmesg_h
 
-#ifndef koord3d_h
-#include "dataobj/koord.h"
-#endif
-
+#include "simtypes.h"
+#include "simgraph.h"
+#include "simcolor.h"
 #include "simworld.h"
 #include "simimg.h"
+
+#include "dataobj/koord.h"
 
 // forward decl
 template <class T> class slist_tpl;
@@ -24,16 +23,14 @@ public:
 	struct node {
 		char msg[256];
 		koord pos;
-		int color;
-		int bild;
+		PLAYER_COLOR_VAL color;
+		image_id bild;
 		long time;
 	};
 
 	enum msg_typ {general=0, ai=1, city=2, convoi=3, industry=4, tourist=5, new_vehicle=6, full=7, problems=8 };
 
-//	void add_message( char *text, koord pos, msg_typ where );
-//	void add_message( char *text, koord pos, msg_typ where, int color );
-	void add_message( const char *text, koord pos, msg_typ where, int color=COL_BLACK, int bild=IMG_LEER );
+	void add_message( const char *text, koord pos, msg_typ where, uint8 color=COL_BLACK, image_id bild=IMG_LEER );
 
     static message_t * get_instance();
 

@@ -162,16 +162,9 @@ koord werkzeug_parameter_waehler_t::gib_fenstergroesse() const
  * gibt farbinformationen fuer Fenstertitel, -ränder und -körper
  * zurück
  */
-fensterfarben werkzeug_parameter_waehler_t::gib_fensterfarben() const
+PLAYER_COLOR_VAL werkzeug_parameter_waehler_t::get_titelcolor() const
 {
-  fensterfarben f;
-
-  f.titel  = WIN_TITEL;
-  f.hell   = COL_GREY6;
-  f.mittel = COL_GREY5;
-  f.dunkel = COL_GREY3;
-
-  return f;
+  return WIN_TITEL;
 }
 
 

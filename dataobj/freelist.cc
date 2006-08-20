@@ -6,6 +6,7 @@
 #include "../tpl/debug_helper.h"
 
 #include "../simmem.h"
+#include "../simmesg.h"	// to get the right size of a message
 
 #include "freelist.h"
 
@@ -21,7 +22,9 @@ static nodelist_node_t *chunk_list = NULL;
  * nodes of the same size will be kept in the same list
  * to be more efficient, all nodes with sizes smaller than 16 will be used at size 16 (one cacheline)
  */
-static nodelist_node_t *node276 = NULL;
+static nodelist_node_t *message_nodes = NULL;
+#define message_node_size (sizeof(struct message_t::node)+sizeof(void *))
+
 static nodelist_node_t *node1220 = NULL;
 static nodelist_node_t *node1624 = NULL;
 
@@ -47,8 +50,8 @@ freelist_t::gimme_node(int size)
 
 	if(size>64) {
 		switch(size) {
-			case 276:
-				list = &node276;
+			case message_node_size:
+				list = &message_nodes;
 				break;
 			case 1220:
 				list = &node1220;
@@ -57,8 +60,8 @@ freelist_t::gimme_node(int size)
 				list = &node1624;
 				break;
 			default:
-				ERROR("freelist_t::gimme_node()","No list with size %i!", size );
-				assert(false);
+				ERROR("freelist_t::gimme_node()","No list with size %i! (only up to 64 and %i, 1220, 1624)", size, message_node_size );
+				trap();
 		}
 	}
 	else {
@@ -95,7 +98,7 @@ freelist_t::putback_check_node(nodelist_node_t ** list,nodelist_node_t *p)
 	if(*list<p) {
 		if(p==*list) {
 			ERROR("freelist_t::putback_check_node()","node %p already freeded!",p);
-			assert(false);
+			trap();
 		}
 		p->next = *list;
 		*list = p;
@@ -107,7 +110,7 @@ freelist_t::putback_check_node(nodelist_node_t ** list,nodelist_node_t *p)
 		}
 		if(p==tmp->next) {
 			ERROR("freelist_t::putback_check_node()","node %p already freeded!",p);
-			assert(false);
+			trap();
 		}
 		p->next = tmp->next;
 		tmp->next = p;
@@ -125,8 +128,8 @@ freelist_t::putback_node(int size,void *p)
 	}
 	if(size>64) {
 		switch(size) {
-			case 276:
-				list = &node276;
+			case message_node_size:
+				list = &message_nodes;
 				break;
 			case 1220:
 				list = &node1220;
@@ -135,8 +138,8 @@ freelist_t::putback_node(int size,void *p)
 				list = &node1624;
 				break;
 			default:
-				ERROR("freelist_t::gimme_node()","No list with size %i!", size );
-				assert(false);
+				ERROR("freelist_t::gimme_node()","No list with size %i! (only up to 64 and %i, 1220, 1624)", size, message_node_size );
+				trap();
 		}
 	}
 	else {
@@ -164,8 +167,8 @@ freelist_t::putback_nodes(int size,void *p)
 	nodelist_node_t ** list = NULL;
 	if(size>64) {
 		switch(size) {
-			case 276:
-				list = &node276;
+			case message_node_size:
+				list = &message_nodes;
 				break;
 			case 1220:
 				list = &node1220;
@@ -174,8 +177,8 @@ freelist_t::putback_nodes(int size,void *p)
 				list = &node1624;
 				break;
 			default:
-				ERROR("freelist_t::gimme_node()","No list with size %i!", size );
-				assert(false);
+				ERROR("freelist_t::gimme_node()","No list with size %i! (only up to 64 and %i, 1220, 1624)", size, message_node_size );
+				trap();
 		}
 	}
 	else {
@@ -221,7 +224,7 @@ freelist_t::free_all_nodes()
 		all_lists[i] = NULL;
 	}
 	printf("freelist_t::free_all_nodes(): ok\n");
-	node276 = NULL;
+	message_nodes = NULL;
 	node1220 = NULL;
 	node1624 = NULL;
 }

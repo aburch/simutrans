@@ -59,11 +59,11 @@ brueckenboden_t::rdwr(loadsave_t *file)
 		short v;
 		v = slope;
 		file->rdwr_short(v, " ");
-		slope = v;
+		slope = (uint8)v;
 
 		v= weg_hang;
 		file->rdwr_short(v, "\n");
-		weg_hang = v;
+		weg_hang = (uint8)v;
 
 	}
 	else {

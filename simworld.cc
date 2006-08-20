@@ -408,8 +408,7 @@ void karte_t::verteile_baeume(int dichte)
 	x_tree_pos = (j-(t_forest_size>>1)); // >>1 works like 2 but is faster
 	y_tree_pos = (i-(t_forest_size>>1));
 
-	distance = 1 + ((int) sqrt( x_tree_pos*x_tree_pos/c_coef_x +
-				    y_tree_pos*y_tree_pos/c_coef_y));
+	distance = 1 + ((int) sqrt( (double)(x_tree_pos*x_tree_pos/c_coef_x + y_tree_pos*y_tree_pos/c_coef_y)));
 
 	tree_probability = (t_forest_size<<4) / distance; //is same as = ( 32 * (t_forest_size / 2) ) / distance
 
@@ -2125,7 +2124,7 @@ bool
 karte_t::play_sound_area_clipped(koord pos, sound_info info)
 {
 	const int center = display_get_width() >> 7;
-	const int dist = ABS((pos.x-center) - gib_ij_off().x) + ABS((pos.y-center) - gib_ij_off().y);
+	const int dist = abs((pos.x-center) - gib_ij_off().x) + abs((pos.y-center) - gib_ij_off().y);
 
 	if(dist < 25) {
 		info.volume = 255-dist*9;
@@ -2946,12 +2945,12 @@ void karte_t::bewege_zeiger(const event_t *ev)
  * Creates a tooltip from tip text and money value
  * @author Hj. Malthaner
  */
-static char * tool_tip_with_price(const char * tip, int price)
+static char * tool_tip_with_price(const char * tip, sint64 price)
 {
   static char buf[256];
 
   const int n = sprintf(buf, "%s, ", tip);
-  money_to_string(buf+n, price/-100.0);
+  money_to_string(buf+n, (double)price/-100.0);
   return buf;
 }
 
@@ -2973,14 +2972,14 @@ void karte_t::switch_active_player(uint8 new_player)
 		active_player = spieler[0];
 		if(new_player!=0) {
 			sprintf(buf, translator::translate("On this map, you are not\nallowed to change player!\n"), get_active_player()->gib_name() );
-			message_t::get_instance()->add_message(buf,koord(-1,-simrand(63)),message_t::problems,get_active_player()->get_player_color(),IMG_LEER);
+			message_t::get_instance()->add_message(buf,koord(-1,-simrand(63)),message_t::problems,get_active_player()->get_player_nr(),IMG_LEER);
 		}
 	}
 	else {
 		active_player_nr = new_player;
 		active_player = spieler[new_player];
 		sprintf(buf, translator::translate("Now active as %s.\n"), get_active_player()->gib_name() );
-		message_t::get_instance()->add_message(buf,koord(-1,-simrand(63)),message_t::problems,get_active_player()->get_player_color(),IMG_LEER);
+		message_t::get_instance()->add_message(buf,koord(-1,-simrand(63)),message_t::problems,get_active_player()->get_player_nr(),IMG_LEER);
 	}
 	// open edit tools
 	if(active_player_nr==1) {
@@ -4411,7 +4410,7 @@ karte_t::interactive()
 
 		if(fast_forward) {
 
-			if(abs(steps-now)>=5) {
+			if(abs((long)(steps-now))>=5) {
 				const long t = get_system_ms();
 
 				last_simloops = steps-now;

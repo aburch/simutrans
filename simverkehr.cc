@@ -701,12 +701,12 @@ void verkehrsteilnehmer_t::rdwr(loadsave_t *file)
 		file->rdwr_long(l, " ");
 		file->rdwr_long(weg_next, "\n");
 		file->rdwr_long(l, " ");
-		dx = l;
+		dx = (sint8)l;
 		file->rdwr_long(l, "\n");
-		dy = l;
+		dy = (sint8)l;
 		file->rdwr_enum(fahrtrichtung, " ");
 		file->rdwr_long(l, "\n");
-		hoff = l;
+		hoff = (sint16)l;
 	}
 	else {
 		file->rdwr_long(max_speed, "\n");

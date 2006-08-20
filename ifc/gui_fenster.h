@@ -16,20 +16,6 @@
 struct event_t;
 
 /**
- * Farbdaten für die Fensterahmen und -körper.
- * @author Hj. Malthaner
- * @version $Revision: 1.10 $
- */
-struct fensterfarben
-{
-  unsigned char titel;
-  unsigned char hell;
-  unsigned char mittel;
-  unsigned char dunkel;
-};
-
-
-/**
  * Nachdem sich der info_geber_t als zu beschränkt erwiesen hat,
  * soll ueber den gui_fenster_t eine flexiblere Schnittstelle
  * geschaffen werden.
@@ -106,7 +92,7 @@ public:
      * zurück
      * @author Hj. Malthaner
      */
-    virtual fensterfarben gib_fensterfarben() const = 0;
+    virtual PLAYER_COLOR_VAL get_titelcolor() const = 0;
 
 
     /**

@@ -28,9 +28,9 @@
 template<class key_t>
 class ptrhash_tpl {
 public:
-    static int hash(const key_t key)
+    static long hash(const key_t key)
     {
-	return ((int)key) & 0x7FFFFFFF;
+	return labs((long)key);
     }
     static key_t null()
     {
@@ -40,9 +40,9 @@ public:
     {
 	printf("%p", (void *)key);
     }
-    static int comp(key_t key1, key_t key2)
+    static long comp(key_t key1, key_t key2)
     {
-	return (int)key1 - (int)key2;
+	return (long)key1 - (long)key2;
     }
 };
 

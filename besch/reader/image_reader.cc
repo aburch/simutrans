@@ -28,7 +28,7 @@
 //@EDOC
 
 #include <stdio.h>
-#include <strings.h>
+#include <string.h>
 
 #include "../../simgraph.h"
 #include "../../simmem.h"

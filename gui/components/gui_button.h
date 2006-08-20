@@ -11,6 +11,7 @@
 #define gui_button_h
 
 #include "../../ifc/gui_action_creator.h"
+#include "../../simcolor.h"
 
 
 // forward decls
@@ -63,7 +64,8 @@ private:
 	uint8 b_enabled:1;
 
 public:
-	uint8 background; //@author hsiegeln
+	PLAYER_COLOR_VAL background; //@author hsiegeln
+	PLAYER_COLOR_VAL foreground;
 
 	/**
 	 * Der im Button angezeigte Text
@@ -73,8 +75,6 @@ public:
 	const char * text;
 
 	bool pressed:1;
-
-	uint8 kennfarbe;
 
 	button_t(const button_t & other);
 
@@ -116,7 +116,7 @@ public:
 	 * Zeichnet den Button.
 	 * @author Niels Roest
 	 */
-	void zeichnen(koord offset, int button_farbe) const;
+	void zeichnen(koord offset, PLAYER_COLOR_VAL button_farbe) const;
 
 	/**
 	 * Zeichnet die Komponente

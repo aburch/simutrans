@@ -32,18 +32,18 @@ class linie_t
    * @author Hj. Malthaner
    */
 
-  static linie_t * vereinige(array_tpl<class linieneintrag_t> * alt);
+  static linie_t * vereinige(array_tpl<struct linieneintrag_t> * alt);
 
 
   /**
    * Einträge für diese Linie
    * @author Hj. Malthaner
    */
-  array_tpl<class linieneintrag_t> eintrag;
+  array_tpl<struct linieneintrag_t> eintrag;
 
 
 
-  linie_t(array_tpl<class linieneintrag_t> *alt);
+  linie_t(array_tpl<struct linieneintrag_t> *alt);
 
 
   const char * gib_name() const;
