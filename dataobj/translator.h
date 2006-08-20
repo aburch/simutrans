@@ -31,44 +31,46 @@ class translator
 {
 private:
 
-    //cannot be instantiated outside translator
-    translator(){}
-    ~translator(){}
+	//cannot be instantiated outside translator
+	translator(){}
+	~translator(){}
 
-    int current_lang;
-    int lang_count;
+	int current_lang;
+	int lang_count;
 
-    /**
-     * Max number of languages that can be loaded. This can simply be
-     * increased with no other changes
-     */
-    enum { MAX_LANG = 40 };
+	/**
+	* Max number of languages that can be loaded. This can simply be
+	* increased with no other changes
+	*/
+	enum { MAX_LANG = 40 };
 
-    /* The single instance that this class will use to gain access to
-     * the member variables such as language names
-     */
-    static translator * single_instance;
+	/* The single instance that this class will use to gain access to
+	* the member variables such as language names
+	*/
+	static translator * single_instance;
 
-    /* Made to be dynamic, allowing any number of languages to be loaded */
-    const char * language_names[MAX_LANG];
-    const char * language_names_iso[MAX_LANG];
-    const char * language_names_iso_base[MAX_LANG];
-    stringhashtable_tpl<const char *> * languages[MAX_LANG];
+	/* Made to be dynamic, allowing any number of languages to be loaded */
+	const char * language_names[MAX_LANG];
+	const char * language_names_iso[MAX_LANG];
+	const char * language_names_iso_base[MAX_LANG];
+	stringhashtable_tpl<const char *> * languages[MAX_LANG];
+	stringhashtable_tpl<const char *> *compatibility;
 
-     /* some unicode stuff */
+	/* some unicode stuff */
 	bool language_is_utf_encoded[MAX_LANG];
-//     static bool translator::is_unicode_file(FILE *f);
 
-    /* Methods related to loading a language file into memory */
-    static void load_language_file(FILE *file);
-    static void load_language_iso(cstring_t & iso);
+	/* Methods related to loading a language file into memory */
+	static void load_language_file(FILE *file);
+	static void load_language_iso(cstring_t & iso);
 
-    /**
-     * Checks whether or not the given language is in bounds.
-     */
-    static inline bool is_in_bounds(int lang) {
-        return 0 <= lang && lang < single_instance->get_language_count();
-    }
+	static int get_language_iso(const char *iso);
+
+	/**
+	* Checks whether or not the given language is in bounds.
+	*/
+	static inline bool is_in_bounds(int lang) {
+		return 0 <= lang && lang<single_instance->lang_count;
+	}
 
 public:
 	static void get_city_name(char *name, int nr);
@@ -87,9 +89,8 @@ public:
      * Get/Set the currently selected language, based on the
      * index number
      */
-    static int get_language()
-    {
-        return single_instance->current_lang;
+    static int get_language() {
+      return single_instance->current_lang;
     }
 
 
@@ -104,9 +105,8 @@ public:
     /**
      * Returns the number of loaded languages.
      */
-    static int get_language_count()
-    {
-        return single_instance->lang_count;
+		static int get_language_count() {
+      return single_instance->lang_count;
     }
 
 
@@ -118,8 +118,9 @@ public:
      * @return translated string, (null) if string is null,
      * or the string if the translation is not found
      */
-    static const char * translate(const char *str);
+    static const char *translate(const char *str);
     static const char *translate_from_lang(const int index,const char *str);
+		static const char *compatibility_name(const char *str);
 
     /**
      * Checks if the given string is in the translation table

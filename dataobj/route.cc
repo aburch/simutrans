@@ -259,6 +259,7 @@ route_t::find_route(karte_t *welt,
 	ANode *tmp = &(nodes[step++]);
 	tmp->parent = NULL;
 	tmp->gr = welt->lookup(start);
+	tmp->count = 0;
 
 	// start in open
 	open.append(tmp,256);
@@ -284,13 +285,7 @@ route_t::find_route(karte_t *welt,
 		}
 
 		// testing all four possible directions
-		// (since this goes the other way round compared to normal search, we must eventually invert the mask)
-		const weg_t *w=gr->gib_weg(wegtyp);
-		ribi_t::ribi ribi = w->gib_ribi_unmasked();
-		if(w  &&  w->gib_ribi_maske()!=ribi_t::keine) {
-			ribi &= (~ribi_t::rueckwaerts(w->gib_ribi_maske()));
-		}
-
+		const ribi_t::ribi ribi =  fahr->gib_ribi(gr);
 		for(int r=0; r<4; r++) {
 
 			// a way goes here, and it is not marked (i.e. in the closed list)
@@ -329,6 +324,7 @@ route_t::find_route(karte_t *welt,
 
 				k->parent = tmp;
 				k->gr = to;
+				k->count = tmp->count+1;
 
 //DBG_DEBUG("insert to open","%i,%i,%i",to->gib_pos().x,to->gib_pos().y,to->gib_pos().z);
 				// insert here
@@ -351,14 +347,15 @@ route_t::find_route(karte_t *welt,
 	}
 	else {
 		// reached => construct route
-		route.insert_at( 0, tmp->gr->gib_pos() );
+		route.clear();
+		route.resize(tmp->count+16);
 		while(tmp != NULL) {
-			route.insert_at( 0, tmp->gr->gib_pos() );
-//DBG_DEBUG("add","%i,%i",tmp->gr->gib_pos().x,tmp->gr->gib_pos().y);
+			route.store_at( tmp->count, tmp->gr->gib_pos() );
+//DBG_DEBUG("add","%i,%i",tmp->pos.x,tmp->pos.y);
 			tmp = tmp->parent;
 		}
 		ok = true;
-    }
+  }
 
 	RELEASE_NODE();
 	return ok;
@@ -441,6 +438,7 @@ route_t::intern_calc_route(karte_t *welt, const koord3d ziel, const koord3d star
 	tmp->f = calc_distance(start,ziel);
 	tmp->g = 0;
 	tmp->dir = 0;
+	tmp->count = 0;
 
 	// nothing in lists
 	welt->unmarkiere_alle();
@@ -477,23 +475,8 @@ DBG_DEBUG("sizes","KNode=%i, ANode=%i",sizeof(KNode),sizeof(ANode));
 		open_count --;
 
 		if(welt->ist_markiert(open[open_count]->gr)) {
-#if 0
-			// well we may have had already a better one going here ...
-			// gives a 20% gain ...
-			Node *check=tmp;
-			uint32 this_f=open[open_count]->f+25;
-			const grund_t *this_gr=open[open_count]->gr;
-			while(check->parent!=NULL  &&  check->f>this_f  &&  check->gr!=this_gr) {
-				check = check->parent;
-			}
-			// this new one is worse?
-			if(check->gr==this_gr) {
-				continue;
-			}
-#else
 			// this is not 100% optimal, but is about two to three times faster ...
 			continue;
-#endif
 		}
 
 		tmp = open[open_count];
@@ -609,6 +592,7 @@ DBG_DEBUG("sizes","KNode=%i, ANode=%i",sizeof(KNode),sizeof(ANode));
 				k->g = new_g;
 				k->f = new_f;
 				k->dir = current_dir;
+				k->count = tmp->count+1;
 
 				// need to enlarge?
 				if(open_count==open_size) {
@@ -644,9 +628,11 @@ DBG_DEBUG("route_t::intern_calc_route()","steps=%i  (max %i) in route, open %i, 
 	}
 	else {
 		// reached => construct route
+		route.clear();
+		route.resize(tmp->count+16);
 		while(tmp != NULL) {
-			route.append( tmp->gr->gib_pos(), 256 );
-//DBG_DEBUG("add","%i,%i",tmp->pos.x,tmp->pos.y);
+			route.store_at( tmp->count, tmp->gr->gib_pos() );
+//DBG_DEBUG("add","%i,%i at pos %i",tmp->gr->gib_pos().x,tmp->gr->gib_pos().y,tmp->count);
 			tmp = tmp->parent;
 		}
 		ok = true;
@@ -680,7 +666,7 @@ route_t::calc_route(karte_t *welt,
 	bool ok = intern_calc_route(welt, ziel, start, fahr, max_khm,max_cost);
 	if(fahr->gib_wegtyp()==weg_t::wasser) {DBG_DEBUG("route_t::calc_route()","route from %d,%d to %d,%d with %i steps in %u ms found.",start.x, start.y, ziel.x, ziel.y, route.get_count()-2, get_current_time_millis()-ms );}
 #else
-	bool ok = intern_calc_route(welt, ziel, start, fahr, max_khm,max_cost);
+	bool ok = intern_calc_route(welt, start, ziel, fahr, max_khm,max_cost);
 #endif
 
 	INT_CHECK("route 343");

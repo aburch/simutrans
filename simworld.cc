@@ -48,7 +48,7 @@
 #include "simio.h"
 
 #include "simimg.h"
-#include "blockmanager.h"
+#include "old_blockmanager.h"
 #include "simvehikel.h"
 #include "simverkehr.h"
 #include "simworld.h"
@@ -64,7 +64,7 @@
 #include "dings/baum.h"
 #include "dings/signal.h"
 #include "dings/roadsign.h"
-#include "dings/oberleitung.h"
+#include "dings/wayobj.h"
 #include "dings/gebaeude.h"
 
 #include "gui/welt.h"
@@ -483,10 +483,6 @@ DBG_MESSAGE("karte_t::destroy()", "stops destroyed");
 	}
 DBG_MESSAGE("karte_t::destroy()", "towns destroyed");
 
-	// rail blocks aufraeumen
-	blockmanager::gib_manager()->delete_all_blocks();
-DBG_MESSAGE("karte_t::destroy()", "blocks destroyed");
-
 	// entfernt alle synchronen objekte aus der liste
 	sync_list.clear();
 DBG_MESSAGE("karte_t::destroy()", "sync list cleared");
@@ -598,7 +594,6 @@ karte_t::init_felder()
 
     marker.init(gib_groesse_x(),gib_groesse_y());
 
-    blockmanager::gib_manager()->setze_welt_groesse( gib_groesse_x(), gib_groesse_y() );
     simlinemgmt_t::init_line_ids();
 
     win_setze_welt( this );
@@ -1469,7 +1464,7 @@ void
 karte_t::add_ausflugsziel(gebaeude_t *gb)
 {
 	assert(gb != NULL);
-	ausflugsziele.append( gb, gb->gib_passagier_level(), 16 );
+	ausflugsziele.append( gb, gb->gib_tile()->gib_besch()->gib_level(), 16 );
 DBG_MESSAGE("karte_t::add_ausflugsziel()","appended ausflugsziel at %i",ausflugsziele.get_count() );
 }
 
@@ -2193,14 +2188,6 @@ karte_t::speichern(loadsave_t *file,bool silent)
     }
 	DBG_MESSAGE("karte_t::speichern(loadsave_t *file)", "saved cities ok");
 
-	DBG_MESSAGE("karte_t::speichern(loadsave_t *file)", "save bm");
-    blockmanager *bm = blockmanager::gib_manager();
-    bm->rdwr(this, file);
-	DBG_MESSAGE("karte_t::speichern(loadsave_t *file)", "saved bm ok");
-	if(silent) {
-		INT_CHECK("saving");
-	}
-
 	DBG_MESSAGE("karte_t::speichern(loadsave_t *file)", "save tiles");
     for(j=0; j<gib_groesse_y(); j++) {
 	for(i=0; i<gib_groesse_x(); i++) {
@@ -2399,9 +2386,7 @@ DBG_DEBUG("karte_t::laden", "init %i cities",einstellungen->gib_anzahl_staedte()
 	}
 
 	DBG_MESSAGE("karte_t::laden()","loading blocks");
-	blockmanager *bm = blockmanager::gib_manager();
-	bm->setze_welt_groesse( gib_groesse_x(), gib_groesse_y() );
-	bm->rdwr(this, file);
+	old_blockmanager_t::rdwr(this, file);
 
 	DBG_MESSAGE("karte_t::laden()","loading tiles");
 	for(y=0; y<gib_groesse_y(); y++) {
@@ -2559,7 +2544,7 @@ DBG_MESSAGE("karte_t::laden()", "players loaded");
 
     // nachdem die welt jetzt geladen ist können die Blockstrecken neu
     // angelegt werden
-    bm->laden_abschliessen();
+		old_blockmanager_t::laden_abschliessen(this);
     DBG_MESSAGE("karte_t::laden()", "blocks loaded");
 
     file->rdwr_delim("View ");
@@ -3101,9 +3086,6 @@ karte_t::interactive_event(event_t &ev)
 	case 'a':
 	  setze_maus_funktion(wkz_abfrage, skinverwaltung_t::fragezeiger->gib_bild_nr(0), Z_PLAN,  NO_SOUND, NO_SOUND );
 	    break;
-	case 'b':
-	    setze_maus_funktion(wkz_blocktest, skinverwaltung_t::signalzeiger->gib_bild_nr(0), Z_PLAN,  NO_SOUND, NO_SOUND );
-	    break;
 	case 'B':
 	    sound_play(click_sound);
 	    create_win(0, 0, new message_frame_t(this), w_info);
@@ -3115,9 +3097,6 @@ karte_t::interactive_event(event_t &ev)
             break;
 	case 'd':
 	    setze_maus_funktion(wkz_lower, skinverwaltung_t::downzeiger->gib_bild_nr(0), Z_GRID,  NO_SOUND, NO_SOUND );
-	    break;
-	case 'e':
-	    setze_maus_funktion(wkz_electrify_block,skinverwaltung_t::oberleitung->gib_bild_nr(8),	Z_PLAN, 0, 0);
 	    break;
 	case 'f': /* OCR: Finances */
 	    sound_play(click_sound);
@@ -3517,6 +3496,15 @@ karte_t::interactive_event(event_t &ev)
 					  get_timeline_year_month()
 					  );
 
+			wayobj_t::fill_menu(wzw,
+					weg_t::schiene,
+					wkz_wayobj,
+					SFX_JACKHAMMER,
+					SFX_FAILURE,
+					get_timeline_year_month()
+					);
+
+/*
 		    wzw->add_tool(wkz_electrify_block,
 				  Z_PLAN,
 				  SFX_JACKHAMMER,
@@ -3524,7 +3512,7 @@ karte_t::interactive_event(event_t &ev)
 				  skinverwaltung_t::schienen_werkzeug->gib_bild_nr(3),
 				  skinverwaltung_t::oberleitung->gib_bild_nr(8),
 				  tool_tip_with_price(translator::translate("Electrify track"), umgebung_t::cst_third_rail));
-
+*/
 		    wzw->add_param_tool(&wkz_wayremover,
 				  (const int)weg_t::schiene,
 	  			  Z_PLAN,
@@ -3552,37 +3540,6 @@ karte_t::interactive_event(event_t &ev)
 					  tool_tip_with_price(translator::translate("Schienentunnel"), umgebung_t::cst_tunnel));
 		    }
 
-		    wzw->add_param_tool(wkz_signale,
-				  ding_t::signal,
-				  Z_LINES,
-				  SFX_GAVEL,
-				  SFX_FAILURE,
-				  skinverwaltung_t::schienen_werkzeug->gib_bild_nr(0),
-				  skinverwaltung_t::signalzeiger->gib_bild_nr(0),
-				  tool_tip_with_price(translator::translate("Build signals"), umgebung_t::cst_signal));
-
-		if(skinverwaltung_t::presignals) {
-		    wzw->add_param_tool(wkz_signale,
-				  ding_t::presignal,
-				  Z_LINES,
-				  SFX_GAVEL,
-				  SFX_FAILURE,
-				  skinverwaltung_t::schienen_werkzeug->gib_bild_nr(1),
-				  skinverwaltung_t::signalzeiger->gib_bild_nr(0),
-				  tool_tip_with_price(translator::translate("Build presignals"), umgebung_t::cst_signal));
-		}
-
-		if(skinverwaltung_t::choosesignals) {
-		    wzw->add_param_tool(wkz_signale,
-				  ding_t::choosesignal,
-				  Z_LINES,
-				  SFX_GAVEL,
-				  SFX_FAILURE,
-				  skinverwaltung_t::schienen_werkzeug->gib_bild_nr(2),
-				  skinverwaltung_t::signalzeiger->gib_bild_nr(0),
-				  tool_tip_with_price(translator::translate("Build choosesignals"), umgebung_t::cst_signal));
-		}
-
 			roadsign_t::fill_menu(wzw,
 					weg_t::schiene,
 					wkz_roadsign,
@@ -3591,7 +3548,7 @@ karte_t::interactive_event(event_t &ev)
 					get_timeline_year_month()
 					);
 
-		      wzw->add_param_tool(wkz_depot,
+		  wzw->add_param_tool(wkz_depot,
 				hausbauer_t::bahn_depot_besch,
 				Z_PLAN,
 				SFX_GAVEL,
@@ -3665,37 +3622,6 @@ karte_t::interactive_event(event_t &ev)
   					  get_timeline_year_month()
 					  );
 
-		    wzw->add_param_tool(wkz_signale,
-				  ding_t::signal,
-				  Z_LINES,
-				  SFX_GAVEL,
-				  SFX_FAILURE,
-				  skinverwaltung_t::schienen_werkzeug->gib_bild_nr(0),
-				  skinverwaltung_t::signalzeiger->gib_bild_nr(0),
-				  tool_tip_with_price(translator::translate("Build signals"), umgebung_t::cst_signal));
-
-		if(skinverwaltung_t::presignals) {
-		    wzw->add_param_tool(wkz_signale,
-				  ding_t::presignal,
-				  Z_LINES,
-				  SFX_GAVEL,
-				  SFX_FAILURE,
-				  skinverwaltung_t::schienen_werkzeug->gib_bild_nr(1),
-				  skinverwaltung_t::signalzeiger->gib_bild_nr(0),
-				  tool_tip_with_price(translator::translate("Build presignals"), umgebung_t::cst_signal));
-		}
-
-		if(skinverwaltung_t::choosesignals) {
-		    wzw->add_param_tool(wkz_signale,
-				  ding_t::choosesignal,
-				  Z_LINES,
-				  SFX_GAVEL,
-				  SFX_FAILURE,
-				  skinverwaltung_t::schienen_werkzeug->gib_bild_nr(2),
-				  skinverwaltung_t::signalzeiger->gib_bild_nr(0),
-				  tool_tip_with_price(translator::translate("Build choosesignals"), umgebung_t::cst_signal));
-		}
-
 			roadsign_t::fill_menu(wzw,
 					weg_t::monorail,
 					wkz_roadsign,
@@ -3753,15 +3679,7 @@ karte_t::interactive_event(event_t &ev)
 					7
 				);
 
-		    wzw->add_tool(wkz_electrify_block,
-				  Z_PLAN,
-				  SFX_JACKHAMMER,
-				  SFX_FAILURE,
-				  skinverwaltung_t::schienen_werkzeug->gib_bild_nr(3),
-				  skinverwaltung_t::oberleitung->gib_bild_nr(8),
-				  tool_tip_with_price(translator::translate("Electrify track"), umgebung_t::cst_third_rail));
-
-		    wzw->add_param_tool(&wkz_wayremover,
+				wzw->add_param_tool(&wkz_wayremover,
 				  (const int)weg_t::schiene,
 	  			  Z_PLAN,
 				  SFX_REMOVER,
@@ -3769,37 +3687,6 @@ karte_t::interactive_event(event_t &ev)
 				  skinverwaltung_t::edit_werkzeug->gib_bild_nr(7),
 				  skinverwaltung_t::killzeiger->gib_bild_nr(0),
 				  "remove tracks");
-
-		    wzw->add_param_tool(wkz_signale,
-				  ding_t::signal,
-				  Z_LINES,
-				  SFX_GAVEL,
-				  SFX_FAILURE,
-				  skinverwaltung_t::schienen_werkzeug->gib_bild_nr(0),
-				  skinverwaltung_t::signalzeiger->gib_bild_nr(0),
-				  tool_tip_with_price(translator::translate("Build signals"), umgebung_t::cst_signal));
-
-		if(skinverwaltung_t::presignals) {
-		    wzw->add_param_tool(wkz_signale,
-				  ding_t::presignal,
-				  Z_LINES,
-				  SFX_GAVEL,
-				  SFX_FAILURE,
-				  skinverwaltung_t::schienen_werkzeug->gib_bild_nr(1),
-				  skinverwaltung_t::signalzeiger->gib_bild_nr(0),
-				  tool_tip_with_price(translator::translate("Build presignals"), umgebung_t::cst_signal));
-		}
-
-		if(skinverwaltung_t::choosesignals) {
-		    wzw->add_param_tool(wkz_signale,
-				  ding_t::choosesignal,
-				  Z_LINES,
-				  SFX_GAVEL,
-				  SFX_FAILURE,
-				  skinverwaltung_t::schienen_werkzeug->gib_bild_nr(2),
-				  skinverwaltung_t::signalzeiger->gib_bild_nr(0),
-				  tool_tip_with_price(translator::translate("Build choosesignals"), umgebung_t::cst_signal));
-		}
 
 			roadsign_t::fill_menu(wzw,
 					weg_t::schiene,

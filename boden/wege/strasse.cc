@@ -23,8 +23,8 @@ const weg_besch_t *strasse_t::default_strasse=NULL;
 
 void strasse_t::setze_gehweg(bool janein)
 {
-	gehweg = janein;
-	if(gib_besch()  &&  gib_besch()->gib_topspeed()>50  &&  gehweg) {
+	weg_t::setze_gehweg(janein);
+	if(janein  &&  gib_besch()  &&  gib_besch()->gib_topspeed()>50) {
 		setze_max_speed(50);
 	}
 }
@@ -64,8 +64,12 @@ void
 strasse_t::rdwr(loadsave_t *file)
 {
 	weg_t::rdwr(file);
-	file->rdwr_bool(gehweg, " \n");
-	setze_gehweg(gehweg);
+
+	if(file->get_version()<89000) {
+		bool gehweg;
+		file->rdwr_bool(gehweg, " \n");
+		setze_gehweg(gehweg);
+	}
 
 	if(file->is_saving()) {
 		const char *s = gib_besch()->gib_name();
@@ -82,7 +86,7 @@ strasse_t::rdwr(loadsave_t *file)
 			dbg->warning("strasse_t::rwdr()", "Unknown street %s replaced by a street %s (old_max_speed %i)", bname, besch->gib_name(), old_max_speed );
 		}
 		setze_besch(besch);
-		if(besch->gib_topspeed()>50  &&  gehweg) {
+		if(besch->gib_topspeed()>50  &&  hat_gehweg()) {
 			setze_max_speed(50);
 		}
 	}

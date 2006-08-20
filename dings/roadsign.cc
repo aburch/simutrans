@@ -41,50 +41,48 @@
 
 
 
-slist_tpl<const roadsign_besch_t *> liste;
-stringhashtable_tpl<const roadsign_besch_t *> table;
+slist_tpl<const roadsign_besch_t *> roadsign_t::liste;
+stringhashtable_tpl<const roadsign_besch_t *> roadsign_t::table;
 
 
 roadsign_t::roadsign_t(karte_t *welt, loadsave_t *file) : ding_t (welt)
 {
 	rdwr(file);
-	step_frequency = 1;
+	step_frequency = 0;
+	// if more than one state, we will switch direction and phase
 	if(besch->gib_bild_anzahl()>4) {
 		flags |= SWITCH_AUTOMATIC;
-		step_frequency =  1;
 	}
 	last_switch = 0;
-	set_dir(dir);
-	calc_bild();
 }
+
+
 
 roadsign_t::roadsign_t(karte_t *welt, koord3d pos, ribi_t::ribi dir, const roadsign_besch_t *besch) :  ding_t(welt, pos)
 {
-DBG_MESSAGE("roadsign_t::roadsign_t()","at (%i,%i,%i) with dir=%i and min=%i",pos.x,pos.y,pos.z,dir,besch->gib_min_speed());
 	this->besch = besch;
+	this->dir = dir;
 	zustand = 0;
 	last_switch = 0;
 	flags = 3;
-	set_dir(dir);
+	step_frequency = 0;
 	// if more than one state, we will switch direction and phase
-	step_frequency =  0;
 	if(besch->gib_bild_anzahl()>4) {
 		flags |= SWITCH_AUTOMATIC;
-		step_frequency =  1;
 	}
-	calc_bild();
 }
+
 
 
 roadsign_t::~roadsign_t()
 {
 	weg_t *weg = welt->lookup(gib_pos())->gib_weg((weg_t::typ)besch->gib_wtyp());
-	if(weg  &&  besch->is_single_way()) {
-		DBG_MESSAGE("roadsign_t::~roadsign_t()","restore dir");
+	if(weg) {
 		// Weg wieder freigeben, wenn das Signal nicht mehr da ist.
 		weg->setze_ribi_maske(ribi_t::keine);
-	} else {
-		DBG_MESSAGE("roadsign_t::~roadsign_t()","roadsign_t %p was deleted but ground was not a road!");
+	}
+	else {
+		dbg->error("roadsign_t::~roadsign_t()","roadsign_t %p was deleted but ground was not a road!");
 	}
 }
 
@@ -93,14 +91,22 @@ roadsign_t::~roadsign_t()
 void roadsign_t::set_dir(ribi_t::ribi dir)
 {
 	this->dir = dir;
-	if(besch->is_single_way()) {
+	if(besch->is_single_way()  ||  besch->is_signal()  ||  besch->is_pre_signal()) {
 		weg_t *weg = welt->lookup(gib_pos())->gib_weg((weg_t::typ)besch->gib_wtyp());
 		if(weg) {
-			// Weg wieder freigeben, wenn das Signal nicht mehr da ist.
-			weg->setze_ribi_maske(dir);
+			// set mask, if it is a signle way ...
+			if(ribi_t::ist_einfach(dir)) {
+				weg->setze_ribi_maske(dir);
+			}
+			else {
+				weg->setze_ribi_maske(ribi_t::keine);
+			}
+			weg->count_sign();
 DBG_MESSAGE("roadsign_t::set_dir()","ribi %i",dir);
 		}
 	}
+	setze_bild(0,IMG_LEER);
+	after_bild = IMG_LEER;
 	calc_bild();
 }
 
@@ -130,24 +136,22 @@ void roadsign_t::info(cbuffer_t & buf) const
 
 void roadsign_t::calc_bild()
 {
-	setze_bild(0,IMG_LEER);
-	after_bild = IMG_LEER;
 	if(step_frequency==0) {
 
 		if(dir&ribi_t::nord) {
-			after_bild = besch->gib_bild_nr(1+zustand*4);
+			after_bild = besch->gib_bild_nr(0+zustand*4);
 		}
 
 		if(dir&ribi_t::sued) {
-			setze_bild(0, besch->gib_bild_nr(0+zustand*4));
+			setze_bild(0, besch->gib_bild_nr(1+zustand*4));
 		}
 
 		if(dir&ribi_t::ost) {
-			setze_bild(0, besch->gib_bild_nr(2+zustand*4));
+			setze_bild(0, besch->gib_bild_nr(3+zustand*4));
 		}
 
 		if(dir&ribi_t::west) {
-			after_bild = besch->gib_bild_nr(3+zustand*4);
+			after_bild = besch->gib_bild_nr(2+zustand*4);
 		}
 	}
 	else {
@@ -245,6 +249,9 @@ roadsign_t::rdwr(loadsave_t *file)
 	file->rdwr_byte(flags, " ");
 	file->rdwr_byte(zustand, " ");
 	file->rdwr_byte(dir, "\n");
+	if(file->get_version()<89000) {
+		dir = ribi_t::rueckwaerts(dir);
+	}
 
 	if(file->is_saving()) {
 		const char *s = besch->gib_name();
@@ -255,7 +262,10 @@ roadsign_t::rdwr(loadsave_t *file)
 		char bname[128];
 		file->rd_str_into(bname, "N");
 
-		besch = (const roadsign_besch_t *)table.get(bname);
+		besch = (const roadsign_besch_t *)roadsign_t::table.get(bname);
+		if(!besch) {
+			besch = (const roadsign_besch_t *)roadsign_t::table.get(translator::compatibility_name(bname));
+		}
 		if(!besch) {
 			DBG_MESSAGE("roadsign_t::rwdr", "description %s for ropadsign at %d,%d not found, will be removed!", bname, gib_pos().x, gib_pos().y);
 		}
@@ -264,6 +274,36 @@ roadsign_t::rdwr(loadsave_t *file)
 
 
 
+
+void
+roadsign_t::entferne(spieler_t *sp)
+{
+	if(sp!=NULL) {
+		sp->buche(-besch->gib_preis(), gib_pos().gib_2d(), COST_CONSTRUCTION);
+	}
+}
+
+
+
+/**
+ * Wird nach dem Laden der Welt aufgerufen - üblicherweise benutzt
+ * um das Aussehen des Dings an Boden und Umgebung anzupassen
+ *
+ * @author Hj. Malthaner
+ */
+void roadsign_t::laden_abschliessen()
+{
+	// after loading restore directions
+	set_dir(dir);
+	if((flags&SWITCH_AUTOMATIC)==0) {
+		step_frequency = 1;
+	}
+}
+
+
+
+
+/* static stuff from here on ... */
 bool roadsign_t::alles_geladen()
 {
 	if(liste.count() == 0) {
@@ -274,8 +314,8 @@ bool roadsign_t::alles_geladen()
 
 bool roadsign_t::register_besch(roadsign_besch_t *besch)
 {
-	table.put(besch->gib_name(), besch);
-	liste.append(besch);
+	roadsign_t::table.put(besch->gib_name(), besch);
+	roadsign_t::liste.append(besch);
 	if(umgebung_t::drive_on_left  &&  besch->gib_wtyp()==weg_t::strasse) {
 		// correct for driving on left side
 		if(besch->is_traffic_light()) {
@@ -319,15 +359,15 @@ void roadsign_t::fill_menu(werkzeug_parameter_waehler_t *wzw,
 	int sound_ko,
 	const uint16 time)
 {
-DBG_DEBUG("roadsign_t::fill_menu()","maximum %i",liste.count());
-	for( unsigned i=0;  i<liste.count();  i++  ) {
+DBG_DEBUG("roadsign_t::fill_menu()","maximum %i",roadsign_t::liste.count());
+	for( unsigned i=0;  i<roadsign_t::liste.count();  i++  ) {
 		char buf[128];
-		const roadsign_besch_t *besch=liste.at(i);
+		const roadsign_besch_t *besch=roadsign_t::liste.at(i);
 
 		if(time==0  ||  (besch->get_intro_year_month()<=time  &&  besch->get_retire_year_month()>time)) {
 
 DBG_DEBUG("roadsign_t::fill_menu()","try at pos %i to add %s(%p)",i,besch->gib_name(),besch);
-			if(besch->gib_cursor()->gib_bild_nr(1) != IMG_LEER) {
+			if(besch->gib_cursor()->gib_bild_nr(1)!=IMG_LEER  &&  wtyp==besch->gib_wtyp()) {
 				// only add items with a cursor
 DBG_DEBUG("roadsign_t::fill_menu()","at pos %i add %s",i,besch->gib_name());
 				int n=sprintf(buf, "%s ",translator::translate(besch->gib_name()));
@@ -347,11 +387,20 @@ DBG_DEBUG("roadsign_t::fill_menu()","at pos %i add %s",i,besch->gib_name());
 }
 
 
-
-void
-roadsign_t::entferne(spieler_t *sp)
+/**
+ * Finds a matching roadsing
+ * @author prissi
+ */
+const roadsign_besch_t *
+roadsign_t::roadsign_search(uint8 flag,const weg_t::typ wt,const uint16 time)
 {
-	if(sp!=NULL) {
-		sp->buche(besch->gib_preis(), gib_pos().gib_2d(), COST_CONSTRUCTION);
+	for( unsigned i=0;  i<roadsign_t::liste.count();  i++  ) {
+		const roadsign_besch_t *besch=roadsign_t::liste.at(i);
+
+		if((time==0  ||  (besch->get_intro_year_month()<=time  &&  besch->get_retire_year_month()>time))
+			&&  besch->gib_wtyp()==wt  &&  besch->get_flags()==flag) {
+				return besch;
+		}
 	}
+	return NULL;
 }

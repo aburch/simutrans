@@ -1,18 +1,18 @@
 #ifndef simversion_h
 #define simversion_h
 
-#define MAKEOBJ_VERSION "37"
+#define MAKEOBJ_VERSION "38"
 
-#define VERSION_NUMBER "89.01"
-#define WIDE_VERSION_NUMBER L"89.01"
+#define VERSION_NUMBER "89.02"
+#define WIDE_VERSION_NUMBER L"89.02"
 
 #define VERSION_DATE __DATE__
 
 #define SAVEGAME_PREFIX  "Simutrans "
 
-#define SAVEGAME_VER_NR  "0.88.09"
+#define SAVEGAME_VER_NR  "0.89.00"
 #define SAVEGAME_VERSION (SAVEGAME_PREFIX SAVEGAME_VER_NR)
 
-#define RES_VERSION_NUMBER  0, 89, 01, 0
+#define RES_VERSION_NUMBER  0, 89, 02, 0
 
 #endif

@@ -26,10 +26,14 @@
 #include "../../simworld.h"
 #include "../../simimg.h"
 #include "../../simhalt.h"
+#include "../../simdings.h"
+#include "../../dings/roadsign.h"
+#include "../../dings/signal.h"
 #include "../../utils/cbuffer_t.h"
 #include "../../dataobj/translator.h"
 #include "../../dataobj/loadsave.h"
 #include "../../besch/weg_besch.h"
+#include "../../besch/roadsign_besch.h"
 
 #include "../../tpl/slist_tpl.h"
 
@@ -112,6 +116,7 @@ void weg_t::init(karte_t *welt)
   init_statistics();
 
   alle_wege.insert(this);
+	flags = 0;
 }
 
 
@@ -136,22 +141,21 @@ weg_t::~weg_t()
 void weg_t::rdwr(loadsave_t *file)
 {
 
-	uint8 ribi8;
 	if(file->is_saving()) {
 		// reading has been done by grund_t!
 		file->wr_obj_id( gib_typ() );
-		 // init ribi
-		ribi8 = ribi | (ribi_maske << 4);
 	}
-	file->rdwr_byte(ribi8, "\n");
-	if(file->is_loading()) {
-		ribi = ribi8 & 0xF;
-		ribi_maske = ribi8 >> 4;
-	}
-
-	sint16 dummy16 = max_speed;
+	uint8 dummy = ribi;
+	file->rdwr_byte(dummy, "\n");	// maske will be reset during loading
+	ribi = dummy&15;
+	uint16 dummy16=max_speed;
 	file->rdwr_short(dummy16, "\n");
-	max_speed = dummy16;
+	max_speed=dummy16;
+	if(file->get_version()>=89000) {
+		dummy = flags;
+		file->rdwr_byte(dummy,"f");
+		flags = dummy;
+	}
 
 	for (int type=0; type<MAX_WAY_STATISTICS; type++) {
 		for (int month=0; month<MAX_WAY_STAT_MONTHS; month++) {
@@ -182,6 +186,13 @@ void weg_t::info(cbuffer_t & buf) const
 	buf.append("\nRibi (masked)");
 	buf.append(gib_ribi());
 	buf.append("\n");
+
+	if(is_electrified()) {
+		buf.append(translator::translate("\nelektrified"));
+	}
+	else {
+		buf.append(translator::translate("\nnot elektrified"));
+	}
 
 #if 1
 	buf.append(translator::translate("convoi passed last\nmonth "));
@@ -214,6 +225,32 @@ const char * weg_t::gib_name() const {
 }
 
 
+/**
+ * counts signals on this tile;
+ * It would be enough for the signals to register and unreigister themselves, but this is more secure ...
+ * @author prissi
+ */
+void
+weg_t::count_sign()
+{
+	flags &= ~HAS_SIGN;
+	const grund_t *gr=welt->lookup(gib_pos());
+	if(gr) {
+		const ding_t::typ type=(gib_typ()==schiene  ||  gib_typ()==monorail) ? ding_t::signal : ding_t::roadsign;
+		for( uint8 i=0;  i<gr->gib_top();  i++  ) {
+			ding_t *d=gr->obj_bei(i);
+			// sign for us?
+			if(d  &&  d->gib_typ()==type  &&  ((roadsign_t*)d)->gib_besch()->gib_wtyp()==gib_besch()->gib_wtyp()) {
+				// here is a sign ...
+				flags |= HAS_SIGN;
+				return;
+			}
+		}
+	}
+}
+
+
+
 void
 weg_t::calc_bild()
 {
@@ -223,6 +260,10 @@ weg_t::calc_bild()
 
 	if(from==NULL  ||  besch==NULL) {
 		bild_nr = IMG_LEER;
+	}
+
+	if((flags&(HAS_SIGN|HAS_WAYOBJ))!=0) {
+
 	}
 
 	hang_t::typ hang = from->gib_weg_hang();

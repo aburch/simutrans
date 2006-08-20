@@ -69,6 +69,7 @@ public:
 	}
 
     uint8  add(ding_t *obj, uint8 pri=0);
+    uint8  insert_before_moving(ding_t *obj);
     uint8  insert_at(ding_t *obj, uint8 pri);
     uint8  remove(ding_t *obj, spieler_t *sp);
     bool loesche_alle(spieler_t *sp);
@@ -87,6 +88,11 @@ public:
      * @author Hj. Malthaner
      */
     const char * kann_alle_entfernen(const spieler_t *) const;
+
+    /* recalcs all objects onthis tile
+     * @author prissi
+     */
+		void calc_bild();
 
     /* display all things, much fast to do it here ...
      *  @author prissi

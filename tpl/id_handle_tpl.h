@@ -483,7 +483,7 @@ private:
         ~entry()
         {
             if(refs > 0) {
-		dbg->fatal("handle_as_refcount_tombstones_tpl::entry::~entry()", "%s-object refcount greater than 0 (%d)",
+		dbg->error("handle_as_refcount_tombstones_tpl::entry::~entry()", "%s-object refcount greater than 0 (%d)",
                     typeid(T).name(), refs);
             }
         }
@@ -529,7 +529,7 @@ public:
         entry *e = table.get(handle.get_id());
 
         if(!e) {
-            dbg->fatal("handle_as_refcount_tombstones_tpl::remove", "%s-handle invalid (%d)",
+            dbg->error("handle_as_refcount_tombstones_tpl::remove", "%s-handle invalid (%d)",
                 typeid(T).name(), handle.get_id());
             return NULL;
         }

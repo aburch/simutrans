@@ -278,14 +278,6 @@ private:
     halt_info_t *halt_info;
 
     /**
-     * Initialisiert das gui für diese Haltestelle.
-     * Muss aus jedem Konstruktor aufgerufen werden.
-     * @author Hj. Malthaner
-     */
-    void init_gui();
-
-
-    /**
      * versucht die ware mit beriets wartender ware zusammenzufassen
      * @author Hj. Malthaner
      */

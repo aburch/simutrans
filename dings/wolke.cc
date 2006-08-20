@@ -79,10 +79,19 @@ bool
 sync_wolke_t::sync_step(long delta_t)
 {
 	insta_zeit += delta_t;
-	setze_yoff(base_y_off - (insta_zeit >> 7));
-	setze_bild(0, base_image+(insta_zeit >> 9));
-	set_flag(ding_t::dirty);
-	return (insta_zeit<2500);
+	if(insta_zeit<2500) {
+		setze_yoff(base_y_off - (insta_zeit >> 7));
+		setze_bild(0, base_image+(insta_zeit >> 9));
+		set_flag(ding_t::dirty);
+		return true;
+	}
+	// delete wolke ...
+	sint8 offset=(base_y_off-19)/16;;
+	koord pos = gib_pos().gib_2d()+koord(offset,offset);
+	if(welt->lookup(pos)) {
+		welt->lookup(pos)->gib_kartenboden()->set_flag(grund_t::world_spot_dirty);
+	}
+	return false;
 }
 
 
@@ -93,7 +102,16 @@ sync_wolke_t::sync_step(long delta_t)
  */
 void sync_wolke_t::entferne(spieler_t *)
 {
-    welt->sync_remove(this);
+	koord pos = gib_pos().gib_2d()-koord(1,1);
+	if(welt->lookup(pos)) {
+		grund_t *gr=welt->lookup(pos)->gib_kartenboden();
+		if(gr) {
+			gr->set_flag(grund_t::world_spot_dirty);
+		}
+		//welt->lookup(pos+koord(1,0))->gib_kartenboden()->set_flag(grund_t::world_spot_dirty);
+		//welt->lookup(pos+koord(0,1))->gib_kartenboden()->set_flag(grund_t::world_spot_dirty);
+	}
+	welt->sync_remove(this);
 }
 
 

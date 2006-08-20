@@ -14,7 +14,6 @@
 #include "../boden/wege/schiene.h"
 #include "../boden/grund.h"
 #include "../simplay.h"
-#include "../blockmanager.h"
 #include "../simimg.h"
 #include "../simmem.h"
 #include "../bauer/brueckenbauer.h"
@@ -80,16 +79,6 @@ void bruecke_t::info(cbuffer_t & buf) const
 	buf.append(besch->gib_topspeed());
 	buf.append("km/h\n");
 
-	schiene_t *sch = dynamic_cast <schiene_t *> (welt->lookup(gib_pos())->gib_weg(weg_t::schiene));
-	if(sch) {
-		buf.append("Rail block ");
-		buf.append(sch->gib_blockstrecke().get_id());
-		buf.append("\n");
-
-		buf.append("Ribi ");
-		buf.append(sch->gib_ribi());
-		buf.append("\n");
-	}
 	buf.append("\npos: ");
 	buf.append(gib_pos().x);
 	buf.append(", ");

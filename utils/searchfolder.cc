@@ -94,7 +94,7 @@ int searchfolder_t::search(const char *filepath, const char *extension)
 	lookfor = ext;
 	do {
 	    if(stricmp(entry.name + strlen(entry.name) - lookfor.len(), lookfor.chars()) == 0) {
-		files.append(path + "/" + entry.name);
+		files.append(path + entry.name);
 	    }
 	} while(_findnext(hfind, &entry) == 0 );
     }

@@ -580,14 +580,6 @@ public:
 
 
     /**
-     * Advance route by one step.
-     * @return next position on route or koord3d(-1,-1,-1) if route has ended
-     * @author Hanjsörg Malthaner
-     */
-    koord3d advance_route(int n) const;
-
-
-    /**
      * Wartet bis Fahrzeug 0 freie Fahrt meldet
      * will be called during a hop_check, if the road/track is blocked
      * @author Hj. Malthaner

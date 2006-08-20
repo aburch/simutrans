@@ -167,45 +167,41 @@ public:
     inline void clear_flag(enum flag_values flag) {flags &= ~flag;}
     inline bool get_flag(enum flag_values flag) const {return ((flags & flag) != 0);}
 
-    enum typ {undefined=-1, ding=0, baum=1, zeiger=2,
-	      wolke=3, sync_wolke=4, async_wolke=5,
+	enum typ {
+		undefined=-1, ding=0, baum=1, zeiger=2,
+		wolke=3, sync_wolke=4, async_wolke=5,
 
-              gebaeude_alt=6,	// früher gebaeude
-              gebaeude=7,	// früher hausanim
-              signal=8,
+		gebaeude_alt=6,	// früher gebaeude
+		gebaeude=7,	// früher hausanim
+		signal=8,
 
-	      bruecke=9, tunnel=10, gebaeudefundament=11,
-	      bahndepot=12, strassendepot=13, schiffdepot = 14, airdepot = 99, monoraildepot=100, tramdepot=101,
+		bruecke=9, tunnel=10, gebaeudefundament=11,
+		bahndepot=12, strassendepot=13, schiffdepot = 14, airdepot = 99, monoraildepot=100, tramdepot=101,
 
-	      raucher=15,
-	      leitung = 16, pumpe = 17, senke = 18,
-//	      nachrichtending = 19,
-//              color_gui = 20,
-//	      welt_gui = 21,
-//              ki_kontroll_gui = 22,
-//	      optionen_gui = 23,
+		raucher=15,
+		leitung = 16, pumpe = 17, senke = 18,
+		roadsign = 19, pillar = 20,
 
-	      lagerhaus = 24,
-	      oberleitung = 25,
+//  lagerhaus = 24, unused
+		wayobj = 25,
 
-		tramschiene = 26,
+		// after this only moving stuff
+		// vehikel sind von 32 bis 40
+		automobil=32, waggon=33,
+		schiff=34, aircraft=35, monorailwaggon=36,
 
-	      // vehikel sind von 32 bis 40
-	      automobil=32, waggon=33,
-	      schiff=34, aircraft=35, monorailwaggon=36,
+		// individualverkehr
+		verkehr=41,
+		fussgaenger=42,
 
-	      // individualverkehr
-	      verkehr=41,
-	      fussgaenger=42,
+		// new cars (not used any more!)
+		// car = 64,
 
-	      // new cars (not used any more!)
-	      // car = 64,
-
-	      // other new dings
-	      choosesignal = 95,
-	      presignal = 96,
-	      roadsign = 97,
-	      pillar = 98
+		// other new dings (obsolete, only used during loading old games
+		old_choosesignal = 95,
+		old_presignal = 96,
+		old_roadsign = 97,
+		old_pillar = 98
 	};
 
      inline const sint8 gib_xoff() const {return xoff;};

@@ -77,6 +77,7 @@ enum obj_type {
     obj_vehicle	    = C4ID('V','H','C','L'),
     obj_ground	    = C4ID('G','R','N','D'),
     obj_way	    = C4ID('W','A','Y', 0),
+    obj_way_obj    = C4ID('W','Y', 'O', 'B'),
     obj_crossing    = C4ID('C','R','S','S'),
     obj_tunnel      = C4ID('T','U','N','L'),
     obj_miscimages  = C4ID('M','I','S','C'),

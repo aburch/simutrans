@@ -107,15 +107,10 @@ public:
     static const skin_besch_t *undoc_zeiger;
     static const skin_besch_t *mouse_cursor;	// for allegro: Emulate mouse cursor
 
-    static const skin_besch_t *signale;
-    static const skin_besch_t *presignals;
-    static const skin_besch_t *choosesignals;
     static const skin_besch_t *construction_site;
     static const skin_besch_t *fussweg;
     static const skin_besch_t *pumpe;
     static const skin_besch_t *senke;
-
-    static const skin_besch_t *oberleitung;
 
 	// for the attraction/factory
     static const skin_besch_t *electricity;

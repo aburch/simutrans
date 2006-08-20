@@ -29,6 +29,7 @@
 #include "good_writer.h"
 #include "ground_writer.h"
 #include "way_writer.h"
+#include "way_obj_writer.h"
 #include "root_writer.h"
 #include "xref_writer.h"
 #include "skin_writer.h"
@@ -65,9 +66,10 @@ miscimages_writer_t miscimages_writer_t::the_instance;
 good_writer_t good_writer_t::the_instance;
 
 ground_writer_t ground_writer_t::the_instance;
-way_writer_t way_writer_t::the_instance;
-crossing_writer_t crossing_writer_t::the_instance;
 
+way_writer_t way_writer_t::the_instance;
+way_obj_writer_t way_obj_writer_t::the_instance;
+crossing_writer_t crossing_writer_t::the_instance;
 bridge_writer_t bridge_writer_t::the_instance;
 tunnel_writer_t tunnel_writer_t::the_instance;
 

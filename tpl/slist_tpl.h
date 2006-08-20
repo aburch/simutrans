@@ -427,7 +427,7 @@ public:
 	const T& get_current() const
 	{
 		if(current_node==&lead) {
-			dbg->error("class slist_iterator_tpl.get_current()","Iteration: accesed lead!");
+			dbg->fatal("class slist_iterator_tpl.get_current()","Iteration: accesed lead!");
 		}
 		return current_node->data;
 	}
@@ -440,7 +440,7 @@ public:
 	T& access_current()
 	{
 		if(current_node==&lead) {
-			dbg->error("class slist_iterator_tpl.get_current()","Iteration: accesed lead!");
+			dbg->fatal("class slist_iterator_tpl.get_current()","Iteration: accesed lead!");
 		}
 		return current_node->data;
 	}

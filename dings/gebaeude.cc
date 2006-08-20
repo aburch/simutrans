@@ -572,8 +572,11 @@ gebaeude_t::rdwr(loadsave_t *file)
 
 		if(file->is_loading()) {
 			tile = hausbauer_t::find_tile(buf, idx);
-
-			if(!tile) {
+			if(tile==NULL) {
+				// try with compatibility list first
+				tile = hausbauer_t::find_tile(translator::compatibility_name(buf), idx);
+			}
+			if(tile==NULL) {
 				// first check for special buildings
 				if(strstr(buf,"TrainStop")!=NULL) {
 					tile = hausbauer_t::find_tile("TrainStop", idx);

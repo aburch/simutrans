@@ -151,11 +151,6 @@ haltestelle_t::gib_basis_pos3d() const
 	}
 }
 
-void haltestelle_t::init_gui()
-{
-    // Lazy init at opening!
-    halt_info = NULL;
-}
 
 
 /**
@@ -165,7 +160,6 @@ void haltestelle_t::init_gui()
 halthandle_t haltestelle_t::create(karte_t *welt, koord pos, spieler_t *sp)
 {
     haltestelle_t * p = new haltestelle_t(welt, pos, sp);
-
     return p->self;
 }
 
@@ -296,7 +290,7 @@ DBG_DEBUG("haltestelle_t::remove()","reset city way owner");
  */
 halthandle_t haltestelle_t::create(karte_t *welt, loadsave_t *file)
 {
-    haltestelle_t * p = new haltestelle_t(welt, file);
+    haltestelle_t *p = new haltestelle_t(welt, file);
     return p->self;
 }
 
@@ -330,8 +324,10 @@ void haltestelle_t::destroy_all()
 
 // Konstruktoren
 
-haltestelle_t::haltestelle_t(karte_t *wl, loadsave_t *file) : self(this), reservation(0), registered_lines(0)
+haltestelle_t::haltestelle_t(karte_t *wl, loadsave_t *file)
+	: reservation(0), registered_lines(0)
 {
+	self = halthandle_t(this);
 	alle_haltestellen.insert(self);
 
 	welt = wl;
@@ -352,14 +348,17 @@ haltestelle_t::haltestelle_t(karte_t *wl, loadsave_t *file) : self(this), reserv
 	sortierung = freight_list_sorter_t::by_name;
 	resort_freight_info = true;
 
-	rdwr(file);
+  // Lazy init at opening!
+  halt_info = NULL;
 
-	init_gui();
+	rdwr(file);
 }
 
 
-haltestelle_t::haltestelle_t(karte_t *wl, koord pos, spieler_t *sp) : self(this), reservation(0), registered_lines(0)
+haltestelle_t::haltestelle_t(karte_t *wl, koord pos, spieler_t *sp)
+	: reservation(0), registered_lines(0)
 {
+	self = halthandle_t(this);
     alle_haltestellen.insert(self);
 
     welt = wl;
@@ -376,14 +375,15 @@ haltestelle_t::haltestelle_t(karte_t *wl, koord pos, spieler_t *sp) : self(this)
 	reroute_counter = welt->get_schedule_counter()-1;
 	rebuilt_destination_counter = reroute_counter;
 
-    pax_happy = 0;
-    pax_unhappy = 0;
-    pax_no_route = 0;
+	pax_happy = 0;
+	pax_unhappy = 0;
+	pax_no_route = 0;
 
-    sortierung = freight_list_sorter_t::by_name;
-    init_financial_history();
+	sortierung = freight_list_sorter_t::by_name;
+	init_financial_history();
 
-    init_gui();
+	// Lazy init at opening!
+	halt_info = NULL;
 }
 
 
@@ -1513,7 +1513,7 @@ haltestelle_t::find_free_position(const weg_t::typ w,convoihandle_t cnv,const di
 			if(gr) {
 				// found a stop for this waytype but without object d ...
 				const weg_t *weg=gr->gib_weg(w);
-				if(weg  &&  weg->ist_frei()  &&  gr->suche_obj(d)==NULL) {
+				if(weg  &&  gr->suche_obj(d)==NULL) {
 					// not occipied
 					return true;
 				}
@@ -1550,7 +1550,7 @@ haltestelle_t::reserve_position(grund_t *gr,convoihandle_t cnv)
 			if(gr) {
 				// found a stop for this waytype but without object d ...
 				const weg_t *weg=gr->gib_weg(cnv->gib_vehikel(0)->gib_wegtyp());
-				if(weg  &&  weg->ist_frei()  &&  gr->suche_obj(cnv->gib_vehikel(0)->gib_typ())==NULL) {
+				if(weg  &&  gr->suche_obj(cnv->gib_vehikel(0)->gib_typ())==NULL) {
 					// not occipied
 //DBG_MESSAGE("haltestelle_t::reserve_position()","sucess for gr=%i,%i cnv=%d",gr->gib_pos().x,gr->gib_pos().y,cnv.get_id());
 					reservation.at(idx) = cnv;
@@ -1602,7 +1602,7 @@ DBG_MESSAGE("haltestelle_t::is_reservable()","gr=%d,%d already reserved by cnv=%
 			if(gr) {
 				// found a stop for this waytype but without object d ...
 				const weg_t *weg=gr->gib_weg(cnv->gib_vehikel(0)->gib_wegtyp());
-				if(weg  &&  weg->ist_frei()  &&  gr->suche_obj(cnv->gib_vehikel(0)->gib_typ())==NULL) {
+				if(weg  &&  gr->suche_obj(cnv->gib_vehikel(0)->gib_typ())==NULL) {
 					// not occipied
 DBG_MESSAGE("haltestelle_t::is_reservable()","sucess for gr=%i,%i cnv=%d",gr->gib_pos().x,gr->gib_pos().y,cnv.get_id());
 					return true;
@@ -1982,29 +1982,28 @@ haltestelle_t::rdwr(loadsave_t *file)
 	}
 
 	if(file->is_loading()) {
-      besitzer_p = welt->gib_spieler(spieler_n);
-	do {
-	    k.rdwr( file );
-	    if( k != koord3d::invalid) {
-		grund_t *gr = welt->lookup(k);
-		if(!gr) {
-		    gr = welt->lookup(k.gib_2d())->gib_kartenboden();
-		    dbg->warning("haltestelle_t::rdwr()", "invalid position %s (setting to ground %s)\n",
-				 k3_to_cstr(k).chars(),
-				 k3_to_cstr(gr->gib_pos()).chars());
-		}
-		// prissi: now check, if there is a building -> we allow no longer ground without building!
-		gebaeude_t *gb = static_cast<gebaeude_t *>(gr->suche_obj(ding_t::gebaeude));
-		const haus_besch_t *besch=gb?gb->gib_tile()->gib_besch():NULL;
-		if(besch) {
-			add_grund(gr);
-		}
-		else {
-dbg->warning("haltestelle_t::rdwr()", "will no longer add ground without building at %s!",k3_to_cstr(k).chars());
-		}
-
-	    }
-	} while( k != koord3d::invalid);
+		besitzer_p = welt->gib_spieler(spieler_n);
+		do {
+			k.rdwr( file );
+			if( k != koord3d::invalid) {
+				grund_t *gr = welt->lookup(k);
+				if(!gr) {
+					gr = welt->lookup(k.gib_2d())->gib_kartenboden();
+					dbg->warning("haltestelle_t::rdwr()", "invalid position %s (setting to ground %s)\n",
+					k3_to_cstr(k).chars(),
+					k3_to_cstr(gr->gib_pos()).chars());
+				}
+				// prissi: now check, if there is a building -> we allow no longer ground without building!
+				gebaeude_t *gb = static_cast<gebaeude_t *>(gr->suche_obj(ding_t::gebaeude));
+				const haus_besch_t *besch=gb?gb->gib_tile()->gib_besch():NULL;
+				if(besch) {
+					add_grund(gr);
+				}
+				else {
+					dbg->warning("haltestelle_t::rdwr()", "will no longer add ground without building at %s!",k3_to_cstr(k).chars());
+				}
+			}
+		} while(k!=koord3d::invalid);
     } else {
 	slist_iterator_tpl<grund_t*> gr_iter ( grund );
 

@@ -396,61 +396,64 @@ stadtauto_t::hop()
 		return;
 	}
 
-	int ribi = weg->gib_ribi_unmasked();
-	// 2) take care of roadsigns
-	if(weg->gib_ribi_maske()!=0) {
-		// since routefinding is backwards, the allowed directions at a roadsign are also backwards
-		ribi &= ~( ribi_t::rueckwaerts(weg->gib_ribi_maske()) );
+	ribi_t::ribi ribi = weg->gib_ribi() & ribi_t::gib_forward(fahrtrichtung);
+	if(ribi==ribi_t::keine) {
+		fahrtrichtung = ribi_t::rueckwaerts(fahrtrichtung);
+		pos_next = gib_pos();
+		current_speed = 1;
+		dx = -dx;
+		dy = -dy;
 	}
-	ribi_t::ribi gegenrichtung = ribi_t::rueckwaerts( gib_fahrtrichtung() );
-
-	ribi = ribi & (~gegenrichtung);
-
-	// add all good ribis here
-	for(int r = 0; r < 4; r++) {
-		if(  (ribi & ribi_t::nsow[r])!=0  &&  (ribi_t::nsow[r]&gegenrichtung)==0 &&
-			from->get_neighbour(to, weg_t::strasse, koord::nsow[r])
-		) {
-			// check, if this is just a single tile deep
-			int next_ribi =  to->gib_weg(weg_t::strasse)->gib_ribi_unmasked();
-			if((ribi&next_ribi)!=0  ||  !ribi_t::ist_einfach(next_ribi)) {
-				const roadsign_t *rs = dynamic_cast<roadsign_t *>(to->obj_bei(0));
-				if(rs==NULL  ||  rs->gib_besch()->is_traffic_light()  ||  rs->gib_besch()->gib_min_speed()==0  ||  rs->gib_besch()->gib_min_speed()<=gib_max_speed()) {
-					// do not enter private roads
-					if(rs==NULL  ||  !rs->gib_besch()->is_private_way()) {
-#ifdef DESTINATION_CITYCARS
-						unsigned long dist=abs_distance( to->gib_pos().gib_2d(), target );
-						liste.append( to, dist*dist );
-#else
-						liste.append( to, 1 );
-#endif
+	else if(ribi_t::ist_einfach(ribi)  &&  from->get_neighbour(to, weg_t::strasse, koord(ribi))) {
+		// ok, not choice, next field is this!
+		pos_next = to->gib_pos();
+		fahrtrichtung = calc_richtung(gib_pos().gib_2d(), pos_next.gib_2d(), dx, dy);
+	}
+	else {
+		// add all good ribis here
+		for(int r = 0; r < 4; r++) {
+			if(  (ribi&ribi_t::nsow[r])!=0  &&  from->get_neighbour(to, weg_t::strasse, koord::nsow[r]) ) {
+				// check, if this is just a single tile deep
+				int next_ribi =  to->gib_weg(weg_t::strasse)->gib_ribi();
+				if((ribi&next_ribi)!=0  ||  !ribi_t::ist_einfach(next_ribi)) {
+					const roadsign_t *rs = dynamic_cast<roadsign_t *>(to->obj_bei(0));
+					if(rs==NULL  ||  rs->gib_besch()->is_traffic_light()  ||  rs->gib_besch()->gib_min_speed()==0  ||  rs->gib_besch()->gib_min_speed()<=gib_max_speed()) {
+						// do not enter private roads
+						if(rs==NULL  ||  !rs->gib_besch()->is_private_way()) {
+	#ifdef DESTINATION_CITYCARS
+							unsigned long dist=abs_distance( to->gib_pos().gib_2d(), target );
+							liste.append( to, dist*dist );
+	#else
+							liste.append( to, 1 );
+	#endif
+						}
 					}
 				}
 			}
 		}
-	}
 
-	if(liste.get_count()>1) {
-#ifdef DESTINATION_CITYCARS
-		if(target!=koord::invalid) {
-			pos_next = liste.at_weight(simrand(liste.get_sum_weight()))->gib_pos();
+		if(liste.get_count()>1) {
+	#ifdef DESTINATION_CITYCARS
+			if(target!=koord::invalid) {
+				pos_next = liste.at_weight(simrand(liste.get_sum_weight()))->gib_pos();
+			}
+			else
+	#endif
+			{
+				pos_next = liste.get(simrand(liste.get_count()))->gib_pos();
+			}
+			fahrtrichtung = calc_richtung(gib_pos().gib_2d(), pos_next.gib_2d(), dx, dy);
+		} else if(liste.get_count()==1) {
+			pos_next = liste.get(0)->gib_pos();
+			fahrtrichtung = calc_richtung(gib_pos().gib_2d(), pos_next.gib_2d(), dx, dy);
 		}
-		else
-#endif
-		{
-			pos_next = liste.get(simrand(liste.get_count()))->gib_pos();
+		else {
+			fahrtrichtung = ribi_t::rueckwaerts(fahrtrichtung);
+			current_speed = 1;
+			dx = -dx;
+			dy = -dy;
+			pos_next = gib_pos();
 		}
-		fahrtrichtung = calc_richtung(gib_pos().gib_2d(), pos_next.gib_2d(), dx, dy);
-	} else if(liste.get_count()==1) {
-		pos_next = liste.get(0)->gib_pos();
-		fahrtrichtung = calc_richtung(gib_pos().gib_2d(), pos_next.gib_2d(), dx, dy);
-	}
-	else {
-		fahrtrichtung = gegenrichtung;
-		current_speed = 1;
-		dx = -dx;
-		dy = -dy;
-		pos_next = gib_pos();
 	}
 
 	verlasse_feld();

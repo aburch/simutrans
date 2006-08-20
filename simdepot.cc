@@ -20,7 +20,6 @@
 #include "simhalt.h"
 #include "simplay.h"
 #include "simworld.h"
-#include "blockmanager.h"
 #include "simio.h"
 #include "simdepot.h"
 #include "simline.h"
@@ -488,10 +487,6 @@ void
 bahndepot_t::convoi_arrived(convoihandle_t cnv, bool fpl_adjust)
 {
 	depot_t::convoi_arrived(cnv, fpl_adjust);
-	if(fpl_adjust) {
-		// only true for covois arriving during the game
-		blockmanager::gib_manager()->pruefe_blockstrecke(welt, gib_pos());
-	}
 }
 
 bool

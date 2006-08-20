@@ -442,17 +442,15 @@ reliefkarte_t::calc_map_pixel(const koord k)
 			// show track
 			if (gr->gib_weg(weg_t::schiene)) {
 				const schiene_t * sch = dynamic_cast<const schiene_t *> (gr->gib_weg(weg_t::schiene));
-				if(sch->ist_elektrisch()) {
+				if(sch->is_electrified()) {
 					setze_relief_farbe(k, COL_RED);
 				}
 				else {
 					setze_relief_farbe(k, COL_WHITE);
 				}
 				// show signals
-				if(sch->gib_blockstrecke().is_bound()) {
-					if (sch->gib_blockstrecke()->gib_signal_bei(gr->gib_pos())) {
-						setze_relief_farbe(k, COL_YELLOW);
-					}
+				if(sch->has_sign()) {
+					setze_relief_farbe(k, COL_YELLOW);
 				}
 			}
 			break;

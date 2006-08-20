@@ -22,10 +22,10 @@
 #include "simdings.h"
 #include "simware.h"
 #include "simconvoi.h"
-#include "railblocks.h"
 #include "halthandle_t.h"
 #include "convoihandle_t.h"
 #include "ifc/fahrer.h"
+#include "boden/grund.h"
 #include "boden/wege/weg.h"
 #include "besch/vehikel_besch.h"
 #include "dataobj/route.h"
@@ -35,7 +35,7 @@ class haltestelle_t;
 class inthashtable_t;
 class vehikel_besch_t;
 class fahrplan_t;
-class presignal_t;
+class signal_t;
 
 struct event_t;
 
@@ -227,7 +227,15 @@ public:
 
     virtual weg_t::typ gib_wegtyp() const = 0;
 
-    const sint32 gib_insta_zeit() const {return insta_zeit;};
+    /**
+     * Ermittelt die für das Fahrzeug geltenden Richtungsbits,
+     * abhängig vom Untergrund.
+     *
+     * @author Hj. Malthaner, 04.01.01
+     */
+		virtual ribi_t::ribi gib_ribi(const grund_t* gr) const { return gr->gib_weg_ribi(gib_wegtyp()); }
+
+		const sint32 gib_insta_zeit() const {return insta_zeit;};
 
     void darf_rauchen(bool yesno ) { rauchen = yesno;};
 
@@ -492,14 +500,6 @@ public:
 
 	virtual bool ist_weg_frei(int &restart_speed);
 
-    /**
-     * Ermittelt die für das Fahrzeug geltenden Richtungsbits,
-     * abhängig vom Untergrund.
-     *
-     * @author Hj. Malthaner, 04.01.01
-     */
-    virtual ribi_t::ribi gib_ribi(const grund_t* ) const;
-
 	// returns true for the way search to an unknown target.
 	virtual bool ist_ziel(const grund_t *,const grund_t *) const;
 
@@ -523,7 +523,7 @@ public:
 class waggon_t : public vehikel_t
 {
 private:
-    bool ist_blockwechsel(koord3d k1, koord3d k2) const;
+    signal_t *ist_blockwechsel(koord3d k1, koord3d k2) const;
 
 protected:
     bool ist_befahrbar(const grund_t *bd) const;
@@ -550,17 +550,9 @@ public:
 	// reserves or unreserves all blocks and returns the handle to the next block (if there)
 	// if count is larger than 1, maximum 64 tiles will be checked (freeing or reserving a choose signal path)
 	// return the last checked block
-	blockhandle_t block_reserver(const route_t *route,int count, bool reserve) const;
+	bool block_reserver(const route_t *route,int count, bool reserve) const;
 
     void verlasse_feld();
-
-    /**
-     * Ermittelt die für das Fahrzeug geltenden Richtungsbits,
-     * abhängig vom Untergrund.
-     *
-     * @author Hj. Malthaner, 04.01.01
-     */
-    virtual ribi_t::ribi gib_ribi(const grund_t* ) const;
 
     enum ding_t::typ gib_typ() const {return waggon;};
 
@@ -593,14 +585,6 @@ public:
 	monorail_waggon_t(karte_t *welt, koord3d pos, const vehikel_besch_t *besch, spieler_t *sp, convoi_t *cnv) : waggon_t(welt, pos, besch, sp, cnv ) {}
 	monorail_waggon_t::~monorail_waggon_t() {}
 
-	/**
-	* Ermittelt die für das Fahrzeug geltenden Richtungsbits,
-	* abhängig vom Untergrund.
-	*
-	* @author Hj. Malthaner, 04.01.01
-	*/
-	virtual ribi_t::ribi gib_ribi(const grund_t* ) const;
-
 	enum ding_t::typ gib_typ() const {return monorailwaggon;};
 
 	fahrplan_t * erzeuge_neuen_fahrplan() const;
@@ -628,17 +612,9 @@ protected:
     void calc_bild();
 
 public:
-    virtual weg_t::typ gib_wegtyp() const { return weg_t::wasser; };
+    weg_t::typ gib_wegtyp() const { return weg_t::wasser; };
 
     virtual bool ist_weg_frei(int &restart_speed);
-
-    /**
-     * Ermittelt die für das Fahrzeug geltenden Richtungsbits,
-     * abhängig vom Untergrund.
-     *
-     * @author Hj. Malthaner, 04.01.01
-     */
-    virtual ribi_t::ribi gib_ribi(const grund_t* ) const;
 
 	// returns true for the way search to an unknown target.
 	virtual bool ist_ziel(const grund_t *,const grund_t *) const {return 0;}

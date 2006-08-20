@@ -271,7 +271,7 @@ void wegbauer_t::fill_menu(werkzeug_parameter_waehler_t *wzw,
 
 		char buf[128];
 
-		sprintf(buf, "%s, %l$ (%l$), %dkm/h",
+		sprintf(buf, "%s, %d$ (%d$), %dkm/h",
 			translator::translate(besch->gib_name()),
 			besch->gib_preis()/100l,
 			(besch->gib_wartung()<<shift_maintanance)/100l,

@@ -335,8 +335,7 @@ DBG_MESSAGE("brueckenbauer_t::baue()", "no way %x found",besch->gib_wegtyp());
 		return false;
 	}
 
-	bool hat_oberleitung = (gr->suche_obj(ding_t::oberleitung) != 0);
-	if(gr->obj_count() > (hat_oberleitung ? 1 : 0)) {
+	if(gr->kann_alle_obj_entfernen(sp)) {
 		create_win(-1, -1, MESG_WAIT, new nachrichtenfenster_t(welt, "Tile not empty."), w_autodelete);
 		return false;
 	}
@@ -380,8 +379,7 @@ DBG_MESSAGE("brueckenbauer_t::baue()", "end not ok");
 	}
 
 	grund_t * gr_end = welt->lookup(end);
-	hat_oberleitung = (gr_end->suche_obj(ding_t::oberleitung) != 0);
-	if(gr_end->obj_count() > (hat_oberleitung ? 1 : 0)) {
+	if(gr_end->kann_alle_obj_entfernen(sp)) {
 		create_win(-1, -1, MESG_WAIT, new nachrichtenfenster_t(welt, "Tile not empty."), w_autodelete);
 		return false;
 	}
@@ -512,7 +510,7 @@ brueckenbauer_t::baue_auffahrt(karte_t *welt, spieler_t *sp, koord3d end, koord 
 		weg->setze_besch(alter_weg->gib_besch());
 		weg->setze_ribi_maske( alter_weg->gib_ribi_maske() );
 		// take care of everything on that tile ...
-		for( uint8 i=0;  i<alter_boden->obj_count();  i++  ) {
+		for( uint8 i=0;  i<alter_boden->gib_top();  i++  ) {
 			ding_t *d=alter_boden->obj_takeout(i);
 			if(d) {
 				bruecke->obj_pri_add(d,i);
@@ -627,7 +625,7 @@ brueckenbauer_t::remove(karte_t *welt, spieler_t *sp, koord3d pos, weg_t::typ we
 		grund_t *gr_new = new boden_t(welt, pos,gr->gib_grund_hang());
 
 		// take care of everything on that tile ... (zero is the bridge itself)
-		for( uint8 i=1;  i<gr->obj_count();  i++  ) {
+		for( uint8 i=1;  i<gr->gib_top();  i++  ) {
 			ding_t *d=gr->obj_takeout(i);
 			if(d) {
 				gr_new->obj_pri_add(d,0);

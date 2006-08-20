@@ -146,7 +146,7 @@ void gui_scrollpane_t::zeichnen(koord pos) const
 		scroll_y.zeichnen(pos);
 	}
 
-	PUSH_CLIP(pos.x, pos.y, groesse.x-11*b_show_scroll_y, groesse.y+11*(b_has_size_corner^b_show_scroll_x )-11 );
+	PUSH_CLIP(pos.x, pos.y, groesse.x-12*b_show_scroll_y, groesse.y-11*(b_has_size_corner+b_show_scroll_x)+11 );
 	komp->zeichnen(pos - koord(scroll_x.gib_knob_offset(), scroll_y.gib_knob_offset()));
 	POP_CLIP();
 }

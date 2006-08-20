@@ -15,7 +15,7 @@
 #include <assert.h>
 
 #include "no_such_element_exception.h"
-#include "debug_helper.h"
+#include "../simdebug.h"
 
 /**
  * A template class for a simple vector type.

@@ -19,8 +19,6 @@
 #include "wege/kanal.h"
 #include "wege/runway.h"
 
-#include "../blockmanager.h"
-
 #include "../gui/karte.h"
 #include "../gui/ground_info.h"
 
@@ -34,14 +32,12 @@
 #include "../simfab.h"
 #include "../simhalt.h"
 
-#include "../blockmanager.h"
-
 #include "../dings/baum.h"
 #include "../dings/bruecke.h"
 #include "../dings/gebaeude.h"
 #include "../dings/signal.h"
 #include "../dings/roadsign.h"
-#include "../dings/oberleitung.h"
+#include "../dings/wayobj.h"
 #include "../simverkehr.h"
 #include "../simpeople.h"
 
@@ -426,7 +422,6 @@ void grund_t::rdwr(loadsave_t *file)
 		  	// compatibility code: Convert to monorail
 		  	monorail_t *w= new monorail_t(welt);
 		  	w->setze_besch(sch->gib_besch());
-		  	w->setze_blockstrecke(sch->gib_blockstrecke());
 		  	w->setze_max_speed(sch->gib_max_speed());
 		  	w->setze_ribi(sch->gib_ribi_unmasked());
 		  	w->setze_ribi_maske(sch->gib_ribi_maske());
@@ -629,13 +624,6 @@ void grund_t::setze_halt(halthandle_t halt) {
  */
 void grund_t::calc_bild()
 {
-	// Hajo: recalc overhead line image if there is a overhead line here
-	if(wege[0]) {
-		ding_t *dt = suche_obj(ding_t::oberleitung);
-		if(dt) {
-			dt->calc_bild();
-		}
-	}
 	// recalc way image
 	if(ist_uebergang()) {
 		ribi_t::ribi ribi0 = wege[0]->gib_ribi();
@@ -658,6 +646,7 @@ void grund_t::calc_bild()
 			wege[1]->calc_bild(pos);
 		}
 	}
+	dinge.calc_bild();
 	// Das scheint die beste Stelle zu sein
 	if(ist_karten_boden()) {
 		reliefkarte_t::gib_karte()->calc_map_pixel(gib_pos().gib_2d());
@@ -846,8 +835,14 @@ bool grund_t::weg_erweitern(weg_t::typ wegtyp, ribi_t::ribi ribi)
 	weg_t   *weg = gib_weg(wegtyp);
 	if(weg) {
 		weg->ribi_add(ribi);
-		if(wegtyp==weg_t::schiene  ||  wegtyp==weg_t::monorail) {
-			blockmanager::gib_manager()->schiene_erweitern(welt, this);
+		weg->count_sign();
+		if(weg->is_electrified()) {
+			for(uint8 i=0;  i<gib_top();  i++) {
+				ding_t *d=obj_bei(i);
+				if(d  &&  d->gib_typ()==ding_t::wayobj  &&  ((wayobj_t *)d)->gib_besch()->gib_wtyp()==wegtyp) {
+					((wayobj_t *)d)->set_dir( ((wayobj_t *)d)->get_dir() | ribi );
+				}
+			}
 		}
 		calc_bild();
 		return true;
@@ -886,7 +881,7 @@ long grund_t::neuen_weg_bauen(weg_t *weg, ribi_t::ribi ribi, spieler_t *sp)
 			// new way here
 
 			// remove all trees
-			for( int i=dinge.count();  i>=0;  i--  ) {
+			for( int i=gib_top();  i>=0;  i--  ) {
 				ding_t *d=dinge.bei(i);
 				if(d  &&  d->gib_typ()==ding_t::baum) {
 					dinge.remove_at(i);
@@ -922,10 +917,6 @@ long grund_t::neuen_weg_bauen(weg_t *weg, ribi_t::ribi ribi, spieler_t *sp)
 		weg->setze_ribi(ribi);
 		weg->setze_pos(pos);
 
-		if(weg->gib_typ()==weg_t::schiene  ||  weg->gib_typ()==weg_t::monorail) {
-			blockmanager::gib_manager()->neue_schiene(welt, this);
-		}
-
 		// may result in a crossing
 		calc_bild();
 
@@ -950,10 +941,6 @@ sint32 grund_t::weg_entfernen(weg_t::typ wegtyp, bool ribi_rem)
 
 	if(weg) {
 		if(ribi_rem) {
-			// remove the block infoe with this type
-			if(wegtyp==weg_t::schiene  ||  wegtyp==weg_t::monorail) {
-				blockmanager::gib_manager()->entferne_schiene(welt, pos);
-			}
 			ribi_t::ribi ribi = weg->gib_ribi();
 			grund_t *to;
 
@@ -1116,76 +1103,72 @@ DBG_MESSAGE("grund_t::remove_everything()","at %d,%d,%d for waytype %i and ribi 
 
 	const bool is_rail = (wt==weg_t::schiene  ||  wt==weg_t::monorail);	// since we must delete overhead and block info
 
-	// stopps
-	if(halt.is_bound()  &&  halt->gib_besitzer()==sp) {
-		const char *fail;
-		if(!haltestelle_t::remove(welt, sp, pos, fail)) {
-			return false;
-		}
-	}
-
-	// now we must remove the things one by one, for special things
-	if(weg_t::schiene  ||  weg_t::monorail  ||  weg_t::invalid) {
-		if(suche_obj(ding_t::signal)!=NULL  ||  suche_obj(ding_t::presignal)!=NULL  ||  suche_obj(ding_t::choosesignal)!=NULL) {
-DBG_MESSAGE("wkz_wayremover()","remove signal");
-			blockmanager *bm = blockmanager::gib_manager();
-			if(!bm->entferne_signal(welt, pos)) {
-				return false;
-			}
-		}
-	}
-
-	if(weg_t::strasse  ||  weg_t::invalid) {
-		// roadsigns ...
-		roadsign_t *rs = dynamic_cast<roadsign_t *>(suche_obj(ding_t::roadsign));
-		if(rs) {
-DBG_MESSAGE("wkz_wayremover()","remove roadsign");
-			rs->entferne(sp);
-			delete rs;
-		}
-
-		// citycars ...
-		while(suche_obj(ding_t::verkehr)) {
-			stadtauto_t *citycar = dynamic_cast<stadtauto_t *>(suche_obj(ding_t::verkehr));
-			delete citycar;
-		}
-
-		// pedestrians ...
-		while(suche_obj(ding_t::fussgaenger)) {
-			fussgaenger_t *fussgaenger = dynamic_cast<fussgaenger_t *>(suche_obj(ding_t::fussgaenger));
-			delete fussgaenger;
-		}
-
-	}
-
 	// then check, if the way must be totally removed?
 	weg_t *weg = gib_weg(wt);
 	if(weg) {
+
+		// stopps
+		if(halt.is_bound()  &&  halt->gib_besitzer()==sp) {
+			const char *fail;
+			if(!haltestelle_t::remove(welt, sp, pos, fail)) {
+				return false;
+			}
+		}
+
 		ribi_t::ribi add=(weg->gib_ribi_unmasked()&rem);
+		sint32 costs = 0;
+
+		for(uint8 i=0;  i<gib_top();  i++  ) {
+			ding_t *d=obj_bei(i);
+			// roadsigns: check dir
+			if(d==NULL) {
+				continue;
+			}
+			// roadsigns: check dir: dirs changed? delete
+			if(d->gib_typ()==ding_t::roadsign  &&  ((roadsign_t *)d)->gib_besch()->gib_wtyp()==wt) {
+				if((((roadsign_t *)d)->get_dir()&(~add))!=0) {
+					costs -= ((roadsign_t *)d)->gib_besch()->gib_preis();
+					delete d;
+				}
+			}
+			// singal: not on crossings => remove all
+			else if(d->gib_typ()==ding_t::signal  &&  ((roadsign_t *)d)->gib_besch()->gib_wtyp()==wt) {
+				costs -= ((roadsign_t *)d)->gib_besch()->gib_preis();
+				delete d;
+			}
+			// wayobj: check dir
+			else if(d->gib_typ()==ding_t::wayobj  &&  ((wayobj_t *)d)->gib_besch()->gib_wtyp()==wt) {
+				uint8 new_dir=((wayobj_t *)d)->get_dir()&add;
+				if(new_dir) {
+					// just change dir
+					((wayobj_t *)d)->set_dir(new_dir);
+				}
+				else {
+					costs -= ((wayobj_t *)d)->gib_besch()->gib_preis();
+					delete d;
+				}
+			}
+			// citycar or pedestrians: just delete
+			else if(d->gib_typ()==ding_t::verkehr  ||  suche_obj(ding_t::fussgaenger)) {
+				delete d;
+			}
+		}
+
 
 		// need to remove railblocks to recalcualte connections
 		// remove all ways or just some?
 		if(add==ribi_t::keine ) {
-DBG_MESSAGE("wkz_wayremover()","remove all way");
-			if(is_rail) {
-				if(suche_obj(ding_t::oberleitung)!=NULL) {
-					oberleitung_t *ol = dynamic_cast<oberleitung_t *>(suche_obj(ding_t::oberleitung));
-					obj_remove(ol,sp);
-					delete ol;
-				}
-			}
-			sp->buche(-weg_entfernen(wt, true), pos.gib_2d(), COST_CONSTRUCTION);
+			costs -= weg_entfernen(wt, true);
 		}
 		else {
-DBG_MESSAGE("wkz_wayremover()","change remaining way to ribi %d",add);
+	DBG_MESSAGE("wkz_wayremover()","change remaining way to ribi %d",add);
 			// something will remain, we just change ribis
 			weg_erweitern(wt, add);
-			if(wt==weg_t::schiene  ||  wt==weg_t::monorail) {
-				blockmanager::gib_manager()->schiene_erweitern(welt, this);
-				if(suche_obj(ding_t::oberleitung)!=NULL) {
-					suche_obj(ding_t::oberleitung)->calc_bild();
-				}
-			}
+			calc_bild();
+		}
+		// we have to pay?
+		if(costs) {
+			sp->buche(costs, pos.gib_2d(), COST_CONSTRUCTION);
 		}
 	}
 	return true;

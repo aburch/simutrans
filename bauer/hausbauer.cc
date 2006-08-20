@@ -311,9 +311,9 @@ void hausbauer_t::neue_karte()
  *
  * @author V. Meyer
  */
-void hausbauer_t::umbauen(karte_t * /*welt*/,gebaeude_t *gb, const haus_besch_t *besch)
+void hausbauer_t::umbauen(karte_t * /*welt*/,gebaeude_t *gb, const haus_besch_t *besch, int rotate)
 {
-	const haus_tile_besch_t *tile = besch->gib_tile(0, 0, 0);
+	const haus_tile_besch_t *tile = besch->gib_tile(rotate, 0, 0);
 
 	gb->setze_tile(tile);
 	gb->renoviere();
@@ -533,11 +533,10 @@ const haus_besch_t *hausbauer_t::finde_in_liste(slist_tpl<const haus_besch_t *> 
 
 const haus_tile_besch_t *hausbauer_t::find_tile(const char *name, int idx)
 {
-    const haus_besch_t *besch = besch_names.get(name);
-
-    if(besch)
-	return besch->gib_tile(idx);
-    else
+	const haus_besch_t *besch = besch_names.get(name);
+	if(besch) {
+		return besch->gib_tile(idx);
+	}
 	return NULL;
 }
 

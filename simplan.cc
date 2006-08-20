@@ -137,8 +137,6 @@ planquadrat_t::kartenboden_setzen(grund_t *bd, bool mit_spieler)
 		else {
 			boeden.append(bd);
 		}
-		bd->calc_bild();
-
 		if( tmp ) {
 			// transfer old properties ...
 			bd->setze_text(tmp->gib_text());
@@ -148,6 +146,7 @@ planquadrat_t::kartenboden_setzen(grund_t *bd, bool mit_spieler)
 			// now delete everything
 			delete tmp;
 		}
+		bd->calc_bild();
 
 		reliefkarte_t::gib_karte()->calc_map_pixel(bd->gib_pos().gib_2d());
 	}

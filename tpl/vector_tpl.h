@@ -10,6 +10,14 @@
 #ifndef tpl_vector_h
 #define tpl_vector_h
 
+/**
+ * A template class for a simple vector type.
+ * random access is allowed ...
+ *
+ * @date November 2000
+ * @author Hj. Malthaner
+ */
+
 #include <stdlib.h>
 
 #include "../simtypes.h"
@@ -17,39 +25,40 @@
 
 /**
  * A template class for a simple vector type.
- *
  * @date November 2000
  * @author Hj. Malthaner
+ *
+ * extended with function store_at() for random acess storage by prissi
+ * BEWARE: using this function will create default objects, depending of the type of the vector
  */
 
-template<class T>
-class vector_tpl
+template<class T>class vector_tpl
 {
 protected:
 
-    T * data;
+	T * data;
 
-    /**
-     * Capacity.
-     * @author Hj. Malthaner
-     */
-    uint32 size;
+	/**
+	 * Capacity.
+	 * @author Hj. Malthaner
+	 */
+	uint32 size;
 
 
-    /**
-     * Number of elements in vector.
-     * @author Hj. Malthaner
-     */
-    uint32 count;
+	/**
+	 * Number of elements in vector.
+	 * @author Hj. Malthaner
+	 */
+	uint32 count;
 
 public:
 
-    /**
-     * Construct a vector for size elements.
-     * @param size The capacity of the new vector
-     * @author Hj. Malthaner
-     */
-	vector_tpl(unsigned int size)
+	/**
+	 * Construct a vector for size elements.
+	 * @param size The capacity of the new vector
+	 * @author Hj. Malthaner
+	 */
+	vector_tpl(uint32 size)
 	{
 		this->size  = size;
 		if(size>0) {
@@ -61,10 +70,10 @@ public:
 	}
 
 
-    /**
-     * Destructor.
-     * @author Hj. Malthaner
-     */
+	/**
+	 * Destructor.
+	 * @author Hj. Malthaner
+	 */
 	~vector_tpl()
 	{
 		if(data) {
@@ -72,28 +81,28 @@ public:
 		}
 	}
 
-    /**
-     * sets the vector to empty
-     * @author Hj. Malthaner
-     */
-    void clear()
-    {
-	count = 0;
-    }
+	/**
+	 * sets the vector to empty
+	 * @author Hj. Malthaner
+	 */
+	void clear()
+	{
+		count = 0;
+	}
 
-    /**
-     * Resizes the maximum data that can be hold by this vector.
-     * Existing entries are preserved, new_size must be big enough
-     * to hold them.
-     *
-     * @author prissi
-     */
-	bool resize(unsigned int new_size)
+	/**
+	 * Resizes the maximum data that can be hold by this vector.
+	 * Existing entries are preserved, new_size must be big enough
+	 * to hold them.
+	 *
+	 * @author prissi
+	 */
+	bool resize(uint32 new_size)
 	{
 		if(new_size<=size) {
 			return true;	// do nothing
 		}
-//DBG_DEBUG("<vector_tpl>::resize()","old size %i, new size %i",size,new_size);
+		//DBG_DEBUG("<vector_tpl>::resize()","old size %i, new size %i",size,new_size);
 		if(count > new_size) {
 			dbg->fatal("vector_tpl<T>::resize()", "cannot preserve elements.");
 			return false;
@@ -101,7 +110,7 @@ public:
 		T *new_data = new T[new_size];
 
 		if(size>0  &&  data) {
-			for(unsigned int i = 0; i < count; i++) {
+			for(uint32 i = 0; i < count; i++) {
 				new_data[i] = data[i];
 			}
 			delete [] data;
@@ -111,26 +120,26 @@ public:
 		return true;
 	}
 
-    /**
-     * Checks if element elem is contained in vector.
-     * Uses the == operator for comparison.
-     * @author Hj. Malthaner
-     */
-    bool is_contained(T elem) const
-    {
-	for(unsigned int i=0; i<count; i++) {
-	    if(data[i] == elem) {
-		return true;
-	    }
+	/**
+	 * Checks if element elem is contained in vector.
+	 * Uses the == operator for comparison.
+	 * @author Hj. Malthaner
+	 */
+	bool is_contained(T elem) const
+	{
+		for(uint32 i=0; i<count; i++) {
+			if(data[i] == elem) {
+				return true;
+			}
+		}
+		return false;
 	}
-	return false;
-    }
 
 
-    /**
-     * Appends the element at the end of the vector.
-     * @author Hj. Malthaner
-     */
+	/**
+	 * Appends the element at the end of the vector.
+	 * @author Hj. Malthaner
+	 */
 	bool append(T elem)
 	{
 		if(count >= size) {
@@ -141,15 +150,15 @@ public:
 		return true;
 	}
 
-    /**
-     * Appends the element at the end of the vector.
-     * of out of spce, extend with this factor
-     * @author prissi
-     */
-	bool append(T elem,unsigned short extend)
+	/**
+	 * Appends the element at the end of the vector.
+	 * of out of spce, extend with this factor
+	 * @author prissi
+	 */
+	bool append(T elem,uint32 extend)
 	{
 		if(count>=size) {
-			if(  !resize( count+extend )  ) {
+			if(!resize(count+extend)) {
 				dbg->fatal("vector_tpl<T>::append(,)","could not extend capacity %i.",size);
 				return false;
 			}
@@ -158,11 +167,11 @@ public:
 		return true;
 	}
 
-    /**
-     * Checks if element is contained. Appends only new elements.
-     *
-     * @author Hj. Malthaner
-     */
+	/**
+	 * Checks if element is contained. Appends only new elements.
+	 *
+	 * @author Hj. Malthaner
+	 */
 	bool append_unique(T elem)
 	{
 		if(!is_contained(elem)) {
@@ -171,12 +180,12 @@ public:
 		return false;
 	}
 
-    /**
-     * Checks if element is contained. Appends only new elements.
-     * extend vector if nessesary
-     * @author Hj. Malthaner
-     */
-	bool append_unique(T elem,unsigned short extend)
+	/**
+	 * Checks if element is contained. Appends only new elements.
+	 * extend vector if nessesary
+	 * @author Hj. Malthaner
+	 */
+	bool append_unique(T elem,uint32 extend)
 	{
 		if(!is_contained(elem)) {
 			return append(elem,extend);
@@ -191,7 +200,7 @@ public:
 	*/
 	bool remove(T elem)
 	{
-		unsigned int i,j;
+		uint32 i,j;
 		for(i=j=0;  i<count;  i++,j++  ) {
 			if(data[i] == elem) {
 				// skip this one
@@ -211,7 +220,7 @@ public:
 	* insets data at a certain pos
 	* @author prissi
 	*/
-	bool insert_at(unsigned int pos,T elem)
+	bool insert_at(uint32 pos,T elem)
 	{
 		if(  pos<count  ) {
 			if(  count<size  ||  resize(count+1)) {
@@ -232,15 +241,32 @@ public:
 		}
 	}
 
+	/**
+	* put the data at a certain position
+	* use with care, may lead to unitialized entries
+	* @author prissi
+	*/
+	bool store_at(uint32 pos,T elem)
+	{
+		if(pos>=size) {
+			resize((pos&0xFFFFFFF7)+8);
+		}
+		// ok, a valid position, make space
+		data[pos] = elem;
+		if(pos>count) {
+			count = pos+1;
+		}
+		return true;
+	}
 
 	/**
 	* removes element at position
 	* @author prissi
 	*/
-	bool remove_at(unsigned int pos)
+	bool remove_at(uint32 pos)
 	{
-		if(  pos<size  &&  pos<count  ) {
-			unsigned int i,j;
+		if(pos<size  &&  pos<count) {
+			uint32 i,j;
 			for(i=pos, j=pos+1;  j<count;  i++,j++  ) {
 				data[i] = data[j];
 			}
@@ -251,45 +277,46 @@ public:
 	}
 
 
-    /**
-     * Gets the element at position i
-     * @author Hj. Malthaner
-     */
-    const T& get(unsigned int i) const
-    {
-	if(i>=count) {
-	    dbg->fatal("vector_tpl<T>::get()","index out of bounds: %i not in 0..%d", i, count-1);
-	    // will never go here
+	/**
+	 * Gets the element at position i
+	 * @author Hj. Malthaner
+	 */
+	const T& get(uint32 i) const
+	{
+		if(i>=count) {
+			dbg->fatal("vector_tpl<T>::get()","index out of bounds: %i not in 0..%d", i, count-1);
+			// will never go here
+		}
+		return data[i];
 	}
-	    return data[i];
-    }
 
-    /**
-     * Accesses the element at position i
-     * @author Hj. Malthaner
-     */
-    T& at(unsigned int i) const
-    {
-	if(i>=count) {
-	    dbg->fatal("vector_tpl<T>::at()","index out of bounds: %i not in 0..%d\n", i, count-1);
-	    // will never go here
+	/**
+	 * Accesses the element at position i
+	 * @author Hj. Malthaner
+	 */
+	T& at(uint32 i) const
+	{
+		if(i>=count) {
+			dbg->fatal("vector_tpl<T>::at()","index out of bounds: %i not in 0..%d\n", i, count-1);
+			// will never go here
+		}
+		return data[i];
 	}
-    return data[i];
-    }
 
 
-    /**
-     * Gets the number of elements in the vector.
-     * @author Hj. Malthaner
-     */
-    unsigned int get_count() const {return count;};
+	/**
+	* Gets the number of elements in the vector.
+	* @author Hj. Malthaner
+	*/
+	uint32 get_count() const {return count;}
 
 
-    /**
-     * Gets the capacity.
-     * @author Hj. Malthaner
-     */
-    unsigned int get_size() const {return size;};
+	/**
+	* Gets the capacity.
+	* @author Hj. Malthaner
+	*/
+	uint32 get_size() const {return size;}
+
 } GCC_PACKED;
 
 #endif

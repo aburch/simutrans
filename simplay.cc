@@ -41,9 +41,9 @@
 #include "besch/skin_besch.h"
 #include "besch/sound_besch.h"
 #include "besch/weg_besch.h"
+#include "besch/way_obj_besch.h"
 #include "simworld.h"
 #include "simplay.h"
-#include "railblocks.h"
 #include "simwerkz.h"
 #include "simfab.h"
 #include "simhalt.h"
@@ -62,6 +62,7 @@
 
 #include "dings/zeiger.h"
 #include "dings/gebaeude.h"
+#include "dings/wayobj.h"
 
 #include "dataobj/fahrplan.h"
 #include "dataobj/umgebung.h"
@@ -73,8 +74,6 @@
 #include "bauer/warenbauer.h"
 #include "bauer/brueckenbauer.h"
 #include "bauer/wegbauer.h"
-
-#include "blockmanager.h"	// electrify tracks
 
 #include "utils/simstring.h"
 
@@ -106,24 +105,24 @@ spieler_t::spieler_t(karte_t *wl, uint8 color, uint8 nr) :
 	simlinemgmt(wl,this),
 	last_built(0)
 {
-    halt_list = new slist_tpl <halthandle_t>;
+	halt_list = new slist_tpl <halthandle_t>;
 
-    welt = wl;
-    kennfarbe = color;
-    player_nr = nr;
+	welt = wl;
+	kennfarbe = color;
+	player_nr = nr;
 
-    konto = umgebung_t::starting_money;
+	konto = umgebung_t::starting_money;
 
-    konto_ueberzogen = 0;
-    automat = false;		// Start nicht als automatischer Spieler
+	konto_ueberzogen = 0;
+	automat = false;		// Start nicht als automatischer Spieler
 
-    headquarter_pos = koord::invalid;
-    headquarter_level = 0;
+	headquarter_pos = koord::invalid;
+	headquarter_level = 0;
 
-    /**
-     * initialize finance history array
-     * @author hsiegeln
-     */
+	/**
+	 * initialize finance history array
+	 * @author hsiegeln
+	 */
 
     for (int year=0; year<MAX_HISTORY_YEARS; year++) {
       for (int cost_type=0; cost_type<MAX_COST; cost_type++) {
@@ -2277,9 +2276,11 @@ spieler_t::create_rail_transport_vehikel(const koord platz1, const koord platz2,
 	// probably need to electrify the track?
 	if(  rail_engine->get_engine_type()==vehikel_besch_t::electric  ) {
 		// we need overhead wires
-		DBG_MESSAGE( "spieler_t::create_rail_transport_vehikel","Spieler needs to eletrify track.");
-		blockmanager * bm = blockmanager::gib_manager();
-		bm->setze_tracktyp( welt, pos1, 1 );
+		value_t v;
+		v.p = (void *)wayobj_t::wayobj_search(weg_t::schiene,weg_t::overheadlines,welt->get_timeline_year_month());
+		wkz_wayobj(this,welt,INIT,v);
+		wkz_wayobj(this,welt,platz1,v);
+		wkz_wayobj(this,welt,platz2,v);
 	}
 	vehikel_t * v = vehikelbauer_t::baue(welt, pos2, this, NULL, rail_engine);
 

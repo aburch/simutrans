@@ -347,6 +347,9 @@ fabrik_t::rdwr(loadsave_t *file)
 	if(file->is_loading()) {
 DBG_DEBUG("fabrik_t::rdwr()","loading factory '%s'",s);
 		besch = fabrikbauer_t::gib_fabesch(s);
+		if(!besch) {
+			besch = fabrikbauer_t::gib_fabesch(translator::compatibility_name(s));
+		}
 		guarded_free(const_cast<char *>(s));
 		// set ware arrays ...
 		if(besch) {

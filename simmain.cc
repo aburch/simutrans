@@ -33,7 +33,6 @@
 #include "simvehikel.h"
 #include "simfab.h"
 #include "simplay.h"
-#include "railblocks.h"
 #include "simsound.h"
 #include "simintr.h"
 #include "simmesg.h"
@@ -540,7 +539,6 @@ int simu_cpp_main(int argc, char ** argv)
 
       convoihandle_t::init(contents.get_int("convoys", 8192));
       linehandle_t::init(contents.get_int("lines", 8192));
-      blockhandle_t::init(contents.get_int("railblocks", 8192));
       halthandle_t::init(contents.get_int("stations", 8192));
       umgebung_t::max_route_steps = contents.get_int("max_route_steps", 100000);
 

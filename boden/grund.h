@@ -426,6 +426,7 @@ public:
     uint8  obj_add(ding_t *obj) { return dinge.add(obj,0); }
     uint8	obj_insert_at(ding_t *obj,uint8 pri) { return dinge.insert_at(obj,pri); }
     uint8  obj_pri_add(ding_t *obj, uint8 pri) { return dinge.add(obj, pri); }
+		uint8 insert_before_moving(ding_t *obj) { return dinge.insert_before_moving(obj); }
     uint8  obj_remove(ding_t *obj, spieler_t *sp) { set_flag(dirty); return dinge.remove(obj, sp); }
     ding_t *obj_takeout(uint8 pos) { return dinge.remove_at(pos); }
     bool obj_loesche_alle(spieler_t *sp) { return dinge.loesche_alle(sp); }

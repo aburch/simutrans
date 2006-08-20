@@ -64,7 +64,7 @@ endif
 
 ifneq ($(OPTIMISE),)
   CFLAGS   += -O -fomit-frame-pointer -fschedule-insns2 -fexpensive-optimizations -fgcse -fstrict-aliasing -minline-all-stringops
-  CXXFLAGS += -O -fomit-frame-pointer -fschedule-insns2 -fregmove -fmove-all-movables -freorder-blocks -falign-functions
+  CXXFLAGS += -O -fomit-frame-pointer -fschedule-insns2 -fregmove -freorder-blocks -falign-functions
 else
   CFLAGS   += -O
   CXXFLAGS += -O
@@ -125,6 +125,7 @@ SOURCES += besch/reader/tree_reader.cc
 SOURCES += besch/reader/tunnel_reader.cc
 SOURCES += besch/reader/vehicle_reader.cc
 SOURCES += besch/reader/way_reader.cc
+SOURCES += besch/reader/way_obj_reader.cc
 SOURCES += besch/reader/xref_reader.cc
 SOURCES += boden/boden.cc
 SOURCES += boden/brueckenboden.cc
@@ -161,12 +162,12 @@ SOURCES += dings/dummy.cc
 SOURCES += dings/gebaeude.cc
 SOURCES += dings/lagerhaus.cc
 SOURCES += dings/leitung2.cc
-SOURCES += dings/oberleitung.cc
 SOURCES += dings/pillar.cc
 SOURCES += dings/raucher.cc
 SOURCES += dings/roadsign.cc
 SOURCES += dings/signal.cc
 SOURCES += dings/tunnel.cc
+SOURCES += dings/wayobj.cc
 SOURCES += dings/wolke.cc
 SOURCES += dings/zeiger.cc
 SOURCES += gui/components/gui_button.cc
@@ -232,9 +233,8 @@ SOURCES += gui/stadt_info.cc
 SOURCES += gui/thing_info.cc
 SOURCES += gui/welt.cc
 SOURCES += gui/werkzeug_parameter_waehler.cc
-SOURCES += blockmanager.cc
 SOURCES += freight_list_sorter.cc
-SOURCES += railblocks.cc
+SOURCES += old_blockmanager.cc
 SOURCES += simcity.cc
 SOURCES += simconvoi.cc
 SOURCES += simdebug.cc

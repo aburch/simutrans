@@ -20,22 +20,22 @@ const ribi_t::ribi ribi_t::nsow[4] = {
 };
 
 const int ribi_t::flags[16] = {
-    0,				// keine
+    0,										// keine
     einfach | gerade_ns,	// nord
     einfach | gerade_ow,	// ost
-    kurve,			// nordost
+    kurve | twoway,				// nordost
     einfach | gerade_ns,	// sued
-    gerade_ns,			// nordsued
-    kurve,			// suedost
-    0,				// nordsuedost
+    gerade_ns | twoway,		// nordsued
+    kurve | twoway,				// suedost
+    threeway,							// nordsuedost
     einfach | gerade_ow,	// west
-    kurve,			// nordwest
-    gerade_ow,			// ostwest
-    0,				// nordostwest
-    kurve,			// suedwest
-    0,				// nordsuedwest
-    0,				// suedostwest
-    0				// alle
+    kurve | twoway,				// nordwest
+    gerade_ow | twoway,		// ostwest
+    threeway,							// nordostwest
+    kurve | twoway,				// suedwest
+    threeway,							// nordsuedwest
+    threeway,							// suedostwest
+    threeway,							// alle
 };
 
 const ribi_t::ribi ribi_t::rwr[16] = {
@@ -73,6 +73,25 @@ const ribi_t::ribi ribi_t::doppelr[16] = {
     keine,			// suedwest
     keine,			// nordsuedwest
     keine,			// suedostwest
+    keine			// alle
+};
+
+const ribi_t::ribi ribi_t::fwrd[16] = {
+    alle,			// keine
+    nordostwest,	// nord
+    nordsuedost,	// ost
+    nordost,			// nordost
+    suedostwest,	// sued
+    keine,				// nordsued
+    suedost,			// suedost
+    keine,				// nordsuedost
+    nordsuedwest,	// west
+    nordwest,			// nordwest
+    keine,				// ostwest
+    keine,				// nordostwest
+    suedwest,			// suedwest
+    keine,				// nordsuedwest
+    keine,				// suedostwest
     keine			// alle
 };
 

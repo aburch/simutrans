@@ -54,7 +54,8 @@ public:
 	    const grund_t *gr;
 	    uint32  f,g;
 	    uint8 dir;
-	} ANode;
+			uint16 count;
+	} ANode GCC_PACKED;
 
 	static ANode *nodes;
 	static uint32 MAX_STEP;

@@ -97,11 +97,11 @@ tunnelbauer_t::finde_ende(karte_t *welt, koord3d pos, koord zv, weg_t::typ wegty
 
 int tunnelbauer_t::baue(spieler_t *sp, karte_t *welt, koord pos, weg_t::typ wegtyp)
 {
-    DBG_MESSAGE("tunnelbauer_t::baue()", "called on %d,%d", pos.x, pos.y);
+DBG_MESSAGE("tunnelbauer_t::baue()", "called on %d,%d", pos.x, pos.y);
 
-    if(!welt->ist_in_kartengrenzen(pos)) {
-  return false;
-    }
+	if(!welt->ist_in_kartengrenzen(pos)) {
+		return false;
+	}
 	const grund_t *gr = welt->lookup(pos)->gib_kartenboden();
 	koord zv;
 	const weg_t *weg = gr->gib_weg(wegtyp);
@@ -120,23 +120,24 @@ int tunnelbauer_t::baue(spieler_t *sp, karte_t *welt, koord pos, weg_t::typ wegt
 		create_win(-1, -1, MESG_WAIT, new nachrichtenfenster_t(welt, "Tunnel must end on single way!"), w_autodelete);
 		return false;
 	}
-    zv = koord(gr->gib_grund_hang());
+	zv = koord(gr->gib_grund_hang());
 
-    // Tunnelende suchen
-    koord3d end = finde_ende(welt, gr->gib_pos(), zv, wegtyp);
+	// Tunnelende suchen
+	koord3d end = finde_ende(welt, gr->gib_pos(), zv, wegtyp);
 
-    // pruefe ob Tunnel auf strasse/schiene endet
-    if(!welt->ist_in_kartengrenzen(end.gib_2d())) {
-  if(wegtyp == weg_t::strasse) {
-      create_win(-1, -1, MESG_WAIT, new nachrichtenfenster_t(welt,"Tunnel muss auf\nStrassenende\nenden!\n"), w_autodelete);
-  } else {
-      create_win(-1, -1, MESG_WAIT, new nachrichtenfenster_t(welt,"Tunnel muss auf\nSchienenende\nenden!\n"), w_autodelete);
-  }
-      return false;
-    }
+	// pruefe ob Tunnel auf strasse/schiene endet
+	if(!welt->ist_in_kartengrenzen(end.gib_2d())) {
+		if(wegtyp == weg_t::strasse) {
+			create_win(-1, -1, MESG_WAIT, new nachrichtenfenster_t(welt,"Tunnel muss auf\nStrassenende\nenden!\n"), w_autodelete);
+		}
+		else {
+			create_win(-1, -1, MESG_WAIT, new nachrichtenfenster_t(welt,"Tunnel muss auf\nSchienenende\nenden!\n"), w_autodelete);
+		}
+		return false;
+	}
 
-    // Anfang und ende sind geprueft, wir konnen endlich bauen
-    return baue_tunnel(welt, sp, gr->gib_pos(), end, zv, wegtyp);
+	// Anfang und ende sind geprueft, wir konnen endlich bauen
+	return baue_tunnel(welt, sp, gr->gib_pos(), end, zv, wegtyp);
 }
 
 
@@ -212,7 +213,6 @@ tunnelbauer_t::baue_einfahrt(karte_t *welt, spieler_t *sp, koord3d end, koord zv
 
 DBG_MESSAGE("tunnelbauer_t::baue_einfahrt()","at end (%d,%d) for %s", end.x, end.y, weg_besch->gib_name());
 
-	tunnel->obj_add(new tunnel_t(welt, end, sp, besch));
 
 	// rail tunnel
 	if(wegtyp == weg_t::schiene) {
@@ -224,12 +224,13 @@ DBG_MESSAGE("tunnelbauer_t::baue_einfahrt()","at end (%d,%d) for %s", end.x, end
 		weg = new strasse_t(welt);
 		besch = strassentunnel;
 	}
+	tunnel->obj_add(new tunnel_t(welt, end, sp, besch));
 
 	if(alter_weg) {
 		weg->setze_besch(alter_weg->gib_besch());
 		weg->setze_ribi_maske( alter_weg->gib_ribi_maske() );
 		// take care of everything on that tile ...
-		for( uint8 i=0;  i<alter_boden->obj_count();  i++  ) {
+		for( uint8 i=0;  i<alter_boden->gib_top();  i++  ) {
 			ding_t *d=alter_boden->obj_takeout(i);
 			if(d) {
 				tunnel->obj_pri_add(d,i);
@@ -333,7 +334,7 @@ tunnelbauer_t::remove(karte_t *welt, spieler_t *sp, koord3d start, weg_t::typ we
 		weg_besch = gr->gib_weg(wegtyp)->gib_besch();
 
 		// take care of everything on that tile ... (zero is the bridge itself)
-		for( uint8 i=1;  i<gr->obj_count();  i++  ) {
+		for( uint8 i=1;  i<gr->gib_top();  i++  ) {
 			ding_t *d=gr->obj_takeout(i);
 			if(d) {
 				gr_new->obj_pri_add(d,i);

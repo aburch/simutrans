@@ -7,6 +7,25 @@ Known bugs: (hard to fix)
 
 
 
+Release of 89.02
+
+24-Jul-2006: (prissi)
+	FIX: roadsigns shown in the wrong menues
+	FIX: not cost display for ways
+	FIX: roadsigns error after loading
+	FIX: wrong clipping for scrollbars ... still ...
+	CHANGE: more than one tranlation for a language in pak/text/ possible
+	CHANGE: if there is a file pak/compat.tab the names will be used to search for vehicles during loading => obsolete vehicles can be appropriately replace + better loading of 128 under 64 and vice versa
+	FIX: correct sorting of goods by name
+	CHANGE: no more railblocks => no signals on crossings (which did not worked well before too), but signals are now only a single tile!
+	ADD: new object way-object for overheadwires or avalanche protection; allows for electric roads too ... top speed in wayobj is limitied
+	FIX: correct weight for attractions
+	CHANGE: automatic align of city buildings to the next road, if there is more than one rotation
+	FIX: tunnel construction
+	FIX: clouds now better vanishing
+	CHANGE: one way signs and signal discovered also during routing
+
+
 Release of 89.01
 
 15-Jul-2006: (prissi)
@@ -19,7 +38,7 @@ Release of 89.01
 	FIX: AI now knows about short vehicles and can built smarter stations more often
 	FIX: clipping of lists
 	FIX: one way signals on platforms have been ignored
-	ADD: dates and waytypes for signs (not only roadsigns, although only the no enter sign will work on all ways)
+	ADD: dates and "waytype=" for signs (not only roadsigns, although only the no enter sign will work on all ways)
 	FIX: crash when deleting world
 
 

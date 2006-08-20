@@ -30,11 +30,12 @@ int wkz_wegebau(spieler_t *sp, karte_t *welt, koord pos, value_t lParam);
 /* removes a way like a driving car ... */
 int wkz_wayremover(spieler_t *sp, karte_t *welt,  koord pos, value_t lParam);
 
+/* add catenary during construction */
+int wkz_wayobj(spieler_t *sp, karte_t *welt, koord pos, value_t lParam);
+
 int wkz_marker(spieler_t *sp, karte_t *welt, koord pos);
 
 int wkz_senke(spieler_t *sp, karte_t *welt, koord pos);
-
-int wkz_signale(spieler_t *sp, karte_t *welt, koord pos,value_t lParam);
 
 int wkz_roadsign(spieler_t *sp, karte_t *welt, koord pos, value_t value);
 
@@ -46,18 +47,9 @@ int wkz_dockbau(spieler_t *sp, karte_t *welt, koord pos,value_t value);
 
 int wkz_depot(spieler_t *sp, karte_t *welt, koord pos,value_t f);
 
-
 // sonderwerkzeuge
-
 int wkz_fahrplan_add(spieler_t *sp, karte_t *welt, koord pos,value_t f);
 int wkz_fahrplan_ins(spieler_t *sp, karte_t *welt, koord pos,value_t f);
-
-// das testwerkzeug
-
-int wkz_blocktest(spieler_t *sp, karte_t *welt, koord pos);
-int wkz_test(spieler_t *sp, karte_t *welt, koord pos);
-
-int wkz_electrify_block(spieler_t *, karte_t *welt, koord pos);
 
 /**
  * found a new city

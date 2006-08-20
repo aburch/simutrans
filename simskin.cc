@@ -57,7 +57,6 @@
  * Alle Skin-Bestandteile, die wir brauchen
  */
 const skin_besch_t *skinverwaltung_t::hauptmenu = NULL;
-const skin_besch_t *skinverwaltung_t::schienen_werkzeug = NULL;
 const skin_besch_t *skinverwaltung_t::schiffs_werkzeug = NULL;
 const skin_besch_t *skinverwaltung_t::hang_werkzeug = NULL;
 const skin_besch_t *skinverwaltung_t::special_werkzeug = NULL;
@@ -93,15 +92,11 @@ const skin_besch_t *skinverwaltung_t::baumzeiger = NULL;
 const skin_besch_t *skinverwaltung_t::undoc_zeiger = NULL;
 const skin_besch_t *skinverwaltung_t::mouse_cursor = NULL;
 
-const skin_besch_t *skinverwaltung_t::signale = NULL;
-const skin_besch_t *skinverwaltung_t::presignals = NULL;
-const skin_besch_t *skinverwaltung_t::choosesignals = NULL;
 const skin_besch_t *skinverwaltung_t::construction_site = NULL;
 const skin_besch_t *skinverwaltung_t::fussweg = NULL;
 const skin_besch_t *skinverwaltung_t::pumpe = NULL;
 const skin_besch_t *skinverwaltung_t::senke = NULL;
 
-const skin_besch_t *skinverwaltung_t::oberleitung = NULL;
 const skin_besch_t *skinverwaltung_t::electricity = NULL;
 const skin_besch_t *skinverwaltung_t::intown = NULL;
 const skin_besch_t *skinverwaltung_t::passagiere = NULL;
@@ -120,21 +115,16 @@ const skin_besch_t *skinverwaltung_t::window_skin = NULL;
 
 
 static spezial_obj_tpl<skin_besch_t> misc_objekte[] = {
-    { &skinverwaltung_t::presignals,	    "preSignals" },
-    { &skinverwaltung_t::choosesignals,	    "ChooseSignals" },
     { &skinverwaltung_t::senke,		    "PowerDest" },
     { &skinverwaltung_t::pumpe,		    "PowerSource" },
-    { &skinverwaltung_t::signale,	    "Signals" },
     { &skinverwaltung_t::construction_site,	    "Construction" },
     { &skinverwaltung_t::fussweg,	    "Sidewalk" },
-    { &skinverwaltung_t::oberleitung,	    "Overheadpower" },
     { NULL, NULL }
 };
 
 static spezial_obj_tpl<skin_besch_t> menu_objekte[] = {
     { &skinverwaltung_t::window_skin,	    "WindowSkin" },
     { &skinverwaltung_t::hauptmenu,	    "MainMenu" },
-    { &skinverwaltung_t::schienen_werkzeug, "RailTools" },
     { &skinverwaltung_t::schiffs_werkzeug,  "ShipTools" },
     { &skinverwaltung_t::hang_werkzeug,     "SlopeTools" },
     { &skinverwaltung_t::special_werkzeug,     "SpecialTools" },
@@ -216,7 +206,7 @@ bool skinverwaltung_t::alles_geladen(skintyp_t type)
 	sb = symbol_objekte+1+1;	// forget about message box options and seasons
 	break;
     case misc:
-	sb = misc_objekte+2;	// not all signals needed
+	sb = misc_objekte;	// not all signals needed
 	break;
     case nothing:
 	return true;

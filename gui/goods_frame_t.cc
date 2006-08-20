@@ -123,12 +123,8 @@ int goods_frame_t::compare_goods(const void *p1, const void *p2)
 	int order;
 
 	switch (sortby) {
-		default:
-		case 0: // sort by station number
+		case 0: // sort by number
 			order = *(const unsigned short *)p1 - *(const unsigned short *)p2;
-			break;
-		case 1: // sort by station name
-			order = 0;
 			break;
 		case 2: // sort by revenue
 			{
@@ -144,14 +140,10 @@ int goods_frame_t::compare_goods(const void *p1, const void *p2)
 		case 3: // sort by speed bonus
 			order = w2->gib_speed_bonus()-w1->gib_speed_bonus();
 			break;
+		default:	// sort by name
+			order = strcmp(translator::translate(w1->gib_name()), translator::translate(w2->gib_name()));
+			break;
 	}
-	/**
-	 * use name as an additional sort, to make sort more stable.
-	 */
-	if(order == 0) {
-		order = strcmp(w1->gib_name(), w2->gib_name());
-	}
-
 	return sortreverse ? -order : order;
 }
 

@@ -38,8 +38,8 @@ OBJECTS=makeobj.o ../besch/writer/obj_node.o \
  ../besch/writer/xref_writer.o ../besch/writer/text_writer.o \
  ../besch/writer/tree_writer.o ../besch/writer/factory_writer.o \
  ../besch/writer/bridge_writer.o ../besch/writer/vehicle_writer.o \
- ../besch/writer/way_writer.o ../besch/writer/ground_writer.o \
- ../besch/writer/sound_writer.o \
+ ../besch/writer/way_writer.o ../besch/writer/way_obj_writer.o\
+ ../besch/writer/ground_writer.o  ../besch/writer/sound_writer.o \
  ../besch/writer/crossing_writer.o  ../besch/writer/tunnel_writer.o \
  ../besch/writer/citycar_writer.o  ../besch/writer/pedestrian_writer.o \
  ../besch/writer/sim_writer.o ../besch/writer/roadsign_writer.o \

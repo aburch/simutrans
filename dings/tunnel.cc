@@ -13,7 +13,6 @@
 #include "../simdings.h"
 #include "../simplay.h"
 #include "../simwerkz.h"
-#include "../blockmanager.h"
 #include "../boden/grund.h"
 #include "../boden/wege/strasse.h"
 #include "../boden/wege/schiene.h"
@@ -57,19 +56,6 @@ tunnel_t::tunnel_t(karte_t *welt, koord3d pos,
 void tunnel_t::info(cbuffer_t & buf) const
 {
   ding_t::info(buf);
-
-  schiene_t *sch = dynamic_cast<schiene_t *>(welt->lookup(gib_pos())->gib_weg(weg_t::schiene));
-
-  if(sch) {
-
-    buf.append("Rail block ");
-    buf.append(sch->gib_blockstrecke().get_id());
-    buf.append("\n");
-
-    buf.append("Ribi ");
-    buf.append(sch->gib_ribi());
-    buf.append("\n");
-  }
 }
 
 
@@ -77,9 +63,11 @@ void tunnel_t::info(cbuffer_t & buf) const
 void
 tunnel_t::calc_bild()
 {
-	const grund_t *gr = welt->lookup(gib_pos());
-	setze_bild( 0, besch->gib_hintergrund_nr(gr->gib_grund_hang()) );
-	after_bild = besch->gib_vordergrund_nr(gr->gib_grund_hang());
+	if(besch) {
+		const grund_t *gr = welt->lookup(gib_pos());
+		setze_bild( 0, besch->gib_hintergrund_nr(gr->gib_grund_hang()) );
+		after_bild = besch->gib_vordergrund_nr(gr->gib_grund_hang());
+	}
 }
 
 

@@ -1,0 +1,108 @@
+
+#include <stdio.h>
+#ifdef _MSC_VER
+#include <malloc.h> // for alloca
+#endif
+
+#include "../../simdebug.h"
+#include "../../utils/simstring.h"
+
+#include "../way_obj_besch.h"
+#include "../../dings/wayobj.h"
+
+#include "way_obj_reader.h"
+#include "../obj_node_info.h"
+
+//@ADOC
+/////////////////////////////////////////////////////////////////////////////
+//  member function:
+//      way_reader_t::register_obj()
+//
+//---------------------------------------------------------------------------
+//  Description:
+//      ...
+//
+//  Arguments:
+//      obj_besch_t *&data
+/////////////////////////////////////////////////////////////////////////////
+//@EDOC
+void way_obj_reader_t::register_obj(obj_besch_t *&data)
+{
+    way_obj_besch_t *besch = static_cast<way_obj_besch_t *>(data);
+    wayobj_t::register_besch(besch);
+}
+
+
+//@ADOC
+/////////////////////////////////////////////////////////////////////////////
+//  member function:
+//      way_reader_t::successfully_loaded()
+//
+//---------------------------------------------------------------------------
+//  Description:
+//      ...
+//
+//  Return type:
+//      bool
+/////////////////////////////////////////////////////////////////////////////
+//@EDOC
+bool way_obj_reader_t::successfully_loaded() const
+{
+    return wayobj_t::alles_geladen();
+}
+
+
+/**
+ * Read a way info node. Does version check and
+ * compatibility transformations.
+ * @author Hj. Malthaner
+ */
+obj_besch_t * way_obj_reader_t::read_node(FILE *fp, obj_node_info_t &node)
+{
+#ifdef _MSC_VER /* no var array on the stack supported */
+    char *besch_buf = static_cast<char *>(alloca(node.size));
+#else
+  // Hajo: reading buffer is better allocated on stack
+  char besch_buf [node.size];
+#endif
+
+	char *info_buf = new char[sizeof(obj_besch_t) + node.children * sizeof(obj_besch_t *)];
+	way_obj_besch_t *besch = new way_obj_besch_t();
+	besch->node_info = reinterpret_cast<obj_besch_info_t *>(info_buf);
+	// DBG_DEBUG("way_reader_t::read_node()", "node size = %d", node.size);
+
+	// Hajo: Read data
+	fread(besch_buf, node.size, 1, fp);
+	char * p = besch_buf;
+
+	// Hajo: old versions of PAK files have no version stamp.
+	// But we know, the higher most bit was always cleared.
+	const uint16 v = decode_uint16(p);
+	const uint16 version = v & 0x7FFF;
+
+	if(version==1) {
+		// Versioned node, version 3
+		besch->price = decode_uint32(p);
+		besch->maintenance = decode_uint32(p);
+		besch->topspeed = decode_uint32(p);
+		besch->intro_date = decode_uint16(p);
+		besch->obsolete_date = decode_uint16(p);
+		besch->wtyp = decode_uint8(p);
+		besch->own_wtyp = decode_uint8(p);
+	}
+	else {
+		dbg->fatal("way_obj_reader_t::read_node()","Invalid version %d", version);
+	}
+  DBG_DEBUG("way_obj_reader_t::read_node()",
+	     "version=%d price=%d maintenance=%d topspeed=%d max_weight=%d "
+	     "wtype=%d styp=%d intro_year=%i",
+	     version,
+	     besch->price,
+	     besch->maintenance,
+	     besch->topspeed,
+	     besch->wtyp,
+	     besch->own_wtyp,
+	     besch->intro_date/12);
+
+  return besch;
+}

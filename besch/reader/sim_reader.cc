@@ -18,6 +18,7 @@
 #include "good_reader.h"
 #include "ground_reader.h"
 #include "way_reader.h"
+#include "way_obj_reader.h"
 #include "root_reader.h"
 #include "xref_reader.h"
 #include "sound_reader.h"
@@ -56,8 +57,8 @@ good_reader_t good_reader_t::the_instance;
 
 ground_reader_t ground_reader_t::the_instance;
 way_reader_t way_reader_t::the_instance;
+way_obj_reader_t way_obj_reader_t::the_instance;
 crossing_reader_t crossing_reader_t::the_instance;
-
 bridge_reader_t bridge_reader_t::the_instance;
 tunnel_reader_t tunnel_reader_t::the_instance;
 

@@ -1865,9 +1865,15 @@ stadt_t::bewerte_wohnung(const koord pos)
 // return the eight neighbours
 static koord neighbours[8]=
 {
-	koord(-1,-1), 	koord(-1,0), 	koord(-1,1),
-	koord(0,-1), 	koord(0,1),
-	koord(1,-1), 	koord(1,0), 	koord(1,1)
+	koord(0,-1),
+	koord(1,0),
+	koord(0,1),
+	koord(-1,0),
+	// now the diagonals
+	koord(-1,-1),
+	koord(1,-1),
+	koord(-1,1),
+	koord(1,1)
 };
 
 void
@@ -1897,53 +1903,61 @@ stadt_t::baue_gebaeude(const koord k)
 		const int sum_industrie = passt_industrie + will_arbeit;
 		const int sum_wohnung = passt_wohnung + will_wohnung;
 
-  		const uint16 current_month = welt->get_timeline_year_month();
+  	const uint16 current_month = welt->get_timeline_year_month();
+		const haus_besch_t *h=NULL;
 
 		if(sum_gewerbe > sum_industrie && sum_gewerbe > sum_wohnung) {
-			const haus_besch_t *h= hausbauer_t::gib_gewerbe(0,current_month);
+			h = hausbauer_t::gib_gewerbe(0,current_month);
 			if(h) {
-				hausbauer_t::baue(welt, NULL, pos, 0, h );
 				arb += 20;
 			}
 		}
 
-		if(sum_industrie > sum_gewerbe && sum_industrie > sum_wohnung) {
-			const haus_besch_t *h= hausbauer_t::gib_industrie(0,current_month);
+		if(h==NULL  &&  sum_industrie > sum_gewerbe && sum_industrie > sum_wohnung) {
+			h= hausbauer_t::gib_industrie(0,current_month);
 			if(h) {
-				hausbauer_t::baue(welt, NULL, pos, 0, h );
 				arb += 20;
 			}
 		}
 
-		if(sum_wohnung > sum_industrie && sum_wohnung > sum_gewerbe) {
-			const haus_besch_t *h= hausbauer_t::gib_wohnhaus(0,current_month);
-			hausbauer_t::baue(welt, NULL, pos, 0, h );
+		if(h==NULL  &&  sum_wohnung > sum_industrie && sum_wohnung > sum_gewerbe) {
+			h= hausbauer_t::gib_wohnhaus(0,current_month);
 			if(h) {
-				hausbauer_t::baue(welt, NULL, pos, 0, h );
+				// will be aligned next to a street
 				won += 10;
 			}
 		}
 
-		const gebaeude_t *gb = dynamic_cast<const gebaeude_t *>(welt->lookup(k)->gib_kartenboden()->obj_bei(0));
-		add_gebaeude_to_stadt( gb );
-
-		// check for pavement
-		for(  int i=0;  i<8;  i++ ) {
-			grund_t *gr = welt->lookup(k+neighbours[i])->gib_kartenboden();
-			if(gr  &&  !gr->ist_bruecke()  &&  !gr->ist_tunnel()) {
-				strasse_t *weg = dynamic_cast <strasse_t *>(gr->gib_weg(weg_t::strasse));
-				if(weg) {
-					weg->setze_gehweg(true);
-					// if not current city road standard, then replace it
-					if(weg->gib_besch()!=welt->get_city_road()) {
-						if(gr->gib_besitzer()!=NULL  &&  !gr->gib_depot()  &&  !gr->gib_halt().is_bound()) {
-							gr->setze_besitzer( NULL );	// make public
+		// we have something to built here ...
+		if(h) {
+			// check for pavement
+			int streetdir=0;
+			for(int i=0;  i<8;  i++ ) {
+				gr = welt->lookup(k+neighbours[i])->gib_kartenboden();
+				if(gr  &&  !gr->ist_bruecke()  &&  !gr->ist_tunnel()) {
+					strasse_t *weg = (strasse_t *)(gr->gib_weg(weg_t::strasse));
+					if(weg) {
+						if(i<4  &&  streetdir==0) {
+							// update directions (NESW)
+							streetdir = i;
 						}
-						weg->setze_besch( welt->get_city_road() );
+						weg->setze_gehweg(true);
+						// if not current city road standard, then replace it
+						if(weg->gib_besch()!=welt->get_city_road()) {
+							if(gr->gib_besitzer()!=NULL  &&  !gr->gib_depot()  &&  !gr->gib_halt().is_bound()) {
+								gr->setze_besitzer( NULL );	// make public
+							}
+							weg->setze_besch( welt->get_city_road() );
+						}
+						gr->calc_bild();
 					}
-					gr->calc_bild();
 				}
 			}
+
+			hausbauer_t::baue(welt, NULL, pos, streetdir, h );
+
+			const gebaeude_t *gb = dynamic_cast<const gebaeude_t *>(welt->lookup(k)->gib_kartenboden()->obj_bei(0));
+			add_gebaeude_to_stadt( gb );
 		}
 	}
 }
@@ -2071,36 +2085,17 @@ stadt_t::renoviere_gebaeude(koord k)
 //    DBG_MESSAGE("stadt_t::renoviere_gebaeude()","renovation at %i,%i (%i level) of typ %i to typ %i with desire %i",k.x,k.y,alt_typ,will_haben,sum);
 		remove_gebaeude_from_stadt(gb);
 
-		if(will_haben == gebaeude_t::wohnung) {
-			hausbauer_t::umbauen(welt, gb, h);
-			won += h->gib_level() * 10;
-		} else if(will_haben == gebaeude_t::gewerbe) {
-			hausbauer_t::umbauen(welt, gb, h);
-			arb += h->gib_level() * 20;
-		} else if(will_haben == gebaeude_t::industrie) {
-			hausbauer_t::umbauen(welt, gb, h);
-			arb += h->gib_level() * 20;
-		}
-
-		add_gebaeude_to_stadt( dynamic_cast<const gebaeude_t *>(welt->lookup(k)->gib_kartenboden()->obj_bei(0)) );
-
-		if(alt_typ==gebaeude_t::industrie)
-			arb -= level * 20;
-		if(alt_typ==gebaeude_t::gewerbe)
-			arb -= level * 20;
-		if(alt_typ==gebaeude_t::wohnung)
-			won -= level * 10;
-
-		// printf("Renovierung mit %d Industrie, %d Gewerbe, %d  Wohnung\n", sum_industrie, sum_gewerbe, sum_wohnung);
-
-		erzeuge_verkehrsteilnehmer(k, h->gib_level(), koord::invalid );
-
 		// check for pavement
-		for(  int i=0;  i<8;  i++ ) {
+		int streetdir=0;
+		for(int i=0;  i<8;  i++ ) {
 			grund_t *gr = welt->lookup(k+neighbours[i])->gib_kartenboden();
 			if(gr  &&  !gr->ist_bruecke()  &&  !gr->ist_tunnel()) {
 				strasse_t *weg = dynamic_cast <strasse_t *>(gr->gib_weg(weg_t::strasse));
 				if(weg) {
+					if(i<4  &&  streetdir==0) {
+						// update directions (NESW)
+						streetdir = i;
+					}
 					weg->setze_gehweg(true);
 					// if not current city road standard, then replace it
 					if(weg->gib_besch()!=welt->get_city_road()) {
@@ -2113,6 +2108,32 @@ stadt_t::renoviere_gebaeude(koord k)
 				}
 			}
 		}
+
+		hausbauer_t::umbauen(welt, gb, h, streetdir);
+		if(will_haben == gebaeude_t::wohnung) {
+			won += h->gib_level() * 10;
+		} else if(will_haben == gebaeude_t::gewerbe) {
+			arb += h->gib_level() * 20;
+		} else if(will_haben == gebaeude_t::industrie, streetdir) {
+			arb += h->gib_level() * 20;
+		}
+
+		add_gebaeude_to_stadt( dynamic_cast<const gebaeude_t *>(welt->lookup(k)->gib_kartenboden()->obj_bei(0)) );
+
+		if(alt_typ==gebaeude_t::industrie) {
+			arb -= level * 20;
+		}
+		else if(alt_typ==gebaeude_t::gewerbe) {
+			arb -= level * 20;
+		}
+		else if(alt_typ==gebaeude_t::wohnung) {
+			won -= level * 10;
+		}
+
+		// printf("Renovierung mit %d Industrie, %d Gewerbe, %d  Wohnung\n", sum_industrie, sum_gewerbe, sum_wohnung);
+
+		erzeuge_verkehrsteilnehmer(k, h->gib_level(), koord::invalid );
+
 	}
 }
 

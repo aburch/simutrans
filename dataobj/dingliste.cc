@@ -23,7 +23,7 @@
 #endif
 #include "../dings/gebaeude.h"
 #include "../dings/leitung2.h"
-#include "../dings/oberleitung.h"
+#include "../dings/wayobj.h"
 #include "../dings/roadsign.h"
 
 #include "../simdepot.h"
@@ -334,6 +334,22 @@ dingliste_t::insert_at(ding_t *ding, uint8 pri)
 
 
 
+// insert before all pedestrians etc but after all static objects
+uint8
+dingliste_t::insert_before_moving(ding_t *ding)
+{
+	for(uint8 i=0;  i<top;  i++) {
+		ding_t *d=bei(i);
+		if(d==NULL  ||  d->gib_typ()>=32) {
+			return insert_at(ding,i);
+		}
+	}
+	// the first empty space will do it
+	return add(ding,0);
+}
+
+
+
 
 // take the thing out from the list
 // use this only for temperary removing
@@ -470,6 +486,30 @@ dingliste_t::kann_alle_entfernen(const spieler_t *sp) const
 
 
 
+/* recalculates all images
+ */
+void
+dingliste_t::calc_bild()
+{
+	if(capacity==0) {
+		// nothing
+	}
+	else if(capacity==1) {
+		if(obj.one!=NULL) {
+			obj.one->calc_bild();
+		}
+	}
+	else {
+		for(uint8 i=0; i<top; i++) {
+			if(obj.some[i]!=NULL) {
+				obj.some[i]->calc_bild();
+			}
+		}
+	}
+}
+
+
+
 /* check for obj */
 bool
 dingliste_t::ist_da(ding_t *ding) const
@@ -570,9 +610,11 @@ void dingliste_t::rdwr(karte_t *welt, loadsave_t *file, koord3d current_pos)
 				case ding_t::pumpe:		    d = new pumpe_t (welt, file);	        break;
 				case ding_t::leitung:	    d = new leitung_t (welt, file);	        break;
 				case ding_t::senke:		    d = new senke_t (welt, file);	        break;
-				case ding_t::oberleitung:	    d = new oberleitung_t (welt, file);	        break;
+				case ding_t::wayobj:	    d = new wayobj_t (welt, file);	        break;
 				case ding_t::zeiger:	    d = new zeiger_t (welt, file);	        break;
-				case ding_t::roadsign:	    d = new roadsign_t (welt, file);	        break;
+				case ding_t::signal:	    d = new signal_t (welt, file);	typ=ding_t::signal;  break;
+				case ding_t::old_roadsign:
+				case ding_t::roadsign:	    d = new roadsign_t (welt, file); typ=ding_t::roadsign; break;
 
 				case ding_t::bahndepot:
 				{
@@ -601,9 +643,11 @@ void dingliste_t::rdwr(karte_t *welt, loadsave_t *file, koord3d current_pos)
 				break;
 
 				// check for pillars
+				case ding_t::old_pillar:
 				case ding_t::pillar:
 				{
 					pillar_t *p = new pillar_t(welt, file);
+					typ = ding_t::pillar;
 					if(p->gib_besch()!=NULL  &&  p->gib_besch()->gib_pillar()!=0) {
 						d = p;
 					}
@@ -651,11 +695,6 @@ void dingliste_t::rdwr(karte_t *welt, loadsave_t *file, koord3d current_pos)
 
 #ifdef LAGER_NOT_IN_USE
 				case ding_t::lagerhaus:	    d = new lagerhaus_t (welt, file);	        break;
-				#else
-				case ding_t::lagerhaus:
-					dbg->warning("dingliste_t::laden()", "Error while loading game:");
-					dbg->fatal("dingliste_t::laden()", "Sorry, this version of simutrans does\nnot support a %s building.\nplease remove it in your old simutrans version and try again",
-					translator::translate("Lagerhaus"));
 #endif
 
 				default:
@@ -683,9 +722,10 @@ void dingliste_t::rdwr(karte_t *welt, loadsave_t *file, koord3d current_pos)
 		}
 		else {
 			// here is the saving part ...
-			if(bei(i)) {
-				if(bei(i)->gib_pos()==current_pos) {
-					if(bei(i)->gib_typ()!=ding_t::raucher) {
+			ding_t *d=bei(i);
+			if(d) {
+				if(d->gib_pos()==current_pos) {
+					if(d->gib_typ()!=ding_t::raucher) {
 						bei(i)->rdwr(file);
 					}
 					else {
@@ -711,7 +751,6 @@ void dingliste_t::rdwr(karte_t *welt, loadsave_t *file, koord3d current_pos)
 		}
 	}
 }
-
 
 
 

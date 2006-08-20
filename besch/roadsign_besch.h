@@ -19,6 +19,7 @@
  */
 #include "text_besch.h"
 #include "bildliste_besch.h"
+#include "../boden/wege/weg.h"
 #include "../dataobj/ribi.h"
 #include "../simtypes.h"
 
@@ -45,8 +46,6 @@ class roadsign_besch_t : public obj_besch_t {
 	friend class roadsign_writer_t;
 	friend class roadsign_reader_t;
 
-	enum types {ONE_WAY=1, FREE_ROUTE=2, PRIVATE_ROAD=4, SIGN_SIGNAL=8, SIGN_PRE_SIGNAL=16 };
-
 	uint8 flags;
 
 	/**
@@ -68,6 +67,8 @@ class roadsign_besch_t : public obj_besch_t {
 	uint16 obsolete_date;
 
 public:
+	enum types {ONE_WAY=1, FREE_ROUTE=2, PRIVATE_ROAD=4, SIGN_SIGNAL=8, SIGN_PRE_SIGNAL=16 };
+
 	const char *gib_name() const
 	{
 		return static_cast<const text_besch_t *>(gib_kind(0))->gib_text();
@@ -99,7 +100,7 @@ public:
 	 * @see weg_t::typ
 	 * @author Hj. Malthaner
 	 */
-	const uint8 gib_wtyp() const { return wtyp; }
+	const weg_t::typ gib_wtyp() const { return (weg_t::typ)wtyp; }
 
 	int gib_min_speed() const { return min_speed; }
 
@@ -119,6 +120,8 @@ public:
 
 	//  return true for presignal
 	bool is_pre_signal() const { return flags&SIGN_PRE_SIGNAL; }
+
+	uint8 get_flags() const { return flags; }
 
 	/**
 	* @return introduction year

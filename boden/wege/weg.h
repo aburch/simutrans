@@ -58,8 +58,7 @@ public:
      * Vordefinierte Wegtypen.
      * @author Hj. Malthaner
      */
-    enum typ {
-    					invalid=-1, strasse=1, schiene=2, wasser=3,
+    enum typ {invalid=-1, ignore=0, strasse=1, schiene=2, wasser=3,
 					overheadlines=4,
 					monorail=5,
 					schiene_maglev=6,
@@ -74,6 +73,7 @@ public:
      */
     static const slist_tpl <weg_t *> & gib_alle_wege();
 
+		enum { HAS_WALKWAY=1, IS_ELECTRIFIED=2, HAS_SIGN=4, HAS_WAYOBJ=8 };
 
 private:
 
@@ -122,6 +122,8 @@ private:
     uint16 max_speed;
 
 
+		uint8 flags;
+
 	/* we just save the offset unto the look up table; save memory
 	 * @author prissi
 	 */
@@ -161,14 +163,14 @@ public:
      * Get position on map
      * @author Hj. Malthaner
      */
-    koord3d gib_pos() const {return pos;};
+    koord3d gib_pos() const {return pos;}
 
 
     /**
      * Set position on map
      * @author Hj. Malthaner
      */
-    void setze_pos(koord3d p) {pos = p;};
+    void setze_pos(koord3d p) {pos = p;}
 
 
     /**
@@ -191,7 +193,7 @@ public:
      * @author Hj. Malthaner
      */
     void setze_besch(const weg_besch_t *b);
-    const weg_besch_t * gib_besch() const {return besch;};
+    const weg_besch_t * gib_besch() const {return besch;}
 
 
     weg_t(karte_t *welt, loadsave_t *file);
@@ -203,37 +205,27 @@ public:
 
 	virtual image_id gib_bild() const {return bild_nr;}
 
-
     /**
      * Info-text für diesen Weg
      * @author Hj. Malthaner
      */
     virtual void info(cbuffer_t & buf) const;
 
-
     /**
      * Wegtyp zurückliefern
      */
     virtual typ gib_typ() const = 0;
-
 
     /**
      * der typ_name (Bezeichnung) des Wegs
      */
     virtual const char *gib_typ_name() const {return "Weg"; }
 
-
     /**
      * Die Bezeichnung des Wegs
      * @author Hj. Malthaner
      */
     virtual const char *gib_name() const;
-
-
-    /**
-     */
-    virtual bool ist_frei() const {return true;};
-
 
     /**
      * Liefert das benötgte Bild für den Weg.
@@ -254,7 +246,7 @@ public:
      * zur Reparatur muß folgen).
      * @param ribi Richtungsbits
      */
-    void ribi_add(ribi_t::ribi ribi) { this->ribi |= ribi;};
+    void ribi_add(ribi_t::ribi ribi) { this->ribi |= ribi;}
 
 
     /**
@@ -265,7 +257,7 @@ public:
      * zur Reparatur muß folgen).
      * @param ribi Richtungsbits
      */
-    void ribi_rem(ribi_t::ribi ribi) { this->ribi &= ~ribi;};
+    void ribi_rem(ribi_t::ribi ribi) { this->ribi &= ~ribi;}
 
 
     /**
@@ -276,19 +268,19 @@ public:
      * zur Reparatur muß folgen).
      * @param ribi Richtungsbits
      */
-    void setze_ribi(ribi_t::ribi ribi) { this->ribi = ribi;};
+    void setze_ribi(ribi_t::ribi ribi) { this->ribi = ribi;}
 
 
     /**
      * Ermittelt die unmaskierten Richtungsbits für den Weg.
      */
-    ribi_t::ribi gib_ribi_unmasked() const { return ribi; };
+    ribi_t::ribi gib_ribi_unmasked() const { return ribi; }
 
 
     /**
      * Ermittelt die (maskierten) Richtungsbits für den Weg.
      */
-    ribi_t::ribi gib_ribi() const { return ribi & ~ribi_maske; };
+    ribi_t::ribi gib_ribi() const { return ribi & ~ribi_maske; }
 
 
     /**
@@ -297,24 +289,7 @@ public:
      * @param ribi Richtungsbits
      */
     void setze_ribi_maske(ribi_t::ribi ribi) { ribi_maske = ribi; }
-    ribi_t::ribi gib_ribi_maske() const { return ribi_maske; };
-
-#if 0
-    /**
-     * einige Wege können betreten werden. Manche Wege z.B.
-     * schienen und strassen können aktionen ausführen z.b. ein signal
-     * stellen wenn sie betreten werden.
-     * @author Hj. Malthaner
-     */
-    virtual void betrete(vehikel_t *) {};
-
-
-    /**
-     * Gegenstueck zu betrete()
-     * @author Hj. Malthaner
-     */
-    virtual void verlasse(vehikel_t *) {};
-#endif
+    ribi_t::ribi gib_ribi_maske() const { return ribi_maske; }
 
     /**
      * book statistics - is called very often and therefore inline
@@ -339,7 +314,19 @@ public:
      * new month
      * @author hsiegeln
      */
-    void neuer_monat();
+		void neuer_monat();
+
+
+		/* flag query routines */
+		void setze_gehweg(bool janein) {if(janein) { flags |= HAS_WALKWAY;} else {flags&=~HAS_WALKWAY;} }
+		inline bool hat_gehweg() const {return flags&HAS_WALKWAY; }
+
+		void set_electrify(bool janein) {janein ? flags |= IS_ELECTRIFIED : flags &= ~IS_ELECTRIFIED;}
+		inline bool is_electrified() const {return flags&IS_ELECTRIFIED; }
+
+		void count_sign();
+		inline bool has_sign() const {return flags&HAS_SIGN; }
+		inline bool has_wayobj() const {return flags&HAS_WAYOBJ; }
 } GCC_PACKED;
 
 #endif

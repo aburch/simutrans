@@ -21,7 +21,6 @@
 #include "simwin.h"
 #include "simcolor.h"
 #include "simmesg.h"
-#include "blockmanager.h"
 #include "simintr.h"
 #include "simlinemgmt.h"
 #include "simline.h"
@@ -596,24 +595,6 @@ void convoi_t::suche_neue_route()
 }
 
 
-/**
- * Advance route by one step.
- * @return next position on route
- * @author Hanjsörg Malthaner
- */
-koord3d convoi_t::advance_route(const int n) const
-{
-  koord3d result (-1, -1, -1);
-
-  if(n <= route.gib_max_n()) {
-    result = route.position_bei(n);
-  } else {
-    result = route.position_bei(route.gib_max_n());
-  }
-
-  return result;
-}
-
 
 /**
  * Asynchrne step methode des Convois
@@ -662,8 +643,8 @@ void convoi_t::step()
 
 		case WAITING_FOR_CLEARANCE:
 		case WAITING_FOR_CLEARANCE_ONE_MONTH:
-			// only every second step ...
-			if((self.get_id()&1)==(welt->gib_steps()&1)) {
+			// only every fourth step after the first try ...
+			if(akt_speed>=0  ||  (self.get_id()&3)==(welt->gib_steps()&3)) {
 				int restart_speed=-1;
 				if(fahr->at(0)->ist_weg_frei(restart_speed)) {
 					state = DRIVING;
@@ -728,14 +709,11 @@ convoi_t::betrete_depot(depot_t *dep)
 		grund_t *gr=welt->lookup(fahr->at(i)->gib_pos());
 		if(gr) {
 			// remove from blockstrecke
+			gr->obj_remove(fahr->at(i),gib_besitzer());
 			if(fahr->at(i)->gib_wegtyp()==weg_t::schiene  ||  fahr->at(i)->gib_wegtyp()==weg_t::monorail) {
 				schiene_t *sch=(schiene_t *)gr->gib_weg(fahr->at(i)->gib_wegtyp());
-				if(sch) {
-					sch->unreserve(self);
-					sch->gib_blockstrecke()->verlasse(fahr->at(i));
-				}
+				sch->unreserve(self);
 			}
-			gr->obj_remove(fahr->at(i),gib_besitzer());
 		}
 	}
 
@@ -1083,7 +1061,6 @@ convoi_t::go_neue_richtung()
 				schiene_t *sch=(schiene_t *)gr->gib_weg(fahr->at(i)->gib_wegtyp());
 				if(sch) {
 					sch->unreserve(self);
-					sch->gib_blockstrecke()->verlasse(fahr->at(i));
 				}
 			}
 			gr->obj_remove(fahr->at(i),gib_besitzer());
@@ -1098,7 +1075,6 @@ convoi_t::go_neue_richtung()
 				schiene_t *sch=(schiene_t *)gr->gib_weg(fahr->at(i)->gib_wegtyp());
 				if(sch) {
 					sch->reserve(self);
-					sch->gib_blockstrecke()->betrete(fahr->at(i));
 				}
 			}
 			fahr->at(i)->betrete_feld();
@@ -1290,7 +1266,6 @@ dbg->fatal("convoi_t::rdwr()","invalid position %s for vehicle %s in state %d (s
 					schiene_t *sch=(schiene_t *)gr->gib_weg(fahr->at(i)->gib_wegtyp());
 					if(sch) {
 						sch->reserve(self);
-						sch->gib_blockstrecke()->betrete(fahr->at(i));
 					}
 				}
 				gr->obj_add(v);

@@ -90,7 +90,7 @@ public:
 class ribi_t {
     static const int flags[16];
 
-    enum { einfach = 1, gerade_ns = 2, gerade_ow = 4, kurve = 8 };
+    enum { einfach = 1, gerade_ns = 2, gerade_ow = 4, kurve = 8, twoway=16, threeway=32 };
 public:
     /* das enum richtung ist eine verallgemeinerung der richtungsbits auf
      * benannte Konstanten; die Werte sind wie folgt zugeordnet
@@ -133,6 +133,7 @@ public:
    };
     typedef uint8 dir;
 private:
+    static const ribi fwrd[16];
     static const ribi rwr[16];
     static const ribi doppelr[16];
     static const dir  dirs[16];
@@ -145,8 +146,12 @@ public:
     //
     static ribi doppelt(ribi x) { return doppelr[x]; }
     static ribi rueckwaerts(ribi x) { return rwr[x]; }
+    static ribi gib_forward(ribi x) { return fwrd[x]; }	// all ribis, that are in front of this thing
 
-    static bool ist_exakt_orthogonal(ribi x, ribi y);
+    static bool is_twoway(ribi x) { return (flags[x]&twoway)!=0; }
+    static bool is_threeway(ribi x) { return (flags[x]&threeway)!=0; }
+
+		static bool ist_exakt_orthogonal(ribi x, ribi y);
     static bool ist_orthogonal(ribi x, ribi y) { return (doppelr[x] | doppelr[y]) == alle; }
     static bool ist_einfach(ribi x) { return (flags[x] & einfach) != 0; }
     static bool ist_kurve(ribi x) { return (flags[x] & kurve) != 0; }
