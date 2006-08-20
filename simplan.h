@@ -203,6 +203,6 @@ public:
     void display_boden(const sint16 xpos, const sint16 ypos, const sint16 scale, const bool dirty) const;
 
     void display_dinge(const sint16 xpos, const sint16 ypos, const sint16 scale, const bool dirty) const;
-} GCC_PACKED;
+};
 
 #endif

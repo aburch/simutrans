@@ -636,7 +636,7 @@ public:
 
 	/* remove almost everything on this way */
 	bool remove_everything_from_way(spieler_t *sp,weg_t::typ wt,ribi_t::ribi ribi_rem);
-} GCC_PACKED;
+};
 
 
 #endif
