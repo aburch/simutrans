@@ -110,6 +110,7 @@ void grund_t::calc_back_bild(const sint8 hgt,const sint8 slope_this)
 {
 	sint8 back_bild_nr=0;
 	sint8 is_building=0;
+	bool fence_west=false, fence_north=false;
 	const koord k = gib_pos().gib_2d();
 
 	clear_flag(grund_t::draw_as_ding);
@@ -148,6 +149,7 @@ void grund_t::calc_back_bild(const sint8 hgt,const sint8 slope_this)
 			// up slope hiding something ...
 			if(diff_from_ground_1-corner1(slope_this)<0  ||  diff_from_ground_2-corner4(slope_this)<0)  {
 				set_flag(grund_t::draw_as_ding);
+				fence_west = true;
 			}
 			// any height difference AND something to see?
 			if(  (diff_from_ground_1-corner1(slope_this)>0  ||  diff_from_ground_2-corner4(slope_this)>0)
@@ -174,6 +176,7 @@ void grund_t::calc_back_bild(const sint8 hgt,const sint8 slope_this)
 			// up slope hiding something ...
 			if(diff_from_ground_1-corner4(slope_this)<0  ||  diff_from_ground_2-corner3(slope_this)<0) {
 				set_flag(grund_t::draw_as_ding);
+				fence_north = true;
 			}
 			// any height difference AND something to see?
 			if(  (diff_from_ground_1-corner4(slope_this)>0  ||  diff_from_ground_2-corner3(slope_this)>0)
@@ -196,6 +199,17 @@ void grund_t::calc_back_bild(const sint8 hgt,const sint8 slope_this)
 
 	back_bild_nr %= 121;
 	this->back_bild_nr = (is_building!=0)? -back_bild_nr : back_bild_nr;
+	// needs a fence?
+	if(back_bild_nr==0) {
+		back_bild_nr = 121;
+		if(fence_west) {
+			back_bild_nr += 1;
+		}
+		if(fence_north) {
+			back_bild_nr += 2;
+		}
+		this->back_bild_nr = (gib_typ()==grund_t::fundament)? -back_bild_nr : back_bild_nr;
+	}
 }
 
 
@@ -305,7 +319,7 @@ spieler_t * grund_t::gib_besitzer() const
 bool grund_t::setze_besitzer(spieler_t *s)
 {
 	sint8 sp_num= s ? s->get_player_nr() : -1;
-	if(besitzer_n!=sp_num) {
+	if(besitzer_n!=sp_num  &&  !ist_bruecke()) {
 		// transfer way maitenance costs
 		if(wege[0]) {
 			if(besitzer_n>=0) { welt->gib_spieler(besitzer_n)->add_maintenance(-wege[0]->gib_besch()->gib_wartung()); }
@@ -490,6 +504,9 @@ DBG_MESSAGE("grund_t::rdwr()","at (%i,%i) dock ignored",gib_pos().x, gib_pos().y
 			if(wege[0]  &&  br) {
 				wege[0]->setze_max_speed(br->gib_besch()->gib_topspeed());
 			}
+			if(gib_besitzer()  &&  wege[0]) {
+			    gib_besitzer()->add_maintenance(-wege[0]->gib_besch()->gib_wartung());
+			}
 		}
 	}
 	//DBG_DEBUG("grund_t::rdwr()", "loaded at %i,%i with %i dinge bild %i.", pos.x, pos.y, obj_count(),bild_nr);
@@ -524,7 +541,7 @@ grund_t::~grund_t()
 
 	for(int i = 0; i<MAX_WEGE; i++) {
 		if(wege[i]) {
-			if(gib_besitzer() && !ist_wasser() && wege[i]->gib_besch()) {
+			if(gib_besitzer() && !ist_wasser()  &&  !ist_bruecke()) {
 				gib_besitzer()->add_maintenance(-wege[i]->gib_besch()->gib_wartung());
 			}
 			delete wege[i];
@@ -743,15 +760,31 @@ void grund_t::do_display_boden( const sint16 xpos, const sint16 ypos, const bool
 {
 	// walls
 	if(back_bild_nr!=0) {
-		const sint8 back_bild2 = (abs(back_bild_nr)/11)+11;
-		const sint8 back_bild1 = abs(back_bild_nr)%11;
-		if(back_bild_nr<0) {
-			display_img(grund_besch_t::fundament->gib_bild(back_bild1), xpos, ypos, dirty);
-			display_img(grund_besch_t::fundament->gib_bild(back_bild2), xpos, ypos, dirty);
+		if(abs(back_bild_nr)>121) {
+			// fence before a drop
+			if(back_bild_nr<0) {
+				// behind a building
+				display_img(grund_besch_t::fences->gib_bild(-back_bild_nr-122+3), xpos, ypos, dirty);
+			}
+			else {
+				// on a normal tile
+				display_img(grund_besch_t::fences->gib_bild(back_bild_nr-122), xpos, ypos, dirty);
+			}
 		}
 		else {
-			display_img(grund_besch_t::slopes->gib_bild(back_bild1), xpos, ypos, dirty);
-			display_img(grund_besch_t::slopes->gib_bild(back_bild2), xpos, ypos, dirty);
+			// artificial slope
+			const sint8 back_bild2 = (abs(back_bild_nr)/11)+11;
+			const sint8 back_bild1 = abs(back_bild_nr)%11;
+			if(back_bild_nr<0) {
+				// for a foundation
+				display_img(grund_besch_t::fundament->gib_bild(back_bild1), xpos, ypos, dirty);
+				display_img(grund_besch_t::fundament->gib_bild(back_bild2), xpos, ypos, dirty);
+			}
+			else {
+				// natural
+				display_img(grund_besch_t::slopes->gib_bild(back_bild1), xpos, ypos, dirty);
+				display_img(grund_besch_t::slopes->gib_bild(back_bild2), xpos, ypos, dirty);
+			}
 		}
 	}
 
@@ -890,7 +923,7 @@ long grund_t::neuen_weg_bauen(weg_t *weg, ribi_t::ribi ribi, spieler_t *sp)
 		}
 
 		// just add the cost
-		if(gib_besitzer() && !ist_wasser()) {
+		if(gib_besitzer() && !ist_wasser()  &&  !ist_bruecke()) {
 			gib_besitzer()->add_maintenance(weg->gib_besch()->gib_wartung());
 		}
 		weg->setze_ribi(ribi);
@@ -939,7 +972,7 @@ sint32 grund_t::weg_entfernen(weg_t::typ wegtyp, bool ribi_rem)
 		for(sint8 i=0, j=-1; i<MAX_WEGE; i++) {
 			if(wege[i]) {
 				if(wege[i]->gib_typ()==wegtyp) {
-					if(gib_besitzer() && !ist_wasser()) {
+					if(gib_besitzer() && !ist_wasser()  &&  !ist_bruecke()) {
 						gib_besitzer()->add_maintenance(-wege[i]->gib_besch()->gib_wartung());
 					}
 

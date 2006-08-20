@@ -50,6 +50,7 @@ const grund_besch_t *grund_besch_t::winter_ufer = NULL;
 const grund_besch_t *grund_besch_t::wasser = NULL;
 const grund_besch_t *grund_besch_t::fundament = NULL;
 const grund_besch_t *grund_besch_t::slopes = NULL;
+const grund_besch_t *grund_besch_t::fences = NULL;
 const grund_besch_t *grund_besch_t::ausserhalb = NULL;
 
 static spezial_obj_tpl<grund_besch_t> grounds[] = {
@@ -58,6 +59,7 @@ static spezial_obj_tpl<grund_besch_t> grounds[] = {
     { &grund_besch_t::wasser,	    "Water" },
     { &grund_besch_t::fundament,    "Basement" },
     { &grund_besch_t::slopes,    "Slopes" },
+    { &grund_besch_t::fences,   "Fence" },
     { &grund_besch_t::ausserhalb,   "Outside" },
     { NULL, NULL }
 };

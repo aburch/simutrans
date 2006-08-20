@@ -483,65 +483,76 @@ void spieler_t::roll_finance_history_month()
 			finance_history_month[i][cost_type] = finance_history_month[i-1][cost_type];
 		}
 	}
-	finance_history_month[0][COST_ASSETS] = 0;
+	for (int i=0;i<MAX_COST;i++) {
+		finance_history_month[0][i] = 0;
+	}
 	finance_history_year[0][COST_ASSETS] = 0;
 }
 
 void spieler_t::roll_finance_history_year()
 {
-        int i;
+	int i;
 	for (i=MAX_HISTORY_YEARS-1; i>0; i--) {
 		for (int cost_type = 0; cost_type<MAX_COST; cost_type++) {
 			finance_history_year[i][cost_type] = finance_history_year[i-1][cost_type];
 		}
 	}
+	for (int i=0;i<MAX_COST;i++) {
+		finance_history_year[0][i] = 0;
+	}
+	finance_history_month[0][COST_ASSETS] = 0;
 }
 
-void spieler_t::calc_finance_history()
+
+
+void
+spieler_t::calc_finance_history()
 {
-    /**
-    * copy finance data into historical finance data array
-    * @author hsiegeln
-    */
-    sint64 profit, assets, mprofit;
-    profit = assets = mprofit = 0;
-    for (int i=0; i<MAX_COST; i++) {
-	    // all costs < COST_ASSETS influence profit, so we must sum them up
+	/**
+	* copy finance data into historical finance data array
+	* @author hsiegeln
+	*/
+	sint64 profit, assets, mprofit;
+	profit = assets = mprofit = 0;
+	for (int i=0; i<MAX_COST; i++) {
+		// all costs < COST_ASSETS influence profit, so we must sum them up
 		if(i<COST_ASSETS) {
 			profit += finance_history_year[0][i];
 			mprofit += finance_history_month[0][i];
 		}
-    }
+	}
 
 	if(finance_history_month[0][COST_ASSETS]==0) {
 		// new month has started
-	    slist_iterator_tpl<convoihandle_t> iter (welt->gib_convoi_list());
-	    while(iter.next()) {
-	    	convoihandle_t cnv = iter.get_current();
-	    	if (cnv->gib_besitzer() == this) {
-	    		assets += cnv->calc_restwert();
-	    	}
-	    }
+		slist_iterator_tpl<convoihandle_t> iter (welt->gib_convoi_list());
+		while(iter.next()) {
+			convoihandle_t cnv = iter.get_current();
+			if(cnv->gib_besitzer()==this) {
+				assets += cnv->calc_restwert();
+			}
+		}
 		finance_history_year[0][COST_ASSETS] = finance_history_month[0][COST_ASSETS] = assets;
 	}
 
-    finance_history_year[0][COST_PROFIT] = profit;
-    finance_history_month[0][COST_PROFIT] = mprofit;
+	finance_history_year[0][COST_PROFIT] = profit;
+	finance_history_month[0][COST_PROFIT] = mprofit;
 
-    finance_history_year[0][COST_NETWEALTH] = finance_history_year[0][COST_ASSETS] + konto;
-    finance_history_year[0][COST_CASH] = konto;
+	finance_history_year[0][COST_NETWEALTH] = finance_history_year[0][COST_ASSETS] + konto;
+	finance_history_year[0][COST_CASH] = konto;
 	finance_history_year[0][COST_OPERATING_PROFIT] = finance_history_year[0][COST_INCOME] + finance_history_year[0][COST_VEHICLE_RUN] + finance_history_year[0][COST_MAINTENANCE];
-    sint64 margin_div = (finance_history_year[0][COST_VEHICLE_RUN] + finance_history_year[0][COST_MAINTENANCE]);
+	sint64 margin_div = (finance_history_year[0][COST_VEHICLE_RUN] + finance_history_year[0][COST_MAINTENANCE]);
 	finance_history_year[0][COST_MARGIN] = margin_div!= 0 ? (100*finance_history_year[0][COST_OPERATING_PROFIT]) / labs(margin_div) : 0;
 
-    finance_history_month[0][COST_NETWEALTH] = finance_history_month[0][COST_ASSETS] + konto;
-    finance_history_month[0][COST_CASH] = konto;
+	finance_history_month[0][COST_NETWEALTH] = finance_history_month[0][COST_ASSETS] + konto;
+	finance_history_month[0][COST_CASH] = konto;
 	finance_history_month[0][COST_OPERATING_PROFIT] = finance_history_month[0][COST_INCOME] + finance_history_month[0][COST_VEHICLE_RUN] + finance_history_month[0][COST_MAINTENANCE];
 	margin_div = (finance_history_month[0][COST_VEHICLE_RUN] + finance_history_month[0][COST_MAINTENANCE]);
 	finance_history_month[0][COST_MARGIN] = margin_div!= 0 ? (100*finance_history_month[0][COST_OPERATING_PROFIT]) / labs(margin_div) : 0;
 }
 
 
+
+// add and amount, including the display of the message and some other things ...
 sint64
 spieler_t::buche(const sint64 betrag, const koord pos, const int type)
 {
@@ -565,6 +576,8 @@ spieler_t::buche(const sint64 betrag, const koord pos, const int type)
 }
 
 
+
+// add an amout to a subcategory
 sint64
 spieler_t::buche(const sint64 betrag, int type)
 {

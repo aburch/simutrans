@@ -28,10 +28,13 @@
 
 bruecke_t::bruecke_t(karte_t *welt, loadsave_t *file) : ding_t(welt)
 {
-  besch = NULL;
-  rdwr(file);
-  setze_bild(0, besch->gib_hintergrund(img));
-  step_frequency = 0;
+	besch = NULL;
+	rdwr(file);
+	if(gib_besitzer()) {
+		gib_besitzer()->add_maintenance(besch->gib_wartung());
+	}
+	setze_bild(0, besch->gib_hintergrund(img));
+	step_frequency = 0;
 }
 
 bruecke_t::bruecke_t(karte_t *welt, koord3d pos, const int y_off, spieler_t *sp,
@@ -47,6 +50,7 @@ bruecke_t::bruecke_t(karte_t *welt, koord3d pos, const int y_off, spieler_t *sp,
 
 	if(gib_besitzer()) {
 		gib_besitzer()->buche(-besch->gib_preis(), gib_pos().gib_2d(), COST_CONSTRUCTION);
+		gib_besitzer()->add_maintenance(besch->gib_wartung());
 	}
 	step_frequency = 0;
 }
@@ -56,6 +60,7 @@ bruecke_t::~bruecke_t()
 {
 	if(gib_besitzer()) {
 		gib_besitzer()->buche(-besch->gib_preis(), gib_pos().gib_2d(), COST_CONSTRUCTION);
+		gib_besitzer()->add_maintenance(-besch->gib_wartung());
 	}
 }
 

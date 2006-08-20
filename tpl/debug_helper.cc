@@ -50,20 +50,3 @@ void out_message(const char *who, const char *format, ...)
 	vfprintf(stderr, format, argptr);
 	fprintf(stderr,"\n");
 }
-
-/*
-// generate a division be zero error
-void trap()
-{
-#ifdef DEBUG
-	int i=32, j;
-	for( j=1; j>=0;  j-- )
-	{
-		i += (i/j);
-		printf("%*d",i);
-	}
-#else
-	assert(0);
-#endif
-}
-*/

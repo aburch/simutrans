@@ -7,6 +7,14 @@ Known bugs: (hard to fix)
 
 
 
+Release of 88.10.5 (stable)
+
+1-Jul-2006: (prissi)
+	FIX: maintainace for bridges works again
+	FIX: values in finance history init to zero at the start of new year
+	ADD: fences on slope borders (obj=ground, name=Fence, first three=natural fence, last three=building fence)
+
+
 Release of 88.10.4
 
 24-Jun-2006: (prissi)

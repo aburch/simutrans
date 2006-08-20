@@ -70,8 +70,8 @@ public:
 	static void GET_NODE() {if(node_in_use) trap(); node_in_use =1; };
 	static void RELEASE_NODE() {if(!node_in_use) trap(); node_in_use =0; };
 #else
-	static void GET_NODE() const {}
-	static void RELEASE_NODE() const {}
+	static void GET_NODE() {}
+	static void RELEASE_NODE() {}
 #endif
 
 	static inline uint32 calc_distance( const koord3d p1, const koord3d p2 )

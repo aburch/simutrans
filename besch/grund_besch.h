@@ -93,6 +93,7 @@ public:
     static const grund_besch_t *winter_ufer;
     static const grund_besch_t *fundament;
     static const grund_besch_t *slopes;
+    static const grund_besch_t *fences;
     static const grund_besch_t *ausserhalb;
 
     static bool register_besch(const grund_besch_t *besch);

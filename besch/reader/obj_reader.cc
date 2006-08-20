@@ -358,8 +358,8 @@ obj_besch_t *obj_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 
 	if(node.size>0) {
 		// not 32/64 Bit compatible for everything but char!
-		fread(besch + 1, node.size, 1, fp);
 		dbg->warning("obj_reader_t::read_node()","native called on type %.4s (size %i), will break on 64Bit if type!=ASCII",reinterpret_cast<const char *>(&node.type),node.size);
+		fread(besch + 1, node.size, 1, fp);
 	}
 
 	return besch;
