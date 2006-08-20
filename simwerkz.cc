@@ -1286,7 +1286,7 @@ int wkz_roadsign(spieler_t *sp, karte_t *welt, koord pos, value_t lParam)
 
 			// get the sign dirction
 			ribi_t::ribi dir = weg->gib_ribi_unmasked();
-			if(ribi_t::ist_gerade(dir)) {
+			if(ribi_t::ist_gerade(dir)  ||  (besch->is_traffic_light()  &&  ribi_t::ist_kreuzung(dir))) {
 
 				// if single way, we need to reduce the allowed ribi to one
 DBG_MESSAGE("wkz_roadsign()","dir is %i", dir);

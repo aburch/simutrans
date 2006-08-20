@@ -255,7 +255,7 @@ protected:
 
 public:
 
-    virtual bool ist_weg_frei(int &/*restart_speed*/) const {return true;};
+    virtual bool ist_weg_frei(int &/*restart_speed*/) {return true;};
 
     virtual void verlasse_feld();
 
@@ -510,7 +510,7 @@ protected:
     void calc_bild();
 
 public:
-    virtual bool ist_weg_frei(int &restart_speed) const;
+    virtual bool ist_weg_frei(int &restart_speed);
 
     automobil_t(karte_t *welt, loadsave_t *file);
     automobil_t(karte_t *welt, koord3d pos, const vehikel_besch_t *besch,
@@ -559,7 +559,7 @@ protected:
     void calc_bild();
 
 public:
-    virtual bool ist_weg_frei(int &restart_speed) const;
+    virtual bool ist_weg_frei(int &restart_speed);
 
 	bool is_next_block_free( presignal_t *sig ) const;
 
@@ -609,7 +609,7 @@ protected:
 
 public:
 
-    virtual bool ist_weg_frei(int &restart_speed) const;
+    virtual bool ist_weg_frei(int &restart_speed);
 
     /**
      * Ermittelt die für das Fahrzeug geltenden Richtungsbits,

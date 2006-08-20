@@ -265,7 +265,7 @@ public:
      * Zum buchen der Abrisskosten auf das richtige Konto
      * @author Hj. Malthaner
      */
-    virtual void entferne(spieler_t *sp) {};
+    virtual void entferne(spieler_t *) {};
 
     /**
      * 'Jedes Ding braucht einen Namen.'

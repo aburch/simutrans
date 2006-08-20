@@ -21,7 +21,7 @@
 //#define USE_SMALL_FONT
 
 /* prissi: the next line will make a version using only 8px height (like TTDX) */
-#define OTTD_LIKE
+//#define OTTD_LIKE
 
 
 #ifdef __cplusplus

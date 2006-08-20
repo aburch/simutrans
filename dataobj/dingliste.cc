@@ -89,9 +89,13 @@ dingliste_t::~dingliste_t()
 
 
 void
-dingliste_t::set_capacity(uint8 new_cap)
+dingliste_t::set_capacity(unsigned new_cap)
 {
 	// DBG_MESSAGE("dingliste_t::set_capacity()", "old cap=%d, new cap=%d", capacity, new_cap);
+
+	if(new_cap>=255) {
+		new_cap = 254;
+	}
 
 	// a single object is stored differentially
 	if(new_cap==0) {
@@ -178,6 +182,23 @@ dingliste_t::grow_capacity(uint8 pri)
 		set_capacity( (pri+4)&0xFC );
 		return (top-1==pri) ? pri+1 : pri;
 	}
+	else if(capacity==254) {
+		// scannen ob noch was frei ist
+		for(int i=pri; i<capacity; i++) {
+			if(obj.some[i] == NULL) {
+				// platz gefunden
+				return i;
+			}
+		}
+		// scannen ob noch was frei ist
+		for(int i=0; i<pri; i++) {
+			if(obj.some[i] == NULL) {
+				// platz gefunden
+				return i;
+			}
+		}
+		return pri;	// well, this place is occupied, but may be best choice anyway ...
+	}
 	else {
 		int new_cap = 0;
 		if(pri >= capacity) {
@@ -185,6 +206,7 @@ dingliste_t::grow_capacity(uint8 pri)
 			new_cap = pri + 1;
 		}
 		else {
+
 			// scannen ob noch was frei ist
 			for(int i=pri; i<capacity; i++) {
 				if(obj.some[i] == NULL) {
@@ -194,11 +216,11 @@ dingliste_t::grow_capacity(uint8 pri)
 			}
 
 			// size exeeded, needs to extent
-			new_cap = capacity + 1;
+			new_cap = max(capacity + 1,255);
 		}
 
 		// wenn wir hier sind, dann muss erweitert werden
-		const int first_free = MAX(capacity, pri);
+		const int first_free = max(capacity, pri);
 
 		// neue kapazitaet auf vier aufrunden
 		new_cap = (new_cap + 3) & 0xFFFC;
@@ -456,12 +478,12 @@ void dingliste_t::rdwr(karte_t *welt, loadsave_t *file, koord3d current_pos)
 	file->rdwr_long(max_object_index, "\n");
 
 	if(max_object_index>254) {
-		dbg->error("dingliste_t::laden()","Too many objects at one place (%i)",max_object_index);
+		dbg->error("dingliste_t::laden()","Too many objects (%i) at (%i,%i), some vehicle may not appear immediately.",max_object_index,current_pos.x,current_pos.y);
 	}
 
 	for(int i=0; i<=max_object_index; i++) {
 		if(file->is_loading()) {
-			uint8 pri = (i>254) ? 0: (uint8)i;	// try to read as many as possible
+			uint8 pri = (i>=255) ? 254: (uint8)i;	// try to read as many as possible
 			ding_t::typ typ = (ding_t::typ)file->rd_obj_id();
 
 			// DBG_DEBUG("dingliste_t::laden()", "Thing type %d", typ);
@@ -561,7 +583,7 @@ void dingliste_t::rdwr(karte_t *welt, loadsave_t *file, koord3d current_pos)
 			}
 
 			//DBG_DEBUG("dingliste_t::rdwr()","Loading %d,%d #%d: %s", d->gib_pos().x, d->gib_pos().y, i, d->gib_name());
-			if(d  &&  pri<254) {
+			if(d) {
 				// add, if capacity not exceeded
 				add(d, pri);
 			}

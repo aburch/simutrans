@@ -63,6 +63,10 @@ public:
 		const bild_besch_t *bild = static_cast<const bildliste_besch_t *>(gib_kind(2))->gib_bild(dir);
 		return bild ? bild->bild_nr : -1;
 	}
+	int gib_bild_anzahl() const
+	{
+		return static_cast<const bildliste_besch_t *>(gib_kind(2))->gib_anzahl();
+	}
 
 	bool is_single_way() const
 	{
@@ -78,6 +82,11 @@ public:
 	{
 		return (const skin_besch_t *)gib_kind(3);
 	}
+
+	//  return true for a traffic light
+	bool is_traffic_light() const { return (gib_bild_anzahl()>4); };
+
+
 };
 
 #endif // __ROADSIGN_BESCH_H

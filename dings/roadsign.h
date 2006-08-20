@@ -26,7 +26,7 @@ private:
     uint16 after_bild;
 
 protected:
-	unsigned char zustand;
+	unsigned char zustand;	// counter for steps ...
 
 	unsigned char blockend;
 
@@ -34,15 +34,14 @@ protected:
 
 	const roadsign_besch_t *besch;
 
+	uint32 last_switch;	// change state here ...
+
 public:
 	/*
-	 * @return direction of the signal (one of nord, sued, ost, west)
+	 * return direction or the state of the traffic light
 	 * @author Hj. Malthaner
 	 */
-	ribi_t::ribi get_dir() const
-	{
-		return dir;
-	};
+	ribi_t::ribi get_dir() const 	{ return dir; };
 	void set_dir(ribi_t::ribi dir);
 
 	enum ding_t::typ gib_typ() const {return roadsign;};
@@ -70,6 +69,13 @@ public:
 	 * berechnet aktuelles bild
 	 */
 	void calc_bild();
+
+
+
+	// changes the state of a traffic light
+	virtual bool step(long);
+
+
 
     /**
      * Falls etwas nach den Vehikeln gemalt werden muﬂ.

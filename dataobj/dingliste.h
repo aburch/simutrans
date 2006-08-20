@@ -1,13 +1,8 @@
 #ifndef dingliste_h
 #define dingliste_h
 
-#ifndef simtypes_h
 #include "../simtypes.h"
-#endif
-
-#ifndef simdings_h
 #include "../simdings.h"
-#endif
 
 
 class dingliste_t {
@@ -25,7 +20,7 @@ private:
      */
     uint8 top;
 
-    void set_capacity(uint8 new_cap);
+    void set_capacity(unsigned new_cap);
 
     /**
      * @return ersten freien index

@@ -921,9 +921,10 @@ not_overcrowded:
 									warenziel_t wz(start_halt->gib_basis_pos(),wtyp);
 									bool found = false;
 									for(  unsigned i=0;  i<halt_list.get_count();  i++  ) {
-										start_halt=halt_list.at(i);
-										if(start_halt->is_enabled(wtyp)  &&  start_halt->gib_warenziele()->contains(wz)) {
+										halthandle_t test_halt=halt_list.at(i);
+										if(test_halt->is_enabled(wtyp)  &&  (start_halt==test_halt  ||  test_halt->gib_warenziele()->contains(wz))  ) {
 											found = true;
+											start_halt = test_halt;
 											break;
 										}
 									}
@@ -931,7 +932,7 @@ not_overcrowded:
 									// now try to add them to the target halt
 									if(ret_halt->gib_ware_summe(wtyp)<=(ret_halt->gib_grund_count() << 7)) {
 										// prissi: not overcrowded and can recieve => add them
-										if(found  &&  start_halt->is_enabled(wtyp)) {
+										if(found) {
 											ware_t return_pax (wtyp);
 
 											return_pax.menge = pax_left_to_do;

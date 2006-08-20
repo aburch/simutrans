@@ -36,15 +36,19 @@
 
 #include "roadsign.h"
 
+
+
+
+
 slist_tpl<const roadsign_besch_t *> liste;
 stringhashtable_tpl<const roadsign_besch_t *> table;
 
 
 roadsign_t::roadsign_t(karte_t *welt, loadsave_t *file) : ding_t (welt)
 {
-  rdwr(file);
-  step_frequency = 0;
-  set_dir(dir);
+	rdwr(file);
+	step_frequency = besch->gib_bild_anzahl()>4 ? 7 : 0;
+	set_dir(dir);
 }
 
 roadsign_t::roadsign_t(karte_t *welt, koord3d pos, ribi_t::ribi dir, const roadsign_besch_t *besch) :  ding_t(welt, pos)
@@ -53,8 +57,9 @@ DBG_MESSAGE("roadsign_t::roadsign_t()","at (%i,%i,%i) with dir=%i and min=%i",po
 	this->besch = besch;
 	zustand = 0;
 	blockend = false;
-	step_frequency = 0;
 	set_dir(dir);
+	// if more than one state, we will switch direction and phase
+	step_frequency = besch->gib_bild_anzahl()>4 ? 7 : 0;
 }
 
 
@@ -105,27 +110,113 @@ void roadsign_t::info(cbuffer_t & buf) const
 }
 
 
+
 void roadsign_t::calc_bild()
 {
-	setze_bild(0,-1);
-	after_bild = -1;
+	if(step_frequency==0) {
+		setze_bild(0,-1);
+		after_bild = IMG_LEER;
 
-	if(dir&ribi_t::nord) {
-		after_bild = besch->gib_bild_nr(1+zustand*4);
+		if(dir&ribi_t::nord) {
+			after_bild = besch->gib_bild_nr(1+zustand*4);
+		}
+
+		if(dir&ribi_t::sued) {
+			setze_bild(0, besch->gib_bild_nr(0+zustand*4));
+		}
+
+		if(dir&ribi_t::ost) {
+			setze_bild(0, besch->gib_bild_nr(2+zustand*4));
+		}
+
+		if(dir&ribi_t::west) {
+			after_bild = besch->gib_bild_nr(3+zustand*4);
+		}
 	}
+	else {
+		// traffic light
+		weg_t *str= welt->lookup(gib_pos())->gib_weg(weg_t::strasse);
+		if(str)
+		{
+			const uint8 weg_dir = str->gib_ribi_unmasked();
+			const uint8 direction = (dir&ribi_t::nord)!=0;
+			const uint8 not_direction = !direction;
 
-	if(dir&ribi_t::sued) {
-		setze_bild(0, besch->gib_bild_nr(0+zustand*4));
-	}
+			// other front/back images for left side ...
+			if(umgebung_t::drive_on_left) {
+				// drive left
+				if(weg_dir&ribi_t::nord) {
+					if(weg_dir&ribi_t::ost) {
+						after_bild = besch->gib_bild_nr(6+direction*8);
+					}
+					else {
+						after_bild = besch->gib_bild_nr(1+direction*8);
+					}
+				}
+				else if(weg_dir&ribi_t::ost) {
+					after_bild = besch->gib_bild_nr(2+direction*8);
+				}
 
-	if(dir&ribi_t::ost) {
-		setze_bild(0, besch->gib_bild_nr(2+zustand*4));
-	}
+				if(weg_dir&ribi_t::west) {
+					if(weg_dir&ribi_t::sued) {
+						setze_bild(0, besch->gib_bild_nr(7+direction*8));
+					}
+					else {
+						setze_bild(0, besch->gib_bild_nr(3+direction*8));
+					}
+				}
+				else if(weg_dir&ribi_t::sued) {
+					setze_bild(0, besch->gib_bild_nr(0+direction*8));
+				}
+			}
+			else {
+				// drive right ...
+				if(weg_dir&ribi_t::sued) {
+					if(weg_dir&ribi_t::ost) {
+						after_bild = besch->gib_bild_nr(4+direction*8);
+					}
+					else {
+						after_bild = besch->gib_bild_nr(0+direction*8);
+					}
+				}
+				else if(weg_dir&ribi_t::ost) {
+					after_bild = besch->gib_bild_nr(2+direction*8);
+				}
 
-	if(dir&ribi_t::west) {
-		after_bild = besch->gib_bild_nr(3+zustand*4);
+				if(weg_dir&ribi_t::west) {
+					if(weg_dir&ribi_t::nord) {
+						setze_bild(0, besch->gib_bild_nr(5+direction*8));
+					}
+					else {
+						setze_bild(0, besch->gib_bild_nr(3+direction*8));
+					}
+				}
+				else if(weg_dir&ribi_t::nord) {
+					setze_bild(0, besch->gib_bild_nr(1+direction*8));
+				}
+			}
+
+		}
 	}
 }
+
+
+
+
+// only used for traffic light: change the current state
+bool roadsign_t::step(long)
+{
+	if(  (welt->gib_zeit_ms()-last_switch) > karte_t::ticks_per_tag/24  ) {
+		last_switch = welt->gib_zeit_ms();
+		zustand = (zustand+1)&1;
+		dir = (zustand==0) ? ribi_t::nordsued : ribi_t::ostwest;
+		calc_bild();
+	}
+	return true;
+}
+
+
+
 
 
 void
@@ -179,18 +270,36 @@ bool roadsign_t::register_besch(roadsign_besch_t *besch)
 	liste.append(besch);
 	// correct for driving on left side
 	if(umgebung_t::drive_on_left) {
-		const int XOFF=(30*get_tile_raster_width())/64;
-		const int YOFF=(14*get_tile_raster_width())/64;
 
-		display_set_image_offset( besch->gib_bild_nr(0), -XOFF, -YOFF );
-		display_set_image_offset( besch->gib_bild_nr(1), +XOFF, +YOFF );
-		display_set_image_offset( besch->gib_bild_nr(2), -XOFF, +YOFF );
-		display_set_image_offset( besch->gib_bild_nr(3), +XOFF, -YOFF );
+		if(besch->is_traffic_light()) {
+			const int XOFF=(48*get_tile_raster_width())/64;
+			const int YOFF=(26*get_tile_raster_width())/64;
+
+			display_set_image_offset( besch->gib_bild_nr(0), -XOFF, -YOFF );
+			display_set_image_offset( besch->gib_bild_nr(8), -XOFF, -YOFF );
+			display_set_image_offset( besch->gib_bild_nr(1), +XOFF, +YOFF );
+			display_set_image_offset( besch->gib_bild_nr(9), +XOFF, +YOFF );
+			display_set_image_offset( besch->gib_bild_nr(2), -XOFF, +YOFF );
+			display_set_image_offset( besch->gib_bild_nr(10), -XOFF, +YOFF );
+			display_set_image_offset( besch->gib_bild_nr(3), +XOFF, -YOFF );
+			display_set_image_offset( besch->gib_bild_nr(11), +XOFF, -YOFF );
+		}
+		else {
+			const int XOFF=(30*get_tile_raster_width())/64;
+			const int YOFF=(14*get_tile_raster_width())/64;
+
+			display_set_image_offset( besch->gib_bild_nr(0), -XOFF, -YOFF );
+			display_set_image_offset( besch->gib_bild_nr(1), +XOFF, +YOFF );
+			display_set_image_offset( besch->gib_bild_nr(2), -XOFF, +YOFF );
+			display_set_image_offset( besch->gib_bild_nr(3), +XOFF, -YOFF );
+		}
 	}
 
 DBG_DEBUG( "roadsign_t::register_besch()","%s", besch->gib_name() );
 	return true;
 }
+
+
 
 
 /**

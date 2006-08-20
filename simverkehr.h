@@ -67,7 +67,7 @@ protected:
     sint16 hoff;
 
 
-    virtual bool ist_weg_frei() const {return 1; };	// always free
+    virtual bool ist_weg_frei() {return 1; };	// always free
 
 protected:
 
@@ -132,7 +132,7 @@ private:
     uint32 ms_traffic_jam;
 
     virtual bool hop_check();
-    virtual bool ist_weg_frei() const;
+    virtual bool ist_weg_frei();
 
 protected:
     void rdwr(loadsave_t *file);

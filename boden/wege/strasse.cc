@@ -115,7 +115,7 @@ strasse_t::rdwr(loadsave_t *file)
 				dbg->warning("strasse_t::rwdr()", "Unknown street %s replaced by a street %s (old_max_speed %i)", bname, besch->gib_name(), old_max_speed );
 			}
 			setze_besch(besch);
-			if(gehweg) {
+			if(besch->gib_topspeed()>50  &&  gehweg) {
 				setze_max_speed(50);
 			}
 		}

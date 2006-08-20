@@ -143,7 +143,7 @@ dbg->fatal("fabrikbauer_t::bau_info_t::random","No description found for '%s'",i
 			}
 			next -= iter.get_current()->gib_gewichtung();
 		}
-		rotate = simrand(4);
+		rotate = simrand(besch->gib_all_layouts()-1);
 		dim = besch->gib_groesse(rotate);
 	}
 	else {
@@ -215,7 +215,7 @@ void fabrikbauer_t::bau_info_t::random_land(slist_tpl <const fabrik_besch_t *> &
 			}
 			break;
 	}
-	rotate = simrand(4);
+	rotate = simrand(besch->gib_all_layouts()-1);
 	if(besch) {
 		dim = besch->gib_groesse(rotate);
 	}
@@ -353,9 +353,9 @@ fabrikbauer_t::verteile_tourist(karte_t * welt, spieler_t *, int max_number)
 	// try to built 25% city consumer (if there)
 	while(current_number<max_number)
 	{
-		int	rotation=simrand(4);
 		koord3d	pos=koord3d(simrand(welt->gib_groesse_x()),simrand(welt->gib_groesse_y()),1);
 		const haus_besch_t *attraction=hausbauer_t::waehle_sehenswuerdigkeit();
+		int	rotation=simrand(attraction->gib_all_layouts()-1);
 
 		if(attraction==NULL) {
 			continue;
@@ -405,9 +405,9 @@ fabrikbauer_t::verteile_industrie(karte_t * welt, spieler_t *, int max_number_of
 
 	while(current_number<max_number_of_factories)
 	{
-		int	rotation=simrand(4);
 		koord3d	pos=koord3d(simrand(welt->gib_groesse_x()),simrand(welt->gib_groesse_y()),1);
 		const fabrik_besch_t *fab=get_random_consumer(in_city);
+		int	rotation=simrand(fab->gib_haus()->gib_all_layouts()-1);
 
 		pos = finde_zufallsbauplatz(welt, pos, 20, fab->gib_haus()->gib_groesse(rotation),fab->gib_platzierung()==fabrik_besch_t::Wasser);
 		if(welt->lookup(pos)) {

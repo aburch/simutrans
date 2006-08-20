@@ -114,7 +114,7 @@ stadtauto_t::stadtauto_t(karte_t *welt, koord3d pos)
  : verkehrsteilnehmer_t(welt, pos)
 {
 	besch = liste_timeline.gib_gewichted(simrand(liste_timeline.gib_gesamtgewicht()));
-	time_to_life = 100;//umgebung_t::stadtauto_duration;
+	time_to_life = umgebung_t::stadtauto_duration;
 	current_speed = 48;
 	step_frequency = 0;
 	setze_max_speed( besch->gib_geschw() );
@@ -187,7 +187,7 @@ void stadtauto_t::rdwr(loadsave_t *file)
 
 
 bool
-stadtauto_t::ist_weg_frei() const
+stadtauto_t::ist_weg_frei()
 {
 	// no change, or invalid
 	if(pos_next==gib_pos()) {
@@ -213,6 +213,18 @@ stadtauto_t::ist_weg_frei() const
 		}
 	}
 
+	// check for traffic lights
+	ding_t *dt = gr->obj_bei(0);
+	if(dt  &&  dt->gib_typ()==ding_t::roadsign) {
+		const roadsign_t *rs = (roadsign_t *)dt;
+		const int richtung = ribi_typ(gib_pos().gib_2d(),pos_next.gib_2d());
+		if(rs->gib_besch()->is_traffic_light()  &&  (rs->get_dir()&richtung)==0) {
+			fahrtrichtung = richtung;
+			calc_bild();
+			// wait here
+			return false;
+		}
+	}
 
 	// calculate new direction
 	sint8 dx, dy;	// dummies
@@ -492,7 +504,7 @@ verkehrsteilnehmer_t::hop()
 			int next_ribi =  to->gib_weg(weg_t::strasse)->gib_ribi_unmasked();
 			if((ribi&next_ribi)!=0  ||  !ribi_t::ist_einfach(next_ribi)) {
 				const roadsign_t *rs = dynamic_cast<roadsign_t *>(to->obj_bei(0));
-				if(rs==NULL  ||  rs->gib_typ()!=ding_t::roadsign  ||  rs->gib_besch()->gib_min_speed()==0  ||  rs->gib_besch()->gib_min_speed()<=gib_max_speed()) {
+				if(rs==NULL  ||  rs->gib_besch()->is_traffic_light()  ||  rs->gib_besch()->gib_min_speed()==0  ||  rs->gib_besch()->gib_min_speed()<=gib_max_speed()) {
 					liste[count++] = to;
 				}
 			}

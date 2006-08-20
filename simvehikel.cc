@@ -1279,12 +1279,12 @@ automobil_t::automobil_t(karte_t *welt, loadsave_t *file) : vehikel_t(welt)
 ribi_t::ribi
 automobil_t::gib_ribi(const grund_t *gr) const
 {
-    weg_t *weg = gr->gib_weg(weg_t::strasse);
+	weg_t *weg = gr->gib_weg(weg_t::strasse);
 
-    if(weg) {
-	return weg->gib_ribi();
-    }
-    return ribi_t::keine;
+	if(weg) {
+		return weg->gib_ribi();
+	}
+	return ribi_t::keine;
 }
 
 
@@ -1296,7 +1296,7 @@ automobil_t::ist_befahrbar(const grund_t *bd) const
 	}
 	// check for signs
 	const roadsign_t *rs = dynamic_cast<roadsign_t *>(bd->obj_bei(0));
-	if(rs!=NULL  &&  rs->gib_typ()==ding_t::roadsign  &&  rs->gib_besch()->gib_min_speed()>0  &&  rs->gib_besch()->gib_min_speed()>kmh_to_speed(gib_besch()->gib_geschw())) {
+	if(rs!=NULL  &&  rs->gib_besch()->gib_min_speed()>0  &&  rs->gib_besch()->gib_min_speed()>kmh_to_speed(gib_besch()->gib_geschw())) {
 		return false;
 	}
 	return true;
@@ -1304,13 +1304,12 @@ automobil_t::ist_befahrbar(const grund_t *bd) const
 
 
 bool
-automobil_t::ist_weg_frei(int &restart_speed) const
+automobil_t::ist_weg_frei(int &restart_speed)
 {
 	const grund_t *gr = welt->lookup( pos_next );
 	if(gr==NULL) {
 		return false;
 	}
-
 
 	if(gr->obj_count()>200) {
 		// too many cars here
@@ -1323,6 +1322,18 @@ automobil_t::ist_weg_frei(int &restart_speed) const
 
 		if(gr->suche_obj_ab(ding_t::waggon,PRI_RAIL_AND_ROAD)) {
 			restart_speed = 8;
+			return false;
+		}
+	}
+
+	// check for traffic lights
+	ding_t *dt = gr->obj_bei(0);
+	if(dt  &&  dt->gib_typ()==ding_t::roadsign) {
+		const roadsign_t *rs = (roadsign_t *)dt;
+		const int richtung = ribi_typ(gib_pos().gib_2d(),pos_next.gib_2d());
+		if(rs->gib_besch()->is_traffic_light()  &&  (rs->get_dir()&richtung)==0) {
+			setze_fahrtrichtung(richtung);
+			// wait here
 			return false;
 		}
 	}
@@ -1504,7 +1515,7 @@ waggon_t::ist_blockwechsel(koord3d k1, koord3d k2) const
 
 
 bool
-waggon_t::ist_weg_frei(int & restart_speed) const
+waggon_t::ist_weg_frei(int & restart_speed)
 {
 	const grund_t *gr = welt->lookup( pos_next );
 
@@ -1755,7 +1766,7 @@ schiff_t::ist_befahrbar(const grund_t *bd) const
 
 
 bool
-schiff_t::ist_weg_frei(int &restart_speed) const
+schiff_t::ist_weg_frei(int &restart_speed)
 {
     restart_speed = -1;
     return true;

@@ -40,9 +40,9 @@ citylist_stats_t::citylist_stats_t(karte_t * w)
  */
 void citylist_stats_t::infowin_event(const event_t * ev)
 {
-	if(IS_LEFTRELEASE(ev)) {
+	if(IS_LEFTRELEASE(ev)  &&  ev->cy>15) {
 
-		const unsigned int line = (ev->cy-30) / 14;
+		const unsigned int line = (ev->cy-15) / 14;
 		const vector_tpl<stadt_t *> * cities = welt->gib_staedte();
 		if(line < cities->get_count()) {
 

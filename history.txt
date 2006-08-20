@@ -6,11 +6,16 @@ Known bugs: (hard to fix)
 	valgrind complains about errors in SDL and X?
 
 
+Release of 86.09.3
+
 24-Sep-2005 (prissi)
-	FIX: also loading games with too many objects
+	FIX: also loading games with too many objects on one tile (warning will be given)
 	FIX: working again with factories with more than 30 destinations and 10 suppliers
 	FIX: artificial slopes now nearly always ok (one case is not solveable)
 	FIX: reloading streets with paveway are again 50km/h
+	FIX: sending back pax was not trying original destination => too many no route
+	FIX: forgotten comment: citycars deseased after 100 hops ...
+	ADD: traffic lights
 
 
 Release of 86.09.2

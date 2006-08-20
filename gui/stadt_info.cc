@@ -30,13 +30,13 @@ extern "C" {
 // @author hsiegeln
 const char hist_type[MAX_CITY_HISTORY][64] =
 {
-  "citicens", "growth", "transported", "passengers",
+  "citicens", "growth", "transported", "Passagiere",
 };
 
 
 const int hist_type_color[MAX_CITY_HISTORY] =
 {
-  7, 11, 15, 132 /*, 23, 27, 31, 35, 241, 61, 62, 63*/
+  7, 11, 15, 132
 };
 
 
