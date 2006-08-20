@@ -352,7 +352,7 @@ void karte_t::cleanup_karte()
 {
     int i,j;
 
-    int *hgts = new int [(gib_groesse()+1)*(gib_groesse()+1)];
+    int hgts[(gib_groesse()+1)*(gib_groesse()+1)];
     int *p = hgts;
 
     for(j=0; j<=gib_groesse(); j++) {
@@ -381,8 +381,6 @@ void karte_t::cleanup_karte()
 	raise_to(i, gib_groesse(), grundwasser);
 	raise_to(gib_groesse(), i, grundwasser);
     }
-
-    delete[] hgts;
 }
 
 
@@ -522,6 +520,7 @@ void
 karte_t::destroy()
 {
     dbg->message("karte_t::destroy()", "destroying world");
+    printf("Destroying world ... ");
 
     // hier nur entfernen, aber nicht löschen
     ausflugsziele.clear();
@@ -620,6 +619,7 @@ karte_t::destroy()
     schedule_list_gui = 0;
 
     dbg->message("karte_t::destroy()", "world destroyed");
+    printf("destroyed.\n");
 }
 
 
@@ -2872,7 +2872,7 @@ karte_t::interactive_event(event_t &ev)
 	    break;
 	case 'f': /* OCR: Finances */
 	    sound_play(click_sound);
-         create_win(-1, -1, -1, new money_frame_t(gib_spieler(0)), w_autodelete);
+         create_win(-1, -1, -1, gib_spieler(0)->gib_money_frame(), w_info);
 	    break;
 	case 'g':
 	    if(skinverwaltung_t::senke) {
@@ -3503,7 +3503,7 @@ karte_t::interactive_event(event_t &ev)
 		break;
 	    case 17:
 		sound_play(click_sound);
-           create_win(-1, -1, -1, new money_frame_t(gib_spieler(0)), w_autodelete);
+           create_win(-1, -1, -1, gib_spieler(0)->gib_money_frame(), w_info);
 		break;
 	    case 19:
 		sound_play(click_sound);

@@ -307,6 +307,7 @@ int
 create_win(int x, int y, int dauer, gui_fenster_t *gui,
            enum wintype wt, int magic)
 {
+printf("create_win(): ins_win=%d\n", ins_win);
     assert(ins_win >= 0);
 
     if(ins_win < MAX_WIN) {
@@ -381,6 +382,7 @@ create_win(int x, int y, int dauer, gui_fenster_t *gui,
 	wins[ins_win].pos.x = x;
 	wins[ins_win].pos.y = MAX(32, y);
 
+printf("create_win(): new ins_win=%d\n", ins_win+1);
 	return ins_win ++;
     } else {
 	return -1;
@@ -393,84 +395,113 @@ create_win(int x, int y, int dauer, gui_fenster_t *gui,
  */
 static void destroy_framed_win(int win)
 {
-    assert(win >= 0);
-    assert(win < MAX_WIN);
+//printf("destroy_framed_win(): win=%d of %d, gui=%p\n", win, ins_win, wins[win].gui);
 
-    // printf("destroy_framed_win(): win=%d of %d, gui=%p\n", win, ins_win, wins[win].gui);
+	if(win>=ins_win) {
+dbg->error("destroy_framed_win()","win=%i >= ins_win=%i",win,ins_win);
+	}
 
-    // Hajo: do not destroy frameless windows
-    if(wins[win].wt == w_frameless) {
-      return;
-    }
+	assert(win >= 0);
+	assert(win < MAX_WIN);
+	assert(win<ins_win);
 
-    gui_fenster_t *tmp = NULL;
+// printf("destroy_framed_win(): win=%d of %d, gui=%p\n", win, ins_win, wins[win].gui);
 
-    if(wins[win].gui) {
-	event_t ev;
+	// Hajo: do not destroy frameless windows
+	if(wins[win].wt==w_frameless) {
+//printf("destroy_framed_win(): win=%d of %d is frameless\n", win, ins_win, wins[win].gui);
+		return;
+	}
 
-	ev.ev_class = INFOWIN;
-	ev.ev_code = WIN_CLOSE;
-	ev.mx = 0;
-	ev.my = 0;
-	ev.cx = 0;
-	ev.cy = 0;
-  	ev.button_state = 0;
-	wins[win].gui->infowin_event(&ev);
-    }
+	gui_fenster_t *tmp = NULL;
 
-    if(wins[win].wt == w_autodelete) {
-	tmp = wins[win].gui;
-    }
+	if(wins[win].gui) {
+		event_t ev;
 
-    // reset fields to 'safe' values
-    wins[win].pos = koord(0,0);
-    wins[win].dauer = -1;
-    wins[win].xoff = 0;
-    wins[win].yoff = 0;
-    wins[win].wt = w_info;
-    wins[win].magic_number = magic_none;
-    wins[win].gui = NULL;
-    wins[win].closing = false;
+		ev.ev_class = INFOWIN;
+		ev.ev_code = WIN_CLOSE;
+		ev.mx = 0;
+		ev.my = 0;
+		ev.cx = 0;
+		ev.cy = 0;
+		ev.button_state = 0;
+		wins[win].gui->infowin_event(&ev);
+	}
 
-    // if there was an autodelete object, delete it
-    delete tmp;
+	if(wins[win].wt == w_autodelete) {
+		tmp = wins[win].gui;
+	}
 
-    // printf("destroy_framed_win(): destroyed\n");
+	// reset fields to 'safe' values
+	wins[win].pos = koord(0,0);
+	wins[win].dauer = -1;
+	wins[win].xoff = 0;
+	wins[win].yoff = 0;
+	wins[win].wt = w_info;
+	wins[win].magic_number = magic_none;
+	wins[win].gui = NULL;
+	wins[win].closing = false;
 
-    // if we removed not the last window, we need
-    // to compact the list
-    if(win < ins_win-1) {
-	memmove(&wins[win], &wins[win+1], sizeof(struct simwin) * (ins_win - win - 1));
-    }
+	// if there was an autodelete object, delete it
+	delete tmp;
 
-    ins_win--;
+// printf("destroy_framed_win(): destroyed\n");
+
+	// if we removed not the last window, we need
+	// to compact the list
+	if(win < ins_win-1) {
+		memmove(&wins[win], &wins[win+1], sizeof(struct simwin) * (ins_win - win - 1));
+	}
+
+	ins_win--;
+//printf("destroy_framed_win() ins_win=%i\n",ins_win);fflush(NULL);
 }
 
 void
 destroy_win(const gui_fenster_t *gui)
 {
-  int i;
-  for(i=ins_win-1; i>=0; i--) {
-    if(wins[i].gui == gui) {
-      if(inside_event_handling) {
-	kill_list.append(i);
-      } else {
-	destroy_framed_win(i);
-      }
-      break;
-    }
-  }
+	int i;
+	for(i=ins_win-1; i>=0; i--) {
+		if(wins[i].gui == gui) {
+			if(inside_event_handling) {
+				// only add this, if not already added
+				int j;
+				for( j=0;  j<kill_list.count();  j++  ) {
+					if(kill_list.get(j)==i) {
+						break;
+					}
+				}
+				if(j==kill_list.count()) {
+					kill_list.append(i);
+				}
+			}
+			else {
+				destroy_framed_win(i);
+			}
+			break;
+		}
+	}
 }
 
 void destroy_all_win()
 {
-  for(int i=ins_win-1; i >=0; i--) {
-    if(inside_event_handling) {
-      kill_list.append(i);
-    } else {
-      destroy_framed_win(i);
-    }
-  }
+	for(int i=ins_win-1; i>=0; i--) {
+		if(inside_event_handling) {
+			// only add this, if not already added
+			int j;
+			for( j=0;  j<kill_list.count();  j++  ) {
+				if(kill_list.get(j)==i) {
+					break;
+				}
+			}
+			if(j==kill_list.count()) {
+				kill_list.append(i);
+			}
+		}
+		else {
+			destroy_framed_win(i);
+		}
+	}
 }
 
 

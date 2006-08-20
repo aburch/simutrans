@@ -110,7 +110,7 @@ void ki_kontroll_t::infowin_event(const event_t *ev)
 			if(buttons->at(i).getroffen(ev->mx, ev->my)) {
 				if(i>=6) {
 					buttons->at(i).pressed = false;
-					create_win(-1, -1, -1, new money_frame_t(welt->gib_spieler(i-6+2)), w_autodelete );
+					create_win(-1, -1, -1, welt->gib_spieler(i-6+2)->gib_money_frame(), w_info );
 				}
 				else {
 					welt->gib_spieler(i+2)->automat = !welt->gib_spieler(i+2)->automat;

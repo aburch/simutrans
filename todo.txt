@@ -10,6 +10,8 @@ Stichpunkte
 
 - mehrere Stationen
 - Icon und Versionsinformationen
-- Statistiken für Stadtfenster und KI
+- Statistiken für Stadtfenster
 - Fabrikliste
 - powernet nach liste ändern => Karte besser, keine Speicherverschwendung
+- Landfabrik alle x Jahre
+- Mehr KI

@@ -1,11 +1,30 @@
+Released Simutrans 0.85.04.0
+
+11-Feb-2005:
+	FIX: simultanious AI now working without crash
+	CHANGE: AI 1 always road only, AI 6 rail only
+	FIX: more WF cars now in players and night colors
+	FIX Book truck night colors and trailer
+	FIX: MHz shipyard now in player colors
+	FIX: fish wagon now in players color
+	FIX: Again windows icon and version info
+	FIX: clipping calculation for characters was faulty
+	FIX: at some places wrong memory allocation repaired
+	FIX: some windows were two times destroyed, now kill_list checked for doubles
+	FIX: Lunix binaries again linked with V5 libstdc++
+	CHANGE: added USA citylist
+	CHANGE: cleaned up simuconf.tab (Tomas)
+	FIX: Several help window texts reworked
+
+
 Released Simutrans 0.85.03.3
 
 10-Feb-2005:
-	CHANGE: Any "... Power Palnt" or "...kraftwerk" will produce power
+	CHANGE: Any "... Power Plant" or "...kraftwerk" will produce power
 		=> Wind Power Station (and Solar Power Station) possible
 	CHANGE: Power production now proportional to factory production
-	FIX: uneccessary commands in citylist reading remove (V. Meyer)
 	FIX: transformer was built and then immediately removed
+	FIX: use libstdc++ version 3 under Linux
 
 
 Released Simutrans 0.85.03.2

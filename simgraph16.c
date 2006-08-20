@@ -2298,7 +2298,7 @@ int display_proportional_string_len_width(const char *text, int len,bool use_lar
 
 
 /* @ see get_mask() */
-static const unsigned char byte_to_mask_array[8]={0xFF,0x7F,0x3F,0x1F,0x0F,0x07,0x03,0x01};
+static const unsigned char byte_to_mask_array[9]={0xFF,0x7F,0x3F,0x1F,0x0F,0x07,0x03,0x01,0x00};
 
 /* Helper: calculates mask for clipping *
  * Attention: xL-xR must be <=8 !!!
@@ -2319,13 +2319,13 @@ inline unsigned char get_mask( const int xL, const int xR, const int cL, const i
 	if(  xL<cL  &&  xR>=cL  )
 	{
 		// Left border clipped
-		mask = byte_to_mask_array[(cL-xL)&0x07];
+		mask = byte_to_mask_array[cL-xL];
 	}
 	// check for right border
 	if(  xL<cR  &&  xR>=cR  )
 	{
 		// right border clipped
-		mask &= ~byte_to_mask_array[(cR-xL)&0x07];
+		mask &= ~byte_to_mask_array[cR-xL];
 	}
 	return mask;
 }
@@ -2410,14 +2410,10 @@ void display_text_proportional_len_clip(int x, int y, const char *txt,
 			mask1 = get_mask( x, x+8, cL, cR );
 			// we need to double mask 2, since only 2 Bits are used
 			mask2 = get_mask( x+8, x+char_width_1, cL, cR ) ;
-			if(  mask2==0x80  ) {
-				mask2 = 0xAA;
-			}
-			else {
-				if(  mask2==0xC0  ) {
-					mask2 = 0xFF;
-				}
-			}
+			// since only two pixels are used
+			mask2 &= 0xC0;
+			if(mask2&0x80) mask2 |= 0xAA;
+			if(mask2&0x40) mask2 |= 0x55;
 		}
 		else {
 			// char_width_1<= 8: call directly

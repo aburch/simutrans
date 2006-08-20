@@ -280,27 +280,26 @@ dbg->message("fabrikbauer_t::finde_hersteller()","producer for good '%s' was fou
 koord3d
 fabrikbauer_t::finde_zufallsbauplatz(karte_t * welt, const koord3d pos, const int radius, koord groesse,bool wasser)
 {
-    array_tpl<koord3d> list(2048);
-    int index = 0;
-    koord k;
+	array_tpl<koord3d> list(4*radius*radius);
+	int index = 0;
+	koord k;
 
 	if(wasser) {
 		groesse += koord(6,6);
 	}
-    // assert(radius <= 32);
+	// assert(radius <= 32);
 
-    for(k.y=pos.y-radius; k.y<=pos.y+radius; k.y++) {
-  for(k.x=pos.x-radius; k.x<=pos.x+radius; k.x++) {
-      if(fabrik_t::ist_bauplatz(welt, k, groesse,wasser)) {
-    list.at(index ++) = welt->lookup(k)->gib_kartenboden()->gib_pos();
+	for(k.y=pos.y-radius; k.y<=pos.y+radius; k.y++) {
+		for(k.x=pos.x-radius; k.x<=pos.x+radius; k.x++) {
+			if(fabrik_t::ist_bauplatz(welt, k, groesse,wasser)) {
+				list.at(index ++) = welt->lookup(k)->gib_kartenboden()->gib_pos();
+				// nicht gleich daneben nochmal suchen
+				k.x += 4;
+			}
+		}
+	}
 
-    // nicht gleich daneben nochmal suchen
-    k.x += 4;
-      }
-  }
-    }
-
-    // printf("Zufallsbauplatzindex %d\n", index);
+	// printf("Zufallsbauplatzindex %d\n", index);
 	if(index == 0) {
 		return koord3d(-1, -1, -1);
 	}

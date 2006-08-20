@@ -282,7 +282,12 @@ normal:	$(OBJECTS) simsys_d.o simgraph.o
 	$(LN) $(LDFLAGS) -o sim $(OBJECTS) simsys_d.o simgraph.o /usr/local/lib/liballeg.a $(SUB_OBJS) $(STD_LIBS)
 
 normal16:	$(OBJECTS) simsys_s16.o simgraph16.o $(ASM_DISPLAY_IMG)
+ifeq ($(OSTYPE),mingw)
+	windres -O COFF simwin.rc simres.o
+	$(LN) $(LDFLAGS) -o sim $(OBJECTS) simsys_s16.o simgraph16.o $(ASM_DISPLAY_IMG) $(SUB_OBJS) simres.o $(STD_LIBS) $(SDLLIBS)
+else
 	$(LN) $(LDFLAGS) -o sim $(OBJECTS) simsys_s16.o simgraph16.o $(ASM_DISPLAY_IMG) $(SUB_OBJS) $(STD_LIBS) $(SDLLIBS)
+endif
 
 allegro16:	$(OBJECTS) simsys_d16.o simgraph16.o
 	$(LN) $(LDFLAGS) -o sim $(OBJECTS) simsys_d16.o simgraph16.o $(SUB_OBJS) -lefence /usr/local/lib/liballeg.a $(STD_LIBS)

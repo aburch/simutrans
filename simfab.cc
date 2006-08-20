@@ -198,17 +198,26 @@ fabrik_t::fabrik_t(karte_t *wl, koord3d pos, spieler_t *spieler, const fabrik_be
 
 fabrik_t::~fabrik_t()
 {
-    delete eingang;
-    eingang = 0;
+	// prissi: check added
+	if(eingang) {
+		delete eingang;
+	}
+	eingang = 0;
 
-    delete ausgang;
-    ausgang = 0;
+	if(ausgang) {
+		delete ausgang;
+	}
+	ausgang = 0;
 
-    delete abgabe_sum;
-    abgabe_sum = 0;
+	if(abgabe_sum) {
+		delete abgabe_sum;
+	}
+	abgabe_sum = 0;
 
-    delete abgabe_letzt;
-    abgabe_letzt = 0;
+	if(abgabe_letzt) {
+		delete abgabe_letzt;
+	}
+	abgabe_letzt = 0;
 }
 
 

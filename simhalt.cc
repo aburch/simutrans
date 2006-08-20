@@ -625,20 +625,20 @@ void haltestelle_t::rebuild_destinations()
 void
 haltestelle_t::liefere_an_fabrik(const ware_t ware)
 {
-    slist_iterator_tpl<fabrik_t *> fab_iter(fab_list);
+	slist_iterator_tpl<fabrik_t *> fab_iter(fab_list);
 
-    while(fab_iter.next()) {
-	fabrik_t * fab = fab_iter.get_current();
+	while(fab_iter.next()) {
+		fabrik_t * fab = fab_iter.get_current();
 
-	const vector_tpl<ware_t> * eingang = fab->gib_eingang();
+		const vector_tpl<ware_t> * eingang = fab->gib_eingang();
 
-	for(uint32 i=0; i<eingang->get_count(); i++) {
-	    if(eingang->get(i).gib_typ() == ware.gib_typ()) {
-		fab->liefere_an(ware.gib_typ(), ware.menge);
-		return;
-	    }
+		for(uint32 i=0; i<eingang->get_count(); i++) {
+			if(eingang->get(i).gib_typ() == ware.gib_typ()) {
+				fab->liefere_an(ware.gib_typ(), ware.menge);
+				return;
+			}
+		}
 	}
-    }
 }
 
 
@@ -1055,68 +1055,66 @@ haltestelle_t::gib_halt(const koord pos) const
 ware_t
 haltestelle_t::hole_ab(const ware_besch_t *wtyp, int maxi, fahrplan_t *fpl)
 {
-  // suche innerhalb der Liste nach ware mit passendem Ziel
-  // und menge
+	// suche innerhalb der Liste nach ware mit passendem Ziel
+	// und menge
 
-    for(unsigned int i=0; i<warenbauer_t::gib_waren_anzahl(); i++) {
-	const ware_besch_t *ware = warenbauer_t::gib_info(i);
+	for(unsigned int i=0; i<warenbauer_t::gib_waren_anzahl(); i++) {
+		const ware_besch_t *ware = warenbauer_t::gib_info(i);
+		slist_tpl<ware_t> * wliste = waren.get(ware);
 
-    slist_tpl<ware_t> * wliste = waren.get(ware);
+		if(wliste) {
+			slist_iterator_tpl<ware_t> iter (wliste);
 
-    if(wliste) {
-      slist_iterator_tpl<ware_t> iter (wliste);
+			while(iter.next()) {
+				ware_t &tmp = iter.access_current();
 
-      while(iter.next()) {
-	ware_t &tmp = iter.access_current();
+				// passt der Warentyp?
+				bool ok = wtyp->is_interchangeable(tmp.gib_typ());
 
-	// passt der Warentyp?
-	bool ok = wtyp->is_interchangeable(tmp.gib_typ());
+				// more checks: passt das Ziel ?
+				if(ok && pruefe_ziel(tmp, fpl)) {
+					// printf("hole_ab %d, es lagern %d %s\n", maxi, tmp->menge, tmp->name());
 
-	// more checks: passt das Ziel ?
-	if(ok && pruefe_ziel(tmp, fpl)) {
+					// passt die Menge ?
+					if(tmp.menge <= maxi) {
+						// ja, alles geht ins Fahrzeug
+						ware_t neu (tmp);
+						bool ok = wliste->remove( tmp );
+						assert(ok);
 
-	  // printf("hole_ab %d, es lagern %d %s\n", maxi, tmp->menge, tmp->name());
+						if(wliste->count() == 0) {
+							waren.remove(ware);
+							delete wliste;
+						}
+						book(neu.menge, HALT_DEPARTED);
+						return neu;
 
-	  // passt die Menge ?
-	  if(tmp.menge <= maxi) {
-	    // ja, alles geht ins Fahrzeug
-	    ware_t neu (tmp);
-	    bool ok = wliste->remove( tmp );
+					}
+					else {
+						// Menge zu groß, wir muessen aufteilen
+						ware_t neu (tmp.gib_typ());
+						neu.setze_ziel(tmp.gib_ziel());
+						neu.setze_zwischenziel(tmp.gib_zwischenziel());
+						neu.setze_zielpos(tmp.gib_zielpos());
+						neu.menge = maxi;
 
-	    assert(ok);
-	    if(wliste->count() == 0) {
-	      waren.remove(ware);
-	      delete wliste;
-	    }
-	    book(neu.menge, HALT_DEPARTED);
-	    return neu;
+						// abgegebene Menge von wartender Menge abziehen
+						tmp.menge -= maxi;
 
-	  } else {
-	    // Menge zu groß, wir muessen aufteilen
+						// printf("%s: Teile ware, gebe %d, behalte %d\n", gib_name(), maxi, tmp->menge);
 
-	    ware_t neu (tmp.gib_typ());
-	    neu.setze_ziel(tmp.gib_ziel());
-	    neu.setze_zwischenziel(tmp.gib_zwischenziel());
-	    neu.setze_zielpos(tmp.gib_zielpos());
-	    neu.menge = maxi;
+						book(neu.menge, HALT_DEPARTED);
+						return neu;
+					}
+				}
+			}
 
-	    // abgegebene Menge von wartender Menge abziehen
-	    tmp.menge -= maxi;
-
-	    // printf("%s: Teile ware, gebe %d, behalte %d\n", gib_name(), maxi, tmp->menge);
-
-	    book(neu.menge, HALT_DEPARTED);
-	    return neu;
-	  }
+			// es ist gar nichts passendes da zum abholen!
+		}
 	}
-      }
 
-      // es ist gar nichts passendes da zum abholen!
-    }
-  }
-
-  // empty quantity of required type -> no effect
-  return ware_t (wtyp);
+	// empty quantity of required type -> no effect
+	return ware_t (wtyp);
 }
 
 

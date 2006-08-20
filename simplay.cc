@@ -46,7 +46,6 @@
 #include "simvehikel.h"
 #include "simconvoi.h"
 #include "simtools.h"
-//#include "simticker.h" now done by simmesg.h
 #include "simmesg.h"
 
 #include "simintr.h"
@@ -77,6 +76,18 @@
 #ifndef tpl_slist_tpl_h
 #include "tpl/slist_tpl.h"
 #endif
+
+#include "gui/money_frame.h"
+
+#include "simcity.h"
+
+// true, if line contruction is under way
+// our "semaphore"
+static bool baue=false;
+static fabrik_t *baue_start=NULL;
+static fabrik_t *baue_ziel=NULL;
+
+
 
 
 /**
@@ -135,6 +146,7 @@ spieler_t::spieler_t(karte_t *wl, int color)
 	rail_weg = NULL;
 	road_vehicle = NULL;
 	road_weg = NULL;
+	baue = false;
 
     steps = simrand(16);
 
@@ -142,6 +154,36 @@ spieler_t::spieler_t(karte_t *wl, int color)
 
 	// UNDO array empty
 	last_built = NULL;
+
+	money_frame = NULL;
+
+	// we have different AI, try to find out our type:
+	int spieler_num=kennfarbe/4;
+	sprintf(spieler_name_buf,"player %i",spieler_num-1);
+	if(spieler_num>=2) {
+		// @author prissi
+		// first set default
+		passenger_transport = false;
+		road_transport = true;
+		rail_transport = true;
+		ship_transport = false;
+		// set the different AI
+		switch(spieler_num) {
+			case 2:
+				rail_transport = false;
+				break;
+			case 7:
+				road_transport = false;
+				break;
+#ifdef TRY_PASSENGER
+			case 3:
+				passenger_transport = true;
+				start_stadt = end_stadt = NULL;
+			break;
+#endif
+		}
+		// the other behave normal
+	}
 }
 
 
@@ -151,8 +193,34 @@ spieler_t::spieler_t(karte_t *wl, int color)
  */
 spieler_t::~spieler_t()
 {
-  delete halt_list;
-  halt_list = 0;
+	// maybe free money frame
+	if(money_frame!=NULL) {
+		delete money_frame;
+	}
+	money_frame = NULL;
+	// maybe free undo list
+	if(last_built!=NULL) {
+		delete last_built;
+	}
+	last_built = NULL;
+	// always there
+	delete halt_list;
+	halt_list = 0;
+}
+
+
+
+
+/* returns the money dialoge of a player
+ * @author prissi
+ */
+money_frame_t *
+spieler_t::gib_money_frame(void)
+{
+	if(money_frame==NULL) {
+		money_frame = new money_frame_t(this);
+	}
+	return money_frame;
 }
 
 
@@ -163,13 +231,7 @@ spieler_t::~spieler_t()
 const char *
 spieler_t::gib_name(void)
 {
-	if(kennfarbe/4>0)
-	{
-		char buf[256];
-		sprintf(buf,"player %i",kennfarbe/4-1);
-		return translator::translate(buf);
-	}
-	return " ";
+	return translator::translate(spieler_name_buf);
 }
 
 
@@ -637,367 +699,606 @@ dbg->message("spieler_t::suche_platz()","Search around stop at (%i,%i)",x,y);
 	return false;
 }
 
+
+
+void
+spieler_t::do_passenger_ki()
+{
+	// if we have this little money, we do nothing
+	if(konto<2000000) {
+		return;
+	}
+
+	switch(state) {
+		case NEUE_ROUTE:
+		{
+			start_stadt = NULL;
+			end_stadt = NULL;
+
+			const array_tpl<stadt_t *> *staedte = welt->gib_staedte();
+			// start with a random town
+			int anzahl = staedte->get_size();
+			int offset = simrand(anzahl);
+			// find a good route
+			for( int i=0;  i<anzahl;  i++  ) {
+				const int nr = (i+offset)%anzahl;
+				if(  get_our_hub(staedte->get(nr))==NULL  ) {
+					if(end_stadt==NULL) {
+						end_stadt = staedte->get(nr);
+						state = BAUE_BUS_ZIEL;
+					}
+					else if(staedte->get(nr)!=end_stadt) {
+						// first we use any target
+						if(start_stadt==NULL) {
+							start_stadt = staedte->get(nr);
+							state = BAUE_VERBINDUNG;
+							substate = NR_INIT;
+						}
+						else {
+							// check if more close
+							koord dist1 = end_stadt->gib_pos()-staedte->get(nr)->gib_pos();
+							koord dist2 = end_stadt->gib_pos()-start_stadt->gib_pos();
+							if(  abs(dist1.x)+abs(dist1.y)<abs(dist2.x)+abs(dist2.y)+simrand(50)  ) {
+								start_stadt = staedte->get(nr);
+							}
+						}
+					}
+				}
+			}
+			// ok, found two cities
+			if(start_stadt!=NULL  &&  end_stadt!=NULL) {
+				state = BAUE_VERBINDUNG;
+				substate = NR_INIT;
+dbg->message("spieler_t::do_passenger_ki()","%s wants to built network between %s and %s",gib_name(),start_stadt->gib_name(),end_stadt->gib_name());
+			}
+		}
+		break;
+
+		// so far only busses
+		case BAUE_VERBINDUNG:
+		{
+			switch(substate) {
+				case NR_INIT:
+				{
+					// first find the hub
+					halthandle_t h = get_our_hub(start_stadt);
+					if(h!=NULL) {
+						start_hub_pos = h->gib_basis_pos();
+					}
+					else {
+						start_hub_pos = built_hub(start_stadt);
+					}
+					// also for target
+					h = get_our_hub(end_stadt);
+					if(h!=NULL) {
+						end_hub_pos = h->gib_basis_pos();
+					}
+					else {
+						end_hub_pos = built_hub(end_stadt);
+					}
+					// was successful?
+					if(start_hub_pos!=koord::invalid  && end_hub_pos!=koord::invalid) {
+						// ok, now we check the vehicle
+						platz1 = start_hub_pos;
+						platz2 = end_hub_pos;
+						substate = NR_BAUE_ROUTE1;
+					}
+					else {
+						// no success
+						CHECK_CONVOI;
+					}
+				}
+				break;
+
+				// get a suitable vehicle
+				case NR_BAUE_ROUTE1:
+				{
+				  	// obey timeline
+					unsigned month_now = (welt->gib_zeit_ms() >> welt->ticks_bits_per_tag) + (umgebung_t::starting_year * 12);
+					if(  umgebung_t::use_timeline == false   ) {
+						month_now = 0xFFFFFFFFu;
+					}
+
+					// we want the fastest we can get!
+					road_vehicle = vehikelbauer_t::vehikel_search( vehikel_besch_t::strasse, month_now, 10, 50, warenbauer_t::passagiere );
+					if(road_vehicle!=NULL) {
+						// find cheapest road
+						road_weg = wegbauer_t::weg_search( weg_t::strasse, road_vehicle->gib_geschw() );
+						substate = NR_BAUE_STRASSEN_ROUTE;
+					}
+					else {
+						// no success
+						state = CHECK_CONVOI;
+					}
+					// ok, now I do
+					baue = true;
+					substate = NR_BAUE_STRASSEN_ROUTE;
+				}
+				break;
+
+				// built a simple road (no bridges, no tunnels)
+				case NR_BAUE_STRASSEN_ROUTE:
+					if(create_simple_road_transport()  &&  wkz_bushalt(this, welt, platz1)  &&  wkz_bushalt(this, welt, platz2)  ) {
+						koord list[2]={ platz1, platz2 };
+						create_bus_transport_vehikel(platz1,1,list,2);
+						create_bus_transport_vehikel(platz2,1,list,2);
+						substate = NR_ROAD_SUCCESS;
+					}
+					else {
+						substate = NR_BAUE_STRASSEN_ROUTE2;
+					}
+				break;
+
+				// built a road, try with bridges or tunnels
+				case NR_BAUE_STRASSEN_ROUTE2:
+					if(create_complex_road_transport()  &&  wkz_bushalt(this, welt, platz1)  &&  wkz_bushalt(this, welt, platz2)  ) {
+						koord list[2]={ platz1, platz2 };
+						create_bus_transport_vehikel(platz1,1,list,2);
+						create_bus_transport_vehikel(platz2,1,list,2);
+						substate = NR_ROAD_SUCCESS;
+					}
+					else {
+						substate = NR_BAUE_CLEAN_UP;
+					}
+				break;
+
+				// remove marker etc.
+				case NR_BAUE_CLEAN_UP:
+					state = CHECK_CONVOI;
+					// otherwise it may always try to built the same route!
+					ziel = NULL;
+					// schilder aufraeumen
+					if(welt->lookup(platz1)) {
+						welt->access(platz1)->gib_kartenboden()->obj_loesche_alle(this);
+					}
+					if(welt->lookup(platz2)) {
+						welt->access(platz2)->gib_kartenboden()->obj_loesche_alle(this);
+					}
+					baue = false;
+				break;
+
+				// successful rail construction
+				case NR_ROAD_SUCCESS:
+				{
+					baue = false;
+					state = CHECK_CONVOI;
+					// tell the player
+					char buf[256];
+					sprintf(buf, translator::translate("Travellers now\nuse %s's\n%i busses between\n%s \nand %s."), gib_name(), 2, start_stadt->gib_name(), end_stadt->gib_name() );
+					message_t::get_instance()->add_message(buf,platz1,message_t::ai,kennfarbe,road_vehicle->gib_basis_bild());
+				}
+				break;
+			}
+		}
+		break;
+
+		case CHECK_CONVOI:
+			state = NEUE_ROUTE;
+			break;
+
+		default:
+			dbg->message("spieler_t::do_passenger_ki()",	"Illegal state %d with substate %d!", state, substate);
+			state = NEUE_ROUTE;
+			substate = NR_INIT;
+	}
+}
+
+
+
+
 void
 spieler_t::do_ki()
 {
-    if((steps & 3) != 0) {
-	return;
-    }
+	if((steps & 7) != 0) {
+		return;
+	}
 
-    switch(state) {
-    case NEUE_ROUTE:
-	switch(substate) {
+	if(passenger_transport) {
+		// passenger are special ...
+		do_passenger_ki();
+		return;
+	}
 
-	case NR_INIT:
-	    gewinn = -1;
-	    count = 0;
-	    // calculate routes only for account > 10000
-	    if((40 * -CST_STRASSE) -
-		CST_MEDIUM_VEHIKEL*6 -
-		CST_FRACHTHOF*2 < konto) {
-			last_start = start;
-			last_ziel = ziel;
-			start = ziel = NULL;
-			substate = NR_SAMMLE_ROUTEN;
-	    }
-		break;
+	switch(state) {
+		case NEUE_ROUTE:
+			switch(substate) {
 
-	/* try to built a network:
-	 * last target also new target ...
-	 */
-	case NR_SAMMLE_ROUTEN:
-    {
-		fabrik_t * start_neu = NULL;
-		fabrik_t * ziel_neu = NULL;
-		int	start_ware_neu;
-		int gewinn_neu=-1;
+				case NR_INIT:
+					gewinn = -1;
+					count = 0;
+					// calculate routes only for account > 10000
+					if(  (40 * -CST_STRASSE) -
+						CST_MEDIUM_VEHIKEL*6 -
+						CST_FRACHTHOF*2 < konto) {
+						last_start = start;
+						last_ziel = ziel;
+						start = ziel = NULL;
+						substate = NR_SAMMLE_ROUTEN;
+						// small advantage in front of contructing AI
+						if(baue) {
+							count = KI_TEST_LINES/2 - 1;
+						}
+					}
+				break;
 
-    	if(  count==KI_TEST_LINES-2  &&  last_ziel!=NULL  ) {
-    		// we built a line: do we need another supplier?
-			gewinn_neu = suche_transport_quelle(&start_neu, &start_ware_neu, last_ziel);
-			if(  gewinn_neu>KI_MIN_PROFIT  &&  start_neu!=last_start  &&  start_neu!=NULL  ) {
-				// marginally profitable -> then built it!
+				/* try to built a network:
+				* last target also new target ...
+				*/
+				case NR_SAMMLE_ROUTEN:
+				{
+					fabrik_t * start_neu = NULL;
+					fabrik_t * ziel_neu = NULL;
+					int	start_ware_neu;
+					int gewinn_neu=-1;
+
+					if(  count==KI_TEST_LINES-2  &&  last_ziel!=NULL  ) {
+						// we built a line: do we need another supplier?
+						gewinn_neu = suche_transport_quelle(&start_neu, &start_ware_neu, last_ziel);
+						if(  gewinn_neu>KI_MIN_PROFIT  &&  start_neu!=last_start  &&  start_neu!=NULL  ) {
+							// marginally profitable -> then built it!
 dbg->message("spieler_t::do_ki","Select quelle from %s (%i,%i) to %s (%i,%i) (income %i)",start_neu->gib_name(),start_neu->pos.x,start_neu->pos.y,ziel_neu->gib_name(),ziel_neu->pos.x,ziel_neu->pos.y, gewinn_neu);
-				// marginally profitable -> then built it!
-				start = start_neu;
-				start_ware = start_ware_neu;
-				gewinn = gewinn_neu;
-				ziel = last_ziel;
-				count = KI_TEST_LINES;
-			}
-			count++;
-		}
-		else
-		{
+							start = start_neu;
+							start_ware = start_ware_neu;
+							gewinn = gewinn_neu;
+							ziel = last_ziel;
+							count = KI_TEST_LINES;
+						}
+						count++;
+					}
+					else
+					{
 #ifdef EARLY_SEARCH_FOR_BUYER
-// does not work well together with 128er pak
-			if(  count==KI_TEST_LINES-1  &&  last_ziel!=NULL  ) {
-				// found somebody, who wants our stuff?
-				start_neu = last_ziel;
-				gewinn_neu = suche_transport_ziel(start_neu, &start_ware_neu, &ziel_neu);
-				if(  gewinn_neu>gewinn>>1  ) {
-					// marginally profitable -> then built it!
-				    start = start_neu;
-				    start_ware = start_ware_neu;
-				    ziel = ziel_neu;
-				    gewinn = gewinn_neu;
-				}
-				count++;
-			}
-			else
+						// does not work well together with 128er pak
+						if(  count==KI_TEST_LINES-1  &&  last_ziel!=NULL  ) {
+							// found somebody, who wants our stuff?
+							start_neu = last_ziel;
+							gewinn_neu = suche_transport_ziel(start_neu, &start_ware_neu, &ziel_neu);
+							if(  gewinn_neu>gewinn>>1  ) {
+								// marginally profitable -> then built it!
+								start = start_neu;
+								start_ware = start_ware_neu;
+								ziel = ziel_neu;
+								gewinn = gewinn_neu;
+							}
+							count++;
+						}
+						else
 #endif
-			{
-				// just normal random search ...
-				start_neu = welt->get_random_fab();
-				if( start_neu!=NULL  &&  !welt->lookup(start_neu->pos)->ist_wasser()    &&  start_neu!=last_start  ) {
-					gewinn_neu = suche_transport_ziel(start_neu, &start_ware_neu, &ziel_neu);
-if(gewinn_neu > -1   ) {
+						{
+							// just normal random search ...
+							start_neu = welt->get_random_fab();
+							if( start_neu!=NULL  &&  !welt->lookup(start_neu->pos)->ist_wasser()    &&  start_neu!=last_start  ) {
+								gewinn_neu = suche_transport_ziel(start_neu, &start_ware_neu, &ziel_neu);
+								if(gewinn_neu > -1   ) {
 dbg->message("spieler_t::do_ki","Check route from %s (%i,%i) to %s (%i,%i) (income %i)",start_neu->gib_name(),start_neu->pos.x,start_neu->pos.y,ziel_neu->gib_name(),ziel_neu->pos.x,ziel_neu->pos.y, gewinn_neu);
-}
-				}
-			}
-		}
+								}
+							}
+						}
+					}
 
-		if(gewinn_neu > gewinn  &&  start_neu!=last_start  &&  last_ziel!=ziel_neu  ) {
-			// more income and not the same than before ...
-		    start = start_neu;
-		    start_ware = start_ware_neu;
-		    ziel = ziel_neu;
-		    gewinn = gewinn_neu;
+					// better than last one?
+					// and not identical to last one
+					if(gewinn_neu > gewinn  &&  !(start_neu==last_start  &&  last_ziel==ziel_neu)  &&  !(start_neu==baue_start  &&  ziel_neu==baue_ziel)  ) {
+						// more income and not the same than before ...
+						start = start_neu;
+						start_ware = start_ware_neu;
+						ziel = ziel_neu;
+						gewinn = gewinn_neu;
 dbg->message("spieler_t::do_ki","Consider route from %s (%i,%i) to %s (%i,%i) (income %i)",start_neu->gib_name(),start_neu->pos.x,start_neu->pos.y,ziel_neu->gib_name(),ziel_neu->pos.x,ziel_neu->pos.y, gewinn_neu);
-		}
+					}
 
-		if(gewinn_neu > KI_MIN_PROFIT) {
-		    count ++;
+					if(gewinn_neu > KI_MIN_PROFIT) {
+						count ++;
 dbg->message("spieler_t::do_ki","Tried already %i routes",count);
-		}
+					}
 
-		if(count >= KI_TEST_LINES && gewinn > KI_MIN_PROFIT ) {
-			if(  start != NULL && ziel != NULL) {
+					if(count >= KI_TEST_LINES && gewinn > KI_MIN_PROFIT ) {
+						if(  start !=NULL && ziel!=NULL  &&  !(start==baue_start  &&  ziel==baue_ziel)  ) {
 dbg->message("spieler_t::do_ki","Decicion %s to %s (income %i)",start->gib_name(),ziel->gib_name(), gewinn);
-			    substate = NR_BAUE_ROUTE1;
-			 }
-			 else {
-			 	// use another line
-			 	substate = NR_INIT;
-			 }
-		}
-            }
-	    break;
-
-	case NR_BAUE_ROUTE1:
-		{
-			/* if we reached here, we decide to built a route;
-			 * the KI just chooses the way to run the operation at maximum profit (minimum loss).
-			 * The KI will built also a loosing route; this might be required by future versions to
-			 * be able to built a network!
-			 * @author prissi
-			 */
-dbg->message("spieler_t::do_ki()",
-		     "want to build a route from %s (%d,%d) to %s (%d,%d) with value %d",
-		     start->gib_name(),
-		     start->gib_pos().x, start->gib_pos().y,
-		     ziel->gib_name(),
-		     ziel->gib_pos().x, ziel->gib_pos().y,
-		     gewinn);
-
-			koord zv = start->gib_pos().gib_2d() - ziel->gib_pos().gib_2d();
-			int dist = ABS(zv.x) + ABS(zv.y);
-
-			/* for the calculation we need:
-			 * a suitable car (and engine)
-			 * a suitable weg
-			 */
-
-			// needed for search
-			// first we have to find a suitable car
-			const ware_besch_t *freight = start->gib_ausgang()->get(start_ware).gib_typ();
-			// guess the "optimum" speed (usually a little too low)
-		    	int best_rail_speed = MIN(60+freight->gib_speed_bonus()*5, 140 );
-		    	int best_road_speed = MIN(60+freight->gib_speed_bonus()*5, 130 );
-		    	// obey timeline
-			unsigned month_now = (welt->gib_zeit_ms() >> welt->ticks_bits_per_tag) + (umgebung_t::starting_year * 12);
-			if(  umgebung_t::use_timeline == false   ) {
-				month_now = 0xFFFFFFFFu;
-			}
-			// any rail car that transport this good (actually this returns the largest)
-			rail_vehicle = vehikelbauer_t::vehikel_search( vehikel_besch_t::schiene, month_now, 0, best_rail_speed,  freight );
-			rail_engine = NULL;
-			rail_weg = NULL;
-			// any road car that transport this good (actually this returns the largest)
-			road_vehicle = vehikelbauer_t::vehikel_search( vehikel_besch_t::strasse, month_now, 10, best_road_speed, freight );
-			road_weg = NULL;
-
-			// properly calculate production
-			const int prod = MIN(ziel->max_produktion(),
-			                 ( start->max_produktion() * start->gib_besch()->gib_produkt(start_ware)->gib_faktor() )/256 - start->gib_abgabe_letzt(start_ware) );
-
-			/* calculate number of cars for railroad */
-			count_rail=255;	// no cars yet
-			if(  rail_vehicle!=NULL  ) {
-				// if our car is faster: well use faster speed
-			 	best_rail_speed = MIN(80,rail_vehicle->gib_geschw());
-				// for engine: gues number of cars
-				count_rail = (prod*dist) / (rail_vehicle->gib_zuladung()*best_rail_speed*3)+1;
-				rail_engine = vehikelbauer_t::vehikel_search( vehikel_besch_t::schiene, month_now, 80*count_rail, best_rail_speed, NULL );
-				if(  rail_engine!=NULL  ) {
-				  if(  best_rail_speed>rail_engine->gib_geschw()  ) {
-				    best_rail_speed = rail_engine->gib_geschw();
-				  }
-				  // find cheapest track with that speed
-				 rail_weg = wegbauer_t::weg_search( weg_t::schiene, best_rail_speed );
-				 if(  rail_weg!=NULL  ) {
-					  if(  best_rail_speed>rail_weg->gib_topspeed()  ) {
-					    best_rail_speed = rail_weg->gib_topspeed();
-					  }
-					  // no train can have more than 15 cars
-					  count_rail = MIN( 15, (prod*dist) / (rail_vehicle->gib_zuladung()*best_rail_speed*3) );
-					  // if engine too week, reduce number of cars
-					  if(  count_rail*80*64>(rail_engine->gib_leistung()*rail_engine->get_gear())  ) {
-					  	count_rail = rail_engine->gib_leistung()*rail_engine->get_gear()/(80*64);
-					  }
-					count_rail = ((count_rail+1)&0x0FE)+1;
-dbg->message("spieler_t::do_ki()","Engine %s guess to need %d rail cars %s for route (%s)", rail_engine->gib_name(), count_rail, rail_vehicle->gib_name(), rail_weg->gib_name() );
+							substate = NR_BAUE_ROUTE1;
+						}
+						else {
+							// use another line
+							substate = NR_INIT;
+						}
 					}
 				}
-				if(  rail_engine==NULL  ||  rail_weg==NULL  ) {
-					// no rail transport possible
+				break;
+
+				// now we need so select the cheapest mean to get maximum profit
+				case NR_BAUE_ROUTE1:
+				{
+					if(baue) {
+dbg->message("do_ki()","Player %s could not built: baue=%1",gib_name(),baue);
+						substate = NR_INIT;
+						break;
+					}
+					// just mark for other AI: this is off limits ...
+					baue = true;
+					baue_start = start;
+					baue_ziel = ziel;
+					/* if we reached here, we decide to built a route;
+					 * the KI just chooses the way to run the operation at maximum profit (minimum loss).
+					 * The KI will built also a loosing route; this might be required by future versions to
+					 * be able to built a network!
+					 * @author prissi
+					 */
+dbg->message("spieler_t::do_ki()","%s want to build a route from %s (%d,%d) to %s (%d,%d) with value %d",
+		gib_name(),
+	     start->gib_name(), start->gib_pos().x, start->gib_pos().y,
+	     ziel->gib_name(), ziel->gib_pos().x, ziel->gib_pos().y,
+	     gewinn);
+
+					koord zv = start->gib_pos().gib_2d() - ziel->gib_pos().gib_2d();
+					int dist = ABS(zv.x) + ABS(zv.y);
+
+					/* for the calculation we need:
+					 * a suitable car (and engine)
+					 * a suitable weg
+					 */
+
+					// needed for search
+					// first we have to find a suitable car
+					const ware_besch_t *freight = start->gib_ausgang()->get(start_ware).gib_typ();
+
+					// guess the "optimum" speed (usually a little too low)
+				  	int best_rail_speed = MIN(60+freight->gib_speed_bonus()*5, 140 );
+				  	int best_road_speed = MIN(60+freight->gib_speed_bonus()*5, 130 );
+
+				  	// obey timeline
+					unsigned month_now = (welt->gib_zeit_ms() >> welt->ticks_bits_per_tag) + (umgebung_t::starting_year * 12);
+					if(  umgebung_t::use_timeline == false   ) {
+						month_now = 0xFFFFFFFFu;
+					}
+
+					// is rail transport allowed?
+					if(rail_transport) {
+						// any rail car that transport this good (actually this returns the largest)
+						rail_vehicle = vehikelbauer_t::vehikel_search( vehikel_besch_t::schiene, month_now, 0, best_rail_speed,  freight );
+					}
+					rail_engine = NULL;
+					rail_weg = NULL;
+dbg->message("do_ki()","rail vehicle %p",rail_vehicle);
+
+					// is road transport allowed?
+					if(road_transport) {
+						// any road car that transport this good (actually this returns the largest)
+						road_vehicle = vehikelbauer_t::vehikel_search( vehikel_besch_t::strasse, month_now, 10, best_road_speed, freight );
+					}
+					road_weg = NULL;
+dbg->message("do_ki()","road vehicle %p",road_vehicle);
+
+					// properly calculate production
+					const int prod = MIN(ziel->max_produktion(),
+					                 ( start->max_produktion() * start->gib_besch()->gib_produkt(start_ware)->gib_faktor() )/256 - start->gib_abgabe_letzt(start_ware) );
+
+					/* calculate number of cars for railroad */
+					count_rail=255;	// no cars yet
+					if(  rail_vehicle!=NULL  ) {
+						// if our car is faster: well use faster speed
+					 	best_rail_speed = MIN(80,rail_vehicle->gib_geschw());
+						// for engine: gues number of cars
+						count_rail = (prod*dist) / (rail_vehicle->gib_zuladung()*best_rail_speed*3)+1;
+						rail_engine = vehikelbauer_t::vehikel_search( vehikel_besch_t::schiene, month_now, 80*count_rail, best_rail_speed, NULL );
+						if(  rail_engine!=NULL  ) {
+						  if(  best_rail_speed>rail_engine->gib_geschw()  ) {
+						    best_rail_speed = rail_engine->gib_geschw();
+						  }
+						  // find cheapest track with that speed
+						 rail_weg = wegbauer_t::weg_search( weg_t::schiene, best_rail_speed );
+						 if(  rail_weg!=NULL  ) {
+							  if(  best_rail_speed>rail_weg->gib_topspeed()  ) {
+							  	best_rail_speed = rail_weg->gib_topspeed();
+							  }
+							  // no train can have more than 15 cars
+							  count_rail = MIN( 15, (prod*dist) / (rail_vehicle->gib_zuladung()*best_rail_speed*3) );
+							  // if engine too week, reduce number of cars
+							  if(  count_rail*80*64>(rail_engine->gib_leistung()*rail_engine->get_gear())  ) {
+							  	count_rail = rail_engine->gib_leistung()*rail_engine->get_gear()/(80*64);
+							  }
+							count_rail = ((count_rail+1)&0x0FE)+1;
+dbg->message("spieler_t::do_ki()","Engine %s guess to need %d rail cars %s for route (%s)", rail_engine->gib_name(), count_rail, rail_vehicle->gib_name(), rail_weg->gib_name() );
+							}
+						}
+						if(  rail_engine==NULL  ||  rail_weg==NULL  ) {
+							// no rail transport possible
 dbg->message("spieler_t::do_ki()","No railway possible.");
-					rail_vehicle = NULL;
-					count_rail = 255;
-				}
-			}
+							rail_vehicle = NULL;
+							count_rail = 255;
+						}
+					}
 
-			/* calculate number of cars for road; much easier */
-			count_road=255;	// no cars yet
-			if(  road_vehicle!=NULL  ) {
-				  best_road_speed = road_vehicle->gib_geschw();
-				 // find cheapest road
-				 road_weg = wegbauer_t::weg_search( weg_t::strasse, best_road_speed );
-				 if(  road_weg!=NULL  ) {
-					  if(  best_road_speed>road_weg->gib_topspeed()  ) {
-					    best_road_speed = road_weg->gib_topspeed();
-					  }
-					// minimum vehicle is 1, maximum vehicle is 48, more just result in congestion
-					count_road = MIN( 254, (prod*dist) / (road_vehicle->gib_zuladung()*best_road_speed*4)+2 );
+					/* calculate number of cars for road; much easier */
+					count_road=255;	// no cars yet
+					if(  road_vehicle!=NULL  ) {
+						best_road_speed = road_vehicle->gib_geschw();
+						// find cheapest road
+						road_weg = wegbauer_t::weg_search( weg_t::strasse, best_road_speed );
+						if(  road_weg!=NULL  ) {
+							if(  best_road_speed>road_weg->gib_topspeed()  ) {
+								best_road_speed = road_weg->gib_topspeed();
+							}
+							// minimum vehicle is 1, maximum vehicle is 48, more just result in congestion
+							count_road = MIN( 254, (prod*dist) / (road_vehicle->gib_zuladung()*best_road_speed*4)+2 );
 dbg->message("spieler_t::do_ki()","guess to need %d road cars %s for route %s", count_road, road_vehicle->gib_name(), road_weg->gib_name() );
-				}
-				else {
-					// no roads there !?!
+						}
+						else {
+							// no roads there !?!
 dbg->message("spieler_t::do_ki()","No roadway possible.");
+						}
+					}
+
+					// find the cheapest transport ...
+					// assume maximum cost
+					int	cost_rail=0x7FFFFFFF, cost_road=0x7FFFFFFF;
+					int	income_rail=0, income_road=0;
+
+					// calculate cost for rail
+					if(  count_rail<255  ) {
+						int freight_price = (freight->gib_preis()*rail_vehicle->gib_zuladung()*count_rail)/24*((8000+(best_rail_speed-80)*freight->gib_speed_bonus())/1000);
+						// calculated here, since the above number was based on production
+						// only uneven number of cars bigger than 3 makes sense ...
+						count_rail = MAX( 3, count_rail );
+						income_rail = (freight_price*best_rail_speed)/(2*dist+count_rail);
+						cost_rail = rail_weg->gib_wartung() + (((count_rail+1)/2)*300)/dist + ((count_rail*rail_vehicle->gib_betriebskosten()+rail_engine->gib_betriebskosten())*best_rail_speed)/(2*dist+count_rail);
+						dbg->message("spieler_t::do_ki()","Netto credits per day for rail transport %.2f (income %.2f)",cost_rail/100.0, income_rail/100.0 );
+						cost_rail -= income_rail;
+					}
+
+					// and calculate cost for road
+					if(  count_road<255  ) {
+						// for short distance: reduce number of cars
+						// calculated here, since the above number was based on production
+						count_road = CLIP( (dist*15)/best_road_speed, 2, count_road );
+						int freight_price = (freight->gib_preis()*road_vehicle->gib_zuladung()*count_road)/24*((8000+(best_road_speed-80)*freight->gib_speed_bonus())/1000);
+						cost_road = road_weg->gib_wartung() + 300/dist + (count_road*road_vehicle->gib_betriebskosten()*best_road_speed)/(2*dist+5);
+						income_road = (freight_price*best_road_speed)/(2*dist+5);
+						dbg->message("spieler_t::do_ki()","Netto credits per day and km for road transport %.2f (income %.2f)",cost_road/100.0, income_road/100.0 );
+						cost_road -= income_road;
+					}
+
+					// check location, if vehicles found
+					if(  MIN(count_road,count_rail)!=255  &&  suche_platz1_platz2(start, ziel)  ) {
+						// road or rail?
+						if(  cost_rail<cost_road  ) {
+							substate = NR_BAUE_SIMPLE_SCHIENEN_ROUTE;
+						}
+						else {
+							substate = NR_BAUE_STRASSEN_ROUTE;
+						}
+					}
+					else {
+						// falls gar nichts klappt gehen wir zum initialzustand zurueck
+						baue = false;
+						substate = NR_INIT;
+					}
 				}
-			}
+				break;
 
-			// find the cheapest transport ...
-			// assume maximum cost
-			int	cost_rail=0x7FFFFFFF, cost_road=0x7FFFFFFF;
-			int	income_rail=0, income_road=0;
+				// built a simple railroad (no bridges, no tunnels)
+				case NR_BAUE_SIMPLE_SCHIENEN_ROUTE:
+					if(create_simple_rail_transport()) {
+						count_rail = baue_bahnhof(start->pos,&platz1, count_rail)-1;
+						count_rail = baue_bahnhof(ziel->pos,&platz2, count_rail)-1;
+						create_rail_transport_vehikel(platz1,platz2, count_rail, 100 );
+						substate = NR_RAIL_SUCCESS;
+					}
+					else {
+						substate = NR_BAUE_SCHIENEN_ROUTE1;
+					}
+				break;
 
-			// calculate cost for rail
-			if(  count_rail<255  ) {
-				int freight_price = (freight->gib_preis()*rail_vehicle->gib_zuladung()*count_rail)/24*((8000+(best_rail_speed-80)*freight->gib_speed_bonus())/1000);
-				// calculated here, since the above number was based on production
-				// only uneven number of cars bigger than 3 makes sense ...
-				count_rail = MAX( 3, count_rail );
-				income_rail = (freight_price*best_rail_speed)/(2*dist+count_rail);
-				cost_rail = rail_weg->gib_wartung() + (((count_rail+1)/2)*300)/dist + ((count_rail*rail_vehicle->gib_betriebskosten()+rail_engine->gib_betriebskosten())*best_rail_speed)/(2*dist+count_rail);
-dbg->message("spieler_t::do_ki()","Netto credits per day for rail transport %.2f (income %.2f)",cost_rail/100.0, income_rail/100.0 );
-				cost_rail -= income_rail;
-			}
-			// and calculate cost for road
-			if(  count_road<255  ) {
-				// for short distance: reduce number of cars
-				// calculated here, since the above number was based on production
-				count_road = CLIP( (dist*15)/best_road_speed, 2, count_road );
-				int freight_price = (freight->gib_preis()*road_vehicle->gib_zuladung()*count_road)/24*((8000+(best_road_speed-80)*freight->gib_speed_bonus())/1000);
-				cost_road = road_weg->gib_wartung() + 300/dist + (count_road*road_vehicle->gib_betriebskosten()*best_road_speed)/(2*dist+5);
-				income_road = (freight_price*best_road_speed)/(2*dist+5);
-dbg->message("spieler_t::do_ki()","Netto credits per day and km for road transport %.2f (income %.2f)",cost_road/100.0, income_road/100.0 );
-				cost_road -= income_road;
-			}
+				// built a railroad, try with bridges or tunnels
+				case NR_BAUE_SCHIENEN_ROUTE1:
+					if(create_complex_rail_transport()) {
+						count_rail = baue_bahnhof(start->pos,&platz1, count_rail)-1;
+						count_rail = baue_bahnhof(ziel->pos,&platz2, count_rail)-1;
+						create_rail_transport_vehikel(platz1,platz2, count_rail, 100 );
+						substate = NR_RAIL_SUCCESS;
+					}
+					else {
+						substate = NR_BAUE_SCHIENEN_ROUTE2;
+					}
+				break;
 
-			// check location, if vehicles found
-			if(  MIN(count_road,count_rail)!=255  &&  suche_platz1_platz2(start, ziel)  ) {
-				// road or rail?
-				if(  cost_rail<cost_road  ) {
-					substate = NR_BAUE_SIMPLE_SCHIENEN_ROUTE;
+				// built a railroad, try with bridges or tunnels, only backwards
+				// CHECK!
+				// prissi: since the waybuilder tries also backwards, I am not sure this is successful
+				case NR_BAUE_SCHIENEN_ROUTE2:
+				{
+					const koord tmp = platz2;
+					platz2 = platz1;
+					platz1 = tmp;
+
+					if(create_complex_rail_transport()) {
+						count_rail = baue_bahnhof(start->pos,&platz2, count_rail)-1;
+						count_rail = baue_bahnhof(ziel->pos,&platz1, count_rail)-1;
+						create_rail_transport_vehikel(platz2,platz1,count_rail, 100 );
+						substate = NR_RAIL_SUCCESS;
+					}
+					else {
+						substate = NR_BAUE_CLEAN_UP;
+						// could not lay track
+						if(  count_road<255  ) {
+							substate = NR_BAUE_STRASSEN_ROUTE;
+						}
+					}
 				}
-				else {
-				  substate = NR_BAUE_STRASSEN_ROUTE;
-				}
-			}
-			else {
-				 // falls gar nichts klappt gehen wir zum initialzustand zurueck
-				substate = NR_INIT;
-			}
-	    }
-	    break;
+				break;
 
-	case NR_BAUE_SIMPLE_SCHIENEN_ROUTE:
-		if(create_simple_rail_transport()) {
-			count_rail = baue_bahnhof(start->pos,&platz1, count_rail)-1;
-			count_rail = baue_bahnhof(ziel->pos,&platz2, count_rail)-1;
-			create_rail_transport_vehikel(platz1,platz2, count_rail);
-			substate = NR_RAIL_SUCCESS;
-		}
-		else {
-			substate = NR_BAUE_SCHIENEN_ROUTE1;
-		}
+				// built a simple road (no bridges, no tunnels)
+				case NR_BAUE_STRASSEN_ROUTE:
+					if(create_simple_road_transport()) {
+						create_road_transport_vehikel(start, count_road  );
+						substate = NR_ROAD_SUCCESS;
+					}
+					else {
+						substate = NR_BAUE_STRASSEN_ROUTE2;
+					}
+				break;
+
+				// built a road, try with bridges or tunnels
+				case NR_BAUE_STRASSEN_ROUTE2:
+					if(create_complex_road_transport()) {
+						create_road_transport_vehikel(start, count_road  );
+						substate = NR_ROAD_SUCCESS;
+					}
+					else {
+						substate = NR_BAUE_CLEAN_UP;
+					}
+				break;
+
+				// remove marker etc.
+				case NR_BAUE_CLEAN_UP:
+					substate = NR_INIT;
+					// otherwise it may always try to built the same route!
+					ziel = NULL;
+					// schilder aufraeumen
+					if(welt->lookup(platz1)) {
+						welt->access(platz1)->gib_kartenboden()->obj_loesche_alle(this);
+					}
+					if(welt->lookup(platz2)) {
+						welt->access(platz2)->gib_kartenboden()->obj_loesche_alle(this);
+					}
+					baue = false;
+				break;
+
+				// successful rail construction
+				case NR_RAIL_SUCCESS:
+				{
+					// tell the player
+					char buf[256];
+					sprintf(buf, translator::translate("%s\nopened a new railway\nbetween %s\nat (%i,%i) and\n%s at (%i,%i)."), gib_name(), translator::translate(start->gib_name()), start->pos.x, start->pos.y, translator::translate(ziel->gib_name()), ziel->pos.x, ziel->pos.y );
+					message_t::get_instance()->add_message(buf,start->pos.gib_2d(),message_t::ai,kennfarbe,rail_engine->gib_basis_bild());
+
+					substate = NR_INIT;
+					baue = false;
+				}
+				break;
+
+				// successful rail construction
+				case NR_ROAD_SUCCESS:
+				{
+					// tell the player
+					char buf[256];
+					sprintf(buf, translator::translate("%s\nnow operates\n%i trucks between\n%s at (%i,%i)\nand %s at (%i,%i)."), gib_name(), count_road, translator::translate(start->gib_name()), start->pos.x, start->pos.y, translator::translate(ziel->gib_name()), ziel->pos.x, ziel->pos.y );
+					message_t::get_instance()->add_message(buf,start->pos.gib_2d(),message_t::ai,kennfarbe,road_vehicle->gib_basis_bild());
+
+					substate = NR_INIT;
+					baue = false;
+				}
+				break;
+
+				default:
+					dbg->error("spieler_t::do_ki()","State %d with illegal substate %d!", state, substate);
+			}
 		break;
 
-	case NR_BAUE_SCHIENEN_ROUTE1:
-		if(create_complex_rail_transport()) {
-			count_rail = baue_bahnhof(start->pos,&platz1, count_rail)-1;
-			count_rail = baue_bahnhof(ziel->pos,&platz2, count_rail)-1;
-			create_rail_transport_vehikel(platz1,platz2, count_rail);
-			substate = NR_RAIL_SUCCESS;
-		}
-		else {
-			substate = NR_BAUE_SCHIENEN_ROUTE2;
-		}
-		break;
-
-	case NR_BAUE_SCHIENEN_ROUTE2:
-		{
-			// try with inverted order
-			const koord tmp = platz2;
-			platz2 = platz1;
-			platz1 = tmp;
-
-			if(create_complex_rail_transport()) {
-				count_rail = baue_bahnhof(start->pos,&platz2, count_rail)-1;
-				count_rail = baue_bahnhof(ziel->pos,&platz1, count_rail)-1;
-				create_rail_transport_vehikel(platz2,platz1,count_rail);
-				substate = NR_RAIL_SUCCESS;
-			}
-			else {
-				substate = NR_BAUE_CLEAN_UP;
-				// could not lay track
-				if(  count_road<255  ) {
-					substate = NR_BAUE_STRASSEN_ROUTE;
-				}
-			}
-		}
-	    break;
-
-	case NR_BAUE_STRASSEN_ROUTE:
-		if(create_simple_road_transport()) {
-			create_road_transport_vehikel(start, count_road  );
-			// tell the player
-			char buf[256];
-			sprintf(buf, translator::translate("%s\nnow operates\n%i trucks between\n%s at (%i,%i)\nand %s at (%i,%i)."), gib_name(), count_road, translator::translate(start->gib_name()), start->pos.x, start->pos.y, translator::translate(ziel->gib_name()), ziel->pos.x, ziel->pos.y );
-			message_t::get_instance()->add_message(buf,start->pos.gib_2d(),message_t::ai,kennfarbe,road_vehicle->gib_basis_bild());
+		default:
+			dbg->message("spieler_t::do_ki()",	"Illegal state %d with substate %d!", state, substate);
+			state = NEUE_ROUTE;
 			substate = NR_INIT;
-		}
-		else {
-			substate = NR_BAUE_STRASSEN_ROUTE2;
-		}
-	    break;
-
-	case NR_BAUE_STRASSEN_ROUTE2:
-		if(create_complex_road_transport()) {
-			create_road_transport_vehikel(start, count_road  );
-			// tell the player
-			char buf[256];
-			sprintf(buf, translator::translate("%s\nnow operates\n%i trucks between\n%s at (%i,%i)\nand %s at (%i,%i)."), gib_name(), count_road, translator::translate(start->gib_name()), start->pos.x, start->pos.y, translator::translate(ziel->gib_name()), ziel->pos.x, ziel->pos.y );
-			message_t::get_instance()->add_message(buf,start->pos.gib_2d(),message_t::ai,kennfarbe,road_vehicle->gib_basis_bild());
-			substate = NR_INIT;
-			break;
-		}
-
-	case NR_BAUE_CLEAN_UP:
-			substate = NR_INIT;
-			// otherwise it may always try to built the same route!
-			ziel = NULL;
-		    // schilder aufraeumen
-		    if(welt->lookup(platz1)) {
-				welt->access(platz1)->gib_kartenboden()->obj_loesche_alle(this);
-		    }
-		    if(welt->lookup(platz2)) {
-				welt->access(platz2)->gib_kartenboden()->obj_loesche_alle(this);
-		  	}
-		 break;
-
-	case NR_RAIL_SUCCESS:
-			// tell the player
-			char buf[256];
-			sprintf(buf, translator::translate("%s\nopened a new railway\nbetween %s\nat (%i,%i) and\n%s at (%i,%i)."), gib_name(), translator::translate(start->gib_name()), start->pos.x, start->pos.y, translator::translate(ziel->gib_name()), ziel->pos.x, ziel->pos.y );
-			message_t::get_instance()->add_message(buf,start->pos.gib_2d(),message_t::ai,kennfarbe,rail_engine->gib_basis_bild());
-			substate = NR_INIT;
-		break;
-
-	default:
-	  dbg->error("spieler_t::do_ki()",
-		     "State %d with illegal substate %d!",
-		     state, substate);
 	}
-	break;
-
-    default:
-        dbg->error("spieler_t::do_ki()",
-		   "Illegal state %d with substate %d!",
-		   state, substate);
-    }
 }
 
 
@@ -1385,6 +1686,97 @@ dbg->message("spieler_t::suche_transport_ziel","Found factory %s (revenue: %d)",
 
 
 
+/* return the hub of a city (always the very first stop) or zero
+ * @author prissi
+ */
+halthandle_t
+spieler_t::get_our_hub( stadt_t *s )
+{
+	slist_iterator_tpl <halthandle_t> iter( halt_list );
+	while(iter.next()) {
+		koord h=iter.get_current()->gib_basis_pos();
+		if(h.x>s->get_linksoben().x  &&  h.y>s->get_linksoben().y  &&  h.x<s->get_rechtsunten().x  &&  h.y<s->get_rechtsunten().y) {
+dbg->message("spieler_t::get_our_hub()","found %s at (%i,%i)",s->gib_name(),h.x,h.y);
+			return iter.get_current();
+		}
+	}
+	return NULL;
+}
+
+
+
+/* tries to built a hub near to the townhall
+ * @author prissi
+ */
+koord
+spieler_t::built_hub( stadt_t *s )
+{
+	// townhall position
+	const koord pos = s->gib_pos();
+	// found
+	koord best_pos = koord::invalid;
+	// "shortest" distance
+	int dist = 999;
+
+	for( int x=-8;  x<9;  x++ ) {
+		for( int y=-8;  y<9;  y++ ) {
+			if(welt->ist_in_kartengrenzen(pos)) {
+				const grund_t * gr = welt->lookup(pos+koord(x,y))->gib_kartenboden();
+				// flat, road and no other bus stop here ...
+				if(gr->gib_grund_hang()==hang_t::flach  &&  gr->gib_weg(weg_t::strasse)  &&  gr->gib_halt()==NULL) {
+      				if(ribi_t::ist_gerade(gr->gib_weg_ribi_unmasked(weg_t::strasse))  &&  abs(x)+abs(y)<=dist  ) {
+      					best_pos = pos+koord(x,y);
+      					dist = abs(x)+abs(y);
+      				}
+				}
+			}
+		}
+	}
+dbg->message("spieler_t::built_hub()","suggest hub in %s at (%i,%i)",s->gib_name(),best_pos.x,best_pos.y);
+	return best_pos;
+}
+
+
+
+/* creates a more general road transport
+ * @author prissi
+ */
+void
+spieler_t::create_bus_transport_vehikel(koord startpos2d,int anz_vehikel,koord *stops,int anzahl)
+{
+dbg->message("spieler_t::create_bus_transport_vehikel()","bus at (%i,%i)",startpos2d.x,startpos2d.y);
+	// now start all vehicle one field before, so they load immediately
+	koord3d startpos = welt->lookup(startpos2d)->gib_kartenboden()->gib_pos();
+
+	fahrplan_t *fpl;
+	// now create all vehicles as convois
+	for(int i=0;  i<anz_vehikel;  i++) {
+
+		vehikel_t * v = vehikelbauer_t::baue(welt, startpos, this,NULL, road_vehicle);
+
+		convoi_t *cnv = new convoi_t(welt, this);
+		// V.Meyer: give the new convoi name from first vehicle
+		cnv->setze_name(v->gib_besch()->gib_name());
+		cnv->add_vehikel( v );
+
+		fpl = cnv->gib_vehikel(0)->erzeuge_neuen_fahrplan();
+
+		// do not start at current stop => wont work ...
+		fpl->aktuell = (stops[0]==startpos2d);
+		for(int j=0;  j<anzahl;  j++) {
+			fpl->eintrag.at(j).pos = welt->lookup(stops[j])->gib_kartenboden()->gib_pos();
+			fpl->eintrag.at(j).ladegrad = 0;
+		}
+		fpl->maxi = anzahl-1;
+
+		welt->sync_add( cnv );
+		cnv->setze_fahrplan(fpl);
+		cnv->start();
+	}
+}
+
+
+
 /* changed to use vehicles searched before
  * @author prissi
  */
@@ -1404,11 +1796,17 @@ spieler_t::create_road_transport_vehikel(fabrik_t *qfab, int anz_vehikel)
 	  	start_location = 1;
 	 }
 
+	// calculate vehicle start position
+     koord3d startpos=(start_location==0)?pos1:pos2;
+	ribi_t::ribi w_ribi = welt->lookup(startpos)->gib_weg_ribi_unmasked(weg_t::strasse);
+	// now start all vehicle one field before, so they load immediately
+	startpos = welt->lookup(koord(startpos.gib_2d())+koord(w_ribi))->gib_kartenboden()->gib_pos();
+
 	fahrplan_t *fpl;
 	// now create all vehicles as convois
 	for(int i=0;  i<anz_vehikel;  i++) {
 
-	    vehikel_t * v = vehikelbauer_t::baue(welt, pos2, this,NULL, road_vehicle);
+	    vehikel_t * v = vehikelbauer_t::baue(welt, startpos, this,NULL, road_vehicle);
 
 	    convoi_t *cnv = new convoi_t(welt, this);
 	    // V.Meyer: give the new convoi name from first vehicle
@@ -1438,7 +1836,7 @@ spieler_t::create_road_transport_vehikel(fabrik_t *qfab, int anz_vehikel)
  * @author prissi
  */
 void
-spieler_t::create_rail_transport_vehikel(const koord platz1, const koord platz2, int anz_vehikel)
+spieler_t::create_rail_transport_vehikel(const koord platz1, const koord platz2, int anz_vehikel, int ladegrad)
 {
 
     fahrplan_t *fpl;
@@ -1478,10 +1876,9 @@ spieler_t::create_rail_transport_vehikel(const koord platz1, const koord platz2,
     fpl->aktuell = 0;
     fpl->maxi = 1;
     fpl->eintrag.at(0).pos = pos1;
-    fpl->eintrag.at(0).ladegrad = 100;
+    fpl->eintrag.at(0).ladegrad = ladegrad;
     fpl->eintrag.at(1).pos = pos2;
     fpl->eintrag.at(1).ladegrad = 0;
-
 
     cnv->setze_fahrplan(fpl);
     welt->sync_add( cnv );
@@ -1913,23 +2310,6 @@ spieler_t::versuche_brueckenbau(koord p, int *index, ribi_t::ribi ribi,
 }
 
 
-void
-spieler_t::create_bussing()
-{
-/*
-    int n = simrand( ANZ_STADT );
-
-    koord liob = welt->stadt[n]->get_linksoben();
-    koord reun = welt->stadt[n]->get_rechtsunten();
-
-    for(int j=liob.y; j <= reun.y; j++) {
-	for(int i=liob.x; i <= reun.x; i++) {
-
-	}
-    }
-*/
-}
-
 
 /**
  * Speichert Zustand des Spielers
@@ -1939,33 +2319,38 @@ spieler_t::create_bussing()
 void
 spieler_t::rdwr(loadsave_t *file)
 {
-    int halt_count;
-    int start_index=-1;
-    int ziel_index=-1;
+	int halt_count;
+	int start_index=-1;
+	int ziel_index=-1;
 
 	// prepare for saving by default variables
-    if(file->is_saving()) {
-        halt_count = halt_list->count();
-        start_index = welt->gib_fab_index(start);
-        ziel_index = welt->gib_fab_index(ziel);
-    }
-    file->rdwr_delim("Sp ");
-    file->rdwr_longlong(konto, " ");
-    file->rdwr_int(konto_ueberzogen, " ");
-    file->rdwr_int(steps, " ");
-    file->rdwr_int(kennfarbe, " ");
-    file->rdwr_int(halt_count, " ");
-    // @author hsiegeln
-    if (file->get_version() < 82003)
-    {
-        haltcount = 0;
-    } else {
-        file->rdwr_int(haltcount, " ");
-        if (haltcount < 0) haltcount = 0;
-    }
-    if (file->get_version() < 82003)
-    {
-    	file->rdwr_longlong(finances[0], " ");
+	if(file->is_saving()) {
+		halt_count = halt_list->count();
+		start_index = welt->gib_fab_index(start);
+		ziel_index = welt->gib_fab_index(ziel);
+	}
+	file->rdwr_delim("Sp ");
+	file->rdwr_longlong(konto, " ");
+	file->rdwr_int(konto_ueberzogen, " ");
+	file->rdwr_int(steps, " ");
+	file->rdwr_int(kennfarbe, " ");
+	file->rdwr_int(halt_count, " ");
+	// @author hsiegeln
+	if (file->get_version() < 82003)
+	{
+		haltcount = 0;
+	}
+	else {
+		file->rdwr_int(haltcount, " ");
+		if (haltcount < 0) {
+			haltcount = 0;
+		}
+	}
+
+	// from here on loading financial stuff
+	if (file->get_version() < 82003)
+	{
+		file->rdwr_longlong(finances[0], " ");
 		file->rdwr_longlong(finances[1], " ");
 		file->rdwr_longlong(finances[2], " ");
 		file->rdwr_longlong(finances[3], " ");
@@ -1975,22 +2360,18 @@ spieler_t::rdwr(loadsave_t *file)
 		file->rdwr_longlong(old_finances[2], " ");
 		file->rdwr_longlong(old_finances[3], "\n");
 		file->rdwr_longlong(old_finances[4], " ");
+
 		/**
 		* initialize finance data structures
 		* @author hsiegeln
 		*/
-		for (int year = 0;year<MAX_HISTORY_YEARS;year++)
-		{
-			for (int cost_type = 0; cost_type<MAX_COST; cost_type++)
-			{
+		for (int year = 0;year<MAX_HISTORY_YEARS;year++) {
+			for (int cost_type = 0; cost_type<MAX_COST; cost_type++) {
 				finance_history_year[year][cost_type] = 0;
 			}
 		}
-
-		for (int month = 0;month<MAX_HISTORY_MONTHS;month++)
-		{
-			for (int cost_type = 0; cost_type<MAX_COST; cost_type++)
-			{
+		for (int month = 0;month<MAX_HISTORY_MONTHS;month++) {
+			for (int cost_type = 0; cost_type<MAX_COST; cost_type++) {
 				finance_history_month[month][cost_type] = 0;
 			}
 		}
@@ -2000,132 +2381,131 @@ spieler_t::rdwr(loadsave_t *file)
 		* others will be set to zero
 		* @author hsiegeln
 		*/
-
 		for (int cost_type = 0; cost_type<MAX_COST; cost_type++)
 		{
 			if (cost_type < 5)
 			{
 				finance_history_year[0][cost_type] = finances[cost_type];
 				finance_history_year[1][cost_type] = old_finances[cost_type];
-			} else {
+			}
+			else {
 				finance_history_year[0][cost_type] = 0;
 				finance_history_year[1][cost_type] = 0;
 			}
 		}
-
-    } else if (file->get_version() < 84008) {
-		for (int year = 0;year<MAX_HISTORY_YEARS;year++)
-		{
-			for (int cost_type = 0; cost_type<MAX_COST; cost_type++)
-			{
+	}
+	else 	if (file->get_version() < 84008) {
+		// not so old save game
+		for (int year = 0;year<MAX_HISTORY_YEARS;year++) {
+			for (int cost_type = 0; cost_type<MAX_COST; cost_type++) {
 				if (file->get_version() < 84007) {
 					// a cost_type has has been added. For old savegames we only have 9 cost_types, now we have 10.
 					// for old savegames only load 9 types and calculate the 10th; for new savegames load all 10 values
 					if (cost_type < 9) {
 						file->rdwr_longlong(finance_history_year[year][cost_type], " ");
-					} else {
+					}
+					else {
 						finance_history_year[year][cost_type] = finance_history_year[year][COST_INCOME] + finance_history_year[year][COST_VEHICLE_RUN] + finance_history_year[year][COST_MAINTENANCE];
 					}
-				} else {
-						file->rdwr_longlong(finance_history_year[year][cost_type], " ");
 				}
-				//dbg->message("player_t::rdwr()", "finance_history[year=%d][cost_type=%d]=%ld", year, cost_type,finance_history_year[year][cost_type]);
+				else {
+					file->rdwr_longlong(finance_history_year[year][cost_type], " ");
+				}
 			}
+//dbg->message("player_t::rdwr()", "finance_history[year=%d][cost_type=%d]=%ld", year, cost_type,finance_history_year[year][cost_type]);
 		}
-
-    } else {
-		for (int year = 0;year<MAX_HISTORY_YEARS;year++)
-		{
-			for (int cost_type = 0; cost_type<MAX_COST; cost_type++)
-			{
+	}
+	else {
+		// newest version
+		for (int year = 0;year<MAX_HISTORY_YEARS;year++) {
+			for (int cost_type = 0; cost_type<MAX_COST; cost_type++) {
 				file->rdwr_longlong(finance_history_year[year][cost_type], " ");
 			}
 		}
-
 		// in 84008 monthly finance history was introduced
-		for (int month = 0;month<MAX_HISTORY_MONTHS;month++)
-		{
-			for (int cost_type = 0; cost_type<MAX_COST; cost_type++)
-			{
+		for (int month = 0;month<MAX_HISTORY_MONTHS;month++) {
+			for (int cost_type = 0; cost_type<MAX_COST; cost_type++) {
 				file->rdwr_longlong(finance_history_month[month][cost_type], " ");
 			}
 		}
-  	}
-
-    file->rdwr_bool(automat, "\n");
-    file->rdwr_enum(state, " ");
-    file->rdwr_enum(substate, "\n");
-    file->rdwr_int(start_index, " ");
-    file->rdwr_int(ziel_index, "\n");
-    file->rdwr_int(gewinn, " ");
-    file->rdwr_int(count, "\n");
-    platz1.rdwr( file );
-    platz2.rdwr( file );
-
-	// recover for old KI
-	// @author prissi
-	if(substate>NR_SAMMLE_ROUTEN) {
-		// go back to search state
-		substate = NR_INIT;
-		count_rail = count_road = 255;
 	}
 
-    // Hajo: sanity checks
-    if(halt_count < 0) {
-      dbg->fatal("spieler_t::rdwr()", "Halt count is out of bounds: %d -> corrupt savegame?", halt_count);
-    }
-    if(haltcount < 0) {
-      dbg->fatal("spieler_t::rdwr()", "Haltcount is out of bounds: %d -> corrupt savegame?", haltcount);
-    }
-    if(state < NEUE_ROUTE || state > NEUE_ROUTE) {
-      dbg->fatal("spieler_t::rdwr()", "State is out of bounds: %d -> corrupt savegame?", state);
-    }
-    if(substate < NR_INIT || substate > NR_RAIL_SUCCESS) {
-      dbg->fatal("spieler_t::rdwr()", "Substate is out of bounds: %d -> corrupt savegame?", substate);
-    }
-    if(start_index < -1) {
-      dbg->fatal("spieler_t::rdwr()", "Start index is out of bounds: %d -> corrupt savegame?", start_index);
-    }
-    if(ziel_index < -1) {
-      dbg->fatal("spieler_t::rdwr()", "Ziel index is out of bounds: %d -> corrupt savegame?", ziel_index);
-    }
+	file->rdwr_bool(automat, "\n");
+	file->rdwr_enum(state, " ");
+	file->rdwr_enum(substate, "\n");
+	file->rdwr_int(start_index, " ");
+	file->rdwr_int(ziel_index, "\n");
+	file->rdwr_int(gewinn, " ");
+	file->rdwr_int(count, "\n");
+	platz1.rdwr( file );
+	platz2.rdwr( file );
 
-    if(file->is_saving()) {
-        slist_iterator_tpl<halthandle_t> iter (halt_list);
+	// Hajo: sanity checks
+	if(halt_count < 0) {
+		dbg->fatal("spieler_t::rdwr()", "Halt count is out of bounds: %d -> corrupt savegame?", halt_count);
+	}
+	if(haltcount < 0) {
+		dbg->fatal("spieler_t::rdwr()", "Haltcount is out of bounds: %d -> corrupt savegame?", haltcount);
+	}
+	if(state < NEUE_ROUTE || state > CHECK_CONVOI) {
+		dbg->fatal("spieler_t::rdwr()", "State is out of bounds: %d -> corrupt savegame?", state);
+	}
+	if(substate < NR_INIT || substate > NR_ROAD_SUCCESS) {
+		dbg->fatal("spieler_t::rdwr()", "Substate is out of bounds: %d -> corrupt savegame?", substate);
+	}
+	if(start_index < -1) {
+		dbg->fatal("spieler_t::rdwr()", "Start index is out of bounds: %d -> corrupt savegame?", start_index);
+	}
+	if(ziel_index < -1) {
+		dbg->fatal("spieler_t::rdwr()", "Ziel index is out of bounds: %d -> corrupt savegame?", ziel_index);
+	}
 
-        while(iter.next()) {
-    	    iter.get_current()->rdwr( file );
-        }
-dbg->message("spieler_t::rdwr","Save ok");
-    }
-    else {
-    		// loading
-	    start = NULL;
-        if(start_index != -1) {
-	    	start = welt->gib_fab(start_index);
-        }
-	    last_start = NULL;
-	    ziel = NULL;
-        if(ziel_index != -1) {
-	    	ziel = welt->gib_fab(ziel_index);
-        }
-	    last_ziel = NULL;
-	      rail_engine = NULL;
-	      rail_vehicle = NULL;
-	      road_vehicle = NULL;
-	      rail_weg = NULL;
-	      road_weg = NULL;
-        for(int i=0; i<halt_count; i++) {
-	    halthandle_t halt = haltestelle_t::create( welt, file );
+	if(file->is_saving()) {
+		slist_iterator_tpl<halthandle_t> iter (halt_list);
+		while(iter.next()) {
+			iter.get_current()->rdwr( file );
+		}
+		dbg->message("spieler_t::rdwr","Save ok");
+	}
+	else {
+		// loading
+		start = NULL;
+		if(start_index != -1) {
+			start = welt->gib_fab(start_index);
+		}
+		last_start = NULL;
+		ziel = NULL;
+		if(ziel_index != -1) {
+			ziel = welt->gib_fab(ziel_index);
+		}
 
-	    halt->laden_abschliessen();
+		// @author prissi
+		if(substate>NR_SAMMLE_ROUTEN) {
+			// go back to initial search state
+			substate = NR_INIT;
+			count_rail = count_road = 255;
+			baue = false;
+			baue_start = baue_ziel = NULL;
+		}
 
-	    halt_list->insert( halt );
-        }
-        init_texte();
-        // empty undo buffer
-        init_undo(weg_t::strasse,0);
-   }
+		// last destinations unknown
+		last_ziel = NULL;
+		rail_engine = NULL;
+		rail_vehicle = NULL;
+		road_vehicle = NULL;
+		rail_weg = NULL;
+		road_weg = NULL;
+
+		for(int i=0; i<halt_count; i++) {
+			halthandle_t halt = haltestelle_t::create( welt, file );
+			halt->laden_abschliessen();
+			halt_list->insert( halt );
+		}
+		init_texte();
+
+		// empty undo buffer
+		init_undo(weg_t::strasse,0);
+	}
 }
 
 /**
@@ -2200,11 +2580,6 @@ dbg->message("spieler_t::bescheid_vehikel_problem","Vehicle %s can't find a rout
 		sprintf(buf,"Vehicle %s can't find a route!", cnv->gib_name());
 //		ticker_t::get_instance()->add_msg(buf, cnv->gib_pos().gib_2d(),ROT);
 		message_t::get_instance()->add_message(buf, cnv->gib_pos().gib_2d(),message_t::convoi,kennfarbe,cnv->gib_vehikel(0)->gib_basis_bild());
-	}
-	else {
-		welt->rem_convoi(cnv);
-		cnv->destroy();
-		cnv = 0;
 	}
 }
 

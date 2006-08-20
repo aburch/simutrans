@@ -225,7 +225,7 @@ void leitung_t::replace(koord base_pos, powernet_t *old_net, powernet_t *new_net
 	powernet_t *current;
 	if(get_net_at(welt->lookup(base_pos),&current)  &&  current!=new_net) {
 		// convert myself ...
-dbg->message("leitung_t::replace()","My net %p by %p at (%i,%i)",new_net,current,base_pos.x,base_pos.y);
+//dbg->message("leitung_t::replace()","My net %p by %p at (%i,%i)",new_net,current,base_pos.x,base_pos.y);
 		set_net_at(welt->lookup(base_pos),new_net);
 		//get_net_at(welt->lookup(base_pos),&current);
 	}
@@ -265,19 +265,19 @@ void leitung_t::verbinde()
 	// first get my own ...
 	get_net_at(welt->lookup(pos),&new_net);
 
-dbg->message("leitung_t::verbinde()","Searching net at (%i,%i)",pos.x,pos.y);
+//dbg->message("leitung_t::verbinde()","Searching net at (%i,%i)",pos.x,pos.y);
 	for( int i=0;  i<4  &&  new_net==NULL;  i++ ) {
 		const planquadrat_t * plan = welt->lookup(pos+koord::nsow[i]);
 		get_net_at(plan,&new_net);
 	}
-dbg->message("leitung_t::verbinde()","Found net %p",new_net);
+//dbg->message("leitung_t::verbinde()","Found net %p",new_net);
 
 	// we are alone?
 	if(new_net==NULL) {
 		// then we start a new net
 		new_net = new powernet_t();
 		welt->sync_add(new_net);
-dbg->message("leitung_t::verbinde()","Creating new net %p",new_net);
+//dbg->message("leitung_t::verbinde()","Creating new net %p",new_net);
 	}
 	if(new_net!=get_net()) {
 		replace(pos, NULL, new_net);
@@ -311,7 +311,7 @@ leitung_t::ist_entfernbar(const spieler_t *sp)
 
 void leitung_t::entferne(const spieler_t *)
 {
-dbg->message("leitung_t::entferne()","remove pylon");
+dbg->message("leitung_t::entferne()","remove pylon at (%i,%i)",gib_pos().x,gib_pos().y);
 	grund_t *gr = welt->lookup(gib_pos());
 	if(gr) {
 		powernet_t *my_net = get_net();
@@ -632,12 +632,12 @@ senke_t::sync_prepare()
 bool
 senke_t::sync_step(long time)
 {
-  //dbg->message("senke_t::sync_step()", "called");
-  int want_power = time*(PROD/3);
-  int get_power = get_net()->withdraw_power(want_power);
-  max_einkommen += want_power;
-  einkommen += get_power;
-  return true;
+//dbg->message("senke_t::sync_step()", "called");
+	int want_power = time*(PROD/3);
+	int get_power = get_net()->withdraw_power(want_power);
+	max_einkommen += want_power;
+	einkommen += get_power;
+	return true;
 }
 
 

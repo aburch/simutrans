@@ -36,6 +36,7 @@
 #include "besch/weg_besch.h"
 #include "besch/vehikel_besch.h"
 
+
 #define MAX_COST           10 // Total number of items in array
 
 #define COST_CONSTRUCTION  0 // Construction
@@ -56,10 +57,12 @@
 
 class karte_t;
 class fabrik_t;
+class stadt_t;
 class wegbauer_t;
 class slist_t;
 class Stack;
 class koord3d;
+class money_frame_t;
 
 template <class T> class slist_tpl;
 
@@ -74,31 +77,56 @@ class spieler_t
 {
 public:
 
-    enum zustand {NEUE_ROUTE};
+    enum zustand {NEUE_ROUTE,BAUE_VERBINDUNG,BAUE_BUS_START,BAUE_BUS_ZIEL,CHECK_CONVOI};
 
-    enum subzustand {NR_INIT, NR_SAMMLE_ROUTEN,
-                     NR_BAUE_ROUTE1,
-//                     NR_BAUE_ROUTE2,
-         NR_BAUE_SIMPLE_SCHIENEN_ROUTE,
-         NR_BAUE_SCHIENEN_ROUTE1,
-         NR_BAUE_SCHIENEN_ROUTE2,
-//                     NR_BAUE_BAHNHOF,
-//         NR_BAUE_SCHIENEN_VEHIKEL,
-         NR_BAUE_STRASSEN_ROUTE,
-         NR_BAUE_STRASSEN_ROUTE2,
- //                    NR_BAUE_STRASSEN_VEHIKEL,
-       NR_BAUE_CLEAN_UP,
-       NR_RAIL_SUCCESS
-        };
+    enum subzustand {
+		NR_INIT,
+		NR_SAMMLE_ROUTEN,
+		NR_BAUE_ROUTE1,
+		NR_BAUE_SIMPLE_SCHIENEN_ROUTE,
+		NR_BAUE_SCHIENEN_ROUTE1,
+		NR_BAUE_SCHIENEN_ROUTE2,
+		NR_BAUE_STRASSEN_ROUTE,
+		NR_BAUE_STRASSEN_ROUTE2,
+		NR_BAUE_CLEAN_UP,
+		NR_RAIL_SUCCESS,
+		NR_ROAD_SUCCESS
+	};
 
     enum { MAX_KONTO_VERZUG = 3 };
 
 private:
+    char spieler_name_buf[16];
+
     /*
      * holds total number of all halts, ever built
      * @author hsiegeln
      */
     int haltcount;
+
+    /*
+     * if this is true, this AI will try passenger transport only
+     * @author prissi
+     */
+    bool passenger_transport;
+
+    /*
+     * if this is false, this AI won't use roads
+     * @author prissi
+     */
+    bool road_transport;
+
+    /*
+     * if this is false, this AI won't use rails
+     * @author prissi
+     */
+    bool rail_transport;
+
+    /*
+     * if this is false, this AI won't use ships
+     * @author prissi
+     */
+    bool ship_transport;
 
     /**
      * Finance array, indexed by type
@@ -130,6 +158,11 @@ private:
      * @author Hj. Malthaner
      */
     karte_t *welt;
+
+    /* Money dialoge, unique for every player
+     * @author prissi
+     */
+    money_frame_t *money_frame;
 
 
     /**
@@ -198,8 +231,16 @@ private:
 
     int gewinn;
 
+	// passenger KI
+	stadt_t *start_stadt;
+	koord	start_hub_pos;
+	stadt_t *end_stadt;
+	koord	end_hub_pos;
+
     // ende KI vars
 
+    // main functions for KI
+    void do_passenger_ki();
     void do_ki();
 
     bool suche_platz(int x, int y, koord *);
@@ -207,6 +248,10 @@ private:
          koord off,
          koord *);
 
+    // all for passenger transport
+    halthandle_t  get_our_hub( stadt_t *s );
+    koord built_hub( stadt_t *s );
+    void create_bus_transport_vehikel(koord startpos,int anz_vehikel,koord *stops,int anzahl);
 
   bool spieler_t::is_my_bahnhof(koord pos);
     int baue_bahnhof(koord3d quelle,koord *p, int anz_vehikel);
@@ -216,6 +261,7 @@ private:
      */
     int rating_transport_quelle_ziel(fabrik_t *qfab,const ware_t *ware,fabrik_t *zfab);
     int guess_gewinn_transport_quelle_ziel(fabrik_t *qfab,const ware_t *ware, int qware_nr, fabrik_t *zfab);
+
     /* These two routines calculate, which route next
      * @author Hj. Malthaner
      * @author prissi
@@ -223,16 +269,14 @@ private:
   int suche_transport_ziel(fabrik_t *quelle, int *quelle_ware, fabrik_t **ziel);
     int suche_transport_quelle(fabrik_t **quelle,int *quelle_ware, fabrik_t *ziel);
 
+
     void create_road_transport_vehikel(fabrik_t *qfab, int anz_vehikel);
-    void create_rail_transport_vehikel(const koord pos1,const koord pos2, int anz_vehikel);
+    void create_rail_transport_vehikel(const koord pos1,const koord pos2, int anz_vehikel, int ladegrad);
 
 
     bool suche_platz1_platz2(fabrik_t *qfab, fabrik_t *zfab);    // neue Transportroute anlegen
 
     bool create_simple_road_transport();    // neue Transportroute anlegen
-
-
-    void create_bussing();      // neue Busroute anlegen
 
     void init_texte();
 
@@ -456,6 +500,12 @@ public:
     */
     void spieler_t::roll_finance_history_year();
     void spieler_t::roll_finance_history_month();
+
+    /*
+     * returns pointer to our money frame
+     * @author prissi
+     */
+    money_frame_t *gib_money_frame();
 
     /**
      * Rückruf, um uns zu informieren, dass eine Station voll ist

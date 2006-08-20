@@ -846,33 +846,26 @@ stadt_t::merke_passagier_ziel(koord k, int pax)
 void
 stadt_t::check_bau_spezial(bool new_town)
 {
-    const haus_besch_t *besch = hausbauer_t::gib_special(bev);
+	// touristenattraktion bauen
+	const haus_besch_t *besch = hausbauer_t::gib_special(bev);
+	if(besch) {
+		if(simrand(100) < besch->gib_chance()) {
+			// baue was immer es ist
+			bool rotate;
+			koord best_pos ( bauplatz_sucher_t(welt).suche_platz(pos, besch->gib_b(), besch->gib_h(), &rotate)  );
 
-    if(besch) {
-      if(simrand(100) < besch->gib_chance()) {
-
-  // baue was immer es ist
-  bool rotate;
-  koord best_pos ( bauplatz_sucher_t(welt).suche_platz(pos,
-                   besch->gib_b(),
-                   besch->gib_h(),
-                   &rotate)
-       );
-
-  if(best_pos != koord::invalid)
-      hausbauer_t::baue(welt,
-            besitzer_p,
-            welt->lookup(best_pos)->gib_kartenboden()->gib_pos(),
-            rotate ? 1 : 0,
-            besch);
-			// tell the player, if not during initialization
-			if(!new_town) {
-				char buf[256];
-				sprintf(buf, translator::translate("To attract more tourists\n%s built\na %s\nwith the aid of\n%i tax payers."), gib_name(), translator::translate(besch->gib_name()), bev );
-				message_t::get_instance()->add_message(buf,best_pos,message_t::tourist,CITY_KI,besch->gib_tile(0)->gib_hintergrund(0,0) );
+			if(best_pos != koord::invalid) {
+				// then built it
+				hausbauer_t::baue(welt, besitzer_p, welt->lookup(best_pos)->gib_kartenboden()->gib_pos(), rotate ? 1 : 0, besch);
+				// tell the player, if not during initialization
+				if(!new_town) {
+					char buf[256];
+					sprintf(buf, translator::translate("To attract more tourists\n%s built\na %s\nwith the aid of\n%i tax payers."), gib_name(), translator::translate(besch->gib_name()), bev );
+					message_t::get_instance()->add_message(buf,best_pos,message_t::tourist,CITY_KI,besch->gib_tile(0)->gib_hintergrund(0,0) );
+				}
 			}
-      }
-    }
+		}
+	}
 
 	if((bev & 511) == 0) {
 		//
@@ -904,23 +897,22 @@ stadt_t::check_bau_spezial(bool new_town)
 							 }
 						}
 					}
-					hausbauer_t::baue(welt,
-					      welt->gib_spieler(1),
-					      welt->lookup(best_pos + koord(1, 1))->gib_kartenboden()->gib_pos(),
-					      0,
-					      besch);
+					// and then built it
+					hausbauer_t::baue(welt, besitzer_p,
+					      welt->lookup(best_pos + koord(1, 1))->gib_kartenboden()->gib_pos(), 0, besch);
 					hausbauer_t::denkmal_gebaut(besch);
 					// tell the player, if not during initialization
 					if(!new_town) {
 						char buf[256];
 						sprintf(buf, translator::translate("With a big festival\n%s built\na new monument.\n%i citicens rejoiced."), gib_name(), bev );
-						message_t::get_instance()->add_message(buf,pos,message_t::city,CITY_KI,besch->gib_tile(0)->gib_hintergrund(0,0) );
+						message_t::get_instance()->add_message(buf,best_pos,message_t::city,CITY_KI,besch->gib_tile(0)->gib_hintergrund(0,0) );
 					}
 				}
 			}
 		}
 	}
 }
+
 
 
 void

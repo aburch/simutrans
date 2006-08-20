@@ -121,7 +121,7 @@ void log_t::error(const char *who, const char *format, ...)
         }
 
 	fprintf(log ,"Please report all errors to\n");
-	fprintf(log ,"hansjoerg.malthaner@gmx.de\n");
+	fprintf(log ,"markus@pristovsek.de\n");
     }
 
     if( tee ) {                         /* nur loggen wenn schon ein log */
@@ -130,7 +130,7 @@ void log_t::error(const char *who, const char *format, ...)
         fprintf(tee,"\n");
 
 	fprintf(tee ,"Please report all errors to\n");
-	fprintf(tee ,"hansjoerg.malthaner@gmx.de\n");
+	fprintf(tee ,"markus@pristovsek.de\n");
     }
     va_end(argptr);
 }
@@ -153,7 +153,7 @@ void log_t::fatal(const char *who, const char *format, ...)
 
 
 	fprintf(log ,"Please report all fatal errors to\n");
-	fprintf(log ,"hansjoerg.malthaner@gmx.de\n");
+	fprintf(log ,"markus@pristovsek.de\n");
 
 
         if( force_flush ) {
@@ -168,7 +168,7 @@ void log_t::fatal(const char *who, const char *format, ...)
         fprintf(tee,"Aborting program execution ...\n\n");
 
 	fprintf(tee ,"Please report all fatal errors to\n");
-	fprintf(tee ,"hansjoerg.malthaner@gmx.de\n");
+	fprintf(tee ,"markus@pristovsek.de\n");
     }
 
     va_end(argptr);
