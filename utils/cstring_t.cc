@@ -35,52 +35,37 @@ cstring_t operator+ (const char *buf, const cstring_t &other)
 
 cstring_t::cstring_t()
 {
-    //printf("cstring_t::cstring_t()\n");
-
-    buf = 0;
+	//printf("cstring_t::cstring_t()\n");
+	buf = 0;
 }
 
 
-/**
- * Builds a uninitialised string (len() == -1)
- * @author Hj. Malthaner
- */
 cstring_t::cstring_t(const char *other)
 {
-    //printf("cstring_t::cstring_t(const char *other)\n");
-    const int len = strlen(other)+1;
-
-    char *newbuf = new char[len];
-
-    strcpy(newbuf, other);
-    buf = newbuf;
-
-    //printf(" buf = %s %p\n", buf, buf);
+	const int len = strlen(other)+1;
+	buf = new char[len];
+	strcpy(buf, other);
 }
 
 
-/**
- * Builds a string as a copy of a string
- * @author Hj. Malthaner
- */
 cstring_t::cstring_t(const cstring_t &other)
 {
-    //printf("cstring_t::cstring_t(const cstring_t &other)\n");
-    const int len = other.len()+1;
-
-    buf = new char[len];
-
-    strcpy(buf, other.buf);
-
-    //printf(" buf = %s %p\n", buf, buf);
+	const int len = other.len()+1;
+	buf = NULL;
+	if(len>0) {
+		buf = new char[len];
+		strcpy(buf, other.buf);
+	}
 }
 
 
 cstring_t::~cstring_t()
 {
-    //printf("cstring_t::~cstring_t()\n buf=%s %p\n", buf, buf);
-    delete [] buf;
-    buf = 0;
+	//printf("cstring_t::~cstring_t()\n buf=%s %p\n", buf, buf);
+	if(buf) {
+		delete [] buf;
+		buf = 0;
+	}
 }
 
 
@@ -91,22 +76,20 @@ cstring_t::~cstring_t()
 cstring_t cstring_t::operator+ (const char *other) const
 {
     //printf("cstring_t cstring_t::operator+ (const char *other) const\n");
-    const int len = strlen(buf) + strlen(other) + 1;
+	if(buf) {
+		const int tmplen = strlen(buf)+strlen(other) + 1;
+		char *tmp = new char[tmplen];
 
-    //printf(" buf = %s  other = %s\n", buf, other);
-
-    char *tmp = new char[len];
-
-    strcpy(tmp, buf);
-    strcat(tmp, other);
-
-    cstring_t result;
-    result.buf = tmp;
-
-    //printf(" buf = %s %p\n", tmp, tmp);
-
-    return result;
+		strcpy(tmp, buf);
+		strcat(tmp, other);
+		cstring_t result(tmp);
+		delete [] tmp;
+		return result;
+	}
+	return cstring_t(other);
 }
+
+
 
 void cstring_t::set_at(int idx, char x) const
 {
@@ -116,22 +99,26 @@ void cstring_t::set_at(int idx, char x) const
 }
 
 
-
+// copy operator (act like constructor)
 cstring_t & cstring_t::operator= (const cstring_t &other)
 {
-    // printf("cstring_t & cstring_t::operator= (const cstring &other)\n");
-    char *newbuf = NULL;
-
-    if(other.buf) {
-      newbuf = new char[other.len()+1];
-
-      strcpy(newbuf, other.buf);
-    }
-    delete buf;
-    buf = newbuf;
+	buf = NULL;
+	if(other.len()>0) {
+		buf = new char[other.len()+1];
+		strcpy(buf, other.buf);
+	}
+	return *this;
+}
 
 
-    return *this;
+cstring_t & cstring_t::operator= (const char *str)
+{
+	buf = NULL;
+	if(str) {
+		buf = new char[strlen(str)+1];
+		strcpy(buf, str);
+	}
+	return *this;
 }
 
 
@@ -183,8 +170,8 @@ cstring_t::operator const char *() const
  */
 int cstring_t::len() const
 {
-    //printf("cstring_t::len() const\n");
-    return buf ? ((int)strlen(buf)) : -1;
+	//printf("cstring_t::len() const\n");
+	return buf ? ((int)strlen(buf)) : -1;
 }
 
 
@@ -207,8 +194,8 @@ cstring_t cstring_t::substr(int first, int last)
   dest[len] = '\0';
 
 
-  cstring_t result;
-  result.buf = dest;
+  cstring_t result(dest);
+  delete [] dest;
 
   return result;
 }
@@ -292,20 +279,20 @@ int cstring_t::vprintf(const char *format, va_list args)
     }
     if(nulfp) {
 	newlen = vfprintf(nulfp, format, args);
-
-	delete buf;
+	if(buf) {
+		delete [] buf;
+	}
 	buf = new char[newlen + 1];
-
 	newlen = vsprintf(buf, format, args);
     }
     else {
 	char tmpbuf[4096];
 
 	newlen = vsprintf(tmpbuf, format, args);
-
-	delete buf;
+	if(buf) {
+		delete [] buf;
+	}
 	buf = new char[newlen + 1];
-
 	strcpy(buf, tmpbuf);
     }
 

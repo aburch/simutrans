@@ -53,6 +53,7 @@ public:
      * @author Hj. Malthaner
      */
     cstring_t & operator= (const cstring_t &);
+    cstring_t & operator=(const char *);
 
 
     /**

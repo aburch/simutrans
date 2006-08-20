@@ -116,51 +116,71 @@ void gui_textinput_t::infowin_event(const event_t *ev)
 			break;
 		    default:
 			// Buchstaben, Ziffern und Sonderzeichen einfügen:
-			if (ev->ev_code <= 255) {
 
-				// text, if we have top convert letter
-				char letter[8];
+			// text, if we have top convert letter
+			char letter[8];
 
-				if(ev->ev_code>=128) {
-					sprintf( letter, "CHR%X", ev->ev_code );
-//printf( "%s\n",letter);
-					const char *more_letter=translator::translate(letter);
-					// could not convert ...
-					if( letter==more_letter) {
+			if(ev->ev_code>=128) {
+				sprintf( letter, "CHR%X", ev->ev_code );
+//DBG_MESSAGE( "gui_textinput_t::gui_textinput_t()","%i=%s",ev->ev_code,letter);
+				const char *more_letter=translator::translate(letter);
+				// could not convert ...
+				if( letter==more_letter) {
+					if(ev->ev_code>279) {
+						// assume unicode
+						char *out=letter;
+						unsigned short lUnicode = ev->ev_code;
+
+						if(  lUnicode<0x0800u  )
+						{
+							*out++ = 0xC0|(lUnicode>>6);
+							*out++ = 0x80|(lUnicode&0x3F);
+							*out = 0;
+						}
+						else // if(  lUnicode<0x10000l  ) immer TRUE!
+						{
+							*out++ = 0xE0|(lUnicode>>12);
+							*out++ = 0x80|((lUnicode>>6)&0x3F);
+							*out++ = 0x80|(lUnicode&0x3F);
+							*out = 0;
+						}
+					}
+					else {
+						// 0..255, but no translation => assume extended code page
 						letter[0] = ev->ev_code;
 						letter[1] = 0;
 					}
-					else {
-						strcpy( letter, more_letter );
-//printf( "->%s\n",letter);
-					}
 				}
 				else {
-					letter[0] = ev->ev_code;
-					letter[1] = 0;
+					// successful converted letter
+					strcpy( letter, more_letter );
 				}
-
-				int num_letter = strlen(letter);
-
-				if(cursor_pos+num_letter>=max) {
-					// too many chars ...
-					break;
-				}
-
-				// insert into text?
-				if (cursor_pos < len) {
-					for (int pos = len+num_letter; pos >= cursor_pos; pos--) {
-						text[pos] = text[pos-num_letter];
-					}
-					memcpy( text+cursor_pos, letter, num_letter );
-				} else {
-				    // append to text
-				    memcpy( text+len, letter, num_letter );
-				    text[len+num_letter] = 0;
-				}
-			    cursor_pos += num_letter;
 			}
-	  	}
+			else {
+				letter[0] = ev->ev_code;
+				letter[1] = 0;
+			}
+
+			int num_letter = strlen(letter);
+
+			if(cursor_pos+num_letter>=max) {
+				// too many chars ...
+				break;
+			}
+
+			// insert into text?
+			if (cursor_pos < len) {
+				for (int pos = len+num_letter; pos >= cursor_pos; pos--) {
+					text[pos] = text[pos-num_letter];
+				}
+				memcpy( text+cursor_pos, letter, num_letter );
+			} else {
+			    // append to text
+			    memcpy( text+len, letter, num_letter );
+			    text[len+num_letter] = 0;
+			}
+		    cursor_pos += num_letter;
+		}
 		} else {
 		    printf("Warning: gui_textinput_t::infowin_event() called but text is NULL\n");
 		}

@@ -13,6 +13,7 @@
 #include "../simskin.h"
 
 #include "../gui/ground_info.h"
+#include "../gui/karte.h"
 
 #include "../dataobj/freelist.h"
 
@@ -87,6 +88,8 @@ void boden_t::toggle_season(int season)
 			}
 		}
 	}
+	// recalc old settings (since gr->calc_bild() will recalculate height)
+	reliefkarte_t::gib_karte()->set_mode( reliefkarte_t::gib_karte()->get_mode());
 }
 
 

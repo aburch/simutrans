@@ -15,8 +15,10 @@ class grund_t;
 
 struct event_t;
 
-#define MAX_MAP_TYPE 13
+#define MAX_MAP_TYPE 14
 #define MAX_MAP_ZOOM 4
+// set to zero to use the small font
+#define ALWAYS_LARGE 1
 
 /**
  * Diese Klasse dient zur Darstellung der Reliefkarte

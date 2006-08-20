@@ -243,7 +243,10 @@ gui_chart_t::calc_gui_chart_values(sint64 *baseline, float *scale, char *cmin, c
 
 	// scale: factor to calculate money with, to get y-pos offset
 	*scale = (float)(max - min) / (groesse.y-2);
+	if(*scale==0.0) {
+		*scale = 1.0;
+	}
 
 	// baseline: y-pos for the "zero" line in the chart
-	*baseline = (sint64)(groesse.y - abs((int)(min / *scale)));
+	*baseline = (sint64)(groesse.y - abs((int)(min / *scale )));
 }

@@ -536,7 +536,6 @@ int simu_cpp_main(int argc, char ** argv)
 
       simuconf.read(contents);
 
-
       print("Initializing tombstones ...\n");
       convoihandle_t::init(contents.get_int("convoys", 8192));
       blockhandle_t::init(contents.get_int("railblocks", 8192));
@@ -647,7 +646,8 @@ int simu_cpp_main(int argc, char ** argv)
       /*
        * Max number of steps in goods pathfinding
        */
-      haltestelle_t::set_max_hops(contents.get_int("max_hops", 300));
+      haltestelle_t::set_max_hops(
+      	contents.get_int("max_hops", 300));
 
 
       /*
@@ -655,6 +655,7 @@ int simu_cpp_main(int argc, char ** argv)
        */
       umgebung_t::max_transfers = contents.get_int("max_transfers", 7);
 
+print("Reading simuconf.tab successful!\n");
 
       simuconf.close();
     } else {

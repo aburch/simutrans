@@ -80,7 +80,8 @@ char *recode(const char *src,bool translate_from_utf,bool translate_to_utf)
 			if(  translate_from_utf==translate_from_utf  ) {
 				// both true or false => do noting
 				// just copy
-				*dst++ = c = *src++;
+				c = *src++;
+				*dst++ = c;
 			} else if(  translate_to_utf  ) {
 				// make UTF8 from latin
 				dst += (char)unicode2utf8( (unsigned char)*src++, (unsigned char *)dst );
@@ -310,7 +311,7 @@ bool translator::load(const cstring_t & scenario_path)
             fclose(file);
 
 	    // Hajo: read scenario specific texts
-	    file = fopen(scenario_path + "/text" + iso + extension, "rb");
+	    file = fopen(scenario_path + folderName + iso + extension, "rb");
 	    if(file) {
             bool file_is_utf = is_unicode_file(file);
 	      load_language_file_body(file, single_instance->languages[single_instance->lang_count], single_instance->language_is_utf_encoded[single_instance->lang_count], file_is_utf );

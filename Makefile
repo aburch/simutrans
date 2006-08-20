@@ -52,8 +52,8 @@ ifeq ($(OSTYPE),mingw-gdi)
 OS_INC=-I /usr/include/mingw
 OS_OPT=-mno-cygwin -DPNG_STATIC -DZLIB_STATIC
 #OS_OPT=-Wbad-function-cast
-STD_LIBS=-lstdc++ -lz
-SDLLIBS= -lmingw32 -lgdi32 -lSDL -lwinmm
+STD_LIBS=-lunicows -lstdc++ -lz
+SDLLIBS= -lmingw32 -lgdi32 -lwinmm
 endif
 ifeq ($(OSTYPE),linux-gnu)
 #STD_LIBS= /usr/lib/libstdc++-3-libc6.1-2-2.10.0.a -lz

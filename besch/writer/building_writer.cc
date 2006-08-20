@@ -133,7 +133,7 @@ void building_writer_t::write_obj(FILE *fp, obj_node_t &parent, tabfileobj_t &ob
     if(besch.layouts == 0) {
 	besch.layouts = besch.groesse.x == besch.groesse.y ? 1 : 2;
     }
-    delete ints;
+    delete [] ints;
 
     besch.gtyp = gebaeude_t::unbekannt;
     besch.utyp = hausbauer_t::unbekannt;

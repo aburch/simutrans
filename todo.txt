@@ -16,7 +16,7 @@ Stichpunkte
 
 - Fabrikliste + Sehenwürdigkeitenliste
 - powernet nach liste ändern => Karte besser, keine Speicherverschwendung
-- Landfabrik alle x Jahre
+- Landfabrik alle x Jahre/Fakriken
 - oberstes Fenster schließen
 - Linksverkehr
 - Pfeiler für Brücken

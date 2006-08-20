@@ -72,12 +72,13 @@ bool tabfileobj_t::put(const char *key, const char *value)
 
 void tabfileobj_t::clear()
 {
+	/*
     stringhashtable_iterator_tpl<const char *> iter(objinfo);
 
     while(iter.next()) {
 	free(const_cast<char *>(iter.get_current_key()));
 	free(const_cast<char *>(iter.get_current_value()));
-    }
+    }*/
     objinfo.clear();
 }
 

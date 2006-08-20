@@ -2431,7 +2431,7 @@ display_fillbox_wh(int xp, int yp, int w, int h,
 		   int color, int dirty)
 {
   display_fb_internal(xp,yp,w,h,color,dirty,
-		      0,disp_width-1,0,disp_height-1);
+		      0,disp_width-1,0,disp_height);
 }
 
 void

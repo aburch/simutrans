@@ -3,7 +3,12 @@ Known bugs: (hard to fix)
 	Citycars are visible after loading even in a tunnel until they hop onto the next field
 	Citycars cannot go around a 180 degree road bend
 	Monorails have no appropriate crossing
+	valgrind complains about errors in SDL and X?
 
+
+2-Sep-2005 (prissi)
+	CHANGE: new map button "factries", no more clutter in the legend
+	FIX: divers "delete" to "delete [] ", which are different operators. valgrind now only complains about SDL stuff.
 
 Release of 86.07.3
 

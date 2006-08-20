@@ -26,11 +26,6 @@
 #include "../besch/fabrik_besch.h"
 #include "../tpl/minivec_tpl.h"
 
-#ifndef MAX
-#define MAX(a,b)            ((a) > (b) ? (a) : (b))
-#define MIN(a,b)            ((a) < (b) ? (a) : (b))
-#endif
-
 
 koord map_frame_t::size;
 
@@ -57,11 +52,12 @@ const char map_frame_t::map_type[MAX_MAP_TYPE][64] =
     "Speedlimit",
     "Powerlines",
     "Tourists",
+    "Factories"
 };
 
 const int map_frame_t::map_type_color[MAX_MAP_TYPE] =
 {
-  7, 11, 15, 132, 23, 27, 31, 35, 241, 7, 11, 71, 57
+  7, 11, 15, 132, 23, 27, 31, 35, 241, 7, 11, 71, 57, 81
 };
 
 /**
@@ -109,7 +105,6 @@ map_frame_t::map_frame_t(const karte_modell_t *welt) : gui_frame_t("Reliefkarte"
     while( iter.next() ) {
 
       cstring_t label (translator::translate(iter.get_current_value()->gib_name()));
-//      if(  small_proportional_width(label)>60  ) {//label.len() > 14) {
       if(  label.len() > 14) {
 		label.set_at(12, '.');
 		label.set_at(13, '.');
@@ -120,11 +115,14 @@ map_frame_t::map_frame_t(const karte_modell_t *welt) : gui_frame_t("Reliefkarte"
       legend_colors.append(iter.get_current_value()->gib_kennfarbe());
     }
 
-
+#ifdef MAP_LEGENDE
     legend_height = (((legend_names.count() + 3) >> 2) << 3) + 8 + (int)(MAX_MAP_TYPE / 2) * 15;
     button_start = (((legend_names.count() + 3) >> 2) << 3) + 12;
-
-
+#else
+	legend_height = 36;
+    legend_height = 4 + 16 + ((MAX_MAP_TYPE/3)+1)*15;
+    button_start = 16;
+#endif
 
     set_min_windowsize(koord(256+20,240));
 
@@ -248,6 +246,15 @@ void map_frame_t::setze_fenstergroesse(koord groesse)
 
   map_frame_t::size = gib_fenstergroesse();   // Hajo: remember size
 
+#ifdef MAP_LEGENDE
+    legend_height = (((legend_names.count() + 3) >> 2) << 3) + 8 + (int)(MAX_MAP_TYPE / 2) * 15;
+    button_start = (((legend_names.count() + 3) >> 2) << 3) + 12;
+#else
+	if(groesse.x>100) {
+	    legend_height = 4 + 16 + ( (MAX_MAP_TYPE / ((groesse.x-20)/80) )+1)*16;
+	}
+    button_start = 16;
+#endif
   scrolly.setze_groesse( gib_fenstergroesse() - koord(0,16+legend_height) ) ;
 }
 
@@ -261,10 +268,10 @@ void map_frame_t::resize(const koord delta)
 {
   gui_frame_t::resize(delta);
 
-  const koord groesse = gib_fenstergroesse()-koord(0,16);
+  const koord groesse = gib_fenstergroesse()-koord(0,16+legend_height);
 
   // Hajo: Hack: save statically
-  size = groesse+koord(0,16);
+  size = groesse+koord(0,16+legend_height);
 
   setze_fenstergroesse(size);
 
@@ -291,7 +298,7 @@ void map_frame_t::zeichnen(koord pos, koord gr)
   display_fillbox_wh(pos.x, pos.y+gr.y-legend_height-16, 1, legend_height+16, MN_GREY4, true);
   display_fillbox_wh(pos.x+gr.x-1, pos.y+gr.y-legend_height, 1, legend_height, MN_GREY0, true);
 
-
+#ifdef MAP_LEGENDE
   for(uint32 u=0; u<legend_names.count(); u++) {
 
     const int xpos = pos.x + (u & 3) * 65 + 4;
@@ -305,11 +312,14 @@ void map_frame_t::zeichnen(koord pos, koord gr)
 	 */
 	display_small_proportional( xpos+5, ypos, legend_names.get(u), ALIGN_LEFT, SCHWARZ, false);
   }
+#endif
+
   int i;
   for (i = 0;i<MAX_MAP_TYPE;i++) {
     filter_buttons[i].pressed = is_filter_active[i];
   }
 
+#ifdef MAP_LEGENDE
   // color bar
   for (i = 0; i<12; i++) {
     display_fillbox_wh(pos.x + size.x - 10, pos.y+gr.y-legend_height + 10 + i*8, 4, 8, reliefkarte_t::severity_color[11-i], false);
@@ -317,6 +327,14 @@ void map_frame_t::zeichnen(koord pos, koord gr)
 
   display_small_proportional(pos.x + size.x, pos.y+gr.y-legend_height - 3, translator::translate("max"), ALIGN_RIGHT, SCHWARZ, false);
   display_small_proportional(pos.x + size.x, pos.y+gr.y-legend_height + 107, translator::translate("min"), ALIGN_RIGHT, SCHWARZ, false);
+#else
+  // color bar
+  for (i = 0; i<12; i++) {
+    display_fillbox_wh(pos.x + 30 + i*(size.x-60)/12, pos.y+gr.y-legend_height+2,  (size.x-60)/12, 7, reliefkarte_t::severity_color[11-i], false);
+  }
+  display_proportional(pos.x + 26, pos.y+gr.y-legend_height+2, translator::translate("min"), ALIGN_RIGHT, SCHWARZ, false);
+  display_proportional(pos.x + size.x - 26, pos.y+gr.y-legend_height+2, translator::translate("max"), ALIGN_LEFT, SCHWARZ, false);
+#endif
 
   gui_frame_t::zeichnen(pos, gr);
 }

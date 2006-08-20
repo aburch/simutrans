@@ -134,11 +134,11 @@ void dr_play_midi(int key)
 	sprintf(str, "open \"%s\" type sequencer alias SimuMIDI", midi_filenames[key]);
 	printf("MCI string: %s\n", str);
 
-	if (mciSendString(str, NULL, 0, NULL) != 0)
+	if (mciSendStringA(str, NULL, 0, NULL) != 0)
 	  printf("\nMessage: MIDI: Unable to load MIDI %d\n", key);
 	else
         {
-	  if (mciSendString("play SimuMIDI", NULL, 0, NULL) != 0)
+	  if (mciSendStringA("play SimuMIDI", NULL, 0, NULL) != 0)
 	    printf("\nMessage: MIDI: Unable to play MIDI %d - %s\n", key, retstr);
 	}
       }
@@ -161,8 +161,8 @@ void dr_stop_midi()
     char retstr[200];
 
     //   printf("dr_stop_midi()\n");
-    mciSendString("stop SimuMIDI", retstr, 200, NULL);
-    mciSendString("close SimuMIDI", retstr, 200, NULL);
+    mciSendStringA("stop SimuMIDI", retstr, 200, NULL);
+    mciSendStringA("close SimuMIDI", retstr, 200, NULL);
   }
 }
 
@@ -178,20 +178,20 @@ long dr_midi_pos()
     static long lastpos;
     long length;
 
-      mciSendString("set SimuMIDI time format milliseconds", retstr, 200, NULL);
-      mciSendString("status SimuMIDI length", retstr, 200, NULL);
+      mciSendStringA("set SimuMIDI time format milliseconds", retstr, 200, NULL);
+      mciSendStringA("status SimuMIDI length", retstr, 200, NULL);
 
       length = atol(retstr);
 
-      //      mciSendString("status SimuMIDI current track", retstr, 200, NULL);
-      if (mciSendString("status SimuMIDI position", retstr, 200, NULL) == 0)
+      //      mciSendStringA("status SimuMIDI current track", retstr, 200, NULL);
+      if (mciSendStringA("status SimuMIDI position", retstr, 200, NULL) == 0)
       {
 	//         printf("Position: %ld (%ld)\n", atol(retstr), lastpos);
 
 	if ((atol(retstr) == length))// || atol(retstr) <= 0)
 	{
-	  mciSendString("stop SimuMIDI", retstr, 200, NULL);  // We must stop ourselves
-	  mciSendString("close SimuMIDI", retstr, 200, NULL);
+	  mciSendStringA("stop SimuMIDI", retstr, 200, NULL);  // We must stop ourselves
+	  mciSendStringA("close SimuMIDI", retstr, 200, NULL);
 
 	  return(-1);
 	}

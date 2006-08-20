@@ -11,21 +11,15 @@
 #error "Only Windows has GDI!"
 #endif
 
-/*
 #ifndef _MSC_VER
 #include <unistd.h>
 #include <sys/time.h>
 #endif
 
-#include <stddef.h>
-#include <string.h>
-#include <stdlib.h>
-#include <math.h>
-*/
-
 #include <stdio.h>
 
 // windows Bibliotheken DirectDraw 5.x
+#define UNICODE 1
 #include <windows.h>
 #include <wingdi.h>
 #include <mmsystem.h>
@@ -86,22 +80,22 @@ int dr_os_open(int w, int h,int fullscreen)
 	// fake fullscreen
 	if(fullscreen  &&  w==MaxSize.right  &&  h==MaxSize.bottom) {
 		hwnd = CreateWindowEx(WS_EX_TOPMOST	,
-				SAVEGAME_PREFIX, SAVEGAME_PREFIX " " VERSION_NUMBER " - " VERSION_DATE, WS_POPUP,
+				"SSiimmuu\0",  L"" SAVEGAME_PREFIX " " VERSION_NUMBER " - " VERSION_DATE, WS_POPUP,
 				0, 0,
-				w, h,
+				w, h-1,
 				NULL, NULL, hInstance, NULL);
 		ShowWindow (hwnd, SW_SHOW);
 	}
 	else {
 		hwnd = CreateWindow(
-					SAVEGAME_PREFIX, SAVEGAME_PREFIX " " VERSION_NUMBER " - " VERSION_DATE, WS_OVERLAPPEDWINDOW,
+					"SSiimmuu\0", L"" SAVEGAME_PREFIX " " VERSION_NUMBER " - " VERSION_DATE, WS_OVERLAPPEDWINDOW,
 					CW_USEDEFAULT, CW_USEDEFAULT,
-					w+GetSystemMetrics(SM_CXFRAME), h+GetSystemMetrics(SM_CYFRAME)+GetSystemMetrics(SM_CYCAPTION),
+					w+GetSystemMetrics(SM_CXFRAME), h-1+2*GetSystemMetrics(SM_CYFRAME)+GetSystemMetrics(SM_CYCAPTION),
 					NULL, NULL, hInstance, NULL);
 		ShowWindow (hwnd, SW_SHOW);
 	}
 	WindowSize.right = w;
-	WindowSize.bottom = h;
+	WindowSize.bottom = h-1;
 
 	AllDib.biSize = sizeof(BITMAPINFOHEADER);
 	AllDib.biWidth = w;
@@ -123,8 +117,22 @@ int dr_os_close(void)
 		ReleaseDC( hwnd, hdc );
 		hdc = NULL;
 	}
-	GlobalFree( GlobalHandle( AllDibData ) );
-	DestroyWindow( hwnd );
+	if(AllDibData!=NULL) {
+		GlobalFree( GlobalHandle( AllDibData ) );
+		AllDibData = NULL;
+	}
+	// terminate sound system
+	if(use_sound) {
+		int i;
+		sndPlaySound( NULL, SND_ASYNC );
+		for(i=0;  i<sample_number;  i++  ) {
+			GlobalFree( GlobalHandle( samples[i] ) );
+		}
+		sample_number = 0;
+	}
+	if(hwnd) {
+		DestroyWindow( hwnd );
+	}
 	return TRUE;
 }
 
@@ -134,16 +142,8 @@ int dr_os_close(void)
 int dr_textur_resize(unsigned short **textur,int w, int h)
 {
 	AllDib.biWidth = w;
-	AllDib.biHeight = -h;
 	WindowSize.right = w;
-	WindowSize.bottom = h;
-/*
-	RECT r={0,0,0,0};
-	r.right = WindowSize.right = w;
-	r.bottom = WindowSize.bottom = h;
-	AdjustWindowRect( &r, WS_OVERLAPPEDWINDOW, FALSE );
-	SetWindowPos( hwnd, NULL, 0, 0, r.right, r.bottom, SWP_NOZORDER|SWP_NOMOVE );
-*/
+	WindowSize.bottom = h-1;
 	return TRUE;
 }
 
@@ -151,7 +151,7 @@ int dr_textur_resize(unsigned short **textur,int w, int h)
 
 unsigned short *dr_textur_init()
 {
-	return AllDibData = (unsigned short *)malloc( MaxSize.right*2*(MaxSize.bottom+1) );
+	return AllDibData = (unsigned short *)GlobalLock( GlobalAlloc(  GMEM_MOVEABLE, (MaxSize.right+15)*2*(MaxSize.bottom+2) ) );
 }
 
 
@@ -182,13 +182,6 @@ int dr_use_softpointer()
 
 void dr_flush()
 {
-/*
-	HDC hdc = GetDC(hwnd);
-	StretchDIBits( hdc, 0, 0, WindowSize.right, WindowSize.bottom,
-		0, WindowSize.bottom+1, WindowSize.right, -WindowSize.bottom,
-		(LPSTR)AllDibData, (LPBITMAPINFO)&AllDib,
-		DIB_RGB_COLORS, SRCCOPY	 );
-*/
 	if(hdc!=NULL) {
 		ReleaseDC( hwnd, hdc );
 		hdc = NULL;
@@ -282,8 +275,8 @@ LRESULT WINAPI WindowProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 		break;
 
 		case WM_MOUSEWHEEL:
-			sys_event.type = SIM_KEYBOARD;
-			sys_event.code = GET_WHEEL_DELTA_WPARAM(wParam)>0 ? '<' : '>';
+			sys_event.type = SIM_MOUSE_BUTTONS;
+			sys_event.code = GET_WHEEL_DELTA_WPARAM(wParam)>0 ? SIM_MOUSE_WHEELUP : SIM_MOUSE_WHEELDOWN;
 			return 0;
 
 		// resize client area
@@ -292,7 +285,7 @@ LRESULT WINAPI WindowProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 			sys_event.type=SIM_SYSTEM;
 			sys_event.code=SIM_SYSTEM_RESIZE;
 
-			sys_event.mx = LOWORD(lParam);
+			sys_event.mx = LOWORD(lParam)+1;
 			if(sys_event.mx<=0) {
 				sys_event.mx = 4;
 			}
@@ -313,9 +306,9 @@ LRESULT WINAPI WindowProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 
 			PAINTSTRUCT ps;
 			HDC hdcp = BeginPaint(hwnd, &ps);
-			AllDib.biHeight = WindowSize.bottom;
-			StretchDIBits( hdcp, 0, WindowSize.bottom-1, WindowSize.right, -WindowSize.bottom,
-								0, 0, WindowSize.right, WindowSize.bottom,
+			AllDib.biHeight = WindowSize.bottom+1;
+			StretchDIBits( hdcp, 0, WindowSize.bottom, WindowSize.right, -AllDib.biHeight,
+								0, 0, WindowSize.right, AllDib.biHeight,
 								(LPSTR)AllDibData, (LPBITMAPINFO)&AllDib,
 								DIB_RGB_COLORS, SRCCOPY	 );
 			EndPaint(hwnd, &ps);
@@ -414,6 +407,11 @@ LRESULT WINAPI WindowProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 				ReleaseDC( hwnd, hdc );
 				hdc = NULL;
 			}
+			// free bitmap
+			if(AllDibData!=NULL) {
+				GlobalFree( GlobalHandle( AllDibData ) );
+				AllDibData = NULL;
+			}
 			// terminate sound system
 			if(use_sound) {
 				int i;
@@ -421,10 +419,12 @@ LRESULT WINAPI WindowProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 				for(i=0;  i<sample_number;  i++  ) {
 					GlobalFree( GlobalHandle( samples[i] ) );
 				}
+				sample_number = 0;
 			}
 			sys_event.type=SIM_SYSTEM;
 			sys_event.code=SIM_SYSTEM_QUIT;
 			PostQuitMessage(0);
+			hwnd = NULL;
 			return TRUE;
 
         default:
@@ -573,6 +573,29 @@ void dr_play_sample(int sample_number, int volume)
 /************************** Winmain ***********************************/
 
 
+HMODULE LoadUnicowsProc(void);
+
+// The following is a typical implementation of LoadUnicowsProc.
+
+HMODULE LoadUnicowsProc(void)
+{
+    return(LoadLibraryA("unicows.dll"));
+}
+
+#ifdef _cplusplus
+extern "C" {
+#endif
+
+/*
+Define the LoadUnicowsProc function. This function is a user-defined callback function that takes no parameters. The loader calls it when needed to load MSLU. Note that LoadUnicowsProc is only called on Windows Me/98/95. Also, LoadUnicowsProc is called before the DllMain PROCESS_ATTACH call and, for an .exe, before WinMain.
+*/
+
+extern FARPROC _PfnLoadUnicows = (FARPROC) &LoadUnicowsProc;
+
+#ifdef _cplusplus
+}
+#endif
+
 
 int simu_main(int argc, char **argv);
 
@@ -580,11 +603,11 @@ int simu_main(int argc, char **argv);
 BOOL APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
                       LPSTR lpCmdLine, int nShowCmd)
 {
-	WNDCLASS wc;
+	WNDCLASSW wc;
 	char *argv[32], *p;
 	int argc;
 
-	wc.lpszClassName = SAVEGAME_PREFIX;
+	wc.lpszClassName = "SSiimmuu\0";
 	wc.style = CS_HREDRAW | CS_VREDRAW;
 	wc.lpfnWndProc = WindowProc;
 	wc.cbClsExtra = 0;

@@ -28,7 +28,7 @@ int reliefkarte_t::mode = -1;
 const int reliefkarte_t::map_type_color[MAX_MAP_TYPE] =
 {
 //  7, 11, 15, 132, 23, 31, 35, 7
-  7, 11, 15, 132, 23, 27, 31, 35, 241, 7, 11, 31, 71
+  7, 11, 15, 132, 23, 27, 31, 35, 241, 7, 11, 31, 71, 55
 };
 
 const int reliefkarte_t::severity_color[12] =
@@ -250,10 +250,9 @@ reliefkarte_t::setze_welt(karte_t *welt)
     		koord size = koord(welt->gib_groesse_x()*zoom, welt->gib_groesse_y()*zoom);
 DBG_MESSAGE("reliefkarte_t::setze_welt()","welt size %i,%i",size.x,size.y);
 		relief = new array2d_tpl<unsigned char> (size.x,size.y);
-DBG_MESSAGE("reliefkarte_t::setze_welt()","welt size %i,%i",size.x,size.y);
+//DBG_MESSAGE("reliefkarte_t::setze_welt()","welt size %i,%i",size.x,size.y);
 		setze_groesse(size);
-//		init();
-DBG_MESSAGE("reliefkarte_t::setze_welt()","welt size %i,%i",size.x,size.y);
+//DBG_MESSAGE("reliefkarte_t::setze_welt()","welt size %i,%i",size.x,size.y);
 	}
 }
 
@@ -320,7 +319,7 @@ reliefkarte_t::zeichnen(koord pos) const
       koord p = stadt->gib_pos();
       const char * name = stadt->gib_name();
 
-	if(  zoom>1  ) {
+	if(  zoom>1  ||  ALWAYS_LARGE  ) {
 		int w = proportional_string_width(name);
 		p.x = MAX( pos.x+(p.x*zoom)-(w/2), pos.x );
    		display_proportional_clip( p.x, pos.y+p.y*zoom, name, ALIGN_LEFT, WEISS, true);
@@ -363,6 +362,16 @@ reliefkarte_t::calc_map(int render_mode)
 		slist_iterator_tpl <gebaeude_t *> iter (welt->gib_ausflugsziele());
 		while(iter.next()) {
 			setze_relief_farbe_area(iter.get_current()->gib_pos().gib_2d(), 7, calc_severity_color(iter.get_current()->gib_passagier_level(),steps) );
+		}
+		return;
+	}
+
+	// since we do iterate the tourist info list, this must be done here
+	// find tourist spots
+	if(render_mode==13) {
+		slist_iterator_tpl <fabrik_t *> iter (welt->gib_fab_list());
+		while(iter.next()) {
+			setze_relief_farbe_area(iter.get_current()->gib_pos().gib_2d(), 7, iter.get_current()->gib_kennfarbe() );
 		}
 		return;
 	}

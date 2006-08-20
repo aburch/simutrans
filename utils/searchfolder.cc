@@ -57,14 +57,13 @@
  */
 int searchfolder_t::search(const char *filepath, const char *extension)
 {
-    cstring_t path;
+    cstring_t path(filepath);
     cstring_t name;
     cstring_t lookfor;
     cstring_t ext;
 
     files.clear();
 
-    path = filepath;
     if(path.right(1) == "/") {
 	// Look for a directory
 	name = "*";
@@ -107,7 +106,7 @@ int searchfolder_t::search(const char *filepath, const char *extension)
 
     if(dir != NULL) {
     	//printf("....Search folder %s\n", lookfor.chars());
-	lookfor = name = "*" ? ext : name + ext;
+	lookfor = (name == "*") ? ext : name + ext;
     	//printf("....must match %s\n", lookfor.chars());
 	while((entry = readdir(dir)) != NULL) {
 	    if(entry->d_name[0]!='.' || (entry->d_name[1]!='.' && entry->d_name[1]!=0)) {

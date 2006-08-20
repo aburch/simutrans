@@ -7,9 +7,48 @@
  * in other projects without written permission of the author.
  */
 
+// use this for stress test; but it will return less than 32000 handles ...
+//#define HARD_DEBUG
+
+#if defined(WIN32)  && defined(HARD_DEBUG)
+
+#include <assert.h>
+
+#include "simdebug.h"
+// use the ct routines for debugging
+#include "dbgheap.cpp"
+
+
+extern "C" {
+void * guarded_malloc(int size)
+{
+	assert(size!=0);
+	void *r = malloc(size);
+	// sometime retries helps
+	assert(r!=0);
+	return r;
+}
+
+void * guarded_realloc(void *old, int newsize)
+{
+	assert(newsize!=0);
+	assert(old!=0);
+	void *r = realloc(old,newsize);
+	assert(r!=0);
+	return r;
+}
+
+void guarded_free(void *p)
+{
+	assert(p!=0);
+	free(p);
+}
+}
+
+#else
+
 #include <stdio.h>
 #include <stdlib.h>
-
 
 /*
  * Define this to use a key-lock mechanism for sanity checks.
@@ -220,3 +259,5 @@ void operator delete(void *p)
 {
 	guarded_free(p);
 }
+
+#endif

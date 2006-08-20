@@ -406,8 +406,8 @@ void obj_reader_t::read_nodes(FILE *fp, obj_besch_t * /*parent*/, obj_besch_t *&
 //@EDOC
 obj_besch_t *obj_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 {
-    char *besch_buf = new char[sizeof(obj_besch_t *) + node.size];
-    char *info_buf = new char[sizeof(obj_besch_t) + node.children * sizeof(obj_besch_t *)];
+    char *besch_buf = (char *)malloc( sizeof(obj_besch_t *) + node.size );
+    char *info_buf = (char *)malloc( sizeof(obj_besch_t) + node.children * sizeof(obj_besch_t *) );
 
     // Hajo: I think it's better to clear the buffers
     // one never knows what will happen later
@@ -467,8 +467,8 @@ void obj_reader_t::delete_node(obj_besch_t *data)
     char *besch_buf = reinterpret_cast<char *>(data);
     char *info_buf = reinterpret_cast<char *>(data->node_info);
 
-    delete besch_buf;
-    delete info_buf;
+    free( besch_buf );
+    free( info_buf );
 }
 
 //@ADOC

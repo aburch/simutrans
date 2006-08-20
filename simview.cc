@@ -78,7 +78,7 @@ karte_ansicht_t::display(bool dirty)
 		int j = (zeiger->gib_pos().y-j_off)*2;
 		int x = (i-j)>>1;
 		int y = (i+j)>>1;
-		const int ypos = y*(IMG_SIZE/4) + 16 + welt->gib_y_off() + ((display_get_width()/IMG_SIZE)&1)*16;
+		const int ypos = y*(IMG_SIZE/4) + 16 + welt->gib_y_off() + ((display_get_width()/IMG_SIZE)&1)*(IMG_SIZE/4);
 		const int xpos = x*(IMG_SIZE/2) +  const_x_off;
 		zeiger->display( xpos, ypos - tile_raster_scale_y( zeiger->gib_pos().z, IMG_SIZE), true);
 		zeiger->clear_flag(ding_t::dirty);
