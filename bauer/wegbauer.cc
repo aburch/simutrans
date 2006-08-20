@@ -337,7 +337,7 @@ wegbauer_t::check_for_leitung(const koord zv, const grund_t *bd) const
 
 
 
-// allowed slope?
+// allowed slope? (not used ... since get_neightbour and some further check does this even better)
 bool wegbauer_t::check_slope( const grund_t *from, const grund_t *to )
 {
 	const koord from_pos=from->gib_pos().gib_2d();
@@ -461,26 +461,19 @@ bool wegbauer_t::is_allowed_step( const grund_t *from, const grund_t *to, long *
 		return false;
 	}
 
-/*
-	if(!check_slope(from,to)) {
-		// wrong slopes
-		DBG_MESSAGE("wron slopes between","%i,%i and %i,%i",from_pos.x,from_pos.y,to_pos.x,to_pos.y);
-		return false;
-	}
-*/
 	if(from==to) {
 		if(!hang_t::ist_wegbar(from->gib_weg_hang())) {
-			DBG_MESSAGE("wrong slopes at","%i,%i ribi1=%d",from_pos.x,from_pos.y,ribi_typ(from->gib_weg_hang()));
+//			DBG_MESSAGE("wrong slopes at","%i,%i ribi1=%d",from_pos.x,from_pos.y,ribi_typ(from->gib_weg_hang()));
 			return false;
 		}
 	}
 	else {
 		if(from->gib_weg_hang()  &&  ribi_t::doppelt(ribi_typ(from->gib_weg_hang()))!=ribi_t::doppelt(ribi_typ(zv))) {
-			DBG_MESSAGE("wrong slopes between","%i,%i and %i,%i, ribi1=%d, ribi2=%d",from_pos.x,from_pos.y,to_pos.x,to_pos.y,ribi_typ(from->gib_weg_hang()),ribi_typ(zv));
+//			DBG_MESSAGE("wrong slopes between","%i,%i and %i,%i, ribi1=%d, ribi2=%d",from_pos.x,from_pos.y,to_pos.x,to_pos.y,ribi_typ(from->gib_weg_hang()),ribi_typ(zv));
 			return false;
 		}
 		if(to->gib_weg_hang()  &&  ribi_t::doppelt(ribi_typ(to->gib_weg_hang()))!=ribi_t::doppelt(ribi_typ(zv))) {
-			DBG_MESSAGE("wrong slopes between","%i,%i and %i,%i, ribi1=%d, ribi2=%d",from_pos.x,from_pos.y,to_pos.x,to_pos.y,ribi_typ(to->gib_weg_hang()),ribi_typ(zv));
+//			DBG_MESSAGE("wrong slopes between","%i,%i and %i,%i, ribi1=%d, ribi2=%d",from_pos.x,from_pos.y,to_pos.x,to_pos.y,ribi_typ(to->gib_weg_hang()),ribi_typ(zv));
 			return false;
 		}
 	}
@@ -490,6 +483,46 @@ bool wegbauer_t::is_allowed_step( const grund_t *from, const grund_t *to, long *
 	bool fundament= to->gib_typ()==grund_t::fundament;
 	const gebaeude_t *gb=dynamic_cast<const gebaeude_t *>(to->suche_obj(ding_t::gebaeude));
 
+	// no crossings to halt
+	if(to!=from) {
+		static koord gb_to_zv[4] = { koord::sued, koord::ost, koord::nord, koord::west };
+		if(gb  &&  (gb->gib_besitzer()==sp  ||  to->gib_halt().is_bound())) {
+
+			// terminal imposes stronger direction checks
+			if(gb->gib_tile()->gib_besch()->gib_all_layouts()==4) {
+				if(zv!=gb_to_zv[(gb->gib_tile()->gib_layout()+2)&3]) {
+//DBG_MESSAGE("cannot go","from %i,%i, to %i, %i due to 4 way stop",from_pos.x,from_pos.y,to_pos.x,to_pos.y);
+					return false;
+				}
+			}
+			else {
+				// through station
+				if( !ribi_t::ist_gerade( ribi_typ(zv)|ribi_typ(gb_to_zv[gb->gib_tile()->gib_layout()]) ) ) {
+					return false;
+				}
+			}
+		}
+
+		// no crossings from halt
+		const gebaeude_t *from_gb=dynamic_cast<const gebaeude_t *>(from->suche_obj(ding_t::gebaeude));
+		if(from_gb  &&  (from_gb->gib_besitzer()==sp  ||  from->gib_halt().is_bound())) {
+			// terminal imposes stronger direction checks
+			if(from_gb->gib_tile()->gib_besch()->gib_all_layouts()==4) {
+				if(zv!=gb_to_zv[from_gb->gib_tile()->gib_layout()]) {
+//DBG_MESSAGE("cannot go","from %i,%i, to %i, %i due to 4 way stop",from_pos.x,from_pos.y,to_pos.x,to_pos.y);
+					return false;
+				}
+			}
+			else {
+				// through station
+				if( !ribi_t::ist_gerade( ribi_typ(zv)|ribi_typ(gb_to_zv[from_gb->gib_tile()->gib_layout()]) ) ) {
+					return false;
+				}
+			}
+		}
+	}
+
+	// no check way specific stuff
 	switch(bautyp) {
 
 		case strasse:
@@ -498,31 +531,14 @@ bool wegbauer_t::is_allowed_step( const grund_t *from, const grund_t *to, long *
 			const weg_t *str=to->gib_weg(weg_t::strasse);
 			ok =	(str  ||  ok&!fundament  ||  check_crossing(zv,to,weg_t::schiene)) &&
 					(str  ||  check_owner(to->gib_besitzer(),sp)) &&
-					check_for_leitung(zv,to)  &&
-					!to->gib_depot();
-			if(gb) {
-				// no halt => citybuilding => do not touch
-				if(str==NULL  ||  !to->gib_halt().is_bound()  ||  !check_owner(gb->gib_besitzer(),sp)) {
-					return false;
-				}
-				// loading bay
-				if(gb->gib_tile()->gib_besch()->gib_all_layouts()==4) {
-					return false;
-				}
-			}
-			// now check for stops or bridges (no crossings here)
-			if(str  &&  (to->gib_halt().is_bound()  ||  to->gib_weg_hang()!=to->gib_grund_hang())  &&  !ribi_t::ist_gerade(ribi_typ(to_pos,from_pos)|str->gib_ribi_unmasked())  ) {
-				// no crossings on stops
-				return false;
-			}
-			const weg_t *from_str=from->gib_weg(weg_t::strasse);
-			// now check for stops
-			if(from_str  &&  from->gib_halt().is_bound()  &&  !ribi_t::ist_gerade(ribi_typ(to_pos,from_pos)|from_str->gib_ribi_unmasked())  ) {
-				// no crossings on stops
-				return false;
-			}
-			// calculate costs
+					check_for_leitung(zv,to);
 			if(ok) {
+				const weg_t *from_str=from->gib_weg(weg_t::strasse);
+				// check for end/start of bridge
+				if(to->gib_weg_hang()!=to->gib_grund_hang()  &&  (from_str==NULL  ||  !ribi_t::ist_gerade(ribi_typ(zv)|from_str->gib_ribi_unmasked()))) {
+					return false;
+				}
+				// calculate costs
 				*costs = str ? 0 : 5;
 				*costs += from_str ? 0 : 5;
 				if(to->gib_weg(weg_t::schiene)) {
@@ -538,20 +554,12 @@ bool wegbauer_t::is_allowed_step( const grund_t *from, const grund_t *to, long *
 		case schiene:
 		{
 			const weg_t *sch=to->gib_weg(weg_t::schiene);
-			ok =	(ok&!fundament || (sch)  || check_crossing(zv,to,weg_t::strasse)) &&
+			ok =	(ok&!fundament || sch  || check_crossing(zv,to,weg_t::strasse)) &&
 					check_owner(to->gib_besitzer(),sp) &&
-					check_for_leitung(zv,to)  &&
-					!to->gib_depot();
+					check_for_leitung(zv,to);
 			if(ok) {
-				// no crossings on halt
-				if(from->gib_halt().is_bound()) {
-					const weg_t *sch_f=from->gib_weg(weg_t::schiene);
-					if(sch_f==NULL  ||  ribi_t::ist_kreuzung(ribi_typ(to_pos,from_pos)|sch_f->gib_ribi_unmasked()) ) {
-						return false;
-					}
-				}
 				// check for end/start of bridge
-				if(to->gib_weg_hang()!=to->gib_grund_hang()  &&  (sch==NULL  ||  ribi_t::ist_kreuzung(ribi_typ(to_pos,from_pos)|sch->gib_ribi_unmasked()))) {
+				if(to->gib_weg_hang()!=to->gib_grund_hang()  &&  (sch==NULL  ||  !ribi_t::ist_gerade(ribi_typ(zv)|sch->gib_ribi_unmasked()))) {
 					return false;
 				}
 				if(gb) {
@@ -639,38 +647,36 @@ bool wegbauer_t::is_allowed_step( const grund_t *from, const grund_t *to, long *
 		// like tram, but checks for bridges too
 		case schiene_elevated_monorail:
 		{
-			ok =	(ok  ||  fundament || to->gib_weg(weg_t::schiene)  || to->gib_weg(weg_t::schiene_monorail)  || to->gib_weg(weg_t::strasse)) &&  !to->gib_weg(weg_t::luft)  &&
+			ok =	(ok  || fundament || to->gib_weg(weg_t::schiene)  || to->gib_weg(weg_t::schiene_monorail)  || to->gib_weg(weg_t::strasse)) &&  !to->gib_weg(weg_t::luft)  &&
 					check_owner(to->gib_besitzer(),sp) &&
-					check_for_leitung(zv,to)  &&
-					!to->gib_depot();
+					check_for_leitung(zv,to);
 			if(ok) {
+				if(gb) {
+					// no halt => citybuilding => do not touch
+					if(!check_owner(gb->gib_besitzer(),sp)  ||  gb->gib_tile()->gib_hintergrund(0,1)!=-1) {  // also check for too high buildings ...
+						return false;
+					}
+				}
 				const grund_t *bd =  welt->lookup(to_pos)->gib_boden_in_hoehe(to->gib_pos().z+16);
 				if(bd  &&  bd->gib_typ()!=grund_t::monorailboden) {
 					ok = false;
 				}
-			}
-			if(gb) {
-				const weg_t *sch=to->gib_weg(weg_t::schiene);
-				// no halt => citybuilding => do not touch
-				if(!check_owner(gb->gib_besitzer(),sp)  ||  gb->gib_tile()->gib_hintergrund(0,1)!=-1) {  // also check for too high buildings ...
-					return false;
+				if(bd  &&  bd->gib_halt().is_bound()) {
+					// now we have a halt => check for direction
+					if(!ribi_t::ist_gerade(ribi_typ(zv)|bd->gib_weg_ribi_unmasked(weg_t::schiene_monorail))  ) {
+						// no crossings on stops
+						return false;
+					}
 				}
-				// now we have a halt => check for direction
-				if(sch  &&  ribi_t::ist_kreuzung(ribi_typ(to_pos,from_pos)|sch->gib_ribi_unmasked())  ) {
-					// no crossings on stops
-					return false;
-				}
-			}
-			// calculate costs
-			if(ok) {
-				*costs = 4;
+				// calculate costs
+				*costs = bd?2:4;
 				// ontop of city buildings is expensive
 				if(to->gib_typ()==grund_t::fundament) {
 					*costs += 4;
 				}
 				// perfer ontop of ways
 				if(to->hat_wege()) {
-					*costs -= 2;
+					*costs -= 1;
 				}
 				if(to->gib_grund_hang()!=0) {
 					*costs += umgebung_t::way_count_slope;
@@ -1349,12 +1355,12 @@ wegbauer_t::intern_calc_straight_route(const koord start, const koord ziel)
 		}
 
 		grund_t *bd_von = welt->lookup(pos)->gib_kartenboden();
-		grund_t *bd_nach = welt->lookup(pos+diff)->gib_kartenboden();
-		long dummy_cost;
+		grund_t *bd_nach = NULL;
+		ok = ok  &&  bd_von->get_neighbour(bd_nach, weg_t::invalid, diff);
 
 		// allowed ground?
-		ok = ok  &&  bd_von  &&  bd_nach
-					&&  is_allowed_step(bd_von,bd_nach,&dummy_cost);
+		long dummy_cost;
+		ok = ok  &&  bd_von  &&  (!bd_nach->ist_bruecke())  &&  is_allowed_step(bd_von,bd_nach,&dummy_cost);
 DBG_MESSAGE("wegbauer_t::calc_straight_route()","step %i,%i = %i",diff.x,diff.y,ok);
 		pos += diff;
 	}

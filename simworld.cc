@@ -1735,27 +1735,34 @@ karte_t::suche_nahe_haltestellen(const koord k,
 bool
 karte_t::sync_add(sync_steppable *obj)
 {
-    assert(obj != NULL);
-    sync_list.insert( obj );
-    return true;
+	assert(obj != NULL);
+	sync_add_list.insert( obj );
+	return true;
 }
 
 bool
 karte_t::sync_remove(sync_steppable *obj)	// entfernt alle dinge == obj aus der Liste
 {
-    assert(obj != NULL);
-    return sync_list.remove( obj );
+	assert(obj != NULL);
+	if(sync_add_list.remove(obj)) {
+		return true;
+	}
+	return sync_list.remove( obj );
 }
 
 void
 karte_t::sync_prepare()
 {
-    slist_iterator_tpl<sync_steppable *> iter (sync_list);
-
-    while(iter.next()) {
-	sync_steppable *ss = iter.get_current();
-	ss->sync_prepare();
-    }
+	if(sync_add_list.count()>0) {
+		slist_iterator_tpl<sync_steppable *> iter (sync_add_list);
+		while(iter.next()) {
+			sync_steppable *ss = iter.get_current();
+			ss->sync_prepare();
+			sync_list.insert( ss );
+		}
+//		DBG_MESSAGE("karte_t::sync_prepare()","added %d obj(s) to sync_list",sync_add_list.count());
+		sync_add_list.clear();
+	}
 }
 
 void

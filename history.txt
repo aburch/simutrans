@@ -9,8 +9,21 @@ Known bugs: (hard to fix)
 
 
 
+Release of 88.05.1
+
 	FIX: townhall added wrong buildings during renovation => crash when generated passengers afterwards
 	FIX: connecting to the end of an unconnected bridge (now again going through tunnel and bridges for way calculation)
+	CHANGE: sync_prepare() only called one time before sync_step() => lost of useless objects are not called any more every frame
+	FIX: trams find depots again
+	CHANGE: built on top of cars or pedestrians (may cause graphics errors)
+	FIX: oilrigg and other water factories fixed when loading old sets
+	FIX: wrong sound when closing tool bars
+	FIX: again correct gear in convoi details
+	FIX: several wrong sounds/smoke for vehicles
+	FIX: more error checks for way builder
+	FIX: change to entries to their translator entries: Oktober and Load game
+	CHANGE: all list: left key info, right key goto
+
 
 Release of 88.05
 

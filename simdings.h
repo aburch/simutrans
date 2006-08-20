@@ -200,8 +200,8 @@ public:
 	      verkehr=41,
 	      fussgaenger=42,
 
-	      // new cars
-	      car = 64,
+	      // new cars (not used any more!)
+	      // car = 64,
 
 	      // other new dings
 	      presignal = 96,

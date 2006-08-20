@@ -1508,12 +1508,13 @@ DBG_MESSAGE("wkz_halt_aux()", "bd=%p",bd);
 			return false;
 		}
 
+/*
 		const char *p=bd->kann_alle_obj_entfernen(sp);
 		if(p) {
 			create_win(-1, -1, MESG_WAIT, new nachrichtenfenster_t(welt, p), w_autodelete);
 			return false;
 		}
-
+*/
 		if(bd->gib_depot()) {
 			create_win(-1, -1, MESG_WAIT, new nachrichtenfenster_t(welt, "Tile not empty."), w_autodelete);
 			return false;
@@ -2211,7 +2212,7 @@ DBG_MESSAGE("wkz_headquarter()", "building headquarter at (%d,%d)", pos.x, pos.y
 
 		if(besch_nr<0) {
 			// no further headquarter level
-			welt->setze_maus_funktion(wkz_abfrage, skinverwaltung_t::fragezeiger->gib_bild_nr(0), welt->Z_PLAN,  NO_SOUND, NO_SOUND );
+			welt->setze_maus_funktion(wkz_abfrage, skinverwaltung_t::fragezeiger->gib_bild_nr(0), karte_t::Z_PLAN,  NO_SOUND, NO_SOUND );
 			return false;
 		}
 
@@ -2240,7 +2241,7 @@ DBG_MESSAGE("wkz_headquarter()", "building headquarter at (%d,%d)", pos.x, pos.y
 		else {
 			create_win(-1, -1, MESG_WAIT, new nachrichtenfenster_t(welt, "Tile not empty."), w_autodelete);
 		}
-		welt->setze_maus_funktion(wkz_abfrage, skinverwaltung_t::fragezeiger->gib_bild_nr(0), welt->Z_PLAN,  NO_SOUND, NO_SOUND );
+		welt->setze_maus_funktion(wkz_abfrage, skinverwaltung_t::fragezeiger->gib_bild_nr(0), karte_t::Z_PLAN,  NO_SOUND, NO_SOUND );
 	}
 	return ok;
 }
@@ -2253,7 +2254,7 @@ DBG_MESSAGE("wkz_headquarter()", "building headquarter at (%d,%d)", pos.x, pos.y
 int wkz_switch_player(spieler_t *, karte_t *welt, koord pos)
 {
 	if(pos==INIT) {
-		welt->setze_maus_funktion(wkz_abfrage, skinverwaltung_t::fragezeiger->gib_bild_nr(0), welt->Z_PLAN,  NO_SOUND, NO_SOUND );
+		welt->setze_maus_funktion(wkz_abfrage, skinverwaltung_t::fragezeiger->gib_bild_nr(0), karte_t::Z_PLAN,  NO_SOUND, NO_SOUND );
 		welt->switch_active_player();
 	}
 	return false;
@@ -2317,7 +2318,7 @@ int wkz_add_attraction(spieler_t *, karte_t *welt, koord pos)
 int wkz_lock( spieler_t *, karte_t *welt, koord pos)
 {
 	if(pos!=INIT  && pos!=EXIT) {
-		welt->setze_maus_funktion(wkz_abfrage, skinverwaltung_t::fragezeiger->gib_bild_nr(0), welt->Z_PLAN,  NO_SOUND, NO_SOUND );
+		welt->setze_maus_funktion(wkz_abfrage, skinverwaltung_t::fragezeiger->gib_bild_nr(0), karte_t::Z_PLAN,  NO_SOUND, NO_SOUND );
 		welt->gib_einstellungen()->setze_allow_player_change( false );
 		destroy_all_win();
 		welt->switch_active_player();
@@ -2332,7 +2333,7 @@ int wkz_step_year( spieler_t *, karte_t *welt, koord k)
 {
 	if(k == INIT) {
 		welt->step_year();
-		welt->setze_maus_funktion(wkz_abfrage, skinverwaltung_t::fragezeiger->gib_bild_nr(0), welt->Z_PLAN,  NO_SOUND, NO_SOUND );
+		welt->setze_maus_funktion(wkz_abfrage, skinverwaltung_t::fragezeiger->gib_bild_nr(0), karte_t::Z_PLAN,  NO_SOUND, NO_SOUND );
 	}
 	return false;
 }

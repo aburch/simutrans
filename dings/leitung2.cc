@@ -513,7 +513,7 @@ pumpe_t::sync_step(long delta_t)
 		get_net()->add_power(delta_t*fab->get_prodbase()*32);
 		setze_bild(0, skinverwaltung_t::pumpe->gib_bild_nr(1) );
 	}
-	return true;
+	return fab!=0;
 }
 
 
@@ -596,7 +596,7 @@ senke_t::sync_step(long time)
 	}
 	max_einkommen += want_power;
 	einkommen += get_power;
-	return fab;	// only zero, when loading failed ...
+	return fab!=0;	// only zero, when loading failed ...
 }
 
 

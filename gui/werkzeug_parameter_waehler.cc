@@ -18,6 +18,7 @@
 #include "../simgraph.h"
 #include "../simwerkz.h"
 #include "../besch/skin_besch.h"
+#include "../besch/sound_besch.h"
 
 #include "../tpl/minivec_tpl.h"
 
@@ -204,8 +205,8 @@ void werkzeug_parameter_waehler_t::infowin_event(const event_t *ev)
 		welt->setze_maus_funktion(wkz_abfrage,
 		      skinverwaltung_t::fragezeiger->gib_bild_nr(0),
 		      karte_t::Z_PLAN,
-		      0,
-		      0);
+		      NO_SOUND,
+		      NO_SOUND);
 	}
 }
 

@@ -1090,10 +1090,6 @@ stadt_t::step_passagiere()
 					// fake one ride to get a proper display of destinations (although there may be more) ...
 					pax_zieltyp will_return;
 					const koord ziel = finde_passagier_ziel(&will_return);
-if(!welt->ist_in_kartengrenzen(ziel)) {
-	DBG_MESSAGE("stadt_t::step_passagiere()","off map access");
-	trap();
-}
 #ifdef DESTINATION_CITYCARS
 					//citycars with destination
 					erzeuge_verkehrsteilnehmer( k, step_count, ziel );
@@ -1133,10 +1129,7 @@ stadt_t::gib_zufallspunkt() const
 {
 	const gebaeude_t *gb=buildings.at_weight( simrand(buildings.get_sum_weight()) );
 	koord k=gb->gib_pos().gib_2d();
-	if(!welt->ist_in_kartengrenzen(k)) {
-		dbg->error("stadt_t::gib_zufallspunkt()","invalid building coordinate at (%i,%i) of building %p",k.x,k.y,gb);
-		trap();
-	}
+	assert(welt->ist_in_kartengrenzen(k));
 	return k;
 }
 
@@ -1157,9 +1150,9 @@ stadt_t::finde_passagier_ziel(pax_zieltyp *will_return)
 		return fab->gib_pos().gib_2d();
 	}
 	else if(rand<TOURIST_PAX+FACTORY_PAX  &&  welt->gib_ausflugsziele().get_sum_weight()>0) {
-			*will_return = tourist_return;	// tourists will return
-			const gebaeude_t *gb = welt->gib_random_ausflugsziel();
-			return gb->gib_pos().gib_2d();
+		*will_return = tourist_return;	// tourists will return
+		const gebaeude_t *gb = welt->gib_random_ausflugsziel();
+		return gb->gib_pos().gib_2d();
 	}
 	else{
 		// if we reach here, at least a single town existes ...
@@ -1175,8 +1168,9 @@ stadt_t::finde_passagier_ziel(pax_zieltyp *will_return)
 		*will_return = (this!=zielstadt) ? town_return : no_return;
 		return zielstadt->gib_zufallspunkt();
 	}
-	// we should never reach here!
-dbg->fatal("stadt_t::finde_passagier_ziel()","no passenger ziel found!");
+	// we could never reach here (but happend once anyway?!?)
+	dbg->fatal("stadt_t::finde_passagier_ziel()","no passenger ziel found!");
+	assert(0);
 	return koord::invalid;
 }
 
@@ -1375,29 +1369,19 @@ DBG_MESSAGE("stadt_t::check_bau_rathaus()","delete townhall (bev=%i)",buildings.
 					if(gb) {
 						gb->setze_besitzer(NULL);
 					}
-					if(!umziehen) {
-						// Platz für neues Rathaus freimachen
-						if(gb) {
-							// remove building also from map
+					gr->obj_loesche_alle(NULL);
+					if(umziehen) {
 DBG_MESSAGE("stadt_t::check_bau_rathaus()","delete townhall tile %i,%i (gb=%p)",k.x,k.y,gb);
-							delete gb;
-						}
-					}
-					else {
-						// Altes Rathaus durch Wohnhaus(0) ersetzen - Wohnhaus(0) muß 1x1 sein!
-						hausbauer_t::umbauen(welt, gb, hausbauer_t::gib_wohnhaus(0,welt->get_timeline_year_month()));
-						gb->setze_besitzer(NULL);
+						// replace old space by normal houses level 0 (must be 1x1!)
+						gb = hausbauer_t::neues_gebaeude(welt, NULL, gr->gib_pos(), 0, hausbauer_t::gib_wohnhaus(0,welt->get_timeline_year_month()), NULL );
 						add_gebaeude_to_stadt( gb );
 					}
 				}
-
-				// printf("Alte Position=%d,%d\n", pos_alt.x+k.x, pos_alt.y+k.y);
-				// welt->lookup(pos_alt + k)->gib_kartenboden()->setze_besitzer(NULL);
 			}
 		}
 
 		//
-		// Neues Rathaus bauen
+		// Now built the new townhall
 		//
 		int layout = simrand(besch->gib_all_layouts()-1);
 		if(neugruendung || umziehen) {

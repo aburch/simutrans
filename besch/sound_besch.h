@@ -47,11 +47,11 @@
 #define SFX_FAILURE sound_besch_t::get_compatible_sound_id(10)
 #define SFX_SELECT sound_besch_t::get_compatible_sound_id(9)
 
- template <class T> class vector_tpl;
- template <class T> class stringhashtable_tpl;
- class cstring_t;
+template <class T> class vector_tpl;
+template <class T> class stringhashtable_tpl;
+class cstring_t;
 
- #define MAX_OLD_SOUNDS (16)
+#define MAX_OLD_SOUNDS (16)
 
 
 class sound_besch_t : public obj_besch_t {
@@ -81,7 +81,7 @@ public:
 	static void init(const cstring_t & scenario_path);
 
 	/* return old sound id from index */
-	static sint16 get_compatible_sound_id(const sint8 nr) { return (nr>=0  &&  nr<MAX_OLD_SOUNDS) ? compatible_sound_id[nr] : NO_SOUND; }
+	static sint16 get_compatible_sound_id(const sint8 nr) { return compatible_sound_id[nr&(15)]; }
 };
 
 

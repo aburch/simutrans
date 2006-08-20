@@ -271,7 +271,7 @@ obj_besch_t * building_reader_t::read_node(FILE *fp, obj_node_info_t &node)
   }
 
 	// correct old station buildings ...
-	if(besch->level==0  &&  besch->utyp>=hausbauer_t::bahnhof) {
+	if(besch->level<=0  &&  (besch->utyp>=hausbauer_t::bahnhof  ||  besch->utyp==hausbauer_t::fabrik)) {
 		DBG_DEBUG("building_reader_t::read_node()","old station building -> set level to 4");
 		besch->level = 4;
 	}

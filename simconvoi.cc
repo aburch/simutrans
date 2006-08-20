@@ -316,6 +316,7 @@ convoi_t::sync_step(long delta_t)
 
 
   if(wait_lock <= 0) {
+  	wait_lock = 0;
     // step ++;
 
     switch(state) {

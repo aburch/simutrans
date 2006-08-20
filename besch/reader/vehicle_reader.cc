@@ -319,7 +319,7 @@ obj_besch_t * vehicle_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 		besch->sound = sound_besch_t::gib_sound_id(wavname);
 DBG_MESSAGE("vehicle_reader_t::register_obj()","sound %s to %i",wavname,besch->sound);
 	}
-	else if(besch->sound!=NO_SOUND) {
+	else if(besch->sound>=0  &&  besch->sound<=MAX_OLD_SOUNDS) {
 		sint16 old_id = besch->sound;
 		besch->sound = sound_besch_t::get_compatible_sound_id(old_id);
 DBG_MESSAGE("vehicle_reader_t::register_obj()","old sound %i to %i",old_id,besch->sound);

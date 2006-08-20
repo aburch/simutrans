@@ -329,6 +329,8 @@ void hausbauer_t::umbauen(karte_t *welt,gebaeude_t *gb, const haus_besch_t *besc
  * kennt sie die diversen Besonderheiten und nimmt
  * entsprechende Einstellungen vor.
  *
+ * The ground will be NOT set to foundation. This must be done before, if neccessary!
+ *
  * @param welt
  * @param sp
  * @param pos
@@ -339,13 +341,7 @@ void hausbauer_t::umbauen(karte_t *welt,gebaeude_t *gb, const haus_besch_t *besc
  *
  * @author V. Meyer
  */
-void hausbauer_t::baue(karte_t *welt,
-                       spieler_t *sp,
-                       koord3d pos,
-		       int layout,
-		       const haus_besch_t *besch,
-		       bool clear,
-		       void *param)
+void hausbauer_t::baue(karte_t *welt, spieler_t *sp, koord3d pos, int layout, const haus_besch_t *besch, bool clear, void *param)
 {
 	koord k;
 	koord dim;
@@ -438,12 +434,14 @@ void hausbauer_t::baue(karte_t *welt,
 	}
 }
 
-gebaeude_t *hausbauer_t::neues_gebaeude(karte_t *welt,
-                        spieler_t *sp,
-                        koord3d pos,
-			int layout,
-			const haus_besch_t *besch,
-			void *param)
+
+
+/*
+ * builds all kind of houses, including stops and depots
+ * may change the ordering of objects in the dinglist, if the desired position is not available
+ */
+gebaeude_t *
+hausbauer_t::neues_gebaeude(karte_t *welt, spieler_t *sp, koord3d pos, int layout, const haus_besch_t *besch, void *param)
 {
 	if(besch->gib_groesse(layout) != koord(1, 1)) {
 		dbg->fatal("hausbauer_t::neues_gebaeude()","building %s is not 1*1", besch->gib_name());
@@ -472,7 +470,30 @@ gebaeude_t *hausbauer_t::neues_gebaeude(karte_t *welt,
 //DBG_MESSAGE("hausbauer_t::neues_gebaeude()","building stop pri=%i",pri);
 
 	grund_t *gr = welt->lookup(pos);
-	gr->obj_pri_add(gb, pri);
+	if(pri==0) {
+		// add it after roadsigns, bridges, and overheadwires, but before any cars ...
+		for( int i=0;  i<255;  i++  ) {
+			ding_t *dt=gr->obj_bei(i);
+			if(dt==NULL) {
+				gr->obj_pri_add(gb, i);
+				break;
+			}
+			else if(dt->gib_typ()>=ding_t::automobil  &&  dt->gib_typ()<=ding_t::fussgaenger) {
+				gr->obj_takeout(i);
+				gr->obj_pri_add(gb, i);
+				gr->obj_pri_add(dt, i+1);
+				break;
+			}
+		}
+	}
+	else {
+		// depots MUST be at position PRI_DEPOT
+		ding_t *dt=gr->obj_takeout(pri);
+		gr->obj_pri_add(gb, pri);
+		if(dt) {
+			gr->obj_pri_add(dt, pri-1);
+		}
+	}
 
 	if(station_building.contains(besch)) {
 		// is a station/bus stop

@@ -163,6 +163,7 @@ private:
     zeiger_t *zeiger;
 
 
+    slist_tpl<sync_steppable *> sync_add_list;	// after calling sync_prepare, the objects are move to the sync_list
     slist_tpl<sync_steppable *> sync_list;
 
     slist_tpl<convoihandle_t> convoi_list;

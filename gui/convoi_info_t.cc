@@ -369,7 +369,7 @@ DBG_MESSAGE("convoi_info_t::action_triggered()","convoi state %i => cannot chang
 			slist_tpl<koord3d> all_depots;
 			karte_t * welt = cnv->gib_welt();
 			depot_t * depot = NULL;
-			const weg_t::typ waytype = cnv->gib_vehikel(0)->gib_wegtyp();
+			const weg_t::typ waytype = cnv->gib_vehikel(0)->gib_besch()->gib_typ();
 			for (int x = 0; x < welt->gib_groesse_x(); x++) {
 				for (int y = 0; y < welt->gib_groesse_y(); y++) {
 					grund_t * gr = welt->lookup(koord(x,y))->gib_kartenboden();

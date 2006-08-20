@@ -645,7 +645,7 @@ void welt_gui_t::zeichnen(koord pos, koord gr)
 		load_map.setze_text(translator::translate("Lade Relief"));
 		use_intro_dates.setze_text(translator::translate("Use timeline start year"));
 		allow_player_change.setze_text(translator::translate("Allow player change"));
-		load_game.setze_text(translator::translate("Lade Spiel"));
+		load_game.setze_text(translator::translate("Load game"));
 		start_game.setze_text(translator::translate("Starte Spiel"));
 //		quit_game.setze_text(translator::translate("Beenden"));
 		old_lang = translator::get_language();

@@ -122,7 +122,10 @@ gebaeude_t::~gebaeude_t()
 		gib_besitzer()->add_maintenance(-umgebung_t::maint_building);
 	}
 
-	setze_pos( koord3d(-2,-3,-4) );
+#ifdef DEBUG
+	// to detect access to invalid tiles
+	setze_pos( koord3d::invalid );
+#endif
 }
 
 
@@ -523,16 +526,16 @@ gebaeude_t::rdwr(loadsave_t *file)
 					}
 					//		DBG_MESSAGE("gebaeude_t::rwdr", "%s level %i",typ_str,level);
 					if(strcmp(typ_str,"RES")==0) {
-	DBG_MESSAGE("gebaeude_t::rwdr", "replace unknown building %s with residence level %i",buf,level);
+DBG_MESSAGE("gebaeude_t::rwdr", "replace unknown building %s with residence level %i",buf,level);
 						tile = hausbauer_t::gib_wohnhaus(level,welt->get_timeline_year_month())->gib_tile(0);
 					} else if(strcmp(typ_str,"COM")==0) {
-	DBG_MESSAGE("gebaeude_t::rwdr", "replace unknown building %s with commercial level %i",buf,level);
+DBG_MESSAGE("gebaeude_t::rwdr", "replace unknown building %s with commercial level %i",buf,level);
 						tile = hausbauer_t::gib_gewerbe(level,welt->get_timeline_year_month())->gib_tile(0);
 					} else if(strcmp(typ_str,"IND")==0) {
-	DBG_MESSAGE("gebaeude_t::rwdr", "replace unknown building %s with industrie level %i",buf,level);
+DBG_MESSAGE("gebaeude_t::rwdr", "replace unknown building %s with industrie level %i",buf,level);
 						tile = hausbauer_t::gib_industrie(level,welt->get_timeline_year_month())->gib_tile(0);
 					} else {
-	DBG_MESSAGE("gebaeude_t::rwdr", "description %s for building at %d,%d not found (will be removed)!", buf, gib_pos().x, gib_pos().y);
+DBG_MESSAGE("gebaeude_t::rwdr", "description %s for building at %d,%d not found (will be removed)!", buf, gib_pos().x, gib_pos().y);
 					}
 				}
 			}	// here we should have a valid tile pointer or nothing ...
@@ -581,6 +584,8 @@ gebaeude_t::rdwr(loadsave_t *file)
 	}
 }
 
+
+
 /**
  * Methode für Echtzeitfunktionen eines Objekts.
  * @return false wenn Objekt aus der Liste der synchronen
@@ -589,23 +594,20 @@ gebaeude_t::rdwr(loadsave_t *file)
  */
 bool gebaeude_t::sync_step(long delta_t)
 {
-    // DBG_MESSAGE("gebaeude_t::sync_step()", "%p, %d phases", this, phasen);
+// DBG_MESSAGE("gebaeude_t::sync_step()", "%p, %d phases", this, phasen);
 
-    anim_time += delta_t;
-
-    if(anim_time > 300) {
-	anim_time = 0;
-	count ++;
-
-	if(count >= tile->gib_phasen()) {
-	    count = 0;
+	anim_time += delta_t;
+	if(anim_time > 300) {
+		anim_time = 0;
+		count ++;
+		if(count >= tile->gib_phasen()) {
+			count = 0;
+		}
+		set_flag(dirty);
 	}
-
-	set_flag(dirty);
-    }
-
-    return true;
+	return true;
 }
+
 
 
 void

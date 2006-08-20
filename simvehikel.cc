@@ -768,11 +768,11 @@ vehikel_t::calc_akt_speed(const grund_t *gr) //,const int h_alt, const int h_neu
 	if(hang!=hang_t::flach) {
 		if(ribi_typ(hang)==fahrtrichtung) {
 			// hill up, since height offsets are negative: heavy deccelerate
-			current_friction = 16;
+			current_friction = 24;
 		}
 		else {
 			// hill down: accelrate
-			current_friction = -8;
+			current_friction = -12;
 		}
 	}
 
@@ -800,8 +800,6 @@ vehikel_t::rauche()
   // raucht ueberhaupt ?
   if(rauchen && besch->gib_rauch()) {
 
-    // printf("%d %d\n", cnv->gib_akt_speed(), speed);
-
     // Hajo: only produce smoke when heavily accelerating
     //       or steam engine
     int akt_speed = gib_speed();
@@ -809,7 +807,7 @@ vehikel_t::rauche()
       akt_speed = speed_limit;
     }
 
-    if(cnv->gib_akt_speed() < (akt_speed >> 1) ||
+    if(cnv->gib_akt_speed() < (akt_speed*7)>>3 ||
        besch->get_engine_type() == vehikel_besch_t::steam) {
 
       grund_t * gr = welt->lookup( pos_cur );

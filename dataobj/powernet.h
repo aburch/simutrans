@@ -12,6 +12,7 @@
 #define powernet_t_h
 
 #include "../ifc/sync_steppable.h"
+#include "../simtypes.h"
 
 /**
  * Data class for power networks. A two phase queue to store
@@ -39,23 +40,26 @@ class powernet_t : public sync_steppable
 
 
  private:
-  int capacity[8];
-  unsigned current_capacity;
+  long next_t;
+  uint32 capacity[8];
+  uint8 current_capacity;
 
-  int last_capacity;
+  uint32 last_capacity;
+  uint32 max_capacity;
 
-  int power_last;
-  int power_this;
+  uint32 power_last;
+  uint32 power_this;
 
  public:
 
-  int get_capacity() const;
+  uint32 get_capacity() const;
+  uint32 set_max_capacity(uint32 max) { uint32 m=max_capacity;  if(max>0){max_capacity=max;} return m; }
 
   /**
    * Adds some power to the net
    * @author Hj. Malthaner
    */
-  void add_power(int amount);
+  void add_power(uint32 amount);
 
 
   /**
@@ -63,7 +67,7 @@ class powernet_t : public sync_steppable
    * @return granted amount of power
    * @author Hj. Malthaner
    */
-  int withdraw_power(int want);
+  uint32 withdraw_power(uint32 want);
 
 
   /**

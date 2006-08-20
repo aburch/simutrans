@@ -50,14 +50,19 @@ gui_convoiinfo_t::gui_convoiinfo_t(convoihandle_t cnv, int n)
  */
 void gui_convoiinfo_t::infowin_event(const event_t *ev)
 {
-    if(IS_LEFTRELEASE(ev) && cnv.is_bound()) {
-    	if(cnv->in_depot()) {
-    		cnv->gib_welt()->lookup(cnv->get_home_depot())->gib_depot()->zeige_info();
-    }
-    else {
-	cnv->zeige_info();
+	if(cnv.is_bound()) {
+		if(IS_LEFTRELEASE(ev)) {
+			if(cnv->in_depot()) {
+				cnv->gib_welt()->lookup(cnv->get_home_depot())->gib_depot()->zeige_info();
+			}
+			else {
+				cnv->zeige_info();
+			}
+		}
+		else if(IS_RIGHTRELEASE(ev)) {
+			cnv->gib_welt()->setze_ij_off(cnv->gib_vehikel(0)->gib_pos().gib_2d() + koord(-5,-5));
+		}
 	}
-    }
 }
 
 
