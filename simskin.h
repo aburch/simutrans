@@ -75,9 +75,11 @@ public:
 //    static const skin_besch_t *bruecken_werkzeug;
     static const skin_besch_t *hang_werkzeug;
     static const skin_besch_t *special_werkzeug;
+    static const skin_besch_t *listen_werkzeug;
     static const skin_besch_t *farbmenu;
 
     static const skin_besch_t *logosymbol;
+    static const skin_besch_t *neujahrsymbol;
     static const skin_besch_t *neueweltsymbol;
     static const skin_besch_t *flaggensymbol;
     static const skin_besch_t *meldungsymbol;

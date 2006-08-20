@@ -21,18 +21,12 @@ class fabrik_t;
 
 class leitung_t : public ding_t, public sync_steppable
 {
-private:
-
+protected:
   /**
    * We are part of this network
    * @author Hj. Malthaner
    */
   powernet_t * net;
-
-
-  void leitung_t::replace(koord base_pos, powernet_t *alt, powernet_t *neu);
-
-protected:
 
   /**
    * Connect this piece of powerline to its neighbours
@@ -41,6 +35,7 @@ protected:
    */
   void verbinde();
 
+  void leitung_t::replace(koord base_pos, powernet_t *alt, powernet_t *neu);
 
   /**
    * Disconencts this piece of powerline from its neighbours.
@@ -48,76 +43,75 @@ protected:
    */
   void trenne();
 
-  powernet_t * get_net() const {return net;};
-
-
 public:
+	powernet_t * get_net() const {return net;};
+	void set_net(powernet_t *p) {net=p;};
 
-  ribi_t::ribi leitung_t::gib_ribi();
+	ribi_t::ribi leitung_t::gib_ribi();
 
-  static fabrik_t * suche_fab_4(koord pos);
+	static fabrik_t * suche_fab_4(koord pos);
 
-  leitung_t(karte_t *welt, loadsave_t *file);
-  leitung_t(karte_t *welt, koord3d pos, spieler_t *sp);
-  virtual ~leitung_t();
-
-
-  void sync_prepare();
-  bool sync_step(long /*delta_t*/);
+	leitung_t(karte_t *welt, loadsave_t *file);
+	leitung_t(karte_t *welt, koord3d pos, spieler_t *sp);
+	virtual ~leitung_t();
 
 
-  enum ding_t::typ gib_typ() const {return leitung;};
-
-  const char *gib_name() const {return "Leitung";};
-
-
-  /**
-   * @return Einen Beschreibungsstring für das Objekt, der z.B. in einem
-   * Beobachtungsfenster angezeigt wird.
-   * @author Hj. Malthaner
-   */
-  void info(cbuffer_t & buf) const;
+	void sync_prepare();
+	bool sync_step(long /*delta_t*/);
 
 
-  void entferne(const spieler_t *sp);
+	enum ding_t::typ gib_typ() const {return leitung;};
+
+	const char *gib_name() const {return "Leitung";};
 
 
-  virtual void display(int xpos, int ypos, bool dirty) const;
+	/**
+	* @return Einen Beschreibungsstring für das Objekt, der z.B. in einem
+	* Beobachtungsfenster angezeigt wird.
+	* @author Hj. Malthaner
+	*/
+	void info(cbuffer_t & buf) const;
 
+	/**
+	* @returns NULL wenn OK, ansonsten eine Fehlermeldung
+	* @author Hj. Malthaner
+	*/
+	virtual const char * ist_entfernbar(const spieler_t *sp);
 
-  /**
-   * Dient zur Neuberechnung des Bildes
-   * @author Hj. Malthaner
-   */
-  virtual void calc_bild();
+	void entferne(const spieler_t *sp);
 
+	virtual void display(int xpos, int ypos, bool dirty) const;
 
-  /**
-   * Recalculates the images of all neighbouring
-   * powerlines and the powerline itself
-   *
-   * @author Hj. Malthaner
-   */
-  void calc_neighbourhood();
+	/**
+	* Dient zur Neuberechnung des Bildes
+	* @author Hj. Malthaner
+	*/
+	virtual void calc_bild();
 
+	/**
+	* Recalculates the images of all neighbouring
+	* powerlines and the powerline itself
+	*
+	* @author Hj. Malthaner
+	*/
+	void calc_neighbourhood();
 
-  /**
-   * Wird nach dem Laden der Welt aufgerufen - üblicherweise benutzt
-   * um das Aussehen des Dings an Boden und Umgebung anzupassen
-   *
-   * @author Hj. Malthaner
-   */
-  virtual void laden_abschliessen();
+	/**
+	* Wird nach dem Laden der Welt aufgerufen - üblicherweise benutzt
+	* um das Aussehen des Dings an Boden und Umgebung anzupassen
+	*
+	* @author Hj. Malthaner
+	*/
+	virtual void laden_abschliessen();
 
-
-  /**
-   * Speichert den Zustand des Objekts.
-   *
-   * @param file Zeigt auf die Datei, in die das Objekt geschrieben werden
-   * soll.
-   * @author Hj. Malthaner
-   */
-  virtual void rdwr(loadsave_t *file);
+	/**
+	* Speichert den Zustand des Objekts.
+	*
+	* @param file Zeigt auf die Datei, in die das Objekt geschrieben werden
+	* soll.
+	* @author Hj. Malthaner
+	*/
+	virtual void rdwr(loadsave_t *file);
 };
 
 
@@ -150,23 +144,20 @@ public:
     void sync_prepare();
     bool sync_step(long delta_t);
 
-
     /**
      * Dient zur Neuberechnung des Bildes
      * @author Hj. Malthaner
      */
     virtual void calc_bild();
 
-
     const char *name() const {return "Pumpe";};
-    char *info(char *buf) const;
 };
 
 class senke_t : public leitung_t
 {
 private:
-    int fluss_alt;
     int einkommen;
+    int max_einkommen;
 
     fabrik_t *fab;
 
@@ -205,7 +196,7 @@ public:
 
     const char *name() const {return "Senke";};
 
-    char *info(char *buf) const;
+    void info(cbuffer_t & buf) const;
 
 };
 

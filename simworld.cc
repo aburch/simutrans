@@ -41,6 +41,7 @@
 #include "simdepot.h"
 #include "simversion.h"
 #include "simticker.h"
+#include "simmesg.h"
 #include "simcolor.h"
 #include "simlinemgmt.h"
 
@@ -81,6 +82,7 @@
 #include "gui/convoi_frame.h"
 #include "gui/halt_list_frame.h"        //30-Dec-01     Markus Weber    Added
 #include "gui/citylist_frame_t.h"
+#include "gui/message_frame_t.h"
 #include "gui/help_frame.h"
 #include "gui/goods_frame_t.h"
 
@@ -812,7 +814,8 @@ karte_t::init(einstellungen_t *sets)
 
       for(i=0; i<einstellungen->gib_anzahl_staedte(); i++) {
 	//	printf("City #%d at %d, %d\n",i+1, pos[i].x, pos[i].y);
-	stadt->at(i) = new stadt_t(this, spieler[1], pos->at(i));
+	int citizens=(int)(einstellungen->gib_mittlere_einwohnerzahl()*0.9);
+	stadt->at(i) = new stadt_t(this, spieler[1], pos->at(i),citizens/10+simrand(citizens+1));
 
 
 	if(is_display_init()) {
@@ -1882,13 +1885,8 @@ karte_t::neuer_monat()
 	  sprintf(buf,
 		  translator::translate("New vehicle now available:\n%s\n"),
 		  translator::translate(info->gib_name()));
-
-	  create_win(-1, -1,
-		     new nachrichtenfenster_t(this,
-					      buf,
-					      info->gib_basis_bild()
-					      ),
-		     w_autodelete);
+	  message_t::get_instance()->add_message(buf,koord::invalid,message_t::new_vehicle,NEW_VEHICLE,info->gib_basis_bild());
+//	  create_win(-1, -1,new nachrichtenfenster_t(this,buf,info->gib_basis_bild()),w_autodelete);
 	}
       }
     }
@@ -1899,8 +1897,10 @@ void karte_t::neues_jahr()
 {
     letztes_jahr ++;
 
-    dbg->message("karte_t::neues_jahr()",
-		 "Year %d has started", letztes_jahr);
+    dbg->message("karte_t::neues_jahr()","Year %d has started", letztes_jahr);
+    char buf[256];
+    sprintf(buf,translator::translate("Year %i has started."),letztes_jahr+umgebung_t::starting_year);
+    message_t::get_instance()->add_message(buf,koord::invalid,message_t::general,SCHWARZ,skinverwaltung_t::neujahrsymbol->gib_bild_nr(0));
 
     slist_iterator_tpl<convoihandle_t> iter (convoi_list);
 
@@ -2859,6 +2859,10 @@ karte_t::interactive_event(event_t &ev)
 	case 'b':
 	    setze_maus_funktion(wkz_blocktest, skinverwaltung_t::signalzeiger->gib_bild_nr(0), Z_PLAN, 0, 0);
 	    break;
+	case 'B':
+	    sound_play(click_sound);
+	    create_win(0, 0, new message_frame_t(this), w_info);
+	    break;
 	case 'c':
 	    sound_play(click_sound);
 	    display_snapshot();
@@ -2949,9 +2953,7 @@ karte_t::interactive_event(event_t &ev)
 	    break;
 
 	case 'G':
-	  create_win(0, 0,
-		     new goods_frame_t(),
-		     w_autodelete);
+	  create_win(0, 0,new goods_frame_t(), w_autodelete);
 	  break;
 
 	case 'Q':
@@ -3267,7 +3269,7 @@ karte_t::interactive_event(event_t &ev)
 				  skinverwaltung_t::oberleitung->gib_bild_nr(8),
 				  tool_tip_with_price(translator::translate("Electrify track"), CST_OBERLEITUNG));
 
-
+/*
 		    wzw->add_tool(wkz_schienenkreuz,
 				  Z_PLAN,
 				  SFX_JACKHAMMER,
@@ -3275,7 +3277,7 @@ karte_t::interactive_event(event_t &ev)
 				  skinverwaltung_t::schienen_werkzeug->gib_bild_nr(5),
 				  skinverwaltung_t::kreuzungzeiger->gib_bild_nr(0),
 				  translator::translate("Build level crossing"));
-
+*/
 
 		    sound_play(click_sound);
 
@@ -3347,7 +3349,7 @@ karte_t::interactive_event(event_t &ev)
 					  tool_tip_with_price(translator::translate("Strassentunnel"), CST_TUNNEL));
 		    }
 
-
+/*
 		    wzw->add_tool(wkz_schienenkreuz,
 				  Z_PLAN,
 				  SFX_JACKHAMMER,
@@ -3355,7 +3357,7 @@ karte_t::interactive_event(event_t &ev)
 				      skinverwaltung_t::strassen_werkzeug->gib_bild_nr(4),
 				  skinverwaltung_t::kreuzungzeiger->gib_bild_nr(0),
 				  translator::translate("Build level crossing"));
-
+*/
 
 		    sound_play(click_sound);
 
@@ -3399,7 +3401,7 @@ karte_t::interactive_event(event_t &ev)
 		    werkzeug_parameter_waehler_t *wzw =
                         new werkzeug_parameter_waehler_t(this, "SPECIALTOOLS");
 
-		    wzw->setze_hilfe_datei("special_tool.txt");
+		    wzw->setze_hilfe_datei("special.txt");
 
 		      wzw->add_tool(wkz_add_city,
 					  Z_PLAN,
@@ -3474,13 +3476,33 @@ karte_t::interactive_event(event_t &ev)
 	      sound_play(click_sound);
 	      create_win(0, 0, -1, schedule_list_gui, w_info, magic_none);
 	      break;
-         case 15: // Station-List-Button    // 29-Dec-01    Markus Weber Added
-		sound_play(click_sound);
-		create_win(-1, -1, -1, new halt_list_frame_t(gib_spieler(0)), w_autodelete, magic_halt_list_t);
-                break;
+	    case 15:
+          {
+		    werkzeug_waehler_t *wzw =
+                        new werkzeug_waehler_t(this, skinverwaltung_t::listen_werkzeug, "LISTTOOLS");
+
+		    wzw->setze_hilfe_datei("list.txt");
+
+			wzw->setze_werkzeug(0, wkz_list_halt_tool, IMG_LEER, Z_PLAN, SFX_SELECT, SFX_SELECT);
+			wzw->set_tooltip(0, translator::translate("hl_title"));
+
+			wzw->setze_werkzeug(1, wkz_list_vehicle_tool, IMG_LEER, Z_PLAN, SFX_SELECT, SFX_SELECT);
+			wzw->set_tooltip(1, translator::translate("cl_title"));
+
+			wzw->setze_werkzeug(2, wkz_list_town_tool, IMG_LEER, Z_PLAN, SFX_SELECT, SFX_SELECT);
+			wzw->set_tooltip(2, translator::translate("tl_title"));
+
+			wzw->setze_werkzeug(3, wkz_list_good_tool, IMG_LEER, Z_PLAN, SFX_SELECT, SFX_SELECT);
+			wzw->set_tooltip(3, translator::translate("gl_title"));
+
+		    sound_play(click_sound);
+
+		    wzw->zeige_info(magic_listtools);
+         }
+		break;
 	    case 16:
 		sound_play(click_sound);
-		create_win(-1, -1, -1, new convoi_frame_t(gib_spieler(0), this), w_autodelete, magic_convoi_t);
+	    create_win(0, 0, new message_frame_t(this), w_info);
 		break;
 	    case 17:
 		sound_play(click_sound);
@@ -3616,6 +3638,7 @@ karte_t::interactive()
     steps_bis_jetzt = steps;
 
     ticker_t::get_instance()->add_msg("Welcome to Simutrans, a game created by Hj. Malthaner.", koord(-1, -1), BLAU);
+    message_t *msg = new message_t(this);
 
     do {
 	// check if we need to play a new midi file

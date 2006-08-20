@@ -115,7 +115,7 @@ dbg->message("fabrik_t::gib_groesse()","(%i,%i) rot %i",size.x,size.y,rotate);
 		case 3:
 			return koord(size.y,size.x);
 	}
-	return koord(-1,-1);
+	return koord::invalid;
 }
 
 
@@ -440,6 +440,9 @@ fabrik_t::rdwr(loadsave_t *file)
     file->rdwr_int(prodfaktor, "\n");
     file->rdwr_delim("Prb: ");
     file->rdwr_int(prodbase, "\n");
+    if(prodbase<16) {
+      prodbase = 16;
+    }
     if(file->is_loading()) {
 	// Hajo: restore factory owner
 	// Due to a omission in Volkers changes, there might be savegames
@@ -516,13 +519,34 @@ void fabrik_t::set_ausgang(vector_tpl<ware_t> * typen)
   }
 }
 
+/*
+int
+fabrik_t::get_free_production_of(ware_besch_t *ware)
+{
+	if(ware==NULL) {
+		return -1;	// nothing there
+	}
+	const vector_tpl<ware_t> *ausgang = gib_ausgang();
+	const int waren_anzahl = ausgang->get_count();
+	// for all products
+	for(int ware_nr=0;  ware_nr<waren_anzahl ;  ware_nr++  ) {
+		if(  ware==ausgang->get(ware_nr)  ) {
+		{
+			int produktion = (max_produktion()*besch->gib_verbrauch()*100)/128;
+dbg->message("fabrik_t::get_free_production_of()","supplier %s can supply approx %i of %s",besch->gib_name(),produktion,ware->gib_name());
+		}
+	}
+}
+*/
+
 
 /*
  * calculates the produktion per delta_t
  *
  */
 
-#define BASEPRODSHIFT 8
+#define BASEPRODSHIFT (8)
+#define MAX_PRODBASE_SHIFT (4)
 
 
 /**
@@ -532,7 +556,7 @@ void fabrik_t::set_ausgang(vector_tpl<ware_t> * typen)
  */
 uint32 fabrik_t::produktion(const long delta_t, const uint32 produkt) const
 {
-  uint32 menge = ((prodbase * prodfaktor) << precision_bits) >> BASEPRODSHIFT;
+  uint32 menge = ((prodbase * prodfaktor) << precision_bits) >> (BASEPRODSHIFT+MAX_PRODBASE_SHIFT);
 
   if(ausgang->get_count() > produkt) {
     // wenn das lager voller wird, produziert eine Fabrik weniger pro step
@@ -560,7 +584,7 @@ int fabrik_t::max_produktion() const
 {
   // P = prod_base * anz_gebaeude * prodfaktor;
   // theoretische Menge pro tick
-  const int menge = ((prodbase * prodfaktor) << precision_bits) >> BASEPRODSHIFT;
+  const int menge = ((prodbase * prodfaktor) << precision_bits) >> (BASEPRODSHIFT+MAX_PRODBASE_SHIFT);
   const koord k = besch->gib_haus()->gib_groesse();
   const int n = k.x * k.y;
 
@@ -807,7 +831,7 @@ void fabrik_t::verteile_waren(const uint32 produkt)
 		}
 	      } else {
 		// Station too full, notify player
-		// halt->gib_besitzer()->bescheid_station_voll(halt);
+		  halt->gib_besitzer()->bescheid_station_voll(halt);
 		break;
 	      }
 	    }

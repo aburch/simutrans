@@ -46,7 +46,8 @@
 #include "simvehikel.h"
 #include "simconvoi.h"
 #include "simtools.h"
-#include "simticker.h"
+//#include "simticker.h" now done by simmesg.h
+#include "simmesg.h"
 
 #include "simintr.h"
 
@@ -149,6 +150,20 @@ spieler_t::~spieler_t()
 {
   delete halt_list;
   halt_list = 0;
+}
+
+
+
+/* returns the name of the player; "player -1" sits in front of the screen
+ * @author prissi
+ */
+const char *
+spieler_t::gib_name(void)
+{
+	char buf[256];
+	sprintf(buf,"player %i",kennfarbe/4-1);
+	strcpy(buf,translator::translate(buf));
+	return buf;
 }
 
 
@@ -293,30 +308,16 @@ spieler_t::neuer_monat()
 	    if(this == welt->gib_spieler(0)) {
 
 		if(konto_ueberzogen == 1) {
-		    sprintf(buf,
-                            translator::translate("Verschuldet:\n\nDu hast %d Monate Zeit,\ndie Schulden zurueckzuzahlen.\n"),
-		            MAX_KONTO_VERZUG-konto_ueberzogen+1);
-
-		    create_win(-1, -1,
-                               new nachrichtenfenster_t(welt,
-                                                        buf),
-                               w_autodelete);
-
+			// tell the player
+			char buf[256];
+		    sprintf(buf,translator::translate("Verschuldet:\n\nDu hast %d Monate Zeit,\ndie Schulden zurueckzuzahlen.\n"),
+		    	MAX_KONTO_VERZUG-konto_ueberzogen+1);
+		    message_t::get_instance()->add_message(buf,koord::invalid,message_t::problems,kennfarbe,IMG_LEER);
 		} else if(konto_ueberzogen <= MAX_KONTO_VERZUG) {
-		    sprintf(buf,
-                            translator::translate("Verschuldet:\n\nDu hast %d Monate Zeit,\ndie Schulden zurueckzuzahlen.\n"),
+		    sprintf(buf,translator::translate("Verschuldet:\n\nDu hast %d Monate Zeit,\ndie Schulden zurueckzuzahlen.\n"),
 		            MAX_KONTO_VERZUG-konto_ueberzogen+1);
-
-//			create_win(-1, -1, new nachrichtenfenster_t(welt, "Verschuldet:\n\nDenk daran, rechtzeitig\ndie Schulden zurueckzuzahlen.\n"), w_autodelete);
-
-
-		    create_win(-1, -1,
-                               new nachrichtenfenster_t(welt,
-                                                        buf),
-                               w_autodelete);
-
-
-                } else {
+		    message_t::get_instance()->add_message(buf,koord::invalid,message_t::problems,kennfarbe,IMG_LEER);
+           } else {
 		    destroy_all_win();
 		    create_win(280, 40, new nachrichtenfenster_t(welt, "Bankrott:\n\nDu bist bankrott.\n"), w_autodelete);
 		    //welt->beenden();          // 02-Nov-2001  Markus Weber    beenden has a new parameter
@@ -538,20 +539,6 @@ spieler_t::ist_halt(const koord k) const
 }
 
 // ki-helfer
-
-static const koord platz_offsets[9] =
-{
-    koord(0,0),
-    koord(-1,0),
-    koord(1,0),
-    koord(0,-1),
-    koord(0,1),
-    koord(1,1),
-    koord(1,-1),
-    koord(-1,1),
-    koord(-1,-1),
-};
-
 
 bool
 spieler_t::suche_platz(int xpos, int ypos, koord *start)
@@ -905,7 +892,7 @@ dbg->message("spieler_t::do_ki()","Netto credits per day and km for road transpo
 			count_rail = baue_bahnhof(start->pos,&platz1, count_rail)-1;
 			count_rail = baue_bahnhof(ziel->pos,&platz2, count_rail)-1;
 			create_rail_transport_vehikel(platz1,platz2, count_rail);
-			substate = NR_INIT;
+			substate = NR_RAIL_SUCCESS;
 		}
 		else {
 			substate = NR_BAUE_SCHIENEN_ROUTE1;
@@ -917,7 +904,7 @@ dbg->message("spieler_t::do_ki()","Netto credits per day and km for road transpo
 			count_rail = baue_bahnhof(start->pos,&platz1, count_rail)-1;
 			count_rail = baue_bahnhof(ziel->pos,&platz2, count_rail)-1;
 			create_rail_transport_vehikel(platz1,platz2, count_rail);
-			substate = NR_INIT;
+			substate = NR_RAIL_SUCCESS;
 		}
 		else {
 			substate = NR_BAUE_SCHIENEN_ROUTE2;
@@ -935,7 +922,7 @@ dbg->message("spieler_t::do_ki()","Netto credits per day and km for road transpo
 				count_rail = baue_bahnhof(start->pos,&platz2, count_rail)-1;
 				count_rail = baue_bahnhof(ziel->pos,&platz1, count_rail)-1;
 				create_rail_transport_vehikel(platz2,platz1,count_rail);
-				substate = NR_INIT;
+				substate = NR_RAIL_SUCCESS;
 			}
 			else {
 				substate = NR_BAUE_CLEAN_UP;
@@ -950,6 +937,10 @@ dbg->message("spieler_t::do_ki()","Netto credits per day and km for road transpo
 	case NR_BAUE_STRASSEN_ROUTE:
 		if(create_simple_road_transport()) {
 			create_road_transport_vehikel(start, count_road  );
+			// tell the player
+			char buf[256];
+			sprintf(buf, translator::translate("%s\nnow operates\n%i trucks between\n%s at (%i,%i)\nand %s at (%i,%i)."), gib_name(), count_road, translator::translate(start->gib_name()), start->pos.x, start->pos.y, translator::translate(ziel->gib_name()), ziel->pos.x, ziel->pos.y );
+			message_t::get_instance()->add_message(buf,start->pos.gib_2d(),message_t::ai,kennfarbe,road_vehicle->gib_basis_bild());
 			substate = NR_INIT;
 		}
 		else {
@@ -959,7 +950,11 @@ dbg->message("spieler_t::do_ki()","Netto credits per day and km for road transpo
 
 	case NR_BAUE_STRASSEN_ROUTE2:
 		if(create_complex_road_transport()) {
-		    create_road_transport_vehikel(start, count_road  );
+			create_road_transport_vehikel(start, count_road  );
+			// tell the player
+			char buf[256];
+			sprintf(buf, translator::translate("%s\nnow operates\n%i trucks between\n%s at (%i,%i)\nand %s at (%i,%i)."), gib_name(), count_road, translator::translate(start->gib_name()), start->pos.x, start->pos.y, translator::translate(ziel->gib_name()), ziel->pos.x, ziel->pos.y );
+			message_t::get_instance()->add_message(buf,start->pos.gib_2d(),message_t::ai,kennfarbe,road_vehicle->gib_basis_bild());
 			substate = NR_INIT;
 			break;
 		}
@@ -977,6 +972,13 @@ dbg->message("spieler_t::do_ki()","Netto credits per day and km for road transpo
 		  	}
 		 break;
 
+	case NR_RAIL_SUCCESS:
+			// tell the player
+			char buf[256];
+			sprintf(buf, translator::translate("%s\nopened a new railway\nbetween %s\nat (%i,%i) and\n%s at (%i,%i)."), gib_name(), translator::translate(start->gib_name()), start->pos.x, start->pos.y, translator::translate(ziel->gib_name()), ziel->pos.x, ziel->pos.y );
+			message_t::get_instance()->add_message(buf,start->pos.gib_2d(),message_t::ai,kennfarbe,rail_engine->gib_basis_bild());
+			substate = NR_INIT;
+		break;
 
 	default:
 	  dbg->error("spieler_t::do_ki()",
@@ -2073,7 +2075,7 @@ spieler_t::rdwr(loadsave_t *file)
     if(state < NEUE_ROUTE || state > NEUE_ROUTE) {
       dbg->fatal("spieler_t::rdwr()", "State is out of bounds: %d -> corrupt savegame?", state);
     }
-    if(substate < NR_INIT || substate > NR_BAUE_STRASSEN_ROUTE2) {
+    if(substate < NR_INIT || substate > NR_RAIL_SUCCESS) {
       dbg->fatal("spieler_t::rdwr()", "Substate is out of bounds: %d -> corrupt savegame?", substate);
     }
     if(start_index < -1) {
@@ -2166,16 +2168,16 @@ spieler_t::get_finance_info_old(int type)
  */
 void spieler_t::bescheid_station_voll(halthandle_t halt)
 {
-    if(!automat) {
-	char buf[128];
+	if(!automat) {
+		char buf[128];
 
-	sprintf(buf, translator::translate("!0_STATION_CROWDED"), halt->gib_name());
-
-        ticker_t::get_instance()->add_msg(buf,
-					  halt->gib_basis_pos(),
-					  DUNKELROT);
-    }
+		sprintf(buf, translator::translate("!0_STATION_CROWDED"), halt->gib_name());
+//        ticker_t::get_instance()->add_msg(buf, halt->gib_basis_pos(), DUNKELROT);
+		message_t::get_instance()->add_message(buf, halt->gib_basis_pos(),message_t::full, DUNKELROT,IMG_LEER);
+	}
 }
+
+
 
 /**
  * Rückruf, um uns zu informieren, dass ein Vehikel ein Problem hat
@@ -2185,19 +2187,17 @@ void spieler_t::bescheid_station_voll(halthandle_t halt)
 void spieler_t::bescheid_vehikel_problem(convoihandle_t cnv,const koord3d ziel)
 {
 dbg->message("spieler_t::bescheid_vehikel_problem","Vehicle %s can't find a route to (%i,%i)!", cnv->gib_name(),ziel.x,ziel.y);
-    if(!automat) {
- 	char buf[256];
-
-	sprintf(buf,"Vehicle %s can't find a route!", cnv->gib_name());
-
-        ticker_t::get_instance()->add_msg(buf,
-					  cnv->gib_pos().gib_2d(),
-					  ROT);
-    } else {
-      welt->rem_convoi(cnv);
-      cnv->destroy();
-      cnv = 0;
-    }
+	if(!automat) {
+		char buf[256];
+		sprintf(buf,"Vehicle %s can't find a route!", cnv->gib_name());
+//		ticker_t::get_instance()->add_msg(buf, cnv->gib_pos().gib_2d(),ROT);
+		message_t::get_instance()->add_message(buf, cnv->gib_pos().gib_2d(),message_t::convoi,ROT,cnv->gib_vehikel(0)->gib_basis_bild());
+	}
+	else {
+		welt->rem_convoi(cnv);
+		cnv->destroy();
+		cnv = 0;
+	}
 }
 
 /**

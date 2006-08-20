@@ -10,6 +10,7 @@
 #include <stdio.h>
 
 #include "leitung2.h"
+#include "../simdebug.h"
 #include "../simworld.h"
 #include "../simdings.h"
 #include "../simplay.h"
@@ -32,7 +33,7 @@
 
 #define PROD 1000
 
-
+/*
 static const char * measures[] =
 {
     "fail",
@@ -40,7 +41,7 @@ static const char * measures[] =
     "good",
     "strong",
 };
-
+*/
 
 static bool
 ist_leitung(karte_t *welt, koord pos)
@@ -51,7 +52,7 @@ ist_leitung(karte_t *welt, koord pos)
   if(plan) {
     grund_t * gr = plan->gib_kartenboden();
 
-    result = (gr && gr->suche_obj(ding_t::leitung) != 0);
+    result = gr && (gr->suche_obj(ding_t::leitung)!=NULL  ||  gr->suche_obj(ding_t::pumpe)!=NULL  ||  gr->suche_obj(ding_t::senke)!=NULL);
   }
 
   return result;
@@ -92,10 +93,8 @@ bool leitung_t::sync_step(long /*delta_t*/)
 
 leitung_t::leitung_t(karte_t *welt, loadsave_t *file) : ding_t(welt)
 {
-  net = 0;
-
+  set_net(NULL);
   rdwr(file);
-  verbinde();
 }
 
 
@@ -103,7 +102,7 @@ leitung_t::leitung_t(karte_t *welt,
 		     koord3d pos,
 		     spieler_t *sp) : ding_t(welt, pos)
 {
-  net = 0;
+  set_net(NULL);
   setze_besitzer( sp );
   verbinde();
 }
@@ -116,7 +115,8 @@ leitung_t::~leitung_t()
 
 
 
-static int gimme_neighbours(karte_t *welt, koord base_pos, leitung_t **conn)
+static int
+gimme_neighbours(karte_t *welt, koord base_pos, leitung_t **conn)
 {
 	int count = 0;
 
@@ -125,27 +125,26 @@ static int gimme_neighbours(karte_t *welt, koord base_pos, leitung_t **conn)
 		const planquadrat_t * plan = welt->lookup(pos);
 		grund_t * gr = plan ? plan->gib_kartenboden() : 0;
 
+		conn[i] = NULL;
 		if(gr) {
-			leitung_t * line = NULL;
-			if(line == 0) {
-				line = dynamic_cast<leitung_t *> (gr->suche_obj(ding_t::pumpe));
-if(line!=NULL)
-printf("gimme_neighbours() pumpe %p on pos (%i,%i)\n",line,pos.x,pos.y);
+			leitung_t *p = dynamic_cast<leitung_t *> (gr->suche_obj(ding_t::pumpe));
+			if(p) {
+				conn[i] = p;
+				count ++;
+				continue;
 			}
-
-			if(line == 0) {
-				line = dynamic_cast<leitung_t *> (gr->suche_obj(ding_t::senke));
-if(line!=NULL)
-printf("gimme_neighbours() senke %p on pos (%i,%i)\n",line,pos.x,pos.y);
+			// now handle drain
+			leitung_t *s = dynamic_cast<leitung_t *> (gr->suche_obj(ding_t::senke));
+			if(s) {
+				conn[i] = s;
+				count ++;
+				continue;
 			}
-			if(line == 0) {
-				line = dynamic_cast<leitung_t *> (gr->suche_obj(ding_t::leitung));
-if(line!=NULL)
-printf("gimme_neighbours() leitung %p on pos (%i,%i)\n",line,pos.x,pos.y);
-			}
-
-			if(line) {
-				conn[count ++] = line;
+			// and now handle line
+			leitung_t *l = dynamic_cast<leitung_t *> (gr->suche_obj(ding_t::leitung));
+			if(l) {
+				conn[i] = l;
+				count ++;
 			}
 		}
 	}
@@ -153,19 +152,105 @@ printf("gimme_neighbours() leitung %p on pos (%i,%i)\n",line,pos.x,pos.y);
 }
 
 
-void leitung_t::replace(koord base_pos, powernet_t *alt, powernet_t *neu)
+
+/* returns the net identifier at this position
+ * @author prissi
+ */
+static bool get_net_at(const planquadrat_t * plan,powernet_t **l_net)
 {
-	leitung_t * conn[4];
-	const int count = gimme_neighbours(welt, base_pos, conn);
+	grund_t * gr = plan ? plan->gib_kartenboden() : 0;
+	if(gr) {
+		// only this way pumps are handled properly
+		const pumpe_t *p = dynamic_cast<pumpe_t *> (gr->suche_obj(ding_t::pumpe));
+		if(p) {
+			*l_net = p->get_net();
+			return true;
+		}
+		// now handle drain
+		const senke_t *s = dynamic_cast<senke_t *> (gr->suche_obj(ding_t::senke));
+		if(s) {
+			*l_net = s->get_net();
+			return true;
+		}
+		// and now handle line
+		const leitung_t *l = dynamic_cast<leitung_t *> (gr->suche_obj(ding_t::leitung));
+		if(l) {
+			*l_net = l->get_net();
+//dbg->message("get_net_at()","Found net %p",l->get_net());
+			return true;
+		}
+	}
+	*l_net = NULL;
+	return false;
+}
 
-	for(int i=0; i<count; i++) {
-		if(conn[i]->net == alt && alt != neu) {
-			conn[i]->net = neu;
 
-			replace(conn[i]->gib_pos().gib_2d(), alt, neu);
+
+/* sets the net at a position
+ * @author prissi
+ */
+static void set_net_at(const planquadrat_t * plan,powernet_t *new_net)
+{
+	grund_t * gr = plan ? plan->gib_kartenboden() : 0;
+	if(gr) {
+		// only this way pumps are handled properly
+		pumpe_t *p = dynamic_cast<pumpe_t *> (gr->suche_obj(ding_t::pumpe));
+		if(p) {
+			p->set_net(new_net);
+			return;
+		}
+		// now handle drain
+		senke_t *s = dynamic_cast<senke_t *> (gr->suche_obj(ding_t::senke));
+		if(s) {
+			s->set_net(new_net);
+//dbg->message("set_net_at()","Using new net %p",s->get_net());
+			return;
+		}
+		// and now handle line
+		leitung_t *l = dynamic_cast<leitung_t *> (gr->suche_obj(ding_t::leitung));
+		if(l) {
+			l->set_net(new_net);
+//dbg->message("set_net_at()","Using new net %p",l->get_net());
+			return;
 		}
 	}
 }
+
+
+
+/* replace networks connection
+ * non-trivial to handle transformers correctly
+ * @author prissi
+ */
+void leitung_t::replace(koord base_pos, powernet_t *old_net, powernet_t *new_net)
+{
+	powernet_t *current;
+	if(get_net_at(welt->lookup(base_pos),&current)  &&  current!=new_net) {
+		// convert myself ...
+dbg->message("leitung_t::replace()","My net %p by %p at (%i,%i)",new_net,current,base_pos.x,base_pos.y);
+		set_net_at(welt->lookup(base_pos),new_net);
+		//get_net_at(welt->lookup(base_pos),&current);
+	}
+
+	for(int i=0; i<4; i++) {
+		koord	pos=base_pos+koord::nsow[i];
+		const planquadrat_t * plan = welt->lookup(pos);
+
+		if(get_net_at(plan,&current)  &&  current!=new_net) {
+			if(current!=old_net) {
+				replace(pos,current,new_net);
+				if(current!=NULL) {
+// memory leak
+//					delete current;
+				}
+			}
+			else {
+				replace(pos,old_net,new_net);
+			}
+		}
+	}
+}
+
 
 
 /**
@@ -175,26 +260,30 @@ void leitung_t::replace(koord base_pos, powernet_t *alt, powernet_t *neu)
  */
 void leitung_t::verbinde()
 {
-	leitung_t * conn[4];
-	const int count = gimme_neighbours(welt, gib_pos().gib_2d(), conn);
+	leitung_t* conn[4];
+	const koord pos=gib_pos().gib_2d();
+	powernet_t *new_net;
 
-	if(count == 0) {
-		net = new powernet_t();
-		welt->sync_add(net);
+	// first get my own ...
+	get_net_at(welt->lookup(pos),&new_net);
+
+dbg->message("leitung_t::verbinde()","Searching net at (%i,%i)",pos.x,pos.y);
+	for( int i=0;  i<4  &&  new_net==NULL;  i++ ) {
+		const planquadrat_t * plan = welt->lookup(pos+koord::nsow[i]);
+		get_net_at(plan,&new_net);
 	}
-	else {
-		if(count == 1) {
-			net = conn[0]->net;
-		}
-		else {
-			net = new powernet_t();
-			welt->sync_add(net);
+dbg->message("leitung_t::verbinde()","Found net %p",new_net);
 
-			for(int i=0; i<count; i++) {
-				// memory leak!
-				replace(conn[i]->gib_pos().gib_2d(), conn[i]->net, net);
-			}
-		}
+	// we are alone?
+	if(new_net==NULL) {
+		// then we start a new net
+		new_net = new powernet_t();
+		welt->sync_add(new_net);
+dbg->message("leitung_t::verbinde()","Creating new net %p",new_net);
+	}
+	if(new_net!=get_net()) {
+		replace(pos, NULL, new_net);
+		set_net(new_net);
 	}
 }
 
@@ -208,38 +297,54 @@ void leitung_t::trenne()
 }
 
 
+
+const char *
+leitung_t::ist_entfernbar(const spieler_t *sp)
+{
+	if(sp==gib_besitzer()) {
+		return NULL;
+	}
+	else {
+		return "Der Besitzer erlaubt das Entfernen nicht";
+	}
+}
+
+
+
 void leitung_t::entferne(const spieler_t *)
 {
-  grund_t *gr = welt->lookup(gib_pos());
+dbg->message("leitung_t::entferne()","remove pylon");
+	grund_t *gr = welt->lookup(gib_pos());
+	if(gr) {
+		powernet_t *my_net = get_net();
+		gr->obj_remove(this, gib_besitzer());
 
-  if(gr) {
+		leitung_t * conn[4];
+		const int count = gimme_neighbours(welt, gib_pos().gib_2d(), conn);
 
-    gr->obj_remove(this, gib_besitzer());
-
-    leitung_t * conn[4];
-    const int count = gimme_neighbours(welt, gib_pos().gib_2d(), conn);
-
-    for(int i=0; i<count; i++) {
-      // possible memory leak!
-      powernet_t *net = new powernet_t();
-      welt->sync_add(net);
-
-      replace(conn[i]->gib_pos().gib_2d(), conn[i]->net, net);
-
-      conn[i]->calc_neighbourhood();
-    }
-  }
-
-  this->net = 0;
-
-  setze_pos(koord3d::invalid);
+		for(int i=0; i<4; i++) {
+			if(conn[i]!=NULL) {
+				koord pos = gr->gib_pos().gib_2d()+koord::nsow[i];
+				// possible memory leak!
+				powernet_t *new_net = new powernet_t();
+				welt->sync_add(new_net);
+				replace(pos, my_net, new_net);
+				conn[i]->calc_neighbourhood();
+			}
+		}
+		// clean up stuff
+//		delete this->net;
+	}
+	this->set_net(NULL);
+	setze_pos(koord3d::invalid);
 }
+
 
 
 void leitung_t::display(int xpos, int ypos, bool dirty) const
 {
-  ding_t::display(xpos, ypos, dirty);
-  // display_fillbox_wh(xpos+20, ypos, 24, 6, ((int) net) & 0x7FFF, dirty);
+	ding_t::display(xpos, ypos, dirty);
+	// display_fillbox_wh(xpos+20, ypos, 24, 6, ((int) net) & 0x7FFF, dirty);
 }
 
 
@@ -256,29 +361,19 @@ ribi_t::ribi leitung_t::gib_ribi()
 
 
 
+/* extended by prissi */
 void leitung_t::calc_bild()
 {
 	const koord pos = gib_pos().gib_2d();
 	const ribi_t::ribi ribi=gib_ribi();
-/*
-	ribi_t::ribi ribi =
-			(ist_leitung(welt, pos + koord(0,-1)) ? ribi_t::nord : ribi_t::keine) |
-			(ist_leitung(welt, pos + koord(0, 1)) ? ribi_t::sued : ribi_t::keine) |
-			(ist_leitung(welt, pos + koord( 1,0)) ? ribi_t::ost  : ribi_t::keine) |
-			(ist_leitung(welt, pos + koord(-1,0)) ? ribi_t::west : ribi_t::keine);
-// dbg->message("leitung_t::calc_bild()", "ribi=%d", ribi);
-setze_bild(0, wegbauer_t::leitung_besch->gib_bild_nr(ribi));
-*/
-
 	// V.Meyer: weg_position_t changed to grund_t::get_neighbour()
 	grund_t *gr = welt->lookup(pos)->gib_kartenboden();
 	hang_t::typ hang = gr->gib_grund_hang();
 	if(hang != hang_t::flach) {
 		setze_bild(0, wegbauer_t::leitung_besch->gib_hang_bild_nr(hang));
-//	 printf("Hangbild %i=>%i\n",hang,wegbauer_t::leitung_besch->gib_hang_bild_nr(hang));
 	}
 	else {
-		if(gr->gib_weg(weg_t::strasse)!=NULL   ||  gr->gib_weg(weg_t::schiene)!=NULL) {
+		if(gr->gib_weg(weg_t::strasse)!=NULL   ||  gr->gib_weg(weg_t::schiene)!=NULL  ||  !gr->ist_natur()) {
 			// crossing with road or rail
 			if(ribi_t::ist_gerade_ns(ribi)) {
 				setze_bild(0, wegbauer_t::leitung_besch->gib_diagonal_bild_nr(ribi_t::nord|ribi_t::ost));
@@ -302,8 +397,8 @@ setze_bild(0, wegbauer_t::leitung_besch->gib_bild_nr(ribi));
 			}
 		}
 	}
-// printf("Hangbild %i=>%i\n",hang,wegbauer_t::leitung_besch->gib_hang_bild_nr(hang));
 }
+
 
 
 /**
@@ -314,19 +409,19 @@ setze_bild(0, wegbauer_t::leitung_besch->gib_bild_nr(ribi));
  */
 void leitung_t::calc_neighbourhood()
 {
-  for(int i=0; i<4; i++) {
-    const koord pos = gib_pos().gib_2d() + koord::nsow[i];
-    const planquadrat_t * plan = welt->lookup(pos);
-    grund_t * gr = plan ? plan->gib_kartenboden() : 0;
+	for(int i=0; i<4; i++) {
+		const koord pos = gib_pos().gib_2d() + koord::nsow[i];
+		const planquadrat_t * plan = welt->lookup(pos);
+		grund_t * gr = plan ? plan->gib_kartenboden() : 0;
 
-    if(gr) {
-      leitung_t * line = dynamic_cast<leitung_t *> (gr->suche_obj(ding_t::leitung));
-      if(line) {
-	line->calc_bild();
-      }
-    }
-  }
-  calc_bild();
+		if(gr) {
+			leitung_t * line = dynamic_cast<leitung_t *> (gr->suche_obj(ding_t::leitung));
+			if(line) {
+				line->calc_bild();
+			}
+		}
+	}
+	calc_bild();
 }
 
 
@@ -337,11 +432,11 @@ void leitung_t::calc_neighbourhood()
  */
 void leitung_t::info(cbuffer_t & buf) const
 {
-  buf.append(translator::translate("Power"));
-  buf.append(": ");
-  buf.append(net->get_capacity());
-  buf.append("\nNet: ");
-  buf.append((int)net);
+	buf.append(translator::translate("Power"));
+	buf.append(": ");
+	buf.append(get_net()->get_capacity());
+	buf.append("\nNet: ");
+	buf.append((int)get_net());
 }
 
 
@@ -354,6 +449,7 @@ void leitung_t::info(cbuffer_t & buf) const
 void leitung_t::laden_abschliessen()
 {
   calc_neighbourhood();
+  verbinde();
 }
 
 
@@ -371,24 +467,28 @@ void leitung_t::rdwr(loadsave_t *file)
 
   ding_t::rdwr(file);
   if(file->get_version() <= 82001) {
-    net = new powernet_t();
+    set_net(NULL);
   } else {
     if(file->is_saving()) {
-      value = (unsigned long) net;
+      value = (unsigned long) get_net();
       file->rdwr_long(value, "\n");
     } else {
       file->rdwr_long(value, "\n");
-      net = powernet_t::load_net((powernet_t *) value);
+//      net = powernet_t::load_net((powernet_t *) value);
+	set_net(NULL);
     }
   }
 }
+
+
+
+/* from here on pump (source) stuff */
 
 
 pumpe_t::pumpe_t(karte_t *welt, loadsave_t *file) : leitung_t(welt , file)
 {
   fab = 0;
   calc_bild();
-  verbinde();
   welt->sync_add(this);
 }
 
@@ -396,7 +496,6 @@ pumpe_t::pumpe_t(karte_t *welt, loadsave_t *file) : leitung_t(welt , file)
 pumpe_t::pumpe_t(karte_t *welt, koord3d pos, spieler_t *sp) : leitung_t(welt , pos, sp)
 {
   fab = 0;
-  verbinde();
   calc_bild();
   welt->sync_add(this);
 }
@@ -423,6 +522,8 @@ pumpe_t::sync_prepare()
 {
   if(fab == NULL) {
     fab = leitung_t::suche_fab_4(gib_pos().gib_2d());
+//    verbinde();
+//    calc_neighbourhood();
   }
 }
 
@@ -430,11 +531,13 @@ pumpe_t::sync_prepare()
 bool
 pumpe_t::sync_step(long delta_t)
 {
-  // dbg->message("pumpe_t::sync_step()", "fab=%p", fab);
   if(fab == 0 || fab->gib_eingang()->get_count() == 0 || fab->gib_eingang()->get(0).menge <= 0)
   {
+    setze_bild(0, skinverwaltung_t::pumpe->gib_bild_nr(0));
     // nothing to do ?
   } else {
+//dbg->message("pumpe_t::sync_step()", "fab=%p, net=%i", fab,get_net());
+    setze_bild(0, skinverwaltung_t::pumpe->gib_bild_nr(1));
     get_net()->add_power(delta_t * PROD);
   }
 
@@ -442,48 +545,25 @@ pumpe_t::sync_step(long delta_t)
 }
 
 
-char *
-pumpe_t::info(char *buf) const
-{
-    if(fab == 0 ||
-       fab->gib_eingang()->get_count() == 0 ||
-       fab->gib_eingang()->get(0).menge <= 0)
-    {
-	buf += sprintf(buf, "%s: %s\nnet=%p",
-                       translator::translate("Power"),
-                       translator::translate(measures[0]),
-		       get_net());
-    } else {
-	buf += sprintf(buf, "%s: %s\nnet=%p",
-                       translator::translate("Power"),
-                       translator::translate(measures[3]),
-		       get_net());
-    }
-
-    return buf;
-}
+/* From here on drain stuff */
 
 
 senke_t::senke_t(karte_t *welt, loadsave_t *file) : leitung_t(welt , file)
 {
-  fluss_alt = 0;
   fab = NULL;
-  einkommen = 0;
-
+  einkommen = 1;
+  max_einkommen = 1;
   calc_bild();
-  verbinde();
   welt->sync_add(this);
 }
 
 
 senke_t::senke_t(karte_t *welt, koord3d pos, spieler_t *sp) : leitung_t(welt , pos, sp)
 {
-  fluss_alt = 0;
   fab = NULL;
-  einkommen = 0;
-
+  einkommen = 1;
+  max_einkommen = 1;
   calc_bild();
-  verbinde();
   welt->sync_add(this);
 }
 
@@ -510,9 +590,10 @@ senke_t::~senke_t()
  */
 bool senke_t::step(long /*delta_t*/)
 {
-    gib_besitzer()->buche(einkommen >> 10, gib_pos().gib_2d(), COST_INCOME);
-
+    gib_besitzer()->buche(einkommen >> 11, gib_pos().gib_2d(), COST_INCOME);
+    fab->set_prodfaktor( 16+(16*einkommen+16)/max_einkommen );
     einkommen = 0;
+    max_einkommen = 1;
     return true;
 }
 
@@ -521,6 +602,8 @@ void
 senke_t::sync_prepare()
 {
 	if(fab==NULL) {
+//		verbinde();
+//		calc_neighbourhood();
 		fab = leitung_t::suche_fab_4(gib_pos().gib_2d());
 	}
 }
@@ -530,19 +613,31 @@ bool
 senke_t::sync_step(long time)
 {
   //dbg->message("senke_t::sync_step()", "called");
-
-  einkommen += get_net()->withdraw_power(time*PROD);
-
+  int want_power = time*(PROD/3);
+  int get_power = get_net()->withdraw_power(want_power);
+  if(want_power==get_power) {
+	  setze_bild(0, skinverwaltung_t::senke->gib_bild_nr(1));
+  }
+  else {
+	  setze_bild(0, skinverwaltung_t::senke->gib_bild_nr(0));
+  }
+  max_einkommen += want_power;
+  einkommen += get_power;
   return true;
 }
 
 
-char *
-senke_t::info(char *buf) const
+void
+senke_t::info(cbuffer_t & buf) const
 {
-    buf += sprintf(buf, "%s: %d\n",
-                   translator::translate("Power"),
-                   get_net()->get_capacity());
-
-    return buf;
+	/* info in a drain */
+	buf.append(translator::translate("Power"));
+	buf.append(": ");
+	buf.append(get_net()->get_capacity());
+	buf.append("\n");
+	buf.append(translator::translate("Available"));
+	buf.append(": ");
+	buf.append((200*einkommen+1)/(2*max_einkommen));
+	buf.append("\nNet: ");
+	buf.append((int)get_net());
 }

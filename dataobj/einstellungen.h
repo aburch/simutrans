@@ -30,6 +30,7 @@ private:
     int tourist_attractions;
 
     int anzahl_staedte;
+    int mittlere_einwohnerzahl;
 
     int scroll_multi;
 
@@ -88,6 +89,9 @@ public:
 
     void setze_anzahl_staedte(int n) {anzahl_staedte=n;};
     int gib_anzahl_staedte() const {return anzahl_staedte;};
+
+    void setze_mittlere_einwohnerzahl(int n) {mittlere_einwohnerzahl=n;};
+    int gib_mittlere_einwohnerzahl() const {return mittlere_einwohnerzahl;};
 
     void setze_scroll_multi(int n) {scroll_multi=n;};
     int gib_scroll_multi() const {return scroll_multi;};

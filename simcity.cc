@@ -29,6 +29,7 @@
 #include "simhalt.h"
 #include "simfab.h"
 #include "simcity.h"
+#include "simmesg.h"
 #include "simtime.h"
 #include "simcolor.h"
 #include "gui/karte.h"
@@ -289,7 +290,7 @@ stadt_t::init_pax_ziele()
     }
 }
 
-stadt_t::stadt_t(karte_t *wl, spieler_t *sp, koord pos) :
+stadt_t::stadt_t(karte_t *wl, spieler_t *sp, koord pos,int citizens) :
     welt(wl),
     pax_ziele_alt(96, 96),
     pax_ziele_neu(96, 96)
@@ -351,7 +352,7 @@ dbg->message("stadt_t::stadt_t()", "'%s' is%s unique", list_name, not_unique?" n
 dbg->message("stadt_t::stadt_t()","founding new city named '%s'",name);
 
     // 1. Rathaus bei 0 Leuten bauen
-    check_bau_rathaus();
+    check_bau_rathaus(true);
 
     wachstum = 0;
 
@@ -362,7 +363,7 @@ dbg->message("stadt_t::stadt_t()","founding new city named '%s'",name);
 
     // this way, new cities are properly recognized
     pax_erzeugt = 0;
-    pax_transport = (360 + simrand(3000))/8;
+    pax_transport = citizens/8;
     step_bau();
     pax_transport = 0;
 }
@@ -561,7 +562,9 @@ stadt_t::step_bau()
   wachstum = (pax_transport << 3) / (pax_erzeugt+1);
 
   // Hajo: let city grow in steps of 1
-  for(int n = 0; n < (1 + wachstum); n++) {
+//  for(int n = 0; n < (1 + wachstum); n++) {
+  // @author prissi: No growth without development
+  for(int n = 0; n < wachstum; n++) {
 
     bev ++; // Hajo: bevoelkerung wachsen lassen
 
@@ -577,13 +580,11 @@ stadt_t::step_bau()
       i++;
     }
 
-    check_bau_spezial();
+    check_bau_spezial(new_town);
     INT_CHECK("simcity 275");
-    check_bau_rathaus();
+    check_bau_rathaus(new_town);
     // add industry? (not during creation)
-    if(  !new_town  ) {
-	check_bau_factory();
-    }
+    check_bau_factory(new_town);
   }
 }
 
@@ -832,7 +833,7 @@ stadt_t::merke_passagier_ziel(koord k, int pax)
 
 
 void
-stadt_t::check_bau_spezial()
+stadt_t::check_bau_spezial(bool new_town)
 {
     const haus_besch_t *besch = hausbauer_t::gib_special(bev);
 
@@ -853,53 +854,66 @@ stadt_t::check_bau_spezial()
             welt->lookup(best_pos)->gib_kartenboden()->gib_pos(),
             rotate ? 1 : 0,
             besch);
+			// tell the player, if not during initialization
+			if(!new_town) {
+				char buf[256];
+				sprintf(buf, translator::translate("To attract more tourists\n%s built\na %s\nwith the aid of\n%i tax payers."), gib_name(), besch->gib_name(), bev );
+				message_t::get_instance()->add_message(buf,best_pos,message_t::tourist,CITY_KI,besch->gib_tile(0)->gib_hintergrund(0,0) );
+			}
       }
     }
-    if((bev & 511) == 0) {
-  //
-  // Denkmal bauen:
-  //
-  besch = hausbauer_t::waehle_denkmal();
-  if(besch) {
-      koord best_pos ( denkmal_platz_sucher_t(welt,
-                besitzer_p).suche_platz(pos, 3, 3) );
 
-      if(best_pos != koord::invalid) {
-    int i, j;
-    bool ok = false;
+	if((bev & 511) == 0) {
+		//
+		// Denkmal bauen:
+		//
+		besch = hausbauer_t::waehle_denkmal();
+		if(besch) {
+			koord best_pos ( denkmal_platz_sucher_t(welt,
+				besitzer_p).suche_platz(pos, 3, 3) );
 
-    // Wir bauen das Denkmal nur, wenn schon mindestens eine Strasse da ist
-    for(i = 0; i < 3 && !ok; i++) {
-        ok = ok ||
-      welt->access(best_pos + koord(3, i))->gib_kartenboden()->gib_weg(weg_t::strasse) ||
-      welt->access(best_pos + koord(i, -1))->gib_kartenboden()->gib_weg(weg_t::strasse) ||
-      welt->access(best_pos + koord(-1, i))->gib_kartenboden()->gib_weg(weg_t::strasse) ||
-      welt->access(best_pos + koord(i, 3))->gib_kartenboden()->gib_weg(weg_t::strasse);
-    }
-    if(ok) {
-        // Straﬂenkreis um das Denkmal legen
-        for(i = 0; i < 3; i++) {
-      for(j = 0; j < 3; j++) {
-          if(i != 1 || j != 1) {
-        baue_strasse(best_pos + koord(i, j), NULL, true);
-          }
-      }
-        }
-        hausbauer_t::baue(welt,
-              welt->gib_spieler(1),
-              welt->lookup(best_pos + koord(1, 1))->gib_kartenboden()->gib_pos(),
-              0,
-              besch);
-        hausbauer_t::denkmal_gebaut(besch);
-    }
-      }
-  }
-    }
+			if(best_pos != koord::invalid) {
+				int i, j;
+				bool ok = false;
+
+				// Wir bauen das Denkmal nur, wenn schon mindestens eine Strasse da ist
+				for(i = 0; i < 3 && !ok; i++) {
+					ok = ok ||
+						welt->access(best_pos + koord(3, i))->gib_kartenboden()->gib_weg(weg_t::strasse) ||
+						welt->access(best_pos + koord(i, -1))->gib_kartenboden()->gib_weg(weg_t::strasse) ||
+						welt->access(best_pos + koord(-1, i))->gib_kartenboden()->gib_weg(weg_t::strasse) ||
+						welt->access(best_pos + koord(i, 3))->gib_kartenboden()->gib_weg(weg_t::strasse);
+				}
+				if(ok) {
+					// Straﬂenkreis um das Denkmal legen
+					for(i = 0; i < 3; i++) {
+						for(j = 0; j < 3; j++) {
+							if(i != 1 || j != 1) {
+								baue_strasse(best_pos + koord(i, j), NULL, true);
+							 }
+						}
+					}
+					hausbauer_t::baue(welt,
+					      welt->gib_spieler(1),
+					      welt->lookup(best_pos + koord(1, 1))->gib_kartenboden()->gib_pos(),
+					      0,
+					      besch);
+					hausbauer_t::denkmal_gebaut(besch);
+					// tell the player, if not during initialization
+					if(!new_town) {
+						char buf[256];
+						sprintf(buf, translator::translate("With a big festival\n%s built\na new monument.\n%i citicens rejoiced."), gib_name(), bev );
+						message_t::get_instance()->add_message(buf,pos,message_t::city,CITY_KI,besch->gib_tile(0)->gib_hintergrund(0,0) );
+					}
+				}
+			}
+		}
+	}
 }
 
 
 void
-stadt_t::check_bau_rathaus()
+stadt_t::check_bau_rathaus(bool new_town)
 {
     const haus_besch_t *besch = hausbauer_t::gib_rathaus(bev);
 
@@ -982,6 +996,13 @@ stadt_t::check_bau_rathaus()
   // Orstnamen hinpflanzen
   welt->lookup(best_pos)->gib_kartenboden()->setze_text(name);
 
+	// tell the player, if not during initialization
+	if(!new_town) {
+		char buf[256];
+		sprintf(buf, translator::translate("%s wasted\nyour money with a\nnew townhall\nwhen it reached\n%i inhabitants."), gib_name(), bev );
+		message_t::get_instance()->add_message(buf,pos,message_t::city,CITY_KI,besch->gib_tile(0)->gib_vordergrund(0,0) );
+	}
+
   // Strasse davor verlegen
   // Hajo: nur, wenn der Boden noch niemand gehˆrt!
   k = koord(0, (int)besch->gib_h());
@@ -1045,17 +1066,20 @@ stadt_t::check_bau_rathaus()
  * @author prissi
  */
 void
-stadt_t::check_bau_factory()
+stadt_t::check_bau_factory(bool new_town)
 {
-	if(industry_increase_every>0  &&  bev%industry_increase_every==0) {
+	if(!new_town  &&  industry_increase_every>0  &&  bev%industry_increase_every==0) {
 		const fabrik_besch_t *market=fabrikbauer_t::get_random_consumer(true);
 //		koord size=market->gib_haus()->gib_groesse();
 		bool	rotate=false;
 
-//	      koord3d market_pos = bauplatz_sucher_t(welt, besitzer_p).suche_platz(pos, size.x, size.y,rotate);
 		koord3d	market_pos=welt->lookup(pos)->gib_kartenboden()->gib_pos();
 dbg->message("stadt_t::check_bau_factory","adding new industry at %i inhabitants.",bev);
-	    fabrikbauer_t::baue_hierarchie(welt, NULL, market, rotate, &market_pos, welt->gib_spieler(1) );
+		int n=fabrikbauer_t::baue_hierarchie(welt, NULL, market, rotate, &market_pos, welt->gib_spieler(1) );
+		// tell the player
+		char buf[256];
+		sprintf(buf, translator::translate("New factory chain\nfor %s near\n%s built with\n%i factories."), market->gib_name(), gib_name(), n );
+		message_t::get_instance()->add_message(buf,market_pos.gib_2d(),message_t::industry,CITY_KI,market->gib_haus()->gib_tile(0)->gib_hintergrund(0,0) );
 	}
 }
 
@@ -1382,7 +1406,7 @@ stadt_t::baue_gebaeude(const koord k)
 {
   const koord3d pos ( welt->lookup(k)->gib_kartenboden()->gib_pos() );
 
-  if(welt->lookup(pos)->ist_natur()) {
+  if(welt->lookup(pos)->ist_natur()  &&  welt->lookup(pos)->suche_obj(ding_t::leitung)==NULL) {
 
     // bisher gibt es 2 Sorten Haeuser
     // arbeit-spendende und wohnung-spendende

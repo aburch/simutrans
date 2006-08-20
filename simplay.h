@@ -82,7 +82,8 @@ public:
          NR_BAUE_STRASSEN_ROUTE,
          NR_BAUE_STRASSEN_ROUTE2,
  //                    NR_BAUE_STRASSEN_VEHIKEL,
-       NR_BAUE_CLEAN_UP
+       NR_BAUE_CLEAN_UP,
+       NR_RAIL_SUCCESS
         };
 
     enum { MAX_KONTO_VERZUG = 3 };
@@ -272,6 +273,13 @@ public:
      * @author Hj. Malthaner
      */
     int kennfarbe;
+
+
+    /**
+     * Name of the player
+     * @author player
+     */
+	const char *gib_name();
 
 
     /**

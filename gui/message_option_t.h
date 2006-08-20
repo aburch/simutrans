@@ -1,7 +1,5 @@
-#ifndef gui_spieler_h
-#define gui_spieler_h
-
-#include "gui_label.h"
+#ifndef message_option_h
+#define message_option_h
 
 #ifndef gui_infowin_h
 #include "infowin.h"
@@ -15,14 +13,15 @@ class karte_t;
  * @author Hj. Malthaner
  * @version $Revision: 1.7 $
  */
-class ki_kontroll_t : public infowin_t
+class message_option_t : public infowin_t
 {
 private:
     vector_tpl<button_t> *buttons;
+    int ticker_msg, window_msg, auto_msg, ignore_msg;
 
 public:
-    ki_kontroll_t(karte_t *welt);
-    ~ki_kontroll_t();
+    message_option_t(karte_t *welt);
+    ~message_option_t();
 
 
     /**
@@ -30,7 +29,7 @@ public:
      * @return den Dateinamen für die Hilfe, oder NULL
      * @author Hj. Malthaner
      */
-    virtual const char * gib_hilfe_datei() const {return "players.txt";};
+    virtual const char * gib_hilfe_datei() const {return "mailbox.txt";};
 
 
     const char *gib_name() const;

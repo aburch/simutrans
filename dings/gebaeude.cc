@@ -281,7 +281,7 @@ gebaeude_t::step(long delta_t)
 
 	      halt->add_pax_unhappy(pax.menge);
 
-	    } else if(pax.gib_ziel() != koord(-1,-1)) {
+	    } else if(pax.gib_ziel() != koord::invalid) {
 
 	      // printf("... going\n");
 

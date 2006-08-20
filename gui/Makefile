@@ -9,6 +9,7 @@ SOURCES= button.cc\
  halt_list_frame.cc halt_list_item.cc\
  help_frame.cc depot_frame.cc label_frame.cc\
  citylist_frame_t.cc citylist_stats_t.cc\
+ message_frame_t.cc message_stats_t.cc message_option_t.cc message_info_t.cc\
  stadt_info.cc fabrik_info.cc fahrplan_gui.cc\
  messagebox.cc sprachen.cc optionen.cc spieler.cc\
  schedule_list.cc schedule_gui.cc scrolled_list.cc scrollbar.cc\
@@ -29,6 +30,7 @@ OBJECTS=button.o\
  halt_list_frame.o halt_list_item.o\
  help_frame.o depot_frame.o label_frame.o\
  citylist_frame_t.o citylist_stats_t.o\
+ message_frame_t.o message_stats_t.o message_option_t.o message_info_t.o\
  stadt_info.o fabrik_info.o fahrplan_gui.o\
  messagebox.o sprachen.o optionen.o spieler.o \
  schedule_list.o schedule_gui.o scrolled_list.o scrollbar.o\

@@ -54,12 +54,14 @@ const char map_frame_t::map_type[MAX_MAP_TYPE][64] =
     "Destination",
     "Waiting",
     "Tracks",
-    "Speedlimit"
+    "Speedlimit",
+    "Powerlines",
+    "Tourists",
 };
 
 const int map_frame_t::map_type_color[MAX_MAP_TYPE] =
 {
-  7, 11, 15, 132, 23, 27, 31, 35, 241, 7, 11
+  7, 11, 15, 132, 23, 27, 31, 35, 241, 7, 11, 71, 57
 };
 
 /**

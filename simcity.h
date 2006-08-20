@@ -179,19 +179,19 @@ private:
      * baut Spezialgebaeude, z.B Stadion
      * @author Hj. Malthaner
      */
-    void check_bau_spezial();
+    void check_bau_spezial(bool);
 
     /**
      * baut ein angemessenes Rathaus
      * @author V. Meyer
      */
-    void check_bau_rathaus();
+    void check_bau_rathaus(bool);
 
     /**
      * constructs a new consumer
      * @author prissi
      */
-    void check_bau_factory();
+    void check_bau_factory(bool);
 
     void bewerte();
 
@@ -326,9 +326,10 @@ public:
      * @param sp Der Besitzer der Stadt.
      * @param x x-Planquadratkoordinate
      * @param y y-Planquadratkoordinate
+     * @param number of citizens
      * @author Hj. Malthaner
      */
-    stadt_t(karte_t *welt, spieler_t *sp, koord pos);
+    stadt_t(karte_t *welt, spieler_t *sp, koord pos,int citizens);
 
 
     /**

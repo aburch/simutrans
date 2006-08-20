@@ -113,7 +113,7 @@ public:
     }
     int gib_basis_bild() const
     {
-	return gib_bild_nr(ribi_t::dir_sued, true);
+	return gib_bild_nr(ribi_t::dir_sued, false);
     }
     int gib_bild_nr(ribi_t::dir dir, bool empty) const
     {

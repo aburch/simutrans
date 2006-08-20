@@ -8,11 +8,10 @@
  */
 
 
-#include "powernet.h"
 #include "../simdebug.h"
 
 #include "../tpl/ptrhashtable_tpl.h"
-
+#include "powernet.h"
 
 static ptrhashtable_tpl <powernet_t *, powernet_t *> loading_table;
 
@@ -71,6 +70,10 @@ int powernet_t::withdraw_power(int want)
 
 powernet_t::powernet_t()
 {
+  current_capacity = 0;
+  for( int i=0;  i<8;  i++ ) {
+  	capacity[i] = 0;
+  }
   power_this = 0;
   power_last = 0;
 }
@@ -97,6 +100,22 @@ void powernet_t::sync_prepare()
 }
 
 
+
+/* calculates the last amout of power draw (a little smoothed)
+ * @author prissi
+ */
+int powernet_t::get_capacity() const
+{
+	int medium_capacity=0;
+	for( int i=0;  i<8;  i++  ) {
+		medium_capacity += capacity[i];
+	}
+	return medium_capacity>>3;
+}
+
+
+
+
 /**
  * Methode für Echtzeitfunktionen eines Objekts.
  * @return false wenn Objekt aus der Liste der synchronen
@@ -105,5 +124,7 @@ void powernet_t::sync_prepare()
  */
 bool powernet_t::sync_step(long /* delta_t */)
 {
+  current_capacity &= 7;
+  capacity[current_capacity++] = power_last;
   return true;
 }

@@ -479,9 +479,9 @@ fabrikbauer_t::baue_fabrik(karte_t * welt, koord3d *parent, const fabrik_besch_t
     }
     fab->set_eingang( eingang );
     fab->set_ausgang( ausgang );
-    fab->set_prodbase( 1 );
-    fab->set_prodfaktor( info->gib_produktivitaet() +
-                         simrand(info->gib_bereich()) );
+    // set production
+    fab->set_prodfaktor( info->gib_produktivitaet() +  simrand(info->gib_bereich()) );
+    fab->set_prodbase( 16 );
     if(parent) {
   fab->add_lieferziel(parent->gib_2d());
     }
@@ -584,24 +584,33 @@ dbg->message("fabrikbauer_t::baue_hierarchie","Search place for city factory (%i
 
 dbg->message("fabrikbauer_t::baue_hierarchie","Construction of %s at (%i,%i).",info->gib_name(),pos->x,pos->y);
 
-	baue_fabrik(welt, parent, info, rotate&1, *pos, sp);
+	const fabrik_t *our_fab=baue_fabrik(welt, parent, info, rotate&1, *pos, sp);
 
 	for(int i=0; i < info->gib_lieferanten(); i++) {
 		const fabrik_lieferant_besch_t *lieferant = info->gib_lieferant(i);
 		const ware_besch_t *ware = lieferant->gib_ware();
 		const int anzahl_hersteller=finde_anzahl_hersteller(ware);
 
+		// we assume, we need two times the available supply
+		int verbrauch=(our_fab->max_produktion()*lieferant->gib_verbrauch()*100)/256;
+
 		int lcount = lieferant->gib_anzahl();
 		int lfound = 0;	// number of found producers
 
-dbg->message("fabrikbauer_t::baue_hierarchie","lieferanten %i, lcount %i",info->gib_lieferanten(),lcount);
+dbg->message("fabrikbauer_t::baue_hierarchie","lieferanten %i, lcount %i (need %i of %s)",info->gib_lieferanten(),lcount,verbrauch,ware->gib_name());
 
 		// Hajo: search if there already is one or two (crossconnect everything if possible)
 		const slist_tpl<fabrik_t *> & list = welt->gib_fab_list();
 		slist_iterator_tpl <fabrik_t *> iter (list);
 		bool found = false;
 
-		while( iter.next() &&  lcount>=lfound*2) {
+		while( iter.next() &&
+				// try to find matching factories for this consumption
+				( (lcount==0  &&  lfound<3  &&  verbrauch>0) ||
+				// otherwise dont find more than two times new number
+				  (lcount<=lfound+1) )
+				)
+		{
 			fabrik_t * fab = iter.get_current();
 
 			// connect to an existing one, if this is an producer
@@ -613,6 +622,21 @@ dbg->message("fabrikbauer_t::baue_hierarchie","lieferanten %i, lcount %i",info->
 				if(ok  &&  distance>4) {
 					found = true;
 					fab->add_lieferziel(pos->gib_2d());
+
+					// now guess, how much this factory can supply
+					for(int gg=0;gg<fab->gib_besch()->gib_produkte();gg++) {
+						if(fab->gib_besch()->gib_produkt(gg)->gib_ware()==ware) {
+							int produktion=(fab->max_produktion()*fab->gib_besch()->gib_produkt(gg)->gib_faktor()*100)/256;
+							// search consumer
+							const vector_tpl <koord> & lieferziele = fab->gib_lieferziele();
+							const int lieferziel_anzahl=lieferziele.get_count();
+							// assume free capacity is just total capacity divided by the number of demander
+							verbrauch -= produktion/(lieferziel_anzahl+1);
+
+dbg->message("fabrikbauer_t::baue_hierarchie","supplier %s can supply approx %i of %s to %i companies",fab->gib_besch()->gib_name(),produktion,ware->gib_name(),lieferziel_anzahl);
+							break;
+						}
+					}
 					lfound ++;
 				}
 			}
@@ -628,8 +652,8 @@ dbg->message("fabrikbauer_t::baue_hierarchie","lieferanten %i, lcount %i",info->
 			lcount = (lfound>0)?0:1;
 		}
 
-		// try to add all types of factories
-		for(int j=0;j<anzahl_hersteller*10  &&  lcount>0;j++) {
+		// try to add all types of factories until demand is satisfied
+		for(int j=0;j<20 &&  lcount>0  &&  verbrauch>0;j++) {
 dbg->message("fabrikbauer_t::baue_hierarchie","find lieferant for %s.",info->gib_name());
 			const fabrik_besch_t *hersteller = finde_hersteller(ware,j%anzahl_hersteller);
 			if(info==hersteller) {
@@ -638,10 +662,26 @@ dbg->message("fabrikbauer_t::baue_hierarchie()","found myself!");
 			}
 			int rotate = simrand(4);
 			koord3d k = finde_zufallsbauplatz(welt, *pos, DISTANCE, hersteller->gib_haus()->gib_groesse(rotate),hersteller->gib_platzierung()==fabrik_besch_t::Wasser);
+
 			if(welt->lookup(k)) {
 dbg->message("fabrikbauer_t::baue_hierarchie","Try to built lieferant %s at (%i,%i) for %s.",hersteller->gib_name(),k.x,k.y,info->gib_name());
 				n += baue_hierarchie(welt, pos, hersteller, rotate, &k, sp);
-				lcount--;
+				lcount --;
+
+				// now substract current supplier
+				const ding_t * dt = welt->lookup(k.gib_2d())->gib_kartenboden()->obj_bei(1);
+				if(dt) {
+					const fabrik_t *fab = dt->fabrik();
+					// find our product
+					for(int gg=0;gg<fab->gib_besch()->gib_produkte();gg++) {
+						if(fab->gib_besch()->gib_produkt(gg)->gib_ware()==ware) {
+							int produktion = (fab->max_produktion()*fab->gib_besch()->gib_produkt(gg)->gib_faktor()*100)/256;
+							verbrauch -= produktion;
+dbg->message("fabrikbauer_t::baue_hierarchie","new supplier %s can supply approx %i of %s to us",fab->gib_besch()->gib_name(),produktion,ware->gib_name());
+							break;
+						}
+					}
+				}
 			}
 		}
 	}

@@ -23,7 +23,12 @@
 #include "../dataobj/translator.h"
 #include "../dataobj/umgebung.h"
 #include "../utils/cbuffer_t.h"
+
+#include "gui_label.h"
+
+
 #include "spieler.h"
+
 
 ki_kontroll_t::ki_kontroll_t(karte_t *welt) : infowin_t(welt)
 {
@@ -41,7 +46,7 @@ ki_kontroll_t::ki_kontroll_t(karte_t *welt) : infowin_t(welt)
 
 ki_kontroll_t::~ki_kontroll_t()
 {
-    delete buttons;
+	delete buttons;
 }
 
 const char *
@@ -71,24 +76,18 @@ int ki_kontroll_t::gib_bild() const
 
 void ki_kontroll_t::info(cbuffer_t & buf) const
 {
-  char tmp [2048];
+	for( int i=2;  i<8; i++ ) {
+		char tmp [256];
 
-  sprintf(tmp,
-	  translator::translate("SPIELERLISTE"),
-	  welt->gib_spieler(2)->gib_konto_als_double(),
-	  welt->gib_spieler(3)->gib_konto_als_double(),
-	  welt->gib_spieler(4)->gib_konto_als_double(),
-	  welt->gib_spieler(5)->gib_konto_als_double(),
-	  welt->gib_spieler(6)->gib_konto_als_double(),
-	  welt->gib_spieler(7)->gib_konto_als_double());
-
-  buf.append(tmp);
+		sprintf(tmp, "\n   %s  %.2f$\n", welt->gib_spieler(i)->gib_name(), welt->gib_spieler(i)->gib_konto_als_double() );
+		buf.append(tmp);
+	}
 }
 
 
 koord ki_kontroll_t::gib_fenstergroesse() const
 {
-    return koord(160, 180);
+    return koord(200, 180);
 }
 
 

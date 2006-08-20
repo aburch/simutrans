@@ -70,9 +70,11 @@ const skin_besch_t *skinverwaltung_t::schiffs_werkzeug = NULL;
 //const skin_besch_t *skinverwaltung_t::bruecken_werkzeug = NULL;
 const skin_besch_t *skinverwaltung_t::hang_werkzeug = NULL;
 const skin_besch_t *skinverwaltung_t::special_werkzeug = NULL;
+const skin_besch_t *skinverwaltung_t::listen_werkzeug = NULL;
 const skin_besch_t *skinverwaltung_t::farbmenu = NULL;
 
 const skin_besch_t *skinverwaltung_t::logosymbol = NULL;
+const skin_besch_t *skinverwaltung_t::neujahrsymbol = NULL;
 const skin_besch_t *skinverwaltung_t::neueweltsymbol = NULL;
 const skin_besch_t *skinverwaltung_t::flaggensymbol = NULL;
 const skin_besch_t *skinverwaltung_t::meldungsymbol = NULL;
@@ -142,6 +144,7 @@ static spezial_obj_tpl<skin_besch_t> menu_objekte[] = {
     { &skinverwaltung_t::schiffs_werkzeug,  "ShipTools" },
     { &skinverwaltung_t::hang_werkzeug,     "SlopeTools" },
     { &skinverwaltung_t::special_werkzeug,     "SpecialTools" },
+    { &skinverwaltung_t::listen_werkzeug,     "ListTools" },
     { &skinverwaltung_t::farbmenu,	    "ColorMenu" },
 //    { &skinverwaltung_t::bruecken_werkzeug, "BridgeTools" },
     { NULL, NULL }
@@ -149,6 +152,7 @@ static spezial_obj_tpl<skin_besch_t> menu_objekte[] = {
 
 static spezial_obj_tpl<skin_besch_t> symbol_objekte[] = {
     { &skinverwaltung_t::logosymbol,	    "Logo" },
+    { &skinverwaltung_t::neujahrsymbol,    "NewYear" },
     { &skinverwaltung_t::neueweltsymbol,    "NewWorld" },
     { &skinverwaltung_t::flaggensymbol,	    "Flags" },
     { &skinverwaltung_t::meldungsymbol,	    "Message" },

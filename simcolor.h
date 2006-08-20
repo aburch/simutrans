@@ -21,6 +21,9 @@
 #define DUNKELORANGE 131
 #define ORANGE    132
 
+#define CITY_KI 4
+#define NEW_VEHICLE 251
+
 // by niels
 #define BLACK SCHWARZ
 #define WHITE WEISS

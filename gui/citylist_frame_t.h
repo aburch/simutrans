@@ -31,6 +31,13 @@ class citylist_frame_t : public gui_frame_t
    * @author Hj. Malthaner
    */
   virtual void resize(const koord delta);
+
+    /**
+     * Manche Fenster haben einen Hilfetext assoziiert.
+     * @return den Dateinamen für die Hilfe, oder NULL
+     * @author V. Meyer
+     */
+    virtual const char * gib_hilfe_datei() const {return "citylist_filter.txt"; }
 };
 
 #endif // citylist_frame_t_h

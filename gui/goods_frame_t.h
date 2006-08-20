@@ -39,6 +39,12 @@ class goods_frame_t : public gui_frame_t
    */
   virtual void resize(const koord delta);
 
+    /**
+     * Manche Fenster haben einen Hilfetext assoziiert.
+     * @return den Dateinamen für die Hilfe, oder NULL
+     * @author V. Meyer
+     */
+    virtual const char * gib_hilfe_datei() const {return "goods_filter.txt"; }
 };
 
 #endif // goods_frame_t_h

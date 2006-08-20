@@ -11,7 +11,6 @@
 #ifndef powernet_t_h
 #define powernet_t_h
 
-
 #include "../ifc/sync_steppable.h"
 
 /**
@@ -40,6 +39,8 @@ class powernet_t : public sync_steppable
 
 
  private:
+  int capacity[8];
+  unsigned current_capacity;
 
   int last_capacity;
 
@@ -48,9 +49,7 @@ class powernet_t : public sync_steppable
 
  public:
 
-
-  int get_capacity() const {return last_capacity;};
-
+  int get_capacity() const;
 
   /**
    * Adds some power to the net

@@ -118,6 +118,12 @@ void ticker_t::add_msg(const char *txt, koord pos, int color)
       char * p = new char [len+3];  // reserve space for three more spaces
       strcpy(p, txt);
       strcat(p, "   ");   // add spaces
+	// remove breaks
+	for( int i=0;  i<len;  i++ ) {
+		if(p[i]=='\n') {
+			p[i] = ' ';
+		}
+	}
 
       node n;
 

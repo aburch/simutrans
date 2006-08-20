@@ -24,6 +24,7 @@ einstellungen_t::einstellungen_t() : heightfield("")
     tourist_attractions = 2;
 
     anzahl_staedte = 12;
+    mittlere_einwohnerzahl = 1600;
 
     scroll_multi = 1;
 
@@ -56,6 +57,8 @@ einstellungen_t::einstellungen_t(const einstellungen_t *other)
 
     anzahl_staedte =
       other->anzahl_staedte;
+    mittlere_einwohnerzahl =
+      other->mittlere_einwohnerzahl;
     scroll_multi =
       other->scroll_multi;
     verkehr_level =
@@ -84,7 +87,12 @@ einstellungen_t::rdwr(loadsave_t *file)
     land_industry_chains = dummy>>20;
     city_industry_chains = (dummy>>10)&1023;
     tourist_attractions = dummy&1023;
-    file->rdwr_int(anzahl_staedte, "\n");
+ 	// now towns
+    dummy =  (mittlere_einwohnerzahl<<16) + anzahl_staedte;
+    file->rdwr_int(dummy, "\n");
+    mittlere_einwohnerzahl = dummy>>16;
+    anzahl_staedte = dummy & 63;
+    //
     file->rdwr_int(scroll_multi, " ");
     file->rdwr_int(verkehr_level, "\n");
     file->rdwr_int(show_pax, "\n");

@@ -1388,10 +1388,11 @@ int wkz_add_city(spieler_t *sp, karte_t *welt, koord pos)
       else if(welt->gib_einstellungen()->gib_anzahl_staedte() < 64) {
   // Hajo: if city is owned by player and player removes special
   // buildings the game crashes. To avoid this problem cities
-  // always belong to palyer 1
+  // always belong to player 1
   // stadt_t *stadt = new stadt_t(welt, sp, pos);
 
-  stadt_t *stadt = new stadt_t(welt, welt->gib_spieler(1), pos);
+  int citizens=(int)(welt->gib_einstellungen()->gib_mittlere_einwohnerzahl()*0.9);
+  stadt_t *stadt = new stadt_t(welt, welt->gib_spieler(1), pos,citizens/10+simrand(citizens+1));
 
   stadt->laden_abschliessen();
   welt->add_stadt(stadt);
@@ -1613,6 +1614,44 @@ int wkz_build_industries_city(spieler_t *sp, karte_t *welt, koord pos)
   }
 
   return plan != 0;
+}
+
+
+#include "gui/halt_list_filter_frame.h"
+#include "gui/convoi_filter_frame.h"
+#include "gui/citylist_frame_t.h"
+#include "gui/goods_frame_t.h"
+
+/* open the list of halt */
+int wkz_list_halt_tool(spieler_t *sp, karte_t *welt,koord k)
+{
+	create_win(-1, -1, -1, new halt_list_frame_t(sp), w_autodelete, magic_halt_list_t);
+	return true;
+}
+
+
+/* open the list of vehicle */
+int wkz_list_vehicle_tool(spieler_t *sp, karte_t *welt,koord k)
+{
+	create_win(-1, -1, -1, new convoi_frame_t(sp, welt), w_autodelete, magic_convoi_t);
+	return true;
+}
+
+
+/* open the list of towns */
+int wkz_list_town_tool(spieler_t *sp, karte_t *welt,koord k)
+{
+	create_win(0, 0, new citylist_frame_t(welt), w_info);
+	return true;
+}
+
+
+
+/* open the list of goods */
+int wkz_list_good_tool(spieler_t *sp, karte_t *welt,koord k)
+{
+	create_win(0, 0,new goods_frame_t(), w_autodelete);
+	return true;
 }
 
 

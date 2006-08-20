@@ -15,7 +15,7 @@ class grund_t;
 
 struct event_t;
 
-#define MAX_MAP_TYPE 11
+#define MAX_MAP_TYPE 13
 #define MAX_MAP_ZOOM 4
 
 /**

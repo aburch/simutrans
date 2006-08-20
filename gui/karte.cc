@@ -14,6 +14,9 @@
 #include "karte.h"
 #include "../dataobj/translator.h"
 #include "../boden/wege/schiene.h"
+#include "../dings/leitung2.h"
+#include "../dataobj/powernet.h"
+#include "../tpl/slist_tpl.h"
 
 extern "C" {
 #include "../simgraph.h"
@@ -24,13 +27,14 @@ int reliefkarte_t::mode = -1;
 
 const int reliefkarte_t::map_type_color[MAX_MAP_TYPE] =
 {
-  7, 11, 15, 132, 23, 31, 35, 7
+//  7, 11, 15, 132, 23, 31, 35, 7
+  7, 11, 15, 132, 23, 27, 31, 35, 241, 7, 11, 31, 71
 };
 
 const int reliefkarte_t::severity_color[12] =
 {
   //11, 10, 9, 23, 22, 21, 15, 14, 13, 18, 19, 35
-   9, 10, 11, 21, 22, 23, 13, 14, 15, 18, 19, 35
+   9, 10, 11, 21, 22, 23, 13, 14, 15, 18, 19, 35,
 };
 
 void
@@ -392,6 +396,30 @@ reliefkarte_t::calc_map(int render_mode)
   is_map_locked = false;
   // prepare empty map
   init();
+
+	// since searching all map, we must do this here ...
+	// find tourist spots
+	if(render_mode==12) {
+		const slist_tpl<gebaeude_t *> &ziele = welt->gib_ausflugsziele();
+		for(  unsigned i=0;  i<ziele.count();  i++  ) {
+			setze_relief_farbe_area(ziele.at(i)->gib_pos().gib_2d(), 7, calc_severity_color(ziele.at(i)->gib_level(),15) );
+		}
+		return;
+	}
+	// find power lines
+	if(render_mode==11) {
+		for( int x=0; x<welt->gib_groesse(); x++ ) {
+			for( int y=0; y<welt->gib_groesse(); y++ ) {
+				leitung_t *lt = static_cast<leitung_t *>(welt->lookup(koord(x,y))->gib_kartenboden()->suche_obj(ding_t::leitung));
+				if(lt!=NULL) {
+//					setze_relief_farbe(koord(x,y), GREEN );
+					setze_relief_farbe(koord(x,y), calc_severity_color(lt->get_net()->get_capacity(),1024) );
+				}
+			}
+		}
+		return;
+	}
+
   if(welt != NULL) {
 
     slist_iterator_tpl <weg_t *> iter (weg_t::gib_alle_wege());
@@ -572,6 +600,7 @@ reliefkarte_t::calc_map(int render_mode)
 		// show max speed
 		setze_relief_farbe(k, calc_severity_color(gr->get_max_speed(), 20));
 		break;
+
 	default:
 	  recalc_relief_farbe(k);
 	  break;

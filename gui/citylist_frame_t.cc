@@ -17,16 +17,11 @@
 citylist_frame_t::citylist_frame_t(karte_t * welt) : gui_frame_t("City list")
 {
   stats = new citylist_stats_t(welt);
-
   scrolly = new gui_scrollpane_t(stats);
-
-
   scrolly->setze_pos(koord(0, 0));
-
   add_komponente(scrolly);
 
   setze_fenstergroesse(koord(320, 240));
-
   // a min-size for the window
   set_min_windowsize(koord(320, 240));
 
@@ -54,8 +49,6 @@ citylist_frame_t::~citylist_frame_t()
 void citylist_frame_t::resize(const koord delta)
 {
   gui_frame_t::resize(delta);
-
   koord groesse = gib_fenstergroesse()-koord(0,16);
-
   scrolly->setze_groesse(groesse);
 }

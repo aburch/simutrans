@@ -385,7 +385,7 @@ wegbauer_t::ist_grund_fuer_strasse(koord pos, const koord zv, koord start, koord
       break;
   case leitung:
 // built too many      ok = ok ||  (bd->gib_grund_hang()==0  &&  (bd->gib_besitzer() == NULL || bd->gib_besitzer() == sp) && ribi_t::ist_gerade(ribi_typ(zv)));
-      ok = ok ||	(
+      ok = ( bd->ist_natur() ||  bd->ist_wasser())  ||  (
 //					     (bd->gib_besitzer() == NULL || bd->gib_besitzer() == sp) &&
      						(
       						(bd->gib_weg(weg_t::strasse)!=NULL  &&  check_crossing(zv,bd,true,weg_t::strasse))  ||

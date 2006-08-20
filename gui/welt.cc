@@ -27,7 +27,7 @@
 
 
 welt_gui_t::welt_gui_t(karte_t *welt, einstellungen_t *sets)
- : infowin_t(welt), buttons(27)
+ : infowin_t(welt), buttons(29)
 {
     this->sets = sets;
 
@@ -43,32 +43,32 @@ welt_gui_t::welt_gui_t(karte_t *welt, einstellungen_t *sets)
     int intLeftOfButton=113;
 
 
-    for (i=0; i<20; i+=2) {
-	//button_def.setze_pos( koord(113, 64+i*6) );
-        button_def.setze_pos( koord(intLeftOfButton,intTopOfButton) );
-	button_def.setze_typ( button_t::arrowleft );
-	buttons.append(button_def);
+    for (i=0; i<22; i+=2) {
+		button_def.setze_pos( koord(intLeftOfButton,intTopOfButton) );
+		button_def.setze_typ( button_t::arrowleft );
+		buttons.append(button_def);
 
-        //button_def.setze_pos( koord(150, 64+i*6) );
-	button_def.setze_pos( koord(intLeftOfButton+37,intTopOfButton) );
-	button_def.setze_typ(button_t::arrowright);
-	buttons.append(button_def);
-        intTopOfButton += 12;
+		button_def.setze_pos( koord((i<20)?intLeftOfButton+37:intLeftOfButton+57,intTopOfButton) );
+		button_def.setze_typ(button_t::arrowright);
+		buttons.append(button_def);
+		intTopOfButton += 12;
 
-        switch(i)
-        {
-            case 2 :
-                intTopOfButton += 5;
-                break;
-            case 6 :
-                intTopOfButton += 5;
-                break;
-            case 12:
-                intTopOfButton += 5;
-                intLeftOfButton += 40;
-                break;
-        }
-
+		switch(i)
+		{
+			case 2 :
+				intTopOfButton += 5;
+			break;
+			case 6 :
+				intTopOfButton += 5;
+			break;
+			case 12:
+				intTopOfButton += 5;
+				intLeftOfButton += 40;
+			break;
+			case 18:
+				intTopOfButton += 5;
+			break;
+		}
     }
 
 
@@ -183,7 +183,7 @@ void welt_gui_t::info(cbuffer_t &) const
 
 koord welt_gui_t::gib_fenstergroesse() const
 {
-    return koord(250, 292+36);
+    return koord(250, 292+48);
 }
 
 void welt_gui_t::infowin_event(const event_t *ev)
@@ -213,7 +213,7 @@ void welt_gui_t::infowin_event(const event_t *ev)
 	    }
 
 	} else if(buttons.at(4).getroffen(ev->cx, ev->cy)) {
-	    if(sets->gib_anzahl_staedte() > 2 ) {
+	    if(sets->gib_anzahl_staedte() > 1 ) {
 		sets->setze_anzahl_staedte( sets->gib_anzahl_staedte() - 1 );
 	    }
 	} else if(buttons.at(5).getroffen(ev->cx, ev->cy)) {
@@ -301,32 +301,40 @@ void welt_gui_t::infowin_event(const event_t *ev)
 	    if(sets->gib_tourist_attractions() < 500) {
 		sets->setze_tourist_attractions( sets->gib_tourist_attractions() + 1 );
 	    }
+	} else if(buttons.at(20).getroffen(ev->cx, ev->cy)) {
+	    if(sets->gib_mittlere_einwohnerzahl() > 0) {
+		sets->setze_mittlere_einwohnerzahl( sets->gib_mittlere_einwohnerzahl() - 25 );
+	    }
+	} else if(buttons.at(21).getroffen(ev->cx, ev->cy)) {
+	    if(sets->gib_mittlere_einwohnerzahl() < 15000) {
+		sets->setze_mittlere_einwohnerzahl( sets->gib_mittlere_einwohnerzahl() + 25 );
+	    }
 
 	    // Button 'Random map'                                                      // 28-Oct-2001 Markus Weber Added
-	} else if(buttons.at(20).getroffen(ev->cx, ev->cy)) {
+	} else if(buttons.at(22).getroffen(ev->cx, ev->cy)) {
 		sets->setze_karte_nummer(simrand(999));
 		update_preview();
 
 
-	} else if(buttons.at(21).getroffen(ev->cx, ev->cy)) {
+	} else if(buttons.at(23).getroffen(ev->cx, ev->cy)) {
 	    sets->setze_show_pax( !sets->gib_show_pax() );
 
-	} else if(buttons.at(22).getroffen(ev->cx, ev->cy)) {
+	} else if(buttons.at(24).getroffen(ev->cx, ev->cy)) {
             umgebung_t::night_shift = !umgebung_t::night_shift;
 
-	}  else if(buttons.at(23).getroffen(ev->mx, ev->my)) {
+	}  else if(buttons.at(25).getroffen(ev->mx, ev->my)) {
 	    if (IS_LEFTCLICK(ev)) {
 		load = true;
 	    }
-	}  else if(buttons.at(24).getroffen(ev->mx, ev->my)) {
+	}  else if(buttons.at(26).getroffen(ev->mx, ev->my)) {
 	    if (IS_LEFTCLICK(ev)) {
 		start = true;
 	    }
-	}  else if(buttons.at(25).getroffen(ev->mx, ev->my)) {
+	}  else if(buttons.at(27).getroffen(ev->mx, ev->my)) {
 	    if (IS_LEFTCLICK(ev)) {
 		quit = true;
 	    }
-	} else if(buttons.at(26).getroffen(ev->mx, ev->my)) {
+	} else if(buttons.at(28).getroffen(ev->mx, ev->my)) {
 	    if (IS_LEFTCLICK(ev)) {
 		load_heightfield = true;
 	    }
@@ -349,20 +357,20 @@ welt_gui_t::gib_fensterbuttons()
 {
 
       //28-Oct-2001 Markus Weber added button
-    buttons.at(20).text = translator::translate("Random map");
+    buttons.at(22).text = translator::translate("Random map");
 
     // setze variable anteile der Buttons
-    buttons.at(21).pressed = sets->gib_show_pax();
-    buttons.at(21).text = translator::translate("7WORLD_CHOOSE"),
+    buttons.at(23).pressed = sets->gib_show_pax();
+    buttons.at(23).text = translator::translate("7WORLD_CHOOSE"),
 
-    buttons.at(22).pressed = umgebung_t::night_shift;
-    buttons.at(22).text = translator::translate("8WORLD_CHOOSE"),
+    buttons.at(24).pressed = umgebung_t::night_shift;
+    buttons.at(24).text = translator::translate("8WORLD_CHOOSE"),
 
 
-    buttons.at(23).text = translator::translate("Lade Spiel");
-    buttons.at(24).text = translator::translate("Starte Spiel");
-    buttons.at(25).text = translator::translate("Beenden");
-    buttons.at(26).text = translator::translate("Lade Relief");
+    buttons.at(25).text = translator::translate("Lade Spiel");
+    buttons.at(26).text = translator::translate("Starte Spiel");
+    buttons.at(27).text = translator::translate("Beenden");
+    buttons.at(28).text = translator::translate("Lade Relief");
 
     return &buttons;
 }
@@ -395,7 +403,7 @@ void welt_gui_t::zeichnen(koord pos, koord gr)
   infowin_t::zeichnen(pos, gr);
 
   display_divider(x+10,y+51, 230);
-  display_divider(x+10,y+266,230);
+  display_divider(x+10,y+283,230);
 
 
   display_proportional(x+10, y+24, translator::translate("1WORLD_CHOOSE"),
@@ -463,6 +471,10 @@ void welt_gui_t::zeichnen(koord pos, koord gr)
   display_proportional(x+10, yo+123, translator::translate("Tourist attractions"),
 		       ALIGN_LEFT, SCHWARZ, true);
   display_proportional(x+137+40, yo+123, ntos(sets->gib_tourist_attractions(),"%3d"),
+  			 ALIGN_MIDDLE, WEISS, true);
+  display_proportional(x+10, yo+140, translator::translate("Median Citizen per town"),
+		       ALIGN_LEFT, SCHWARZ, true);
+  display_proportional(x+137+50, yo+140, ntos(sets->gib_mittlere_einwohnerzahl(),"%3d"),
   			 ALIGN_MIDDLE, WEISS, true);
 
   display_ddd_box(x+173, yo+2, preview_size+2, preview_size+2, MN_GREY0,MN_GREY4);

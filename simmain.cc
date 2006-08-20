@@ -322,21 +322,21 @@ static void zeige_banner()
 
         if(s == 0) color = heading;
         display_proportional(xoff+s+24,yoff+s+48,
-			     "Simutrans was created by:",
+			     "This version is developed by",
 			     ALIGN_LEFT,
 			     color, true);
 
         if(s == 0) color = WEISS;
         display_proportional(xoff+s+48,yoff+s+64,
-			     "Hansjörg Malthaner",
+			     "the simutrans team, based on",
 			     ALIGN_LEFT,
 			     color, true);
         display_proportional(xoff+s+48,yoff+s+76,
-			     "D 70563 Stuttgart",
+			     "Simutrans 0.84.21.2 by",
 			     ALIGN_LEFT,
 			     color, true);
         display_proportional(xoff+s+48,yoff+s+88,
-			     "Fuggerstr. 1",
+			     "Hansjörg Malthaner et. al.",
 			     ALIGN_LEFT,
 			     color, true);
 
@@ -353,7 +353,7 @@ static void zeige_banner()
 
         if(s == 0) color = WEISS;
         display_proportional(xoff+s+48,yoff+s+138,
-			      "hansjoerg.malthaner@gmx.de",
+			      "<markus@pristovsek.de>",
 			     ALIGN_LEFT,
 			     color, true);
         // display_proportional( xoff+s+48,yoff+s+142,"hansjoerg.malthaner@danet.de", color, true);
@@ -370,7 +370,7 @@ static void zeige_banner()
 			     ALIGN_LEFT,
 			     color, true);
         display_proportional(xoff+s+48,yoff+s+184,
-			     "http://www.simutrans.cjb.net",
+			     "http://www.simutrans.com",
 			     ALIGN_LEFT,
 			     color, true);
     }
@@ -472,25 +472,21 @@ int simu_cpp_main(int argc, char ** argv)
        gimme_arg(argc, argv, "-help", 0) ||
        gimme_arg(argc, argv, "--help", 0)) {
 
-        print("\n");
-        print("+----------------------------------------------------+\n");
-        print("| This is a beta version of Simutrans:               |\n");
-	print("| Version: " VERSION_NUMBER "  Build date: " VERSION_DATE "     |\n");
-        print("|                                                    |\n");
-        print("|            Simutrans was created by:               |\n");
-        print("|               Hansjörg Malthaner                   |\n");
-        print("|               D 70563 Stuttgart                    |\n");
-        print("|               Fuggerstr. 1                         |\n");
-        print("|            All rights reserved.                    |\n");
-        print("|                                                    |\n");
-	print("| Email: hansjoerg.malthaner@gmx.de                  |\n");
-        print("|                                                    |\n");
-	print("| Web: http://www.simutrans.de                       |\n");
-	print("| Web: http://www.simutrans.cjb.net                  |\n");
-        print("|                                                    |\n");
-	print("| For further help please read the readme.txt file   |\n");
-        print("+----------------------------------------------------+\n\n");
+        printf(
+"\n"
+"---------------------------------------\n"\
+"  Simutrans " VERSION_NUMBER "\n"\
+"  released " VERSION_DATE "\n"\
+"  developed\n"\
+"  by the Simutrans team.\n\n"\
 
+"  Send feedabck and questions to:\n"\
+"  <markus@pristovsek.de>\n\n"\
+
+"  Based on Simutrans 0.84.21.2\n"\
+"  by Hansjörg Malthaner et. al.\n"\
+"  <hansjoerg.malthaner@gmx.de>\n"\
+"---------------------------------------\n");
 
 	// quit after printing that message
 	return 0;
@@ -713,10 +709,28 @@ int simu_cpp_main(int argc, char ** argv)
 	loadgame = buf;
     }
 
+	//30-jan-2005	markus weber	added
+    if(gimme_arg(argc, argv, "-timeline", 0) != NULL) {
+	const char * ref_str = gimme_arg(argc, argv, "-timeline", 1);
+    	if(ref_str != NULL) {
+		umgebung_t::use_timeline = ( atoi(ref_str) != 0 );
+	}
+    }
+
+
+	//30-jan-2005	markus weber	added
+    if(gimme_arg(argc, argv, "-startyear", 0) != NULL) {
+	const char * ref_str = gimme_arg(argc, argv, "-startyear", 1); //1930
+    	if(ref_str != NULL) {
+		umgebung_t::starting_year = atoi(ref_str);
+	}
+    }
+
+
+
     // jetzt, nachdem die Kommandozeile ausgewertet ist
     // koennen wir das config file lesen, ung ggf.
     // einige einstellungen setzen
-
     config = fopen("simworld.cfg","rb");
 
     int AIs[6] = { 0, 0, 0, 0, 1, 0 };

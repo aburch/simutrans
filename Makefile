@@ -166,6 +166,7 @@ SUB_OBJS=\
  gui/components/gui_flowtext.o \
  gui/components/gui_combobox.o \
  gui/help_frame.o gui/citylist_frame_t.o gui/citylist_stats_t.o\
+ gui/message_frame_t.o gui/message_stats_t.o gui/message_option_t.o  gui/message_info_t.o\
  gui/colors.o gui/welt.o gui/werkzeug_waehler.o\
  gui/werkzeug_parameter_waehler.o\
  gui/ticker_view_t.o gui/goods_frame_t.o gui/goods_stats_t.o\
@@ -229,7 +230,8 @@ SOURCES= \
  simdings.cc simware.cc simfab.cc simplan.cc\
  simhalt.cc simconvoi.cc\
  simcity.cc simwerkz.cc simworld.cc simplay.cc simsound.cc simintr.cc \
- simmain.cc simskin.cc simlinemgmt.cc simline.cc
+ simmain.cc simskin.cc simlinemgmt.cc simline.cc \
+ simmesg.cc
 
 ASM_SOURCES= \
  asm/pixcopy.s asm/colorpixcopy.s asm/display_img.s asm/display_img16.s asm/display_img16w.s
@@ -246,7 +248,7 @@ OBJECTS= \
  simdings.o simware.o simfab.o simplan.o\
  simhalt.o simconvoi.o\
  simcity.o simwerkz.o simworld.o simplay.o simsound.o simintr.o \
- simmain.o  simskin.o simlinemgmt.o simline.o
+ simmain.o  simskin.o simlinemgmt.o simline.o simmesg.o
 
 ifeq ($(OSTYPE),mingw)
 ASM_DISPLAY_IMG= asm/display_img16w.o

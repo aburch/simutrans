@@ -87,4 +87,17 @@ int wkz_test_new_cars(spieler_t *, karte_t *welt, koord pos);
 int wkz_build_industries_land(spieler_t *sp, karte_t *welt, koord pos);
 int wkz_build_industries_city(spieler_t *sp, karte_t *welt, koord pos);
 
+/* open the list of halt */
+int wkz_list_halt_tool(spieler_t *sp, karte_t *welt,koord k);
+
+/* open the list of vehicle */
+int wkz_list_vehicle_tool(spieler_t *sp, karte_t *welt, koord v);
+
+/* open the list of towns */
+int wkz_list_town_tool(spieler_t *sp, karte_t *welt, koord v);
+
+/* open the list of goods */
+int wkz_list_good_tool(spieler_t *sp, karte_t *welt, koord v);
+
+
 #endif
