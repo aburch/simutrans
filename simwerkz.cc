@@ -20,6 +20,7 @@
 #include "simskin.h"
 #include "simcity.h"
 #include "simcosts.h"
+#include "simpeople.h"
 
 #include "bauer/fabrikbauer.h"
 
@@ -317,32 +318,77 @@ DBG_MESSAGE("wkz_remover_intern()","at (%d,%d)", pos.x, pos.y);
 	}
 
 	grund_t *gr=0;
-	for(int i=plan->gib_boden_count()-1;  i>=0;  i--  ) {
-		gr = plan->gib_boden_bei(i);
-		// ok, something to remove from here ...
-		if(gr->obj_count()>0) {
-			break;
-		}
-		else if(i>0  &&  gr->hat_wege()  &&  gr->gib_besitzer()==sp) {
-			// some upper ground (channel/monorail/...)
-			int cost_sum = gr->weg_entfernen(weg_t::schiene, true);
-			cost_sum += gr->weg_entfernen(weg_t::strasse, true);
-			cost_sum += gr->weg_entfernen(weg_t::wasser, true);
-
-			if(cost_sum > 0) {
-				sp->buche(cost_sum * CST_STRASSE, pos, COST_CONSTRUCTION);
+      if(event_get_last_control_shift()==2) {
+      	// remove lower ground first with CNTRL
+	     	for(int i=0;  i<plan->gib_boden_count();  i++  ) {
+	     		if(plan->gib_boden_bei(i)->ist_im_tunnel()) {
+	     			// do not remove tunnel ground
+	     			continue;
+	     		}
+			gr = plan->gib_boden_bei(i);
+			// ok, something to remove from here ...
+			if(!gr->ist_bruecke()  &&  gr->obj_count()>0) {
+				break;
 			}
+			else if(i==0  &&  (gr->hat_wege()  ||  gr->obj_count()>0)  &&  gr->gib_besitzer()==sp) {
+				// still something to remove
+				break;
+			}
+			else if(i>0  &&  gr->hat_wege()  &&  gr->gib_besitzer()==sp) {
+				// some upper ground (channel/monorail/...)
+				int cost_sum = gr->weg_entfernen(weg_t::schiene, true);
+				cost_sum += gr->weg_entfernen(weg_t::strasse, true);
+				cost_sum += gr->weg_entfernen(weg_t::wasser, true);
 
-			plan->boden_entfernen( gr );
-			return true;
+				if(cost_sum > 0) {
+					sp->buche(cost_sum * CST_STRASSE, pos, COST_CONSTRUCTION);
+				}
+
+				plan->boden_entfernen( gr );
+				return true;
+			}
+		}
+	}
+	else {
+		// remove ground last
+	     	for(int i=plan->gib_boden_count()-1;  i>=0;  i--  ) {
+	     		if(plan->gib_boden_bei(i)->ist_im_tunnel()) {
+	     			// do not remove tunnel ground
+	     			continue;
+	     		}
+			gr = plan->gib_boden_bei(i);
+			// ok, something to remove from here ...
+			if(!gr->ist_bruecke()  &&  gr->obj_count()>0) {
+				break;
+			}
+			else if(i>0  &&  gr->hat_wege()  &&  gr->gib_besitzer()==sp  &&  gr->obj_count()==0) {
+				// some upper ground (channel/monorail/...)
+				int cost_sum = gr->weg_entfernen(weg_t::schiene, true);
+				cost_sum += gr->weg_entfernen(weg_t::strasse, true);
+				cost_sum += gr->weg_entfernen(weg_t::wasser, true);
+
+				if(cost_sum > 0) {
+					sp->buche(cost_sum * CST_STRASSE, pos, COST_CONSTRUCTION);
+				}
+
+				plan->boden_entfernen( gr );
+				return true;
+			}
 		}
 	}
 	assert(gr);
 
-	// stadtauto zum löschen? (we allow always)
+	// citycar? (we allow always)
 	if(gr->suche_obj(ding_t::verkehr)) {
 		stadtauto_t *citycar = dynamic_cast<stadtauto_t *>(gr->suche_obj(ding_t::verkehr));
 		delete citycar;
+		return true;
+	}
+
+	// pedestrians?
+	if(gr->suche_obj(ding_t::fussgaenger)) {
+		fussgaenger_t *fussgaenger = dynamic_cast<fussgaenger_t *>(gr->suche_obj(ding_t::fussgaenger));
+		delete fussgaenger;
 		return true;
 	}
 
@@ -365,9 +411,9 @@ DBG_MESSAGE("wkz_remover_intern()","at (%d,%d)", pos.x, pos.y);
 		return false;
 	}
 
-	// dann: Signal auf Brücke prüfen
+	// check for signal
 	if(gr->suche_obj(ding_t::signal) != NULL  ||  gr->suche_obj(ding_t::presignal) != NULL) {
-DBG_MESSAGE("wkz_remover()",  "removing signal from bridge %d,%d",  pos.x, pos.y);
+DBG_MESSAGE("wkz_remover()",  "removing signal %d,%d",  pos.x, pos.y);
 		blockmanager *bm = blockmanager::gib_manager();
 		const bool ok = bm->entferne_signal(welt, gr->gib_pos());
 		if(!ok) {
@@ -375,22 +421,7 @@ DBG_MESSAGE("wkz_remover()",  "removing signal from bridge %d,%d",  pos.x, pos.y
 		}
 		return ok;
 	}
-	if(gr->suche_obj(ding_t::roadsign) != NULL) {
-DBG_MESSAGE("wkz_remover()",  "removing roadsign from bridge %d,%d",  pos.x, pos.y);
-		roadsign_t *rs = dynamic_cast<roadsign_t *>(gr->suche_obj(ding_t::roadsign));
-		delete rs;
-		return true;
-	}
-    // Signal auf Boden prüfen
-	if(gr->suche_obj(ding_t::signal) != NULL  ||  gr->suche_obj(ding_t::presignal) != NULL) {
-DBG_MESSAGE("wkz_remover()",  "removing signal from %d,%d",  pos.x, pos.y);
-		blockmanager *bm = blockmanager::gib_manager();
-		const bool ok = bm->entferne_signal(welt, gr->gib_pos());
-		if(!ok) {
-			create_win(-1, -1, MESG_WAIT, new nachrichtenfenster_t(welt, "Ambiguous signal\ncombination. Try removing\nfrom the other side of the\nsignal.\n"), w_autodelete);
-		}
-		return ok;
-	}
+
 	if(gr->suche_obj(ding_t::roadsign) != NULL) {
 DBG_MESSAGE("wkz_remover()",  "removing roadsign %d,%d",  pos.x, pos.y);
 		roadsign_t *rs = dynamic_cast<roadsign_t *>(gr->suche_obj(ding_t::roadsign));

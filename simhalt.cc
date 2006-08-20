@@ -362,7 +362,7 @@ haltestelle_t::haltestelle_t(karte_t *wl, koord pos, spieler_t *sp) : self(this)
     sortierung = haltestelle_t::by_name;
     init_financial_history();
 
-    verbinde_fabriken();
+//    verbinde_fabriken();
 
     init_gui();
 }
@@ -566,6 +566,14 @@ haltestelle_t::verbinde_fabriken()
 {
 	if(!grund.is_empty()) {
 
+		{	// unlink all
+			slist_iterator_tpl <fabrik_t *> fab_iter(fab_list);
+			while( fab_iter.next() ) {
+				fab_iter.get_current()->unlink_halt(self);
+			}
+		}
+		fab_list.clear();
+
 		int minX=99999;
 		int minY=99999;
 		int maxX=0;
@@ -577,30 +585,19 @@ haltestelle_t::verbinde_fabriken()
 			grund_t *gb = iter.get_current();
 			koord p = gb->gib_pos().gib_2d();
 
-			if(p.x < minX) minX = p.x;
-			if(p.y < minY) minY = p.y;
-			if(p.x > maxX) maxX = p.x;
-			if(p.y > maxY) maxY = p.y;
+			vector_tpl<fabrik_t *> &fablist = fabrik_t::sind_da_welche( welt,
+																								p-koord( welt->gib_einstellungen()->gib_station_coverage(), welt->gib_einstellungen()->gib_station_coverage()),
+																								p+koord( welt->gib_einstellungen()->gib_station_coverage(), welt->gib_einstellungen()->gib_station_coverage())
+																								);
+			for(unsigned i=0; i<fablist.get_count(); i++) {
+				fabrik_t * fab = fablist.at(i);
+				if(!fab_list.contains(fab)) {
+					fab_list.insert(fab);
+					fab->link_halt(self);
+				}
+			}
 		}
 
-		slist_iterator_tpl <fabrik_t *> fab_iter(fab_list);
-
-		while( fab_iter.next() ) {
-			fab_iter.get_current()->unlink_halt(self);
-		}
-
-// check this !!!!!!!!!!!!!!!!!!!!
-		vector_tpl<fabrik_t *> &fablist = fabrik_t::sind_da_welche( welt,
-                                                  koord( minX-welt->gib_einstellungen()->gib_station_coverage(), minY-welt->gib_einstellungen()->gib_station_coverage()),
-                                                  koord(maxX+welt->gib_einstellungen()->gib_station_coverage(), maxY+welt->gib_einstellungen()->gib_station_coverage())
-                                                  );
-		fab_list.clear();
-
-		for(unsigned i=0; i<fablist.get_count(); i++) {
-			fabrik_t * fab = fablist.at(i);
-			fab_list.insert(fab);
-			fab->link_halt(self);
-		}
 	}
 }
 
@@ -927,6 +924,8 @@ haltestelle_t::add_grund(grund_t *gr)
 	// neu halt?
     if(!grund.contains( gr )) {
 
+    	koord pos=gr->gib_pos().gib_2d();
+
 	gr->setze_halt(self);
 	grund.append(gr);
 
@@ -934,17 +933,29 @@ haltestelle_t::add_grund(grund_t *gr)
 	// after that, the surrounding ground will know of this station
 	for(  int y=-welt->gib_einstellungen()->gib_station_coverage();  y<=welt->gib_einstellungen()->gib_station_coverage();  y++ ) {
 		for(  int x=-welt->gib_einstellungen()->gib_station_coverage();  x<=welt->gib_einstellungen()->gib_station_coverage();  x++ ) {
-			koord p=gr->gib_pos().gib_2d()+koord(x,y);
+			koord p=pos+koord(x,y);
 			if(welt->ist_in_kartengrenzen(p)) {
 				welt->lookup(p)->gib_kartenboden()->add_to_haltlist( self );
 			}
 		}
 	}
 
-	welt->lookup(gr->gib_pos().gib_2d())->gib_kartenboden()->setze_halt(self);
+	welt->lookup(pos)->gib_kartenboden()->setze_halt(self);
 
-DBG_MESSAGE("haltestelle_t::add_grund()","pos %i,%i,%i to %s added.",gr->gib_pos().x,gr->gib_pos().y,gr->gib_pos().z,gib_name());
-	verbinde_fabriken();
+//DBG_MESSAGE("haltestelle_t::add_grund()","pos %i,%i,%i to %s added.",pos.x,pos.y,pos.z,gib_name());
+
+	vector_tpl<fabrik_t *> &fablist = fabrik_t::sind_da_welche( welt,
+																						pos-koord(welt->gib_einstellungen()->gib_station_coverage(), welt->gib_einstellungen()->gib_station_coverage()),
+																						pos+koord(welt->gib_einstellungen()->gib_station_coverage(), welt->gib_einstellungen()->gib_station_coverage())
+																						);
+	for(unsigned i=0; i<fablist.get_count(); i++) {
+		fabrik_t * fab = fablist.at(i);
+		if(!fab_list.contains(fab)) {
+			fab_list.insert(fab);
+			fab->link_halt(self);
+		}
+	}
+
 	assert(gr->gib_halt() == self);
 
 
@@ -1288,13 +1299,14 @@ haltestelle_t::liefere_an(ware_t ware)
 {
 	// no valid next stops?
 	if(ware.gib_ziel() == koord::invalid ||  ware.gib_zwischenziel() == koord::invalid) {
-		// write a log entry an discard the goods
+		// write a log entry and discard the goods
 dbg->warning("haltestelle_t::liefere_an()","%d %s delivered to %s have no longer a route to their destination!", ware.menge, translator::translate(ware.gib_name()), gib_name() );
 		return ware.menge;
 	}
 
-if(ware.gib_typ()!=warenbauer_t::passagiere  &&  ware.gib_typ()!=warenbauer_t::post)
-DBG_MESSAGE("haltestelle_t::liefere_an()","%s: took %i %s",gib_name(), ware.menge, translator::translate(ware.gib_name()) );		// dann sind wir schon fertig;
+//debug
+//if(ware.gib_typ()!=warenbauer_t::passagiere  &&  ware.gib_typ()!=warenbauer_t::post)
+//DBG_MESSAGE("haltestelle_t::liefere_an()","%s: took %i %s",gib_name(), ware.menge, translator::translate(ware.gib_name()) );		// dann sind wir schon fertig;
 
 	// since also the factory halt list is added to the ground, we can use just this ...
 	const minivec_tpl <halthandle_t> &halt_list = welt->lookup(ware.gib_zielpos())->gib_kartenboden()->get_haltlist();
@@ -1324,8 +1336,6 @@ DBG_MESSAGE("haltestelle_t::liefere_an()","%s: took %i %s",gib_name(), ware.meng
 
 	// passt das zu bereits wartender ware ?
 	if(vereinige_waren(ware)) {
-if(ware.gib_typ()!=warenbauer_t::passagiere  &&  ware.gib_typ()!=warenbauer_t::post)
-DBG_MESSAGE("haltestelle_t::liefere_an()","%s: joint %i %s to waitng one (1)",gib_name(), ware.menge, translator::translate(ware.gib_name()) );		// dann sind wir schon fertig;
 		return ware.menge;
 	}
 
@@ -1340,8 +1350,6 @@ DBG_MESSAGE("haltestelle_t::liefere_an()","%s: joint %i %s to waitng one (1)",gi
 
 	// passt das zu bereits wartender ware ?
 	if(vereinige_waren(ware)) {
-if(ware.gib_typ()!=warenbauer_t::passagiere  &&  ware.gib_typ()!=warenbauer_t::post)
-DBG_MESSAGE("haltestelle_t::liefere_an()","%s: joint %i %s to waitng one (2)",gib_name(), ware.menge, translator::translate(ware.gib_name()) );
 		// dann sind wir schon fertig;
 		return ware.menge;
 	}

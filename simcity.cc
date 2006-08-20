@@ -1230,6 +1230,7 @@ stadt_t::check_bau_rathaus(bool new_town)
 			//
 			// Jetzt räumen wir so oder so das alte Rathaus ab.
 			//
+			gr->setze_text(NULL);
 			for(k.x = 0; k.x < groesse_alt.x; k.x++) {
 				for(k.y = 0; k.y < groesse_alt.y; k.y++) {
 					gr = welt->lookup(pos_alt + k)->gib_kartenboden();
@@ -1253,7 +1254,6 @@ stadt_t::check_bau_rathaus(bool new_town)
 				// printf("Alte Position=%d,%d\n", pos_alt.x+k.x, pos_alt.y+k.y);
 				// welt->lookup(pos_alt + k)->gib_kartenboden()->setze_besitzer(NULL);
 			}
-			gr->setze_text(NULL);
 		}
 
 		//

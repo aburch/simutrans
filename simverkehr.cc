@@ -133,7 +133,7 @@ stadtauto_t::~stadtauto_t()
 	if(time_to_life>0) {
 		welt->sync_remove(this);
 	}
-DBG_MESSAGE("stadtauto_t::~stadtauto_t()","called");
+//DBG_MESSAGE("stadtauto_t::~stadtauto_t()","called");
 }
 
 

@@ -183,10 +183,8 @@ fahrplan_t::rdwr(loadsave_t *file)
 //		eintrag.clear();
 //		eintrag.resize(maxi);
 		for(int i=0; i<maxi; i++) {
-	DBG_MESSAGE("fahrplan_t::rdwr()","read pos");
 			koord3d pos;
 			pos.rdwr(file);
-	DBG_MESSAGE("fahrplan_t::rdwr()","read dummy");
 			file->rdwr_long(dummy, "\n");
 
 			struct linieneintrag_t stop = { pos, dummy, 0 };

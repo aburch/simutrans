@@ -112,8 +112,8 @@ fabrik_info_t::fabrik_info_t(fabrik_t *fab, gebaeude_t *gb, karte_t *welt) :
 
     about->init(button_t::roundbox,
 		translator::translate("About"),
-		koord(32, 4),
-		koord(80, 14));
+		koord(266 - 64, 6+64+10),
+		koord(64, 14));
 
     about->add_listener(this);
     add_komponente(about);

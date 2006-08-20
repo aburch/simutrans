@@ -114,7 +114,7 @@
 
 
 
-static schedule_list_gui_t * schedule_list_gui = 0;
+//static schedule_list_gui_t * schedule_list_gui = 0;
 
 
 //#define DEMO
@@ -606,8 +606,8 @@ karte_t::destroy()
     simlinemgmt->destroy_all();
 
 
-    delete schedule_list_gui;
-    schedule_list_gui = 0;
+//    delete schedule_list_gui;
+//    schedule_list_gui = 0;
 
     DBG_MESSAGE("karte_t::destroy()", "world destroyed");
     printf("destroyed.\n");
@@ -681,7 +681,7 @@ karte_t::init_felder()
     }
     active_player = spieler[0];
     active_player_nr = 0;
-    schedule_list_gui = new schedule_list_gui_t(this);
+//    schedule_list_gui = new schedule_list_gui_t(this);
 }
 
 

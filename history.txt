@@ -7,6 +7,17 @@ Known bugs: (hard to fix)
 	sorting factories has an umlaute problem
 
 
+Release of 86.10.3
+
+	FIX: size of station coverage wrongly calculated
+	FIX: order of object deletion a little adjusted
+	CHANGE: can delete pedestrians (sound really like hitman on the nearby roof :()
+	ADD: CNTRL+remove will remove ground objects first
+	FIX: detail button in factory info was wrongly aligned
+	FIX: error with construction site lookup
+	some FIX: deleting signals should now work better than before
+
+
 Release of 86.10.2
 
 5-Oct-2005 (prissi)

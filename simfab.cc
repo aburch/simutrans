@@ -28,6 +28,7 @@
 #include "simdebug.h"
 #include "simio.h"
 #include "simimg.h"
+#include "simmem.h"
 #include "simcolor.h"
 #include "boden/grund.h"
 #include "boden/wege/dock.h"
@@ -40,7 +41,7 @@
 #include "besch/ware_besch.h"
 #include "simplay.h"
 #include "simtools.h"
-#include "simmem.h"
+
 
 #include "simintr.h"
 
@@ -287,7 +288,7 @@ fabrik_t::sind_da_welche(karte_t *welt, koord min_pos, koord max_pos)
 				const grund_t *gr = welt->lookup(koord(x,y))->gib_kartenboden();
 				if(gr->obj_bei(0)!=NULL  &&  gr->obj_bei(0)->fabrik() != NULL) {
 					if( fablist.append_unique( gr->obj_bei(0)->fabrik(), 4 )  ) {
-						DBG_MESSAGE("fabrik_t::sind_da_welche()","appended factory %s at (%i,%i)",gr->obj_bei(0)->fabrik()->gib_besch()->gib_name(),x,y);
+//DBG_MESSAGE("fabrik_t::sind_da_welche()","appended factory %s at (%i,%i)",gr->obj_bei(0)->fabrik()->gib_besch()->gib_name(),x,y);
 					}
 				}
 			}
@@ -303,7 +304,7 @@ fabrik_t::ist_da_eine(karte_t *welt, koord min_pos, koord max_pos )
 		for(int x=min_pos.x; x<=max_pos.x; x++) {
 			if(welt->ist_in_kartengrenzen(x, y)) {
 				const grund_t *gr = welt->lookup(koord(x,y))->gib_kartenboden();
-				if(gr->obj_count()>0  &&  gr->obj_bei(0)->fabrik() != NULL) {
+				if(gr->obj_bei(0)!=NULL  &&  gr->obj_bei(0)->fabrik()!=NULL) {
 					return true;
 				}
 			}
@@ -327,7 +328,7 @@ fabrik_t::rdwr(loadsave_t *file)
 		eingang_count = eingang->get_count();
 		ausgang_count = ausgang->get_count();
 		anz_lieferziele = lieferziele.get_count();
-		s = gib_name();
+		s = besch->gib_name();
 	}
 	file->rdwr_str(s, "-");
 	if(file->is_loading()) {
@@ -634,7 +635,7 @@ fabrik_t::step(long delta_t)
 
 	if(delta_sum > PRODUCTION_DELTA_T) {
 		INT_CHECK("simfab 558");
-//DBG_DEBUG("fabrik_t::step()","%s",gib_name());
+//DBG_DEBUG("fabrik_t::step()","%s",besch->gib_name());
 
 		const uint32 ecount = eingang->get_count();
 		uint32 index = 0;

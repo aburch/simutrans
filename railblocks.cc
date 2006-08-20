@@ -190,34 +190,34 @@ void blockstrecke_t::add_signale(slist_tpl<signal_t *> &signale)
 
 bool blockstrecke_t::loesche_signal_bei(koord3d k)
 {
-    signal_t * sig = gib_signal_bei( k );
+	signal_t * sig = gib_signal_bei( k );
+	presignal_t *presig=NULL;
+	if(sig) {
 
-    if(sig) {
-
-        DBG_MESSAGE("blockstrecke_t::loesche_signal_bei()",
-		     "rail block %p removes signal %p at %hd,%hd",
-		     this, sig, k.x, k.y);
-
-	// der Destruktor entfernt das Signal aus allen Listen
-	delete sig;
-    } else {
-	// check for orphan signal
-
-	if(welt->lookup(k)) {
-	    sig = dynamic_cast<signal_t *>(welt->lookup(k)->suche_obj(ding_t::signal));
-
-	    if(sig) {
+DBG_MESSAGE("blockstrecke_t::loesche_signal_bei()","rail block %p removes signal %p at %hd,%hd", this, sig, k.x, k.y);
+		// der Destruktor entfernt das Signal aus allen Listen
 		delete sig;
-
-		dbg->warning("blockstrecke_t::loesche_signal_bei()",
-		             "orphan signal %p detected at %hd,%hd",
-			     sig, k.x, k.y);
-	    }
 	}
-    }
+	else {
+		// check for orphan signal
 
-    // gab's ueberhaupt was zu loeschen ?
-    return (sig != NULL);
+		if(welt->lookup(k)) {
+			sig = dynamic_cast<signal_t *>(welt->lookup(k)->suche_obj(ding_t::signal));
+			if(sig) {
+				delete sig;
+			}
+			else {
+				presig = dynamic_cast<presignal_t *>(welt->lookup(k)->suche_obj(ding_t::presignal));
+				if(presig) {
+					delete presig;
+				}
+			}
+
+			dbg->warning("blockstrecke_t::loesche_signal_bei()","orphan signal %p detected at %hd,%hd",sig, k.x, k.y);
+		}
+	}
+	// gab's ueberhaupt was zu loeschen ?
+	return (sig != NULL  ||  presig!=NULL);
 }
 
 

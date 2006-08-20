@@ -260,6 +260,7 @@ blockmanager::entferne_signal(karte_t *welt, koord3d pos)
 	int anzahl;
 	array_tpl<koord3d> &nb = finde_nachbarn(welt, pos, sig->gib_richtung(), anzahl);
 
+
 	// Hajo: count signals nearby
 	int count = 0;
 	int i;
@@ -272,7 +273,7 @@ blockmanager::entferne_signal(karte_t *welt, koord3d pos)
 DBG_MESSAGE("blockmanager::entferne_signal()","%d neighbours, %d signals found", anzahl, count);
 
 	// Hajo: ambiguous signals ?
-	if(count != 1) {
+	if(count>1) {
 		dbg->warning("blockmanager::entferne_signal()","ambiguous combination of %d signals found, break.", count);
 		return false;
 	}
