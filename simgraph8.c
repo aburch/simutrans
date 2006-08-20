@@ -765,7 +765,7 @@ void init_16_to_8_conversion()
 		memcpy( day_pal, colortable_8bit, 8*256 );
 	}
 
-	conversion_table = guarded_malloc( 32768+256 );
+	conversion_table = (PIXVAL *)guarded_malloc( 32768+256 );
 	for( red=0;  red<256;  red+= 8) {
 		for( green=0;  green<256;  green+=8 ) {
 			for( blue=0;  blue<256;  blue+=8 ) {
@@ -948,7 +948,7 @@ static void rezoom_img( const unsigned int n )
 
 			if(images[n].zoom_data==NULL) {
 				// normal len is ok, since we are only skipping parts ...
-				images[n].zoom_data = guarded_malloc( sizeof(PIXVAL)*images[n].len );
+				images[n].zoom_data = (PIXVAL *)guarded_malloc( sizeof(PIXVAL)*images[n].len );
 			}
 			last_dest = dest = images[n].zoom_data;
 
@@ -1144,7 +1144,10 @@ dsp_read_bdf_glyph( FILE *fin, unsigned char *data, unsigned char *screen_w, boo
 			data[16*char_nr+14] = 0;
 
 			// maximum size 10 pixels
-			h = MIN( h+top, 12 );
+			h += top;
+			if(h>11) {
+        h=12;
+      }
 
 			// read for height times
 			for(  y=top;  y<h;  y++  ) {

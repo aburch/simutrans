@@ -285,18 +285,12 @@ void grund_t::setze_text(const char *text)
  */
 const char* grund_t::gib_text() const
 {
-  const char * result = 0;
-
-  if(flags & has_text) {
-    const unsigned long n =
-      (pos.x << 19)
-      + (pos.y << 6)
-      + ((pos.z - welt->gib_grundwasser()) >> 4);
-
-    result = ground_texts.get(n);
-  }
-
-  return result;
+	const char * result = 0;
+	if(flags & has_text) {
+		const unsigned long n = (pos.x << 19) + (pos.y << 6) + ((pos.z - welt->gib_grundwasser()) >> 4);
+		result = ground_texts.get(n);
+	}
+	return result;
 }
 
 
@@ -797,7 +791,18 @@ void
 grund_t::display_dinge(const sint16 xpos, sint16 ypos, bool dirty)
 {
 //	DBG_DEBUG("grund_t::display_dinge()","at %i,%i",pos.x,pos.y);
-	dinge.display_dinge( xpos, ypos, dirty );
+	dirty |= get_flag(grund_t::dirty);
+	if(flags&marked) {
+		uint8 hang = gib_grund_hang();
+		uint8 back_hang = (hang&1) + ((hang>>1)&6)+8;
+//DBG_DEBUG("grund_t::display_dinge()","marker at %i,%i, img=%i",pos.x,pos.y,grund_besch_t::marker->gib_bild(back_hang));
+		display_img(grund_besch_t::marker->gib_bild(back_hang), xpos, ypos, true);
+		dinge.display_dinge( xpos, ypos, dirty );
+		display_img(grund_besch_t::marker->gib_bild(hang&7), xpos, ypos, true);
+	}
+	else {
+		dinge.display_dinge( xpos, ypos, dirty );
+	}
 
 	// marker/station text
 	const char * text = gib_text();
@@ -805,7 +810,7 @@ grund_t::display_dinge(const sint16 xpos, sint16 ypos, bool dirty)
 		const sint16 raster_tile_width = get_tile_raster_width();
 		const int width = proportional_string_width(text)+7;
 
-		display_ddd_proportional_clip(xpos - (width - raster_tile_width)/2, ypos, width, 0, text_farbe(), COL_BLACK, text, dirty || get_flag(grund_t::dirty));
+		display_ddd_proportional_clip(xpos - (width - raster_tile_width)/2, ypos, width, 0, text_farbe(), COL_BLACK, text, dirty);
 	}
 
 	// display station waiting information/status
@@ -818,6 +823,7 @@ grund_t::display_dinge(const sint16 xpos, sint16 ypos, bool dirty)
 		display_fillbox_wh_clip( xpos+raster_tile_width/2, ypos+(raster_tile_width*3)/4, 16, 16, 0, dirty);
 	}
 #endif
+	clear_flag(grund_t::dirty);
 }
 
 

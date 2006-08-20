@@ -69,6 +69,7 @@ public:
 	}
 	return 0;
     }
+
     int gib_bild(int typ, int phase  = 0) const
     {
 	const bildliste_besch_t *liste = static_cast<const bildliste2d_besch_t *>(gib_kind(2))->gib_liste(typ);
@@ -94,6 +95,7 @@ public:
     static const grund_besch_t *fundament;
     static const grund_besch_t *slopes;
     static const grund_besch_t *fences;
+    static const grund_besch_t *marker;
     static const grund_besch_t *ausserhalb;
 
     static bool register_besch(const grund_besch_t *besch);

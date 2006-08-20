@@ -40,5 +40,6 @@
 # OTTD_LIKE: Enables half height tiles and crossconnected industries; defaul folder pak.ttd/
 # DESTINATION_CITYCARS: Citycars can have a destination (not recommended)
 # USE_C: no assembler for copying
-# COUNT_HOUSES: default for 88.03 and higher; using lists for destination/sources of passengers
-FLAGS = -DCOUNT_HOUSES
+# USE_C_FOR_IMAGE: mandantory for GCC 4.x, since broken inline assembler
+# LITTLE_ENDIAN: Intel byte order
+FLAGS = -DLITTLE_ENDIAN 

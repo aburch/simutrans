@@ -208,13 +208,14 @@ void
 convoi_t::laden_abschliessen()
 {
 	if(anz_vehikel>0) {
+DBG_MESSAGE("convoi_t::laden_abschliessen()","state=%s, next_stop_index=%d", state_names[state] );
 		for( unsigned i=0;  i<anz_vehikel;  i++ ) {
 			fahr->at(i)->setze_erstes( i==0 );
 			fahr->at(i)->setze_letztes( i==(anz_vehikel-1u) );
 			// this sets the convoi and will renew the block reservation, if needed!
 			fahr->at(i)->setze_convoi( this );
 		}
-DBG_MESSAGE("convoi_t::laden_abschliessen()","state=%s, next_stop_index=%d", state_names[state], next_stop_index );
+DBG_MESSAGE("convoi_t::laden_abschliessen()","next_stop_index=%d", next_stop_index );
 		// lines are still unknown during loading!
 		if(line_id!=UNVALID_LINE_ID) {
 			// if a line is assigned, set line!

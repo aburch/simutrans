@@ -523,77 +523,72 @@ vehikel_basis_t::calc_richtung(koord start, koord ende, sint8 &dx, sint8 &dy) co
 }
 
 
-
+// this routine calculates the new height
+// beware of bridges, tunnels, slopes, ...
 int
 vehikel_basis_t::calc_height()
 {
-// hoff wird hier auf die Hoehe an stelle xoff,yoff
-// gesetzt
+	grund_t *gr = welt->lookup(gib_pos());
+	int hoff = 0;
 
-    const koord3d pos ( gib_pos() );
-
-    const planquadrat_t *plan = welt->lookup(pos.gib_2d());
-    grund_t *gr = plan->gib_boden_in_hoehe(pos.z);
-    int hoff = 0;
-
-    switch(gr->gib_weg_hang()) {
-    case 3:	// nordhang
-    case 6:	// westhang
-	hoff = -vehikel_basis_t::gib_yoff() - 8;
-	break;
-    case 9:	// osthang
-    case 12:    // suedhang
-	hoff = vehikel_basis_t::gib_yoff() - 8;
-	break;
-    }
-
-    if(gr == plan->gib_kartenboden()) {
-	if(gr->ist_bruecke() && gr->gib_weg_hang() == hang_t::flach) {
-	    hoff = -16;
+	switch(gr->gib_weg_hang()) {
+		case 3:	// nordhang
+		case 6:	// westhang
+			hoff = -vehikel_basis_t::gib_yoff() - 8;
+			break;
+		case 9:	// osthang
+		case 12:    // suedhang
+			hoff = vehikel_basis_t::gib_yoff() - 8;
+			break;
 	}
-	else if(gr->ist_tunnel()) {
-	    hoff = 0;
+
+	if(gr->ist_tunnel()) {
+		hoff = 0;
 		if(!gr->ist_im_tunnel()) {
 			// need hiding?
 			switch(gr->gib_grund_hang()) {
-			    case 3:	// nordhang
-			    	if(vehikel_basis_t::gib_yoff()>-7) {
-			    		setze_bild(0, IMG_LEER);
-			    	}
-			    	else {
-			    		calc_bild();
-			    	}
-			    	break;
-			    case 6:	// westhang
-			    	if(vehikel_basis_t::gib_xoff()>-12) {
-			    		setze_bild(0, IMG_LEER);
-			    	}
-			    	else {
-			    		calc_bild();
-			    	}
+			case 3:	// nordhang
+				if(vehikel_basis_t::gib_yoff()>-7) {
+					setze_bild(0, IMG_LEER);
+				}
+				else {
+					calc_bild();
+				}
 				break;
-			    case 9:	// osthang
-			    	if(vehikel_basis_t::gib_xoff()<6) {
-			    		setze_bild(0, IMG_LEER);
-			    	}
-			    	else {
-			    		calc_bild();
-			    	}
-			    case 12:    // suedhang
-			    	if(vehikel_basis_t::gib_yoff()<7) {
-			    		setze_bild(0, IMG_LEER);
-			    	}
-			    	else {
-			    		calc_bild();
-			    	}
+			case 6:	// westhang
+				if(vehikel_basis_t::gib_xoff()>-12) {
+					setze_bild(0, IMG_LEER);
+				}
+				else {
+					calc_bild();
+				}
+				break;
+			case 9:	// osthang
+				if(vehikel_basis_t::gib_xoff()<6) {
+					setze_bild(0, IMG_LEER);
+				}
+				else {
+					calc_bild();
+				}
+				break;
+			case 12:    // suedhang
+				if(vehikel_basis_t::gib_yoff()<7) {
+					setze_bild(0, IMG_LEER);
+				}
+				else {
+					calc_bild();
+				}
+				break;
 			}
 		}
 	}
-    }
-    // geschwindigkeit berechnen
+	else if(gr->gib_weg_hang()==hang_t::flach) {
+		hoff = -gr->gib_weg_yoff();
+	}
 
+	// recalculate friction
 	hoff = height_scaling(hoff);
-    calc_akt_speed(gr);
+	calc_akt_speed(gr);
 
     return hoff;
 }
@@ -1759,7 +1754,7 @@ waggon_t::setze_convoi(convoi_t *c)
 	if(c!=cnv) {
 		DBG_MESSAGE("waggon_t::setze_convoi()","new=%p old=%p",c,cnv);
 		if(ist_erstes) {
-			if(cnv!=NULL) {
+			if((unsigned long)cnv>1) {
 				if(route_index<cnv->get_route()->gib_max_n()+1) {
 					// free all reserved blocks
 					block_reserver( cnv->get_route(), route_index, 1000, false );
@@ -1785,7 +1780,7 @@ DBG_MESSAGE("waggon_t::setze_convoi()","new route %p, route_index %i",c->get_rou
 					// find about next signal after loading
 					uint16 next_signal_index=65535;
 					route_t *route=c->get_route();
-					for(  uint16 i=route_index;  i<=route->gib_max_n();  i++) {
+					for(  uint16 i=max(route_index,1)-1;  i<=route->gib_max_n();  i++) {
 						schiene_t * sch = (schiene_t *) welt->lookup(route->position_bei(i))->gib_weg(gib_wegtyp());
 						if(sch==NULL) {
 							break;
@@ -1918,7 +1913,7 @@ waggon_t::ist_weg_frei(int & restart_speed)
 {
 	if(ist_erstes  &&  (cnv->get_state()==convoi_t::CAN_START  ||  cnv->get_state()==convoi_t::CAN_START_ONE_MONTH)) {
 		// reserve first block at the start until the next signal
-		uint16 n=block_reserver(cnv->get_route(), max(route_index,2)-2, 0, true);
+		uint16 n=block_reserver(cnv->get_route(), max(route_index,1)-1, 0, true);
 		if(n==0) {
 //DBG_MESSAGE("cannot","start at index %i",route_index);
 			restart_speed = 0;
@@ -1987,16 +1982,16 @@ waggon_t::ist_weg_frei(int & restart_speed)
 				route_t target_rt;
 				const int richtung = ribi_typ(gib_pos().gib_2d(),pos_next.gib_2d());	// to avoid confusion at diagonals
 #ifdef MAX_CHOOSE_BLOCK_TILES
-				if(!target_rt.find_route( welt, gib_pos(), this, speed_to_kmh(cnv->gib_min_top_speed()), richtung, MAX_CHOOSE_BLOCK_TILES )) {
+				if(!target_rt.find_route( welt, rt->position_bei(next_block+1), this, speed_to_kmh(cnv->gib_min_top_speed()), richtung, MAX_CHOOSE_BLOCK_TILES )) {
 #else
-				if(!target_rt.find_route( welt, gib_pos(), this, speed_to_kmh(cnv->gib_min_top_speed()), richtung, welt->gib_groesse_x()+welt->gib_groesse_y() )) {
+				if(!target_rt.find_route( welt, rt->position_bei(next_block+1), this, speed_to_kmh(cnv->gib_min_top_speed()), richtung, welt->gib_groesse_x()+welt->gib_groesse_y() )) {
 #endif
 					// nothing empty or not route with less than MAX_CHOOSE_BLOCK_TILES tiles
 					target_halt = halthandle_t();
 				}
 				else {
 					// try to alloc the whole route
-					rt->remove_koord_from(route_index);
+					rt->remove_koord_from(next_block+1);
 					rt->append( &target_rt );
 					next_stop = block_reserver(rt,next_block+1,1000,true);
 				}

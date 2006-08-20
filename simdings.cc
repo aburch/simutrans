@@ -129,7 +129,7 @@ ding_t::~ding_t()
 
 		if(gr->obj_remove(this, gib_besitzer())) {
 			// normal case: redraw here
-			gr->set_flag(grund_t::world_spot_dirty);
+			gr->set_flag(grund_t::dirty);
 		}
 		else {
 			// not found? => try harder at all map locations
@@ -186,21 +186,19 @@ ding_t::setze_bild(int n, image_id bild)
 void
 ding_t::setze_pos(koord3d k)
 {
-    if(k != pos) {
-	if(welt->lookup(pos.gib_2d()) &&
-           welt->lookup(pos.gib_2d())->gib_kartenboden()) {
-	    // dirty spots are checked while painting grounds.
-	    // thus we need to mark the ground pos, rather than our pos.
-
-	    // welt->markiere_dirty(welt->lookup(pos.gib_2d())->gib_boden()->gib_pos());
-	    // welt->markiere_dirty(k);
+	if(k != pos) {
+		grund_t *gr=welt->lookup(pos);
+		if(gr) {
+			// dirty spots are checked while painting grounds.
+			// thus we need to mark the ground pos, rather than our pos.
+			gr->set_flag(grund_t::dirty);
+		}
+		pos = k;
+		set_flag(dirty);
 	}
-
-	pos = k;
-
-	set_flag(dirty);
-    }
 }
+
+
 
 ding_infowin_t *ding_t::new_info()
 {

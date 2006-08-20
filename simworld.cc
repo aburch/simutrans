@@ -826,9 +826,7 @@ DBG_DEBUG("karte_t::init()","Erzeuge stadt %i with %ld inhabitants",i,(s->get_ci
 	}
 
 	// tourist attractions
-     fabrikbauer_t::verteile_tourist(this,
-				gib_spieler(1),
-				einstellungen->gib_tourist_attractions());
+     fabrikbauer_t::verteile_tourist(this, gib_spieler(1), 	einstellungen->gib_tourist_attractions());
 
     print("Preparing startup ...\n");
 
@@ -2803,107 +2801,108 @@ karte_t::gib_zeiger() const
 
 void karte_t::bewege_zeiger(const event_t *ev)
 {
-    if(zeiger) {
-        const int rw1 = get_tile_raster_width();
-	const int rw2 = rw1/2;
-	const int rw4 = rw1/4;
+	if(zeiger) {
+		const int rw1 = get_tile_raster_width();
+		const int rw2 = rw1/2;
+		const int rw4 = rw1/4;
 
-	const int scale = rw1/64;
+		const int scale = rw1/64;
 
-	int i_alt=zeiger->gib_pos().x;
-	int j_alt=zeiger->gib_pos().y;
+		int i_alt=zeiger->gib_pos().x;
+		int j_alt=zeiger->gib_pos().y;
 
-	int screen_y = ev->my - y_off - 16 -rw4 - ((display_get_width()/rw1)&1)*rw4;
-//	int screen_y = ev->my - y_off - rw2 - ((display_get_width()/rw1)&1)*16;
-	int screen_x = (ev->mx - x_off - rw2 - display_get_width()/2) / 2;
+		int screen_y = ev->my - y_off - 16 -rw4 - ((display_get_width()/rw1)&1)*rw4;
+		//	int screen_y = ev->my - y_off - rw2 - ((display_get_width()/rw1)&1)*16;
+		int screen_x = (ev->mx - x_off - rw2 - display_get_width()/2) / 2;
 
-	if(zeiger->gib_yoff() == Z_PLAN) {
-	    screen_y -= rw4;
-	} else if(zeiger->gib_yoff() == Z_LINES) {
-	    screen_y -= rw4/2;
-	}
-
-
-	// berechnung der basis feldkoordinaten in i und j
-
-	/*  this would calculate raster i,j koordinates if there was no height
-	 *  die formeln stehen hier zur erinnerung wie sie in der urform aussehen
-
-	 int base_i = (screen_x+screen_y)/2;
-	 int base_j = (screen_y-screen_x)/2;
-
-	 int raster_base_i = (int)floor(base_i / 16.0);
-	 int raster_base_j = (int)floor(base_j / 16.0);
-
-	 */
-
-	// iterative naeherung fuer zeigerposition
-	// iterative naehreung an gelaendehoehe
-
-	int hgt = lookup_hgt(koord(i_alt, j_alt));
-
-	const int i_off = gib_ij_off().x;
-	const int j_off = gib_ij_off().y;
-
-	for(int n = 0; n < 2; n++) {
-
-	    const int base_i = (screen_x+screen_y+height_scaling(hgt*scale) )/2;
-	    const int base_j = (screen_y-screen_x+height_scaling(hgt*scale) )/2;
-
-	    mi = ((int)floor(base_i/(double)rw4)) + i_off;
-	    mj = ((int)floor(base_j/(double)rw4)) + j_off;
-
-
-/*	    if(zeiger->gib_yoff() == Z_GRID) {
-    		hgt = max_hgt(koord(mi,mj))+8;
-	    } else */{
-		const planquadrat_t *plan = lookup(koord(mi,mj));
-		if(plan != NULL) {
-		    hgt = plan->gib_kartenboden()->gib_hoehe();
-		} else {
-		    hgt = grundwasser;
+		if(zeiger->gib_yoff() == Z_PLAN) {
+			screen_y -= rw4;
 		}
-	    }
-
-	    if(hgt < grundwasser) {
-		hgt = grundwasser;
-	    }
-	}
-
-	// rueckwaerttransformation um die zielkoordinaten
-	// mit den mauskoordinaten zu vergleichen
-
-	int neu_x = ((mi-i_off) - (mj-j_off))*rw2;
-	int neu_y = ((mi-i_off) + (mj-j_off))*rw4;
-
-	neu_x += display_get_width()/2 + rw2;
-	neu_y += rw1;
-
-
-	// prüfe richtung d.h. welches nachbarfeld ist am naechsten
-
-	if(ev->mx-x_off < neu_x) {
-	    zeiger->setze_richtung(ribi_t::west);
-	} else {
-	    zeiger->setze_richtung(ribi_t::nord);
-	}
-
-
-	// zeiger bewegen
-
-	if(mi >= 0 && mj >= 0 && mi<gib_groesse_x() && mj<gib_groesse_y() && (mi != i_alt || mj != j_alt)) {
-
-	    i_alt = mi;
-	    j_alt = mj;
-
-	    koord3d pos = lookup(koord(mi,mj))->gib_kartenboden()->gib_pos();
-		if(zeiger->gib_yoff() == Z_GRID) {
-			pos.z = lookup_hgt(koord(mi,mj));
-//			pos.z = max_hgt(koord(mi,mj));
+		else if(zeiger->gib_yoff() == Z_LINES) {
+			screen_y -= rw4/2;
 		}
-		zeiger->setze_pos(pos);
+
+
+		// berechnung der basis feldkoordinaten in i und j
+
+		/*  this would calculate raster i,j koordinates if there was no height
+		*  die formeln stehen hier zur erinnerung wie sie in der urform aussehen
+
+		int base_i = (screen_x+screen_y)/2;
+		int base_j = (screen_y-screen_x)/2;
+
+		int raster_base_i = (int)floor(base_i / 16.0);
+		int raster_base_j = (int)floor(base_j / 16.0);
+
+		*/
+
+		// iterative naeherung fuer zeigerposition
+		// iterative naehreung an gelaendehoehe
+
+		int hgt = lookup_hgt(koord(i_alt, j_alt));
+
+		const int i_off = gib_ij_off().x;
+		const int j_off = gib_ij_off().y;
+
+		for(int n = 0; n < 2; n++) {
+
+			const int base_i = (screen_x+screen_y+height_scaling(hgt*scale) )/2;
+			const int base_j = (screen_y-screen_x+height_scaling(hgt*scale) )/2;
+
+			mi = ((int)floor(base_i/(double)rw4)) + i_off;
+			mj = ((int)floor(base_j/(double)rw4)) + j_off;
+
+
+			/*
+			if(zeiger->gib_yoff() == Z_GRID) {
+				hgt = max_hgt(koord(mi,mj))+8;
+			} else */{
+				const planquadrat_t *plan = lookup(koord(mi,mj));
+				if(plan != NULL) {
+					hgt = plan->gib_kartenboden()->gib_hoehe();
+				} else {
+					hgt = grundwasser;
+				}
+			}
+
+			if(hgt < grundwasser) {
+				hgt = grundwasser;
+			}
+		}
+
+		// rueckwaerttransformation um die zielkoordinaten
+		// mit den mauskoordinaten zu vergleichen
+		int neu_x = ((mi-i_off) - (mj-j_off))*rw2;
+		int neu_y = ((mi-i_off) + (mj-j_off))*rw4;
+
+		neu_x += display_get_width()/2 + rw2;
+		neu_y += rw1;
+
+
+		// prüfe richtung d.h. welches nachbarfeld ist am naechsten
+		if(ev->mx-x_off < neu_x) {
+			zeiger->setze_richtung(ribi_t::west);
+		}
+		else {
+			zeiger->setze_richtung(ribi_t::nord);
+		}
+
+
+		// zeiger bewegen
+
+		if(mi >= 0 && mj >= 0 && mi<gib_groesse_x() && mj<gib_groesse_y() && (mi != i_alt || mj != j_alt)) {
+
+			i_alt = mi;
+			j_alt = mj;
+
+			koord3d pos = lookup(koord(mi,mj))->gib_kartenboden()->gib_pos();
+			if(zeiger->gib_yoff()==Z_GRID) {
+				pos.z = lookup_hgt(koord(mi,mj));
+				// pos.z = max_hgt(koord(mi,mj));
+			}
+			zeiger->setze_pos(pos);
+		}
 	}
-    }
 }
 
 

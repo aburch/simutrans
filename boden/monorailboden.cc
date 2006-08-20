@@ -17,14 +17,12 @@
 monorailboden_t::monorailboden_t(karte_t *welt, loadsave_t *file) : grund_t(welt)
 {
     rdwr(file);
-    clear_flag(grund_t::is_bridge);
 }
 
 
 monorailboden_t::monorailboden_t(karte_t *welt, koord3d pos,hang_t::typ slope) : grund_t(welt, pos)
 {
     this->slope = slope;
-    clear_flag(grund_t::is_bridge);
 }
 
 

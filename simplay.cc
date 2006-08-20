@@ -1789,7 +1789,7 @@ DBG_MESSAGE("spieler_t::baue_bahnhof","achieved length %i",baulaenge);
 		koord last_dir = koord((ribi_t::ribi)welt->lookup(*p)->gib_kartenboden()->gib_weg_ribi(weg_t::schiene));
 		while(1) {
 			grund_t *gr=welt->lookup(pos)->gib_kartenboden();
-			if(gr==NULL  ||  gr->ist_bruecke()  ||  gr->ist_tunnel()) {
+			if(gr==NULL  ||  gr->gib_weg_hang()!=gr->gib_grund_hang()) {
 				break;
 			}
 			koord dir((ribi_t::ribi)gr->gib_weg_ribi(weg_t::schiene));

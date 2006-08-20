@@ -34,6 +34,7 @@ const uint8 grund_besch_t::slopetable[80] =
 	0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF,
 	0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF
 };
+#else
 #endif
 
 const grund_besch_t *grund_besch_t::boden = NULL;
@@ -51,6 +52,7 @@ const grund_besch_t *grund_besch_t::wasser = NULL;
 const grund_besch_t *grund_besch_t::fundament = NULL;
 const grund_besch_t *grund_besch_t::slopes = NULL;
 const grund_besch_t *grund_besch_t::fences = NULL;
+const grund_besch_t *grund_besch_t::marker = NULL;
 const grund_besch_t *grund_besch_t::ausserhalb = NULL;
 
 static spezial_obj_tpl<grund_besch_t> grounds[] = {
@@ -60,6 +62,7 @@ static spezial_obj_tpl<grund_besch_t> grounds[] = {
     { &grund_besch_t::fundament,    "Basement" },
     { &grund_besch_t::slopes,    "Slopes" },
     { &grund_besch_t::fences,   "Fence" },
+    { &grund_besch_t::marker,   "Marker" },
     { &grund_besch_t::ausserhalb,   "Outside" },
     { NULL, NULL }
 };

@@ -18,7 +18,6 @@
 brueckenboden_t::brueckenboden_t(karte_t *welt, loadsave_t *file) : grund_t(welt)
 {
 	rdwr(file);
-	set_flag(grund_t::is_bridge);
 }
 
 
@@ -26,7 +25,6 @@ brueckenboden_t::brueckenboden_t(karte_t *welt, koord3d pos, int grund_hang, int
 {
 	slope = grund_hang;
 	this->weg_hang = weg_hang;
-	set_flag(grund_t::is_bridge);
 }
 
 

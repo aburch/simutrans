@@ -1934,7 +1934,7 @@ stadt_t::baue_gebaeude(const koord k)
 			int streetdir=0;
 			for(int i=0;  i<8;  i++ ) {
 				gr = welt->lookup(k+neighbours[i])->gib_kartenboden();
-				if(gr  &&  !gr->ist_bruecke()  &&  !gr->ist_tunnel()) {
+				if(gr  &&  gr->gib_weg_hang()==gr->gib_grund_hang()) {
 					strasse_t *weg = (strasse_t *)(gr->gib_weg(weg_t::strasse));
 					if(weg) {
 						if(i<4  &&  streetdir==0) {
@@ -2089,7 +2089,7 @@ stadt_t::renoviere_gebaeude(koord k)
 		int streetdir=0;
 		for(int i=0;  i<8;  i++ ) {
 			grund_t *gr = welt->lookup(k+neighbours[i])->gib_kartenboden();
-			if(gr  &&  !gr->ist_bruecke()  &&  !gr->ist_tunnel()) {
+			if(gr  &&  gr->gib_weg_hang()==gr->gib_grund_hang()) {
 				strasse_t *weg = dynamic_cast <strasse_t *>(gr->gib_weg(weg_t::strasse));
 				if(weg) {
 					if(i<4  &&  streetdir==0) {
@@ -2162,7 +2162,7 @@ stadt_t::baue_strasse(koord k, spieler_t *sp, bool forced)
 		for(int r = 0; r < 4; r++) {
 			bool ok = false;
 			grund_t *bd2 = welt->access(k + koord::nsow[r])->gib_kartenboden();
-			if(bd2  &&  !bd2->ist_tunnel()  &&   !bd2->ist_bruecke()  &&  bd2->gib_depot()==NULL) {
+			if(bd2  &&  bd2->gib_weg_hang()==bd2->gib_grund_hang()  &&  bd2->gib_depot()==NULL) {
 				const hang_t::typ typ2 = bd2->gib_grund_hang();
 
 				// prüfe hanglage auf richtung

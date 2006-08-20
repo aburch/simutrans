@@ -6,4 +6,4 @@ UTF8 files are beginning with "§" in UTF8 as very first letter. The line endings
 
 The only execption so far is the citylist, which must be in the same encoding as the language file. But this will also change soon.
 
-If an UTF8 file is encountered in an not UTF8 language, it will be translated to 8Bit Latin (by just ignore all bits but the lower 8).
+If an UTF8 file is encountered in an not UTF8 language, it will be translated to 8Bit Latin (by just ignoring all bits but the lower 8).

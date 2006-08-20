@@ -62,15 +62,12 @@ public:
      */
     enum flag_values {
 		keine_flags=0,
-		dirty=1,
+		dirty=1, // was changed => redraw full
 		is_kartenboden=2,
 		has_text=4,
-		world_spot_dirty = 8,  // Hajo: benutzt von karte_t::ist_dirty(koord3d)
+		marked = 8,  // will have a frame
 		draw_as_ding = 16, // is a slope etc => draw as one
 		is_cover_tile = 32,	// is a ground; however, below is another ground ...
-		is_bridge = 64,
-		is_tunnel = 128,
-		is_in_tunnel = 32
     };
 
 
@@ -209,272 +206,269 @@ protected:
 	void grund_t::calc_back_bild(const sint8 hgt,const sint8 slope_this);
 
 public:
-    enum typ {grund, boden, wasser, fundament, tunnelboden, brueckenboden, monorailboden };
+	enum typ {grund, boden, wasser, fundament, tunnelboden, brueckenboden, monorailboden };
 
-    grund_t(karte_t *welt, loadsave_t *file);
-    grund_t(karte_t *welt, koord3d pos);
+	grund_t(karte_t *welt, loadsave_t *file);
+	grund_t(karte_t *welt, koord3d pos);
 
-    virtual ~grund_t();
+	virtual ~grund_t();
 
-		karte_t *gib_welt() const {return welt;}
+	karte_t *gib_welt() const {return welt;}
 
-    /**
-     * Setzt Flags für das neuzeichnen geänderter Untergründe
-     * @author Hj. Malthaner
-     */
-    inline void set_flag(enum flag_values flag) {flags |= flag;};
+	/**
+	* Setzt Flags für das neuzeichnen geänderter Untergründe
+	* @author Hj. Malthaner
+	*/
+	inline void set_flag(enum flag_values flag) {flags |= flag;}
 
+	inline void clear_flag(enum flag_values flag) {flags &= ~flag;}
+	inline bool get_flag(enum flag_values flag) const {return (flags & flag) != 0;}
 
-    inline void clear_flag(enum flag_values flag) {flags &= ~flag;};
-    inline bool get_flag(enum flag_values flag) const {return (flags & flag) != 0;};
-
-    void entferne_grund_info();
-
-
-    /**
-     * Untergruende werden wie asynchrone Objekte gesteppt.
-     *
-     * Take care, this can be switched off by the user. Don't do
-     * anything important for the game herein, just animations or
-     * nice effects.
-     *
-     * @author Hj. Malthaner
-     */
-    virtual void step() {};
+	void entferne_grund_info();
 
 
-    /**
-     * Gibt die Nummer des Bildes des Untergrundes zurueck.
-     * @return Die Nummer des Bildes des Untergrundes.
-     * @author Hj. Malthaner
-     */
-    inline const image_id gib_bild() const {return bild_nr;}
+	/**
+	* Untergruende werden wie asynchrone Objekte gesteppt.
+	*
+	* Take care, this can be switched off by the user. Don't do
+	* anything important for the game herein, just animations or
+	* nice effects.
+	*
+	* @author Hj. Malthaner
+	*/
+	virtual void step() {};
 
-    /**
-     * Returns the number of an eventual foundation
-     * @author prissi
-     */
+
+	/**
+	* Gibt die Nummer des Bildes des Untergrundes zurueck.
+	* @return Die Nummer des Bildes des Untergrundes.
+	* @author Hj. Malthaner
+	*/
+	inline const image_id gib_bild() const {return bild_nr;}
+
+	/**
+	* Returns the number of an eventual foundation
+	* @author prissi
+	*/
 	image_id gib_back_bild(int leftback) const;
 	virtual void clear_back_bild() {back_bild_nr=0;}
 
-    /**
-     * Gibt den Namen des Untergrundes zurueck.
-     * @return Den Namen des Untergrundes.
-     * @author Hj. Malthaner
-     */
-    virtual const char* gib_name() const;
+	/**
+	* Gibt den Namen des Untergrundes zurueck.
+	* @return Den Namen des Untergrundes.
+	* @author Hj. Malthaner
+	*/
+	virtual const char* gib_name() const;
 
 
-    /**
-     * Gibt den Typ des Untergrundes zurueck.
-     * @return Der Typ des Untergrundes.
-     * @author Hj. Malthaner
-     */
-    virtual enum typ gib_typ() const {return grund;};
+	/**
+	* Gibt den Typ des Untergrundes zurueck.
+	* @return Der Typ des Untergrundes.
+	* @author Hj. Malthaner
+	*/
+	virtual enum typ gib_typ() const {return grund;}
 
 
-    /**
-     * Gibt eine Beschreibung des Untergrundes (informell) zurueck.
-     * @return Einen Beschreibungstext zum Untergrund.
-     * @author Hj. Malthaner
-     */
-    const char* gib_text() const;
+	/**
+	* Gibt eine Beschreibung des Untergrundes (informell) zurueck.
+	* @return Einen Beschreibungstext zum Untergrund.
+	* @author Hj. Malthaner
+	*/
+	const char* gib_text() const;
 
 
-    /**
-     * @return NULL
-     * @author Hj. Malthaner
-     */
-    virtual void info(cbuffer_t & buf) const;
+	/**
+	* @return NULL
+	* @author Hj. Malthaner
+	*/
+	virtual void info(cbuffer_t & buf) const;
 
 
-    /**
-     * Auffforderung, ein Infofenster zu oeffnen.
-     * Oeffnet standardmaessig kein Infofenster.
-     * @author Hj. Malthaner
-     */
-    virtual bool zeige_info() { return false; };
+	/**
+	* Auffforderung, ein Infofenster zu oeffnen.
+	* Oeffnet standardmaessig kein Infofenster.
+	* @author Hj. Malthaner
+	*/
+	virtual bool zeige_info() { return false; }
 
 
-    /**
-     * Gibt die Farbe des Beschreibungstexthintergrundes zuurck
-     * @return die Farbe des Beschreibungstexthintergrundes.
-     * @author Hj. Malthaner
-     */
-    PLAYER_COLOR_VAL text_farbe() const;
+	/**
+	* Gibt die Farbe des Beschreibungstexthintergrundes zuurck
+	* @return die Farbe des Beschreibungstexthintergrundes.
+	* @author Hj. Malthaner
+	*/
+	PLAYER_COLOR_VAL text_farbe() const;
 
 
-    /**
-     * Dient zur Neuberechnung des Bildes, wenn sich die Umgebung
-     * oder die Lage (Hang) des grundes geaendert hat.
-     * @author Hj. Malthaner
-     */
-    virtual void calc_bild();
+	/**
+	* Dient zur Neuberechnung des Bildes, wenn sich die Umgebung
+	* oder die Lage (Hang) des grundes geaendert hat.
+	* @author Hj. Malthaner
+	*/
+	virtual void calc_bild();
 
 
-    /**
-     * Setzt den Beschreibungstext.
-     * @param text Der neue Beschreibungstext.
-     * @see grund_t::text
-     * @author Hj. Malthaner
-     */
-    void setze_text(const char *text);
+	/**
+	* Setzt den Beschreibungstext.
+	* @param text Der neue Beschreibungstext.
+	* @see grund_t::text
+	* @author Hj. Malthaner
+	*/
+	void setze_text(const char *text);
 
 
-    /**
-     * Ermittelt den Besitzer des Untergrundes.
-     * @author Hj. Malthaner
-     */
-    spieler_t * gib_besitzer() const;
+	/**
+	* Ermittelt den Besitzer des Untergrundes.
+	* @author Hj. Malthaner
+	*/
+	spieler_t * gib_besitzer() const;
 
 
-    /**
-     * Setze den Besitzer des Untergrundes. Gibt false zururck, wenn
-     * das setzen fehlgeschlagen ist.
-     * @author Hj. Malthaner
-     */
-    bool setze_besitzer(spieler_t *s);
+	/**
+	* Setze den Besitzer des Untergrundes. Gibt false zururck, wenn
+	* das setzen fehlgeschlagen ist.
+	* @author Hj. Malthaner
+	*/
+	bool setze_besitzer(spieler_t *s);
 
 
-    virtual bool ist_natur() const {return false;}
-    virtual bool ist_wasser() const {return false;}
+	virtual bool ist_natur() const {return false;}
+	virtual bool ist_wasser() const {return false;}
 
 
-    /**
-     * This is called very often, it must be inlined and therefore
-     * cannot be virtual - subclasses must set the flags appropriately!
-     * @author Hj. Malthaner
-     */
-    inline bool ist_bruecke() const {return (flags & is_bridge) != 0;};
+	/**
+	* This is called very often, it must be inlined and therefore
+	* cannot be virtual - subclasses must set the flags appropriately!
+	* @author Hj. Malthaner
+	*/
+	inline bool ist_bruecke() const {return gib_typ()==brueckenboden;}
 
 
-    /**
-     * This is called very often, it must be inlined and therefore
-     * cannot be virtual - subclasses must set the flags appropriately!
-     * @author Hj. Malthaner
-     */
-    inline bool ist_tunnel() const {return (flags & is_tunnel) != 0;};
+	/**
+	* This is called very often, it must be inlined and therefore
+	* cannot be virtual - subclasses must set the flags appropriately!
+	* @author Hj. Malthaner
+	*/
+	inline bool ist_tunnel() const {return gib_typ()==tunnelboden;}
 
-    /**
-     * This is called very often, it must be inlined and therefore
-     * cannot be virtual - subclasses must set the flags appropriately!
-     * @author Hj. Malthaner
-     */
-    inline bool ist_im_tunnel() const {return (flags & is_in_tunnel) != 0;};
+	/**
+	* This is called very often, it must be inlined and therefore
+	* cannot be virtual - subclasses must set the flags appropriately!
+	* @author Hj. Malthaner
+	*/
+	inline bool ist_im_tunnel() const {return ist_tunnel()  &&  ist_karten_boden()==0;}
 
-		/* this will be stored locally, since it is called many, many times */
-		uint8 ist_karten_boden() const {return (flags&is_kartenboden);}
-		void set_kartenboden(bool tf) {if(tf) {flags|=is_kartenboden;} else {flags&=~is_kartenboden;} }
+	/* this will be stored locally, since it is called many, many times */
+	inline uint8 ist_karten_boden() const {return (flags&is_kartenboden);}
+	void set_kartenboden(bool tf) {if(tf) {flags|=is_kartenboden;} else {flags&=~is_kartenboden;} }
 
-    /**
-     * L„dt oder speichert die Daten des Untergrundes in eine Datei.
-     * @param file Zeiger auf die Datei in die gespeichert werden soll.
-     * @author Hj. Malthaner
-     */
-    virtual void rdwr(loadsave_t *file);
-
-
-    /**
-     * Gibt die 3d-Koordinaten des Planquadrates zurueck, zu dem der
-     * Untergrund gehoert.
-     * @return Die Position des Grundes in der 3d-Welt
-     * @return Die invalid, falls this == NULL
-     * @author Hj. Malthaner
-     */
-    inline const koord3d & gib_pos() const {return this ? pos : koord3d::invalid;};
-
-    inline void setze_pos(koord3d newpos) { pos = newpos;};
-
-    hang_t::typ gib_grund_hang() const { return (hang_t::typ)slope; }
-    virtual bool setze_grund_hang(hang_t::typ sl);
-
-    /**
-     * Manche Böden können zu Haltestellen gehören.
-     * Der Zeiger auf die Haltestelle wird hiermit gesetzt.
-     * @author Hj. Malthaner
-     */
-    void setze_halt(halthandle_t halt);
-
-    /**
-     * Ermittelt, ob dieser Boden zu einer Haltestelle gehört.
-     * @return NULL wenn keine Haltestelle, sonst Zeiger auf Haltestelle
-     * @author Hj. Malthaner
-     */
-    const halthandle_t gib_halt() const {return halt;}
+	/**
+	* Laedt oder speichert die Daten des Untergrundes in eine Datei.
+	* @param file Zeiger auf die Datei in die gespeichert werden soll.
+	* @author Hj. Malthaner
+	*/
+	virtual void rdwr(loadsave_t *file);
 
 
+	/**
+	* Gibt die 3d-Koordinaten des Planquadrates zurueck, zu dem der
+	* Untergrund gehoert.
+	* @return Die Position des Grundes in der 3d-Welt
+	* @return Die invalid, falls this == NULL
+	* @author Hj. Malthaner
+	*/
+	inline const koord3d & gib_pos() const {return this ? pos : koord3d::invalid;}
 
-    inline short gib_hoehe() const {return pos.z;}
+	inline void setze_pos(koord3d newpos) { pos = newpos;}
 
-    void setze_hoehe(int h) { pos.z = h;}
+	hang_t::typ gib_grund_hang() const { return (hang_t::typ)slope; }
+	virtual bool setze_grund_hang(hang_t::typ sl);
 
-    /**
-     * Zeichnet Bodenbild des Grundes
-     * @author Hj. Malthaner
-     */
-    void display_boden(const sint16 xpos, sint16 ypos, const bool dirty) const;
+	/**
+	* Manche Böden können zu Haltestellen gehören.
+	* Der Zeiger auf die Haltestelle wird hiermit gesetzt.
+	* @author Hj. Malthaner
+	*/
+	void setze_halt(halthandle_t halt);
 
-    /**
-     * Zeichnet Dinge des Grundes. Löscht das Dirty-Flag.
-     * @author Hj. Malthaner
-     */
-    void display_dinge(const sint16 xpos, sint16 ypos, const bool dirty);
+	/**
+	* Ermittelt, ob dieser Boden zu einer Haltestelle gehört.
+	* @return NULL wenn keine Haltestelle, sonst Zeiger auf Haltestelle
+	* @author Hj. Malthaner
+	*/
+	const halthandle_t gib_halt() const {return halt;}
 
-    ding_t * suche_obj(ding_t::typ typ) const { return dinge.suche(typ,0); }
-    ding_t * suche_obj_ab(ding_t::typ typ,uint8 start) const { return dinge.suche(typ,start); }
+	inline short gib_hoehe() const {return pos.z;}
 
-    uint8  obj_add(ding_t *obj) { return dinge.add(obj,0); }
-    uint8	obj_insert_at(ding_t *obj,uint8 pri) { return dinge.insert_at(obj,pri); }
-    uint8  obj_pri_add(ding_t *obj, uint8 pri) { return dinge.add(obj, pri); }
-		uint8 insert_before_moving(ding_t *obj) { return dinge.insert_before_moving(obj); }
-    uint8  obj_remove(ding_t *obj, spieler_t *sp) { set_flag(dirty); return dinge.remove(obj, sp); }
-    ding_t *obj_takeout(uint8 pos) { return dinge.remove_at(pos); }
-    bool obj_loesche_alle(spieler_t *sp) { return dinge.loesche_alle(sp); }
-    bool obj_ist_da(ding_t *obj) const { return dinge.ist_da(obj); }
-    ding_t * obj_bei(uint8 n) const { return dinge.bei(n); }
-    uint8  obj_count() const { return dinge.count(); }
-    uint8 gib_top() const {return dinge.gib_top();}
+	void setze_hoehe(int h) { pos.z = h;}
 
-    /**
-     * @returns NULL wenn OK, oder Meldung, warum nicht
-     * @author Hj. Malthaner
-     */
-    const char * kann_alle_obj_entfernen(const spieler_t *sp) const { return dinge.kann_alle_entfernen(sp); }
+	/**
+	* Zeichnet Bodenbild des Grundes
+	* @author Hj. Malthaner
+	*/
+	void display_boden(const sint16 xpos, sint16 ypos, const bool dirty) const;
 
+	/**
+	* Zeichnet Dinge des Grundes. Löscht das Dirty-Flag.
+	* @author Hj. Malthaner
+	*/
+	void display_dinge(const sint16 xpos, sint16 ypos, const bool dirty);
 
-    /**
-     * Interface zur Bauen und abfragen von Gebaeuden
-     * =============================================
-     */
+	ding_t * suche_obj(ding_t::typ typ) const { return dinge.suche(typ,0); }
+	ding_t * suche_obj_ab(ding_t::typ typ,uint8 start) const { return dinge.suche(typ,start); }
 
-    /**
-     * TRUE, falls es hier ein Gebaeude des speziellen Typs gibt.
-     * Dient insbesondere dazu, festzustellen ob eine bestimmte Haltestelle
-     * vorhanden ist:
-     * @author Volker Meyer
-     */
-    bool hat_gebaeude(const haus_besch_t *besch) const;
+	uint8  obj_add(ding_t *obj) { return dinge.add(obj,0); }
+	uint8	obj_insert_at(ding_t *obj,uint8 pri) { return dinge.insert_at(obj,pri); }
+	uint8  obj_pri_add(ding_t *obj, uint8 pri) { return dinge.add(obj, pri); }
+	uint8 insert_before_moving(ding_t *obj) { return dinge.insert_before_moving(obj); }
+	uint8  obj_remove(ding_t *obj, spieler_t *sp) { set_flag(dirty); return dinge.remove(obj, sp); }
+	ding_t *obj_takeout(uint8 pos) { return dinge.remove_at(pos); }
+	bool obj_loesche_alle(spieler_t *sp) { return dinge.loesche_alle(sp); }
+	bool obj_ist_da(ding_t *obj) const { return dinge.ist_da(obj); }
+	ding_t * obj_bei(uint8 n) const { return dinge.bei(n); }
+	uint8  obj_count() const { return dinge.count(); }
+	uint8 gib_top() const {return dinge.gib_top();}
 
-    /**
-     * Falls es hier ein Depot gibt, dieses zurueckliefern
-     * @author Volker Meyer
-     */
-    depot_t *gib_depot() const;
-
-
-    /*
-     * Interface zur Abfrage der Wege
-     * ==============================
-     * Jeder Boden hat bis zu 2. Special fuer Wasser: ohne Weg-Objekt werden
-     * alle ribis vom weg_t::wassert als gesetzt zurueckgeliefert.
-     */
+	/**
+	* @returns NULL wenn OK, oder Meldung, warum nicht
+	* @author Hj. Malthaner
+	*/
+	const char * kann_alle_obj_entfernen(const spieler_t *sp) const { return dinge.kann_alle_entfernen(sp); }
 
 
-    /**
-     * The only way to get the typ of a way on a tile
-     * @author Hj. Malthaner
-     */
-    weg_t *gib_weg_nr(int i) const { return (this  &&  wege[i]) ? wege[i] : NULL; }
+	/**
+	* Interface zur Bauen und abfragen von Gebaeuden
+	* =============================================
+	*/
+
+	/**
+	* TRUE, falls es hier ein Gebaeude des speziellen Typs gibt.
+	* Dient insbesondere dazu, festzustellen ob eine bestimmte Haltestelle
+	* vorhanden ist:
+	* @author Volker Meyer
+	*/
+	bool hat_gebaeude(const haus_besch_t *besch) const;
+
+	/**
+	* Falls es hier ein Depot gibt, dieses zurueckliefern
+	* @author Volker Meyer
+	*/
+	depot_t *gib_depot() const;
+
+
+	/*
+	* Interface zur Abfrage der Wege
+	* ==============================
+	* Jeder Boden hat bis zu 2. Special fuer Wasser: ohne Weg-Objekt werden
+	* alle ribis vom weg_t::wassert als gesetzt zurueckgeliefert.
+	*/
+
+
+	/**
+	* The only way to get the typ of a way on a tile
+	* @author Hj. Malthaner
+	*/
+	weg_t *gib_weg_nr(int i) const { return (this  &&  wege[i]) ? wege[i] : NULL; }
 
 
     /**
@@ -496,12 +490,12 @@ public:
     }
 
 	/**
-		* Returns the system type s_type of a way of type typ at this location
-		* Currently only needed for tramways or other different types of rails
-		*
-		* @author DarioK
-		* @see gib_weg
-		*/
+	* Returns the system type s_type of a way of type typ at this location
+	* Currently only needed for tramways or other different types of rails
+	*
+	* @author DarioK
+	* @see gib_weg
+	*/
 	const uint8 gib_styp(weg_t::typ typ) const {
 		if(this) {
 			int i = 0;
@@ -515,129 +509,129 @@ public:
 		return 0;
 	}
 
-     /**
-     * Ermittelt die Richtungsbits furr den weg vom Typ 'typ'.
-     * Liefert 0 wenn kein weg des Typs vorhanden ist. Ein Weg kann ggf.
-     * auch 0 als Richtungsbits liefern, deshalb kann die Anwesenheit eines
-     * Wegs nicht hierurber, sondern mit gib_weg(), ermittelt werden.
-     * @author Hj. Malthaner
-     */
-    virtual ribi_t::ribi gib_weg_ribi(weg_t::typ typ) const;
+	/**
+	* Ermittelt die Richtungsbits furr den weg vom Typ 'typ'.
+	* Liefert 0 wenn kein weg des Typs vorhanden ist. Ein Weg kann ggf.
+	* auch 0 als Richtungsbits liefern, deshalb kann die Anwesenheit eines
+	* Wegs nicht hierurber, sondern mit gib_weg(), ermittelt werden.
+	* @author Hj. Malthaner
+	*/
+	virtual ribi_t::ribi gib_weg_ribi(weg_t::typ typ) const;
 
-     /**
-     * Ermittelt die Richtungsbits furr den weg vom Typ 'typ' unmaskiert.
-     * Dies wird beim Bauen ben÷tigt. Furr die Routenfindung werden die
-     * maskierten ribis benutzt.
-     * @author Hj. Malthaner/V. Meyer
-     *
-     */
-    virtual ribi_t::ribi gib_weg_ribi_unmasked(weg_t::typ typ) const;
+	/**
+	* Ermittelt die Richtungsbits furr den weg vom Typ 'typ' unmaskiert.
+	* Dies wird beim Bauen ben÷tigt. Furr die Routenfindung werden die
+	* maskierten ribis benutzt.
+	* @author Hj. Malthaner/V. Meyer
+	*
+	*/
+	virtual ribi_t::ribi gib_weg_ribi_unmasked(weg_t::typ typ) const;
 
-    /**
-     * Brurckenwege an den Auffahrten sind eine Ebene urber der Planh÷he.
-     * Alle anderen liefern hier 0.
-     * @author V. Meyer
-     */
-    virtual int gib_weg_yoff() const { return 0; }
+	/**
+	* Brurckenwege an den Auffahrten sind eine Ebene urber der Planh÷he.
+	* Alle anderen liefern hier 0.
+	* @author V. Meyer
+	*/
+	virtual int gib_weg_yoff() const { return 0; }
 
-    /**
-     * Hat der Boden mindestens ein weg_t-Objekt? Liefert false furr Wasser!
-     * @author V. Meyer
-     */
-    inline bool hat_wege() const { return wege[0] != NULL;}
+	/**
+	* Hat der Boden mindestens ein weg_t-Objekt? Liefert false furr Wasser!
+	* @author V. Meyer
+	*/
+	inline bool hat_wege() const { return wege[0] != NULL;}
 
-    /**
-     * Kreuzen sich hier 2 verschiedene Wege?
-		 * Strassenbahnschienen duerfen nicht als Kreuzung erkannt werden!
-     * @author V. Meyer, dariok
-     */
+	/**
+	* Kreuzen sich hier 2 verschiedene Wege?
+	* Strassenbahnschienen duerfen nicht als Kreuzung erkannt werden!
+	* @author V. Meyer, dariok
+	*/
 	inline bool ist_uebergang() const {return (wege[1]  &&  wege[0]->gib_besch()->gib_wtyp()!=wege[1]->gib_besch()->gib_wtyp()  &&  wege[1]->gib_besch()->gib_styp()!=7); }
 
-    /**
-     * Liefert einen Text furr die Ueberschrift des Info-Fensters.
-     * @author V. Meyer
-     */
-    const char * gib_weg_name(weg_t::typ typ = weg_t::invalid) const;
+	/**
+	* Liefert einen Text furr die Ueberschrift des Info-Fensters.
+	* @author V. Meyer
+	*/
+	const char * gib_weg_name(weg_t::typ typ = weg_t::invalid) const;
 
 
-    virtual hang_t::typ gib_weg_hang() const { return gib_grund_hang(); }
+	virtual hang_t::typ gib_weg_hang() const { return gib_grund_hang(); }
 
-    /**
-     * Interface zur Bauen der Wege
-     * =============================
-     */
+	/**
+	* Interface zur Bauen der Wege
+	* =============================
+	*/
 
-    /**
-     * Bauhilfsfunktion - ein neuer weg wird mit den vorgegebenen ribis
-     * eingetragen und der Grund dem Erbauer zugeordnet.
-     *
-     * @return bool	    true, falls weg nicht vorhanden war
-     * @param weg	    der neue Weg
-     * @param ribi	    die neuen ribis
-     * @param sp	    Spieler, dem der Boden zugeordnet wird
-     *
-     * @author V. Meyer
-     */
-    long neuen_weg_bauen(weg_t *weg, ribi_t::ribi ribi, spieler_t *sp);
+	/**
+	* Bauhilfsfunktion - ein neuer weg wird mit den vorgegebenen ribis
+	* eingetragen und der Grund dem Erbauer zugeordnet.
+	*
+	* @return bool	    true, falls weg nicht vorhanden war
+	* @param weg	    der neue Weg
+	* @param ribi	    die neuen ribis
+	* @param sp	    Spieler, dem der Boden zugeordnet wird
+	*
+	* @author V. Meyer
+	*/
+	long neuen_weg_bauen(weg_t *weg, ribi_t::ribi ribi, spieler_t *sp);
 
-    /**
-     * Bauhilfsfunktion - die ribis eines vorhandenen weges werden erweitert
-     *
-     * @return bool	    true, falls weg vorhanden
-     * @param wegtyp	    um welchen wegtyp geht es
-     * @param ribi	    die neuen ribis
-     *
-     * @author V. Meyer
-     */
-    bool weg_erweitern(weg_t::typ wegtyp, ribi_t::ribi ribi);
+	/**
+	* Bauhilfsfunktion - die ribis eines vorhandenen weges werden erweitert
+	*
+	* @return bool	    true, falls weg vorhanden
+	* @param wegtyp	    um welchen wegtyp geht es
+	* @param ribi	    die neuen ribis
+	*
+	* @author V. Meyer
+	*/
+	bool weg_erweitern(weg_t::typ wegtyp, ribi_t::ribi ribi);
 
 
-    /**
-     * Bauhilfsfunktion - einen Weg entfernen
-     *
-     * @return bool	    true, falls weg vorhanden war
-     * @param wegtyp	    um welchen wegtyp geht es
-     * @param ribi_rem  sollen die ribis der nachbar zururckgesetzt werden?
-     *
-     * @author V. Meyer
-     */
-    sint32 weg_entfernen(weg_t::typ wegtyp, bool ribi_rem);
+	/**
+	* Bauhilfsfunktion - einen Weg entfernen
+	*
+	* @return bool	    true, falls weg vorhanden war
+	* @param wegtyp	    um welchen wegtyp geht es
+	* @param ribi_rem  sollen die ribis der nachbar zururckgesetzt werden?
+	*
+	* @author V. Meyer
+	*/
+	sint32 weg_entfernen(weg_t::typ wegtyp, bool ribi_rem);
 
-    /**
-     * Description;
-     *      Look for an adjacent way in the given direction. Think of an object
-     *      that needs the given waytyp for movement. The object is current at
-     *      the ground "this". It wants to move in "dir". The routine checks if
-     *      this is possible and returns the destination ground.
-     *      Tunnels and bridges are entered and left correctly. This requires
-     *      some complex checks, since we have three types of level changes
-     *      (tunnel entries, bridge ramps and horizontal bridge start).
-     *
-     * Notice:
-     *      Uses two helper functions "is_connected()" and "get_vmove()"
-     *      Was previously a part of the simposition module.
-     *
-     * Parameters:
-     *      If dir is not (-1,0), (1,0), (0,-1) or (0, 1), the function fails
-     *      If wegtyp is set to weg_t::invalid, no way checking is performed
-     *
-     * In case of success:
-     *      "to" ist set to the ground found
-     *      true is returned
-     * In case of failure:
-     *      "to" ist not touched
-     *      false is returned
-     *
-     * @author: Volker Meyer
-     * @date: 21.05.2003
-     */
-    bool get_neighbour(grund_t *&to, weg_t::typ type, koord dir) const;
+	/**
+	* Description;
+	*      Look for an adjacent way in the given direction. Think of an object
+	*      that needs the given waytyp for movement. The object is current at
+	*      the ground "this". It wants to move in "dir". The routine checks if
+	*      this is possible and returns the destination ground.
+	*      Tunnels and bridges are entered and left correctly. This requires
+	*      some complex checks, since we have three types of level changes
+	*      (tunnel entries, bridge ramps and horizontal bridge start).
+	*
+	* Notice:
+	*      Uses two helper functions "is_connected()" and "get_vmove()"
+	*      Was previously a part of the simposition module.
+	*
+	* Parameters:
+	*      If dir is not (-1,0), (1,0), (0,-1) or (0, 1), the function fails
+	*      If wegtyp is set to weg_t::invalid, no way checking is performed
+	*
+	* In case of success:
+	*      "to" ist set to the ground found
+	*      true is returned
+	* In case of failure:
+	*      "to" ist not touched
+	*      false is returned
+	*
+	* @author: Volker Meyer
+	* @date: 21.05.2003
+	*/
+	bool get_neighbour(grund_t *&to, weg_t::typ type, koord dir) const;
 
-		/**
-		 * checks a ways on this ground tile and returns the highest speedlimit.
-		 * @author hsiegeln
-		 */
-    int get_max_speed() const;
+	/**
+	* checks a ways on this ground tile and returns the highest speedlimit.
+	* @author hsiegeln
+	*/
+	int get_max_speed() const;
 
 
 	/* remove almost everything on this way */

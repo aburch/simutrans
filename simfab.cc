@@ -546,13 +546,19 @@ uint32 fabrik_t::produktion(const uint32 produkt) const
 		const uint32 maxi = ausgang->get(produkt).max;
 		const uint32 actu = ausgang->get(produkt).menge;
 
-		if(actu < maxi) {
-			// theoretische Menge pro tick
-			menge = (menge*(maxi-actu)) / maxi;
+		if(actu<maxi) {
+			if(menge>(0x7FFFFFFFu/maxi)) {
+				// avoid overflow
+				menge = (((maxi-actu)>>5)*(menge>>5))/(maxi>>10);
+			}
+			else {
+				// and that is the simple formula
+				menge = (menge*(maxi-actu)) / maxi;
+			}
 		}
 		else {
-			// overfull? -> 0
-			menge = 0;
+			// overfull?
+			menge = maxi-1;
 		}
 	}
 
@@ -707,7 +713,7 @@ fabrik_t::step(long delta_t)
 
 					// calculate production
 					uint32 p_menge = 0;
-					for( long i=delta_sum/PRODUCTION_DELTA_T;  i>0;  i--  ) {
+					for( sint32 i=delta_sum/PRODUCTION_DELTA_T;  i>0;  i--  ) {
 						p_menge += produktion(produkt);
 					}
 					menge = p_menge < max_menge ? p_menge : max_menge;  // production smaller than possible due to consumption
@@ -719,7 +725,7 @@ fabrik_t::step(long delta_t)
 				else {
 					// source producer
 					menge = 0;
-					for( long i=delta_sum/PRODUCTION_DELTA_T;  i>0;  i--  ) {
+					for( sint32 i=delta_sum/PRODUCTION_DELTA_T;  i>0;  i--  ) {
 						menge += produktion(produkt);
 					}
 				}

@@ -52,6 +52,8 @@ yet conform 100% to this rules, but it should.
      variables later on in development. Public variables don't support
      this change of protocol and impose much work on the programmer if
      such a change is needed later.
+  -> (prissi:) However, do not hide too much. Especially with virtual
+     functions the use of protected members is also advisable.
 
 - Avoid extern variables. Global variables make programs harder to change
   and make some bugs harder to find. Sometimes it gets necessary to bind
@@ -74,11 +76,14 @@ yet conform 100% to this rules, but it should.
      Unfortunatley references can't be used alwys isntead of pointers.
   -> Don't complicate code. Use pointers if the use of references would
      complicate things.
+  -> Also reference can hide the fact, that a variable is changed. Thus
+     again, use const when possible.
 
 - Avoid casts if possible.
   -> casts can lead to errors which are very hard to find, especially
      if pointers to onects are casted.
   -> try to use dynamic_cast<type>(expression) if you need to cast
+     (even though this eats performance)
 
 - Don't cast const'ness away. Use mutable copies of the objects or think
   about another design if you run into problems with const.
@@ -87,6 +92,7 @@ yet conform 100% to this rules, but it should.
 
 - If you need to cast use dynamic_cast<type>() to get type checking support
   from the compiler.
+  On static pointers, also a static_cast<type>() can do the trick.
 
 - Avoid void* if possible. This is especially dangerous when used for pointers
   to objects, because the compiler can't call the destructor of the object
@@ -110,15 +116,19 @@ yet conform 100% to this rules, but it should.
 - use inline methods just for very small methods (1 to 3 lines max.)
   -> This rule tries to reduce coupling of code and compile time.
 
-- if "char" is used for small numeric values, always write "signed char" or
-  "unsigned char". Different compilers/platforms use different rules for
-  char values. If your code depends on signedness, write this explicitely down.
+- use the size defined type like sint8, sint16, sint32, sint64 and uint8,
+  uint16, uint32
+  Different compilers/platforms use different rules for values. If your code
+  depends on signedness, write this explicitely down.
   Note, that this errors don't show up on your platform/with your compiler
   but perhaps only on your teammates systems. Be very careful about this
   because you can't test for this problems in your own development environment.
-  I.e. Linux/PPC treats chars as unsigned, whereas Linux/Intel treats chars
+  i.e. Linux/PPC treats chars as unsigned, whereas Linux/Intel treats chars
   as signed values!
   -> This rule tries to increase robustness of the code
+  There is one exections to this rule:
+  If you really ever need to cast a pointer to an int, cast it to "long". All
+  C compiler will guarantee, that a pointer fits into a long.
 
 - take care of boundary violations. Simutrans offers bounds checked
   templates (arrays, vectors, lists). Use them where possible. If you have
@@ -263,8 +273,8 @@ Offsets to a base value:		xxx_off
 
 Method pre-/sufffixes:
 
-Retrieving a member variable value:	gib_xxx()
-Setting a member variable value:        setze_xxx()
+Retrieving a member variable value:	[obsolete: gib_xxx()] use get_xxx()
+Setting a member variable value:        [obsolete: setze_xxx()] use set_xxx()
 Adding a listener to a component:       add_listener(xxx_listener_t *)
 Remove a listener from a component:     remove_listener(xxx_listener_t *)
 
@@ -289,35 +299,6 @@ For being able to compile simutrans with MSVC v6.00, some additional rules
 are necessary:
 
 1.
-Change the following construct from:
-
-    	...
-	for(int i = 0; i < n; i++) {
-	    ...
-	}
-	for(int i = 0; i < n; i++) {
-	    ...
-	}
-    	...
-
-to:
-
-    	int i;
-    	...
-	for(i = 0; i < n; i++) {
-	    ...
-	}
-	for(i = 0; i < n; i++) {
-	    ...
-	}
-    	...
-
-Reason:
-	VC considers "int i" in the outer scope and raise a "duplicate identifier
-	in the first case.
-
-
-2.
 Change the following construct from:
 
 	class myclass {
@@ -348,24 +329,25 @@ Reason:
 
 
 
-4. How the UI works
--------------------
+4. How the UI works (prissi)
+----------------------------
 
 If you want to add a new dialoge, I strongly recommend to derive it from the
 gui_frame class. Then add components out of the gui/components folder. You
-will find almost all components there you could need. Scroll bar are best
+will find almost all components there you could need. Scroll bars are best
 used as scroll panes: the containing component will be clipped and can be
 drawn as normal.
 
-After initlizing a component you have to add it to your dialog
-(add_lomponente). Failing to do so will just not show it. Certain active
-thing like button and many more can give a feedback. Use action_listener for
-them, you do not need to handle events for them yourself. Comboboxes are
-an exception, since you have to close them, when you get a mouse click event
-outside of them.
+After initlizing a component you have to add it to your dialog using
+add_komponente(). Failing to do so will just not show it. Certain active
+things like buttons and many more can give a feedback. Use action_listener
+for them, you do not need to handle events for them yourself. Comboboxes
+are an exception, since you have to close them, when you get a mouse click
+event outside of them.
 
 If you use only components from gui/components, you just have to init your
-dialog and you are done. It can be as easy as that.
+dialog and you are done, you do not need to define drawing or action
+routines. It can be as easy as that.
 
 Written by prissi
 Initial version: June 2006

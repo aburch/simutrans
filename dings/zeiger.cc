@@ -41,37 +41,39 @@ zeiger_t::~zeiger_t()
 void
 zeiger_t::setze_pos(koord3d k)
 {
-//    printf("%d %d %d -> %d %d %d\n", gib_pos().x, gib_pos().y, gib_pos().z, k.x, k.y, k.z);
-
-    if(k != gib_pos()) {
-	if(welt->lookup(gib_pos().gib_2d()) &&
-	   welt->lookup(gib_pos().gib_2d())->gib_kartenboden()) {
-	   	welt->lookup(gib_pos().gib_2d())->gib_kartenboden()->set_flag(grund_t::world_spot_dirty);
+	if(k!=gib_pos()) {
+		if(welt->lookup(gib_pos().gib_2d())  &&  welt->lookup(gib_pos().gib_2d())->gib_kartenboden()) {
+			welt->lookup(gib_pos().gib_2d())->gib_kartenboden()->set_flag(grund_t::dirty);
+			welt->lookup(gib_pos().gib_2d())->gib_kartenboden()->clear_flag(grund_t::marked);
+		}
+		ding_t::setze_pos(k);
+		if(gib_yoff()==welt->Z_PLAN  &&  welt->lookup(k.gib_2d())  &&  welt->lookup(k.gib_2d())->gib_kartenboden()) {
+			welt->lookup(k.gib_2d())->gib_kartenboden()->set_flag(grund_t::marked);
+		}
 	}
-
-        ding_t::setze_pos(k);
-    }
 }
 
 
 void
 zeiger_t::setze_richtung(ribi_t::ribi r)
 {
-    if(richtung != r) {
-	richtung = r;
+	if(richtung != r) {
+		richtung = r;
 
-	if(gib_yoff() == welt->Z_LINES) {
-	    if(richtung == ribi_t::nord) {
-		setze_xoff( 16 );
-	    } else {
-		setze_xoff( -16 );
-	    }
-	} else {
-	    setze_xoff( 0 );
-	}
+		if(gib_yoff()==welt->Z_LINES) {
+			if(richtung == ribi_t::nord) {
+				setze_xoff( 16 );
+			}
+			else {
+				setze_xoff( -16 );
+			}
+		}
+		else {
+			setze_xoff( 0 );
+		}
 
-	if(welt->lookup(gib_pos())) {
-	    welt->lookup(gib_pos())->set_flag(grund_t::world_spot_dirty);
+		if(welt->lookup(gib_pos())) {
+			welt->lookup(gib_pos())->set_flag(grund_t::dirty);
+		}
 	}
-    }
 };

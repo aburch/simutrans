@@ -1783,10 +1783,6 @@ dbg->warning("wkz_fahrplan_insert_aux()","Schedule is (null), doing nothing");
 			const unsigned i = (backwards) ? pl->gib_boden_count()-1-cnt : cnt;
 			// ignore tunnel
 	     		bd = pl->gib_boden_bei(i);
-	     		if(bd->ist_im_tunnel()) {
-	     			bd = 0;
-	     			continue;
-	     		}
 	     		// now just for error messages, we assing a valid ground
 	     		// and check for ownership
 	     		if(!sp->check_owner(bd->gib_besitzer())) {

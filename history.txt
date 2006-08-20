@@ -6,9 +6,20 @@ Known bugs: (hard to fix)
 	valgrind complains about errors in SDL and X?
 
 
+
+Release of 89.02.3
+
+06-Aug-2006: (prissi)
+	FIX: choose signals and convoi starting repaired
+	FIX: waypoints in tunnels
+	FIX: a little nicer vanishing in tunnels in westward direction
+	ADD: new marker graph
+	FIX: production of factories with large storage or high rates fixed
+
+
 Release of 89.02.2
 
-02-Aug-2006: (prissi)
+06-Aug-2006: (prissi)
 	FIX: loading pak translations fixed
 	ADD: ids displayed for convois ("cl_btn_sort_id" sort by convoi ids)
 	FIX: wayobj were not displayed

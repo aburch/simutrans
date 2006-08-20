@@ -43,9 +43,8 @@ private:
     koord zielpos;
 
 public:
-
-    int menge;
-    int max;
+    sint32 menge;
+    sint32 max;
 
     koord gib_ziel() const {return ziel;};
     void setze_ziel(koord ziel) {this->ziel = ziel;};
@@ -87,7 +86,7 @@ public:
     }
 
     int operator!=(const ware_t &w) {
-	return ! (*this == w);
+		return ! (*this == w);
     }
 
 };
