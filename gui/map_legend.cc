@@ -90,7 +90,7 @@ map_legend_t::map_legend_t(const karte_modell_t *welt) : gui_frame_t("Legend")
 	stringhashtable_iterator_tpl<const fabrik_besch_t *> iter (fabesch);
 
 	// add factory names; shorten too long names
-	while( iter.next() ) {
+	while( iter.next() &&  iter.get_current_value()->gib_gewichtung()>0) {
 		int i;
 
 		cstring_t label (translator::translate(iter.get_current_value()->gib_name()));

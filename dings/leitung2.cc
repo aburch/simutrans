@@ -342,7 +342,7 @@ void leitung_t::calc_bild()
 		setze_bild(0, wegbauer_t::leitung_besch->gib_hang_bild_nr(hang));
 	}
 	else {
-		if(gr->gib_weg(weg_t::strasse)!=NULL   ||  gr->gib_weg(weg_t::schiene)!=NULL  ||  !gr->ist_natur()) {
+		if(gr->hat_wege()  ||  !gr->ist_natur()) {
 			// crossing with road or rail
 			if(ribi_t::ist_gerade_ns(ribi)) {
 				setze_bild(0, wegbauer_t::leitung_besch->gib_diagonal_bild_nr(ribi_t::nord|ribi_t::ost));

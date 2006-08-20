@@ -139,9 +139,8 @@ static halthandle_t suche_nahe_haltestelle(spieler_t *sp, karte_t *welt, koord3d
 	koord k=pos.gib_2d();
 	for(k.x=pos.x-1; k.x<=pos.x+b; k.x++) {
 		for(k.y=pos.y-1; k.y<=pos.y+h; k.y++) {
-			const unsigned cnt = sp->is_my_halt(k);
-			if(cnt>0) {
-				return welt->lookup(k)->gib_boden_bei(cnt-1)->gib_halt();
+			if(sp->is_my_halt(k)) {
+				return welt->lookup(k)->gib_halt();
 			}
 		}
 	}
@@ -318,11 +317,7 @@ DBG_DEBUG("entferne_haltestelle()","reset city way owner");
 	bd->setze_text( NULL );
 
 	if(bd->gib_typ() == boden_t::fundament) {
-		// Posthäuschen das Fundament rauben!
-		if(halt.is_bound()) {
-DBG_MESSAGE("entferne_haltestelle()", "removing post office");
-			halt->set_post_enabled(false);
-		}
+		// Post/building: remove fundation
 		welt->access(pos.gib_2d())->kartenboden_setzen(new boden_t(welt, pos), false);
 	}
 }
@@ -388,6 +383,7 @@ DBG_MESSAGE("wkz_remover()",  "removing signal %d,%d",  pos.x, pos.y);
 DBG_MESSAGE("wkz_remover()",  "removing roadsign %d,%d",  pos.x, pos.y);
 		roadsign_t *rs = dynamic_cast<roadsign_t *>(gr->suche_obj(ding_t::roadsign));
 		if(rs->gib_besitzer()==sp  ||  rs->gib_besitzer()==NULL) {
+			rs->entferne(sp);
 			delete rs;
 			return true;
 		}
@@ -422,27 +418,31 @@ DBG_MESSAGE("wkz_remover()", "bound=%i",halt.is_bound());
 DBG_MESSAGE("wkz_remover()", "check tunnel/bridge");
 
 	// beginning/end of bridge?
-	if(gr->ist_bruecke()  &&  gr==plan->gib_kartenboden()) {
+	if(gr->ist_bruecke()) {
+		if(gr==plan->gib_kartenboden()) {
 DBG_MESSAGE("wkz_remover()",  "removing bridge from %d,%d,%d",gr->gib_pos().x, gr->gib_pos().y, gr->gib_pos().z);
-		weg_t *weg = gr->gib_weg(weg_t::schiene);
-		if(!weg  ||  weg->gib_besch()->gib_styp()!=1) {
-			if(!weg) {
-				weg = gr->gib_weg(weg_t::strasse);
+			weg_t *weg = gr->gib_weg(weg_t::schiene);
+			if(!weg  ||  weg->gib_besch()->gib_styp()!=1) {
+				if(!weg) {
+					weg = gr->gib_weg(weg_t::strasse);
+				}
+				msg = brueckenbauer_t::remove(welt, sp, gr->gib_pos(), weg->gib_typ());
 			}
-			msg = brueckenbauer_t::remove(welt, sp, gr->gib_pos(), weg->gib_typ());
-			return msg == NULL;
 		}
+		return msg == NULL;
 	}
 
 	// beginning/end of tunnel
-	if(gr->ist_tunnel()  &&  gr==plan->gib_kartenboden()) {
+	if(gr->ist_tunnel()) {
+		if(gr==plan->gib_kartenboden()) {
 DBG_MESSAGE("wkz_remover()",  "removing tunnel  from %d,%d,%d",gr->gib_pos().x, gr->gib_pos().y, gr->gib_pos().z);
-		weg_t *weg = gr->gib_weg(weg_t::schiene);
+			weg_t *weg = gr->gib_weg(weg_t::schiene);
 
-		if(!weg) {
-			weg = gr->gib_weg(weg_t::strasse);
+			if(!weg) {
+				weg = gr->gib_weg(weg_t::strasse);
+			}
+			msg = tunnelbauer_t::remove(welt, sp, gr->gib_pos(), weg->gib_typ());
 		}
-		msg = tunnelbauer_t::remove(welt, sp, gr->gib_pos(), weg->gib_typ());
 		return msg == NULL;
 	}
 
@@ -546,7 +546,7 @@ DBG_MESSAGE("wkz_remover()", "removing building: cleanup");
 #endif
 
 	// remove everything else ...
-	if(gr->obj_count()>0) {
+	if(gr->obj_count()>0  &&  !gr->ist_bruecke()) {
 DBG_MESSAGE("wkz_remover()",  "removing everything from %d,%d,%d",gr->gib_pos().x, gr->gib_pos().y, gr->gib_pos().z);
 		gr->obj_loesche_alle(sp);
 		return true;
@@ -1521,7 +1521,7 @@ DBG_MESSAGE("wkz_roadsign()","reverse ribi %i", ribi_t::rueckwaerts(dir) );
 					else {
 						gr->obj_pri_add(rs,0);
 					}
-					sp->buche( -CST_ROADSIGN, pos, COST_CONSTRUCTION);
+					sp->buche( CST_ROADSIGN, pos, COST_CONSTRUCTION);
 				}
 				error = NULL;
 			}

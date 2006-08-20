@@ -584,11 +584,6 @@ DBG_DEBUG("depot_frame_t::build_vehicle_lists()","%i passenger vehicle, %i  engi
 		pas_vec->clear();
 	}
 
-	// temporary storage for sorting
-	vector_tpl <const vehikel_besch_t *> pax(16);
-	vector_tpl <const vehikel_besch_t *> eng(16);
-	vector_tpl <const vehikel_besch_t *> wag(16);
-
 	// we do not allow to built electric vehicle in a depot without electrification
 	const schiene_t *sch = dynamic_cast<const schiene_t *>(welt->lookup(depot->gib_pos())->gib_weg(weg_t::schiene));
 	const bool schiene_electric = (sch==NULL)  ||  sch->ist_elektrisch();
@@ -603,80 +598,31 @@ DBG_DEBUG("depot_frame_t::build_vehicle_lists()","%i passenger vehicle, %i  engi
 		if(  (schiene_electric  ||  info->get_engine_type()!=vehikel_besch_t::electric)  &&
 			(!info->is_future(month_now))  &&  (show_retired_vehicles  ||  (!info->is_retired(month_now)) )   ||  is_contained(info)
 		) {
-			unsigned pos;
+			image_list_t::image_data_t img_data;
+
+			img_data.image = info->gib_basis_bild();
+			img_data.count = 0;
+			img_data.lcolor = img_data.rcolor= -1;
+
+			// since they come "pre-sorted" for the vehikelbauer, we have to do nothing to keep them sorted
 
 			if(info->gib_ware()==warenbauer_t::passagiere  ||  info->gib_ware()==warenbauer_t::post) {
-				// sort passenger cars for year
-				for(  pos=0;  pos<pax.get_count();  pos++  ) {
-					if(pax.get(pos)->get_intro_year_month()>info->get_intro_year_month()) {
-						break;
-					}
-				}
-				pax.insert_at(pos,info);
+				pas_vec->append(img_data);
+				vehicle_map.set(info, &pas_vec->at(pas_vec->get_count() - 1));
 			}
 			else if(info->gib_leistung() > 0  ||  info->gib_zuladung()==0) {
-				// sort engines for year and engine type
-				for(  pos=0;  pos<eng.get_count();  pos++  ) {
-					if(eng.get(pos)->get_engine_type()>info->get_engine_type()) {
-						break;
-					}
-					// power==0 is likely a tender => so we count it as steam
-					if((info->gib_leistung()==0  ||  eng.get(pos)->get_engine_type()==info->get_engine_type())  &&  eng.get(pos)->get_intro_year_month()>info->get_intro_year_month()) {
-						break;
-					}
-				}
-				eng.insert_at(pos,info);
+				loks_vec->append(img_data);
+				vehicle_map.set(info, &loks_vec->at(loks_vec->get_count() - 1));
 			}
 			else {
-				// sort all other cars for year
-				for(  pos=0;  pos<wag.get_count();  pos++  ) {
-					if(wag.get(pos)->get_intro_year_month()>info->get_intro_year_month()) {
-						break;
-					}
-				}
-				wag.insert_at(pos,info);
+				waggons_vec->append(img_data);
+				vehicle_map.set(info, &waggons_vec->at(waggons_vec->get_count() - 1));
 			}
 		} else {
 //DBG_DEBUG("depot_frame_t::build_vehicle_lists()","now vehicle %s not available.", info->gib_name());
 		}
 
 		i++;
-	}
-
-	// after sorting, enter them into the lists ...
-	vehicle_map.clear();
-	for(unsigned i=0;  i<pax.get_count();  i++ ) {
-		const vehikel_besch_t *info = pax.get(i);
-		image_list_t::image_data_t img_data;
-
-		img_data.image = info->gib_basis_bild();
-		img_data.count = 0;
-		img_data.lcolor = img_data.rcolor= -1;
-
-		pas_vec->append(img_data);
-		vehicle_map.set(info, &pas_vec->at(pas_vec->get_count() - 1));
-	}
-	for(unsigned i=0;  i<eng.get_count();  i++ ) {
-		const vehikel_besch_t *info = eng.get(i);
-		image_list_t::image_data_t img_data;
-
-		img_data.image = info->gib_basis_bild();
-		img_data.count = 0;
-		img_data.lcolor = img_data.rcolor= -1;
-
-		loks_vec->append(img_data);
-		vehicle_map.set(info, &loks_vec->at(loks_vec->get_count() - 1));
-	}
-	for(unsigned i=0;  i<wag.get_count();  i++ ) {
-		const vehikel_besch_t *info = wag.get(i);
-		image_list_t::image_data_t img_data;
-
-		img_data.image = info->gib_basis_bild();
-		img_data.count = 0;
-		img_data.lcolor = img_data.rcolor= -1;
-
-		waggons_vec->append(img_data);
-		vehicle_map.set(info, &waggons_vec->at(waggons_vec->get_count() - 1));
 	}
 
 }

@@ -167,17 +167,37 @@ void vehikelbauer_t::sort_lists()
         warenbauer_t::gib_index(besch->gib_ware());
 
         if(cmp == 0) {
+      cmp = test->gib_zuladung() - besch->gib_zuladung();
+
+        if(cmp == 0) {
+        	if(test->gib_leistung()>0) {
+	        	// to handle tender correctly
+	        	uint8 engine = (test->gib_zuladung()+test->gib_leistung()==0) ? vehikel_besch_t::steam : test->get_engine_type();
+	        	uint8 besch_engine = (besch->gib_zuladung()+besch->gib_leistung()==0) ? vehikel_besch_t::steam : besch->get_engine_type();
+	        	cmp =  engine - besch_engine;
+	        }
+
+        if(cmp == 0) {
       cmp = test->gib_geschw() - besch->gib_geschw();
 
       if(cmp == 0) {
-          cmp = test->gib_leistung() - besch->gib_leistung();
+      	// put tender at the end of the list ...
+      	int leistung = test->gib_leistung()==0 ? 0x7FFFFFF : test->gib_leistung();
+      	int besch_leistung = besch->gib_leistung()==0 ? 0x7FFFFFF : besch->gib_leistung();
+          cmp =  leistung - besch_leistung;
+
+        if(cmp == 0) {
+      cmp = test->get_intro_year_month() - besch->get_intro_year_month();
 
           if(cmp == 0) {
         cmp = strcmp(test->gib_name(), besch->gib_name());
           }
       }
-        }
+      }
     }
+    }
+  }
+  }
 
     if(cmp > 0) {
         //printf("cmp=%d: l=%d r=%d m=%d: %s=%d\n", cmp, r, l, m, "r", m -1);

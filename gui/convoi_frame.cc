@@ -145,7 +145,7 @@ bool convoi_frame_t::passes_filter(convoihandle_t cnv)
 		break;
 	}
 	if(i == cnv->gib_vehikel_anzahl()) {
-	    return false;;
+	    return false;
 	}
     }
     return true;
@@ -281,6 +281,7 @@ bool convoi_frame_t::action_triggered(gui_komponente_t *komp)           // 28-De
     if(komp == &vresize) {
 	resize (koord(vresize.get_hresize(), vresize.get_vresize()));
     } else if(komp == &filter_on) {
+DBG_MESSAGE("convoi_frame_t::action_triggered()","toggle %i",gib_filter(any_filter));
 	setze_filter(any_filter, !gib_filter(any_filter));
 	filter_on.setze_text(translator::translate(gib_filter(any_filter) ? "cl_btn_filter_enable" : "cl_btn_filter_disable"));
 	display_list();

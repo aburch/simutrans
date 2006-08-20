@@ -26,17 +26,23 @@ Stichpunkte
 - Start aus Depot nur mit gültiger Route: done
 - nur an nicht überfüllte Abnehmer liefern: done?
 - bonus mit Jahr anpassen: done?
+- Sehenwürdigkeitenliste: done
+- FastForward-Button: done
+- A* pfadsuche: done
 
 - distribution_weight für Versorgerfabriken berücktsichtigen
-- FastForward-Button
 - details for convois
+- cursor für up/down
 
-- Sehenwürdigkeitenliste
 - Landfabrik alle x Jahre/Fakriken
 - Brücken an senkrechten Wänden
 - Felder: Grafiken da, fehlt noch code (vielleicht wie Wälder?)
 - schönerer Jahreszeitenwechsel
 - Winter höhenabhängig?
+- A* for goods and ways
+
+error:
+horses in tram depot ...
 
 
 Immer zu tun:

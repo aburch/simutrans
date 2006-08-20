@@ -295,6 +295,9 @@ stadtauto_t::betrete_feld()
 	}
 	bool ok = (gr->obj_pri_add(this, offset) != 0);
 
+	// count also citycars for traffic density
+	gr->gib_weg(weg_t::strasse)->book(1, WAY_STAT_CONVOIS);
+
 	if(!ok) {
 		dbg->error("stadtauto_t::betrete_feld()","vehicel '%s' %p could not be added to %d, %d, %d",gib_pos().x, gib_pos().y, gib_pos().z);
 	}

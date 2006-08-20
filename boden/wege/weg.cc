@@ -173,8 +173,12 @@ void weg_t::info(cbuffer_t & buf) const
 	buf.append(" ");
 	buf.append(max_speed);
 	buf.append("km/h\n");
+
+#if 1
+	buf.append(translator::translate("\nconvoi passed last\nmonth "));
+      buf.append(statistics[1][1]);
   // Debug - output stats
-  /*
+#else
   buf.append("\n");
   for (int type=0; type<MAX_WAY_STATISTICS; type++) {
     for (int month=0; month<MAX_WAY_STAT_MONTHS; month++) {
@@ -183,8 +187,8 @@ void weg_t::info(cbuffer_t & buf) const
     }
     buf.append("\n");
   }
+#endif
   buf.append("\n");
-  */
 }
 
 

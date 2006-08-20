@@ -309,7 +309,7 @@ DBG_MESSAGE("convoi_info_t::action_triggered()","search depot: found on %i,%i",g
 			koord3d home = koord3d(0,0,0);
 			while (depot_iter.next()) {
 				koord3d pos = depot_iter.get_current();
-				bool found = route->calc_route(welt, cnv->gib_pos(), pos, cnv->gib_vehikel(0));
+				bool found = route->calc_route(welt, cnv->gib_pos(), pos, cnv->gib_vehikel(0), 0 );	// do not care about speed
 				if (found) {
 					if (route->gib_max_n() < shortest_route->gib_max_n() || shortest_route->gib_max_n() == -1) {
 						shortest_route->kopiere(route);

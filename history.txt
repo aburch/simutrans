@@ -7,6 +7,25 @@ Known bugs: (hard to fix)
 	sorting factories has an umlaute problem
 
 
+Release of 87.02
+
+13-Nov-2005 (prissi)
+	FIX: after reloading, check stations for post offices (was broken before)
+	FIX: search for next station failed too often
+	FIX: error message when AI failed building a route does not appear any more
+	FIX: crossing channels with eltric wires again ok
+	FIX: going to end of station also on bridges
+	FIX: avoid deleting parts of a bridge
+	FIX: default filter state for convoi list is off
+	CHANGE: A* for faster pathfinding and preference of faster ways for faster vehicles
+	FIX: correct booking of roadsigns
+	FIX: again sorted as intended by category amout transported engine type, speed, power, ...
+	FIX: some further finetuning of cost, speeds etc.
+	FIX: some goods were wrongly joined, if there were two goods for the same factory at the same final stop
+	ADD: click on vehicle in depot will open depot window (should be like that from the beginning ... )
+	CHANGE: factory names for 64 changed again for compatibility with very old savegames (but 87.xx might not load!)
+	CHANGE: renovated japan pak for timline and consistent building names, many new trams ...
+
 
 Release of 87.01
 

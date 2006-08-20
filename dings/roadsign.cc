@@ -343,6 +343,6 @@ void
 roadsign_t::entferne(spieler_t *sp)
 {
 	if(sp!=NULL) {
-		sp->buche(CST_ROADSIGN, gib_pos().gib_2d(), COST_CONSTRUCTION);
+		sp->buche(-CST_ROADSIGN, gib_pos().gib_2d(), COST_CONSTRUCTION);
 	}
 }

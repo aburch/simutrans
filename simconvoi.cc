@@ -532,7 +532,7 @@ int convoi_t::drive_to(koord3d start, koord3d ziel)
 {
   INT_CHECK("simconvoi 293");
 
-  bool ok = route.calc_route(welt, start, ziel, fahr->at(0));
+  bool ok = route.calc_route(welt, start, ziel, fahr->at(0), speed_to_kmh(min_top_speed) );
 
   for(unsigned i=0; i<anz_vehikel; i++) {
     fahr->at(i)->neue_fahrt();

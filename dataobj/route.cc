@@ -99,9 +99,23 @@ static inline bool am_i_there(karte_t *welt,
 }
 
 
+
+
+struct ANode {
+    ANode *parent;
+    const grund_t *gr;
+    uint32  f,g;
+    uint8 dir;
+};
+
+static inline uint32 calc_distance( const koord3d p1, const koord3d p2 )
+{
+	return (abs(p1.x-p2.x)+abs(p1.y-p2.y)+abs(p1.z-p2.z)/16)*4;
+}
+
+
 bool
-route_t::intern_calc_route(const koord3d ziel, const koord3d start,
-                           fahrer_t *fahr)
+route_t::intern_calc_route(const koord3d ziel, const koord3d start, fahrer_t *fahr, const uint32 max_speed)
 {
 	bool ok = false;
 
@@ -110,51 +124,39 @@ route_t::intern_calc_route(const koord3d ziel, const koord3d start,
 		return false;
 	}
 
-	const int MAX_STEP = umgebung_t::max_route_steps;	// may need very much memory => configurable
-	static KNode *nodes = NULL;
+	// some thing for the search
+	const weg_t::typ wegtyp = fahr->gib_wegtyp();
+	const grund_t *gr;
+	grund_t *to;
+
+	// memory in static list ...
+	const int MAX_STEP = max(65530,umgebung_t::max_route_steps);	// may need very much memory => configurable
+	static struct ANode *nodes = NULL;
 	if(nodes==NULL) {
-		nodes = new KNode[MAX_STEP+4+1];
+		nodes = new ANode[MAX_STEP+4+1];
 	}
 	int step = 0;
 
-	// ziel und start sind hier gegenueber dem Aufruf vertauscht,
-	// da diese routine eine Route von ziel nach start berechnet
-	// die Berechnung erfolgt durch eine Breitensuche fuer Graphen
+//	welt->unmarkiere_alle();	// test in closed list are likely faster ...
+	INT_CHECK("route 347");
 
-	// Warteschlange fuer Breitensuche
-	// Kann statisch sein, weil niemals zwei Fahrzuege zugleich eine route
-	// suchen ... statisch bedeutet wiedernutzung bereits erzeugter nodes
-	// und ist in diesem Fall effizeinter
-	static prioqueue_tpl <KNode *> queue;
+	// arrays for A*
+	static vector_tpl <struct ANode *> open = vector_tpl <struct ANode *>(0);
+	vector_tpl <struct ANode *> close =vector_tpl <struct ANode *>(0);
 
-	// da die queue statisch ist müssen wir die reste der alten suche
-	// erst aufräumen
-	queue.clear();
+	// nothing in lists
+	open.clear();
+	close.clear();
 
-	// Hajo: hack - check for ship
-	const grund_t * gr = welt->lookup(start);
-	const bool is_ship = gr && gr->ist_wasser();
+	struct ANode *tmp = &(nodes[step++]);
+	tmp->parent = NULL;
+	tmp->gr = welt->lookup(start);
+	tmp->f = calc_distance(start,ziel);
+	tmp->g = 0;
+	tmp->dir = 0;
 
-	// Hajo: init first node
-	KNode *tmp = &(nodes[step++]);
-
-	tmp->link = NULL;
-	tmp->dist = is_ship ? ABS(start.x-ziel.x) + ABS(start.y-ziel.y) : 0;
-	tmp->total = 0;
-	tmp->pos = start;
-
-	queue.insert( tmp );        // init queue mit erstem feld
-	welt->unmarkiere_alle();
-	welt->markiere(tmp->pos);  // betretene Felder markieren
-
-	// Breitensuche
-	// always sucessful, if there is a route and enough memory ... this may be a problem with ships!
-
-	// Hajo: moved out of loop to optimize
-	const weg_t::typ wegtyp = fahr->gib_wegtyp();
-	koord3d k_next;
-	// V.Meyer: weg_position_t changed to grund_t::get_neighbour()
-	grund_t *to;
+	// start in open
+	open.append(tmp,256);
 
 //DBG_MESSAGE("route_t::itern_calc_route()","calc route from %d,%d,%d to %d,%d,%d",ziel.x, ziel.y, ziel.z, start.x, start.y, start.z);
 	do {
@@ -163,38 +165,124 @@ route_t::intern_calc_route(const koord3d ziel, const koord3d start,
 			INT_CHECK("route 161");
 		}
 
-		tmp = queue.pop();
-//DBG_DEBUG("now at ","%i,%i,%i",tmp->pos.x,tmp->pos.y,tmp->pos.z);
-		// already there?
-		if(tmp->pos != ziel) {
+		tmp = open.at( open.get_count()-1 );
+		open.remove_at( open.get_count()-1 );
 
-			gr = welt->lookup(tmp->pos);
-			if(gr && fahr->ist_befahrbar(gr)) {
+		close.append(tmp,16);
+		gr = tmp->gr;
 
-				// testing all four possible directions
-				const ribi_t::ribi ribi = gr->gib_weg_ribi(wegtyp);
-				for(int r=0; r<4; r++) {
+//DBG_DEBUG("add to close","(%i,%i,%i) f=%i",gr->gib_pos().x,gr->gib_pos().y,gr->gib_pos().z,tmp->f);
 
-					if(  (ribi & ribi_t::nsow[r])!=0
-						&& gr->get_neighbour(to, wegtyp, koord::nsow[r])
-						&&   !welt->ist_markiert(k_next = to->gib_pos())
-					) {
+		// valid field and not already there?
+		if(gr->gib_pos() != ziel  &&  fahr->ist_befahrbar(gr)) {
 
-						KNode *k = &nodes[step++];
+			// testing all four possible directions
+			const ribi_t::ribi ribi = gr->gib_weg_ribi(wegtyp);
+			for(int r=0; r<4; r++) {
 
-						k->link = tmp;
-						k->dist = is_ship ? ABS(k_next.x-ziel.x) + ABS(k_next.y-ziel.y) : 0;
-						k->total = tmp->total+1;
-						k->pos = k_next;
-//DBG_DEBUG("search","%i,%i,%i",k->pos.x,k->pos.y,k->pos.z);
+				// a way goes here, and it is not marked (i.e. in the closed list)
+				if(  (ribi & ribi_t::nsow[r])!=0
+					&& gr->get_neighbour(to, wegtyp, koord::nsow[r])
+				) {
 
-						queue.insert( k );
-						welt->markiere(k->pos);  // betretene Felder markieren
+					// already in closed list (i.e. all processed nodes
+					unsigned i;
+					for( i=0;  i<close.get_count();  i++  ) {
+						if(  close.get(i)->gr==to  ) {
+							break;
+						}
 					}
-				} //for
+					// in close list => ignore this
+					if(i<close.get_count()) {
+						continue;
+					}
+
+
+					// already in open list ?
+					for(  i=0;  i<open.get_count();  i++  ) {
+						if(  open.get(i)->gr==gr  ) {
+							break;
+						}
+					}
+
+					// new values for cost g
+					uint32 new_g = tmp->g;
+
+					// first favor faster ways
+					const weg_t *w=to->gib_weg(wegtyp);
+					uint32 max_tile_speed = w ? w->gib_max_speed() : 999;
+					// add cost for going (with maximum spoeed, cost is 1 ...
+					new_g += ( (max_speed<=max_tile_speed) ? 4 :  (max_speed*4+max_tile_speed)/max_tile_speed );
+
+					// malus for occupied tiles
+					if(wegtyp==weg_t::strasse) {
+						// assume all traffic (and even road signs etc.) is not good ...
+						new_g += to->obj_count();
+					}
+
+					// check for curves (usually, one would need the lastlast and the last;
+					// if not there, then we could just take the last
+					uint8 current_dir;
+					if(tmp->parent!=NULL) {
+						current_dir = ribi_typ( tmp->parent->gr->gib_pos().gib_2d(), to->gib_pos().gib_2d() );
+						if(tmp->dir!=current_dir) {
+							new_g += 5;
+							if(tmp->parent->dir!=tmp->dir) {
+								// discourage double turns
+								new_g += 10;
+							}
+						}
+					}
+					else {
+						 current_dir = ribi_typ( gr->gib_pos().gib_2d(), to->gib_pos().gib_2d() );
+					}
+
+					// effect of hang ...
+					if(to->gib_weg_hang()!=0) {
+						// we do not need to check whether up or down, since everything that goes up must go down
+						// thus just add whenever there is a slope ... (counts as nearly 2 standard tiles)
+						new_g += 7;
+					}
+
+					// it is already contained in the list
+					if(i<open.get_count()) {
+						// => check, if our is better
+						if(open.get(i)->g>new_g) {
+							// our is better
+							open.remove_at(i);
+//DBG_DEBUG("remove from open","%i,%i,%i",to->gib_pos().x,to->gib_pos().y,to->gib_pos().z);
+						}
+						else {
+							// ignore this one
+							continue;
+						}
+					}
+
+					// not in there or taken out => add new
+					struct ANode *k=&(nodes[step++]);
+
+					k->parent = tmp;
+					k->gr = to;
+					k->g = new_g;
+					k->f = new_g+calc_distance( to->gib_pos(), ziel );
+					k->dir = current_dir;
+
+//DBG_DEBUG("insert to open","%i,%i,%i",to->gib_pos().x,to->gib_pos().y,to->gib_pos().z);
+
+					// insert sorted
+					for(  i=0;  i<open.get_count();  i++  ) {
+						if(k->f>open.get(i)->f) {
+							// insert here
+							break;
+						}
+					}
+					// insert here
+					open.insert_at(i,k);
+
+				}
 			}
 		}
-	} while(!queue.is_empty()  && 	!am_i_there(welt, tmp->pos, ziel, false)  &&  step<MAX_STEP);
+	} while(open.get_count()>0  &&  !am_i_there(welt, gr->gib_pos(), ziel, false)  &&  step<MAX_STEP);
 
 	// we clear it here probably twice: does not hurt ...
 	route.clear();
@@ -203,16 +291,15 @@ route_t::intern_calc_route(const koord3d ziel, const koord3d start,
 
 //DBG_DEBUG("reached","%i,%i",tmp->pos.x,tmp->pos.y);
 	// target reached?
-	if(!am_i_there(welt, tmp->pos, ziel, false)  || step >= MAX_STEP  ||  tmp->link==NULL) {
+	if(!am_i_there(welt, tmp->gr->gib_pos(), ziel, false)  || step >= MAX_STEP  ||  tmp->parent==NULL) {
 		dbg->warning("route_t::intern_calc_route()","Too many steps (%i>=max %i) in route (too long/complex)",step,MAX_STEP);
 	}
 	else {
 		// reached => construct route
-		route.resize(tmp->total+10);
 		while(tmp != NULL) {
-			route.append( tmp->pos );
+			route.append( tmp->gr->gib_pos(), 256 );
 //DBG_DEBUG("add","%i,%i",tmp->pos.x,tmp->pos.y);
-			tmp = tmp->link;
+			tmp = tmp->parent;
 		}
 		ok = true;
     }
@@ -230,7 +317,7 @@ route_t::intern_calc_route(const koord3d ziel, const koord3d start,
 bool
 route_t::calc_route(karte_t *w,
                     const koord3d ziel, const koord3d start,
-                    fahrer_t *fahr)
+                    fahrer_t *fahr, const uint32 max_khm)
 {
 	welt = w;
 	block_tester = 0;
@@ -238,13 +325,9 @@ route_t::calc_route(karte_t *w,
 
 	INT_CHECK("route 336");
 
-	bool ok = intern_calc_route(ziel, start, fahr);
+	bool ok = intern_calc_route(ziel, start, fahr, max_khm);
 
 	INT_CHECK("route 343");
-
-	welt->unmarkiere_alle();
-
-	INT_CHECK("route 347");
 
 	if( !ok ) {
 DBG_MESSAGE("route_t::calc_route()","No route from %d,%d to %d,%d found",start.x, start.y, ziel.x, ziel.y);
@@ -266,27 +349,15 @@ DBG_MESSAGE("route_t::calc_route()","No route from %d,%d to %d,%d found",start.x
 				int max_n = route.get_count()-1;
 
 				const koord zv = route.at(max_n).gib_2d() - route.at(max_n-1).gib_2d();
-//DBG_DEBUG("zv","%i,%i",zv.x,zv.y);
+//DBG_DEBUG("route_t::calc_route()","zv=%i,%i",zv.x,zv.y);
 
-				const int ribi = fahr->gib_ribi(welt->lookup(start));
-				koord3d k = start;
-				koord3d k2 = start + zv;
-				const grund_t *gr;
+				const int ribi = ribi_typ(zv);//fahr->gib_ribi(welt->lookup(start));
+				grund_t *gr=welt->lookup(start);
 
-				while((gr=welt->lookup(k2))!=NULL  &&
-						gr->gib_halt() == halt &&
-						gr->gib_weg(weg_t::schiene) != NULL &&
-						(fahr->gib_ribi(gr) & ribi)  &&
-						!ribi_t::ist_einfach(fahr->gib_ribi(welt->lookup(k)))  &&
-						fahr->ist_befahrbar(gr)  )  // stop at end of track! (prissi)
-				{
-					k = k2;
-					k2 += zv;
-					if(route.get_size()==route.get_count()) {
-						route.resize(route.get_size()+24);	// should be ok for the longest trains
-					}
-//DBG_DEBUG("add station","%i,%i",k.x,k.y);
-					route.append(k);
+				while(gr->get_neighbour(gr,weg_t::schiene,zv)  &&  gr->gib_halt() == halt  &&   fahr->ist_befahrbar(gr)   &&  (fahr->gib_ribi(gr)&&ribi)!=0) {
+					// stop at end of track! (prissi)
+//DBG_DEBUG("route_t::calc_route()","add station at %i,%i",gr->gib_pos().x,gr->gib_pos().y);
+					route.append(gr->gib_pos(),12);
 				}
 
 			}

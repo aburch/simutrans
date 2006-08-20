@@ -47,7 +47,7 @@ private:
      * Die eigentliche Routensuche
      * @author Hj. Malthaner
      */
-    bool intern_calc_route(koord3d start, koord3d ziel, fahrer_t *fahr);
+    bool intern_calc_route(koord3d start, koord3d ziel, fahrer_t *fahr, const uint32 max_kmh);
 
 
     vector_tpl <koord3d> route;           // Die Koordinaten fuer die Fahrtroute
@@ -109,7 +109,7 @@ public:
      * berechnet eine route von start nach ziel.
      * @author Hj. Malthaner
      */
-    bool calc_route(karte_t *welt, koord3d start, koord3d ziel, fahrer_t *fahr);
+    bool calc_route(karte_t *welt, koord3d start, koord3d ziel, fahrer_t *fahr, const uint32 max_speed_kmh);
 
 #if 0
     // only used by drivables

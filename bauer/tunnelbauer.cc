@@ -106,10 +106,12 @@ int tunnelbauer_t::baue(spieler_t *sp, karte_t *welt, koord pos, weg_t::typ wegt
     const weg_t *weg = gr->gib_weg(wegtyp);
 
     if(!weg || gr->gib_typ() != grund_t::boden) {
-  if(wegtyp == weg_t::strasse) {
-      create_win(-1, -1, MESG_WAIT, new nachrichtenfenster_t(welt, "Tunnel muss an\nStraﬂe beginnen!\n"), w_autodelete);
-  } else {
-      create_win(-1, -1, MESG_WAIT, new nachrichtenfenster_t(welt,"Tunnel muss an\nSchiene beginnen!\n"), w_autodelete);
+		if(welt->get_active_player()==sp) {
+	  if(wegtyp == weg_t::strasse) {
+	      create_win(-1, -1, MESG_WAIT, new nachrichtenfenster_t(welt, "Tunnel muss an\nStraﬂe beginnen!\n"), w_autodelete);
+	  } else {
+	      create_win(-1, -1, MESG_WAIT, new nachrichtenfenster_t(welt,"Tunnel muss an\nSchiene beginnen!\n"), w_autodelete);
+	  }
   }
   return false;
     }

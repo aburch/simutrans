@@ -304,10 +304,12 @@ DBG_MESSAGE("brueckenbauer_t::baue()", "called on %d,%d for bridge type '%s'",
 	const weg_t *weg = gr->gib_weg(besch->gib_wegtyp());
 
 	if(!weg || !ist_ende_ok(sp, gr)) {
-		if(besch->gib_wegtyp() == weg_t::strasse) {
-			create_win(-1, -1, MESG_WAIT, new nachrichtenfenster_t(welt,"Bruecke muss auf\nStraﬂe beginnen!\n"), w_autodelete);
-		} else {
-			create_win(-1, -1, MESG_WAIT, new nachrichtenfenster_t(welt,"Bruecke muss auf\nSchiene beginnen!\n"), w_autodelete);
+		if(welt->get_active_player()==sp) {
+			if(besch->gib_wegtyp() == weg_t::strasse) {
+				create_win(-1, -1, MESG_WAIT, new nachrichtenfenster_t(welt,"Bruecke muss auf\nStraﬂe beginnen!\n"), w_autodelete);
+			} else {
+				create_win(-1, -1, MESG_WAIT, new nachrichtenfenster_t(welt,"Bruecke muss auf\nSchiene beginnen!\n"), w_autodelete);
+			}
 		}
 		return false;
 	}

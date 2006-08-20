@@ -15,6 +15,8 @@
 
 #include "gui_convoiinfo.h"
 #include "../simdebug.h"
+#include "../simworld.h"
+#include "../simdepot.h"
 #include "../simvehikel.h"
 #include "../simconvoi.h"
 #include "../simcolor.h"
@@ -49,7 +51,12 @@ gui_convoiinfo_t::gui_convoiinfo_t(convoihandle_t cnv, int n)
 void gui_convoiinfo_t::infowin_event(const event_t *ev)
 {
     if(IS_LEFTRELEASE(ev) && cnv.is_bound()) {
+    	if(cnv->in_depot()) {
+    		cnv->gib_welt()->lookup(cnv->get_home_depot())->gib_depot()->zeige_info();
+    }
+    else {
 	cnv->zeige_info();
+	}
     }
 }
 

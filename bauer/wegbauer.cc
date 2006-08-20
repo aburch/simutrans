@@ -480,6 +480,7 @@ wegbauer_t::ist_grund_fuer_strasse(koord pos, const koord zv, koord start, koord
 			ok = ( bd->ist_natur() ||  bd->ist_wasser())  ||  (
 					//					     (bd->gib_besitzer() == NULL || bd->gib_besitzer() == sp) &&
 					(
+						(bd->gib_weg(weg_t::wasser)!=NULL  &&  check_crossing(zv,bd,weg_t::wasser))  ||
 						(bd->gib_weg(weg_t::strasse)!=NULL  &&  check_crossing(zv,bd,weg_t::strasse))  ||
 						(bd->gib_weg(weg_t::schiene)!=NULL  &&  check_crossing(zv,bd,weg_t::schiene))
 					)

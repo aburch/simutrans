@@ -188,65 +188,49 @@ bool load_freight(karte_t * welt,
 		  const vehikel_besch_t *besch,
 		  fahrplan_t *fpl)
 {
-  const bool ok = halt->gibt_ab(besch->gib_ware());
+	const bool ok = halt->gibt_ab(besch->gib_ware());
 
-  if( ok ) {
+	if( ok ) {
+		int menge;
 
-    int menge;
+		while((menge = get_freight_total(fracht)) < besch->gib_zuladung()) {
+			const int hinein = besch->gib_zuladung() - menge;
 
-    while((menge = get_freight_total(fracht)) < besch->gib_zuladung()) {
-      const int hinein = besch->gib_zuladung() - menge;
+			ware_t ware = halt->hole_ab(besch->gib_ware(), hinein, fpl);
+			if(ware.menge==0) {
+				// now empty, but usually, we can get it here ...
+				return ok;
+			}
 
-      ware_t ware = halt->hole_ab(besch->gib_ware(),
-				  hinein,
-				  fpl);
+			const bool is_pax = (ware.gib_typ()==warenbauer_t::passagiere  ||  ware.gib_typ()==warenbauer_t::post);
+			slist_iterator_tpl<ware_t> iter (fracht);
 
-      if(ware.menge == 0) {
-	// nix da ... aber es gibt das zeugs hier!
-	return ok;
-      }
+			// could this be joined with existing freight?
+			while(iter.next()) {
+				ware_t &tmp = iter.access_current();
 
-      /*
-	printf("Message: %p loads %d %s to %s via %s\n",
-	this,
-	ware.menge,
-	ware.name(),
-	haltestelle_t::gib_halt(welt, ware.gib_ziel())->gib_name(),
-	haltestelle_t::gib_halt(welt, ware.gib_zwischenziel())->gib_name());
-      */
+				assert(tmp.gib_ziel() != koord::invalid);
+				assert(ware.gib_ziel() != koord::invalid);
 
+				// for pax: join according next stop
+				// for all others we *must* use target coordinates
+				if(tmp.gib_typ()==ware.gib_typ()  &&  (tmp.gib_zielpos()==ware.gib_zielpos()  ||  (is_pax   &&   haltestelle_t::gib_halt(welt,tmp.gib_ziel())==haltestelle_t::gib_halt(welt,ware.gib_ziel()))  )  ) {
+					tmp.menge += ware.menge;
+					ware.menge = 0;
+					break;
+				}
+			}
 
-      // kann man das mit einer vorhandenen Fracht
-      // vereinigen ?
+			// if != 0 we could not joi it to existing => load it
+			if(ware.menge != 0) {
+				fracht->insert(ware);
+			}
 
-      slist_iterator_tpl<ware_t> iter (fracht);
-
-      while(iter.next()) {
-	ware_t &tmp = iter.access_current();
-
-	assert(tmp.gib_ziel() != koord::invalid);
-	assert(ware.gib_ziel() != koord::invalid);
-
-	// es wird auf basis von Haltestellen vereinigt
-	if(haltestelle_t::gib_halt(welt, tmp.gib_ziel()) == haltestelle_t::gib_halt(welt, ware.gib_ziel())  &&
-	   tmp.gib_typ() == ware.gib_typ() ) {
-
-	  tmp.menge += ware.menge;
-	  ware.menge = 0;
-	  break;
+			INT_CHECK("simvehikel 876");
+		}
 	}
-      }
 
-      // wenns nicht vereinigt werden konnte, dann fügen wir die fracht ein
-      if(ware.menge != 0) {
-	fracht->insert(ware);
-      }
-
-      INT_CHECK("simvehikel 876");
-    }
-  }
-
-  return ok;
+	return ok;
 }
 
 

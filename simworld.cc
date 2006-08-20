@@ -1766,6 +1766,11 @@ karte_t::sync_prepare()
 void
 karte_t::sync_step(const long dt)
 {
+	// ingore calls by interrupt ...
+	if(fast_forward  &&  dt!=-987) {
+		return;
+	}
+
 	const long delta_t = (fast_forward) ? 200 : (dt * get_time_multi()) >> 4;
 	slist_iterator_tpl<sync_steppable*> iter (sync_list);
 
@@ -2841,6 +2846,7 @@ DBG_DEBUG("karte_t::laden()","grundwasser %i",grundwasser);
 	const slist_tpl<halthandle_t> & list = haltestelle_t::gib_alle_haltestellen();
 	slist_iterator_tpl <halthandle_t> iter (list);
 	while( iter.next() ) {
+		iter.get_current()->recalc_station_type();	// fix broken post flags
 		iter.get_current()->rebuild_destinations();
 	}
 
@@ -4283,9 +4289,7 @@ karte_t::interactive()
 			INT_CHECK("simworld 3763");
 			interactive_update();
 
-			if(ticks-last_step_time<200) {
-				sync_step( 200 );
-			}
+			sync_step( -987 );
 
 			step(ticks-last_step_time);
 

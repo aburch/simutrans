@@ -2,6 +2,14 @@
 #define cbuffer_t_h
 
 
+#ifdef _MSC_VER
+#define STRICMP stricmp
+#else
+#define STRICMP strcasecmp
+#endif
+
+
+
 /**
  * A character buffer. Main operation is 'append'
  * @author Hj. Malthaner

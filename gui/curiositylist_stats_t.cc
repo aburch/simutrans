@@ -70,7 +70,7 @@ void curiositylist_stats_t::get_unique_attractions()
 			const char *check_desc = translator::translate(attractions.at(j)->gib_tile()->gib_besch()->gib_name());
 			char *check_token = strtok(const_cast<char*>(check_desc),"\n");
 
-			append = stricmp(token,check_token)>=0;
+			append = STRICMP(token,check_token)>=0;
 
 			if (!append) {
 DBG_MESSAGE("curiositylist_stats_t::get_unique_attractions()","insert %s at (%i,%i)",geb->gib_tile()->gib_besch()->gib_name(),geb->gib_pos().x, geb->gib_pos().y );

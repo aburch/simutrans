@@ -151,6 +151,7 @@ void depot_t::append_vehicle(int icnv, int iveh, bool infront)
 
 	veh->setze_pos(gib_pos());
 	cnv->add_vehikel(veh, infront);
+	cnv->set_home_depot(gib_pos());
 
 	vehicles.remove(veh);
     }
@@ -300,7 +301,7 @@ depot_t::start_convoi(int icnv)
 		if(cnv->gib_sum_leistung() == 0 || !cnv->pruefe_alle()) {
 			create_win(100, 64, MESG_WAIT, new nachrichtenfenster_t(welt, "Diese Zusammenstellung kann nicht fahren!\n"), w_autodelete);
 		}
-		else if(!route->calc_route(welt, this->gib_pos(), cnv->gib_fahrplan()->eintrag.at(cnv->gib_fahrplan()->get_aktuell()).pos, cnv->gib_vehikel(0)) ) {
+		else if(!route->calc_route(welt, this->gib_pos(), cnv->gib_fahrplan()->eintrag.at(cnv->gib_fahrplan()->get_aktuell()).pos, cnv->gib_vehikel(0),0) ) {
 			// no route to go ...
 			static char buf[256];
 			sprintf(buf,translator::translate("Vehicle %s can't find a route!"), cnv->gib_name());
