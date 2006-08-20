@@ -1952,10 +1952,12 @@ char *
 haltestelle_t::access_name()
 {
 	if(grund.count()>0) {
-		tstrncpy(name, name_from_ground(), 128);
-		grund_t *bd = grund.at(0);
-		if(bd != NULL) {
-			bd->setze_text(name);
+		if(name!=name_from_ground()) {
+			tstrncpy(name, name_from_ground(), 128);
+			grund_t *bd = grund.at(0);
+			if(bd!=NULL) {
+				bd->setze_text(name);
+			}
 		}
 	}
 

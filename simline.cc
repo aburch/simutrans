@@ -24,7 +24,7 @@ simline_t::simline_t(karte_t * welt, simlinemgmt_t * simlinemgmt, fahrplan_t * f
 	this->welt = welt;
 	type = simline_t::line;
 	simlinemgmt->add_line(self);
-	DBG_MESSAGE("simline_t::simline_t(karte_t,simlinemgmt,fahrplan_t)","create with %d (unique %d)",self.get_id(),get_line_id());
+DBG_MESSAGE("simline_t::simline_t(karte_t,simlinemgmt,fahrplan_t)","create with %d (unique %d)",self.get_id(),get_line_id());
 }
 
 
@@ -32,6 +32,7 @@ simline_t::simline_t(karte_t * welt, simlinemgmt_t * /*unused*/, loadsave_t * fi
 {
 	init_financial_history();
 	rdwr(file);
+DBG_MESSAGE("simline_t::simline_t(karte_t,simlinemgmt,loadsave_t)","load line id=%d",id);
 	this->welt = welt;
 	this->old_fpl = new fahrplan_t(fpl);
 	register_stops();

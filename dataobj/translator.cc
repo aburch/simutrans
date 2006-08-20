@@ -402,11 +402,12 @@ const char * translator::translate(const char *str)
     if(str == NULL) {
         return "(null)";
     }
-    else if(!check(str)) {
+    else if(*str==0) {
         return str;
     }
     else {
-        return (const char *)single_instance->languages[get_language()]->get(str);
+        const char *trans=(const char *)single_instance->languages[get_language()]->get(str);
+        return trans ? trans : str;
     }
 }
 
@@ -416,12 +417,13 @@ const char * translator::translate_from_lang(const int lang,const char *str)
 	if(str == NULL){
 		return "(null)";
 	}
-	else if(!check(str)  ||  !is_in_bounds(lang)) {
-		return str;
-	}
-	else {
-		return (const char *)single_instance->languages[lang]->get(str);
-	}
+    else if(*str==0  ||  !is_in_bounds(lang)) {
+        return str;
+    }
+    else {
+        const char *trans=(const char *)single_instance->languages[lang]->get(str);
+        return trans ? trans : str;
+    }
 }
 
 

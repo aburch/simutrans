@@ -1,4 +1,5 @@
 
+#include <stdio.h>
 #include <stdlib.h>
 #include <assert.h>
 
@@ -208,15 +209,18 @@ freelist_t::putback_nodes(int size,void *p)
 void
 freelist_t::free_all_nodes()
 {
-	MESSAGE("freelist_t::free_all_nodes()","frees all list memory" );
+	printf("freelist_t::free_all_nodes(): frees all list memory\n" );
 	while(chunk_list) {
 		nodelist_node_t *p = chunk_list;
+		printf("freelist_t::free_all_nodes(): free node %p (next %p)\n",p,chunk_list->next);
 		chunk_list = chunk_list->next;
 		guarded_free( p );
 	}
+	printf("freelist_t::free_all_nodes(): zeroing\n");
 	for( int i=0;  i<NUM_LIST;  i++  ) {
 		all_lists[i] = NULL;
 	}
+	printf("freelist_t::free_all_nodes(): ok\n");
 	node276 = NULL;
 	node1220 = NULL;
 	node1624 = NULL;

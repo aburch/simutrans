@@ -1072,7 +1072,8 @@ extern "C" {
 int
 simu_main(int argc , char** argv)
 {
-  return simu_cpp_main(argc, argv);
+	int i=simu_cpp_main(argc, argv);
+	return i;
 }
 
 } // extern "C"

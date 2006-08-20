@@ -37,7 +37,9 @@ monorailboden_t::rdwr(loadsave_t *file)
 	if(file->get_version()<88009) {
 		// save slope locally
 		if(file->get_version()>88005) {
-			file->rdwr_byte( slope, " " );
+			uint8 sl;
+			file->rdwr_byte( sl, " " );
+			slope = sl;
 		}
 		else {
 			slope = grund_t::gib_grund_hang();

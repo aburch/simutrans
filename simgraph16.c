@@ -72,6 +72,10 @@ typedef unsigned short PIXVAL;
  * Use C implementation of image drawing routines
  */
 //#define USE_C
+#ifdef USE_C
+// bug alert for GCC 4.03
+#define USE_C_FOR_IMAGE
+#endif
 
 // --------------      static data    --------------
 
@@ -2114,7 +2118,7 @@ void
 display_img_nc(int h, const int xp, const int yp, const PIXVAL *sp)
 {
 	if(h > 0) {
-#ifdef USE_C
+#ifdef USE_C_FOR_IMAGE
 	    PIXVAL *tp = textur + xp + yp*disp_width;
 	    // bild darstellen
 
@@ -2480,9 +2484,11 @@ void display_fb_internal(int xp, int yp, int w, int h,
 
 		do {
 			int count = w >> 1;
+			int *lp=p;
 			while(count--) {
-				*((unsigned long*)p)++ = longcolval;
+				*lp++ = longcolval;
 			}
+			p = lp;
 			if(w & 1) {
 				*p++ = colval;
 			}
@@ -2615,7 +2621,7 @@ display_array_wh(int xp, int yp, int w, int h, const unsigned char *arr)
     const int yoff = clip_wh(&yp, &h, clip_rect.y, clip_rect.yy);
 
     if(w > 0 && h > 0) {
-#ifdef USE_C
+#ifdef USE_C_FOR_IMAGE
         register PIXVAL *p;
         register const unsigned char *arr_src;
         register unsigned short ww;
@@ -3510,16 +3516,29 @@ int is_display_init()
 int
 simgraph_exit()
 {
-  // printf("Old images:\n");
+	// printf("Old images:\n");
 
-    guarded_free(tile_dirty);
-    guarded_free(tile_dirty_old);
-    guarded_free(images);
+	guarded_free(tile_dirty);
+	guarded_free(tile_dirty_old);
+	// free images
+	int n;
+	for(n=0;  n<anz_images;  n++) {
+		if(images[n].zoom_data!=NULL) {
+			guarded_free( images[n].zoom_data );
+		}
+		if(images[n].data!=NULL) {
+			guarded_free( images[n].data );
+		}
+		if(images[n].base_data!=NULL) {
+			guarded_free( images[n].base_data );
+		}
+	}
+	guarded_free(images);
 
-    tile_dirty = tile_dirty_old = NULL;
-    images = NULL;
+	tile_dirty = tile_dirty_old = NULL;
+	images = NULL;
 
-    return dr_os_close();
+	return dr_os_close();
 }
 
 

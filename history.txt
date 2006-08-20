@@ -8,7 +8,17 @@ Known bugs: (hard to fix)
 
 
 
+Release of 88.09.3
+
+9-Mai-2006: (prissi)
 	CHANGE: obsolete entry "2LIGHT_CHOOSE"
+	FIX: translator looked word up twice (eating lots of performance with man dialogs open)
+	FIX: line assingment during reloading fixed
+	FIX: depot is updated once before showing it
+	FIX: station ground name was copied on itself
+	FIX: workaround for Linux 4.0.3 compiler bug (will use the C-routines for image display instead of assembler)
+	FIX: several issues with unassigned values and fixed using valgrind
+
 
 Release of 88.09.3
 

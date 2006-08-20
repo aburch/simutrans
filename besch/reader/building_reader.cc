@@ -98,11 +98,10 @@ void building_reader_t::register_obj(obj_besch_t *&data)
 
 	if(besch->utyp==hausbauer_t::fabrik) {
 		// this stuff is just for compatibility
-		int checkpos=strlen(besch->gib_name());
-		if(  strcmp("Oelbohrinsel",besch->gib_name()+checkpos-10)==0  ) {
+		if(  strcmp("Oelbohrinsel",besch->gib_name())==0  ) {
 			besch->enables = 1|2|4;
 		}
-		else if(  strcmp("fish_swarm",besch->gib_name()+checkpos-10)==0  ) {
+		else if(  strcmp("fish_swarm",besch->gib_name())==0  ) {
 			besch->enables = 4;
 		}
 	}

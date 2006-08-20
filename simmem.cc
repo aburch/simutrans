@@ -202,8 +202,9 @@ void guarded_free(void *p)
 
 	// check sig
 	if(check < low_mark || check >= count) {
-	    dbg->fatal("guarded_free()",
-		       "check is %d, valid range is 0..%d\n", check, count);
+		printf("guarded_free(): check is %d, valid range is 0..%d\n", check, count);
+		exit(0);
+//	    dbg->fatal("guarded_free()","check is %d, valid range is 0..%d\n", check, count);
 	}
 
 	// destroy sig, set to invalid range

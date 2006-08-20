@@ -843,6 +843,9 @@ DBG_DEBUG("karte_t::init()","Erzeuge stadt %i with %ld inhabitants",i,(s->get_ci
       zeiger = new zeiger_t(this, koord3d(0,0,0), spieler[0]);
     }
 
+	// finishes the line preparation and sets id 0 to invalid ...
+	spieler[0]->simlinemgmt.laden_abschliessen();
+
     mouse_funk = NULL;
     setze_maus_funktion(wkz_abfrage, skinverwaltung_t::fragezeiger->gib_bild_nr(0), Z_PLAN,  NO_SOUND, NO_SOUND );
 

@@ -91,12 +91,9 @@ DBG_DEBUG("depot_frame_t::depot_frame_t()","get_max_convoi_length()=%i",depot->g
 
     sprintf(txt_title, "(%d,%d) %s", depot->gib_pos().x, depot->gib_pos().y, translator::translate(depot->gib_name()));
 
-    build_vehicle_lists();
-
     /*
      * [SELECT]:
      */
-    lb_convois.setze_text(txt_convois);
     add_komponente(&lb_convois);
 
     bt_prev.setze_typ(button_t::arrowleft);
@@ -122,15 +119,10 @@ DBG_DEBUG("depot_frame_t::depot_frame_t()","get_max_convoi_length()=%i",depot->g
      */
     convoi.set_player_color(kennfarbe);
     convoi.add_listener(this);
+
     add_komponente(&convoi);
-
-    lb_convoi_count.setze_text(txt_convoi_count);
     add_komponente(&lb_convoi_count);
-
-    lb_convoi_value.setze_text(txt_convoi_value);
     add_komponente(&lb_convoi_value);
-
-    lb_convoi_line.setze_text(txt_convoi_line);
     add_komponente(&lb_convoi_line);
 
     /*
@@ -182,14 +174,7 @@ DBG_DEBUG("depot_frame_t::depot_frame_t()","get_max_convoi_length()=%i",depot->g
     /*
      * [PANEL]
      */
-    pas.set_player_color(kennfarbe);
-    pas.add_listener(this);
-
-    loks.set_player_color(kennfarbe);
-    loks.add_listener(this);
-
-    waggons.set_player_color(kennfarbe);
-    waggons.add_listener(this);
+	build_vehicle_lists();
 
     cont_pas.add_komponente(&pas);
     scrolly_pas.set_show_scroll_x(false);
@@ -215,6 +200,15 @@ DBG_DEBUG("depot_frame_t::depot_frame_t()","get_max_convoi_length()=%i",depot->g
 		tabs.add_tab(&scrolly_waggons, depot->gib_haenger_name());
   }
 
+    pas.set_player_color(kennfarbe);
+    pas.add_listener(this);
+
+    loks.set_player_color(kennfarbe);
+    loks.add_listener(this);
+
+    waggons.set_player_color(kennfarbe);
+    waggons.add_listener(this);
+
     add_komponente(&tabs);
     add_komponente(&div_tabbottom);
     add_komponente(&lb_veh_action);
@@ -232,6 +226,13 @@ DBG_DEBUG("depot_frame_t::depot_frame_t()","get_max_convoi_length()=%i",depot->g
     add_komponente(&bt_obsolete);
 
     koord gr = koord(0,0);
+	build_vehicle_lists();
+	update_data();
+	// text is only known now!
+    lb_convois.setze_text(txt_convois);
+    lb_convoi_count.setze_text(txt_convoi_count);
+    lb_convoi_value.setze_text(txt_convoi_value);
+    lb_convoi_line.setze_text(txt_convoi_line);
     layout(&gr);
 
     gui_frame_t::setze_fenstergroesse(gr);
@@ -521,15 +522,15 @@ void depot_frame_t::add_to_vehicle_list(const vehikel_besch_t *info)
 	// since they come "pre-sorted" for the vehikelbauer, we have to do nothing to keep them sorted
 	if(info->gib_ware()==warenbauer_t::passagiere  ||  info->gib_ware()==warenbauer_t::post) {
 		pas_vec.append(img_data,4);
-		vehicle_map.set(info, &pas_vec.at(pas_vec.get_count() - 1));
+		vehicle_map.set(info, &(pas_vec.at(pas_vec.get_count()-1)) );
 	}
 	else if(info->gib_leistung() > 0  ||  info->gib_zuladung()==0) {
 		loks_vec.append(img_data,4);
-		vehicle_map.set(info, &loks_vec.at(loks_vec.get_count() - 1));
+		vehicle_map.set(info, &(loks_vec.at(loks_vec.get_count()-1)) );
 	}
 	else {
 		waggons_vec.append(img_data,4);
-		vehicle_map.set(info, &waggons_vec.at(waggons_vec.get_count() - 1));
+		vehicle_map.set(info, &(waggons_vec.at(waggons_vec.get_count()-1)) );
 	}
 }
 
@@ -877,11 +878,11 @@ depot_frame_t::action_triggered(gui_komponente_t *komp,value_t p)
 	} else if(komp == &convoi) {
 		image_from_convoi_list( p.i );
 	} else if(komp == &pas) {
-		image_from_storage_list( &pas_vec.at(p.i) );
+		image_from_storage_list( &(pas_vec.at(p.i)) );
 	} else if(komp == &loks) {
-		image_from_storage_list( &loks_vec.at(p.i) );
+		image_from_storage_list( &(loks_vec.at(p.i)) );
 	} else if(komp == &waggons) {
-		image_from_storage_list( &waggons_vec.at(p.i) );
+		image_from_storage_list( &(waggons_vec.at(p.i)) );
 	} else if(komp == &bt_obsolete) {
 	    show_retired_vehicles = (show_retired_vehicles==0);
          build_vehicle_lists();

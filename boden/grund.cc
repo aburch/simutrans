@@ -383,7 +383,13 @@ void grund_t::rdwr(loadsave_t *file)
 	besitzer_n = dummy8;
 
 	if(file->get_version()>=88009) {
-		file->rdwr_byte(slope, "\n");
+		uint8 sl = slope;
+		file->rdwr_byte( sl, " " );
+		slope = sl;
+	}
+	else {
+		// safe init for old version
+		slope = 0;
 	}
 
     if(file->is_loading()) {

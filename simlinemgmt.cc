@@ -21,8 +21,10 @@ uint8 simlinemgmt_t::used_ids[8192];
 
 void simlinemgmt_t::init_line_ids()
 {
-	memset( used_ids, 8192, 0 );
-	used_ids[0] = 1;	// skip line zero
+//	DBG_MESSAGE("simlinemgmt_t::init_line_ids()","done");
+	for(int i=0;  i<8192;  i++  ) {
+		used_ids[i] = 0;
+	}
 }
 
 
@@ -52,7 +54,7 @@ simlinemgmt_t::add_line(linehandle_t new_line)
 {
 //DBG_MESSAGE("simlinemgmt_t::add_line()","id=%d",new_line.get_id());
 	uint16 id = new_line->get_line_id();
-	if(used_ids[id/8]&(1<<(id&7))!=0) {
+	if((used_ids[id/8]&(1<<(id&7)))!=0) {
 		dbg->error("simlinemgmt_t::add_line()","Line id %i doubled!",id);
 		id += 12345+(7*id)&0x0FFF;
 		dbg->message("simlinemgmt_t::add_line()","new line id %i!",id);
@@ -151,7 +153,7 @@ simlinemgmt_t::rdwr(karte_t * welt, loadsave_t *file)
 		if(strcmp(buf, "Linemanagement")==0) {
 			int totalLines = 0;
 			file->rdwr_long(totalLines, " ");
-	DBG_MESSAGE("simlinemgmt_t::rdwr()","number of lines=%i",totalLines);
+DBG_MESSAGE("simlinemgmt_t::rdwr()","number of lines=%i",totalLines);
 			for (int i = 0; i<totalLines; i++) {
 				simline_t * line;
 				if (file->get_version() > 84003) {
@@ -269,6 +271,7 @@ simlinemgmt_t::laden_abschliessen()
 {
 	sort_lines();
 	register_all_stops();
+	used_ids[0] |= 1;	// assure, that future ids start at 1 ...
 }
 
 
