@@ -2349,7 +2349,11 @@ void karte_t::laden(loadsave_t *file)
 		einstellungen->setze_use_timeline( umgebung_t::use_timeline );
 		DBG_DEBUG("karte_t::laden", "timeline: reset to %i", umgebung_t::use_timeline );
 	}
-DBG_DEBUG("karte_t::laden", "einstellungen loaded (groesse %i,%i)",einstellungen->gib_groesse_x(),einstellungen->gib_groesse_y());
+	if(einstellungen->gib_beginner_mode()) {
+		warenbauer_t::set_multiplier( umgebung_t::beginner_price_factor );
+		umgebung_t::just_in_time = 0;
+	}
+DBG_DEBUG("karte_t::laden", "einstellungen loaded (groesse %i,%i) timeline=%i beginner=%i",einstellungen->gib_groesse_x(),einstellungen->gib_groesse_y(),umgebung_t::use_timeline,einstellungen->gib_beginner_mode());
 
     // wird gecached, um den Pointerzugriff zu sparen, da
     // die groesse _sehr_ oft referenziert wird

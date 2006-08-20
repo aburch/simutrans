@@ -87,6 +87,7 @@ schedule_list_gui_t::schedule_list_gui_t(karte_t *welt,spieler_t *sp)
 	scl.setze_pos(koord(0,1));
 	scl.setze_highlight_color(sp->get_player_color()+1);
 	scl.request_groesse(scl.gib_groesse());
+	scl.add_listener(this);
 
 	// tab panel
 	tabs.setze_pos(koord(11,5));
@@ -215,6 +216,21 @@ bool schedule_list_gui_t::action_triggered(gui_komponente_t *komp,value_t /* */)
 		update_lineinfo( linehandle_t() );
 		build_line_list(tabs.get_active_tab_index());
 	}
+	else if (komp == &scl) {
+		if (!line.is_bound()) {
+			bt_change_line.disable();
+			bt_delete_line.disable();
+		}
+		// get selected line
+		linehandle_t new_line = linehandle_t();
+		selection = scl.gib_selection();
+		if ((selection >= 0) && (selection < (int)lines.count())) {
+			new_line = lines.at(selection);
+			bt_change_line.enable();
+			bt_delete_line.enable();
+		}
+		update_lineinfo(new_line);
+	}
 	else {
 		if (line.is_bound()) {
 			for ( int i = 0; i<MAX_LINE_COST; i++) {
@@ -231,55 +247,15 @@ bool schedule_list_gui_t::action_triggered(gui_komponente_t *komp,value_t /* */)
 
 
 
-void
-schedule_list_gui_t::infowin_event(const event_t *ev)
-{
-	int x = ev->cx;
-	int y = ev->cy;
-
-	if (ev->ev_class == EVENT_CLICK) {
-		if (!line.is_bound()) {
-			bt_change_line.disable();
-			bt_delete_line.disable();
-		}
-#if 0
-		else {
-			bt_change_line.enable();
-			bt_delete_line.enable();
-		}
-#endif
-		if (scl.getroffen(x, y-40)) {
-			linehandle_t new_line=linehandle_t();
-			event_t ev2 = *ev;
-			translate_event(&ev2, -tabs.pos.x, -tabs.pos.y-35);
-			scl.infowin_event(&ev2);
-
-			selection = scl.gib_selection();
-			// get selected line
-			if ((selection >= 0) && (selection < (int)lines.count())) {
-				new_line = lines.at(selection);
-				bt_change_line.enable();
-				bt_delete_line.enable();
-			}
-			update_lineinfo(new_line);
-		}
-	}
-	gui_frame_t::infowin_event(ev);
-}
-
-
-
 void schedule_list_gui_t::zeichnen(koord pos, koord gr)
 {
   for (int i = 0;i<MAX_LINE_COST;i++) {
     filterButtons[i].pressed = chart.is_visible(i);
   }
-
   gui_frame_t::zeichnen(pos, gr);
   if (line.is_bound()) {
     display(pos);
   }
-//  scl.zeichnen(pos);
 }
 
 

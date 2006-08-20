@@ -35,7 +35,8 @@ gui_scrolled_list_t::gui_scrolled_list_t(enum type type) :
 	border = 0;
 	if (type==select) {
 		border = 2;
-	} else if (type==list) {
+	}
+	else if (type==list) {
 		border = 4;
 	}
 	sb.add_listener(this);
@@ -110,33 +111,34 @@ void gui_scrolled_list_t::remove_element(const int pos)
 #define YMIN ((LINESPACE*3)+2)
 koord gui_scrolled_list_t::request_groesse(koord request)
 {
-    koord groesse = gib_groesse();
+	koord groesse = gib_groesse();
 
-    groesse.x = request.x;
-    int y = request.y;
-    int vz = total_vertical_size();
-    // if y is too large, but smaller than current, accept it.
-    if (y > vz && y > (groesse.y - border)) {
-	if (vz > groesse.y - border) {
-	    y = vz;
-	} else {
-	    y = groesse.y - border;
+	groesse.x = request.x;
+	int y = request.y;
+	int vz = total_vertical_size();
+	// if y is too large, but smaller than current, accept it.
+	if (y > vz && y > (groesse.y - border)) {
+		if (vz > groesse.y - border) {
+			y = vz;
+		}
+		else {
+			y = groesse.y - border;
+		}
 	}
-    }
 
-    if (y < YMIN) {
-	y = YMIN;
-    }
+	if (y < YMIN) {
+		y = YMIN;
+	}
 
-    groesse.y = y + border;
+	groesse.y = y + border;
 
-    setze_groesse( groesse );
+	setze_groesse( groesse );
 
-    sb.setze_pos(koord(groesse.x-12,0));
-    sb.setze_groesse(koord(10, (int)groesse.y+border));
-    sb.setze_knob(groesse.y-border, total_vertical_size());
+	sb.setze_pos(koord(groesse.x-12,0));
+	sb.setze_groesse(koord(10, (int)groesse.y+border));
+	sb.setze_knob(groesse.y-border, total_vertical_size());
 
-    return groesse;
+	return groesse;
 }
 
 

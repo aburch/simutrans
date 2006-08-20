@@ -35,28 +35,31 @@ Stichpunkte
 - sound: done
 - Kurven auf Brücken: well, monorails
 - Linienverwaltung kollidiert mit AI Spieler: done
+- Oneway Rollbahnen: done
+- more than one translation: done
 
 - details for convois: halfway
 - Brücken an senkrechten Wänden: done/halfway
 - tile 2x height: halfway-> slopes needed
 - Jahreszeiten: halfway done
 
-- Oneway Rollbahnen
-- connection weighted by their intermediate stops => A* for goods routing
-- when import translation: ignore entries which are identical (saving runtime)
-- more than one translation
-- Kosten für Wege deckeln!
-- A* for goods
-- scripting for AI
-- Landfabrik alle x Jahre/Fakriken
 - Felder: Grafiken da, fehlt noch code (vielleicht wie Wälder?)
 - schönerer Jahreszeitenwechsel => texturen statt fertiger tiles!
 - Winter höhenabhängig?
+
+- connection weighted by their intermediate stops => A* for goods routing
+- when import translation: ignore entries which are identical (saving runtime)
+- limit construction costs
+- A* for goods
+- scripting for AI
+- Landfabrik alle x Jahre/Fakriken
+- set animation speed in pak-file, allow season in pak file
 
 
 Immer zu tun:
 - Aufräumen von Datentypen für bessere Portierbarkeit
 - Testen auf BeOS und PowerPC
+
 
 Unmögliches ...
 - echte Abzweige nur in eine Richtung

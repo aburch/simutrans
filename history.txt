@@ -5,6 +5,9 @@ Known bugs: (hard to fix)
 
 
 
+	FIX: reward for boats in harbours
+	FIX: beginner mode restored after reloading
+
 
 Release of 89.03
 
