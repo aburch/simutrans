@@ -77,13 +77,15 @@ public:
 
     enum bautyp {
         strasse,
+	elevated_strasse,
 	schiene,
+	elevated_schiene,
 	schiene_bot,
 	schiene_bot_bau,
 	strasse_bot,
 	schiene_tram, // Dario: Tramway
-	schiene_monorail,
-	schiene_elevated_monorail,
+	monorail,
+	elevated_monorail,
 	leitung,
 	wasser,
 	luft

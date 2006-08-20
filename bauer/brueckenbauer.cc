@@ -15,6 +15,7 @@
 #include "../simworld.h"
 #include "../simgraph.h"
 #include "../simwin.h"
+#include "../simhalt.h"
 #include "../besch/sound_besch.h"
 #include "../simplay.h"
 #include "../simskin.h"
@@ -586,7 +587,7 @@ brueckenbauer_t::remove(karte_t *welt, spieler_t *sp, koord3d pos, weg_t::typ we
 		// Alle Brückenteile auf Entfernbarkeit prüfen!
 		msg = from->kann_alle_obj_entfernen(sp);
 
-		if(msg != NULL  ||  from->gib_halt().is_bound()) {
+		if(msg != NULL  ||  (from->gib_halt().is_bound()  &&  from->gib_halt()->gib_besitzer()!=sp)) {
 			return "Die Bruecke ist nicht frei!\n";
 		}
 
@@ -599,6 +600,7 @@ brueckenbauer_t::remove(karte_t *welt, spieler_t *sp, koord3d pos, weg_t::typ we
 		}
 	} while(!tmp_list.is_empty());
 
+
 	// Jetzt geht es ans löschen der Brücke
 	while(!part_list.is_empty()) {
 		pos = part_list.remove_first();
@@ -609,6 +611,7 @@ brueckenbauer_t::remove(karte_t *welt, spieler_t *sp, koord3d pos, weg_t::typ we
 			bm->entferne_schiene(welt, pos);
 		}
 		gr->weg_entfernen(wegtyp, false);
+		gr->remove_everything_from_way(sp,wegtyp,ribi_t::keine);	// removes stop and signals correctly
 		gr->obj_loesche_alle(sp);
 
 		welt->access(pos.gib_2d())->boden_entfernen(gr);

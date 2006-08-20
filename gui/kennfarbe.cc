@@ -11,96 +11,54 @@
 #include "../simevent.h"
 #include "../simimg.h"
 #include "../simplay.h"
-#include "../simworld.h"
 #include "../besch/skin_besch.h"
 #include "../simskin.h"
 #include "../dataobj/translator.h"
-#include "../utils/cbuffer_t.h"
 #include "kennfarbe.h"
-
-
-extern "C" {
 #include "../simgraph.h"
-}
 
-farbengui_t::farbengui_t(karte_t *welt) : infowin_t(welt)
+
+farbengui_t::farbengui_t(spieler_t *sp) :
+	gui_frame_t("Meldung",sp->get_player_color()),
+	txt(translator::translate("COLOR_CHOOSE\n"))
 {
+	this->sp = sp;
+	setze_fenstergroesse( koord(216, 84) );
+	setze_opaque(true);
+	txt.setze_pos( koord(10,10) );
+	add_komponente( &txt );
 }
 
-
-/**
- * Manche Fenster haben einen Hilfetext assoziiert.
- * @return den Dateinamen für die Hilfe, oder NULL
- * @author Hj. Malthaner
- */
-const char * farbengui_t::gib_hilfe_datei() const
-{
-  return "color.txt";
-}
-
-
-/**
- * in top-level fenstern wird der Name in der Titelzeile dargestellt
- * @return den nicht uebersetzten Namen der Komponente
- * @author Hj. Malthaner
- */
-const char * farbengui_t::gib_name() const
-{
-  return "Meldung";
-}
-
-
-/**
- * gibt den Besitzer zurück
- *
- * @author Hj. Malthaner
- */
-spieler_t* farbengui_t::gib_besitzer() const
-{
-    return welt->get_active_player();
-}
-
-
-/**
- * Jedes Objekt braucht ein Bild.
- *
- * @author Hj. Malthaner
- * @return Die Nummer des aktuellen Bildes für das Objekt.
- */
-int farbengui_t::gib_bild() const
-{
-    return skinverwaltung_t::farbmenu->gib_bild_nr(0);
-}
-
-
-void farbengui_t::info(cbuffer_t & buf) const
-{
-  buf.append(translator::translate("COLOR_CHOOSE\n"));
-}
-
-koord farbengui_t::gib_fenstergroesse() const
-{
-    return koord(216, 84);
-}
 
 
 void farbengui_t::infowin_event(const event_t *ev)
 {
-  infowin_t::infowin_event(ev);
+	gui_frame_t::infowin_event(ev);
 
-  if(IS_LEFTCLICK(ev)) {
-    if(ev->mx >= 136 && ev->mx <= 200) {
+	if(IS_LEFTCLICK(ev)) {
+		if(ev->mx >= 136 && ev->mx <= 200) {
+			// choose new color
+			const int x = (ev->mx-136)/32;
+			const int y = (ev->my-16)/8;
+			const int f = (y + x*8);
+			if(f>=0 && f<16) {
+				sp->set_player_color(f*4);
+			}
+		}
+	}
+}
 
-      const int x = (ev->mx-136)/32;
-      const int y = (ev->my-16)/8;
 
-      gib_besitzer()->kennfarbe = 0;
+/**
+ * komponente neu zeichnen. Die übergebenen Werte beziehen sich auf
+ * das Fenster, d.h. es sind die Bildschirkoordinaten des Fensters
+ * in dem die Komponente dargestellt wird.
+ *
+ * @author Hj. Malthaner
+ */
+void farbengui_t::zeichnen(koord pos, koord gr)
+{
+	gui_frame_t::zeichnen(pos, gr);
 
-      const int f = (y + x*8);
-
-      if(f>=0 && f<16) {
-	display_set_player_color(f);
-      }
-    }
-  }
+	display_color_img(skinverwaltung_t::farbmenu->gib_bild_nr(0), pos.x + 136, pos.y + 16, 0, false, false);
 }

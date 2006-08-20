@@ -97,23 +97,6 @@ public:
      * @author Hj. Malthaner
      */
     virtual int gib_grundwasser() const = 0;
-
-
-
-    /**
-     * Holt Zustand des Planquadrats von Position pos.
-     * @param pos Position des abgefragten Planquadrats
-     * @return true, wenn das Planquadrat neu gezeichnet werden muss
-     * @author Hj. Malthaner
-     */
-    virtual bool ist_dirty(const koord3d pos) const = 0;
-
-
-    /**
-     * Setzt das dirty Flag eines Planquadrats zurück;
-     * @author Hj. Malthaner
-     */
-    virtual void markiere_clean(koord3d pos) = 0;
 };
 
 #endif

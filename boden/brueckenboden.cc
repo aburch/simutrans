@@ -5,10 +5,14 @@
 #include "../simimg.h"
 #include "../simworld.h"
 #include "../simtools.h"
+#include "../simhalt.h"
+
 #include "../besch/grund_besch.h"
 
 #include "../dataobj/loadsave.h"
 #include "../dataobj/freelist.h"
+
+#include "../gui/ground_info.h"
 
 #include "brueckenboden.h"
 
@@ -79,6 +83,27 @@ int brueckenboden_t::gib_weg_yoff() const
 	else {
 		return 0;
 	}
+}
+
+
+bool
+brueckenboden_t::zeige_info()
+{
+	if(gib_halt().is_bound()) {
+		gib_halt()->zeige_info();
+		return true;
+	}
+	else {
+		if(hat_wege()) {	// if this is true, then all land info is shown
+			// there is some info!
+			if(!grund_infos->get(this)) {
+				grund_infos->put(this, new grund_info_t(welt, this));
+			}
+			create_win(-1, -1, grund_infos->get(this), w_autodelete);
+			return true;
+		}
+	}
+	return false;
 }
 
 

@@ -24,7 +24,7 @@
 
 
 fabrik_info_t::fabrik_info_t(fabrik_t *fab, gebaeude_t *gb, karte_t *welt) :
-  gui_frame_t(fab->gib_name()),
+  gui_frame_t(fab->gib_name(),fab->gib_besitzer()->get_player_color()),
   ding_info_t(gb),
   view(welt, gb->gib_pos()),
   scrolly(&cont),
@@ -119,13 +119,11 @@ fabrik_info_t::fabrik_info_t(fabrik_t *fab, gebaeude_t *gb, karte_t *welt) :
     add_komponente(about);
   }
 
-
   fab->info(info_buf);
   const short height = MAX(count_char(info_buf, '\n')*LINESPACE+40, 92);
 
   setze_fenstergroesse(koord((short)290, MIN(height, 408)));
   cont.setze_groesse(koord((short)290, height-20));
-
 
   scrolly.setze_groesse(gib_fenstergroesse()-koord(1, 8));
   scrolly.setze_pos(koord(1,1));
@@ -172,37 +170,17 @@ void fabrik_info_t::zeichnen(koord pos, koord gr)
 {
 	info_buf.clear();
 	fab->info(info_buf);
+
 	gui_frame_t::zeichnen(pos, gr);
 
-	fensterfarben f = gib_fensterfarben();
-	// Rahmen um view
-	display_ddd_box(pos.x + view.pos.x, pos.y + view.pos.y + 15, 66, 57, f.dunkel, f.hell);
-
 	unsigned indikatorfarbe = fabrik_t::status_to_color[ fab->calc_factory_status( NULL, NULL ) ];
-
-	display_ddd_box_clip(pos.x + view.pos.x, pos.y + view.pos.y + 75, 66, 8, MN_GREY0, MN_GREY4);
-	display_fillbox_wh_clip(pos.x + view.pos.x+1, pos.y + view.pos.y + 76, 64, 6, indikatorfarbe, true);
+	display_ddd_box_clip(pos.x + view.pos.x, pos.y + view.pos.y + 75, 64, 8, MN_GREY0, MN_GREY4);
+	display_fillbox_wh_clip(pos.x + view.pos.x+1, pos.y + view.pos.y + 76, 62, 6, indikatorfarbe, true);
 	if (fab->get_prodfaktor() > 16) {
 		display_color_img(skinverwaltung_t::electricity->gib_bild_nr(0), pos.x + view.pos.x+4, pos.y + view.pos.y+18, 0, false, false);
 	}
 }
 
-
-/**
- * gibt farbinformationen fuer Fenstertitel, -ränder und -körper
- * zurück
- */
-fensterfarben fabrik_info_t::gib_fensterfarben() const
-{
-  fensterfarben f;
-
-  f.titel  = gib_besitzer()->kennfarbe;
-  f.hell   = MN_GREY4;
-  f.mittel = MN_GREY2;
-  f.dunkel = MN_GREY0;
-
-  return f;
-}
 
 
 /**

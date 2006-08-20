@@ -104,12 +104,16 @@ DBG_MESSAGE("roadsign_t::set_dir()","ribi %i",dir);
  */
 void roadsign_t::info(cbuffer_t & buf) const
 {
-	//ding_t::info(buf);
-	buf.append("Roadsign\n\nsingle way: ");
-	buf.append(besch->is_single_way());
-	buf.append("\nminimum speed: ");
-	buf.append(speed_to_kmh(besch->gib_min_speed()));
-	buf.append("\ndirection: ");
+	buf.append(translator::translate("Roadsign"));
+	buf.append("\n");
+	if(besch->is_single_way()) {
+		buf.append(translator::translate("\nsingle way"));
+	}
+	if(besch->gib_min_speed()!=0) {
+		buf.append(translator::translate("\nminimum speed:"));
+		buf.append(speed_to_kmh(besch->gib_min_speed()));
+	}
+	buf.append(translator::translate("\ndirection:"));
 	buf.append(dir);
 	buf.append("\n");
 }

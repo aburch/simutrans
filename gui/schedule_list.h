@@ -51,6 +51,8 @@ private:
 
   void display(koord pos);
 
+  void update_lineinfo(linehandle_t new_line);
+
   linehandle_t line;
 
   slist_tpl <linehandle_t> lines;

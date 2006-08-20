@@ -150,8 +150,8 @@ koord scrolled_list_gui_t::request_groesse(koord request)
 
     setze_groesse( groesse );
 
-    sb->setze_pos(koord(groesse.x-10,0));
-    sb->setze_groesse(koord(10, (int)groesse.y));
+    sb->setze_pos(koord(groesse.x-12,0));
+    sb->setze_groesse(koord(10, (int)groesse.y+border));
     sb->setze_knob(groesse.y-border, total_vertical_size());
 
     return groesse;

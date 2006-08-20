@@ -33,8 +33,14 @@
 #include "../simhalt.h"
 #include "../blockmanager.h"
 
+#include "../dings/baum.h"
 #include "../dings/bruecke.h"
 #include "../dings/gebaeude.h"
+#include "../dings/signal.h"
+#include "../dings/roadsign.h"
+#include "../dings/oberleitung.h"
+#include "../simverkehr.h"
+#include "../simpeople.h"
 
 #include "../besch/haus_besch.h"
 #include "../besch/kreuzung_besch.h"
@@ -611,16 +617,16 @@ void grund_t::calc_bild()
 	}
 	// recalc way image
 	if(ist_uebergang()) {
-			ribi_t::ribi ribi0 = wege[0]->gib_ribi();
-			ribi_t::ribi ribi1 = wege[1]->gib_ribi();
+		ribi_t::ribi ribi0 = wege[0]->gib_ribi();
+		ribi_t::ribi ribi1 = wege[1]->gib_ribi();
 
-			if(ribi_t::ist_gerade_ns(ribi0) || ribi_t::ist_gerade_ow(ribi1)) {
-				wege[0]->setze_bild( wegbauer_t::gib_kreuzung(wege[0]->gib_typ(), wege[1]->gib_typ() )->gib_bild_nr() );
-			}
-			else {
-				wege[0]->setze_bild( wegbauer_t::gib_kreuzung(wege[1]->gib_typ(), wege[0]->gib_typ() )->gib_bild_nr() );
-			}
-			wege[1]->setze_bild( IMG_LEER );
+		if(ribi_t::ist_gerade_ns(ribi0) || ribi_t::ist_gerade_ow(ribi1)) {
+			wege[0]->setze_bild( wegbauer_t::gib_kreuzung(wege[0]->gib_typ(), wege[1]->gib_typ() )->gib_bild_nr() );
+		}
+		else {
+			wege[0]->setze_bild( wegbauer_t::gib_kreuzung(wege[1]->gib_typ(), wege[0]->gib_typ() )->gib_bild_nr() );
+		}
+		wege[1]->setze_bild( IMG_LEER );
 	}
 	else {
 		// a bridge will set this to empty anyway ...
@@ -699,13 +705,13 @@ grund_t::text_farbe() const
 {
 	// if this gund belongs to a halt, the color should reflect the halt owner, not the grund owner!
 	if(halt.is_bound()  &&  halt->gib_besitzer()) {
-		return halt->gib_besitzer()->kennfarbe+2;
+		return halt->gib_besitzer()->get_player_color()+2;
 	}
 
 	// else color according to current owner
 	const spieler_t *sp = gib_besitzer();
 	if(sp) {
-		return sp->kennfarbe+2;
+		return sp->get_player_color()+2;
 	} else {
 		return 101;
 	}
@@ -732,7 +738,7 @@ void grund_t::verlasse(vehikel_basis_t *v)
 
 
 inline
-void grund_t::do_display_boden( const int xpos, const int ypos, const bool dirty ) const
+void grund_t::do_display_boden( const sint16 xpos, const sint16 ypos, const bool dirty ) const
 {
 	// walls
 	if(back_bild_nr!=0) {
@@ -763,103 +769,42 @@ void grund_t::do_display_boden( const int xpos, const int ypos, const bool dirty
 
 
 void
-grund_t::display_boden(const int xpos, int ypos, bool dirty) const
+grund_t::display_boden(const sint16 xpos, sint16 ypos, bool dirty) const
 {
-	if(!get_flag(grund_t::draw_as_ding)) {
-		dirty |= get_flag(grund_t::dirty);
-		int raster_tile_width = get_tile_raster_width();
-
-		ypos -= tile_raster_scale_y( gib_hoehe(), raster_tile_width);
-
-		/* we can save some time but just don't display at all
-		 * @author prissi
-		 */
-		if(  ypos>32-raster_tile_width  &&  ypos<display_get_height()-raster_tile_width/4) {
-			do_display_boden( xpos, ypos, dirty );
-		}
-	}
+	dirty |= get_flag(grund_t::dirty);
+	do_display_boden( xpos, ypos, dirty );
 }
 
 
+
 void
-grund_t::display_dinge(const int xpos, int ypos, bool dirty)
+grund_t::display_dinge(const sint16 xpos, sint16 ypos, bool dirty)
 {
 //	DBG_DEBUG("grund_t::display_dinge()","at %i,%i",pos.x,pos.y);
-	int n;
-	int raster_tile_width = get_tile_raster_width();
-	ypos -= tile_raster_scale_y( gib_hoehe(), raster_tile_width);
+	dinge.display_dinge( xpos, ypos, dirty );
 
-	dirty |= get_flag(grund_t::dirty);
-	clear_flag(grund_t::dirty);
+	// marker/station text
+	const char * text = gib_text();
+	if(text && (umgebung_t::show_names & 1)) {
+		const sint16 raster_tile_width = get_tile_raster_width();
+		const int width = proportional_string_width(text)+7;
 
-	if(get_flag(grund_t::draw_as_ding)) {
-		do_display_boden( xpos, ypos, dirty );
+		display_ddd_proportional_clip(xpos - (width - raster_tile_width)/2, ypos,
+			     width, 0, text_farbe(), COL_BLACK,
+			     text, dirty || get_flag(grund_t::new_text));
+		clear_flag(grund_t::new_text);
 	}
 
-	/* we can save some time but just don't display at all
-	 * @author prissi
-	 */
-	if(  ypos>32-raster_tile_width  &&  ypos<display_get_height()+32+raster_tile_width) {
+	// display station waiting information/status
+	if(halt.is_bound()  &&  (umgebung_t::show_names & 2) &&  halt->gib_basis_pos3d()==pos) {
+		halt->display_status(xpos, ypos);
+	}
 
-		// background
-		for(n=0; n<gib_top(); n++) {
-			ding_t * dt = obj_bei(n);
-			if( dt ) {
-				// ist dort ein objekt ?
-				dt->display(xpos, ypos, dirty);
-			}
-		}
-
-		// foreground
-		for(n=0; n<gib_top(); n++) {
-			ding_t * dt = obj_bei(n);
-			if( dt ) {
-				// ist dort ein vordergrund objekt ?
-				dt->display_after(xpos, ypos, dirty);
-				dt->clear_flag(ding_t::dirty);
-			}
-		}
-
-		const char * text = gib_text();
-		if(text && (umgebung_t::show_names & 1)) {
-			const int width = proportional_string_width(text)+7;
-
-			display_ddd_proportional_clip(xpos - (width - raster_tile_width)/2,
-				     ypos,
-				     width,
-				     0,
-				     text_farbe(),
-				     COL_BLACK,
-				     text,
-				     dirty || get_flag(grund_t::new_text));
-
-			clear_flag(grund_t::new_text);
-		}
-
-		// display station sign
-		if(text && (umgebung_t::show_names & 2) && halt.is_bound()) {
-			halt->display_status(xpos, ypos);
-		}
-
-		// display station owner boxes
-		planquadrat_t *pl=welt->access(pos.gib_2d());
-		if(umgebung_t::station_coverage_show  &&  pl->gib_kartenboden()==this) {
-			int r=raster_tile_width/8;
-			int x=xpos+raster_tile_width/2-r;
-			int y=ypos+(raster_tile_width*3)/4-r;
-
-			// suitable start search
-			const minivec_tpl<halthandle_t> &halt_list = pl->get_haltlist();
-			for(int h=halt_list.get_count()-1;  h>=0;  h--  ) {
-				display_fillbox_wh_clip( x-h*2, y+h*2, r, r, halt_list.at(h)->gib_besitzer()->kennfarbe+2, dirty);
-			}
-		}
 #ifdef SHOW_FORE_GRUND
-		if(get_flag(grund_t::draw_as_ding)) {
-			display_fillbox_wh_clip( xpos+raster_tile_width/2, ypos+(raster_tile_width*3)/4, 16, 16, 0, dirty);
-		}
-#endif
+	if(get_flag(grund_t::draw_as_ding)) {
+		display_fillbox_wh_clip( xpos+raster_tile_width/2, ypos+(raster_tile_width*3)/4, 16, 16, 0, dirty);
 	}
+#endif
 }
 
 
@@ -898,46 +843,65 @@ bool grund_t::weg_erweitern(weg_t::typ wegtyp, ribi_t::ribi ribi)
  */
 bool grund_t::neuen_weg_bauen(weg_t *weg, ribi_t::ribi ribi, spieler_t *sp)
 {
-    // Hajo: falld das Feld noch keine Besitzer hat, nehmen wir es in Besitz
-    // egal ob der Weg schon da war oder nicht.
+	// Hajo: falld das Feld noch keine Besitzer hat, nehmen wir es in Besitz
+	// egal ob der Weg schon da war oder nicht.
 
-    if(gib_besitzer() == NULL) {
-	setze_besitzer( sp );
-    }
-
-	// has a powerline before
-	// @author prissi
-	leitung_t *lt=dynamic_cast<leitung_t *>(suche_obj(ding_t::leitung));
-	spieler_t *lt_sp=NULL;
-	if(lt) {
-		lt_sp = lt->gib_besitzer();
-		obj_remove(lt,sp);
+	if(gib_besitzer()==NULL) {
+		setze_besitzer( sp );
+	}
+	else if(sp  &&  sp!=gib_besitzer()) {
+		// cannot take ownership
+		return false;
 	}
 
+	// not already there?
 	const weg_t * alter_weg = gib_weg(weg->gib_typ());
 	if(alter_weg == NULL) {
-		// Hajo: nur fuer neubau 'planieren'
+
 		if(wege[0] == 0) {
-			obj_loesche_alle(sp);
+			// new way here
+
+			// remove all trees
+			while(1)
+			{
+				baum_t *b=dynamic_cast<baum_t *>(suche_obj(ding_t::baum));
+				if(!b) {
+					break;
+				}
+				obj_remove(b,sp);
+				b->entferne(sp);
+				delete b;
+			}
+
+			// add
+			wege[0] = weg;
+		}
+		else {
+			// another way will be added
+			if(wege[1]) {
+				dbg->error("grund_t::neuen_weg_bauen()","cannot built more than two ways on %i,%i,%i!",pos.x,pos.y,pos.z);
+				return false;
+			}
+			// add the way
+			if(weg->gib_typ()==weg_t::strasse  &&  wege[0]->gib_besch()->gib_styp()==7) {
+				// road add below tramway
+				wege[1] = wege[0];
+				wege[0] = weg;
+			}
+			else {
+				wege[1] = weg;
+			}
 		}
 
-		for(int i = 0; i < MAX_WEGE; i++) {
-			if(!wege[i]) {
-				wege[i] = weg;
-				if(gib_besitzer() && !ist_wasser()) {
-					gib_besitzer()->add_maintenance(weg->gib_besch()->gib_wartung());
-				}
-				break;
-			}
+		// just add the cost
+		if(gib_besitzer() && !ist_wasser()) {
+			gib_besitzer()->add_maintenance(weg->gib_besch()->gib_wartung());
 		}
 		weg->setze_ribi(ribi);
 		weg->setze_pos(pos);
+		// may result in a crossing
 		calc_bild();
-		// readd powerline
-		if(lt_sp!=NULL) {
-			obj_add(lt);
-			lt->calc_neighbourhood();
-		}
+
 		return true;
 	}
 	return false;
@@ -1099,4 +1063,93 @@ int grund_t::get_max_speed()
 	}
 
 	return max;
+}
+
+
+
+/* removes everything from a tile, including a halt but i.e. leave a powerline ond other stuff
+ * @author prissi
+ */
+bool grund_t::remove_everything_from_way(spieler_t *sp,weg_t::typ wt,ribi_t::ribi rem)
+{
+DBG_MESSAGE("grund_t::remove_everything()","at %d,%d,%d for waytype %i and ribi %i",pos.x,pos.y,pos.z,wt,rem);
+
+	const bool is_rail = (wt==weg_t::schiene  ||  wt==weg_t::monorail);	// since we must delete overhead and block info
+
+	// stopps
+	if(halt.is_bound()  &&  halt->gib_besitzer()==sp) {
+		const char *fail;
+		if(!haltestelle_t::remove(welt, sp, pos, fail)) {
+			return false;
+		}
+	}
+
+	// now we must remove the things one by one, for special things
+	if(weg_t::schiene  ||  weg_t::monorail  ||  weg_t::invalid) {
+		if(suche_obj(ding_t::signal)!=NULL  ||  suche_obj(ding_t::presignal)!=NULL  ||  suche_obj(ding_t::choosesignal)!=NULL) {
+DBG_MESSAGE("wkz_wayremover()","remove signal");
+			blockmanager *bm = blockmanager::gib_manager();
+			if(!bm->entferne_signal(welt, pos)) {
+				return false;
+			}
+		}
+	}
+
+	if(weg_t::strasse  ||  weg_t::invalid) {
+		// roadsigns ...
+		roadsign_t *rs = dynamic_cast<roadsign_t *>(suche_obj(ding_t::roadsign));
+		if(rs) {
+DBG_MESSAGE("wkz_wayremover()","remove roadsign");
+			rs->entferne(sp);
+			delete rs;
+		}
+
+		// citycars ...
+		while(suche_obj(ding_t::verkehr)) {
+			stadtauto_t *citycar = dynamic_cast<stadtauto_t *>(suche_obj(ding_t::verkehr));
+			delete citycar;
+		}
+
+		// pedestrians ...
+		while(suche_obj(ding_t::fussgaenger)) {
+			fussgaenger_t *fussgaenger = dynamic_cast<fussgaenger_t *>(suche_obj(ding_t::fussgaenger));
+			delete fussgaenger;
+		}
+
+	}
+
+	// then check, if the way must be totally removed?
+	weg_t *weg = gib_weg(wt);
+	if(weg) {
+		ribi_t::ribi add=(weg->gib_ribi_unmasked()&rem);
+
+		// need to remove railblocks to recalcualte connections
+		// remove all ways or just some?
+		if(add==ribi_t::keine ) {
+DBG_MESSAGE("wkz_wayremover()","remove all way");
+			if(is_rail) {
+				if(!blockmanager::gib_manager()->entferne_schiene(welt, gib_pos())) {
+					return false;
+				}
+				if(suche_obj(ding_t::oberleitung)!=NULL) {
+					oberleitung_t *ol = dynamic_cast<oberleitung_t *>(suche_obj(ding_t::oberleitung));
+					obj_remove(ol,sp);
+					delete ol;
+				}
+			}
+			sp->buche(-weg_entfernen(wt, true), pos.gib_2d(), COST_CONSTRUCTION);
+		}
+		else {
+DBG_MESSAGE("wkz_wayremover()","change remaining way to ribi %d",add);
+			// something will remain, we just change ribis
+			weg_erweitern(wt, add);
+			if(wt==weg_t::schiene  ||  wt==weg_t::monorail) {
+				blockmanager::gib_manager()->schiene_erweitern(welt, this);
+				if(suche_obj(ding_t::oberleitung)!=NULL) {
+					suche_obj(ding_t::oberleitung)->calc_bild();
+				}
+			}
+		}
+	}
+	return true;
 }

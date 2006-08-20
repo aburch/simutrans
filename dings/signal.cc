@@ -96,50 +96,48 @@ void signal_t::info(cbuffer_t & buf) const
 
 void signal_t::calc_bild()
 {
-  if(blockend) {
-    setze_bild(0, IMG_LEER);
+	if(blockend) {
+		welt->lookup(gib_pos())->set_flag(grund_t::world_spot_dirty);
+		setze_bild(0, IMG_LEER);
+	}
+	else {
+		schiene_t * sch = dynamic_cast<schiene_t *>(welt->lookup(gib_pos())->gib_weg(weg_t::schiene));
+		if(!sch) {
+			sch = dynamic_cast<schiene_t *>(welt->lookup(gib_pos())->gib_weg(weg_t::monorail));
+		}
+		const int offset = (sch->ist_elektrisch()  &&  skinverwaltung_t::signale->gib_bild_anzahl()==16)?8:0;
 
-    // Hajo: ein leeres Bild refreshed nicht, deshalb müssen wir manuell
-    // das Feld neuzeichnen lassen
-    welt->markiere_dirty(gib_pos());
-  } else {
-  schiene_t * sch = dynamic_cast<schiene_t *>(welt->lookup(gib_pos())->gib_weg(weg_t::schiene));
-  if(!sch) {
-	sch = dynamic_cast<schiene_t *>(welt->lookup(gib_pos())->gib_weg(weg_t::monorail));
-  }
-  const int offset = (sch->ist_elektrisch()  &&  skinverwaltung_t::signale->gib_bild_anzahl()==16)?8:0;
+		switch(dir) {
+			case ribi_t::nord:
+				setze_xoff(-2);
+				setze_yoff(-12);
+				setze_bild(0, skinverwaltung_t::signale->gib_bild_nr(1+zustand*4)+offset);
+				break;
 
-    switch(dir) {
-    case ribi_t::nord:
-      setze_xoff(-2);
-      setze_yoff(-12);
-      setze_bild(0, skinverwaltung_t::signale->gib_bild_nr(1+zustand*4)+offset);
-      break;
+			case ribi_t::sued:
+				setze_xoff(2);
+				setze_yoff(12);
+				setze_bild(0, skinverwaltung_t::signale->gib_bild_nr(0+zustand*4)+offset);
+				break;
 
-    case ribi_t::sued:
-      setze_xoff(2);
-      setze_yoff(12);
-      setze_bild(0, skinverwaltung_t::signale->gib_bild_nr(0+zustand*4)+offset);
-      break;
+			case ribi_t::ost:
+				setze_xoff(24);
+				setze_yoff(0);
+				setze_bild(0, skinverwaltung_t::signale->gib_bild_nr(2+zustand*4)+offset);
+				break;
 
-    case ribi_t::ost:
-      setze_xoff(24);
-      setze_yoff(0);
-      setze_bild(0, skinverwaltung_t::signale->gib_bild_nr(2+zustand*4)+offset);
-      break;
+			case ribi_t::west:
+				setze_xoff(-24);
+				setze_yoff(0);
+				setze_bild(0, skinverwaltung_t::signale->gib_bild_nr(3+zustand*4)+offset);
+				break;
 
-    case ribi_t::west:
-      setze_xoff(-24);
-      setze_yoff(0);
-      setze_bild(0, skinverwaltung_t::signale->gib_bild_nr(3+zustand*4)+offset);
-      break;
-
-    default:
-      setze_xoff(0);
-      setze_yoff(0);
-      setze_bild(0, skinverwaltung_t::signale->gib_bild_nr(0));
-    }
-  }
+			default:
+				setze_xoff(0);
+				setze_yoff(0);
+				setze_bild(0, skinverwaltung_t::signale->gib_bild_nr(0));
+		}
+	}
 }
 
 void
@@ -224,11 +222,8 @@ presignal_t::setze_zustand(enum signal_t::signalzustand z)
 void presignal_t::calc_bild()
 {
 	if(blockend) {
+		welt->lookup(gib_pos())->set_flag(grund_t::world_spot_dirty);
 		setze_bild(0, IMG_LEER);
-
-		// Hajo: ein leeres Bild refreshed nicht, deshalb müssen wir manuell
-		// das Feld neuzeichnen lassen
-		welt->markiere_dirty(gib_pos());
 	}
 	else {
 		schiene_t * sch = dynamic_cast<schiene_t *>(welt->lookup(gib_pos())->gib_weg(weg_t::schiene));
@@ -289,11 +284,8 @@ void presignal_t::calc_bild()
 void choosesignal_t::calc_bild()
 {
 	if(blockend) {
+		welt->lookup(gib_pos())->set_flag(grund_t::world_spot_dirty);
 		setze_bild(0, IMG_LEER);
-
-		// Hajo: ein leeres Bild refreshed nicht, deshalb müssen wir manuell
-		// das Feld neuzeichnen lassen
-		welt->markiere_dirty(gib_pos());
 	}
 	else {
 		schiene_t * sch = dynamic_cast<schiene_t *>(welt->lookup(gib_pos())->gib_weg(weg_t::schiene));

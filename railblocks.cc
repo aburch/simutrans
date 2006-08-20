@@ -116,8 +116,15 @@ void blockstrecke_t::verdrahte_signale_neu()
 	while(iter.next()) {
 		signal_t *sig = iter.get_current();
 		grund_t *gr=welt->lookup(sig->gib_pos());
-		schiene_t *sch = get_block_way( gr );
 
+		if(gr==NULL) {
+			dbg->error("blockstrecke_t::verdrahte_signale_neu()", "signal on illegal square (%i,%i,%i): removing signal!",gr->gib_pos().x,gr->gib_pos().y,gr->gib_pos().z);
+			kill_list.insert( sig );
+			// we just remove it to avoid crashes
+			continue;
+		}
+
+		schiene_t *sch = get_block_way( gr );
 		if(sch == NULL) {
 			dbg->error("blockstrecke_t::verdrahte_signale_neu()", "signal on square (%i,%i,%i) without railroad track: removing signal!",gr->gib_pos().x,gr->gib_pos().y,gr->gib_pos().z);
 			gr->obj_remove(sig,sig->gib_besitzer());

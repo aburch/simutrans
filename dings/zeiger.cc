@@ -46,7 +46,7 @@ zeiger_t::setze_pos(koord3d k)
     if(k != gib_pos()) {
 	if(welt->lookup(gib_pos().gib_2d()) &&
 	   welt->lookup(gib_pos().gib_2d())->gib_kartenboden()) {
-	    welt->markiere_dirty(welt->lookup(gib_pos().gib_2d())->gib_kartenboden()->gib_pos());
+	   	welt->lookup(gib_pos().gib_2d())->gib_kartenboden()->set_flag(grund_t::world_spot_dirty);
 	}
 
         ding_t::setze_pos(k);
@@ -71,7 +71,7 @@ zeiger_t::setze_richtung(ribi_t::ribi r)
 	}
 
 	if(welt->lookup(gib_pos())) {
-	    welt->markiere_dirty(gib_pos());
+	    welt->lookup(gib_pos())->set_flag(grund_t::world_spot_dirty);
 	}
     }
 };

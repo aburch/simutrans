@@ -12,7 +12,7 @@
 
 
 class karte_t;
-class karte_vollansicht_t;
+class karte_ansicht_t;
 
 
 void set_frame_time(long t);
@@ -26,8 +26,8 @@ long get_average_frame_time();
 
 void intr_refresh_display(bool dirty);
 
-void intr_set(karte_t *welt, karte_vollansicht_t *view, int refresh);
-void intr_set(karte_t *welt, karte_vollansicht_t *view);
+void intr_set(karte_t *welt, karte_ansicht_t *view, int refresh);
+void intr_set(karte_t *welt, karte_ansicht_t *view);
 
 
 /**

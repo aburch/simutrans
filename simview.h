@@ -10,7 +10,7 @@
 #ifndef simview_h
 #define simview_h
 
-class karte_modell_t;
+class karte_t;
 class ding_t;
 
 /**
@@ -22,35 +22,15 @@ class ding_t;
 class karte_ansicht_t
 {
 private:
-    karte_modell_t *welt;
+    karte_t *welt;
 
 protected:
 
     int scale;
 
-    /**
-     * Kartenboden von i,j an Bildschirmkoordinate xpos,ypos zeichnen.
-     * @author Hj. Malthaner
-     */
-    virtual void display_boden(int i, int j, int xpos, int ypos, bool dirty) = 0;
-
-    /**
-     * Kartenobjekte von i,j an Bildschirmkoordinate xpos,ypos zeichnen.
-     * @author Hj. Malthaner
-     */
-    virtual void display_dinge(int i, int j, int xpos, int ypos, bool dirty) = 0;
-
-    virtual int gib_anzeige_breite() = 0;
-    virtual int gib_anzeige_hoehe() = 0;
-
-    /* mousepointer from karte_t
-     * @author Hj. Malthaner
-     */
-    virtual ding_t * gib_zeiger() = 0;
-
 public:
 
-    karte_ansicht_t(karte_modell_t *welt);
+    karte_ansicht_t(karte_t *welt);
     virtual void display(bool dirty);
 };
 

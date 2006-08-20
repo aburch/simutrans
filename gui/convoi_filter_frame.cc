@@ -75,7 +75,7 @@ convoi_frame_t::filter_flag_t convoi_filter_frame_t::filter_buttons_types[FILTER
  * @author V. Meyer
  */
 convoi_filter_frame_t::convoi_filter_frame_t(spieler_t *sp, convoi_frame_t *main_frame) :
-    gui_frame_t("clf_title", sp->kennfarbe),
+    gui_frame_t("clf_title", sp->get_player_color()),
     ware_scrolly(&ware_cont)
 {
     unsigned i;

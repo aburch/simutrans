@@ -152,7 +152,7 @@ void baum_t::calc_off()
   }
 }
 
-inline void
+inline bool
 baum_t::calc_bild(const unsigned long alter)
 {
 	// alter/2048 gibt die tage
@@ -175,11 +175,12 @@ baum_t::calc_bild(const unsigned long alter)
 		}
 	}
 
-	const int bild_neu = besch->gib_bild(0, baum_alter )->gib_nummer();
-
+	const image_id bild_neu = besch->gib_bild(0, baum_alter )->gib_nummer();
 	if(bild_neu != gib_bild()) {
 		setze_bild(0, bild_neu);
+		return true;
 	}
+	return false;
 }
 
 inline void
@@ -234,127 +235,93 @@ baum_t::baum_t(karte_t *welt, loadsave_t *file) : ding_t(welt)
 
 baum_t::baum_t(karte_t *welt, koord3d pos) : ding_t(welt, pos)
 {
-  // Hajo: auch aeltere Baeume erzeugen
-  geburt = welt->get_current_month() - simrand(400);
+	// Hajo: auch aeltere Baeume erzeugen
+	geburt = welt->get_current_month() - simrand(400);
 
-  const grund_t *gr = welt->lookup(pos);
+	const grund_t *gr = welt->lookup(pos);
+	const int maxindex = baum_typen.count();
+	if(gr) {
+		int index = gr->gib_hoehe()/16 + (simrand(5)-2);
 
-  const int maxindex = baum_typen.count();
+		if(index < 0) {
+			index = 0;
+		}
 
-  if(gr) {
-    int index = gr->gib_hoehe()/16 + (simrand(5)-2);
+		if(index >= maxindex) {
+			index = maxindex - 1;
+		}
+		besch = gib_aus_liste(index);
+	}
 
-    if(index < 0) {
-      index = 0;
-    }
+	if(!besch) {
+		besch = baum_typen.at(simrand(maxindex));
+	}
 
-    if(index >= maxindex) {
-      index = maxindex - 1;
-    }
+	calc_off();
+	calc_bild();
 
-    besch = gib_aus_liste(index);
-
-  }
-  if(!besch) {
-    besch = baum_typen.at(simrand(maxindex));
-  }
-
-  //  const int guete = 140 - ABS(bd->gib_hoehe() - (bildbasis - IMG_BAUM_1)*6);
-  //  printf("Baum: Guete %d\n", guete);
-
-  calc_off();
-  calc_bild();
-
-//  step_frequency = 7;
-  step_frequency = 127;
+	// as seldom as possible
+	step_frequency = 127;
 }
 
 
 baum_t::baum_t(karte_t *welt, koord3d pos, const baum_besch_t *besch) : ding_t(welt, pos)
 {
-  // alter = simrand( 16 ) * welt->ticks_per_tag;
+	geburt = welt->get_current_month();
 
-  geburt = welt->get_current_month();
+	this->besch = besch;
+	calc_off();
+	calc_bild();
 
-  this->besch = besch;
-  calc_off();
-  calc_bild();
-
-//  step_frequency = 7;
-  step_frequency = 127;
+	// as seldom as possible
+	step_frequency = 127;
 }
 
 
 void
 baum_t::saee_baum()
 {
-    const koord k = gib_pos().gib_2d() + koord(simrand(5)-2, simrand(5)-2);
-  //the area for normal new tree planting is slightly more restricted, square of 9x9 was too much
+	// spawn a new tree in an area 5x5 tiles around
+	// the area for normal new tree planting is slightly more restricted, square of 9x9 was too much
+	const koord k = gib_pos().gib_2d() + koord(simrand(5)-2, simrand(5)-2);
 
-    if(welt->lookup(k)) {
-	grund_t *bd = welt->lookup( k )->gib_kartenboden();
-
-	if(bd != NULL) {
-	    // printf("Saee Baum an %d %d.\n",x,y);
-
-	    if( bd->obj_count() < welt->gib_max_no_of_trees_on_square() && bd->ist_natur() &&
-		bd->gib_hoehe() > welt->gib_grundwasser())
-	    {
-		const int guete = 140 - ABS(bd->gib_hoehe() - besch->gib_hoehenlage()*16);
-		//		printf("Guete %d\n", guete);
-
-		if(guete >(int)simrand(128)) {
-		    bd->obj_add( new baum_t(welt, bd->gib_pos(), besch) );
-		    //		    printf("  Erfolgreich.\n");
+	if(welt->lookup(k)) {
+		grund_t *bd = welt->lookup(k)->gib_kartenboden();
+		if(	bd!=NULL  &&
+			bd->ist_natur()  &&
+			bd->gib_hoehe()>welt->gib_grundwasser()  &&
+			bd->obj_count()<welt->gib_max_no_of_trees_on_square())
+		{
+			// take care of height level
+			const int guete = 140 - ABS(bd->gib_hoehe() - besch->gib_hoehenlage()*16);
+			if(guete>(int)simrand(128)) {
+				bd->obj_add( new baum_t(welt, bd->gib_pos(), besch) );
+			}
 		}
-	    } else {
-		//		printf("  Kein Platz.\n");
-	    }
 	}
-    }
 }
+
+
 
 bool baum_t::step(long /*delta_t*/)
 {
-    const long alter = (welt->get_current_month() - geburt);
-    const long t_alter_temp1 = 512;  //ticks * 512
+	// take care of birth/death and seasons
+	const long alter = (welt->get_current_month() - geburt);
 
-    calc_bild(alter);
+	calc_bild(alter);
 
-    if(alter >= t_alter_temp1)
-    {
-        const long t_alter_temp2 = 64; //ticks * 64
-
-        if (alter < (t_alter_temp1+t_alter_temp2))
-        {  //    ticks * ( 2^9+2^6 = 512 + 64 = 576)
-
-            //plant 3 trees was too much - now only 1-3 trees will be planted....
-            const unsigned char c_plant_tree_max = 1+simrand(3);
-            for (unsigned char c_temp = 0 ; c_temp < c_plant_tree_max ; c_temp++ )
-			{
-				saee_baum();
-			}
-
-			// und danach nicht noch mal säen
-			// Trick: Geburtsdatum verlegen
-			geburt = geburt - (t_alter_temp2>>karte_t::ticks_bits_per_tag);
-
-        }
-
-        /*Because the first IF was splitted to two - this check can be here
-           alter>704*welt->ticks_per_tag can be true only iff (if and only if)
-		    alter>512*welt->ticks_per_tag is true :-)
-          That saves calculation of 704*world->ticks_per_tag to evaluate this IF for most of tree life */
-        if(alter > (t_alter_temp1 + t_alter_temp2 + (t_alter_temp2<<1)) ) {
-         // this shall evaluate to (512 + 128 + 64 = 704) * welt->ticks_per_tag
-         // that should be faster thant direct multiplication - at least on older processors
-
-            return false;
-        }
-
-    }
-    return true;
-
+	if(alter==512) {
+		// only in this month a tree can span new trees
+		// only 1-3 trees will be planted....
+		const uint8 c_plant_tree_max = 1+simrand(3);
+		for(uint8 c_temp=0 ;  c_temp<c_plant_tree_max;  c_temp++ ) {
+			saee_baum();
+		}
+		// we make the tree a month older to avoid second spawning
+		geburt = geburt-1;
+	}
+	// tree will die after 704 month (i.e. 58 years 8 month)
+	return alter<704;
 }
 
 

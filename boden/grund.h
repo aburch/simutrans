@@ -177,7 +177,7 @@ private:
     int get_vmove(koord dir) const;
 
 	// the actual drawing routine
-	inline void do_display_boden( const int xpos, const int ypos, const bool dirty ) const;
+	inline void do_display_boden( const sint16 xpos, const sint16 ypos, const bool dirty ) const;
 
 protected:
 
@@ -421,14 +421,13 @@ public:
      * Zeichnet Bodenbild des Grundes
      * @author Hj. Malthaner
      */
-    void display_boden(const int xpos, const int ypos, const bool dirty) const;
-
+    void display_boden(const sint16 xpos, sint16 ypos, const bool dirty) const;
 
     /**
      * Zeichnet Dinge des Grundes. Löscht das Dirty-Flag.
      * @author Hj. Malthaner
      */
-    void display_dinge(const int xpos, const int ypos, const bool dirty);
+    void display_dinge(const sint16 xpos, sint16 ypos, const bool dirty);
 
     ding_t * suche_obj(ding_t::typ typ) const { return dinge.suche(typ,0); }
     ding_t * suche_obj_ab(ding_t::typ typ,uint8 start) const { return dinge.suche(typ,start); }
@@ -646,6 +645,10 @@ public:
 		 * @author hsiegeln
 		 */
     int get_max_speed();
+
+
+	/* remove almost everything on this way */
+	bool remove_everything_from_way(spieler_t *sp,weg_t::typ wt,ribi_t::ribi ribi_rem);
 } GCC_PACKED;
 
 

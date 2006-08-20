@@ -592,37 +592,6 @@ public:
 
 
     /**
-     * bewegliche objecte müssen beim verlassen das verlassene feld
-     * als dirty markieren
-     * @author Hj. Malthaner
-     */
-    inline void markiere_dirty(koord3d k) {
-      grund_t * gr = lookup(k);
-      if(gr) gr->set_flag(grund_t::world_spot_dirty);
-    }
-
-
-    /**
-     * der redraw löscht das dirty flag dann wieder
-     * @author Hj. Malthaner
-     */
-    inline void markiere_clean(koord3d k) {
-      grund_t * gr = lookup(k);
-      if(gr) gr->clear_flag(grund_t::world_spot_dirty);
-    }
-
-
-    /**
-     * abfrage ob dirty
-     * @author Hj. Malthaner
-     */
-    inline bool ist_dirty(const koord3d k) const {
-      const grund_t * gr = lookup(k);
-      return gr && gr->get_flag(grund_t::world_spot_dirty);
-    }
-
-
-    /**
      * Wird vom Strassenbauer als Orientierungshilfe benutzt.
      * @author Hj. Malthaner
      */

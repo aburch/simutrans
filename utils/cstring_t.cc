@@ -243,6 +243,23 @@ int cstring_t::find_back(char x) const
 }
 
 
+// replaces all characters
+int cstring_t::replace_character(char old,char ch)
+{
+	int many=0;
+	char *p = buf;
+
+	if(p && *p) {
+		do {
+			if(*p == old) {
+				*p = ch;
+				many ++;
+			}
+		} while(*++p);
+	}
+	return many;
+}
+
 /*
  *  member function:
  *      cstring_t::vprintf()

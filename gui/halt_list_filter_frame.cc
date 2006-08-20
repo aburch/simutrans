@@ -71,7 +71,7 @@ halt_list_frame_t::filter_flag_t halt_list_filter_frame_t::filter_buttons_types[
  * @author V. Meyer
  */
 halt_list_filter_frame_t::halt_list_filter_frame_t(spieler_t *sp, halt_list_frame_t *main_frame) :
-    gui_frame_t("hlf_title", sp->kennfarbe),
+    gui_frame_t("hlf_title", sp->get_player_color()),
     ware_scrolly_ab(&ware_cont_ab),
     ware_scrolly_an(&ware_cont_an)
 {

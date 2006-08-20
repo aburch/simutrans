@@ -20,11 +20,11 @@
 #include "tpl/array_tpl.h"
 #include "besch/fabrik_besch.h"
 #include "halthandle_t.h"
+#include "simworld.h"
 
 // Fabrik
 
 class haltestelle_t;
-class karte_t;
 class spieler_t;
 class stadt_t;
 class stringhashtable_t;
@@ -100,20 +100,20 @@ private:
      * Bauposition gedreht?
      * @author V.Meyer
      */
-    unsigned char rotate;
+    uint8 rotate;
 
     /**
      * produktionsgrundmenge
      * @author Hj. Malthaner
      */
-    int prodbase;
+    sint32 prodbase;
 
 
     /**
      * multiplikator für die Produktionsgrundmenge
      * @author Hj. Malthaner
      */
-    int prodfaktor;
+    sint32 prodfaktor;
 
 
     /**
@@ -134,26 +134,27 @@ private:
      * bisherige abgabe in diesem monat pro ware
      * @author Hj. Malthaner
      */
-    array_tpl<int> * abgabe_sum;
+    array_tpl<sint32> * abgabe_sum;
 
 
     /**
      * abgabe im letzten monat pro ware
      * @author Hj. Malthaner
      */
-    array_tpl<int> * abgabe_letzt;
+    array_tpl<sint32> * abgabe_letzt;
 
 
     /**
      * Zeitakkumulator für Produktion
      * @author Hj. Malthaner
      */
-    long delta_sum;
+    sint32 delta_sum;
 
-   unsigned long total_input, total_output;
-   unsigned status;
+   uint32 total_input, total_output;
+   uint8 status;
 
    void recalc_factory_status();
+
 public:
   static fabrik_t * gib_fab(const karte_t *welt, const koord pos);
 
@@ -188,7 +189,6 @@ public:
     void link_halt(halthandle_t halt);
     void unlink_halt(halthandle_t halt);
 
-
     const vector_tpl <koord> & gib_lieferziele() const {return lieferziele;};
     const vector_tpl <koord> & get_suppliers() const {return suppliers;};
 
@@ -198,8 +198,6 @@ public:
     void  add_arbeiterziel(stadt_t *stadt);
     void  rem_arbeiterziel(stadt_t *stadt);
     const slist_tpl <stadt_t *> & gib_arbeiterziele() const {return arbeiterziele;};
-
-//    const slist_tpl<halthandle_t> gib_halt_list() { return halt_list; };
 
     /**
      * Fügt ein neues Lieferziel hinzu
@@ -232,24 +230,25 @@ public:
      *   -1 wenn typ nicht produziert wird
      *   sonst die gelagerte menge
      */
-    int vorrat_an(const ware_besch_t *ware);        // Vorrat von Warentyp
+    sint32 vorrat_an(const ware_besch_t *ware);        // Vorrat von Warentyp
 
     /**
      * @return 1 wenn verbrauch,
      * 0 wenn Produktionsstopp,
      * -1 wenn Ware nicht verarbeitet wird
      */
-    int verbraucht(const ware_besch_t *);             // Nimmt fab das an ??
-    int hole_ab(const ware_besch_t *, int menge );     // jemand will waren abholen
-    int liefere_an(const ware_besch_t *, int menge);
+    sint32 verbraucht(const ware_besch_t *);             // Nimmt fab das an ??
+    sint32 hole_ab(const ware_besch_t *, sint32 menge );     // jemand will waren abholen
+    sint32 liefere_an(const ware_besch_t *, sint32 menge);
 
-    int gib_abgabe_letzt(int t) {return abgabe_letzt->at(t);};
+    sint32 gib_abgabe_letzt(sint32 t) {return abgabe_letzt->at(t);};
 
     void step(long delta_t);                  // fabrik muss auch arbeiten
     void neuer_monat();
 
     const char *gib_name() const { return besch ? translator::translate(besch->gib_name()) : "unnamed"; }
-    int gib_kennfarbe() const { return besch ? besch->gib_kennfarbe() : 0; }
+    sint32 gib_kennfarbe() const { return besch ? besch->gib_kennfarbe() : 0; }
+	spieler_t *gib_besitzer() const { return welt->lookup(pos) ? welt->lookup(pos)->obj_bei(0)->gib_besitzer() : NULL; }
 
     void info(cbuffer_t & buf);
 
@@ -271,7 +270,7 @@ public:
      *
      * @author Hj. Malthaner
      */
-    int max_produktion() const;
+    sint32 max_produktion() const;
 
 
     /**
@@ -293,14 +292,12 @@ public:
 
     // hier die methoden zum parametrisieren der Fabrik
 
-
     /**
      * Baut die Gebäude für die Fabrik
      *
      * @author Hj. Malthaner, V. Meyer
      */
-    void baue(int rotate, bool clear);
-
+    void baue(sint32 rotate, bool clear);
 
     /**
      * setzt die Eingangswarentypen
@@ -323,15 +320,15 @@ public:
      * Produktionsgrundmenge
      * @author Hj. Malthaner
      */
-    void set_prodbase(int i) {prodbase = i;};
-  int get_prodbase(void) {return prodbase;};
+    void set_prodbase(sint32 i) {prodbase = i;};
+  sint32 get_prodbase(void) {return prodbase;};
 
     /**
      * Produktionsmultiplikator
      * @author Hj. Malthaner
      */
-  void set_prodfaktor(int i) {prodfaktor= (i<16)?16:i;};
-  int get_prodfaktor(void) const {return prodfaktor;};
+  void set_prodfaktor(sint32 i) {prodfaktor= (i<16)?16:i;};
+  sint32 get_prodfaktor(void) const {return prodfaktor;};
 
    /* prissi: returns the status of the current factory, as well as output */
    enum { bad, medium, good, inactive, nothing };

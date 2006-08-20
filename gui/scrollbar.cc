@@ -163,38 +163,44 @@ void scrollbar_t::button_press(int number)
 
 void scrollbar_t::space_press(int updown) // 0: scroll up/left, 1: scroll down/right
 {
-  int maximum = knob_area - knob_size;
-  if (maximum<0) { maximum = 0; } // possible if content is smaller than window
+	int maximum = knob_area - knob_size;
+	if (maximum<0) {
+		// possible if content is smaller than window
+		maximum = 0;
+	}
 
-  if (updown == 0) {
-    knob_offset -= knob_size;
-    if (knob_offset<0) { knob_offset = 0; }
-  } else { // number == 1
-    knob_offset += knob_size;
-    if (knob_offset>maximum) { knob_offset = maximum; }
-  }
+	if (updown == 0) {
+		knob_offset -= knob_size;
+		if (knob_offset<0) {
+			knob_offset = 0;
+		}
+	}
+	else { // number == 1
+		knob_offset += knob_size;
+		if (knob_offset>maximum) {
+			knob_offset = maximum;
+		}
+	}
 
-  call_callback();
-  reposition_buttons();
+	call_callback();
+	reposition_buttons();
 }
 
 
 void scrollbar_t::infowin_event(const event_t *ev)
 {
-//    printf("Scrollbar_t::infowin_event() at %d,%d\n", ev->cx, ev->cy);
-
-
   const int x = ev->cx;
   const int y = ev->cy;
   int i;
   bool b_button_hit = false;
 
   // 2003-11-04 hsiegeln added wheelsupport
+  // prissi: repaired it, was never doing something ...
   if (IS_WHEELUP(ev) && (type == vertical)) {
-  	DBG_MESSAGE("scrollbar_t::infowin_event", "mousewheelup");
+  	button_press(0);
   }
   else if (IS_WHEELDOWN(ev) && (type == vertical)) {
-  	DBG_MESSAGE("scrollbar_t::infowin_event", "mousewheeldown");
+  	button_press(1);
   }
   else if (IS_LEFTCLICK(ev)) {
     for (i=0;i<3;i++) {

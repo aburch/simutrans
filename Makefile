@@ -263,7 +263,6 @@ SOURCES += simware.cc
 SOURCES += simwerkz.cc
 SOURCES += simwin.cc
 SOURCES += simworld.cc
-SOURCES += simworldview.cc
 SOURCES += sucher/platzsucher.cc
 SOURCES += tpl/debug_helper.cc
 SOURCES += tpl/no_such_element_exception.cc

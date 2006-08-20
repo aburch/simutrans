@@ -79,15 +79,6 @@ class stadt_t {
 	// sint32 gib_wert() const { return best_wert; }
     };
 
-
-private:
-
-    /**
-     * Ein Step alle step_intervall/1000 Sekunden.
-     * @author Hj. Malthaner
-     */
-    static const uint32 step_interval;
-
 public:
 
     /**
@@ -109,18 +100,34 @@ private:
     koord pos;			// Gruendungsplanquadrat der Stadt
     koord lo, ur;	// max size of housing area
 
-    // das wird bei jedem laden wieder von 0 angefangen
-    // step wird nicht gespeichert!!!
+    // this counter indicate which building will be processed next
     uint32 step_count;
 
     /**
-     * Echtzeitpunkt für nächsten step.
+     * step so every house is asked once per month
+     * i.e. 262144/(number of houses) per step
+     * @author Hj. Malthaner
+     */
+    uint32 step_interval;
+
+    /**
+     * next passenger generation timer
      * @author Hj. Malthaner
      */
     uint32 next_step;
 
-    // attribute fuer die Bevoelkerung
+    /**
+     * in this fixed interval, construction will happen
+     */
+    static const uint32 step_bau_interval;
 
+    /**
+     * next construction
+     * @author Hj. Malthaner
+     */
+    uint32 next_bau_step;
+
+    // attribute fuer die Bevoelkerung
     sint32 bev;	// Bevoelkerung gesamt
     sint32 arb;	// davon mit Arbeit
     sint32 won;	// davon mit Wohnung

@@ -66,9 +66,9 @@ void gui_scrollpane_t::setze_groesse(koord groesse)
 		scroll_y->setze_groesse(groesse-koord(12,12));
 	}
 	else {
-		scroll_y->setze_knob(groesse.y, komp->gib_groesse().y);
 		scroll_y->setze_pos(koord(groesse.x-11, 0));
-		scroll_y->setze_groesse(groesse-koord(12,0));
+		scroll_y->setze_groesse(groesse);
+		scroll_y->setze_knob(groesse.y, komp->gib_groesse().y);
 	}
 }
 
@@ -89,6 +89,11 @@ void gui_scrollpane_t::infowin_event(const event_t *ev)
 		event_t ev2 = *ev;
 		translate_event(&ev2, -scroll_x->gib_pos().x, -scroll_x->gib_pos().y);
 		scroll_x->infowin_event(&ev2);
+	}
+	else if(b_show_scroll_y  &&  (IS_WHEELUP(ev)  ||  IS_WHEELDOWN(ev))) {
+		// otherwise these events are only registered where directly over the scroll region
+		// (and sometime even not then ... )
+		scroll_y->infowin_event(ev);
 	}
 	else {
 		// translate according to scrolled position

@@ -62,14 +62,11 @@ public:
      * @param min_power minimalleistung des gesuchten Fahrzeuges (inclusiv)
      * @author Hansjörg Malthaner
      */
-    static const vehikel_besch_t * gib_info(const ware_besch_t *wtyp,
-            weg_t::typ vtyp,
-            int min_power);
+    static const vehikel_besch_t * gib_info(const ware_besch_t *wtyp,weg_t::typ vtyp,uint32 min_power);
 
-    static const vehikel_besch_t * gib_info(int base_img);
+    static const vehikel_besch_t * gib_info(image_id base_img);
     static const vehikel_besch_t * gib_info(const char *name);
-    static const vehikel_besch_t * gib_info(weg_t::typ typ,
-              unsigned int i);
+    static const vehikel_besch_t * gib_info(weg_t::typ typ,uint32 i);
 
   // only used by vehicle_search()
   static int vehikel_can_lead(const vehikel_besch_t *v);

@@ -74,6 +74,11 @@ void gui_combobox_t::infowin_event(const event_t *ev)
 
 			droplist->set_visible(true);
 
+			droplist->setze_groesse(koord(this->groesse.x, max_size.y-16));
+			droplist->setze_pos(koord(this->pos.x, this->pos.y+16));
+			droplist->request_groesse(droplist->gib_groesse());
+			setze_groesse( droplist->gib_groesse()+koord(0,16) );
+
 			if(!has_focus()) {
 				request_focus();
 				return;
@@ -139,10 +144,6 @@ bool gui_combobox_t::action_triggered(gui_komponente_t *komp)
 void gui_combobox_t::zeichnen(koord offset) const
 {
 	gui_textinput_t::zeichnen(offset);
-
-	droplist->setze_groesse(koord(this->groesse.x, max_size.y-16));
-	droplist->setze_pos(koord(this->pos.x, this->pos.y+16));
-	droplist->request_groesse(droplist->gib_groesse());
 
 	if (droplist->is_visible()) {
 		droplist->zeichnen(offset);

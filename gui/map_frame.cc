@@ -127,6 +127,8 @@ map_frame_t::map_frame_t(const karte_modell_t *welt) :
 
 	// Hajo: Trigger layouting
 	set_resizemode(diagonal_resize);
+
+	is_dragging = false;
 }
 
 
@@ -160,6 +162,12 @@ map_frame_t::action_triggered(gui_komponente_t *komp)
  */
 void map_frame_t::infowin_event(const event_t *ev)
 {
+	if(IS_WHEELUP(ev) || IS_WHEELDOWN(ev)  &&  reliefkarte_t::gib_karte()->getroffen(ev->mx,ev->my)) {
+		// otherwise these would go to the vertical scroll bar
+		reliefkarte_t::gib_karte()->infowin_event(ev);
+		return;
+	}
+
 	if(!is_dragging) {
 		gui_frame_t::infowin_event(ev);
 	}

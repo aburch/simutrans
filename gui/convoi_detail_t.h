@@ -15,7 +15,6 @@
 #include "components/gui_speedbar.h"
 #include "button.h"
 #include "gui_label.h"                  // 09-Dec-2001      Markus Weber    Added
-#include "world_view_t.h"
 #include "ifc/action_listener.h"
 #include "../convoihandle_t.h"
 

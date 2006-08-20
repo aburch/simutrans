@@ -75,13 +75,6 @@ class fabrik_info_t : public gui_frame_t, public ding_info_t, action_listener_t
 
 
   /**
-   * gibt farbinformationen fuer Fenstertitel, -ränder und -körper
-   * zurück
-   */
-  fensterfarben gib_fensterfarben() const;
-
-
-  /**
    * This method is called if an action is triggered
    * @author Hj. Malthaner
    *

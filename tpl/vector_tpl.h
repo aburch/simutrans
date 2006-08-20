@@ -12,6 +12,7 @@
 
 #include <stdlib.h>
 
+#include "../simtypes.h"
 #include "debug_helper.h"
 
 /**
@@ -32,14 +33,14 @@ protected:
      * Capacity.
      * @author Hj. Malthaner
      */
-    unsigned int size;
+    uint32 size;
 
 
     /**
      * Number of elements in vector.
      * @author Hj. Malthaner
      */
-    unsigned int count;
+    uint32 count;
 
 public:
 

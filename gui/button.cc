@@ -285,10 +285,12 @@ void button_t::zeichnen(koord offset, int button_color) const
       display_ddd_box_clip(bx, by, bw, bh, COL_GREY6, COL_GREY3);
       display_fillbox_wh_clip(bx+1, by+1, bw-2, bh-2, background, false);
     }
-    PUSH_CLIP(bx, by, bw, bh);
+{
+//    PUSH_CLIP(bx, by, bw, bh);
     int len = proportional_string_width(text);
     display_proportional_clip(bx+max((bw-len)/2,0),by+(bh-large_font_height)/2, text, ALIGN_LEFT, b_enabled ? button_color : COL_GREY4, true);
-    POP_CLIP();
+//    POP_CLIP();
+  }
     break;
    case roundbox: // new box with round corners
 #if 1

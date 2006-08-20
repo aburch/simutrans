@@ -436,12 +436,14 @@ bool wegbauer_t::check_slope( const grund_t *from, const grund_t *to )
 }
 
 
+
 // allowed owner?
 bool wegbauer_t::check_owner( const spieler_t *sp1, const spieler_t *sp2 )
 {
 	// unowned, mine or public property?
 	return sp1==NULL  ||  sp1==sp2  ||  sp1==welt->gib_spieler(1);
 }
+
 
 
 /* This is the core routine for the way search
@@ -529,7 +531,8 @@ bool wegbauer_t::is_allowed_step( const grund_t *from, const grund_t *to, long *
 		case strasse_bot:
 		{
 			const weg_t *str=to->gib_weg(weg_t::strasse);
-			ok =	(str  ||  ok&!fundament  ||  check_crossing(zv,to,weg_t::schiene)) &&
+			const weg_t *sch=to->gib_weg(weg_t::schiene);
+			ok =	(str  ||  !fundament)  &&  (sch==NULL  ||  check_crossing(zv,to,weg_t::schiene)  ||  sch->gib_besch()->gib_styp()==7) &&  !to->ist_wasser()  &&
  					!to->gib_weg(weg_t::luft)  &&  !to->gib_weg(weg_t::wasser)  &&    !to->gib_weg(weg_t::monorail)  &&
  					(str  ||  check_owner(to->gib_besitzer(),sp)) &&
 					check_for_leitung(zv,to);
@@ -551,6 +554,10 @@ bool wegbauer_t::is_allowed_step( const grund_t *from, const grund_t *to, long *
 			}
 		}
 		break;
+
+		case elevated_strasse:
+			dbg->fatal("wegbauer_t::is_allowed_step()","elevated_strasse not (yet) allowed!");
+			break;
 
 		case schiene:
 		{
@@ -587,6 +594,10 @@ bool wegbauer_t::is_allowed_step( const grund_t *from, const grund_t *to, long *
 		}
 		break;
 
+		case elevated_schiene:
+			dbg->fatal("wegbauer_t::is_allowed_step()","elevated_schiene not (yet) allowed!");
+			break;
+
 		// like schiene, but allow for railroad crossings
 		// avoid crossings with any (including our) railroad tracks
 		case schiene_bot:
@@ -612,7 +623,7 @@ bool wegbauer_t::is_allowed_step( const grund_t *from, const grund_t *to, long *
 		break;
 
 		// like tram, but checks for bridges too
-		case schiene_monorail:
+		case monorail:
 		{
 			ok =	!to->ist_wasser()  &&  !fundament  &&
 					(to->hat_wege()==0  ||  to->gib_weg(weg_t::monorail))  &&  (from->hat_wege()==0  ||  from->gib_weg(weg_t::monorail))
@@ -648,7 +659,7 @@ bool wegbauer_t::is_allowed_step( const grund_t *from, const grund_t *to, long *
 		break;
 
 		// like tram, but checks for bridges too
-		case schiene_elevated_monorail:
+		case elevated_monorail:
 		{
 			ok =	(ok  || fundament || to->gib_weg(weg_t::schiene)  || to->gib_weg(weg_t::monorail)  || to->gib_weg(weg_t::strasse)) &&  !to->gib_weg(weg_t::luft)  &&
 					check_owner(to->gib_besitzer(),sp) &&
@@ -1337,6 +1348,22 @@ wegbauer_t::intern_calc_straight_route(const koord start, const koord ziel)
 	bool ok=true;
 	max_n = -1;
 
+	if(!welt->ist_in_kartengrenzen(start)  ||  !welt->ist_in_kartengrenzen(ziel)) {
+		// not building
+		return;
+	}
+	long dummy_cost;
+	grund_t *test_bd = welt->lookup(start)->gib_kartenboden();
+	if(!is_allowed_step(test_bd,test_bd,&dummy_cost)) {
+		// no legal ground to start ...
+		return;
+	}
+	test_bd = welt->lookup(ziel)->gib_kartenboden();
+	if(!is_allowed_step(test_bd,test_bd,&dummy_cost)) {
+		// ... or to end
+		return;
+	}
+
 	koord pos=start;
 	while(pos!=ziel  &&  ok) {
 
@@ -1354,7 +1381,6 @@ wegbauer_t::intern_calc_straight_route(const koord start, const koord ziel)
 		ok = ok  &&  bd_von->get_neighbour(bd_nach, weg_t::invalid, diff);
 
 		// allowed ground?
-		long dummy_cost;
 		ok = ok  &&  bd_von  &&  (!bd_nach->ist_bruecke())  &&  is_allowed_step(bd_von,bd_nach,&dummy_cost);
 DBG_MESSAGE("wegbauer_t::calc_straight_route()","step %i,%i = %i",diff.x,diff.y,ok);
 		pos += diff;
@@ -1866,7 +1892,7 @@ wegbauer_t::baue_monorail()
 		blockmanager * bm = blockmanager::gib_manager();
 
 		sint16 z_offset=0;
-		if(bautyp==schiene_elevated_monorail) {
+		if(bautyp==elevated_monorail) {
 			z_offset = 16;
 		}
 
@@ -2159,11 +2185,13 @@ long ms=get_current_time_millis();
   			baue_kanal();
   			break;
    	case strasse:
+   	case elevated_strasse:
    	case strasse_bot:
 			baue_strasse();
 			DBG_MESSAGE("wegbauer_t::baue", "strasse");
 			break;
    	case schiene:
+   	case elevated_schiene:
    	case schiene_bot:
    	case schiene_bot_bau:
 			DBG_MESSAGE("wegbauer_t::baue", "schiene");
@@ -2176,9 +2204,9 @@ long ms=get_current_time_millis();
 			DBG_MESSAGE("wegbauer_t::baue", "schiene_tram");
 			baue_schiene();
 			break;
-		case schiene_monorail:
-		case schiene_elevated_monorail:
-			DBG_MESSAGE("wegbauer_t::baue", "schiene_monorail");
+		case monorail:
+		case elevated_monorail:
+			DBG_MESSAGE("wegbauer_t::baue", "monorail");
 			baue_monorail();
 			break;
 		case luft:

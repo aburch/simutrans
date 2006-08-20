@@ -235,9 +235,7 @@ void vehikelbauer_t::sort_lists()
  * @author Hansjörg Malthaner
  */
 const vehikel_besch_t *
-vehikelbauer_t::gib_info(const ware_besch_t *wtyp,
-                             weg_t::typ vtyp,
-           int min_power)
+vehikelbauer_t::gib_info(const ware_besch_t *wtyp,weg_t::typ vtyp,uint32 min_power)
 {
     inthashtable_iterator_tpl<int, const vehikel_besch_t *> iter(_fahrzeuge);
 
@@ -265,7 +263,7 @@ vehikelbauer_t::gib_info(const char *name)
 
 
 const vehikel_besch_t *
-vehikelbauer_t::gib_info(int base_img)
+vehikelbauer_t::gib_info(image_id base_img)
 {
   const vehikel_besch_t * besch = _fahrzeuge.get(base_img);
 
@@ -276,15 +274,15 @@ vehikelbauer_t::gib_info(int base_img)
 
 
 const vehikel_besch_t *
-vehikelbauer_t::gib_info(weg_t::typ typ, unsigned int i)
+vehikelbauer_t::gib_info(weg_t::typ typ, uint32 i)
 {
-  slist_tpl<const vehikel_besch_t *> *typ_liste = typ_fahrzeuge.access(typ);
-
-  if(typ_liste && i < typ_liste->count()) {
-    return typ_liste->at(i);
-  } else {
-    return NULL;
-  }
+	slist_tpl<const vehikel_besch_t *> *typ_liste = typ_fahrzeuge.access(typ);
+	if(typ_liste && i < typ_liste->count()) {
+		return typ_liste->at(i);
+	}
+	else {
+		return NULL;
+	}
 }
 
 

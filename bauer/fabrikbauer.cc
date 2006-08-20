@@ -226,9 +226,9 @@ fabrikbauer_t::finde_anzahl_hersteller(const ware_besch_t *ware)
 	while(iter.next()) {
 		const fabrik_besch_t *tmp = iter.get_current_value();
 
-		for(int i = 0; i < tmp->gib_produkte(); i++) {
+		for(int i = 0; i<tmp->gib_produkte(); i++) {
 			const fabrik_produkt_besch_t *produkt = tmp->gib_produkt(i);
-			if(produkt->gib_ware() == ware) {
+			if(produkt->gib_ware()==ware  &&  tmp->gib_gewichtung()>0) {
 				anzahl ++;
 			}
 		}
@@ -250,9 +250,9 @@ fabrikbauer_t::finde_hersteller(const ware_besch_t *ware,int nr)
 	while(iter.next()) {
 		const fabrik_besch_t *tmp = iter.get_current_value();
 
-		for(int i = 0; i < tmp->gib_produkte(); i++) {
+		for(int i = 0; i<tmp->gib_produkte(); i++) {
 			const fabrik_produkt_besch_t *produkt = tmp->gib_produkt(i);
-			if(produkt->gib_ware() == ware) {
+			if(produkt->gib_ware()==ware  &&  tmp->gib_gewichtung()>0) {
 				besch = tmp;
 				nr --;
 				if(nr<0) {
@@ -632,7 +632,6 @@ DBG_MESSAGE("fabrikbauer_t::baue_hierarchie","supplier %s can supply approx %i o
 		INT_CHECK( "fabrikbauer 670" );
 
 		// this is a source?
-//		const fabrik_besch_t *hersteller = finde_hersteller(ware,0);
 		if(lcount!=0) {
 			// at least three producers please
 			lcount = MAX(0,lcount-(lfound/2));

@@ -4,9 +4,49 @@ Known bugs: (hard to fix)
 	Citycars cannot go around a 180 degree road bend
 	Monorails have no appropriate crossing
 	valgrind complains about errors in SDL and X?
-	sorting factories has an umlaute problem
 	set color broken?
-	help windows to large => need scrolling!
+
+
+
+Release of 88.09.2
+
+1-Mai-2006: (prissi)
+	FIX: houses in cities on slopes again
+	FIX: can again delete last town too
+	FIX: translator automatically adds "\n" to stations => simutrans will remove this
+	FIX: road under tramway works now as well
+	ADD: scrollbars to save/load dialogs
+	FIX: next month starting date could have been wrongly calculated
+	FIX: age of old vehicles again calculated correctly
+	FIX: depots have again an owner
+	FIX: only clearing trees when building ways, stations and depots will remain (no planes etc. any more)
+	FIX: block cleared correctly, when entering or leaving a depot
+	FIX: no more building factories with distribution_weight=0
+	FIX: station bar indicator only at stop basis position
+	FIX: bridges in miniwindow
+	CHANGE: internally now allows cover tiles
+	CHANGE: made redraw faster, but set refresh again to 1 for smoother movements. Use -refresh=2 for old speed
+	FIX: engines shorter than 8 units stopped too early in a station => station tile indicator was wrong
+	FIX: convoi mini world view scroll more smooth and displays planes correctly
+	FIX: passengers from/to monuments after reloading
+	FIX: one month too many after reloading
+	FIX: player colors for AI changable
+	CHANGE: option window renovated (mostly internally, make much more consistent with current windowing system)
+
+
+Release of 88.09.1
+
+23-Apr-2006: (prissi)
+	FIX: signal on illegal coordinates now checked
+	CHANGE: passenger generation now proportional to the inhabhitants show
+	ADD: passenger generation can be now adjusted using "passenger_factor" in simuconf.tab. 16 equals the old value.
+	FIX: track deletion of bridges and tunnel now completely deletes them
+	FIX: several errors/inconsisties with the line management dialog fixed
+	FIX: clipping error when switching players
+	FIX: trees should now regrow at their intended rate
+	FIX: map window needed sometimes a right click to activate
+	CHANGE: mousewheel support for nearly all dialogs for the vertical scroll bar
+	FIX: again normal number of pedestrians, since you can now built on them
 
 
 Release of 88.09
@@ -17,12 +57,12 @@ Release of 88.09
 	CHANGE: city border are now recalculated after reloading => border can shrink again manually by this
 	CHANGE: deleting a town now also deletes all houses within this town
 	CHANGE: three stage map info window
-	CHANGE: houses now indocate their town in the info "Town: %s\n"
+	CHANGE: houses now indicate their town in the info "Town: %s\n"
 	CHANGE: renovated player tool
 	ADD: long tracks/monorails/road/channel removal tool
 	FIX: choosesignal deletion was not handled on two places in the blockmanager
 	CHANGE: scrollable help windows with "more intelligent" size calculation
-	CHANGE: road construction also on used tiles ...
+	CHANGE: road construction also on used tiles, i.e. on top of pedestrians ...
 
 
 Release of 88.08.1

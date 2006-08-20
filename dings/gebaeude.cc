@@ -194,7 +194,7 @@ gebaeude_t::add_alter(uint32 a)
 	if(is_factory==false  ||  ptr.fab==NULL) {
 		step_frequency = 0;
 	}
-	set_flag(dirty);
+	set_flag(ding_t::dirty);
 	DBG_MESSAGE("gebaeude_t::add_alter()","");
 }
 
@@ -248,7 +248,7 @@ gebaeude_t::step(long delta_t)
 	if(zeige_baugrube) {
 		if(welt->gib_zeit_ms() - insta_zeit > 5000) {
 			zeige_baugrube = false;
-			set_flag(dirty);
+			set_flag(ding_t::dirty);
 			// factories needs more frequent steps
 			if(is_factory  &&  ptr.fab   &&  ptr.fab->gib_pos()==gib_pos()) {
 				step_frequency = 1;
@@ -330,9 +330,14 @@ int gebaeude_t::gib_passagier_level() const
 	long pax = tile->gib_besch()->gib_level();
 	if(is_factory==false  &&  ptr.stadt!=NULL) {
 		// belongs to a city ...
+#if 0
+		// old density
 		const koord lo(ptr.stadt->get_linksoben()), ru(ptr.stadt->get_rechtsunten());
 		const long dense=(lo.x-ru.x)*(lo.y-ru.y);
 		return (2097*((pax+6)>>2))/dense;
+#else
+		return (((pax+6)>>2)*umgebung_t::passenger_factor)/16;
+#endif
 	}
 	return pax*dim.x*dim.y;
 }
@@ -342,10 +347,14 @@ int gebaeude_t::gib_post_level() const
 	koord dim = tile->gib_besch()->gib_groesse();
 	long post = tile->gib_besch()->gib_post_level();
 	if(is_factory==false  &&  ptr.stadt!=NULL) {
-		// belongs to a city ...
+#if 0
+		// old density
 		const koord lo(ptr.stadt->get_linksoben()), ru(ptr.stadt->get_rechtsunten());
 		const long dense=(lo.x-ru.x)*(lo.y-ru.y);
 		return (2097*((post+5)>>2))/dense;
+#else
+		return (((post+5)>>2)*umgebung_t::passenger_factor)/16;
+#endif
 	}
 	return post*dim.x*dim.y;
 }
@@ -482,9 +491,10 @@ void gebaeude_t::info(cbuffer_t & buf) const
 		}
 
 		// belongs to which city?
-		if(!is_factory  &&  ptr.stadt!=NULL) {
+		if(is_factory==false  &&  ptr.stadt!=NULL) {
 			static char buffer[256];
-			sprintf(buffer,"Town: %s\n",ptr.stadt->gib_name());
+			sprintf(buffer,translator::translate("Town: %s\n"),ptr.stadt->gib_name());
+			buf.append(buffer);
 		}
 
 		buf.append(translator::translate("Passagierrate"));
@@ -656,7 +666,7 @@ bool gebaeude_t::sync_step(long delta_t)
 		if(count >= tile->gib_phasen()) {
 			count = 0;
 		}
-		set_flag(dirty);
+		set_flag(ding_t::dirty);
 	}
 	return true;
 }

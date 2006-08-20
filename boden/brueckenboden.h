@@ -23,6 +23,12 @@ public:
 
     void calc_bild();
 
+    /**
+     * ground info, needed for stops
+     * @author prissi
+     */
+    virtual bool zeige_info();
+
     inline const char *gib_name() const {return "Brueckenboden";};
     inline enum typ gib_typ() const {return brueckenboden;};
 

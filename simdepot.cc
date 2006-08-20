@@ -114,20 +114,20 @@ depot_t::convoi_arrived(convoihandle_t acnv, bool fpl_adjust)
 void
 depot_t::zeige_info()
 {
-  if(depot_info==NULL) {
-    depot_info = new depot_frame_t(welt, this, gib_besitzer()->kennfarbe);
-  } else {
-    depot_info->build_vehicle_lists();
-  }
-
-  create_win(20, 20, depot_info, w_info);
+	if(depot_info==NULL) {
+		depot_info = new depot_frame_t(welt, this);
+	}
+	else {
+		depot_info->build_vehicle_lists();
+	}
+	create_win(20, 20, depot_info, w_info);
 }
 
 
 
 bool depot_t::can_convoi_start(int /*icnv*/) const
 {
-  return true;
+	return true;
 }
 
 
@@ -352,6 +352,7 @@ depot_t::start_convoi(int icnv)
 
 
 
+// attention! this will not be used for railway depots! They will be loaded by hand ...
 void
 depot_t::rdwr(loadsave_t *file)
 {

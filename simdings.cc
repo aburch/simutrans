@@ -128,8 +128,8 @@ ding_t::~ding_t()
 	if(gr) {
 
 		if(gr->obj_remove(this, gib_besitzer())) {
-			// normal case
-			welt->markiere_dirty(pos);
+			// normal case: redraw here
+			gr->set_flag(grund_t::world_spot_dirty);
 		}
 		else {
 			// not found? => try harder at all map locations
@@ -215,16 +215,7 @@ ding_t::zeige_info()
     }
     create_win(-1, -1, ding_infos->get(this), w_autodelete);
 }
-/*
-void
-ding_t::zeige_info(ding_t *dt)
-{
-    if(!ding_infos->get(dt)) {
-	ding_infos->put(dt, new_info());
-    }
-    create_win(-1, -1, ding_infos->get(dt), w_autodelete);
-}
-*/
+
 const char *
 ding_t::ist_entfernbar(const spieler_t *sp)
 {
@@ -284,16 +275,16 @@ ding_t::display(int xpos, int ypos, bool dirty) const
 	xpos += tile_raster_scale_x(gib_xoff(), raster_width);
 
 	dirty |= get_flag(ding_t::dirty);
-
-	if(dirty && bild == 0xFFFF) {
+	if(dirty  &&  bild==IMG_LEER) {
 		mark_rect_dirty_wc(xpos-8, ypos-32, xpos+80, ypos+76);
+		return;
 	}
 
 	int j = 1;
 	while(bild!=IMG_LEER) {
 
 		if(gib_besitzer()) {
-			display_color_img(bild, xpos, ypos, gib_besitzer()->kennfarbe, true, dirty);
+			display_color_img(bild, xpos, ypos, gib_besitzer()->get_player_color(), true, dirty);
 		}
 		else {
 			display_img(bild, xpos, ypos, dirty);
@@ -318,7 +309,7 @@ ding_t::display_after(int xpos, int ypos, bool dirty) const
 		dirty |= get_flag(ding_t::dirty);
 
 		if(gib_besitzer()) {
-			display_color_img(bild, xpos, ypos, gib_besitzer()->kennfarbe, true, dirty);
+			display_color_img(bild, xpos, ypos, gib_besitzer()->get_player_color(), true, dirty);
 		}
 		else {
 			display_img(bild, xpos, ypos, dirty);

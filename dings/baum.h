@@ -31,7 +31,7 @@ private:
      * Geburtsdatum des Baumes
      * @author Hj. Malthaner
      */
-    unsigned long geburt;
+    uint32 geburt;
 
     const baum_besch_t *besch;
 
@@ -47,7 +47,7 @@ private:
      * Berechnet Bild abhängig vom Alter
      * @author Hj. Malthaner
      */
-    void calc_bild(const unsigned long alter);
+    bool calc_bild(const unsigned long alter);
 
 
     /**

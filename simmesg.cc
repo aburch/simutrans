@@ -63,7 +63,6 @@ DBG_MESSAGE("message_t::message_t()","previous instance %p");
 	}
 
 	list = new slist_tpl <message_t::node>;
-	iter = new slist_iterator_tpl <message_t::node> (list);
 }
 
 
@@ -74,8 +73,6 @@ DBG_MESSAGE("message_t::~message_t()","previous instance %p");
 	// free lists
 	delete list;
 	list = 0;
-	delete iter;
-	iter = 0;
 	single_instance = NULL;
 }
 

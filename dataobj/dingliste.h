@@ -72,6 +72,11 @@ public:
      * @author Hj. Malthaner
      */
     const char * kann_alle_entfernen(const spieler_t *) const;
+
+    /* display all things, much fast to do it here ...
+     *  @author prissi
+     */
+     void display_dinge( const sint16 xpos, const sint16 ypos, const bool dirty ) const;
 } GCC_PACKED;
 
 #endif

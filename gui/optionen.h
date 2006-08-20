@@ -2,24 +2,38 @@
 #define gui_optionen_h
 
 
-#ifndef gui_infowin_h
-#include "infowin.h"
-#endif
+#include "gui_frame.h"
+#include "button.h"
+#include "gui_label.h"
+#include "components/gui_divider.h"
+#include "ifc/action_listener.h"
 
 
 /**
- * Hauptmenüfenster für alle Einstellungen zueinem laufenden Spiel.
+ * Settings in the game
  * @author Hj. Malthaner
  * @version $Revision: 1.8 $
  */
-class optionen_gui_t : public infowin_t
+class optionen_gui_t : public gui_frame_t, action_listener_t
 {
 private:
-    vector_tpl<button_t> buttons;
+    button_t bt_lang;
+    button_t bt_color;
+    button_t bt_display;
+    button_t bt_sound;
+    button_t bt_player;
+    button_t bt_load;
+    button_t bt_save;
+    button_t bt_new;
+    button_t bt_quit;
+
+	gui_divider_t seperator;
+	gui_label_t txt;
+
+	karte_t *welt;
 
 public:
     optionen_gui_t(karte_t *welt);
-
 
     /**
      * Manche Fenster haben einen Hilfetext assoziiert.
@@ -28,29 +42,11 @@ public:
      */
     virtual const char * gib_hilfe_datei() const {return "options.txt";};
 
-    /* return NULL->orange frame *
-     * @author Hj. Malthaner
-     */
-    virtual spieler_t* gib_besitzer() const { return NULL; }
-
-    const char *gib_name() const;
-
-    void info(cbuffer_t & buf) const;
-
-    /**
-     * Jedes Objekt braucht ein Bild.
-     *
-     * @author Hj. Malthaner
-     * @return Die Nummer des aktuellen Bildes für das Objekt.
-     */
-    int gib_bild() const;
-
-    koord gib_fenstergroesse() const;
-    void infowin_event(const event_t *ev);
-
-    vector_tpl<button_t> *gib_fensterbuttons();
-
-    void zeichnen(koord pos, koord gr);
+	/**
+	 * This method is called if an action is triggered (i.e. button pressed and released)
+	 * @author Hj. Malthaner
+	 */
+	bool action_triggered(gui_komponente_t *comp);
 };
 
 #endif

@@ -322,44 +322,73 @@ void planquadrat_t::angehoben(karte_t *welt)
 
 
 void
-planquadrat_t::display_boden(const int xpos, const int ypos, bool dirty) const
+planquadrat_t::display_boden(const sint16 xpos, const sint16 ypos, const sint16 raster, bool dirty) const
 {
 	if(boeden.get_count() > 0) {
+#ifdef COVER_TILES
+	// cover tiles
 		if(boeden.get(0)->get_flag(grund_t::is_cover_tile)) {
-			for(int i=boeden.get_count()-1; i>0;  i--) {
-				if(boeden.get(i)->gib_typ()==grund_t::boden) {
-//					boeden.get(i)->display_boden(xpos, ypos, dirty);
-//					boeden.get(i)->display_dinge(xpos, ypos, dirty);
+			for(uint8 i=boeden.get_count()-1; i>0;  i--) {
+				grund_t *gr = boeden.get(i);
+				if(gr->gib_typ()==grund_t::boden) {
+					gr->display_boden(xpos, ypos, dirty || gr->get_flag(grund_t::world_spot_dirty);
+					gr->display_dinge(xpos, ypos, dirty);
+					gr->clear_flag(grund_t::world_spot_dirty);
 				}
 			}
 		}
-		// normal ground will be drawn before to avoid overlap with badly aligned vehicles
-		grund_t *gr=boeden.get(0);
-		if(gr->get_flag(grund_t::draw_as_ding)==0) {
-			gr->display_boden( xpos, ypos, dirty );
+#endif
+		grund_t *gr = boeden.get(0);
+		if(!gr->get_flag(grund_t::draw_as_ding)) {
+			gr->display_boden(xpos, ypos, dirty || gr->get_flag(grund_t::world_spot_dirty));
+			gr->clear_flag(grund_t::dirty);
 		}
 	}
 }
 
 
 void
-planquadrat_t::display_dinge(const int xpos, const int ypos, bool dirty) const
+planquadrat_t::display_dinge(const sint16 xpos, const sint16 ypos, const sint16 raster_tile_width, bool dirty) const
 {
 	if(boeden.get_count()>0) {
-		grund_t *gr=boeden.get(0);
-		// this is a foundation/upslope
-		if(gr->get_flag(grund_t::draw_as_ding)) {
-			gr->display_boden( xpos, ypos, dirty );
-		}
+#ifdef COVER_TILES
 		boeden.get(0)->display_dinge(xpos, ypos, dirty);
-
-		for(int i=1; i<boeden.get_count(); i++) {
-			gr=boeden.get(i);
-			if(gr->gib_typ()!=grund_t::boden) {
-//				gr->display_boden(xpos, ypos, dirty);
-//				gr->display_dinge(xpos, ypos, dirty);
+		for(uint8 i=1; i<boeden.get_count(); i++) {
+			gr = boeden.get(i);
+			if(gr->gib_typ()!=grund_t::boden)) {
+				gr->display_boden(xpos, ypos, dirty);
+				gr->clear_flag(grund_t::dirty);
+				gr->display_dinge(xpos, ypos, dirty);
 			}
 		}
+#else
+		// first some action with the kartenboden (i.e. level ground)
+		grund_t *gr = boeden.get(0);
+		if(gr->get_flag(grund_t::draw_as_ding)) {
+			gr->display_boden(xpos, ypos, dirty || gr->get_flag(grund_t::world_spot_dirty));
+			gr->clear_flag(grund_t::dirty);
+		}
+		gr->display_dinge(xpos, ypos, dirty );
+
+		// display station owner boxes
+		if(umgebung_t::station_coverage_show  &&  halt_list.get_count()>0) {
+			const sint16 r=raster_tile_width/8;
+			const sint16 x=xpos+raster_tile_width/2-r;
+			const sint16 y=ypos+(raster_tile_width*3)/4-r-tile_raster_scale_y( boeden.get(0)->gib_hoehe(), raster_tile_width);;
+			// suitable start search
+			for(sint16 h=halt_list.get_count()-1;  h>=0;  h--  ) {
+				display_fillbox_wh_clip( x-h*2, y+h*2, r, r, halt_list.at(h)->gib_besitzer()->get_player_color()+2, dirty);
+			}
+		}
+
+		// the rest
+		for(uint8 i=1; i<boeden.get_count(); i++) {
+			gr = gib_boden_bei(i);
+			gr->display_boden(xpos, ypos, dirty || gr->get_flag(grund_t::world_spot_dirty) );
+			gr->clear_flag(grund_t::dirty);
+			gr->display_dinge(xpos, ypos, dirty );
+		}
+#endif
 	}
 }
 

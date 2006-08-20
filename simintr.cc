@@ -18,10 +18,10 @@
 #include "simplay.h"
 
 #include "simworld.h"
-#include "simworldview.h"
+#include "simview.h"
 
 static karte_t *welt_modell = NULL;
-static karte_vollansicht_t *welt_ansicht = NULL;
+static karte_ansicht_t *welt_ansicht = NULL;
 
 
 static int base_refresh = 1;
@@ -82,7 +82,7 @@ void
 intr_refresh_display(bool dirty)
 {
 	welt_ansicht->display( dirty );
-	win_display_flush(	0, welt_modell->get_active_player()->kennfarbe, welt_modell->get_active_player()->gib_konto_als_double() );
+	win_display_flush(	0, welt_modell->get_active_player()->get_player_color(), welt_modell->get_active_player()->gib_konto_als_double() );
 }
 
 
@@ -133,7 +133,7 @@ interrupt_check(char *caller_info)
 
 
 void
-intr_set(karte_t *welt, karte_vollansicht_t *view, int refresh)
+intr_set(karte_t *welt, karte_ansicht_t *view, int refresh)
 {
 	welt_modell = welt;
 	welt_ansicht = view;
@@ -143,7 +143,7 @@ intr_set(karte_t *welt, karte_vollansicht_t *view, int refresh)
 }
 
 void
-intr_set(karte_t *welt, karte_vollansicht_t *view)
+intr_set(karte_t *welt, karte_ansicht_t *view)
 {
     intr_set(welt, view, base_refresh);
 }

@@ -47,7 +47,7 @@ ki_kontroll_t::ki_kontroll_t(karte_t *wl) :
 		}
 
 		player_get_finances[i].init(button_t::box, welt->gib_spieler(i)->gib_name(), koord(34,4+i*2*LINESPACE), koord(120,BUTTON_HEIGHT));
-		player_get_finances[i].background = welt->gib_spieler(i)->kennfarbe+3;
+		player_get_finances[i].background = welt->gib_spieler(i)->get_player_color()+3;
 		player_get_finances[i].add_listener(this);
 		add_komponente( player_get_finances+i );
 

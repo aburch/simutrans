@@ -66,7 +66,7 @@ const int cost_type_color[MAX_HALT_COST] =
 };
 
 halt_info_t::halt_info_t(karte_t *welt, halthandle_t halt)
- : gui_frame_t(halt->access_name(), halt->gib_besitzer()->kennfarbe),
+ : gui_frame_t(halt->access_name(), halt->gib_besitzer()->get_player_color()),
   scrolly(&text),
   text("                                                                                     "
        " \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n"
@@ -155,8 +155,6 @@ halt_info_t::halt_info_t(karte_t *welt, halthandle_t halt)
 void
 halt_info_t::zeichnen(koord pos, koord gr)
 {
-	koord viewpos = view.gib_pos(); // 31-May-02  markus weber   added
-
 	if(halt.is_bound()) {
 		// buffer update now only when needed by halt itself => dedicated buffer for this
 		int old_len=freight_info.len();
@@ -174,7 +172,6 @@ halt_info_t::zeichnen(koord pos, koord gr)
 		gui_frame_t::zeichnen(pos, gr);
 
 		unsigned indikatorfarbe = halt->gib_status_farbe();
-//		display_ddd_box_clip(pos.x + view.pos.x, pos.y + view.pos.y + 75, 66, 8, MN_GREY0, MN_GREY4);
 		display_fillbox_wh_clip(pos.x+11, pos.y + 42, INDICATOR_WIDTH, INDICATOR_HEIGHT, indikatorfarbe, true);
 
 		// now what do we accept here?
@@ -225,10 +222,7 @@ halt_info_t::zeichnen(koord pos, koord gr)
 		info_buf.append(translator::translate("Storage capacity"));
 		info_buf.append(": ");
 		info_buf.append(halt->get_capacity());
-		display_proportional(pos.x+viewpos.x-11, pos.y+40, info_buf, ALIGN_RIGHT, COL_BLACK, true);
-
-		// word view box frame
-		display_ddd_box(pos.x+viewpos.x, pos.y+viewpos.y+16, 66, 57, MN_GREY0, MN_GREY4);
+		display_proportional(pos.x+view.gib_pos().x-11, pos.y+40, info_buf, ALIGN_RIGHT, COL_BLACK, true);
 
 		// Hajo: Reuse of freight_info buffer to get and display
 		// information about the convoi itself

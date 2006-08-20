@@ -62,7 +62,7 @@ private:
 	 * if buttons is disabled show only grey label
 	 * @author hsiegeln
 	 */
-	uint8 b_enabled;
+	uint8 b_enabled:1;
 
 public:
 	uint8 background; //@author hsiegeln
@@ -81,7 +81,7 @@ public:
 	const char * text;
 
 
-	bool pressed;
+	bool pressed:1;
 
 	uint8 kennfarbe;
 

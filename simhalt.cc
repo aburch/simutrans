@@ -22,7 +22,10 @@
 #include "simmem.h"
 #include "simplan.h"
 #include "boden/grund.h"
+#include "boden/boden.h"
+#include "boden/wasser.h"
 #include "boden/wege/weg.h"
+#include "boden/wege/strasse.h"
 #include "simhalt.h"
 #include "simfab.h"
 #include "simplay.h"
@@ -211,6 +214,125 @@ halthandle_t haltestelle_t::create(karte_t *welt, koord pos, spieler_t *sp)
 
     return p->self;
 }
+
+
+/*
+ * removes a ground tile from a station
+ * @author prissi
+ */
+bool
+haltestelle_t::remove(karte_t *welt, spieler_t *sp, koord3d pos, const char *&msg)
+{
+	msg = NULL;
+	grund_t *bd = welt->lookup(pos);
+
+	// wrong ground?
+	if(bd==NULL) {
+		dbg->error("haltestelle_t::remove()","illegal ground at %d,%d,%d", pos.x, pos.y, pos.z);
+		return false;
+	}
+
+	halthandle_t halt = gib_halt(welt,pos);
+	if(!halt.is_bound()) {
+		dbg->error("haltestelle_t::remove()","no halt at %d,%d,%d", pos.x, pos.y, pos.z);
+		return false;
+	}
+
+DBG_MESSAGE("haltestelle_t::remove()","removing segment from %d,%d,%d", pos.x, pos.y, pos.z);
+
+	// remove station building?
+	gebaeude_t *gb=dynamic_cast<gebaeude_t *>(bd->suche_obj(ding_t::gebaeude));
+	if(gb) {
+		DBG_MESSAGE("haltestelle_t::remove()",  "removing building" );
+		const haus_tile_besch_t *tile  = gb->gib_tile();
+		koord size = tile->gib_besch()->gib_groesse( tile->gib_layout() );
+		const sint32 costs = tile->gib_besch()->gib_level()*umgebung_t::cst_multiply_post;
+
+		// get startpos
+		koord k=tile->gib_offset();
+		if(k != koord(0,0)) {
+			return haltestelle_t::remove(welt, sp, pos-koord3d(k,0),msg);
+		}
+		else {
+			for(k.y = 0; k.y < size.y; k.y ++) {
+				for(k.x = 0; k.x < size.x; k.x ++) {
+					grund_t *gr = welt->lookup(koord3d(k,0)+pos);
+					if(welt->max_hgt(k+pos.gib_2d())<=welt->gib_grundwasser()  ||  gr->gib_typ()==grund_t::fundament) {
+						msg=gr->kann_alle_obj_entfernen(sp);
+						if(msg) {
+							return false;
+						}
+					}
+				}
+			}
+			// remove all gound
+DBG_MESSAGE("haltestelle_t::remove()", "removing building: cleanup");
+			for(k.y = 0; k.y < size.y; k.y ++) {
+				for(k.x = 0; k.x < size.x; k.x ++) {
+					grund_t *gr = welt->lookup(koord3d(k,0)+pos);
+					sp->buche(costs, k, COST_CONSTRUCTION);
+					if(gr) {
+						halt->rem_grund(gr);
+						gebaeude_t *gb=static_cast<gebaeude_t *>(gr->suche_obj(ding_t::gebaeude));
+						gr->obj_remove(gb,sp);	// remove building
+						delete gb;
+						gr->setze_text(NULL);
+						if(gr->gib_typ()==grund_t::fundament) {
+							welt->access(k+pos.gib_2d())->kartenboden_setzen(new boden_t(welt, koord3d(k+pos.gib_2d(),welt->min_hgt(k+pos.gib_2d()))), false);
+						}
+						else if(welt->max_hgt(k+pos.gib_2d())<=welt->gib_grundwasser()) {
+							welt->access(k+pos.gib_2d())->kartenboden_setzen(new wasser_t(welt, k+pos.gib_2d()), false);
+						}
+						else {
+							weg_t *weg = bd->gib_weg(weg_t::strasse);
+							if(weg && static_cast<strasse_t *>(weg)->hat_gehweg()) {
+								// Stadtstrassen sollten entfernbar sein, deshalb
+								// dürfen sie keinen Besitzer haben.
+								bd->setze_besitzer( NULL );
+							}
+						}
+						sp->buche(costs, pos.gib_2d()+k, COST_CONSTRUCTION);
+					}
+				}
+			}
+			bd = NULL;	// no need to do things twice ...
+		}
+	}
+	else {
+		halt->rem_grund(bd);
+	}
+
+	if(!halt->existiert_in_welt()) {
+DBG_DEBUG("haltestelle_t::remove()","remove last");
+		// all deleted?
+		halt->gib_besitzer()->halt_remove( halt );
+DBG_DEBUG("haltestelle_t::remove()","destroy");
+		haltestelle_t::destroy( halt );
+	}
+	else {
+DBG_DEBUG("haltestelle_t::remove()","not last");
+		// may have been changed ... (due to post office/dock/railways station deletion)
+		halt->recalc_station_type();
+	}
+
+	// if building was removed this is false!
+	if(bd) {
+		bd->calc_bild();
+
+DBG_DEBUG("haltestelle_t::remove()","reset city way owner");
+		weg_t *weg = bd->gib_weg(weg_t::strasse);
+		if(weg && static_cast<strasse_t *>(weg)->hat_gehweg()) {
+			// Stadtstrassen sollten entfernbar sein, deshalb
+			// dürfen sie keinen Besitzer haben.
+			bd->setze_besitzer( NULL );
+		}
+		bd->setze_text( NULL );
+	}
+	return true;
+}
+
+
+
 
 
 /**
@@ -1461,6 +1583,9 @@ haltestelle_t::find_free_position(const weg_t::typ w,convoihandle_t cnv,const di
 					// not occipied
 					return true;
 				}
+				else if(reservation.get(i)==cnv) {
+					reservation.at(i) = convoihandle_t();
+				}
 			}
 			else {
 				dbg->error("haltestelle_t::find_free_position()","contains zero ground!");
@@ -1482,7 +1607,7 @@ haltestelle_t::reserve_position(grund_t *gr,convoihandle_t cnv)
 	int idx=grund.index_of(gr);
 	if(idx>=0) {
 		if(reservation.get(idx)==cnv) {
-DBG_MESSAGE("haltestelle_t::reserve_position()","gr=%d,%d already reserved by cnv=%d",gr->gib_pos().x,gr->gib_pos().y,cnv.get_id());
+//DBG_MESSAGE("haltestelle_t::reserve_position()","gr=%d,%d already reserved by cnv=%d",gr->gib_pos().x,gr->gib_pos().y,cnv.get_id());
 			return true;
 		}
 		// not reseved
@@ -1493,14 +1618,14 @@ DBG_MESSAGE("haltestelle_t::reserve_position()","gr=%d,%d already reserved by cn
 				const weg_t *weg=gr->gib_weg(cnv->gib_vehikel(0)->gib_wegtyp());
 				if(weg  &&  weg->ist_frei()  &&  gr->suche_obj(cnv->gib_vehikel(0)->gib_typ())==NULL) {
 					// not occipied
-DBG_MESSAGE("haltestelle_t::reserve_position()","sucess for gr=%i,%i cnv=%d",gr->gib_pos().x,gr->gib_pos().y,cnv.get_id());
+//DBG_MESSAGE("haltestelle_t::reserve_position()","sucess for gr=%i,%i cnv=%d",gr->gib_pos().x,gr->gib_pos().y,cnv.get_id());
 					reservation.at(idx) = cnv;
 					return true;
 				}
 			}
 		}
 	}
-DBG_MESSAGE("haltestelle_t::reserve_position()","failed for gr=%i,%i, cnv=%d",gr->gib_pos().x,gr->gib_pos().y,cnv.get_id());
+//DBG_MESSAGE("haltestelle_t::reserve_position()","failed for gr=%i,%i, cnv=%d",gr->gib_pos().x,gr->gib_pos().y,cnv.get_id());
 	return false;
 }
 

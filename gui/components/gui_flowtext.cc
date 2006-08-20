@@ -321,41 +321,22 @@ koord gui_flowtext_t::output(koord offset, bool doit) const {
  */
 void gui_flowtext_t::infowin_event(const event_t *ev)
 {
-  if(IS_LEFTCLICK(ev)) {
-
-    // printf("Mouse clicked at %d, %d\n", ev->cx, ev->cy);
-
-    // scan links for hit
-
-    hyperlink_t * link = links;
-
-    while(link) {
-
-      // printf("Checking link at %d,%d %d,%d\n", link->tl.x, link->tl.y, link->br.x, link->br.y);
-
-
-      if(link->tl.x <= ev->cx && link->br.x >= ev->cx &&
-	 link->tl.y <= ev->cy && link->br.y >= ev->cy) {
-
-	printf("Link hit '%s'\n", link->param.chars());
-
-
-	// call listeners
-
-	listener_t * l = listeners;
-
-	while(l) {
-
-	  l->callback->hyperlink_activated(link->param);
-	  l = l->next;
+	if(IS_WHEELUP(ev) || IS_WHEELDOWN(ev)) {
 	}
 
-
-      }
-
-      link = link->next;
-    }
-
-
-  }
+	if(IS_LEFTCLICK(ev)) {
+		// scan links for hit
+		hyperlink_t * link = links;
+		while(link) {
+			if(link->tl.x <= ev->cx && link->br.x >= ev->cx && link->tl.y <= ev->cy && link->br.y >= ev->cy) {
+				// call listeners
+				listener_t * l = listeners;
+				while(l) {
+					l->callback->hyperlink_activated(link->param);
+					l = l->next;
+				}
+			}
+			link = link->next;
+		}
+	}
 }

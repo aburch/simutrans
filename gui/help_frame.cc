@@ -127,6 +127,5 @@ void help_frame_t::hyperlink_activated(const cstring_t &txt)
 void help_frame_t::resize(const koord delta)
 {
 	gui_frame_t::resize(delta);
-
 	scrolly.setze_groesse(get_client_windowsize());
 }

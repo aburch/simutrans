@@ -13,7 +13,6 @@
 
 // forward decl
 template <class T> class slist_tpl;
-template <class T> class slist_iterator_tpl;
 
 /* class for a simple message
  * this way they are stored in a list
@@ -57,7 +56,6 @@ private:
 	int ignore_flags;
 
 	slist_tpl <node> * list;
-	slist_iterator_tpl <node> * iter;
 
 	static message_t * single_instance;
 

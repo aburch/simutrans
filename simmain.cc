@@ -18,7 +18,7 @@
 #include "pathes.h"
 
 #include "simworld.h"
-#include "simworldview.h"
+#include "simview.h"
 #include "simwin.h"
 #include "simhalt.h"
 #include "simimg.h"
@@ -166,7 +166,7 @@ static void show_sizes()
 
 }
 
-static void show_times(karte_t *welt, karte_vollansicht_t *view)
+static void show_times(karte_t *welt, karte_ansicht_t *view)
 {
 
     long t0 = get_current_time_millis();
@@ -624,6 +624,9 @@ int simu_cpp_main(int argc, char ** argv)
 	umgebung_t::way_count_tunnel= contents.get_int("way_tunnel", 8 );
 	umgebung_t::way_max_bridge_len= contents.get_int("way_max_bridge_len", 15 );
 
+	umgebung_t::passenger_factor= contents.get_int("passenger_factor", 16 );	/* this can manipulate the passenger generation */
+
+
       /*
        * Selection of savegame format through inifile
        * @author Volker Meyer
@@ -812,7 +815,7 @@ print("Reading simuconf.tab successful!\n");
 
     karte_t *welt = new karte_t();
 
-    karte_vollansicht_t *view = new karte_vollansicht_t(welt);
+    karte_ansicht_t *view = new karte_ansicht_t(welt);
 
     if(!gimme_arg(argc, argv, "-nomidi", 0)) {
       print("Reading midi data ...\n");
@@ -826,7 +829,7 @@ print("Reading simuconf.tab successful!\n");
     }
 
     // suche nach refresh-einstellungen
-    int refresh = 2;
+    int refresh = 1;
     const char *ref_str = gimme_arg(argc, argv, "-refresh", 1);
 
     if(ref_str != NULL) {
@@ -999,7 +1002,7 @@ display_show_pointer( true );
 
 	// 05-Feb-2005 Added message service here
     message_t *msg = new message_t(welt);
-    msg->add_message("Welcome to Simutrans, a game created by Hj. Malthaner.", koord::invalid, message_t::general, welt->gib_spieler(0)->kennfarbe);
+    msg->add_message("Welcome to Simutrans, a game created by Hj. Malthaner.", koord::invalid, message_t::general, welt->gib_spieler(0)->get_player_color());
     msg->set_flags( umgebung_t::message_flags[0],  umgebung_t::message_flags[1],  umgebung_t::message_flags[2],  umgebung_t::message_flags[3] );
 
         // 02-Nov-2001     Markus Weber    Function returns a boolean now
@@ -1014,6 +1017,9 @@ display_show_pointer( true );
 
     delete welt;
     welt = NULL;
+
+	delete view;
+	view = 0;
 
     simgraph_exit();
 

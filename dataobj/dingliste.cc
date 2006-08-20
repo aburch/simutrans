@@ -30,12 +30,14 @@
 #include "../simmem.h"
 #include "../simverkehr.h"
 #include "../simpeople.h"
+#include "../simplay.h"
 
 #include "../besch/haus_besch.h"
 
 #include "../dataobj/translator.h"
 #include "../dataobj/loadsave.h"
 #include "../dataobj/freelist.h"
+#include "../dataobj/umgebung.h"
 
 
 static void dl_free(void *p, uint8 size)
@@ -545,6 +547,7 @@ void dingliste_t::rdwr(karte_t *welt, loadsave_t *file, koord3d current_pos)
 						d = bd;
 					}
 					d->setze_besitzer( gb->gib_besitzer() );
+					gb->gib_besitzer()->add_maintenance(umgebung_t::maint_building);
 					typ = d->gib_typ();
 					delete gb;
 				}
@@ -654,5 +657,46 @@ void dingliste_t::rdwr(karte_t *welt, loadsave_t *file, koord3d current_pos)
 				file->wr_obj_id(-1);
 			}
 		}
+	}
+}
+
+
+
+
+/* display all things, much fast to do it here ...
+ *  @author prissi
+ */
+void dingliste_t::display_dinge( const sint16 xpos, const sint16 ypos, const bool dirty ) const
+{
+	switch(capacity) {
+
+		case 0:	return;
+
+		case 1:	if(obj.one) {
+						bool this_dirty=dirty||obj.one->get_flag(ding_t::dirty);
+						obj.one->display(xpos, ypos, this_dirty );
+						obj.one->display_after(xpos, ypos, this_dirty );
+						obj.one->clear_flag(ding_t::dirty);
+					}
+					return;
+
+		default:	// background
+					for(uint8 n=0; n<top; n++) {
+						ding_t * dt = obj.some[n];
+						if(dt) {
+							// ist dort ein objekt ?
+							dt->display(xpos, ypos, dirty||dt->get_flag(ding_t::dirty) );
+						}
+					}
+					// foreground
+					for(uint8 n=0; n<top; n++) {
+						ding_t * dt = obj.some[n];
+						if(dt) {
+							// ist dort ein vordergrund objekt ?
+							dt->display_after(xpos, ypos, dirty||dt->get_flag(ding_t::dirty) );
+							dt->clear_flag(ding_t::dirty);
+						}
+					}
+					return;
 	}
 }

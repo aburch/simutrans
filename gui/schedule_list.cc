@@ -70,13 +70,12 @@ uint8 schedule_list_gui_t::statistic_type[MAX_LINE_COST]={
 // a width of 400 pixels -> original size was unuseable in 640x480
 
 schedule_list_gui_t::schedule_list_gui_t(karte_t *welt,spieler_t *sp)
- : gui_frame_t("Line Management",sp->kennfarbe),
+ : gui_frame_t("Line Management",sp->get_player_color()),
  scrolly(&cont),
  scrolly_haltestellen(&cont_haltestellen)
 {
 	this->welt = welt;
 	this->sp = sp;
-	line = linehandle_t();
 	capacity = load = 0;
 	selection = -1;
 	loadfactor = 0;
@@ -88,7 +87,7 @@ schedule_list_gui_t::schedule_list_gui_t(karte_t *welt,spieler_t *sp)
 	scl = new scrolled_list_gui_t(scrolled_list_gui_t::select);
 	scl->setze_groesse(koord(LINE_NAME_COLUMN_WIDTH-22, SCL_HEIGHT-14));
 	scl->setze_pos(koord(0,1));
-	scl->setze_highlight_color(gib_besitzer()->kennfarbe+1);
+	scl->setze_highlight_color(gib_besitzer()->get_player_color()+1);
 	scl->request_groesse(scl->gib_groesse());
 
 	// tab panel
@@ -175,7 +174,7 @@ schedule_list_gui_t::schedule_list_gui_t(karte_t *welt,spieler_t *sp)
 		add_komponente(filterButtons + i);
 	}
 
-	sp->simlinemgmt.sort_lines();
+	update_lineinfo( linehandle_t() );
 	build_line_list(0);
 
 	// resize button
@@ -183,6 +182,8 @@ schedule_list_gui_t::schedule_list_gui_t(karte_t *welt,spieler_t *sp)
 	set_resizemode(diagonal_resize);
 	resize(koord(0,0));
 }
+
+
 
 schedule_list_gui_t::~schedule_list_gui_t()
 {
@@ -196,159 +197,88 @@ schedule_list_gui_t::~schedule_list_gui_t()
 
 bool schedule_list_gui_t::action_triggered(gui_komponente_t *komp)           // 28-Dec-01    Markus Weber    Added
 {
-    if (komp == &bt_change_line)
-    {
+	if (komp == &bt_change_line) {
 		if (line.is_bound()) {
 			line_management_gui_t *line_gui = new line_management_gui_t(welt, line, welt->get_active_player());
 			line_gui->zeige_info();
 		}
-    } else if (komp == &bt_new_line)
-    {
-    	if (tabs.get_active_tab_index() > 0) {
-    	// create typed line
-    	uint8 type=tabs_to_lineindex[tabs.get_active_tab_index()];
-		linehandle_t new_line = sp->simlinemgmt.create_line(type);
-		line_management_gui_t *line_gui = new line_management_gui_t(welt, new_line, sp);
-		line_gui->zeige_info();
-
-		// once a new line is added we need to renew the SCL and sort the lines
-		// otherwise the selection of lines in the SCL gets messed up
-		  sp->simlinemgmt.sort_lines();
-		  scl->clear_elements();
-		  build_line_list( tabs.get_active_tab_index() );
-		} else {
+	}
+	else if (komp == &bt_new_line) {
+			if (tabs.get_active_tab_index() > 0) {
+			// create typed line
+			uint8 type=tabs_to_lineindex[tabs.get_active_tab_index()];
+			linehandle_t new_line = sp->simlinemgmt.create_line(type);
+			line_management_gui_t *line_gui = new line_management_gui_t(welt, new_line, sp);
+			line_gui->zeige_info();
+			update_lineinfo( new_line );
+			build_line_list( tabs.get_active_tab_index() );
+		}
+		else {
 			create_win(-1, -1, 120, new nachrichtenfenster_t(welt, translator::translate("Cannot create generic line!\nSelect line type by\nusing filter tabs.")), w_autodelete);
 		}
-    } else if (komp == &bt_delete_line)
-    {
+	}
+	else if (komp == &bt_delete_line) {
 		if (line.is_bound()) {
 			// remove elements from lists
-			lines.remove(line);
-			sp->simlinemgmt.delete_line(line);
-			scl->remove_element(scl->gib_selection());
-
-			// clean up gui
-			cont.remove_all();
-			inp_name.set_visible(false);
-			filled_bar.set_visible(false);
+			linehandle_t delete_line=line;
+			update_lineinfo( linehandle_t() );
+			sp->simlinemgmt.delete_line(delete_line);
 			build_line_list(tabs.get_active_tab_index());
-			line = linehandle_t();
-			scl->setze_selection(-1);
-			bt_delete_line.disable();
-			bt_change_line.disable();
 		}
-    } else if (komp == &tabs)
-    {
-		scrolly.set_visible(false);
-		scrolly_haltestellen.set_visible(false);
-		inp_name.set_visible(false);
-		filled_bar.set_visible(false);
-    	build_line_list(tabs.get_active_tab_index());
-    	scl->setze_selection(-1);
-    	line = linehandle_t();
-    } else {
-    	if (line.is_bound())
-    	{
-    	    for ( int i = 0; i<MAX_LINE_COST; i++) {
-		    	if (komp == &filterButtons[i]) {
-		    		chart->is_visible(i) == true ? chart->hide_curve(i) : chart->show_curve(i);
-		    		break;
-		    	}
-		    }
+	}
+	else if (komp == &tabs) {
+		update_lineinfo( linehandle_t() );
+		build_line_list(tabs.get_active_tab_index());
+	}
+	else {
+		if (line.is_bound()) {
+			for ( int i = 0; i<MAX_LINE_COST; i++) {
+				if (komp == &filterButtons[i]) {
+					chart->is_visible(i) == true ? chart->hide_curve(i) : chart->show_curve(i);
+					break;
+				}
+			}
 		}
-    }
+	}
 
     return true;
 }
 
+
+
 void
 schedule_list_gui_t::infowin_event(const event_t *ev)
 {
-  int x = ev->cx;
-  int y = ev->cy;
+	int x = ev->cx;
+	int y = ev->cy;
 
-    if (ev->ev_class == EVENT_CLICK) {
-      if (!line.is_bound()) {
-  	  	bt_change_line.disable();
-  	  	bt_delete_line.disable();
-      } else {
-  	  	bt_change_line.enable();
-  	  	bt_delete_line.enable();
-  	  }
-		  if (scl->getroffen(x, y-40)) {
-	    event_t ev2 = *ev;
+	if (ev->ev_class == EVENT_CLICK) {
+		if (!line.is_bound()) {
+			bt_change_line.disable();
+			bt_delete_line.disable();
+		} else {
+			bt_change_line.enable();
+			bt_delete_line.enable();
+		}
+		if (scl->getroffen(x, y-40)) {
+			linehandle_t new_line=linehandle_t();
+			event_t ev2 = *ev;
 			translate_event(&ev2, -tabs.pos.x, -tabs.pos.y-35);
-	    scl->infowin_event(&ev2);
+			scl->infowin_event(&ev2);
 
-      selection = scl->gib_selection();
-      // get selected line
-      if ((selection >= 0) && (selection < (int)lines.count())) {
-  	  	line = lines.at(selection);
-  	  	bt_change_line.enable();
-  	  	bt_delete_line.enable();
-  	  } else {
-  	  	line = linehandle_t();
-  	  }
-      if (!line.is_bound()) {
-				return;
-      }
-      scrolly.set_visible(true);
-      scrolly_haltestellen.set_visible(true);
-      inp_name.setze_text(line->get_name(), 128);
-      inp_name.set_visible(true);
-      filled_bar.set_visible(true);
-
-      // fill container with info of line's convoys
-      // we do it here, since this list needs only to be
-      // refreshed when the user selects a new line
-      int icnv = 0;
-      icnv = line->count_convoys();
-      // display convoys of line
-      cont.remove_all();
-      int ypos = 5;
-      int i;
-      for (i = 0; i < icnv; i++) {
-	gui_convoiinfo_t *cinfo = new gui_convoiinfo_t(line->get_convoy(i)->self, i + 1);
-		cinfo->setze_pos(koord(0, ypos));
-		cinfo->setze_groesse(koord(400, 40));
-		cont.add_komponente(cinfo);
-		ypos += 40;
-      }
-
-      cont.setze_groesse(koord(500, ypos));
-
-      // fill haltestellen container with info of line's haltestellen
-      cont_haltestellen.remove_all();
-      ypos = 5;
-      slist_tpl<koord> tmp; // stores koords of stops that are allready displayed
-      for (i = 0; i<line->get_fahrplan()->maxi(); i++) {
-	const koord fahrplan_koord = line->get_fahrplan()->eintrag.get(i).pos.gib_2d();
-	halthandle_t halt = haltestelle_t::gib_halt(welt, fahrplan_koord);
-	if (halt.is_bound()) {
-		// only add a haltestelle to the list, if it
-		// is not in the list allready
-		if (!tmp.contains(fahrplan_koord)) {
-		  halt_list_item_t *cinfo = new halt_list_item_t(halt, i + 1);
-		  cinfo->setze_pos(koord(0, ypos));
-		  cinfo->setze_groesse(koord(500, 40));
-		  cont_haltestellen.add_komponente(cinfo);
-		  ypos += 40;
-		  tmp.append(fahrplan_koord);
+			selection = scl->gib_selection();
+			// get selected line
+			if ((selection >= 0) && (selection < (int)lines.count())) {
+				new_line = lines.at(selection);
+				bt_change_line.enable();
+				bt_delete_line.enable();
+			}
+			update_lineinfo(new_line);
 		}
 	}
-      }
-      cont_haltestellen.setze_groesse(koord(500, ypos));
-
-      // chart
-      chart->remove_curves();
-      for (int i=0; i<MAX_LINE_COST; i++)  {
-	chart->add_curve(cost_type_color[i], (sint64 *)line->get_finance_history(), MAX_LINE_COST, statistic[i], MAX_MONTHS, statistic_type[i], filterButtons[i].pressed, true);
-      }
-      chart->set_visible(true);
-    }
-  }
-  gui_frame_t::infowin_event(ev);
+	gui_frame_t::infowin_event(ev);
 }
+
 
 
 void schedule_list_gui_t::zeichnen(koord pos, koord gr)
@@ -363,6 +293,8 @@ void schedule_list_gui_t::zeichnen(koord pos, koord gr)
   }
 //  scl->zeichnen(pos);
 }
+
+
 
 void
 schedule_list_gui_t::display(koord pos)
@@ -397,22 +329,24 @@ schedule_list_gui_t::display(koord pos)
 	switch(icnv) {
 		case 0: strcpy(buffer, translator::translate("no convois") );
 			break;
-		case 1: strcpy(buffer, translator::translate("no convois") );
+		case 1: strcpy(buffer, translator::translate("1 convoi") );
 			break;
 		default: sprintf(buffer, translator::translate("%d convois"), icnv);
 			break;
 	}
-	display_proportional(pos.x+LINE_NAME_COLUMN_WIDTH-5, pos.y+16+14+SCL_HEIGHT+14+4, buffer, ALIGN_LEFT, COL_BLACK, true );
+	int len=display_proportional(pos.x+LINE_NAME_COLUMN_WIDTH-5, pos.y+16+14+SCL_HEIGHT+14+4, buffer, ALIGN_LEFT, COL_BLACK, true );
 
-	int len = display_proportional(pos.x+LINE_NAME_COLUMN_WIDTH-5, pos.y+16+14+SCL_HEIGHT+14+4+LINESPACE, translator::translate("Gewinn"), ALIGN_LEFT, COL_BLACK, true );
+	int len2 = display_proportional(pos.x+LINE_NAME_COLUMN_WIDTH-5, pos.y+16+14+SCL_HEIGHT+14+4+LINESPACE, translator::translate("Gewinn"), ALIGN_LEFT, COL_BLACK, true );
 	money_to_string(ctmp, profit / 100.0);
-	display_proportional(pos.x+LINE_NAME_COLUMN_WIDTH+len, pos.y+16+14+SCL_HEIGHT+14+4+LINESPACE, ctmp, ALIGN_LEFT, profit>=0?MONEY_PLUS:MONEY_MINUS, true );
+	len2 += display_proportional(pos.x+LINE_NAME_COLUMN_WIDTH+len2, pos.y+16+14+SCL_HEIGHT+14+4+LINESPACE, ctmp, ALIGN_LEFT, profit>=0?MONEY_PLUS:MONEY_MINUS, true );
 
-	int rest_width = get_client_windowsize().x-LINE_NAME_COLUMN_WIDTH;
+	int rest_width = max( (get_client_windowsize().x-LINE_NAME_COLUMN_WIDTH)/2, max(len2,len) );
 	number_to_string(ctmp, capacity);
 	sprintf(buffer, translator::translate("Capacity: %s\nLoad: %d (%d%%)"), ctmp, load, loadfactor);
-	display_multiline_text(pos.x + LINE_NAME_COLUMN_WIDTH + rest_width/2, pos.y+16 + 14 + SCL_HEIGHT + 14 +4 , buffer, COL_BLACK);
+	display_multiline_text(pos.x + LINE_NAME_COLUMN_WIDTH + rest_width, pos.y+16 + 14 + SCL_HEIGHT + 14 +4 , buffer, COL_BLACK);
 }
+
+
 
 void schedule_list_gui_t::resize(const koord delta)
 {
@@ -436,8 +370,11 @@ void schedule_list_gui_t::resize(const koord delta)
 	}
 }
 
+
+
 void schedule_list_gui_t::build_line_list(int filter)
 {
+	sp->simlinemgmt.sort_lines();	// to take care of renaming ...
 DBG_MESSAGE("schedule_list_gui_t::build_line_list()","count=%i",sp->simlinemgmt.count_lines());
 	if(sp->simlinemgmt.count_lines() > 0) {
 		scl->clear_elements();
@@ -446,6 +383,84 @@ DBG_MESSAGE("schedule_list_gui_t::build_line_list()","count=%i",sp->simlinemgmt.
 		slist_iterator_tpl<linehandle_t> iter(lines);
 		while( iter.next() ) {
 			scl->append_element( iter.get_current()->get_name() );
+			if(line==iter.get_current()) {
+				scl->setze_selection( scl->get_count()-1 );
+			}
 		}
 	}
+}
+
+
+
+
+/* hides show components */
+void schedule_list_gui_t::update_lineinfo(linehandle_t new_line)
+{
+	if(new_line.is_bound()) {
+		// ok, this line is visible
+		scrolly.set_visible(true);
+		scrolly_haltestellen.set_visible(true);
+		inp_name.setze_text(new_line->get_name(), 128);
+		inp_name.set_visible(true);
+		filled_bar.set_visible(true);
+
+		// fill container with info of line's convoys
+		// we do it here, since this list needs only to be
+		// refreshed when the user selects a new line
+		int icnv = 0;
+		icnv = new_line->count_convoys();
+		// display convoys of line
+		cont.remove_all();
+		int ypos = 5;
+		for(int i = 0;  i<icnv;  i++  ) {
+			gui_convoiinfo_t *cinfo = new gui_convoiinfo_t(new_line->get_convoy(i)->self, i + 1);
+			cinfo->setze_pos(koord(0, ypos));
+			cinfo->setze_groesse(koord(400, 40));
+			cont.add_komponente(cinfo);
+			ypos += 40;
+		}
+		cont.setze_groesse(koord(500, ypos));
+
+		// fill haltestellen container with info of line's haltestellen
+		cont_haltestellen.remove_all();
+		ypos = 5;
+		slist_tpl<koord> tmp; // stores koords of stops that are allready displayed
+		for(int i = 0; i<new_line->get_fahrplan()->maxi(); i++) {
+			const koord fahrplan_koord = new_line->get_fahrplan()->eintrag.get(i).pos.gib_2d();
+			halthandle_t halt = haltestelle_t::gib_halt(welt, fahrplan_koord);
+			if (halt.is_bound()) {
+				// only add a haltestelle to the list, if it is not in the list allready
+				if (!tmp.contains(fahrplan_koord)) {
+					halt_list_item_t *cinfo = new halt_list_item_t(halt, i + 1);
+					cinfo->setze_pos(koord(0, ypos));
+					cinfo->setze_groesse(koord(500, 40));
+					cont_haltestellen.add_komponente(cinfo);
+					ypos += 40;
+					tmp.append(fahrplan_koord);
+				}
+			}
+		}
+		cont_haltestellen.setze_groesse(koord(500, ypos));
+
+		// chart
+		chart->remove_curves();
+		for (int i=0; i<MAX_LINE_COST; i++)  {
+			chart->add_curve(cost_type_color[i], (sint64 *)new_line->get_finance_history(), MAX_LINE_COST, statistic[i], MAX_MONTHS, statistic_type[i], filterButtons[i].pressed, true);
+		}
+		chart->set_visible(true);
+	}
+	else if(line.is_bound()) {
+		// need to hide everything
+		cont.remove_all();
+		inp_name.set_visible(false);
+		filled_bar.set_visible(false);
+		scrolly.set_visible(false);
+		scrolly_haltestellen.set_visible(false);
+		inp_name.set_visible(false);
+		filled_bar.set_visible(false);
+		scl->setze_selection(-1);
+		bt_delete_line.disable();
+		bt_change_line.disable();
+	}
+	line = new_line;
 }

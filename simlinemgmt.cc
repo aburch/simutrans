@@ -22,6 +22,7 @@ uint8 simlinemgmt_t::used_ids[8192];
 void simlinemgmt_t::init_line_ids()
 {
 	memset( used_ids, 8192, 0 );
+	used_ids[0] = 1;	// skip line zero
 }
 
 
@@ -50,12 +51,15 @@ void
 simlinemgmt_t::add_line(linehandle_t new_line)
 {
 //DBG_MESSAGE("simlinemgmt_t::add_line()","id=%d",new_line.get_id());
-	const uint16 id = new_line->get_line_id();
-	if(all_managed_lines.is_contained(new_line)) {
-		trap();
+	uint16 id = new_line->get_line_id();
+	if(used_ids[id/8]&(1<<(id&7))!=0) {
+		dbg->error("simlinemgmt_t::add_line()","Line id %i doubled!",id);
+		id += 12345+(7*id)&0x0FFF;
+		dbg->message("simlinemgmt_t::add_line()","new line id %i!",id);
+		new_line->set_line_id( id );
 	}
+	used_ids[id/8] |= (1<<(id&7));	// should be registered anyway ...
 	all_managed_lines.append(new_line,16);
-	used_ids[id/8] |= 1<<(id&7);	// should be registered anyway ...
 	sort_lines();
 }
 
@@ -263,6 +267,7 @@ simlinemgmt_t::register_all_stops()
 void
 simlinemgmt_t::laden_abschliessen()
 {
+	sort_lines();
 	register_all_stops();
 }
 
@@ -273,15 +278,20 @@ simlinemgmt_t::laden_abschliessen()
  */
 uint16 simlinemgmt_t::get_unique_line_id()
 {
-	for(uint16 i=1;  i<65530;  i++  ) {
-		if( (used_ids[i/8]&(1<<(i&7)))==0 ) {
-			used_ids[i/8] |= 1<<(i&7);
-DBG_MESSAGE("simlinemgmt_t::get_unique_line_id()","New id %i",i);
-			return i;
+	for(uint16 i=0;  i<8192;  i++  ) {
+		if(used_ids[i]!=255) {
+			for(uint16 id=0;  id<7;  id++ ) {
+				if(used_ids[i]&(1<<id)==0) {
+					used_ids[i] |= (1<<(id&7));
+DBG_MESSAGE("simlinemgmt_t::get_unique_line_id()","New id %i",i*8+id);
+					return (i*8)+id;
+				}
+			}
+			break;
 		}
 	}
-	dbg->warning("simlinemgmt_t::get_unique_line_id()","No valid id found!");
 	// not found
+	dbg->error("simlinemgmt_t::get_unique_line_id()","No valid id found!");
 	return UNVALID_LINE_ID;
 }
 
@@ -353,6 +363,7 @@ simlinemgmt_t::build_line_list(int type, slist_tpl<linehandle_t> * list)
 		linehandle_t line = all_managed_lines.at(i);
 
 		if(type==simline_t::line  ||  line->get_linetype()==simline_t::line  ||  line->get_linetype()==type) {
+#if 0
 			// insert sorted (these lists are not too long, so we will refrain from quicksorts)
 			for(unsigned i=0;  i<list->count()  &&  line.is_bound();  i++  ) {
 				if(strcmp(line->get_name(),list->at(i)->get_name())<=0) {
@@ -365,6 +376,10 @@ DBG_MESSAGE("simlinemgmt_t::build_line_list()","insert id=%i at %i",line.get_id(
 DBG_MESSAGE("simlinemgmt_t::build_line_list()","append id=%i",line.get_id());
 				list->append(line);
 			}
+#else
+			list->append(line);
+#endif
 		}
+
 	}
 }

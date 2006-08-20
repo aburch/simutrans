@@ -61,15 +61,14 @@ static const char * engine_type_names [8] =
 bool  depot_frame_t::show_retired_vehicles = false;
 
 
-depot_frame_t::depot_frame_t(karte_t *welt, depot_t *depot, int &farbe) :
-    gui_frame_t(txt_title, farbe),
+depot_frame_t::depot_frame_t(karte_t *welt, depot_t *depot) :
+    gui_frame_t(txt_title, depot->gib_besitzer()->get_player_color()),
     welt(welt),
-    kennfarbe(farbe),
     depot(depot),
     icnv(depot->convoi_count()-1),
     lb_convois(NULL, COL_BLACK, gui_label_t::left),
     lb_convoi_count(NULL, COL_BLACK, gui_label_t::left),
-    lb_convoi_value(NULL, COL_BLACK, gui_label_t::left),
+    lb_convoi_value(NULL, COL_BLACK, gui_label_t::right),
     lb_convoi_line(NULL, COL_BLACK, gui_label_t::left),
     lb_veh_action(NULL, COL_BLACK, gui_label_t::left),
     convoi_pics(depot->get_max_convoi_length())
@@ -78,6 +77,8 @@ DBG_DEBUG("depot_frame_t::depot_frame_t()","get_max_convoi_length()=%i",depot->g
 	waggons_vec = 0;
 	loks_vec = 0;
 	pas_vec = 0;
+
+	uint8 kennfarbe=depot->gib_besitzer()->get_player_color();
 
 	selected_line = linehandle_t();
 
@@ -111,9 +112,10 @@ DBG_DEBUG("depot_frame_t::depot_frame_t()","get_max_convoi_length()=%i",depot->g
     /*
      * [SELECT ROUTE]:
      */
-	line_selector.set_highlight_color(welt->get_active_player()->kennfarbe+1);
+	line_selector.set_highlight_color(kennfarbe+1);
 	line_selector.add_listener(this);
 	add_komponente(&line_selector);
+	depot->gib_besitzer()->simlinemgmt.sort_lines();
 
     /*
      * [CONVOI]
@@ -243,7 +245,6 @@ DBG_DEBUG("depot_frame_t::depot_frame_t()","get_max_convoi_length()=%i",depot->g
     bt_obsolete.set_tooltip("Show also vehicles no longer in production.");
     add_komponente(&bt_obsolete);
 
-    gib_besitzer()->simlinemgmt.sort_lines();
     koord gr = koord(0,0);
     layout(&gr);
 
@@ -407,7 +408,7 @@ void depot_frame_t::layout(koord *gr)
     convoi->setze_groesse(koord(CLIST_WIDTH, CLIST_HEIGHT));
 
     lb_convoi_count.setze_pos(koord(4, CINFO_VSTART));
-    lb_convoi_value.setze_pos(koord(TOTAL_WIDTH-180, CINFO_VSTART));
+    lb_convoi_value.setze_pos(koord(TOTAL_WIDTH-10, CINFO_VSTART));
     lb_convoi_line.setze_pos(koord(4, CINFO_VSTART + LINESPACE));
 
     /*
@@ -894,9 +895,12 @@ depot_frame_t::action_triggered(gui_komponente_t *komp)
 	    show_retired_vehicles = (show_retired_vehicles==0);
          build_vehicle_lists();
     	} else if(komp == &bt_veh_action) {
-	    if(veh_action++ == va_sell) {
+	    if(veh_action== va_sell) {
 		veh_action = va_append;
-	    }
+	  }
+	  else {
+	  	veh_action = veh_action+1;
+	  }
 	} else if(komp == &bt_new_line) {
 	    new_line();
 	    return true;
@@ -999,9 +1003,11 @@ void depot_frame_t::infowin_event(const event_t *ev)
     else {
 		gui_frame_t::infowin_event(ev);
 
-		if(IS_LEFTCLICK(ev) &&  !line_selector.getroffen(ev->cx, ev->cy)) {
+		if(IS_LEFTCLICK(ev) &&  !line_selector.getroffen(ev->cx, ev->cy-16)) {
 			// close combo box; we must do it ourselves, since the box does not recieve outside events ...
 			line_selector.release_focus();
+DBG_MESSAGE("depot_frame()","closed selector (pos %i,%i, size %i,%i), mouse is%i,%i",line_selector.gib_pos().x,line_selector.gib_pos().y,line_selector.gib_groesse().x,line_selector.gib_groesse().y,ev->cx, ev->cy);
+
 		}
 	}
 }

@@ -479,9 +479,11 @@ karte_t::destroy()
 		delete p;
 	}
 	convoi_list.clear();
+    DBG_MESSAGE("karte_t::destroy()", "convois destroyed");
 
     // alle haltestellen aufräumen
     haltestelle_t::destroy_all();
+    DBG_MESSAGE("karte_t::destroy()", "stops destroyed");
 
 	// städte aufräumen
 	if(stadt) {
@@ -495,20 +497,25 @@ karte_t::destroy()
 		delete tmp;
 		tmp = 0;
 	}
+    DBG_MESSAGE("karte_t::destroy()", "towns destroyed");
 
     // dinge aufräumen
     if(plan) {
 	for(j=0; j<(unsigned int)gib_groesse_y(); j++) {
 	    for(i=0; i<(unsigned int)gib_groesse_x(); i++) {
 		access(i, j)->destroy(NULL);
+//    DBG_MESSAGE("karte_t::destroy()", "planquadrat %i,%i destroyed",i,j);
 	    }
 	}
 
 	delete [] plan;
 	plan = 0;
     }
+    DBG_MESSAGE("karte_t::destroy()", "planquadrat destroyed");
+
     // entfernt alle synchronen objekte aus der liste
     sync_list.clear();
+    DBG_MESSAGE("karte_t::destroy()", "sync list cleared");
 
     // gitter aufräumen
     if(grid_hgts) {
@@ -524,6 +531,7 @@ karte_t::destroy()
 
     // marker aufräumen
     marker.init(0,0);
+    DBG_MESSAGE("karte_t::destroy()", "marker destroyed");
 
     // spieler aufräumen
     for(i=0; i<MAX_PLAYER_COUNT ; i++) {
@@ -532,9 +540,11 @@ karte_t::destroy()
 	    spieler[i] = 0;
 	}
     }
+    DBG_MESSAGE("karte_t::destroy()", "player destroyed");
 
 	// clear all ids
 	simlinemgmt_t::init_line_ids();
+    DBG_MESSAGE("karte_t::destroy()", "lines destroyed");
 
     // alle fabriken aufräumen
     slist_iterator_tpl<fabrik_t*> fab_iter(fab_list);
@@ -542,9 +552,11 @@ karte_t::destroy()
 	delete fab_iter.get_current();
     }
     fab_list.clear();
+    DBG_MESSAGE("karte_t::destroy()", "factories destroyed");
 
     // hier nur entfernen, aber nicht löschen
     ausflugsziele.clear();
+    DBG_MESSAGE("karte_t::destroy()", "attraction list destroyed");
 
     // rail blocks aufraeumen
     blockmanager::gib_manager()->delete_all_blocks();
@@ -579,8 +591,8 @@ void karte_t::add_stadt(stadt_t *s)
  */
 bool karte_t::rem_stadt(stadt_t *s)
 {
-	if(stadt->get_count()==1  ||  s==NULL) {
-		// there must be at least one single town left!
+	if(stadt->get_count()==0  ||  s==NULL) {
+		// now twon there to delete ...
 		return false;
 	}
 	// ok, we can delete this
@@ -614,7 +626,7 @@ karte_t::init_felder()
     reliefkarte_t::gib_karte()->setze_welt(this);
 
     for(int i=0; i<MAX_PLAYER_COUNT ; i++) {
-        spieler[i] = new spieler_t(this, i*4);
+        spieler[i] = new spieler_t(this, i*4, i);
 /********************************************************************** automat
         if(i>=2) {
         	// otherwise during loading things are not belonging to an AI ...
@@ -656,7 +668,7 @@ karte_t::init(einstellungen_t *sets)
 	letztes_jahr = sets->gib_starting_year();//umgebung_t::starting_year;
 	current_month = letzter_monat + (letztes_jahr*12);
 	setze_ticks_bits_per_tag(sets->gib_bits_per_month());
-	next_month_ticks =  1 << karte_t::ticks_bits_per_tag;
+	next_month_ticks =  karte_t::ticks_per_tag;
 	season = 2;
 	steps = 0;
 
@@ -739,6 +751,8 @@ DBG_DEBUG("karte_t::init()","built timeline");
 
 DBG_DEBUG("karte_t::init()","hausbauer_t::neue_karte()");
     hausbauer_t::neue_karte();
+
+	simlinemgmt_t::init_line_ids();
 
 	// make sure, we have a city road ...
 	city_road = wegbauer_t::gib_besch(umgebung_t::city_road_type->chars(),get_timeline_year_month());
@@ -1379,6 +1393,7 @@ karte_t::setze_maus_funktion(int (* funktion)(spieler_t *, karte_t *, koord,
 	mouse_funk_param = param;
 	zeiger->setze_yoff(zeiger_versatz);
 	zeiger->setze_bild(0, zeiger_bild);
+	zeiger->set_flag(ding_t::dirty);
 
 	mouse_funk(get_active_player(), this, INIT, mouse_funk_param);
     }
@@ -1524,26 +1539,6 @@ karte_t::remove_ausflugsziel(gebaeude_t *gb)
 }
 
 
-#if 0
-/* binary search: always searches whole array, since they might be duplicated entries */
-static int binary_search_of_array_of_int(array_tpl<int> *arr, const int top, const int target)
-{
-	int lower, middle, upper;
-	lower = 0;    upper = top;
-
-	while(upper >= lower) {
-		middle = (upper + lower) / 2;
-		if(arr->at(middle)<target) {
-			lower = middle + 1;
-		}
-		else {
-			upper = middle - 1;
-		}
-	}
-	return upper;
-}
-#endif
-
 
 /* select a random target for a tourist; targets are weighted by their importance */
 const gebaeude_t *
@@ -1609,118 +1604,6 @@ karte_t::suche_naechste_stadt(const koord pos, const stadt_t *letzte) const
     }
     return best;
 }
-
-
-#if 0
-/**
- * suche Haltestellen fuer einen Passagier/fracht
- * um den Punkt k herum - k selbst wird nicht geprüft!!!
- * liefert vector gefundener Haltestellen zurück
- * @author Hj. Malthaner
- */
-vector_tpl<halthandle_t> &
-karte_t::suche_nahe_haltestellen(const koord k,
-                                 const int radius,
-                                 const int mitte_wh,
-				 uint32 max_anzahl) const
-{
-    static vector_tpl<halthandle_t> halt_list(32);
-
-    halthandle_t halt;
-    koord p;
-
-
-    max_anzahl = MIN(31, max_anzahl);
-
-    halt_list.clear();
-
-    for(int rad=1; rad<radius; rad ++) {
-	// obere zeile
-	p.y = k.y - rad;
-
-	for(p.x=k.x-rad; p.x<=k.x+rad; p.x++) {
-	    halt = haltestelle_t::gib_halt(this, p);
-
-	    if(halt.is_bound()) {
-		halt_list.append_unique( halt );
-		if(halt_list.get_count() >= max_anzahl) {
-		    return halt_list;
-		}
-	    }
-	}
-
-	// untere zeile
-	p.y = k.y + rad;
-
-	for(p.x=k.x-rad; p.x<=k.x+rad; p.x++) {
-	    halt = haltestelle_t::gib_halt(this, p);
-
-	    if(halt.is_bound()) {
-		halt_list.append_unique( halt );
-		if(halt_list.get_count() >= max_anzahl) {
-		    return halt_list;
-		}
-	    }
-	}
-
-        // rand links und rechts
-
-	for(p.y=k.y-rad+1; p.y<=k.y+rad-1; p.y++) {
-	    p.x = k.x-rad;
-	    halt = haltestelle_t::gib_halt(this, p);
-
-	    if(halt.is_bound()) {
-		halt_list.append_unique( halt );
-		if(halt_list.get_count() >= max_anzahl) {
-		    return halt_list;
-		}
-	    }
-
-	    p.x = k.x+rad;
-	    halt = haltestelle_t::gib_halt(this, p);
-	    if(halt.is_bound()) {
-		halt_list.append_unique( halt );
-		if(halt_list.get_count() >= max_anzahl) {
-		    return halt_list;
-		}
-	    }
-	}
-    }
-
-    if(mitte_wh != 0) {
-        // untere extra-zeile
-
-	p.y = k.y + radius;
-
-	for(p.x = k.x-radius; p.x<k.x+radius+1; p.x++) {
-	    halt = haltestelle_t::gib_halt(this, p);
-	    if(halt.is_bound()) {
-		halt_list.append_unique( halt );
-		if(halt_list.get_count() >= max_anzahl) {
-		    return halt_list;
-		}
-	    }
-	}
-
-
-	// rechte extra zeile
-        p.x = k.x + radius;
-
-	for(p.y = k.y-radius; p.y<k.y+radius; p.y++) {
-	    halt = haltestelle_t::gib_halt(this, p);
-	    if(halt.is_bound()) {
-		halt_list.append_unique( halt );
-		if(halt_list.get_count() >= max_anzahl) {
-		    return halt_list;
-		}
-	    }
-	}
-
-    }
-
-    return halt_list;
-}
-#endif
 
 
 
@@ -2580,6 +2463,7 @@ DBG_DEBUG("karte_t::laden", "init felder ok");
 		letztes_jahr += umgebung_t::starting_year;
 	}
 	// set the current month count
+	setze_ticks_bits_per_tag(einstellungen->gib_bits_per_month());
 	current_month = letzter_monat + (letztes_jahr*12);
 	steps = 0;
 
@@ -2696,7 +2580,7 @@ DBG_MESSAGE("karte_t::laden()","loading slopes");
 	weighted_vector_tpl<stadt_t *>  *new_weighted_stadt = new weighted_vector_tpl <stadt_t *> ( stadt->get_count()+1 );
 	for(unsigned i=0; i<stadt->get_count(); i++) {
 		stadt_t *s = stadt->at(i);
-		s->neuer_monat();
+//		s->neuer_monat();
 		new_weighted_stadt->append( s, s->gib_einwohner(), 64 );
 		INT_CHECK("simworld 1278");
 	}
@@ -2810,6 +2694,12 @@ DBG_MESSAGE("karte_t::laden()", "%d ways loaded",weg_t::gib_alle_wege().count())
 	}
 
 	// just keep the record for the last 12 years ... to allow infite long games
+#if 0
+	ticks %= karte_t::ticks_per_tag;	// to make adapt games with a different time setting
+	next_month_ticks = karte_t::ticks_per_tag;	// next month will start then
+	letzter_monat = current_month%12;
+	basis_jahr = (letztes_jahr-12>einstellungen->gib_starting_year()) ? letztes_jahr-12 : einstellungen->gib_starting_year();
+#else
 	while(ticks>(288u << karte_t::ticks_bits_per_tag)) {
 		ticks -= (144u << karte_t::ticks_bits_per_tag);
 	}
@@ -2821,11 +2711,10 @@ DBG_MESSAGE("karte_t::laden()", "%d ways loaded",weg_t::gib_alle_wege().count())
 		basis_jahr =  letztes_jahr-(ticks/(12 << karte_t::ticks_bits_per_tag));
 	}
 	// make counter for next month
-	if(ticks > karte_t::ticks_per_tag) {
-		next_month_ticks = ( (ticks / karte_t::ticks_per_tag) + 1 ) << karte_t::ticks_bits_per_tag;
-		letzter_monat %= 12;
-	}
-	DBG_MESSAGE("karte_t::laden()","savegame from %i/%i, base year %i",letzter_monat,letztes_jahr,basis_jahr);
+	next_month_ticks =(ticks+karte_t::ticks_per_tag) & (~(karte_t::ticks_per_tag-1));
+	letzter_monat %= 12;
+#endif
+	DBG_MESSAGE("karte_t::laden()","savegame from %i/%i, base year %i, next month=%i, ticks=%i (per month=1<<%i)",letzter_monat,letztes_jahr,basis_jahr,next_month_ticks,ticks,karte_t::ticks_bits_per_tag);
 
 	// change grounds to winter?
 	const int current_season=(2+letzter_monat/3)&3; // summer always zero
@@ -3166,14 +3055,14 @@ void karte_t::switch_active_player(uint8 new_player)
 		active_player = spieler[0];
 		if(new_player!=0) {
 			sprintf(buf, translator::translate("On this map, you are not\nallowed to change player!\n"), get_active_player()->gib_name() );
-			message_t::get_instance()->add_message(buf,koord(-1,-simrand(63)),message_t::problems,get_active_player()->kennfarbe,IMG_LEER);
+			message_t::get_instance()->add_message(buf,koord(-1,-simrand(63)),message_t::problems,get_active_player()->get_player_color(),IMG_LEER);
 		}
 	}
 	else {
 		active_player_nr = new_player;
 		active_player = spieler[new_player];
 		sprintf(buf, translator::translate("Now active as %s.\n"), get_active_player()->gib_name() );
-		message_t::get_instance()->add_message(buf,koord(-1,-simrand(63)),message_t::problems,get_active_player()->kennfarbe,IMG_LEER);
+		message_t::get_instance()->add_message(buf,koord(-1,-simrand(63)),message_t::problems,get_active_player()->get_player_color(),IMG_LEER);
 	}
 	// open edit tools
 	if(active_player_nr==1) {
@@ -3524,6 +3413,7 @@ karte_t::interactive_event(event_t &ev)
 				mouse_funk_ko_sound = quick_shortcuts.at(num)->mouse_funk_ko_sound;
 				zeiger->setze_yoff(quick_shortcuts.at(num)->zeiger_versatz);
 				zeiger->setze_bild(0,quick_shortcuts.at(num)->zeiger_bild);
+				zeiger->set_flag(ding_t::dirty);
 			}
 		}
 		break;
@@ -3851,7 +3741,7 @@ karte_t::interactive_event(event_t &ev)
 				);
 
 		    wzw->add_param_tool(&wkz_wayremover,
-				  (const int)weg_t::schiene,
+				  (const int)weg_t::monorail,
 	  			  Z_PLAN,
 				  SFX_REMOVER,
 				  SFX_FAILURE,

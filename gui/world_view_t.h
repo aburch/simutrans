@@ -12,6 +12,7 @@
 
 #include "../ifc/gui_komponente.h"
 #include "../dataobj/koord3d.h"
+#include "../tpl/vector_tpl.h"
 
 class karte_t;
 struct event_t;
@@ -31,6 +32,15 @@ private:
      */
     koord3d location;
 
+    /**
+     * The object to display
+     * @autor Hj. Malthaner
+     */
+    ding_t *ding;
+
+	// offsets are stored
+	vector_tpl<koord>offsets;
+	sint16 raster;	// for this rastersize
 
     /**
      * The world to display.
@@ -44,11 +54,19 @@ public:
 
     world_view_t(karte_t *welt, koord3d location);
 
+    world_view_t(karte_t *welt, ding_t *dt);
+
     /**
      * Sets the location to be displayed.
      * @author Hj. Malthaner
      */
-    void set_location(koord3d l) {location=l;};
+    void set_location(koord3d l) {location=l; ding = 0;}
+
+    /**
+     * Sets the location to be displayed.
+     * @author Hj. Malthaner
+     */
+    void set_location(ding_t *dt) {location==koord3d::invalid; ding = dt;}
 
 
     /**
@@ -58,6 +76,12 @@ public:
      */
     void infowin_event(const event_t *);
 
+    /**
+     * resize window in response to a resize event
+     * need to recalculate the list of offsets
+     * @author prissi
+     */
+    virtual void setze_groesse(koord groesse);
 
     /**
      * Zeichnet die Komponente

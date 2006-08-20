@@ -124,12 +124,6 @@ protected:
     ding_t(karte_t *welt);
 
     /**
-     * setzt ein flag im flag-set des dings. Siehe auch flag_values
-     * @author Hj. Malthaner
-     */
-    inline void set_flag(enum flag_values flag) {flags |= flag;};
-
-    /**
      * Erzeugt ein Info-Fenster für dieses Objekt
      * @author V. Meyer
      */
@@ -167,8 +161,13 @@ public:
 
     void entferne_ding_info();
 
-    inline void clear_flag(enum flag_values flag) {flags &= ~flag;};
-    inline bool get_flag(enum flag_values flag) const {return ((flags & flag) != 0);};
+    /**
+     * setzt ein flag im flag-set des dings. Siehe auch flag_values
+     * @author Hj. Malthaner
+     */
+    inline void set_flag(enum flag_values flag) {flags |= flag;}
+    inline void clear_flag(enum flag_values flag) {flags &= ~flag;}
+    inline bool get_flag(enum flag_values flag) const {return ((flags & flag) != 0);}
 
     enum typ {undefined=-1, ding=0, baum=1, zeiger=2,
 	      wolke=3, sync_wolke=4, async_wolke=5,
@@ -214,6 +213,9 @@ public:
      inline const sint8 gib_xoff() const {return xoff;};
      inline const sint8 gib_yoff() const {return yoff;};
 
+	// while in principle, this should trigger the dirty, it takes just too much time to do it
+	// so prissi removed this routines
+#if 0
      void setze_xoff(int xoff) {
 		if(this->xoff != xoff) {
 			this->xoff = xoff;
@@ -227,6 +229,11 @@ public:
 			set_flag(dirty);
 		}
 	};
+#else
+	// TAKE CARE OF SET IT DIRTY YOURSELF!!!
+     inline void setze_xoff(sint8 xoff) {this->xoff = xoff; }
+     inline void setze_yoff(sint8 yoff) {this->yoff = yoff; }
+#endif
 
     /**
      * Mit diesem Konstruktor werden Objekte aus einer Datei geladen

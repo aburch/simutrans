@@ -23,6 +23,7 @@
 #include "ifc/image_list_listener.h"
 #include "ifc/action_listener.h"
 #include "gui_scrollpane.h"
+#include "../simtypes.h"
 
 class depot_t;
 class vehikel_t;
@@ -40,13 +41,6 @@ class depot_frame_t : public gui_frame_t,
 {
 private:
     karte_t *welt;
-
-
-    /**
-     * The owners color
-     * @author Hansjörg Malthaner
-     */
-    int &kennfarbe;
 
     /**
      * The depot to display
@@ -136,7 +130,7 @@ private:
     vector_tpl<image_list_t::image_data_t> *waggons_vec;
 
     enum { va_append, va_insert, va_sell };
-    int veh_action;
+    uint8 veh_action;
 
     /**
      * A helper map to update loks_vec and waggons_Vec. All entries from
@@ -167,7 +161,7 @@ private:
      * @author Volker Meyer
      * @date  09.06.2003
      */
-    int calc_restwert(const vehikel_besch_t *veh_type);
+    sint32 calc_restwert(const vehikel_besch_t *veh_type);
 
     /**
      * Do the dynamic dialog layout
@@ -192,7 +186,7 @@ private:
 public:
 
 
-    depot_frame_t(karte_t *welt, depot_t *depot, int &farbe);
+    depot_frame_t(karte_t *welt, depot_t *depot);
 
     /**
      * Setzt die Fenstergroesse
@@ -241,8 +235,6 @@ public:
     virtual bool action_triggered(gui_komponente_t *komp);
 
     virtual void infowin_event(const event_t *ev);
-
-    virtual spieler_t *gib_besitzer() const { return depot->gib_besitzer(); }
 
     /**
      * Zeichnet das Frame

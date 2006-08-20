@@ -135,7 +135,7 @@ void fahrplan_gui_t::gimme_short_stop_name(cbuffer_t & buf,
 
 
 fahrplan_gui_t::fahrplan_gui_t(karte_t *welt, convoihandle_t cnv, spieler_t *sp) :
-	gui_frame_t("", 0),
+	gui_frame_t("", sp->get_player_color()),
 	scrolly(&fpl_text),
 	fpl_text("\n"),
 	lb_line(translator::translate("Serves Line:")),
@@ -155,7 +155,7 @@ fahrplan_gui_t::fahrplan_gui_t(karte_t *welt, convoihandle_t cnv, spieler_t *sp)
 
 
 fahrplan_gui_t::fahrplan_gui_t(karte_t *welt, fahrplan_t *fpl, spieler_t *sp) :
-	gui_frame_t("", 0),
+	gui_frame_t("", sp->get_player_color()),
 	scrolly(&fpl_text),
 	fpl_text("\n"),
 	lb_line(translator::translate("Serves Line:")),
@@ -247,8 +247,10 @@ void fahrplan_gui_t::init()
 	line_selector.setze_pos(koord(90, 5));
 	line_selector.setze_groesse(koord(164, 14));
 	line_selector.set_max_size(koord(164, 13*LINESPACE+2+16));
-	line_selector.set_highlight_color(welt->get_active_player()->kennfarbe+1);
+	line_selector.set_highlight_color(welt->get_active_player()->get_player_color()+1);
 	line_selector.clear_elements();
+
+	sp->simlinemgmt.sort_lines();
 	init_line_selector();
 	line_selector.add_listener(this);
 	add_komponente(&line_selector);

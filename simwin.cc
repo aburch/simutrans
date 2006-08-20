@@ -1001,7 +1001,7 @@ win_display_flush(int , int color, double konto)
 	display_setze_clip_wh( 0, 0, display_get_width(), display_get_height()+1 );
 	display_icon_leiste(color, skinverwaltung_t::hauptmenu->gib_bild(0)->bild_nr);
 #else
-	display_setze_clip_wh( color, 32, display_get_width(), display_get_height()+1 );
+	display_setze_clip_wh( 0, 32, display_get_width(), display_get_height()+1 );
 #endif
 
 	show_ticker = false;
@@ -1060,12 +1060,13 @@ win_display_flush(int , int color, double konto)
 	}
 
 	// calculate also days if desired
-	const uint32 ticks_this_month = ticks & ((1<<karte_t::ticks_bits_per_tag)-1);
+	const uint32 ticks_this_month = ticks & (karte_t::ticks_per_tag-1);
 	uint32 tage, stunden4;
 	if(umgebung_t::show_month>1) {
 		static sint32 tage_per_month[12]={31,28,31,30,31,30,31,31,30,31,30,31};
 		tage = ((ticks_this_month*tage_per_month[month]) >> karte_t::ticks_bits_per_tag) + 1;
 		stunden4 = ((ticks_this_month*tage_per_month[month]*96) >> karte_t::ticks_bits_per_tag)%96;
+//DBG_MESSAGE("xxx","ticks=%i, ticks_this_month=%i, tage=%i,  karte_t::ticks_bits_per_tag=%i",ticks,ticks_this_month,tage, karte_t::ticks_bits_per_tag);
 	}
 	else {
 		tage = 0;
@@ -1138,9 +1139,9 @@ win_display_flush(int , int color, double konto)
 	}
 	sprintf(info,"%s(%d,%d,%d) %s  %s", delta_pos, pos.x, pos.y, pos.z / 16, stretch_text, translator::translate(wl->use_timeline()?"timeline":"no timeline") );
 
-	const char *active_player_name = wl->get_active_player()->kennfarbe==0 ? "" : wl->get_active_player()->gib_name();
+	const char *active_player_name = wl->get_active_player()->get_player_nr()==0 ? "" : wl->get_active_player()->gib_name();
 	image_id season_img = skinverwaltung_t::seasons_icons ? skinverwaltung_t::seasons_icons->gib_bild_nr(wl->gib_jahreszeit()) : IMG_LEER;
-	display_flush(season_img,stunden4, color, konto, time, info, active_player_name, wl->get_active_player()->kennfarbe );
+	display_flush(season_img,stunden4, color, konto, time, info, active_player_name, wl->get_active_player()->get_player_color() );
 	// season icon
 }
 

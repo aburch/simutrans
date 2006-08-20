@@ -1193,6 +1193,7 @@ karte_t::setze_maus_funktion(int (* funktion)(spieler_t *, karte_t *, koord,
 	mouse_funk_param = param;
 	zeiger->setze_yoff(zeiger_versatz);
 	zeiger->setze_bild(0, zeiger_bild);
+	setze_flag(ding_t::dirty);
 
 	mouse_funk(spieler[0], this, INIT, mouse_funk_param);
     }

@@ -354,7 +354,8 @@ void vehikel_basis_t::fahre()
     else {
 	setze_xoff( neu_xoff );
 	setze_yoff( neu_yoff );
-    }
+  }
+  set_flag(ding_t::dirty);
 }
 
 ribi_t::ribi
@@ -721,8 +722,6 @@ DBG_MESSAGE("vehikel_t::hop()","reverse dir at route index %d",route_index);
 		}
 	}
 	calc_bild();
-
-	welt->markiere_dirty(gib_pos());
 	setze_pos( pos_cur );
 
 	const weg_t * weg = welt->lookup(gib_pos())->gib_weg(gib_wegtyp());
@@ -836,7 +835,7 @@ vehikel_t::fahre()
 	// target mark: same coordinate twice (stems from very old ages, I think)
 	if(ist_erstes  &&  pos_next==pos_cur) {
 		// check half a tile (8 sync_steps) ahead for a tile change
-		const int iterations=(fahrtrichtung==ribi_t::sued  || fahrtrichtung==ribi_t::ost) ? 4 : 8;
+		const int iterations=(fahrtrichtung==ribi_t::sued  || fahrtrichtung==ribi_t::ost) ? besch->get_length()/2 : besch->get_length();
 
 		const int neu_xoff = gib_xoff() + gib_dx()*iterations;
 		const int neu_yoff = gib_yoff() + gib_dy()*iterations;
@@ -972,7 +971,6 @@ vehikel_t::beladen(koord , halthandle_t halt)
 	sum_weight =  (gib_fracht_gewicht()+499)/1000 + besch->gib_gewicht();
 
 	// bild hat sich geändert
-	// set_flag(dirty);
 	if(ok) {
 		calc_bild();
 	}
@@ -1073,11 +1071,8 @@ vehikel_t::rdwr(loadsave_t *file)
 		file->rdwr_long(fracht_count, " ");
 		file->rdwr_long(l, "\n");
 		route_index = l;
-		if(file->is_loading()) {
-			long zeit = (welt->gib_zeit_ms()-insta_zeit) >> karte_t::ticks_bits_per_tag;
-//DBG_MESSAGE("vehicle_t::rdwr()","bought at tick count %i i.e. %i month(s) before.",insta_zeit,zeit);
-			insta_zeit = welt->get_current_month()-zeit;
-		}
+		insta_zeit = ((welt->gib_zeit_ms()-insta_zeit) >> karte_t::ticks_bits_per_tag) + (umgebung_t::starting_year*12);
+DBG_MESSAGE("vehicle_t::rdwr()","bought at %i/%i.",(insta_zeit%12)+1,insta_zeit/12);
 	}
 	else {
 		// prissi: changed several data types to save runtime memory
@@ -1406,7 +1401,7 @@ automobil_t::ist_weg_frei(int &restart_speed)
 						if(!target_halt->find_free_position(weg_t::strasse,cnv->self,ding_t::automobil)) {
 							restart_speed = 0;
 							target_halt = halthandle_t();
-DBG_MESSAGE("automobil_t::ist_weg_frei()","cnv=%d nothing free found!",cnv->self.get_id());
+//DBG_MESSAGE("automobil_t::ist_weg_frei()","cnv=%d nothing free found!",cnv->self.get_id());
 							return false;
 						}
 
@@ -1420,7 +1415,7 @@ DBG_MESSAGE("automobil_t::ist_weg_frei()","cnv=%d nothing free found!",cnv->self
 						}
 						// now reserve our choice ...
 						target_halt->reserve_position(welt->lookup(target_rt.position_bei(target_rt.gib_max_n())),cnv->self);
-DBG_MESSAGE("automobil_t::ist_weg_frei()","found free stop near %i,%i,%i",target_rt.position_bei(target_rt.gib_max_n()).x,target_rt.position_bei(target_rt.gib_max_n()).y, target_rt.position_bei(target_rt.gib_max_n()).z );
+//DBG_MESSAGE("automobil_t::ist_weg_frei()","found free stop near %i,%i,%i",target_rt.position_bei(target_rt.gib_max_n()).x,target_rt.position_bei(target_rt.gib_max_n()).y, target_rt.position_bei(target_rt.gib_max_n()).z );
 						rt->remove_koord_from(route_index);
 						rt->append( &target_rt );
 					}
@@ -2435,9 +2430,18 @@ aircraft_t::find_route_to_stop_position()
 		return true;	// no halt to search
 	}
 
-	// is our target occupied?
-	if(!target->gib_halt()->find_free_position(weg_t::luft,cnv->self,ding_t::aircraft)  ) {
+	// then: check if the search point is still on a runway (otherwise just proceed)
+	target = welt->lookup(rt->position_bei(suchen));
+	if(target==NULL  ||  target->gib_weg(weg_t::luft)==NULL) {
 		target_halt = halthandle_t();
+		DBG_MESSAGE("aircraft_t::find_route_to_stop_position()","no runway found at %i,%i,%i",rt->position_bei(suchen).x,rt->position_bei(suchen).y,rt->position_bei(suchen).z);
+		return true;	// no runway any more ...
+	}
+
+	// is our target occupied?
+	if(!target_halt->find_free_position(weg_t::luft,cnv->self,ding_t::aircraft)  ) {
+		target_halt = halthandle_t();
+		DBG_MESSAGE("aircraft_t::find_route_to_stop_position()","no free prosition found!");
 		return false;
 	}
 	else {

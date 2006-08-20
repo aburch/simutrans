@@ -149,8 +149,9 @@ obj_besch_t * way_reader_t::read_node(FILE *fp, obj_node_info_t &node)
   	besch->styp = 7;
   	besch->wtyp = weg_t::schiene;
   }
-  else if(besch->styp==1  && besch->wtyp==weg_t::schiene) {
+  else if(besch->styp==5  &&  besch->wtyp==weg_t::schiene) {
   	besch->wtyp = weg_t::monorail;
+  	besch->styp = 0;
   }
   if(version<=2  &&  besch->wtyp==weg_t::luft  &&  besch->topspeed>=250) {
   	// runway!

@@ -168,31 +168,6 @@ infowin_t::infowin_event(const event_t *ev)
     }
 }
 
-static const koord offsets[16] =
-{
-    koord(-2, -1),
-    koord(-32, -48),
-    koord(-1, -2),
-    koord(32, -48),
-
-    koord(-1, -1),
-    koord(0, -32),
-
-    koord(-1, 0),
-    koord(-32, -16),
-    koord(0, -1),
-    koord(32, -16),
-
-    koord(0, 0),
-    koord(0, 0),
-
-    koord(0, 1),
-    koord(-32, 16),
-    koord(1, 0),
-    koord(32, 16),
-};
-
-
 /**
  * komponente neu zeichnen. Die übergebenen Werte beziehen sich auf
  * das Fenster, d.h. es sind die Bildschirkoordinaten des Fensters
@@ -208,7 +183,6 @@ void infowin_t::zeichnen(koord pos, koord gr)
     const int w = gr.x;
     const int h = gr.y;
 
-
     // Hajo: skinned windows code
     // fensterkoerper zeichnen
     PUSH_CLIP(pos.x+1,pos.y+16,gr.x-2,gr.y-16);
@@ -220,7 +194,6 @@ void infowin_t::zeichnen(koord pos, koord gr)
 	display_color_img(img, pos.x+1 + i, pos.y+16 + j, 0, false, true);
       }
     }
-
 
     POP_CLIP();
 
@@ -236,8 +209,6 @@ void infowin_t::zeichnen(koord pos, koord gr)
 
     if(plan) {
 	view.set_location(gib_pos());
-
-	display_ddd_box(x+w-77, y+23, 66, 57, f.dunkel, f.hell);
 	view.zeichnen(koord(x+w-76, y+24));
     } else {
 	const int bild  = gib_bild();
@@ -246,7 +217,7 @@ void infowin_t::zeichnen(koord pos, koord gr)
 	if(gib_besitzer()) {
 	    display_color_img(bild,x+w-64+off.x,
 			      y+16+off.y,
-			      gib_besitzer()->kennfarbe,
+			      gib_besitzer()->get_player_color(),
 			      false,
 			      true);
 	} else {
@@ -272,7 +243,7 @@ fensterfarben infowin_t::gib_fensterfarben() const
 
   const spieler_t *sp = gib_besitzer();
 
-  f.titel  = (sp != NULL) ? sp->kennfarbe : WIN_TITEL;
+  f.titel  = (sp != NULL) ? sp->get_player_color() : WIN_TITEL;
   f.hell   = MN_GREY4;
   f.mittel = MN_GREY2;
   f.dunkel = MN_GREY0;

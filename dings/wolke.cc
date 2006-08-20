@@ -81,7 +81,7 @@ sync_wolke_t::sync_step(long delta_t)
 	insta_zeit += delta_t;
 	setze_yoff(base_y_off - (insta_zeit >> 7));
 	setze_bild(0, base_image+(insta_zeit >> 9));
-
+	set_flag(ding_t::dirty);
 	return (insta_zeit<2500);
 }
 

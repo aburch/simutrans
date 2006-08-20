@@ -190,6 +190,11 @@ DBG_MESSAGE("convoi_t::~convoi_t()", "destroying %d, %p", self.get_id(), this);
 	for(unsigned i=0; i<anz_vehikel; i++) {
 		// remove vehicle's marker from the reliefmap
 		reliefkarte_t::gib_karte()->recalc_relief_farbe(fahr->at(i)->gib_pos().gib_2d());
+		grund_t *gr=welt->lookup(fahr->at(i)->gib_pos());
+		if(gr) {
+			// clear blocks ...
+			gr->verlasse(fahr->at(i));
+		}
 		delete fahr->at(i);
 	}
 	delete fahr;
@@ -412,13 +417,19 @@ convoi_t::sync_step(long delta_t)
 				* however, there is a quadratic friction term => if delta_t is too large the calculation may get weird results
 				* @author prissi
 				*/
-				/* with floats, one would write: akt_speed*ak_speed*iTotalFriction*100 / (12,8*12,8) + 32*anz_vehikel;
-				* but for integer, we have to use the order below and calculate actually 64*deccel, like the sum_gear_und_leistung */
+
+				/* but for integer, we have to use the order below and calculate actually 64*deccel, like the sum_gear_und_leistung */
 				/* since akt_speed=10/128 km/h and we want 64*200kW=(100km/h)^2*100t, we must multiply by (128*2)/100 */
 				/* But since the acceleration was too fast, we just deccelerate 4x more => >>6 instead >>8 */
 				sint32 deccel = ( ( (akt_speed*sum_friction_weight)>>6 )*(akt_speed>>2) ) / 25 + (sum_gesamtgewicht*64);	// this order is needed to prevent overflows!
+
+				// prissi:
+				// integer sucks with planes => using floats ...
+				sint32 delta_v =  (sint32)( ( (double)( (akt_speed>akt_speed_soll?0l:sum_gear_und_leistung) - deccel)*(double)delta_t)/(double)sum_gesamtgewicht);
+
 				// we normalize delta_t to 1/64th and check for speed limit */
-				sint32 delta_v = ( ( (akt_speed>akt_speed_soll?0l:sum_gear_und_leistung) - deccel) * delta_t)/sum_gesamtgewicht;
+//				sint32 delta_v = ( ( (akt_speed>akt_speed_soll?0l:sum_gear_und_leistung) - deccel) * delta_t)/sum_gesamtgewicht;
+
 				// we need more accurate arithmetik, so we store the previous value
 				delta_v += previous_delta_v;
 				previous_delta_v = delta_v & 0x0FFF;
@@ -484,7 +495,7 @@ convoi_t::sync_step(long delta_t)
 
 			akt_speed = 0;
 			sprintf(buf, translator::translate("!1_DEPOT_REACHED"), gib_name());
-			message_t::get_instance()->add_message(buf,fahr->at(0)->gib_pos().gib_2d(),message_t::convoi,gib_besitzer()->kennfarbe,IMG_LEER);
+			message_t::get_instance()->add_message(buf,fahr->at(0)->gib_pos().gib_2d(),message_t::convoi,gib_besitzer()->get_player_color(),IMG_LEER);
 
 			betrete_depot(dp);
 
@@ -705,7 +716,11 @@ convoi_t::betrete_depot(depot_t *dep)
 {
 	// Hajo: remove vehicles from world data structure
 	for(unsigned i=0; i<anz_vehikel; i++) {
-		fahr->at(i)->verlasse_feld();
+		grund_t *gr=welt->lookup(fahr->at(i)->gib_pos());
+		if(gr) {
+			gr->verlasse(fahr->at(i));
+			gr->obj_remove(fahr->at(i),gib_besitzer());
+		}
 	}
 
 	dep->convoi_arrived(self, true);
@@ -729,8 +744,8 @@ convoi_t::start()
 
 		for(unsigned i=0; i<anz_vehikel; i++) {
 			grund_t * gr = welt->lookup(fahr->at(i)->gib_pos());
-
 			if(!gr->obj_ist_da(fahr->at(i))) {
+//				gr->betrete(fahr->at(i));
 				fahr->at(i)->betrete_feld();
 			}
 		}
@@ -1139,6 +1154,9 @@ convoi_t::rdwr(loadsave_t *file)
 
 	if(file->is_saving()) {
 		file->wr_obj_id("Convoi");
+		if(file->is_saving()) {
+			line_id = line.is_bound() ? line->get_line_id() : UNVALID_LINE_ID;
+		}
 	}
 
 	// for new line management we need to load/save the assigned line id
@@ -1753,6 +1771,7 @@ void convoi_t::dump() const
 }
 
 
+
 /**
  * Checks if this convoi has a driveable route
  * @author Hanjsörg Malthaner
@@ -1763,14 +1782,6 @@ bool convoi_t::hat_keine_route() const
 }
 
 
-/**
-* get line
-* @author hsiegeln
-*/
-linehandle_t convoi_t::get_line() const
-{
-	return line_id!=UNVALID_LINE_ID ? line : NULL;
-}
 
 /**
 * set line
@@ -1811,6 +1822,10 @@ void convoi_t::register_with_line(uint16 id)
 		line_id = new_line->get_line_id();
 		line->add_convoy(self);
 	}
+	else {
+		line_id = UNVALID_LINE_ID;
+		line = linehandle_t();
+	}
 }
 
 
@@ -1826,8 +1841,9 @@ void convoi_t::unset_line()
 DBG_DEBUG("convoi_t::unset_line()", "removing old destinations from line=%d, fpl=%p",line.get_id(),fpl);
 		line->remove_convoy(self);
 		line = linehandle_t();
-		line_id = UNVALID_LINE_ID;
 	}
+	// just to be sure ...
+	line_id = UNVALID_LINE_ID;
 }
 
 

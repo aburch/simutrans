@@ -280,7 +280,20 @@ private:
 
     void add_message(koord k, int summe);
 
+    /**
+     * Kennfarbe (Fahrzeuge, Gebäude) des Speielers
+     * @author Hj. Malthaner
+     */
+    uint8 kennfarbe;
+
+    /**
+     * Player number; only player 0 can do interaction
+     * @author Hj. Malthaner
+     */
+	uint8 player_nr;
+
 public:
+
     /**
      * Ist dieser Spieler ein automatischer Spieler?
      * @author Hj. Malthaner
@@ -297,18 +310,18 @@ public:
      */
     void age_messages(long delta_t);
 
-
-    /**
-     * Kennfarbe (Fahrzeuge, Gebäude) des Speielers
-     * @author Hj. Malthaner
-     */
-    int kennfarbe;
+	/* Handles player colors ...
+	 * @author prissi
+	 */
+	uint8 get_player_color() const { return kennfarbe; }
+	void set_player_color(uint8 col) { kennfarbe=col; }
 
     /**
      * Name of the player
      * @author player
      */
 	const char *gib_name();
+	const uint8 get_player_nr() const {return player_nr; }
 
     /**
      * activates and queries player status
@@ -316,8 +329,9 @@ public:
      */
      bool is_active() {return automat; };
      bool set_active(bool new_state);
+
      // true if this can do passenger transport ...
-     bool has_passenger() { return (kennfarbe==0)  ||  passenger_transport; };
+     bool has_passenger() const { return (player_nr==0)  ||  passenger_transport; };
 
     /**
      * Konstruktor
@@ -325,7 +339,7 @@ public:
      * @param color Kennfarbe des Spielers
      * @author Hj. Malthaner
      */
-    spieler_t(karte_t *welt, int color);
+    spieler_t(karte_t *welt, uint8 color, uint8 player_nr );
 
 
     /**
@@ -361,13 +375,11 @@ public:
     sint64 buche(sint64 betrag, koord k, int type);
     sint64 buche(sint64 betrag, int type);
 
-
     /**
      * @return Kontostand als double (Gleitkomma) Wert
      * @author Hj. Malthaner
      */
     double gib_konto_als_double() const {return konto/100.0;};
-
 
     /**
      * @return true wenn Konto Überzogen ist

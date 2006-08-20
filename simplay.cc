@@ -102,13 +102,13 @@ static fabrik_t *baue_ziel=NULL;
  * @param color Kennfarbe des Spielers
  * @author Hj. Malthaner
  */
-spieler_t::spieler_t(karte_t *wl, int color) : simlinemgmt(wl,this), last_built(0)
+spieler_t::spieler_t(karte_t *wl, uint8 color, uint8 nr) : simlinemgmt(wl,this), last_built(0)
 {
     halt_list = new slist_tpl <halthandle_t>;
 
     welt = wl;
     kennfarbe = color;
-    // konto = 15000000;
+    player_nr = nr;
 
     konto = umgebung_t::starting_money;
 
@@ -175,9 +175,8 @@ spieler_t::spieler_t(karte_t *wl, int color) : simlinemgmt(wl,this), last_built(
 	passenger_transport = true;
 
 	// we have different AI, try to find out our type:
-	int spieler_num=kennfarbe/4;
-	sprintf(spieler_name_buf,"player %i",spieler_num-1);
-	if(spieler_num>=2) {
+	sprintf(spieler_name_buf,"player %i",player_nr-1);
+	if(player_nr>=2) {
 		// @author prissi
 		// first set default
 		passenger_transport = false;
@@ -185,7 +184,7 @@ spieler_t::spieler_t(karte_t *wl, int color) : simlinemgmt(wl,this), last_built(
 		rail_transport = true;
 		ship_transport = false;
 		// set the different AI
-		switch(spieler_num) {
+		switch(player_nr) {
 			case 2:
 				rail_transport = false;
 				break;
@@ -1143,8 +1142,10 @@ spieler_t::do_ki()
 	}
 
 	if(passenger_transport) {
-		// passenger are special ...
-		do_passenger_ki();
+		if(welt->gib_staedte()->get_count()>0) {
+			// passenger are special ...
+			do_passenger_ki();
+		}
 		return;
 	}
 
@@ -2415,7 +2416,9 @@ DBG_DEBUG("spieler_t::rdwr()","%i has %i halts.",welt->sp2num( this ),halt_count
 	file->rdwr_longlong(konto, " ");
 	file->rdwr_long(konto_ueberzogen, " ");
 	file->rdwr_long(steps, " ");
-	file->rdwr_long(kennfarbe, " ");
+	long farbe = kennfarbe;
+	file->rdwr_long(farbe, " ");
+	kennfarbe = farbe;
 	file->rdwr_long(halt_count, " ");
 	// @author hsiegeln
 	if (file->get_version() < 82003)
@@ -2777,7 +2780,7 @@ DBG_MESSAGE("spieler_t::bescheid_vehikel_problem","Vehicle %s, state %i!", cnv->
 void
 spieler_t::init_undo( weg_t::typ wtype, unsigned short max )
 {
-	if(kennfarbe>=4) {
+	if(player_nr!=0) {
 		// this is an KI
 		return;
 	}

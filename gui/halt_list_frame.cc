@@ -246,7 +246,7 @@ bool halt_list_frame_t::passes_filter(halthandle_t halt)
  * @author Markus Weber
  */
 halt_list_frame_t::halt_list_frame_t(spieler_t *sp) :
-    gui_frame_t("hl_title", sp->kennfarbe),
+    gui_frame_t("hl_title", sp->get_player_color()),
     scrolly(&cont),
     sort_label(translator::translate("hl_txt_sort")),
     filter_label(translator::translate("hl_txt_filter"))

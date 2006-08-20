@@ -350,7 +350,7 @@ public:
      * get line
      * @author hsiegeln
      */
-    linehandle_t get_line() const;
+    linehandle_t get_line() const {return line;}
 
 
     /**

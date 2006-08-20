@@ -34,7 +34,11 @@
  * Konstruktor.
  * @author Hj. Malthaner
  */
-savegame_frame_t::savegame_frame_t(const char *suffix) : gui_frame_t("Load/Save") , fnlabel("Filename")
+savegame_frame_t::savegame_frame_t(const char *suffix) :
+	gui_frame_t("Load/Save") ,
+	fnlabel("Filename"),
+	button_frame(),
+	scrolly(&button_frame)
 {
     this->suffix = suffix;
 
@@ -101,11 +105,17 @@ savegame_frame_t::savegame_frame_t(const char *suffix) : gui_frame_t("Load/Save"
 
     add_komponente(&input);
 
+	// needs to be scrollable
+	scrolly.setze_pos( koord(0,30) );
+	scrolly.setze_groesse( koord(257,30) );
+	scrolly.set_show_scroll_x(false);
+	scrolly.set_size_corner(false);
+
     // The file entries
     slist_iterator_tpl <button_t *> iter1(deletes);
     slist_iterator_tpl <button_t *> iter2(buttons);
     slist_iterator_tpl <gui_label_t *> iter3(labels);
-    int y = 30;
+    int y = 0;
 
     while(iter1.next() && iter2.next() && iter3.next()) {
 	button_t * button1 = iter1.get_current();
@@ -125,16 +135,18 @@ savegame_frame_t::savegame_frame_t(const char *suffix) : gui_frame_t("Load/Save"
 	button1->add_listener(this);
 	button2->add_listener(this);
 
-	add_komponente(button1);
-	add_komponente(button2);
-	add_komponente(label);
+	button_frame.add_komponente(button1);
+	button_frame.add_komponente(button2);
+	button_frame.add_komponente(label);
 
 	y += 14;
-    }
+}
+button_frame.setze_groesse( koord( 175+26*2+56,y ) );
+	add_komponente(&scrolly);
 
-    y += 10;
+    y += 10+30;
     divider1.setze_pos(koord(10,y));
-    divider1.setze_groesse(koord(245,0));
+    divider1.setze_groesse(koord(257,0));
     add_komponente(&divider1);
 
     y += 10;
@@ -145,7 +157,7 @@ savegame_frame_t::savegame_frame_t(const char *suffix) : gui_frame_t("Load/Save"
     savebutton.add_listener(this);
     add_komponente(&savebutton);
 
-    cancelbutton.setze_pos(koord(190,y));
+    cancelbutton.setze_pos(koord(202,y));
     cancelbutton.setze_groesse(koord(65, 14));
     cancelbutton.setze_text("Cancel");
     cancelbutton.setze_typ(button_t::roundbox);
@@ -153,7 +165,7 @@ savegame_frame_t::savegame_frame_t(const char *suffix) : gui_frame_t("Load/Save"
     add_komponente(&cancelbutton);
 
     setze_opaque(true);
-    setze_fenstergroesse(koord(175+26*2+56, y + 40));
+    setze_fenstergroesse(koord(175+26*2+56+12, y + 40));
 }
 
 
@@ -268,4 +280,30 @@ bool savegame_frame_t::action_triggered(gui_komponente_t *komp)
 	}
     }
     return true;
+}
+
+
+
+/**
+ * Bei Scrollpanes _muss_ diese Methode zum setzen der Groesse
+ * benutzt werden.
+ * @author Hj. Malthaner
+ */
+void savegame_frame_t::setze_fenstergroesse(koord groesse)
+{
+	if(groesse.y>display_get_height()-64) {
+		// too large ...
+		groesse.y = display_get_height()-64;
+/* getting own coordinates is non-trival: deferred to a later time
+		// will be moved up
+		if(gib_pos().y>display_get_height()-32-groesse.y){
+			setze_pos( koord( gib_pos().x, display_get_height()-32-groesse.y ) );
+		}
+*/
+	}
+	scrolly.setze_groesse( koord(groesse.x,groesse.y-30-40-16) );
+	gui_frame_t::setze_fenstergroesse(groesse);
+	divider1.setze_pos(koord(10,groesse.y-44));
+	savebutton.setze_pos(koord(10,groesse.y-34));
+	cancelbutton.setze_pos(koord(202,groesse.y-34));
 }

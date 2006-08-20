@@ -72,14 +72,14 @@ const int cost_type_color[MAX_CONVOI_COST] =
  * @author Hj. Malthaner
  */
 convoi_info_t::convoi_info_t(convoihandle_t cnv)
-: gui_frame_t(cnv->gib_name(), cnv->gib_besitzer()->kennfarbe),
+: gui_frame_t(cnv->gib_name(), cnv->gib_besitzer()->get_player_color()),
   scrolly(&text),
   text(" \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n"
        " \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n"
        " \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n"
        " \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n"
        " \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n"),
-  view(cnv->gib_welt(), cnv->gib_pos()),
+  view(cnv->gib_welt(), cnv->gib_vehikel(0)),
   sort_label(translator::translate("loaded passenger/freight")),
   freight_info(8192)
 {
@@ -212,7 +212,6 @@ convoi_info_t::~convoi_info_t() { }
 void
 convoi_info_t::zeichnen(koord pos, koord gr)
 {
-	koord viewpos = view.gib_pos(); // 01-June-02  markus weber   added
 	if(!cnv.is_bound()) {
 		destroy_win(dynamic_cast <gui_fenster_t *> (this));
 	}
@@ -233,9 +232,6 @@ convoi_info_t::zeichnen(koord pos, koord gr)
 		}
 		follow_button.enable();
 
-		// update window contents
-		view.set_location(cnv->gib_pos());
-
 		// buffer update now only when needed by convoi itself => dedicated buffer for this
 		int old_len=freight_info.len();
 		cnv->get_freight_info(freight_info);
@@ -255,8 +251,6 @@ convoi_info_t::zeichnen(koord pos, koord gr)
 
 		// all gui stuff set => display it
 		gui_frame_t::zeichnen(pos, gr);
-
-		display_ddd_box(pos.x+viewpos.x-1, pos.y+viewpos.y+16, 66, 57, MN_GREY0, MN_GREY4);
 
 		// convoi information
 		static char tmp[256];

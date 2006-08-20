@@ -81,25 +81,3 @@ void nachrichtenfenster_t::info(cbuffer_t & buf) const
 {
     buf.append(translator::translate(meldung));
 }
-
-/**
- * gibt farbinformationen fuer Fenstertitel, -ränder und -körper
- * zurück
- * @author Hj. Malthaner
- */
-/*
-fensterfarben
-nachrichtenfenster_t::gib_fensterfarben() const
-{
-  fensterfarben f;
-
-  const spieler_t *sp = gib_besitzer();
-
-  f.titel  = (sp != NULL) ? sp->kennfarbe : WIN_TITEL;
-  f.hell   = MESG_WIN_HELL;
-  f.mittel = MESG_WIN;
-  f.dunkel = MESG_WIN_DUNKEL;
-
-  return f;
-}
-*/
