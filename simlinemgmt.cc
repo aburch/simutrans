@@ -178,6 +178,9 @@ simlinemgmt_t::rdwr(karte_t * welt, loadsave_t *file)
 						case simline_t::monorailline:
 							line = new monorailline_t(welt, this, file);
 							break;
+						case simline_t::tramline:
+							line = new tramline_t(welt, this, file);
+							break;
 						default:
 							line = new simline_t(welt, this, file);
 							break;
@@ -212,6 +215,10 @@ simlinemgmt_t::rdwr(karte_t * welt, loadsave_t *file)
 						case fahrplan_t::monorailfahrplan:
 							line->set_fahrplan(new monorailfahrplan_t(fpl));
 							line->set_linetype(simline_t::monorailline);
+							break;
+						case fahrplan_t::tramfahrplan:
+							line->set_fahrplan(new tramfahrplan_t(fpl));
+							line->set_linetype(simline_t::tramline);
 							break;
 */
 						default:
@@ -266,6 +273,34 @@ void
 simlinemgmt_t::laden_abschliessen()
 {
 	register_all_stops();
+#if 0
+	// convert all tram and monorail lines into their correct type ...
+	for (int i = 0; i<count_lines(); i++) {
+		simline_t *line=all_managed_lines.at(i);
+		if(line->count_convoys()>0) {
+			// check only first convoy for line type, should be enough ...
+			const vehikel_t *v=line->get_convoy(0)->gib_vehikel(0);
+			if(v) {
+				// if needed, switch line to correct type
+				switch(v->gib_typ()) {
+					case weg_t::schiene_strab:
+						if(line->get_linetype()!=simline_t::tramline) {
+DBG_MESSAGE("simlinemgmt_t::laden_abschliessen()","line %d to tramline.",line->get_id() );
+							line->set_linetype(simline_t::tramline);
+						}
+						break;
+					case weg_t::monorail:
+						if(line->get_linetype()!=simline_t::monorailline) {
+							line->set_linetype(simline_t::monorailline);
+						}
+						break;
+					default: // no need to convert the rest
+						;
+				}
+			}
+		}
+	}
+#endif
 }
 
 
@@ -327,6 +362,10 @@ simlinemgmt_t::create_line(int ltype, fahrplan_t * fpl)
 			line = new monorailline_t(welt, this, new monorailfahrplan_t(fpl));
 			DBG_MESSAGE("simlinemgmt_t::create_line()", "monorailline created");
 			break;
+		case simline_t::tramline:
+			line = new tramline_t(welt, this, new tramfahrplan_t(fpl));
+			DBG_MESSAGE("simlinemgmt_t::create_line()", "tramline created");
+			break;
 		default:
 		    line = new simline_t(welt, this, new fahrplan_t(fpl));
 			DBG_MESSAGE("simlinemgmt_t::create_line()", "default line created");
@@ -379,6 +418,11 @@ simlinemgmt_t::build_line_list(int type, slist_tpl<simline_t *> * list)
 				break;
 			case simline_t::monorailline:
 				if (line->get_linetype() == simline_t::monorailline || line->get_linetype() == simline_t::line) {
+					list->append(line);
+				}
+				break;
+			case simline_t::tramline:
+				if (line->get_linetype() == simline_t::tramline || line->get_linetype() == simline_t::line) {
 					list->append(line);
 				}
 				break;

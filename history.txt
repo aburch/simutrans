@@ -8,6 +8,20 @@ Known bugs: (hard to fix)
 	set color broken?
 
 
+
+Release of 88.06.3 ("stable")
+
+18-Mar-2006: (prissi)
+	FIX: deleting of a station did not update the corresponding routes
+	FIX: sometimes route with itself as first interchange appeared
+	FIX: choose signals at a corner now working
+	FIX: more diagonals during road construction
+	ADD: tramlines
+	FIX: convoi changed in depot did not display correct capacity/loading info
+
+
+Release of 88.06.2
+
 10-Mar-2006: (prissi)
 	FIX: after passing a choose signal a single time, all presignals will stop the trains, if not the complete route is free
 	FIX: faster rescheduling of goods now works on demand (after changing a schedule)

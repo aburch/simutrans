@@ -110,38 +110,60 @@ blockstrecke_t::~blockstrecke_t()
 
 void blockstrecke_t::verdrahte_signale_neu()
 {
-    slist_tpl<signal_t *> kill_list;
+	slist_tpl<signal_t *> kill_list;
+	slist_iterator_tpl<signal_t *> iter( signale );
+	while(iter.next()) {
+		signal_t *sig = iter.get_current();
+		grund_t *gr=welt->lookup(sig->gib_pos());
+		schiene_t *sch = get_block_way( gr );
 
-    slist_iterator_tpl<signal_t *> iter( signale );
-
-    while(iter.next()) {
-	signal_t *sig = iter.get_current();
-
-	schiene_t *sch = get_block_way( welt->lookup(sig->gib_pos()) );
-
-	if(sch == NULL) {
-	    dbg->error("blockstrecke_t::verdrahte_signale_neu()", "signal on square without railroad track, skipping signal!");
-	    continue;
-	}
-
-	if(sch->gib_blockstrecke().operator->() != this) {
-	    // signal neu verdrahten
-		if(sch->gib_blockstrecke().operator->()==NULL) {
-			dbg->error("blockstrecke_t::verdrahte_signale_neu()","invalid blockstrecke at signal!");
+		if(sch == NULL) {
+			dbg->error("blockstrecke_t::verdrahte_signale_neu()", "signal on square (%i,%i,%i) without railroad track: removing signal!",gr->gib_pos().x,gr->gib_pos().y,gr->gib_pos().z);
+			gr->obj_remove(sig,sig->gib_besitzer());
+			kill_list.insert( sig );
+			// we just remove it from the map but do not delete it, to avoid crashes
+			continue;
 		}
-		else {
-		    sch->gib_blockstrecke()->add_signal(sig);
+
+		// check, if this signal is unique ...
+		ribi_t::ribi dir = sig->gib_richtung();
+		for(int i=0;  i<gr->gib_top()  && sig;  i++  ) {
+			ding_t *d=gr->obj_bei(i);
+			if(d==sig) {
+				// our own is ok ...
+				break;
+			}
+			if(d) {
+				// check for signal
+				if(d->gib_typ()==ding_t::signal  ||  d->gib_typ()==ding_t::presignal  ||  d->gib_typ()==ding_t::choosesignal) {
+					if(dynamic_cast<signal_t *>(d)->gib_richtung()==dir) {
+						// already there ...
+						dbg->error("blockstrecke_t::verdrahte_signale_neu()", "mutiple signal on square (%i,%i,%i): removing dubletts!",gr->gib_pos().x,gr->gib_pos().y,gr->gib_pos().z);
+						kill_list.insert( sig );
+						sig = NULL;
+					}
+				}
+			}
+		}
+
+		if(sig  &&  sch->gib_blockstrecke().operator->() != this) {
+			if(!sch->gib_blockstrecke().is_bound()) {
+				dbg->error("blockstrecke_t::verdrahte_signale_neu()","invalid blockstrecke at signal on square (%i,%i,%i): removing!",sig->gib_pos().x,sig->gib_pos().y,sig->gib_pos().z);
+			}
+			else {
+				// signal neu verdrahten
+				sch->gib_blockstrecke()->add_signal(sig);
+			}
+			kill_list.insert( sig );
 		  }
-		    kill_list.insert( sig );
 	}
-    }
 
-    slist_iterator_tpl<signal_t *> killer( kill_list );
-
-    while(killer.next()) {
-	signal_t *sig = killer.get_current();
-        signale.remove( sig );
-    }
+	// remove all wrong ones ...
+	slist_iterator_tpl<signal_t *> killer( kill_list );
+	while(killer.next()) {
+		signal_t *sig = killer.get_current();
+		signale.remove( sig );
+	}
 
 //DBG_MESSAGE("blockstrecke_t::verdrahte_signale_neu()","rail block %p has now %d signals", this, signale.count());
 }
@@ -150,31 +172,19 @@ void blockstrecke_t::verdrahte_signale_neu()
 
 void blockstrecke_t::add_signal(signal_t *sig)
 {
-    assert(sig != NULL);
+	assert(sig != NULL);
 
-    if(!signale.contains( sig )) {
-	signale.insert(sig);
-	sig->setze_zustand(ist_frei() ? signal_t::gruen : signal_t::rot);
-    } else {
-	dbg->warning("blockstrecke_t::add_signal()",
-		     "Signal %p already attached to rail block %p.",
-		     sig, this);
-    }
+	if(!signale.contains( sig )) {
+		signale.insert(sig);
+		sig->setze_zustand(ist_frei() ? signal_t::gruen : signal_t::rot);
+	} else {
+		dbg->warning("blockstrecke_t::add_signal()","Signal %p already attached to rail block %p.",sig, this);
+	}
 
     dbg->warning("blockstrecke_t::add_signal()",
 		 "rail block %p has after adding signal %p at %d,%d  %d signals",
 		 this, sig, sig->gib_pos().x, sig->gib_pos().y,
 		 signale.count());
-}
-
-
-
-void blockstrecke_t::add_signale(slist_tpl<signal_t *> &signale)
-{
-	slist_iterator_tpl<signal_t *> iter( signale );
-	while(iter.next()) {
-		add_signal(iter.get_current());
-	}
 }
 
 
@@ -438,18 +448,22 @@ DBG_MESSAGE("blockstrecke_t::laden_abschliessen()","was reserved by %s",cnv_rese
 	slist_iterator_tpl<signal_t *> iter( signale );
 	while(iter.next()) {
 		signal_t *sig = iter.get_current();
+		grund_t *gr=welt->lookup(sig->gib_pos());
 
-		assert(welt->lookup(sig->gib_pos())!=NULL);
+		assert(gr!=NULL);
 		assert(get_block_way(welt->lookup(sig->gib_pos()))!=NULL);
 
 		ribi_t::ribi dir = sig->gib_richtung();
 		if(dir == ribi_t::nord || dir == ribi_t::ost) {
-			welt->lookup(sig->gib_pos())->obj_add(sig);
+			gr->obj_add(sig);
 		}
 		else {
-			welt->lookup(sig->gib_pos())->obj_pri_add(sig, PRI_HOCH);
+			gr->obj_pri_add(sig, PRI_HOCH);
 		}
 	}
+
+	// remove wrong signals
+	verdrahte_signale_neu();
 }
 
 
@@ -462,4 +476,16 @@ void blockstrecke_t::info(cbuffer_t & buf) const
 	if(cnv_reserved.is_bound()) {
 		buf.append(translator::translate("(reserved)"));
 	}
+#if 0
+	// debug:
+	buf.append("\nnumber of signals ");buf.append(signale.count());
+	slist_iterator_tpl<signal_t *> iter( signale );
+	while(iter.next()) {
+		signal_t *sig = iter.get_current();
+		buf.append("\n(");buf.append(sig->gib_pos().x);
+		buf.append(",");buf.append(sig->gib_pos().y);
+		buf.append(",");buf.append(sig->gib_pos().z);
+		buf.append(") ");buf.append((int)sig->gib_richtung());
+	}
+#endif
 }

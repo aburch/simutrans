@@ -146,7 +146,7 @@ public:
     static ribi doppelt(ribi x) { return doppelr[x]; }
     static ribi rueckwaerts(ribi x) { return rwr[x]; }
 
-    static bool ist_exakt_orthogonal(ribi x, ribi y) { return ist_gerade(x) ? ist_orthogonal(x,y) : ((x-y)%3)==0; }	// also for curves ...
+    static bool ist_exakt_orthogonal(ribi x, ribi y);
     static bool ist_orthogonal(ribi x, ribi y) { return (doppelr[x] | doppelr[y]) == alle; }
     static bool ist_einfach(ribi x) { return (flags[x] & einfach) != 0; }
     static bool ist_kurve(ribi x) { return (flags[x] & kurve) != 0; }

@@ -288,6 +288,7 @@ public:
 class tramdepot_t : public bahndepot_t
 {
 protected:
+	virtual simline_t::linetype get_line_type() { return simline_t::tramline; }
 
 public:
     tramdepot_t(karte_t *welt, loadsave_t *file):bahndepot_t(welt,file) {}

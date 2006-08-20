@@ -3,6 +3,8 @@
  *
  * Copyright (c) 1997 - 2004 Hansjörg Malthaner
  *
+ * Line management
+ *
  * This file is part of the Simutrans project and may not be used
  * in other projects without written permission of the author.
  */
@@ -44,6 +46,8 @@ const char schedule_list_gui_t::cost_type[MAX_LINE_COST][64] =
 	"Profit",
 	"Convoys"
 };
+
+static const uint8 tabs_to_lineindex[7]={ simline_t::line, simline_t::trainline, simline_t::monorailline, simline_t::tramline, simline_t::truckline, simline_t::shipline, simline_t::airline };
 
 const int schedule_list_gui_t::cost_type_color[MAX_LINE_COST] =
 {
@@ -91,11 +95,12 @@ schedule_list_gui_t::schedule_list_gui_t(karte_t *welt,spieler_t *sp)
 	tabs.setze_pos(koord(11,5));
 	tabs.setze_groesse(koord(LINE_NAME_COLUMN_WIDTH-22, SCL_HEIGHT));
 	tabs.add_tab(scl, translator::translate("All"));
-	tabs.add_tab(scl, translator::translate("Truck"));
 	tabs.add_tab(scl, translator::translate("Train"));
+	tabs.add_tab(scl, translator::translate("Monorail"));
+	tabs.add_tab(scl, translator::translate("Tram"));
+	tabs.add_tab(scl, translator::translate("Truck"));
 	tabs.add_tab(scl, translator::translate("Ship"));
 	tabs.add_tab(scl, translator::translate("Air"));
-	tabs.add_tab(scl, translator::translate("Monorail"));
 	tabs.add_listener(this);
 	add_komponente(&tabs);
 
@@ -202,8 +207,7 @@ bool schedule_list_gui_t::action_triggered(gui_komponente_t *komp)           // 
 {
     if (komp == &bt_change_line)
     {
-		if (line != NULL)
-		{
+		if (line != NULL) {
 			line_management_gui_t *line_gui = new line_management_gui_t(welt, line, welt->get_active_player());
 			line_gui->zeige_info();
 		}
@@ -211,7 +215,8 @@ bool schedule_list_gui_t::action_triggered(gui_komponente_t *komp)           // 
     {
     	if (tabs.get_active_tab_index() > 0) {
     	// create typed line
-		simline_t * new_line = sp->simlinemgmt.create_line(tabs.get_active_tab_index());
+    	uint8 type=tabs_to_lineindex[tabs.get_active_tab_index()];
+		simline_t * new_line = sp->simlinemgmt.create_line(type);
 		line_management_gui_t *line_gui = new line_management_gui_t(welt, new_line, sp);
 		line_gui->zeige_info();
 
@@ -219,14 +224,13 @@ bool schedule_list_gui_t::action_triggered(gui_komponente_t *komp)           // 
 		// otherwise the selection of lines in the SCL gets messed up
 		  sp->simlinemgmt.sort_lines();
 		  scl->clear_elements();
-		  build_line_list(tabs.get_active_tab_index());
+		  build_line_list( tabs.get_active_tab_index() );
 		} else {
 			create_win(-1, -1, 120, new nachrichtenfenster_t(welt, translator::translate("Cannot create generic line!\nSelect line type by\nusing filter tabs.")), w_autodelete);
 		}
     } else if (komp == &bt_delete_line)
     {
-		if (line != NULL)
-		{
+		if (line != NULL) {
 			// remove elements from lists
 			lines.remove(line);
 			sp->simlinemgmt.delete_line(line);
@@ -436,8 +440,7 @@ DBG_MESSAGE("schedule_list_gui_t::build_line_list()","count=%i",sp->simlinemgmt.
 	if(sp->simlinemgmt.count_lines() > 0) {
 		scl->clear_elements();
 		lines.clear();
-		sp->simlinemgmt.build_line_list( filter==0 ? simline_t::line : filter, &lines );
-
+		sp->simlinemgmt.build_line_list( tabs_to_lineindex[filter], &lines );
 		slist_iterator_tpl<simline_t *> iter(lines);
 		while( iter.next() ) {
 			scl->append_element( iter.get_current()->get_name() );

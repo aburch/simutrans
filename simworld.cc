@@ -783,6 +783,13 @@ DBG_DEBUG("karte_t::init()","Erzeuge stadt %i with %ld inhabitants",i,(s->get_ci
 			}
 		}
 
+		for(i=0; i<einstellungen->gib_anzahl_staedte(); i++) {
+			// Hajo: do final init after world was loaded/created
+			if(stadt->at(i)) {
+				stadt->at(i)->laden_abschliessen();
+			}
+		}
+
 		// Hajo: connect some cities with roads
 		const weg_besch_t * besch = wegbauer_t::gib_besch(umgebung_t::intercity_road_type->chars());
 		if(besch == 0) {
@@ -856,13 +863,6 @@ DBG_DEBUG("karte_t::init()","Erzeuge stadt %i with %ld inhabitants",i,(s->get_ci
      fabrikbauer_t::verteile_tourist(this,
 				gib_spieler(1),
 				einstellungen->gib_tourist_attractions());
-
-	for(i=0; i<einstellungen->gib_anzahl_staedte(); i++) {
-		// Hajo: do final init after world was loaded/created
-		if(stadt->at(i)) {
-			stadt->at(i)->laden_abschliessen();
-		}
-	}
 
     print("Preparing startup ...\n");
 
@@ -2803,15 +2803,15 @@ DBG_MESSAGE("karte_t::laden()", "%d ways loaded",weg_t::gib_alle_wege().count())
   	// recalc karte
     reliefkarte_t::gib_karte()->set_mode(-1);
 
-    // register all line stops
-	for(int i=0; i<MAX_PLAYER_COUNT ; i++) {
-		spieler[i]->laden_abschliessen();
-	}
-
 	// assing lines and other stuff for convois
 	slist_iterator_tpl<convoihandle_t> citer (convoi_list);
 	while(citer.next()) {
 		citer.get_current()->laden_abschliessen();
+	}
+
+    // register all line stops and change line types, if needed
+	for(int i=0; i<MAX_PLAYER_COUNT ; i++) {
+		spieler[i]->laden_abschliessen();
 	}
 
 	// just keep the record for the last 12 years ... to allow infite long games

@@ -359,7 +359,7 @@ public:
      * Stadtgrenzen zurück
      * @author Hj. Malthaner
      */
-    koord gib_zufallspunkt() const;
+    koord gib_zufallspunkt();
 
     /**
      * gibt das pax-statistik-array für letzten monat zurück

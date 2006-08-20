@@ -2703,7 +2703,7 @@ DBG_DEBUG("spieler_t::rdwr()","player %i: loading %i halts.",welt->sp2num( this 
 			halthandle_t halt = haltestelle_t::create( welt, file );
 			halt->laden_abschliessen();
 			if(halt->existiert_in_welt()) {
-				halt_list->insert( halt );
+				halt_list->append( halt );
 			}
 			else {
 				// it was possible to have stops without ground => remove them
@@ -2895,7 +2895,7 @@ spieler_t::undo()
 	bool ok = false;
 	for(unsigned short i=0;  i<last_built.get_count();  i++  ) {
 		grund_t *gr = welt->lookup(last_built.at(i))->gib_kartenboden();
-		if(undo_type==weg_t::schiene) {
+		if(undo_type==weg_t::schiene  ||  undo_type==weg_t::schiene_strab  ||  undo_type==weg_t::monorail) {
 			blockmanager::gib_manager()->entferne_schiene(welt, gr->gib_pos());
 		}
 		ok |= gr->weg_entfernen(undo_type,true);

@@ -26,7 +26,7 @@ class fahrplan_t
 public:
 
   enum fahrplan_type {
-    fahrplan = 0, autofahrplan = 1, zugfahrplan = 2, schifffahrplan = 3, airfahrplan = 4, monorailfahrplan = 5
+    fahrplan = 0, autofahrplan = 1, zugfahrplan = 2, schifffahrplan = 3, airfahrplan = 4, monorailfahrplan = 5, tramfahrplan = 6
   };
 
 private:
@@ -157,6 +157,20 @@ public:
     zugfahrplan_t(fahrplan_t * fpl) : fahrplan_t(fpl) {type = zugfahrplan;};
     fahrplan_t * copy() { return new zugfahrplan_t(this); };
     virtual void zeige_fehlermeldung(karte_t *) const;
+};
+
+/* the schedule for monorail ...
+ * @author Hj. Malthaner
+ */
+class tramfahrplan_t : public zugfahrplan_t
+{
+protected:
+
+public:
+    tramfahrplan_t() : zugfahrplan_t() {type = tramfahrplan;};
+    tramfahrplan_t(loadsave_t *file) : zugfahrplan_t(file) {type = tramfahrplan;};
+    tramfahrplan_t(fahrplan_t * fpl) : zugfahrplan_t(fpl) {type = tramfahrplan;};
+    fahrplan_t * copy() { return new tramfahrplan_t(this); };
 };
 
 

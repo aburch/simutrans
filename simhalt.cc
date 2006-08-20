@@ -312,23 +312,25 @@ haltestelle_t::~haltestelle_t()
 		rem_grund(grund.at(0));
 	}
 
-    if(halt_info) {
-	destroy_win(halt_info);
-	delete halt_info;
-	halt_info = 0;
-    }
-    alle_haltestellen.remove(self);
-    self.unbind();
-
-    for(unsigned int i=0; i<warenbauer_t::gib_waren_anzahl(); i++) {
-        const ware_besch_t *ware = warenbauer_t::gib_info(i);
-	slist_tpl<ware_t> *wliste = waren.get(ware);
-
-	if(wliste) {
-	    waren.remove(ware);
-	    delete wliste;
+	if(halt_info) {
+		destroy_win(halt_info);
+		delete halt_info;
+		halt_info = 0;
 	}
-    }
+	alle_haltestellen.remove(self);
+	self.unbind();
+
+	for(unsigned int i=0; i<warenbauer_t::gib_waren_anzahl(); i++) {
+		const ware_besch_t *ware = warenbauer_t::gib_info(i);
+		slist_tpl<ware_t> *wliste = waren.get(ware);
+
+		if(wliste) {
+			waren.remove(ware);
+			delete wliste;
+		}
+	}
+	// route may have changed without this station ...
+	welt->set_schedule_counter();
 }
 
 
@@ -998,9 +1000,9 @@ DBG_DEBUG("haltestelle_t::rem_grund()","remove also floor, count=%i",grund.count
 bool
 haltestelle_t::existiert_in_welt()
 {
-	DBG_MESSAGE("haltestelle_t::existiert_in_welt()","count=%i",grund.count());
+//	DBG_MESSAGE("haltestelle_t::existiert_in_welt()","count=%i",grund.count());
 	if(grund.count()>0) {
-		DBG_MESSAGE("haltestelle_t::existiert_in_welt()","grund(0)=%i,%i,%i",grund.at(0)->gib_pos().x,grund.at(0)->gib_pos().y,grund.at(0)->gib_pos().z);
+//		DBG_MESSAGE("haltestelle_t::existiert_in_welt()","grund(0)=%i,%i,%i",grund.at(0)->gib_pos().x,grund.at(0)->gib_pos().y,grund.at(0)->gib_pos().z);
 	}
 
 	return !grund.is_empty();
@@ -1254,7 +1256,18 @@ haltestelle_t::vereinige_waren(const ware_t &ware)
 int
 haltestelle_t::starte_mit_route(ware_t ware)
 {
-	if(ware.gib_ziel()==gib_basis_pos()  ||  ware.gib_zielpos()==gib_basis_pos()) {
+	// no valid next stops? Or we are the next stop?
+	if(ware.gib_zwischenziel()!=koord::invalid  &&   gib_halt(welt,ware.gib_zwischenziel())==self) {
+		dbg->error("haltestelle_t::starte_mit_route()","route cannot contain us as first transfer stop => recalc route!");
+		suche_route(ware);
+		// no route found?
+		if(ware.gib_ziel()==koord::invalid) {
+			dbg->error("haltestelle_t::starte_mit_route()","no route found!");
+			return ware.menge;
+		}
+	}
+
+	if(gib_halt(welt,ware.gib_ziel())==self) {
 		if(warenbauer_t::ist_fabrik_ware(ware.gib_typ())) {
 			// muss an fabrik geliefert werden
 			liefere_an_fabrik(ware);

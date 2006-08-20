@@ -827,6 +827,8 @@ DBG_MESSAGE("convoi_t::add_vehikel()","extend array_tpl to %i totals.",max_rail_
 		sum_gewicht += info->gib_gewicht();
 		min_top_speed = MIN(min_top_speed, v->gib_speed());
 		sum_gesamtgewicht = sum_gewicht;
+		calc_loading();
+		freight_info_resort = true;
 	}
 	else {
 		return false;
@@ -862,6 +864,8 @@ convoi_t::remove_vehikel_bei(uint16 i)
 			sum_gewicht -= info->gib_gewicht();
 		}
 		sum_gesamtgewicht = sum_gewicht;
+		calc_loading();
+		freight_info_resort = true;
 
 		// der convoi hat jetzt ein neues ende
 		if(anz_vehikel > 0) {
@@ -1820,13 +1824,11 @@ simline_t * convoi_t::get_line() const
 void convoi_t::set_line(simline_t * line)
 {
 	// to remove a convoi from a line, call unset_line(); passing a NULL is not allowed!
-	if (line == NULL)
-	{
+	if (line == NULL) {
 		return;
 	}
 
-	if (this->line != NULL)
-	{
+	if (this->line != NULL) {
 		unset_line();
 	}
 	this->line = line;

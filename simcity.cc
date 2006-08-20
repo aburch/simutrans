@@ -929,10 +929,12 @@ stadt_t::step_passagiere()
 
 				// only continue, if this is a good start halt
 				if(halt_list.get_count()>0) {
-					halthandle_t start_halt = halt_list.at(0);
 
 					// Find passenger destination
 					for(int pax_routed=0;  pax_routed<num_pax;  pax_routed+=7) {
+
+						// just the defualt "No route" stop
+						halthandle_t start_halt = halt_list.at(0);
 
 						// number of passengers that want to travel
 						// Hajo: for efficiency we try to route not every
@@ -968,15 +970,15 @@ stadt_t::step_passagiere()
 						}
 
 						if(ziel_count==0){
-	// DBG_MESSAGE("stadt_t::step_passagiere()", "No stop near dest (%d, %d)", ziel.x, ziel.y);
+// DBG_MESSAGE("stadt_t::step_passagiere()", "No stop near dest (%d, %d)", ziel.x, ziel.y);
 							// Thus, routing is not possible and we do not need to do a calculation.
 							// Mark ziel as destination without route and continue.
 							merke_passagier_ziel(ziel, COL_DARK_ORANGE);
 							start_halt->add_pax_no_route(pax_left_to_do);
-	#ifdef DESTINATION_CITYCARS
+#ifdef DESTINATION_CITYCARS
 							//citycars with destination
 							erzeuge_verkehrsteilnehmer( start_halt->gib_basis_pos(), step_count, ziel );
-	#endif
+#endif
 							continue;
 						}
 
@@ -1003,7 +1005,15 @@ stadt_t::step_passagiere()
 									// Hajo: Station crowded:
 									// they are appalled but will try other stations
 									start_halt->add_pax_unhappy(pax.menge);	// since mail can be less than pax_left_to_do
+									start_halt = halthandle_t();
 								}
+							}
+
+							// all crowded?
+							if(!start_halt.is_bound()) {
+								// so we cannot go there => mark it
+								merke_passagier_ziel(ziel, COL_DARK_ORANGE);
+								continue;
 							}
 
 							// now, finally search a route; this consumes most of the time
@@ -1129,11 +1139,16 @@ stadt_t::step_passagiere()
  * @author Hj. Malthaner
  */
 koord
-stadt_t::gib_zufallspunkt() const
+stadt_t::gib_zufallspunkt()
 {
 	const gebaeude_t *gb=buildings.at_weight( simrand(buildings.get_sum_weight()) );
 	koord k=gb->gib_pos().gib_2d();
-	assert(welt->ist_in_kartengrenzen(k));
+	if(!welt->ist_in_kartengrenzen(k)) {
+		// this building should not be in this list, since it has been already deleted!
+		dbg->error("stadt_t::gib_zufallspunkt()","illegal building %s removing!",gb->gib_name());
+		buildings.remove(gb);
+		k = koord(0,0);
+	}
 	return k;
 }
 
@@ -1170,7 +1185,7 @@ stadt_t::finde_passagier_ziel(pax_zieltyp *will_return)
 
 		// long distance traveller? => then we return
 		*will_return = (this!=zielstadt) ? town_return : no_return;
-		return zielstadt->gib_zufallspunkt();
+		return ((stadt_t *)zielstadt)->gib_zufallspunkt();
 	}
 	// we could never reach here (but happend once anyway?!?)
 	dbg->fatal("stadt_t::finde_passagier_ziel()","no passenger ziel found!");

@@ -1161,73 +1161,56 @@ wegbauer_t::intern_calc_route(const koord start, const koord ziel)
 		// the four possible directions plus any additional stuff due to already existing brides plus new ones ...
 		next_gr.clear();
 
-/*
-		// try to build a bridge or tunnel here
-//DBG_MESSAGE("wegbauer_t::bridge()","at %i,%i,%i weg=%i/%i",gr->gib_pos().x,gr->gib_pos().y,gr->gib_pos().z,gr->gib_weg_hang(),gr->gib_grund_hang());
-		if(gr->gib_weg_hang()!=gr->gib_grund_hang()) {
-			// here a bridge/tunnel only!!!
-			check_for_bridge(NULL,gr,ziel3d);
-		}
-		else {
-#if 0
-			// so here is a slope: try bridge or tunnel ...
-			if(tmp->parent!=NULL  &&   gr->gib_grund_hang()!=0   &&  !gr->hat_wege()) {
-				check_for_bridge(tmp->parent->gr,gr,ziel3d);
-			}
-#endif
-*/
+		// only one direction allowed ...
+		const koord bridge_nsow=tmp->parent!=NULL ? gr->gib_pos().gib_2d()-tmp->parent->gr->gib_pos().gib_2d() : koord::invalid;
 
-			// only one direction allowed ...
-			const koord bridge_nsow=tmp->parent!=NULL ? gr->gib_pos().gib_2d()-tmp->parent->gr->gib_pos().gib_2d() : koord::invalid;
+		// testing all four possible directions
+		for(int r=0; r<4; r++) {
 
-			// testing all four possible directions
-			for(int r=0; r<4; r++) {
-
-				to = NULL;
+			to = NULL;
 //				const planquadrat_t *pl=welt->lookup(gr_pos.gib_2d()+koord::nsow[r]);
-				if(!gr->get_neighbour(to,weg_t::invalid,koord::nsow[r])) {
-					continue;
-				}
+			if(!gr->get_neighbour(to,weg_t::invalid,koord::nsow[r])) {
+				continue;
+			}
 
-				// something valid?
-				if(to==NULL  ||   welt->ist_markiert(to)) {
-					continue;
-				}
+			// something valid?
+			if(to==NULL  ||   welt->ist_markiert(to)) {
+				continue;
+			}
 
-				long new_cost = 0;
+			long new_cost = 0;
 
-				bool is_ok = is_allowed_step(gr,to,&new_cost);
+			bool is_ok = is_allowed_step(gr,to,&new_cost);
 
-				// we check here for 180° turns and the end of bridges ...
-				if(is_ok) {
-					if(tmp->parent) {
+			// we check here for 180° turns and the end of bridges ...
+			if(is_ok) {
+				if(tmp->parent) {
 
-						// no 180 deg turns ...
-						if(tmp->parent->gr==to) {
+					// no 180 deg turns ...
+					if(tmp->parent->gr==to) {
+						continue;
+					}
+
+					// ok, check if previous was tunnel or bridge (i.e. there is a gap)
+					const koord parent_pos=tmp->parent->gr->gib_pos().gib_2d();
+					const koord to_pos=to->gib_pos().gib_2d();
+					// distance>1
+					if(abs(parent_pos.x-gr_pos.x)>1  ||   abs(parent_pos.y-gr_pos.y)>1) {
+						if(ribi_typ(parent_pos,to_pos)!=ribi_typ(gr_pos.gib_2d(),to_pos)) {
+							// not a straight line
 							continue;
 						}
-
-						// ok, check if previous was tunnel or bridge (i.e. there is a gap)
-						const koord parent_pos=tmp->parent->gr->gib_pos().gib_2d();
-						const koord to_pos=to->gib_pos().gib_2d();
-						// distance>1
-						if(abs(parent_pos.x-gr_pos.x)>1  ||   abs(parent_pos.y-gr_pos.y)>1) {
-							if(ribi_typ(parent_pos,to_pos)!=ribi_typ(gr_pos.gib_2d(),to_pos)) {
-								// not a straight line
-								continue;
-							}
-						}
 					}
-					// now add it to the array ...
-					next_gr_t nt={to,new_cost};
-					next_gr.append(nt);
 				}
-				else if(tmp->parent!=NULL  &&  !gr->hat_wege()  &&  bridge_nsow==koord::nsow[r]) {
-					// try to build a bridge or tunnel here, since we cannot go here ...
-					check_for_bridge(tmp->parent->gr,gr,ziel3d);
-				}
+				// now add it to the array ...
+				next_gr_t nt={to,new_cost};
+				next_gr.append(nt);
 			}
-//		}
+			else if(tmp->parent!=NULL  &&  !gr->hat_wege()  &&  bridge_nsow==koord::nsow[r]) {
+				// try to build a bridge or tunnel here, since we cannot go here ...
+				check_for_bridge(tmp->parent->gr,gr,ziel3d);
+			}
+		}
 
 		// now check all valid ones ...
 		for(unsigned r=0; r<next_gr.get_count(); r++) {
@@ -1240,7 +1223,7 @@ wegbauer_t::intern_calc_route(const koord start, const koord ziel)
 			// check for curves (usually, one would need the lastlast and the last;
 			// if not there, then we could just take the last
 			uint8 current_dir;
-			if(tmp->parent==NULL  ||  abs_distance(tmp->gr->gib_pos().gib_2d(),to->gib_pos().gib_2d())>1) {
+			if(tmp->parent==NULL) {
 				current_dir = ribi_typ( tmp->gr->gib_pos().gib_2d(), to->gib_pos().gib_2d() );
 				if(tmp->dir!=current_dir) {
 					new_g += umgebung_t::way_count_curve;
@@ -1248,16 +1231,33 @@ wegbauer_t::intern_calc_route(const koord start, const koord ziel)
 			}
 			else {
 				current_dir = ribi_typ( tmp->parent->gr->gib_pos().gib_2d(), to->gib_pos().gib_2d() );
-				if(tmp->dir!=current_dir) {
+				if(tmp->parent->dir!=current_dir  ||  tmp->dir!=current_dir) {
+					// is near a curve ...
+
 					if(ribi_t::ist_exakt_orthogonal(tmp->dir,current_dir)) {
+						// 180° bend
 						new_g +=  umgebung_t::way_count_90_curve;
 					}
-					else {
-						new_g +=  umgebung_t::way_count_curve;
+					else if(ribi_t::ist_orthogonal(tmp->parent->dir,current_dir)) {
+						// 90° curve
+						new_g +=  umgebung_t::way_count_double_curve;
+//DBG_MESSAGE("curve double from","%i,%i -> %i,%i -> %i,%i", tmp->parent->gr->gib_pos().x, tmp->parent->gr->gib_pos().y, tmp->gr->gib_pos().x, tmp->gr->gib_pos().y, to->gib_pos().x, to->gib_pos().y );
 					}
-				}
-				else if(ribi_t::ist_orthogonal(tmp->parent->dir,current_dir)) {
-					new_g +=  umgebung_t::way_count_double_curve;
+					// double curve?
+					else if(tmp->dir!=current_dir  &&  tmp->parent->dir!=current_dir  &&  tmp->dir!=tmp->parent->dir) {
+						new_g +=  umgebung_t::way_count_double_curve;
+					}
+					// normal curve?
+					else {
+						if(tmp->dir!=current_dir) {
+							new_g +=  umgebung_t::way_count_curve;
+						}
+/*
+						if(tmp->parent->dir!=current_dir) {
+							new_g +=  umgebung_t::way_count_curve;
+						}
+*/
+					}
 				}
 			}
 

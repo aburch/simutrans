@@ -1,10 +1,29 @@
+
+#include "simvehikel.h"
 #include "simline.h"
+#include "simplay.h"
 #include "simlinemgmt.h"
 #include "simhalt.h"
 #include "simtypes.h"
 
 
 uint8 simline_t::convoi_to_line_catgory[MAX_CONVOI_COST]={LINE_CAPACITY, LINE_TRANSPORTED_GOODS, LINE_REVENUE, LINE_OPERATIONS, LINE_PROFIT };
+
+karte_t *simline_t::welt=NULL;
+
+
+
+// copy constructor
+simline_t::simline_t(simline_t *line)
+{
+	memcpy( financial_history, line->get_finance_history(), MAX_LINE_COST*MAX_MONTHS*sizeof(sint64) );
+	strcpy(this->name, line->get_name() );
+	this->old_fpl = new fahrplan_t(line->old_fpl);
+	this->fpl = new fahrplan_t(line->fpl);
+	this->id = line->get_id();
+	type = simline_t::line;
+}
+
 
 simline_t::simline_t(karte_t * welt,
 		     simlinemgmt_t * simlinemgmt,
@@ -61,6 +80,27 @@ simline_t::~simline_t()
 void
 simline_t::add_convoy(convoi_t * cnv)
 {
+	// first convoi may change line type
+	if(type==trainline  &&  line_managed_convoys.count()==0  &&  cnv!=NULL) {
+		if(cnv->gib_vehikel(0)) {
+			// check, if needed to convert to tram line?
+			if(cnv->gib_vehikel(0)->gib_besch()->gib_typ()==weg_t::schiene_strab) {
+				tramline_t *tl = new tramline_t(this);
+				tl->add_convoy(cnv);
+				cnv->gib_besitzer()->simlinemgmt.delete_line(this);
+				cnv->gib_besitzer()->simlinemgmt.add_line(tl);
+				return;
+			}
+			// check, if needed to convert to monorail line?
+			if(cnv->gib_vehikel(0)->gib_besch()->gib_typ()==weg_t::monorail) {
+				monorailline_t *ml = new monorailline_t(this);
+				ml->add_convoy(cnv);
+				cnv->gib_besitzer()->simlinemgmt.delete_line(this);
+				cnv->gib_besitzer()->simlinemgmt.add_line(ml);
+				return;
+			}
+		}
+	}
 	// only add convoy if not allready member of line
 	if(!line_managed_convoys.contains(cnv)) {
 		this->line_managed_convoys.insert(cnv);
@@ -160,11 +200,11 @@ DBG_DEBUG("simline_t::register_stops()", "%d fpl entries", fpl->maxi());
 
 	for (int i = 0; i<fpl->maxi(); i++) {
 		halt = haltestelle_t::gib_halt(welt, fpl->eintrag.get(i).pos.gib_2d());
-		if (halt.is_bound())
-		{
+		if (halt.is_bound()) {
 //DBG_DEBUG("simline_t::register_stops()", "halt not null");
 			halt->add_line(this);
-		} else {
+		}
+		else {
 DBG_DEBUG("simline_t::register_stops()", "halt null");
 		}
 	}
@@ -180,11 +220,9 @@ void
 simline_t::unregister_stops(fahrplan_t * fpl)
 {
 	halthandle_t halt;
-	for (int i = 0; i<fpl->maxi(); i++)
-	{
+	for (int i = 0; i<fpl->maxi(); i++) {
 		halt = haltestelle_t::gib_halt(welt, fpl->eintrag.get(i).pos.gib_2d());
-		if (halt.is_bound())
-		{
+		if (halt.is_bound()) {
 			halt->remove_line(this);
 		}
 	}
@@ -202,10 +240,8 @@ simline_t::renew_stops()
 void
 simline_t::new_month()
 {
-	for (int j = 0; j<MAX_LINE_COST; j++)
-	{
-		for (int k = MAX_MONTHS-1; k>0; k--)
-		{
+	for (int j = 0; j<MAX_LINE_COST; j++) {
+		for (int k = MAX_MONTHS-1; k>0; k--) {
 			financial_history[k][j] = financial_history[k-1][j];
 		}
 		financial_history[0][j] = 0;
@@ -228,10 +264,8 @@ void simline_t::prepare_for_update()
 void
 simline_t::init_financial_history()
 {
-	for (int j = 0; j<MAX_LINE_COST; j++)
-	{
-		for (int k = MAX_MONTHS-1; k>=0; k--)
-		{
+	for (int j = 0; j<MAX_LINE_COST; j++) {
+		for (int k = MAX_MONTHS-1; k>=0; k--) {
 			financial_history[k][j] = 0;
 		}
 	}

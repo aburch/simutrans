@@ -341,6 +341,28 @@ ribi_t::ribi ribi_typ(koord dir)
 }
 
 
+
+/* check, if two directions are orthogonal
+ * works with diagonals too
+ * @author prissi
+ */
+bool
+ribi_t::ist_exakt_orthogonal(ribi x, ribi y)
+{
+	// for straight, we are finished here
+	if(ist_gerade(x)) {
+		return ist_orthogonal(x,y);
+	}
+	// now diagonals (more tricky)
+	if(x!=y) {
+		return ((x-y)%3)==0;
+	}
+	// ok, then they are not orthogonal
+	return false;
+}
+
+
+
 hang_t::typ hang_typ(koord dir)
 {
     if(dir.x == 0) {

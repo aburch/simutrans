@@ -53,6 +53,7 @@
 #include "simline.h"
 
 #include "simintr.h"
+#include "blockmanager.h"
 #include "railblocks.h"
 
 #include "dings/wolke.h"
@@ -1774,6 +1775,11 @@ waggon_t::ist_weg_frei(int & restart_speed)
 	}
 	else {
 		bool frei = false;
+		if(!sch1->gib_blockstrecke().is_bound()) {
+			dbg->error("waggon_t::ist_weg_frei()","unbound block at (%i,%i,%i)",pos_next.x,pos_next.y,pos_next.z);
+			blockmanager::gib_manager()->schiene_erweitern(welt,welt->lookup(pos_next));
+			return false;
+		}
 		signal_t * sig = sch1->gib_blockstrecke()->gib_signal_bei(pos_next);
 		// action dedend on the next signal
 		if(sig) {
@@ -1794,6 +1800,11 @@ waggon_t::ist_weg_frei(int & restart_speed)
 					break;
 
 				case ding_t::choosesignal:
+					if(!sch1->gib_blockstrecke()->reserve_block(cnv->self)) {
+						// if the next block is occupied, we need not to recalculate something
+						break;
+					}
+					else
 					{
 						route_t *rt=cnv->get_route();
 						grund_t *target=welt->lookup(rt->position_bei(rt->gib_max_n()));
@@ -1840,10 +1851,11 @@ waggon_t::ist_weg_frei(int & restart_speed)
 
 						// now it make sense to search a route
 						route_t target_rt;
+						const int richtung = ribi_typ(gib_pos().gib_2d(),pos_next.gib_2d());	// to avoid confusion at diagonals
 #ifdef MAX_CHOOSE_BLOCK_TILES
-						if(!target_rt.find_route( welt, pos_next, this, speed_to_kmh(cnv->gib_min_top_speed()), fahrtrichtung, MAX_CHOOSE_BLOCK_TILES )) {
+						if(!target_rt.find_route( welt, gib_pos(), this, speed_to_kmh(cnv->gib_min_top_speed()), richtung, MAX_CHOOSE_BLOCK_TILES )) {
 #else
-						if(!target_rt.find_route( welt, pos_next, this, speed_to_kmh(cnv->gib_min_top_speed()), fahrtrichtung, welt->gib_groesse_x()+welt->gib_groesse_y() )) {
+						if(!target_rt.find_route( welt, gib_pos(), this, speed_to_kmh(cnv->gib_min_top_speed()), richtung, welt->gib_groesse_x()+welt->gib_groesse_y() )) {
 #endif
 							// nothing empty or not route with less than MAX_CHOOSE_BLOCK_TILES tiles
 							target_halt = halthandle_t();
@@ -1865,7 +1877,7 @@ DBG_DEBUG("waggon_t::ist_weg_frei()","add station at %i,%i",gr->gib_pos().x,gr->
 							target_rt.append(gr->gib_pos());
 						}
 
-						rt->remove_koord_from(route_index);
+						rt->remove_koord_from(route_index-1);
 						rt->append( &target_rt );
 
 						// try to alloc the whole route
@@ -2048,7 +2060,7 @@ void waggon_t::calc_bild()
 
 fahrplan_t * waggon_t::erzeuge_neuen_fahrplan() const
 {
-  return new zugfahrplan_t();
+  return besch->gib_typ()==weg_t::schiene_strab ? new tramfahrplan_t() : new zugfahrplan_t();
 }
 
 
@@ -2481,7 +2493,7 @@ aircraft_t::ist_weg_frei(int & restart_speed)
 		return false;
 	}
 
-DBG_MESSAGE("aircraft_t::ist_weg_frei()","index %i<>%i",route_index,touchdown);
+//DBG_MESSAGE("aircraft_t::ist_weg_frei()","index %i<>%i",route_index,touchdown);
 
 	// check for another circle ...
 	if(route_index==(touchdown-4)  &&  !target_halt.is_bound()) {
@@ -2513,7 +2525,7 @@ DBG_MESSAGE("aircraft_t::ist_weg_frei()","index %i<>%i",route_index,touchdown);
 			route_t *rt=cnv->get_route();
 			pos_next==rt->position_bei(route_index);
 			state = flying2;
-DBG_MESSAGE("aircraft_t::ist_weg_frei()","%i circles from idx %i",cnv->self.get_id(),route_index );
+//DBG_MESSAGE("aircraft_t::ist_weg_frei()","%i circles from idx %i",cnv->self.get_id(),route_index );
 		}
 		return true;
 	}

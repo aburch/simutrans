@@ -82,7 +82,6 @@ public:
     void verdrahte_signale_neu();
 
     void add_signal(signal_t *sig);
-    void add_signale(slist_tpl<signal_t *> &signale);
 
     bool loesche_signal_bei(koord3d k);
     bool entferne_signal(signal_t *sig);
