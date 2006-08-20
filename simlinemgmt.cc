@@ -49,11 +49,12 @@ simlinemgmt_t::simlinemgmt_t(karte_t * welt,spieler_t *sp) :
 void
 simlinemgmt_t::add_line(linehandle_t new_line)
 {
+//DBG_MESSAGE("simlinemgmt_t::add_line()","id=%d",new_line.get_id());
 	const uint16 id = new_line->get_line_id();
 	if(all_managed_lines.is_contained(new_line)) {
 		trap();
 	}
-	all_managed_lines.append_unique(new_line,16);
+	all_managed_lines.append(new_line,16);
 	used_ids[id/8] |= 1<<(id&7);	// should be registered anyway ...
 	sort_lines();
 }
@@ -127,12 +128,6 @@ simlinemgmt_t::update_line(linehandle_t line)
 }
 
 
-void
-simlinemgmt_t::update_line(int iroute)
-{
-	linehandle_t updated_line = get_line(iroute);
-	update_line(updated_line);
-}
 
 void
 simlinemgmt_t::rdwr(karte_t * welt, loadsave_t *file)
@@ -338,7 +333,7 @@ simlinemgmt_t::create_line(int ltype, fahrplan_t * fpl)
 		    line = new simline_t(welt, this, new fahrplan_t(fpl));
 			DBG_MESSAGE("simlinemgmt_t::create_line()", "default line created");
 			break;
-		}
+	}
 	return line->self;
 }
 
@@ -358,14 +353,16 @@ simlinemgmt_t::build_line_list(int type, slist_tpl<linehandle_t> * list)
 		linehandle_t line = all_managed_lines.at(i);
 
 		if(type==simline_t::line  ||  line->get_linetype()==simline_t::line  ||  line->get_linetype()==type) {
-			// inset sorted (these lists are not too long, so we will refrain from quicksorts)
+			// insert sorted (these lists are not too long, so we will refrain from quicksorts)
 			for(unsigned i=0;  i<list->count()  &&  line.is_bound();  i++  ) {
 				if(strcmp(line->get_name(),list->at(i)->get_name())<=0) {
+DBG_MESSAGE("simlinemgmt_t::build_line_list()","insert id=%i at %i",line.get_id(),i);
 					list->insert( line, i );
 					line = linehandle_t();
 				}
 			}
 			if(line.is_bound()) {
+DBG_MESSAGE("simlinemgmt_t::build_line_list()","append id=%i",line.get_id());
 				list->append(line);
 			}
 		}

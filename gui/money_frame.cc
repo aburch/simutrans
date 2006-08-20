@@ -322,7 +322,7 @@ void money_frame_t::zeichnen(koord pos, koord gr)
     warn.setze_text(str_buf[15]);
 
     // Hajo: Money is counted in credit cents (100 cents = 1 Cr)
-    money_to_string(str_buf[16], (sp->add_maintenance(0)<<((sint32)karte_t::ticks_bits_per_tag-18l))/100);
+    money_to_string(str_buf[16], (sp->add_maintenance(0)<<((sint64)karte_t::ticks_bits_per_tag-18l))/100);
     maintenance_money.setze_text(str_buf[16]);
     maintenance_money.set_color(sp->add_maintenance(0)>=0?MONEY_PLUS:MONEY_MINUS);
 

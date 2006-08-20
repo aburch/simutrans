@@ -59,7 +59,7 @@ public:
     enum ding_t::typ gib_typ() const {return leitung;};
 
     const char *gib_name() const {return "Leitung";};
-    int gib_bild() const;
+    image_id gib_bild() const;
     char *info(char *buf) const;
 
     void entferne(const spieler_t *sp);

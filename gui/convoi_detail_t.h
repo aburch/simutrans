@@ -109,6 +109,13 @@ public:
 	bool action_triggered(gui_komponente_t *komp);
 
     /**
+     * Manche Fenster haben einen Hilfetext assoziiert.
+     * @return den Dateinamen für die Hilfe, oder NULL
+     * @author V. Meyer
+     */
+    virtual const char * gib_hilfe_datei() const {return "convoidetail.txt"; }
+
+    /**
      * resize window in response to a resize event
      * @author Hj. Malthaner
      */

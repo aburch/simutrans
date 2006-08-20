@@ -22,7 +22,6 @@ line_management_gui_t::line_management_gui_t(karte_t *welt, linehandle_t line, s
 
 line_management_gui_t::~line_management_gui_t()
 {
-
 }
 
 const char *

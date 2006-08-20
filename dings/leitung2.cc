@@ -107,8 +107,8 @@ leitung_t::suche_fab_4(const koord pos)
 
 		for(int i=0; i<n; i++) {
 			const ding_t * dt=gr->obj_bei(i);
-			if(dt!=NULL && dt->fabrik()!=NULL) {
-				return dt->fabrik();
+			if(dt!=NULL && dt->get_fabrik()!=NULL) {
+				return dt->get_fabrik();
 			}
 		}
 	}

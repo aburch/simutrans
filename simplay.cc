@@ -424,7 +424,7 @@ spieler_t::neuer_monat()
     static char buf[256];
 
     // Wartungskosten abziehen
-    buche((sint64)(-maintenance)<<((sint32)karte_t::ticks_bits_per_tag-18), COST_MAINTENANCE);
+    buche( -((sint64)maintenance) <<((sint64)karte_t::ticks_bits_per_tag-18ll), COST_MAINTENANCE);
     calc_finance_history();
     roll_finance_history_month();
     simlinemgmt.new_month();
@@ -575,26 +575,26 @@ spieler_t::buche(const sint64 betrag, const koord pos, const int type)
 sint64
 spieler_t::buche(const sint64 betrag, int type)
 {
-    konto += betrag;
+	konto += betrag;
 
-    if (type < MAX_COST) {
-	// fill year history
-	finance_history_year[0][type] += betrag;
-	finance_history_year[0][COST_PROFIT] += betrag;
-	finance_history_year[0][COST_CASH] = konto;
-	finance_history_year[0][COST_OPERATING_PROFIT] = finance_history_year[0][COST_INCOME] + finance_history_year[0][COST_VEHICLE_RUN] + finance_history_year[0][COST_MAINTENANCE];
-	finance_history_year[0][COST_MARGIN] = (finance_history_year[0][COST_VEHICLE_RUN] + finance_history_year[0][COST_MAINTENANCE]) != 0 ? finance_history_year[0][COST_OPERATING_PROFIT] * 100/ abs((finance_history_year[0][COST_VEHICLE_RUN] + finance_history_year[0][COST_MAINTENANCE])) : 0;
-	finance_history_year[0][COST_NETWEALTH] = konto+finance_history_month[1][COST_ASSETS];
-	// fill month history
-	finance_history_month[0][type] += betrag;
-	finance_history_month[0][COST_PROFIT] += betrag;
-	finance_history_month[0][COST_CASH] = konto;
-	finance_history_month[0][COST_OPERATING_PROFIT] = finance_history_month[0][COST_INCOME] + finance_history_month[0][COST_VEHICLE_RUN] + finance_history_month[0][COST_MAINTENANCE];
-	finance_history_month[0][COST_MARGIN] = (finance_history_month[0][COST_VEHICLE_RUN] + finance_history_month[0][COST_MAINTENANCE]) != 0 ? finance_history_month[0][COST_OPERATING_PROFIT] * 100/ abs((finance_history_month[0][COST_VEHICLE_RUN] + finance_history_month[0][COST_MAINTENANCE])) : 0;
-	finance_history_month[0][COST_NETWEALTH] = konto+finance_history_month[1][COST_ASSETS];
-    }
+	if (type < MAX_COST) {
+		// fill year history
+		finance_history_year[0][type] += betrag;
+		finance_history_year[0][COST_PROFIT] += betrag;
+		finance_history_year[0][COST_CASH] = konto;
+		finance_history_year[0][COST_OPERATING_PROFIT] = finance_history_year[0][COST_INCOME] + finance_history_year[0][COST_VEHICLE_RUN] + finance_history_year[0][COST_MAINTENANCE];
+		finance_history_year[0][COST_MARGIN] = (finance_history_year[0][COST_VEHICLE_RUN] + finance_history_year[0][COST_MAINTENANCE]) != 0 ? finance_history_year[0][COST_OPERATING_PROFIT] * 100/ abs((finance_history_year[0][COST_VEHICLE_RUN] + finance_history_year[0][COST_MAINTENANCE])) : 0;
+		finance_history_year[0][COST_NETWEALTH] = konto+finance_history_month[1][COST_ASSETS];
+		// fill month history
+		finance_history_month[0][type] += betrag;
+		finance_history_month[0][COST_PROFIT] += betrag;
+		finance_history_month[0][COST_CASH] = konto;
+		finance_history_month[0][COST_OPERATING_PROFIT] = finance_history_month[0][COST_INCOME] + finance_history_month[0][COST_VEHICLE_RUN] + finance_history_month[0][COST_MAINTENANCE];
+		finance_history_month[0][COST_MARGIN] = (finance_history_month[0][COST_VEHICLE_RUN] + finance_history_month[0][COST_MAINTENANCE]) != 0 ? finance_history_month[0][COST_OPERATING_PROFIT] * 100/ abs((finance_history_month[0][COST_VEHICLE_RUN] + finance_history_month[0][COST_MAINTENANCE])) : 0;
+		finance_history_month[0][COST_NETWEALTH] = konto+finance_history_month[1][COST_ASSETS];
+	}
 
-    return konto;
+	return konto;
 }
 
 
@@ -1941,7 +1941,7 @@ DBG_MESSAGE("spieler_t::suche_transport_quelle","Search other %i supplier for: %
 				// is already served ...
 				continue;
 			}
-			fabrik_t * start_neu = dt->fabrik();
+			fabrik_t * start_neu = dt->get_fabrik();
 			// get all ware
 			const vector_tpl<ware_t> *ausgang = zfab->gib_ausgang();
 			const int waren_anzahl = ausgang->get_count();
@@ -2012,7 +2012,7 @@ DBG_MESSAGE("spieler_t::suche_transport_ziel","Lieferziele %d",lieferziel_anzahl
 			if(welt->lookup(lieferziel)) {
 				ding_t * dt = welt->lookup(lieferziel)->gib_kartenboden()->obj_bei(0);
 				if(dt) {
-					zfab = dt->fabrik();
+					zfab = dt->get_fabrik();
 					dieser_gewinn = guess_gewinn_transport_quelle_ziel( qfab, &ware, ware_nr, zfab );
 				}
 			}
@@ -2521,15 +2521,27 @@ DBG_DEBUG("spieler_t::rdwr()","%i has %i halts.",welt->sp2num( this ),halt_count
 		}
 	}
 	else {
+		DBG_MESSAGE("spieler_t::rdwr()","account=%.2f",konto/100.0);
+		DBG_MESSAGE("spieler_t::rdwr()","account=%.2f",konto/100.0);
 		// most recent savegame version
 		for (int year = 0;year<MAX_HISTORY_YEARS;year++) {
 			for (int cost_type = 0; cost_type<MAX_COST; cost_type++) {
 				file->rdwr_longlong(finance_history_year[year][cost_type], " ");
+#ifdef DEBUG
+				if(year==0) {
+					DBG_MESSAGE("spieler_t::rdwr()","year=0, catg=%d account=%.2f",cost_type,finance_history_year[0][cost_type]/100.0);
+				}
+#endif
 			}
 		}
 		for (int month = 0;month<MAX_HISTORY_MONTHS;month++) {
 			for (int cost_type = 0; cost_type<MAX_COST; cost_type++) {
 				file->rdwr_longlong(finance_history_month[month][cost_type], " ");
+#ifdef DEBUG
+				if(month==0) {
+					DBG_MESSAGE("spieler_t::rdwr()","month=0, catg=%d account=%.2f",cost_type,finance_history_month[0][cost_type]/100.0);
+				}
+#endif
 			}
 		}
 	}
@@ -2577,6 +2589,14 @@ DBG_DEBUG("spieler_t::rdwr()","%i has %i halts.",welt->sp2num( this ),halt_count
 DBG_MESSAGE("spieler_t::rdwr","Save ok");
 	}
 	else {
+		// first: financial sanity check
+		for (int year = 0;year<MAX_HISTORY_YEARS;year++) {
+			sint64 value=0;
+			for (int cost_type = 0; cost_type<MAX_COST; cost_type++) {
+				value += finance_history_year[year][cost_type];
+			}
+		}
+
 DBG_MESSAGE("spieler_t::rdwr","loading ...");
 		// loading
 		start = NULL;
@@ -2662,6 +2682,7 @@ spieler_t::laden_abschliessen()
 }
 
 
+
 /**
  * Returns the amount of money for a certain finance section
  *
@@ -2670,16 +2691,17 @@ spieler_t::laden_abschliessen()
 sint64
 spieler_t::get_finance_info(int type)
 {
-    if (type == COST_CASH) {
-	return konto;
-//    } else if (type < MAX_COST) {
-    } else {
-	// return finances[type];
-	return finance_history_year[0][type];
-    }
-
-    return 0;
+	if (type == COST_CASH) {
+		return konto;
+	}
+	else {
+		// return finances[type];
+		return finance_history_year[0][type];
+	}
+	return 0;
 }
+
+
 
 /**
  * Returns the amount of money for a certain finance section from previous year
@@ -2689,18 +2711,9 @@ spieler_t::get_finance_info(int type)
 sint64
 spieler_t::get_finance_info_old(int type)
 {
-        return finance_history_year[1][type];
-
-    if (type == COST_CASH) {
-	return konto;
-//    } else if (type < MAX_COST) {
-    } else {
-//	return old_finances[type];
-        return finance_history_year[1][type];
-    }
-
-    return 0;
+	return finance_history_year[1][type];
 }
+
 
 
 /**
@@ -2761,7 +2774,6 @@ DBG_MESSAGE("spieler_t::bescheid_vehikel_problem","Vehicle %s, state %i!", cnv->
  * @date 7-Feb-2005
  * @author prissi
  */
-
 void
 spieler_t::init_undo( weg_t::typ wtype, unsigned short max )
 {

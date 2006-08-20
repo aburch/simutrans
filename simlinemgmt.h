@@ -49,7 +49,6 @@ class simlinemgmt_t
 	 * update a line -> apply updated fahrplan to all convoys
 	 * @author hsiegeln
 	 */
- 	void update_line(int iroute);
 	void update_line(linehandle_t line);
 
 	/*

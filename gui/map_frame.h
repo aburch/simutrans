@@ -26,7 +26,9 @@ class karte_modell_t;
  * @date 03-Mar-01
  * @version $Revision: 1.11 $
  */
-class map_frame_t : public gui_frame_t
+class map_frame_t :
+	public gui_frame_t,
+	public action_listener_t
 {
 private:
 
@@ -36,19 +38,26 @@ private:
    * so we use a static variable here.
    * @author Hj. Malthaner
    */
-  static koord size;
+	static koord size;
+	static koord screenpos;
+	static uint8 legend_visible;
 
-  static koord screenpos;
+	  /**
+	   * We need to keep track of trag/click events
+	   * @author Hj. Malthaner
+	   */
+	bool is_dragging;
 
-  /**
-   * We need to keep track of trag/click events
-   * @author Hj. Malthaner
-   */
-  bool is_dragging;
+	gui_scrollpane_t scrolly;
 
+	// position of the buttons
+	int row, col;
 
-  gui_scrollpane_t scrolly;
-
+	// buttons
+	static const char map_type[MAX_MAP_TYPE][64];
+	static const int map_type_color[MAX_MAP_TYPE];
+	button_t filter_buttons[MAX_MAP_TYPE];
+	bool is_filter_active[MAX_MAP_TYPE];
 
 public:
 
@@ -67,6 +76,12 @@ public:
      */
     virtual bool has_min_sizer() const {return true;};
 
+    /**
+     * Does this window need a next button in the title bar?
+     * @return true if such a button is needed
+     * @author Volker Meyer
+     */
+    virtual bool has_next() const {return true;};
 
     /**
      * Konstruktor. Erzeugt alle notwendigen Subkomponenten.
@@ -74,8 +89,7 @@ public:
      */
     map_frame_t(const karte_modell_t *welt);
 
-	// destructor needed for closing mapwindow legend
-	virtual ~map_frame_t();
+	~map_frame_t() {}
 
     /**
      * Events werden hiermit an die GUI-Komponenten
@@ -108,4 +122,9 @@ public:
      */
     virtual void zeichnen(koord pos, koord gr);
 
+    /**
+     * This method is called if an action is triggered
+     * @author Hj. Malthaner
+     */
+    virtual bool action_triggered(gui_komponente_t *komp);
 };

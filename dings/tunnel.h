@@ -2,12 +2,14 @@
 #define dings_tunnel_h
 
 #include "../simdings.h"
+#include "../simimg.h"
 
 class tunnel_besch_t;
 
 class tunnel_t : public ding_t
 {
     const tunnel_besch_t *besch;    // NULL für die unterirdischen!
+    image_id after_bild;
 
 public:
     tunnel_t(karte_t *welt, loadsave_t *file);
@@ -16,8 +18,9 @@ public:
     const char *gib_name() const {return "Tunnelmuendung";};
     enum ding_t::typ gib_typ() const {return tunnel;};
 
-    virtual int gib_bild() const;
-    virtual int gib_after_bild() const;
+    void calc_bild();
+
+    virtual image_id gib_after_bild() const { return after_bild; }
 
 
     /**

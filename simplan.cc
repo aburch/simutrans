@@ -356,8 +356,8 @@ planquadrat_t::display_dinge(const int xpos, const int ypos, bool dirty) const
 		for(int i=1; i<boeden.get_count(); i++) {
 			gr=boeden.get(i);
 			if(gr->gib_typ()!=grund_t::boden) {
-	//			gr->display_boden(xpos, ypos, dirty);
-	//			gr->display_dinge(xpos, ypos, dirty);
+//				gr->display_boden(xpos, ypos, dirty);
+//				gr->display_dinge(xpos, ypos, dirty);
 			}
 		}
 	}

@@ -92,7 +92,7 @@ protected:
 
 public:
     enum ding_t::typ gib_typ() const {return presignal;};
-    const char *gib_name() const {return "preSignal";};
+    const char *gib_name() const {return "preSignals";};
 
     presignal_t(karte_t *welt, loadsave_t *file);
     presignal_t(karte_t *welt, koord3d pos, ribi_t::ribi dir);

@@ -107,7 +107,7 @@ private:
     array2d_tpl<unsigned char> pax_ziele_neu;
 
     koord pos;			// Gruendungsplanquadrat der Stadt
-    sint16 ob, un, li, re;		// aktuelle Ausdehnung
+    koord lo, ur;	// max size of housing area
 
     // das wird bei jedem laden wieder von 0 angefangen
     // step wird nicht gespeichert!!!
@@ -437,8 +437,8 @@ public:
      */
     inline koord gib_pos() const {return pos;};
 
-    inline koord get_linksoben() const { return koord(li, ob);};
-    inline koord get_rechtsunten() const { return koord(re, un);};
+    inline koord get_linksoben() const { return lo;};
+    inline koord get_rechtsunten() const { return ur;};
 
 
     /**

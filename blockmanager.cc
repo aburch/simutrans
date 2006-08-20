@@ -120,7 +120,7 @@ void blockmanager::neue_schiene(karte_t *welt, grund_t *gr, ding_t *sig)
         }
 	break;
     default:
-        dbg->fatal("blockmanager::neues_schienen_stueck()","unknown case in bockmanager::neue_schiene()");
+        dbg->fatal("blockmanager::neues_schienen_stueck()","unknown case %d in bockmanager::neue_schiene()",anzahl);
     }
     if(sig) {
 	sch->gib_blockstrecke()->add_signal((signal_t *)sig);
@@ -249,6 +249,10 @@ blockmanager::entferne_signal(karte_t *welt, koord3d pos)
 	// prissi: to delete a presignal, we must use also this routine!
 	if(sig==NULL) {
 		sig = dynamic_cast <signal_t *> (gr->suche_obj(ding_t::presignal));
+	}
+	// prissi: to delete a choosesignal, we must use also this routine!
+	if(sig==NULL) {
+		sig = dynamic_cast <signal_t *> (gr->suche_obj(ding_t::choosesignal));
 	}
 
 	// look at all four corners
@@ -544,7 +548,7 @@ blockmanager::neues_signal(karte_t *welt, spieler_t *sp, koord3d pos, ribi_t::ri
         const ribi_t::ribi ribi = sch->gib_ribi();
 
         // pruefe ob dir gültig
-        if(dir != ribi_t::nord && dir != ribi_t::west) {
+        if(dir!=ribi_t::nord && dir != ribi_t::west) {
             dbg->warning("blockmanager::neues_signal()", "invalid direction %d!", dir);
             return "Hier kann kein\nSignal aufge-\nstellt werden!\n";
         }

@@ -949,6 +949,11 @@ convoi_t::erzeuge_fahrplan()
 bool
 convoi_t::go_alte_richtung()
 {
+	// invalid route?
+	if(route.gib_max_n()<=2) {
+		return false;
+	}
+
 	// going backwards? then recalculate all
 	sint8 dummy;
 	ribi_t::ribi neue_richtung_rwr =  ribi_t::rueckwaerts( fahr->at(0)->calc_richtung(route.position_bei(0).gib_2d(), route.position_bei(2).gib_2d(), dummy, dummy) );
@@ -970,7 +975,7 @@ convoi_t::go_alte_richtung()
 			return false;
 		}
 	}
-	length = max((length/16)+2,route.gib_max_n()-1);	// maximum length in tiles to check
+	length = min((length/16)+2,route.gib_max_n()-1);	// maximum length in tiles to check
 
 	// we just check, wether we go back (i.e. route tiles other than zero have convoi vehicles on them)
 	for( int index=1;  index<length;  index++ ) {

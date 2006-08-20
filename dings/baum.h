@@ -59,7 +59,7 @@ private:
 
     const baum_besch_t *gib_aus_liste(int level);
 
-    int gib_bild() const;
+    image_id gib_bild() const;
 
 public:
 

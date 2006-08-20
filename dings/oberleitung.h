@@ -26,7 +26,7 @@ class oberleitung_t : public ding_t
    * Front side image
    * @author Hj. Malthaner
    */
-  sint16 front;
+  image_id front;
 
 
  public:
@@ -43,7 +43,7 @@ class oberleitung_t : public ding_t
    * Falls etwas nach den Vehikeln gemalt werden muﬂ.
    * @author V. Meyer
    */
-  virtual int gib_after_bild() const;
+  virtual image_id gib_after_bild() const;
 
 
 

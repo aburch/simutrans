@@ -784,6 +784,7 @@ grund_t::display_boden(const int xpos, int ypos, bool dirty) const
 void
 grund_t::display_dinge(const int xpos, int ypos, bool dirty)
 {
+//	DBG_DEBUG("grund_t::display_dinge()","at %i,%i",pos.x,pos.y);
 	int n;
 	int raster_tile_width = get_tile_raster_width();
 	ypos -= tile_raster_scale_y( gib_hoehe(), raster_tile_width);

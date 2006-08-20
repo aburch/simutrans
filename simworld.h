@@ -388,8 +388,9 @@ public:
     ding_t * gib_zeiger() const;
 
     spieler_t * gib_spieler(int n);
-    spieler_t *get_active_player() {return active_player; };
-    void switch_active_player();
+    spieler_t *get_active_player() const {return active_player; };
+    uint8 get_active_player_nr() const {return active_player_nr; };
+    void switch_active_player(uint8 nr);
 
 
 	// if a schedule is changed, it will increment the schedule counter

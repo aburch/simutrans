@@ -4,6 +4,7 @@
 
 
 #include "../ifc/sync_steppable.h"
+#include "../simimg.h"
 
 class ding_t;
 class karte_t;
@@ -20,7 +21,7 @@ protected:
     sint32 insta_zeit;	// Wolken verschwinden, wenn alter max. erreicht
 
     wolke_t(karte_t *welt);
-    wolke_t(karte_t *welt, koord3d pos, int xoff, int yoff, int bild);
+    wolke_t(karte_t *welt, koord3d pos, int xoff, int yoff, image_id bild);
 
 public:
     inline sint32 gib_insta_zeit() const {return insta_zeit;};
@@ -42,11 +43,11 @@ class sync_wolke_t : public wolke_t, public sync_steppable
 {
 private:
     sint16 base_y_off;
-    sint16 base_image;
+    image_id base_image;
 
 public:
     sync_wolke_t(karte_t *welt, loadsave_t *file);
-    sync_wolke_t(karte_t *welt, koord3d pos, int xoff, int yoff, int bild);
+    sync_wolke_t(karte_t *welt, koord3d pos, int xoff, int yoff, image_id bild);
 
 
     /**
@@ -66,11 +67,6 @@ public:
      * @author Hj. Malthaner
      */
     virtual void entferne(spieler_t *sp);
-
-#ifdef FREELIST_NEW
-    void * operator new(size_t s);
-    void operator delete(void *p);
-#endif
 };
 
 
@@ -85,7 +81,7 @@ class async_wolke_t : public wolke_t
 {
 public:
     async_wolke_t(karte_t *welt, loadsave_t *file);
-    async_wolke_t(karte_t *welt, koord3d pos, int xoff, int yoff, int bild);
+    async_wolke_t(karte_t *welt, koord3d pos, int xoff, int yoff, image_id bild);
 
     bool step(long delta_t);
     enum ding_t::typ gib_typ() const {return async_wolke;};

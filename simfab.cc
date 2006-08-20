@@ -76,8 +76,8 @@ fabrik_t * fabrik_t::gib_fab(const karte_t *welt, const koord pos)
 {
 	if(welt->ist_in_kartengrenzen(pos)) {
 		const grund_t *gr = welt->lookup(pos)->gib_kartenboden();
-		if(gr  &&  gr->obj_bei(0)!=NULL  &&  gr->obj_bei(0)->fabrik()!=NULL) {
-			return gr->obj_bei(0)->fabrik();
+		if(gr  &&  gr->obj_bei(0)!=NULL  &&  gr->obj_bei(0)->get_fabrik()!=NULL) {
+			return gr->obj_bei(0)->get_fabrik();
 		}
 	}
 	// not found
@@ -290,9 +290,9 @@ fabrik_t::sind_da_welche(karte_t *welt, koord min_pos, koord max_pos)
 		for(int x=min_pos.x; x<=max_pos.x; x++) {
 			if(welt->ist_in_kartengrenzen(x, y)) {
 				const grund_t *gr = welt->lookup(koord(x,y))->gib_kartenboden();
-				if(gr->obj_bei(0)!=NULL  &&  gr->obj_bei(0)->fabrik() != NULL) {
-					if( fablist.append_unique( gr->obj_bei(0)->fabrik(), 4 )  ) {
-//DBG_MESSAGE("fabrik_t::sind_da_welche()","appended factory %s at (%i,%i)",gr->obj_bei(0)->fabrik()->gib_besch()->gib_name(),x,y);
+				if(gr->obj_bei(0)!=NULL  &&  gr->obj_bei(0)->get_fabrik() != NULL) {
+					if( fablist.append_unique( gr->obj_bei(0)->get_fabrik(), 4 )  ) {
+//DBG_MESSAGE("fabrik_t::sind_da_welche()","appended factory %s at (%i,%i)",gr->obj_bei(0)->get_fabrik()->gib_besch()->gib_name(),x,y);
 					}
 				}
 			}
@@ -308,7 +308,7 @@ fabrik_t::ist_da_eine(karte_t *welt, koord min_pos, koord max_pos )
 		for(int x=min_pos.x; x<=max_pos.x; x++) {
 			if(welt->ist_in_kartengrenzen(x, y)) {
 				const grund_t *gr = welt->lookup(koord(x,y))->gib_kartenboden();
-				if(gr->obj_bei(0)!=NULL  &&  gr->obj_bei(0)->fabrik()!=NULL) {
+				if(gr->obj_bei(0)!=NULL  &&  gr->obj_bei(0)->get_fabrik()!=NULL) {
 					return true;
 				}
 			}
@@ -1075,7 +1075,7 @@ void fabrik_t::info(cbuffer_t & buf)
 
       ding_t * dt = welt->lookup(lieferziel)->gib_kartenboden()->obj_bei(0);
       if(dt) {
-	fabrik_t *fab = dt->fabrik();
+	fabrik_t *fab = dt->get_fabrik();
 
 	if(fab) {
 	  buf.append("     ");
@@ -1100,7 +1100,7 @@ void fabrik_t::info(cbuffer_t & buf)
 
       ding_t * dt = welt->lookup(supplier)->gib_kartenboden()->obj_bei(0);
       if(dt) {
-	fabrik_t *fab = dt->fabrik();
+	fabrik_t *fab = dt->get_fabrik();
 
 	if(fab) {
 	  buf.append("     ");

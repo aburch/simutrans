@@ -70,9 +70,9 @@ oberleitung_t::~oberleitung_t()
  * Falls etwas nach den Vehikeln gemalt werden muß.
  * @author V. Meyer
  */
-int oberleitung_t::gib_after_bild() const
+image_id oberleitung_t::gib_after_bild() const
 {
-  return front;
+	return front;
 }
 
 
@@ -90,15 +90,12 @@ void oberleitung_t::calc_bild()
 {
   int back;
 
-
   // set default values, juts in case the following code misses some if or
   // switch case
   back = skinverwaltung_t::oberleitung->gib_bild_nr(0);
   front = skinverwaltung_t::oberleitung->gib_bild_nr(8);
 
-
   grund_t *gr = welt->lookup(gib_pos());
-
 
   hang_t::typ hang = gr->gib_weg_hang();
   ribi_t::ribi ribi = gr->gib_weg_ribi_unmasked(weg_t::schiene);
@@ -166,22 +163,22 @@ void oberleitung_t::calc_bild()
       break;
 
     case ribi_t::nordwest:
-      back = skinverwaltung_t::oberleitung->gib_bild_nr(-1);
+      back = IMG_LEER;
       front = skinverwaltung_t::oberleitung->gib_bild_nr(14);
       break;
 
     case ribi_t::suedost:
-      back = skinverwaltung_t::oberleitung->gib_bild_nr(-1);
+      back = IMG_LEER;
       front = skinverwaltung_t::oberleitung->gib_bild_nr(15);
       break;
 
     case ribi_t::nordost:
-      back = skinverwaltung_t::oberleitung->gib_bild_nr(-1);
+      back = IMG_LEER;
       front = skinverwaltung_t::oberleitung->gib_bild_nr(12);
       break;
 
     case ribi_t::suedwest:
-      back = skinverwaltung_t::oberleitung->gib_bild_nr(-1);
+      back = IMG_LEER;
       front = skinverwaltung_t::oberleitung->gib_bild_nr(13);
       break;
 
@@ -213,8 +210,8 @@ void oberleitung_t::calc_bild()
   }
 
   if(gr->ist_tunnel()) {
-    front = -1;
-    back = -1;
+    front = IMG_LEER;
+    back = IMG_LEER;
   }
 
 

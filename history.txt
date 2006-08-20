@@ -9,6 +9,22 @@ Known bugs: (hard to fix)
 	help windows to large => need scrolling!
 
 
+Release of 88.09
+
+19-Apr-2006: (prissi)
+	FIX: renovation townhall city update (again ...)
+	FIX: lines were created double in depot and not shown in the selection
+	CHANGE: city border are now recalculated after reloading => border can shrink again manually by this
+	CHANGE: deleting a town now also deletes all houses within this town
+	CHANGE: three stage map info window
+	CHANGE: houses now indocate their town in the info "Town: %s\n"
+	CHANGE: renovated player tool
+	ADD: long tracks/monorails/road/channel removal tool
+	FIX: choosesignal deletion was not handled on two places in the blockmanager
+	CHANGE: scrollable help windows with "more intelligent" size calculation
+	CHANGE: road construction also on used tiles ...
+
+
 Release of 88.08.1
 
 16-Apr-2006: (prissi)

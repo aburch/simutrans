@@ -36,11 +36,11 @@
 char fahrplan_gui_t::no_line[128];	// contains the current translation of "<no line>"
 
 // here are the default loading values
-#define MAX_LADEGRADE (7)
+#define MAX_LADEGRADE (8)
 
 static char ladegrade[MAX_LADEGRADE]=
 {
-	0, 1, 10, 25, 50, 75, 100
+	0, 1, 10, 25, 50, 75, 90, 100
 };
 
 
@@ -508,7 +508,6 @@ void fahrplan_gui_t::init_line_selector()
 {
 	line_selector.clear_elements();
 	line_selector.append_element(no_line);
-	line_selector.set_selection(-1);
 	int selection = -1;
 	if (sp->simlinemgmt.count_lines() > 0) {
 		sp->simlinemgmt.build_line_list(fpl->get_type(welt), &lines);
@@ -517,16 +516,17 @@ void fahrplan_gui_t::init_line_selector()
 			linehandle_t line = iter.get_current();
 			line_selector.append_element( line->get_name() );
 			if(new_line==line) {
-DBG_MESSAGE("fahrplan_gui_t::init_line_selector()","line %i contained",line.get_id());
 				selection = line_selector.count_elements();
 			}
 		}
 	}
 
-	line_selector.setze_text(no_line, 128);
+	line_selector.set_selection( selection );
 	if(new_line.is_bound()) {
 		line_selector.setze_text(new_line->get_name(), 128);
 DBG_MESSAGE("fahrplan_gui_t::init_line_selector()","selection %i",selection);
-		line_selector.set_selection( selection );
+	}
+	else {
+		line_selector.setze_text(no_line, 128);
 	}
 }

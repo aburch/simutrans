@@ -24,7 +24,7 @@ class roadsign_t : public ding_t
 {
 private:
      // foreground
-    uint16 after_bild;
+    image_id after_bild;
 
 protected:
 	unsigned char zustand;	// counter for steps ...
@@ -86,7 +86,7 @@ public:
      * Falls etwas nach den Vehikeln gemalt werden muß.
      * @author V. Meyer
      */
-    virtual int gib_after_bild() const {return after_bild;};
+    virtual image_id gib_after_bild() const {return after_bild;};
 
     	void rdwr(loadsave_t *file);
 

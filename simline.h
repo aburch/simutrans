@@ -53,7 +53,6 @@ public:
 	 * constructor/destructor
 	 * @author hsiegeln
 	 */
-	simline_t(linehandle_t line);
 	simline_t(karte_t * welt, simlinemgmt_t * simlinemgmt, fahrplan_t * fpl);
 	simline_t(karte_t * welt, simlinemgmt_t * simlinemgmt, loadsave_t * file);
 	~simline_t();
@@ -177,8 +176,6 @@ private:
 class truckline_t : public simline_t
 {
 	public:
-		truckline_t(linehandle_t line) : simline_t(line) { type = simline_t::truckline; }
-
 		truckline_t(karte_t * welt, simlinemgmt_t * simlinemgmt, fahrplan_t * fpl) : simline_t(welt, simlinemgmt, fpl)
 		{
 			type = simline_t::truckline;
@@ -194,8 +191,6 @@ class truckline_t : public simline_t
 class trainline_t : public simline_t
 {
 	public:
-		trainline_t(linehandle_t line) : simline_t(line) { type = simline_t::trainline; }
-
 		trainline_t(karte_t * welt, simlinemgmt_t * simlinemgmt, fahrplan_t * fpl) : simline_t(welt, simlinemgmt, fpl)
 		{
 			type = simline_t::trainline;
@@ -211,8 +206,6 @@ class trainline_t : public simline_t
 class shipline_t : public simline_t
 {
 	public:
-		shipline_t(linehandle_t line) : simline_t(line) { type = simline_t::shipline; }
-
 		shipline_t(karte_t * welt, simlinemgmt_t * simlinemgmt, fahrplan_t * fpl) : simline_t(welt, simlinemgmt, fpl)
 		{
 			type = simline_t::shipline;
@@ -228,8 +221,6 @@ class shipline_t : public simline_t
 class airline_t : public simline_t
 {
 	public:
-		airline_t(linehandle_t line) : simline_t(line) { type = simline_t::airline; }
-
 		airline_t(karte_t * welt, simlinemgmt_t * simlinemgmt, fahrplan_t * fpl) : simline_t(welt, simlinemgmt, fpl)
 		{
 			type = simline_t::airline;
@@ -245,8 +236,6 @@ class airline_t : public simline_t
 class monorailline_t : public simline_t
 {
 	public:
-		monorailline_t(linehandle_t line) : simline_t(line) { type = simline_t::monorailline; }
-
 		monorailline_t(karte_t * welt, simlinemgmt_t * simlinemgmt, fahrplan_t * fpl) : simline_t(welt, simlinemgmt, fpl)
 		{
 			type = simline_t::monorailline;
@@ -262,8 +251,6 @@ class monorailline_t : public simline_t
 class tramline_t : public simline_t
 {
 	public:
-		tramline_t(linehandle_t line) : simline_t(line) { type = simline_t::tramline; }
-
 		tramline_t(karte_t * welt, simlinemgmt_t * simlinemgmt, fahrplan_t * fpl) : simline_t(welt, simlinemgmt, fpl) { type = simline_t::tramline; }
 
 		tramline_t(karte_t * welt, simlinemgmt_t * simlinemgmt, loadsave_t * file) : simline_t(welt, simlinemgmt, file)

@@ -23,6 +23,7 @@
 #include "simpeople.h"
 
 #include "bauer/fabrikbauer.h"
+#include "bauer/vehikelbauer.h"
 
 #include "boden/boden.h"
 #include "boden/grund.h"
@@ -61,6 +62,7 @@
 #include "dings/tunnel.h"
 #include "dings/signal.h"
 #include "dings/roadsign.h"
+#include "dings/oberleitung.h"
 #include "dings/leitung2.h"
 #include "dings/baum.h"
 #ifdef LAGER_NOT_IN_USE
@@ -70,6 +72,7 @@
 #include "dataobj/einstellungen.h"
 #include "dataobj/umgebung.h"
 #include "dataobj/fahrplan.h"
+#include "dataobj/route.h"
 
 #include "bauer/tunnelbauer.h"
 #include "bauer/brueckenbauer.h"
@@ -382,6 +385,7 @@ DBG_DEBUG("entferne_haltestelle()","reset city way owner");
 }
 
 
+
 static int
 wkz_remover_intern(spieler_t *sp, karte_t *welt, koord pos, const char *&msg)
 {
@@ -521,10 +525,10 @@ DBG_MESSAGE("wkz_remover()",  "removing tunnel  from %d,%d,%d",gr->gib_pos().x, 
 		}
 		else {
 			// remove factory?
-			if(gb->fabrik()!=NULL) {
+			if(gb->get_fabrik()!=NULL) {
 
 				// remove connections ...
-				fabrik_t *fab=gb->fabrik();
+				fabrik_t *fab=gb->get_fabrik();
 DBG_MESSAGE("wkz_remover()", "removing factory:  %p");
 
 				if(welt->access(fab->gib_pos().gib_2d())->get_haltlist().get_count()!=0) {
@@ -603,7 +607,7 @@ DBG_MESSAGE("wkz_remover()",  "removing everything from %d,%d,%d",gr->gib_pos().
 
 	// ok, now we removed every object, that should be removed one by one.
 	// the following objects will be removed together
-	if( gr->gib_weg(weg_t::schiene) != NULL ) {
+	if(gr->gib_weg(weg_t::schiene)!=NULL  ||  gr->gib_weg(weg_t::monorail)!=NULL) {
 		DBG_MESSAGE("wkz_remover()",  "removing block" );
 		if(!blockmanager::gib_manager()->entferne_schiene(welt, gr->gib_pos())) {
 			return false;
@@ -748,8 +752,7 @@ wkz_wegebau(spieler_t *sp, karte_t *welt,  koord pos, value_t lParam)
 			return false;
 		}
 		else {
-			grund_t *gr = welt->lookup(pos)->gib_kartenboden();
-			if(gr == NULL ||  gr->ist_wasser() ||  gr->kann_alle_obj_entfernen(sp)) {
+			if(welt->lookup(pos)->gib_kartenboden()==NULL) {
 				return false;
 			}
 		}
@@ -801,6 +804,243 @@ DBG_MESSAGE("wkz_wegebau()", "try straight route");
 
 			bauigel.calc_costs();
 			bauigel.baue();
+		}
+	}
+	return true;
+}
+
+
+
+
+/* removes a way like a driving car ... */
+int
+wkz_wayremover(spieler_t *sp, karte_t *welt,  koord pos, value_t lParam)
+{
+	static zeiger_t *wkz_wayremover_bauer = NULL;
+	weg_t::typ wt=(weg_t::typ)(lParam.i);
+	static bool erster = true;
+	static koord3d start, end;
+
+	if(pos==INIT || pos == EXIT) {  // init strassenbau
+		erster = true;
+
+		if(wkz_wayremover_bauer != NULL) {
+			delete wkz_wayremover_bauer;
+			wkz_wayremover_bauer = NULL;
+		}
+		start = end = koord3d::invalid;
+	}
+	else {
+		const planquadrat_t *plan = welt->lookup(pos);
+
+		// Hajo: check if it's safe to build here
+		if(plan == NULL) {
+			return false;
+		}
+		else {
+			grund_t *gr = welt->lookup(pos)->gib_kartenboden();
+			if(gr==NULL ||  gr->gib_weg(wt)==NULL) {
+				// wrong ground or not this way here => exit
+				return false;
+			}
+		}
+
+		if( erster ) {
+			// set start position
+
+			erster = false;
+			grund_t *gr = welt->lookup(pos)->gib_kartenboden();
+			start = gr->gib_pos();
+			wkz_wayremover_bauer = new zeiger_t(welt, gr->gib_pos(), sp);
+			wkz_wayremover_bauer->setze_bild(0, skinverwaltung_t::killzeiger->gib_bild_nr(0));
+			gr->obj_pri_add(wkz_wayremover_bauer, PRI_NIEDRIG);
+			DBG_MESSAGE("wkz_wayremover()", "Setting start to %d,%d,%d",start.x, start.y,start.z);
+		}
+		else {
+			// remove marker
+			delete( wkz_wayremover_bauer );
+			wkz_wayremover_bauer = NULL;
+			erster = true;
+
+			// there should be always a car for passengers ...
+			const vehikel_besch_t *remover_besch = vehikelbauer_t::vehikel_search(wt , 0, 1, 1, warenbauer_t::passagiere, false );
+			if(remover_besch==NULL) {
+				dbg->error("wkz_wayremover()", "no vehicle found?!?");
+				return false;
+			}
+
+			// if we do not do it this way, simutrans will not correctly delete it
+			route_t verbindung;
+			bool can_delete=false;
+			switch(wt) {
+				case weg_t::schiene:
+					{
+						waggon_t *test_driver=new waggon_t(welt,start,remover_besch,sp,NULL);
+						can_delete = verbindung.calc_route(welt,start,welt->lookup(pos)->gib_kartenboden()->gib_pos(),(fahrer_t*)test_driver,0);
+						delete test_driver;
+					}
+					break;
+				case weg_t::monorail:
+					{
+						monorail_waggon_t *test_driver=new monorail_waggon_t(welt,start,remover_besch,sp,NULL);
+						can_delete = verbindung.calc_route(welt,start,welt->lookup(pos)->gib_kartenboden()->gib_pos(),(fahrer_t*)test_driver,0);
+						delete test_driver;
+					}
+					break;
+				case weg_t::strasse:
+					{
+						automobil_t *test_driver=new automobil_t(welt,start,remover_besch,sp,NULL);
+						can_delete = verbindung.calc_route(welt,start,welt->lookup(pos)->gib_kartenboden()->gib_pos(),(fahrer_t*)test_driver,0);
+						delete test_driver;
+					}
+					break;
+				case weg_t::wasser:
+					{
+						schiff_t *test_driver=new schiff_t(welt,start,remover_besch,sp,NULL);
+						can_delete = verbindung.calc_route(welt,start,welt->lookup(pos)->gib_kartenboden()->gib_pos(),(fahrer_t*)test_driver,0);
+						delete test_driver;
+					}
+					break;
+				case weg_t::luft:
+					{
+						aircraft_t *test_driver=new aircraft_t(welt,start,remover_besch,sp,NULL);
+						can_delete = verbindung.calc_route(welt,start,welt->lookup(pos)->gib_kartenboden()->gib_pos(),(fahrer_t*)test_driver,0);
+						delete test_driver;
+					}
+					break;
+				default:
+					// unknown waytype!
+					return false;
+			}
+
+DBG_MESSAGE("wkz_wayremover()","route search returned %d",can_delete);
+
+			if(!can_delete) {
+				DBG_MESSAGE("wkz_wayremover()","no route found");
+				return false;
+			}
+
+DBG_MESSAGE("wkz_wayremover()","route with %d tile found",verbindung.gib_max_n());
+
+
+			// found a route => check if I can delete anything on it
+			for( int i=0;  can_delete  &&  i<=verbindung.gib_max_n();  i++  ) {
+				grund_t *gr=welt->lookup(verbindung.position_bei(i));
+				if(!gr  ||  (gr->gib_besitzer()!=NULL  &&  gr->gib_besitzer()!=sp)  ||  gr->kann_alle_obj_entfernen(sp)!=NULL) {
+					can_delete = false;
+				}
+			}
+
+			const bool is_rail = (wt==weg_t::schiene  ||  wt==weg_t::monorail);	// since we must delete overhead and block info
+			//if successful => delete everything
+			for( int i=0;  can_delete  &&  i<=verbindung.gib_max_n();  i++  ) {
+
+				grund_t *gr=welt->lookup(verbindung.position_bei(i));
+DBG_MESSAGE("wkz_wayremover()","at %d,%d,%d",gr->gib_pos().x,gr->gib_pos().y,gr->gib_pos().z);
+				// ground can be missing after deleting a bridge ...
+				if(gr  &&  !gr->ist_wasser()) {
+
+					// now we must remove the things one by one, for special things
+					if(is_rail) {
+						if(gr->suche_obj(ding_t::signal)!=NULL  ||  gr->suche_obj(ding_t::presignal)!=NULL  ||  gr->suche_obj(ding_t::choosesignal)!=NULL) {
+DBG_MESSAGE("wkz_wayremover()","remove signal");
+							blockmanager *bm = blockmanager::gib_manager();
+							can_delete &= bm->entferne_signal(welt, gr->gib_pos());
+						}
+					}
+
+					// roadsigns ...
+					roadsign_t *rs = dynamic_cast<roadsign_t *>(gr->suche_obj(ding_t::roadsign));
+					if(rs) {
+DBG_MESSAGE("wkz_wayremover()","remove roadsign");
+						rs->entferne(sp);
+						delete rs;
+					}
+
+					// stopps
+					if(gr->gib_halt().is_bound()) {
+DBG_MESSAGE("wkz_wayremover()","remove halt");
+						const char *fail;
+						can_delete &= entferne_haltestelle(welt, sp, gr->gib_halt(), gr->gib_pos(), fail);
+					}
+
+					// check for bridge => delete everything so we can remove the ground
+					if(gr->ist_bruecke()  ||  gr->ist_tunnel()) {
+DBG_MESSAGE("wkz_wayremover()","remove all in non kartenboden");
+						can_delete &= gr->obj_loesche_alle(sp);
+					}
+
+					// citycars ...
+					while(gr->suche_obj(ding_t::verkehr)) {
+DBG_MESSAGE("wkz_wayremover()","remove verkehr");
+						stadtauto_t *citycar = dynamic_cast<stadtauto_t *>(gr->suche_obj(ding_t::verkehr));
+						delete citycar;
+					}
+
+					// pedestrians ...
+					while(gr->suche_obj(ding_t::fussgaenger)) {
+//DBG_MESSAGE("wkz_wayremover()","remove fussgaenger");
+						fussgaenger_t *fussgaenger = dynamic_cast<fussgaenger_t *>(gr->suche_obj(ding_t::fussgaenger));
+						delete fussgaenger;
+					}
+
+					// now the tricky part: delete just part of a way (or easy everything)
+					// first calculated removing directions
+					ribi_t::ribi rem = (i>0) ? ribi_typ( verbindung.position_bei(i).gib_2d(), verbindung.position_bei(i-1).gib_2d() ) : 0;
+					ribi_t::ribi rem2 = (i<verbindung.gib_max_n()) ? ribi_typ(verbindung.position_bei(i).gib_2d(),verbindung.position_bei(i+1).gib_2d()) : 0;
+//DBG_MESSAGE("wkz_wayremover()","remove ribi %d and %d", rem, rem2);
+					rem = ~(rem|rem2);
+					// then check, if the way must be totally removed?
+					weg_t *weg = gr->gib_weg(wt);
+					assert(weg!=NULL);
+//DBG_MESSAGE("wkz_wayremover()","current ribi %d remaining %d",weg->gib_ribi_unmasked(),rem);
+					ribi_t::ribi add=(weg->gib_ribi_unmasked()&rem);
+DBG_MESSAGE("wkz_wayremover()","remaining ribi %d",add);
+
+					// need to remove railblocks to recalcualte connections
+					// remove all ways or just some?
+					if(add==ribi_t::keine ) {
+DBG_MESSAGE("wkz_wayremover()","remove all way");
+						if(is_rail) {
+//DBG_MESSAGE("wkz_wayremover()","remove block info");
+							can_delete &= blockmanager::gib_manager()->entferne_schiene(welt, gr->gib_pos());
+							if(gr->suche_obj(ding_t::oberleitung)!=NULL) {
+								oberleitung_t *ol = dynamic_cast<oberleitung_t *>(gr->suche_obj(ding_t::oberleitung));
+								gr->obj_remove(ol,sp);
+								delete ol;
+							}
+						}
+						sp->buche(-gr->weg_entfernen(wt, true), pos, COST_CONSTRUCTION);
+					}
+					else {
+
+DBG_MESSAGE("wkz_wayremover()","change remaining way to ribi %d",add);
+						// something will remain, we just change ribis
+						gr->weg_erweitern(wt, add);
+						if(wt==weg_t::schiene  ||  wt==weg_t::monorail) {
+							blockmanager::gib_manager()->schiene_erweitern(welt, gr);
+							if(gr->suche_obj(ding_t::oberleitung)!=NULL) {
+								gr->suche_obj(ding_t::oberleitung)->calc_bild();
+							}
+						}
+					}
+
+					// bridges, tunnels, or monorails => remove ground too
+					if(gr!=welt->lookup(verbindung.position_bei(i).gib_2d())->gib_kartenboden()) {
+						welt->access(verbindung.position_bei(i).gib_2d())->boden_entfernen(gr);
+					}
+					else {
+						// replace entry even if kartenboden
+						if(gr->gib_typ()==grund_t::tunnelboden  ||  gr->gib_typ()==grund_t::brueckenboden) {
+							welt->access(verbindung.position_bei(i).gib_2d())->kartenboden_setzen(new boden_t(welt, verbindung.position_bei(i)), false);
+						}
+					}
+				}
+				// ok, now everything removed ...
+			}
+
+			// return success
+			return can_delete;
 		}
 	}
 	return true;
@@ -2184,7 +2424,7 @@ int wkz_switch_player(spieler_t *, karte_t *welt, koord pos)
 {
 	if(pos==INIT) {
 		welt->setze_maus_funktion(wkz_abfrage, skinverwaltung_t::fragezeiger->gib_bild_nr(0), karte_t::Z_PLAN,  NO_SOUND, NO_SOUND );
-		welt->switch_active_player();
+		welt->switch_active_player( welt->get_active_player_nr()+1 );
 	}
 	return false;
 }
@@ -2250,7 +2490,7 @@ int wkz_lock( spieler_t *, karte_t *welt, koord pos)
 		welt->setze_maus_funktion(wkz_abfrage, skinverwaltung_t::fragezeiger->gib_bild_nr(0), karte_t::Z_PLAN,  NO_SOUND, NO_SOUND );
 		welt->gib_einstellungen()->setze_allow_player_change( false );
 		destroy_all_win();
-		welt->switch_active_player();
+		welt->switch_active_player( 0 );
 	}
 	return false;
 }

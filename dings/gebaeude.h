@@ -22,6 +22,8 @@
 #endif
 
 class haus_tile_besch_t;
+class fabrik_t;
+class stadt_t;
 
 /**
  * Asynchron oder synchron animierte Gebaeude für Simutrans.
@@ -49,12 +51,14 @@ private:
     const haus_tile_besch_t *tile;
 
 
-    /**
-     * Dies ist der Zeiger auf die Fabrik zu der das Objekt gehört.
-     * @author Hj. Malthaner
-     */
-    fabrik_t  *fab;
-
+	/**
+	 * either point to a factory or a city
+	 * @author Hj. Malthaner
+	 */
+	union {
+		fabrik_t  *fab;
+		stadt_t *stadt;
+	} ptr;
 
     /**
      * Zeitpunkt an dem das Gebaeude Gebaut wurde
@@ -62,13 +66,11 @@ private:
      */
     uint32 insta_zeit;
 
-
     /**
      * Time control for animation progress.
      * @author Hj. Malthaner
      */
     uint16 anim_time;
-
 
     /**
      * Current anim frame
@@ -76,13 +78,11 @@ private:
      */
     uint8 count;
 
-
     /**
      * Is this a sync animated object?
      * @author Hj. Malthaner
      */
     uint8 sync:1;
-
 
     /**
      * Boolean flag if a construction site or buildings image
@@ -91,6 +91,11 @@ private:
      */
     uint8 zeige_baugrube:1;
 
+    /**
+     * if true, this ptr union contains a factory pointer
+     * @author Hj. Malthaner
+     */
+    uint8 is_factory:1;
 
     /**
      * Initializes all variables with save, usable values
@@ -120,20 +125,30 @@ public:
 
     typ gib_haustyp() const;
 
-    void add_alter(int a);
+    void add_alter(uint32 a);
 
-    void setze_fab(fabrik_t *fb) { fab = fb; }
+    void setze_fab(fabrik_t *fb);
+    void setze_stadt(stadt_t *s);
 
-    enum ding_t::typ gib_typ() const {return ding_t::gebaeude;};
+    /**
+     * Ein Gebaeude kann zu einer Fabrik gehören.
+     * @return Einen Zeiger auf die Fabrik zu der das Objekt gehört oder NULL,
+     * wenn das Objekt zu keiner Fabrik gehört.
+     * @author Hj. Malthaner
+     */
+    virtual inline fabrik_t* get_fabrik() const {return is_factory?ptr.fab:NULL;}
+    stadt_t* get_stadt() const {return is_factory?NULL:ptr.stadt;}
 
-    void setze_count(int count);
-    void setze_anim_time(unsigned long t) {anim_time = t;};
+    enum ding_t::typ gib_typ() const {return ding_t::gebaeude;}
+
+    void setze_count(uint8 count);
+    void setze_anim_time(uint16 t) {anim_time = t;}
 
     /**
      * @return einen Zeiger auf die Karte zu der das Ding gehört
      * @author Hj. Malthaner
      */
-    virtual inline karte_t* gib_karte() const {return welt;};
+    virtual inline karte_t* gib_karte() const {return welt;}
 
     /**
      * Should only be called after everything is set up to play
@@ -144,20 +159,11 @@ public:
      */
     void setze_sync(bool yesno);
 
-
     bool step(long delta_t);
-    int gib_bild() const;
-    int gib_bild(int nr) const;
-    int gib_after_bild() const;
-    int gib_after_bild(int nr) const;
-
-    /**
-     * Ein Gebaeude kann zu einer Fabrik gehören.
-     * @return Einen Zeiger auf die Fabrik zu der das Objekt gehört oder NULL,
-     * wenn das Objekt zu keiner Fabrik gehört.
-     * @author Hj. Malthaner
-     */
-    virtual inline fabrik_t* fabrik() const {return fab;};
+    image_id gib_bild() const;
+    image_id gib_bild(int nr) const;
+    image_id gib_after_bild() const;
+    image_id gib_after_bild(int nr) const;
 
     /**
      * @return eigener Name oder Name der Fabrik falls Teil einer Fabrik

@@ -13,6 +13,7 @@
 #include "simview.h"
 #include "simgraph.h"
 
+#include "simdebug.h"
 #include "simdings.h"
 #include "simconst.h"
 #include "dings/zeiger.h"

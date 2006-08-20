@@ -20,8 +20,10 @@ int wkz_raise(spieler_t *sp, karte_t *welt, koord pos);
 int wkz_lower(spieler_t *sp, karte_t *welt, koord pos);
 int wkz_remover(spieler_t *sp, karte_t *welt, koord pos);
 
-// current location of bau cursor
 int wkz_wegebau(spieler_t *sp, karte_t *welt, koord pos, value_t lParam);
+
+/* removes a way like a driving car ... */
+int wkz_wayremover(spieler_t *sp, karte_t *welt,  koord pos, value_t lParam);
 
 int wkz_marker(spieler_t *sp, karte_t *welt, koord pos);
 

@@ -29,7 +29,7 @@
 // @author hsiegeln
 const char hist_type[MAX_CITY_HISTORY][64] =
 {
-  "citicens", "growth", "transported", "Passagiere",
+  "citicens", "Growth", "Transported", "Passagiere",
 };
 
 

@@ -266,8 +266,8 @@ haltestelle_t::haltestelle_t(karte_t *wl, loadsave_t *file) : self(this), reserv
 
 	status_color = COL_YELLOW;
 
-	reroute_counter = welt->get_schedule_counter();
-	rebuilt_destination_counter = reroute_counter-1;
+	reroute_counter = welt->get_schedule_counter()-1;
+	rebuilt_destination_counter = reroute_counter;
 
 	enables = NOT_ENABLED;
 
@@ -296,7 +296,8 @@ haltestelle_t::haltestelle_t(karte_t *wl, koord pos, spieler_t *sp) : self(this)
 
 	enables = NOT_ENABLED;
 
-	reroute_counter = welt->get_schedule_counter();
+	reroute_counter = welt->get_schedule_counter()-1;
+	rebuilt_destination_counter = reroute_counter;
 
     pax_happy = 0;
     pax_unhappy = 0;

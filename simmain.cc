@@ -843,11 +843,10 @@ print("Reading simuconf.tab successful!\n");
     win_setze_welt( welt );
     win_display_menu();
     view->display( true );
+    welt->sync_prepare();
 
     // Bringe welt in ansehnlichen Zustand
     // bevor sie als Hintergrund für das intro dient
-
-    welt->sync_prepare();
     if(loadgame == "") {
 	welt->sync_step(welt->gib_zeit_ms() + welt->ticks_per_tag/2);
 	for(i=0; i<20; i++) {

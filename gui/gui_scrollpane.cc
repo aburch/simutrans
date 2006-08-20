@@ -56,13 +56,11 @@ void gui_scrollpane_t::setze_groesse(koord groesse)
 {
 	gui_komponente_t::setze_groesse(groesse);
 
-	// printf("gui_scrollpane::setze_groesse(%d,%d), komp (%d,%d)\n", groesse.x, groesse.y, komp->gib_groesse().x, komp->gib_groesse().y);
-
-	scroll_x->setze_knob(groesse.x-12, komp->gib_groesse().x);
+	scroll_x->setze_knob(groesse.x-12, komp->gib_groesse().x);	// set client/komp area
 	scroll_x->setze_pos(koord(0, groesse.y-11));
 	scroll_x->setze_groesse(groesse-koord(12,12));
 
-	if(b_has_size_corner) {
+	if(b_has_size_corner  ||  b_show_scroll_x) {
 		scroll_y->setze_knob(groesse.y-12, komp->gib_groesse().y);
 		scroll_y->setze_pos(koord(groesse.x-11, 0));
 		scroll_y->setze_groesse(groesse-koord(12,12));
@@ -138,10 +136,6 @@ void gui_scrollpane_t::zeichnen(koord pos) const
 {
 	pos += this->pos;
 
-	PUSH_CLIP(pos.x, pos.y, groesse.x-11*b_show_scroll_y, groesse.y-11*b_show_scroll_x);
-	komp->zeichnen(pos - koord(scroll_x->gib_knob_offset(), scroll_y->gib_knob_offset()));
-	POP_CLIP();
-
 	// sliding bar background color is now handled by scrollbar!
 	if (b_show_scroll_x) {
 		scroll_x->zeichnen(pos);
@@ -150,4 +144,8 @@ void gui_scrollpane_t::zeichnen(koord pos) const
 	if (b_show_scroll_y) {
 		scroll_y->zeichnen(pos);
 	}
+
+	PUSH_CLIP(pos.x, pos.y, groesse.x-11*b_show_scroll_y, groesse.y-11*b_show_scroll_x);
+	komp->zeichnen(pos - koord(scroll_x->gib_knob_offset(), scroll_y->gib_knob_offset()));
+	POP_CLIP();
 }

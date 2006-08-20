@@ -11,6 +11,7 @@
 #define simdings_h
 
 #include "simtypes.h"
+#include "simimg.h"
 #include "dataobj/koord3d.h"
 
 class ding_t;
@@ -61,7 +62,7 @@ private:
      * das bild des dings
      * @author Hj. Malthaner
      */
-    uint16 bild;
+    image_id bild;
 
 
     /**
@@ -289,14 +290,14 @@ public:
      * @return Die Nummer des aktuellen Bildes für das Objekt.
      * @author Hj. Malthaner
      */
-    virtual int gib_bild() const {return bild;};
+    virtual image_id gib_bild() const {return bild;};
 
 
     /**
      * Falls etwas nach den Vehikeln gemalt werden muß.
      * @author V. Meyer
      */
-    virtual int gib_after_bild() const {return -1;};
+    virtual image_id gib_after_bild() const {return 0xFFFF;};
 
     /**
      * manche Objekte haben mehr als ein Bild
@@ -304,7 +305,7 @@ public:
      * @return die nummer des Bildes, -1 wenn kein Bild verfuegbar
      * @author V. Meyer
      */
-    virtual int gib_after_bild(int ) const {return -1;};
+    virtual image_id gib_after_bild(int ) const {return 0xFFFF;};
 
     /**
      * Setzt ein Bild des Objects, normalerweise ist nur bild 0
@@ -313,7 +314,7 @@ public:
      * @param bild bild nummer
      * @author Hj. Malthaner
      */
-    virtual void setze_bild(int n, int bild);
+    virtual void setze_bild(int n, image_id bild);
 
 
     /**
@@ -322,7 +323,7 @@ public:
      * @return die nummer des Bildes, -1 wenn kein Bild verfuegbar
      * @author Hj. Malthaner
      */
-    virtual int gib_bild(int ) const {return -1;};
+    virtual image_id gib_bild(int ) const {return IMG_LEER;};
 
 
     /**
@@ -331,7 +332,7 @@ public:
      * wenn das Objekt zu keiner Fabrik gehört.
      * @author Hj. Malthaner
      */
-    virtual inline fabrik_t* fabrik() const {return NULL;};
+    virtual inline fabrik_t* get_fabrik() const {return NULL;};
 
 
     /**

@@ -171,14 +171,14 @@ void ding_t::info(cbuffer_t & buf) const
 
 
 void
-ding_t::setze_bild(int n, int bild)
+ding_t::setze_bild(int n, image_id bild)
 {
-    assert(n==0);
+	assert(n==0);
 
-    if(this->bild != bild) {
-	this->bild = bild;
-	set_flag(dirty);
-    }
+	if(this->bild != bild) {
+		this->bild = bild;
+		set_flag(dirty);
+	}
 }
 
 
@@ -278,7 +278,7 @@ ding_t::display(int xpos, int ypos, bool dirty) const
 {
 	const int raster_width = get_tile_raster_width();
 
-	int bild = gib_bild();
+	image_id bild = gib_bild();
 
 	ypos += tile_raster_scale_x(gib_yoff(), raster_width);
 	xpos += tile_raster_scale_x(gib_xoff(), raster_width);
@@ -290,7 +290,7 @@ ding_t::display(int xpos, int ypos, bool dirty) const
 	}
 
 	int j = 1;
-	while(bild!=-1) {
+	while(bild!=IMG_LEER) {
 
 		if(gib_besitzer()) {
 			display_color_img(bild, xpos, ypos, gib_besitzer()->kennfarbe, true, dirty);
@@ -308,9 +308,8 @@ ding_t::display(int xpos, int ypos, bool dirty) const
 void
 ding_t::display_after(int xpos, int ypos, bool dirty) const
 {
-	int bild = gib_after_bild();
-
-	if(bild != -1) {
+	image_id bild = gib_after_bild();
+	if(bild != IMG_LEER) {
 		const int raster_width = get_tile_raster_width();
 
 		ypos += tile_raster_scale_x(gib_yoff(), raster_width);

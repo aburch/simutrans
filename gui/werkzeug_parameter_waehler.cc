@@ -115,13 +115,13 @@ void werkzeug_parameter_waehler_t::add_param_tool(int (* wz1)(spieler_t *, karte
 	tools->append(tool);
 	int ww = (display_get_width()/32)-2;
 	tool_icon_width = tools->get_count();
-DBG_DEBUG("werkzeug_parameter_waehler_t::add_param_tool()","ww=%i, tool_icon_width=%i",ww,tool_icon_width);
+//DBG_DEBUG("werkzeug_parameter_waehler_t::add_param_tool()","ww=%i, tool_icon_width=%i",ww,tool_icon_width);
 	if(ww<tool_icon_width) {
 		int rows = (tool_icon_width/ww)+1;
 		// assure equal distribution if more than a single row is needed
 		tool_icon_width = (tool_icon_width+rows-1)/rows;
 	}
-	DBG_DEBUG("werkzeug_parameter_waehler_t::add_param_tool()","at position %i (width %i)", tools->get_count(), tool_icon_width );
+//DBG_DEBUG("werkzeug_parameter_waehler_t::add_param_tool()","at position %i (width %i)", tools->get_count(), tool_icon_width );
 }
 
 

@@ -87,7 +87,7 @@ bool baum_t::plant_tree_on_coordinate(karte_t * welt,
   return false;
 }
 
-int
+image_id
 baum_t::gib_bild() const
 {
     return hide ? besch->gib_bild(0, 0)->gib_nummer() : ding_t::gib_bild();

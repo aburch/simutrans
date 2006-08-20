@@ -23,7 +23,7 @@ wolke_t::wolke_t(karte_t *welt) : ding_t (welt)
 }
 
 
-wolke_t::wolke_t(karte_t *welt, koord3d pos, int x_off, int y_off, int bild) :
+wolke_t::wolke_t(karte_t *welt, koord3d pos, int x_off, int y_off, image_id bild) :
     ding_t(welt, pos)
 {
     setze_bild( 0, bild );
@@ -58,7 +58,7 @@ sync_wolke_t::sync_wolke_t(karte_t *welt, loadsave_t *file) : wolke_t(welt)
 }
 
 
-sync_wolke_t::sync_wolke_t(karte_t *welt, koord3d pos, int x_off, int y_off, int bild)
+sync_wolke_t::sync_wolke_t(karte_t *welt, koord3d pos, int x_off, int y_off, image_id bild)
  : wolke_t(welt, pos, x_off, y_off, bild)
 
 {
@@ -97,20 +97,6 @@ void sync_wolke_t::entferne(spieler_t *)
 }
 
 
-#ifdef FREELIST_NEW
-void * sync_wolke_t::operator new(size_t /*s*/)
-{
-	return (sync_wolke_t *)freelist_t::gimme_node(sizeof(sync_wolke_t));
-}
-
-
-void sync_wolke_t::operator delete(void *p)
-{
-	freelist_t::putback_node(sizeof(sync_wolke_t),p);
-}
-#endif
-
-
 async_wolke_t::async_wolke_t(karte_t *welt, loadsave_t *file) : wolke_t(welt)
 {
 	rdwr(file);
@@ -118,7 +104,7 @@ async_wolke_t::async_wolke_t(karte_t *welt, loadsave_t *file) : wolke_t(welt)
 }
 
 
-async_wolke_t::async_wolke_t(karte_t *welt, koord3d pos, int x_off, int y_off, int bild) :
+async_wolke_t::async_wolke_t(karte_t *welt, koord3d pos, int x_off, int y_off, image_id bild) :
    wolke_t(welt, pos, x_off, y_off, bild)
 {
 	step_frequency = 1;

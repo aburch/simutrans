@@ -12,19 +12,6 @@ uint8 simline_t::convoi_to_line_catgory[MAX_CONVOI_COST]={LINE_CAPACITY, LINE_TR
 karte_t *simline_t::welt=NULL;
 
 
-
-// copy constructor
-simline_t::simline_t(linehandle_t line) : self(this), line_managed_convoys(0)
-{
-	memcpy( financial_history, line->get_finance_history(), MAX_LINE_COST*MAX_MONTHS*sizeof(sint64) );
-	strcpy(name, line->get_name() );
-	old_fpl = new fahrplan_t(line->old_fpl);
-	fpl = new fahrplan_t(line->fpl);
-	id = line->get_line_id();
-	type = simline_t::line;
-}
-
-
 simline_t::simline_t(karte_t * welt, simlinemgmt_t * simlinemgmt, fahrplan_t * fpl) : self(this), line_managed_convoys(0)
 {
 	init_financial_history();
@@ -36,7 +23,8 @@ simline_t::simline_t(karte_t * welt, simlinemgmt_t * simlinemgmt, fahrplan_t * f
 	this->id = i;
 	this->welt = welt;
 	type = simline_t::line;
-	simlinemgmt->add_line(this);
+	simlinemgmt->add_line(self);
+	DBG_MESSAGE("simline_t::simline_t(karte_t,simlinemgmt,fahrplan_t)","create with %d (unique %d)",self.get_id(),get_line_id());
 }
 
 
@@ -83,19 +71,11 @@ simline_t::add_convoy(convoihandle_t cnv)
 		if(cnv->gib_vehikel(0)) {
 			// check, if needed to convert to tram line?
 			if(cnv->gib_vehikel(0)->gib_besch()->gib_typ()==weg_t::schiene_strab) {
-				tramline_t *tl = new tramline_t(this);
-				tl->add_convoy(cnv);
-				cnv->gib_besitzer()->simlinemgmt.delete_line(self);
-				cnv->gib_besitzer()->simlinemgmt.add_line(tl->self);
-				return;
+				type = simline_t::tramline;
 			}
 			// check, if needed to convert to monorail line?
 			if(cnv->gib_vehikel(0)->gib_besch()->gib_typ()==weg_t::monorail) {
-				monorailline_t *ml = new monorailline_t(this);
-				ml->add_convoy(cnv);
-				cnv->gib_besitzer()->simlinemgmt.delete_line(self);
-				cnv->gib_besitzer()->simlinemgmt.add_line(ml->self);
-				return;
+				type = simline_t::monorailline;
 			}
 		}
 	}

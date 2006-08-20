@@ -471,18 +471,30 @@ karte_t::destroy()
 
     unsigned int i,j;
 
-    // alle convois aufräumen
-    while(convoi_list.count() > 0) {
-	convoihandle_t cnv = convoi_list.at(0);
-	rem_convoi(cnv);
-
-	convoi_t *p = cnv.detach();
-	delete p;
-    }
-    convoi_list.clear();
+	// alle convois aufräumen
+	while(convoi_list.count() > 0) {
+		convoihandle_t cnv = convoi_list.at(0);
+		rem_convoi(cnv);
+		convoi_t *p = cnv.detach();
+		delete p;
+	}
+	convoi_list.clear();
 
     // alle haltestellen aufräumen
     haltestelle_t::destroy_all();
+
+	// städte aufräumen
+	if(stadt) {
+		weighted_vector_tpl <stadt_t *> * tmp = stadt;
+		stadt = 0;
+		for(i=0; i<tmp->get_count(); i++) {
+			delete tmp->at(i);
+		}
+		tmp->clear();
+
+		delete tmp;
+		tmp = 0;
+	}
 
     // dinge aufräumen
     if(plan) {
@@ -512,24 +524,6 @@ karte_t::destroy()
 
     // marker aufräumen
     marker.init(0,0);
-
-	// städte aufräumen
-	if(stadt) {
-		// Hajo: unreference the city list before deleting the cities.
-		// there is code that can call stadt::step() while we are in
-		// this loop, deleting the cities
-
-		weighted_vector_tpl <stadt_t *> * tmp = stadt;
-		stadt = 0;
-
-		for(i=0; i<tmp->get_count(); i++) {
-		delete tmp->at(i);
-		}
-		tmp->clear();
-
-		delete tmp;
-		tmp = 0;
-	}
 
     // spieler aufräumen
     for(i=0; i<MAX_PLAYER_COUNT ; i++) {
@@ -889,9 +883,9 @@ DBG_DEBUG("karte_t::init()","Erzeuge stadt %i with %ld inhabitants",i,(s->get_ci
 
     intr_enable();
 
-    if(is_display_init()) {
-	display_show_pointer(true);
-    }
+	if(is_display_init()) {
+		display_show_pointer(true);
+	}
 }
 
 karte_t::karte_t() : ausflugsziele(16), quick_shortcuts(15), marker(0,0)
@@ -3157,22 +3151,27 @@ static char * tool_tip_with_price(const char * tip, int price)
 
 
 /* goes to next active player */
-void karte_t::switch_active_player()
+void karte_t::switch_active_player(uint8 new_player)
 {
 	// cheat: play as AI
 	char buf[512];
+
+	if(new_player>=MAX_PLAYER_COUNT) {
+		new_player = 0;
+	}
 
 	// no cheating allowed?
 	if(!einstellungen->gib_allow_player_change()) {
 		active_player_nr = 0;
 		active_player = spieler[0];
-		sprintf(buf, translator::translate("On this map, you are not\nallowed to change player!\n"), get_active_player()->gib_name() );
-		message_t::get_instance()->add_message(buf,koord(-1,-simrand(63)),message_t::problems,get_active_player()->kennfarbe,IMG_LEER);
+		if(new_player!=0) {
+			sprintf(buf, translator::translate("On this map, you are not\nallowed to change player!\n"), get_active_player()->gib_name() );
+			message_t::get_instance()->add_message(buf,koord(-1,-simrand(63)),message_t::problems,get_active_player()->kennfarbe,IMG_LEER);
+		}
 	}
 	else {
-		active_player_nr ++;
-		active_player_nr &= 7;
-		active_player = spieler[active_player_nr];
+		active_player_nr = new_player;
+		active_player = spieler[new_player];
 		sprintf(buf, translator::translate("Now active as %s.\n"), get_active_player()->gib_name() );
 		message_t::get_instance()->add_message(buf,koord(-1,-simrand(63)),message_t::problems,get_active_player()->kennfarbe,IMG_LEER);
 	}
@@ -3374,7 +3373,7 @@ karte_t::interactive_event(event_t &ev)
 #endif
 	case 'P':
 		sound_play(click_sound);
-		switch_active_player();
+		switch_active_player( active_player_nr+1 );
 		break;
 	case 'p':
 	    sound_play(click_sound);
@@ -3735,6 +3734,15 @@ karte_t::interactive_event(event_t &ev)
 				  skinverwaltung_t::oberleitung->gib_bild_nr(8),
 				  tool_tip_with_price(translator::translate("Electrify track"), umgebung_t::cst_third_rail));
 
+		    wzw->add_param_tool(&wkz_wayremover,
+				  (const int)weg_t::schiene,
+	  			  Z_PLAN,
+				  SFX_REMOVER,
+				  SFX_FAILURE,
+				  skinverwaltung_t::edit_werkzeug->gib_bild_nr(7),
+				  skinverwaltung_t::killzeiger->gib_bild_nr(0),
+				  "remove tracks");
+
 		    brueckenbauer_t::fill_menu(wzw,
 					  weg_t::schiene,
 					  SFX_JACKHAMMER,
@@ -3842,6 +3850,15 @@ karte_t::interactive_event(event_t &ev)
 					1
 				);
 
+		    wzw->add_param_tool(&wkz_wayremover,
+				  (const int)weg_t::schiene,
+	  			  Z_PLAN,
+				  SFX_REMOVER,
+				  SFX_FAILURE,
+				  skinverwaltung_t::edit_werkzeug->gib_bild_nr(8),
+				  skinverwaltung_t::killzeiger->gib_bild_nr(0),
+				  "remove monorails");
+
 		    brueckenbauer_t::fill_menu(wzw,
 					  weg_t::monorail,
 					  SFX_JACKHAMMER,
@@ -3937,6 +3954,15 @@ karte_t::interactive_event(event_t &ev)
 				  skinverwaltung_t::oberleitung->gib_bild_nr(8),
 				  tool_tip_with_price(translator::translate("Electrify track"), umgebung_t::cst_third_rail));
 
+		    wzw->add_param_tool(&wkz_wayremover,
+				  (const int)weg_t::schiene,
+	  			  Z_PLAN,
+				  SFX_REMOVER,
+				  SFX_FAILURE,
+				  skinverwaltung_t::edit_werkzeug->gib_bild_nr(7),
+				  skinverwaltung_t::killzeiger->gib_bild_nr(0),
+				  "remove tracks");
+
 		    wzw->add_param_tool(wkz_signale,
 				  ding_t::signal,
 				  Z_LINES,
@@ -4026,6 +4052,15 @@ karte_t::interactive_event(event_t &ev)
 				1
 			);
 
+		    wzw->add_param_tool(&wkz_wayremover,
+				  (const int)weg_t::strasse,
+	  			  Z_PLAN,
+				  SFX_REMOVER,
+				  SFX_FAILURE,
+				  skinverwaltung_t::edit_werkzeug->gib_bild_nr(9),
+				  skinverwaltung_t::killzeiger->gib_bild_nr(0),
+				  "remove roads");
+
 		    brueckenbauer_t::fill_menu(wzw,
 					  weg_t::strasse,
 					  SFX_JACKHAMMER,
@@ -4114,6 +4149,15 @@ karte_t::interactive_event(event_t &ev)
 					  get_timeline_year_month()
 					  );
 
+		    wzw->add_param_tool(&wkz_wayremover,
+				  (const int)weg_t::wasser,
+	  			  Z_PLAN,
+				  SFX_REMOVER,
+				  SFX_FAILURE,
+				  skinverwaltung_t::edit_werkzeug->gib_bild_nr(10),
+				  skinverwaltung_t::killzeiger->gib_bild_nr(0),
+				  "remove channels");
+
 		    brueckenbauer_t::fill_menu(wzw,
 					  weg_t::wasser,
 					  SFX_JACKHAMMER,
@@ -4193,6 +4237,16 @@ karte_t::interactive_event(event_t &ev)
 				get_timeline_year_month(),
 				1
 			);
+
+/* since the route calculation is different for air, the tool will simply crash :( */
+		    wzw->add_param_tool(&wkz_wayremover,
+				  (const int)weg_t::luft,
+	  			  Z_PLAN,
+				  SFX_REMOVER,
+				  SFX_FAILURE,
+				  skinverwaltung_t::edit_werkzeug->gib_bild_nr(11),
+				  skinverwaltung_t::killzeiger->gib_bild_nr(0),
+				  "remove airstrips");
 
 		    hausbauer_t::fill_menu(wzw,
 						  hausbauer_t::air_depot,

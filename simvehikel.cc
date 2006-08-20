@@ -2403,7 +2403,7 @@ aircraft_t::ist_befahrbar(const grund_t *bd) const
 		case flying:
 		case flying2:
 		{
-DBG_MESSAGE("aircraft_t::ist_befahrbar()","(cnv %i) in idx %i",cnv->self.get_id(),route_index );
+//DBG_MESSAGE("aircraft_t::ist_befahrbar()","(cnv %i) in idx %i",cnv->self.get_id(),route_index );
 			// prissi: here a height check could avoid too height montains
 			return true;
 		}
@@ -2420,7 +2420,7 @@ bool
 aircraft_t::find_route_to_stop_position()
 {
 	if(target_halt.is_bound()) {
-DBG_MESSAGE("aircraft_t::find_route_to_stop_position()","bound! (cnv %i)",cnv->self.get_id());
+//DBG_MESSAGE("aircraft_t::find_route_to_stop_position()","bound! (cnv %i)",cnv->self.get_id());
 		return true;	// already searched with success
 	}
 
@@ -2428,7 +2428,7 @@ DBG_MESSAGE("aircraft_t::find_route_to_stop_position()","bound! (cnv %i)",cnv->s
 	route_t *rt=cnv->get_route();
 	grund_t *target=welt->lookup(rt->position_bei(rt->gib_max_n()));
 
-DBG_MESSAGE("aircraft_t::find_route_to_stop_position()","can approach? (cnv %i)",cnv->self.get_id());
+//DBG_MESSAGE("aircraft_t::find_route_to_stop_position()","can approach? (cnv %i)",cnv->self.get_id());
 
 	target_halt = target ? target->gib_halt() : halthandle_t();
 	if(!target_halt.is_bound()) {
@@ -2451,7 +2451,7 @@ DBG_MESSAGE("aircraft_t::find_route_to_stop_position()","can approach? (cnv %i)"
 		}
 
 		// now search a route
-DBG_MESSAGE("aircraft_t::find_route_to_stop_position()","some free: find route from index %i",suchen);
+//DBG_MESSAGE("aircraft_t::find_route_to_stop_position()","some free: find route from index %i",suchen);
 		route_t target_rt;
 		flight_state prev_state = state;
 		state = looking_for_parking;
@@ -2466,7 +2466,7 @@ DBG_MESSAGE("aircraft_t::find_route_to_stop_position()","found no route to free 
 
 		// now reserve our choice ...
 		target_halt->reserve_position(welt->lookup(target_rt.position_bei(target_rt.gib_max_n())),cnv->self);
-DBG_MESSAGE("aircraft_t::find_route_to_stop_position()","found free stop near %i,%i,%i",target_rt.position_bei(target_rt.gib_max_n()).x,target_rt.position_bei(target_rt.gib_max_n()).y, target_rt.position_bei(target_rt.gib_max_n()).z );
+//DBG_MESSAGE("aircraft_t::find_route_to_stop_position()","found free stop near %i,%i,%i",target_rt.position_bei(target_rt.gib_max_n()).x,target_rt.position_bei(target_rt.gib_max_n()).y, target_rt.position_bei(target_rt.gib_max_n()).z );
 		rt->remove_koord_from(suchen);
 		rt->append( &target_rt );
 		return true;

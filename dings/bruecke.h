@@ -22,7 +22,7 @@ public:
 	      const bruecke_besch_t *besch, bruecke_besch_t::img_t img);
     ~bruecke_t();
 
-    virtual int gib_after_bild() const {return besch->gib_vordergrund(img); };
+    virtual image_id gib_after_bild() const {return besch->gib_vordergrund(img); };
 
     const char *gib_name() const {return "Bruecke";};
     enum ding_t::typ gib_typ() const {return bruecke;};

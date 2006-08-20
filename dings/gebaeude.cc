@@ -55,10 +55,9 @@ bool gebaeude_t::hide = false;
 void gebaeude_t::init(const haus_tile_besch_t *t)
 {
 	tile = t;
-	fab = 0;
-
+	ptr.fab = 0;
+	is_factory = true;
 	anim_time = 0;
-
 	sync = false;
 	count = 0;
 	zeige_baugrube = t ? !t->gib_besch()->ist_ohne_grube() : false;
@@ -77,6 +76,9 @@ gebaeude_t::gebaeude_t(karte_t *welt, loadsave_t *file) : ding_t(welt)
 	rdwr(file);
 	if(file->get_version()<88002) {
 		setze_yoff(0);
+	}
+	if(gib_besitzer()) {
+		gib_besitzer()->add_maintenance(umgebung_t::maint_building);
 	}
 }
 
@@ -130,19 +132,74 @@ gebaeude_t::~gebaeude_t()
 
 
 
+/* sets the corresponding pointer to a factory
+ * @author prissi
+ */
 void
-gebaeude_t::add_alter(int a)
+gebaeude_t::setze_fab(fabrik_t *fb)
 {
-    insta_zeit -= a;
-
-    if(welt->gib_zeit_ms() - insta_zeit < 5000) {
-	if(zeige_baugrube) {
-	    zeige_baugrube = false;
-	    set_flag(dirty);
+	// sets the pointer in non-zero
+	if(fb) {
+		if(!is_factory  &&  ptr.stadt!=NULL) {
+			dbg->error("gebaeude_t::setze_fab()","building already bound to city!");
+		}
+		is_factory = true;
+		ptr.fab = fb;
 	}
-	calc_bild();
-    }
+	else if(is_factory) {
+		ptr.fab = NULL;
+	}
 }
+
+
+
+/* sets the corresponding city
+ * @author prissi
+ */
+void
+gebaeude_t::setze_stadt(stadt_t *s)
+{
+	// sets the pointer in non-zero
+	if(s) {
+		if(is_factory  &&  ptr.fab!=NULL) {
+			dbg->error("gebaeude_t::setze_stadt()","building already bound to factory!");
+		}
+		is_factory = false;
+		ptr.stadt = s;
+	}
+	else if(!is_factory) {
+		is_factory = true;
+		ptr.stadt = NULL;
+	}
+}
+
+
+
+/* must be defined here, otherwise tile might be unknown
+ */
+void
+gebaeude_t::setze_count(uint8 count)
+{
+	this->count = count % tile->gib_phasen();
+}
+
+
+
+/* make this building without construction */
+void
+gebaeude_t::add_alter(uint32 a)
+{
+	insta_zeit -= min(a,insta_zeit);
+	zeige_baugrube = false;
+	if(is_factory==false  ||  ptr.fab==NULL) {
+		step_frequency = 0;
+	}
+	set_flag(dirty);
+	DBG_MESSAGE("gebaeude_t::add_alter()","");
+}
+
+
+
 
 void
 gebaeude_t::renoviere()
@@ -153,61 +210,6 @@ gebaeude_t::renoviere()
 }
 
 
-ding_info_t *gebaeude_t::new_info()
-{
-  if (fab) {
-      return new fabrik_info_t(fab, this, welt);
-
-  } else {
-    return ding_t::new_info();
-  }
-}
-
-
-void
-gebaeude_t::zeige_info()
-{
-	// Für die Anzeige ist bei mehrteiliggen Gebäuden immer
-	// das erste laut Layoutreihenfolge zuständig.
-	// Sonst gibt es für eine 2x2-Fabrik bis zu 4 Infofenster.
-	koord k = tile->gib_offset();
-	if(k != koord(0, 0)) {
-		ding_t *gb = welt->lookup(gib_pos() - k)->obj_bei(0);
-
-		if(gb)
-			gb->zeige_info();	// an den ersten deligieren
-		}
-		else {
-DBG_MESSAGE("gebaeude_t::zeige_info()", "at %d,%d - name is '%s'", gib_pos().x, gib_pos().y, gib_name());
-
-				if(ist_firmensitz()) {
-					if(umgebung_t::townhall_info) {
-						ding_t::zeige_info();
-					}
-			         create_win(-1, -1, -1, gib_besitzer()->gib_money_frame(), w_info);
-				}
-
-			if(!tile->gib_besch()->ist_ohne_info()) {
-
-				if(ist_rathaus()) {
-				stadt_t *city = welt->suche_naechste_stadt(gib_pos().gib_2d());
-				create_win(-1, -1, -1,
-					city->gib_stadt_info(),
-					w_info,
-					magic_none); /* otherwise only on image is allowed */
-//					magic_city_info_t);
-
-				if(umgebung_t::townhall_info) {
-					ding_t::zeige_info();
-				}
-			}
-			else {
-				ding_t::zeige_info();
-			}
-		}
-	}
-}
-
 
 
 /**
@@ -217,7 +219,8 @@ DBG_MESSAGE("gebaeude_t::zeige_info()", "at %d,%d - name is '%s'", gib_pos().x, 
  *
  * @author Hj. Malthaner
  */
-void gebaeude_t::setze_sync(bool yesno)
+void
+gebaeude_t::setze_sync(bool yesno)
 {
 	if(yesno) {
 		// already sync? and worth animating ?
@@ -247,7 +250,7 @@ gebaeude_t::step(long delta_t)
 			zeige_baugrube = false;
 			set_flag(dirty);
 			// factories needs more frequent steps
-			if(fab   &&  fab->gib_pos()==gib_pos()) {
+			if(is_factory  &&  ptr.fab   &&  ptr.fab->gib_pos()==gib_pos()) {
 				step_frequency = 1;
 			}
 			else {
@@ -256,85 +259,80 @@ gebaeude_t::step(long delta_t)
 		}
 	}
 
-	// factory produce and passengers!
-	if(fab != NULL) {
-		fab->step(delta_t);
+	// factory produces
+	if(is_factory  &&  ptr.fab!=NULL) {
+		ptr.fab->step(delta_t);
 		INT_CHECK("gebaeude 250");
 	}
 
-  return true;
+	return true;
 }
 
-int
+
+
+/* image calculation routines
+ */
+image_id
 gebaeude_t::gib_bild() const
 {
-  if(hide &&
-     // !haltestelle_t::gib_halt(welt, gib_pos().gib_2d()).is_bound() &&
-     gib_haustyp() != unbekannt) {
-    return skinverwaltung_t::baugrube->gib_bild_nr(0);
-  }
+	if(hide  &&  gib_haustyp() != unbekannt) {
+		return skinverwaltung_t::baugrube->gib_bild_nr(0);
+	}
 
-  if(zeige_baugrube)  {
-    return skinverwaltung_t::baugrube->gib_bild_nr(0);
-  } else {
-    return tile->gib_hintergrund(count, 0);
-  }
+	if(zeige_baugrube)  {
+		return skinverwaltung_t::baugrube->gib_bild_nr(0);
+	}
+	else {
+		return tile->gib_hintergrund(count, 0);
+	}
 }
 
-
-
-int
+image_id
 gebaeude_t::gib_bild(int nr) const
 {
 	if(zeige_baugrube || hide) {
-		return -1;
+		return IMG_LEER;
 	}
 	else {
 		return tile->gib_hintergrund(count, nr);
 	}
 }
 
-int
+image_id
 gebaeude_t::gib_after_bild() const
 {
 	if(zeige_baugrube) {
-		return -1;
+		return IMG_LEER;
 	}
 	else {
 		return tile->gib_vordergrund(count, 0);
 	}
 }
 
-int
+image_id
 gebaeude_t::gib_after_bild(int nr) const
 {
 	if(zeige_baugrube) {
-		return -1;
+		return IMG_LEER;
 	}
 	else {
 		return tile->gib_vordergrund(count, nr);
 	}
 }
 
-void gebaeude_t::setze_count(int count)
-{
-	this->count = count % tile->gib_phasen();
-}
 
-// calculate also the size
+
+/* calculate the passenger level as funtion of the city size (if there)
+ */
 int gebaeude_t::gib_passagier_level() const
 {
 	koord dim = tile->gib_besch()->gib_groesse();
 	long pax = tile->gib_besch()->gib_level();
-	if(tile->gib_besch()->gib_typ()!=gebaeude_t::unbekannt) {
+	if(is_factory==false  &&  ptr.stadt!=NULL) {
 		// belongs to a city ...
-		stadt_t *city=welt->suche_naechste_stadt( gib_pos().gib_2d() );
-		if(city) {
-			const koord lo(city->get_linksoben()), ru(city->get_rechtsunten());
-			const long dense=(lo.x-ru.x)*(lo.y-ru.y);
-			return (2097*((pax+6)>>2))/dense;
-		}
-		return pax;
+		const koord lo(ptr.stadt->get_linksoben()), ru(ptr.stadt->get_rechtsunten());
+		const long dense=(lo.x-ru.x)*(lo.y-ru.y);
+		return (2097*((pax+6)>>2))/dense;
 	}
 	return pax*dim.x*dim.y;
 }
@@ -343,17 +341,15 @@ int gebaeude_t::gib_post_level() const
 {
 	koord dim = tile->gib_besch()->gib_groesse();
 	long post = tile->gib_besch()->gib_post_level();
-	if(tile->gib_besch()->gib_typ()!=gebaeude_t::unbekannt) {
+	if(is_factory==false  &&  ptr.stadt!=NULL) {
 		// belongs to a city ...
-		stadt_t *city=welt->suche_naechste_stadt( gib_pos().gib_2d() );
-		if(city) {
-			const koord lo(city->get_linksoben()), ru(city->get_rechtsunten());
-			const long dense=(lo.x-ru.x)*(lo.y-ru.y);
-			return (2097*((post+5)>>2))/dense;
-		}
+		const koord lo(ptr.stadt->get_linksoben()), ru(ptr.stadt->get_rechtsunten());
+		const long dense=(lo.x-ru.x)*(lo.y-ru.y);
+		return (2097*((post+5)>>2))/dense;
 	}
 	return post*dim.x*dim.y;
 }
+
 
 
 /**
@@ -362,9 +358,9 @@ int gebaeude_t::gib_post_level() const
  */
 const char *gebaeude_t::gib_name() const
 {
-    if(fab) {
-	return fab->gib_name();
-    }
+	if(is_factory  &&  ptr.fab) {
+		return ptr.fab->gib_name();
+	}
     switch(tile->gib_besch()->gib_typ()) {
     case wohnung:
 	break;//return "Wohnhaus";
@@ -410,12 +406,69 @@ gebaeude_t::typ gebaeude_t::gib_haustyp() const
 }
 
 
+
+ding_info_t *gebaeude_t::new_info()
+{
+	if (is_factory  &&  ptr.fab) {
+		return new fabrik_info_t(ptr.fab, this, welt);
+	}
+	else {
+		return ding_t::new_info();
+	}
+}
+
+
+void
+gebaeude_t::zeige_info()
+{
+	// Für die Anzeige ist bei mehrteiliggen Gebäuden immer
+	// das erste laut Layoutreihenfolge zuständig.
+	// Sonst gibt es für eine 2x2-Fabrik bis zu 4 Infofenster.
+	koord k = tile->gib_offset();
+	if(k != koord(0, 0)) {
+		ding_t *gb = welt->lookup(gib_pos() - k)->obj_bei(0);
+
+		if(gb)
+			gb->zeige_info();	// an den ersten deligieren
+		}
+		else {
+DBG_MESSAGE("gebaeude_t::zeige_info()", "at %d,%d - name is '%s'", gib_pos().x, gib_pos().y, gib_name());
+
+				if(ist_firmensitz()) {
+					if(umgebung_t::townhall_info) {
+						ding_t::zeige_info();
+					}
+			         create_win(-1, -1, -1, gib_besitzer()->gib_money_frame(), w_info);
+				}
+
+			if(!tile->gib_besch()->ist_ohne_info()) {
+
+				if(ist_rathaus()) {
+				stadt_t *city = welt->suche_naechste_stadt(gib_pos().gib_2d());
+				create_win(-1, -1, -1,
+					city->gib_stadt_info(),
+					w_info,
+					magic_none); /* otherwise only on image is allowed */
+
+				if(umgebung_t::townhall_info) {
+					ding_t::zeige_info();
+				}
+			}
+			else {
+				ding_t::zeige_info();
+			}
+		}
+	}
+}
+
+
+
 void gebaeude_t::info(cbuffer_t & buf) const
 {
 	ding_t::info(buf);
 
-	if(fab != NULL) {
-		fab->info(buf);
+	if(is_factory  &&  ptr.fab != NULL) {
+		ptr.fab->info(buf);
 	}
 	else if(zeige_baugrube) {
 		buf.append(translator::translate("Baustelle"));
@@ -426,6 +479,12 @@ void gebaeude_t::info(cbuffer_t & buf) const
 		if(desc != NULL) {
 			buf.append(translator::translate(desc));
 			buf.append("\n");
+		}
+
+		// belongs to which city?
+		if(!is_factory  &&  ptr.stadt!=NULL) {
+			static char buffer[256];
+			sprintf(buffer,"Town: %s\n",ptr.stadt->gib_name());
 		}
 
 		buf.append(translator::translate("Passagierrate"));
@@ -467,7 +526,7 @@ void gebaeude_t::info(cbuffer_t & buf) const
 void
 gebaeude_t::rdwr(loadsave_t *file)
 {
-	if(fabrik()==NULL || file->is_loading()) {
+	if(get_fabrik()==NULL || file->is_loading()) {
 		// Gebaude, die zu einer Fabrik gehoeren werden beim laden
 		// der Fabrik neu erzeugt
 		ding_t::rdwr(file);
@@ -576,12 +635,6 @@ DBG_MESSAGE("gebaeude_t::rwdr", "description %s for building at %d,%d not found 
 	else {
 		file->wr_obj_id(-1);
 	}
-
-	if(file->is_loading()) {
-		if(gib_besitzer()) {
-			gib_besitzer()->add_maintenance(umgebung_t::maint_building);
-		}
-	}
 }
 
 
@@ -614,11 +667,11 @@ void
 gebaeude_t::entferne(spieler_t *sp)
 {
 //	DBG_MESSAGE("gebaeude_t::entferne()","gb %i");
-	if(sp != NULL) {
-		stadt_t *city=welt->suche_naechste_stadt(gib_pos().gib_2d());
-		if(city) {
-			city->remove_gebaeude_from_stadt(this);
-		}
+	if(!is_factory  &&  ptr.stadt!=NULL) {
+		ptr.stadt->remove_gebaeude_from_stadt(this);
+	}
+
+	if(sp) {
 		sp->buche(umgebung_t::cst_multiply_remove_haus*(tile->gib_besch()->gib_level()+1), gib_pos().gib_2d(), COST_CONSTRUCTION);
 	}
 }

@@ -18,60 +18,65 @@
 
 void help_frame_t::setze_text(const char * buf)
 {
-    flow.set_text(buf);
+	flow.set_text(buf);
 
-    flow.setze_pos(koord(10, 6));
-    flow.setze_groesse(koord(220, 0));
+	flow.setze_pos(koord(10, 6));
+	flow.setze_groesse(koord(220, 0));
 
-    int i = 0;
-    int last_y = 0;
-    koord curr;
+	// try to get the following sizes
+	// y<400 or, if not possible, x<620
+	int last_y = 0;
+	koord curr=flow.get_preferred_size();
+	for( int i=0;  i<10  &&  curr.y>400  &&  curr.y!=last_y;  i++  )
+	{
+		flow.setze_groesse(koord(260+i*40, 0));
+		last_y = curr.y;
+		curr = flow.get_preferred_size();
+	}
 
-    while(curr=flow.get_preferred_size(),
-          (curr.y > 400 && curr.y != last_y && i < 9)) {
-	flow.setze_groesse(koord(260+i*40, 0));
-	last_y = curr.y;
-	i++;
-    }
+	// the second line isn't redundant!!!
+	flow.setze_groesse(flow.get_preferred_size());
+	flow.setze_groesse(flow.get_preferred_size());
 
-    // the second line isn't redundant!!!
-    flow.setze_groesse(flow.get_preferred_size());
-    flow.setze_groesse(flow.get_preferred_size());
+	setze_name(flow.get_title());
 
-    setze_fenstergroesse(flow.gib_groesse()+koord(20, 36));
-    setze_name(flow.get_title());
+	// set window size
+	curr = flow.gib_groesse()+koord(20, 36);
+	if(curr.y>display_get_height()-64) {
+		curr.y = display_get_height()-64;
+	}
+	setze_fenstergroesse( curr );
+	resize( koord(0,0) );
 }
 
 
-help_frame_t::help_frame_t() : gui_frame_t("Help")
+help_frame_t::help_frame_t() :
+	gui_frame_t("Help"),
+	scrolly(&flow)
 {
-    char buf[64];
+	char buf[64];
 
-    tstrncpy(buf, "<title>Unnamed</title><p>No text set</p>", 64);
+	tstrncpy(buf, "<title>Unnamed</title><p>No text set</p>", 64);
 
-    setze_text(buf);
-    setze_opaque(true);
-    add_komponente(&flow);
-    flow.add_listener(this);
+	setze_text(buf);
+	setze_opaque(true);
+	add_komponente(&flow);
+
+	flow.add_listener(this);
 }
 
 
-help_frame_t::help_frame_t(cstring_t filename) : gui_frame_t("Help")
+help_frame_t::help_frame_t(cstring_t filename) :
+	gui_frame_t("Help"),
+	scrolly(&flow)
 {
     char buf[8192];
 
     cstring_t file_prefix("text/");
+    cstring_t fullname = file_prefix + translator::get_language_name_iso(translator::get_language()) + "/" + filename;
 
-    cstring_t fullname =
-      file_prefix+
-      translator::get_language_name_iso(translator::get_language())+
-      "/"+
-      filename;
-
-    //printf("Loading '%s'\n", fullname.chars());
 
     FILE * file = fopen(fullname, "rb");
-
     if(!file) {
         //Check for the 'base' language(ie en from en_gb)
         file = fopen(file_prefix+
@@ -81,27 +86,25 @@ help_frame_t::help_frame_t(cstring_t filename) : gui_frame_t("Help")
                      "rb");
     }
 
-    if(!file) {
-	// Hajo: check fallback english
-	file = fopen(file_prefix+
-                        "/en/"+
-			filename,
-			"rb");
-    }
+	if(!file) {
+		// Hajo: check fallback english
+		file = fopen(file_prefix+"/en/"+filename,"rb");
+	}
 
-    if(file) {
-	const int len = fread(buf, 1, 8191, file);
-	buf[len] = '\0';
+	if(file) {
+		const int len = fread(buf, 1, 8191, file);
+		buf[len] = '\0';
+		fclose(file);
+	}
+	else {
+		tstrncpy(buf, "<title>Error</title>Help text not found", 64);
+	}
 
-	fclose(file);
-    } else {
-        tstrncpy(buf, "<title>Error</title>Help text not found", 64);
-    }
-
-    setze_text(buf);
-    setze_opaque(true);
-    add_komponente(&flow);
-    flow.add_listener(this);
+	setze_text(buf);
+	setze_opaque(true);
+	set_resizemode(diagonal_resize);
+	add_komponente(&scrolly);
+	flow.add_listener(this);
 }
 
 
@@ -113,4 +116,17 @@ help_frame_t::help_frame_t(cstring_t filename) : gui_frame_t("Help")
 void help_frame_t::hyperlink_activated(const cstring_t &txt)
 {
   create_win(new help_frame_t(txt), w_autodelete, magic_none);
+}
+
+
+
+/**
+ * Resize the contents of the window
+ * @author Markus Weber
+ */
+void help_frame_t::resize(const koord delta)
+{
+	gui_frame_t::resize(delta);
+
+	scrolly.setze_groesse(get_client_windowsize());
 }

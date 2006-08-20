@@ -33,7 +33,7 @@ citylist::sort_mode_t citylist_frame_t::sortby = citylist::by_name;
 
 const char *citylist_frame_t::sort_text[citylist::SORT_MODES] = {
     "Name",
-    "Size",
+    "citicens",
     "Growth"
 };
 

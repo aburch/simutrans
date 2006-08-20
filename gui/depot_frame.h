@@ -27,7 +27,6 @@
 class depot_t;
 class vehikel_t;
 class image_list_t;
-class simline_t;
 class spieler_t;
 /**
  * Depot frame, handles all interaction with a vehicle depot.

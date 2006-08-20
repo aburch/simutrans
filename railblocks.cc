@@ -192,34 +192,43 @@ void blockstrecke_t::add_signal(signal_t *sig)
 
 bool blockstrecke_t::loesche_signal_bei(koord3d k)
 {
+	bool del=false;
 	signal_t * sig = gib_signal_bei( k );
-	presignal_t *presig=NULL;
 	if(sig) {
-
 DBG_MESSAGE("blockstrecke_t::loesche_signal_bei()","rail block %p removes signal %p at %hd,%hd", this, sig, k.x, k.y);
 		// der Destruktor entfernt das Signal aus allen Listen
 		delete sig;
+		del = true;
 	}
 	else {
 		// check for orphan signal
-
 		if(welt->lookup(k)) {
-			sig = dynamic_cast<signal_t *>(welt->lookup(k)->suche_obj(ding_t::signal));
-			if(sig) {
-				delete sig;
+			choosesignal_t *cs = dynamic_cast<choosesignal_t *>(welt->lookup(k)->suche_obj(ding_t::choosesignal));
+			if(cs) {
+				dbg->warning("blockstrecke_t::loesche_signal_bei()","orphan choosesignal %p detected at %hd,%hd",sig, k.x, k.y);
+				delete cs;
+				del = true;
 			}
 			else {
-				presig = dynamic_cast<presignal_t *>(welt->lookup(k)->suche_obj(ding_t::presignal));
+				presignal_t *presig = dynamic_cast<presignal_t *>(welt->lookup(k)->suche_obj(ding_t::presignal));
 				if(presig) {
+					dbg->warning("blockstrecke_t::loesche_signal_bei()","orphan presignal %p detected at %hd,%hd",sig, k.x, k.y);
 					delete presig;
+					del = true;
+				}
+				else {
+					sig = dynamic_cast<signal_t *>(welt->lookup(k)->suche_obj(ding_t::signal));
+					if(sig) {
+						dbg->warning("blockstrecke_t::loesche_signal_bei()","orphan signal %p detected at %hd,%hd",sig, k.x, k.y);
+						delete sig;
+						del = true;
+					}
 				}
 			}
-
-			dbg->warning("blockstrecke_t::loesche_signal_bei()","orphan signal %p detected at %hd,%hd",sig, k.x, k.y);
 		}
 	}
 	// gab's ueberhaupt was zu loeschen ?
-	return (sig != NULL  ||  presig!=NULL);
+	return del;
 }
 
 
@@ -245,14 +254,8 @@ signal_t * blockstrecke_t::gib_signal_bei(koord3d k)
 		}
 	}
 
-	if(sig==NULL) {
-		dbg->warning("blockstrecke_t::gib_signal_bei()","no signal found at %d,%d.\n", k.x, k.y);
-	}
-	else {
-//		DBG_MESSAGE("blockstrecke_t::gib_signal_bei()","found signal %p at %d,%d.\n", sig, k.x, k.y);
-	}
-
-    return sig;
+//	if(sig==NULL) {DBG_MESSAGE("blockstrecke_t::gib_signal_bei()","no signal found at %d,%d.", k.x, k.y);}
+	return sig;
 }
 
 

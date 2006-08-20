@@ -116,6 +116,9 @@ public:
     virtual char *info(char *buf) const;
 
     void rdwr(loadsave_t *file);
+
+	// we allow to remove all cars etc.
+	const char *ist_entfernbar(const spieler_t *) { return NULL; }
 };
 
 

@@ -668,7 +668,7 @@ DBG_MESSAGE("fabrikbauer_t::baue_hierarchie","Try to built lieferant %s at (%i,%
 				// now substract current supplier
 				const ding_t * dt = welt->lookup(k.gib_2d())->gib_kartenboden()->obj_bei(0);
 				if(dt) {
-					const fabrik_t *fab = dt->fabrik();
+					const fabrik_t *fab = dt->get_fabrik();
 					// find our product
 					for(int gg=0;gg<fab->gib_besch()->gib_produkte();gg++) {
 						if(fab->gib_besch()->gib_produkt(gg)->gib_ware()==ware) {

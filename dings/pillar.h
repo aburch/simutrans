@@ -37,7 +37,6 @@ public:
      * Beobachtungsfenster angezeigt wird.
      * @author Hj. Malthaner
      */
-//	virtual ding_info_t *new_info();
     virtual void zeige_info();
 };
 

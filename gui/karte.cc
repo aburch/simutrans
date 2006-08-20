@@ -152,18 +152,18 @@ reliefkarte_t::calc_relief_farbe(const karte_t *welt, const koord k)
 
 			    ding_t * dt = gr->obj_bei(0);
 
-			    if(dt == NULL || dt->fabrik() == NULL) {
+			    if(dt == NULL || dt->get_fabrik() == NULL) {
 					color = COL_GREY3;
 			    } else {
-					color = dt->fabrik()->gib_kennfarbe();
+					color = dt->get_fabrik()->gib_kennfarbe();
 			    }
 
 			} else if(gr->gib_hoehe() <= welt->gib_grundwasser()) {
 
 			    ding_t * dt = gr->obj_bei(0);
 
-			    if(dt != NULL && dt->fabrik() != NULL) {
-					color = dt->fabrik()->gib_kennfarbe();
+			    if(dt != NULL && dt->get_fabrik() != NULL) {
+					color = dt->get_fabrik()->gib_kennfarbe();
 			    } else {
 					color = COL_BLUE;
 			    }
@@ -296,9 +296,7 @@ reliefkarte_t::zeichnen(koord pos) const
 {
   if(welt != NULL && relief != NULL) {
 
-    display_fillbox_wh_clip(pos.x,
-			    pos.y,
-			    4000, 4000, COL_BLACK, true);
+    display_fillbox_wh_clip(pos.x, pos.y, 4000, 4000, COL_BLACK, true);
 
     display_array_wh(pos.x, pos.y,
 		     relief->get_width(),
