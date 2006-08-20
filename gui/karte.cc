@@ -12,7 +12,10 @@
 #include "../simfab.h"
 #include "../simcity.h"
 #include "karte.h"
+
 #include "../dataobj/translator.h"
+#include "../dataobj/einstellungen.h"
+
 #include "../boden/wege/schiene.h"
 #include "../dings/leitung2.h"
 #include "../dataobj/powernet.h"
@@ -28,7 +31,7 @@ int reliefkarte_t::mode = -1;
 const int reliefkarte_t::map_type_color[MAX_MAP_TYPE] =
 {
 //  7, 11, 15, 132, 23, 31, 35, 7
-  7, 11, 15, 132, 23, 27, 31, 35, 241, 7, 11, 31, 71, 55
+  248, 7, 11, 15, 132, 23, 27, 31, 35, 241, 7, 11, 31, 71, 55
 };
 
 const int reliefkarte_t::severity_color[12] =
@@ -311,25 +314,22 @@ reliefkarte_t::zeichnen(koord pos) const
     display_direct_line(pos.x+xpos+12*zf, pos.y+ypos, pos.x+xpos, pos.y+ypos+12*zf, WEISS);
     display_direct_line(pos.x+xpos-12*zf, pos.y+ypos, pos.x+xpos, pos.y+ypos+12*zf, WEISS);
 
-    const vector_tpl <stadt_t *> * staedte = welt->gib_staedte();
+	// since we do iterate the factory info list, this must be done here
+	// find tourist spots
+	if(mode==MAP_TOWN) {
+		const vector_tpl <stadt_t *> * staedte = welt->gib_staedte();
 
-    for(i=0; i<staedte->get_count(); i++) {
-      const stadt_t *stadt = staedte->get(i);
+		for(unsigned i=0; i<staedte->get_count(); i++) {
+			const stadt_t *stadt = staedte->get(i);
 
-      koord p = stadt->gib_pos();
-      const char * name = stadt->gib_name();
+			koord p = stadt->gib_pos();
+			const char * name = stadt->gib_name();
 
-	if(  zoom>1  ||  ALWAYS_LARGE  ) {
-		int w = proportional_string_width(name);
-		p.x = MAX( pos.x+(p.x*zoom)-(w/2), pos.x );
-   		display_proportional_clip( p.x, pos.y+p.y*zoom, name, ALIGN_LEFT, WEISS, true);
-   	}
-   	else {
-		int w = small_proportional_string_width(name);
-		p.x = MAX( pos.x+(p.x*zoom)-(w/2), pos.x );
-   		display_small_proportional_clip( p.x, pos.y+p.y*zoom, name, ALIGN_LEFT, WEISS, true);
-   	}
-    }
+			int w = proportional_string_width(name);
+			p.x = MAX( pos.x+(p.x*zoom)-(w/2), pos.x );
+			display_proportional_clip( p.x, pos.y+p.y*zoom, name, ALIGN_LEFT, WEISS, true);
+		}
+	}
 
     if (fab) {
       draw_fab_connections(fab, is_shift_pressed ? ROT : WEISS, pos);
@@ -351,13 +351,13 @@ reliefkarte_t::set_mode (int new_mode)
 void
 reliefkarte_t::calc_map(int render_mode)
 {
-  is_map_locked = false;
-  // prepare empty map
-  init();
+	is_map_locked = false;
+	// prepare empty map
+	init();
 
 	// since we do iterate the tourist info list, this must be done here
 	// find tourist spots
-	if(render_mode==12) {
+	if(render_mode==MAP_TOURIST) {
 		int steps=MAX(1,welt->gib_ausflugsziele_max_pax()/12);
 		slist_iterator_tpl <gebaeude_t *> iter (welt->gib_ausflugsziele());
 		while(iter.next()) {
@@ -366,11 +366,12 @@ reliefkarte_t::calc_map(int render_mode)
 		return;
 	}
 
-	// since we do iterate the tourist info list, this must be done here
+	// since we do iterate the factory info list, this must be done here
 	// find tourist spots
-	if(render_mode==13) {
+	if(render_mode==MAP_FACTORIES) {
 		slist_iterator_tpl <fabrik_t *> iter (welt->gib_fab_list());
 		while(iter.next()) {
+			setze_relief_farbe_area(iter.get_current()->gib_pos().gib_2d(), 9, SCHWARZ );
 			setze_relief_farbe_area(iter.get_current()->gib_pos().gib_2d(), 7, iter.get_current()->gib_kennfarbe() );
 		}
 		return;
@@ -378,7 +379,7 @@ reliefkarte_t::calc_map(int render_mode)
 
 	// since searching all map, we must do this here ...
 	// find power lines
-	if(render_mode==11) {
+	if(render_mode==MAP_POWERLINES) {
 		for( int x=0; x<welt->gib_groesse_x(); x++ ) {
 			for( int y=0; y<welt->gib_groesse_y(); y++ ) {
 				leitung_t *lt = static_cast<leitung_t *>(welt->lookup(koord(x,y))->gib_kartenboden()->suche_obj(ding_t::leitung));
@@ -407,24 +408,24 @@ reliefkarte_t::calc_map(int render_mode)
 	switch (render_mode) {
 	  // show passenger coverage
 	  // display coverage
-	case 0:
+	case MAP_PASSENGER:
 	  if (gr->gib_halt().is_bound()) {
-	    setze_relief_farbe_area(k, 7, map_type_color[render_mode]);
+	    setze_relief_farbe_area(k, (welt->gib_einstellungen()->gib_station_coverage()*2)+1, map_type_color[render_mode]);
 	  }
 	  break;
 	  // show mail coverage
 	  // display coverage
-	case 1:
+	case MAP_MAIL:
 	{
 	    halthandle_t halt = haltestelle_t::gib_halt(welt, k);
 	    // only show player's haltestellen
 	    if (halt.is_bound()  &&  (halt->gib_besitzer()==welt->get_active_player()) && halt->get_post_enabled()) {
-	      setze_relief_farbe_area(k, 7, map_type_color[render_mode]);
+	      setze_relief_farbe_area(k, (welt->gib_einstellungen()->gib_station_coverage()*2)+1, map_type_color[render_mode]);
 	    }
 	  }
 	  break;
 	  // show usage
-	case 2:
+	case MAP_FREIGHT:
 	  if (gr->gib_weg(weg_t::strasse))
 	    cargo += gr->gib_weg(weg_t::strasse)->get_statistics(WAY_STAT_GOODS);
 	  if (gr->gib_weg(weg_t::schiene))
@@ -435,7 +436,7 @@ reliefkarte_t::calc_map(int render_mode)
 	    setze_relief_farbe_area(k, 1, calc_severity_color(cargo, 1000));
 	  break;
 				// show station status
-	case 3:
+	case MAP_STATUS:
 	  if (gr->gib_halt().is_bound()) {
 	      halthandle_t halt = haltestelle_t::gib_halt(welt, k);
 	      // only show player's haltestellen
@@ -457,7 +458,7 @@ reliefkarte_t::calc_map(int render_mode)
 	    }
 	  break;
 				// show frequency of convois visiting a station
-	case 4:
+	case MAP_SERVICE:
 	  if (gr->gib_halt().is_bound()) {
 	      halthandle_t halt = haltestelle_t::gib_halt(welt, k);
 	      // only show player's haltestellen
@@ -469,7 +470,7 @@ reliefkarte_t::calc_map(int render_mode)
 	    }
 	  break;
 				// show traffic (=convois/month)
-	case 5:
+	case MAP_TRAFFIC:
 	  if (gr->gib_weg(weg_t::strasse)) {
 	    cargo += gr->gib_weg(weg_t::strasse)->get_statistics(WAY_STAT_CONVOIS);
 	  }
@@ -484,7 +485,7 @@ reliefkarte_t::calc_map(int render_mode)
 	  }
 	  break;
 				// show sources of passengers
-	case 6:
+	case MAP_ORIGIN:
 	  if (gr->gib_halt().is_bound()) {
 	    halthandle_t halt = haltestelle_t::gib_halt(welt, k);
 	    // only show player's haltestellen
@@ -495,7 +496,7 @@ reliefkarte_t::calc_map(int render_mode)
 	  }
 	  break;
 				// show destinations for passengers
-	case 7:
+	case MAP_DESTINATION:
 	  if (gr->gib_halt().is_bound()) {
 	    halthandle_t halt = haltestelle_t::gib_halt(welt, k);
 	    // only show player's haltestellen
@@ -506,7 +507,7 @@ reliefkarte_t::calc_map(int render_mode)
 	  }
 	  break;
 				// show waiting goods
-	case 8:
+	case MAP_WAITING:
 	  if (gr->gib_halt().is_bound()) {
 	    halthandle_t halt = haltestelle_t::gib_halt(welt, k);
 	    // only show player's haltestellen
@@ -519,7 +520,7 @@ reliefkarte_t::calc_map(int render_mode)
 	  }
 	  break;
 	  // show tracks: white: no electricity, red: electricity, yellow: signal
-	case 9:
+	case MAP_TRACKS:
 		// show track
 	  if (gr->gib_weg(weg_t::schiene)) {
 	  	const schiene_t * sch = dynamic_cast<const schiene_t *> (gr->gib_weg(weg_t::schiene));
@@ -536,7 +537,7 @@ reliefkarte_t::calc_map(int render_mode)
 		}
 	  }
 	break;
-	case 10:
+	case MAX_SPEEDLIMIT:
 		// show max speed
 		setze_relief_farbe(k, calc_severity_color(gr->get_max_speed(), 20));
 		break;

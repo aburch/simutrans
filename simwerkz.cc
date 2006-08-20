@@ -19,6 +19,7 @@
 #include "simdebug.h"
 #include "simplay.h"
 #include "simtools.h"
+#include "simevent.h"
 #include "simskin.h"
 #include "simcity.h"
 #include "simcosts.h"
@@ -659,7 +660,13 @@ wkz_wegebau(spieler_t *sp, karte_t *welt,  koord pos, value_t lParam)
 
       bauigel.route_fuer(bautyp, besch);
       bauigel.set_keep_existing_faster_ways(true);
-      bauigel.calc_route(start,ziel);
+      if(event_get_last_control_shift()==2) {
+DBG_MESSAGE("wkz_wegebau()", "try straight route");
+      	bauigel.calc_straight_route(start,ziel);
+    	 }
+      else {
+      	bauigel.calc_route(start,ziel);
+      }
 
       // sp->platz1 = start;
       // sp->platz2 = ziel;

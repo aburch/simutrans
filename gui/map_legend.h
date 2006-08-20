@@ -26,9 +26,28 @@ class karte_modell_t;
  * @date 03-Mar-01
  * @version $Revision: 1.11 $
  */
-class map_frame_t : public gui_frame_t
+class map_legend_t : public gui_frame_t,
+					public action_listener_t
 {
 private:
+
+  static const char map_type[MAX_MAP_TYPE][64];
+  static const int map_type_color[MAX_MAP_TYPE];
+
+
+  /**
+   * array of buttons for filter
+   * @author hsiegeln
+   */
+  button_t filter_buttons[MAX_MAP_TYPE];
+
+
+  /**
+   * array of filter
+   * @author hsiegeln
+   */
+  bool is_filter_active[MAX_MAP_TYPE];
+
 
   /**
    * This is kind of hack: we know there can only be one map frame
@@ -38,17 +57,19 @@ private:
    */
   static koord size;
 
-  static koord screenpos;
+  /**
+   * calculated start of buttons on map legend
+   * @author hsiegeln
+   */
+  int factory_offset;
+  int button_offset;
+
 
   /**
-   * We need to keep track of trag/click events
+   * Calculate button positions
    * @author Hj. Malthaner
    */
-  bool is_dragging;
-
-
-  gui_scrollpane_t scrolly;
-
+  void calc_button_positions();
 
 public:
 
@@ -72,15 +93,7 @@ public:
      * Konstruktor. Erzeugt alle notwendigen Subkomponenten.
      * @author Hj. Malthaner
      */
-    map_frame_t(const karte_modell_t *welt);
-
-
-    /**
-     * Events werden hiermit an die GUI-Komponenten
-     * gemeldet
-     * @author Hj. Malthaner
-     */
-    virtual void infowin_event(const event_t *ev);
+    map_legend_t(const karte_modell_t *welt);
 
 
     /**
@@ -105,5 +118,11 @@ public:
      * @author Hj. Malthaner
      */
     virtual void zeichnen(koord pos, koord gr);
+
+    /**
+     * This method is called if an action is triggered
+     * @author Hj. Malthaner
+     */
+    virtual bool action_triggered(gui_komponente_t *komp);
 
 };

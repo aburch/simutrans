@@ -371,6 +371,7 @@ int dr_screenshot(const char *filename)
 
 static void internal_GetEvents(int wait)
 {
+	unsigned i;
 	SDL_Event event;
 	event.type = 1;
 
@@ -429,7 +430,9 @@ static void internal_GetEvents(int wait)
 
 		case SDL_MOUSEBUTTONDOWN:     /* originally ButtonPress */
 			// read mod key state from SDL layer
-			sys_event.key_mod = SDL_GetModState();
+			// shift: bit 0, control: Bit 1
+			i = SDL_GetModState();
+			sys_event.key_mod = ((i&2)>>1) | ( i&1) | ((i&0x40)>>5) | ((i&0x80)>>6);
 			sys_event.type=SIM_MOUSE_BUTTONS;
 			sys_event.mx=event.button.x;
 			sys_event.my=event.button.y;
@@ -452,8 +455,9 @@ static void internal_GetEvents(int wait)
 			}
 		break;
    case SDL_MOUSEBUTTONUP:     /* originally ButtonRelease */
-        sys_event.key_mod = SDL_GetModState();
         sys_event.type=SIM_MOUSE_BUTTONS;
+        i = SDL_GetModState();
+        sys_event.key_mod = ((i&2)>>1) | ( i&1) | ((i&0x40)>>5) | ((i&0x80)>>6);
         sys_event.mx=event.button.x;
         sys_event.my=event.button.y;
         switch(event.button.button) {
@@ -470,8 +474,10 @@ static void internal_GetEvents(int wait)
         break;
     case SDL_KEYDOWN:   /* originally KeyPress */
         sys_event.type=SIM_KEYBOARD;
-	// read mod key state from SDL layer
-	sys_event.key_mod = SDL_GetModState();
+        // read mod key state from SDL layer
+        i = SDL_GetModState();
+        sys_event.key_mod = ((i&2)>>1) | ( i&1) | ((i&0x40)>>5) | ((i&0x80)>>6);
+
 
     // do low level special stuff here
     switch(event.key.keysym.sym) {

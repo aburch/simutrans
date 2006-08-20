@@ -6,6 +6,8 @@
  */
 
 
+#include "tpl/debug_helper.h"
+
 #include "simevent.h"
 #include "simsys.h"
 
@@ -13,10 +15,15 @@
 // these variables are accessed by more than one function
 static int cx = -1; // coordinates of last mouse click event
 static int cy = -1; // initialised to "nowhere"
-
+static int control_shift_state=0;	// none pressed
 
 // change_drag_start is used for dragging windows.
 
+int event_get_last_control_shift()
+{
+MESSAGE("event_get_last_control_shift()","state %i\n",control_shift_state);
+	return control_shift_state&0x03;
+}
 
 /**
  * each drag event contains the origin of the first click.
@@ -51,6 +58,7 @@ static void fill_event(struct event_t *ev)
 
 	//  always put key mod code into event
 	ev->ev_key_mod = sys_event.key_mod;
+	control_shift_state = sys_event.key_mod;
 
     switch(sys_event.type) {
      case SIM_KEYBOARD:

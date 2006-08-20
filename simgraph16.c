@@ -2695,7 +2695,7 @@ int	unicode2utf8( unsigned unicode, unsigned char *out )
  * @author prissi
  * @date 29.11.04
  */
-int display_proportional_string_len_width(const char *text, int len,bool use_large_font )
+int display_calc_proportional_string_len_width(const char *text, int len,bool use_large_font )
 {
 	font_type *fnt=use_large_font ? &large_font : &small_font;
 	unsigned int c, width = 0;
@@ -2869,10 +2869,10 @@ void display_text_proportional_len_clip(int x, int y, const char *txt,
 			// nothing to do
 			break;
 		case ALIGN_MIDDLE:
-			x -= display_proportional_string_len_width(txt, len, use_large_font)/2;
+			x -= display_calc_proportional_string_len_width(txt, len, use_large_font)/2;
 			break;
 		case ALIGN_RIGHT:
-			x -= display_proportional_string_len_width(txt, len, use_large_font);
+			x -= display_calc_proportional_string_len_width(txt, len, use_large_font);
 			break;
 	}
  	// still something to display?

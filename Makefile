@@ -7,8 +7,8 @@
 #
 
 
-#OSTYPE=mingw-sdl
-OSTYPE=mingw-gdi
+OSTYPE=mingw-sdl
+#OSTYPE=mingw-gdi
 #OSTYPE=beos
 #OSTYPE=linux-gnu
 
@@ -194,7 +194,7 @@ SUB_OBJS=\
  gui/fahrplan_gui.o gui/line_management_gui.o gui/kennfarbe.o \
  gui/sprachen.o gui/button.o gui/optionen.o gui/spieler.o gui/infowin.o \
  gui/scrolled_list.o gui/schedule_list.o gui/schedule_gui.o gui/scrollbar.o \
- gui/messagebox.o gui/tab_panel.o gui/image_list.o gui/map_frame.o \
+ gui/messagebox.o gui/tab_panel.o gui/image_list.o gui/map_frame.o gui/map_legend.o \
  gui/gui_frame.o gui/gui_scrollpane.o gui/gui_container.o \
  gui/gui_label.o gui/gui_convoiinfo.o gui/world_view_t.o \
  gui/sound_frame.o gui/savegame_frame.o \

@@ -170,6 +170,7 @@ private:
 
     void calc_route_init();
     void intern_calc_route(koord start, const koord ziel);
+    void intern_calc_straight_route(const koord start, const koord ziel);
 
     bool pruefe_route();
 
@@ -224,7 +225,9 @@ public:
     ~wegbauer_t();
 
 
+    void calc_straight_route(koord start, const koord ziel);
     void calc_route(koord start, const koord ziel);
+
   bool check_crossing(const koord zv, const grund_t *bd,weg_t::typ wtyp) const;
   bool check_for_leitung(const koord zv, const grund_t *bd) const;
     bool ist_grund_fuer_strasse(koord pos, const koord zv, koord start, koord ziel) const;

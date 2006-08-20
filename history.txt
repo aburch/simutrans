@@ -6,6 +6,16 @@ Known bugs: (hard to fix)
 	valgrind complains about errors in SDL and X?
 
 
+3-Sep-2005 (prissi)
+	FIX: convoi in depot which were assigned a line or a schedule started after reloading.
+	CHANGE: Separeted map and legend. Got rid of small font
+	FIX: Closing button should check, if closing is ok.
+	ADD: built straight ways by pressing control during mouseclick	(just using a dumb minimizing distance algorithm)
+	FIX: factory production calculation could overflow under bad circumstances.
+
+
+Release of 86.07.4
+
 2-Sep-2005 (prissi)
 	CHANGE: new map button "factries", no more clutter in the legend
 	FIX: divers "delete" to "delete [] ", which are different operators. valgrind now only complains about SDL stuff.

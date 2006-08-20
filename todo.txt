@@ -39,3 +39,5 @@ Fehler:
 Stadtautos kommen nicht um 180 Kurve
 Linienverwaltung kollidiert mit AI Spieler
 Städte ohne Rathaus
+Zweimal Karte klicken/Legende verkleinern -> crash
+Powerlines und Trackupdate? (seems ok)

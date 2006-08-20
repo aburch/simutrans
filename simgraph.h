@@ -206,10 +206,11 @@ void display_ddd_box_clip(int x1, int y1, int w, int h, int tl_color, int rd_col
 #define ALIGN_RIGHT 2
 
 /* routines for string len (macros for compatibility with old calls) */
-int display_proportional_string_len_width(const char *text, int len,bool use_large_font );
-#define small_proportional_string_width(text) display_proportional_string_len_width( text, 0x7FFF, false )
-#define proportional_string_width(text) display_proportional_string_len_width( text, 0x7FFF, true )
-#define proportional_string_len_width(text,len) display_proportional_string_len_width( text, len, true )
+#define small_proportional_string_width(text) display_calc_proportional_string_len_width( text, 0x7FFF, false )
+#define proportional_string_width(text) display_calc_proportional_string_len_width( text, 0x7FFF, true )
+#define proportional_string_len_width(text,len) display_calc_proportional_string_len_width( text, len, true )
+
+int display_calc_proportional_string_len_width(const char *text, int len,bool use_large_font );
 
 /*
  * len parameter added - use -1 for previous bvbehaviour.

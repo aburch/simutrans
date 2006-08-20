@@ -733,7 +733,10 @@ fabrik_t::step(long delta_t)
 					}
 
 					// calculate production
-					uint32 p_menge = produktion(produkt) * (delta_sum/PRODUCTION_DELTA_T);
+					uint32 p_menge = 0;
+					for( long i=delta_sum/PRODUCTION_DELTA_T;  i>0;  i--  ) {
+						p_menge += produktion(produkt);
+					}
 					menge = p_menge < menge ? p_menge : menge;  // production smaller than possible due to consumption
 
 					// finally consume stock
@@ -752,8 +755,12 @@ fabrik_t::step(long delta_t)
 				}
 				else {
 					// source producer
-					menge = produktion(produkt) * (delta_sum/PRODUCTION_DELTA_T);
+					menge = 0;
+					for( long i=delta_sum/PRODUCTION_DELTA_T;  i>0;  i--  ) {
+						menge += produktion(produkt);
+					}
 				}
+
 				const uint32 pb = besch->gib_produkt(produkt)->gib_faktor();
 				const uint32 p = (menge*pb) >> 8;
 

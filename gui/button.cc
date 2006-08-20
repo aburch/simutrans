@@ -170,17 +170,15 @@ void button_t::call_listeners()
 
 button_t::button_t()
 {
-  text = 0;
-  pressed = false;
-  type = box;
-  kennfarbe = 0;
-  tooltip = 0;
-  background = MN_GREY3;
+	text = 0;
+	pressed = false;
+	type = box;
+	kennfarbe = 0;
+	tooltip = 0;
+	background = MN_GREY3;
 	b_enabled = true;
-
-  listeners = new slist_tpl < action_listener_t * >;
-
-  init_button_images();
+	listeners = new slist_tpl < action_listener_t * >;
+	init_button_images();
 }
 
 
@@ -247,22 +245,21 @@ void button_t::set_tooltip(const char * t)
  */
 void button_t::infowin_event(const event_t *ev)
 {
-  // printf("Message: button_t::infowin_event(): class=%d buttons=%x\n", ev->ev_class, ev->button_state);
+//DBG_MESSAGE("button_t::infowin_event()","class=%d buttons=%x\n", ev->ev_class, ev->button_state);
 
-  // Hajo: we ignore resize events, they shouldn't make us
-  // pressed or upressed
+	// Hajo: we ignore resize events, they shouldn't make us
+	// pressed or upressed
+	if(IS_WINDOW_RESIZE(ev)) {
+		return;
+	}
 
-  if(IS_WINDOW_RESIZE(ev)) {
-    return;
-  }
+	// Hajo: check button state, if we should look depressed
+	pressed  =  (ev->button_state==1)  &&  enabled();
 
-  // Hajo: check button state, if we should look depressed
-
-  pressed = (ev->button_state == 1) && enabled();
-
-  if(IS_LEFTRELEASE(ev)) {
-    call_listeners();
-  }
+	if(IS_LEFTRELEASE(ev)) {
+		pressed = 0;
+		call_listeners();
+	}
 }
 
 

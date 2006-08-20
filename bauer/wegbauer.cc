@@ -1,7 +1,7 @@
 /*
  * simbau.cc
  *
- * Copyright (c) 1997 - 2001 Hansj�g Malthaner
+ * Copyright (c) 1997 - 2001 Hansjoerg Malthaner
  *
  * This file is part of the Simutrans project and may not be used
  * in other projects without written permission of the author.
@@ -63,7 +63,7 @@ static stringhashtable_tpl <const weg_besch_t *> alle_wegtypen;
 
 bool wegbauer_t::alle_wege_geladen()
 {
-    // Strom mu�nicht sein!
+    // Strom muꂲnicht sein!
     return ::alles_geladen(spezial_objekte + 1);
 }
 
@@ -262,13 +262,13 @@ wegbauer_t::ist_bruecke_tunnel_ok(grund_t *bd_von, koord zv, grund_t *bd_nach)
     if(bd_von->gib_typ() == grund_t::brueckenboden) {
   hang = bd_von->gib_grund_hang();
         if(hang != hang_t::flach) {
-	    // nur Br�tart auf Nordhang nach sueden erlauben
+	    // nur Brueckenstart auf Nordhang nach sueden erlauben
 	    if(hang_zv != hang) {
 		return false;
 	    }
 	}
 	else {
-	    // nur Br�ampe mit S� nach sueden erlauben
+	    // allow only south bridge ramp
 	    hang = bd_von->gib_weg_hang();
 	    if(hang_zv != hang_t::gegenueber(hang)) {
 		return false;
@@ -276,7 +276,7 @@ wegbauer_t::ist_bruecke_tunnel_ok(grund_t *bd_von, koord zv, grund_t *bd_nach)
 	}
     }
     else if(bd_von->gib_typ() == grund_t::tunnelboden) {
-	// nur Tunnelausg㭧e mit S� nach sueden erlauben
+	// nur Tunnelausgaene nach sueden erlauben
 	hang = bd_von->gib_grund_hang();
 	if(hang_zv != hang_t::gegenueber(hang)) {
 	    return false;
@@ -285,13 +285,13 @@ wegbauer_t::ist_bruecke_tunnel_ok(grund_t *bd_von, koord zv, grund_t *bd_nach)
     if(bd_nach->gib_typ() == grund_t::brueckenboden) {
   hang = bd_nach->gib_grund_hang();
         if(hang != hang_t::flach) {
-	    // nur Br�tart auf Nordhang von norden erlauben
+	    // nur bruecke auf Nordhang von norden erlauben
 	    if(hang_zv != hang_t::gegenueber(hang)) {
 		return false;
 	    }
 	}
 	else {
-	    // nur Br�ampe mit Nordhang von norden erlauben
+	    // nur Brueckenrampe mit Nordhang von norden erlauben
 	    hang = bd_nach->gib_weg_hang();
 	    if(hang_zv != hang) {
 		return false;
@@ -299,7 +299,7 @@ wegbauer_t::ist_bruecke_tunnel_ok(grund_t *bd_von, koord zv, grund_t *bd_nach)
 	}
     }
     else if(bd_nach->gib_typ() == grund_t::tunnelboden) {
-	// nur Tunnelausg㭧e mit Nordhang von norden erlauben
+	// nur Tunnelausgaenge mit Nordhang von norden erlauben
 	hang = bd_nach->gib_grund_hang();
 	if(hang_zv != hang) {
 	    return false;
@@ -914,14 +914,14 @@ wegbauer_t::check_brueckenbau(const koord k, const koord t,
 void
 wegbauer_t::calc_route_init()
 {
-	// alle info's aufr�men
+	// alle info's aufraeumen
 	slist_iterator_tpl<info_t *> queue_iter(queue);
 	while(queue_iter.next()) {
 		delete queue_iter.get_current();
 	}
 	queue.clear();
 
-	// alle dir_forces aufr�men
+	// alle dir_forces aufraeumen
 	slist_iterator_tpl<dir_force_t *> forces_iter(dir_forces);
 	while(forces_iter.next()) {
 		delete forces_iter.get_current();
@@ -957,12 +957,12 @@ wegbauer_t::intern_calc_route(const koord start, const koord ziel)
 
 	INT_CHECK("simbau 608");
 
-	// Verhindern, daݠwir auf einem Depot enden!
+	// Verhindern, dass wir auf einem Depot enden!
 	if(!ist_grund_fuer_strasse(ziel, koord(0,0), start, ziel)) {
 		return;
 	}
 
-	// Verhindern, das wir eine Strasse der L㭧e 1 auf einem schiefen Hang bauen:
+	// Verhindern, das wir eine Strasse der Laenge 1 auf einem schiefen Hang bauen:
 	if(!hang_t::ist_wegbar(welt->lookup(start)->gib_kartenboden()->gib_grund_hang())) {
 		return;
 	}
@@ -983,10 +983,10 @@ wegbauer_t::intern_calc_route(const koord start, const koord ziel)
 			t = calc_tunnel_ziel(info->at(k).k, k);
 
 			if(t.x != -1 && t.y != -1 && t != start && t != ziel) {
-				// g�s tunnelziel gefunden
+				// gꂲs tunnelziel gefunden
 
 				if(t.x == -2 && t.y == -2) {
-					// g�s tunnelziel gefunden
+					// tunnelziel gefunden
 					// aber tunnel nicht betretbar -> zweite chance
 					//		    info[k.x][k.y].val = unseen;
 					//		    continue;
@@ -1004,10 +1004,10 @@ wegbauer_t::intern_calc_route(const koord start, const koord ziel)
 			t = calc_bruecke_ziel(info->at(k).k, k);
 
 			if(t.x != -1 && t.y != -1 && t != start && t != ziel) {
-				// g�s brueckenziel gefunden
+				// brueckenziel gefunden
 
 				if(t.x == -2 && t.y == -2) {
-					// g�s brueckenziel gefunden
+					// brueckenziel gefunden
 					// aber bruecke nicht betretbar -> zweite chance
 					//			info[k.x][k.y].val = unseen;
 					//			continue;
@@ -1159,6 +1159,72 @@ found:;
 	}
 }
 
+
+void
+wegbauer_t::intern_calc_straight_route(const koord start, const koord ziel)
+{
+	bool ok=true;
+	max_n = -1;
+
+	koord pos=start;
+	while(pos!=ziel  &&  ok) {
+
+		// shortest way
+		koord diff;
+		if(abs(pos.x-ziel.x)>=abs(pos.y-ziel.y)) {
+			diff = (pos.x>ziel.x) ? koord(-1,0) : koord(1,0);
+		}
+		else {
+			diff = (pos.y>ziel.y) ? koord(0,-1) : koord(0,1);
+		}
+
+		grund_t *bd_von = welt->lookup(pos)->gib_kartenboden();
+		grund_t *bd_nach = welt->lookup(pos+diff)->gib_kartenboden();
+
+		// allowed ground?
+		ok = ok  &&  bd_von  &&  bd_nach
+					&&  bd_von->gib_typ()!=grund_t::fundament
+					&&  kann_mit_strasse_erreichen(bd_von, diff)
+					&&  ist_grund_fuer_strasse(pos, diff, start, ziel)
+					&&  kann_ribis_setzen(bd_von, diff)
+					&&  kann_ribis_setzen(bd_nach, -diff)
+					&&  hang_t::ist_wegbar(bd_von->gib_grund_hang());
+DBG_MESSAGE("wegbauer_t::calc_straight_route()","step %i,%i = %i",diff.x,diff.y,ok);
+		pos += diff;
+	}
+	// we can built a straight route?
+	if(ok) {
+		unsigned n = 0;
+		pos = start;
+		route->at(n++) = pos;
+		while(pos!=ziel) {
+			// shortest way
+			koord diff;
+			if(abs(pos.x-ziel.x)>=abs(pos.y-ziel.y)) {
+				diff = (pos.x>ziel.x) ? koord(-1,0) : koord(1,0);
+			}
+			else {
+				diff = (pos.y>ziel.y) ? koord(0,-1) : koord(0,1);
+			}
+			pos += diff;
+			route->at(n++) = pos;
+		}
+		max_n = n-1;
+DBG_MESSAGE("wegbauer_t::intern_calc_straight_route()","found straight route max_n=%i",max_n);
+	}
+}
+
+
+void
+wegbauer_t::calc_straight_route(koord start, const koord ziel)
+{
+	intern_calc_straight_route(start,ziel);
+	if(max_n==-1) {
+		intern_calc_straight_route(ziel,start);
+	}
+}
+
+
 /* calc_route
  *
  */
@@ -1205,7 +1271,7 @@ wegbauer_t::calc_route(koord start, const koord ziel)
 
     INT_CHECK("simbau 778");
 
-    // alle info's aufr�men
+    // alle info's aufraeumen
     slist_iterator_tpl<info_t *> queue_iter(queue);
 
     while(queue_iter.next()) {
@@ -1215,7 +1281,7 @@ wegbauer_t::calc_route(koord start, const koord ziel)
     queue.clear();
 
 
-    // alle dir_forces aufr�men
+    // alle dir_forces aufraeumen
     slist_iterator_tpl<dir_force_t*> forces_iter(dir_forces);
 
     while(forces_iter.next()) {
@@ -1312,7 +1378,7 @@ void wegbauer_t::optimiere_stelle(int index)
 	koord d = p2-p;
 
 	if(ABS(d.x) > 1 || ABS(d.y) > 1) {
-	    // das ist ein br�tunnelansatz
+	    // das ist ein brꂲtunnelansatz
 	    return;
 	}
 

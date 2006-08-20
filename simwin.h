@@ -66,7 +66,8 @@ enum magic_numbers {
     magic_specialtools,
     magic_listtools,
     magic_edittools,
-    magic_keyhelp
+    magic_keyhelp,
+    magic_map_legend
 };
 
 // Haltezeit für Nachrichtenfenster

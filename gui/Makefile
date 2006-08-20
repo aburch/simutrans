@@ -15,7 +15,8 @@ SOURCES= button.cc\
  schedule_list.cc schedule_gui.cc scrolled_list.cc scrollbar.cc\
  tab_panel.cc image_list.cc gui_container.cc gui_frame.cc gui_scrollpane.cc\
  gui_label.cc gui_convoiinfo.cc world_view_t.cc\
- map_frame.cc sound_frame.cc savegame_frame.cc \
+ map_frame.cc map_legend.cc \
+ sound_frame.cc savegame_frame.cc \
  savegame_frame.cc load_relief_frame.cc \
  loadsave_frame.cc money_frame.cc convoi_frame.cc convoi_info_t.cc \
  convoi_filter_frame.cc halt_list_frame.cc halt_list_item.cc halt_list_filter_frame.cc \
@@ -36,7 +37,8 @@ OBJECTS=button.o\
  schedule_list.o schedule_gui.o scrolled_list.o scrollbar.o\
  tab_panel.o image_list.o gui_container.o gui_frame.o gui_scrollpane.o\
  gui_label.o gui_convoiinfo.o world_view_t.o\
- map_frame.o sound_frame.o \
+ map_frame.o map_legend.o \
+ sound_frame.o \
  savegame_frame.o load_relief_frame.o \
  loadsave_frame.o money_frame.o convoi_frame.o convoi_info_t.o \
  convoi_filter_frame.o halt_list_frame.o halt_list_item.o halt_list_filter_frame.o \

@@ -15,7 +15,7 @@ class grund_t;
 
 struct event_t;
 
-#define MAX_MAP_TYPE 14
+#define MAX_MAP_TYPE 15
 #define MAX_MAP_ZOOM 4
 // set to zero to use the small font
 #define ALWAYS_LARGE 1
@@ -72,6 +72,7 @@ private:
 	bool is_shift_pressed;
 
 public:
+	typedef enum { MAP_TOWN=0, MAP_PASSENGER, MAP_MAIL, MAP_FREIGHT, MAP_STATUS, MAP_SERVICE, MAP_TRAFFIC, MAP_ORIGIN, MAP_DESTINATION, MAP_WAITING, MAP_TRACKS, MAX_SPEEDLIMIT, MAP_POWERLINES, MAP_TOURIST, MAP_FACTORIES };
 
 	static const int severity_color[12];
 

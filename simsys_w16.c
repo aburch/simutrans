@@ -197,8 +197,8 @@ dr_textur(int xp, int yp, int w, int h)
 		hdc = GetDC(hwnd);
 	}
 	AllDib.biHeight = h;
-	StretchDIBits( hdc, xp, yp+h-1, w, -h,
-		xp, 0, w, h,
+	StretchDIBits( hdc, xp, yp, w, h,
+		xp, h, w, -h,
 		(LPSTR)(AllDibData+(yp*WindowSize.right)), (LPBITMAPINFO)&AllDib,
 		DIB_RGB_COLORS, SRCCOPY	 );
 }
@@ -307,8 +307,8 @@ LRESULT WINAPI WindowProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 			PAINTSTRUCT ps;
 			HDC hdcp = BeginPaint(hwnd, &ps);
 			AllDib.biHeight = WindowSize.bottom+1;
-			StretchDIBits( hdcp, 0, WindowSize.bottom, WindowSize.right, -AllDib.biHeight,
-								0, 0, WindowSize.right, AllDib.biHeight,
+			StretchDIBits( hdcp, 0, 0, WindowSize.right, WindowSize.bottom,
+								0, AllDib.biHeight, WindowSize.right, -WindowSize.bottom,
 								(LPSTR)AllDibData, (LPBITMAPINFO)&AllDib,
 								DIB_RGB_COLORS, SRCCOPY	 );
 			EndPaint(hwnd, &ps);
@@ -401,31 +401,23 @@ LRESULT WINAPI WindowProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 			sys_event.code = wParam;
 			break;
 
-		case WM_DESTROY:
-			// free HDC
-			if(hdc!=NULL) {
-				ReleaseDC( hwnd, hdc );
-				hdc = NULL;
-			}
-			// free bitmap
+		case WM_CLOSE:
 			if(AllDibData!=NULL) {
-				GlobalFree( GlobalHandle( AllDibData ) );
-				AllDibData = NULL;
+				sys_event.type=SIM_SYSTEM;
+				sys_event.code=SIM_SYSTEM_QUIT;
+				return FALSE;
 			}
-			// terminate sound system
-			if(use_sound) {
-				int i;
-				sndPlaySound( NULL, SND_ASYNC );
-				for(i=0;  i<sample_number;  i++  ) {
-					GlobalFree( GlobalHandle( samples[i] ) );
-				}
-				sample_number = 0;
-			}
+			break;
+
+		case WM_DESTROY:
 			sys_event.type=SIM_SYSTEM;
 			sys_event.code=SIM_SYSTEM_QUIT;
-			PostQuitMessage(0);
-			hwnd = NULL;
-			return TRUE;
+			if(AllDibData==NULL) {
+				PostQuitMessage(0);
+				hwnd = NULL;
+				return TRUE;
+			}
+			return FALSE;
 
         default:
                 return DefWindowProc(hwnd, msg, wParam, lParam);
@@ -571,31 +563,6 @@ void dr_play_sample(int sample_number, int volume)
 
 
 /************************** Winmain ***********************************/
-
-
-HMODULE LoadUnicowsProc(void);
-
-// The following is a typical implementation of LoadUnicowsProc.
-
-HMODULE LoadUnicowsProc(void)
-{
-    return(LoadLibraryA("unicows.dll"));
-}
-
-#ifdef _cplusplus
-extern "C" {
-#endif
-
-/*
-Define the LoadUnicowsProc function. This function is a user-defined callback function that takes no parameters. The loader calls it when needed to load MSLU. Note that LoadUnicowsProc is only called on Windows Me/98/95. Also, LoadUnicowsProc is called before the DllMain PROCESS_ATTACH call and, for an .exe, before WinMain.
-*/
-
-extern FARPROC _PfnLoadUnicows = (FARPROC) &LoadUnicowsProc;
-
-#ifdef _cplusplus
-}
-#endif
-
 
 int simu_main(int argc, char **argv);
 

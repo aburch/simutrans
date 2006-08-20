@@ -908,9 +908,9 @@ convoi_t::setze_fahrplan(fahrplan_t * f)
 
 
     fahr->at(anz_vehikel) = NULL;
-
-    state = ROUTING_1;
-
+	if(state!=INITIAL) {
+	    state = ROUTING_1;
+	}
     return true;
 }
 
@@ -1175,6 +1175,7 @@ convoi_t::rdwr(loadsave_t *file)
     file->rdwr_bool(has_fpl, "");
 
     if(has_fpl) {
+//DBG_MESSAGE("convoi_t::rdwr()","convoi has a schedule, state %s!",state_names[state]);
       if(file->is_loading() && fahr->at(0)) {
 	fpl = fahr->at(0)->erzeuge_neuen_fahrplan();
       }

@@ -15,6 +15,7 @@
 #include <cmath>
 
 #include "map_frame.h"
+#include "map_legend.h"
 #include "../ifc/karte_modell.h"
 
 #include "../simworld.h"
@@ -30,54 +31,7 @@
 koord map_frame_t::size;
 
 // Hajo: we track our position onscreen
-koord screenpos;
-
-static minivec_tpl <cstring_t> legend_names (32);
-static minivec_tpl <int> legend_colors (32);
-
-
-// @author hsiegeln
-const char map_frame_t::map_type[MAX_MAP_TYPE][64] =
-{
-  "Passagiere",
-    "Post",
-    "Fracht",
-    "Status",
-    "Service",
-    "Traffic",
-    "Origin",
-    "Destination",
-    "Waiting",
-    "Tracks",
-    "Speedlimit",
-    "Powerlines",
-    "Tourists",
-    "Factories"
-};
-
-const int map_frame_t::map_type_color[MAX_MAP_TYPE] =
-{
-  7, 11, 15, 132, 23, 27, 31, 35, 241, 7, 11, 71, 57, 81
-};
-
-/**
- * Calculate button positions
- * @author Hj. Malthaner
- */
-void map_frame_t::calc_button_positions()
-{
-  const int button_columns = (gib_fenstergroesse().x - 20) / 80;
-  for (int type=0; type<MAX_MAP_TYPE; type++) {
-
-    filter_buttons[type].init(button_t::box,
-			     translator::translate(map_type[type]),
-			     koord(10 + 80*(type % button_columns),
-				   gib_fenstergroesse().y - legend_height + button_start + 15 * ((int)type/button_columns-1)),
-			     koord(79, 14));
-  }
-}
-
-
+koord map_frame_t::screenpos;
 
 /**
  * Konstruktor. Erzeugt alle notwendigen Subkomponenten.
@@ -91,40 +45,10 @@ map_frame_t::map_frame_t(const karte_modell_t *welt) : gui_frame_t("Reliefkarte"
 
     is_dragging = false;
 
+    const koord ij = welt->gib_ij_off();
     const koord gr = karte->gib_groesse();
 
-
-    legend_names.clear();
-    legend_colors.clear();
-
-    const stringhashtable_tpl<const fabrik_besch_t *> & fabesch =
-      fabrikbauer_t::gib_fabesch();
-
-    stringhashtable_iterator_tpl<const fabrik_besch_t *> iter (fabesch);
-
-    while( iter.next() ) {
-
-      cstring_t label (translator::translate(iter.get_current_value()->gib_name()));
-      if(  label.len() > 14) {
-		label.set_at(12, '.');
-		label.set_at(13, '.');
-		label.set_at(14, '\0');
-      }
-
-      legend_names.append(label);
-      legend_colors.append(iter.get_current_value()->gib_kennfarbe());
-    }
-
-#ifdef MAP_LEGENDE
-    legend_height = (((legend_names.count() + 3) >> 2) << 3) + 8 + (int)(MAX_MAP_TYPE / 2) * 15;
-    button_start = (((legend_names.count() + 3) >> 2) << 3) + 12;
-#else
-	legend_height = 36;
-    legend_height = 4 + 16 + ((MAX_MAP_TYPE/3)+1)*15;
-    button_start = 16;
-#endif
-
-    set_min_windowsize(koord(256+20,240));
+    set_min_windowsize(koord(64+36,64+16));
 
     // Hajo: Hack: use static size if set by a former object
     if(size != koord(0,0)) {
@@ -132,44 +56,21 @@ map_frame_t::map_frame_t(const karte_modell_t *welt) : gui_frame_t("Reliefkarte"
       scrolly.setze_groesse(size-koord(0,16));
     }
     else {
-      if(gr.x <= 256) {
-	setze_fenstergroesse(gr + koord(12, 12+16+30));
-	scrolly.setze_groesse(gr + koord(12, 12));
-      }
-      else {
-	setze_fenstergroesse(koord(250, 250+12+16+30));
-	scrolly.setze_groesse(koord(250, 250));
-      }
+	    setze_fenstergroesse(koord(gr.x+12,gr.y+12+14));
     }
-
     add_komponente(&scrolly);
 
-    const koord ij = welt->gib_ij_off();
 
     // Clipping geändert - max. 250 war zu knapp für grosse Karten - V.Meyer
-    scrolly.setze_scroll_position(MAX(0, MIN(gr.x - 240,(ij.x+8) * 2-128)),
-				  MAX(0, MIN(gr.x - 240,(ij.y+8) * 2-128)) );
-
-
+    scrolly.setze_scroll_position(MAX(0, MIN(gr.x - (64+16),(ij.x+8) * 2-128)),
+				  MAX(0, MIN(gr.x - (64+16),(ij.y+8) * 2-128)) );
 
     // Hajo: Trigger layouting
     set_resizemode(diagonal_resize);
-    resize(koord(0,0));
 
-
-    // Hajo: place buttons
-    calc_button_positions();
-
-
-    // add filter buttons
-    // @author hsiegeln
-    for (int type=0; type<MAX_MAP_TYPE; type++) {
-
-      filter_buttons[type].add_listener(this);
-      filter_buttons[type].background = map_type_color[type];
-      is_filter_active[type] = karte->get_mode() == type;
-      add_komponente(filter_buttons + type);
-    }
+	int x = CLIP(gib_maus_x() - size.x/2 - 260, 0, display_get_width()-size.x);
+	int y = CLIP(gib_maus_y() - size.y-32, 0, display_get_height()-size.y);
+    create_win(x, y, -1, new map_legend_t(welt), w_info, magic_map_legend);
 }
 
 
@@ -245,17 +146,7 @@ void map_frame_t::setze_fenstergroesse(koord groesse)
   gui_frame_t::setze_fenstergroesse( groesse );
 
   map_frame_t::size = gib_fenstergroesse();   // Hajo: remember size
-
-#ifdef MAP_LEGENDE
-    legend_height = (((legend_names.count() + 3) >> 2) << 3) + 8 + (int)(MAX_MAP_TYPE / 2) * 15;
-    button_start = (((legend_names.count() + 3) >> 2) << 3) + 12;
-#else
-	if(groesse.x>100) {
-	    legend_height = 4 + 16 + ( (MAX_MAP_TYPE / ((groesse.x-20)/80) )+1)*16;
-	}
-    button_start = 16;
-#endif
-  scrolly.setze_groesse( gib_fenstergroesse() - koord(0,16+legend_height) ) ;
+  scrolly.setze_groesse( gib_fenstergroesse() - koord(0,16) ) ;
 }
 
 
@@ -268,14 +159,11 @@ void map_frame_t::resize(const koord delta)
 {
   gui_frame_t::resize(delta);
 
-  const koord groesse = gib_fenstergroesse()-koord(0,16+legend_height);
+  const koord groesse = gib_fenstergroesse();
 
   // Hajo: Hack: save statically
-  size = groesse+koord(0,16+legend_height);
-
+  size = groesse;
   setze_fenstergroesse(size);
-
-  calc_button_positions();
 }
 
 
@@ -287,75 +175,13 @@ void map_frame_t::resize(const koord delta)
  */
 void map_frame_t::zeichnen(koord pos, koord gr)
 {
+
   screenpos = pos;
-
   // scrollbar "opaqueness" mechanism has changed. So we must draw grey background here
-	display_fillbox_wh(pos.x+1,pos.y+16,gr.x-2,gr.y-legend_height, MN_GREY2, true);
-
-  display_fillbox_wh(pos.x+1, pos.y+gr.y-legend_height, gr.x-2, legend_height-1, MN_GREY2, true);
-  display_fillbox_wh(pos.x, pos.y+gr.y-1, gr.x, 1, MN_GREY0, true);
-
-  display_fillbox_wh(pos.x, pos.y+gr.y-legend_height-16, 1, legend_height+16, MN_GREY4, true);
-  display_fillbox_wh(pos.x+gr.x-1, pos.y+gr.y-legend_height, 1, legend_height, MN_GREY0, true);
-
-#ifdef MAP_LEGENDE
-  for(uint32 u=0; u<legend_names.count(); u++) {
-
-    const int xpos = pos.x + (u & 3) * 65 + 4;
-    const int ypos = pos.y+gr.y-legend_height+4+(u>>2)*8;
-    const int color = legend_colors.at(u);
-
-    display_fillbox_wh(xpos, ypos+1, 4, 4, color, false);
-
-	/* changed for unicode display
-	 * @author: prissi
-	 */
-	display_small_proportional( xpos+5, ypos, legend_names.get(u), ALIGN_LEFT, SCHWARZ, false);
-  }
-#endif
-
-  int i;
-  for (i = 0;i<MAX_MAP_TYPE;i++) {
-    filter_buttons[i].pressed = is_filter_active[i];
-  }
-
-#ifdef MAP_LEGENDE
-  // color bar
-  for (i = 0; i<12; i++) {
-    display_fillbox_wh(pos.x + size.x - 10, pos.y+gr.y-legend_height + 10 + i*8, 4, 8, reliefkarte_t::severity_color[11-i], false);
-  }
-
-  display_small_proportional(pos.x + size.x, pos.y+gr.y-legend_height - 3, translator::translate("max"), ALIGN_RIGHT, SCHWARZ, false);
-  display_small_proportional(pos.x + size.x, pos.y+gr.y-legend_height + 107, translator::translate("min"), ALIGN_RIGHT, SCHWARZ, false);
-#else
-  // color bar
-  for (i = 0; i<12; i++) {
-    display_fillbox_wh(pos.x + 30 + i*(size.x-60)/12, pos.y+gr.y-legend_height+2,  (size.x-60)/12, 7, reliefkarte_t::severity_color[11-i], false);
-  }
-  display_proportional(pos.x + 26, pos.y+gr.y-legend_height+2, translator::translate("min"), ALIGN_RIGHT, SCHWARZ, false);
-  display_proportional(pos.x + size.x - 26, pos.y+gr.y-legend_height+2, translator::translate("max"), ALIGN_LEFT, SCHWARZ, false);
-#endif
+  display_fillbox_wh(pos.x+gr.x-14,pos.y+16,14, gr.y-16, MN_GREY2, true);
+  display_fillbox_wh(pos.x,pos.y+gr.y-12,gr.x,12, MN_GREY2, true);
+  display_fillbox_wh(pos.x+gr.x, pos.y+16, 1, gr.y-16, MN_GREY0, true);
+  display_fillbox_wh(pos.x, pos.y+gr.y, gr.x, 1, MN_GREY0, true);
 
   gui_frame_t::zeichnen(pos, gr);
-}
-
-
-bool
-map_frame_t::action_triggered(gui_komponente_t *komp)
-{
-  reliefkarte_t::gib_karte()->set_mode(-1);
-  for (int i=0;i<MAX_MAP_TYPE;i++) {
-    if (komp == &filter_buttons[i]) {
-      if (is_filter_active[i] == true) {
-	is_filter_active[i] = false;
-      } else {
-	reliefkarte_t::gib_karte()->set_mode(i);
-	is_filter_active[i] = true;
-      }
-    } else {
-      is_filter_active[i] = false;
-    }
-  }
-
-  return true;
 }
