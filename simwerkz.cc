@@ -916,22 +916,29 @@ dbg->message("wkz_senke()","called on %d,%d", pos.x, pos.y);
 		return false;
 	}
 
-	int top = welt->lookup(pos)->gib_kartenboden()->gib_top();
+	//int top = welt->lookup(pos)->gib_kartenboden()->gib_top();
 	int hangtyp = welt->get_slope(pos);
 
-	if(hangtyp == 0 && top <= 0) {
+	if(hangtyp == 0) {
 		fabrik_t *fab=leitung_t::suche_fab_4(pos);
 		if(fab==NULL) {
 			// need a factory
 			return false;
 		}
 		grund_t *gr = welt->lookup(pos)->gib_kartenboden();
+		// remove everything on that spot
+		const char *fail = NULL;
+		if(!wkz_remover_intern(sp, welt, pos, fail)) {
+			if(fail) {
+				create_win(-1, -1, MESG_WAIT, new nachrichtenfenster_t(welt, fail), w_autodelete);
+			}
+		}
 		if(strcmp(fab->gib_name(), "Kohlekraftwerk")==0  ||  strcmp(fab->gib_name(), "Oil Power Plant")==0) {
-			gr->obj_loesche_alle(NULL);
-			gr->obj_add( new pumpe_t(welt, gr->gib_pos(), welt->gib_spieler(0)) );
+//			gr->obj_loesche_alle(sp);
+			gr->obj_add( new pumpe_t(welt, gr->gib_pos(), sp) );
 		}
 		else {
-			gr->obj_loesche_alle(NULL);
+//			gr->obj_loesche_alle(sp);
 			gr->obj_add(new senke_t(welt, gr->gib_pos(), sp));
 		}
 	}

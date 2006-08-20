@@ -12,5 +12,4 @@ Stichpunkte
 - Icon und Versionsinformationen
 - Statistiken für Stadtfenster und KI
 - Fabrikliste
-- UNDO für Wege
 - powernet nach liste ändern => Karte besser, keine Speicherverschwendung

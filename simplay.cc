@@ -163,10 +163,13 @@ spieler_t::~spieler_t()
 const char *
 spieler_t::gib_name(void)
 {
-	char buf[256];
-	sprintf(buf,"player %i",kennfarbe/4-1);
-	strcpy(buf,translator::translate(buf));
-	return buf;
+	if(kennfarbe/4>0)
+	{
+		char buf[256];
+		sprintf(buf,"player %i",kennfarbe/4-1);
+		return translator::translate(buf);
+	}
+	return " ";
 }
 
 
@@ -2233,6 +2236,7 @@ spieler_t::init_undo( weg_t::typ wtype, int max )
 		delete last_built;
 		last_built = NULL;
 	}
+dbg->message("spieler_t::int_undo()","undo tiles %i",max);
 	last_built_count = 0;
 	if(max>0) {
 		last_built = new array_tpl<koord> (max);

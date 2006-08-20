@@ -887,7 +887,7 @@ static const int hours2night[] =
 
 static const char * seasons[] =
 {
-    "q1", "q2", "q3", "q4"
+    "q4", "q1", "q2", "q3"
 };
 
 
@@ -949,11 +949,11 @@ win_display_flush(int ticks, int color, double konto)
     {
     	sprintf(time, "%s, %s %d",
 		translator::translate(month_names[tage % 12]),
-		translator::translate(seasons[(tage/3)&3]),
+		translator::translate(seasons[((tage+1)/3)&3]),
 		umgebung_t::starting_year+tage/12);
     } else {
     	sprintf(time, "%s %d",
-		translator::translate(seasons[(tage/3)&3]),
+		translator::translate(seasons[((tage+1)/3)&3]),
 		umgebung_t::starting_year+tage/12);
     }
 

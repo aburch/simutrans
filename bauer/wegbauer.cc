@@ -312,9 +312,9 @@ wegbauer_t::tunnel_finde_ende(karte_t *welt, koord3d pos, const koord zv)
  * @author prissi
  */
 bool
-wegbauer_t::check_crossing(const koord zv, const grund_t *bd,bool ignore_player,weg_t::typ wtyp) const
+wegbauer_t::check_crossing(const koord zv, const grund_t *bd,weg_t::typ wtyp) const
 {
-  if(bd->gib_weg(wtyp)  &&  (ignore_player  || bd->gib_besitzer()==NULL  ||  bd->gib_besitzer()==sp)  &&  bd->gib_halt()==NULL) {
+  if(bd->gib_weg(wtyp)  &&  bd->gib_halt()==NULL) {
 	ribi_t::ribi w_ribi = bd->gib_weg_ribi_unmasked(wtyp);
     // it is our way we want to cross: can we built a crossing here?
     // both ways must be straight and no ends
@@ -377,14 +377,14 @@ wegbauer_t::ist_grund_fuer_strasse(koord pos, const koord zv, koord start, koord
   switch(bautyp) {
   case strasse:
       ok =
-    (ok || bd->gib_weg(weg_t::strasse)  || check_crossing(zv,bd,sp,weg_t::schiene)) &&
+    (ok || bd->gib_weg(weg_t::strasse)  || check_crossing(zv,bd,weg_t::schiene)) &&
     (bd->gib_weg(weg_t::strasse)  ||  bd->gib_besitzer() == NULL || bd->gib_besitzer() == sp) &&
     !bd->hat_gebaeude(hausbauer_t::frachthof_besch) &&
     check_for_leitung(zv,bd)  &&
     !bd->gib_depot();
       break;
   case schiene:
-      ok = (ok || bd->gib_weg(weg_t::schiene)  || check_crossing(zv,bd,false,weg_t::strasse)) &&
+      ok = (ok || bd->gib_weg(weg_t::schiene)  || check_crossing(zv,bd,weg_t::strasse)) &&
     (bd->gib_besitzer() == NULL || bd->gib_besitzer() == sp) &&
     check_for_leitung(zv,bd)  &&
     !bd->gib_depot();
@@ -394,15 +394,15 @@ wegbauer_t::ist_grund_fuer_strasse(koord pos, const koord zv, koord start, koord
       ok = ( bd->ist_natur() ||  bd->ist_wasser())  ||  (
 //					     (bd->gib_besitzer() == NULL || bd->gib_besitzer() == sp) &&
      						(
-      						(bd->gib_weg(weg_t::strasse)!=NULL  &&  check_crossing(zv,bd,true,weg_t::strasse))  ||
-      				 		(bd->gib_weg(weg_t::schiene)!=NULL  &&  check_crossing(zv,bd,true,weg_t::schiene))
+      						(bd->gib_weg(weg_t::strasse)!=NULL  &&  check_crossing(zv,bd,weg_t::strasse))  ||
+      				 		(bd->gib_weg(weg_t::schiene)!=NULL  &&  check_crossing(zv,bd,weg_t::schiene))
       				 	)
       				 );
       break;
       // like strasse but allow for railroad crossing
   case strasse_bot:
-      ok = (ok || bd->gib_weg(weg_t::strasse)  || check_crossing(zv,bd,false,weg_t::schiene)) &&
-    (bd->gib_besitzer() == NULL || bd->gib_besitzer() == sp) &&
+      ok = (ok || bd->gib_weg(weg_t::strasse)  || check_crossing(zv,bd,weg_t::schiene)) &&
+    (bd->gib_weg(weg_t::strasse)  ||  bd->gib_besitzer() == NULL || bd->gib_besitzer() == sp) &&
     check_for_leitung(zv,bd)  &&
     !bd->hat_gebaeude(hausbauer_t::frachthof_besch);
       break;
@@ -413,7 +413,7 @@ wegbauer_t::ist_grund_fuer_strasse(koord pos, const koord zv, koord start, koord
      // avoid crossings with any (including our) railroad tracks
   case schiene_bot_bau:
       ok = ok || (pos==start || pos==ziel);
-      ok = ok &&  (bd->gib_weg(weg_t::strasse)==NULL  ||  check_crossing(zv,bd,false,weg_t::strasse));
+      ok = ok &&  (bd->gib_weg(weg_t::strasse)==NULL  ||  check_crossing(zv,bd,weg_t::strasse));
       ok = ok && bd->gib_weg(weg_t::schiene)==NULL  &&  (bd->gib_besitzer()==sp  ||  bd->gib_besitzer()==NULL)  &&  check_for_leitung(zv,bd);
       break;
   default:
@@ -1405,6 +1405,10 @@ wegbauer_t::baue_leitung()
 		printf("powerline %p at (%i,%i)\n",lt,k.x,k.y);
 		if(lt == 0) {
 			lt = new leitung_t(welt, gr->gib_pos(), sp);
+			if(gr->ist_natur()) {
+				// remove trees etc.
+				gr->obj_loesche_alle(sp);
+			}
 			sp->buche(CST_LEITUNG, gr->gib_pos().gib_2d(), COST_CONSTRUCTION);
 			gr->obj_add(lt);
 //			if(gr->gib_besitzer()==NULL) {

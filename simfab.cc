@@ -439,12 +439,12 @@ fabrik_t::rdwr(loadsave_t *file)
 	file->rdwr_int(prodbase, "\n");
 	file->rdwr_delim("Prb: ");
 	file->rdwr_int(prodfaktor, "\n");
-	// take care of old files
-	if(prodfaktor==1) {
-		prodfaktor = 16;
-	}
 	// owner stuff
 	if(file->is_loading()) {
+		// take care of old files
+		if(prodfaktor==1  ||  prodfaktor>16) {
+			prodfaktor = 16;
+		}
 		// Hajo: restore factory owner
 		// Due to a omission in Volkers changes, there might be savegames
 		// in which factories were saved without an owner. In this case

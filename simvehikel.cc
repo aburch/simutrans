@@ -948,7 +948,8 @@ vehikel_t::beladen(koord , halthandle_t halt)
 {
 	//    printf("Vehikel %p beladen\n", this);
 	const bool ok= load_freight(welt, halt, &fracht, besch, cnv->gib_fahrplan());
-	sum_weight =  ((gib_fracht_gewicht()+499)>>10) + besch->gib_gewicht();
+//	sum_weight =  ((gib_fracht_gewicht()+499)>>10) + besch->gib_gewicht();
+	sum_weight =  (gib_fracht_gewicht()+499)/1000 + besch->gib_gewicht();
 
 	// bild hat sich geändert
 	// set_flag(dirty);
@@ -972,7 +973,7 @@ void vehikel_t::entladen(koord, halthandle_t halt)
 	// add delivered goods to halt's statistics
 	halt->book(menge, HALT_ARRIVED);
 	// recalculate vehicles load (here is enough, because this routine is alsways called after beladen!?
-	sum_weight =  ((gib_fracht_gewicht()+499)>>10) + besch->gib_gewicht();
+	sum_weight =  (gib_fracht_gewicht()+499)/1000 + besch->gib_gewicht();
 }
 
 

@@ -115,7 +115,6 @@
 
 
 static schedule_list_gui_t * schedule_list_gui = 0;
-static money_frame_t * money_frame = 0;
 
 
 //#define DEMO
@@ -620,9 +619,6 @@ karte_t::destroy()
     delete schedule_list_gui;
     schedule_list_gui = 0;
 
-    delete money_frame;
-    money_frame = 0;
-
     dbg->message("karte_t::destroy()", "world destroyed");
 }
 
@@ -686,7 +682,6 @@ karte_t::init_felder()
     }
 
     schedule_list_gui = new schedule_list_gui_t(this);
-    money_frame = new money_frame_t(gib_spieler(0));
 }
 
 
@@ -2877,7 +2872,7 @@ karte_t::interactive_event(event_t &ev)
 	    break;
 	case 'f': /* OCR: Finances */
 	    sound_play(click_sound);
-	    create_win(-1, -1, -1, money_frame, w_info);
+         create_win(-1, -1, -1, new money_frame_t(gib_spieler(0)), w_autodelete);
 	    break;
 	case 'g':
 	    if(skinverwaltung_t::senke) {
@@ -3508,7 +3503,7 @@ karte_t::interactive_event(event_t &ev)
 		break;
 	    case 17:
 		sound_play(click_sound);
-		create_win(-1, -1, -1,  money_frame, w_info);
+           create_win(-1, -1, -1, new money_frame_t(gib_spieler(0)), w_autodelete);
 		break;
 	    case 19:
 		sound_play(click_sound);

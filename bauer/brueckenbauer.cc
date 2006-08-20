@@ -227,7 +227,7 @@ int brueckenbauer_t::baue(spieler_t *sp, karte_t *welt, koord pos, weg_t::typ we
  */
 int brueckenbauer_t::baue(spieler_t *sp, karte_t *welt, koord pos, weg_t::typ wegtyp,int top_speed)
 {
-  const bruecke_besch_t *besch;
+  const bruecke_besch_t *besch=NULL;
   for(int i = 0; i < bruecken.count(); i++) {
     if(bruecken.get(i)->gib_wegtyp() == wegtyp) {
       if(besch==NULL
@@ -374,11 +374,9 @@ bool brueckenbauer_t::baue_bruecke(karte_t *welt, spieler_t *sp,
 
   bruecke->neuen_weg_bauen(weg, ribi_t::doppelt(ribi), sp);
 
-  bruecke->obj_add(new bruecke_t(welt, bruecke->gib_pos(), 0, sp, besch,
-      besch->gib_simple(ribi)));
+  bruecke->obj_add(new bruecke_t(welt, bruecke->gib_pos(), 0, sp, besch, besch->gib_simple(ribi)));
 
   sp->buche(CST_BRUECKE, pos.gib_2d(), COST_CONSTRUCTION);
-
         pos = pos + zv;
     }
     baue_auffahrt(welt, sp, pos, -zv, besch);
@@ -428,6 +426,10 @@ brueckenbauer_t::baue_auffahrt(karte_t *welt, spieler_t *sp, koord3d end, koord 
     }
     welt->access(end.gib_2d())->kartenboden_setzen( bruecke, false );
     bruecke->neuen_weg_bauen(weg, ribi_alt | ribi_neu, sp);
+	  if(sp!=NULL) {
+	  	// no undo possible anymore
+	  	sp->init_undo(besch->gib_wegtyp(),0);
+	  }
     if(besch->gib_wegtyp() == weg_t::schiene) {
   blockmanager::gib_manager()->neue_schiene(welt, bruecke, sig);
     }

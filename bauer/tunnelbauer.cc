@@ -234,6 +234,10 @@ tunnelbauer_t::baue_einfahrt(karte_t *welt, spieler_t *sp, koord3d end, koord zv
     }
     tunnel->obj_add(new tunnel_t(welt, end, sp, besch));
     cost += CST_TUNNEL;
+	// no undo possible anymore
+	if(sp!=NULL) {
+		sp->init_undo(wegtyp,0);
+	}
 }
 
 

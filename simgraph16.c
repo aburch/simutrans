@@ -941,7 +941,8 @@ bool display_load_font(const char *fname, bool large )
 			}
 			fnt->char_data[16*i+15] = npr_fonttab[i];
 		}
-		fnt->screen_width[(16*32)+15] = 4;
+		fnt->screen_width[32] = 4;
+		fnt->char_data[(16*32)+15] = 0;
 		printf("%s sucessful loaded as old format prop font!\n",fname);fflush(NULL);
 		return true;
 	}

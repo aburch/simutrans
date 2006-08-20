@@ -626,10 +626,11 @@ stadt_t::step_passagiere()
 			// ist das dort ein gebaeude ?
 			if(gb != NULL) {
 
+				// prissi: since now correctly numbers are used, double initially passengers
 				const int num_pax =
 					(wtyp == warenbauer_t::passagiere) ?
-					(gb->gib_level() + 6) >> 2 :
-					(gb->gib_post_level() + 3) >> 2;
+					(gb->gib_level() + 6) >> 1 :
+					(gb->gib_post_level() + 3) >> 1;
 
 				// starthaltestelle suchen
 				const vector_tpl<halthandle_t> &halt_list = welt->suche_nahe_haltestellen(k, 4, 0, 1);
@@ -645,17 +646,19 @@ stadt_t::step_passagiere()
 					//printf("  distributing %d pax\n", num_pax);
 
 					// Find passenger destination
-					while(pax_routed < num_pax) {
+					for(int pax_routed=0;  pax_routed<num_pax;  pax_routed+=7) {
 
 						// number of passengers that want to travel
+						// if possible, we do 7 passengers at a time
 						int pax_left_to_do = MIN(7, num_pax - pax_routed);
-
-						// Ziel für Passagier suchen
-						const koord ziel = finde_passagier_ziel();
+//						pax_routed += pax_left_to_do;  // pax_menge are routed this step
 
 						// Hajo: track number of generated passengers.
 						// prissi: we do it inside the loop to take also care of non-routable passengers
 						pax_erzeugt += pax_left_to_do;
+
+						// Ziel für Passagier suchen
+						const koord ziel = finde_passagier_ziel();
 
 						// Dario: Check if there's a stop near destination
 						const vector_tpl <halthandle_t> &ziel_list =
@@ -667,7 +670,7 @@ stadt_t::step_passagiere()
 							// is required additionally
 
 							if(halt->gib_halt(welt, ziel) == NULL){
-								// ziel itself is no stop either. Thus, routing is not needed.
+								// ziel itself is no stop either. Thus, routing is not possible and we do not need to do a calculation.
 								// Mark ziel as destination without route and continue.
 
 // dbg->message("stadt_t::step_passagiere()", "No stop near dest (%d, %d)", ziel.x, ziel.y);
@@ -685,15 +688,13 @@ stadt_t::step_passagiere()
 
 						ware_t pax (wtyp);
 						pax.setze_zielpos( ziel );
-						pax.menge = pax_left_to_do;	// if possible, we do 7 passengers at a time
-						pax_routed += pax.menge;  // pax_menge are routed this step
+						pax.menge = pax_left_to_do;
 
 						if(halt->gib_ware_summe(wtyp) > (halt->gib_grund_count() << 7)) {
 							// Hajo: Station crowded:
 							// some are appalled and will not try other
 							// stations
 							halt->add_pax_unhappy(pax.menge);
-
 							continue;
 						}
 

@@ -26,6 +26,7 @@ class gui_chart_t;
 class money_frame_t : public gui_frame_t, private action_listener_t
 {
 private:
+    char money_frame_title[80];
 
     gui_chart_t *chart, *mchart;
     gui_label_t clabel;

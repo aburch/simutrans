@@ -111,6 +111,10 @@ money_frame_t::money_frame_t(spieler_t *sp)
     gtmoney(NULL, WEISS, gui_label_t::money),
     warn("", ROT)
 {
+	if(sp->gib_welt()->gib_spieler(0)!=sp) {
+		sprintf(money_frame_title,"Finances of %s",translator::translate(sp->gib_name()) );
+		setze_name(money_frame_title);
+	}
 
     this->sp = sp;
 

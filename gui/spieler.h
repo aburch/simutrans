@@ -19,6 +19,7 @@ class ki_kontroll_t : public infowin_t
 {
 private:
     vector_tpl<button_t> *buttons;
+    char spieler_names[6][40];
 
 public:
     ki_kontroll_t(karte_t *welt);

@@ -1,4 +1,18 @@
+Released Simutrans 0.85.03.2
 
+9-Feb-2005:
+	FIX: reduced passenger numger again to initally intended value
+		This is about 1/5 of the current value. Thus I double the number
+		per building.
+	FIX: no undo after bridges or tunnels
+	FIX: superflous checks from wegebauer removed
+	FIX: UNDO failed for spieler=NULL (intercity roads)
+	FIX: corrected season timing
+	FIX: building transformer removes everything on that tile
+	CHANGE: building powerline removes all trees on that tile
+	CHANGE: finances also of the AI players "Finances of %s"
+	FIX: since in current version, weight is only calculated during loading
+		now the real weight 1000kg=1t is used
 
 Released Simutrans 0.85.03.1
 
@@ -11,6 +25,9 @@ Released Simutrans 0.85.03.1
 		gave up, because no station was there are counted
 		=> city growth rates much lower, need a good service over whole map
 	FIX: Renovation of townhalls: now all with roof texture and "real" grass
+	FIX: Power station production increased after loading: check on load time
+	FIX: error of an character allowcation array
+	FIX: superfluous parameters in check_for_crossing() removed.
 
 
 Released Simutrans 0.85.03
