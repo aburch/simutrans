@@ -74,24 +74,43 @@ struct event_t;
  */
 class vehikel_basis_t : public ding_t
 {
-public:
-
-    virtual ribi_t::ribi gib_fahrtrichtung() const = 0;
-
 protected:
+    /**
+     * Aktuelle Fahrtrichtung in Bildschirm-Koordinaten
+     * @author Hj. Malthaner
+     */
+    ribi_t::ribi fahrtrichtung;
+
+    sint8 dx, dy;
+
+    /**
+     * Offsets fuer Bergauf/Bergab
+     * @author Hj. Malthaner
+     */
+    sint16 hoff;
+
+    /**
+     * Next position on our path
+     * @author Hj. Malthaner
+     */
+    koord3d pos_next;
+
     virtual void fahre();
     virtual int  calc_height();		// Offset Bergauf/Bergab
     virtual void calc_akt_speed(const grund_t *) {};
 
-    virtual int  gib_dx() const = 0;
-    virtual int  gib_dy() const = 0;
-    virtual int  gib_hoff() const = 0;
+    virtual int  gib_dx() const {return dx;};
+    virtual int  gib_dy() const {return dy;};
+    virtual int  gib_hoff() const {return hoff;};
 
     virtual bool hop_check() = 0;
     virtual void hop() = 0;
 
 public:
     ribi_t::ribi calc_richtung(koord start, koord ende, sint8 &dx, sint8 &dy) const;
+
+    ribi_t::ribi gib_fahrtrichtung() const {return fahrtrichtung;}
+    void setze_fahrtrichtung(ribi_t::ribi r) {fahrtrichtung=r;calc_bild();}
 
     /**
      * Checks if this vehicle must change the square upon next move
@@ -128,18 +147,6 @@ private:
      */
     sint32 insta_zeit;
 
-    /**
-     * Aktuelle Fahrtrichtung in Bildschirm-Koordinaten
-     * @author Hj. Malthaner
-     */
-    sint8 dx, dy;
-
-    /**
-     * Offsets fuer Bergauf/Bergab
-     * @author Hj. Malthaner
-     */
-    sint16 hoff;
-
     /* For the more physical acceleration model friction is introduced
      * frictionforce = gamma*speed*weight
      * since the total weight is needed a lot of times, we save it
@@ -166,7 +173,6 @@ private:
 protected:
 
     ribi_t::ribi alte_fahrtrichtung;
-    ribi_t::ribi fahrtrichtung;
 
 	// for target reservation and search
 	halthandle_t target_halt;
@@ -198,13 +204,6 @@ protected:
      */
     koord3d pos_cur;
 
-    /**
-     * Next position on our path
-     * @author Hj. Malthaner
-     */
-    koord3d pos_next;
-
-
     const vehikel_besch_t *besch;
 
     slist_tpl<ware_t> fracht;   // liste der gerade transportierten güter
@@ -214,11 +213,6 @@ protected:
     bool ist_erstes:1;            // falls vehikel im convoi fährt, geben diese
     bool ist_letztes:1;           // flags auskunft über die position
     bool rauchen:1;
-
-
-    virtual int  gib_dx() const {return dx;};
-    virtual int  gib_dy() const {return dy;};
-    virtual int  gib_hoff() const {return hoff;};
 
     virtual void calc_bild() {};
 
@@ -236,8 +230,6 @@ public:
     const sint32 gib_insta_zeit() const {return insta_zeit;};
 
     void darf_rauchen(bool yesno ) { rauchen = yesno;};
-    ribi_t::ribi gib_fahrtrichtung() const {return fahrtrichtung;};
-    void setze_fahrtrichtung(ribi_t::ribi r) {fahrtrichtung=r;calc_bild();};
 
 	virtual bool calc_route(karte_t * welt, koord3d start, koord3d ziel, uint32 max_speed, route_t * route) { return route->calc_route(welt, start, ziel, this, max_speed ); };
 	const uint16 gib_route_index() const {return route_index;}
@@ -594,6 +586,8 @@ private:
 
 protected:
     bool ist_befahrbar(const grund_t *bd) const;
+
+    void betrete_feld() { waggon_t::betrete_feld(); }
 
 public:
     virtual weg_t::typ gib_wegtyp() const { return weg_t::monorail; }

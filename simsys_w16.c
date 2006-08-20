@@ -72,7 +72,7 @@ int dr_os_open(int w, int h,int fullscreen)
 	if(fullscreen  &&  w==MaxSize.right  &&  h==MaxSize.bottom) {
 #ifdef _MSC_VER
 		hwnd = CreateWindowEx(WS_EX_TOPMOST	,
-				L"Simu",  L"Simutrans "  WIDE_VERSION_NUMBERS, WS_POPUP,
+				L"Simu",  L"Simutrans "  WIDE_VERSION_NUMBER, WS_POPUP,
 				0, 0,
 				w, h-1,
 				NULL, NULL, hInstance, NULL);
@@ -215,6 +215,13 @@ void move_pointer(int x, int y)
 	POINT pt={x,y};
 	ClientToScreen( hwnd, &pt );
 	SetCursorPos( pt.x, pt.y );
+}
+
+
+// set the mouse cursor (pointer/load)
+void set_pointer( int loading )
+{
+	SetCursor( LoadCursor( NULL, loading!=0 ? IDC_WAIT : IDC_ARROW ) );
 }
 
 

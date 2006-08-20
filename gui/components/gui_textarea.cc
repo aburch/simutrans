@@ -28,7 +28,7 @@ gui_textarea_t::setze_text(const char *text)
 	text = "";
     }
 
-    int max = 0;
+    long max = 0;
     int lines = 1;
 
     const char *p = text;

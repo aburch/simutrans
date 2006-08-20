@@ -7,6 +7,7 @@
 #include "../dataobj/tabfile.h"
 
 #include "../simtypes.h"
+#include "../simversion.h"
 #include "../besch/writer/obj_pak_exception.h"
 
 #include "../besch/writer/root_writer.h"
@@ -39,13 +40,8 @@ int main(int argc, char* argv[])
     }
     else {
 	puts(
-	    "\nMakeobj v0.1.35 by V. Meyer (c) 2002, 2003, 2004, 2005 and Hj. Malthaner\n"
-	    "   This program creates .pak files for Simutrans - a great game from\n"
-	    "   Hj. Malthaner. Makeobj replaces Makepak and Makepak16 starting with\n"
-	    "   version 0.81.1 of Simutrans.\n"
-	    "   This makeobj creates pak for Simutrans version 0.88.08 or higher\n"
-	    "   If you have questions about Simutrans or Makeobj contact the authors\n"
-	    "      markus@pristovsek.de\n");
+	    "\nMakeobj version  " MAKEOBJ_VERSION " for simutrans " VERSION_NUMBER " and higher\n"
+	    "(c) 2002-2005 V. Meyer , Hj. Malthaner, M. Pristovsek (markus@pristovsek.de)\n");
     }
     if(argc && !STRICMP(argv[0], "capabilities")) {
 	argv++, argc--;

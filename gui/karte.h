@@ -10,7 +10,8 @@ class grund_t;
 
 struct event_t;
 
-#define MAX_MAP_TYPE 15
+#define MAX_MAP_TYPE 16
+#define MAX_SEVERITY_COLORS 21
 #define MAX_MAP_ZOOM 4
 // set to zero to use the small font
 #define ALWAYS_LARGE 1
@@ -25,7 +26,7 @@ struct event_t;
 class reliefkarte_t : public gui_komponente_t
 {
 public:
-	typedef enum { PLAIN=-1, MAP_TOWN=0, MAP_PASSENGER, MAP_MAIL, MAP_FREIGHT, MAP_STATUS, MAP_SERVICE, MAP_TRAFFIC, MAP_ORIGIN, MAP_DESTINATION, MAP_WAITING, MAP_TRACKS, MAX_SPEEDLIMIT, MAP_POWERLINES, MAP_TOURIST, MAP_FACTORIES } MAP_MODES;
+	typedef enum { PLAIN=-1, MAP_TOWN=0, MAP_PASSENGER, MAP_MAIL, MAP_FREIGHT, MAP_STATUS, MAP_SERVICE, MAP_TRAFFIC, MAP_ORIGIN, MAP_DESTINATION, MAP_WAITING, MAP_TRACKS, MAX_SPEEDLIMIT, MAP_POWERLINES, MAP_TOURIST, MAP_FACTORIES, MAP_DEPOT } MAP_MODES;
 
 private:
 	static karte_t *welt;
@@ -43,7 +44,7 @@ private:
 	*/
 	static MAP_MODES mode;
 
-	static const uint8 severity_color[12];
+	static const uint8 severity_color[MAX_SEVERITY_COLORS];
 
 	static const uint8 map_type_color[MAX_MAP_TYPE];
 

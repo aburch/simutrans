@@ -296,7 +296,7 @@ DBG_MESSAGE("convoi_frame_t::action_triggered()","toggle %i",gib_filter(any_filt
 }
 
 
-void convoi_frame_t::resize(koord size_change)                          // 28-Dec-01    Markus Weber    Added
+void convoi_frame_t::resize(const koord size_change)                          // 28-Dec-01    Markus Weber    Added
 {
 	gui_frame_t::resize(size_change);
 	koord groesse = gib_fenstergroesse()-koord(0,47);

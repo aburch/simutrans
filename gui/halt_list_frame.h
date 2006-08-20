@@ -127,7 +127,7 @@ public:
      * This method is called if the size of the window should be changed
      * @author Markus Weber
      */
-    void resize(koord size_change);
+    void resize(const koord size_change);
 
     /**
      * komponente neu zeichnen. Die übergebenen Werte beziehen sich auf

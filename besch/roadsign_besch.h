@@ -43,7 +43,7 @@ class roadsign_besch_t : public obj_besch_t {
 	friend class roadsign_writer_t;
 	friend class roadsign_reader_t;
 
-	enum types {ONE_WAY=1, FREE_ROUTE=2 };
+	enum types {ONE_WAY=1, FREE_ROUTE=2, PRIVATE_ROAD=4 };
 
 	uint8 flags;
 	uint16 min_speed;	// 0: unused
@@ -73,6 +73,11 @@ public:
 	bool is_single_way() const
 	{
 		return (flags&ONE_WAY)!=0;
+	}
+
+	bool is_private_way() const
+	{
+		return (flags&PRIVATE_ROAD)!=0;
 	}
 
 	int gib_min_speed() const

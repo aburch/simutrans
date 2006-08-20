@@ -243,7 +243,7 @@ DBG_MESSAGE("haltestelle_t::remove()","removing segment from %d,%d,%d", pos.x, p
 	// remove station building?
 	gebaeude_t *gb=dynamic_cast<gebaeude_t *>(bd->suche_obj(ding_t::gebaeude));
 	if(gb) {
-		DBG_MESSAGE("haltestelle_t::remove()",  "removing building" );
+DBG_MESSAGE("haltestelle_t::remove()",  "removing building" );
 		const haus_tile_besch_t *tile  = gb->gib_tile();
 		koord size = tile->gib_besch()->gib_groesse( tile->gib_layout() );
 		const sint32 costs = tile->gib_besch()->gib_level()*umgebung_t::cst_multiply_post;

@@ -1249,7 +1249,7 @@ convoi_t::rdwr(loadsave_t *file)
 			}
 
 
-			if(state != INITIAL) {
+			if(state!=INITIAL) {
 				grund_t *gr;
 				gr = welt->lookup(v->gib_pos());
 				if(!gr) {

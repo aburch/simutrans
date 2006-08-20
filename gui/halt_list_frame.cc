@@ -407,7 +407,7 @@ bool halt_list_frame_t::action_triggered(gui_komponente_t *komp,value_t /* */)
  * Resize the window
  * @author Markus Weber
  */
-void halt_list_frame_t::resize(koord size_change)
+void halt_list_frame_t::resize(const koord size_change)
 {
 	gui_frame_t::resize(size_change);
 	koord groesse = gib_fenstergroesse()-koord(0,47);

@@ -86,6 +86,9 @@ void show_pointer(int yesno);
 
 void move_pointer(int x, int y);
 
+// change cursor to busy cursor
+void set_pointer(int loading);
+
 
 /**
  * Some wrappers can save screenshots.

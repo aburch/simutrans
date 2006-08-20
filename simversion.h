@@ -1,8 +1,10 @@
 #ifndef simversion_h
 #define simversion_h
 
-#define VERSION_NUMBER "88.10.1"
-#define WIDE_VERSION_NUMBER L"88.10.1"
+#define MAKEOBJ_VERSION "36"
+
+#define VERSION_NUMBER "88.10.2"
+#define WIDE_VERSION_NUMBER L"88.10.2"
 
 #define VERSION_DATE __DATE__
 

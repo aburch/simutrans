@@ -170,7 +170,7 @@ factory_reader_t::read_node(FILE *fp, obj_node_info_t &node)
     besch->produktivitaet = decode_uint16(p);
     besch->bereich = decode_uint16(p);
     besch->gewichtung = decode_uint16(p);
-    besch->kennfarbe = decode_uint16(p);
+    besch->kennfarbe = (uint8)decode_uint16(p);
     besch->lieferanten = decode_uint16(p);
     besch->produkte = decode_uint16(p);
     besch->pax_level = decode_uint16(p);
@@ -183,7 +183,7 @@ DBG_DEBUG("factory_reader_t::read_node()","version=0");
     besch->produktivitaet = decode_uint16(p)|0x8000;
     besch->bereich = decode_uint16(p);
     besch->gewichtung = decode_uint16(p);
-    besch->kennfarbe = decode_uint16(p);
+    besch->kennfarbe = (uint8)decode_uint16(p);
     besch->lieferanten = decode_uint16(p);
     besch->produkte = decode_uint16(p);
     besch->pax_level = 12;

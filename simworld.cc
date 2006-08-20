@@ -2149,27 +2149,30 @@ karte_t::beenden(bool quit_simutrans)
 void
 karte_t::speichern(const char *filename,bool silent)
 {
-    display_show_pointer(false);
+//	display_show_pointer(false);
+	display_show_load_pointer( true );
 
 #ifndef DEMO
-    loadsave_t  file;
+	loadsave_t  file;
 
-    DBG_MESSAGE("karte_t::speichern()", "saving game to '%s'", filename);
+	DBG_MESSAGE("karte_t::speichern()", "saving game to '%s'", filename);
 
 
-    if(!file.wr_open(filename)) {
+	if(!file.wr_open(filename)) {
 	create_win(-1, -1, new nachrichtenfenster_t(this, "Kann Spielstand\nnicht speichern.\n"), w_autodelete);
 	perror("Error");
-    } else {
+	} else {
+
 	speichern(&file,silent);
 	file.close();
 	if(!silent) {
-		create_win(-1, -1, 30, new nachrichtenfenster_t(this, "Spielstand wurde\ngespeichert!\n"), w_autodelete);
+	create_win(-1, -1, 30, new nachrichtenfenster_t(this, "Spielstand wurde\ngespeichert!\n"), w_autodelete);
 	}
-    }
+	}
 #endif
 
-    display_show_pointer(true);
+	display_show_load_pointer( false );
+//	display_show_pointer(true);
 }
 
 
@@ -2972,14 +2975,14 @@ void karte_t::switch_active_player(uint8 new_player)
 		active_player = spieler[0];
 		if(new_player!=0) {
 			sprintf(buf, translator::translate("On this map, you are not\nallowed to change player!\n"), get_active_player()->gib_name() );
-			message_t::get_instance()->add_message(buf,koord(-1,-simrand(63)),message_t::problems,get_active_player()->get_player_nr(),IMG_LEER);
+			message_t::get_instance()->add_message(buf,koord(-1,-(sint16)simrand(63)),message_t::problems,get_active_player()->get_player_nr(),IMG_LEER);
 		}
 	}
 	else {
 		active_player_nr = new_player;
 		active_player = spieler[new_player];
 		sprintf(buf, translator::translate("Now active as %s.\n"), get_active_player()->gib_name() );
-		message_t::get_instance()->add_message(buf,koord(-1,-simrand(63)),message_t::problems,get_active_player()->get_player_nr(),IMG_LEER);
+		message_t::get_instance()->add_message(buf,koord(-1,-(sint16)simrand(63)),message_t::problems,get_active_player()->get_player_nr(),IMG_LEER);
 	}
 	// open edit tools
 	if(active_player_nr==1) {

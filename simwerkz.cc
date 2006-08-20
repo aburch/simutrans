@@ -398,14 +398,9 @@ DBG_MESSAGE("wkz_remover()",  "removing tunnel  from %d,%d,%d",gr->gib_pos().x, 
 		return msg == NULL;
 	}
 
-	msg = gr->kann_alle_obj_entfernen(sp);
-	if( msg ) {
-		return false;
-	}
-
 	// since buildings can have more than one tile, we must handle them together
 	gebaeude_t *gb = static_cast<gebaeude_t *>(gr->suche_obj(ding_t::gebaeude));
-	if(gb) {
+	if(gb  &&  (gb->gib_besitzer()==sp  ||  gb->gib_besitzer()==NULL)) {
 		DBG_MESSAGE("wkz_remover()",  "removing building" );
 		const haus_tile_besch_t *tile  = gb->gib_tile();
 		koord size = tile->gib_besch()->gib_groesse( tile->gib_layout() );
@@ -482,18 +477,43 @@ DBG_MESSAGE("wkz_remover()", "removing building: cleanup");
 		return true;
 	}
 
+	// there is a powerline above this tile, but we do not own it
+	// so we take it out and add it later again
+	if(lt) {
+DBG_MESSAGE("wkz_remover()",  "took out powerline");
+		gr->obj_remove(lt,sp);
+	}
+
+	msg = gr->kann_alle_obj_entfernen(sp);
+
 	// remove everything else ...
-	if(gr->obj_count()>0  &&  !gr->ist_bruecke()) {
+	if(msg==NULL  &&  gr->obj_count()>0  &&  !gr->ist_bruecke()) {
 DBG_MESSAGE("wkz_remover()",  "removing everything from %d,%d,%d",gr->gib_pos().x, gr->gib_pos().y, gr->gib_pos().z);
 		gr->obj_loesche_alle(sp);
+		// add the powerline again ...
+		if(lt) {
+DBG_MESSAGE("wkz_remover()",  "add again powerline");
+			gr->obj_add(lt);
+		}
 		return true;
 	}
 
+	if(lt) {
+DBG_MESSAGE("wkz_remover()",  "add again powerline");
+		gr->obj_add(lt);
+	}
+
+	// could not delete everything
+	if(msg) {
+		return false;
+	}
+
 	// prüfen, ob boden entfernbar
-	if(gr->gib_besitzer() != NULL && gr->gib_besitzer() != sp) {
+	if(gr->gib_besitzer()!=NULL  &&  gr->gib_besitzer()!=sp) {
 		msg = "Das Feld gehoert\neinem anderen Spieler\n";
 		return false;
 	}
+
 
 	// ok, now we removed every object, that should be removed one by one.
 	// the following objects will be removed together
@@ -530,18 +550,10 @@ DBG_MESSAGE("wkz_remover()", "removing way");
 	}
 DBG_MESSAGE("wkz_remover()", "check ground");
 
-#if 0
-	// now labels on water
-	// replacements of ground will give a grass tile
-	// => 	don't do this on water ...
-	if(!gr->ist_wasser()  &&  plan->gib_kartenboden()==gr) {
-		bool label = gr->gib_besitzer() && welt->gib_label_list().contains(pos);
-		plan->kartenboden_setzen(new boden_t(welt, gr->gib_pos()), false);
-		if(label) {
-			plan->gib_kartenboden()->setze_besitzer(sp);
-		}
+	// free tile => reset owner
+	if(!gr->hat_wege()) {
+		gr->setze_besitzer(NULL);
 	}
-#endif
 
 	if(gr!=plan->gib_kartenboden()) {
 DBG_MESSAGE("wkz_remover()", "removing ground");
@@ -957,7 +969,7 @@ dbg->warning("wkz_station_building_aux()","no near building for a station extens
 
 		// now try to built it (best layout first)
 		for( int i=0;  i<besch->gib_all_layouts()  &&  !halt.is_bound();  i++  ) {
-			if((i+built_rotate)&1!=0) {
+			if(((i+built_rotate)&1)!=0) {
 				if(welt->ist_platz_frei(pos, size.y, size.x, NULL, slope_check)) {
 					halt = suche_nahe_haltestelle(sp, welt, k, size.y, size.x);
 				}
@@ -1913,14 +1925,8 @@ int wkz_set_slope(spieler_t * sp, karte_t *welt, koord pos, value_t lParam)
 		if(grleft) {
 			const sint16 left_hgt=grleft->gib_hoehe()/16;
 			const sint8 slope=grleft->gib_grund_hang();
-
-#ifndef DOUBLE_GROUNDS
-			const sint8 diff_from_ground_1 = left_hgt+((slope/2)%2)-hgt;
-			const sint8 diff_from_ground_2 = left_hgt+((slope/4)%2)-hgt;
-#else
-			const sint8 diff_from_ground_1 = left_hgt+((slope/3)%3)-hgt;
-			const sint8 diff_from_ground_2 = left_hgt+((slope/9)%3)-hgt;
-#endif
+			const sint8 diff_from_ground_1 = left_hgt+corner2(slope)-hgt;
+			const sint8 diff_from_ground_2 = left_hgt+corner3(slope)-hgt;
 			if(diff_from_ground_1>2  ||  diff_from_ground_2>2) {
 				create_win(-1, -1, MESG_WAIT, new nachrichtenfenster_t(welt, "Maximum tile height difference reached."), w_autodelete);
 				return false;
@@ -1931,13 +1937,8 @@ int wkz_set_slope(spieler_t * sp, karte_t *welt, koord pos, value_t lParam)
 		const grund_t *grright=welt->lookup(pos+koord(1,0))->gib_kartenboden();
 		if(grright) {
 			const sint16 right_hgt=grright->gib_hoehe()/16;
-#ifndef DOUBLE_GROUNDS
-			const sint8 diff_from_ground_1 = hgt+((slope_this/2)%2)-right_hgt;
-			const sint8 diff_from_ground_2 = hgt+((slope_this/4)%2)-right_hgt;
-#else
-			const sint8 diff_from_ground_1 = hgt+((slope_this/3)%3)-right_hgt;
-			const sint8 diff_from_ground_2 = hgt+((slope_this/9)%3)-right_hgt;
-#endif
+			const sint8 diff_from_ground_1 = hgt+corner2(slope_this)-right_hgt;
+			const sint8 diff_from_ground_2 = hgt+corner3(slope_this)-right_hgt;
 			if(diff_from_ground_1>2  ||  diff_from_ground_2>2) {
 				create_win(-1, -1, MESG_WAIT, new nachrichtenfenster_t(welt, "Maximum tile height difference reached."), w_autodelete);
 				return false;
@@ -1948,14 +1949,8 @@ int wkz_set_slope(spieler_t * sp, karte_t *welt, koord pos, value_t lParam)
 		if(grback) {
 			const sint16 back_hgt=grback->gib_hoehe()/16;
 			const sint8 slope=grback->gib_grund_hang();
-
-#ifndef DOUBLE_GROUNDS
-			const sint8 diff_from_ground_1 = back_hgt+(slope%2)-hgt;
-			const sint8 diff_from_ground_2 = back_hgt+((slope/2)%2)-hgt;
-#else
-			const sint8 diff_from_ground_1 = back_hgt+(slope%3)-hgt;
-			const sint8 diff_from_ground_2 = back_hgt+((slope/3)%3)-hgt;
-#endif
+			const sint8 diff_from_ground_1 = back_hgt+corner1(slope)-hgt;
+			const sint8 diff_from_ground_2 = back_hgt+corner2(slope)-hgt;
 			if(diff_from_ground_1>2  ||  diff_from_ground_2>2) {
 				create_win(-1, -1, MESG_WAIT, new nachrichtenfenster_t(welt, "Maximum tile height difference reached."), w_autodelete);
 				return false;
@@ -1965,13 +1960,8 @@ int wkz_set_slope(spieler_t * sp, karte_t *welt, koord pos, value_t lParam)
 		const grund_t *grfront=welt->lookup(pos+koord(0,1))->gib_kartenboden();
 		if(grfront) {
 			const sint16 front_hgt=grfront->gib_hoehe()/16;
-#ifndef DOUBLE_GROUNDS
-			const sint8 diff_from_ground_1 = hgt+(slope_this%2)-front_hgt;
-			const sint8 diff_from_ground_2 = hgt+((slope_this/2)%2)-front_hgt;
-#else
-			const sint8 diff_from_ground_1 = hgt+(slope_this%3)-front_hgt;
-			const sint8 diff_from_ground_2 = hgt+((slope_this/3)%3)-front_hgt;
-#endif
+			const sint8 diff_from_ground_1 = hgt+corner1(slope_this)-front_hgt;
+			const sint8 diff_from_ground_2 = hgt+corner2(slope_this)-front_hgt;
 			if(diff_from_ground_1>2  ||  diff_from_ground_2>2) {
 				create_win(-1, -1, MESG_WAIT, new nachrichtenfenster_t(welt, "Maximum tile height difference reached."), w_autodelete);
 				return false;

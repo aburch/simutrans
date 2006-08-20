@@ -280,11 +280,56 @@ dingliste_t::add(ding_t *ding, uint8 pri)
 			if(index >= top) {
 				top = index+1;
 			}
+			return true;
 		}
-		return ding == NULL;
 	}
 	return false;
 }
+
+
+
+uint8
+dingliste_t::insert_at(ding_t *ding, uint8 pri)
+{
+	if(ding) {
+		const uint8 index = grow_capacity(pri);
+
+		// either save direct
+		if(capacity==1) {
+			obj.one = ding;
+			top = pri+1;
+			return true;
+		}
+
+		// or move it into the in the array
+		if(obj.some[index] == NULL) {
+
+			// ok, shift everything up for the new entry, if it is not a depot and not empty ...
+			ding_t *new_ding = ding;
+			while( pri<capacity  &&  new_ding!=NULL) {
+
+				ding_t *old_dt = obj.some[pri];
+
+				if(old_dt  &&  (old_dt->gib_typ()<32  ||  old_dt->gib_typ()>42)) {
+					// skip everything that is not a moving car
+				}
+				else {
+					obj.some[pri] = new_ding;
+					new_ding = old_dt;
+				}
+
+				pri ++;
+			}
+			if(pri > top) {
+				top = pri;
+			}
+
+			return true;
+		}
+	}
+	return false;
+}
+
 
 
 

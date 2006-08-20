@@ -76,10 +76,7 @@ static koord groesse_vehicle(300,5);
 void
 convoi_detail_t::zeichnen(koord pos, koord gr)
 {
-	if(!cnv.is_bound()) {
-		destroy_win(dynamic_cast <gui_fenster_t *> (this));
-	}
-	else {
+	if(cnv.is_bound()) {
 		if(cnv->gib_besitzer()==cnv->gib_welt()->get_active_player()) {
 			sale_button.enable();
 		}

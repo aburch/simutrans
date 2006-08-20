@@ -18,6 +18,7 @@
 #include "simtools.h"
 #include "simmem.h"
 #include "simimg.h"
+#include "simconst.h"
 
 #ifdef DESTINATION_CITYCARS
 // for final citcar destinations
@@ -310,25 +311,10 @@ stadtauto_t::betrete_feld()
 		welt->sync_add( fg );
 	}
 #endif
+	vehikel_basis_t::betrete_feld();
 
-	// this will automatically give the right order
 	grund_t *gr = welt->lookup( gib_pos() );
-
-	uint8 offset;
-	if(gr->gib_weg(weg_t::schiene)) {
-		offset = (gib_fahrtrichtung()<4)^(umgebung_t::drive_on_left==false) ? PRI_ROAD_S_W_SW_SE : PRI_ROAD_AND_RAIL_N_E_NE_NW;
-	}
-	else {
-		offset = (gib_fahrtrichtung()<4)^(umgebung_t::drive_on_left==false) ? PRI_ROAD_S_W_SW_SE : PRI_ROAD_N_E_NE_NW;
-	}
-	bool ok = (gr->obj_pri_add(this, offset) != 0);
-
-	// count also citycars for traffic density
 	gr->gib_weg(weg_t::strasse)->book(1, WAY_STAT_CONVOIS);
-
-	if(!ok) {
-		dbg->error("stadtauto_t::betrete_feld()","vehicel '%s' %p could not be added to %d, %d, %d",gib_pos().x, gib_pos().y, gib_pos().z);
-	}
 }
 
 
@@ -430,12 +416,15 @@ stadtauto_t::hop()
 			if((ribi&next_ribi)!=0  ||  !ribi_t::ist_einfach(next_ribi)) {
 				const roadsign_t *rs = dynamic_cast<roadsign_t *>(to->obj_bei(0));
 				if(rs==NULL  ||  rs->gib_besch()->is_traffic_light()  ||  rs->gib_besch()->gib_min_speed()==0  ||  rs->gib_besch()->gib_min_speed()<=gib_max_speed()) {
+					// do not enter private roads
+					if(rs==NULL  ||  !rs->gib_besch()->is_private_way()) {
 #ifdef DESTINATION_CITYCARS
-					unsigned long dist=abs_distance( to->gib_pos().gib_2d(), target );
-					liste.append( to, dist*dist );
+						unsigned long dist=abs_distance( to->gib_pos().gib_2d(), target );
+						liste.append( to, dist*dist );
 #else
-					liste.append( to, 1 );
+						liste.append( to, 1 );
 #endif
+					}
 				}
 			}
 		}

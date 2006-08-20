@@ -437,15 +437,16 @@ public:
     ding_t * suche_obj(ding_t::typ typ) const { return dinge.suche(typ,0); }
     ding_t * suche_obj_ab(ding_t::typ typ,uint8 start) const { return dinge.suche(typ,start); }
 
-    int  obj_add(ding_t *obj) { return dinge.add(obj); }
-    int  obj_pri_add(ding_t *obj, int pri) { return dinge.add(obj, pri); }
-    int  obj_remove(ding_t *obj, spieler_t *sp) { set_flag(dirty); return dinge.remove(obj, sp); }
+    uint8  obj_add(ding_t *obj) { return dinge.add(obj,0); }
+    uint8	obj_insert_at(ding_t *obj,uint8 pri) { return dinge.insert_at(obj,pri); }
+    uint8  obj_pri_add(ding_t *obj, uint8 pri) { return dinge.add(obj, pri); }
+    uint8  obj_remove(ding_t *obj, spieler_t *sp) { set_flag(dirty); return dinge.remove(obj, sp); }
     ding_t *obj_takeout(uint8 pos) { return dinge.remove_at(pos); };
     bool obj_loesche_alle(spieler_t *sp) { return dinge.loesche_alle(sp); }
     bool obj_ist_da(ding_t *obj) const { return dinge.ist_da(obj); }
-    ding_t * obj_bei(int n) const { return dinge.bei(n); }
-    int  obj_count() const { return dinge.count(); }
-    int gib_top() const {return dinge.gib_top();};
+    ding_t * obj_bei(uint8 n) const { return dinge.bei(n); }
+    uint8  obj_count() const { return dinge.count(); }
+    uint8 gib_top() const {return dinge.gib_top();};
 
     /**
      * @returns NULL wenn OK, oder Meldung, warum nicht

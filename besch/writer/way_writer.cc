@@ -53,12 +53,12 @@ void way_writer_t::write_obj(FILE *outfp, obj_node_t &parent, tabfileobj_t &obj)
 	int ribi, hang;
 
 	// Hajo: node size is 24 bytes
-	obj_node_t	node(this, 24, &parent, false);
+	obj_node_t	node(this, 25, &parent, false);
 
 
 	// Hajo: Version needs high bit set as trigger -> this is required
 	//       as marker because formerly nodes were unversionend
-	uint16 version = 0x8002;
+	uint16 version = 0x8003;
 	uint32 price =      obj.get_int("cost", 100);
 	uint32 maintenance= obj.get_int("maintenance", 100);
 	uint32 topspeed =   obj.get_int("topspeed", 999);
@@ -72,11 +72,15 @@ void way_writer_t::write_obj(FILE *outfp, obj_node_t &parent, tabfileobj_t &obj)
 
 	uint8 wtyp =    get_waytype(obj.get("waytype"));
 	uint8 styp =    obj.get_int("system_type", 0);
+	// compatibility conversions
 	if(wtyp==weg_t::schiene  &&  styp==1) {
 		wtyp = weg_t::monorail;
 	} else if(wtyp==weg_t::schiene  &&  styp==7) {
 		wtyp = weg_t::schiene_strab;
 	}
+
+	// true to draw as foregrund and not much earlier (default)
+	uint8 draw_as_ding =   (obj.get_int("draw_as_ding", 0)==1);
 
 	node.write_data_at(outfp, &version, 0, 2);
 	node.write_data_at(outfp, &price, 2, 4);
@@ -87,6 +91,7 @@ void way_writer_t::write_obj(FILE *outfp, obj_node_t &parent, tabfileobj_t &obj)
 	node.write_data_at(outfp, &retire, 20, 2);
 	node.write_data_at(outfp, &wtyp, 22, 1);
 	node.write_data_at(outfp, &styp, 23, 1);
+	node.write_data_at(outfp, &draw_as_ding, 24, 1);
 
 	write_head(outfp, node, obj);
 

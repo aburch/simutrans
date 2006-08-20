@@ -26,6 +26,7 @@
 #include "simdepot.h"
 #include "simskin.h"
 #include "simtime.h"
+#include "simconst.h"
 #include "boden/boden.h"
 #include "boden/wasser.h"
 #include "simcity.h"
@@ -423,7 +424,8 @@ static void zeige_banner()
 int sim_new_handler(unsigned int)
 {
     dbg->fatal("sim_new_handler()","OUT OF MEMORY");
-    return 0;
+    trap();
+	return 0;
 }
 #else
 void sim_new_handler()
@@ -434,11 +436,6 @@ void sim_new_handler()
 #endif
 
 
-#ifdef OTTD_LIKE
-#define DEFAULT_OBJPATH "pak.ttd/"
-#else
-#define DEFAULT_OBJPATH "pak/"
-#endif
 
 int simu_cpp_main(int argc, char ** argv)
 {

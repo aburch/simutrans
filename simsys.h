@@ -82,6 +82,8 @@ unsigned int get_system_color(unsigned int r, unsigned int g, unsigned int b);
 
 void show_pointer(int yesno);
 
+void set_pointer(int loading);
+
 void move_pointer(int x, int y);
 
 void ex_ord_update_mx_my();

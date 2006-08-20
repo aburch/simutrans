@@ -17,9 +17,6 @@
 #ifndef simgraph_h
 #define simgraph_h
 
-/* prissi: if uncommented, also support for a small size font will be enabled (by not used at the moment) */
-//#define USE_SMALL_FONT
-
 #ifdef __cplusplus
 extern "C" {
 // since our simgraph16.c ist a plain c-file, it will never see this
@@ -184,6 +181,7 @@ void display_flush_buffer();
 void display_move_pointer(KOORD_VAL dx, KOORD_VAL dy);
 void display_show_pointer(int yesno);
 void display_set_pointer(int pointer);
+void display_show_load_pointer(int loading);
 
 void display_pixel(KOORD_VAL x, KOORD_VAL y, PLAYER_COLOR_VAL color);
 

@@ -6,6 +6,22 @@ Known bugs: (hard to fix)
 	valgrind complains about errors in SDL and X?
 
 
+
+Release of 88.10.2
+
+10-Jun-2006: (prissi)
+	FIX: trains/trams in depot reserved the according block automatically for convoi zero during reloading (even if this was a ship ... )
+	FIX: sprite sorter now inserts all sprites including pedestrians and citycars in the order they belong (drawing errors with trailer trucks fixed)
+	CHANGE: hour glass during saving
+	ADD: display of powerlines/depots in the map window
+	FIX: delete road under the powerline of a different player
+	CHANGE: after deleting everything from a tile one looses the ownership on this tile again
+	FIX: when the number of vehicles changed during reopening of a depot dialog (either year or electrification) the game crashed
+	ADD: you can create a roadsign which prevent citycars from entering. Use "is_private=1" in the roadsign definition (will be not part of the 64 set though!)
+	ADD: draw way as a normal object by "draw_as_ding=1" in the definition of a way
+	CHANGE: (intenal) all defines now in simconst.h"
+
+
 Release of 88.10.1
 
 4-Jun-2006: (prissi)

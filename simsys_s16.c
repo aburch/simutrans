@@ -28,6 +28,60 @@
 // this is equivalent on 16 bpp and much slower on 32 bpp
 //#define USE_HW
 
+/* hot:11,16 xy:15,22 */
+
+char hourglass_cursor[4*32]=
+{
+	0x3F, 0xFE,
+	0x30, 0x06,
+	0x3F, 0xFE,
+	0x10, 0x04,
+	0x10, 0x04,
+	0x12, 0xA4,
+	0x11, 0x44,
+	0x18, 0x8C,
+	0x0C, 0x18,
+	0x06, 0xB0,
+	0x03, 0x60,
+	0x03, 0x60,
+	0x06, 0x30,
+	0x0C, 0x98,
+	0x18, 0x0C,
+	0x10, 0x84,
+	0x11, 0x44,
+	0x12, 0xA4,
+	0x15, 0x54,
+	0x3F, 0xFE,
+	0x30, 0x06,
+	0x3F, 0xFE
+};
+
+char hourglass_cursor_mask[4*32]=
+{
+	0x3F, 0xFE,
+	0x3F, 0xFE,
+	0x3F, 0xFE,
+	0x1F, 0xFC,
+	0x1F, 0xFC,
+	0x1F, 0xFC,
+	0x1F, 0xFC,
+	0x1F, 0xFC,
+	0x0F, 0xF8,
+	0x07, 0xF0,
+	0x03, 0xE0,
+	0x03, 0xE0,
+	0x07, 0xF0,
+	0x0F, 0xF8,
+	0x1F, 0xFC,
+	0x1F, 0xFC,
+	0x1F, 0xFC,
+	0x1F, 0xFC,
+	0x1F, 0xFC,
+	0x3F, 0xFE,
+	0x3F, 0xFE,
+	0x3F, 0xFE,
+};
+
 
 static SDL_Surface *screen;
 static int width = 640;
@@ -37,6 +91,8 @@ static int height = 480;
 static int sync_blit = 0;
 
 struct sys_event sys_event;
+
+static SDL_Cursor *arrow, *hourglass;
 
 
 /*
@@ -107,6 +163,8 @@ int dr_os_open(int w, int h,int fullscreen)
   // set the caption for the window
   SDL_WM_SetCaption("Simutrans " VERSION_NUMBER,NULL);
   SDL_ShowCursor(0);
+  arrow = SDL_GetCursor();
+  hourglass = SDL_CreateCursor( hourglass_cursor, hourglass_cursor_mask, 16, 22, 8, 11);
 
   return TRUE;
 }
@@ -115,10 +173,11 @@ int dr_os_open(int w, int h,int fullscreen)
 // shut down SDL
 int dr_os_close(void)
 {
-  // Hajo: SDL doc says, screen is free'd by SDL_Quit and should not be
-  // free'd by the user
-  // SDL_FreeSurface(screen);
-  return TRUE;
+	SDL_FreeCursor( hourglass );
+	// Hajo: SDL doc says, screen is free'd by SDL_Quit and should not be
+	// free'd by the user
+	// SDL_FreeSurface(screen);
+	return TRUE;
 }
 
 
@@ -189,6 +248,15 @@ void move_pointer(int x, int y)
 {
   SDL_WarpMouse((Uint16)x,(Uint16)y);
 }
+
+
+
+// set the mouse cursor (pointer/load)
+void set_pointer( int loading )
+{
+	SDL_SetCursor( loading ? hourglass : arrow );
+}
+
 
 
 /**

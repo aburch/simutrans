@@ -102,7 +102,7 @@ obj_besch_t * tree_reader_t::read_node(FILE *fp, obj_node_info_t &node)
     besch->distribution_weight = (uint8)decode_uint8(p);
   } else {
     // old node, version 0
-    besch->hoehenlage = (uint16)v;
+    besch->hoehenlage = (uint8)v;
     besch->distribution_weight = 3;
   }
 DBG_DEBUG("tree_reader_t::read_node()", "hoehe=%i and weight=%i (ver=%i, node.size=%i)",besch->hoehenlage,besch->distribution_weight, version, node.size);

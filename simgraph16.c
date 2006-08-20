@@ -23,8 +23,7 @@
  * 15.08.00 dirty tile verwaltung fuer effizientere updates
  */
 
-#undef DEBUG_FLUSH_BUFFER
-//#define DEBUG_FLUSH_BUFFER
+
 
 #include <stdlib.h>
 #include <string.h>
@@ -34,6 +33,7 @@
 
 #include "pathes.h"
 #include "simtypes.h"
+#include "simconst.h"
 #include "simsys.h"
 #include "simmem.h"
 #include "simdebug.h"
@@ -67,15 +67,6 @@ typedef unsigned int   PIXRGB;
  */
 typedef uint16 PIXVAL;
 
-
-/*
- * Use C implementation of image drawing routines
- */
-//#define USE_C
-#ifdef USE_C
-// bug alert for GCC 4.03
-#define USE_C_FOR_IMAGE
-#endif
 
 // --------------      static data    --------------
 
@@ -3413,6 +3404,21 @@ void display_show_pointer(int yesno)
 void display_set_pointer(int pointer)
 {
 	standard_pointer = pointer;
+}
+
+
+
+/**
+ * mouse pointer image
+ * @author prissi
+ */
+void display_show_load_pointer(int loading)
+{
+#ifdef USE_SOFTPOINTER
+    softpointer = !loading;
+#else
+	set_pointer(loading);
+#endif
 }
 
 

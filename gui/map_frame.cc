@@ -55,7 +55,8 @@ const char map_frame_t::map_type[MAX_MAP_TYPE][64] =
     "Speedlimit",
     "Powerlines",
     "Tourists",
-    "Factories"
+    "Factories",
+    "Depots"
 };
 
 const int map_frame_t::map_type_color[MAX_MAP_TYPE] =
@@ -356,8 +357,8 @@ void map_frame_t::zeichnen(koord pos, koord gr)
 	if(legend_visible>1) {
 		koord bar_pos = pos+scrolly.gib_pos()-koord(0,LINESPACE+4-16);
 		// color bar
-		for( int i=0;  i<12;  i++) {
-			display_fillbox_wh(bar_pos.x + 30 + i*(gr.x-60)/12, bar_pos.y+2,  (gr.x-60)/11, 7, reliefkarte_t::calc_severity_color(i,1), false);
+		for( int i=0;  i<MAX_SEVERITY_COLORS;  i++) {
+			display_fillbox_wh(bar_pos.x + 30 + i*(gr.x-60)/MAX_SEVERITY_COLORS, bar_pos.y+2,  (gr.x-60)/(MAX_SEVERITY_COLORS-1), 7, reliefkarte_t::calc_severity_color(i,2), false);
 		}
 		display_proportional(bar_pos.x + 26, bar_pos.y, translator::translate("min"), ALIGN_RIGHT, COL_BLACK, false);
 		display_proportional(bar_pos.x + size.x - 26, bar_pos.y, translator::translate("max"), ALIGN_LEFT, COL_BLACK, false);

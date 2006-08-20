@@ -281,8 +281,128 @@ vehikel_basis_t::verlasse_feld()
 
 void vehikel_basis_t::betrete_feld()
 {
+	// this will automatically give the right order for citycars and the like ...
 	grund_t * gr = welt->lookup(gib_pos());
-	gr->obj_add(this);
+
+	uint8 start=0, end=gr->gib_top();
+	uint8 middle=0;
+	if(gr->gib_weg(weg_t::strasse)) {
+		// this is very complicated: we may have many objects in two lanes (actually five with tram and pedestrians)
+		if(umgebung_t::drive_on_left) {
+			// driving on left side
+			if(fahrtrichtung<4) {	// nord, nordwest
+
+				if((fahrtrichtung&(~ribi_t::suedost))==0) {
+					// if we are going east we must be drawn as the first in east direction
+					gr->obj_insert_at(this,0);
+				}
+				else {
+					// we must be drawn before south or west (thus insert after)
+					for(uint8 i=0;  i<end;  i++  ) {
+						// scan for similar types
+						ding_t *dt = gr->obj_bei(i);
+						if(dt  &&  (dt->gib_typ()&96)==32  &&  (((vehikel_t*)dt)->gib_fahrtrichtung()&ribi_t::suedwest)!=0) {
+							gr->obj_insert_at(this,i);
+							return;
+						}
+					}
+					// nothing going southwest
+					gr->obj_pri_add(this,end);
+				}
+
+			}
+			else {
+				// going south, west or the rest
+
+				if((fahrtrichtung&(~ribi_t::suedost))==0) {
+					// if we are going south or suotheast we must be drawn as the first in east direction (after nord and nordeast)
+					for(uint8 i=0;  i<end;  i++  ) {
+						// scan for similar types
+						ding_t *dt = gr->obj_bei(i);
+						if(dt  &&  (dt->gib_typ()&96)==32  &&  (((vehikel_t*)dt)->gib_fahrtrichtung()&ribi_t::suedwest)!=0) {
+							gr->obj_insert_at(this,i);
+							return;
+						}
+					}
+					// nothing going southeast
+					gr->obj_pri_add(this,end);
+				}
+				else {
+					// west, draw first (=> add last)
+					gr->obj_pri_add(this,end);
+				}
+			}
+		}
+		else {
+			// driving on right side
+			if(fahrtrichtung<4) {	// nord, ost, nordost
+
+				if((fahrtrichtung&(~ribi_t::suedost))==0) {
+
+					// if we are going east we must be drawn as the first in east direction (after nord and nordeast)
+					for(uint8 i=0;  i<end;  i++  ) {
+						// scan for similar types
+						ding_t *dt = gr->obj_bei(i);
+						if(dt  &&  (dt->gib_typ()&96)==32  &&  (((vehikel_t*)dt)->gib_fahrtrichtung()&ribi_t::nordost)!=0) {
+							gr->obj_insert_at(this,i);
+							return;
+						}
+					}
+					// nothing going to the east
+					gr->obj_pri_add(this,end);
+				}
+				else {
+					// we must be drawn before south or west (thus append after)
+					gr->obj_pri_add(this,end);
+				}
+
+			}
+			else {
+				// going south, west or the rest
+
+				if((fahrtrichtung&(~ribi_t::suedost))==0) {
+					// going south or southeast, insert as first in this dirs
+					gr->obj_insert_at(this,0);
+				}
+				else {
+					for(uint8 i=0;  i<end;  i++  ) {
+						// scan for similar types
+						ding_t *dt = gr->obj_bei(i);
+						// west or northwest: append after all westwards
+						if(dt  &&  (dt->gib_typ()&96)==32  &&  (((vehikel_t*)dt)->gib_fahrtrichtung()&ribi_t::suedwest)==0) {
+							gr->obj_insert_at(this,i);
+							return;
+						}
+					}
+					// nothing goinf to nordeast
+					gr->obj_insert_at(this,end);
+				}
+			}
+
+		}	// right side/left side
+
+	}
+	else {
+		// ok, we have to sort vehicles for correct overlapping, but all vehicles are of the same typ
+		// => much simpler to handle
+		if((fahrtrichtung&(~ribi_t::suedost))==0) {
+			// if we are going east or south, we must be drawn before (i.e. put first)
+			gr->obj_insert_at(this,0);
+		}
+		else {
+			// for north east we must be draw last
+			uint8 i;
+			for(i=gr->gib_top();  i>0;  i--) {
+				// scan for other vehicles (only our type allowed!)
+				ding_t *dt = gr->obj_bei(i);
+				if(dt  &&  dt->gib_typ()==gib_typ()) {
+					i++;
+					break;
+				}
+			}
+			gr->obj_pri_add(this,i);
+		}
+	}
 }
 
 
@@ -667,14 +787,21 @@ vehikel_t::verlasse_feld()
     }
 }
 
+
+
+
+/* this routine add a vehicle to a tile and will insert it in the correct sort order to prevent overlaps
+ * @author prissi
+ */
 void
 vehikel_t::betrete_feld()
 {
-    vehikel_basis_t::betrete_feld();
+	if(ist_erstes  &&  reliefkarte_t::is_visible) {
+		reliefkarte_t::gib_karte()->setze_relief_farbe(gib_pos().gib_2d(), VEHIKEL_KENN);
+	}
 
-    if(ist_erstes  &&  reliefkarte_t::is_visible) {
-        reliefkarte_t::gib_karte()->setze_relief_farbe(gib_pos().gib_2d(), VEHIKEL_KENN);
-    }
+	vehikel_basis_t::betrete_feld();
+
 }
 
 
@@ -1480,25 +1607,9 @@ automobil_t::ist_weg_frei(int &restart_speed)
 void
 automobil_t::betrete_feld()
 {
-	// this will automatically give the right order
+	vehikel_t::betrete_feld();
+
 	grund_t *gr = welt->lookup( gib_pos() );
-
-	uint8 offset;
-	if(gr->gib_weg(weg_t::schiene)) {
-		offset = (gib_fahrtrichtung()<4)^(umgebung_t::drive_on_left==false) ? PRI_ROAD_S_W_SW_SE : PRI_ROAD_AND_RAIL_N_E_NE_NW;
-	}
-	else {
-		offset = (gib_fahrtrichtung()<4)^(umgebung_t::drive_on_left==false) ? PRI_ROAD_S_W_SW_SE : PRI_ROAD_N_E_NE_NW;
-	}
-	bool ok = (gr->obj_pri_add(this, offset) != 0);
-
-	if(ist_erstes  &&  reliefkarte_t::is_visible) {
-		reliefkarte_t::gib_karte()->setze_relief_farbe(gib_pos().gib_2d(), VEHIKEL_KENN);
-	}
-
-	if(!ok) {
-		dbg->error("automobil_t::betrete_feld()","vehicel '%s' %p could not be added to %d, %d, %d",gib_pos().x, gib_pos().y, gib_pos().z);
-	}
 
 	const int cargo = gib_fracht_menge();
 	gr->gib_weg(weg_t::strasse)->book(cargo, WAY_STAT_GOODS);
@@ -1996,44 +2107,16 @@ waggon_t::verlasse_feld()
 	}
 }
 
+
+
 void
 waggon_t::betrete_feld()
 {
-	grund_t * gr = welt->lookup(gib_pos());
-	static ding_t *arr[256];
-	const uint8 offset=gr->gib_weg(weg_t::strasse)!=0 ? PRI_RAIL_AND_ROAD : PRI_RAIL;
+	vehikel_t::betrete_feld();
 
+	grund_t * gr = welt->lookup(gib_pos());
 	if(ist_blockwechsel(pos_prev, pos_cur)) {
 		gr->betrete(this);
-	}
-
-	// first scan for waggons
-	uint8 i, idx=0;
-	for(i=offset; i<gr->gib_top(); i++) {
-		ding_t *dt = gr->obj_bei(i);
-		if(dt != NULL && dt->gib_typ()==ding_t::waggon) {
-			arr[idx++] = gr->obj_takeout(i);
-		}
-	}
-
-	if(fahrtrichtung==ribi_t::sued  ||  fahrtrichtung==ribi_t::ost  ||  fahrtrichtung==ribi_t::suedost) {
-		// if we are going west or south, we must be drawn before (i.e. put first)
-		gr->obj_pri_add( this, offset );
-		for(i=0; i<idx; i++) {
-			gr->obj_pri_add( arr[i], offset+i+1 );
-		}
-	}
-	else {
-		// otherwise we should be last (and diagonals do not matter)
-		for(i=0; i<idx; i++) {
-			gr->obj_pri_add( arr[i], offset+i );
-		}
-		gr->obj_pri_add( this, offset+idx );
-	}
-
-
-	if(ist_erstes  &&  reliefkarte_t::is_visible) {
-		reliefkarte_t::gib_karte()->setze_relief_farbe(gib_pos().gib_2d(), VEHIKEL_KENN);
 	}
 
 	const int cargo = gib_fracht_menge();

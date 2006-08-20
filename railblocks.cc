@@ -383,7 +383,6 @@ blockstrecke_t::vereinige_vehikel_counter(blockhandle_t bs)
 	v_raus += bs->v_raus;
 	cnv_reserved = convoihandle_t();
 	schalte_signale();
-	//    printf("   vereinige %p, %p: zustand %d, %d\n", this, bs, v_rein, v_raus);
 }
 
 
@@ -445,12 +444,13 @@ blockstrecke_t::rdwr(loadsave_t *file)
 		// not yet reserved (should be different!)
 		if(file->is_loading()) {
 			v_rein = 0;	// will be set by the new vehicles anyway ...
-			// since convois are not loaded, read the current number of the convoi
+			// since convois are not yet loaded, read the current number of the convoi
 			file->rdwr_short(v_raus, "\n");
+DBG_MESSAGE("blockstrecke_t::laden_abschliessen()","v_raus = %i",v_raus );
 			cnv_reserved = convoihandle_t();
 		}
 		else {
-			uint16 id=(uint16)welt->gib_convoi_list().index_of(cnv_reserved);
+			uint16 id = cnv_reserved.is_bound() ? (uint16)welt->gib_convoi_list().index_of(cnv_reserved) : (uint16)-1;
 			file->rdwr_short(id, "\n");
 		}
 	}
@@ -471,7 +471,7 @@ void blockstrecke_t::laden_abschliessen()
 	}
 	else {
 		cnv_reserved = welt->gib_convoi_list().at(v_raus)->self;
-DBG_MESSAGE("blockstrecke_t::laden_abschliessen()","was reserved by %s",cnv_reserved->gib_name() );
+DBG_MESSAGE("blockstrecke_t::laden_abschliessen()","was reserved by %s (%i)",cnv_reserved->gib_name(),v_raus );
 	}
 	v_raus = 0;
 

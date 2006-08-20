@@ -15,6 +15,7 @@
 #include "simhalt.h"
 #include "simplay.h"
 #include "simdebug.h"
+#include "simconst.h"
 #include "boden/grund.h"
 #include "boden/boden.h"
 #include "boden/fundament.h"

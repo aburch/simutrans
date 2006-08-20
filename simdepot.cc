@@ -82,32 +82,38 @@ depot_t::erzeuge_fahrplan()
 	return (v==NULL) ? new fahrplan_t() : v->erzeuge_neuen_fahrplan();
 }
 
+
+
+/* this is called on two occasions:
+ * first a convoy reaches the depot during its journey
+ * second during loading a covoi is stored in a depot => only store it again
+ */
 void
 depot_t::convoi_arrived(convoihandle_t acnv, bool fpl_adjust)
 {
-  for(unsigned i=0; i< acnv->gib_vehikel_anzahl(); i++) {
+	if(fpl_adjust) {
+		// here a regular convoi arrived
 
-    vehikel_t *v = acnv->gib_vehikel(i);
+		for(unsigned i=0; i< acnv->gib_vehikel_anzahl(); i++) {
+			vehikel_t *v = acnv->gib_vehikel(i);
+			if(v) {
+				// Hajo: reset vehikel data
+				v->loesche_fracht();
+				v->setze_fahrtrichtung( ribi_t::sued );
+			}
+		}
+		// Volker: remove depot from schedule
+		fahrplan_t *fpl = acnv->gib_fahrplan();
+		fpl->remove();
+		acnv->setze_fahrplan(fpl);
+	}
+	// this part stores the covoi in the depot
+	convois.append(acnv);
+	if(depot_info) {
+		depot_info->action_triggered(NULL,(long int)0);
+	}
 
-    if(v) {
-      // Hajo: reset vehikel data
-      v->loesche_fracht();
-      v->setze_fahrtrichtung( ribi_t::sued );
-    }
-  }
-  if(fpl_adjust) {
-      // Volker: remove depot from schedule
-      fahrplan_t *fpl = acnv->gib_fahrplan();
-      fpl->remove();
-      acnv->setze_fahrplan(fpl);
-  }
-  convois.append(acnv);
-  if(depot_info) {
-      depot_info->action_triggered(NULL,(long int)0);
-  }
-
-  DBG_MESSAGE("depot_t::convoi_arrived()", "convoi %d, %p entered depot",
-	       acnv.get_id(), acnv.get_rep());
+	DBG_MESSAGE("depot_t::convoi_arrived()", "convoi %d, %p entered depot", acnv.get_id(), acnv.get_rep());
 }
 
 
@@ -118,7 +124,11 @@ depot_t::zeige_info()
 		depot_info = new depot_frame_t(welt, this);
 	}
 	else {
+		// update data (needs to be doen twice?!?)
 		depot_info->build_vehicle_lists();
+		depot_info->action_triggered(NULL,(long int)0);
+		depot_info->build_vehicle_lists();
+		depot_info->action_triggered(NULL,(long int)0);
 	}
 	create_win(20, 20, depot_info, w_info);
 }
@@ -482,8 +492,11 @@ depot_t::get_oldest_vehicle(int id)
 void
 bahndepot_t::convoi_arrived(convoihandle_t cnv, bool fpl_adjust)
 {
-    depot_t::convoi_arrived(cnv, fpl_adjust);
-    blockmanager::gib_manager()->pruefe_blockstrecke(welt, gib_pos());
+	depot_t::convoi_arrived(cnv, fpl_adjust);
+	if(fpl_adjust) {
+		// only true for covois arriving during the game
+		blockmanager::gib_manager()->pruefe_blockstrecke(welt, gib_pos());
+	}
 }
 
 bool

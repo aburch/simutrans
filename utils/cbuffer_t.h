@@ -44,7 +44,7 @@ class cbuffer_t
    * Number of characters without(!) trailing '\0'
    * @author Hj. Malthaner
    */
-  int len() const {return size;};
+  int len() const {return size;}
 
 
   /**
@@ -84,7 +84,7 @@ class cbuffer_t
    * Automagic conversion to a const char* for backwards compatibility
    * @author Hj. Malthaner
    */
-  operator const char *() const {return buf;};
+  operator const char *() const {return buf;}
 
 };
 

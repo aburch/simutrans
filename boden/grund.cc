@@ -55,6 +55,7 @@
 #include "../utils/cbuffer_t.h"
 
 #include "../simcolor.h"
+#include "../simconst.h"
 #include "../simgraph.h"
 
 
@@ -63,9 +64,6 @@
 #include "../tpl/vector_tpl.h"
 
 #include "../dings/leitung2.h"	// for construction of new ways ...
-
-// for debugging: show which tiles are grown as dings
-//#define SHOW_FORE_GRUND 1
 
 // klassenlose funktionen und daten
 
@@ -106,17 +104,6 @@ get_backbild_from_diff( sint8 h1, sint8 h2 )
 }
 
 
-#ifndef DOUBLE_GROUNDS
-#define corner1(i) (i%2)
-#define corner2(i) ((i/2)%2)
-#define corner3(i) ((i/4)%2)
-#define corner4(i) (i/8)
-#else
-#define corner1(i) (i%3)
-#define corner2(i) ((i/3)%3)
-#define corner3(i) ((i/9)%3)
-#define corner4(i) (i/27)
-#endif
 
 // artifical walls from here on ...
 void grund_t::calc_back_bild(const sint8 hgt,const sint8 slope_this)
@@ -126,6 +113,9 @@ void grund_t::calc_back_bild(const sint8 hgt,const sint8 slope_this)
 	const koord k = gib_pos().gib_2d();
 
 	clear_flag(grund_t::draw_as_ding);
+	if((wege[0]  &&  wege[0]->gib_besch()->is_draw_as_ding())  ||  (wege[1]  &&  wege[1]->gib_besch()->is_draw_as_ding())) {
+		set_flag(grund_t::draw_as_ding);
+	}
 	bool	left_back_is_building = false;
 
 	// check for foundation
@@ -389,7 +379,6 @@ void grund_t::rdwr(loadsave_t *file)
 	}
 	else {
 		// safe init for old version
-//DBG_MESSAGE("grund_t::rdwr()","old version: no slope");
 		slope = 0;
 	}
 
@@ -444,7 +433,6 @@ void grund_t::rdwr(loadsave_t *file)
 		case weg_t::wasser:
 			// ignore old type dock ...
 			if(file->get_version()>=87000) {
-//			  DBG_DEBUG("grund_t::rdwr()", "Kanal");
 			  wege[i] = new kanal_t (welt, file);
 //		      DBG_MESSAGE("kanal_t::kanal_t()","at (%i,%i) ribi %i",gib_pos().x, gib_pos().y, wege[i]->gib_ribi());
 		     }
@@ -460,7 +448,7 @@ void grund_t::rdwr(loadsave_t *file)
 				file->rdwr_long(d32, "\n");
 				file->rdwr_long(d32, "\n");
 				file->rdwr_long(d32, "\n");
-			      DBG_MESSAGE("grund_t::rdwr()","at (%i,%i) dock ignored",gib_pos().x, gib_pos().y);
+DBG_MESSAGE("grund_t::rdwr()","at (%i,%i) dock ignored",gib_pos().x, gib_pos().y);
 		     	}
 		  break;
 		case weg_t::luft:
@@ -524,28 +512,25 @@ grund_t::grund_t(karte_t *wl, koord3d pos)
 
 grund_t::~grund_t()
 {
-    destroy_win(grund_infos->get(this));
+	destroy_win(grund_infos->get(this));
 
-    // remove text from table
-    ground_texts.remove((pos.x << 16) + pos.y);
+	// remove text from table
+	ground_texts.remove((pos.x << 16) + pos.y);
 
-    if(halt.is_bound()) {
-//	printf("Enferne boden %p von Haltestelle %p\n", this, halt);fflush(NULL);
-// check for memory leaks!
-	halt->rem_grund(this);
-	halt.unbind();
-  }
-
-    for(int i = 0; i < MAX_WEGE; i++) {
-	if(wege[i]) {
-	    if(gib_besitzer() && !ist_wasser() && wege[i]->gib_besch()) {
-	        gib_besitzer()->add_maintenance(-wege[i]->gib_besch()->gib_wartung());
-	    }
-
-	    delete wege[i];
-    	    wege[i] = NULL;
+	if(halt.is_bound()) {
+		halt->rem_grund(this);
+		halt.unbind();
 	}
-  }
+
+	for(int i = 0; i<MAX_WEGE; i++) {
+		if(wege[i]) {
+			if(gib_besitzer() && !ist_wasser() && wege[i]->gib_besch()) {
+				gib_besitzer()->add_maintenance(-wege[i]->gib_besch()->gib_wartung());
+			}
+			delete wege[i];
+			wege[i] = NULL;
+		}
+	}
 }
 
 
@@ -584,14 +569,6 @@ void grund_t::info(cbuffer_t & buf) const
 		buf.append(gib_hoehe());
 		buf.append("\nslope: ");
 		buf.append(hang);
-		buf.append("\nhang heights: ");
-		buf.append(hang%3);
-		buf.append(", ");
-		buf.append((hang/3)%3);
-		buf.append(", ");
-		buf.append((hang/9)%3);
-		buf.append(", ");
-		buf.append((hang/27)%3);
 		buf.append("\nback0: ");
 		buf.append(gib_back_bild(0)-grund_besch_t::slopes->gib_bild(0));
 		buf.append("\nback1: ");
@@ -619,7 +596,6 @@ void grund_t::info(cbuffer_t & buf) const
  */
 void grund_t::setze_halt(halthandle_t halt) {
 	this->halt = halt;
-//	welt->lookup( pos.gib_2d() )->setze_halt(halt);
 }
 
 
@@ -876,7 +852,8 @@ bool grund_t::neuen_weg_bauen(weg_t *weg, ribi_t::ribi ribi, spieler_t *sp)
 
 	// not already there?
 	const weg_t * alter_weg = gib_weg(weg->gib_typ());
-	if(alter_weg == NULL) {
+	if(alter_weg==NULL) {
+		// ok, we are unique
 
 		if(wege[0] == 0) {
 			// new way here
@@ -919,6 +896,7 @@ bool grund_t::neuen_weg_bauen(weg_t *weg, ribi_t::ribi ribi, spieler_t *sp)
 		}
 		weg->setze_ribi(ribi);
 		weg->setze_pos(pos);
+
 		// may result in a crossing
 		calc_bild();
 

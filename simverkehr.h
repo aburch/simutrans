@@ -50,41 +50,19 @@ protected:
      */
     uint32 weg_next;
 
-
-    /**
-     * aktuelle Bewegungsrichtung
-     * @author Hj. Malthaner
-     */
-    sint8 dx, dy;
-
-
-    ribi_t::ribi fahrtrichtung;
-
-
-    koord3d pos_next;
-
-
-    sint16 hoff;
-
-
-    virtual bool ist_weg_frei() {return 1; };	// always free
+    virtual bool ist_weg_frei() {return 1; }	// always free
 
 protected:
 
-    virtual ribi_t::ribi gib_fahrtrichtung() const {return fahrtrichtung;};
+    virtual weg_t::typ gib_wegtyp() const { return weg_t::strasse; }
 
-    virtual int  gib_dx() const {return dx;};
-    virtual int  gib_dy() const {return dy;};
-    virtual int  gib_hoff() const {return hoff;};
-    virtual weg_t::typ gib_wegtyp() const { return weg_t::strasse; };
-
-    virtual bool hop_check() {return true;};
+    virtual bool hop_check() {return true;}
     virtual void hop();
-    virtual void age() { };
-   virtual int gib_age() { return 1; };
+    virtual void age() { }
+   virtual int gib_age() { return 1; }
 
-    void setze_max_speed(int s) {max_speed = s;};
-    int gib_max_speed() const {return max_speed;};
+    void setze_max_speed(int s) {max_speed = s;}
+    int gib_max_speed() const {return max_speed;}
 
     void calc_current_speed();
 
@@ -157,9 +135,9 @@ public:
     virtual ~stadtauto_t();
 
     virtual void hop();
-   virtual void age() { time_to_life--; };
-   virtual int gib_age() { return time_to_life; };
-   void destroy() {time_to_life=0; };
+   virtual void age() { time_to_life--; }
+   virtual int gib_age() { return time_to_life; }
+   void destroy() {time_to_life=0; }
 
     /* this function builts the list of the allowed citycars
      * it should be called every month and in the beginning of a new game
@@ -180,8 +158,8 @@ public:
      */
     virtual bool step(long delta_t);
 
-    const char *gib_name() const {return "Verkehrsteilnehmer";};
-    enum ding_t::typ gib_typ() const {return verkehr;};
+    const char *gib_name() const {return "Verkehrsteilnehmer";}
+    enum ding_t::typ gib_typ() const {return verkehr;}
 };
 
 #endif

@@ -97,6 +97,10 @@ private:
      */
     uint8 styp;
 
+	/* true, if a tile with this way should be always drawn as a thing
+	 */
+	uint8 draw_as_ding;
+
 public:
 
     int gib_preis() const
@@ -195,32 +199,37 @@ public:
     }
 
 
-    /**
-     * @return introduction year
-     * @author Hj. Malthaner
-     */
-    int get_intro_year_month() const {
-      return intro_date;
-    }
+	/**
+	* @return introduction year
+	* @author Hj. Malthaner
+	*/
+	int get_intro_year_month() const {
+		return intro_date;
+	}
 
+	/**
+	* @return introduction month
+	* @author Hj. Malthaner
+	*/
+	int get_retire_year_month() const {
+		return obsolete_date;
+	}
 
-    /**
-     * @return introduction month
-     * @author Hj. Malthaner
-     */
-    int get_retire_year_month() const {
-      return obsolete_date;
-    }
+	/* true, if this tile is to be drawn as lie a normal thing */
+	bool is_draw_as_ding() const
+	{
+		return draw_as_ding;
+	}
 
+	/**
+	* Skin: cursor (index 0) and icon (index 1)
+	* @author Hj. Malthaner
+	*/
+	const skin_besch_t * gib_cursor() const
+	{
+		return (const skin_besch_t *)(gib_kind(5));
+	}
 
-    /**
-     * Skin: cursor (index 0) and icon (index 1)
-     * @author Hj. Malthaner
-     */
-    const skin_besch_t * gib_cursor() const
-    {
-	return (const skin_besch_t *)(gib_kind(5));
-    }
 };
 
 #endif // __WEG_BESCH_H

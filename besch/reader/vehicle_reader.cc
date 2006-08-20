@@ -270,16 +270,16 @@ obj_besch_t * vehicle_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 	} else {
 		// old node, version 0
 
-		besch->typ = v;
+		besch->typ = (sint8)v;
 		besch->zuladung = decode_uint16(p);
 		besch->preis = decode_uint32(p);
 		besch->geschw = decode_uint16(p);
 		besch->gewicht = decode_uint16(p);
 		besch->leistung = decode_uint16(p);
 		besch->betriebskosten = decode_uint16(p);
-		besch->sound = decode_sint16(p);
-		besch->vorgaenger = decode_uint16(p);
-		besch->nachfolger = decode_uint16(p);
+		besch->sound = (sint8)decode_sint16(p);
+		besch->vorgaenger = (sint8)decode_uint16(p);
+		besch->nachfolger = (sint8)decode_uint16(p);
 
 		besch->intro_date = DEFAULT_INTRO_DATE*16;
 		besch->obsolete_date = (DEFAULT_RETIRE_DATE*16);
@@ -325,12 +325,12 @@ obj_besch_t * vehicle_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 		for(uint8 i=0; i<len; i++) {
 			wavname[i] = decode_sint8(p);
 		}
-		besch->sound = sound_besch_t::gib_sound_id(wavname);
+		besch->sound = (sint8)sound_besch_t::gib_sound_id(wavname);
 DBG_MESSAGE("vehicle_reader_t::register_obj()","sound %s to %i",wavname,besch->sound);
 	}
 	else if(besch->sound>=0  &&  besch->sound<=MAX_OLD_SOUNDS) {
 		sint16 old_id = besch->sound;
-		besch->sound = sound_besch_t::get_compatible_sound_id(old_id);
+		besch->sound = (sint8)sound_besch_t::get_compatible_sound_id(old_id);
 DBG_MESSAGE("vehicle_reader_t::register_obj()","old sound %i to %i",old_id,besch->sound);
 	}
 

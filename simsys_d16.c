@@ -397,7 +397,12 @@ int recalc_keys()
 
 void move_pointer(int x, int y)
 {
-        position_mouse(x,y);
+	position_mouse(x,y);
+}
+
+void set_pointer(int x, int y)
+{
+	// not supported
 }
 
 /*

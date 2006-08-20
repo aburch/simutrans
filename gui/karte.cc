@@ -8,6 +8,7 @@
 #include "../simcolor.h"
 #include "../simworld.h"
 #include "../simvehikel.h"
+#include "../simdepot.h"
 #include "../simhalt.h"
 #include "../boden/grund.h"
 #include "../simfab.h"
@@ -33,13 +34,15 @@ bool reliefkarte_t::is_visible = false;
 const uint8 reliefkarte_t::map_type_color[MAX_MAP_TYPE] =
 {
 //  7, 11, 15, 132, 23, 31, 35, 7
-  248, 7, 11, 15, 132, 23, 27, 31, 35, 241, 7, 11, 31, 71, 55
+  248, 7, 11, 15, 132, 23, 27, 31, 35, 241, 7, 124, 31, 71, 55, 11
 };
 
-const uint8 reliefkarte_t::severity_color[12] =
+const uint8 reliefkarte_t::severity_color[MAX_SEVERITY_COLORS] =
 {
   //11, 10, 9, 23, 22, 21, 15, 14, 13, 18, 19, 35
-   9, 10, 11, 21, 22, 23, 13, 14, 15, 18, 19, 35,
+//   9, 10, 11, 21, 22, 23, 13, 14, 15, 18, 19, 35,
+// 169, 168, 167, 166, 165, 164, 163, 156, 157, 158, 159, 160, 140, 139, 130, 129, 128, 123, 122, 18, 19
+ 169, 168, 167, 166, 165, 164, 163, 156, 157, 158, 160, 140, 15, 120, 139, 130, 129, 128, 122, 18, 19
 };
 
 
@@ -48,9 +51,9 @@ uint8
 reliefkarte_t::calc_severity_color(sint32 amount, sint32 scale)
 {
 	// color array goes from light blue to red
-	sint32 severity = amount / scale;
-	if(severity > 11) {
-		severity = 11;
+	sint32 severity = (amount<<1) / scale;
+	if(severity > MAX_SEVERITY_COLORS) {
+		severity = 20;
 	}
 	if(severity < 0) {
 		severity = 0;
@@ -216,12 +219,18 @@ reliefkarte_t::calc_relief_farbe(const grund_t *gr)
 					}
 				}
 				else {
+					leitung_t *lt = static_cast<leitung_t *>(gr->suche_obj(ding_t::leitung));
+					if(lt!=NULL) {
+						color = POWERLINE_KENN;
+					}
+					else {
 #ifndef DOUBLE_GROUNDS
-					sint16 height = (gr->gib_grund_hang()&1);
+						sint16 height = (gr->gib_grund_hang()&1);
 #else
-					sint16 height = (gr->gib_grund_hang()%3);
+						sint16 height = (gr->gib_grund_hang()%3);
 #endif
-					color = calc_hoehe_farbe((gr->gib_hoehe()>>4)+height, welt->gib_grundwasser()>>4);
+						color = calc_hoehe_farbe((gr->gib_hoehe()>>4)+height, welt->gib_grundwasser()>>4);
+					}
 				}
 				break;
 		}
@@ -405,6 +414,13 @@ reliefkarte_t::calc_map_pixel(const koord k)
 				if(lt!=NULL) {
 					setze_relief_farbe(k, calc_severity_color(lt->get_net()->get_capacity(),1024) );
 				}
+			}
+			break;
+
+		case MAP_DEPOT:
+			if(gr->gib_depot()) {
+				// offset of one to avoid
+				setze_relief_farbe_area(k-koord(1,1), 3, gr->gib_depot()->gib_typ() );
 			}
 			break;
 
