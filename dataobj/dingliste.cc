@@ -122,7 +122,6 @@ dingliste_t::set_capacity(unsigned new_cap)
 	// a single object is stored differentially
 	else if(capacity==1  &&  new_cap>1) {
 		ding_t *tmp=obj.one;
-
 		if(new_cap<top) {
 			new_cap = top;
 		}
@@ -179,7 +178,8 @@ dingliste_t::grow_capacity(uint8 pri)
 		return pri;
 	}
 	else if(capacity==1) {
-		set_capacity( (pri+4)&0xFC );
+		uint8 new_cap = (top>pri+1) ? top : pri;
+		set_capacity( (new_cap+4)&0xFC );
 		return (top-1==pri) ? pri+1 : pri;
 	}
 	else if(capacity==254) {
@@ -364,13 +364,26 @@ dingliste_t::remove(ding_t *ding, spieler_t *sp)
 bool
 dingliste_t::loesche_alle(spieler_t *sp)
 {
-	for(uint8 i=0; i<top; i++) {
 
-		ding_t *dt = bei(i);
-		if(dt) {
-			dt->entferne(sp);
-			delete dt;
+	if(capacity>1) {
+		for(uint8 i=0; i<top; i++) {
+			ding_t *dt = obj.some[i];
+			if(dt) {
+				dt->entferne(sp);
+				delete dt;
+				obj.some[i] = NULL;
+			}
 		}
+	}
+	else {
+		if(capacity==1  &&  obj.one!=NULL) {
+			ding_t *dt = obj.one;
+			if(dt) {
+				dt->entferne(sp);
+				delete dt;
+			}
+		}
+		obj.one = NULL;
 	}
 
 	top = 0;
@@ -385,14 +398,17 @@ dingliste_t::loesche_alle(spieler_t *sp)
 const char *
 dingliste_t::kann_alle_entfernen(const spieler_t *sp) const
 {
-	const char * msg = NULL;
-
-	if(capacity<=1) {
+	if(capacity==0) {
+		return NULL;
+	}
+	else if(capacity==1) {
 		if(obj.one!=NULL) {
-			msg = obj.one->ist_entfernbar(sp);
+			return obj.one->ist_entfernbar(sp);
 		}
 	}
 	else {
+		const char * msg = NULL;
+
 		for(uint8 i=0; i<top; i++) {
 			if(obj.some[i] != NULL) {
 				msg = obj.some[i]->ist_entfernbar(sp);
@@ -401,8 +417,8 @@ dingliste_t::kann_alle_entfernen(const spieler_t *sp) const
 				}
 			}
 		}
+		return msg;
 	}
-	return msg;
 }
 
 
@@ -433,7 +449,7 @@ dingliste_t::suche(ding_t::typ typ,uint8 start) const
 		return NULL;
 	}
 	else if(capacity==1) {
-		return (top-1>=start  &&  obj.one->gib_typ()==typ) ? obj.one : NULL;
+		return (top-1==start  &&  obj.one->gib_typ()==typ) ? obj.one : NULL;
 	}
 	else {
 		// else we have to search the list

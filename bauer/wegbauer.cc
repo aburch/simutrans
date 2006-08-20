@@ -1642,6 +1642,11 @@ wegbauer_t::baue_strecke( slist_tpl <koord> &list )
 void
 wegbauer_t::baue()
 {
+	if(max_n<0) {
+		DBG_MESSAGE("wegbauer_t::baue()","called, but no valid route.");
+		// no valid route here ...
+		return;
+	}
   DBG_MESSAGE("wegbauer_t::baue()",
          "type=%d max_n=%d start=%d,%d end=%d,%d",
          bautyp, max_n,

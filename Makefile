@@ -7,8 +7,8 @@
 #
 
 
-#OSTYPE=mingw-sdl
-OSTYPE=mingw-gdi
+OSTYPE=mingw-sdl
+#OSTYPE=mingw-gdi
 #OSTYPE=beos
 #OSTYPE=linux-gnu
 

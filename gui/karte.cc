@@ -316,7 +316,7 @@ reliefkarte_t::zeichnen(koord pos) const
 	// since we do iterate the factory info list, this must be done here
 	// find tourist spots
 	if(mode==MAP_TOWN) {
-		const vector_tpl <stadt_t *> * staedte = welt->gib_staedte();
+		const weighted_vector_tpl <stadt_t *> * staedte = welt->gib_staedte();
 
 		for(unsigned i=0; i<staedte->get_count(); i++) {
 			const stadt_t *stadt = staedte->get(i);
@@ -357,10 +357,10 @@ reliefkarte_t::calc_map(int render_mode)
 	// since we do iterate the tourist info list, this must be done here
 	// find tourist spots
 	if(render_mode==MAP_TOURIST) {
-		int steps=MAX(1,welt->gib_ausflugsziele_max_pax()/12);
-		slist_iterator_tpl <gebaeude_t *> iter (welt->gib_ausflugsziele());
-		while(iter.next()) {
-			setze_relief_farbe_area(iter.get_current()->gib_pos().gib_2d(), 7, calc_severity_color(iter.get_current()->gib_passagier_level(),steps) );
+		const weighted_vector_tpl<gebaeude_t *> ausflugsziele = welt->gib_ausflugsziele();
+		int steps=MAX(1,ausflugsziele.get_sum_weight()/12);
+		for( unsigned i=0;  i<ausflugsziele.get_count();  i++ ) {
+			setze_relief_farbe_area(ausflugsziele.at(i)->gib_pos().gib_2d(), 7, calc_severity_color(ausflugsziele.at(i)->gib_passagier_level(),steps) );
 		}
 		return;
 	}

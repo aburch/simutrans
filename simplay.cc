@@ -733,7 +733,7 @@ spieler_t::do_passenger_ki()
 			// assume fail
 			state = CHECK_CONVOI;
 
-			const vector_tpl<stadt_t *> *staedte = welt->gib_staedte();
+			const weighted_vector_tpl<stadt_t *> *staedte = welt->gib_staedte();
 			int anzahl = staedte->get_count();
 			int offset = (anzahl>1)?simrand(anzahl-1):0;
 			// start with previous target
@@ -763,13 +763,27 @@ DBG_MESSAGE("spieler_t::do_passenger_ki()","using place (%i,%i) for start",platz
 			if(anzahl==1  ||  simrand(3)==0) {
 DBG_MESSAGE("spieler_t::do_passenger_ki()","searching attraction");
 				// 25 % of all connections are tourist attractions
-				const slist_tpl<gebaeude_t*> &ausflugsziele = welt->gib_ausflugsziele();
+				const weighted_vector_tpl<gebaeude_t*> &ausflugsziele = welt->gib_ausflugsziele();
 				// this way, we are sure, our factory is connected to this town ...
-				const slist_tpl<fabrik_t *> &fabriken = start_stadt->gib_arbeiterziele();
+				const weighted_vector_tpl<fabrik_t *> &fabriken = start_stadt->gib_arbeiterziele();
 				int	last_dist = 0xFFFF;
 				bool ausflug=simrand(2)!=0;	// holidays first ...
-				int ziel_count=ausflug?ausflugsziele.count():fabriken.count();
+				int ziel_count=ausflug?ausflugsziele.get_count():fabriken.get_count();
 				count = 1;	// one vehicle
+#if 0
+				// might work better, if finished ...
+				if(ausflug) {
+					const weighted_vector_tpl<gebaeude_t*> &ausflugsziele = welt->gib_ausflugsziele();
+					for(  int k=0;  k<4;  k++  ) {
+						gebaeude_t *gb = welt->gib_random_ausflugsziel();
+						if(gb->gib_post_level()<=2) {
+							// not a good object to go to ...
+							continue;
+						}
+						pos=gb->gib_pos().gib_2d();
+						size=gb->gib_tile()->gib_besch()->gib_groesse(bg->gib_tile()->gib_layout());
+				}
+#endif
 				for( int i=0;  i<ziel_count;  i++  ) {
 					int	dist;
 					koord pos, size;
@@ -2692,6 +2706,10 @@ spieler_t::versuche_brueckenbau(koord , int *index, ribi_t::ribi,
                                 wegbauer_t &bauigel,
 				slist_tpl <koord> &list)
 {
+	// too short for a bridge?
+	if(*index<2  ||  bauigel.max_n<5) {
+		return false;
+	}
 	bool ok = true;
 
 	const koord p1 = bauigel.gib_route_bei(*index-1);

@@ -922,9 +922,10 @@ haltestelle_t::add_grund(grund_t *gr)
 
     assert(gr != NULL);
 
+	// neu halt?
     if(!grund.contains( gr )) {
-	gr->setze_halt(self);
 
+	gr->setze_halt(self);
 	grund.append(gr);
 
 	// appends this to the ground
@@ -939,8 +940,17 @@ haltestelle_t::add_grund(grund_t *gr)
 	}
 
 	verbinde_fabriken();
-
 	assert(gr->gib_halt() == self);
+
+	// rebuild destination lists (since maybe a convoi stopped here, but there was no station yet)
+//DBG_MESSAGE("haltestelle_t::add_grund()","->rebuild_destinations()");
+	const slist_tpl<halthandle_t> & list = haltestelle_t::gib_alle_haltestellen();
+	slist_iterator_tpl <halthandle_t> iter (list);
+
+	while( iter.next() ) {
+		iter.get_current()->rebuild_destinations();
+		INT_CHECK("simhalt 952");
+	}
 
 	return true;
     } else {
@@ -1388,8 +1398,7 @@ haltestelle_t::hat_gehalten(int /*number_of_cars*/,const ware_besch_t *type, con
 			while(iter.next()) {
 				warenziel_t &tmp = iter.access_current();
 
-				if(tmp.gib_typ()->is_interchangeable(type) &&
-					gib_halt(tmp.gib_ziel()) == gib_halt(wz.gib_ziel())) {
+				if(tmp.gib_typ()->is_interchangeable(type) &&  gib_halt(tmp.gib_ziel()) == gib_halt(wz.gib_ziel())) {
 					goto skip;
 				}
 			}

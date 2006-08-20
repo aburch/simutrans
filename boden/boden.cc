@@ -50,6 +50,8 @@ void boden_t::toggle_grid()
 			}
 		}
 	}
+	// recalc old settings (since gr->calc_bild() will recalculate height)
+	reliefkarte_t::gib_karte()->set_mode( reliefkarte_t::gib_karte()->get_mode());
 }
 
 

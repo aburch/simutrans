@@ -478,7 +478,7 @@ fabrikbauer_t::baue_fabrik(karte_t * welt, koord3d *parent, const fabrik_besch_t
 		const fabrik_lieferant_besch_t *lieferant = info->gib_lieferant(i);
 		ware_t ware(lieferant->gib_ware());
 		ware.max = lieferant->gib_kapazitaet() << fabrik_t::precision_bits;
-		eingang->append(ware,4);
+		eingang->append(ware);
 	}
 	fab->set_eingang( eingang );
 
@@ -493,7 +493,7 @@ fabrikbauer_t::baue_fabrik(karte_t * welt, koord3d *parent, const fabrik_besch_t
 			// @author prissi
 			ware.menge = ware.max-(16<<fabrik_t::precision_bits);
 		}
-		ausgang->append(ware,4);
+		ausgang->append(ware);
 	}
 	fab->set_ausgang( ausgang );
 
@@ -530,7 +530,7 @@ fabrikbauer_t::baue_fabrik(karte_t * welt, koord3d *parent, const fabrik_besch_t
 
 	// add passenger targets: take care of fish_swarm, which do not accepts sucide divers ...
 	if(make_passenger) {
-		const vector_tpl<stadt_t *> *staedte=welt->gib_staedte();
+		const weighted_vector_tpl<stadt_t *> *staedte=welt->gib_staedte();
 		const int anz_staedte = staedte->get_count();
 		for(  int j=0;  j<anz_staedte;  j++  ) {
 			// connect, if closer than 5000
@@ -570,6 +570,9 @@ DBG_MESSAGE("fabrikbauer_t::baue_hierarchie","Search place for city factory (%i,
 		if(sf.stadt==NULL) {
 			return 0;
 		}
+
+		INT_CHECK( "fabrikbauer 574" );
+
 		//
 		// Drei Varianten:
 		// A:
@@ -581,6 +584,9 @@ DBG_MESSAGE("fabrikbauer_t::baue_hierarchie","Search place for city factory (%i,
 		k = factory_bauplatz_mit_strasse_sucher_t(welt).suche_platz(sf.stadt->gib_pos(), size.x, size.y,&is_rotate);
 		rotate = is_rotate?1:0;
 		DBG_MESSAGE("fabrikbauer_t::baue_hierarchie","Construction at (%i,%i).",k.x,k.y);
+
+		INT_CHECK( "fabrikbauer 588" );
+
 		// B:
 		// Gefällt mir auch. Die Endfabriken stehen eventuell etwas außerhalb der Stadt
 		// aber nicht weit weg.
@@ -599,11 +605,11 @@ DBG_MESSAGE("fabrikbauer_t::baue_hierarchie","Search place for city factory (%i,
 	}
 
 DBG_MESSAGE("fabrikbauer_t::baue_hierarchie","Construction of %s at (%i,%i).",info->gib_name(),pos->x,pos->y);
-INT_CHECK("fabrikbauer 594");
+	INT_CHECK("fabrikbauer 594");
 
 	const fabrik_t *our_fab=baue_fabrik(welt, parent, info, rotate, *pos, sp);
 
-INT_CHECK("fabrikbauer 596");
+	INT_CHECK("fabrikbauer 596");
 
 	for(int i=0; i < info->gib_lieferanten(); i++) {
 		const fabrik_lieferant_besch_t *lieferant = info->gib_lieferant(i);
@@ -660,6 +666,9 @@ DBG_MESSAGE("fabrikbauer_t::baue_hierarchie","supplier %s can supply approx %i o
 				}
 			}
 		}
+
+		INT_CHECK( "fabrikbauer 670" );
+
 		// this is a source?
 //		const fabrik_besch_t *hersteller = finde_hersteller(ware,0);
 		if(lcount!=0) {
@@ -679,13 +688,20 @@ DBG_MESSAGE("fabrikbauer_t::baue_hierarchie","find lieferant for %s.",info->gib_
 DBG_MESSAGE("fabrikbauer_t::baue_hierarchie()","found myself!");
 				return n;
 			}
+
+			INT_CHECK( "fabrikbauer 692" );
+
 			int rotate = simrand(hersteller->gib_haus()->gib_all_layouts()-1);
 			koord3d k = finde_zufallsbauplatz(welt, *pos, DISTANCE, hersteller->gib_haus()->gib_groesse(rotate),hersteller->gib_platzierung()==fabrik_besch_t::Wasser);
-INT_CHECK("fabrikbauer 679");
+
+			INT_CHECK("fabrikbauer 697");
+
 			if(welt->lookup(k)) {
 DBG_MESSAGE("fabrikbauer_t::baue_hierarchie","Try to built lieferant %s at (%i,%i) r=%i for %s.",hersteller->gib_name(),k.x,k.y,rotate,info->gib_name());
 				n += baue_hierarchie(welt, pos, hersteller, rotate, &k, sp);
 				lcount --;
+
+				INT_CHECK( "fabrikbauer 702" );
 
 				// now substract current supplier
 				const ding_t * dt = welt->lookup(k.gib_2d())->gib_kartenboden()->obj_bei(0);
@@ -705,10 +721,17 @@ DBG_MESSAGE("fabrikbauer_t::baue_hierarchie","new supplier %s can supply approx 
 		}
 	}
 DBG_MESSAGE("fabrikbauer_t::baue_hierarchie()","update karte");
+
+	INT_CHECK( "fabrikbauer 723" );
+
 	// finally
 	if(parent==NULL) {
 		// update an open map
 		reliefkarte_t::gib_karte()->set_mode(-1);
+
+		INT_CHECK( "fabrikbauer 730" );
 	}
+
+
 	return n;
 }

@@ -190,7 +190,6 @@ public:
     enum typ {undefined=-1, ding=0, baum=1, zeiger=2,
 	      wolke=3, sync_wolke=4, async_wolke=5,
 
-
               gebaeude_alt=6,	// früher gebaeude
               gebaeude=7,	// früher hausanim
               signal=8,
@@ -386,6 +385,7 @@ public:
      * @author Hj. Malthaner
      */
     virtual void zeige_info();
+//    void zeige_info(ding_t *dt);
 
     /**
      * @returns NULL wenn OK, ansonsten eine Fehlermeldung

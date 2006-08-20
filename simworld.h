@@ -32,13 +32,10 @@
 #include "simsound.h"
 #endif
 
-#ifndef tpl_slist_tpl_h
+#include "tpl/weighted_vector_tpl.h"
+#include "tpl/vector_tpl.h"
 #include "tpl/slist_tpl.h"
-#endif
-
-#ifndef tpl_array_tpl_h
 #include "tpl/array_tpl.h"
-#endif
 
 #ifndef __MARKER_H
 #include "dataobj/marker.h"
@@ -180,14 +177,11 @@ private:
 
     slist_tpl<fabrik_t *> fab_list;
 
-    slist_tpl<gebaeude_t *> ausflugsziele;
-    int ausflugsziel_max_pax;
-    array_tpl<int> *ausflugsziele_accumulated_level;
-    int all_ausflugsziele_top_pax;
+    weighted_vector_tpl<gebaeude_t *> ausflugsziele;
 
     slist_tpl<koord> labels;
 
-    vector_tpl<stadt_t *> *stadt;
+    weighted_vector_tpl<stadt_t *> *stadt;
 
 
     /**
@@ -440,21 +434,6 @@ public:
      * @author Hj. Malthaner
      */
     inline int gib_simloops() const { return last_simloops; };
-
-
-    /**
-     * Zugriff auf das Städte Array.
-     * @author Hj. Malthaner
-     */
-    inline const vector_tpl<stadt_t *> * gib_staedte() const { return stadt; };
-
-
-    /**
-     * Zugriff auf das Städte Array.
-     * @author Hj. Malthaner
-     */
-    void add_stadt(stadt_t *s);
-    bool rem_stadt(stadt_t *s);
 
 
     /**
@@ -754,13 +733,20 @@ public:
     bool rem_convoi(convoihandle_t &cnv) { return convoi_list.remove( cnv ); };
     const slist_tpl<convoihandle_t> &gib_convoi_list() const {return convoi_list;};
 
+    /**
+     * Zugriff auf das Städte Array.
+     * @author Hj. Malthaner
+     */
+    const weighted_vector_tpl<stadt_t *> * gib_staedte() const { return stadt; };
+    const stadt_t *get_random_stadt() const;
+    void add_stadt(stadt_t *s);
+    bool rem_stadt(stadt_t *s);
 
+	/* tourist attraction list */
     void add_ausflugsziel(gebaeude_t *gb);
     void remove_ausflugsziel(gebaeude_t *gb);
-    const slist_tpl<gebaeude_t *> & gib_ausflugsziele() const { return ausflugsziele; };
     const gebaeude_t *gib_random_ausflugsziel() const;
-    int gib_ausflugsziele_max_pax() const { return ausflugsziel_max_pax; };
-
+    const weighted_vector_tpl<gebaeude_t*> &gib_ausflugsziele() const {return ausflugsziele; }
 
     void add_label(koord pos) { if(!labels.contains(pos)) { labels.append(pos); } };
     void remove_label(koord pos) {labels.remove(pos);};

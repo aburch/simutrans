@@ -911,14 +911,14 @@ bool karte_t::is_plan_height_changeable(int x, int y) const
     if(plan != NULL) {
 	grund_t *gr = plan->gib_kartenboden();
 
-	ok = gr->ist_natur() || gr->ist_wasser();
+	ok = (gr->ist_natur() || gr->ist_wasser())  &&  !gr->hat_wege();
 
 	for(int i=0; ok && i<gr->gib_top(); i++) {
 	    const ding_t *dt = gr->obj_bei(i);
 	    if(dt != NULL) {
 		ok =
 		    dt->gib_typ() != ding_t::gebaeude &&    // Bohrinsel!
-		    dt->gib_typ() != ding_t::gebaeude_alt &&    // Bohrinsel!
+//		    dt->gib_typ() != ding_t::gebaeude_alt &&
 		    dt->gib_typ() != ding_t::zeiger &&
 		    dt->gib_typ() != ding_t::automobil &&
 		    dt->gib_typ() != ding_t::waggon &&

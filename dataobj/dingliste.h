@@ -47,7 +47,7 @@ public:
     inline ding_t * bei(uint8 n) const
 	{
 		if(capacity<=1) {
-			return (n==top-1) ? obj.one : NULL;
+			return (capacity!=0  &&  n==top-1) ? obj.one : NULL;
 		}
 		else {
 			return (n < top) ? obj.some[n] : NULL;

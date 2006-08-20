@@ -233,7 +233,16 @@ ding_t::zeige_info()
     }
     create_win(-1, -1, ding_infos->get(this), w_autodelete);
 }
-
+/*
+void
+ding_t::zeige_info(ding_t *dt)
+{
+    if(!ding_infos->get(dt)) {
+	ding_infos->put(dt, new_info());
+    }
+    create_win(-1, -1, ding_infos->get(dt), w_autodelete);
+}
+*/
 const char *
 ding_t::ist_entfernbar(const spieler_t *sp)
 {

@@ -553,25 +553,23 @@ karte_t::destroy()
     // marker aufräumen
     marker.init(0,0);
 
+	// städte aufräumen
+	if(stadt) {
+		// Hajo: unreference the city list before deleting the cities.
+		// there is code that can call stadt::step() while we are in
+		// this loop, deleting the cities
 
-    // städte aufräumen
-    if(stadt) {
-        // Hajo: unreference the city list before deleting the cities.
-        // there is code that can call stadt::step() while we are in
-        // this loop, deleting the cities
+		weighted_vector_tpl <stadt_t *> * tmp = stadt;
+		stadt = 0;
 
-        vector_tpl <stadt_t *> * tmp = stadt;
-	stadt = 0;
+		for(i=0; i<tmp->get_count(); i++) {
+		delete tmp->at(i);
+		}
+		tmp->clear();
 
-	for(i=0; i<tmp->get_count(); i++) {
-            delete tmp->at(i);
+		delete tmp;
+		tmp = 0;
 	}
-	tmp->clear();
-
-	delete tmp;
-	tmp = 0;
-    }
-
 
     // spieler aufräumen
     for(i=0; i<(unsigned int)anz_spieler ; i++) {
@@ -600,8 +598,6 @@ karte_t::destroy()
 
     // hier nur entfernen, aber nicht löschen
     ausflugsziele.clear();
-    ausflugsziel_max_pax = 0;
-    all_ausflugsziele_top_pax = 0;
 
     // rail blocks aufraeumen
     blockmanager::gib_manager()->delete_all_blocks();
@@ -618,17 +614,21 @@ karte_t::destroy()
 }
 
 
+
 /**
  * Zugriff auf das Städte Array.
  * @author Hj. Malthaner
  */
+const stadt_t *karte_t::get_random_stadt() const
+{
+	return stadt->at_weight( simrand(stadt->get_sum_weight()) );
+}
+
 void karte_t::add_stadt(stadt_t *s)
 {
 	einstellungen->setze_anzahl_staedte(einstellungen->gib_anzahl_staedte()+1);
-	stadt->append(s,64);
+	stadt->append(s,s->gib_einwohner(),64);
 }
-
-
 
 /**
  * Removes town from map, houses will be left overs
@@ -642,6 +642,7 @@ bool karte_t::rem_stadt(stadt_t *s)
 	}
 	// ok, we can delete this
 	stadt->remove( s );
+	delete s;
 	// reduce number of towns
 	einstellungen->setze_anzahl_staedte(einstellungen->gib_anzahl_staedte()-1);
 	// remove all links from factories
@@ -659,9 +660,6 @@ karte_t::init_felder()
     plan   = new planquadrat_t[gib_groesse_x()*gib_groesse_y()];
     slopes = new uint8[gib_groesse_x()*gib_groesse_y()];
     grid_hgts = new sint8[(gib_groesse_x()+1)*(gib_groesse_y()+1)];
-    ausflugsziele_accumulated_level = new array_tpl<int> (64);
-    ausflugsziel_max_pax = 0;
-    all_ausflugsziele_top_pax = 0;
 
     memset(slopes, 0 , sizeof(uint8)*gib_groesse_x()*gib_groesse_y());
     memset(grid_hgts, 0, sizeof(sint8)*(gib_groesse_x()+1)*(gib_groesse_y()+1));
@@ -820,10 +818,10 @@ DBG_DEBUG("karte_t::init()","hausbauer_t::neue_karte()");
     hausbauer_t::neue_karte();
 
 DBG_DEBUG("karte_t::init()","prepare cities");
-	stadt = new vector_tpl <stadt_t *> (einstellungen->gib_anzahl_staedte());
+	stadt = new weighted_vector_tpl <stadt_t *> (einstellungen->gib_anzahl_staedte());
 	vector_tpl<koord> *pos = stadt_t::random_place(this, einstellungen->gib_anzahl_staedte());
 
-	if(pos!=NULL) {
+	if(pos!=NULL  &&  pos->get_count()>0) {
 		// prissi if we could not generate enough positions ...
 		einstellungen->setze_anzahl_staedte( pos->get_count() );	// new number of towns ...
 
@@ -833,7 +831,8 @@ DBG_DEBUG("karte_t::init()","prepare cities");
 		for(i=0; i<einstellungen->gib_anzahl_staedte(); i++) {
 			int citizens=(int)(einstellungen->gib_mittlere_einwohnerzahl()*0.9);
 	DBG_DEBUG("karte_t::init()","Erzeuge stadt %i",i);
-			stadt->append( new stadt_t(this, spieler[1], pos->at(i),citizens/10+simrand(2*citizens+1)) );
+			stadt_t *s = new stadt_t(this, spieler[1], pos->at(i), citizens/10+simrand(2*citizens+1) );
+			stadt->append( s, s->gib_einwohner(), 64 );
 
 			if(is_display_init()) {
 				display_progress(gib_groesse_y()/2+i*2, gib_groesse_y()+einstellungen->gib_anzahl_staedte()*12);
@@ -949,50 +948,51 @@ DBG_DEBUG("karte_t::init()","prepare cities");
     }
 }
 
-karte_t::karte_t() : marker(0,0)
+karte_t::karte_t() : ausflugsziele(16), marker(0,0)
 {
-    setze_dirty();
-//    set_rotation(0);
-    set_scroll_lock(false);
+	setze_dirty();
+	//    set_rotation(0);
+	set_scroll_lock(false);
 
-    einstellungen_t * sets = new einstellungen_t();
+	einstellungen_t * sets = new einstellungen_t();
 
-    if(umgebung_t::testlauf) {
-	sets->setze_groesse(256,384);
-	sets->setze_anzahl_staedte(16);
-	sets->setze_land_industry_chains(8);
-	sets->setze_city_industry_chains(4);
-	sets->setze_tourist_attractions(8);
-	sets->setze_verkehr_level(7);
-	sets->setze_karte_nummer( 33 );
-	sets->setze_station_coverage( umgebung_t::station_coverage_size );
+	if(umgebung_t::testlauf) {
+		sets->setze_groesse(256,384);
+		sets->setze_anzahl_staedte(16);
+		sets->setze_land_industry_chains(8);
+		sets->setze_city_industry_chains(4);
+		sets->setze_tourist_attractions(8);
+		sets->setze_verkehr_level(7);
+		sets->setze_karte_nummer( 33 );
+		sets->setze_station_coverage( umgebung_t::station_coverage_size );
 
-    } else {
-	sets->setze_groesse(64,64);
-	sets->setze_anzahl_staedte(1);
-	sets->setze_land_industry_chains(1);
-	sets->setze_city_industry_chains(0);
-	sets->setze_tourist_attractions(1);
-	sets->setze_verkehr_level(7);
-	sets->setze_karte_nummer( 33 );
-	sets->setze_station_coverage( umgebung_t::station_coverage_size );
-    }
+	}
+	else {
+		sets->setze_groesse(64,64);
+		sets->setze_anzahl_staedte(1);
+		sets->setze_land_industry_chains(1);
+		sets->setze_city_industry_chains(0);
+		sets->setze_tourist_attractions(1);
+		sets->setze_verkehr_level(7);
+		sets->setze_karte_nummer( 33 );
+		sets->setze_station_coverage( umgebung_t::station_coverage_size );
+	}
 
-    stadt = 0;
-    zeiger = 0;
-    plan = 0;
-    slopes = 0;
-    grid_hgts = 0;
-    einstellungen = 0;
+	stadt = 0;
+	zeiger = 0;
+	plan = 0;
+	slopes = 0;
+	grid_hgts = 0;
+	einstellungen = 0;
 
-    for(int i=0; i<anz_spieler ; i++) {
-	spieler[i] = 0;
-    }
+	for(int i=0; i<anz_spieler ; i++) {
+		spieler[i] = 0;
+	}
 
-    init(sets);
+	init(sets);
 
-    // @author hsiegeln
-    simlinemgmt = new simlinemgmt_t(this);
+	// @author hsiegeln
+	simlinemgmt = new simlinemgmt_t(this);
 }
 
 karte_t::~karte_t()
@@ -1056,19 +1056,26 @@ bool karte_t::is_plan_height_changeable(int x, int y) const
     if(plan != NULL) {
 	grund_t *gr = plan->gib_kartenboden();
 
-	ok = gr->ist_natur() || gr->ist_wasser();
+	ok = (gr->ist_natur() || gr->ist_wasser())  &&  !gr->hat_wege();
 
 	for(int i=0; ok && i<gr->gib_top(); i++) {
 	    const ding_t *dt = gr->obj_bei(i);
 	    if(dt != NULL) {
 		ok =
+		    dt->gib_typ() == ding_t::baum  ||
+		    dt->gib_typ() == ding_t::zeiger  ||
+		    dt->gib_typ() == ding_t::wolke  ||
+		    dt->gib_typ() == ding_t::sync_wolke  ||
+		    dt->gib_typ() == ding_t::async_wolke;
+/*
 		    dt->gib_typ() != ding_t::gebaeude &&    // Bohrinsel!
-		    dt->gib_typ() != ding_t::gebaeude_alt &&    // Bohrinsel!
 		    dt->gib_typ() != ding_t::zeiger &&
 		    dt->gib_typ() != ding_t::automobil &&
 		    dt->gib_typ() != ding_t::waggon &&
 		    dt->gib_typ() != ding_t::schiff &&
-		    dt->gib_typ() != ding_t::bruecke;
+		    dt->gib_typ() != ding_t::bruecke  &&;
+		    dt->gib_typ() != ding_t::schiffdepot;	// since there is no way beneath .
+*/
 	    }
 	}
     }
@@ -1507,41 +1514,14 @@ void
 karte_t::add_ausflugsziel(gebaeude_t *gb)
 {
 	assert(gb != NULL);
-	ausflugsziele.append( gb );
-	if(gb->gib_passagier_level()>ausflugsziel_max_pax) {
-		ausflugsziel_max_pax = gb->gib_passagier_level();
-	}
-
-	// add it to pax destination search array
-	if(ausflugsziele_accumulated_level->get_size()<=ausflugsziele.count()) {
-		array_tpl<int> *new_ausflugsziele_accumulated_level = new array_tpl<int> ( ausflugsziele_accumulated_level->get_size()+64 );
-		for( unsigned i=0;  i<ausflugsziele_accumulated_level->get_size();  i++ ) {
-			new_ausflugsziele_accumulated_level->at(i) = ausflugsziele_accumulated_level->at(i);
-		}
-		delete ausflugsziele_accumulated_level;
-		ausflugsziele_accumulated_level = new_ausflugsziele_accumulated_level;
-	}
-
-	// this is an array for weigthing pax destinations
-	ausflugsziele_accumulated_level->at(ausflugsziele.count()-1) = all_ausflugsziele_top_pax;
-	all_ausflugsziele_top_pax += gb->gib_tile()->gib_besch()->gib_level();
-//DBG_DEBUG("karte_t::add_ausflugsziel()","ausflugziel %s added at pos %i (top level %i)", gb->gib_tile()->gib_besch()->gib_name(), ausflugsziele.count()-1,  all_ausflugsziele_top_pax );
+	ausflugsziele.append( gb, gb->gib_passagier_level(), 16 );
+DBG_MESSAGE("karte_t::add_ausflugsziel()","appended ausflugsziel at %i",ausflugsziele.get_count() );
 }
 
 void
 karte_t::remove_ausflugsziel(gebaeude_t *gb)
 {
 	assert(gb != NULL);
-
-	const int pax_level = gb->gib_tile()->gib_besch()->gib_level();
-	all_ausflugsziele_top_pax -= pax_level;
-	// first remove from passenger generation array ...
-	unsigned index = (unsigned)ausflugsziele.index_of( gb );
-//DBG_DEBUG("karte_t::remove_ausflugsziel()","ausflugziel %s removed at pos %i (top level %i)", gb->gib_tile()->gib_besch()->gib_name(), index,  all_ausflugsziele_top_pax );
-	while(index+1<ausflugsziele.count()) {
-		ausflugsziele_accumulated_level->at(index) = ausflugsziele_accumulated_level->at(index+1)-pax_level;
-		index ++;
-	}
 	ausflugsziele.remove( gb );
 }
 
@@ -1564,7 +1544,6 @@ static int binary_search_of_array_of_int(array_tpl<int> *arr, const int top, con
 	}
 	return upper;
 }
-
 #endif
 
 
@@ -1572,15 +1551,9 @@ static int binary_search_of_array_of_int(array_tpl<int> *arr, const int top, con
 const gebaeude_t *
 karte_t::gib_random_ausflugsziel() const
 {
-	if(all_ausflugsziele_top_pax>0  &&  ausflugsziele.count()>0) {
-		const int target = simrand(all_ausflugsziele_top_pax);
-		// faster would be a bsearch ...
-		unsigned i;
-		for( i=1;  i<ausflugsziele.count()  &&  ausflugsziele_accumulated_level->at(i)<target;  i++  ) {
-			;
-		}
-//DBG_DEBUG("karte_t::gib_random_ausflugsziel()","found attraction %s at %i.", ausflugsziele.at(i-1)->gib_tile()->gib_besch()->gib_name(), i-1 );
-		return ausflugsziele.at(i-1);
+	const unsigned long sum_pax=ausflugsziele.get_sum_weight();
+	if(ausflugsziele.get_count()>0  &&  sum_pax>0) {
+		return ausflugsziele.at_weight( simrand(sum_pax) );
 	}
 	// so there are no destinations ... should never occur ...
 	dbg->fatal("karte_t::gib_random_ausflugsziel()","nothing found.");
@@ -1857,10 +1830,18 @@ karte_t::neuer_monat()
 
 	INT_CHECK("simworld 1278");
 
+	// roll city history and copy the new citicens (i.e. the new weight) into the stadt array
+	// no INT_CHECK() here, or dialoges will go crazy!!!
+	weighted_vector_tpl<stadt_t *>  *new_weighted_stadt = new weighted_vector_tpl <stadt_t *> ( stadt->get_count()+1 );
 	for(unsigned i=0; i<stadt->get_count(); i++) {
-		stadt->at(i)->neuer_monat();
-		INT_CHECK("simworld 1282");
+		stadt_t *s = stadt->at(i);
+		s->neuer_monat();
+		new_weighted_stadt->append( s, s->gib_einwohner(), 64 );
 	}
+	delete stadt;
+	stadt = new_weighted_stadt;
+
+	INT_CHECK("simworld 1282");
 
 	// spieler
 	for(int i=0; i<anz_spieler; i++) {
@@ -2184,6 +2165,7 @@ karte_t::finde_plaetze(int w, int h) const
 	koord start;
 	int last_y;
 
+DBG_DEBUG("karte_t::finde_plaetze()","for size (%i,%i) in map (%i,%i)",w,h,gib_groesse_x(),gib_groesse_y() );
 	for(start.x=0; start.x<gib_groesse_x()-w; start.x++) {
 		for(start.y=0; start.y<gib_groesse_y()-h; start.y++) {
 			if(ist_platz_frei(start, w, h, &last_y)) {
@@ -2492,9 +2474,10 @@ DBG_DEBUG("karte_t::laden()","grundwasser %i",grundwasser);
 	DBG_MESSAGE("karte_t::laden()","savegame loading at tick count %i",ticks);
 
     DBG_DEBUG("karte_t::laden", "init %i cities",einstellungen->gib_anzahl_staedte());
-    stadt = new vector_tpl <stadt_t *> (einstellungen->gib_anzahl_staedte());
+    stadt = new weighted_vector_tpl <stadt_t *> (einstellungen->gib_anzahl_staedte());
     for(int i=0; i<einstellungen->gib_anzahl_staedte(); i++) {
-	stadt->append( new stadt_t(this, file) );
+    	stadt_t *s=new stadt_t(this, file);
+	stadt->append( s, s->gib_einwohner(), 64 );
     }
 
 	DBG_MESSAGE("karte_t::laden()","loading blocks");
@@ -2723,6 +2706,16 @@ DBG_DEBUG("karte_t::laden()","grundwasser %i",grundwasser);
 		boden_t::toggle_season( current_season );
 	}
     setze_dirty();
+
+	DBG_MESSAGE("karte_t::laden()","rebuild_destinations()");
+
+	// rebuild destination lists
+	const slist_tpl<halthandle_t> & list = haltestelle_t::gib_alle_haltestellen();
+	slist_iterator_tpl <halthandle_t> iter (list);
+
+	while( iter.next() ) {
+		iter.get_current()->rebuild_destinations();
+	}
 
     intr_enable();
 }

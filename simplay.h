@@ -436,7 +436,6 @@ public:
      */
     int get_haltcount() const {return haltcount;};
 
-
     /**
      * Lädt oder speichert Zustand des Spielers
      * @param file die offene Save-Datei

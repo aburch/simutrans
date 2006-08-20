@@ -900,7 +900,8 @@ depot_frame_t::action_triggered(gui_komponente_t *komp)
    if(komp != NULL) {	// message from outside!
        if(komp == &bt_start) {
 	   if(depot->start_convoi(icnv)) {
-		icnv--;
+	   	icnv--;
+	   	update_data();
 	    }
 	} else if(komp == &bt_schedule) {
 	    fahrplaneingabe();
@@ -908,10 +909,12 @@ depot_frame_t::action_triggered(gui_komponente_t *komp)
 	} else if(komp == &bt_destroy) {
 	    if(depot->disassemble_convoi(icnv, false)) {
 		icnv--;
+	   	update_data();
 	    }
 	} else if(komp == &bt_sell) {
 	    if(depot->disassemble_convoi(icnv, true)) {
 		icnv--;
+	   	update_data();
 	    }
 	} else if(komp == &bt_next) {
 	    if(++icnv == (int)depot->convoi_count()) {
@@ -937,6 +940,7 @@ depot_frame_t::action_triggered(gui_komponente_t *komp)
 	} else if(komp == &bt_copy_convoi) {
 	    depot->copy_convoi(icnv);
 	    // automatically select newly created convoi
+	   	update_data();
 	    icnv = depot->convoi_count()-1;
 	    layout(NULL);
 	    return true;
@@ -955,12 +959,12 @@ depot_frame_t::action_triggered(gui_komponente_t *komp)
 		box.set_selection(iroute);
 	} else if(komp == &box) {
 		iroute = box.get_selection();
+	    update_data();
+//    		layout(NULL);
 	} else {
 	    return false;
 	}
     }
-    update_data();
-    layout(NULL);
     return true;
 }
 

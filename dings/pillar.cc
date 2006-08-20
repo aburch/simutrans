@@ -62,7 +62,7 @@ pillar_t::~pillar_t()
  * Beobachtungsfenster angezeigt wird.
  * @author Hj. Malthaner
  */
-ding_info_t *pillar_t::new_info()
+void pillar_t::zeige_info()
 {
 	planquadrat_t *plan=welt->access(gib_pos().gib_2d());
 	for(unsigned i=0;  i<plan->gib_boden_count();  i++  ) {
@@ -70,13 +70,12 @@ ding_info_t *pillar_t::new_info()
 		if(bd->ist_bruecke()) {
 			bruecke_t *br=dynamic_cast<bruecke_t *>(bd->suche_obj(ding_t::bruecke));
 			if(br  &&  br->gib_besch()==besch) {
-//				create_win(-1, -1, new ding_infos->get(this), w_autodelete);
-//				br->zeige_info();
-    				return new ding_infowin_t(welt, br);
+//    				create_win(-1, -1, ding_infos->get(br), w_autodelete);
+   				br->zeige_info();
+//    				return new ding_infowin_t(welt, br);
 			}
 		}
 	}
-	return NULL;
 }
 
 

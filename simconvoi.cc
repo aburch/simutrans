@@ -758,8 +758,10 @@ void convoi_t::weiterfahren()
 bool
 convoi_t::add_vehikel(vehikel_t *v, bool infront)
 {
+DBG_MESSAGE("convoi_t::add_vehikel()","at pos %i of %i totals.",anz_vehikel,max_vehicle);
 	// extend array if requested (only needed for trains)
 	if(anz_vehikel == max_vehicle) {
+DBG_MESSAGE("convoi_t::add_vehikel()","extend array_tpl to %i totals.",max_rail_vehicle);
 		array_tpl <vehikel_t *> *f = new array_tpl<vehikel_t *> (max_rail_vehicle);
 		for(unsigned i=0; i<max_vehicle; i++) {
 			f->at(i) = fahr->at(i);
@@ -798,6 +800,7 @@ convoi_t::add_vehikel(vehikel_t *v, bool infront)
 	// der convoi hat jetzt ein neues ende
 	setze_erstes_letztes();
 
+DBG_MESSAGE("convoi_t::add_vehikel()","now %i of %i total vehikels.",anz_vehikel,max_vehicle);
 	return true;
 }
 
@@ -962,8 +965,10 @@ DBG_DEBUG("convoi_t::setze_fahrplan()", "rebuilding destinations (old_fpl=%p)",o
 		fahr->at(i)->remove_stale_freight();
 	}
 
+	// this generates an out of bound ...
+//	fahr->at(anz_vehikel) = NULL;
+
 	// ok, now we have a schedule
-	fahr->at(anz_vehikel) = NULL;
 	if(state!=INITIAL) {
 		state = FAHRPLANEINGABE;
 	}

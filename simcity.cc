@@ -73,6 +73,8 @@ class spieler_t;
 static int num_road_rules = 0;
 
 
+karte_t *stadt_t::welt = NULL;	// one is enough ...
+
 /**
  * Number of house building rules
  * @author Hj. Malthaner
@@ -299,44 +301,56 @@ stadt_t::init_pax_ziele()
 	}
 }
 
-stadt_t::stadt_t(karte_t *wl, spieler_t *sp, koord pos,int citizens) :
-    welt(wl),
-    pax_ziele_alt(96, 96),
-    pax_ziele_neu(96, 96)
 
+
+// fress some memory
+stadt_t::~stadt_t()
 {
-    assert(wl->ist_in_kartengrenzen(pos));
+	// close window if needed
+	if(stadt_info) {
+		destroy_win( stadt_info );
+	}
+}
 
-    step_count = 0;
-    next_step = 0;
 
-    pax_erzeugt = 0;
-    pax_transport = 0;
 
-    besitzer_p = sp;
+stadt_t::stadt_t(karte_t *wl, spieler_t *sp, koord pos,int citizens) :
+    pax_ziele_alt(96, 96),
+    pax_ziele_neu(96, 96),
+    arbeiterziele(4)
+{
+	welt = wl;
+	assert(wl->ist_in_kartengrenzen(pos));
 
-    this->pos = pos;
+	step_count = 0;
+	next_step = 0;
 
-    bev = 0;
-    arb = 0;
-    won = 0;
+	pax_erzeugt = 0;
+	pax_transport = 0;
 
-    li = re = pos.x;
-    ob = un = pos.y;
+	besitzer_p = sp;
 
-    zentrum_namen_cnt = 0;
-    aussen_namen_cnt = 0;
+	this->pos = pos;
+
+	bev = 0;
+	arb = 0;
+	won = 0;
+
+	li = re = pos.x;
+	ob = un = pos.y;
+
+	zentrum_namen_cnt = 0;
+	aussen_namen_cnt = 0;
 
 DBG_MESSAGE("stadt_t::stadt_t()","Welt %p",welt);fflush(NULL);
-    /* get a unique cityname */
-    /* 9.1.2005, prissi */
-    const vector_tpl<stadt_t *> *staedte=welt->gib_staedte();
-    const int anz_staedte = staedte->get_count()-1;
-    const int name_list_count = translator::get_count_city_name();
-    bool not_unique=true;
+	/* get a unique cityname */
+	/* 9.1.2005, prissi */
+	const weighted_vector_tpl<stadt_t *> *staedte=welt->gib_staedte();
+	const int anz_staedte = staedte->get_count()-1;
+	const int name_list_count = translator::get_count_city_name();
+	bool not_unique=true;
 
 DBG_MESSAGE("stadt_t::stadt_t()","number of towns %i",anz_staedte);fflush(NULL);
-
     // start at random position
     int start_cont = simrand(name_list_count);
    char list_name[64];
@@ -397,22 +411,22 @@ DBG_MESSAGE("stadt_t::stadt_t()","founding new city named '%s'",name);
 
 
 stadt_t::stadt_t(karte_t *wl, loadsave_t *file) :
-    welt(wl),
-    pax_ziele_alt(96, 96),
-    pax_ziele_neu(96, 96)
+	pax_ziele_alt(96, 96),
+	pax_ziele_neu(96, 96),
+	arbeiterziele(4)
 {
 	welt = wl;
-    step_count = 0;
-    next_step = 0;//welt->gib_zeit_ms()+step_interval+simrand(step_interval);
+	step_count = 0;
+	next_step = 0;//welt->gib_zeit_ms()+step_interval+simrand(step_interval);
 
-    pax_erzeugt = 0;
-    pax_transport = 0;
+	pax_erzeugt = 0;
+	pax_transport = 0;
 
-    wachstum = 0;
+	wachstum = 0;
 
-    rdwr(file);
+	rdwr(file);
 
-    verbinde_fabriken();
+	verbinde_fabriken();
 
 	stadt_info = NULL;
 }
@@ -538,48 +552,30 @@ stadt_t::gib_stadt_info(void)
 
 
 /* calculates the factories which belongs to certain cities */
+/* we connect all factories, which are closer than 50 tiles radius */
 void
 stadt_t::verbinde_fabriken()
 {
-	slist_tpl<fabrik_t *>fab_list;
 	slist_iterator_tpl<fabrik_t *> fab_iter (welt->gib_fab_list());
+	arbeiterziele.clear();
 
 	while(fab_iter.next()) {
 		fabrik_t *fab = fab_iter.get_current();
-		// do not check for fish_swarm
-		if(strcmp("fish_swarm",fab->gib_besch()->gib_name())!=0) {
-			fab_list.insert( fab );
+		const koord k = fab->gib_pos().gib_2d();
+		const int d = (k.x-pos.x) * (k.x-pos.x) + (k.y-pos.y) * (k.y-pos.y);
+
+		// do not add the fish_swarm
+		if(strcmp("fish_swarm",fab->gib_besch()->gib_name())==0) {
+			continue;
+		}
+
+		// worker do not travel more than 50 tiles
+		if(d < 2500) {
+			fab->add_arbeiterziel( this );
+			arbeiterziele.append( fab, fab->gib_besch()->gib_pax_level(), 4 );
 		}
 	}
-
-	max_pax_arbeiterziele = 0;
-	arbeiterziele.clear();
-	for(int i=0; i<32; i++) {
-		slist_iterator_tpl<fabrik_t *> iter (fab_list);
-
-		// die arbeiter pendeln nicht allzu weit
-		int mind = 5000;
-		fabrik_t *best = NULL;
-
-		while(iter.next()) {
-			fabrik_t *fab = iter.get_current();
-			const koord k = fab->gib_pos().gib_2d();
-			const int d = (k.x-pos.x) * (k.x-pos.x) + (k.y-pos.y) * (k.y-pos.y);
-
-			// alway connect if closer
-			if(d < mind) {
-				mind = d;
-				best = fab;
-			}
-		}
-		// add as new workes target
-		if(best != NULL) {
-			best->add_arbeiterziel( this );
-			arbeiterziele.insert( best );
-			max_pax_arbeiterziele += best->gib_besch()->gib_pax_level();
-			fab_list.remove( best );
-		}
-	}
+	DBG_MESSAGE("stadt_t::verbinde_fabriken()","is connected with %i factories.",arbeiterziele.get_count() );
 }
 
 
@@ -591,9 +587,8 @@ stadt_t::add_factory_arbeiterziel(fabrik_t *fab)
 	if(strcmp("fish_swarm",fab->gib_besch()->gib_name())!=0) {
 		fab->add_arbeiterziel( this );
 		// do not add a factory twice!
-		if(!arbeiterziele.contains(fab)){
-			arbeiterziele.insert( fab );
-			max_pax_arbeiterziele += fab->gib_besch()->gib_pax_level();
+		if(!arbeiterziele.is_contained(fab)){
+			arbeiterziele.append( fab, fab->gib_besch()->gib_pax_level(), 4 );
 		}
 	}
 }
@@ -788,8 +783,8 @@ stadt_t::step_bau()
 void
 stadt_t::step_passagiere()
 {
-// long t0 = get_current_time_millis();
-// printf("%s step_passagiere called (%d,%d - %d,%d)\n", name, li,ob,re,un);
+//	DBG_MESSAGE("stadt_t::step_passagiere()","%s step_passagiere called (%d,%d - %d,%d)\n", name, li,ob,re,un);
+//	long t0 = get_current_time_millis();
 
 	INT_CHECK("simcity 434");
 
@@ -985,8 +980,8 @@ not_overcrowded:
 		INT_CHECK("simcity 525");
 	}
 
-  // long t1 = get_current_time_millis();
-  // printf("Zeit für Passagierstep: %ld ms\n", (long)(t1-t0));
+//	long t1 = get_current_time_millis();
+//	DBG_MESSAGE("stadt_t::step_passagiere()","Zeit für Passagierstep: %ld ms\n", (long)(t1-t0));
 }
 
 
@@ -1020,59 +1015,32 @@ stadt_t::gib_zufallspunkt() const
 koord
 stadt_t::finde_passagier_ziel(bool *will_return)
 {
-	const int rand = simrand(128);
+	const int rand = simrand(100);
 
-	if(arbeiterziele.is_empty()  ||  max_pax_arbeiterziele==0  ||  rand < 110) {
-
-		koord ziel;
-
-		// Ziel in stadt oder ausflugsziel ?
-		// Jeder 4. macht einen Ausflug
-		if((rand & 3) == 0  &&  !welt->gib_ausflugsziele().is_empty() ) {
-			const gebaeude_t *gb = welt->gib_random_ausflugsziel();
-			*will_return = true;	// tourists will return
-			ziel = gb->gib_pos().gib_2d();
-// DBG_MESSAGE("stadt_t::finde_passagier_ziel()", "created a tourist to %d,%d", ziel.x, ziel.y);
-		}
-		else {
-			const vector_tpl<stadt_t *> *staedte = welt->gib_staedte();
-			const stadt_t *zielstadt = staedte->get(simrand(welt->gib_einstellungen()->gib_anzahl_staedte()));
-
-			// nahe staedte bevorzugen
-			if(ABS(zielstadt->pos.x - pos.x) + ABS(zielstadt->pos.y - pos.y) > 80) {
-				// wenn erste Wahl zu weit weg, dann noch mal versuchen
-				zielstadt = staedte->get(simrand(welt->gib_einstellungen()->gib_anzahl_staedte()));
-			}
-			ziel = zielstadt->gib_zufallspunkt();
-			*will_return = false;
-		}
-
-		return ziel;
-	}
-	else {
-#ifndef FAB_PAX
-		// generate worker
-		const int target_pax = simrand(max_pax_arbeiterziele);
-		int target = 0;
-
-//DBG_DEBUG("stadt_t::finde_passagier_ziel()","fatory random %i (max %i)", target_pax, max_pax_arbeiterziele );
-		slist_iterator_tpl<fabrik_t *> fab_iter (arbeiterziele);
-		while(fab_iter.next()) {
-			fabrik_t *fab = fab_iter.get_current();
-			target += fab->gib_besch()->gib_pax_level();
-//DBG_DEBUG("stadt_t::finde_passagier_ziel()","fatory current %i", target, fab->gib_besch()->gib_name() );
-			if(target>target_pax) {
-				*will_return = true;
-				return fab->gib_pos().gib_2d();
-			}
-		}
-#else
-		const int i = simrand(arbeiterziele.count());
-		const fabrik_t * fab = arbeiterziele.at(i);
-
+	// about 1/3 are workers
+	if(rand<FACTORY_PAX  &&  arbeiterziele.get_sum_weight()>0) {
+		const fabrik_t *fab = arbeiterziele.at_weight( arbeiterziele.get_sum_weight() );
 		*will_return = true;	// worker will return
 		return fab->gib_pos().gib_2d();
-#endif
+	}
+	else if(rand<TOURIST_PAX+FACTORY_PAX  &&  welt->gib_ausflugsziele().get_sum_weight()>0) {
+			*will_return = true;	// tourists will return
+			const gebaeude_t *gb = welt->gib_random_ausflugsziel();
+			return gb->gib_pos().gib_2d();
+	}
+	else{
+		// if we reach here, at least a single town existes ...
+		const stadt_t *zielstadt = welt->get_random_stadt();
+
+		// we like nearer towns more
+		if(ABS(zielstadt->pos.x - pos.x)+ABS(zielstadt->pos.y - pos.y)>120  ) {
+			// retry once ...
+			zielstadt = welt->get_random_stadt();
+		}
+
+		// long distance traveller? => then we return
+		*will_return = (this!=zielstadt);
+		return zielstadt->gib_zufallspunkt();
 	}
 	// we should never reach here!
 dbg->fatal("stadt_t::finde_passagier_ziel()","no passenger ziel found!");
@@ -1102,12 +1070,10 @@ class bauplatz_mit_strasse_sucher_t: public bauplatz_sucher_t  {
 
 	// get distance to next factory
 	int find_dist_next_special(koord pos) const {
-		const slist_tpl<gebaeude_t *> & list = welt->gib_ausflugsziele();
-		slist_iterator_tpl <gebaeude_t *> iter (list);
+		const weighted_vector_tpl<gebaeude_t *> & attractions = welt->gib_ausflugsziele();
 		int dist = welt->gib_groesse_x()*welt->gib_groesse_y();
-		while(iter.next()) {
-			gebaeude_t * gb = iter.get_current();
-			int d = koord_distance(gb->gib_pos(),pos);
+		for(  unsigned i=0;  i<attractions.get_count();  i++  ) {
+			int d = koord_distance(attractions.at(i)->gib_pos(),pos);
 			if(d<dist) {
 				dist = d;
 			}

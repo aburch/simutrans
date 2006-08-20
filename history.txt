@@ -6,6 +6,24 @@ Known bugs: (hard to fix)
 	valgrind complains about errors in SDL and X?
 
 
+Release of 86.10
+
+3-Oct-2005 (prissi)
+	FIX: removed some out of bounds arry_tpl's access.
+	FIX: error with deleting the last objects from a tile (errors in dingliste_t)
+	FIX: traffic light graphics were wrongly ordered
+	FIX: no longer burying ship depots under sea mountains
+	CHANGE: ausflugsziele now weighted array (weighted_vector_tpl) -> faster selection of passengers
+	CHANGE: cities now weighted array (weighted_vector_tpl) -> faster selection of passengers, more travellers to bigger cities
+	CHANGE: intercity travellers will now also go back (=> more traffic from larger cities)
+	CHANGE: goods will be now distributed to the stop which is a) not overflowing and b) has less in storage (so you can "steal" from another company)
+	CHANGE: travellers destination cities are now weighted by their size
+	FIX: minimap redrawing when changing grid ('#') fixed
+	FIX: numbers in depot correctly updated
+	FIX: no more crashes with pillars
+	FIX: also when building stop after a schedule is set, this schedule will be recognized
+
+
 Release of 86.09.3
 
 24-Sep-2005 (prissi)

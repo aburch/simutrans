@@ -148,21 +148,11 @@ fabrik_t::fabrik_t(karte_t *wl, loadsave_t *file) : lieferziele(0), suppliers(0)
     abgabe_sum = NULL;
     abgabe_letzt = NULL;
 
-    // fixme: real size isn't known here
-    vector_tpl<ware_t> * eingang_tmp = new vector_tpl<ware_t> (0);
-    vector_tpl<ware_t> * ausgang_tmp = new vector_tpl<ware_t> (0);
-
-    set_eingang( eingang_tmp );
-    set_ausgang( ausgang_tmp );
-
     besitzer_p = NULL;
 
     rdwr(file);
     aktionszeit = 0;
-#ifdef FAB_PAX
-    pax_zeit = 0;
-    pax_intervall = 262144/besch->gib_pax_level();
-#endif
+
     delta_sum = 0;
     last_lieferziel_start = 0;
 }
@@ -186,10 +176,7 @@ fabrik_t::fabrik_t(karte_t *wl, koord3d pos, spieler_t *spieler, const fabrik_be
     abgabe_letzt = NULL;
 
     aktionszeit = 0;
-#ifdef FAB_PAX
-    pax_zeit = 0;
-    pax_intervall = 262144/besch->gib_pax_level();
-#endif
+
     delta_sum = 0;
     last_lieferziel_start = 0;
 }
@@ -391,6 +378,16 @@ fabrik_t::rdwr(loadsave_t *file)
 DBG_DEBUG("fabrik_t::rdwr()","loading factory '%s'",s);
 		besch = fabrikbauer_t::gib_fabesch(s);
 		guarded_free(const_cast<char *>(s));
+		// set ware arrays ...
+		if(besch) {
+			set_eingang( new vector_tpl<ware_t> (besch->gib_lieferanten()) );
+			set_ausgang( new vector_tpl<ware_t> (besch->gib_produkte()) );
+		}
+		else {
+			// save defaults for loading only, factory will be ignored!
+			set_eingang( new vector_tpl<ware_t> (16) );
+			set_ausgang( new vector_tpl<ware_t> (10) );
+		}
 	}
 	pos.rdwr(file);
 
@@ -790,16 +787,6 @@ fabrik_t::step(long delta_t)
 		last_lieferziel_start ++;
 	}
 
-#ifdef FAB_PAX
-/* will be now handled by the simcity.cc as returning passengers! */
-	// finally passengers
-	pax_zeit += delta_t;
-	if(pax_zeit>pax_intervall) {
-		pax_zeit -= pax_intervall;
-		verteile_passagiere();
-		INT_CHECK("simfab 643");
-	}
-#endif
 }
 
 
@@ -869,7 +856,9 @@ void fabrik_t::verteile_waren(const uint32 produkt)
 		// prissi: distribute goods to factory, that has not an overflowing input storage
 		// if all have, then distribute evenly
 		const int menge = (ausgang->at(produkt).menge >> precision_bits);
-#if 1
+
+#if 0
+
 		if(menge > 1) {
 			ausgang->at(produkt).menge -= menge << precision_bits;
 			ware_ok.at(0).menge = menge;
@@ -902,35 +891,8 @@ void fabrik_t::verteile_waren(const uint32 produkt)
 				}
 			}
 
-// printf("liefere %d %s an %s\n", menge, ware->name(), halt->gib_name());
 			best_halt->liefere_an(best_ware);
 		}
-
-
-		/* Hajo: old code distributed equal amounts to all stations
-		const int count = halt_ok.count();
-		int menge = (ausgang->at(0).menge >> precision_bits) / count;
-
-		//	printf("Menge %d\n", menge);
-
-		if(menge > 1) {
-		ausgang->at(0).menge -= (menge * count) << precision_bits;
-
-		slist_iterator_tpl<halthandle_t> iter (halt_ok);
-		slist_iterator_tpl<ware_t> ware_iter (ware_ok);
-
-		while(iter.next() && ware_iter.next()) {
-		halthandle_t halt = iter.get_current();
-		ware_t ware = ware_iter.get_current();
-
-		ware.menge = menge;
-
-		//		printf("liefere %d %s an %s\n", menge, ware->name(), halt->gib_name());
-
-		halt->liefere_an(ware);
-		}
-		}
-	*/
 #endif
 	}
 }

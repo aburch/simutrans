@@ -43,7 +43,7 @@ void citylist_stats_t::infowin_event(const event_t * ev)
 	if(IS_LEFTRELEASE(ev)  &&  ev->cy>15) {
 
 		const unsigned int line = (ev->cy-15) / 14;
-		const vector_tpl<stadt_t *> * cities = welt->gib_staedte();
+		const weighted_vector_tpl<stadt_t *> * cities = welt->gib_staedte();
 		if(line < cities->get_count()) {
 
 			stadt_t * stadt = cities->get(line);
@@ -69,7 +69,7 @@ void citylist_stats_t::zeichnen(koord offset) const
   static cbuffer_t buf (1024);
   long total_bev=0;
 
-  const vector_tpl<stadt_t *> * cities = welt->gib_staedte();
+  const weighted_vector_tpl<stadt_t *> * cities = welt->gib_staedte();
 
   for(unsigned int i=0; i<cities->get_count(); i++) {
     const stadt_t * stadt = cities->get(i);

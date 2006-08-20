@@ -15,6 +15,7 @@
 
 #include "tpl/slist_tpl.h"
 #include "tpl/vector_tpl.h"
+#include "tpl/weighted_vector_tpl.h"
 #include "tpl/array_tpl.h"
 #include "tpl/array2d_tpl.h"
 
@@ -26,6 +27,11 @@ class cbuffer_t;
 class stadt_info_t;
 
 struct hausbesch;
+
+// part of passengers going to factories or toursit attractions (100% mx)
+#define FACTORY_PAX 33	// workers
+#define TOURIST_PAX 16		// tourists
+// other long-distance travellers
 
 
 #define MAX_CITY_HISTORY_YEARS  12 // number of years to keep history
@@ -93,7 +99,7 @@ public:
     static bool init();
 
 private:
-    karte_t *welt;
+    static karte_t *welt;
     spieler_t *besitzer_p;
     char name[64];
 
@@ -107,20 +113,17 @@ private:
     // step wird nicht gespeichert!!!
     int step_count;
 
-
     /**
      * Echtzeitpunkt für nächsten step.
      * @author Hj. Malthaner
      */
     unsigned long next_step;
 
-
     // attribute fuer die Bevoelkerung
 
     int bev;	// Bevoelkerung gesamt
     int arb;	// davon mit Arbeit
     int won;	// davon mit Wohnung
-
 
     /**
      * Counter: possible passengers in this month
@@ -129,14 +132,12 @@ private:
      */
     int pax_erzeugt;
 
-
     /**
      * Counter: transported passengers in this month
      * transient data, not saved
      * @author Hj. Malthaner
      */
     int pax_transport;
-
 
     /**
      * Modifier for city growth
@@ -176,6 +177,9 @@ public:
 	 */
 	stadt_info_t *gib_stadt_info();
 
+	// just needed by stadt_info.cc
+	static inline karte_t *gib_welt() { return welt; };
+
 	/* end of histroy related thingies */
 private:
     int best_haus_wert;
@@ -191,8 +195,7 @@ private:
      * Arbeitsplätze der Einwohner
      * @author Hj. Malthaner
      */
-    slist_tpl<fabrik_t *> arbeiterziele;
-    int max_pax_arbeiterziele;
+    weighted_vector_tpl<fabrik_t *> arbeiterziele;
 
     /**
      * allokiert pax_ziele_alt/neu und init. die werte
@@ -316,7 +319,7 @@ public:
     /* returns all factories connected to this city ...
      * @author: prissi
      */
-    const slist_tpl <fabrik_t *> & gib_arbeiterziele() const {return arbeiterziele;};
+    const weighted_vector_tpl<fabrik_t *> & gib_arbeiterziele() const {return arbeiterziele;};
 
     int gib_pax_erzeugt() const {return pax_erzeugt;};
     int gib_pax_transport() const {return pax_transport;};
@@ -335,13 +338,11 @@ public:
      */
     const char * gib_name() const {return name;};
 
-
     /**
      * Ermöglicht Zugriff auf Namesnarray
      * @author Hj. Malthaner
      */
     char * access_name() {return name;};
-
 
     /**
      * gibt einen zufällingen gleichverteilten Punkt innerhalb der
@@ -350,23 +351,17 @@ public:
      */
     koord gib_zufallspunkt() const;
 
-
     /**
      * gibt das pax-statistik-array für letzten monat zurück
      * @author Hj. Malthaner
      */
     const array2d_tpl<unsigned char> * gib_pax_ziele_alt() const {return &pax_ziele_alt;};
-//    const array2d_tpl<int> * gib_pax_ziele_alt() const {return &pax_ziele_alt;};
-
 
     /**
      * gibt das pax-statistik-array für den aktuellen monat zurück
      * @author Hj. Malthaner
      */
     const array2d_tpl<unsigned char> * gib_pax_ziele_neu() const {return &pax_ziele_neu;};
-//    const array2d_tpl<int> * gib_pax_ziele_neu() const {return &pax_ziele_neu;};
-
-	karte_t* gib_welt() const { return welt; };
 
     /**
      * Erzeugt eine neue Stadt auf Planquadrat (x,y) die dem Spieler sp
@@ -390,6 +385,8 @@ public:
      */
     stadt_t(karte_t *welt, loadsave_t *file);
 
+	// closes window and that stuff
+	~stadt_t();
 
     /**
      * Speichert die Daten der Stadt in der Datei file so, dass daraus

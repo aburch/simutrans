@@ -313,7 +313,16 @@ DBG_MESSAGE("wkz_remover_intern()","at (%d,%d)", pos.x, pos.y);
 	if(!plan) {
 		return false;
 	}
-	grund_t *gr = plan->gib_kartenboden();
+
+	grund_t *gr=0;
+	for(int i=plan->gib_boden_count()-1;  i>=0;  i--  ) {
+		gr = plan->gib_boden_bei(i);
+		// ok, something to remove from here ...
+		if(gr->obj_count()>0) {
+			break;
+		}
+	}
+	assert(gr);
 
 	// stadtauto zum löschen? (we allow always)
 	if(gr->suche_obj(ding_t::verkehr)) {
@@ -341,29 +350,24 @@ DBG_MESSAGE("wkz_remover_intern()","at (%d,%d)", pos.x, pos.y);
 		return false;
 	}
 
-	grund_t *gr_oben = plan->gib_obersten_boden(sp);
-	if(gr_oben == NULL) {
-		gr_oben = plan->gib_obersten_boden(NULL);
-	}
-
-	// dan: Signal auf Brücke prüfen
-	if(gr_oben->suche_obj(ding_t::signal) != NULL  ||  gr_oben->suche_obj(ding_t::presignal) != NULL) {
+	// dann: Signal auf Brücke prüfen
+	if(gr->suche_obj(ding_t::signal) != NULL  ||  gr->suche_obj(ding_t::presignal) != NULL) {
 DBG_MESSAGE("wkz_remover()",  "removing signal from bridge %d,%d",  pos.x, pos.y);
 		blockmanager *bm = blockmanager::gib_manager();
-		const bool ok = bm->entferne_signal(welt, gr_oben->gib_pos());
+		const bool ok = bm->entferne_signal(welt, gr->gib_pos());
 		if(!ok) {
 			create_win(-1, -1, MESG_WAIT, new nachrichtenfenster_t(welt, "Ambiguous signal combination.\nTry removing by clicking the\nother side of the signal.\n"), w_autodelete);
 		}
 		return ok;
 	}
-	if(gr_oben->suche_obj(ding_t::roadsign) != NULL) {
+	if(gr->suche_obj(ding_t::roadsign) != NULL) {
 DBG_MESSAGE("wkz_remover()",  "removing roadsign from bridge %d,%d",  pos.x, pos.y);
-		roadsign_t *rs = dynamic_cast<roadsign_t *>(gr_oben->suche_obj(ding_t::roadsign));
+		roadsign_t *rs = dynamic_cast<roadsign_t *>(gr->suche_obj(ding_t::roadsign));
 		delete rs;
 		return true;
 	}
     // Signal auf Boden prüfen
-	if(gr_oben->suche_obj(ding_t::signal) != NULL  ||  gr_oben->suche_obj(ding_t::presignal) != NULL) {
+	if(gr->suche_obj(ding_t::signal) != NULL  ||  gr->suche_obj(ding_t::presignal) != NULL) {
 DBG_MESSAGE("wkz_remover()",  "removing signal from %d,%d",  pos.x, pos.y);
 		blockmanager *bm = blockmanager::gib_manager();
 		const bool ok = bm->entferne_signal(welt, gr->gib_pos());
@@ -372,9 +376,9 @@ DBG_MESSAGE("wkz_remover()",  "removing signal from %d,%d",  pos.x, pos.y);
 		}
 		return ok;
 	}
-	if(gr_oben->suche_obj(ding_t::roadsign) != NULL) {
+	if(gr->suche_obj(ding_t::roadsign) != NULL) {
 DBG_MESSAGE("wkz_remover()",  "removing roadsign %d,%d",  pos.x, pos.y);
-		roadsign_t *rs = dynamic_cast<roadsign_t *>(gr_oben->suche_obj(ding_t::roadsign));
+		roadsign_t *rs = dynamic_cast<roadsign_t *>(gr->suche_obj(ding_t::roadsign));
 		delete rs;
 		return true;
 	}
@@ -420,92 +424,96 @@ DBG_MESSAGE("wkz_remover()", "removing %s %p from %d,%d",	dp->gib_name(), dp, po
 
 	// ok, now we removed every object, that should be removed one by one.
 	// the following objects will be removed together
-DBG_MESSAGE("wkz_remover()",  "removing everything from %d,%d,%d",
-	gr->gib_pos().x, gr->gib_pos().y, gr->gib_pos().z);
 	if( gr->gib_weg(weg_t::schiene) != NULL ) {
+		DBG_MESSAGE("wkz_remover()",  "removing block" );
 		if(!blockmanager::gib_manager()->entferne_schiene(welt, gr->gib_pos())) {
 			return false;
 		}
 	}
 
 #if 1
-		// since buildings can have more than one tile, we must handle them together
-		gebaeude_t *gb = static_cast<gebaeude_t *>(gr->suche_obj(ding_t::gebaeude));
-		if(gb) {
-			const haus_tile_besch_t *tile  = gb->gib_tile();
-			koord size = tile->gib_besch()->gib_groesse( tile->gib_layout() );
+	// since buildings can have more than one tile, we must handle them together
+	gebaeude_t *gb = static_cast<gebaeude_t *>(gr->suche_obj(ding_t::gebaeude));
+	if(gb) {
+		DBG_MESSAGE("wkz_remover()",  "removing building" );
+		const haus_tile_besch_t *tile  = gb->gib_tile();
+		koord size = tile->gib_besch()->gib_groesse( tile->gib_layout() );
 
-			// get startpos
-			koord k=tile->gib_offset();
-			if(k != koord(0,0)) {
-				return wkz_remover_intern(sp, welt, pos-k, msg);
-			}
-			else {
+		// get startpos
+		koord k=tile->gib_offset();
+		if(k != koord(0,0)) {
+			return wkz_remover_intern(sp, welt, pos-k, msg);
+		}
+		else {
+			// remove factory?
+			if(gb->fabrik()!=NULL) {
 
-				// remove factory?
-				if(gb->fabrik()!=NULL) {
-
-					// remove connections ...
-					fabrik_t *fab=gb->fabrik();
+				// remove connections ...
+				fabrik_t *fab=gb->fabrik();
 DBG_MESSAGE("wkz_remover()", "removing factory:  %p");
 
-					if(fab->gib_halt_list().count()!=0) {
-						// remove from all stops
-						msg = "Das Feld gehoert\neinem anderen Spieler\n";
-						return false;
-					}
+				if(fab->gib_halt_list().count()!=0) {
+					// remove from all stops
+					msg = "Das Feld gehoert\neinem anderen Spieler\n";
+					return false;
+				}
 
 
-					// delete it from map
+				// delete it from map
 DBG_MESSAGE("wkz_remover()", "removing factory from world");
-					gb->setze_fab(NULL);
-					welt->rem_fab(fab);
+				gb->setze_fab(NULL);
+				welt->rem_fab(fab);
 
 DBG_MESSAGE("wkz_remover()", "removing factory:  supplier info change for %i factories",welt->gib_fab_list().count() );
-					// remove all links from factories
-					slist_iterator_tpl<fabrik_t *> iter (welt->gib_fab_list());
-					while(iter.next()) {
-						fabrik_t * fab = iter.get_current();
-						fab->rem_lieferziel(pos);
-						fab->rem_supplier(pos);
+				// remove all links from factories
+				slist_iterator_tpl<fabrik_t *> iter (welt->gib_fab_list());
+				while(iter.next()) {
+					fabrik_t * fab = iter.get_current();
+					fab->rem_lieferziel(pos);
+					fab->rem_supplier(pos);
 DBG_MESSAGE("wkz_remover()", "reconnecting factories");
-					}
-			welt->rem_fab((fabrik_t*)6);
+				}
+		welt->rem_fab((fabrik_t*)6);
 
-					// remove from all cities
+				// remove from all cities
 DBG_MESSAGE("wkz_remover()", "removing factory:  reconnecting towns");
-					const vector_tpl<stadt_t *> *stadt = welt->gib_staedte();
-					for( unsigned i=0;  i<stadt->get_count();  i++ ) {
-						stadt->at(i)->verbinde_fabriken();
-					}
+				const weighted_vector_tpl<stadt_t *> *stadt = welt->gib_staedte();
+				for( unsigned i=0;  i<stadt->get_count();  i++ ) {
+					stadt->at(i)->verbinde_fabriken();
+				}
 welt->rem_fab((fabrik_t*)1);
 
-					// finally delete it
-					fab->~fabrik_t();
-				}
+				// finally delete it
+				fab->~fabrik_t();
+			}
 
-				// remove town? (when removing townhall)
-				if(gb->ist_rathaus()) {
-					stadt_t *stadt = welt->suche_naechste_stadt(pos);
-					if(!welt->rem_stadt( stadt )) {
-						msg = "Das Feld gehoert\neinem anderen Spieler\n";
-						return false;
-					}
+			// remove town? (when removing townhall)
+			if(gb->ist_rathaus()) {
+				stadt_t *stadt = welt->suche_naechste_stadt(pos);
+				if(!welt->rem_stadt( stadt )) {
+					msg = "Das Feld gehoert\neinem anderen Spieler\n";
+					return false;
 				}
+			}
 
-				for(k.y = 0; k.y < size.y; k.y ++) {
-					for(k.x = 0; k.x < size.x; k.x ++) {
-						if(k!=koord(0,0)) {
-							grund_t *gr = welt->lookup(k+pos)->gib_kartenboden();
-							gr->obj_loesche_alle(sp);
-							welt->access(k+pos)->kartenboden_setzen(new boden_t(welt, gr->gib_pos()), false);
-						}
+DBG_MESSAGE("wkz_remover()", "removing building: cleanup");
+			for(k.y = 0; k.y < size.y; k.y ++) {
+				for(k.x = 0; k.x < size.x; k.x ++) {
+					if(k!=koord(0,0)) {
+						grund_t *gr = welt->lookup(k+pos)->gib_kartenboden();
+						gr->obj_loesche_alle(sp);
+						welt->access(k+pos)->kartenboden_setzen(new boden_t(welt, gr->gib_pos()), false);
 					}
 				}
 			}
-			welt->rem_fab((fabrik_t*)1);
+
 		}
+		welt->rem_fab((fabrik_t*)1);
+	}
 #endif
+
+	// remove everything else ...
+DBG_MESSAGE("wkz_remover()",  "removing everything from %d,%d,%d",gr->gib_pos().x, gr->gib_pos().y, gr->gib_pos().z);
 	gr->obj_loesche_alle(sp);
 
 	/*
@@ -788,46 +796,38 @@ wkz_bahnhof_aux(spieler_t *sp,
     bool nordsued,
     const haus_besch_t * besch)
 {
-    grund_t *bd = welt->lookup(pos)->gib_kartenboden();
+	grund_t *bd = welt->lookup(pos)->gib_kartenboden();
 
-    if(bd->kann_alle_obj_entfernen(sp) == NULL && bd->gib_grund_hang() == 0) {
-      halthandle_t halt = suche_nahe_haltestelle(sp, welt, pos);
-      bool neu = !halt.is_bound();
+	if(bd->kann_alle_obj_entfernen(sp) == NULL && bd->gib_grund_hang() == 0) {
+		halthandle_t halt = suche_nahe_haltestelle(sp, welt, pos);
+		bool neu = !halt.is_bound();
 
-      if(neu) {
-    halt = sp->halt_add(pos);
-//	halt = haltestelle_t::create(welt, pos, sp);
-    DBG_MESSAGE("wkz_bahnhof_aux()", "founding new station");
-      } else {
-    DBG_MESSAGE("wkz_bahnhof_aux()", "new segment for station");
-      }
-      halt->set_pax_enabled( true );
-      halt->set_ware_enabled( true );
+		if(neu) {
+			DBG_MESSAGE("wkz_bahnhof_aux()", "founding new station");
+			halt = sp->halt_add(pos);
+		}
+		else {
+DBG_MESSAGE("wkz_bahnhof_aux()", "new segment for station");
+		}
+		halt->set_pax_enabled( true );
+		halt->set_ware_enabled( true );
 
-      hausbauer_t::neues_gebaeude(welt,
-          sp,
-          bd->gib_pos(),
-          nordsued ? 0 : 1,
-          besch,
-          &halt);
-      halt->recalc_station_type();
+		hausbauer_t::neues_gebaeude(welt, sp, bd->gib_pos(), nordsued ? 0 : 1, besch, &halt);
+		halt->recalc_station_type();
 
-      if(neu) {
-    stadt_t *stadt = welt->suche_naechste_stadt(pos);
-    const int count = sp->get_haltcount();
-    const char *name = stadt->haltestellenname(pos, "BF", count);
-
-    bd->setze_text( name );
-      }
-      sp->buche(neu ? CST_BAHNHOF : CST_BAHNHOF/2,
-          pos,
-          COST_CONSTRUCTION);
+		if(neu) {
+			stadt_t *stadt = welt->suche_naechste_stadt(pos);
+			const int count = sp->get_haltcount();
+			const char *name = stadt->haltestellenname(pos, "BF", count);
+			bd->setze_text( name );
+		}
+		sp->buche(neu ? CST_BAHNHOF : CST_BAHNHOF/2, pos, COST_CONSTRUCTION);
 DBG_MESSAGE("wkz_bahnhof_aux()","sucessful built station at (%d,%d)",pos.x, pos.y);
-    }
-    else {
+	}
+	else {
 DBG_MESSAGE("wkz_bahnhof_aux()","can't build a train station segment on %d,%d",pos.x, pos.y);
-    }
-    return true;
+	}
+	return true;
 }
 
 int
@@ -886,17 +886,14 @@ wkz_bushalt_aux(spieler_t *sp, karte_t *welt, koord pos, ribi_t::ribi ribi,const
 
 		if(neu) {
 			halt = sp->halt_add(pos);
-//			halt = haltestelle_t::create(welt, pos, sp);
 DBG_MESSAGE("wkz_bushalt_aux()", "founding new station");
 		}
 		else {
 DBG_MESSAGE("wkz_bushalt_aux()", "new segment for station");
 		}
+
 		halt->set_pax_enabled( true );
-
-		// bd->obj_loesche_alle(sp);
 		bd->setze_besitzer(sp);
-
 		hausbauer_t::neues_gebaeude( welt, sp, bd->gib_pos(), (ribi & ribi_t::nordsued)?0 :1, besch, &halt);
 		halt->recalc_station_type();
 
