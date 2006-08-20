@@ -13,7 +13,7 @@
 #include "../simdebug.h"
 #include "../tpl/vector_tpl.h"
 #include "../simdings.h"
-#include "button.h"
+#include "components/gui_button.h"
 #include "infowin.h"
 
 #ifdef _MSC_VER

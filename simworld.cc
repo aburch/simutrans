@@ -146,18 +146,6 @@ karte_t::setze_scroll_multi(int n)
 }
 
 
-/**
- * Creates an artificial slope at position k
- * @author Hj. Malthaner
- */
-void karte_t::set_slope(koord k, uint8 slope)
-{
-  if(ist_in_kartengrenzen(k)) {
-    slopes[k.x + k.y*gib_groesse_x()] = slope;
-  }
-}
-
-
 
 /**
  * Read a heightfield from file
@@ -317,7 +305,7 @@ void karte_t::cleanup_karte()
 	sint8 *grid_hgts_cpy = new sint8[(gib_groesse_x()+1)*(gib_groesse_y()+1)];
 	memcpy(grid_hgts_cpy,grid_hgts,(gib_groesse_x()+1)*(gib_groesse_y()+1));
 	// now connect the heights
-	int i,j;
+	sint16 i,j;
 	for(j=0; j<=gib_groesse_y(); j++) {
 		for(i=0; i<=gib_groesse_x(); i++) {
 			raise_clean(i,j, (grid_hgts_cpy[j*(gib_groesse_x()+1)+i]<<4)+16 );
@@ -327,20 +315,20 @@ void karte_t::cleanup_karte()
 
 	// now lower the corners to ground level
 	for(i=0; i<gib_groesse_x(); i++) {
-		lower_to(i, 0, grundwasser);
-		lower_to(i, gib_groesse_y(), grundwasser);
+		lower_to(i, 0, grundwasser,false);
+		lower_to(i, gib_groesse_y(), grundwasser,false);
 	}
 	for(i=0; i<=gib_groesse_y(); i++) {
-		lower_to(0, i, grundwasser);
-		lower_to(gib_groesse_x(), i, grundwasser);
+		lower_to(0, i, grundwasser,false);
+		lower_to(gib_groesse_x(), i, grundwasser,false);
 	}
 	for(i=0; i<=gib_groesse_x(); i++) {
-		raise_to(i, 0, grundwasser);
-		raise_to(i, gib_groesse_y(), grundwasser);
+		raise_to(i, 0, grundwasser,false);
+		raise_to(i, gib_groesse_y(), grundwasser,false);
 	}
 	for(i=0; i<=gib_groesse_y(); i++) {
-		raise_to(0, i, grundwasser);
-		raise_to(gib_groesse_x(), i, grundwasser);
+		raise_to(0, i, grundwasser,false);
+		raise_to(gib_groesse_x(), i, grundwasser,false);
 	}
 }
 
@@ -523,12 +511,6 @@ karte_t::destroy()
 	grid_hgts = 0;
     }
 
-    if(slopes) {
-      delete [] slopes;
-      slopes = 0;
-    }
-
-
     // marker aufräumen
     marker.init(0,0);
     DBG_MESSAGE("karte_t::destroy()", "marker destroyed");
@@ -613,15 +595,15 @@ void
 karte_t::init_felder()
 {
     plan   = new planquadrat_t[gib_groesse_x()*gib_groesse_y()];
-    slopes = new uint8[gib_groesse_x()*gib_groesse_y()];
     grid_hgts = new sint8[(gib_groesse_x()+1)*(gib_groesse_y()+1)];
 
-    memset(slopes, 0 , sizeof(uint8)*gib_groesse_x()*gib_groesse_y());
     memset(grid_hgts, 0, sizeof(sint8)*(gib_groesse_x()+1)*(gib_groesse_y()+1));
 
     marker.init(gib_groesse_x(),gib_groesse_y());
 
     blockmanager::gib_manager()->setze_welt_groesse( gib_groesse_x(), gib_groesse_y() );
+    simlinemgmt_t::init_line_ids();
+
     win_setze_welt( this );
     reliefkarte_t::gib_karte()->setze_welt(this);
 
@@ -694,19 +676,10 @@ DBG_DEBUG("karte_t::init()","setze_grid_hgt");
 		}
 	}
 
-DBG_DEBUG("karte_t::init()","calc_slope");
-	// Hajo: init slopes
-	koord k;
-	for(k.y=0; k.y<gib_groesse_y(); k.y++) {
-		for(k.x=0; k.x<gib_groesse_x(); k.x++) {
-			calc_slope(k);
-		}
-	}
-
 DBG_DEBUG("karte_t::init()","kartenboden_setzen");
-	for(k.y=0; k.y<gib_groesse_y(); k.y++) {
-		for(k.x=0; k.x<gib_groesse_x(); k.x++) {
-			access(k)->kartenboden_setzen( new boden_t(this, koord3d(k, 0) ), false);
+	for(sint16 y=0; y<gib_groesse_y(); y++) {
+		for(sint16 x=0; x<gib_groesse_x(); x++) {
+			access(x,y)->kartenboden_setzen( new boden_t(this, koord3d(x,y, 0), 0 ), false);
 		}
 	}
 
@@ -725,19 +698,13 @@ DBG_DEBUG("karte_t::init()","calc_hoehe_mit_heightfield");
 DBG_DEBUG("karte_t::init()","cleanup karte");
 	cleanup_karte();
 
-DBG_DEBUG("karte_t::init()","calc slopes");
-	// Hajo: init slopes
-	for(k.y=0; k.y<gib_groesse_y(); k.y++) {
-		for(k.x=0; k.x<gib_groesse_x(); k.x++) {
-			calc_slope(k);
-		}
-	}
-
 DBG_DEBUG("karte_t::init()","set ground");
-	print("Creating landscape ground ...\n");
+	// Hajo: init slopes
+	koord k;
 	for(k.y=0; k.y<gib_groesse_y(); k.y++) {
 		for(k.x=0; k.x<gib_groesse_x(); k.x++) {
 			access(k)->abgesenkt(this);
+			lookup(k)->gib_kartenboden()->setze_grund_hang( calc_natural_slope(k) );
 		}
 	}
 
@@ -751,8 +718,6 @@ DBG_DEBUG("karte_t::init()","built timeline");
 
 DBG_DEBUG("karte_t::init()","hausbauer_t::neue_karte()");
     hausbauer_t::neue_karte();
-
-	simlinemgmt_t::init_line_ids();
 
 	// make sure, we have a city road ...
 	city_road = wegbauer_t::gib_besch(umgebung_t::city_road_type->chars(),get_timeline_year_month());
@@ -944,7 +909,6 @@ karte_t::karte_t() : ausflugsziele(16), quick_shortcuts(15), marker(0,0)
 	stadt = 0;
 	zeiger = 0;
 	plan = 0;
-	slopes = 0;
 	grid_hgts = 0;
 	einstellungen = 0;
 	schedule_counter = 0;
@@ -1028,15 +992,6 @@ bool karte_t::is_plan_height_changeable(int x, int y) const
 		    dt->gib_typ() == ding_t::wolke  ||
 		    dt->gib_typ() == ding_t::sync_wolke  ||
 		    dt->gib_typ() == ding_t::async_wolke;
-/*
-		    dt->gib_typ() != ding_t::gebaeude &&    // Bohrinsel!
-		    dt->gib_typ() != ding_t::zeiger &&
-		    dt->gib_typ() != ding_t::automobil &&
-		    dt->gib_typ() != ding_t::waggon &&
-		    dt->gib_typ() != ding_t::schiff &&
-		    dt->gib_typ() != ding_t::bruecke  &&;
-		    dt->gib_typ() != ding_t::schiffdepot;	// since there is no way beneath .
-*/
 	    }
 	}
     }
@@ -1047,8 +1002,6 @@ bool karte_t::is_plan_height_changeable(int x, int y) const
 
 bool karte_t::can_raise_to(int x, int y, int h) const
 {
-//    printf("karte_t::can_raise_to %d %d %d\n", x, y, h);
-
     const planquadrat_t *plan = lookup(koord(x,y));
     bool ok = true;		// annahme, es geht, pruefung ob nicht
 
@@ -1090,96 +1043,87 @@ bool karte_t::can_raise_to(int x, int y, int h) const
 
 bool karte_t::can_raise(int x, int y) const
 {
-//    printf("karte_t::can_raise %d %d\n", x, y);
-
-    if(ist_in_gittergrenzen(x, y)) {
-	return can_raise_to(x, y, lookup_hgt(koord(x, y))+16);
-    } else {
-	return true;
-    }
+	if(ist_in_gittergrenzen(x, y)) {
+		return can_raise_to(x, y, lookup_hgt(koord(x, y))+16);
+	} else {
+		return true;
+	}
 }
 
-int karte_t::raise_to(int x, int y, int h)
+int karte_t::raise_to(sint16 x, sint16 y, sint16 h,bool set_slopes)
 {
-//    printf("karte_t::raise_to %d %d %d\n", x, y, h);
+	const koord pos (x,y);
+	int n = 0;
 
-  const koord pos (x,y);
+	if(ist_in_gittergrenzen(x,y)) {
+		if(lookup_hgt(pos) < h) {
+			setze_grid_hgt(pos, h);
 
-  planquadrat_t *plan = access(pos);
-
-  int n = 0;
-
-  if(ist_in_gittergrenzen(x,y)) {
-    if(lookup_hgt(pos) < h) {
-      setze_grid_hgt(pos, h);
-
-      n = 1;
+			n = 1;
 
 #ifndef DOUBLE_GROUNDS
-      n += raise_to(x-1, y-1, h-16);
-      n += raise_to(x  , y-1, h-16);
-      n += raise_to(x+1, y-1, h-16);
-      n += raise_to(x-1, y  , h-16);
+			n += raise_to(x-1, y-1, h-16,set_slopes);
+			n += raise_to(x  , y-1, h-16,set_slopes);
+			n += raise_to(x+1, y-1, h-16,set_slopes);
+			n += raise_to(x-1, y  , h-16,set_slopes);
 
-      n += raise_to(x, y, h);
+			n += raise_to(x, y, h,set_slopes);
 
-      n += raise_to(x+1, y  , h-16);
-      n += raise_to(x-1, y+1, h-16);
-      n += raise_to(x  , y+1, h-16);
-      n += raise_to(x+1, y+1, h-16);
+			n += raise_to(x+1, y  , h-16,set_slopes);
+			n += raise_to(x-1, y+1, h-16,set_slopes);
+			n += raise_to(x  , y+1, h-16,set_slopes);
+			n += raise_to(x+1, y+1, h-16,set_slopes);
 #else
-      n += raise_to(x-1, y-1, h-32);
-      n += raise_to(x  , y-1, h-32);
-      n += raise_to(x+1, y-1, h-32);
-      n += raise_to(x-1, y  , h-32);
+			n += raise_to(x-1, y-1, h-32,set_slopes);
+			n += raise_to(x  , y-1, h-32,set_slopes);
+			n += raise_to(x+1, y-1, h-32,set_slopes);
+			n += raise_to(x-1, y  , h-32,set_slopes);
 
-      n += raise_to(x, y, h);
+			n += raise_to(x, y, h);
 
-      n += raise_to(x+1, y  , h-32);
-      n += raise_to(x-1, y+1, h-32);
-      n += raise_to(x  , y+1, h-32);
-      n += raise_to(x+1, y+1, h-32);
+			n += raise_to(x+1, y  , h-32,set_slopes);
+			n += raise_to(x-1, y+1, h-32,set_slopes);
+			n += raise_to(x  , y+1, h-32,set_slopes);
+			n += raise_to(x+1, y+1, h-32,set_slopes);
 #endif
+			if(set_slopes) {
+				planquadrat_t *plan;
+				if((plan=access(x,y))) {
+					plan->gib_kartenboden()->setze_grund_hang( calc_natural_slope(pos) );
+					plan->abgesenkt( this );
+				}
 
-      calc_slope(pos);
-      calc_slope(pos - koord(1, 0));
-      calc_slope(pos - koord(0, 1));
-      calc_slope(pos - koord(1, 1));
+				if((plan = access(x-1,y))) {
+					plan->gib_kartenboden()->setze_grund_hang( calc_natural_slope(pos+koord(-1,0)) );
+					plan->abgesenkt( this );
+				}
 
-      if(plan) {
-	plan->angehoben(this);
-      }
+				if((plan = access(x,y-1))) {
+					plan->gib_kartenboden()->setze_grund_hang( calc_natural_slope(pos+koord(0,-1)) );
+					plan->abgesenkt( this );
+				}
 
-      if((plan = access(x-1,y))) {
-	plan->angehoben(this);
-      }
+				if((plan = access(x-1,y-1))) {
+					plan->gib_kartenboden()->setze_grund_hang( calc_natural_slope(pos+koord(-1,-1)) );
+					plan->abgesenkt( this );
+				}
+			}
 
-      if((plan = access(x,y-1))) {
-	plan->angehoben(this);
-      }
+		}
+	}
 
-      if((plan = access(x-1,y-1))) {
-	plan->angehoben(this);
-      }
-    }
-  }
-
-  return n;
+	return n;
 }
 
 
 int karte_t::raise(koord pos)
 {
-//    printf("karte_t::raise %d %d\n", x, y);
-
-    bool ok = can_raise(pos.x, pos.y);
-
-    int n = 0;
-
-    if(ok && ist_in_gittergrenzen(pos)) {
-	n = raise_to(pos.x, pos.y, lookup_hgt(pos)+16);
-    }
-    return n;
+	bool ok = can_raise(pos.x, pos.y);
+	int n = 0;
+	if(ok && ist_in_gittergrenzen(pos)) {
+		n = raise_to(pos.x, pos.y, lookup_hgt(pos)+16,true);
+	}
+	return n;
 }
 
 bool karte_t::can_lower_to(int x, int y, int h) const
@@ -1236,12 +1180,11 @@ bool karte_t::can_lower(int x, int y) const
 
 
 
-int karte_t::lower_to(int x, int y, int h)
+int karte_t::lower_to(sint16 x, sint16 y, sint16 h,bool set_slopes)
 {
 	int n = 0;
 	if(ist_in_gittergrenzen(x,y)) {
 		const koord pos (x, y);
-		planquadrat_t *plan = access(pos);
 
 		if(lookup_hgt(pos) > h) {
 			setze_grid_hgt(pos, h);
@@ -1249,51 +1192,52 @@ int karte_t::lower_to(int x, int y, int h)
 			n = 1;
 
 #ifndef DOUBLE_GROUNDS
-			n += lower_to(x-1, y-1, h+16);
-			n += lower_to(x  , y-1, h+16);
-			n += lower_to(x+1, y-1, h+16);
-			n += lower_to(x-1, y  , h+16);
+			n += lower_to(x-1, y-1, h+16,set_slopes);
+			n += lower_to(x  , y-1, h+16,set_slopes);
+			n += lower_to(x+1, y-1, h+16,set_slopes);
+			n += lower_to(x-1, y  , h+16,set_slopes);
 
-			n += lower_to(x, y, h);
+			n += lower_to(x, y, h,set_slopes);
 
-			n += lower_to(x+1, y  , h+16);
-			n += lower_to(x-1, y+1, h+16);
-			n += lower_to(x  , y+1, h+16);
-			n += lower_to(x+1, y+1, h+16);
+			n += lower_to(x+1, y  , h+16,set_slopes);
+			n += lower_to(x-1, y+1, h+16,set_slopes);
+			n += lower_to(x  , y+1, h+16,set_slopes);
+			n += lower_to(x+1, y+1, h+16,set_slopes);
 #else
-			n += lower_to(x-1, y-1, h+32);
-			n += lower_to(x  , y-1, h+32);
-			n += lower_to(x+1, y-1, h+32);
-			n += lower_to(x-1, y  , h+32);
+			n += lower_to(x-1, y-1, h+32,set_slopes);
+			n += lower_to(x  , y-1, h+32,set_slopes);
+			n += lower_to(x+1, y-1, h+32,set_slopes);
+			n += lower_to(x-1, y  , h+32,set_slopes);
 
-			n += lower_to(x, y, h);
+			n += lower_to(x, y, h,set_slopes);
 
-			n += lower_to(x+1, y  , h+32);
-			n += lower_to(x-1, y+1, h+32);
-			n += lower_to(x  , y+1, h+32);
-			n += lower_to(x+1, y+1, h+32);
+			n += lower_to(x+1, y  , h+32,set_slopes);
+			n += lower_to(x-1, y+1, h+32,set_slopes);
+			n += lower_to(x  , y+1, h+32,set_slopes);
+			n += lower_to(x+1, y+1, h+32,set_slopes);
 #endif
-			calc_slope(pos);
-			calc_slope(pos - koord(1, 0));
-			calc_slope(pos - koord(0, 1));
-			calc_slope(pos - koord(1, 1));
+			if(set_slopes) {
+				planquadrat_t *plan;
+				if((plan=access(x,y))) {
+					plan->gib_kartenboden()->setze_grund_hang( calc_natural_slope(pos) );
+					plan->abgesenkt( this );
+				}
 
-			if(plan) {
-				plan->abgesenkt( this );
+				if((plan = access(x-1,y))) {
+					plan->gib_kartenboden()->setze_grund_hang( calc_natural_slope(pos+koord(-1,0)) );
+					plan->abgesenkt( this );
+				}
+
+				if((plan = access(x,y-1))) {
+					plan->gib_kartenboden()->setze_grund_hang( calc_natural_slope(pos+koord(0,-1)) );
+					plan->abgesenkt( this );
+				}
+
+				if((plan = access(x-1,y-1))) {
+					plan->gib_kartenboden()->setze_grund_hang( calc_natural_slope(pos+koord(-1,-1)) );
+					plan->abgesenkt( this );
+				}
 			}
-
-			if((plan = access(x-1,y))) {
-				plan->abgesenkt( this );
-			}
-
-			if((plan = access(x,y-1))) {
-				plan->abgesenkt( this );
-			}
-
-			if((plan = access(x-1,y-1))) {
-				plan->abgesenkt( this );
-			}
-
 		}
 	}
   return n;
@@ -1303,15 +1247,12 @@ int karte_t::lower_to(int x, int y, int h)
 
 int karte_t::lower(koord pos)
 {
-    bool ok = can_lower(pos.x, pos.y);
-
-    int n = 0;
-
-    if(ok && ist_in_gittergrenzen(pos.x, pos.y)) {
-	n = lower_to(pos.x, pos.y, lookup_hgt(pos)-16);
-    }
-
-    return n;
+	bool ok = can_lower(pos.x, pos.y);
+	int n = 0;
+	if(ok && ist_in_gittergrenzen(pos.x, pos.y)) {
+		n = lower_to(pos.x, pos.y, lookup_hgt(pos)-16,true);
+	}
+	return n;
 }
 
 
@@ -1319,30 +1260,30 @@ int karte_t::lower(koord pos)
 bool
 karte_t::ebne_planquadrat(koord pos, int hgt)
 {
-    koord offsets[] = {koord(0,0), koord(1,0), koord(0,1), koord(1,1)};
-    bool ok = true;
+	koord offsets[] = {koord(0,0), koord(1,0), koord(0,1), koord(1,1)};
+	bool ok = true;
 
-    for(int i=0; i<4; i++) {
-	koord p = pos + offsets[i];
+	for(int i=0; i<4; i++) {
+		koord p = pos + offsets[i];
 
-	if(lookup_hgt(p) > hgt) {
+		if(lookup_hgt(p) > hgt) {
 
-	    if(can_lower_to(p.x, p.y, hgt)) {
-		lower_to(p.x, p.y, hgt);
-	    } else {
-		ok = false;
-	    }
+			if(can_lower_to(p.x, p.y, hgt)) {
+				lower_to(p.x, p.y, hgt,true);
+			} else {
+				ok = false;
+			}
 
-	} else if(lookup_hgt(p) < hgt) {
+		} else if(lookup_hgt(p) < hgt) {
 
-	    if(can_raise_to(p.x, p.y, hgt)) {
-		raise_to(p.x, p.y, hgt);
-	    } else {
-		ok = false;
-	    }
+			if(can_raise_to(p.x, p.y, hgt)) {
+				raise_to(p.x, p.y, hgt,true);
+			} else {
+				ok = false;
+			}
+		}
 	}
-    }
-    return ok;
+	return ok;
 }
 
 
@@ -2100,18 +2041,6 @@ uint8	karte_t::calc_natural_slope( const koord pos ) const
 
 
 
-/**
- * Calculates slope for grid at pos.
- * @author Hj. Malthaner
- */
-void karte_t::calc_slope(const koord pos)
-{
-	if(ist_in_kartengrenzen(pos.x, pos.y)) {
-		slopes[pos.x+pos.y*gib_groesse_x()]= calc_natural_slope(pos);
-	}
-}
-
-
 bool
 karte_t::ist_wasser(koord pos, koord dim) const
 {
@@ -2293,19 +2222,6 @@ karte_t::speichern(loadsave_t *file,bool silent)
 	}
     }
 	DBG_MESSAGE("karte_t::speichern(loadsave_t *file)", "saved hgt");
-	if(silent) {
-		INT_CHECK("saving");
-	}
-
-    // Hajo: save slopes
-
-    for(j=0; j<gib_groesse_y(); j++) {
-      for(i=0; i<gib_groesse_x(); i++) {
-	sint8 slope = get_slope(koord(i, j));
-	file->rdwr_byte(slope, ",");
-      }
-    }
-	DBG_MESSAGE("karte_t::speichern(loadsave_t *file)", "saved slopes");
 	if(silent) {
 		INT_CHECK("saving");
 	}
@@ -2496,7 +2412,7 @@ DBG_DEBUG("karte_t::laden", "init %i cities",einstellungen->gib_anzahl_staedte()
 		display_flush(IMG_LEER,0, 0, 0, "", "", 0, 0);
 	}
 
-DBG_MESSAGE("karte_t::laden()","loading slopes");
+DBG_MESSAGE("karte_t::laden()","loading grid");
 	for(y=0; y<=gib_groesse_y(); y++) {
 		for(x=0; x<=gib_groesse_x(); x++) {
 			int hgt;
@@ -2506,20 +2422,22 @@ DBG_MESSAGE("karte_t::laden()","loading slopes");
 	}
 
 	if(file->get_version() < 82001) {
-		// Hajo: init slopes
+		// Hajo: init slopes (before artificial slopes)
 		for(y=0; y<gib_groesse_y(); y++) {
 			for(x=0; x<gib_groesse_x(); x++) {
-				calc_slope(koord(x,y));
+				access(x, y)->gib_kartenboden()->setze_grund_hang(calc_natural_slope(koord(x,y)));
 			}
 		}
 	}
-	else {
-		// Hajo: load slopes
+	else if(file->get_version()<88009) {
+		DBG_MESSAGE("karte_t::laden()","loading slopes from older version");
+		// Hajo: load slopes for older versions
+		// now part of the grund_t structure
 		for(y=0; y<gib_groesse_y(); y++) {
 			for(x=0; x<gib_groesse_x(); x++) {
 				sint8 slope;
 				file->rdwr_byte(slope, ",");
-				set_slope(koord(x, y), slope);
+				access(x, y)->gib_kartenboden()->setze_grund_hang(slope);
 			}
 		}
 	}
@@ -2529,8 +2447,9 @@ DBG_MESSAGE("karte_t::laden()","loading slopes");
 		for(y=0; y<gib_groesse_y(); y++) {
 			for(x=0; x<gib_groesse_x(); x++) {
 				koord k(x,y);
-				if(access(k)->gib_kartenboden()->gib_typ()==grund_t::fundament) {
-					access(k)->gib_kartenboden()->setze_hoehe( max_hgt(k) );
+				if(access(x,y)->gib_kartenboden()->gib_typ()==grund_t::fundament) {
+					access(x,y)->gib_kartenboden()->setze_hoehe( max_hgt(k) );
+					access(x,y)->gib_kartenboden()->setze_grund_hang(hang_t::flach);
 				}
 			}
 		}

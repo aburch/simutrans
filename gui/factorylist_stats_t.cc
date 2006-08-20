@@ -24,20 +24,14 @@
 factorylist_stats_t::factorylist_stats_t(karte_t * w,
 					 const factorylist::sort_mode_t& sortby,
 					 const bool& sortreverse) :
-    welt(w)
+    fab_list(0)
 {
-    setze_groesse(koord(210, welt->gib_fab_list().count()*(LINESPACE+1)-10));
-    //DBG_DEBUG("factorylist_stats_t()","constructor");
-    fab_list = new vector_tpl<fabrik_t*>(1);
-    sort(sortby,sortreverse);
+	welt = w;
+	setze_groesse(koord(210, welt->gib_fab_list().count()*(LINESPACE+1)-10));
+	sort(sortby,sortreverse);
 }
 
-factorylist_stats_t::~factorylist_stats_t()
-{
-    //DBG_DEBUG("factorylist_stats_t()","destructor");
-    fab_list->clear();
-    delete fab_list;
-}
+
 
 /**
  * Events werden hiermit an die GUI-Komponenten
@@ -47,10 +41,10 @@ factorylist_stats_t::~factorylist_stats_t()
 void factorylist_stats_t::infowin_event(const event_t * ev)
 {
     const unsigned int line = (ev->cy) / (LINESPACE+1);
-    if (line >= fab_list->get_count())
+    if (line >= fab_list.get_count())
 	return;
 
-    fabrik_t * fab = fab_list->at(line);
+    fabrik_t * fab = fab_list.at(line);
     if (!fab)
 	return;
 
@@ -87,7 +81,7 @@ void factorylist_stats_t::zeichnen(koord offset) const
     int xoff = offset.x;
     int yoff = offset.y;
 
-    for (unsigned int i=0; i<fab_list->get_count()  &&  yoff<end; i++) {
+    for (uint32 i=0; i<fab_list.get_count()  &&  yoff<end; i++) {
 
 	// skip invisible lines
 	if(yoff<start) {
@@ -95,7 +89,7 @@ void factorylist_stats_t::zeichnen(koord offset) const
 	    continue;
 	}
 
-	const fabrik_t *fab = fab_list->at(i);
+	const fabrik_t *fab = fab_list.at(i);
 	if(fab) {
 
 	    //DBG_DEBUG("factorylist_stats_t()","zeichnen() factory %i",i);
@@ -105,7 +99,7 @@ void factorylist_stats_t::zeichnen(koord offset) const
 	    buf.clear();
 	    //		buf.append(i+1);
 	    //		buf.append(".) ");
-	    buf.append(fab_list->at(i)->gib_name());
+	    buf.append(fab_list.at(i)->gib_name());
 	    buf.append(" (");
 
 	    if (fab->gib_eingang()->get_count() > 0) {
@@ -149,8 +143,8 @@ void factorylist_stats_t::sort(const factorylist::sort_mode_t& sortby,const bool
 {
     slist_iterator_tpl<fabrik_t *> fab_iter (welt->gib_fab_list());
 
-    fab_list->clear();
-    fab_list->resize(welt->gib_fab_list().count());
+    fab_list.clear();
+    fab_list.resize(welt->gib_fab_list().count());
 
     //DBG_DEBUG("factorylist_stats_t()","fabriken.count() == %d",fabriken->count());
 
@@ -158,14 +152,14 @@ void factorylist_stats_t::sort(const factorylist::sort_mode_t& sortby,const bool
 	return;
     }
     // ok, we have at least one factory
-    fab_list->append(fab_iter.get_current());
+    fab_list.append(fab_iter.get_current());
 
     while(fab_iter.next()) {
 	fabrik_t *fab = fab_iter.get_current();
 
 	bool append = true;
-	for (unsigned int j=0; j<fab_list->get_count(); j++) {
-	    const fabrik_t *check_fab=fab_list->at(j);
+	for (unsigned int j=0; j<fab_list.get_count(); j++) {
+	    const fabrik_t *check_fab=fab_list.at(j);
 
 	    unsigned long input, output, check_input, check_output;
 	    switch (sortby) {
@@ -210,12 +204,12 @@ void factorylist_stats_t::sort(const factorylist::sort_mode_t& sortby,const bool
 			append = (fab->get_prodfaktor() >= check_fab->get_prodfaktor());
 	    }
 	    if(!append) {
-		fab_list->insert_at(j,fab);
+		fab_list.insert_at(j,fab);
 		break;
 	    }
-	} // end of for (unsigned int j=0; j<fab_list->get_count(); j++)
+	} // end of for (unsigned int j=0; j<fab_list.get_count(); j++)
 	if(append) {
-	    fab_list->append(fab);
+	    fab_list.append(fab);
 	}
 
     } // end of iterator

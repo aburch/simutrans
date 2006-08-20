@@ -15,12 +15,12 @@
 #include "../tpl/slist_tpl.h"
 #include "ifc/action_listener.h"
 #include "gui_frame.h"
-#include "gui_scrollpane.h"
+#include "components/gui_scrollpane.h"
 #include "gui_container.h"
 #include "components/gui_textinput.h"
 #include "components/gui_divider.h"     // 30-Oct-2001      Markus Weber    Added
-#include "gui_label.h"                  // 31-Oct-2001      Markus Weber    Added
-#include "button.h"                     // 29-Oct-2001      Markus Weber    Added
+#include "components/gui_label.h"                  // 31-Oct-2001      Markus Weber    Added
+#include "components/gui_button.h"                     // 29-Oct-2001      Markus Weber    Added
 
 
 class button_t;

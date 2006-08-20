@@ -1,11 +1,9 @@
 #ifndef gui_scrolled_list_h
 #define gui_scrolled_list_h
 
-#include "../ifc/gui_komponente.h"
-
-#include "scrollbar.h"
-#include "ifc/scrollbar_listener.h"
-#include "ifc/action_listener.h"
+#include "gui_scrollbar.h"
+#include "../ifc/scrollbar_listener.h"
+#include "../../ifc/gui_action_creator.h"
 
 class karte_t;
 template <class T> class slist_tpl;
@@ -20,26 +18,11 @@ template <class T> class slist_tpl;
  * -selection. is a list, but additionaly, one item can be selected.
  * @author Niels Roest, additions by Hj. Malthaner
  */
-class scrolled_list_gui_t  : public gui_komponente_t, public scrollbar_listener_t
+class gui_scrolled_list_t  : public gui_komponente_action_creator_t, public scrollbar_listener_t
 {
 public:
 
   enum type { list, select };
-
-private:
-
-  /**
-   * The list of listeners which want to be informed about selection events.
-   * @author Hj. Malthaner
-   */
-  slist_tpl<action_listener_t *> * listeners;
-
-  /**
-   * Informs (calls) all listeners about a new selection
-   * @author Hj. Malthaner
-   */
-  void call_listeners();
-
 
   enum type type;
   int selection; // only used when type is 'select'.
@@ -60,8 +43,8 @@ private:
 
 public:
 
-  scrolled_list_gui_t(enum type);
-  virtual ~scrolled_list_gui_t();
+  gui_scrolled_list_t(enum type);
+  virtual ~gui_scrolled_list_t();
 
 
   /**
@@ -73,18 +56,7 @@ public:
   };
 
 
-  /**
-   * Adds a action_listener_t to this component
-   * @author Hj. Malthaner
-   */
-  void add_listener(action_listener_t *c);
-
-
-  /**
-   * Removes a action_listener_t from this component
-   * @author Hj. Malthaner
-   */
-  void remove_listener(action_listener_t *c);
+	void show_selection(int s);
 
   void setze_selection(int s) { selection = s; }
   int gib_selection() { return selection; }
@@ -98,8 +70,8 @@ public:
   void clear_elements();
   void insert_element(const char *string, const int pos = 0);
   void append_element(const char *string);
+  const char *get_element(int i) const { return ((unsigned)i<item_list->count()) ? item_list->at(i) : ""; };
   void remove_element(const int pos);
-
 
   /**
    * request other pane-size. returns realized size.
@@ -107,10 +79,8 @@ public:
    */
   koord request_groesse(koord request);
 
-
   void infowin_event(const event_t *ev);
   void zeichnen(koord pos) const;
-
 };
 
 #endif

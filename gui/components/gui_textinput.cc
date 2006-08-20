@@ -18,8 +18,6 @@
 
 #include "../../dataobj/translator.h"
 
-gui_komponente_t * gui_komponente_t::focus;
-
 /**
  * Konstruktor
  *
@@ -40,11 +38,8 @@ gui_textinput_t::gui_textinput_t()
  */
 gui_textinput_t::~gui_textinput_t()
 {
-    if(has_focus()) {
-		release_focus();
-    }
-
-    text = NULL;
+	release_focus(this);
+	text = NULL;
 }
 
 
@@ -56,7 +51,7 @@ gui_textinput_t::~gui_textinput_t()
 void gui_textinput_t::infowin_event(const event_t *ev)
 {
     if(ev->ev_class == EVENT_KEYBOARD) {
-		if((text != NULL) && has_focus()) {
+		if((text != NULL) && has_focus(this)) {
 		    const int len = strlen(text);
 
 		    switch(ev->ev_code) {
@@ -105,9 +100,8 @@ void gui_textinput_t::infowin_event(const event_t *ev)
 			}
 			break;
 		    case 13:
-			if(has_focus()) {
-			    this->release_focus();
-			    ::release_focus();
+			if(has_focus(this)) {
+			    release_focus(this);
 			    call_listeners();
 			}
 			break;
@@ -186,12 +180,12 @@ void gui_textinput_t::infowin_event(const event_t *ev)
 		}
 
     } else if(IS_LEFTRELEASE(ev) || IS_LEFTCLICK(ev)) {
-        this->request_focus();
+        request_focus(this);
         cursor_pos = strlen(text);
     } else if(ev->ev_class == INFOWIN &&
 	      ev->ev_code == WIN_CLOSE &&
-	      has_focus()) {
-        this->release_focus();
+	      has_focus(this)) {
+        	release_focus(this);
     }
 }
 
@@ -219,26 +213,13 @@ void gui_textinput_t::zeichnen(koord offset) const
 		display_proportional_clip(pos.x+offset.x+2-cursor_offset, pos.y+offset.y+2, text, ALIGN_LEFT, COL_BLACK, true);
 
     	// cursor must been shown, if textinput has focus!
-		if(has_focus()) {
+		if(has_focus(this)) {
 		    display_fillbox_wh_clip(pos.x+offset.x+1+proportional_string_len_width(text, cursor_pos)-cursor_offset, pos.y+offset.y+1, 1, 11, COL_WHITE, true);
 		}
     }
 //	POP_CLIP();
 }
 
-
-/**
- * Inform all listeners that an action was triggered.
- * @author Hj. Malthaner
- */
-void gui_textinput_t::call_listeners()
-{
-    // printf("Message: button_t::call_listeners()\n");
-
-    slist_iterator_tpl<action_listener_t *> iter (listeners);
-
-    while(iter.next() && !iter.get_current()->action_triggered(this));
-}
 
 void
 gui_textinput_t::setze_text(char *text, int max)

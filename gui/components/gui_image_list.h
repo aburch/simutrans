@@ -1,9 +1,9 @@
 #ifndef gui_image_list_h
 #define gui_image_list_h
 
-#include "../ifc/gui_komponente.h"
-#include "../tpl/vector_tpl.h"
-#include "../tpl/slist_tpl.h"
+#include "../../ifc/gui_action_creator.h"
+#include "../../tpl/vector_tpl.h"
+#include "../../simimg.h"
 
 
 class image_list_listener_t;
@@ -23,14 +23,14 @@ class image_list_listener_t;
  * @author Hj. Malthaner
  * @version $Revision: 1.10 $
  */
-class image_list_t : public gui_komponente_t
+class gui_image_list_t : public gui_komponente_action_creator_t
 {
 public:
     struct image_data_t {
-	int		image;
-	int		count;
-	int		lcolor;	//0=none, 1=green, 2=red, 3 =yellow
-	int		rcolor;
+	image_id		image;
+	sint16		count;
+	sint16		lcolor;	//0=none, 1=green, 2=red, 3 =yellow
+	sint16		rcolor;
     };
     /**
      * Graphic layout:
@@ -43,8 +43,6 @@ public:
     enum { BORDER = 4 };
 private:
     vector_tpl<image_data_t> *images;
-
-    slist_tpl <image_list_listener_t *> listener;
 
     koord grid;
     koord placement;
@@ -63,31 +61,13 @@ private:
     int color;
 
 public:
-
-    /**
-     * Fügt einen listener zur Liste der listener hinzu (Callback).
-     * @author Hj. Malthaner
-     */
-    void add_listener(image_list_listener_t *l) {
-	listener.insert( l );
-    };
-
-
-    /**
-     * Entfernt einen listener aus der Liste der listener (Callback).
-     * @author Hj. Malthaner
-     */
-    void remove_listener(image_list_listener_t *c) {
-	listener.remove(c);
-    };
-
     /**
      * Konstruktor, nimmt einen Vector von Bildnummern als Parameter.
      * @param bilder ein Vector mit den Nummern der Bilder
      * @author Hj. Malthaner
      */
 
-    image_list_t(vector_tpl<image_data_t> *images);
+    gui_image_list_t(vector_tpl<image_data_t> *images);
     /**
      * This set horizontal and vertical spacing for the images.
      * @author Volker Meyer

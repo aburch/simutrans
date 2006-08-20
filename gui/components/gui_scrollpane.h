@@ -7,7 +7,7 @@
  * in other projects without written permission of the author.
  */
 
-#include "../ifc/gui_komponente.h"
+#include "../../ifc/gui_komponente.h"
 
 class scrollbar_t;
 

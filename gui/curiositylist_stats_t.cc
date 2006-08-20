@@ -31,16 +31,11 @@
 curiositylist_stats_t::curiositylist_stats_t(karte_t * w,
 					     const curiositylist::sort_mode_t& sortby,
 					     const bool& sortreverse) :
-    welt(w),
     attractions(10)
 {
+	welt = w;
     get_unique_attractions(sortby,sortreverse);
     setze_groesse(koord(210, attractions.get_count()*(LINESPACE+1)-10));
-}
-
-curiositylist_stats_t::~curiositylist_stats_t()
-{
-	//DBG_DEBUG("curiositylist_stats_t()","destructor");
 }
 
 
@@ -48,10 +43,11 @@ curiositylist_stats_t::~curiositylist_stats_t()
 void curiositylist_stats_t::get_unique_attractions(const curiositylist::sort_mode_t& sortby,
 						   const bool& sortreverse)
 {
-    attractions.clear();
     const weighted_vector_tpl<gebaeude_t *> &ausflugsziele = welt->gib_ausflugsziele();
+    attractions.clear();
+    attractions.resize(welt->gib_ausflugsziele().get_count());
 
-    for (unsigned int i=0; i<ausflugsziele.get_count(); ++i) {
+    for (uint32 i=0; i<ausflugsziele.get_count(); ++i) {
 
 	gebaeude_t *geb = ausflugsziele.at(i);
 	// now check for paranoia, first tile on multitile buildings and real attraction
@@ -83,20 +79,15 @@ void curiositylist_stats_t::get_unique_attractions(const curiositylist::sort_mod
 	    }
 
 	    if (!append) {
-		DBG_MESSAGE("curiositylist_stats_t::get_unique_attractions()","insert %s at (%i,%i)",
-			    geb->gib_tile()->gib_besch()->gib_name(),
-			    geb->gib_pos().x, geb->gib_pos().y );
-
+//		DBG_MESSAGE("curiositylist_stats_t::get_unique_attractions()","insert %s at (%i,%i)",geb->gib_tile()->gib_besch()->gib_name(),geb->gib_pos().x, geb->gib_pos().y );
 		attractions.insert_at(j,geb);
 		break;
 	  }
 	}
 
 	if (append) {
-	    DBG_MESSAGE("curiositylist_stats_t::get_unique_attractions()","append %s at (%i,%i)",
-			geb->gib_tile()->gib_besch()->gib_name(),
-			geb->gib_pos().x, geb->gib_pos().y );
-	    attractions.append(geb,4);
+//	    DBG_MESSAGE("curiositylist_stats_t::get_unique_attractions()","append %s at (%i,%i)",geb->gib_tile()->gib_besch()->gib_name(),	geb->gib_pos().x, geb->gib_pos().y );
+	    attractions.append(geb);
 	}
 
     }
@@ -129,6 +120,7 @@ void curiositylist_stats_t::infowin_event(const event_t * ev)
 	}
     }
 } // end of function curiositylist_stats_t::infowin_event(const event_t * ev)
+
 
 
 /**
@@ -194,7 +186,7 @@ void curiositylist_stats_t::zeichnen(koord offset) const
 		else {
 			indicatorfarbe = post ? COL_BLUE : COL_YELLOW;
 		}
-//		display_ddd_box_clip(xoff+7, yoff, 8, 8, MN_GREY0, MN_GREY4);
+
 		display_fillbox_wh_clip(xoff+7, yoff+2, INDICATOR_WIDTH, INDICATOR_HEIGHT, indicatorfarbe, true);
 
 		// the other infos
@@ -219,18 +211,6 @@ void curiositylist_stats_t::zeichnen(koord offset) const
 		buf.append(geb->gib_passagier_level());
 		buf.append(") ");
 
-/*	too many useless information
-		buf.append(" (");
-		buf.append(geb->gib_pos().gib_2d().x);
-		buf.append(", ");
-		buf.append(geb->gib_pos().gib_2d().y);
-		buf.append(") - (");
-
-		buf.append(geb->gib_passagier_level());
-		buf.append(", ");
-		buf.append(geb->gib_post_level());
-		buf.append(") ");
-*/
 		display_proportional_clip(xoff+INDICATOR_WIDTH+10+9,yoff,buf,ALIGN_LEFT,COL_BLACK,true);
 
 		if (geb->gib_tile()->gib_besch()->gib_bauzeit() != 0)

@@ -167,15 +167,6 @@ wkz_abfrage(spieler_t *, karte_t *welt, koord pos)
 		const gui_fenster_t *old_top = win_get_top();
 
 		const planquadrat_t *plan = welt->lookup(pos);
-/*
-		if(plan->gib_halt().is_bound()  &&  ) {
-			plan->
-						// did some new window open?
-						if(umgebung_t::single_info  &&  old_top!=win_get_top()) {
-							return true;
-						}
-		}
-*/
 		const bool backwards = (event_get_last_control_shift()==2);
 		for(unsigned i=0;  i<plan->gib_boden_count();  i++  ) {
 			grund_t *gr=plan->gib_boden_bei( backwards ? plan->gib_boden_count()-1-i : i );
@@ -481,7 +472,7 @@ DBG_MESSAGE("wkz_remover()", "removing building: cleanup");
 					grund_t *gr = welt->lookup(k+pos)->gib_kartenboden();
 					gr->obj_loesche_alle(sp);
 					if(gr->gib_typ()==grund_t::fundament) {
-						welt->access(k+pos)->kartenboden_setzen(new boden_t(welt, koord3d(k+pos,welt->min_hgt(k+pos))), false);
+						welt->access(k+pos)->kartenboden_setzen(new boden_t(welt, koord3d(k+pos,welt->min_hgt(k+pos)), welt->calc_natural_slope(k+pos)), false);
 					}
 				}
 			}
@@ -539,6 +530,7 @@ DBG_MESSAGE("wkz_remover()", "removing way");
 	}
 DBG_MESSAGE("wkz_remover()", "check ground");
 
+#if 0
 	// now labels on water
 	// replacements of ground will give a grass tile
 	// => 	don't do this on water ...
@@ -549,6 +541,7 @@ DBG_MESSAGE("wkz_remover()", "check ground");
 			plan->gib_kartenboden()->setze_besitzer(sp);
 		}
 	}
+#endif
 
 	if(gr!=plan->gib_kartenboden()) {
 DBG_MESSAGE("wkz_remover()", "removing ground");
@@ -1053,7 +1046,8 @@ wkz_dockbau(spieler_t *sp, karte_t *welt, koord pos, value_t value)
 		// init und exit ignorieren
 		return true;
 	}
-	int hang = welt->get_slope(pos);
+	// the cursor cannot be outside the map from here on
+	hang_t::typ hang = welt->lookup(pos)->gib_kartenboden()->gib_grund_hang();
 	// first get the size
 	int len = besch->gib_groesse().y-1;
 	koord dx = koord((hang_t::typ)hang);
@@ -1068,7 +1062,12 @@ wkz_dockbau(spieler_t *sp, karte_t *welt, koord pos, value_t value)
 				return false;
 			}
 			const grund_t *gr=welt->lookup(pos-dx*i)->gib_kartenboden();
-			if(i==0  &&  (gr->ist_wasser()  ||  gr->hat_wege()  ||  gr->gib_typ()!=grund_t::boden)) {
+			const char *msg=gr->kann_alle_obj_entfernen(sp);
+			if(msg) {
+				create_win(-1, -1, MESG_WAIT, new nachrichtenfenster_t(welt, msg), w_autodelete);
+				return false;
+			}
+			if(i==0  &&  (gr->ist_wasser()  ||  gr->hat_wege()  ||  gr->gib_typ()!=grund_t::boden)  ||  gr->obj_count()>0) {
 				ok = false;
 			}
 			if(i!=0  &&  (!gr->ist_wasser()  ||  gr->suche_obj(ding_t::gebaeude)  ||  gr->gib_depot())) {
@@ -1108,9 +1107,9 @@ DBG_MESSAGE("wkz_dockbau()","spawn new halt");
 			halt = sp->halt_add(pos);
 		}
 
-DBG_MESSAGE("wkz_dockbau()","remove ground below slope");
+//DBG_MESSAGE("wkz_dockbau()","remove ground below slope");
 		// remove old ground below slope
-		welt->access(pos)->kartenboden_setzen(new boden_t(welt, welt->lookup(pos)->gib_kartenboden()->gib_pos()), false);
+//		welt->access(pos)->kartenboden_setzen(new boden_t(welt, welt->lookup(pos)->gib_kartenboden()->gib_pos()), false);
 
 DBG_MESSAGE("wkz_dockbau()","finally errect it");
 		hausbauer_t::baue(welt, halt->gib_besitzer(), bau_pos, layout,besch, 0, &halt);
@@ -1166,13 +1165,8 @@ DBG_MESSAGE("wkz_senke()","called on %d,%d", pos.x, pos.y);
 		return false;
 	}
 
-	//int top = welt->lookup(pos)->gib_kartenboden()->gib_top();
-	int hangtyp = welt->get_slope(pos);
-
-	if(hangtyp == 0  &&
-		!welt->lookup(pos)->gib_kartenboden()->ist_wasser()  &&
-		welt->lookup(pos)->gib_kartenboden()->kann_alle_obj_entfernen(sp)==NULL)
-	{
+	grund_t *gr=welt->lookup(pos)->gib_kartenboden();
+	if(gr->gib_grund_hang()==0  &&  !gr->ist_wasser()  &&  	gr->kann_alle_obj_entfernen(sp)==NULL) {
 
 		fabrik_t *fab=leitung_t::suche_fab_4(pos);
 		if(fab==NULL) {
@@ -1374,7 +1368,7 @@ DBG_MESSAGE("wkz_depot_aux()","for depot %s with waytype %d",besch->gib_name(),w
 			ribi = bd->gib_weg_ribi_unmasked(wegtype);
 		}
 
-		if(ribi_t::ist_einfach(ribi)  &&  (bd->ist_wasser()  ||  welt->get_slope(pos)==0)  ) {
+		if(ribi_t::ist_einfach(ribi)  &&  (bd->ist_wasser()  ||  bd->gib_weg_hang()==0)  ) {
 
 			const char *p=bd->kann_alle_obj_entfernen(sp);
 			if(p) {
@@ -1873,7 +1867,7 @@ int wkz_set_slope(spieler_t * sp, karte_t *welt, koord pos, value_t lParam)
 				create_win(-1, -1, MESG_WAIT, new nachrichtenfenster_t(welt, "Cannot cover this tile."), w_autodelete);
 				return false;
 			}
-			plan->kartenboden_insert( new boden_t(welt,koord3d(pos,welt->max_hgt(pos))) );
+			plan->kartenboden_insert( new boden_t(welt,koord3d(pos,welt->max_hgt(pos)),0) );
 			sp->buche(umgebung_t::cst_alter_land, pos, COST_CONSTRUCTION);
 			return true;
 		}
@@ -1897,7 +1891,7 @@ int wkz_set_slope(spieler_t * sp, karte_t *welt, koord pos, value_t lParam)
 		else {
 			// now check offsets before changing the slope ...
 			sint8 change_to_slope=new_slope;
-			if(new_slope==ALL_DOWN_SLOPE  &&  welt->get_slope(pos)>0) {
+			if(new_slope==ALL_DOWN_SLOPE  &&  gr1->gib_grund_hang()>0) {
 				// is more intiutive: if there is a slope, first downgrade it
 				change_to_slope = 0;
 			}
@@ -1905,7 +1899,7 @@ int wkz_set_slope(spieler_t * sp, karte_t *welt, koord pos, value_t lParam)
 			new_pos = gr1->gib_pos() + koord3d(0,0,(change_to_slope==ALL_UP_SLOPE?16:(change_to_slope==ALL_DOWN_SLOPE?-16:0)));
 #ifdef DOUBLE_GROUNDS
 			// if already the same, double the slope
-			if(slope_this==welt->get_slope(pos)) {
+			if(slope_this==gr1->gib_grund_hang()) {
 				slope_this *= 2;
 			}
 #endif
@@ -1918,7 +1912,7 @@ int wkz_set_slope(spieler_t * sp, karte_t *welt, koord pos, value_t lParam)
 		const grund_t *grleft=welt->lookup(pos+koord(-1,0))->gib_kartenboden();
 		if(grleft) {
 			const sint16 left_hgt=grleft->gib_hoehe()/16;
-			const sint8 slope=welt->get_slope(pos+koord(-1,0));
+			const sint8 slope=grleft->gib_grund_hang();
 
 #ifndef DOUBLE_GROUNDS
 			const sint8 diff_from_ground_1 = left_hgt+((slope/2)%2)-hgt;
@@ -1953,7 +1947,7 @@ int wkz_set_slope(spieler_t * sp, karte_t *welt, koord pos, value_t lParam)
 		const grund_t *grback=welt->lookup(pos+koord(0,-1))->gib_kartenboden();
 		if(grback) {
 			const sint16 back_hgt=grback->gib_hoehe()/16;
-			const sint8 slope=welt->get_slope(pos+koord(0,-1));
+			const sint8 slope=grback->gib_grund_hang();
 
 #ifndef DOUBLE_GROUNDS
 			const sint8 diff_from_ground_1 = back_hgt+(slope%2)-hgt;
@@ -2002,11 +1996,10 @@ int wkz_set_slope(spieler_t * sp, karte_t *welt, koord pos, value_t lParam)
 				welt->access(pos)->kartenboden_setzen( new wasser_t(welt,pos), true );
 			}
 			else if(gr1->ist_wasser()  &&  (new_pos.z>welt->gib_grundwasser()  ||  slope_this!=0)) {
-				welt->access(pos)->kartenboden_setzen( new boden_t(welt,new_pos), true );
-				welt->set_slope(pos, slope_this);
+				welt->access(pos)->kartenboden_setzen( new boden_t(welt,new_pos,slope_this), true );
 			}
 			else {
-				welt->set_slope(pos, slope_this);
+				gr1->setze_grund_hang(slope_this);
 				gr1->setze_pos(new_pos);
 			}
 			// recalc slope walls on neightbours
@@ -2030,32 +2023,11 @@ int wkz_set_slope(spieler_t * sp, karte_t *welt, koord pos, value_t lParam)
  */
 int wkz_pflanze_baum(spieler_t *, karte_t *welt, koord pos)
 {
-  DBG_MESSAGE("wkz_pflanze_baum()",
-         "called on %d,%d", pos.x, pos.y);
-
-  baum_t::plant_tree_on_coordinate(welt,
-           pos,
-           10);
-
-  return true;
-}
-
-
-// --- Hajo: below are inofficial and/or testing tools
-
-
-/* Hajo: unused
-#include "simverkehr.h"
-int wkz_test(spieler_t *, karte_t *welt, koord pos)
-{
-	if(welt->ist_in_kartengrenzen(pos)) {
-		verkehrsteilnehmer_t *vt = new verkehrsteilnehmer_t(welt, pos);
-		welt->lookup(pos)->gib_boden()->obj_add( vt );
-		welt->sync_add( vt );
-	}
+	DBG_MESSAGE("wkz_pflanze_baum()", "called on %d,%d", pos.x, pos.y);
+	baum_t::plant_tree_on_coordinate(welt, pos, 10);
 	return true;
 }
-*/
+
 
 
 

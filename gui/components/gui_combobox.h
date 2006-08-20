@@ -1,5 +1,7 @@
 /*
- * gui_textinput.h
+ * gui_combobox.h
+ *
+ * with a connected edit field
  *
  * Copyright (c) 1997 - 2001 Hansjörg Malthaner
  *
@@ -10,35 +12,29 @@
 #ifndef gui_components_gui_combobox_h
 #define gui_components_gui_combobox_h
 
-#include "../../ifc/gui_komponente.h"
+#include "../../ifc/gui_action_creator.h"
 #include "../../tpl/slist_tpl.h"
-#include "../ifc/action_listener.h"
-#include "../scrolled_list.h"
+#include "gui_scrolled_list.h"
 #include "gui_textinput.h"
+#include "gui_button.h"
 
 struct event_t;
 
-/**
- * Ein einfaches Texteingabefeld. Es hat keinen eigenen Textpuffer,
- * nur einen Zeiger auf den Textpuffer, der von jemand anderem Bereitgestellt
- * werden muss.
- *
- * @date 19-Apr-01
- * @author Hj. Malthaner
- */
-
 class gui_combobox_t :
-	public gui_textinput_t,
+	public gui_komponente_action_creator_t,
 	public action_listener_t
-
 {
 private:
+	// buttons for setting selection manually
+	gui_textinput_t textinp;
+	button_t bt_prev;
+	button_t bt_next;
 
     /**
      * the drop box list
      * @author hsiegeln
      */
-    scrolled_list_gui_t * droplist;
+    gui_scrolled_list_t * droplist;
 
 	/*
 	 * flag for first call
@@ -73,7 +69,7 @@ public:
      */
     ~gui_combobox_t();
 
-    /**
+      /**
      * Events werden hiermit an die GUI-Komponenten
      * gemeldet
      * @author Hj. Malthaner
@@ -91,14 +87,6 @@ public:
      * @author Hj. Malthaner
      */
     void zeichnen(koord offset) const;
-
-	/**
-	 * called when the focus should be released
-	 * does some cleanup before releasing
-	 * overrides function in base class
-	 * @author hsiegeln
-	 */
-	bool release_focus();
 
 	/**
 	 * add element to droplist
@@ -140,8 +128,37 @@ public:
 	   * sets the selection
 	   * @author hsiegeln
 	   */
-	  void set_selection(int s) { droplist->setze_selection( s ); }
+	  void set_selection(int s);
 
+	/**
+	* Setzt den Textpuffer
+	*
+	* @author Hj. Malthaner
+	*/
+	void setze_text(char *text, int max) {textinp.setze_text(text,max);}
+
+
+	/**
+	* Holt den Textpuffer
+	*
+	* @author Hj. Malthaner
+	*/
+	char *gib_text() const {return textinp.gib_text();}
+
+
+    /**
+     * Vorzugsweise sollte diese Methode zum Setzen der Größe benutzt werden,
+     * obwohl groesse public ist.
+     * @author Hj. Malthaner
+     */
+    void setze_groesse(koord groesse);
+
+	/**
+	 * called when the focus should be released
+	 * does some cleanup before releasing
+	 * @author hsiegeln
+	 */
+	void close_box();
 };
 
 #endif

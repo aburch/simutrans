@@ -224,18 +224,16 @@ planquadrat_t::rdwr(karte_t *welt, loadsave_t *file)
 				koord3d pos = gr->gib_pos();
 				// show normal ground here
 				delete gr;
-				gr = new boden_t(welt, pos);
+				gr = new boden_t(welt, pos,0);
 DBG_MESSAGE("gebaeude_t::rwdr", "unknown building at %d,%d replace by normal ground!", pos.x,pos.y);
 			}
 			// we should also check for ground below factories
 			if(gr) {
-//				koord3d tmppos( gr->gib_pos() );
 				if(gib_kartenboden()==NULL) {
 					kartenboden_setzen(gr, false);
 				} else {
 					boden_hinzufuegen(gr);
 				}
-//				gr->setze_pos(tmppos);   // setze_boden macht pos kaputt!
 			}
 		} while(gr != 0);
 	}
@@ -291,14 +289,14 @@ void planquadrat_t::abgesenkt(karte_t *welt)
 	grund_t *gr = gib_kartenboden();
 	if(gr) {
 		gr->obj_loesche_alle(NULL);
-		koord k ( gr->gib_pos().gib_2d() );
+		koord k=gr->gib_pos().gib_2d();
 
 		if(welt->max_hgt(k) <= welt->gib_grundwasser()) {
 			kartenboden_setzen(new wasser_t(welt, k), true);
 		}
 		else {
 			gr->setze_pos(koord3d(k,welt->min_hgt(k)));
-			gr->calc_bild();
+			gr->setze_grund_hang( welt->calc_natural_slope(k) );
 		}
 	}
 }
@@ -311,7 +309,7 @@ void planquadrat_t::angehoben(karte_t *welt)
 		gr->obj_loesche_alle(NULL);
 		gr->setze_pos(koord3d(k,welt->min_hgt(k)));
 		if (welt->max_hgt(k) > welt->gib_grundwasser()) {
-			kartenboden_setzen(new boden_t(welt, gr->gib_pos() ), true);
+			kartenboden_setzen(new boden_t(welt, gr->gib_pos(), welt->calc_natural_slope(k) ), true);
 		}
 		else {
 			gr->calc_bild();
@@ -374,7 +372,7 @@ planquadrat_t::display_dinge(const sint16 xpos, const sint16 ypos, const sint16 
 		if(umgebung_t::station_coverage_show  &&  halt_list.get_count()>0) {
 			const sint16 r=raster_tile_width/8;
 			const sint16 x=xpos+raster_tile_width/2-r;
-			const sint16 y=ypos+(raster_tile_width*3)/4-r-tile_raster_scale_y( boeden.get(0)->gib_hoehe(), raster_tile_width);;
+			const sint16 y=ypos+(raster_tile_width*3)/4-r - (gr->gib_grund_hang()? tile_raster_scale_y(8,raster_tile_width): 0);
 			// suitable start search
 			for(sint16 h=halt_list.get_count()-1;  h>=0;  h--  ) {
 				display_fillbox_wh_clip( x-h*2, y+h*2, r, r, halt_list.at(h)->gib_besitzer()->get_player_color()+2, dirty);
@@ -382,11 +380,13 @@ planquadrat_t::display_dinge(const sint16 xpos, const sint16 ypos, const sint16 
 		}
 
 		// the rest
+		const sint16 h0 = gr->gib_hoehe();
 		for(uint8 i=1; i<boeden.get_count(); i++) {
 			gr = gib_boden_bei(i);
-			gr->display_boden(xpos, ypos, dirty || gr->get_flag(grund_t::world_spot_dirty) );
+			const sint16 yypos = ypos -tile_raster_scale_y( gr->gib_hoehe()-h0, raster_tile_width);
+			gr->display_boden(xpos, yypos, dirty || gr->get_flag(grund_t::world_spot_dirty) );
 			gr->clear_flag(grund_t::dirty);
-			gr->display_dinge(xpos, ypos, dirty );
+			gr->display_dinge(xpos, yypos, dirty );
 		}
 #endif
 	}

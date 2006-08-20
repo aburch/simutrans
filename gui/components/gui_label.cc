@@ -1,6 +1,8 @@
 /*
  * gui_label.cc
  *
+ * just displays a text, will be auto-translated
+ *
  * Copyright (c) 1997 - 2001 Hansjörg Malthaner
  *
  * This file is part of the Simutrans project and may not be used
@@ -10,12 +12,12 @@
 #include <stdio.h>
 #include <string.h>
 
-#include "../simdebug.h"
+#include "../../simdebug.h"
 #include "gui_label.h"
-#include "../simgraph.h"
-#include "../simcolor.h"
-#include "../dataobj/translator.h"
-#include "../utils/simstring.h"
+#include "../../simgraph.h"
+#include "../../simcolor.h"
+#include "../../dataobj/translator.h"
+#include "../../utils/simstring.h"
 
 
 /**

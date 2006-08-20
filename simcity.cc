@@ -394,7 +394,7 @@ stadt_t::~stadt_t()
 		if(gr) {
 			koord pos=buildings.at(0)->gib_pos().gib_2d();
 			gr->obj_loesche_alle(welt->gib_spieler(1));
-			welt->access(pos)->kartenboden_setzen(new boden_t(welt, koord3d(pos,welt->min_hgt(pos) ) ), false);
+			welt->access(pos)->kartenboden_setzen(new boden_t(welt, koord3d(pos,welt->min_hgt(pos)), welt->calc_natural_slope(pos) ), false);
 		}
 		else {
 			buildings.remove_at(0);
@@ -1936,7 +1936,6 @@ stadt_t::baue_gebaeude(const koord k)
 					// if not current city road standard, then replace it
 					if(weg->gib_besch()!=welt->get_city_road()) {
 						if(gr->gib_besitzer()!=NULL  &&  !gr->gib_depot()  &&  !gr->gib_halt().is_bound()) {
-							gr->gib_besitzer()->add_maintenance(-weg->gib_besch()->gib_wartung());
 							gr->setze_besitzer( NULL );	// make public
 						}
 						weg->setze_besch( welt->get_city_road() );
@@ -2105,7 +2104,6 @@ stadt_t::renoviere_gebaeude(koord k)
 					// if not current city road standard, then replace it
 					if(weg->gib_besch()!=welt->get_city_road()) {
 						if(gr->gib_besitzer()!=NULL  &&  !gr->gib_depot()  &&  !gr->gib_halt().is_bound()) {
-							gr->gib_besitzer()->add_maintenance(-weg->gib_besch()->gib_wartung());
 							gr->setze_besitzer( NULL );	// make public
 						}
 						weg->setze_besch( welt->get_city_road() );
@@ -2141,22 +2139,22 @@ stadt_t::baue_strasse(koord k, spieler_t *sp, bool forced)
 
 		for(int r = 0; r < 4; r++) {
 			bool ok = false;
-			const hang_t::typ typ2 = welt->get_slope(k + koord::nsow[r]);
+			grund_t *bd2 = welt->access(k + koord::nsow[r])->gib_kartenboden();
+			if(bd2  &&  !bd2->ist_tunnel()  &&   !bd2->ist_bruecke()  &&  bd2->gib_depot()==NULL) {
+				const hang_t::typ typ2 = bd2->gib_grund_hang();
 
-			// prüfe hanglage auf richtung
-			switch(ribi_t::nsow[r]) {
-				case ribi_t::ost:
-				case ribi_t::west:
-					ok = hang_t::ist_wegbar_ow(typ) && hang_t::ist_wegbar_ow(typ2);
-					break;
-				case ribi_t::nord:
-				case ribi_t::sued:
-					ok = hang_t::ist_wegbar_ns(typ) && hang_t::ist_wegbar_ns(typ2);
-					break;
-			}
-			if(ok) {
-				grund_t *bd2 = welt->access(k + koord::nsow[r])->gib_kartenboden();
-				if(bd2  &&  !bd2->ist_tunnel()  &&   !bd2->ist_bruecke()  &&  bd2->gib_depot()==NULL) {
+				// prüfe hanglage auf richtung
+				switch(ribi_t::nsow[r]) {
+					case ribi_t::ost:
+					case ribi_t::west:
+						ok = hang_t::ist_wegbar_ow(typ) && hang_t::ist_wegbar_ow(typ2);
+						break;
+					case ribi_t::nord:
+					case ribi_t::sued:
+						ok = hang_t::ist_wegbar_ns(typ) && hang_t::ist_wegbar_ns(typ2);
+						break;
+				}
+				if(ok) {
 					if(bd2->gib_halt().is_bound()) {
 						// check type of stop:
 						const gebaeude_t *gb = dynamic_cast<const gebaeude_t *>(bd2->suche_obj(ding_t::gebaeude));

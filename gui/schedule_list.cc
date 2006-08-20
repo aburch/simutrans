@@ -14,7 +14,7 @@
 
 #include "messagebox.h"
 #include "schedule_list.h"
-#include "scrolled_list.h"
+#include "components/gui_scrolled_list.h"
 #include "line_management_gui.h"
 #include "gui_convoiinfo.h"
 
@@ -84,7 +84,7 @@ schedule_list_gui_t::schedule_list_gui_t(karte_t *welt,spieler_t *sp)
 	button_t button_def;
 
 	// init scrolled list
-	scl = new scrolled_list_gui_t(scrolled_list_gui_t::select);
+	scl = new gui_scrolled_list_t(gui_scrolled_list_t::select);
 	scl->setze_groesse(koord(LINE_NAME_COLUMN_WIDTH-22, SCL_HEIGHT-14));
 	scl->setze_pos(koord(0,1));
 	scl->setze_highlight_color(gib_besitzer()->get_player_color()+1);

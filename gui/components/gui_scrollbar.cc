@@ -4,13 +4,13 @@
  * Niel Roest
  */
 
-#include "../simdebug.h"
+#include "../../simdebug.h"
 
-#include "scrollbar.h"
-#include "ifc/scrollbar_listener.h"
+#include "gui_scrollbar.h"
+#include "../ifc/scrollbar_listener.h"
 
-#include "../simcolor.h"
-#include "../simgraph.h"
+#include "../../simcolor.h"
+#include "../../simgraph.h"
 
 
 scrollbar_t::scrollbar_t(enum type type)
@@ -44,6 +44,8 @@ scrollbar_t::scrollbar_t(enum type type)
 }
 
 
+
+// special callback
 void scrollbar_t::call_callback()
 {
     int range = knob_area - knob_size;

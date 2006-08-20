@@ -15,14 +15,14 @@
 #include "../utils/cbuffer_t.h"
 #endif
 
-#include "gui_label.h"
+#include "components/gui_label.h"
 #include "gui_frame.h"
 #include "components/gui_combobox.h"
-#include "button.h"
+#include "components/gui_button.h"
 #include "ifc/action_listener.h"
 
 #include "components/gui_textarea.h"
-#include "gui_scrollpane.h"
+#include "components/gui_scrollpane.h"
 
 #include "../convoihandle_t.h"
 #include "../linehandle_t.h"

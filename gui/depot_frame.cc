@@ -27,7 +27,7 @@
 
 #include "fahrplan_gui.h"
 #include "line_management_gui.h"
-#include "image_list.h"
+#include "components/gui_image_list.h"
 #include "messagebox.h"
 #include "depot_frame.h"
 
@@ -102,7 +102,6 @@ DBG_DEBUG("depot_frame_t::depot_frame_t()","get_max_convoi_length()=%i",depot->g
     bt_prev.add_listener(this);
     add_komponente(&bt_prev);
 
-    inp_name.add_listener(this);
     add_komponente(&inp_name);
 
     bt_next.setze_typ(button_t::arrowright);
@@ -120,7 +119,7 @@ DBG_DEBUG("depot_frame_t::depot_frame_t()","get_max_convoi_length()=%i",depot->g
     /*
      * [CONVOI]
      */
-    convoi = new image_list_t(&convoi_pics);
+    convoi = new gui_image_list_t(&convoi_pics);
     convoi->set_player_color(kennfarbe);
     convoi->add_listener(this);
     add_komponente(convoi);
@@ -183,15 +182,15 @@ DBG_DEBUG("depot_frame_t::depot_frame_t()","get_max_convoi_length()=%i",depot->g
     /*
      * [PANEL]
      */
-    pas = new image_list_t(pas_vec);
+    pas = new gui_image_list_t(pas_vec);
     pas->set_player_color(kennfarbe);
     pas->add_listener(this);
 
-    loks = new image_list_t(loks_vec);
+    loks = new gui_image_list_t(loks_vec);
     loks->set_player_color(kennfarbe);
     loks->add_listener(this);
 
-    waggons = new image_list_t(waggons_vec);
+    waggons = new gui_image_list_t(waggons_vec);
     waggons->set_player_color(kennfarbe);
     waggons->add_listener(this);
 
@@ -306,8 +305,8 @@ void depot_frame_t::layout(koord *gr)
 	* The image list is horizontally "condensed".
 	*/
 	int CINFO_HEIGHT = 14;
-	int CLIST_WIDTH = depot->get_max_convoi_length() * (grid.x - grid_dx) + 2 * image_list_t::BORDER;
-	int CLIST_HEIGHT = grid.y + 2 * image_list_t::BORDER;
+	int CLIST_WIDTH = depot->get_max_convoi_length() * (grid.x - grid_dx) + 2 * gui_image_list_t::BORDER;
+	int CLIST_HEIGHT = grid.y + 2 * gui_image_list_t::BORDER;
 	int CONVOI_WIDTH = CLIST_WIDTH + placement_dx;
 // int CONVOI_HEIGHT = CLIST_HEIGHT + CINFO_HEIGHT;
 
@@ -348,15 +347,15 @@ void depot_frame_t::layout(koord *gr)
 	* build_vehicle_lists() fills loks_vec and waggon_vec.
 	* Total width will be expanded to match completo columns in panel.
 	*/
-//    int PANEL_COLS = (TOTAL_WIDTH - 2 * image_list_t::BORDER - 1) / grid.x;
-//    int PANEL_WIDTH = PANEL_COLS * grid.x + 2 * image_list_t::BORDER + 12;
-	int total_h = PANEL_VSTART+VINFO_HEIGHT + 17 + tab_panel_t::HEADER_VSIZE + 2 * image_list_t::BORDER;
+//    int PANEL_COLS = (TOTAL_WIDTH - 2 * gui_image_list_t::BORDER - 1) / grid.x;
+//    int PANEL_WIDTH = PANEL_COLS * grid.x + 2 * gui_image_list_t::BORDER + 12;
+	int total_h = PANEL_VSTART+VINFO_HEIGHT + 17 + gui_tab_panel_t::HEADER_VSIZE + 2 * gui_image_list_t::BORDER;
 	int PANEL_ROWS = max(1, ((fgr.y-total_h)/grid.y) );
 	if(gr  &&  gr->y==0) {
 		PANEL_ROWS = 3;
 	}
-	int PANEL_HEIGHT = PANEL_ROWS * grid.y + tab_panel_t::HEADER_VSIZE + 2 * image_list_t::BORDER;
-	int MIN_PANEL_HEIGHT = grid.y + tab_panel_t::HEADER_VSIZE + 2 * image_list_t::BORDER;
+	int PANEL_HEIGHT = PANEL_ROWS * grid.y + gui_tab_panel_t::HEADER_VSIZE + 2 * gui_image_list_t::BORDER;
+	int MIN_PANEL_HEIGHT = grid.y + gui_tab_panel_t::HEADER_VSIZE + 2 * gui_image_list_t::BORDER;
 
     /*
      *	Now we can do the complete vertical adjustement:
@@ -528,7 +527,7 @@ void depot_frame_t::add_to_vehicle_list(const vehikel_besch_t *info)
 	// prissi: ist a non-electric track?
 	// Hajo: check for timeline
 	// prissi: and retirement date
-	image_list_t::image_data_t img_data;
+	gui_image_list_t::image_data_t img_data;
 
 	img_data.image = info->gib_basis_bild();
 	img_data.count = 0;
@@ -575,9 +574,9 @@ void depot_frame_t::build_vehicle_lists()
 			i++;
 		}
 
-		waggons_vec = new vector_tpl<image_list_t::image_data_t>(waggons+1);
-		loks_vec = new vector_tpl<image_list_t::image_data_t>(loks+1);
-		pas_vec = new vector_tpl<image_list_t::image_data_t>(pax+1);
+		waggons_vec = new vector_tpl<gui_image_list_t::image_data_t>(waggons+1);
+		loks_vec = new vector_tpl<gui_image_list_t::image_data_t>(loks+1);
+		pas_vec = new vector_tpl<gui_image_list_t::image_data_t>(pax+1);
 DBG_DEBUG("depot_frame_t::build_vehicle_lists()","%i passenger vehicle, %i  engines, %i good wagons",pax,loks,waggons);
 	}
 	else {
@@ -644,7 +643,7 @@ void depot_frame_t::update_data()
 	convoi_pics.clear();
 	if(cnv.is_bound() && cnv->gib_vehikel_anzahl() > 0) {
 		inp_name.setze_text(cnv->access_name(), 48);
-		image_list_t::image_data_t img_data;
+		gui_image_list_t::image_data_t img_data;
 
 		for(unsigned i=0; i<cnv->gib_vehikel_anzahl(); i++) {
 
@@ -688,7 +687,7 @@ void depot_frame_t::update_data()
 		}
 	}
 
-	ptrhashtable_iterator_tpl<const vehikel_besch_t *, image_list_t::image_data_t *> iter1(vehicle_map);
+	ptrhashtable_iterator_tpl<const vehikel_besch_t *, gui_image_list_t::image_data_t *> iter1(vehicle_map);
 	while(iter1.next()) {
 		const int ok_color = iter1.get_current_key()->is_future(month_now) || iter1.get_current_key()->is_retired(month_now) ? COL_BLUE: COL_GREEN;
 
@@ -749,8 +748,8 @@ DBG_MESSAGE("depot_frame_t::update()","id=%d",selected_line.get_id() );
 		line_selector.set_selection( 0 );
 DBG_MESSAGE("depot_frame_t::update()","unbound" );
 	}
-	//
-DBG_MESSAGE("depot_frame_t::update()","lines=%d",depot->get_line_list()->count() );
+
+//DBG_MESSAGE("depot_frame_t::update()","lines=%d",depot->get_line_list()->count() );
 	// check all matching lines
 	slist_iterator_tpl<linehandle_t> iter( depot->get_line_list() );
 	while( iter.next() ) {
@@ -783,10 +782,10 @@ int depot_frame_t::calc_restwert(const vehikel_besch_t *veh_type)
 }
 
 void
-depot_frame_t::bild_gewaehlt(image_list_t *lst, int bild_index)
+depot_frame_t::bild_gewaehlt(gui_image_list_t *lst, int bild_index)
 {
     if(lst == loks || lst == waggons  ||  lst == pas) {
-	image_list_t::image_data_t *bild_data = &(lst == loks ? loks_vec : (lst==pas? pas_vec :waggons_vec))->at(bild_index);
+	gui_image_list_t::image_data_t *bild_data = &(lst == loks ? loks_vec : (lst==pas? pas_vec :waggons_vec))->at(bild_index);
 
 	if(bild_data->lcolor != COL_RED && bild_data->rcolor != COL_RED) {
 	    int bild = bild_data->image;
@@ -1005,9 +1004,7 @@ void depot_frame_t::infowin_event(const event_t *ev)
 
 		if(IS_LEFTCLICK(ev) &&  !line_selector.getroffen(ev->cx, ev->cy-16)) {
 			// close combo box; we must do it ourselves, since the box does not recieve outside events ...
-			line_selector.release_focus();
-DBG_MESSAGE("depot_frame()","closed selector (pos %i,%i, size %i,%i), mouse is%i,%i",line_selector.gib_pos().x,line_selector.gib_pos().y,line_selector.gib_groesse().x,line_selector.gib_groesse().y,ev->cx, ev->cy);
-
+			line_selector.close_box();
 		}
 	}
 }
@@ -1153,16 +1150,16 @@ depot_frame_t::draw_vehicle_info_text(koord pos)
 	sprintf(buf, translator::translate("%d Einzelfahrzeuge im Depot"), depot->vehicle_count());
         break;
     }
-    image_list_t *lst = dynamic_cast<image_list_t *>(tabs.get_active_tab_index() == 0 ? pas :(tabs.get_active_tab_index() == 1 ? loks : waggons));
+    gui_image_list_t *lst = dynamic_cast<gui_image_list_t *>(tabs.get_active_tab_index() == 0 ? pas :(tabs.get_active_tab_index() == 1 ? loks : waggons));
     int x = gib_maus_x();
     int y = gib_maus_y();
     int value = -1;
     const vehikel_besch_t *veh_type = NULL;
     koord relpos = (tabs.get_active_tab_index() == 0 ? koord(0, scrolly_pas->get_scroll_y()) : (tabs.get_active_tab_index() == 1 ? koord(0, scrolly_loks->get_scroll_y()) : koord(0, scrolly_waggons->get_scroll_y()) ));
 
-    int sel_index = lst->index_at(pos + tabs.gib_pos() - relpos, x, y - 16 - tab_panel_t::HEADER_VSIZE);
+    int sel_index = lst->index_at(pos + tabs.gib_pos() - relpos, x, y - 16 - gui_tab_panel_t::HEADER_VSIZE);
     if ((sel_index != -1) && (tabs.getroffen(x-pos.x,y-pos.y))) {
-			vector_tpl<image_list_t::image_data_t> *vec = (lst == pas ? pas_vec : (lst == loks ? loks_vec : waggons_vec));
+			vector_tpl<gui_image_list_t::image_data_t> *vec = (lst == pas ? pas_vec : (lst == loks ? loks_vec : waggons_vec));
 			veh_type = vehikelbauer_t::gib_info(vec->at(sel_index).image);
 			if(vec->at(sel_index).count > 0) {
 	    	value = calc_restwert(veh_type) / 100;

@@ -12,18 +12,17 @@
 
 
 
-tunnelboden_t::tunnelboden_t(karte_t *welt, loadsave_t *file) : boden_t(welt, koord3d(0,0,0))
+tunnelboden_t::tunnelboden_t(karte_t *welt, loadsave_t *file) : boden_t(welt, koord3d(0,0,0),0)
 {
-    rdwr(file);
-    set_flag(grund_t::is_tunnel);
+	rdwr(file);
+	set_flag(grund_t::is_tunnel);
 }
 
 
-tunnelboden_t::tunnelboden_t(karte_t *welt, koord3d pos, hang_t::typ hang_typ) : boden_t(welt, pos)
+tunnelboden_t::tunnelboden_t(karte_t *welt, koord3d pos, hang_t::typ hang_typ) : boden_t(welt, pos, hang_typ)
 {
-    this->hang_typ = hang_typ;
-    set_flag(grund_t::is_tunnel);
-    set_flag(grund_t::is_in_tunnel);
+	set_flag(grund_t::is_tunnel);
+	set_flag(grund_t::is_in_tunnel);
 }
 
 
@@ -50,10 +49,11 @@ void tunnelboden_t::calc_bild()
 void
 tunnelboden_t::rdwr(loadsave_t *file)
 {
-    grund_t::rdwr(file);
-    int int_hang = hang_typ;
-    file->rdwr_long(int_hang, "\n");
-    hang_typ = int_hang;
+	grund_t::rdwr(file);
+	if(file->get_version()<88009) {
+		int int_hang = 0;
+		file->rdwr_long(int_hang, "\n");
+	}
 }
 
 

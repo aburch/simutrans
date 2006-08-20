@@ -12,10 +12,10 @@
 
 #include "gui_frame.h"
 #include "gui_container.h"
-#include "gui_scrollpane.h"
-#include "gui_label.h"
+#include "components/gui_scrollpane.h"
+#include "components/gui_label.h"
 #include "ifc/action_listener.h"                                // 28-Dec-2001  Markus Weber    Added
-#include "button.h"
+#include "components/gui_button.h"
 
 class spieler_t;
 class vehikel_t;

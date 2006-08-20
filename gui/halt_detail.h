@@ -14,7 +14,7 @@
 #include "components/gui_textarea.h"
 
 #include "gui_frame.h"
-#include "gui_scrollpane.h"
+#include "components/gui_scrollpane.h"
 
 #include "../halthandle_t.h"
 #include "../utils/cbuffer_t.h"

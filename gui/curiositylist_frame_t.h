@@ -5,8 +5,8 @@
 #include "../gui/curiositylist_stats_t.h"
 #include "../dataobj/translator.h"
 #include "ifc/action_listener.h"
-#include "gui_label.h"
-#include "gui_scrollpane.h"
+#include "components/gui_label.h"
+#include "components/gui_scrollpane.h"
 
 class karte_t;
 
@@ -19,13 +19,11 @@ class curiositylist_frame_t : public gui_frame_t, private action_listener_t
  private:
     static const char *sort_text[curiositylist::SORT_MODES];
 
-    gui_scrollpane_t* scrolly;
-    curiositylist_stats_t* stats;
-
     gui_label_t sort_label;
-//    gui_label_t header_label;
     button_t	sortedby;
     button_t	sorteddir;
+    curiositylist_stats_t stats;
+    gui_scrollpane_t scrolly;
 
     /*
      * All filter settings are static, so they are not reset each
@@ -35,13 +33,7 @@ class curiositylist_frame_t : public gui_frame_t, private action_listener_t
     static bool sortreverse;
 
  public:
-
-
     curiositylist_frame_t(karte_t * welt);
-    ~curiositylist_frame_t();
-
-    // update list
-    void update() { stats->get_unique_attractions(sortby,sortreverse); }
 
     /**
      * resize window in response to a resize event

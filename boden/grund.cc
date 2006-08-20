@@ -209,8 +209,6 @@ void grund_t::calc_back_bild(const sint8 hgt,const sint8 slope_this)
 }
 
 
-
-
 /**
  * Table of ground texts
  * @author Hj. Malthaner
@@ -234,11 +232,15 @@ void grund_t::entferne_grund_info() {
 }
 
 
-hang_t::typ
-grund_t::gib_grund_hang() const
+
+// set slope an recalcs image
+bool
+grund_t::setze_grund_hang(hang_t::typ sl)
 {
-    return welt->get_slope(pos.gib_2d());
+	slope = sl;
+	return true;
 }
+
 
 
 /**
@@ -312,8 +314,20 @@ spieler_t * grund_t::gib_besitzer() const
  */
 bool grund_t::setze_besitzer(spieler_t *s)
 {
-  besitzer_n = welt->sp2num(s);
-  return true;
+	sint8 sp_num= s ? s->get_player_nr() : -1;
+	if(besitzer_n!=sp_num) {
+		// transfer way maitenance costs
+		if(wege[0]) {
+			if(besitzer_n>=0) { welt->gib_spieler(besitzer_n)->add_maintenance(-wege[0]->gib_besch()->gib_wartung()); }
+			if(s) { s->add_maintenance(wege[0]->gib_besch()->gib_wartung()); }
+		}
+		if(wege[1]) {
+			if(besitzer_n>=0) { welt->gib_spieler(besitzer_n)->add_maintenance(-wege[1]->gib_besch()->gib_wartung()); }
+			if(s) { s->add_maintenance(wege[1]->gib_besch()->gib_wartung()); }
+		}
+	}
+	besitzer_n = sp_num;
+	return true;
 }
 
 
@@ -367,6 +381,10 @@ void grund_t::rdwr(loadsave_t *file)
 	sint8 dummy8=besitzer_n;
 	file->rdwr_byte(dummy8, "\n");
 	besitzer_n = dummy8;
+	// slopes now loaded here!
+	if(file->get_version()>=88009) {
+		file->rdwr_byte(dummy8, "s");
+	}
 
     if(file->is_loading()) {
 	weg_t::typ wtyp;
@@ -843,16 +861,13 @@ bool grund_t::weg_erweitern(weg_t::typ wegtyp, ribi_t::ribi ribi)
  */
 bool grund_t::neuen_weg_bauen(weg_t *weg, ribi_t::ribi ribi, spieler_t *sp)
 {
-	// Hajo: falld das Feld noch keine Besitzer hat, nehmen wir es in Besitz
-	// egal ob der Weg schon da war oder nicht.
-
-	if(gib_besitzer()==NULL) {
-		setze_besitzer( sp );
-	}
-	else if(sp  &&  sp!=gib_besitzer()) {
+	if(sp  &&  sp!=gib_besitzer()   &&  besitzer_n!=1  && besitzer_n!=-1) {
 		// cannot take ownership
 		return false;
 	}
+
+	// by claiming this field, we also take over matenance for all ways
+	setze_besitzer( sp );
 
 	// not already there?
 	const weg_t * alter_weg = gib_weg(weg->gib_typ());

@@ -1719,19 +1719,10 @@ wegbauer_t::baue_strasse()
 //DBG_MESSAGE("wegbauer_t::baue_strasse()","nothing to do at (%i,%i)",k.x,k.y);
 			}
 			else {
-//DBG_MESSAGE("wegbauer_t::baue_strasse()","updating %s to %s at (%i,%i)",weg->gib_besch()->gib_name(),besch->gib_name(),k.x,k.y);
-
 				// we take ownership => we take care to maintain the roads completely ...
-//				cost += weg->gib_besch()->gib_preis();
-				if(gr->gib_besitzer()) {
-					gr->gib_besitzer()->add_maintenance( -weg->gib_besch()->gib_wartung() );
-				}
-				if(sp) {
-					sp->add_maintenance( besch->gib_wartung() );
-					gr->setze_besitzer( sp );
-				}
-
+				gr->setze_besitzer( NULL );	// this way the maitenace will be correct
 				weg->setze_besch(besch);
+				gr->setze_besitzer( sp );
 				gr->calc_bild();
 				cost -= besch->gib_preis();
 			}
@@ -1824,15 +1815,9 @@ wegbauer_t::baue_schiene()
 				}
 				else {
 					// we take ownershipe => we take care to maintain the roads completely ...
-					if(gr->gib_besitzer()) {
-						gr->gib_besitzer()->add_maintenance( -weg->gib_besch()->gib_wartung() );
-					}
-					if(sp) {
-						sp->add_maintenance( besch->gib_wartung() );
-						gr->setze_besitzer( sp );
-					}
-
+					gr->setze_besitzer( NULL );	// no costs
 					weg->setze_besch(besch);
+					gr->setze_besitzer( sp );	// all to us now
 					gr->calc_bild();
 					cost = -besch->gib_preis();
 				}
@@ -1918,15 +1903,9 @@ wegbauer_t::baue_monorail()
 					}
 					else {
 						// we take ownershipe => we take care to maintain the roads completely ...
-						if(monorail->gib_besitzer()) {
-							monorail->gib_besitzer()->add_maintenance( -weg->gib_besch()->gib_wartung() );
-						}
-						if(sp) {
-							sp->add_maintenance( besch->gib_wartung() );
-							monorail->setze_besitzer( sp );
-						}
-
+						monorail->setze_besitzer( NULL );
 						weg->setze_besch(besch);
+						monorail->setze_besitzer( sp );
 						monorail->calc_bild();
 						cost = -besch->gib_preis();
 					}
@@ -2011,11 +1990,9 @@ DBG_MESSAGE("wegbauer_t::baue_kanal()","extend ribi_t at (%i,%i) with %i",route-
 					weg_t * weg = gr->gib_weg(weg_t::wasser);
 					if(weg->gib_besch()!=besch && !keep_existing_ways) {
 						// Hajo: den typ des weges aendern, kosten berechnen
-						if(sp) {
-							sp->add_maintenance(besch->gib_wartung() - weg->gib_besch()->gib_wartung());
-						}
-
+						gr->setze_besitzer( NULL );
 						weg->setze_besch(besch);
+						gr->setze_besitzer( sp );
 						gr->calc_bild();
 						cost = -besch->gib_preis();
 					}

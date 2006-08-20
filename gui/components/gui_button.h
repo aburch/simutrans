@@ -10,7 +10,7 @@
 #ifndef gui_button_h
 #define gui_button_h
 
-#include "../ifc/gui_komponente.h"
+#include "../../ifc/gui_action_creator.h"
 
 
 // forward decls
@@ -31,7 +31,7 @@ template <class T> class slist_tpl;
  * @author Hj. Malthaner, Niels Roest
  * @date December 2000
  */
-class button_t : public gui_komponente_t
+class button_t : public gui_komponente_action_creator_t
 {
 public:
 	enum type { square, box, roundbox, arrowleft, arrowright, arrowup, arrowdown, scrollbar, repeatarrowleft, repeatarrowright };
@@ -47,18 +47,6 @@ private:
 	enum type type;
 
 	/**
-	 * Our listeners.
-	 * @author Hj. Malthaner
-	 */
-	slist_tpl <action_listener_t *> * listeners;
-
-	/**
-	 * Inform all listeners that an action was triggered.
-	 * @author Hj. Malthaner
-	 */
-	void call_listeners();
-
-	/**
 	 * if buttons is disabled show only grey label
 	 * @author hsiegeln
 	 */
@@ -66,12 +54,6 @@ private:
 
 public:
 	uint8 background; //@author hsiegeln
-
-	/**
-	 * Add a new listener to this button.
-	 * @author Hj. Malthaner
-	 */
-	void add_listener(action_listener_t * l);
 
 	/**
 	 * Der im Button angezeigte Text
@@ -88,7 +70,6 @@ public:
 	button_t(const button_t & other);
 
 	button_t();
-	virtual ~button_t();
 
 	void init(enum type typ, const char *text, koord pos, koord size = koord::invalid);
 

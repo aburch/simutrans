@@ -15,7 +15,7 @@
 #include "../dataobj/translator.h"
 #include "../simgraph.h"
 #include "../simcolor.h"
-#include "button.h"
+#include "components/gui_button.h"
 #include "fabrik_info.h"
 
 class karte_t;
@@ -36,12 +36,11 @@ class factorylist_stats_t : public gui_komponente_t
 private:
 
 	karte_t * welt;
-	vector_tpl<fabrik_t*> *fab_list;
+	vector_tpl<fabrik_t*> fab_list;
 
 public:
 
 	factorylist_stats_t(karte_t *welt,const factorylist::sort_mode_t& sortby,const bool& sortreverse);
-	~factorylist_stats_t();
 
 	/**
 	* Events werden hiermit an die GUI-Komponenten

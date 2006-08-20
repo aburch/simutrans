@@ -22,14 +22,16 @@ wasser_t::wasser_t(karte_t *welt, loadsave_t *file) : grund_t(welt)
     rdwr(file);
     step_nr = simrand(5);
     wasser_t::step();
-//DBG_DEBUG("wasser_t::wasser_t()","rdwr of wasser at %i,%i with img %i.",gib_pos().x,gib_pos().y,grund_besch_t::wasser->gib_bild(hang_t::flach, step_nr+(welt->gib_zeit_ms()>>11)));
+    slope = (uint8)hang_t::flach;
 }
 
 wasser_t::wasser_t(karte_t *welt, koord pos) : grund_t(welt, koord3d(pos, welt->gib_grundwasser()))
 {
     step_nr = simrand(5);
     wasser_t::step();
+    slope = (uint8)hang_t::flach;
 }
+
 
 
 bool
@@ -43,55 +45,25 @@ wasser_t::zeige_info()
 }
 
 
+
 void
 wasser_t::step()
 {
     // Hajo: it's not good to modify too much values, so it's better only to
     // read step_nr and do a little calculation.
-    setze_bild( grund_besch_t::wasser->gib_bild(
-	hang_t::flach, step_nr+(welt->gib_zeit_ms()>>11)));
+    setze_bild( grund_besch_t::wasser->gib_bild(hang_t::flach, step_nr+(welt->gib_zeit_ms()>>11)));
 }
+
+
 
 void
 wasser_t::calc_bild()
 {
     setze_hoehe( welt->gib_grundwasser() );
-	if(gib_weg_nr(0)) {
-		gib_weg_nr(0)->setze_bild(IMG_LEER);
-	}
 	// artifical walls from here on ...
 	grund_t::calc_back_bild(gib_hoehe()/16,0);
 }
 
-
-
-ribi_t::ribi wasser_t::gib_weg_ribi(weg_t::typ typ) const
-{
-    const weg_t *weg = gib_weg(typ);
-
-    if(weg) {
-	return weg->gib_ribi();
-    } else if(typ == weg_t::wasser) {
-	return ribi_t::alle;
-    } else {
-	return ribi_t::keine;
-    }
-}
-
-
-
-ribi_t::ribi wasser_t::gib_weg_ribi_unmasked(weg_t::typ typ) const
-{
-    const weg_t *weg = gib_weg(typ);
-
-    if(weg) {
-	return weg->gib_ribi_unmasked();
-    } else if(typ == weg_t::wasser) {
-	return ribi_t::alle;
-    } else {
-	return ribi_t::keine;
-    }
-}
 
 
 void *

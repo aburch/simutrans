@@ -7,9 +7,9 @@
  * in other projects without written permission of the author.
  */
 #include "gui_frame.h"
-#include "gui_label.h"
+#include "components/gui_label.h"
 #include "ifc/action_listener.h"
-#include "button.h"
+#include "components/gui_button.h"
 #include "halt_list_frame.h"
 #include "components/gui_textinput.h"
 

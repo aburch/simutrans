@@ -140,7 +140,7 @@ bool optionen_gui_t::action_triggered(gui_komponente_t *comp)
 	}
 	else if(comp==&bt_load) {
 		destroy_win(this);
-		create_win(new loadsave_frame_t(welt, false), w_info, magic_load_t);
+		create_win(new loadsave_frame_t(welt, true), w_info, magic_load_t);
 	}
 	else if(comp==&bt_save) {
 		destroy_win(this);

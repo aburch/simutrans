@@ -322,10 +322,10 @@ fahrplan_gui_t::gib_fenstergroesse() const
 void
 fahrplan_gui_t::infowin_event(const event_t *ev)
 {
-	if (IS_LEFTCLICK(ev) &&  !line_selector.getroffen(ev->cx, ev->cy)  &&  scrolly.getroffen(ev->cx+12, ev->cy)) {
+	if (IS_LEFTCLICK(ev) &&  !line_selector.getroffen(ev->cx, ev->cy-16)  &&  scrolly.getroffen(ev->cx+12, ev->cy)) {
 
 		// close combo box; we must do it ourselves, since the box does not recieve outside events ...
-		line_selector.release_focus();
+		line_selector.close_box();
 
 		if(ev->my>=40+16) {
 			// we are now in the multiline region ...
@@ -363,6 +363,8 @@ fahrplan_gui_t::infowin_event(const event_t *ev)
 bool
 fahrplan_gui_t::action_triggered(gui_komponente_t *komp)
 {
+DBG_MESSAGE("fahrplan_gui_t::action_triggered()","komp=%p combo=%p",komp,&line_selector);
+
   if(komp == &bt_add) {
     if(mode != adding) {
       mode = adding;
@@ -420,22 +422,21 @@ fahrplan_gui_t::action_triggered(gui_komponente_t *komp)
     }
   } else if (komp == &bt_return) {
     fpl->add_return_way(welt);
-  } else if (komp == &line_selector) {
-    int selection = line_selector.get_selection()-1;
+	} else if (komp == &line_selector) {
+		int selection = line_selector.get_selection();
 DBG_MESSAGE("fahrplan_gui_t::action_triggered()","line selection=%i",selection);
-    if (selection>-1  &&  selection<(int)lines.count()) {
-      new_line = lines.at(selection);
-      line_selector.setze_text(new_line->get_name(), 128);
-      fpl->copy_from( new_line->get_fahrplan() );
-      fpl->eingabe_beginnen();
-    } else {
-    	if(selection==-1){
-    	// remove line from convoy
-      line_selector.setze_text(no_line, 128);
-      new_line = linehandle_t();
-      }
-    }
-		} else if (komp == &bt_promote_to_line) {
+		if (selection>0) {
+			new_line = lines.at(selection-1);
+			line_selector.setze_text(new_line->get_name(), 128);
+			fpl->copy_from( new_line->get_fahrplan() );
+			fpl->eingabe_beginnen();
+		}
+		else {
+			// remove line from convoy
+			line_selector.setze_text(no_line, 128);
+			new_line = linehandle_t();
+		}
+	} else if (komp == &bt_promote_to_line) {
 		new_line = sp->simlinemgmt.create_line(fpl->get_type(), this->fpl);
 		init_line_selector();
 //		create_win(-1, -1, 120, new nachrichtenfenster_t(welt, translator::translate("New line created!\nYou can assign the line now\nby selecting it from the\nline selector above.")), w_autodelete);
@@ -518,7 +519,7 @@ void fahrplan_gui_t::init_line_selector()
 			linehandle_t line = iter.get_current();
 			line_selector.append_element( line->get_name() );
 			if(new_line==line) {
-				selection = line_selector.count_elements();
+				selection = line_selector.count_elements()-1;
 			}
 		}
 	}

@@ -12,7 +12,7 @@
 
 #include "../simdebug.h"
 #include "label_frame.h"
-#include "button.h"
+#include "components/gui_button.h"
 #include "../simwin.h"
 #include "../simintr.h"
 

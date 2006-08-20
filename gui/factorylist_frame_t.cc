@@ -10,7 +10,7 @@
 
 #include "factorylist_frame_t.h"
 #include "components/list_button.h"
-#include "../gui/gui_scrollpane.h"
+#include "components/gui_scrollpane.h"
 
 /**
  * This variable defines the sort order (ascending or descending)
@@ -40,8 +40,9 @@ const char *factorylist_frame_t::sort_text[factorylist::SORT_MODES] = {
 
 factorylist_frame_t::factorylist_frame_t(karte_t * welt) :
     gui_frame_t(translator::translate("fl_title")),
-    sort_label(translator::translate("hl_txt_sort"))
-//    header_label(translator::translate("service - name (input,output,production) (power)"),COL_WHITE)
+    sort_label(translator::translate("hl_txt_sort")),
+	stats(welt,sortby,sortreverse),
+	scrolly(&stats)
 {
 	sort_label.setze_pos(koord(BUTTON1_X, 4));
 	add_komponente(&sort_label);
@@ -54,21 +55,13 @@ factorylist_frame_t::factorylist_frame_t(karte_t * welt) :
 	sorteddir.add_listener(this);
 	add_komponente(&sorteddir);
 
-//    header_label.setze_pos(koord(BUTTON1_X,30));
-//    add_komponente(&header_label);
-
 	// name buttons
 	sortedby.setze_text(translator::translate(sort_text[gib_sortierung()]));
 	sorteddir.setze_text(translator::translate(gib_reverse() ? "hl_btn_sort_desc" : "hl_btn_sort_asc"));
 
-
-	//DBG_DEBUG("factorylist_frame_t()","constructor begin");
-	stats = new factorylist_stats_t(welt,sortby,sortreverse);
-	//DBG_DEBUG("factorylist_frame_t()","constructor 1");
-	scrolly = new gui_scrollpane_t(stats);
-	scrolly->setze_pos(koord(1, 14+BUTTON_HEIGHT+2));
-	scrolly->set_show_scroll_x(false);
-	add_komponente(scrolly);
+	scrolly.setze_pos(koord(1, 14+BUTTON_HEIGHT+2));
+	scrolly.set_show_scroll_x(false);
+	add_komponente(&scrolly);
 
 	setze_fenstergroesse(koord(TOTAL_WIDTH, 240));
 	// a min-size for the window
@@ -81,14 +74,6 @@ factorylist_frame_t::factorylist_frame_t(karte_t * welt) :
 }
 
 
-factorylist_frame_t::~factorylist_frame_t()
-{
-    //DBG_DEBUG("factorylist_frame_t()","destructor");
-    delete scrolly;
-    scrolly = 0;
-    delete stats;
-    stats = 0;
-}
 
 /**
  * This method is called if an action is triggered
@@ -99,12 +84,12 @@ bool factorylist_frame_t::action_triggered(gui_komponente_t *komp)
     if(komp == &sortedby) {
 	setze_sortierung((factorylist::sort_mode_t)((gib_sortierung() + 1) % factorylist::SORT_MODES));
 	sortedby.setze_text(translator::translate(sort_text[gib_sortierung()]));
-	stats->sort(gib_sortierung(),gib_reverse());
+	stats.sort(gib_sortierung(),gib_reverse());
     }
     else if(komp == &sorteddir) {
 	setze_reverse(!gib_reverse());
 	sorteddir.setze_text(translator::translate(gib_reverse() ? "hl_btn_sort_desc" : "hl_btn_sort_asc"));
-	stats->sort(gib_sortierung(),gib_reverse());
+	stats.sort(gib_sortierung(),gib_reverse());
     }
     return true;
 }
@@ -120,5 +105,5 @@ void factorylist_frame_t::resize(const koord delta)
     gui_frame_t::resize(delta);
     // fensterhoehe - 16(title) -offset (header)
     koord groesse = gib_fenstergroesse()-koord(0,14+BUTTON_HEIGHT+2+16);
-    scrolly->setze_groesse(groesse);
+    scrolly.setze_groesse(groesse);
 }

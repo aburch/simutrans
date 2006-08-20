@@ -114,7 +114,7 @@ void baum_t::calc_off()
 {
   int liob;
   int reob;
-  switch (welt->get_slope( gib_pos().gib_2d()) )
+  switch (welt->lookup( gib_pos().gib_2d())->gib_kartenboden()->gib_grund_hang() )
   {
   case 0:
     liob=simrand(30)-15;

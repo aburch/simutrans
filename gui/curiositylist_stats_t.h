@@ -13,7 +13,7 @@
 #include "../tpl/vector_tpl.h"
 #include "../ifc/gui_komponente.h"
 //#include "../dings/gebaeude.h"
-#include "button.h"
+#include "components/gui_button.h"
 
 class karte_t;
 class button_t;
@@ -38,7 +38,8 @@ class curiositylist_stats_t : public gui_komponente_t
 
  public:
 	curiositylist_stats_t(karte_t *welt,const curiositylist::sort_mode_t& sortby,const bool& sortreverse);
-  	~curiositylist_stats_t();
+
+
 
   	void get_unique_attractions(const curiositylist::sort_mode_t& sortby,const bool& reverse);
 

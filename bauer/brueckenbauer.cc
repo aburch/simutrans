@@ -655,7 +655,7 @@ brueckenbauer_t::remove(karte_t *welt, spieler_t *sp, koord3d pos, weg_t::typ we
 		gr->weg_entfernen(wegtyp, false);
 		gr->obj_loesche_alle(sp);
 
-		gr = new boden_t(welt, pos);
+		gr = new boden_t(welt, pos,gr->gib_grund_hang());
 		welt->access(pos.gib_2d())->kartenboden_setzen(gr, false);
 
 		// Neuen Boden wieder mit Weg versehen

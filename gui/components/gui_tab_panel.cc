@@ -8,21 +8,21 @@
  */
 
 
-#include "../simdebug.h"
-#include "tab_panel.h"
-#include "../dataobj/translator.h"
-#include "../simevent.h"
-#include "../simgraph.h"
-#include "../simcolor.h"
+#include "../../simdebug.h"
+#include "gui_tab_panel.h"
+#include "../../dataobj/translator.h"
+#include "../../simevent.h"
+#include "../../simgraph.h"
+#include "../../simcolor.h"
 
 
-tab_panel_t::tab_panel_t()
+gui_tab_panel_t::gui_tab_panel_t()
 {
     active_tab = 0;
 }
 
 
-void tab_panel_t::add_tab(gui_komponente_t *c, const char *name)
+void gui_tab_panel_t::add_tab(gui_komponente_t *c, const char *name)
 {
     tabs.append(c);
     namen.append(name);
@@ -31,12 +31,12 @@ void tab_panel_t::add_tab(gui_komponente_t *c, const char *name)
 }
 
 gui_komponente_t *
-tab_panel_t::gib_aktives_tab() const
+gui_tab_panel_t::gib_aktives_tab() const
 {
     return tabs.at(active_tab);
 }
 
-void tab_panel_t::setze_groesse(koord groesse)
+void gui_tab_panel_t::setze_groesse(koord groesse)
 {
     gui_komponente_t::setze_groesse(groesse);
 
@@ -49,11 +49,8 @@ void tab_panel_t::setze_groesse(koord groesse)
 }
 
 
-void tab_panel_t::infowin_event(const event_t *ev)
+void gui_tab_panel_t::infowin_event(const event_t *ev)
 {
-//    printf("tab_panel_t::infowin_event()\n");
-
-
     if(ev->my >= HEADER_VSIZE || ev->cy >= HEADER_VSIZE) {
 	// Komponente getroffen
 	event_t ev2 = *ev;
@@ -89,7 +86,7 @@ void tab_panel_t::infowin_event(const event_t *ev)
 
 
 
-void tab_panel_t::zeichnen(koord parent_pos) const
+void gui_tab_panel_t::zeichnen(koord parent_pos) const
 {
     // Position am Bildschirm/Fenster
     const int xpos = parent_pos.x + pos.x;
@@ -131,16 +128,4 @@ void tab_panel_t::zeichnen(koord parent_pos) const
 	i++;
     }
     display_fillbox_wh_clip(text_x-4, ypos+HEADER_VSIZE-1, groesse.x-(text_x-xpos)+4, 1, MN_GREY4, true);
-}
-
-/**
- * Inform all listeners that an action was triggered.
- * @author Hj. Malthaner
- */
-void tab_panel_t::call_listeners()
-{
-    // printf("Message: button_t::call_listeners()\n");
-
-    slist_iterator_tpl<action_listener_t *> iter (listeners);
-    while(iter.next() && !iter.get_current()->action_triggered(this));
 }

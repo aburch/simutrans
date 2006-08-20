@@ -7,22 +7,17 @@
  * in other projects without written permission of the author.
  */
 
-#include "button.h"
+#include "gui_button.h"
 
-#include "../simdebug.h"
-#include "../simcolor.h"
-#include "../simgraph.h"
-#include "../simevent.h"
-#include "../simwin.h"
-#include "../dataobj/translator.h"
+#include "../../simdebug.h"
+#include "../../simcolor.h"
+#include "../../simgraph.h"
+#include "../../simevent.h"
+#include "../../simwin.h"
+#include "../../dataobj/translator.h"
 
-#include "../simskin.h"
-#include "../besch/skin_besch.h"
-
-#include "ifc/action_listener.h"
-
-#include "../tpl/slist_tpl.h"
-
+#include "../../simskin.h"
+#include "../../besch/skin_besch.h"
 
 /*
  * Hajo: image numbers of button skins
@@ -128,27 +123,6 @@ static void display_button_image(int x, int y, int number, bool pushed)
 }
 
 
-/**
- * Add a new listener to this button.
- * @author Hj. Malthaner
- */
-void button_t::add_listener(action_listener_t * l) {
-  listeners->insert( l );
-}
-
-
-/**
- * Inform all listeners that an action was triggered.
- * @author Hj. Malthaner
- */
-void button_t::call_listeners()
-{
-  slist_iterator_tpl<action_listener_t *> iter (listeners);
-  while(iter.next() && !iter.get_current()->action_triggered(this))
-    ;
-}
-
-
 button_t::button_t()
 {
 	text = 0;
@@ -158,21 +132,13 @@ button_t::button_t()
 	tooltip = 0;
 	background = MN_GREY3;
 	b_enabled = true;
-	listeners = new slist_tpl < action_listener_t * >;
 	init_button_images();
 }
 
 
-button_t::button_t(const button_t & other) : gui_komponente_t(other)
+button_t::button_t(const button_t & other) : gui_komponente_action_creator_t(other)
 {
 	*this = other;
-}
-
-
-button_t::~button_t()
-{
-	delete listeners;
-	listeners = 0;
 }
 
 
@@ -476,12 +442,9 @@ void button_t::operator= (const button_t & other)
 	tooltip = other.tooltip;
 	background = other.background;
 
-	listeners = new slist_tpl < action_listener_t * >;
-
 	slist_iterator_tpl<action_listener_t *> iter (other.listeners);
-
 	while( iter.next() ) {
-		listeners->append(iter.get_current());
+		listeners.append(iter.get_current());
 	}
 
 	init_button_images();

@@ -12,7 +12,7 @@
 #include <string.h>
 
 #include "gui_container.h"
-#include "gui_scrollpane.h"
+#include "components/gui_scrollpane.h"
 #include "halt_list_item.h"
 #include "halt_list_frame.h"
 #include "halt_list_filter_frame.h"

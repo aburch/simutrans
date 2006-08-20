@@ -7,13 +7,13 @@
  * in other projects without written permission of the author.
  */
 
-#include "../simdebug.h"
+#include "../../simdebug.h"
 
 #include "gui_scrollpane.h"
-#include "scrollbar.h"
+#include "gui_scrollbar.h"
 
-#include "../simgraph.h"
-#include "../simcolor.h"
+#include "../../simgraph.h"
+#include "../../simcolor.h"
 
 
 

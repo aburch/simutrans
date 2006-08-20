@@ -11,11 +11,11 @@
 #define gui_halt_info_h
 
 #include "gui_frame.h"
-#include "gui_label.h"
-#include "gui_scrollpane.h"
+#include "components/gui_label.h"
+#include "components/gui_scrollpane.h"
 #include "components/gui_textarea.h"
 #include "components/gui_textinput.h"
-#include "button.h"
+#include "components/gui_button.h"
 #include "world_view_t.h"
 #include "ifc/action_listener.h"
 

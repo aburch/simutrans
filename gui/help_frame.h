@@ -11,7 +11,7 @@
 #define gui_help_frame_h
 
 #include "gui_frame.h"
-#include "gui_scrollpane.h"
+#include "components/gui_scrollpane.h"
 #include "components/gui_flowtext.h"
 #include "ifc/hyperlink_listener.h"
 

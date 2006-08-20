@@ -24,7 +24,7 @@
 #endif
 
 #ifndef gui_button_h
-#include "button.h"
+#include "components/gui_button.h"
 #endif
 
 #ifndef world_view_t_h

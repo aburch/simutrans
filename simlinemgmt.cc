@@ -280,8 +280,9 @@ uint16 simlinemgmt_t::get_unique_line_id()
 {
 	for(uint16 i=0;  i<8192;  i++  ) {
 		if(used_ids[i]!=255) {
+DBG_MESSAGE("simlinemgmt_t::get_unique_line_id()","free id near %i",i*8);
 			for(uint16 id=0;  id<7;  id++ ) {
-				if(used_ids[i]&(1<<id)==0) {
+				if((used_ids[i]&(1<<id))==0) {
 					used_ids[i] |= (1<<(id&7));
 DBG_MESSAGE("simlinemgmt_t::get_unique_line_id()","New id %i",i*8+id);
 					return (i*8)+id;

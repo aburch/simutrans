@@ -10,9 +10,7 @@
 #ifndef gui_components_gui_textinput_h
 #define gui_components_gui_textinput_h
 
-#include "../../ifc/gui_komponente.h"
-#include "../../tpl/slist_tpl.h"
-#include "../ifc/action_listener.h"
+#include "../../ifc/gui_action_creator.h"
 
 struct event_t;
 
@@ -24,7 +22,7 @@ struct event_t;
  * @date 19-Apr-01
  * @author Hj. Malthaner
  */
-class gui_textinput_t : public gui_komponente_t
+class gui_textinput_t : public gui_komponente_action_creator_t
 {
 protected:
 
@@ -42,36 +40,12 @@ protected:
     int max;
 
     /**
-     * Our listeners.
-     * @author Hj. Malthaner
-     */
-    slist_tpl <action_listener_t *> listeners;
-
-
-    /**
-     * Inform all listeners that an action was triggered.
-     * @author Hj. Malthaner
-     */
-    void call_listeners();
-
-    /**
      * position of text cursor
      * @author hsiegeln
      */
      int cursor_pos;
 
 public:
-
-
-    /**
-     * Add a new listener to this text input field.
-     * @author Hj. Malthaner
-     */
-    void add_listener(action_listener_t * l) {
-	listeners.insert( l );
-    }
-
-
     /**
      * Konstruktor
      *
@@ -117,7 +91,6 @@ public:
      * @author Hj. Malthaner
      */
     void zeichnen(koord offset) const;
-
 };
 
 #endif

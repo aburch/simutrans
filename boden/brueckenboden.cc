@@ -18,16 +18,16 @@
 
 brueckenboden_t::brueckenboden_t(karte_t *welt, loadsave_t *file) : grund_t(welt)
 {
-    rdwr(file);
-    set_flag(grund_t::is_bridge);
+	rdwr(file);
+	set_flag(grund_t::is_bridge);
 }
 
 
 brueckenboden_t::brueckenboden_t(karte_t *welt, koord3d pos, int grund_hang, int weg_hang) : grund_t(welt, pos)
 {
-    this->grund_hang = grund_hang;
-    this->weg_hang = weg_hang;
-    set_flag(grund_t::is_bridge);
+	slope = grund_hang;
+	this->weg_hang = weg_hang;
+	set_flag(grund_t::is_bridge);
 }
 
 
@@ -36,12 +36,12 @@ void brueckenboden_t::calc_bild()
 	reliefkarte_t::gib_karte()->recalc_relief_farbe(gib_pos().gib_2d());
 	if(ist_karten_boden()) {
 		if(gib_hoehe()==welt->gib_grundwasser()) {
-			setze_bild(grund_besch_t::ufer->gib_bild(gib_grund_hang()));
+			setze_bild(grund_besch_t::ufer->gib_bild(slope));
 		}
 		else {
-			setze_bild(grund_besch_t::boden->gib_bild(gib_grund_hang()));
+			setze_bild(grund_besch_t::boden->gib_bild(slope));
 		}
-		grund_t::calc_back_bild(gib_hoehe()/16,grund_hang);
+		grund_t::calc_back_bild(gib_hoehe()/16,slope);
 	}
 	else {
 		setze_bild(IMG_LEER);
@@ -59,9 +59,9 @@ brueckenboden_t::rdwr(loadsave_t *file)
 	grund_t::rdwr(file);
 	if(file->get_version() <= 84004) {
 		short v;
-		v = grund_hang;
+		v = slope;
 		file->rdwr_short(v, " ");
-		grund_hang = v;
+		slope = v;
 
 		v= weg_hang;
 		file->rdwr_short(v, "\n");
@@ -69,7 +69,10 @@ brueckenboden_t::rdwr(loadsave_t *file)
 
 	}
 	else {
-		file->rdwr_byte(grund_hang, " ");
+		if(file->get_version()<88009) {
+			// now reduntant, has been read by grund!
+			file->rdwr_byte(slope, " ");
+		}
 		file->rdwr_byte(weg_hang, "\n");
 	}
 }

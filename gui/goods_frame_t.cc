@@ -9,8 +9,7 @@
 
 
 #include "goods_frame_t.h"
-#include "goods_stats_t.h"
-#include "gui_scrollpane.h"
+#include "components/gui_scrollpane.h"
 #include "components/list_button.h"
 
 #include "../bauer/warenbauer.h"
@@ -55,11 +54,11 @@ const char *goods_frame_t::sort_text[SORT_MODES] = {
 goods_frame_t::goods_frame_t(karte_t *wl) :
 	gui_frame_t("Goods list"),
 	sort_label(translator::translate("hl_txt_sort")),
-	change_speed_label(speed_bonus,COL_WHITE,gui_label_t::right)
+	change_speed_label(speed_bonus,COL_WHITE,gui_label_t::right),
+	goods_stats(wl),
+	scrolly(&goods_stats)
 {
 	this->welt = wl;
-	good_list = new unsigned short[warenbauer_t::gib_waren_anzahl()-1];
-
 	int y=BUTTON_HEIGHT+4-16;
 
 	speed_bonus[0] = 0;
@@ -91,13 +90,10 @@ goods_frame_t::goods_frame_t(karte_t *wl) :
 
 	y += BUTTON_HEIGHT+2;
 
-	goods_stats = new goods_stats_t(welt);
-
-	scrolly = new gui_scrollpane_t(goods_stats);
-	scrolly->setze_pos(koord(1, y));
-	scrolly->set_show_scroll_x(false);
-	scrolly->setze_groesse(koord(TOTAL_WIDTH-16, 191+16+16-y));
-	add_komponente(scrolly);
+	scrolly.setze_pos(koord(1, y));
+	scrolly.set_show_scroll_x(false);
+	scrolly.setze_groesse(koord(TOTAL_WIDTH-16, 191+16+16-y));
+	add_komponente(&scrolly);
 
 	setze_opaque(true);
 	int h = (warenbauer_t::gib_waren_anzahl()-1)*LINESPACE+y;
@@ -113,14 +109,6 @@ goods_frame_t::goods_frame_t(karte_t *wl) :
 	resize (koord(0,0));
 }
 
-
-goods_frame_t::~goods_frame_t()
-{
-	delete scrolly;
-	delete [] good_list;
-	delete goods_stats;
-	scrolly = 0;
-}
 
 
 
@@ -189,7 +177,7 @@ void goods_frame_t::sort_list()
 	// now sort
 	qsort((void *)good_list, n, sizeof(unsigned short), compare_goods);
 
-	goods_stats->update_goodslist( good_list, relative_speed_change );
+	goods_stats.update_goodslist( good_list, relative_speed_change );
 }
 
 /**
@@ -201,7 +189,7 @@ void goods_frame_t::resize(const koord delta)
 {
 	gui_frame_t::resize(delta);
 	koord groesse = gib_fenstergroesse()-koord(0,4+4*LINESPACE+4+BUTTON_HEIGHT+2+16);
-	scrolly->setze_groesse(groesse);
+	scrolly.setze_groesse(groesse);
 }
 
 
@@ -226,13 +214,11 @@ bool goods_frame_t::action_triggered(gui_komponente_t *komp)
 	else if(komp == &speed_down) {
 		if(relative_speed_change>1) {
 			relative_speed_change --;
-//			goods_stats->update_goodslist( good_list, relative_speed_change );
 			sort_list();
 		}
 	}
 	else if(komp == &speed_up) {
 		relative_speed_change ++;
-//		goods_stats->update_goodslist( good_list, relative_speed_change );
 		sort_list();
 	}
 	return true;

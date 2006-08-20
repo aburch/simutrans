@@ -10,9 +10,9 @@
 #include <stdio.h>
 
 #include "sound_frame.h"
-#include "scrollbar.h"
-#include "gui_label.h"
-#include "button.h"
+#include "components/gui_scrollbar.h"
+#include "components/gui_label.h"
+#include "components/gui_button.h"
 #include "../simsound.h"
 #include "../simintr.h"
 

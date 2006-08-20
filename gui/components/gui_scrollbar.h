@@ -1,11 +1,11 @@
 #ifndef gui_scrollbar_h
 #define gui_scrollbar_h
 
-#include "../tpl/slist_tpl.h"
-#include "../dataobj/koord.h"
-#include "../simevent.h"
-#include "button.h"
-#include "../ifc/gui_komponente.h"
+#include "../../tpl/slist_tpl.h"
+#include "../../dataobj/koord.h"
+#include "../../simevent.h"
+#include "gui_button.h"
+#include "../../ifc/gui_komponente.h"
 
 class scrollbar_listener_t;
 

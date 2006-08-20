@@ -12,13 +12,13 @@
 #define goods_frame_t_h
 
 #include "gui_frame.h"
-#include "button.h"
-#include "gui_label.h"
+#include "components/gui_button.h"
+#include "components/gui_scrollpane.h"
+#include "components/gui_label.h"
 #include "ifc/action_listener.h"
+#include "goods_stats_t.h"
 
-class gui_scrollpane_t;
 class karte_t;
-class goods_stats_t;
 
 /**
  * Shows statistics. Only goods so far.
@@ -38,9 +38,8 @@ private:
 	karte_t * welt;
 	char	speed_bonus[6];
 	char	speed_message[256];
-	unsigned short *good_list;
+	uint16 good_list[256];
 
-	gui_scrollpane_t *scrolly;
 	gui_label_t sort_label;
 	button_t	sortedby;
 	button_t	sorteddir;
@@ -48,17 +47,15 @@ private:
 	button_t	speed_up;
 	button_t	speed_down;
 
-	goods_stats_t *goods_stats;
+	goods_stats_t goods_stats;
+	gui_scrollpane_t scrolly;
 
 	// creates the list and pass it to the child finction good_stats, which does the display stuff ...
 	static int compare_goods(const void *p1, const void *p2);
 	void sort_list();
 
 public:
-
   goods_frame_t(karte_t *wl);
-  ~goods_frame_t();
-
 
     /**
      * This method is called if an action is triggered

@@ -2,7 +2,7 @@
 #define factorylist_frame_t_h
 
 #include "gui_frame.h"
-#include "gui_label.h"
+#include "components/gui_label.h"
 #include "../dataobj/translator.h"
 #include "factorylist_stats_t.h"
 
@@ -22,13 +22,11 @@ class factorylist_frame_t : public gui_frame_t, private action_listener_t
 
     static const char *sort_text[factorylist::SORT_MODES];
 
-    gui_scrollpane_t* scrolly;
-    factorylist_stats_t* stats;
-
     gui_label_t sort_label;
-//    gui_label_t header_label;
     button_t	sortedby;
     button_t	sorteddir;
+    factorylist_stats_t stats;
+    gui_scrollpane_t scrolly;
 
     /*
      * All filter settings are static, so they are not reset each
@@ -40,7 +38,6 @@ class factorylist_frame_t : public gui_frame_t, private action_listener_t
  public:
 
     factorylist_frame_t(karte_t * welt);
-    ~factorylist_frame_t();
 
 
     /**

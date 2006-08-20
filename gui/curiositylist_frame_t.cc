@@ -11,7 +11,7 @@
 #include "curiositylist_frame_t.h"
 #include "curiositylist_stats_t.h"
 #include "components/list_button.h"
-#include "../gui/gui_scrollpane.h"
+#include "components/gui_scrollpane.h"
 #include "../simcolor.h"
 
 /**
@@ -39,8 +39,9 @@ const char *curiositylist_frame_t::sort_text[curiositylist::SORT_MODES] = {
 
 curiositylist_frame_t::curiositylist_frame_t(karte_t * welt) :
     gui_frame_t(translator::translate("curlist_title")),
-    sort_label(translator::translate("hl_txt_sort"))
-//    header_label(translator::translate("status - name (coordinates) - (passenger level,mail level)"),COL_WHITE)
+    sort_label(translator::translate("hl_txt_sort")),
+	stats(welt,sortby,sortreverse),
+	scrolly(&stats)
 {
 	sort_label.setze_pos(koord(BUTTON1_X, 4));
 	add_komponente(&sort_label);
@@ -53,22 +54,14 @@ curiositylist_frame_t::curiositylist_frame_t(karte_t * welt) :
 	sorteddir.add_listener(this);
 	add_komponente(&sorteddir);
 
-//	header_label.setze_pos(koord(BUTTON1_X,31));
-//	add_komponente(&header_label);
-
-	stats = new curiositylist_stats_t(welt,sortby,sortreverse);
-
 	setze_opaque(true);
 	setze_fenstergroesse(koord(TOTAL_WIDTH, 240));
 
-	scrolly = new gui_scrollpane_t(stats);
-	scrolly->setze_pos(koord(1,14+BUTTON_HEIGHT+2));
-	scrolly->set_show_scroll_x(false);
-	add_komponente(scrolly);
+	scrolly.setze_pos(koord(1,14+BUTTON_HEIGHT+2));
+	scrolly.set_show_scroll_x(false);
+	add_komponente(&scrolly);
 
 	display_list();
-
-	add_komponente(scrolly);
 
 	// a min-size for the window
 	set_min_windowsize(koord(TOTAL_WIDTH, 240));
@@ -78,15 +71,6 @@ curiositylist_frame_t::curiositylist_frame_t(karte_t * welt) :
 }
 
 
-
-curiositylist_frame_t::~curiositylist_frame_t()
-{
-    //DBG_DEBUG("curiositylist_frame_t()","destructor");
-    delete stats;
-    stats = 0;
-    delete scrolly;
-    scrolly = 0;
-}
 
 /**
  * This method is called if an action is triggered
@@ -105,6 +89,8 @@ bool curiositylist_frame_t::action_triggered(gui_komponente_t *komp)
 	return true;
 }
 
+
+
 /**
  * resize window in response to a resize event
  * @author Hj. Malthaner
@@ -115,8 +101,9 @@ void curiositylist_frame_t::resize(const koord delta)
 	gui_frame_t::resize(delta);
 	// fensterhoehe - 16(title) -offset (header)
 	koord groesse = gib_fenstergroesse()-koord(0,14+BUTTON_HEIGHT+2+16);
-	scrolly->setze_groesse(groesse);
+	scrolly.setze_groesse(groesse);
 }
+
 
 
 /**
@@ -127,8 +114,5 @@ void curiositylist_frame_t::display_list(void)
 {
 	sortedby.setze_text(translator::translate(sort_text[gib_sortierung()]));
 	sorteddir.setze_text(translator::translate(gib_reverse() ? "hl_btn_sort_desc" : "hl_btn_sort_asc"));
-	update();
-	/****************************
-	* Display the station list
-	***************************/
+	stats.get_unique_attractions(sortby,sortreverse);
 }

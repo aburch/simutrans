@@ -54,6 +54,7 @@
 
 static microvec_tpl <int> kill_list (200);
 
+static gui_komponente_t * focus=NULL;
 
 // (Mathew Hounsell)
 // I added a button to the map window to fix it's size to the best one.
@@ -87,7 +88,6 @@ static int ins_win = 0;		        // zeiger auf naechsten freien eintrag
 
 static karte_t *wl=NULL;		// Zeiger auf aktuelle Welt, wird in win_get_event gesetzt
 
-static bool focus_granted = false;      // default: keyboard input into game engine
 
 
 // Hajo: tooltip data
@@ -269,20 +269,17 @@ static void win_draw_window_dragger(koord pos, koord gr)
  * @return true if focus granted
  * @author Hj. Malthaner
  */
-bool request_focus()
+bool request_focus(gui_komponente_t *req_focus)
 {
-    if(focus_granted) {
-	// someone has already requested the focus
-
-	dbg->warning("bool request_focus()",
-		     "Focus was already granted");
-
-	return false;
-    } else {
-	focus_granted = true;
-
-	return true;
-    }
+	if(focus  &&  req_focus!=focus) {
+		// someone has already requested the focus
+		dbg->warning("bool request_focus()","Focus was already granted");
+		return false;
+	}
+	else {
+		focus = req_focus;
+		return true;
+	}
 }
 
 
@@ -291,14 +288,25 @@ bool request_focus()
  *
  * @author Hj. Malthaner
  */
-void release_focus()
+void release_focus(gui_komponente_t *this_focus)
 {
-    if(focus_granted) {
-	focus_granted = false;
-    } else {
-	dbg->warning("void release_focus()",
-		     "Focus was already released");
-    }
+	if(focus  &&  focus==this_focus) {
+		focus = NULL;
+	} else {
+		dbg->warning("void release_focus()","Focus was already released");
+	}
+}
+
+
+
+/**
+ * our?
+ *
+ * @author Hj. Malthaner
+ */
+bool has_focus(const gui_komponente_t *req_focus)
+{
+	return focus==req_focus;
 }
 
 
@@ -381,6 +389,7 @@ DBG_DEBUG("create_win()","ins_win=%d", ins_win);
 					// gibts schon, wir machen kein neues
 					// aber wir machen es sichtbar, falls verdeckt
 DBG_DEBUG("create_win()","magic=%d already there, bring to fornt", magic);
+					focus = NULL;	// free focus
 					top_win(i);
 
 					// if 'special' magic number, delete 'new'-ed object
@@ -394,6 +403,7 @@ DBG_DEBUG("create_win()","magic=%d already there, bring to fornt", magic);
 
 		// Hajo: Notify window to be shown
 		if(gui) {
+			focus = NULL;	// free focus
 			event_t ev;
 
 			ev.ev_class = INFOWIN;
@@ -859,7 +869,7 @@ check_pos_win(event_t *ev)
 	}
 
 	// if no focused, we do not deliver keyboard input
-	if(!focus_granted && ev->ev_class == EVENT_KEYBOARD) {
+	if(focus==NULL && ev->ev_class == EVENT_KEYBOARD) {
 		swallowed = false;
 	}
 

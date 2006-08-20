@@ -1,6 +1,8 @@
 /*
  * gui_label.h
  *
+ * just displays a text, will be auto-translated
+ *
  * Copyright (c) 1997 - 2001 Hansjörg Malthaner
  *
  * This file is part of the Simutrans project and may not be used
@@ -10,7 +12,7 @@
 #ifndef gui_gui_label_h
 #define gui_gui_label_h
 
-#include "../ifc/gui_komponente.h"
+#include "../../ifc/gui_komponente.h"
 
 
 /**
@@ -34,15 +36,15 @@ public:
 	money
     };
 private:
-    align_t align;
-
-    const char * text;	// only for direct acess of non-translateable things. Do not use!
+    align_t align:4;
 
     /**
      * Farbe des Labels
      * @author Hansjörg Malthaner
      */
-    int color;
+    uint8 color;
+
+    const char * text;	// only for direct acess of non-translateable things. Do not use!
 
 public:
 

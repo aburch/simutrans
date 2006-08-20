@@ -4,12 +4,12 @@
 #include "components/gui_resizer.h"                             // 28-Dec-2001  Markus Weber    Added
 #include "components/gui_textinput.h"
 #include "gui_frame.h"
-#include "scrolled_list.h"
+#include "components/gui_scrolled_list.h"
 #include "gui_container.h"
-#include "gui_scrollpane.h"
+#include "components/gui_scrollpane.h"
 #include "gui_convoiinfo.h"
 #include "../simline.h"
-#include "tab_panel.h"
+#include "components/gui_tab_panel.h"
 
 class spieler_t;
 class karte_t;
@@ -32,7 +32,7 @@ private:
   spieler_t *sp;
 
   koord groesse;
-  scrolled_list_gui_t *scl;
+  gui_scrolled_list_t *scl;
   button_t bt_new_line, bt_change_line, bt_delete_line;
   gui_container_t cont, cont_haltestellen;
   gui_scrollpane_t scrolly, scrolly_haltestellen;
@@ -40,7 +40,7 @@ private:
   gui_textinput_t inp_name;
   gui_chart_t *chart;
   button_t filterButtons[MAX_LINE_COST];
-  tab_panel_t tabs;
+  gui_tab_panel_t tabs;
 
 	static const char cost_type[MAX_LINE_COST][64];
 	static const int cost_type_color[MAX_LINE_COST];

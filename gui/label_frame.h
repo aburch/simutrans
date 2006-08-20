@@ -17,8 +17,8 @@
 #include "gui_frame.h"
 #include "components/gui_textinput.h"
 #include "components/gui_divider.h"
-#include "gui_label.h"
-#include "button.h"
+#include "components/gui_label.h"
+#include "components/gui_button.h"
 
 
 class button_t;

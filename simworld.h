@@ -197,13 +197,18 @@ private:
      */
     void calc_hoehe_mit_perlin();
 
-
     /**
      * Helferroutine fuer cleanup_karte()
      * @see karte_t::cleanup_karte
      * @author Hj. Malthaner
      */
     void raise_clean(int x,int y, int h);
+
+    bool can_raise_to(int x,int y, int h) const;
+    int  raise_to(sint16 x, sint16 y, sint16 h,bool set_slopes);
+
+    bool can_lower_to(int x,int y, int h) const;
+    int  lower_to(sint16 x, sint16 y, sint16 h,bool set_slopes);
 
 
     /**
@@ -227,25 +232,9 @@ private:
     void bewege_zeiger(const event_t *ev);
     void interactive_event(event_t &ev);
 
-
-    /**
-     * Calculates slope for grid at pos.
-     * @author Hj. Malthaner
-     */
-    void calc_slope(koord pos);
-
-
     planquadrat_t *plan;
 
     sint8 *grid_hgts;
-
-
-    /**
-     * Slopes of the grids. ATM only lower 4 bits used.
-     * @author Hj. Malthaner
-     */
-    uint8 *slopes;
-
 
     marker_t marker;
 
@@ -575,23 +564,6 @@ public:
 	uint8	calc_natural_slope( const koord pos ) const;
 
     /**
-     * Get slope at position pos. Outside the map everything is flat.
-     * @author Hj. Malthaner
-     */
-    uint8 get_slope(const koord k) const
-    {
-      return ist_in_kartengrenzen(k) ? slopes[k.x+k.y*cached_groesse_gitter_x] : 0;
-    }
-
-
-    /**
-     * Creates an artificial slope at position k
-     * @author Hj. Malthaner
-     */
-    void set_slope(koord k, uint8 slope);
-
-
-    /**
      * Wird vom Strassenbauer als Orientierungshilfe benutzt.
      * @author Hj. Malthaner
      */
@@ -669,14 +641,6 @@ public:
      */
     bool is_plan_height_changeable(int x, int y) const;
 
-
-    bool can_raise_to(int x,int y, int h) const;
-    int  raise_to(int x,int y, int h);
-
-    bool can_lower_to(int x,int y, int h) const;
-    int  lower_to(int x,int y, int h);
-
-
     /**
      * Prueft, ob die Hoehe an Gitterkoordinate (x,y)
      * erhoeht werden kann.
@@ -704,7 +668,6 @@ public:
      */
     bool can_lower(int x,int y) const;
 
-
     /**
      * Erniedrigt die Hoehe an Gitterkoordinate (x,y) um eins.
      * @param pos Gitterkoordinate
@@ -713,7 +676,6 @@ public:
     int lower(koord pos);
 
     bool ebne_planquadrat(koord pos, int hgt);
-
 
     /**
      * Erzeugt einen Berg oder ein Tal

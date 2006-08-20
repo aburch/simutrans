@@ -107,8 +107,9 @@ boden_t::boden_t(karte_t *welt, loadsave_t *file) : grund_t(welt)
 }
 
 
-boden_t::boden_t(karte_t *welt, koord3d pos) : grund_t(welt, pos)
+boden_t::boden_t(karte_t *welt, koord3d pos,hang_t::typ slope) : grund_t(welt, pos)
 {
+	this->slope = slope;
 }
 
 

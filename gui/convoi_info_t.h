@@ -8,12 +8,12 @@
  */
 
 #include "gui_frame.h"
-#include "gui_scrollpane.h"
+#include "components/gui_scrollpane.h"
 #include "components/gui_textarea.h"
 #include "components/gui_textinput.h"
 #include "components/gui_speedbar.h"
-#include "button.h"
-#include "gui_label.h"                  // 09-Dec-2001      Markus Weber    Added
+#include "components/gui_button.h"
+#include "components/gui_label.h"                  // 09-Dec-2001      Markus Weber    Added
 #include "world_view_t.h"
 #include "ifc/action_listener.h"
 #include "../convoihandle_t.h"

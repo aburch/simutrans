@@ -8,6 +8,15 @@ Known bugs: (hard to fix)
 
 
 
+Release of 88.09.3
+
+	FIX: recompiled with hopefully corrected files => bridges/marker correctly, line number ok again
+	FIX: ownership of public owned road is taken when using trams
+	FIX: last line in schedules selectable again
+	CHANGE: slope now part of ground structure => less errors with monorail over houses
+	CHANGE: gui-components and dialogs mostly seperated, losts of code cleanup
+
+
 Release of 88.09.2
 
 1-Mai-2006: (prissi)

@@ -10,7 +10,7 @@
 
 
 #include "gui_container.h"
-#include "gui_scrollpane.h"
+#include "components/gui_scrollpane.h"
 #include "gui_convoiinfo.h"
 #include "convoi_frame.h"
 #include "convoi_filter_frame.h"

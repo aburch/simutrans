@@ -8,7 +8,7 @@
  */
 
 #include "components/list_button.h"
-#include "button.h"
+#include "components/gui_button.h"
 
 #include "../simwin.h"
 
@@ -16,7 +16,7 @@
 #include "message_frame_t.h"
 #include "message_stats_t.h"
 #include "message_option_t.h"
-#include "gui_scrollpane.h"
+#include "components/gui_scrollpane.h"
 
 #include "help_frame.h"
 

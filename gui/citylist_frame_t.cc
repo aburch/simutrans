@@ -38,8 +38,10 @@ const char *citylist_frame_t::sort_text[citylist::SORT_MODES] = {
 };
 
 citylist_frame_t::citylist_frame_t(karte_t * welt) :
-    gui_frame_t("City list"),
-    sort_label(translator::translate("hl_txt_sort"))
+	gui_frame_t("City list"),
+	sort_label(translator::translate("hl_txt_sort")),
+	stats(welt,sortby,sortreverse),
+	scrolly(&stats)
 {
 	sort_label.setze_pos(koord(BUTTON1_X, 40-BUTTON_HEIGHT-LINESPACE));
 	add_komponente(&sort_label);
@@ -56,11 +58,9 @@ citylist_frame_t::citylist_frame_t(karte_t * welt) :
 	sortedby.setze_text(translator::translate(sort_text[gib_sortierung()]));
 	sorteddir.setze_text(translator::translate(gib_reverse() ? "hl_btn_sort_desc" : "hl_btn_sort_asc"));
 
-	stats = new citylist_stats_t(welt,sortby,sortreverse);
-	scrolly = new gui_scrollpane_t(stats);
-	scrolly->set_show_scroll_x(false);
-	scrolly->setze_pos(koord(1,42));
-	add_komponente(scrolly);
+	scrolly.set_show_scroll_x(false);
+	scrolly.setze_pos(koord(1,42));
+	add_komponente(&scrolly);
 
 	setze_fenstergroesse(koord(TOTAL_WIDTH, 240));
 	// a min-size for the window
@@ -73,13 +73,6 @@ citylist_frame_t::citylist_frame_t(karte_t * welt) :
 }
 
 
-citylist_frame_t::~citylist_frame_t()
-{
-  delete scrolly;
-  scrolly = 0;
-  delete stats;
-  stats = 0;
-}
 
 /**
  * This method is called if an action is triggered
@@ -90,12 +83,12 @@ bool citylist_frame_t::action_triggered(gui_komponente_t *komp)
     if(komp == &sortedby) {
 	setze_sortierung((citylist::sort_mode_t)((gib_sortierung() + 1) % citylist::SORT_MODES));
 	sortedby.setze_text(translator::translate(sort_text[gib_sortierung()]));
-	stats->sort(gib_sortierung(),gib_reverse());
+	stats.sort(gib_sortierung(),gib_reverse());
     }
     else if(komp == &sorteddir) {
 	setze_reverse(!gib_reverse());
 	sorteddir.setze_text(translator::translate(gib_reverse() ? "hl_btn_sort_desc" : "hl_btn_sort_asc"));
-	stats->sort(gib_sortierung(),gib_reverse());
+	stats.sort(gib_sortierung(),gib_reverse());
     }
     return true;
 }
@@ -111,7 +104,7 @@ void citylist_frame_t::resize(const koord delta)
 
   // fensterhoehe - 16(title) -42 (header)
   koord groesse = gib_fenstergroesse()-koord(0,58);
-  scrolly->setze_groesse(groesse);
+  scrolly.setze_groesse(groesse);
 }
 
 

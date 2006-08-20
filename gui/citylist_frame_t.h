@@ -5,9 +5,9 @@
 #include "../gui/citylist_stats_t.h"
 #include "../dataobj/translator.h"
 #include "ifc/action_listener.h"
-#include "button.h"
-#include "gui_label.h"
-#include "gui_scrollpane.h"
+#include "components/gui_button.h"
+#include "components/gui_label.h"
+#include "components/gui_scrollpane.h"
 
 class gui_scrollpane_t;
 class citylist_stats_t;
@@ -23,12 +23,12 @@ class citylist_frame_t : public gui_frame_t, private action_listener_t
  private:
     static const char *sort_text[citylist::SORT_MODES];
 
-    gui_scrollpane_t *scrolly;
-    citylist_stats_t *stats;
-
     gui_label_t sort_label;
     button_t	sortedby;
     button_t	sorteddir;
+
+    citylist_stats_t stats;
+    gui_scrollpane_t scrolly;
 
     /*
      * All filter settings are static, so they are not reset each
@@ -40,7 +40,6 @@ class citylist_frame_t : public gui_frame_t, private action_listener_t
  public:
 
     citylist_frame_t(karte_t * welt);
-    ~citylist_frame_t();
 
    /**
      * Komponente neu zeichnen. Die übergebenen Werte beziehen sich auf

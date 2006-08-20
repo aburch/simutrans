@@ -8,15 +8,14 @@
  */
 
 
-#include "../simdebug.h"
-#include "image_list.h"
-#include "ifc/image_list_listener.h"
-#include "../simgraph.h"
-#include "../simevent.h"
-#include "../simcolor.h"
+#include "../../simdebug.h"
+#include "gui_image_list.h"
+#include "../../simgraph.h"
+#include "../../simevent.h"
+#include "../../simcolor.h"
 
 
-image_list_t::image_list_t(vector_tpl<image_data_t> *images) :
+gui_image_list_t::gui_image_list_t(vector_tpl<image_data_t> *images) :
     grid(16, 16),
     placement(16, 16)
 {
@@ -32,23 +31,16 @@ image_list_t::image_list_t(vector_tpl<image_data_t> *images) :
  * gemeldet
  * @author Hj. Malthaner
  */
-void image_list_t::infowin_event(const event_t *ev)
+void gui_image_list_t::infowin_event(const event_t *ev)
 {
-    int sel_index = index_at(-pos, ev->mx, ev->my);
-
-    if(sel_index != -1) {
-	if(IS_LEFTCLICK(ev)) {
-	    // listener informieren
-	    slist_iterator_tpl<image_list_listener_t*> iter (listener);
-	    while(iter.next()) {
-		iter.get_current()->bild_gewaehlt(this, sel_index);
-	    }
+	int sel_index = index_at(-pos, ev->mx, ev->my);
+	if(sel_index!=-1  &&  IS_LEFTCLICK(ev)) {
+		call_listeners();
 	}
-    }
 }
 
 
-int image_list_t::index_at(koord parent_pos, int xpos, int ypos) const
+int gui_image_list_t::index_at(koord parent_pos, int xpos, int ypos) const
 {
     xpos -= parent_pos.x + pos.x + BORDER;
     ypos -= parent_pos.y + pos.y + BORDER;
@@ -76,7 +68,7 @@ int image_list_t::index_at(koord parent_pos, int xpos, int ypos) const
 }
 
 
-void image_list_t::zeichnen(koord parent_pos) const
+void gui_image_list_t::zeichnen(koord parent_pos) const
 {
     const int rows = (groesse.y - 2 * BORDER) / grid.y;
     const int columns = (groesse.x - 2 * BORDER) / grid.x;
@@ -152,7 +144,7 @@ void image_list_t::zeichnen(koord parent_pos) const
     }
 }
 
-void image_list_t::recalc_size()
+void gui_image_list_t::recalc_size()
 {
 	const int columns = (groesse.x - 2 * BORDER) / grid.x;
 	int rows = (images->get_count() + columns-1) / columns;

@@ -39,7 +39,7 @@ public:
     static void toggle_season(int season);
 
     boden_t(karte_t *welt, loadsave_t *file);
-    boden_t(karte_t *welt, koord3d pos);
+    boden_t(karte_t *welt, koord3d pos, hang_t::typ slope);
 
     ~boden_t();
 

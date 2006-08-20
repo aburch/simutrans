@@ -30,7 +30,7 @@ public:
      * @return gibt 'Fundament' zurueck.
      * @author Hj. Malthaner
      */
-    inline const char *gib_name() const {return "Fundament";};
+    inline const char *gib_name() const {return "Fundament";}
 
     /**
      * Auffforderung, ein Infofenster zu öffnen.
@@ -38,9 +38,9 @@ public:
      */
     virtual bool zeige_info();
 
-	hang_t::typ gib_grund_hang() const { return hang_t::flach; }
+    inline enum typ gib_typ() const {return fundament;}
 
-    inline enum typ gib_typ() const {return fundament;};
+	bool set_slope(hang_t::typ) { slope = 0; return false; }
 
     void * operator new(size_t s);
     void operator delete(void *p);

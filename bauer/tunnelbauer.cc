@@ -354,7 +354,7 @@ tunnelbauer_t::remove(karte_t *welt, spieler_t *sp, koord3d start, weg_t::typ we
 			gr->obj_loesche_alle(sp);
 			cost += umgebung_t::cst_tunnel;
 
-			gr = new boden_t(welt, pos);
+			gr = new boden_t(welt, pos, gr->gib_grund_hang() );
 			welt->access(pos.gib_2d())->kartenboden_setzen(gr, false);
 
 			// Neuen Boden wieder mit Weg versehen

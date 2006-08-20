@@ -11,9 +11,9 @@
 
 #include "gui_frame.h"
 #include "ifc/action_listener.h"
-#include "button.h"
-#include "gui_label.h"
-#include "tab_panel.h"
+#include "components/gui_button.h"
+#include "components/gui_label.h"
+#include "components/gui_tab_panel.h"
 
 class gui_chart_t;
 class gui_label_t;
@@ -90,7 +90,7 @@ private:
     static const char cost_type[MAX_COST][64];
     static const int cost_type_color[MAX_COST];
     static char digit[4];
-    tab_panel_t year_month_tabs;
+    gui_tab_panel_t year_month_tabs;
 
 
 public:

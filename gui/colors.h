@@ -2,7 +2,7 @@
 #define color_gui_h
 
 #ifndef gui_button_h
-#include "button.h"
+#include "components/gui_button.h"
 #endif
 
 #ifndef gui_infowin_h

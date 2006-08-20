@@ -12,22 +12,22 @@
 #define gui_depot_frame2_t_h
 
 #include "gui_frame.h"
-#include "gui_label.h"
-#include "image_list.h"
+#include "components/gui_label.h"
+#include "components/gui_image_list.h"
 #include "components/gui_textinput.h"
 #include "components/gui_combobox.h"
 #include "components/gui_divider.h"
 #include "../tpl/vector_tpl.h"
-#include "tab_panel.h"
-#include "button.h"
+#include "components/gui_tab_panel.h"
+#include "components/gui_button.h"
 #include "ifc/image_list_listener.h"
 #include "ifc/action_listener.h"
-#include "gui_scrollpane.h"
+#include "components/gui_scrollpane.h"
 #include "../simtypes.h"
 
 class depot_t;
 class vehikel_t;
-class image_list_t;
+class gui_image_list_t;
 class spieler_t;
 /**
  * Depot frame, handles all interaction with a vehicle depot.
@@ -70,7 +70,7 @@ private:
     gui_label_t lb_convois;
     button_t bt_next;
 
-    image_list_t *convoi;
+    gui_image_list_t *convoi;
     gui_label_t lb_convoi_count;
     gui_label_t lb_convoi_value;
     gui_label_t lb_convoi_line;
@@ -82,11 +82,11 @@ private:
 
     button_t bt_obsolete;
 
-    tab_panel_t tabs;
+    gui_tab_panel_t tabs;
     gui_divider_t   div_tabbottom;
-    image_list_t    *pas;
-    image_list_t    *loks;
-    image_list_t    *waggons;
+    gui_image_list_t    *pas;
+    gui_image_list_t    *loks;
+    gui_image_list_t    *waggons;
     gui_scrollpane_t *scrolly_pas;
     gui_scrollpane_t *scrolly_loks;
     gui_scrollpane_t *scrolly_waggons;
@@ -120,14 +120,14 @@ private:
 
     char txt_convois[40];
 
-    vector_tpl<image_list_t::image_data_t> convoi_pics;
+    vector_tpl<gui_image_list_t::image_data_t> convoi_pics;
     char txt_convoi_count[40];
     char txt_convoi_value[40];
     char txt_convoi_line[128];
 
-    vector_tpl<image_list_t::image_data_t> *pas_vec;
-    vector_tpl<image_list_t::image_data_t> *loks_vec;
-    vector_tpl<image_list_t::image_data_t> *waggons_vec;
+    vector_tpl<gui_image_list_t::image_data_t> *pas_vec;
+    vector_tpl<gui_image_list_t::image_data_t> *loks_vec;
+    vector_tpl<gui_image_list_t::image_data_t> *waggons_vec;
 
     enum { va_append, va_insert, va_sell };
     uint8 veh_action;
@@ -138,7 +138,7 @@ private:
      * @author Volker Meyer
      * @date  09.06.2003
      */
-    ptrhashtable_tpl<const vehikel_besch_t *, image_list_t::image_data_t *> vehicle_map;
+    ptrhashtable_tpl<const vehikel_besch_t *, gui_image_list_t::image_data_t *> vehicle_map;
 
     /**
      * Update texts, image lists and buttons according to the current state.
@@ -226,7 +226,7 @@ public:
      * Implementiert einen image_list_listener_t.
      * @author Hj. Malthaner
      */
-    virtual void bild_gewaehlt(image_list_t *, int bild_index);
+    virtual void bild_gewaehlt(gui_image_list_t *, int bild_index);
 
     /**
      * This method is called if an action is triggered

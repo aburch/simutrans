@@ -13,8 +13,8 @@
 #define welt_gui_h
 
 #include "gui_frame.h"
-#include "button.h"
-#include "gui_label.h"
+#include "components/gui_button.h"
+#include "components/gui_label.h"
 #include "ifc/action_listener.h"
 
 class einstellungen_t;

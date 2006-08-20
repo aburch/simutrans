@@ -17,9 +17,9 @@
 #include "components/gui_chart.h"
 #include "components/gui_textinput.h"
 #include "ifc/action_listener.h"
-#include "gui_label.h"
-#include "button.h"
-#include "tab_panel.h"
+#include "components/gui_label.h"
+#include "components/gui_button.h"
+#include "components/gui_tab_panel.h"
 
 class stadt_t;
 class gui_chart_t;
@@ -37,7 +37,7 @@ private:
 
 	gui_textinput_t name_input;
 
-	tab_panel_t year_month_tabs;
+	gui_tab_panel_t year_month_tabs;
 
 	gui_chart_t *chart, *mchart;
 

@@ -23,7 +23,7 @@
 
 #include "../simdebug.h"
 #include "savegame_frame.h"
-#include "button.h"
+#include "components/gui_button.h"
 #include "../simwin.h"
 #include "../simintr.h"
 #include "../utils/simstring.h"

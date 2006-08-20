@@ -10,6 +10,7 @@
 #ifndef good_stats_t_h
 #define good_stats_t_h
 
+#include "../simtypes.h"
 #include "../ifc/gui_komponente.h"
 class karte_t;
 
@@ -20,8 +21,9 @@ class karte_t;
  */
 class goods_stats_t : public gui_komponente_t
 {
+private:
 	karte_t *welt;
-	unsigned short *goodslist;
+	uint16 *goodslist;
 	int bonus;
 
 public:

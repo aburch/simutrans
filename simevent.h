@@ -115,6 +115,10 @@ extern "C" {
 // This macro is to determine if the event should be also handled by children of containers.
 #define DOES_WINDOW_CHILDREN_NEED(ev) ((ev)->ev_class == INFOWIN || (ev)->ev_class == WINDOW_RESIZE || (ev)->ev_class == WINDOW_MAKE_MIN_SIZE ) // 11-Mar-03 (Mathew Hounsell) Added
 
+#define IS_LEFT_BUTTON_PRESSED(ev) ((ev)->button_state&1)
+#define IS_RIGHT_BUTTON_PRESSED(ev) (((ev)->button_state&2)>>1)
+#define IS_MIDDLE_BUTTON_PRESSED(ev) (((ev)->button_state&4)>>2)
+
 /**
  * Slight explanation of event_t structure:
  * ev_class and ev_code speak for itself.

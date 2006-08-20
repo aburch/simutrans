@@ -170,46 +170,6 @@ public:
      * @author Hj. Malthaner
      */
     virtual void zeichnen(koord offset) const = 0;
-
-
-    /**
-     * Does this component have the input focus?
-     */
-    bool has_focus() const { return focus_gained; };
-
-
-    /**
-     * Release the focus if we had it
-     */
-    bool release_focus() {
-      focus_gained = false;
-      focus = NULL;
-      ::release_focus();
-      return !focus_gained;
-    };
-
-
-    /**
-     * Request the focus - makes other components loose it
-     */
-    bool request_focus() {
-      if (read_only) {
-      	// component is not allowed to gain focus
-      	return false;
-      }
-      if (focus != NULL) {
-		focus->release_focus();
-      }
-      focus_gained = ::request_focus();
-      if (focus_gained) {
-      	focus = this;
-      }
-      return focus_gained;
-    };
-
-
-    static gui_komponente_t * focus;
-
 };
 
 #endif

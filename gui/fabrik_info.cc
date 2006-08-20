@@ -9,7 +9,7 @@
 
 #include "fabrik_info.h"
 
-#include "button.h"
+#include "components/gui_button.h"
 #include "help_frame.h"
 
 #include "../simfab.h"

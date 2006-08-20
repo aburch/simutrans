@@ -8,56 +8,24 @@
 
 #include <stdio.h>
 
-#include "scrollbar.h"
-#include "scrolled_list.h"
+#include "gui_scrollbar.h"
+#include "gui_scrolled_list.h"
 
-#include "../simworld.h"
-#include "../simgraph.h"
-#include "../simcolor.h"
+#include "../../simworld.h"
+#include "../../simgraph.h"
+#include "../../simcolor.h"
 
-#include "../tpl/slist_tpl.h"
-
-
-/**
- * Adds a action_listener_t to this component
- * @author Hj. Malthaner
- */
-void scrolled_list_gui_t::add_listener(action_listener_t *c) {
-  listeners->insert(c);
-};
+#include "../../tpl/slist_tpl.h"
 
 
-/**
- * Removes a action_listener_t from this component
- * @author Hj. Malthaner
- */
-void scrolled_list_gui_t::remove_listener(action_listener_t *c) {
-  listeners->remove(c);
-};
-
-
-/**
- * Informs (calls) all listeners about a new selection
- * @author Hj. Malthaner
- */
-void scrolled_list_gui_t::call_listeners()
-{
-    slist_iterator_tpl<action_listener_t *> iter( listeners );
-    while( iter.next() ) {
-	iter.get_current()->action_triggered(this);
-    }
-}
-
-
-int scrolled_list_gui_t::total_vertical_size() const
+int gui_scrolled_list_t::total_vertical_size() const
 {
   return item_list->count() * LINESPACE + 2;
 }
 
 
-scrolled_list_gui_t::scrolled_list_gui_t(enum type type)
+gui_scrolled_list_t::gui_scrolled_list_t(enum type type)
 {
-  listeners = new slist_tpl <action_listener_t *>;
   item_list = new slist_tpl <const char *>;
 
     this->type = type;
@@ -78,46 +46,66 @@ scrolled_list_gui_t::scrolled_list_gui_t(enum type type)
     clear_elements();
 }
 
-scrolled_list_gui_t::~scrolled_list_gui_t()
+gui_scrolled_list_t::~gui_scrolled_list_t()
 {
-  delete listeners;
-  listeners = 0;
-
   delete item_list;
   item_list = 0;
 }
 
 
-void scrolled_list_gui_t::scrollbar_moved(class scrollbar_t *,
-					  int, int value)
+void
+gui_scrolled_list_t::scrollbar_moved(class scrollbar_t *, int, int value)
 {
     // search/replace all offsets with sb->gib_offset() is also an option
     offset = value;
 }
 
 
-void scrolled_list_gui_t::clear_elements()
+
+// set the scrollbar offset, so that the selected itm is visible
+void
+gui_scrolled_list_t::show_selection(int s)
+{
+	if((unsigned)s<item_list->count()) {
+		selection = s;
+//		if(groesse.y>0) {
+DBG_MESSAGE("gui_scrolled_list_t::show_selection()","sel=%d, offset=%d, groesse.y=%d",s,offset,groesse.y);
+			s *= LINESPACE;
+			if(s<offset  ||  (s+LINESPACE)>offset+groesse.y) {
+				// outside range => reposition
+				sb->setze_knob_offset( max(0,s-(groesse.y/2) ) );
+				offset = sb->gib_knob_offset();
+			}
+//		}
+	}
+	else {
+		selection = -1;
+	}
+}
+
+
+void gui_scrolled_list_t::clear_elements()
 {
     item_list->clear();
     sb->setze_knob(groesse.y-border, total_vertical_size());
 }
 
 
-void scrolled_list_gui_t::insert_element(const char *string, const int pos /*= 0*/)
+void gui_scrolled_list_t::insert_element(const char *string, const int pos /*= 0*/)
 {
     item_list->insert(string, pos);
     sb->setze_knob(groesse.y-border, total_vertical_size());
 }
 
 
-void scrolled_list_gui_t::append_element(const char *string)
+void gui_scrolled_list_t::append_element(const char *string)
 {
     item_list->append(string);
     sb->setze_knob(groesse.y-border, total_vertical_size());
 }
 
 
-void scrolled_list_gui_t::remove_element(const int pos)
+void gui_scrolled_list_t::remove_element(const int pos)
 {
     item_list->remove_at(pos);
     sb->setze_knob(groesse.y-border, total_vertical_size());
@@ -126,7 +114,7 @@ void scrolled_list_gui_t::remove_element(const int pos)
 
 // no less than 3, must be room for scrollbuttons
 #define YMIN ((LINESPACE*3)+2)
-koord scrolled_list_gui_t::request_groesse(koord request)
+koord gui_scrolled_list_t::request_groesse(koord request)
 {
     koord groesse = gib_groesse();
 
@@ -159,7 +147,7 @@ koord scrolled_list_gui_t::request_groesse(koord request)
 
 
 void
-scrolled_list_gui_t::infowin_event(const event_t *ev)
+gui_scrolled_list_t::infowin_event(const event_t *ev)
 {
     const int x = ev->cx;
     const int y = ev->cy;
@@ -178,10 +166,10 @@ scrolled_list_gui_t::infowin_event(const event_t *ev)
 		selection = (y-(border/2)-2+offset);
 		if (selection>=0) {
 		    selection/=LINESPACE;
-		    if(selection>item_list->count()) {
+		    if((unsigned)selection>item_list->count()) {
 		    	selection = -1;
 		    }
-DBG_MESSAGE("scrolled_list_gui_t::infowin_event()","selected %i",selection);
+DBG_MESSAGE("gui_scrolled_list_t::infowin_event()","selected %i",selection);
 		}
 
 		call_listeners();
@@ -197,7 +185,7 @@ DBG_MESSAGE("scrolled_list_gui_t::infowin_event()","selected %i",selection);
     }
 }
 
-void scrolled_list_gui_t::zeichnen(koord pos) const
+void gui_scrolled_list_t::zeichnen(koord pos) const
 {
   pos += this->pos;
 

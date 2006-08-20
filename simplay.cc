@@ -643,7 +643,7 @@ spieler_t::suche_platz(int xpos, int ypos, koord *start)
 	const grund_t * gr = plan ? plan->gib_kartenboden() : NULL;
 
 	if(gr!=NULL &&
-	   (welt->get_slope(pos)==0)  &&
+	   (gr->gib_grund_hang()==0)  &&
 	   // (gr->ist_natur() || gr->gib_typ() == grund_t::fundament) &&
 	   gr->ist_natur() &&
 	   (gr->kann_alle_obj_entfernen(this)==NULL)  ) {
@@ -1677,7 +1677,6 @@ spieler_t::baue_bahnhof(koord3d quelle,koord *p, int anz_vehikel)
 	INT_CHECK("simplay 548");
 
 	const int hoehe = welt->lookup(t)->gib_kartenboden()->gib_hoehe();
-
 	t = *p;
 	for(i=0; i<laenge-1; i++) {
 		t += zv;
@@ -1721,7 +1720,7 @@ spieler_t::baue_bahnhof(koord3d quelle,koord *p, int anz_vehikel)
 						gr->gib_weg(weg_t::schiene) != NULL &&
 						gr->gib_weg_ribi(weg_t::schiene) == ribi_t::doppelt(ribi) &&
 						gr->kann_alle_obj_entfernen(this) == NULL &&
-						welt->get_slope(*p-zv) == 0  &&  !gr->gib_halt().is_bound()  &&  !gr->ist_bruecke();
+						gr->gib_grund_hang()== 0  &&  !gr->gib_halt().is_bound()  &&  !gr->ist_bruecke();
 			if(ok) {
 				gr->obj_loesche_alle(this);
 				// ziel auf das ende des Bahnhofs setzen

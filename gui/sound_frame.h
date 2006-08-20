@@ -8,9 +8,9 @@
  */
 
 #include "gui_frame.h"
-#include "scrollbar.h"
-#include "gui_label.h"
-#include "button.h"
+#include "components/gui_scrollbar.h"
+#include "components/gui_label.h"
+#include "components/gui_button.h"
 #include "ifc/action_listener.h"
 #include "ifc/scrollbar_listener.h"
 

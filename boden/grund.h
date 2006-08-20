@@ -81,7 +81,7 @@ protected:
      */
     static ptrhashtable_tpl<grund_t *, grund_info_t *> *grund_infos;
 
-private:
+protected:
 
     /**
      * Zusammenfassung des Ding-Container als Objekt
@@ -129,6 +129,9 @@ private:
      * @author Hj. Malthaner
      */
     sint8 besitzer_n;
+
+    // slope (now saved locally), because different grounds need differen slopes
+    uint8 slope;
 
     /**
      * Description;
@@ -381,7 +384,8 @@ public:
 
     inline void setze_pos(koord3d newpos) { pos = newpos;};
 
-    virtual hang_t::typ gib_grund_hang() const;
+    hang_t::typ gib_grund_hang() const { return (hang_t::typ)slope; }
+    virtual bool setze_grund_hang(hang_t::typ sl);
 
     /**
      * einige sorten untergrund k÷nnen betreten werden. Die Aktionen werden

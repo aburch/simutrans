@@ -26,7 +26,7 @@
 #include "../dataobj/umgebung.h"
 #include "../utils/cbuffer_t.h"
 
-#include "gui_label.h"
+#include "components/gui_label.h"
 
 
 #include "message_option_t.h"

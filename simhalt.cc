@@ -278,7 +278,7 @@ DBG_MESSAGE("haltestelle_t::remove()", "removing building: cleanup");
 						delete gb;
 						gr->setze_text(NULL);
 						if(gr->gib_typ()==grund_t::fundament) {
-							welt->access(k+pos.gib_2d())->kartenboden_setzen(new boden_t(welt, koord3d(k+pos.gib_2d(),welt->min_hgt(k+pos.gib_2d()))), false);
+							welt->access(k+pos.gib_2d())->kartenboden_setzen(new boden_t(welt, koord3d(k+pos.gib_2d(),welt->min_hgt(k+pos.gib_2d())), welt->calc_natural_slope(k+pos.gib_2d())), false);
 						}
 						else if(welt->max_hgt(k+pos.gib_2d())<=welt->gib_grundwasser()) {
 							welt->access(k+pos.gib_2d())->kartenboden_setzen(new wasser_t(welt, k+pos.gib_2d()), false);

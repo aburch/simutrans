@@ -12,9 +12,9 @@
  */
 
 #include "gui_frame.h"
-#include "gui_scrollpane.h"
+#include "components/gui_scrollpane.h"
 #include "ifc/action_listener.h"
-#include "button.h"
+#include "components/gui_button.h"
 #include "karte.h"
 
 class karte_modell_t;
