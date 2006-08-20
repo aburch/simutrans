@@ -98,7 +98,7 @@ void tab_panel_t::zeichnen(koord parent_pos) const
     int text_x = xpos+8;
     int i = 0;
 
-    display_fillbox_wh(xpos, ypos+HEADER_VSIZE-1, 4, 1, WEISS, true);
+    display_fillbox_wh_clip(xpos, ypos+HEADER_VSIZE-1, 4, 1, WEISS, true);
 
     slist_iterator_tpl<const char*> iter (namen);
 
@@ -108,20 +108,20 @@ void tab_panel_t::zeichnen(koord parent_pos) const
 	const int width = proportional_string_width( text );
 
 	if(i != active_tab) {
-	    display_fillbox_wh(text_x-4, ypos+HEADER_VSIZE-1, width+8, 1, MN_GREY4, true);
-	    display_fillbox_wh(text_x-3, ypos+4, width+5, 1, MN_GREY4, true);
+	    display_fillbox_wh_clip(text_x-4, ypos+HEADER_VSIZE-1, width+8, 1, MN_GREY4, true);
+	    display_fillbox_wh_clip(text_x-3, ypos+4, width+5, 1, MN_GREY4, true);
 
-	    display_vline_wh(text_x-4, ypos+5, HEADER_VSIZE-6, MN_GREY4, true);
-	    display_vline_wh(text_x+width+3, ypos+5, HEADER_VSIZE-6, MN_GREY0, true);
+	    display_vline_wh_clip(text_x-4, ypos+5, HEADER_VSIZE-6, MN_GREY4, true);
+	    display_vline_wh_clip(text_x+width+3, ypos+5, HEADER_VSIZE-6, MN_GREY0, true);
 
-	    display_proportional(text_x, ypos+7, text, ALIGN_LEFT, SCHWARZ, true);
+	    display_proportional_clip(text_x, ypos+7, text, ALIGN_LEFT, SCHWARZ, true);
 	} else {
-	    display_fillbox_wh(text_x-3, ypos+3, width+5, 1, MN_GREY4, true);
+	    display_fillbox_wh_clip(text_x-3, ypos+3, width+5, 1, MN_GREY4, true);
 
-	    display_vline_wh(text_x-4, ypos+4, 13, MN_GREY4, true);
-	    display_vline_wh(text_x+width+3, ypos+4, 13, MN_GREY0, true);
+	    display_vline_wh_clip(text_x-4, ypos+4, 13, MN_GREY4, true);
+	    display_vline_wh_clip(text_x+width+3, ypos+4, 13, MN_GREY0, true);
 
-	    display_proportional(text_x, ypos+7, text, ALIGN_LEFT, SCHWARZ, true);
+	    display_proportional_clip(text_x, ypos+7, text, ALIGN_LEFT, SCHWARZ, true);
 
 	    tabs.at(i)->zeichnen(koord(xpos+0, ypos+HEADER_VSIZE));
 	}
@@ -130,7 +130,7 @@ void tab_panel_t::zeichnen(koord parent_pos) const
 
 	i++;
     }
-    display_fillbox_wh(text_x-4, ypos+HEADER_VSIZE-1, groesse.x-(text_x-xpos)+4, 1, MN_GREY4, true);
+    display_fillbox_wh_clip(text_x-4, ypos+HEADER_VSIZE-1, groesse.x-(text_x-xpos)+4, 1, MN_GREY4, true);
 }
 
 /**

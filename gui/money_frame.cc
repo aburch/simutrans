@@ -29,12 +29,12 @@
 const char money_frame_t::cost_type[MAX_COST][64] =
 {
   "Construction", "Operation", "New Vehicles", "Revenue",
-  "Maintenance", "Assets", "Cash", "Net Wealth", "Gross Profit", "Ops Profit"
+  "Maintenance", "Assets", "Cash", "Net Wealth", "Gross Profit", "Ops Profit", "Margin (%)", "Transported"
 };
 
 const int money_frame_t::cost_type_color[MAX_COST] =
 {
-  7, 11, 15, 132, 23, 27, 31, 35, 241, 61
+  7, 11, 15, 132, 23, 27, 31, 35, 241, 61, 62, 63
 };
 
 
@@ -125,12 +125,13 @@ money_frame_t::money_frame_t(spieler_t *sp)
     chart = new gui_chart_t();
     chart->setze_pos(koord(1,1));
     chart->setze_groesse(koord(443,120));
-    chart->set_dimension(12, 10000);
+    chart->set_dimension(MAX_HISTORY_YEARS, 10000);
     chart->set_seed(umgebung_t::starting_year+sp->gib_welt()->get_last_year());
     chart->set_background(MN_GREY1);
-    for ( int i = 0; i<MAX_COST; i++)
+    int i;
+    for (i = 0; i<MAX_COST; i++)
     {
-    	chart->add_curve(cost_type_color[i], (sint64 *)sp->get_finance_history_year(), MAX_COST, i, 12, MONEY, false, false);
+    	chart->add_curve(cost_type_color[i], (sint64 *)sp->get_finance_history_year(), MAX_COST, i, 12, i<MAX_COST-2 ? MONEY: STANDARD, false, false);
     }
     //CHART YEAR END
 
@@ -141,9 +142,9 @@ money_frame_t::money_frame_t(spieler_t *sp)
     mchart->set_dimension(MAX_HISTORY_MONTHS, 10000);
     mchart->set_seed(0);
     mchart->set_background(MN_GREY1);
-    for ( int i = 0; i<MAX_COST; i++)
+    for (i = 0; i<MAX_COST; i++)
     {
-    	mchart->add_curve(cost_type_color[i], (sint64 *)sp->get_finance_history_month(), MAX_COST, i, 12, MONEY, false, false);
+    	mchart->add_curve(cost_type_color[i], (sint64 *)sp->get_finance_history_month(), MAX_COST, i, 12, i<MAX_COST-2 ? MONEY: STANDARD, false, false);
     }
     mchart->set_visible(false);
     //CHART MONTH END
@@ -302,6 +303,7 @@ void money_frame_t::zeichnen(koord pos, koord gr)
 
 bool money_frame_t::action_triggered(gui_komponente_t *komp)
 {
+		sp->calc_finance_history();
     for ( int i = 0; i<MAX_COST; i++)
     {
     	if (komp == &filterButtons[i])

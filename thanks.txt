@@ -191,7 +191,7 @@ finnrj@ofir.dk
 * Ferencz Szekely: Hungary and Romanian translation
 phritzy74@freemail.hu
 
-* "StalkeRXP": Russian translation
+* Aleks Revo: Russian translation
 deep-dream@narod.ru
 
 * Danilo Schöneberg: Russian BDF-font

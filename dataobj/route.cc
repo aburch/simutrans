@@ -301,7 +301,7 @@ route_t::calc_route(karte_t *w,
   route[1] = start;               // koennen
   max_n = -1;
 
-  dbg->message("route_t::calc_route()",
+  DBG_MESSAGE("route_t::calc_route()",
          "No route from %d,%d to %d,%d found",
          start.x, start.y, ziel.x, ziel.y);
     } else {
@@ -361,7 +361,7 @@ route_t::calc_unblocked_route(karte_t *w,
   route[1] = start;               // koennen
   max_n = -1;
 
-  dbg->message("route_t::calc_unblocked_route()",
+  DBG_MESSAGE("route_t::calc_unblocked_route()",
          "No route from %d,%d to %d,%d found",
          start.x, start.y, ziel.x, ziel.y);
     } else {
@@ -400,7 +400,7 @@ bool route_t::find_path(karte_t * welt, const koord3d start, fahrer_t * fahr, di
   int step = 0;
 
   prioqueue_tpl <KNode *> queue;
-  dbg->message("path_t::find_path()", "start:\t%d,%d", start.x, start.y);
+  DBG_MESSAGE("path_t::find_path()", "start:\t%d,%d", start.x, start.y);
 
   queue.clear();
 
@@ -488,7 +488,7 @@ bool route_t::find_path(karte_t * welt, const koord3d start, fahrer_t * fahr, di
     route[0] = start;   // muss Vehikel spaeter entfernen
     route[1] = start;               // koennen
     max_n = -1;
-    dbg->message("route_t::find_path()", "No route from %d,%d to a depot found",
+    DBG_MESSAGE("route_t::find_path()", "No route from %d,%d to a depot found",
          start.x, start.y);
   } else {
     if(max_n < 511)

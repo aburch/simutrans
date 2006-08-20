@@ -1,6 +1,7 @@
 // SIMOBJECTS.cpp : Defines the entry point for the console application.
 //
 
+#include <stdio.h>
 #include <string.h>
 #include "../utils/cstring_t.h"
 #include "../dataobj/tabfile.h"
@@ -44,7 +45,7 @@ int main(int argc, char* argv[])
     }
     else {
 	puts(
-	    "\nMakeobj v0.1.8 by V. Meyer (c) 2002, 2003, 2004 and Hj. Malthaner\n"
+	    "\nMakeobj v0.1.10 by V. Meyer (c) 2002, 2003, 2004 and Hj. Malthaner\n"
 	    "   This program creates .pak files for Simutrans - a great game from\n"
 	    "   Hj. Malthaner. Makeobj replaces Makepak and Makepak16 starting with\n"
 	    "   version 0.81.1 of Simutrans.\n"

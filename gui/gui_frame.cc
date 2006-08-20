@@ -271,7 +271,7 @@ void gui_frame_t::zeichnen(koord pos, koord gr)
 
     for(int j=0; j<gr.y; j+=64) {
       for(int i=0; i<gr.x; i+=64) {
-	display_img(img, pos.x+1 + i, pos.y+16 + j, false, true);
+	display_color_img(img, pos.x+1 + i, pos.y+16 + j, 0, false, true);
       }
     }
 

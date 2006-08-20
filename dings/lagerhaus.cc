@@ -47,7 +47,7 @@ lagerhaus_t::lagerhaus_t(karte_t *welt, koord3d pos, spieler_t *sp) :
 
 lagerhaus_t::~lagerhaus_t()
 {
-    halthandle_t halt = gib_besitzer()->ist_halt(gib_pos().gib_2d());
+    halthandle_t halt = gib_besitzer()->is_my_halt(gib_pos().gib_2d());
 
     if(halt.is_bound()) {
 	halt->setze_lager( NULL );

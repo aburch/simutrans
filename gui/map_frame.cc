@@ -292,26 +292,26 @@ void map_frame_t::zeichnen(koord pos, koord gr)
   display_fillbox_wh(pos.x+gr.x-1, pos.y+gr.y-legend_height, 1, legend_height, MN_GREY0, true);
 
 
-  for(uint32 i=0; i<legend_names.count(); i++) {
+  for(uint32 u=0; u<legend_names.count(); u++) {
 
-    const int xpos = pos.x + (i & 3) * 65 + 4;
-    const int ypos = pos.y+gr.y-legend_height+4+(i>>2)*8;
-    const int color = legend_colors.at(i);
+    const int xpos = pos.x + (u & 3) * 65 + 4;
+    const int ypos = pos.y+gr.y-legend_height+4+(u>>2)*8;
+    const int color = legend_colors.at(u);
 
     display_fillbox_wh(xpos, ypos+1, 4, 4, color, false);
 
 	/* changed for unicode display
 	 * @author: prissi
 	 */
-	display_small_proportional( xpos+5, ypos, legend_names.get(i), ALIGN_LEFT, SCHWARZ, false);
+	display_small_proportional( xpos+5, ypos, legend_names.get(u), ALIGN_LEFT, SCHWARZ, false);
   }
-
-  for (int i = 0;i<MAX_MAP_TYPE;i++) {
+  int i;
+  for (i = 0;i<MAX_MAP_TYPE;i++) {
     filter_buttons[i].pressed = is_filter_active[i];
   }
 
   // color bar
-  for (int i = 0; i<12; i++) {
+  for (i = 0; i<12; i++) {
     display_fillbox_wh(pos.x + size.x - 10, pos.y+gr.y-legend_height + 10 + i*8, 4, 8, reliefkarte_t::severity_color[11-i], false);
   }
 

@@ -94,6 +94,11 @@ public:
 
     virtual void rdwr(loadsave_t *file);
 
+    /*
+     * Öffnet ein neues Beobachtungsfenster für das Objekt.
+     * @author Hj. Malthaner
+     */
+    virtual void zeige_info();
 
     /**
      * @return Einen Beschreibungsstring für das Objekt, der z.B. in einem

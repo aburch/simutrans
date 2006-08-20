@@ -188,10 +188,10 @@ void scrollbar_t::infowin_event(const event_t *ev)
 
   // 2003-11-04 hsiegeln added wheelsupport
   if (IS_WHEELUP(ev) && (type == vertical)) {
-  	dbg->message("scrollbar_t::infowin_event", "mousewheelup");
+  	DBG_MESSAGE("scrollbar_t::infowin_event", "mousewheelup");
   }
   else if (IS_WHEELDOWN(ev) && (type == vertical)) {
-  	dbg->message("scrollbar_t::infowin_event", "mousewheeldown");
+  	DBG_MESSAGE("scrollbar_t::infowin_event", "mousewheeldown");
   }
   else if (IS_LEFTCLICK(ev)) {
     for (i=0;i<3;i++) {

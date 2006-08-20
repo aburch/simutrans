@@ -7,6 +7,8 @@
 
 #include "wasser.h"
 
+#include "../simdebug.h"
+
 #include "../simimg.h"
 #include "../simworld.h"
 #include "../simtools.h"
@@ -22,6 +24,7 @@ wasser_t::wasser_t(karte_t *welt, loadsave_t *file) : grund_t(welt)
     rdwr(file);
     step_nr = simrand(5);
     wasser_t::step();
+//DBG_DEBUG("wasser_t::wasser_t()","rdwr of wasser at %i,%i with img %i.",gib_pos().x,gib_pos().y,grund_besch_t::wasser->gib_bild(hang_t::flach, step_nr+(welt->gib_zeit_ms()>>11)));
 }
 
 wasser_t::wasser_t(karte_t *welt, koord pos) : grund_t(welt, koord3d(pos, welt->gib_grundwasser()))

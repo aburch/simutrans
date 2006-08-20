@@ -41,7 +41,7 @@ bool fussgaenger_t::register_besch(const fussgaenger_besch_t *besch)
 bool fussgaenger_t::laden_erfolgreich()
 {
     if(liste.count() == 0) {
-	dbg->message("fussgaenger_t", "No pedestrians found - feature disabled");
+	DBG_MESSAGE("fussgaenger_t", "No pedestrians found - feature disabled");
     }
     return true ;
 }
@@ -93,7 +93,7 @@ fussgaenger_t::~fussgaenger_t()
 
 bool fussgaenger_t::sync_step(long delta_t)
 {
-    // dbg->message("fussgaenger_t::sync_step()", "%p called", this);
+    // DBG_MESSAGE("fussgaenger_t::sync_step()", "%p called", this);
 
     verkehrsteilnehmer_t::sync_step(delta_t);
 

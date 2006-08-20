@@ -23,6 +23,7 @@
 #include "../utils/cbuffer_t.h"
 #include "../dataobj/loadsave.h"
 #include "../dataobj/translator.h"
+#include "../dataobj/umgebung.h"
 
 
 #include "baum.h"
@@ -93,7 +94,7 @@ baum_t::gib_bild() const
 bool baum_t::alles_geladen()
 {
     if(besch_names.count() == 0) {
-	dbg->message("baum_t", "No trees found - feature disabled");
+	DBG_MESSAGE("baum_t", "No trees found - feature disabled");
     }
     return true;
 }
@@ -102,6 +103,7 @@ bool baum_t::register_besch(baum_besch_t *besch)
 {
     baum_typen.append(besch);
     besch_names.put(besch->gib_name(), const_cast<baum_besch_t *>(besch));
+DBG_DEBUG("baum_t::register_besch()","%s has %i seasons",besch->gib_name(),besch->gib_seasons() );
     return true;
 }
 
@@ -151,13 +153,31 @@ void baum_t::calc_off()
 inline void
 baum_t::calc_bild(const unsigned long alter)
 {
-    // alter/2048 gibt die tage
+	// alter/2048 gibt die tage
+	int baum_alter = baum_bild_alter[MIN((alter >> karte_t::ticks_bits_per_tag)>>6, 11)];
 
-    const int bild_neu = besch->gib_bild(0, baum_bild_alter[MIN((alter >> karte_t::ticks_bits_per_tag)>>6, 11)])->gib_nummer();
+	// here comes the variation for the seasons
+	const int nr_seasons=besch->gib_seasons();
+	if(nr_seasons>1) {
+//DBG_DEBUG("baum_t::calc_bild()","season %i",welt->gib_jahreszeit() );
+		// two possibilities
+		if(  nr_seasons==2  ) {
+			// only summer and winter
+			if(welt->gib_jahreszeit()==2) {
+				baum_alter += 5;
+			}
+		}
+		else {
+			// summer autumn winter spring
+			baum_alter += welt->gib_jahreszeit()*5;
+		}
+	}
 
-    if(bild_neu != gib_bild()) {
-	setze_bild(0, bild_neu);
-    }
+	const int bild_neu = besch->gib_bild(0, baum_alter )->gib_nummer();
+
+	if(bild_neu != gib_bild()) {
+		setze_bild(0, bild_neu);
+	}
 }
 
 inline void
@@ -343,9 +363,21 @@ baum_t::rdwr(loadsave_t *file)
 	besch = (const baum_besch_t *)besch_names.get(bname);
 
 	if(!besch) {
-    	    dbg->message("baum_t::rwdr", "description %s for tree at %d,%d not found, will be removed!", bname, gib_pos().x, gib_pos().y);
+    	    DBG_MESSAGE("baum_t::rwdr", "description %s for tree at %d,%d not found, will be removed!", bname, gib_pos().x, gib_pos().y);
 	}
     }
+}
+
+
+/**
+ * Öffnet ein neues Beobachtungsfenster für das Objekt.
+ * @author Hj. Malthaner
+ */
+void baum_t::zeige_info()
+{
+	if(umgebung_t::tree_info) {
+		ding_t::zeige_info();
+	}
 }
 
 
@@ -356,14 +388,14 @@ baum_t::rdwr(loadsave_t *file)
  */
 void baum_t::info(cbuffer_t & buf) const
 {
-  ding_t::info(buf);
+	ding_t::info(buf);
 
-  buf.append("\n");
-  buf.append(translator::translate(besch->gib_name()));
-  buf.append("\n");
-  // buf.append((welt->gib_zeit_ms() - geburt) >> welt->ticks_bits_per_tag);
-  // buf.append(" ");
-  // buf.append(translator::translate("Tage alt"));
+	buf.append("\n");
+	buf.append(translator::translate(besch->gib_name()));
+	buf.append("\n");
+	// buf.append((welt->gib_zeit_ms() - geburt) >> welt->ticks_bits_per_tag);
+	// buf.append(" ");
+	// buf.append(translator::translate("Tage alt"));
 }
 
 

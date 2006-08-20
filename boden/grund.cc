@@ -49,6 +49,7 @@
 
 #include "../tpl/ptrhashtable_tpl.h"
 #include "../tpl/inthashtable_tpl.h"
+#include "../tpl/vector_tpl.h"
 
 #include "../dings/leitung2.h"	// for construction of new ways ...
 
@@ -163,20 +164,26 @@ bool grund_t::setze_besitzer(spieler_t *s)
 }
 
 
-grund_t::grund_t(karte_t *wl)
+grund_t::grund_t(karte_t *wl) : halt_list(10)
 {
     memset(wege, 0, sizeof(wege));
     welt = wl;
     flags = 0;
+    bild_nr = -1;
+    weg_bild_nr = -1;
+    weg2_bild_nr = -1;
     back_bild_nr = -1;
 }
 
 
-grund_t::grund_t(karte_t *wl, loadsave_t *file)
+grund_t::grund_t(karte_t *wl, loadsave_t *file) : halt_list(10)
 {
+	// only used for saving?
     memset(wege, 0, sizeof(wege));
     welt = wl;
     flags = 0;
+    weg_bild_nr = -1;
+    weg2_bild_nr = -1;
     back_bild_nr = -1;
 
     rdwr(file);
@@ -186,9 +193,7 @@ void grund_t::rdwr(loadsave_t *file)
 {
     file->wr_obj_id(gib_typ());
     pos.rdwr(file);
-
-    // dbg->debug("grund_t::rdwr()", "pos=%d,%d,%d", pos.x, pos.y, pos.z);
-
+//DBG_DEBUG("grund_t::rdwr()", "pos=%d,%d,%d", pos.x, pos.y, pos.z);
 
     if(file->is_saving()) {
       const char *text = gib_text();
@@ -222,15 +227,15 @@ void grund_t::rdwr(loadsave_t *file)
 		  wege[i] = NULL;
 		  break;
 		case weg_t::strasse:
-		  dbg->debug("grund_t::rdwr()", "road");
+//		  DBG_DEBUG("grund_t::rdwr()", "road");
 		  wege[i] = new strasse_t (welt, file);
 		  break;
 		case weg_t::schiene:
-		  dbg->debug("grund_t::rdwr()", "railroad");
+//		  DBG_DEBUG("grund_t::rdwr()", "railroad");
 		  wege[i] = new schiene_t (welt, file);
 		  break;
 		case weg_t::wasser:
-		  dbg->debug("grund_t::rdwr()", "dock");
+//		  DBG_DEBUG("grund_t::rdwr()", "dock");
 		  wege[i] = new dock_t (welt, file);
 		  break;
 		}
@@ -257,10 +262,11 @@ void grund_t::rdwr(loadsave_t *file)
     if(file->is_loading()) {
         flags |= dirty;
     }
+//DBG_DEBUG("grund_t::rdwr()", "loaded at %i,%i with %i dinge bild %i.", pos.x, pos.y, obj_count(),bild_nr);
 }
 
 
-grund_t::grund_t(karte_t *wl, koord3d pos)
+grund_t::grund_t(karte_t *wl, koord3d pos) : halt_list(10)
 {
     this->pos = pos;
     flags = 0;
@@ -268,10 +274,11 @@ grund_t::grund_t(karte_t *wl, koord3d pos)
 
     memset(wege, 0, sizeof(wege));
     welt = wl;
+    weg_bild_nr = -1;
+    weg2_bild_nr = -1;
     back_bild_nr = -1;
 
     setze_bild( 0 );    // setzt   flags = dirty;
-    weg_bild_nr = -1;
 }
 
 
@@ -286,9 +293,11 @@ grund_t::~grund_t()
     if(gib_halt().is_bound()) {
 //	printf("Enferne boden %p von Haltestelle %p\n", this, halt);
 
-	halt->rem_grund(this);
+// check for memory leaks!
+	halt->rem_grund(this,true);
 	halt.unbind();
-    }
+  }
+  halt_list.clear();
     for(int i = 0; i < MAX_WEGE; i++) {
 	if(wege[i]) {
 	    if(gib_besitzer() && !ist_wasser() && wege[i]->gib_besch()) {
@@ -298,7 +307,7 @@ grund_t::~grund_t()
 	    delete wege[i];
     	    wege[i] = NULL;
 	}
-    }
+  }
 }
 
 
@@ -339,6 +348,66 @@ void grund_t::info(cbuffer_t & buf) const
 
 
 
+/* The following three functions takes about 132 bytes of memory per tile but can speed up passenger generation *
+ * Some stations may be reachable from this ground
+ * @author prissi
+ */
+void grund_t::add_to_haltlist(halthandle_t halt)
+{
+	if(halt.is_bound()) {
+		spieler_t *sp=halt->gib_besitzer();
+
+		unsigned insert_pos = 0;
+
+//DBG_DEBUG("grund_t::add_to_haltlist()","Add at pos %i", sp->has_passenger() );
+
+		// exact position does matter for passenger transport
+		if(sp!=NULL  &&  sp->has_passenger()  &&  halt_list.get_count()>0  ) {
+			halt_list.remove(halt);
+			// since only the first one gets all the passengers, we want the closest one for passenger transport to be on top
+			for(insert_pos=0;  insert_pos<halt_list.get_count();  insert_pos++) {
+				// not a passenger KI or other is farer away
+//DBG_DEBUG("grund_t::add_to_haltlist()","(%i,%i) vs (%i,%i) at (%i,%i)",  halt_list.at(insert_pos)->get_next_pos(pos.gib_2d()).x, halt_list.at(insert_pos)->get_next_pos(pos.gib_2d()).y, halt->get_next_pos(pos.gib_2d()).x, halt->get_next_pos(pos.gib_2d()).y, pos.x, pos.y );
+				if(  !halt_list.get(insert_pos)->gib_besitzer()->has_passenger()
+				      ||  abs_distance( halt_list.get(insert_pos)->get_next_pos(pos.gib_2d()), pos.gib_2d() ) > abs_distance( halt->get_next_pos(pos.gib_2d()), pos.gib_2d() )  )
+				{
+//DBG_DEBUG("grund_t::add_to_haltlist()","Add at pos %i", insert_pos );
+					halt_list.insert_at( insert_pos, halt );
+					return;
+				}
+			}
+			// not found
+		}
+		// first or no passenger or append to the end ...
+		halt_list.append_unique( halt );
+	}
+}
+
+/**
+ * removes the halt from a ground
+ * however this funtion check, whether there is really no other part still reachable
+ * @author prissi
+ */
+void grund_t::remove_from_haltlist(halthandle_t halt)
+{
+DBG_DEBUG("grund_t::remove_from_haltlist()","at pos %i,%i from halt (%i)",pos.gib_2d().x,pos.gib_2d().y,halt.is_bound());
+	for(int y=-umgebung_t::station_coverage_size; y<=umgebung_t::station_coverage_size; y++) {
+		for(int x=-umgebung_t::station_coverage_size; x<=umgebung_t::station_coverage_size; x++) {
+			koord test_pos = pos.gib_2d()+koord(x,y);
+			const planquadrat_t *pl = welt->lookup(test_pos);
+			if(pl   &&  pl->gib_kartenboden()->gib_halt()==halt  ) {
+				// still conncected  => do nothing
+				return;
+			}
+		}
+	}
+	// if we reached here, we are not connected to this halt anymore
+	halt_list.remove(halt);
+}
+
+
+
+
 /**
  * grund_t::calc_bild:
  *
@@ -356,29 +425,43 @@ void grund_t::calc_bild()
     }
   }
 
+  if(wege[1]) {    // 2 Wege da?
+		// eine Schienenkreuzung
+		// Dario: Tramway
+		// This is also the case if a track is built on top of a street
+		ribi_t::ribi ribi0 = wege[0]->gib_ribi();
+		ribi_t::ribi ribi1 = wege[1]->gib_ribi();
 
-    if(wege[1]) {    // 2 Wege da?
-	// eine Schienenkreuzung
-	ribi_t::ribi ribi0 = wege[0]->gib_ribi();
-	ribi_t::ribi ribi1 = wege[1]->gib_ribi();
-
-	if(ribi_t::ist_gerade_ns(ribi0) || ribi_t::ist_gerade_ow(ribi1)) {
+		if(wege[1]->gib_besch()->gib_styp() == 7){
+			// A tramway is to be built
+			// weg2_bild stores 2nd way's picture
+			// In order to get pictures right after loading a game, picture of way 0 is be re-set here!
+			setze_weg2_bild(wege[1]->calc_bild(pos));
+			setze_weg_bild(wege[0]->calc_bild(pos));
+		} else if(ribi_t::ist_gerade_ns(ribi0) || ribi_t::ist_gerade_ow(ribi1)) {
 	    setze_weg_bild(wegbauer_t::gib_kreuzung(wege[0]->gib_typ(), wege[1]->gib_typ())->gib_bild_nr());
-	} else {
+			setze_weg2_bild(-1);
+		} else {
 	    setze_weg_bild(wegbauer_t::gib_kreuzung(wege[1]->gib_typ(), wege[0]->gib_typ())->gib_bild_nr());
+			setze_weg2_bild(-1);
+		}
+
+		// Hier gibt es ein Problem falls eine Kreuzung isoliert wird -
+		// sie dreht sich dann eventuell!
+		// Set weg2_bild to -1, else wrong pictures might be displayed!
+	} else if(wege[0] && !ist_bruecke()) {
+		setze_weg_bild(wege[0]->calc_bild(pos));
+		setze_weg2_bild(-1);
+  } else {
+		setze_weg_bild(-1);
+		setze_weg2_bild(-1);
 	}
-	// Hier gibt es ein Problem falls eine Kreuzung isoliert wird -
-	// sie dreht sich dann eventuell!
-    }
-    else if(wege[0] && !ist_bruecke()) {
-	setze_weg_bild(wege[0]->calc_bild(pos));
-    } else {
-	setze_weg_bild(-1);
-    }
-    // Das scheint die beste Stelle zu sein
-    if(ist_karten_boden()) {
-        reliefkarte_t::gib_karte()->recalc_relief_farbe(gib_pos().gib_2d());
-    }
+
+
+	// Das scheint die beste Stelle zu sein
+	if(ist_karten_boden()) {
+		reliefkarte_t::gib_karte()->recalc_relief_farbe(gib_pos().gib_2d());
+	}
 }
 
 
@@ -473,72 +556,100 @@ void grund_t::verlasse(vehikel_basis_t *v)
 void
 grund_t::display_boden(const int xpos, int ypos, bool dirty) const
 {
-  dirty |= get_flag(grund_t::dirty);
-  ypos -= (gib_hoehe() * get_tile_raster_width()) >> 6;
+	dirty |= get_flag(grund_t::dirty);
+	int raster_tile_width = get_tile_raster_width();
 
-  if(back_bild_nr >= 0) {
-    display_img(back_bild_nr, xpos, ypos, true, dirty);
-  }
+	ypos -= (gib_hoehe() * raster_tile_width) >> 6;
 
-  display_img(gib_bild(), xpos, ypos, true, dirty);
+	/* we can save some time but just don't display at all
+	 * @author prissi
+	 */
+	if(  ypos>32-raster_tile_width  &&  ypos<display_get_height()-raster_tile_width/4) {
 
-  if(gib_weg_bild() >= 0) {
-    display_img(gib_weg_bild(), xpos, ypos - gib_weg_yoff(), true, dirty);
-  }
+		if(back_bild_nr >= 0) {
+			display_img(back_bild_nr, xpos, ypos, dirty);
+		}
+
+		display_img(gib_bild(), xpos, ypos, dirty);
+
+		if(gib_weg_bild() >= 0) {
+			display_img(gib_weg_bild(), xpos, ypos - gib_weg_yoff(), dirty);
+		}
+
+		if(gib_weg2_bild() >= 0){
+			display_img(gib_weg2_bild(), xpos, ypos - gib_weg_yoff(), dirty);
+		}
+	}
 }
 
 
 void
 grund_t::display_dinge(const int xpos, int ypos, bool dirty)
 {
-  int n;
-  ypos -= (gib_hoehe() * get_tile_raster_width()) >> 6;
+	int n;
+	int raster_tile_width = get_tile_raster_width();
+	ypos -= (gib_hoehe() * raster_tile_width) >> 6;
 
-  dirty |= get_flag(grund_t::dirty);
-  clear_flag(grund_t::dirty);
+	dirty |= get_flag(grund_t::dirty);
+	clear_flag(grund_t::dirty);
 
+	/* we can save some time but just don't display at all
+	 * @author prissi
+	 */
+	if(  ypos>32-raster_tile_width  &&  ypos<display_get_height()+32+raster_tile_width) {
 
-  for(n=0; n<gib_top(); n++) {
-    ding_t * dt = obj_bei(n);
+		// background
+		for(n=0; n<gib_top(); n++) {
+			ding_t * dt = obj_bei(n);
+			if( dt ) {
+				// ist dort ein objekt ?
+				dt->display(xpos, ypos, dirty);
+			}
+		}
 
-    if( dt ) {	        // ist dort ein objekt ?
-      dt->display(xpos, ypos, dirty);
-    }
-  }
+		// foreground
+		for(n=0; n<gib_top(); n++) {
+			ding_t * dt = obj_bei(n);
+			if( dt ) {
+				// ist dort ein vordergrund objekt ?
+				dt->display_after(xpos, ypos, dirty);
+				dt->clear_flag(ding_t::dirty);
+			}
+		}
 
-  for(n=0; n<gib_top(); n++) {
-    ding_t * dt = obj_bei(n);
+		const char * text = gib_text();
+		if(text && (umgebung_t::show_names & 1)) {
+			const int width = proportional_string_width(text)+7;
 
-    if( dt ) {	        // ist dort ein objekt ?
-      dt->display_after(xpos, ypos, dirty);
-      dt->clear_flag(ding_t::dirty);
-    }
-  }
+			display_ddd_proportional_clip(xpos - (width - raster_tile_width)/2,
+				     ypos,
+				     width,
+				     0,
+				     text_farbe(),
+				     SCHWARZ,
+				     text,
+				     dirty || get_flag(grund_t::new_text));
 
+			clear_flag(grund_t::new_text);
+		}
 
-  const char * text = gib_text();
-  if(text && (umgebung_t::show_names & 1)) {
-    const int width = proportional_string_width(text)+7;
+		// display station sign
+		if(text && (umgebung_t::show_names & 2) && halt.is_bound()) {
+			halt->display_status(xpos, ypos);
+		}
 
-    display_ddd_proportional(xpos - (width - get_tile_raster_width())/2,
-			     ypos,
-			     width,
-			     0,
-			     text_farbe(),
-			     SCHWARZ,
-			     text,
-			     dirty ||
-			     get_flag(grund_t::new_text));
+		// display station owner boxes
+		if(umgebung_t::station_coverage_show) {
+			int r=raster_tile_width/8;
+			int x=xpos+raster_tile_width/2-r;
+			int y=ypos+(raster_tile_width*3)/4-r;
 
-    clear_flag(grund_t::new_text);
-  }
-
-
-  if(text && (umgebung_t::show_names & 2) && halt.is_bound()) {
-    halt->display_status(xpos, ypos);
-  }
+			for(int h=halt_list.get_count()-1;  h>=0;  h--  ) {
+				display_fillbox_wh_clip( x-h*2, y+h*2, r, r, halt_list.at(h)->gib_besitzer()->kennfarbe+2, dirty);
+			}
+		}
+	}
 }
-
 
 /**
  * Manche Böden können zu Haltestellen gehören.
@@ -831,4 +942,17 @@ int grund_t::get_max_speed()
 	}
 
 	return max;
+}
+
+//Dario: Tramway
+bool grund_t::ist_uebergang() const{
+	if(wege[1]) {
+		int i = 0;
+		while(wege[i] && i<MAX_WEGE) {
+			if(wege[i]->gib_typ() == weg_t::schiene && wege[i]->gib_besch()->gib_styp() == 7) return false;
+			i++;
+		}
+		return true;
+	}
+	return false;
 }

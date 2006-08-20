@@ -40,7 +40,7 @@ savegame_frame_t::savegame_frame_t(const char *suffix) : gui_frame_t("Load/Save"
 {
     this->suffix = suffix;
 
-#ifdef __MINGW32__
+#if defined( __MINGW32__ ) || defined(_MSC_VER)
     mkdir(SAVE_PATH);
 #else
     mkdir(SAVE_PATH, 0700);

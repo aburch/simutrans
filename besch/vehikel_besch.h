@@ -58,6 +58,7 @@ public:
 		 // Hajo: unused ATM: schiene_elektrifiziert=4,
 		 schiene_monorail=5,
 		 schiene_maglev=6,
+		 schiene_strab=7, // Dario: Tramway
     };
 
 

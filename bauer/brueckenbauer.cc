@@ -86,11 +86,11 @@ bool brueckenbauer_t::laden_erfolgreich()
   }
 
   if(!schiene_da) {
-    dbg->message("brueckenbauer_t", "No rail bridge found - feature disabled");
+    DBG_MESSAGE("brueckenbauer_t", "No rail bridge found - feature disabled");
   }
 
   if(!strasse_da) {
-    dbg->message("brueckenbauer_t", "No road bridge found - feature disabled");
+    DBG_MESSAGE("brueckenbauer_t", "No road bridge found - feature disabled");
   }
 
   return true;
@@ -252,10 +252,10 @@ int brueckenbauer_t::baue(spieler_t *sp, karte_t *welt, koord pos, value_t param
     const bruecke_besch_t *besch = (const bruecke_besch_t *)param.p;
 
     if(!besch) {
-        dbg->message("brueckenbauer_t::baue()", "no description for bridge type");
+        DBG_MESSAGE("brueckenbauer_t::baue()", "no description for bridge type");
   return false;
     }
-    dbg->message("brueckenbauer_t::baue()", "called on %d,%d for bridge type '%s'",
+    DBG_MESSAGE("brueckenbauer_t::baue()", "called on %d,%d for bridge type '%s'",
   pos.x, pos.y, besch->gib_name());
 
     if(!welt->ist_in_kartengrenzen(pos)) {
@@ -348,7 +348,7 @@ bool brueckenbauer_t::baue_bruecke(karte_t *welt, spieler_t *sp,
     blockhandle_t bs1;
     weg_t *weg;
 
-    dbg->message("brueckenbauer_t::baue()",
+    DBG_MESSAGE("brueckenbauer_t::baue()",
      "build from %d,%d", pos.x, pos.y);
 
     baue_auffahrt(welt, sp, pos, zv, besch);

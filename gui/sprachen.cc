@@ -23,6 +23,7 @@
 #include "sprachen.h"
 
 #include "../simgraph.h"
+#include "../simcolor.h"
 #include "../simdisplay.h"
 #include "../dataobj/translator.h"
 #include "../utils/simstring.h"
@@ -166,5 +167,5 @@ sprachengui_t::infowin_event(const event_t *ev)
 void sprachengui_t::zeichnen(koord pos, koord gr)
 {
   infowin_t::zeichnen(pos, gr);
-  display_divider(pos.x+10, pos.y+55, 155);
+  display_ddd_box_clip(pos.x+10, pos.y+55, 155, 0, MN_GREY0, MN_GREY4);
 }

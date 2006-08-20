@@ -71,6 +71,7 @@ public:
     static const skin_besch_t *hauptmenu;
     static const skin_besch_t *schienen_werkzeug;
     static const skin_besch_t *strassen_werkzeug;
+		static const skin_besch_t *tram_werkzeug; // Dario: Tramway
     static const skin_besch_t *schiffs_werkzeug;
 //    static const skin_besch_t *bruecken_werkzeug;
     static const skin_besch_t *hang_werkzeug;
@@ -84,6 +85,7 @@ public:
     static const skin_besch_t *flaggensymbol;
     static const skin_besch_t *meldungsymbol;
     static const skin_besch_t *bauigelsymbol;
+    // for the stops in the list
     static const skin_besch_t *zughaltsymbol;
     static const skin_besch_t *autohaltsymbol;
     static const skin_besch_t *shiffshaltsymbol;
@@ -95,20 +97,21 @@ public:
     static const skin_besch_t *upzeiger;
     static const skin_besch_t *belegtzeiger;
     static const skin_besch_t *killzeiger;
-    static const skin_besch_t *strassenzeiger;
-    static const skin_besch_t *schienenzeiger;
-    static const skin_besch_t *postzeiger;
+//    static const skin_besch_t *strassenzeiger;
+//    static const skin_besch_t *schienenzeiger;
+    static const skin_besch_t *slopezeiger;
+//    static const skin_besch_t *postzeiger;
     static const skin_besch_t *fahrplanzeiger;
     static const skin_besch_t *strassentunnelzeiger;
     static const skin_besch_t *schienentunnelzeiger;
-    static const skin_besch_t *bahnhofzeiger;
-    static const skin_besch_t *gueterbahnhofzeiger;
-    static const skin_besch_t *bushaltzeiger;
+//    static const skin_besch_t *bahnhofzeiger;
+//    static const skin_besch_t *gueterbahnhofzeiger;
+//    static const skin_besch_t *bushaltzeiger;
     static const skin_besch_t *frachthofzeiger;
-    static const skin_besch_t *anlegerzeiger;
-    static const skin_besch_t *bahndepotzeiger;
-    static const skin_besch_t *strassendepotzeiger;
-    static const skin_besch_t *kreuzungzeiger;
+//    static const skin_besch_t *anlegerzeiger;
+//    static const skin_besch_t *bahndepotzeiger;
+//    static const skin_besch_t *strassendepotzeiger;
+//    static const skin_besch_t *kreuzungzeiger;
     static const skin_besch_t *werftNSzeiger;
     static const skin_besch_t *werftOWzeiger;
     static const skin_besch_t *stadtzeiger;
@@ -116,6 +119,7 @@ public:
     static const skin_besch_t *undoc_zeiger;
 
     static const skin_besch_t *signale;
+    static const skin_besch_t *presignals;
     static const skin_besch_t *baugrube;
     static const skin_besch_t *fussweg;
     static const skin_besch_t *pumpe;

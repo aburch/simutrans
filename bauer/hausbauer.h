@@ -19,10 +19,12 @@ class gebaeude_t;
 #include "../dataobj/koord3d.h"
 #include "../tpl/stringhashtable_tpl.h"
 #include "../tpl/inthashtable_tpl.h"
+#include "../simtypes.h"
 
 class gebaeude_t;
 class haus_besch_t;
 class haus_tile_besch_t;
+class werkzeug_parameter_waehler_t;
 
 /**
  * Diese Klasse übernimmt den Bau von Mehrteiligen Gebäuden.
@@ -51,7 +53,6 @@ private:
     static slist_tpl<const haus_besch_t *> fabriken;
     static slist_tpl<const haus_besch_t *> denkmaeler;
     static slist_tpl<const haus_besch_t *> ungebaute_denkmaeler;
-    //static slist_tpl<const haus_besch_t *> hausbauer_t::train_stops;
 
 public:
 
@@ -63,16 +64,18 @@ public:
     /**
      * Gebäude, die das Programm direkt kennen muß
      */
-    static const haus_besch_t *bahnhof_besch;
-    static const haus_besch_t *gueterbahnhof_besch;
     static const haus_besch_t *frachthof_besch;
-    static const haus_besch_t *bushalt_besch;
-    static const haus_besch_t *dock_besch;
     static const haus_besch_t *bahn_depot_besch;
+    static const haus_besch_t *tram_depot_besch;
     static const haus_besch_t *str_depot_besch;
     static const haus_besch_t *sch_depot_besch;
-    static const haus_besch_t *post_besch;
     static const haus_besch_t *muehle_besch;
+    // to allow for an arbitary number, we use lists
+//    static const haus_besch_t *post_besch;
+    static slist_tpl<const haus_besch_t *> hausbauer_t::post_offices;
+    static slist_tpl<const haus_besch_t *> hausbauer_t::train_stops;
+    static slist_tpl<const haus_besch_t *> hausbauer_t::car_stops;
+    static slist_tpl<const haus_besch_t *> hausbauer_t::ship_stops;
 
 private:
 
@@ -117,6 +120,15 @@ public:
 
     static bool register_besch(const haus_besch_t *besch);
     static bool alles_geladen();
+
+    /* Fill menu with icons of given stops from the list
+     * @author prissi
+     */
+    static void fill_menu(werkzeug_parameter_waehler_t *wzw,
+    		slist_tpl<const haus_besch_t *>&stops,
+    		int (* werkzeug)(spieler_t *, karte_t *, koord, value_t),
+    		int sound_ok, int sound_ko,int cost);
+
     /**
      * Sucht ein Gebäude, welches bei der gegebenen Bevölkerungszahl gebaut
      * werden soll.
@@ -195,7 +207,7 @@ public:
     static void neue_karte();
 
     /**
-     * Dem Hausbauer Bescheid sagen, dasß ein bestimmtes Denkmal gebaut wurde.
+     * Dem Hausbauer Bescheid sagen, dass ein bestimmtes Denkmal gebaut wurde.
      * @author V. Meyer
      */
     static void denkmal_gebaut(const haus_besch_t *besch)

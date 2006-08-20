@@ -209,7 +209,7 @@ void obj_reader_t::register_reader()
 //@EDOC
 bool obj_reader_t::init(const char *liste)
 {
-    dbg->message("obj_reader_t::init()","reading from '%s'", liste);
+    DBG_MESSAGE("obj_reader_t::init()","reading from '%s'", liste);
 
     searchfolder_t find;
     cstring_t name = find.complete(liste, "dat");
@@ -257,7 +257,7 @@ bool obj_reader_t::init(const char *liste)
     inthashtable_iterator_tpl<obj_type, obj_reader_t *> iter(obj_reader);
 
     while(iter.next()) {
-    	dbg->message("obj_reader_t::init()",
+    	DBG_MESSAGE("obj_reader_t::init()",
 		     "Checking %s objects...",
 		     iter.get_current_value()->get_type_name());
 
@@ -291,7 +291,7 @@ bool obj_reader_t::init(const char *liste)
 void obj_reader_t::read_file(const char *name)
 {
     // Hajo: added trace
-    dbg->debug("obj_reader_t::read_file()", "filename='%s'", name);
+    DBG_DEBUG("obj_reader_t::read_file()", "filename='%s'", name);
 
     FILE *fp = fopen(name, "rb");
 
@@ -312,7 +312,7 @@ void obj_reader_t::read_file(const char *name)
 		   "unexpected end of file after %d bytes while reading '%s'!",
 		   n, name);
       } else {
-	dbg->debug("obj_reader_t::read_file()", "skipped %d header bytes", n);
+	DBG_DEBUG("obj_reader_t::read_file()", "skipped %d header bytes", n);
       }
 
 
@@ -328,14 +328,14 @@ void obj_reader_t::read_file(const char *name)
 
       n = fread(&version, sizeof(version), 1, fp);
 
-      dbg->debug("obj_reader_t::read_file()", "read %d blocks, file version is %d", n, version);
+      DBG_DEBUG("obj_reader_t::read_file()", "read %d blocks, file version is %d", n, version);
 
       if(version <= COMPILER_VERSION_CODE) {
 	obj_besch_t *data = NULL;
 
 	read_nodes(fp, NULL, data);
       } else {
-	dbg->debug("obj_reader_t::read_file()",
+	DBG_DEBUG("obj_reader_t::read_file()",
 		   "version of '%s' is too old, %d instead of %d",
 		   version, COMPILER_VERSION_CODE, name);
       }
@@ -371,7 +371,7 @@ void obj_reader_t::read_nodes(FILE *fp, obj_besch_t * /*parent*/, obj_besch_t *&
     obj_reader_t *reader = obj_reader->get(static_cast<obj_type>(node.type));
     if(reader) {
       /*
-        dbg->debug("obj_reader_t::read_nodes()",
+        DBG_DEBUG("obj_reader_t::read_nodes()",
 		   "Reading %.4s-node of length %d with '%s'",
 		   reinterpret_cast<const char *>(&node.type),
 		   node.size,

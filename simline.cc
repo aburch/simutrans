@@ -38,8 +38,8 @@ simline_t::~simline_t()
 	int count = count_convoys() - 1;
 	for (int i = count; i>=0; i--)
 	{
-		dbg->debug("simline_t::~simline_t()", "convoi '%d' removed", i);
-		dbg->debug("simline_t::~simline_t()", "convoi '%d'->fpl=%p", i, get_convoy(i)->gib_fahrplan());
+		DBG_DEBUG("simline_t::~simline_t()", "convoi '%d' removed", i);
+		DBG_DEBUG("simline_t::~simline_t()", "convoi '%d'->fpl=%p", i, get_convoy(i)->gib_fahrplan());
 
 		// Hajo: take care - this call will do "remove_convoi()"
 		// on our list!
@@ -47,12 +47,12 @@ simline_t::~simline_t()
 	}
 	unregister_stops();
 
-	dbg->debug("simline_t::~simline_t()", "deleting fpl=%p and old_fpl=%p", fpl, old_fpl);
+	DBG_DEBUG("simline_t::~simline_t()", "deleting fpl=%p and old_fpl=%p", fpl, old_fpl);
 
 	delete (fpl);
 	delete (old_fpl);
 
-	dbg->message("simline_t::~simline_t()", "line %d (%p) destroyed", id, this);
+	DBG_MESSAGE("simline_t::~simline_t()", "line %d (%p) destroyed", id, this);
 }
 
 
@@ -147,17 +147,17 @@ simline_t::register_stops(fahrplan_t * fpl)
 {
 	halthandle_t halt;
 
-	dbg->debug("simline_t::register_stops()", "%d fpl entries", fpl->maxi);
+	DBG_DEBUG("simline_t::register_stops()", "%d fpl entries", fpl->maxi);
 
 	for (int i = 0; i<=fpl->maxi; i++)
 	{
 		halt = haltestelle_t::gib_halt(welt, fpl->eintrag.get(i).pos.gib_2d());
 		if (halt.is_bound())
 		{
-			dbg->debug("simline_t::register_stops()", "halt not null");
+			DBG_DEBUG("simline_t::register_stops()", "halt not null");
 			halt->add_line(this);
 		} else {
-			dbg->debug("simline_t::register_stops()", "halt null");
+			DBG_DEBUG("simline_t::register_stops()", "halt null");
 		}
 	}
 }
@@ -189,7 +189,7 @@ simline_t::renew_stops()
 	unregister_stops(this->old_fpl);
 	register_stops(this->fpl);
 
-	dbg->debug("simline_t::renew_stops()",
+	DBG_DEBUG("simline_t::renew_stops()",
 		   "Line id=%d, name='%s'", id, name);
 }
 
@@ -213,7 +213,7 @@ simline_t::new_month()
  */
 void simline_t::prepare_for_update()
 {
-  dbg->debug("simline_t::prepare_for_update()", "line %d (%p)", id, this);
+  DBG_DEBUG("simline_t::prepare_for_update()", "line %d (%p)", id, this);
 
   delete (old_fpl);
   this->old_fpl = new fahrplan_t(fpl);

@@ -94,7 +94,7 @@ tunnelbauer_t::finde_ende(karte_t *welt, koord3d pos, koord zv, weg_t::typ wegty
 
 int tunnelbauer_t::baue(spieler_t *sp, karte_t *welt, koord pos, weg_t::typ wegtyp)
 {
-    dbg->message("tunnelbauer_t::baue()", "called on %d,%d", pos.x, pos.y);
+    DBG_MESSAGE("tunnelbauer_t::baue()", "called on %d,%d", pos.x, pos.y);
 
     if(!welt->ist_in_kartengrenzen(pos)) {
   return false;
@@ -161,7 +161,7 @@ bool tunnelbauer_t::baue_tunnel(karte_t *welt, spieler_t *sp,
     koord3d pos = start;
     int cost = 0;
 
-    dbg->message("tunnelbauer_t::baue()",
+    DBG_MESSAGE("tunnelbauer_t::baue()",
      "build from %d,%d", pos.x, pos.y);
 
     baue_einfahrt(welt, sp, pos, zv, wegtyp, cost);

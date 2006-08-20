@@ -10,6 +10,9 @@ bool umgebung_t::night_shift = false;
 
 bool umgebung_t::freeplay = false;
 
+bool umgebung_t::station_coverage_show = true;
+int umgebung_t::station_coverage_size = 2;
+
 int  umgebung_t::show_names = 3;
 
 bool umgebung_t::automaten[6] = {0,0,0,0,1,0};
@@ -21,6 +24,8 @@ bool umgebung_t::bodenanimation = true;
 bool umgebung_t::fussgaenger = false;
 
 bool umgebung_t::verkehrsteilnehmer_info = false;
+
+bool umgebung_t::tree_info = false;
 
 bool umgebung_t::verbose_debug = false;
 

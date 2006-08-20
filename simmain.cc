@@ -12,6 +12,7 @@
 #include <time.h>
 
 #ifdef _MSC_VER
+#include <new.h> // for _set_new_handler
 #endif
 
 #include "pathes.h"
@@ -91,7 +92,7 @@ static void check_location(const char *file, const char *dir)
     sprintf(dest, "%s/%s", dir, file);
 
     if(access(dir, W_OK) == -1) {
-#ifdef __MINGW32__
+#if defined( __MINGW32__ ) || defined(_MSC_VER)
 	mkdir(dir);
 #else
 	mkdir(dir, 0700);
@@ -462,9 +463,9 @@ int simu_cpp_main(int argc, char ** argv)
 
 
     if(gimme_arg(argc, argv, "-log", 0)) {
-      	init_logging("simu.log", true, gimme_arg(argc, argv, "-debug", 0));
+      	init_logging("simu.log", true, gimme_arg(argc, argv, "-debug", 0) != NULL);
     } else {
-        init_logging("stderr", true, gimme_arg(argc, argv, "-debug", 0));
+        init_logging("stderr", true, gimme_arg(argc, argv, "-debug", 0) != NULL);
     }
 
 
@@ -501,7 +502,7 @@ int simu_cpp_main(int argc, char ** argv)
 	exit(0);
     }
 
-    dbg->message("simmain::main()" ,
+    DBG_MESSAGE("simmain::main()" ,
 		 "Version: " VERSION_NUMBER "  Date: " VERSION_DATE);
 
     // unmgebung init
@@ -524,6 +525,8 @@ int simu_cpp_main(int argc, char ** argv)
       blockhandle_t::init(contents.get_int("railblocks", 8192));
       halthandle_t::init(contents.get_int("stations", 8192));
 
+      umgebung_t::station_coverage_size = contents.get_int("station_coverage", 2);
+
       umgebung_t::bodenanimation =
 	(contents.get_int("animated_grounds", 1) != 0);
 
@@ -532,6 +535,9 @@ int simu_cpp_main(int argc, char ** argv)
 
       umgebung_t::verkehrsteilnehmer_info =
 	(contents.get_int("pedes_and_car_info", 0) != 0);
+
+      umgebung_t::tree_info =
+	(contents.get_int("tree_info", 0) != 0);
 
       umgebung_t::starting_money =
 	(contents.get_int("starting_money", 15000000));
@@ -644,7 +650,7 @@ int simu_cpp_main(int argc, char ** argv)
     // better modularisation
     if(translator::load(objfilename) == false)
     {
-        dbg->fatal("simmain::main()", "Unable to load any language files");
+        dbg->fatal("simmain::main()", "Unable to load any language files\n*** PLEASE INSTALL PROPER BASE FILES ***\n");
         exit(11);
     }
 
@@ -749,6 +755,10 @@ int simu_cpp_main(int argc, char ** argv)
 	fscanf(config,"Messages=%d,%d,%d,%d\n",
 		&umgebung_t::message_flags[0], &umgebung_t::message_flags[1], &umgebung_t::message_flags[2], &umgebung_t::message_flags[3] );
 
+	dn = 0;
+	fscanf(config,"ShowCoverage=%d\n",&dn);
+     umgebung_t::station_coverage_show = (dn != 0);
+
 	fclose(config);
     }
 
@@ -806,6 +816,7 @@ display_show_pointer( false );
 
     win_setze_welt( welt );
     view->display( true );
+    view->display_menu();
 
     // Bringe welt in ansehnlichen Zustand
     // bevor sie als Hintergrund für das intro dient
@@ -822,6 +833,18 @@ display_show_pointer( false );
     // Hajo: give user a mouse to work with
     display_show_pointer(TRUE);
 
+
+#if 0
+// render tests ...
+{
+	printf("testing img ... ");
+	int i;
+	long ms=get_current_time_millis();
+	for(i=0;  i<300000;  i++ )
+		display_img( 2000, 100, 100, 0 );
+	printf( "%i iterations took %i ms\n", i, get_current_time_millis()-ms );
+}
+#endif
 
     zeige_banner();
 
@@ -955,6 +978,7 @@ display_show_pointer( true );
 	    umgebung_t::message_flags[1],
 	    umgebung_t::message_flags[2],
 	    umgebung_t::message_flags[3]);
+	fprintf(config, "ShowCoverage=%d\n", umgebung_t::station_coverage_show);
 	fclose(config);
     }
 

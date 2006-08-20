@@ -11,14 +11,15 @@ CFLAGS=-O2 -fomit-frame-pointer
 MP_LDLIBS=-lpng -lz
 LDFLAGS=
 
-SOURCES=dr_rdpng.c makepak.c image_encoder.c\
-simstring.c writepcx.c log.cc cstring_t.cc tocstring.cc\
+SOURCES=dr_rdpng.c makepak.c \
+simstring.c cstring_t.cc tocstring.cc\
 cbuffer_t.cc searchfolder.cc
+#writepcx.c log.cc image_encoder.c\
 
 MP_OBJECTS=dr_rdpng.o makepak.o
-OBJECTS=writepcx.o image_encoder.o\
-simstring.o log.o cstring_t.o tocstring.o\
+OBJECTS=simstring.o log.o cstring_t.o tocstring.o\
 cbuffer_t.o searchfolder.o
+#writepcx.o image_encoder.o\
 
 all: sim_obj makepak
 

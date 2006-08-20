@@ -373,6 +373,8 @@ private:
 public:
 
 
+		route_t * get_route() { return &route; };
+
     /**
      * Checks if this convoi has a driveable route
      * @author Hanjsörg Malthaner

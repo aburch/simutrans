@@ -8,6 +8,9 @@
  */
 
 #include <stdio.h>
+#ifdef _MSC_VER
+#include <malloc.h> // for alloca
+#endif
 
 #include "../../simdebug.h"
 #include "../../bauer/vehikelbauer.h"
@@ -53,8 +56,12 @@ bool vehicle_reader_t::successfully_loaded() const
  */
 obj_besch_t * vehicle_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 {
+#ifdef _MSC_VER /* no var array on the stack supported */
+    char *besch_buf = static_cast<char *>(alloca(node.size));
+#else
   // Hajo: reading buffer is better allocated on stack
   char besch_buf [node.size];
+#endif
 
 
   char *info_buf = new char[sizeof(obj_besch_t) + node.children * sizeof(obj_besch_t *)];
@@ -148,7 +155,7 @@ obj_besch_t * vehicle_reader_t::read_node(FILE *fp, obj_node_info_t &node)
     }
   }
 
-  dbg->debug("vehicle_reader_t::read_node()",
+  DBG_DEBUG("vehicle_reader_t::read_node()",
 	     "version=%d "
 	     "typ=%d zuladung=%d preis=%d geschw=%d gewicht=%d leistung=%d "
 	     "betrieb=%d sound=%d vor=%d nach=%d "

@@ -153,12 +153,6 @@ private:
     unsigned long insta_zeit;
 
 
-    /**
-     * Current index on the route
-     * @author Hj. Malthaner
-     */
-    int route_index;
-
 
     /**
      * Aktuelle Fahrtrichtung in Bildschirm-Koordinaten
@@ -212,6 +206,13 @@ private:
     ribi_t::ribi fahrtrichtung;
 
 protected:
+
+    /**
+     * Current index on the route
+     * @author Hj. Malthaner
+     */
+    int route_index;
+
 
     /**
      * Previous position on our path
@@ -562,6 +563,8 @@ protected:
 
 public:
     virtual bool ist_weg_frei(int &restart_speed) const;
+
+		bool is_next_block_free() const;
 
     void verlasse_feld();
 

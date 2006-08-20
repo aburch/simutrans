@@ -98,7 +98,7 @@ gui_chart_t::zeichnen(koord offset) const
 
     // Hajo: draw background if desired
     if(background != -1) {
-      display_fillbox_wh(offset.x, offset.y, groesse.x, groesse.y,
+      display_fillbox_wh_clip(offset.x, offset.y, groesse.x, groesse.y,
 			 background, false);
     }
 
@@ -110,7 +110,7 @@ gui_chart_t::zeichnen(koord offset) const
 
       // draw zero number only, if it will not disturb any other printed values!
       if ((baseline > 18) && (baseline < groesse.y -18)) {
-	display_proportional(offset.x - 4,
+	display_proportional_clip(offset.x - 4,
 			     offset.y+baseline-3,
 			     "0",
 			     ALIGN_RIGHT,
@@ -119,14 +119,14 @@ gui_chart_t::zeichnen(koord offset) const
       }
 
       // display min/max money values
-      display_proportional(offset.x - 4,
+      display_proportional_clip(offset.x - 4,
 			   offset.y-5,
 			   cmax,
 			   ALIGN_RIGHT,
 			   WHITE,
 			   false );
 
-      display_proportional(offset.x - 4,
+      display_proportional_clip(offset.x - 4,
 			   offset.y+groesse.y-5,
 			   cmin,
 			   ALIGN_RIGHT,
@@ -135,7 +135,7 @@ gui_chart_t::zeichnen(koord offset) const
     }
 
     // draw chart frame
-    display_ddd_box(offset.x, offset.y, groesse.x, groesse.y, GRAU1, WEISS);
+    display_ddd_box_clip(offset.x, offset.y, groesse.x, groesse.y, GRAU1, WEISS);
 
     // draw chart lines
     for (int i = 0; i<x_elements; i++)
@@ -144,12 +144,12 @@ gui_chart_t::zeichnen(koord offset) const
 		{
 			// display x-axis
 			sprintf(digit, "%i", abs(seed-i));
-			display_proportional(offset.x+(groesse.x / (x_elements - 1))*i - (seed != i ? (int)(2*log(abs((seed-i)))) : 0),
+			display_proportional_clip(offset.x+(groesse.x / (x_elements - 1))*i - (seed != i ? (int)(2*log(abs((seed-i)))) : 0),
 					     offset.y+groesse.y+6,
 					     digit, ALIGN_LEFT, 4, false );
 		}
 	// year's vertical lines
-	display_vline_wh(offset.x+(groesse.x / (x_elements - 1))*i, offset.y+1, groesse.y-2, 5, false);
+	display_vline_wh_clip(offset.x+(groesse.x / (x_elements - 1))*i, offset.y+1, groesse.y-2, 5, false);
     }
 
     // draw chart's curves
@@ -164,7 +164,7 @@ gui_chart_t::zeichnen(koord offset) const
 			//tmp=c.values[year*c.size+c.offset];
 			c.type == 0 ? tmp = c.values[i*c.size+c.offset] : tmp = c.values[i*c.size+c.offset] / 100;
 			// display marker(box) for financial value
-			display_fillbox_wh(offset.x+(groesse.x / (x_elements - 1))*i-2,
+			display_fillbox_wh_clip(offset.x+(groesse.x / (x_elements - 1))*i-2,
 					   offset.y+baseline- (int)(tmp/scale)-2,
 					   5,
 					   5,
@@ -184,7 +184,7 @@ gui_chart_t::zeichnen(koord offset) const
 				if ((c.show_value) && (baseline-tmp/scale-8 > 0) && (baseline-tmp/scale+8 < groesse.y) && (abs((int)(tmp/scale)) > 9))
 				{
 					number_to_string(cmin, tmp);
-					display_proportional(offset.x - 4,
+					display_proportional_clip(offset.x - 4,
 							     offset.y+baseline-(int)(tmp/scale)-4,
 							     cmin,
 							     ALIGN_RIGHT,

@@ -7,6 +7,9 @@
 
 #include <math.h>
 #include <stdlib.h>
+#ifdef _MSC_VER
+#include <malloc.h> // for alloca
+#endif
 
 #include "simcosts.h"
 #include "simworld.h"
@@ -186,7 +189,7 @@ convoi_t::convoi_t(karte_t *wl, spieler_t *sp) :
 
 convoi_t::~convoi_t()
 {
-  // dbg->message("convoi_t::~convoi_t()", "destroying %d, %p", self.get_id(), this);
+  // DBG_MESSAGE("convoi_t::~convoi_t()", "destroying %d, %p", self.get_id(), this);
 
   destroy_win(convoi_info);
 
@@ -302,7 +305,7 @@ convoi_t::sync_prepare()
 bool
 convoi_t::sync_step(long delta_t)
 {
-  // dbg->message("convoi_t::sync_step()", "%p, state %d", this, state);
+  // DBG_MESSAGE("convoi_t::sync_step()", "%p, state %d", this, state);
 
   // moved check to here, as this will apply the same update
   // logic/constraints convois have for manual schedule manipulation
@@ -416,7 +419,7 @@ convoi_t::sync_step(long delta_t)
 	    previous_delta_v = delta_v & 0xFFF;
 	    // and finally calculate new speed
 	    akt_speed = MAX(speed_limit>>4, akt_speed+(delta_v>>12) );
-	    //dbg->message("convoi_t::sync_step","accel %d, deccel %d, akt_speed %d, delta_t %d, delta_v %d",sum_gear_und_leistung,deccel,akt_speed,delta_t,delta_v );
+	    //DBG_MESSAGE("convoi_t::sync_step","accel %d, deccel %d, akt_speed %d, delta_t %d, delta_v %d",sum_gear_und_leistung,deccel,akt_speed,delta_t,delta_v );
 	  }
 	  else {
 	    // very old vehicle ...
@@ -425,7 +428,7 @@ convoi_t::sync_step(long delta_t)
       // obey speed maximum with additional const brake ...
 	  if(akt_speed > speed_limit) {
 	   	akt_speed -= 24;
-      }
+    }
 
 	  sp_soll += (akt_speed*delta_t) / 64;
 	  while(1024 < sp_soll && anz_ready == 0) {
@@ -439,6 +442,7 @@ convoi_t::sync_step(long delta_t)
 	}
 
 	// smoke for the engines (only first can smoke )
+#if 0
 	if(welt->gib_zeit_ms() > next_wolke) {
 	  fahr->at(0)->rauche();
 	  next_wolke += 500;
@@ -446,7 +450,12 @@ convoi_t::sync_step(long delta_t)
 	    next_wolke = welt->gib_zeit_ms()+100;
 	  }
 	}
-
+#else
+	if(welt->gib_zeit_ms() > next_wolke) {
+	  next_wolke = welt->gib_zeit_ms()+500;
+	  fahr->at(0)->rauche();
+	}
+#endif
       } // end if(anz_ready==0)
       else {
 	// Ziel erreicht
@@ -691,7 +700,7 @@ convoi_t::start()
     state = ROUTING_1;
     calc_loading();
 
-    dbg->message("convoi_t::start()",
+    DBG_MESSAGE("convoi_t::start()",
 		 "Convoi %s wechselt von INITIAL nach ROUTING_1",
 		 name);
 
@@ -859,7 +868,7 @@ convoi_t::setze_erstes_letztes()
 bool
 convoi_t::setze_fahrplan(fahrplan_t * f)
 {
-  dbg->debug("convoi_t::setze_fahrplan()", "new=%p, old=%p", f, fpl);
+  DBG_DEBUG("convoi_t::setze_fahrplan()", "new=%p, old=%p", f, fpl);
 
     if(f == NULL) {
 	return false;
@@ -909,8 +918,8 @@ convoi_t::go_alte_richtung()
 
 
   koord3d pos ( fahr->at(0)->gib_pos() );
-
-  for(int i=1; i<anz_vehikel; i++) {
+  int i;
+  for(i=1; i<anz_vehikel; i++) {
     const koord3d k = fahr->at(i)->gib_pos();
 
     if(pos != k) {
@@ -922,7 +931,7 @@ convoi_t::go_alte_richtung()
   const koord3d k0 = route.position_bei(0);
   const koord3d k1 = route.position_bei(1);
 
-  for(int i=0; i<anz_vehikel; i++) {
+  for(i=0; i<anz_vehikel; i++) {
     welt->lookup(k0)->obj_add(fahr->at(i));
     fahr->at(i)->setze_pos(k0);
     fahr->at(i)->starte_neue_route(k0, k1);
@@ -963,18 +972,18 @@ convoi_t::vorfahren()
 			       route.position_bei(1).gib_2d(),
 			       dummy1, dummy2);
   /*
-  dbg->message("convoi_t::vorfahren()",
+  DBG_MESSAGE("convoi_t::vorfahren()",
 	       "alte_richtung=%d, neue_richtung=%d.",
 	       alte_richtung, neue_richtung);
   */
 
   INT_CHECK("simconvoi 651");
-
-  for(int i=0; i<anz_vehikel; i++) {
+  int i;
+  for(i=0; i<anz_vehikel; i++) {
     tmp_pos.at(i) = fahr->at(i)->gib_pos();
 
     const bool ok = welt->lookup(tmp_pos.get(i))->obj_remove(fahr->at(i),
-							     besitzer_p);
+							     besitzer_p)  != NULL;
 
     if(!ok) {
       dbg->error("convoi_t::vorfahren()", "Vehicle %d couldn't be removed.", i);
@@ -989,7 +998,7 @@ convoi_t::vorfahren()
   }
 
 
-  for(int i=0; i<anz_vehikel; i++) {
+  for(i=0; i<anz_vehikel; i++) {
     switch(neue_richtung) {
     case ribi_t::west:
       fahr->at(i)->setze_offsets(10,5);
@@ -1011,7 +1020,7 @@ convoi_t::vorfahren()
 
 
   // reset railblocks
-  for(int i=0; i<anz_vehikel; i++) {
+  for(i=0; i<anz_vehikel; i++) {
     blockmanager::gib_manager()->pruefe_blockstrecke(welt, tmp_pos.at(i));
   }
 
@@ -1027,7 +1036,7 @@ convoi_t::vorfahren()
   }
 
 
-  for(int i=0; i<anz_vehikel; i++) {
+  for(i=0; i<anz_vehikel; i++) {
 
     // raucher beim vorfahren abschalten
     fahr->at(i)->darf_rauchen(false);
@@ -1286,11 +1295,11 @@ void convoi_t::get_freight_info(cbuffer_t & buf)
 void
 convoi_t::open_schedule_window()
 {
-  dbg->message("convoi_t::open_schedule_window()",
+  DBG_MESSAGE("convoi_t::open_schedule_window()",
 	       "Id = %ld, State = %d, Lock = %d",
 	       self.get_id(), state, wait_lock);
   /*
-  dbg->message("convoi_t::open_schedule_window()",
+  DBG_MESSAGE("convoi_t::open_schedule_window()",
 	       "fahr[0] = %p", fahr->at(0));
 
   fahr->at(0)->dump();
@@ -1343,7 +1352,7 @@ convoi_t::pruefe_nachfolger(const vehikel_besch_t *vor, const vehikel_besch_t *h
     }
     for(i=0; i < vor->gib_nachfolger_count(); i++) {
 	soll = vor->gib_nachfolger(i);
-	//dbg->message("convoi_t::pruefe_an_index()",
+	//DBG_MESSAGE("convoi_t::pruefe_an_index()",
 	//    "checking successor: should be %d, is %d",
 	//    soll ? soll->gib_name() : "none",
 	//    hinter ? hinter->gib_name() : "none");
@@ -1353,7 +1362,7 @@ convoi_t::pruefe_nachfolger(const vehikel_besch_t *vor, const vehikel_besch_t *h
 	    return true;
 	}
     }
-    //dbg->message("convoi_t::pruefe_an_index()",
+    //DBG_MESSAGE("convoi_t::pruefe_an_index()",
     //		 "No matching successor found.");
     return false;
 }
@@ -1374,7 +1383,7 @@ convoi_t::pruefe_vorgaenger(const vehikel_besch_t *vor, const vehikel_besch_t *h
     }
     for(i=0; i < hinter->gib_vorgaenger_count(); i++) {
 	soll = hinter->gib_vorgaenger(i);
-	//dbg->message("convoi_t::pruefe_vorgaenger()",
+	//DBG_MESSAGE("convoi_t::pruefe_vorgaenger()",
 	//	     "checking predecessor: should be %s, is %s",
 	//	     soll ? soll->gib_name() : "none",
 	//	     vor ? vor->gib_name() : "none");
@@ -1384,7 +1393,7 @@ convoi_t::pruefe_vorgaenger(const vehikel_besch_t *vor, const vehikel_besch_t *h
 	    return true;
 	}
     }
-    //dbg->message("convoi_t::pruefe_vorgaenger()",
+    //DBG_MESSAGE("convoi_t::pruefe_vorgaenger()",
     //		 "No matching predecessor found.");
     return false;
 }
@@ -1428,11 +1437,11 @@ void convoi_t::laden()
   halthandle_t halt;
 
   // eigene haltestelle ?
-  halt = gib_besitzer()->ist_halt( k );
+  halt = gib_besitzer()->is_my_halt( k );
 
   if(!halt.is_bound()) {
     // eine oeffentliche haltestelle ?
-    halt = welt->gib_spieler(1)->ist_halt( k );
+    halt = welt->gib_spieler(1)->is_my_halt( k );
   }
 
   // default -> nicht warten
@@ -1567,12 +1576,12 @@ void convoi_t::calc_loading()
 	halthandle_t halt;
 
 	// eigene haltestelle ?
-	halt = gib_besitzer()->ist_halt( k );
+	halt = gib_besitzer()->is_my_halt( k );
 
 	if(!halt.is_bound()) {
 	    // eine oeffentliche haltestelle ?
 
-	    halt = welt->gib_spieler(1)->ist_halt( k );
+	    halt = welt->gib_spieler(1)->is_my_halt( k );
 	}
 
 	// default -> nicht warten
@@ -1621,7 +1630,11 @@ void convoi_t::destroy()
   welt->sync_remove(this);
   welt->rem_convoi(self);
 
+#ifdef _MSC_VER
+  koord3d * pos = (koord3d *)alloca(anz_vehikel * sizeof(koord3d));
+#else
   koord3d pos [anz_vehikel];
+#endif
   int i;
 
   for(i=0; i<anz_vehikel; i++) {
@@ -1719,7 +1732,7 @@ void convoi_t::set_line(simline_t * line)
 */
 void convoi_t::register_with_line(int id)
 {
-  dbg->debug("convoi_t::register_with_line()",
+  DBG_DEBUG("convoi_t::register_with_line()",
 	       "%s registers for %d", name, id);
 
 	simline_t * line = welt->simlinemgmt->get_line_by_id(id);
@@ -1769,7 +1782,7 @@ convoi_t::book(sint64 amount, int cost_type)
 	{
 		// THIS SHOULD NEVER HAPPEN!
 		// CHECK CODE
-		dbg->message("convoi_t::book()", "function was called with cost_type: %i, which is not valid (MAX_CONVOI_COST=%i)", cost_type, MAX_CONVOI_COST);
+		DBG_MESSAGE("convoi_t::book()", "function was called with cost_type: %i, which is not valid (MAX_CONVOI_COST=%i)", cost_type, MAX_CONVOI_COST);
 		return;
 	}
 
@@ -1777,7 +1790,11 @@ convoi_t::book(sint64 amount, int cost_type)
 	if (has_line())
 	{
 		line->book(amount, cost_type);
-	};
+	}
+
+	if (cost_type == CONVOI_TRANSPORTED_GOODS) {
+		besitzer_p->buche(amount, COST_TRANSPORTED_GOODS);
+	}
 }
 
 void

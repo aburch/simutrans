@@ -512,7 +512,7 @@ void depot_frame_t::build_vehicle_lists()
 	vehicle_map.set(info, &waggons_vec->at(waggons_vec->get_count() - 1));
       }
     } else {
-      dbg->debug("depot_frame_t::build_vehicle_lists()",
+      DBG_DEBUG("depot_frame_t::build_vehicle_lists()",
 		 "Now (%d) < intro (%d) -> vehicle %s not yet available.",
 		 month_now, month, info->gib_name());
     }
@@ -939,7 +939,7 @@ depot_frame_t::zeichnen(koord pos, koord groesse)
 
     gui_frame_t::zeichnen(pos, groesse);
     if(!cnv.is_bound()) {
-	display_proportional(pos.x+inp_name.gib_pos().x+2,
+	display_proportional_clip(pos.x+inp_name.gib_pos().x+2,
 			     pos.y+inp_name.gib_pos().y+18,
                              translator::translate("new convoi"),
 			     ALIGN_LEFT, GRAU1, true);

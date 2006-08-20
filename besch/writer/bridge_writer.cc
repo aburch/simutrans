@@ -78,8 +78,6 @@ static uint8 get_waytype (const char * waytype, const char * obj_name)
  */
 void bridge_writer_t::write_obj(FILE *outfp, obj_node_t &parent, tabfileobj_t &obj)
 {
-    bruecke_besch_t besch;
-
     // Hajo: node size is 13 bytes
     obj_node_t	node(this, 13, &parent, false);
 

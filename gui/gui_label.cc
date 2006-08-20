@@ -133,7 +133,7 @@ void gui_label_t::zeichnen(koord offset) const
 	default:
 	    al = ALIGN_LEFT;
 	}
-	display_proportional(pos.x+offset.x, pos.y+offset.y,
+	display_proportional_clip(pos.x+offset.x, pos.y+offset.y,
                              translator::translate(text),
 			     al, color, true);
     }

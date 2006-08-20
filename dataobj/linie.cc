@@ -70,7 +70,7 @@ linie_t::linie_t(array_tpl<class linieneintrag_t> *alt) : eintrag(16)
 
   sprintf(name, "Linie %p", this);
 
-  dbg->message("linie_t", "List now contains %d lines", alle_linien.count());
+  DBG_MESSAGE("linie_t", "List now contains %d lines", alle_linien.count());
 }
 
 

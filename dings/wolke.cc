@@ -75,7 +75,7 @@ sync_wolke_t::rdwr(loadsave_t *file)
 bool
 sync_wolke_t::sync_step(long /*delta_t*/)
 {
-    // dbg->message("sync_wolke_t::sync_step()", "%p called", this);
+    // DBG_MESSAGE("sync_wolke_t::sync_step()", "%p called", this);
 
     const uint32 delta = welt->gib_zeit_ms() - gib_insta_zeit();
 

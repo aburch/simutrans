@@ -83,19 +83,19 @@ void halt_list_item_t::zeichnen(koord offset) const
 
  	halttype = halt->get_station_type();
  	if (halttype & haltestelle_t::railstation) {
-	    display_img(skinverwaltung_t::zughaltsymbol->gib_bild_nr(0), pos.x+offset.x+left, pos.y+offset.y-37, false, false);
+	    display_color_img(skinverwaltung_t::zughaltsymbol->gib_bild_nr(0), pos.x+offset.x+left, pos.y+offset.y-37, 0, false, false);
 	  left += 23;
  	}
  	if (halttype & haltestelle_t::loadingbay) {
-	    display_img(skinverwaltung_t::autohaltsymbol->gib_bild_nr(0), pos.x+offset.x+left, pos.y+offset.y-37, false, false);
+	    display_color_img(skinverwaltung_t::autohaltsymbol->gib_bild_nr(0), pos.x+offset.x+left, pos.y+offset.y-37, 0, false, false);
 	  left += 23;
  	}
  	if (halttype & haltestelle_t::busstop) {
-	    display_img(skinverwaltung_t::bushaltsymbol->gib_bild_nr(0), pos.x+offset.x+left, pos.y+offset.y-37, false, false);
+	    display_color_img(skinverwaltung_t::bushaltsymbol->gib_bild_nr(0), pos.x+offset.x+left, pos.y+offset.y-37, 0, false, false);
 	  left += 23;
  	}
  	if (halttype & haltestelle_t::dock) {
-	    display_img(skinverwaltung_t::shiffshaltsymbol->gib_bild_nr(0), pos.x+offset.x+left, pos.y+offset.y-37, false, false);
+	    display_color_img(skinverwaltung_t::shiffshaltsymbol->gib_bild_nr(0), pos.x+offset.x+left, pos.y+offset.y-37, 0, false, false);
 	  left += 23;
  	}
 

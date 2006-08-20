@@ -171,7 +171,7 @@ leitung_t::entferne(const spieler_t *)
 bool
 leitung_t::sync_step(long /*delta_t*/)
 {
-    // dbg->message("leitung_t::sync_step()", "called");
+    // DBG_MESSAGE("leitung_t::sync_step()", "called");
 
     int count = 0;
     int dsum = 0;
@@ -298,7 +298,7 @@ pumpe_t::sync_prepare()
 bool
 pumpe_t::sync_step(long delta_t)
 {
-    // dbg->message("pumpe_t::sync_step()", "called");
+    // DBG_MESSAGE("pumpe_t::sync_step()", "called");
 
 
     int menge_alt = menge;
@@ -382,7 +382,7 @@ senke_t::sync_prepare()
 bool
 senke_t::sync_step(long time)
 {
-    //dbg->message("senke_t::sync_step()", "called");
+    //DBG_MESSAGE("senke_t::sync_step()", "called");
 
     menge = 0;
     fluss_alt = fluss;

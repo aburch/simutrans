@@ -254,14 +254,14 @@ karte_t::calc_hoehe_mit_heightfield(const cstring_t & filename)
       dbg->fatal("karte_t::load_heightfield()",
 		 "Heightfield has wrong color depth %s", buf);
     }
-
-    for(int y=0; y<groesse+1; y++) {
+    int y;
+    for(y=0; y<groesse+1; y++) {
       for(int x=0; x<groesse+1; x++) {
 	setze_grid_hgt(koord(x,y), grundwasser);
       }
     }
 
-    for(int y=0; y<groesse; y++) {
+    for(y=0; y<groesse; y++) {
       for(int x=0; x<groesse; x++) {
 	int R = fgetc(file);
 	int G = fgetc(file);
@@ -520,11 +520,12 @@ void karte_t::verteile_baeume(int dichte)
 void
 karte_t::destroy()
 {
-    dbg->message("karte_t::destroy()", "destroying world");
+    DBG_MESSAGE("karte_t::destroy()", "destroying world");
     printf("Destroying world ... ");
 
     // hier nur entfernen, aber nicht löschen
     ausflugsziele.clear();
+    ausflugsziele_max_pax = 0;
 
     labels.clear();
 
@@ -619,7 +620,7 @@ karte_t::destroy()
     delete schedule_list_gui;
     schedule_list_gui = 0;
 
-    dbg->message("karte_t::destroy()", "world destroyed");
+    DBG_MESSAGE("karte_t::destroy()", "world destroyed");
     printf("destroyed.\n");
 }
 
@@ -704,6 +705,7 @@ karte_t::init(einstellungen_t *sets)
 
     letzter_monat = 0;
     letztes_jahr = 0;
+    season = 2;
     steps = 0;
 
     //grundwasser = -32;        29-Nov-01       Markus Weber    Changed
@@ -810,7 +812,7 @@ karte_t::init(einstellungen_t *sets)
       for(i=0; i<einstellungen->gib_anzahl_staedte(); i++) {
 	//	printf("City #%d at %d, %d\n",i+1, pos[i].x, pos[i].y);
 	int citizens=(int)(einstellungen->gib_mittlere_einwohnerzahl()*0.9);
-	stadt->at(i) = new stadt_t(this, spieler[1], pos->at(i),citizens/10+simrand(citizens+1));
+	stadt->at(i) = new stadt_t(this, spieler[1], pos->at(i),citizens/10+simrand(2*citizens+1));
 
 
 	if(is_display_init()) {
@@ -861,13 +863,13 @@ karte_t::init(einstellungen_t *sets)
 	    if(bauigel.max_n >= 1) {
 	      bauigel.baue();
 	    } else {
-	      dbg->debug("karte_t::init()",
+	      DBG_DEBUG("karte_t::init()",
 			 "no route found fom city %d to %d", i, j);
 
 	    }
 
 	  } else {
-	    dbg->debug("karte_t::init()",
+	    DBG_DEBUG("karte_t::init()",
 		       "cites %d and %d are too far away", i, j);
 	  }
 	}
@@ -939,6 +941,7 @@ karte_t::init(einstellungen_t *sets)
 karte_t::karte_t()
 {
     setze_dirty();
+//    set_rotation(0);
     set_scroll_lock(false);
 
     einstellungen_t * sets = new einstellungen_t();
@@ -960,7 +963,6 @@ karte_t::karte_t()
 	sets->setze_tourist_attractions(1);
 	sets->setze_verkehr_level(7);
 	sets->setze_karte_nummer( 33 );
-
     }
 
     stadt = 0;
@@ -969,6 +971,7 @@ karte_t::karte_t()
     slopes = 0;
     grid_hgts = 0;
     einstellungen = 0;
+	ausflugsziele_max_pax = 0;
 
     for(i=0; i<anz_spieler ; i++) {
 	spieler[i] = 0;
@@ -1204,6 +1207,8 @@ bool karte_t::can_lower_to(int x, int y, int h) const
     return ok;
 }
 
+
+
 bool karte_t::can_lower(int x, int y) const
 {
     if(x >= 0 && y >= 0 && x <= gib_groesse() && y<= gib_groesse()) {
@@ -1212,6 +1217,8 @@ bool karte_t::can_lower(int x, int y) const
 	return true;
     }
 }
+
+
 
 int karte_t::lower_to(int x, int y, int h)
 {
@@ -1269,6 +1276,7 @@ int karte_t::lower_to(int x, int y, int h)
 }
 
 
+
 int karte_t::lower(koord pos)
 {
     bool ok = can_lower(pos.x, pos.y);
@@ -1281,6 +1289,8 @@ int karte_t::lower(koord pos)
 
     return n;
 }
+
+
 
 bool
 karte_t::ebne_planquadrat(koord pos, int hgt)
@@ -1312,6 +1322,7 @@ karte_t::ebne_planquadrat(koord pos, int hgt)
 }
 
 
+
 void
 karte_t::setze_maus_funktion(int (* funktion)(spieler_t *, karte_t *, koord),
                              int zeiger_bild,
@@ -1323,6 +1334,7 @@ karte_t::setze_maus_funktion(int (* funktion)(spieler_t *, karte_t *, koord),
 	(int (*)(spieler_t *, karte_t *, koord, value_t))funktion,
 	zeiger_bild, zeiger_versatz, 0l, ok_sound, ko_sound);
 }
+
 
 
 /**
@@ -1370,7 +1382,7 @@ void karte_t::new_mountain(int x, int y, int w, int h, int t)
 {
     int i,j,n;
 
-    dbg->message("karte_t::new_mountain()",
+    DBG_MESSAGE("karte_t::new_mountain()",
 		 "New mountain %d+%d, %d+%d, %d",x,w,y,h,t);
 
     for(n=0; n<abs(t); n++){
@@ -1475,8 +1487,11 @@ karte_t::gib_fab_list() const
 void
 karte_t::add_ausflugsziel(gebaeude_t *gb)
 {
-    assert(gb != NULL);
-    ausflugsziele.insert( gb );
+	assert(gb != NULL);
+	ausflugsziele.insert( gb );
+	if(gb->gib_passagier_level()>ausflugsziele_max_pax) {
+		ausflugsziele_max_pax = gb->gib_passagier_level();
+	}
 }
 
 void
@@ -1620,6 +1635,7 @@ karte_t::suche_nahe_haltestellen(const koord k,
                                  const int mitte_wh,
 				 uint32 max_anzahl) const
 {
+#if 0
     static vector_tpl<halthandle_t> halt_list(32);
 
     halthandle_t halt;
@@ -1715,6 +1731,9 @@ karte_t::suche_nahe_haltestellen(const koord k,
     }
 
     return halt_list;
+#else
+	return lookup(k)->gib_kartenboden()->get_haltlist();
+#endif
 }
 
 
@@ -1801,8 +1820,16 @@ karte_t::neuer_monat()
 {
     letzter_monat ++;
 
-    dbg->message("karte_t::neuer_monat()",
-		 "Month %d has started", letzter_monat);
+DBG_MESSAGE("karte_t::neuer_monat()","Month %d has started", letzter_monat);
+
+	// change grounds to winter?
+	const int tage = 1+(ticks >> karte_t::ticks_bits_per_tag);
+	const int current_season=(2+tage/3)&3; // summer always zero
+	if(  season!=current_season  ) {
+		season = current_season;
+		boden_t::toggle_season( current_season );
+//		setze_dirty();
+	}
 
     // hsiegeln - call new month for convois
     slist_iterator_tpl<convoihandle_t> citer (convoi_list);
@@ -1862,7 +1889,7 @@ karte_t::neuer_monat()
       (umgebung_t::starting_year * 12);
 
 
-    for(int i=vehikel_besch_t::strasse; i<vehikel_besch_t::luft; i++) {
+    for(i=vehikel_besch_t::strasse; i<vehikel_besch_t::luft; i++) {
       int j=0;
 
       const vehikel_besch_t *info;
@@ -1892,7 +1919,7 @@ void karte_t::neues_jahr()
 {
     letztes_jahr ++;
 
-    dbg->message("karte_t::neues_jahr()","Year %d has started", letztes_jahr);
+    DBG_MESSAGE("karte_t::neues_jahr()","Year %d has started", letztes_jahr);
     char buf[256];
     sprintf(buf,translator::translate("Year %i has started."),letztes_jahr+umgebung_t::starting_year);
     message_t::get_instance()->add_message(buf,koord::invalid,message_t::general,SCHWARZ,skinverwaltung_t::neujahrsymbol->gib_bild_nr(0));
@@ -2145,7 +2172,7 @@ karte_t::speichern(const char *filename)
 #ifndef DEMO
     loadsave_t  file;
 
-    dbg->message("karte_t::speichern()", "saving game to '%s'", filename);
+    DBG_MESSAGE("karte_t::speichern()", "saving game to '%s'", filename);
 
 
     if(!file.wr_open(filename)) {
@@ -2176,11 +2203,11 @@ karte_t::speichern(loadsave_t *file)
     for(i=0; i<einstellungen->gib_anzahl_staedte(); i++) {
 	stadt->at(i)->rdwr(file);
     }
-	dbg->message("karte_t::speichern(loadsave_t *file)", "saved cities");
+	DBG_MESSAGE("karte_t::speichern(loadsave_t *file)", "saved cities");
 
     blockmanager *bm = blockmanager::gib_manager();
     bm->rdwr(this, file);
-	dbg->message("karte_t::speichern(loadsave_t *file)", "saved bm");
+	DBG_MESSAGE("karte_t::speichern(loadsave_t *file)", "saved bm");
 
     for(j=0; j<gib_groesse(); j++) {
 	for(i=0; i<gib_groesse(); i++) {
@@ -2189,7 +2216,7 @@ karte_t::speichern(loadsave_t *file)
 	display_progress(j, gib_groesse());
 	display_flush(0, 0, 0, "", "");
     }
-	dbg->message("karte_t::speichern(loadsave_t *file)", "saved access");
+	DBG_MESSAGE("karte_t::speichern(loadsave_t *file)", "saved access");
 
     for(j=0; j<=gib_groesse(); j++) {
 	for(i=0; i<=gib_groesse(); i++) {
@@ -2197,7 +2224,7 @@ karte_t::speichern(loadsave_t *file)
 	    file->rdwr_int(hgt, "\n");
 	}
     }
-	dbg->message("karte_t::speichern(loadsave_t *file)", "saved hgt");
+	DBG_MESSAGE("karte_t::speichern(loadsave_t *file)", "saved hgt");
 
     // Hajo: save slopes
 
@@ -2207,7 +2234,7 @@ karte_t::speichern(loadsave_t *file)
 	file->rdwr_signed_char(slope, ",");
       }
     }
-	dbg->message("karte_t::speichern(loadsave_t *file)", "saved slopes");
+	DBG_MESSAGE("karte_t::speichern(loadsave_t *file)", "saved slopes");
 
     int fabs = fab_list.count();
 
@@ -2217,12 +2244,12 @@ karte_t::speichern(loadsave_t *file)
     while(fiter.next()) {
 	(fiter.get_current())->rdwr(file);
     }
-	dbg->message("karte_t::speichern(loadsave_t *file)", "saved fabs");
+	DBG_MESSAGE("karte_t::speichern(loadsave_t *file)", "saved fabs");
 
     // save linemanagement status (and lines)
     // @author hsiegeln
     simlinemgmt->rdwr(this, file);
-    dbg->message("karte_t::speichern(loadsave_t *file)", "saved lines");
+    DBG_MESSAGE("karte_t::speichern(loadsave_t *file)", "saved lines");
 
     slist_iterator_tpl<convoihandle_t> citer ( convoi_list );
 
@@ -2231,12 +2258,12 @@ karte_t::speichern(loadsave_t *file)
     }
 
     file->wr_obj_id("Ende Convois");
-    dbg->message("karte_t::speichern(loadsave_t *file)", "saved convois");
+    DBG_MESSAGE("karte_t::speichern(loadsave_t *file)", "saved convois");
 
     for(i=0; i<8 ; i++) {
 	spieler[i]->rdwr(file);
     }
-	dbg->message("karte_t::speichern(loadsave_t *file)", "saved players");
+	DBG_MESSAGE("karte_t::speichern(loadsave_t *file)", "saved players");
 
     i = gib_ij_off().x;
     j = gib_ij_off().y;
@@ -2246,9 +2273,7 @@ karte_t::speichern(loadsave_t *file)
 
     // Hajo: once this should be removed -> it makes IMO
     // no sense to save the UI language with a game ?!
-
     // translator::rdwr( file );
-
 
     display_speichern( file->gib_file(), file->is_zipped());
 }
@@ -2262,7 +2287,7 @@ karte_t::laden(const char *filename)
 #ifndef DEMO
     loadsave_t file;
 
-    dbg->message("karte_t::laden", "loading game from '%s'", filename);
+    DBG_MESSAGE("karte_t::laden", "loading game from '%s'", filename);
 
     if(!file.rd_open(filename)) {
 
@@ -2275,10 +2300,11 @@ karte_t::laden(const char *filename)
     } else if(file.get_version() < 84006) {
 	create_win(-1, -1, new nachrichtenfenster_t(this, "WRONGSAVE"), w_autodelete);
 
-    } else {
+  }
+  else {
 	destroy_all_win();
 
-	dbg->message("karte_t::laden()","Savegame version is %d", file.get_version());
+	DBG_MESSAGE("karte_t::laden()","Savegame version is %d", file.get_version());
 
 	laden(&file);
 	file.close();
@@ -2321,8 +2347,9 @@ void karte_t::laden(loadsave_t *file)
     destroy();
 
     // jetzt geht das laden los
-    dbg->message("karte_t::laden", "Fileversion: %d", file->get_version());
+    DBG_MESSAGE("karte_t::laden", "Fileversion: %d", file->get_version());
     einstellungen->rdwr(file);
+    DBG_DEBUG("karte_t::laden", "einstellungen loaded (groesse %i)",einstellungen->gib_groesse());
 
     // wird gecached, um den Pointerzugriff zu sparen, da
     // die groesse _sehr_ oft referenziert wird
@@ -2332,9 +2359,12 @@ void karte_t::laden(loadsave_t *file)
 
     //12-Jan-02     Markus Weber added
     grundwasser = einstellungen->gib_grundwasser();
+DBG_DEBUG("karte_t::laden()","grundwasser %i",grundwasser);
 
-
+    DBG_DEBUG("karte_t::laden", "init felder ... ");
     init_felder();
+    DBG_DEBUG("karte_t::laden", "init felder ok");
+
     hausbauer_t::neue_karte();
 
     file->rdwr_long(ticks, " ");
@@ -2342,6 +2372,7 @@ void karte_t::laden(loadsave_t *file)
     file->rdwr_int(letztes_jahr, "\n");
     steps = 0;
 
+    DBG_DEBUG("karte_t::laden", "init %i cities",einstellungen->gib_anzahl_staedte());
     for(i=0; i<einstellungen->gib_anzahl_staedte(); i++) {
 	stadt->at(i) = new stadt_t(this, file);
 
@@ -2408,7 +2439,7 @@ void karte_t::laden(loadsave_t *file)
       gib_fab(0)->laden_abschliessen();
     }
 
-    dbg->message("karte_t::laden()", "%d factories loaded", fab_list.count());
+    DBG_MESSAGE("karte_t::laden()", "%d factories loaded", fab_list.count());
 
     // load linemanagement status (and lines)
     // @author hsiegeln
@@ -2418,7 +2449,7 @@ void karte_t::laden(loadsave_t *file)
       if(tstrequ(buf, "Linemanagement")) {
 	simlinemgmt->rdwr(this, file);
       }
-      dbg->message("karte_t::laden()", "%d lines loaded", simlinemgmt->count_lines());
+      DBG_MESSAGE("karte_t::laden()", "%d lines loaded", simlinemgmt->count_lines());
     }
     // end load linemanagement
 
@@ -2455,7 +2486,7 @@ void karte_t::laden(loadsave_t *file)
 	}
     }
 
-    dbg->message("karte_t::laden()", "%d convois/trains loaded", convoi_list.count());
+    DBG_MESSAGE("karte_t::laden()", "%d convois/trains loaded", convoi_list.count());
 
     // reinit pointer with new pointer object and old values
     zeiger = new zeiger_t(this, koord3d(0,0,0), spieler[0]);	// Zeiger ist spezialobjekt
@@ -2466,7 +2497,7 @@ void karte_t::laden(loadsave_t *file)
     for(i=0; i<8 ; i++) {
 	spieler[i]->rdwr(file);
     }
-    dbg->message("karte_t::laden()", "players loaded");
+    DBG_MESSAGE("karte_t::laden()", "players loaded");
     for(i = 0; i < 6; i++) {
 	umgebung_t::automaten[i] = spieler[i + 2]->is_active();
     }
@@ -2483,7 +2514,7 @@ void karte_t::laden(loadsave_t *file)
     file->rdwr_delim("View ");
     file->rdwr_int(i, " ");
     file->rdwr_int(j, "\n");
-    dbg->message("karte_t::laden()", "Setting view to %d,%d", i, j);
+    DBG_MESSAGE("karte_t::laden()", "Setting view to %d,%d", i, j);
     setze_ij_off(koord(i, j));
 
 
@@ -2493,7 +2524,7 @@ void karte_t::laden(loadsave_t *file)
 
     display_laden(file->gib_file(), file->is_zipped());
 
-    dbg->message("karte_t::laden()", "%d ways loaded",
+    DBG_MESSAGE("karte_t::laden()", "%d ways loaded",
 		 weg_t::gib_alle_wege().count());
 
     for(j=0; j<gib_groesse(); j++) {
@@ -2815,7 +2846,7 @@ karte_t::interactive_event(event_t &ev)
 
 
     if(ev.ev_class == EVENT_KEYBOARD) {
-	dbg->message("karte_t::interactive_event()",
+	DBG_MESSAGE("karte_t::interactive_event()",
 		     "Keyboard event with code %d '%c'",
 		     ev.ev_code, ev.ev_code);
 
@@ -2907,11 +2938,6 @@ karte_t::interactive_event(event_t &ev)
             setze_maus_funktion(wkz_test_new_cars, skinverwaltung_t::belegtzeiger->gib_bild_nr(0), Z_PLAN, 0, 0);
             break;
 #endif
-/*
-        case 'N':
-	    create_win(0, display_get_height()-32, -1, new ticker_view_t(this), w_frameless_autodelete);
-            break;
-	    */
 	case 'p':
 	    sound_play(click_sound);
 	    do_pause();
@@ -2919,12 +2945,22 @@ karte_t::interactive_event(event_t &ev)
 	case 'r':
 	    setze_maus_funktion(wkz_remover, skinverwaltung_t::killzeiger->gib_bild_nr(0), Z_PLAN, SFX_REMOVER, SFX_FAILURE);
 	    break;
+/*
+	case 'R':
+		// rotate the view
+	    set_rotation( (get_rotation()+1)&1 );
+	    break;
+*/
 	case 's':
-	    setze_maus_funktion(wkz_wegebau, skinverwaltung_t::strassenzeiger->gib_bild_nr(0), Z_PLAN,
+	    setze_maus_funktion(wkz_wegebau, wegbauer_t::gib_besch("asphalt_road")->gib_cursor()->gib_bild_nr(0), Z_PLAN,
 				(long)wegbauer_t::gib_besch("asphalt_road"), 0, 0);
 	    break;
+	case 'v':
+	    umgebung_t::station_coverage_show = !umgebung_t::station_coverage_show;
+	    setze_dirty();
+	    break;
 	case 't':
-	    setze_maus_funktion(wkz_wegebau, skinverwaltung_t::schienenzeiger->gib_bild_nr(0), Z_PLAN,
+	    setze_maus_funktion(wkz_wegebau, wegbauer_t::gib_besch("wooden_sleeper_track")->gib_cursor()->gib_bild_nr(0), Z_PLAN,
 				(long)wegbauer_t::gib_besch("wooden_sleeper_track"), 0, 0);
 	    break;
 	case 'u':
@@ -3062,7 +3098,7 @@ karte_t::interactive_event(event_t &ev)
 	default:
 	// ignore special keys
 	if (ev.ev_code <= 255) {
-	    dbg->message("karte_t::interactive_event()",
+	    DBG_MESSAGE("karte_t::interactive_event()",
 			 "key `%c` is not bound to a function.",ev.ev_code);
 
 	    create_win(new help_frame_t("keys.txt"), w_autodelete, magic_none);
@@ -3103,8 +3139,7 @@ karte_t::interactive_event(event_t &ev)
 
 		    wzw->setze_werkzeug(0,
 					wkz_set_slope,
-					skinverwaltung_t::schienenzeiger
-					    ->gib_bild_nr(0),
+					skinverwaltung_t::slopezeiger->gib_bild_nr(0),
 					Z_PLAN,
 					(long)0,
 					SFX_JACKHAMMER,
@@ -3113,8 +3148,7 @@ karte_t::interactive_event(event_t &ev)
 
 		    wzw->setze_werkzeug(1,
 					wkz_set_slope,
-					skinverwaltung_t::schienenzeiger
-					    ->gib_bild_nr(0),
+					skinverwaltung_t::slopezeiger->gib_bild_nr(0),
 					Z_PLAN,
 					(long)3,
 					SFX_JACKHAMMER,
@@ -3124,8 +3158,7 @@ karte_t::interactive_event(event_t &ev)
 
 		    wzw->setze_werkzeug(2,
 					wkz_set_slope,
-					skinverwaltung_t::schienenzeiger
-					    ->gib_bild_nr(0),
+					skinverwaltung_t::slopezeiger->gib_bild_nr(0),
 					Z_PLAN,
 					(long)6,
 					SFX_JACKHAMMER,
@@ -3135,8 +3168,7 @@ karte_t::interactive_event(event_t &ev)
 
 		    wzw->setze_werkzeug(3,
 					wkz_set_slope,
-					skinverwaltung_t::schienenzeiger
-					    ->gib_bild_nr(0),
+					skinverwaltung_t::slopezeiger->gib_bild_nr(0),
 					Z_PLAN,
 					(long)9,
 					SFX_JACKHAMMER,
@@ -3146,8 +3178,7 @@ karte_t::interactive_event(event_t &ev)
 
 		    wzw->setze_werkzeug(4,
 					wkz_set_slope,
-					skinverwaltung_t::schienenzeiger
-					    ->gib_bild_nr(0),
+					skinverwaltung_t::slopezeiger->gib_bild_nr(0),
 					Z_PLAN,
 					(long)12,
 					SFX_JACKHAMMER,
@@ -3157,8 +3188,7 @@ karte_t::interactive_event(event_t &ev)
 
 		    wzw->setze_werkzeug(5,
 					wkz_set_slope,
-					skinverwaltung_t::schienenzeiger
-					    ->gib_bild_nr(0),
+					skinverwaltung_t::slopezeiger->gib_bild_nr(0),
 					Z_PLAN,
 					(long)16,
 					SFX_JACKHAMMER,
@@ -3168,8 +3198,7 @@ karte_t::interactive_event(event_t &ev)
 
 		    wzw->setze_werkzeug(6,
 					wkz_set_slope,
-					skinverwaltung_t::schienenzeiger
-					    ->gib_bild_nr(0),
+					skinverwaltung_t::slopezeiger->gib_bild_nr(0),
 					Z_PLAN,
 					(long)17,
 					SFX_JACKHAMMER,
@@ -3211,38 +3240,28 @@ karte_t::interactive_event(event_t &ev)
 				  skinverwaltung_t::signalzeiger->gib_bild_nr(0),
 				  tool_tip_with_price(translator::translate("Build signals"), CST_SIGNALE));
 
+		    wzw->add_tool(wkz_presignals,
+				  Z_LINES,
+				  SFX_GAVEL,
+				  SFX_FAILURE,
+				  skinverwaltung_t::schienen_werkzeug->gib_bild_nr(0),
+				  skinverwaltung_t::signalzeiger->gib_bild_nr(0),
+				  tool_tip_with_price(translator::translate("Build presignals"), CST_SIGNALE));
 
-		    if(hausbauer_t::bahnhof_besch) {
-		      wzw->add_param_tool(wkz_bahnhof,
-					  hausbauer_t::bahnhof_besch,
-					  Z_PLAN,
-					  SFX_GAVEL,
+		    hausbauer_t::fill_menu(wzw,
+					  hausbauer_t::train_stops,
+					  wkz_bahnhof,
+					  SFX_JACKHAMMER,
 					  SFX_FAILURE,
-					  skinverwaltung_t::schienen_werkzeug->gib_bild_nr(1),
-					  skinverwaltung_t::bahnhofzeiger->gib_bild_nr(0),
-					  tool_tip_with_price(translator::translate("Bahnhof bauen"), CST_BAHNHOF));
-		    }
-
-
-		    if(hausbauer_t::gueterbahnhof_besch) {
-		      wzw->add_param_tool(wkz_bahnhof,
-					  hausbauer_t::gueterbahnhof_besch,
-					  Z_PLAN,
-					  SFX_GAVEL,
-					  SFX_FAILURE,
-					  skinverwaltung_t::schienen_werkzeug->gib_bild_nr(6),
-					  skinverwaltung_t::gueterbahnhofzeiger->gib_bild_nr(0),
-					  tool_tip_with_price(translator::translate("Gueterbahnhof bauen"), CST_BAHNHOF));
-		    }
-
+					  CST_BAHNHOF);
 
 		    if(hausbauer_t::bahn_depot_besch) {
 		      wzw->add_tool(wkz_bahndepot,
 				    Z_PLAN,
 				    SFX_GAVEL,
 				    SFX_FAILURE,
-				    skinverwaltung_t::schienen_werkzeug->gib_bild_nr(2),
-				    skinverwaltung_t::bahndepotzeiger->gib_bild_nr(0),
+					hausbauer_t::bahn_depot_besch->gib_cursor()->gib_bild_nr(1),
+					hausbauer_t::bahn_depot_besch->gib_cursor()->gib_bild_nr(0),
 				    tool_tip_with_price(translator::translate("Build train depot"), CST_BAHNDEPOT));
 		    }
 
@@ -3303,16 +3322,12 @@ karte_t::interactive_event(event_t &ev)
 					  SFX_FAILURE
 					  );
 
-		    if(hausbauer_t::bushalt_besch) {
-			wzw->add_tool(wkz_bushalt,
-				      Z_PLAN,
-				      SFX_JACKHAMMER,
-				      SFX_FAILURE,
-				      skinverwaltung_t::strassen_werkzeug->gib_bild_nr(0),
-				      skinverwaltung_t::bushaltzeiger->gib_bild_nr(0),
-				      tool_tip_with_price(translator::translate("Bushaltestelle"), CST_BUSHALT));
-		    }
-
+		    hausbauer_t::fill_menu(wzw,
+					  hausbauer_t::car_stops,
+					  wkz_bushalt,
+					  SFX_JACKHAMMER,
+					  SFX_FAILURE,
+					  CST_BUSHALT);
 
 		    if(hausbauer_t::frachthof_besch) {
 		      wzw->add_tool(wkz_frachthof,
@@ -3324,17 +3339,15 @@ karte_t::interactive_event(event_t &ev)
 				    tool_tip_with_price(translator::translate("Frachthof"), CST_FRACHTHOF));
 		    }
 
-
 		    if(hausbauer_t::str_depot_besch) {
 			wzw->add_tool(wkz_strassendepot,
 				      Z_PLAN,
 				      SFX_GAVEL,
 				      SFX_FAILURE,
-				      skinverwaltung_t::strassen_werkzeug->gib_bild_nr(2),
-				      skinverwaltung_t::strassendepotzeiger->gib_bild_nr(0),
+					hausbauer_t::str_depot_besch->gib_cursor()->gib_bild_nr(1),
+					hausbauer_t::str_depot_besch->gib_cursor()->gib_bild_nr(0),
 				      tool_tip_with_price(translator::translate("Build truck depot"), CST_STRASSENDEPOT));
 		    }
-
 
 		    if(tunnelbauer_t::strassentunnel) {
 		      wzw->add_param_tool(&tunnelbauer_t::baue,
@@ -3364,35 +3377,113 @@ karte_t::interactive_event(event_t &ev)
 		break;
 	    case 8:
                 {
-		    werkzeug_waehler_t *wzw =
-                        new werkzeug_waehler_t(this, skinverwaltung_t::schiffs_werkzeug, "SHIPTOOLS");
+		    werkzeug_parameter_waehler_t *wzw =
+                        new werkzeug_parameter_waehler_t(this, "SHIPTOOLS");
 
 		    wzw->setze_hilfe_datei("shiptools.txt");
 
-		    if(hausbauer_t::dock_besch) {
-			wzw->setze_werkzeug(0, wkz_dockbau, skinverwaltung_t::anlegerzeiger->gib_bild_nr(0), Z_PLAN, SFX_DOCK, SFX_FAILURE);
+		    hausbauer_t::fill_menu(wzw,
+					  hausbauer_t::ship_stops,
+					  wkz_dockbau,
+					  SFX_JACKHAMMER,
+					  SFX_FAILURE,
+					  CST_DOCK);
+
+		    if(hausbauer_t::sch_depot_besch) {
+			    wzw->add_param_tool(wkz_schiffdepot,
+			             (long int)0,
+					  Z_LINES,
+					  SFX_GAVEL,
+					  SFX_FAILURE,
+					  skinverwaltung_t::schiffs_werkzeug->gib_bild_nr(0),
+					  skinverwaltung_t::werftNSzeiger->gib_bild_nr(0),
+					  tool_tip_with_price(translator::translate("Build ship depot"), CST_SCHIFFDEPOT));
+
+			    wzw->add_param_tool(wkz_schiffdepot,
+			             (long int)1,
+					  Z_LINES,
+					  SFX_GAVEL,
+					  SFX_FAILURE,
+					  skinverwaltung_t::schiffs_werkzeug->gib_bild_nr(1),
+					  skinverwaltung_t::werftNSzeiger->gib_bild_nr(0),
+					  tool_tip_with_price(translator::translate("Build ship depot"), CST_SCHIFFDEPOT));
+			}
+
+/*
+		    werkzeug_waehler_t *wzw =
+                        new werkzeug_waehler_t(this, skinverwaltung_t::schiffs_werkzeug, "SHIPTOOLS");
+		    wzw->setze_hilfe_datei("shiptools.txt");
+
+		    if(hausbauer_t::ship_stops.contains("ShipStop")) {
+			wzw->setze_werkzeug(0, wkz_small_dockbau, skinverwaltung_t::anlegerzeiger->gib_bild_nr(0), Z_PLAN, SFX_DOCK, SFX_FAILURE);
 			wzw->set_tooltip(0, translator::translate("Build dock"));
 		    }
 
+		    if(hausbauer_t::ship_stops.contains("LargeShipStop")) {
+			wzw->setze_werkzeug(1, wkz_large_dockbau, skinverwaltung_t::grosser_anlegerzeiger->gib_bild_nr(0), Z_PLAN, SFX_DOCK, SFX_FAILURE);
+			wzw->set_tooltip(1, translator::translate("Build large dock"));
+		    }
 
-		    if(hausbauer_t::sch_depot_besch) {
+		    if(hausbauer_t::sch_depot_besch  && 0) {
     			wzw->setze_werkzeug(4, wkz_schiffdepot_ns, skinverwaltung_t::werftNSzeiger->gib_bild_nr(0), Z_PLAN, SFX_DOCK, SFX_FAILURE);
 			wzw->setze_werkzeug(5, wkz_schiffdepot_ow, skinverwaltung_t::werftOWzeiger->gib_bild_nr(0), Z_PLAN, SFX_DOCK, SFX_FAILURE);
 
 			wzw->set_tooltip(4, translator::translate("Build ship depot"));
 			wzw->set_tooltip(5, translator::translate("Build ship depot"));
+
 		    }
+*/
 		    sound_play(click_sound);
 
 		    wzw->zeige_info(magic_shiptools);
                 }
 		break;
 	    case 9:
-	      // tram tools
-		break;
+			if(hausbauer_t::tram_depot_besch!=NULL) {
+				werkzeug_parameter_waehler_t *wzw =
+					new werkzeug_parameter_waehler_t(this, "TRAMTOOLS");
+
+				wzw->setze_hilfe_datei("tramtools.txt");
+
+				wegbauer_t::fill_menu(wzw,
+					weg_t::schiene,
+					wkz_wegebau,
+					SFX_JACKHAMMER,
+					SFX_FAILURE,
+					7
+				);
+
+				wzw->add_tool(wkz_signale,
+					Z_LINES,
+					SFX_GAVEL,
+					SFX_FAILURE,
+					skinverwaltung_t::schienen_werkzeug->gib_bild_nr(0),
+					skinverwaltung_t::signalzeiger->gib_bild_nr(0),
+					tool_tip_with_price(translator::translate("Build signals"), CST_SIGNALE)
+				);
+
+			    hausbauer_t::fill_menu(wzw,
+						  hausbauer_t::train_stops,
+						  wkz_bahnhof,
+						  SFX_JACKHAMMER,
+						  SFX_FAILURE,
+						  CST_BAHNHOF);
+
+				wzw->add_tool(wkz_tramdepot,
+					Z_PLAN,
+					SFX_GAVEL,
+					SFX_FAILURE,
+					hausbauer_t::tram_depot_besch->gib_cursor()->gib_bild_nr(1),
+					hausbauer_t::tram_depot_besch->gib_cursor()->gib_bild_nr(0),
+					tool_tip_with_price(translator::translate("Build tram depot"), CST_BAHNDEPOT) );
+
+				sound_play(click_sound);
+
+				wzw->zeige_info(magic_tramtools);
+		    }
+			break;
+
 	    case 10:
-		if(hausbauer_t::post_besch)
-		    setze_maus_funktion(wkz_post, skinverwaltung_t::postzeiger->gib_bild_nr(0),  Z_PLAN, 0, 0);
 		break;
 	    case 11:
           {
@@ -3401,13 +3492,28 @@ karte_t::interactive_event(event_t &ev)
 
 		    wzw->setze_hilfe_datei("special.txt");
 
+		    hausbauer_t::fill_menu(wzw,
+					  hausbauer_t::post_offices,
+					  wkz_post,
+					  SFX_JACKHAMMER,
+					  SFX_FAILURE,
+					  CST_POST);
+/*
+		      wzw->add_tool(wkz_post,
+					  Z_PLAN,
+					  SFX_JACKHAMMER,
+					  SFX_FAILURE,
+					  hausbauer_t::post_besch->gib_cursor()->gib_bild_nr(1),
+					  hausbauer_t::post_besch->gib_cursor()->gib_bild_nr(0),
+					  tool_tip_with_price(translator::translate("Posthaus"), CST_POST));
+*/
 		      wzw->add_tool(wkz_add_city,
 					  Z_PLAN,
 					  SFX_JACKHAMMER,
 					  SFX_FAILURE,
 					  skinverwaltung_t::special_werkzeug->gib_bild_nr(0),
 					  skinverwaltung_t::stadtzeiger->gib_bild_nr(0),
-					  tool_tip_with_price(translator::translate("Found new city"), 500000000));
+					  tool_tip_with_price(translator::translate("Found new city"), -500000000));
 
 		    wzw->add_tool(wkz_pflanze_baum,
 				  Z_PLAN,
@@ -3439,8 +3545,8 @@ karte_t::interactive_event(event_t &ev)
 				  Z_PLAN,
 				  SFX_JACKHAMMER,
 				  SFX_FAILURE,
-				  skinverwaltung_t::special_werkzeug->gib_bild_nr(1),
-				 wegbauer_t::leitung_besch->gib_cursor()->gib_bild_nr(0),
+				  wegbauer_t::leitung_besch->gib_cursor()->gib_bild_nr(1),
+				  wegbauer_t::leitung_besch->gib_cursor()->gib_bild_nr(0),
 				  tool_tip_with_price(translator::translate("Build powerline"), 800));
 
 		      wzw->add_tool(wkz_senke,
@@ -3521,7 +3627,7 @@ karte_t::interactive_event(event_t &ev)
 	    if(mouse_funk != NULL) {
 		koord pos (i,j);
 
-		dbg->message("karte_t::interactive_event(event_t &ev)",
+		DBG_MESSAGE("karte_t::interactive_event(event_t &ev)",
 			     "calling a tool");
 		const int ok = mouse_funk(spieler[0], this, pos, mouse_funk_param);
 
@@ -3634,6 +3740,11 @@ karte_t::interactive()
     last_step_time = now;
 
     steps_bis_jetzt = steps;
+
+	// change grounds to winter?
+	season=(2+(1+(ticks >> karte_t::ticks_bits_per_tag))/3)&3; // summer always zero
+	boden_t::toggle_season( season );
+//	setze_dirty();
 
     do {
 	// check if we need to play a new midi file

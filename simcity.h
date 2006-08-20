@@ -25,6 +25,19 @@ class cbuffer_t;
 struct hausbesch;
 
 
+#define MAX_CITY_HISTORY_YEARS  12 // number of years to keep history
+#define MAX_CITY_HISTORY_MONTHS  12 // number of months to keep history
+#define MAX_CITY_HISTORY      4 // Total number of items in array
+
+#define HIST_CITICENS 0	// total people
+#define HIST_GROWTH 1 // growth (just for convenience)
+#define HIST_TRANSPORTED 2
+#define HIST_GENERATED 3
+
+
+
+
+
 /**
  * Die Objecte der Klasse stadt_t bilden die Staedte in Simu. Sie
  * wachsen automatisch.
@@ -77,7 +90,6 @@ public:
     static bool init();
 
 private:
-
     karte_t *welt;
     spieler_t *besitzer_p;
     char name[64];
@@ -130,7 +142,32 @@ private:
      */
     int wachstum;
 
+    /**
+    * City history
+    * @author prissi
+    */
+    sint64 city_history_year[MAX_CITY_HISTORY_YEARS][MAX_CITY_HISTORY];
+    sint64 city_history_month[MAX_CITY_HISTORY_MONTHS][MAX_CITY_HISTORY];
 
+    int last_month_bev;
+    int last_year_bev;
+    int	this_year_pax, this_year_transported;
+
+	/* updates the city history
+	 * @author prissi
+	 */
+	void roll_history(void);
+
+public:
+	/**
+	 * Returns pointer to history for city
+	 * @author hsiegeln
+	 */
+	sint64* get_city_history_year() {return *city_history_year;};
+	sint64* get_city_history_month() {return *city_history_month;};
+
+	/* end of histroy related thingies */
+private:
     int best_haus_wert;
     int best_strasse_wert;
 
@@ -318,6 +355,7 @@ public:
     const array2d_tpl<unsigned char> * gib_pax_ziele_neu() const {return &pax_ziele_neu;};
 //    const array2d_tpl<int> * gib_pax_ziele_neu() const {return &pax_ziele_neu;};
 
+	karte_t* gib_welt() const { return welt; };
 
     /**
      * Erzeugt eine neue Stadt auf Planquadrat (x,y) die dem Spieler sp

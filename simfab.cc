@@ -107,7 +107,7 @@ fabrik_t * fabrik_t::gib_fab(const karte_t *welt, const koord pos)
 koord fabrik_t::gib_groesse() const
 {
 	koord size=besch->gib_haus()->gib_groesse(0);
-dbg->message("fabrik_t::gib_groesse()","(%i,%i) rot %i",size.x,size.y,rotate);
+DBG_MESSAGE("fabrik_t::gib_groesse()","(%i,%i) rot %i",size.x,size.y,rotate);
 	switch(rotate) {
 		case 0:
 		case 2:
@@ -171,6 +171,8 @@ fabrik_t::fabrik_t(karte_t *wl, loadsave_t *file) : lieferziele(max_lieferziele)
 
     rdwr(file);
     aktionszeit = 0;
+    pax_zeit = 0;
+    pax_intervall = 262144/besch->gib_pax_level();
     delta_sum = 0;
 
 	koord size=besch->gib_haus()->gib_groesse(0);
@@ -196,6 +198,8 @@ fabrik_t::fabrik_t(karte_t *wl, koord3d pos, spieler_t *spieler, const fabrik_be
     abgabe_letzt = NULL;
 
     aktionszeit = 0;
+    pax_zeit = 0;
+    pax_intervall = 262144/besch->gib_pax_level();
     delta_sum = 0;
 
 	koord size=besch->gib_haus()->gib_groesse(0);
@@ -286,7 +290,7 @@ fabrik_t::ist_bauplatz(karte_t *welt, koord pos, koord groesse,bool wasser)
 	ok = false;
     }
 //if(welt->ist_in_kartengrenzen(pos) &&  wasser)
-//dbg->message("fabrik_t::ist_bauplatz()","(%i,%i) is%s water => %s",pos.x,pos.y,welt->lookup(pos)->gib_kartenboden()->ist_wasser()?"":" not",ok?"ok":"error");
+//DBG_MESSAGE("fabrik_t::ist_bauplatz()","(%i,%i) is%s water => %s",pos.x,pos.y,welt->lookup(pos)->gib_kartenboden()->ist_wasser()?"":" not",ok?"ok":"error");
 
     return ok;
 }
@@ -316,13 +320,8 @@ fabrik_t::sind_da_welche(karte_t *welt, int minX, int minY, int maxX, int maxY)
 			fabrik_t * fab = dt->fabrik();
 
 			// fabrik nur einmal in liste eintragen
-
 			fablist.append_unique( fab );
-
-			// debug
-			// printf("Fabrik %p eingetragen\n", fab);
-			// printf("Fabrik %s eingetragen\n", fab->gib_name());
-                        // debug ende
+DBG_MESSAGE("fabrik_t::sind_da_welche()","appended factory %s at (%i,%i)",fab->gib_besch()->gib_name(),i,j);
 
 		    }
 		}
@@ -549,7 +548,7 @@ fabrik_t::get_free_production_of(ware_besch_t *ware)
 		if(  ware==ausgang->get(ware_nr)  ) {
 		{
 			int produktion = (max_produktion()*besch->gib_verbrauch()*100)/128;
-dbg->message("fabrik_t::get_free_production_of()","supplier %s can supply approx %i of %s",besch->gib_name(),produktion,ware->gib_name());
+DBG_MESSAGE("fabrik_t::get_free_production_of()","supplier %s can supply approx %i of %s",besch->gib_name(),produktion,ware->gib_name());
 		}
 	}
 }
@@ -639,25 +638,27 @@ fabrik_t::hole_ab(const ware_besch_t *typ, int menge)
     return -1;
 }
 
+
+
 int
 fabrik_t::liefere_an(const ware_besch_t *typ, int menge)
 {
-  for(uint32 index = 0; index < eingang->get_count(); index ++) {
+	for(uint32 index = 0; index < eingang->get_count(); index ++) {
 
-    if(eingang->at(index).gib_typ() == typ) {
+		if(eingang->at(index).gib_typ() == typ) {
 
-      // Hajo: avoid overflow
-      if(eingang->at(index).menge < ((FAB_MAX_INPUT-menge) << precision_bits)) {
-	eingang->at(index).menge += menge << precision_bits;
-      }
+			// Hajo: avoid overflow
+			if(eingang->at(index).menge < ((FAB_MAX_INPUT-menge) << precision_bits)) {
+				eingang->at(index).menge += menge << precision_bits;
+			}
 
-      // sollte maximale lagerkapazitaet pruefen
-      return menge;
-    }
-  }
+			// sollte maximale lagerkapazitaet pruefen
+			return menge;
+		}
+	}
 
-  // ware "typ" wird hier nicht verbraucht
-  return -1;
+	// ware "typ" wird hier nicht verbraucht
+	return -1;
 }
 
 int
@@ -759,10 +760,9 @@ fabrik_t::step(long delta_t)
     delta_sum -= PRODUCTION_DELTA_T;
   }
 
-	aktionszeit += delta_t;
 	// verteilung frühestens alle 8 sekunden
-	if(aktionszeit>8192) {
-		aktionszeit -= 8192;
+	if(welt->gib_zeit_ms() > aktionszeit) {
+		aktionszeit = welt->gib_zeit_ms() + 8192;
 
 		for(uint32 produkt = 0; produkt < ausgang->get_count(); produkt ++) {
 			if(ausgang->at(produkt).menge > (32<<precision_bits)) {
@@ -771,7 +771,12 @@ fabrik_t::step(long delta_t)
 				INT_CHECK("simfab 636");
 			}
 		}
+	}
 
+	// finally passengers
+	pax_zeit += delta_t;
+	if(pax_zeit>pax_intervall) {
+		pax_zeit -= pax_intervall;
 		verteile_passagiere();
 		INT_CHECK("simfab 643");
 	}
@@ -784,133 +789,122 @@ fabrik_t::step(long delta_t)
  */
 void fabrik_t::verteile_waren(const uint32 produkt)
 {
-    // wohin liefern ?
-    if(lieferziele.get_count() == 0) {
-	return;
-    }
-
-
-    slist_tpl<halthandle_t> halt_ok;
-    slist_tpl<ware_t> ware_ok;
-
-    //    printf("%d nahe Haltestellen gefunden\n", list.get_count());
-
-
-    // Über alle Haltestellen iterieren
-    slist_iterator_tpl <halthandle_t> iter (halt_list);
-
-    while(iter.next()) {
-	halthandle_t halt = iter.get_current();
-
-	// Über alle Ziele iterieren
-	for(uint32 n=0; n<lieferziele.get_count(); n++) {
-	    const koord lieferziel = lieferziele.get(n);
-
-	    fabrik_t * ziel_fab = gib_fab(welt, lieferziel);
-
-
-	    if(ziel_fab &&
-	       ziel_fab->verbraucht(ausgang->at(produkt).gib_typ()) >= 0) {
-
-	      ware_t ware (ausgang->at(produkt).gib_typ());
-	      ware.menge = 1;
-	      ware.setze_zielpos( lieferziel );
-
-
-	      // Station can only store up to 128 units of goods per square
-	      if(halt->gib_ware_summe(ware.gib_typ()) <
-		 (halt->gib_grund_count() << 7)) {
-
-		halt->suche_route(ware, halt);
-
-		if(ware.gib_ziel() != koord::invalid) {
-		    //	    printf("Starthalt %d/%d %s\n", i+1, list.get_count(), halt->gib_name());
-		    //	    printf("Zielhalt %s\n", haltestelle_t::gib_halt(welt, ware->gib_ziel())->gib_name());
-
-		    halt_ok.insert(halt);
-		    ware_ok.insert(ware);
-		} else {
-
-		  // printf("Starthalt %d/%d %s\n", i+1, list.get_count(), halt->gib_name());
-		  // printf("kann %s nicht Ziel %d %d (%d/%d) liefern\n", ware.gib_name(), lieferziel.x, lieferziel.y, n, lieferziele.get_count());
-		}
-	      } else {
-		// Station too full, notify player
-		  halt->gib_besitzer()->bescheid_station_voll(halt);
-		break;
-	      }
-	    }
+	// wohin liefern ?
+	if(lieferziele.get_count() == 0) {
+		return;
 	}
-    }
 
+	slist_tpl<halthandle_t> halt_ok;
+	slist_tpl<ware_t> ware_ok;
+	// Über alle Haltestellen iterieren
+	slist_iterator_tpl <halthandle_t> iter (halt_list);
 
-    // Auswertung der Ergebnisse
-
-    if(!halt_ok.is_empty()) {
-
-      // Hajo: distribute goods to station that has the least amount stored
-
-	const int menge = (ausgang->at(produkt).menge >> precision_bits);
-
-	if(menge > 1) {
-	    ausgang->at(produkt).menge -= menge << precision_bits;
-
-	    slist_iterator_tpl<halthandle_t> iter (halt_ok);
-	    slist_iterator_tpl<ware_t> ware_iter (ware_ok);
-
-	    ware_t best_ware       = ware_ok.at(0);
-	    halthandle_t best_halt = halt_ok.at(0);
-	    int best_amount        = 999999;
-
-
-	    while(iter.next() && ware_iter.next()) {
+	// ok, first send everything away
+	while(iter.next()) {
 		halthandle_t halt = iter.get_current();
-		ware_t ware       = ware_iter.get_current();
 
-		const int amount = halt->gib_ware_fuer_ziel(ware.gib_typ(),
-							    ware.gib_ziel());
+		// Über alle Ziele iterieren
+		for(uint32 n=0; n<lieferziele.get_count(); n++) {
+			const koord lieferziel = lieferziele.get(n);
 
-		if(amount < best_amount) {
-		  best_ware = ware;
-		  best_ware.menge = menge;
+			fabrik_t * ziel_fab = gib_fab(welt, lieferziel);
 
-		  best_halt = halt;
+			if(ziel_fab &&	ziel_fab->verbraucht(ausgang->at(produkt).gib_typ()) >= 0) {
 
-		  best_amount = amount;
+				ware_t ware (ausgang->at(produkt).gib_typ());
+				ware.menge = 1;
+				ware.setze_zielpos( lieferziel );
+
+
+				// Station can only store up to 128 units of goods per square
+				if(halt->gib_ware_summe(ware.gib_typ()) <(halt->gib_grund_count() << 7)) {
+					// ok, still enough space
+					halt->suche_route(ware, halt);
+
+					if(ware.gib_ziel() != koord::invalid) {
+//	    printf("Starthalt %d/%d %s\n", i+1, list.get_count(), halt->gib_name());
+//	    printf("Zielhalt %s\n", haltestelle_t::gib_halt(welt, ware->gib_ziel())->gib_name());
+
+						halt_ok.insert(halt);
+						ware_ok.insert(ware);
+					}
+					else {
+// printf("Starthalt %d/%d %s\n", i+1, list.get_count(), halt->gib_name());
+// printf("kann %s nicht Ziel %d %d (%d/%d) liefern\n", ware.gib_name(), lieferziel.x, lieferziel.y, n, lieferziele.get_count());
+					}
+
+				}
+				else {
+					// Station too full, notify player
+					halt->gib_besitzer()->bescheid_station_voll(halt);
+					break;
+				}
+			}
 		}
-	    }
-
-	    // printf("liefere %d %s an %s\n", menge, ware->name(), halt->gib_name());
-	    best_halt->liefere_an(best_ware);
 	}
 
 
+	// Auswertung der Ergebnisse
+	if(!halt_ok.is_empty()) {
 
-      /* Hajo: old code distributed equal amounts to all stations
-	const int count = halt_ok.count();
-	int menge = (ausgang->at(0).menge >> precision_bits) / count;
+		// Hajo: distribute goods to station that has the least amount stored
+		const int menge = (ausgang->at(produkt).menge >> precision_bits);
 
-//	printf("Menge %d\n", menge);
+		if(menge > 1) {
+			ausgang->at(produkt).menge -= menge << precision_bits;
 
-	if(menge > 1) {
-	    ausgang->at(0).menge -= (menge * count) << precision_bits;
+			slist_iterator_tpl<halthandle_t> iter (halt_ok);
+			slist_iterator_tpl<ware_t> ware_iter (ware_ok);
 
-	    slist_iterator_tpl<halthandle_t> iter (halt_ok);
-	    slist_iterator_tpl<ware_t> ware_iter (ware_ok);
+			ware_t best_ware       = ware_ok.at(0);
+			halthandle_t best_halt = halt_ok.at(0);
+			int best_amount        = 999999;
 
-	    while(iter.next() && ware_iter.next()) {
+			while(iter.next() && ware_iter.next()) {
+				halthandle_t halt = iter.get_current();
+				ware_t ware       = ware_iter.get_current();
+
+				const int amount = halt->gib_ware_fuer_ziel(ware.gib_typ(),ware.gib_ziel());
+
+				if(amount < best_amount) {
+					best_ware = ware;
+					best_ware.menge = menge;
+					best_halt = halt;
+					best_amount = amount;
+				}
+			}
+
+// printf("liefere %d %s an %s\n", menge, ware->name(), halt->gib_name());
+			best_halt->liefere_an(best_ware);
+		}
+
+
+
+		/* Hajo: old code distributed equal amounts to all stations
+		const int count = halt_ok.count();
+		int menge = (ausgang->at(0).menge >> precision_bits) / count;
+
+		//	printf("Menge %d\n", menge);
+
+		if(menge > 1) {
+		ausgang->at(0).menge -= (menge * count) << precision_bits;
+
+		slist_iterator_tpl<halthandle_t> iter (halt_ok);
+		slist_iterator_tpl<ware_t> ware_iter (ware_ok);
+
+		while(iter.next() && ware_iter.next()) {
 		halthandle_t halt = iter.get_current();
 		ware_t ware = ware_iter.get_current();
 
 		ware.menge = menge;
 
-//		printf("liefere %d %s an %s\n", menge, ware->name(), halt->gib_name());
+		//		printf("liefere %d %s an %s\n", menge, ware->name(), halt->gib_name());
 
 		halt->liefere_an(ware);
-	    }
+		}
+		}
+	*/
 	}
-      */
-    }
 }
 
 
@@ -933,7 +927,7 @@ fabrik_t::verteile_passagiere()
 			const int r = simrand(0xFFFF);
 
 			ware_t pax (((r & 3) == 0) ? warenbauer_t::post : warenbauer_t::passagiere);
-			pax.menge = ((r >> 2) & 3) + 1;
+			pax.menge = 1;
 
 			const koord ziel = stadt->gib_zufallspunkt();
 			pax.setze_zielpos( ziel );
@@ -1066,7 +1060,7 @@ void fabrik_t::info(cbuffer_t & buf)
 
     }
     // give a passenger level for orientation
-    int passagier_rate = 15*gib_groesse().x*gib_groesse().y;
+    int passagier_rate = besch->gib_pax_level()*gib_groesse().x*gib_groesse().y;
     buf.append("\n");
     buf.append(translator::translate("Passagierrate"));
     buf.append(": ");

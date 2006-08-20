@@ -9,6 +9,11 @@
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
+#ifdef _MSC_VER
+#include <direct.h>
+#else
+#include <unistd.h>
+#endif
 
 #include "../simdebug.h"
 #include "../simtypes.h"
@@ -40,9 +45,9 @@ bool is_unicode_file(FILE *f)
 {
 	unsigned char	str[2];
 	int	pos = ftell(f);
-dbg->debug("is_unicode_file()", "checking for unicode");fflush(NULL);
+DBG_DEBUG("is_unicode_file()", "checking for unicode");fflush(NULL);
 	fread( str, 1, 2,  f );
-dbg->debug("is_unicode_file()", "file starts with %x%x",str[0],str[1]);fflush(NULL);
+DBG_DEBUG("is_unicode_file()", "file starts with %x%x",str[0],str[1]);fflush(NULL);
 	if(  str[0]==0xC2  &&  str[1]==0xA7  ) {
 		// the first line must contain an UTF8 coded paragraph (Latin A7, UTF8 C2 A7), then it is unicode
 		return true;
@@ -153,7 +158,13 @@ void	translator::get_city_name(char *name, int nr)
 int  init_city_names(bool is_utf_language)
 {
 	FILE * file;
-
+	// rember old directory to go back there
+	char oldpath[1024];
+#ifdef _MSC_VER
+	_getcwd( oldpath, 1024 );
+#else
+	getcwd( oldpath, 1024 );
+#endif
 	// alle namen aufräumen
 	namen_liste.clear();
 
@@ -167,17 +178,17 @@ int  init_city_names(bool is_utf_language)
 	// @author prissi: first try in scenario
 	cstring_t local_file_name(szenario_path);
 	local_file_name = local_file_name+"text/citylist_"+translator::get_language_name_iso(translator::get_language()) + ".txt";
-dbg->message("translator::init_city_names()","try to read city name list '%s'",local_file_name.chars());
+DBG_MESSAGE("translator::init_city_names()","try to read city name list '%s'",local_file_name.chars());
 	file=fopen(local_file_name, "rb");
-dbg->message("translator::init_city_names()","file %p",file);fflush(NULL);
+DBG_MESSAGE("translator::init_city_names()","file %p",file);fflush(NULL);
 	// not found => try usual location
 	if(file==NULL) {
 		cstring_t local_file_name("text/citylist_");
 		local_file_name = local_file_name+translator::get_language_name_iso(translator::get_language()) + ".txt";
-dbg->message("translator::init_city_names()","try to read city name list '%s'",local_file_name.chars());
+DBG_MESSAGE("translator::init_city_names()","try to read city name list '%s'",local_file_name.chars());
 		file = fopen(local_file_name.chars(), "rb");
 	}
-dbg->message("translator::init_city_names()","file %p",file);fflush(NULL);
+DBG_MESSAGE("translator::init_city_names()","file %p",file);fflush(NULL);
 
 	if(file!=NULL) {
 		// ok, could open file
@@ -196,7 +207,7 @@ dbg->message("translator::init_city_names()","file %p",file);fflush(NULL);
 
 	}
 
-dbg->message("translator::init_city_names", "reading failed, creating random names.");fflush(NULL);
+DBG_MESSAGE("translator::init_city_names", "reading failed, creating random names.");fflush(NULL);
 	if(  namen_liste.count()==0  ) {
 		// Hajo: try to read list failed, create random names
 
@@ -275,11 +286,11 @@ bool translator::load(const cstring_t & scenario_path)
     //initialize these values to 0(ie. nothing loaded)
     single_instance->lang_count = single_instance->current_lang = 0;
 
-    dbg->message("translator::load()", "Loading languages...");
+    DBG_MESSAGE("translator::load()", "Loading languages...");
     searchfolder_t folder;
     int i = folder.search("text/", "tab");
 
-    dbg->message("translator::load()", " %d languages to load", i);
+    DBG_MESSAGE("translator::load()", " %d languages to load", i);
     int loc = MAX_LANG;
 
     //only allows MAX_LANG number of languages to be loaded
@@ -318,7 +329,7 @@ bool translator::load(const cstring_t & scenario_path)
     // let the user know what's happened
     if(i > 1)
     {
-        dbg->message("translator::load()", "%d languages were not loaded, limit reached", i);
+        DBG_MESSAGE("translator::load()", "%d languages were not loaded, limit reached", i);
         for(;i-- > 0;)
         {
             dbg->warning("translator::load()", " %s not loaded", folder.at(i).chars());
@@ -333,10 +344,10 @@ bool translator::load(const cstring_t & scenario_path)
 
 
     // Hajo: look for english, use english if available
-    for(int i=0; i<single_instance->lang_count; i++) {
+    for(i=0; i<single_instance->lang_count; i++) {
       const char *iso_base = get_language_name_iso_base(i);
 
-      // dbg->message("translator::load()", "%d: iso_base=%s", i, iso_base);
+      // DBG_MESSAGE("translator::load()", "%d: iso_base=%s", i, iso_base);
 
       if(iso_base[1] == 'e' && iso_base[2] == 'n') {
 	set_language(i);

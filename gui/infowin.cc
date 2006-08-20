@@ -20,6 +20,7 @@
 #include "../simimg.h"
 #include "../simgraph.h"
 #include "../simwin.h"
+#include "../simplan.h"
 #include "../simplay.h"
 #include "../simworld.h"
 #include "../dataobj/translator.h"
@@ -216,7 +217,7 @@ void infowin_t::zeichnen(koord pos, koord gr)
 
     for(int j=0; j<gr.y; j+=64) {
       for(int i=0; i<gr.x; i+=64) {
-	display_img(img, pos.x+1 + i, pos.y+16 + j, false, true);
+	display_color_img(img, pos.x+1 + i, pos.y+16 + j, 0, false, true);
       }
     }
 
@@ -249,7 +250,7 @@ void infowin_t::zeichnen(koord pos, koord gr)
 			      false,
 			      true);
 	} else {
-	    display_img(bild,x+w-64+off.x, y+16+off.y, false, true);
+	    display_color_img(bild,x+w-64+off.x, y+16+off.y, 0, false, true);
 	}
     }
 

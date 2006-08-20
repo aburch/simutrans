@@ -1,4 +1,8 @@
 
+#OSTYPE=mingw
+#OSTYPE=linux-gnu
+
+
 # Compilers, C, C++
 CC= gcc
 CXX=g++
@@ -21,7 +25,7 @@ CXXFLAGS=-O
 
 ifeq ($(OSTYPE),mingw)
 #-lSDLmain -lSDL -lwinmm
-LDLIBS=-lmingw32 -lpng -lz -lmingwex
+LDLIBS=-lmingw32 -png -lz -lmingwex
 else
 LDLIBS=-lpng -lz -lm -lstdc++
 endif

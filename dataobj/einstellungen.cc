@@ -9,6 +9,7 @@
 
 #include "einstellungen.h"
 #include "../simtypes.h"
+#include "../simdebug.h"
 #include "loadsave.h"
 
 einstellungen_t::einstellungen_t() : heightfield("")
@@ -79,24 +80,58 @@ einstellungen_t::einstellungen_t(const einstellungen_t *other)
 void
 einstellungen_t::rdwr(loadsave_t *file)
 {
-    file->rdwr_int(groesse, " ");
-    file->rdwr_int(nummer, "\n");
-    // to be compatible with previous savegames
-    int dummy = ((land_industry_chains&1023)<<20) | ((city_industry_chains&1023)<<10) | (tourist_attractions&1023);
-    file->rdwr_int(dummy, " ");	//dummy!
-    land_industry_chains = dummy>>20;
-    city_industry_chains = (dummy>>10)&1023;
-    tourist_attractions = dummy&1023;
- 	// now towns
-    dummy =  (mittlere_einwohnerzahl<<16) + anzahl_staedte;
-    file->rdwr_int(dummy, "\n");
-    mittlere_einwohnerzahl = dummy>>16;
-    anzahl_staedte = dummy & 63;
-    //
-    file->rdwr_int(scroll_multi, " ");
-    file->rdwr_int(verkehr_level, "\n");
-    file->rdwr_int(show_pax, "\n");
-    file->rdwr_int(grundwasser, "\n");
-    file->rdwr_double(max_mountain_height, "\n");
-    file->rdwr_double(map_roughness, "\n");
+	if(file->get_version() < 86000) {
+		int dummy;
+
+		file->rdwr_int(groesse, " ");
+		file->rdwr_int(nummer, "\n");
+
+		// to be compatible with previous savegames
+		dummy = 0;
+		file->rdwr_int(dummy, " ");	//dummy!
+		land_industry_chains = 6;
+		city_industry_chains = 0;
+		tourist_attractions = 12;
+
+		// now towns
+		mittlere_einwohnerzahl = 1600;
+		dummy =  anzahl_staedte;
+		file->rdwr_int(dummy, "\n");
+		dummy &= 127;
+		if(dummy>63) {
+dbg->warning("einstellungen_t::rdwr()","This game has too many cities! (%i of maximum 63). Simutrans may crash!",dummy);
+		}
+		anzahl_staedte = dummy;
+
+		// rest
+		file->rdwr_int(scroll_multi, " ");
+		file->rdwr_int(verkehr_level, "\n");
+		file->rdwr_int(show_pax, "\n");
+		file->rdwr_int(grundwasser, "\n");
+		file->rdwr_double(max_mountain_height, "\n");
+		file->rdwr_double(map_roughness, "\n");
+	}
+	else {
+		// newer versions
+
+		file->rdwr_int(groesse, " ");
+		file->rdwr_int(nummer, "\n");
+
+		// industries
+		file->rdwr_int(land_industry_chains, " ");
+		file->rdwr_int(city_industry_chains, " ");
+		file->rdwr_int(tourist_attractions, "\n");
+
+		// now towns
+		file->rdwr_int(mittlere_einwohnerzahl, " ");
+		file->rdwr_int(anzahl_staedte, " ");
+
+		// rest
+		file->rdwr_int(scroll_multi, " ");
+		file->rdwr_int(verkehr_level, "\n");
+		file->rdwr_int(show_pax, "\n");
+		file->rdwr_int(grundwasser, "\n");
+		file->rdwr_double(max_mountain_height, "\n");
+		file->rdwr_double(map_roughness, "\n");
+	}
 }

@@ -236,21 +236,21 @@ void schedule_gui_t::zeichnen(koord pos, koord gr)
 
   infowin_t::zeichnen(pos, gr);
 
-  display_proportional(x+11, y+25, translator::translate("tESG Schedule:"),
+  display_proportional_clip(x+11, y+25, translator::translate("tESG Schedule:"),
 		       ALIGN_LEFT, BLACK, false);
-  display_proportional(x+11, y+37, gib_fpl_name(),
+  display_proportional_clip(x+11, y+37, gib_fpl_name(),
 		       ALIGN_LEFT, WHITE, false);
-  display_divider(x+11,y+74, 256);
+  display_ddd_box_clip(x+11, y+74, 256, 0, MN_GREY0, MN_GREY4);
   // (rename button)
-  display_proportional(x+11, y+81, translator::translate("tESG Schedule:"),
+  display_proportional_clip(x+11, y+81, translator::translate("tESG Schedule:"),
 		       ALIGN_LEFT, BLACK, false);
   scl1->zeichnen(pos);
 
   y += scl1->gib_groesse().y;
 
   // (insert, append, remove button)
-  display_divider(x+11,y+129,256);
-  display_proportional(x+11, y+139, translator::translate("tESG Vehicles:"),
+  display_ddd_box_clip(x+11, y+129, 256, 0, MN_GREY0, MN_GREY4);
+  display_proportional_clip(x+11, y+139, translator::translate("tESG Vehicles:"),
 		       ALIGN_LEFT, BLACK, false);
   scl2->zeichnen(pos);
   // (view button)

@@ -187,7 +187,7 @@ gebaeude_t::zeige_info()
 	    gb->zeige_info();	// an den ersten deligieren
     }
     else {
-	dbg->message("gebaeude_t::zeige_info()", "at %d,%d - name is '%s'", gib_pos().x, gib_pos().y, gib_name());
+	DBG_MESSAGE("gebaeude_t::zeige_info()", "at %d,%d - name is '%s'", gib_pos().x, gib_pos().y, gib_name());
 
 	if(!tile->gib_besch()->ist_ohne_info()) {
 
@@ -197,9 +197,10 @@ gebaeude_t::zeige_info()
 		       new stadt_info_t(welt->suche_naechste_stadt(gib_pos().gib_2d())),
 		       w_autodelete,
 		       magic_city_info_t);
-	  } else {
-	    ding_t::zeige_info();
 	  }
+//	  else {
+	    ding_t::zeige_info();
+//	  }
 	}
     }
 }
@@ -499,7 +500,7 @@ gebaeude_t::rdwr(loadsave_t *file)
 	if(file->is_loading()) {
 	    tile = hausbauer_t::find_tile(buf, idx);
 	    if(!tile) {
-		dbg->message("gebaeude_t::rwdr", "description %s for building at %d,%d not found (will be removed)!", buf, gib_pos().x, gib_pos().y);
+		DBG_MESSAGE("gebaeude_t::rwdr", "description %s for building at %d,%d not found (will be removed)!", buf, gib_pos().x, gib_pos().y);
 	    }
 
 
@@ -551,7 +552,7 @@ gebaeude_t::rdwr(loadsave_t *file)
  */
 bool gebaeude_t::sync_step(long delta_t)
 {
-    // dbg->message("gebaeude_t::sync_step()", "%p, %d phases", this, phasen);
+    // DBG_MESSAGE("gebaeude_t::sync_step()", "%p, %d phases", this, phasen);
 
     anim_time += delta_t;
 

@@ -42,6 +42,7 @@
 #include "simskin.h"
 #include "besch/skin_besch.h"
 
+#include "simticker.h"
 
 #include "tpl/minivec_tpl.h"
 
@@ -91,6 +92,7 @@ static int tooltip_xpos = 0;
 static int tooltip_ypos = 0;
 static const char * tooltip_text = 0;
 
+static bool show_ticker=0;
 
 // Hajo: if we are inside the event handler, windows may not be
 // destroyed immediately
@@ -125,7 +127,8 @@ static int display_gadget_box(simwin_gadget_et const  code,
     // "x", "?", "=", "«", "»"
     const int img = skinverwaltung_t::window_skin->gib_bild(code+1)->gib_nummer();
 
-    display_img(img, x, y, false, false);
+	// to prevent day and nightchange
+    display_color_img(img, x, y, 0, false, false);
 
     // Hajo: return width of gadget
     return 16;
@@ -207,10 +210,10 @@ static void win_draw_window_title(const koord pos, const koord gr,
 				  const simwin_gadget_flags * const flags )
 {
 	PUSH_CLIP(pos.x, pos.y, gr.x-2, gr.y);
-    display_fillbox_wh(pos.x, pos.y, gr.x, 1, titel_farbe+1, true);
-    display_fillbox_wh(pos.x, pos.y+1, gr.x, 14, titel_farbe, true);
-    display_fillbox_wh(pos.x, pos.y+15, gr.x, 1, SCHWARZ, true);
-    display_vline_wh(pos.x+gr.x-1, pos.y,   15, SCHWARZ, true);
+    display_fillbox_wh_clip(pos.x, pos.y, gr.x, 1, titel_farbe+1, true);
+    display_fillbox_wh_clip(pos.x, pos.y+1, gr.x, 14, titel_farbe, true);
+    display_fillbox_wh_clip(pos.x, pos.y+15, gr.x, 1, SCHWARZ, true);
+    display_vline_wh_clip(pos.x+gr.x-1, pos.y,   15, SCHWARZ, true);
 
     // Draw the gadgets and then move left and draw text.
     int width = display_gadget_boxes( flags, pos.x, pos.y, titel_farbe, closing );
@@ -349,7 +352,6 @@ printf("create_win(): ins_win=%d\n", ins_win);
 
 	  gui->infowin_event(&ev);
 	}
-
 
         // let's see if Hajo's tip really works.... it does!
         int i;
@@ -537,7 +539,7 @@ void display_win(int win)
 			    ( & wins[win].flags ) );
     }
 
-    komp->zeichnen(wins[win].pos, gr);
+   komp->zeichnen(wins[win].pos, gr);
 
     // dragger zeichnen
     if(komp->get_resizemode() != gui_fenster_t::no_resize) {
@@ -671,6 +673,17 @@ check_pos_win(event_t *ev)
     // printf("Leave resizing mode\n");
   }
 
+	// swallow all events in the infobar
+	if(ev->cy>display_get_height()-32) {
+		// goto infowin koordinate, if ticker is active
+		if(show_ticker  &&    ev->cy<=display_get_height()-16  &&   IS_LEFTRELEASE(ev)) {
+			koord p = ticker_t::get_instance()->get_welt_pos(ev->cx,ev->cy);
+			if(wl->ist_in_kartengrenzen(p)) {
+				wl->zentriere_auf(p);
+			}
+			return true;
+		}
+	}
 
   for(i=ins_win-1; i>=0; i--) {
 
@@ -860,7 +873,7 @@ win_poll_event(struct event_t *ev)
   }
 }
 
-static const char*  tooltips[21] =
+static const char*  tooltips[22] =
 {
     "Einstellungsfenster",
     "Reliefkarte",
@@ -872,7 +885,7 @@ static const char*  tooltips[21] =
     "Strassenbau",
     "Wasserbau",
     "Trams",
-    "Posthaus",
+    "Flugzeuge",
     "SPECIALTOOLS",
     "Abriss",
     "",
@@ -883,6 +896,7 @@ static const char*  tooltips[21] =
     "",
     "Screenshot",
     "Pause",
+    ""
 };
 
 static void win_display_tooltips()
@@ -916,85 +930,102 @@ static const int hours2night[] =
     2,3,4,4,4,4,4,4
 };
 
+// since seaons 0 is always summer for backward compatibility
 static const char * seasons[] =
 {
-    "q4", "q1", "q2", "q3"
+    "q2", "q3", "q4", "q1"
 };
 
 
 void
 win_display_flush(int ticks, int color, double konto)
 {
-    display_all_win();
-    remove_old_win();
+	display_setze_clip_wh( 0, 32, display_get_width(), display_get_height()+1 );
 
-    display_icon_leiste(color, skinverwaltung_t::hauptmenu->gib_bild(0)->bild_nr);
+	show_ticker = false;
+	if(ticker_t::get_instance()->count()>0) {
+		ticker_t::get_instance()->zeichnen();
+		if(ticker_t::get_instance()->count()==0) {
+			// set dirty background for removing ticker
+			wl->setze_dirty();
+		}
+		else {
+			show_ticker = true;
+		}
+	}
 
-    win_display_tooltips();
+	// ok, we want to clip the height for everything!
+	// prissi: but we have to use this HACK!
+	// unfourtunately, the easiest way is by manipulating the global high
+	{
+		extern int disp_height;
+		const int diff_y = 15+16*show_ticker;
+		disp_height -= diff_y;
+		display_all_win();
+		remove_old_win();
+
+//		win_display_tooltips();
+
+		// Hajo: check if there is a tooltip to display
+		if(tooltip_text!=NULL&&0) {
+			const int width = proportional_string_width(tooltip_text)+7;
+
+			display_ddd_proportional(tooltip_xpos,
+													tooltip_ypos,
+													width,
+													0,
+													2,
+													SCHWARZ,
+													tooltip_text,
+													true);
+			// Hajo: clear tooltip to avoid sticky tooltips
+			tooltip_text = 0;
+		}
+
+		disp_height += diff_y;
+	}
+
+//*** not needed, since it never changes ***
+//    display_icon_leiste(color, skinverwaltung_t::hauptmenu->gib_bild(0)->bild_nr);
 
     koord3d pos;
 
-    if(wl) {
-	const ding_t *dt = wl->gib_zeiger();
-	pos = dt->gib_pos();
-    }
-
-    const int tage = ticks >> karte_t::ticks_bits_per_tag;
-    const int stunden4 = ((ticks - (tage << karte_t::ticks_bits_per_tag)) * 96) >> karte_t::ticks_bits_per_tag;
-
-    if(umgebung_t::night_shift) {
-	display_day_night_shift(hours2night[stunden4>>1]);
-    } else {
-	display_day_night_shift(0);
-    }
+	if(wl) {
+		const ding_t *dt = wl->gib_zeiger();
+		pos = dt->gib_pos();
+	}
 
 
-    // Hajo: check if there is a tooltip to display
+	const int tage = ticks >> karte_t::ticks_bits_per_tag;
+	const int stunden4 = ((ticks - (tage << karte_t::ticks_bits_per_tag)) * 96) >> karte_t::ticks_bits_per_tag;
 
-    if(tooltip_text) {
-      PUSH_CLIP(0, 0, display_get_width(), display_get_height());
-
-      const int width = proportional_string_width(tooltip_text)+7;
-
-      display_ddd_proportional(tooltip_xpos,
-			       tooltip_ypos,
-			       width,
-			       0,
-			       2,
-			       SCHWARZ,
-			       tooltip_text,
-			       true);
-
-      // Hajo: clear tooltip to avoid sticky tooltips
-      tooltip_text = 0;
-
-      POP_CLIP();
-    }
-
-
+	// change to night mode?
+	// images will be recalculated only, when there has been a change, so we set always
+	if(umgebung_t::night_shift) {
+		display_day_night_shift(hours2night[stunden4>>1]);
+	}
+	else {
+		display_day_night_shift(0);
+	}
 
     char time [128];
     char info [128];
+
     // @author hsiegeln - updated to show month
     if (umgebung_t::show_month)
     {
     	sprintf(time, "%s, %s %d",
 		translator::translate(month_names[tage % 12]),
-		translator::translate(seasons[((tage+1)/3)&3]),
+		translator::translate(seasons[wl->gib_jahreszeit()]),
 		umgebung_t::starting_year+tage/12);
     } else {
     	sprintf(time, "%s %d",
-		translator::translate(seasons[((tage+1)/3)&3]),
+		translator::translate(seasons[wl->gib_jahreszeit()]),
 		umgebung_t::starting_year+tage/12);
     }
 
     sprintf(info,"(%d,%d,%d)  (T=%1.2f)", pos.x, pos.y, pos.z / 16, get_time_multi()/16.0);
-
-    display_flush(stunden4,
-                  color,
-                  konto,
-                  time,
-		  info);
+    display_flush(stunden4, color, konto, time, info);
 }
 
 void win_setze_welt(karte_t *welt)
@@ -1031,6 +1062,6 @@ void win_set_zoom_factor(int rw)
 void win_set_tooltip(int xpos, int ypos, const char *text)
 {
   tooltip_xpos = xpos;
-  tooltip_ypos = ypos;
+  tooltip_ypos = MAX(32+7,ypos);
   tooltip_text = text;
 }

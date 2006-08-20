@@ -46,7 +46,7 @@ message_t::message_t(karte_t *w)
 {
 	// only a singe instance of this messenger
 	if(single_instance!=NULL) {
-dbg->message("message_t::message_t()","previous instance %p");
+DBG_MESSAGE("message_t::message_t()","previous instance %p");
 		return;
 	}
 	single_instance = this;
@@ -70,7 +70,7 @@ dbg->message("message_t::message_t()","previous instance %p");
 
 message_t::~message_t()
 {
-dbg->message("message_t::~message_t()","previous instance %p");
+DBG_MESSAGE("message_t::~message_t()","previous instance %p");
 	// free lists
 	delete list;
 	list = 0;
@@ -130,7 +130,7 @@ message_t::get_node(unsigned i)
  */
 void message_t::add_message(char *text, koord pos, msg_typ what, int color, int bild )
 {
-dbg->message("message_t::add_msg()","%40s (at %i,%i)", text, pos.x, pos.y );
+DBG_MESSAGE("message_t::add_msg()","%40s (at %i,%i)", text, pos.x, pos.y );
 
 	int art = (1<<what);
 	if(art&ignore_flags) {

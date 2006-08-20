@@ -43,6 +43,7 @@
 #include "imagelist2d_writer.h"
 
 #include "building_writer.h"
+#include "skin_writer.h"
 
 #ifdef _MSC_VER
 #define STRICMP stricmp
@@ -255,6 +256,16 @@ void building_writer_t::write_obj(FILE *fp, obj_node_t &parent, tabfileobj_t &ob
     v8 = (uint8)besch.chance;
     node.write_data_at(fp, &v8, 16, sizeof(uint8));
 
+    // probably add some icons
+    if(  besch.flags&haus_besch_t::FLAG_KEINE_INFO!=0  ) {
+    		// if this is a special building
+		slist_tpl<cstring_t> cursorkeys;
+
+		cursorkeys.append(cstring_t(obj.get("cursor")));
+		cursorkeys.append(cstring_t(obj.get("icon")));
+
+		cursorskin_writer_t::instance()->write_obj(fp, node, obj, cursorkeys);
+    }
     node.write(fp);
 }
 

@@ -91,7 +91,7 @@ fahrplan_t::~fahrplan_t()
   const  bool ok = alle_fahrplaene.remove(this);
 
   if(ok) {
-    dbg->message("fahrplan_t::~fahrplan_t()", "Schedule %p destructed", this);
+    DBG_MESSAGE("fahrplan_t::~fahrplan_t()", "Schedule %p destructed", this);
   } else {
     dbg->error("fahrplan_t::~fahrplan_t()", "Schedule %p was not registered!", this);
   }

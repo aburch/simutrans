@@ -179,3 +179,46 @@ void signal_t::laden_abschliessen()
 {
   calc_bild();
 }
+
+void presignal_t::calc_bild()
+{
+  if(blockend) {
+    setze_bild(0, IMG_LEER);
+
+    // Hajo: ein leeres Bild refreshed nicht, deshalb müssen wir manuell
+    // das Feld neuzeichnen lassen
+    welt->markiere_dirty(gib_pos());
+  } else {
+
+    switch(dir) {
+    case ribi_t::nord:
+      setze_xoff(-2);
+      setze_yoff(-12);
+      setze_bild(0, skinverwaltung_t::presignals->gib_bild_nr(1+zustand*4));
+      break;
+
+    case ribi_t::sued:
+      setze_xoff(2);
+      setze_yoff(12);
+      setze_bild(0, skinverwaltung_t::presignals->gib_bild_nr(0+zustand*4));
+      break;
+
+    case ribi_t::ost:
+      setze_xoff(24);
+      setze_yoff(0);
+      setze_bild(0, skinverwaltung_t::presignals->gib_bild_nr(2+zustand*4));
+      break;
+
+    case ribi_t::west:
+      setze_xoff(-24);
+      setze_yoff(0);
+      setze_bild(0, skinverwaltung_t::presignals->gib_bild_nr(3+zustand*4));
+      break;
+
+    default:
+      setze_xoff(0);
+      setze_yoff(0);
+      setze_bild(0, skinverwaltung_t::presignals->gib_bild_nr(0));
+    }
+  }
+}

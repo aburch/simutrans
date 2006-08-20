@@ -87,7 +87,7 @@ depot_t::convoi_arrived(convoihandle_t acnv, bool fpl_adjust)
       depot_info->action_triggered(NULL);
   }
 
-  dbg->message("depot_t::convoi_arrived()", "convoi %d, %p entered depot",
+  DBG_MESSAGE("depot_t::convoi_arrived()", "convoi %d, %p entered depot",
 	       acnv.get_id(), acnv.get_rep());
 }
 
@@ -267,7 +267,7 @@ bool depot_t::disassemble_convoi(int icnv, bool sell)
 
 	    halthandle_t halt;
 
-	    dbg->message("depot_t::convoi_aufloesen()", "Unlinking schedule entry %d", i);
+	    DBG_MESSAGE("depot_t::convoi_aufloesen()", "Unlinking schedule entry %d", i);
 
 	    // Hajo: H‰lt dieser convoi hier?
 	    if( (halt = haltestelle_t::gib_halt(welt, fpl->eintrag.get(i).pos.gib_2d())).is_bound() ) {
@@ -385,7 +385,7 @@ depot_t::rdwr_vehikel(slist_tpl<vehikel_t *> &list, loadsave_t *file)
 		           "invalid vehicle type %s", buf);
 	    }
 
-	    dbg->message("depot_t::vehikel_laden()",
+	    DBG_MESSAGE("depot_t::vehikel_laden()",
 			 "loaded %s", v->gib_besch()->gib_name());
 
 	    list.insert( v );
@@ -540,12 +540,18 @@ const vehikel_besch_t *bahndepot_t::get_vehicle_type(int itype)
     return vehikelbauer_t::gib_info(vehikel_besch_t::schiene, itype);
 }
 
+const vehikel_besch_t *strabdepot_t::get_vehicle_type(int itype){
+	return vehikelbauer_t::gib_info(vehikel_besch_t::schiene_strab, itype);
+}
 
 const char *
 bahndepot_t::gib_name() const
 {
     return "Bahndepot";
 }
+
+const char * strabdepot_t::gib_name() const {
+	return "Straﬂenbahndepot"; }
 
 void
 bahndepot_t::build_line_list() {

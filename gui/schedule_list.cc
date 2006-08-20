@@ -133,6 +133,7 @@ schedule_list_gui_t::schedule_list_gui_t(karte_t *welt)
   bt_change_line.text = translator::translate("Update Line");
   add_komponente(&bt_change_line);
   bt_change_line.add_listener(this);
+  bt_change_line.disable();
 
   bt_delete_line.setze_pos(koord(10, 32 + SCL_HEIGHT));
   bt_delete_line.setze_groesse(koord(92,14));
@@ -140,6 +141,7 @@ schedule_list_gui_t::schedule_list_gui_t(karte_t *welt)
   bt_delete_line.text = translator::translate("Delete Line");
   add_komponente(&bt_delete_line);
   bt_delete_line.add_listener(this);
+  bt_delete_line.disable();
 
   //CHART
   chart = new gui_chart_t();
@@ -226,6 +228,7 @@ bool schedule_list_gui_t::action_triggered(gui_komponente_t *komp)           // 
 		if (line != NULL)
 		{
 			// remove elements from lists
+			lines.remove(line);
 			welt->simlinemgmt->delete_line(line);
 			scl->remove_element(scl->gib_selection());
 
@@ -236,6 +239,8 @@ bool schedule_list_gui_t::action_triggered(gui_komponente_t *komp)           // 
 			build_line_list(tabs.get_active_tab_index());
 			line = NULL;
 			scl->setze_selection(-1);
+			bt_delete_line.disable();
+			bt_change_line.disable();
 		}
     } else if (komp == &tabs)
     {
@@ -269,23 +274,31 @@ schedule_list_gui_t::infowin_event(const event_t *ev)
   int x = ev->cx;
   int y = ev->cy;
 
-  if (scl->getroffen(x, y-40)) {
-    event_t ev2 = *ev;
-	translate_event(&ev2, -tabs.pos.x, -tabs.pos.y-35);
-    scl->infowin_event(&ev2);
     if (ev->ev_class == EVENT_CLICK) {
+      if (line == NULL) {
+  	  	bt_change_line.disable();
+  	  	bt_delete_line.disable();
+      } else {
+  	  	bt_change_line.enable();
+  	  	bt_delete_line.enable();
+  	  }
+		  if (scl->getroffen(x, y-40)) {
+	    event_t ev2 = *ev;
+			translate_event(&ev2, -tabs.pos.x, -tabs.pos.y-35);
+	    scl->infowin_event(&ev2);
 
       selection = scl->gib_selection();
       // get selected line
       if ((selection >= 0) && (selection < lines.count())) {
   	  	line = lines.at(selection);
+  	  	bt_change_line.enable();
+  	  	bt_delete_line.enable();
   	  } else {
   	  	line = NULL;
   	  }
       if (line == NULL) {
-	return;
+				return;
       }
-
       scrolly.set_visible(true);
       scrolly_haltestellen.set_visible(true);
       inp_name.setze_text(line->get_name(), 128);
@@ -300,7 +313,8 @@ schedule_list_gui_t::infowin_event(const event_t *ev)
       // display convoys of line
       cont.remove_all();
       int ypos = 5;
-      for (int i = 0; i < icnv; i++) {
+      int i;
+      for (i = 0; i < icnv; i++) {
 	gui_convoiinfo_t *cinfo = new gui_convoiinfo_t(line->get_convoy(i)->self, i + 1);
 		cinfo->setze_pos(koord(0, ypos));
 		cinfo->setze_groesse(koord(400, 40));
@@ -314,7 +328,7 @@ schedule_list_gui_t::infowin_event(const event_t *ev)
       cont_haltestellen.remove_all();
       ypos = 5;
       slist_tpl<koord> tmp; // stores koords of stops that are allready displayed
-      for (int i = 0; i<=line->get_fahrplan()->maxi; i++) {
+      for (i = 0; i<=line->get_fahrplan()->maxi; i++) {
 	const koord fahrplan_koord = line->get_fahrplan()->eintrag.get(i).pos.gib_2d();
 	halthandle_t halt = haltestelle_t::gib_halt(welt, fahrplan_koord);
 	if (halt.is_bound()) {
@@ -334,7 +348,7 @@ schedule_list_gui_t::infowin_event(const event_t *ev)
 
       // chart
       chart->remove_curves();
-      for ( int i = 0; i<MAX_LINE_COST; i++)  {
+      for (i = 0; i<MAX_LINE_COST; i++)  {
 	chart->add_curve(cost_type_color[i], (sint64 *)line->get_finance_history(), MAX_LINE_COST, i, MAX_MONTHS, i < MAX_NON_MONEY_TYPES ? STANDARD : MONEY, filterButtons[i].pressed, true);
       }
       chart->set_visible(true);

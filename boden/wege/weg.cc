@@ -148,12 +148,12 @@ void weg_t::rdwr(loadsave_t *file)
   file->rdwr_short(max_speed, "\n");
 
 //if(gib_typ()==weg_t::schiene)
-//dbg->message("weg_t::rdwr","schiene at (%i,%i) max_speed %i",gib_pos().x,gib_pos().y,max_speed);
+//DBG_MESSAGE("weg_t::rdwr","schiene at (%i,%i) max_speed %i",gib_pos().x,gib_pos().y,max_speed);
 
   for (int type=0; type<MAX_WAY_STATISTICS; type++) {
     for (int month=0; month<MAX_WAY_STAT_MONTHS; month++) {
       file->rdwr_int(statistics[month][type], "\n");
-      // dbg->debug("weg_t::rdwr()", "statistics[%d][%d]=%d",
+      // DBG_DEBUG("weg_t::rdwr()", "statistics[%d][%d]=%d",
       //	   month, type, statistics[month][type]);
     }
   }
@@ -207,86 +207,89 @@ int weg_t::calc_bild(koord3d pos, const weg_besch_t *besch) const
     return -1;
   }
 
-    // V.Meyer: weg_position_t changed to grund_t::get_neighbour()
-    grund_t *from = welt->lookup(pos);
-    grund_t *to;
+	// V.Meyer: weg_position_t changed to grund_t::get_neighbour()
+	grund_t *from = welt->lookup(pos);
+	grund_t *to;
 
-    hang_t::typ hang = from->gib_weg_hang();
-    if(hang != hang_t::flach) {
-	return besch->gib_hang_bild_nr(hang);
-    }
-    const ribi_t::ribi ribi = gib_ribi_unmasked();
-
-    if(ribi_t::ist_kurve(ribi)) {
-	ribi_t::ribi r1 = ribi_t::keine, r2 = ribi_t::keine;
-
-	bool diagonal = false;
-	switch(ribi) {
-	case ribi_t::nordost:
-	    if(from->get_neighbour(to, gib_typ(), koord::ost))
-		r1 = to->gib_weg_ribi_unmasked(gib_typ());
-	    if(from->get_neighbour(to, gib_typ(), koord::nord))
-		r2 = to->gib_weg_ribi_unmasked(gib_typ());
-
-	    diagonal =
-		(r1 == ribi_t::suedwest || r2 == ribi_t::suedwest) &&
-		r1 != ribi_t::nordwest &&
-		r2 != ribi_t::suedost;
-	    break;
-	case ribi_t::suedost:
-	    if(from->get_neighbour(to, gib_typ(), koord::ost))
-		r1 = to->gib_weg_ribi_unmasked(gib_typ());
-	    if(from->get_neighbour(to, gib_typ(), koord::sued))
-		r2 = to->gib_weg_ribi_unmasked(gib_typ());
-
-	    diagonal =
-		(r1 == ribi_t::nordwest || r2 == ribi_t::nordwest) &&
-		r1 != ribi_t::suedwest &&
-		r2 != ribi_t::nordost;
-	    break;
-	case ribi_t::nordwest:
-	    if(from->get_neighbour(to, gib_typ(), koord::west))
-		r1 = to->gib_weg_ribi_unmasked(gib_typ());
-	    if(from->get_neighbour(to, gib_typ(), koord::nord))
-		r2 = to->gib_weg_ribi_unmasked(gib_typ());
-
-	    diagonal =
-		(r1 == ribi_t::suedost || r2 == ribi_t::suedost) &&
-		r1 != ribi_t::nordost &&
-		r2 != ribi_t::suedwest;
-	    break;
-	case ribi_t::suedwest:
-	    if(from->get_neighbour(to, gib_typ(), koord::west))
-		r1 = to->gib_weg_ribi_unmasked(gib_typ());
-	    if(from->get_neighbour(to, gib_typ(), koord::sued))
-		r2 = to->gib_weg_ribi_unmasked(gib_typ());
-
-	    diagonal =
-		(r1 == ribi_t::nordost || r2 == ribi_t::nordost) &&
-		r1 != ribi_t::suedost &&
-		r2 != ribi_t::nordwest;
-	    break;
+	hang_t::typ hang = from->gib_weg_hang();
+	if(hang != hang_t::flach) {
+		return besch->gib_hang_bild_nr(hang);
 	}
-	if(diagonal) {
+
+	const ribi_t::ribi ribi = gib_ribi_unmasked();
+
+	if(ribi_t::ist_kurve(ribi)) {
+		ribi_t::ribi r1 = ribi_t::keine, r2 = ribi_t::keine;
+
+		bool diagonal = false;
+		switch(ribi) {
+			case ribi_t::nordost:
+	  	  if(from->get_neighbour(to, gib_typ(), koord::ost))
+					r1 = to->gib_weg_ribi_unmasked(gib_typ());
+	    	if(from->get_neighbour(to, gib_typ(), koord::nord))
+					r2 = to->gib_weg_ribi_unmasked(gib_typ());
+	    	diagonal =
+					(r1 == ribi_t::suedwest || r2 == ribi_t::suedwest) &&
+					r1 != ribi_t::nordwest &&
+					r2 != ribi_t::suedost;
+				break;
+
+			case ribi_t::suedost:
+	  	  if(from->get_neighbour(to, gib_typ(), koord::ost))
+					r1 = to->gib_weg_ribi_unmasked(gib_typ());
+	    	if(from->get_neighbour(to, gib_typ(), koord::sued))
+					r2 = to->gib_weg_ribi_unmasked(gib_typ());
+	    	diagonal =
+					(r1 == ribi_t::nordwest || r2 == ribi_t::nordwest) &&
+					r1 != ribi_t::suedwest &&
+					r2 != ribi_t::nordost;
+	    	break;
+
+			case ribi_t::nordwest:
+	  	  if(from->get_neighbour(to, gib_typ(), koord::west))
+					r1 = to->gib_weg_ribi_unmasked(gib_typ());
+		    if(from->get_neighbour(to, gib_typ(), koord::nord))
+					r2 = to->gib_weg_ribi_unmasked(gib_typ());
+	    	diagonal =
+					(r1 == ribi_t::suedost || r2 == ribi_t::suedost) &&
+					r1 != ribi_t::nordost &&
+					r2 != ribi_t::suedwest;
+	    	break;
+
+			case ribi_t::suedwest:
+	  	  if(from->get_neighbour(to, gib_typ(), koord::west))
+					r1 = to->gib_weg_ribi_unmasked(gib_typ());
+		    if(from->get_neighbour(to, gib_typ(), koord::sued))
+					r2 = to->gib_weg_ribi_unmasked(gib_typ());
+
+	    	diagonal =
+					(r1 == ribi_t::nordost || r2 == ribi_t::nordost) &&
+					r1 != ribi_t::suedost &&
+					r2 != ribi_t::nordwest;
+	    	break;
+		}
+
+		if(diagonal) {
 	    static int rekursion = 0;
 
 	    if(rekursion == 0) {
-		rekursion++;
-		for(int r = 0; r < 4; r++) {
-		    if(from->get_neighbour(to, gib_typ(), koord::nsow[r])) {
-			to->calc_bild();
-		    }
-		}
-		rekursion--;
+				rekursion++;
+				for(int r = 0; r < 4; r++) {
+			    if(from->get_neighbour(to, gib_typ(), koord::nsow[r])) {
+						to->calc_bild();
+			    }
+				}
+				rekursion--;
 	    }
+
 	    int bild = besch->gib_diagonal_bild_nr(ribi);
 
 	    if(bild != -1) {
-		return bild;
+				return bild;
 	    }
+		}
 	}
-    }
-    return besch->gib_bild_nr(ribi);
+  return besch->gib_bild_nr(ribi);
 }
 
 

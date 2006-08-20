@@ -281,7 +281,7 @@ void check_midi()
       current_midi = 0;
 
     midi_play(current_midi);
-    dbg->message("check_midi()",
+    DBG_MESSAGE("check_midi()",
 		 "Playing MIDI %d", current_midi);
     new_midi = 0;
   }

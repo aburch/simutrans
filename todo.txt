@@ -8,10 +8,16 @@ alles, was einen ein Erfolgserlebnis geben kˆnnte.
 
 Stichpunkte
 
-- mehrere Stationen
-- Icon und Versionsinformationen
-- Statistiken f¸r Stadtfenster
-- Fabrikliste
+- mehrere Stationen: done
+- Mehr KI: halfway
+- Jahreszeiten: done
+- Statistiken f¸r Stadtfenster: done
+- Einzugsbereich einstellbar: done (Schiffsanleger???)
+- Vorsignale: done, bug beim lˆschen
+
+- Fabrikliste + Sehenw¸rdigkeitenliste
 - powernet nach liste ‰ndern => Karte besser, keine Speicherverschwendung
 - Landfabrik alle x Jahre
-- Mehr KI
+- oberes Fenster schlieﬂen
+- Hauptquartier
+- Felder: Grafiken da, fehlt noch code (vielleicht wie W‰lder?)

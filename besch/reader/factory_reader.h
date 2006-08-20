@@ -116,8 +116,10 @@ class factory_reader_t : public obj_reader_t {
 protected:
     virtual void register_obj(obj_besch_t *&data);
 public:
+
     static factory_reader_t*instance() { return &the_instance; }
 
+    virtual obj_besch_t *read_node(FILE *fp, obj_node_info_t &node);
     virtual obj_type get_type() const { return obj_factory; }
     virtual const char *get_type_name() const { return "factory"; }
 };

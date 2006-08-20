@@ -9,7 +9,7 @@
 //     Project: MakeObj                      Compiler: MS Visual C++ v6.00
 //  SubProject: ...                              Type: C/C++ Source
 //  $Workfile:: factory_writer.cpp   $       $Author: hajo $
-//  $Revision: 1.4 $         $Date: 2003/10/29 22:00:39 $
+//  $Revision: 1.5 $         $Date: 2005/02/26 22:00:39 $
 //---------------------------------------------------------------------------
 //  Module Description:
 //      ...
@@ -17,6 +17,10 @@
 //---------------------------------------------------------------------------
 //  Revision History:
 //  $Log: factory_writer.cc,v $
+//
+//  Revision 1.5  2005/02/26 22:00:39  prissi
+//  prissi: pax level added
+//
 //  Revision 1.4  2003/10/29 22:00:39  hajo
 //  Hajo: sync for Hendrik Siegeln
 //
@@ -107,6 +111,7 @@ void factory_product_writer_t::write_obj(FILE *outfp,
 
     // Hajo: Version needs high bit set as trigger -> this is required
     //       as marker because formerly nodes were unversionend
+    // new version 2: pax-level added
     uint16 data = 0x8001;
     node.write_data_at(outfp, &data, 0, sizeof(uint16));
 
@@ -184,8 +189,9 @@ void factory_writer_t::write_obj(FILE *fp, obj_node_t &parent, tabfileobj_t &obj
     besch.bereich = obj.get_int("range", 10);
     besch.gewichtung = obj.get_int("distributionweight", 1);
     besch.kennfarbe = obj.get_int("mapcolor", 168/*???*/);
+    besch.pax_level = obj.get_int("pax_level", 12);
 
-    obj_node_t	node(this, sizeof(besch), &parent, true);
+    obj_node_t	node(this, sizeof(uint16)*9, &parent, false);
 
     obj.put("type", "fac");
 
@@ -232,7 +238,34 @@ void factory_writer_t::write_obj(FILE *fp, obj_node_t &parent, tabfileobj_t &obj
 
 	factory_product_writer_t::instance()->write_obj(fp, node, cap, fac, good);
     }
-    node.write_data(fp, &besch);
+    // new version with pax_level
+    uint16 data = 0x8001;
+    node.write_data_at(fp, &data, 0, sizeof(uint16));
+
+    data = (uint16)besch.platzierung;
+    node.write_data_at(fp, &data, 2, sizeof(uint16));
+
+    data = besch.produktivitaet;
+    node.write_data_at(fp, &data, 4, sizeof(uint16));
+
+    data = besch.bereich;
+    node.write_data_at(fp, &data, 6, sizeof(uint16));
+
+    data = besch.gewichtung;
+    node.write_data_at(fp, &data, 8, sizeof(uint16));
+
+    data = besch.kennfarbe;
+    node.write_data_at(fp, &data, 10, sizeof(uint16));
+
+    data = besch.lieferanten;
+    node.write_data_at(fp, &data, 12, sizeof(uint16));
+
+    data = besch.produkte;
+    node.write_data_at(fp, &data, 14, sizeof(uint16));
+
+    data = besch.pax_level;
+    node.write_data_at(fp, &data, 16, sizeof(uint16));
+
     node.write(fp);
 }
 

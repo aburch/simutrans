@@ -176,7 +176,7 @@ blockmanager::finde_blockstrecke(karte_t * welt, koord3d pos)
         }
     }
 
-    dbg->message("blockmanager::finde_blockstrecke()",
+    DBG_MESSAGE("blockmanager::finde_blockstrecke()",
                  "found rail block %ld at %d,%d", bs.get_id(), pos.x, pos.y);
 
     return bs;
@@ -187,7 +187,7 @@ blockmanager::vereinige(karte_t *welt,
                         blockhandle_t  bs1,
                         blockhandle_t  bs2)
 {
-    dbg->message("blockmanager::vereinige()",
+    DBG_MESSAGE("blockmanager::vereinige()",
                  "joining rail blocks %ld and %ld.",
                  bs1.get_id(), bs2.get_id());
 
@@ -232,10 +232,10 @@ blockmanager::vereinige(karte_t *welt,
 
     bs1->vereinige_vehikel_counter(bs2);
 
-    dbg->message("blockmanager::vereinige()", "deleting rail block %ld", bs2.get_id());
+    DBG_MESSAGE("blockmanager::vereinige()", "deleting rail block %ld", bs2.get_id());
     blockstrecke_t::destroy( bs2 );
 
-    dbg->message("blockmanager::vereinige()", "%d rail blocks left after join", strecken.count());
+    DBG_MESSAGE("blockmanager::vereinige()", "%d rail blocks left after join", strecken.count());
 
 }
 
@@ -266,13 +266,14 @@ blockmanager::entferne_signal(karte_t *welt, koord3d pos)
 
     // Hajo: count signals nearby
     int count = 0;
-    for(int i=0; i<anzahl; i++) {
+    int i;
+    for(i=0; i<anzahl; i++) {
         grund_t *gr = welt->lookup(nb.at(i));
 
 	count += (gr->suche_obj(ding_t::signal) != 0) ? 1 : 0;
     }
 
-    dbg->message("blockmanager::entferne_signal()",
+    DBG_MESSAGE("blockmanager::entferne_signal()",
 		 "%d neighbours, %d signals found", anzahl, count);
 
 
@@ -285,7 +286,7 @@ blockmanager::entferne_signal(karte_t *welt, koord3d pos)
     }
 
 
-    for(int i=0; i<anzahl; i++) {
+    for(i=0; i<anzahl; i++) {
         weg_t *nachbar_weg = welt->lookup(nb.at(i))->gib_weg(weg_t::schiene);
         blockhandle_t bs = dynamic_cast<schiene_t *>(nachbar_weg)->gib_blockstrecke();
 
@@ -441,9 +442,9 @@ const char *
 blockmanager::baue_neues_signal(karte_t *welt,
                                 spieler_t *sp,
                                 koord3d pos, koord3d pos2, schiene_t *sch,
-                                ribi_t::ribi dir)
+                                ribi_t::ribi dir, bool presignal)
 {
-    dbg->message("blockmanager::baue_neues_signal()", "build a new signal between %d,%d and %d,%d",
+    DBG_MESSAGE("blockmanager::baue_neues_signal()", "build a new signal between %d,%d and %d,%d",
            pos.x, pos.y, pos2.x, pos2.y);
 
     blockhandle_t bs1 = sch->gib_blockstrecke();
@@ -474,13 +475,13 @@ blockmanager::baue_neues_signal(karte_t *welt,
 
         bs1 = bs2;
 
-        dbg->message("blockmanager::baue_neues_signal()", "circular rail block detected.");
+        DBG_MESSAGE("blockmanager::baue_neues_signal()", "circular rail block detected.");
     }
 
     weg2->ribi_add(ribi_t::rueckwaerts(dir));
 
-    signal_t *sig1 = new signal_t(welt, pos, dir);
-    signal_t *sig2 = new signal_t(welt, pos2, ribi_t::rueckwaerts(dir));
+    signal_t *sig1 = presignal ? new presignal_t (welt, pos, dir) : new signal_t(welt, pos, dir);
+    signal_t *sig2 = presignal ? new presignal_t(welt, pos2, ribi_t::rueckwaerts(dir)) : new signal_t(welt, pos2, ribi_t::rueckwaerts(dir));
 
     bs1->add_signal(sig1);
     bs2->add_signal(sig2);
@@ -513,14 +514,14 @@ blockmanager::baue_neues_signal(karte_t *welt,
 const char *
 blockmanager::baue_andere_signale(koord3d pos1, koord3d pos2,
                                   schiene_t *sch1, schiene_t *sch2,
-                                  ribi_t::ribi ribi)
+                                  ribi_t::ribi ribi, bool presignal)
 {
     const ribi_t::ribi rueck = ribi_t::rueckwaerts(ribi);
 
     signal_t *sig1 = sch1->gib_blockstrecke()->gib_signal_bei(pos1);
     signal_t *sig2 = sch2->gib_blockstrecke()->gib_signal_bei(pos2);
 
-    dbg->message("blockmanager::baue_andere_signale()",
+    DBG_MESSAGE("blockmanager::baue_andere_signale()",
                  "between %d,%d and %d,%d",
                  pos1.x, pos1.y, pos2.x, pos2.y);
 
@@ -568,7 +569,7 @@ blockmanager::baue_andere_signale(koord3d pos1, koord3d pos2,
 }
 
 const char *
-blockmanager::neues_signal(karte_t *welt, spieler_t *sp, koord3d pos, ribi_t::ribi dir)
+blockmanager::neues_signal(karte_t *welt, spieler_t *sp, koord3d pos, ribi_t::ribi dir, bool presignal)
 {
     weg_t *weg = welt->lookup(pos)->gib_weg(weg_t::schiene);
 
@@ -608,7 +609,7 @@ blockmanager::neues_signal(karte_t *welt, spieler_t *sp, koord3d pos, ribi_t::ri
         if(sig1 != NULL && sig2 != NULL) {
             // es gibt signale
 
-            return baue_andere_signale(pos, pos2, dynamic_cast<schiene_t *>(weg), dynamic_cast<schiene_t *>(weg2), dir);
+            return baue_andere_signale(pos, pos2, dynamic_cast<schiene_t *>(weg), dynamic_cast<schiene_t *>(weg2), dir, presignal);
         } else if(sig1 == NULL && sig2 == NULL) {
             // es gibt noch keine Signale
 
@@ -616,7 +617,7 @@ blockmanager::neues_signal(karte_t *welt, spieler_t *sp, koord3d pos, ribi_t::ri
                 dbg->warning("blockmanger_t::neues_signal()", "direction mismatch: dir=%d, ribi=%d!", dir, ribi);
                 return "Hier kann kein\nSignal aufge-\nstellt werden!\n";
             }
-            return baue_neues_signal(welt, sp, pos, pos2, dynamic_cast<schiene_t *>(weg), dir);
+            return baue_neues_signal(welt, sp, pos, pos2, dynamic_cast<schiene_t *>(weg), dir, presignal);
 
         } else {
             // ein signal muss verlorengegangen sein
@@ -674,7 +675,7 @@ blockmanager::pruefe_blockstrecke(karte_t *welt, koord3d k)
             traversiere_netz(welt, k, &pr);
             bs->setze_belegung( pr.count );
 
-            // dbg->message("blockmanager::pruefe_blockstrecke()", "setting waggon counter to %d waggons", pr.count);
+            // DBG_MESSAGE("blockmanager::pruefe_blockstrecke()", "setting waggon counter to %d waggons", pr.count);
         }
     }
 }
@@ -808,7 +809,7 @@ blockmanager::block_ersetzer::block_ersetzer(karte_t *welt,
      this->welt = welt;
      this->alt = alt;
 
-     dbg->message("blockmanager::block_ersetzer::block_ersetzer()",
+     DBG_MESSAGE("blockmanager::block_ersetzer::block_ersetzer()",
                   "replacing rail block %ld", alt.get_id());
 }
 
@@ -821,14 +822,14 @@ blockmanager::block_ersetzer::neue_koord(koord3d pos)
 
     if(weg) {
         if(weg->gib_blockstrecke() == alt) {
-//	    dbg->message("blockmanager::block_ersetzer::neue_koord()",
+//	    DBG_MESSAGE("blockmanager::block_ersetzer::neue_koord()",
 //                 "on %d %d: %d -> %d", pos.x, pos.y, alt.get_id(), neu.get_id());
             weg->setze_blockstrecke( neu );
             ok = false;   // do not stop traversal yet
 	}
     }
 
-//    dbg->message("blockmanager::block_ersetzer::neue_koord()",
+//    DBG_MESSAGE("blockmanager::block_ersetzer::neue_koord()",
 //                 "called on %d %d, result %d", pos.x, pos.y, ok);
 
 
@@ -862,7 +863,7 @@ blockmanager::tracktyp_ersetzer::tracktyp_ersetzer(karte_t *welt,
      this->alt = alt;
      this->electric = is_electric;
 
-     dbg->message("blockmanager::tracktyp_ersetzer::tracktyp_ersetzer()",
+     DBG_MESSAGE("blockmanager::tracktyp_ersetzer::tracktyp_ersetzer()",
                   "replacing rail block %ld to electric track type %d",
 		  alt.get_id(), is_electric);
 }
@@ -878,9 +879,9 @@ blockmanager::tracktyp_ersetzer::neue_koord(koord3d pos)
 
     if(weg) {
         if(weg->gib_blockstrecke() == alt) {
-//	    dbg->message("blockmanager::tracktyp_ersetzer::neue_koord()",
+//	    DBG_MESSAGE("blockmanager::tracktyp_ersetzer::neue_koord()",
 //                 "on %d %d: %d -> %d", pos.x, pos.y, alt.get_id(), neu.get_id());
-            weg->setze_elektrisch( electric );
+            weg->setze_elektrisch( electric != 0);
 	    gr->calc_bild();         // rail looks different now
 
 
@@ -916,7 +917,7 @@ blockmanager::tracktyp_ersetzer::neue_koord(koord3d pos)
 	}
     }
 
-//    dbg->message("blockmanager::tracktyp_ersetzer::neue_koord()",
+//    DBG_MESSAGE("blockmanager::tracktyp_ersetzer::neue_koord()",
 //                 "called on %d %d, result %d", pos.x, pos.y, ok);
 
 

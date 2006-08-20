@@ -153,7 +153,7 @@ void blockstrecke_t::verdrahte_signale_neu()
         signale.remove( sig );
     }
 
-//    dbg->message("blockstrecke_t::verdrahte_signale_neu()",
+//    DBG_MESSAGE("blockstrecke_t::verdrahte_signale_neu()",
 //		 "rail block %p has now %d signals", this, signale.count());
 }
 
@@ -195,7 +195,7 @@ bool blockstrecke_t::loesche_signal_bei(koord3d k)
 
     if(sig) {
 
-        dbg->message("blockstrecke_t::loesche_signal_bei()",
+        DBG_MESSAGE("blockstrecke_t::loesche_signal_bei()",
 		     "rail block %p removes signal %p at %hd,%hd",
 		     this, sig, k.x, k.y);
 
@@ -243,7 +243,7 @@ signal_t * blockstrecke_t::gib_signal_bei(koord3d k)
     }
 
 #ifdef DEBUG
-    dbg->message("blockstrecke_t::gib_signal_bei()",
+    DBG_MESSAGE("blockstrecke_t::gib_signal_bei()",
 		 "found signal %p at %d,%d.\n", sig, k.x, k.y);
 #endif
 
@@ -318,6 +318,7 @@ void
 blockstrecke_t::rdwr(loadsave_t *file)
 {
     int count;
+    short int typ = ding_t::signal;
 
     // signale laden
     if(file->is_saving()) {
@@ -335,9 +336,11 @@ blockstrecke_t::rdwr(loadsave_t *file)
     else {
         for(int i=0; i<count; i++) {
 	    // objectdescriptor überlesen
-	    file->rd_obj_id();
-
-	    signal_t *sig = new signal_t(welt, file);
+	    typ=file->rd_obj_id();
+	    signal_t * sig = NULL;
+	    // currently we only have two signal types, so this line of code should be ok
+	    // if we introduce more types, we should change this code to a "switch-case" block
+	  	sig = typ == ding_t::signal ? new signal_t(welt, file) : new presignal_t(welt, file);
 	    signale.insert( sig );
         }
     }

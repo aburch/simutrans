@@ -57,7 +57,7 @@ public:
      * Vordefinierte Wegtypen.
      * @author Hj. Malthaner
      */
-    enum typ {invalid=-1, strasse=1, schiene=2, wasser=3, powerline=128};
+    enum typ {invalid=-1, strasse=1, schiene=2, wasser=3, tramschiene=4, powerline=128};
 
 
     /**

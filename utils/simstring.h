@@ -28,6 +28,13 @@ extern "C" {
   int clip_string(const int strlen, const int maxlen, char *buf);
 
 
+  /* copies n lines of the source into a buffer *
+   * @return a temporary buffer with the result
+   * @author prissi
+   */
+  char *make_single_line_string(const char *in,int number_of_lines);
+
+
   /**
    * Formats a money value. Uses thousand separator. Two digits precision.
    * Concludes format with $ sign. Buffer must be large enough, no checks

@@ -137,6 +137,37 @@ void number_to_string(char * p, double f)
 }
 
 
+
+// copies a n into a single line and maximum 128 characters
+// @author prissi
+char *make_single_line_string(const char *in,int number_of_lines)
+{
+	static char buf[64];
+	int pos;
+
+	// skip leading whitespaces
+	while(*in=='\n'  ||  *in==' ') {
+		in++;
+	}
+	// start copying
+	for(pos=0;  pos<62  &&  *in!=0  &&  number_of_lines>0;  pos++) {
+		buf[pos] = *in++;
+		// replace new lines by space
+		if(*in=='\n') {
+			while(*in=='\n'  ||  *in==' ') {
+				if(*in=='\n') number_of_lines--;
+				in++;
+			}
+			buf[++pos] = ' ';
+		}
+	}
+	buf[pos] = 0;
+	return buf;
+}
+
+
+
+
 /**
  * Terminated, length limited string copy. Copies at most
  * n characters. Terminates dest string always by 0.

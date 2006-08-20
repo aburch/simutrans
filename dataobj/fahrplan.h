@@ -167,7 +167,7 @@ public:
     zugfahrplan_t() : fahrplan_t() {type = zugfahrplan;};
     zugfahrplan_t(loadsave_t *file) : fahrplan_t(file) {type = zugfahrplan;};
     zugfahrplan_t(fahrplan_t * fpl) : fahrplan_t(fpl) {type = zugfahrplan;};
-    zugfahrplan_t * copy() { return new zugfahrplan_t(this); };
+    fahrplan_t * copy() { return new zugfahrplan_t(this); };
 };
 
 
@@ -187,7 +187,7 @@ public:
     autofahrplan_t() : fahrplan_t() {type = autofahrplan;};
     autofahrplan_t(loadsave_t *file) : fahrplan_t(file) {type = autofahrplan;};
     autofahrplan_t(fahrplan_t * fpl) : fahrplan_t(fpl) {type = autofahrplan;};
-    autofahrplan_t * copy() { return new autofahrplan_t(this); };
+    fahrplan_t * copy() { return new autofahrplan_t(this); };
 };
 
 
@@ -207,7 +207,7 @@ public:
     schifffahrplan_t() : fahrplan_t() {type = schifffahrplan;};
     schifffahrplan_t(loadsave_t *file) : fahrplan_t(file) {type = schifffahrplan;};
     schifffahrplan_t(fahrplan_t * fpl) : fahrplan_t(fpl) {type = schifffahrplan;};
-    schifffahrplan_t * copy() { return new schifffahrplan_t(this); };
+    fahrplan_t * copy() { return new schifffahrplan_t(this); };
 };
 
 

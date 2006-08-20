@@ -320,7 +320,7 @@ stadt_t::stadt_t(karte_t *wl, spieler_t *sp, koord pos,int citizens) :
     zentrum_namen_cnt = 0;
     aussen_namen_cnt = 0;
 
-dbg->message("stadt_t::stadt_t()","Welt %p",welt);fflush(NULL);
+DBG_MESSAGE("stadt_t::stadt_t()","Welt %p",welt);fflush(NULL);
     /* get a unique cityname */
     /* 9.1.2005, prissi */
     const array_tpl<stadt_t *> *staedte=welt->gib_staedte();
@@ -328,7 +328,7 @@ dbg->message("stadt_t::stadt_t()","Welt %p",welt);fflush(NULL);
     const int name_list_count = translator::get_count_city_name();
     bool not_unique=true;
 
-dbg->message("stadt_t::stadt_t()","number of towns %i",anz_staedte);fflush(NULL);
+DBG_MESSAGE("stadt_t::stadt_t()","number of towns %i",anz_staedte);fflush(NULL);
 
     // start at random position
     int start_cont = simrand(name_list_count);
@@ -347,27 +347,42 @@ dbg->message("stadt_t::stadt_t()","number of towns %i",anz_staedte);fflush(NULL)
                 	not_unique |= (strcmp( list_name, staedte->get(j)->gib_name() )==0);
                 }
             }
-dbg->message("stadt_t::stadt_t()", "'%s' is%s unique", list_name, not_unique?" not":"");
+DBG_MESSAGE("stadt_t::stadt_t()", "'%s' is%s unique", list_name, not_unique?" not":"");
         }
     }
     strcpy(name, list_name);
-dbg->message("stadt_t::stadt_t()","founding new city named '%s'",name);
+DBG_MESSAGE("stadt_t::stadt_t()","founding new city named '%s'",name);
 
     // 1. Rathaus bei 0 Leuten bauen
     check_bau_rathaus(true);
 
     wachstum = 0;
 
-//    const int anzahl = 360 + simrand(3000);
-//    for(int i=0; i<anzahl; i++) {
-//     step_bau();
-//    }
-
     // this way, new cities are properly recognized
     pax_erzeugt = 0;
     pax_transport = citizens/8;
     step_bau();
+    pax_erzeugt = 0;
     pax_transport = 0;
+
+    /**
+     * initialize history array
+     * @author prissi
+     */
+	for (int year=0; year<MAX_CITY_HISTORY_YEARS; year++) {
+		for (int hist_type=0; hist_type<MAX_CITY_HISTORY; hist_type++) {
+			city_history_year[year][hist_type] = 0;
+		}
+	}
+	for (int month=0; month<MAX_CITY_HISTORY_YEARS; month++) {
+		for (int hist_type=0; hist_type<MAX_CITY_HISTORY; hist_type++) {
+			city_history_month[month][hist_type] = 0;
+		}
+	}
+	last_year_bev = city_history_year[0][HIST_CITICENS] = bev;
+	last_month_bev = city_history_month[0][HIST_CITICENS] = bev;
+	this_year_transported = 0;
+	this_year_pax = 0;
 }
 
 
@@ -392,30 +407,71 @@ stadt_t::stadt_t(karte_t *wl, loadsave_t *file) :
 
 void stadt_t::rdwr(loadsave_t *file)
 {
-    int besitzer_n;
+	int besitzer_n;
 
-    if(file->is_saving()) {
-        besitzer_n = welt->sp2num(besitzer_p);
-    }
-    file->rdwr_str(name, 31);
-    pos.rdwr( file );
-    file->rdwr_delim("Plo: ");
-    file->rdwr_int(li, " ");
-    file->rdwr_int(ob, "\n");
-    file->rdwr_delim("Pru: ");
-    file->rdwr_int(re, " ");
-    file->rdwr_int(un, "\n");
-    file->rdwr_delim("Bes: ");
-    file->rdwr_int(besitzer_n, "\n");
-    file->rdwr_int(bev, " ");
-    file->rdwr_int(arb, " ");
-    file->rdwr_int(won, "\n");
-    file->rdwr_int(zentrum_namen_cnt, " ");
-    file->rdwr_int(aussen_namen_cnt, "\n");
+	if(file->is_saving()) {
+		besitzer_n = welt->sp2num(besitzer_p);
+	}
+	file->rdwr_str(name, 31);
+	pos.rdwr( file );
+	file->rdwr_delim("Plo: ");
+	file->rdwr_int(li, " ");
+	file->rdwr_int(ob, "\n");
+	file->rdwr_delim("Pru: ");
+	file->rdwr_int(re, " ");
+	file->rdwr_int(un, "\n");
+	file->rdwr_delim("Bes: ");
+	file->rdwr_int(besitzer_n, "\n");
+	file->rdwr_int(bev, " ");
+	file->rdwr_int(arb, " ");
+	file->rdwr_int(won, "\n");
+	file->rdwr_int(zentrum_namen_cnt, " ");
+	file->rdwr_int(aussen_namen_cnt, "\n");
 
-    if(file->is_loading()) {
-        besitzer_p = welt->gib_spieler(besitzer_n);
-    }
+	if(file->is_loading()) {
+		besitzer_p = welt->gib_spieler(besitzer_n);
+	}
+
+	// we probably need to save the city history
+	if (file->get_version() < 86000) {
+DBG_DEBUG("stadt_t::rdwr()","is old version: No history!");
+		/**
+		* initialize history array
+		* @author prissi
+		*/
+		for (int year=0; year<MAX_CITY_HISTORY_YEARS; year++) {
+			for (int hist_type=0; hist_type<MAX_CITY_HISTORY; hist_type++) {
+				city_history_year[year][hist_type] = 0;
+			}
+		}
+		for (int month=0; month<MAX_CITY_HISTORY_MONTHS; month++) {
+			for (int hist_type=0; hist_type<MAX_CITY_HISTORY; hist_type++) {
+				city_history_month[month][hist_type] = 0;
+			}
+		}
+		last_year_bev = city_history_year[0][HIST_CITICENS] = bev;
+		last_month_bev = city_history_month[0][HIST_CITICENS] = bev;
+		this_year_transported = 0;
+		this_year_pax = 0;
+	}
+	else {
+		// 86.00.0 introduced city history
+		for (int year = 0;year<MAX_CITY_HISTORY_YEARS;year++) {
+			for (int hist_type = 0; hist_type<MAX_CITY_HISTORY; hist_type++) {
+				file->rdwr_longlong(city_history_year[year][hist_type], " ");
+			}
+		}
+		for (int month=0; month<MAX_CITY_HISTORY_MONTHS; month++) {
+			for (int hist_type=0; hist_type<MAX_CITY_HISTORY; hist_type++) {
+				file->rdwr_longlong(city_history_month[month][hist_type], " ");
+			}
+		}
+		// since we add it internally
+		file->rdwr_int(last_year_bev, " ");
+		file->rdwr_int(last_month_bev, " ");
+		file->rdwr_int(this_year_transported, " ");
+		file->rdwr_int(this_year_pax, "\n");
+	}
 
     // 08-Jan-03: Due to some bugs in the special buildings/town hall
     // placement code, li,re,ob,un could've gotten irregular values
@@ -431,7 +487,7 @@ void stadt_t::rdwr(loadsave_t *file)
 
 
 /**
- * Wird am Ende der LAderoutine aufgerufen, wenn die Welt geladen ist
+ * Wird am Ende der Laderoutine aufgerufen, wenn die Welt geladen ist
  * und nur noch die Datenstrukturenneu verknüpft werden müssen.
  * @author Hj. Malthaner
  */
@@ -515,47 +571,126 @@ stadt_t::add_factory_arbeiterziel(fabrik_t *fab)
 void
 stadt_t::step()
 {
-    // Ist es Zeit für einen neuen step?
-    if(welt->gib_zeit_ms() > next_step) {
-  const long delta_t = welt->gib_zeit_ms() - next_step;
+	// Ist es Zeit für einen neuen step?
+	if(welt->gib_zeit_ms() > next_step) {
+		const long delta_t = welt->gib_zeit_ms() - next_step;
 
-      // printf("Step intervall %ld, %ld zu spät\n", welt->gib_zeit()-next_step, delta_t);
+		// Alle 10 sekunden ein step
+		next_step = welt->gib_zeit_ms()+MAX(0, step_interval-delta_t);
 
-  // Alle 10 sekunden ein step
-  next_step = welt->gib_zeit_ms()+MAX(0, step_interval-delta_t);
+		// Zaehlt steps seit instanziierung
+		step_count ++;
+
+		step_passagiere();
 
 
-  // Zaehlt steps seit instanziierung
-  step_count ++;
+		if( (step_count & 3) == 0) {
+			step_bau();
+		}
 
+		// update history
+		city_history_month[0][HIST_CITICENS] = bev;	// total number
+		city_history_year[0][HIST_CITICENS] = bev;
 
-  step_passagiere();
+		city_history_month[0][HIST_GROWTH] = bev-last_month_bev;	// growth
+		city_history_year[0][HIST_GROWTH] = bev-last_year_bev;
 
-  if( (step_count & 3) == 0) {
-      step_bau();
-  }
-    }
+		city_history_month[0][HIST_TRANSPORTED] = pax_transport;	// pax transported
+		city_history_year[0][HIST_TRANSPORTED] = this_year_transported+pax_transport;
+
+		city_history_month[0][HIST_GENERATED] = pax_erzeugt;	// and all post and passengers generated
+		city_history_year[0][HIST_GENERATED] = this_year_pax+pax_erzeugt;
+	}
 }
+
+
+
+/* updates the city history
+ * @author prissi
+ */
+void
+stadt_t::roll_history()
+{
+	int i;
+
+	// first update history
+	city_history_month[0][HIST_CITICENS] = bev;	// total number
+	city_history_year[0][HIST_CITICENS] = bev;
+
+	city_history_month[0][HIST_GROWTH] = bev-last_month_bev;	// growth
+	city_history_year[0][HIST_GROWTH] = bev-last_year_bev;
+
+	city_history_month[0][HIST_TRANSPORTED] = pax_transport;	// pax transported
+	this_year_transported += pax_transport;
+	city_history_year[0][HIST_TRANSPORTED] = this_year_transported;
+
+	city_history_month[0][HIST_GENERATED] = pax_erzeugt;	// and all post and passengers generated
+	this_year_pax += pax_erzeugt;
+	city_history_year[0][HIST_GENERATED] = this_year_pax;
+
+	// init differences
+	last_month_bev = bev;
+
+	// roll months
+	for (i=MAX_CITY_HISTORY_MONTHS-1; i>0; i--) {
+		for (int hist_type = 0; hist_type<MAX_CITY_HISTORY; hist_type++) {
+			city_history_month[i][hist_type] = city_history_month[i-1][hist_type];
+		}
+	}
+	// init this month
+	for (int hist_type = 1; hist_type<MAX_CITY_HISTORY; hist_type++) {
+		city_history_month[0][hist_type] = 0;
+	}
+	city_history_month[0][0] = bev;
+
+	//need to roll year too?
+	if(    (welt->gib_zeit_ms() >> karte_t::ticks_bits_per_tag)%12==0  ) {
+		for (i=MAX_CITY_HISTORY_YEARS-1; i>0; i--)
+		{
+			for (int hist_type = 0; hist_type<MAX_CITY_HISTORY; hist_type++)
+			{
+				city_history_year[i][hist_type] = city_history_year[i-1][hist_type];
+			}
+		}
+		// init this year
+		for (int hist_type = 1; hist_type<MAX_CITY_HISTORY; hist_type++) {
+			city_history_year[0][hist_type] = 0;
+		}
+		last_year_bev = bev;
+		city_history_year[0][HIST_CITICENS] = bev;
+		city_history_year[0][HIST_GROWTH] = 0;
+		city_history_year[0][HIST_TRANSPORTED] = 0;
+		city_history_year[0][HIST_GENERATED] = 0;
+		// init difference counters
+		this_year_transported = 0;
+		this_year_pax = 0;
+	}
+
+}
+
+
 
 void
 stadt_t::neuer_monat()
 {
-    const int gr = welt->gib_groesse();
+	const int gr = welt->gib_groesse();
 
-    pax_ziele_alt.copy_from(pax_ziele_neu);
+	pax_ziele_alt.copy_from(pax_ziele_neu);
 
 
-    for(int j=0; j<96; j++) {
-  for(int i=0; i<96; i++) {
-      const koord pos (i*gr/96, j*gr/96);
+	for(int j=0; j<96; j++) {
+		for(int i=0; i<96; i++) {
+			const koord pos (i*gr/96, j*gr/96);
 
-      pax_ziele_neu.at(i, j) = reliefkarte_t::calc_relief_farbe(welt, pos);
-//      pax_ziele_neu.at(i, j) = 0;
-  }
-    }
+			pax_ziele_neu.at(i, j) = reliefkarte_t::calc_relief_farbe(welt, pos);
+			//      pax_ziele_neu.at(i, j) = 0;
+		}
+	}
 
-    pax_erzeugt = 0;
-    pax_transport = 0;
+	roll_history();
+
+	pax_erzeugt = 0;
+	pax_transport = 0;
 }
 
 
@@ -665,6 +800,8 @@ stadt_t::step_passagiere()
 							welt->suche_nahe_haltestellen(ziel, 4, 0, 1);
 
 						if(ziel_list.get_count() == 0){
+#if 0
+// before 0.86.00
 							// Dario: suche_nahe_haltestellen doesn't check ziel itself.
 							// So search for a stop on ziel
 							// is required additionally
@@ -672,15 +809,19 @@ stadt_t::step_passagiere()
 							if(halt->gib_halt(welt, ziel) == NULL){
 								// ziel itself is no stop either. Thus, routing is not possible and we do not need to do a calculation.
 								// Mark ziel as destination without route and continue.
-
-// dbg->message("stadt_t::step_passagiere()", "No stop near dest (%d, %d)", ziel.x, ziel.y);
+// DBG_MESSAGE("stadt_t::step_passagiere()", "No stop near dest (%d, %d)", ziel.x, ziel.y);
 								merke_passagier_ziel(ziel, DUNKELORANGE);
 
 								continue;
 							}
+#else
+							// prissi: gound tile contains also information for this direkt position
+							merke_passagier_ziel(ziel, DUNKELORANGE);
+							continue;
+#endif
 						}
 						else {
-//dbg->debug("stadt_t::step_passagiere()", "Stop near dest (%d, %d)", ziel.x, ziel.y);
+//DBG_DEBUG("stadt_t::step_passagiere()", "Stop near dest (%d, %d)", ziel.x, ziel.y);
 						} // End: Check if there's a stop near destination
 
 						// Passgierziel in Passagierzielkarte eintragen
@@ -695,6 +836,8 @@ stadt_t::step_passagiere()
 							// some are appalled and will not try other
 							// stations
 							halt->add_pax_unhappy(pax.menge);
+							// prissi: 11-Mar-2005
+							// however, we could try other stations, since to above list is now complete!
 							continue;
 						}
 
@@ -759,7 +902,7 @@ stadt_t::gib_zufallspunkt() const
 
   if(plan && (gr = plan->gib_kartenboden())) {
     if(gr->ist_wasser()) {
-      // dbg->message("stadt_t::finde_passagier_ziel()", "water -> reroll");
+      // DBG_MESSAGE("stadt_t::finde_passagier_ziel()", "water -> reroll");
 
       // ungeeignet -> 2. Versuch
       ziel = koord(li + simrand(re - li + 1), ob + simrand(un - ob + 1));
@@ -791,7 +934,7 @@ stadt_t::finde_passagier_ziel()
 
       ziel = gb->gib_pos().gib_2d();
 
-      // dbg->message("stadt_t::finde_passagier_ziel()", "created a tourist to %d,%d", ziel.x, ziel.y);
+      // DBG_MESSAGE("stadt_t::finde_passagier_ziel()", "created a tourist to %d,%d", ziel.x, ziel.y);
 
   } else {
       const array_tpl<stadt_t *> *staedte = welt->gib_staedte();
@@ -860,7 +1003,7 @@ stadt_t::check_bau_spezial(bool new_town)
 				// tell the player, if not during initialization
 				if(!new_town) {
 					char buf[256];
-					sprintf(buf, translator::translate("To attract more tourists\n%s built\na %s\nwith the aid of\n%i tax payers."), gib_name(), translator::translate(besch->gib_name()), bev );
+					sprintf(buf, translator::translate("To attract more tourists\n%s built\na %s\nwith the aid of\n%i tax payers."), gib_name(), make_single_line_string(translator::translate(besch->gib_name()),2), bev );
 					message_t::get_instance()->add_message(buf,best_pos,message_t::tourist,CITY_KI,besch->gib_tile(0)->gib_hintergrund(0,0) );
 				}
 			}
@@ -929,13 +1072,13 @@ stadt_t::check_bau_rathaus(bool new_town)
   koord best_pos ( pos );
   koord k;
 
-  dbg->message("check_bau_rathaus()",
+  DBG_MESSAGE("check_bau_rathaus()",
          "bev=%d, new=%d", bev, neugruendung);
 
 
   if(!neugruendung) {
       if(gb->gib_tile()->gib_besch()->gib_level() == besch->gib_level())  {
-        dbg->message("check_bau_rathaus()",
+        DBG_MESSAGE("check_bau_rathaus()",
          "town hall already ok.");
 
     return; // Rathaus ist schon okay
@@ -1077,7 +1220,7 @@ stadt_t::check_bau_factory(bool new_town)
 		bool	rotate=false;
 
 		koord3d	market_pos=welt->lookup(pos)->gib_kartenboden()->gib_pos();
-dbg->message("stadt_t::check_bau_factory","adding new industry at %i inhabitants.",bev);
+DBG_MESSAGE("stadt_t::check_bau_factory","adding new industry at %i inhabitants.",bev);
 		int n=fabrikbauer_t::baue_hierarchie(welt, NULL, market, rotate, &market_pos, welt->gib_spieler(1) );
 		// tell the player
 		char buf[256];
@@ -1295,15 +1438,15 @@ stadt_t::bewerte()
     bewerte_strasse(k, speed-5, "SHS nnn sss"); // Einmuendung in Natur
     bewerte_strasse(k, speed-7, ".H. hnh sss"); // Einmuendung zwischen 2 Häusern
     */
-
-    for(int i=0; i<num_house_rules; i++) {
+    int i;
+    for(i=0; i<num_house_rules; i++) {
       bewerte_haus(k,
        speed+house_rules[i].chance,
        house_rules[i].rule);
     }
 
 
-    for(int i=0; i<num_road_rules; i++) {
+    for(i=0; i<num_road_rules; i++) {
       bewerte_strasse(k,
           speed+road_rules[i].chance,
           road_rules[i].rule);
@@ -1843,7 +1986,7 @@ bool stadt_t::init()
       }
     }
 
-    dbg->message("stadt_t::init()", "Read %d house building rules", num_house_rules);
+    DBG_MESSAGE("stadt_t::init()", "Read %d house building rules", num_house_rules);
 
 
     num_road_rules = 0;
@@ -1856,13 +1999,13 @@ bool stadt_t::init()
       }
     }
 
-    dbg->message("stadt_t::init()", "Read %d road building rules", num_road_rules);
+    DBG_MESSAGE("stadt_t::init()", "Read %d road building rules", num_road_rules);
 
     house_rules = new struct rule_t [num_house_rules];
     road_rules = new struct rule_t [num_road_rules];
 
-
-    for(int i=0; i<num_house_rules; i++) {
+    int i;
+    for(i=0; i<num_house_rules; i++) {
       sprintf(buf, "house_%d", i+1);
       const char * rule = contents.get_string(buf, "");
       tstrncpy(house_rules[i].rule, rule+1, 12);
@@ -1871,11 +2014,11 @@ bool stadt_t::init()
       sprintf(buf, "house_%d.chance", i+1);
       house_rules[i].chance = contents.get_int(buf, 0);
 
-      dbg->debug("stadt_t::init()", "house: %d, '%s'", house_rules[i].chance, house_rules[i].rule);
+      DBG_DEBUG("stadt_t::init()", "house: %d, '%s'", house_rules[i].chance, house_rules[i].rule);
     }
 
 
-    for(int i=0; i<num_road_rules; i++) {
+    for(i=0; i<num_road_rules; i++) {
       sprintf(buf, "road_%d", i+1);
       const char * rule = contents.get_string(buf, "");
       tstrncpy(road_rules[i].rule, rule+1, 12);
@@ -1884,7 +2027,7 @@ bool stadt_t::init()
       sprintf(buf, "road_%d.chance", i+1);
       road_rules[i].chance = contents.get_int(buf, 0);
 
-      dbg->debug("stadt_t::init()", "road: %d, '%s'", road_rules[i].chance, road_rules[i].rule);
+      DBG_DEBUG("stadt_t::init()", "road: %d, '%s'", road_rules[i].chance, road_rules[i].rule);
     }
 
 

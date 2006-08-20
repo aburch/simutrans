@@ -29,6 +29,10 @@ private:
      */
     bool dirty;
 
+    /* to rotate the view (without the buildings)
+     * @author prissi
+     */
+    int rotation;
 
     koord ij_off;
 
@@ -53,6 +57,11 @@ public:
      */
     bool ist_dirty() const {return dirty;};
 
+    /* to rotate the view (without the buildings)
+     * @author prissi
+     */
+    void set_rotation(int r) {dirty=true; rotation=r; };
+    int get_rotation() const {return rotation; };
 
     /**
      * Ermittelt ij-Koordinate des Blickpunkts auf der Karte.

@@ -14,20 +14,20 @@ OSTYPE=mingw
 ifeq ($(OSTYPE),)
 #OSTYPE=cygwin
 #OSTYPE=mingw
-OSTYPE=linux-gnu
+#OSTYPE=linux-gnu
 endif
 
 export OSTYPE
 
 #OPT=profile
 #OPT=debug
-OPT=optimize
-#OPT=debug_optimize
+#OPT=optimize
+OPT=debug_optimize
 
 
-ifeq ($(SIM_OPTIMIZE),true)
-OPT=optimize
-endif
+#ifeq ($(SIM_OPTIMIZE),true)
+#OPT=optimize
+#endif
 
 
 
@@ -85,17 +85,17 @@ MAKE= make
 
 # C compiler options
 ifeq ($(OPT),profile)
-CFLAGS= -Wall -pg -O -pipe -fschedule-insns2 -fgcse -fstrict-aliasing -fexpensive-optimizations -march=i586 -g
+CFLAGS= -Wall -pg -O -pipe -fschedule-insns2 -fgcse -fstrict-aliasing -fexpensive-optimizations -march=i586 -g -minline-all-stringops
 LDFLAGS= -pg
 endif
 ifeq ($(OPT),optimize)
-CFLAGS= -Wall -O -fschedule-insns2 -fomit-frame-pointer -fgcse -fstrict-aliasing -fexpensive-optimizations -march=i586 -pipe $(OS_INC)
+CFLAGS= -Wall -O -fschedule-insns2 -fomit-frame-pointer -fgcse -fstrict-aliasing -fexpensive-optimizations -march=i586 -pipe $(OS_INC) -minline-all-stringops
 endif
 ifeq ($(OPT),debug)
-CFLAGS= -Wall -O -g -fschedule-insns2 -fgcse -fstrict-aliasing -fexpensive-optimizations -march=i586 -pipe
+CFLAGS= -Wall -O -g -fschedule-insns2 -fgcse -fstrict-aliasing -fexpensive-optimizations -march=i586 -pipe -minline-all-stringops
 endif
 ifeq ($(OPT),debug_optimize)
-CFLAGS= -Wall -O -g -fschedule-insns2 -fgcse -fstrict-aliasing -fexpensive-optimizations -march=i586 -pipe
+CFLAGS= -Wall -O -g -fschedule-insns2 -fgcse -fstrict-aliasing -fexpensive-optimizations -march=i586 -pipe -minline-all-stringops
 endif
 
 
@@ -108,10 +108,10 @@ ifeq ($(OPT),optimize)
 CXXFLAGS= -Wall -W -Wcast-align -Wcast-qual -Wpointer-arith -O -fomit-frame-pointer -march=i586 -pipe $(OS_OPT)
 endif
 ifeq ($(OPT),debug)
-CXXFLAGS= -Wall -W -Wcast-align -Wcast-qual -Wpointer-arith -march=i586 -g -pipe $(OS_OPT)
+CXXFLAGS=  -DDEBUG -Wall -W -Wcast-align -Wcast-qual -Wpointer-arith -march=i586 -g -pipe $(OS_OPT)
 endif
 ifeq ($(OPT),debug_optimize)
-CXXFLAGS= -Wall -W -Wcast-align -march=i586 -O -g -pipe $(OS_OPT)
+CXXFLAGS=  -DDEBUG -Wall -W -Wcast-align -march=i586 -O -g -pipe $(OS_OPT)
 endif
 
 
@@ -132,8 +132,7 @@ export CXXFLAGS
 
 # To link any special libraries, add the necessary -l commands here.
 SUB_OBJS=\
- utils/writepcx.o utils/log.o utils/image_encoder.o utils/simstring.o\
- utils/cstring_t.o utils/tocstring.o utils/searchfolder.o\
+ utils/log.o utils/simstring.o utils/cstring_t.o utils/tocstring.o utils/searchfolder.o\
  utils/cbuffer_t.o\
  dataobj/nodelist_t.o dataobj/nodes_12.o\
  dataobj/powernet.o\
@@ -169,7 +168,7 @@ SUB_OBJS=\
  gui/message_frame_t.o gui/message_stats_t.o gui/message_option_t.o  gui/message_info_t.o\
  gui/colors.o gui/welt.o gui/werkzeug_waehler.o\
  gui/werkzeug_parameter_waehler.o\
- gui/ticker_view_t.o gui/goods_frame_t.o gui/goods_stats_t.o\
+ gui/goods_frame_t.o gui/goods_stats_t.o\
  gui/halt_info.o gui/halt_detail.o gui/depot_frame.o\
  gui/halt_list_frame.o gui/halt_list_item.o gui/halt_list_filter_frame.o \
  gui/karte.o gui/stadt_info.o gui/fabrik_info.o \
@@ -195,6 +194,8 @@ SUB_OBJS=\
  besch/grund_besch.o\
  besch/tunnel_besch.o\
  besch/reader/sim_reader.o
+# utils/writepcx.o
+# utils/image_encoder.o
 # drivables/car_group_t.o\
 # drivables/car_t.o
 
@@ -250,14 +251,14 @@ OBJECTS= \
  simcity.o simwerkz.o simworld.o simplay.o simsound.o simintr.o \
  simmain.o  simskin.o simlinemgmt.o simline.o simmesg.o
 
-ifeq ($(OSTYPE),mingw)
-ASM_DISPLAY_IMG= asm/display_img16w.o
-else
-ASM_DISPLAY_IMG= asm/display_img16.o
-endif
-
-ASM_OBJECTS= \
- asm/pixcopy.o asm/colorpixcopy.o asm/display_img.o asm/display_img16.o asm/display_img16w.o
+#ifeq ($(OSTYPE),mingw)
+#ASM_DISPLAY_IMG= asm/display_img16w.o
+#else
+#ASM_DISPLAY_IMG= asm/display_img16.o
+#endif
+#
+#ASM_OBJECTS= \
+# asm/pixcopy.o asm/colorpixcopy.o asm/display_img.o asm/display_img16.o asm/display_img16w.o
 
 
 all:    16
@@ -281,12 +282,15 @@ clean:
 normal:	$(OBJECTS) simsys_d.o simgraph.o
 	$(LN) $(LDFLAGS) -o sim $(OBJECTS) simsys_d.o simgraph.o /usr/local/lib/liballeg.a $(SUB_OBJS) $(STD_LIBS)
 
+
 normal16:	$(OBJECTS) simsys_s16.o simgraph16.o $(ASM_DISPLAY_IMG)
 ifeq ($(OSTYPE),mingw)
 	windres -O COFF simwin.rc simres.o
-	$(LN) $(LDFLAGS) -o sim $(OBJECTS) simsys_s16.o simgraph16.o $(ASM_DISPLAY_IMG) $(SUB_OBJS) simres.o $(STD_LIBS) $(SDLLIBS)
+	$(LN) $(LDFLAGS) -o sim $(OBJECTS) simsys_s16.o simgraph16.o $(SUB_OBJS) simres.o $(STD_LIBS) $(SDLLIBS)
+#	$(LN) $(LDFLAGS) -o sim $(OBJECTS) simsys_s16.o simgraph16.o $(ASM_DISPLAY_IMG) $(SUB_OBJS) simres.o $(STD_LIBS) $(SDLLIBS)
 else
 	$(LN) $(LDFLAGS) -o sim $(OBJECTS) simsys_s16.o simgraph16.o $(ASM_DISPLAY_IMG) $(SUB_OBJS) $(STD_LIBS) $(SDLLIBS)
+#	$(LN) $(LDFLAGS) -o sim $(OBJECTS) simsys_s16.o simgraph16.o $(ASM_DISPLAY_IMG) $(SUB_OBJS) $(STD_LIBS) $(SDLLIBS)
 endif
 
 allegro16:	$(OBJECTS) simsys_d16.o simgraph16.o

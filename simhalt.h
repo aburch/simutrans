@@ -503,7 +503,7 @@ public:
     void setze_lager(lagerhaus_t *l) {lager = l;};
 #endif
     bool add_grund(grund_t *gb);
-    void rem_grund(grund_t *gb);
+    void rem_grund(grund_t *gb,bool final=false);
 
     int gib_grund_count() const {return grund.count();};
 
@@ -512,6 +512,10 @@ public:
     bool ist_da(koord pos) const;
     koord gib_basis_pos() const;
 
+    /* return the closest square that belongs to this halt
+     * @author prissi
+     */
+     koord get_next_pos( koord start ) const;
 
     /**
      * gibt Gesamtmenge derware vom typ typ zurück
@@ -526,6 +530,12 @@ public:
      */
     int gib_ware_fuer_ziel(const ware_besch_t *warentyp,
 			   const koord ziel) const;
+
+    /**
+     * gibt Gesamtmenge derware vom typ typ fuer zwischenziel zurück
+     * @author prissi
+     */
+    int gib_ware_fuer_zwischenziel(const ware_besch_t *warentyp, const koord zwischenziel) const;
 
 
     bool nimmt_an(const ware_besch_t *warentyp);

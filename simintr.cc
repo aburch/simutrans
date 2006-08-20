@@ -89,11 +89,8 @@ long get_average_frame_time()
 void
 intr_refresh_display(bool dirty)
 {
-    welt_ansicht->display( dirty );
-
-    win_display_flush(welt_modell->gib_zeit_ms(),
-                      welt_modell->gib_spieler(0)->kennfarbe,
-	              welt_modell->gib_spieler(0)->gib_konto_als_double());
+	welt_ansicht->display( dirty );
+	win_display_flush(	welt_modell->gib_zeit_ms(), welt_modell->gib_spieler(0)->kennfarbe, welt_modell->gib_spieler(0)->gib_konto_als_double() );
 }
 
 
@@ -103,7 +100,6 @@ intr_routine(long delta_t)
 #ifdef SHOW_TIME
 	const long t0 = get_current_time_millis();
 #endif
-
 
 	refresh_counter --;
 
@@ -118,10 +114,8 @@ intr_routine(long delta_t)
 	const long t1 = get_current_time_millis();
 #endif
 
-
 	welt_modell->sync_prepare();
 	welt_modell->sync_step(delta_t);
-
 
 	const long t3 = get_current_time_millis();
 
@@ -141,13 +135,10 @@ intr_routine(long delta_t)
 	    }
 	}
 
-
-
 #ifdef SHOW_TIME
-	dbg->message("intr_routine(long delta_t)",
+	DBG_MESSAGE("intr_routine(long delta_t)",
 		     "step %ld disp %ld ms, total %ld ms",
 		     (long)(t3-t1),(long)(t1-t0),(long)(t3-t0));
-
 #endif
 }
 
@@ -198,7 +189,7 @@ interrupt_check(char *caller_info)
 
       if(strncmp(caller_info, "simtime", 7)) {
 
-      dbg->message("interrupt_check()",
+      DBG_MESSAGE("interrupt_check()",
 		   "%ld from %s - %s", now-last_call_time, last_caller, caller_info);
 
       }

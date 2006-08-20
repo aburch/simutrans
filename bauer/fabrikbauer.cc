@@ -172,19 +172,19 @@ const fabrik_besch_t *fabrikbauer_t::get_random_consumer(bool in_city)
 	}
 	// no consumer installed?
 	if(consumer.count()==0) {
-dbg->message("fabrikbauer_t::get_random_consumer()","No suitable consumer found");
+DBG_MESSAGE("fabrikbauer_t::get_random_consumer()","No suitable consumer found");
 		return NULL;
 	}
 	// now find a random one
 	int next=simrand(gewichtung);
 	for(  int i=1;  i<consumer.count();  i++  ) {
 		if(next < consumer.at(i)->gib_gewichtung()) {
-dbg->message("fabrikbauer_t::get_random_consumer()","consumer %s found.",consumer.at(i)->gib_name());
+DBG_MESSAGE("fabrikbauer_t::get_random_consumer()","consumer %s found.",consumer.at(i)->gib_name());
 			return consumer.at(i);
 		}
 		next -= consumer.at(i)->gib_gewichtung();
 	}
-dbg->message("fabrikbauer_t::get_random_consumer()","consumer %s found.",consumer.at(0)->gib_name());
+DBG_MESSAGE("fabrikbauer_t::get_random_consumer()","consumer %s found.",consumer.at(0)->gib_name());
 	return consumer.at(0);
 }
 
@@ -244,7 +244,7 @@ fabrikbauer_t::finde_anzahl_hersteller(const ware_besch_t *ware)
 			}
 		}
 	}
-dbg->message("fabrikbauer_t::finde_anzahl_hersteller()","%i producer for good '%s' fount.", anzahl, translator::translate(ware->gib_name()));
+DBG_MESSAGE("fabrikbauer_t::finde_anzahl_hersteller()","%i producer for good '%s' fount.", anzahl, translator::translate(ware->gib_name()));
 	return anzahl;
 }
 
@@ -267,7 +267,7 @@ fabrikbauer_t::finde_hersteller(const ware_besch_t *ware,int nr)
 				besch = tmp;
 				nr --;
 				if(nr<0) {
-dbg->message("fabrikbauer_t::finde_hersteller()","producer for good '%s' was found %s", translator::translate(ware->gib_name()),besch->gib_name());
+DBG_MESSAGE("fabrikbauer_t::finde_hersteller()","producer for good '%s' was found %s", translator::translate(ware->gib_name()),besch->gib_name());
 					return besch;
 				}
 			}
@@ -429,7 +429,8 @@ fabrikbauer_t::baue_fabrik(karte_t * welt, koord3d *parent, const fabrik_besch_t
 		koord dim = besch->gib_groesse(rotate);
 
 		koord k;
-		halt = welt->gib_spieler(0)->halt_add(pos.gib_2d());
+//		halt = haltestelle_t::create(welt, pos.gib_2d(), welt->gib_spieler(1) );
+		halt = welt->gib_spieler(1)->halt_add(pos.gib_2d());
 
 		halt->set_pax_enabled( make_passenger );
 		halt->set_ware_enabled( true );
@@ -558,7 +559,7 @@ fabrikbauer_t::baue_hierarchie(karte_t * welt, koord3d *parent, const fabrik_bes
 		koord k=pos->gib_2d();
 
 		koord size=info->gib_haus()->gib_groesse();
-dbg->message("fabrikbauer_t::baue_hierarchie","Search place for city factory (%i,%i) size.",size.x,size.y);
+DBG_MESSAGE("fabrikbauer_t::baue_hierarchie","Search place for city factory (%i,%i) size.",size.x,size.y);
 
 		sf.stadt = welt->suche_naechste_stadt(k);
 		if(sf.stadt==NULL) {
@@ -573,7 +574,7 @@ dbg->message("fabrikbauer_t::baue_hierarchie","Search place for city factory (%i
 		// Ansonsten erscheint mir das am realistischtsten..
 		k = bauplatz_mit_strasse_sucher_t(welt).suche_platz(sf.stadt->gib_pos(), size.x, size.y,&is_rotate);
 		rotate = is_rotate;
-		dbg->message("fabrikbauer_t::baue_hierarchie","Construction at (%i,%i).",k.x,k.y);
+		DBG_MESSAGE("fabrikbauer_t::baue_hierarchie","Construction at (%i,%i).",k.x,k.y);
 		// B:
 		// Gefällt mir auch. Die Endfabriken stehen eventuell etwas außerhalb der Stadt
 		// aber nicht weit weg.
@@ -591,7 +592,7 @@ dbg->message("fabrikbauer_t::baue_hierarchie","Search place for city factory (%i
 			return 0;
 	}
 
-dbg->message("fabrikbauer_t::baue_hierarchie","Construction of %s at (%i,%i).",info->gib_name(),pos->x,pos->y);
+DBG_MESSAGE("fabrikbauer_t::baue_hierarchie","Construction of %s at (%i,%i).",info->gib_name(),pos->x,pos->y);
 INT_CHECK("fabrikbauer 594");
 
 	const fabrik_t *our_fab=baue_fabrik(welt, parent, info, rotate&1, *pos, sp);
@@ -609,7 +610,7 @@ INT_CHECK("fabrikbauer 596");
 		int lcount = lieferant->gib_anzahl();
 		int lfound = 0;	// number of found producers
 
-dbg->message("fabrikbauer_t::baue_hierarchie","lieferanten %i, lcount %i (need %i of %s)",info->gib_lieferanten(),lcount,verbrauch,ware->gib_name());
+DBG_MESSAGE("fabrikbauer_t::baue_hierarchie","lieferanten %i, lcount %i (need %i of %s)",info->gib_lieferanten(),lcount,verbrauch,ware->gib_name());
 
 		// Hajo: search if there already is one or two (crossconnect everything if possible)
 		const slist_tpl<fabrik_t *> & list = welt->gib_fab_list();
@@ -645,7 +646,7 @@ dbg->message("fabrikbauer_t::baue_hierarchie","lieferanten %i, lcount %i (need %
 							// assume free capacity is just total capacity divided by the number of demander
 							verbrauch -= produktion/(lieferziel_anzahl+1);
 
-dbg->message("fabrikbauer_t::baue_hierarchie","supplier %s can supply approx %i of %s to %i companies",fab->gib_besch()->gib_name(),produktion,ware->gib_name(),lieferziel_anzahl);
+DBG_MESSAGE("fabrikbauer_t::baue_hierarchie","supplier %s can supply approx %i of %s to %i companies",fab->gib_besch()->gib_name(),produktion,ware->gib_name(),lieferziel_anzahl);
 							break;
 						}
 					}
@@ -666,17 +667,17 @@ dbg->message("fabrikbauer_t::baue_hierarchie","supplier %s can supply approx %i 
 
 		// try to add all types of factories until demand is satisfied
 		for(int j=0;j<20 &&  lcount>0  &&  verbrauch>0;j++) {
-dbg->message("fabrikbauer_t::baue_hierarchie","find lieferant for %s.",info->gib_name());
+DBG_MESSAGE("fabrikbauer_t::baue_hierarchie","find lieferant for %s.",info->gib_name());
 			const fabrik_besch_t *hersteller = finde_hersteller(ware,j%anzahl_hersteller);
 			if(info==hersteller) {
-dbg->message("fabrikbauer_t::baue_hierarchie()","found myself!");
+DBG_MESSAGE("fabrikbauer_t::baue_hierarchie()","found myself!");
 				return n;
 			}
 			int rotate = simrand(4);
 			koord3d k = finde_zufallsbauplatz(welt, *pos, DISTANCE, hersteller->gib_haus()->gib_groesse(rotate),hersteller->gib_platzierung()==fabrik_besch_t::Wasser);
 INT_CHECK("fabrikbauer 679");
 			if(welt->lookup(k)) {
-dbg->message("fabrikbauer_t::baue_hierarchie","Try to built lieferant %s at (%i,%i) for %s.",hersteller->gib_name(),k.x,k.y,info->gib_name());
+DBG_MESSAGE("fabrikbauer_t::baue_hierarchie","Try to built lieferant %s at (%i,%i) for %s.",hersteller->gib_name(),k.x,k.y,info->gib_name());
 				n += baue_hierarchie(welt, pos, hersteller, rotate, &k, sp);
 				lcount --;
 
@@ -689,7 +690,7 @@ dbg->message("fabrikbauer_t::baue_hierarchie","Try to built lieferant %s at (%i,
 						if(fab->gib_besch()->gib_produkt(gg)->gib_ware()==ware) {
 							int produktion = (fab->max_produktion()*fab->gib_besch()->gib_produkt(gg)->gib_faktor()*100)/256;
 							verbrauch -= produktion;
-dbg->message("fabrikbauer_t::baue_hierarchie","new supplier %s can supply approx %i of %s to us",fab->gib_besch()->gib_name(),produktion,ware->gib_name());
+DBG_MESSAGE("fabrikbauer_t::baue_hierarchie","new supplier %s can supply approx %i of %s to us",fab->gib_besch()->gib_name(),produktion,ware->gib_name());
 							break;
 						}
 					}

@@ -180,7 +180,7 @@ vehikelbauer_t::gib_info(const ware_besch_t *wtyp,
   }
     }
 
-    dbg->message("vehikelbauer_t::gib_info()",
+    DBG_MESSAGE("vehikelbauer_t::gib_info()",
      "no vehicle matches way type %d, good %d, min. power %d",
      vtyp, wtyp, min_power);
 
@@ -245,7 +245,7 @@ int vehikelbauer_t::vehikel_can_lead( const vehikel_besch_t *v )
     return 1;
   }
   for(  int i=1;  i<v->gib_vorgaenger_count();  i++  ) {
-//dbg->message( "vehikelbauer_t::vehikel_can_lead","try freight car %s %i %p",v->gib_name(),v->gib_vorgaenger_count(),v->gib_vorgaenger(i));
+//DBG_MESSAGE( "vehikelbauer_t::vehikel_can_lead","try freight car %s %i %p",v->gib_name(),v->gib_vorgaenger_count(),v->gib_vorgaenger(i));
     if(  v->gib_vorgaenger(i)==NULL  ) {
       // ok, can lead a convoi
       return 1;
@@ -273,7 +273,7 @@ const vehikel_besch_t *vehikelbauer_t::vehikel_search(vehikel_besch_t::weg_t typ
     return NULL;
   }
 
-dbg->message( "vehikelbauer_t::vehikel_search()","for speed %i, power %i",target_speed,target_power);
+DBG_MESSAGE( "vehikelbauer_t::vehikel_search()","for speed %i, power %i",target_speed,target_power);
 
   besch = NULL;
 //  leistung <<= 6; // to account for gear
@@ -293,7 +293,7 @@ dbg->message( "vehikelbauer_t::vehikel_search()","for speed %i, power %i",target
           if(  iter.get_current_value()->gib_zuladung()>0   &&  power>=target_power  ) {
             // it is a good car (and road vehicles need power)
             if(  iter.get_current_value()->gib_ware()->is_interchangeable( target_freight )  ) {
-dbg->message( "vehikelbauer_t::vehikel_search","try freight car %s",iter.get_current_value()->gib_name());
+DBG_MESSAGE( "vehikelbauer_t::vehikel_search","try freight car %s",iter.get_current_value()->gib_name());
               // freight category ok
 #if 1
               int difference=0;	// smaller is better
@@ -316,11 +316,11 @@ dbg->message( "vehikelbauer_t::vehikel_search","try freight car %s",iter.get_cur
               {
                   // then we want this vehicle!
                   besch = iter.get_current_value();
-dbg->message( "vehikelbauer_t::vehikel_search","Found engine %s",besch->gib_name());
+DBG_MESSAGE( "vehikelbauer_t::vehikel_search","Found engine %s",besch->gib_name());
               }
 #else
               if(  besch==NULL  ||  (besch->gib_zuladung()+besch->gib_geschw())<(iter.get_current_value()->gib_zuladung()+iter.get_current_value()->gib_geschw())  ) {
-dbg->message( "vehikelbauer_t::vehikel_search","Found freight car %s",iter.get_current_value()->gib_name());
+DBG_MESSAGE( "vehikelbauer_t::vehikel_search","Found freight car %s",iter.get_current_value()->gib_name());
                 // we have more freigth here ....
                 // then we want this vehicle!
                 besch = iter.get_current_value();
@@ -353,7 +353,7 @@ dbg->message( "vehikelbauer_t::vehikel_search","Found freight car %s",iter.get_c
               {
                   // then we want this vehicle!
                   besch = iter.get_current_value();
-dbg->message( "vehikelbauer_t::vehikel_search","Found engine %s",besch->gib_name());
+DBG_MESSAGE( "vehikelbauer_t::vehikel_search","Found engine %s",besch->gib_name());
               }
             }
           }
@@ -363,7 +363,7 @@ dbg->message( "vehikelbauer_t::vehikel_search","Found engine %s",besch->gib_name
   } // end of iteration
   // no vehicle found!
   if(  besch==NULL  ) {
-    dbg->message( "vehikelbauer_t::vehikel_search()","could not find a suitable vehicle! (speed %i, power %i)",target_speed,target_power);
+    DBG_MESSAGE( "vehikelbauer_t::vehikel_search()","could not find a suitable vehicle! (speed %i, power %i)",target_speed,target_power);
   }
   return besch;
 }
@@ -388,7 +388,7 @@ const vehikel_besch_t *vehikelbauer_t::vehikel_fuer_leistung(int leistung, vehik
       // an in the moment we support no tenders for steam engines
       (iter.get_current_value()->gib_nachfolger_count()==0)
     ) {
-dbg->message( "vehikelbauer_t::vehikel_fuer_leistung()","%s: vorgaenger %i nachfolger %i",iter.get_current_value()->gib_name(),iter.get_current_value()->gib_vorgaenger_count(),iter.get_current_value()->gib_nachfolger_count());
+DBG_MESSAGE( "vehikelbauer_t::vehikel_fuer_leistung()","%s: vorgaenger %i nachfolger %i",iter.get_current_value()->gib_name(),iter.get_current_value()->gib_vorgaenger_count(),iter.get_current_value()->gib_nachfolger_count());
       // ok, might be useful: Now, check for intro year
       const unsigned month = iter.get_current_value()->get_intro_year() * 12 + iter.get_current_value()->get_intro_month();
 
@@ -412,7 +412,7 @@ dbg->message( "vehikelbauer_t::vehikel_fuer_leistung()","%s: vorgaenger %i nachf
   }
   // no vehicle found!
   if(  besch==NULL  ) {
-    dbg->message( "spieler_t::create_rail_transport_vehikel()","could not find a suitable rail vehicle!");
+    DBG_MESSAGE( "spieler_t::create_rail_transport_vehikel()","could not find a suitable rail vehicle!");
   }
   return besch;
 }

@@ -31,8 +31,8 @@
 void
 display_progress(int part, int total)
 {
-    const int disp_width = display_get_width();
-    const int disp_height = display_get_height();
+    extern int disp_width;
+    extern int disp_height;
 
     // umriß
     display_ddd_box((disp_width-total-4)/2, disp_height/2-9, total+3, 18, GRAU6, GRAU4);
@@ -55,6 +55,8 @@ display_icon_leiste(const int color, int basis_bild)
 {
     static int old_color = -1;
     int dirty;
+    extern int disp_width;
+    extern int disp_height;
 
     if(color != old_color
 #ifdef USE_SOFTPOINTER
@@ -67,7 +69,7 @@ display_icon_leiste(const int color, int basis_bild)
 	dirty = FALSE;
     }
 
-    display_fillbox_wh(0,0, display_get_width(), 32, MN_GREY1, dirty);
+    display_fillbox_wh(0,0, disp_width, 32, MN_GREY1, dirty);
 
     display_color_img(basis_bild++,0,0, color, FALSE, dirty);
     display_color_img(basis_bild++,64,0, color, FALSE, dirty);
@@ -83,8 +85,6 @@ display_icon_leiste(const int color, int basis_bild)
     display_color_img(basis_bild++,576,0, color, FALSE, dirty);
 	// added for extended menus
     display_color_img(basis_bild++,640,0, color, FALSE, dirty);
-
-
 
     /*
     display_img(basis_bild++,0,0, FALSE, dirty);
@@ -103,6 +103,7 @@ display_icon_leiste(const int color, int basis_bild)
 }
 
 
+#if 0
 /**
  * Zeichnet eine Trennlinie
  * @author Niels Roest
@@ -112,7 +113,7 @@ void display_divider(int x, int y, int w)
   display_fillbox_wh(x,y   ,w,1, MN_GREY4, FALSE);
   display_fillbox_wh(x,y+1 ,w,1, MN_GREY0, FALSE);
 }
-
+#endif
 
 
 /**
@@ -120,19 +121,14 @@ void display_divider(int x, int y, int w)
  * @author Hj. Malthaner
  */
 void
-display_flush(int stunden4,
-	      int color,
-              double konto,
-	      const char *day_str,
-	      const char *info)
+display_flush(int stunden4, int color, double konto, const char *day_str, const char *info)
 {
     char buffer[256];
-    const int disp_width = display_get_width();
-    const int disp_height = display_get_height();
+    extern int disp_width;
+    extern int disp_height;
 
-    display_fillbox_wh(0, disp_height-17, disp_width, 1, MN_GREY4, FALSE);
-    display_fillbox_wh(0, disp_height-16, disp_width, 16, MN_GREY1, FALSE);
-
+    display_fillbox_wh(0, disp_height-16, disp_width, 1, MN_GREY4, FALSE);
+    display_fillbox_wh(0, disp_height-15, disp_width, 15, MN_GREY1, FALSE);
 
     sprintf(buffer,"%s %2d:%02dh", day_str, stunden4 >> 2, (stunden4 & 3)*15);
     display_proportional(24, disp_height-12, buffer, ALIGN_LEFT, SCHWARZ, TRUE);
@@ -144,8 +140,6 @@ display_flush(int stunden4,
 	display_proportional(344, disp_height-12, buffer, ALIGN_LEFT, DUNKELROT, TRUE);
     }
 
-
     display_proportional(480, disp_height-12, info, ALIGN_LEFT, BLACK, TRUE);
-
     display_flush_buffer();
 }

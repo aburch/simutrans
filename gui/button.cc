@@ -140,7 +140,7 @@ static void display_button_image(int x, int y, int number, bool pushed)
     break;
   }
 
-  display_img(button, x, y, false, false);
+  display_color_img(button, x, y, 0, false, false);
 }
 
 
@@ -278,48 +278,72 @@ void button_t::zeichnen(koord offset, int button_color) const
   switch (type) {
    case box: // old, 4-line box
     if (pressed) {
-      display_ddd_box(bx, by, bw, bh, MN_GREY0, MN_GREY4);
+      display_ddd_box_clip(bx, by, bw, bh, MN_GREY0, MN_GREY4);
       display_fillbox_wh_clip(bx+1, by+1, bw-2, bh-2, background, false);
     } else {
-      display_ddd_box(bx, by, bw, bh, GRAU6, GRAU3);
+      display_ddd_box_clip(bx, by, bw, bh, GRAU6, GRAU3);
       display_fillbox_wh_clip(bx+1, by+1, bw-2, bh-2, background, false);
     }
     display_proportional_clip(bx+4,by+(bh-large_font_height)/2, text, ALIGN_LEFT, b_enabled ? button_color : GRAU4, true);
     break;
    case roundbox: // new box with round corners
 #if 1
+#if 1
+	if (pressed) {
+		display_fillbox_wh_clip(bx, by, bw, 1, MN_GREY1, true);
+		display_fillbox_wh_clip(bx+1, by+1, bw-2, 1, SCHWARZ, true);
+		display_fillbox_wh_clip(bx+2, by+2, bw-2, bh-4, MN_GREY1, true);
+		display_fillbox_wh_clip(bx, by+bh-2, bw, 1, MN_GREY3, true);
+		display_fillbox_wh_clip(bx, by+bh-1, bw, 1, WEISS, true);
+		display_vline_wh_clip(bx+bw-2, by+1, bh-2, MN_GREY4, true);
+		display_vline_wh_clip(bx+bw-1, by+1, bh-1, WEISS, true);
+		display_vline_wh_clip(bx, by, bh, MN_GREY1, true);
+		display_vline_wh_clip(bx+1, by+1, bh-2, SCHWARZ, true);
+	}
+	else {
+		display_fillbox_wh_clip(bx, by, bw, 1, WEISS, true);
+		display_fillbox_wh_clip(bx+1, by+1, bw-2, 1, MN_GREY4, true);
+		display_fillbox_wh_clip(bx+2, by+2, bw-2, bh-4, MN_GREY3, true);
+		display_fillbox_wh_clip(bx, by+bh-2, bw, 1, MN_GREY1, true);
+		display_fillbox_wh_clip(bx, by+bh-1, bw, 1, SCHWARZ, true);
+		display_vline_wh_clip(bx+bw-2, by+1, bh-2, MN_GREY1, true);
+		display_vline_wh_clip(bx+bw-1, by+1, bh-1, SCHWARZ, true);
+		display_vline_wh_clip(bx, by, bh, WEISS, true);
+		display_vline_wh_clip(bx+1, by+1, bh-2, MN_GREY4, true);
+	}
+#else
     // not exactly round, but heck. new 3d-look.
     PUSH_CLIP(bx, by, bw, bh+1);
     mark_rect_dirty_wc(bx, by, bx+bw-1, by+bh-1);
     if (pressed) {
 
-      display_img(b_cap_left_p, bx, by, false, false);
+      display_color_img(b_cap_left_p, 0, bx, by, false, false);
       for(int x=4; x<bw-4; x+=64) {
-	display_img(b_body_p, bx+x, by, false, false);
+	display_color_img(b_body_p, bx+x, by, 0, false, false);
       }
-      display_img(b_cap_right_p, bx+bw-4, by, false, false);
+      display_color_img(b_cap_right_p, bx+bw-4, by, 0, false, false);
 
     } else {
 
-      display_img(b_cap_left, bx, by, false, false);
+      display_color_img(b_cap_left, bx, by, 0, false, false);
       for(int x=4; x<bw-4; x+=64) {
-	display_img(b_body, bx+x, by, false, false);
+	display_color_img(b_body, bx+x, by, 0, false, false);
       }
-      display_img(b_cap_right, bx+bw-4, by, false, false);
+      display_color_img(b_cap_right, bx+bw-4, by, 0, false, false);
 
     }
     POP_CLIP();
-
+#endif
 #else
     // original roundbox
-    PUSH_CLIP(bx, by, bw, bh);
+//    PUSH_CLIP(bx, by, bw, bh);
     if (pressed) {
       display_fillbox_wh_clip(bx+1, by+1, bw-2, bh-2, MN_GREY1, false);
 
       display_fillbox_wh_clip(bx+2, by,      bw-4, 1, MN_GREY0, true);
       display_fillbox_wh_clip(bx+2, by+bh-1, bw-4, 1, MN_GREY4, true);
-      display_vline_wh(bx,      by+2, bh-4, MN_GREY0, true);
-      display_vline_wh(bx+bw-1, by+2, bh-4, MN_GREY4, true);
+      display_vline_wh_clip(bx,      by+2, bh-4, MN_GREY0, true);
+      display_vline_wh_clip(bx+bw-1, by+2, bh-4, MN_GREY4, true);
       display_pixel(bx+1,    by+1,    MN_GREY0);
       display_pixel(bx+1,    by+bh-2, MN_GREY0);
       display_pixel(bx+bw-2, by+1,    MN_GREY0);
@@ -329,14 +353,14 @@ void button_t::zeichnen(koord offset, int button_color) const
 
       display_fillbox_wh_clip(bx+2, by,      bw-4, 1, MN_GREY4, true);
       display_fillbox_wh_clip(bx+2, by+bh-1, bw-4, 1, MN_GREY0, true);
-      display_vline_wh(bx,      by+2, bh-4, MN_GREY4, true);
-      display_vline_wh(bx+bw-1, by+2, bh-4, MN_GREY0, true);
+      display_vline_wh_clip(bx,      by+2, bh-4, MN_GREY4, true);
+      display_vline_wh_clip(bx+bw-1, by+2, bh-4, MN_GREY0, true);
       display_pixel(bx+1,    by+1,    MN_GREY4);
       display_pixel(bx+1,    by+bh-2, MN_GREY1);
       display_pixel(bx+bw-2, by+1,    MN_GREY1);
       display_pixel(bx+bw-2, by+bh-2, MN_GREY1);
     }
-    POP_CLIP();
+    //POP_CLIP();
 #endif
     display_proportional_clip(bx+(bw>>1),by+(bh-large_font_height)/2, text, ALIGN_MIDDLE, b_enabled ? button_color : GRAU4, true);
     break;
@@ -363,7 +387,7 @@ void button_t::zeichnen(koord offset, int button_color) const
    case scrollbar:
 #if 1
     // new 3d-look scrollbar knob
-    PUSH_CLIP(bx, by, bw, bh);
+//    PUSH_CLIP(bx, by, bw, bh);
     mark_rect_dirty_wc(bx, by, bx+bw-1, by+bh-1);
     if (pressed) {
       display_fillbox_wh_clip(bx+2, by+2, bw-3, bh-3, MN_GREY1, false);
@@ -390,21 +414,21 @@ void button_t::zeichnen(koord offset, int button_color) const
       display_vline_wh_clip  (bx+bw-1, by, bh,   BLACK, false);
       display_fillbox_wh_clip(bx, by+bh-1, bw,1, BLACK, false);
     }
-    POP_CLIP();
+//    POP_CLIP();
 #else
     // original scrollbar knob
     if (pressed) {
       display_fillbox_wh_clip(bx, by, bw, 1, MN_GREY0, false);
-      display_vline_wh(bx, by+1, bh-2, MN_GREY0, true);
+      display_vline_wh_clip(bx, by+1, bh-2, MN_GREY0, true);
       display_fillbox_wh_clip(bx+1, by+1, bw-2, bh-2, MN_GREY1, false);
       display_fillbox_wh_clip(bx, by+bh-1, bw, 1, MN_GREY4, false);
       display_vline_wh(bx+bw-1, by, bh-1, MN_GREY4, true);
     } else {
       display_fillbox_wh_clip(bx, by, bw, 1, MN_GREY4, false);
-      display_vline_wh(bx, by+1, bh-2, MN_GREY4, true);
+      display_vline_wh_clip(bx, by+1, bh-2, MN_GREY4, true);
       display_fillbox_wh_clip(bx+1, by+1, bw-2, bh-2, MN_GREY3, false);
       display_fillbox_wh_clip(bx, by+bh-1, bw, 1, MN_GREY1, false);
-      display_vline_wh(bx+bw-1, by, bh-1, MN_GREY1, true);
+      display_vline_wh_clip(bx+bw-1, by, bh-1, MN_GREY1, true);
     }
 #endif
     break;

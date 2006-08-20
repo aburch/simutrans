@@ -168,6 +168,14 @@ private:
 
 
     /**
+     * for passenger generation
+     * @author prissi
+     */
+    int pax_zeit;
+    int pax_intervall;
+
+
+    /**
      * Zeitakkumulator für Produktion
      * @author Hj. Malthaner
      */

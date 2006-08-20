@@ -9,6 +9,8 @@
 
 #ifdef __BEOS__
 #include "/boot/develop/tools/gnupro/include/SDL/SDL.h"
+#elif _MSC_VER
+#include <SDL.h>
 #else
 #include <SDL/SDL.h>
 #endif
@@ -433,6 +435,9 @@ static void internal_GetEvents(int wait)
     // do low level special stuff here
     switch(event.key.keysym.sym) {
 
+    case SDLK_KP0:
+      sys_event.code = '0';
+      break;
     case SDLK_KP1:
       sys_event.code = '1';
       break;

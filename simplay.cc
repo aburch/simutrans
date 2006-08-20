@@ -119,13 +119,19 @@ spieler_t::spieler_t(karte_t *wl, int color)
 
     for (int year=0; year<MAX_HISTORY_YEARS; year++) {
       for (int cost_type=0; cost_type<MAX_COST; cost_type++) {
-		finance_history_year[year][cost_type] = 0;
+				finance_history_year[year][cost_type] = 0;
+				if ((cost_type == COST_CASH) || (cost_type == COST_NETWEALTH)) {
+					finance_history_year[year][cost_type] = umgebung_t::starting_money;
+				}
       }
     }
 
     for (int month=0; month<MAX_HISTORY_MONTHS; month++) {
       for (int cost_type=0; cost_type<MAX_COST; cost_type++) {
-		finance_history_month[month][cost_type] = 0;
+				finance_history_month[month][cost_type] = 0;
+				if ((cost_type == COST_CASH) || (cost_type == COST_NETWEALTH)) {
+					finance_history_month[month][cost_type] = umgebung_t::starting_money;
+				}
       }
     }
 
@@ -305,8 +311,8 @@ spieler_t::display_messages(const int xoff, const int yoff, const int width)
 
 	if(text_alter[n] >= -80) {
 
-	    display_proportional( x+xoff+1, y+yoff+1, texte[n], ALIGN_LEFT, SCHWARZ, true);
-	    display_proportional( x+xoff, y+yoff, texte[n], ALIGN_LEFT, kennfarbe+3, true);
+	    display_proportional_clip( x+xoff+1, y+yoff+1, texte[n], ALIGN_LEFT, SCHWARZ, true);
+	    display_proportional_clip( x+xoff, y+yoff, texte[n], ALIGN_LEFT, kennfarbe+3, true);
 
 	    last_displayed_message = n;
 	}
@@ -455,7 +461,8 @@ void spieler_t::neues_jahr()
 */
 void spieler_t::roll_finance_history_month()
 {
-	for (int i=MAX_HISTORY_MONTHS-1; i>0; i--)
+        int i;
+	for (i=MAX_HISTORY_MONTHS-1; i>0; i--)
 	{
 		for (int cost_type = 0; cost_type<MAX_COST; cost_type++)
 		{
@@ -466,12 +473,16 @@ void spieler_t::roll_finance_history_month()
 	for (int i=0;i<MAX_COST;i++)
 	{
 		finance_history_month[0][i] = 0;
+		if ((i == COST_ASSETS) || (i == COST_NETWEALTH)) {
+			finance_history_month[0][i] = finance_history_month[1][i];
+		}
 	}
 }
 
 void spieler_t::roll_finance_history_year()
 {
-	for (int i=MAX_HISTORY_YEARS-1; i>0; i--)
+        int i;
+	for (i=MAX_HISTORY_YEARS-1; i>0; i--)
 	{
 		for (int cost_type = 0; cost_type<MAX_COST; cost_type++)
 		{
@@ -482,6 +493,9 @@ void spieler_t::roll_finance_history_year()
 	for (int i=0;i<MAX_COST;i++)
 	{
 		finance_history_year[0][i] = 0;
+		if ((i == COST_ASSETS) || (i == COST_NETWEALTH)) {
+			finance_history_year[0][i] = finance_history_year[1][i];
+		}
 	}
 }
 
@@ -515,9 +529,11 @@ void spieler_t::calc_finance_history()
     finance_history_year[0][COST_ASSETS] = assets;
     finance_history_year[0][COST_NETWEALTH] = assets + konto;
     finance_history_year[0][COST_CASH] = konto;
+		finance_history_year[0][COST_MARGIN] = (finance_history_year[0][COST_VEHICLE_RUN] + finance_history_year[0][COST_MAINTENANCE]) != 0 ? finance_history_year[0][COST_OPERATING_PROFIT] / abs((finance_history_year[0][COST_VEHICLE_RUN] + finance_history_year[0][COST_MAINTENANCE])) : 0;
     finance_history_month[0][COST_ASSETS] = assets;
     finance_history_month[0][COST_NETWEALTH] = assets + konto;
     finance_history_month[0][COST_CASH] = konto;
+		finance_history_month[0][COST_MARGIN] = (finance_history_month[0][COST_VEHICLE_RUN] + finance_history_month[0][COST_MAINTENANCE]) != 0 ? finance_history_month[0][COST_OPERATING_PROFIT] / abs((finance_history_month[0][COST_VEHICLE_RUN] + finance_history_month[0][COST_MAINTENANCE])) : 0;
 
     /*
     char x1[128], y1[128], x2[128], y2[128], y3[128], buffer[128];
@@ -527,7 +543,7 @@ void spieler_t::calc_finance_history()
     sprintf(y2, "%d", finance_history_year[0][COST_NETWEALTH]);
     sprintf(y3, "%f", assets + konto);
     sprintf(buffer, "%s, %s, %s, %s, %s", x1, y1, x2, y2, y3);
-    dbg->message("draw chart: ", buffer);
+    DBG_MESSAGE("draw chart: ", buffer);
     */
 }
 
@@ -535,20 +551,7 @@ void spieler_t::calc_finance_history()
 sint64
 spieler_t::buche(const long betrag, const koord pos, const int type)
 {
-    konto += (sint64)betrag;
-
-    if (type < MAX_COST) {
-	// fill year history
-	finance_history_year[0][type] += (sint64)betrag;
-	finance_history_year[0][COST_PROFIT] += (sint64)betrag;
-	finance_history_year[0][COST_CASH] = konto;
-	finance_history_year[0][COST_OPERATING_PROFIT] = finance_history_year[0][COST_INCOME] + finance_history_year[0][COST_VEHICLE_RUN] + finance_history_year[0][COST_MAINTENANCE];
-	// fill month history
-	finance_history_month[0][type] += (sint64)betrag;
-	finance_history_month[0][COST_PROFIT] += (sint64)betrag;
-	finance_history_month[0][COST_CASH] = konto;
-	finance_history_month[0][COST_OPERATING_PROFIT] = finance_history_month[0][COST_INCOME] + finance_history_month[0][COST_VEHICLE_RUN] + finance_history_month[0][COST_MAINTENANCE];
-    }
+    buche(betrag, type);
 
     if(betrag != 0) {
 	add_message(pos, betrag);
@@ -579,11 +582,13 @@ spieler_t::buche(long betrag, int type)
 	finance_history_year[0][COST_PROFIT] += (sint64)betrag;
 	finance_history_year[0][COST_CASH] = konto;
 	finance_history_year[0][COST_OPERATING_PROFIT] = finance_history_year[0][COST_INCOME] + finance_history_year[0][COST_VEHICLE_RUN] + finance_history_year[0][COST_MAINTENANCE];
+	finance_history_year[0][COST_MARGIN] = (finance_history_year[0][COST_VEHICLE_RUN] + finance_history_year[0][COST_MAINTENANCE]) != 0 ? finance_history_year[0][COST_OPERATING_PROFIT] * 100/ abs((finance_history_year[0][COST_VEHICLE_RUN] + finance_history_year[0][COST_MAINTENANCE])) : 0;
 	// fill month history
 	finance_history_month[0][type] += (sint64)betrag;
 	finance_history_month[0][COST_PROFIT] += (sint64)betrag;
 	finance_history_month[0][COST_CASH] = konto;
 	finance_history_month[0][COST_OPERATING_PROFIT] = finance_history_month[0][COST_INCOME] + finance_history_month[0][COST_VEHICLE_RUN] + finance_history_month[0][COST_MAINTENANCE];
+	finance_history_month[0][COST_MARGIN] = (finance_history_month[0][COST_VEHICLE_RUN] + finance_history_month[0][COST_MAINTENANCE]) != 0 ? finance_history_month[0][COST_OPERATING_PROFIT] * 100/ abs((finance_history_month[0][COST_VEHICLE_RUN] + finance_history_month[0][COST_MAINTENANCE])) : 0;
     }
 
     return konto;
@@ -597,12 +602,12 @@ spieler_t::buche(long betrag, int type)
 halthandle_t
 spieler_t::halt_add(koord pos)
 {
-    halthandle_t halt = haltestelle_t::create(welt, pos, this);
-
-    halt_list->insert( halt );
-
-    haltcount ++;
-    return halt;
+	halthandle_t halt = haltestelle_t::create(welt, pos, this);
+	if(!halt_list->contains(halt)) {
+		halt_list->append( halt );
+		haltcount ++;
+	}
+	return halt;
 }
 
 
@@ -617,31 +622,6 @@ spieler_t::halt_remove(halthandle_t halt)
 }
 
 
-/**
- * Ermittelt, ob an Position i,j eine Haltestelle des Spielers
- * vorhanden ist.
- *
- * @return die gefundene Haltestelle oder NULL wenn keine Haltestelle
- * an Position i,j
- * @author Hj. Malthaner
- */
-halthandle_t
-spieler_t::ist_halt(const koord k) const
-{
-    slist_iterator_tpl<halthandle_t> iter( halt_list );
-
-    while(iter.next()) {
-	halthandle_t halt = iter.get_current();
-
-	if( halt->ist_da(k) ) {
-	    return halt;
-	}
-    }
-
-    // return unbound handle
-    return halthandle_t();
-}
-
 // ki-helfer
 
 bool
@@ -654,7 +634,7 @@ spieler_t::suche_platz(int xpos, int ypos, koord *start)
 	    return false;
 	}
 	// or a station?
-	if(ist_halt(pos).is_bound()) {
+	if(is_my_halt(pos).is_bound()) {
 	    return false;
 	}
 	const planquadrat_t * plan = welt->lookup(pos);
@@ -680,12 +660,12 @@ spieler_t::suche_platz(int xpos, int ypos, koord *start)
 bool
 spieler_t::suche_platz(int xpos, int ypos, int xpos_target, int ypos_target, koord off, koord *start)
 {
-dbg->message("spieler_t::suche_platz()","at (%i,%i) for size (%i,%i)",xpos,ypos,off.x,off.y);
+DBG_MESSAGE("spieler_t::suche_platz()","at (%i,%i) for size (%i,%i)",xpos,ypos,off.x,off.y);
 	// distance of last found point
 	int dist=0x7FFFFFFF;
 	koord	platz;
-	for(  int y=ypos-2;  y<ypos+off.y+3;  y++  ) {
-		for(  int x=xpos-2;  x<xpos+off.x+3;  x++  ) {
+	for(  int y=ypos-umgebung_t::station_coverage_size;  y<ypos+off.y+umgebung_t::station_coverage_size;  y++  ) {
+		for(  int x=xpos-umgebung_t::station_coverage_size;  x<xpos+off.x+umgebung_t::station_coverage_size;  x++  ) {
 			int	current_dist = abs(xpos_target-x) + abs(ypos_target-y);
 			if(   suche_platz(x,y, &platz)  &&  current_dist<dist  ) {
 				// we will take the shortest route found
@@ -694,8 +674,8 @@ dbg->message("spieler_t::suche_platz()","at (%i,%i) for size (%i,%i)",xpos,ypos,
 			}
 			else {
 				koord test(x,y);
-				if(is_my_bahnhof(test)) {
-dbg->message("spieler_t::suche_platz()","Search around stop at (%i,%i)",x,y);
+				if(is_my_halt(test).is_bound()) {
+DBG_MESSAGE("spieler_t::suche_platz()","Search around stop at (%i,%i)",x,y);
 					// we are on a station that belongs to us
 					int xneu=x-1, yneu=y-1;
 					current_dist = abs(xpos_target-xneu) + abs(ypos_target-y);
@@ -759,15 +739,13 @@ spieler_t::do_passenger_ki()
 			start_stadt = end_stadt;
 			end_stadt = NULL;
 			end_ausflugsziel = NULL;
+			ziel = NULL;
+			platz2 = koord::invalid;
 			// if no previous town => find one
 			if(start_stadt==NULL) {
 				start_stadt = staedte->get(offset);
-				if(anzahl<=1) {
-					// built only bus network
-					return;
-				}
 			}
-dbg->message("spieler_t::do_passenger_ki()","using city %s for start",start_stadt->gib_name());
+DBG_MESSAGE("spieler_t::do_passenger_ki()","using city %s for start",start_stadt->gib_name());
 			const halthandle_t start_halt = get_our_hub(start_stadt);
 			// find starting place
 			platz1 = start_halt.is_bound()?start_halt->gib_basis_pos():built_hub(start_stadt->gib_pos(),9);
@@ -775,42 +753,59 @@ dbg->message("spieler_t::do_passenger_ki()","using city %s for start",start_stad
 				return;
 			}
 
-			if(simrand(3)==0) {
-dbg->message("spieler_t::do_passenger_ki()","searching attraction");
+			if(anzahl==1  ||  simrand(3)==0) {
+//DBG_MESSAGE("spieler_t::do_passenger_ki()","searching attraction");
 				// 25 % of all connections are tourist attractions
 				const slist_tpl<gebaeude_t*> &ausflugsziele = welt->gib_ausflugsziele();
+				const slist_tpl<fabrik_t *> &fabriken = welt->gib_fab_list();
 				int	last_dist = 0xFFFF;
-				for( int i=0;  i<ausflugsziele.count();  i++  ) {
+				bool ausflug=simrand(2)!=0;	// holidays first ...
+				int count=ausflug?ausflugsziele.count():fabriken.count();
+				for( int i=0;  i<count;  i++  ) {
 					int	dist;
-					koord pos=ausflugsziele.at(i)->gib_pos().gib_2d();
-					koord size=ausflugsziele.at(i)->gib_tile()->gib_besch()->gib_groesse(ausflugsziele.at(i)->gib_tile()->gib_layout());
+					koord pos, size;
+					if(ausflug) {
+						pos=ausflugsziele.at(i)->gib_pos().gib_2d();
+						size=ausflugsziele.at(i)->gib_tile()->gib_besch()->gib_groesse(ausflugsziele.at(i)->gib_tile()->gib_layout());
+					}
+					else {
+						pos=fabriken.at(i)->gib_pos().gib_2d();
+						size=fabriken.at(i)->gib_groesse();
+					}
 					const stadt_t *next_town = welt->suche_naechste_stadt(pos);
-					if(next_town==NULL  ||  get_our_hub(next_town).is_bound()) {
+					if(next_town==NULL  ||  start_stadt==next_town) {
 						// this is either a town already served (so we do not create a new hub)
 						// or a lonely point somewhere
 						// in any case we do not want to serve this location already
-						if(!ist_halt(built_hub(pos,3+size.x)).is_bound()) {
+						koord test_platz=built_hub(pos,size.x);
+						if(!is_my_halt(test_platz).is_bound()) {
 							// not served
-							dist = abs_distance(platz1,pos);
+							dist = abs_distance(platz1,test_platz);
 							if(dist+simrand(50)<last_dist  &&   dist>3) {
 								// but closer than the others
-								end_ausflugsziel = ausflugsziele.at(i);
+								if(ausflug) {
+									end_ausflugsziel = ausflugsziele.at(i);
+								}
+								else {
+									ziel = fabriken.at(i);
+								}
 								last_dist = dist;
+								platz2 = test_platz;
+//DBG_MESSAGE("spieler_t::do_passenger_ki()","testing attraction %s",end_ausflugsziel->gib_name());
 							}
 						}
 					}
 				}
 				// test for success
-				if(start_stadt!=NULL  &&  end_ausflugsziel!=NULL) {
+				if(platz2!=koord::invalid) {
 					// found something
 					state = BAUE_VERBINDUNG;
 					substate = NR_INIT;
-dbg->message("spieler_t::do_passenger_ki()","decision: %s wants to built network between %s and attraction %s",gib_name(),start_stadt->gib_name(),end_ausflugsziel->gib_tile()->gib_besch()->gib_name());
-dbg->message("spieler_t::do_passenger_ki()","substate NR_INIT");
+DBG_MESSAGE("spieler_t::do_passenger_ki()","decision: %s wants to built network between %s and %s",gib_name(),start_stadt->gib_name(),ausflug?end_ausflugsziel->gib_tile()->gib_besch()->gib_name():ziel->gib_name());
 				}
 			}
 			else {
-dbg->message("spieler_t::do_passenger_ki()","searching town");
+//DBG_MESSAGE("spieler_t::do_passenger_ki()","searching town");
 				// find a good route
 				for( int i=0;  i<anzahl;  i++  ) {
 					const int nr = (i+offset)%anzahl;
@@ -833,7 +828,7 @@ dbg->message("spieler_t::do_passenger_ki()","searching town");
 				if(start_stadt!=NULL  &&  end_stadt!=NULL) {
 					state = BAUE_VERBINDUNG;
 					substate = NR_INIT;
-dbg->message("spieler_t::do_passenger_ki()","%s wants to built network between %s and %s",gib_name(),start_stadt->gib_name(),end_stadt->gib_name());
+DBG_MESSAGE("spieler_t::do_passenger_ki()","%s wants to built network between %s and %s",gib_name(),start_stadt->gib_name(),end_stadt->gib_name());
 				}
 			}
 		}
@@ -845,37 +840,12 @@ dbg->message("spieler_t::do_passenger_ki()","%s wants to built network between %
 			switch(substate) {
 				case NR_INIT:
 				{
+					//
 					koord end_hub_pos = koord::invalid;
-dbg->message("spieler_t::do_passenger_ki()","Find hub");
-/*
-					koord start_hub_pos;
-					// first find the hub
-					halthandle_t h = get_our_hub(start_stadt);
-					if(h!=NULL) {
-						start_hub_pos = h->gib_basis_pos();
-					}
-					else {
-						start_hub_pos = built_hub(start_stadt->gib_pos());
-					}
-*/
+DBG_MESSAGE("spieler_t::do_passenger_ki()","Find hub");
 					// also for target (if not tourist attraction!)
-					if(end_ausflugsziel!=NULL) {
-dbg->message("spieler_t::do_passenger_ki()","attraction %p", end_ausflugsziel );
-						// target is attraction
-						koord pos = end_ausflugsziel->gib_pos().gib_2d();
-						koord dim = end_ausflugsziel->gib_tile()->gib_besch()->gib_groesse();
-/*
-						// target very close
-						koord ziel = (platz1-pos);
-						ziel.x = pos.x+ziel.x/ziel.x;
-						ziel.y = pos.y+ziel.y/ziel.y;
-						suche_platz( pos.x, pos.y, ziel.x, ziel.y, &end_hub_pos );
-						end_hub_pos = suche_platz(pos,pos-koord(2,2),pos+end_ausflugsziel->gib_tile->gib_besch()->gib_groesse()+koord(2,2));
-*/
-						end_hub_pos = built_hub(pos+dim/2,dim.x);
-					}
-					else 	if(end_stadt!=NULL) {
-dbg->message("spieler_t::do_passenger_ki()","town %p", end_stadt );
+					if(end_stadt!=NULL) {
+DBG_MESSAGE("spieler_t::do_passenger_ki()","town %p", end_stadt );
 						// target is town
 						halthandle_t h = get_our_hub(end_stadt);
 						if(h.is_bound()) {
@@ -885,17 +855,20 @@ dbg->message("spieler_t::do_passenger_ki()","town %p", end_stadt );
 							end_hub_pos = built_hub(end_stadt->gib_pos(),9);
 						}
 					}
+					else {
+						// already found place
+						end_hub_pos = platz2;
+					}
 					// was successful?
-					if(/*start_hub_pos!=koord::invalid  &&*/ end_hub_pos!=koord::invalid) {
+					if(end_hub_pos!=koord::invalid) {
 						// ok, now we check the vehicle
-//						platz1 = start_hub_pos;
 						platz2 = end_hub_pos;
-dbg->message("spieler_t::do_passenger_ki()","hub found -> NR_BAUE_ROUTE1");
+DBG_MESSAGE("spieler_t::do_passenger_ki()","hub found -> NR_BAUE_ROUTE1");
 						substate = NR_BAUE_ROUTE1;
 					}
 					else {
 						// no success
-dbg->message("spieler_t::do_passenger_ki()","no suitable hub found");
+DBG_MESSAGE("spieler_t::do_passenger_ki()","no suitable hub found");
 						end_stadt = NULL;
 						state = CHECK_CONVOI;
 					}
@@ -914,12 +887,12 @@ dbg->message("spieler_t::do_passenger_ki()","no suitable hub found");
 					}
 
 					// we want the fastest we can get!
-					road_vehicle = vehikelbauer_t::vehikel_search( vehikel_besch_t::strasse, month_now, 10, 50, warenbauer_t::passagiere );
+					road_vehicle = vehikelbauer_t::vehikel_search( vehikel_besch_t::strasse, month_now, 10, 80, warenbauer_t::passagiere );
 					if(road_vehicle!=NULL) {
 						// find cheapest road
 						road_weg = wegbauer_t::weg_search( weg_t::strasse, road_vehicle->gib_geschw() );
 						substate = NR_BAUE_STRASSEN_ROUTE;
-dbg->message("spieler_t::do_passenger_ki()","using %s on %s",road_vehicle->gib_name(),road_weg->gib_name());
+DBG_MESSAGE("spieler_t::do_passenger_ki()","using %s on %s",road_vehicle->gib_name(),road_weg->gib_name());
 					}
 					else {
 						// no success
@@ -934,9 +907,13 @@ dbg->message("spieler_t::do_passenger_ki()","using %s on %s",road_vehicle->gib_n
 
 				// built a simple road (no bridges, no tunnels)
 				case NR_BAUE_STRASSEN_ROUTE:
-					if(create_simple_road_transport()  &&  wkz_bushalt(this, welt, platz1)  &&  wkz_bushalt(this, welt, platz2)  ) {
+					if(create_simple_road_transport()  &&
+						(is_my_halt(platz1).is_bound()  ||  wkz_bushalt(this, welt, platz1,hausbauer_t::car_stops.at(0)))  &&
+						(is_my_halt(platz2).is_bound()  ||  wkz_bushalt(this, welt, platz2,hausbauer_t::car_stops.at(0)))
+					  ) {
 						koord list[2]={ platz1, platz2 };
-						create_bus_transport_vehikel(platz1,1,list,2);
+						// wait only, if traget is not a hub but an attraction/factory
+						create_bus_transport_vehikel(platz1,1,list,2,end_stadt==NULL);
 //						create_bus_transport_vehikel(platz2,1,list,2);
 						substate = NR_ROAD_SUCCESS;
 					}
@@ -947,9 +924,13 @@ dbg->message("spieler_t::do_passenger_ki()","using %s on %s",road_vehicle->gib_n
 
 				// built a road, try with bridges or tunnels
 				case NR_BAUE_STRASSEN_ROUTE2:
-					if(create_complex_road_transport()  &&  wkz_bushalt(this, welt, platz1)  &&  wkz_bushalt(this, welt, platz2)  ) {
+					if(create_complex_road_transport()  &&
+						(is_my_halt(platz1).is_bound()  ||  wkz_bushalt(this, welt, platz1,hausbauer_t::car_stops.at(0)))  &&
+						(is_my_halt(platz2).is_bound()  ||  wkz_bushalt(this, welt, platz2,hausbauer_t::car_stops.at(0)))
+					  ) {
 						koord list[2]={ platz1, platz2 };
-						create_bus_transport_vehikel(platz1,1,list,2);
+						// wait only, if traget is not a hub but an attraction/factory
+						create_bus_transport_vehikel(platz1,1,list,2,end_stadt==NULL);
 	//					create_bus_transport_vehikel(platz2,1,list,2);
 						substate = NR_ROAD_SUCCESS;
 					}
@@ -975,12 +956,21 @@ dbg->message("spieler_t::do_passenger_ki()","using %s on %s",road_vehicle->gib_n
 					char buf[256];
 					if(end_ausflugsziel!=NULL) {
 						platz1 = end_ausflugsziel->gib_pos().gib_2d();
-						sprintf(buf, translator::translate("%s now\noffers bus services\nbetween %s\nand attraction\n%s at (%i,%i).\n"), gib_name(), start_stadt->gib_name(), translator::translate(end_ausflugsziel->gib_tile()->gib_besch()->gib_name()), platz1.x, platz1.y );
+						sprintf(buf, translator::translate("%s now\noffers bus services\nbetween %s\nand attraction\n%s\nat (%i,%i).\n"), gib_name(), start_stadt->gib_name(), make_single_line_string(translator::translate(end_ausflugsziel->gib_tile()->gib_besch()->gib_name()),2), platz1.x, platz1.y );
+DBG_DEBUG("do_passenger_ki()","attraction success");
+						end_stadt = start_stadt;
+					}
+					else if(ziel!=NULL) {
+						platz1 = ziel->gib_pos().gib_2d();
+DBG_DEBUG("do_passenger_ki()","%s",translator::translate("%s now\noffers bus services\nbetween %s\nand factory\n%s\nat (%i,%i).\n") );
+						sprintf(buf, translator::translate("%s now\noffers bus services\nbetween %s\nand factory\n%s\nat (%i,%i).\n"), gib_name(), start_stadt->gib_name(), make_single_line_string(translator::translate(ziel->gib_name()),2), platz1.x, platz1.y );
+DBG_DEBUG("do_passenger_ki()","factory success1");
 						end_stadt = start_stadt;
 					}
 					else {
 						sprintf(buf, translator::translate("Travellers now\nuse %s's\nbusses between\n%s \nand %s.\n"), gib_name(), start_stadt->gib_name(), end_stadt->gib_name() );
 					}
+DBG_DEBUG("do_passenger_ki()","calling message_t()");
 					message_t::get_instance()->add_message(buf,platz1,message_t::ai,kennfarbe,road_vehicle->gib_basis_bild());
 				}
 				break;
@@ -991,7 +981,7 @@ dbg->message("spieler_t::do_passenger_ki()","using %s on %s",road_vehicle->gib_n
 		// add vehicles to crowded lines
 		case CHECK_CONVOI:
 		{
-#if 1
+#if 0
 			slist_iterator_tpl<halthandle_t> iter( halt_list );
 
 			while(iter.next()  &&  road_vehicle!=NULL) {
@@ -1002,11 +992,18 @@ dbg->message("spieler_t::do_passenger_ki()","using %s on %s",road_vehicle->gib_n
 					// now we check if there are many many people waiting ...
 					while(iter.next()) {
 						ware_t ware = iter.get_current();
-						if(ware.menge>250) {
-							// new vehicle
+						// since a single stop do not hold more than 128 people
+						if(ware.menge>129) {
+							// we want the fastest we can get
+						  	// obey timeline
+							unsigned month_now = 0xFFFFFFFFu;
+							if(  umgebung_t::use_timeline == true   ) {
+								month_now = (welt->gib_zeit_ms() >> welt->ticks_bits_per_tag) + (umgebung_t::starting_year * 12);
+							}
+							road_vehicle = vehikelbauer_t::vehikel_search( vehikel_besch_t::strasse, month_now, 10, 80, warenbauer_t::passagiere );
 							koord list[2] = {halt->gib_basis_pos(),ware.gib_zwischenziel()};
-							create_bus_transport_vehikel( list[0], 1, list, 2 );
-dbg->message("spieler_t::do_passenger_ki()","add new convoi to crowded line from %s to (%i,%i)",halt->gib_name(),list[1].x,list[1].y);
+							create_bus_transport_vehikel( list[0], 1, list, 2, false );	// overcrowded line, so waiting does not make sense
+DBG_MESSAGE("spieler_t::do_passenger_ki()","add new convoi to crowded line from %s to %s",halt->gib_name(),is_my_halt(list[1])->gib_name());
 							break;
 						}
 					}
@@ -1015,20 +1012,22 @@ dbg->message("spieler_t::do_passenger_ki()","add new convoi to crowded line from
 #else
 			slist_iterator_tpl<convoihandle_t> iter (welt->gib_convoi_list());
 			while(iter.next()) {
-				convoihandle_t cnv = iter.get_current();
+				const convoihandle_t cnv = iter.get_current();
 				if(cnv->gib_besitzer()==this  &&  cnv->gib_vehikel(0)->gib_fracht_menge()==cnv->gib_vehikel(0)->gib_fracht_max()) {
 					INT_CHECK("simplay 889");
 					// this is our vehicle, and is 100% loaded
 					fahrplan_t  *f = cnv->gib_fahrplan();
 					koord3d startpos= cnv->gib_pos();
-dbg->message("spieler_t::do_passenger_ki()","checking our convoi %s",cnv->gib_name());
 					// next checkpoint also crowed with things for us?
-					halthandle_t h=welt->lookup( f->eintrag.at(f->aktuell).pos )->gib_halt();
-dbg->message("spieler_t::do_passenger_ki()","found halt %s",h==NULL?"none":h->gib_name());
-					// we assume crowed for more than 200 waiting passengers
-					if(h!=NULL  &&  h->gib_ware_summe(warenbauer_t::passagiere)>200  ) {
-dbg->message("spieler_t::do_passenger_ki()","copy convoi %s",cnv->gib_name());
-						// for now, we just copy it ...
+					halthandle_t h0=welt->lookup( f->eintrag.at(0).pos )->gib_halt();
+					halthandle_t h1=welt->lookup( f->eintrag.at(1).pos )->gib_halt();
+DBG_MESSAGE("spieler_t::do_passenger_ki()","checking our convoi %s between %s and %s",cnv->gib_name(),h0->gib_name(),h1->gib_name());
+DBG_MESSAGE("spieler_t::do_passenger_ki()","waiting: %s (%i) and %s (%i)",h0->gib_name(),h0->gib_ware_fuer_zwischenziel(warenbauer_t::passagiere,f->eintrag.at(1).pos.gib_2d()),h1->gib_name(),h1->gib_ware_fuer_zwischenziel(warenbauer_t::passagiere,f->eintrag.at(0).pos.gib_2d()));
+
+					// we assume crowed for more than 129 waiting passengers
+					if(	h0->gib_ware_fuer_zwischenziel(warenbauer_t::passagiere,f->eintrag.at(1).pos.gib_2d())>250   ||
+						h1->gib_ware_fuer_zwischenziel(warenbauer_t::passagiere,f->eintrag.at(0).pos.gib_2d())>250   ) {
+DBG_MESSAGE("spieler_t::do_passenger_ki()","copy convoi %s on route %s to %s",cnv->gib_name(),h0->gib_name(),h1->gib_name());
 						vehikel_t * v = vehikelbauer_t::baue(welt, startpos, this,NULL, cnv->gib_vehikel(0)->gib_besch());
 						convoi_t *new_cnv = new convoi_t(welt, this);
 						// V.Meyer: give the new convoi name from first vehicle
@@ -1047,6 +1046,8 @@ dbg->message("spieler_t::do_passenger_ki()","copy convoi %s",cnv->gib_name());
 						welt->sync_add( new_cnv );
 						new_cnv->setze_fahrplan(fpl);
 						new_cnv->start();
+						// we do not want too many copies, just copy once!
+						break;
 					}
 				}
 			}
@@ -1056,7 +1057,7 @@ dbg->message("spieler_t::do_passenger_ki()","copy convoi %s",cnv->gib_name());
 		break;
 
 		default:
-			dbg->message("spieler_t::do_passenger_ki()",	"Illegal state %d with substate %d!", state, substate);
+			DBG_MESSAGE("spieler_t::do_passenger_ki()",	"Illegal state %d with substate %d!", state, substate);
 			state = NEUE_ROUTE;
 			end_stadt = NULL;
 			substate = NR_INIT;
@@ -1116,7 +1117,7 @@ spieler_t::do_ki()
 						gewinn_neu = suche_transport_quelle(&start_neu, &start_ware_neu, last_ziel);
 						if(  gewinn_neu>KI_MIN_PROFIT  &&  start_neu!=last_start  &&  start_neu!=NULL  ) {
 							// marginally profitable -> then built it!
-dbg->message("spieler_t::do_ki","Select quelle from %s (%i,%i) to %s (%i,%i) (income %i)",start_neu->gib_name(),start_neu->pos.x,start_neu->pos.y,ziel_neu->gib_name(),ziel_neu->pos.x,ziel_neu->pos.y, gewinn_neu);
+DBG_MESSAGE("spieler_t::do_ki","Select quelle from %s (%i,%i) to %s (%i,%i) (income %i)",start_neu->gib_name(),start_neu->pos.x,start_neu->pos.y,ziel_neu->gib_name(),ziel_neu->pos.x,ziel_neu->pos.y, gewinn_neu);
 							start = start_neu;
 							start_ware = start_ware_neu;
 							gewinn = gewinn_neu;
@@ -1150,7 +1151,7 @@ dbg->message("spieler_t::do_ki","Select quelle from %s (%i,%i) to %s (%i,%i) (in
 							if( start_neu!=NULL  &&  !welt->lookup(start_neu->pos)->ist_wasser()    &&  start_neu!=last_start  ) {
 								gewinn_neu = suche_transport_ziel(start_neu, &start_ware_neu, &ziel_neu);
 								if(gewinn_neu > -1   ) {
-dbg->message("spieler_t::do_ki","Check route from %s (%i,%i) to %s (%i,%i) (income %i)",start_neu->gib_name(),start_neu->pos.x,start_neu->pos.y,ziel_neu->gib_name(),ziel_neu->pos.x,ziel_neu->pos.y, gewinn_neu);
+DBG_MESSAGE("spieler_t::do_ki","Check route from %s (%i,%i) to %s (%i,%i) (income %i)",start_neu->gib_name(),start_neu->pos.x,start_neu->pos.y,ziel_neu->gib_name(),ziel_neu->pos.x,ziel_neu->pos.y, gewinn_neu);
 								}
 							}
 						}
@@ -1164,17 +1165,17 @@ dbg->message("spieler_t::do_ki","Check route from %s (%i,%i) to %s (%i,%i) (inco
 						start_ware = start_ware_neu;
 						ziel = ziel_neu;
 						gewinn = gewinn_neu;
-dbg->message("spieler_t::do_ki","Consider route from %s (%i,%i) to %s (%i,%i) (income %i)",start_neu->gib_name(),start_neu->pos.x,start_neu->pos.y,ziel_neu->gib_name(),ziel_neu->pos.x,ziel_neu->pos.y, gewinn_neu);
+DBG_MESSAGE("spieler_t::do_ki","Consider route from %s (%i,%i) to %s (%i,%i) (income %i)",start_neu->gib_name(),start_neu->pos.x,start_neu->pos.y,ziel_neu->gib_name(),ziel_neu->pos.x,ziel_neu->pos.y, gewinn_neu);
 					}
 
 					if(gewinn_neu > KI_MIN_PROFIT) {
 						count ++;
-dbg->message("spieler_t::do_ki","Tried already %i routes",count);
+DBG_MESSAGE("spieler_t::do_ki","Tried already %i routes",count);
 					}
 
 					if(count >= KI_TEST_LINES && gewinn > KI_MIN_PROFIT ) {
 						if(  start !=NULL && ziel!=NULL  &&  !(start==baue_start  &&  ziel==baue_ziel)  ) {
-dbg->message("spieler_t::do_ki","Decicion %s to %s (income %i)",start->gib_name(),ziel->gib_name(), gewinn);
+DBG_MESSAGE("spieler_t::do_ki","Decicion %s to %s (income %i)",start->gib_name(),ziel->gib_name(), gewinn);
 							substate = NR_BAUE_ROUTE1;
 						}
 						else {
@@ -1189,7 +1190,7 @@ dbg->message("spieler_t::do_ki","Decicion %s to %s (income %i)",start->gib_name(
 				case NR_BAUE_ROUTE1:
 				{
 					if(baue) {
-dbg->message("do_ki()","Player %s could not built: baue=%1",gib_name(),baue);
+DBG_MESSAGE("do_ki()","Player %s could not built: baue=%1",gib_name(),baue);
 						substate = NR_INIT;
 						break;
 					}
@@ -1203,7 +1204,7 @@ dbg->message("do_ki()","Player %s could not built: baue=%1",gib_name(),baue);
 					 * be able to built a network!
 					 * @author prissi
 					 */
-dbg->message("spieler_t::do_ki()","%s want to build a route from %s (%d,%d) to %s (%d,%d) with value %d",
+DBG_MESSAGE("spieler_t::do_ki()","%s want to build a route from %s (%d,%d) to %s (%d,%d) with value %d",
 		gib_name(),
 	     start->gib_name(), start->gib_pos().x, start->gib_pos().y,
 	     ziel->gib_name(), ziel->gib_pos().x, ziel->gib_pos().y,
@@ -1238,7 +1239,7 @@ dbg->message("spieler_t::do_ki()","%s want to build a route from %s (%d,%d) to %
 					}
 					rail_engine = NULL;
 					rail_weg = NULL;
-dbg->message("do_ki()","rail vehicle %p",rail_vehicle);
+DBG_MESSAGE("do_ki()","rail vehicle %p",rail_vehicle);
 
 					// is road transport allowed?
 					if(road_transport) {
@@ -1246,7 +1247,7 @@ dbg->message("do_ki()","rail vehicle %p",rail_vehicle);
 						road_vehicle = vehikelbauer_t::vehikel_search( vehikel_besch_t::strasse, month_now, 10, best_road_speed, freight );
 					}
 					road_weg = NULL;
-dbg->message("do_ki()","road vehicle %p",road_vehicle);
+DBG_MESSAGE("do_ki()","road vehicle %p",road_vehicle);
 
 					// properly calculate production
 					const int prod = MIN(ziel->max_produktion(),
@@ -1277,12 +1278,12 @@ dbg->message("do_ki()","road vehicle %p",road_vehicle);
 							  	count_rail = rail_engine->gib_leistung()*rail_engine->get_gear()/(80*64);
 							  }
 							count_rail = ((count_rail+1)&0x0FE)+1;
-dbg->message("spieler_t::do_ki()","Engine %s guess to need %d rail cars %s for route (%s)", rail_engine->gib_name(), count_rail, rail_vehicle->gib_name(), rail_weg->gib_name() );
+DBG_MESSAGE("spieler_t::do_ki()","Engine %s guess to need %d rail cars %s for route (%s)", rail_engine->gib_name(), count_rail, rail_vehicle->gib_name(), rail_weg->gib_name() );
 							}
 						}
 						if(  rail_engine==NULL  ||  rail_weg==NULL  ) {
 							// no rail transport possible
-dbg->message("spieler_t::do_ki()","No railway possible.");
+DBG_MESSAGE("spieler_t::do_ki()","No railway possible.");
 							rail_vehicle = NULL;
 							count_rail = 255;
 						}
@@ -1300,11 +1301,11 @@ dbg->message("spieler_t::do_ki()","No railway possible.");
 							}
 							// minimum vehicle is 1, maximum vehicle is 48, more just result in congestion
 							count_road = MIN( 254, (prod*dist) / (road_vehicle->gib_zuladung()*best_road_speed*4)+2 );
-dbg->message("spieler_t::do_ki()","guess to need %d road cars %s for route %s", count_road, road_vehicle->gib_name(), road_weg->gib_name() );
+DBG_MESSAGE("spieler_t::do_ki()","guess to need %d road cars %s for route %s", count_road, road_vehicle->gib_name(), road_weg->gib_name() );
 						}
 						else {
 							// no roads there !?!
-dbg->message("spieler_t::do_ki()","No roadway possible.");
+DBG_MESSAGE("spieler_t::do_ki()","No roadway possible.");
 						}
 					}
 
@@ -1321,7 +1322,7 @@ dbg->message("spieler_t::do_ki()","No roadway possible.");
 						count_rail = MAX( 3, count_rail );
 						income_rail = (freight_price*best_rail_speed)/(2*dist+count_rail);
 						cost_rail = rail_weg->gib_wartung() + (((count_rail+1)/2)*300)/dist + ((count_rail*rail_vehicle->gib_betriebskosten()+rail_engine->gib_betriebskosten())*best_rail_speed)/(2*dist+count_rail);
-						dbg->message("spieler_t::do_ki()","Netto credits per day for rail transport %.2f (income %.2f)",cost_rail/100.0, income_rail/100.0 );
+						DBG_MESSAGE("spieler_t::do_ki()","Netto credits per day for rail transport %.2f (income %.2f)",cost_rail/100.0, income_rail/100.0 );
 						cost_rail -= income_rail;
 					}
 
@@ -1333,7 +1334,7 @@ dbg->message("spieler_t::do_ki()","No roadway possible.");
 						int freight_price = (freight->gib_preis()*road_vehicle->gib_zuladung()*count_road)/24*((8000+(best_road_speed-80)*freight->gib_speed_bonus())/1000);
 						cost_road = road_weg->gib_wartung() + 300/dist + (count_road*road_vehicle->gib_betriebskosten()*best_road_speed)/(2*dist+5);
 						income_road = (freight_price*best_road_speed)/(2*dist+5);
-						dbg->message("spieler_t::do_ki()","Netto credits per day and km for road transport %.2f (income %.2f)",cost_road/100.0, income_road/100.0 );
+						DBG_MESSAGE("spieler_t::do_ki()","Netto credits per day and km for road transport %.2f (income %.2f)",cost_road/100.0, income_road/100.0 );
 						cost_road -= income_road;
 					}
 
@@ -1475,7 +1476,7 @@ dbg->message("spieler_t::do_ki()","No roadway possible.");
 		break;
 
 		default:
-			dbg->message("spieler_t::do_ki()",	"Illegal state %d with substate %d!", state, substate);
+			DBG_MESSAGE("spieler_t::do_ki()",	"Illegal state %d with substate %d!", state, substate);
 			state = NEUE_ROUTE;
 			substate = NR_INIT;
 	}
@@ -1487,13 +1488,19 @@ dbg->message("spieler_t::do_ki()","No roadway possible.");
 /* return true, if my bahnhof is here
  * @author prissi
  */
-bool
-spieler_t::is_my_bahnhof(koord pos)
+halthandle_t
+spieler_t::is_my_halt(koord pos) const
 {
-	if(welt->ist_in_kartengrenzen(pos)  &&  welt->lookup(pos)->gib_kartenboden()->gib_halt()!=NULL  &&  welt->lookup(pos)->gib_kartenboden()->gib_halt()->gib_besitzer()==this  ) {
-		return true;
+	halthandle_t halt;
+	if(welt->ist_in_kartengrenzen(pos)) {
+		halt = welt->lookup(pos)->gib_kartenboden()->gib_halt();
+		if(  halt.is_bound()  &&  halt->gib_besitzer()==this  ) {
+			return halt;
+		}
 	}
-	return false;
+	// nothing here
+	halthandle_t unbound;
+	return unbound;
 }
 
 
@@ -1516,7 +1523,7 @@ spieler_t::baue_bahnhof(koord3d quelle,koord *p, int anz_vehikel)
 	zv.x = -zv.x;
 	zv.y = -zv.y;
 
-	dbg->message("spieler_t::baue_bahnhof()",
+	DBG_MESSAGE("spieler_t::baue_bahnhof()",
 	 "try to build a train station of length %d (%d vehicles) at (%i,%i)",
 	 laenge, anz_vehikel, p->x, p->y);
 
@@ -1563,14 +1570,14 @@ spieler_t::baue_bahnhof(koord3d quelle,koord *p, int anz_vehikel)
 			if(ok) {
 				gr->obj_loesche_alle(this);
 				// ziel auf das ende des Bahnhofs setzen
-dbg->message("spieler_t::baue_bahnhof","go back one segment");
+DBG_MESSAGE("spieler_t::baue_bahnhof","go back one segment");
 				(*p) -= zv;
 			}
 			else {
 				// try to extend to fabrik, if not already done
 				koord test = koord(p->x-quelle.x,p->y-quelle.y);
 				if(  gr!=NULL  &&  gr->gib_weg_ribi(weg_t::schiene) == ribi_t::ist_kurve(ribi)  &&  ribi_typ(test)!=ribi_typ(zv)  ) {
-dbg->message("spieler_t::baue_bahnhof","try to remove last segment");
+DBG_MESSAGE("spieler_t::baue_bahnhof","try to remove last segment");
 					wkz_remover(this, welt, *p);
 					// one back
 					// ziel auf das ende des Bahnhofs setzen
@@ -1602,18 +1609,19 @@ dbg->message("spieler_t::baue_bahnhof","try to remove last segment");
 	bool make_all_bahnhof=false;
 
 	// first one direction
-	for(  koord pos=*p;  pos!=t+zv;  pos+=zv ) {
-		if(  make_all_bahnhof  ||  is_my_bahnhof(pos+koord(-1,-1))  ||  is_my_bahnhof(pos+koord(-1,1))  ||  is_my_bahnhof(pos+koord(1,-1))  ||  is_my_bahnhof(pos+koord(1,1))  ) {
+     koord pos;
+	for(  pos=*p;  pos!=t+zv;  pos+=zv ) {
+		if(  make_all_bahnhof  ||  is_my_halt(pos+koord(-1,-1)).is_bound()  ||  is_my_halt(pos+koord(-1,1)).is_bound()  ||  is_my_halt(pos+koord(1,-1)).is_bound()  ||  is_my_halt(pos+koord(1,1)).is_bound()  ) {
 			// start building, if next to an existing station
 			make_all_bahnhof = true;
-			wkz_bahnhof(this, welt, pos, hausbauer_t::gueterbahnhof_besch);
+			wkz_bahnhof(this, welt, pos, hausbauer_t::train_stops.at(0));
 		}
 		INT_CHECK("simplay 753");
 	}
 	// now add the other squares (going backwards)
-	for(  koord pos=t;  pos!=*p-zv;  pos-=zv ) {
-		if(  !is_my_bahnhof(pos)  ) {
-			wkz_bahnhof(this, welt, pos, hausbauer_t::gueterbahnhof_besch);
+	for(  pos=t;  pos!=*p-zv;  pos-=zv ) {
+		if(  !is_my_halt(pos).is_bound()  ) {
+			wkz_bahnhof(this, welt, pos, hausbauer_t::train_stops.at(0));
 		}
 		baulaenge ++;
 	}
@@ -1637,7 +1645,7 @@ dbg->message("spieler_t::baue_bahnhof","try to remove last segment");
 */
 
 //	p -= zv;
-dbg->message("spieler_t::baue_bahnhof","Final station at (%i,%i)",p->x,p->y);
+DBG_MESSAGE("spieler_t::baue_bahnhof","Final station at (%i,%i)",p->x,p->y);
 	return baulaenge*2;
 }
 
@@ -1675,7 +1683,7 @@ spieler_t::rating_transport_quelle_ziel(fabrik_t *qfab,const ware_t *ware,fabrik
 		}
 	}
 
-dbg->message("spieler_t::rating_transport_quelle_ziel","Missing our %i, total  missing %i",missing_our_ware,missing_input_ware);
+DBG_MESSAGE("spieler_t::rating_transport_quelle_ziel","Missing our %i, total  missing %i",missing_our_ware,missing_input_ware);
 	// so our good is missing
 	if(  missing_our_ware  ) {
 		if(  missing_input_ware==1  ) {
@@ -1758,7 +1766,7 @@ int spieler_t::suche_transport_quelle(fabrik_t **qfab, int *quelle_ware, fabrik_
 	const vector_tpl <koord> & lieferquellen = zfab->get_suppliers();
 	const int lieferquelle_anzahl=lieferquellen.get_count();
 
-dbg->message("spieler_t::suche_transport_quelle","Search other %i supplier for: %s",lieferquelle_anzahl,zfab->gib_name());
+DBG_MESSAGE("spieler_t::suche_transport_quelle","Search other %i supplier for: %s",lieferquelle_anzahl,zfab->gib_name());
 
 	// now iterate over all suppliers
 	for(  int i=0;  i<lieferquelle_anzahl;  i++  ) {
@@ -1792,7 +1800,7 @@ dbg->message("spieler_t::suche_transport_quelle","Search other %i supplier for: 
 	}
 
 	if(gewinn>-1) {
-dbg->message("spieler_t::suche_transport_quelle","Found supplier %s (revenue %d)",(*qfab)->gib_name(),gewinn);
+DBG_MESSAGE("spieler_t::suche_transport_quelle","Found supplier %s (revenue %d)",(*qfab)->gib_name(),gewinn);
 	}
 	// no loops: will be -1!
 	return gewinn;
@@ -1831,7 +1839,7 @@ int spieler_t::suche_transport_ziel(fabrik_t *qfab, int *quelle_ware, fabrik_t *
 		// search consumer
 		const vector_tpl <koord> & lieferziele = qfab->gib_lieferziele();
 		const int lieferziel_anzahl=lieferziele.get_count();
-dbg->message("spieler_t::suche_transport_ziel","Lieferziele %d",lieferziel_anzahl);
+DBG_MESSAGE("spieler_t::suche_transport_ziel","Lieferziele %d",lieferziel_anzahl);
 
 		// loop for all targets
 		for(  int lieferziel_nr=0;  lieferziel_nr<lieferziel_anzahl;  lieferziel_nr++  ) {
@@ -1857,7 +1865,7 @@ dbg->message("spieler_t::suche_transport_ziel","Lieferziele %d",lieferziel_anzah
 		}
 	}
 	if(gewinn>-1) {
-dbg->message("spieler_t::suche_transport_ziel","Found factory %s (revenue: %d)",(*ziel)->gib_name(),gewinn);
+DBG_MESSAGE("spieler_t::suche_transport_ziel","Found factory %s (revenue: %d)",(*ziel)->gib_name(),gewinn);
 	}
 	// no loops: will be -1!
 	return gewinn;
@@ -1878,7 +1886,7 @@ spieler_t::is_connected(halthandle_t halt, koord upperleft, koord lowerright)
 	if(!halt.is_bound()) {
 		return false;
 	}
-//dbg->message("spieler_t::is_connected()","Iteration");
+//DBG_MESSAGE("spieler_t::is_connected()","Iteration");
 	// ok, no we can proceed
 	const slist_tpl<warenziel_t> *ziele = halt->gib_warenziele();
 	slist_iterator_tpl<warenziel_t> iter (ziele);
@@ -1887,10 +1895,10 @@ spieler_t::is_connected(halthandle_t halt, koord upperleft, koord lowerright)
 		halthandle_t a_halt = halt->gib_halt(wz.gib_ziel());
 		if(a_halt.is_bound()) {
 			koord pos = a_halt->gib_basis_pos();
-//dbg->message("spieler_t::is_connected()","connection to (%i,%i), compare with (%i,%i)(%i,%i)",pos.x,pos.y,upperleft.x,upperleft.y,lowerright.x,lowerright.y);
+//DBG_MESSAGE("spieler_t::is_connected()","connection to (%i,%i), compare with (%i,%i)(%i,%i)",pos.x,pos.y,upperleft.x,upperleft.y,lowerright.x,lowerright.y);
 			if(upperleft.x<pos.x  &&  upperleft.y<pos.y  &&  lowerright.x>pos.x  &&  lowerright.y>pos.y) {
 				// ok, we have a cennection
-dbg->message("spieler_t::is_connected()","%s is already connected to area %i,%i|%i,%i).",halt->gib_name(),upperleft.x,upperleft.y,lowerright.x,lowerright.y);
+DBG_MESSAGE("spieler_t::is_connected()","%s is already connected to area %i,%i|%i,%i).",halt->gib_name(),upperleft.x,upperleft.y,lowerright.x,lowerright.y);
 				return true;
 			}
 		}
@@ -1909,7 +1917,7 @@ spieler_t::get_our_hub( const stadt_t *s )
 	while(iter.next()) {
 		koord h=iter.get_current()->gib_basis_pos();
 		if(h.x>s->get_linksoben().x  &&  h.y>s->get_linksoben().y  &&  h.x<s->get_rechtsunten().x  &&  h.y<s->get_rechtsunten().y) {
-dbg->message("spieler_t::get_our_hub()","found %s at (%i,%i)",s->gib_name(),h.x,h.y);
+DBG_MESSAGE("spieler_t::get_our_hub()","found %s at (%i,%i)",s->gib_name(),h.x,h.y);
 			return iter.get_current();
 		}
 	}
@@ -1930,7 +1938,7 @@ spieler_t::built_hub( const koord pos, int radius )
 	int dist = 999;
 
 	for( int x=-radius;  x<=radius;  x++ ) {
-		for( int y=-radius;  y<radius;  y++ ) {
+		for( int y=-radius;  y<=radius;  y++ ) {
 			koord try_pos=pos+koord(x,y);
 			if(welt->ist_in_kartengrenzen(try_pos)) {
 				const grund_t * gr = welt->lookup(try_pos)->gib_kartenboden();
@@ -1942,24 +1950,22 @@ spieler_t::built_hub( const koord pos, int radius )
 					}
 					else if(gr->gib_weg(weg_t::strasse)) {
 						ribi_t::ribi  ribi = gr->gib_weg_ribi_unmasked(weg_t::strasse);
-	      				if( (ribi_t::nordsued&ribi==0  || (ribi_t::ostwest&ribi)==0) &&  abs(x)+abs(y)<=dist  ) {
+	      				if( abs(x)+abs(y)<=dist  &&  (ribi_t::nordsued==ribi  || ribi_t::ostwest==ribi  ||  ribi_t::ist_einfach(ribi))    ) {
 	      					best_pos = try_pos;
 	      					dist = abs(x)+abs(y);
 	      				}
 	      			}
-	      			else if(gr->ist_natur()  &&  !gr->ist_wasser()) {
+	      			else if(gr->ist_natur()  &&  !gr->ist_wasser()  &&  abs(x)+abs(y)<=dist-2) {
 	      				// also ok for a stop, but second choice
 	      				// so wie gave it a malus of 2
-	      				if( abs(x)+abs(y)<=dist-2  ) {
-	      					best_pos = try_pos;
-	      					dist = abs(x)+abs(y)+2;
-	      				}
+      					best_pos = try_pos;
+      					dist = abs(x)+abs(y)+2;
 	      			}
 				}
 			}
 		}
 	}
-dbg->message("spieler_t::built_hub()","suggest hub at (%i,%i)",best_pos.x,best_pos.y);
+DBG_MESSAGE("spieler_t::built_hub()","suggest hub at (%i,%i)",best_pos.x,best_pos.y);
 	return best_pos;
 }
 
@@ -1969,9 +1975,9 @@ dbg->message("spieler_t::built_hub()","suggest hub at (%i,%i)",best_pos.x,best_p
  * @author prissi
  */
 void
-spieler_t::create_bus_transport_vehikel(koord startpos2d,int anz_vehikel,koord *stops,int anzahl)
+spieler_t::create_bus_transport_vehikel(koord startpos2d,int anz_vehikel,koord *stops,int anzahl,bool do_wait)
 {
-dbg->message("spieler_t::create_bus_transport_vehikel()","bus at (%i,%i)",startpos2d.x,startpos2d.y);
+DBG_MESSAGE("spieler_t::create_bus_transport_vehikel()","bus at (%i,%i)",startpos2d.x,startpos2d.y);
 	// now start all vehicle one field before, so they load immediately
 	koord3d startpos = welt->lookup(startpos2d)->gib_kartenboden()->gib_pos();
 
@@ -1992,7 +1998,7 @@ dbg->message("spieler_t::create_bus_transport_vehikel()","bus at (%i,%i)",startp
 		fpl->aktuell = (stops[0]==startpos2d);
 		for(int j=0;  j<anzahl;  j++) {
 			fpl->eintrag.at(j).pos = welt->lookup(stops[j])->gib_kartenboden()->gib_pos();
-			fpl->eintrag.at(j).ladegrad = 0;
+			fpl->eintrag.at(j).ladegrad = (j==0  ||  !do_wait)?0:10;	// do not wait at hubs ...
 		}
 		fpl->maxi = anzahl-1;
 
@@ -2080,7 +2086,7 @@ spieler_t::create_rail_transport_vehikel(const koord platz1, const koord platz2,
     	// probably need to electrify the track?
 	if(  rail_engine->get_engine_type()==vehikel_besch_t::electric  ) {
 		// we need overhead wires
-		dbg->message( "spieler_t::create_rail_transport_vehikel","Spieler needs to eletrify track.");
+		DBG_MESSAGE( "spieler_t::create_rail_transport_vehikel","Spieler needs to eletrify track.");
 		blockmanager * bm = blockmanager::gib_manager();
 		bm->setze_tracktyp( welt, pos1, 1 );
 	}
@@ -2115,7 +2121,7 @@ spieler_t::create_rail_transport_vehikel(const koord platz1, const koord platz2,
 bool
 spieler_t::suche_platz1_platz2(fabrik_t *qfab, fabrik_t *zfab)
 {
-    dbg->message("spieler_t::suche_platz1_platz2()",
+    DBG_MESSAGE("spieler_t::suche_platz1_platz2()",
 		 "searching locations for stops/stations");
 
     const koord3d start ( qfab->gib_pos() );
@@ -2131,14 +2137,14 @@ spieler_t::suche_platz1_platz2(fabrik_t *qfab, fabrik_t *zfab)
     INT_CHECK("simplay 969");
 
     if( !ok ) {   // keine Bauplaetze gefunden
-        dbg->message("spieler_t::suche_platz1_platz2()",
+        DBG_MESSAGE("spieler_t::suche_platz1_platz2()",
 	             "no suitable locations found");
     } else {
 	// plaetz reservieren
 	zeiger_t *z;
 	grund_t *gr;
 
-        dbg->message("spieler_t::suche_platz1_platz2()",
+        DBG_MESSAGE("spieler_t::suche_platz1_platz2()",
 	             "platz1=%d,%d platz2=%d,%d",
 		     platz1.x, platz1.y, platz2.x, platz2.y);
 
@@ -2179,7 +2185,7 @@ spieler_t::create_simple_road_transport()
 	// zwei verschiedene stops bauen
 
 	if(bauigel.max_n > 1) {
-dbg->message("spieler_t::create_simple_road_transport()","building simple road from %d,%d to %d,%d",platz1.x, platz1.y, platz2.x, platz2.y);
+DBG_MESSAGE("spieler_t::create_simple_road_transport()","building simple road from %d,%d to %d,%d",platz1.x, platz1.y, platz2.x, platz2.y);
 		bauigel.baue();
 		return true;
 	}
@@ -2190,7 +2196,7 @@ dbg->message("spieler_t::create_simple_road_transport()","building simple road f
 			route_t verbindung;
 			if(	verbindung.calc_route(welt,welt->lookup(platz1)->gib_kartenboden()->gib_pos(),welt->lookup(platz2)->gib_kartenboden()->gib_pos(),(fahrer_t *)test_driver)  &&
 				verbindung.gib_max_n()*2<3*abs_distance(platz1,platz2))  {
-dbg->message("spieler_t::create_simple_road_transport()","But connection between %d,%d to %d,%d is only %i",platz1.x, platz1.y, platz2.x, platz2.y, verbindung.gib_max_n() );
+DBG_MESSAGE("spieler_t::create_simple_road_transport()","But connection between %d,%d to %d,%d is only %i",platz1.x, platz1.y, platz2.x, platz2.y, verbindung.gib_max_n() );
 				// found something with the nearly same lenght
 				delete test_driver;
 				return true;
@@ -2235,11 +2241,11 @@ dbg->message("spieler_t::create_simple_road_transport()","But connection between
 				}
 				// then built this road ...
 				bauigel.baue_strecke(list);
-dbg->message("spieler_t::create_simple_road_transport()","building simple road from %d,%d to %d,%d by half waypoint",platz1.x, platz1.y, platz2.x, platz2.y);
+DBG_MESSAGE("spieler_t::create_simple_road_transport()","building simple road from %d,%d to %d,%d by half waypoint",platz1.x, platz1.y, platz2.x, platz2.y);
 				return true;
 			}
 		}
-dbg->message("spieler_t::create_simple_road_transport()","building simple road from %d,%d to %d,%d failed",platz1.x, platz1.y, platz2.x, platz2.y);
+DBG_MESSAGE("spieler_t::create_simple_road_transport()","building simple road from %d,%d to %d,%d failed",platz1.x, platz1.y, platz2.x, platz2.y);
 		return false;
 	}
 }
@@ -2266,7 +2272,7 @@ spieler_t::create_complex_road_transport()
     // zwei verschiedene stops bauen
 
     if(bauigel.max_n <= 3) {
-        dbg->message("spieler_t::create_complex_road_transport()",
+        DBG_MESSAGE("spieler_t::create_complex_road_transport()",
 		     "no suitable route was found, aborting roadbuilding");
 	return false;
     }
@@ -2282,7 +2288,7 @@ spieler_t::create_complex_road_transport()
 
 
         if(bd->gib_weg(weg_t::schiene) != NULL) {
-            dbg->message("spieler_t::create_complex_road_transport()",
+            DBG_MESSAGE("spieler_t::create_complex_road_transport()",
 	                 "try to cross railroad track");
 
 	    ribi_t::ribi ribi = bd->gib_weg_ribi(weg_t::schiene);
@@ -2290,11 +2296,11 @@ spieler_t::create_complex_road_transport()
 	    const bool ok = versuche_brueckenbau(p, &i, ribi, bauigel, list);
 
 	    if(!ok) {
-	      dbg->message("spieler_t::create_complex_road_transport()",
+	      DBG_MESSAGE("spieler_t::create_complex_road_transport()",
 			   "bridge failed, aborting roadbuilding");
 	      return false;
 	    } else {
-	      dbg->message("spieler_t::create_complex_road_transport()",
+	      DBG_MESSAGE("spieler_t::create_complex_road_transport()",
 			   "using bridge");
 	    }
 	}
@@ -2309,7 +2315,7 @@ spieler_t::create_complex_road_transport()
     bauigel.baubaer = true;
 
     if(!checke_streckenbau(bauigel, list)) {
-        dbg->message("spieler_t::create_complex_road_transport()",
+        DBG_MESSAGE("spieler_t::create_complex_road_transport()",
 		     "checke_streckenbau() returned false, aborting roadbuilding");
 	return false;
     }
@@ -2349,7 +2355,7 @@ spieler_t::create_simple_rail_transport()
 	bauigel.baubaer = false;	// no tunnels, no bridges
 	bauigel.calc_route(platz1,platz2);
 	if(bauigel.max_n > 3) {
-dbg->message("spieler_t::create_simple_rail_transport()","building simple track from %d,%d to %d,%d",platz1.x, platz1.y, platz2.x, platz2.y);
+DBG_MESSAGE("spieler_t::create_simple_rail_transport()","building simple track from %d,%d to %d,%d",platz1.x, platz1.y, platz2.x, platz2.y);
 		bauigel.baue();
 		return true;
 	}
@@ -2359,12 +2365,12 @@ dbg->message("spieler_t::create_simple_rail_transport()","building simple track 
 		bauigel.baubaer = true;	// ok, try tunnels and bridges
 		bauigel.calc_route(platz1,platz2);
 		if(bauigel.max_n > 3) {
-dbg->message("spieler_t::create_simple_rail_transport()","building simple track (baubaer) from %d,%d to %d,%d",platz1.x, platz1.y, platz2.x, platz2.y);
+DBG_MESSAGE("spieler_t::create_simple_rail_transport()","building simple track (baubaer) from %d,%d to %d,%d",platz1.x, platz1.y, platz2.x, platz2.y);
 			bauigel.baue();
 			return true;
 		}
 		else {
-dbg->message("spieler_t::create_simple_rail_transport()","building simple track from %d,%d to %d,%d failed", platz1.x, platz1.y, platz2.x, platz2.y);
+DBG_MESSAGE("spieler_t::create_simple_rail_transport()","building simple track from %d,%d to %d,%d failed", platz1.x, platz1.y, platz2.x, platz2.y);
 			return false;
 		}
 	}
@@ -2375,7 +2381,7 @@ dbg->message("spieler_t::create_simple_rail_transport()","building simple track 
 bool
 spieler_t::create_complex_rail_transport()
 {
-    dbg->message("spieler_t::create_complex_rail_transport()",
+    DBG_MESSAGE("spieler_t::create_complex_rail_transport()",
 		 "try to build complex railroads");
 
     INT_CHECK("simplay 957");
@@ -2396,7 +2402,7 @@ spieler_t::create_complex_rail_transport()
     // zwei verschiedene stops bauen
 
     if(bauigel.max_n < 3) {
-        dbg->message("spieler_t::create_complex_rail_transport()",
+        DBG_MESSAGE("spieler_t::create_complex_rail_transport()",
 		     "no suitable route was found, aborting trackbuilding");
 
 	return false;
@@ -2412,7 +2418,7 @@ spieler_t::create_complex_rail_transport()
 
 
 	if(  bd->gib_weg(weg_t::strasse) != NULL  ||  bd->gib_weg(weg_t::schiene) != NULL) {
-            dbg->message("spieler_t::create_complex_rail_transport()","try to cross way");
+            DBG_MESSAGE("spieler_t::create_complex_rail_transport()","try to cross way");
 
 	    ribi_t::ribi ribi = 0;
 
@@ -2425,12 +2431,12 @@ spieler_t::create_complex_rail_transport()
 	      // perhaps we can built a crossing?
 		if(  i>1  &&  (bd->gib_besitzer()==0  ||  bd->gib_besitzer()==this)  &&  bd->gib_halt()==NULL) {
 		      ribi_t::ribi ribi_route = ribi_typ(bauigel.gib_route_bei(i+1),bauigel.gib_route_bei(i-1));
-dbg->message("spieler_t::create_complex_rail_transport()","crossing ribi $%02x mit $%02x",ribi_route,ribi);
+DBG_MESSAGE("spieler_t::create_complex_rail_transport()","crossing ribi $%02x mit $%02x",ribi_route,ribi);
 			ok = 	ribi_t::ist_gerade(ribi)
 					&&  !ribi_t::ist_einfach(ribi)
 					&&  ribi_t::ist_gerade(ribi_route)
 					&&  (ribi & ribi_route)==0;
-dbg->message("spieler_t::create_complex_rail_transport()","railroad crossing is%s possible",ok==true?" ":" not");
+DBG_MESSAGE("spieler_t::create_complex_rail_transport()","railroad crossing is%s possible",ok==true?" ":" not");
 	    	}
 	    }
 
@@ -2440,10 +2446,10 @@ dbg->message("spieler_t::create_complex_rail_transport()","railroad crossing is%
 		}
 
 	    if(!ok) {
-	      dbg->message("spieler_t::create_complex_rail_transport()","bridge failed, aborting trackbuilding");
+	      DBG_MESSAGE("spieler_t::create_complex_rail_transport()","bridge failed, aborting trackbuilding");
 	      return false;
 	    } else {
-	      dbg->message("spieler_t::create_complex_rail_transport()","using bridge/crossing");
+	      DBG_MESSAGE("spieler_t::create_complex_rail_transport()","using bridge/crossing");
 	    }
 	}
     }
@@ -2456,7 +2462,7 @@ dbg->message("spieler_t::create_complex_rail_transport()","railroad crossing is%
     bauigel.baubaer = true;
 
     if(!checke_streckenbau(bauigel, list)) {
-        dbg->message("spieler_t::create_complex_rail_transport()",
+        DBG_MESSAGE("spieler_t::create_complex_rail_transport()",
 		     "checke_streckenbau() returned false, aborting trackbuilding");
 	return false;
     }
@@ -2583,6 +2589,7 @@ spieler_t::rdwr(loadsave_t *file)
 	// prepare for saving by default variables
 	if(file->is_saving()) {
 		halt_count = halt_list->count();
+DBG_DEBUG("spieler_t::rdwr()","%i has %i halts.",welt->sp2num( this ),halt_count);
 		start_index = welt->gib_fab_index(start);
 		ziel_index = welt->gib_fab_index(ziel);
 	}
@@ -2599,9 +2606,6 @@ spieler_t::rdwr(loadsave_t *file)
 	}
 	else {
 		file->rdwr_int(haltcount, " ");
-		if (haltcount < 0) {
-			haltcount = 0;
-		}
 	}
 
 	// from here on loading financial stuff
@@ -2660,33 +2664,53 @@ spieler_t::rdwr(loadsave_t *file)
 					// for old savegames only load 9 types and calculate the 10th; for new savegames load all 10 values
 					if (cost_type < 9) {
 						file->rdwr_longlong(finance_history_year[year][cost_type], " ");
+					} else {
+						finance_history_year[year][COST_OPERATING_PROFIT] = finance_history_year[year][COST_INCOME] + finance_history_year[year][COST_VEHICLE_RUN] + finance_history_year[year][COST_MAINTENANCE];
+						finance_history_year[year][COST_MARGIN] = (finance_history_year[year][COST_VEHICLE_RUN] + finance_history_year[year][COST_MAINTENANCE]) != 0 ? finance_history_year[year][COST_OPERATING_PROFIT] * 100 / abs((finance_history_year[year][COST_VEHICLE_RUN] + finance_history_year[year][COST_MAINTENANCE])) : 0;
+						finance_history_year[year][COST_TRANSPORTED_GOODS] = 0;
 					}
-					else {
-						finance_history_year[year][cost_type] = finance_history_year[year][COST_INCOME] + finance_history_year[year][COST_VEHICLE_RUN] + finance_history_year[year][COST_MAINTENANCE];
+				} else {
+					if (cost_type < 10) {
+						file->rdwr_longlong(finance_history_year[year][cost_type], " ");
+					} else {
+						finance_history_year[year][COST_MARGIN] = (finance_history_year[year][COST_VEHICLE_RUN] + finance_history_year[year][COST_MAINTENANCE]) != 0 ? finance_history_year[year][COST_OPERATING_PROFIT] * 100 / abs((finance_history_year[year][COST_VEHICLE_RUN] + finance_history_year[year][COST_MAINTENANCE])) : 0;
+						finance_history_year[year][COST_TRANSPORTED_GOODS] = 0;
 					}
-				}
-				else {
-					file->rdwr_longlong(finance_history_year[year][cost_type], " ");
 				}
 			}
-//dbg->message("player_t::rdwr()", "finance_history[year=%d][cost_type=%d]=%ld", year, cost_type,finance_history_year[year][cost_type]);
+//DBG_MESSAGE("player_t::rdwr()", "finance_history[year=%d][cost_type=%d]=%ld", year, cost_type,finance_history_year[year][cost_type]);
+		}
+	}
+	else if (file->get_version() < 86000) {
+		for (int year = 0;year<MAX_HISTORY_YEARS;year++) {
+			for (int cost_type = 0; cost_type<10; cost_type++) {
+				file->rdwr_longlong(finance_history_year[year][cost_type], " ");
+			}
+			finance_history_year[year][COST_MARGIN] = (finance_history_year[year][COST_VEHICLE_RUN] + finance_history_year[year][COST_MAINTENANCE]) != 0 ? finance_history_year[year][COST_OPERATING_PROFIT] * 100 / abs((finance_history_year[year][COST_VEHICLE_RUN] + finance_history_year[year][COST_MAINTENANCE])) : 0;
+			finance_history_year[year][COST_TRANSPORTED_GOODS] = 0;
+		}
+		// in 84008 monthly finance history was introduced
+		for (int month = 0;month<MAX_HISTORY_MONTHS;month++) {
+			for (int cost_type = 0; cost_type<10; cost_type++) {
+				file->rdwr_longlong(finance_history_month[month][cost_type], " ");
+			}
+			finance_history_month[month][COST_MARGIN] = (finance_history_month[month][COST_VEHICLE_RUN] + finance_history_month[month][COST_MAINTENANCE]) != 0 ? finance_history_month[month][COST_OPERATING_PROFIT] * 100 / abs((finance_history_month[month][COST_VEHICLE_RUN] + finance_history_month[month][COST_MAINTENANCE])) : 0;
+			finance_history_month[month][COST_TRANSPORTED_GOODS] = 0;
 		}
 	}
 	else {
-		// newest version
+		// most recent savegame version
 		for (int year = 0;year<MAX_HISTORY_YEARS;year++) {
 			for (int cost_type = 0; cost_type<MAX_COST; cost_type++) {
 				file->rdwr_longlong(finance_history_year[year][cost_type], " ");
 			}
 		}
-		// in 84008 monthly finance history was introduced
 		for (int month = 0;month<MAX_HISTORY_MONTHS;month++) {
 			for (int cost_type = 0; cost_type<MAX_COST; cost_type++) {
 				file->rdwr_longlong(finance_history_month[month][cost_type], " ");
 			}
 		}
 	}
-
 
 	file->rdwr_bool(automat, "\n");
 
@@ -2709,10 +2733,12 @@ spieler_t::rdwr(loadsave_t *file)
 		dbg->fatal("spieler_t::rdwr()", "Haltcount is out of bounds: %d -> corrupt savegame?", haltcount);
 	}
 	if(dummy != NEUE_ROUTE ) {
-		dbg->fatal("spieler_t::rdwr()", "State is out of bounds: %d -> corrupt savegame?", state);
+		//  may happens, when loading old games
+		dbg->warning("spieler_t::rdwr()", "State is out of bounds: %d -> corrupt savegame?", state);
 	}
 	if(subdummy < NR_INIT || subdummy > NR_ROAD_SUCCESS) {
-		dbg->fatal("spieler_t::rdwr()", "Substate is out of bounds: %d -> corrupt savegame?", substate);
+		// may happen, when loading old games
+		dbg->warning("spieler_t::rdwr()", "Substate is out of bounds: %d -> corrupt savegame?", substate);
 	}
 	if(start_index < -1) {
 		dbg->fatal("spieler_t::rdwr()", "Start index is out of bounds: %d -> corrupt savegame?", start_index);
@@ -2726,7 +2752,7 @@ spieler_t::rdwr(loadsave_t *file)
 		while(iter.next()) {
 			iter.get_current()->rdwr( file );
 		}
-		dbg->message("spieler_t::rdwr","Save ok");
+DBG_MESSAGE("spieler_t::rdwr","Save ok");
 	}
 	else {
 		// loading
@@ -2757,6 +2783,7 @@ spieler_t::rdwr(loadsave_t *file)
 		rail_weg = NULL;
 		road_weg = NULL;
 
+DBG_DEBUG("spieler_t::rdwr()","player %i: loading %i halts.",welt->sp2num( this ),halt_count);
 		for(int i=0; i<halt_count; i++) {
 			halthandle_t halt = haltestelle_t::create( welt, file );
 			halt->laden_abschliessen();
@@ -2835,22 +2862,13 @@ void spieler_t::bescheid_station_voll(halthandle_t halt)
  */
 void spieler_t::bescheid_vehikel_problem(convoihandle_t cnv,const koord3d ziel)
 {
-dbg->message("spieler_t::bescheid_vehikel_problem","Vehicle %s can't find a route to (%i,%i)!", cnv->gib_name(),ziel.x,ziel.y);
+DBG_MESSAGE("spieler_t::bescheid_vehikel_problem","Vehicle %s can't find a route to (%i,%i)!", cnv->gib_name(),ziel.x,ziel.y);
 	if(welt->gib_spieler(0)==this) {
 		char buf[256];
 		sprintf(buf,"Vehicle %s can't find a route!", cnv->gib_name());
 //		ticker_t::get_instance()->add_msg(buf, cnv->gib_pos().gib_2d(),ROT);
 		message_t::get_instance()->add_message(buf, cnv->gib_pos().gib_2d(),message_t::convoi,kennfarbe,cnv->gib_vehikel(0)->gib_basis_bild());
 	}
-}
-
-/**
- * Gets haltcount
- * @author hsiegeln
- */
-int spieler_t::get_haltcount() const
-{
-	return haltcount;
 }
 
 
@@ -2872,10 +2890,10 @@ spieler_t::init_undo( weg_t::typ wtype, int max )
 		delete last_built;
 		last_built = NULL;
 	}
-dbg->message("spieler_t::int_undo()","undo tiles %i",max);
+DBG_MESSAGE("spieler_t::int_undo()","undo tiles %i",max);
 	last_built_count = 0;
 	if(max>0) {
-		last_built = new array_tpl<koord> (max);
+		last_built = new array_tpl<koord> (max+1);
 		undo_type = wtype;
 	}
 
@@ -2886,9 +2904,10 @@ void
 spieler_t::add_undo(koord k)
 {
 	if(last_built!=NULL) {
+DBG_DEBUG("spieler_t::add_undo()","tile %i at (%i,%i)",last_built_count,k.x,k.y);
+		assert(last_built_count<last_built->get_size());
 		last_built->at(last_built_count++) = k;
 	}
-dbg->message("spieler_t::add_undo()","tile %i at (%i,%i)",last_built_count,k.x,k.y);
 }
 
 
@@ -2905,7 +2924,7 @@ spieler_t::undo()
 	for(int i=0;  i<last_built_count;  i++  ) {
 		grund_t *gr = welt->lookup(last_built->at(i))->gib_kartenboden();
 		ok |= gr->weg_entfernen(undo_type,true);
-dbg->message("spieler_t::add_undo()","undo tile %i at (%i,%i)",i,last_built->at(i).x,last_built->at(i).y);
+DBG_DEBUG("spieler_t::add_undo()","undo tile %i at (%i,%i)",i,last_built->at(i).x,last_built->at(i).y);
 	}
 	delete last_built;
 	last_built = NULL;

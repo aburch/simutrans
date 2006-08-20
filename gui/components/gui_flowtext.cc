@@ -243,7 +243,7 @@ koord gui_flowtext_t::output(koord offset, bool doit) const {
 	    }
 
 	    if(doit) {
-		display_proportional(offset.x+xpos, offset.y+ypos, node->text, 0, color, true);
+		display_proportional_clip(offset.x+xpos, offset.y+ypos, node->text, 0, color, true);
 	    }
 
 	    xpos = nxpos;

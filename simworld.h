@@ -48,6 +48,8 @@
 #include "simplan.h"
 #endif
 
+#include "simgraph.h"
+
 struct event_t;
 class simlinemgmt_t;
 class stadt_t;
@@ -120,13 +122,11 @@ private:
     int mouse_funk_ok_sound;
     int mouse_funk_ko_sound;
 
-
     /**
      * Tomas: forest related values - no of trees could be on
      * other places as well
      */
     unsigned char max_no_of_trees_on_square;
-
 
     /**
      * Max. number of players
@@ -172,6 +172,7 @@ private:
     slist_tpl<convoihandle_t> convoi_list;
 
     slist_tpl<gebaeude_t *> ausflugsziele;
+    int ausflugsziele_max_pax;
 
     slist_tpl<koord> labels;
 
@@ -269,6 +270,8 @@ private:
     unsigned int letzter_monat;  // Anzahl Spielmonate seit Erzeugung
     unsigned int letztes_jahr;   // Anzahl Spieljahre seit Erzeugung
 
+    int season;	// current season
+
     int steps;          // Anzahl steps seit Erzeugung
     int steps_bis_jetzt;
     bool doit;          // flag fuer simulationsabbruch (false == abbruch)
@@ -359,6 +362,13 @@ public:
 
     spieler_t * gib_spieler(int n);
 
+
+
+    /**
+     * 0=winter, 1=spring, 2=summer, 3=autumn
+     * @author prissi
+     */
+    inline unsigned long gib_jahreszeit() const { return season; };
 
 
     /**
@@ -692,7 +702,7 @@ public:
     void add_ausflugsziel(gebaeude_t *gb);
     void remove_ausflugsziel(gebaeude_t *gb);
     const slist_tpl<gebaeude_t *> & gib_ausflugsziele() const;
-
+    int gib_ausflugsziele_max_pax() const { return ausflugsziele_max_pax; };
 
     void add_label(koord pos);
     void remove_label(koord pos);
@@ -703,7 +713,6 @@ public:
      * @author Hj. Malthaner
      */
     fabrik_t *get_random_fab() const;
-
 
     /**
      * sucht naechstgelegene Stadt an Position i,j

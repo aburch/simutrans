@@ -220,6 +220,8 @@ public:
 	      lagerhaus = 24,
 	      oberleitung = 25,
 
+				tramschiene = 26,
+
 	      // vehikel sind von 32 bis 40
 	      automobil=32, waggon=33,
 	      schiff=34,
@@ -229,7 +231,10 @@ public:
 	      fussgaenger=42,
 
 	      // new cars
-	      car = 64
+	      car = 64,
+
+	      // other new dings
+	      presignal = 96
 	      };
 
 

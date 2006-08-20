@@ -21,6 +21,9 @@
 #include <stdio.h>
 #include <string.h>
 #include <math.h>
+#ifdef _MSC_VER
+#include <malloc.h> // for alloca
+#endif
 
 #include "simvehikel.h"
 #include "boden/grund.h"
@@ -44,6 +47,7 @@
 #include "simintr.h"
 
 #include "dings/wolke.h"
+#include "dings/signal.h"
 
 #include "gui/karte.h"
 
@@ -121,7 +125,7 @@ int unload_freight(karte_t *welt,
 	// Zielhaltestelle entfernt ?
 
 	if(!end_halt.is_bound() || !via_halt.is_bound()) {
-	  dbg->message("vehikel_t::entladen()",
+	  DBG_MESSAGE("vehikel_t::entladen()",
 		       "destination of %d %s is no longer reachable",
 		       tmp.menge,
 		       translator::translate(tmp.gib_name()));
@@ -261,7 +265,7 @@ vehikel_basis_t::verlasse_feld()
 		   gib_name(), this, gib_pos().x, gib_pos().y);
 
 
-        dbg->message("vehikel_basis_t::verlasse_feld()",
+        DBG_MESSAGE("vehikel_basis_t::verlasse_feld()",
 		     "checking all plan squares");
 
 	koord k;
@@ -482,7 +486,7 @@ vehikel_t::setze_offsets(int x, int y)
  */
 void vehikel_t::remove_stale_freight()
 {
-  dbg->debug("vehikel_t::remove_stale_freight()", "called");
+  DBG_DEBUG("vehikel_t::remove_stale_freight()", "called");
 
   // and now check every piece of ware on board,
   // if its target is somewhere on
@@ -1096,7 +1100,9 @@ vehikel_t::rdwr(loadsave_t *file)
     if(file->is_loading()) {
         list.insert( this );
 	calc_bild();
-	sum_weight = besch->gib_gewicht();
+//	sum_weight = besch->gib_gewicht();
+	// full weight after loading
+	sum_weight =  (gib_fracht_gewicht()+499)/1000 + besch->gib_gewicht();
     }
 }
 
@@ -1460,6 +1466,11 @@ waggon_t::ist_weg_frei(int & restart_speed) const
       (const schiene_t *) welt->lookup( pos_next )->gib_weg(gib_wegtyp());
 
     bool frei = sch1->ist_frei();
+    signal_t * sig = sch1->gib_blockstrecke()->gib_signal_bei(pos_next);
+    if (sig)
+    	if (sig->gib_typ() == ding_t::presignal)
+     		frei = frei && is_next_block_free();
+
 
     if(frei) {
       restart_speed = -1;
@@ -1469,6 +1480,27 @@ waggon_t::ist_weg_frei(int & restart_speed) const
 
     return frei;
   }
+}
+
+bool
+waggon_t::is_next_block_free() const {
+  const schiene_t * sch0 =
+    (const schiene_t *) welt->lookup( pos_next )->gib_weg(gib_wegtyp());
+
+	const route_t * route = cnv->get_route();
+	// find next blocksegment enroute
+	for (int i = route_index + 1; i < route->gib_max_n(); i++) {
+
+	  const schiene_t * sch1 =
+	    (const schiene_t *) welt->lookup( route->position_bei(i))->gib_weg(gib_wegtyp());
+
+	  if (sch0->gib_blockstrecke() != sch1->gib_blockstrecke()) {
+	  	// next blocksegment found!
+	  	return sch1->gib_blockstrecke()->ist_frei();
+	  }
+	}
+	// no next-next block found enroute!
+	return true;
 }
 
 void
@@ -1493,12 +1525,16 @@ waggon_t::betrete_feld()
   }
 
   // Hajo: Neu anordnen fuer richtige Sichtbarkeit
-
+#ifdef _MSC_VER
+  ding_t **arr = (ding_t **)alloca(gr->gib_top() * sizeof(ding_t *));
+#else
   ding_t * arr [gr->gib_top()];
+#endif
   int idx = 0;
 
   // Hajo: scan for waggons
-  for(int i=0; i<gr->gib_top(); i++) {
+  int i;
+  for(i=0; i<gr->gib_top(); i++) {
     ding_t *dt = gr->obj_bei(i);
     if(dt != NULL && dt->gib_typ() == 33) {
       arr[idx++] = dt;
@@ -1506,13 +1542,13 @@ waggon_t::betrete_feld()
   }
 
   // Hajo: remove waggons, later add them again in correct order
-  for(int i=0; i<idx; i++) {
+  for(i=0; i<idx; i++) {
     gr->obj_remove(arr[i], arr[i]->gib_besitzer());
   }
 
 
   // Hajo: sort by y-offset
-  for(int i=0; i<idx; i++) {
+  for(i=0; i<idx; i++) {
     int best = -1;
     int max_y = -999;
 

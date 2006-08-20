@@ -95,7 +95,7 @@ public:
 	size  = new_size;
 	delete data;
 	data = new_data;
-	reutrn true;
+	return true;
     }
 #endif
     /**
@@ -143,6 +143,55 @@ public:
 	    return true;
 	}
     }
+
+
+	/**
+	* removes element, if contained
+	* @author prisse
+	*/
+	bool remove(T elem)
+	{
+//printf("Removing from %i count \n",count);fflush(NULL);
+		unsigned int i,j;
+		for(i=j=0;  i<count;  i++,j++  ) {
+			if(data[i] == elem) {
+				// skip this one
+				j++;
+				count --;
+			}
+			// maybe we copy too often ...
+			if(j<size) {
+				data[i] = data[j];
+			}
+		}
+//printf("Removed, new count %i",count);fflush(NULL);
+		return true;
+	}
+
+
+	/**
+	* insets data at a certain pos
+	* @author prisse
+	*/
+	bool insert_at(unsigned int pos,T elem)
+	{
+		if(  pos<size  &&  pos<=count  ) {
+			// ok, a valid position, make space
+			if(count<size) {
+				// we should catch error, if we throw something away?!?
+				count++;
+			}
+			// insert data
+			for(int i=pos+1;  i<count;  i++  ) {
+				if(i<size) {
+					data[i] = data[i-1];
+				}
+			}
+			data[pos] = elem;
+			return true;
+		}
+		return false;
+	}
 
 
     /**

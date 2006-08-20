@@ -5,6 +5,9 @@
  * 01/12/2003
  */
 
+#ifdef _MSC_VER
+#include <malloc.h> // for alloca
+#endif
 #include "simlinemgmt.h"
 #include "simline.h"
 #include "simhalt.h"
@@ -119,7 +122,7 @@ simlinemgmt_t::delete_line(simline_t * line)
 		delete (line);
 		all_managed_lines.remove(line);
 	}
-	//dbg->message("simlinemgt_t::delete_line()", "line at index %d (%p) deleted", iroute, line);
+	//DBG_MESSAGE("simlinemgt_t::delete_line()", "line at index %d (%p) deleted", iroute, line);
 }
 
 
@@ -223,14 +226,19 @@ void
 simlinemgmt_t::sort_lines()
 {
 	int count = count_lines();
+#ifdef _MSC_VER
+	line_details_t *a = (line_details_t *)alloca(count * sizeof(line_details_t));
+#else
 	line_details_t a[count];
-	for (int i = 0; i<count; i++)
+#endif
+        int i;
+	for (i = 0; i<count; i++)
 	{
 		a[i].line = get_line(i);
 	}
 	qsort((void *)a, count, sizeof (line_details_t), compare_lines);
 	all_managed_lines.clear();
-	for (int i = 0; i<count; i++)
+	for (i = 0; i<count; i++)
 	{
 		all_managed_lines.append(a[i].line);
 	}
@@ -275,7 +283,7 @@ int simlinemgmt_t::get_unique_line_id()
     }
   }
 
-  dbg->message("simlinemgmt_t::get_unique_line_id()", "low=%d, high=%d", low, high);
+  DBG_MESSAGE("simlinemgmt_t::get_unique_line_id()", "low=%d, high=%d", low, high);
 
   return high + 1;
 }
@@ -292,30 +300,30 @@ simlinemgmt_t::new_month()
 simline_t *
 simlinemgmt_t::create_line(int ltype)
 {
-	create_line(ltype, NULL);
+	return create_line(ltype, NULL);
 }
 
 simline_t *
 simlinemgmt_t::create_line(int ltype, fahrplan_t * fpl)
 {
 	simline_t * line = NULL;
-	dbg->message("simlinemgmt_t::create_line()", "fpl is of type %i", ltype);
+	DBG_MESSAGE("simlinemgmt_t::create_line()", "fpl is of type %i", ltype);
 	switch (ltype) {
 		case simline_t::truckline:
 			line = new truckline_t(welt, this, new autofahrplan_t(fpl));
-			dbg->message("simlinemgmt_t::create_line()", "truckline created");
+			DBG_MESSAGE("simlinemgmt_t::create_line()", "truckline created");
 			break;
 		case simline_t::trainline:
 			line = new trainline_t(welt, this, new zugfahrplan_t(fpl));
-			dbg->message("simlinemgmt_t::create_line()", "trainline created");
+			DBG_MESSAGE("simlinemgmt_t::create_line()", "trainline created");
 			break;
 		case simline_t::shipline:
 			line = new shipline_t(welt, this, new schifffahrplan_t(fpl));
-			dbg->message("simlinemgmt_t::create_line()", "shipline created");
+			DBG_MESSAGE("simlinemgmt_t::create_line()", "shipline created");
 			break;
 		default:
 		    line = new simline_t(welt, this, new fahrplan_t(fpl));
-			dbg->message("simlinemgmt_t::create_line()", "default line created");
+			DBG_MESSAGE("simlinemgmt_t::create_line()", "default line created");
 			break;
 		}
 	return line;

@@ -41,22 +41,30 @@ class baum_besch_t : public obj_besch_t {
     uint16  hoehenlage;
 
 public:
-    int gib_hoehenlage() const
-    {
-	return hoehenlage;
-    }
-    const char *gib_name() const
-    {
-	return static_cast<const text_besch_t *>(gib_kind(0))->gib_text();
-    }
-    const char *gib_copyright() const
-    {
-	return static_cast<const text_besch_t *>(gib_kind(1))->gib_text();
-    }
-    const bild_besch_t *gib_bild(int h, int i) const
-    {
-	return static_cast<const bildliste2d_besch_t *>(gib_kind(2))->gib_bild(i, h);
-    }
+	int gib_hoehenlage() const
+	{
+		return hoehenlage;
+	}
+
+	const char *gib_name() const
+	{
+		return static_cast<const text_besch_t *>(gib_kind(0))->gib_text();
+	}
+
+	const char *gib_copyright() const
+	{
+		return static_cast<const text_besch_t *>(gib_kind(1))->gib_text();
+	}
+
+	const bild_besch_t *gib_bild(int h, int i) const
+	{
+		return static_cast<const bildliste2d_besch_t *>(gib_kind(2))->gib_bild(i, h);
+	}
+
+	const int gib_seasons() const
+	{
+		return static_cast<const bildliste2d_besch_t *>(gib_kind(2))->gib_anzahl()/5;
+	}
 };
 
 

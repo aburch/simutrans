@@ -41,7 +41,7 @@ bool stadtauto_t::register_besch(const stadtauto_besch_t *besch)
 bool stadtauto_t::laden_erfolgreich()
 {
     if(liste.count() == 0) {
-	dbg->message("stadtauto_t", "No citycars found - feature disabled");
+	DBG_MESSAGE("stadtauto_t", "No citycars found - feature disabled");
     }
     return true;
 }
@@ -272,7 +272,7 @@ verkehrsteilnehmer_t::calc_bild()
 
 bool verkehrsteilnehmer_t::sync_step(long delta_t)
 {
-  // dbg->message("verkehrsteilnehmer_t::sync_step()", "%p called", this);
+  // DBG_MESSAGE("verkehrsteilnehmer_t::sync_step()", "%p called", this);
 
     weg_next += (current_speed*delta_t) / 64;
 

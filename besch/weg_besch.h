@@ -127,6 +127,16 @@ public:
         return wtyp;
     }
 
+		/**
+		 * returns the system type of this way (mostly used with rails)
+		 * @see weg_t::styp
+		 * @author DarioK
+		 */
+		const uint8 gib_styp() const
+		{
+				return styp;
+		}
+
 
     const char * gib_name() const
     {

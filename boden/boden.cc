@@ -55,9 +55,52 @@ void boden_t::toggle_grid()
 }
 
 
+
+/**
+ * Toggle ground seasons
+ * @author Hj. Malthaner
+ */
+void boden_t::toggle_season(int season)
+{
+	// change grounds to winter?
+	if(season==2  &&  grund_besch_t::winter_boden!=NULL) {
+		grund_besch_t::boden = grund_besch_t::winter_boden;
+	}
+	else {
+		grund_besch_t::boden = grund_besch_t::standard_boden;
+	}
+	// same for coast lines
+	if(season==2  &&  grund_besch_t::winter_ufer!=NULL) {
+		grund_besch_t::ufer = grund_besch_t::winter_ufer;
+	}
+	else {
+		grund_besch_t::ufer = grund_besch_t::standard_ufer;
+	}
+
+	// now redraw ground image
+	const int groesse = welt->gib_groesse();
+	for(int j=0; j<groesse; j++) {
+		for(int i=0; i<groesse; i++) {
+
+			const planquadrat_t *plan = welt->lookup(koord(i,j));
+			const int boden_count = plan->gib_boden_count();
+
+			for(int schicht=0; schicht<boden_count; schicht++) {
+
+				grund_t *gr = plan->gib_boden_bei(schicht);
+				gr->calc_bild();
+			}
+		}
+	}
+}
+
+
+
+
 boden_t::boden_t(karte_t *welt, loadsave_t *file) : grund_t(welt)
 {
     rdwr(file);
+//DBG_DEBUG("boden_t::rdwr()", "loaded at %i,%i with %i dinge.", gib_pos().x, gib_pos().y, obj_count());
 }
 
 

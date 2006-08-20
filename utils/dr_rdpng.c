@@ -23,7 +23,7 @@ read_png(unsigned char *block, FILE *file)
     png_structp png_ptr;
     png_infop   info_ptr;
     png_bytep row_pointers[1024];
-    int row, x, y;
+    unsigned row, x, y;
 
     png_ptr = png_create_read_struct(PNG_LIBPNG_VER_STRING,NULL,NULL,NULL);
     if (png_ptr == NULL) {

@@ -35,6 +35,7 @@
 #ifdef spaeter
 #include "autosave_gui.h"
 #endif
+#include "../simcolor.h"
 
 optionen_gui_t::optionen_gui_t(karte_t *welt)
  : infowin_t(welt), buttons(10)
@@ -249,5 +250,5 @@ void optionen_gui_t::zeichnen(koord pos, koord gr)
 {
   infowin_t::zeichnen(pos, gr);
 
-  display_divider(pos.x+10, pos.y+55, 191);
+  display_ddd_box_clip(pos.x+10, pos.y+55, 191, 0, MN_GREY0, MN_GREY4);
 }

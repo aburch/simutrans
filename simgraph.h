@@ -43,7 +43,7 @@ typedef struct
 {
 	int	height;
 	int	descent;
-	int num_chars;
+	unsigned num_chars;
 	char	name[256];
 	unsigned char	*screen_width;
 	unsigned char	*char_data;
@@ -157,12 +157,15 @@ void display_day_night_shift(int night);
  */
 void display_set_player_color(int entry);
 
+// scrolls horizontally, will ignore clipping etc.
+void	display_scroll_band( const int start_y, const int x_offset, const int h );
 
-void display_img(const int n, const int xp, const int yp,
-		 const char daynight, const char dirty);
+// display image with day and night change
+void display_img(const int n, const int xp, int yp, const int dirty);
 
+// dispaly image with color (if there) and optinal day and nightchange
 void display_color_img(const int n, const int xp, const int yp,
-		       const int color, const char daynight, const char dirty);
+		       const int color, const int daynight, const int dirty);
 
 void display_fillbox_wh(int xp, int yp, int w, int h, int color, int dirty);
 void display_fillbox_wh_clip(int xp, int yp, int w, int h, int color, int d);

@@ -126,7 +126,7 @@ public:
     /*
      * Für den Aufruf der richtigen Methoden sorgen!
      */
-    virtual void info(cbuffer_t & buf) const { return ding_info_t::info(buf); }
+    virtual void info(cbuffer_t & buf) const { ding_info_t::info(buf); }
     virtual spieler_t* gib_besitzer() const { return ding_info_t::gib_besitzer(); }
     virtual koord3d gib_pos() const { return ding_info_t::gib_pos(); }
     virtual const char * gib_name() const { return ding_info_t::gib_name(); }

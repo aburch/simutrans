@@ -31,7 +31,8 @@ public:
       char msg[256];
       koord pos;
       int color;
-      unsigned int xpos;
+      int xpos;
+      int w;
     };
 
 private:
@@ -42,6 +43,9 @@ private:
     slist_tpl <node> * list;
     slist_iterator_tpl <node> * iter;
     int next_pos;
+
+    // true, if also trigger background need redraw
+    bool redraw_all;
 
 public:
 
@@ -77,6 +81,13 @@ public:
 
 
     static ticker_t * get_instance();
+
+	/* Ticker infowin pops up
+	 * @author Hj. Malthaner
+	 */
+	koord get_welt_pos(int x, int y);
+
+    void zeichnen();
 };
 
 

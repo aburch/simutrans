@@ -49,6 +49,8 @@ public:
 
     karte_vollansicht_t(karte_t *welt);
 
+    void display_menu();
+
     void display(bool dirty);
 };
 

@@ -91,7 +91,7 @@ powernet_t::~powernet_t()
  */
 void powernet_t::sync_prepare()
 {
-  // dbg->message("powernet_t::sync_prepare()", "this=%d, last=%d", power_this, power_last);
+  // DBG_MESSAGE("powernet_t::sync_prepare()", "this=%d, last=%d", power_this, power_last);
 
   last_capacity = power_last;
 

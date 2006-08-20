@@ -46,6 +46,15 @@ class umgebung_t
 
 
   /**
+   * Stationsabdeckung zeigen
+   *
+   * @author Hj. Malthaner
+   */
+  static bool station_coverage_show;
+  static int station_coverage_size;
+
+
+  /**
    * Namen (Städte, Haltestellen) anzeigen? (0 .. 3)
    *
    * @author Hj. Malthaner
@@ -91,6 +100,14 @@ class umgebung_t
    * @author Hj. Malthaner
    */
   static bool verkehrsteilnehmer_info;
+
+
+  /**
+   * Info-Fenster für Bäume
+   *
+   * @author Hj. Malthaner
+   */
+  static bool tree_info;
 
 
   /**

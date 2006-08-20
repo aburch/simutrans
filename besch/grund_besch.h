@@ -74,6 +74,10 @@ public:
     static const grund_besch_t *boden;
     static const grund_besch_t *ufer;
     static const grund_besch_t *wasser;
+    static const grund_besch_t *standard_boden;
+    static const grund_besch_t *winter_boden;
+    static const grund_besch_t *standard_ufer;
+    static const grund_besch_t *winter_ufer;
     static const grund_besch_t *fundament;
     static const grund_besch_t *ausserhalb;
 

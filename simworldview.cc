@@ -15,7 +15,8 @@
 #include "simworld.h"
 #include "simplan.h"
 #include "simplay.h"
-#include "simticker.h"
+#include "simdisplay.h"
+#include "simskin.h"
 #include "simwin.h"
 #include "simgraph.h"
 #include "simimg.h"
@@ -23,16 +24,14 @@
 #include "boden/grund.h"
 #include "dataobj/umgebung.h"
 #include "besch/grund_besch.h"
-#include "gui/ticker_view_t.h"
+
+#include "simticker.h"
 
 
 karte_vollansicht_t::karte_vollansicht_t(karte_t *welt) : karte_ansicht_t(welt)
 {
     this->welt = welt;
-
-    create_win(0, display_get_height()-32, -1,
-	       new ticker_view_t(welt),
-	       w_frameless);
+//    create_win(0, display_get_height()-32, -1, new ticker_view_t(welt), w_frameless);
 };
 
 
@@ -46,6 +45,7 @@ int karte_vollansicht_t::gib_anzeige_hoehe()
 {
     return display_get_height();
 }
+
 
 
 /**
@@ -75,7 +75,6 @@ void karte_vollansicht_t::display_boden(const int i, const int j, const int xpos
 	display_img(grund_besch_t::ausserhalb->gib_bild(hang_t::flach),
 		    xpos,
 		    ypos - ((welt->gib_grundwasser()*get_tile_raster_width()) >> 6),
-		    true,
 		    dirty);
     }
 }
@@ -88,7 +87,6 @@ void karte_vollansicht_t::display_boden(const int i, const int j, const int xpos
 void karte_vollansicht_t::display_dinge(const int i, const int j, const int xpos, const int ypos, bool dirty)
 {
     const planquadrat_t * const plan = welt->lookup(koord(i,j));
-
 
     if(plan) {
 	grund_t *gr = plan->gib_boden_bei(0u);
@@ -131,21 +129,29 @@ void karte_vollansicht_t::display_dinge(const int i, const int j, const int xpos
 }
 
 
+
+
+
+// draw the menu (is only called a single time!
+void karte_vollansicht_t::display_menu()
+{
+	display_setze_clip_wh( 0, 0, 32000, 33 );
+	display_icon_leiste(0, skinverwaltung_t::hauptmenu->gib_bild(0)->bild_nr);
+}
+
+
+
+// draw the map
 void karte_vollansicht_t::display(bool dirty)
 {
-    const int width = display_get_width();
-    const int height = display_get_height();
+	const int width = display_get_width();
+	const int height = display_get_height()-32-16-(ticker_t::get_instance()->count()>0?16:0);
 
+	display_setze_clip_wh( 0, 32, width, height );
 
-    PUSH_CLIP(0, 0, width, height - 16);
+	karte_ansicht_t::display(dirty);
 
-    karte_ansicht_t::display(dirty);
-
-    for(int x=0; x<8; x++) {
-	welt->gib_spieler(x)->display_messages(welt->gib_x_off(),
-                                               welt->gib_y_off(),
-					       width);
-    }
-
-    POP_CLIP();
+	for(int x=0; x<8; x++) {
+		welt->gib_spieler(x)->display_messages(welt->gib_x_off(),welt->gib_y_off(),width);
+	}
 }

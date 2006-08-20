@@ -26,6 +26,7 @@
  *  forward declarations
  */
 class haus_besch_t;
+class skin_besch_t;
 
 /*
  *  class:
@@ -223,6 +224,16 @@ public:
     const haus_tile_besch_t *gib_tile(int layout, int x, int y) const;
 
     int layout_anpassen(int layout) const;
+
+    /**
+     * Skin: cursor (index 0) and icon (index 1)
+     * @author Hj. Malthaner
+     */
+    const skin_besch_t * gib_cursor() const
+    {
+//        return static_cast<const skin_besch_t *>(gib_kind(5));
+	return (const skin_besch_t *)(gib_kind(2+groesse.x*groesse.y*layouts));
+    }
 };
 
 #endif // __HAUS_BESCH_H

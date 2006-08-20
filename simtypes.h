@@ -13,9 +13,15 @@
 // makros are not very safe: thus use these macro like functions
 // otherwise things may fail or functions are called uneccessarily twice
 
+#ifdef _MSC_VER /* VC++ 6.0 does not understand typeof */
+#define MAX(a,b) ((a) > (b) ? (a) : (b))
+#define MIN(a,b) ((a) < (b) ? (a) : (b))
+#define ABS(a) ((a) < 0 ? -(a) : (a))
+#else
 #define MAX(a,b) ({ typeof (a) _a = (a); typeof (b) _b = (b); _a > _b ? _a : _b; })
 #define MIN(a,b) ({ typeof (a) _a = (a); typeof (b) _b = (b); _a < _b ? _a : _b; })
 #define ABS(a) ({ typeof (a) _a = (a); _a < 0 ? -_a : _a; })
+#endif
 #define CLIP(wert,min,max)  MIN(MAX((wert),(min)),(max))
 
 // Hajo: define machine independant types

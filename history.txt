@@ -1,3 +1,94 @@
+
+Release of 86.00.1
+
+27-Mar-2005 (prissi)
+	FIX: coded the display_img new, now 40% faster than before
+	FIX: city statistics were wrongly initialized
+	FIX: docks: water ground left, catchment area now checked + dock removal possible
+
+26-Mar-2005 (prissi)
+	FIX: factory catchment area was assymetric (2x3) => change also to 2x2
+	FIX: tourist attraction display now normalized to biggest attraction
+	CHANGE: another round of drawing optimizations: no redraw of menus or ticker background
+	CHANGE: vertical clipping display further optimized, zoom on demand now working
+	CHANGE: new parameter in simuconf.tab "station_coverage" sets the coverage area
+	FIX: wrong factory catches ware of the same typ hopefully corrected
+	CHANGE: added the tram-stuff for 64
+
+
+Release of 86.00
+
+20-Mar-2005 (prissi)
+	NEW: statistics for towns
+	FIX: all ground tiles were no properly initialized during loading! (weg1 and 2 could have a random image!)
+	CHANGE: all images are loaded and coded to their proper values. Darkening is only on demand. (huge memory relief)
+	CHANGE: zooming calculation change => drastic speed-up and in priciple allows also for zomming by all integer factors (1,2,3,4,5, ... )
+	CHANGE: Debug message actually taken out, if compiled without debug support => leaner code and speed up.
+	CHANGE: TramTools disabled, if no tram depot found
+	CHANGE: Lots of german help files added (from Gotthardlok)
+
+17-Mar-2005 (prissi)
+	NEW: Season for grounds ("WinterGras" and "WinterShore")
+	NEW: Seasons for trees (either all year (0-4) or summer/winter (0-4|5-9) or all four seasons with 20 images (sum|aut|win|spr)
+	NEW: new parameter in simuconf.tab: "tree_info=0" switches tree info off
+
+14-Mar-2005 (prissi)
+	FIX: convois have again correct weight after loading a game
+	FIX: AI wrongly fills undo array
+	FIX: corrected some loadgame issues
+
+11-Mar-2005 (prissi)
+	CHANGE: quickstone_t shrinked to unsigned short int (saves memory)
+	CHANGE: vector_tpl now with removal and insert_at at certain position
+	CHANGE: grund_t now remembers the 10 next stations (this seems like maximum number to me)
+		This allows way faster search for stations. Furthermore, passenger now are preferably routed to a station of the player/passenger AI.
+	CHANGE: 'v' to display the station coverage
+	CHANGE: station coverage setting saved in simworld.cfg
+
+9-Mar-2005 (prissi)
+	CHANGE: Townhall also opens its info-window
+	FIX: StalkeXRP changed to his real name in credits
+	FIX: Austrian and finnish citylist had still old names
+	FIX: Citycars again in dat files (was omitted during makeobj link, because commented in simwrite.cc ???)
+	CHANGE: Savegame format now 86.00, since this will be 86 with trams and more
+	CHANGE: Median citicen is again median ...
+	CHANGE: New founded city has always 1/10 of median citicens at the beginning
+
+4-Mar-2005 (prissi)
+	FIX: factory and transformer builder now checks their building sites before more stricktly
+
+1-Mar-2005 (prissi)
+	CHANGE: menu clean up: Post -> special tools
+	NEW: cursor for slop tool (cursor.Slope.pak)
+	NEW: large docks, as many as you like
+	NEW: as many stations as you like
+	NEW: as many bustops as you like
+	CHANGE: factories now have a passenger level
+Following cursor.*.pak had become obsolete:
+	BusStop, Crossing, Rail, Road, TrainStop, FreightTrainStop, TrainDepot, CarDepot, Post, ShipStop
+	please define an icon and a cursor in your files!
+
+24-Feb-2005 (prissi)
+	NEW: larger ports possible
+	NEW: passenger AI new also built lines to factories and attractions
+	CHANGE: allow for higher inital mountains
+	FIX: meadian citicens was actually maximum citicens
+
+23-Feb-2005 (hsiegeln):
+	NEW: presignals; -> trains will not enter a block, if the block to be entered thereafter is not free and they are waiting at a "presignal"
+	NEW: presignals require the following PAK: misc.preSignals.pak
+	TODO: presignals use old-signals icons on menu and for cursor; needs to be fixed
+	TODO: gfx for preSignals currently use gantry-style; should use correct gfx; whatever that may be ...
+
+22-Feb-2005 (hsiegeln):
+	NEW: Margin graph in finance window
+	NEW: Transported Goods graph in finance window
+	FIX: net wealth initialization was missing for month graphs
+	FIX: own vehicles couldn't be managed after loading game
+	FIX: potential crash in line management window
+	FIX: butten enable/disable in line management window
+
+
 Release Simutrans 85.04.1
 
 21-Feb-2005:
@@ -6,7 +97,8 @@ Release Simutrans 85.04.1
 	CHANGE: doubled power needed for acceleration, but every car now only consumers kW equiv. to its weight
 	CHANGE: passenger level added to factory window
 	FIX: correct calculation and passenger display for all monuments
-
+	FIX: string overflow for new monuments corrected
+	FIX: tooltip corrected
 
 19-Feb-2005:
 	FIX: removed uneccessary pixels from cathedral and stadium

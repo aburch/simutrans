@@ -256,7 +256,7 @@ void welt_gui_t::infowin_event(const event_t *ev)
 	    }
 
    	} else if(buttons.at(11).getroffen(ev->cx, ev->cy)) {
-	    if(sets->gib_max_mountain_height() < 160.0 ) {
+	    if(sets->gib_max_mountain_height() < 320.0 ) {
 		sets->setze_max_mountain_height( sets->gib_max_mountain_height() + 10 );
                 update_preview();
 	    }
@@ -267,7 +267,7 @@ void welt_gui_t::infowin_event(const event_t *ev)
           // values of 0.5 .. 0.7 seem to be ok, less is boring flat, more is too crumbled
 
   	} else if(buttons.at(12).getroffen(ev->cx, ev->cy)) {
-	    if(sets->gib_map_roughness() > 0.5 ) {
+	    if(sets->gib_map_roughness() > 0.4 ) {
 		sets->setze_map_roughness( sets->gib_map_roughness() - 0.1 );
                 update_preview();
 	    }
@@ -404,17 +404,17 @@ void welt_gui_t::zeichnen(koord pos, koord gr)
 
   infowin_t::zeichnen(pos, gr);
 
-  display_divider(x+10,y+51, 230);
-  display_divider(x+10,y+283,230);
+  display_ddd_box_clip(x+10, y+51, 230, 0, MN_GREY0, MN_GREY4);
+  display_ddd_box_clip(x+10, y+283, 230, 0, MN_GREY0, MN_GREY4);
 
 
-  display_proportional(x+10, y+24, translator::translate("1WORLD_CHOOSE"),
+  display_proportional_clip(x+10, y+24, translator::translate("1WORLD_CHOOSE"),
 		       ALIGN_LEFT, SCHWARZ, true);
 
   int yo = y+60+4;
-  display_proportional(x+10, yo, translator::translate("2WORLD_CHOOSE"),
+  display_proportional_clip(x+10, yo, translator::translate("2WORLD_CHOOSE"),
 		       ALIGN_LEFT, SCHWARZ, true);
-  display_proportional(x+137, yo, ntos(sets->gib_karte_nummer(), "%3d"),
+  display_proportional_clip(x+137, yo, ntos(sets->gib_karte_nummer(), "%3d"),
 		       ALIGN_MIDDLE, WEISS, true);
 
 
@@ -424,61 +424,61 @@ void welt_gui_t::zeichnen(koord pos, koord gr)
   sprintf(buf, translator::translate("3WORLD_CHOOSE"), memory);
 
 
-  display_proportional(x+10, yo+12, buf,
+  display_proportional_clip(x+10, yo+12, buf,
 		       ALIGN_LEFT, SCHWARZ, true);
 
-  display_proportional(x+137, yo+12, ntos(sets->gib_groesse(), "%3d"),
+  display_proportional_clip(x+137, yo+12, ntos(sets->gib_groesse(), "%3d"),
 		       ALIGN_MIDDLE, WEISS, true);
 
-  display_proportional(x+10, yo+29, translator::translate("5WORLD_CHOOSE"),
+  display_proportional_clip(x+10, yo+29, translator::translate("5WORLD_CHOOSE"),
 		       ALIGN_LEFT, SCHWARZ, true);
-  display_proportional(x+137, yo+29, ntos(sets->gib_anzahl_staedte(), "%3d"),
+  display_proportional_clip(x+137, yo+29, ntos(sets->gib_anzahl_staedte(), "%3d"),
 			 ALIGN_MIDDLE, WEISS, true);
-  display_proportional(x+10, yo+41, translator::translate("6WORLD_CHOOSE"),
+  display_proportional_clip(x+10, yo+41, translator::translate("6WORLD_CHOOSE"),
 		       ALIGN_LEFT, SCHWARZ, true);
-  display_proportional(x+137, yo+41, ntos(16 - sets->gib_verkehr_level(),"%3d"),
+  display_proportional_clip(x+137, yo+41, ntos(16 - sets->gib_verkehr_level(),"%3d"),
 			 ALIGN_MIDDLE, WEISS, true);
 
 
         // water level       18-Nov-01       Markus W. Added
-  display_proportional(x+10, yo+58, translator::translate("Water level"),
+  display_proportional_clip(x+10, yo+58, translator::translate("Water level"),
 		       ALIGN_LEFT, SCHWARZ, true);
-  display_proportional(x+137, yo+58, ntos(sets->gib_grundwasser()/32+5,"%3d"),
+  display_proportional_clip(x+137, yo+58, ntos(sets->gib_grundwasser()/32+5,"%3d"),
   			ALIGN_MIDDLE, WEISS, true);
 
 
         // Height of mountains       29-Nov-01       Markus W. Added
-  display_proportional(x+10, yo+70, translator::translate("Mountain height"),
+  display_proportional_clip(x+10, yo+70, translator::translate("Mountain height"),
 		       ALIGN_LEFT, SCHWARZ, true);
-  display_proportional(x+137, yo+70, ntos((int)(sets->gib_max_mountain_height()),
+  display_proportional_clip(x+137, yo+70, ntos((int)(sets->gib_max_mountain_height()),
 "%3d"), ALIGN_MIDDLE, WEISS, true);
 
 
         // roughness of mountains       29-Nov-01       Markus W. Added
-  display_proportional(x+10, yo+82, translator::translate("Map roughness"),
+  display_proportional_clip(x+10, yo+82, translator::translate("Map roughness"),
 		       ALIGN_LEFT, SCHWARZ, true);
 
-  display_proportional(x+137, yo+82, ntos((int)(sets->gib_map_roughness()*10.0 + 0.5)-4 ,
+  display_proportional_clip(x+137, yo+82, ntos((int)(sets->gib_map_roughness()*10.0 + 0.5)-4 ,
 "%3d") , ALIGN_MIDDLE, WEISS, true);     // x = round(roughness * 10)-4  // 0.6 * 10 - 4 = 2    //29-Nov-01     Markus W. Added
 
 
-  display_proportional(x+10, yo+99, translator::translate("Land industries"),
+  display_proportional_clip(x+10, yo+99, translator::translate("Land industries"),
 		       ALIGN_LEFT, SCHWARZ, true);
-  display_proportional(x+137+40, yo+99, ntos(sets->gib_land_industry_chains(),"%3d"),
+  display_proportional_clip(x+137+40, yo+99, ntos(sets->gib_land_industry_chains(),"%3d"),
   			 ALIGN_MIDDLE, WEISS, true);
-  display_proportional(x+10, yo+111, translator::translate("City industries"),
+  display_proportional_clip(x+10, yo+111, translator::translate("City industries"),
 		       ALIGN_LEFT, SCHWARZ, true);
-  display_proportional(x+137+40, yo+111, ntos(sets->gib_city_industry_chains(),"%3d"),
+  display_proportional_clip(x+137+40, yo+111, ntos(sets->gib_city_industry_chains(),"%3d"),
   			 ALIGN_MIDDLE, WEISS, true);
-  display_proportional(x+10, yo+123, translator::translate("Tourist attractions"),
+  display_proportional_clip(x+10, yo+123, translator::translate("Tourist attractions"),
 		       ALIGN_LEFT, SCHWARZ, true);
-  display_proportional(x+137+40, yo+123, ntos(sets->gib_tourist_attractions(),"%3d"),
+  display_proportional_clip(x+137+40, yo+123, ntos(sets->gib_tourist_attractions(),"%3d"),
   			 ALIGN_MIDDLE, WEISS, true);
-  display_proportional(x+10, yo+140, translator::translate("Median Citizen per town"),
+  display_proportional_clip(x+10, yo+140, translator::translate("Median Citizen per town"),
 		       ALIGN_LEFT, SCHWARZ, true);
-  display_proportional(x+137+50, yo+140, ntos(sets->gib_mittlere_einwohnerzahl(),"%3d"),
+  display_proportional_clip(x+137+50, yo+140, ntos(sets->gib_mittlere_einwohnerzahl(),"%3d"),
   			 ALIGN_MIDDLE, WEISS, true);
 
-  display_ddd_box(x+173, yo+2, preview_size+2, preview_size+2, MN_GREY0,MN_GREY4);
+  display_ddd_box_clip(x+173, yo+2, preview_size+2, preview_size+2, MN_GREY0,MN_GREY4);
   display_array_wh(x+174, yo+3, preview_size, preview_size, karte);
 }

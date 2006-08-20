@@ -57,6 +57,7 @@ enum magic_numbers {
     magic_roadtools,
     magic_shiptools,
     magic_slopetools,
+		magic_tramtools, // Dario: Tramway
     magic_convoi_t,
     magic_halt_list_t,
     magic_label_frame,

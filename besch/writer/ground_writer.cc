@@ -69,7 +69,7 @@ void ground_writer_t::write_obj(FILE *fp, obj_node_t &parent, tabfileobj_t &obj)
     write_head(fp, node, obj);
 
     slist_tpl< slist_tpl<cstring_t> > keys;
-
+    // summer images
     for(int hangtyp = 0; hangtyp < 54; hangtyp++) {
 	keys.append( slist_tpl<cstring_t>() );
 

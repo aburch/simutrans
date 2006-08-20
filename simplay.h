@@ -37,7 +37,7 @@
 #include "besch/vehikel_besch.h"
 
 
-#define MAX_COST           10 // Total number of items in array
+#define MAX_COST           12 // Total number of items in array
 
 #define COST_CONSTRUCTION  0 // Construction
 #define COST_VEHICLE_RUN   1 // Vehicle running costs
@@ -49,6 +49,8 @@
 #define COST_NETWEALTH     7 // Total Cash + Assets
 #define COST_PROFIT    8 // 3-(0+1+2+4)
 #define COST_OPERATING_PROFIT 9 // 3-(1+4)
+#define COST_MARGIN 10 // 9/(1+4)
+#define COST_TRANSPORTED_GOODS 11// all transported goods
 #define MAX_HISTORY_YEARS  12 // number of years to keep history
 #define MAX_HISTORY_MONTHS  12 // number of months to keep history
 
@@ -140,7 +142,6 @@ private:
     /**
     * Finance History - will supercede the finances by Owen Rudge
     * Will hold finances for the most recent 12 years
-    * the MAX_COST+1st element holds the sum of the other elements
     * @author hsiegeln
     */
 
@@ -252,9 +253,8 @@ private:
     bool is_connected(halthandle_t halt, koord upperleft, koord lowerright);
     halthandle_t  get_our_hub( const stadt_t *s );
     koord built_hub( const koord pos, int radius );
-    void create_bus_transport_vehikel(koord startpos,int anz_vehikel,koord *stops,int anzahl);
+    void create_bus_transport_vehikel(koord startpos,int anz_vehikel,koord *stops,int anzahl,bool do_wait);
 
-  bool spieler_t::is_my_bahnhof(koord pos);
     int baue_bahnhof(koord3d quelle,koord *p, int anz_vehikel);
 
     /* these two routines calculate the income
@@ -298,6 +298,7 @@ private:
 
     bool checke_streckenbau(wegbauer_t &bauigel, slist_tpl<koord> &list);
 
+public:
     /**
      * Ist dieser Spieler ein automatischer Spieler?
      * @author Hj. Malthaner
@@ -305,8 +306,6 @@ private:
     bool automat;
 
 
-
-public:
     /**
      * Age messages (move them upwards)
      * @author Hj. Malthaner
@@ -315,18 +314,10 @@ public:
 
 
     /**
-     * Gets haltcount
-     * @author hsiegeln
-     */
-    int get_haltcount() const;
-
-
-    /**
      * Kennfarbe (Fahrzeuge, Gebäude) des Speielers
      * @author Hj. Malthaner
      */
     int kennfarbe;
-
 
     /**
      * Name of the player
@@ -334,16 +325,14 @@ public:
      */
 	const char *gib_name();
 
-
-
     /**
      * activates and queries player status
      * @author player
      */
      bool is_active() {return automat; };
      bool set_active(bool new_state);
-
-
+     // true if this can do passenger transport ...
+     bool has_passenger() { return (kennfarbe==0)  ||  passenger_transport; };
 
     /**
      * Konstruktor
@@ -423,13 +412,11 @@ public:
 
     void neuer_monat();
 
-
     /**
      * Erzeugt eine neue Haltestelle des Spielers an Position pos
      * @author Hj. Malthaner
      */
     halthandle_t halt_add(koord pos);
-
 
     /**
      * Entfernt eine Haltestelle des Spielers aus der Liste
@@ -437,16 +424,17 @@ public:
      */
     void halt_remove(halthandle_t halt);
 
+    /* returns the halt of the play at that position or an unbound handle
+     * @author prissi
+     */
+    halthandle_t is_my_halt(koord pos) const;
 
     /**
-     * Ermittelt, ob an Position i,j eine Haltestelle des Spielers
-     * vorhanden ist.
-     *
-     * @return die gefundene Haltestelle oder NULL wenn keine Haltestelle
-     * an Position i,j
-     * @author Hj. Malthaner
+     * Gets haltcount, for naming purposes
+     * @author hsiegeln
      */
-    halthandle_t ist_halt(koord k) const;
+    int get_haltcount() const {return haltcount;};
+
 
     /**
      * Lädt oder speichert Zustand des Spielers
@@ -508,8 +496,8 @@ public:
     * rolls the finance history for player (needed when neues_jahr() or neuer_monat()) triggered
     * @author hsiegeln
     */
-    void spieler_t::roll_finance_history_year();
-    void spieler_t::roll_finance_history_month();
+    void roll_finance_history_year();
+    void roll_finance_history_month();
 
     /*
      * returns pointer to our money frame

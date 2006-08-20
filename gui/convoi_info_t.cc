@@ -128,7 +128,7 @@ convoi_info_t::convoi_info_t(convoihandle_t cnv)
     set_resizemode(diagonal_resize);
     resize(koord(0,0));
 
-dbg->message("convoi_info_t::convoi_info_t()","This convoi belong to $%p.",cnv->gib_besitzer());
+DBG_MESSAGE("convoi_info_t::convoi_info_t()","This convoi belong to $%p.",cnv->gib_besitzer());
     if(cnv->gib_besitzer()==cnv->gib_welt()->gib_spieler(0)) {
        // this convoi belongs not to an AI
        button.setze_groesse(koord(10*8+4, 14));
@@ -324,14 +324,14 @@ bool convoi_info_t::action_triggered(gui_komponente_t *komp)
 				}
 			}
 		}
-		dbg->message("shortest route has ", "%i hops", shortest_route->gib_max_n());
+		DBG_MESSAGE("shortest route has ", "%i hops", shortest_route->gib_max_n());
 
 		// shortest path by Hajo
 /*		karte_t * welt = cnv->gib_welt();
 		route_t * shortest_route = new route_t();
 		shortest_route->find_path(welt, cnv->gib_pos(), cnv->gib_vehikel(0), ding_t::bahndepot);
 		const koord3d home = shortest_route->position_bei(0);
-		dbg->message("Depot at: ", "%i,%i,%i", home.x, home.y, home.z);
+		DBG_MESSAGE("Depot at: ", "%i,%i,%i", home.x, home.y, home.z);
 */
 		// if route to a depot has been found, update the convoi's schedule
 		bool b_depot_found = false;

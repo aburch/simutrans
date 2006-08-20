@@ -24,7 +24,7 @@ class signal_t : public ding_t
 public:
     enum signalzustand {rot=0, gruen=1};
 
-private:
+protected:
 
     unsigned char zustand;
 
@@ -87,6 +87,23 @@ public:
      * @author Hj. Malthaner
      */
     virtual void laden_abschliessen();
+};
+
+class presignal_t : public signal_t
+{
+	private:
+
+	protected:
+
+	public:
+    enum ding_t::typ gib_typ() const {return presignal;};
+    const char *gib_name() const {return "preSignal";};
+
+    presignal_t(karte_t *welt, loadsave_t *file) : signal_t(welt, file) { };
+    presignal_t(karte_t *welt, koord3d pos, ribi_t::ribi dir) : signal_t(welt, pos, dir) { };
+
+    void calc_bild();
+
 };
 
 #endif

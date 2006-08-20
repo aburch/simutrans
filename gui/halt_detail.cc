@@ -102,7 +102,7 @@ void halt_detail_t::halt_detail_info(cbuffer_t & buf)
 	}
       }
     } else {
-	dbg->message("else", "");
+	DBG_MESSAGE("else", "");
 	buf.append(" ");
 	buf.append(translator::translate("keine"));
 	buf.append("\n");

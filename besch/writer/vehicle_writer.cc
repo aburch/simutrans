@@ -78,7 +78,9 @@ static uint8 get_waytype(const char * waytype, tabfileobj_t &obj)
     uv8 = vehikel_besch_t::schiene_maglev;
   } else if(!STRICMP(waytype, "water")) {
 	uv8 = vehikel_besch_t::wasser;
-  } else {
+  } else if(!STRICMP(waytype, "schiene_strab")) {
+		uv8 = vehikel_besch_t::schiene_strab;
+	} else {
     cstring_t reason;
 
     reason.printf("invalid waytype %s for vehicle %s\n", waytype, obj.get("name"));

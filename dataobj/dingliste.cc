@@ -96,7 +96,7 @@ dingliste_t::~dingliste_t()
 void
 dingliste_t::set_capacity(const int new_cap)
 {
-    // dbg->message("dingliste_t::set_capacity()", "old cap=%d, new cap=%d", capacity, new_cap);
+    // DBG_MESSAGE("dingliste_t::set_capacity()", "old cap=%d, new cap=%d", capacity, new_cap);
 
     // Speicherplatz besorgen
     ding_t **tmp = dl_alloc(new_cap);
@@ -351,7 +351,7 @@ void dingliste_t::rdwr(karte_t *welt, loadsave_t *file)
         if(file->is_loading()) {
             ding_t::typ typ = (ding_t::typ)file->rd_obj_id();
 
-	    // dbg->debug("dingliste_t::laden()", "Thing type %d", typ);
+	    // DBG_DEBUG("dingliste_t::laden()", "Thing type %d", typ);
 
     	    if(typ == -1) {
     	        continue;
@@ -414,7 +414,7 @@ void dingliste_t::rdwr(karte_t *welt, loadsave_t *file)
 		dbg->fatal("dingliste_t::laden()", "Unknown object type '%d'", typ);
 	    }
 
-//	    printf("Loading %d,%d #%d: %s\n", d->gib_pos().x, d->gib_pos().y, i, d->gib_name());
+//DBG_DEBUG("dingliste_t::rdwr()","Loading %d,%d #%d: %s", d->gib_pos().x, d->gib_pos().y, i, d->gib_name());
 	    if(d) {
 		add(d, i);
 	    }

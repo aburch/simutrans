@@ -16,9 +16,11 @@
  */
 #ifdef _MSC_VER
 #include <string.h>
+#include <malloc.h> // for alloca
 #endif
 #include "simdebug.h"
 #include "simmem.h"
+#include "simplan.h"
 #include "boden/grund.h"
 #include "boden/wege/weg.h"
 #include "simhalt.h"
@@ -42,6 +44,7 @@
 #include "dataobj/fahrplan.h"
 #include "dataobj/warenziel.h"
 #include "dataobj/einstellungen.h"
+#include "dataobj/umgebung.h"
 #include "dataobj/loadsave.h"
 #include "dataobj/translator.h"
 
@@ -485,10 +488,8 @@ void haltestelle_t::display_status(int xpos, int ypos) const
   // all variables in the bracket MUST be signed, otherwise nothing may be drawn at all
   xpos -= (count*4 - get_tile_raster_width())/2;
 
-  for(int i=0; i<count-1; i++) {
-
-    // Hajo: don't show good "None"
-    const ware_besch_t *wtyp = warenbauer_t::gib_info(i+1);
+  for(unsigned int i=0; i<count; i++) {
+    const ware_besch_t *wtyp = warenbauer_t::gib_info(i);
 
     const int v = MIN((gib_ware_summe(wtyp) >> 2) + 2, 128);
 
@@ -551,10 +552,10 @@ haltestelle_t::verbinde_fabriken()
 	  fab_iter.get_current()->unlink_halt(self);
 	}
 
-
+// check this !!!!!!!!!!!!!!!!!!!!
 	vector_tpl<fabrik_t *> &fablist = fabrik_t::sind_da_welche(welt,
-                                                  minX-3, minY-3,
-                                                  maxX+3, maxY+3);
+                                                  minX-umgebung_t::station_coverage_size, minY-umgebung_t::station_coverage_size,
+                                                  maxX+umgebung_t::station_coverage_size, maxY+umgebung_t::station_coverage_size);
         fab_list.clear();
 
 	for(uint32 i=0; i<fablist.get_count(); i++) {
@@ -574,14 +575,14 @@ haltestelle_t::verbinde_fabriken()
  */
 void haltestelle_t::rebuild_destinations()
 {
-  dbg->debug("haltestelle_t::rebuild_destinations()", "called");
+  DBG_DEBUG("haltestelle_t::rebuild_destinations()", "called");
 
 
   // Hajo: first, remove all old entries
   warenziele.clear();
 
 
-  // dbg->message("haltestelle_t::rebuild_destinations()", "Adding new table entries");
+  // DBG_MESSAGE("haltestelle_t::rebuild_destinations()", "Adding new table entries");
 
   // Hajo: second, calculate new entries
 
@@ -595,7 +596,7 @@ void haltestelle_t::rebuild_destinations()
 
     convoihandle_t cnv = iter.get_current();
 
-    // dbg->message("haltestelle_t::rebuild_destinations()", "convoi %d %p", cnv.get_id(), cnv.get_rep());
+    // DBG_MESSAGE("haltestelle_t::rebuild_destinations()", "convoi %d %p", cnv.get_id(), cnv.get_rep());
 
 
     fahrplan_t *fpl = cnv->gib_fahrplan();
@@ -633,7 +634,7 @@ haltestelle_t::liefere_an_fabrik(const ware_t ware)
 		const vector_tpl<ware_t> * eingang = fab->gib_eingang();
 
 		for(uint32 i=0; i<eingang->get_count(); i++) {
-			if(eingang->get(i).gib_typ() == ware.gib_typ()) {
+			if(eingang->get(i).gib_typ() == ware.gib_typ()  &&  ware.gib_zielpos()==fab->gib_pos().gib_2d()) {
 				fab->liefere_an(ware.gib_typ(), ware.menge);
 				return;
 			}
@@ -922,6 +923,17 @@ haltestelle_t::add_grund(grund_t *gr)
 
 	grund.append(gr);
 
+	// appends this to the ground
+	// after that, the surrounding ground will know of this station
+	for(  int y=-umgebung_t::station_coverage_size;  y<=umgebung_t::station_coverage_size;  y++ ) {
+		for(  int x=-umgebung_t::station_coverage_size;  x<=umgebung_t::station_coverage_size;  x++ ) {
+			koord p=gr->gib_pos().gib_2d()+koord(x,y);
+			if(welt->ist_in_kartengrenzen(p)) {
+				welt->lookup(p)->gib_kartenboden()->add_to_haltlist( self );
+			}
+		}
+	}
+
 	verbinde_fabriken();
 
 	assert(gr->gib_halt() == self);
@@ -933,7 +945,7 @@ haltestelle_t::add_grund(grund_t *gr)
 }
 
 void
-haltestelle_t::rem_grund(grund_t *gb)
+haltestelle_t::rem_grund(grund_t *gb,bool final)
 {
     // namen merken
     const char *tmp = gib_name();
@@ -944,6 +956,19 @@ haltestelle_t::rem_grund(grund_t *gb)
 //	printf("Haltestelle %s (%p) hat nach rem_grund noch %d böden\n", tmp, this, grund.count());
 
 	gb->setze_halt(halthandle_t ());
+
+	// remove this square from all grounds
+	// (only will removed, if no longer reachable)
+	if(!final) {
+		for(  int y=-umgebung_t::station_coverage_size;  y<=umgebung_t::station_coverage_size;  y++  ) {
+			for(  int x=-umgebung_t::station_coverage_size;  x<=umgebung_t::station_coverage_size;  x++  ) {
+				const planquadrat_t *pl = welt->lookup( gb->gib_pos().gib_2d()+koord(x,y) );
+				if(pl  &&  pl->gib_kartenboden()) {
+					pl->gib_kartenboden()->remove_from_haltlist(self);
+				}
+			}
+		}
+	}
 
 	if(!grund.is_empty()) {
 	    grund_t *bd = grund.at(0);
@@ -972,6 +997,35 @@ haltestelle_t::existiert_in_welt()
 //    printf("Haltestelle %p halt %d Flächen.\n", this, grund.count());
     return !grund.is_empty();
 }
+
+
+
+/* return the closest square that belongs to this halt
+ * @author prissi
+ */
+koord
+haltestelle_t::get_next_pos( koord start ) const
+{
+	koord find = koord::invalid;
+
+	if(!grund.is_empty()) {
+		// find the closest one
+		int	dist = 0x7FFF;
+		slist_iterator_tpl<grund_t *> iter( grund );
+
+		while(iter.next()) {
+			koord p = iter.get_current()->gib_pos().gib_2d();
+			int d = abs_distance(start, p );
+			if(d<dist) {
+				// ok, this one is closer
+				dist = d;
+				find = p;
+			}
+		}
+	}
+	return find;
+}
+
 
 
 
@@ -1011,7 +1065,7 @@ haltestelle_t::pruefe_ziel(const ware_t &ware, const fahrplan_t *fpl) const
 
     // stimmt das Ziel ?
     if(!via_halt.is_bound()) {
-        dbg->message("haltestelle_t::pruefe_ziel()",
+        DBG_MESSAGE("haltestelle_t::pruefe_ziel()",
 		     "at stop %s there are %d %s without intermediate destination\n",
 		     gib_name(),
 		     ware.menge,
@@ -1149,6 +1203,30 @@ haltestelle_t::gib_ware_fuer_ziel(const ware_besch_t *typ,
       const ware_t &ware = iter.get_current();
 
       if(ware.gib_ziel() == ziel) {
+	sum += ware.menge;
+      }
+    }
+  }
+
+  return sum;
+}
+
+
+
+
+int
+haltestelle_t::gib_ware_fuer_zwischenziel(const ware_besch_t *typ, const koord zwischenziel) const
+{
+  int sum = 0;
+
+  slist_tpl<ware_t> * wliste = waren.get(typ);
+  if(wliste) {
+    slist_iterator_tpl<ware_t> iter (wliste);
+
+    while(iter.next()) {
+      const ware_t &ware = iter.get_current();
+
+      if(ware.gib_zwischenziel() == zwischenziel) {
 	sum += ware.menge;
       }
     }
@@ -1303,7 +1381,7 @@ haltestelle_t::liefere_an(ware_t ware)
        !gib_halt(ware.gib_zwischenziel()).is_bound()) {
 
 	// kein zielhalt  ?!
-        dbg->message("haltestelle_t::liefere_an()",
+        DBG_MESSAGE("haltestelle_t::liefere_an()",
 		     "%s: delivered goods (%d %s) to %s via %s could not be routed to their destination!",
 		     gib_name(),
 		     ware.menge,
@@ -1441,7 +1519,11 @@ void haltestelle_t::get_freight_info(cbuffer_t & buf)
       // hsiegeln
       // added sorting to ware's destination list
       int pos = 0;
+#ifdef _MSC_VER
+      travel_details *tdlist = (travel_details *)alloca(wliste->count() * sizeof(travel_details *));
+#else
       travel_details tdlist [wliste->count()];
+#endif
       while(iter.next()) {
 	ware_t ware = iter.get_current();
 	tdlist[pos].ware = ware;
@@ -1596,30 +1678,48 @@ haltestelle_t::is_something_waiting() const
 
 int haltestelle_t::get_station_type() const      //13-Jan-02     Markus Weber    Added
 {
-    int type=0;
+	int type=0;
 
-    slist_iterator_tpl<grund_t *> iter( grund );
+	slist_iterator_tpl<grund_t *> iter( grund );
 
-    while(iter.next()) {
-	grund_t *gr = iter.get_current();
-	if (gr->hat_gebaeude(hausbauer_t::frachthof_besch)) {
-	    type |= loadingbay;
-	}
-	if (gr->hat_gebaeude(hausbauer_t::bahnhof_besch)) {
-	    type |= railstation;
-	}
-	if (gr->hat_gebaeude(hausbauer_t::gueterbahnhof_besch)) { //14-oct-2004 added
-	    type |= railstation;
-	}
-	if (gr->hat_gebaeude(hausbauer_t::dock_besch)) {
-	    type |= dock;
-	}
-	if (gr->hat_gebaeude(hausbauer_t::bushalt_besch)) {
-	    type |= busstop;
-	}
-    }
+	// iterate over all tiles
+	while(iter.next()) {
+		grund_t *gr = iter.get_current();
 
-    return type;
+		// check for trainstation
+		if(  type&railstation==0  ) {
+			for( int i=0;  i<hausbauer_t::train_stops.count();  i++  ) {
+				if (gr->hat_gebaeude(hausbauer_t::train_stops.at(i))) {
+					type |= railstation;
+					break;
+				}
+			}
+		}
+		// check for roadstop
+		if(  type&busstop==0  ) {
+			for( int i=0;  i<hausbauer_t::car_stops.count();  i++  ) {
+				if (gr->hat_gebaeude(hausbauer_t::car_stops.at(i))) {
+					type |= busstop;
+					break;
+				}
+			}
+		}
+		if (gr->hat_gebaeude(hausbauer_t::frachthof_besch)) {
+			type |= loadingbay;
+		}
+		// check for dock
+		if(  type&dock==0  ) {
+			for( int i=0;  i<hausbauer_t::ship_stops.count();  i++  ) {
+				if (gr->hat_gebaeude(hausbauer_t::ship_stops.at(i))) {
+					type |= dock;
+					break;
+				}
+			}
+		}
+
+	}
+
+	return type;
 }
 
 
@@ -1672,7 +1772,7 @@ haltestelle_t::erzeuge_fussgaenger_an(karte_t *welt,
 				      const koord3d k,
 				      int anzahl)
 {
-    // dbg->message("haltestelle_t::erzeuge_fussgaenger_an()", "called, %d description", fussgaenger_t::gib_anzahl_besch());
+    // DBG_MESSAGE("haltestelle_t::erzeuge_fussgaenger_an()", "called, %d description", fussgaenger_t::gib_anzahl_besch());
 
 
     if(fussgaenger_t::gib_anzahl_besch() > 0) {
@@ -1694,7 +1794,7 @@ haltestelle_t::erzeuge_fussgaenger_an(karte_t *welt,
 		    welt->sync_add( fg );
 		    anzahl --;
 		} else {
-		    dbg->message("haltestelle_t::erzeuge_fussgaenger_an()",
+		    DBG_MESSAGE("haltestelle_t::erzeuge_fussgaenger_an()",
 				 "Pedestrian could not be added, the pedestrians destructor will issue an error which can be ignored\n");
 		    delete fg;
 		}
@@ -1739,6 +1839,7 @@ haltestelle_t::rdwr(loadsave_t *file)
     file->rdwr_bool(ware_enabled, "\n");
 
     if(file->is_loading()) {
+      besitzer_p = welt->gib_spieler(spieler_n);
 	do {
 	    k.rdwr( file );
 	    if( k != koord3d::invalid) {
@@ -1755,7 +1856,6 @@ haltestelle_t::rdwr(loadsave_t *file)
 		// passengers. This line will change all water-based stations
 		// to accept passengers. Should be removed once the savegames
 		// are converted
-
 		// if(gr->ist_wasser()) set_pax_enabled( true );
 
 	    }
@@ -1834,10 +1934,6 @@ haltestelle_t::rdwr(loadsave_t *file)
       }
 
       guarded_free(const_cast<char *>(s));
-    }
-
-    if(file->is_loading()) {
-      besitzer_p = welt->gib_spieler(spieler_n);
     }
 
 	// load statistics

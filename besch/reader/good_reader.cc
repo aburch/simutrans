@@ -37,6 +37,9 @@
 //@EDOC
 
 #include <stdio.h>
+#ifdef _MSC_VER
+#include <malloc.h> // for alloca
+#endif
 
 #include "../../simdebug.h"
 #include "../../simware.h"
@@ -64,7 +67,7 @@ void good_reader_t::register_obj(obj_besch_t *&data)
   ware_besch_t *besch = static_cast<ware_besch_t *>(data);
 
   warenbauer_t::register_besch(besch);
-  dbg->debug("good_reader_t::register_obj()",
+  DBG_DEBUG("good_reader_t::register_obj()",
 	     "loaded good '%s'", besch->gib_name());
 
   obj_for_xref(get_type(), besch->gib_name(), data);
@@ -98,10 +101,14 @@ bool good_reader_t::successfully_loaded() const
  */
 obj_besch_t * good_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 {
-  // dbg->debug("good_reader_t::read_node()", "called");
+  // DBG_DEBUG("good_reader_t::read_node()", "called");
 
+#ifdef _MSC_VER /* no var array on the stack supported */
+    char *besch_buf = static_cast<char *>(alloca(node.size));
+#else
   // Hajo: reading buffer is better allocated on stack
   char besch_buf [node.size];
+#endif
 
 
   char *info_buf = new char[sizeof(obj_besch_t) + node.children * sizeof(obj_besch_t *)];
@@ -146,7 +153,7 @@ obj_besch_t * good_reader_t::read_node(FILE *fp, obj_node_info_t &node)
     besch->weight_per_unit = 100;
   }
 
-  dbg->debug("good_reader_t::read_node()",
+  DBG_DEBUG("good_reader_t::read_node()",
 	     "version=%d value=%d catg=%d bonus=%d",
 	     version, besch->value, besch->catg, besch->speed_bonus);
 

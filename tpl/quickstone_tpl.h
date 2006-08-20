@@ -27,20 +27,20 @@ template <class T> class quickstone_tpl
   /**
    * Next entry to check
    */
-  static int next;
+  static unsigned short int next;
 
 
   /**
    * Size of tombstone table
    */
-  static int size;
+  static unsigned short int size;
 
 
   /**
    * Retrieves next free tombstone index
    */
-  static int find_next() {
-    int i;
+  static unsigned short int find_next() {
+    unsigned short int i;
 
     // scan rest of array
     for(i = next; i<size; i++) {
@@ -68,7 +68,7 @@ template <class T> class quickstone_tpl
    * The index in the table for this handle.
    *
    */
-  int entry;
+  unsigned short int entry;
 
 
  public:
@@ -81,7 +81,7 @@ template <class T> class quickstone_tpl
    * @param n number of elements
    * @author Hj. Malthaner
    */
-  static void init(const int n) {
+  static void init(const unsigned short int n) {
 
     size = n;
     data = new T* [size];
@@ -175,7 +175,7 @@ template <class T> class quickstone_tpl
    * @return the index into the tombstone table. May be used as
    * an ID for the referenced object.
    */
-  int get_id() const {
+  unsigned short int get_id() const {
     return entry;
   };
 
@@ -203,8 +203,8 @@ template <class T> class quickstone_tpl
 
 template <class T> T** quickstone_tpl<T>::data = 0;
 
-template <class T> int quickstone_tpl<T>::next = 1;
-template <class T> int quickstone_tpl<T>::size = 0;
+template <class T> unsigned short int quickstone_tpl<T>::next = 1;
+template <class T> unsigned short int quickstone_tpl<T>::size = 0;
 
 
 #endif // quickstone_tpl_h

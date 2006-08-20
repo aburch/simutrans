@@ -179,6 +179,7 @@ public:
  *	... ...
  */
 class fabrik_besch_t : public obj_besch_t {
+    friend class factory_reader_t;
     friend class factory_writer_t;
 
 public:
@@ -191,6 +192,7 @@ private:
     uint16 kennfarbe;
     uint16 lieferanten;
     uint16 produkte;
+    uint16 pax_level;
 
 public:
     /*
@@ -222,6 +224,7 @@ public:
 	return i >= 0 && i < produkte ?
 	    static_cast<const fabrik_produkt_besch_t *>(gib_kind(2 + lieferanten + i)) : 0;
     }
+
     int gib_lieferanten() const
     {
 	return lieferanten;
@@ -230,25 +233,18 @@ public:
     {
 	return produkte;
     }
-    enum platzierung gib_platzierung() const
-    {
-	return platzierung;
-    }
-    int gib_gewichtung() const
-    {
-	return gewichtung;
-    }
-    int gib_kennfarbe() const
-    {
-	return kennfarbe;
-    }
-    int gib_produktivitaet() const
-    {
-	return produktivitaet;
-    };
-    int gib_bereich() const {
-	return bereich;
-    }
+
+    /* where to built */
+    enum platzierung gib_platzierung() const { return platzierung; }
+    int gib_gewichtung() const { return gewichtung;     }
+
+    int gib_kennfarbe() const { return kennfarbe; }
+
+    int gib_produktivitaet() const { return produktivitaet; };
+    int gib_bereich() const { return bereich; }
+
+    /* level for post and passenger generation */
+    int gib_pax_level() const { return pax_level; };
 };
 
 

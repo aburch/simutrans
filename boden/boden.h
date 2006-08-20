@@ -34,6 +34,11 @@ public:
      */
     static void toggle_grid();
 
+	/**
+	 * Toggle ground seasons
+	 * @author Hj. Malthaner
+	 */
+    static void toggle_season(int season);
 
     boden_t(karte_t *welt, loadsave_t *file);
     boden_t(karte_t *welt, koord3d pos);

@@ -63,18 +63,21 @@ public:
      * @author Hj. Malthaner
      */
     static void fill_menu(werkzeug_parameter_waehler_t *wzw,
-        weg_t::typ wtyp,
-        int (* wz1)(spieler_t *, karte_t *, koord, value_t),
-        int sound_ok,
-        int sound_ko);
+			  weg_t::typ wtyp,
+			  int (* wz1)(spieler_t *, karte_t *, koord, value_t),
+			  int sound_ok,
+			  int sound_ko,
+				uint8 styp = 0);
+
 
     enum bautyp {
         strasse,
-  schiene,
-  leitung,
-  schiene_bot,
-  schiene_bot_bau,
-  strasse_bot
+	schiene,
+	leitung,
+	schiene_bot,
+	schiene_bot_bau,
+	strasse_bot,
+	schiene_tram, // Dario: Tramway
     };
 
     bool kann_ribis_setzen(const grund_t *bd, const koord zv);
@@ -184,6 +187,7 @@ private:
 
 
 public:
+
 
     koord gib_route_bei(int i) const {return route->at(i);};
 

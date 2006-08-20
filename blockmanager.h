@@ -109,12 +109,12 @@ private:
 
     const char * baue_neues_signal(karte_t *welt, spieler_t *sp,
                                    koord3d pos, koord3d pos2, schiene_t *sch,
-                                   ribi_t::ribi dir);
+                                   ribi_t::ribi dir, bool presignal = false);
 
 
     const char * baue_andere_signale(koord3d pos1, koord3d pos2,
                                      schiene_t *sch1, schiene_t *sch2,
-			             ribi_t::ribi ribi);
+			             ribi_t::ribi ribi, bool presignal = false);
 
 
     /**
@@ -159,7 +159,7 @@ public:
      * @return NULL wenn ok, oder Fehlermeldung
      */
     const char* neues_signal(karte_t *welt, spieler_t *sp,
-                             koord3d pos, ribi_t::ribi dir);
+                             koord3d pos, ribi_t::ribi dir, bool presignal = false);
 
 
     bool entferne_signal(signal_t *sig, blockhandle_t bs);

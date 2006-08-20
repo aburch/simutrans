@@ -28,6 +28,13 @@
 #include "wege/weg.h"
 #endif
 
+#ifndef __WEG_BESCH_H
+#include "../besch/weg_besch.h"
+#endif
+
+#ifndef tpl_vector_h
+#include "../tpl/vector_tpl.h"
+#endif
 
 class spieler_t;
 class vehikel_basis_t;
@@ -37,6 +44,7 @@ class gebaeude_t;
 class grund_info_t;
 class haus_besch_t;
 class cbuffer_t;
+class haltestelle_t;
 
 template <class K, class V> class ptrhashtable_tpl;
 
@@ -95,8 +103,15 @@ private:
     dingliste_t dinge;
 
 
+    /**
+     * The station this ground is bound to
+     */
     halthandle_t halt;
 
+    /**
+     * stations which can be reached from this ground
+     */
+    vector_tpl<halthandle_t> halt_list;
 
     /**
      * Jeder Boden hat im Moment maximal 2 Wege (Kreuzungen sind 1 Weg).
@@ -131,6 +146,14 @@ private:
      * @author Hj. Malthaner
      */
     sint16 weg_bild_nr;
+
+
+	/**
+		* Nummer des aktuellen 2. Wegbildes (so es ein gibt).
+		* Meistens der Fall bei Straﬂenbahnen!
+		* @author DarioK
+		*/
+	sint16 weg2_bild_nr;
 
 
     /**
@@ -200,6 +223,7 @@ protected:
     grund_t(karte_t *wl);
 
 
+public:
     /**
      * setzt die Bildnr. des anzuzeigenden Bodens
      * @author Hj. Malthaner
@@ -213,7 +237,7 @@ protected:
      */
     inline void setze_back_bild(int n) {back_bild_nr = n; set_flag(dirty);};
 
-
+protected:
     /**
      * Pointer to the world of this ground. Static to conserve space.
      * Change to instance variable once more than one world is available.
@@ -227,6 +251,13 @@ protected:
      * @author Hj. Malthaner
      */
     inline void setze_weg_bild(int n) {weg_bild_nr = n; set_flag(dirty);};
+
+
+		/**
+			* Setzt Bildnr. f¸r 2. Wegbild (z.B. bei Straﬂenbahnen).
+			* @author DarioK
+			*/
+		inline void setze_weg2_bild(int n) {weg2_bild_nr = n; set_flag(dirty);};
 
 public:
     enum typ {grund, boden, wasser, fundament, tunnelboden, brueckenboden };
@@ -422,20 +453,36 @@ public:
      */
     void setze_halt(halthandle_t halt);
 
-
     /**
-     * Ermittelt, ob dieser Boden zu einer Haltestelle geh˜rt.
+     * Ermittelt, ob dieser Boden zu einer Haltestelle gehˆrt.
      * @return NULL wenn keine Haltestelle, sonst Zeiger auf Haltestelle
      * @author Hj. Malthaner
      */
     const halthandle_t gib_halt() const {return halt;};
 
+    /* The following three functions takes about 132 bytes of memory per tile but can speed up passenger generation *
+     * Some stations may be reachable from this ground
+     * @author prissi
+     */
+    void add_to_haltlist(halthandle_t halt);
+
+    /**
+     * removes the halt from a ground
+     * however this funtion check, whether there is really no other part still reachable
+     * @author prissi
+     */
+    void remove_from_haltlist(halthandle_t halt);
+
+    /**
+     * returns the internal array of halts
+     * @author prissi
+     */
+    vector_tpl<halthandle_t> & get_haltlist() { return halt_list; };
+
 
     inline short gib_hoehe() const {return pos.z;};
 
-
     void setze_hoehe(int h) { pos.z = h;}
-
 
     /**
      * Zeichnet Bodenbild des Grundes
@@ -520,6 +567,27 @@ public:
       return NULL;
     }
 
+		/**
+			* Returns the system type s_type of a way of type typ at this location
+			* Currently only needed for tramways or other different types of rails
+			*
+			* @author DarioK
+			* @see gib_weg
+			*/
+		const uint8 gib_styp(weg_t::typ typ) const {
+			if(this) {
+				int i = 0;
+				while(wege[i] && i<MAX_WEGE) {
+					if(wege[i]->gib_typ() == typ){
+						return wege[i]->gib_besch()->gib_styp();
+					}
+					i++;
+				}
+			}
+			return 0;
+		}
+
+
 
     /**
      * Gibt die Nummer des Bildes des/der Wege zurueck.
@@ -529,6 +597,14 @@ public:
      * @author V. Meyer
      */
     inline short gib_weg_bild() const {return weg_bild_nr;};
+
+		/**
+			* Gibt die Nummer des 2. Wegbildes zur¸ck.
+			* F¸r Straﬂenbahnen wichtig.
+			* @see gib_weg_bild()
+			* @author DarioK
+			*/
+		inline short gib_weg2_bild() const {return weg2_bild_nr;};
 
      /**
      * Ermittelt die Richtungsbits fÅr den weg vom Typ 'typ'.
@@ -562,9 +638,11 @@ public:
 
     /**
      * Kreuzen sich hier 2 verschiedene Wege?
-     * @author V. Meyer
+		 * Strassenbahnschienen duerfen nicht als Kreuzung erkannt werden!
+     * @author V. Meyer, dariok
      */
-    inline bool ist_uebergang() const { return wege[1] != NULL;}
+    //inline bool ist_uebergang() const {return wege[1] != NULL;}
+		bool ist_uebergang() const;
 
     /**
      * Liefert einen Text fÅr die öberschrift des Info-Fensters.

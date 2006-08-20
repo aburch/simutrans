@@ -129,7 +129,7 @@ ding_t::~ding_t()
  			 "couldn't remove %p from %d,%d,%d",
  			 this , pos.x , pos.y, pos.z);
 
-	    dbg->message("ding_t::~ding_t()",
+	    DBG_MESSAGE("ding_t::~ding_t()",
 			 "removing %p failed, checking all plan squares",
 			 this);
 
@@ -297,7 +297,6 @@ ding_t::display(int xpos, int ypos, bool dirty) const
 
     dirty |= get_flag(ding_t::dirty);
 
-
     if(dirty && bild == 0xFFFF) {
       mark_rect_dirty_wc(xpos-8, ypos-32,
 			 xpos+80, ypos+76);
@@ -316,7 +315,6 @@ ding_t::display(int xpos, int ypos, bool dirty) const
 	    display_img(bild,
 		        xpos,
 			ypos,
-			true,
 			dirty);
 	}
 	ypos -= raster_width;
@@ -351,7 +349,6 @@ ding_t::display_after(int xpos, int ypos, bool dirty) const
 		display_img(bild,
 			    xpos,
 		    	    ypos,
-			    true,
 			    dirty);
 	    }
 	    ypos -= raster_width;

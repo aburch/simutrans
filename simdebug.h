@@ -48,6 +48,18 @@ void init_logging(const char *logname, bool force_flush, bool log_debug);
 
 #define print printf
 
+#ifndef DEBUG
+
+// nothing to debug -> then ignore
+#define DBG_MESSAGE(i,...) ;
+#define DBG_DEBUG(i,...) ;
+
+#else
+
+#define DBG_MESSAGE(i,...) dbg->message(i,__VA_ARGS__)
+#define DBG_DEBUG(i,...) dbg->message(i,__VA_ARGS__)
+
+#endif
 
 #endif
 

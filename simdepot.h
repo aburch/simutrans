@@ -289,6 +289,62 @@ public:
     const char *gib_name() const;
 };
 
+/**
+	* Depot für Straßenbahnen
+	* @author DarioK
+	* @see bahndepot_t
+	* @see depot_t
+	* @see gebaeude_t
+	*/
+class strabdepot_t : public depot_t
+{
+protected:
+
+    fahrplan_t * erzeuge_fahrplan(fahrplan_t * fpl = NULL);
+
+	simline_t * create_line(karte_t * welt);
+
+    bool can_convoi_start(int icnv) const;
+
+    virtual const char * gib_zieher_name() {
+	return "Lokomotive_tab";
+    };
+
+    virtual const char * gib_haenger_name() {
+	return "Waggon_tab";
+    };
+
+	void build_line_list();
+
+public:
+
+	slist_tpl<simline_t *> *get_line_list();
+
+    strabdepot_t(karte_t *welt, loadsave_t *file);
+    strabdepot_t(karte_t *welt, koord3d pos,spieler_t *sp, const haus_tile_besch_t *t);
+
+    virtual void convoi_arrived(convoihandle_t cnv, bool fpl_adjust);
+
+    /**
+     * Parameters to determine layout and behaviour of the depot_frame_t.
+     * @author Volker Meyer
+     * @date  09.06.2003
+     */
+    int get_x_placement() const {return -25; }
+    int get_y_placement() const {return -28; }
+    int get_x_grid() const { return 24; }
+    int get_y_grid() const { return 24; }
+    int get_max_convoi_length() const { return 16; }
+
+    /**
+     * Access to vehicle types which can be bought in the depot.
+     * @author Volker Meyer
+     */
+    virtual const vehikel_besch_t *get_vehicle_type(int itype);
+
+    enum ding_t::typ gib_typ() const {return bahndepot;};
+    const char *gib_name() const;
+};
 
 /**
  * Depots für Straßenfahrzeuge
