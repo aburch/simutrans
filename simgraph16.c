@@ -216,16 +216,14 @@ struct imd {
 #define FLAG_PLAYERCOLOR (2)
 
 
-
-
-sint16 disp_width = 640;
-sint16 disp_height = 480;
+static sint16 disp_width = 640;
+static sint16 disp_height = 480;
 
 
 /*
  * Image table
  */
-struct imd *images = NULL;
+static struct imd* images = NULL;
 
 /*
  * Number of loaded images
@@ -242,7 +240,7 @@ static unsigned alloc_images = 0;
 /*
  * Output framebuffer
  */
-PIXVAL *textur = NULL;
+static PIXVAL* textur = NULL;
 
 
 /*
