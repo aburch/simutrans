@@ -20,6 +20,7 @@
 #define GREEN     169
 #define DUNKELORANGE 131
 #define ORANGE    132
+#define VIOLETT 80
 
 #define CITY_KI 4
 #define NEW_VEHICLE 251

@@ -154,7 +154,7 @@ class simline_t {
 	 */
 	sint64 financial_history[MAX_MONTHS][MAX_LINE_COST];
 
-	void simline_t::init_financial_history();
+	void init_financial_history();
 
 };
 

@@ -64,5 +64,4 @@ public:
     }
 };
 
-
 #endif // __SKIN_BESCH_H

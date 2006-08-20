@@ -47,9 +47,9 @@ private:
 
 	static const int map_type_color[MAX_MAP_TYPE];
 
-	void reliefkarte_t::calc_map(int mode);
+	void calc_map(int mode);
 
-	void reliefkarte_t::setze_relief_farbe_area(koord k, int areasize, int color);
+	void setze_relief_farbe_area(koord k, int areasize, int color);
 
 	/**
 	 * false: updates are possible
@@ -62,12 +62,12 @@ private:
 	 * returns a color based on an amount (high amount/scale -> color shifts from green to red)
 	 * @author hsiegeln
 	 */
-	int reliefkarte_t::calc_severity_color(int amount, int scale);
+	int calc_severity_color(int amount, int scale);
 
 	fabrik_t * fab;
 	grund_t * gr;
 
-	void reliefkarte_t::draw_fab_connections(const fabrik_t * fab, int colour, koord pos) const;
+	void draw_fab_connections(const fabrik_t * fab, int colour, koord pos) const;
 
 	bool is_shift_pressed;
 
@@ -114,6 +114,9 @@ public:
     void set_mode(int new_mode);
 
     int get_mode() { return mode; };
+
+	// updates the map (if needed)
+    void neuer_monat();
 };
 
 #endif

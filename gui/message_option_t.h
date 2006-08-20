@@ -42,6 +42,7 @@ public:
     spieler_t* gib_besitzer() const;
 
     int gib_bild() const;
+    koord gib_bild_offset() const;
     void info(cbuffer_t & buf) const;
 
     koord gib_fenstergroesse() const;

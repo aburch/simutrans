@@ -370,12 +370,4 @@ class factory_builder_t {
 
 };
 
-
 #endif
-
-/*
-=========================
-	EOF
-	factorybuilder.h
-=========================
-*/

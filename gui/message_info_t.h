@@ -33,7 +33,7 @@ private:
 	const char *text;
 
 public:
-  message_info_t::message_info_t(karte_t *welt,int color,char *text,koord k,int bild);
+  message_info_t(karte_t *welt, int color, char *text, koord k, int bild);
   ~message_info_t();
 
     /**

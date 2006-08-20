@@ -50,5 +50,4 @@ cstring_t k2_to_cstr(koord k);
  */
 cstring_t k3_to_cstr(koord3d k);
 
-
 #endif

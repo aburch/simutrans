@@ -14,7 +14,7 @@ unsigned long simrand_plain();
 
 
 /* generates a random number on [0,max-1]-interval */
-inline unsigned long simrand(const unsigned long max)
+static inline unsigned long simrand(const unsigned long max)
 {
 #ifndef MERSENNE_TWISTER_N
 	// defined in simtools.h!

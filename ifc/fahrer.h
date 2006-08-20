@@ -42,5 +42,4 @@ public:
 	virtual bool ist_ziel(const grund_t *) const = 0;
 };
 
-
 #endif

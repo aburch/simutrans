@@ -72,5 +72,4 @@ public:
 	}
 };
 
-
 #endif // __BAUM_BESCH_H

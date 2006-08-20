@@ -114,7 +114,8 @@ public:
      * @param cnv das Handle für den anzuzeigenden Convoi.
      * @author Hj. Malthaner
      */
-    halt_list_item_t::halt_list_item_t(halthandle_t halt, int n) {
+    halt_list_item_t(halthandle_t halt, int n)
+    {
 	this->halt = halt;
 	nummer = n;
     };

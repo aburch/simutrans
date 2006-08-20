@@ -29,7 +29,4 @@ public:
 	char flags;
 };
 
-
-
-
 #endif // linieneintrag_t_h

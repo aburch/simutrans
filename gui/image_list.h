@@ -128,5 +128,4 @@ public:
 	void recalc_size();
 };
 
-
 #endif

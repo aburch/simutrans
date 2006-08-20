@@ -216,5 +216,4 @@ public:
     virtual void zeige_fehlermeldung(karte_t *) const;
 };
 
-
 #endif

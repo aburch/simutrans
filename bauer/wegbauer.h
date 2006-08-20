@@ -45,7 +45,7 @@ public:
     static bool alle_kreuzungen_geladen();
 
     // generates timeline message
-	static void wegbauer_t::neuer_monat(karte_t *welt);
+	static void neuer_monat(karte_t *welt);
 
 
     /**
@@ -160,8 +160,6 @@ private:
     static koord3d tunnel_finde_ende(karte_t *welt, koord3d pos, const koord zv);
 
     void baue_tunnel_und_bruecken();
-
-    void optimiere_stelle(int index);
 
     void baue_strasse();
     void baue_schiene();

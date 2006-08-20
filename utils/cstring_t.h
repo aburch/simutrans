@@ -1,4 +1,3 @@
-
 #ifndef CSTRING_T_H
 #define CSTRING_T_H
 
@@ -163,6 +162,5 @@ public:
 
 
 cstring_t csprintf(const char *format, ...);
-
 
 #endif

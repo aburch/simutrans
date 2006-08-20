@@ -67,8 +67,7 @@ public:
      * Rail block factory method. Returns handles instead of pointers.
      * @author Hj. Malthaner
      */
-    static blockhandle_t blockstrecke_t::create(karte_t *welt,
-                                                                loadsave_t *file);
+    static blockhandle_t create(karte_t *welt, loadsave_t *file);
 
 
     /**

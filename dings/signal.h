@@ -106,7 +106,7 @@ public:
 
     virtual void setze_zustand(enum signal_t::signalzustand z);
 	/* recalculate image */
-	bool presignal_t::step(long);
+	bool step(long);
 
     void calc_bild();
 };

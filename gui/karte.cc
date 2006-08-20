@@ -153,6 +153,13 @@ reliefkarte_t::calc_relief_farbe(const karte_t *welt, const koord k)
 			    else {
 					color = DUNKELORANGE;
 			    }
+			} else if(gr->gib_weg(weg_t::wasser)) {
+			    if(gr->gib_halt()!=NULL) {
+					color = HALT_KENN;
+			    }
+			    else {
+					color = VIOLETT;
+			    }
 			} else if(gr->gib_typ() == grund_t::fundament) {
 			    // auf einem fundament steht ein gebaeude
 			    // das ist objekt nr. 1
@@ -614,4 +621,14 @@ reliefkarte_t::draw_fab_connections(const fabrik_t * fab, int colour, koord pos)
       display_ddd_proportional_clip(boxpos.x, boxpos.y, proportional_string_width(name)+8, 0, 5, WEISS, name, true);
     }
   }
+}
+
+
+
+void
+reliefkarte_t::neuer_monat()
+{
+	if(mode>0) {
+		calc_map( mode );
+	}
 }

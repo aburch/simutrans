@@ -1705,8 +1705,13 @@ spieler_t::baue_bahnhof(koord3d quelle,koord *p, int anz_vehikel)
 	zv.y = -zv.y;
 
 	DBG_MESSAGE("spieler_t::baue_bahnhof()",
-	 "try to build a train station of length %d (%d vehicles) at (%i,%i)",
-	 laenge, anz_vehikel, p->x, p->y);
+	 "try to build a train station of length %d (%d vehicles) at (%i,%i) (ribi %i)",
+	 laenge, anz_vehikel, p->x, p->y, ribi);
+
+	if(abs(zv.x)+abs(zv.y)!=1) {
+		dbg->error("spieler_t::baue_bahnhof()","Not allowed here!");
+		return 0;
+	}
 
 	INT_CHECK("simplay 548");
 
@@ -2873,7 +2878,7 @@ void
 spieler_t::add_undo(koord k)
 {
 	if(last_built.get_size()>0) {
-DBG_DEBUG("spieler_t::add_undo()","tile at (%i,%i)",k.x,k.y);
+//DBG_DEBUG("spieler_t::add_undo()","tile at (%i,%i)",k.x,k.y);
 		last_built.append(k);
 	}
 }
@@ -2895,7 +2900,7 @@ spieler_t::undo()
 			blockmanager::gib_manager()->entferne_schiene(welt, gr->gib_pos());
 		}
 		ok |= gr->weg_entfernen(undo_type,true);
-DBG_DEBUG("spieler_t::add_undo()","undo tile %i at (%i,%i)",i,last_built.at(i).x,last_built.at(i).y);
+//DBG_DEBUG("spieler_t::add_undo()","undo tile %i at (%i,%i)",i,last_built.at(i).x,last_built.at(i).y);
 	}
 	last_built.clear();
 	return ok;

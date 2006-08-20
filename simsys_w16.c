@@ -49,17 +49,6 @@ static unsigned short *AllDibData = NULL;
 
 static HDC hdc = NULL;
 
-/*
- * Hajo: flag if sound module should be used
- */
-static int use_sound = 0;
-
-
-/* this list contains all the samples
- */
-static void *samples[32];
-static int sample_number = 0;
-
 
 /*
  * Hier sind die Basisfunktionen zur Initialisierung der
@@ -80,7 +69,7 @@ int dr_os_open(int w, int h,int fullscreen)
 	// fake fullscreen
 	if(fullscreen  &&  w==MaxSize.right  &&  h==MaxSize.bottom) {
 		hwnd = CreateWindowEx(WS_EX_TOPMOST	,
-				"SSiimmuu\0",  L"" SAVEGAME_PREFIX " " VERSION_NUMBER " - " VERSION_DATE, WS_POPUP,
+				L"Simu",  L"" SAVEGAME_PREFIX " " VERSION_NUMBER " - " VERSION_DATE, WS_POPUP,
 				0, 0,
 				w, h-1,
 				NULL, NULL, hInstance, NULL);
@@ -88,7 +77,7 @@ int dr_os_open(int w, int h,int fullscreen)
 	}
 	else {
 		hwnd = CreateWindow(
-					"SSiimmuu\0", L"" SAVEGAME_PREFIX " " VERSION_NUMBER " - " VERSION_DATE, WS_OVERLAPPEDWINDOW,
+					L"Simu", L"" SAVEGAME_PREFIX " " VERSION_NUMBER " - " VERSION_DATE, WS_OVERLAPPEDWINDOW,
 					CW_USEDEFAULT, CW_USEDEFAULT,
 					w+GetSystemMetrics(SM_CXFRAME), h-1+2*GetSystemMetrics(SM_CYFRAME)+GetSystemMetrics(SM_CYCAPTION),
 					NULL, NULL, hInstance, NULL);
@@ -128,15 +117,6 @@ int dr_os_close(void)
 	if(hdc!=NULL) {
 		ReleaseDC( hwnd, hdc );
 		hdc = NULL;
-	}
-	// terminate sound system
-	if(use_sound) {
-		int i;
-		sndPlaySound( NULL, SND_ASYNC );
-		for(i=0;  i<sample_number;  i++  ) {
-			GlobalFree( GlobalHandle( samples[i] ) );
-		}
-		sample_number = 0;
 	}
 	if(hwnd!=NULL) {
 		DestroyWindow( hwnd );
@@ -184,18 +164,6 @@ unsigned int get_system_color(unsigned int r, unsigned int g, unsigned int b)
 	return ((r&0x00F8)<<7) | ((g&0x00F8)<<2) | (b>>3);	// 15 Bit
 #endif
 }
-
-
-/**
- * Does this system wrapper need software cursor?
- * @return true if a software cursor is needed
- * @author Hj. Malthaner
- */
-int dr_use_softpointer()
-{
-    return 0;
-}
-
 
 
 
@@ -548,76 +516,6 @@ void dr_sleep(unsigned long usec)
 }
 
 
-/**
- * Sound initialisation routine
- */
-void dr_init_sound()
-{
-	use_sound = 1;
-}
-
-
-
-/**
- * loads a sample
- * @return a handle for that sample or -1 on failure
- * @author Hj. Malthaner
- */
-int dr_load_sample(const char *filename)
-{
-	if(use_sound  &&  sample_number>=0  &&  sample_number<32) {
-
-		FILE *fIn=fopen(filename,"rb");
-
-		if(fIn) {
-			fseek( fIn, 0, SEEK_END );
-			long len = ftell( fIn );
-
-			if(len>0) {
-				samples[sample_number] = GlobalLock( GlobalAlloc(  GMEM_MOVEABLE, len ) );
-
-				rewind( fIn );
-				fread( samples[sample_number], len, 1, fIn );
-				fclose( fIn );
-
-				return sample_number++;
-			}
-		}
-	}
-
-	return -1;
-}
-
-
-/**
- * plays a sample
- * @param key the key for the sample to be played
- * @author Hj. Malthaner
- */
-void dr_play_sample(int sample_number, int volume)
-{
-	if(use_sound  &&  sample_number>=0  &&  sample_number<32  &&  volume>1) {
-		// prissis short version
-		static int oldvol = -1;
-		volume = (volume<<8)-1;
-		if(oldvol!=volume) {
-			long vol = (volume<<16)|volume;
-			waveOutSetVolume( 0, vol );
-			oldvol = volume;
-		}
-		// terminate the current sound
-		sndPlaySound( NULL, SND_ASYNC );
-		// now play
-		sndPlaySound( samples[sample_number], SND_MEMORY|SND_ASYNC|SND_NODEFAULT );
-	}
-}
-
-
-
-#include "system/w32_midi.c"
-
-
-
 /************************** Winmain ***********************************/
 
 int simu_main(int argc, char **argv);
@@ -630,7 +528,7 @@ BOOL APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
 	char *argv[32], *p;
 	int argc;
 
-	wc.lpszClassName = "SSiimmuu\0";
+	wc.lpszClassName = L"Simu";
 	wc.style = CS_HREDRAW | CS_VREDRAW;
 	wc.lpfnWndProc = WindowProc;
 	wc.cbClsExtra = 0;

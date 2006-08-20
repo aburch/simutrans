@@ -124,6 +124,8 @@ public:
     static const skin_besch_t *post;
     static const skin_besch_t *waren;
 
+    static const skin_besch_t *message_options;
+
     /**
      * Window skin images
      * @author Hj. Malthaner
@@ -135,7 +137,4 @@ public:
 
 };
 
-/////////////////////////////////////////////////////////////////////////////
-//@EOF
-/////////////////////////////////////////////////////////////////////////////
 #endif // __SIMSKIN_H

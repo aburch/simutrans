@@ -58,5 +58,4 @@ public:
 	void calc_bild();
 };
 
-
 #endif

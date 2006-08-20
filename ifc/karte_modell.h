@@ -116,6 +116,4 @@ public:
     virtual void markiere_clean(koord3d pos) = 0;
 };
 
-
-
 #endif

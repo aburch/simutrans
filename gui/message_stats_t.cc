@@ -68,7 +68,7 @@ void message_stats_t::zeichnen(koord offset) const
 	if(max_message>msg->gib_count()) {
 		max_message = msg->gib_count();
 	}
-	for( unsigned i=offsets;  i<max_message;  i++  ) {
+	for( int i=offsets;  i<max_message;  i++  ) {
 /*
 		if(offset.y+i*14<cd.y) {
 			// reached the top

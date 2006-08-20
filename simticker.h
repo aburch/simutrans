@@ -90,5 +90,4 @@ public:
     void zeichnen();
 };
 
-
 #endif

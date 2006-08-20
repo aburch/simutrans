@@ -2074,11 +2074,13 @@ aircraft_t::ist_befahrbar(const grund_t *bd) const
 		case departing:
 		case flying:
 		{
+#if 0
 			// allow only runways
 			const weg_t *w=bd->gib_weg(weg_t::luft);
-			if(w  &&  w->gib_max_speed()<250) {
+			if(w  &&  w->gib_max_speed()<250  &&  ) {
 				return false;
 			}
+#endif
 			// prissi: here a height check could avoid too height montains
 			return true;
 		}
@@ -2109,6 +2111,41 @@ aircraft_t::ist_weg_frei(int & restart_speed)
 		state = departing;
 		restart_speed = 0;
 		return false;
+	}
+
+	// check for another circle ...
+	if(route_index==touchdown-4  &&  route_index>16) {
+		// check for skipping circle
+		route_t *rt=cnv->get_route();
+		grund_t *target=welt->lookup(rt->position_bei(rt->gib_max_n()));
+
+		// is our target occupied?
+		if(target  &&  target->gib_halt().is_bound()  &&  target->suche_obj(ding_t::aircraft)  &&  !target->gib_halt()->find_free_position(weg_t::luft,ding_t::aircraft)  ) {
+			// circle slowly
+			cnv->setze_akt_speed_soll( kmh_to_speed(besch->gib_geschw())/2 );
+			route_index -= 16;
+			return false;
+		}
+	}
+
+	if(route_index==touchdown-16-3) {
+		// check for skipping circle
+		route_t *rt=cnv->get_route();
+		grund_t *target=welt->lookup(rt->position_bei(rt->gib_max_n()));
+
+		// is our target occupied?
+		if(  target==0  ||  !target->gib_halt().is_bound()  ||  target->suche_obj(ding_t::aircraft)==0  ||  target->gib_halt()->find_free_position(weg_t::luft,ding_t::aircraft)  ) {
+			// everything free => skip circle
+DBG_MESSAGE("aircraft_t::calc_height()","%i,%i,%i->%i,%i,%i",pos_cur.x,pos_cur.y,pos_cur.z,pos_next.x,pos_next.y,pos_next.z);
+			route_index += 15;
+			if(pos_next==rt->position_bei(route_index+1)) {
+				route_index ++;
+			}
+//DBG_MESSAGE("aircraft_t::calc_height()","%i,%i,%i->%i,%i,%i",pos_cur.x,pos_cur.y,pos_cur.z,pos_next.x,pos_next.y,pos_next.z);
+			return false;
+		}
+		// circle slowly
+		cnv->setze_akt_speed_soll( kmh_to_speed(besch->gib_geschw())/2 );
 	}
 
 	if(route_index==suchen  &&  state==landing) {
@@ -2158,7 +2195,7 @@ aircraft_t::ist_weg_frei(int & restart_speed)
 		return true;
 	}
 
-	if(flughoehe<=target_height  &&  gr->gib_halt().is_bound()  &&  gr->suche_obj(ding_t::aircraft)) {
+	if(state==taxiing  &&  gr->gib_halt().is_bound()  &&  gr->suche_obj(ding_t::aircraft)) {
 		// the next step is a parking position. We do not enter, if occupied!
 		restart_speed = 8;
 		return false;
@@ -2258,6 +2295,14 @@ aircraft_t::rdwr(loadsave_t *file, bool force)
 		file->rdwr_long(suchen," ");
 		file->rdwr_long(touchdown," ");
 		file->rdwr_long(takeoff,"\n");
+/*
+		if(file->get_version()<88001) {
+			circle = 0x7FFF;	// no circle yet
+		}
+		else {
+			file->rdwr_long(circle,"\n");
+		}
+*/
 	}
 }
 
@@ -2291,6 +2336,7 @@ aircraft_t::calc_route(karte_t * welt, koord3d start, koord3d ziel, uint32 max_s
 
 	const weg_t *w=welt->lookup(start)->gib_weg(weg_t::luft);
 	bool start_in_the_air = (w==NULL);
+	bool end_in_air=false;
 
 	suchen = takeoff = touchdown = 0x7ffffffful;
 	if(!start_in_the_air) {
@@ -2344,70 +2390,134 @@ aircraft_t::calc_route(karte_t * welt, koord3d start, koord3d ziel, uint32 max_s
 	route_t end_route;
 
 	if(!end_route.find_route( welt, ziel, this, max_speed, ribi_t::alle, 100 )) {
-		DBG_MESSAGE("aircraft_t::calc_route()","failed");
-		route->clear();
-		return false;
-	}
-
-	// save target route
-	search_end = end_route.position_bei( end_route.gib_max_n() );
-	DBG_MESSAGE("aircraft_t::calc_route()","ziel now %i,%i,%i",search_end.x,search_end.y,search_end.z);
-
-	// ok, we have a runway, now find a route going there
-	route_t fly_route;
-	state = flying;
-	if(!fly_route.calc_route( welt, search_start, search_end, this, max_speed )) {
-		DBG_MESSAGE("aircraft_t::calc_route()","failed");
-		route->clear();
-		return false;
-	}
-
-	if(!start_in_the_air) {
-		DBG_MESSAGE("aircraft_t::calc_route()","%i,%i,%i->%i,%i,%i",
-			route->position_bei(route->gib_max_n()).x, route->position_bei(route->gib_max_n()).y, route->position_bei(route->gib_max_n()).z,
-			fly_route.position_bei(0).x, fly_route.position_bei(0).y, fly_route.position_bei(0).z );
-		takeoff = route->gib_max_n();
-		route->append(&fly_route);
+		// well, probably this is a waypoint
+		end_in_air = true;
+		search_end = ziel;
 	}
 	else {
-		route->kopiere(&fly_route);
+		// save target route
+		search_end = end_route.position_bei( end_route.gib_max_n() );
+	}
+	DBG_MESSAGE("aircraft_t::calc_route()","ziel now %i,%i,%i",search_end.x,search_end.y,search_end.z);
+
+	// create target route
+	if(!start_in_the_air) {
+		takeoff = route->gib_max_n();
+		koord start_dir(welt->lookup(search_start)->gib_weg_ribi(weg_t::luft));
+		if(start_dir!=koord(0,0)) {
+			// add the start
+			const grund_t *gr;
+			int endi = 4;
+			// now add all runway + 3 ...
+			for( int i=1;  i<endi;  i++  ) {
+				if(!welt->ist_in_kartengrenzen(search_start.gib_2d()+(start_dir*i)) ) {
+					break;
+				}
+				gr = welt->lookup(search_start.gib_2d()+(start_dir*i))->gib_kartenboden();
+				if(gr->gib_weg(weg_t::luft)) {
+					endi ++;
+				}
+				route->append(gr->gib_pos());
+			}
+			// need some extra step to avoid 180° turns
+			if( start_dir.x!=0  &&  sgn(start_dir.x)==sgn(search_end.x-search_start.x)  ) {
+				route->append( welt->lookup(gr->gib_pos().gib_2d()+koord(0,(search_end.y>search_start.y) ? 2 : -2 ) )->gib_kartenboden()->gib_pos() );
+				route->append( welt->lookup(gr->gib_pos().gib_2d()+koord(0,(search_end.y>search_start.y) ? 2 : -2 ) )->gib_kartenboden()->gib_pos() );
+			}
+			else if( start_dir.y!=0  &&  sgn(start_dir.y)==sgn(search_end.y-search_start.y)  ) {
+				route->append( welt->lookup(gr->gib_pos().gib_2d()+koord((search_end.x>search_start.x) ? 1 : -1 ,0) )->gib_kartenboden()->gib_pos() );
+				route->append( welt->lookup(gr->gib_pos().gib_2d()+koord((search_end.x>search_start.x) ? 2 : -2 ,0) )->gib_kartenboden()->gib_pos() );
+			}
+		}
+		else {
+			// init with startpos
+dbg->error("aircraft_t::calc_route()","Invalid route calculation: start is a single one direction field ...");
+		}
+		state = taxiing;
+		flughoehe = gib_pos().z;
+	}
+	else {
+		// init with current pos (in air ... )
+		route->clear();
+		route->append( gib_pos() );
+		state = flying;
+		cnv->setze_akt_speed_soll(gib_speed());
+		flughoehe = gib_pos().z+48;
+		takeoff = 0;
+	}
+	target_height = gib_pos().z+48;
+
+	DBG_MESSAGE("aircraft_t::calc_route()","take off ok");
+
+	koord3d landing_start=search_end;
+	if(!end_in_air) {
+		// now find way to start of landing pos
+		koord end_dir(welt->lookup(search_end)->gib_weg_ribi(weg_t::luft));
+		if(end_dir!=koord(0,0)) {
+			// add the start
+			const grund_t *gr;
+			int endi = 3;
+			// now add all runway + 3 ...
+			for( int i=0;  i<endi;  i++  ) {
+				if(!welt->ist_in_kartengrenzen(search_end.gib_2d()+(end_dir*i)) ) {
+					break;
+				}
+				gr=welt->lookup(search_end.gib_2d()+(end_dir*i))->gib_kartenboden();
+				if(gr->gib_weg(weg_t::luft)) {
+					endi ++;
+				}
+				landing_start = gr->gib_pos();
+			}
+		}
+	}
+	else {
+		suchen = touchdown = 0x7FFFFFFFul;
 	}
 
-	// try to find the maximum height
-	target_height = 0;
-	state = start_in_the_air ? departing : flying;
-	for(int i=0;  i<route->gib_max_n();  i++  ) {
-		const grund_t *gr=welt->lookup(route->position_bei(i));
-		const short z=gr->gib_pos().z;
-		bool hat_luftweg=gr->gib_weg(weg_t::luft)!=NULL;
-		if(state==departing  &&  !hat_luftweg) {
-			state = flying;
-		}
-		if(state==flying) {
-			if(z>target_height) {
-				// get maximum flight level and touchdown point
-				target_height = z;
-			}
-			// find the start of the appraoch
-			if(hat_luftweg  &&  i+7>route->gib_max_n()) {
-				touchdown = i;
+	// just some straight routes ...
+	if(!route->append_straight_route(welt,landing_start)) {
+		// should never fail ...
+		dbg->error( "aircraft_t::calc_route()", "No straight route found!" );
+		return false;
+	}
+
+	if(!end_in_air) {
+
+		// now make a curve
+		koord circlepos=landing_start.gib_2d();
+		koord dir = circlepos - route->position_bei( route->gib_max_n()-2 ).gib_2d();
+		static const koord circle_dir[8]={ koord(0,1), koord(1,1), koord(1,0), koord(1,-1), koord(0,-1), koord(-1,-1), koord(-1,0), koord(-1,1) };
+		static const koord circle_koord[16]={ koord(0,1), koord(0,1), koord(1,0), koord(0,1), koord(1,0), koord(1,0), koord(0,-1), koord(1,0), koord(0,-1), koord(0,-1), koord(-1,0), koord(0,-1), koord(-1,0), koord(-1,0), koord(0,1), koord(-1,0) };
+
+		// find starting direction
+		int offset;
+		for(  offset=0;  offset<8;  offset++  ) {
+			if(circle_dir[offset]==dir) {
 				break;
 			}
 		}
+
+		DBG_MESSAGE("aircraft_t::calc_route()","circledir %i,%i, offset=%i", dir.x,dir.y, offset );
+
+		// circle to the left
+		offset = ((offset*2)+2)%16;
+		for(  int  i=0;  i<16;  i++  ) {
+			circlepos += circle_koord[(offset+i+16)%16];
+			route->append( welt->lookup(circlepos)->gib_kartenboden()->gib_pos() );
+		}
+
+//		route->append( landing_start );	// this will remove any extra double values ...
+		touchdown = route->gib_max_n()+3;
+		route->append_straight_route(welt,search_end);
+
+		// now the route rearch point (+1, since it will check before entering the tile ...)
+		suchen = route->gib_max_n();
+
+		// now we just append the rest
+		for( int i=end_route.gib_max_n()-1;  i>=0;  i--  ) {
+			route->append(end_route.position_bei(i));
+		}
 	}
-	target_height += 48;
-
-	// no the route rearch point (+1, since it will check before entering the tile ...
-	suchen = route->gib_max_n();
-
-	// now we just append the rest
-	for( int i=end_route.gib_max_n();  i>=0;  i--  ) {
-		route->append(end_route.position_bei(i));
-	}
-
-	// finally, we can start
-	state = start_in_the_air ? flying : taxiing;
-	flughoehe = gib_pos().z+target_height;
 
 	DBG_MESSAGE("aircraft_t::calc_route()","departing=%i  touchdown=%i   suchen=%i   total=%i  state=%i",takeoff, touchdown, suchen, route->gib_max_n(), state );
 	return true;
@@ -2433,6 +2543,7 @@ int aircraft_t::calc_height()
 				current_friction = 16;
 				flughoehe = height_scaling(gib_pos().z);
 				target_height = flughoehe+48;
+				cnv->setze_akt_speed_soll(gib_speed());
 			}
 			break;
 
@@ -2442,7 +2553,6 @@ int aircraft_t::calc_height()
 			const sint16 h_cur=height_scaling(pos_cur.z);
 
 			setze_speed_limit(-1);
-			cnv->setze_akt_speed_soll(gib_speed());
 
 			// did we have to change our flight height?
 			if(target_height-h_next>16*5) {
@@ -2496,6 +2606,5 @@ int aircraft_t::calc_height()
 //		new_hoff = vehikel_t::calc_height();
 		break;
 	}
-
 	return new_hoff;
 }

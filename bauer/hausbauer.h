@@ -74,9 +74,9 @@ public:
     static const haus_besch_t *monorail_foundation_besch;
 
     // to allow for an arbitary number, we use lists
-    static slist_tpl<const haus_besch_t *> hausbauer_t::station_building;
-    static slist_tpl<const haus_besch_t *> hausbauer_t::air_depot;
-    static slist_tpl<const haus_besch_t *> hausbauer_t::headquarter;
+    static slist_tpl<const haus_besch_t *> station_building;
+    static slist_tpl<const haus_besch_t *> air_depot;
+    static slist_tpl<const haus_besch_t *> headquarter;
 
 private:
     /**

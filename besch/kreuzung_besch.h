@@ -72,5 +72,4 @@ public:
     }
 };
 
-
 #endif // __KREUZUNG_BESCH_H

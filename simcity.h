@@ -26,8 +26,6 @@ class cstring_t;
 class cbuffer_t;
 class stadt_info_t;
 
-struct hausbesch;
-
 // part of passengers going to factories or toursit attractions (100% mx)
 #define FACTORY_PAX 33	// workers
 #define TOURIST_PAX 16		// tourists
@@ -261,7 +259,7 @@ private:
      * baut ein Gebaeude auf Planquadrat x,y
      */
     void baue_gebaeude(koord pos);
-    void erzeuge_verkehrsteilnehmer(koord pos, int level);
+    void erzeuge_verkehrsteilnehmer(koord pos, int level,koord target);
     void renoviere_gebaeude(koord pos);
 
 
@@ -476,6 +474,5 @@ public:
 
     void add_factory_arbeiterziel(fabrik_t *fab);
 };
-
 
 #endif

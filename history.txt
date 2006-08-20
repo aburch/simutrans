@@ -7,30 +7,63 @@ Known bugs: (hard to fix)
 	sorting factories has an umlaute problem
 
 
-10-DEC-2005(prissi):
+Release of 88.01.2
+
+25-Dec-2005:
+	two tiles drawing code operational; but, the effect is rather small and only seen in very hilly maps
+
+22-Dec-2005:
+	FIX(prissi): change factory preciosion to allow high-volume production
+	FIX: redrawing title bar under not Allegro
+
+21-Dec-2005
+	ADD(tron): new makefiles (all options now in config.default, copy config.template and edit this)
+	ADD(prissi): citycars with destinations (not recommended, just to many whcih want to reach places without roads)
+	FIX(prissi): Allegro now with mouse in menu bar
+
+18-Dec-2005(prissi):
+	ADD: colors for channels in minimap
+	FIX: factory now consumes goods according to their setting (before: the number of products) If a factory produces less, it will consume less.
+	FIX: 's' builds road again
+
+13-Dec-2005(prissi):
+	FIX: when deleting a line, the schedule from convois in depot will be deleted
+	FIX: dinglist could cause a crash when asking for a single deleted object (i.e. on a road)
+	ADD: factory added to stop names (when built close to it)
+
+12-Dec-2005(prissi):
+	FIX: powerlines again builtable
+	FIX: route calculation of aircraft improved
+	CHANGE: wait for loading percentage now several numbers with wrap around
+	ADD: waypoints for planes
+	ADD: aircraft circle during waiting for free stop
+
+Release of 88.01.1
+
+10-Dec-2005(prissi):
 	ADD: citylist with total inhabitants
 	ADD: new switch in simuconf.tab "just_in_time" (default=1) which allows switching off just in time logistics
 	CHANGE: new factory construction: try to connect always to an existing factory, and ignore the distance, if the connection factory is not an emental source
 	FIX: redraw error, when AI changed land height hopefully fixed
 	CHANGE: map display updated also with several options on
 
-6-DEC-2005(prissi):
+6-Dec-2005(prissi):
 	FIX: takeoff/landing direction
 	FIX: overflow on large maps and long transport
 	FIX: waybuilder now forbid curves on runway nearly 100% (only be deletion still possible)
 	ADD: nl key file by stormoog
 	FIX: no queuing over airstops for flying planes
 
-3-DEC-2005:
-	CHANGE(prissi): A* for ways (finally!)
-	FIX(prissi): drive on left zoom out bug in 128 solved (this one was well hidden)
-	FIX(prissi): key handling in SDL renovated
-	FIX(prissi): more error checks when deleting signals to recover from orphan signals from before ...
+3-Dec-2005(prissi):
+	CHANGE: A* for ways (finally!)
+	FIX: drive on left zoom out bug in 128 solved (this one was well hidden)
+	FIX: key handling in SDL renovated
+	FIX: more error checks when deleting signals to recover from orphan signals from before ...
 
 
 Release of 88.01
 
-2-DEC-2005:
+2-Dec-2005:
 	FIX(prissi): fiddled a little around with the signal deletion routine. No crashes, after a some tries
 	FIX(prissi): monorail again deletable
 	FIX(prissi): identical blocks on different tracks when using undo fixed

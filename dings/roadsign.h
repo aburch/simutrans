@@ -73,7 +73,7 @@ public:
 
 
 	// true, if a free route choose point (these are always single way the avoid recalculation of long return routes)
-	bool roadsign_t::is_free_route(uint8 check_dir) const { return besch->is_free_route() &&  check_dir==dir; };
+	bool is_free_route(uint8 check_dir) const { return besch->is_free_route() &&  check_dir == dir; }
 
 
 
@@ -108,7 +108,7 @@ public:
 	 * Fill menu with icons of given stops from the list
 	 * @author Hj. Malthaner
 	 */
-	static void roadsign_t::fill_menu(werkzeug_parameter_waehler_t *wzw,
+	static void fill_menu(werkzeug_parameter_waehler_t *wzw,
 		int (* werkzeug)(spieler_t *, karte_t *, koord, value_t),
 		int sound_ok,
 		int sound_ko,

@@ -11,6 +11,9 @@
  * Hj. Malthaner
  */
 
+// test!
+#include "../simtime.h"
+
 #include "../simdebug.h"
 #include "wegbauer.h"
 
@@ -548,12 +551,11 @@ bool wegbauer_t::is_allowed_step( const grund_t *from, const grund_t *to, long *
 		break;
 
 		case leitung:
-			ok = (!fundament  ||  !to->ist_wasser())  &&
-					(
+			ok = (!fundament &&  !to->ist_wasser())  &&  (!to->hat_wege()  ||
 						(to->gib_weg(weg_t::wasser)!=NULL  &&  check_crossing(zv,to,weg_t::wasser))  ||
 						(to->gib_weg(weg_t::strasse)!=NULL  &&  check_crossing(zv,to,weg_t::strasse))  ||
 						(to->gib_weg(weg_t::schiene)!=NULL  &&  check_crossing(zv,to,weg_t::schiene))
-					)  &&  to->gib_weg(weg_t::luft)==NULL;
+					);
 			// calculate costs
 			if(ok) {
 				*costs = to->hat_wege() ? 8 : 1;
@@ -569,7 +571,7 @@ bool wegbauer_t::is_allowed_step( const grund_t *from, const grund_t *to, long *
 					check_for_leitung(zv,to);
 			// calculate costs
 			if(ok) {
-				*costs = to->ist_wasser()  ||  to->gib_weg(weg_t::wasser) ? 1 : 10;	// prefer water very much ...
+				*costs = to->ist_wasser()  ||  to->gib_weg(weg_t::wasser) ? 2 : 10;	// prefer water very much ...
 				if(to->gib_grund_hang()!=0) {
 					*costs += CST_WAY_SLOPE*2;
 				}
@@ -954,12 +956,17 @@ wegbauer_t::intern_calc_route(const koord start, const koord ziel)
 //					ribi_t::ribi current_dir2 = ribi_typ( tmp->gr->gib_pos().gib_2d(), to->gib_pos().gib_2d() );
 
 					if(tmp->dir!=current_dir) {
-						new_g += ribi_t::ist_exakt_orthogonal(tmp->parent->dir,current_dir) ? 30 : 15;
+						new_g += ribi_t::ist_exakt_orthogonal(tmp->dir,current_dir) ? 45 : 15;
+						new_g += tmp->parent->dir!=current_dir ? 20 : 10;
+//						new_g += tmp->dir&current_dir==0 ? 45 : 15;
 					}
 
 				}
 				else {
 					 current_dir = ribi_typ( gr->gib_pos().gib_2d(), to->gib_pos().gib_2d() );
+					if(tmp->dir!=current_dir) {
+						new_g += ribi_t::ist_exakt_orthogonal(tmp->dir,current_dir) ? 30 : 15;
+					}
 				}
 
 				const uint32 new_f = new_g+route_t::calc_distance( to->gib_pos(), ziel3d );
@@ -980,10 +987,7 @@ wegbauer_t::intern_calc_route(const koord start, const koord ziel)
 				// it may or may not be in the list; but since the arrays are sorted
 				// we find out about this during inserting!
 
-				// Hajo: this is too expensive to be called each step
-				if((step & 7) == 0) {
-					INT_CHECK("wegbauer 161");
-				}
+				INT_CHECK("wegbauer 161");
 
 				// not in there or taken out => add new
 				route_t::ANode *k=&(route_t::nodes[step++]);
@@ -1176,6 +1180,7 @@ wegbauer_t::calc_straight_route(koord start, const koord ziel)
 void
 wegbauer_t::calc_route(koord start, const koord ziel)
 {
+long ms=get_current_time_millis();
 	INT_CHECK("simbau 740");
 
 	if(bautyp==luft  &&  besch->gib_topspeed()>=250) {
@@ -1209,6 +1214,7 @@ wegbauer_t::calc_route(koord start, const koord ziel)
 
 	}
 	INT_CHECK("wegbauer 778");
+DBG_MESSAGE("calc_route::clac_route", "took %i ms",get_current_time_millis()-ms);
 }
 
 
@@ -1257,21 +1263,20 @@ DBG_MESSAGE("wegbauer_t::baue_tunnel_und_bruecken","built bridge %p between %i,%
 			if(start->gib_grund_hang()==0  ||  start->gib_grund_hang()==hang_typ(zv*(-1))) {
 				// bridge here
 DBG_MESSAGE("wegbauer_t::baue_tunnel_und_bruecken","built bridge %p",bruecke_besch);
+				INT_CHECK( "wegbauer 1584" );
 				brueckenbauer_t::baue_bruecke(welt, sp, route->at(i), route->at(i+1), zv, bruecke_besch);
+				INT_CHECK( "wegbauer 1584" );
 			}
 			else {
 				// tunnel
+				INT_CHECK( "wegbauer 1584" );
 				tunnelbauer_t::baue(sp, welt, route->at(i).gib_2d(), (weg_t::typ)besch->gib_wtyp()  );
+				INT_CHECK( "wegbauer 1584" );
 			}
 		}
 	}
 }
 
-
-
-void wegbauer_t::optimiere_stelle(int index)
-{
-}
 
 
 
@@ -1295,6 +1300,10 @@ wegbauer_t::baue_strasse()
 	}
 
 	for(int i=0; i<=max_n; i++) {
+		if((i&3)==0) {
+			INT_CHECK( "wegbauer 1584" );
+		}
+
 		const koord k = route->at(i).gib_2d();
 		grund_t *gr = welt->lookup(route->at(i));
 
@@ -1307,8 +1316,7 @@ wegbauer_t::baue_strasse()
 //DBG_MESSAGE("wegbauer_t::baue_strasse()","nothing to do at (%i,%i)",k.x,k.y);
 				cost = 0;
 			}
-			else
-			{
+			else {
 //DBG_MESSAGE("wegbauer_t::baue_strasse()","updating %s to %s at (%i,%i)",weg->gib_besch()->gib_name(),besch->gib_name(),k.x,k.y);
 
 				// Hajo: den typ des weges aendern, kosten berechnen
@@ -1342,10 +1350,6 @@ wegbauer_t::baue_strasse()
 
 		if(cost && sp) {
 			sp->buche(cost, k, COST_CONSTRUCTION);
-		}
-
-		if(i&3==0) {
-			INT_CHECK( "wegbauer 1584" );
 		}
 	} // for
 }
@@ -1393,12 +1397,6 @@ wegbauer_t::baue_schiene()
 
 		// rails have blocks
 		blockmanager * bm = blockmanager::gib_manager();
-
-		for(i=1; i<max_n; i++) {
-			if(baubaer) {
-				optimiere_stelle(i);
-			}
-		}
 
 		// init undo
 		sp->init_undo(weg_t::schiene,max_n);
@@ -1555,12 +1553,6 @@ wegbauer_t::baue_kanal()
 	int i;
 	if(max_n >= 1) {
 
-		for(i=1; i<max_n; i++) {
-			if(baubaer) {
-				optimiere_stelle(i);
-			}
-		}
-
 		// init undo
 		sp->init_undo(weg_t::wasser,max_n);
 
@@ -1646,12 +1638,6 @@ wegbauer_t::baue_runway()
 	int i;
 
 	if(max_n >= 1) {
-
-		for(i=1; i<max_n; i++) {
-			if(baubaer) {
-				optimiere_stelle(i);
-			}
-		}
 
 		// init undo
 		sp->init_undo(weg_t::luft,max_n);
@@ -1759,8 +1745,9 @@ wegbauer_t::baue()
          "type=%d max_n=%d start=%d,%d end=%d,%d",
          bautyp, max_n,
          route->at(0).x, route->at(0).y,
-         route->at(max_n).x, route->at(max_n).y);
-
+         route->at(max_n).x, route->at(max_n).y );
+// test!
+long ms=get_current_time_millis();
 
 	INT_CHECK("simbau 1072");
   switch(bautyp) {
@@ -1770,6 +1757,7 @@ wegbauer_t::baue()
    	case strasse:
    	case strasse_bot:
 			baue_strasse();
+			DBG_MESSAGE("wegbauer_t::baue", "strasse");
 			break;
    	case schiene:
    	case schiene_bot:
@@ -1796,4 +1784,6 @@ wegbauer_t::baue()
  	INT_CHECK("simbau 1087");
 	baue_tunnel_und_bruecken();
  	INT_CHECK("simbau 1087");
+
+DBG_MESSAGE("wegbauer_t::baue", "took %i ms",get_current_time_millis()-ms);
 }

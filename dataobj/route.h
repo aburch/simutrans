@@ -47,7 +47,7 @@ private:
      * Die eigentliche Routensuche
      * @author Hj. Malthaner
      */
-    bool intern_calc_route(koord3d start, koord3d ziel, fahrer_t *fahr, const uint32 max_kmh, const uint32 max_cost);
+    bool intern_calc_route(karte_t *w, koord3d start, koord3d ziel, fahrer_t *fahr, const uint32 max_kmh, const uint32 max_cost);
 
 
     vector_tpl <koord3d> route;           // Die Koordinaten fuer die Fahrtroute
@@ -142,6 +142,13 @@ public:
      * @author prissi
      */
     void remove_koord_from(int);
+
+    /**
+     * Appends a straig line from the last koord3d in route to the desired target.
+     * Will return fals if fails
+     * @author prissi
+     */
+    bool append_straight_route( karte_t *w, koord3d );
 
 	/* find the route to an unknow location (where tile_found becomes true)
 	 * the max_depth is the maximum length of a route

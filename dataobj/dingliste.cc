@@ -450,7 +450,7 @@ dingliste_t::suche(ding_t::typ typ,uint8 start) const
 		return NULL;
 	}
 	else if(capacity==1) {
-		return obj.one->gib_typ()==typ ? obj.one : NULL;
+		return (obj.one==NULL  ||  obj.one->gib_typ()!=typ) ? NULL : obj.one;
 	}
 	else {
 		// else we have to search the list

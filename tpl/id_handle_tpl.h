@@ -579,6 +579,4 @@ public:
 
 template<class T> handle_as_refcount_tombstones_tpl<T> handle_as_refcount_tpl<T>::tombstones;
 
-
-
 #endif

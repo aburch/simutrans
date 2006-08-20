@@ -121,13 +121,16 @@ public:
 
 class stadtauto_t : public verkehrsteilnehmer_t {
 private:
-    static slist_mit_gewichten_tpl<const stadtauto_besch_t *> stadtauto_t::liste_timeline;
+    static slist_mit_gewichten_tpl<const stadtauto_besch_t *> liste_timeline;
     static slist_mit_gewichten_tpl<const stadtauto_besch_t *> liste;
     static stringhashtable_tpl<const stadtauto_besch_t *> table;
 
     const stadtauto_besch_t *besch;
 
 	// prissi: time to life in blocks
+#ifdef DESTINATION_CITYCARS
+	koord target;
+#endif
     int time_to_life;
     uint32 ms_traffic_jam;
 
@@ -141,7 +144,7 @@ protected:
 
 public:
     stadtauto_t(karte_t *welt, loadsave_t *file);
-    stadtauto_t(karte_t *welt, koord3d pos);
+    stadtauto_t(karte_t *welt, koord3d pos, koord target);
 
     /**
      * Ensures that this object is removed correctly from the list
@@ -150,6 +153,7 @@ public:
      */
     virtual ~stadtauto_t();
 
+    virtual void hop();
    virtual void age() { time_to_life--; };
    virtual int gib_age() { return time_to_life; };
    void destroy() {time_to_life=0; };

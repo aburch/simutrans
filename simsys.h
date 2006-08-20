@@ -64,28 +64,7 @@ int dr_os_open(int w, int h, int fullscreen);
 int dr_os_close();
 
 
-/**
- * MIDI initialisation routine
- */
-void dr_init_midi();
-
-
-/**
- * Sound initialisation routine
- */
-void dr_init_sound();
-
-
-
 unsigned short * dr_textur_init();
-
-
-/**
- * Does this system wrapper need software cursor?
- * @return true if a software cursor is needed
- * @author Hj. Malthaner
- */
-int dr_use_softpointer();
 
 
 void dr_textur(int xp, int yp, int w, int h);
@@ -112,72 +91,6 @@ void GetEventsNoWait();
 
 unsigned long dr_time(void);
 void dr_sleep(unsigned long usec);
-
-/**
- * loads a sample
- * @return a handle for that sample or -1 on failure
- * @author Hj. Malthaner
- */
-int dr_load_sample(const char *filename);
-
-/**
- * plays a sample
- * @param key the key for the sample to be played
- * @author Hj. Malthaner
- */
-void dr_play_sample(int key, int volume);
-
-
-/**
- * sets midi playback volume
- * @param vol volume in range 0..255
- * @author Hj. Malthaner
- */
-void dr_set_midi_volume(int vol);
-
-
-/**
- * gets midi title
- * @author Hj. Malthaner
- */
-const char * dr_get_midi_title(int index);
-
-
-/**
- * MIDI playing routines
- * @author Owen Rudge
- */
-int dr_load_midi(const char *filename);
-
-
-/**
- * MIDI playing routines
- * @author Owen Rudge
- */
-void dr_play_midi(int key);
-
-
-/**
- * MIDI playing routines
- * @author Owen Rudge
- */
-void dr_stop_midi();
-
-
-/**
- * MIDI playing routines
- * @author Owen Rudge
- */
-long dr_midi_pos();
-
-
-/**
- * Midi shutdown/cleanup
- * @author Owen Rudge
- */
-void dr_destroy_midi();
-
-void set_midi_pos(int);
 
 /**
  * Some wrappers can save screenshots.

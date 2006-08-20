@@ -65,6 +65,4 @@ public:
 	node*	get_node(unsigned i);
 };
 
-
-
 #endif

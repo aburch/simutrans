@@ -1,32 +1,52 @@
+DEPS    = $(filter %.d, $(SOURCES:%.cc=%.d) $(SOURCES:%.c=%.d))
 OBJECTS = $(filter %.o, $(SOURCES:%.cc=%.o) $(SOURCES:%.c=%.o) $(SOURCES:%.rc=%.o))
 
-.PHONY: $(SUBDIRS) $(SUBDIRS:%=%_clean) clean $(SUBDIRS:%=%_depend) depend
+.PHONY: clean depend
 
 .SUFFIXES: .rc
 
-all: $(SUBDIRS) $(OBJECTS)
+ifeq ($(VERBOSE),)
+  Q = @
+else
+  Q =
+endif
 
-$(SUBDIRS):
-	@$(MAKE) -C $@
+all: $(PROG)
 
-clean: $(SUBDIRS:%=%_clean)
+$(PROG): $(OBJECTS)
+	@echo "===> LD  $@"
+	$(Q)$(CXX) $(OBJECTS) $(LDFLAGS) $(STD_LIBS) $(LIBS) -o $@
+
+clean:
 	@echo "===> Cleaning up"
-	@rm -f $(OBJECTS) .depend *~ *.bak
+	$(Q)rm -f $(OBJECTS) $(DEPS) *~ *.bak
 
-$(SUBDIRS:%=%_clean):
-	@$(MAKE) -C $(@:%_clean=%) clean
+depend: $(DEPS)
 
+ifeq ($(findstring $(MAKECMDGOALS), clean depend),)
+-include $(DEPS)
+endif
 
-depend: $(SUBDIRS:%=%_depend)
-	@echo "===> DEP"
-	@$(CC) -M $(filter %.c, $(SOURCES)) $(filter %.cc, $(SOURCES)) > .depend
+# Silence stale header dependency errors
+%.h:
+	@true
 
-$(SUBDIRS:%=%_depend):
-	$(MAKE) -C $(@:%_depend=%) depend
+%.d: %.c
+	@echo "===> DEP $<"
+	$(Q)$(CC) $(CFLAGS) -MM $< | sed 's#^$(@F:%.d=%.o):#$@ $(@:%.d=%.o):#' > $@
 
--include .depend
+%.d: %.cc
+	@echo "===> DEP $<"
+	$(Q)$(CXX) $(CXXFLAGS) -MM $< | sed 's#^$(@F:%.d=%.o):#$@ $(@:%.d=%.o):#' > $@
 
+%.o: %.c
+	@echo "===> CC  $<"
+	$(Q)$(CC) $(CFLAGS) -o $@ -c $<
+
+%.o: %.cc
+	@echo "===> CXX $<"
+	$(Q)$(CXX) $(CXXFLAGS) -o $@ -c $<
 
 %.o: %.rc
 	@echo "===> RES $<"
-	@windres -O COFF $< $@
+	$(Q)windres -O COFF $< $@

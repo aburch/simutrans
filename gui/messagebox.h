@@ -23,7 +23,7 @@ public:
     nachrichtenfenster_t(karte_t *welt, const char *text, int bild);
 
 
-    nachrichtenfenster_t::nachrichtenfenster_t(karte_t *welt, const char *text, int bild, koord off);
+    nachrichtenfenster_t(karte_t *welt, const char *text, int bild, koord off);
 
 
     /**

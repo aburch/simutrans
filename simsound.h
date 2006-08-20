@@ -116,6 +116,4 @@ extern void midi_next_track();
 extern void midi_last_track();
 extern void midi_stop();
 
-
-
 #endif

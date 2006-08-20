@@ -36,4 +36,5 @@ public:
      */
     virtual void info(cbuffer_t & buf) const;
 };
+
 #endif

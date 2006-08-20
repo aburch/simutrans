@@ -54,6 +54,4 @@ public:
     virtual void display(bool dirty);
 };
 
-
-
 #endif

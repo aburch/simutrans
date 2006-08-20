@@ -113,6 +113,8 @@ const skin_besch_t *skinverwaltung_t::passagiere = NULL;
 const skin_besch_t *skinverwaltung_t::post = NULL;
 const skin_besch_t *skinverwaltung_t::waren = NULL;
 
+const skin_besch_t *skinverwaltung_t::message_options = NULL;
+
 /**
  * Window skin images
  * @author Hj. Malthaner
@@ -145,6 +147,7 @@ static spezial_obj_tpl<skin_besch_t> menu_objekte[] = {
 };
 
 static spezial_obj_tpl<skin_besch_t> symbol_objekte[] = {
+    { &skinverwaltung_t::message_options,"MessageOptions" },
     { &skinverwaltung_t::logosymbol,	    "Logo" },
     { &skinverwaltung_t::neujahrsymbol,    "NewYear" },
     { &skinverwaltung_t::neueweltsymbol,    "NewWorld" },
@@ -207,10 +210,10 @@ bool skinverwaltung_t::alles_geladen(skintyp_t type)
 	sb = menu_objekte;
 	break;
     case cursor:
-	sb = cursor_objekte+1;
+	sb = cursor_objekte+1;	// forget about mouse cursor
 	break;
     case symbol:
-	sb = symbol_objekte;	// forget about mouse cursor
+	sb = symbol_objekte+1;	// forget about message box options
 	break;
     case misc:
 	sb = misc_objekte;
@@ -265,7 +268,3 @@ bool skinverwaltung_t::register_besch(skintyp_t type, const skin_besch_t *besch)
     }
     return ::register_besch(sb, besch);
 }
-
-/////////////////////////////////////////////////////////////////////////////
-//@EOF
-/////////////////////////////////////////////////////////////////////////////

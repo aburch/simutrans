@@ -59,5 +59,4 @@ public:
     }
 };
 
-
 #endif // __BILDLISTE_BESCH_H

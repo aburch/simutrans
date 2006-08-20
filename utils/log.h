@@ -86,5 +86,4 @@ public:
     ~log_t();
 };
 
-
 #endif

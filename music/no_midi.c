@@ -9,6 +9,8 @@
  * date:   25-May-2002
  */
 
+#include "music.h"
+
 
 /**
  * sets midi playback volume
@@ -42,7 +44,7 @@ void dr_play_midi(int key)
  * Stops playing MIDI file
  * @author Hj. Malthaner
  */
-void dr_stop_midi()
+void dr_stop_midi(void)
 {
 }
 
@@ -51,7 +53,7 @@ void dr_stop_midi()
  * Returns the midi_pos variable
  * @author Hj. Malthaner
  */
-long dr_midi_pos()
+long dr_midi_pos(void)
 {
     return 0;
 }
@@ -61,7 +63,7 @@ long dr_midi_pos()
  * Midi shutdown/cleanup
  * @author Hj. Malthaner
  */
-void dr_destroy_midi()
+void dr_destroy_midi(void)
 {
 }
 
@@ -78,6 +80,6 @@ void set_midi_pos(int pos)
  * MIDI initialisation routines
  * @author Owen Rudge
  */
-void dr_init_midi()
+void dr_init_midi(void)
 {
 }

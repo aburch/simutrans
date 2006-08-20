@@ -24,21 +24,23 @@ Stichpunkte
 - timeline/distribution für Gebäude: done
 - Bahnhöfe auf Brücken: done
 - Start aus Depot nur mit gültiger Route: done
-- nur an nicht überfüllte Abnehmer liefern: done?
-- bonus mit Jahr anpassen: done?
+- nur an nicht überfüllte Abnehmer liefern: done
+- bonus mit Jahr anpassen: done
 - Sehenwürdigkeitenliste: done
 - FastForward-Button: done
 - A* pfadsuche: done
 - cursor für up/down: finished
+
 - KI noch mehr auf Kette drillen, bessere Bahnhöfe: halfway
 - A* for ways: halfways
+- Warteschleife für Flugzeuge, Oneway Rollbahnen: halfway
+- tile 2x height: halfway
 
 - details for convois
 - connection weighted by their intermediate stops => A* for goods routing
-- when import tranaslation: ignore entries which are identical (saving runtime)
-- tile 2x height
+- when import translation: ignore entries which are identical (saving runtime)
 - sound
-- Warteschleife für Flugzeuge, Oneway Rollbahnen
+- Kurven auf Brücken
 
 - Landfabrik alle x Jahre/Fakriken
 - Brücken an senkrechten Wänden

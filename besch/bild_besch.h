@@ -70,6 +70,4 @@ struct bild_besch_t {
 }
 #endif
 
-
-
 #endif // __BILD_BESCH_H

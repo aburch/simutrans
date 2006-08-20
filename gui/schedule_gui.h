@@ -68,5 +68,4 @@ public:
   void zeichnen(koord pos, koord gr);
 };
 
-
 #endif

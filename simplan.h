@@ -210,5 +210,4 @@ public:
     void display_dinge(const int xpos, const int ypos, const bool dirty) const;
 };
 
-
 #endif

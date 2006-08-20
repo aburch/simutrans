@@ -136,5 +136,4 @@ public:
         const int sound_ok, const int sound_ko,const uint16 time);
 };
 
-
 #endif

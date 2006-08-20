@@ -40,5 +40,4 @@ public:
     }
 };
 
-
 #endif // __TEXT_BESCH_H

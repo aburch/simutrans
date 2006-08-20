@@ -144,6 +144,7 @@ static const ribi_t::ribi from_hang[81] = {
     ribi_t::keine,
     ribi_t::keine,
     ribi_t::keine,
+    ribi_t::keine,
     ribi_t::ost,	// 24: double height west
     ribi_t::keine,
     ribi_t::keine,
@@ -176,7 +177,7 @@ static const ribi_t::ribi from_hang[81] = {
     ribi_t::keine,
     ribi_t::keine,
     ribi_t::keine,
-    ribi_t::west,	// 56:osthang
+    ribi_t::west,	// 56:double osthang
     ribi_t::keine,
     ribi_t::keine,
     ribi_t::keine,
@@ -192,7 +193,7 @@ static const ribi_t::ribi from_hang[81] = {
     ribi_t::keine,
     ribi_t::keine,
     ribi_t::keine,
-    ribi_t::nord,	// double sued
+    ribi_t::nord,	// 72: double sued
     ribi_t::keine,
     ribi_t::keine,
     ribi_t::keine,
@@ -217,6 +218,7 @@ const int hang_t::flags[81] = {
     0,
     0,
     wegbar_ow|einfach,	// 12:westhang
+    0,
     0,
     0,
     0,

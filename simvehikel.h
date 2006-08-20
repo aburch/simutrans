@@ -98,7 +98,7 @@ public:
      * Checks if this vehicle must change the square upon next move
      * @author Hj. Malthaner
      */
-    bool vehikel_basis_t::is_about_to_hop() const;
+    bool is_about_to_hop() const;
 
     virtual void verlasse_feld();
 
@@ -702,7 +702,5 @@ public:
 	// the speed calculation happens it calc_height
     virtual void calc_akt_speed(const int , const int ) { };
 };
-
-
 
 #endif

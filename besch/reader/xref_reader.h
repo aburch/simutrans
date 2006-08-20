@@ -1,5 +1,3 @@
-
-
 #include "obj_reader.h"
 
 class xref_reader_t : public obj_reader_t {

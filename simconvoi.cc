@@ -1823,6 +1823,8 @@ void convoi_t::register_with_line(int id)
 	}
 }
 
+
+
 /**
 * unset line
 * removes convoy from route without destroying its fahrplan
@@ -1835,8 +1837,33 @@ void convoi_t::unset_line()
 		this->line->remove_convoy(this);
 		this->line = NULL;
 		this->line_id = -1;
+		// in in depot, clear the schedule too
+		if(state==INITIAL  &&  fpl!=NULL) {
+			// is there an old schedule?
+			DBG_DEBUG("convoi_t::unset_line()", "removing old destinations from fpl=%p",fpl);
+			fahrplan_t *f=fpl;
+			fpl = NULL;
+
+			// rebuild destination (since halt may have been removed)
+			for(int i=0; i<f->maxi(); i++) {
+
+				// check, if there is ground (or somebody removed a bridge/lowered the land)
+				const grund_t *bd = welt->lookup(f->eintrag.get(i).pos);
+				if(bd!=NULL) {
+					// did we perform a stop at a station?
+					halthandle_t halt=bd->gib_halt();
+					if(halt.is_bound()) {
+						halt->rebuild_destinations();
+					}
+				}
+				INT_CHECK("convoi_t 384");
+			}
+			delete f;
+		}
 	}
 }
+
+
 
 void
 convoi_t::prepare_for_new_schedule(fahrplan_t *f)

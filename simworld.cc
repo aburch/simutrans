@@ -146,75 +146,6 @@ void karte_t::set_slope(koord k, uint8 slope)
 }
 
 
-/* unused
-void
-karte_t::calc_hoehe(int x1, int y1, int x2, int y2)
-{
-
-
-    const double scale = 1.4;
-
-    int xm = (x1+x2)/2;
-    int ym = (y1+y2)/2;
-
-    int xd = (int)(((x2 - x1)+1) * scale);
-
-    if(xd < 16)
-	xd = 1;
-
-    if(x2-x1 <= 1 && y2-y1 <= 1)
-	return;
-
-    // 5 neue Punkte
-
-    int h1 = (lookup_hgt(koord(x1, y1)) + lookup_hgt(koord(x2, y1))) / 2 +
-             simrand( xd ) - (xd/2);
-
-    int h2 = (lookup_hgt(koord(x1, y1)) + lookup_hgt(koord(x1, y2))) / 2 +
-             simrand( xd ) - (xd/2);
-
-    int h4 = (lookup_hgt(koord(x2, y1)) + lookup_hgt(koord(x2, y2))) / 2 +
-             simrand( xd ) - (xd/2);
-
-    int h5 = (lookup_hgt(koord(x1, y2)) + lookup_hgt(koord(x2, y2))) / 2 +
-             simrand( xd ) - (xd/2);
-
-    int h3 = (h1 + h2 + h4 + h5) / 4
-              + (simrand( xd ) - (xd)/2);
-
-
-    h1 = MIN(h1, 144) & 0xFFFFFFF0;
-    h2 = MIN(h2, 144) & 0xFFFFFFF0;
-    h3 = MIN(h3, 144) & 0xFFFFFFF0;
-    h4 = MIN(h4, 144) & 0xFFFFFFF0;
-    h5 = MIN(h5, 144) & 0xFFFFFFF0;
-
-
-    hgt[xm + y1*gib_groesse()] = h1;
-    hgt[xm+1 + y1*gib_groesse()] = h1;
-
-    hgt[x1 + ym*gib_groesse()] = h2;
-    hgt[x1 + (ym+1)*gib_groesse()] = h2;
-
-    hgt[xm + ym*gib_groesse()] = h3;
-    hgt[xm+1 + ym*gib_groesse()] = h3;
-    hgt[xm + (ym+1)*gib_groesse()] = h3;
-    hgt[xm+1 + (ym+1)*gib_groesse()] = h3;
-
-    hgt[x2 + ym*gib_groesse()] = h4;
-    hgt[x2 + (ym+1)*gib_groesse()] = h4;
-
-    hgt[xm + y2*gib_groesse()] = h5;
-    hgt[xm+1 + y2*gib_groesse()] = h5;
-
-
-    calc_hoehe(x1, y1, xm, ym);
-    calc_hoehe(xm+1, y1, x2, ym);
-    calc_hoehe(x1, ym+1, xm, y2);
-    calc_hoehe(xm+1, ym+1, x2, y2);
-}
-*/
-
 
 /**
  * Read a heightfield from file
@@ -281,6 +212,26 @@ karte_t::calc_hoehe_mit_heightfield(const cstring_t & filename)
   }
 }
 
+
+
+/**
+ * Hoehe eines Punktes der Karte mit "perlin noise"
+ *
+ * @param frequency in 0..1.0 roughness, the higher the rougher
+ * @param amplitude in 0..160.0 top height of mountains, may not exceed 160.0!!!
+ * @author Hj. Malthaner
+ */
+int
+karte_t::perlin_hoehe(const int x, const int y,
+                      const double frequency, const double amplitude)
+{
+//    double perlin_noise_2D(double x, double y, double persistence);
+//    return ((int)(perlin_noise_2D(x, y, 0.6)*160.0)) & 0xFFFFFFF0;
+    return ((int)(perlin_noise_2D(x, y, frequency)*amplitude)) & 0xFFFFFFF0;
+}
+
+
+
 void
 karte_t::calc_hoehe_mit_perlin()
 {
@@ -295,15 +246,9 @@ karte_t::calc_hoehe_mit_perlin()
 	  // break the AI's pathfinding. Frequency values of 0.5 .. 0.7
           // seem to be ok, less is boring flat, more is too crumbled
 	  // the old defaults are given here: f=0.6, a=160.0
-	  setze_grid_hgt(koord(x,y),
-			 perlin_hoehe(x,y,
-				      einstellungen->gib_map_roughness(),
-				      einstellungen->gib_max_mountain_height()
-				      )
-			 );
-
-	  // Niels: use this for fastest map creation
-	  // setze_grid_hgt(koord(x, y), 64);
+	  const int h=perlin_hoehe(x,y,einstellungen->gib_map_roughness(),einstellungen->gib_max_mountain_height() );
+	  setze_grid_hgt(koord(x,y),h );
+//	  DBG_MESSAGE("karte_t::calc_hoehe_mit_perlin()","%i",h);
 	}
 
 	if(is_display_init()) {
@@ -362,7 +307,7 @@ void karte_t::cleanup_karte()
 	int i,j;
 	for(j=0; j<=gib_groesse_y(); j++) {
 		for(i=0; i<=gib_groesse_x(); i++) {
-			raise_clean(i,j, (grid_hgts_cpy[j*(gib_groesse_x()+1)+i]<<4)+16);
+			raise_clean(i,j, (grid_hgts_cpy[j*(gib_groesse_x()+1)+i]<<4)+16 );
 		}
 	}
 	delete [] grid_hgts_cpy;
@@ -386,26 +331,6 @@ void karte_t::cleanup_karte()
 	}
 }
 
-
-/* Hajo's variant
-void
-karte_t::verteile_baeume(int dichte)
-{
-    for(j=0; j<gib_groesse(); j++) {
-	for(i=0; i<gib_groesse(); i++) {
-	    grund_t *gr = access(i, j)->gib_kartenboden();
-
-	    if( simrand( dichte ) == 0 &&
-		gr->ist_natur() &&
-		!gr->ist_wasser() && gr->gib_hoehe() > grundwasser)
-	    {
-		if(baum_t::gib_anzahl_besch() > 0)
-		    gr->obj_add( new baum_t(this, gr->gib_pos()) );
-	    }
-	}
-    }
-}
-*/
 
 
 void karte_t::verteile_baeume(int dichte)
@@ -434,7 +359,6 @@ void karte_t::verteile_baeume(int dichte)
 
   //now forest configuration data will be read form forrestconf.tab
   tabfile_t simuconf;
-
 
   if(simuconf.open("config/forrestconf.tab")) {
     tabfileobj_t contents;
@@ -1130,6 +1054,7 @@ bool karte_t::can_raise_to(int x, int y, int h) const
 		can_raise_plan_to(x,y-1, h)   &&
 		can_raise_plan_to(x-1,y, h)   &&
 		can_raise_plan_to(x,y, h)     &&
+#ifndef DOUBLE_GROUNDS
 		// Nachbar-Gridpunkte testen
 		can_raise_to(x-1, y-1, h-16) &&
 		can_raise_to(x  , y-1, h-16) &&
@@ -1139,6 +1064,17 @@ bool karte_t::can_raise_to(int x, int y, int h) const
 		can_raise_to(x-1, y+1, h-16) &&
 		can_raise_to(x  , y+1, h-16) &&
 		can_raise_to(x+1, y+1, h-16);
+#else
+		// Nachbar-Gridpunkte testen
+		can_raise_to(x-1, y-1, h-32) &&
+		can_raise_to(x  , y-1, h-32) &&
+		can_raise_to(x+1, y-1, h-32) &&
+		can_raise_to(x-1, y  , h-32) &&
+		can_raise_to(x+1, y  , h-32) &&
+		can_raise_to(x-1, y+1, h-32) &&
+		can_raise_to(x  , y+1, h-32) &&
+		can_raise_to(x+1, y+1, h-32);
+#endif
 	}
     } else {
 	ok = false;
@@ -1173,6 +1109,7 @@ int karte_t::raise_to(int x, int y, int h)
 
       n = 1;
 
+#ifndef DOUBLE_GROUNDS
       n += raise_to(x-1, y-1, h-16);
       n += raise_to(x  , y-1, h-16);
       n += raise_to(x+1, y-1, h-16);
@@ -1184,6 +1121,19 @@ int karte_t::raise_to(int x, int y, int h)
       n += raise_to(x-1, y+1, h-16);
       n += raise_to(x  , y+1, h-16);
       n += raise_to(x+1, y+1, h-16);
+#else
+      n += raise_to(x-1, y-1, h-32);
+      n += raise_to(x  , y-1, h-32);
+      n += raise_to(x+1, y-1, h-32);
+      n += raise_to(x-1, y  , h-32);
+
+      n += raise_to(x, y, h);
+
+      n += raise_to(x+1, y  , h-32);
+      n += raise_to(x-1, y+1, h-32);
+      n += raise_to(x  , y+1, h-32);
+      n += raise_to(x+1, y+1, h-32);
+#endif
 
       calc_slope(pos);
       calc_slope(pos - koord(1, 0));
@@ -1239,6 +1189,7 @@ bool karte_t::can_lower_to(int x, int y, int h) const
 		can_lower_plan_to(x,y-1, h)   &&
 		can_lower_plan_to(x-1,y, h)   &&
 		can_lower_plan_to(x,y, h)     &&
+#ifndef DOUBLE_GROUNDS
 		// Nachbar-Gridpunkte testen
 		can_lower_to(x-1, y-1, h+16) &&
 		can_lower_to(x  , y-1, h+16) &&
@@ -1248,6 +1199,17 @@ bool karte_t::can_lower_to(int x, int y, int h) const
 		can_lower_to(x-1, y+1, h+16) &&
 		can_lower_to(x  , y+1, h+16) &&
 		can_lower_to(x+1, y+1, h+16);
+#else
+		// Nachbar-Gridpunkte testen
+		can_lower_to(x-1, y-1, h+32) &&
+		can_lower_to(x  , y-1, h+32) &&
+		can_lower_to(x+1, y-1, h+32) &&
+		can_lower_to(x-1, y  , h+32) &&
+		can_lower_to(x+1, y  , h+32) &&
+		can_lower_to(x-1, y+1, h+32) &&
+		can_lower_to(x  , y+1, h+32) &&
+		can_lower_to(x+1, y+1, h+32);
+#endif
 	}
     } else {
 	ok = false;
@@ -1280,6 +1242,7 @@ int karte_t::lower_to(int x, int y, int h)
 
 			n = 1;
 
+#ifndef DOUBLE_GROUNDS
 			n += lower_to(x-1, y-1, h+16);
 			n += lower_to(x  , y-1, h+16);
 			n += lower_to(x+1, y-1, h+16);
@@ -1291,7 +1254,19 @@ int karte_t::lower_to(int x, int y, int h)
 			n += lower_to(x-1, y+1, h+16);
 			n += lower_to(x  , y+1, h+16);
 			n += lower_to(x+1, y+1, h+16);
+#else
+			n += lower_to(x-1, y-1, h+32);
+			n += lower_to(x  , y-1, h+32);
+			n += lower_to(x+1, y-1, h+32);
+			n += lower_to(x-1, y  , h+32);
 
+			n += lower_to(x, y, h);
+
+			n += lower_to(x+1, y  , h+32);
+			n += lower_to(x-1, y+1, h+32);
+			n += lower_to(x  , y+1, h+32);
+			n += lower_to(x+1, y+1, h+32);
+#endif
 			calc_slope(pos);
 			calc_slope(pos - koord(1, 0));
 			calc_slope(pos - koord(0, 1));
@@ -1863,7 +1838,7 @@ karte_t::neuer_monat()
 	}
 
 	// recalc old settings (and maybe update the staops with the current values)
-	reliefkarte_t::gib_karte()->set_mode( reliefkarte_t::gib_karte()->get_mode());
+	reliefkarte_t::gib_karte()->neuer_monat();
 
 	INT_CHECK("simworld 1701");
 
@@ -3411,7 +3386,7 @@ karte_t::interactive_event(event_t &ev)
 	    break;
 	case 't':
 	    if(default_track==NULL) {
-			default_track = default_road = wegbauer_t::weg_search(weg_t::schiene,100,get_timeline_year_month());
+			default_track = wegbauer_t::weg_search(weg_t::schiene,100,get_timeline_year_month());
 	    }
 	    setze_maus_funktion(wkz_wegebau, default_track->gib_cursor()->gib_bild_nr(0), Z_PLAN,	(long)default_track, 0, 0);
 	    break;

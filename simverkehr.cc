@@ -13,12 +13,17 @@
 
 #include "simdebug.h"
 #include "simmesg.h"
-#include "boden/grund.h"
-#include "boden/wege/weg.h"
 #include "simworld.h"
 #include "simverkehr.h"
 #include "simtools.h"
 #include "simmem.h"
+#include "simimg.h"
+
+#ifdef DESTINATION_CITYCARS
+// for final citcar destinations
+#include "simpeople.h"
+#endif
+
 #include "tpl/slist_mit_gewichten_tpl.h"
 
 #include "dataobj/translator.h"
@@ -27,10 +32,12 @@
 
 #include "dings/roadsign.h"
 
+#include "boden/grund.h"
+#include "boden/wege/weg.h"
+
 #include "besch/stadtauto_besch.h"
 #include "besch/roadsign_besch.h"
 
-#include "simimg.h"
 
 slist_mit_gewichten_tpl<const stadtauto_besch_t *> stadtauto_t::liste_timeline;
 slist_mit_gewichten_tpl<const stadtauto_besch_t *> stadtauto_t::liste;
@@ -110,7 +117,7 @@ stadtauto_t::stadtauto_t(karte_t *welt, loadsave_t *file)
 	welt->sync_add(this);
 }
 
-stadtauto_t::stadtauto_t(karte_t *welt, koord3d pos)
+stadtauto_t::stadtauto_t(karte_t *welt, koord3d pos, koord target)
  : verkehrsteilnehmer_t(welt, pos)
 {
 	besch = liste_timeline.gib_gewichted(simrand(liste_timeline.gib_gesamtgewicht()));
@@ -120,6 +127,9 @@ stadtauto_t::stadtauto_t(karte_t *welt, koord3d pos)
 	time_to_life = umgebung_t::stadtauto_duration;
 	current_speed = 48;
 	step_frequency = 0;
+#ifdef DESTINATION_CITYCARS
+	this->target = target;
+#endif
 	setze_max_speed( besch->gib_geschw() );
 }
 
@@ -283,6 +293,20 @@ stadtauto_t::ist_weg_frei()
 void
 stadtauto_t::betrete_feld()
 {
+#ifdef DESTINATION_CITYCARS
+	if(target!=koord::invalid  &&  abs_distance(pos_next.gib_2d(),target)<10) {
+		// delete it ...
+		time_to_life = 0;
+
+		fussgaenger_t *fg = new fussgaenger_t(welt, pos_next);
+		bool ok = welt->lookup(pos_next)->obj_add(fg) != 0;
+		for(int i=0; i<(fussgaenger_t::count & 3); i++) {
+			fg->sync_step(64*24);
+		}
+		welt->sync_add( fg );
+	}
+#endif
+
 	// this will automatically give the right order
 	grund_t *gr = welt->lookup( gib_pos() );
 
@@ -355,6 +379,105 @@ void stadtauto_t::calc_bild()
 	} else {
 		setze_bild(0,besch->gib_bild_nr(ribi_t::gib_dir(gib_fahrtrichtung())));
 	}
+}
+
+
+
+void
+stadtauto_t::hop()
+{
+	if(pos_next.z == -1) {
+		// Altes Savegame geladen
+		pos_next = welt->lookup(pos_next.gib_2d())->gib_kartenboden()->gib_pos();
+	}
+	// V.Meyer: weg_position_t changed to grund_t::get_neighbour()
+	grund_t *from = welt->lookup(pos_next);
+	grund_t *to;
+
+	static weighted_vector_tpl<grund_t *> liste(4);
+	liste.clear();
+
+	// 1) find the allowed directions
+	const weg_t *weg = from->gib_weg(weg_t::strasse);
+	if(weg==NULL) {
+		// no gound here any more?
+		pos_next = gib_pos();
+		return;
+	}
+
+	int ribi = weg->gib_ribi_unmasked();
+	// 2) take care of roadsigns
+	if(weg->gib_ribi_maske()!=0) {
+		// since routefinding is backwards, the allowed directions at a roadsign are also backwards
+		ribi &= ~( ribi_t::rueckwaerts(weg->gib_ribi_maske()) );
+	}
+	ribi_t::ribi gegenrichtung = ribi_t::rueckwaerts( gib_fahrtrichtung() );
+
+	ribi = ribi & (~gegenrichtung);
+
+	// add all good ribis here
+	for(int r = 0; r < 4; r++) {
+		if(  (ribi & ribi_t::nsow[r])!=0  &&  (ribi_t::nsow[r]&gegenrichtung)==0 &&
+			from->get_neighbour(to, weg_t::strasse, koord::nsow[r])
+		) {
+			// check, if this is just a single tile deep
+			int next_ribi =  to->gib_weg(weg_t::strasse)->gib_ribi_unmasked();
+			if((ribi&next_ribi)!=0  ||  !ribi_t::ist_einfach(next_ribi)) {
+				const roadsign_t *rs = dynamic_cast<roadsign_t *>(to->obj_bei(0));
+				if(rs==NULL  ||  rs->gib_besch()->is_traffic_light()  ||  rs->gib_besch()->gib_min_speed()==0  ||  rs->gib_besch()->gib_min_speed()<=gib_max_speed()) {
+#ifdef DESTINATION_CITYCARS
+					unsigned long dist=abs_distance( to->gib_pos().gib_2d(), target );
+					liste.append( to, dist*dist );
+#else
+					liste.append( to, 1 );
+#endif
+				}
+			}
+		}
+	}
+
+	if(liste.get_count()>1) {
+#ifdef DESTINATION_CITYCARS
+		if(target!=koord::invalid) {
+			pos_next = liste.at_weight(simrand(liste.get_sum_weight()))->gib_pos();
+		}
+		else
+#endif
+		{
+			pos_next = liste.get(simrand(liste.get_count()))->gib_pos();
+		}
+		fahrtrichtung = calc_richtung(gib_pos().gib_2d(), pos_next.gib_2d(), dx, dy);
+	} else if(liste.get_count()==1) {
+		pos_next = liste.get(0)->gib_pos();
+		fahrtrichtung = calc_richtung(gib_pos().gib_2d(), pos_next.gib_2d(), dx, dy);
+	}
+	else {
+		fahrtrichtung = gegenrichtung;
+		current_speed = 1;
+		dx = -dx;
+		dy = -dy;
+		pos_next = gib_pos();
+	}
+
+	verlasse_feld();
+	setze_pos(from->gib_pos());
+	calc_current_speed();
+	calc_bild();
+	betrete_feld();
+	age();
+}
+
+
+
+bool
+stadtauto_t::hop_check()
+{
+	bool frei = ist_weg_frei();
+	if(!frei) {
+		ms_traffic_jam = welt->gib_zeit_ms() + (3<<karte_t::ticks_bits_per_tag);
+		step_frequency = 1;
+	}
+	return frei;
 }
 
 
@@ -460,22 +583,10 @@ verkehrsteilnehmer_t::info(char *buf) const
 }
 
 
-bool
-stadtauto_t::hop_check()
-{
-	bool frei = ist_weg_frei();
-	if(!frei) {
-		ms_traffic_jam = welt->gib_zeit_ms() + (3<<karte_t::ticks_bits_per_tag);
-		step_frequency = 1;
-	}
-	return frei;
-}
-
-
-
 void
 verkehrsteilnehmer_t::hop()
 {
+	// will ignore roadigns
 	if(pos_next.z == -1) {
 		// Altes Savegame geladen
 		pos_next = welt->lookup(pos_next.gib_2d())->gib_kartenboden()->gib_pos();
@@ -495,17 +606,9 @@ verkehrsteilnehmer_t::hop()
 		return;
 	}
 
-	int ribi = weg->gib_ribi_unmasked();
-	// 2) take care of roadsigns
-	if(weg->gib_ribi_maske()!=0) {
-		// since routefinding is backwards, the allowed directions at a roadsign are also backwards
-		ribi &= ~( ribi_t::rueckwaerts(weg->gib_ribi_maske()) );
-	}
-	ribi_t::ribi gegenrichtung = ribi_t::rueckwaerts( gib_fahrtrichtung() );
-
-	ribi = ribi & (~gegenrichtung);
-
 	// add all good ribis here
+	ribi_t::ribi gegenrichtung = ribi_t::rueckwaerts( gib_fahrtrichtung() );
+	int ribi = weg->gib_ribi_unmasked();
 	for(int r = 0; r < 4; r++) {
 		if(  (ribi & ribi_t::nsow[r])!=0  &&  (ribi_t::nsow[r]&gegenrichtung)==0 &&
 			from->get_neighbour(to, weg_t::strasse, koord::nsow[r])
@@ -513,10 +616,7 @@ verkehrsteilnehmer_t::hop()
 			// check, if this is just a single tile deep
 			int next_ribi =  to->gib_weg(weg_t::strasse)->gib_ribi_unmasked();
 			if((ribi&next_ribi)!=0  ||  !ribi_t::ist_einfach(next_ribi)) {
-				const roadsign_t *rs = dynamic_cast<roadsign_t *>(to->obj_bei(0));
-				if(rs==NULL  ||  rs->gib_besch()->is_traffic_light()  ||  rs->gib_besch()->gib_min_speed()==0  ||  rs->gib_besch()->gib_min_speed()<=gib_max_speed()) {
-					liste[count++] = to;
-				}
+				liste[count++] = to;
 			}
 		}
 	}

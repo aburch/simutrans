@@ -70,5 +70,4 @@ class warenbauer_t
   }
 };
 
-
 #endif // warenbauer_t_h

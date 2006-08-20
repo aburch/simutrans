@@ -193,7 +193,6 @@ private:
      */
     void calc_hoehe_mit_heightfield(const cstring_t & filename);
 
-
     /**
      * Landschafterzeugung mit "perlin noise"
      * @author Hj. Malthaner
@@ -946,22 +945,5 @@ void warte_auf_taste(event_t *ev);
 //#define __cplusplus
 //#endif
 #include "simtools.h"
-
-/**
- * Hoehe eines Punktes der Karte mit "perlin noise"
- *
- * @param frequency in 0..1.0 roughness, the higher the rougher
- * @param amplitude in 0..160.0 top height of mountains, may not exceed 160.0!!!
- * @author Hj. Malthaner
- */
-inline int
-karte_t::perlin_hoehe(const int x, const int y,
-                      const double frequency, const double amplitude)
-{
-//    double perlin_noise_2D(double x, double y, double persistence);
-//    return ((int)(perlin_noise_2D(x, y, 0.6)*160.0)) & 0xFFFFFFF0;
-    return ((int)(perlin_noise_2D(x, y, frequency)*amplitude)) & 0xFFFFFFF0;
-}
-
 
 #endif

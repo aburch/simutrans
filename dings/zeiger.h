@@ -34,7 +34,7 @@ public:
      * größerer Bereich muss 'dirty' markiert werden
      * @author Hj. Malthaner
      */
-    void zeiger_t::setze_pos(koord3d k);
+    void setze_pos(koord3d k);
 
     const char *gib_name() const {return "Zeiger";};
     enum ding_t::typ gib_typ() const {return zeiger;};

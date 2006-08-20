@@ -105,6 +105,7 @@ bool grund_besch_t::register_besch(const grund_besch_t *besch)
  */
 bool grund_besch_t::alles_geladen()
 {
+	DBG_MESSAGE("grund_besch_t::alles_geladen()","boden");
 	// standard is "summer"
 	for(int i=0; i<78;  i++  ) {
 		DBG_MESSAGE("boden","%i=%p",i,static_cast<const bildliste2d_besch_t *>(grund_besch_t::standard_boden->gib_kind(2))->gib_liste(i) );

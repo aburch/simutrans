@@ -134,5 +134,4 @@ public:
     short gib_starting_year() const {return starting_year;};
 };
 
-
 #endif // dataobj_einstellungen_h

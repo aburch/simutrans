@@ -308,33 +308,10 @@ depot_t::start_convoi(int icnv)
 		}
 		else if(can_convoi_start(icnv)) {
 
-			// Hajo: alle Haltestellen auf dem Fahrplan werden informiert,
-			// dass sie jetzt angefahren werden.
-			fahrplan_t *fpl = cnv->gib_fahrplan();
-
-			for(int i=0; i<fpl->maxi(); i++) {
-				halthandle_t halt = haltestelle_t::gib_halt(welt, fpl->eintrag.at(i).pos.gib_2d());
-
-				if(halt.is_bound()) {
-					for(unsigned j=0; j<cnv->gib_vehikel_anzahl(); j++) {
-						halt->hat_gehalten(0, cnv->gib_vehikel(j)->gib_fracht_typ(), fpl);
-					}
-				}
-			}
-
-			// Hajo: OK, die Haltestellen sind informiert,
 			// der Convoi kann losdüsen
-			cnv->setze_fahrplan( fpl );     // das ist nicht redundant, nicht löschen!!!
+			cnv->setze_fahrplan( cnv->gib_fahrplan() );     // do not delete: this inform all stops!
 			welt->sync_add( cnv.get_rep() );
 			cnv->start();
-
-			// Hajo: don't wait for map step to trigger the first vehicle
-			// do that step immediately to shorten the delay until vehicle
-			// starts to move. There are three steps until the route is
-			// found
-			cnv->step();
-			cnv->sync_step(20);
-			cnv->step();
 
 			convois.remove_at(icnv);
 			return true;
@@ -720,5 +697,3 @@ airdepot_t::get_line_list()
 	build_line_list();
 	return &lines;
 }
-
-//----------------- ende depots ----------------------

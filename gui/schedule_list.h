@@ -46,7 +46,7 @@ private:
 
   int selection, capacity, load, loadfactor;
 
-  void schedule_list_gui_t::display(koord pos) ;
+  void display(koord pos);
 
   simline_t * line;
 
@@ -54,7 +54,7 @@ private:
 
   int SCL_HEIGHT;
 
-  void schedule_list_gui_t::build_line_list(int filter);
+  void build_line_list(int filter);
 
 public:
 
@@ -70,6 +70,12 @@ public:
      */
     const char *gib_name() const {return "Line Management";};
 
+  /**
+     * Manche Fenster haben einen Hilfetext assoziiert.
+     * @return den Dateinamen für die Hilfe, oder NULL
+     * @author Hj. Malthaner
+     */
+    virtual const char * gib_hilfe_datei() const {return "linemanagement.txt";};
 
     /**
      * gibt den Besitzer zurück

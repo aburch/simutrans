@@ -39,7 +39,7 @@ public:
   ~message_frame_t();
 
   /* triggers action, when button clicked */
-  virtual bool message_frame_t::action_triggered(gui_komponente_t *komp);
+  virtual bool action_triggered(gui_komponente_t *komp);
 
   /**
      * Manche Fenster haben einen Hilfetext assoziiert.

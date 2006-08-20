@@ -1,0 +1,31 @@
+#BACKEND = allegro
+#BACKEND = gdi
+#BACKEND = sdl
+#BACKEND = x11
+
+#COLOUR_DEPTH = 8
+#COLOUR_DEPTH = 16
+
+#OSTYPE = beos
+#OSTYPE = cygwin
+#OSTYPE = freebsd
+#OSTYPE = linux
+#OSTYPE = mingw
+
+#DEBUG = 1
+#OPTIMISE = 1 # Add umpteen optimisation flags
+#PROFILE = 1
+
+# Define these as empty strings, if you don't have allegro/sdl-config
+#ALLEGRO_CONFIG = allegro-config
+#SDL_CONFIG = sdl-config
+
+#VERBOSE = 1
+
+# Following flags exists
+# DOUBLE_GROUNDS: Enables two height tiles
+# HALF_HEIGHT: Enables half height tiles (8 pixel instead 16)
+# OTTD_LIKE: Enables half height tiles and crossconnected industries; defaul folder pak.ttd/
+# DESTINATION_CITYCARS: Citycars can have a destination (not recommended)
+# USE_C: no assembler for copying
+FLAGS = 

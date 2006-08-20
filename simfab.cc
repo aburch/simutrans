@@ -160,7 +160,7 @@ fabrik_t::fabrik_t(karte_t *wl, koord3d pos, spieler_t *spieler, const fabrik_be
     abgabe_sum = NULL;
     abgabe_letzt = NULL;
 
-    delta_sum = 0;
+	delta_sum = 0;
     last_lieferziel_start = 0;
 	total_input = total_output = 0;
 	status = nothing;
@@ -363,8 +363,8 @@ DBG_DEBUG("fabrik_t::rdwr()","loading factory '%s'",s);
 
 		if(file->is_saving()) {
 			typ = eingang->at(i).gib_typ()->gib_name();
-			dummy.menge = eingang->at(i).menge;
-			dummy.max = eingang->at(i).max;
+			dummy.menge = eingang->at(i).menge<<(old_precision_bits-precision_bits);
+			dummy.max = eingang->at(i).max<<(old_precision_bits-precision_bits);
 		}
 
 		file->rdwr_delim("Ein: ");
@@ -376,6 +376,8 @@ DBG_DEBUG("fabrik_t::rdwr()","loading factory '%s'",s);
 			guarded_free(const_cast<char *>(typ));
 
 			// Hajo: repair files that have 'insane' values
+			dummy.menge >>= (old_precision_bits-precision_bits);
+			dummy.max >>= (old_precision_bits-precision_bits);
 			if(dummy.menge < 0) {
 				dummy.menge = 0;
 			}
@@ -396,8 +398,8 @@ DBG_DEBUG("fabrik_t::rdwr()","loading factory '%s'",s);
 
 		if(file->is_saving()) {
 			typ = ausgang->at(i).gib_typ()->gib_name();
-			dummy.menge = ausgang->at(i).menge;
-			dummy.max = ausgang->at(i).max;
+			dummy.menge = ausgang->at(i).menge<<(old_precision_bits-precision_bits);
+			dummy.max = ausgang->at(i).max<<(old_precision_bits-precision_bits);;
 			ab_sum = abgabe_sum->at(i);
 			ab_letzt = abgabe_letzt->at(i);
 		}
@@ -412,6 +414,8 @@ DBG_DEBUG("fabrik_t::rdwr()","loading factory '%s'",s);
 			abgabe_sum->at(i)  = ab_sum;
 			abgabe_letzt->at(i) = ab_letzt;
 			dummy.setze_typ( warenbauer_t::gib_info(typ));
+			dummy.menge >>= (old_precision_bits-precision_bits);
+			dummy.max >>= (old_precision_bits-precision_bits);
 			guarded_free(const_cast<char *>(typ));
 			ausgang->append(dummy,4);
 		}
@@ -521,7 +525,7 @@ void fabrik_t::set_ausgang(vector_tpl<ware_t> * typen)
 uint32 fabrik_t::produktion(const uint32 produkt) const
 {
 	// default prodfaktor = 16 => shift 4, default time = 1024 => shift 10, rest precion
-	uint32 menge = (prodbase * prodfaktor) >> (welt->ticks_bits_per_tag+4-10-precision_bits);
+	uint32 menge = (prodbase * prodfaktor) >> (karte_t::ticks_bits_per_tag-10+4-fabrik_t::precision_bits);
 
 	if(ausgang->get_count() > produkt) {
 		// wenn das lager voller wird, produziert eine Fabrik weniger pro step
@@ -633,6 +637,13 @@ fabrik_t::step(long delta_t)
 	delta_sum += delta_t;
 
 	if(delta_sum > PRODUCTION_DELTA_T) {
+
+		// produce nothing/consumes nothing ...
+		if(eingang->get_count()+ausgang->get_count()==0) {
+			delta_sum += PRODUCTION_DELTA_T;
+			return;
+		}
+
 		INT_CHECK("simfab 558");
 //DBG_DEBUG("fabrik_t::step()","%s",besch->gib_name());
 
@@ -659,47 +670,34 @@ fabrik_t::step(long delta_t)
 			}
 		}
 		else {
+
+			// ok, calulate maximum allowed consumption
+			uint32 max_menge = 0x7FFFFFFF;
+			uint32 consumed_menge = 0;
+			for(index = 0; index < ecount; index ++) {
+				// verbrauch fuer eine Einheit des Produktes (in 1/256)
+				const uint32 vb = besch->gib_lieferant(index)->gib_verbrauch();
+				const uint32 n = (eingang->get(index).menge * 256)/vb;
+
+				if(n<max_menge) {
+					max_menge = n;    // finde geringsten vorrat
+				}
+			}
+
 			// produces something
 			for(produkt = 0; produkt < ausgang->get_count(); produkt ++) {
-				uint32 menge = 9999999;
+				uint32 menge;
 
-				// consumer?
-				if(ecount > 0) {
-					// ok, calulate consumption
-
-					// also producer?
-					if(ausgang->get_count() > 0) {
-
-						for(index = 0; index < ecount; index ++) {
-							// verbrauch fuer eine Einheit des Produktes (in 1/256)
-							uint32 vb = besch->gib_lieferant(index)->gib_verbrauch();
-							uint32 n;
-
-							if((n = (eingang->get(index).menge * 256)/vb) < menge) {
-								menge = n;    // finde geringsten vorrat
-							}
-						}
-					}
+				if(ecount>0) {
 
 					// calculate production
 					uint32 p_menge = 0;
 					for( long i=delta_sum/PRODUCTION_DELTA_T;  i>0;  i--  ) {
 						p_menge += produktion(produkt);
 					}
-					menge = p_menge < menge ? p_menge : menge;  // production smaller than possible due to consumption
-
-					// finally consume stock
-					for(index = 0; index<ecount; index ++) {
-
-						const uint32 vb = besch->gib_lieferant(index)->gib_verbrauch();
-						const uint32 v = (menge*vb) >> 8;
-
-						if((uint32)(eingang->get(index).menge) > v) {
-							eingang->at(index).menge -= v;
-						}
-						else {
-							eingang->at(index).menge = 0;
-						}
+					menge = p_menge < max_menge ? p_menge : max_menge;  // production smaller than possible due to consumption
+					if(menge>consumed_menge) {
+						consumed_menge = menge;
 					}
 				}
 				else {
@@ -713,11 +711,25 @@ fabrik_t::step(long delta_t)
 				const uint32 pb = besch->gib_produkt(produkt)->gib_faktor();
 				const uint32 p = (menge*pb) >> 8;
 
-				// finally produce
+				// produce
 				if(ausgang->at(produkt).menge < ausgang->at(produkt).max) {
 					ausgang->at(produkt).menge += p;
 				} else {
 					ausgang->at(produkt).menge = ausgang->at(produkt).max-1;
+				}
+			}
+
+			// and finally consume stock
+			for(index = 0; index<ecount; index ++) {
+
+				const uint32 vb = besch->gib_lieferant(index)->gib_verbrauch();
+				const uint32 v = (consumed_menge*vb) >> 8;
+
+				if((uint32)(eingang->get(index).menge) > v) {
+					eingang->at(index).menge -= v;
+				}
+				else {
+					eingang->at(index).menge = 0;
 				}
 			}
 		}

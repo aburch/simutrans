@@ -193,5 +193,4 @@ private:
     void traversiere_netz(const karte_t * welt, const koord3d start, koord_beobachter *cmd);
 };
 
-
 #endif

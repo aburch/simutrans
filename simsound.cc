@@ -14,6 +14,8 @@
 
 #include <stdio.h>
 #include <string.h>
+#include "music/music.h"
+#include "sound/sound.h"
 #include "simsound.h"
 #include "simsys.h"
 #include "simio.h"

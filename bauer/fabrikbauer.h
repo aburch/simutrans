@@ -68,7 +68,7 @@ class fabrikbauer_t
 
     static stringhashtable_tpl<const fabrik_besch_t *> table;
 
-    static int fabrikbauer_t::finde_anzahl_hersteller(const ware_besch_t *ware);
+    static int finde_anzahl_hersteller(const ware_besch_t *ware);
     static const fabrik_besch_t * finde_hersteller(const ware_besch_t *ware,int nr=0);
 
 public:
@@ -77,7 +77,7 @@ public:
 	/* Create a certain numer of tourist attractions
 	 * @author prissi
 	 */
-	static void fabrikbauer_t::verteile_tourist(karte_t * welt, spieler_t *sp, int max_number);
+	static void verteile_tourist(karte_t * welt, spieler_t *sp, int max_number);
 
 	/* Create a certain numer of industries
 	 * @author prissi
@@ -102,7 +102,7 @@ public:
 	/* returns a random consumer
 	 * @author prissi
 	 */
-	static const fabrik_besch_t *fabrikbauer_t::get_random_consumer(bool in_city);
+	static const fabrik_besch_t *get_random_consumer(bool in_city);
 
 
 
@@ -125,7 +125,5 @@ private:
      */
     static fabrik_t * baue_fabrik(karte_t *welt, koord3d *parent, const fabrik_besch_t *info, int rotate, koord3d pos, spieler_t *sp);
 };
-
-
 
 #endif // fabrikbauer_h

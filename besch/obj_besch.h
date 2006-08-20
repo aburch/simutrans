@@ -1,4 +1,3 @@
-
 /*
  *
  *  obj_besch.h
@@ -66,8 +65,5 @@ class obj_besch_t {
      */
     obj_besch_info_t *node_info;
 };
-
-
-
 
 #endif // __OBJ_BESCH_H

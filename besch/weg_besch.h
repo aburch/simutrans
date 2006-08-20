@@ -159,10 +159,31 @@ public:
 
     int gib_hang_bild_nr(hang_t::typ hang) const
     {
+
+#ifndef DOUBLE_GROUNDS
 	if(!hang_t::ist_einfach(hang))
 	    return -1;
-
 	return static_cast<const bildliste_besch_t *>(gib_kind(3))->gib_bild_nr(hang / 3 - 1);
+#else
+	int nr;
+	switch(hang) {
+		case 4:
+			nr = 0;
+			break;
+		case 12:
+			nr = 1;
+			break;
+		case 28:
+			nr = 2;
+			break;
+		case 36:
+			nr = 3;
+			break;
+		default:
+			return -1;
+	}
+	return static_cast<const bildliste_besch_t *>(gib_kind(3))->gib_bild_nr(nr);
+#endif
     }
 
     int gib_diagonal_bild_nr(ribi_t::ribi ribi) const

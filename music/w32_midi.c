@@ -12,6 +12,7 @@
 
 #include <windows.h>
 #include <mmsystem.h>
+#include "music.h"
 
 
 /*
@@ -153,7 +154,7 @@ void dr_play_midi(int key)
  * Stops playing MIDI file
  * By Owen Rudge
  */
-void dr_stop_midi()
+void dr_stop_midi(void)
 {
   if(use_midi) {
 
@@ -171,7 +172,7 @@ void dr_stop_midi()
  * Returns the midi_pos variable
  * By Owen Rudge
  */
-long dr_midi_pos()
+long dr_midi_pos(void)
 {
   if(use_midi) {
     char retstr[200];
@@ -210,7 +211,7 @@ long dr_midi_pos()
  * Midi shutdown/cleanup
  * By Owen Rudge
  */
-void dr_destroy_midi()
+void dr_destroy_midi(void)
 {
   if(use_midi) {
     __win32_set_midi_volume(__MIDI_VOL_WIN32, OldMIDIVol[0], OldMIDIVol[1]);
@@ -225,7 +226,7 @@ void dr_destroy_midi()
  * MIDI initialisation routines
  * @author Owen Rudge
  */
-void dr_init_midi()
+void dr_init_midi(void)
 {
  #ifdef MIXER_VOLUME
    UINT nMIDIDevices;

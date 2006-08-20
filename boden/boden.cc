@@ -299,12 +299,18 @@ boden_t::calc_bild()
 
 	grund_t::calc_bild();
 
+	const int min_h=welt->min_hgt(k);
+	const int max_h=welt->max_hgt(k);
+
 	weg_t *weg = gib_weg(weg_t::strasse);
 
 	if(weg && dynamic_cast<strasse_t *>(weg)->hat_gehweg()) {
 		setze_bild(skinverwaltung_t::fussweg->gib_bild_nr(grund_besch_t::slopetable[gib_grund_hang()]));
-	} else if(gib_hoehe() == welt->gib_grundwasser()) {
+	} else if(max_h-min_h==16  &&  min_h==welt->gib_grundwasser()) {
 		setze_bild(grund_besch_t::ufer->gib_bild(grund_besch_t::ufer->get_double_hang(gib_grund_hang())));
+	} else if(min_h<welt->gib_grundwasser()) {
+		setze_bild(grund_besch_t::ufer->gib_bild(grund_besch_t::ufer->get_double_hang(gib_grund_hang())));
+//		setze_yoff(height_scaling(-16));
 	} else {
 		int hang = gib_grund_hang();
 		setze_bild( grund_besch_t::boden->gib_bild(grund_besch_t::boden->get_double_hang(hang)) );

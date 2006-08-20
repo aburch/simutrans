@@ -1,98 +1,69 @@
-#
-# Makefile
-#
-# Top-Level Makefile for Simutrans
-# Copyright (c) 2001 by Hj. Malthaner
-# hansjoerg.malthaner@gmx.de
-#
+CONFIG ?= config.default
+-include $(CONFIG)
 
 
-OSTYPE=mingw-sdl
-#OSTYPE=mingw-gdi
-#OSTYPE=mingw-allegro
-#OSTYPE=beos
-#OSTYPE=linux-gnu
+BACKENDS      = allegro gdi sdl x11
+COLOUR_DEPTHS = 8 16
+OSTYPES       = beos cygwin freebsd linux mingw
+OPTS          = debug debug_optimize optimize profile
 
-
-ifeq ($(OSTYPE),)
-#OSTYPE=cygwin
-#OSTYPE=mingw
-#OSTYPE=linux-gnu
+ifeq ($(findstring $(BACKEND), $(BACKENDS)),)
+  $(error Unkown BACKEND "$(BACKEND)", must be one of "$(BACKENDS)")
 endif
 
-export OSTYPE
+ifeq ($(findstring $(COLOUR_DEPTH), $(COLOUR_DEPTHS)),)
+  $(error Unkown COLOUR_DEPTH "$(COLOUR_DEPTH)", must be one of "$(COLOUR_DEPTHS)")
+endif
 
-#OPT=profile
-#OPT=debug
-#OPT=optimize
-OPT=debug_optimize
+ifeq ($(findstring $(OSTYPE), $(OSTYPES)),)
+  $(error Unkown OSTYPE "$(OSTYPE)", must be one of "$(OSTYPES)")
+endif
 
+ifeq ($(findstring $(OPT), $(OPTS)),)
+  $(error Unkown OPT "$(OPT)", must be one of "$(OPTS)")
+endif
+
+
+ifeq ($(BACKEND), x11)
+  $(warning ATTENTION: X11 backend is broken)
+endif
+
+ifeq ($(COLOUR_DEPTH), 8)
+  $(warning ATTENTION: 8bpp is broken)
+endif
+
+
+ifeq ($(OSTYPE),beos)
+#  ALLEGRO_CONFIG ?= allegro-config
+#  SDL_CONFIG     ?= sdl-config
+  STD_LIBS       ?= -lz
+endif
 
 ifeq ($(OSTYPE),cygwin)
-OS_INC=-I/SDL/include -I/usr/include/cygwin
-DISPLAY_OBJ= simsys_s16.o
-STD_LIBS=
-SDLLIBS=  -L/SDL/lib -lz -lSDL -lwinmm -lc /lib/mingw/libstdc++.a -lc /lib/mingw/libmingw32.a -lc /lib/mingw/libmsvcrt.a
-#SDLLIBS= -lSDL -lwinmm -lc /lib/libmsvcrt40.a -lc /lib/libstdc++.a -lc /lib/libmingw32.a
-#SDLLIBS= -lSDL -lwinmm -lpthread
-OS_OPT=-Wbad-function-cast
+  ALLEGRO_CONFIG ?= allegro-config
+  SDL_CONFIG     ?= sdl-config
+  OS_INC         ?= -I/usr/include/mingw
+  OS_OPT         ?= -mwin32
+  STD_LIBS       ?= -lgdi32 -lwinmm -lz -mno-cygwin
 endif
-ifeq ($(OSTYPE),mingw-sdl)
-DISPLAY_OBJ= simsys_s16.o
-OS_INC=-I /usr/include/mingw
-OS_OPT=-mno-cygwin -DPNG_STATIC -DZLIB_STATIC
-#OS_OPT=-Wbad-function-cast
-STD_LIBS=-lstdc++ -lz
-SDLLIBS= -lmingw32 -lSDLmain -lSDL -lwinmm
+
+ifeq ($(OSTYPE),freebsd)
+  ALLEGRO_CONFIG ?= allegro-config
+  SDL_CONFIG     ?= sdl11-config
+  STD_LIBS       ?= -lz
 endif
-ifeq ($(OSTYPE),mingw-gdi)
-DISPLAY_OBJ= simsys_w16.o
-OS_INC=-I /usr/include/mingw
-OS_OPT=-mno-cygwin -DPNG_STATIC -DZLIB_STATIC
-#OS_OPT=-Wbad-function-cast
-STD_LIBS=-lunicows -lstdc++ -lz
-SDLLIBS= -lmingw32 -lgdi32 -lwinmm
+
+ifeq ($(OSTYPE),mingw)
+#  ALLEGRO_CONFIG ?= allegro-config
+#  SDL_CONFIG     ?= sdl-config
+  OS_OPT         ?= -mno-cygwin -DPNG_STATIC -DZLIB_STATIC
+  STD_LIBS       ?= -lgdi32 -lwinmm -lz
 endif
-ifeq ($(OSTYPE),mingw-allegro)
-DISPLAY_OBJ= simsys_d16.o
-OS_INC=-I /usr/include/mingw
-OS_OPT=-mno-cygwin -DPNG_STATIC -DZLIB_STATIC
-#OS_OPT=-Wbad-function-cast
-STD_LIBS=-lunicows -lstdc++ -lz
-SDLLIBS= -lmingw32 -lalleg
-endif
-ifeq ($(OSTYPE),linux-gnu)
-#STD_LIBS= /usr/lib/libstdc++-3-libc6.1-2-2.10.0.a -lz
-DISPLAY_OBJ= simsys_s16.o
-STD_LIBS= -lstdc++ -lz
-SDLLIBS= -lSDL -lpthread
-OS_OPT=
-endif
+
 ifeq ($(OSTYPE),linux)
-STD_LIBS= -lz
-SDLLIBS= -lSDL -lpthread
-OS_OPT=
-endif
-ifeq ($(OSTYPE),beos)
-DISPLAY_OBJ= simsys_s16.o
-STD_LIBS= -lz
-SDLLIBS= -lSDL
-OS_OPT=
-endif
-
-BESDLLIBS= -lSDL -lz
-
-# cross compilers
-#CC=/usr/local/src/gcc-2.95.2/gcc/xgcc -B/usr/local/src/gcc-2.95.2/gcc/ -B/usr/local/powerpc-unknown-linux/bin/  -I/usr/local/powerpc-unknown-linux/include
-#CXX=/usr/local/src/gcc-2.95.2/gcc/xgcc -B/usr/local/src/gcc-2.95.2/gcc/ -B/usr/local/powerpc-unknown-linux/bin/ -I/usr/local/powerpc-unknown-linux/include
-#CC gcc -static -b powerpc-unknown-linux -Wl,"-melf32ppc"
-#CXX gcc -static -b powerpc-unknown-linux -Wl,"-melf32ppc"
-
-# Mingw32 cross compiler
-
-ifeq ($(SIM_CROSS),true)
-CC=/usr/local/src/cross-tools/bin/i386-mingw32msvc-gcc
-CXX=/usr/local/src/cross-tools/bin/i386-mingw32msvc-g++
+  ALLEGRO_CONFIG ?= allegro-config
+  SDL_CONFIG     ?= sdl-config
+  STD_LIBS       ?= -lz
 endif
 
 
@@ -101,137 +72,187 @@ export CXX
 
 # C compiler options
 ifeq ($(OSTYPE),beos)
-CFLAGS= -DUSE_C -Wall -O -g -fschedule-insns2 -fgcse -fstrict-aliasing -march=i586 -pipe
+CFLAGS= -DUSE_C -O -g -fschedule-insns2 -fgcse -fstrict-aliasing -march=i586 -pipe
 else
 ## other systems
 ifeq ($(OPT),profile)
-CFLAGS= -Wall -pg -O -pipe -fschedule-insns2 -fgcse -fstrict-aliasing -fexpensive-optimizations -march=i586 -g -minline-all-stringops
+CFLAGS= -pg -O -pipe -fschedule-insns2 -fgcse -fstrict-aliasing -fexpensive-optimizations -march=i586 -g -minline-all-stringops
 LDFLAGS= -pg
 endif
 ifeq ($(OPT),optimize)
-CFLAGS= -Wall -O -fschedule-insns2 -fomit-frame-pointer -fgcse -fstrict-aliasing -fexpensive-optimizations -march=i586 -pipe $(OS_INC) -minline-all-stringops
+CFLAGS= -O -fschedule-insns2 -fomit-frame-pointer -fgcse -fstrict-aliasing -fexpensive-optimizations -march=i586 -pipe -minline-all-stringops
 endif
 ifeq ($(OPT),debug)
-CFLAGS= -Wall -O -g -fschedule-insns2 -fgcse -fstrict-aliasing -fexpensive-optimizations -march=i586 -pipe -minline-all-stringops
+CFLAGS= -O -g -fschedule-insns2 -fgcse -fstrict-aliasing -fexpensive-optimizations -march=i586 -pipe -minline-all-stringops
 endif
 ifeq ($(OPT),debug_optimize)
-CFLAGS= -DDEBUG -Wall -O -g -fschedule-insns2 -fgcse -fstrict-aliasing -fexpensive-optimizations -march=i586 -pipe -minline-all-stringops
+CFLAGS= -DDEBUG -O -g -fschedule-insns2 -fgcse -fstrict-aliasing -fexpensive-optimizations -march=i586 -pipe -minline-all-stringops
 endif
 endif
 
 
 # C++ compiler options
 ifeq ($(OPT),profile)
-CXXFLAGS= -Wall -pg -pipe -O -march=i586 $(OS_OPT)
+CXXFLAGS= -pg -pipe -O -march=i586
 LDFLAGS= -pg
 endif
 ifeq ($(OPT),optimize)
-CXXFLAGS= -Wall -W -Wcast-align -Wcast-qual -Wpointer-arith -O -fomit-frame-pointer -fregmove -fschedule-insns2 -fmove-all-movables -freorder-blocks -falign-functions  -march=i586 -pipe $(OS_OPT)
+CXXFLAGS= -Wcast-align -Wcast-qual -Wpointer-arith -O -fomit-frame-pointer -fregmove -fschedule-insns2 -fmove-all-movables -freorder-blocks -falign-functions  -march=i586 -pipe
 endif
 ifeq ($(OPT),debug)
-CXXFLAGS=  -DDEBUG -Wall -W -Wcast-align -Wcast-qual -Wpointer-arith -march=i586 -g -pipe $(OS_OPT)
+CXXFLAGS=  -DDEBUG -Wcast-align -Wcast-qual -Wpointer-arith -march=i586 -g -pipe
 endif
 ifeq ($(OPT),debug_optimize)
-CXXFLAGS= -DDEBUG -Wall -W -Wcast-align -Wcast-qual -Wpointer-arith -march=i586 -O -fregmove -fschedule-insns2 -fmove-all-movables -freorder-blocks -falign-functions -g -pipe $(OS_OPT)
+CXXFLAGS= -DDEBUG -Wcast-align -Wcast-qual -Wpointer-arith -march=i586 -O -fregmove -fschedule-insns2 -fmove-all-movables -freorder-blocks -falign-functions -g -pipe
 endif
 
-#CXXFLAGS+= -DDOUBLE_GROUNDS
-#CXXFLAGS+= -DOTTD_LIKE
+CFLAGS   += -Wall -W $(OS_INC) $(OS_OPT) $(FLAGS)
+CXXFLAGS += -Wall -W $(OS_INC) $(OS_OPT) $(FLAGS)
+
 
 export CFLAGS
 export CXXFLAGS
 
 
-
-
-# To link any special libraries, add the necessary -l commands here.
-SUB_OBJS=\
- utils/log.o utils/simstring.o utils/cstring_t.o utils/tocstring.o utils/searchfolder.o\
- utils/cbuffer_t.o\
- dataobj/freelist.o\
- dataobj/powernet.o\
- dataobj/ribi.o dataobj/tabfile.o dataobj/linie.o \
- dataobj/fahrplan.o dataobj/koord.o dataobj/koord3d.o dataobj/route.o \
- dataobj/einstellungen.o dataobj/translator.o \
- dataobj/warenziel.o dataobj/umgebung.o\
- dataobj/marker.o dataobj/dingliste.o dataobj/loadsave.o \
- bauer/warenbauer.o\
- bauer/vehikelbauer.o\
- bauer/tunnelbauer.o\
- bauer/brueckenbauer.o\
- bauer/fabrikbauer.o\
- bauer/hausbauer.o\
- bauer/wegbauer.o\
- sucher/platzsucher.o\
- dings/oberleitung.o\
- dings/wolke.o dings/raucher.o dings/zeiger.o dings/baum.o dings/bruecke.o dings/pillar.o \
- dings/tunnel.o dings/gebaeude.o \
- dings/signal.o dings/leitung2.o dings/roadsign.o dings/dummy.o dings/lagerhaus.o\
- boden/boden.o  boden/fundament.o  boden/grund.o  boden/wasser.o\
- boden/brueckenboden.o  boden/tunnelboden.o boden/monorailboden.o \
- boden/wege/kanal.o \
- boden/wege/runway.o \
- boden/wege/strasse.o \
- boden/wege/schiene.o boden/wege/weg.o \
- gui/components/gui_textinput.o gui/components/gui_resizer.o \
- gui/components/gui_chart.o \
- gui/components/gui_speedbar.o \
- gui/components/gui_textarea.o \
- gui/components/gui_divider.o \
- gui/components/gui_flowtext.o \
- gui/components/gui_combobox.o \
- gui/help_frame.o gui/citylist_frame_t.o gui/citylist_stats_t.o\
- gui/message_frame_t.o gui/message_stats_t.o gui/message_option_t.o  gui/message_info_t.o\
- gui/colors.o gui/welt.o\
- gui/werkzeug_parameter_waehler.o\
- gui/goods_frame_t.o gui/goods_stats_t.o\
- gui/halt_info.o gui/halt_detail.o gui/depot_frame.o\
- gui/halt_list_frame.o gui/halt_list_item.o gui/halt_list_filter_frame.o \
- gui/karte.o gui/stadt_info.o gui/fabrik_info.o \
- gui/fahrplan_gui.o gui/line_management_gui.o gui/kennfarbe.o \
- gui/sprachen.o gui/button.o gui/optionen.o gui/spieler.o gui/infowin.o \
- gui/scrolled_list.o gui/schedule_list.o gui/schedule_gui.o gui/scrollbar.o \
- gui/messagebox.o gui/tab_panel.o gui/image_list.o gui/map_frame.o gui/map_legend.o \
- gui/gui_frame.o gui/gui_scrollpane.o gui/gui_container.o \
- gui/gui_label.o gui/gui_convoiinfo.o gui/world_view_t.o \
- gui/sound_frame.o gui/savegame_frame.o \
- gui/load_relief_frame.o gui/loadsave_frame.o \
- gui/money_frame.o gui/convoi_frame.o gui/convoi_filter_frame.o gui/convoi_info_t.o gui/label_frame.o \
- gui/factorylist_frame_t.o gui/factorylist_stats_t.o \
- gui/curiositylist_frame_t.o gui/curiositylist_stats_t.o \
- besch/reader/obj_reader.o besch/reader/root_reader.o besch/reader/xref_reader.o \
- besch/reader/building_reader.o besch/reader/good_reader.o besch/reader/tree_reader.o \
- besch/reader/skin_reader.o besch/reader/image_reader.o besch/reader/factory_reader.o \
- besch/reader/bridge_reader.o besch/reader/vehicle_reader.o besch/reader/tunnel_reader.o \
- besch/reader/way_reader.o besch/reader/ground_reader.o besch/reader/crossing_reader.o \
- besch/reader/citycar_reader.o  besch/reader/pedestrian_reader.o besch/reader/roadsign_reader.o \
- besch/ware_besch.o\
- besch/haus_besch.o\
- besch/bruecke_besch.o\
- besch/grund_besch.o\
- besch/tunnel_besch.o\
- besch/reader/sim_reader.o
-
-
-# SDL Include under X
-SDLINC=-I /usr/local/include -I /boot/develop/tools/gnupro/include
-
-
-
-
-# miscellaneous OS-dependent stuff
-# linker
-LN= $(CC)
-# file deletion command
-RM= rm
-# library (.a) file creation command
-AR= ar rc
-# second step in .a creation (use "touch" if not needed)
-AR2= ranlib
-
-
-# source files (independently compilable files)
+SOURCES += bauer/brueckenbauer.cc
+SOURCES += bauer/fabrikbauer.cc
+SOURCES += bauer/hausbauer.cc
+SOURCES += bauer/tunnelbauer.cc
+SOURCES += bauer/vehikelbauer.cc
+SOURCES += bauer/warenbauer.cc
+SOURCES += bauer/wegbauer.cc
+SOURCES += besch/bruecke_besch.cc
+SOURCES += besch/grund_besch.cc
+SOURCES += besch/haus_besch.cc
+SOURCES += besch/reader/bridge_reader.cc
+SOURCES += besch/reader/building_reader.cc
+SOURCES += besch/reader/citycar_reader.cc
+SOURCES += besch/reader/crossing_reader.cc
+SOURCES += besch/reader/factory_reader.cc
+SOURCES += besch/reader/good_reader.cc
+SOURCES += besch/reader/ground_reader.cc
+SOURCES += besch/reader/image_reader.cc
+SOURCES += besch/reader/obj_reader.cc
+SOURCES += besch/reader/pedestrian_reader.cc
+SOURCES += besch/reader/roadsign_reader.cc
+SOURCES += besch/reader/root_reader.cc
+SOURCES += besch/reader/sim_reader.cc
+SOURCES += besch/reader/skin_reader.cc
+SOURCES += besch/reader/tree_reader.cc
+SOURCES += besch/reader/tunnel_reader.cc
+SOURCES += besch/reader/vehicle_reader.cc
+SOURCES += besch/reader/way_reader.cc
+SOURCES += besch/reader/xref_reader.cc
+SOURCES += besch/tunnel_besch.cc
+SOURCES += besch/ware_besch.cc
 SOURCES += blockmanager.cc
+SOURCES += boden/boden.cc
+SOURCES += boden/brueckenboden.cc
+SOURCES += boden/fundament.cc
+SOURCES += boden/grund.cc
+SOURCES += boden/monorailboden.cc
+SOURCES += boden/tunnelboden.cc
+SOURCES += boden/wasser.cc
+SOURCES += boden/wege/kanal.cc
+SOURCES += boden/wege/runway.cc
+SOURCES += boden/wege/schiene.cc
+SOURCES += boden/wege/strasse.cc
+SOURCES += boden/wege/weg.cc
+SOURCES += dataobj/dingliste.cc
+SOURCES += dataobj/einstellungen.cc
+SOURCES += dataobj/fahrplan.cc
+SOURCES += dataobj/freelist.cc
+SOURCES += dataobj/koord.cc
+SOURCES += dataobj/koord3d.cc
+SOURCES += dataobj/linie.cc
+SOURCES += dataobj/loadsave.cc
+SOURCES += dataobj/marker.cc
+SOURCES += dataobj/powernet.cc
+SOURCES += dataobj/ribi.cc
+SOURCES += dataobj/route.cc
+SOURCES += dataobj/tabfile.cc
+SOURCES += dataobj/translator.cc
+SOURCES += dataobj/umgebung.cc
+SOURCES += dataobj/warenziel.cc
+SOURCES += dings/baum.cc
+SOURCES += dings/bruecke.cc
+SOURCES += dings/dummy.cc
+SOURCES += dings/gebaeude.cc
+SOURCES += dings/lagerhaus.cc
+SOURCES += dings/leitung2.cc
+SOURCES += dings/oberleitung.cc
+SOURCES += dings/pillar.cc
+SOURCES += dings/raucher.cc
+SOURCES += dings/roadsign.cc
+SOURCES += dings/signal.cc
+SOURCES += dings/tunnel.cc
+SOURCES += dings/wolke.cc
+SOURCES += dings/zeiger.cc
+SOURCES += gui/button.cc
+SOURCES += gui/citylist_frame_t.cc
+SOURCES += gui/citylist_stats_t.cc
+SOURCES += gui/colors.cc
+SOURCES += gui/components/gui_chart.cc
+SOURCES += gui/components/gui_combobox.cc
+SOURCES += gui/components/gui_divider.cc
+SOURCES += gui/components/gui_flowtext.cc
+SOURCES += gui/components/gui_resizer.cc
+SOURCES += gui/components/gui_speedbar.cc
+SOURCES += gui/components/gui_textarea.cc
+SOURCES += gui/components/gui_textinput.cc
+SOURCES += gui/convoi_filter_frame.cc
+SOURCES += gui/convoi_frame.cc
+SOURCES += gui/convoi_info_t.cc
+SOURCES += gui/curiositylist_frame_t.cc
+SOURCES += gui/curiositylist_stats_t.cc
+SOURCES += gui/depot_frame.cc
+SOURCES += gui/fabrik_info.cc
+SOURCES += gui/factorylist_frame_t.cc
+SOURCES += gui/factorylist_stats_t.cc
+SOURCES += gui/fahrplan_gui.cc
+SOURCES += gui/goods_frame_t.cc
+SOURCES += gui/goods_stats_t.cc
+SOURCES += gui/gui_container.cc
+SOURCES += gui/gui_convoiinfo.cc
+SOURCES += gui/gui_frame.cc
+SOURCES += gui/gui_label.cc
+SOURCES += gui/gui_scrollpane.cc
+SOURCES += gui/halt_detail.cc
+SOURCES += gui/halt_info.cc
+SOURCES += gui/halt_list_filter_frame.cc
+SOURCES += gui/halt_list_frame.cc
+SOURCES += gui/halt_list_item.cc
+SOURCES += gui/help_frame.cc
+SOURCES += gui/image_list.cc
+SOURCES += gui/infowin.cc
+SOURCES += gui/karte.cc
+SOURCES += gui/kennfarbe.cc
+SOURCES += gui/label_frame.cc
+SOURCES += gui/line_management_gui.cc
+SOURCES += gui/load_relief_frame.cc
+SOURCES += gui/loadsave_frame.cc
+SOURCES += gui/map_frame.cc
+SOURCES += gui/map_legend.cc
+SOURCES += gui/message_frame_t.cc
+SOURCES += gui/message_info_t.cc
+SOURCES += gui/message_option_t.cc
+SOURCES += gui/message_stats_t.cc
+SOURCES += gui/messagebox.cc
+SOURCES += gui/money_frame.cc
+SOURCES += gui/optionen.cc
+SOURCES += gui/savegame_frame.cc
+SOURCES += gui/schedule_gui.cc
+SOURCES += gui/schedule_list.cc
+SOURCES += gui/scrollbar.cc
+SOURCES += gui/scrolled_list.cc
+SOURCES += gui/sound_frame.cc
+SOURCES += gui/spieler.cc
+SOURCES += gui/sprachen.cc
+SOURCES += gui/stadt_info.cc
+SOURCES += gui/tab_panel.cc
+SOURCES += gui/welt.cc
+SOURCES += gui/werkzeug_parameter_waehler.cc
+SOURCES += gui/world_view_t.cc
 SOURCES += railblocks.cc
 SOURCES += simcity.cc
 SOURCES += simconvoi.cc
@@ -241,7 +262,6 @@ SOURCES += simdings.cc
 SOURCES += simdisplay.c
 SOURCES += simevent.c
 SOURCES += simfab.cc
-#SOURCES += simgraph16.c # seems to be unused
 SOURCES += simhalt.cc
 SOURCES += simintr.cc
 SOURCES += simio.cc
@@ -266,115 +286,99 @@ SOURCES += simwerkz.cc
 SOURCES += simwin.cc
 SOURCES += simworld.cc
 SOURCES += simworldview.cc
+SOURCES += sucher/platzsucher.cc
 SOURCES += tpl/debug_helper.c
 SOURCES += tpl/no_such_element_exception.cc
+SOURCES += utils/cbuffer_t.cc
+SOURCES += utils/cstring_t.cc
+SOURCES += utils/log.cc
+SOURCES += utils/searchfolder.cc
+SOURCES += utils/simstring.c
+SOURCES += utils/tocstring.cc
 
-ifeq ($(OSTYPE),mingw-sdl)
+
+SOURCES += simgraph$(COLOUR_DEPTH).c
+
+ifeq ($(BACKEND),allegro)
+  SOURCES  += simsys_d$(COLOUR_DEPTH).c
+  ifeq ($(ALLEGRO_CONFIG),)
+    ALLEGRO_CFLAGS  :=
+    ALLEGRO_LDFLAGS := -lalleg
+  else
+    ALLEGRO_CFLAGS  := $(shell $(ALLEGRO_CONFIG) --cflags)
+    ALLEGRO_LDFLAGS := $(shell $(ALLEGRO_CONFIG) --libs)
+  endif
+  CFLAGS   += $(ALLEGRO_CFLAGS)
+  CXXFLAGS += $(ALLEGRO_CFLAGS)
+  LIBS     += $(ALLEGRO_LDFLAGS)
+  FLAGS    += -DUSE_SOFTPOINTER
+endif
+
+ifeq ($(BACKEND),gdi)
+  SOURCES += simsys_w$(COLOUR_DEPTH).c
+  LIBS += -lunicows
+endif
+
+ifeq ($(BACKEND),sdl)
+  SOURCES  += simsys_s$(COLOUR_DEPTH).c
+  ifeq ($(SDL_CONFIG),)
+    SDL_CFLAGS  := -I$(MINGDIR)/include/SDL -Dmain=SDL_main
+    SDL_LDFLAGS := -lmingw32 -lSDLmain -lSDL -mwindows
+  else
+    SDL_CFLAGS  := $(shell $(SDL_CONFIG) --cflags)
+    SDL_LDFLAGS := $(shell $(SDL_CONFIG) --libs)
+  endif
+  CFLAGS   += $(SDL_CFLAGS)
+  CXXFLAGS += $(SDL_CFLAGS)
+  LIBS     += $(SDL_LDFLAGS)
+endif
+
+ifeq ($(BACKEND),x11)
+  SOURCES  += simsys_x$(COLOUR_DEPTH).c
+  CFLAGS   += -I/usr/X11R6/include
+  CXXFLAGS += -I/usr/X11R6/include
+  LIBS     += -L/usr/X11R6/lib/ -lX11 -lXext
+endif
+
+
+ifneq ($(findstring $(OSTYPE), cygwin mingw),)
   SOURCES += simres.rc
 endif
-ifeq ($(OSTYPE),mingw-gdi)
-  SOURCES += simres.rc
+
+
+ifeq ($(findstring $(OSTYPE), cygwin mingw),)
+  ifeq ($(BACKEND), allegro)
+    SOURCES += music/allegro_midi.c
+  else
+    SOURCES += music/no_midi.c
+  endif
+else
+  SOURCES += music/w32_midi.c
 endif
 
-SUBDIRS = bauer besch boden dataobj dings gui sucher utils
+
+ifeq ($(BACKEND), allegro)
+  SOURCES += sound/allegro_sound.c
+endif
+
+ifeq ($(BACKEND), gdi)
+  SOURCES += sound/win32_sound.c
+endif
+
+ifeq ($(BACKEND), sdl)
+  SOURCES += sound/sdl_sound.c
+endif
+
+ifeq ($(BACKEND), x11)
+  SOURCES += sound/no_sound.c
+endif
+
+
+PROG = sim
+
 
 include common.mk
 
 
-all:    16
-
-8:      subs normal
-
-16:     subs normal16
-
-cross:  subs wincross
-	mv simwin.exe ../simutrans/simutrans.exe
-
-
-subs: $(SUBDIRS)
-
-normal:	$(OBJECTS) simsys_d.o simgraph.o
-	$(LN) $(LDFLAGS) -o sim $(OBJECTS) simsys_d.o simgraph.o /usr/local/lib/liballeg.a $(SUB_OBJS) $(STD_LIBS)
-
-
-normal16: $(OBJECTS) $(DISPLAY_OBJ) simgraph16.o
-	$(LN) $(LDFLAGS) -o sim $(OBJECTS) $(DISPLAY_OBJ) simgraph16.o $(SUB_OBJS) $(STD_LIBS) $(SDLLIBS)
-
-allegro16:	$(OBJECTS) simsys_d16.o simgraph16.o
-	$(LN) $(LDFLAGS) -o sim $(OBJECTS) simsys_d16.o simgraph16.o $(SUB_OBJS) -lalleg.a $(STD_LIBS)
-
-allegro_dyn: $(OBJECTS) simsys_d.o
-	$(CC) $(CFLAGS) -c -D"MSDOS" simgraph.c
-	$(LN) $(LDFLAGS) -o sim simsys_d.o $(OBJECTS) $(SUB_OBJS) -lm -lalleg-3.9.34 -lalleg_unsharable
-
-allegro: $(OBJECTS) simsys_d.o
-	$(CC) $(CFLAGS) -c -D"MSDOS" simgraph.c
-	$(LN) $(LDFLAGS) -o sim simsys_d.o $(OBJECTS) /usr/local/lib/liballeg.a $(SUB_OBJS) -lX11 -lXext -lesd
-
-newcars: subs car_sub $(OBJECTS)
-	$(LN) $(LDFLAGS) -o sim $(OBJECTS) simsys_s16.o simgraph16.o $(SUB_OBJS) drivables/*.o $(STD_LIBS) $(SDLLIBS)
-
 makeobj_prog:
 	$(MAKE) -e -C makeobj
-
-
-autotest:
-	$(MAKE) CXXFLAGS='$(CXXFLAGS) -DAUTOTEST' testfiles
-
-testfiles: dataobj_sub dings_sub gui_sub utils_sub test_sub $(OBJECTS) simsys_s16.o simgraph16.o
-	$(LN) $(LDFLAGS) -o sim $(OBJECTS) simsys_s16.o simgraph16.o asm/display_img16w.o test/worldtest.o test/testtool.o $(SUB_OBJS) $(STD_LIBS)  $(SDLLIBS)
-
-pak:
-	utils/makepak
-
-
-wincross: $(OBJECTS) simsys_s16.o simgraph16.o asm/display_img16w.o
-	/usr/local/src/cross-tools/bin/i386-mingw32msvc-windres -O COFF simwin.rc simres.o
-	$(LN) -o simwin.exe $(OBJECTS) $(SUB_OBJS) simsys_s16.o simgraph16.o asm/display_img16w.o simres.o -lmingw32 -lz -lSDLmain -lSDL -lwinmm
-	/usr/local/src/cross-tools/bin/i386-mingw32msvc-strip simwin.exe
-
-
-
-xsdl:   subs $(OBJECTS) simsys_s.o simgraph.o
-	$(LN) $(LDFLAGS) -o sim $(OBJECTS) simsys_s16.o simgraph16.o $(SUB_OBJS) $(SDLLIBS)
-
-besdl:  subs $(OBJECTS) simsys_s16.o simgraph16.o
-	$(LN) $(LDFLAGS) -o sim $(OBJECTS) simsys_s16.o simgraph16.o $(SUB_OBJS) $(BESDLLIBS)
-
-windsl: subs $(OBJECTS) simsys_s.o simgraph.o
-	$(LN) $(LDFLAGS) -o sim $(OBJECTS) simsys_s.o $(SUB_OBJS) $(WINSDLLIBS)
-
-
-demo:
-	cp *.tab COPYRIGHT.txt readme.txt thanks.txt problem_report.txt change_request.txt ../simutrans
-	cp -r history ../simutrans/history.txt
-	cp -r config ../simutrans/
-	rm -rf ../simutrans/config/CVS
-	cp -r font ../simutrans/
-	rm -rf ../simutrans/font/CVS
-	cp -r palette ../simutrans/
-	rm -rf ../simutrans/palette/CVS
-	cp -r text ../simutrans/
-	rm -rf ../simutrans/pak/*
-	mkdir ../simutrans/pak/text
-	cp scenarios/default/pak/*.pak ../simutrans/pak/
-	cp scenarios/default/pak/text/*.tab ../simutrans/pak/text/
-	strip sim
-	mv sim ../simutrans/simutrans
-
-static:    $(OBJECTS) simsys_x.o
-	$(LN) -static $(LDFLAGS) -o simstat $(OBJECTS) simsys_x.o $(SUB_OBJS)
-
-
-doc:
-	kdoc -d html -p Simutrans *.h */*.h *.h */*/*.h
-
-lib:    $(OBJECTS)
-	ar r libsim.a $(OBJECTS) $(SUB_OBJS)
-	ar d libsim.a simmain.o
-	ranlib libsim.a
-
-
-# some dependencies that make dep can't generate
-
-simsys_s16.o: simversion.h

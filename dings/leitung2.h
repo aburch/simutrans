@@ -35,13 +35,13 @@ protected:
    */
   void verbinde();
 
-  void leitung_t::replace(koord base_pos, powernet_t *alt, powernet_t *neu);
+  void replace(koord base_pos, powernet_t *alt, powernet_t *neu);
 
 public:
 	powernet_t * get_net() const {return net;};
 	void set_net(powernet_t *p) {net=p;};
 
-	ribi_t::ribi leitung_t::gib_ribi();
+	ribi_t::ribi gib_ribi();
 
 	static fabrik_t * suche_fab_4(koord pos);
 

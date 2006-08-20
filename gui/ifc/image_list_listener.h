@@ -16,6 +16,4 @@ public:
     virtual void bild_gewaehlt(image_list_t *, int bild_index) = 0;
 };
 
-
-
 #endif

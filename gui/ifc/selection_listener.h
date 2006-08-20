@@ -18,6 +18,4 @@ public:
     virtual void eintrag_gewaehlt(gui_komponente_t *c, int index) = 0;
 };
 
-
-
 #endif

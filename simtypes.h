@@ -67,6 +67,4 @@ typedef struct {
 	uint8	x, y;
 } offset_koord;
 
-
-
 #endif

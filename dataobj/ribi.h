@@ -64,6 +64,7 @@ public:
     // Ein bischen tricky implementiert:
     static bool ist_gegenueber(typ x, typ y) { return ist_einfach(x) && ist_einfach(y) && x + y == 40; }
     static typ gegenueber(typ x) { return ist_einfach(x) ? 40 - x : flach; }
+    static bool ist_doppelt(typ x) { return (flags[x] == einfach); }
 #endif
 
     //

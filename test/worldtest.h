@@ -48,5 +48,4 @@ public:
     worldtest_t(karte_t *welt, char *log_name);
 };
 
-
 #endif

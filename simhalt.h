@@ -681,5 +681,4 @@ public:
 	void bescheid_station_voll() { enables|=CROWDED; };
 };
 
-
 #endif

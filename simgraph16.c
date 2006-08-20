@@ -75,14 +75,6 @@ typedef unsigned short PIXVAL;
 
 // --------------      static data    --------------
 
-/*
- * do we need a mouse pointer emulation ?
- * assume yes by default, but the system wrapper
- * is inquired during initialisation
- */
-static int use_softpointer = 0;
-
-
 static int softpointer = -1;
 static int standard_pointer = -1;
 
@@ -91,7 +83,7 @@ static int standard_pointer = -1;
  * die icon leiste muss neu gezeichnet werden wenn der
  * Mauszeiger darueber schwebt
  */
-static int old_my = -1;
+int old_my = -1;
 
 
 /* Flag, if we have Unicode font => do unicode (UTF8) support! *
@@ -2090,7 +2082,7 @@ display_img_nc(int h, const int xp, const int yp, const PIXVAL *sp)
 	// it is equivalent to the above, but only faster ...
 	register PIXVAL *tp asm("eax");
 	tp = textur + xp + yp*disp_width;
-	register PIXVAL *img_p asm("esi");
+	register const PIXVAL *img_p asm("esi");
 	img_p = sp;
 asm(	"cld\n\t" );	// all string-moves are upwards
 	do { // zeilen dekodieren
@@ -2420,7 +2412,7 @@ void display_fb_internal(int xp, int yp, int w, int h,
 		const PIXVAL colval = color >= 0x8000 ? specialcolormap_all_day[(color & 0x7FFF)]: rgbcolormap[color];
 		PIXVAL *p = textur + xp + yp*disp_width;
 		const unsigned long longcolval = (colval << 16) | colval;
-		const dx=disp_width-w;
+		const int dx = disp_width - w;
 
 		if(dirty) {
 			mark_rect_dirty_nc(xp, yp, xp+w-1, yp+h-1);
@@ -2448,14 +2440,14 @@ void display_fb_internal(int xp, int yp, int w, int h,
 		// it is equivalent to the above, but only faster ...
 
 __asm__(	"cld\n\t"
-#if defined( __MINGW32__)
+#if defined(__MINGW32__) || defined(__CYGWIN__)
 		"movw	_rgbcolormap(%%eax,%%eax),%%cx\n"	// load ax with the right color ...
 #else
 		"movw	rgbcolormap(%%eax,%%eax),%%cx\n"	// load ax with the right color ...
 #endif
 		"btrw $15,%%ax\n\t"	//>=0x8000
 		"jnc .Lvok\n\t"
-#if defined( __MINGW32__)
+#if defined(__MINGW32__) || defined(__CYGWIN__)
 //		"movcw	_specialcolormap_all_day(%%eax,%%eax),%%cx\n\t"	// move, if carry set (i.e. bit was set): crashes on older machines before Pentium Pro
 		"movw	_specialcolormap_all_day(%%eax,%%eax),%%cx\n"	// move, if carry set (i.e. bit was set)
 #else
@@ -2565,12 +2557,12 @@ display_array_wh(int xp, int yp, int w, int h, const unsigned char *arr)
     if(w > 0 && h > 0) {
 #ifdef USE_C
         register PIXVAL *p;
-        register unsigned char *arr_src;
+        register const unsigned char *arr_src;
         register unsigned short ww;
 #else
 		// GCC needs a little help ...
         register PIXVAL *p asm("%edi");
-        register unsigned char *arr_src asm("%esi");
+        register const unsigned char *arr_src asm("%esi");
         register unsigned short ww asm("ecx");
 #endif
         p = textur + xp + yp*disp_width;
@@ -3249,22 +3241,22 @@ display_clear()
 
 void display_flush_buffer()
 {
-    int x, y;
-    unsigned char * tmp;
+	int x, y;
+	unsigned char * tmp;
 #ifdef DEBUG_FLUSH_BUFFER
-    // just for debugging
-    int tile_count = 0;
+	// just for debugging
+	int tile_count = 0;
 #endif
 
-    if(use_softpointer) {
+#ifdef USE_SOFTPOINTER
 	if(softpointer != -1) {
-	    ex_ord_update_mx_my();
-	    display_color_img(standard_pointer, sys_event.mx, sys_event.my, 0, false, true);
+		ex_ord_update_mx_my();
+		display_color_img(standard_pointer, sys_event.mx, sys_event.my, 0, false, true);
 	}
 	old_my = sys_event.my;
-    }
+#endif
 
-    for(y=0; y<tile_lines; y++) {
+	for(y=0; y<tile_lines; y++) {
 #ifdef DEBUG_FLUSH_BUFFER
 
 	for(x=0; x<tiles_per_line; x++) {
@@ -3353,11 +3345,11 @@ void display_move_pointer(int dx, int dy)
  */
 void display_show_pointer(int yesno)
 {
-    if(use_softpointer) {
+#ifdef USE_SOFTPOINTER
     softpointer = yesno;
-    } else {
+#else
 	show_pointer(yesno);
-    }
+#endif
 }
 
 
@@ -3400,7 +3392,6 @@ simgraph_init(int width, int height, int use_shm, int do_sync, int full_screen)
 	disp_height = height;
 
       textur = dr_textur_init();
-	use_softpointer = dr_use_softpointer();
 
 	// init, load, and check fonts
 	large_font.screen_width = NULL;
@@ -3524,7 +3515,7 @@ void display_snapshot()
 
     char buf[80];
 
-#if defined( __MINGW32__) || defined(_MSC_VER)
+#ifdef __WIN32__
     mkdir(SCRENSHOT_PATH);
 #else
     mkdir(SCRENSHOT_PATH, 0700);

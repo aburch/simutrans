@@ -1,30 +1,27 @@
 
-#OSTYPE=mingw
-OSTYPE=linux-gnu
-
-
-# Mingw32 cross compiler
-
-ifeq ($(SIM_CROSS),true)
-CC=/usr/local/src/cross-tools/bin/i386-mingw32msvc-gcc
-CXX=/usr/local/src/cross-tools/bin/i386-mingw32msvc-g++
-endif
+#OSTYPE = beos
+#OSTYPE = cygwin
+#OSTYPE = freebsd
+#OSTYPE = linux
+#OSTYPE = mingw
 
 LN= $(CC)
 
 CFLAGS=-O
 CXXFLAGS=-O
 
-#CFLAGS=-g
-#CXXFLAGS=-g
-
 ifeq ($(OSTYPE),mingw)
-#-lSDLmain -lSDL -lwinmm
-LDLIBS=-lmingw32 -lpng -lz -lmingwex
-else
-LDLIBS=-lpng -lz -lm -lstdc++
+LDLIBS=-lmingw32 -lpng -lz -lstdc++
 endif
-LDFLAGS=
+
+ifeq ($(OSTYPE),linux)
+LDLIBS=-lpng -lz -lstdc++ -lm
+endif
+
+ifeq ($(OSTYPE),beos)
+LDLIBS=-lpng -lz -lstdc++
+endif
+
 
 SOURCES=makeobj.cc
 
@@ -50,7 +47,7 @@ OBJECTS=makeobj.o ../besch/writer/obj_node.o \
 all: makeobj
 
 makeobj: $(OBJECTS)
-	$(LN) -static $(CXXFLAGS) $(LDFLAGS) -o makeobj $(OBJECTS) $(LDLIBS)
+	$(LN) $(CXXFLAGS) $(LDFLAGS) -o makeobj $(OBJECTS) $(LDLIBS)
 	strip makeobj
 
 win32: $(OBJECTS)

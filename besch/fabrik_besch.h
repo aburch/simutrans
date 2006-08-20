@@ -248,5 +248,4 @@ public:
     int gib_pax_level() const { return pax_level; };
 };
 
-
 #endif // __FABRIK_BESCH_H

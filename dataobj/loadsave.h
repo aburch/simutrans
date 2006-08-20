@@ -118,5 +118,4 @@ public:
     void rd_str_into(char *s, const char *null_s);
 };
 
-
 #endif

@@ -53,53 +53,41 @@ display_progress(int part, int total)
 void
 display_icon_leiste(const int color, int basis_bild)
 {
-    static int old_color = -1;
+    static int old_color = -1, old_basis_bild=-1;
     int dirty;
-    extern int disp_width;
+    extern int disp_width, old_my;
 //    extern int disp_height;
 
-    if(color != old_color
+	if(color != old_color  ||  color==-1
 #ifdef USE_SOFTPOINTER
-       || old_my <= 32
+		|| old_my <= 32
 #endif
-       ) {
-        dirty = TRUE;
-	old_color = color;
-    } else {
-	dirty = FALSE;
-    }
+	) {
+		dirty = TRUE;
+		if(color!=-1) {
+			old_color = color;
+		}
+	} else {
+		dirty = FALSE;
+		return;
+	}
 
     display_fillbox_wh(0,0, disp_width, 32, MN_GREY1, dirty);
 
-    display_color_img(basis_bild++,0,0, color, FALSE, dirty);
-    display_color_img(basis_bild++,64,0, color, FALSE, dirty);
-    display_color_img(basis_bild++,128,0, color, FALSE, dirty);
-    display_color_img(basis_bild++,192,0, color, FALSE, dirty);
-    display_color_img(basis_bild++,256,0, color, FALSE, dirty);
-    display_color_img(basis_bild++,320,0, color, FALSE, dirty);
+    display_color_img(basis_bild++,0,0, old_color, FALSE, dirty);
+    display_color_img(basis_bild++,64,0, old_color, FALSE, dirty);
+    display_color_img(basis_bild++,128,0, old_color, FALSE, dirty);
+    display_color_img(basis_bild++,192,0, old_color, FALSE, dirty);
+    display_color_img(basis_bild++,256,0, old_color, FALSE, dirty);
+    display_color_img(basis_bild++,320,0, old_color, FALSE, dirty);
 
     //display_color_img(157,320,0, color, FALSE, dirty);
-    display_color_img(basis_bild++,384,0, color, FALSE, dirty);
-    display_color_img(basis_bild++,448,0, color, FALSE, dirty);
-    display_color_img(basis_bild++,512,0, color, FALSE, dirty);
-    display_color_img(basis_bild++,576,0, color, FALSE, dirty);
+    display_color_img(basis_bild++,384,0, old_color, FALSE, dirty);
+    display_color_img(basis_bild++,448,0, old_color, FALSE, dirty);
+    display_color_img(basis_bild++,512,0, old_color, FALSE, dirty);
+    display_color_img(basis_bild++,576,0, old_color, FALSE, dirty);
 	// added for extended menus
-    display_color_img(basis_bild++,640,0, color, FALSE, dirty);
-
-    /*
-    display_img(basis_bild++,0,0, FALSE, dirty);
-    display_img(basis_bild++,64,0, FALSE, dirty);
-    display_img(basis_bild++,128,0, FALSE, dirty);
-    display_img(basis_bild++,192,0, FALSE, dirty);
-    display_img(basis_bild++,256,0, FALSE, dirty);
-    display_img(basis_bild++,320,0, FALSE, dirty);
-
-    //display_img(157,320,0, FALSE, dirty);
-    display_img(basis_bild++,384,0, FALSE, dirty);
-    display_img(basis_bild++,448,0, FALSE, dirty);
-    display_img(basis_bild++,512,0, FALSE, dirty);
-    display_img(basis_bild++,576,0, FALSE, dirty);
-    */
+    display_color_img(basis_bild++,640,0, old_color, FALSE, dirty);
 }
 
 
@@ -146,5 +134,5 @@ display_flush(int stunden4, int color, double konto, const char *day_str, const 
 		display_proportional(255, disp_height-12, player_name, ALIGN_MIDDLE, player_color, TRUE);
 	}
 
-    display_flush_buffer();
+	display_flush_buffer();
 }

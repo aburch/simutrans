@@ -19,6 +19,7 @@
 #include "../simworld.h"
 #include "../simplay.h"
 #include "../simimg.h"
+#include "../simskin.h"
 #include "../simmesg.h"
 #include "../simgraph.h"
 #include "../dataobj/translator.h"
@@ -88,7 +89,17 @@ message_option_t::gib_besitzer() const
 
 int message_option_t::gib_bild() const
 {
-    return IMG_LEER;
+    return skinverwaltung_t::message_options==NULL?IMG_LEER:skinverwaltung_t::message_options->gib_bild_nr(0);
+}
+
+
+/**
+ * Info for buttons
+ */
+koord
+message_option_t::gib_bild_offset() const
+{
+  return koord(-5,0);
 }
 
 

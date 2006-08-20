@@ -135,4 +135,5 @@ public:
 
     static void rdwr(loadsave_t *file);
 };
+
 #endif

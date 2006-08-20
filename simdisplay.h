@@ -37,5 +37,4 @@ void display_icon_leiste(const int color, int basi_bild_nr);
 }
 #endif
 
-
 #endif

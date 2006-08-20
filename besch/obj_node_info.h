@@ -36,5 +36,4 @@ struct obj_node_info_t {
     uint16  size;
 };
 
-
 #endif // __OBJ_NODE_INFO_H

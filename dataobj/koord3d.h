@@ -153,5 +153,4 @@ inline int koord_distance(koord3d a,koord3d b) {
 	return abs(a.x-b.x)+abs(a.y-b.y);
 }
 
-
 #endif

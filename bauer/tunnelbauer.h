@@ -51,5 +51,4 @@ public:
     static void create_menu(karte_t *welt);
 };
 
-
 #endif

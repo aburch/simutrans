@@ -397,7 +397,3 @@ void planquadrat_t::remove_from_haltlist(karte_t *welt, halthandle_t halt)
 	// if we reached here, we are not connected to this halt anymore
 	halt_list.remove(halt);
 }
-
-
-
-// ende planqudrat_t methoden

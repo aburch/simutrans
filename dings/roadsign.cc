@@ -117,7 +117,7 @@ void roadsign_t::info(cbuffer_t & buf) const
 void roadsign_t::calc_bild()
 {
 	if(step_frequency==0) {
-		setze_bild(0,-1);
+		setze_bild(0,IMG_LEER);
 		after_bild = IMG_LEER;
 
 		if(dir&ribi_t::nord) {
@@ -320,7 +320,7 @@ DBG_DEBUG("roadsign_t::fill_menu()","maximum %i",liste.count());
 		const roadsign_besch_t *besch=liste.at(i);
 
 DBG_DEBUG("roadsign_t::fill_menu()","try at pos %i to add %s(%p)",i,besch->gib_name(),besch);
-		if(besch->gib_cursor()->gib_bild_nr(1) != -1) {
+		if(besch->gib_cursor()->gib_bild_nr(1) != IMG_LEER) {
 			// only add items with a cursor
 DBG_DEBUG("roadsign_t::fill_menu()","at pos %i add %s",i,besch->gib_name());
 			sprintf(buf, "%s, %d$",translator::translate(besch->gib_name()),CST_ROADSIGN/(-100));

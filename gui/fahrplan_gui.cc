@@ -32,6 +32,16 @@
 #include "../simintr.h"
 #include "messagebox.h"
 
+
+// here are the default loading values
+#define MAX_LADEGRADE (7)
+
+static char ladegrade[MAX_LADEGRADE]=
+{
+	0, 1, 10, 25, 50, 75, 100
+};
+
+
 /**
  * Fuellt buf mit Beschreibung des i-ten Eintrages des Fahrplanes
  *
@@ -341,26 +351,20 @@ fahrplan_gui_t::action_triggered(gui_komponente_t *komp)
   } else if(komp == &bt_prev) {
     if(fpl->maxi() > 0) {
       char & load = fpl->eintrag.at(fpl->aktuell).ladegrad;
-
-      if(load > 20 ) {
-	load -= 20;
-      } else if(load == 20) {
-	load = 1;           // Hajo: 1% special case
-      } else {
-	load = 0;
+      uint8 index=0;
+      while(load>ladegrade[index]) {
+      	index ++;
       }
+      load = ladegrade[(index+MAX_LADEGRADE-1)%MAX_LADEGRADE];
     }
   } else if(komp == &bt_next) {
     if(fpl->maxi() > 0) {
       char & load = fpl->eintrag.at(fpl->aktuell).ladegrad;
-
-      if(load == 0) {
-	load = 1;           // Hajo: 1% special case
-      } else if(load == 1) {
-	load = 20;
-      } else if(load < 100 ) {
-	load += 20;
+      uint8 index=0;
+      while(load>ladegrade[index]) {
+      	index ++;
       }
+      load = ladegrade[(index+1)%MAX_LADEGRADE];
     }
   } else if (komp == &bt_return) {
     fpl->add_return_way(welt);

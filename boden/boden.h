@@ -67,6 +67,4 @@ public:
     void operator delete(void *p);
 };
 
-
-
 #endif

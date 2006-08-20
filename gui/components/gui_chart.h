@@ -116,7 +116,7 @@ class gui_chart_t : public gui_komponente_t
 
 	private:
 
-        void gui_chart_t::calc_gui_chart_values(sint64 *baseline, float *scale, char *, char *) const;
+        void calc_gui_chart_values(sint64 *baseline, float *scale, char *, char *) const;
 
 	/*
 	 * curve struct

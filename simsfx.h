@@ -15,5 +15,4 @@
 #define SFX_FAILURE     -2
 #define SFX_SELECT	-1
 
-
 #endif

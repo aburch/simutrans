@@ -20,10 +20,6 @@
 /* prissi: if uncommented, also support for a small size font will be enabled (by not used at the moment) */
 //#define USE_SMALL_FONT
 
-/* prissi: the next line will make a version using only 8px height (like TTDX) */
-//#define OTTD_LIKE
-
-
 #ifdef __cplusplus
 extern "C" {
 // since our simgraph16.c ist a plain c-file, it will never see this
@@ -39,7 +35,7 @@ typedef enum {false=0, true=1 } bool;
 #endif
 
 
-#ifdef OTTD_LIKE
+#if defined(HALF_HEIGHT)  ||  defined(OTTD_LIKE)
 #define tile_raster_scale_x(v, rw)   (((v)*(rw)) >> 6)
 #define tile_raster_scale_y(v, rh)   (((v)*(rh)) >> 7)
 #define height_scaling(i) ((i)>>1)

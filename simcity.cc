@@ -856,6 +856,12 @@ stadt_t::step_passagiere()
 						pax_zieltyp will_return;
 						const koord ziel = finde_passagier_ziel(&will_return);
 
+#ifdef DESTINATION_CITYCARS
+						//citycars with destination
+						if(pax_routed==0) {
+							erzeuge_verkehrsteilnehmer( start_halt->gib_basis_pos(), step_count, ziel );
+						}
+#endif
 						// Dario: Check if there's a stop near destination
 						const minivec_tpl <halthandle_t> &dest_list = welt->access(ziel)->get_haltlist();
 
@@ -875,6 +881,10 @@ stadt_t::step_passagiere()
 							// Mark ziel as destination without route and continue.
 							merke_passagier_ziel(ziel, DUNKELORANGE);
 							start_halt->add_pax_no_route(pax_left_to_do);
+#ifdef DESTINATION_CITYCARS
+							//citycars with destination
+							erzeuge_verkehrsteilnehmer( start_halt->gib_basis_pos(), step_count, ziel );
+#endif
 							continue;
 						}
 
@@ -921,6 +931,10 @@ stadt_t::step_passagiere()
 								else {
 									start_halt->add_pax_no_route(pax_left_to_do);
 									merke_passagier_ziel(ziel, DUNKELORANGE);
+#ifdef DESTINATION_CITYCARS
+									//citycars with destination
+									erzeuge_verkehrsteilnehmer( start_halt->gib_basis_pos(), step_count, ziel );
+#endif
 								}
 							}
 
@@ -988,6 +1002,10 @@ stadt_t::step_passagiere()
 					// fake one ride to get a proper display of destinations (although there may be more) ...
 					pax_zieltyp will_return;
 					const koord ziel = finde_passagier_ziel(&will_return);
+#ifdef DESTINATION_CITYCARS
+					//citycars with destination
+					erzeuge_verkehrsteilnehmer( k, step_count, ziel );
+#endif
 					merke_passagier_ziel(ziel, DUNKELORANGE);
 					pax_erzeugt += num_pax;
 					// check destination stop to add no route
@@ -1779,36 +1797,35 @@ stadt_t::baue_gebaeude(const koord k)
 
 
 void
-stadt_t::erzeuge_verkehrsteilnehmer(koord pos, int level)
+stadt_t::erzeuge_verkehrsteilnehmer(koord pos, int level,koord target)
 {
-    if(welt->gib_einstellungen()->gib_verkehr_level() != 16 &&
-       (level == welt->gib_einstellungen()->gib_verkehr_level() ||
-  level == welt->gib_einstellungen()->gib_verkehr_level()*2)) {
+	if(welt->gib_einstellungen()->gib_verkehr_level() != 16 && (level%(16-welt->gib_einstellungen()->gib_verkehr_level()))==0  ) {
 
-  koord k;
+		koord k;
+		for(k.y = pos.y-1; k.y<=pos.y+1; k.y ++) {
+			for(k.x = pos.x-1; k.x<=pos.x+1; k.x ++) {
+				if(welt->ist_in_kartengrenzen(k)) {
+					grund_t *gr = welt->lookup(k)->gib_kartenboden();
+					const weg_t *weg = gr->gib_weg(weg_t::strasse);
 
-  for(k.y = pos.y-1; k.y<=pos.y+1; k.y ++) {
-      for(k.x = pos.x-1; k.x<=pos.x+1; k.x ++) {
-    if(welt->ist_in_kartengrenzen(k)) {
-        grund_t *gr = welt->lookup(k)->gib_kartenboden();
-        const weg_t *weg = gr->gib_weg(weg_t::strasse);
+					if(weg &&
+					   (gr->gib_weg_ribi_unmasked(weg_t::strasse) == ribi_t::nordsued ||
+					   gr->gib_weg_ribi_unmasked(weg_t::strasse) == ribi_t::ostwest)) {
 
-        if(weg &&
-      (gr->gib_weg_ribi_unmasked(weg_t::strasse) == ribi_t::nordsued ||
-                        gr->gib_weg_ribi_unmasked(weg_t::strasse) == ribi_t::ostwest))
-                    {
-      if(stadtauto_t::gib_anzahl_besch() > 0) {
-          stadtauto_t *vt = new stadtauto_t(welt, gr->gib_pos());
-          gr->obj_add( vt );
-          welt->sync_add( vt );
-      }
-      return;
-        }
-    }
-      }
-  }
-    }
+						if(stadtauto_t::gib_anzahl_besch() > 0) {
+							stadtauto_t *vt = new stadtauto_t(welt, gr->gib_pos(),target);
+							gr->obj_add( vt );
+							welt->sync_add( vt );
+						}
+						return;
+					}
+				}
+			}
+		}
+	}
 }
+
+
 
 void
 stadt_t::renoviere_gebaeude(koord k)
@@ -1915,7 +1932,7 @@ stadt_t::renoviere_gebaeude(koord k)
 
 		// printf("Renovierung mit %d Industrie, %d Gewerbe, %d  Wohnung\n", sum_industrie, sum_gewerbe, sum_wohnung);
 
-		erzeuge_verkehrsteilnehmer(k, h->gib_level() );
+		erzeuge_verkehrsteilnehmer(k, h->gib_level(), koord::invalid );
 
 		// check for pavement
 		for(  int i=0;  i<8;  i++ ) {
@@ -2071,6 +2088,23 @@ const char *
 stadt_t::haltestellenname(koord k, const char *typ, int number)
 {
     const char *base = "%s Fehler %s";
+    const char *building=NULL;
+
+//	const grund_t *gr=welt->lookup(k)->gib_kartenboden();
+
+	// prissi: first we try a factory name
+	halthandle_t halt=haltestelle_t::gib_halt(welt,k);
+	if(halt.is_bound()) {
+		slist_iterator_tpl <fabrik_t *> fab_iter(halt->gib_fab_list());
+		while( fab_iter.next() ) {
+//			if(welt->access(fab_iter.get_current()->gib_pos().gib_2d())->get_haltlist().get_count()==1) {
+				// we are the first!
+//				building = fab_iter.get_current()->gib_name();
+//			}
+			building = fab_iter.get_current()->gib_name();
+			break;
+		}
+	}
 
     int li_gr = li + 2;
     int re_gr = re - 2;
@@ -2114,25 +2148,33 @@ stadt_t::haltestellenname(koord k, const char *typ, int number)
     }
 
 
-    char buf [256];
+    char buf [512];
 
-    if(number >= 0 && umgebung_t::numbered_stations) {
-      const int n = sprintf(buf, translator::translate(base),
-          this->name,
-          translator::translate(typ));
+	if(number >= 0 && umgebung_t::numbered_stations) {
+		const int n=sprintf(buf, translator::translate(base),
+			this->name,
+			translator::translate(typ));
 
-      sprintf(buf+n, " (%d)", number);
-    } else {
-      sprintf(buf, translator::translate(base),
-        this->name,
-        translator::translate(typ));
-    }
+		sprintf(buf+n, " (%d)", number);
+	}
+	else
+	{
+		const int n=sprintf(buf, translator::translate(base),
+			this->name,
+			translator::translate(typ));
+		// add the building name
+		if(building) {
+			char buf2[512];
+			sprintf(buf2, "%s %s",building,buf);
+			strcpy(buf,buf2);
+		}
+	}
 
-    const int len = strlen(buf) + 1;
-    char *name = new char[len];
-    tstrncpy(name, buf, len);
+	const int len = strlen(buf) + 1;
+	char *name = new char[len];
+	tstrncpy(name, buf, len);
 
-    return name;
+	return name;
 }
 
 

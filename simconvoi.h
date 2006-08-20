@@ -810,7 +810,7 @@ public:
      * prepares the convoi to receive a new schedule
      * @author hsiegeln
      */
-    void convoi_t::prepare_for_new_schedule (fahrplan_t *);
+    void prepare_for_new_schedule(fahrplan_t *);
 
     /**
      * book a certain amount into the convois financial history
@@ -848,6 +848,5 @@ public:
 		koord3d get_home_depot() { return home_depot; };
 
 };
-
 
 #endif

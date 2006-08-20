@@ -58,6 +58,4 @@ public:
     void display(bool dirty);
 };
 
-
-
 #endif
