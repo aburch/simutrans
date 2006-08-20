@@ -371,9 +371,9 @@ void depot_frame_t::layout(koord *gr)
     bt_prev.setze_pos(koord(5, SELECT_VSTART + 2));
 
     inp_name.setze_pos(koord(5+12, SELECT_VSTART));
-    inp_name.setze_groesse(koord(TOTAL_WIDTH - 26-5, 14));
+    inp_name.setze_groesse(koord(TOTAL_WIDTH - 26-8, 14));
 
-    bt_next.setze_pos(koord(TOTAL_WIDTH - 16, SELECT_VSTART + 2));
+    bt_next.setze_pos(koord(TOTAL_WIDTH - 15, SELECT_VSTART + 2));
 
     /*
      * [SELECT ROUTE]:

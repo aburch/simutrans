@@ -389,7 +389,7 @@ void grund_t::rdwr(loadsave_t *file)
 	}
 	else {
 		// safe init for old version
-DBG_MESSAGE("grund_t::rdwr()","old version: no slope");
+//DBG_MESSAGE("grund_t::rdwr()","old version: no slope");
 		slope = 0;
 	}
 
@@ -664,7 +664,7 @@ void grund_t::calc_bild()
 	}
 	// Das scheint die beste Stelle zu sein
 	if(ist_karten_boden()) {
-		reliefkarte_t::gib_karte()->recalc_relief_farbe(gib_pos().gib_2d());
+		reliefkarte_t::gib_karte()->calc_map_pixel(gib_pos().gib_2d());
 	}
 }
 
@@ -1070,7 +1070,10 @@ int grund_t::get_vmove(koord dir) const
 	return h;   // no way slope
 }
 
-int grund_t::get_max_speed()
+
+
+int
+grund_t::get_max_speed() const
 {
 	int max = 0;
 	int i = 0;
@@ -1078,12 +1081,11 @@ int grund_t::get_max_speed()
 
 	while(wege[i] && i<MAX_WEGE) {
 		tmp = wege[i]->gib_max_speed();
-	  if (tmp > max) {
-	  	max = tmp;
-	  }
-  	i++;
+		if (tmp > max) {
+			max = tmp;
+		}
+		i++;
 	}
-
 	return max;
 }
 

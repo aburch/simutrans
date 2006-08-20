@@ -71,6 +71,8 @@ map_frame_t::map_frame_t(const karte_modell_t *welt) :
 	gui_frame_t("Reliefkarte"),
 	scrolly(reliefkarte_t::gib_karte())
 {
+	reliefkarte_t::gib_karte()->is_visible = true;
+	reliefkarte_t::gib_karte()->calc_map();
 	// init factories names
 	legend_names.clear();
 	legend_colors.clear();
@@ -133,22 +135,35 @@ map_frame_t::map_frame_t(const karte_modell_t *welt) :
 
 
 
+// switches updates off
+map_frame_t::~map_frame_t()
+{
+	reliefkarte_t::gib_karte()->is_visible = false;
+}
+
+
+
 // button pressed
 bool
 map_frame_t::action_triggered(gui_komponente_t *komp,value_t /* */)
 {
-	reliefkarte_t::gib_karte()->set_mode(-1);
+	bool all_inactive=true;
+	reliefkarte_t::gib_karte()->calc_map();
 	for (int i=0;i<MAX_MAP_TYPE;i++) {
 		if (komp == &filter_buttons[i]) {
 			if (is_filter_active[i] == true) {
 				is_filter_active[i] = false;
 			} else {
-				reliefkarte_t::gib_karte()->set_mode(i);
+				all_inactive = false;
+				reliefkarte_t::gib_karte()->set_mode((reliefkarte_t::MAP_MODES)i);
 				is_filter_active[i] = true;
 			}
 		} else {
 			is_filter_active[i] = false;
 		}
+	}
+	if(all_inactive) {
+		reliefkarte_t::gib_karte()->set_mode(reliefkarte_t::PLAIN);
 	}
 	return true;
 }
@@ -342,7 +357,7 @@ void map_frame_t::zeichnen(koord pos, koord gr)
 		koord bar_pos = pos+scrolly.gib_pos()-koord(0,LINESPACE+4-16);
 		// color bar
 		for( int i=0;  i<12;  i++) {
-			display_fillbox_wh(bar_pos.x + 30 + (11-i)*(gr.x-60)/12, bar_pos.y+2,  (gr.x-60)/12, 7, reliefkarte_t::severity_color[11-i], false);
+			display_fillbox_wh(bar_pos.x + 30 + i*(gr.x-60)/12, bar_pos.y+2,  (gr.x-60)/11, 7, reliefkarte_t::calc_severity_color(i,1), false);
 		}
 		display_proportional(bar_pos.x + 26, bar_pos.y, translator::translate("min"), ALIGN_RIGHT, COL_BLACK, false);
 		display_proportional(bar_pos.x + size.x - 26, bar_pos.y, translator::translate("max"), ALIGN_LEFT, COL_BLACK, false);

@@ -110,11 +110,7 @@ int get_freight_total(const slist_tpl<ware_t> *fracht)
  * @return sum of unloaded goods
  * @author Hj. Malthaner
  */
-int unload_freight(karte_t *welt,
-		   halthandle_t halt,
-		   slist_tpl<ware_t> *fracht,
-		   const ware_besch_t *fracht_typ
-		   )
+int unload_freight(karte_t *welt, halthandle_t halt, slist_tpl<ware_t> *fracht, const ware_besch_t *fracht_typ )
 {
   assert(halt.is_bound());
 
@@ -187,11 +183,7 @@ int unload_freight(karte_t *welt,
  * @return loading successful?
  * @author Hj. Malthaner
  */
-bool load_freight(karte_t * welt,
-		  halthandle_t halt,
-		  slist_tpl<ware_t> *fracht,
-		  const vehikel_besch_t *besch,
-		  fahrplan_t *fpl)
+bool load_freight(karte_t * welt, halthandle_t halt, slist_tpl<ware_t> *fracht, const vehikel_besch_t *besch, fahrplan_t *fpl)
 {
 	const bool ok = halt->gibt_ab(besch->gib_ware());
 
@@ -670,8 +662,8 @@ vehikel_t::verlasse_feld()
 {
     vehikel_basis_t::verlasse_feld();
 
-    if(ist_letztes) {
-        reliefkarte_t::gib_karte()->recalc_relief_farbe(gib_pos().gib_2d());
+    if(ist_letztes  &&  reliefkarte_t::is_visible) {
+        reliefkarte_t::gib_karte()->calc_map_pixel(gib_pos().gib_2d());
     }
 }
 
@@ -680,7 +672,7 @@ vehikel_t::betrete_feld()
 {
     vehikel_basis_t::betrete_feld();
 
-    if(ist_erstes) {
+    if(ist_erstes  &&  reliefkarte_t::is_visible) {
         reliefkarte_t::gib_karte()->setze_relief_farbe(gib_pos().gib_2d(), VEHIKEL_KENN);
     }
 }
@@ -1318,7 +1310,12 @@ automobil_t::gib_kosten(const grund_t *gr,const uint32 max_speed) const
 
 	// first favor faster ways
 	const weg_t *w=gr->gib_weg(weg_t::strasse);
-	uint32 max_tile_speed = w ? w->gib_max_speed() : 999;
+	if(!w) {
+		return 0xFFFF;
+	}
+
+	// max_speed?
+	uint32 max_tile_speed = w->gib_max_speed();
 
 	// add cost for going (with maximum spoeed, cost is 1 ...
 	costs = ( (max_speed<=max_tile_speed) ? 4 :  (max_speed*4+max_tile_speed)/max_tile_speed );
@@ -1495,7 +1492,7 @@ automobil_t::betrete_feld()
 	}
 	bool ok = (gr->obj_pri_add(this, offset) != 0);
 
-	if(ist_erstes) {
+	if(ist_erstes  &&  reliefkarte_t::is_visible) {
 		reliefkarte_t::gib_karte()->setze_relief_farbe(gib_pos().gib_2d(), VEHIKEL_KENN);
 	}
 
@@ -2035,7 +2032,7 @@ waggon_t::betrete_feld()
 	}
 
 
-	if(ist_erstes) {
+	if(ist_erstes  &&  reliefkarte_t::is_visible) {
 		reliefkarte_t::gib_karte()->setze_relief_farbe(gib_pos().gib_2d(), VEHIKEL_KENN);
 	}
 

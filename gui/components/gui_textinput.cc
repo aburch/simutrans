@@ -179,12 +179,10 @@ void gui_textinput_t::infowin_event(const event_t *ev)
 		    printf("Warning: gui_textinput_t::infowin_event() called but text is NULL\n");
 		}
 
-    } else if(IS_LEFTRELEASE(ev) || IS_LEFTCLICK(ev)) {
+    } else if(getroffen(ev->cx, ev->cy)  &&  (IS_LEFTRELEASE(ev) || IS_LEFTCLICK(ev))) {
         request_focus(this);
         cursor_pos = strlen(text);
-    } else if(ev->ev_class == INFOWIN &&
-	      ev->ev_code == WIN_CLOSE &&
-	      has_focus(this)) {
+    } else if(ev->ev_class == INFOWIN && ev->ev_code == WIN_CLOSE && has_focus(this)) {
         	release_focus(this);
     }
 }

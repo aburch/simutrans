@@ -1108,9 +1108,9 @@ wegbauer_t::intern_calc_route(const koord start, const koord ziel)
 	koord3d gr_pos;	// just the last valid pos ...
 
 	// memory in static list ...
-	const int MAX_STEP = 65530;	// may need very much memory => configurable
 	if(route_t::nodes==NULL) {
-		route_t::nodes = new route_t::ANode[MAX_STEP+4+1];
+		route_t::MAX_STEP = umgebung_t::max_route_steps;	// may need very much memory => configurable
+		route_t::nodes = new route_t::ANode[route_t::MAX_STEP+4+1];
 	}
 	int step = 0;
 
@@ -1311,7 +1311,7 @@ wegbauer_t::intern_calc_route(const koord start, const koord ziel)
 
 //DBG_DEBUG("insert to open","(%i,%i,%i)  f=%i at %i",to->gib_pos().x,to->gib_pos().y,to->gib_pos().z,k->f, index);
 		}
-	} while(open.get_count()>0  &&  step<MAX_STEP  &&  gr->gib_pos()!=ziel3d);
+	} while(open.get_count()>0  &&  step<route_t::MAX_STEP  &&  gr->gib_pos()!=ziel3d);
 
 	INT_CHECK("wegbauer 194");
 
@@ -1319,8 +1319,8 @@ wegbauer_t::intern_calc_route(const koord start, const koord ziel)
 
 //DBG_DEBUG("reached","%i,%i",tmp->pos.x,tmp->pos.y);
 	// target reached?
-	if(gr->gib_pos()!=ziel3d  || step >= MAX_STEP  ||  tmp->parent==NULL) {
-		dbg->warning("wegbauer_t::intern_calc_route()","Too many steps (%i>=max %i) in route (too long/complex)",step,MAX_STEP);
+	if(gr->gib_pos()!=ziel3d  || step >=route_t::MAX_STEP  ||  tmp->parent==NULL) {
+		dbg->warning("wegbauer_t::intern_calc_route()","Too many steps (%i>=max %i) in route (too long/complex)",step,route_t::MAX_STEP);
 		return -1;
 	}
 	else {
@@ -1809,7 +1809,7 @@ wegbauer_t::baue_schiene()
 				weg_t * weg = gr->gib_weg(weg_t::schiene);
 
 				// keep faster ways or if it is the same way ... (@author prissi)
-				if(weg->gib_besch()==besch  ||  keep_existing_ways  ||  (keep_existing_faster_ways  &&  weg->gib_besch()->gib_topspeed()>besch->gib_topspeed())  ) {
+				if(weg->gib_besch()==besch  ||  weg->gib_besch()->gib_styp()!=besch->gib_styp()  ||  keep_existing_ways  ||  (keep_existing_faster_ways  &&  weg->gib_besch()->gib_topspeed()>besch->gib_topspeed())  ) {
 					//nothing to be done
 					cost = 0;
 				}
@@ -1926,7 +1926,7 @@ wegbauer_t::baue_monorail()
 				}
 			}
 			else {
-				monorail = new  monorailboden_t( welt, plan->gib_kartenboden()->gib_pos()+koord3d(0, 0, 16) );
+				monorail = new  monorailboden_t( welt, plan->gib_kartenboden()->gib_pos()+koord3d(0, 0, 16), plan->gib_kartenboden()->gib_grund_hang() );
 
 				monorail_t *mono = new monorail_t(welt);
 				mono->setze_besch(besch);

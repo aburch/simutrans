@@ -83,7 +83,7 @@ void planquadrat_t::boden_hinzufuegen(grund_t *bd)
 			bd->set_flag(grund_t::is_cover_tile);
 		}
 		bd->calc_bild();
-		reliefkarte_t::gib_karte()->recalc_relief_farbe(bd->gib_pos().gib_2d());
+		reliefkarte_t::gib_karte()->calc_map_pixel(bd->gib_pos().gib_2d());
 	}
 }
 
@@ -108,7 +108,7 @@ bool planquadrat_t::kartenboden_insert(grund_t *bd)
 			bd->set_flag(grund_t::is_cover_tile);
 		}
 		bd->calc_bild();
-		reliefkarte_t::gib_karte()->recalc_relief_farbe(bd->gib_pos().gib_2d());
+		reliefkarte_t::gib_karte()->calc_map_pixel(bd->gib_pos().gib_2d());
 	}
 	return 1;
 }
@@ -118,7 +118,7 @@ bool planquadrat_t::kartenboden_insert(grund_t *bd)
 bool planquadrat_t::boden_entfernen(grund_t *bd)
 {
     if(boeden.remove(bd)) {
-        reliefkarte_t::gib_karte()->recalc_relief_farbe(bd->gib_pos().gib_2d());
+        reliefkarte_t::gib_karte()->calc_map_pixel(bd->gib_pos().gib_2d());
 	return true;
     }
     return false;
@@ -148,7 +148,7 @@ planquadrat_t::kartenboden_setzen(grund_t *bd, bool mit_spieler)
 			delete tmp;
 		}
 
-		reliefkarte_t::gib_karte()->recalc_relief_farbe(bd->gib_pos().gib_2d());
+		reliefkarte_t::gib_karte()->calc_map_pixel(bd->gib_pos().gib_2d());
 	}
 }
 

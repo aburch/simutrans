@@ -54,18 +54,6 @@ private:
 
     karte_t *welt;
 
-#if 0
-    /**
-     * Hajo: 22-Jun-03 route_t was expanded to be able to check
-     * blockings (i.e. red signals) while searching a path. This flag
-     * triggers check for blockings. Also this flag modifies teh success
-     * criteria: if the destination is a station, it is suffcient to find
-     * any path to that station, not the precise coordinate.
-     */
-    // only used by drivables
-    route_block_tester_t *block_tester;
-#endif
-
 public:
 
 	typedef struct nodestruct{
@@ -76,6 +64,7 @@ public:
 	} ANode;
 
 	static ANode *nodes;
+	static uint32 MAX_STEP;
 #ifdef DEBUG
 	static bool node_in_use;
 	static void GET_NODE() {if(node_in_use) trap(); node_in_use =1; };
@@ -169,17 +158,6 @@ public:
      * @author Hj. Malthaner
      */
     bool calc_route(karte_t *welt, koord3d start, koord3d ziel, fahrer_t *fahr, const uint32 max_speed_kmh, const uint32 max_cost=0xFFFFFFFF);
-
-#if 0
-    // only used by drivables
-    bool calc_unblocked_route(karte_t *w,
-			      const koord3d ziel,
-			      const koord3d start,
-			      fahrer_t *fahr,
-			      route_block_tester_t *tester);
-
-	bool find_path(karte_t * welt, const koord3d start, fahrer_t * fahr, ding_t::typ typ);
-#endif
 
     /**
      * Lädt/speichert eine Route

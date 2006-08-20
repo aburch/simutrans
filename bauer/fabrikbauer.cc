@@ -351,7 +351,7 @@ fabrikbauer_t::verteile_tourist(karte_t * welt, spieler_t *, int max_number)
 		}
 	}
 	// update an open map
-	reliefkarte_t::gib_karte()->set_mode(-1);
+	reliefkarte_t::gib_karte()->calc_map();
 }
 
 
@@ -400,7 +400,7 @@ fabrikbauer_t::verteile_industrie(karte_t * welt, spieler_t *, int max_number_of
 	}
 	print("Constructed %i industries ...\n",factory_number);
 	// update an open map
-	reliefkarte_t::gib_karte()->set_mode(-1);
+	reliefkarte_t::gib_karte()->calc_map();
 }
 
 
@@ -688,7 +688,7 @@ DBG_MESSAGE("fabrikbauer_t::baue_hierarchie()","update karte");
 	// finally
 	if(parent==NULL) {
 		// update an open map
-		reliefkarte_t::gib_karte()->set_mode(-1);
+		reliefkarte_t::gib_karte()->calc_map();
 
 		INT_CHECK( "fabrikbauer 730" );
 	}

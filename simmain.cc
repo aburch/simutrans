@@ -429,6 +429,7 @@ int sim_new_handler(unsigned int)
 void sim_new_handler()
 {
     dbg->fatal("sim_new_handler()","OUT OF MEMORY");
+    trap();
 }
 #endif
 

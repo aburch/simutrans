@@ -189,7 +189,7 @@ DBG_MESSAGE("convoi_t::~convoi_t()", "destroying %d, %p", self.get_id(), this);
 	// if not already deleted, do it here ...
 	for(unsigned i=0; i<anz_vehikel; i++) {
 		// remove vehicle's marker from the reliefmap
-		reliefkarte_t::gib_karte()->recalc_relief_farbe(fahr->at(i)->gib_pos().gib_2d());
+		reliefkarte_t::gib_karte()->calc_map_pixel(fahr->at(i)->gib_pos().gib_2d());
 		grund_t *gr=welt->lookup(fahr->at(i)->gib_pos());
 		if(gr) {
 			// clear blocks ...

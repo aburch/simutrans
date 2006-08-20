@@ -1820,7 +1820,7 @@ dbg->warning("wkz_add_city()", "Already a city here");
 	}
 
 	// update an open map
-	reliefkarte_t::gib_karte()->set_mode(-1);
+	reliefkarte_t::gib_karte()->calc_map();
 	return ok;
 }
 

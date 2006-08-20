@@ -648,7 +648,7 @@ public:
 		 * checks a ways on this ground tile and returns the highest speedlimit.
 		 * @author hsiegeln
 		 */
-    int get_max_speed();
+    int get_max_speed() const;
 
 
 	/* remove almost everything on this way */

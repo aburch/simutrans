@@ -1,13 +1,8 @@
 #ifndef gui_karte_h
 #define gui_karte_h
 
-#ifndef ifc_gui_komponente_h
 #include "../ifc/gui_komponente.h"
-#endif
-
-#ifndef tpl_array2d_tpl_h
 #include "../tpl/array2d_tpl.h"
-#endif
 
 class karte_t;
 class fabrik_t;
@@ -29,94 +24,83 @@ struct event_t;
  */
 class reliefkarte_t : public gui_komponente_t
 {
+public:
+	typedef enum { PLAIN=-1, MAP_TOWN=0, MAP_PASSENGER, MAP_MAIL, MAP_FREIGHT, MAP_STATUS, MAP_SERVICE, MAP_TRAFFIC, MAP_ORIGIN, MAP_DESTINATION, MAP_WAITING, MAP_TRACKS, MAX_SPEEDLIMIT, MAP_POWERLINES, MAP_TOURIST, MAP_FACTORIES } MAP_MODES;
+
 private:
-    karte_t *welt;
-    array2d_tpl<unsigned char> *relief;
+	static karte_t *welt;
+	array2d_tpl<uint8> *relief;
 
-    reliefkarte_t();
+	reliefkarte_t();
 
-    static reliefkarte_t * single_instance;
+	static reliefkarte_t * single_instance;
 
-    int zoom;
-
-	/**
-	 * map mode: -1) normal; everything else: special map
-	 * @author hsiegeln
-	 */
-    static int mode;
-
-	static const int map_type_color[MAX_MAP_TYPE];
-
-	void calc_map(int mode);
-
-	void setze_relief_farbe_area(koord k, int areasize, int color);
+	int zoom;
 
 	/**
-	 * false: updates are possible
-	 * true: no updates are possible
-	 * @author hsiegeln
-	 */
-	bool is_map_locked;
+	* map mode: -1) normal; everything else: special map
+	* @author hsiegeln
+	*/
+	static MAP_MODES mode;
 
-	/**
-	 * returns a color based on an amount (high amount/scale -> color shifts from green to red)
-	 * @author hsiegeln
-	 */
-	int calc_severity_color(int amount, int scale);
+	static const uint8 severity_color[12];
+
+	static const uint8 map_type_color[MAX_MAP_TYPE];
+
+	// to be prepared for more than one map => nonstatic
+	void setze_relief_farbe_area(koord k, int areasize, uint8 color);
 
 	fabrik_t * fab;
-	grund_t * gr;
 
-	void draw_fab_connections(const fabrik_t * fab, int colour, koord pos) const;
-
-	bool is_shift_pressed;
+	void draw_fab_connections(const fabrik_t * fab, uint8 colour, koord pos) const;
 
 public:
-	typedef enum { MAP_TOWN=0, MAP_PASSENGER, MAP_MAIL, MAP_FREIGHT, MAP_STATUS, MAP_SERVICE, MAP_TRAFFIC, MAP_ORIGIN, MAP_DESTINATION, MAP_WAITING, MAP_TRACKS, MAX_SPEEDLIMIT, MAP_POWERLINES, MAP_TOURIST, MAP_FACTORIES };
+	static bool is_visible;
 
-	static const int severity_color[12];
+	/**
+	* returns a color based on an amount (high amount/scale -> color shifts from green to red)
+	* @author hsiegeln
+	*/
+	static uint8 calc_severity_color(sint32 amount, sint32 scale);
 
-    /**
-     * Berechnet Farbe für Höhenstufe hdiff (hoehe - grundwasser).
-     * @author Hj. Malthaner
-     */
-    static int calc_hoehe_farbe(const int hoehe, const int grundwasser);
+	/**
+	* returns a color based on the current high
+	* @author hsiegeln
+	*/
+	static uint8 calc_hoehe_farbe(const sint16 hoehe, const sint16 grundwasser);
 
+	// needed for town pasenger map
+	static uint8 calc_relief_farbe(const grund_t *gr);
 
-    void setze_relief_farbe(koord k, int color);
+	// public, since the convoi updates need this
+	// nonstatic, if we have someday many maps ...
+	void setze_relief_farbe(koord k, int color);
 
-    /**
-     * Berechnet farbe für Welt and Position k. Ist statisch, da das
-     * auch für andere Klassen (z.B. Welt-GUI) interessant ist.
-     * @author Hj. Malthaner
-     */
-    static int calc_relief_farbe(const karte_t *welt, koord k);
+	// we are single instance ...
+	static reliefkarte_t *gib_karte();
 
-    static reliefkarte_t *gib_karte();
+	// update color with render mode (but few are ignored ... )
+	void calc_map_pixel(const koord k);
 
-    /**
-     * Updated Kartenfarbe an Position k
-     * @author Hj. Malthaner
-     */
-    void recalc_relief_farbe(koord k);
+	void calc_map();
 
-    ~reliefkarte_t();
+	~reliefkarte_t();
 
-    karte_t * gib_welt() const {return welt;};
+	karte_t * gib_welt() const {return welt;}
 
-    void setze_welt(karte_t *welt);
-    void init();
+	void setze_welt(karte_t *welt);
 
-    void infowin_event(const event_t *ev);
+	void set_mode(MAP_MODES new_mode);
 
-    void zeichnen(koord pos) const;
-
-    void set_mode(int new_mode);
-
-    int get_mode() { return mode; };
+	MAP_MODES get_mode() { return mode; }
 
 	// updates the map (if needed)
-    void neuer_monat();
+	void neuer_monat();
+
+	// these are the gui_container needed functions ...
+	void infowin_event(const event_t *ev);
+
+	void zeichnen(koord pos) const;
 };
 
 #endif

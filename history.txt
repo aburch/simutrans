@@ -7,16 +7,24 @@ Known bugs: (hard to fix)
 	set color broken? yes
 
 
+Release of 88.10
+
+2-Jun-2006: (prissi)
+	CHANGE: A* vehicle route finder strongly reworked, extensive tests with priority queues versus simple arrays => arrays are up to 10x faster (less lags with ships, no crashes any more)
+	FIX: elevated monorail slopes during construction
+	FIX: arrows with lines work again in the depot
+	CHANGE: map array now displays always vehicles and is not updated when not open
+
+
+Release of 88.09.6
+
+9-Mai-2006: (prissi)
+	FIX: raising and lowering land works again as intended
 	FIX: loading slopes for bridge heads
 	FIX: assignement of more than 6 lines ...
 	CHANGE: reader more endian compatible
-
-
-Release of 88.09.3
-
-9-Mai-2006: (prissi)
 	CHANGE: obsolete entry "2LIGHT_CHOOSE"
-	FIX: translator looked word up twice (eating lots of performance with man dialogs open)
+	FIX: translator looked words up twice (eating lots of performance with many dialogs open)
 	FIX: line assingment during reloading fixed
 	FIX: depot is updated once before showing it
 	FIX: station ground name was copied on itself

@@ -371,8 +371,9 @@ stadt_t::init_pax_ziele()
 	for(int j=0; j<128; j++) {
 		for(int i=0; i<128; i++) {
 			const koord pos (i*gr_x/128, j*gr_y/128);
+			grund_t *gr=welt->lookup(pos)->gib_kartenboden();
 //DBG_MESSAGE("stadt_t::init_pax_ziele()","at %i,%i = (%i,%i)",i,j,pos.x,pos.y);
-			pax_ziele_alt.at(i, j) = pax_ziele_neu.at(i ,j) = reliefkarte_t::calc_relief_farbe(welt, pos);
+			pax_ziele_alt.at(i, j) = pax_ziele_neu.at(i ,j) = reliefkarte_t::calc_relief_farbe(gr);
 			//      pax_ziele_alt.at(i, j) = pax_ziele_neu.at(i ,j) = 0;
 		}
 	}
@@ -876,9 +877,8 @@ stadt_t::neuer_monat()
 	for(int j=0; j<128; j++) {
 		for(int i=0; i<128; i++) {
 			const koord pos (i*gr_x/128, j*gr_y/128);
-
-			pax_ziele_neu.at(i, j) = reliefkarte_t::calc_relief_farbe(welt, pos);
-			//      pax_ziele_neu.at(i, j) = 0;
+			grund_t *gr=welt->lookup(pos)->gib_kartenboden();
+			pax_ziele_neu.at(i, j) = pax_ziele_neu.at(i ,j) = reliefkarte_t::calc_relief_farbe(gr);
 		}
 	}
 

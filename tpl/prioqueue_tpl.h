@@ -27,8 +27,8 @@ template<class T> class slist_iterator_tpl;
  * sorted linked list.
  * Maintains a list of free nodes to reduce calls to new and delete.</p>
  *
- * <p>This template only works with pointer types, becasue it compares
- * data by using *p1 < *p2. THe operator < must be defined for the type.</p>
+ * <p>This template only works with pointer types, because it compares
+ * data by using *p1 < *p2. The operator < must be defined for the type.</p>
  *
  * <p>The insert() operation works in O(n), in average n/2 steps</p>
  * <p>The pop() operation works in O(1) steps</p>
@@ -223,8 +223,7 @@ public:
 
 	    return tmp;
 	} else {
-  	    ERROR("prioqueue_tpl<T>::pop()",
-	          "called on empty queue!");
+  	    ERROR("prioqueue_tpl<T>::pop()","called on empty queue!");
 	    abort();
 	}
     }

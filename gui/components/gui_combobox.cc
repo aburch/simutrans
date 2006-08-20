@@ -80,7 +80,7 @@ DBG_MESSAGE("event","HOWDY!");
 				if(droplist->gib_selection()>=-1) {
 					value_t p;
 					p.i = droplist->gib_selection()-1;
-//					set_selection( p.i );
+					set_selection( p.i );
 					call_listeners(p);
 				}
 			}
@@ -93,7 +93,7 @@ DBG_MESSAGE("event","HOWDY!");
 				if(droplist->gib_selection()<droplist->get_count()-1) {
 					value_t p;
 					p.i = droplist->gib_selection()+1;
-//					set_selection( p.i );
+					set_selection( p.i );
 					call_listeners(p);
 				}
 			}

@@ -24,7 +24,6 @@
 //#include "../ifc/route_block_tester_t.h"
 static const void * block_tester=NULL;
 
-#include "../tpl/prioqueue_tpl.h"
 
 #include "loadsave.h"
 #include "route.h"
@@ -33,26 +32,40 @@ static const void * block_tester=NULL;
 #include "../tpl/vector_tpl.h"
 #include "../tpl/array_tpl.h"
 
+// use this for priorityques:
+// NOT RECOMMENDED: search is not faster for all map sizes, and paths are longer ...
+//#define PRIOR
+
+
+#ifdef PRIOR
+
+#include "../tpl/prioqueue_tpl.h"
+#define Node KNode
 
 // dies wird fuer die routenplanung benoetigt
 
 class KNode {
-private:
 
 public:
-    KNode * link;
-    uint16  dist;
-    uint32  total;
-    koord3d pos;
+    KNode * parent;
+    grund_t *gr;
+    uint32  f, g;
+    uint8 dir;
 
-    inline bool operator < (const KNode &k) const {
-  return dist+total <= k.dist+k.total;
-    };
+    inline bool operator < (const KNode &k) const { return (f<=k.f); }
 };
+#else
+#define Node ANode
+
+#endif
+
+
 
 route_t::route_t() : route(0)
 {
 }
+
+
 
 void
 route_t::kopiere(const route_t *r)
@@ -192,6 +205,7 @@ static inline bool am_i_there(karte_t *welt,
 
 // node arrays
 route_t::nodestruct* route_t::nodes=NULL;
+uint32 route_t::MAX_STEP=0;
 bool route_t::node_in_use=false;
 
 /* find the route to an unknow location
@@ -215,13 +229,11 @@ route_t::find_route(karte_t *welt,
 	grund_t *to;
 
 	// memory in static list ...
-	const int MAX_STEP = 65536;
 	if(nodes==NULL) {
-		nodes = new ANode[MAX_STEP+4+1];
+		MAX_STEP = umgebung_t::max_route_steps;
+		nodes = (ANode *)malloc( sizeof(Node)*MAX_STEP );
 	}
-	int step = 0;
 
-//	welt->unmarkiere_alle();	// test in closed list are likely faster ...
 	INT_CHECK("route 347");
 
 	// arrays for A*
@@ -235,16 +247,17 @@ route_t::find_route(karte_t *welt,
 	// we clear it here probably twice: does not hurt ...
 	route.clear();
 
-	ANode *tmp = &(nodes[step++]);
-	tmp->parent = NULL;
-	tmp->gr = welt->lookup(start);
-
 	// first tile is not valid?!?
-	if(!fahr->ist_befahrbar(tmp->gr)) {
+	if(!fahr->ist_befahrbar(welt->lookup(start))) {
 		return false;
 	}
 
 	GET_NODE();
+
+	uint32 step = 0;
+	ANode *tmp = &(nodes[step++]);
+	tmp->parent = NULL;
+	tmp->gr = welt->lookup(start);
 
 	// start in open
 	open.append(tmp,256);
@@ -359,58 +372,93 @@ route_t::intern_calc_route(karte_t *welt, const koord3d ziel, const koord3d star
 	bool ok = false;
 
 	// check for existing koordinates
-	if(welt->lookup(start)==NULL  ||  welt->lookup(ziel)==NULL) {
+	const grund_t *gr=welt->lookup(start);
+	if(gr==NULL  ||  welt->lookup(ziel)==NULL) {
 		return false;
 	}
 
 	// some thing for the search
 	const weg_t::typ wegtyp = fahr->gib_wegtyp();
-	const grund_t *gr;
 	grund_t *to;
 
 	// memory in static list ...
-	const int MAX_STEP = max(65530,umgebung_t::max_route_steps);	// may need very much memory => configurable
 	if(nodes==NULL) {
-		nodes = new ANode[MAX_STEP+4+1];
+		MAX_STEP = umgebung_t::max_route_steps;	// may need very much memory => configurable
+		nodes = (ANode *)malloc( sizeof(ANode)*(MAX_STEP+4+2) );
 	}
-	int step = 0;
 
-//	welt->unmarkiere_alle();	// test in closed list are likely faster ...
 	INT_CHECK("route 347");
 
+#ifdef PRIOR
+    // Warteschlange fuer Breitensuche
+    // Kann statisch sein, weil niemals zwei Fahrzuege zugleich eine route
+    // suchen ... statisch bedeutet wiedernutzung bereits erzeugter nodes
+    // und ist in diesem Fall effizienter
+    static prioqueue_tpl <KNode *> queue;
+#else
 	// arrays for A*
-	static vector_tpl <ANode *> open = vector_tpl <ANode *>(0);
+	// (was vector_tpl before, but since we really badly need speed here, we use unchecked arrays)
+	static ANode **open;
+#endif
+	static uint32 open_size=0, open_count;
 
 	const bool is_airplane = fahr->gib_wegtyp()==weg_t::luft;
-
-	// nothing in lists
-	open.clear();
-	welt->unmarkiere_alle();
 
 	// we clear it here probably twice: does not hurt ...
 	route.clear();
 
-	ANode *tmp = &(nodes[step++]);
+	// first tile is not valid?!?
+	if(!fahr->ist_befahrbar(gr)) {
+		return false;
+	}
+
+	GET_NODE();
+
+
+	uint32 step = 1;
+	Node *tmp =(Node *)&(nodes[0]);
+
 	tmp->parent = NULL;
 	tmp->gr = welt->lookup(start);
 	tmp->f = calc_distance(start,ziel);
 	tmp->g = 0;
 	tmp->dir = 0;
 
-	// first tile is not valid?!?
-	if(!fahr->ist_befahrbar(tmp->gr)) {
-		return false;
+	// nothing in lists
+	welt->unmarkiere_alle();
+
+#ifdef PRIOR
+DBG_DEBUG("sizes","KNode=%i, ANode=%i",sizeof(KNode),sizeof(ANode));
+    // da die queue statisch ist müssen wir die reste der alten suche
+    // erst aufräumen
+    queue.clear();
+    queue.insert(tmp);
+#else
+	if(open_size==0) {
+		open_size = 4096;
+		open = (ANode **)malloc( sizeof(ANode*)*4096 );
 	}
 
-	GET_NODE();
-
 	// start in open
-	open.append(tmp,256);
+	open[0] = tmp;
+	open_count = 1;
+#endif
 
 //DBG_MESSAGE("route_t::itern_calc_route()","calc route from %d,%d,%d to %d,%d,%d",ziel.x, ziel.y, ziel.z, start.x, start.y, start.z);
+	uint32 beat=1;
 	do {
-		tmp = open.at( open.get_count()-1 );
-		open.remove_at( open.get_count()-1 );
+		// Hajo: this is too expensive to be called each step
+		if((beat++ & 255) == 0) {
+			INT_CHECK("route 161");
+		}
+
+#ifdef PRIOR
+		Node *test_tmp = queue.pop();
+		tmp = test_tmp;
+#else
+		open_count --;
+		tmp = open[open_count];
+#endif
 
 		gr = tmp->gr;
 		welt->markiere(gr);
@@ -457,6 +505,10 @@ route_t::intern_calc_route(karte_t *welt, const koord3d ziel, const koord3d star
 							// discourage double turns
 							new_g += 10;
 						}
+						else if(ribi_t::ist_exakt_orthogonal(tmp->dir,current_dir)) {
+							// discourage v turns heavily
+							new_g += 20;
+						}
 					}
 				}
 				else {
@@ -465,33 +517,10 @@ route_t::intern_calc_route(karte_t *welt, const koord3d ziel, const koord3d star
 
 				const uint32 new_f = new_g+calc_distance( to->gib_pos(), ziel );
 
-				unsigned index;
-
-				// already in open list and better?
-				if(open.get_count()>0) {
-					for(  index=open.get_count()-1;  index>0  &&  open.get(index)->f<=new_f;  index--  ) {
-						if(open.get(index)->gr==gr) {
-							break;
-						}
-					}
-
-					if(open.get(index)->gr==gr) {
-						// it is already contained in the list
-						// and it is lower in f ...
-						continue;
-					}
-				}
-
-				// it may or may not be in the list; but since the arrays are sorted
-				// we find out about this during inserting!
-
+#ifdef PRIOR
 				// not in there or taken out => add new
-				ANode *k=&(nodes[step++]);
-
-				// Hajo: this is too expensive to be called each step
-				if((step & 15) == 0) {
-					INT_CHECK("route 161");
-				}
+				KNode *k=(KNode *)(nodes+step);
+				step ++;
 
 				k->parent = tmp;
 				k->gr = to;
@@ -499,29 +528,130 @@ route_t::intern_calc_route(karte_t *welt, const koord3d ziel, const koord3d star
 				k->f = new_f;
 				k->dir = current_dir;
 
-				// insert sorted
-				for(  index=0;  index<open.get_count()  &&  new_f<open.get(index)->f;  index++  ) {
-					if(open.get(index)->gr==to) {
-						open.remove_at(index);
-						index --;
-					}
-				}
-				// was best f so far => append
-				if(index>=open.get_count()) {
-					open.append(k,16);
+				queue.insert( k );
+//DBG_DEBUG("insert to open","%i,%i,%i",to->gib_pos().x,to->gib_pos().y,to->gib_pos().z);
+#else
+				uint32 index;
+
+// use this to save memory
+#ifdef SAVE_MEMORY
+				if(open_count==0  ||  new_f<open[open_count-1]->f>=new_f) {
+					index =open_count;
 				}
 				else {
-					open.insert_at(index,k);
+					// ... and that the much faster binary search
+					uint32 diff = 1;
+					sint8 counter=0;
+					// now make sure, diff is 2^n
+					while(diff <= open_count) {
+						diff <<= 1;
+						counter ++;
+					}
+					diff >>= 1;
+
+					index = diff;
+
+					// now search
+					while(counter-->0) {
+						diff = (diff+1)/2;
+						if(  index<open_count  &&  open[index]->f>new_f  ) {
+							if(  index==0  ||  open[index-1]->f<=new_f) {
+								break;
+							}
+							index += diff;
+						}
+						else {
+							index -= diff;
+						}
+					}
+					// find out, if already something with lower f there?
+					bool already_contained = false;
+					for( uint32 i=index+1;  i<open_count;  i++ ) {
+						if(open[i]->f<new_f  &&  open[i]->gr==to) {
+							already_contained = true;
+							break;
+						}
+					}
+					// do not insert, if something with lower f for same field exists
+					if(already_contained) {
+						continue;
+					}
+				}
+#endif
+				// it may or may not be in the list; but since the arrays are sorted
+				// we find out about this during inserting!
+
+				// not in there or taken out => add new
+				ANode *k=&(nodes[step]);
+				step++;
+
+				k->parent = tmp;
+				k->gr = to;
+				k->g = new_g;
+				k->f = new_f;
+				k->dir = current_dir;
+
+// or this to save time (imho better)
+#ifndef SAVE_MEMORY
+				if(open_count==0  ||  new_f<open[open_count-1]->f>=new_f) {
+					index =open_count;
+				}
+				else {
+					// ... and that the much faster binary search
+					uint32 diff = 1;
+					sint8 counter=0;
+					// now make sure, diff is 2^n
+					while(diff <= open_count) {
+						diff <<= 1;
+						counter ++;
+					}
+					diff >>= 1;
+
+					index = diff;
+
+					// now search
+					while(counter-->0) {
+						diff = (diff+1)/2;
+						if(  index<open_count  &&  open[index]->f>new_f  ) {
+							if(  index==0  ||  open[index-1]->f<=new_f) {
+								break;
+							}
+							index += diff;
+						}
+						else {
+							index -= diff;
+						}
+					}
+				}
+#endif
+
+				// need to enlarge?
+				if(open_count==open_size) {
+					ANode **tmp=open;
+					open_size += 4096;
+					open = (ANode **)malloc( sizeof(ANode*)*open_size );
+					memcpy( open, tmp, sizeof(ANode*)*(open_size-4096) );
+					free( tmp );
 				}
 
+				if(index<open_count) {
+					// was not best f so far => insert
+					memmove( open+index+1ul, open+index, sizeof(ANode*)*(open_count-index) );
+				}
+				open[index] = k;
+				open_count ++;
+#endif
 //DBG_DEBUG("insert to open","(%i,%i,%i)  f=%i at %i",to->gib_pos().x,to->gib_pos().y,to->gib_pos().z,k->f, index);
 			}
 		}
-	} while(open.get_count()>0  &&  !am_i_there(welt, gr->gib_pos(), ziel, false)  &&  step<MAX_STEP  &&  tmp->g<max_cost);
+#ifdef PRIOR
+		open_count = queue.count();
+#endif
+	} while(open_count>0  &&  !am_i_there(welt, gr->gib_pos(), ziel, false)  &&  step<MAX_STEP  &&  tmp->g<max_cost);
 
 	INT_CHECK("route 194");
+//	DBG_DEBUG("route_t::intern_calc_route()","steps=%i  (max %i) in route, open %i, cost %u (max %u)",step,MAX_STEP,open_count,tmp->g,max_cost);
 
-//DBG_DEBUG("reached","%i,%i",tmp->pos.x,tmp->pos.y);
 	// target reached?
 	if(!am_i_there(welt, tmp->gr->gib_pos(), ziel, false)  || step >= MAX_STEP  ||  tmp->parent==NULL) {
 		dbg->warning("route_t::intern_calc_route()","Too many steps (%i>=max %i) in route (too long/complex)",step,MAX_STEP);
@@ -558,7 +688,10 @@ route_t::calc_route(karte_t *welt,
 
 	INT_CHECK("route 336");
 
+	// profiling for routes ...
+//	long ms=get_current_time_millis();
 	bool ok = intern_calc_route(welt, ziel, start, fahr, max_khm,max_cost);
+//	if(fahr->gib_wegtyp()==weg_t::wasser) {DBG_DEBUG("route_t::calc_route()","route from %d,%d to %d,%d with %i steps in %u ms found.",start.x, start.y, ziel.x, ziel.y, route.get_count()-2, get_current_time_millis()-ms );}
 
 	INT_CHECK("route 343");
 
@@ -595,7 +728,6 @@ DBG_MESSAGE("route_t::calc_route()","No route from %d,%d to %d,%d found",start.x
 
 			}
 		}
-//DBG_DEBUG("route_t::calc_route()","calc route from %d,%d to %d,%d with %i",start.x, start.y, ziel.x, ziel.y, route.get_count()-2 );
 	}
 	return true;
 }

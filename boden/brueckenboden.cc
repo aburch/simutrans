@@ -1,7 +1,6 @@
 
 #include "../simdebug.h"
 
-#include "../gui/karte.h"
 #include "../simimg.h"
 #include "../simworld.h"
 #include "../simtools.h"
@@ -33,7 +32,6 @@ brueckenboden_t::brueckenboden_t(karte_t *welt, koord3d pos, int grund_hang, int
 
 void brueckenboden_t::calc_bild()
 {
-	reliefkarte_t::gib_karte()->recalc_relief_farbe(gib_pos().gib_2d());
 	if(ist_karten_boden()) {
 		if(gib_hoehe()==welt->gib_grundwasser()) {
 			setze_bild(grund_besch_t::ufer->gib_bild(slope));

@@ -849,7 +849,6 @@ DBG_DEBUG("karte_t::init()","Erzeuge stadt %i with %ld inhabitants",i,(s->get_ci
     mouse_funk = NULL;
     setze_maus_funktion(wkz_abfrage, skinverwaltung_t::fragezeiger->gib_bild_nr(0), Z_PLAN,  NO_SOUND, NO_SOUND );
 
-    reliefkarte_t::gib_karte()->init();
     recalc_average_speed();
 
 #ifndef DEMO
@@ -1093,22 +1092,22 @@ int karte_t::raise_to(sint16 x, sint16 y, sint16 h,bool set_slopes)
 				planquadrat_t *plan;
 				if((plan=access(x,y))) {
 					plan->gib_kartenboden()->setze_grund_hang( calc_natural_slope(pos) );
-					plan->abgesenkt( this );
+					plan->angehoben( this );
 				}
 
 				if((plan = access(x-1,y))) {
 					plan->gib_kartenboden()->setze_grund_hang( calc_natural_slope(pos+koord(-1,0)) );
-					plan->abgesenkt( this );
+					plan->angehoben( this );
 				}
 
 				if((plan = access(x,y-1))) {
 					plan->gib_kartenboden()->setze_grund_hang( calc_natural_slope(pos+koord(0,-1)) );
-					plan->abgesenkt( this );
+					plan->angehoben( this );
 				}
 
 				if((plan = access(x-1,y-1))) {
 					plan->gib_kartenboden()->setze_grund_hang( calc_natural_slope(pos+koord(-1,-1)) );
-					plan->abgesenkt( this );
+					plan->angehoben( this );
 				}
 			}
 
@@ -2600,9 +2599,6 @@ DBG_MESSAGE("karte_t::laden()", "%d ways loaded",weg_t::gib_alle_wege().count())
 			}
 		}
 	}
-
-  	// recalc karte
-    reliefkarte_t::gib_karte()->set_mode(-1);
 
 	// assing lines and other stuff for convois
 	slist_iterator_tpl<convoihandle_t> citer (convoi_list);

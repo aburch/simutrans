@@ -1,7 +1,6 @@
 
 #include "../simdebug.h"
 
-#include "../gui/karte.h"
 #include "../gui/ground_info.h"
 
 #include "../simimg.h"
@@ -22,9 +21,9 @@ monorailboden_t::monorailboden_t(karte_t *welt, loadsave_t *file) : grund_t(welt
 }
 
 
-monorailboden_t::monorailboden_t(karte_t *welt, koord3d pos) : grund_t(welt, pos)
+monorailboden_t::monorailboden_t(karte_t *welt, koord3d pos,hang_t::typ slope) : grund_t(welt, pos)
 {
-    slope = grund_t::gib_grund_hang();
+    this->slope = slope;
     clear_flag(grund_t::is_bridge);
 }
 
