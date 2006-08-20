@@ -3101,271 +3101,6 @@ karte_t::interactive_event(event_t &ev)
 		break;
 	    case 5:
                 {
-		    werkzeug_parameter_waehler_t *wzw =
-                        new werkzeug_parameter_waehler_t(this, "RAILTOOLS");
-
-		    wzw->setze_hilfe_datei("railtools.txt");
-
-
-		    wegbauer_t::fill_menu(wzw,
-					  weg_t::schiene,
-					  wkz_wegebau,
-					  SFX_JACKHAMMER,
-					  SFX_FAILURE
-					  );
-
-		    wzw->add_tool(wkz_signale,
-				  Z_LINES,
-				  SFX_GAVEL,
-				  SFX_FAILURE,
-				  skinverwaltung_t::schienen_werkzeug->gib_bild_nr(0),
-				  skinverwaltung_t::signalzeiger->gib_bild_nr(0),
-				  tool_tip_with_price(translator::translate("Build signals"), CST_SIGNALE));
-
-
-		    if(hausbauer_t::bahnhof_besch) {
-		      wzw->add_param_tool(wkz_bahnhof,
-					  hausbauer_t::bahnhof_besch,
-					  Z_PLAN,
-					  SFX_GAVEL,
-					  SFX_FAILURE,
-					  skinverwaltung_t::schienen_werkzeug->gib_bild_nr(1),
-					  skinverwaltung_t::bahnhofzeiger->gib_bild_nr(0),
-					  tool_tip_with_price(translator::translate("Bahnhof bauen"), CST_BAHNHOF));
-		    }
-
-
-		    if(hausbauer_t::gueterbahnhof_besch) {
-		      wzw->add_param_tool(wkz_bahnhof,
-					  hausbauer_t::gueterbahnhof_besch,
-					  Z_PLAN,
-					  SFX_GAVEL,
-					  SFX_FAILURE,
-					  skinverwaltung_t::schienen_werkzeug->gib_bild_nr(6),
-					  skinverwaltung_t::gueterbahnhofzeiger->gib_bild_nr(0),
-					  tool_tip_with_price(translator::translate("Gueterbahnhof bauen"), CST_BAHNHOF));
-		    }
-
-
-		    if(hausbauer_t::bahn_depot_besch) {
-		      wzw->add_tool(wkz_bahndepot,
-				    Z_PLAN,
-				    SFX_GAVEL,
-				    SFX_FAILURE,
-				    skinverwaltung_t::schienen_werkzeug->gib_bild_nr(2),
-				    skinverwaltung_t::bahndepotzeiger->gib_bild_nr(0),
-				    tool_tip_with_price(translator::translate("Build train depot"), CST_BAHNDEPOT));
-		    }
-
-
-		    if(tunnelbauer_t::schienentunnel) {
-		      wzw->add_param_tool(&tunnelbauer_t::baue,
-					  weg_t::schiene,
-					  Z_PLAN,
-					  SFX_JACKHAMMER,
-					  SFX_FAILURE,
-					  skinverwaltung_t::schienen_werkzeug->gib_bild_nr(3),
-					  skinverwaltung_t::schienentunnelzeiger->gib_bild_nr(0),
-					  tool_tip_with_price(translator::translate("Schienentunnel"), CST_TUNNEL));
-		    }
-
-
-		    wzw->add_tool(wkz_electrify_block,
-				  Z_PLAN,
-				  SFX_JACKHAMMER,
-				  SFX_FAILURE,
-				  skinverwaltung_t::schienen_werkzeug->gib_bild_nr(4),
-				  skinverwaltung_t::oberleitung->gib_bild_nr(8),
-				  tool_tip_with_price(translator::translate("Electrify track"), CST_OBERLEITUNG));
-
-
-		    wzw->add_tool(wkz_schienenkreuz,
-				  Z_PLAN,
-				  SFX_JACKHAMMER,
-				  SFX_FAILURE,
-				  skinverwaltung_t::schienen_werkzeug->gib_bild_nr(5),
-				  skinverwaltung_t::kreuzungzeiger->gib_bild_nr(0),
-				  translator::translate("Build level crossing"));
-
-
-		    sound_play(click_sound);
-
-		    wzw->zeige_info(magic_railtools);
-                }
-		break;
-	    case 6:
-                {
-		    werkzeug_parameter_waehler_t *wzw =
-                        new werkzeug_parameter_waehler_t(this, "ROADTOOLS");
-
-		    wzw->setze_hilfe_datei("roadtools.txt");
-
-		    wegbauer_t::fill_menu(wzw,
-					  weg_t::strasse,
-					  wkz_wegebau,
-					  SFX_JACKHAMMER,
-					  SFX_FAILURE
-					  );
-
-
-		    if(hausbauer_t::bushalt_besch) {
-			wzw->add_tool(wkz_bushalt,
-				      Z_PLAN,
-				      SFX_JACKHAMMER,
-				      SFX_FAILURE,
-				      skinverwaltung_t::strassen_werkzeug->gib_bild_nr(0),
-				      skinverwaltung_t::bushaltzeiger->gib_bild_nr(0),
-				      tool_tip_with_price(translator::translate("Bushaltestelle"), CST_BUSHALT));
-		    }
-
-
-		    if(hausbauer_t::frachthof_besch) {
-		      wzw->add_tool(wkz_frachthof,
-				    Z_PLAN,
-				    SFX_JACKHAMMER,
-				    SFX_FAILURE,
-				    skinverwaltung_t::strassen_werkzeug->gib_bild_nr(1),
-				    skinverwaltung_t::frachthofzeiger->gib_bild_nr(0),
-				    tool_tip_with_price(translator::translate("Frachthof"), CST_FRACHTHOF));
-		    }
-
-
-		    if(hausbauer_t::str_depot_besch) {
-			wzw->add_tool(wkz_strassendepot,
-				      Z_PLAN,
-				      SFX_GAVEL,
-				      SFX_FAILURE,
-				      skinverwaltung_t::strassen_werkzeug->gib_bild_nr(2),
-				      skinverwaltung_t::strassendepotzeiger->gib_bild_nr(0),
-				      tool_tip_with_price(translator::translate("Build truck depot"), CST_STRASSENDEPOT));
-		    }
-
-
-		    if(tunnelbauer_t::strassentunnel) {
-		      wzw->add_param_tool(&tunnelbauer_t::baue,
-					  (long)weg_t::strasse,
-					  Z_PLAN,
-					  SFX_JACKHAMMER,
-					  SFX_FAILURE,
-					  skinverwaltung_t::strassen_werkzeug->gib_bild_nr(3),
-					  skinverwaltung_t::strassentunnelzeiger->gib_bild_nr(0),
-					  tool_tip_with_price(translator::translate("Strassentunnel"), CST_TUNNEL));
-		    }
-
-
-		    wzw->add_tool(wkz_schienenkreuz,
-				  Z_PLAN,
-				  SFX_JACKHAMMER,
-				  SFX_FAILURE,
-				      skinverwaltung_t::strassen_werkzeug->gib_bild_nr(4),
-				  skinverwaltung_t::kreuzungzeiger->gib_bild_nr(0),
-				  translator::translate("Build level crossing"));
-
-
-		    sound_play(click_sound);
-
-		    wzw->zeige_info(magic_roadtools);
-                }
-		break;
-	    case 7:
-                {
-		    werkzeug_waehler_t *wzw =
-                        new werkzeug_waehler_t(this, skinverwaltung_t::schiffs_werkzeug, "SHIPTOOLS");
-
-		    wzw->setze_hilfe_datei("shiptools.txt");
-
-		    if(hausbauer_t::dock_besch) {
-			wzw->setze_werkzeug(0, wkz_dockbau, skinverwaltung_t::anlegerzeiger->gib_bild_nr(0), Z_PLAN, SFX_DOCK, SFX_FAILURE);
-			wzw->set_tooltip(0, translator::translate("Build dock"));
-		    }
-
-
-		    if(hausbauer_t::sch_depot_besch) {
-    			wzw->setze_werkzeug(4, wkz_schiffdepot_ns, skinverwaltung_t::werftNSzeiger->gib_bild_nr(0), Z_PLAN, SFX_DOCK, SFX_FAILURE);
-			wzw->setze_werkzeug(5, wkz_schiffdepot_ow, skinverwaltung_t::werftOWzeiger->gib_bild_nr(0), Z_PLAN, SFX_DOCK, SFX_FAILURE);
-
-			wzw->set_tooltip(4, translator::translate("Build ship depot"));
-			wzw->set_tooltip(5, translator::translate("Build ship depot"));
-		    }
-		    sound_play(click_sound);
-
-		    wzw->zeige_info(magic_shiptools);
-                }
-		break;
-	    case 8:
-		if(hausbauer_t::post_besch)
-		    setze_maus_funktion(wkz_post, skinverwaltung_t::postzeiger->gib_bild_nr(0),  Z_PLAN, 0, 0);
-		break;
-	    case 9:
-		setze_maus_funktion(wkz_remover, skinverwaltung_t::killzeiger->gib_bild_nr(0), Z_PLAN, SFX_REMOVER, SFX_FAILURE);
-		break;
-	    case 10:
-		brueckenbauer_t::create_menu(this);
-		break;
-	    case 11:
-          {
-		    werkzeug_parameter_waehler_t *wzw =
-                        new werkzeug_parameter_waehler_t(this, "SPECIALTOOLS");
-
-		    wzw->setze_hilfe_datei("special_tool.txt");
-
-		      wzw->add_tool(wkz_add_city,
-					  Z_PLAN,
-					  SFX_JACKHAMMER,
-					  SFX_FAILURE,
-					  skinverwaltung_t::special_werkzeug->gib_bild_nr(0),
-					  skinverwaltung_t::stadtzeiger->gib_bild_nr(0),
-					  tool_tip_with_price(translator::translate("Found new city"), 500000000));
-
-		    wzw->add_tool(wkz_build_industries_land,
-				  Z_PLAN,
-				  SFX_JACKHAMMER,
-				  SFX_FAILURE,
-				  skinverwaltung_t::special_werkzeug->gib_bild_nr(3),
-				  skinverwaltung_t::undoc_zeiger->gib_bild_nr(0),
-				  translator::translate("Build land consumer"));
-
-		    wzw->add_tool(wkz_build_industries_city,
-				  Z_PLAN,
-				  SFX_JACKHAMMER,
-				  SFX_FAILURE,
-				  skinverwaltung_t::special_werkzeug->gib_bild_nr(4),
-				  skinverwaltung_t::undoc_zeiger->gib_bild_nr(0),
-				  translator::translate("Build city market"));
-
-	    if(wegbauer_t::leitung_besch) {
-		    wzw->add_param_tool(wkz_wegebau,
-				  (const void *)wegbauer_t::leitung_besch,
-				  Z_PLAN,
-				  SFX_JACKHAMMER,
-				  SFX_FAILURE,
-				  skinverwaltung_t::special_werkzeug->gib_bild_nr(1),
-				 wegbauer_t::leitung_besch->gib_cursor()->gib_bild_nr(0),
-				  tool_tip_with_price(translator::translate("Build powerline"), 800));
-
-		      wzw->add_tool(wkz_senke,
-					  Z_PLAN,
-					  SFX_JACKHAMMER,
-					  SFX_FAILURE,
-					  skinverwaltung_t::special_werkzeug->gib_bild_nr(2),
-					  skinverwaltung_t::undoc_zeiger->gib_bild_nr(0),
-					 translator::translate("Build drain"));
-			}
-
-		      wzw->add_tool(wkz_marker,
-					  Z_PLAN,
-					  SFX_JACKHAMMER,
-					  SFX_FAILURE,
-					  skinverwaltung_t::special_werkzeug->gib_bild_nr(5),
-					 skinverwaltung_t::belegtzeiger->gib_bild_nr(0),
-					 translator::translate("Marker"));
-
-		    sound_play(click_sound);
-		    wzw->zeige_info(magic_specialtools);
-                }
-		break;
-	    case 12:
-                {
 		    werkzeug_waehler_t *wzw =
                         new werkzeug_waehler_t(this,
 					       skinverwaltung_t::hang_werkzeug,
@@ -3454,28 +3189,299 @@ karte_t::interactive_event(event_t &ev)
 		    wzw->zeige_info(magic_slopetools);
                 }
 		break;
+	    case 6:
+                {
+		    werkzeug_parameter_waehler_t *wzw =
+                        new werkzeug_parameter_waehler_t(this, "RAILTOOLS");
+
+		    wzw->setze_hilfe_datei("railtools.txt");
+
+		    wegbauer_t::fill_menu(wzw,
+					  weg_t::schiene,
+					  wkz_wegebau,
+					  SFX_JACKHAMMER,
+					  SFX_FAILURE
+					  );
+
+		    brueckenbauer_t::fill_menu(wzw,
+					  weg_t::schiene,
+					  brueckenbauer_t::baue,
+					  SFX_JACKHAMMER,
+					  SFX_FAILURE
+					  );
+
+		    wzw->add_tool(wkz_signale,
+				  Z_LINES,
+				  SFX_GAVEL,
+				  SFX_FAILURE,
+				  skinverwaltung_t::schienen_werkzeug->gib_bild_nr(0),
+				  skinverwaltung_t::signalzeiger->gib_bild_nr(0),
+				  tool_tip_with_price(translator::translate("Build signals"), CST_SIGNALE));
+
+
+		    if(hausbauer_t::bahnhof_besch) {
+		      wzw->add_param_tool(wkz_bahnhof,
+					  hausbauer_t::bahnhof_besch,
+					  Z_PLAN,
+					  SFX_GAVEL,
+					  SFX_FAILURE,
+					  skinverwaltung_t::schienen_werkzeug->gib_bild_nr(1),
+					  skinverwaltung_t::bahnhofzeiger->gib_bild_nr(0),
+					  tool_tip_with_price(translator::translate("Bahnhof bauen"), CST_BAHNHOF));
+		    }
+
+
+		    if(hausbauer_t::gueterbahnhof_besch) {
+		      wzw->add_param_tool(wkz_bahnhof,
+					  hausbauer_t::gueterbahnhof_besch,
+					  Z_PLAN,
+					  SFX_GAVEL,
+					  SFX_FAILURE,
+					  skinverwaltung_t::schienen_werkzeug->gib_bild_nr(6),
+					  skinverwaltung_t::gueterbahnhofzeiger->gib_bild_nr(0),
+					  tool_tip_with_price(translator::translate("Gueterbahnhof bauen"), CST_BAHNHOF));
+		    }
+
+
+		    if(hausbauer_t::bahn_depot_besch) {
+		      wzw->add_tool(wkz_bahndepot,
+				    Z_PLAN,
+				    SFX_GAVEL,
+				    SFX_FAILURE,
+				    skinverwaltung_t::schienen_werkzeug->gib_bild_nr(2),
+				    skinverwaltung_t::bahndepotzeiger->gib_bild_nr(0),
+				    tool_tip_with_price(translator::translate("Build train depot"), CST_BAHNDEPOT));
+		    }
+
+
+		    if(tunnelbauer_t::schienentunnel) {
+		      wzw->add_param_tool(&tunnelbauer_t::baue,
+					  weg_t::schiene,
+					  Z_PLAN,
+					  SFX_JACKHAMMER,
+					  SFX_FAILURE,
+					  skinverwaltung_t::schienen_werkzeug->gib_bild_nr(3),
+					  skinverwaltung_t::schienentunnelzeiger->gib_bild_nr(0),
+					  tool_tip_with_price(translator::translate("Schienentunnel"), CST_TUNNEL));
+		    }
+
+
+		    wzw->add_tool(wkz_electrify_block,
+				  Z_PLAN,
+				  SFX_JACKHAMMER,
+				  SFX_FAILURE,
+				  skinverwaltung_t::schienen_werkzeug->gib_bild_nr(4),
+				  skinverwaltung_t::oberleitung->gib_bild_nr(8),
+				  tool_tip_with_price(translator::translate("Electrify track"), CST_OBERLEITUNG));
+
+
+		    wzw->add_tool(wkz_schienenkreuz,
+				  Z_PLAN,
+				  SFX_JACKHAMMER,
+				  SFX_FAILURE,
+				  skinverwaltung_t::schienen_werkzeug->gib_bild_nr(5),
+				  skinverwaltung_t::kreuzungzeiger->gib_bild_nr(0),
+				  translator::translate("Build level crossing"));
+
+
+		    sound_play(click_sound);
+
+		    wzw->zeige_info(magic_railtools);
+                }
+		break;
+	    case 7:
+                {
+		    werkzeug_parameter_waehler_t *wzw =
+                        new werkzeug_parameter_waehler_t(this, "ROADTOOLS");
+
+		    wzw->setze_hilfe_datei("roadtools.txt");
+
+		    wegbauer_t::fill_menu(wzw,
+					  weg_t::strasse,
+					  wkz_wegebau,
+					  SFX_JACKHAMMER,
+					  SFX_FAILURE
+					  );
+
+		    brueckenbauer_t::fill_menu(wzw,
+					  weg_t::strasse,
+					  brueckenbauer_t::baue,
+					  SFX_JACKHAMMER,
+					  SFX_FAILURE
+					  );
+
+		    if(hausbauer_t::bushalt_besch) {
+			wzw->add_tool(wkz_bushalt,
+				      Z_PLAN,
+				      SFX_JACKHAMMER,
+				      SFX_FAILURE,
+				      skinverwaltung_t::strassen_werkzeug->gib_bild_nr(0),
+				      skinverwaltung_t::bushaltzeiger->gib_bild_nr(0),
+				      tool_tip_with_price(translator::translate("Bushaltestelle"), CST_BUSHALT));
+		    }
+
+
+		    if(hausbauer_t::frachthof_besch) {
+		      wzw->add_tool(wkz_frachthof,
+				    Z_PLAN,
+				    SFX_JACKHAMMER,
+				    SFX_FAILURE,
+				    skinverwaltung_t::strassen_werkzeug->gib_bild_nr(1),
+				    skinverwaltung_t::frachthofzeiger->gib_bild_nr(0),
+				    tool_tip_with_price(translator::translate("Frachthof"), CST_FRACHTHOF));
+		    }
+
+
+		    if(hausbauer_t::str_depot_besch) {
+			wzw->add_tool(wkz_strassendepot,
+				      Z_PLAN,
+				      SFX_GAVEL,
+				      SFX_FAILURE,
+				      skinverwaltung_t::strassen_werkzeug->gib_bild_nr(2),
+				      skinverwaltung_t::strassendepotzeiger->gib_bild_nr(0),
+				      tool_tip_with_price(translator::translate("Build truck depot"), CST_STRASSENDEPOT));
+		    }
+
+
+		    if(tunnelbauer_t::strassentunnel) {
+		      wzw->add_param_tool(&tunnelbauer_t::baue,
+					  (long)weg_t::strasse,
+					  Z_PLAN,
+					  SFX_JACKHAMMER,
+					  SFX_FAILURE,
+					  skinverwaltung_t::strassen_werkzeug->gib_bild_nr(3),
+					  skinverwaltung_t::strassentunnelzeiger->gib_bild_nr(0),
+					  tool_tip_with_price(translator::translate("Strassentunnel"), CST_TUNNEL));
+		    }
+
+
+		    wzw->add_tool(wkz_schienenkreuz,
+				  Z_PLAN,
+				  SFX_JACKHAMMER,
+				  SFX_FAILURE,
+				      skinverwaltung_t::strassen_werkzeug->gib_bild_nr(4),
+				  skinverwaltung_t::kreuzungzeiger->gib_bild_nr(0),
+				  translator::translate("Build level crossing"));
+
+
+		    sound_play(click_sound);
+
+		    wzw->zeige_info(magic_roadtools);
+                }
+		break;
+	    case 8:
+                {
+		    werkzeug_waehler_t *wzw =
+                        new werkzeug_waehler_t(this, skinverwaltung_t::schiffs_werkzeug, "SHIPTOOLS");
+
+		    wzw->setze_hilfe_datei("shiptools.txt");
+
+		    if(hausbauer_t::dock_besch) {
+			wzw->setze_werkzeug(0, wkz_dockbau, skinverwaltung_t::anlegerzeiger->gib_bild_nr(0), Z_PLAN, SFX_DOCK, SFX_FAILURE);
+			wzw->set_tooltip(0, translator::translate("Build dock"));
+		    }
+
+
+		    if(hausbauer_t::sch_depot_besch) {
+    			wzw->setze_werkzeug(4, wkz_schiffdepot_ns, skinverwaltung_t::werftNSzeiger->gib_bild_nr(0), Z_PLAN, SFX_DOCK, SFX_FAILURE);
+			wzw->setze_werkzeug(5, wkz_schiffdepot_ow, skinverwaltung_t::werftOWzeiger->gib_bild_nr(0), Z_PLAN, SFX_DOCK, SFX_FAILURE);
+
+			wzw->set_tooltip(4, translator::translate("Build ship depot"));
+			wzw->set_tooltip(5, translator::translate("Build ship depot"));
+		    }
+		    sound_play(click_sound);
+
+		    wzw->zeige_info(magic_shiptools);
+                }
+		break;
+	    case 9:
+	      // tram tools
+		break;
+	    case 10:
+		if(hausbauer_t::post_besch)
+		    setze_maus_funktion(wkz_post, skinverwaltung_t::postzeiger->gib_bild_nr(0),  Z_PLAN, 0, 0);
+		break;
+	    case 11:
+          {
+		    werkzeug_parameter_waehler_t *wzw =
+                        new werkzeug_parameter_waehler_t(this, "SPECIALTOOLS");
+
+		    wzw->setze_hilfe_datei("special_tool.txt");
+
+		      wzw->add_tool(wkz_add_city,
+					  Z_PLAN,
+					  SFX_JACKHAMMER,
+					  SFX_FAILURE,
+					  skinverwaltung_t::special_werkzeug->gib_bild_nr(0),
+					  skinverwaltung_t::stadtzeiger->gib_bild_nr(0),
+					  tool_tip_with_price(translator::translate("Found new city"), 500000000));
+
+		    wzw->add_tool(wkz_build_industries_land,
+				  Z_PLAN,
+				  SFX_JACKHAMMER,
+				  SFX_FAILURE,
+				  skinverwaltung_t::special_werkzeug->gib_bild_nr(3),
+				  skinverwaltung_t::undoc_zeiger->gib_bild_nr(0),
+				  translator::translate("Build land consumer"));
+
+		    wzw->add_tool(wkz_build_industries_city,
+				  Z_PLAN,
+				  SFX_JACKHAMMER,
+				  SFX_FAILURE,
+				  skinverwaltung_t::special_werkzeug->gib_bild_nr(4),
+				  skinverwaltung_t::undoc_zeiger->gib_bild_nr(0),
+				  translator::translate("Build city market"));
+
+	    if(wegbauer_t::leitung_besch) {
+		    wzw->add_param_tool(wkz_wegebau,
+				  (const void *)wegbauer_t::leitung_besch,
+				  Z_PLAN,
+				  SFX_JACKHAMMER,
+				  SFX_FAILURE,
+				  skinverwaltung_t::special_werkzeug->gib_bild_nr(1),
+				 wegbauer_t::leitung_besch->gib_cursor()->gib_bild_nr(0),
+				  tool_tip_with_price(translator::translate("Build powerline"), 800));
+
+		      wzw->add_tool(wkz_senke,
+					  Z_PLAN,
+					  SFX_JACKHAMMER,
+					  SFX_FAILURE,
+					  skinverwaltung_t::special_werkzeug->gib_bild_nr(2),
+					  skinverwaltung_t::undoc_zeiger->gib_bild_nr(0),
+					 translator::translate("Build drain"));
+			}
+
+		      wzw->add_tool(wkz_marker,
+					  Z_PLAN,
+					  SFX_JACKHAMMER,
+					  SFX_FAILURE,
+					  skinverwaltung_t::special_werkzeug->gib_bild_nr(5),
+					 skinverwaltung_t::belegtzeiger->gib_bild_nr(0),
+					 translator::translate("Marker"));
+
+		    sound_play(click_sound);
+		    wzw->zeige_info(magic_specialtools);
+                }
+		break;
+	    case 12:
+		setze_maus_funktion(wkz_remover, skinverwaltung_t::killzeiger->gib_bild_nr(0), Z_PLAN, SFX_REMOVER, SFX_FAILURE);
+		break;
 	    case 13:
+	      // left empty
+	    break;
+	    case 14:
 	      sound_play(click_sound);
 	      create_win(0, 0, -1, schedule_list_gui, w_info, magic_none);
-
 	      break;
-	    case 14:
-	      // left empty for trams
-	    break;
-	    case 15:
-		// Pause: warten auf die nächste Taste
-		do_pause();
-		setze_dirty();
-		break;
-            case 16: // Station-List-Button    // 29-Dec-01    Markus Weber Added
+         case 15: // Station-List-Button    // 29-Dec-01    Markus Weber Added
 		sound_play(click_sound);
 		create_win(-1, -1, -1, new halt_list_frame_t(gib_spieler(0)), w_autodelete, magic_halt_list_t);
                 break;
-	    case 17:
+	    case 16:
 		sound_play(click_sound);
 		create_win(-1, -1, -1, new convoi_frame_t(gib_spieler(0), this), w_autodelete, magic_convoi_t);
 		break;
-	    case 18:
+	    case 17:
 		sound_play(click_sound);
 		create_win(-1, -1, -1,  money_frame, w_info);
 		break;
@@ -3483,6 +3489,11 @@ karte_t::interactive_event(event_t &ev)
 		sound_play(click_sound);
                 display_snapshot();
 		create_win(-1, -1, 60, new nachrichtenfenster_t(this, "Screenshot\ngespeichert.\n"), w_autodelete);
+		break;
+	    case 20:
+		// Pause: warten auf die nächste Taste
+		do_pause();
+		setze_dirty();
 		break;
 	    }
 	} else {

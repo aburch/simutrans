@@ -21,7 +21,8 @@
 #include "../dings/lagerhaus.h"
 #endif
 #include "../dings/gebaeude.h"
-#include "../dings/leitung.h"
+//#include "../dings/leitung.h"
+#include "../dings/leitung2.h"
 #include "../dings/oberleitung.h"
 
 #include "../mm/mempool.h"

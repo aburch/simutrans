@@ -163,13 +163,11 @@ void weg_t::rdwr(loadsave_t *file)
  */
 void weg_t::info(cbuffer_t & buf) const
 {
-  buf.append("\n");
-  buf.append(translator::translate("Max. speed:"));
-  buf.append(" ");
-  buf.append(max_speed);
-  buf.append("km/h\n");
-
-
+	buf.append("\n");
+	buf.append(translator::translate("Max. speed:"));
+	buf.append(" ");
+	buf.append(max_speed);
+	buf.append("km/h\n");
   // Debug - output stats
   /*
   buf.append("\n");

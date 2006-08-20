@@ -286,7 +286,7 @@ public:
      */
     static bool ist_da_eine(karte_t *welt, int minX, int minY, int maxX, int maxY);
 
-    static bool ist_bauplatz(karte_t *welt, koord pos, koord groesse = koord(2, 2));
+    static bool ist_bauplatz(karte_t *welt, koord pos, koord groesse = koord(2, 2),bool water=false);
 
 
     // hier die methoden zum parametrisieren der Fabrik

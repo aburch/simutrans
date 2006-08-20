@@ -67,6 +67,7 @@ display_icon_leiste(const int color, int basis_bild)
 	dirty = FALSE;
     }
 
+    display_fillbox_wh(0,0, display_get_width(), 32, MN_GREY1, dirty);
 
     display_color_img(basis_bild++,0,0, color, FALSE, dirty);
     display_color_img(basis_bild++,64,0, color, FALSE, dirty);
@@ -80,6 +81,8 @@ display_icon_leiste(const int color, int basis_bild)
     display_color_img(basis_bild++,448,0, color, FALSE, dirty);
     display_color_img(basis_bild++,512,0, color, FALSE, dirty);
     display_color_img(basis_bild++,576,0, color, FALSE, dirty);
+	// added for extended menus
+    display_color_img(basis_bild++,640,0, color, FALSE, dirty);
 
 
 
@@ -97,8 +100,6 @@ display_icon_leiste(const int color, int basis_bild)
     display_img(basis_bild++,512,0, FALSE, dirty);
     display_img(basis_bild++,576,0, FALSE, dirty);
     */
-
-    display_fillbox_wh(640,0, display_get_width()-460, 32, MN_GREY1, dirty);
 }
 
 

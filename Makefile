@@ -20,9 +20,9 @@ endif
 export OSTYPE
 
 #OPT=profile
-OPT=debug
+#OPT=debug
 #OPT=optimize
-#OPT=debug_optimize
+OPT=debug_optimize
 
 
 ifeq ($(SIM_OPTIMIZE),true)
@@ -47,7 +47,8 @@ STD_LIBS=-lstdc++ -lz
 SDLLIBS= -lmingw32 -lSDLmain -lSDL -lwinmm
 endif
 ifeq ($(OSTYPE),linux-gnu)
-STD_LIBS= /usr/lib/libstdc++-3-libc6.1-2-2.10.0.a -lz
+#STD_LIBS= /usr/lib/libstdc++-3-libc6.1-2-2.10.0.a -lz
+STD_LIBS= -lstdc++ -lz
 SDLLIBS= -lSDL -lpthread
 OS_OPT=
 endif

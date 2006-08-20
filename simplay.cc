@@ -559,19 +559,21 @@ spieler_t::suche_platz(int xpos, int ypos, koord *start)
 	const koord pos = koord(xpos, ypos);
 
 	// not on the map => illegal of course ...
-	// or a station?
-	if(  xpos<1  ||  ypos<1  ||  !welt->ist_in_kartengrenzen(pos)  ||  ist_halt(pos).is_bound()) {
+	if(!welt->ist_in_kartengrenzen(pos)) {
 	    return false;
 	}
-
+	// or a station?
+	if(ist_halt(pos).is_bound()) {
+	    return false;
+	}
 	const planquadrat_t * plan = welt->lookup(pos);
 	const grund_t * gr = plan ? plan->gib_kartenboden() : NULL;
 
-	if(gr=NULL &&
-	   welt->get_slope(pos) == 0 &&
+	if(gr!=NULL &&
+	   (welt->get_slope(pos)==0)  &&
 	   // (gr->ist_natur() || gr->gib_typ() == grund_t::fundament) &&
 	   gr->ist_natur() &&
-	   gr->kann_alle_obj_entfernen(this) == NULL) {
+	   (gr->kann_alle_obj_entfernen(this)==NULL)  ) {
 
 	    *start = pos;
 	    return true;
@@ -587,6 +589,7 @@ spieler_t::suche_platz(int xpos, int ypos, koord *start)
 bool
 spieler_t::suche_platz(int xpos, int ypos, int xpos_target, int ypos_target, koord off, koord *start)
 {
+dbg->message("spieler_t::suche_platz()","at (%i,%i) for size (%i,%i)",xpos,ypos,off.x,off.y);
 	// distance of last found point
 	int dist=0x7FFFFFFF;
 	koord	platz;
@@ -600,7 +603,7 @@ spieler_t::suche_platz(int xpos, int ypos, int xpos_target, int ypos_target, koo
 			}
 			else {
 				koord test(x,y);
-				if(  is_my_bahnhof(test)  ) {
+				if(is_my_bahnhof(test)) {
 dbg->message("spieler_t::suche_platz()","Search around stop at (%i,%i)",x,y);
 					// we are on a station that belongs to us
 					int xneu=x-1, yneu=y-1;
@@ -998,7 +1001,7 @@ dbg->message("spieler_t::do_ki()","Netto credits per day and km for road transpo
 bool
 spieler_t::is_my_bahnhof(koord pos)
 {
-	if(  welt->lookup(pos)->gib_kartenboden()->gib_halt()!=NULL  &&  welt->lookup(pos)->gib_kartenboden()->gib_halt()->gib_besitzer()==this  ) {
+	if(welt->ist_in_kartengrenzen(pos)  &&  welt->lookup(pos)->gib_kartenboden()->gib_halt()!=NULL  &&  welt->lookup(pos)->gib_kartenboden()->gib_halt()->gib_besitzer()==this  ) {
 		return true;
 	}
 	return false;

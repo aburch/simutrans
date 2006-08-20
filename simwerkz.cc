@@ -31,6 +31,7 @@
 #include "simvehikel.h"
 #include "simworld.h"
 #include "simdepot.h"
+#include "simfab.h"
 #include "simwin.h"
 #include "simimg.h"
 #include "blockmanager.h"
@@ -50,7 +51,7 @@
 #include "dings/zeiger.h"
 #include "dings/tunnel.h"
 #include "dings/signal.h"
-#include "dings/leitung.h"
+#include "dings/leitung2.h"
 #include "dings/baum.h"
 #ifdef LAGER_NOT_IN_USE
 #include "dings/lagerhaus.h"
@@ -467,6 +468,9 @@ wkz_wegebau(spieler_t *sp, karte_t *welt,  koord pos, value_t lParam)
 
   if(besch->gib_wtyp() == weg_t::schiene) {
     bautyp = wegbauer_t::schiene;
+  }
+  if(besch->gib_wtyp() == weg_t::powerline) {
+    bautyp = wegbauer_t::leitung;
   }
 
 
@@ -928,11 +932,25 @@ wkz_senke(spieler_t *sp, karte_t *welt, koord pos)
   int top = welt->lookup(pos)->gib_kartenboden()->gib_top();
         int hangtyp = welt->get_slope(pos);
 
-  if(hangtyp == 0 && top <= 0 && leitung_t::suche_fab_4(pos)) {
-      grund_t *gr = welt->lookup(pos)->gib_kartenboden();
-
-      gr->obj_add(new senke_t(welt, gr->gib_pos(), sp));
-      ok = true;
+  if(hangtyp == 0 && top <= 0) {
+  	fabrik_t *fab=leitung_t::suche_fab_4(pos);
+  	if(fab==NULL) {
+  		// need a factory
+  		return false;
+  	}
+     grund_t *gr = welt->lookup(pos)->gib_kartenboden();
+  	if(strcmp(fab->gib_name(), "Kohlekraftwerk") == 0  ||  strcmp(fab->gib_name(), "Oil Power Plant") == 0) {
+        // too near to edge of map or wrong level?
+        pumpe_t *pumpe = new pumpe_t(welt, gr->gib_pos(), welt->gib_spieler(0));
+        pumpe->setze_fabrik(fab);
+        gr->obj_loesche_alle(NULL);
+        gr->obj_add(pumpe);
+     	}
+     	else {
+          gr->obj_loesche_alle(NULL);
+	     gr->obj_add(new senke_t(welt, gr->gib_pos(), sp));
+     		ok = true;
+     	}
   }
 
     }

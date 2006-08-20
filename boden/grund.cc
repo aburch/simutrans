@@ -320,12 +320,13 @@ void grund_t::info(cbuffer_t & buf) const
 
   for(int i = 0; i < MAX_WEGE; i++) {
     if(wege[i]) {
+
       if(wege[i]->gib_typ() == weg_t::schiene) {
 	wege[i]->info(buf);
-      }
+    }
       if(wege[i]->gib_typ() == weg_t::strasse) {
 	wege[i]->info(buf);
-      }
+    }
     }
   }
 

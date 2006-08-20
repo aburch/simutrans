@@ -1,15 +1,23 @@
+16-Jan-2005:
+	FIX: powerline works again (please, built from source to traget!)
+	FIX: powerline on slopes added
+	CHANGE: new factory distribution code, distribution entirely by the same function, which built new suppliers
+	CHANGE: added new concretefactory
 
 11-Jan-2005:
-	FIX: AI built railway tracks on water
+	FIX: AI built railway tracks on water and over houses, disbaled
 	FIX: Create new industry (shift+i) new creates a random consumer instead of "Materialswholesale"
+	FIX: New industries are crossconnected
+	FIX: Producer and processing are now placed in cities, if requested in the dat file
 	FIX: Several nightpixel removed, some buildings renovated, skyscrapers now with streetlights
 	FIX: AI had problems which rectangular factories, if they were rotated
 	FIX: AI crashed, when a factory was too close to the map borders
+	CHANGE: "clean up" of the main menu
 	CHANGE: new menu for "half documented" features:
-		SPECIALTOOLS, FOund new city, Build land consumer, Build city market,  Build powerline, Build drain, Marker
+		SPECIALTOOLS, Found new city, Build land consumer, Build city market,  Build powerline, Build drain, Marker
 	CHANGE: MHz shipyard, special cursor, new depot icon
 	CHANGE: City builts new industry after some time (see cityconf.tab), also crossconnected
-	CHANGE: complete hingary and romanian translation, preliminary russian one
+	CHANGE: complete hungary and romanian translation, preliminary russian one
 
 9-Jan-2005:
 	FIX: vehicle selection was wrongly calculated (very good vehicles were also excluded)

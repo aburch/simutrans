@@ -15,6 +15,11 @@
 #include "../dataobj/koord3d.h"
 #include "../boden/wege/weg.h"
 
+// Hajo: these are needed to build the menu entries
+#include "../gui/werkzeug_parameter_waehler.h"
+#include "../besch/skin_besch.h"
+#include "../dataobj/translator.h"
+
 class bruecke_besch_t;
 class tabfileobj_t;
 class karte_t;                 // Hajo: 22-Nov-01: Added forward declaration
@@ -121,6 +126,15 @@ public:
      * @author V. Meyer
      */
     static void create_menu(karte_t *welt);
+
+    /**
+     * Fill menu with icons of given waytype
+     * @author Hj. Malthaner
+     */
+    static void fill_menu(werkzeug_parameter_waehler_t *wzw,
+        weg_t::typ wtyp,
+        int (* wz1)(spieler_t *, karte_t *, koord, value_t),
+        int sound_ok, int sound_ko);
 };
 
 

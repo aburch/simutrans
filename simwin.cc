@@ -829,33 +829,34 @@ win_poll_event(struct event_t *ev)
   }
 }
 
-static const char*  tooltips[20] =
+static const char*  tooltips[21] =
 {
     "Einstellungsfenster",
     "Reliefkarte",
     "Abfrage",
     "Anheben",
     "Absenken",
+    "SLOPETOOLS",
     "Schienenbau",
     "Strassenbau",
     "Wasserbau",
+    "Trams",
     "Posthaus",
-    "Abriss",
-    "Brueckenbau",
     "SPECIALTOOLS",
+    "Abriss",
     "",
     "Line Management",
-    "Trams?",
-    "Pause",
     "hl_title",
     "cl_title",
     "Finanzen",
-    ""
+    "",
+    "Screenshot",
+    "Pause",
 };
 
 static void win_display_tooltips()
 {
-    if(gib_maus_y() <= 32 && gib_maus_x() < 640) {
+    if(gib_maus_y() <= 32 && gib_maus_x() < 704) {
 	if(*tooltips[gib_maus_x() / 32] != 0) {
 
 	    const char *text = translator::translate(tooltips[gib_maus_x() / 32]);

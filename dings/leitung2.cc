@@ -25,6 +25,7 @@
 #include "../dataobj/loadsave.h"
 #include "../dataobj/powernet.h"
 #include "../boden/grund.h"
+#include "../boden/wege/weg.h"
 #include "../besch/weg_besch.h"
 #include "../bauer/wegbauer.h"
 
@@ -124,12 +125,15 @@ static int gimme_neighbours(karte_t *welt, koord base_pos, leitung_t **conn)
 
     if(gr) {
       leitung_t * line = dynamic_cast<leitung_t *> (gr->suche_obj(ding_t::leitung));
+//printf("gimme_neighbours() leitung %p on pos (%i,%i)\n",line,pos.x,pos.y);
       if(line == 0) {
 	line = dynamic_cast<leitung_t *> (gr->suche_obj(ding_t::pumpe));
+//printf("gimme_neighbours() pumpe %p on pos (%i,%i)\n",line,pos.x,pos.y);
       }
 
       if(line == 0) {
 	line = dynamic_cast<leitung_t *> (gr->suche_obj(ding_t::senke));
+//printf("gimme_neighbours() senke %p on pos (%i,%i)\n",line,pos.x,pos.y);
       }
 
 
@@ -238,17 +242,39 @@ void leitung_t::display(int xpos, int ypos, bool dirty) const
 
 void leitung_t::calc_bild()
 {
-  const koord pos = gib_pos().gib_2d();
+	const koord pos = gib_pos().gib_2d();
+	ribi_t::ribi ribi =
+			(ist_leitung(welt, pos + koord(0,-1)) ? ribi_t::nord : ribi_t::keine) |
+			(ist_leitung(welt, pos + koord(0, 1)) ? ribi_t::sued : ribi_t::keine) |
+			(ist_leitung(welt, pos + koord( 1,0)) ? ribi_t::ost  : ribi_t::keine) |
+			(ist_leitung(welt, pos + koord(-1,0)) ? ribi_t::west : ribi_t::keine);
+/*
+// dbg->message("leitung_t::calc_bild()", "ribi=%d", ribi);
+setze_bild(0, wegbauer_t::leitung_besch->gib_bild_nr(ribi));
+*/
 
-  ribi_t::ribi ribi =
-    (ist_leitung(welt, pos + koord(0,-1)) ? ribi_t::nord : ribi_t::keine) |
-    (ist_leitung(welt, pos + koord(0, 1)) ? ribi_t::sued : ribi_t::keine) |
-    (ist_leitung(welt, pos + koord( 1,0)) ? ribi_t::ost  : ribi_t::keine) |
-    (ist_leitung(welt, pos + koord(-1,0)) ? ribi_t::west : ribi_t::keine);
-
-  // dbg->message("leitung_t::calc_bild()", "ribi=%d", ribi);
-
-  setze_bild(0, wegbauer_t::leitung_besch->gib_bild_nr(ribi));
+	// V.Meyer: weg_position_t changed to grund_t::get_neighbour()
+	grund_t *gr = welt->lookup(pos)->gib_kartenboden();
+	hang_t::typ hang = gr->gib_grund_hang();
+	if(hang != hang_t::flach) {
+		setze_bild(0, wegbauer_t::leitung_besch->gib_hang_bild_nr(hang));
+//	 printf("Hangbild %i=>%i\n",hang,wegbauer_t::leitung_besch->gib_hang_bild_nr(hang));
+	}
+	else {
+		if(gr->gib_weg(weg_t::strasse)!=NULL   ||  gr->gib_weg(weg_t::schiene)!=NULL) {
+			// crossing with road or rail
+			if(ribi_t::ist_gerade_ns(ribi)) {
+				setze_bild(0, wegbauer_t::leitung_besch->gib_diagonal_bild_nr(ribi_t::nord|ribi_t::ost));
+			}
+			else {
+				setze_bild(0, wegbauer_t::leitung_besch->gib_diagonal_bild_nr(ribi_t::sued|ribi_t::west));
+			}
+		}
+		else {
+			setze_bild(0, wegbauer_t::leitung_besch->gib_bild_nr(ribi));
+		}
+	}
+// printf("Hangbild %i=>%i\n",hang,wegbauer_t::leitung_besch->gib_hang_bild_nr(hang));
 }
 
 

@@ -356,7 +356,13 @@ wegbauer_t::ist_grund_fuer_strasse(koord pos, const koord zv, koord start, koord
     !bd->gib_depot();
       break;
   case leitung:
-      ok = ok || !bd->ist_wasser();
+      ok = ok ||	(
+					     (bd->gib_besitzer() == NULL || bd->gib_besitzer() == sp) &&
+     						(
+      						(bd->gib_weg(weg_t::strasse)!=NULL  &&  check_crossing(zv,bd,weg_t::strasse))  ||
+      				 		(bd->gib_weg(weg_t::schiene)!=NULL  &&  check_crossing(zv,bd,weg_t::schiene))
+      				 	)
+      				 );
       break;
       // like strasse but allow for railroad crossing
   case strasse_bot:
@@ -1341,26 +1347,20 @@ wegbauer_t::baue_strasse()
 void
 wegbauer_t::baue_leitung()
 {
-  int i;
+	int i;
+	for(i=0; i<=max_n; i++) {
+		const koord k = route->at(i);
+		grund_t *gr = welt->lookup(k)->gib_kartenboden();
 
-  for(i=0; i<=max_n; i++) {
-    const koord k = route->at(i);
-    grund_t *gr = welt->lookup(k)->gib_kartenboden();
-
-    if(gr->gib_weg(weg_t::strasse)) {
-      // baue leitungsunterführrung
-    } else {
-      leitung_t *lt =
-  dynamic_cast <leitung_t *> (gr->suche_obj(ding_t::leitung));
-
-      if(lt == 0) {
-  lt = new leitung_t(welt, gr->gib_pos(), sp);
-  sp->buche(CST_LEITUNG, gr->gib_pos().gib_2d(), COST_CONSTRUCTION);
-  gr->obj_add(lt);
-      }
-      lt->calc_neighbourhood();
-    }
-  }
+		leitung_t *lt = dynamic_cast <leitung_t *> (gr->suche_obj(ding_t::leitung));
+		printf("powerline %p at (%i,%i)\n",lt,k.x,k.y);
+		if(lt == 0) {
+			lt = new leitung_t(welt, gr->gib_pos(), sp);
+			sp->buche(CST_LEITUNG, gr->gib_pos().gib_2d(), COST_CONSTRUCTION);
+			gr->obj_add(lt);
+		}
+		lt->calc_neighbourhood();
+	}
 }
 
 

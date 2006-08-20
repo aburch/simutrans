@@ -69,7 +69,8 @@ class fabrikbauer_t
 
     static stringhashtable_tpl<const fabrik_besch_t *> table;
 
-    static const fabrik_besch_t * finde_hersteller(const ware_besch_t *ware);
+    static int fabrikbauer_t::finde_anzahl_hersteller(const ware_besch_t *ware);
+    static const fabrik_besch_t * finde_hersteller(const ware_besch_t *ware,int nr=0);
 
 public:
     static void register_besch(fabrik_besch_t *besch);
@@ -107,7 +108,7 @@ public:
 
 private:
     // bauhilfen
-    static koord3d finde_zufallsbauplatz(karte_t *welt, koord3d pos, int radius, koord groesse /*= koord(2, 2)*/);
+    static koord3d finde_zufallsbauplatz(karte_t *welt, koord3d pos, int radius, koord groesse,bool on_water=false);
 
     // higher level bau routinen
 

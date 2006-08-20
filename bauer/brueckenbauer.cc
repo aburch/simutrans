@@ -152,6 +152,46 @@ void brueckenbauer_t::create_menu(karte_t *welt)
 }
 
 
+/**
+ * Fill menu with icons of given waytype
+ * @author Hj. Malthaner
+ */
+void brueckenbauer_t::fill_menu(werkzeug_parameter_waehler_t *wzw,
+         weg_t::typ wtyp,
+         int (* werkzeug)(spieler_t *, karte_t *, koord, value_t),
+         int sound_ok,
+         int sound_ko)
+{
+  for(unsigned int i = 0; i < bruecken.count(); i++) {
+    const bruecke_besch_t *besch = bruecken.get(i);
+    if(besch->gib_wegtyp() == wtyp) {
+	    int icon = besch->gib_cursor()->gib_bild_nr(1);
+
+	    char buf[128];
+
+	    sprintf(buf, "%s, %d$ (%d$), %dkm/h",
+	      translator::translate(besch->gib_name()),
+	      besch->gib_preis()/100,
+	      besch->gib_wartung()/100,
+	      besch->gib_topspeed());
+
+	    wzw->add_param_tool(werkzeug,
+	      (const void*) besch,
+	      karte_t::Z_PLAN,
+	      sound_ok,
+	      sound_ko,
+	      icon,
+	      besch->gib_cursor()->gib_bild_nr(0),
+	      cstring_t(buf));
+	 }
+  }
+}
+
+
+
+
+
+
 koord3d
 brueckenbauer_t::finde_ende(karte_t *welt, koord3d pos, koord zv, weg_t::typ wegtyp)
 {

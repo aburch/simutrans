@@ -45,7 +45,7 @@
 
 #include "dings/raucher.h"
 #include "dings/gebaeude.h"
-#include "dings/leitung.h"
+//#include "dings/leitung2.h"
 
 #include "dataobj/einstellungen.h"
 #include "dataobj/translator.h"
@@ -105,11 +105,17 @@ fabrik_t * fabrik_t::gib_fab(const karte_t *welt, const koord pos)
  */
 koord fabrik_t::gib_groesse() const
 {
-	koord size=besch->gib_haus()->gib_groesse();
-	if(rotate&1) {
-		return koord(size.y,size.x);
+	koord size=besch->gib_haus()->gib_groesse(0);
+dbg->message("fabrik_t::gib_groesse()","(%i,%i) rot %i",size.x,size.y,rotate);
+	switch(rotate) {
+		case 0:
+		case 2:
+			return size;
+		case 1:
+		case 3:
+			return koord(size.y,size.x);
 	}
-	return size;
+	return koord(-1,-1);
 }
 
 
@@ -236,23 +242,37 @@ fabrik_t::baue(int rotate, bool clear)
 }
 
 bool
-fabrik_t::ist_bauplatz(karte_t *welt, koord pos, koord groesse)
+fabrik_t::ist_bauplatz(karte_t *welt, koord pos, koord groesse,bool wasser)
 {
     bool ok = false;
-
     if(pos.x > 0 && pos.y > 0 &&
        pos.x+groesse.x < welt->gib_groesse() && pos.y+groesse.y < welt->gib_groesse() &&
-       welt->ist_platz_frei(pos, groesse.x, groesse.y) &&
+       ( wasser  ||  welt->ist_platz_frei(pos, groesse.x, groesse.y) )&&
        !ist_da_eine(welt, pos.x-5, pos.y-5, pos.x+groesse.x+3, pos.y+groesse.y+3)) {
 
 	ok = true;
+		// check for water (no shore in sight!)
+		if(wasser) {
+			for(int y=0;y<groesse.y;y++) {
+				for(int x=0;x<groesse.x;x++) {
+					const grund_t *gr=welt->lookup(pos+koord(x,y))->gib_kartenboden();
+					if(!gr->ist_wasser()  ||  gr->gib_grund_hang()!=hang_t::flach) {
+						return false;
+					}
+				}
+			}
+		}
 
     } else {
 	ok = false;
     }
+//if(welt->ist_in_kartengrenzen(pos) &&  wasser)
+//dbg->message("fabrik_t::ist_bauplatz()","(%i,%i) is%s water => %s",pos.x,pos.y,welt->lookup(pos)->gib_kartenboden()->ist_wasser()?"":" not",ok?"ok":"error");
 
     return ok;
 }
+
+
 
 vector_tpl<fabrik_t *> &
 fabrik_t::sind_da_welche(karte_t *welt, int minX, int minY, int maxX, int maxY)

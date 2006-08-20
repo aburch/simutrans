@@ -19,7 +19,7 @@
 #include "../simhalt.h"
 #include "../simplay.h"
 
-#include "../dings/leitung.h"
+#include "../dings/leitung2.h"
 
 #include "../boden/grund.h"
 #include "../boden/wege/dock.h"
@@ -126,6 +126,50 @@ void fabrikbauer_t::bau_info_t::random(slist_tpl <const fabrik_besch_t *> &fab)
     }
 }
 
+
+
+/* returns a random consumer
+ * @author prissi
+ */
+const fabrik_besch_t *fabrikbauer_t::get_random_consumer(bool in_city)
+{
+	// get a random city factory
+	stringhashtable_iterator_tpl<const fabrik_besch_t *> iter(table);
+	slist_tpl <const fabrik_besch_t *> consumer;
+	int gewichtung=0;
+
+	while(iter.next()) {
+		const fabrik_besch_t *current=iter.get_current_value();
+		// nur endverbraucher eintragen
+		if(current->gib_produkt(0)==NULL  &&
+			((in_city  &&  current->gib_platzierung() == fabrik_besch_t::Stadt)
+			||  (!in_city  &&  current->gib_platzierung() == fabrik_besch_t::Land)  )  ) {
+			consumer.insert(current);
+			gewichtung += current->gib_gewichtung();
+		}
+	}
+	// no consumer installed?
+	if(consumer.count()==0) {
+dbg->message("fabrikbauer_t::get_random_consumer()","No suitable consumer found");
+		return NULL;
+	}
+	// now find a random one
+	int next=simrand(gewichtung);
+	for(  int i=1;  i<consumer.count();  i++  ) {
+		if(next < consumer.at(i)->gib_gewichtung()) {
+dbg->message("fabrikbauer_t::get_random_consumer()","consumer %s found.",consumer.at(i)->gib_name());
+			return consumer.at(i);
+		}
+		next -= consumer.at(i)->gib_gewichtung();
+	}
+dbg->message("fabrikbauer_t::get_random_consumer()","consumer %s found.",consumer.at(0)->gib_name());
+	return consumer.at(0);
+}
+
+
+
+
+
 void fabrikbauer_t::bau_info_t::random_land(slist_tpl <const fabrik_besch_t *> &fab)
 {
     switch(simrand( 5 ) ) {
@@ -161,42 +205,72 @@ void fabrikbauer_t::register_besch(fabrik_besch_t *besch)
 }
 
 
-const fabrik_besch_t *
-fabrikbauer_t::finde_hersteller(const ware_besch_t *ware)
+
+int
+fabrikbauer_t::finde_anzahl_hersteller(const ware_besch_t *ware)
 {
-    stringhashtable_iterator_tpl<const fabrik_besch_t *> iter(table);
+	stringhashtable_iterator_tpl<const fabrik_besch_t *> iter(table);
+	int anzahl=0;
 
-    while(iter.next()) {
-  const fabrik_besch_t *tmp = iter.get_current_value();
+	while(iter.next()) {
+		const fabrik_besch_t *tmp = iter.get_current_value();
 
-  if(tmp->gib_platzierung() != fabrik_besch_t::Wasser) {
-      for(int i = 0; i < tmp->gib_produkte(); i++) {
-    const fabrik_produkt_besch_t *produkt = tmp->gib_produkt(i);
+		for(int i = 0; i < tmp->gib_produkte(); i++) {
+			const fabrik_produkt_besch_t *produkt = tmp->gib_produkt(i);
+			if(produkt->gib_ware() == ware) {
+				anzahl ++;
+			}
+		}
+	}
+dbg->message("fabrikbauer_t::finde_anzahl_hersteller()","%i producer for good '%s' fount.", anzahl, translator::translate(ware->gib_name()));
+	return anzahl;
+}
 
-    if(produkt->gib_ware() == ware) {
-        return tmp;
-    }
-      }
-  }
-    }
-    dbg->error("fabrikbauer_t::finde_hersteller()",
-         "no producer for good '%s' was found\n", translator::translate(ware->gib_name()));
-    return NULL;
+
+/* finds a consumer;
+ * also water only consumer are allowed
+ */
+const fabrik_besch_t *
+fabrikbauer_t::finde_hersteller(const ware_besch_t *ware,int nr)
+{
+	stringhashtable_iterator_tpl<const fabrik_besch_t *> iter(table);
+	const fabrik_besch_t *besch=NULL;
+
+	while(iter.next()) {
+		const fabrik_besch_t *tmp = iter.get_current_value();
+
+		for(int i = 0; i < tmp->gib_produkte(); i++) {
+			const fabrik_produkt_besch_t *produkt = tmp->gib_produkt(i);
+			if(produkt->gib_ware() == ware) {
+				besch = tmp;
+				nr --;
+				if(nr<0) {
+dbg->message("fabrikbauer_t::finde_hersteller()","producer for good '%s' was found %s", translator::translate(ware->gib_name()),besch->gib_name());
+					return besch;
+				}
+			}
+		}
+	}
+	dbg->error("fabrikbauer_t::finde_hersteller()","no producer for good '%s' was found", translator::translate(ware->gib_name()));
+	return NULL;
 }
 
 
 koord3d
-fabrikbauer_t::finde_zufallsbauplatz(karte_t * welt, const koord3d pos, const int radius, const koord groesse)
+fabrikbauer_t::finde_zufallsbauplatz(karte_t * welt, const koord3d pos, const int radius, koord groesse,bool wasser)
 {
     array_tpl<koord3d> list(2048);
     int index = 0;
     koord k;
 
+	if(wasser) {
+		groesse += koord(6,6);
+	}
     // assert(radius <= 32);
 
     for(k.y=pos.y-radius; k.y<=pos.y+radius; k.y++) {
   for(k.x=pos.x-radius; k.x<=pos.x+radius; k.x++) {
-      if(fabrik_t::ist_bauplatz(welt, k, groesse)) {
+      if(fabrik_t::ist_bauplatz(welt, k, groesse,wasser)) {
     list.at(index ++) = welt->lookup(k)->gib_kartenboden()->gib_pos();
 
     // nicht gleich daneben nochmal suchen
@@ -206,16 +280,72 @@ fabrikbauer_t::finde_zufallsbauplatz(karte_t * welt, const koord3d pos, const in
     }
 
     // printf("Zufallsbauplatzindex %d\n", index);
-
-    if(index == 0) {
-  return koord3d(-1, -1, -1);
-    } else {
-  return list.at(simrand(index));
-    }
+	if(index == 0) {
+		return koord3d(-1, -1, -1);
+	}
+	else {
+		if(wasser) {
+			// take care of offset
+			return list.at(simrand(index))+koord3d(3,3,0);
+		}
+		return list.at(simrand(index));
+	}
 }
 
+
+
+/* Create a certain numer of industries
+ */
 void
-fabrikbauer_t::verteile_industrie(karte_t * welt, spieler_t *sp, int dichte)
+fabrikbauer_t::verteile_industrie(karte_t * welt, spieler_t *sp, int max_number_of_factories)
+{
+	// stuff for the progress bar
+	const int groesse = welt->gib_groesse();
+	const int staedte = welt->gib_einstellungen()->gib_anzahl_staedte();
+	const int display_offset = groesse/2 + staedte*12;
+	const int display_part = groesse/2;
+	const int display_total = groesse+staedte*12;
+	// current count
+	int current_number=0;
+
+	// no consumer at all?
+	if(get_random_consumer(true)==NULL  &&  get_random_consumer(false)) {
+		return;
+	}
+
+	max_number_of_factories = (max_number_of_factories*welt->gib_groesse()*welt->gib_groesse())/(1024*1024);
+	print("Distributing about %i industries ...\n",max_number_of_factories);fflush(NULL);
+
+	// try to built 25% city consumer (if there)
+	int city=0;
+	while(current_number<max_number_of_factories)
+	{
+		int	rotation=simrand(4);
+		koord3d	pos=koord3d(simrand(welt->gib_groesse()),simrand(welt->gib_groesse()),1);
+		const fabrik_besch_t *fab=get_random_consumer((city++&0x3)==0);
+
+		if(fab==NULL) {
+			continue;
+		}
+
+		pos = finde_zufallsbauplatz(welt, pos, 20, fab->gib_haus()->gib_groesse(rotation),fab->gib_platzierung()==fabrik_besch_t::Wasser);
+		if(welt->lookup(pos)) {
+			// Platz gefunden ...
+			current_number += baue_hierarchie(welt, &pos, fab, rotation, &pos, welt->gib_spieler(1));
+		}
+
+	      if(is_display_init()) {
+		    display_progress(display_offset + display_part *MIN(current_number,max_number_of_factories)/max_number_of_factories, display_total);
+		    display_flush(0, 0, 0, "", "");
+		}
+	}
+	print("Constructed about %i industries ...\n",current_number);
+}
+
+
+#if 0
+void
+verteile_industrie_alt(karte_t * welt, spieler_t *sp, int dichte)
 {
     bau_info_t wasser_bau;
     bau_info_t land_bau;
@@ -386,7 +516,7 @@ fabrikbauer_t::verteile_industrie(karte_t * welt, spieler_t *sp, int dichte)
 
     if(skinverwaltung_t::pumpe && welt->lookup(pos)) {
         // too near to edge of map or wrong level?
-        pumpe_t *pumpe = new pumpe_t(welt, pos, sp);
+        pumpe_t *pumpe = new pumpe_t(welt, pos, welt->gib_spieler(0));
         pumpe->setze_fabrik(fab);
 
         welt->lookup(pos)->obj_loesche_alle(NULL);
@@ -435,6 +565,8 @@ fabrikbauer_t::verteile_industrie(karte_t * welt, spieler_t *sp, int dichte)
   }
     }
 }
+#endif
+
 
 
 fabrik_t *
@@ -448,8 +580,8 @@ fabrikbauer_t::baue_fabrik(karte_t * welt, koord3d *parent, const fabrik_besch_t
 
         koord k;
   halt = welt->gib_spieler(0)->halt_add(pos.gib_2d());
-
-  halt->set_pax_enabled( true );
+  // no passengers for fish swarms
+  halt->set_pax_enabled( strcmp("fish_swarm",info->gib_name())!=0 );
   halt->set_ware_enabled( true );
   halt->set_post_enabled( true );
 
@@ -458,6 +590,7 @@ fabrikbauer_t::baue_fabrik(karte_t * welt, koord3d *parent, const fabrik_besch_t
     if(! halt->ist_da(k)) {
         const planquadrat_t *plan = welt->lookup(k);
 
+        // add all water to station
         if(plan != NULL) {
       grund_t *gr = plan->gib_kartenboden();
 
@@ -517,33 +650,21 @@ fabrikbauer_t::baue_fabrik(karte_t * welt, koord3d *parent, const fabrik_besch_t
     if(halt.is_bound()) {
       halt->verbinde_fabriken();
     }
+/*
+	if(strcmp(fab->gib_name(), "Kohlekraftwerk") == 0  ||  strcmp(fab->gib_name(), "Oil Power Plant") == 0) {
+		koord3d pos = fab->gib_pos()+koord3d(2,0,0);
 
-    return fab;
-}
+		if(skinverwaltung_t::pumpe && welt->lookup(pos)) {
+		// too near to edge of map or wrong level?
+		pumpe_t *pumpe = new pumpe_t(welt, pos, sp);
+		pumpe->setze_fabrik(fab);
 
-
-
-/* returns a random consumer
- * @author prissi
- */
-const fabrik_besch_t *fabrikbauer_t::get_random_consumer(bool in_city)
-{
-
-	// get a random city factory
-	stringhashtable_iterator_tpl<const fabrik_besch_t *> iter(table);
-	slist_tpl <const fabrik_besch_t *> consumer;
-
-	while(iter.next()) {
-		const fabrik_besch_t *current=iter.get_current_value();
-		// nur endverbraucher eintragen
-		if(current->gib_produkt(0)==NULL  &&
-			((in_city  &&  current->gib_platzierung() == fabrik_besch_t::Stadt)
-			||  (!in_city  &&  current->gib_platzierung() == fabrik_besch_t::Land)  )  ) {
-			consumer.insert(current);
+		welt->lookup(pos)->obj_loesche_alle(NULL);
+		welt->lookup(pos)->obj_add(pumpe);
 		}
 	}
-dbg->message("fabrikbauer_t::get_random_consumer","Found %i consumer.",consumer.count());
-	return consumer.at(simrand(consumer.count()));
+*/
+	return fab;
 }
 
 
@@ -605,20 +726,20 @@ dbg->message("fabrikbauer_t::baue_hierarchie","Search place for city factory (%i
 
 dbg->message("fabrikbauer_t::baue_hierarchie","Construction of %s at (%i,%i).",info->gib_name(),pos->x,pos->y);
 
-	baue_fabrik(welt, parent, info, rotate, *pos, sp);
+	baue_fabrik(welt, parent, info, rotate&1, *pos, sp);
 
 	for(int i=0; i < info->gib_lieferanten(); i++) {
 		const fabrik_lieferant_besch_t *lieferant = info->gib_lieferant(i);
 		const ware_besch_t *ware = lieferant->gib_ware();
-		const fabrik_besch_t *hersteller = finde_hersteller(ware);
-		const haus_besch_t *haus = hersteller->gib_haus();
+		const int anzahl_hersteller=finde_anzahl_hersteller(ware);
 
 		int lcount = lieferant->gib_anzahl();
 		int lfound = 0;	// number of found producers
 
+dbg->message("fabrikbauer_t::baue_hierarchie","lieferanten %i, lcount %i",info->gib_lieferanten(),lcount);
+
 		if(lcount<4) {
 			// Hajo: search if there already is one or two (crossconnect everything if possible)
-
 			const slist_tpl<fabrik_t *> & list = welt->gib_fab_list();
 			slist_iterator_tpl <fabrik_t *> iter (list);
 			bool found = false;
@@ -633,7 +754,7 @@ dbg->message("fabrikbauer_t::baue_hierarchie","Construction of %s at (%i,%i).",i
 					const int distance = abs(d.x) + abs(d.y);
 					const bool ok = distance < 60 || distance < simrand(240);
 
-					if(ok) {
+					if(ok  &&  distance>0) {
 						found = true;
 						fab->add_lieferziel(pos->gib_2d());
 						lfound ++;
@@ -641,6 +762,7 @@ dbg->message("fabrikbauer_t::baue_hierarchie","Construction of %s at (%i,%i).",i
 				}
 			}
 			// this is a source?
+			const fabrik_besch_t *hersteller = finde_hersteller(ware,0);
 			if(hersteller->gib_lieferanten()==0) {
 				// at least three producers please
 				lcount = 3-(lfound/2);
@@ -651,13 +773,19 @@ dbg->message("fabrikbauer_t::baue_hierarchie","Construction of %s at (%i,%i).",i
 			}
 		}
 
-dbg->message("fabrikbauer_t::baue_hierarchie","lieferant construct %s.",info->gib_name(),lcount);
-		for(int j=0; j<lcount; j++) {
+		// try to add all types of factories
+		for(int j=0;j<anzahl_hersteller*10  &&  lcount>0;j++) {
+dbg->message("fabrikbauer_t::baue_hierarchie","find lieferant for %s.",info->gib_name());
+			const fabrik_besch_t *hersteller = finde_hersteller(ware,j%anzahl_hersteller);
+			if(info==hersteller) {
+				return n;
+			}
 			int rotate = simrand(4);
-
-			koord3d k = finde_zufallsbauplatz(welt, *pos, DISTANCE, haus->gib_groesse(rotate));
+			koord3d k = finde_zufallsbauplatz(welt, *pos, DISTANCE, hersteller->gib_haus()->gib_groesse(rotate),hersteller->gib_platzierung()==fabrik_besch_t::Wasser);
 			if(welt->lookup(k)) {
+dbg->message("fabrikbauer_t::baue_hierarchie","Try to built lieferant %s at (%i,%i) for %s.",hersteller->gib_name(),k.x,k.y,info->gib_name());
 				n += baue_hierarchie(welt, pos, hersteller, rotate, &k, sp);
+				lcount--;
 			}
 		}
 	}
