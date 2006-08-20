@@ -36,7 +36,6 @@ class simlinemgmt_t;
 class depot_t : public gebaeude_t
 {
 private:
-
     /**
      * Anzeigefenster für Depotmanagement
      * @author Hj. Malthaner
@@ -60,7 +59,7 @@ protected:
     slist_tpl<vehikel_t *> vehicles;
     slist_tpl<convoihandle_t> convois;
 
-    void rdwr_vehikel(slist_tpl<vehikel_t*> &list, loadsave_t *file);
+	void rdwr_vehikel(slist_tpl<vehikel_t*> &list, loadsave_t *file);
 
     /**
      * this list contains the lines matching the depot type
@@ -74,161 +73,162 @@ protected:
 	virtual simline_t::linetype get_line_type() = 0;
 
 public:
-    depot_t(karte_t *welt,loadsave_t *file);
-    depot_t(karte_t *welt, koord3d pos, spieler_t *sp, const haus_tile_besch_t *t);
-    virtual ~depot_t();
+	depot_t(karte_t *welt,loadsave_t *file);
+	depot_t(karte_t *welt, koord3d pos, spieler_t *sp, const haus_tile_besch_t *t);
+	virtual ~depot_t();
+
+	void rdwr(loadsave_t *file);
 
 	fahrplan_t * erzeuge_fahrplan();
 
 	virtual simline_t * create_line();
 
-    /**
-     * Text of the passenger tab (for gui)
-     * @author Hj. Malthaner
-     */
-    virtual const char * gib_passenger_name() = 0;
+	/**
+	 * Text of the passenger tab (for gui)
+	 * @author Hj. Malthaner
+	 */
+	virtual const char * gib_passenger_name() = 0;
 
-    /**
-     * Text of the engine tab (for gui)
-     * @author Hj. Malthaner
-     */
-    virtual const char * gib_zieher_name() = 0;
+	/**
+	 * Text of the engine tab (for gui)
+	 * @author Hj. Malthaner
+	 */
+	virtual const char * gib_zieher_name() = 0;
 
-    /**
-     * Text of the car/trailer tab (for gui)
-     * @author Hj. Malthaner
-     */
-    virtual const char * gib_haenger_name() = 0;
+	/**
+	 * Text of the car/trailer tab (for gui)
+	 * @author Hj. Malthaner
+	 */
+	virtual const char * gib_haenger_name() = 0;
 
-    /**
-     * Access to convoi list.
-     * @author Volker Meyer
-     * @date  30.05.2003
-     */
-    unsigned convoi_count() const { return convois.count(); }
+	/**
+	 * Access to convoi list.
+	 * @author Volker Meyer
+	 * @date  30.05.2003
+	 */
+	unsigned convoi_count() const { return convois.count(); }
 
-    convoihandle_t get_convoi(unsigned int icnv) const
-    { return icnv < convoi_count() ? convois.at(icnv) : convoihandle_t(); }
+	convoihandle_t get_convoi(unsigned int icnv) const { return icnv < convoi_count() ? convois.at(icnv) : convoihandle_t(); }
 
-    convoihandle_t add_convoi();
+	convoihandle_t add_convoi();
 
-		/*
-		 * copies convoi and its schedule or line
-		 * @author hsiegeln
-		 */
-    convoihandle_t copy_convoi(int icnv);
+	/*
+	 * copies convoi and its schedule or line
+	 * @author hsiegeln
+	 */
+	convoihandle_t copy_convoi(int icnv);
 
-    /**
-     * Let convoi leave the depot.
-     * If not possible, a message is displayed and the function returns false.
-     * @author Volker Meyer
-     * @date  09.06.2003
-     */
-    bool start_convoi(int icnv);
-    /**
-     * Destroy the convoi and put the vehicles in the vehicles list (sell==false),
-     * or sell all immediatly (sell==true).
-     * @author Volker Meyer
-     * @date  09.06.2003
-     */
-    bool disassemble_convoi(int icnv, bool sell);
-    /**
-     * Remove vehicle from vehicle list and add it to the convoi. Two positions
-     * are possible - in front or at the rear.
-     * @author Volker Meyer
-     * @date  09.06.2003
-     */
-    void append_vehicle(int icnv, int iveh, bool infront);
-    /**
-     * Remove the vehicle at given position from the convoi and put it in the
-     * vehicle list.
-     * @author Volker Meyer
-     * @date  09.06.2003
-     */
-    void remove_vehicle(int icnv, int ipos);
+	/**
+	 * Let convoi leave the depot.
+	 * If not possible, a message is displayed and the function returns false.
+	 * @author Volker Meyer
+	 * @date  09.06.2003
+	 */
+	bool start_convoi(int icnv);
+	/**
+	 * Destroy the convoi and put the vehicles in the vehicles list (sell==false),
+	 * or sell all immediatly (sell==true).
+	 * @author Volker Meyer
+	 * @date  09.06.2003
+	 */
+	bool disassemble_convoi(int icnv, bool sell);
+	/**
+	 * Remove vehicle from vehicle list and add it to the convoi. Two positions
+	 * are possible - in front or at the rear.
+	 * @author Volker Meyer
+	 * @date  09.06.2003
+	 */
+	void append_vehicle(int icnv, int iveh, bool infront);
+	/**
+	 * Remove the vehicle at given position from the convoi and put it in the
+	 * vehicle list.
+	 * @author Volker Meyer
+	 * @date  09.06.2003
+	 */
+	void remove_vehicle(int icnv, int ipos);
 
-    /**
-     * Access to vehicles not bound to a convoi. They are not ordered
-     * in any way.
-     * @author Volker Meyer
-     * @date  30.05.2003
-     */
-    unsigned vehicle_count() const { return vehicles.count(); }
-    vehikel_t * get_vehicle(unsigned int iveh) { return iveh < vehicle_count() ? vehicles.at(iveh) : NULL; }
-    const slist_tpl<vehikel_t *> *get_vehicle_list() { return &vehicles; }
+	/**
+	 * Access to vehicles not bound to a convoi. They are not ordered
+	 * in any way.
+	 * @author Volker Meyer
+	 * @date  30.05.2003
+	 */
+	unsigned vehicle_count() const { return vehicles.count(); }
+	vehikel_t * get_vehicle(unsigned int iveh) { return iveh < vehicle_count() ? vehicles.at(iveh) : NULL; }
+	const slist_tpl<vehikel_t *> *get_vehicle_list() { return &vehicles; }
 
-    /**
-     * A new vehicle is bought and added to the vehicle list. The number of the
-     * vehicle in the list is returned.
-     * @author Volker Meyer
-     * @date  09.06.2003
-     */
-    int buy_vehicle(int image);
+	/**
+	 * A new vehicle is bought and added to the vehicle list. The number of the
+	 * vehicle in the list is returned.
+	 * @author Volker Meyer
+	 * @date  09.06.2003
+	 */
+	int buy_vehicle(int image);
 
-    /**
-     * Sell a vehicle from the vehicle list.
-     * @author Volker Meyer
-     * @date  09.06.2003
-     */
-    void sell_vehicle(int iveh);
+	/**
+	 * Sell a vehicle from the vehicle list.
+	 * @author Volker Meyer
+	 * @date  09.06.2003
+	 */
+	void sell_vehicle(int iveh);
 
-    /**
-     * Access to vehicle types which can be bought in the depot.
-     * @author Volker Meyer
-     */
-    virtual const vehikel_besch_t *get_vehicle_type(int itype);
+	/**
+	 * Access to vehicle types which can be bought in the depot.
+	 * @author Volker Meyer
+	 */
+	virtual const vehikel_besch_t *get_vehicle_type(int itype);
 
-    /**
-     * Returns the waytype for a certain vehicle; only way to distingiush differnt depots ...
-     * @author prissi
-     */
-    virtual const weg_t::typ get_wegtyp() const { return weg_t::invalid; };
+	/**
+	 * Returns the waytype for a certain vehicle; only way to distingiush differnt depots ...
+	 * @author prissi
+	 */
+	virtual const weg_t::typ get_wegtyp() const { return weg_t::invalid; };
 
-    /**
-     * A convoi arrived at the depot and is added to the convoi list.
-     * If fpl_adjust is true, the current depot is removed from schedule.
-     * @author Volker Meyer
-     * @date  09.06.2003
-     */
-    virtual void convoi_arrived(convoihandle_t cnv, bool fpl_adjust);
+	/**
+	 * A convoi arrived at the depot and is added to the convoi list.
+	 * If fpl_adjust is true, the current depot is removed from schedule.
+	 * @author Volker Meyer
+	 * @date  09.06.2003
+	 */
+	virtual void convoi_arrived(convoihandle_t cnv, bool fpl_adjust);
 
-    /**
-     * Parameters to determine layout and behaviour of the depot_frame_t.
-     * @author Volker Meyer
-     * @date  09.06.2003
-     */
-    virtual int get_x_grid() const = 0;
-    virtual int get_y_grid() const = 0;
-    virtual int get_x_placement() const = 0;
-    virtual int get_y_placement() const = 0;
-    virtual unsigned get_max_convoi_length() const = 0;
+	/**
+	 * Parameters to determine layout and behaviour of the depot_frame_t.
+	 * @author Volker Meyer
+	 * @date  09.06.2003
+	 */
+	virtual int get_x_grid() const = 0;
+	virtual int get_y_grid() const = 0;
+	virtual int get_x_placement() const = 0;
+	virtual int get_y_placement() const = 0;
+	virtual unsigned get_max_convoi_length() const = 0;
 
-    /**
-     * Öffnet ein neues Beobachtungsfenster für das Objekt.
-     * @author Hj. Malthaner
-     */
-    void zeige_info();
+	/**
+	 * Öffnet ein neues Beobachtungsfenster für das Objekt.
+	 * @author Hj. Malthaner
+	 */
+	void zeige_info();
 
-    /**
-     * Access needed by depot_frame_t
-     * @author Volker Meyer
-     * @date  11.06.2003
-     */
-    depot_frame_t *get_info_win() const { return depot_info; }
+	/**
+	 * Access needed by depot_frame_t
+	 * @author Volker Meyer
+	 * @date  11.06.2003
+	 */
+	depot_frame_t *get_info_win() const { return depot_info; }
 
-    /**
-     * @returns NULL wenn OK, ansonsten eine Fehlermeldung
-     * @author Hj. Malthaner
-     */
-    virtual const char * ist_entfernbar(const spieler_t *sp);
+	/**
+	 * @returns NULL wenn OK, ansonsten eine Fehlermeldung
+	 * @author Hj. Malthaner
+	 */
+	virtual const char * ist_entfernbar(const spieler_t *sp);
 
 	virtual slist_tpl<simline_t *> *get_line_list();
 
 	/**
-	 * identifies the oldest vehicle of a certain type (id)
-	 * returns -1 if no vehicle is found
-	 * @author hsiegeln (stolen from Hajo)
-	 */
+	* identifies the oldest vehicle of a certain type (id)
+	* returns -1 if no vehicle is found
+	* @author hsiegeln (stolen from Hajo)
+	*/
 	int get_oldest_vehicle(int id);
 
 #if USE_NEW_GEBAUDE
@@ -256,27 +256,27 @@ protected:
     bool can_convoi_start(int icnv) const;
 
 public:
-    bahndepot_t(karte_t *welt, loadsave_t *file) : depot_t(welt,file) {}
-    bahndepot_t(karte_t *welt, koord3d pos,spieler_t *sp, const haus_tile_besch_t *t) : depot_t(welt,pos,sp,t) {}
+	bahndepot_t(karte_t *welt, loadsave_t *file) : depot_t(welt,file) {}
+	bahndepot_t(karte_t *welt, koord3d pos,spieler_t *sp, const haus_tile_besch_t *t) : depot_t(welt,pos,sp,t) {}
 
-    virtual void convoi_arrived(convoihandle_t cnv, bool fpl_adjust);
+	void rdwr_vehicles(loadsave_t *file) { depot_t::rdwr_vehikel(vehicles,file); }
 
-    /**
-     * Parameters to determine layout and behaviour of the depot_frame_t.
-     * @author Volker Meyer
-     * @date  09.06.2003
-     */
-    int get_x_placement() const {return -25; }
-    int get_y_placement() const {return -28; }
-    int get_x_grid() const { return 24; }
-    int get_y_grid() const { return 24; }
-    unsigned get_max_convoi_length() const { return convoi_t::max_rail_vehicle; }
+	virtual void convoi_arrived(convoihandle_t cnv, bool fpl_adjust);
+
+	/**
+	 * Parameters to determine layout and behaviour of the depot_frame_t.
+	 * @author Volker Meyer
+	 * @date  09.06.2003
+	 */
+	int get_x_placement() const {return -25; }
+	int get_y_placement() const {return -28; }
+	int get_x_grid() const { return 24; }
+	int get_y_grid() const { return 24; }
+	unsigned get_max_convoi_length() const { return convoi_t::max_rail_vehicle; }
 
 	virtual const weg_t::typ get_wegtyp() const {return weg_t::schiene;}
-    virtual enum ding_t::typ gib_typ() const {return bahndepot;}
-    virtual const char *gib_name() const {return "Bahndepot"; }
-
-	void rdwr_vehicles(loadsave_t *file);
+	virtual enum ding_t::typ gib_typ() const {return bahndepot;}
+	virtual const char *gib_name() const {return "Bahndepot"; }
 
 #if USE_NEW_GEBAUDE
     virtual void * operator new(size_t s) { return (bahndepot_t *)freelist_t::gimme_node(sizeof(bahndepot_t)); }

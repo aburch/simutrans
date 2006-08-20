@@ -7,6 +7,13 @@ Known bugs: (hard to fix)
 	sorting factories has an umlaute problem
 	set color broken?
 
+Release of 88.04.4
+
+19-Feb-2006: (prissi)
+	FIX: saving depots
+	FIX: display of attractions
+
+Release of 88.04.3
 
 18-Feb-2006: (prissi)
 	FIX: sum up freight of same catg again

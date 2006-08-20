@@ -46,12 +46,6 @@
 #include "building_writer.h"
 #include "skin_writer.h"
 
-#ifdef _MSC_VER
-#define STRICMP stricmp
-#else
-#define STRICMP strcasecmp
-#endif
-
 
 //@ADOC
 /////////////////////////////////////////////////////////////////////////////

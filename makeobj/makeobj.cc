@@ -12,14 +12,6 @@
 #include "../besch/writer/root_writer.h"
 #include "../besch/writer/image_writer.h"
 
-#ifdef _MSC_VER
-#define STRICMP stricmp
-#define STRNICMP strnicmp
-#else
-#define STRICMP strcasecmp
-#define STRNICMP strncasecmp
-#endif
-
 
 //@ADOC
 /////////////////////////////////////////////////////////////////////////////

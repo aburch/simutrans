@@ -41,14 +41,6 @@
 #include "../tpl/minivec_tpl.h"
 #include "../tpl/stringhashtable_tpl.h"
 
-#ifdef _MSC_VER
-#define STRICMP stricmp
-#else
-#define STRICMP strcasecmp
-#endif
-
-
-
 static minivec_tpl <const bruecke_besch_t *> bruecken (16);
 static stringhashtable_tpl<const bruecke_besch_t *> bruecken_by_name;
 

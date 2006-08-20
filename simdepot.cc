@@ -43,23 +43,11 @@
 
 depot_t::depot_t(karte_t *welt,loadsave_t *file) : gebaeude_t(welt)
 {
-    gebaeude_t::rdwr(file);
-
-    depot_info = NULL;
-
-    if(file->get_version() < 81033) {
-	slist_tpl<vehikel_t *> waggons;
-
-	rdwr_vehikel(vehicles, file);
-	rdwr_vehikel(waggons, file);
-
-	while(waggons.count() > 0) {
-	    vehicles.append(waggons.at(0));
-	    waggons.remove_at(0);
+	depot_info = NULL;
+	rdwr(file);
+	if(file->get_version()<88002) {
+		setze_yoff(0);
 	}
-    } else {
-	rdwr_vehikel(vehicles, file);
-    }
 }
 
 
@@ -371,17 +359,41 @@ depot_t::start_convoi(int icnv)
 
 
 void
+depot_t::rdwr(loadsave_t *file)
+{
+	gebaeude_t::rdwr(file);
+
+	if(file->get_version() < 81033) {
+		slist_tpl<vehikel_t *> waggons;
+
+		rdwr_vehikel(vehicles, file);
+		rdwr_vehikel(waggons, file);
+
+		while(waggons.count() > 0) {
+			vehicles.append(waggons.at(0));
+			waggons.remove_at(0);
+		}
+	}
+	else {
+		rdwr_vehikel(vehicles, file);
+	}
+}
+
+
+
+void
 depot_t::rdwr_vehikel(slist_tpl<vehikel_t *> &list, loadsave_t *file)
 {
     int count;
-    char buf[80];
 
     if(file->is_saving()) {
         count = list.count();
+	DBG_MESSAGE("depot_t::vehikel_laden()","saving %d vehicles",count);
     }
     file->rdwr_long(count, "\n");
 
     if(file->is_loading()) {
+		DBG_MESSAGE("depot_t::vehikel_laden()","loading %d vehicles",count);
         for(int i=0; i<count; i++) {
             ding_t::typ typ = (ding_t::typ)file->rd_obj_id();
 
@@ -403,7 +415,6 @@ depot_t::rdwr_vehikel(slist_tpl<vehikel_t *> &list, loadsave_t *file)
     }
     else {
         slist_iterator_tpl<vehikel_t *> l_iter ( list);
-
         while(l_iter.next()) {
 	    l_iter.get_current()->rdwr( file );
         }
@@ -504,11 +515,4 @@ bahndepot_t::can_convoi_start(int icnv) const
 	ok = true;
     }
     return ok;
-}
-
-// needed for compatibility reasons ...
-void
-bahndepot_t::rdwr_vehicles(loadsave_t *file)
-{
-	depot_t::rdwr_vehikel(vehicles,file);
 }

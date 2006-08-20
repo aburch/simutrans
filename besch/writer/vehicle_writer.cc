@@ -56,13 +56,6 @@
 #include "get_waytype.h"
 #include "vehicle_writer.h"
 
-#ifdef _MSC_VER
-#define STRICMP stricmp
-#else
-#define STRICMP strcasecmp
-#endif
-
-
 /**
  * Calculate numeric engine type from engine type string
  * @author Hj. Malthaner

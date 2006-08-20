@@ -26,12 +26,6 @@
 #include "bauer/warenbauer.h"
 
 
-#ifdef _MSC_VER
-#define STRICMP stricmp
-#else
-#define STRICMP strcasecmp
-#endif
-
 /**
  * gibt den nicht-uebersetzten warennamen zurück
  * @author Hj. Malthaner

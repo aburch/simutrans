@@ -63,17 +63,10 @@ void curiositylist_stats_t::get_unique_attractions(const curiositylist::sort_mod
 		const char *token = translator::translate(geb->gib_tile()->gib_besch()->gib_name());
 		const char *check_token = translator::translate(attractions.at(j)->gib_tile()->gib_besch()->gib_name());
 
-#ifndef WIN32
 		if (sortreverse)
-		    append = strcasecmp(token,check_token)<0;
+		    append = STRICMP(token,check_token)<0;
 		else
-		    append = strcasecmp(token,check_token)>=0;
-#else
-		if (sortreverse)
-		    append = stricmp(token,check_token)<0;
-		else
-		    append = stricmp(token,check_token)>=0;
-#endif
+		    append = STRICMP(token,check_token)>=0;
 	    }
 	    else if (sortby == curiositylist::by_paxlevel) {
 		const int paxlevel = geb->gib_passagier_level();
@@ -101,16 +94,16 @@ void curiositylist_stats_t::get_unique_attractions(const curiositylist::sort_mod
 
 		attractions.insert_at(j,geb);
 		break;
-	    }
+	  }
 	}
-/*
+
 	if (append) {
 	    DBG_MESSAGE("curiositylist_stats_t::get_unique_attractions()","append %s at (%i,%i)",
 			geb->gib_tile()->gib_besch()->gib_name(),
 			geb->gib_pos().x, geb->gib_pos().y );
 	    attractions.append(geb,4);
 	}
-*/
+
     }
 }
 

@@ -9,12 +9,6 @@
 
 #include "citycar_writer.h"
 
-#ifdef _MSC_VER
-#define STRICMP stricmp
-#else
-#define STRICMP strcasecmp
-#endif
-
 /////////////////////////////////////////////////////////////////////////////
 //
 //  static data

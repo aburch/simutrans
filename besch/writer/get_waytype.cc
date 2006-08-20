@@ -5,12 +5,6 @@
 
 #include "../../boden/wege/weg.h"
 
-#ifdef _MSC_VER
-#define STRICMP stricmp
-#else
-#define STRICMP strcasecmp
-#endif
-
 /**
  * Convert waytype string to enum wegtyp
  * @author Hj. Malthaner

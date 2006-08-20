@@ -53,13 +53,6 @@
 #include "besch/spezial_obj_tpl.h"
 #include "simskin.h"
 
-
-#ifdef _MSC_VER
-#define STRICMP stricmp
-#else
-#define STRICMP strcasecmp
-#endif
-
 /*
  * Alle Skin-Bestandteile, die wir brauchen
  */

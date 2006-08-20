@@ -2,12 +2,15 @@
 #define cbuffer_t_h
 
 
+#ifndef STRICMP
 #ifdef _MSC_VER
 #define STRICMP stricmp
+#define STRNICMP strnicmp
 #else
 #define STRICMP strcasecmp
+#define STRNICMP strncasecmp
 #endif
-
+#endif
 
 
 /**
