@@ -1,0 +1,298 @@
+/*
+ * prioqueue_tpl.h
+ *
+ * Copyright (c) 1997 - 2001 Hansjörg Malthaner
+ *
+ * This file is part of the Simutrans project and may not be used
+ * in other projects without written permission of the author.
+ */
+
+#ifndef tpl_prioqueue_tpl_h
+#define tpl_prioqueue_tpl_h
+
+//#include <stdlib.h>
+
+#include "debug_helper.h"
+
+
+// collect statistics
+// #define PRIQ_STATS
+
+
+template<class T> class slist_iterator_tpl;
+
+/**
+ * <p>A template class for a priority queue. The queue is built upon a
+ * sorted linked list.
+ * Maintains a list of free nodes to reduce calls to new and delete.</p>
+ *
+ * <p>This template only works with pointer types, becasue it compares
+ * data by using *p1 < *p2. THe operator < must be defined for the type.</p>
+ *
+ * <p>The insert() operation works in O(n), in average n/2 steps</p>
+ * <p>The pop() operation works in O(1) steps</p>
+ * <p>The contains() operation works in O(n), average n/2 steps</p>
+ * <p>The remove() operation works in O(n), average n steps</p>
+ * <p>The count() and is_empty() operation work in O(1) steps</p>
+ *
+ * @date November 2001
+ * @author Hj. Malthaner
+ */
+
+template <class T>
+class prioqueue_tpl
+{
+private:
+    class node_t
+    {
+        public:
+	node_t *next;
+	T data;
+    };
+
+    node_t * head;
+    node_t * tail;
+    node_t * freelist;
+
+    int node_count;
+
+    //    friend class slist_iterator_tpl<T>;
+
+
+    node_t * gimme_node()
+    {
+    	if(freelist) {
+	    node_t * tmp = freelist;
+	    freelist = freelist->next;
+	    return tmp;
+	} else {
+	    return new node_t();
+	}
+    }
+
+    void putback_node(node_t *tmp)
+    {
+	tmp->next = freelist;
+	freelist = tmp;
+    }
+
+#ifdef PRIQ_STATS
+    int insert_hops;
+    int insert_calls;
+    int insert_count;
+#endif
+
+
+public:
+
+    prioqueue_tpl()
+    {
+	head = 0;             // empty queue
+    tail = 0;
+	freelist = 0;
+	node_count = 0;
+
+#ifdef PRIQ_STATS
+	insert_hops = 0;
+	insert_calls = 0;
+	insert_count = 0;
+#endif
+
+    }
+
+
+    /**
+     * The destructor. Just calls destroy()
+     *
+     * @author Hj. Malthaner
+     */
+    ~prioqueue_tpl()
+    {
+	destroy();
+
+#ifdef PRIQ_STATS
+	printf("%d insert calls, total %d hops, total count %d\n",
+               insert_calls, insert_hops, insert_count);
+#endif
+    }
+
+
+  /**
+   * Inserts an element into the queue.
+   *
+   * @author Hj. Malthaner
+   */
+  void insert(const T data)
+  {
+    node_t *tmp = gimme_node();
+    node_t *prev = 0;
+    node_t *curr = head;
+
+#ifdef PRIQ_STATS
+    insert_calls ++;
+    insert_count += node_count;
+#endif
+
+    tmp->data = data;
+    tmp->next = 0;
+
+    // empty list ?
+
+    if(head == 0) {
+
+      head = tail = tmp;
+
+      // check if we may append or do we need to search?
+    } else if(tail && *tail->data < *data) {
+
+      // we may append
+      tail->next = tmp;
+      tail = tmp;
+
+      // printf("Shortcut at %d elements\n", node_count);
+
+    } else {
+      // search position
+
+      do {
+        if(curr == 0) {
+
+          // end of list
+          prev->next = tmp;
+          tail = tmp;
+
+        } else if(*data < *curr->data) {
+
+          tmp->next = curr;
+
+          if(prev == 0) {
+            // smallest element case
+            head = tmp;
+          } else {
+            // middle element
+            prev->next = tmp;
+          }
+
+          break;
+        }
+
+        prev = curr;
+        curr = curr->next;
+
+#ifdef PRIQ_STATS
+        insert_hops ++;
+#endif
+
+      } while(true);
+    }
+    node_count ++;
+  }
+
+
+    /**
+     * Checks if the given element is already contained in the queue.
+     *
+     * @author Hj. Malthaner
+     */
+    bool contains(const T data) const
+    {
+	node_t *p = head;
+
+	while(p != 0 && p->data != data) {
+	    p = p->next;
+	}
+
+	return (p != 0);         // ist 0 wenn nicht gefunden
+    }
+
+
+    /**
+     * Retrieves the first element from the list. This element is
+     * deleted from the list. Useful for some queueing tasks.
+     * @author Hj. Malthaner
+     */
+    T& pop() {
+	if(head) {
+	    T& tmp = head->data;
+	    node_t *p = head;
+
+            head = head->next;
+	    putback_node(p);
+
+	    node_count --;
+
+        // list got empty?
+        if(head == 0) {
+          tail = 0;
+        }
+
+	    return tmp;
+	} else {
+  	    ERROR("prioqueue_tpl<T>::pop()",
+	          "called on empty queue!");
+	    abort();
+	}
+    }
+
+
+    /**
+     * Recycles all nodes. Doesn't delete the objects.
+     * Leaves the list empty.
+     * @author Hj. Malthaner
+     */
+    void clear()
+    {
+	node_t *p = head;
+	while(p != 0) {
+	    node_t * tmp = p->next;
+	    putback_node( p );
+	    p = tmp;
+	}
+
+	head = 0;
+	node_count = 0;
+    }
+
+    /**
+     * Deletes all nodes and the freelist. Doesn't delete the objects.
+     * Leaves the queue empty.
+     *
+     * @author Hj. Malthaner
+     */
+    void destroy()
+    {
+	node_t *p = head;
+	while(p != 0) {
+	    node_t * tmp = p->next;
+	    delete p;
+	    p = tmp;
+	}
+
+
+	while(freelist != 0) {
+	    node_t *tmp = freelist->next;
+	    delete freelist;
+	    freelist = tmp;
+	}
+
+	head = 0;
+    tail = 0;
+	freelist = 0;
+
+	node_count = 0;
+    }
+
+
+    int count() const
+    {
+	return node_count;
+    }
+
+
+    bool is_empty() const
+    {
+	return head == 0;
+    }
+};
+
+#endif

@@ -1,0 +1,347 @@
+All this rules are written as the code should be. Simutrans does not
+yet conform 100% to this rules, but it should.
+
+
+1. General coding rules:
+-----------------------
+
+- Use always the simplest working solution.
+  -> The solution must work, and should be safe and robust. Try to use the
+     simplest (not shortest!) piece of code which gives the needed result.
+  -> So called hacks and tricks most often break this rule.
+
+- Use always the same name for the same thing (i.e. give variables with same
+  semantics the same name)
+  -> This rule tries to avoid confusion and reduces the amount of things
+     one has to remember while coding
+
+- Use meaningful names. Method names should describe actions (i.e.
+  use "scrollbar_moved" instead of "scrollbar_callback"). Class names
+  should be nouns, method names should be verbs or include action descriptions.
+  -> A method named "holy_hand_grenade()" may be useful, but what does it do?
+     Try to give the reader as much information as possible about what's going
+     on there.
+  -> Class names should be nouns because classes are static elements
+  -> Method names should be verbs because methods are dynamic elements
+
+- Use const wherever possible
+  -> This helps the reader of the program (he sees which values are intended
+     not to be changed) and the compiler (to optimize the code)
+
+- Keep as much class members as possible private
+  -> This reduces dependencies between classes. Therefore the program
+     can be changed easier and the probability of errors reduces.
+
+- Always initialize all member variables in all constructors
+  -> Even if it seems easy, often it is forgotten - particularly if
+     a class has several constructors
+
+- It is preferred to have class and member variables private and
+  public gib_/setze_ methods instead of public variables.
+  -> This allows adding actions to value changes and retrievals.
+  -> Read the section about extern variables for more benefits of using
+     getter/setter methods. There are strong advantages!
+
+- Avoid public member variables. Never use "protected" variables, rather
+  make the variable private and use public or proteted gib_xxx() and
+  setze_xxx() methods.
+  -> protected variables can be changed in subclasses. The super class
+     doesn't see this changes and can't react to them. This is likely
+     to produce errors and makes the code harder to maintain.
+  -> sometimes it's neccesary to bind actions to value assignments to
+     variables later on in development. Public variables don't support
+     this change of protocol and impose much work on the programmer if
+     such a change is needed later.
+
+- Avoid extern variables. Global variables make programs harder to change
+  and make some bugs harder to find. Sometimes it gets necessary to bind
+  actions to variable access. Use getter/setter procedures and static
+  variables instead.
+  -> this rule reduces direct coupling and thus enhances the chance for
+     reusing a component.
+  -> using getter/setter methods allows to bind actions to read/write
+     access later on
+  -> using getter/setter methods allows checking for valid values in
+     assignments
+  -> using only one of getter/setter allows to make a variable read only or
+     write only for other parts of the program. Read only is not the same as
+     constant, and can't be replaced with a const vaiable. Write only is
+     also not expressible with language features themselves.
+
+- References are preferred instead of pointers.
+  -> References can be NULL and add safety and robustness to a program.
+     Many problems with pointers don't occur when references are used.
+     Unfortunatley references can't be used alwys isntead of pointers.
+  -> Don't complicate code. Use pointers if the use of references would
+     complicate things.
+
+- Avoid casts if possible.
+  -> casts can lead to errors which are very hard to find, especially
+     if pointers to onects are casted.
+  -> try to use dynamic_cast<type>(expression) if you need to cast
+
+- Don't cast const'ness away. Use mutable copies of the objects or think
+  about another design if you run into problems with const.
+  -> Program maintainers and compiler rely on things declared const to be
+     immutable. Both run into trouble if you cast const away.
+
+- If you need to cast use dynamic_cast<type>() to get type checking support
+  from the compiler.
+
+- Avoid void* if possible. This is especially dangerous when used for pointers
+  to objects, because the compiler can't call the destructor of the object
+  through a void pointer. Also all type checks are impossible on void *.
+  Use of void* is tolerated in C code, but not in C++ code.
+  -> try using templates instead of void pointers.
+
+- Keep code readable. Spaces and formatting help the reader. I.e. space
+  between methods shows clearly the end of one method and the beginning
+  of another. On the other hand spaces can destroy readability if used wrong.
+  -> Use spaces where the visual separation of things reflects separate
+     entities in the code.
+  -> Unreadable code is hard to maintain. Time is a valuable resource.
+     Spaces and newlines are cheap. Use the cheap resource to save the
+     valuable.
+
+- Avoid includes in header files. Use forward declarations
+  "class xyz_t" where possible.
+  -> This rule tries to reduce coupling of code and compile time.
+
+- use inline methods just for very small methods (1 to 3 lines max.)
+  -> This rule tries to reduce coupling of code and compile time.
+
+- if "char" is used for small numeric values, always write "signed char" or
+  "unsigned char". Different compilers/platforms use different rules for
+  char values. If your code depends on signedness, write this explicitely down.
+  Note, that this errors don't show up on your platform/with your compiler
+  but perhaps only on your teammates systems. Be very careful about this
+  because you can't test for this problems in your own development environment.
+  I.e. Linux/PPC treats chars as unsigned, whereas Linux/Intel treats chars
+  as signed values!
+  -> This rule tries to increase robustness of the code
+
+- take care of boundary violations. Simutrans offers bounds checked
+  templates (arrays, vectors, lists). Use them where possible. If you have
+  to use plain arrays, always double check the values. Never trust a
+  parameter! The caller might be erroneous, or a dangling pointer trashed
+  some memory. I feel urged to write: ever and always check index values
+  before accessing a plain array.
+  -> This rule tries to increase robustness of the code
+
+- keep class interfaces minimal
+  Classes should have only the minimal set of methods that are needed
+  to cover all requirements. Convenience methods should go into other
+  modules or subclasses.
+  -> Small interfaces enhance the readability and understandability of
+     a class.
+  -> Small interfaces also enhance the reuseability.
+  -> Separating convenience from core methods helps to understand the
+     structure of the design.
+
+- Comments: Code documentation for Simutrans is generated with a tool which
+  reads some types of comments from header files. This comments start with
+  a /**
+  In such comments a few special tags are recognised:
+
+  @param parameter_name description
+  @return return value description
+  @author author_name
+  @see class/method name
+  @date creation_date
+  @version some veriosn information
+
+  Try to comment all classes and methods in header files. Don't hesitate
+  to write comments for variables, too.
+  -> Class and method comments are found in the header files rather than
+     the code files. Code files carry comments on algorithms and operations.
+
+  Class comments should include:
+  1.) Purpose of the class.
+  2.) Relations of this class to others.
+  3.) What are the duties of this class (what are not?)
+  4.) Craetor and creation date (if modified by someone else add a note too!)
+
+
+  Method comments should answer the following questions:
+  1.) What does this method do?
+  2.) How does it do it?
+  3.) Why is it done that way?
+  4.) What is valid input (what not?)
+  5.) What are the results for valid input
+  6.) How does it react on invalid input?
+  7.) In which context should/may/can't this method be used? (If appropriate)
+  8.) Creator and creation data (if modified by someone else add a note too!)
+
+
+  Class/Instance variable comments should state:
+  1.) Purpose of this variable
+  2.) Range of valid values, maybe a list of 'special' values if there are any
+  3.) Creator and creation data (if modified by someone else add a note too!)
+
+
+  I know, many existing things in Simutrans are not commented in full detail,
+  but new things should be! Rather add coments on old parts than leave out
+  comments on new parts, if you want to have consistency.
+
+
+- Header comments: Include files which define classes do not need header
+  comments, because the class comment can serve as a header comment.
+  Other files should carry header comments like the example shown below:
+
+  /* boden.cc                        <- name of the file
+   *
+   * Natur-Untergrund für Simutrans. <- Short description of file contents
+   * Erstellt am ????                <- Creation date (if known)
+   * Überarbeitet Januar 2001        <- Additional history information
+   * von Hj. Malthaner               <- author/creator of the file
+   */
+
+
+2. Coding styles
+----------------
+
+Always use braces. Even is there is only one line in that block!
+An example:
+
+if(condition) {
+   // do something here
+} else {
+   // do something esle here
+}
+
+No other styles of using braces are allowed. This rule applies to loops and
+other compound statements, too.
+
+
+Use spaces in parameters list. For example:
+
+call(x, y, count); instead of call(x,y,count);
+
+
+
+3. Tables and detailed information
+----------------------------------
+
+According to the rule "Use always the same name for the same thing" we
+need a list of common names to avoid confusion. Unfortunately the program
+was started with many german terms in use, so many of the names are german
+names:
+
+
+Preferred variable names:
+
+Loop counters (int):	i, j, n
+Indices (int):          i, index, n
+Coordinates:  		pos (position), k (arbitrary coordinate)
+Screen positions:       x, y (short form), xpos, ypos (long form, preferred)
+Convoi:			cnv
+Vehicles:		v
+Rail signals:           sig
+Rail blocks:            bs
+Grounds:                gr
+Roads:                  str
+Railroads:              sch
+Generic way:            weg
+Buildings:              gb
+Factories:              fab
+UI components:		komp, c (temporary component variables)
+UI windows:		??? (win is preferred)
+UI events:              ev
+Button:                 button
+Button lists/vectors:   buttons
+Scrollable list:        scl
+Temporary int value:    t
+Temporary char value:   c
+Temp. general value:    tmp
+Temporary result:       r, res, result ('result' is preferred)
+
+
+Variable pre-/suffixes:
+
+Offsets to a base value:		xxx_off
+
+
+Method pre-/sufffixes:
+
+Retrieving a member variable value:	gib_xxx()
+Setting a member variable value:        setze_xxx()
+Adding a listener to a component:       add_listener(xxx_listener_t *)
+Remove a listener from a component:     remove_listener(xxx_listener_t *)
+
+
+Class per-/suffixes:
+
+Standard class names get the suffix "_t" (for "Type")
+Template classes get the suffix "_tpl" (for "template")
+GUI (windows) classes carry a "_gui_t" suffix
+
+Classes of the new, component-oriented UI carry a gui_ prefix instead
+of the _gui_t suffix.
+
+
+Written by Hj. Malthaner
+Initial version: November 2000
+
+
+MFC-coding styles:
+
+For being able to compile simutrans with MSVC v6.00, some additional rules
+are necessary:
+
+1.
+Change the following construct from:
+
+    	...
+	for(int i = 0; i < n; i++) {
+	    ...
+	}
+	for(int i = 0; i < n; i++) {
+	    ...
+	}
+    	...
+
+to:
+
+    	int i;
+    	...
+	for(i = 0; i < n; i++) {
+	    ...
+	}
+	for(i = 0; i < n; i++) {
+	    ...
+	}
+    	...
+
+Reason:
+	VC considers "int i" in the outer scope and raise a "duplicate identifier
+	in the first case.
+
+
+2.
+Change the following construct from:
+
+	class myclass {
+	    ...
+    	    static const int MY_CONST = 77;
+	    ...
+	};
+
+to:
+
+	class myclass {
+	    ...
+    	    enum { MY_CONST = 77 };
+	    ...
+	};
+
+Reason:
+	VC cannot compile the first. Both constructs archieve the same result.
+
+
+2.
+Do not use:
+
+	any_type *x = new any_type[0];
+
+Reason:
+	VC code crashes when deleting a zero sized array.

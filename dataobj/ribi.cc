@@ -1,0 +1,187 @@
+/*
+ * ribi.cc
+ *
+ * Copyright (c) 1997 - 2001 Hansjörg Malthaner
+ *
+ * This file is part of the Simutrans project and may not be used
+ * in other projects without written permission of the author.
+ */
+
+#include <stdio.h>
+#include "../simdebug.h"
+#include "ribi.h"
+#include "koord.h"
+
+const ribi_t::ribi ribi_t::nsow[4] = {
+    nord,
+    sued,
+    ost,
+    west
+};
+
+const int ribi_t::flags[16] = {
+    0,				// keine
+    einfach | gerade_ns,	// nord
+    einfach | gerade_ow,	// ost
+    kurve,			// nordost
+    einfach | gerade_ns,	// sued
+    gerade_ns,			// nordsued
+    kurve,			// suedost
+    0,				// nordsuedost
+    einfach | gerade_ow,	// west
+    kurve,			// nordwest
+    gerade_ow,			// ostwest
+    0,				// nordostwest
+    kurve,			// suedwest
+    0,				// nordsuedwest
+    0,				// suedostwest
+    0				// alle
+};
+
+const ribi_t::ribi ribi_t::rwr[16] = {
+    alle,			// keine
+    sued,			// nord
+    west,			// ost
+    suedwest,			// nordost
+    nord,			// sued
+    nordsued,			// nordsued
+    nordwest,			// suedost
+    west,			// nordsuedost
+    ost,			// west
+    suedost,			// nordwest
+    ostwest,			// ostwest
+    sued,			// nordostwest
+    nordost,			// suedwest
+    ost,			// nordsuedwest
+    nord,			// suedostwest
+    keine			// alle
+};
+
+const ribi_t::ribi ribi_t::doppelr[16] = {
+    keine,			// keine
+    nordsued,			// nord
+    ostwest,			// ost
+    keine,			// nordost
+    nordsued,			// sued
+    nordsued,			// nordsued
+    keine,			// suedost
+    keine,			// nordsuedost
+    ostwest,			// west
+    keine,			// nordwest
+    ostwest,			// ostwest
+    keine,			// nordostwest
+    keine,			// suedwest
+    keine,			// nordsuedwest
+    keine,			// suedostwest
+    keine			// alle
+};
+
+static const ribi_t::ribi from_hang[16] = {
+    ribi_t::keine,		// 0:flach
+    ribi_t::keine,		// 1:spitze SW
+    ribi_t::keine,		// 2:spitze SO
+    ribi_t::sued,		// 3:nordhang
+    ribi_t::keine,		// 4:spitze NO
+    ribi_t::keine,		// 5:spitzen SW+NO
+    ribi_t::ost,		// 6:westhang
+    ribi_t::keine,		// 7:tal NW
+    ribi_t::keine,		// 8:spitze NW
+    ribi_t::west,		// 9:osthang
+    ribi_t::keine,		// 10:spitzen NW+SO
+    ribi_t::keine,		// 11:tal NO
+    ribi_t::nord,		// 12:suedhang
+    ribi_t::keine,		// 13:tal SO
+    ribi_t::keine,		// 14:tal SW
+    ribi_t::keine		// 15:alles oben
+};
+
+const int hang_t::flags[16] = {
+    wegbar_ns|wegbar_ow,	// 0:flach
+    0,				// 1:spitze SW
+    0,				// 2:spitze SO
+    wegbar_ns|einfach,		// 3:nordhang
+    0,				// 4:spitze NO
+    0,				// 5:spitzen SW+NO
+    wegbar_ow|einfach,		// 6:westhang
+    0,				// 7:tal NW
+    0,				// 8:spitze NW
+    wegbar_ow|einfach,		// 9:osthang
+    0,				// 10:spitzen NW+SO
+    0,				// 11:tal NO
+    wegbar_ns|einfach,		// 12:suedhang
+    0,				// 13:tal SO
+    0,				// 14:tal SW
+    wegbar_ns|wegbar_ow 	// 15:alles oben
+};
+
+const ribi_t::dir ribi_t::dirs[16] = {
+    dir_invalid,		// keine
+    dir_nord,			// nord
+    dir_ost,			// ost
+    dir_nordost,		// nordost
+    dir_sued,			// sued
+    dir_invalid,		// nordsued
+    dir_suedost,		// suedost
+    dir_invalid,		// nordsuedost
+    dir_west,			// west
+    dir_nordwest,		// nordwest
+    dir_invalid,		// ostwest
+    dir_invalid,		// nordostwest
+    dir_suedwest,		// suedwest
+    dir_invalid,		// nordsuedwest
+    dir_invalid,		// suedostwest
+    dir_invalid			// alle
+};
+
+ribi_t::ribi ribi_typ(koord from, koord to)
+{
+    return ribi_typ(to - from);
+}
+
+ribi_t::ribi ribi_typ(hang_t::typ hang)   // nordhang -> sued, ... !
+{
+    return from_hang[hang];
+}
+
+
+ribi_t::ribi ribi_typ(koord dir)
+{
+    ribi_t::ribi ribi = ribi_t::keine;
+
+    if(dir.x<0) {
+	ribi |= ribi_t::west;
+    }
+    else if(dir.x>0) {
+	ribi |= ribi_t::ost;
+    }
+
+    if(dir.y<0) {
+	ribi |= ribi_t::nord;
+    }
+    else if(dir.y>0) {
+	ribi |= ribi_t::sued;
+    }
+    return ribi;
+}
+
+
+hang_t::typ hang_typ(koord dir)
+{
+    if(dir.x == 0) {
+	if(dir.y < 0) {		    // Richtung nord -> suedhang
+	    return hang_t::sued;
+	}
+	if(dir.y > 0) {
+	    return hang_t::nord;    // Richtung sued -> nordhang
+	}
+    }
+    if(dir.y == 0) {
+	if(dir.x < 0) {
+	    return hang_t::ost;	    // Richtung west -> osthang
+	}
+	if(dir.x > 0) {
+	    return hang_t::west;    // Richtung ost -> westhang
+	}
+    }
+    return hang_t::flach;	    // ???
+}

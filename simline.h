@@ -1,0 +1,204 @@
+/*
+ * simline.h
+ * part of the Simutrans project
+ * @author hsiegeln
+ * 01/12/2003
+ */
+#include <string.h>
+
+#include "simtypes.h"
+#include "dataobj/loadsave.h"
+#include "dataobj/translator.h"
+#include "dataobj/fahrplan.h"
+
+#include "tpl/slist_tpl.h"
+#include "simconvoi.h"
+#include "simdebug.h"
+
+#define MAX_LINE_COST   6 // Total number of cost items
+#define MAX_MONTHS     12 // Max history
+#define MAX_NON_MONEY_TYPES 3 // number of non money types in line's financial statistic
+#define LINE_CAPACITY   0 // the amount of ware that could be transported, theoretically
+#define LINE_TRANSPORTED_GOODS 1 // the amount of ware that has been transported
+#define LINE_CONVOIS		2 // the amount of ware that has been transported
+#define LINE_REVENUE		3 // the income this line generated
+#define LINE_OPERATIONS         4 // the cost of operations this line generated
+#define LINE_PROFIT             5 // total profit of line
+
+class karte_t;
+class simlinemgmt_t;
+
+class simline_t {
+	public:
+
+	enum linetype { line = 0, truckline = 1, trainline = 2, shipline = 3};
+
+	/*
+	 * constructor/destructor
+	 * @author hsiegeln
+	 */
+	simline_t(karte_t * welt, simlinemgmt_t * simlinemgmt, fahrplan_t * fpl);
+	simline_t(karte_t * welt, simlinemgmt_t * simlinemgmt, loadsave_t * file);
+	~simline_t();
+
+	/*
+	 * add convoy to route
+	 * @author hsiegeln
+	 */
+	void add_convoy(convoi_t * cnv);
+
+	/*
+	 * remove convoy from route
+	 * @author hsiegeln
+	 */
+	void remove_convoy(convoi_t * cnv);
+
+	/*
+	 * get convoy
+	 * @author hsiegeln
+	 */
+	convoi_t * get_convoy(int i);
+
+	/*
+	 * return number of manages convoys in this line
+	 * @author hsiegeln
+	 */
+	int count_convoys();
+
+	/*
+	 * return fahrplan of line
+	 * @author hsiegeln
+	 */
+	fahrplan_t * get_fahrplan();
+
+	void set_fahrplan(fahrplan_t * fpl) { delete (this->fpl); this->fpl = fpl; };
+
+	/*
+	 * get name of line
+	 * @author hsiegeln
+	 */
+	char * get_name();
+
+	int get_id() const {return id;};
+
+ 	/*
+ 	 * load or save the line
+ 	 */
+	void rdwr(loadsave_t * file);
+
+	/*
+	 * register line with stop
+	 */
+	void register_stops(fahrplan_t * fpl);
+	void register_stops();
+
+	/*
+	 * unregister line from stop
+	 */
+	void unregister_stops(fahrplan_t * fpl);
+	void unregister_stops();
+
+	/*
+	 * renew line registration for stops
+	 */
+	void renew_stops();
+
+	int operator==(const simline_t &s) {
+		return id == s.id;
+	}
+
+	int operator!=(const simline_t &s) {
+		return ! (*this == s);
+	}
+
+	sint64* get_finance_history() { return *financial_history; };
+
+	sint64 get_finance_history(int month, int cost_type) { return financial_history[month][cost_type]; };
+
+	void book(sint64 amount, int cost_type) { financial_history[0][cost_type] += amount; };
+
+	void new_month();
+
+	/*
+	 * called from line_management_gui.cc to prepare line for a change of its schedule
+	 */
+	void prepare_for_update();
+
+	linetype get_linetype() { return type; };
+
+	void set_linetype(linetype lt) { type = lt; };
+
+	protected:
+	fahrplan_t * fpl,  * old_fpl;
+	linetype type;
+
+	private:
+	karte_t * welt;
+	char name[128];
+
+	/*
+	 * the line id
+	 * @author hsiegeln
+	 */
+	int id;
+
+	/*
+	 * a list of all convoys assigned to this line
+	 * @author hsiegeln
+	 */
+	slist_tpl<convoi_t *> line_managed_convoys;
+
+	/*
+ 	 * struct holds new financial history for line
+	 * @author hsiegeln
+	 */
+	sint64 financial_history[MAX_MONTHS][MAX_LINE_COST];
+
+	void simline_t::init_financial_history();
+
+};
+
+class truckline_t : public simline_t
+{
+	public:
+		truckline_t(karte_t * welt, simlinemgmt_t * simlinemgmt, fahrplan_t * fpl) : simline_t(welt, simlinemgmt, fpl)
+		{
+			type = simline_t::truckline;
+		};
+
+		truckline_t(karte_t * welt, simlinemgmt_t * simlinemgmt, loadsave_t * file) : simline_t(welt, simlinemgmt, file)
+		{
+			type = simline_t::truckline;
+			set_fahrplan(new autofahrplan_t(fpl));
+		};
+};
+
+class trainline_t : public simline_t
+{
+	public:
+		trainline_t(karte_t * welt, simlinemgmt_t * simlinemgmt, fahrplan_t * fpl) : simline_t(welt, simlinemgmt, fpl)
+		{
+			type = simline_t::trainline;
+		};
+
+		trainline_t(karte_t * welt, simlinemgmt_t * simlinemgmt, loadsave_t * file) : simline_t(welt, simlinemgmt, file)
+		{
+			type = simline_t::trainline;
+			set_fahrplan(new zugfahrplan_t(fpl));
+		};
+};
+
+class shipline_t : public simline_t
+{
+	public:
+		shipline_t(karte_t * welt, simlinemgmt_t * simlinemgmt, fahrplan_t * fpl) : simline_t(welt, simlinemgmt, fpl)
+		{
+			type = simline_t::shipline;
+		};
+
+		shipline_t(karte_t * welt, simlinemgmt_t * simlinemgmt, loadsave_t * file) : simline_t(welt, simlinemgmt, file)
+		{
+			type = simline_t::shipline;
+			set_fahrplan(new schifffahrplan_t(fpl));
+		};
+};

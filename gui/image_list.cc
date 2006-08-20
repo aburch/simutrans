@@ -1,0 +1,160 @@
+/*
+ * image_list.h
+ *
+ * Copyright (c) 1997 - 2001 Hansjörg Malthaner
+ *
+ * This file is part of the Simutrans project and may not be used
+ * in other projects without written permission of the author.
+ */
+
+
+#include "../simdebug.h"
+#include "image_list.h"
+#include "ifc/image_list_listener.h"
+#include "../simgraph.h"
+#include "../simevent.h"
+#include "../simcolor.h"
+
+
+image_list_t::image_list_t(vector_tpl<image_data_t> *images) :
+    grid(16, 16),
+    placement(16, 16)
+{
+    this->images = images;
+
+    use_rows = true;
+    color = 0;
+}
+
+
+/**
+ * Events werden hiermit an die GUI-Komponenten
+ * gemeldet
+ * @author Hj. Malthaner
+ */
+void image_list_t::infowin_event(const event_t *ev)
+{
+    int sel_index = index_at(-pos, ev->mx, ev->my);
+
+    if(sel_index != -1) {
+	if(IS_LEFTCLICK(ev)) {
+	    // listener informieren
+	    slist_iterator_tpl<image_list_listener_t*> iter (listener);
+	    while(iter.next()) {
+		iter.get_current()->bild_gewaehlt(this, sel_index);
+	    }
+	}
+    }
+}
+
+
+int image_list_t::index_at(koord parent_pos, int xpos, int ypos) const
+{
+    xpos -= parent_pos.x + pos.x + BORDER;
+    ypos -= parent_pos.y + pos.y + BORDER;
+
+    if(xpos >= 0 && ypos >= 0 &&
+	xpos < groesse.x - 2 * BORDER &&
+	ypos < groesse.y - 2 * BORDER)
+    {
+	const int rows = (groesse.y - 2 * BORDER) / grid.y;
+	const int columns = (groesse.x - 2 * BORDER) / grid.x;
+
+	const int column = xpos / grid.x;
+	const int row = ypos / grid.y;
+
+	const unsigned int bild_index = use_rows ?
+	    row * columns + column :
+	    column * rows + row;
+
+	if(bild_index < images->get_count() && images->get(bild_index).image != -1)
+	{
+	    return bild_index;
+	}
+    }
+    return -1;
+}
+
+
+void image_list_t::zeichnen(koord parent_pos) const
+{
+    const int rows = (groesse.y - 2 * BORDER) / grid.y;
+    const int columns = (groesse.x - 2 * BORDER) / grid.x;
+
+    // sel_index should come from infowin_event, but it is not sure?
+    const unsigned int sel_index = index_at(parent_pos, gib_maus_x(), gib_maus_y());
+
+    // zeige verfügbare waggontypen
+    int xmin = parent_pos.x + pos.x + BORDER;
+    int ymin = parent_pos.y + pos.y + BORDER;
+    int ymax = ymin + rows * grid.y;
+    int xmax = xmin + columns * grid.x;
+    int xpos = xmin;
+    int ypos = ymin;
+
+    for(unsigned int i=0; i< images->get_count(); i++) {
+	const image_data_t &idata = images->get(i);
+
+	if(idata.count >= 0) {
+	    // display mark
+
+	    if(idata.lcolor != -1) {
+		display_fillbox_wh_clip(
+		    xpos + 1, ypos + grid.y - 5, grid.x/2 - 1, 4,
+		    idata.lcolor,
+		    true);
+	    }
+	    if(idata.rcolor != -1) {
+		display_fillbox_wh_clip(
+		    xpos + grid.x/2, ypos + grid.y - 5, grid.x - grid.x/2 - 1, 4,
+		    idata.rcolor,
+		    true);
+	    }
+	    if(i == sel_index) {
+		display_ddd_box_clip(xpos, ypos, grid.x, grid.y, MN_GREY4, MN_GREY0);
+	    }
+	    display_color_img(idata.image, xpos + placement.x, ypos + placement.y,
+			      color, false, true);
+
+
+	    // If necessary, display a number:
+	    if(idata.count > 0) {
+		char text[20];
+
+		sprintf(text, "%d", idata.count);
+
+		// Let's make a black background to ensure visibility
+		for(int iy = -3; iy < 0; iy++) {
+		    for(int ix = 1; ix < 4; ix++) {
+			display_proportional_clip(xpos + ix, ypos + iy, text, ALIGN_LEFT,
+					     BLACK, true);
+		    }
+		}
+		// Display the number white on black
+		display_proportional_clip(xpos + 2, ypos - 2, text, ALIGN_LEFT,
+				     WHITE, true);
+	    }
+	}
+	// advance x, y to next position
+	if(use_rows) {
+	    xpos += grid.x;
+	    if(xpos == xmax) {
+		xpos = xmin;
+		ypos += grid.y;
+	    }
+	} else {
+	    ypos += grid.y;
+	    if(ypos == ymax) {
+		ypos = ymin;
+		xpos += grid.x;
+	    }
+	}
+    }
+}
+
+void image_list_t::recalc_size()
+{
+	const int columns = (groesse.x - 2 * BORDER) / grid.x;
+	const int rows = images->get_count() / columns + 1;
+	setze_groesse(koord(groesse.x, rows * grid.y + BORDER));
+}

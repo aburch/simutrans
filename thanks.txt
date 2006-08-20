@@ -1,0 +1,241 @@
+Credits
+=======
+
+Many people helped me with various contributions to Simutrans.
+This file tries to list all contributors to Simutrans.
+
+
+Additional programming
+----------------------
+
+* Andreas Röver: small patches
+andreas_roever@yahoo.com
+
+* Hellmade: Small patches
+nomad@sms-amore.de
+
+* Niels Roest: Many additional UI routines
+               Simutrans' proportional font
+npr@hetnet.nl
+
+* Markus Pristovsek: Bugfixes
+
+* Pasi Ruhanen: Help with BeOS port
+duck@neutech.fi
+
+* Tillman Raatz: Bugfixes for vehicle movement code
+mrtlee@gmx.de
+
+* Tomas Kubes: Forest creation code, new darkening, Patches
+               Coordination of 128x128 pixel tile set creation
+t_kubes@yahoo.com
+
+* Markus Weber: Additional UI coding
+preml@gmx.net
+
+* Owen Rudge: MIDI playing routines for Windows version
+              Finance window
+              Command line arguments for reading custom daten.pak files
+              Many small patches
+owen@osplus.co.uk
+
+* Volker Meyer: Better bridges and tunnels
+                Rewrites of many data structures
+                Binary save game format
+                Many big patches
+volker.meyer@thales-is.com
+
+* Hendrik Siegeln: Line management
+                   Charts/Statistics
+                   Bugfixes
+                   "Master of the scrollbars"
+hsiegeln@tibco.com
+
+
+Help with game design
+---------------------
+
+* Peter J. Dobrovka
+dobrovka@t-online.de
+
+
+
+Additional artwork
+------------------
+
+* Georg "MHz" Moers: Lots and lots of highest quality images
+
+* Flor Wauters: trucks, trains cars, industries and many other images
+                many animations
+Artist trademark (vehicles): WF Ultd.
+flor.wauters@pandora.be
+
+* Tomas Kubes: Many high quality images
+t_kubes@yahoo.com
+
+* Jens Emmel: ships, trucks
+Artist trademark (vehicles): JET
+jens.emmel@hansenet.de
+
+* Manfred Tomaschitz: train waggons
+Artist trademark (vehicles): VT Vienna
+manfredtomaschitz@netscape.net
+
+* Oskari Saarekas: locomotives, waggons, ships and buildings
+Artist trademark (vehicles): TPI
+lopomo@mbnet.fi
+
+* Peter J. Dobrovka: buildings, some trees
+dobrovka@t-online.de
+
+* Rick McGreal: town buildings and factories
+Artist trademark (vehicles): Trikky
+trikky@mynock.com
+
+* Sergiu Croitor: busses and trucks
+Artist trademark (vehicles): Serj
+sheff.cib@usa.net
+
+* Seth C. Triggs: town buildings and factories
+sethtriggs@yahoo.com
+
+* Dirk Burkholz: cars and ships
+Artist trademark (vehicles): DIBU
+dirk@burkholz.de
+
+* Tuomas Suikkanen: old bookshop image
+tsuippa@yahoo.com
+
+* Daniel Töpel: improved powerline images, transformer station image
+toepel@talknet.de
+
+* Marcal Guardiola: town buildings
+margs@retemail.es
+
+* Frans van Nispen: some very nicely rendered high-level buildings
+xlr8@tref.nl
+
+* Paul Szczepanek: many high quality buildings
+
+* Stefan "MIP" Wuttich: cobblestone road
+s.wuttich@web.de
+
+* Patrick Nesbitt: lots of images
+
+* James Starr: high quality factories
+
+* Georg "MHZ" Moers: buildings and vehicles
+
+
+Translation
+-----------
+
+* George Dragon: Hungarian translation
+dragon@idg.hu
+
+* Marcal Guardiola: Spanish translation
+margs@retemail.es
+
+* Niels Roest: Dutch translation
+npr@hetnet.nl
+
+* Rémi Denis-Courmont: French translation
+rdenis@multimania.com
+
+* Pasi Ruhanen: Finnish translation
+duck@neutech.fi
+
+* Ville Koskinen: Finnish translation
+bm@linja.net
+
+* Peter Molnar: Hungarian translation
+
+
+* Antti Louko: Finnish translation
+alou@mbnet.fi
+
+* Bram Schoenmakers: Dutch translation
+bram@schnmkrs.myweb.nl
+
+* Alberto Beccaria: Italian translation
+a.beccaria@inwind.it
+
+* Ivo Strasil: Czech translation
+ivo.strasil@centrum.cz
+
+* Kamil "FastIkarus" Ondrák: Czech translation
+fastikarus@centrum.cz
+
+* Ondrej Machulda: Czech translation
+translation@simutrans.wz.cz
+
+* Piotr Pietrzak: Polish translation
+pyotr@wp.pl
+
+* Jaroslav Pitoòák: Slovak translation
+jaro.pitonak@seznam.cz
+
+* Ján Krnác: Slovak translation
+Krnac@UZIS.Sk
+
+* Julius Grantén: Swedish translation
+ge_klav@hotmail.com
+
+* Eric C. Olivera: Portuguese translation
+ecostaoli@yahoo.com.br
+
+* Finn Rosenbech Jensen: Danish translation
+finnrj@ofir.dk
+
+
+User manual, documentation and in-game texts
+--------------------------------------------
+
+* Henrik Wolff: User manual extensions
+eMail@Henrik-Wolff.de
+
+* Seth C. Triggs: Maintaining the bug list 2000-2002
+sethtriggs@yahoo.com
+
+* Dirk Burkholz: Help with german manual
+                 Webmaster of the german Simutrans forum
+dirk@burkholz.de
+
+* Adam Barclay: Many english in-game help texts
+                Maintaining the bug list 2002-2003
+echobeatz666@aol.com
+
+* Stefan Heinze: german in-game help texts
+masato@gmx.de
+
+* Joachim Baum: german tree descriptions
+
+* Isaak Eiland-Hall: hosting the Simutrans Wiki
+
+
+Help with assembly coding
+--------------------------
+
+* Frans van Nispen
+xlr8@tref.nl
+
+
+Additional thanks go to
+-----------------------
+
+* Bernhard Mecl: Very first beta tester
+bernhard.mecl@gmx.de
+
+* Gerhard Hafner: Railway informations
+<no current email address known>
+
+* Richard Tockey: Vehicle editor for Windows version
+darkfyre@phoenixdsl.com
+(The vehicle editor is no longer maintained as far as I know)
+
+* Veikka Kemppainen: Testing and suggestions and many other things
+vkem@kolumbus.fi
+
+
+Written by Hansjörg Malthaner, October 2000
+Last update: 30-Aug-2004 - hansjoerg.malthaner@gmx.de
