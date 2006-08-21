@@ -1700,76 +1700,6 @@ void register_image(struct bild_besch_t *bild)
 }
 
 
-
-#if 0
-// not used
-/**
- * adds this images as a copy of another image; useful to have two images with different offsets
- * @return die neue Bildnummer
- *
- * @author prissi
- */
-void register_image_copy(struct bild_besch_t *bild)
-{
-	if(anz_images == alloc_images) {
-		alloc_images += 128;
-		images = (struct imd *)guarded_realloc(images, sizeof(struct imd)*alloc_images);
-	}
-
-	images[anz_images].x = bild->x;
-	images[anz_images].w = images[bild->bild_nr].w;
-	images[anz_images].y = bild->y;
-	images[anz_images].h = images[bild->bild_nr].h;
-
-	images[anz_images].base_x = bild->x;
-	images[anz_images].base_w = images[bild->bild_nr].w;
-	images[anz_images].base_y = bild->y;
-	images[anz_images].base_h = images[bild->bild_nr].h;
-
-	images[anz_images].len = images[bild->bild_nr].len;
-	if(images[anz_images].len==0) {
-		images[anz_images].len = 1;
-		images[anz_images].base_h = 0;
-		images[anz_images].h = 0;
-	}
-
-	// allocate and copy if needed
-	images[anz_images].recode_flags[NEED_NORMAL_RECODE] = 128;
-#ifdef NEED_PLAYER_RECODE
-	images[anz_images].recode_flags[NEED_PLAYER_RECODE] = 128;
-#endif
-	images[anz_images].recode_flags[NEED_REZOOM] = true;
-
-	images[anz_images].base_data = NULL;
-
-	images[anz_images].zoom_data = NULL;
-
-	images[anz_images].data = NULL;
-	images[anz_images].player_data = NULL;	// chaches data for one AI
-
-	images[anz_images].base_data = (PIXVAL *)guarded_malloc(images[anz_images].len*sizeof(PIXVAL));
-
-	images[anz_images].recode_flags[ZOOMABLE] = bild->zoomable;
-
-	memcpy(images[anz_images].base_data, images[bild->bild_nr].base_data, images[bild->bild_nr].len );
-
-	bild->bild_nr = anz_images;
-
-	if(anz_images>=65535) {
-		printf("FATAL:\n*** Out of images (more than 65534!) ***\n\n");
-		getchar();
-		fflush(NULL);
-		abort();
-	}
-	else {
-		printf("register_image_copy() %i\n", anz_images );
-	}
-	anz_images ++;
-}
-#endif
-
-
-
 // prissi: query offsets
 void display_get_image_offset( unsigned bild, int *xoff, int *yoff, int *xw, int *yw ) {
 	if(bild<anz_images) {
@@ -1863,35 +1793,6 @@ static int clip_wh(KOORD_VAL *x, KOORD_VAL *width, const KOORD_VAL min_width, co
 		*width = max_width - *x;
 	}
 	return 0;
-}
-
-// like above, but no return value
-#define CLIP_WH_NR(x,width,min_width,max_width) { \
-	if(x < min_width) { \
-		const KOORD_VAL xoff = (min_width) - (x); \
-		width += (x)-(min_width); \
-		x = min_width; \
-		if((x)+(width) >= max_width) { width = (max_width) - (x); } \
-	} else if(*x + *width >= max_width) { \
-		width = max_width - x; \
-	} esle {\
-	0; \
-	} } \
-}
-
-// like above, but with return value
-#define CLIP_WH_WR(x,width,min_width,max_width,ret) { \
-	if(x < min_width) { \
-		const KOORD_VAL xoff = (min_width) - (x); \
-		width += (x)-(min_width); \
-		x = min_width; \
-		if((x)+(width) >= max_width) { width = (max_width) - (x); } \
-		ret = xoff; \
-	} else { \
-		ret = 0; \
-		if((x) + (width) >= max_width) { \
-			width = (max_width) - (x); \
-	} } \
 }
 
 
@@ -2265,8 +2166,6 @@ display_color_img_aux(const unsigned n, const KOORD_VAL xp, const KOORD_VAL yp,
 {
 	KOORD_VAL h = images[n].h;
 	KOORD_VAL y = yp + images[n].y;
-//	KOORD_VAL yoff;
-//	CLIP_WH_WR(y, h, clip_rect.y, clip_rect.yy,yoff);
 	KOORD_VAL yoff = clip_wh(&y, &h, clip_rect.y, clip_rect.yy);
 
 	if(h>0) {	// clipping may have reduced it
