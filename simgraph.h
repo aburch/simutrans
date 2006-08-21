@@ -33,9 +33,6 @@ typedef enum {false=0, true=1 } bool;
 
 #include "simcolor.h"
 
-#define DPY_WIDTH   12
-#define DPY_HEIGHT  28
-
 #define LINESPACE 11
 
 // size of koordinates
@@ -127,9 +124,6 @@ bool display_load_font(const char *fname, bool large );
  */
 void	display_check_fonts(void);
 
-int display_get_font_height_small();
-int display_get_font_height();
-
 void register_image(struct bild_besch_t *buffer);
 void register_image_copy(struct bild_besch_t *bild);
 
@@ -150,18 +144,8 @@ KOORD_VAL display_set_height(KOORD_VAL);
 int  display_get_light();
 void display_set_light(int new_light_level);
 
-int display_get_color();
-void display_set_color(int new_color_level);
-
 void display_day_night_shift(int night);
 
-
-/**
- * Sets color set for player 0
- * @param entry   number of color set, range 0..15
- * @author Hj. Malthaner
- */
-void display_set_player_color(int entry);
 
 // scrolls horizontally, will ignore clipping etc.
 void	display_scroll_band( const KOORD_VAL start_y, const KOORD_VAL x_offset, const KOORD_VAL h );
@@ -185,8 +169,6 @@ void display_move_pointer(KOORD_VAL dx, KOORD_VAL dy);
 void display_show_pointer(int yesno);
 void display_set_pointer(int pointer);
 void display_show_load_pointer(int loading);
-
-void display_pixel(KOORD_VAL x, KOORD_VAL y, PLAYER_COLOR_VAL color);
 
 
 void display_array_wh(KOORD_VAL xp, KOORD_VAL yp, KOORD_VAL w, KOORD_VAL h, const COLOR_VAL *arr);

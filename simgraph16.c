@@ -1207,19 +1207,8 @@ void	display_check_fonts(void)
 		copy_font( &large_font, &small_font );
 	}
 }
-
-
-
-int display_get_font_height_small()
-{
-	return small_font.height;
-}
 #endif
 
-int display_get_font_height()
-{
-	return large_font.height;
-}
 
 /**
  * Laedt die Palette
@@ -1342,20 +1331,10 @@ void display_set_light(int new_light_level)
 
 
 /**
- * Holt Farbeinstellungen
- * @author Hj. Malthaner
- */
-int display_get_color()
-{
-    return color_level;
-}
-
-
-/**
  * Setzt Farbeinstellungen
  * @author Hj. Malthaner
  */
-void display_set_color(int new_color_level)
+static void display_set_color(int new_color_level)
 {
     color_level = new_color_level;
 
@@ -1600,7 +1579,7 @@ void display_day_night_shift(int night)
  * @param entry   number of color set, range 0..15
  * @author Hj. Malthaner
  */
-void display_set_player_color(int entry)
+static void display_set_player_color(int entry)
 {
   int i;
 
@@ -2428,8 +2407,7 @@ void display_mark_img_dirty( unsigned bild, int xp, int yp )
  * Zeichnet ein Pixel
  * @author Hj. Malthaner
  */
-void
-display_pixel(KOORD_VAL x, KOORD_VAL y, PIXVAL color)
+static void display_pixel(KOORD_VAL x, KOORD_VAL y, PIXVAL color)
 {
 	if(x >= clip_rect.x && x<=clip_rect.xx && y >= clip_rect.y && y<=clip_rect.yy) {
 
