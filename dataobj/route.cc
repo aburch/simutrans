@@ -362,7 +362,7 @@ route_t::find_route(karte_t *welt,
 
 
 ribi_t::ribi *
-get_next_dirs(koord gr_pos, koord ziel)
+get_next_dirs(const koord gr_pos, const koord ziel)
 {
 	static ribi_t::ribi next_ribi[4];
 	if( abs(gr_pos.x-ziel.x)>abs(gr_pos.y-ziel.y) ) {
@@ -394,6 +394,8 @@ route_t::intern_calc_route(karte_t *welt, const koord3d ziel, const koord3d star
 	// some thing for the search
 	const weg_t::typ wegtyp = fahr->gib_wegtyp();
 	grund_t *to;
+
+	bool ziel_erreicht=false;
 
 	// memory in static list ...
 	if(nodes==NULL) {
@@ -485,9 +487,9 @@ DBG_DEBUG("sizes","KNode=%i, ANode=%i",sizeof(KNode),sizeof(ANode));
 
 //DBG_DEBUG("add to close","(%i,%i,%i) f=%i",gr->gib_pos().x,gr->gib_pos().y,gr->gib_pos().z,tmp->f);
 
-		// already there
-		if(gr->gib_pos() == ziel) {
-			// we added a target to the closed list: we are finished
+		// we took the target pos out of the closed list
+		if(ziel==gr->gib_pos()) {
+			ziel_erreicht = true;
 			break;
 		}
 
@@ -511,6 +513,15 @@ DBG_DEBUG("sizes","KNode=%i, ANode=%i",sizeof(KNode),sizeof(ANode));
 
 			// a way goes here, and it is not marked (i.e. in the closed list)
 			if((to  ||  gr->get_neighbour(to, wegtyp, koord(next_ribi[r]) ))  &&  fahr->ist_befahrbar(to)  &&  !welt->ist_markiert(to)) {
+
+				// Do not go on a tile, where a oneway sign forbids going.
+				// This saves time and fixed the bug, that a oneway sign on the finaly tile was ignored.
+				ribi_t::ribi last_dir=next_ribi[r];
+				weg_t *w=to->gib_weg(wegtyp);
+				ribi_t::ribi go_dir = (w==NULL) ? 0 : w->gib_ribi_maske();
+				if((last_dir&go_dir)!=0) {
+						continue;
+				}
 
 				// new values for cost g
 				uint32 new_g = tmp->g + fahr->gib_kosten(to,max_speed);
@@ -614,14 +625,15 @@ DBG_DEBUG("sizes","KNode=%i, ANode=%i",sizeof(KNode),sizeof(ANode));
 #ifdef PRIOR
 		open_count = queue.count();
 #endif
-	} while(open_count>0  &&  !am_i_there(welt, gr->gib_pos(), ziel, false)  &&  step<MAX_STEP  &&  tmp->g<max_cost);
+
+	} while(open_count>0  &&  !ziel_erreicht  &&  step<MAX_STEP  &&  tmp->g<max_cost);
 
 	INT_CHECK("route 194");
 #ifdef DEBUG_ROUTES
 DBG_DEBUG("route_t::intern_calc_route()","steps=%i  (max %i) in route, open %i, cost %u (max %u)",step,MAX_STEP,open_count,tmp->g,max_cost);
 #endif
 	// target reached?
-	if(!am_i_there(welt, tmp->gr->gib_pos(), ziel, false)  || step >= MAX_STEP  ||  tmp->parent==NULL) {
+	if(!ziel_erreicht  || step >= MAX_STEP  ||  tmp->parent==NULL) {
 		dbg->warning("route_t::intern_calc_route()","Too many steps (%i>=max %i) in route (too long/complex)",step,MAX_STEP);
 	}
 	else {
@@ -678,6 +690,7 @@ DBG_MESSAGE("route_t::calc_route()","No route from %d,%d to %d,%d found",start.x
 
 	}
 	else {
+		// drive to the end in a station
 		halthandle_t halt = welt->lookup(start)->gib_halt();
 
 		// only needed for stations: go to the very end
@@ -693,9 +706,17 @@ DBG_MESSAGE("route_t::calc_route()","No route from %d,%d to %d,%d found",start.x
 
 				const int ribi = ribi_typ(zv);//fahr->gib_ribi(welt->lookup(start));
 				grund_t *gr=welt->lookup(start);
+				const weg_t::typ wegtyp=fahr->gib_wegtyp();
 
-				while(gr->get_neighbour(gr,fahr->gib_wegtyp(),zv)  &&  gr->gib_halt() == halt  &&   fahr->ist_befahrbar(gr)   &&  (fahr->gib_ribi(gr)&&ribi)!=0) {
+				while(gr->get_neighbour(gr,wegtyp,zv)  &&  gr->gib_halt() == halt  &&   fahr->ist_befahrbar(gr)   &&  (fahr->gib_ribi(gr)&&ribi)!=0) {
 					// stop at end of track! (prissi)
+
+					// Do not go on a tile, where a oneway sign forbids going.
+					// This saves time and fixed the bug, that a oneway sign on the finaly tile was ignored.
+					ribi_t::ribi go_dir=gr->gib_weg(wegtyp)->gib_ribi_maske();
+					if((ribi&go_dir)!=0) {
+						break;
+					}
 //DBG_DEBUG("route_t::calc_route()","add station at %i,%i",gr->gib_pos().x,gr->gib_pos().y);
 					route.append(gr->gib_pos(),12);
 				}

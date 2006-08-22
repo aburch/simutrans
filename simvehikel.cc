@@ -1126,10 +1126,7 @@ vehikel_t::beladen(koord , halthandle_t halt)
 	const bool ok= load_freight(welt, halt, &fracht, besch, cnv->gib_fahrplan());
 	sum_weight =  (gib_fracht_gewicht()+499)/1000 + besch->gib_gewicht();
 
-	// bild hat sich geändert
-	if(ok) {
-		calc_bild();
-	}
+	calc_bild();
 	return ok;
 }
 
@@ -1203,12 +1200,16 @@ vehikel_t::richtung()
 void
 vehikel_t::calc_bild()
 {
+	image_id old_bild=gib_bild();
 	if(welt->lookup(pos_cur) &&  welt->lookup(pos_cur)->ist_im_tunnel() ) {
 		// tunnel
 		setze_bild(0, IMG_LEER);
 	}
 	else {
 		setze_bild(0, besch->gib_bild_nr(ribi_t::gib_dir(gib_fahrtrichtung()),fracht.is_empty()));
+	}
+	if(old_bild!=gib_bild()) {
+		set_flag(ding_t::dirty);
 	}
 }
 
@@ -1802,17 +1803,24 @@ DBG_MESSAGE("waggon_t::setze_convoi()","new route %p, route_index %i",c->get_rou
 					// find about next signal after loading
 					uint16 next_signal_index=65535;
 					route_t *route=c->get_route();
-					for(  uint16 i=max(route_index,1)-1;  i<=route->gib_max_n();  i++) {
-						schiene_t * sch = (schiene_t *) welt->lookup(route->position_bei(i))->gib_weg(gib_wegtyp());
-						if(sch==NULL) {
-							break;
-						}
-						if(sch->has_sign()) {
-							next_signal_index = i+1;
-							break;
-						}
+
+					if(gib_pos()==route->position_bei(route->gib_max_n())) {
+						// we are there, were we should go? Usually this is an error during autosave
+						c->suche_neue_route();
 					}
-					c->set_next_stop_index( next_signal_index );
+					else {
+						for(  uint16 i=max(route_index,1)-1;  i<=route->gib_max_n();  i++) {
+							schiene_t * sch = (schiene_t *) welt->lookup(route->position_bei(i))->gib_weg(gib_wegtyp());
+							if(sch==NULL) {
+								break;
+							}
+							if(sch->has_sign()) {
+								next_signal_index = i+1;
+								break;
+							}
+						}
+						c->set_next_stop_index( next_signal_index );
+					}
 				}
 			}
 		}
@@ -1915,20 +1923,9 @@ waggon_t::ist_ziel(const grund_t *gr,const grund_t *prev_gr) const
 			if(prev_gr!=NULL) {
 				const koord dir=gr->gib_pos().gib_2d()-prev_gr->gib_pos().gib_2d();
 				grund_t *to;
-				if(!gr->get_neighbour(to,gib_wegtyp(),dir)  ||  !to->gib_halt().is_bound()) {
+				if(!gr->get_neighbour(to,gib_wegtyp(),dir)  ||  !(to->gib_halt()==target_halt)) {
 					return true;
 				}
-/*
-				ribi_t::ribi r = sch1->gib_ribi_unmasked();
-				if(ribi_t::ist_einfach(r)) {
-					// station ends here: terminal tile
-					return true;
-				}
-				if(!welt->ist_in_kartengrenzen(haltpos+dir)  ||  !welt->lookup(gr->gib_pos().gib_2d()+dir)->gib_kartenboden()->gib_halt().is_bound()) {
-					// end of through station ...
-					return true;
-				}
-*/
 			}
 		}
 	}

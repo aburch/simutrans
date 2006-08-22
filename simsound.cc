@@ -88,7 +88,7 @@ void
 sound_play(const struct sound_info info)
 {
 	if(info.index!=NO_SOUND) {
-DBG_MESSAGE("karte_t::interactive_event(event_t &ev)", "play sound %i",info.index);
+//DBG_MESSAGE("karte_t::interactive_event(event_t &ev)", "play sound %i",info.index);
 		dr_play_sample(info.index, (info.volume*global_volume)>>8);
 	}
 }

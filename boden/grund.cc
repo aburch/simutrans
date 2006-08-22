@@ -730,6 +730,8 @@ void
 grund_t::display_boden( const sint16 xpos, const sint16 ypos, const bool reset_dirty ) const
 {
 	const bool dirty=get_flag(grund_t::dirty);
+	const sint16 rasterweite=get_tile_raster_width();
+
 	// walls
 	if(back_bild_nr!=0) {
 		if(abs(back_bild_nr)>121) {
@@ -765,7 +767,6 @@ grund_t::display_boden( const sint16 xpos, const sint16 ypos, const bool reset_d
 	if(bild==IMG_LEER) {
 		// only check for forced redraw (of marked ... )
 		if(dirty) {
-			const sint16 rasterweite=get_tile_raster_width();
 			mark_rect_dirty_wc( xpos, ypos+rasterweite/2, xpos+rasterweite-1, ypos+rasterweite-1 );
 		}
 	}
@@ -779,7 +780,7 @@ grund_t::display_boden( const sint16 xpos, const sint16 ypos, const bool reset_d
 	}
 
 	if(wege[0]) {
-		sint16 ynpos = ypos-gib_weg_yoff();
+		sint16 ynpos = ypos-tile_raster_scale_y( gib_weg_yoff(), rasterweite );
 		if(besitzer_n==-1) {
 			display_img(wege[0]->gib_bild(), xpos, ynpos, dirty);
 		}
@@ -794,7 +795,7 @@ grund_t::display_boden( const sint16 xpos, const sint16 ypos, const bool reset_d
 	}
 
 	if(wege[1]){
-		sint16 ynpos = ypos-gib_weg_yoff();
+		sint16 ynpos = ypos-tile_raster_scale_y( gib_weg_yoff(), rasterweite );
 		if(besitzer_n==-1) {
 			display_img(wege[1]->gib_bild(), xpos, ynpos, dirty);
 		}

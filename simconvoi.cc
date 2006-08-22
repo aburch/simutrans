@@ -1790,6 +1790,7 @@ void convoi_t::destroy()
  */
 void convoi_t::dump() const
 {
+    fprintf(stderr, "convoi::dump()");
     fprintf(stderr, "anz_vehikel = %d\n", anz_vehikel);
     fprintf(stderr, "anz_ready = %d\n", anz_ready);
     fprintf(stderr, "wait_lock = %d\n", wait_lock);

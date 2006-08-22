@@ -261,8 +261,8 @@ ding_t::display(int xpos, int ypos, bool reset_dirty) const
 
 	image_id bild = gib_bild();
 
-	ypos += tile_raster_scale_x(gib_yoff(), raster_width);
 	xpos += tile_raster_scale_x(gib_xoff(), raster_width);
+	ypos += tile_raster_scale_y(gib_yoff(), raster_width);
 
 	bool dirty = get_flag(ding_t::dirty);
 	int j = 1;
@@ -288,8 +288,8 @@ ding_t::display_after(int xpos, int ypos, bool reset_dirty) const
 	if(bild != IMG_LEER) {
 		const int raster_width = get_tile_raster_width();
 
-		ypos += tile_raster_scale_x(gib_yoff(), raster_width);
 		xpos += tile_raster_scale_x(gib_xoff(), raster_width);
+		ypos += tile_raster_scale_y(gib_yoff(), raster_width);
 
 		if(besitzer_n!=-1) {
 			display_color_img(bild, xpos, ypos, gib_besitzer()->get_player_color(), true, get_flag(ding_t::dirty) );
@@ -315,7 +315,7 @@ ding_t::mark_image_dirty(image_id bild,sint8 yoff)
 		const koord diff=gib_pos().gib_2d()-welt->gib_ij_off();
 		const sint16 rasterweite=get_tile_raster_width();
 		const sint16 x=(diff.x-diff.y)*(rasterweite/2) + welt->gib_x_off() + (display_get_width()/2) + tile_raster_scale_x(gib_xoff(), rasterweite);
-		const sint16 y=16+((display_get_width()/rasterweite)&1)*(rasterweite/4)+(diff.x+diff.y)*(rasterweite/4)+welt->gib_y_off()+tile_raster_scale_x(gib_yoff()+yoff, rasterweite)-tile_raster_scale_y(gib_pos().z, rasterweite);
+		const sint16 y=16+((display_get_width()/rasterweite)&1)*(rasterweite/4)+(diff.x+diff.y)*(rasterweite/4)+welt->gib_y_off()+tile_raster_scale_y(gib_yoff()+yoff, rasterweite)-tile_raster_scale_y(gib_pos().z, rasterweite);
 		// mark the region after the image as dirty
 		display_mark_img_dirty( bild, x, y );
 	}
