@@ -203,7 +203,7 @@ protected:
     static karte_t *welt;
 
 	// calculates the slope image and sets the draw_as_ding flag correctly
-	void grund_t::calc_back_bild(const sint8 hgt,const sint8 slope_this);
+	void calc_back_bild(const sint8 hgt,const sint8 slope_this);
 
 public:
 	enum typ {grund, boden, wasser, fundament, tunnelboden, brueckenboden, monorailboden };

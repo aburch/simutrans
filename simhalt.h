@@ -308,7 +308,7 @@ private:
 	 * will distribute the goods to changed routes (if there are any)
 	 * @author Hj. Malthaner
 	 */
-	void haltestelle_t::reroute_goods();
+	void reroute_goods();
 
 public:
 
