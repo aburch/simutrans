@@ -5,7 +5,7 @@ Known bugs: (hard to fix)
 
 
 
-Release of 89.03.2 (stable?)
+Release of 89.03.2
 
 21-Aug-2006: (prissi)
 	FIX: just_in_time is saved with a map
@@ -18,6 +18,9 @@ Release of 89.03.2 (stable?)
 	FIX: proper recalculations yearly income after loading
 	FIX: only change game name if not autosaved
 	FIX: powerlines over monorails and stations but not crossing bridges and elevated monorails in its height
+	CHANGE: numbered station now numbered per town (two new strings '%s city %d %s' and '%s land %d %s')
+	CHANGE: stops covering the townhall will be added monuments 'monument' and townhall/tourist attractions according to their name
+	CHANGE: two more center names '6center' and '7center'
 
 
 Release of 89.03.1

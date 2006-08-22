@@ -126,12 +126,12 @@ static int industry_increase_every[8];
 
 //------------ haltestellennamen -----------------------
 
-static const int anz_zentrum = 5;
+static const int anz_zentrum = 7;
 static const char * zentrum_namen [anz_zentrum] =
 {
 //     "%s %s", "%s Haupt %s", "%s Zentral %s", "%s %s Mitte", "%s Transfer %s"
 
-    "1center", "2center", "3center", "4center", "5center"
+    "1center", "2center", "3center", "4center", "5center", "6center", "7center"
 };
 
 static const int anz_nord = 1;
@@ -2273,16 +2273,47 @@ stadt_t::pruefe_grenzen(koord k)
 const char *
 stadt_t::haltestellenname(koord k, const char *typ, int number)
 {
-    const char *base = "1center";	// usually gets to %s %s
-    const char *building=NULL;
+	const char *num_city_base = "%s city %d %s";
+	const char *num_land_base = "%s land %d %s";
+	const char *base = "1center";	// usually gets to %s %s
+	const char *building=NULL;
+	bool outside = false;
 
 	// prissi: first we try a factory name
 	halthandle_t halt=haltestelle_t::gib_halt(welt,k);
-	if(halt.is_bound()) {
+	if(!umgebung_t::numbered_stations  &&  halt.is_bound()) {
+		// first factories (so with same distance, they have priority)
+		int this_distance = 999;
 		slist_iterator_tpl <fabrik_t *> fab_iter(halt->gib_fab_list());
 		while( fab_iter.next() ) {
-			building = fab_iter.get_current()->gib_name();
-			break;
+			int distance = abs_distance( fab_iter.get_current()->gib_pos().gib_2d(), k );
+			if(distance<this_distance) {
+				building = fab_iter.get_current()->gib_name();
+				distance = this_distance;
+			}
+		}
+		// check for other special building (townhall, monument, tourst attraction)
+		const sint16 catchment_area=welt->gib_einstellungen()->gib_station_coverage();
+		for( int x=-catchment_area;  x<=catchment_area;  x++ ) {
+			for( int y=-catchment_area;  y<=catchment_area;  y++ ) {
+				const planquadrat_t *plan=welt->lookup(koord(x,y)+k);
+				int distance = abs(x)+abs(y);
+				if(plan  &&  abs(x+y)<this_distance) {
+					gebaeude_t *gb=dynamic_cast<gebaeude_t *>(plan->gib_kartenboden()->suche_obj(ding_t::gebaeude));
+					if(gb) {
+						if(gb->is_monument()) {
+							building = translator::translate(gb->gib_name());
+							this_distance = distance;
+						}
+						else if(	gb->ist_rathaus()  ||
+									gb->gib_tile()->gib_besch()->gib_utyp()==hausbauer_t::sehenswuerdigkeit  ||  // land attraction
+									gb->gib_tile()->gib_besch()->gib_utyp()==hausbauer_t::special) { //town attarcttion
+							building = make_single_line_string(translator::translate(gb->gib_tile()->gib_besch()->gib_name()),2);
+							this_distance = distance;
+						}
+					}
+				}
+			}
 		}
 	}
 
@@ -2326,17 +2357,26 @@ stadt_t::haltestellenname(koord k, const char *typ, int number)
 		} else {
 			base = aussen_namen[aussen_namen_cnt % anz_aussen];
 			aussen_namen_cnt ++;
+			outside = true;
 		}
 	}
 
     char buf [512];
 
 	if(number>=0 && umgebung_t::numbered_stations) {
-		int n=sprintf(buf, translator::translate(base),
-			this->name,
-			translator::translate(typ));
-		sprintf(buf+n, " (%d)",
-			number);
+		// numbered stations here
+		if(!outside) {
+			sprintf(buf, translator::translate(num_city_base),
+				this->name,
+				zentrum_namen_cnt,
+				translator::translate(typ));
+		}
+		else {
+			sprintf(buf, translator::translate(num_land_base),
+				this->name,
+				aussen_namen_cnt,
+				translator::translate(typ));
+		}
 	}
 	else if(building==NULL) {
 		sprintf(buf, translator::translate(base),

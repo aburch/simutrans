@@ -173,17 +173,26 @@ char *make_single_line_string(const char *in,int number_of_lines)
 		in++;
 	}
 	// start copying
-	for(pos=0;  pos<62  &&  *in!=0  &&  number_of_lines>0;  pos++) {
-		buf[pos] = *in++;
-		// replace new lines by space
-		if(*in=='\n') {
+	for(pos=0;  pos<62  &&  *in!=0  &&  number_of_lines>0;  ) {
+		if((unsigned)(*in)>' ') {
+			buf[pos++] = *in++;
+		}
+		else {
+			// replace new lines by space
 			while(*in=='\n'  ||  *in==' ') {
-				if(*in=='\n') number_of_lines--;
+				if(*in=='\n') {
+					number_of_lines--;
+				}
 				in++;
 			}
-			buf[++pos] = ' ';
+			buf[pos++] = ' ';
 		}
 	}
+	// trim trailing spaces
+	while(pos>0  &&  buf[pos]==' ') {
+		pos--;
+	}
+	// end mark!
 	buf[pos] = 0;
 	return buf;
 }
