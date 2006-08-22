@@ -1858,16 +1858,20 @@ void display_setze_clip_wh(KOORD_VAL x, KOORD_VAL y, KOORD_VAL w, KOORD_VAL h)
 
 
 // scrolls horizontally, will ignore clipping etc.
-void	display_scroll_band( const KOORD_VAL start_y, const KOORD_VAL x_offset, const KOORD_VAL h )
+void display_scroll_band(const KOORD_VAL start_y, const KOORD_VAL x_offset, const KOORD_VAL h)
 {
+	const PIXVAL* src = textur + start_y * disp_width + x_offset;
+	PIXVAL* dst = textur + start_y * disp_width;
+	size_t amount = sizeof(PIXVAL) * (h * disp_width - x_offset);
+
 #ifdef USE_C
-	memmove( textur+start_y*disp_width, textur+start_y*disp_width+x_offset, sizeof(PIXVAL)*(h*disp_width-x_offset) );
+	memmove(dst, src, amount);
 #else
-asm(
-	"rep\n\t"
-	"movsl\n\t"
-	:
-	: "c" ((sizeof(PIXVAL)*(h*disp_width-x_offset))/4), "S" (textur+start_y*disp_width+x_offset), "D" (textur+start_y*disp_width)
+	amount /= 4;
+	asm volatile (
+		"rep\n\t"
+		"movsl\n\t"
+		: "+D" (dst), "+S" (src), "+c" (amount)
 	);
 #endif
 }
@@ -1961,101 +1965,50 @@ display_img_wc( KOORD_VAL h, const KOORD_VAL xp, const KOORD_VAL yp, const PIXVA
 
 /**
  * Zeichnet Bild ohne Clipping
- * @author Hj. Malthaner/prissi
  */
-void
-display_img_nc(KOORD_VAL h, const KOORD_VAL xp, const KOORD_VAL yp, const PIXVAL *sp)
+void display_img_nc(KOORD_VAL h, const KOORD_VAL xp, const KOORD_VAL yp, const PIXVAL *sp)
 {
-	if(h > 0) {
-#ifdef USE_C_FOR_IMAGE
-	    PIXVAL *tp = textur + xp + yp*disp_width;
-	    // bild darstellen
+	if (h > 0) {
+		PIXVAL *tp = textur + xp + yp * disp_width;
 
-	    do { // zeilen dekodieren
+		do { // zeilen dekodieren
+			unsigned int runlen = *sp++;
+			PIXVAL *p = tp;
 
-		unsigned int runlen = *sp++;
-		register PIXVAL *p=tp;
-		// eine Zeile dekodieren
-		do {
+			// eine Zeile dekodieren
+			do {
+				// wir starten mit einem clear run
+				p += runlen;
 
-		    // wir starten mit einem clear run
-		    p += runlen;
-
-		    // jetzt kommen farbige pixel
-
-		    runlen = *sp++;
-		    PCPY(p, sp, runlen);
-		    runlen = *sp++;
-
-		} while( runlen!=0 );
-
-		tp += disp_width;
-
-	    } while(--h);
-
+				// jetzt kommen farbige pixel
+				runlen = *sp++;
+#ifdef USE_C
+				PCPY(p, sp, runlen);
 #else
-	// the following takes the best of C and asm with the worst syntax possible
-	// it is equivalent to the above, but only faster ...
-	register PIXVAL *tp asm("eax");
-	tp = textur + xp + yp*disp_width;
-	register const PIXVAL *img_p asm("esi");
-	img_p = sp;
-asm(	"cld\n\t" );	// all string-moves are upwards
-	do { // zeilen dekodieren
-
-		register unsigned long runlen asm ("ecx");
-		register PIXVAL *p asm ("edi");
-		p = tp;
-//		runlen = *img_p++;
-asm(	"xorl %%ecx,%%ecx\n\t"
-		"movw (%%esi),%%cx\n\t"
-		"addl $2,%%esi"
-		: "=c" (runlen), "=S" (img_p)
-		: "S" (img_p)
-		);
-		do {
-// attention: prissi tries with gcc inline assembler ...
-// this is ca. 20% faster than the above
-asm(
-		// Clear run
-		// p += runlen
-		"leal (%%edi,%%ecx,2),%%edi\n\t"
-		// runlen = *sp++
-		"movw (%%esi),%%cx\n\t"
-		"addl $2,%%esi\n\t"
-		// Number of colored pixels
-		// while(runlen--) *p++ = *sp++
-		/* rep movsw and we would be finished, but we unroll: */
-
-		// uneven words to copy?
-		// if(runlen&1)
-		"testb $1,%%cl\n"
-		"je .Lrlev\n\t"
-		// Copy first word
-		// *p++ = *img_p++;
-		"movsw\n\t"
-".Lrlev:\n\t"
-		// now we copy long words ...
-		// *((long *)p)++ = *((long *)img_p)++
-		// like the PCPY makro above
-		"shrw %%cx\n\t"
-		"rep\n\t"
-		"movsd\n\t"
-		// runlen = *sp++
-		"movw (%%esi),%%cx\n\t"
-		"addl $2,%%esi\n\t"
-		// while(runlen)
-		: "=D" (p), "=S" (img_p)
-		: "c" (runlen), "D" (p), "S" (img_p)
-		: "cc"
-		);
-		} while(runlen);
-
-		tp += disp_width;
-
-	    } while(--h);
-
+				asm volatile (
+					"cld\n\t"
+					// rep movsw and we would be finished, but we unroll
+					// uneven number of words to copy?
+					"testb $1, %%cl\n\t"
+					"je .Lrlev\n\t"
+					// Copy first word
+					// *p++ = *sp++;
+					"movsw\n\t"
+					".Lrlev:\n\t"
+					// now we copy long words ...
+					"shrl %2\n\t"
+					"rep\n\t"
+					"movsd\n\t"
+					: "+D" (p), "+S" (sp), "+c" (runlen)
+					:
+					: "cc"
+				);
 #endif
+				runlen = *sp++;
+			} while (runlen != 0);
+
+			tp += disp_width;
+		} while (--h != 0);
 	}
 }
 
@@ -2320,91 +2273,50 @@ static void display_pixel(KOORD_VAL x, KOORD_VAL y, PIXVAL color)
 
 /**
  * Zeichnet gefuelltes Rechteck
- * @author Hj. Malthaner
  */
-static
-void display_fb_internal(KOORD_VAL xp, KOORD_VAL yp, KOORD_VAL w, KOORD_VAL h,
-			 const int color, const int dirty,
-			 const KOORD_VAL cL, const KOORD_VAL cR, const KOORD_VAL cT, const KOORD_VAL cB)
+static void display_fb_internal(KOORD_VAL xp, KOORD_VAL yp, KOORD_VAL w, KOORD_VAL h, int color, int dirty, KOORD_VAL cL, KOORD_VAL cR, KOORD_VAL cT, KOORD_VAL cB)
 {
-    if(clip_lr(&xp, &w, cL, cR)  &&  clip_lr(&yp, &h, cT, cB)) {
-#ifdef USE_C
-		const PIXVAL colval = color >= PLAYER_FLAG ? specialcolormap_all_day[(color & 0xFF)]: rgbcolormap[color];
-		PIXVAL *p = textur + xp + yp*disp_width;
-		const unsigned long longcolval = (colval << 16) | colval;
-		const KOORD_VAL dx = disp_width - w;
+	if (clip_lr(&xp, &w, cL, cR) && clip_lr(&yp, &h, cT, cB)) {
+		PIXVAL *p = textur + xp + yp * disp_width;
+		int dx = disp_width - w;
+		const PIXVAL colval = (color >= PLAYER_FLAG ? specialcolormap_all_day[color & 0xFF] : rgbcolormap[color]);
+		const unsigned int longcolval = (colval << 16) | colval;
 
-		if(dirty) {
-			mark_rect_dirty_nc(xp, yp, xp+w-1, yp+h-1);
-		}
+		if (dirty) mark_rect_dirty_nc(xp, yp, xp + w - 1, yp + h - 1);
 
 		do {
-			int count = w >> 1;
-			int *lp=p;
-			while(count--) {
-				*lp++ = longcolval;
-			}
+			unsigned int count = w;
+#ifdef USE_C
+			unsigned int* lp;
+
+			if (count & 1) *p++ = longcolval;
+			count >>= 1;
+			lp = p;
+			while (count-- != 0) *lp++ = longcolval;
 			p = lp;
-			if(w & 1) {
-				*p++ = colval;
-			}
+#else
+			asm volatile (
+				"cld\n\t"
+				// uneven words to copy?
+				// if(w&1)
+				"testb $1,%%cl\n\t"
+				"je .LrSev\n\t"
+				// set first word
+				"stosw\n\t"
+				".LrSev:\n\t"
+				// now we set long words ...
+				"shrl %%ecx\n\t"
+				"rep\n\t"
+				"stosl"
+				: "+D" (p), "+c" (count)
+				: "a" (longcolval)
+				: "cc"
+			);
+#endif
 
 			p += dx;
-
-		} while(--h);
-#else
-		if(dirty) {
-			mark_rect_dirty_nc(xp, yp, xp+w-1, yp+h-1);
-		}
-
-		// attention: prissi tries with gcc inline assembler ...
-		// the following takes the best of C and asm with the worst syntax possible
-		// it is equivalent to the above, but only faster ...
-
-__asm__(	"cld\n\t"
-		"btrw $15,%%ax\n\t"	//>=0x8000
-		"jnc .Lvok\n\t"
-#if defined(__MINGW32__) || defined(__CYGWIN__)
-//		"movcw	_specialcolormap_all_day(%%eax,%%eax),%%cx\n\t"	// move, if carry set (i.e. bit was set): crashes on older machines before Pentium Pro
-		"movw	_specialcolormap_all_day(%%eax,%%eax),%%cx\n"	// move, if carry set (i.e. bit was set)
-#else
-//		"movcw	specialcolormap_all_day(%%eax,%%eax),%%cx\n\t"	// move, if carry set (i.e. bit was set): crashes on older machines before Pentium Pro
-		"movw	specialcolormap_all_day(%%eax,%%eax),%%cx\n"	// move, if carry set (i.e. bit was set)
-#endif
-		"jmp	.Lvdr\n"
-".Lvok:\n\t"
-#if defined(__MINGW32__) || defined(__CYGWIN__)
-		"movw	_rgbcolormap(%%eax,%%eax),%%cx\n"	// load ax with the right color ...
-#else
-		"movw	rgbcolormap(%%eax,%%eax),%%cx\n"	// load ax with the right color ...
-#endif
-".Lvdr:\n\t"
-		"movw %%cx,%%ax\n\t"	// couble colorval for lowbyte
-		"shll $16,%%eax\n\t"
-		"movw %%cx,%%ax\n\t"
-		"shll %%ebx\n"	// since the linewidth is 2x  the bytewidth
-".LpHght:\n\t"
-		"movl %%esi,%%ecx\n\t"
-		// uneven words to copy?
-		// if(w&1)
-		"testb $1,%%cl\n"
-		"je .LrSev\n\t"
-		// set first word
-		"stosw\n"
-".LrSev:\n\t"
-		// now we set long words ...
-		"shrw %%cx\n\t"
-		"rep\n\t"
-		"stosl\n\t"
-		"addl %%ebx,%%edi\n\t"
-		"dec %%dx\n\t"
-		"jne .LpHght\n\t"
-		:
-		: "a" (color), "b" (disp_width-w), "d" (h), "D" (textur + xp + yp*disp_width), "S" (w)
-		: "ecx", "cc"
-		);
-#endif
-    }
+		} while (--h != 0);
+	}
 }
 
 void
@@ -2459,67 +2371,51 @@ display_vline_wh_clip(const KOORD_VAL xp, KOORD_VAL yp, KOORD_VAL h, const PLAYE
 
 /**
  * Zeichnet rohe Pixeldaten
- * @author Hj. Malthaner
  */
-
-void
-display_array_wh(KOORD_VAL xp, KOORD_VAL yp, KOORD_VAL w, KOORD_VAL h, const COLOR_VAL *arr)
+void display_array_wh(KOORD_VAL xp, KOORD_VAL yp, KOORD_VAL w, KOORD_VAL h, const COLOR_VAL *arr)
 {
-    const int arr_w = w;
-    const KOORD_VAL xoff = clip_wh(&xp, &w, clip_rect.x, clip_rect.xx);
-    const KOORD_VAL yoff = clip_wh(&yp, &h, clip_rect.y, clip_rect.yy);
+	const int arr_w = w;
+	const KOORD_VAL xoff = clip_wh(&xp, &w, clip_rect.x, clip_rect.xx);
+	const KOORD_VAL yoff = clip_wh(&yp, &h, clip_rect.y, clip_rect.yy);
 
-    if(w > 0 && h > 0) {
-#ifdef USE_C_FOR_IMAGE
-        register PIXVAL *p;
-        register const unsigned char *arr_src;
-        register unsigned short ww;
+	if (w > 0 && h > 0) {
+		PIXVAL *p = textur + xp + yp * disp_width;
+		const COLOR_VAL *arr_src = arr;
+
+		mark_rect_dirty_nc(xp, yp, xp + w - 1, yp + h - 1);
+
+		if (xp == clip_rect.x) arr_src += xoff;
+		if (yp == clip_rect.y) arr_src += yoff * arr_w;
+
+		do {
+			unsigned int ww = w;
+#ifdef USE_C
+			do {
+				*p++ = rgbcolormap[*arr_src++];
+				ww--;
+			} while (ww > 0);
 #else
-		// GCC needs a little help ...
-        register PIXVAL *p asm("%edi");
-        register const unsigned char *arr_src asm("%esi");
-        register unsigned short ww asm("ecx");
-#endif
-        p = textur + xp + yp*disp_width;
-        arr_src = arr;
-
-	mark_rect_dirty_nc(xp, yp, xp+w-1, yp+h-1);
-
-	if(xp == clip_rect.x) {
-  	    arr_src += xoff;
-	}
-	if(yp == clip_rect.y) {
-  	    arr_src += yoff*arr_w;
-	}
-
-	do {
-	    ww = w;
-#if 1//def USE_C
-	    do {
-		*p++ = rgbcolormap[*arr_src++];
-		ww--;
-	    } while(ww>0);
+			asm volatile (
+				"cld\n"
+				".Ldaw:\n\t"
+				"lodsb\n\t"
+				"movzbl %%al, %%eax\n\t"
+#if defined(__MINGW32__) || defined(__CYGWIN__)
+				"movw _rgbcolormap(%%eax,%%eax),%%ax\n\t"
 #else
-// prissi: the optimize will skip this completely :-(
-asm("cld\n"
-//		"\tmovw _rgbcolormap(%%eax,%%eax),%%ax\n\trep\n\movsw\n\t"
-//		"xorl %%edx,%%edx\n"
-".Ldaw:\n\t"
-//		"movl %%edx,%%eax\n\t"
-		"xorl %%ax,%%ax\n\t"
-		"lodsb\n\t"
-		"movw _rgbcolormap(%%eax,%%eax),%%ax\n\t"
-		"stosw\n\t"
-		"loopl .Ldaw\n\t"
-		: "=D" (p), "=S" (arr_src)
-		: "c" (ww), "D" (p), "S" (arr_src)
-		: "eax"
-		);
+				"movw rgbcolormap(%%eax,%%eax),%%ax\n\t"
 #endif
-	    arr_src += arr_w - w;
-          p += disp_width - w;
-	} while(--h);
-    }
+				"stosw\n\t"
+				"loopl .Ldaw\n\t"
+				: "+D" (p), "+S" (arr_src), "+c" (ww)
+				:
+				: "eax"
+			);
+#endif
+			arr_src += arr_w - w;
+			p += disp_width - w;
+		} while (--h);
+	}
 }
 
 

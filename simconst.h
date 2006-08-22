@@ -128,9 +128,4 @@
 #define DEFAULT_OBJPATH "pak/"
 #endif
 
-// bug alert for GCC 4.03
-#ifdef USE_C
-#define USE_C_FOR_IMAGE
-#endif
-
 #endif
