@@ -310,7 +310,9 @@ fahrplan_gui_t::infowin_event(const event_t *ev)
 			if (new_line.is_bound()) {
 				// if the selected line is different to the convoi's line, apply it
 				if(new_line!=cnv->get_line()) {
+					int akt=fpl->aktuell;
 					cnv->set_line(new_line);
+					cnv->gib_fahrplan()->aktuell = max( 0, min( akt, cnv->gib_fahrplan()->maxi()-1 ) );
 				}
 			}
 			else {
@@ -416,24 +418,8 @@ DBG_MESSAGE("fahrplan_gui_t::action_triggered()","line selection=%i",selection);
 void
 fahrplan_gui_t::zeichnen(koord pos, koord groesse)
 {
-	/*
-	if (mode == adding) {
-		bt_add.pressed = true;
-		bt_insert.pressed = false;
-		bt_remove.pressed = false;
-	} else if (mode == inserting) {
-		bt_add.pressed = false;
-		bt_insert.pressed = true;
-		bt_remove.pressed = false;
-	} else if (mode == removing) {
-		bt_add.pressed = false;
-		bt_insert.pressed = false;
-		bt_remove.pressed = true;
-	}
-*/
 	get_fpl_text(buf);
 	fpl_text.setze_text(buf);
-//	scrolly.setze_groesse(scrolly.gib_groesse());
 
 	gui_frame_t::zeichnen(pos, groesse);
 

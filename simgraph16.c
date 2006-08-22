@@ -1945,7 +1945,7 @@ display_img_wc( KOORD_VAL h, const KOORD_VAL xp, const KOORD_VAL yp, const PIXVA
 		    if(xpos+runlen >= clip_rect.x &&
                        xpos <= clip_rect.xx) {
 			const int left = xpos >= clip_rect.x ? 0 : clip_rect.x-xpos;
-			const int len  = clip_rect.xx-xpos+1 >= runlen ? runlen : clip_rect.xx-xpos+1;
+			const int len  = clip_rect.xx-xpos >= runlen ? runlen : clip_rect.xx-xpos;
 
 			pixcopy(tp+xpos+left, sp+left, len-left);
 		    }
@@ -1988,7 +1988,7 @@ void display_img_nc(KOORD_VAL h, const KOORD_VAL xp, const KOORD_VAL yp, const P
 				asm volatile (
 					"cld\n\t"
 					// rep movsw and we would be finished, but we unroll
-					// uneven number of words to copy?
+					// uneven number of words to copy
 					"testb $1, %%cl\n\t"
 					"je .Lrlev\n\t"
 					// Copy first word
@@ -2155,7 +2155,7 @@ display_color_img_aux(const unsigned n, const KOORD_VAL xp, const KOORD_VAL yp,
 				// Hajo: something to display?
 				if(xpos+runlen>=clip_rect.x  &&  xpos<=clip_rect.xx) {
 					const int left = xpos >= clip_rect.x ? 0 : clip_rect.x-xpos;
-					const int len  = clip_rect.xx-xpos+1 >= runlen ? runlen : clip_rect.xx-xpos+1;
+					const int len  = clip_rect.xx-xpos > runlen ? runlen : clip_rect.xx-xpos;
 
 					colorpixcopy(tp+xpos+left, sp+left, sp+len,color);
 				}
