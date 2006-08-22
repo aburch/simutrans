@@ -6,7 +6,7 @@ Known bugs: (hard to fix)
 
 
 	FIX: clipping error at outmost right row for bitmaps
-	FIX: forgot stop choose after closing schhedule after line change
+	FIX: forgot stop choose after closing schedule after line change
 
 
 Release of 89.03.2
