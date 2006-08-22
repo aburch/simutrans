@@ -2795,17 +2795,19 @@ int display_text_proportional_len_clip(KOORD_VAL x, KOORD_VAL y, const char *txt
 
 		p = char_data+y_offset;
 		for (h=y_offset; h<char_height; h++) {
-			int dat = (*p++)&mask1;
+			unsigned int dat = *p++ & mask1;
+			PIXVAL* dst = textur + screen_pos;
+
 #ifdef USE_C
-			if(  dat!=0  ) {
-				if (dat & 128) textur[screen_pos+0]   = color;
-				if (dat &  64) textur[screen_pos+1] = color;
-				if (dat &  32) textur[screen_pos+2] = color;
-				if (dat &  16) textur[screen_pos+3] = color;
-				if (dat &   8) textur[screen_pos+4] = color;
-				if (dat &   4) textur[screen_pos+5] = color;
-				if (dat &   2) textur[screen_pos+6] = color;
-				if (dat &   1) textur[screen_pos+7] = color;
+			if (dat != 0) {
+				if (dat & 0x80) dst[0] = color;
+				if (dat & 0x40) dst[1] = color;
+				if (dat & 0x20) dst[2] = color;
+				if (dat & 0x10) dst[3] = color;
+				if (dat & 0x08) dst[4] = color;
+				if (dat & 0x04) dst[5] = color;
+				if (dat & 0x02) dst[6] = color;
+				if (dat & 0x01) dst[7] = color;
 			}
 #else
 // assemble variant of the above, using table and string instructions:

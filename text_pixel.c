@@ -1,13 +1,11 @@
 // 17% faster pixel setting for text ...
 // helper for display_text_len_clip
-asm(
-	"andl $255,%%ebx\n\t"
-	"jz .DCende\n\t"
-	"jmp	*JumpDC(,%%ebx,0x4)\n\t"
+asm volatile (
+	"jmp *JumpDC(,%2,4)\n\t"
 	".p2align 2\n\t"
 	".align 4\n"
 "JumpDC:\n\t"
-	".long L9900\n\t"
+	".long .DCende\n\t"
 	".long L9901\n\t"
 	".long L9902\n\t"
 	".long L9903\n\t"
@@ -263,8 +261,6 @@ asm(
 	".long L99fd\n\t"
 	".long L99fe\n\t"
 	".long L99ff\n\t"
-"L9900:\n\t"
-	"jmp .DCende\n"
 "L9901:\n\t"
 	"addl $14,%%edi\n\t"
 	"stosw\n\t"
@@ -1934,6 +1930,6 @@ asm(
 	"stosl\n\t"
 	"stosl\n\t"
 ".DCende:\n\t"
-	:
-	: "a" (color2), "b" (dat), "D" (textur+screen_pos)
-	);
+	: "+D" (dst)
+	: "a" (color2), "b" (dat)
+);
