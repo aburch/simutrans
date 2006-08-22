@@ -1199,14 +1199,14 @@ convoi_t::rdwr(loadsave_t *file)
 	file->rdwr_long(sp_soll, " ");
 	file->rdwr_enum(state, " ");
 	file->rdwr_enum(alte_richtung, " ");
-	dummy = jahresgewinn;
-	file->rdwr_long(dummy, "\n");
-	jahresgewinn = dummy;
+	// read the yearly income (which has since then become a 64 bit value)
+	// will be recalculated later directly from the history
+	if(file->get_version()<=89003) {
+		file->rdwr_long(dummy, "\n");
+	}
 	route.rdwr(file);
 
 	if(file->is_loading()) {
-		jahresgewinn = dummy;	// aktually a sint64 ...
-
 		// extend array if requested (only needed for trains)
 		if(anz_vehikel > max_vehicle) {
 			fahr = new array_tpl<vehikel_t *> (max_rail_vehicle);
@@ -1337,6 +1337,15 @@ dbg->fatal("convoi_t::rdwr()","invalid position %s for vehicle %s in state %d (s
 			for (int k = MAX_MONTHS-1; k>=0; k--) {
 				file->rdwr_longlong(financial_history[k][j], " ");
 			}
+		}
+	}
+
+	// since it was saved as an signed int
+	// we recalc it anyhow
+	if(file->is_loading()) {
+		jahresgewinn = 0;
+		for(int i=welt->get_last_month();  i>=0;  i--  ) {
+			jahresgewinn += financial_history[i][CONVOI_PROFIT];
 		}
 	}
 

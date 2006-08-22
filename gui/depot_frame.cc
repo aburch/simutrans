@@ -965,7 +965,7 @@ void depot_frame_t::infowin_event(const event_t *ev)
 	    grund_t *gr = welt->lookup(pos)->gib_kartenboden();
 
 	    next_dep = gr ? gr->gib_depot() : NULL;
-	} while(!next_dep || next_dep->gib_typ() != depot->gib_typ());
+	} while(!next_dep || next_dep->gib_typ() != depot->gib_typ()  ||  next_dep->gib_besitzer()!=depot->gib_besitzer());
 
 	if(next_dep) {
 	    /**

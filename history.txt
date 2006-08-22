@@ -14,6 +14,10 @@ Release of 89.03.2 (stable?)
 	FIX: height of bridgeheads fixed
 	FIX: loading vehicle image display now matches state of the car
 	FIX: loading vehicles just on their last tile (which also contains a signal) fixed
+	FIX: next depot only finds own depots
+	FIX: proper recalculations yearly income after loading
+	FIX: only change game name if not autosaved
+	FIX: powerlines over monorails and stations but not crossing bridges and elevated monorails in its height
 
 
 Release of 89.03.1

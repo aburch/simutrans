@@ -2171,9 +2171,9 @@ DBG_MESSAGE("karte_t::speichern()", "saving game to '%s'", filename);
 		file.close();
 		if(!silent) {
 			create_win(-1, -1, 30, new nachrichtenfenster_t(this, "Spielstand wurde\ngespeichert!\n"), w_autodelete);
+			// update the filename, if no autosave
+			einstellungen->setze_filename(filename);
 		}
-		// update the filename
-		einstellungen->setze_filename(filename);
 	}
 	display_show_load_pointer( false );
 #endif
@@ -2600,12 +2600,6 @@ DBG_MESSAGE("karte_t::laden()", "%d ways loaded",weg_t::gib_alle_wege().count())
 	}
 
 	// just keep the record for the last 12 years ... to allow infite long games
-#if 0
-	ticks %= karte_t::ticks_per_tag;	// to make adapt games with a different time setting
-	next_month_ticks = karte_t::ticks_per_tag;	// next month will start then
-	letzter_monat = current_month%12;
-	basis_jahr = (letztes_jahr-12>einstellungen->gib_starting_year()) ? letztes_jahr-12 : einstellungen->gib_starting_year();
-#else
 	while(ticks>(288u << karte_t::ticks_bits_per_tag)) {
 		ticks -= (144u << karte_t::ticks_bits_per_tag);
 	}
@@ -2619,7 +2613,7 @@ DBG_MESSAGE("karte_t::laden()", "%d ways loaded",weg_t::gib_alle_wege().count())
 	// make counter for next month
 	next_month_ticks =(ticks+karte_t::ticks_per_tag) & (~(karte_t::ticks_per_tag-1));
 	letzter_monat %= 12;
-#endif
+
 	DBG_MESSAGE("karte_t::laden()","savegame from %i/%i, base year %i, next month=%i, ticks=%i (per month=1<<%i)",letzter_monat,letztes_jahr,basis_jahr,next_month_ticks,ticks,karte_t::ticks_bits_per_tag);
 
 	// change grounds to winter?

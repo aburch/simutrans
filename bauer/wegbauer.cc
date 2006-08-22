@@ -488,7 +488,7 @@ bool wegbauer_t::is_allowed_step( const grund_t *from, const grund_t *to, long *
 	const gebaeude_t *gb=dynamic_cast<const gebaeude_t *>(to->suche_obj(ding_t::gebaeude));
 
 	// no crossings to halt
-	if(to!=from) {
+	if(to!=from  &&  bautyp!=leitung) {
 		static koord gb_to_zv[4] = { koord::sued, koord::ost, koord::nord, koord::west };
 		if(gb  &&  (gb->gib_besitzer()==sp  ||  to->gib_halt().is_bound())) {
 
@@ -710,12 +710,7 @@ DBG_MESSAGE("elevated_monorail","ground");
 					check_for_leitung(zv,to)  &&
 					!to->gib_depot();
 			// missing: check for crossings on halt!
-			// check for end/start of bridge
-/*
-			if(to->gib_weg_hang()!=to->gib_grund_hang()) {
-				return false;
-			}
-*/
+
 			// calculate costs
 			if(ok) {
 				*costs = to->gib_weg(weg_t::schiene) ? 2 : 4;	// only prefer existing rails a little
@@ -731,11 +726,19 @@ DBG_MESSAGE("elevated_monorail","ground");
 		break;
 
 		case leitung:
-			ok = (!fundament &&  !to->ist_wasser())  &&  (!to->hat_wege()  ||
-						(to->gib_weg(weg_t::wasser)!=NULL  &&  check_crossing(zv,to,weg_t::wasser))  ||
-						(to->gib_weg(weg_t::strasse)!=NULL  &&  check_crossing(zv,to,weg_t::strasse))  ||
-						(to->gib_weg(weg_t::schiene)!=NULL  &&  check_crossing(zv,to,weg_t::schiene))
-					);
+			ok = !fundament &&  !to->ist_wasser()  &&  to->gib_weg(weg_t::luft)==NULL;
+			if(to->gib_weg_nr(0)!=NULL) {
+				// only 90 deg crossings, only a signle way
+				ribi_t::ribi w_ribi= to->gib_weg_nr(0)->gib_ribi_unmasked();
+				ok &= ribi_t::ist_gerade(w_ribi)  &&  !ribi_t::ist_einfach(w_ribi)  &&  ribi_t::ist_gerade(ribi_typ(zv))  &&  (w_ribi&ribi_typ(zv))==0;
+			}
+			if(to->gib_weg_nr(1)!=NULL) {
+				// only 90 deg crossings, only for trams ...
+				ribi_t::ribi w_ribi= to->gib_weg_nr(1)->gib_ribi_unmasked();
+				ok &= ribi_t::ist_gerade(w_ribi)  &&  !ribi_t::ist_einfach(w_ribi)  &&  ribi_t::ist_gerade(ribi_typ(zv))  &&  (w_ribi&ribi_typ(zv))==0;
+			}
+			// no bridges and monorails here in the air
+			ok &= welt->lookup(to_pos)->gib_boden_in_hoehe(to->gib_pos().z+16)==NULL;
 			// calculate costs
 			if(ok) {
 				*costs = to->hat_wege() ? 8 : 1;
