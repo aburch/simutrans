@@ -117,7 +117,7 @@ yet conform 100% to this rules, but it should.
   -> This rule tries to reduce coupling of code and compile time.
 
 - use the size defined type like sint8, sint16, sint32, sint64 and uint8,
-  uint16, uint32
+  uint16, uint32 and image_id (for image numbers)
   Different compilers/platforms use different rules for values. If your code
   depends on signedness, write this explicitely down.
   Note, that this errors don't show up on your platform/with your compiler
@@ -147,18 +147,6 @@ yet conform 100% to this rules, but it should.
   -> Small interfaces also enhance the reuseability.
   -> Separating convenience from core methods helps to understand the
      structure of the design.
-
-- Comments: Code documentation for Simutrans is generated with a tool which
-  reads some types of comments from header files. This comments start with
-  a /**
-  In such comments a few special tags are recognised:
-
-  @param parameter_name description
-  @return return value description
-  @author author_name
-  @see class/method name
-  @date creation_date
-  @version some veriosn information
 
   Try to comment all classes and methods in header files. Don't hesitate
   to write comments for variables, too.
@@ -215,17 +203,28 @@ An example:
 
 if(condition) {
    // do something here
-} else {
-   // do something esle here
+}
+else {
+   // do something else here
 }
 
 No other styles of using braces are allowed. This rule applies to loops and
 other compound statements, too.
 
 
+Do not forget brackets along comparisons:
+if( (i&3)==1 ) {
+
+
 Use spaces in parameters list. For example:
 
 call(x, y, count); instead of call(x,y,count);
+
+
+Do not use macros; if possible use inlines.
+
+If you use macros, then list all parameters like
+#define bla(s,t) (s+t)
 
 
 
@@ -237,7 +236,6 @@ need a list of common names to avoid confusion. Unfortunately the program
 was started with many german terms in use, so many of the names are german
 names:
 
-
 Preferred variable names:
 
 Loop counters (int):	i, j, n
@@ -247,14 +245,14 @@ Screen positions:       x, y (short form), xpos, ypos (long form, preferred)
 Convoi:			cnv
 Vehicles:		v
 Rail signals:           sig
-Rail blocks:            bs
-Grounds:                gr
+Rail blocks:            bs (obsolete)
+Grounds:                gr (often also bd (from boden))
 Roads:                  str
 Railroads:              sch
 Generic way:            weg
 Buildings:              gb
 Factories:              fab
-UI components:		komp, c (temporary component variables)
+UI components:		komp, c (temporary component variables) seldom directly used
 UI windows:		??? (win is preferred)
 UI events:              ev
 Button:                 button
@@ -296,7 +294,7 @@ Initial version: November 2000
 MFC-coding styles:
 
 For being able to compile simutrans with MSVC v6.00, some additional rules
-are necessary:
+are necessary: (these are more suggestions, since it does not compile with VC6.0)
 
 1.
 Change the following construct from:
@@ -338,7 +336,7 @@ will find almost all components there you could need. Scroll bars are best
 used as scroll panes: the containing component will be clipped and can be
 drawn as normal.
 
-After initlizing a component you have to add it to your dialog using
+After initializing a component you have to add it to your dialog using
 add_komponente(). Failing to do so will just not show it. Certain active
 things like buttons and many more can give a feedback. Use action_listener
 for them, you do not need to handle events for them yourself. Comboboxes
@@ -348,6 +346,7 @@ event outside of them.
 If you use only components from gui/components, you just have to init your
 dialog and you are done, you do not need to define drawing or action
 routines. It can be as easy as that.
+
 
 Written by prissi
 Initial version: June 2006
