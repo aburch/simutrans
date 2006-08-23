@@ -1206,7 +1206,11 @@ vehikel_t::calc_bild()
 		setze_bild(0, IMG_LEER);
 	}
 	else {
-		setze_bild(0, besch->gib_bild_nr(ribi_t::gib_dir(gib_fahrtrichtung()),fracht.is_empty()));
+		if(fracht.is_empty()) {
+			setze_bild(0, besch->gib_bild_nr(ribi_t::gib_dir(gib_fahrtrichtung()),NULL));
+		} else {
+			setze_bild(0, besch->gib_bild_nr(ribi_t::gib_dir(gib_fahrtrichtung()),fracht.at(0).gib_typ() ) );
+		}
 	}
 	if(old_bild!=gib_bild()) {
 		set_flag(ding_t::dirty);

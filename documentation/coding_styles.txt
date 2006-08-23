@@ -208,12 +208,20 @@ else {
    // do something else here
 }
 
+Or K&R if you really like this more
+
+if(condition) {
+ ...
+} esle {
+ ...
+}
+
 No other styles of using braces are allowed. This rule applies to loops and
 other compound statements, too.
 
 
 Do not forget brackets along comparisons:
-if( (i&3)==1 ) {
+if((i&3)==1   &&  ptr==NULL) {
 
 
 Use spaces in parameters list. For example:
@@ -224,8 +232,8 @@ call(x, y, count); instead of call(x,y,count);
 Do not use macros; if possible use inlines.
 
 If you use macros, then list all parameters like
-#define bla(s,t) (s+t)
-
+#define bla(s,t) ((s)+(t))
+and don't forget the brackets around each parameter! (Again, better use inline)
 
 
 3. Tables and detailed information

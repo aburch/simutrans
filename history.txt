@@ -7,6 +7,9 @@ Known bugs: (hard to fix)
 
 	FIX: clipping error at outmost right row for bitmaps
 	FIX: forgot stop choose after closing schedule after line change
+	FIX: force beginner/normal mode after loading
+	ADD: (kierongreen) additionally freight image for vehicles (syntax 'freigthimage[no][direction]=' with the good definition in 'freightimagetype[no]=')
+	FIX: more error check to makeobj pak for vehicles (wrong numbers etc.)
 
 
 Release of 89.03.2

@@ -2354,6 +2354,9 @@ void karte_t::laden(loadsave_t *file)
 	if(einstellungen->gib_beginner_mode()) {
 		warenbauer_t::set_multiplier( umgebung_t::beginner_price_factor );
 	}
+	else {
+		warenbauer_t::set_multiplier( 1000 );
+	}
 DBG_DEBUG("karte_t::laden", "einstellungen loaded (groesse %i,%i) timeline=%i beginner=%i",einstellungen->gib_groesse_x(),einstellungen->gib_groesse_y(),umgebung_t::use_timeline,einstellungen->gib_beginner_mode());
 
     // wird gecached, um den Pointerzugriff zu sparen, da

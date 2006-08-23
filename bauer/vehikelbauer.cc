@@ -110,25 +110,43 @@ bool vehikelbauer_t::register_besch(const vehikel_besch_t *besch)
 		const int XOFF=(12*get_tile_raster_width())/64;
 		const int YOFF=(6*get_tile_raster_width())/64;
 
-		display_set_image_offset( besch->gib_bild_nr(0,true), +XOFF, +YOFF );
-		display_set_image_offset( besch->gib_bild_nr(1,true), -XOFF, +YOFF );
-		display_set_image_offset( besch->gib_bild_nr(2,true), 0, +YOFF );
-		display_set_image_offset( besch->gib_bild_nr(3,true), +XOFF, 0 );
-		display_set_image_offset( besch->gib_bild_nr(4,true), -XOFF, -YOFF );
-		display_set_image_offset( besch->gib_bild_nr(5,true), +XOFF, -YOFF );
-		display_set_image_offset( besch->gib_bild_nr(6,true), 0, -YOFF );
-		display_set_image_offset( besch->gib_bild_nr(7,true), -XOFF-YOFF, 0 );
-		// need also to correct empty graph
-		if(besch->gib_bild_nr(0,true)!=besch->gib_bild_nr(0,false)) {
-			display_set_image_offset( besch->gib_bild_nr(0,false), +XOFF, +YOFF );
-			display_set_image_offset( besch->gib_bild_nr(1,false), -XOFF, +YOFF );
-			display_set_image_offset( besch->gib_bild_nr(2,false), 0, +YOFF );
-			display_set_image_offset( besch->gib_bild_nr(3,false), +XOFF+YOFF, 0 );
-			display_set_image_offset( besch->gib_bild_nr(4,false), -XOFF, -YOFF );
-			display_set_image_offset( besch->gib_bild_nr(5,false), +XOFF, -YOFF );
-			display_set_image_offset( besch->gib_bild_nr(6,false), 0, -YOFF );
-			display_set_image_offset( besch->gib_bild_nr(7,false), -XOFF-YOFF, 0 );
+		// empty image: shift to left
+		display_set_image_offset( besch->gib_bild_nr(0,NULL), +XOFF, +YOFF );
+		display_set_image_offset( besch->gib_bild_nr(1,NULL), -XOFF, +YOFF );
+		display_set_image_offset( besch->gib_bild_nr(2,NULL), 0, +YOFF );
+		display_set_image_offset( besch->gib_bild_nr(3,NULL), +XOFF, 0 );
+		display_set_image_offset( besch->gib_bild_nr(4,NULL), -XOFF, -YOFF );
+		display_set_image_offset( besch->gib_bild_nr(5,NULL), +XOFF, -YOFF );
+		display_set_image_offset( besch->gib_bild_nr(6,NULL), 0, -YOFF );
+		display_set_image_offset( besch->gib_bild_nr(7,NULL), -XOFF-YOFF, 0 );
+
+		if(besch->freight_image_type>0) {
+			const bildliste2d_besch_t *liste2d = static_cast<const bildliste2d_besch_t *>(besch->gib_kind(5));
+			for(int i=0; i<besch->freight_image_type; i++) {
+				display_set_image_offset( liste2d->gib_bild(0,i)->bild_nr, +XOFF, +YOFF );
+				display_set_image_offset( liste2d->gib_bild(1,i)->bild_nr, -XOFF, +YOFF );
+				display_set_image_offset( liste2d->gib_bild(2,i)->bild_nr, 0, +YOFF );
+				display_set_image_offset( liste2d->gib_bild(3,i)->bild_nr, +XOFF, 0 );
+				display_set_image_offset( liste2d->gib_bild(4,i)->bild_nr, -XOFF, -YOFF );
+				display_set_image_offset( liste2d->gib_bild(5,i)->bild_nr, +XOFF, -YOFF );
+				display_set_image_offset( liste2d->gib_bild(6,i)->bild_nr, 0, -YOFF );
+				display_set_image_offset( liste2d->gib_bild(7,i)->bild_nr, -XOFF-YOFF, 0 );
+			}
 		}
+		else {
+			const bildliste_besch_t *liste = static_cast<const bildliste_besch_t *>(besch->gib_kind(5));
+			if(liste) {
+				display_set_image_offset( liste->gib_bild(0)->bild_nr, +XOFF, +YOFF );
+				display_set_image_offset( liste->gib_bild(1)->bild_nr, -XOFF, +YOFF );
+				display_set_image_offset( liste->gib_bild(2)->bild_nr, 0, +YOFF );
+				display_set_image_offset( liste->gib_bild(3)->bild_nr, +XOFF, 0 );
+				display_set_image_offset( liste->gib_bild(4)->bild_nr, -XOFF, -YOFF );
+				display_set_image_offset( liste->gib_bild(5)->bild_nr, +XOFF, -YOFF );
+				display_set_image_offset( liste->gib_bild(6)->bild_nr, 0, -YOFF );
+				display_set_image_offset( liste->gib_bild(7)->bild_nr, -XOFF-YOFF, 0 );
+			}
+		}
+
 	}
 
 	return true;

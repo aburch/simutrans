@@ -11,6 +11,7 @@
 #include "text_writer.h"
 #include "xref_writer.h"
 #include "imagelist_writer.h"
+#include "imagelist2d_writer.h"
 
 #include "get_waytype.h"
 #include "vehicle_writer.h"
@@ -58,7 +59,7 @@ void vehicle_writer_t::write_obj(FILE *fp, obj_node_t &parent, tabfileobj_t &obj
     uint8  uv8;
     sint8  sv8;
 
-	int total_len = 30;
+	int total_len = 31;
 
 	// prissi: must be done here, since it may affect the len of the header!
 	cstring_t sound_str = ltrim( obj.get("sound") );
@@ -88,7 +89,7 @@ void vehicle_writer_t::write_obj(FILE *fp, obj_node_t &parent, tabfileobj_t &obj
     // Hajo: version number
     // Hajo: Version needs high bit set as trigger -> this is required
     //       as marker because formerly nodes were unversionend
-    uv16 = 0x8007;
+    uv16 = 0x8008;
     node.write_data_at(fp, &uv16, 0, sizeof(uint16));
 
 
@@ -153,124 +154,191 @@ void vehicle_writer_t::write_obj(FILE *fp, obj_node_t &parent, tabfileobj_t &obj
     uv8 = (waytype_uint==weg_t::overheadlines) ? weg_t::schiene : waytype_uint;
     node.write_data_at(fp, &uv8, 24, sizeof(uint8));
 
-    // Hajodoc: The freight type
-    // Hajoval: string
-    const char *freight = obj.get("freight");
-    if(!*freight) {
-	freight = "None";
-    }
-    xref_writer_t::instance()->write_obj(fp, node, obj_good, freight, true);
-    xref_writer_t::instance()->write_obj(fp, node, obj_smoke, obj.get("smoke"), false);
-
-    //
-    // Jetzt kommen die Bildlisten
-    //
-    static const char * dir_codes[] = {
-	"s", "w", "sw", "se", "n", "e", "ne", "nw"
-    };
-    slist_tpl<cstring_t> emptykeys;
-    slist_tpl<cstring_t> freightkeys;
-    cstring_t str;
-    bool    has_freight = false;
-    bool    has_8_images = false;
-
-    for(i = 0; i < 8; i++) {
-	char buf[40];
-
-	// Hajodoc: Empty vehicle image for direction, direction in "s", "w", "sw", "se", unsymmetric vehicles need also "n", "e", "ne", "nw"
+	// Hajodoc: The freight type
 	// Hajoval: string
-	sprintf(buf, "emptyimage[%s]", dir_codes[i]);
-	str = obj.get(buf);
-	emptykeys.append(str);
-	if(str.len() > 0) {
-	    if(i >= 4) {
-		has_8_images = true;
-	    }
+	const char *freight = obj.get("freight");
+	if(!*freight) {
+		freight = "None";
+	}
+	xref_writer_t::instance()->write_obj(fp, node, obj_good, freight, true);
+	xref_writer_t::instance()->write_obj(fp, node, obj_smoke, obj.get("smoke"), false);
+
+	//
+	// Jetzt kommen die Bildlisten
+	//
+	static const char * dir_codes[] = {
+		"s", "w", "sw", "se", "n", "e", "ne", "nw"
+	};
+	slist_tpl<cstring_t> emptykeys;
+	slist_tpl< slist_tpl<cstring_t> > freightkeys;
+	slist_tpl<cstring_t> freightkeys_old;
+	cstring_t str;
+
+	int    freight_max=0;
+	bool    has_8_images = false;
+
+	// first: find out how many freight?
+	for(  i=0;  i<127;  i++  ) {
+		char buf[40];
+		sprintf(buf, "freightimage[%d][%s]", i, dir_codes[i]);
+		str = obj.get(buf);
+		if(str.len()==0) {
+			freight_max = i;
+			break;
+		}
 	}
 
-	// Hajodoc: Loaded vehicle image for direction, direction in "s", "w", "sw", "se", unsymmetric vehicles need also "n", "e", "ne", "nw"
-	// Hajoval: string
-	sprintf(buf, "freightimage[%s]", dir_codes[i]);
-	str = obj.get(buf);
-	freightkeys.append(str);
-	if(str.len() > 0) {
-	    has_freight = true;
-	    if(i >= 4) {
-		has_8_images = true;
-	    }
+	// now load the images strings
+	for(i=0;  i<8;  i++) {
+		char buf[40];
+
+		// Hajodoc: Empty vehicle image for direction, direction in "s", "w", "sw", "se", unsymmetric vehicles need also "n", "e", "ne", "nw"
+		sprintf(buf, "emptyimage[%s]", dir_codes[i]);
+		str = obj.get(buf);
+		if(str.len()>0) {
+			emptykeys.append(str);
+			if(i>=4) {
+				has_8_images = true;
+			}
+		}
+		else {
+			// stop when empty string is found
+			break;
+		}
+
+		if(freight_max==0) {
+			// a single freight image
+			// old style definition - just [direction]
+			sprintf(buf, "freightimage[%s]", dir_codes[i]);
+			if(str.len()>0) {
+				freightkeys_old.append(str);
+			}
+		}
+		else {
+			freightkeys.append( slist_tpl<cstring_t>() );
+			for( int freight=0;  freight<freight_max;  freight++ ) {
+				sprintf(buf, "freightimage[%d][%s]", freight, dir_codes[i]);
+				str = obj.get(buf);
+				if(str.len()==0) {
+					printf("*** FATAL ***:\nMissing freightimage[%d][%s]!\n", freight, dir_codes[i]); fflush(NULL);
+					exit(0);
+				}
+				freightkeys.at(i).append(str);
+			}
+		}
 	}
-    }
-    if(!has_8_images) {
-	while(emptykeys.count() > 4) {
-	    emptykeys.remove_at(emptykeys.count() - 1);
+
+	// prissi: added more error checks
+	if(has_8_images  &&  emptykeys.count()<8) {
+		printf("*** FATAL ***:\nMissing images (must be either 4 or 8 directions (but %i found)!)\n", emptykeys.count() );
+		exit(0);
 	}
-	while(freightkeys.count() > 4) {
-	    freightkeys.remove_at(freightkeys.count() - 1);
+	if(freightkeys_old.count()>0  &&  emptykeys.count()!=freightkeys_old.count()) {
+		printf("*** FATAL ***:\nMissing freigthimages (must be either 4 or 8 directions (but %i found)!)\n", freightkeys_old.count() );
+		exit(0);
 	}
-    }
-    imagelist_writer_t::instance()->write_obj(fp, node, emptykeys);
-    if(has_freight) {
-	imagelist_writer_t::instance()->write_obj(fp, node, freightkeys);
-    } else {
-	xref_writer_t::instance()->write_obj(fp, node, obj_imagelist, "", false);
-    }
 
-    //
-    // Vorgänger/Nachfolgerbedingungen
-    //
-    uint8 besch_vorgaenger = 0;
-    do {
-	char buf[40];
-
-	// Hajodoc: Constraints for previous vehicles
-	// Hajoval: string, "none" means only suitable at front of an convoi
-	sprintf(buf, "constraint[prev][%d]", besch_vorgaenger);
-
-	str = obj.get(buf);
-	if(str.len() > 0) {
-	    if(besch_vorgaenger == 0 && !STRICMP(str.chars(), "none")) {
-		str = "";
-	    }
-	    xref_writer_t::instance()->write_obj(fp, node, obj_vehicle, str.chars(), false);
-	    besch_vorgaenger++;
+	imagelist_writer_t::instance()->write_obj(fp, node, emptykeys);
+	if(freight_max>0) {
+		imagelist2d_writer_t::instance()->write_obj(fp, node, freightkeys);
 	}
-    } while (str.len() > 0);
-
-    uint8 besch_nachfolger = 0;
-    do {
-	char buf[40];
-
-	// Hajodoc: Constraints for successing vehicles
-	// Hajoval: string, "none" to disallow any followers
-	sprintf(buf, "constraint[next][%d]", besch_nachfolger);
-
-	str = obj.get(buf);
-	if(str.len() > 0) {
-	    if(besch_nachfolger == 0 && !STRICMP(str.chars(), "none")) {
-		str = "";
-	    }
-	    xref_writer_t::instance()->write_obj(fp, node, obj_vehicle, str.chars(), false);
-	    besch_nachfolger++;
+	else {
+		if(freightkeys_old.count()==emptykeys.count()) {
+			imagelist_writer_t::instance()->write_obj(fp, node, freightkeys_old);
+		}
+		else {
+			// really empty list ...
+			xref_writer_t::instance()->write_obj(fp, node, obj_imagelist, "", false);
+		}
 	}
-    } while (str.len() > 0);
+
+	//
+	// Vorgänger/Nachfolgerbedingungen
+	//
+	uint8 besch_vorgaenger = 0;
+	do {
+		char buf[40];
+
+		// Hajodoc: Constraints for previous vehicles
+		// Hajoval: string, "none" means only suitable at front of an convoi
+		sprintf(buf, "constraint[prev][%d]", besch_vorgaenger);
+
+		str = obj.get(buf);
+		if(str.len() > 0) {
+			if(besch_vorgaenger == 0 && !STRICMP(str.chars(), "none")) {
+				str = "";
+			}
+			xref_writer_t::instance()->write_obj(fp, node, obj_vehicle, str.chars(), false);
+			besch_vorgaenger++;
+		}
+	} while (str.len() > 0);
+
+	uint8 besch_nachfolger = 0;
+	do {
+		char buf[40];
+
+		// Hajodoc: Constraints for successing vehicles
+		// Hajoval: string, "none" to disallow any followers
+		sprintf(buf, "constraint[next][%d]", besch_nachfolger);
+
+		str = obj.get(buf);
+		if(str.len() > 0) {
+			if(besch_nachfolger == 0 && !STRICMP(str.chars(), "none")) {
+				str = "";
+			}
+			xref_writer_t::instance()->write_obj(fp, node, obj_vehicle, str.chars(), false);
+			besch_nachfolger++;
+		}
+	} while (str.len() > 0);
+
+	// multiple freight image types - define what good uses each index
+	// good without index will be an error
+	for( i=0;  i<=freight_max;  i++) {
+		char buf[40];
+		sprintf(buf, "freightimagetype[%d]", i);
+		str = obj.get(buf);
+		if(i==freight_max) {
+			// check for supoerflous definitions
+			if(str.len()>0) {
+				printf("WARNING: More freightimagetype (%i) than freight_images (%i)!\n", i, freight_max );
+				fflush(NULL);
+			}
+			break;
+		}
+		if(str.len()==0) {
+			printf("*** FATAL ***:\nMissing freightimagetype[%i] for %i freight_images!\n", i, freight_max+1 );
+			exit(0);
+		}
+    		xref_writer_t::instance()->write_obj(fp, node, obj_good, str.chars(), false);
+	}
+
+	// if no index defined then add default as vehicle good
+	// if not using freight images then store zero string
+	if(freight_max>0) {
+		xref_writer_t::instance()->write_obj(fp, node, obj_good, freight, false);
+	}
 
 	node.write_data_at(fp, &sound_id, 25, sizeof(sint8));
 
-    if(waytype_uint == weg_t::overheadlines) {
-      // Hajo: compatibility for old style DAT files
-      uv8 = vehikel_besch_t::electric;
-    } else {
-      const char *engine_type = obj.get("engine_type");
-      uv8 = get_engine_type(engine_type, obj);
-    }
-    node.write_data_at(fp, &uv8, 26, sizeof(uint8));
+	if(waytype_uint == weg_t::overheadlines) {
+		// Hajo: compatibility for old style DAT files
+		uv8 = vehikel_besch_t::electric;
+	}
+	else {
+		const char *engine_type = obj.get("engine_type");
+		uv8 = get_engine_type(engine_type, obj);
+	}
+	node.write_data_at(fp, &uv8, 26, sizeof(uint8));
 
-    // the length (default 8)
-    uv8 = obj.get_int("length", 8);
-    node.write_data_at(fp, &uv8, 27, sizeof(uint8));
+	// the length (default 8)
+	uv8 = obj.get_int("length", 8);
+	node.write_data_at(fp, &uv8, 27, sizeof(uint8));
 
-    node.write_data_at(fp, &besch_vorgaenger, 28, sizeof(sint8));
-    node.write_data_at(fp, &besch_nachfolger, 29, sizeof(sint8));
+	node.write_data_at(fp, &besch_vorgaenger, 28, sizeof(sint8));
+	node.write_data_at(fp, &besch_nachfolger, 29, sizeof(sint8));
+
+	uv8 = freight_max;
+	node.write_data_at(fp, &uv8, 30, sizeof(sint8));
 
 	if(sound_str.len()>0) {
 		sv8 = sound_str.len();
@@ -278,5 +346,5 @@ void vehicle_writer_t::write_obj(FILE *fp, obj_node_t &parent, tabfileobj_t &obj
 		node.write_data_at(fp, sound_str.chars(), 31, sound_str.len());
 	}
 
-    node.write(fp);
+	node.write(fp);
 }

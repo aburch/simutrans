@@ -12,113 +12,28 @@
 #include "vehicle_reader.h"
 #include "../obj_node_info.h"
 
-/******************************************
- * This an attempt to move vehicles at the right positiion during load time
-
-static offset_koord xy_road[8] =
-{
-	{ 28, 45 },
-	{ 51, 45 },
-	{ 28, 51 },
-	{ 25, 38 },
-	{ 20, 48 },
-	{ 34, 33 },
-	{ 41, 52 },
-	{ 21, 44 }
-};
-
-static offset_koord xy_rail[8] =
-{
-	{ 32, 48 },
-	{ 32, 48 },
-	{ 28, 48 },
-	{ 22, 48 },
-};
-
-*/
 
 
-void vehicle_reader_t::register_obj(obj_besch_t *&data)
+void
+vehicle_reader_t::register_obj(obj_besch_t *&data)
 {
     vehikel_besch_t *besch = static_cast<vehikel_besch_t *>(data);
-
-	// init the pixel lenght information
-	if(besch->length[0]==0) {
-		uint8 w1,w2,w3;
-		const uint8	*p = besch->gib_bild_daten(3);
-		bool is_128=(p[0]+p[2]>64);
-
-		switch(besch->typ)
-		{
-			case weg_t::strasse:
-				// diagonal length
-				p = besch->gib_bild_daten(0);
-				w1 = p[0]+p[2]-(is_128?55-4:28-2);
-				// vertical length (==height)
-				p = besch->gib_bild_daten(2);
-				w2 = p[1]+p[3]-(is_128?88-4:40-2);
-				// horizontal length (==height)
-				p = besch->gib_bild_daten(3);
-				w3 = p[2];
-			break;
-
-			case weg_t::schiene:
-			case 5: // weg_t::monorail:
-			case 6: // weg_t::schiene_maglev:
-			case 7: // weg_t::schiene_strab:
-				// diagonal length
-				p = besch->gib_bild_daten(0);
-				w1 = p[0]+p[2]-(is_128?58-4:32-2);
-				// vertical length (==height)
-				p = besch->gib_bild_daten(2);
-				w2 = p[1]+p[3]-(is_128?80-4:41-2);
-				// horizontal length (==height)
-				p = besch->gib_bild_daten(3);
-				w3 = p[2];
-			break;
-
-			default:
-				// diagonal length
-				p = besch->gib_bild_daten(0);
-				w1 = p[2];
-				// vertical length (==height)
-				p = besch->gib_bild_daten(2);
-				w2 = ((uint16)p[3]*5)/4;
-				// horizontal length (==height)
-				p = besch->gib_bild_daten(3);
-				w3 = p[2];
-			break;
-		}
-		// since we use normalized koordinates
-		if(is_128) {
-			w1 /= 2;
-			w2 /= 2;
-			w3 /= 2;
-		}
-		for( int i=0;  i<8;  i++ ) {
-			if(i<4) {
-				besch->length[i] = w1;
-			} else if(i<6) {
-				besch->length[i] = w2;
-			} else {
-				besch->length[i] = w3;
-			}
-		}
-	}
-
     vehikelbauer_t::register_besch(besch);
-
     obj_for_xref(get_type(), besch->gib_name(), data);
 }
 
-bool vehicle_reader_t::successfully_loaded() const
+
+
+bool
+vehicle_reader_t::successfully_loaded() const
 {
     vehikelbauer_t::sort_lists();
     return true;
 }
 
 
-obj_besch_t * vehicle_reader_t::read_node(FILE *fp, obj_node_info_t &node)
+obj_besch_t *
+vehicle_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 {
 #ifdef _MSC_VER /* no var array on the stack supported */
 	char *besch_buf = static_cast<char *>(alloca(node.size));
@@ -240,6 +155,26 @@ obj_besch_t * vehicle_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 		besch->len = decode_uint8(p);
 		besch->vorgaenger = decode_uint8(p);
 		besch->nachfolger = decode_uint8(p);
+	} else if (version==8) {
+		// multiple freight images...
+		besch->preis = decode_uint32(p);
+		besch->zuladung = decode_uint16(p);
+		besch->geschw = decode_uint16(p);
+		besch->gewicht = decode_uint16(p);
+		besch->leistung = decode_uint32(p);
+		besch->betriebskosten = decode_uint16(p);
+
+		besch->intro_date = decode_uint16(p);
+		besch->obsolete_date = decode_uint16(p);
+		besch->gear = decode_uint16(p);
+
+		besch->typ = decode_uint8(p);
+		besch->sound = decode_sint8(p);
+		besch->engine_type = decode_uint8(p);
+		besch->len = decode_uint8(p);
+		besch->vorgaenger = decode_uint8(p);
+		besch->nachfolger = decode_uint8(p);
+		besch->freight_image_type = decode_uint8(p);
 	} else {
 		// old node, version 0
 
@@ -258,7 +193,6 @@ obj_besch_t * vehicle_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 		besch->obsolete_date = (DEFAULT_RETIRE_DATE*16);
 		besch->gear = 64;
 	}
-
 
 	// correct the engine type for old vehicles
 	if(version<2) {
@@ -289,6 +223,11 @@ obj_besch_t * vehicle_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 	// before the length was always 1/8 (=half a tile)
 	if(version<7) {
 		besch->len = 8;
+	}
+
+	// before version 8 vehicles could only have one freight image in each direction
+	if(version<8) {
+		besch->freight_image_type=0;
 	}
 
 	if(besch->sound==LOAD_SOUND) {
