@@ -1,6 +1,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <math.h>
+#include "simtools.h"
 
 /* This is the mersenne random generator: More random and faster! */
 
@@ -11,20 +12,12 @@
 #define UPPER_MASK 0x80000000UL /* most significant w-r bits */
 #define LOWER_MASK 0x7fffffffUL /* least significant r bits */
 
-unsigned long mersenne_twister[MERSENNE_TWISTER_N]; /* the array for the state vector  */
-int mersenne_twister_index=MERSENNE_TWISTER_N+1; /* mersenne_twister_index==N+1 means mersenne_twister[N] is not initialized */
-
-/* define before including simtools.h! */
-
-
-#include "simtypes.h"
-#include "simtools.h"
-#include "simmem.h"
-
+static unsigned long mersenne_twister[MERSENNE_TWISTER_N]; // the array for the state vector
+static int mersenne_twister_index = MERSENNE_TWISTER_N + 1; // mersenne_twister_index==N+1 means mersenne_twister[N] is not initialized
 
 
 /* initializes mersenne_twister[N] with a seed */
-void init_genrand(uint32 s)
+static void init_genrand(uint32 s)
 {
     mersenne_twister[0]= s & 0xffffffffUL;
     for (mersenne_twister_index=1; mersenne_twister_index<MERSENNE_TWISTER_N; mersenne_twister_index++) {
@@ -39,10 +32,9 @@ void init_genrand(uint32 s)
 }
 
 
-
 /* generate N words at one time */
- void	MTgenerate(void)
- {
+static void MTgenerate(void)
+{
 	static uint32 mag01[2]={0x0UL, MATRIX_A};
 	uint32 y;
     int kk;
@@ -65,9 +57,8 @@ void init_genrand(uint32 s)
 }
 
 
-
 /* generates a random number on [0,0xffffffff]-interval */
-uint32 simrand_plain(void)
+static uint32 simrand_plain(void)
 {
 	uint32 y;
 
@@ -89,30 +80,11 @@ uint32 simrand_plain(void)
 /* generates a random number on [0,max-1]-interval */
 uint32 simrand(const uint32 max)
 {
-#ifndef MERSENNE_TWISTER_N
-	// defined in simtools.h!
-	#define MERSENNE_TWISTER_N 624
-	extern unsigned long mersenne_twister[MERSENNE_TWISTER_N];
-	extern unsigned long mersenne_twister_index;
-#endif
-	uint32 y;
-
 	if(max<=1) {	// may rather assert this?
 		return 0;
 	}
 
-	if (mersenne_twister_index >= MERSENNE_TWISTER_N) { /* generate N words at one time */
-		MTgenerate();
-	}
-	y = mersenne_twister[mersenne_twister_index++];
-
-	/* Tempering */
-	y ^= (y >> 11);
-	y ^= (y << 7) & 0x9d2c5680UL;
-	y ^= (y << 15) & 0xefc60000UL;
-	y ^= (y >> 18);
-
-	return y%max;
+	return simrand_plain() % max;
 }
 
 
@@ -131,47 +103,6 @@ uint32 setsimrand(uint32 seed,uint32 ns)
 	return old_noise_seed;
 }
 
-
-
-/* generates a random number on [0,max-1]-interval */
-//inline unsigned long simrand(const unsigned long max)
-
-
-
-/**
- * verwuerfelt liste list zufaellig
- */
-void
-zufallsliste(void *list, int elem_size, int elem_count)
-{
-    char *buf = (char *)guarded_malloc(elem_size*elem_count);
-    int i, p;
-
-    memcpy(buf, list, elem_size*elem_count);
-
-
-    i = elem_count;
-    p = 0;
-
-    while(i > 0) {
-	int rand_elem = simrand(i);
-
-        memcpy(((char *)list)+p*elem_size,
-               buf+rand_elem*elem_size,
-	       elem_size);
-
-	if(rand_elem < i-1) {
-	    memmove(buf+rand_elem*elem_size,
-                    buf+(rand_elem+1)*elem_size,
-		    (i-rand_elem-1)*elem_size);
-        }
-
-	i --;
-	p ++;
-    }
-
-    guarded_free( buf );
-}
 
 static double
 int_noise(const long x, const long y)
