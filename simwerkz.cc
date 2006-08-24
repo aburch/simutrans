@@ -16,7 +16,6 @@
 #include "simdebug.h"
 #include "simworld.h"
 #include "simplay.h"
-#include "simtools.h"
 #include "simevent.h"
 #include "simskin.h"
 #include "simcity.h"

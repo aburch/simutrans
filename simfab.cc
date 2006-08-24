@@ -39,7 +39,6 @@
 #include "besch/haus_besch.h"
 #include "besch/ware_besch.h"
 #include "simplay.h"
-#include "simtools.h"
 
 
 #include "simintr.h"

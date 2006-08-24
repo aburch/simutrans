@@ -890,9 +890,4 @@ public:
 
 void warte_auf_taste(event_t *ev);
 
-//#ifndef __cplusplus
-//#define __cplusplus
-//#endif
-#include "simtools.h"
-
 #endif

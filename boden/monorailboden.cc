@@ -5,7 +5,6 @@
 
 #include "../simimg.h"
 #include "../simworld.h"
-#include "../simtools.h"
 #include "../simhalt.h"
 #include "../besch/grund_besch.h"
 

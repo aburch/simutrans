@@ -3,7 +3,6 @@
 
 #include "../simimg.h"
 #include "../simworld.h"
-#include "../simtools.h"
 
 #include "../dataobj/loadsave.h"
 #include "../dataobj/freelist.h"
