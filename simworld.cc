@@ -2707,17 +2707,6 @@ void karte_t::load_heightfield(einstellungen_t *sets)
 }
 
 
-// Hilfmethoden fuer Interaktion
-
-void warte_auf_taste(event_t *ev)
-{
-    do {
-	win_get_event(ev);
-    }while( !(ev->ev_class == EVENT_KEYBOARD && ev->ev_code < 256));
-}
-
-
-
 static void warte_auf_mausklick_oder_taste(event_t *ev)
 {
     do {

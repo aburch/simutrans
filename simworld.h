@@ -887,7 +887,4 @@ public:
     bool interactive();
 };
 
-
-void warte_auf_taste(event_t *ev);
-
 #endif
