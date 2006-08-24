@@ -103,6 +103,8 @@ void simgraph_resize(KOORD_VAL w, KOORD_VAL h);
  */
 #define UNICODE_SUPPORT
 
+int	display_set_unicode(int use_unicode);
+
 /* Loads the fonts (large=true loads large font)
  * @author prissi
  */

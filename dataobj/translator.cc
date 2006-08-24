@@ -87,12 +87,12 @@ recode(const char *src,bool translate_from_utf,bool translate_to_utf)
 				*dst++ = c;
 			} else if(  translate_to_utf  ) {
 				// make UTF8 from latin
-				dst += (char)unicode2utf8( (unsigned char)*src++, (unsigned char *)dst );
+				dst += utf16_to_utf8((unsigned char)*src++, (utf8*)dst);
 			}
 			else if(  translate_from_utf  ) {
 				// make latin from UTF8 (ignore overflows!)
 				int len=0;
-				*dst++ = c = (char)utf82unicode( (const unsigned char *)src, &len );
+				*dst++ = c = utf8_to_utf16((const utf8*)src, &len);
 				src += len;
 			}
 		}

@@ -816,16 +816,6 @@ static void rezoom_img( const unsigned int n )
 }
 
 
-
-/* returns TRUE, if there is a Unicode font loaded
- * @author prissi
- */
-int	display_get_unicode(void)
-{
-	return has_unicode;
-}
-
-
 int	display_set_unicode(int use_unicode)
 {
 	return has_unicode=use_unicode!=0;
@@ -2439,7 +2429,7 @@ int display_calc_proportional_string_len_width(const char *text, int len,bool us
 		int	iLen=0;
 		// decode char; Unicode is always 8 pixel (so far)
 		while(  iLen<len  ) {
-			iUnicode = utf82unicode( text+iLen, &iLen );
+			iUnicode = utf8_to_utf16(text + iLen, &iLen);
 			if(  iUnicode==0  ) {
 				return width;
 			}
@@ -2625,7 +2615,7 @@ int display_text_proportional_len_clip(KOORD_VAL x, KOORD_VAL y, const char *txt
 #ifdef UNICODE_SUPPORT
 		// decode char
 		if(  has_unicode  ) {
-			c = utf82unicode( txt+iTextPos, &iTextPos );
+			c = utf8_to_utf16(txt + iTextPos, &iTextPos);
 		}
 		else
 #endif

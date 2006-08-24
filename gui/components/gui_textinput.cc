@@ -60,12 +60,14 @@ void gui_textinput_t::infowin_event(const event_t *ev)
 		    	// not used currently
 			break;
 		    case SIM_KEY_LEFT: // left arrow
-		    	if (cursor_pos > 0)
-		    		cursor_pos = unicode_get_previous_character(text,cursor_pos);
+				if (cursor_pos > 0) {
+					cursor_pos = utf8_get_prev_char((const utf8*)text, cursor_pos);
+				}
 			break;
 		    case SIM_KEY_RIGHT: // right arrow
-		    	if (cursor_pos < len)
-		    		cursor_pos = unicode_get_next_character(text,cursor_pos);
+				if (cursor_pos > 0) {
+					cursor_pos = utf8_get_next_char((const utf8*)text, cursor_pos);
+				}
 			break;
 		    case SIM_KEY_UP: // rightarrow
 		    	// not used currently
@@ -81,12 +83,12 @@ void gui_textinput_t::infowin_event(const event_t *ev)
 			if(cursor_pos > 0) {
 				if (cursor_pos < len) {
 					int prev_pos = cursor_pos;
-					cursor_pos = unicode_get_previous_character(text,cursor_pos);
+					cursor_pos = utf8_get_prev_char((const utf8*)text, cursor_pos);
 					for (int pos = cursor_pos; pos <= len-(prev_pos-cursor_pos); pos++) {
 						text[pos] = text[pos+(prev_pos-cursor_pos)];
 					}
 				} else {
-			    		cursor_pos = unicode_get_previous_character(text,cursor_pos);
+					cursor_pos = utf8_get_prev_char((const utf8*)text, cursor_pos);
 				    text[cursor_pos] = 0;
 				}
 			}
@@ -94,7 +96,7 @@ void gui_textinput_t::infowin_event(const event_t *ev)
 			case 127:
 			// delete
 			if (cursor_pos <= len) {
-					int next_pos = unicode_get_next_character(text,cursor_pos);
+					int next_pos = utf8_get_next_char((const utf8*)text, cursor_pos);
 					for (int pos = cursor_pos; pos < len; pos++) {
 						text[pos] = text[pos+(next_pos-cursor_pos)];
 					}

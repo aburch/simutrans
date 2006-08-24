@@ -5,12 +5,14 @@
 extern "C" {
 #endif
 
-int	display_get_unicode(void);
-int	display_set_unicode(int use_unicode);
-int unicode_get_previous_character( const char *text, int cursor_pos);
-int unicode_get_next_character( const char *text, int cursor_pos);
-unsigned short utf82unicode (unsigned char const *ptr, int *iLen );
-int	unicode2utf8( unsigned unicode, unsigned char *out );
+typedef unsigned char  utf8;
+typedef unsigned short utf16;
+
+int utf8_get_next_char(const utf8 *text, int pos);
+int utf8_get_prev_char(const utf8 *text, int pos);
+
+utf16 utf8_to_utf16(const utf8 *text, int *len);
+int	utf16_to_utf8(utf16 unicode, utf8 *out);
 
 #ifdef __cplusplus
 }
