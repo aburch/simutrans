@@ -275,6 +275,7 @@ SOURCES += simware.cc
 SOURCES += simwerkz.cc
 SOURCES += simwin.cc
 SOURCES += simworld.cc
+SOURCES += unicode.c
 
 
 SOURCES += simgraph$(COLOUR_DEPTH).c

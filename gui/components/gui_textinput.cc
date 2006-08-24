@@ -15,6 +15,7 @@
 #include "../../simgraph.h"
 #include "../../simcolor.h"
 #include "../../simwin.h"
+#include "../../unicode.h"
 
 #include "../../dataobj/translator.h"
 
