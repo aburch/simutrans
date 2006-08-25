@@ -177,9 +177,6 @@ protected:
      */
     int get_vmove(koord dir) const;
 
-	// the actual drawing routine
-	inline void do_display_boden( const sint16 xpos, const sint16 ypos, const bool dirty ) const;
-
 protected:
 
 
