@@ -102,10 +102,8 @@ void cstring_t::set_at(int idx, char x) const
 // copy operator (act like constructor)
 cstring_t & cstring_t::operator= (const cstring_t &other)
 {
-	if(buf) {
-		delete [] buf;
-		buf = NULL;
-	}
+	delete [] buf;
+	buf = NULL;
 	if(other.len()>0) {
 		buf = new char[other.len()+1];
 		strcpy(buf, other.buf);
@@ -116,10 +114,8 @@ cstring_t & cstring_t::operator= (const cstring_t &other)
 
 cstring_t & cstring_t::operator= (const char *str)
 {
-	if(buf) {
-		delete [] buf;
-		buf = NULL;
-	}
+	delete [] buf;
+	buf = NULL;
 	if(str) {
 		buf = new char[strlen(str)+1];
 		strcpy(buf, str);
