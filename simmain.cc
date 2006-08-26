@@ -70,79 +70,6 @@
 
 #include "simverkehr.h"
 
-/*******************************************************************************
- * The follownig code is for moving files to new locations. It can be removed
- * afterwards.
- * @author Volker Meyer
- * @date  18.06.2003
- */
-#ifdef _MSC_VER
-#include <io.h>
-#include <direct.h>
-#define W_OK	2
-#else
-#include <sys/stat.h>
-#include <sys/types.h>
-#include <fcntl.h>
-#include <unistd.h>
-#endif
-
-
-#ifdef CHECK_LOCATIONS
-// this part move old files to new locations
-static void check_location(const char *file, const char *dir)
-{
-    char src[128];
-    char dest[128];
-
-    sprintf(src, "%s", file);
-    sprintf(dest, "%s/%s", dir, file);
-
-    if(access(dir, W_OK) == -1) {
-#if defined( __MINGW32__ ) || defined(_MSC_VER)
-	mkdir(dir);
-#else
-	mkdir(dir, 0700);
-#endif
-    }
-    if(access(dest, W_OK) == -1 && access(src, W_OK) != -1) {
-	rename(src, dest);  // move file from source to dest
-    }
-}
-
-static void check_locations()
-{
-    check_location("draw.fnt", FONT_PATH);
-    check_location("prop.fnt", FONT_PATH);
-    check_location("4x7.hex",  FONT_PATH);
-
-    check_location("simud100.pal", PALETTE_PATH);
-    check_location("simud90.pal", PALETTE_PATH);
-    check_location("simud80.pal", PALETTE_PATH);
-    check_location("simud70.pal", PALETTE_PATH);
-    check_location("special.pal", PALETTE_PATH);
-
-    searchfolder_t folder;
-    int i;
-
-    for(i = folder.search("./", "sve"); i-- > 0; ) {
-	check_location(folder.at(i), SAVE_PATH);
-    }
-    for(i = folder.search("./", "bmp"); i-- > 0; ) {
-	cstring_t f = folder.at(i);
-
-	if(f.left(8) == "./simscr") {
-	    check_location(f, SCRENSHOT_PATH);
-	}
-    }
-}
-/*
- * End of file moving code. Call to check locations beneath has to be removed,
- * too.
- */
-#endif
- /******************************************************************************/
-
 
 static void show_sizes()
 {
@@ -460,11 +387,6 @@ int simu_cpp_main(int argc, char ** argv)
 
     cstring_t loadgame = "";
     cstring_t objfilename = DEFAULT_OBJPATH;
-
-#ifdef CHECK_LOCATIONS
-    // Hajo: currently not needed
-    // check_locations();
-#endif
 
     // init. fehlerbehandlung
 #ifdef _MSC_VER
