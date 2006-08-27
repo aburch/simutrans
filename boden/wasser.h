@@ -13,13 +13,12 @@ class wasser_t : public grund_t
 {
 private:
     uint8 step_nr;
-    sint8 back_bild_nr;
 
 public:
     wasser_t(karte_t *welt, loadsave_t *file);
     wasser_t(karte_t *welt, koord pos);
 
-    inline bool ist_wasser() const { return true; };
+    inline bool ist_wasser() const { return true; }
 
 	// returns all directions for waser and none for the rest ...
     ribi_t::ribi gib_weg_ribi(weg_t::typ typ) const { return (typ==weg_t::wasser) ? ribi_t::alle :ribi_t::keine; }
@@ -36,8 +35,8 @@ public:
 
     void step();
     void calc_bild();
-    inline const char *gib_name() const {return "Wasser";};
-    inline enum typ gib_typ() const {return wasser;};
+    inline const char *gib_name() const {return "Wasser";}
+    inline enum typ gib_typ() const {return wasser;}
 
     void * operator new(size_t s);
     void operator delete(void *p);
