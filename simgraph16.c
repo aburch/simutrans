@@ -1654,11 +1654,10 @@ void register_image(struct bild_besch_t *bild)
 	images[anz_images].data = NULL;
 	images[anz_images].player_data = NULL;	// chaches data for one AI
 
-	images[anz_images].base_data = (PIXVAL *)guarded_malloc(images[anz_images].len*sizeof(PIXVAL));
+	// since we do not recode them, we can work with the original data
+	images[anz_images].base_data = (PIXVAL *)(bild + 1);
 
 	images[anz_images].recode_flags[FLAGS] = (bild->zoomable&FLAG_ZOOMABLE);
-
-	memcpy(images[anz_images].base_data, (PIXVAL *)(bild + 1),images[anz_images].len*sizeof(PIXVAL));
 
 	bild->bild_nr = anz_images;
 
@@ -3111,9 +3110,6 @@ int simgraph_exit()
 		}
 		if(images[n].data!=NULL) {
 			guarded_free( images[n].data );
-		}
-		if(images[n].base_data!=NULL) {
-			guarded_free( images[n].base_data );
 		}
 	}
 	guarded_free(images);
