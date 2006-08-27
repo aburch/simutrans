@@ -323,7 +323,7 @@ void sim_new_handler()
 
 
 
-int simu_cpp_main(int argc, char ** argv)
+extern "C" int simu_main(int argc, char** argv)
 {
   // Try to catch all exceptions and print them
   try {
@@ -886,17 +886,3 @@ int simu_cpp_main(int argc, char ** argv)
 
   return 0;
 }
-
-
-
-
-extern "C" {
-
-int
-simu_main(int argc , char** argv)
-{
-	int i=simu_cpp_main(argc, argv);
-	return i;
-}
-
-} // extern "C"
