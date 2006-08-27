@@ -361,7 +361,6 @@ extern "C" int simu_main(int argc, char** argv)
 		umgebung_t::testlauf      = (gimme_arg(argc, argv, "-test",     0) != NULL);
 		umgebung_t::freeplay      = (gimme_arg(argc, argv, "-freeplay", 0) != NULL);
 		umgebung_t::verbose_debug = (gimme_arg(argc, argv, "-debug",    0) != NULL);
-		umgebung_t::verbose_debug = (gimme_arg(argc, argv, "-debug",    0) != NULL);
 
 		// parsing config/simuconf.tab
 		print("Reading low level config data ...\n");
