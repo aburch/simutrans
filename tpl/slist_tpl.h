@@ -31,6 +31,8 @@ template<class T> class slist_iterator_tpl;
  * work in fixed time. Maintains a list of free nodes to reduce calls
  * to new and delete.
  *
+ * Must NOT be used with things with copy contructor like button_t or cstring_t!!!
+ *
  * @date November 2000
  * @author Hj. Malthaner
  */

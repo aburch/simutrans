@@ -109,7 +109,7 @@ static char szenario_path[256];
 /* Liste aller Städtenamen
  * @author Hj. Malthaner
  */
-static slist_tpl <cstring_t> namen_liste;
+static slist_tpl <const char *> namen_liste;
 
 /* since the city names are language dependent, they are now kept here!
  * @date 2.1.2005
@@ -148,7 +148,7 @@ void	translator::get_city_name(char *name, int nr)
   	strcpy( name, "Simcity" );
   	return;
   }
-  cstring_t &list_name = namen_liste.at( nr%namen_liste.count() );
+  const char *list_name = namen_liste.at( nr%namen_liste.count() );
   tstrncpy(name, list_name, 63);
   name[63] = 0;
 }
@@ -203,8 +203,7 @@ DBG_DEBUG("translator::init_city_names()","file %p",file);
 			if(fgets(buf, 128, file)) {
 				rtrim(buf);
 				char *c= recode( buf, file_is_utf, is_utf_language );
-				namen_liste.insert(cstring_t(buf));
-				guarded_free(c);
+				namen_liste.insert(c);
 			}
 		}
 		fclose(file);
@@ -220,7 +219,9 @@ DBG_MESSAGE("translator::init_city_names", "reading failed, creating random name
 			// const int l2 = strlen(translator::translate(name_t2[j]));
 				char buf [256];
 				sprintf(buf, "%s%s", translator::translate(name_t1[i]), translator::translate(name_t2[j]));
-				namen_liste.insert(cstring_t(buf));
+				char *c=(char *)guarded_malloc(strlen(buf));
+				strcpy( c, buf );
+				namen_liste.insert(c);
 			}
 		}
 	}
@@ -347,7 +348,7 @@ DBG_MESSAGE("translator::load()","loading pak translations from %s for iso nr %i
   if(num_lang_dat>0) {
       dbg->warning("translator::load()", "%d languages were not loaded, limit reached", num_lang_dat);
       while(num_lang_dat-- > 0) {
-          dbg->warning("translator::load()", " %s not loaded", folder.at(num_lang_dat).chars());
+          dbg->warning("translator::load()", " %s not loaded", folder.at(num_lang_dat));
       }
   }
 
@@ -419,7 +420,7 @@ void translator::set_language(char *iso)
 {
 	for(int i=0; i<single_instance->lang_count; i++) {
 		const char *iso_base = get_language_name_iso_base(i);
-		if(iso_base[1] == iso[0] && iso_base[2] == iso[1]) {
+		if(iso_base[0] == iso[0] && iso_base[0] == iso[1]) {
 			set_language(i);
 			return;
 		}

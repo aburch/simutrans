@@ -8,37 +8,27 @@
  *  projects without written permission of the authors.
  *
  *  Modulbeschreibung:
- *      ...
+ *      searches a folder for a certain extension
  *
  */
 #ifndef __SEARCHFOLDER_H
 #define __SEARCHFOLDER_H
 
-/*
- *  includes
- */
+
 #include "../utils/cstring_t.h"
 #include "../tpl/slist_tpl.h"
 
 
-/**
- *  class:
- *      searchfolder_t()
- *
- *  Autor:
- *      Volker Meyer
- *
- *  Beschreibung:
- *      ...
- */
+
 class searchfolder_t {
-    slist_tpl<cstring_t> files;
+	slist_tpl<const char *> files;	// NEVER EVER USE ctring_T here!!!
 
 public:
-    int search(const char *filepath, const char *extension);
+	~searchfolder_t();
+	int search(const char *filepath, const char *extension);
 
-    static cstring_t complete(const char *filepath, const char *extension);
-    const cstring_t & at(unsigned int i);
+	static cstring_t complete(const char *filepath, const char *extension);
+	const char * at(unsigned int i);
 };
 
 #endif // __SEARCHFOLDER_H

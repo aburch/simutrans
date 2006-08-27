@@ -10,6 +10,7 @@ Known bugs: (hard to fix)
 	FIX: force beginner/normal mode after loading
 	ADD: (kierongreen) additionally freight image for vehicles (syntax 'freigthimage[no][direction]=' with the good definition in 'freightimagetype[no]=')
 	FIX: more error check to makeobj pak for vehicles (wrong numbers etc.)
+	FIX: missing cstring_t initialisation in slist_tpl; since cstring_t only used in translator.cc and searchfolder.cc, these two converted to slist_tpl<const char *>
 
 
 Release of 89.03.2

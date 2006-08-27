@@ -1,5 +1,8 @@
 #include "unicode.h"
 
+#ifdef _MSC_VER
+#	define inline _inline
+#endif
 
 static inline int is_1byte_seq(utf8 c) { return (c & 0x80) == 0x00; }
 static inline int is_2byte_seq(utf8 c) { return (c & 0xE0) == 0xC0; }
