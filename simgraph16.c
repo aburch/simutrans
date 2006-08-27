@@ -1599,94 +1599,84 @@ static void display_set_player_color(int entry)
 
 
 /**
- * Fügt ein Images aus andere Quelle hinzu)
- * @return die neue Bildnummer
- *
- * @author V. Meyer
+ * Fügt ein Image aus anderer Quelle hinzu
  */
 void register_image(struct bild_besch_t *bild)
 {
+	struct imd* image;
+
 	/* valid image? */
-	if(bild->len==0  ||  bild->h==0) {
-		printf("Warning: ignoring image %d because of missing data\n",anz_images);
-/*
-		images[anz_images].len = 1;
-		images[anz_images].base_h = 0;
-		images[anz_images].h = 0;
-*/
+	if (bild->len == 0 || bild->h == 0) {
+		fprintf(stderr, "Warning: ignoring image %d because of missing data\n", anz_images);
 		bild->bild_nr = -1;
 		return;
 	}
 
-	if(anz_images>=65535) {
-		printf("FATAL:\n*** Out of images (more than 65534!) ***\n\n");
-		getchar();
-		fflush(NULL);
+	if (anz_images >= 65535) {
+		fprintf(stderr, "FATAL:\n*** Out of images (more than 65534!) ***\n");
 		abort();
 	}
 
-	if(anz_images == alloc_images) {
+	if (anz_images == alloc_images) {
 		alloc_images += 128;
-		images = (struct imd *)guarded_realloc(images, sizeof(struct imd)*alloc_images);
+		images = guarded_realloc(images, sizeof(*images) * alloc_images);
 	}
 
-	images[anz_images].x = bild->x;
-	images[anz_images].w = bild->w;
-	images[anz_images].y = bild->y;
-	images[anz_images].h = bild->h;
+	bild->bild_nr = anz_images;
+	image = &images[anz_images];
+	anz_images++;
 
-	images[anz_images].base_x = bild->x;
-	images[anz_images].base_w = bild->w;
-	images[anz_images].base_y = bild->y;
-	images[anz_images].base_h = bild->h;
+	image->x = bild->x;
+	image->w = bild->w;
+	image->y = bild->y;
+	image->h = bild->h;
 
-	images[anz_images].len = bild->len;
+	image->base_x = bild->x;
+	image->base_w = bild->w;
+	image->base_y = bild->y;
+	image->base_h = bild->h;
+
+	image->len = bild->len;
 
 	// allocate and copy if needed
-	images[anz_images].recode_flags[NEED_NORMAL_RECODE] = 128;
+	image->recode_flags[NEED_NORMAL_RECODE] = 128;
 #ifdef NEED_PLAYER_RECODE
-	images[anz_images].recode_flags[NEED_PLAYER_RECODE] = 128;
+	image->recode_flags[NEED_PLAYER_RECODE] = 128;
 #endif
-	images[anz_images].recode_flags[NEED_REZOOM] = true;
+	image->recode_flags[NEED_REZOOM] = true;
 
-	images[anz_images].base_data = NULL;
-	images[anz_images].zoom_data = NULL;
-	images[anz_images].data = NULL;
-	images[anz_images].player_data = NULL;	// chaches data for one AI
+	image->base_data = NULL;
+	image->zoom_data = NULL;
+	image->data = NULL;
+	image->player_data = NULL;	// chaches data for one AI
 
 	// since we do not recode them, we can work with the original data
-	images[anz_images].base_data = (PIXVAL *)(bild + 1);
+	image->base_data = (PIXVAL*)(bild + 1);
 
-	images[anz_images].recode_flags[FLAGS] = (bild->zoomable&FLAG_ZOOMABLE);
-
-	bild->bild_nr = anz_images;
+	image->recode_flags[FLAGS] = bild->zoomable & FLAG_ZOOMABLE;
 
 	// does this image have color?
-	if(bild->h>0) {
-		int h=bild->h, color=0;
-		PIXVAL *src = images[anz_images].base_data;
+	if (bild->h > 0) {
+		int h = bild->h;
+		const PIXVAL *src = image->base_data;
+
 		do {
-			PIXVAL runlen=*src++;	// offset of first start
+			*src++; // offset of first start
 			do {
-				// clear run is always ok
-				runlen = *src++;
-				// now just convert the color pixels
-				while(runlen--) {
+				PIXVAL runlen;
+
+				for (runlen = *src++; runlen != 0; runlen--) {
 					PIXVAL pix = *src++;
-					if((0x8000^pix)<=0x000F) {
-						color=1;
+
+					if (0x8000 <= pix && pix <= 0x800F) {
+						image->recode_flags[FLAGS] |= FLAG_PLAYERCOLOR;
+						return;
 					}
 				}
 				// next clear run or zero = end
-			} while( (runlen = *src++)!=0 );
-
-		} while(--h  &&  color==0);
-		if(color) {
-			images[anz_images].recode_flags[FLAGS] |= FLAG_PLAYERCOLOR;
-		}
+			} while (*src++ != 0);
+		} while (--h != 0);
 	}
-
-	anz_images ++;
 }
 
 
