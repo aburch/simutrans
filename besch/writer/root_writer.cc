@@ -29,84 +29,86 @@ void root_writer_t::write_header(FILE *fp)
 
 void root_writer_t::write(const char *filename, int argc, char *argv[])
 {
-    searchfolder_t find;
-    FILE *outfp = NULL;
-    obj_node_t *node = NULL;
-    bool separate = false;
-    int i, j;
-    cstring_t file = find.complete(filename, "pak");
+	searchfolder_t find;
+	FILE *outfp = NULL;
+	obj_node_t *node = NULL;
+	bool separate = false;
+	int i, j;
+	cstring_t file = find.complete(filename, "pak");
 
-    if(file.right(1) == "/") {
-	printf("writing invidual files to %s\n", filename);
-	separate = true;
-    }
-    else {
-	outfp = fopen(file, "wb");
-
-	if(!outfp) {
-	    printf("ERROR: cannot create destination file %s\n", filename);
-	    exit(3);
+	if(file.right(1) == "/") {
+		printf("writing invidual files to %s\n", filename);
+		separate = true;
 	}
-	printf("writing file %s\n", filename);
-	write_header(outfp);
+	else {
+		outfp = fopen(file, "wb");
 
-	node = new obj_node_t(this, 0, NULL, false);
-    }
+		if(!outfp) {
+			printf("ERROR: cannot create destination file %s\n", filename);
+			exit(3);
+		}
+		printf("writing file %s\n", filename);
+		write_header(outfp);
+
+		node = new obj_node_t(this, 0, NULL, false);
+	}
+
     for(i = 0; !i || i < argc; i++) {
 	const char *arg = i < argc ? argv[i] : "./";
 
 	for(j = find.search(arg, "dat"); j-- > 0; ) {
-	    tabfile_t infile;
+		tabfile_t infile;
 
-	    if(infile.open(find.at(j))) {
-		tabfileobj_t obj;
+		if(infile.open(find.at(j))) {
+			tabfileobj_t obj;
 
-		printf("   reading file %s\n", find.at(j).chars());
+			printf("   reading file %s\n", find.at(j));
 
-		inpath = arg;
-		int n = inpath.find_back('/');
+			inpath = arg;
+			int n = inpath.find_back('/');
 
-		if(n) {
-		    inpath = inpath.substr(0, n + 1);
-		} else {
-		    inpath = "";
-		}
-
-		while(infile.read(obj)) {
-		    if(separate) {
-			cstring_t name(filename);
-
-			name = name + obj.get("obj") + "." + obj.get("name") + ".pak";
-
-			outfp = fopen(name.chars(), "wb");
-			if(!outfp) {
-			    printf("ERROR: cannot create destination file %s\n", filename);
-			    exit(3);
+			if(n) {
+				inpath = inpath.substr(0, n + 1);
+			} else {
+				inpath = "";
 			}
-			printf("   writing file %s\n", name.chars());
-			write_header(outfp);
 
-			node = new obj_node_t(this, 0, NULL, false);
-		    }
-		    obj_writer_t::write(outfp, *node, obj);
+			while(infile.read(obj)) {
+				if(separate) {
+					cstring_t name(filename);
 
-		    if(separate) {
-			node->write(outfp);
-			delete node;
-			fclose(outfp);
-		    }
+					name = name + obj.get("obj") + "." + obj.get("name") + ".pak";
+
+					outfp = fopen(name.chars(), "wb");
+					if(!outfp) {
+						printf("ERROR: cannot create destination file %s\n", filename);
+						exit(3);
+					}
+					printf("   writing file %s\n", name.chars());
+					write_header(outfp);
+
+					node = new obj_node_t(this, 0, NULL, false);
+				}
+				obj_writer_t::write(outfp, *node, obj);
+
+				if(separate) {
+					node->write(outfp);
+					delete node;
+					fclose(outfp);
+				}
+			}
 		}
-	    }
-	    else
-		printf("WARNING: cannot read %s\n", find.at(j).chars());
+		else
+			printf("WARNING: cannot read %s\n", find.at(j));
+		}
 	}
-    }
-    if(!separate) {
-	node->write(outfp);
-	delete node;
-	fclose(outfp);
-    }
+	if(!separate) {
+		node->write(outfp);
+		delete node;
+		fclose(outfp);
+	}
 }
+
 
 
 void root_writer_t::dump(int argc, char *argv[])
@@ -129,7 +131,7 @@ void root_writer_t::dump(int argc, char *argv[])
 		uint32 version;
 
 		fread(&version, sizeof(version), 1, infp);
-		printf("File %s (version %d):\n", find.at(j).chars(), version);
+		printf("File %s (version %d):\n", find.at(j), version);
 
 		dump_nodes(infp, 1);
 		fclose(infp);
@@ -163,7 +165,7 @@ void root_writer_t::list(int argc, char *argv[])
 		uint32 version;
 
 		fread(&version, sizeof(version), 1, infp);
-		printf("Contents of file %s (pak version %d):\n", find.at(j).chars(), version);
+		printf("Contents of file %s (pak version %d):\n", find.at(j), version);
 		printf("type             name\n"
 		       "---------------- ------------------------------\n");
 
@@ -225,7 +227,7 @@ void root_writer_t::copy(const char *name, int argc, char *argv[])
 
 		fread(&version, sizeof(version), 1, infp);
 		if(version == COMPILER_VERSION_CODE) {
-		    printf("   copying file %s\n", find.at(j).chars());
+		    printf("   copying file %s\n", find.at(j));
 
 		    obj_node_info_t info;
 
@@ -235,7 +237,7 @@ void root_writer_t::copy(const char *name, int argc, char *argv[])
 		    any = true;
 		}
 		else {
-		    printf("   WARNING: skipping file %s - version mismatch\n", find.at(j).chars());
+		    printf("   WARNING: skipping file %s - version mismatch\n", find.at(j));
 		}
 		fclose(infp);
 	    }
