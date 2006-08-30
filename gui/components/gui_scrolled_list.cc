@@ -86,24 +86,26 @@ void gui_scrolled_list_t::clear_elements()
 }
 
 
-void gui_scrolled_list_t::insert_element(const char *string, const int pos /*= 0*/)
+void gui_scrolled_list_t::insert_element(const char *string, const int pos /*= 0*/, const uint8 color /*COL_BLACK*/)
 {
-    item_list.insert(string, pos);
-    sb.setze_knob(groesse.y-border, total_vertical_size());
+	item it={ string, color };
+	item_list.insert(it, pos);
+	sb.setze_knob(groesse.y-border, total_vertical_size());
 }
 
 
-void gui_scrolled_list_t::append_element(const char *string)
+void gui_scrolled_list_t::append_element(const char *string,const uint8 color)
 {
-    item_list.append(string);
-    sb.setze_knob(groesse.y-border, total_vertical_size());
+	item it={ string, color };
+	item_list.append(it);
+	sb.setze_knob(groesse.y-border, total_vertical_size());
 }
 
 
 void gui_scrolled_list_t::remove_element(const int pos)
 {
-    item_list.remove_at(pos);
-    sb.setze_knob(groesse.y-border, total_vertical_size());
+	item_list.remove_at(pos);
+	sb.setze_knob(groesse.y-border, total_vertical_size());
 }
 
 
@@ -145,87 +147,85 @@ koord gui_scrolled_list_t::request_groesse(koord request)
 void
 gui_scrolled_list_t::infowin_event(const event_t *ev)
 {
-    const int x = ev->cx;
-    const int y = ev->cy;
+	const int x = ev->cx;
+	const int y = ev->cy;
 
-    // size without scrollbar
-    const int w = groesse.x - 13;
-    const int h = groesse.y;
-    if (x <= w) { // inside list
-	switch(type) {
-	case list:
-	    break;
-	case select:
-	    if (IS_LEFTCLICK(ev) &&
-		x>=(border/2) && x<(w-border/2) &&
-		y>=(border/2) && y<(h-border/2)) {
-		selection = (y-(border/2)-2+offset);
-		if (selection>=0) {
-		    selection/=LINESPACE;
-		    if((unsigned)selection>=item_list.count()) {
-		    	selection = -1;
-		    }
-DBG_MESSAGE("gui_scrolled_list_t::infowin_event()","selected %i",selection);
+	// size without scrollbar
+	const int w = groesse.x - 13;
+	const int h = groesse.y;
+	if(x <= w) { // inside list
+		switch(type) {
+			case list:
+				break;
+			case select:
+				if(  IS_LEFTCLICK(ev)  &&  x>=(border/2) && x<(w-border/2) &&  y>=(border/2) && y<(h-border/2)) {
+					selection = (y-(border/2)-2+offset);
+					if(selection>=0) {
+						selection/=LINESPACE;
+						if((unsigned)selection>=item_list.count()) {
+							selection = -1;
+						}
+						DBG_MESSAGE("gui_scrolled_list_t::infowin_event()","selected %i",selection);
+					}
+					call_listeners((long)selection);
+				}
+				break;
 		}
-		call_listeners((long)selection);
-	    }
-	    break;
 	}
-    }
 
     if (sb.getroffen(x, y)) {
-	event_t ev2 = *ev;
-	translate_event(&ev2, -sb.gib_pos().x, -sb.gib_pos().y);
-	sb.infowin_event(&ev2);
+		event_t ev2 = *ev;
+		translate_event(&ev2, -sb.gib_pos().x, -sb.gib_pos().y);
+		sb.infowin_event(&ev2);
     }
 }
 
 void gui_scrolled_list_t::zeichnen(koord pos) const
 {
-  pos += this->pos;
+	pos += this->pos;
 
-  const koord gr = gib_groesse();
+	const koord gr = gib_groesse();
 
-  const int x = pos.x;
-  const int y = pos.y;
-  const int w = gr.x-13;
-  const int h = gr.y;
+	const int x = pos.x;
+	const int y = pos.y;
+	const int w = gr.x-13;
+	const int h = gr.y;
 
-  switch(type) {
-   case list:
-    break;
-   case select:
-    display_vline_wh(x, y+1, h-1, MN_GREY0, true);
-    display_fillbox_wh(x,y,w,1, MN_GREY0, true);
-    display_vline_wh(x+w-1, y+1, h-2, MN_GREY4, true);
-    display_fillbox_wh(x+1,y+h-1,w-1,1, MN_GREY4, true);
-    display_fillbox_wh(x+1,y+1,w-2,h-2, MN_GREY3, true);
-    break;
-  }
+	switch(type) {
+		case list:
+			break;
+		case select:
+			display_vline_wh(x, y+1, h-1, MN_GREY0, true);
+			display_fillbox_wh(x,y,w,1, MN_GREY0, true);
+			display_vline_wh(x+w-1, y+1, h-2, MN_GREY4, true);
+			display_fillbox_wh(x+1,y+h-1,w-1,1, MN_GREY4, true);
+			display_fillbox_wh(x+1,y+1,w-2,h-2, MN_GREY3, true);
+			break;
+	}
 
-  display_fillbox_wh(x,y,w,h, MN_GREY3, true);
-  display_ddd_box(x,y-1,w,h+2, COL_BLACK, COL_WHITE);
+	display_fillbox_wh(x,y,w,h, MN_GREY3, true);
+	display_ddd_box(x,y-1,w,h+2, COL_BLACK, COL_WHITE);
 
-  PUSH_CLIP(x+1,y+1,w-2,h-2);
-  int ycum = y+4-offset; // y cumulative
-  int i=0;
-  slist_iterator_tpl<const char *> iter( item_list );
-  while( iter.next() ) {
-    if (iter.get_current()) {
-      if (i == selection) { // the selection is grey on color
-	display_fillbox_wh_clip(x+3, ycum-1, w-5, 11,
-			        highlight_color, true);
-	display_proportional_clip(x+7, ycum, iter.get_current(),
-				  ALIGN_LEFT, MN_GREY3, true);
-      } else { // normal text is just black
-	display_proportional_clip(x+7, ycum, iter.get_current(),
-				  ALIGN_LEFT, COL_BLACK, true);
-      }
-      ycum += 11; i++;
-    }
-  }
-  POP_CLIP();
+	PUSH_CLIP(x+1,y+1,w-2,h-2);
+	int ycum = y+4-offset; // y cumulative
+	int i=0;
+	slist_iterator_tpl<item>iter( item_list );
+	while( iter.next() ) {
+		if (iter.get_current().text) {
+			if (i == selection) {
+				// the selection is grey on color
+				display_fillbox_wh_clip(x+3, ycum-1, w-5, 11, highlight_color, true);
+				display_proportional_clip(x+7, ycum, iter.get_current().text, ALIGN_LEFT, MN_GREY3, true);
+			}
+			else {
+				// normal text
+				display_proportional_clip(x+7, ycum, iter.get_current().text, ALIGN_LEFT, iter.get_current().color, true);
+			}
+			ycum += 11;
+			i++;
+		}
+	}
+	POP_CLIP();
 
-
-  sb.zeichnen(pos);
+	sb.zeichnen(pos);
 }

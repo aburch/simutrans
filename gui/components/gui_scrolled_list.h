@@ -4,6 +4,7 @@
 #include "gui_scrollbar.h"
 #include "action_listener.h"
 #include "../../ifc/gui_action_creator.h"
+#include "../../simcolor.h"
 
 class karte_t;
 template <class T> class slist_tpl;
@@ -21,28 +22,33 @@ template <class T> class slist_tpl;
 class gui_scrolled_list_t  : public gui_komponente_action_creator_t, action_listener_t
 {
 public:
-  enum type { list, select };
+	enum type { list, select };
 
-  enum type type;
-  int selection; // only used when type is 'select'.
-  int border; // must be substracted from groesse.y to get netto size
-  int offset; // vertical offset of top left position.
+	enum type type;
+	int selection; // only used when type is 'select'.
+	int border; // must be substracted from groesse.y to get netto size
+	int offset; // vertical offset of top left position.
 
-  /**
-   * color of selected entry
-   * @author Hj. Malthaner
-   */
-  int highlight_color;
+	/**
+	* color of selected entry
+	* @author Hj. Malthaner
+	*/
+	int highlight_color;
 
-  scrollbar_t sb;
+	scrollbar_t sb;
 
-  slist_tpl<const char *> item_list;
-  int total_vertical_size() const;
+	struct item {
+		const char *text;
+		uint8 color;
+	};
+
+	slist_tpl<item> item_list;
+	int total_vertical_size() const;
 
 public:
 	gui_scrolled_list_t(enum type);
 
-  /**
+	/**
 	* Sets the color of selected entry
 	* @author Hj. Malthaner
 	*/
@@ -58,9 +64,9 @@ public:
 	*  with recalculate_slider() to update the scrollbar properly. */
 	// clear list of elements
 	void clear_elements();
-	void insert_element(const char *string, const int pos = 0);
-	void append_element(const char *string);
-	const char *get_element(int i) const { return ((unsigned)i<item_list.count()) ? item_list.at(i) : ""; }
+	void insert_element(const char *string, const int pos=0, const uint8 color=COL_BLACK);
+	void append_element(const char *string, const uint8 color=COL_BLACK);
+	const char *get_element(int i) const { return ((unsigned)i<item_list.count()) ? item_list.at(i).text : ""; }
 	void remove_element(const int pos);
 
 	/**
@@ -72,15 +78,15 @@ public:
 	void infowin_event(const event_t *ev);
 	void zeichnen(koord pos) const;
 
-    /**
-     * This method is called if an action is triggered
-     * @author Hj. Malthaner
-     *
-     * Returns true, if action is done and no more
-     * components should be triggered.
-     * V.Meyer
-     */
-    bool action_triggered(gui_komponente_t *komp, value_t extra);
+	/**
+	 * This method is called if an action is triggered
+	 * @author Hj. Malthaner
+	 *
+	 * Returns true, if action is done and no more
+	 * components should be triggered.
+	 * V.Meyer
+	 */
+	bool action_triggered(gui_komponente_t *komp, value_t extra);
 };
 
 #endif

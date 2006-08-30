@@ -28,7 +28,7 @@
 
 #define LINE_CAPACITY   0 // the amount of ware that could be transported, theoretically
 #define LINE_TRANSPORTED_GOODS 1 // the amount of ware that has been transported
-#define LINE_CONVOIS		2 // the amount of ware that has been transported
+#define LINE_CONVOIS		2 // number of convois for this line
 #define LINE_REVENUE		3 // the income this line generated
 #define LINE_OPERATIONS         4 // the cost of operations this line generated
 #define LINE_PROFIT             5 // total profit of line
@@ -80,6 +80,12 @@ public:
 	 * @author hsiegeln
 	 */
 	int count_convoys();
+
+	/*
+	 * returns the state of the line
+	 * @author prissi
+	 */
+	uint8 get_state_color() const { return state_color; }
 
 	/*
 	 * return fahrplan of line
@@ -161,6 +167,12 @@ private:
 	uint16 id;
 
 	/*
+	 * the current state saved as color
+	 * Meanings are BLACK (ok), WHITE (no convois), YELLOW (no vehicle moved), RED (last month income minus), BLUE (at least one convoi vehicle is obsolete)
+	 */
+	uint8 state_color;
+
+	/*
 	 * a list of all convoys assigned to this line
 	 * @author hsiegeln
 	 */
@@ -173,6 +185,8 @@ private:
 	sint64 financial_history[MAX_MONTHS][MAX_LINE_COST];
 
 	void init_financial_history();
+
+	void recalc_status();
 };
 
 class truckline_t : public simline_t

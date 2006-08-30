@@ -472,7 +472,7 @@ void fahrplan_gui_t::init_line_selector()
 		slist_iterator_tpl<linehandle_t> iter( lines );
 		while( iter.next() ) {
 			linehandle_t line = iter.get_current();
-			line_selector.append_element( line->get_name() );
+			line_selector.append_element( line->get_name(), line->get_state_color() );
 			if(new_line==line) {
 				selection = line_selector.count_elements()-1;
 			}

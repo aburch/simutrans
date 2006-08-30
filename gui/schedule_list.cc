@@ -346,7 +346,7 @@ DBG_MESSAGE("schedule_list_gui_t::build_line_list()","count=%i",sp->simlinemgmt.
 		sp->simlinemgmt.build_line_list( tabs_to_lineindex[filter], &lines );
 		slist_iterator_tpl<linehandle_t> iter(lines);
 		while( iter.next() ) {
-			scl.append_element( iter.get_current()->get_name() );
+			scl.append_element( iter.get_current()->get_name(), iter.get_current()->get_state_color() );
 			if(line==iter.get_current()) {
 				scl.setze_selection( scl.get_count()-1 );
 			}

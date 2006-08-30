@@ -730,7 +730,7 @@ void depot_frame_t::update_data()
 	slist_iterator_tpl<linehandle_t> iter( depot->get_line_list() );
 	while( iter.next() ) {
 		linehandle_t line = iter.get_current();
-		line_selector.append_element( line->get_name() );
+		line_selector.append_element( line->get_name(), line->get_state_color() );
 		if(line==selected_line) {
 			line_selector.setze_text( line->get_name(), 128);
 			line_selector.set_selection( line_selector.count_elements()-1 );

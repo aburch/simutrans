@@ -90,18 +90,18 @@ void gui_convoiinfo_t::zeichnen(koord offset) const
 			int w=display_proportional_clip(pos.x+offset.x+2, pos.y+offset.y+8+2*LINESPACE,txt,ALIGN_LEFT, COL_BLACK, true);
 			max_x = max(max_x,w);
 		}
-		else if (cnv->get_line().is_bound())
-		{
-			sprintf(buf, "%s: %s", translator::translate("Line"), cnv->get_line()->get_name());
-			int w = display_proportional_clip(pos.x+offset.x+2, pos.y+offset.y+8+2*LINESPACE,buf,ALIGN_LEFT, COL_BLACK, true);
-			max_x = max(max_x,w);
+		else if(cnv->get_line().is_bound()) {
+			sint16 w = display_proportional_clip( pos.x+offset.x+2, pos.y+offset.y+8+2*LINESPACE, translator::translate("Line"), ALIGN_LEFT, COL_BLACK, true );
+			display_proportional_clip( pos.x+offset.x+2+w+5, pos.y+offset.y+8+2*LINESPACE, cnv->get_line()->get_name(), ALIGN_LEFT, cnv->get_line()->get_state_color(), true );
 		}
 
 		// name
-		int w=display_proportional_clip(pos.x+offset.x+2, pos.y+offset.y+8,translator::translate(cnv->gib_name()),ALIGN_LEFT, COL_BLACK, true);
+		int w = display_calc_proportional_string_len_width( cnv->gib_name(), 35535, true );
 		max_x = max(max_x,w);
 
-		// vehicles
+		// vehicles: check also for obsolete during redraw
+		const int month_now = cnv->gib_welt()->get_timeline_year_month();
+		bool has_obsolete = false;
 		// we will use their images offests and width to shift them to their correct position
 		// this should work with any vehicle size ...
 		const int xoff = max(128, max_x);
@@ -109,10 +109,13 @@ void gui_convoiinfo_t::zeichnen(koord offset) const
 		for(unsigned i=0; i<cnv->gib_vehikel_anzahl();i++) {
 			int x, y, w, h;
 			const image_id bild=cnv->gib_vehikel(i)->gib_basis_bild();
+			has_obsolete |= cnv->gib_vehikel(i)->gib_besch()->is_retired(month_now);
 			display_get_image_offset(bild, &x, &y, &w, &h );
 			display_color_img(bild,left-x,pos.y+offset.y+13-y-h/2,cnv->gib_besitzer()->get_player_color(),false,true);
 			left += (w*2)/3;
 		}
+
+		display_proportional_clip(pos.x+offset.x+2, pos.y+offset.y+8,cnv->gib_name(),ALIGN_LEFT, has_obsolete ? COL_BLUE: COL_BLACK, true);
 
 		// since the only remaining object is the loading bar, we can alter its position this way ...
 		gui_container_t::zeichnen(pos + offset+koord(xoff-188+2,0));

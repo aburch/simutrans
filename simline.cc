@@ -1,10 +1,15 @@
 
-#include "simvehikel.h"
-#include "simline.h"
-#include "simplay.h"
-#include "simlinemgmt.h"
-#include "simhalt.h"
 #include "simtypes.h"
+
+#include "simline.h"
+#include "simhalt.h"
+#include "simplay.h"
+#include "simvehikel.h"
+#include "simconvoi.h"
+#include "convoihandle_t.h"
+#include "simworld.h"
+#include "simlinemgmt.h"
+
 
 
 uint8 simline_t::convoi_to_line_catgory[MAX_CONVOI_COST]={LINE_CAPACITY, LINE_TRANSPORTED_GOODS, LINE_REVENUE, LINE_OPERATIONS, LINE_PROFIT };
@@ -24,6 +29,7 @@ simline_t::simline_t(karte_t * welt, simlinemgmt_t * simlinemgmt, fahrplan_t * f
 	this->old_fpl = new fahrplan_t(fpl);
 	this->id = i;
 	this->welt = welt;
+	this->state_color = COL_WHITE;
 	type = simline_t::line;
 	simlinemgmt->add_line(self);
 DBG_MESSAGE("simline_t::simline_t(karte_t,simlinemgmt,fahrplan_t)","create with %d (unique %d)",self.get_id(),get_line_id());
@@ -39,6 +45,7 @@ simline_t::simline_t(karte_t * welt, simlinemgmt_t * /*unused*/, loadsave_t * fi
 DBG_MESSAGE("simline_t::simline_t(karte_t,simlinemgmt,loadsave_t)","load line id=%d",id);
 	this->welt = welt;
 	this->old_fpl = new fahrplan_t(fpl);
+	recalc_status();
 	register_stops();
 }
 
@@ -90,6 +97,7 @@ simline_t::add_convoy(convoihandle_t cnv)
 	}
 	// will not hurt ...
 	financial_history[0][LINE_CONVOIS] = count_convoys();
+	recalc_status();
 }
 
 void
@@ -100,6 +108,7 @@ simline_t::remove_convoy(convoihandle_t cnv)
 	}
 	// will not hurt ...
 	financial_history[0][LINE_CONVOIS] = count_convoys();
+	recalc_status();
 }
 
 fahrplan_t *
@@ -212,6 +221,7 @@ simline_t::renew_stops()
 void
 simline_t::new_month()
 {
+	recalc_status();
 	for (int j = 0; j<MAX_LINE_COST; j++) {
 		for (int k = MAX_MONTHS-1; k>0; k--) {
 			financial_history[k][j] = financial_history[k-1][j];
@@ -240,5 +250,46 @@ simline_t::init_financial_history()
 		for (int k = MAX_MONTHS-1; k>=0; k--) {
 			financial_history[k][j] = 0;
 		}
+	}
+}
+
+
+
+/*
+ * the current state saved as color
+ * Meanings are BLACK (ok), WHITE (no convois), YELLOW (no vehicle moved), RED (last month income minus), BLUE (at least one convoi vehicle is obsolete)
+ */
+void
+simline_t::recalc_status()
+{
+	if(financial_history[0][LINE_PROFIT]<0) {
+		// ok, not performing best
+		state_color = COL_RED;
+	} else if(financial_history[0][LINE_OPERATIONS]==0) {
+		// nothing moved
+		state_color = COL_YELLOW;
+	} else if(financial_history[0][LINE_CONVOIS]==0) {
+		// noconvois assigned to this line
+		state_color = COL_WHITE;
+	}
+	else if(welt->use_timeline()) {
+		// convoi has obsolete vehicles?
+		const int month_now = welt->get_timeline_year_month();
+		bool has_obsolete = false;
+		for(unsigned i=0;  !has_obsolete  &&  i<line_managed_convoys.get_count();  i++ ) {
+			// we have to check all vehicles ...
+			convoihandle_t cnv = line_managed_convoys.get(i);
+			for(unsigned j=0;  j<cnv->gib_vehikel_anzahl();  j++ ) {
+				if(cnv->gib_vehikel(j)->gib_besch()->is_retired(month_now)) {
+					has_obsolete = true;
+					break;
+				}
+			}
+		}
+		// now we have to set it
+		state_color = has_obsolete ? COL_BLUE : COL_BLACK;
+	}
+	else {
+		state_color = COL_BLACK;
 	}
 }

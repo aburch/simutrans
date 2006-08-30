@@ -12,6 +12,7 @@
 #ifndef gui_components_gui_combobox_h
 #define gui_components_gui_combobox_h
 
+#include "../../simcolor.h"
 #include "../../ifc/gui_action_creator.h"
 #include "../../tpl/slist_tpl.h"
 #include "gui_scrolled_list.h"
@@ -92,7 +93,7 @@ public:
 	 * add element to droplist
 	 * @author hsiegeln
 	 */
-	void append_element(char * text) { droplist->append_element( text ); }
+	void append_element(char * text,uint8 color=COL_BLACK) { droplist->append_element( text, color ); }
 
 	/**
 	 * remove all elements from droplist

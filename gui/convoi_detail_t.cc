@@ -149,12 +149,9 @@ convoi_detail_t::zeichnen(koord pos, koord gr)
 		* only show assigned line, if there is one!
 		* @author hsiegeln
 		*/
-		if (cnv->get_line() != NULL) {
-			info_buf.clear();
-			info_buf.append( translator::translate("Serves Line:") );
-			info_buf.append( " " );
-			info_buf.append( cnv->get_line()->get_name() );
-			display_proportional( pos.x+11, pos.y+16+20+4*LINESPACE, info_buf, ALIGN_LEFT, COL_BLACK, true );
+		if(cnv->get_line().is_bound()) {
+			sint16 w = display_proportional( pos.x+11, pos.y+16+20+4*LINESPACE, translator::translate("Serves Line:"), ALIGN_LEFT, COL_BLACK, true );
+			display_proportional( pos.x+11+w+5, pos.y+16+20+4*LINESPACE, cnv->get_line()->get_name(), ALIGN_LEFT, cnv->get_line()->get_state_color(), true );
 		}
 #endif
 	}
