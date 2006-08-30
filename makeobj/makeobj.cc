@@ -88,6 +88,11 @@ int main(int argc, char* argv[])
 	    root_writer_t::instance()->list(argc, argv);
 	    return 0;
 	}
+	if(!STRICMP(argv[0], "extract")) {
+	    argv++, argc--;
+	    root_writer_t::instance()->uncopy(argv[0]);
+	    return 0;
+	}
 	if(!STRICMP(argv[0], "merge")) {
 	    argv++, argc--;
 	    try {
@@ -112,8 +117,12 @@ int main(int argc, char* argv[])
 	"         Should work with PAK16 up to PAK255 but only 64 and 128 are tested\n"
 	"      MakeObj LIST <pak file(s)>\n"
 	"         Lists the contents ot the given pak files\n"
+	"      MakeObj DUMP <pak file> <pak file(s)>\n"
+	"         List the internal nodes of a file\n"
 	"      MakeObj MERGE <pak file> <pak file(s)>\n"
 	"         Merges multiple pak files into one new pak file\n"
+	"      MakeObj EXTRACT <pak file archieve>\n"
+	"         Creates single files from multiple pak file\n"
 	"\n"
 	"      with QUIET as first arg copyright message will be omitted\n"
 	"      with a trailing slash a direcory is searched rather than a file\n"

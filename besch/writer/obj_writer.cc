@@ -145,3 +145,20 @@ void obj_writer_t::dump_node(FILE *  /*infp*/, const obj_node_info_t &node)
 {
     printf(" %d bytes", node.size);
 }
+
+
+
+const char *
+obj_writer_t::node_writer_name(FILE *infp) const
+{
+	obj_node_info_t node;
+	fread(&node, sizeof(node), 1, infp);
+	fseek(infp, node.size, SEEK_CUR);
+	obj_writer_t *writer = writer_by_type->get((obj_type)node.type);
+	if(writer) {
+		return writer->get_type_name();
+	}
+	return "unknown";
+}
+
+

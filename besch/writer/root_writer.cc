@@ -252,9 +252,88 @@ void root_writer_t::copy(const char *name, int argc, char *argv[])
 }
 
 
-void root_writer_t::copy_nodes(FILE *outfp, FILE *infp, obj_node_info_t &info)
+
+/* makes single files from a merged file */
+void root_writer_t::uncopy(const char *fname)
 {
-    for(int i = 0; i < info.children; i++) {
+	searchfolder_t find;
+	int i, j;
+	cstring_t name=fname;
+
+	FILE *infp = fopen(name.chars(), "rb");
+	if(infp==NULL) {
+		name = find.complete(fname, "pak");
+		infp = fopen(name.chars(), "rb");
+	}
+
+	if(!infp) {
+		printf("ERROR: cannot open archieve file %s\n", name);
+		exit(3);
+	}
+
+	// read header
+	int c;
+	do {
+		c = fgetc(infp);
+	} while(!feof(infp) && c != '\x1a');
+
+	// check version of pak format
+	uint32 version;
+	fread(&version, sizeof(version), 1, infp);
+	if(version == COMPILER_VERSION_CODE) {
+
+		// read root node
+		obj_node_info_t root;
+		fread(&root, sizeof(root), 1, infp);
+		if(root.children==1) {
+			printf("  ERROR: %s is not an archieve (aborting)\n", name );
+			fclose(infp);
+			return;
+		}
+
+		printf("  found %d files to extract\n\n", root.children );
+
+		// now itereate over the archieve
+		for( int number=0;  number<root.children;  number++  ) {
+			// read the info node ...
+			long start_pos=ftell(infp);
+
+			// now make a name
+			cstring_t writer = node_writer_name(infp);
+			cstring_t outfile = writer + "." + name_from_next_node(infp) + ".pak";
+			FILE *outfp = fopen( outfile.chars(), "wb" );
+			if(!outfp) {
+				printf("  ERROR: could not open %s for writing (aborting)\n", outfile.chars() );
+				fclose(infp);
+				return;
+			}
+			printf("  writing '%s' ... \n", outfile.chars() );
+
+			// now copy the nodes
+			fseek( infp, start_pos, SEEK_SET );
+			write_header(outfp);
+
+			// write the root for the new pak file
+			obj_node_info_t root;
+			root.children = 1;
+			root.size = 0;
+			root.type = obj_root;
+			fwrite(&root, sizeof(root), 1, outfp);
+			copy_nodes(outfp, infp, root );	// this advances also the input to the next position
+			fclose(outfp);
+		}
+	}
+	else {
+		printf("   WARNING: skipping file %s - version mismatch\n", find.at(j));
+	}
+	fclose( infp );
+}
+
+
+
+void root_writer_t::copy_nodes(FILE *outfp, FILE *infp, obj_node_info_t &start)
+{
+    for(int i = 0; i < start.children; i++) {
 	obj_node_info_t info;
 
 	fread(&info, sizeof(info), 1, infp);
