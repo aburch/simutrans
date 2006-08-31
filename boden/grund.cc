@@ -917,6 +917,7 @@ long grund_t::neuen_weg_bauen(weg_t *weg, ribi_t::ribi ribi, spieler_t *sp)
 				ding_t *d=dinge.bei(i);
 				if(d  &&  d->gib_typ()==ding_t::baum) {
 					dinge.remove_at(i);
+					d->set_flag(ding_t::not_on_map);
 					delete d;
 					cost -= umgebung_t::cst_remove_tree;
 				}

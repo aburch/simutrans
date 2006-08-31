@@ -116,20 +116,11 @@ ding_t::ding_t(karte_t *wl, koord3d pos)
 // removes an object and tries to delete it also form the corresponding dinglist
 ding_t::~ding_t()
 {
-/*
-	// mark the region after the image as dirty
-	// better not try to twist your brain to follow the retransformation ...
-	const koord diff=gib_pos().gib_2d()-welt->gib_ij_off();
-	const sint16 rasterweite=get_tile_raster_width();
-	const sint16 x=(diff.x-diff.y)*(rasterweite/2) + welt->gib_x_off() + (display_get_width()/2) + tile_raster_scale_x(gib_xoff(), rasterweite);
-	const sint16 y=16+((display_get_width()/rasterweite)&1)*(rasterweite/4)+(diff.x+diff.y)*(rasterweite/4)+welt->gib_y_off()+tile_raster_scale_x(gib_yoff(), rasterweite)-tile_raster_scale_y(gib_pos().z, rasterweite);
-	display_mark_img_dirty( gib_bild(), x, y );
-*/
 	mark_image_dirty( gib_bild(), 0 );
 	destroy_win(ding_infos->get(this));
 
 	if(flags&not_on_map) {
-		DBG_MESSAGE("ding_t::~ding_t()","deleted %p not on the map",this);
+//		DBG_MESSAGE("ding_t::~ding_t()","deleted %p not on the map",this);
 		return;
 	}
 

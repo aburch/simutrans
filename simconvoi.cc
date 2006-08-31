@@ -1344,7 +1344,7 @@ dbg->fatal("convoi_t::rdwr()","invalid position %s for vehicle %s in state %d (s
 	// we recalc it anyhow
 	if(file->is_loading()) {
 		jahresgewinn = 0;
-		for(int i=welt->get_last_month();  i>=0;  i--  ) {
+		for(int i=welt->get_last_month()%12;  i>=0;  i--  ) {
 			jahresgewinn += financial_history[i][CONVOI_PROFIT];
 		}
 	}
