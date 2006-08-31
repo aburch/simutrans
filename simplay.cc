@@ -1118,7 +1118,7 @@ DBG_MESSAGE("spieler_t::do_passenger_ki()","convoi %s not needed!",cnv->gib_name
 						// next checkpoint also crowed with things for us?
 						halthandle_t h0=welt->lookup( f->eintrag.at(0).pos )->gib_halt();
 						halthandle_t h1=welt->lookup( f->eintrag.at(1).pos )->gib_halt();
-						if(!h1.is_bound() ||  !h2.is_bound()) {
+						if(!h1.is_bound() ||  !h0.is_bound()) {
 							// somebody deleted our stops or messed with the schedules ...
 							continue;
 						}
