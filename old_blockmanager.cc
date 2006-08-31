@@ -40,16 +40,16 @@ public:
 	oldsignal_t(karte_t *welt, loadsave_t *file, ding_t::typ type);
 
 	/*
-	 * return direction or the state of the traffic light
-	 * @author Hj. Malthaner
-	 */
+	* return direction or the state of the traffic light
+	* @author Hj. Malthaner
+	*/
 	ribi_t::ribi get_dir() const 	{ return dir; }
 
 	bool ist_blockiert() const {return blockend != 0;}
 
 	ding_t::typ gib_typ() const 	{ return type; }
 
-  void rdwr(loadsave_t *file);
+	void rdwr(loadsave_t *file);
 };
 
 
@@ -73,15 +73,9 @@ oldsignal_t::rdwr(loadsave_t *file)
 	}
 	// loading from blockmanager!
 	ding_t::rdwr(file);
-	uint8 dummy=blockend;
-	file->rdwr_byte(dummy, " ");
-	blockend = dummy;
-	dummy = zustand;
-	file->rdwr_byte(dummy, " ");
-	zustand = dummy;
-	dummy = dir;
-	file->rdwr_byte(dummy, "\n");
-	dir = dummy;
+	file->rdwr_byte(blockend, " ");
+	file->rdwr_byte(zustand, " ");
+	file->rdwr_byte(dir, "\n");
 }
 
 
@@ -166,10 +160,7 @@ old_blockmanager_t::laden_abschliessen(karte_t *welt)
 					break;
 				}
 			}
-			if(os2) {
-				signale.remove(os2);
-			}
-			else {
+			if(os2==NULL) {
 				dbg->error("old_blockmanager_t::laden_abschliessen()","old signal near (%i,%i) is unpaired!",gr->gib_pos().x,gr->gib_pos().y);
 				message_t::get_instance()->add_message(translator::translate("Orphan signal during loading!"),os1->gib_pos().gib_2d(),message_t::problems);
 			}
@@ -177,6 +168,11 @@ old_blockmanager_t::laden_abschliessen(karte_t *welt)
 		else {
 			dbg->error("old_blockmanager_t::laden_abschliessen()","old signal near (%i,%i) is unpaired!",gr->gib_pos().x,gr->gib_pos().y);
 			message_t::get_instance()->add_message(translator::translate("Orphan signal during loading!"),os1->gib_pos().gib_2d(),message_t::problems);
+		}
+
+		// remove second signal from list
+		if(os2) {
+			signale.remove(os2);
 		}
 
 		// now we should have a pair of signals ... or something was very wrong
@@ -219,7 +215,7 @@ old_blockmanager_t::laden_abschliessen(karte_t *welt)
 		if(ribi_t::is_twoway(gr->gib_weg(wt)->gib_ribi_unmasked())) {
 			new_signal_gr = gr;
 		}
-		else if(to  &&  ribi_t::is_twoway(to->gib_weg(wt)->gib_ribi_unmasked())) {
+		if((new_signal_gr==NULL  ||  !os1->ist_blockiert())  &&  to  &&  ribi_t::is_twoway(to->gib_weg(wt)->gib_ribi_unmasked())) {
 			new_signal_gr = to;
 		}
 		if(directions==2  &&  new_signal_gr) {
@@ -230,18 +226,11 @@ old_blockmanager_t::laden_abschliessen(karte_t *welt)
 		if(new_signal_gr  &&  dir!=0) {
 			const roadsign_besch_t *sb=roadsign_t::roadsign_search(type,wt,0);
 			if(sb!=NULL) {
-				signal_t *sig = new signal_t(welt,gr->gib_pos(),dir,sb);
-				ding_t *dt = new_signal_gr->obj_bei(0);
-				if(0&&dt  &&  dt->gib_typ()>=32) {	// insert before
-					new_signal_gr->obj_remove( dt, dt->gib_besitzer() );
-					new_signal_gr->obj_pri_add(sig,0);
-					new_signal_gr->obj_pri_add(dt,0);
-				}
-				else {
-					new_signal_gr->obj_pri_add(sig,0);
-				}
+				signal_t *sig = new signal_t(welt,new_signal_gr->gib_pos(),dir,sb);
+				new_signal_gr->obj_pri_add(sig,0);
 				sig->laden_abschliessen();	// to make them visible
 				new_signal_gr->gib_weg(wt)->count_sign();
+//DBG_MESSAGE("old_blockmanager::laden_abschliessen()","signal restored at %i,%i with dir %i",gr->gib_pos().x,gr->gib_pos().y,dir);
 			}
 			else {
 				dbg->error("old_blockmanager_t::laden_abschliessen()","could not restore old signal near (%i,%i), dir=%i",gr->gib_pos().x,gr->gib_pos().y,dir);

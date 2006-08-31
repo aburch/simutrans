@@ -83,16 +83,12 @@ public:
 	enum station_flags { NOT_ENABLED=0, PAX=1, POST=2, WARE=4, CROWDED=8 };
 
 private:
-
-
     /**
      * Manche Methoden müssen auf alle Haltestellen angewandt werden
      * deshalb verwaltet die Klasse eine Liste aller Haltestellen
      * @author Hj. Malthaner
      */
     static slist_tpl<halthandle_t> alle_haltestellen;
-
-    static int erzeuge_fussgaenger_an(karte_t *welt, koord3d k, int anzahl);
 
     /*
     * declare compare function

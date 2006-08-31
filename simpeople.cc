@@ -56,39 +56,31 @@ int fussgaenger_t::gib_anzahl_besch()
 fussgaenger_t::fussgaenger_t(karte_t *welt, loadsave_t *file)
  : verkehrsteilnehmer_t(welt)
 {
-    rdwr(file);
+	rdwr(file);
 
-    setze_max_speed(128);
-    schritte = strecke[count & 3];
-    sum = 0;
-    count ++;
+	current_speed = 128;
+	setze_max_speed(128);
 
-    is_sync = true;
-    welt->sync_add(this);
+	if(file->get_version()<89004) {
+		time_to_life = strecke[count & 3];
+	}
+	count ++;
+
+	welt->sync_add(this);
 }
 
 
 fussgaenger_t::fussgaenger_t(karte_t *welt, koord3d pos)
  : verkehrsteilnehmer_t(welt, pos)
 {
-    setze_max_speed(128);
+	current_speed = 128;
+	setze_max_speed(128);
+	besch = liste.gib_gewichted(simrand(liste.gib_gesamtgewicht()));
 
-    besch = liste.gib_gewichted(simrand(liste.gib_gesamtgewicht()));
-
-    schritte = strecke[count & 7];
-    sum = 0;
-    count ++;
-
-    is_sync = false;
+	time_to_life = strecke[count & 7];
+	count ++;
 }
 
-
-fussgaenger_t::~fussgaenger_t()
-{
-  if(is_sync) {
-    welt->sync_remove(this);
-  }
-}
 
 
 void
@@ -100,16 +92,6 @@ fussgaenger_t::calc_bild()
 	else {
 		setze_bild(0,besch->gib_bild_nr(ribi_t::gib_dir(gib_fahrtrichtung())));
 	}
-}
-
-
-
-bool fussgaenger_t::sync_step(long delta_t)
-{
-    verkehrsteilnehmer_t::sync_step(delta_t);
-    current_speed = 128;
-    sum += delta_t;
-    return (is_sync = sum < schritte);
 }
 
 
@@ -133,3 +115,40 @@ void fussgaenger_t::rdwr(loadsave_t *file)
 		guarded_free(const_cast<char *>(s));
 	}
 }
+
+
+
+// create anzahl pedestrains (if possible)
+void
+fussgaenger_t::erzeuge_fussgaenger_an(karte_t *welt, const koord3d k, int &anzahl)
+{
+	if(fussgaenger_t::gib_anzahl_besch()>0) {
+		const grund_t *bd = welt->lookup(k);
+		if(bd) {
+			const weg_t *weg = bd->gib_weg(weg_t::strasse);
+
+			// we do not start on crossings (not overrunning pedestrians please
+			if(weg && ribi_t::is_twoway(weg->gib_ribi_unmasked())) {
+
+				for(int i=0; i<4 && anzahl>0; i++) {
+					fussgaenger_t *fg = new fussgaenger_t(welt, k);
+
+					bool ok = welt->lookup(k)->obj_add(fg) != 0;	// 256 limit reached
+					if(ok) {
+						for(int i=0; i<(fussgaenger_t::count & 3); i++) {
+							fg->sync_step(64*24);
+						}
+						welt->sync_add( fg );
+						anzahl --;
+					} else {
+						// jetzt delete it, if we could not put them on the map
+						fg->set_flag(ding_t::not_on_map);
+						delete fg;
+					}
+				}
+			}
+		}
+	}
+}
+
+

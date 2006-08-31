@@ -69,7 +69,7 @@ void message_stats_t::zeichnen(koord offset) const
 		max_message = msg->gib_count();
 	}
 	for( int i=offsets;  i<max_message;  i++  ) {
-/*
+
 		if(offset.y+i*14<cd.y) {
 			// reached the top
 			continue;
@@ -78,7 +78,7 @@ void message_stats_t::zeichnen(koord offset) const
 			// reached the bottom
 			break;
 		}
-*/
+
 		message_t::node *n=msg->get_node(i);
 		if(n==NULL  ||  n->msg==NULL) {
 DBG_MESSAGE("message_stats_t::zeichnen()","invalid message %i",i);
@@ -93,6 +93,6 @@ DBG_MESSAGE("message_stats_t::zeichnen()","invalid message %i",i);
 			}
 		}
 		// display text with clipping
-		display_proportional_clip(offset.x+10, 15+offset.y+i*14, buf, ALIGN_LEFT, n->color,false);
+		display_proportional_clip(offset.x+10, 15+offset.y+i*14, buf, ALIGN_LEFT, n->color,true);
 	}
 }

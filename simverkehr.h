@@ -36,19 +36,21 @@ protected:
 	 */
 	sint32 max_speed;
 
-
 	/**
 	 * Aktuelle Geschwindigkeit
 	 * @author Hj. Malthaner
 	 */
 	sint32 current_speed;
 
-
 	/**
 	 * Entfernungszaehler
 	 * @author Hj. Malthaner
 	 */
 	uint32 weg_next;
+
+	/* ms until destruction
+	 */
+	sint32 time_to_life;
 
 	virtual bool ist_weg_frei() {return 1; }	// always free
 
@@ -57,8 +59,6 @@ protected:
 
 	virtual bool hop_check() {return true;}
 	virtual void hop();
-	virtual void age() { }
-	virtual int gib_age() { return 1; }
 
 	void setze_max_speed(int s) {max_speed = s;}
 	int gib_max_speed() const {return max_speed;}
@@ -69,20 +69,19 @@ protected:
 	verkehrsteilnehmer_t(karte_t *welt, koord3d pos);
 
 public:
+	virtual ~	verkehrsteilnehmer_t();
+
 	const char *gib_name() const = 0;
 	enum ding_t::typ gib_typ() const  = 0;
 
-
 	void sync_prepare() {};
 	bool sync_step(long delta_t);
-
 
 	/**
 	 * Öffnet ein neues Beobachtungsfenster für das Objekt.
 	 * @author Hj. Malthaner
 	 */
 	virtual void zeige_info();
-
 
 	/**
 	 * @return Einen Beschreibungsstring für das Objekt, der z.B. in einem
@@ -114,7 +113,7 @@ private:
 #ifdef DESTINATION_CITYCARS
 	koord target;
 #endif
-	int time_to_life;
+
 	sint32 ms_traffic_jam;
 
 	virtual bool hop_check();
@@ -134,12 +133,9 @@ public:
 	 * of sync steppable things!
 	 * @author Hj. Malthaner
 	 */
-	virtual ~stadtauto_t();
+	virtual ~stadtauto_t() {}
 
 	virtual void hop();
-	virtual void age() { time_to_life--; }
-	virtual int gib_age() { return time_to_life; }
-	void destroy() {time_to_life=0; }
 
 	virtual void betrete_feld();
 

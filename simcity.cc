@@ -969,7 +969,7 @@ stadt_t::step_passagiere()
 		(gb->gib_tile()->gib_besch()->gib_level() + 6) >> 2 :
 		(gb->gib_tile()->gib_besch()->gib_post_level() + 5) >> 2;
 
-	// create pedestrians?
+	// create pedestrians in the near area?
 	if(umgebung_t::fussgaenger  &&  wtyp==warenbauer_t::passagiere) {
 		haltestelle_t::erzeuge_fussgaenger(welt, gb->gib_pos(), num_pax );
 		INT_CHECK("simcity 269");

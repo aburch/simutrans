@@ -1943,58 +1943,13 @@ haltestelle_t::gib_name() const
 
 
 int
-haltestelle_t::erzeuge_fussgaenger_an(karte_t *welt,
-				      const koord3d k,
-				      int anzahl)
-{
-    // DBG_MESSAGE("haltestelle_t::erzeuge_fussgaenger_an()", "called, %d description", fussgaenger_t::gib_anzahl_besch());
-
-
-    if(fussgaenger_t::gib_anzahl_besch() > 0) {
-	const grund_t *bd = welt->lookup(k);
-	const weg_t *weg = bd->gib_weg(weg_t::strasse);
-
-	if(weg && (weg->gib_ribi() == ribi_t::nordsued || weg->gib_ribi() == ribi_t::ostwest)) {
-
-	    for(int i=0; i<4 && anzahl>0; i++) {
-		fussgaenger_t *fg = new fussgaenger_t(welt, k);
-
-		bool ok = welt->lookup(k)->obj_add(fg) != 0;
-
-		if(ok) {
-		    for(int i=0; i<(fussgaenger_t::count & 3); i++) {
-			fg->sync_step(64*24);
-		    }
-
-		    welt->sync_add( fg );
-		    anzahl --;
-		} else {
-		    DBG_MESSAGE("haltestelle_t::erzeuge_fussgaenger_an()",
-				 "Pedestrian could not be added, the pedestrians destructor will issue an error which can be ignored\n");
-		    delete fg;
-		}
-
-	    }
-	}
-    }
-    return anzahl;
-}
-
-
-int
 haltestelle_t::erzeuge_fussgaenger(karte_t *welt, koord3d pos, int anzahl)
 {
-    if(welt->lookup(pos)) {
-	anzahl = erzeuge_fussgaenger_an(welt, pos, anzahl);
-    }
-
-
-    for(int i=0; i<4 && anzahl>0; i++) {
-	if(welt->lookup(pos+koord::nsow[i])) {
-	    anzahl = erzeuge_fussgaenger_an(welt, pos+koord::nsow[i], anzahl);
+	fussgaenger_t::erzeuge_fussgaenger_an(welt, pos, anzahl);
+	for(int i=0; i<4 && anzahl>0; i++) {
+		fussgaenger_t::erzeuge_fussgaenger_an(welt, pos+koord::nsow[i], anzahl);
 	}
-    }
-    return anzahl;
+	return anzahl;
 }
 
 

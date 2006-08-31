@@ -40,6 +40,285 @@
 #include "besch/roadsign_besch.h"
 
 
+/**********************************************************************************************************************/
+/* Verkehrsteilnehmer (basis class) from here on */
+
+
+void
+verkehrsteilnehmer_t::calc_current_speed()
+{
+	const weg_t * weg = welt->lookup(gib_pos())->gib_weg(weg_t::strasse);
+	const int speed_limit = weg ? kmh_to_speed(weg->gib_max_speed()) : max_speed;
+	current_speed += max_speed>>2;
+	if(current_speed > max_speed) {
+		current_speed = max_speed;
+	}
+	if(current_speed > speed_limit) {
+		current_speed = speed_limit;
+	}
+}
+
+
+verkehrsteilnehmer_t::verkehrsteilnehmer_t(karte_t *welt) :
+   vehikel_basis_t(welt)
+{
+	setze_besitzer( welt->gib_spieler(1) );
+	max_speed = 0;
+	current_speed = 1;
+	step_frequency = 0;
+	time_to_life = -1;
+}
+
+
+/**
+ * Ensures that this object is removed correctly from the list
+ * of sync steppable things!
+ * @author Hj. Malthaner
+ */
+verkehrsteilnehmer_t::~verkehrsteilnehmer_t()
+{
+	// just to be sure we are removed from this list!
+	step_frequency = 0;
+	if(time_to_life>=0) {
+		welt->sync_remove(this);
+	}
+}
+
+
+
+
+verkehrsteilnehmer_t::verkehrsteilnehmer_t(karte_t *welt, koord3d pos) :
+   vehikel_basis_t(welt, pos)
+{
+    // V.Meyer: weg_position_t changed to grund_t::get_neighbour()
+    grund_t *from = welt->lookup(pos);
+    grund_t *to;
+
+    // int ribi = from->gib_weg_ribi(weg_t::strasse);
+    ribi_t::ribi liste[4];
+    int count = 0;
+
+    max_speed = kmh_to_speed(80);
+    current_speed = 50;
+	current_speed = 1;
+	step_frequency = 0;
+
+    weg_next = simrand(1024);
+    hoff = 0;
+
+    // verfügbare ribis in liste eintragen
+    for(int r = 0; r < 4; r++) {
+	if(from->get_neighbour(to, weg_t::strasse, koord::nsow[r])) {
+	    liste[count++] = ribi_t::nsow[r];
+	}
+    }
+    fahrtrichtung = count ? liste[simrand(count)] : ribi_t::nsow[simrand(4)];
+
+    switch(fahrtrichtung) {
+    case ribi_t::nord:
+	dx = 2;
+	dy = -1;
+	break;
+    case ribi_t::sued:
+	dx = -2;
+	dy = 1;
+	break;
+    case ribi_t::ost:
+	dx = 2;
+	dy = 1;
+	break;
+    case ribi_t::west:
+	dx = -2;
+	dy = -1;
+	break;
+    }
+    if(count) {
+	from->get_neighbour(to, weg_t::strasse, fahrtrichtung);
+	pos_next = to->gib_pos();
+    } else {
+	pos_next = welt->lookup(pos.gib_2d() + koord(fahrtrichtung))->gib_kartenboden()->gib_pos();
+    }
+    setze_besitzer( welt->gib_spieler(1) );
+}
+
+
+/**
+ * Öffnet ein neues Beobachtungsfenster für das Objekt.
+ * @author Hj. Malthaner
+ */
+void verkehrsteilnehmer_t::zeige_info()
+{
+	if(umgebung_t::verkehrsteilnehmer_info) {
+		ding_t::zeige_info();
+	}
+}
+
+
+char *
+verkehrsteilnehmer_t::info(char *buf) const
+{
+	*buf = 0;
+	return buf;
+}
+
+
+void
+verkehrsteilnehmer_t::hop()
+{
+	// will ignore roadigns
+	if(pos_next.z == -1) {
+		// Altes Savegame geladen
+		pos_next = welt->lookup(pos_next.gib_2d())->gib_kartenboden()->gib_pos();
+	}
+	// V.Meyer: weg_position_t changed to grund_t::get_neighbour()
+	grund_t *from = welt->lookup(pos_next);
+	grund_t *to;
+
+	grund_t *liste[4];
+	int count = 0;
+
+	// 1) find the allowed directions
+	const weg_t *weg = from->gib_weg(weg_t::strasse);
+	if(weg==NULL) {
+		// no gound here any more?
+		pos_next = gib_pos();
+		return;
+	}
+
+	// add all good ribis here
+	ribi_t::ribi gegenrichtung = ribi_t::rueckwaerts( gib_fahrtrichtung() );
+	int ribi = weg->gib_ribi_unmasked();
+	for(int r = 0; r < 4; r++) {
+		if(  (ribi & ribi_t::nsow[r])!=0  &&  (ribi_t::nsow[r]&gegenrichtung)==0 &&
+			from->get_neighbour(to, weg_t::strasse, koord::nsow[r])
+		) {
+			// check, if this is just a single tile deep
+			int next_ribi =  to->gib_weg(weg_t::strasse)->gib_ribi_unmasked();
+			if((ribi&next_ribi)!=0  ||  !ribi_t::ist_einfach(next_ribi)) {
+				liste[count++] = to;
+			}
+		}
+	}
+
+	if(count > 1) {
+		pos_next = liste[simrand(count)]->gib_pos();
+		fahrtrichtung = calc_richtung(gib_pos().gib_2d(), pos_next.gib_2d(), dx, dy);
+	} else if(count==1) {
+		pos_next = liste[0]->gib_pos();
+		fahrtrichtung = calc_richtung(gib_pos().gib_2d(), pos_next.gib_2d(), dx, dy);
+	}
+	else {
+		fahrtrichtung = gegenrichtung;
+		current_speed = 1;
+		dx = -dx;
+		dy = -dy;
+		pos_next = gib_pos();
+	}
+
+	verlasse_feld();
+	setze_pos(from->gib_pos());
+	calc_current_speed();
+	calc_bild();
+	betrete_feld();
+}
+
+
+
+bool
+verkehrsteilnehmer_t::sync_step(long delta_t)
+{
+	if(time_to_life<0) {
+		// remove obj
+		step_frequency = 0;
+DBG_MESSAGE("verkehrsteilnehmer_t::sync_step()","stopped");
+  		return false;
+	}
+
+	if(step_frequency>0) {
+		// step will check for traffic jams
+		return true;
+	}
+	time_to_life -= delta_t;
+	weg_next += (current_speed*delta_t) / 64;
+
+	// Funktionsaufruf vermeiden, wenn möglich
+	// if ist schneller als Aufruf!
+	if(hoff) {
+		setze_yoff( gib_yoff() - hoff );
+	}
+
+	while(1024 < weg_next) {
+		weg_next -= 1024;
+		fahre();
+	}
+
+	hoff = calc_height();
+
+	// Funktionsaufruf vermeiden, wenn möglich
+	// if ist schneller als Aufruf!
+	if(hoff) {
+		setze_yoff( gib_yoff() + hoff );
+	}
+
+	return true;
+}
+
+
+
+void verkehrsteilnehmer_t::rdwr(loadsave_t *file)
+{
+	step_frequency = 0;
+	vehikel_basis_t::rdwr(file);
+
+	if(file->get_version() < 86006) {
+		long l;
+		file->rdwr_long(max_speed, "\n");
+		file->rdwr_long(l, " ");
+		file->rdwr_long(weg_next, "\n");
+		file->rdwr_long(l, " ");
+		dx = (sint8)l;
+		file->rdwr_long(l, "\n");
+		dy = (sint8)l;
+		file->rdwr_enum(fahrtrichtung, " ");
+		file->rdwr_long(l, "\n");
+		hoff = (sint16)l;
+	}
+	else {
+		file->rdwr_long(max_speed, "\n");
+		file->rdwr_long(weg_next, "\n");
+		file->rdwr_byte(dx, " ");
+		file->rdwr_byte(dy, "\n");
+		file->rdwr_enum(fahrtrichtung, " ");
+		file->rdwr_short(hoff, "\n");
+	}
+	pos_next.rdwr(file);
+
+	// the lifetime in ms
+	if(file->get_version()>89004) {
+		file->rdwr_long( time_to_life, "t" );
+	}
+
+	// Hajo: avoid endless growth of the values
+	// this causes lockups near 2**32
+	weg_next &= 1023;
+
+	if(file->is_loading()) {
+		// Hajo: pre-speed limit game had city cars with max speed of
+		// 60 km/h, since city raods now have a speed limit of 50 km/h
+		// we can use 80 for the cars so that they speed up on
+		// intercity roads
+		if(max_speed==kmh_to_speed(60)) {
+			max_speed = kmh_to_speed(80);
+		}
+	}
+}
+
+
+
+/**********************************************************************************************************************/
+/* statsauto_t (city cars) from here on */
+
+
 slist_mit_gewichten_tpl<const stadtauto_besch_t *> stadtauto_t::liste_timeline;
 slist_mit_gewichten_tpl<const stadtauto_besch_t *> stadtauto_t::liste;
 stringhashtable_tpl<const stadtauto_besch_t *> stadtauto_t::table;
@@ -139,22 +418,6 @@ stadtauto_t::stadtauto_t(karte_t *welt, koord3d pos, koord )
 }
 
 
-/**
- * Ensures that this object is removed correctly from the list
- * of sync steppable things!
- * @author Hj. Malthaner
- */
-stadtauto_t::~stadtauto_t()
-{
-	// just to be sure we are removed from this list!
-	step_frequency = 0;
-	if(time_to_life>0) {
-		welt->sync_remove(this);
-	}
-//DBG_MESSAGE("stadtauto_t::~stadtauto_t()","called");
-}
-
-
 
 
 void stadtauto_t::rdwr(loadsave_t *file)
@@ -188,10 +451,11 @@ void stadtauto_t::rdwr(loadsave_t *file)
 	}
 
 	if(file->get_version() <= 86001) {
-		time_to_life = simrand(100000);
+		time_to_life = simrand(1000000)+10000;
 	}
-	else {
+	else if(file->get_version() <= 89004) {
 		file->rdwr_long(time_to_life, "\n");
+		time_to_life *= 10000;	// converting from hops left to ms since start
 	}
 
 	if(file->get_version() <= 86004) {
@@ -469,7 +733,6 @@ DBG_MESSAGE("stadtauto_t::hop()","roadsign");
 	calc_current_speed();
 	calc_bild();
 	betrete_feld();
-	age();
 }
 
 
@@ -499,250 +762,3 @@ stadtauto_t::calc_bild()
 }
 
 
-
-void
-verkehrsteilnehmer_t::calc_current_speed()
-{
-	const weg_t * weg = welt->lookup(gib_pos())->gib_weg(weg_t::strasse);
-	const int speed_limit = weg ? kmh_to_speed(weg->gib_max_speed()) : max_speed;
-	current_speed += max_speed>>2;
-	if(current_speed > max_speed) {
-		current_speed = max_speed;
-	}
-	if(current_speed > speed_limit) {
-		current_speed = speed_limit;
-	}
-}
-
-
-verkehrsteilnehmer_t::verkehrsteilnehmer_t(karte_t *welt) :
-   vehikel_basis_t(welt)
-{
-	setze_besitzer( welt->gib_spieler(1) );
-	max_speed = 0;
-	current_speed = 1;
-	step_frequency = 0;
-}
-
-
-verkehrsteilnehmer_t::verkehrsteilnehmer_t(karte_t *welt, koord3d pos) :
-   vehikel_basis_t(welt, pos)
-{
-    // V.Meyer: weg_position_t changed to grund_t::get_neighbour()
-    grund_t *from = welt->lookup(pos);
-    grund_t *to;
-
-    // int ribi = from->gib_weg_ribi(weg_t::strasse);
-    ribi_t::ribi liste[4];
-    int count = 0;
-
-    max_speed = kmh_to_speed(80);
-    current_speed = 50;
-	current_speed = 1;
-	step_frequency = 0;
-
-    weg_next = simrand(1024);
-    hoff = 0;
-
-    // verfügbare ribis in liste eintragen
-    for(int r = 0; r < 4; r++) {
-	if(from->get_neighbour(to, weg_t::strasse, koord::nsow[r])) {
-	    liste[count++] = ribi_t::nsow[r];
-	}
-    }
-    fahrtrichtung = count ? liste[simrand(count)] : ribi_t::nsow[simrand(4)];
-
-    switch(fahrtrichtung) {
-    case ribi_t::nord:
-	dx = 2;
-	dy = -1;
-	break;
-    case ribi_t::sued:
-	dx = -2;
-	dy = 1;
-	break;
-    case ribi_t::ost:
-	dx = 2;
-	dy = 1;
-	break;
-    case ribi_t::west:
-	dx = -2;
-	dy = -1;
-	break;
-    }
-    if(count) {
-	from->get_neighbour(to, weg_t::strasse, fahrtrichtung);
-	pos_next = to->gib_pos();
-    } else {
-	pos_next = welt->lookup(pos.gib_2d() + koord(fahrtrichtung))->gib_kartenboden()->gib_pos();
-    }
-    setze_besitzer( welt->gib_spieler(1) );
-}
-
-
-/**
- * Öffnet ein neues Beobachtungsfenster für das Objekt.
- * @author Hj. Malthaner
- */
-void verkehrsteilnehmer_t::zeige_info()
-{
-  if(umgebung_t::verkehrsteilnehmer_info) {
-    ding_t::zeige_info();
-  }
-}
-
-
-char *
-verkehrsteilnehmer_t::info(char *buf) const
-{
-    *buf = 0;
-
-    return buf;
-}
-
-
-void
-verkehrsteilnehmer_t::hop()
-{
-	// will ignore roadigns
-	if(pos_next.z == -1) {
-		// Altes Savegame geladen
-		pos_next = welt->lookup(pos_next.gib_2d())->gib_kartenboden()->gib_pos();
-	}
-	// V.Meyer: weg_position_t changed to grund_t::get_neighbour()
-	grund_t *from = welt->lookup(pos_next);
-	grund_t *to;
-
-	grund_t *liste[4];
-	int count = 0;
-
-	// 1) find the allowed directions
-	const weg_t *weg = from->gib_weg(weg_t::strasse);
-	if(weg==NULL) {
-		// no gound here any more?
-		pos_next = gib_pos();
-		return;
-	}
-
-	// add all good ribis here
-	ribi_t::ribi gegenrichtung = ribi_t::rueckwaerts( gib_fahrtrichtung() );
-	int ribi = weg->gib_ribi_unmasked();
-	for(int r = 0; r < 4; r++) {
-		if(  (ribi & ribi_t::nsow[r])!=0  &&  (ribi_t::nsow[r]&gegenrichtung)==0 &&
-			from->get_neighbour(to, weg_t::strasse, koord::nsow[r])
-		) {
-			// check, if this is just a single tile deep
-			int next_ribi =  to->gib_weg(weg_t::strasse)->gib_ribi_unmasked();
-			if((ribi&next_ribi)!=0  ||  !ribi_t::ist_einfach(next_ribi)) {
-				liste[count++] = to;
-			}
-		}
-	}
-
-	if(count > 1) {
-		pos_next = liste[simrand(count)]->gib_pos();
-		fahrtrichtung = calc_richtung(gib_pos().gib_2d(), pos_next.gib_2d(), dx, dy);
-	} else if(count==1) {
-		pos_next = liste[0]->gib_pos();
-		fahrtrichtung = calc_richtung(gib_pos().gib_2d(), pos_next.gib_2d(), dx, dy);
-	}
-	else {
-		fahrtrichtung = gegenrichtung;
-		current_speed = 1;
-		dx = -dx;
-		dy = -dy;
-		pos_next = gib_pos();
-	}
-
-	verlasse_feld();
-	setze_pos(from->gib_pos());
-	calc_current_speed();
-	calc_bild();
-	betrete_feld();
-	age();
-}
-
-
-
-bool verkehrsteilnehmer_t::sync_step(long delta_t)
-{
-	if(gib_age()<=0) {
-		// remove obj
-		step_frequency = 0;
-DBG_MESSAGE("verkehrsteilnehmer_t::sync_step()","sopped");
-  		return false;
-	}
-
-	if(step_frequency>0) {
-		// step will check for traffic jams
-		return true;
-	}
-    weg_next += (current_speed*delta_t) / 64;
-
-	// Funktionsaufruf vermeiden, wenn möglich
-	// if ist schneller als Aufruf!
-	if(hoff) {
-		setze_yoff( gib_yoff() - hoff );
-	}
-
-	while(1024 < weg_next)
-	{
-		weg_next -= 1024;
-		fahre();
-	}
-
-	hoff = calc_height();
-
-	// Funktionsaufruf vermeiden, wenn möglich
-	// if ist schneller als Aufruf!
-	if(hoff) {
-		setze_yoff( gib_yoff() + hoff );
-	}
-
-	return true;
-}
-
-
-
-void verkehrsteilnehmer_t::rdwr(loadsave_t *file)
-{
-	step_frequency = 0;
-	vehikel_basis_t::rdwr(file);
-
-	if(file->get_version() < 86006) {
-		long l;
-		file->rdwr_long(max_speed, "\n");
-		file->rdwr_long(l, " ");
-		file->rdwr_long(weg_next, "\n");
-		file->rdwr_long(l, " ");
-		dx = (sint8)l;
-		file->rdwr_long(l, "\n");
-		dy = (sint8)l;
-		file->rdwr_enum(fahrtrichtung, " ");
-		file->rdwr_long(l, "\n");
-		hoff = (sint16)l;
-	}
-	else {
-		file->rdwr_long(max_speed, "\n");
-		file->rdwr_long(weg_next, "\n");
-		file->rdwr_byte(dx, " ");
-		file->rdwr_byte(dy, "\n");
-		file->rdwr_enum(fahrtrichtung, " ");
-		file->rdwr_short(hoff, "\n");
-	}
-	pos_next.rdwr(file);
-
-	// Hajo: avoid endless growth of the values
-	// this causes lockups near 2**32
-	weg_next &= 1023;
-
-	if(file->is_loading()) {
-		// Hajo: pre-speed limit game had city cars with max speed of
-		// 60 km/h, since city raods now have a speed limit of 50 km/h
-		// we can use 80 for the cars so that they speed up on
-		// intercity roads
-		if(max_speed==kmh_to_speed(60)) {
-			max_speed = kmh_to_speed(80);
-		}
-	}
-}

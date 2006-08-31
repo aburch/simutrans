@@ -25,10 +25,6 @@ public:
 private:
 	static int strecke[8];
 
-	int schritte;
-	int sum;
-	uint8 is_sync;
-
 	const fussgaenger_besch_t *besch;
 
 protected:
@@ -37,26 +33,27 @@ protected:
 	void calc_bild();
 
 public:
-
 	fussgaenger_t(karte_t *welt, loadsave_t *file);
 	fussgaenger_t(karte_t *welt, koord3d pos);
 
-	~fussgaenger_t();
+	virtual ~fussgaenger_t() {}
 
-	const char *gib_name() const {return "Fussgaenger";};
-	enum ding_t::typ gib_typ() const {return fussgaenger;};
+	const char *gib_name() const {return "Fussgaenger";}
+	enum ding_t::typ gib_typ() const {return fussgaenger;}
 
-	bool sync_step(long delta_t);
+//	bool sync_step(long delta_t);
 
 	// prissi: always free
-	virtual bool ist_weg_frei() { return 1; };
-	virtual bool hop_check() { return 1; };
+	virtual bool ist_weg_frei() { return 1; }
+	virtual bool hop_check() { return 1; }
 
 	// class register functions
 	static bool register_besch(const fussgaenger_besch_t *besch);
 	static bool laden_erfolgreich();
 
 	static int gib_anzahl_besch();
+
+	static void erzeuge_fussgaenger_an(karte_t *welt, koord3d k, int &anzahl);
 };
 
 #endif

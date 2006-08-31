@@ -145,18 +145,21 @@ void weg_t::rdwr(loadsave_t *file)
 		// reading has been done by grund_t!
 		file->wr_obj_id( gib_typ() );
 	}
-	uint8 dummy = ribi;
-	file->rdwr_byte(dummy, "\n");	// maske will be reset during loading
-	ribi = dummy&15;
+	uint8 dummy8 = ribi;
+	file->rdwr_byte(dummy8, "\n");
+	if(file->is_loading()) {
+		ribi = dummy8 & 15;	// before: high bits was maske
+		ribi_maske = 0;	// maske will be restored by signal/roadsing
+	}
 	uint16 dummy16=max_speed;
 	file->rdwr_short(dummy16, "\n");
 	max_speed=dummy16;
 	if(file->get_version()>=89000) {
-		dummy = flags;
-		file->rdwr_byte(dummy,"f");
+		dummy8 = flags;
+		file->rdwr_byte(dummy8,"f");
 		if(file->is_loading()) {
 			// all other flags are restored afterwards
-			flags = dummy & HAS_WALKWAY;
+			flags = dummy8 & HAS_WALKWAY;
 		}
 	}
 

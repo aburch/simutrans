@@ -81,12 +81,11 @@ static const char * state_names[] =
  */
 static int calc_min_top_speed(array_tpl <vehikel_t *> *fahr, int anz_vehikel)
 {
-  int min_top_speed = 9999999;
-  for(int i=0; i<anz_vehikel; i++) {
-    min_top_speed = min(min_top_speed, fahr->at(i)->gib_speed());
-  }
-
-  return min_top_speed;
+	int min_top_speed = 9999999;
+	for(int i=0; i<anz_vehikel; i++) {
+		min_top_speed = min(min_top_speed, fahr->at(i)->gib_speed());
+	}
+	return min_top_speed;
 }
 
 
@@ -118,7 +117,7 @@ void convoi_t::init(karte_t *wl, spieler_t *sp)
 	convoi_info = NULL;
 
 	anz_vehikel = 0;
-	anz_ready = 0;
+	anz_ready = false;
 	wait_lock = 0;
 
 	jahresgewinn = 0;
@@ -384,7 +383,7 @@ convoi_t::sync_step(long delta_t)
 
 	case DRIVING:
 		// teste, ob wir neu ansetzen müssen ?
-		if(anz_ready == 0) {
+		if(!anz_ready) {
 
 			// Prissi: more pleasant and a little more "physical" model *
 			int sum_friction_weight = 0;
@@ -445,7 +444,7 @@ convoi_t::sync_step(long delta_t)
 
 		// now actually move the units
 		sp_soll += (akt_speed*delta_t) / 64;
-		while(1024 < sp_soll && anz_ready==0) {
+		while(1024 < sp_soll && !anz_ready) {
 			sp_soll -= 1024;
 
 			fahr->at(0)->sync_step();
@@ -707,6 +706,18 @@ convoi_t::new_month()
 	else if(state==CAN_START_ONE_MONTH) {
 		gib_besitzer()->bescheid_vehikel_problem(self,koord3d::invalid);
 	}
+	// check for obsolete vehicles in the convoi
+	if(!has_obsolete  &&  welt->use_timeline()) {
+		// convoi has obsolete vehicles?
+		const int month_now = welt->get_timeline_year_month();
+		has_obsolete = false;
+		for(unsigned j=0;  j<gib_vehikel_anzahl();  j++ ) {
+			if(fahr->at(j)->gib_besch()->is_retired(month_now)) {
+				has_obsolete = true;
+				break;
+			}
+		}
+	}
 }
 
 
@@ -771,7 +782,7 @@ convoi_t::start()
 void convoi_t::ziel_erreicht(vehikel_t *)
 {
 	wait_lock += 8*50;
-	anz_ready ++;
+	anz_ready |= true;
 }
 
 
@@ -831,6 +842,10 @@ DBG_MESSAGE("convoi_t::add_vehikel()","extend array_tpl to %i totals.",max_rail_
 		sum_gesamtgewicht = sum_gewicht;
 		calc_loading();
 		freight_info_resort = true;
+		// check for obsolete
+		if(!has_obsolete  &&  welt->use_timeline()) {
+			has_obsolete = v->gib_besch()->is_retired( welt->get_timeline_year_month() );
+		}
 	}
 	else {
 		return false;
@@ -876,6 +891,15 @@ convoi_t::remove_vehikel_bei(uint16 i)
 
 		// Hajo: calculate new minimum top speed
 		min_top_speed = calc_min_top_speed(fahr, anz_vehikel);
+
+		// check for obsolete
+		if(has_obsolete) {
+			has_obsolete = false;
+			const int month_now = welt->get_timeline_year_month();
+			for(unsigned i=0; i<anz_vehikel; i++) {
+				has_obsolete |= fahr->at(i)->gib_besch()->is_retired( month_now );
+			}
+		}
 	}
 	return v;
 }
@@ -1098,7 +1122,7 @@ convoi_t::vorfahren()
 	// Hajo: init speed settings
 	sp_soll = 0;
 
-	anz_ready = 0;
+	anz_ready = false;
 
 	sint8 dummy1, dummy2;
 	setze_akt_speed_soll(fahr->at(0)->gib_speed());
@@ -1189,7 +1213,7 @@ convoi_t::rdwr(loadsave_t *file)
 	anz_vehikel = (uint8)dummy;
 	dummy=anz_ready;
 	file->rdwr_long(dummy, " ");
-	anz_ready = (uint8)dummy;
+	anz_ready = (bool)dummy;
 	file->rdwr_long(wait_lock, " ");
 	bool dummy_bool=false;
 	file->rdwr_bool(dummy_bool, " ");
@@ -1967,4 +1991,27 @@ convoi_t::check_pending_updates()
 		}
 		line_update_pending = UNVALID_LINE_ID;
 	}
+}
+
+
+
+/*
+ * the current state saved as color
+ * Meanings are BLACK (ok), WHITE (no convois), YELLOW (no vehicle moved), RED (last month income minus), BLUE (at least one convoi vehicle is obsolete)
+ */
+uint8
+convoi_t::get_status_color() const
+{
+	if(financial_history[0][CONVOI_PROFIT]+financial_history[1][CONVOI_PROFIT]<0) {
+		// ok, not performing best
+		return COL_RED;
+	} else if((financial_history[0][CONVOI_OPERATIONS]|financial_history[1][CONVOI_OPERATIONS])==0) {
+		// nothing moved
+		return COL_YELLOW;
+	}
+	else if(has_obsolete) {
+		return COL_BLUE;
+	}
+	// normal state
+	return COL_BLACK;
 }

@@ -381,7 +381,7 @@ extern "C" int simu_main(int argc, char** argv)
 
 			umgebung_t::fussgaenger             = contents.get_int("random_pedestrians",     0) != 0;
 			umgebung_t::verkehrsteilnehmer_info = contents.get_int("pedes_and_car_info",     0) != 0;
-			umgebung_t::stadtauto_duration      = contents.get_int("citycar_life",       35000);
+			umgebung_t::stadtauto_duration      = contents.get_int("citycar_life",       31457280);	// ten normal years
 			umgebung_t::drive_on_left           = contents.get_int("drive_left",         false);
 
 			umgebung_t::tree_info     = contents.get_int("tree_info",        0) != 0;

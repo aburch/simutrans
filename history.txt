@@ -11,6 +11,12 @@ Known bugs: (hard to fix)
 	ADD: (kierongreen) additionally freight image for vehicles (syntax 'freigthimage[no][direction]=' with the good definition in 'freightimagetype[no]=')
 	FIX: more error check to makeobj pak for vehicles (wrong numbers etc.)
 	FIX: missing cstring_t initialisation in slist_tpl; since cstring_t only used in translator.cc and searchfolder.cc, these two converted to slist_tpl<const char *>
+	ADD: color codes for lists of lines and convois (minus: red, not moving: yellow, obsolete: blue, no vehicles: white)
+	FIX: slow building of ways with log of ~ding() error messages
+	ADD: extract command for makeobj (also got rid of the need for ./ for defining the main file in most positions)
+	FIX: restoring old signals was badly broken => many convois were stuck
+	FIX: (tron) many errors fixed, working inline assembler for GCC 4.0, imported all old versions into SVN
+	CHANGE: citycars lifetime now in ms => they will be more controllable, since generation is also linear with time (also cleanup of pedestrian code)
 
 
 Release of 89.03.2

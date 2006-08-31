@@ -1118,6 +1118,10 @@ DBG_MESSAGE("spieler_t::do_passenger_ki()","convoi %s not needed!",cnv->gib_name
 						// next checkpoint also crowed with things for us?
 						halthandle_t h0=welt->lookup( f->eintrag.at(0).pos )->gib_halt();
 						halthandle_t h1=welt->lookup( f->eintrag.at(1).pos )->gib_halt();
+						if(!h1.is_bound() ||  !h2.is_bound()) {
+							// somebody deleted our stops or messed with the schedules ...
+							continue;
+						}
 DBG_MESSAGE("spieler_t::do_passenger_ki()","checking our convoi %s between %s and %s",cnv->gib_name(),h0->gib_name(),h1->gib_name());
 DBG_MESSAGE("spieler_t::do_passenger_ki()","waiting: %s (%i) and %s (%i)",h0->gib_name(),h0->gib_ware_fuer_zwischenziel(warenbauer_t::passagiere,f->eintrag.at(1).pos.gib_2d()),h1->gib_name(),h1->gib_ware_fuer_zwischenziel(warenbauer_t::passagiere,f->eintrag.at(0).pos.gib_2d()));
 

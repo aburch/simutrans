@@ -418,7 +418,6 @@ void grund_t::rdwr(loadsave_t *file)
 		  	w->setze_besch(sch->gib_besch());
 		  	w->setze_max_speed(sch->gib_max_speed());
 		  	w->setze_ribi(sch->gib_ribi_unmasked());
-		  	w->setze_ribi_maske(sch->gib_ribi_maske());
 		  	delete sch;
 		  	wege[i] = w;
 		  }
@@ -485,6 +484,11 @@ DBG_MESSAGE("grund_t::rdwr()","at (%i,%i) dock ignored",gib_pos().x, gib_pos().y
 		}
 		file->wr_obj_id(-1);   // Ende der Wege
 	}
+
+	if(wege[0]  &&  wege[0]->gib_ribi_maske()!=0) {
+		abort();
+	}
+
 	// all objects on this tile
 	dinge.rdwr(welt, file,gib_pos());
 

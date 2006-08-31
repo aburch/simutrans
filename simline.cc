@@ -265,7 +265,7 @@ simline_t::recalc_status()
 	if(financial_history[0][LINE_PROFIT]<0) {
 		// ok, not performing best
 		state_color = COL_RED;
-	} else if(financial_history[0][LINE_OPERATIONS]==0) {
+	} else if((financial_history[0][LINE_OPERATIONS]|financial_history[1][LINE_OPERATIONS])==0) {
 		// nothing moved
 		state_color = COL_YELLOW;
 	} else if(financial_history[0][LINE_CONVOIS]==0) {
@@ -273,23 +273,16 @@ simline_t::recalc_status()
 		state_color = COL_WHITE;
 	}
 	else if(welt->use_timeline()) {
-		// convoi has obsolete vehicles?
-		const int month_now = welt->get_timeline_year_month();
+		// convois has obsolete vehicles?
 		bool has_obsolete = false;
 		for(unsigned i=0;  !has_obsolete  &&  i<line_managed_convoys.get_count();  i++ ) {
-			// we have to check all vehicles ...
-			convoihandle_t cnv = line_managed_convoys.get(i);
-			for(unsigned j=0;  j<cnv->gib_vehikel_anzahl();  j++ ) {
-				if(cnv->gib_vehikel(j)->gib_besch()->is_retired(month_now)) {
-					has_obsolete = true;
-					break;
-				}
-			}
+			has_obsolete = line_managed_convoys.get(i)->has_obsolete_vehicles();
 		}
 		// now we have to set it
 		state_color = has_obsolete ? COL_BLUE : COL_BLACK;
 	}
 	else {
+		// normal state
 		state_color = COL_BLACK;
 	}
 }
