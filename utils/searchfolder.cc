@@ -50,7 +50,9 @@ int searchfolder_t::search(const char *filepath, const char *extension)
     cstring_t lookfor;
     cstring_t ext;
 
-    files.clear();
+	while( files.count()>0 ) {
+		guarded_free( (void *)files.remove_first() );
+	}
 
     if(path.right(1) == "/") {
 		// Look for a directory

@@ -468,6 +468,7 @@ DBG_MESSAGE("grund_t::rdwr()","at (%i,%i) dock ignored",gib_pos().x, gib_pos().y
 		  if(gib_besitzer() && !ist_wasser()) {
 		    gib_besitzer()->add_maintenance(wege[i]->gib_besch()->gib_wartung());
 		  }
+			assert( wege[i]->gib_ribi_maske()==0 );
 		}
 	    }
 	} while(wtyp != weg_t::invalid);
@@ -479,14 +480,10 @@ DBG_MESSAGE("grund_t::rdwr()","at (%i,%i) dock ignored",gib_pos().x, gib_pos().y
 		// saving
 		for(int i = 0; i < MAX_WEGE; i++) {
 			if(wege[i]) {
-			wege[i]->rdwr(file);
+				wege[i]->rdwr(file);
 			}
 		}
 		file->wr_obj_id(-1);   // Ende der Wege
-	}
-
-	if(wege[0]  &&  wege[0]->gib_ribi_maske()!=0) {
-		abort();
 	}
 
 	// all objects on this tile
