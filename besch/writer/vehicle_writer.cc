@@ -180,7 +180,7 @@ void vehicle_writer_t::write_obj(FILE *fp, obj_node_t &parent, tabfileobj_t &obj
 	// first: find out how many freight?
 	for(  i=0;  i<127;  i++  ) {
 		char buf[40];
-		sprintf(buf, "freightimage[%d][%s]", i, dir_codes[i]);
+		sprintf(buf, "freightimage[%d][%s]", i, dir_codes[0]);
 		str = obj.get(buf);
 		if(str.len()==0) {
 			freight_max = i;
@@ -210,6 +210,7 @@ void vehicle_writer_t::write_obj(FILE *fp, obj_node_t &parent, tabfileobj_t &obj
 			// a single freight image
 			// old style definition - just [direction]
 			sprintf(buf, "freightimage[%s]", dir_codes[i]);
+			str = obj.get(buf);
 			if(str.len()>0) {
 				freightkeys_old.append(str);
 			}
@@ -342,8 +343,8 @@ void vehicle_writer_t::write_obj(FILE *fp, obj_node_t &parent, tabfileobj_t &obj
 
 	if(sound_str.len()>0) {
 		sv8 = sound_str.len();
-		node.write_data_at(fp, &sv8, 30, sizeof(sint8));
-		node.write_data_at(fp, sound_str.chars(), 31, sound_str.len());
+		node.write_data_at(fp, &sv8, 31, sizeof(sint8));
+		node.write_data_at(fp, sound_str.chars(), 32, sound_str.len());
 	}
 
 	node.write(fp);
