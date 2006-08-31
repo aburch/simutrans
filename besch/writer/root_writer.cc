@@ -27,6 +27,8 @@ void root_writer_t::write_header(FILE *fp)
 }
 
 
+
+// makes pak file(s)
 void root_writer_t::write(const char *filename, int argc, char *argv[])
 {
 	searchfolder_t find;
@@ -53,53 +55,54 @@ void root_writer_t::write(const char *filename, int argc, char *argv[])
 		node = new obj_node_t(this, 0, NULL, false);
 	}
 
-    for(i = 0; !i || i < argc; i++) {
-	const char *arg = i < argc ? argv[i] : "./";
+	for(i = 0; !i || i < argc; i++) {
+		const char *arg = i < argc ? argv[i] : "./";
 
-	for(j = find.search(arg, "dat"); j-- > 0; ) {
-		tabfile_t infile;
+		for(j = find.search(arg, "dat"); j-- > 0; ) {
+			tabfile_t infile;
 
-		if(infile.open(find.at(j))) {
-			tabfileobj_t obj;
+			if(infile.open(find.at(j))) {
+				tabfileobj_t obj;
 
-			printf("   reading file %s\n", find.at(j));
+				printf("   reading file %s\n", find.at(j));
 
-			inpath = arg;
-			int n = inpath.find_back('/');
+				inpath = arg;
+				int n = inpath.find_back('/');
 
-			if(n) {
-				inpath = inpath.substr(0, n + 1);
-			} else {
-				inpath = "";
-			}
+				if(n) {
+					inpath = inpath.substr(0, n + 1);
+				} else {
+					inpath = "";
+				}
 
-			while(infile.read(obj)) {
-				if(separate) {
-					cstring_t name(filename);
+				while(infile.read(obj)) {
+					if(separate) {
+						cstring_t name(filename);
 
-					name = name + obj.get("obj") + "." + obj.get("name") + ".pak";
+						name = name + obj.get("obj") + "." + obj.get("name") + ".pak";
 
-					outfp = fopen(name.chars(), "wb");
-					if(!outfp) {
-						printf("ERROR: cannot create destination file %s\n", filename);
-						exit(3);
+						outfp = fopen(name.chars(), "wb");
+						if(!outfp) {
+							printf("ERROR: cannot create destination file %s\n", filename);
+							exit(3);
+						}
+						printf("   writing file %s\n", name.chars());
+						write_header(outfp);
+
+						node = new obj_node_t(this, 0, NULL, false);
 					}
-					printf("   writing file %s\n", name.chars());
-					write_header(outfp);
+					obj_writer_t::write(outfp, *node, obj);
 
-					node = new obj_node_t(this, 0, NULL, false);
-				}
-				obj_writer_t::write(outfp, *node, obj);
-
-				if(separate) {
-					node->write(outfp);
-					delete node;
-					fclose(outfp);
+					if(separate) {
+						node->write(outfp);
+						delete node;
+						fclose(outfp);
+					}
 				}
 			}
-		}
-		else
-			printf("WARNING: cannot read %s\n", find.at(j));
+			else {
+				printf("WARNING: cannot read %s\n", find.at(j));
+			}
 		}
 	}
 	if(!separate) {
@@ -111,159 +114,203 @@ void root_writer_t::write(const char *filename, int argc, char *argv[])
 
 
 
+// dumps the node structure onto the screen
 void root_writer_t::dump(int argc, char *argv[])
 {
-    searchfolder_t find;
-    int i, j;
+	searchfolder_t find;
+	int i, j;
 
-    for(i = 0; i < argc; i++) {
-	bool any = false;
-	for(j = find.search(argv[i], "pak"); j-- > 0; ) {
-	    FILE *infp= fopen(find.at(j), "rb");
+	for(i = 0; i < argc; i++) {
 
-	    if(infp) {
-		int c;
-		do {
-		    c = fgetc(infp);
-		} while(!feof(infp) && c != '\x1a');
+		bool any = false;
+		bool use_name_directly = true;
+		int number = 1;
 
-		// Compiled Verison
-		uint32 version;
+		// this is neccessary to avoid the hassle with "./*.pak" otherwise
+		if(strchr(argv[i],'*')!=NULL) {
+			use_name_directly = false;
+			number = find.search(argv[i], "pak");
+		}
 
-		fread(&version, sizeof(version), 1, infp);
-		printf("File %s (version %d):\n", find.at(j), version);
+		for(  j=0;  j<number;  j++  ) {
+			const char *open_file_name = use_name_directly ? argv[i] : find.at(j);
+			FILE *infp = fopen(open_file_name, "rb");
 
-		dump_nodes(infp, 1);
-		fclose(infp);
-	    }
-	    any = true;
+			if(infp) {
+				int c;
+				do {
+					c = fgetc(infp);
+				} while(!feof(infp) && c != '\x1a');
+
+				// Compiled Verison
+				uint32 version;
+				fread(&version, sizeof(version), 1, infp);
+				printf("File %s (version %d):\n", open_file_name, version);
+
+				dump_nodes(infp, 1);
+				fclose(infp);
+				fclose(infp);
+			}
+			any = true;
+		}
+		if(!any) {
+			printf("WARNING: file or dir %s not found\n", argv[i]);
+		}
 	}
-	if(!any) {
-	    printf("WARNING: file or dir %s not found\n", argv[i]);
-	}
-    }
 }
 
 
+
+// list the content of a file
 void root_writer_t::list(int argc, char *argv[])
 {
-    searchfolder_t find;
-    int i, j;
+	searchfolder_t find;
+	int i, j;
 
-    for(i = 0; i < argc; i++) {
-	bool any = false;
-	for(j = find.search(argv[i], "pak"); j-- > 0; ) {
-	    FILE *infp= fopen(find.at(j), "rb");
+	for(i = 0; i < argc; i++) {
 
-	    if(infp) {
-		int c;
-		do {
-		    c = fgetc(infp);
-		} while(!feof(infp) && c != '\x1a');
+		bool any = false;
+		bool use_name_directly = true;
+		int number = 1;
 
-		// Compiled Verison
-		uint32 version;
-
-		fread(&version, sizeof(version), 1, infp);
-		printf("Contents of file %s (pak version %d):\n", find.at(j), version);
-		printf("type             name\n"
-		       "---------------- ------------------------------\n");
-
-		obj_node_info_t node;
-		fread(&node, sizeof(node), 1, infp);
-		fseek(infp, node.size, SEEK_CUR);
-		for(int i = 0; i < node.children; i++) {
-		    list_nodes(infp);
+		// this is neccessary to avoid the hassle with "./*.pak" otherwise
+		if(strchr(argv[i],'*')!=NULL) {
+			use_name_directly = false;
+			number = find.search(argv[i], "pak");
 		}
-		fclose(infp);
-	    }
-	    any = true;
+
+		for(  j=0;  j<number;  j++  ) {
+			const char *open_file_name = use_name_directly ? argv[i] : find.at(j);
+			FILE *infp = fopen(open_file_name, "rb");
+
+			if(infp) {
+				int c;
+				do {
+					c = fgetc(infp);
+				} while(!feof(infp) && c != '\x1a');
+
+				// Compiled Verison
+				uint32 version;
+
+				fread(&version, sizeof(version), 1, infp);
+				printf("Contents of file %s (pak version %d):\n", open_file_name, version);
+				printf("type             name\n"
+				"---------------- ------------------------------\n");
+
+				obj_node_info_t node;
+				fread(&node, sizeof(node), 1, infp);
+				fseek(infp, node.size, SEEK_CUR);
+				for(int i = 0; i < node.children; i++) {
+					list_nodes(infp);
+				}
+				fclose(infp);
+			}
+			any = true;
+		}
+		if(!any) {
+			printf("WARNING: file or dir %s not found\n", argv[i]);
+		}
 	}
-	if(!any) {
-	    printf("WARNING: file or dir %s not found\n", argv[i]);
-	}
-    }
 }
 
 
+
+// merges pak files into an archieve
+//
 void root_writer_t::copy(const char *name, int argc, char *argv[])
 {
-    searchfolder_t find;
-    int i, j;
+	searchfolder_t find;
+	int i, j;
 
-    cstring_t file = find.complete(name, "pak");
-
-    FILE *outfp = fopen(file, "wb");
-
-    if(!outfp) {
-	printf("ERROR: cannot open destination file %s\n", file.chars());
-	exit(3);
-    }
-    printf("writing file %s\n", file.chars());
-    write_header(outfp);
-
-    long start = ftell(outfp);
-
-    obj_node_info_t root;
-
-    root.children = 0;
-    root.size = 0;
-    root.type = obj_root;
-    fwrite(&root, sizeof(root), 1, outfp);
-
-    for(i = 0; i < argc; i++) {
-	bool any = false;
-	for(j = find.search(argv[i], "pak"); j-- > 0; ) {
-	    FILE *infp = fopen(find.at(j), "rb");
-
-	    if(infp) {
-		int c;
-		do {
-		    c = fgetc(infp);
-		} while(!feof(infp) && c != '\x1a');
-
-		// Compiled Verison
-		uint32 version;
-
-		fread(&version, sizeof(version), 1, infp);
-		if(version == COMPILER_VERSION_CODE) {
-		    printf("   copying file %s\n", find.at(j));
-
-		    obj_node_info_t info;
-
-		    fread(&info, sizeof(info), 1, infp);
-		    root.children += info.children;
-		    copy_nodes(outfp, infp, info);
-		    any = true;
-		}
-		else {
-		    printf("   WARNING: skipping file %s - version mismatch\n", find.at(j));
-		}
-		fclose(infp);
-	    }
+	FILE *outfp = NULL;
+	if(strchr(name,'*')) {
+		// is not a wildcard name
+		outfp = fopen(name, "wb");
 	}
-	if(!any) {
-	    printf("WARNING: file or dir %s not found\n", argv[i]);
+	if(outfp==NULL) {
+		name = find.complete(name, "pak");
+		outfp = fopen(name, "wb");
 	}
-    }
-    fseek(outfp, start, SEEK_SET);
-    fwrite(&root, sizeof(root), 1, outfp);
-    fclose(outfp);
+
+	if(!outfp) {
+		printf("ERROR: cannot open destination file %s\n", name);
+		exit(3);
+	}
+	printf("writing file %s\n", name);
+	write_header(outfp);
+
+	long start = ftell(outfp);	// remember position for adding children
+	obj_node_info_t root;
+	root.children = 0;	// we will change this later
+	root.size = 0;
+	root.type = obj_root;
+	fwrite(&root, sizeof(root), 1, outfp);
+
+	for(i = 0; i < argc; i++) {
+		bool any = false;
+		bool use_name_directly = true;
+		int number = 1;
+
+		// this is neccessary to avoid the hassle with "./*.pak" otherwise
+		if(strchr(argv[i],'*')!=NULL) {
+			use_name_directly = false;
+			number = find.search(argv[i], "pak");
+		}
+
+		for(  j=0;  j<number;  j++  ) {
+			const char *open_file_name = use_name_directly ? argv[i] : find.at(j);
+			FILE *infp = fopen(open_file_name, "rb");
+
+			if(infp) {
+				int c;
+				do {
+					c = fgetc(infp);
+				} while(!feof(infp) && c != '\x1a');
+
+				// Compiled Version check (since the ancient ending was also pak)
+				uint32 version;
+				fread(&version, sizeof(version), 1, infp);
+				if(version == COMPILER_VERSION_CODE) {
+					printf("   copying file %s\n", open_file_name);
+
+					obj_node_info_t info;
+
+					fread(&info, sizeof(info), 1, infp);
+					root.children += info.children;
+					copy_nodes(outfp, infp, info);
+					any = true;
+				}
+				else {
+					printf("   WARNING: skipping file %s - version mismatch\n", open_file_name);
+				}
+				fclose(infp);
+			}
+		}
+		if(!any) {
+			printf("WARNING: file or dir %s not found\n", argv[i]);
+		}
+	}
+	fseek(outfp, start, SEEK_SET);
+	fwrite(&root, sizeof(root), 1, outfp);
+	fclose(outfp);
 }
 
 
 
 /* makes single files from a merged file */
-void root_writer_t::uncopy(const char *fname)
+void root_writer_t::uncopy(const char *name)
 {
 	searchfolder_t find;
 	int i, j;
-	cstring_t name=fname;
 
-	FILE *infp = fopen(name.chars(), "rb");
+	FILE *infp = NULL;
+	if(!strchr(name,'*')) {
+		// is not a wildcard name
+		infp = fopen(name, "rb");
+	}
 	if(infp==NULL) {
-		name = find.complete(fname, "pak");
-		infp = fopen(name.chars(), "rb");
+		name = find.complete(name, "pak");
+		infp = fopen(name, "rb");
 	}
 
 	if(!infp) {
@@ -288,7 +335,7 @@ void root_writer_t::uncopy(const char *fname)
 		if(root.children==1) {
 			printf("  ERROR: %s is not an archieve (aborting)\n", name );
 			fclose(infp);
-			return;
+			exit(3);
 		}
 
 		printf("  found %d files to extract\n\n", root.children );
@@ -305,7 +352,7 @@ void root_writer_t::uncopy(const char *fname)
 			if(!outfp) {
 				printf("  ERROR: could not open %s for writing (aborting)\n", outfile.chars() );
 				fclose(infp);
-				return;
+				exit(3);
 			}
 			printf("  writing '%s' ... \n", outfile.chars() );
 

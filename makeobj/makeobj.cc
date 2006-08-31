@@ -96,9 +96,9 @@ int main(int argc, char* argv[])
 	if(!STRICMP(argv[0], "merge")) {
 	    argv++, argc--;
 	    try {
-		const char *dest = argv[0];
-		argv++, argc--;
-		root_writer_t::instance()->copy(dest, argc, argv);
+			const char *dest = argv[0];
+			argv++, argc--;
+			root_writer_t::instance()->copy(dest, argc, argv);
 	    } catch(obj_pak_exception_t *e) {
 		printf("ERROR IN CLASS %s: %s\n", e->get_class().chars(), e->get_info().chars());
 		delete e;
