@@ -123,15 +123,6 @@ wayobj_t::entferne(spieler_t *sp)
 	if(sp!=NULL) {
 		sp->buche(-besch->gib_preis(), gib_pos().gib_2d(), COST_CONSTRUCTION);
 	}
-	if(besch->gib_own_wtyp()==weg_t::overheadlines) {
-		grund_t *gr = welt->lookup(gib_pos());
-		if(gr) {
-			weg_t *w=gr->gib_weg((weg_t::typ)besch->gib_wtyp());
-			if(w) {
-				w->set_electrify(false);
-			}
-		}
-	}
 }
 
 
@@ -310,10 +301,18 @@ wayobj_t::extend_wayobj_t(karte_t *welt, koord3d pos, spieler_t *besitzer, ribi_
 			for( uint8 i=0;  i<gr->gib_top();  i++  ) {
 				ding_t *d=gr->obj_bei(i);
 				if(d  &&  d->gib_typ()==ding_t::wayobj  &&  ((wayobj_t *)d)->gib_besch()->gib_wtyp()==besch->gib_wtyp()) {
-					// extend this one instead
-					((wayobj_t *)d)->set_dir(dir|((wayobj_t *)d)->get_dir());
-					d->calc_bild();
-					return;
+					if(((wayobj_t *)d)->gib_besch()->gib_topspeed()<besch->gib_topspeed()  &&  besitzer->check_owner(d->gib_besitzer())) {
+						// replace slower by faster
+						gr->obj_remove( d, besitzer );
+						delete d;
+						break;
+					}
+					else {
+						// extend this one instead
+						((wayobj_t *)d)->set_dir(dir|((wayobj_t *)d)->get_dir());
+						d->calc_bild();
+						return;
+					}
 				}
 			}
 		}

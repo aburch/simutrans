@@ -17,6 +17,7 @@ Known bugs: (hard to fix)
 	FIX: restoring old signals was badly broken => many convois were stuck
 	FIX: (tron) many errors fixed, working inline assembler for GCC 4.0, imported all old versions into SVN
 	CHANGE: citycars lifetime now in ms => they will be more controllable, since generation is also linear with time (also cleanup of pedestrian code)
+	FIX: overheadwires could be now replaced by a faster type
 
 
 Release of 89.03.2
