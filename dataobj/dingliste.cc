@@ -311,7 +311,7 @@ dingliste_t::insert_at(ding_t *ding, uint8 pri)
 			while(pri<capacity  &&  new_ding!=NULL) {
 
 				ding_t *old_dt = obj.some[pri];
-				if(pri==PRI_DEPOT  &&  old_dt  &&  old_dt->is_moving()) {
+				if(pri==PRI_DEPOT  &&  old_dt  &&  !old_dt->is_moving()) {
 					// skip depots
 				}
 				else {
@@ -599,11 +599,6 @@ void dingliste_t::rdwr(karte_t *welt, loadsave_t *file, koord3d current_pos)
 			switch(typ) {
 				case ding_t::verkehr:	    d = new stadtauto_t (welt, file);		break;
 				case ding_t::fussgaenger:	    d = new fussgaenger_t (welt, file);	        break;
-				case ding_t::monoraildepot:	    d = new monoraildepot_t (welt, file);	        break;
-				case ding_t::tramdepot:	    d = new tramdepot_t (welt, file);	        break;
-				case ding_t::strassendepot:	    d = new strassendepot_t (welt, file);       break;
-				case ding_t::schiffdepot:	    d = new schiffdepot_t (welt, file);	        break;
-				case ding_t::airdepot:	    d = new airdepot_t (welt, file);	        break;
 				case ding_t::bruecke:	    d = new bruecke_t (welt, file);	        break;
 				case ding_t::tunnel:	    d = new tunnel_t (welt, file);	        break;
 				case ding_t::pumpe:		    d = new pumpe_t (welt, file);	        break;
@@ -614,6 +609,43 @@ void dingliste_t::rdwr(karte_t *welt, loadsave_t *file, koord3d current_pos)
 				case ding_t::signal:	    d = new signal_t (welt, file);	typ=ding_t::signal;  break;
 				case ding_t::old_roadsign:
 				case ding_t::roadsign:	    d = new roadsign_t (welt, file); typ=ding_t::roadsign; break;
+
+				// depots need to be at PRI_DEPOT!
+				case ding_t::monoraildepot:
+					d = new monoraildepot_t (welt, file);
+					if(pri!=PRI_DEPOT) {
+						dbg->warning("dingliste_t::laden()", "ding_t::monoraildepot_t in position %d instead %d", pri, PRI_DEPOT);
+						pri = PRI_DEPOT;
+					}
+					break;
+				case ding_t::tramdepot:
+					d = new tramdepot_t (welt, file);
+					if(pri!=PRI_DEPOT) {
+						dbg->warning("dingliste_t::laden()", "ding_t::tramdepot_t in position %d instead %d", pri, PRI_DEPOT);
+						pri = PRI_DEPOT;
+					}
+					break;
+				case ding_t::strassendepot:
+					d = new strassendepot_t (welt, file);
+					if(pri!=PRI_DEPOT) {
+						dbg->warning("dingliste_t::laden()", "ding_t::strassendepot_t in position %d instead %d", pri, PRI_DEPOT);
+						pri = PRI_DEPOT;
+					}
+					break;
+				case ding_t::schiffdepot:
+					d = new schiffdepot_t (welt, file);
+					if(pri!=PRI_DEPOT) {
+						dbg->warning("dingliste_t::laden()", "ding_t::schiffdepot in position %d instead %d", pri, PRI_DEPOT);
+						pri = PRI_DEPOT;
+					}
+					break;
+				case ding_t::airdepot:
+					d = new airdepot_t (welt, file);
+					if(pri!=PRI_DEPOT) {
+						dbg->warning("dingliste_t::laden()", "ding_t::schiffdepot in position %d instead %d", pri, PRI_DEPOT);
+						pri = PRI_DEPOT;
+					}
+					break;
 
 				case ding_t::bahndepot:
 				{
@@ -638,6 +670,10 @@ void dingliste_t::rdwr(karte_t *welt, loadsave_t *file, koord3d current_pos)
 					gb->gib_besitzer()->add_maintenance(umgebung_t::maint_building);
 					typ = d->gib_typ();
 					delete gb;
+					if(pri!=PRI_DEPOT) {
+						dbg->warning("dingliste_t::laden()", "ding_t::bahndepot in position %d instead %d", pri, PRI_DEPOT);
+						pri = PRI_DEPOT;
+					}
 				}
 				break;
 
@@ -678,7 +714,6 @@ void dingliste_t::rdwr(karte_t *welt, loadsave_t *file, koord3d current_pos)
 						gb  = 0;
 					}
 					d = gb;
-					pri = 0;
 				}
 				break;
 
@@ -715,8 +750,15 @@ void dingliste_t::rdwr(karte_t *welt, loadsave_t *file, koord3d current_pos)
 
 			//DBG_DEBUG("dingliste_t::rdwr()","Loading %d,%d #%d: %s", d->gib_pos().x, d->gib_pos().y, i, d->gib_name());
 			if(d) {
-				// add, if capacity not exceeded
-				add(d, pri);
+				if(pri<i) {
+					// repair depots etc
+					insert_at(d,pri);
+					DBG_DEBUG("dingliste_t::rdwr()","try to insert ding at %i instead %i",pri,i);
+				}
+				else {
+					// add, if capacity not exceeded
+					add(d, pri);
+				}
 			}
 		}
 		else {

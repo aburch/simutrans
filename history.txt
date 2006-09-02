@@ -5,6 +5,9 @@ Known bugs: (hard to fix)
 
 
 
+Release of 90.00
+
+21-Aug-2006: (prissi if not noted otherwise)
 	FIX: clipping error at outmost right row for bitmaps
 	FIX: forgot stop choose after closing schedule after line change
 	FIX: force beginner/normal mode after loading
@@ -19,6 +22,7 @@ Known bugs: (hard to fix)
 	CHANGE: citycars lifetime now in ms => they will be more controllable, since generation is also linear with time (also cleanup of pedestrian code)
 	FIX: overheadwires could be now replaced by a faster type, player was not check during destruction
 	FIX: signals were always built without owner => everybody could destroy them
+	FIX: problem with depots not found: saving and loading should solve this, no longer deleting other poepls depots
 
 
 Release of 89.03.2

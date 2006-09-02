@@ -121,6 +121,8 @@ depot_t::convoi_arrived(convoihandle_t acnv, bool fpl_adjust)
 void
 depot_t::zeige_info()
 {
+	assert(welt->lookup(gib_pos())->obj_bei(PRI_DEPOT)==this);
+
 	if(depot_info==NULL) {
 		depot_info = new depot_frame_t(welt, this);
 	}
@@ -427,8 +429,11 @@ depot_t::rdwr_vehikel(slist_tpl<vehikel_t *> &list, loadsave_t *file)
  * @returns NULL wenn OK, ansonsten eine Fehlermeldung
  * @author Hj. Malthaner
  */
-const char * depot_t::ist_entfernbar(const spieler_t *)
+const char * depot_t::ist_entfernbar(const spieler_t *sp)
 {
+	if(sp!=gib_besitzer()) {
+		return "Das Feld gehoert\neinem anderen Spieler\n";
+	}
 	if(vehicles.count()>0) {
 		return "There are still vehicles\nstored in this depot!\n";
 	}

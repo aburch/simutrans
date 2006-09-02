@@ -65,31 +65,34 @@ template <class T> class vector_tpl;
 class karte_t : public karte_modell_t
 {
 public:
-    /**
-     * anzahl ticks pro tag in bits
-     * @see ticks_per_tag
-     * @author Hj. Malthaner
-     */
-    static uint32 ticks_bits_per_tag;
+	/**
+	* anzahl ticks pro tag in bits
+	* @see ticks_per_tag
+	* @author Hj. Malthaner
+	*/
+	static uint32 ticks_bits_per_tag;
 
-    /**
-     * anzahl ticks pro tag
-     * @author Hj. Malthaner
-     */
-    static uint32 ticks_per_tag;
+	/**
+	* anzahl ticks pro tag
+	* @author Hj. Malthaner
+	*/
+	static uint32 ticks_per_tag;
 
 	static void setze_ticks_bits_per_tag(uint32 bits) {ticks_bits_per_tag = bits; ticks_per_tag = (1 << ticks_bits_per_tag); }
 
-    /**
-     * Hoehe eines Punktes der Karte mit "perlin noise"
-     *
-     * @param frequency in 0..1.0 roughness, the higher the rougher
-     * @param amplitude in 0..160.0 top height of mountains, may not exceed 160.0!!!
-     * @author Hj. Malthaner
-     */
-    static int perlin_hoehe(const int x, const int y, const double frequency, const double amplitude);
+	/**
+	* Hoehe eines Punktes der Karte mit "perlin noise"
+	*
+	* @param frequency in 0..1.0 roughness, the higher the rougher
+	* @param amplitude in 0..160.0 top height of mountains, may not exceed 160.0!!!
+	* @author Hj. Malthaner
+	*/
+	static int perlin_hoehe(const int x, const int y, const double frequency, const double amplitude);
 
 private:
+	// all cursor interaction goes via this function
+	// it will call save_mouse_funk first with init, then with the position and with exit, when another tool is selected without click
+	// see simwerkz.cc for practical examples of such functions
 	struct save_mouse_func {
 			int (*save_mouse_funk)(spieler_t *, karte_t *, koord pos, value_t param);
 			value_t mouse_funk_param;
@@ -163,18 +166,18 @@ private:
     zeiger_t *zeiger;
 
 
-    slist_tpl<sync_steppable *> sync_add_list;	// after calling sync_prepare, the objects are move to the sync_list
-    slist_tpl<sync_steppable *> sync_list;
+	slist_tpl<sync_steppable *> sync_add_list;	// after calling sync_prepare, the objects are move to the sync_list
+	slist_tpl<sync_steppable *> sync_list;
 
-    vector_tpl<convoihandle_t> convoi_array;
+	vector_tpl<convoihandle_t> convoi_array;
 
-    slist_tpl<fabrik_t *> fab_list;
+	slist_tpl<fabrik_t *> fab_list;
 
-    weighted_vector_tpl<gebaeude_t *> ausflugsziele;
+	weighted_vector_tpl<gebaeude_t *> ausflugsziele;
 
-    slist_tpl<koord> labels;
+	slist_tpl<koord> labels;
 
-    weighted_vector_tpl<stadt_t *> *stadt;
+	weighted_vector_tpl<stadt_t *> *stadt;
 
 	minivec_tpl<save_mouse_func *> quick_shortcuts;
 
