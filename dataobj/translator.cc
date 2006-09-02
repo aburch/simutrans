@@ -214,17 +214,16 @@ DBG_DEBUG("translator::init_city_names()","file %p",file);
 DBG_MESSAGE("translator::init_city_names", "reading failed, creating random names.");
 		// Hajo: try to read list failed, create random names
 		for(int i=0; i<anz_t1; i++) {
-			// const int l1 = strlen(translator::translate(name_t1[i]));
+			const int l1 = strlen(translator::translate(name_t1[i]));
 			for(int j=0; j<anz_t2; j++) {
-			// const int l2 = strlen(translator::translate(name_t2[j]));
-				char buf [256];
-				sprintf(buf, "%s%s", translator::translate(name_t1[i]), translator::translate(name_t2[j]));
-				char *c=(char *)guarded_malloc(strlen(buf));
-				strcpy( c, buf );
+				const int l2 = strlen(translator::translate(name_t2[j]));
+				char *c=(char *)guarded_malloc(l1+l2+1);
+				sprintf(c, "%s%s", translator::translate(name_t1[i]), translator::translate(name_t2[j]));
 				namen_liste.insert(c);
 			}
 		}
 	}
+DBG_MESSAGE("translator::init_city_names", "created %d names.",namen_liste.count());
 	return namen_liste.count();
 }
 
