@@ -20,6 +20,7 @@
 #include "ifc/sync_steppable.h"
 
 class stadtauto_besch_t;
+class karte_t;
 
 template<class T> class slist_mit_gewichten_tpl;
 
@@ -153,7 +154,7 @@ public:
 	 * it should be called every month and in the beginning of a new game
 	 * @author prissi
 	 */
-	static void built_timeline_liste();
+	static void built_timeline_liste(karte_t *welt);
 	static int gib_anzahl_besch();
 
 	static bool register_besch(const stadtauto_besch_t *besch);

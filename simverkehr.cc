@@ -323,7 +323,7 @@ slist_mit_gewichten_tpl<const stadtauto_besch_t *> stadtauto_t::liste_timeline;
 slist_mit_gewichten_tpl<const stadtauto_besch_t *> stadtauto_t::liste;
 stringhashtable_tpl<const stadtauto_besch_t *> stadtauto_t::table;
 
-void stadtauto_t::built_timeline_liste()
+void stadtauto_t::built_timeline_liste(karte_t *welt)
 {
 	if(liste.count()>0) {
 		// this list will contain all citycars

@@ -711,7 +711,7 @@ DBG_DEBUG("karte_t::init()","distributing trees");
     verteile_baeume(3);
 
 DBG_DEBUG("karte_t::init()","built timeline");
-    stadtauto_t::built_timeline_liste();
+    stadtauto_t::built_timeline_liste(this);
 
     print("Creating cities ...\n");
 
@@ -1740,7 +1740,7 @@ karte_t::neuer_monat()
 	}
 
 //	DBG_MESSAGE("karte_t::neuer_monat()","citycars");
-	stadtauto_t::built_timeline_liste();
+	stadtauto_t::built_timeline_liste(this);
 	INT_CHECK("simworld 1299");
 
 	DBG_MESSAGE("karte_t::neuer_monat()","timeline");
@@ -2394,7 +2394,7 @@ DBG_DEBUG("karte_t::laden", "init felder ok");
 DBG_MESSAGE("karte_t::laden()","savegame loading at tick count %i",ticks);
 
 DBG_DEBUG("karte_t::laden()","built timeline for citycars");
-	stadtauto_t::built_timeline_liste();
+	stadtauto_t::built_timeline_liste(this);
 
 DBG_DEBUG("karte_t::laden", "init %i cities",einstellungen->gib_anzahl_staedte());
 	stadt = new weighted_vector_tpl <stadt_t *> (einstellungen->gib_anzahl_staedte());
