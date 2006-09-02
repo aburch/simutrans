@@ -230,7 +230,7 @@ verkehrsteilnehmer_t::sync_step(long delta_t)
 	if(time_to_life<0) {
 		// remove obj
 		step_frequency = 0;
-DBG_MESSAGE("verkehrsteilnehmer_t::sync_step()","stopped");
+//DBG_MESSAGE("verkehrsteilnehmer_t::sync_step()","stopped");
   		return false;
 	}
 
@@ -689,7 +689,7 @@ stadtauto_t::hop()
 					if(w->has_sign()) {
 						const roadsign_besch_t *rs_besch = ((roadsign_t *)to->suche_obj(ding_t::roadsign))->gib_besch();
 						add = (rs_besch->is_traffic_light()  ||  rs_besch->gib_min_speed()<=gib_max_speed())  &&  !rs_besch->is_private_way();
-DBG_MESSAGE("stadtauto_t::hop()","roadsign");
+//DBG_MESSAGE("stadtauto_t::hop()","roadsign");
 					}
 					// ok;
 					if(add) {
