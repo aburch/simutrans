@@ -226,7 +226,7 @@ old_blockmanager_t::laden_abschliessen(karte_t *welt)
 		if(new_signal_gr  &&  dir!=0) {
 			const roadsign_besch_t *sb=roadsign_t::roadsign_search(type,wt,0);
 			if(sb!=NULL) {
-				signal_t *sig = new signal_t(welt,new_signal_gr->gib_pos(),dir,sb);
+				signal_t *sig = new signal_t(welt,new_signal_gr->gib_besitzer(),new_signal_gr->gib_pos(),dir,sb);
 				new_signal_gr->obj_pri_add(sig,0);
 				sig->laden_abschliessen();	// to make them visible
 				new_signal_gr->gib_weg(wt)->count_sign();

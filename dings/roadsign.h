@@ -57,7 +57,7 @@ public:
 	const char *gib_name() const {return "Roadsign";};
 
 	roadsign_t(karte_t *welt, loadsave_t *file);
-	roadsign_t(karte_t *welt, koord3d pos, ribi_t::ribi dir, const roadsign_besch_t* besch);
+	roadsign_t(karte_t *welt, spieler_t *sp, koord3d pos, ribi_t::ribi dir, const roadsign_besch_t* besch);
 
 	const roadsign_besch_t *gib_besch() const {return besch;}
 

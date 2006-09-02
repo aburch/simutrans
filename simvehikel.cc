@@ -2048,18 +2048,22 @@ waggon_t::ist_weg_frei(int & restart_speed)
 			}
 		}
 		else {
-			// not a signal
-			if(next_block+1<cnv->get_route()->gib_max_n()  &&  route_index>=next_block+1) {
-					restart_speed = 0;
-					return false;
-/*
-DBG_MESSAGE("waggon_t::ist_weg_frei()","reclaiming route at %i (%i last signal) of max %i",route_index,next_block,cnv->get_route()->gib_max_n());
-				uint16 next_stop = block_reserver(cnv->get_route(),route_index,0,true);
-				if(next_stop==0) {
-				}
+			// end of route?
+			if(next_block+1>=cnv->get_route()->gib_max_n()  &&  route_index==next_block+1) {
+				restart_speed = 0;
+				return false;
+			}
+			// not a signal (anymore) but we will still stop anyway
+			uint16 next_stop = block_reserver(cnv->get_route(),next_block+1,target_halt.is_bound()?1000:0,true);
+			if(next_stop!=0) {
+				// can pass the non-existing signal ..
 				restart_speed = -1;
 				cnv->set_next_stop_index(next_stop);
-*/
+			}
+			else 	if(route_index==next_block+1) {
+				// no free route
+				restart_speed = 0;
+				return false;
 			}
 		}
 	}

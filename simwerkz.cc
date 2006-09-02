@@ -339,6 +339,10 @@ DBG_MESSAGE("wkz_remover()",  "removing roadsign %d,%d",  pos.x, pos.y);
 	// catenary or something like this
 	wayobj_t *wo=(wayobj_t *)gr->suche_obj(ding_t::wayobj);
 	if(wo) {
+		if(!sp->check_owner(wo->gib_besitzer())) {
+			msg = "Das Feld gehoert\neinem anderen Spieler\n";
+			return false;
+		}
 		wo->entferne(sp);
 		delete wo;
 		return true;
@@ -1431,7 +1435,7 @@ DBG_MESSAGE("wkz_roadsign()","reverse ribi %i", dir );
 				else {
 					// add a new roadsign at position zero!
 					if(typ==ding_t::signal) {
-						rs = new signal_t( welt, gr->gib_pos(), dir, besch );
+						rs = new signal_t( welt, sp, gr->gib_pos(), dir, besch );
 DBG_MESSAGE("wkz_roadsign()","new signal, dir is %i", dir);
 					}
 					else {
@@ -1445,7 +1449,7 @@ DBG_MESSAGE("wkz_roadsign()","new signal, dir is %i", dir);
 							}
 						}
 DBG_MESSAGE("wkz_roadsign()","new roadsign, dir is %i", dir);
-						rs = new roadsign_t( welt, gr->gib_pos(), dir, besch );
+						rs = new roadsign_t( welt, sp, gr->gib_pos(), dir, besch );
 					}
 					gr->insert_before_moving(rs);
 					rs->laden_abschliessen();	// to make them visible

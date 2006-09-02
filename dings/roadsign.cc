@@ -58,7 +58,7 @@ roadsign_t::roadsign_t(karte_t *welt, loadsave_t *file) : ding_t (welt)
 
 
 
-roadsign_t::roadsign_t(karte_t *welt, koord3d pos, ribi_t::ribi dir, const roadsign_besch_t *besch) :  ding_t(welt, pos)
+roadsign_t::roadsign_t(karte_t *welt, spieler_t *sp, koord3d pos, ribi_t::ribi dir, const roadsign_besch_t *besch) :  ding_t(welt, pos)
 {
 	this->besch = besch;
 	this->dir = dir;
@@ -66,6 +66,7 @@ roadsign_t::roadsign_t(karte_t *welt, koord3d pos, ribi_t::ribi dir, const roads
 	last_switch = 0;
 	flags = 3;
 	step_frequency = 0;
+	setze_besitzer( sp );
 	// if more than one state, we will switch direction and phase
 	if(besch->gib_bild_anzahl()>4) {
 		flags |= SWITCH_AUTOMATIC;
