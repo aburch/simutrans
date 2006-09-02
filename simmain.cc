@@ -306,9 +306,6 @@ extern "C" int simu_main(int argc, char** argv)
 		int disp_height = 600;
 		int fullscreen = false;
 
-		extern koord3d wkz_wegebau_start;
-		wkz_wegebau_start = koord3d::invalid;
-
 		cstring_t loadgame = "";
 		cstring_t objfilename = DEFAULT_OBJPATH;
 

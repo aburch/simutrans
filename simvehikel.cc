@@ -2050,9 +2050,9 @@ waggon_t::ist_weg_frei(int & restart_speed)
 		else {
 			// end of route?
 			if(next_block+1>=cnv->get_route()->gib_max_n()  &&  route_index==next_block+1) {
-				restart_speed = 0;
-				return false;
-			}
+				// we can always continue, if there would be a route ...
+				return true;
+		}
 			// not a signal (anymore) but we will still stop anyway
 			uint16 next_stop = block_reserver(cnv->get_route(),next_block+1,target_halt.is_bound()?1000:0,true);
 			if(next_stop!=0) {

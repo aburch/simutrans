@@ -85,8 +85,8 @@ int searchfolder_t::search(const char *filepath, const char *extension)
 		do {
 			int entry_len = strlen(entry.name);
 			if(stricmp(entry.name + entry_len - lookfor.len(), lookfor.chars()) == 0) {
-				char *c = (char *)guarded_malloc( entry_len+path.len() );
-				sprintf(c,"%s%s",path.chars(),,entry.name);
+				char *c = (char *)guarded_malloc( entry_len+path.len()+1 );
+				sprintf(c,"%s%s",path.chars(),entry.name);
 				files.append(c);
 			}
 		} while(_findnext(hfind, &entry) == 0 );
