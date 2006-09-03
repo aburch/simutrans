@@ -94,7 +94,7 @@ public:
 	/* true, if a language is utf-8 encoded
 	 */
 	static bool is_unicode() {
-		return language_is_utf_encoded[single_instance->current_lang];
+		return single_instance->language_is_utf_encoded[single_instance->current_lang];
 	}
 
     /**
