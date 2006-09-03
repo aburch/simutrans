@@ -30,7 +30,6 @@ template <class T> class stringhashtable_tpl;
 class translator
 {
 private:
-
 	//cannot be instantiated outside translator
 	translator(){}
 	~translator(){}
@@ -76,23 +75,21 @@ public:
 	static void get_city_name(char *name, int nr);
 	static int get_count_city_name(void);
 
-    /**
-     * Loads up all files of language type from the 'language' directory.
-     * This method must be called for languages to be loaded up, undefined
-     * behaviour may follow if calls to translate message or similar are
-     * called before load has been called
-     */
-    static bool load(const cstring_t & scenario_path);
+	/**
+	* Loads up all files of language type from the 'language' directory.
+	* This method must be called for languages to be loaded up, undefined
+	* behaviour may follow if calls to translate message or similar are
+	* called before load has been called
+	*/
+	static bool load(const cstring_t & scenario_path);
 
-
-    /**
-     * Get/Set the currently selected language, based on the
-     * index number
-     */
-    static int get_language() {
-      return single_instance->current_lang;
-    }
-
+	/**
+	* Get/Set the currently selected language, based on the
+	* index number
+	*/
+	static int get_language() {
+		return single_instance->current_lang;
+	}
 
     /**
      * First checks to see whether the language is in bounds, will
@@ -102,39 +99,37 @@ public:
     static void set_language(int lang);
     static void set_language(char *iso);
 
-    /**
-     * Returns the number of loaded languages.
-     */
-		static int get_language_count() {
-      return single_instance->lang_count;
-    }
+	/**
+	* Returns the number of loaded languages.
+	*/
+	static int get_language_count() {
+		return single_instance->lang_count;
+	}
 
+	/**
+	* Translates a given string(key) to it's locale
+	* specific counterpart, using the current language
+	* table.
+	* the second variant just uses the language with the index
+	* @return translated string, (null) if string is null,
+	* or the string if the translation is not found
+	*/
+	static const char *translate(const char *str);
+	static const char *translate_from_lang(const int index,const char *str);
+	static const char *compatibility_name(const char *str);
 
-    /**
-     * Translates a given string(key) to it's locale
-     * specific counterpart, using the current language
-     * table.
-     * the second variant just uses the language with the index
-     * @return translated string, (null) if string is null,
-     * or the string if the translation is not found
-     */
-    static const char *translate(const char *str);
-    static const char *translate_from_lang(const int index,const char *str);
-		static const char *compatibility_name(const char *str);
+	/**
+	* Checks if the given string is in the translation table
+	* @author Hj. Malthaner
+	*/
+	static bool check(const char *str);
 
-    /**
-     * Checks if the given string is in the translation table
-     * @author Hj. Malthaner
-     */
-    static bool check(const char *str);
+	/* Returns the language name of the specified index */
+	static const char * get_language_name(int lang);
+	static const char * get_language_name_iso(int lang);
+	static const char * get_language_name_iso_base(int lang);
 
-
-    /* Returns the language name of the specified index */
-    static const char * get_language_name(int lang);
-    static const char * get_language_name_iso(int lang);
-    static const char * get_language_name_iso_base(int lang);
-
-    static void rdwr(loadsave_t *file);
+	static void rdwr(loadsave_t *file);
 };
 
 #endif
