@@ -4,6 +4,12 @@ Known bugs: (hard to fix)
 	valgrind complains about errors in SDL and X?
 
 
+Release of 90.00
+
+3-Sep-2006: (prissi)
+	FIX: unicode routine
+	FIX: memory for citylist names was one too few.
+
 
 Release of 90.00
 

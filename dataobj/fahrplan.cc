@@ -120,6 +120,11 @@ fahrplan_t::insert(karte_t *welt, const grund_t *gr,int ladegrad)
 	stop.ladegrad = ladegrad;
 	stop.flags = 0;
 #endif
+	// stored in minivec, so wie have to avoid adding too many
+	if(eintrag.get_count()>=254) {
+		return false;
+	}
+
 	if(ist_halt_erlaubt(gr)) {
 		bool ok= eintrag.insert_at(aktuell,stop);
 		if(!ok) {
@@ -150,6 +155,11 @@ fahrplan_t::append(karte_t *welt, const grund_t *gr,int ladegrad)
 	stop.ladegrad = ladegrad;
 	stop.flags = 0;
 #endif
+
+	// stored in minivec, so wie have to avoid adding too many
+	if(eintrag.get_count()>=254) {
+		return false;
+	}
 
 	if(ist_halt_erlaubt(gr)) {
 		bool ok= eintrag.append(stop,4);
@@ -300,8 +310,10 @@ fahrplan_t::matches(const fahrplan_t *fpl)
 void
 fahrplan_t::add_return_way(karte_t *)
 {
-	for( int maxi = ((int)eintrag.get_count())-2;  maxi>0;  maxi--  ) {
-		eintrag.append( eintrag.at(maxi) );
+	if(eintrag.get_count()<127) {
+		for( int maxi = ((int)eintrag.get_count())-2;  maxi>0;  maxi--  ) {
+			eintrag.append( eintrag.at(maxi) );
+		}
 	}
 }
 

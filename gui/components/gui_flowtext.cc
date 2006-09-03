@@ -127,6 +127,9 @@ void gui_flowtext_t::set_text(const char *text)
 				for(int i=0;  *lead!='>'  &&  *lead>0  &&  i<511;  i++  ) {
 					lead++;
 				}
+				if(*lead=='>') {
+					lead ++;
+				}
 				att = ATT_UNKNOWN;
 	    }
 	    else {

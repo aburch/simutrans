@@ -88,7 +88,7 @@ int utf16_to_utf8(utf16 c, utf8* out)
 		return 2;
 	} else /* if (c < 0x10000) */ {
 		// Assume always a 3 byte sequence, since we do not support 4 byte UTF32
-		out[0] = 0xC0 | (c >> 12);
+		out[0] = 0xE0 | (c >> 12);
 		out[1] = 0x80 | (c >>  6 & 0x3F);
 		out[2] = 0x80 | (c >>  0 & 0x3F);
 		return 3;
