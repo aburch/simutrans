@@ -2278,117 +2278,129 @@ stadt_t::haltestellenname(koord k, const char *typ, int number)
 	const char *base = "1center";	// usually gets to %s %s
 	const char *building=NULL;
 	bool outside = false;
+	char buf [512];	// temperary name storage
 
-	// prissi: first we try a factory name
-	halthandle_t halt=haltestelle_t::gib_halt(welt,k);
-	if(!umgebung_t::numbered_stations  &&  halt.is_bound()) {
-		// first factories (so with same distance, they have priority)
-		int this_distance = 999;
-		slist_iterator_tpl <fabrik_t *> fab_iter(halt->gib_fab_list());
-		while( fab_iter.next() ) {
-			int distance = abs_distance( fab_iter.get_current()->gib_pos().gib_2d(), k );
-			if(distance<this_distance) {
-				building = fab_iter.get_current()->gib_name();
-				distance = this_distance;
-			}
-		}
-		// check for other special building (townhall, monument, tourst attraction)
-		const sint16 catchment_area=welt->gib_einstellungen()->gib_station_coverage();
-		for( int x=-catchment_area;  x<=catchment_area;  x++ ) {
-			for( int y=-catchment_area;  y<=catchment_area;  y++ ) {
-				const planquadrat_t *plan=welt->lookup(koord(x,y)+k);
-				int distance = abs(x)+abs(y);
-				if(plan  &&  abs(x+y)<this_distance) {
-					gebaeude_t *gb=dynamic_cast<gebaeude_t *>(plan->gib_kartenboden()->suche_obj(ding_t::gebaeude));
-					if(gb) {
-						if(gb->is_monument()) {
-							building = translator::translate(gb->gib_name());
-							this_distance = distance;
-						}
-						else if(	gb->ist_rathaus()  ||
-									gb->gib_tile()->gib_besch()->gib_utyp()==hausbauer_t::sehenswuerdigkeit  ||  // land attraction
-									gb->gib_tile()->gib_besch()->gib_utyp()==hausbauer_t::special) { //town attarcttion
-							building = make_single_line_string(translator::translate(gb->gib_tile()->gib_besch()->gib_name()),2);
-							this_distance = distance;
-						}
-					}
-				}
-			}
-		}
-	}
-
-	// no factory found => take the usual name scheme
-	if(building==NULL) {
+	if(number>=0  &&  umgebung_t::numbered_stations) {
+		// numbered stations here
 		int li_gr = lo.x + 2;
 		int re_gr = ur.x - 2;
 		int ob_gr = lo.y + 2;
 		int un_gr = ur.y - 2;
 
 		if(li_gr<k.x && re_gr>k.x && ob_gr<k.y && un_gr>k.y) {
-			base = zentrum_namen[zentrum_namen_cnt % anz_zentrum];
 			zentrum_namen_cnt ++;
-		} else if(li_gr-6<k.x && re_gr+6>k.x && ob_gr-6<k.y && un_gr+6>k.y) {
-			if(k.y < ob_gr) {
-				if(k.x<li_gr) {
-					base = nordwest_namen[0];
-				} else if(k.x>re_gr) {
-					base = nordost_namen[0];
-				} else {
-					base = nord_namen[0];
-				}
-			} else if(k.y > un_gr) {
-				if(k.x<li_gr) {
-					base = suedwest_namen[0];
-				} else if(k.x>re_gr) {
-					base = suedost_namen[0];
-				} else {
-					base = sued_namen[0];
-				}
-			} else {
-				if(k.x <= li_gr) {
-					base = west_namen[0];
-				} else if(k.x >= re_gr) {
-					base = ost_namen[0];
-				} else {
-					base = zentrum_namen[zentrum_namen_cnt % anz_zentrum];
-					zentrum_namen_cnt ++;
-				}
-			}
-		} else {
-			base = aussen_namen[aussen_namen_cnt % anz_aussen];
-			aussen_namen_cnt ++;
-			outside = true;
-		}
-	}
-
-    char buf [512];
-
-	if(number>=0 && umgebung_t::numbered_stations) {
-		// numbered stations here
-		if(!outside) {
 			sprintf(buf, translator::translate(num_city_base),
 				this->name,
 				zentrum_namen_cnt,
 				translator::translate(typ));
 		}
 		else {
+			aussen_namen_cnt ++;
 			sprintf(buf, translator::translate(num_land_base),
 				this->name,
 				aussen_namen_cnt,
 				translator::translate(typ));
 		}
 	}
-	else if(building==NULL) {
-		sprintf(buf, translator::translate(base),
-			this->name,
-			translator::translate(typ));
-	}
 	else {
-		// with factories
-		sprintf(buf, translator::translate("%s building %s %s"),
-			this->name,
-			building,
-			translator::translate(typ));
+		// standard names:
+		// order: factory, attraction, direction, normal name
+
+		// prissi: first we try a factory name
+		halthandle_t halt=haltestelle_t::gib_halt(welt,k);
+		if(halt.is_bound()) {
+			// first factories (so with same distance, they have priority)
+			int this_distance = 999;
+			slist_iterator_tpl <fabrik_t *> fab_iter(halt->gib_fab_list());
+			while( fab_iter.next() ) {
+				int distance = abs_distance( fab_iter.get_current()->gib_pos().gib_2d(), k );
+				if(distance<this_distance) {
+					building = fab_iter.get_current()->gib_name();
+					distance = this_distance;
+				}
+			}
+			// check for other special building (townhall, monument, tourst attraction)
+			const sint16 catchment_area=welt->gib_einstellungen()->gib_station_coverage();
+			for( int x=-catchment_area;  x<=catchment_area;  x++ ) {
+				for( int y=-catchment_area;  y<=catchment_area;  y++ ) {
+					const planquadrat_t *plan=welt->lookup(koord(x,y)+k);
+					int distance = abs(x)+abs(y);
+					if(plan  &&  abs(x+y)<this_distance) {
+						gebaeude_t *gb=dynamic_cast<gebaeude_t *>(plan->gib_kartenboden()->suche_obj(ding_t::gebaeude));
+						if(gb) {
+							if(gb->is_monument()) {
+								building = translator::translate(gb->gib_name());
+								this_distance = distance;
+							}
+							else if(	gb->ist_rathaus()  ||
+										gb->gib_tile()->gib_besch()->gib_utyp()==hausbauer_t::sehenswuerdigkeit  ||  // land attraction
+										gb->gib_tile()->gib_besch()->gib_utyp()==hausbauer_t::special) { //town attarcttion
+								building = make_single_line_string(translator::translate(gb->gib_tile()->gib_besch()->gib_name()),2);
+								this_distance = distance;
+							}
+						}
+					}
+				}
+			}
+		}
+
+		// no factory found => take the usual name scheme
+		if(building==NULL) {
+			int li_gr = lo.x + 2;
+			int re_gr = ur.x - 2;
+			int ob_gr = lo.y + 2;
+			int un_gr = ur.y - 2;
+
+			if(li_gr<k.x && re_gr>k.x && ob_gr<k.y && un_gr>k.y) {
+				base = zentrum_namen[zentrum_namen_cnt % anz_zentrum];
+				zentrum_namen_cnt ++;
+			} else if(li_gr-6<k.x && re_gr+6>k.x && ob_gr-6<k.y && un_gr+6>k.y) {
+				if(k.y < ob_gr) {
+					if(k.x<li_gr) {
+						base = nordwest_namen[0];
+					} else if(k.x>re_gr) {
+						base = nordost_namen[0];
+					} else {
+						base = nord_namen[0];
+					}
+				} else if(k.y > un_gr) {
+					if(k.x<li_gr) {
+						base = suedwest_namen[0];
+					} else if(k.x>re_gr) {
+						base = suedost_namen[0];
+					} else {
+						base = sued_namen[0];
+					}
+				} else {
+					if(k.x <= li_gr) {
+						base = west_namen[0];
+					} else if(k.x >= re_gr) {
+						base = ost_namen[0];
+					} else {
+						base = zentrum_namen[zentrum_namen_cnt % anz_zentrum];
+						zentrum_namen_cnt ++;
+					}
+				}
+			} else {
+				base = aussen_namen[aussen_namen_cnt % anz_aussen];
+				aussen_namen_cnt ++;
+				outside = true;
+			}
+		}
+
+		// compose the name
+		if(building==NULL) {
+			sprintf(buf, translator::translate(base),
+				this->name,
+				translator::translate(typ));
+		}
+		else {
+			// with factories
+			sprintf(buf, translator::translate("%s building %s %s"),
+				this->name,
+				building,
+				translator::translate(typ));
+		}
 	}
 
 	const long len = strlen(buf) + 1;
