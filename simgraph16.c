@@ -1857,7 +1857,7 @@ void display_scroll_band(const KOORD_VAL start_y, const KOORD_VAL x_offset, cons
 }
 
 
-/************ display all king of images from here on ********/
+/************ display all kind of images from here on ********/
 
 
 /**
@@ -2397,6 +2397,30 @@ void display_array_wh(KOORD_VAL xp, KOORD_VAL yp, KOORD_VAL w, KOORD_VAL h, cons
 		} while (--h);
 	}
 }
+
+
+
+// unicode save moving in strings
+int get_next_char(const char* text, int pos)
+{
+	if(has_unicode) {
+		return utf8_get_next_char((const utf8 *)text,pos);
+	}
+	return pos+1;
+}
+
+
+int get_prev_char(const char* text, int pos)
+{
+	if(pos<=0) {
+		return 0;
+	}
+	if(has_unicode) {
+		return utf8_get_prev_char((const utf8 *)text,pos);
+	}
+	return pos-1;
+}
+
 
 
 /* proportional_string_width with a text of a given length

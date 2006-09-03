@@ -61,12 +61,12 @@ void gui_textinput_t::infowin_event(const event_t *ev)
 			break;
 		    case SIM_KEY_LEFT: // left arrow
 				if (cursor_pos > 0) {
-					cursor_pos = utf8_get_prev_char((const utf8*)text, cursor_pos);
+					cursor_pos = get_prev_char(text, cursor_pos);
 				}
 			break;
 		    case SIM_KEY_RIGHT: // right arrow
 				if (cursor_pos >= 0) {
-					cursor_pos = utf8_get_next_char((const utf8*)text, cursor_pos);
+					cursor_pos = get_next_char(text, cursor_pos);
 				}
 			break;
 		    case SIM_KEY_UP: // rightarrow
@@ -83,12 +83,12 @@ void gui_textinput_t::infowin_event(const event_t *ev)
 			if(cursor_pos > 0) {
 				if (cursor_pos < len) {
 					int prev_pos = cursor_pos;
-					cursor_pos = utf8_get_prev_char((const utf8*)text, cursor_pos);
+					cursor_pos = get_prev_char(text, cursor_pos);
 					for (int pos = cursor_pos; pos <= len-(prev_pos-cursor_pos); pos++) {
 						text[pos] = text[pos+(prev_pos-cursor_pos)];
 					}
 				} else {
-					cursor_pos = utf8_get_prev_char((const utf8*)text, cursor_pos);
+					cursor_pos = get_prev_char(text, cursor_pos);
 				    text[cursor_pos] = 0;
 				}
 			}
@@ -96,7 +96,7 @@ void gui_textinput_t::infowin_event(const event_t *ev)
 			case 127:
 			// delete
 			if (cursor_pos <= len) {
-					int next_pos = utf8_get_next_char((const utf8*)text, cursor_pos);
+					int next_pos = get_next_char(text, cursor_pos);
 					for (int pos = cursor_pos; pos < len; pos++) {
 						text[pos] = text[pos+(next_pos-cursor_pos)];
 					}
@@ -114,7 +114,7 @@ void gui_textinput_t::infowin_event(const event_t *ev)
 		    default:
 			// Buchstaben, Ziffern und Sonderzeichen einfügen:
 
-			// text, if we have top convert letter
+			// test, if we have top convert letter
 			char letter[8];
 
 			if(ev->ev_code>=128) {
@@ -122,25 +122,11 @@ void gui_textinput_t::infowin_event(const event_t *ev)
 //DBG_MESSAGE( "gui_textinput_t::gui_textinput_t()","%i=%s",ev->ev_code,letter);
 				const char *more_letter=translator::translate(letter);
 				// could not convert ...
-				if( letter==more_letter) {
-					if(ev->ev_code>279) {
+				if(letter==more_letter) {
+					if(ev->ev_code>279  ||   (ev->ev_code<=255  &&  translator::is_unicode()) ) {
 						// assume unicode
 						char *out=letter;
-						unsigned short lUnicode = ev->ev_code;
-
-						if(  lUnicode<0x0800u  )
-						{
-							*out++ = 0xC0|(lUnicode>>6);
-							*out++ = 0x80|(lUnicode&0x3F);
-							*out = 0;
-						}
-						else // if(  lUnicode<0x10000l  ) immer TRUE!
-						{
-							*out++ = 0xE0|(lUnicode>>12);
-							*out++ = 0x80|((lUnicode>>6)&0x3F);
-							*out++ = 0x80|(lUnicode&0x3F);
-							*out = 0;
-						}
+						out[ utf16_to_utf8(ev->ev_code, (utf8 *)out) ] = 0;
 					}
 					else {
 						// 0..255, but no translation => assume extended code page

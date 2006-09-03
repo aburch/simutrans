@@ -91,6 +91,12 @@ public:
 		return single_instance->current_lang;
 	}
 
+	/* true, if a language is utf-8 encoded
+	 */
+	static bool is_unicode() {
+		return language_is_utf_encoded[single_instance->current_lang];
+	}
+
     /**
      * First checks to see whether the language is in bounds, will
      * then change what language is being used, otherwise prints
