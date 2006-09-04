@@ -40,6 +40,7 @@
 #include "simdepot.h"
 #include "simversion.h"
 #include "simmesg.h"
+#include "simmenu.h"
 #include "simcolor.h"
 #include "simlinemgmt.h"
 
@@ -72,7 +73,6 @@
 #include "gui/map_frame.h"
 #include "gui/optionen.h"
 #include "gui/player_frame_t.h"
-#include "gui/werkzeug_parameter_waehler.h"
 #include "gui/messagebox.h"
 #include "gui/loadsave_frame.h"
 #include "gui/money_frame.h"
@@ -2909,26 +2909,13 @@ void karte_t::bewege_zeiger(const event_t *ev)
 }
 
 
-/**
- * Creates a tooltip from tip text and money value
- * @author Hj. Malthaner
- */
-static char * tool_tip_with_price(const char * tip, sint64 price)
-{
-  static char buf[256];
-
-  const int n = sprintf(buf, "%s, ", tip);
-  money_to_string(buf+n, (double)price/-100.0);
-  return buf;
-}
-
-
 
 /* goes to next active player */
 void karte_t::switch_active_player(uint8 new_player)
 {
 	// cheat: play as AI
 	char buf[512];
+	bool renew_menu=false;
 
 	if(new_player>=MAX_PLAYER_COUNT) {
 		new_player = 0;
@@ -2944,6 +2931,7 @@ void karte_t::switch_active_player(uint8 new_player)
 		}
 	}
 	else {
+		renew_menu = (active_player_nr==1  ||  new_player==1);
 		active_player_nr = new_player;
 		active_player = spieler[new_player];
 		sprintf(buf, translator::translate("Now active as %s.\n"), get_active_player()->gib_name() );
@@ -2951,89 +2939,35 @@ void karte_t::switch_active_player(uint8 new_player)
 	}
 	// open edit tools
 	if(active_player_nr==1) {
-	    werkzeug_parameter_waehler_t *wzw = new werkzeug_parameter_waehler_t(this, "EDITTOOLS");
-
-	    wzw->setze_hilfe_datei("edittools.txt");
-
-	    wzw->add_param_tool(&wkz_grow_city,
-			  (long)100,
-			  Z_PLAN,
-			  -1,
-			  SFX_FAILURE,
-			  skinverwaltung_t::edit_werkzeug->gib_bild_nr(0),
-			  skinverwaltung_t::upzeiger->gib_bild_nr(0),
-			  translator::translate("Grow city") );
-
-	    wzw->add_param_tool(&wkz_grow_city,
-			  (long)-100,
-			  Z_PLAN,
-			  -1,
-			  SFX_FAILURE,
-			  skinverwaltung_t::edit_werkzeug->gib_bild_nr(1),
-			  skinverwaltung_t::downzeiger->gib_bild_nr(0),
-			  translator::translate("Shrink city") );
-
-		// cityroads
-		const weg_besch_t *besch = get_city_road();
-		if(besch!=NULL) {
-			sprintf(buf, "%s, %ld$ (%ld$), %dkm/h",
-				translator::translate(besch->gib_name()),
-				besch->gib_preis()/100,
-				besch->gib_wartung()/100,
-				besch->gib_topspeed());
-
-		    wzw->add_param_tool(&wkz_wegebau,
-				  (const void *)besch,
-	  			  Z_PLAN,
-				  SFX_JACKHAMMER,
-				  SFX_FAILURE,
-				  skinverwaltung_t::edit_werkzeug->gib_bild_nr(2),
-				  wegbauer_t::gib_besch("asphalt_road")->gib_cursor()->gib_bild_nr(0),
-				  buf);
-		}
-
-	    wzw->add_tool(&wkz_add_attraction,
-			  Z_PLAN,
-			  SFX_JACKHAMMER,
-			  SFX_FAILURE,
-			  skinverwaltung_t::edit_werkzeug->gib_bild_nr(3),
-			  skinverwaltung_t::undoc_zeiger->gib_bild_nr(0),
-			  translator::translate("Built random attraction") );
-
-	    wzw->add_tool(wkz_build_industries_land,
-			  Z_PLAN,
-			  SFX_JACKHAMMER,
-			  SFX_FAILURE,
-			  skinverwaltung_t::special_werkzeug->gib_bild_nr(3),
-			  skinverwaltung_t::undoc_zeiger->gib_bild_nr(0),
-			  translator::translate("Build land consumer"));
-
-	    wzw->add_tool(wkz_build_industries_city,
-			  Z_PLAN,
-			  SFX_JACKHAMMER,
-			  SFX_FAILURE,
-			  skinverwaltung_t::special_werkzeug->gib_bild_nr(4),
-			  skinverwaltung_t::undoc_zeiger->gib_bild_nr(0),
-			  translator::translate("Build city market"));
-
-	    wzw->add_tool(wkz_lock,
-			  Z_PLAN,
-			  SFX_JACKHAMMER,
-			  SFX_FAILURE,
-			  skinverwaltung_t::edit_werkzeug->gib_bild_nr(5),
-			  skinverwaltung_t::edit_werkzeug->gib_bild_nr(5),
-			  translator::translate("Lock game"));
-
-	    wzw->add_tool(wkz_step_year,
-			  Z_PLAN,
-			  SFX_JACKHAMMER,
-			  SFX_FAILURE,
-			  skinverwaltung_t::edit_werkzeug->gib_bild_nr(6),
-			  skinverwaltung_t::undoc_zeiger->gib_bild_nr(0),
-			  translator::translate("Step timeline one year"));
-
-		wzw->zeige_info(magic_edittools);
+		menu_open(this,MENU_EDIT,active_player);
 	}
+	else {
+		// close edit tools
+		gui_fenster_t *gui=win_get_magic(magic_edittools);
+		if(gui) {
+			destroy_win(gui);
+		}
+	}
+
+	if(renew_menu) {
+		// eventually we have to close and reopen several menues, since player 1 is not allowed to run vehicles
+		static magic_numbers all_menu[6]= { magic_railtools, magic_monorailtools, magic_tramtools, magic_roadtools, magic_shiptools, magic_airtools };
+		for( int i=0;  i<6;  i++  ) {
+			gui_fenster_t *gui=win_get_magic(all_menu[i]);
+			if(gui) {
+				// now save coordinates
+				int x = win_get_posx(gui);
+				int y = win_get_posy(gui);
+				// close it
+				destroy_win(gui);
+				// reopen it as the current player at the same position
+				menu_open( this, (menu_entries)(i+1), active_player );
+				gui=win_get_magic(all_menu[i] );
+				win_set_pos( gui, x, y );
+			}
+		}
+	}
+	setze_maus_funktion(wkz_abfrage, skinverwaltung_t::fragezeiger->gib_bild_nr(0), Z_PLAN,  NO_SOUND, NO_SOUND );
 }
 
 
@@ -3388,754 +3322,28 @@ karte_t::interactive_event(event_t &ev)
 		setze_maus_funktion(wkz_abfrage, skinverwaltung_t::fragezeiger->gib_bild_nr(0), Z_PLAN,  NO_SOUND, NO_SOUND );
 		break;
 	    case 3:
-                {
-		    werkzeug_parameter_waehler_t *wzw =
-                        new werkzeug_parameter_waehler_t(this, "SLOPETOOLS");
-		    wzw->setze_hilfe_datei("slopetools.txt");
-
-			// evt. we have also the normal tools here ...
-			if(skinverwaltung_t::hang_werkzeug->gib_bild_nr(8)!=IMG_LEER) {
-			    wzw->add_tool(wkz_raise,
-					  Z_GRID,
-					  SFX_JACKHAMMER,
-					  SFX_FAILURE,
-					  skinverwaltung_t::hang_werkzeug->gib_bild_nr(8),
-					  skinverwaltung_t::upzeiger->gib_bild_nr(0),
-					  tool_tip_with_price(translator::translate("Anheben"), umgebung_t::cst_alter_land));
-
-			    wzw->add_tool(wkz_lower,
-					  Z_GRID,
-					  SFX_JACKHAMMER,
-					  SFX_FAILURE,
-					  skinverwaltung_t::hang_werkzeug->gib_bild_nr(9),
-					  skinverwaltung_t::downzeiger->gib_bild_nr(0),
-					  tool_tip_with_price(translator::translate("Absenken"), umgebung_t::cst_alter_land));
-			}
-
-		    wzw->add_param_tool(wkz_set_slope,(long)SOUTH_SLOPE,
-				  Z_PLAN,
-				  SFX_JACKHAMMER,
-				  SFX_FAILURE,
-				  skinverwaltung_t::hang_werkzeug->gib_bild_nr(0),
-				  skinverwaltung_t::slopezeiger->gib_bild_nr(0),
-				  tool_tip_with_price(translator::translate("Built artifical slopes"), umgebung_t::cst_set_slope));
-
-		    wzw->add_param_tool(wkz_set_slope,(long)NORTH_SLOPE,
-				  Z_PLAN,
-				  SFX_JACKHAMMER,
-				  SFX_FAILURE,
-				  skinverwaltung_t::hang_werkzeug->gib_bild_nr(1),
-				  skinverwaltung_t::slopezeiger->gib_bild_nr(0),
-				  tool_tip_with_price(translator::translate("Built artifical slopes"), umgebung_t::cst_set_slope));
-
-		    wzw->add_param_tool(wkz_set_slope,(long)WEST_SLOPE,
-				  Z_PLAN,
-				  SFX_JACKHAMMER,
-				  SFX_FAILURE,
-				  skinverwaltung_t::hang_werkzeug->gib_bild_nr(2),
-				  skinverwaltung_t::slopezeiger->gib_bild_nr(0),
-				  tool_tip_with_price(translator::translate("Built artifical slopes"), umgebung_t::cst_set_slope));
-
-		    wzw->add_param_tool(wkz_set_slope,(long)EAST_SLOPE,
-				  Z_PLAN,
-				  SFX_JACKHAMMER,
-				  SFX_FAILURE,
-				  skinverwaltung_t::hang_werkzeug->gib_bild_nr(3),
-				  skinverwaltung_t::slopezeiger->gib_bild_nr(0),
-				  tool_tip_with_price(translator::translate("Built artifical slopes"), umgebung_t::cst_set_slope));
-
-		    wzw->add_param_tool(wkz_set_slope,(long)ALL_DOWN_SLOPE,
-				  Z_PLAN,
-				  SFX_JACKHAMMER,
-				  SFX_FAILURE,
-				  skinverwaltung_t::hang_werkzeug->gib_bild_nr(5),
-				  skinverwaltung_t::slopezeiger->gib_bild_nr(0),
-				  tool_tip_with_price(translator::translate("Built artifical slopes"), umgebung_t::cst_set_slope));
-
-		    wzw->add_param_tool(wkz_set_slope,(long)ALL_UP_SLOPE,
-				  Z_PLAN,
-				  SFX_JACKHAMMER,
-				  SFX_FAILURE,
-				  skinverwaltung_t::hang_werkzeug->gib_bild_nr(6),
-				  skinverwaltung_t::slopezeiger->gib_bild_nr(0),
-				  tool_tip_with_price(translator::translate("Built artifical slopes"), umgebung_t::cst_set_slope));
-
-/*
-			// cover tile
-		    wzw->add_param_tool(wkz_set_slope,(long)0,
-				  Z_PLAN,
-				  SFX_JACKHAMMER,
-				  SFX_FAILURE,
-				  skinverwaltung_t::hang_werkzeug->gib_bild_nr(4),
-				  skinverwaltung_t::slopezeiger->gib_bild_nr(0),
-				  tool_tip_with_price(translator::translate("Built artifical slopes"), umgebung_t::cst_set_slope));
-*/
-
-		    wzw->add_param_tool(wkz_set_slope,(long)RESTORE_SLOPE,
-				  Z_PLAN,
-				  SFX_JACKHAMMER,
-				  SFX_FAILURE,
-				  skinverwaltung_t::hang_werkzeug->gib_bild_nr(7),
-				  skinverwaltung_t::slopezeiger->gib_bild_nr(0),
-				  tool_tip_with_price(translator::translate("Restore natural slope"), umgebung_t::cst_alter_land));
-
-		    sound_play(click_sound);
-
-		    wzw->zeige_info(magic_slopetools);
-                }
+	    	menu_open(this,MENU_SLOPE,active_player);
 		break;
 	    case 4:
-	    		if(wegbauer_t::weg_search(weg_t::schiene,1,get_timeline_year_month())!=NULL) {
-		    werkzeug_parameter_waehler_t *wzw =
-                        new werkzeug_parameter_waehler_t(this, "RAILTOOLS");
-
-		    wzw->setze_hilfe_datei("railtools.txt");
-
-		    wegbauer_t::fill_menu(wzw,
-					  weg_t::schiene,
-					  wkz_wegebau,
-					  SFX_JACKHAMMER,
-					  SFX_FAILURE,
-					  get_timeline_year_month()
-					  );
-
-			wayobj_t::fill_menu(wzw,
-					weg_t::schiene,
-					wkz_wayobj,
-					SFX_JACKHAMMER,
-					SFX_FAILURE,
-					get_timeline_year_month()
-					);
-
-		    wzw->add_param_tool(&wkz_wayremover,
-				  (const int)weg_t::schiene,
-	  			  Z_PLAN,
-				  SFX_REMOVER,
-				  SFX_FAILURE,
-				  skinverwaltung_t::edit_werkzeug->gib_bild_nr(7),
-				  skinverwaltung_t::killzeiger->gib_bild_nr(0),
-				  "remove tracks");
-
-		    brueckenbauer_t::fill_menu(wzw,
-					  weg_t::schiene,
-					  SFX_JACKHAMMER,
-					  SFX_FAILURE,
-  					  get_timeline_year_month()
-					  );
-
-		    if(tunnelbauer_t::schienentunnel) {
-		      wzw->add_param_tool(&tunnelbauer_t::baue,
-					  weg_t::schiene,
-					  Z_PLAN,
-					  SFX_JACKHAMMER,
-					  SFX_FAILURE,
-					  tunnelbauer_t::schienentunnel->gib_cursor()->gib_bild_nr(1),
-					  tunnelbauer_t::schienentunnel->gib_cursor()->gib_bild_nr(0),
-					  tool_tip_with_price(translator::translate("Schienentunnel"), umgebung_t::cst_tunnel));
-		    }
-
-			roadsign_t::fill_menu(wzw,
-					weg_t::schiene,
-					wkz_roadsign,
-					SFX_JACKHAMMER,
-					SFX_FAILURE,
-					get_timeline_year_month()
-					);
-
-		  wzw->add_param_tool(wkz_depot,
-				hausbauer_t::bahn_depot_besch,
-				Z_PLAN,
-				SFX_GAVEL,
-				SFX_FAILURE,
-				hausbauer_t::bahn_depot_besch->gib_cursor()->gib_bild_nr(1),
-				hausbauer_t::bahn_depot_besch->gib_cursor()->gib_bild_nr(0),
-				tool_tip_with_price(translator::translate("Build train depot"), umgebung_t::cst_depot_rail));
-
-		    hausbauer_t::fill_menu(wzw,
-					  hausbauer_t::bahnhof,
-					  wkz_halt,
-					  SFX_JACKHAMMER,
-					  SFX_FAILURE,
-					  umgebung_t::cst_multiply_station,
-  					  get_timeline_year_month() );
-
-		    hausbauer_t::fill_menu(wzw,
-					  hausbauer_t::bahnhof_geb,
-					  wkz_station_building,
-					  SFX_JACKHAMMER,
-					  SFX_FAILURE,
-					  umgebung_t::cst_multiply_post,
-  					  get_timeline_year_month() );
-
-		    sound_play(click_sound);
-
-		    wzw->zeige_info(magic_railtools);
-              }
-              else {
-				create_win(-1, -1, 60, new nachrichtenfenster_t(this, "Trains are not available yet!"), w_autodelete);
-              }
+	    	menu_open(this,MENU_RAIL,active_player);
 		break;
 	    case 5:
-	    		if(wegbauer_t::weg_search(weg_t::monorail,1,get_timeline_year_month())!=NULL  &&  hausbauer_t::monorail_depot_besch!=NULL) {
-				werkzeug_parameter_waehler_t *wzw =
-					new werkzeug_parameter_waehler_t(this, "MONORAILTOOLS");
-
-				wzw->setze_hilfe_datei("monorailtools.txt");
-
-				wegbauer_t::fill_menu(wzw,
-					weg_t::monorail,
-					wkz_wegebau,
-					SFX_JACKHAMMER,
-					SFX_FAILURE,
-					get_timeline_year_month(),
-					0
-				);
-
-				wegbauer_t::fill_menu(wzw,
-					weg_t::monorail,
-					wkz_wegebau,
-					SFX_JACKHAMMER,
-					SFX_FAILURE,
-					get_timeline_year_month(),
-					1
-				);
-
-			wayobj_t::fill_menu(wzw,
-					weg_t::monorail,
-					wkz_wayobj,
-					SFX_JACKHAMMER,
-					SFX_FAILURE,
-					get_timeline_year_month()
-					);
-
-		    wzw->add_param_tool(&wkz_wayremover,
-				  (const int)weg_t::monorail,
-	  			  Z_PLAN,
-				  SFX_REMOVER,
-				  SFX_FAILURE,
-				  skinverwaltung_t::edit_werkzeug->gib_bild_nr(8),
-				  skinverwaltung_t::killzeiger->gib_bild_nr(0),
-				  "remove monorails");
-
-		    brueckenbauer_t::fill_menu(wzw,
-					  weg_t::monorail,
-					  SFX_JACKHAMMER,
-					  SFX_FAILURE,
-  					  get_timeline_year_month()
-					  );
-
-			roadsign_t::fill_menu(wzw,
-					weg_t::monorail,
-					wkz_roadsign,
-					SFX_JACKHAMMER,
-					SFX_FAILURE,
-					get_timeline_year_month()
-					);
-
-		      wzw->add_param_tool(wkz_depot,
-				hausbauer_t::monorail_depot_besch,
-				Z_PLAN,
-				SFX_GAVEL,
-				SFX_FAILURE,
-				hausbauer_t::monorail_depot_besch->gib_cursor()->gib_bild_nr(1),
-				hausbauer_t::monorail_depot_besch->gib_cursor()->gib_bild_nr(0),
-				tool_tip_with_price(translator::translate("Build monotrail depot"), umgebung_t::cst_depot_rail));
-
-		    hausbauer_t::fill_menu(wzw,
-						  hausbauer_t::monorailstop,
-						  wkz_halt,
-						  SFX_JACKHAMMER,
-						  SFX_FAILURE,
-						  umgebung_t::cst_multiply_station,
-						  get_timeline_year_month() );
-
-		    hausbauer_t::fill_menu(wzw,
-						  hausbauer_t::monorail_geb,
-						  wkz_station_building,
-						  SFX_JACKHAMMER,
-						  SFX_FAILURE,
-						  umgebung_t::cst_multiply_station,
-						  get_timeline_year_month() );
-
-				sound_play(click_sound);
-
-				wzw->zeige_info(magic_monorailtools);
-		    }
-              else {
-				create_win(-1, -1, 60, new nachrichtenfenster_t(this, "Monorails are not available yet!"), w_autodelete);
-              }
-			break;
+	    	menu_open(this,MENU_MONORAIL,active_player);
+		break;
 	    case 6:
-	    		if(wegbauer_t::weg_search(weg_t::schiene_strab,1,get_timeline_year_month())!=NULL  &&  hausbauer_t::tram_depot_besch!=NULL) {
-				werkzeug_parameter_waehler_t *wzw =
-					new werkzeug_parameter_waehler_t(this, "TRAMTOOLS");
-
-				wzw->setze_hilfe_datei("tramtools.txt");
-
-				wegbauer_t::fill_menu(wzw,
-					weg_t::schiene,
-					wkz_wegebau,
-					SFX_JACKHAMMER,
-					SFX_FAILURE,
-					get_timeline_year_month(),
-					7
-				);
-
-			wayobj_t::fill_menu(wzw,
-					weg_t::schiene,
-					wkz_wayobj,
-					SFX_JACKHAMMER,
-					SFX_FAILURE,
-					get_timeline_year_month()
-					);
-
-				wzw->add_param_tool(&wkz_wayremover,
-				  (const int)weg_t::schiene,
-	  			  Z_PLAN,
-				  SFX_REMOVER,
-				  SFX_FAILURE,
-				  skinverwaltung_t::edit_werkzeug->gib_bild_nr(7),
-				  skinverwaltung_t::killzeiger->gib_bild_nr(0),
-				  "remove tracks");
-
-			roadsign_t::fill_menu(wzw,
-					weg_t::schiene,
-					wkz_roadsign,
-					SFX_JACKHAMMER,
-					SFX_FAILURE,
-					get_timeline_year_month()
-					);
-
-		      wzw->add_param_tool(wkz_depot,
-				hausbauer_t::tram_depot_besch,
-				Z_PLAN,
-				SFX_GAVEL,
-				SFX_FAILURE,
-				hausbauer_t::tram_depot_besch->gib_cursor()->gib_bild_nr(1),
-				hausbauer_t::tram_depot_besch->gib_cursor()->gib_bild_nr(0),
-				tool_tip_with_price(translator::translate("Build tram depot"), umgebung_t::cst_depot_rail));
-
-		    hausbauer_t::fill_menu(wzw,
-						  hausbauer_t::bahnhof,
-						  wkz_halt,
-						  SFX_JACKHAMMER,
-						  SFX_FAILURE,
-						  umgebung_t::cst_multiply_station,
-						  get_timeline_year_month() );
-
-		    hausbauer_t::fill_menu(wzw,
-					  hausbauer_t::bushalt,
-					  wkz_halt,
-					  SFX_JACKHAMMER,
-					  SFX_FAILURE,
-					  umgebung_t::cst_multiply_roadstop,
-					  get_timeline_year_month() );
-
-				sound_play(click_sound);
-
-				wzw->zeige_info(magic_tramtools);
-		    }
-              else {
-				create_win(-1, -1, 60, new nachrichtenfenster_t(this, "Trams are not available yet!"), w_autodelete);
-              }
-			break;
+	    	menu_open(this,MENU_TRAM,active_player);
+		break;
 	    case 7:
-	    		if(wegbauer_t::weg_search(weg_t::strasse,1,get_timeline_year_month())!=NULL) {
-		    werkzeug_parameter_waehler_t *wzw =
-                        new werkzeug_parameter_waehler_t(this, "ROADTOOLS");
-
-		    wzw->setze_hilfe_datei("roadtools.txt");
-
-			wegbauer_t::fill_menu(wzw,
-				weg_t::strasse,
-				wkz_wegebau,
-				SFX_JACKHAMMER,
-				SFX_FAILURE,
-				get_timeline_year_month(),
-				0
-			);
-
-			wegbauer_t::fill_menu(wzw,
-				weg_t::strasse,
-				wkz_wegebau,
-				SFX_JACKHAMMER,
-				SFX_FAILURE,
-				get_timeline_year_month(),
-				1
-			);
-
-			wayobj_t::fill_menu(wzw,
-					weg_t::strasse,
-					wkz_wayobj,
-					SFX_JACKHAMMER,
-					SFX_FAILURE,
-					get_timeline_year_month()
-					);
-
-		    wzw->add_param_tool(&wkz_wayremover,
-				  (const int)weg_t::strasse,
-	  			  Z_PLAN,
-				  SFX_REMOVER,
-				  SFX_FAILURE,
-				  skinverwaltung_t::edit_werkzeug->gib_bild_nr(9),
-				  skinverwaltung_t::killzeiger->gib_bild_nr(0),
-				  "remove roads");
-
-		    brueckenbauer_t::fill_menu(wzw,
-					  weg_t::strasse,
-					  SFX_JACKHAMMER,
-					  SFX_FAILURE,
-					  get_timeline_year_month()
-					  );
-
-		    if(tunnelbauer_t::strassentunnel) {
-		      wzw->add_param_tool(&tunnelbauer_t::baue,
-					  (long)weg_t::strasse,
-					  Z_PLAN,
-					  SFX_JACKHAMMER,
-					  SFX_FAILURE,
-					  tunnelbauer_t::strassentunnel->gib_cursor()->gib_bild_nr(1),
-					  tunnelbauer_t::strassentunnel->gib_cursor()->gib_bild_nr(0),
-					  tool_tip_with_price(translator::translate("Strassentunnel"), umgebung_t::cst_tunnel));
-		    }
-
-			roadsign_t::fill_menu(wzw,
-					weg_t::strasse,
-					wkz_roadsign,
-					SFX_JACKHAMMER,
-					SFX_FAILURE,
-					get_timeline_year_month()
-					);
-
-		      wzw->add_param_tool(wkz_depot,
-				hausbauer_t::str_depot_besch,
-				Z_PLAN,
-				SFX_GAVEL,
-				SFX_FAILURE,
-				hausbauer_t::str_depot_besch->gib_cursor()->gib_bild_nr(1),
-				hausbauer_t::str_depot_besch->gib_cursor()->gib_bild_nr(0),
-				tool_tip_with_price(translator::translate("Build road depot"), umgebung_t::cst_depot_rail));
-
-		    hausbauer_t::fill_menu(wzw,
-					  hausbauer_t::bushalt,
-					  wkz_halt,
-					  SFX_JACKHAMMER,
-					  SFX_FAILURE,
-					  umgebung_t::cst_multiply_roadstop,
-  					  get_timeline_year_month() );
-
-		    hausbauer_t::fill_menu(wzw,
-					  hausbauer_t::ladebucht,
-					  wkz_halt,
-					  SFX_JACKHAMMER,
-					  SFX_FAILURE,
-					  umgebung_t::cst_multiply_roadstop,
-  					  get_timeline_year_month() );
-
-		    hausbauer_t::fill_menu(wzw,
-					  hausbauer_t::bushalt_geb,
-					  wkz_station_building,
-					  SFX_JACKHAMMER,
-					  SFX_FAILURE,
-					  umgebung_t::cst_multiply_post,
-  					  get_timeline_year_month() );
-
-		    hausbauer_t::fill_menu(wzw,
-					  hausbauer_t::ladebucht_geb,
-					  wkz_station_building,
-					  SFX_JACKHAMMER,
-					  SFX_FAILURE,
-					  umgebung_t::cst_multiply_post,
-  					  get_timeline_year_month() );
-
-		    sound_play(click_sound);
-
-		    wzw->zeige_info(magic_roadtools);
-                }
-              else {
-				create_win(-1, -1, 60, new nachrichtenfenster_t(this, "Cars are not available yet!"), w_autodelete);
-              }
+	    	menu_open(this,MENU_ROAD,active_player);
 		break;
 	    case 8:
-                {
-		    werkzeug_parameter_waehler_t *wzw =
-                        new werkzeug_parameter_waehler_t(this, "SHIPTOOLS");
-
-		    wzw->setze_hilfe_datei("shiptools.txt");
-
-			wegbauer_t::fill_menu(wzw,
-					  weg_t::wasser,
-					  wkz_wegebau,
-					  SFX_JACKHAMMER,
-					  SFX_FAILURE,
-					  get_timeline_year_month()
-					  );
-
-			wayobj_t::fill_menu(wzw,
-					weg_t::wasser,
-					wkz_wayobj,
-					SFX_JACKHAMMER,
-					SFX_FAILURE,
-					get_timeline_year_month()
-					);
-
-		    wzw->add_param_tool(&wkz_wayremover,
-				  (const int)weg_t::wasser,
-	  			  Z_PLAN,
-				  SFX_REMOVER,
-				  SFX_FAILURE,
-				  skinverwaltung_t::edit_werkzeug->gib_bild_nr(10),
-				  skinverwaltung_t::killzeiger->gib_bild_nr(0),
-				  "remove channels");
-
-		    brueckenbauer_t::fill_menu(wzw,
-					  weg_t::wasser,
-					  SFX_JACKHAMMER,
-					  SFX_FAILURE,
-					  get_timeline_year_month()
-					  );
-
-			roadsign_t::fill_menu(wzw,
-					weg_t::wasser,
-					wkz_roadsign,
-					SFX_JACKHAMMER,
-					SFX_FAILURE,
-					get_timeline_year_month()
-					);
-
-		    hausbauer_t::fill_menu(wzw,
-					  hausbauer_t::binnenhafen,
-					  wkz_halt,
-					  SFX_JACKHAMMER,
-					  SFX_FAILURE,
-					  umgebung_t::cst_multiply_dock,
-					  get_timeline_year_month() );
-
-		    hausbauer_t::fill_menu(wzw,
-					  hausbauer_t::hafen,
-					  wkz_dockbau,
-					  SFX_JACKHAMMER,
-					  SFX_FAILURE,
-					  umgebung_t::cst_multiply_dock,
-					  get_timeline_year_month() );
-
-		      wzw->add_param_tool(wkz_depot,
-				hausbauer_t::sch_depot_besch,
-				Z_PLAN,
-				SFX_DOCK,
-				SFX_FAILURE,
-				skinverwaltung_t::schiffs_werkzeug->gib_bild_nr(0),
-				skinverwaltung_t::werftNSzeiger->gib_bild_nr(0),
-				tool_tip_with_price(translator::translate("Build ship depot"), umgebung_t::cst_depot_ship));
-
-		    hausbauer_t::fill_menu(wzw,
-					  hausbauer_t::binnenhafen_geb,
-					  wkz_station_building,
-					  SFX_JACKHAMMER,
-					  SFX_FAILURE,
-					  umgebung_t::cst_multiply_post,
-					  get_timeline_year_month() );
-
-		    hausbauer_t::fill_menu(wzw,
-					  hausbauer_t::hafen_geb,
-					  wkz_station_building,
-					  SFX_JACKHAMMER,
-					  SFX_FAILURE,
-					  umgebung_t::cst_multiply_post,
-					  get_timeline_year_month() );
-
-		    sound_play(click_sound);
-
-		    wzw->zeige_info(magic_shiptools);
-                }
-		break;
-
+	    	menu_open(this,MENU_SHIP,active_player);
+	    	break;
 	    case 9:
-	     if(hausbauer_t::air_depot.count()>0  &&  wegbauer_t::weg_search(weg_t::luft,1,get_timeline_year_month())!=NULL) {
-					// start aircraft
-					werkzeug_parameter_waehler_t *wzw =
-						new werkzeug_parameter_waehler_t(this, "AIRTOOLS");
-
-					wzw->setze_hilfe_datei("airtools.txt");
-
-			wegbauer_t::fill_menu(wzw,
-				weg_t::luft,
-				wkz_wegebau,
-				SFX_JACKHAMMER,
-				SFX_FAILURE,
-				get_timeline_year_month(),
-				0
-			);
-
-			wegbauer_t::fill_menu(wzw,
-				weg_t::luft,
-				wkz_wegebau,
-				SFX_JACKHAMMER,
-				SFX_FAILURE,
-				get_timeline_year_month(),
-				1
-			);
-
-			wayobj_t::fill_menu(wzw,
-					weg_t::luft,
-					wkz_wayobj,
-					SFX_JACKHAMMER,
-					SFX_FAILURE,
-					get_timeline_year_month()
-					);
-
-			roadsign_t::fill_menu(wzw,
-					weg_t::luft,
-					wkz_roadsign,
-					SFX_JACKHAMMER,
-					SFX_FAILURE,
-					get_timeline_year_month()
-					);
-
-/* since the route calculation is different for air, the tool will simply crash :( */
-		    wzw->add_param_tool(&wkz_wayremover,
-				  (const int)weg_t::luft,
-	  			  Z_PLAN,
-				  SFX_REMOVER,
-				  SFX_FAILURE,
-				  skinverwaltung_t::edit_werkzeug->gib_bild_nr(11),
-				  skinverwaltung_t::killzeiger->gib_bild_nr(0),
-				  "remove airstrips");
-
-		    hausbauer_t::fill_menu(wzw,
-						  hausbauer_t::air_depot,
-						  wkz_depot,
-						  SFX_GAVEL,
-						  SFX_FAILURE,
-						  umgebung_t::cst_multiply_airterminal,
-						  get_timeline_year_month() );
-
-		    hausbauer_t::fill_menu(wzw,
-						  hausbauer_t::airport,
-						  wkz_halt,
-						  SFX_JACKHAMMER,
-						  SFX_FAILURE,
-						  umgebung_t::cst_multiply_airterminal,
-						  get_timeline_year_month() );
-
-		    hausbauer_t::fill_menu(wzw,
-						  hausbauer_t::airport_geb,
-						  wkz_station_building,
-						  SFX_JACKHAMMER,
-						  SFX_FAILURE,
-						  umgebung_t::cst_multiply_post,
-						  get_timeline_year_month() );
-
-					wzw->zeige_info(magic_airtools);
-					// end aircraft
-				}
-              else {
-				create_win(-1, -1, 60, new nachrichtenfenster_t(this, "Planes are not available yet!"), w_autodelete);
-              }
+	    	menu_open(this,MENU_AIRPORT,active_player);
 		break;
 	    case 10:
-          {
-		    werkzeug_parameter_waehler_t *wzw =
-                        new werkzeug_parameter_waehler_t(this, "SPECIALTOOLS");
-
-		    wzw->setze_hilfe_datei("special.txt");
-
-			wegbauer_t::fill_menu(wzw,
-				weg_t::strasse,
-				wkz_wegebau,
-				SFX_JACKHAMMER,
-				SFX_FAILURE,
-				get_timeline_year_month(),
-				255
-			);
-
-			wegbauer_t::fill_menu(wzw,
-				weg_t::schiene,
-				wkz_wegebau,
-				SFX_JACKHAMMER,
-				SFX_FAILURE,
-				get_timeline_year_month(),
-				255
-			);
-
-		    hausbauer_t::fill_menu(wzw,
-					  hausbauer_t::post,
-					  wkz_station_building,
-					  SFX_JACKHAMMER,
-					  SFX_FAILURE,
-					  umgebung_t::cst_multiply_post,
-					  get_timeline_year_month() );
-
-		    hausbauer_t::fill_menu(wzw,
-					  hausbauer_t::wartehalle,
-					  wkz_station_building,
-					  SFX_JACKHAMMER,
-					  SFX_FAILURE,
-					  umgebung_t::cst_multiply_post,
-					  get_timeline_year_month() );
-
-		    hausbauer_t::fill_menu(wzw,
-					  hausbauer_t::lagerhalle,
-					  wkz_station_building,
-					  SFX_JACKHAMMER,
-					  SFX_FAILURE,
-					  umgebung_t::cst_multiply_post,
-					  get_timeline_year_month() );
-
-		      wzw->add_tool(wkz_switch_player,
-					  Z_PLAN,
-					  -1,
-					  -1,
-					  skinverwaltung_t::edit_werkzeug->gib_bild_nr(4),
-					  IMG_LEER,
-					  translator::translate("Change player") );
-
-		      wzw->add_tool(wkz_add_city,
-					  Z_PLAN,
-					  SFX_JACKHAMMER,
-					  SFX_FAILURE,
-					  skinverwaltung_t::special_werkzeug->gib_bild_nr(0),
-					  skinverwaltung_t::stadtzeiger->gib_bild_nr(0),
-					  tool_tip_with_price(translator::translate("Found new city"), umgebung_t::cst_found_city));
-
-		    wzw->add_tool(wkz_pflanze_baum,
-				  Z_PLAN,
-				  SFX_SELECT,
-				  SFX_FAILURE,
-				  skinverwaltung_t::special_werkzeug->gib_bild_nr(6),
-				  skinverwaltung_t::baumzeiger->gib_bild_nr(0),
-				  translator::translate("Plant tree"));
-
-	    if(wegbauer_t::leitung_besch) {
-		    wzw->add_param_tool(wkz_wegebau,
-				  (const void *)wegbauer_t::leitung_besch,
-				  Z_PLAN,
-				  SFX_JACKHAMMER,
-				  SFX_FAILURE,
-				  wegbauer_t::leitung_besch->gib_cursor()->gib_bild_nr(1),
-				  wegbauer_t::leitung_besch->gib_cursor()->gib_bild_nr(0),
-				  tool_tip_with_price(translator::translate("Build powerline"), -wegbauer_t::leitung_besch->gib_preis()));
-
-		      wzw->add_tool(wkz_senke,
-					  Z_PLAN,
-					  SFX_JACKHAMMER,
-					  SFX_FAILURE,
-					  skinverwaltung_t::special_werkzeug->gib_bild_nr(2),
-					  skinverwaltung_t::undoc_zeiger->gib_bild_nr(0),
-					 translator::translate("Build drain"));
-			}
-
-		      wzw->add_tool(wkz_marker,
-					  Z_PLAN,
-					  SFX_JACKHAMMER,
-					  SFX_FAILURE,
-					  skinverwaltung_t::special_werkzeug->gib_bild_nr(5),
-					 skinverwaltung_t::belegtzeiger->gib_bild_nr(0),
-					 translator::translate("Marker"));
-
-		    sound_play(click_sound);
-		    wzw->zeige_info(magic_specialtools);
-                }
+	    	menu_open(this,MENU_SPECIAL,active_player);
 		break;
 	    case 11:
 		setze_maus_funktion(wkz_remover, skinverwaltung_t::killzeiger->gib_bild_nr(0), Z_PLAN, SFX_REMOVER, SFX_FAILURE);
@@ -4148,64 +3356,7 @@ karte_t::interactive_event(event_t &ev)
 	    create_win(-1, -1, -1, get_active_player()->get_line_frame(), w_info);
 	      break;
 	    case 14:
-          {
-		    werkzeug_parameter_waehler_t *wzw =
-                        new werkzeug_parameter_waehler_t(this, "LISTTOOLS");
-
-		    wzw->setze_hilfe_datei("list.txt");
-
-		      wzw->add_tool(wkz_list_halt_tool,
-					  Z_PLAN,
-					  -1,
-					  -1,
-					  skinverwaltung_t::listen_werkzeug->gib_bild_nr(0),
-					 IMG_LEER,
-					 translator::translate("hl_title"));
-
-		      wzw->add_tool(wkz_list_vehicle_tool,
-					  Z_PLAN,
-					  -1,
-					  -1,
-					  skinverwaltung_t::listen_werkzeug->gib_bild_nr(1),
-					 IMG_LEER,
-					 translator::translate("cl_title"));
-
-		      wzw->add_tool(wkz_list_town_tool,
-					  Z_PLAN,
-					  -1,
-					  -1,
-					  skinverwaltung_t::listen_werkzeug->gib_bild_nr(2),
-					 IMG_LEER,
-					 translator::translate("tl_title"));
-
-		      wzw->add_tool(wkz_list_good_tool,
-					  Z_PLAN,
-					  -1,
-					  -1,
-					  skinverwaltung_t::listen_werkzeug->gib_bild_nr(3),
-					 IMG_LEER,
-					 translator::translate("gl_title"));
-
-		      wzw->add_tool(wkz_list_factory_tool,
-					  Z_PLAN,
-					  -1,
-					  -1,
-					  skinverwaltung_t::listen_werkzeug->gib_bild_nr(4),
-					 IMG_LEER,
-					 translator::translate("fl_title"));
-
-		      wzw->add_tool(wkz_list_curiosity_tool,
-					  Z_PLAN,
-					  -1,
-					  -1,
-					  skinverwaltung_t::listen_werkzeug->gib_bild_nr(5),
-					 IMG_LEER,
-					 translator::translate("curlist_title"));
-
-		    sound_play(click_sound);
-
-		    wzw->zeige_info(magic_listtools);
-         }
+	    	menu_open(this,MENU_LISTS,active_player);
 		break;
 	    case 15:
 	    	// line info

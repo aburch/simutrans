@@ -260,6 +260,7 @@ SOURCES += simlinemgmt.cc
 SOURCES += simmain.cc
 SOURCES += simmem.cc
 SOURCES += simmesg.cc
+SOURCES += simmenu.cc
 SOURCES += simpeople.cc
 SOURCES += simplan.cc
 SOURCES += simplay.cc
