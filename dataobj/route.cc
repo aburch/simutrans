@@ -513,16 +513,16 @@ DBG_DEBUG("sizes","KNode=%i, ANode=%i",sizeof(KNode),sizeof(ANode));
 
 			// a way goes here, and it is not marked (i.e. in the closed list)
 			if((to  ||  gr->get_neighbour(to, wegtyp, koord(next_ribi[r]) ))  &&  fahr->ist_befahrbar(to)  &&  !welt->ist_markiert(to)) {
-#if 1
+
 				// Do not go on a tile, where a oneway sign forbids going.
-				// This saves time and fixed the bug, that a oneway sign on the finaly tile was ignored.
+				// This saves time and fixed the bug, that a oneway sign on the final tile was ignored.
 				ribi_t::ribi last_dir=next_ribi[r];
 				weg_t *w=to->gib_weg(wegtyp);
 				ribi_t::ribi go_dir = (w==NULL) ? 0 : w->gib_ribi_maske();
 				if((last_dir&go_dir)!=0) {
 						continue;
 				}
-#endif
+
 				// new values for cost g
 				uint32 new_g = tmp->g + fahr->gib_kosten(to,max_speed);
 

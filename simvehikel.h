@@ -636,7 +636,7 @@ private:
 	koord3d search_start;
 	koord3d search_end;
 
-  	enum flight_state { taxiing=0, departing=1, flying=2, landing=3, looking_for_parking=4, flying2=5  };
+  	enum flight_state { taxiing=0, departing=1, flying=2, landing=3, looking_for_parking=4, flying2=5, taxiing_to_halt=6  };
 
   	enum flight_state state;	// functions needed for the search without destination from find_route
 

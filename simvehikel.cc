@@ -2419,6 +2419,18 @@ aircraft_t::gib_ribi(const grund_t *gr) const
 		case looking_for_parking:
 			return gr->gib_weg_ribi(weg_t::luft);
 
+		case taxiing_to_halt:
+		{
+			// we must invert all one way signs here, since we start from the target position here!
+			weg_t *w = gr->gib_weg(weg_t::luft);
+			if(w) {
+				ribi_t::ribi r = w->gib_ribi_unmasked();
+				ribi_t::ribi mask = w->gib_ribi_maske();
+				return (mask) ? (r & ~ribi_t::rueckwaerts(mask)) : r;
+			}
+			return ribi_t::keine;
+		}
+
 		case landing:
 		case departing:
 		{
@@ -2480,6 +2492,7 @@ aircraft_t::ist_befahrbar(const grund_t *bd) const
 {
 	switch (state) {
 		case taxiing:
+		case taxiing_to_halt:
 		case looking_for_parking:
 //DBG_MESSAGE("ist_befahrbar()","at %i,%i",bd->gib_pos().x,bd->gib_pos().y);
 			return bd->gib_weg(weg_t::luft)!=NULL;
@@ -2841,7 +2854,7 @@ aircraft_t::calc_route(karte_t * welt, koord3d start, koord3d ziel, uint32 max_s
 	}
 
 	// second: find target runway end
-	state = taxiing;
+	state = taxiing_to_halt;	// only used for search
 #ifdef USE_DIFFERENT_WIND
 	approach_dir = get_approach_ribi( start, ziel );	// reverse
 	DBG_MESSAGE("aircraft_t::calc_route()","search runway target near %i,%i,%i in corners %x",ziel.x,ziel.y,ziel.z,approach_dir);

@@ -5,6 +5,7 @@ Known bugs: (hard to fix)
 
 
 	FIX:/CHANGE: menus are now adapted during player change (in new module simmenu.cc)
+	FIX: planes now also can do approaches with one way markers on them
 
 
 Release of 90.00.1

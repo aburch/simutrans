@@ -43,6 +43,9 @@
 // maximum distance to look ahead for tiles (if undefined, uses all the route, recommended)
 //#define MAX_CHOOSE_BLOCK_TILES (64)
 
+// The wind (i.e. approach direction) is random all over the map (not recommended, since it confuses players)
+//#define USE_DIFFERENT_WIND
+
 /******************************* obsolete stuf ******************************/
 
 /* prissi: if uncommented, also support for a small size font will be enabled (by not used at the moment) */
@@ -50,9 +53,6 @@
 
 /* storage shed (old implementation) LIKELY NOT WORKING */
 //#define LAGER_NOT_IN_USE
-
-/* moves old files to "new" locations pre simutrans 80.0.0 => not really needed any more */
-//#define CHECK_LOCATIONS
 
 /*********************** Useful things for debugging ... ********************/
 
