@@ -815,9 +815,8 @@ static int dsp_read_bdf_glyph(FILE *fin, unsigned char *data, unsigned char *scr
 	int	d_width = 0;
 	int y;
 
-	str[255] = 0;
 	while (!feof(fin)) {
-		fgets(str, 255, fin);
+		fgets(str, sizeof(str), fin);
 
 		// endcoding (char number) in decimal
 		if (strncmp(str, "ENCODING", 8) == 0) {
@@ -857,7 +856,7 @@ static int dsp_read_bdf_glyph(FILE *fin, unsigned char *data, unsigned char *scr
 
 			// read for height times
 			for (y = top; y < h; y++) {
-				fgets(str, 255, fin);
+				fgets(str, sizeof(str), fin);
 				dsp_decode_bdf_data_row(data + char_nr * 16, y, g_width, str);
 			}
 			continue;
@@ -892,9 +891,8 @@ static bool dsp_read_bdf_font(FILE *fin, font_type *font)
 	int f_chars = 0;
 	int h;
 
-	str[255] = 0;
 	while (!feof(fin)) {
-		fgets(str, 255, fin);
+		fgets(str, sizeof(str), fin);
 
 		if (strncmp(str, "FONTBOUNDINGBOX", 15 ) == 0) {
 			sscanf(str + 15, "%d %d %d %d", &f_width, &f_height, &f_lead, &f_desc);
@@ -1034,14 +1032,14 @@ bool display_load_font(const char *fname, bool large)
 	if (c == '0') {
 		unsigned char dr_4x7font[7 * 256];
 		int fh = 7;
-		char buf [80];
+		char buf[80];
 		int i;
 		int  n, line;
 		char *p;
 
 		rewind(f);
 
-		while (fgets(buf, 79, f) != NULL) {
+		while (fgets(buf, sizeof(buf), f) != NULL) {
 			sscanf(buf, "%4x", &n);
 			p = buf + 5;
 
