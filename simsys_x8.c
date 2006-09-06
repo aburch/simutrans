@@ -103,7 +103,8 @@ int dr_os_init(int n, int *parameter)
     return TRUE;
 }
 
-int dr_os_open(int w, int h)
+
+int dr_os_open(int w, int h, int fullscreen)
 {
     XSetWindowAttributes attr;
 
@@ -215,8 +216,8 @@ static XShmSegmentInfo xshminfo;
 // this is used if we need to fake an 8 bit array
 static unsigned char * data8;
 
-unsigned char *
-dr_textur_init()
+
+unsigned short* dr_textur_init()
 {
     if(!using_shm) {
         int depth = display_depth;
