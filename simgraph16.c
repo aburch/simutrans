@@ -485,23 +485,7 @@ static void mark_rect_dirty_nc(KOORD_VAL x1, KOORD_VAL y1, KOORD_VAL x2, KOORD_V
 	assert(y2 < tile_lines);
 #endif
 
-	for (; y1 <= y2; y1++) {
-#if 1//def USE_C
-		mark_tiles_dirty(x1, x2, y1);
-#else
-		int bit = y1 * tiles_per_line + x1;
-		const int end = bit + x2 - x1;
-
-		do {
-#if 0
-			assert(bit/8 < tile_buffer_length);
-#endif
-
-			tile_dirty[bit >> 3] |= 1 << (bit & 7);
-			bit++;
-		} while (bit <= end);
-#endif
-	}
+	for (; y1 <= y2; y1++) mark_tiles_dirty(x1, x2, y1);
 }
 
 
