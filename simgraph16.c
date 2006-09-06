@@ -1099,10 +1099,12 @@ bool display_load_font(const char *fname, bool large)
 }
 
 
+#ifdef USE_SMALL_FONT
+
 /* copy a font
  * @author prissi
  */
-void copy_font(font_type *dest_font, font_type *src_font)
+static void copy_font(font_type *dest_font, font_type *src_font)
 {
 	memcpy(dest_font, src_font, sizeof(font_type));
 	dest_font->char_data = malloc(dest_font->num_chars * 16);
@@ -1112,7 +1114,6 @@ void copy_font(font_type *dest_font, font_type *src_font)
 }
 
 
-#ifdef USE_SMALL_FONT
 /* checks if a small and a large font exists;
  * if not the missing font will be emulated
  * @author prissi
@@ -1663,7 +1664,7 @@ static int clip_wh(KOORD_VAL *x, KOORD_VAL *width, const KOORD_VAL min_width, co
  * if nothing to show, returns FALSE
  * @author Niels Roest
  */
-short clip_lr(KOORD_VAL *x, KOORD_VAL *w, const KOORD_VAL left, const KOORD_VAL right)
+static short clip_lr(KOORD_VAL *x, KOORD_VAL *w, const KOORD_VAL left, const KOORD_VAL right)
 {
 	const KOORD_VAL l = *x;      // leftmost pixel
 	const KOORD_VAL r = *x + *w; // rightmost pixel
@@ -2170,7 +2171,7 @@ void display_fillbox_wh_clip(KOORD_VAL xp, KOORD_VAL yp, KOORD_VAL w, KOORD_VAL 
  * Zeichnet vertikale Linie
  * @author Hj. Malthaner
  */
-void display_vl_internal(const KOORD_VAL xp, KOORD_VAL yp, KOORD_VAL h, const PLAYER_COLOR_VAL color, int dirty, KOORD_VAL cL, KOORD_VAL cR, KOORD_VAL cT, KOORD_VAL cB)
+static void display_vl_internal(const KOORD_VAL xp, KOORD_VAL yp, KOORD_VAL h, const PLAYER_COLOR_VAL color, int dirty, KOORD_VAL cL, KOORD_VAL cR, KOORD_VAL cT, KOORD_VAL cB)
 {
 	if (xp >= cL && xp <= cR &&  clip_lr(&yp, &h, cT, cB)) {
 		PIXVAL *p = textur + xp + yp * disp_width;
@@ -2319,7 +2320,7 @@ static const unsigned char byte_to_mask_array[9] = { 0xFF, 0x7F, 0x3F, 0x1F, 0x0
  * @author priss
  * @date  29.11.04
  */
-unsigned char get_h_mask(const int xL, const int xR, const int cL, const int cR)
+static unsigned char get_h_mask(const int xL, const int xR, const int cL, const int cR)
 {
 	// do not mask
 	unsigned char mask;
@@ -2350,7 +2351,7 @@ static const unsigned char right_byte_to_v_mask_array[5] = { 0xFF, 0xFC, 0xF0, 0
  * @author priss
  * @date  29.11.04
  */
-unsigned char get_v_mask(const int yT, const int yB, const int cT, const int cB)
+static unsigned char get_v_mask(const int yT, const int yB, const int cT, const int cB)
 {
 	// do not mask
 	unsigned char mask;
