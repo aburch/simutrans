@@ -240,13 +240,12 @@ int dr_os_close(void)
  * Hier beginnen die eigentlichen graphischen Funktionen
  */
 
-static unsigned char *tex;
 static BITMAP *texture_map;
 
 unsigned short* dr_textur_init()
 {
+	unsigned short* tex = guarded_malloc(width * height * sizeof(*tex));
 	int i;
-	tex = (unsigned char*)guarded_malloc(width * height * 2);
 
 	texture_map = create_bitmap(width, height);
 
@@ -257,10 +256,10 @@ unsigned short* dr_textur_init()
 
 
 	for (i = 0; i < height; i++) {
-		texture_map->line[i] = tex + width * i * 2;
+		texture_map->line[i] = (unsigned char*)(tex + width * i);
 	}
 
-	return (unsigned short*)tex;
+	return tex;
 }
 
 
