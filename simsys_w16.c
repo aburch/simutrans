@@ -42,7 +42,7 @@
 
 static HWND hwnd;
 static MSG msg;
-static RECT WindowSize={0,0,0,0};
+static RECT WindowSize = { 0, 0, 0, 0 };
 static RECT MaxSize;
 HINSTANCE hInstance;
 
@@ -59,71 +59,80 @@ static HDC hdc = NULL;
  */
 int dr_os_init(int n, int *parameter)
 {
-  return TRUE;
+	return TRUE;
 }
 
 
-
-
 // open the window
-int dr_os_open(int w, int h,int fullscreen)
+int dr_os_open(int w, int h, int fullscreen)
 {
 	// fake fullscreen
-	if(fullscreen  &&  w==MaxSize.right  &&  h==MaxSize.bottom) {
+	if (fullscreen && w == MaxSize.right && h == MaxSize.bottom) {
 #ifdef _MSC_VER
-		hwnd = CreateWindowEx(WS_EX_TOPMOST	,
-				L"Simu",  L"Simutrans "  WIDE_VERSION_NUMBER, WS_POPUP,
-				0, 0,
-				w, h-1,
-				NULL, NULL, hInstance, NULL);
+		hwnd = CreateWindowEx(
+			WS_EX_TOPMOST	,
+			L"Simu",  L"Simutrans "  WIDE_VERSION_NUMBER,
+			WS_POPUP,
+			0, 0,
+			w, h - 1,
+			NULL, NULL, hInstance, NULL
+		);
 #else
-		hwnd = CreateWindowEx(WS_EX_TOPMOST	,
-				L"Simu",  L"" SAVEGAME_PREFIX " " VERSION_NUMBER " - " VERSION_DATE, WS_POPUP,
-				0, 0,
-				w, h-1,
-				NULL, NULL, hInstance, NULL);
+		hwnd = CreateWindowEx(
+			WS_EX_TOPMOST	,
+			L"Simu", L"" SAVEGAME_PREFIX " " VERSION_NUMBER " - " VERSION_DATE,
+			WS_POPUP,
+			0, 0,
+			w, h - 1,
+			NULL, NULL, hInstance, NULL
+		);
 #endif
-		ShowWindow (hwnd, SW_SHOW);
-	}
-	else {
+		ShowWindow(hwnd, SW_SHOW);
+	} else {
 #ifdef _MSC_VER
 		hwnd = CreateWindow(
-					L"Simu", L"Simutrans " WIDE_VERSION_NUMBER, WS_OVERLAPPEDWINDOW,
-					CW_USEDEFAULT, CW_USEDEFAULT,
-					w+GetSystemMetrics(SM_CXFRAME), h-1+2*GetSystemMetrics(SM_CYFRAME)+GetSystemMetrics(SM_CYCAPTION),
-					NULL, NULL, hInstance, NULL);
+			L"Simu", L"Simutrans " WIDE_VERSION_NUMBER,
+			WS_OVERLAPPEDWINDOW,
+			CW_USEDEFAULT, CW_USEDEFAULT,
+			w + GetSystemMetrics(SM_CXFRAME),
+			h - 1 + 2 * GetSystemMetrics(SM_CYFRAME) + GetSystemMetrics(SM_CYCAPTION),
+			NULL, NULL, hInstance, NULL
+		);
 #else
 		hwnd = CreateWindow(
-					L"Simu", L"" SAVEGAME_PREFIX " " VERSION_NUMBER " - " VERSION_DATE, WS_OVERLAPPEDWINDOW,
-					CW_USEDEFAULT, CW_USEDEFAULT,
-					w+GetSystemMetrics(SM_CXFRAME), h-1+2*GetSystemMetrics(SM_CYFRAME)+GetSystemMetrics(SM_CYCAPTION),
-					NULL, NULL, hInstance, NULL);
+			L"Simu", L"" SAVEGAME_PREFIX " " VERSION_NUMBER " - " VERSION_DATE,
+			WS_OVERLAPPEDWINDOW,
+			CW_USEDEFAULT, CW_USEDEFAULT,
+			w + GetSystemMetrics(SM_CXFRAME),
+			h - 1 + 2 * GetSystemMetrics(SM_CYFRAME) + GetSystemMetrics(SM_CYCAPTION),
+			NULL, NULL, hInstance, NULL
+		);
 #endif
-		ShowWindow (hwnd, SW_SHOW);
+		ShowWindow(hwnd, SW_SHOW);
 	}
-	WindowSize.right = w;
-	WindowSize.bottom = h-1;
+	WindowSize.right  = w;
+	WindowSize.bottom = h - 1;
 
-	AllDib = GlobalAlloc( GMEM_FIXED, sizeof(BITMAPINFOHEADER)+sizeof(DWORD)*3 );
+	AllDib = GlobalAlloc(GMEM_FIXED, sizeof(BITMAPINFOHEADER) + sizeof(DWORD) * 3);
 	AllDib->biSize = sizeof(BITMAPINFOHEADER);
 	AllDib->biCompression = BI_BITFIELDS;
-	*((DWORD *)(AllDib+1)+0) =  0x01;
-	*((DWORD *)(AllDib+1)+1) =  0x02;
-	*((DWORD *)(AllDib+1)+2) =  0x03;
+	*((DWORD*)(AllDib + 1) + 0) = 0x01;
+	*((DWORD*)(AllDib + 1) + 1) = 0x02;
+	*((DWORD*)(AllDib + 1) + 2) = 0x03;
 
-	AllDib->biSize = sizeof(BITMAPINFOHEADER);
-	AllDib->biWidth = w;
-	AllDib->biHeight = h;
-	AllDib->biPlanes = 1;
-	AllDib->biBitCount = 16;
-	AllDib->biCompression = BI_RGB;
-	AllDib->biClrUsed =
+	AllDib->biSize         = sizeof(BITMAPINFOHEADER);
+	AllDib->biWidth        = w;
+	AllDib->biHeight       = h;
+	AllDib->biPlanes       = 1;
+	AllDib->biBitCount     = 16;
+	AllDib->biCompression  = BI_RGB;
+	AllDib->biClrUsed      = 0;
 	AllDib->biClrImportant = 0;
 #ifdef USE_16BIT_DIB
 	AllDib->biCompression = BI_BITFIELDS;
-	*((DWORD *)(AllDib+1)+0) =  0x0000001F;
-	*((DWORD *)(AllDib+1)+1) =  0x000007E0;
-	*((DWORD *)(AllDib+1)+2) =  0x0000F800;
+	*((DWORD*)(AllDib + 1) + 0) = 0x0000001F;
+	*((DWORD*)(AllDib + 1) + 1) = 0x000007E0;
+	*((DWORD*)(AllDib + 1) + 2) = 0x0000F800;
 #endif
 	return TRUE;
 }
@@ -132,24 +141,23 @@ int dr_os_open(int w, int h,int fullscreen)
 // shut down SDL
 int dr_os_close(void)
 {
-	if(hdc!=NULL) {
-		ReleaseDC( hwnd, hdc );
+	if (hdc != NULL) {
+		ReleaseDC(hwnd, hdc);
 		hdc = NULL;
 	}
-	if(hwnd!=NULL) {
-		DestroyWindow( hwnd );
+	if (hwnd != NULL) {
+		DestroyWindow(hwnd);
 	}
-	if(AllDibData!=NULL) {
-		GlobalFree( GlobalHandle( AllDibData ) );
+	if (AllDibData != NULL) {
+		GlobalFree(GlobalHandle(AllDibData));
 		AllDibData = NULL;
 	}
-	if(AllDib!=NULL) {
-		GlobalFree( AllDib );
+	if (AllDib != NULL) {
+		GlobalFree(AllDib);
 		AllDib = NULL;
 	}
 	return TRUE;
 }
-
 
 
 // reiszes screen
@@ -157,15 +165,14 @@ int dr_textur_resize(unsigned short **textur,int w, int h)
 {
 	AllDib->biWidth = w;
 	WindowSize.right = w;
-	WindowSize.bottom = h-1;
+	WindowSize.bottom = h - 1;
 	return TRUE;
 }
 
 
-
 unsigned short *dr_textur_init()
 {
-	return AllDibData = (unsigned short *)GlobalLock( GlobalAlloc(  GMEM_MOVEABLE, (MaxSize.right+15)*2*(MaxSize.bottom+2) ) );
+	return AllDibData = (unsigned short*)GlobalLock(GlobalAlloc(GMEM_MOVEABLE, (MaxSize.right + 15) * 2 * (MaxSize.bottom + 2)));
 }
 
 
@@ -177,9 +184,9 @@ unsigned short *dr_textur_init()
 unsigned int get_system_color(unsigned int r, unsigned int g, unsigned int b)
 {
 #ifdef USE_16BIT_DIB
-	return ((r&0x00F8)<<8) | ((g&0x00FC)<<3) | (b>>3);
+	return ((r & 0x00F8) << 8) | ((g & 0x00FC) << 3) | (b >> 3);
 #else
-	return ((r&0x00F8)<<7) | ((g&0x00F8)<<2) | (b>>3);	// 15 Bit
+	return ((r & 0x00F8) << 7) | ((g & 0x00F8) << 2) | (b >> 3); // 15 Bit
 #endif
 }
 
@@ -187,41 +194,42 @@ unsigned int get_system_color(unsigned int r, unsigned int g, unsigned int b)
 
 void dr_flush()
 {
-	if(hdc!=NULL) {
-		ReleaseDC( hwnd, hdc );
+	if (hdc != NULL) {
+		ReleaseDC(hwnd, hdc);
 		hdc = NULL;
 	}
 }
 
 
 
-void
-dr_textur(int xp, int yp, int w, int h)
+void dr_textur(int xp, int yp, int w, int h)
 {
-	if(hdc==NULL) {
-		hdc = GetDC(hwnd);
-	}
+	if (hdc == NULL) hdc = GetDC(hwnd);
 	AllDib->biHeight = h+1;
-	StretchDIBits( hdc, xp, yp, w, h,
-		xp, h+1, w, -h,
-		(LPSTR)(AllDibData+(yp*WindowSize.right)), (LPBITMAPINFO)AllDib,
-		DIB_RGB_COLORS, SRCCOPY	 );
+	StretchDIBits(
+		hdc,
+		xp, yp, w, h,
+		xp, h + 1, w, -h,
+		(LPSTR)(AllDibData + yp * WindowSize.right), (LPBITMAPINFO)AllDib,
+		DIB_RGB_COLORS, SRCCOPY
+	);
 }
 
 
 // move cursor to the specified location
 void move_pointer(int x, int y)
 {
-	POINT pt={x,y};
-	ClientToScreen( hwnd, &pt );
-	SetCursorPos( pt.x, pt.y );
+	POINT pt = { x, y };
+
+	ClientToScreen(hwnd, &pt);
+	SetCursorPos(pt.x, pt.y);
 }
 
 
 // set the mouse cursor (pointer/load)
-void set_pointer( int loading )
+void set_pointer(int loading)
 {
-	SetCursor( LoadCursor( NULL, loading!=0 ? IDC_WAIT : IDC_ARROW ) );
+	SetCursor(LoadCursor(NULL, loading != 0 ? IDC_WAIT : IDC_ARROW));
 }
 
 
@@ -233,32 +241,30 @@ void set_pointer( int loading )
  */
 int dr_screenshot(const char *filename)
 {
-	FILE *fBmp = fopen(filename,"wb");
-	if(fBmp) {
+	FILE *fBmp = fopen(filename, "wb");
+
+	if (fBmp) {
 		BITMAPFILEHEADER bf;
 		unsigned i;
 
 		AllDib->biHeight = (WindowSize.bottom+1);
 
-		bf.bfType	= 0x4d42;	//"BM"
+		bf.bfType = 0x4d42; //"BM"
 		bf.bfReserved1 = 0;
 		bf.bfReserved2 = 0;
-		bf.bfOffBits = sizeof(BITMAPFILEHEADER)+sizeof(BITMAPINFOHEADER)+sizeof(DWORD)*3;
-		bf.bfSize = (bf.bfOffBits +  AllDib->biHeight*AllDib->biWidth*2l +3l)/4l;
-		fwrite( &bf, sizeof(BITMAPFILEHEADER), 1, fBmp );
+		bf.bfOffBits = sizeof(BITMAPFILEHEADER) + sizeof(BITMAPINFOHEADER) + sizeof(DWORD)*3;
+		bf.bfSize = (bf.bfOffBits + AllDib->biHeight * AllDib->biWidth * 2l + 3l) / 4l;
+		fwrite(&bf, sizeof(BITMAPFILEHEADER), 1, fBmp);
+		fwrite(AllDib, sizeof(BITMAPINFOHEADER) + sizeof(DWORD) * 3, 1, fBmp);
 
-		fwrite( AllDib, sizeof(BITMAPINFOHEADER)+sizeof(DWORD)*3, 1, fBmp );
-
-		for(i=0;  i<AllDib->biHeight;  i++) {
-			fwrite( AllDibData+(((AllDib->biHeight-1)-i)*AllDib->biWidth), AllDib->biWidth, 2, fBmp );
+		for (i = 0; i < AllDib->biHeight; i++) {
+			fwrite(AllDibData + (AllDib->biHeight - 1 - i) * AllDib->biWidth, AllDib->biWidth, 2, fBmp);
 		}
 
 		fclose(fBmp);
 	}
 	return 0;
 }
-
-
 
 
 /*
@@ -270,210 +276,164 @@ struct sys_event sys_event;
 /* Windows eventhandler: does most of the work */
 LRESULT WINAPI WindowProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 {
-    switch (msg)
-    {
-		case WM_LBUTTONDOWN:	/* originally ButtonPress */
-			sys_event.key_mod = wParam>>2;
-			sys_event.type=SIM_MOUSE_BUTTONS;
-			sys_event.mx=LOWORD(lParam);
-			sys_event.my=HIWORD(lParam);
-			sys_event.code=SIM_MOUSE_LEFTBUTTON;
-		break;
-		case WM_LBUTTONUP:	/* originally ButtonRelease */
-			sys_event.key_mod = wParam>>2;
-			sys_event.type=SIM_MOUSE_BUTTONS;
-			sys_event.mx=LOWORD(lParam);
-			sys_event.my=HIWORD(lParam);
-			sys_event.code=SIM_MOUSE_LEFTUP;
-		break;
+	switch (msg) {
+		case WM_LBUTTONDOWN: /* originally ButtonPress */
+			sys_event.type    = SIM_MOUSE_BUTTONS;
+			sys_event.code    = SIM_MOUSE_LEFTBUTTON;
+			sys_event.key_mod = wParam >> 2;
+			sys_event.mx      = LOWORD(lParam);
+			sys_event.my      = HIWORD(lParam);
+			break;
 
-		case WM_RBUTTONDOWN:	/* originally ButtonPress */
-			sys_event.key_mod = wParam>>2;
-			sys_event.type=SIM_MOUSE_BUTTONS;
-			sys_event.mx=LOWORD(lParam);
-			sys_event.my=HIWORD(lParam);
-			sys_event.code=SIM_MOUSE_RIGHTBUTTON;
-		break;
-		case WM_RBUTTONUP:	/* originally ButtonRelease */
-			sys_event.key_mod = wParam>>2;
-			sys_event.type=SIM_MOUSE_BUTTONS;
-			sys_event.mx=LOWORD(lParam);
-			sys_event.my=HIWORD(lParam);
-			sys_event.code=SIM_MOUSE_RIGHTUP;
-		break;
+		case WM_LBUTTONUP: /* originally ButtonRelease */
+			sys_event.type    = SIM_MOUSE_BUTTONS;
+			sys_event.code    = SIM_MOUSE_LEFTUP;
+			sys_event.key_mod = wParam >> 2;
+			sys_event.mx      = LOWORD(lParam);
+			sys_event.my      = HIWORD(lParam);
+			break;
+
+		case WM_RBUTTONDOWN: /* originally ButtonPress */
+			sys_event.type    = SIM_MOUSE_BUTTONS;
+			sys_event.code    = SIM_MOUSE_RIGHTBUTTON;
+			sys_event.key_mod = wParam >> 2;
+			sys_event.mx      = LOWORD(lParam);
+			sys_event.my      = HIWORD(lParam);
+			break;
+
+		case WM_RBUTTONUP: /* originally ButtonRelease */
+			sys_event.type    = SIM_MOUSE_BUTTONS;
+			sys_event.code    = SIM_MOUSE_RIGHTUP;
+			sys_event.key_mod = wParam >> 2;
+			sys_event.mx      = LOWORD(lParam);
+			sys_event.my      = HIWORD(lParam);
+			break;
 
 		case WM_MOUSEMOVE:
-			sys_event.type=SIM_MOUSE_MOVE;
-			sys_event.code= SIM_MOUSE_MOVED;
-			sys_event.key_mod = wParam>>2;
-			sys_event.mx=LOWORD(lParam);
-			sys_event.my=HIWORD(lParam);
-		break;
+			sys_event.type    = SIM_MOUSE_MOVE;
+			sys_event.code    = SIM_MOUSE_MOVED;
+			sys_event.key_mod = wParam >> 2;
+			sys_event.mx      = LOWORD(lParam);
+			sys_event.my      = HIWORD(lParam);
+			break;
 
 		case WM_MOUSEWHEEL:
 			sys_event.type = SIM_MOUSE_BUTTONS;
-			sys_event.code = GET_WHEEL_DELTA_WPARAM(wParam)>0 ? SIM_MOUSE_WHEELUP : SIM_MOUSE_WHEELDOWN;
+			sys_event.code = GET_WHEEL_DELTA_WPARAM(wParam) > 0 ? SIM_MOUSE_WHEELUP : SIM_MOUSE_WHEELDOWN;
 			return 0;
 
-		// resize client area
-		case WM_SIZE:
-		{
-			sys_event.type=SIM_SYSTEM;
-			sys_event.code=SIM_SYSTEM_RESIZE;
+		case WM_SIZE: // resize client area
+			sys_event.type = SIM_SYSTEM;
+			sys_event.code = SIM_SYSTEM_RESIZE;
 
-			sys_event.mx = LOWORD(lParam)+1;
-			if(sys_event.mx<=0) {
-				sys_event.mx = 4;
-			}
+			sys_event.mx = LOWORD(lParam) + 1;
+			if (sys_event.mx <= 0) sys_event.mx = 4;
 
 			sys_event.my = HIWORD(lParam);
-			if(sys_event.my<=1) {
-				sys_event.my = 64;
-			}
-		}
-		break;
+			if (sys_event.my <= 1) sys_event.my = 64;
+			break;
 
-		case WM_PAINT:
-		{
+		case WM_PAINT: {
 			PAINTSTRUCT ps;
 			HDC hdcp;
 
-			if(hdc!=NULL) {
-				ReleaseDC( hwnd, hdc );
+			if (hdc != NULL) {
+				ReleaseDC(hwnd, hdc);
 				hdc = NULL;
 			}
 
 			hdcp = BeginPaint(hwnd, &ps);
-			AllDib->biHeight = WindowSize.bottom+1;
-			StretchDIBits( hdcp, 0, 0, WindowSize.right, WindowSize.bottom,
-								0, WindowSize.bottom+1, WindowSize.right, -WindowSize.bottom,
-								(LPSTR)AllDibData, (LPBITMAPINFO)AllDib,
-								DIB_RGB_COLORS, SRCCOPY	 );
+			AllDib->biHeight = WindowSize.bottom + 1;
+			StretchDIBits(
+				hdcp,
+				0, 0, WindowSize.right, WindowSize.bottom,
+				0, WindowSize.bottom + 1, WindowSize.right, -WindowSize.bottom,
+				(LPSTR)AllDibData, (LPBITMAPINFO)AllDib,
+				DIB_RGB_COLORS, SRCCOPY
+			);
 			EndPaint(hwnd, &ps);
 			break;
 		}
 
-		case WM_KEYDOWN:   /* originally KeyPress */
-			{
-				// check for not numlock!
-				int numlock=(GetKeyState(VK_NUMLOCK)&1)==0;
+		case WM_KEYDOWN: { /* originally KeyPress */
+			// check for not numlock!
+			int numlock = (GetKeyState(VK_NUMLOCK) & 1) == 0;
 
-				sys_event.type = SIM_KEYBOARD;
-				sys_event.code = 0;
-				// read mod key state from SDL layer
+			sys_event.type = SIM_KEYBOARD;
+			sys_event.code = 0;
+			// read mod key state from SDL layer
 
-				if(numlock) {
-					// do low level special stuff here
-					switch(wParam) {
-						case VK_NUMPAD0:
-							sys_event.code = '0';
-							break;
-						case VK_NUMPAD1:
-							sys_event.code = '1';
-							break;
-						case VK_NUMPAD3:
-							sys_event.code = '3';
-							break;
-						case VK_NUMPAD7:
-							sys_event.code = '7';
-							break;
-						case VK_NUMPAD9:
-							sys_event.code = '9';
-							break;
-						case VK_NUMPAD2:
-							sys_event.code = SIM_KEY_DOWN;
-							break;
-						case VK_NUMPAD4:
-							sys_event.code = SIM_KEY_LEFT;
-							break;
-						case VK_NUMPAD6:
-							sys_event.code = SIM_KEY_RIGHT;
-							break;
-						case VK_NUMPAD8:
-							sys_event.code = SIM_KEY_UP;
-							break;
-						case VK_SEPARATOR	:
-							sys_event.code = 127;	//delete
-							break;
-					}
-					// check for numlock!
-					if(sys_event.code!=0) {
-						break;
-					}
-				}
-
+			if (numlock) {
 				// do low level special stuff here
-				switch(wParam) {
-					case VK_LEFT:
-						sys_event.code = SIM_KEY_LEFT;
-						break;
-					case VK_RIGHT:
-						sys_event.code = SIM_KEY_RIGHT;
-						break;
-					case VK_UP:
-						sys_event.code = SIM_KEY_UP;
-						break;
-					case VK_DOWN:
-						sys_event.code = SIM_KEY_DOWN;
-						break;
-					case VK_PRIOR:
-						sys_event.code = '>';
-						break;
-					case VK_NEXT:
-						sys_event.code = '<';
-						break;
-					case VK_DELETE:
-						sys_event.code = 127;
-						break;
-					case VK_HOME:
-						sys_event.code = SIM_KEY_HOME;
-						break;
-					case VK_END:
-						sys_event.code = SIM_KEY_END;
-						break;
+				switch (wParam) {
+					case VK_NUMPAD0:   sys_event.code = '0';           break;
+					case VK_NUMPAD1:   sys_event.code = '1';           break;
+					case VK_NUMPAD3:   sys_event.code = '3';           break;
+					case VK_NUMPAD7:   sys_event.code = '7';           break;
+					case VK_NUMPAD9:   sys_event.code = '9';           break;
+					case VK_NUMPAD2:   sys_event.code = SIM_KEY_DOWN;  break;
+					case VK_NUMPAD4:   sys_event.code = SIM_KEY_LEFT;  break;
+					case VK_NUMPAD6:   sys_event.code = SIM_KEY_RIGHT; break;
+					case VK_NUMPAD8:   sys_event.code = SIM_KEY_UP;    break;
+					case VK_SEPARATOR: sys_event.code = 127; //delete
+					break;
 				}
-				// check for F-Keys!
-				if(sys_event.code==0  &&  wParam>=VK_F1  &&  wParam<=VK_F15) {
-					sys_event.code = (wParam-VK_F1)+SIM_KEY_F1;
-					sys_event.key_mod = (GetKeyState(VK_CONTROL)!=0)*2;	// control state
-	//printf("WindowsEvent: Key %i, (state %i)\n",sys_event.code, sys_event.key_mod );
-				}
-				// some result?
-				if(sys_event.code!=0) {
-					return 0;
-				}
-				sys_event.type = SIM_NOEVENT;
-				sys_event.code = 0;
+				// check for numlock!
+				if (sys_event.code != 0) break;
 			}
-		break;
 
-		case WM_CHAR:   /* originally KeyPress */
-			sys_event.type=SIM_KEYBOARD;
+			// do low level special stuff here
+			switch (wParam) {
+				case VK_LEFT:   sys_event.code = SIM_KEY_LEFT;  break;
+				case VK_RIGHT:  sys_event.code = SIM_KEY_RIGHT; break;
+				case VK_UP:     sys_event.code = SIM_KEY_UP;    break;
+				case VK_DOWN:   sys_event.code = SIM_KEY_DOWN;  break;
+				case VK_PRIOR:  sys_event.code = '>';           break;
+				case VK_NEXT:   sys_event.code = '<';           break;
+				case VK_DELETE: sys_event.code = 127;           break;
+				case VK_HOME:   sys_event.code = SIM_KEY_HOME;  break;
+				case VK_END:    sys_event.code = SIM_KEY_END;   break;
+			}
+			// check for F-Keys!
+			if (sys_event.code == 0 && wParam >= VK_F1 && wParam <= VK_F15) {
+				sys_event.code = wParam - VK_F1 + SIM_KEY_F1;
+				sys_event.key_mod = (GetKeyState(VK_CONTROL) != 0) * 2; // control state
+				//printf("WindowsEvent: Key %i, (state %i)\n", sys_event.code, sys_event.key_mod);
+			}
+			// some result?
+			if (sys_event.code != 0) return 0;
+			sys_event.type = SIM_NOEVENT;
+			sys_event.code = 0;
+			break;
+		}
+
+		case WM_CHAR: /* originally KeyPress */
+			sys_event.type = SIM_KEYBOARD;
 			sys_event.code = wParam;
 			break;
 
 		case WM_CLOSE:
-			if(AllDibData!=NULL) {
-				sys_event.type=SIM_SYSTEM;
-				sys_event.code=SIM_SYSTEM_QUIT;
+			if (AllDibData != NULL) {
+				sys_event.type = SIM_SYSTEM;
+				sys_event.code = SIM_SYSTEM_QUIT;
 				return FALSE;
 			}
 			break;
 
 		case WM_DESTROY:
-			sys_event.type=SIM_SYSTEM;
-			sys_event.code=SIM_SYSTEM_QUIT;
-			if(AllDibData==NULL) {
+			sys_event.type = SIM_SYSTEM;
+			sys_event.code = SIM_SYSTEM_QUIT;
+			if (AllDibData == NULL) {
 				PostQuitMessage(0);
 				hwnd = NULL;
 				return TRUE;
 			}
 			return FALSE;
 
-        default:
-                return DefWindowProc(hwnd, msg, wParam, lParam);
-    }
-    return FALSE;
+		default:
+			return DefWindowProc(hwnd, msg, wParam, lParam);
+	}
+	return FALSE;
 }
 
 
@@ -482,24 +442,21 @@ static void internal_GetEvents(int wait)
 	sys_event.type = SIM_NOEVENT;
 	sys_event.code = 0;
 
-	do
-	{
-
+	do {
 		// wait for keybord/mouse event
 		GetMessage(&msg, NULL, 0, 0);
 		TranslateMessage(&msg);
 		DispatchMessage(&msg);
 
-		if(sys_event.type==SIM_NOEVENT) {
-			switch(msg.message) {
-
+		if (sys_event.type == SIM_NOEVENT) {
+			switch (msg.message) {
 				default:
 					//printf("Unbekanntes Ereignis # %d!\n",msg.message);
-					sys_event.type=SIM_IGNORE_EVENT;
-					sys_event.code=0;
+					sys_event.type = SIM_IGNORE_EVENT;
+					sys_event.code = 0;
 			}
 		}
-	} while(  wait  &&  sys_event.type==SIM_IGNORE_EVENT  );
+	} while (wait && sys_event.type == SIM_IGNORE_EVENT);
 }
 
 
@@ -513,7 +470,7 @@ void GetEventsNoWait()
 {
 	sys_event.type = SIM_NOEVENT;
 	sys_event.code = 0;
-	if(PeekMessage(&msg, NULL, 0, 0, PM_NOREMOVE)) {
+	if (PeekMessage(&msg, NULL, 0, 0, PM_NOREMOVE)) {
 		internal_GetEvents(FALSE);
 	}
 }
@@ -533,13 +490,13 @@ void ex_ord_update_mx_my()
 
 unsigned long dr_time(void)
 {
-  return timeGetTime();
+	return timeGetTime();
 }
 
 
 void dr_sleep(unsigned long usec)
 {
-	Sleep(usec>>10);
+	Sleep(usec >> 10);
 }
 
 
@@ -548,8 +505,7 @@ void dr_sleep(unsigned long usec)
 int simu_main(int argc, char **argv);
 
 
-BOOL APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
-                      LPSTR lpCmdLine, int nShowCmd)
+BOOL APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nShowCmd)
 {
 	WNDCLASSW wc;
 	char *argv[32], *p;
@@ -571,16 +527,16 @@ BOOL APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
 	// prepare commandline
 	argc = 0;
 	argv[argc++] = SAVEGAME_PREFIX;
-	p = strtok( lpCmdLine, " " );
-	while (p) {
+	p = strtok(lpCmdLine, " ");
+	while (p != NULL) {
 		argv[argc++] = p;
-		p = strtok( NULL, " " );
+		p = strtok(NULL, " ");
 	}
 	argv[argc] = NULL;
 
 	GetWindowRect(GetDesktopWindow(), &MaxSize);
 
-	simu_main( argc, argv );
+	simu_main(argc, argv);
 
 	return 0;
 }
