@@ -106,7 +106,7 @@ void my_mouse_callback(int flags)
 END_OF_FUNCTION(my_mouse_callback);
 
 
-int my_keyboard_callback(int this_key,int *scancode)
+static int my_keyboard_callback(int this_key, int* scancode)
 {
 	if (this_key > 0) {
 		// seems to be ASCII
@@ -116,7 +116,6 @@ int my_keyboard_callback(int this_key,int *scancode)
 	}
 
 	int numlock = (key_shifts & KB_NUMLOCK_FLAG) != 0;
-	int ignore = 0;
 
 	switch (*scancode) {
 		case KEY_PGUP: this_key = '>'; break;
@@ -161,23 +160,14 @@ int my_keyboard_callback(int this_key,int *scancode)
 		case KEY_LCONTROL:
 		case KEY_RCONTROL:
 		case KEY_NUMLOCK:
-			ignore = 2;
-			break;
+			return this_key;
 
 		default:
-			ignore = 1;
-			break;
+			*scancode = 0;
+			return 0;
 	}
 
-	if (!ignore) {
-		INSERT_EVENT(SIM_KEYBOARD, this_key, mouse_x, mouse_y);
-		this_key = 0;
-		*scancode = 0;
-	}
-	if (ignore == 2) {
-		// must further process keys ...
-		return this_key;
-	}
+	INSERT_EVENT(SIM_KEYBOARD, this_key, mouse_x, mouse_y);
 	*scancode = 0;
 	return 0;
 }
