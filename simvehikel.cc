@@ -707,6 +707,7 @@ void vehikel_t::neue_fahrt(uint16 start_route_index )
 }
 
 
+
 void vehikel_t::starte_neue_route(koord3d k0, koord3d k1)
 {
   pos_prev = pos_cur = k0;
@@ -721,10 +722,9 @@ void vehikel_t::starte_neue_route(koord3d k0, koord3d k1)
 }
 
 
-vehikel_t::vehikel_t(karte_t *welt,
-		     koord3d pos,
-		     const vehikel_besch_t *besch,
-		     spieler_t *sp) : vehikel_basis_t(welt, pos)
+
+vehikel_t::vehikel_t(karte_t *welt, koord3d pos, const vehikel_besch_t *besch, spieler_t *sp) :
+	vehikel_basis_t(welt, pos)
 {
 	this->besch = besch;
 
@@ -744,8 +744,6 @@ vehikel_t::vehikel_t(karte_t *welt,
 	ist_erstes = ist_letztes = false;
 	alte_fahrtrichtung = fahrtrichtung = ribi_t::keine;
 	target_halt = halthandle_t();
-
-	setze_bild(0, besch->gib_basis_bild());
 }
 
 

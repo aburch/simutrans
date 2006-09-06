@@ -112,7 +112,24 @@ private:
 
 	sint8 freight_image_type;	// number of freight images (displayed for different goods)
 
+
 public:
+	// since we have a second constructor
+	vehikel_besch_t() { }
+
+	// default vehicle (used for way seach and similar tasks)
+	// since it has no images and not even a name knot any calls to this will case a crash
+	vehikel_besch_t(uint8 wtyp, uint16 speed, engine_t engine) {
+		freight_image_type = preis = zuladung = betriebskosten = intro_date = vorgaenger = nachfolger = 0;
+		leistung = gewicht = 1;
+		gear = 64;
+		len = 8;
+		sound = -1;
+		typ = wtyp;
+		engine_type = (uint8)engine;
+		geschw = speed;
+	}
+
 	const char *gib_name() const { return static_cast<const text_besch_t *>(gib_kind(0))->gib_text(); }
 
 	const char *gib_copyright() const

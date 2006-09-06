@@ -28,48 +28,47 @@ stringhashtable_tpl<const vehikel_besch_t *> vehikelbauer_t::name_fahrzeuge;
 inthashtable_tpl<weg_t::typ, slist_tpl<const vehikel_besch_t *> > vehikelbauer_t::typ_fahrzeuge;
 
 
+
 vehikel_t *
 vehikelbauer_t::baue(karte_t *welt, koord3d k,
                    spieler_t *sp, convoi_t *cnv, const vehikel_besch_t *vb)
 {
-    vehikel_t *v = NULL;
+	vehikel_t *v = NULL;
+	if(vb) {
 
+		switch(vb->gib_typ()) {
+			case weg_t::strasse:
+				v = new automobil_t(welt, k, vb, sp, cnv);
+				break;
+			case weg_t::monorail:
+				v = new monorail_waggon_t(welt, k, vb, sp, cnv);
+				break;
+			case weg_t::schiene:
+			case weg_t::schiene_strab:
+				v = new waggon_t(welt, k, vb, sp, cnv);
+				break;
+			case weg_t::wasser:
+				v = new schiff_t(welt, k, vb, sp, cnv);
+				break;
+			case weg_t::luft:
+				v = new aircraft_t(welt, k, vb, sp, cnv);
+				break;
+			case weg_t::invalid:
+			case weg_t::powerline:
+			default:
+				dbg->fatal("vehikelbauer_t::baue()","cannot built a vehicle with waytype %i",vb->gib_typ());
+		}
 
-    if(vb) {
+		assert(v != NULL);
 
-  switch(vb->gib_typ()) {
-  case weg_t::strasse:
-      v = new automobil_t(welt, k, vb, sp, cnv);
-      break;
-  case weg_t::monorail:
-      v = new monorail_waggon_t(welt, k, vb, sp, cnv);
-      break;
-  case weg_t::schiene:
-  case weg_t::schiene_strab:
-      v = new waggon_t(welt, k, vb, sp, cnv);
-      break;
-  case weg_t::wasser:
-      v = new schiff_t(welt, k, vb, sp, cnv);
-      break;
-  case weg_t::luft:
-      v = new aircraft_t(welt, k, vb, sp, cnv);
-      break;
-   case weg_t::invalid:
-   case weg_t::powerline:
-   default:
-   	dbg->fatal("vehikelbauer_t::baue()","cannot built a vehicle with waytype %i",vb->gib_typ());
-  }
+		if(sp) {
+			sp->buche(-(vb->gib_preis()), k.gib_2d(), COST_NEW_VEHICLE);
+		}
+	}
 
-  assert(v != NULL);
+	assert (v != NULL);
 
-  if(sp) {
-      sp->buche(-(vb->gib_preis()), k.gib_2d(), COST_NEW_VEHICLE);
-  }
-    }
-
-    assert (v != NULL);
-
-    return v;
+	return v;
 }
 
 

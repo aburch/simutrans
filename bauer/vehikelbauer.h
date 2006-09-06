@@ -38,46 +38,41 @@ class fahrplan_t;
 class vehikelbauer_t
 {
 private:
-
-    // beschreibungstabellen
-    static inthashtable_tpl<int, const vehikel_besch_t *> _fahrzeuge;
-    static stringhashtable_tpl <const vehikel_besch_t *> name_fahrzeuge;
-    static inthashtable_tpl<weg_t::typ, slist_tpl<const vehikel_besch_t *> > typ_fahrzeuge;
+	// beschreibungstabellen
+	static inthashtable_tpl<int, const vehikel_besch_t *> _fahrzeuge;
+	static stringhashtable_tpl <const vehikel_besch_t *> name_fahrzeuge;
+	static inthashtable_tpl<weg_t::typ, slist_tpl<const vehikel_besch_t *> > typ_fahrzeuge;
 
 public:
-    static bool register_besch(const vehikel_besch_t *besch);
-    static void sort_lists();
+	static bool register_besch(const vehikel_besch_t *besch);
+	static void sort_lists();
 
-    static vehikel_t * baue(karte_t *welt,
-                            koord3d k,
-          spieler_t *sp,
-          convoi_t *cnv,
-          const vehikel_besch_t *vb);
+	static vehikel_t *baue(karte_t *welt, koord3d k, spieler_t *sp, convoi_t *cnv, const vehikel_besch_t *vb);
 
-    /**
-     * ermittelt ein basis bild fuer ein Fahrzeug das den angegebenen
-     * Bedingungen entspricht.
-     *
-     * @param vtyp strasse, schiene oder wasser
-     * @param min_power minimalleistung des gesuchten Fahrzeuges (inclusiv)
-     * @author Hansjörg Malthaner
-     */
-    static const vehikel_besch_t * gib_info(const ware_besch_t *wtyp,weg_t::typ vtyp,uint32 min_power);
+	/**
+	* ermittelt ein basis bild fuer ein Fahrzeug das den angegebenen
+	* Bedingungen entspricht.
+	*
+	* @param vtyp strasse, schiene oder wasser
+	* @param min_power minimalleistung des gesuchten Fahrzeuges (inclusiv)
+	* @author Hansjörg Malthaner
+	*/
+	static const vehikel_besch_t * gib_info(const ware_besch_t *wtyp,weg_t::typ vtyp,uint32 min_power);
 
-    static const vehikel_besch_t * gib_info(image_id base_img);
-    static const vehikel_besch_t * gib_info(const char *name);
-    static const vehikel_besch_t * gib_info(weg_t::typ typ,uint32 i);
+	static const vehikel_besch_t * gib_info(image_id base_img);
+	static const vehikel_besch_t * gib_info(const char *name);
+	static const vehikel_besch_t * gib_info(weg_t::typ typ,uint32 i);
 
-  // only used by vehicle_search()
-  static int vehikel_can_lead(const vehikel_besch_t *v);
+	// only used by vehicle_search()
+	static int vehikel_can_lead(const vehikel_besch_t *v);
 
-  /* extended sreach for vehicles for KI
-   * @author prissi
-   */
-    static const vehikel_besch_t *vehikel_search(weg_t::typ typ, const unsigned month_now, const int target_power, const int target_speed, const ware_besch_t * target_freight, bool include_eletric = true);
+	/* extended sreach for vehicles for KI
+	* @author prissi
+	*/
+	static const vehikel_besch_t *vehikel_search(weg_t::typ typ, const unsigned month_now, const int target_power, const int target_speed, const ware_besch_t * target_freight, bool include_eletric = true);
 
-    static const vehikel_besch_t *vehikel_fuer_leistung(int leistung, weg_t::typ typ,const unsigned month_now);
-    static int gib_preis(int base_img);
+	static const vehikel_besch_t *vehikel_fuer_leistung(int leistung, weg_t::typ typ,const unsigned month_now);
+	static int gib_preis(int base_img);
 };
 
 #endif // vehikelbauer_t_h

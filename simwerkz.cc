@@ -793,77 +793,30 @@ wkz_wayremover(spieler_t *sp, karte_t *welt,  koord pos, value_t lParam)
 			wkz_wayremover_bauer = new zeiger_t(welt, start, sp);
 			wkz_wayremover_bauer->setze_bild(0, skinverwaltung_t::killzeiger->gib_bild_nr(0));
 			gr->obj_pri_add(wkz_wayremover_bauer, PRI_NIEDRIG);
-			DBG_MESSAGE("wkz_wayremover()", "Setting start to %d,%d,%d",start.x, start.y,start.z);
+DBG_MESSAGE("wkz_wayremover()", "Setting start to %d,%d,%d",start.x, start.y,start.z);
 		}
 		else {
-			DBG_MESSAGE("wkz_wayremover()", "Setting end to %d,%d,%d",gr->gib_pos().x, gr->gib_pos().y,gr->gib_pos().z);
+DBG_MESSAGE("wkz_wayremover()", "Setting end to %d,%d,%d",gr->gib_pos().x, gr->gib_pos().y,gr->gib_pos().z);
 
 			// remove marker
 			delete wkz_wayremover_bauer ;
 			wkz_wayremover_bauer = NULL;
 			erster = true;
 
-			// there should be always a car for passengers (but it must not be electric!)
-			const vehikel_besch_t *remover_besch;
-			for(int  i=0;  ;  i++ ) {
-				// get engine/wagon/car for this waytype
-				const vehikel_besch_t *test_besch = vehikelbauer_t::gib_info(wt,i);
-				if(test_besch==NULL  ||  test_besch->get_engine_type()!=vehikel_besch_t::electric) {
-					remover_besch = test_besch;
-					break;
-				}
-			}
-			if(remover_besch==NULL) {
-				dbg->error("wkz_wayremover()", "no vehicle found?!?");
-				// second try, wagon, electric
-				return false;
-			}
-
-			// if we do not do it this way, simutrans will not correctly delete it
 			route_t verbindung;
 			bool can_delete=false;
-			switch(wt) {
-				case weg_t::schiene:
-					{
-						waggon_t *test_driver=new waggon_t(welt,start,remover_besch,sp,NULL);
-						can_delete = verbindung.calc_route(welt,start,gr->gib_pos(),(fahrer_t*)test_driver,0);
-						delete test_driver;
-					}
-					break;
-				case weg_t::monorail:
-					{
-						monorail_waggon_t *test_driver=new monorail_waggon_t(welt,start,remover_besch,sp,NULL);
-						can_delete = verbindung.calc_route(welt,start,gr->gib_pos(),(fahrer_t*)test_driver,0);
-						delete test_driver;
-					}
-					break;
-				case weg_t::strasse:
-					{
-						automobil_t *test_driver=new automobil_t(welt,start,remover_besch,sp,NULL);
-						can_delete = verbindung.calc_route(welt,start,gr->gib_pos(),(fahrer_t*)test_driver,0);
-						delete test_driver;
-					}
-					break;
-				case weg_t::wasser:
-					{
-						schiff_t *test_driver=new schiff_t(welt,start,remover_besch,sp,NULL);
-						can_delete = verbindung.calc_route(welt,start,gr->gib_pos(),(fahrer_t*)test_driver,0);
-						delete test_driver;
-					}
-					break;
-				case weg_t::luft:
-					{
-						aircraft_t *test_driver=new aircraft_t(welt,start,remover_besch,sp,NULL);
-						can_delete = verbindung.calc_route(welt,start,gr->gib_pos(),(fahrer_t*)test_driver,0);
-						delete test_driver;
-					}
-					break;
-				default:
-					// unknown waytype!
-					return false;
-			}
 
+			// get a default vehikel
+			vehikel_besch_t remover_besch(wt, 1, vehikel_besch_t::diesel );
+			vehikel_t *test_driver = vehikelbauer_t::baue( welt, start, sp, NULL, &remover_besch);
+			if(test_driver) {
+				can_delete = verbindung.calc_route(welt,start,gr->gib_pos(),(fahrer_t*)test_driver,0);
+				delete test_driver;
 DBG_MESSAGE("wkz_wayremover()","route search returned %d",can_delete);
+			}
+			else {
+DBG_MESSAGE("wkz_wayremover()","cannot built this vehicle");
+			}
 
 			if(!can_delete) {
 				DBG_MESSAGE("wkz_wayremover()","no route found");
@@ -979,67 +932,20 @@ wkz_wayobj(spieler_t *sp, karte_t *welt, koord pos, value_t lParam)
 			wkz_wayobj_bauer = NULL;
 			erster = true;
 
-			// there should be always a car for passengers (but it must not be electric!)
-			const vehikel_besch_t *fahrer_besch;
-			for(int  i=0;  ;  i++ ) {
-				// get engine/wagon/car for this waytype
-				const vehikel_besch_t *test_besch = vehikelbauer_t::gib_info(wt,i);
-				if(test_besch==NULL  ||  test_besch->get_engine_type()!=vehikel_besch_t::electric) {
-					fahrer_besch = test_besch;
-					break;
-				}
-			}
-			if(fahrer_besch==NULL) {
-				dbg->error("wkz_wayremover()", "no vehicle found?!?");
-				// second try, wagon, electric
-				return false;
-			}
-
-			// if we do not do it this way, simutrans will not correctly delete it
 			route_t verbindung;
 			bool can_built=false;
-			switch(wt) {
-				case weg_t::schiene:
-					{
-						waggon_t *test_driver=new waggon_t(welt,start,fahrer_besch,sp,NULL);
-						can_built = verbindung.calc_route(welt,start,gr->gib_pos(),(fahrer_t*)test_driver,0);
-						delete test_driver;
-					}
-					break;
-				case weg_t::monorail:
-					{
-						monorail_waggon_t *test_driver=new monorail_waggon_t(welt,start,fahrer_besch,sp,NULL);
-						can_built = verbindung.calc_route(welt,start,gr->gib_pos(),(fahrer_t*)test_driver,0);
-						delete test_driver;
-					}
-					break;
-				case weg_t::strasse:
-					{
-						automobil_t *test_driver=new automobil_t(welt,start,fahrer_besch,sp,NULL);
-						can_built = verbindung.calc_route(welt,start,gr->gib_pos(),(fahrer_t*)test_driver,0);
-						delete test_driver;
-					}
-					break;
-				case weg_t::wasser:
-					{
-						schiff_t *test_driver=new schiff_t(welt,start,fahrer_besch,sp,NULL);
-						can_built = verbindung.calc_route(welt,start,gr->gib_pos(),(fahrer_t*)test_driver,0);
-						delete test_driver;
-					}
-					break;
-				case weg_t::luft:
-					{
-						aircraft_t *test_driver=new aircraft_t(welt,start,fahrer_besch,sp,NULL);
-						can_built = verbindung.calc_route(welt,start,gr->gib_pos(),(fahrer_t*)test_driver,0);
-						delete test_driver;
-					}
-					break;
-				default:
-					// unknown waytype!
-					return false;
-			}
 
+			// get a default vehikel
+			vehikel_besch_t remover_besch(wt, 1, vehikel_besch_t::diesel );
+			vehikel_t *test_driver = vehikelbauer_t::baue( welt, start, sp, NULL, &remover_besch);
+			if(test_driver) {
+				can_built = verbindung.calc_route(welt,start,gr->gib_pos(),(fahrer_t*)test_driver,0);
+				delete test_driver;
 DBG_MESSAGE("wkz_wayremover()","route search returned %d",can_built);
+			}
+			else {
+DBG_MESSAGE("wkz_wayremover()","cannot built this vehicle");
+			}
 
 			if(!can_built) {
 				DBG_MESSAGE("wkz_wayremover()","no route found");
