@@ -11,8 +11,6 @@
 #error "Only Windows has GDI!"
 #endif
 
-#pragma
-
 #ifndef _MSC_VER
 #include <unistd.h>
 #include <sys/time.h>
@@ -27,12 +25,12 @@
 #include <mmsystem.h>
 
 // needed for wheel
-#if !defined(WM_MOUSEWHEEL)
-# define WM_MOUSEWHEEL                   0x020A
-#endif  //WM_MOUSEWHEEL
-#if !defined(GET_WHEEL_DELTA_WPARAM)
-# define GET_WHEEL_DELTA_WPARAM(wparam) ((short)HIWORD(wparam))
-#endif  //GET_WHEEL_DELTA_WPARAM
+#ifndef WM_MOUSEWHEEL
+#	define WM_MOUSEWHEEL 0x020A
+#endif
+#ifndef GET_WHEEL_DELTA_WPARAM
+#	define GET_WHEEL_DELTA_WPARAM(wparam) ((short)HIWORD(wparam))
+#endif
 
 
 #include "simmem.h"
@@ -44,7 +42,7 @@ static HWND hwnd;
 static MSG msg;
 static RECT WindowSize = { 0, 0, 0, 0 };
 static RECT MaxSize;
-HINSTANCE hInstance;
+static HINSTANCE hInstance;
 
 static BITMAPINFOHEADER *AllDib = NULL;
 static unsigned short *AllDibData = NULL;
@@ -138,7 +136,6 @@ int dr_os_open(int w, int h, int fullscreen)
 }
 
 
-// shut down SDL
 int dr_os_close(void)
 {
 	if (hdc != NULL) {
@@ -163,8 +160,8 @@ int dr_os_close(void)
 // reiszes screen
 int dr_textur_resize(unsigned short **textur,int w, int h)
 {
-	AllDib->biWidth = w;
-	WindowSize.right = w;
+	AllDib->biWidth   = w;
+	WindowSize.right  = w;
 	WindowSize.bottom = h - 1;
 	return TRUE;
 }
@@ -172,7 +169,8 @@ int dr_textur_resize(unsigned short **textur,int w, int h)
 
 unsigned short *dr_textur_init()
 {
-	return AllDibData = (unsigned short*)GlobalLock(GlobalAlloc(GMEM_MOVEABLE, (MaxSize.right + 15) * 2 * (MaxSize.bottom + 2)));
+	AllDibData = (unsigned short*)GlobalLock(GlobalAlloc(GMEM_MOVEABLE, (MaxSize.right + 15) * 2 * (MaxSize.bottom + 2)));
+	return AllDibData;
 }
 
 
@@ -247,7 +245,7 @@ int dr_screenshot(const char *filename)
 		BITMAPFILEHEADER bf;
 		unsigned i;
 
-		AllDib->biHeight = (WindowSize.bottom+1);
+		AllDib->biHeight = WindowSize.bottom + 1;
 
 		bf.bfType = 0x4d42; //"BM"
 		bf.bfReserved1 = 0;
@@ -361,7 +359,6 @@ LRESULT WINAPI WindowProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 
 			sys_event.type = SIM_KEYBOARD;
 			sys_event.code = 0;
-			// read mod key state from SDL layer
 
 			if (numlock) {
 				// do low level special stuff here
