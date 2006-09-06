@@ -704,7 +704,7 @@ static void mark_rect_dirty_nc(int x1, int y1, int x2, int y2)
  * Markiert ein Tile as schmutzig, mit Clipping
  * @author Hj. Malthaner
  */
-void mark_rect_dirty_wc(int x1, int y1, int x2, int y2)
+void mark_rect_dirty_wc(KOORD_VAL x1, KOORD_VAL y1, KOORD_VAL x2, KOORD_VAL y2)
 {
     // Hajo: inside display ?
     if(x2 >= 0 &&
@@ -1481,13 +1481,13 @@ load_palette(const char *filename, unsigned char *palette)
 
 
 
-int display_get_width()
+KOORD_VAL display_get_width()
 {
     return disp_width;
 }
 
 
-int display_get_height()
+KOORD_VAL display_get_height()
 {
     return disp_height;
 }
@@ -1751,7 +1751,8 @@ void register_image(struct bild_besch_t *bild)
 
 
 // prissi: query offsets
-void display_get_image_offset( int bild, int *xoff, int *yoff, int *xw, int *yw ) {
+void display_get_image_offset(unsigned bild, int *xoff, int *yoff, int *xw, int *yw)
+{
 	if(bild<anz_images) {
 		*xoff = images[bild].base_x;
 		*yoff = images[bild].base_y;
@@ -1764,7 +1765,7 @@ void display_get_image_offset( int bild, int *xoff, int *yoff, int *xw, int *yw 
 
 // prissi: canges the offset of an image
 // we need it this complex, because the actual x-offset is coded into the image
-void display_set_image_offset( int bild, int xoff, int yoff )
+void display_set_image_offset(unsigned bild, int xoff, int yoff)
 {
 	if(bild<anz_images  &&  images[bild].base_h>0  &&  images[bild].base_w>0) {
 		int h = images[bild].base_h;
@@ -1826,7 +1827,7 @@ int gib_maus_y()
  * so check the value after calling and before displaying
  * @author Hj. Malthaner
  */
-static int clip_wh(int *x, int *width, const int min_width, const int max_width)
+static int clip_wh(KOORD_VAL *x, KOORD_VAL *width, const int min_width, const int max_width)
 {
     // doesnt check "wider than image" case
 
@@ -1912,7 +1913,7 @@ struct clip_dimension display_gib_clip_wh(void)
  * Setzt Clipping Rechteck
  * @author Hj. Malthaner
  */
-void display_setze_clip_wh(int x, int y, int w, int h)
+void display_setze_clip_wh(KOORD_VAL x, KOORD_VAL y, KOORD_VAL w, KOORD_VAL h)
 {
 //    clip_wh(&x, &w, 0, disp_width);
     clip_wh(&x, &w, 0, disp_width);
@@ -1933,7 +1934,7 @@ void display_setze_clip_wh(int x, int y, int w, int h)
 
 
 // scrolls horizontally, will ignore clipping etc.
-void	display_scroll_band( const int start_y, const int x_offset, const int h )
+void display_scroll_band(const KOORD_VAL start_y, const KOORD_VAL x_offset, const KOORD_VAL h)
 {
 #ifdef USE_C
 	memmove( textur+start_y*disp_width, textur+start_y*disp_width+x_offset, sizeof(PIXVAL)*(h*disp_width-x_offset) );
@@ -2070,7 +2071,7 @@ display_img_nc(int h, const int xp, const int yp, const PIXVAL *sp)
  * Zeichnet Bild mit verticalem clipping (schnell) und horizontalem (langsam)
  * @author prissi
  */
-void display_img_aux(const int n, const int xp, int yp, const int dirty, bool use_player)
+void display_img_aux(const unsigned n, const KOORD_VAL xp, KOORD_VAL yp, const int dirty, bool player)
 {
 	if(n >= 0 && n < anz_images) {
 		// need to go to nightmode and or rezoomed?
@@ -2216,9 +2217,7 @@ display_color_img_aux(const int n, const int xp, const int yp,
  * Zeichnet Bild, ersetzt Spielerfarben
  * @author Hj. Malthaner
  */
-void
-display_color_img(const int n, const int xp, const int yp, const int color,
-		  const int daynight, const int dirty)
+void display_color_img(const unsigned n, const KOORD_VAL xp, const KOORD_VAL yp, const COLOR_VAL color, const int daynight, const int dirty)
 {
 	if(n>=0 && n<anz_images) {
 		// since vehicle need larger dirty rect!
@@ -2317,17 +2316,15 @@ void display_fb_internal(int xp, int yp, int w, int h,
     }
 }
 
-void
-display_fillbox_wh(int xp, int yp, int w, int h,
-		   int color, int dirty)
+
+void display_fillbox_wh(KOORD_VAL xp, KOORD_VAL yp, KOORD_VAL w, KOORD_VAL h, PLAYER_COLOR_VAL color, int dirty)
 {
   display_fb_internal(xp,yp,w,h,color,dirty,
 		      0,disp_width-1,0,disp_height);
 }
 
-void
-display_fillbox_wh_clip(int xp, int yp, int w, int h,
-			int color, int dirty)
+
+void display_fillbox_wh_clip(KOORD_VAL xp, KOORD_VAL yp, KOORD_VAL w, KOORD_VAL h, PLAYER_COLOR_VAL color, int dirty)
 {
   display_fb_internal(xp,yp,w,h,color,dirty,
 		      clip_rect.x, clip_rect.xx, clip_rect.y, clip_rect.yy);
@@ -2360,16 +2357,14 @@ display_vl_internal(const int xp, int yp, int h, const int color, int dirty,
 }
 
 
-void
-display_vline_wh(const int xp, int yp, int h, const int color, int dirty)
+void display_vline_wh(const KOORD_VAL xp, KOORD_VAL yp, KOORD_VAL h, const PLAYER_COLOR_VAL color, int dirty)
 {
   display_vl_internal(xp,yp,h,color,dirty,
 		      0,disp_width-1,0,disp_height-1);
 }
 
 
-void
-display_vline_wh_clip(const int xp, int yp, int h, const int color, int dirty)
+void display_vline_wh_clip(const KOORD_VAL xp, KOORD_VAL yp, KOORD_VAL h, const PLAYER_COLOR_VAL color, int dirty)
 {
   display_vl_internal(xp,yp,h,color,dirty,
 		      clip_rect.x, clip_rect.xx, clip_rect.y, clip_rect.yy);
@@ -2380,9 +2375,7 @@ display_vline_wh_clip(const int xp, int yp, int h, const int color, int dirty)
  * Zeichnet rohe Pixeldaten
  * @author Hj. Malthaner
  */
-
-void
-display_array_wh(int xp, int yp, int w, int h, const unsigned char *arr)
+void display_array_wh(KOORD_VAL xp, KOORD_VAL yp, KOORD_VAL w, KOORD_VAL h, const COLOR_VAL *arr)
 {
     const int arr_w = w;
     const int xoff = clip_wh(&xp, &w, clip_rect.x, clip_rect.xx);
@@ -2436,7 +2429,7 @@ int display_calc_proportional_string_len_width(const char *text, int len,bool us
 		int	iLen=0;
 		// decode char; Unicode is always 8 pixel (so far)
 		while(  iLen<len  ) {
-			iUnicode = utf82unicode( text+iLen, &iLen );
+			iUnicode = utf8_to_utf16(text + iLen, &iLen);
 			if(  iUnicode==0  ) {
 				return width;
 			}
@@ -2537,11 +2530,7 @@ inline unsigned char get_v_mask( const int yT, const int yB, const int cT, const
  * @author Volker Meyer, prissi
  * @date  15.06.2003, 2.1.2005
  */
-int display_text_proportional_len_clip(int x, int y, const char *txt,
-			int align,
-			const int color_index,
-			int dirty,
-			bool use_large_font, int len, bool use_clipping )
+int display_text_proportional_len_clip(KOORD_VAL x, KOORD_VAL y, const char *txt, int align, const PLAYER_COLOR_VAL color_index, int dirty, bool use_large_font, int len, bool use_clipping)
 {
 	font_type *fnt=use_large_font ? &large_font : &small_font;
 	int cL, cR, cT, cB;
@@ -2630,7 +2619,7 @@ int display_text_proportional_len_clip(int x, int y, const char *txt,
 #ifdef UNICODE_SUPPORT
 		// decode char
 		if(  has_unicode  ) {
-			c = utf82unicode( txt+iTextPos, &iTextPos );
+			c = utf8_to_utf16(txt + iTextPos, &iTextPos);
 		}
 		else
 #endif
@@ -2766,8 +2755,7 @@ int display_text_proportional_len_clip(int x, int y, const char *txt,
  * Zeichnet schattiertes Rechteck
  * @author Hj. Malthaner
  */
-void
-display_ddd_box(int x1, int y1, int w, int h, int tl_color, int rd_color)
+void display_ddd_box(KOORD_VAL x1, KOORD_VAL y1, KOORD_VAL w, KOORD_VAL h, PLAYER_COLOR_VAL tl_color, PLAYER_COLOR_VAL rd_color)
 {
     display_fillbox_wh(x1, y1, w, 1, tl_color, TRUE);
     display_fillbox_wh(x1, y1+h-1, w, 1, rd_color, TRUE);
@@ -2784,8 +2772,7 @@ display_ddd_box(int x1, int y1, int w, int h, int tl_color, int rd_color)
  * Zeichnet schattiertes Rechteck
  * @author Hj. Malthaner
  */
-void
-display_ddd_box_clip(int x1, int y1, int w, int h, int tl_color, int rd_color)
+void display_ddd_box_clip(KOORD_VAL x1, KOORD_VAL y1, KOORD_VAL w, KOORD_VAL h, PLAYER_COLOR_VAL tl_color, PLAYER_COLOR_VAL rd_color)
 {
     display_fillbox_wh_clip(x1, y1, w, 1, tl_color, TRUE);
     display_fillbox_wh_clip(x1, y1+h-1, w, 1, rd_color, TRUE);
@@ -2799,9 +2786,7 @@ display_ddd_box_clip(int x1, int y1, int w, int h, int tl_color, int rd_color)
 
 
 // if width equals zero, take default value
-void display_ddd_proportional(int xpos, int ypos, int width, int hgt,
-			      int ddd_farbe, int text_farbe,
-			      const char *text, int dirty)
+void display_ddd_proportional(KOORD_VAL xpos, KOORD_VAL ypos, KOORD_VAL width, KOORD_VAL hgt, PLAYER_COLOR_VAL ddd_farbe, PLAYER_COLOR_VAL text_farbe, const char *text, int dirty)
 {
   int halfheight=(large_font_height/2)+1;
 
@@ -2821,9 +2806,7 @@ void display_ddd_proportional(int xpos, int ypos, int width, int hgt,
  * display text in 3d box with clipping
  * @author: hsiegeln
  */
-void display_ddd_proportional_clip(int xpos, int ypos, int width, int hgt,
-			      int ddd_farbe, int text_farbe,
-			      const char *text, int dirty)
+void display_ddd_proportional_clip(KOORD_VAL xpos, KOORD_VAL ypos, KOORD_VAL width, KOORD_VAL hgt, PLAYER_COLOR_VAL ddd_farbe, PLAYER_COLOR_VAL text_farbe, const char *text, int dirty)
 {
   int halfheight=(large_font_height/2)+1;
 
@@ -2871,8 +2854,7 @@ count_char(const char *str, const char c)
  * @author Volker Meyer
  * @date  15.06.2003
  */
-void
-display_multiline_text(int x, int y, const char *buf, int color)
+void display_multiline_text(KOORD_VAL x, KOORD_VAL y, const char *buf, PLAYER_COLOR_VAL color)
 {
     if(buf && *buf) {
 	char *next;
@@ -2986,7 +2968,7 @@ void display_flush_buffer()
  * Bewegt Mauszeiger
  * @author Hj. Malthaner
  */
-void display_move_pointer(int dx, int dy)
+void display_move_pointer(KOORD_VAL dx, KOORD_VAL dy)
 {
     move_pointer(dx, dy);
 }
@@ -3023,8 +3005,7 @@ void display_set_pointer(int pointer)
  * Initialises the graphics module
  * @author Hj. Malthaner
  */
-int
-simgraph_init(int width, int height, int use_shm, int do_sync, int full_screen)
+int simgraph_init(KOORD_VAL width, KOORD_VAL height, int use_shm, int do_sync, int full_screen)
 {
     int parameter[2];
     int ok;
@@ -3122,8 +3103,7 @@ simgraph_exit()
 /* changes display size
  * @author prissi
  */
-void
-simgraph_resize( int w, int h )
+void simgraph_resize(KOORD_VAL w, KOORD_VAL h)
 {
 	if(disp_width!=w  ||  disp_height!=h) {
 		disp_width = (w+15)&0x7FF0;
@@ -3132,7 +3112,7 @@ simgraph_resize( int w, int h )
 		guarded_free(tile_dirty);
 		guarded_free(tile_dirty_old);
 
-		dr_textur_resize( (unsigned short*)&textur, disp_width, disp_height );
+		dr_textur_resize((unsigned short**)&textur, disp_width, disp_height);
 
 		// allocate dirty tile flags
 		tiles_per_line = (disp_width + DIRTY_TILE_SIZE - 1) / DIRTY_TILE_SIZE;
@@ -3233,9 +3213,7 @@ void display_speichern(void * file, int zipped)
 * zeichnet linie von x,y nach xx,yy
 * von Hajo
 **/
-
-void
-display_direct_line(const int x,const int y,const int xx,const int yy, const int color)
+void display_direct_line(const KOORD_VAL x, const KOORD_VAL y, const KOORD_VAL xx, const KOORD_VAL yy, const PLAYER_COLOR_VAL color)
 {
    int i, steps;
    int xp,yp;
