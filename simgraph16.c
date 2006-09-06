@@ -342,12 +342,6 @@ static void recode();
 static void calc_base_pal_from_night_shift(const int night);
 
 /**
- * Zeichnet Bild mit Clipping
- * @author Hj. Malthaner
- */
-static void display_img_wc(KOORD_VAL h, const KOORD_VAL xp, const KOORD_VAL yp, const PIXVAL *sp);
-
-/**
  * Convert a certain image data to actual output data
  * @author Hj. Malthaner
  */
@@ -360,12 +354,6 @@ static void recode_img_src_target(KOORD_VAL h, PIXVAL *src, PIXVAL *target);
  */
 static void recode_img_src_target_color(const KOORD_VAL h, PIXVAL *src, PIXVAL *target, const unsigned char color);
 #endif
-
-/**
- * Convert base image data to actual image size
- * @author Hj. Malthaner
- */
-static void rezoom_img(const unsigned int n);
 
 
 /**
