@@ -884,7 +884,7 @@ static int dsp_read_bdf_glyph(FILE *fin, unsigned char *data, unsigned char *scr
  * reads a single character
  * @author prissi
  */
-static bool dsp_read_bdf_font(FILE *fin, bool *is_unicode, font_type *font)
+static bool dsp_read_bdf_font(FILE *fin, font_type *font)
 {
 	char str[256];
 	unsigned char *data = NULL, *screen_widths = NULL;
@@ -904,11 +904,9 @@ static bool dsp_read_bdf_font(FILE *fin, bool *is_unicode, font_type *font)
 		if (strncmp(str, "CHARS", 5) == 0) {
 			f_chars = atoi(str + 5);
 			if (f_chars > 255) {
-				*is_unicode = true;
 				f_chars = 65536;
 			} else {
 				// normal 256 chars
-				*is_unicode = false;
 				f_chars = 256;
 			}
 			data = (unsigned char*)calloc(f_chars, 16);
@@ -977,7 +975,6 @@ bool display_load_font(const char *fname, bool large)
 	FILE *f = NULL;
 	unsigned char c;
 	font_type *fnt = large ? &large_font : &small_font;
-	bool	dummy;
 
 	f = fopen(fname, "rb");
 	if (f == NULL) {
@@ -1088,7 +1085,7 @@ bool display_load_font(const char *fname, bool large)
 	 */
 	printf("Loading BDF font '%s'\n", fname);
 	fflush(NULL);
-	if (dsp_read_bdf_font(f, &dummy,fnt)) {
+	if (dsp_read_bdf_font(f, fnt)) {
 		printf("Loading BDF font %s ok\n", fname);
 		fflush(NULL);
 		fclose(f);
