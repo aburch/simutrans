@@ -333,29 +333,6 @@ int display_set_base_raster_width(int new_raster)
 }
 
 
-// -------------- Function prototypes --------------
-void display_img_nc(KOORD_VAL h, const KOORD_VAL xp, const KOORD_VAL yp, const PIXVAL*);
-
-static void rezoom();
-static void recode();
-
-static void calc_base_pal_from_night_shift(const int night);
-
-/**
- * Convert a certain image data to actual output data
- * @author Hj. Malthaner
- */
-static void recode_img_src_target(KOORD_VAL h, PIXVAL *src, PIXVAL *target);
-
-#ifdef NEED_PLAYER_RECODE
-/**
- * Convert a certain image data to actual output data
- * @author prissi
- */
-static void recode_img_src_target_color(const KOORD_VAL h, PIXVAL *src, PIXVAL *target, const unsigned char color);
-#endif
-
-
 /**
  * If arguments are supposed to be changed during the call
  * use this makro instead of pixcopy()
@@ -385,6 +362,20 @@ static void recode_img_src_target_color(const KOORD_VAL h, PIXVAL *src, PIXVAL *
 // --------------      Functions      --------------
 
 
+/**
+ * Rezooms all images
+ * @author Hj. Malthaner
+ */
+static void rezoom()
+{
+	unsigned n;
+	for (n = 0; n < anz_images; n++) {
+		images[n].recode_flags[NEED_REZOOM] = (images[n].recode_flags[FLAGS] & FLAG_ZOOMABLE) != 0 && images[n].base_h > 0;
+		images[n].recode_flags[NEED_NORMAL_RECODE] = 128;
+		images[n].recode_flags[NEED_PLAYER_RECODE] = 128;	// color will be set next time
+	} // for
+}
+
 
 int get_zoom_factor()
 {
@@ -401,9 +392,6 @@ void set_zoom_factor(int z)
 	fprintf(stderr, "set_zoom_factor() : factor=%d\n", zoom_factor);
 
 	rezoom();
-#if 0
-	recode(); //already handled by rezoom
-#endif
 }
 
 
@@ -512,27 +500,6 @@ static void recode()
 
 
 /**
- * Handles the conversion of an image to the output color
- * @author prissi
- */
-static void recode_normal_img(const unsigned int n)
-{
-	PIXVAL *src = images[n].base_data;
-
-	// then use the right data
-	if (zoom_factor > 1) {
-		if (images[n].zoom_data != NULL) src = images[n].zoom_data;
-	}
-	if (images[n].data == NULL) {
-		images[n].data = (PIXVAL*)guarded_malloc(sizeof(PIXVAL) * images[n].len);
-	}
-	// now do normal recode
-	recode_img_src_target(images[n].h, src, images[n].data);
-	images[n].recode_flags[NEED_NORMAL_RECODE] = 0;
-}
-
-
-/**
  * Convert a certain image data to actual output data
  * @author Hj. Malthaner
  */
@@ -557,29 +524,28 @@ static void recode_img_src_target(KOORD_VAL h, PIXVAL *src, PIXVAL *target)
 }
 
 
-#ifdef NEED_PLAYER_RECODE
-
 /**
  * Handles the conversion of an image to the output color
  * @author prissi
  */
-static void recode_color_img(const unsigned int n, const unsigned char color)
+static void recode_normal_img(const unsigned int n)
 {
 	PIXVAL *src = images[n].base_data;
 
-	images[n].recode_flags[NEED_PLAYER_RECODE] = color;
 	// then use the right data
 	if (zoom_factor > 1) {
 		if (images[n].zoom_data != NULL) src = images[n].zoom_data;
 	}
-	// second recode modi, for player one (city and factory AI)
-	if (images[n].player_data == NULL) {
-		images[n].player_data = (PIXVAL*)guarded_malloc(sizeof(PIXVAL) * images[n].len);
+	if (images[n].data == NULL) {
+		images[n].data = (PIXVAL*)guarded_malloc(sizeof(PIXVAL) * images[n].len);
 	}
-	// contains now the player color ...
-	recode_img_src_target_color(images[n].h, src, images[n].player_data, color << 2);
+	// now do normal recode
+	recode_img_src_target(images[n].h, src, images[n].data);
+	images[n].recode_flags[NEED_NORMAL_RECODE] = 0;
 }
 
+
+#ifdef NEED_PLAYER_RECODE
 
 /**
  * Convert a certain image data to actual output data for a certain player
@@ -612,22 +578,29 @@ static void recode_img_src_target_color(KOORD_VAL h, PIXVAL *src, PIXVAL *target
 	}
 }
 
-#endif
-
 
 /**
- * Rezooms all images
- * @author Hj. Malthaner
+ * Handles the conversion of an image to the output color
+ * @author prissi
  */
-static void rezoom()
+static void recode_color_img(const unsigned int n, const unsigned char color)
 {
-	unsigned n;
-	for (n = 0; n < anz_images; n++) {
-		images[n].recode_flags[NEED_REZOOM] = (images[n].recode_flags[FLAGS] & FLAG_ZOOMABLE) != 0 && images[n].base_h > 0;
-		images[n].recode_flags[NEED_NORMAL_RECODE] = 128;
-		images[n].recode_flags[NEED_PLAYER_RECODE] = 128;	// color will be set next time
-	} // for
+	PIXVAL *src = images[n].base_data;
+
+	images[n].recode_flags[NEED_PLAYER_RECODE] = color;
+	// then use the right data
+	if (zoom_factor > 1) {
+		if (images[n].zoom_data != NULL) src = images[n].zoom_data;
+	}
+	// second recode modi, for player one (city and factory AI)
+	if (images[n].player_data == NULL) {
+		images[n].player_data = (PIXVAL*)guarded_malloc(sizeof(PIXVAL) * images[n].len);
+	}
+	// contains now the player color ...
+	recode_img_src_target_color(images[n].h, src, images[n].player_data, color << 2);
 }
+
+#endif
 
 
 /**
@@ -1232,18 +1205,6 @@ int display_get_light()
 
 
 /**
- * Setzt Helligkeitseinstellungen
- * @author Hj. Malthaner
- */
-void display_set_light(int new_light_level)
-{
-	light_level = new_light_level;
-	calc_base_pal_from_night_shift(night_shift);
-	recode();
-}
-
-
-/**
  * Setzt Farbeinstellungen
  * @author Hj. Malthaner
  */
@@ -1437,6 +1398,18 @@ static void calc_base_pal_from_night_shift(const int night)
 	}
 
 	// convert to RGB xxx
+	recode();
+}
+
+
+/**
+ * Setzt Helligkeitseinstellungen
+ * @author Hj. Malthaner
+ */
+void display_set_light(int new_light_level)
+{
+	light_level = new_light_level;
+	calc_base_pal_from_night_shift(night_shift);
 	recode();
 }
 
