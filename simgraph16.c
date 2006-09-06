@@ -807,7 +807,7 @@ static void dsp_decode_bdf_data_row(unsigned char *data, int y, int g_width, cha
  * reads a single character
  * @author prissi
  */
-static int dsp_read_bdf_glyph(FILE *fin, unsigned char *data, unsigned char *screen_w, bool allow_256up, int f_height, int f_desc)
+static int dsp_read_bdf_glyph(FILE *fin, unsigned char *data, unsigned char *screen_w, int char_limit, int f_height, int f_desc)
 {
 	char str[256];
 	int	char_nr = 0;
@@ -821,8 +821,8 @@ static int dsp_read_bdf_glyph(FILE *fin, unsigned char *data, unsigned char *scr
 		// endcoding (char number) in decimal
 		if (strncmp(str, "ENCODING", 8) == 0) {
 			char_nr = atoi(str + 8);
-			if ((!allow_256up && char_nr > 255) || char_nr <= 0 || char_nr >= 65536) {
-				printf("Unexpected character (%i) for %i character font!\n", char_nr, allow_256up ? 65536 : 256);
+			if (char_nr <= 0 || char_nr >= char_limit) {
+				printf("Unexpected character (%i) for %i character font!\n", char_nr, char_limit);
 				char_nr = 0;
 				continue;
 			}
@@ -934,7 +934,7 @@ static bool dsp_read_bdf_font(FILE *fin, font_type *font)
 		}
 
 		if (strncmp(str, "STARTCHAR", 9) == 0 && f_chars > 0) {
-			dsp_read_bdf_glyph(fin, data, screen_widths, f_chars > 256, f_height, f_desc);
+			dsp_read_bdf_glyph(fin, data, screen_widths, f_chars, f_height, f_desc);
 			continue;
 		}
 	}
