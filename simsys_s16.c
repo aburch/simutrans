@@ -273,9 +273,19 @@ int dr_screenshot(const char *filename)
  * Hier sind die Funktionen zur Messageverarbeitung
  */
 
+
+static inline unsigned int ModifierKeys(void)
+{
+	SDLMod mod = SDL_GetModState();
+
+	return
+		(mod & KMOD_SHIFT ? 1 : 0) |
+		(mod & KMOD_CTRL  ? 2 : 0);
+}
+
+
 static void internal_GetEvents(int wait)
 {
-	unsigned i;
 	SDL_Event event;
 	event.type = 1;
 
@@ -326,11 +336,8 @@ static void internal_GetEvents(int wait)
 			break;
 
 		case SDL_MOUSEBUTTONDOWN:     /* originally ButtonPress */
-			// read mod key state from SDL layer
-			// shift: bit 0, control: Bit 1
-			i = SDL_GetModState();
-			sys_event.key_mod = ((i&2)>>1) | ( i&1) | ((i&0x40)>>5) | ((i&0x80)>>6);
 			sys_event.type = SIM_MOUSE_BUTTONS;
+			sys_event.key_mod = ModifierKeys();
 			sys_event.mx   = event.button.x;
 			sys_event.my   = event.button.y;
 			switch (event.button.button) {
@@ -344,8 +351,7 @@ static void internal_GetEvents(int wait)
 
 		case SDL_MOUSEBUTTONUP:     /* originally ButtonRelease */
 			sys_event.type = SIM_MOUSE_BUTTONS;
-			i = SDL_GetModState();
-			sys_event.key_mod = ((i&2)>>1) | ( i&1) | ((i&0x40)>>5) | ((i&0x80)>>6);
+			sys_event.key_mod = ModifierKeys();
 			sys_event.mx = event.button.x;
 			sys_event.my = event.button.y;
 			switch (event.button.button) {
@@ -357,12 +363,11 @@ static void internal_GetEvents(int wait)
 
 		case SDL_KEYDOWN:   /* originally KeyPress */
 			sys_event.type = SIM_KEYBOARD;
-			// read mod key state from SDL layer
-			i = SDL_GetModState();
-			sys_event.key_mod = ((i&2)>>1) | ( i&1) | ((i&0x40)>>5) | ((i&0x80)>>6);
+			sys_event.key_mod = ModifierKeys();
 
 			if (event.key.keysym.sym >= SDLK_KP0 && event.key.keysym.sym <= SDLK_KP9) {
-				const int numlock = (KMOD_NUM & i) != 0;
+				const int numlock = (SDL_GetModState() & KMOD_NUM) != 0;
+
 				switch(event.key.keysym.sym) {
 					case SDLK_KP0: sys_event.code = '0';                           break;
 					case SDLK_KP1: sys_event.code = '1';                           break;
