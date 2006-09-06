@@ -64,50 +64,35 @@ int dr_os_init(int n, int *parameter)
 // open the window
 int dr_os_open(int w, int h, int fullscreen)
 {
+	const wchar_t* const title =
+#ifdef _MSC_VER
+			L"Simutrans " WIDE_VERSION_NUMBER;
+#else
+			L"" SAVEGAME_PREFIX " " VERSION_NUMBER " - " VERSION_DATE;
+#endif
+
 	// fake fullscreen
 	if (fullscreen && w == MaxSize.right && h == MaxSize.bottom) {
-#ifdef _MSC_VER
 		hwnd = CreateWindowEx(
-			WS_EX_TOPMOST	,
-			L"Simu",  L"Simutrans "  WIDE_VERSION_NUMBER,
+			WS_EX_TOPMOST,
+			L"Simu", title,
 			WS_POPUP,
 			0, 0,
 			w, h - 1,
 			NULL, NULL, hInstance, NULL
 		);
-#else
-		hwnd = CreateWindowEx(
-			WS_EX_TOPMOST	,
-			L"Simu", L"" SAVEGAME_PREFIX " " VERSION_NUMBER " - " VERSION_DATE,
-			WS_POPUP,
-			0, 0,
-			w, h - 1,
-			NULL, NULL, hInstance, NULL
-		);
-#endif
-		ShowWindow(hwnd, SW_SHOW);
 	} else {
-#ifdef _MSC_VER
 		hwnd = CreateWindow(
-			L"Simu", L"Simutrans " WIDE_VERSION_NUMBER,
+			L"Simu", title,
 			WS_OVERLAPPEDWINDOW,
 			CW_USEDEFAULT, CW_USEDEFAULT,
 			w + GetSystemMetrics(SM_CXFRAME),
 			h - 1 + 2 * GetSystemMetrics(SM_CYFRAME) + GetSystemMetrics(SM_CYCAPTION),
 			NULL, NULL, hInstance, NULL
 		);
-#else
-		hwnd = CreateWindow(
-			L"Simu", L"" SAVEGAME_PREFIX " " VERSION_NUMBER " - " VERSION_DATE,
-			WS_OVERLAPPEDWINDOW,
-			CW_USEDEFAULT, CW_USEDEFAULT,
-			w + GetSystemMetrics(SM_CXFRAME),
-			h - 1 + 2 * GetSystemMetrics(SM_CYFRAME) + GetSystemMetrics(SM_CYCAPTION),
-			NULL, NULL, hInstance, NULL
-		);
-#endif
-		ShowWindow(hwnd, SW_SHOW);
 	}
+	ShowWindow(hwnd, SW_SHOW);
+
 	WindowSize.right  = w;
 	WindowSize.bottom = h - 1;
 
