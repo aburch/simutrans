@@ -310,19 +310,6 @@ int dr_screenshot(const char *filename)
 }
 
 
-int recalc_keys()
-{
-	int state = 0;
-
-	if (key[KEY_LSHIFT] != 0 || key[KEY_RSHIFT] != 0) {
-		state = 1;
-	}
-	if (key[KEY_LCONTROL] != 0 || key[KEY_RCONTROL] != 0) {
-		state |= 2;
-	}
-	return state;
-}
-
 void move_pointer(int x, int y)
 {
 	position_mouse(x, y);
@@ -336,6 +323,16 @@ void set_pointer(int loading)
 /*
  * Hier sind die Funktionen zur Messageverarbeitung
  */
+
+
+static inline int recalc_keys(void)
+{
+	int mod = key_shifts;
+
+	return
+		(mod & KB_SHIFT_FLAG ? 1 : 0) |
+		(mod & KB_CTRL_FLAG  ? 2 : 0);
+}
 
 
 void internalGetEvents()
