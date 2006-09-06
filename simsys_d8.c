@@ -198,7 +198,7 @@ int dr_os_init(int n, int *parameter)
         return ok == 0;
 }
 
-int dr_os_open(int w, int h)
+int dr_os_open(int w, int h, int fullscreen)
 {
         int ok;
 
@@ -253,8 +253,7 @@ static unsigned char *tex;
 
 static BITMAP *texture_map;
 
-unsigned char *
-dr_textur_init()
+unsigned short* dr_textur_init() // XXX FIXME wrong type
 {
         int i;
 	tex = (unsigned char *) guarded_malloc(width*height);
