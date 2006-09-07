@@ -279,14 +279,14 @@ static void internal_GetEvents(int wait)
 	event.type = 1;
 
 	if (wait) {
-		int n = 0;
+		int n;
 
 		do {
 			SDL_WaitEvent(&event);
 			n = SDL_PollEvent(NULL);
 		} while (n != 0 && event.type == SDL_MOUSEMOTION);
 	} else {
-		int n = 0;
+		int n;
 		int got_one = FALSE;
 
 		do {

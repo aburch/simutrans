@@ -1105,7 +1105,7 @@ static int load_special_palette(void)
 		unsigned char* p = special_pal;
 
 		// Hajo: skip number of colors entry
-		fscanf(file, "%d\n", &i);
+		fscanf(file, "%*d\n");
 
 		// Hajo: read colors
 		for (i = 0; i < 256; i++) {
