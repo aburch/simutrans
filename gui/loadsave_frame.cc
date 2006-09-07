@@ -19,13 +19,13 @@
  */
 void loadsave_frame_t::action(const char *filename)
 {
-    if(do_load) {
-	welt->laden(filename);
-    } else {
-	welt->speichern(filename,false);
-    }
+	if(do_load) {
+		welt->laden(filename);
+	} else {
+		welt->speichern(filename,false);
+	}
 
-    welt->setze_dirty();
+	welt->setze_dirty();
 }
 
 void loadsave_frame_t::del_action(const char *filename)
@@ -62,5 +62,5 @@ loadsave_frame_t::loadsave_frame_t(karte_t *welt, bool do_load) : savegame_frame
  */
 const char * loadsave_frame_t::gib_hilfe_datei() const
 {
-    return do_load ? "load.txt" : "save.txt";
+	return do_load ? "load.txt" : "save.txt";
 }

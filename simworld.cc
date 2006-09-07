@@ -656,6 +656,9 @@ karte_t::init(einstellungen_t *sets)
 		warenbauer_t::set_multiplier( umgebung_t::beginner_price_factor );
 		sets->setze_just_in_time( 0 );
 	}
+	else {
+		warenbauer_t::set_multiplier( 1000 );
+	}
 
 	// wird gecached, um den Pointerzugriff zu sparen, da
 	// die groesse _sehr_ oft referenziert wird

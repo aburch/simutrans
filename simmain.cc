@@ -650,7 +650,9 @@ extern "C" int simu_main(int argc, char** argv)
 			refresh = want_refresh < 1 ? 1 : want_refresh > 16 ? 16 : want_refresh;
 		}
 
-		if (loadgame != "") welt->laden(loadgame);
+		if(loadgame != "") {
+			welt->laden(loadgame);
+		}
 
 		intr_set(welt, view, refresh);
 
