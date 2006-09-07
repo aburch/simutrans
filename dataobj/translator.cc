@@ -274,8 +274,7 @@ void translator::load_language_file(FILE *file)
 
 bool translator::load(const cstring_t & scenario_path)
 {
-	strncpy(szenario_path, scenario_path, 256);
-	szenario_path[256] = 0;
+	tstrncpy(szenario_path, scenario_path, sizeof(szenario_path));
 
 	//initialize these values to 0(ie. nothing loaded)
 	single_instance->lang_count = single_instance->current_lang = 0;
