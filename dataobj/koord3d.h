@@ -1,156 +1,131 @@
-/*
- * koord3d.h
- *
- * Copyright (c) 1997 - 2003 Hansjörg Malthaner
- *
- * This file is part of the Simutrans project and may not be used
- * in other projects without written permission of the author.
- */
-
-
-#ifndef koord3d_h
-#define koord3d_h
+#ifndef KOORD3D_H
+#define KOORD3D_H
 
 #include <stdlib.h>
 #include "../simtypes.h"
-
-#ifndef koord_h
 #include "koord.h"
-#endif
 
 
 /**
- * 3d koordinaten
- *
- * @author Hj. Malthaner
+ * 3d Koordinaten
  */
 class koord3d
 {
 public:
-    // Hajo: 6-byte variant, bad for alignment :(
-    // short x, y, z;
+	sint16 x;
+	sint16 y;
+	sint16 z;
 
-/* to few bits and bad for performance anyway
-    signed int x : 11;
-    signed int y : 11;
-    signed int z : 10;
-*/
-	sint16 x, y, z;
+	koord3d() : x(0), y(0), z(0) {}
 
-    // 6 byte, clear code
-	koord3d() {x=y=z=0;};
+	koord3d(short xp, short yp, short zp) : x(xp), y(yp), z(zp) {}
+	koord3d(koord xyp, short zp) : x(xyp.x), y(xyp.y), z(zp) {}
+	koord3d(loadsave_t* file);
 
-    // Hajo: performance hack
-//    koord3d() {/*x=y=z=0;*/  *((int *)this) = 0;};
+	void rdwr(loadsave_t* file);
 
-    koord3d(short xp, short yp, short zp) {x=xp; y=yp; z=zp;};
-    koord3d(koord xyp, short zp) {x=xyp.x; y=xyp.y; z=zp;};
-    koord3d(loadsave_t *file);
+	void* operator new(size_t s);
+	void operator delete(void* p);
 
-    void rdwr(loadsave_t *file);
+	static const koord3d invalid;
 
-    void * operator new(size_t s);
-    void operator delete(void *p);
+	koord gib_2d() const { return koord(x, y); }
 
-    static const koord3d invalid;
+	const koord3d& operator += (const koord3d& a)
+	{
+		x += a.x;
+		y += a.y;
+		z += a.z;
+		return *this;
+	}
 
-    koord gib_2d() const { return koord(x, y); }
+	const koord3d& operator -= (koord3d& a)
+	{
+		x -= a.x;
+		y -= a.y;
+		z -= a.z;
+		return *this;
+	}
+
+	const koord3d& operator += (const koord& a)
+	{
+		x += a.x;
+		y += a.y;
+		return *this;
+	}
+
+	const koord3d& operator -= (const koord& a)
+	{
+		x -= a.x;
+		y -= a.y;
+		return *this;
+	}
 } GCC_PACKED;
 
-/**
- * operatoren für 3d Koordinaten:
- * @author V. Meyer
- */
 
-inline koord3d operator+ (const koord3d & a, const koord3d & b)
+static inline koord3d operator + (const koord3d& a, const koord3d& b)
 {
-    return koord3d(a.x+b.x, a.y+b.y, a.z+b.z);
+	return koord3d(a.x + b.x, a.y + b.y, a.z + b.z);
 }
 
-inline koord3d operator- (const koord3d & a, const koord3d & b)
+
+static inline koord3d operator - (const koord3d& a, const koord3d& b)
 {
-    return koord3d(a.x-b.x, a.y-b.y, a.z-b.z);
+	return koord3d(a.x - b.x, a.y - b.y, a.z - b.z);
 }
 
-inline const koord3d& operator+= (koord3d & a, const koord3d & b)
+
+static inline bool operator == (const koord3d& a, const koord3d& b)
 {
-    a.x+=b.x;
-    a.y+=b.y;
-    a.z+=b.z;
-    return a;
+	return a.x == b.x && a.y == b.y && a.z == b.z;
 }
 
-inline const koord3d& operator-= (koord3d & a, const koord3d & b)
+
+static inline bool operator != (const koord3d& a, const koord3d& b)
 {
-    a.x-=b.x;
-    a.y-=b.y;
-    a.z-=b.z;
-    return a;
+	return a.x != b.x || a.y != b.y || a.z != b.z;
 }
 
-inline bool operator== (const koord3d & a, const koord3d &b)
+
+static inline koord3d operator - (const koord3d& a)
 {
-  return (a.x==b.x && a.y==b.y && a.z==b.z);
+	return koord3d(-a.x, -a.y, -a.z);
 }
 
-inline bool operator!= (const koord3d & a, const koord3d & b)
+
+static inline koord3d operator + (const koord3d& a, const koord& b)
 {
-  return (a.x != b.x) || (a.y != b.y) || (a.z != b.z);
+	return koord3d(a.x + b.x, a.y + b.y, a.z);
 }
 
-inline koord3d operator- (koord3d & a)
+
+static inline koord3d operator - (const koord3d& a, const koord& b)
 {
-    return koord3d(-a.x, -a.y, -a.z);
+	return koord3d(a.x - b.x, a.y - b.y, a.z);
 }
 
-/**
- * Operatoren, die 3d mit 2d Koordinaten verheiraten:
- * die Operatoren ermöglichen die Arithmetik 3d = 3d op 2d;
- *
- * @author V. Meyer
- */
-inline koord3d operator+ (const koord3d & a, const koord & b)
+
+static inline int koord_distance(koord a, koord b)
 {
-    return koord3d(a.x+b.x, a.y+b.y, (int)a.z);
+	return abs(a.x - b.x) + abs(a.y - b.y);
 }
 
-inline koord3d operator- (const koord3d & a, const koord & b)
+
+static inline int koord_distance(koord3d a, koord b)
 {
-    return koord3d(a.x-b.x, a.y-b.y, (int)a.z);
+	return abs(a.x - b.x) + abs(a.y - b.y);
 }
 
-inline const koord3d& operator+= (koord3d & a, const koord & b)
+
+static inline int koord_distance(koord a, koord3d b)
 {
-    a.x+=b.x;
-    a.y+=b.y;
-    return a;
+	return abs(a.x - b.x) + abs(a.y - b.y);
 }
 
-inline const koord3d& operator-= (koord3d & a, const koord & b)
+
+static inline int koord_distance(koord3d a, koord3d b)
 {
-    a.x-=b.x;
-    a.y-=b.y;
-    return a;
-}
-
-
-/* distance functions
- * @author prissi
- */
-inline int koord_distance(koord a,koord b) {
-	return abs(a.x-b.x)+abs(a.y-b.y);
-}
-
-inline int koord_distance(koord3d a,koord b) {
-	return abs(a.x-b.x)+abs(a.y-b.y);
-}
-
-inline int koord_distance(koord a,koord3d b) {
-	return abs(a.x-b.x)+abs(a.y-b.y);
-}
-
-inline int koord_distance(koord3d a,koord3d b) {
-	return abs(a.x-b.x)+abs(a.y-b.y);
+	return abs(a.x - b.x) + abs(a.y - b.y);
 }
 
 #endif
