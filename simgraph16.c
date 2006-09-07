@@ -54,12 +54,6 @@
 
 
 /*
- * Hajo: RGB 888 padded to 32 bit
- */
-typedef unsigned int PIXRGB;
-
-
-/*
  * Hajo: RGB 1555
  */
 typedef uint16 PIXVAL;

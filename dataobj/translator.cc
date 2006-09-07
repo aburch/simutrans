@@ -162,13 +162,7 @@ void	translator::get_city_name(char *name, int nr)
 int  init_city_names(bool is_utf_language)
 {
 	FILE * file;
-	// rember old directory to go back there
-	char oldpath[1024];
-#ifdef _MSC_VER
-	_getcwd( oldpath, 1024 );
-#else
-	getcwd( oldpath, 1024 );
-#endif
+
 	// alle namen aufräumen
 	namen_liste.clear();
 
