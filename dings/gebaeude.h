@@ -165,7 +165,6 @@ public:
     image_id gib_bild() const;
     image_id gib_bild(int nr) const;
     image_id gib_after_bild() const;
-    image_id gib_after_bild(int nr) const;
 
     /**
      * @return eigener Name oder Name der Fabrik falls Teil einer Fabrik

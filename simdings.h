@@ -285,14 +285,6 @@ public:
     virtual image_id gib_after_bild() const {return IMG_LEER;}
 
     /**
-     * manche Objekte haben mehr als ein Bild
-     * @param  i Der Index des Bildes, i >= 1, benutze fuer i == 0 bild()
-     * @return die nummer des Bildes, -1 wenn kein Bild verfuegbar
-     * @author V. Meyer
-     */
-    virtual image_id gib_after_bild(int ) const {return IMG_LEER;}
-
-    /**
      * Setzt ein Bild des Objects, normalerweise ist nur bild 0
      * setzbar.
      * @param n bild index

@@ -325,18 +325,6 @@ gebaeude_t::gib_after_bild() const
 	}
 }
 
-image_id
-gebaeude_t::gib_after_bild(int nr) const
-{
-	if(zeige_baugrube) {
-		return IMG_LEER;
-	}
-	else {
-		return tile->gib_vordergrund(count, nr);
-	}
-}
-
-
 
 /* calculate the passenger level as funtion of the city size (if there)
  */
