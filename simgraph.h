@@ -21,9 +21,6 @@
 extern "C" {
 // since our simgraph16.c ist a plain c-file, it will never see this
 extern int large_font_height;
-#else
-// only needed for non C++
-typedef enum {false=0, true=1 } bool;
 #endif
 
 #ifndef TRUE
@@ -37,17 +34,6 @@ typedef enum {false=0, true=1 } bool;
 
 // size of koordinates
 typedef short KOORD_VAL;
-
-
-typedef struct
-{
-	int	height;
-	int	descent;
-	unsigned num_chars;
-	char	name[256];
-	unsigned char	*screen_width;
-	unsigned char	*char_data;
-} font_type;
 
 
 struct clip_dimension {

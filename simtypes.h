@@ -48,6 +48,8 @@ inline static int max(const int a, const int b)
     return (a > b) ? a : b;
 }
 #endif
+#else
+	typedef enum bool { false, true } bool;
 #endif
 
 typedef signed char          sint8;

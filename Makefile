@@ -170,6 +170,7 @@ SOURCES += dings/tunnel.cc
 SOURCES += dings/wayobj.cc
 SOURCES += dings/wolke.cc
 SOURCES += dings/zeiger.cc
+SOURCES += font.cc
 SOURCES += freight_list_sorter.cc
 SOURCES += gui/citylist_frame_t.cc
 SOURCES += gui/citylist_stats_t.cc

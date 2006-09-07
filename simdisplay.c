@@ -18,6 +18,7 @@
 
 #include <stdio.h>
 
+#include "simtypes.h"
 #include "simgraph.h"
 #include "simimg.h"
 #include "simdisplay.h"
