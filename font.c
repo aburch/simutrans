@@ -214,7 +214,6 @@ bool load_font(font_type* fnt, const char* fname)
 		// convert to new standard font
 		free(fnt->screen_width);
 		free(fnt->char_data);
-		strcpy(fnt->name, fname);
 		fnt->screen_width = malloc(256);
 		fnt->char_data    = malloc(16 * 256);
 		fnt->num_chars    = 256;
@@ -266,7 +265,6 @@ bool load_font(font_type* fnt, const char* fname)
 		// convert to new standard font
 		free(fnt->screen_width);
 		free(fnt->char_data);
-		strcpy(fnt->name, fname);
 		fnt->screen_width = malloc(256);
 		fnt->char_data    = malloc(16 * 256);
 		fnt->num_chars    = 256;

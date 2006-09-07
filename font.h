@@ -10,7 +10,6 @@ typedef struct font_type {
 	int	height;
 	int	descent;
 	unsigned int num_chars;
-	char name[256];
 	unsigned char* screen_width;
 	unsigned char* char_data;
 } font_type;
