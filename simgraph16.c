@@ -1064,12 +1064,7 @@ void display_check_fonts(void)
  */
 static int load_palette(const char *filename, unsigned char *palette)
 {
-	char fname[256];
-	FILE *file;
-
-	strcpy(fname, filename);
-
-	file = fopen(fname,"rb");
+	FILE* file = fopen(filename,"rb");
 
 	if (file) {
 		int x;
@@ -1088,7 +1083,7 @@ static int load_palette(const char *filename, unsigned char *palette)
 
 		fclose(file);
 	} else {
-		fprintf(stderr, "Error: can't open file '%s' for reading\n", fname);
+		fprintf(stderr, "Error: can't open file '%s' for reading\n", filename);
 	}
 
 	return file != NULL;
