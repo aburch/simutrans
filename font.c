@@ -54,7 +54,7 @@ static int dsp_read_bdf_glyph(FILE *fin, unsigned char *data, unsigned char *scr
 		if (strncmp(str, "ENCODING", 8) == 0) {
 			char_nr = atoi(str + 8);
 			if (char_nr <= 0 || char_nr >= char_limit) {
-				printf("Unexpected character (%i) for %i character font!\n", char_nr, char_limit);
+				fprintf(stderr, "Unexpected character (%i) for %i character font!\n", char_nr, char_limit);
 				char_nr = 0;
 				continue;
 			}
@@ -99,7 +99,7 @@ static int dsp_read_bdf_glyph(FILE *fin, unsigned char *data, unsigned char *scr
 			data[16 * char_nr + 15] = g_width;
 			if (d_width == 0) {
 				// no screen width: should not happen, but we can recover
-				printf("BDF warning: %i has no screen width assigned!\n", char_nr);
+				fprintf(stderr, "BDF warning: %i has no screen width assigned!\n", char_nr);
 				d_width = g_width + 1;
 			}
 			screen_w[char_nr] = g_width;
@@ -141,15 +141,13 @@ static bool dsp_read_bdf_font(FILE* fin, font_type* font)
 			}
 			data = calloc(f_chars, 16);
 			if (data == NULL) {
-				printf("No enough memory for font allocation!\n");
-				fflush(NULL);
+				fprintf(stderr, "No enough memory for font allocation!\n");
 				return false;
 			}
 			screen_widths = calloc(f_chars, 1);
 			if (screen_widths == NULL) {
 				free(data);
-				printf("No enough memory for font allocation!\n");
-				fflush(NULL);
+				fprintf(stderr, "No enough memory for font allocation!\n");
 				return false;
 			}
 			data[32 * 16] = 0; // screen width of space
@@ -203,8 +201,7 @@ bool load_font(font_type* fnt, const char* fname)
 
 	f = fopen(fname, "rb");
 	if (f == NULL) {
-		printf("Error: Cannot open '%s'\n", fname);
-		fflush(NULL);
+		fprintf(stderr, "Error: Cannot open '%s'\n", fname);
 		return false;
 	}
 	c = getc(f);
@@ -216,12 +213,10 @@ bool load_font(font_type* fnt, const char* fname)
 		int i;
 
 		rewind(f);
-		printf("Loading font '%s'\n", fname);
-		fflush(NULL);
+		fprintf(stderr, "Loading font '%s'\n", fname);
 
 		if (fread(npr_fonttab, 1, 3072, f) != 3072) {
-			printf("Error: %s wrong size for old format prop font!\n",fname);
-			fflush(NULL);
+			fprintf(stderr, "Error: %s wrong size for old format prop font!\n", fname);
 			fclose(f);
 			return false;
 		}
@@ -250,8 +245,7 @@ bool load_font(font_type* fnt, const char* fname)
 		}
 		fnt->screen_width[32] = 4;
 		fnt->char_data[16 * 32 + 15] = 0;
-		printf("%s sucessful loaded as old format prop font!\n",fname);
-		fflush(NULL);
+		fprintf(stderr, "%s sucessful loaded as old format prop font!\n", fname);
 		return true;
 	}
 
@@ -300,19 +294,16 @@ bool load_font(font_type* fnt, const char* fname)
 			}
 			fnt->char_data[i * 16 + 15] = 3;
 		}
-		printf("%s sucessful loaded as old format hex font!\n",fname);
-		fflush(NULL);
+		fprintf(stderr, "%s sucessful loaded as old format hex font!\n", fname);
 		return true;
 	}
 
 	/* also, read unicode font.dat
 	 * @author prissi
 	 */
-	printf("Loading BDF font '%s'\n", fname);
-	fflush(NULL);
+	fprintf(stderr, "Loading BDF font '%s'\n", fname);
 	if (dsp_read_bdf_font(f, fnt)) {
-		printf("Loading BDF font %s ok\n", fname);
-		fflush(NULL);
+		fprintf(stderr, "Loading BDF font %s ok\n", fname);
 		fclose(f);
 		return true;
 	}
