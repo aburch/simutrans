@@ -3,6 +3,7 @@
 #include <string.h>
 
 #include "simtypes.h"
+#include "macros.h"
 #include "font.h"
 
 
@@ -12,23 +13,23 @@ static int nibble(char c)
 }
 
 
-/* decodes a single line line of a character
- * @author prissi
+/**
+ * Decodes a single line of a character
  */
 static void dsp_decode_bdf_data_row(unsigned char *data, int y, int g_width, char *str)
 {
 	unsigned char data2;
-	char	buf[3];
+	char buf[3];
 
 	buf[0] = str[0];
 	buf[1] = str[1];
-	buf[2] = 0;
+	buf[2] = '\0';
 	data[y] = (unsigned char)strtol(buf, NULL ,16);
 	// read second byte but use only first two nibbles
 	if (g_width > 8) {
 		buf[0] = str[2];
 		buf[1] = str[3];
-		buf[2] = 0;
+		buf[2] = '\0';
 		data2 = (unsigned char)(strtol(buf, NULL, 16) & 0xC0);
 		data[12 + (y / 4)] |= data2 >> (2 * (y & 0x03));
 	}
@@ -36,18 +37,17 @@ static void dsp_decode_bdf_data_row(unsigned char *data, int y, int g_width, cha
 
 
 /**
- * reads a single character
- * @author prissi
+ * Reads a single character
  */
 static int dsp_read_bdf_glyph(FILE *fin, unsigned char *data, unsigned char *screen_w, int char_limit, int f_height, int f_desc)
 {
-	char str[256];
 	int	char_nr = 0;
-	int g_width, h, c, g_desc;
+	int g_width, h, g_desc;
 	int	d_width = 0;
-	int y;
 
 	while (!feof(fin)) {
+		char str[256];
+
 		fgets(str, sizeof(str), fin);
 
 		// endcoding (char number) in decimal
@@ -56,14 +56,13 @@ static int dsp_read_bdf_glyph(FILE *fin, unsigned char *data, unsigned char *scr
 			if (char_nr <= 0 || char_nr >= char_limit) {
 				fprintf(stderr, "Unexpected character (%i) for %i character font!\n", char_nr, char_limit);
 				char_nr = 0;
-				continue;
 			}
 			continue;
 		}
 
 		// information over size and coding
 		if (strncmp(str, "BBX", 3) == 0) {
-			sscanf(str + 3, "%d %d %d %d", &g_width, &h, &c, &g_desc);
+			sscanf(str + 3, "%d %d %*d %d", &g_width, &h, &g_desc);
 			continue;
 		}
 
@@ -76,6 +75,7 @@ static int dsp_read_bdf_glyph(FILE *fin, unsigned char *data, unsigned char *scr
 		// start if bitmap data
 		if (strncmp(str, "BITMAP", 6) == 0) {
 			const int top = f_height + f_desc - h - g_desc;
+			int y;
 
 			// set place for high nibbles to zero
 			data[16 * char_nr + 12] = 0;
@@ -112,54 +112,44 @@ static int dsp_read_bdf_glyph(FILE *fin, unsigned char *data, unsigned char *scr
 
 
 /**
- * reads a single character
- * @author prissi
+ * Reads a single character
  */
 static bool dsp_read_bdf_font(FILE* fin, font_type* font)
 {
-	char str[256];
-	unsigned char *data = NULL, *screen_widths = NULL;
-	int	f_width, f_height, f_lead, f_desc;
+	unsigned char* screen_widths = NULL;
+	unsigned char* data = NULL;
+	int	f_height;
+	int f_desc;
 	int f_chars = 0;
-	int h;
 
 	while (!feof(fin)) {
+		char str[256];
+
 		fgets(str, sizeof(str), fin);
 
 		if (strncmp(str, "FONTBOUNDINGBOX", 15) == 0) {
-			sscanf(str + 15, "%d %d %d %d", &f_width, &f_height, &f_lead, &f_desc);
+			sscanf(str + 15, "%*d %d %*d %d", &f_height, &f_desc);
 			continue;
 		}
 
 		if (strncmp(str, "CHARS", 5) == 0) {
-			f_chars = atoi(str + 5);
-			if (f_chars > 255) {
-				f_chars = 65536;
-			} else {
-				// normal 256 chars
-				f_chars = 256;
-			}
+			f_chars = (atoi(str + 5) > 255) ? 65536 : 256;
+
 			data = calloc(f_chars, 16);
 			if (data == NULL) {
 				fprintf(stderr, "No enough memory for font allocation!\n");
 				return false;
 			}
+
 			screen_widths = calloc(f_chars, 1);
 			if (screen_widths == NULL) {
 				free(data);
 				fprintf(stderr, "No enough memory for font allocation!\n");
 				return false;
 			}
+
 			data[32 * 16] = 0; // screen width of space
-			if (f_height >= 6) {
-				if (f_height < 24) {
-					screen_widths[32] = f_height / 2;
-				} else {
-					screen_widths[32] = 12;
-				}
-			} else {
-				screen_widths[32] = 3;
-			}
+			screen_widths[32] = clamp(f_height / 2, 3, 12);
 			continue;
 		}
 
@@ -171,18 +161,18 @@ static bool dsp_read_bdf_font(FILE* fin, font_type* font)
 
 	// ok, was successful?
 	if (f_chars > 0) {
+		int h;
+
 		// init default char for missing characters (just a box)
 		screen_widths[0] = 8;
-
 		data[0] = 0x7E;
 		for (h = 1; h < f_height - 2; h++) data[h] = 0x42;
 		data[h++] = 0x7E;
 		for (; h < 15; h++) data[h] = 0;
 		data[15] = 7;
 
-		// now free old and assign new
-		if (font->screen_width != NULL) free(font->screen_width);
-		if (font->char_data    != NULL) free(font->char_data);
+		free(font->screen_width);
+		free(font->char_data);
 		font->screen_width = screen_widths;
 		font->char_data    = data;
 		font->height       = f_height;
@@ -196,10 +186,9 @@ static bool dsp_read_bdf_font(FILE* fin, font_type* font)
 
 bool load_font(font_type* fnt, const char* fname)
 {
-	FILE *f = NULL;
+	FILE* f = fopen(fname, "rb");
 	unsigned char c;
 
-	f = fopen(fname, "rb");
 	if (f == NULL) {
 		fprintf(stderr, "Error: Cannot open '%s'\n", fname);
 		return false;
@@ -209,24 +198,25 @@ bool load_font(font_type* fnt, const char* fname)
 	// binary => the assume dumpe prop file
 	if (c < 32) {
 		// read classical prop font
-		unsigned char npr_fonttab[3074];
+		unsigned char npr_fonttab[3072];
 		int i;
 
 		rewind(f);
 		fprintf(stderr, "Loading font '%s'\n", fname);
 
-		if (fread(npr_fonttab, 1, 3072, f) != 3072) {
+		if (fread(npr_fonttab, sizeof(npr_fonttab), 1, f) != 1) {
 			fprintf(stderr, "Error: %s wrong size for old format prop font!\n", fname);
 			fclose(f);
 			return false;
 		}
 		fclose(f);
+
 		// convert to new standard font
-		if (fnt->screen_width != NULL) free(fnt->screen_width);
-		if (fnt->char_data    != NULL) free(fnt->char_data);
+		free(fnt->screen_width);
+		free(fnt->char_data);
 		strcpy(fnt->name, fname);
-		fnt->screen_width = (unsigned char*)malloc(256);
-		fnt->char_data    = (unsigned char*)malloc(16 * 256);
+		fnt->screen_width = malloc(256);
+		fnt->char_data    = malloc(16 * 256);
 		fnt->num_chars    = 256;
 		fnt->height       = 10;
 		fnt->descent      = -1;
@@ -245,39 +235,40 @@ bool load_font(font_type* fnt, const char* fname)
 		}
 		fnt->screen_width[32] = 4;
 		fnt->char_data[16 * 32 + 15] = 0;
-		fprintf(stderr, "%s sucessful loaded as old format prop font!\n", fname);
+		fprintf(stderr, "%s sucessfully loaded as old format prop font!\n", fname);
 		return true;
 	}
 
 	// load old hex font format
 	if (c == '0') {
 		unsigned char dr_4x7font[7 * 256];
-		int fh = 7;
 		char buf[80];
 		int i;
-		int  n, line;
-		char *p;
 
 		rewind(f);
 
 		while (fgets(buf, sizeof(buf), f) != NULL) {
-			sscanf(buf, "%4x", &n);
-			p = buf + 5;
+			const char* p;
+			int line;
+			int n;
 
-			for (line = 0; line < fh; line++) {
+			sscanf(buf, "%4x", &n);
+
+			p = buf + 5;
+			for (line = 0; line < 7; line++) {
 				int val = nibble(p[0]) * 16 + nibble(p[1]);
 
-				dr_4x7font[n * fh + line] = val;
+				dr_4x7font[n * 7 + line] = val;
 				p += 2;
 			}
 		}
 		fclose(f);
 		// convert to new standard font
-		if (fnt->screen_width != NULL) free(fnt->screen_width);
-		if (fnt->char_data    != NULL) free(fnt->char_data);
+		free(fnt->screen_width);
+		free(fnt->char_data);
 		strcpy(fnt->name, fname);
-		fnt->screen_width = (unsigned char*)malloc(256);
-		fnt->char_data    = (unsigned char*)malloc(16 * 256);
+		fnt->screen_width = malloc(256);
+		fnt->char_data    = malloc(16 * 256);
 		fnt->num_chars    = 256;
 		fnt->height       = 7;
 		fnt->descent      = -1;
@@ -298,9 +289,6 @@ bool load_font(font_type* fnt, const char* fname)
 		return true;
 	}
 
-	/* also, read unicode font.dat
-	 * @author prissi
-	 */
 	fprintf(stderr, "Loading BDF font '%s'\n", fname);
 	if (dsp_read_bdf_font(f, fnt)) {
 		fprintf(stderr, "Loading BDF font %s ok\n", fname);
