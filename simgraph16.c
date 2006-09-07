@@ -334,35 +334,6 @@ int display_set_base_raster_width(int new_raster)
 
 
 /**
- * If arguments are supposed to be changed during the call
- * use this makro instead of pixcopy()
- */
-//#define PCPY(d, s, l) while (l--) *d++ = rgbmap[*s++];
-//#define PCPY(d, s, l) while (l--) *d++ = *s++;
-//#define PCPY(d, s, l) if (runlen) do {*d++ = *s++; } while (--l)
-
-// Hajo: unrolled loop is about 5 percent faster
-#define PCPY(d, s, l) \
-	if (l & 1) { \
-		*d++ = *s++; \
-		l--; \
-	} \
-	{ \
-		unsigned long *ld = (unsigned long*)d; \
-		const unsigned long *ls = (const unsigned long*)s; \
-		d += l; \
-		s += l; \
-		l >>= 1; \
-		while (l--) { \
-			*ld++ = *ls++; \
-		} \
-	}
-
-
-// --------------      Functions      --------------
-
-
-/**
  * Rezooms all images
  * @author Hj. Malthaner
  */
@@ -1805,8 +1776,20 @@ void display_img_nc(KOORD_VAL h, const KOORD_VAL xp, const KOORD_VAL yp, const P
 
 				// jetzt kommen farbige pixel
 				runlen = *sp++;
-#ifdef USE_C
-				PCPY(p, sp, runlen);
+#if USE_C
+				{
+					const unsigned int* ls;
+					unsigned int* ld;
+
+					if (runlen & 1) *p++ = *sp++;
+
+					ls = (const unsigned int*)sp;
+					ld = (unsigned int*)p;
+					runlen >>= 1;
+					while (runlen--) *ld++ = *ls++;
+					p = (PIXVAL*)ld;
+					sp = (const PIXVAL*)ls;
+				}
 #else
 				asm volatile (
 					"cld\n\t"
