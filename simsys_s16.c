@@ -254,13 +254,7 @@ void set_pointer(int loading)
  */
 int dr_screenshot(const char *filename)
 {
-  /*
-   * Speichert Screenshot mit SDL-Funktion
-   * @author hellmade
-   */
-  SDL_SaveBMP (SDL_GetVideoSurface(), filename);
-
-  return 1;
+	return SDL_SaveBMP(SDL_GetVideoSurface(), filename) == 0 ? 1 : -1;
 }
 
 
