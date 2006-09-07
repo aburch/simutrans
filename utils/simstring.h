@@ -28,7 +28,7 @@ void set_thousand_sep(char c);
 void set_fraction_sep(char c);
 
 
-char get_fraction_sep();
+char get_fraction_sep(void);
 
 
 int clip_string(const int strlen, const int maxlen, char *buf);

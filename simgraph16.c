@@ -38,18 +38,15 @@
 #include "besch/bild_besch.h"
 #include "unicode.h"
 
-//#include "utils/writepcx.h"
-//#include "utils/image_encoder.h"
-
 
 #ifdef _MSC_VER
-#include <io.h>
-#include <direct.h>
-#define W_OK	2
+#	include <io.h>
+#	include <direct.h>
+#	define W_OK 2
 #else
-#include <sys/stat.h>
-#include <fcntl.h>
-#include <unistd.h>
+#	include <sys/stat.h>
+#	include <fcntl.h>
+#	include <unistd.h>
 #endif
 
 #include "simgraph.h"
@@ -58,7 +55,7 @@
 /*
  * Hajo: RGB 888 padded to 32 bit
  */
-typedef unsigned int   PIXRGB;
+typedef unsigned int PIXRGB;
 
 
 /*
@@ -67,19 +64,19 @@ typedef unsigned int   PIXRGB;
 typedef uint16 PIXVAL;
 
 
-// --------------      static data    --------------
-
 #ifdef USE_SOFTPOINTER
 static int softpointer = -1;
 #endif
 static int standard_pointer = -1;
 
 
+#ifdef USE_SOFTPOINTER
 /*
- * die icon leiste muss neu gezeichnet werden wenn der
- * Mauszeiger darueber schwebt
+ * Die Icon Leiste muss neu gezeichnet werden wenn der Mauszeiger darueber
+ * schwebt
  */
 int old_my = -1;
+#endif
 
 
 /* Flag, if we have Unicode font => do unicode (UTF8) support! *
@@ -97,12 +94,6 @@ static font_type	large_font;
 
 // needed for gui
 int large_font_height = 10;
-
-
-/*
- * Hajo: pixel value type, RGB 555
- */
-// typedef unsigned short PIXVAL;
 
 
 static unsigned char day_pal[256 * 3];
@@ -228,13 +219,13 @@ static struct imd* images = NULL;
 /*
  * Number of loaded images
  */
-static unsigned anz_images = 0;
+static unsigned int anz_images = 0;
 
 /*
  * Number of allocated entries for images
  * (>= anz_images)
  */
-static unsigned alloc_images = 0;
+static unsigned int alloc_images = 0;
 
 
 /*
@@ -337,9 +328,10 @@ int display_set_base_raster_width(int new_raster)
  * Rezooms all images
  * @author Hj. Malthaner
  */
-static void rezoom()
+static void rezoom(void)
 {
-	unsigned n;
+	unsigned int n;
+
 	for (n = 0; n < anz_images; n++) {
 		images[n].recode_flags[NEED_REZOOM] = (images[n].recode_flags[FLAGS] & FLAG_ZOOMABLE) != 0 && images[n].base_h > 0;
 		images[n].recode_flags[NEED_NORMAL_RECODE] = 128;
@@ -373,7 +365,7 @@ void set_zoom_factor(int z)
 
 static inline void mark_tile_dirty(const int x, const int y)
 {
-	const int bit = x+y*tiles_per_line;
+	const int bit = x + y * tiles_per_line;
 
 #if 0
 	assert(bit / 8 < tile_buffer_length);
@@ -415,7 +407,6 @@ static inline int is_tile_dirty(const int x, const int y)
 static void mark_rect_dirty_nc(KOORD_VAL x1, KOORD_VAL y1, KOORD_VAL x2, KOORD_VAL y2)
 {
 	// floor to tile size
-
 	x1 >>= DIRTY_TILE_SHIFT;
 	y1 >>= DIRTY_TILE_SHIFT;
 	x2 >>= DIRTY_TILE_SHIFT;
@@ -442,13 +433,12 @@ static void mark_rect_dirty_nc(KOORD_VAL x1, KOORD_VAL y1, KOORD_VAL x2, KOORD_V
  */
 void mark_rect_dirty_wc(KOORD_VAL x1, KOORD_VAL y1, KOORD_VAL x2, KOORD_VAL y2)
 {
-	// Hajo: inside display ?
+	// inside display?
 	if (x2 >= 0 && y2 >= 0 && x1 < disp_width && y1 < disp_height) {
 		if (x1 < 0) x1 = 0;
 		if (y1 < 0) y1 = 0;
 		if (x2 >= disp_width)  x2 = disp_width  - 1;
 		if (y2 >= disp_height) y2 = disp_height - 1;
-
 		mark_rect_dirty_nc(x1, y1, x2, y2);
 	}
 }
@@ -458,7 +448,7 @@ void mark_rect_dirty_wc(KOORD_VAL x1, KOORD_VAL y1, KOORD_VAL x2, KOORD_VAL y2)
  * Convert image data to actual output data
  * @author Hj. Malthaner
  */
-static void recode()
+static void recode(void)
 {
 	unsigned n;
 
@@ -606,7 +596,7 @@ static void rezoom_img(const unsigned int n)
 		images[n].x = images[n].base_x / zoom_factor;
 		images[n].y = images[n].base_y / zoom_factor;
 		images[n].w = (images[n].base_x + images[n].base_w) / zoom_factor - images[n].x;
-		images[n].h = images[n].base_h/zoom_factor;
+		images[n].h = images[n].base_h / zoom_factor;
 #if 0
 		images[n].h = (images[n].base_y % zoom_factor + images[n].base_h) / zoom_factor;
 #endif
@@ -674,8 +664,7 @@ static void rezoom_img(const unsigned int n)
 						*dest++ = i;
 						dest += i;
 					} while (step < imgw);
-					// mark line end
-					*dest++ = 0;
+					*dest++ = 0; // mark line end
 					if (y_left == 0) {
 						// ok now reset countdown counter
 						y_left = zoom_factor;
@@ -684,8 +673,8 @@ static void rezoom_img(const unsigned int n)
 				}
 
 				// countdown line skip counter
-				y_left --;
-			} while (--h);
+				y_left--;
+			} while (--h != 0);
 
 			// something left?
 			{
@@ -716,11 +705,7 @@ int	display_set_unicode(int use_unicode)
 
 static int nibble(char c)
 {
-	if (c > '9') {
-		return 10 + c - 'A';
-	} else {
-		return c - '0';
-	}
+	return (c > '9') ? 10 + c - 'A' : c - '0';
 }
 
 
@@ -838,7 +823,7 @@ static bool dsp_read_bdf_font(FILE *fin, font_type *font)
 	while (!feof(fin)) {
 		fgets(str, sizeof(str), fin);
 
-		if (strncmp(str, "FONTBOUNDINGBOX", 15 ) == 0) {
+		if (strncmp(str, "FONTBOUNDINGBOX", 15) == 0) {
 			sscanf(str + 15, "%d %d %d %d", &f_width, &f_height, &f_lead, &f_desc);
 			continue;
 		}
@@ -851,13 +836,13 @@ static bool dsp_read_bdf_font(FILE *fin, font_type *font)
 				// normal 256 chars
 				f_chars = 256;
 			}
-			data = (unsigned char*)calloc(f_chars, 16);
+			data = calloc(f_chars, 16);
 			if (data == NULL) {
-				printf( "No enough memory for font allocation!\n" );
+				printf("No enough memory for font allocation!\n");
 				fflush(NULL);
 				return false;
 			}
-			screen_widths = (unsigned char*)calloc(f_chars, 1);
+			screen_widths = calloc(f_chars, 1);
 			if (screen_widths == NULL) {
 				free(data);
 				printf("No enough memory for font allocation!\n");
@@ -891,7 +876,7 @@ static bool dsp_read_bdf_font(FILE *fin, font_type *font)
 		data[0] = 0x7E;
 		for (h = 1; h < f_height - 2; h++) data[h] = 0x42;
 		data[h++] = 0x7E;
-		for (;  h < 15; h++) data[h] = 0;
+		for (; h < 15; h++) data[h] = 0;
 		data[15] = 7;
 
 		// now free old and assign new
@@ -1057,7 +1042,7 @@ static void copy_font(font_type *dest_font, font_type *src_font)
  * if not the missing font will be emulated
  * @author prissi
  */
-void	display_check_fonts(void)
+void display_check_fonts(void)
 {
 	// replace missing font, if none there (better than crashing ... )
 	if (small_font.screen_width == NULL && large_font.screen_width != NULL) {
@@ -1069,6 +1054,7 @@ void	display_check_fonts(void)
 		copy_font(&large_font, &small_font);
 	}
 }
+
 #endif
 
 
@@ -1113,7 +1099,7 @@ static int load_palette(const char *filename, unsigned char *palette)
  * Loads the special colors map
  * @author Hj. Malthaner
  */
-static int load_special_palette()
+static int load_special_palette(void)
 {
 	const char *fname = PALETTE_PATH_X "special.pal";
 
@@ -1144,13 +1130,13 @@ static int load_special_palette()
 }
 
 
-sint16 display_get_width()
+sint16 display_get_width(void)
 {
 	return disp_width;
 }
 
 
-sint16 display_get_height()
+sint16 display_get_height(void)
 {
 	return disp_height;
 }
@@ -1169,7 +1155,7 @@ sint16 display_set_height(KOORD_VAL h)
  * Holt Helligkeitseinstellungen
  * @author Hj. Malthaner
  */
-int display_get_light()
+int display_get_light(void)
 {
 	return light_level;
 }
@@ -1283,25 +1269,19 @@ static void calc_base_pal_from_night_shift(const int night)
 	//                     0,75 - quite bright                 80        17
 	//                     0,8    bright                      104        22
 #if 0
-	const double RG_nihgt_multiplier = pow(0.73,night);
-	const double B_nihgt_multiplier = pow(0.82,night);
+	const double RG_nihgt_multiplier = pow(0.73, night);
+	const double B_nihgt_multiplier  = pow(0.82, night);
 #endif
 
 	const double RG_nihgt_multiplier = pow(0.75, night) * ((light_level + 8.0) / 8.0);
 	const double B_nihgt_multiplier  = pow(0.83, night) * ((light_level + 8.0) / 8.0);
 
-
 	for (i = 0; i < 0x8000; i++) {
 		// (1<<15) this is total no of all possible colors in RGB555)
-
-		int R;
-		int G;
-		int B;
-
 		// RGB 555 input
-		R = ((i & 0x7C00) >> 7);
-		G = ((i & 0x03E0) >> 2);
-		B = ((i & 0x001F) << 3);
+		int R = (i & 0x7C00) >> 7;
+		int G = (i & 0x03E0) >> 2;
+		int B = (i & 0x001F) << 3;
 		// lines generate all possible colors in 555RGB code - input
 		// however the result is in 888RGB - 8bit per channel
 
@@ -1312,10 +1292,9 @@ static void calc_base_pal_from_night_shift(const int night)
 		rgbmap_day_night[i] = get_system_color(R, G, B);
 	}
 
-
 	// player 0 colors, unshaded
 	for (i = 0; i < 4; i++) {
-		const int R = day_pal[i * 3];
+		const int R = day_pal[i * 3 + 0];
 		const int G = day_pal[i * 3 + 1];
 		const int B = day_pal[i * 3 + 2];
 
@@ -1325,7 +1304,7 @@ static void calc_base_pal_from_night_shift(const int night)
 
 	// player 0 colors, shaded
 	for (i = 0; i < 16; i++) {
-		const int R = (int)(special_pal[(256 + i) * 3]     * RG_nihgt_multiplier);
+		const int R = (int)(special_pal[(256 + i) * 3 + 0] * RG_nihgt_multiplier);
 		const int G = (int)(special_pal[(256 + i) * 3 + 1] * RG_nihgt_multiplier);
 		const int B = (int)(special_pal[(256 + i) * 3 + 2] * B_nihgt_multiplier);
 
@@ -1333,7 +1312,7 @@ static void calc_base_pal_from_night_shift(const int night)
 			get_system_color(R > 0 ? R : 0, G > 0 ? G : 0, B > 0 ? B : 0);
 
 		specialcolormap_all_day[i] = get_system_color(
-			special_pal[(256 + i) * 3],
+			special_pal[(256 + i) * 3 + 0],
 			special_pal[(256 + i) * 3 + 1],
 			special_pal[(256 + i) * 3 + 2]
 		);
@@ -1357,10 +1336,9 @@ static void calc_base_pal_from_night_shift(const int night)
 			get_system_color(R > 0 ? R : 0, G > 0 ? G : 0, B > 0 ? B : 0);
 	}
 
-
 	// transform special colors
 	for (i = 16; i < 256; i++) {
-		int R = (int)(special_pal[i * 3]     * RG_nihgt_multiplier);
+		int R = (int)(special_pal[i * 3 + 0] * RG_nihgt_multiplier);
 		int G = (int)(special_pal[i * 3 + 1] * RG_nihgt_multiplier);
 		int B = (int)(special_pal[i * 3 + 2] * B_nihgt_multiplier);
 
@@ -1410,21 +1388,21 @@ static void display_set_player_color(int entry)
 
 	// Legacy set of 4 player colors, unshaded
 	for (i = 0; i < 4; i++) {
-		day_pal[i * 3]     = special_pal[entry + i * 3 * 2];
+		day_pal[i * 3 + 0] = special_pal[entry + i * 3 * 2 + 0];
 		day_pal[i * 3 + 1] = special_pal[entry + i * 3 * 2 + 1];
 		day_pal[i * 3 + 2] = special_pal[entry + i * 3 * 2 + 2];
 	}
 
 	// New set of 16 player colors, unshaded
 	for (i = 0; i < 16; i++) {
-		special_pal[(256 + i) * 3]     = special_pal[entry + i * 3];
+		special_pal[(256 + i) * 3 + 0] = special_pal[entry + i * 3 + 0];
 		special_pal[(256 + i) * 3 + 1] = special_pal[entry + i * 3 + 1];
 		special_pal[(256 + i) * 3 + 2] = special_pal[entry + i * 3 + 2];
 	}
 
 	calc_base_pal_from_night_shift(night_shift);
 
-	mark_rect_dirty_nc(0,0, disp_width-1, disp_height-1);
+	mark_rect_dirty_nc(0, 0, disp_width - 1, disp_height - 1);
 }
 
 
@@ -1559,7 +1537,7 @@ void display_set_image_offset(unsigned bild, int xoff, int yoff)
  * Holt Maus X-Position
  * @author Hj. Malthaner
  */
-int gib_maus_x()
+int gib_maus_x(void)
 {
 	return sys_event.mx;
 }
@@ -1569,7 +1547,7 @@ int gib_maus_x()
  * Holt Maus y-Position
  * @author Hj. Malthaner
  */
-int gib_maus_y()
+int gib_maus_y(void)
 {
 	return sys_event.my;
 }
@@ -1693,9 +1671,7 @@ static inline void pixcopy(PIXVAL *dest, const PIXVAL *src, const unsigned int l
 	// for gcc this seems to produce the optimal code ...
 	const PIXVAL *const end = dest + len;
 
-	while (dest < end) {
-		*dest ++ = *src++;
-	}
+	while (dest < end) *dest++ = *src++;
 }
 
 
@@ -2108,13 +2084,13 @@ static void display_fb_internal(KOORD_VAL xp, KOORD_VAL yp, KOORD_VAL w, KOORD_V
 
 void display_fillbox_wh(KOORD_VAL xp, KOORD_VAL yp, KOORD_VAL w, KOORD_VAL h, PLAYER_COLOR_VAL color, int dirty)
 {
-  display_fb_internal(xp, yp, w, h, color, dirty, 0, disp_width, 0, disp_height);
+	display_fb_internal(xp, yp, w, h, color, dirty, 0, disp_width, 0, disp_height);
 }
 
 
 void display_fillbox_wh_clip(KOORD_VAL xp, KOORD_VAL yp, KOORD_VAL w, KOORD_VAL h,PLAYER_COLOR_VAL color, int dirty)
 {
-  display_fb_internal(xp, yp, w, h, color, dirty, clip_rect.x, clip_rect.xx, clip_rect.y, clip_rect.yy);
+	display_fb_internal(xp, yp, w, h, color, dirty, clip_rect.x, clip_rect.xx, clip_rect.y, clip_rect.yy);
 }
 
 
@@ -2124,29 +2100,29 @@ void display_fillbox_wh_clip(KOORD_VAL xp, KOORD_VAL yp, KOORD_VAL w, KOORD_VAL 
  */
 static void display_vl_internal(const KOORD_VAL xp, KOORD_VAL yp, KOORD_VAL h, const PLAYER_COLOR_VAL color, int dirty, KOORD_VAL cL, KOORD_VAL cR, KOORD_VAL cT, KOORD_VAL cB)
 {
-	if (xp >= cL && xp <= cR &&  clip_lr(&yp, &h, cT, cB)) {
+	if (xp >= cL && xp <= cR && clip_lr(&yp, &h, cT, cB)) {
 		PIXVAL *p = textur + xp + yp * disp_width;
 		const PIXVAL colval = (color >= PLAYER_FLAG ? specialcolormap_all_day[color & 0xFF] : rgbcolormap[color]);
 
-		if (dirty) mark_rect_dirty_nc(xp, yp, xp, yp+h-1);
+		if (dirty) mark_rect_dirty_nc(xp, yp, xp, yp + h - 1);
 
 		do {
 			*p = colval;
 			p += disp_width;
-		} while (--h);
+		} while (--h != 0);
 	}
 }
 
 
 void display_vline_wh(const KOORD_VAL xp, KOORD_VAL yp, KOORD_VAL h, const PLAYER_COLOR_VAL color, int dirty)
 {
-	display_vl_internal(xp,yp,h,color,dirty,0,disp_width,0,disp_height);
+	display_vl_internal(xp, yp, h, color, dirty, 0, disp_width, 0, disp_height);
 }
 
 
 void display_vline_wh_clip(const KOORD_VAL xp, KOORD_VAL yp, KOORD_VAL h, const PLAYER_COLOR_VAL color, int dirty)
 {
-	display_vl_internal(xp,yp,h,color,dirty,clip_rect.x, clip_rect.xx, clip_rect.y, clip_rect.yy);
+	display_vl_internal(xp, yp, h, color, dirty, clip_rect.x, clip_rect.xx, clip_rect.y, clip_rect.yy);
 }
 
 
@@ -2182,9 +2158,9 @@ void display_array_wh(KOORD_VAL xp, KOORD_VAL yp, KOORD_VAL w, KOORD_VAL h, cons
 				"lodsb\n\t"
 				"movzbl %%al, %%eax\n\t"
 #if defined(__MINGW32__) || defined(__CYGWIN__)
-				"movw _rgbcolormap(%%eax,%%eax),%%ax\n\t"
+				"movw _rgbcolormap(%%eax, %%eax), %%ax\n\t"
 #else
-				"movw rgbcolormap(%%eax,%%eax),%%ax\n\t"
+				"movw rgbcolormap(%%eax, %%eax), %%ax\n\t"
 #endif
 				"stosw\n\t"
 				"loopl .Ldaw\n\t"
@@ -2195,7 +2171,7 @@ void display_array_wh(KOORD_VAL xp, KOORD_VAL yp, KOORD_VAL w, KOORD_VAL h, cons
 #endif
 			arr_src += arr_w - w;
 			p += disp_width - w;
-		} while (--h);
+		} while (--h != 0);
 	}
 }
 
@@ -2205,8 +2181,9 @@ int get_next_char(const char* text, int pos)
 {
 	if (has_unicode) {
 		return utf8_get_next_char((const utf8*)text, pos);
+	} else {
+		return pos + 1;
 	}
-	return pos + 1;
 }
 
 
@@ -2214,9 +2191,10 @@ int get_prev_char(const char* text, int pos)
 {
 	if (pos <= 0) return 0;
 	if (has_unicode) {
-		return utf8_get_prev_char((const utf8 *)text, pos);
+		return utf8_get_prev_char((const utf8*)text, pos);
+	} else {
+		return pos - 1;
 	}
-	return pos - 1;
 }
 
 
@@ -2346,7 +2324,7 @@ int display_text_proportional_len_clip(KOORD_VAL x, KOORD_VAL y, const char *txt
 	KOORD_VAL y0, y_offset, char_height;	// real y for display with clipping
 	bool v_clip;
 	unsigned char mask1, mask2;	// for horizontal clipping
-	const PIXVAL color = (color_index >= PLAYER_FLAG ? specialcolormap_all_day[color_index & 0xFF]: rgbcolormap[color_index]);
+	const PIXVAL color = (color_index >= PLAYER_FLAG ? specialcolormap_all_day[color_index & 0xFF] : rgbcolormap[color_index]);
 #ifndef USE_C
 	// faster drawing with assembler
 	const unsigned long color2 = (color << 16) | color;
@@ -2420,10 +2398,9 @@ int display_text_proportional_len_clip(KOORD_VAL x, KOORD_VAL y, const char *txt
 #ifdef UNICODE_SUPPORT
 		}
 #endif
-		// print unknow character?
-		if (c >= fnt->num_chars || fnt->screen_width[c] == 0) {
-			c = 0;
-		}
+		// print unknown character?
+		if (c >= fnt->num_chars || fnt->screen_width[c] == 0) c = 0;
+
 		// get the data from the font
 		char_width_1 = fnt->char_data[16*c+15];
 		char_width_2 = fnt->screen_width[c];
@@ -2442,7 +2419,7 @@ int display_text_proportional_len_clip(KOORD_VAL x, KOORD_VAL y, const char *txt
 			mask2 = 0;
 		}
 		// do the display
-		screen_pos = y0*disp_width + x;
+		screen_pos = y0 * disp_width + x;
 
 		p = char_data + y_offset;
 		for (h = y_offset; h < char_height; h++) {
@@ -2467,10 +2444,12 @@ int display_text_proportional_len_clip(KOORD_VAL x, KOORD_VAL y, const char *txt
 #endif
 			screen_pos += disp_width;
 		}
+
 		// extra two bit for overwidth characters (up to 10 pixel supported for unicode)
 		// if the character height is smaller than 10, not all is needed; but we do this anyway!
 		if (char_width_1 > 8 && mask2 != 0) {
 			int dat = 0;
+
 			p = char_data + 12;
 			screen_pos = y * disp_width + x + 8;
 
@@ -2478,17 +2457,17 @@ int display_text_proportional_len_clip(KOORD_VAL x, KOORD_VAL y, const char *txt
 			// vertical clipping
 			if (v_clip) dat &= get_v_mask(y_offset, char_height, 0, 4);
 			if (dat != 0) {
-				if (dat & 128) textur[screen_pos + 0] = color;
-				if (dat &  64) textur[screen_pos + 1] = color;
+				if (dat & 0x80) textur[screen_pos + 0] = color;
+				if (dat & 0x40) textur[screen_pos + 1] = color;
 				screen_pos += disp_width;
-				if (dat &  32) textur[screen_pos + 0] = color;
-				if (dat &  16) textur[screen_pos + 1] = color;
+				if (dat & 0x20) textur[screen_pos + 0] = color;
+				if (dat & 0x10) textur[screen_pos + 1] = color;
 				screen_pos += disp_width;
-				if (dat &   8) textur[screen_pos + 0] = color;
-				if (dat &   4) textur[screen_pos + 1] = color;
+				if (dat & 0x08) textur[screen_pos + 0] = color;
+				if (dat & 0x04) textur[screen_pos + 1] = color;
 				screen_pos += disp_width;
-				if (dat &   2) textur[screen_pos + 0] = color;
-				if (dat &   1) textur[screen_pos + 1] = color;
+				if (dat & 0x02) textur[screen_pos + 0] = color;
+				if (dat & 0x01) textur[screen_pos + 1] = color;
 				screen_pos += disp_width;
 			} else {
 				screen_pos += disp_width * 4;
@@ -2498,37 +2477,37 @@ int display_text_proportional_len_clip(KOORD_VAL x, KOORD_VAL y, const char *txt
 			// vertical clipping
 			if (v_clip) dat &= get_v_mask(y_offset, char_height, 4, 8);
 			if (dat != 0) {
-				if (dat & 128) textur[screen_pos + 0] = color;
-				if (dat &  64) textur[screen_pos + 1] = color;
+				if (dat & 0x80) textur[screen_pos + 0] = color;
+				if (dat & 0x40) textur[screen_pos + 1] = color;
 				screen_pos += disp_width;
-				if (dat &  32) textur[screen_pos + 0] = color;
-				if (dat &  16) textur[screen_pos + 1] = color;
+				if (dat & 0x20) textur[screen_pos + 0] = color;
+				if (dat & 0x10) textur[screen_pos + 1] = color;
 				screen_pos += disp_width;
-				if (dat &   8) textur[screen_pos + 0] = color;
-				if (dat &   4) textur[screen_pos + 1] = color;
+				if (dat & 0x08) textur[screen_pos + 0] = color;
+				if (dat & 0x04) textur[screen_pos + 1] = color;
 				screen_pos += disp_width;
-				if (dat &   2) textur[screen_pos + 0] = color;
-				if (dat &   1) textur[screen_pos + 1] = color;
+				if (dat & 0x02) textur[screen_pos + 0] = color;
+				if (dat & 0x01) textur[screen_pos + 1] = color;
 				screen_pos += disp_width;
 			} else {
-				screen_pos += disp_width*4;
+				screen_pos += disp_width * 4;
 			}
 
 			dat = *p++ & mask2;
 			// vertical clipping
 			if (v_clip) dat &= get_v_mask(y_offset, char_height, 8, 12);
 			if (dat != 0) {
-				if (dat & 128) textur[screen_pos + 0] = color;
-				if (dat &  64) textur[screen_pos + 1] = color;
+				if (dat & 0x80) textur[screen_pos + 0] = color;
+				if (dat & 0x40) textur[screen_pos + 1] = color;
 				screen_pos += disp_width;
-				if (dat &  32) textur[screen_pos + 0] = color;
-				if (dat &  16) textur[screen_pos + 1] = color;
+				if (dat & 0x20) textur[screen_pos + 0] = color;
+				if (dat & 0x10) textur[screen_pos + 1] = color;
 				screen_pos += disp_width;
-				if (dat &   8) textur[screen_pos + 0] = color;
-				if (dat &   4) textur[screen_pos + 1] = color;
+				if (dat & 0x08) textur[screen_pos + 0] = color;
+				if (dat & 0x04) textur[screen_pos + 1] = color;
 				screen_pos += disp_width;
-				if (dat &   2) textur[screen_pos + 0] = color;
-				if (dat &   1) textur[screen_pos + 1] = color;
+				if (dat & 0x02) textur[screen_pos + 0] = color;
+				if (dat & 0x01) textur[screen_pos + 1] = color;
 				screen_pos += disp_width;
 			}
 		}
@@ -2580,16 +2559,16 @@ void display_ddd_box_clip(KOORD_VAL x1, KOORD_VAL y1, KOORD_VAL w, KOORD_VAL h, 
 // if width equals zero, take default value
 void display_ddd_proportional(KOORD_VAL xpos, KOORD_VAL ypos, KOORD_VAL width, KOORD_VAL hgt, PLAYER_COLOR_VAL ddd_farbe, PLAYER_COLOR_VAL text_farbe, const char *text, int dirty)
 {
-	int halfheight = (large_font_height / 2) + 1;
+	int halfheight = large_font_height / 2 + 1;
 
-	display_fillbox_wh(xpos - 2, ypos - halfheight - 1 - hgt, width, 1,            ddd_farbe + 1, dirty);
-	display_fillbox_wh(xpos - 2, ypos - halfheight - hgt,     width, halfheight*2, ddd_farbe,     dirty);
-	display_fillbox_wh(xpos - 2, ypos + halfheight - hgt,     width, 1,            ddd_farbe - 1, dirty);
+	display_fillbox_wh(xpos - 2, ypos - halfheight - hgt - 1, width, 1,              ddd_farbe + 1, dirty);
+	display_fillbox_wh(xpos - 2, ypos - halfheight - hgt,     width, halfheight * 2, ddd_farbe,     dirty);
+	display_fillbox_wh(xpos - 2, ypos + halfheight - hgt,     width, 1,              ddd_farbe - 1, dirty);
 
-	display_vline_wh(xpos - 2,         ypos - halfheight - 1 - hgt, halfheight * 2 + 1, ddd_farbe + 1, dirty);
-	display_vline_wh(xpos + width - 3, ypos - halfheight - 1 - hgt, halfheight * 2 + 1, ddd_farbe - 1, dirty);
+	display_vline_wh(xpos - 2,         ypos - halfheight - hgt - 1, halfheight * 2 + 1, ddd_farbe + 1, dirty);
+	display_vline_wh(xpos + width - 3, ypos - halfheight - hgt - 1, halfheight * 2 + 1, ddd_farbe - 1, dirty);
 
-	display_text_proportional_len_clip(xpos + 2, ypos-halfheight + 1, text, ALIGN_LEFT, text_farbe, FALSE, true, -1, false);
+	display_text_proportional_len_clip(xpos + 2, ypos - halfheight + 1, text, ALIGN_LEFT, text_farbe, FALSE, true, -1, false);
 }
 
 
@@ -2599,7 +2578,7 @@ void display_ddd_proportional(KOORD_VAL xpos, KOORD_VAL ypos, KOORD_VAL width, K
  */
 void display_ddd_proportional_clip(KOORD_VAL xpos, KOORD_VAL ypos, KOORD_VAL width, KOORD_VAL hgt, PLAYER_COLOR_VAL ddd_farbe, PLAYER_COLOR_VAL text_farbe, const char *text, int dirty)
 {
-	int halfheight = (large_font_height / 2) + 1;
+	int halfheight = large_font_height / 2 + 1;
 
 	display_fillbox_wh_clip(xpos - 2, ypos - halfheight - 1 - hgt, width, 1,              ddd_farbe + 1, dirty);
 	display_fillbox_wh_clip(xpos - 2, ypos - halfheight - hgt,     width, halfheight * 2, ddd_farbe,     dirty);
@@ -2607,14 +2586,14 @@ void display_ddd_proportional_clip(KOORD_VAL xpos, KOORD_VAL ypos, KOORD_VAL wid
 
 	display_vline_wh_clip(xpos - 2,         ypos - halfheight - 1 - hgt, halfheight * 2 + 1, ddd_farbe + 1, dirty);
 	display_vline_wh_clip(xpos + width - 3, ypos - halfheight - 1 - hgt, halfheight * 2 + 1, ddd_farbe - 1, dirty);
-	#if 0
+#if 0
 	display_fillbox_wh_clip(xpos - 2, ypos - 6 - hgt, width,  1, ddd_farbe + 1, dirty);
 	display_fillbox_wh_clip(xpos - 2, ypos - 5 - hgt, width, 10, ddd_farbe,     dirty);
 	display_fillbox_wh_clip(xpos - 2, ypos + 5 - hgt, width,  1, ddd_farbe - 1, dirty);
 
 	display_vline_wh_clip(xpos - 2,         ypos - 6 - hgt, 11, ddd_farbe + 1, dirty);
 	display_vline_wh_clip(xpos + width - 3, ypos - 6 - hgt, 11, ddd_farbe - 1, dirty);
-	#endif
+#endif
 	display_text_proportional_len_clip(xpos + 2, ypos - 5 + (12 - large_font_height) / 2, text, ALIGN_LEFT, text_farbe,FALSE, true, -1, true);
 }
 
@@ -2627,9 +2606,7 @@ int count_char(const char *str, const char c)
 {
 	int count = 0;
 
-	while (*str) {
-		count += (*str++ == c);
-	}
+	while (*str != '\0') count += (*str++ == c);
 	return count;
 }
 
@@ -2644,19 +2621,19 @@ int count_char(const char *str, const char c)
  */
 void display_multiline_text(KOORD_VAL x, KOORD_VAL y, const char *buf, PLAYER_COLOR_VAL color)
 {
-	if (buf && *buf) {
+	if (buf != NULL && *buf != '\0') {
 		char *next;
 
 		do {
-			next = strchr(buf,'\n');
+			next = strchr(buf, '\n');
 			display_text_proportional_len_clip(
 				x, y, buf,
 				ALIGN_LEFT, color, TRUE,
-				true, next ? next - buf : -1, true
+				true, next != NULL ? next - buf : -1, true
 			);
 			buf = next + 1;
 			y += LINESPACE;
-		} while (next);
+		} while (next != NULL);
 	}
 }
 
@@ -2667,10 +2644,10 @@ void display_multiline_text(KOORD_VAL x, KOORD_VAL y, const char *buf, PLAYER_CO
  * copies only the changed areas to the screen using the "tile dirty buffer"
  * To get large changes, actually the current and the previous one is used.
  */
-void display_flush_buffer()
+void display_flush_buffer(void)
 {
 	int x, y;
-	unsigned char * tmp;
+	unsigned char* tmp;
 
 #ifdef USE_SOFTPOINTER
 	if (softpointer != -1) {
@@ -2709,7 +2686,7 @@ void display_flush_buffer()
 				const int xl = x;
 				do {
 					x++;
-				} while(x < tiles_per_line && is_tile_dirty(x, y));
+				} while (x < tiles_per_line && is_tile_dirty(x, y));
 
 				dr_textur(xl << DIRTY_TILE_SHIFT, y << DIRTY_TILE_SHIFT, (x - xl) << DIRTY_TILE_SHIFT, DIRTY_TILE_SIZE);
 			}
@@ -2753,7 +2730,6 @@ void display_show_pointer(int yesno)
 }
 
 
-
 /**
  * mouse pointer image
  * @author prissi
@@ -2762,7 +2738,6 @@ void display_set_pointer(int pointer)
 {
 	standard_pointer = pointer;
 }
-
 
 
 /**
@@ -2779,8 +2754,6 @@ void display_show_load_pointer(int loading)
 }
 
 
-
-
 /**
  * Initialises the graphics module
  * @author Hj. Malthaner
@@ -2788,7 +2761,6 @@ void display_show_load_pointer(int loading)
 int simgraph_init(KOORD_VAL width, KOORD_VAL height, int use_shm, int do_sync, int full_screen)
 {
 	int parameter[2];
-	int ok;
 
 	parameter[0] = use_shm;
 	parameter[1] = do_sync;
@@ -2797,9 +2769,8 @@ int simgraph_init(KOORD_VAL width, KOORD_VAL height, int use_shm, int do_sync, i
 
 	// make sure it something of 16 (also better for caching ... )
 	width = (width + 15) & 0x7FF0;
-	ok = dr_os_open(width, height, full_screen);
 
-	if (ok) {
+	if (dr_os_open(width, height, full_screen)) {
 		unsigned int i;
 
 		disp_width = width;
@@ -2822,7 +2793,7 @@ int simgraph_init(KOORD_VAL width, KOORD_VAL height, int use_shm, int do_sync, i
 		display_set_color(1);
 
 		for (i = 0; i < 256; i++) {
-			rgbcolormap[i] = get_system_color(day_pal[i*3], day_pal[i*3+1], day_pal[i*3+2]);
+			rgbcolormap[i] = get_system_color(day_pal[i * 3], day_pal[i * 3 + 1], day_pal[i * 3 + 2]);
 		}
 	} else {
 		puts("Error  : can't open window!");
@@ -2830,14 +2801,14 @@ int simgraph_init(KOORD_VAL width, KOORD_VAL height, int use_shm, int do_sync, i
 	}
 
 	// allocate dirty tile flags
-	tiles_per_line = (disp_width + DIRTY_TILE_SIZE - 1) / DIRTY_TILE_SIZE;
-	tile_lines = (disp_height + DIRTY_TILE_SIZE - 1) / DIRTY_TILE_SIZE;
-	tile_buffer_length = (tile_lines*tiles_per_line+7) / 8;
+	tiles_per_line     = (disp_width  + DIRTY_TILE_SIZE - 1) / DIRTY_TILE_SIZE;
+	tile_lines         = (disp_height + DIRTY_TILE_SIZE - 1) / DIRTY_TILE_SIZE;
+	tile_buffer_length = (tile_lines * tiles_per_line + 7) / 8;
 
-	tile_dirty     = (unsigned char*)guarded_malloc(tile_buffer_length);
-	tile_dirty_old = (unsigned char*)guarded_malloc(tile_buffer_length);
+	tile_dirty     = guarded_malloc(tile_buffer_length);
+	tile_dirty_old = guarded_malloc(tile_buffer_length);
 
-	memset(tile_dirty, 255, tile_buffer_length);
+	memset(tile_dirty,     255, tile_buffer_length);
 	memset(tile_dirty_old, 255, tile_buffer_length);
 
 	display_setze_clip_wh(0, 0, disp_width, disp_height);
@@ -2861,7 +2832,7 @@ int simgraph_init(KOORD_VAL width, KOORD_VAL height, int use_shm, int do_sync, i
  * Prueft ob das Grafikmodul schon init. wurde
  * @author Hj. Malthaner
  */
-int is_display_init()
+int is_display_init(void)
 {
 	return textur != NULL;
 }
@@ -2905,15 +2876,14 @@ void simgraph_resize(KOORD_VAL w, KOORD_VAL h)
 
 		dr_textur_resize(&textur, disp_width, disp_height);
 
-		// allocate dirty tile flags
 		tiles_per_line     = (disp_width  + DIRTY_TILE_SIZE - 1) / DIRTY_TILE_SIZE;
 		tile_lines         = (disp_height + DIRTY_TILE_SIZE - 1) / DIRTY_TILE_SIZE;
 		tile_buffer_length = (tile_lines * tiles_per_line + 7) / 8;
 
-		tile_dirty     = (unsigned char *)guarded_malloc(tile_buffer_length);
-		tile_dirty_old = (unsigned char *)guarded_malloc(tile_buffer_length);
+		tile_dirty     = guarded_malloc(tile_buffer_length);
+		tile_dirty_old = guarded_malloc(tile_buffer_length);
 
-		memset(tile_dirty, 255, tile_buffer_length);
+		memset(tile_dirty,     255, tile_buffer_length);
 		memset(tile_dirty_old, 255, tile_buffer_length);
 
 		display_setze_clip_wh(0, 0, disp_width, disp_height);
@@ -2971,7 +2941,7 @@ void display_laden(void * file, int zipped)
 		fscanf(file, "%d %d %d\n", &light_level, &color_level, &night_shift);
 		fscanf(file, "%d\n", &i);
 	}
-	if(i < 0 || i > 15) i = 0;
+	if (i < 0 || i > 15) i = 0;
 	display_set_light(light_level);
 	display_set_color(color_level);
 	display_set_player_color(i);
@@ -2982,7 +2952,7 @@ void display_laden(void * file, int zipped)
  * Speichert Einstellungen
  * @author Hj. Malthaner
  */
-void display_speichern(void * file, int zipped)
+void display_speichern(void* file, int zipped)
 {
 	if (zipped) {
 		gzprintf(file, "%d %d %d\n", light_level, color_level, night_shift);
@@ -3008,12 +2978,7 @@ void display_direct_line(const KOORD_VAL x,const KOORD_VAL y,const KOORD_VAL xx,
 	const int dy = yy - y;
 	const PIXVAL colval = (color >= PLAYER_FLAG ? specialcolormap_all_day[color & 0xFF] : rgbcolormap[color]);
 
-	if (abs(dx) > abs(dy)) {
-		steps = abs(dx);
-	} else {
-		steps = abs(dy);
-	}
-
+	steps = (abs(dx) > abs(dy) ? abs(dx) : abs(dy));
 	if (steps == 0) steps = 1;
 
 	xs = (dx << 16) / steps;
@@ -3023,7 +2988,7 @@ void display_direct_line(const KOORD_VAL x,const KOORD_VAL y,const KOORD_VAL xx,
 	yp = y << 16;
 
 	for (i = 0; i <= steps; i++) {
-		display_pixel(xp >> 16,yp >> 16, colval);
+		display_pixel(xp >> 16, yp >> 16, colval);
 		xp += xs;
 		yp += ys;
 	}

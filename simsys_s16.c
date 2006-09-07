@@ -30,8 +30,7 @@
 
 /* hot:11,16 xy:15,22 */
 
-char hourglass_cursor[4*32]=
-{
+char hourglass_cursor[4 * 32]= {
 	0x3F, 0xFE,
 	0x30, 0x06,
 	0x3F, 0xFE,
@@ -56,8 +55,7 @@ char hourglass_cursor[4*32]=
 	0x3F, 0xFE
 };
 
-char hourglass_cursor_mask[4*32]=
-{
+char hourglass_cursor_mask[4 * 32]= {
 	0x3F, 0xFE,
 	0x3F, 0xFE,
 	0x3F, 0xFE,
@@ -92,7 +90,8 @@ static int sync_blit = 0;
 
 struct sys_event sys_event;
 
-static SDL_Cursor *arrow, *hourglass;
+static SDL_Cursor* arrow;
+static SDL_Cursor* hourglass;
 
 
 /*
@@ -102,7 +101,7 @@ static SDL_Cursor *arrow, *hourglass;
  */
 int dr_os_init(int ok, int *parameter)
 {
-	if (SDL_Init(SDL_INIT_VIDEO|SDL_INIT_NOPARACHUTE) != 0) {
+	if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_NOPARACHUTE) != 0) {
 		fprintf(stderr, "Couldn't initialize SDL: %s\n", SDL_GetError());
 		return FALSE;
 	}
@@ -114,10 +113,8 @@ int dr_os_init(int ok, int *parameter)
 }
 
 
-
-
 // open the window
-int dr_os_open(int w, int h,int fullscreen)
+int dr_os_open(int w, int h, int fullscreen)
 {
   Uint32 flags = sync_blit ? 0 : SDL_ASYNCBLIT;
 
@@ -127,7 +124,7 @@ int dr_os_open(int w, int h,int fullscreen)
 		printf( "hw_available=%i, video_mem=%i, blit_sw=%i\n", vi->hw_available, vi->video_mem, vi->blit_sw );
 		printf( "bpp=%i, bytes=%i\n", vi->vfmt->BitsPerPixel, vi->vfmt->BytesPerPixel );
 	}
-	flags |= SDL_HWSURFACE|SDL_DOUBLEBUF|SDL_RESIZABLE; // bltcopy in graphic memory should be faster ...
+	flags |= SDL_HWSURFACE | SDL_DOUBLEBUF | SDL_RESIZABLE; // bltcopy in graphic memory should be faster ...
 #endif
 
   width = w;
@@ -144,7 +141,7 @@ int dr_os_open(int w, int h,int fullscreen)
     fprintf(stderr, "Screen Flags: requested=%x, actual=%x\n", flags, screen->flags);
   }
 
-  if (screen->pitch != w*2) {
+  if (screen->pitch != w * 2) {
     fprintf(stderr, "Warning: pitch != width\n");
   }
 
@@ -211,7 +208,7 @@ unsigned int get_system_color(unsigned int r, unsigned int g, unsigned int b)
 
 
 
-void dr_flush()
+void dr_flush(void)
 {
 #if 0
 	SDL_UpdateRect(screen, 0, 0, width, height);
@@ -242,13 +239,11 @@ void move_pointer(int x, int y)
 }
 
 
-
 // set the mouse cursor (pointer/load)
 void set_pointer(int loading)
 {
 	SDL_SetCursor(loading ? hourglass : arrow);
 }
-
 
 
 /**
@@ -296,7 +291,6 @@ static void internal_GetEvents(int wait)
 			SDL_WaitEvent(&event);
 			n = SDL_PollEvent(NULL);
 		} while (n != 0 && event.type == SDL_MOUSEMOTION);
-
 	} else {
 		int n = 0;
 		int got_one = FALSE;
@@ -314,7 +308,6 @@ static void internal_GetEvents(int wait)
 					sys_event.my   = event.motion.y;
 				}
 			}
-
 		} while (n != 0 && event.type == SDL_MOUSEMOTION);
 
 		if (!got_one) return;
@@ -335,11 +328,11 @@ static void internal_GetEvents(int wait)
 			sys_event.code = SIM_SYSTEM_UPDATE;
 			break;
 
-		case SDL_MOUSEBUTTONDOWN:     /* originally ButtonPress */
-			sys_event.type = SIM_MOUSE_BUTTONS;
+		case SDL_MOUSEBUTTONDOWN:
+			sys_event.type    = SIM_MOUSE_BUTTONS;
 			sys_event.key_mod = ModifierKeys();
-			sys_event.mx   = event.button.x;
-			sys_event.my   = event.button.y;
+			sys_event.mx      = event.button.x;
+			sys_event.my      = event.button.y;
 			switch (event.button.button) {
 				case 1: sys_event.code = SIM_MOUSE_LEFTBUTTON;  break;
 				case 2: sys_event.code = SIM_MOUSE_MIDBUTTON;   break;
@@ -349,11 +342,11 @@ static void internal_GetEvents(int wait)
 			}
 			break;
 
-		case SDL_MOUSEBUTTONUP:     /* originally ButtonRelease */
-			sys_event.type = SIM_MOUSE_BUTTONS;
+		case SDL_MOUSEBUTTONUP:
+			sys_event.type    = SIM_MOUSE_BUTTONS;
 			sys_event.key_mod = ModifierKeys();
-			sys_event.mx = event.button.x;
-			sys_event.my = event.button.y;
+			sys_event.mx      = event.button.x;
+			sys_event.my      = event.button.y;
 			switch (event.button.button) {
 				case 1: sys_event.code = SIM_MOUSE_LEFTUP;  break;
 				case 2: sys_event.code = SIM_MOUSE_MIDUP;   break;
@@ -361,14 +354,14 @@ static void internal_GetEvents(int wait)
 			}
 			break;
 
-		case SDL_KEYDOWN:   /* originally KeyPress */
-			sys_event.type = SIM_KEYBOARD;
+		case SDL_KEYDOWN:
+			sys_event.type    = SIM_KEYBOARD;
 			sys_event.key_mod = ModifierKeys();
 
 			if (event.key.keysym.sym >= SDLK_KP0 && event.key.keysym.sym <= SDLK_KP9) {
 				const int numlock = (SDL_GetModState() & KMOD_NUM) != 0;
 
-				switch(event.key.keysym.sym) {
+				switch (event.key.keysym.sym) {
 					case SDLK_KP0: sys_event.code = '0';                           break;
 					case SDLK_KP1: sys_event.code = '1';                           break;
 					case SDLK_KP2: sys_event.code = numlock ? '2' : SIM_KEY_DOWN;  break;
@@ -393,7 +386,7 @@ static void internal_GetEvents(int wait)
 				printf("ASCII ");
 				sys_event.code = event.key.keysym.sym;	// try with the ASCII code ...
 			} else {
-				switch(event.key.keysym.sym) {
+				switch (event.key.keysym.sym) {
 					case SDLK_PAGEUP:   sys_event.code = '>';           break;
 					case SDLK_PAGEDOWN: sys_event.code = '<';           break;
 					case SDLK_HOME:     sys_event.code = SIM_KEY_HOME;  break;
@@ -433,17 +426,18 @@ static void internal_GetEvents(int wait)
 			printf("Unbekanntes Ereignis # %d!\n", event.type);
 			sys_event.type = SIM_IGNORE_EVENT;
 			sys_event.code = 0;
+			break;
 	}
 }
 
 
-void GetEvents()
+void GetEvents(void)
 {
 	internal_GetEvents(TRUE);
 }
 
 
-void GetEventsNoWait()
+void GetEventsNoWait(void)
 {
 	sys_event.type = SIM_NOEVENT;
 	sys_event.code = 0;
@@ -454,11 +448,7 @@ void GetEventsNoWait()
 
 void show_pointer(int yesno)
 {
-	if (yesno) {
-		SDL_ShowCursor(1);
-	} else {
-		SDL_ShowCursor(0);
-	}
+	SDL_ShowCursor(yesno != 0);
 }
 
 

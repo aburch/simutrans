@@ -61,15 +61,15 @@ extern struct sys_event sys_event;
 
 int dr_os_init(int n, int *parameter);
 int dr_os_open(int w, int h, int fullscreen);
-int dr_os_close();
+int dr_os_close(void);
 
 
-unsigned short * dr_textur_init();
+unsigned short* dr_textur_init(void);
 
 
 void dr_textur(int xp, int yp, int w, int h);
 int dr_textur_resize( unsigned short **textur,int w, int h);
-void dr_flush();
+void dr_flush(void);
 
 void dr_setRGB8multi(int first, int count, unsigned char * data);
 
@@ -86,10 +86,10 @@ void set_pointer(int loading);
 
 void move_pointer(int x, int y);
 
-void ex_ord_update_mx_my();
+void ex_ord_update_mx_my(void);
 
-void GetEvents();
-void GetEventsNoWait();
+void GetEvents(void);
+void GetEventsNoWait(void);
 
 unsigned long dr_time(void);
 void dr_sleep(unsigned long usec);

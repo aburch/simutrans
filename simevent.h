@@ -156,15 +156,15 @@ struct event_t {
      * @author hsiegeln
      */
     unsigned int ev_key_mod;
-
 };
 
 #ifdef __cplusplus
 /**
- * Translate event origin. USeful when transferring events to sub-components.
+ * Translate event origin. Useful when transferring events to sub-components.
  * @author Hj. Malthaner
  */
-inline void translate_event(struct event_t *ev, int x, int y) {
+static inline void translate_event(struct event_t *ev, int x, int y)
+{
     ev->mx += x;
     ev->cx += x;
     ev->my += y;
@@ -176,7 +176,7 @@ void display_poll_event(struct event_t *ev);
 void display_get_event(struct event_t *ev);
 void change_drag_start(int x, int y);
 
-int event_get_last_control_shift();
+int event_get_last_control_shift(void);
 
 #ifdef __cplusplus
 }

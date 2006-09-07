@@ -54,7 +54,7 @@ void set_fraction_sep(char c)
 }
 
 
-char get_fraction_sep()
+char get_fraction_sep(void)
 {
   return fraction_sep;
 }

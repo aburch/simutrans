@@ -40,9 +40,6 @@
 #include "besch/bild_besch.h"
 #include "unicode.h"
 
-//#include "utils/writepcx.h"
-//#include "utils/image_encoder.h"
-
 #ifdef _MSC_VER
 #include <io.h>
 #include <direct.h>

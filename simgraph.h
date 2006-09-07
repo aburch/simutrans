@@ -85,7 +85,7 @@ extern int tile_raster_width;
 int display_set_base_raster_width(int new_raster);
 
 
-int get_zoom_factor();
+int get_zoom_factor(void);
 void set_zoom_factor(int rw);
 
 
@@ -94,8 +94,8 @@ void set_zoom_factor(int rw);
  * @author Hj. Malthaner
  */
 int simgraph_init(KOORD_VAL width, KOORD_VAL height, int use_shm, int do_sync, int fullscreen);
-int is_display_init();
-int simgraph_exit();
+int is_display_init(void);
+int simgraph_exit(void);
 void simgraph_resize(KOORD_VAL w, KOORD_VAL h);
 
 /*
@@ -122,17 +122,17 @@ void display_set_image_offset( unsigned bild, int xoff, int yoff );
 void display_get_image_offset( unsigned bild, int *xoff, int *yoff, int *xw, int *yw );
 void display_mark_img_dirty( unsigned bild, int x, int y );
 
-int gib_maus_x();
-int gib_maus_y();
+int gib_maus_x(void);
+int gib_maus_y(void);
 
 void mark_rect_dirty_wc(KOORD_VAL x1, KOORD_VAL y1, KOORD_VAL x2, KOORD_VAL y2);
 
-KOORD_VAL display_get_width();
-KOORD_VAL display_get_height();
+KOORD_VAL display_get_width(void);
+KOORD_VAL display_get_height(void);
 KOORD_VAL display_set_height(KOORD_VAL);
 
 
-int  display_get_light();
+int display_get_light(void);
 void display_set_light(int new_light_level);
 
 void display_day_night_shift(int night);
@@ -152,9 +152,9 @@ void display_fillbox_wh(KOORD_VAL xp, KOORD_VAL yp, KOORD_VAL w, KOORD_VAL h, PL
 void display_fillbox_wh_clip(KOORD_VAL xp, KOORD_VAL yp, KOORD_VAL w, KOORD_VAL h, PLAYER_COLOR_VAL color, int d);
 void display_vline_wh(const KOORD_VAL xp, KOORD_VAL yp, KOORD_VAL h, const PLAYER_COLOR_VAL color, int dirty);
 void display_vline_wh_clip(const KOORD_VAL xp, KOORD_VAL yp, KOORD_VAL h, const PLAYER_COLOR_VAL c, int d);
-void display_clear();
+void display_clear(void);
 
-void display_flush_buffer();
+void display_flush_buffer(void);
 
 void display_move_pointer(KOORD_VAL dx, KOORD_VAL dy);
 void display_show_pointer(int yesno);
@@ -185,7 +185,7 @@ int get_prev_char(const char* text, int pos);
 int display_calc_proportional_string_len_width(const char *text, int len,bool use_large_font );
 
 /*
- * len parameter added - use -1 for previous bvbehaviour.
+ * len parameter added - use -1 for previous behaviour.
  * completely renovated for unicode and 10 bit width and variable height
  * @author Volker Meyer, prissi
  * @date  15.06.2003, 2.1.2005

@@ -36,9 +36,7 @@
 #include "simmem.h"
 
 
-// #define DIGMID_SUPPORT   // for Simutrans to work with DIGMID, define this
-
-static void simtimer_init();
+static void simtimer_init(void);
 
 static int width = 640;
 static int height = 480;
@@ -102,8 +100,7 @@ void my_mouse_callback(int flags)
 		INSERT_EVENT(SIM_MOUSE_BUTTONS, SIM_MOUSE_RIGHTUP, mouse_x, mouse_y)
 	}
 }
-
-END_OF_FUNCTION(my_mouse_callback);
+END_OF_FUNCTION(my_mouse_callback)
 
 
 static int my_keyboard_callback(int this_key, int* scancode)
@@ -171,8 +168,8 @@ static int my_keyboard_callback(int this_key, int* scancode)
 	*scancode = 0;
 	return 0;
 }
+END_OF_FUNCTION(my_keyboard_callback)
 
-END_OF_FUNCTION(my_keyboard_callback);
 
 /*
  * Hier sind die Basisfunktionen zur Initialisierung der Schnittstelle untergebracht
@@ -196,28 +193,24 @@ int dr_os_init(int n, int *parameter)
 
 int dr_os_open(int w, int h, int fullscreen)
 {
-	int ok;
-
 	width = w;
 	height = h;
 
-	set_color_depth( 16 );
+	set_color_depth(16);
 
 	install_keyboard();
 
-	ok = set_gfx_mode(GFX_AUTODETECT, w, h, 0, 0);
-	if (ok != 0) {
+	if (set_gfx_mode(GFX_AUTODETECT, w, h, 0, 0) != 0) {
 		fprintf(stderr, "Error: %s\n", allegro_error);
 		return FALSE;
 	}
 
-	ok = install_mouse();
-	if (ok < 0) {
+	if (install_mouse() < 0) {
 		fprintf(stderr, "Cannot init. mouse: no driver ?");
 		return FALSE;
 	}
 
-	set_mouse_speed(1,1);
+	set_mouse_speed(1, 1);
 
 	mouse_callback = my_mouse_callback;
 	keyboard_ucallback = my_keyboard_callback;
@@ -242,7 +235,7 @@ int dr_os_close(void)
 
 static BITMAP *texture_map;
 
-unsigned short* dr_textur_init()
+unsigned short* dr_textur_init(void)
 {
 	unsigned short* tex = guarded_malloc(width * height * sizeof(*tex));
 	int i;
@@ -264,7 +257,7 @@ unsigned short* dr_textur_init()
 
 
 // reiszes screen (Not allowed)
-int dr_textur_resize(unsigned short **textur,int w, int h)
+int dr_textur_resize(unsigned short **textur, int w, int h)
 {
 	return FALSE;
 }
@@ -291,7 +284,7 @@ unsigned int get_system_color(unsigned int r, unsigned int g, unsigned int b)
 }
 
 
-void dr_flush()
+void dr_flush(void)
 {
 	// allegro doesn't use flush
 }
@@ -314,6 +307,7 @@ void move_pointer(int x, int y)
 	position_mouse(x, y);
 }
 
+
 void set_pointer(int loading)
 {
 	// not supported
@@ -334,7 +328,7 @@ static inline int recalc_keys(void)
 }
 
 
-void internalGetEvents()
+static void internalGetEvents(void)
 {
 	if (event_top_mark != event_bot_mark) {
 		sys_event.type    = event_queue[event_bot_mark++];
@@ -353,16 +347,13 @@ void internalGetEvents()
 }
 
 
-void GetEvents()
+void GetEvents(void)
 {
 	while (event_top_mark == event_bot_mark) {
 		// try to be nice where possible
-		// MingW32 lacks usleep
 
-#ifndef __MINGW32__
-#ifndef __BEOS__
+#if !defined(__MINGW32__) && !defined(__BEOS__)
 		usleep(1000);
-#endif
 #endif
 	}
 
@@ -371,7 +362,8 @@ void GetEvents()
 	} while(sys_event.type == SIM_MOUSE_MOVE);
 }
 
-void GetEventsNoWait()
+
+void GetEventsNoWait(void)
 {
 	if (event_top_mark != event_bot_mark) {
 		do {
@@ -386,11 +378,13 @@ void GetEventsNoWait()
 	}
 }
 
+
 void show_pointer(int yesno)
 {
 }
 
-void ex_ord_update_mx_my()
+
+void ex_ord_update_mx_my(void)
 {
 	sys_event.mx = mouse_x;
 	sys_event.my = mouse_y;
@@ -403,23 +397,18 @@ void ex_ord_update_mx_my()
 
 static volatile long milli_counter;
 
-void timer_callback()
+void timer_callback(void)
 {
 	milli_counter += 5;
 }
+END_OF_FUNCTION(timer_callback)
 
-#ifdef END_OF_FUNCTION
-END_OF_FUNCTION(timer_callback);
-#endif
 
-static void
-simtimer_init()
+static void simtimer_init(void)
 {
-	int ok;
-
 	printf("Installing timer...\n");
 
-	LOCK_VARIABLE( milli_counter );
+	LOCK_VARIABLE(milli_counter);
 	LOCK_FUNCTION(timer_callback);
 
 	printf("Preparing timer ...\n");
@@ -428,9 +417,7 @@ simtimer_init()
 
 	printf("Starting timer...\n");
 
-	ok = install_int(timer_callback, 5);
-
-	if (ok == 0) {
+	if (install_int(timer_callback, 5) == 0) {
 		printf("Timer installed.\n");
 	} else {
 		printf("Error: Timer not available, aborting.\n");
@@ -439,16 +426,15 @@ simtimer_init()
 }
 
 
-unsigned long dr_time()
+unsigned long dr_time(void)
 {
-	const unsigned long tmp = milli_counter;
-	return tmp;
+	return milli_counter;
 }
+
 
 void dr_sleep(unsigned long usec)
 {
-	// benutze Allegro
-	if(usec > 1023) {
+	if (usec > 1023) {
 		// schlaeft meist etwas zu kurz,
 		// usec/1024 statt usec/1000
 		rest(usec >> 10);
@@ -460,7 +446,6 @@ int simu_main(int argc, char **argv);
 
 int main(int argc, char **argv)
 {
-    return simu_main(argc, argv);
+	return simu_main(argc, argv);
 }
-
-END_OF_MAIN();
+END_OF_MAIN()
