@@ -100,7 +100,6 @@ void gui_convoiinfo_t::zeichnen(koord offset) const
 		max_x = max(max_x,w);
 
 		// vehicles: check also for obsolete during redraw
-		const int month_now = cnv->gib_welt()->get_timeline_year_month();
 		// we will use their images offests and width to shift them to their correct position
 		// this should work with any vehicle size ...
 		const int xoff = max(128, max_x);
