@@ -423,6 +423,8 @@ static void internal_GetEvents(int wait)
 				case 1: sys_event.code = SIM_MOUSE_LEFTBUTTON;  break;
 				case 2: sys_event.code = SIM_MOUSE_MIDBUTTON;   break;
 				case 3: sys_event.code = SIM_MOUSE_RIGHTBUTTON; break;
+				case 4: sys_event.code = SIM_MOUSE_WHEELUP;     break;
+				case 5: sys_event.code = SIM_MOUSE_WHEELDOWN;   break;
 			}
 			break;
 
