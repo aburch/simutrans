@@ -225,6 +225,16 @@ void move_pointer(int x, int y)
 }
 
 
+// set the mouse cursor (pointer/load)
+void set_pointer(int loading)
+{
+	// XXX TODO implement
+#if 0
+	SDL_SetCursor(loading ? hourglass : arrow);
+#endif
+}
+
+
 /**
  * Some wrappers can save screenshots.
  * @return 1 on success, 0 if not implemented for a particular wrapper and -1

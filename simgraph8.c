@@ -508,6 +508,16 @@ static int base_tile_raster_width = 16;
 static int zoom_factor = 1;
 
 
+/* changes the raster width after loading */
+int display_set_base_raster_width(int new_raster)
+{
+	int old = base_tile_raster_width;
+	base_tile_raster_width = new_raster;
+	tile_raster_width = new_raster / zoom_factor;
+	return old;
+}
+
+
 /**
  * Rezooms all images
  * @author Hj. Malthaner
@@ -980,6 +990,15 @@ KOORD_VAL display_get_width(void)
 KOORD_VAL display_get_height(void)
 {
 	return disp_height;
+}
+
+
+sint16 display_set_height(KOORD_VAL h)
+{
+	sint16 old = disp_height;
+
+	disp_height = h;
+	return old;
 }
 
 
@@ -1659,6 +1678,23 @@ void display_color_img(const unsigned n, const KOORD_VAL xp, const KOORD_VAL yp,
 
 
 /**
+ * the area of this image need update
+ * @author Hj. Malthaner
+ */
+void display_mark_img_dirty(unsigned bild, int xp, int yp)
+{
+	if (bild < anz_images) {
+		mark_rect_dirty_wc(
+			xp + images[bild].x,
+			yp + images[bild].y,
+			xp + images[bild].x + images[bild].w - 1,
+			yp + images[bild].y + images[bild].h - 1
+		);
+	}
+}
+
+
+/**
  * Zeichnet ein Pixel
  * @author Hj. Malthaner
  */
@@ -1779,6 +1815,28 @@ void display_array_wh(KOORD_VAL xp, KOORD_VAL yp, KOORD_VAL w, KOORD_VAL h, cons
 			arr_src += arr_w - w;
 			p += disp_width - w;
 		} while (--h != 0);
+	}
+}
+
+
+// unicode save moving in strings
+int get_next_char(const char* text, int pos)
+{
+	if (has_unicode) {
+		return utf8_get_next_char((const utf8*)text, pos);
+	} else {
+		return pos + 1;
+	}
+}
+
+
+int get_prev_char(const char* text, int pos)
+{
+	if (pos <= 0) return 0;
+	if (has_unicode) {
+		return utf8_get_prev_char((const utf8*)text, pos);
+	} else {
+		return pos - 1;
 	}
 }
 
@@ -2300,6 +2358,20 @@ void display_show_pointer(int yesno)
 void display_set_pointer(int pointer)
 {
 	standard_pointer = pointer;
+}
+
+
+/**
+ * mouse pointer image
+ * @author prissi
+ */
+void display_show_load_pointer(int loading)
+{
+#ifdef USE_SOFTPOINTER
+	softpointer = !loading;
+#else
+	set_pointer(loading);
+#endif
 }
 
 
