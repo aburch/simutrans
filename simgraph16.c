@@ -179,7 +179,7 @@ struct imd {
 	unsigned char y; // current (zoomed) min y offset
 	unsigned char h; // current (zoomed) width
 
-	unsigned len; // base image data size (used for allocation purposes only)
+	unsigned int len; // base image data size (used for allocation purposes only)
 	unsigned char recode_flags[4]; // first byte: needs recode, second byte: code normal, second byte: code for player1, third byte: flags
 
 	PIXVAL* data; // current data, zoomed and adapted to output format RGB 555 or RGB 565
@@ -331,7 +331,7 @@ static void rezoom(void)
 		images[n].recode_flags[NEED_REZOOM] = (images[n].recode_flags[FLAGS] & FLAG_ZOOMABLE) != 0 && images[n].base_h > 0;
 		images[n].recode_flags[NEED_NORMAL_RECODE] = 128;
 		images[n].recode_flags[NEED_PLAYER_RECODE] = 128;	// color will be set next time
-	} // for
+	}
 }
 
 
@@ -463,7 +463,7 @@ static void recode_img_src_target(KOORD_VAL h, PIXVAL *src, PIXVAL *target)
 {
 	if (h > 0) {
 		do {
-			unsigned char runlen = *target ++ = *src++;
+			unsigned char runlen = *target++ = *src++;
 
 			// eine Zeile dekodieren
 			do {
@@ -474,7 +474,7 @@ static void recode_img_src_target(KOORD_VAL h, PIXVAL *src, PIXVAL *target)
 					// now just convert the color pixels
 					*target++ = rgbmap_day_night[*src++];
 				}
-			} while ((runlen = *target ++ = *src++));
+			} while ((runlen = *target++ = *src++));
 		} while (--h);
 	}
 }
@@ -511,7 +511,7 @@ static void recode_img_src_target_color(KOORD_VAL h, PIXVAL *src, PIXVAL *target
 {
 	if (h > 0) {
 		do {
-			unsigned char runlen = *target ++ = *src++;
+			unsigned char runlen = *target++ = *src++;
 
 			// eine Zeile dekodieren
 			do {
@@ -529,7 +529,7 @@ static void recode_img_src_target_color(KOORD_VAL h, PIXVAL *src, PIXVAL *target
 					}
 				}
 				// next clea run or zero = end
-			} while ((runlen = *target ++ = *src++));
+			} while ((runlen = *target++ = *src++));
 		} while (--h);
 	}
 }
@@ -639,7 +639,8 @@ static void rezoom_img(const unsigned int n)
 				if (y_left == 0 || last_color < color) {
 					// required; but if the following are longer, take them instead (aviods empty pixels)
 					// so we have to set/save the beginning
-					unsigned char i, step=0;
+					unsigned char step = 0;
+					unsigned char i;
 
 					if (y_left == 0) {
 						last_dest = dest;
@@ -673,7 +674,7 @@ static void rezoom_img(const unsigned int n)
 
 			// something left?
 			{
-				const unsigned zoom_len = dest - images[n].zoom_data;
+				const unsigned int zoom_len = dest - images[n].zoom_data;
 				if (zoom_len > images[n].len) {
 					printf("*** FATAL ***\nzoom_len (%i) > image_len (%i)", zoom_len, images[n].len);
 					fflush(NULL);
@@ -702,7 +703,7 @@ int	display_set_unicode(int use_unicode)
  * Loads the fonts (true for large font)
  * @author prissi
  */
-bool display_load_font(const char *fname, bool large)
+bool display_load_font(const char* fname, bool large)
 {
 	if (load_font(large ? &large_font : &small_font, fname)) {
 		if (large) large_font_height = large_font.height;
@@ -756,7 +757,7 @@ static int load_palette(const char *filename, unsigned char *palette)
 {
 	FILE* file = fopen(filename,"rb");
 
-	if (file) {
+	if (file != NULL) {
 		int x;
 		int anzahl = 256;
 		int r, g, b;
@@ -1266,7 +1267,7 @@ static int clip_wh(KOORD_VAL *x, KOORD_VAL *width, const KOORD_VAL min_width, co
  * if nothing to show, returns FALSE
  * @author Niels Roest
  */
-static short clip_lr(KOORD_VAL *x, KOORD_VAL *w, const KOORD_VAL left, const KOORD_VAL right)
+static int clip_lr(KOORD_VAL *x, KOORD_VAL *w, const KOORD_VAL left, const KOORD_VAL right)
 {
 	const KOORD_VAL l = *x;      // leftmost pixel
 	const KOORD_VAL r = *x + *w; // rightmost pixel
@@ -1277,7 +1278,7 @@ static short clip_lr(KOORD_VAL *x, KOORD_VAL *w, const KOORD_VAL left, const KOO
 	}
 
 	// there is something to show.
-	if (l < left)  {
+	if (l < left) {
 		*w -= left - l;
 		*x = left;
 	}
@@ -1405,7 +1406,7 @@ static void display_img_wc(KOORD_VAL h, const KOORD_VAL xp, const KOORD_VAL yp, 
 					const int left = (xpos >= clip_rect.x ? 0 : clip_rect.x - xpos);
 					const int len  = (clip_rect.xx - xpos >= runlen ? runlen : clip_rect.xx - xpos);
 
-					pixcopy(tp+xpos+left, sp+left, len-left);
+					pixcopy(tp + xpos + left, sp + left, len - left);
 				}
 
 				sp += runlen;
@@ -1540,7 +1541,7 @@ void display_img_aux(const unsigned n, const KOORD_VAL xp, KOORD_VAL yp, const i
 					sp++;
 					sp += *sp + 1;
 				} while (*sp);
-				sp ++;
+				sp++;
 			}
 			// now sp is the new start of an image with height h
 		}
@@ -1589,7 +1590,7 @@ static void display_color_img_aux(const unsigned n, const KOORD_VAL xp, const KO
 				// clear run + colored run + next clear run
 				++sp;
 				sp += *sp + 1;
-			} while(*sp);
+			} while (*sp);
 			sp++;
 		}
 
@@ -1609,8 +1610,8 @@ static void display_color_img_aux(const unsigned n, const KOORD_VAL xp, const KO
 
 				// Hajo: something to display?
 				if (xpos + runlen >= clip_rect.x && xpos <= clip_rect.xx) {
-					const int left = xpos >= clip_rect.x ? 0 : clip_rect.x - xpos;
-					const int len  = clip_rect.xx-xpos > runlen ? runlen : clip_rect.xx - xpos;
+					const int left = (xpos >= clip_rect.x ? 0 : clip_rect.x - xpos);
+					const int len  = (clip_rect.xx-xpos > runlen ? runlen : clip_rect.xx - xpos);
 
 					colorpixcopy(tp + xpos + left, sp + left, sp + len, color);
 				}
@@ -1641,9 +1642,7 @@ void display_color_img(const unsigned n, const KOORD_VAL xp, const KOORD_VAL yp,
 			return;
 		}
 
-		if (images[n].recode_flags[NEED_REZOOM]) {
-			rezoom_img(n);
-		}
+		if (images[n].recode_flags[NEED_REZOOM]) rezoom_img(n);
 
 		{
 			// first test, if there is a cached version (or we can built one ... )
@@ -1708,14 +1707,13 @@ void display_mark_img_dirty(unsigned bild, int xp, int yp)
  */
 static void display_pixel(KOORD_VAL x, KOORD_VAL y, PIXVAL color)
 {
-	if (x >= clip_rect.x && x<=clip_rect.xx && y >= clip_rect.y && y<=clip_rect.yy) {
+	if (x >= clip_rect.x && x <= clip_rect.xx && y >= clip_rect.y && y <= clip_rect.yy) {
 		PIXVAL* const p = textur + x + y * disp_width;
 
 		*p = color;
 		mark_tile_dirty(x >> DIRTY_TILE_SHIFT, y >> DIRTY_TILE_SHIFT);
 	}
 }
-
 
 
 /**
@@ -1773,7 +1771,7 @@ void display_fillbox_wh(KOORD_VAL xp, KOORD_VAL yp, KOORD_VAL w, KOORD_VAL h, PL
 }
 
 
-void display_fillbox_wh_clip(KOORD_VAL xp, KOORD_VAL yp, KOORD_VAL w, KOORD_VAL h,PLAYER_COLOR_VAL color, int dirty)
+void display_fillbox_wh_clip(KOORD_VAL xp, KOORD_VAL yp, KOORD_VAL w, KOORD_VAL h, PLAYER_COLOR_VAL color, int dirty)
 {
 	display_fb_internal(xp, yp, w, h, color, dirty, clip_rect.x, clip_rect.xx, clip_rect.y, clip_rect.yy);
 }
@@ -1831,6 +1829,7 @@ void display_array_wh(KOORD_VAL xp, KOORD_VAL yp, KOORD_VAL w, KOORD_VAL h, cons
 
 		do {
 			unsigned int ww = w;
+
 #ifdef USE_C
 			do {
 				*p++ = rgbcolormap[*arr_src++];
@@ -1900,6 +1899,7 @@ int display_calc_proportional_string_len_width(const char *text, int len, bool u
 	if (has_unicode) {
 		unsigned short iUnicode;
 		int	iLen = 0;
+
 		// decode char; Unicode is always 8 pixel (so far)
 		while (iLen < len) {
 			iUnicode = utf8_to_utf16(text + iLen, &iLen);
@@ -1957,8 +1957,8 @@ static unsigned char get_h_mask(const int xL, const int xR, const int cL, const 
 
 
 /* @ see get_v_mask() */
-static const unsigned char left_byte_to_v_mask_array[5]  = { 0xFF, 0x3F, 0x0F, 0x03, 0x00};
-static const unsigned char right_byte_to_v_mask_array[5] = { 0xFF, 0xFC, 0xF0, 0xC0, 0x00};
+static const unsigned char left_byte_to_v_mask_array[5]  = { 0xFF, 0x3F, 0x0F, 0x03, 0x00 };
+static const unsigned char right_byte_to_v_mask_array[5] = { 0xFF, 0xFC, 0xF0, 0xC0, 0x00 };
 
 /* Helper: calculates mask for clipping of 2Bit extension *
  * Attention: xL-xR must be <=4 !!!
@@ -2044,11 +2044,13 @@ int display_text_proportional_len_clip(KOORD_VAL x, KOORD_VAL y, const char *txt
 			x -= display_calc_proportional_string_len_width(txt, len, use_large_font);
 			break;
 	}
+
 	// still something to display?
 	if (x > cR || y > cB || y + fnt->height <= cT) {
 		// nothing to display
 		return 0;
 	}
+
 	// x0 contains the startin x
 	x0 = x;
 	y0 = y;
@@ -2087,9 +2089,9 @@ int display_text_proportional_len_clip(KOORD_VAL x, KOORD_VAL y, const char *txt
 		if (c >= fnt->num_chars || fnt->screen_width[c] == 0) c = 0;
 
 		// get the data from the font
-		char_width_1 = fnt->char_data[16*c+15];
+		char_width_1 = fnt->char_data[16 * c + 15];
 		char_width_2 = fnt->screen_width[c];
-		char_data = fnt->char_data+(16l*c);
+		char_data = fnt->char_data + 16l * c;
 		if (char_width_1 > 8) {
 			mask1 = get_h_mask(x, x + 8, cL, cR);
 			// we need to double mask 2, since only 2 Bits are used
@@ -2279,7 +2281,7 @@ void display_ddd_proportional_clip(KOORD_VAL xpos, KOORD_VAL ypos, KOORD_VAL wid
 	display_vline_wh_clip(xpos - 2,         ypos - 6 - hgt, 11, ddd_farbe + 1, dirty);
 	display_vline_wh_clip(xpos + width - 3, ypos - 6 - hgt, 11, ddd_farbe - 1, dirty);
 #endif
-	display_text_proportional_len_clip(xpos + 2, ypos - 5 + (12 - large_font_height) / 2, text, ALIGN_LEFT, text_farbe,FALSE, true, -1, true);
+	display_text_proportional_len_clip(xpos + 2, ypos - 5 + (12 - large_font_height) / 2, text, ALIGN_LEFT, text_farbe, FALSE, true, -1, true);
 }
 
 
@@ -2367,7 +2369,7 @@ void display_flush_buffer(void)
 		x = 0;
 
 		do {
-			if(is_tile_dirty(x, y)) {
+			if (is_tile_dirty(x, y)) {
 				const int xl = x;
 				do {
 					x++;
@@ -2386,7 +2388,6 @@ void display_flush_buffer(void)
 	tmp = tile_dirty_old;
 	tile_dirty_old = tile_dirty;
 	tile_dirty = tmp;
-	// and clear it
 	memset(tile_dirty, 0, tile_buffer_length);
 }
 
@@ -2466,11 +2467,11 @@ int simgraph_init(KOORD_VAL width, KOORD_VAL height, int use_shm, int do_sync, i
 		// init, load, and check fonts
 		large_font.screen_width = NULL;
 		large_font.char_data = NULL;
-		display_load_font( FONT_PATH_X "prop.fnt", true );
+		display_load_font(FONT_PATH_X "prop.fnt", true);
 #ifdef USE_SMALL_FONT
 		small_font.screen_width = NULL;
 		small_font.char_data = NULL;
-		display_load_font( FONT_PATH_X "4x7.hex", false );
+		display_load_font(FONT_PATH_X "4x7.hex", false);
 		display_check_fonts();
 #endif
 
@@ -2604,7 +2605,7 @@ void display_snapshot()
  * Laedt Einstellungen
  * @author Hj. Malthaner
  */
-void display_laden(void * file, int zipped)
+void display_laden(void* file, int zipped)
 {
 	int i;
 
@@ -2653,7 +2654,7 @@ void display_speichern(void* file, int zipped)
  * zeichnet linie von x,y nach xx,yy
  * von Hajo
  **/
-void display_direct_line(const KOORD_VAL x,const KOORD_VAL y,const KOORD_VAL xx,const KOORD_VAL yy, const PLAYER_COLOR_VAL color)
+void display_direct_line(const KOORD_VAL x, const KOORD_VAL y, const KOORD_VAL xx, const KOORD_VAL yy, const PLAYER_COLOR_VAL color)
 {
 	int i, steps;
 	int xp, yp;
