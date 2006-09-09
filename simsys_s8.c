@@ -159,18 +159,6 @@ unsigned int get_system_color(unsigned int r, unsigned int g, unsigned int b)
 }
 
 
-
-void dr_setRGB8(int n, int r, int g, int b)
-{
-        SDL_Color rgb;
-        rgb.r = r;
-        rgb.g = g;
-        rgb.b = b;
-
-        SDL_SetColors(screen, &rgb, n, 1);
-}
-
-
 void dr_setRGB8multi(int first, int count, unsigned char * data)
 {
 #ifdef _MSC_VER

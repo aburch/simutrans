@@ -312,30 +312,6 @@ void dr_flush(void)
 }
 
 
-void dr_setRGB8(int n, int r, int g, int b)
-{
-	XColor xc;
-
-	xc.flags = DoRed | DoGreen | DoBlue;
-	xc.pixel = n;
-	xc.red   = r << 8;
-	xc.green = g << 8;
-	xc.blue  = b << 8;
-
-	if (is_truecolor) {
-		XAllocColor(md, DefaultColormap(md, ms), &xc);
-
-#if 0
-		printf("Storing color %d with value %lx\n", n, xc.pixel);
-#endif
-		colortrans[n] = xc.pixel;
-	} else {
-		XStoreColor(md, cmap, &xc);
-		XFlush(md);
-	}
-}
-
-
 void dr_setRGB8multi(int first, int count, unsigned char* data)
 {
 	int n;

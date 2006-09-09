@@ -258,17 +258,6 @@ int dr_screenshot(const char* filename)
 }
 
 
-void dr_setRGB8(int n, int r, int g, int b)
-{
-	struct RGB rgb;
-	rgb.r = r >> 2;
-	rgb.g = g >> 2;
-	rgb.b = b >> 2;
-
-	set_color(n, &rgb);
-}
-
-
 void dr_setRGB8multi(int first, int count, unsigned char* data)
 {
 	PALETTE p;
