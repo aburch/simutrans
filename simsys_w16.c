@@ -55,7 +55,7 @@ static HDC hdc = NULL;
  * Schnittstelle untergebracht
  * -> init,open,close
  */
-int dr_os_init(int n, int *parameter)
+int dr_os_init(const int* parameter)
 {
 	return TRUE;
 }

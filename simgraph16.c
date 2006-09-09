@@ -2451,7 +2451,7 @@ int simgraph_init(KOORD_VAL width, KOORD_VAL height, int use_shm, int do_sync, i
 	parameter[0] = use_shm;
 	parameter[1] = do_sync;
 
-	dr_os_init(2, parameter);
+	dr_os_init(parameter);
 
 	// make sure it something of 16 (also better for caching ... )
 	width = (width + 15) & 0x7FF0;

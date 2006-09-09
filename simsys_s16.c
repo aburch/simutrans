@@ -99,7 +99,7 @@ static SDL_Cursor* hourglass;
  * Schnittstelle untergebracht
  * -> init,open,close
  */
-int dr_os_init(int ok, int *parameter)
+int dr_os_init(const int* parameter)
 {
 	if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_NOPARACHUTE) != 0) {
 		fprintf(stderr, "Couldn't initialize SDL: %s\n", SDL_GetError());

@@ -176,7 +176,7 @@ END_OF_FUNCTION(my_keyboard_callback)
  * -> init,open,close
  */
 
-int dr_os_init(int n, int *parameter)
+int dr_os_init(const int* parameter)
 {
 	int ok = allegro_init();
 

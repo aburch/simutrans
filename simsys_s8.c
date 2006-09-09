@@ -44,7 +44,7 @@ struct sys_event sys_event;
  * Schnittstelle untergebracht
  * -> init,open,close
  */
-int dr_os_init(int n, int *parameter)
+int dr_os_init(const int* parameter)
 {
   // initialize SDL
   int ok = SDL_Init(SDL_INIT_VIDEO|SDL_INIT_NOPARACHUTE);

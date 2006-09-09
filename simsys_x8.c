@@ -68,7 +68,7 @@ static void init_cursors(void)
 }
 
 
-int dr_os_init(int n, int *parameter)
+int dr_os_init(const int* parameter)
 {
 	using_shm  = parameter[0];
 	doing_sync = parameter[1];
