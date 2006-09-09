@@ -395,9 +395,11 @@ struct imd {
 #define NEED_REZOOM (0)
 #define NEED_NORMAL_RECODE (1)
 #define NEED_PLAYER_RECODE (2)
-#define ZOOMABLE (3)
+#define FLAGS (3)
 
-
+// flags for recoding
+#define FLAG_ZOOMABLE (1)
+#define FLAG_PLAYERCOLOR (2)
 
 static int disp_width  = 640;
 static int disp_height = 480;
@@ -527,7 +529,7 @@ static void rezoom(void)
 	unsigned int n;
 
 	for (n = 0; n < anz_images; n++) {
-		images[n].recode_flags[NEED_REZOOM] = (images[n].recode_flags[ZOOMABLE] && images[n].base_h > 0);
+		images[n].recode_flags[NEED_REZOOM] = ((images[n].recode_flags[FLAGS]&FLAG_ZOOMABLE)!=0 && images[n].base_h > 0);
 		images[n].recode_flags[NEED_NORMAL_RECODE] = 128;
 		images[n].recode_flags[NEED_PLAYER_RECODE] = 128;	// color will be set next time
 	}
@@ -676,11 +678,20 @@ static void init_16_to_8_conversion(void)
 			}
 		}
 	}
-	// new the special colors
+	// now the special colors
 	int index;
-	for (index =  0; index <  7; index++) conversion_table[index + 32768] = index / 2;
-	for (index =  8; index < 16; index++) conversion_table[index + 32768] = 88;
-	for (index = 16; index < 40; index++) conversion_table[index + 32768] = 16 + index;
+	for (index =  0; index <  7; index++) {
+		// player color
+		conversion_table[index + 32768] = index / 2;
+	}
+	for (index =  8; index < 16; index++) {
+		// should be unused ...
+		conversion_table[index + 32768] = 88;
+	}
+	for (index = 16; index < 40; index++) {
+		// non-darkening color
+		conversion_table[index + 32768] = 16 + index;
+	}
 
 	printf("ok.\n");
 }
@@ -690,9 +701,13 @@ static void init_16_to_8_conversion(void)
  * Convert a certain image data to actual output data for a certain player
  * @author prissi
  */
-static void recode_img_src16_target8(int h, PIXVAL *src16, PIXVAL *target, bool non_dark)
+static bool recode_img_src16_target8(int h, PIXVAL *src16, PIXVAL *target, bool darkens)
 {
-	if (conversion_table == NULL) init_16_to_8_conversion();
+	bool has_player_color = false;
+
+	if (conversion_table == NULL) {
+		init_16_to_8_conversion();
+	}
 
 	unsigned short *src=(unsigned short *)src16;
 	if (h > 0) {
@@ -704,13 +719,17 @@ static void recode_img_src16_target8(int h, PIXVAL *src16, PIXVAL *target, bool 
 				// clear run is always ok
 				runlen = *target++ = *src++;
 				// now just convert the color pixels
-				if (non_dark) {
+				if (darkens) {
 					while (runlen--) {
 						unsigned short pix = *src++;
+						if(pix>=0x8000  &&  pix<0x8008) {
+							has_player_color = true;
+						}
 						*target++ = conversion_table[pix];
 					}
 				} else {
-						// find best match by foot (slowly, but not often used)
+					// find best match by foot (slowly, but not often used)
+					// this avoids darkening
 					while (runlen-- != 0) {
 						unsigned short pix = *src++;
 						long red   = (pix >> 7) & 0x00F8;
@@ -719,6 +738,7 @@ static void recode_img_src16_target8(int h, PIXVAL *src16, PIXVAL *target, bool 
 						if (pix > 0x8000) {
 							if (pix < 0x8008) {
 								*target++ = pix > 0x8004 ? 52 : 53;
+								has_player_color = true;
 								continue;
 							}
 							if (pix == 0x8010 || pix == 0x8011 || (pix >= 0x801A && pix < 0x801C)) {
@@ -755,6 +775,7 @@ static void recode_img_src16_target8(int h, PIXVAL *src16, PIXVAL *target, bool 
 			} while ((runlen = *target ++ = *src++));
 		} while (--h != 0);
 	}
+	return has_player_color;
 }
 
 
@@ -1204,12 +1225,12 @@ void register_image(struct bild_besch_t *bild)
 	image->zoom_data = NULL;
 	image->data = NULL;
 	image->player_data = NULL;	// chaches data for one AI
-	image->recode_flags[ZOOMABLE] = (bild->zoomable&1);
+	image->recode_flags[FLAGS] = (bild->zoomable&1);
 
 	image->base_data = (PIXVAL *)guarded_malloc(image->len*sizeof(PIXVAL));
 	if ((bild->zoomable & 0xFE) == 0) {
 		// this is an 16 Bit image => we need to resize it to 8 Bit ...
-		recode_img_src16_target8(image->base_h, (PIXVAL*)(bild + 1), image->base_data, bild->zoomable & 1);
+		image->recode_flags[FLAGS] |= FLAG_PLAYERCOLOR*recode_img_src16_target8(image->base_h, (PIXVAL*)(bild + 1), image->base_data, bild->zoomable & 1);
 	} else {
 		memcpy(image->base_data, (PIXVAL*)(bild + 1), image->len * sizeof(PIXVAL));
 	}
@@ -1513,7 +1534,10 @@ void display_img_aux(const unsigned n, const KOORD_VAL xp, KOORD_VAL yp, const i
 		// need to go to nightmode and or rezoomed?
 		int h, reduce_h, skip_lines;
 
-		if (images[n].recode_flags[NEED_REZOOM]) rezoom_img(n);
+		if (images[n].recode_flags[NEED_REZOOM]) {
+			rezoom_img(n);
+		}
+
 		const PIXVAL* sp = (zoom_factor > 1 && images[n].zoom_data != NULL) ? images[n].zoom_data : images[n].base_data;
 
 		// now, since zooming may have change this image
@@ -1526,9 +1550,13 @@ void display_img_aux(const unsigned n, const KOORD_VAL xp, KOORD_VAL yp, const i
 
 		// must the height be reduced?
 		reduce_h = yp + h - 1 - clip_rect.yy;
-		if (reduce_h > 0) h -= reduce_h;
+		if (reduce_h > 0) {
+			h -= reduce_h;
+		}
 		// still something to draw
-		if (h <= 0) return;
+		if (h <= 0) {
+			return;
+		}
 
 		// vertically lines to skip (only bottom is visible
 		skip_lines = clip_rect.y - (int)yp;
@@ -1637,26 +1665,18 @@ static void display_color_img_aux(const int n, const KOORD_VAL xp, const KOORD_V
 void display_color_img(const unsigned n, const KOORD_VAL xp, const KOORD_VAL yp, const COLOR_VAL color, const int daynight, const int dirty)
 {
 	if (n < anz_images) {
-		// since vehicle need larger dirty rect!
-		if (dirty) {
-			mark_rect_dirty_wc(
-				xp + images[n].x - 8,
-				yp + images[n].y - 4,
-				xp + images[n].x + images[n].w + 8 - 1,
-				yp + images[n].y + images[n].h + 4 - 1
-			);
-		}
-
 		// Hajo: since the colors for player 0 are already right,
 		// only use the expensive replacement routine for colored images
 		// of other players
 		// Hajo: player 1 does not need any recoloring, too
-		if (color < 8 && daynight) {
-			display_img_aux(n, xp, yp, false, false);
+		if (daynight && (color < 4 || (images[n].recode_flags[FLAGS] & FLAG_PLAYERCOLOR) == 0)) {
+			display_img_aux(n, xp, yp, dirty, false);
 			return;
 		}
 
-		if (images[n].recode_flags[NEED_REZOOM]) rezoom_img(n);
+		if (images[n].recode_flags[NEED_REZOOM]) {
+			rezoom_img(n);
+		}
 
 		// prissi: now test if visible and clipping needed
 		{
@@ -1669,6 +1689,10 @@ void display_color_img(const unsigned n, const KOORD_VAL xp, const KOORD_VAL yp,
 				// not visible => we are done
 				// happens quite often ...
 				return;
+			}
+
+			if (dirty) {
+				mark_rect_dirty_wc(xp + x, yp + y, xp + x + w - 1, yp + y + h - 1);
 			}
 		}
 
@@ -1718,7 +1742,7 @@ static void display_fb_internal(KOORD_VAL xp, KOORD_VAL yp, KOORD_VAL w, KOORD_V
 	clip_lr(&yp, &h, cT, cB - 1);
 
 	if (w > 0 && h > 0) {
-		const PIXVAL colval = color;
+		const PIXVAL colval = (color >= PLAYER_FLAG ? ((color-2)&0x0F)/2 + (color/4) : color);
 		PIXVAL *p = textur + xp + yp*disp_width;
 		const unsigned long longcolval = (colval << 8) | colval;
 		const int dx = disp_width - w;
@@ -2450,6 +2474,27 @@ int is_display_init(void)
 }
 
 
+
+// delete all images above a certain number ...
+// (mostly needed when changing climate zones)
+void display_free_all_images_above( unsigned above )
+{
+	while( above<anz_images) {
+		anz_images--;
+		if(images[anz_images].zoom_data!=NULL) {
+			guarded_free( images[anz_images].zoom_data );
+		}
+		if(images[anz_images].data!=NULL) {
+			guarded_free( images[anz_images].data );
+		}
+		if(images[anz_images].base_data!=NULL) {
+			guarded_free( images[anz_images].base_data );
+		}
+	}
+}
+
+
+
 /**
  * Schliest das Grafikmodul
  * @author Hj. Malthaner
@@ -2458,6 +2503,7 @@ int simgraph_exit()
 {
 	guarded_free(tile_dirty);
 	guarded_free(tile_dirty_old);
+	display_free_all_images_above(0);
 	guarded_free(images);
 
 	tile_dirty = tile_dirty_old = NULL;

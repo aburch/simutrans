@@ -1642,7 +1642,9 @@ void display_color_img(const unsigned n, const KOORD_VAL xp, const KOORD_VAL yp,
 			return;
 		}
 
-		if (images[n].recode_flags[NEED_REZOOM]) rezoom_img(n);
+		if (images[n].recode_flags[NEED_REZOOM]) {
+			rezoom_img(n);
+		}
 
 		{
 			// first test, if there is a cached version (or we can built one ... )
@@ -1670,7 +1672,9 @@ void display_color_img(const unsigned n, const KOORD_VAL xp, const KOORD_VAL yp,
 				return;
 			}
 
-			if (dirty) mark_rect_dirty_wc(xp + x, yp + y, xp + x + w - 1, yp + y + h - 1);
+			if (dirty) {
+				mark_rect_dirty_wc(xp + x, yp + y, xp + x + w - 1, yp + y + h - 1);
+			}
 		}
 
 		// Hajo: choose mapping table
@@ -2524,21 +2528,33 @@ int is_display_init(void)
 }
 
 
+
+// delete all images above a certain number ...
+// (mostly needed when changing climate zones)
+void display_free_all_images_above( unsigned above )
+{
+	while( above<anz_images) {
+		anz_images--;
+		if(images[anz_images].zoom_data!=NULL) {
+			guarded_free( images[anz_images].zoom_data );
+		}
+		if(images[anz_images].data!=NULL) {
+			guarded_free( images[anz_images].data );
+		}
+	}
+}
+
+
+
 /**
  * Schliest das Grafikmodul
  * @author Hj. Malthaner
  */
 int simgraph_exit()
 {
-	unsigned n;
-
 	guarded_free(tile_dirty);
 	guarded_free(tile_dirty_old);
-	/* free images */
-	for (n = 0;  n < anz_images; n++) {
-		if (images[n].zoom_data != NULL) guarded_free(images[n].zoom_data);
-		if (images[n].data      != NULL) guarded_free(images[n].data);
-	}
+	display_free_all_images_above(0);
 	guarded_free(images);
 
 	tile_dirty = tile_dirty_old = NULL;

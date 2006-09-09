@@ -107,41 +107,41 @@ savegame_frame_t::savegame_frame_t(const char *suffix) :
 
 	// needs to be scrollable
 	scrolly.setze_pos( koord(0,30) );
-	scrolly.setze_groesse( koord(257,30) );
 	scrolly.set_show_scroll_x(false);
 	scrolly.set_size_corner(false);
+	scrolly.setze_groesse( koord(257,30) );
 
-    // The file entries
-    slist_iterator_tpl <button_t *> iter1(deletes);
-    slist_iterator_tpl <button_t *> iter2(buttons);
-    slist_iterator_tpl <gui_label_t *> iter3(labels);
-    int y = 0;
+	// The file entries
+	slist_iterator_tpl <button_t *> iter1(deletes);
+	slist_iterator_tpl <button_t *> iter2(buttons);
+	slist_iterator_tpl <gui_label_t *> iter3(labels);
+	int y = 0;
 
-    while(iter1.next() && iter2.next() && iter3.next()) {
-	button_t * button1 = iter1.get_current();
-	button_t * button2 = iter2.get_current();
-	gui_label_t * label = iter3.get_current();
+	while(iter1.next() && iter2.next() && iter3.next()) {
+		button_t * button1 = iter1.get_current();
+		button_t * button2 = iter2.get_current();
+		gui_label_t * label = iter3.get_current();
 
-	button1->setze_groesse(koord(14, 14));
-	button1->setze_text("X");
-	button1->setze_pos(koord(5, y));
-	button1->set_tooltip("Delete this file.");
+		button1->setze_groesse(koord(14, 14));
+		button1->setze_text("X");
+		button1->setze_pos(koord(5, y));
+		button1->set_tooltip("Delete this file.");
 
-	button2->setze_pos(koord(25, y));
-	button2->setze_groesse(koord(140, 14));
+		button2->setze_pos(koord(25, y));
+		button2->setze_groesse(koord(140, 14));
 
-	label->setze_pos(koord(170, y+3));
+		label->setze_pos(koord(170, y+3));
 
-	button1->add_listener(this);
-	button2->add_listener(this);
+		button1->add_listener(this);
+		button2->add_listener(this);
 
-	button_frame.add_komponente(button1);
-	button_frame.add_komponente(button2);
-	button_frame.add_komponente(label);
+		button_frame.add_komponente(button1);
+		button_frame.add_komponente(button2);
+		button_frame.add_komponente(label);
 
-	y += 14;
-}
-button_frame.setze_groesse( koord( 175+26*2+56,y ) );
+		y += 14;
+	}
+	button_frame.setze_groesse( koord( 175+26*2+56,y ) );
 	add_komponente(&scrolly);
 
     y += 10+30;
@@ -319,7 +319,7 @@ void savegame_frame_t::setze_fenstergroesse(koord groesse)
 		groesse.y = display_get_height()-64;
 		// position adjustment will be done automatically ... nice!
 	}
-	scrolly.setze_groesse( koord(groesse.x,groesse.y-30-40-16) );
+	scrolly.setze_groesse( koord(groesse.x,groesse.y-30-40-8) );
 	gui_frame_t::setze_fenstergroesse(groesse);
 	divider1.setze_pos(koord(10,groesse.y-44));
 	savebutton.setze_pos(koord(10,groesse.y-34));

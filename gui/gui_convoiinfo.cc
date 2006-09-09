@@ -99,7 +99,6 @@ void gui_convoiinfo_t::zeichnen(koord offset) const
 		int w = display_calc_proportional_string_len_width( cnv->gib_name(), 35535, true );
 		max_x = max(max_x,w);
 
-		// vehicles: check also for obsolete during redraw
 		// we will use their images offests and width to shift them to their correct position
 		// this should work with any vehicle size ...
 		const int xoff = max(128, max_x);
@@ -112,6 +111,7 @@ void gui_convoiinfo_t::zeichnen(koord offset) const
 			left += (w*2)/3;
 		}
 
+		// use the convoi status color for redraw: Possible colors are YELLOW (not moving) BLUE: obsolete in convoi, RED: minus income, BLACK: ok
 		display_proportional_clip(pos.x+offset.x+2, pos.y+offset.y+8,cnv->gib_name(),ALIGN_LEFT, cnv->get_status_color(), true);
 
 		// since the only remaining object is the loading bar, we can alter its position this way ...
