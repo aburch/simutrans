@@ -29,10 +29,14 @@ line_management_gui_t::gib_name() const
 void
 line_management_gui_t::infowin_event(const event_t *ev)
 {
-    if(ev->ev_class == INFOWIN &&
-       ev->ev_code == WIN_CLOSE) {
-    	// update all convoys of this line!
-		sp->simlinemgmt.update_line(line);
-    }
-    fahrplan_gui_t::infowin_event(ev);
+	if(!line.is_bound()) {
+		destroy_win( this );
+	}
+	else {
+		if(ev->ev_class == INFOWIN  &&  ev->ev_code == WIN_CLOSE) {
+			// update all convoys of this line!
+			sp->simlinemgmt.update_line(line);
+		}
+		fahrplan_gui_t::infowin_event(ev);
+	}
 }
