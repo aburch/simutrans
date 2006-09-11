@@ -46,25 +46,20 @@ struct sys_event sys_event;
  */
 int dr_os_init(const int* parameter)
 {
-  // initialize SDL
-  int ok = SDL_Init(SDL_INIT_VIDEO|SDL_INIT_NOPARACHUTE);
-  if(ok != 0) {
-    fprintf(stderr, "Couldn't initialize SDL: %s\n", SDL_GetError());
-    return FALSE;
-  }
+	if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_NOPARACHUTE) != 0) {
+		fprintf(stderr, "Couldn't initialize SDL: %s\n", SDL_GetError());
+		return FALSE;
+	}
 
-  sync_blit = parameter[1];
+	sync_blit = parameter[1];
 
-  // if SDL gets initialized normally, return zero
-  atexit(SDL_Quit); // clean up on exit
-  return ok == 0;
+	atexit(SDL_Quit); // clean up on exit
+	return TRUE;
 }
 
 
-
-
 // open the window
-int dr_os_open(int w, int h,int fullscreen)
+int dr_os_open(int w, int h, int fullscreen)
 {
   Uint32 flags = sync_blit ? 0 : SDL_ASYNCBLIT;
 
@@ -74,19 +69,13 @@ int dr_os_open(int w, int h,int fullscreen)
 		printf( "hw_available=%i, video_mem=%i, blit_sw=%i\n", vi->hw_available, vi->video_mem, vi->blit_sw );
 		printf( "bpp=%i, bytes=%i\n", vi->vfmt->BitsPerPixel, vi->vfmt->BytesPerPixel );
 	}
-	flags |= SDL_HWSURFACE|SDL_DOUBLEBUF|SDL_RESIZABLE; // bltcopy in graphic memory should be faster ...
+	flags |= SDL_HWSURFACE | SDL_DOUBLEBUF | SDL_RESIZABLE; // bltcopy in graphic memory should be faster ...
 #endif
 
   width = w;
   height = h;
 
-  if(fullscreen) {
-    flags |= SDL_FULLSCREEN;
-  }
-  else {
-		// if in window, allow resize
-		flags |= SDL_RESIZABLE;
-	}
+	flags |= (fullscreen ? SDL_FULLSCREEN : SDL_RESIZABLE);
 
   // open the window now
   screen = SDL_SetVideoMode(w, h, 8, flags);
@@ -97,7 +86,7 @@ int dr_os_open(int w, int h,int fullscreen)
     fprintf(stderr, "Screen Flags: requested=%x, actual=%x\n", flags, screen->flags);
   }
 
-  if (screen->pitch != w*2) {
+  if (screen->pitch != w) {
     fprintf(stderr, "Warning: pitch != width\n");
   }
 
@@ -115,26 +104,27 @@ int dr_os_open(int w, int h,int fullscreen)
 // shut down SDL
 int dr_os_close(void)
 {
-  // Hajo: SDL doc says, screen is free'd by SDL_Quit and should not be
-  // free'd by the user
-  // SDL_FreeSurface(screen);
-  return TRUE;
+	// Hajo: SDL doc says, screen is free'd by SDL_Quit and should not be
+	// free'd by the user
+	// SDL_FreeSurface(screen);
+	return TRUE;
 }
 
 
 // reiszes screen
-int dr_textur_resize(unsigned short **textur,int w, int h)
+int dr_textur_resize(unsigned short** textur, int w, int h)
 {
 #ifdef USE_HW
-	SDL_UnlockSurface( screen );
+	SDL_UnlockSurface(screen);
 #endif
 	int flags = screen->flags;
 	width = w;
 	height = h;
 
 	screen = SDL_SetVideoMode(width, height, 8, flags);
-	printf("textur_resize()::screen=%p\n",screen);fflush(NULL);
-	*textur = (unsigned short *)(screen->pixels);
+	printf("textur_resize()::screen=%p\n", screen);
+	fflush(NULL);
+	*textur = (unsigned short*)screen->pixels;
 	return 1;
 }
 
@@ -142,9 +132,9 @@ int dr_textur_resize(unsigned short **textur,int w, int h)
 unsigned short *dr_textur_init()
 {
 #ifdef USE_HW
-	SDL_LockSurface( screen );
+	SDL_LockSurface(screen);
 #endif
-    return (unsigned short *) (screen->pixels);
+	return (unsigned short*)screen->pixels;
 }
 
 
@@ -155,53 +145,52 @@ unsigned short *dr_textur_init()
  */
 unsigned int get_system_color(unsigned int r, unsigned int g, unsigned int b)
 {
-  return SDL_MapRGB(screen->format, (Uint8)r, (Uint8)g, (Uint8)b);
+	return SDL_MapRGB(screen->format, (Uint8)r, (Uint8)g, (Uint8)b);
 }
 
 
-void dr_setRGB8multi(int first, int count, unsigned char * data)
+void dr_setRGB8multi(int first, int count, unsigned char* data)
 {
 #ifdef _MSC_VER
-    SDL_Color *rgb = guarded_malloc(sizeof(SDL_Color) * count);
+	SDL_Color *rgb = guarded_malloc(sizeof(*rgb) * count);
 #else
-    SDL_Color rgb[count];
+	SDL_Color rgb[count];
 #endif
-    int n;
+	int n;
 
-    for(n=0; n<count; n++) {
-	rgb[n].r = *data++;
-	rgb[n].g = *data++;
-	rgb[n].b = *data++;
-    }
+	for (n = 0; n < count; n++) {
+		rgb[n].r = *data++;
+		rgb[n].g = *data++;
+		rgb[n].b = *data++;
+	}
 
-    SDL_SetColors(screen, rgb, first, count);
+	SDL_SetColors(screen, rgb, first, count);
 #ifdef _MSC_VER
-    guarded_free(rgb);
+	guarded_free(rgb);
 #endif
 }
 
 
-
-void dr_flush()
+void dr_flush(void)
 {
-//    SDL_UpdateRect(screen, 0, 0, width, height);
+#if 0
+	SDL_UpdateRect(screen, 0, 0, width, height);
+#endif
 #ifdef USE_HW
-	SDL_UnlockSurface( screen );
+	SDL_UnlockSurface(screen);
 	SDL_Flip(screen);
-	SDL_LockSurface( screen );
+	SDL_LockSurface(screen);
 #endif
 }
 
 
-void
-dr_textur(int xp, int yp, int w, int h)
+void dr_textur(int xp, int yp, int w, int h)
 {
-#ifdef USE_HW
-#else
-  // make sure the given rectangle is completely on screen
-  if ((xp + w) > screen->w) w = screen->w-xp;
-  if ((yp + h) > screen->h) h = screen->h-yp;
-  SDL_UpdateRect(screen, xp, yp, w, h);
+#ifndef USE_HW
+	// make sure the given rectangle is completely on screen
+	if (xp + w > screen->w) w = screen->w - xp;
+	if (yp + h > screen->h) h = screen->h - yp;
+	SDL_UpdateRect(screen, xp, yp, w, h);
 #endif
 }
 
@@ -209,7 +198,7 @@ dr_textur(int xp, int yp, int w, int h)
 // move cursor to the specified location
 void move_pointer(int x, int y)
 {
-  SDL_WarpMouse((Uint16)x,(Uint16)y);
+	SDL_WarpMouse((Uint16)x, (Uint16)y);
 }
 
 
@@ -231,13 +220,7 @@ void set_pointer(int loading)
  */
 int dr_screenshot(const char *filename)
 {
-  /*
-   * Speichert Screenshot mit SDL-Funktion
-   * @author hellmade
-   */
-  SDL_SaveBMP (SDL_GetVideoSurface(), filename);
-
-  return 1;
+	return SDL_SaveBMP(SDL_GetVideoSurface(), filename) == 0 ? 1 : -1;
 }
 
 
@@ -245,271 +228,209 @@ int dr_screenshot(const char *filename)
  * Hier sind die Funktionen zur Messageverarbeitung
  */
 
+
+static inline unsigned int ModifierKeys(void)
+{
+	SDLMod mod = SDL_GetModState();
+
+	return
+		(mod & KMOD_SHIFT ? 1 : 0) |
+		(mod & KMOD_CTRL  ? 2 : 0);
+}
+
+
 static void internal_GetEvents(int wait)
 {
-	unsigned i;
 	SDL_Event event;
 	event.type = 1;
 
-	if(wait) {
-		int n = 0;
+	if (wait) {
+		int n;
 
 		do {
 			SDL_WaitEvent(&event);
 			n = SDL_PollEvent(NULL);
-		}  while (n != 0 && event.type==SDL_MOUSEMOTION  );
-
-	}
-	else {
-		int n = 0;
+		} while (n != 0 && event.type == SDL_MOUSEMOTION);
+	} else {
+		int n;
 		int got_one = FALSE;
 
 		do {
 			n = SDL_PollEvent(&event);
 
-			if(n != 0) {
+			if (n != 0) {
 				got_one = TRUE;
 
-				if(event.type == SDL_MOUSEMOTION) {
-					sys_event.type=SIM_MOUSE_MOVE;
-					sys_event.code= SIM_MOUSE_MOVED;
-					sys_event.mx=event.motion.x;
-					sys_event.my=event.motion.y;
+				if (event.type == SDL_MOUSEMOTION) {
+					sys_event.type = SIM_MOUSE_MOVE;
+					sys_event.code = SIM_MOUSE_MOVED;
+					sys_event.mx   = event.motion.x;
+					sys_event.my   = event.motion.y;
 				}
 			}
+		} while (n != 0 && event.type == SDL_MOUSEMOTION);
 
-		}  while (n != 0 && event.type==SDL_MOUSEMOTION  );
-
-		if(!got_one) {
-			return;
-		}
+		if (!got_one) return;
 	}
 
-    switch(event.type) {
+	switch (event.type) {
 		case SDL_VIDEORESIZE:
-		{
-			sys_event.type=SIM_SYSTEM;
-			sys_event.code=SIM_SYSTEM_RESIZE;
-			sys_event.mx=event.resize.w;
-			sys_event.my=event.resize.h;
-			printf("expose: x=%i, y=%i\n",sys_event.mx,sys_event.my);
-		}
-		break;
+			sys_event.type = SIM_SYSTEM;
+			sys_event.code = SIM_SYSTEM_RESIZE;
+			sys_event.mx   = event.resize.w;
+			sys_event.my   = event.resize.h;
+			printf("expose: x=%i, y=%i\n", sys_event.mx, sys_event.my);
+			break;
 
 		case SDL_VIDEOEXPOSE:
-		{
 			// will be ignored ...
-			sys_event.type=SIM_SYSTEM;
-			sys_event.code=SIM_SYSTEM_UPDATE;
-		}
-		break;
+			sys_event.type = SIM_SYSTEM;
+			sys_event.code = SIM_SYSTEM_UPDATE;
+			break;
 
-		case SDL_MOUSEBUTTONDOWN:     /* originally ButtonPress */
-			// read mod key state from SDL layer
-			// shift: bit 0, control: Bit 1
-			i = SDL_GetModState();
-			sys_event.key_mod = ((i&2)>>1) | ( i&1) | ((i&0x40)>>5) | ((i&0x80)>>6);
-			sys_event.type=SIM_MOUSE_BUTTONS;
-			sys_event.mx=event.button.x;
-			sys_event.my=event.button.y;
-			switch(event.button.button) {
-				case 1:
-					sys_event.code=SIM_MOUSE_LEFTBUTTON;
-				break;
-				case 2:
-					sys_event.code=SIM_MOUSE_MIDBUTTON;
-				break;
-				case 3:
-					sys_event.code=SIM_MOUSE_RIGHTBUTTON;
-				break;
-				case 4:
-					sys_event.code=SIM_MOUSE_WHEELUP;
-				break;
-				case 5:
-					sys_event.code=SIM_MOUSE_WHEELDOWN;
-				break;
+		case SDL_MOUSEBUTTONDOWN:
+			sys_event.type    = SIM_MOUSE_BUTTONS;
+			sys_event.key_mod = ModifierKeys();
+			sys_event.mx      = event.button.x;
+			sys_event.my      = event.button.y;
+			switch (event.button.button) {
+				case 1: sys_event.code = SIM_MOUSE_LEFTBUTTON;  break;
+				case 2: sys_event.code = SIM_MOUSE_MIDBUTTON;   break;
+				case 3: sys_event.code = SIM_MOUSE_RIGHTBUTTON; break;
+				case 4: sys_event.code = SIM_MOUSE_WHEELUP;     break;
+				case 5: sys_event.code = SIM_MOUSE_WHEELDOWN;   break;
 			}
-		break;
-   case SDL_MOUSEBUTTONUP:     /* originally ButtonRelease */
-        sys_event.type=SIM_MOUSE_BUTTONS;
-        i = SDL_GetModState();
-        sys_event.key_mod = ((i&2)>>1) | ( i&1) | ((i&0x40)>>5) | ((i&0x80)>>6);
-        sys_event.mx=event.button.x;
-        sys_event.my=event.button.y;
-        switch(event.button.button) {
-        case 1:
-            sys_event.code=SIM_MOUSE_LEFTUP;
-            break;
-        case 2:
-            sys_event.code=SIM_MOUSE_MIDUP;
-            break;
-        case 3:
-            sys_event.code=SIM_MOUSE_RIGHTUP;
-            break;
-        }
-        break;
-		case SDL_KEYDOWN:   /* originally KeyPress */
-		{
-			sys_event.type=SIM_KEYBOARD;
-			// read mod key state from SDL layer
-			i = SDL_GetModState();
-			sys_event.key_mod = ((i&2)>>1) | ( i&1) | ((i&0x40)>>5) | ((i&0x80)>>6);
+			break;
 
-			if(event.key.keysym.sym>=SDLK_KP0  &&  event.key.keysym.sym<=SDLK_KP9)  {
-				const int numlock=(KMOD_NUM&i)!=0;
-				switch(event.key.keysym.sym) {
-					case SDLK_KP0:
-						sys_event.code = '0';
-				    		break;
-					case SDLK_KP1:
-				    		sys_event.code = '1';
-				    		break;
-					case SDLK_KP2:
-				      	sys_event.code = numlock ? '2' : SIM_KEY_DOWN;
-						break;
-					case SDLK_KP3:
-				  		sys_event.code = '3';
-				    		break;
-					case SDLK_KP4:
-				      	sys_event.code = numlock ? '4' : SIM_KEY_LEFT;
-				    		break;
-					case SDLK_KP5:
-						sys_event.code = '5';
-					    break;
-					case SDLK_KP6:
-				      	sys_event.code = numlock ? '6' : SIM_KEY_RIGHT;
-			  			break;
-					case SDLK_KP7:
-			  			sys_event.code = '7';
-			  			break;
-					case SDLK_KP8:
-				      	sys_event.code = numlock ? '8' : SIM_KEY_UP;
-						break;
-					case SDLK_KP9:
-			  			sys_event.code = '9';
-						break;
+		case SDL_MOUSEBUTTONUP:
+			sys_event.type    = SIM_MOUSE_BUTTONS;
+			sys_event.key_mod = ModifierKeys();
+			sys_event.mx      = event.button.x;
+			sys_event.my      = event.button.y;
+			switch (event.button.button) {
+				case 1: sys_event.code = SIM_MOUSE_LEFTUP;  break;
+				case 2: sys_event.code = SIM_MOUSE_MIDUP;   break;
+				case 3: sys_event.code = SIM_MOUSE_RIGHTUP; break;
+			}
+			break;
+
+		case SDL_KEYDOWN:
+			sys_event.type    = SIM_KEYBOARD;
+			sys_event.key_mod = ModifierKeys();
+
+			if (event.key.keysym.sym >= SDLK_KP0 && event.key.keysym.sym <= SDLK_KP9) {
+				const int numlock = (SDL_GetModState() & KMOD_NUM) != 0;
+
+				switch (event.key.keysym.sym) {
+					case SDLK_KP0: sys_event.code = '0';                           break;
+					case SDLK_KP1: sys_event.code = '1';                           break;
+					case SDLK_KP2: sys_event.code = numlock ? '2' : SIM_KEY_DOWN;  break;
+					case SDLK_KP3: sys_event.code = '3';                           break;
+					case SDLK_KP4: sys_event.code = numlock ? '4' : SIM_KEY_LEFT;  break;
+					case SDLK_KP5: sys_event.code = '5';                           break;
+					case SDLK_KP6: sys_event.code = numlock ? '6' : SIM_KEY_RIGHT; break;
+					case SDLK_KP7: sys_event.code = '7';                           break;
+					case SDLK_KP8: sys_event.code = numlock ? '8' : SIM_KEY_UP;    break;
+					case SDLK_KP9: sys_event.code = '9';                           break;
 					default: break;
 				}
-			}
-			else if (event.key.keysym.sym == SDLK_DELETE) {
-	      		sys_event.code = 127;
-	    		}
-			else if (event.key.keysym.unicode>0) {
+			} else if (event.key.keysym.sym == SDLK_DELETE) {
+				sys_event.code = 127;
+			} else if (event.key.keysym.unicode > 0) {
 				printf("Unicode ");
-	    			sys_event.code=event.key.keysym.unicode;
-			} else if(event.key.keysym.sym>=SDLK_F1  &&  event.key.keysym.sym<=SDLK_F15) {
+				sys_event.code = event.key.keysym.unicode;
+			} else if (event.key.keysym.sym >= SDLK_F1 && event.key.keysym.sym <= SDLK_F15) {
 				printf("Function ");
-	      		sys_event.code = event.key.keysym.sym-SDLK_F1+SIM_KEY_F1;
-      		}
-      		else if(event.key.keysym.sym>0  &&  event.key.keysym.sym<127) {
+				sys_event.code = event.key.keysym.sym - SDLK_F1 + SIM_KEY_F1;
+			} else if (event.key.keysym.sym > 0 && event.key.keysym.sym < 127) {
 				printf("ASCII ");
 				sys_event.code = event.key.keysym.sym;	// try with the ASCII code ...
-			}
-			else {
-				switch(event.key.keysym.sym) {
-					case SDLK_PAGEUP:
-				      	sys_event.code = '>';
-						break;
-					case SDLK_PAGEDOWN:
-				      	sys_event.code = '<';
-						break;
-					case SDLK_HOME:
-				      	sys_event.code = SIM_KEY_HOME;
-						break;
-					case SDLK_END:
-				      	sys_event.code = SIM_KEY_END;
-						break;
-					case SDLK_DOWN:
-				      	sys_event.code = SIM_KEY_DOWN;
-						break;
-					case SDLK_LEFT:
-				      	sys_event.code = SIM_KEY_LEFT;
-				    		break;
-					case SDLK_RIGHT:
-				      	sys_event.code = SIM_KEY_RIGHT;
-			  			break;
-					case SDLK_UP:
-				      	sys_event.code = SIM_KEY_UP;
-						break;
-					default:
-						sys_event.code = 0;
-						break;
+			} else {
+				switch (event.key.keysym.sym) {
+					case SDLK_PAGEUP:   sys_event.code = '>';           break;
+					case SDLK_PAGEDOWN: sys_event.code = '<';           break;
+					case SDLK_HOME:     sys_event.code = SIM_KEY_HOME;  break;
+					case SDLK_END:      sys_event.code = SIM_KEY_END;   break;
+					case SDLK_DOWN:     sys_event.code = SIM_KEY_DOWN;  break;
+					case SDLK_LEFT:     sys_event.code = SIM_KEY_LEFT;  break;
+					case SDLK_RIGHT:    sys_event.code = SIM_KEY_RIGHT; break;
+					case SDLK_UP:       sys_event.code = SIM_KEY_UP;    break;
+					default:            sys_event.code = 0;             break;
 				}
 			}
-    			printf("Event Key '%c' (%i) was generated\n", (int)sys_event.code, (int)sys_event.code);
-    	}
-    	break;
+			printf(
+				"Event Key '%c' (%i) was generated\n",
+				(int)sys_event.code, (int)sys_event.code
+			);
+			break;
 
-    	case SDL_MOUSEMOTION:
-        sys_event.type=SIM_MOUSE_MOVE;
-        sys_event.code= SIM_MOUSE_MOVED;
-        sys_event.mx=event.motion.x;
-        sys_event.my=event.motion.y;
-        break;
+		case SDL_MOUSEMOTION:
+			sys_event.type = SIM_MOUSE_MOVE;
+			sys_event.code = SIM_MOUSE_MOVED;
+			sys_event.mx   = event.motion.x;
+			sys_event.my   = event.motion.y;
+			break;
 
-    case 1:
-    case SDL_KEYUP:
-        sys_event.type=SIM_KEYBOARD;
-        sys_event.code=0;
-        break;
+		case 1:
+		case SDL_KEYUP:
+			sys_event.type = SIM_KEYBOARD;
+			sys_event.code = 0;
+			break;
 
-    case SDL_QUIT:
-        sys_event.type=SIM_SYSTEM;
-        sys_event.code=SIM_SYSTEM_QUIT;
-        break;
+		case SDL_QUIT:
+			sys_event.type = SIM_SYSTEM;
+			sys_event.code = SIM_SYSTEM_QUIT;
+			break;
 
-    default:
-        printf("Unbekanntes Ereignis # %d!\n",event.type);
-        sys_event.type=SIM_IGNORE_EVENT;
-        sys_event.code=0;
-    }
+		default:
+			printf("Unbekanntes Ereignis # %d!\n", event.type);
+			sys_event.type = SIM_IGNORE_EVENT;
+			sys_event.code = 0;
+			break;
+	}
 }
 
 
-void GetEvents()
+void GetEvents(void)
 {
-    internal_GetEvents(TRUE);
+	internal_GetEvents(TRUE);
 }
 
 
-void GetEventsNoWait()
+void GetEventsNoWait(void)
 {
-  sys_event.type = SIM_NOEVENT;
-  sys_event.code = 0;
+	sys_event.type = SIM_NOEVENT;
+	sys_event.code = 0;
 
-  internal_GetEvents(FALSE);
+	internal_GetEvents(FALSE);
 }
 
 
 void show_pointer(int yesno)
 {
-  if (yesno) {
-    SDL_ShowCursor(1);
-  } else {
-    SDL_ShowCursor(0);
-  }
+	SDL_ShowCursor(yesno != 0);
 }
 
 
 void ex_ord_update_mx_my()
 {
-  SDL_PumpEvents();
+	SDL_PumpEvents();
 }
 
 
 unsigned long dr_time(void)
 {
-  return SDL_GetTicks();
+	return SDL_GetTicks();
 }
 
 
 void dr_sleep(unsigned long usec)
 {
-    if(usec >= 1024) {
-	// schlaeft meist etwas zu kurz,
-        // usec/1024 statt usec/1000
-        SDL_Delay(usec >> 10);
-    }
+	if (usec >= 1024) {
+		// schlaeft meist etwas zu kurz,
+		// usec/1024 statt usec/1000
+		SDL_Delay(usec >> 10);
+	}
 }
 
 
@@ -517,5 +438,5 @@ int simu_main(int argc, char **argv);
 
 int main(int argc, char **argv)
 {
-    return simu_main(argc, argv);
+	return simu_main(argc, argv);
 }

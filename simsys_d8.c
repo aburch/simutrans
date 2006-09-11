@@ -1,10 +1,3 @@
-#ifdef _MSC_VER
-#	define AL_CONST    const
-#	ifndef _WINDOWS
-#		define USE_CONSOLE 1
-#	endif
-#endif
-
 #include "allegro.h"
 #include <stddef.h>
 #include <string.h>
@@ -15,15 +8,6 @@
 
 #include "simsys.h"
 #include "simmem.h"
-
-
-#if defined(_MSC_VER) || defined(__MINGW32__)
-#	include <allegro/aintwin.h>
-#else
-#	include <sys/time.h>
-// Time at program start
-static struct timeval start;
-#endif
 
 
 static void simtimer_init(void);
@@ -38,7 +22,7 @@ struct sys_event sys_event;
 
 /* queue Eintraege sind wie folgt aufgebaut
  * 4 integer werte
- *  type
+ *  class
  *  code
  *  mx
  *  my
@@ -50,51 +34,18 @@ struct sys_event sys_event;
 static volatile unsigned int event_top_mark = 0;
 static volatile unsigned int event_bot_mark = 0;
 static volatile int event_queue[queue_length * 4 + 8];
-#if defined(_MSC_VER) || defined(__MINGW32__)
-static CRITICAL_SECTION EventQueue;
-#endif
 
-#if defined(_MSC_VER) || defined(__MINGW32__)
-#	define INSERT_EVENT(a, b, c, d) \
-		EnterCriticalSection(&EventQueue);	\
-		event_queue[event_top_mark++] = a; \
-		event_queue[event_top_mark++] = b; \
-		event_queue[event_top_mark++] = c; \
-		event_queue[event_top_mark++] = d; \
-		if (event_top_mark >= queue_length * 4) event_top_mark = 0; \
-		LeaveCriticalSection(&EventQueue);
 
-#	define	GET_AND_REMOVE_EVENT(event) \
-		EnterCriticalSection(&EventQueue); \
-		event.type = event_queue[event_bot_mark++]; \
-		event.code = event_queue[event_bot_mark++];\
-		event.mx   = event_queue[event_bot_mark++];	\
-		event.my   = event_queue[event_bot_mark++];\
-		if (event_bot_mark >= queue_length * 4) event_bot_mark = 0; \
-		LeaveCriticalSection(&EventQueue);
-#else
-#	define INSERT_EVENT(a, b, c, d) \
-		event_queue[event_top_mark++] = a; \
-		event_queue[event_top_mark++] = b; \
-		event_queue[event_top_mark++] = c; \
-		event_queue[event_top_mark++] = d; \
-		if(event_top_mark >= queue_length * 4) event_top_mark = 0;
-
-#	define	GET_AND_REMOVE_EVENT(event) \
-		event.type = event_queue[event_bot_mark++]; \
-		event.code = event_queue[event_bot_mark++];\
-		event.mx   = event_queue[event_bot_mark++];	\
-		event.my   = event_queue[event_bot_mark++];\
-		if (event_bot_mark >= queue_length * 4) event_bot_mark = 0;
-#endif
+#define INSERT_EVENT(a, b, c, d) \
+	event_queue[event_top_mark++] = a; \
+	event_queue[event_top_mark++] = b; \
+	event_queue[event_top_mark++] = c; \
+	event_queue[event_top_mark++] = d; \
+	if (event_top_mark >= queue_length * 4) event_top_mark = 0;
 
 
 void my_mouse_callback(int flags)
 {
-#if 0
-	printf("%x\n", flags);
-#endif
-
 	if (flags & MOUSE_FLAG_MOVE) {
 		INSERT_EVENT(SIM_MOUSE_MOVE, SIM_MOUSE_MOVED, mouse_x, mouse_y)
 	}
@@ -126,19 +77,14 @@ void my_mouse_callback(int flags)
 END_OF_FUNCTION(my_mouse_callback)
 
 
-int my_keyboard_callback(int key)
+static int my_keyboard_callback(int this_key)
 {
-#if 0
-	printf("%x %x\n", key >> 8, KEY_F1);
-#endif
-
-	switch (key >> 8) {
-		case KEY_F1: key  = SIM_F1; break;
-		default:     key &= 255;    break; // use ASCII code
+	switch (this_key >> 8) {
+		case KEY_F1: this_key  = SIM_F1; break;
+		default:     this_key &= 255;    break; // use ASCII code
 	}
 
-	INSERT_EVENT(SIM_KEYBOARD, key, mouse_x, mouse_y);
-
+	INSERT_EVENT(SIM_KEYBOARD, this_key, mouse_x, mouse_y);
 	return 0;
 }
 END_OF_FUNCTION(my_keyboard_callback)
@@ -159,9 +105,6 @@ int dr_os_init(const int* parameter)
 	LOCK_VARIABLE(event_queue);
 	LOCK_FUNCTION(my_mouse_callback);
 	LOCK_FUNCTION(my_keyboard_callback);
-#if defined(_MSC_VER) || defined(__MINGW32__)
-	InitializeCriticalSection(&EventQueue);
-#endif
 
 	if (ok == 0) simtimer_init();
 
@@ -188,7 +131,7 @@ int dr_os_open(int w, int h, int fullscreen)
 		return FALSE;
 	}
 
-	set_mouse_speed(1,1);
+	set_mouse_speed(1, 1);
 
 	mouse_callback    = my_mouse_callback;
 	keyboard_callback = my_keyboard_callback;
@@ -205,9 +148,6 @@ int dr_os_open(int w, int h, int fullscreen)
 int dr_os_close(void)
 {
 	allegro_exit();
-#if defined(_MSC_VER) || defined(__MINGW32__)
-	DeleteCriticalSection(&EventQueue);
-#endif
 	return TRUE;
 }
 
@@ -224,6 +164,10 @@ unsigned short* dr_textur_init(void) // XXX FIXME wrong type
 	int i;
 
 	texture_map = create_bitmap(width, height);
+	if (texture_map == NULL) {
+		printf("Error: can't create double buffer bitmap, aborting!");
+		exit(1);
+	}
 
 	for (i = 0; i < height; i++) {
 		texture_map->line[i] = tex + width * i;
@@ -275,7 +219,7 @@ void dr_setRGB8multi(int first, int count, unsigned char* data)
 
 void move_pointer(int x, int y)
 {
-	position_mouse(x,y);
+	position_mouse(x, y);
 }
 
 
@@ -285,16 +229,31 @@ void set_pointer(int loading)
 }
 
 
-void internalGetEvents(void)
+static inline int recalc_keys(void)
+{
+	int mod = key_shifts;
+
+	return
+		(mod & KB_SHIFT_FLAG ? 1 : 0) |
+		(mod & KB_CTRL_FLAG  ? 2 : 0);
+}
+
+
+static void internalGetEvents(void)
 {
 	if (event_top_mark != event_bot_mark) {
-		GET_AND_REMOVE_EVENT(sys_event);
+		sys_event.type    = event_queue[event_bot_mark++];
+		sys_event.code    = event_queue[event_bot_mark++];
+		sys_event.mx      = event_queue[event_bot_mark++];
+		sys_event.my      = event_queue[event_bot_mark++];
+		sys_event.key_mod = recalc_keys();
+
+		if (event_bot_mark >= queue_length * 4) event_bot_mark = 0;
 	} else {
 		sys_event.type = SIM_NOEVENT;
 		sys_event.code = SIM_NOEVENT;
-
-		sys_event.mx = mouse_x;
-		sys_event.my = mouse_y;
+		sys_event.mx   = mouse_x;
+		sys_event.my   = mouse_y;
 	}
 }
 
@@ -303,12 +262,8 @@ void GetEvents(void)
 {
 	while (event_top_mark == event_bot_mark) {
 		// try to be nice where possible
-#ifndef __MINGW32__
-#	ifndef _MSC_VER
+#if !defined(__MINGW32__) && !defined(__BEOS__)
 		usleep(1000);
-#	else
-		Sleep(1000);
-#	endif
 #endif
 	}
 
@@ -325,11 +280,11 @@ void GetEventsNoWait(void)
 			internalGetEvents();
 		} while (event_top_mark != event_bot_mark && sys_event.type == SIM_MOUSE_MOVE);
 	} else {
-		sys_event.type = SIM_NOEVENT;
-		sys_event.code = SIM_NOEVENT;
-
-		sys_event.mx = mouse_x;
-		sys_event.my = mouse_y;
+		sys_event.type    = SIM_NOEVENT;
+		sys_event.code    = SIM_NOEVENT;
+		sys_event.key_mod = recalc_keys();
+		sys_event.mx      = mouse_x;
+		sys_event.my      = mouse_y;
 	}
 }
 
@@ -339,7 +294,7 @@ void show_pointer(int yesno)
 }
 
 
-void ex_ord_update_mx_my()
+void ex_ord_update_mx_my(void)
 {
 	sys_event.mx = mouse_x;
 	sys_event.my = mouse_y;
@@ -355,9 +310,8 @@ void timer_callback(void)
 END_OF_FUNCTION(timer_callback)
 
 
-static void simtimer_init()
+static void simtimer_init(void)
 {
-#if defined(_MSC_VER) || defined(__MINGW32__)
 	printf("Installing timer...\n");
 
 	LOCK_VARIABLE(milli_counter);
@@ -375,27 +329,12 @@ static void simtimer_init()
 		printf("Error: Timer not available, aborting.\n");
 		exit(1);
 	}
-#else
-	// init time count
-	gettimeofday(&start, NULL);
-#endif
 }
 
 
 unsigned long dr_time(void)
 {
-#if defined(_MSC_VER) || defined(__MINGW32__)
-	const long tmp = milli_counter;
-	return tmp;
-#else
-	struct timeval now;
-	unsigned long time;
-
-	gettimeofday(&now, NULL);
-	return
-		(now.tv_sec  - start.tv_sec)  * 1000 +
-		(now.tv_usec - start.tv_usec) / 1000;
-#endif
+	return milli_counter;
 }
 
 

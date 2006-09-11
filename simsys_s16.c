@@ -152,7 +152,7 @@ int dr_os_open(int w, int h, int fullscreen)
   SDL_WM_SetCaption("Simutrans " VERSION_NUMBER,NULL);
   SDL_ShowCursor(0);
   arrow = SDL_GetCursor();
-  hourglass = SDL_CreateCursor( hourglass_cursor, hourglass_cursor_mask, 16, 22, 8, 11);
+  hourglass = SDL_CreateCursor(hourglass_cursor, hourglass_cursor_mask, 16, 22, 8, 11);
 
   return TRUE;
 }
@@ -170,7 +170,7 @@ int dr_os_close(void)
 
 
 // reiszes screen
-int dr_textur_resize(unsigned short **textur,int w, int h)
+int dr_textur_resize(unsigned short** textur, int w, int h)
 {
 #ifdef USE_HW
 	SDL_UnlockSurface(screen);

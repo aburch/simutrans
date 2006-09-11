@@ -1,28 +1,3 @@
-/*
- * simsys16.h
- *
- * Copyright (c) 1997 - 2001 Hansjörg Malthaner
- *
- * This file is part of the Simutrans project and may not be used
- * in other projects without written permission of the author.
- */
-
-/************************************************
- *    Schnittstelle zum Betriebssystem          *
- *    von Hj. Malthaner Aug. 1994               *
- ************************************************/
-
-/* Angepasst an Simu/DOS
- * Juli 98
- * Hj. Malthaner
- */
-
-/*
- * Angepasst an Allegro
- * April 2000
- * Hj. Malthaner
- */
-
 #include "allegro.h"
 #include <stddef.h>
 #include <string.h>
@@ -38,7 +13,7 @@
 
 static void simtimer_init(void);
 
-static int width = 640;
+static int width  = 640;
 static int height = 480;
 
 struct sys_event sys_event;
@@ -59,7 +34,7 @@ struct sys_event sys_event;
 
 static volatile unsigned int event_top_mark = 0;
 static volatile unsigned int event_bot_mark = 0;
-static volatile int event_queue[queue_length*4 + 8];
+static volatile int event_queue[queue_length * 4 + 8];
 
 
 #define INSERT_EVENT(a, b, c, d) \
@@ -176,6 +151,7 @@ END_OF_FUNCTION(my_keyboard_callback)
  * -> init,open,close
  */
 
+
 int dr_os_init(const int* parameter)
 {
 	int ok = allegro_init();
@@ -185,6 +161,7 @@ int dr_os_init(const int* parameter)
 	LOCK_VARIABLE(event_queue);
 	LOCK_FUNCTION(my_mouse_callback);
 	LOCK_FUNCTION(my_keyboard_callback);
+
 	if (ok == 0) simtimer_init();
 
 	return ok == 0;
@@ -218,6 +195,8 @@ int dr_os_open(int w, int h, int fullscreen)
 	sys_event.mx = mouse_x;
 	sys_event.my = mouse_y;
 
+	set_window_title("Simutrans");
+
 	return TRUE;
 }
 
@@ -233,7 +212,7 @@ int dr_os_close(void)
  * Hier beginnen die eigentlichen graphischen Funktionen
  */
 
-static BITMAP *texture_map;
+static BITMAP* texture_map;
 
 unsigned short* dr_textur_init(void)
 {
@@ -241,12 +220,10 @@ unsigned short* dr_textur_init(void)
 	int i;
 
 	texture_map = create_bitmap(width, height);
-
 	if (texture_map == NULL) {
 		printf("Error: can't create double buffer bitmap, aborting!");
 		exit(1);
 	}
-
 
 	for (i = 0; i < height; i++) {
 		texture_map->line[i] = (unsigned char*)(tex + width * i);
@@ -257,7 +234,7 @@ unsigned short* dr_textur_init(void)
 
 
 // reiszes screen (Not allowed)
-int dr_textur_resize(unsigned short **textur, int w, int h)
+int dr_textur_resize(unsigned short** textur, int w, int h)
 {
 	return FALSE;
 }
@@ -313,10 +290,6 @@ void set_pointer(int loading)
 	// not supported
 }
 
-/*
- * Hier sind die Funktionen zur Messageverarbeitung
- */
-
 
 static inline int recalc_keys(void)
 {
@@ -351,7 +324,6 @@ void GetEvents(void)
 {
 	while (event_top_mark == event_bot_mark) {
 		// try to be nice where possible
-
 #if !defined(__MINGW32__) && !defined(__BEOS__)
 		usleep(1000);
 #endif
@@ -370,11 +342,11 @@ void GetEventsNoWait(void)
 			internalGetEvents();
 		} while (event_top_mark != event_bot_mark && sys_event.type == SIM_MOUSE_MOVE);
 	} else {
-		sys_event.type = SIM_NOEVENT;
-		sys_event.code  = SIM_NOEVENT;
+		sys_event.type    = SIM_NOEVENT;
+		sys_event.code    = SIM_NOEVENT;
 		sys_event.key_mod = recalc_keys();
-		sys_event.mx = mouse_x;
-		sys_event.my = mouse_y;
+		sys_event.mx      = mouse_x;
+		sys_event.my      = mouse_y;
 	}
 }
 
@@ -389,10 +361,6 @@ void ex_ord_update_mx_my(void)
 	sys_event.mx = mouse_x;
 	sys_event.my = mouse_y;
 }
-
-
-// ----------- timer funktionen -------------
-
 
 
 static volatile long milli_counter;
