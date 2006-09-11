@@ -497,7 +497,7 @@ public:
 	* Vorbereitungsmethode für Echtzeitfunktionen eines Objekts.
 	* @author Hj. Malthaner
 	*/
-	void sync_prepare();
+	void sync_prepare() {}
 
 	/**
 	* Methode für Echtzeitfunktionen eines Objekts.

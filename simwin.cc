@@ -617,29 +617,29 @@ DBG_MESSAGE("top_win()","win=%i ins_win=%i",win,ins_win);
 
 void display_win(int win)
 {
-    gui_fenster_t *komp = wins[win].gui;
-    koord gr = komp->gib_fenstergroesse();
-    int titel_farbe = komp->get_titelcolor();
+	gui_fenster_t *komp = wins[win].gui;
+	koord gr = komp->gib_fenstergroesse();
+	int titel_farbe = komp->get_titelcolor();
 
-    // %HACK (Mathew Hounsell) So draw will know if gadget is needed.
-    wins[win].flags.help = ( komp->gib_hilfe_datei() != NULL );
+	// %HACK (Mathew Hounsell) So draw will know if gadget is needed.
+	wins[win].flags.help = ( komp->gib_hilfe_datei() != NULL );
 
-    // titelleiste zeichnen wenn noetig
-    if(wins[win].wt != w_frameless) {
-      win_draw_window_title(wins[win].pos,
-			    gr,
-			    titel_farbe,
-			    translator::translate(komp->gib_name()),
-			    wins[win].closing,
-			    ( & wins[win].flags ) );
-    }
+	// titelleiste zeichnen wenn noetig
+	if(wins[win].wt != w_frameless) {
+		win_draw_window_title(wins[win].pos,
+			gr,
+			titel_farbe,
+			translator::translate(komp->gib_name()),
+			wins[win].closing,
+			( & wins[win].flags ) );
+	}
 
-   komp->zeichnen(wins[win].pos, gr);
+	komp->zeichnen(wins[win].pos, gr);
 
-    // dragger zeichnen
-    if(komp->get_resizemode() != gui_fenster_t::no_resize) {
-      win_draw_window_dragger(wins[win].pos, gr);
-    }
+	// dragger zeichnen
+	if(komp->get_resizemode() != gui_fenster_t::no_resize) {
+		win_draw_window_dragger(wins[win].pos, gr);
+	}
 }
 
 
@@ -886,6 +886,8 @@ check_pos_win(event_t *ev)
 					ev->ev_class = WINDOW_RESIZE;
 					ev->ev_code = 0;
 					event_t wev = *ev;
+					// since we may be smaller afterwards
+					mark_rect_dirty_wc( wins[i].pos.x, wins[i].pos.y, wins[i].pos.x+gr.x, wins[i].pos.y+gr.y );
 					translate_event(&wev, -wins[i].pos.x, -wins[i].pos.y);
 					gui->infowin_event( &wev );
 				}
@@ -1074,15 +1076,7 @@ win_display_flush(int , int color, double konto)
 		// Hajo: check if there is a tooltip to display
 		if(tooltip_text!=NULL) {
 			const int width = proportional_string_width(tooltip_text)+7;
-
-			display_ddd_proportional(tooltip_xpos,
-													max(39,tooltip_ypos),
-													width,
-													0,
-													2,
-													COL_BLACK,
-													tooltip_text,
-													true);
+			display_ddd_proportional(tooltip_xpos, max(39,tooltip_ypos), width, 0, 2, COL_BLACK, tooltip_text, true);
 			// Hajo: clear tooltip to avoid sticky tooltips
 			tooltip_text = 0;
 		}

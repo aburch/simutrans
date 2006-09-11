@@ -280,63 +280,28 @@ convoi_t::setze_akt_speed_soll(int as)
  */
 void convoi_t::add_running_cost(sint32 cost)
 {
-  // Fahrtkosten
-  jahresgewinn += cost;
-  gib_besitzer()->buche(cost, COST_VEHICLE_RUN);
+	// Fahrtkosten
+	jahresgewinn += cost;
+	gib_besitzer()->buche(cost, COST_VEHICLE_RUN);
 
-  // hsiegeln
-  book(cost, CONVOI_OPERATIONS);
-  book(cost, CONVOI_PROFIT);
+	// hsiegeln
+	book(cost, CONVOI_OPERATIONS);
+	book(cost, CONVOI_PROFIT);
 }
 
 
-/**
- * Vorbereitungsmethode für Echtzeitfunktionen eines Objekts.
- * @author Hj. Malthaner
- */
-void
-convoi_t::sync_prepare()
-{
-  if(wait_lock > 0) {
-    // Hajo: got a saved game that had wait_lock set to 345891
-    // I have no idea how that can happen, but we can work
-    // around such problems here. -> wait at most 1 minute
 
-    if(wait_lock > 60000) {
-
-      dbg->warning("convoi_t::sync_prepre()",
-		   "Convoi %d: wait lock out of bounds:"
-		   "wait_lock = %d, setting to 60000",
-		   self.get_id(), wait_lock);
-
-      wait_lock = 60000;
-    }
-
-  } else {
-    wait_lock = 0;
-  }
-}
-
-
-/**
- * Methode für Echtzeitfunktionen eines Objekts.
- * @author Hj. Malthaner
- */
 bool
 convoi_t::sync_step(long delta_t)
 {
   // DBG_MESSAGE("convoi_t::sync_step()", "%p, state %d", this, state);
 
-  // moved check to here, as this will apply the same update
-  // logic/constraints convois have for manual schedule manipulation
-  if (line_update_pending != UNVALID_LINE_ID) {
-//    if ((state != CAN_START) && (state != CAN_START_ONE_MONTH)) {
-      check_pending_updates();
-//    }
-  }
-
-  wait_lock -= delta_t;
-
+	// moved check to here, as this will apply the same update
+	// logic/constraints convois have for manual schedule manipulation
+	if (line_update_pending != UNVALID_LINE_ID) {
+		check_pending_updates();
+	}
+	wait_lock -= delta_t;
 
   if(wait_lock <= 0) {
   	wait_lock = 0;
@@ -367,7 +332,7 @@ convoi_t::sync_step(long delta_t)
 	break;
 
     case ROUTING_1:
-      wait_lock += WTT_LOADING;
+    		// this will be processed, when the waiting time is over ...
       state = ROUTING_2;
 //     DBG_MESSAGE("convoi_t::sync_step()","Convoi wechselt von ROUTING_1 nach ROUTING_2\n");
       break;
@@ -630,6 +595,13 @@ void convoi_t::step()
 					// Hajo: ROUTING_3 is no more, go to CAN_START directly
 					vorfahren();
 					state = CAN_START;
+					// to advance more smoothly
+					int restart_speed=-1;
+					if(fahr->at(0)->ist_weg_frei(restart_speed)) {
+						// can reserve new block => drive on
+						state = DRIVING;
+						fahr->at(0)->play_sound();
+					}
 				}
 			}
 			break;
@@ -781,7 +753,7 @@ convoi_t::start()
  */
 void convoi_t::ziel_erreicht(vehikel_t *)
 {
-	wait_lock += 8*50;
+	wait_lock = 0;
 	anz_ready |= true;
 }
 
@@ -1215,6 +1187,11 @@ convoi_t::rdwr(loadsave_t *file)
 	file->rdwr_long(dummy, " ");
 	anz_ready = (bool)dummy;
 	file->rdwr_long(wait_lock, " ");
+	// some versions may produce broken safegames apparently
+	if(wait_lock > 60000) {
+		dbg->warning("convoi_t::sync_prepre()","Convoi %d: wait lock out of bounds: wait_lock = %d, setting to 60000",self.get_id(), wait_lock);
+		wait_lock = 60000;
+	}
 	bool dummy_bool=false;
 	file->rdwr_bool(dummy_bool, " ");
 	file->rdwr_long(besitzer_n, "\n");
@@ -1681,11 +1658,11 @@ void convoi_t::laden()
 		for (unsigned i = 0; i<anz_vehikel; i++) {
 			book(gib_vehikel(i)->gib_fracht_max()-gib_vehikel(i)->gib_fracht_menge(), CONVOI_CAPACITY);
 		}
-		wait_lock += WTT_LOADING;
+		wait_lock = WTT_LOADING;
 
 		// Advance schedule
 		drive_to_next_stop();
-		state = ROUTING_2;
+		state = ROUTING_1;
 	}
 	else {
 		// Hajo: wait a few frames ... 250ms looks ok to me
@@ -1734,7 +1711,6 @@ void convoi_t::calc_gewinn(bool in_station)
 void convoi_t::hat_gehalten(koord k, halthandle_t /*halt*/)
 {
 	// entladen und beladen
-
 	for(unsigned i=0; i<anz_vehikel; i++) {
 
 		// just load/unload vehicles in stations
@@ -1749,9 +1725,6 @@ void convoi_t::hat_gehalten(koord k, halthandle_t /*halt*/)
 
 			// Hajo: danach neue waren einladen
 			freight_info_resort |= v->beladen(k, halt);
-
-			// Jeder zusätzliche Waggon braucht etwas Zeit
-			wait_lock += (WTT_LOADING/4);
 		}
 	}
 	// any loading went on?

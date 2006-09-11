@@ -627,7 +627,6 @@ void depot_frame_t::update_data()
 
 		tstrncpy( txt_cnv_name, cnv->gib_internal_name(), 116 );
 		inp_name.setze_text(txt_cnv_name, 116);
-		gui_image_list_t::image_data_t img_data;
 
 		unsigned i;
 		for(i=0; i<cnv->gib_vehikel_anzahl(); i++) {
@@ -638,7 +637,8 @@ void depot_frame_t::update_data()
 				add_to_vehicle_list( info );
 			}
 
-			img_data.image = cnv->gib_vehikel(i)->gib_bild();
+			gui_image_list_t::image_data_t img_data;
+			img_data.image = cnv->gib_vehikel(i)->gib_besch()->gib_basis_bild();
 			img_data.count = 0;
 			img_data.lcolor = img_data.rcolor= EMPTY_IMAGE_BAR;
 			convoi_pics.append(img_data);
@@ -1041,16 +1041,13 @@ depot_frame_t::zeichnen(koord pos, koord groesse)
 		*txt_convoi_line = '\0';
 	}
 
-    bt_obsolete.pressed = show_retired_vehicles;	// otherwise the button would not show depressed
-    gui_frame_t::zeichnen(pos, groesse);
-    if(!cnv.is_bound()) {
-	display_proportional_clip(pos.x+inp_name.gib_pos().x+2,
-			     pos.y+inp_name.gib_pos().y+18,
-                             translator::translate("new convoi"),
-			     ALIGN_LEFT, COL_GREY1, true);
-    }
+	bt_obsolete.pressed = show_retired_vehicles;	// otherwise the button would not show depressed
+	gui_frame_t::zeichnen(pos, groesse);
 
-    draw_vehicle_info_text(pos);
+	if(!cnv.is_bound()) {
+		display_proportional_clip(pos.x+inp_name.gib_pos().x+2, pos.y+inp_name.gib_pos().y+18, translator::translate("new convoi"), ALIGN_LEFT, COL_GREY1, true);
+	}
+	draw_vehicle_info_text(pos);
 }
 
 
@@ -1131,134 +1128,125 @@ void depot_frame_t::fahrplaneingabe()
 void
 depot_frame_t::draw_vehicle_info_text(koord pos)
 {
-    static char buf[1024];
+	static char buf[1024];
 
-    switch(depot->vehicle_count()) {
-    case 0:
-	tstrncpy(buf, translator::translate("Keine Einzelfahrzeuge im Depot"), 128);
-	break;
-    case 1:
-	tstrncpy(buf, translator::translate("1 Einzelfahrzeug im Depot"), 128);
-        break;
-    default:
-	sprintf(buf, translator::translate("%d Einzelfahrzeuge im Depot"), depot->vehicle_count());
-        break;
-    }
-    gui_image_list_t *lst = dynamic_cast<gui_image_list_t *>(tabs.get_active_tab_index() == 0 ? &pas :(tabs.get_active_tab_index() == 1 ? &loks : &waggons));
-    int x = gib_maus_x();
-    int y = gib_maus_y();
-    int value = -1;
-    const vehikel_besch_t *veh_type = NULL;
-    koord relpos = koord( 0, ((gui_scrollpane_t *)tabs.gib_aktives_tab())->get_scroll_y() );
-    int sel_index = lst->index_at(pos + tabs.gib_pos() - relpos, x, y - 16 - gui_tab_panel_t::HEADER_VSIZE);
-    if ((sel_index != -1) && (tabs.getroffen(x-pos.x,y-pos.y))) {
-			vector_tpl<gui_image_list_t::image_data_t> *vec = (lst == &pas ? &pas_vec : (lst == &loks ? &loks_vec : &waggons_vec));
-			veh_type = vehikelbauer_t::gib_info(vec->at(sel_index).image);
-			if(vec->at(sel_index).count > 0) {
-	    	value = calc_restwert(veh_type) / 100;
-			}
-    } else {
-			sel_index = convoi.index_at(pos , x, y - 16);
-			if(sel_index != -1) {
-		    convoihandle_t cnv = depot->get_convoi(icnv);
-		    veh_type = cnv->gib_vehikel(sel_index)->gib_besch();
-		    value = cnv->gib_vehikel(sel_index)->calc_restwert()/100;
+	switch(depot->vehicle_count()) {
+		case 0:
+			tstrncpy(buf, translator::translate("Keine Einzelfahrzeuge im Depot"), 128);
+			break;
+		case 1:
+			tstrncpy(buf, translator::translate("1 Einzelfahrzeug im Depot"), 128);
+			break;
+		default:
+			sprintf(buf, translator::translate("%d Einzelfahrzeuge im Depot"), depot->vehicle_count());
+			break;
+	}
 
-			}
-    }
-    if(veh_type) {
-        strcat(buf, "\n\n");
+	gui_image_list_t *lst = dynamic_cast<gui_image_list_t *>(tabs.get_active_tab_index() == 0 ? &pas :(tabs.get_active_tab_index() == 1 ? &loks : &waggons));
+	int x = gib_maus_x();
+	int y = gib_maus_y();
+	int value = -1;
+	const vehikel_besch_t *veh_type = NULL;
+	koord relpos = koord( 0, ((gui_scrollpane_t *)tabs.gib_aktives_tab())->get_scroll_y() );
+	int sel_index = lst->index_at(pos + tabs.gib_pos() - relpos, x, y - 16 - gui_tab_panel_t::HEADER_VSIZE);
 
-	// lok oder waggon ?
-	if(veh_type->gib_leistung() > 0) {
-	    //lok
-	    const int zuladung = veh_type->gib_zuladung();
+	if ((sel_index != -1) && (tabs.getroffen(x-pos.x,y-pos.y))) {
+		vector_tpl<gui_image_list_t::image_data_t> *vec = (lst == &pas ? &pas_vec : (lst == &loks ? &loks_vec : &waggons_vec));
+		veh_type = vehikelbauer_t::gib_info(vec->at(sel_index).image);
+		if(vec->at(sel_index).count > 0) {
+			value = calc_restwert(veh_type) / 100;
+		}
+	}
+	else {
+		sel_index = convoi.index_at(pos , x, y - 16);
+		if(sel_index != -1) {
+			convoihandle_t cnv = depot->get_convoi(icnv);
+			veh_type = cnv->gib_vehikel(sel_index)->gib_besch();
+			value = cnv->gib_vehikel(sel_index)->calc_restwert()/100;
+		}
+	}
 
-	    char name[128];
 
-	    sprintf(name,
-		    "%s (%s)",
-		    translator::translate(veh_type->gib_name()),
-		    translator::translate(engine_type_names[veh_type->get_engine_type()+1]));
+	if(veh_type) {
+		strcat(buf, "\n\n");
 
-	    sprintf(buf + strlen(buf),
-		    translator::translate("LOCO_INFO"),
-		    name,
-		    veh_type->gib_preis()/100,
-		    veh_type->gib_betriebskosten()/100.0,
-		    veh_type->gib_leistung(),
-		    veh_type->gib_geschw(),
-		    veh_type->gib_gewicht()
-		    );
+		// lok oder waggon ?
+		if(veh_type->gib_leistung() > 0) {
+			//lok
+			const int zuladung = veh_type->gib_zuladung();
+
+			char name[128];
+
+			sprintf(name,
+			"%s (%s)",
+			translator::translate(veh_type->gib_name()),
+			translator::translate(engine_type_names[veh_type->get_engine_type()+1]));
+
+			sprintf(buf + strlen(buf),
+				translator::translate("LOCO_INFO"),
+				name,
+				veh_type->gib_preis()/100,
+				veh_type->gib_betriebskosten()/100.0,
+				veh_type->gib_leistung(),
+				veh_type->gib_geschw(),
+				veh_type->gib_gewicht()
+				);
 
 			if(zuladung>0) {
 				sprintf(buf + strlen(buf),
-						translator::translate("LOCO_CAP"),
-						zuladung,
-						translator::translate(veh_type->gib_ware()->gib_mass()),
-						veh_type->gib_ware()->gib_catg() == 0 ? translator::translate(veh_type->gib_ware()->gib_name()) : translator::translate(veh_type->gib_ware()->gib_catg_name())
-				);
+					translator::translate("LOCO_CAP"),
+					zuladung,
+					translator::translate(veh_type->gib_ware()->gib_mass()),
+					veh_type->gib_ware()->gib_catg() == 0 ? translator::translate(veh_type->gib_ware()->gib_name()) : translator::translate(veh_type->gib_ware()->gib_catg_name())
+					);
 			}
 
-	} else {
-	    // waggon
-	    sprintf(buf + strlen(buf),
-		    translator::translate("WAGGON_INFO"),
-		    translator::translate(veh_type->gib_name()),
-		    veh_type->gib_preis()/100,
-		    veh_type->gib_betriebskosten()/100.0,
-		    veh_type->gib_zuladung(),
-		    translator::translate(veh_type->gib_ware()->gib_mass()),
-		    veh_type->gib_ware()->gib_catg() == 0 ?
-			translator::translate(veh_type->gib_ware()->gib_name()) :
-			translator::translate(veh_type->gib_ware()->gib_catg_name()),
-		    veh_type->gib_gewicht(),
-		    veh_type->gib_geschw()
-		    );
+		}
+		else {
+			// waggon
+			sprintf(buf + strlen(buf),
+				translator::translate("WAGGON_INFO"),
+				translator::translate(veh_type->gib_name()),
+				veh_type->gib_preis()/100,
+				veh_type->gib_betriebskosten()/100.0,
+				veh_type->gib_zuladung(),
+				translator::translate(veh_type->gib_ware()->gib_mass()),
+				veh_type->gib_ware()->gib_catg() == 0 ?
+				translator::translate(veh_type->gib_ware()->gib_name()) :
+				translator::translate(veh_type->gib_ware()->gib_catg_name()),
+				veh_type->gib_gewicht(),
+				veh_type->gib_geschw()
+				);
+		}
 	}
-    }
+	display_multiline_text( pos.x + 4, pos.y + tabs.gib_pos().y + tabs.gib_groesse().y + 20, buf,  COL_BLACK);
 
+	// column 2
+	if(veh_type) {
+		int n = sprintf(buf, "%s %s %04d\n",
+			translator::translate("Intro. date:"),
+			translator::translate(month_names[veh_type->get_intro_year_month()%12]),
+			veh_type->get_intro_year_month()/12 );
 
-    display_multiline_text(
-	pos.x + 4,
-	pos.y + tabs.gib_pos().y + tabs.gib_groesse().y + 20,
-	buf,
-	COL_BLACK);
+		if(veh_type->get_retire_year_month() !=DEFAULT_RETIRE_DATE*12) {
+			n += sprintf(buf+n, "%s %s %04d\n",
+				translator::translate("Retire. date:"),
+				translator::translate(month_names[veh_type->get_retire_year_month()%12]),
+				veh_type->get_retire_year_month()/12 );
+		}
 
-
-    if(veh_type) {
-      int n = sprintf(buf, "%s %s %04d\n",
-		      translator::translate("Intro. date:"),
-		      translator::translate(month_names[veh_type->get_intro_year_month()%12]),
-		      veh_type->get_intro_year_month()/12 );
-
-      if(veh_type->get_retire_year_month() !=DEFAULT_RETIRE_DATE*12) {
-      n += sprintf(buf+n, "%s %s %04d\n",
-		      translator::translate("Retire. date:"),
-		      translator::translate(month_names[veh_type->get_retire_year_month()%12]),
-		      veh_type->get_retire_year_month()/12 );
-      }
-
-      if(veh_type->gib_leistung() > 0  &&  veh_type->get_gear()!=64) {
-			n+= sprintf(buf+n, "%s %0.2f : 1\n",
-		    translator::translate("Gear:"),
-		    veh_type->get_gear()/64.0);
-      }
+		if(veh_type->gib_leistung() > 0  &&  veh_type->get_gear()!=64) {
+			n+= sprintf(buf+n, "%s %0.2f : 1\n", translator::translate("Gear:"), 	veh_type->get_gear()/64.0);
+		}
 
 		if(veh_type->gib_copyright()!=NULL  &&  veh_type->gib_copyright()[0]!=0) {
 			n += sprintf(buf+n, "%s%s\n",translator::translate("Constructed by "),veh_type->gib_copyright());
 		}
 
 		if(value != -1) {
-		    sprintf(buf + strlen(buf), "%s %d Cr",
-			translator::translate("Restwert:"),
-			value);
+			sprintf(buf + strlen(buf), "%s %d Cr", translator::translate("Restwert:"), 	value);
 		}
 
-      display_multiline_text(
-			     pos.x + 200,
-			     pos.y + tabs.gib_pos().y + tabs.gib_groesse().y + 31 + LINESPACE*2,
-			     buf,
-			     COL_BLACK);
-    }
+		display_multiline_text( pos.x + 200, pos.y + tabs.gib_pos().y + tabs.gib_groesse().y + 31 + LINESPACE*2, buf, COL_BLACK);
+	}
 }
