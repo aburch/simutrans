@@ -160,20 +160,13 @@ static BITMAP* texture_map;
 
 unsigned short* dr_textur_init(void) // XXX FIXME wrong type
 {
-	unsigned char* tex = guarded_malloc(width * height);
-	int i;
-
 	texture_map = create_bitmap(width, height);
 	if (texture_map == NULL) {
 		printf("Error: can't create double buffer bitmap, aborting!");
 		exit(1);
 	}
 
-	for (i = 0; i < height; i++) {
-		texture_map->line[i] = tex + width * i;
-	}
-
-	return tex;
+	return texture_map->line[0];
 }
 
 

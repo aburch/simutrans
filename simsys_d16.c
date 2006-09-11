@@ -216,20 +216,13 @@ static BITMAP* texture_map;
 
 unsigned short* dr_textur_init(void)
 {
-	unsigned short* tex = guarded_malloc(width * height * sizeof(*tex));
-	int i;
-
 	texture_map = create_bitmap(width, height);
 	if (texture_map == NULL) {
 		printf("Error: can't create double buffer bitmap, aborting!");
 		exit(1);
 	}
 
-	for (i = 0; i < height; i++) {
-		texture_map->line[i] = (unsigned char*)(tex + width * i);
-	}
-
-	return tex;
+	return texture_map->line[0];
 }
 
 
