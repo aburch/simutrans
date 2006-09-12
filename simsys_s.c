@@ -114,7 +114,7 @@ int dr_os_init(const int* parameter)
 
 
 // open the window
-int dr_os_open(int w, int h, int fullscreen)
+int dr_os_open(int w, int h, int bpp, int fullscreen)
 {
   Uint32 flags = sync_blit ? 0 : SDL_ASYNCBLIT;
 
@@ -133,16 +133,12 @@ int dr_os_open(int w, int h, int fullscreen)
 	flags |= (fullscreen ? SDL_FULLSCREEN : SDL_RESIZABLE);
 
   // open the window now
-  screen = SDL_SetVideoMode(w, h, 16, flags);
+  screen = SDL_SetVideoMode(w, h, bpp, flags);
   if (screen == NULL) {
     fprintf(stderr, "Couldn't open the window: %s\n", SDL_GetError());
     return FALSE;
   } else {
     fprintf(stderr, "Screen Flags: requested=%x, actual=%x\n", flags, screen->flags);
-  }
-
-  if (screen->pitch != w * 2) {
-    fprintf(stderr, "Warning: pitch != width\n");
   }
 
   SDL_EnableUNICODE(TRUE);
@@ -170,7 +166,7 @@ int dr_os_close(void)
 
 
 // reiszes screen
-int dr_textur_resize(unsigned short** textur, int w, int h)
+int dr_textur_resize(unsigned short** textur, int w, int h, int bpp)
 {
 #ifdef USE_HW
 	SDL_UnlockSurface(screen);
@@ -179,7 +175,7 @@ int dr_textur_resize(unsigned short** textur, int w, int h)
 	width = w;
 	height = h;
 
-	screen = SDL_SetVideoMode(width, height, 16, flags);
+	screen = SDL_SetVideoMode(width, height, bpp, flags);
 	printf("textur_resize()::screen=%p\n", screen);
 	fflush(NULL);
 	*textur = (unsigned short*)screen->pixels;
@@ -206,6 +202,27 @@ unsigned int get_system_color(unsigned int r, unsigned int g, unsigned int b)
 	return SDL_MapRGB(screen->format, (Uint8)r, (Uint8)g, (Uint8)b);
 }
 
+
+void dr_setRGB8multi(int first, int count, unsigned char* data)
+{
+#ifdef _MSC_VER
+	SDL_Color *rgb = guarded_malloc(sizeof(*rgb) * count);
+#else
+	SDL_Color rgb[count];
+#endif
+	int n;
+
+	for (n = 0; n < count; n++) {
+		rgb[n].r = *data++;
+		rgb[n].g = *data++;
+		rgb[n].b = *data++;
+	}
+
+	SDL_SetColors(screen, rgb, first, count);
+#ifdef _MSC_VER
+	guarded_free(rgb);
+#endif
+}
 
 
 void dr_flush(void)

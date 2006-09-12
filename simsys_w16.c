@@ -62,7 +62,7 @@ int dr_os_init(const int* parameter)
 
 
 // open the window
-int dr_os_open(int w, int h, int fullscreen)
+int dr_os_open(int w, int h, int bpp, int fullscreen)
 {
 	const wchar_t* const title =
 #ifdef _MSC_VER
@@ -143,7 +143,7 @@ int dr_os_close(void)
 
 
 // reiszes screen
-int dr_textur_resize(unsigned short **textur,int w, int h)
+int dr_textur_resize(unsigned short **textur, int w, int h, int bpp)
 {
 	AllDib->biWidth   = w;
 	WindowSize.right  = w;

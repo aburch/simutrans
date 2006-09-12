@@ -168,15 +168,15 @@ int dr_os_init(const int* parameter)
 }
 
 
-int dr_os_open(int w, int h, int fullscreen)
+int dr_os_open(int w, int h, int bpp, int fullscreen)
 {
 	width = w;
 	height = h;
 
-	set_color_depth(16);
 
 	install_keyboard();
 
+	set_color_depth(bpp);
 	if (set_gfx_mode(GFX_AUTODETECT, w, h, 0, 0) != 0) {
 		fprintf(stderr, "Error: %s\n", allegro_error);
 		return FALSE;
@@ -227,7 +227,7 @@ unsigned short* dr_textur_init(void)
 
 
 // reiszes screen (Not allowed)
-int dr_textur_resize(unsigned short** textur, int w, int h)
+int dr_textur_resize(unsigned short** textur, int w, int h, int bpp)
 {
 	return FALSE;
 }
@@ -251,6 +251,21 @@ unsigned int get_system_color(unsigned int r, unsigned int g, unsigned int b)
 #else
 	return ((r & 0x00F8) << 7) | ((g & 0x00F8) << 2) | (b >> 3); // 15 Bit
 #endif
+}
+
+
+void dr_setRGB8multi(int first, int count, unsigned char* data)
+{
+	PALETTE p;
+	int n;
+
+	for (n = 0; n < count; n++) {
+		p[n + first].r = data[n * 3 + 0] >> 2;
+		p[n + first].g = data[n * 3 + 1] >> 2;
+		p[n + first].b = data[n * 3 + 2] >> 2;
+	}
+
+	set_palette_range(p, first, first + count - 1, TRUE);
 }
 
 

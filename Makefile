@@ -284,7 +284,7 @@ SOURCES += simgraph$(COLOUR_DEPTH).c
 
 
 ifeq ($(BACKEND),allegro)
-  SOURCES  += simsys_d$(COLOUR_DEPTH).c
+  SOURCES  += simsys_d.c
   ifeq ($(ALLEGRO_CONFIG),)
     ALLEGRO_CFLAGS  :=
     ALLEGRO_LDFLAGS := -lalleg
@@ -303,7 +303,7 @@ ifeq ($(BACKEND),gdi)
 endif
 
 ifeq ($(BACKEND),sdl)
-  SOURCES  += simsys_s$(COLOUR_DEPTH).c
+  SOURCES  += simsys_s.c
   ifeq ($(SDL_CONFIG),)
     SDL_CFLAGS  := -I$(MINGDIR)/include/SDL -Dmain=SDL_main
     SDL_LDFLAGS := -lmingw32 -lSDLmain -lSDL -mwindows

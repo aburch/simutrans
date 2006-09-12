@@ -60,7 +60,7 @@ extern struct sys_event sys_event;
 
 
 int dr_os_init(const int* parameter);
-int dr_os_open(int w, int h, int fullscreen);
+int dr_os_open(int w, int h, int bpp, int fullscreen);
 int dr_os_close(void);
 
 
@@ -68,7 +68,7 @@ unsigned short* dr_textur_init(void);
 
 
 void dr_textur(int xp, int yp, int w, int h);
-int dr_textur_resize( unsigned short **textur,int w, int h);
+int dr_textur_resize(unsigned short** textur,int w, int h, int bpp);
 void dr_flush(void);
 
 void dr_setRGB8multi(int first, int count, unsigned char * data);

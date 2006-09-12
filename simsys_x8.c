@@ -80,7 +80,7 @@ int dr_os_init(const int* parameter)
 }
 
 
-int dr_os_open(int w, int h, int fullscreen)
+int dr_os_open(int w, int h, int bpp, int fullscreen)
 {
 	XSetWindowAttributes attr;
 
@@ -190,7 +190,7 @@ static XShmSegmentInfo xshminfo;
 static unsigned char* data8;
 
 
-int dr_textur_resize(unsigned short** textur,int w, int h)
+int dr_textur_resize(unsigned short** textur, int w, int h, int bpp)
 {
 	// XXX TODO implement
 	return 0;
