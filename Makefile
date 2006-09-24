@@ -29,37 +29,31 @@ endif
 
 
 ifeq ($(OSTYPE),beos)
-  ALLEGRO_CONFIG ?= allegro-config
-  SDL_CONFIG     ?= sdl-config
   STD_LIBS       ?= -lz
 endif
 
 ifeq ($(OSTYPE),cygwin)
-  ALLEGRO_CONFIG ?= allegro-config
   OS_INC         ?= -I/usr/include/mingw
   OS_OPT         ?= -mwin32
-  SDL_CONFIG     ?= sdl-config
   STD_LIBS       ?= -lgdi32 -lwinmm -lz -mno-cygwin
 endif
 
 ifeq ($(OSTYPE),freebsd)
-  ALLEGRO_CONFIG ?= allegro-config
-  SDL_CONFIG     ?= sdl11-config
   STD_LIBS       ?= -lz
 endif
 
 ifeq ($(OSTYPE),mingw)
-  ALLEGRO_CONFIG ?= allegro-config
   OS_OPT         ?= -mno-cygwin -DPNG_STATIC -DZLIB_STATIC
-  SDL_CONFIG     ?= sdl-config
   STD_LIBS       ?=  -lunicows -lz -lmingw32 -lgdi32 -lwinmm
 endif
 
 ifeq ($(OSTYPE),linux)
-  ALLEGRO_CONFIG ?= allegro-config
-  SDL_CONFIG     ?= sdl-config
   STD_LIBS       ?= -lz
 endif
+
+
+ALLEGRO_CONFIG ?= allegro-config
+SDL_CONFIG     ?= sdl-config
 
 
 ifneq ($(OPTIMISE),)
