@@ -245,7 +245,7 @@ void button_t::infowin_event(const event_t *ev)
 
 
 // draw button. x,y is top left of window.
-void button_t::zeichnen(koord offset, PLAYER_COLOR_VAL button_color) const
+void button_t::zeichnen(koord offset)
 {
   int bx = offset.x + pos.x;
   int by = offset.y + pos.y;
@@ -265,7 +265,7 @@ void button_t::zeichnen(koord offset, PLAYER_COLOR_VAL button_color) const
     }
 {
     int len = proportional_string_width(text);
-    display_proportional_clip(bx+max((bw-len)/2,0),by+(bh-large_font_height)/2, text, ALIGN_LEFT, b_enabled ? button_color : COL_GREY4, true);
+    display_proportional_clip(bx+max((bw-len)/2,0),by+(bh-large_font_height)/2, text, ALIGN_LEFT, b_enabled ? foreground : COL_GREY4, true);
   }
     break;
 
@@ -292,12 +292,12 @@ void button_t::zeichnen(koord offset, PLAYER_COLOR_VAL button_color) const
 		display_vline_wh_clip(bx, by, bh, COL_WHITE, true);
 		display_vline_wh_clip(bx+1, by+1, bh-2, MN_GREY4, true);
 	}
-    display_proportional_clip(bx+(bw>>1),by+(bh-large_font_height)/2, text, ALIGN_MIDDLE, b_enabled ? button_color : COL_GREY4, true);
+    display_proportional_clip(bx+(bw>>1),by+(bh-large_font_height)/2, text, ALIGN_MIDDLE, b_enabled ? foreground : COL_GREY4, true);
     break;
 
    case square: // little square in front of text
     display_button_image(bx, by, SQUARE_BUTTON, pressed);
-    display_proportional_clip(bx+16,by+(12-large_font_height)/2, text, ALIGN_LEFT, b_enabled ? button_color : COL_GREY4, true);
+    display_proportional_clip(bx+16,by+(12-large_font_height)/2, text, ALIGN_LEFT, b_enabled ? foreground : COL_GREY4, true);
     break;
 
    case arrowleft:
@@ -346,26 +346,12 @@ void button_t::zeichnen(koord offset, PLAYER_COLOR_VAL button_color) const
     }
     break;
   }
+	if(tooltip &&  getroffen( gib_maus_x(), gib_maus_y() )) {
+		win_set_tooltip(offset.x + pos.x + 16, offset.y + pos.y - 16, tooltip );
+	}
 }
 
 
-void button_t::zeichnen(koord offset) const
-{
-  zeichnen(offset, foreground);
-
-  if(tooltip &&
-     gib_maus_x() >= offset.x + pos.x &&
-     gib_maus_y() >= offset.y + pos.y &&
-     gib_maus_x() <  offset.x + pos.x + groesse.x &&
-     gib_maus_y() <  offset.y + pos.y + groesse.y)
-  {
-
-    win_set_tooltip(offset.x + pos.x + 16,
-		    offset.y + pos.y - 16,
-		    tooltip
-		    );
-  }
-}
 
 
 void button_t::operator= (const button_t & other)

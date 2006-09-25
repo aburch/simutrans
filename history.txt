@@ -4,10 +4,43 @@ Known bugs: (hard to fix)
 	valgrind complains about errors in SDL and X?
 
 
-	FIX:/CHANGE: menus are now adapted during player change (in new module simmenu.cc)
-	FIX: planes now also can do approaches with one way markers on them
-	FIX: dummy vehicle for way removal/upgrades now always successful
-	FIX: wrong prices after starting a map in beginner mode and next in normal mode
+
+Release of 99.01.1
+
+25-Sep-2006: (prissi)
+	FIX: ground below houses was draw even if not needed
+	FIX: crash when messages were generated at load time
+	FIX: display error, when no passenger vehicles but engines were in a depot
+	CHANGE: auto resize for scrollbars on all textarea objects (if they have some)
+	FIX: building transformers, less reallocation of nets
+	ADD: engine_type 'battery' added
+	FIX: not loading passengers/mail at freight locations
+	FIX: house where not recognized in old savegames
+	CHANGE: after lot of tries settled now in binary heaps for pathfinding, about 15% faster
+	FIX: display of animated buildings fixed
+
+
+Release of 99.01
+
+18-Sep-2006: (prissi)
+	FIX: redraw after window resize
+	FIX: climate dialoge
+	FIX: display in townhalls
+	FIX: images in depot again
+	FIX: pause at waypoints
+	CHANGE: automatically loading pak/demo.sve (or whatever the pak folder is) on startup
+	CHANGE: symbol.BigLogo.pak with maximum for image loaded during intial startup
+	CHANGE: more complex tunnels, with cost=,maitenance=, topspeed=, waytype=, intro- and retiredates
+	CHANGE: allowed tunnels for all but air, also removal or tunnel with tramrails should work
+	FIX: city roads no longer destroy runways and the like
+	FIX: more even house distribution with rotation
+
+
+Release of 99.00
+
+10-Sep-2006: (prissi)
+	CHANGE: full climate/season support
+	CHANGE: sync_prepare removed
 
 
 Release of 90.00.1
@@ -15,6 +48,10 @@ Release of 90.00.1
 3-Sep-2006: (prissi)
 	FIX: unicode routine
 	FIX: memory for citylist names was one too few
+	FIX:/CHANGE: menus are now adapted during player change (in new module simmenu.cc)
+	FIX: planes now also can do approaches with one way markers on them
+	FIX: dummy vehicle for way removal/upgrades now always successful
+	FIX: wrong prices after starting a map in beginner mode and next in normal mode
 
 
 Release of 90.00

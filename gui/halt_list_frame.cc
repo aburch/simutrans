@@ -12,7 +12,7 @@
 #include <string.h>
 
 #include "gui_container.h"
-#include "halt_list_item.h"
+#include "halt_list_stats.h"
 #include "halt_list_frame.h"
 #include "halt_list_filter_frame.h"
 #include "../simhalt.h"
@@ -344,7 +344,7 @@ void halt_list_frame_t::display_list(void)
 
     // display stations
     for (i = 0; i < n; i++) {
-	halt_list_item_t *cinfo = new halt_list_item_t(a[i], a[i]->index_of()+1);
+	halt_list_stats_t *cinfo = new halt_list_stats_t(a[i], a[i]->index_of()+1);
 
 	cinfo->setze_pos(koord(0, ypos));
 	cinfo->setze_groesse(koord(500, 28));

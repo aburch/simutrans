@@ -101,39 +101,9 @@ DBG_MESSAGE("","sizeof(stat)=%d, sizeof(tm)=%d",sizeof(struct stat),sizeof(struc
 	y_size[1].add_listener( this );
 	add_komponente( y_size+1 );
 	intTopOfButton += 12;
-
-	// mountian/water stuff
-	intTopOfButton += 5;
-	water_level[0].setze_pos( koord(LEFT_ARROW,intTopOfButton) );
-	water_level[0].setze_typ( button_t::repeatarrowleft );
-	water_level[0].add_listener( this );
-	add_komponente( water_level+0 );
-	water_level[1].setze_pos( koord(RIGHT_ARROW,intTopOfButton) );
-	water_level[1].setze_typ( button_t::repeatarrowright );
-	water_level[1].add_listener( this );
-	add_komponente( water_level+1 );
 	intTopOfButton += 12;
 
-	mountain_height[0].setze_pos( koord(LEFT_ARROW,intTopOfButton) );
-	mountain_height[0].setze_typ( button_t::repeatarrowleft );
-	mountain_height[0].add_listener( this );
-	add_komponente( mountain_height+0 );
-	mountain_height[1].setze_pos( koord(RIGHT_ARROW,intTopOfButton) );
-	mountain_height[1].setze_typ( button_t::repeatarrowright );
-	mountain_height[1].add_listener( this );
-	add_komponente( mountain_height+1 );
-	intTopOfButton += 12;
-
-	mountain_roughness[0].setze_pos( koord(LEFT_ARROW,intTopOfButton) );
-	mountain_roughness[0].setze_typ( button_t::repeatarrowleft );
-	mountain_roughness[0].add_listener( this );
-	add_komponente( mountain_roughness+0 );
-	mountain_roughness[1].setze_pos( koord(RIGHT_ARROW,intTopOfButton) );
-	mountain_roughness[1].setze_typ( button_t::repeatarrowright );
-	mountain_roughness[1].add_listener( this );
-	add_komponente( mountain_roughness+1 );
-	intTopOfButton += 12;
-
+	// towns etc.
 	intTopOfButton += 5;
 	random_map.setze_pos( koord(11, intTopOfButton) );
 	random_map.setze_groesse( koord(104, BUTTON_HEIGHT) );
@@ -355,10 +325,6 @@ DBG_MESSAGE("welt_gui_t::update_from_heightfield()","success (%5f,%5f)",skip_x,s
 		x_size[1].disable();
 		y_size[0].disable();
 		y_size[1].disable();
-		mountain_height[0].disable();
-		mountain_height[1].disable();
-		mountain_roughness[0].disable();
-		mountain_roughness[1].disable();
 
 		strcpy(map_number_s,translator::translate("file"));
 
@@ -392,10 +358,6 @@ welt_gui_t::update_preview()
 	x_size[1].enable();
 	y_size[0].enable();
 	y_size[1].enable();
-	mountain_height[0].enable();
-	mountain_height[1].enable();
-	mountain_roughness[0].enable();
-	mountain_roughness[1].enable();
 
 DBG_MESSAGE("sizes","grund_t=%i, planquadrat_t=%d, ding_t=%d",sizeof(grund_t),sizeof(planquadrat_t),sizeof(ding_t));
 }
@@ -457,56 +419,6 @@ welt_gui_t::action_triggered(gui_komponente_t *komp,value_t /* */)
 			update_preview();
 		} else if(sets->gib_groesse_y() < 4096 ) {
 			sets->setze_groesse_y( (sets->gib_groesse_y()+128)&0x1F80 );
-			update_preview();
-		}
-	}
-	else if(komp==water_level+0) {
-		if(sets->gib_grundwasser() > -160 ) {
-			sets->setze_grundwasser( sets->gib_grundwasser() - 32 );
-			if(loaded_heightfield) {
-				loaded_heightfield = 0;
-			}
-			else {
-				update_preview();
-			}
-		}
-	}
-	else if(komp==water_level+1) {
-		if(sets->gib_grundwasser() < 0 ) {
-			sets->setze_grundwasser( sets->gib_grundwasser() + 32 );
-			if(loaded_heightfield) {
-				loaded_heightfield = 0;
-			}
-			else {
-				update_preview();
-			}
-		}
-	}
-	else if(komp==mountain_height+0) {
-		if(sets->gib_max_mountain_height() > 0.0 ) {
-			sets->setze_max_mountain_height( sets->gib_max_mountain_height() - 10 );
-			update_preview();
-		}
-	}
-	else if(komp==mountain_height+1) {
-		if(sets->gib_max_mountain_height() < 320.0 ) {
-			sets->setze_max_mountain_height( sets->gib_max_mountain_height() + 10 );
-			update_preview();
-		}
-	}
-	else if(komp==mountain_roughness+0) {
-		if(sets->gib_map_roughness() > 0.4 ) {
-			sets->setze_map_roughness( sets->gib_map_roughness() - 0.05 );
-			update_preview();
-		}
-	}
-	else if(komp==mountain_roughness+1) {
-#ifndef DOUBLE_GROUNDS
-		if(sets->gib_map_roughness() < 0.7 ) {
-#else
-		if(sets->gib_map_roughness() < 1.00) {
-#endif
-			sets->setze_map_roughness( sets->gib_map_roughness() + 0.05 );
 			update_preview();
 		}
 	}
@@ -656,7 +568,6 @@ void welt_gui_t::zeichnen(koord pos, koord gr)
 		use_beginner_mode.setze_text("Beginner mode");
 		load_game.setze_text("Load game");
 		start_game.setze_text("Starte Spiel");
-//		quit_game.setze_text("Beenden");
 		old_lang = translator::get_language();
 		welt->setze_dirty();
 	}
@@ -668,10 +579,10 @@ void welt_gui_t::zeichnen(koord pos, koord gr)
 	int y = pos.y+16+START_HEIGHT;
 
 	display_proportional_clip(x, y-20, translator::translate("1WORLD_CHOOSE"),ALIGN_LEFT, COL_BLACK, true);
-	display_ddd_box_clip(x, y-5, 240, 0, MN_GREY0, MN_GREY4);		// seperator
+	display_ddd_box_clip(x, y-5, RIGHT_ARROW, 0, MN_GREY0, MN_GREY4);		// seperator
 
-	display_ddd_box_clip(x+173, y, preview_size+2, preview_size+2, MN_GREY0,MN_GREY4);
-	display_array_wh(x+174, y+1, preview_size, preview_size, karte);
+	display_ddd_box_clip(x+173, y-20, preview_size+2, preview_size+2, MN_GREY0,MN_GREY4);
+	display_array_wh(x+174, y-19, preview_size, preview_size, karte);
 
 	display_proportional_clip(x, y, translator::translate("2WORLD_CHOOSE"), ALIGN_LEFT, COL_BLACK, true);
 	// since the display is done via a textfiled, we have nothing to do
@@ -686,18 +597,7 @@ void welt_gui_t::zeichnen(koord pos, koord gr)
 	display_proportional_clip(x+TEXT_RIGHT, y, ntos(sets->gib_groesse_y(), 0), ALIGN_RIGHT, COL_WHITE, true);
 	y += 12+5;
 
-      // water level       18-Nov-01       Markus W. Added
-	display_proportional_clip(x, y, translator::translate("Water level"), ALIGN_LEFT, COL_BLACK, true);
-	display_proportional_clip(x+TEXT_RIGHT, y, ntos(sets->gib_grundwasser()/32+5,0), ALIGN_RIGHT, COL_WHITE, true);
-	y += 12;
-	display_proportional_clip(x, y, translator::translate("Mountain height"), ALIGN_LEFT, COL_BLACK, true);
-	display_proportional_clip(x+TEXT_RIGHT, y, ntos((int)(sets->gib_max_mountain_height()), 0), ALIGN_RIGHT, COL_WHITE, true);
-	y += 12;
-	display_proportional_clip(x, y, translator::translate("Map roughness"), ALIGN_LEFT, COL_BLACK, true);
-	display_proportional_clip(x+TEXT_RIGHT, y, ntos((int)(sets->gib_map_roughness()*20.0 + 0.5)-8 , 0) , ALIGN_RIGHT, COL_WHITE, true);     // x = round(roughness * 10)-4  // 0.6 * 10 - 4 = 2    //29-Nov-01     Markus W. Added
-	y += 12+5;
-
-	y += BUTTON_HEIGHT+5;	// buttons
+	y += BUTTON_HEIGHT+12+5;	// buttons
 
 	display_proportional_clip(x, y, translator::translate("5WORLD_CHOOSE"), ALIGN_LEFT, COL_BLACK, true);
 	display_proportional_clip(x+TEXT_WIDE_RIGHT, y, ntos(sets->gib_anzahl_staedte(), 0), ALIGN_RIGHT, COL_WHITE, true);

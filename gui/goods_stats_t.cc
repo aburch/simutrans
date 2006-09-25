@@ -16,8 +16,6 @@
 #include "../bauer/warenbauer.h"
 #include "../besch/ware_besch.h"
 
-#include "../boden/wege/weg.h"
-
 #include "../dataobj/translator.h"
 #include "components/list_button.h"
 
@@ -33,7 +31,7 @@ goods_stats_t::goods_stats_t(karte_t *welt)
  * Zeichnet die Komponente
  * @author Hj. Malthaner
  */
-void goods_stats_t::zeichnen(koord offset) const
+void goods_stats_t::zeichnen(koord offset)
 {
 	int yoff = offset.y;
 	char buf[256];

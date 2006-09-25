@@ -72,7 +72,7 @@ world_view_t::infowin_event(const event_t *ev)
  * @author Hj. Malthaner
  */
 void
-world_view_t::zeichnen(koord offset) const
+world_view_t::zeichnen(koord offset)
 {
 	const sint16 raster = get_tile_raster_width();
 

@@ -39,6 +39,10 @@ einstellungen_t::einstellungen_t() :
 	show_pax = true;
 
 	grundwasser = -32;                          //25-Nov-01        Markus Weber    Added
+	for(  int i=0;  i<8;  i++ ) {
+		climate_borders[i] = umgebung_t::climate_borders[i];
+	}
+	winter_snowline = umgebung_t::winter_snowline;
 
 	max_mountain_height = 160;                  //can be 0-160.0  01-Dec-01        Markus Weber    Added
 	map_roughness = 0.6;                        //can be 0-1      01-Dec-01        Markus Weber    Added
@@ -76,6 +80,10 @@ einstellungen_t::einstellungen_t(const einstellungen_t *other)
     show_pax = other->show_pax;
 
     grundwasser = other->grundwasser;
+	for(  int i=0;  i<8;  i++ ) {
+		climate_borders[i] = other->climate_borders[i];
+	}
+	winter_snowline = other->winter_snowline;
     max_mountain_height = other->max_mountain_height;
     map_roughness = other->map_roughness;
     heightfield = other->heightfield;
@@ -97,7 +105,7 @@ void
 einstellungen_t::rdwr(loadsave_t *file)
 {
 	if(file->get_version() < 86000) {
-		int dummy;
+		long dummy;
 
 		file->rdwr_long(groesse_x, " ");
 		groesse_y = groesse_x;
@@ -125,7 +133,9 @@ einstellungen_t::rdwr(loadsave_t *file)
 		file->rdwr_long(scroll_multi, " ");
 		file->rdwr_long(verkehr_level, "\n");
 		file->rdwr_long(show_pax, "\n");
-		file->rdwr_long(grundwasser, "\n");
+		dummy = grundwasser;
+		file->rdwr_long(dummy, "\n");
+		grundwasser = dummy;
 		file->rdwr_double(max_mountain_height, "\n");
 		file->rdwr_double(map_roughness, "\n");
 
@@ -151,12 +161,14 @@ einstellungen_t::rdwr(loadsave_t *file)
 		file->rdwr_long(scroll_multi, " ");
 		file->rdwr_long(verkehr_level, "\n");
 		file->rdwr_long(show_pax, "\n");
-		file->rdwr_long(grundwasser, "\n");
+		long dummy = grundwasser;
+		file->rdwr_long(dummy, "\n");
+		grundwasser = dummy;
 		file->rdwr_double(max_mountain_height, "\n");
 		file->rdwr_double(map_roughness, "\n");
 
 		if(file->get_version() >= 86003) {
-			int dummy = station_coverage_size;
+			dummy = station_coverage_size;
 			file->rdwr_long(dummy, " ");
 			station_coverage_size = dummy;
 		}
@@ -204,6 +216,20 @@ einstellungen_t::rdwr(loadsave_t *file)
 		// clear the name when loading ...
 		if(file->is_loading()) {
 			filename = "";
+		}
+
+		// climate corders
+		if(file->get_version()>=91000) {
+			for(  int i=0;  i<8;  i++ ) {
+				file->rdwr_short(climate_borders[i], "c");
+			}
+			file->rdwr_short(winter_snowline, "c");
+		}
+		else {
+			for(  int i=0;  i<8;  i++ ) {
+				climate_borders[i] = umgebung_t::climate_borders[i];
+			}
+			winter_snowline = umgebung_t::winter_snowline;
 		}
 	}
 }

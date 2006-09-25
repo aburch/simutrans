@@ -61,7 +61,6 @@ public:
      */
     ~gui_textinput_t();
 
-
     /**
      * Setzt den Textpuffer
      *
@@ -69,14 +68,12 @@ public:
      */
     void setze_text(char *text, int max);
 
-
     /**
      * Holt den Textpuffer
      *
      * @author Hj. Malthaner
      */
-    char *gib_text() const {return text;};
-
+    char *gib_text() const {return text;}
 
     /**
      * Events werden hiermit an die GUI-Komponenten
@@ -85,12 +82,11 @@ public:
      */
     void infowin_event(const event_t *);
 
-
     /**
      * Zeichnet die Komponente
      * @author Hj. Malthaner
      */
-    void zeichnen(koord offset) const;
+    void zeichnen(koord offset);
 };
 
 #endif

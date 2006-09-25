@@ -38,6 +38,8 @@ static uint8 get_engine_type(const char * engine_type, tabfileobj_t &obj)
     uv8 = vehikel_besch_t::fuel_cell;
   } else if(!STRICMP(engine_type, "hydrogene")) {
     uv8 = vehikel_besch_t::hydrogene;
+  } else if(!STRICMP(engine_type, "battery")) {
+    uv8 = vehikel_besch_t::hydrogene;
   } else if(!STRICMP(engine_type, "unknown")) {
     uv8 = vehikel_besch_t::unknown;
   }
@@ -151,7 +153,7 @@ void vehicle_writer_t::write_obj(FILE *fp, obj_node_t &parent, tabfileobj_t &obj
     // Hajoval: road, track, electrified_track, monorail_track, maglev_track, water
     const char *waytype = obj.get("waytype");
     const char waytype_uint = get_waytype(waytype);
-    uv8 = (waytype_uint==weg_t::overheadlines) ? weg_t::schiene : waytype_uint;
+    uv8 = (waytype_uint==overheadlines_wt) ? track_wt : waytype_uint;
     node.write_data_at(fp, &uv8, 24, sizeof(uint8));
 
 	// Hajodoc: The freight type
@@ -321,7 +323,7 @@ void vehicle_writer_t::write_obj(FILE *fp, obj_node_t &parent, tabfileobj_t &obj
 
 	node.write_data_at(fp, &sound_id, 25, sizeof(sint8));
 
-	if(waytype_uint == weg_t::overheadlines) {
+	if(waytype_uint == overheadlines_wt) {
 		// Hajo: compatibility for old style DAT files
 		uv8 = vehikel_besch_t::electric;
 	}

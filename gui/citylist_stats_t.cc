@@ -119,7 +119,7 @@ void citylist_stats_t::infowin_event(const event_t * ev)
  * Zeichnet die Komponente
  * @author Hj. Malthaner
  */
-void citylist_stats_t::zeichnen(koord offset) const
+void citylist_stats_t::zeichnen(koord offset)
 {
 	static cbuffer_t buf (256);
 	sint32 total_bev = 0, total_growth=0;

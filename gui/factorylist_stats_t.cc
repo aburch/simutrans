@@ -70,7 +70,7 @@ void factorylist_stats_t::infowin_event(const event_t * ev)
  * Zeichnet die Komponente
  * @author Hj. Malthaner
  */
-void factorylist_stats_t::zeichnen(koord offset) const
+void factorylist_stats_t::zeichnen(koord offset)
 {
     //DBG_DEBUG("factorylist_stats_t()","zeichnen()");
     const struct clip_dimension cd = display_gib_clip_wh();

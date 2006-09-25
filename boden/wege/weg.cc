@@ -105,7 +105,9 @@ void weg_t::init_statistics()
  */
 void weg_t::init(karte_t *welt)
 {
-	this->welt = welt;
+	if(welt!=NULL) {
+		this->welt = welt;
+	}
 	ribi = ribi_maske = ribi_t::keine;
 	max_speed = 450;
 
@@ -205,8 +207,9 @@ void weg_t::info(cbuffer_t & buf) const
 	}
 
 #if 1
-	buf.append(translator::translate("convoi passed last\nmonth "));
-      buf.append(statistics[1][1]);
+	char buffer[256];
+	sprintf(buffer,"convoi passed last\nmonth %i\n", statistics[1][1]);
+	buf.append(buffer);
   // Debug - output stats
 #else
   buf.append("\n");
@@ -246,7 +249,7 @@ weg_t::count_sign()
 	flags &= ~HAS_SIGN;
 	const grund_t *gr=welt->lookup(gib_pos());
 	if(gr) {
-		const ding_t::typ type=(gib_typ()==schiene  ||  gib_typ()==monorail) ? ding_t::signal : ding_t::roadsign;
+		const ding_t::typ type=(gib_typ()==track_wt  ||  gib_typ()==monorail_wt) ? ding_t::signal : ding_t::roadsign;
 		for( uint8 i=0;  i<gr->gib_top();  i++  ) {
 			ding_t *d=gr->obj_bei(i);
 			// sign for us?

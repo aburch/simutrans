@@ -42,7 +42,7 @@ private:
      *
      * @author V. Meyer
      */
-    static koord3d finde_ende(karte_t *welt, koord3d pos, koord zv, weg_t::typ wegtyp);
+    static koord3d finde_ende(karte_t *welt, koord3d pos, koord zv, waytype_t wegtyp);
 
     /*
      * Brückenendpunkte bei Rampen werden auf flachem Grund gebaut und müssen daher genauer
@@ -100,7 +100,7 @@ public:
      * Brückenbau für die KI - chosse chepest fast enough
      * @author V. Meyer
      */
-    static int baue(spieler_t *sp, karte_t *welt, koord pos, weg_t::typ wegtyp,uint32 top_speed);
+    static int baue(spieler_t *sp, karte_t *welt, koord pos, waytype_t wegtyp,uint32 top_speed);
 
     /*
      * Brückenbau für die KI - der ist der Brückenstil egal.
@@ -108,14 +108,14 @@ public:
      *
      * @author V. Meyer
      */
-    static int baue(spieler_t *sp, karte_t *welt, koord pos, weg_t::typ wegtyp);
+    static int baue(spieler_t *sp, karte_t *welt, koord pos, waytype_t wegtyp);
 
     /*
      * Brückenlösch-Funktion
      *
      * @author V. Meyer
      */
-    static const char *remove(karte_t *welt, spieler_t *sp, koord3d pos, weg_t::typ wegtyp);
+    static const char *remove(karte_t *welt, spieler_t *sp, koord3d pos, waytype_t wegtyp);
 
 
 	/**
@@ -123,14 +123,14 @@ public:
 	 * @author prissi
 	 */
 	static const bruecke_besch_t *
-	find_bridge(const weg_t::typ wtyp, const uint32 min_speed,const uint16 time);
+	find_bridge(const waytype_t wtyp, const uint32 min_speed,const uint16 time);
 
     /**
      * Fill menu with icons of given waytype
      * @author priss
      */
     static void fill_menu(werkzeug_parameter_waehler_t *wzw,
-        const weg_t::typ wtyp,
+        const waytype_t wtyp,
         const int sound_ok, const int sound_ko,const uint16 time);
 };
 

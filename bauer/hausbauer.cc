@@ -180,10 +180,13 @@ DBG_DEBUG("hausbauer_t::register_besch()","unknown subtype %i of %s: ignored",be
 		}
 	}
 
-	const haus_tile_besch_t *tile;
-	int i = 0;
-	while((tile = besch->gib_tile(i++)) != NULL) {
-		const_cast<haus_tile_besch_t *>(tile)->setze_besch(besch);
+	/* supply the tiles with a pointer back to the matchin description
+	 * this is needed, since each building is build of seperate tiles,
+	 * even if it is part of the same description (haus_besch_t)
+	 */
+	const int max_index = besch->gib_all_layouts()*besch->gib_groesse().x*besch->gib_groesse().y;
+	for( int i=0;  i<max_index;  i++  ) {
+		const_cast<haus_tile_besch_t *>(besch->gib_tile(i))->setze_besch(besch);
 	}
 
 	if(besch_names.get(besch->gib_name())) {
@@ -213,7 +216,7 @@ DBG_DEBUG("hausbauer_t::fill_menu()","maximum %i",stops.count());
 		const haus_besch_t *besch=stops.at(i);
 
 DBG_DEBUG("hausbauer_t::fill_menu()","try at pos %i to add %s(%p)",i,besch->gib_name(),besch);
-		if(besch->gib_cursor()->gib_bild_nr(1) != -1) {
+		if(besch->gib_cursor()->gib_bild_nr(1) != IMG_LEER) {
 			if(time==0  ||  (besch->get_intro_year_month()<=time  &&  besch->get_retire_year_month()>time)) {
 
 				// only add items with a cursor
@@ -255,7 +258,7 @@ DBG_DEBUG("hausbauer_t::fill_menu()","maximum %i",station_building.count());
 		const haus_besch_t *besch=station_building.at(i);
 
 //DBG_DEBUG("hausbauer_t::fill_menu()","try at pos %i to add %s (%p)",i,besch->gib_name(),besch);
-		if(besch->gib_utyp()==utyp  &&  besch->gib_cursor()->gib_bild_nr(1) != -1) {
+		if(besch->gib_utyp()==utyp  &&  besch->gib_cursor()->gib_bild_nr(1) != IMG_LEER) {
 			if(time==0  ||  (besch->get_intro_year_month()<=time  &&  besch->get_retire_year_month()>time)) {
 
 				// only add items with a cursor
@@ -311,7 +314,7 @@ void hausbauer_t::neue_karte()
  *
  * @author V. Meyer
  */
-void hausbauer_t::umbauen(karte_t * /*welt*/,gebaeude_t *gb, const haus_besch_t *besch, int rotate)
+void hausbauer_t::umbauen(karte_t * ,gebaeude_t *gb, const haus_besch_t *besch, int rotate)
 {
 	const haus_tile_besch_t *tile = besch->gib_tile(rotate, 0, 0);
 
@@ -355,7 +358,7 @@ void hausbauer_t::baue(karte_t *welt, spieler_t *sp, koord3d pos, int layout, co
 //DBG_DEBUG("hausbauer_t::baue()","get_tile() at %i,%i",k.x,k.y);
 			const haus_tile_besch_t *tile = besch->gib_tile(layout, k.x, k.y);
 			// here test for good tile
-			if(tile==NULL  ||  tile->gib_hintergrund(0,0)==IMG_LEER) {
+			if(tile==NULL  ||  (tile->gib_hintergrund(0,0,0)==IMG_LEER  &&  tile->gib_vordergrund(0,0)==IMG_LEER)) {
 				DBG_MESSAGE("hausbauer_t::baue()","get_tile() empty at %i,%i",k.x,k.y);
 				continue;
 			}
@@ -391,7 +394,6 @@ void hausbauer_t::baue(karte_t *welt, spieler_t *sp, koord3d pos, int layout, co
 				gr = gr2;
 //DBG_DEBUG("hausbauer_t::baue()","ground count now %i",gr->obj_count());
 				gr->setze_besitzer(sp);
-				gr ->calc_bild();
 				gr->obj_add( gb );
 				gb->setze_pos( gr->gib_pos() );
 				if(welt->ist_in_kartengrenzen(pos.gib_2d()+koord(1,0))) {
@@ -427,6 +429,7 @@ void hausbauer_t::baue(karte_t *welt, spieler_t *sp, koord3d pos, int layout, co
 					gb->setze_yoff(0);
 				}
 			}
+			gr->calc_bild();
 		}
 	}
 }
@@ -537,6 +540,7 @@ const haus_tile_besch_t *hausbauer_t::find_tile(const char *name, int idx)
 	if(besch) {
 		return besch->gib_tile(idx);
 	}
+//	DBG_MESSAGE("hausbauer_t::find_tile()","\"%s\" not in hashtable",name);
 	return NULL;
 }
 
@@ -570,37 +574,40 @@ const haus_besch_t *hausbauer_t::gib_random_station(const enum utyp utype,const 
 	return NULL;
 }
 
-const haus_besch_t *hausbauer_t::gib_special_intern(int bev, utyp utype,uint16 time)
+const haus_besch_t *hausbauer_t::gib_special_intern(int bev, utyp utype,uint16 time,climate cl)
 {
 	weighted_vector_tpl<const haus_besch_t *> auswahl(16);
 	slist_iterator_tpl<const haus_besch_t *> iter( utype==rathaus ? rathaeuser : (bev==-1 ? sehenswuerdigkeiten_land : sehenswuerdigkeiten_city) );
 
 	while(iter.next()) {
 		const haus_besch_t *besch = iter.get_current();
-		if(bev == -1 || besch->gib_bauzeit() == bev) {
-			// ok, now check timeline
-			if(time==0  ||  (besch->get_intro_year_month()<=time  &&  besch->get_retire_year_month()>time)) {
-				auswahl.append(besch,besch->gib_chance(),4);
+		if(bev == -1 || besch->gib_bauzeit()==bev) {
+			if(cl==MAX_CLIMATES  ||  besch->is_allowed_climate(cl)) {
+				// ok, now check timeline
+				if(time==0  ||  (besch->get_intro_year_month()<=time  &&  besch->get_retire_year_month()>time)) {
+					auswahl.append(besch,besch->gib_chance(),4);
+				}
 			}
 		}
 	}
-	if(auswahl.get_sum_weight()==0) {
-		// this is some level below, but at least it is something
-		return NULL;
+	if(auswahl.get_count()==0) {
+		return 0;
 	}
-	if(auswahl.get_count()==1) {
+	else	if(auswahl.get_count()==1) {
 		return auswahl.at(0);
 	}
 	// now there is something to choose
 	return auswahl.at_weight( simrand(auswahl.get_sum_weight()) );
 }
 
+
+
 /**
  * tries to find something that matches this entry
  * it will skip and jump, and will never return zero, if there is at least a single valid entry in the list
  * @author Hj. Malthaner
  */
-const haus_besch_t * hausbauer_t::gib_aus_liste(slist_tpl<const haus_besch_t *> &liste, int level, uint16 time)
+const haus_besch_t * hausbauer_t::gib_aus_liste(slist_tpl<const haus_besch_t *> &liste, int level, uint16 time, climate cl)
 {
 	weighted_vector_tpl<const haus_besch_t *> auswahl(16);
 
@@ -610,13 +617,13 @@ const haus_besch_t * hausbauer_t::gib_aus_liste(slist_tpl<const haus_besch_t *> 
 
 	while(iter.next()) {
 		const haus_besch_t *besch = iter.get_current();
-
-		if(besch->gib_chance()>0  &&  (time==0  ||  (besch->get_intro_year_month()<=time  &&  besch->get_retire_year_month()>time))) {
+		if(	besch->is_allowed_climate(cl)  &&
+			besch->gib_chance()>0  &&
+			(time==0  ||  (besch->get_intro_year_month()<=time  &&  besch->get_retire_year_month()>time))) {
 			besch_at_least = iter.get_current();
 		}
 
 		const int thislevel = besch->gib_level();
-
 		if(thislevel>level) {
 			if(auswahl.get_count()==0) {
 				// continue with search ...
@@ -629,9 +636,11 @@ const haus_besch_t * hausbauer_t::gib_aus_liste(slist_tpl<const haus_besch_t *> 
 		}
 
 		if(thislevel==level  &&  besch->gib_chance()>0) {
-			if(time==0  ||  (besch->get_intro_year_month()<=time  &&  besch->get_retire_year_month()>time)) {
+			if(cl==MAX_CLIMATES  ||  besch->is_allowed_climate(cl)) {
+				if(time==0  ||  (besch->get_intro_year_month()<=time  &&  besch->get_retire_year_month()>time)) {
 //					DBG_MESSAGE("hausbauer_t::gib_aus_liste()","appended %s at %i", besch->gib_name(), thislevel );
-				auswahl.append(besch,besch->gib_chance(),4);
+					auswahl.append(besch,besch->gib_chance(),4);
+				}
 			}
 		}
 
@@ -651,7 +660,7 @@ const haus_besch_t * hausbauer_t::gib_aus_liste(slist_tpl<const haus_besch_t *> 
 
 
 // get a random object
-const haus_besch_t *hausbauer_t::waehle_aus_liste(slist_tpl<const haus_besch_t *> &liste, uint16 time)
+const haus_besch_t *hausbauer_t::waehle_aus_liste(slist_tpl<const haus_besch_t *> &liste, uint16 time, climate cl)
 {
 	if(liste.count()) {
 		// previously just returned a random object; however, now we do als look at the chance entry
@@ -660,7 +669,7 @@ const haus_besch_t *hausbauer_t::waehle_aus_liste(slist_tpl<const haus_besch_t *
 
 		while(iter.next()) {
 			const haus_besch_t *besch = iter.get_current();
-			if(besch->gib_chance()>0  &&  (time==0  ||  (besch->get_intro_year_month()<=time  &&  besch->get_retire_year_month()>time))) {
+			if((cl==MAX_CLIMATES  ||  besch->is_allowed_climate(cl))  &&  besch->gib_chance()>0  &&  (time==0  ||  (besch->get_intro_year_month()<=time  &&  besch->get_retire_year_month()>time))) {
 //				DBG_MESSAGE("hausbauer_t::gib_aus_liste()","appended %s at %i", besch->gib_name(), thislevel );
 				auswahl.append(besch,besch->gib_chance(),4);
 			}

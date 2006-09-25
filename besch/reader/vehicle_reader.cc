@@ -208,7 +208,7 @@ vehicle_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 			besch->typ = 1;
 		}
 		// convert to new standard
-		const weg_t::typ convert_from_old[8]={weg_t::strasse, weg_t::schiene, weg_t::wasser, weg_t::luft, weg_t::invalid, weg_t::monorail, weg_t::schiene_maglev, weg_t::schiene_strab };
+		const waytype_t convert_from_old[8]={road_wt, track_wt, water_wt, air_wt, invalid_wt, monorail_wt, maglev_wt, tram_wt };
 		besch->typ = convert_from_old[besch->typ];
 	}
 

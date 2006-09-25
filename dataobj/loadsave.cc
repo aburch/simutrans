@@ -276,27 +276,28 @@ void loadsave_t::rdwr_bool(bool &i, const char *delim)
 
 void loadsave_t::rdwr_str(const char *&s, const char *null_s)
 {
-    if(!is_text()) {
-	short size;
-	if(saving) {
-            size = s ? strlen(s) : 0;
-	    write(&size, sizeof(short));
-            if(size > 0) {
-	        write(s, size);
-            }
-	} else {
-	    read(&size, sizeof(short));
-            char *sneu = NULL;
-            if(size > 0) {
-		sneu = (char *)guarded_malloc(size + 1);
-	        read(sneu, size);
-	        sneu[size] = '\0';
-            }
-            if(s) {
-                free(const_cast<char *>(s));
-            }
-            s = sneu;
-	}
+	if(!is_text()) {
+		short size;
+		if(saving) {
+			size = s ? strlen(s) : 0;
+			write(&size, sizeof(short));
+			if(size > 0) {
+				write(s, size);
+			}
+		}
+		else {
+			read(&size, sizeof(short));
+			char *sneu = NULL;
+			if(size > 0) {
+				sneu = (char *)guarded_malloc(size + 1);
+				read(sneu, size);
+				sneu[size] = '\0';
+			}
+			if(s) {
+				free(const_cast<char *>(s));
+			}
+			s = sneu;
+		}
     } else {
 	if(saving) {
             fprintf(fp, "%s\n", s ? s : null_s);
@@ -322,31 +323,33 @@ void loadsave_t::rdwr_str(const char *&s, const char *null_s)
 
 void loadsave_t::rdwr_str(char *s, int /*size*/)
 {
-    if(!is_text()) {
-	short len;
-	if(saving) {
-	    len = strlen(s);
-	    write(&len, sizeof(short));
-	    write(s, len);
-	} else {
-	    read(&len, sizeof(short));
-            //assert(len < size);
-	    read(s, len);
-	    s[len] = '\0';
+	if(!is_text()) {
+		short len;
+		if(saving) {
+			len = strlen(s);
+			write(&len, sizeof(short));
+			write(s, len);
+		}
+		else {
+			read(&len, sizeof(short));
+			//assert(len < size);
+			read(s, len);
+			s[len] = '\0';
+		}
 	}
-    } else {
-	if(saving) {
-            fprintf(fp, "%s\n", s);
-        }
-        else {
-	    char buffer[256];
+	else {
+		if(saving) {
+			fprintf(fp, "%s\n", s);
+		}
+		else {
+			char buffer[256];
 
-            fgets(buffer, 255, fp);
-            buffer[strlen(buffer)-1] = 0;
-            //assert(strlen(buffer) < size);
-            strcpy(s, buffer);
+			fgets(buffer, 255, fp);
+			buffer[strlen(buffer)-1] = 0;
+			//assert(strlen(buffer) < size);
+			strcpy(s, buffer);
+		}
 	}
-    }
 }
 
 

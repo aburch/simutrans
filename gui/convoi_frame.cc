@@ -172,83 +172,82 @@ convoi_frame_t::convoi_frame_t(spieler_t *sp, karte_t *welt) :
 	sort_label(translator::translate("cl_txt_sort")),
 	filter_label(translator::translate("cl_txt_filter"))
 {
-    owner = sp;
-    this->welt = welt;
-    filter_frame = NULL;
+	owner = sp;
+	this->welt = welt;
+	filter_frame = NULL;
 
-    sort_label.setze_pos(koord(BUTTON1_X, 4));
-    add_komponente(&sort_label);
-    sortedby.init(button_t::roundbox, "", koord(BUTTON1_X, 14), koord(BUTTON_WIDTH,BUTTON_HEIGHT));
-    sortedby.add_listener(this);
-    add_komponente(&sortedby);
+	sort_label.setze_pos(koord(BUTTON1_X, 4));
+	add_komponente(&sort_label);
+	sortedby.init(button_t::roundbox, "", koord(BUTTON1_X, 14), koord(BUTTON_WIDTH,BUTTON_HEIGHT));
+	sortedby.add_listener(this);
+	add_komponente(&sortedby);
 
-    sorteddir.init(button_t::roundbox, "", koord(BUTTON2_X, 14), koord(BUTTON_WIDTH,BUTTON_HEIGHT));
-    sorteddir.add_listener(this);
-    add_komponente(&sorteddir);
+	sorteddir.init(button_t::roundbox, "", koord(BUTTON2_X, 14), koord(BUTTON_WIDTH,BUTTON_HEIGHT));
+	sorteddir.add_listener(this);
+	add_komponente(&sorteddir);
 
-    filter_label.setze_pos(koord(BUTTON3_X, 4));
-    add_komponente(&filter_label);
+	filter_label.setze_pos(koord(BUTTON3_X, 4));
+	add_komponente(&filter_label);
 
-    filter_on.init(button_t::roundbox, translator::translate(gib_filter(any_filter) ? "cl_btn_filter_enable" : "cl_btn_filter_disable"), koord(BUTTON3_X, 14), koord(BUTTON_WIDTH,BUTTON_HEIGHT));
-    filter_on.add_listener(this);
-    add_komponente(&filter_on);
+	filter_on.init(button_t::roundbox, translator::translate(gib_filter(any_filter) ? "cl_btn_filter_enable" : "cl_btn_filter_disable"), koord(BUTTON3_X, 14), koord(BUTTON_WIDTH,BUTTON_HEIGHT));
+	filter_on.add_listener(this);
+	add_komponente(&filter_on);
 
-    filter_details.init(button_t::roundbox, translator::translate("cl_btn_filter_settings"), koord(BUTTON4_X, 14), koord(BUTTON_WIDTH,BUTTON_HEIGHT));
-    filter_details.add_listener(this);
-    add_komponente(&filter_details);
+	filter_details.init(button_t::roundbox, translator::translate("cl_btn_filter_settings"), koord(BUTTON4_X, 14), koord(BUTTON_WIDTH,BUTTON_HEIGHT));
+	filter_details.add_listener(this);
+	add_komponente(&filter_details);
 
-    scrolly.setze_pos(koord(1, 30));
-    setze_opaque(true);
-    setze_fenstergroesse(koord(BUTTON4_X+BUTTON_WIDTH+2, 191+16+16));
+	scrolly.setze_pos(koord(1, 30));
+	setze_opaque(true);
+	setze_fenstergroesse(koord(BUTTON4_X+BUTTON_WIDTH+2, 191+16+16));
 	set_min_windowsize(koord(BUTTON4_X+BUTTON_WIDTH+2, 191+16+16));
 	set_resizemode(diagonal_resize);
 
-    display_list();
-    add_komponente(&scrolly);
+	display_list();
+	add_komponente(&scrolly);
 
-    resize (koord(0,0));
+	resize (koord(0,0));
 }
 
 
 
 void convoi_frame_t::display_list(void)
 {
-    const unsigned count = welt->get_convoi_count();
+	const unsigned count = welt->get_convoi_count();
 #ifdef _MSC_VER
-    convoihandle_t *a = new convoihandle_t[count];
+	convoihandle_t *a = new convoihandle_t[count];
 #else
-    convoihandle_t a[count];
+	convoihandle_t a[count];
 #endif
-    int n = 0;
-    int ypos = 0;
-    unsigned i;
+	int n = 0;
+	int ypos = 0;
+	unsigned i;
 
 	for(i=0;  i<count;  i++ ) {
 		convoihandle_t cnv = welt->get_convoi_array().get(i);
-
-	if(cnv->gib_besitzer() == owner && passes_filter(cnv)) {
-	    a[n++] = cnv;
+		if(cnv->gib_besitzer() == owner && passes_filter(cnv)) {
+			a[n++] = cnv;
+		}
 	}
-    }
-    qsort((void *)a, n, sizeof (convoihandle_t), compare_convois);
+	qsort((void *)a, n, sizeof (convoihandle_t), compare_convois);
 
-    sortedby.setze_text(sort_text[gib_sortierung()]);
-    sorteddir.setze_text(gib_reverse() ? "cl_btn_sort_desc" : "cl_btn_sort_asc");
+	sortedby.setze_text(sort_text[gib_sortierung()]);
+	sorteddir.setze_text(gib_reverse() ? "cl_btn_sort_desc" : "cl_btn_sort_asc");
 
-    cont.remove_all();
+	cont.remove_all();
 
-    for (i = 0; i < n; i++) {
-	gui_convoiinfo_t *cinfo = new gui_convoiinfo_t(a[i], i + 1);
+	for (i = 0; i < n; i++) {
+		gui_convoiinfo_t *cinfo = new gui_convoiinfo_t(a[i], i + 1);
 
-	cinfo->setze_pos(koord(0, ypos));
-        cinfo->setze_groesse(koord(500, 32));
-	cont.add_komponente(cinfo);
-        ypos += 40; // @author hsiegeln: changed from +=32 to +=40 to have more space for "serves line" info!
-    }
-    cont.setze_groesse(koord(500, ypos));
-    //scrolly.setze_groesse(koord(318, gib_fenstergroesse().y - 1 - 16 - 16 - 20));
+		cinfo->setze_pos(koord(0, ypos));
+		cinfo->setze_groesse(koord(500, 32));
+		cont.add_komponente(cinfo);
+		ypos += 40; // @author hsiegeln: changed from +=32 to +=40 to have more space for "serves line" info!
+	}
+	cont.setze_groesse(koord(500, ypos));
+	//scrolly.setze_groesse(koord(318, gib_fenstergroesse().y - 1 - 16 - 16 - 20));
 #ifdef _MSC_VER
-    delete [] a;
+	delete [] a;
 #endif
 }
 
@@ -256,14 +255,15 @@ void convoi_frame_t::display_list(void)
 
 void convoi_frame_t::infowin_event(const event_t *ev)
 {
-    if(ev->ev_class == INFOWIN &&
-       ev->ev_code == WIN_CLOSE) {
-	if(filter_frame) {
-	    filter_frame->infowin_event(ev);
+	if(ev->ev_class == INFOWIN  &&  ev->ev_code == WIN_CLOSE) {
+		if(filter_frame) {
+			filter_frame->infowin_event(ev);
+		}
 	}
-    }
-    gui_frame_t::infowin_event(ev);
+	gui_frame_t::infowin_event(ev);
 }
+
+
 
 /**
  * This method is called if an action is triggered
@@ -315,28 +315,28 @@ void convoi_frame_t::zeichnen(koord pos, koord gr)
 
 void convoi_frame_t::setze_ware_filter(const ware_besch_t *ware, int mode)
 {
-    if(ware != warenbauer_t::nichts) {
-	if(gib_ware_filter(ware)) {
-	    if(mode != 1) {
-		waren_filter.remove(ware);
-	    }
-	} else {
-	    if(mode != 0) {
-		waren_filter.append(ware);
-	    }
+	if(ware != warenbauer_t::nichts) {
+		if(gib_ware_filter(ware)) {
+			if(mode != 1) {
+				waren_filter.remove(ware);
+			}
+		} else {
+			if(mode != 0) {
+				waren_filter.append(ware);
+			}
+		}
 	}
-    }
 }
 
 
 void convoi_frame_t::setze_alle_ware_filter(int mode)
 {
-    if(mode == 0) {
-	waren_filter.clear();
-    }
-    else {
-	for(unsigned int i = 0; i<warenbauer_t::gib_waren_anzahl(); i++) {
-	    setze_ware_filter(warenbauer_t::gib_info(i), mode);
+	if(mode == 0) {
+		waren_filter.clear();
 	}
-    }
+	else {
+		for(unsigned int i = 0; i<warenbauer_t::gib_waren_anzahl(); i++) {
+			setze_ware_filter(warenbauer_t::gib_info(i), mode);
+		}
+	}
 }

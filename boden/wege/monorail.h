@@ -27,34 +27,34 @@ class monorail_t : public schiene_t
 public:
 	static const weg_besch_t *default_monorail;
 
-    /**
-     * Basic constructor.
-     * @author prissi
-     */
-    monorail_t(karte_t *welt) : schiene_t(welt) { setze_besch(default_monorail); }
+	/**
+	 * Basic constructor.
+	 * @author prissi
+	 */
+	monorail_t(karte_t *welt) : schiene_t(welt) { setze_besch(default_monorail); }
 
-    /**
-     * File loading constructor.
-     * @author prissi
-     */
-    monorail_t(karte_t *welt, loadsave_t *file);
+	/**
+	 * File loading constructor.
+	 * @author prissi
+	 */
+	monorail_t(karte_t *welt, loadsave_t *file);
 
-    /**
-     * Destruktor. Entfernt etwaige Debug-Meldungen vom Feld
-     * @author prissi
-     */
-    virtual ~monorail_t() {}
+	/**
+	 * Destruktor. Entfernt etwaige Debug-Meldungen vom Feld
+	 * @author prissi
+	 */
+	virtual ~monorail_t() {}
 
-    virtual const char *gib_typ_name() const {return "Monorail";}
-    virtual typ gib_typ() const {return monorail;}
+	virtual const char *gib_typ_name() const {return "Monorail";}
+	virtual waytype_t gib_typ() const {return monorail_wt;}
 
-    /**
-     * @return Infotext zur Schiene
-     * @author Hj. Malthaner
-     */
-    void info(cbuffer_t & buf) const;
+	/**
+	 * @return Infotext zur Schiene
+	 * @author Hj. Malthaner
+	 */
+	void info(cbuffer_t & buf) const;
 
-    void rdwr(loadsave_t *file);
+	void rdwr(loadsave_t *file);
 };
 
 #endif

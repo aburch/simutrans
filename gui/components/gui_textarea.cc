@@ -7,54 +7,94 @@
  * in other projects without written permission of the author.
  */
 
-#include <stdio.h>
+#include <string.h>
 
 #include "gui_textarea.h"
 #include "../../simgraph.h"
+#include "../../simdebug.h"
 #include "../../simcolor.h"
 
 gui_textarea_t::gui_textarea_t(const char *text)
 {
-    setze_text(text);
+ 	setze_text(text);
+ 	recalc_size();
 }
+
 
 
 void
 gui_textarea_t::setze_text(const char *text)
 {
-    if(text) {
-	this->text = text;
-    } else {
-	text = "";
-    }
-
-    long max = 0;
-    int lines = 1;
-
-    const char *p = text;
-    const char *line_start = p;
-
-    while(*p) {
-	if(*p == '\n') {
-	    lines ++;
-	    if(p-line_start+1 > max) {
-		max = p-line_start+1;
-		line_start = p+1;
-	    }
+	if(text) {
+		this->text = text;
+	} else {
+		text = "";
 	}
-	p++;
-    }
-
-    koord gr (max * 8, lines * LINESPACE);
-
-    setze_groesse(gr);
 }
+
+
+
+// recalcs the current size;
+// usually not needed to be called explicitely
+void gui_textarea_t::recalc_size()
+{
+	// we cannot use: display_multiline_text(pos.x+offset.x, pos.y+offset.y+10, text, COL_BLACK);
+	// since we also want to dynamically change the size of the component
+	int new_lines=0;
+	int x_size = 1;
+	if (text!=NULL   &&   *text!= '\0') {
+		const char *buf=text;
+		const char *next;
+
+		do {
+			next = strchr(buf, '\n');
+			const long len = next != NULL ? next - buf : -1;
+			int px_len = display_calc_proportional_string_len_width( buf, len, true	);
+			if(px_len>x_size) {
+				x_size = px_len;
+			}
+			buf = next + 1;
+			new_lines += LINESPACE;
+		} while (next != NULL);
+	}
+DBG_MESSAGE("gui_textarea_t::recalc_size()","reset size to %i,%i",x_size+10,new_lines);
+	setze_groesse(koord(x_size+10,new_lines));
+}
+
+
 
 /**
  * Zeichnet die Komponente
  * @author Hj. Malthaner
  */
-void gui_textarea_t::zeichnen(koord offset) const
+void gui_textarea_t::zeichnen(koord offset)
 {
-    display_multiline_text(pos.x+offset.x, pos.y+offset.y+10, text, COL_BLACK);
+	// we cannot use: display_multiline_text(pos.x+offset.x, pos.y+offset.y+10, text, COL_BLACK);
+	// since we also want to dynamically change the size of the component
+	int new_lines=0;
+	// keep previous maximum width
+	int x_size = gib_groesse().x-10;
+	if (text!=NULL   &&   *text!= '\0') {
+		const char *buf=text;
+		const char *next;
+		const sint16 x = pos.x+offset.x;
+		sint16 y = pos.y+offset.y+10;
+
+		do {
+			next = strchr(buf, '\n');
+			if(pos.y+new_lines>=0) {
+				const long len = next != NULL ? next - buf : -1;
+				int px_len = display_text_proportional_len_clip( x, y+new_lines, buf, ALIGN_LEFT, COL_BLACK, true, true, len, true	);
+				if(px_len>x_size) {
+					x_size = px_len;
+				}
+			}
+			buf = next + 1;
+			new_lines += LINESPACE;
+		} while (next != NULL);
+	}
+	koord gr(x_size+10,new_lines);
+	if(gr!=gib_groesse()) {
+		//setze_groesse(gr);
+	}
 }

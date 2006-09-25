@@ -18,7 +18,6 @@
 
 #include "simconst.h"
 
-#include "ifc/karte_modell.h"
 #include "convoihandle_t.h"
 #include "halthandle_t.h"
 #include "simsound.h"
@@ -62,7 +61,7 @@ template <class T> class vector_tpl;
  *
  * @author Hj. Malthaner
  */
-class karte_t : public karte_modell_t
+class karte_t
 {
 public:
 	/**
@@ -129,10 +128,17 @@ private:
     unsigned char max_no_of_trees_on_square;
 
     /**
+     * redraw whole map
+     */
+    bool dirty;
+
+    /**
      * fuer softes scrolling
      */
     int x_off, y_off;
 
+	/* current position */
+    koord ij_off;
 
     /**
      * Mauszeigerposition, intern
@@ -157,11 +163,26 @@ private:
 
 
     /**
-     * Die Hoehe des (Grund-) Wasserspiegels.
+     * water level height
      * @author Hj. Malthaner
      */
-    int grundwasser;
+    sint16 grundwasser;
 
+    /**
+     * current snow height (might change during the game)
+     * @author prissi
+     */
+    sint16 snowline;
+
+	// changes the snowline height (for the seasons)
+	// @author prissi
+	void recalc_snowline();
+
+    /**
+     * table for fast conversion from height to climate
+     * @author prissi
+     */
+	uint8 height_to_climate[32];
 
     zeiger_t *zeiger;
 
@@ -329,8 +350,34 @@ public:
     // @author hsiegeln
     sint32 get_base_year() { return basis_jahr; };
 
-    int gib_x_off() const {return x_off;};
-    int gib_y_off() const {return y_off;};
+    /**
+     * dirty: redraw whole screen
+     * @author Hj. Malthaner
+     */
+    void setze_dirty() {dirty=true;}
+    void setze_dirty_zurueck() {dirty=false;}
+    bool ist_dirty() const {return dirty;}
+
+    /**
+     * viewpoint in tile koordinates
+     * @author Hj. Malthaner
+     */
+    koord gib_ij_off() const {return ij_off;}
+
+    /**
+     * set viewport (tile koordinates)
+     * @author Hj. Malthaner
+     */
+    void setze_ij_off(koord ij) {ij_off=ij; dirty=true;}
+
+	// fine offset within the viewprt tile
+    int gib_x_off() const {return x_off;}
+    int gib_y_off() const {return y_off;}
+
+	/* centers object on object;
+	 * the viewport tile will be different (due to zoom etc)
+	 */
+    void zentriere_auf(koord k);
 
     /**
      * If this is true, the map will not be scrolled
@@ -354,8 +401,6 @@ public:
       max_no_of_trees_on_square = number;
     };
 
-    void zentriere_auf(koord k);
-
     einstellungen_t * gib_einstellungen() const {return einstellungen;};
 
     // often used, therefore found here
@@ -368,7 +413,7 @@ public:
     uint16 get_timeline_year_month() const {return (einstellungen->gib_use_timeline()) ? current_month : 0; };
 
 	// returns current speed bonus
-	int get_average_speed(weg_t::typ typ) const;
+	int get_average_speed(waytype_t typ) const;
 
 	bool is_fast_forward();
 
@@ -450,13 +495,33 @@ public:
     inline int gib_simloops() const { return last_simloops; };
 
 
-    /**
-     * Holt den Grundwasserlevel der Karte
-     *
-     * @author Hj. Malthaner
-     */
-    int gib_grundwasser() const { return grundwasser; };
+	/**
+	* Holt den Grundwasserlevel der Karte
+	* @author Hj. Malthaner
+	*/
+	sint16 gib_grundwasser() const { return grundwasser; }
 
+	/**
+	* returns the current snowline height
+	* @author prissi
+	*/
+	sint16 get_snowline() const { return snowline; }
+
+	/**
+	* returns the current climate for a given height
+	* uses as private lookup table for speed
+	* @author prissi
+	*/
+	climate get_climate(sint16 height) const
+	{
+		const sint16 h=(height-grundwasser)/16;
+		if(h<0) {
+			return water_climate;
+		} else if(h>=32) {
+			return arctic_climate;
+		}
+		return (climate)height_to_climate[h];
+	}
 
     /**
      * offsets für zeigerposition
@@ -518,23 +583,19 @@ public:
 		return (x|y|(cached_groesse_karte_x-x)|(cached_groesse_karte_y-y))>=0;
 //		return x>=0 &&  y>=0  &&  cached_groesse_karte_x>=x  &&  cached_groesse_karte_y>=y;
 	}
-/*
-	inline bool ist_in_kartengrenzen(unsigned x, unsigned y) const {
-		return (x<=(unsigned)cached_groesse_karte_x && y<=(unsigned)cached_groesse_karte_y);
-	}
-*/
+
 	inline bool ist_in_gittergrenzen(koord k) const {
 	// prissi: since negative values will make the whole result negative, we can use bitwise or
 	// faster, since pentiums and other long pipeline processors do not like jumps
-//		return (k.x|k.y|(cached_groesse_gitter_x-k.x)|(cached_groesse_gitter_y-k.y))>=0;
-		return k.x>=0 &&  k.y>=0  &&  cached_groesse_gitter_x>=k.x  &&  cached_groesse_gitter_y>=k.y;
+		return (k.x|k.y|(cached_groesse_gitter_x-k.x)|(cached_groesse_gitter_y-k.y))>=0;
+//		return k.x>=0 &&  k.y>=0  &&  cached_groesse_gitter_x>=k.x  &&  cached_groesse_gitter_y>=k.y;
 	}
 
 	inline bool ist_in_gittergrenzen(int x,int y) const {
 	// prissi: since negative values will make the whole result negative, we can use bitwise or
 	// faster, since pentiums and other long pipeline processors do not like jumps
-//		return (x|y|(cached_groesse_gitter_x-x)|(cached_groesse_gitter_y-y))>=0;
-		return x>=0 &&  y>=0  &&  cached_groesse_gitter_x>=x  &&  cached_groesse_gitter_y>=y;
+		return (x|y|(cached_groesse_gitter_x-x)|(cached_groesse_gitter_y-y))>=0;
+//		return x>=0 &&  y>=0  &&  cached_groesse_gitter_x>=x  &&  cached_groesse_gitter_y>=y;
 	}
 
 	inline bool ist_in_gittergrenzen(unsigned x, unsigned y) const {
@@ -750,7 +811,7 @@ public:
     bool sync_add(sync_steppable *obj);
     bool sync_remove(sync_steppable *obj);
 
-    void sync_prepare();	// Echtzeitfunktionen
+//    void sync_prepare();	// Echtzeitfunktionen
     void sync_step(long delta_t);
 
     void step(long delta_t);	// Nicht-Echtzeit

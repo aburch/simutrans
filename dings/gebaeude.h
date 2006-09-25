@@ -32,7 +32,6 @@ class stadt_t;
 class gebaeude_t : public ding_t, sync_steppable
 {
 public:
-
     enum  {NOT_HIDDEN=0, SOME_HIDDEN, ALL_HIDDEN};
 
     /**
@@ -47,11 +46,8 @@ public:
      */
     static uint8 hide;
 
-
 private:
-
     const haus_tile_besch_t *tile;
-
 
 	/**
 	 * either point to a factory or a city
@@ -116,125 +112,114 @@ protected:
     virtual ding_infowin_t *new_info();
 
 public:
-    gebaeude_t(karte_t *welt, loadsave_t *file);
-    gebaeude_t(karte_t *welt, koord3d pos,spieler_t *sp, const haus_tile_besch_t *t);
-    /**
-     * Destructor. Removes this from the list of sync objects if neccesary.
-     *
-     * @author Hj. Malthaner
-     */
-    ~gebaeude_t();
+	gebaeude_t(karte_t *welt, loadsave_t *file);
+	gebaeude_t(karte_t *welt, koord3d pos,spieler_t *sp, const haus_tile_besch_t *t);
+	virtual ~gebaeude_t();
 
-    typ gib_haustyp() const;
+	typ gib_haustyp() const;
 
-    void add_alter(uint32 a);
+	void add_alter(uint32 a);
 
-    void setze_fab(fabrik_t *fb);
-    void setze_stadt(stadt_t *s);
+	void setze_fab(fabrik_t *fb);
+	void setze_stadt(stadt_t *s);
 
-    /**
-     * Ein Gebaeude kann zu einer Fabrik gehören.
-     * @return Einen Zeiger auf die Fabrik zu der das Objekt gehört oder NULL,
-     * wenn das Objekt zu keiner Fabrik gehört.
-     * @author Hj. Malthaner
-     */
-    virtual inline fabrik_t* get_fabrik() const {return is_factory?ptr.fab:NULL;}
-    stadt_t* get_stadt() const {return is_factory?NULL:ptr.stadt;}
+	/**
+	 * Ein Gebaeude kann zu einer Fabrik gehören.
+	 * @return Einen Zeiger auf die Fabrik zu der das Objekt gehört oder NULL,
+	 * wenn das Objekt zu keiner Fabrik gehört.
+	 * @author Hj. Malthaner
+	 */
+	virtual inline fabrik_t* get_fabrik() const {return is_factory?ptr.fab:NULL;}
+	stadt_t* get_stadt() const {return is_factory?NULL:ptr.stadt;}
 
-    enum ding_t::typ gib_typ() const {return ding_t::gebaeude;}
+	enum ding_t::typ gib_typ() const {return ding_t::gebaeude;}
 
-    void setze_count(uint8 count);
-    void setze_anim_time(uint16 t) {anim_time = t;}
+	void setze_count(uint8 count);
+	void setze_anim_time(uint16 t) {anim_time = t;}
 
-    /**
-     * @return einen Zeiger auf die Karte zu der das Ding gehört
-     * @author Hj. Malthaner
-     */
-    virtual inline karte_t* gib_karte() const {return welt;}
+	/**
+	 * @return einen Zeiger auf die Karte zu der das Ding gehört
+	 * @author Hj. Malthaner
+	 */
+	virtual inline karte_t* gib_karte() const {return welt;}
 
-    /**
-     * Should only be called after everything is set up to play
-     * the animation actually. Sets sync flag and register/deregisters
-     * this as a sync object, but only if phasen > 1
-     *
-     * @author Hj. Malthaner
-     */
-    void setze_sync(bool yesno);
+	/**
+	 * Should only be called after everything is set up to play
+	 * the animation actually. Sets sync flag and register/deregisters
+	 * this as a sync object, but only if phasen > 1
+	 *
+	 * @author Hj. Malthaner
+	 */
+	void setze_sync(bool yesno);
 
-    bool step(long delta_t);
-    image_id gib_bild() const;
-    image_id gib_bild(int nr) const;
-    image_id gib_after_bild() const;
+	// usually only called during construction
+	// otherwise just stepping the factories (if connected)
+	bool step(long delta_t);
 
-    /**
-     * @return eigener Name oder Name der Fabrik falls Teil einer Fabrik
-     * @author Hj. Malthaner
-     */
-    virtual const char *gib_name() const;
+	// snowline height may have been changed
+	bool check_season(long /*month*/) { calc_bild(); return true; }
 
-    bool ist_rathaus() const;
+	image_id gib_bild() const;
+	image_id gib_bild(int nr) const;
+	image_id gib_after_bild() const;
 
-    bool ist_firmensitz() const;
+	// caches image at height 0
+	void calc_bild();
+
+	/**
+	 * @return eigener Name oder Name der Fabrik falls Teil einer Fabrik
+	 * @author Hj. Malthaner
+	 */
+	virtual const char *gib_name() const;
+
+	bool ist_rathaus() const;
+
+	bool ist_firmensitz() const;
 
 	bool is_monument() const;
 
-    /**
-     * setzt das Baudatum auf die aktuelle Zeit und das
-     * Baugruben-Flag auf true
-     * @author Hj. Malthaner
-     */
-    void renoviere();
+	/**
+	 * setzt das Baudatum auf die aktuelle Zeit und das
+	 * Baugruben-Flag auf true
+	 * @author Hj. Malthaner
+	 */
+	void renoviere();
 
+	/**
+	 * @return Einen Beschreibungsstring für das Objekt, der z.B. in einem
+	 * Beobachtungsfenster angezeigt wird.
+	 * @author Hj. Malthaner
+	 */
+	void info(cbuffer_t & buf) const;
 
-    /**
-     * @return Einen Beschreibungsstring für das Objekt, der z.B. in einem
-     * Beobachtungsfenster angezeigt wird.
-     * @author Hj. Malthaner
-     */
-    void info(cbuffer_t & buf) const;
+	void rdwr(loadsave_t *file);
 
+	/**
+	 * Methode für Echtzeitfunktionen eines Objekts. Spielt animation.
+	 * @return true
+	 * @author Hj. Malthaner
+	 */
+	virtual bool sync_step(long delta_t);
 
-    void rdwr(loadsave_t *file);
+	/**
+	 * @return Den level (die Ausbaustufe) des Gebaudes
+	 * @author Hj. Malthaner
+	 */
+	int gib_passagier_level() const;
 
+	int gib_post_level() const;
 
-    /**
-     * Vorbereitungsmethode für Echtzeitfunktionen eines Objekts.
-     * @author Hj. Malthaner
-     */
-    virtual void sync_prepare() {};
+	void setze_tile(const haus_tile_besch_t *t) { tile = t; }
 
+	const haus_tile_besch_t *gib_tile() const { return tile; }
 
-    /**
-     * Methode für Echtzeitfunktionen eines Objekts. Spielt animation.
-     * @return true
-     * @author Hj. Malthaner
-     */
-    virtual bool sync_step(long delta_t);
+	virtual void zeige_info();
 
-    /**
-     * @return Den level (die Ausbaustufe) des Gebaudes
-     * @author Hj. Malthaner
-     */
-    int gib_passagier_level() const;
-
-    int gib_post_level() const;
-
-    void setze_tile(const haus_tile_besch_t *t) { tile = t; }
-
-    const haus_tile_besch_t *gib_tile() const { return tile; }
-
-    /**
-     * Öffnet ein neues Beobachtungsfenster für das Gebäude,
-     * wenn es kein Fundament ist
-     * @author Hj. Malthaner
-     */
-    virtual void zeige_info();
-
-    void entferne(spieler_t *sp);
+	void entferne(spieler_t *sp);
 
 #if USE_NEW_GEBAUDE
-    virtual void * operator new(size_t s) { return (gebaeude_t *)freelist_t::gimme_node(sizeof(gebaeude_t)); }
-    virtual void operator delete(void *p) { freelist_t::putback_node(sizeof(gebaeude_t),p); };
+	virtual void * operator new(size_t s) { return (gebaeude_t *)freelist_t::gimme_node(sizeof(gebaeude_t)); }
+	virtual void operator delete(void *p) { freelist_t::putback_node(sizeof(gebaeude_t),p); };
 #endif
 };
 

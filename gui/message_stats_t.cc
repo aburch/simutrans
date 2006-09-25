@@ -60,7 +60,7 @@ void message_stats_t::infowin_event(const event_t * ev)
  * Now draw the list
  * @author prissi
  */
-void message_stats_t::zeichnen(koord offset) const
+void message_stats_t::zeichnen(koord offset)
 {
 	struct clip_dimension cd = display_gib_clip_wh();
 	const int offsets = (cd.y-offset.y+13)/14;

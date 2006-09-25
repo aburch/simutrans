@@ -11,8 +11,8 @@
 #define dings_roadsign_h
 
 #include "../simdings.h"
+#include "../simtypes.h"
 #include "../besch/roadsign_besch.h"
-#include "../boden/wege/weg.h"
 
 class werkzeug_parameter_waehler_t;
 
@@ -120,13 +120,13 @@ public:
 	 * @author Hj. Malthaner
 	 */
 	static void fill_menu(werkzeug_parameter_waehler_t *wzw,
-		weg_t::typ wtyp,
+		waytype_t wtyp,
 		int (* werkzeug)(spieler_t *, karte_t *, koord, value_t),
 		int sound_ok,
 		int sound_ko,
 		uint16 time);
 
-	static const roadsign_besch_t *roadsign_search(uint8 flag,const weg_t::typ wt,const uint16 time);
+	static const roadsign_besch_t *roadsign_search(uint8 flag,const waytype_t wt,const uint16 time);
 };
 
 #endif

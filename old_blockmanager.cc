@@ -151,7 +151,7 @@ old_blockmanager_t::laden_abschliessen(karte_t *welt)
 		grund_t *gr=welt->lookup(os1->gib_pos());
 		grund_t *to=NULL;
 		uint8 directions=0;
-		weg_t::typ wt=gr->gib_weg(weg_t::schiene) ? weg_t::schiene : weg_t::monorail;
+		waytype_t wt=gr->gib_weg(track_wt) ? track_wt : monorail_wt;
 		if(gr->get_neighbour(to,wt,koord((ribi_t::ribi)os1->get_dir()))) {
 			slist_iterator_tpl<oldsignal_t *> iter(signale);
 			while(iter.next()) {

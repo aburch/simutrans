@@ -31,7 +31,7 @@ void gui_speedbar_t::add_color_value(const int *value, int color)
 }
 
 
-void gui_speedbar_t::zeichnen(koord offset) const
+void gui_speedbar_t::zeichnen(koord offset)
 {
 	offset += pos;
 

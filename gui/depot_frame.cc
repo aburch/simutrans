@@ -45,7 +45,7 @@
 
 char depot_frame_t::no_line_text[128];	// contains the current translation of "<no line>"
 
-static const char * engine_type_names [8] =
+static const char * engine_type_names [9] =
 {
   "unknown",
   "steam",
@@ -54,7 +54,8 @@ static const char * engine_type_names [8] =
   "bio",
   "sail",
   "fuel_cell",
-  "hydrogene"
+  "hydrogene",
+  "battery"
 };
 
 
@@ -183,14 +184,14 @@ DBG_DEBUG("depot_frame_t::depot_frame_t()","get_max_convoi_length()=%i",depot->g
 	scrolly_pas.set_show_scroll_x(false);
 	scrolly_pas.set_size_corner(false);
 	scrolly_pas.set_read_only(false);
-	if(pas_vec.get_count() > 0  ||  (loks_vec.get_count()==0  && waggons_vec.get_count()==0)  ) {
-		tabs.add_tab(&scrolly_pas, depot->gib_passenger_name());
-	}
+	// always add
+	tabs.add_tab(&scrolly_pas, depot->gib_passenger_name());
 
 	cont_loks.add_komponente(&loks);
 	scrolly_loks.set_show_scroll_x(false);
 	scrolly_loks.set_size_corner(false);
 	scrolly_loks.set_read_only(false);
+	// add, if waggons are there ...
 	if(loks_vec.get_count()>0  ||  waggons_vec.get_count()>0) {
 		tabs.add_tab(&scrolly_loks, depot->gib_zieher_name());
 	}
@@ -199,6 +200,7 @@ DBG_DEBUG("depot_frame_t::depot_frame_t()","get_max_convoi_length()=%i",depot->g
 	scrolly_waggons.set_show_scroll_x(false);
 	scrolly_waggons.set_size_corner(false);
 	scrolly_waggons.set_read_only(false);
+	// only add, if there are waggons
 	if(waggons_vec.get_count() > 0) {
 		tabs.add_tab(&scrolly_waggons, depot->gib_haenger_name());
 	}
@@ -570,7 +572,7 @@ void depot_frame_t::build_vehicle_lists()
 	vehicle_map.clear();
 
 	// we do not allow to built electric vehicle in a depot without electrification
-	const schiene_t *sch = dynamic_cast<const schiene_t *>(welt->lookup(depot->gib_pos())->gib_weg(weg_t::schiene));
+	const schiene_t *sch = dynamic_cast<const schiene_t *>(welt->lookup(depot->gib_pos())->gib_weg(track_wt));
 	const bool schiene_electric = (sch==NULL)  ||  sch->is_electrified();
 	i = 0;
 	while(depot->get_vehicle_type(i)) {
@@ -1240,7 +1242,7 @@ depot_frame_t::draw_vehicle_info_text(koord pos)
 		}
 
 		if(veh_type->gib_copyright()!=NULL  &&  veh_type->gib_copyright()[0]!=0) {
-			n += sprintf(buf+n, "%s%s\n",translator::translate("Constructed by "),veh_type->gib_copyright());
+			n += sprintf(buf+n, "%s%s\n",translator::translate("Constructed by"),veh_type->gib_copyright());
 		}
 
 		if(value != -1) {

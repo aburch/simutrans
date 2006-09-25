@@ -164,3 +164,7 @@ uint32 umgebung_t::beginner_price_factor=1500;
 
 // easier prices for beginner
 bool umgebung_t::beginner_mode_first=false;
+
+// default climate zones
+sint16 umgebung_t::climate_borders[MAX_CLIMATES] = { 0, 0, 0, 3, 6, 8, 10, 10 };
+sint16 umgebung_t::winter_snowline = 7;	// not mediterran

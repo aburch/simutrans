@@ -12,7 +12,7 @@
 
 
 #ifdef DEBUG
-//#define DEBUG_MEM
+#define DEBUG_MEM
 #endif
 
 // list of all allocated memory

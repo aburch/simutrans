@@ -11,9 +11,7 @@
 #define dings_baum_h
 
 #include "../tpl/stringhashtable_tpl.h"
-
-class mempool_t;
-class baum_besch_t;
+#include "../besch/baum_besch.h"
 
 /**
  * Bäume in Simutrans.
@@ -24,98 +22,82 @@ class baum_besch_t;
 class baum_t : public ding_t
 {
 private:
-    static stringhashtable_tpl<const baum_besch_t *> besch_names;
-    static slist_tpl<const baum_besch_t *> baum_typen;
+	static stringhashtable_tpl<const baum_besch_t *> besch_names;
+	static slist_tpl<const baum_besch_t *> baum_typen;
 
-    /**
-     * Geburtsdatum des Baumes
-     * @author Hj. Malthaner
-     */
-    uint32 geburt;
+	/**
+	 * Geburtsdatum des Baumes
+	 * @author Hj. Malthaner
+	 */
+	uint32 geburt;
 
-    const baum_besch_t *besch;
+	const baum_besch_t *besch;
 
-    void saee_baum();
+	void saee_baum();
 
-    /**
-     * Berechnet offsets für gepflanzte Bäume
-     */
-    void calc_off();
+	/**
+	 * Berechnet offsets für gepflanzte Bäume
+	 */
+	void calc_off();
 
+	/**
+	 * Berechnet Bild abhängig vom Alter
+	 * @author Hj. Malthaner
+	 */
+	bool calc_bild(const unsigned long alter);
 
-    /**
-     * Berechnet Bild abhängig vom Alter
-     * @author Hj. Malthaner
-     */
-    bool calc_bild(const unsigned long alter);
+	/**
+	 * Berechnet Alter und Bild abhängig vom Alter
+	 * @author Hj. Malthaner
+	 */
+	void calc_bild();
 
-
-    /**
-     * Berechnet Alter und Bild abhängig vom Alter
-     * @author Hj. Malthaner
-     */
-    void calc_bild();
-
-
-    const baum_besch_t *gib_aus_liste(int level);
-
-    image_id gib_bild() const;
+	const baum_besch_t *gib_aus_liste(climate cl);
 
 public:
+	/**
+	 * Set to true to hide all trees. "Hiding" is implemented by showing the
+	 * first pic which should be very small.
+	 * @author Volker Meyer
+	 * @date  10.06.2003
+	 */
+	static bool hide;
 
-    /**
-     * Set to true to hide all trees. "Hiding" is implemented by showing the
-     * first pic which should be very small.
-     * @author Volker Meyer
-     * @date  10.06.2003
-     */
-    static bool hide;
+	// only the load save constructor should be called outside
+	// otherwise I suggest use the plant tree function (see below)
+	baum_t(karte_t *welt, loadsave_t *file);
+	baum_t(karte_t *welt, koord3d pos);
+	baum_t(karte_t *welt, koord3d pos, const baum_besch_t *besch);
 
+	void rdwr(loadsave_t *file);
 
-    /**
-     * Tomas:  this function is used during map creation
-     */
-    static bool plant_tree_on_coordinate(karte_t *welt,
-					 koord pos,
-					 unsigned char maximum_count);
+	const char *gib_name() const {return "Baum";};
+	enum ding_t::typ gib_typ() const {return baum;};
 
+	bool check_season(const long delta_t);
 
-    baum_t(karte_t *welt, loadsave_t *file);
-    baum_t(karte_t *welt, koord3d pos);
-    baum_t(karte_t *welt, koord3d pos, const baum_besch_t *besch);
+	// for the hidden image we use image 0 season 0
+	image_id gib_bild() const { return hide ? besch->gib_bild(0, 0)->gib_nummer() : ding_t::gib_bild(); }
 
-    const char *gib_name() const {return "Baum";};
-    enum ding_t::typ gib_typ() const {return baum;};
+	void zeige_info();
 
-    bool step(long delta_t);
+	void info(cbuffer_t & buf) const;
 
-    virtual void rdwr(loadsave_t *file);
+	void entferne(spieler_t *sp);
 
-    /*
-     * Öffnet ein neues Beobachtungsfenster für das Objekt.
-     * @author Hj. Malthaner
-     */
-    virtual void zeige_info();
+	void * operator new(size_t s);
+	void operator delete(void *p);
 
-    /**
-     * @return Einen Beschreibungsstring für das Objekt, der z.B. in einem
-     * Beobachtungsfenster angezeigt wird.
-     * @author Hj. Malthaner
-     */
-    void info(cbuffer_t & buf) const;
+	const baum_besch_t *gib_besch() { return besch; }
 
+	// static functions to handle trees
+	static bool plant_tree_on_coordinate(karte_t *welt, koord pos, const uint8 maximum_count);
 
-    void entferne(spieler_t *sp);
+	static bool register_besch(baum_besch_t *besch);
+	static bool alles_geladen();
 
-    void * operator new(size_t s);
-    void operator delete(void *p);
-
-    const baum_besch_t *gib_besch() { return besch; }
-
-    static bool register_besch(baum_besch_t *besch);
-    static bool alles_geladen();
-
-    static int gib_anzahl_besch();
+	static int gib_anzahl_besch() { return baum_typen.count(); }
+	static int gib_anzahl_besch(climate cl);
 };
 
 #endif

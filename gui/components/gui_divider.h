@@ -29,7 +29,7 @@ public:
      * Zeichnet die Komponente
      * @author Markus Weber
      */
-    void zeichnen(koord offset) const { display_ddd_box_clip(pos.x+offset.x, pos.y+offset.y, groesse.x, groesse.y, MN_GREY0, MN_GREY4); }
+    void zeichnen(koord offset) { display_ddd_box_clip(pos.x+offset.x, pos.y+offset.y, groesse.x, groesse.y, MN_GREY0, MN_GREY4); }
 };
 
 #endif

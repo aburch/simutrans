@@ -37,7 +37,7 @@ const char cost_type[MAX_HALT_COST][64] =
   "Happy",
   "Unhappy",
   "No Route",
-  "Waiting",
+  "hl_btn_sort_waiting",
   "Arrived",
   "Departed",
   "Vehicles"
@@ -157,9 +157,9 @@ halt_info_t::zeichnen(koord pos, koord gr)
 		// buffer update now only when needed by halt itself => dedicated buffer for this
 		int old_len=freight_info.len();
 		halt->get_freight_info(freight_info);
+		text.setze_text(freight_info);
 		if(old_len!=freight_info.len()) {
-			text.setze_text(freight_info);
-			resize( koord(0,0) );	// recalcs slider
+			text.recalc_size();
 		}
 
 		gui_frame_t::zeichnen(pos, gr);

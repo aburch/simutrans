@@ -25,6 +25,7 @@ private:
      * @author Hj. Malthaner
      */
     gui_komponente_t *komp;
+    koord old_komp_groesse;
 
     /**
      * Scrollbar X/Y
@@ -36,50 +37,50 @@ private:
 	bool b_show_scroll_y:1;
 	bool b_has_size_corner:1;
 
+	void recalc_sliders(koord groesse);
+
 public:
+	/**
+	 * Basic constructor
+	 * @param komp Die zu scrollende Komponente
+	 * @author Hj. Malthaner
+	 */
+	gui_scrollpane_t(gui_komponente_t *komp);
 
-    /**
-     * Basic constructor
-     * @param komp Die zu scrollende Komponente
-     * @author Hj. Malthaner
-     */
-    gui_scrollpane_t(gui_komponente_t *komp);
+	/**
+	 * Bei Scrollpanes _muss_ diese Methode zum setzen der Groesse
+	 * benutzt werden.
+	 * @author Hj. Malthaner
+	 */
+	void setze_groesse(koord groesse);
 
+	/**
+	 * Setzt Positionen der Scrollbars
+	 * @author Hj. Malthaner
+	 */
+	void setze_scroll_position(int x, int y);
 
-    /**
-     * Bei Scrollpanes _muss_ diese Methode zum setzen der Groesse
-     * benutzt werden.
-     * @author Hj. Malthaner
-     */
-    void setze_groesse(koord groesse);
+	int get_scroll_x() const;
+	int get_scroll_y() const;
 
-    /**
-     * Setzt Positionen der Scrollbars
-     * @author Hj. Malthaner
-     */
-    void setze_scroll_position(int x, int y);
+	/**
+	 * Events werden hiermit an die GUI-Komponenten
+	 * gemeldet
+	 * @author Hj. Malthaner
+	 */
+	void infowin_event(const event_t *ev);
 
-    int get_scroll_x() const;
-    int get_scroll_y() const;
+	/**
+	 * Zeichnet die Komponente
+	 * @author Hj. Malthaner
+	 */
+	void zeichnen(koord offset);
 
-    /**
-     * Events werden hiermit an die GUI-Komponenten
-     * gemeldet
-     * @author Hj. Malthaner
-     */
-    void infowin_event(const event_t *ev);
+	void set_show_scroll_x(bool yesno) { b_show_scroll_x = yesno; };
 
-    /**
-     * Zeichnet die Komponente
-     * @author Hj. Malthaner
-     */
-    void zeichnen(koord offset) const;
+	void set_show_scroll_y(bool yesno) { b_show_scroll_y = yesno; };
 
-    void set_show_scroll_x(bool yesno) { b_show_scroll_x = yesno; };
-
-    void set_show_scroll_y(bool yesno) { b_show_scroll_y = yesno; };
-
-    void set_size_corner(bool yesno) { b_has_size_corner = yesno; };
+	void set_size_corner(bool yesno) { b_has_size_corner = yesno; };
 };
 
 #endif

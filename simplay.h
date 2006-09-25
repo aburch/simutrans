@@ -535,10 +535,10 @@ private:
 	 * @author prissi
 	 */
 	vector_tpl<koord> last_built;
-	weg_t::typ undo_type;
+	waytype_t undo_type;
 
 public:
-	void init_undo(weg_t::typ t, unsigned short max );
+	void init_undo(waytype_t t, unsigned short max );
 	void add_undo(koord k);
 	bool undo();
 

@@ -113,16 +113,10 @@ public:
 	void infowin_event(const event_t *);
 
 	/**
-	 * Zeichnet den Button.
-	 * @author Niels Roest
-	 */
-	void zeichnen(koord offset, PLAYER_COLOR_VAL button_farbe) const;
-
-	/**
 	 * Zeichnet die Komponente
 	 * @author Hj. Malthaner
 	 */
-	void zeichnen(koord offset) const;
+	void zeichnen(koord offset);
 
 	void operator= (const button_t & other);
 

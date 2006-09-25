@@ -70,6 +70,7 @@
 
 /**************************** automatic stuff ********************************/
 
+
 // inclination types
 #ifndef DOUBLE_GROUNDS
 // single height definitions

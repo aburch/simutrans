@@ -60,14 +60,16 @@ void gebaeude_t::init(const haus_tile_besch_t *t)
 	anim_time = 0;
 	sync = false;
 	count = 0;
-	zeige_baugrube = t ? !t->gib_besch()->ist_ohne_grube() : false;
+	zeige_baugrube = t ? true : false;
 }
+
 
 
 gebaeude_t::gebaeude_t(karte_t *welt) : ding_t(welt)
 {
     init(0);
 }
+
 
 
 gebaeude_t::gebaeude_t(karte_t *welt, loadsave_t *file) : ding_t(welt)
@@ -80,16 +82,21 @@ gebaeude_t::gebaeude_t(karte_t *welt, loadsave_t *file) : ding_t(welt)
 	if(gib_besitzer()) {
 		gib_besitzer()->add_maintenance(umgebung_t::maint_building);
 	}
+	// if there is no description (i.e. building not found) we must avoid acessing it => skip calculation
+	if(tile) {
+		calc_bild();
+	}
 }
+
+
 
 gebaeude_t::gebaeude_t(karte_t *welt, koord3d pos,spieler_t *sp, const haus_tile_besch_t *t) :
     ding_t(welt, pos)
 {
 	setze_besitzer( sp );
 
-	tile = t;
-	renoviere();
 	init(t);
+	renoviere();	// this will set init time etc.
 
 	grund_t *gr=welt->lookup(pos);
 	if(gr!=0  &&  gr->gib_weg_hang()!=gr->gib_grund_hang()) {
@@ -100,6 +107,8 @@ gebaeude_t::gebaeude_t(karte_t *welt, koord3d pos,spieler_t *sp, const haus_tile
 		gib_besitzer()->add_maintenance(umgebung_t::maint_building);
 	}
 }
+
+
 
 /**
  * Destructor. Removes this from the list of sync objects if neccesary.
@@ -145,6 +154,7 @@ gebaeude_t::setze_fab(fabrik_t *fb)
 		}
 		is_factory = true;
 		ptr.fab = fb;
+		step_frequency = 1;
 	}
 	else if(is_factory) {
 		ptr.fab = NULL;
@@ -191,6 +201,7 @@ gebaeude_t::add_alter(uint32 a)
 {
 	insta_zeit -= min(a,insta_zeit);
 	zeige_baugrube = false;
+	calc_bild();
 	if(is_factory==false  ||  ptr.fab==NULL) {
 		step_frequency = 0;
 	}
@@ -204,9 +215,16 @@ gebaeude_t::add_alter(uint32 a)
 void
 gebaeude_t::renoviere()
 {
-    insta_zeit = welt->gib_zeit_ms();
-    zeige_baugrube = true;
-    step_frequency = 1;
+	insta_zeit = welt->gib_zeit_ms();
+	zeige_baugrube = tile ? !tile->gib_besch()->ist_ohne_grube() : true;
+	calc_bild();
+	set_flag(ding_t::dirty);
+	if(zeige_baugrube  ||  (tile  &&  tile->gib_besch()->ist_fabrik())) {
+		step_frequency = 1;
+	}
+	else {
+		step_frequency = 0;
+	}
 }
 
 
@@ -227,7 +245,7 @@ gebaeude_t::setze_sync(bool yesno)
 		if(!sync && tile->gib_phasen()>1) {
 			// no
 			sync = true;
-			anim_time = simrand(300);
+			anim_time = 0;
 			count = simrand(tile->gib_phasen());
 			welt->sync_add(this);
 		}
@@ -250,6 +268,7 @@ gebaeude_t::step(long delta_t)
 			if(zeige_baugrube) {
 				set_flag(ding_t::dirty);
 				zeige_baugrube = false;
+				calc_bild();
 			}
 			// factories needs more frequent steps
 			if(is_factory  &&  ptr.fab   &&  ptr.fab->gib_pos()==gib_pos()) {
@@ -257,13 +276,6 @@ gebaeude_t::step(long delta_t)
 			}
 			else {
 				step_frequency = 0;
-			}
-			// need no ground?
-			if(!tile->gib_besch()->ist_mit_boden()) {
-				grund_t *gr=welt->lookup(gib_pos());
-				if(gr  &&  gr->gib_typ()==grund_t::fundament  &&  gr->gib_bild()!=IMG_LEER) {
-					gr->setze_bild( IMG_LEER );
-				}
 			}
 		}
 	}
@@ -275,6 +287,27 @@ gebaeude_t::step(long delta_t)
 	}
 
 	return true;
+}
+
+
+
+void
+gebaeude_t::calc_bild()
+{
+	// winter for buildings only above snowline
+	if(zeige_baugrube)  {
+		setze_bild( 0, skinverwaltung_t::construction_site->gib_bild_nr(0) );
+	}
+	else {
+		setze_bild( 0, tile->gib_hintergrund(count, 0, gib_pos().z>=welt->get_snowline()) );
+	}
+	// need no ground?
+	if(!tile->gib_besch()->ist_mit_boden()) {
+		grund_t *gr=welt->lookup(gib_pos());
+		if(gr  &&  gr->gib_typ()==grund_t::fundament) {
+			gr->setze_bild( IMG_LEER );
+		}
+	}
 }
 
 
@@ -295,13 +328,11 @@ gebaeude_t::gib_bild() const
 		}
 	}
 
-	if(zeige_baugrube)  {
-		return skinverwaltung_t::construction_site->gib_bild_nr(0);
-	}
-	else {
-		return tile->gib_hintergrund(count, 0);
-	}
+	// winter for buildings only above snowline
+	return ding_t::gib_bild();
 }
+
+
 
 image_id
 gebaeude_t::gib_bild(int nr) const
@@ -310,9 +341,12 @@ gebaeude_t::gib_bild(int nr) const
 		return IMG_LEER;
 	}
 	else {
-		return tile->gib_hintergrund(count, nr);
+		// winter for buildings only above snowline
+		return tile->gib_hintergrund(count, nr, gib_pos().z>=welt->get_snowline());
 	}
 }
+
+
 
 image_id
 gebaeude_t::gib_after_bild() const
@@ -321,12 +355,15 @@ gebaeude_t::gib_after_bild() const
 		return IMG_LEER;
 	}
 	else {
-		return tile->gib_vordergrund(count, 0);
+		// winter for buildings only above snowline
+		return tile->gib_vordergrund(count, gib_pos().z>=welt->get_snowline());
 	}
 }
 
 
-/* calculate the passenger level as funtion of the city size (if there)
+
+/*
+ * calculate the passenger level as funtion of the city size (if there)
  */
 int gebaeude_t::gib_passagier_level() const
 {
@@ -583,6 +620,9 @@ gebaeude_t::rdwr(loadsave_t *file)
 			if(tile==NULL) {
 				// try with compatibility list first
 				tile = hausbauer_t::find_tile(translator::compatibility_name(buf), idx);
+				if(tile==NULL) {
+					DBG_MESSAGE("gebaeude_t::rdwr()","neither %s nor %s, tile %i not found, try replacement",translator::compatibility_name(buf),buf,idx);
+				}
 			}
 			if(tile==NULL) {
 				// first check for special buildings
@@ -621,13 +661,13 @@ gebaeude_t::rdwr(loadsave_t *file)
 					//		DBG_MESSAGE("gebaeude_t::rwdr", "%s level %i",typ_str,level);
 					if(strcmp(typ_str,"RES")==0) {
 DBG_MESSAGE("gebaeude_t::rwdr", "replace unknown building %s with residence level %i",buf,level);
-						tile = hausbauer_t::gib_wohnhaus(level,welt->get_timeline_year_month())->gib_tile(0);
+						tile = hausbauer_t::gib_wohnhaus(level,welt->get_timeline_year_month(),welt->get_climate(gib_pos().z))->gib_tile(0);
 					} else if(strcmp(typ_str,"COM")==0) {
 DBG_MESSAGE("gebaeude_t::rwdr", "replace unknown building %s with commercial level %i",buf,level);
-						tile = hausbauer_t::gib_gewerbe(level,welt->get_timeline_year_month())->gib_tile(0);
+						tile = hausbauer_t::gib_gewerbe(level,welt->get_timeline_year_month(),welt->get_climate(gib_pos().z))->gib_tile(0);
 					} else if(strcmp(typ_str,"IND")==0) {
 DBG_MESSAGE("gebaeude_t::rwdr", "replace unknown building %s with industrie level %i",buf,level);
-						tile = hausbauer_t::gib_industrie(level,welt->get_timeline_year_month())->gib_tile(0);
+						tile = hausbauer_t::gib_industrie(level,welt->get_timeline_year_month(),welt->get_climate(gib_pos().z))->gib_tile(0);
 					} else {
 DBG_MESSAGE("gebaeude_t::rwdr", "description %s for building at %d,%d not found (will be removed)!", buf, gib_pos().x, gib_pos().y);
 					}
@@ -685,23 +725,29 @@ bool gebaeude_t::sync_step(long delta_t)
 // DBG_MESSAGE("gebaeude_t::sync_step()", "%p, %d phases", this, phasen);
 
 	anim_time += delta_t;
-	if(anim_time>300) {
-		for(int i=0;  ;  i++) {
-			image_id bild = gib_bild(i);
-			if(bild==IMG_LEER) {
-				break;
-			}
-			mark_image_dirty(bild,-(i<<6));
-		}
-		// old positions need redraw
-		mark_image_dirty(0,0);
+	if(anim_time>tile->gib_besch()->get_animation_time()) {
+		if(!zeige_baugrube)  {
 
-		anim_time = 0;
-		count ++;
-		if(count >= tile->gib_phasen()) {
-			count = 0;
+			for(int i=1;  ;  i++) {
+				image_id bild = gib_bild(i);
+				if(bild==IMG_LEER) {
+					break;
+				}
+				setze_bild( 0, bild );
+				mark_image_dirty(bild,-(i<<6));
+			}
+			// old positions need redraw
+			mark_image_dirty(0,0);
+
+			anim_time %= tile->gib_besch()->get_animation_time();
+			count ++;
+			if(count >= tile->gib_phasen()) {
+				count = 0;
+			}
+			// winter for buildings only above snowline
+			setze_bild( 0, tile->gib_hintergrund(count, 0, gib_pos().z>=welt->get_snowline()) );
+			set_flag(ding_t::dirty);
 		}
-		set_flag(ding_t::dirty);
 	}
 	return true;
 }

@@ -99,7 +99,7 @@ sync_wolke_t::sync_step(long delta_t)
 
 /**
  * Wird aufgerufen, wenn wolke entfernt wird. Entfernt wolke aus
- * der Verwaltuing synchroner Objekte.
+ * der Verwaltung synchroner Objekte.
  * @author Hj. Malthaner
  */
 void sync_wolke_t::entferne(spieler_t *)

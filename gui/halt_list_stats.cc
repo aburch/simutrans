@@ -1,5 +1,5 @@
 /*
- * halt_list_item.cc
+ * halt_list_stats.cc
  *
  * Copyright (c) 1997 - 2001 Hansjörg Malthaner
  * Written (w) 2001 Markus Weber
@@ -14,7 +14,7 @@
 
 #include <stdio.h>
 
-#include "halt_list_item.h"
+#include "halt_list_stats.h"
 #include "../simhalt.h"
 #include "../simskin.h"
 #include "../simcolor.h"
@@ -38,7 +38,7 @@
  * gemeldet
  * @author Hj. Malthaner
  */
-void halt_list_item_t::infowin_event(const event_t *ev)
+void halt_list_stats_t::infowin_event(const event_t *ev)
 {
 	if(IS_LEFTRELEASE(ev)) {
 		if (event_get_last_control_shift() != 2) {
@@ -55,7 +55,7 @@ void halt_list_item_t::infowin_event(const event_t *ev)
  * Zeichnet die Komponente
  * @author Markus Weber
  */
-void halt_list_item_t::zeichnen(koord offset) const
+void halt_list_stats_t::zeichnen(koord offset)
 {
 	int halttype;       // 01-June-02    Markus Weber    Added
 

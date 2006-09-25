@@ -31,21 +31,22 @@
 
 tunnel_t::tunnel_t(karte_t *welt, loadsave_t *file) : ding_t(welt)
 {
-  besch = 0;
-  rdwr(file);
-  step_frequency = 0;
+	besch = 0;
+	rdwr(file);
+	step_frequency = 0;
+	clean_up = false;
 }
 
 
-tunnel_t::tunnel_t(karte_t *welt, koord3d pos,
-		   spieler_t *sp, const tunnel_besch_t *besch) :
-    ding_t(welt, pos)
+tunnel_t::tunnel_t(karte_t *welt, koord3d pos, spieler_t *sp, const tunnel_besch_t *besch) :
+	ding_t(welt, pos)
 {
 	this->besch = besch;
 	setze_besitzer( sp );
 	step_frequency = 0;
-	calc_bild();
+	clean_up = false;
 }
+
 
 
 /**
@@ -55,7 +56,7 @@ tunnel_t::tunnel_t(karte_t *welt, koord3d pos,
  */
 void tunnel_t::info(cbuffer_t & buf) const
 {
-  ding_t::info(buf);
+	ding_t::info(buf);
 }
 
 
@@ -76,6 +77,17 @@ tunnel_t::calc_bild()
 void tunnel_t::rdwr(loadsave_t *file)
 {
 	ding_t::rdwr(file);
+	if(file->get_version()>=99001) {
+		char  buf[256];
+		if(file->is_loading()) {
+			file->rdwr_str(buf,255);
+			besch = tunnelbauer_t::gib_besch(buf);
+		}
+		else {
+			strcpy( buf, besch->gib_name() );
+			file->rdwr_str(buf,0);
+		}
+	}
 }
 
 
@@ -83,15 +95,58 @@ void tunnel_t::laden_abschliessen()
 {
 	const grund_t *gr = welt->lookup(gib_pos());
 	if(gr->gib_grund_hang()==0) {
+		// old, inside tunnel ...
 		step_frequency = 1;	// remove
 		dbg->error("tunnel_t::laden_abschliessen()","tunnel entry at flat position at %i,%i will be removed.",gib_pos().x,gib_pos().y);
+		return;
 	}
 
-	if(gr->gib_weg(weg_t::strasse)) {
-		besch = tunnelbauer_t::strassentunnel;
+	if(besch==NULL) {
+		if(gr->gib_weg(road_wt)) {
+			besch = tunnelbauer_t::find_tunnel( road_wt, 999, 0 );
+		}
+		else {
+			besch = tunnelbauer_t::find_tunnel( track_wt, 999, 0 );
+		}
 	}
-	else {
-		besch = tunnelbauer_t::schienentunnel;
+
+	// correct speed and maitenance
+	if(besch  &&  !clean_up) {
+
+		// find other end
+		koord3d pos = gib_pos();
+		grund_t *gr = welt->lookup(pos);
+		koord zv = koord::invalid;
+		slist_tpl<koord3d>tracks;
+		tunnel_t *tunnel=NULL;
+
+		// now look up everything
+		zv = koord(gr->gib_grund_hang());
+		tracks.insert(pos);
+		do {
+			pos += zv;
+			tracks.append(pos);
+			gr = welt->lookup(pos);
+			tunnel = (tunnel_t *)gr->suche_obj(ding_t::tunnel);
+		} while(tunnel==NULL);
+
+		if(!tunnel->clean_up) {
+
+			// reset speed and maitenance
+			spieler_t *sp=gib_besitzer();
+			while(!tracks.is_empty()) {
+				pos = tracks.remove_first();
+				grund_t *gr = welt->lookup(pos);
+				weg_t *weg = gr->gib_weg(besch->gib_wegtyp());
+				weg->setze_max_speed(besch->gib_topspeed());
+				sp->add_maintenance(-weg->gib_besch()->gib_wartung());
+				sp->add_maintenance( besch->gib_wartung() );
+			}
+
+			// and mark done ...
+			tunnel->clean_up = true;
+			clean_up = true;
+		}
 	}
 	calc_bild();
 }

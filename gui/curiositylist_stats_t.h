@@ -54,7 +54,7 @@ class curiositylist_stats_t : public gui_komponente_t
 	 * Zeichnet die Komponente
 	 * @author Hj. Malthaner
 	 */
-	void zeichnen(koord offset) const;
+	void zeichnen(koord offset);
 };
 
 #endif // curiositylist_stats_t_h

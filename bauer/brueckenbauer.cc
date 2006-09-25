@@ -73,10 +73,10 @@ bool brueckenbauer_t::laden_erfolgreich()
   for(unsigned int i = 0; i < bruecken.get_count(); i++) {
     const bruecke_besch_t *besch = bruecken.get(i);
 
-    if(besch && besch->gib_wegtyp() == weg_t::schiene) {
+    if(besch && besch->gib_wegtyp() == track_wt) {
       schiene_da = true;
     }
-    if(besch && besch->gib_wegtyp() == weg_t::strasse) {
+    if(besch && besch->gib_wegtyp() == road_wt) {
       strasse_da = true;
     }
   }
@@ -99,7 +99,7 @@ bool brueckenbauer_t::laden_erfolgreich()
  * @author Hj. Malthaner
  */
 const bruecke_besch_t *
-brueckenbauer_t::find_bridge(const weg_t::typ wtyp, const uint32 min_speed,const uint16 time)
+brueckenbauer_t::find_bridge(const waytype_t wtyp, const uint32 min_speed,const uint16 time)
 {
 	const bruecke_besch_t *find_besch=NULL;
 
@@ -131,7 +131,7 @@ brueckenbauer_t::find_bridge(const weg_t::typ wtyp, const uint32 min_speed,const
  */
 void
 brueckenbauer_t::fill_menu(werkzeug_parameter_waehler_t *wzw,
-         const weg_t::typ wtyp,
+         const waytype_t wtyp,
          const int sound_ok,
          const int sound_ko,
          const uint16 time)
@@ -165,8 +165,7 @@ brueckenbauer_t::fill_menu(werkzeug_parameter_waehler_t *wzw,
 	while(matching.count()>0) {
 		const bruecke_besch_t * besch = matching.at(0);
 		matching.remove_at(0);
-		int icon = besch->gib_cursor()->gib_bild_nr(1);
-		char buf[128];
+		char buf[256];
 
 		if(besch->gib_max_length()>0) {
 			sprintf(buf, "%s, %d$ (%d$), %dkm/h, %dkm",
@@ -189,7 +188,7 @@ brueckenbauer_t::fill_menu(werkzeug_parameter_waehler_t *wzw,
 			  karte_t::Z_PLAN,
 			  sound_ok,
 			  sound_ko,
-			  icon,
+			  besch->gib_cursor()->gib_bild_nr(1),
 			  besch->gib_cursor()->gib_bild_nr(0),
 			  cstring_t(buf));
 	}
@@ -199,7 +198,7 @@ brueckenbauer_t::fill_menu(werkzeug_parameter_waehler_t *wzw,
 
 
 koord3d
-brueckenbauer_t::finde_ende(karte_t *welt, koord3d pos, koord zv, weg_t::typ wegtyp)
+brueckenbauer_t::finde_ende(karte_t *welt, koord3d pos, koord zv, waytype_t wegtyp)
 {
 	const grund_t *gr1; // auf Brückenebene
 	const grund_t *gr2; // unter Brückenebene
@@ -269,7 +268,7 @@ bool brueckenbauer_t::ist_ende_ok(spieler_t *sp, const grund_t *gr)
 /*
  * Bauen mit der ersten passenden Brücke
 */
-int brueckenbauer_t::baue(spieler_t *sp, karte_t *welt, koord pos, weg_t::typ wegtyp)
+int brueckenbauer_t::baue(spieler_t *sp, karte_t *welt, koord pos, waytype_t wegtyp)
 {
 	for(unsigned i = 0; i < bruecken.get_count(); i++) {
 		const bruecke_besch_t *besch = bruecken.get(i);
@@ -284,7 +283,7 @@ int brueckenbauer_t::baue(spieler_t *sp, karte_t *welt, koord pos, weg_t::typ we
 
 /* built bridge with right top speed
  */
-int brueckenbauer_t::baue(spieler_t *sp, karte_t *welt, koord pos, weg_t::typ wegtyp,uint32 top_speed)
+int brueckenbauer_t::baue(spieler_t *sp, karte_t *welt, koord pos, waytype_t wegtyp,uint32 top_speed)
 {
   const bruecke_besch_t *besch=NULL;
   for(unsigned i = 0; i < bruecken.get_count(); i++) {
@@ -404,16 +403,16 @@ bool brueckenbauer_t::baue_bruecke(karte_t *welt, spieler_t *sp,
 	while(pos.gib_2d()!=end.gib_2d()) {
 		brueckenboden_t *bruecke = new  brueckenboden_t(welt, pos + koord3d(0, 0, 16), 0, 0);
 
-		if(besch->gib_wegtyp() == weg_t::schiene) {
+		if(besch->gib_wegtyp() == track_wt) {
 			weg = new schiene_t(welt);
 		}
-		else if(besch->gib_wegtyp() == weg_t::monorail) {
+		else if(besch->gib_wegtyp() == monorail_wt) {
 			weg = new monorail_t(welt);
 		}
-		else if(besch->gib_wegtyp()==weg_t::strasse) {
+		else if(besch->gib_wegtyp()==road_wt) {
 			weg = new strasse_t(welt);
 		}
-		else if(besch->gib_wegtyp()==weg_t::wasser) {
+		else if(besch->gib_wegtyp()==water_wt) {
 			weg = new kanal_t(welt);
 		}
 		else {
@@ -475,16 +474,16 @@ brueckenbauer_t::baue_auffahrt(karte_t *welt, spieler_t *sp, koord3d end, koord 
 	bruecke = new brueckenboden_t(welt, end, grund_hang, weg_hang);
 
 	weg_t *alter_weg = alter_boden->gib_weg(besch->gib_wegtyp());
-	if(besch->gib_wegtyp()==weg_t::monorail) {
+	if(besch->gib_wegtyp()==monorail_wt) {
 		weg = new monorail_t(welt);
 	}
-	else if(besch->gib_wegtyp()==weg_t::schiene) {
+	else if(besch->gib_wegtyp()==track_wt) {
 		weg = new schiene_t(welt);
 	}
-	else if(besch->gib_wegtyp()==weg_t::strasse) {
+	else if(besch->gib_wegtyp()==road_wt) {
 		weg = new strasse_t(welt);
 	}
-	else if(besch->gib_wegtyp()==weg_t::wasser) {
+	else if(besch->gib_wegtyp()==water_wt) {
 		weg = new kanal_t(welt);
 	}
 	else {
@@ -533,7 +532,7 @@ brueckenbauer_t::baue_auffahrt(karte_t *welt, spieler_t *sp, koord3d end, koord 
 
 
 const char *
-brueckenbauer_t::remove(karte_t *welt, spieler_t *sp, koord3d pos, weg_t::typ wegtyp)
+brueckenbauer_t::remove(karte_t *welt, spieler_t *sp, koord3d pos, waytype_t wegtyp)
 {
 	marker_t    marker(welt->gib_groesse_x(),welt->gib_groesse_y());
 	slist_tpl<koord3d> end_list;
@@ -638,15 +637,15 @@ brueckenbauer_t::remove(karte_t *welt, spieler_t *sp, koord3d pos, weg_t::typ we
 
 		// Neuen Boden wieder mit Weg versehen
 		weg_t *weg=0;
-		if(wegtyp==weg_t::schiene) {
+		if(wegtyp==track_wt) {
 			weg = new schiene_t(welt);
 		}
-		else if(wegtyp==weg_t::monorail) {
+		else if(wegtyp==monorail_wt) {
 			weg = new monorail_t(welt);
-		} else if(wegtyp==weg_t::strasse) {
+		} else if(wegtyp==road_wt) {
 			weg = new strasse_t(welt);
 		}
-		else if(wegtyp==weg_t::wasser) {
+		else if(wegtyp==water_wt) {
 			weg = new kanal_t(welt);
 		}
 		else {

@@ -173,7 +173,7 @@ DBG_MESSAGE("gui_combobox_t::infowin_event()","scroll selected %i",get_selection
  * Zeichnet die Komponente
  * @author Hj. Malthaner
  */
-void gui_combobox_t::zeichnen(koord offset) const
+void gui_combobox_t::zeichnen(koord offset)
 {
 	textinp.zeichnen(offset);
 

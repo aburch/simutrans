@@ -224,12 +224,12 @@ reliefkarte_t::calc_relief_farbe(const grund_t *gr)
 			default:
 				if(gr->hat_wege()) {
 					switch(gr->gib_weg_nr(0)->gib_typ()) {
-						case weg_t::strasse: color = STRASSE_KENN; break;
-						case weg_t::schiene_strab:
-						case weg_t::schiene: color = SCHIENE_KENN; break;
-						case weg_t::monorail: color = MONORAIL_KENN; break;
-						case weg_t::wasser: color = CHANNEL_KENN; break;
-						case weg_t::luft: color = RUNWAY_KENN; break;
+						case road_wt: color = STRASSE_KENN; break;
+						case tram_wt:
+						case track_wt: color = SCHIENE_KENN; break;
+						case monorail_wt: color = MONORAIL_KENN; break;
+						case water_wt: color = CHANNEL_KENN; break;
+						case air_wt: color = RUNWAY_KENN; break;
 						default:	// silence compiler!
 							break;
 					}
@@ -304,17 +304,17 @@ reliefkarte_t::calc_map_pixel(const koord k)
 			else {
 				// now calc again ...
 				sint32 cargo=0;
-				if (gr->gib_weg(weg_t::strasse)) {
-					cargo += gr->gib_weg(weg_t::strasse)->get_statistics(WAY_STAT_GOODS);
+				if (gr->gib_weg(road_wt)) {
+					cargo += gr->gib_weg(road_wt)->get_statistics(WAY_STAT_GOODS);
 				}
-				if (gr->gib_weg(weg_t::schiene)) {
-					cargo += gr->gib_weg(weg_t::schiene)->get_statistics(WAY_STAT_GOODS);
+				if (gr->gib_weg(track_wt)) {
+					cargo += gr->gib_weg(track_wt)->get_statistics(WAY_STAT_GOODS);
 				}
-				if (gr->gib_weg(weg_t::wasser)) {
-					cargo += gr->gib_weg(weg_t::wasser)->get_statistics(WAY_STAT_GOODS);
+				if (gr->gib_weg(water_wt)) {
+					cargo += gr->gib_weg(water_wt)->get_statistics(WAY_STAT_GOODS);
 				}
-				if (gr->gib_weg(weg_t::luft)) {
-					cargo += gr->gib_weg(weg_t::luft)->get_statistics(WAY_STAT_GOODS);
+				if (gr->gib_weg(air_wt)) {
+					cargo += gr->gib_weg(air_wt)->get_statistics(WAY_STAT_GOODS);
 				}
 				if(cargo>0) {
 					if(cargo>max_cargo) {
@@ -364,17 +364,17 @@ reliefkarte_t::calc_map_pixel(const koord k)
 			}
 			else {
 				sint32 passed=0;
-				if (gr->gib_weg(weg_t::strasse)) {
-					passed += gr->gib_weg(weg_t::strasse)->get_statistics(WAY_STAT_CONVOIS);
+				if (gr->gib_weg(road_wt)) {
+					passed += gr->gib_weg(road_wt)->get_statistics(WAY_STAT_CONVOIS);
 				}
-				if (gr->gib_weg(weg_t::schiene)) {
-					passed += gr->gib_weg(weg_t::schiene)->get_statistics(WAY_STAT_CONVOIS);
+				if (gr->gib_weg(track_wt)) {
+					passed += gr->gib_weg(track_wt)->get_statistics(WAY_STAT_CONVOIS);
 				}
-				if (gr->gib_weg(weg_t::wasser)) {
-					passed += gr->gib_weg(weg_t::wasser)->get_statistics(WAY_STAT_CONVOIS);
+				if (gr->gib_weg(water_wt)) {
+					passed += gr->gib_weg(water_wt)->get_statistics(WAY_STAT_CONVOIS);
 				}
-				if (gr->gib_weg(weg_t::luft)) {
-					passed += gr->gib_weg(weg_t::luft)->get_statistics(WAY_STAT_CONVOIS);
+				if (gr->gib_weg(air_wt)) {
+					passed += gr->gib_weg(air_wt)->get_statistics(WAY_STAT_CONVOIS);
 				}
 				if (passed>0) {
 					if(passed>max_passed) {
@@ -440,8 +440,8 @@ reliefkarte_t::calc_map_pixel(const koord k)
 		// show tracks: white: no electricity, red: electricity, yellow: signal
 		case MAP_TRACKS:
 			// show track
-			if (gr->gib_weg(weg_t::schiene)) {
-				const schiene_t * sch = dynamic_cast<const schiene_t *> (gr->gib_weg(weg_t::schiene));
+			if (gr->gib_weg(track_wt)) {
+				const schiene_t * sch = dynamic_cast<const schiene_t *> (gr->gib_weg(track_wt));
 				if(sch->is_electrified()) {
 					setze_relief_farbe(k, COL_RED);
 				}
@@ -686,7 +686,7 @@ reliefkarte_t::draw_fab_connections(const fabrik_t * fab, uint8 colour, koord po
 
 // draw the map
 void
-reliefkarte_t::zeichnen(koord pos) const
+reliefkarte_t::zeichnen(koord pos)
 {
 	if(relief==NULL) {
 		return;

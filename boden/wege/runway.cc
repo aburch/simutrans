@@ -33,7 +33,7 @@ runway_t::runway_t(karte_t *welt) : weg_t(welt)
  */
 runway_t::runway_t(karte_t *welt,int top_speed) : weg_t(welt)
 {
-  setze_besch(wegbauer_t::weg_search(weg_t::luft,top_speed));
+  setze_besch(wegbauer_t::weg_search(air_wt,top_speed));
 }
 
 
@@ -75,7 +75,7 @@ runway_t::rdwr(loadsave_t *file)
 		const weg_besch_t *besch = wegbauer_t::gib_besch(bname);
 		if(besch==NULL) {
 			int old_max_speed=gib_max_speed();
-			besch = wegbauer_t::weg_search(weg_t::luft,old_max_speed>0 ? old_max_speed : 20 );
+			besch = wegbauer_t::weg_search(air_wt,old_max_speed>0 ? old_max_speed : 20 );
 			dbg->warning("strasse_t::rwdr()", "Unknown channel %s replaced by a channel %s (old_max_speed %i)", bname, besch->gib_name(), old_max_speed );
 		}
 		setze_besch(besch);

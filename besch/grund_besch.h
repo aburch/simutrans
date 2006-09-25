@@ -19,6 +19,7 @@
  */
 #include "text_besch.h"
 #include "bildliste2d_besch.h"
+#include "../simtypes.h"
 #include "../dataobj/ribi.h"
 
 /*
@@ -36,10 +37,28 @@
  *	1   Copyright
  *	2   Bildliste2D
  */
+
+class karte_t;
+
 class grund_besch_t : public obj_besch_t {
-    friend class ground_writer_t;
+	friend class ground_writer_t;
+
+private:
+	static karte_t *welt;
+
+	static image_id grund_besch_t::image_offset;
 
 public:
+	// only these textures need external access
+	static const grund_besch_t *grund_besch_t::fundament;
+	static const grund_besch_t *grund_besch_t::slopes;
+	static const grund_besch_t *grund_besch_t::fences;
+	static const grund_besch_t *grund_besch_t::marker;
+	static const grund_besch_t *grund_besch_t::borders;
+	static const grund_besch_t *grund_besch_t::ausserhalb;
+
+	static const char *get_climate_name_from_bit( enum climate n );
+
 #ifdef DOUBLE_GROUNDS
     static const uint8 slopetable[80];
     // returns the correct hang number for this slope
@@ -52,55 +71,47 @@ public:
     }
 #endif
 
-    const char *gib_name() const
-    {
-        return static_cast<const text_besch_t *>(gib_kind(0))->gib_text();
-    }
-    const char *gib_copyright() const
-    {
-        return static_cast<const text_besch_t *>(gib_kind(1))->gib_text();
-    }
+	const char *gib_name() const { return static_cast<const text_besch_t *>(gib_kind(0))->gib_text(); }
 
-    int gib_phasen(hang_t::typ typ) const
-    {
-	const bildliste_besch_t *liste = static_cast<const bildliste2d_besch_t *>(gib_kind(2))->gib_liste(typ);
-	if(liste) {
-	    return liste->gib_anzahl();
+	const char *gib_copyright() const { return static_cast<const text_besch_t *>(gib_kind(1))->gib_text(); }
+
+	// returns the pointer to an image structure
+	const bild_besch_t *gib_bild_ptr(int typ) const
+	{
+		const bildliste_besch_t *liste = static_cast<const bildliste2d_besch_t *>(gib_kind(2))->gib_liste(typ);
+		if(liste && liste->gib_anzahl() > 0) {
+			const bild_besch_t *bild = static_cast<const bildliste2d_besch_t *>(gib_kind(2))->gib_bild(typ,0);
+			return bild;
+		}
+		return NULL;
 	}
-	return 0;
-    }
 
-    int gib_bild(int typ, int phase  = 0) const
-    {
-	const bildliste_besch_t *liste = static_cast<const bildliste2d_besch_t *>(gib_kind(2))->gib_liste(typ);
-	if(liste && liste->gib_anzahl() > 0) {
-	    const bild_besch_t *bild = static_cast<const bildliste2d_besch_t *>(
-		gib_kind(2))->gib_bild(typ, phase % liste->gib_anzahl());
-	    if(bild) {
-		return bild->bild_nr;
-	    }
+	// image for all non-climate stuff like foundations ...
+	image_id gib_bild(int typ) const
+	{
+		const bildliste_besch_t *liste = static_cast<const bildliste2d_besch_t *>(gib_kind(2))->gib_liste(typ);
+		if(liste && liste->gib_anzahl() > 0) {
+			const bild_besch_t *bild = static_cast<const bildliste2d_besch_t *>(gib_kind(2))->gib_bild(typ,0);
+			if(bild) {
+				return bild->bild_nr;
+			}
+		}
+		return IMG_LEER;
 	}
-	return -1;
-    }
-    /*
-     * Die Klasse verwaltet ihre Instanzen selber:
-     */
-    static const grund_besch_t *boden;
-    static const grund_besch_t *ufer;
-    static const grund_besch_t *wasser;
-    static const grund_besch_t *standard_boden;
-    static const grund_besch_t *winter_boden;
-    static const grund_besch_t *standard_ufer;
-    static const grund_besch_t *winter_ufer;
-    static const grund_besch_t *fundament;
-    static const grund_besch_t *slopes;
-    static const grund_besch_t *fences;
-    static const grund_besch_t *marker;
-    static const grund_besch_t *ausserhalb;
 
-    static bool register_besch(const grund_besch_t *besch);
+	// image for all ground tiles
+	static image_id gib_ground_tile(hang_t::typ slope, sint16 height );
 
-    static bool alles_geladen();
+	static bool register_besch(const grund_besch_t *besch);
+
+	static bool alles_geladen();
+
+	/* this routine is called during the creation of a new map
+	 * it will recalculate all transitions according the given water level
+	 * and put the result in height_to_climate
+	 */
+	static void calc_water_level(karte_t *welt, uint8 *height_to_climate);
+
 };
 
 #endif // __GRUND_BESCH_H

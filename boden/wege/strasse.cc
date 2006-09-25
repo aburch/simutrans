@@ -16,7 +16,6 @@
 #include "../../dataobj/loadsave.h"
 #include "../../utils/cbuffer_t.h"
 #include "../../besch/weg_besch.h"
-#include "../../bauer/hausbauer.h"
 #include "../../bauer/wegbauer.h"
 
 const weg_besch_t *strasse_t::default_strasse=NULL;
@@ -49,7 +48,7 @@ strasse_t::strasse_t(karte_t *welt) : weg_t (welt)
 strasse_t::strasse_t(karte_t *welt,int top_speed) : weg_t (welt)
 {
 	setze_gehweg(false);
-	setze_besch(wegbauer_t::weg_search(weg_t::strasse,top_speed));
+	setze_besch(wegbauer_t::weg_search(road_wt,top_speed));
 }
 
 
@@ -82,7 +81,7 @@ strasse_t::rdwr(loadsave_t *file)
 		const weg_besch_t *besch = wegbauer_t::gib_besch(bname);
 		if(besch==NULL) {
 			int old_max_speed=gib_max_speed();
-			besch = wegbauer_t::weg_search(weg_t::strasse,old_max_speed>0 ? old_max_speed : 120 );
+			besch = wegbauer_t::weg_search(road_wt,old_max_speed>0 ? old_max_speed : 120 );
 			dbg->warning("strasse_t::rwdr()", "Unknown street %s replaced by a street %s (old_max_speed %i)", bname, besch->gib_name(), old_max_speed );
 		}
 		setze_besch(besch);

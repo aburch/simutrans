@@ -48,7 +48,7 @@ public:
 	 * paint chart
 	 * @author hsiegeln
 	 */
-        void zeichnen(koord offset) const;
+        void zeichnen(koord offset);
 
     /**
      * Events werden hiermit an die GUI-Komponenten

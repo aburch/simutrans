@@ -180,7 +180,7 @@ gui_scrolled_list_t::infowin_event(const event_t *ev)
     }
 }
 
-void gui_scrolled_list_t::zeichnen(koord pos) const
+void gui_scrolled_list_t::zeichnen(koord pos)
 {
 	pos += this->pos;
 

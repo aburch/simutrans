@@ -50,7 +50,7 @@ public:
      * Zeichnet die Registerkarten
      * @author Hj. Malthaner
      */
-    void zeichnen(koord offset) const;
+    void zeichnen(koord offset);
 
     /**
      * Resizing must be propagated!

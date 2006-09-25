@@ -30,12 +30,7 @@ brueckenboden_t::brueckenboden_t(karte_t *welt, koord3d pos, int grund_hang, int
 void brueckenboden_t::calc_bild()
 {
 	if(ist_karten_boden()) {
-		if(gib_hoehe()==welt->gib_grundwasser()) {
-			setze_bild(grund_besch_t::ufer->gib_bild(slope));
-		}
-		else {
-			setze_bild(grund_besch_t::boden->gib_bild(slope));
-		}
+		setze_bild( grund_besch_t::gib_ground_tile(slope,gib_hoehe() ) );
 		grund_t::calc_back_bild(gib_hoehe()/16,slope);
 	}
 	else {

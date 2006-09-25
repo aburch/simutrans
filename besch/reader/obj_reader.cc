@@ -11,8 +11,12 @@
 // for the progress bar
 #include "../../simcolor.h"
 #include "../../simimg.h"
+#include "../../simtypes.h"
 #include "../../simgraph.h"
 #include "../../simdisplay.h"
+
+#include "../skin_besch.h"	// just for the logo
+#include "../../simskin.h"
 
 // normal stuff
 #include "../../utils/searchfolder.h"
@@ -37,7 +41,7 @@ ptrhashtable_tpl<obj_besch_t **, int> obj_reader_t::fatals;
 void obj_reader_t::register_reader()
 {
     if(!obj_reader) {
-	obj_reader =  new inthashtable_tpl<obj_type, obj_reader_t *>;
+		obj_reader =  new inthashtable_tpl<obj_type, obj_reader_t *>;
     }
     obj_reader->put(get_type(), this);
     //printf("This program can read %s objects\n", get_type_name());
@@ -46,12 +50,12 @@ void obj_reader_t::register_reader()
 
 bool obj_reader_t::init(const char *liste)
 {
-    DBG_MESSAGE("obj_reader_t::init()","reading from '%s'", liste);
-    bool drawing=is_display_init();
+	DBG_MESSAGE("obj_reader_t::init()","reading from '%s'", liste);
+	bool drawing=is_display_init();
 
-    searchfolder_t find;
-    cstring_t name = find.complete(liste, "dat");
-    int i;
+	searchfolder_t find;
+	cstring_t name = find.complete(liste, "dat");
+	int i;
 
 	if(name.right(1) != "/") {
 		// very old style ... (I think unused by now)
@@ -78,7 +82,6 @@ bool obj_reader_t::init(const char *liste)
 					continue;
 				}
 
-				// with nice progress indicator ...
 				int max=find.search(buf, "pak");
 				for(i=max;  i-->0; ) {
 					read_file(find.at(i));
@@ -101,11 +104,32 @@ bool obj_reader_t::init(const char *liste)
 		}
 		teilung = (2<<teilung)-1;
 		if(drawing) {
+			display_fillbox_wh( 0, 0, display_get_width(), display_get_height(), COL_BLACK, true );
 			display_proportional((display_get_width()-max-4)/2,display_get_height()/2-20,"Loading paks ...",ALIGN_LEFT,COL_WHITE,0);
+			read_file(name+"symbol.BigLogo.pak");
+DBG_MESSAGE("obj_reader_t::init()","big logo %p", skinverwaltung_t::biglogosymbol);
+			if(skinverwaltung_t::biglogosymbol) {
+				const int w=skinverwaltung_t::biglogosymbol->gib_bild(0)->w;
+				const int h=skinverwaltung_t::biglogosymbol->gib_bild(0)->h;
+				int x = display_get_width()/2-w;
+				int y = display_get_height()/4-w;
+				if(y<0) {
+					y = 1;
+				}
+				display_color_img(skinverwaltung_t::biglogosymbol->gib_bild_nr(0), x, y, 0, false, true);
+				display_color_img(skinverwaltung_t::biglogosymbol->gib_bild_nr(1), x+w, y, 0, false, true);
+				display_color_img(skinverwaltung_t::biglogosymbol->gib_bild_nr(2), x, y+h, 0, false, true);
+				display_color_img(skinverwaltung_t::biglogosymbol->gib_bild_nr(3), x+w, y+h, 0, false, true);
+			}
 		}
 
-DBG_MESSAGE("obj_reader_t::init()","reading from '%s'", name.chars());
+		// defining the pak tile witdh ....
 		read_file(name+"ground.Outside.pak");
+
+		// and free all slots again ...
+		display_free_all_images_above(0);
+
+DBG_MESSAGE("obj_reader_t::init()","reading from '%s'", name.chars());
 		for(i=max;  i-->0; ) {
 			read_file(find.at(i));
 			if(((max-i)&teilung)==0  &&  drawing) {
@@ -148,7 +172,6 @@ void obj_reader_t::read_file(const char *name)
 		int n = 0;
 
 		// This is the normal header reading code
-
 		int c;
 		do {
 			c = fgetc(fp);

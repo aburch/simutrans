@@ -45,87 +45,74 @@ class weg_besch_t  : public obj_besch_t {
     friend class way_reader_t;
 
 private:
+	/**
+	 * Price per square
+	 * @author Hj. Malthaner
+	 */
+	uint32 price;
 
-    /**
-     * Price per square
-     * @author Hj. Malthaner
-     */
-    uint32 price;
+	/**
+	 * Maintenance cost per square/month
+	 * @author Hj. Malthaner
+	 */
+	uint32 maintenance;
 
+	/**
+	 * Max speed
+	 * @author Hj. Malthaner
+	 */
+	uint32 topspeed;
 
-    /**
-     * Maintenance cost per square/month
-     * @author Hj. Malthaner
-     */
-    uint32 maintenance;
+	/**
+	 * Max weight
+	 * @author Hj. Malthaner
+	 */
+	uint32 max_weight;
 
+	/**
+	 * Introduction date
+	 * @author Hj. Malthaner
+	 */
+	uint16 intro_date;
+	uint16 obsolete_date;
 
-    /**
-     * Max speed
-     * @author Hj. Malthaner
-     */
-    uint32 topspeed;
+	/**
+	 * Way type: i.e. road or track
+	 * @see waytype_t
+	 * @author Hj. Malthaner
+	 */
+	uint8 wtyp;
 
-
-    /**
-     * Max weight
-     * @author Hj. Malthaner
-     */
-    uint32 max_weight;
-
-
-    /**
-     * Introduction date
-     * @author Hj. Malthaner
-     */
-    uint16 intro_date;
-    uint16 obsolete_date;
-
-
-    /**
-     * Way type: i.e. road or track
-     * @see weg_t::typ
-     * @author Hj. Malthaner
-     */
-    uint8 wtyp;
-
-    /**
-     * Way system type: i.e. for wtyp == track this
-     * can be used to select track system type (rail, monorail, maglev)
-     * @author Hj. Malthaner
-     */
-    uint8 styp;
+	/**
+	 * Way system type: i.e. for wtyp == track this
+	 * can be used to select track system type (rail, monorail, maglev)
+	 * @author Hj. Malthaner
+	 */
+	uint8 styp;
 
 	/* true, if a tile with this way should be always drawn as a thing
-	 */
+	*/
 	uint8 draw_as_ding;
 
 public:
-	const char * gib_name() const
-	{
-		return static_cast<const text_besch_t *>(gib_kind(0))->gib_text();
-	}
-
-	const char * gib_copyright() const
-	{
-		return static_cast<const text_besch_t *>(gib_kind(1))->gib_text();
-	}
+	const char * gib_name() const { return static_cast<const text_besch_t *>(gib_kind(0))->gib_text(); }
+	const char * gib_copyright() const { 	return static_cast<const text_besch_t *>(gib_kind(1))->gib_text(); }
 
 	const long gib_preis() const { return price; }
 
 	const long gib_wartung() const { return maintenance; }
 
-    /**
-     * Determines max speed in km/h allowed on this way
-     * @author Hj. Malthaner
-     */
-    const uint32 gib_topspeed() const { return topspeed; }
+	/**
+	 * Determines max speed in km/h allowed on this way
+	 * @author Hj. Malthaner
+	 */
+	const uint32 gib_topspeed() const { return topspeed; }
 
-    /**
-     * get way type
-     * @see weg_t::typ
-     * @author Hj. Malthaner
-     */
+	/**
+	 * get way type
+	 * @see waytype_t
+	 * @author Hj. Malthaner
+	 */
 	const uint8 gib_wtyp() const { return wtyp; }
 
 	/**
@@ -140,34 +127,34 @@ public:
 		return static_cast<const bildliste_besch_t *>(gib_kind(2))->gib_bild_nr(ribi);
 	}
 
-    image_id gib_hang_bild_nr(hang_t::typ hang) const
-    {
+	image_id gib_hang_bild_nr(hang_t::typ hang) const
+	{
 #ifndef DOUBLE_GROUNDS
 	if(!hang_t::ist_einfach(hang)) {
 		return IMG_LEER;
 	}
 	return static_cast<const bildliste_besch_t *>(gib_kind(3))->gib_bild_nr(hang / 3 - 1);
 #else
-	int nr;
-	switch(hang) {
-		case 4:
-			nr = 0;
-			break;
-		case 12:
-			nr = 1;
-			break;
-		case 28:
-			nr = 2;
-			break;
-		case 36:
-			nr = 3;
-			break;
-		default:
-			return IMG_LEER;
-	}
-	return static_cast<const bildliste_besch_t *>(gib_kind(3))->gib_bild_nr(nr);
+		int nr;
+		switch(hang) {
+			case 4:
+				nr = 0;
+				break;
+			case 12:
+				nr = 1;
+				break;
+			case 28:
+				nr = 2;
+				break;
+			case 36:
+				nr = 3;
+				break;
+			default:
+				return IMG_LEER;
+		}
+		return static_cast<const bildliste_besch_t *>(gib_kind(3))->gib_bild_nr(nr);
 #endif
-    }
+	}
 
 	image_id gib_diagonal_bild_nr(ribi_t::ribi ribi) const
 	{
@@ -200,7 +187,6 @@ public:
 	{
 		return (const skin_besch_t *)(gib_kind(5));
 	}
-
 };
 
 #endif // __WEG_BESCH_H

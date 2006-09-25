@@ -49,10 +49,12 @@ private:
     int show_pax;
 
      /**
-     * Grundwasserspiegel ?
+     * waterlevel, climate borders, lowest snow in winter
      */
 
-    int grundwasser;
+	sint16 grundwasser;
+	sint16 climate_borders[MAX_CLIMATES];
+	sint16 winter_snowline;
 
     double max_mountain_height;                  //01-Dec-01        Markus Weber    Added
     double map_roughness;                        //01-Dec-01        Markus Weber    Added
@@ -151,6 +153,12 @@ public:
 
 	void setze_just_in_time(bool yesno) {just_in_time=yesno;}	// prissi, Aug-06
 	const bool gib_just_in_time() const {return just_in_time;}
+
+	void setze_climate_border(sint16 *);	// prissi, Aug-06
+	const sint16 *gib_climate_borders() const {return climate_borders;}
+
+	void setze_winter_snowline(sint16 sl) { winter_snowline = sl; }
+	const sint16 gib_winter_snowline() const {return winter_snowline;}
 };
 
 #endif // dataobj_einstellungen_h

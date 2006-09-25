@@ -95,7 +95,7 @@ intr_routine(long delta_t)
 		intr_refresh_display( false );
 	}
 
-	welt_modell->sync_prepare();
+//	welt_modell->sync_prepare();
 	welt_modell->sync_step( delta_t );
 }
 
@@ -138,6 +138,7 @@ intr_set(karte_t *welt, karte_ansicht_t *view, int refresh)
 	welt_modell = welt;
 	welt_ansicht = view;
 	base_refresh = refresh;
+	refresh_counter = refresh;
 	last_time = get_system_ms();
 	enabled = true;
 }

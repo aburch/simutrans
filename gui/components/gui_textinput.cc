@@ -190,7 +190,7 @@ DBG_DEBUG("gui_textinput_t::gui_textinput_t()","cursor_pos=%i, cx=%i",cursor_pos
  * Zeichnet die Komponente
  * @author Hj. Malthaner
  */
-void gui_textinput_t::zeichnen(koord offset) const
+void gui_textinput_t::zeichnen(koord offset)
 {
 	display_fillbox_wh_clip(pos.x+offset.x+1, pos.y+offset.y+1,groesse.x-2, groesse.y-2, MN_GREY1, true);
 	display_ddd_box_clip(pos.x+offset.x, pos.y+offset.y,groesse.x, groesse.y,MN_GREY0, MN_GREY4);

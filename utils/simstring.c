@@ -189,7 +189,7 @@ char *make_single_line_string(const char *in,int number_of_lines)
 		}
 	}
 	// trim trailing spaces
-	while(pos>0  &&  buf[pos]==' ') {
+	while(pos>0  &&  buf[pos-1]==' ') {
 		pos--;
 	}
 	// end mark!

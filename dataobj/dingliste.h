@@ -21,44 +21,43 @@
 
 class dingliste_t {
 private:
-    union {
-	ding_t **some;    // valid if capacity > 1
-	ding_t *one;      // valid if capacity == 1
-    } obj;
+	union {
+		ding_t **some;    // valid if capacity > 1
+		ding_t *one;      // valid if capacity == 1
+	} obj;
 
-    uint8 capacity;
+	uint8 capacity;
 
-    /**
-     * Nächster freier Eintrg hinter dem obersten Eleemnt
-     * @author Hj. Malthaner
-     */
-    uint8 top;
+	/**
+	* Nächster freier Eintrg hinter dem obersten Eleemnt
+	* @author Hj. Malthaner
+	*/
+	uint8 top;
 
-    void set_capacity(unsigned new_cap);
+	void set_capacity(unsigned new_cap);
 
-    /**
-     * @return ersten freien index
-     * @author Hj. Malthaner
-     */
-    int grow_capacity(uint8 pri);
+	/**
+	* @return ersten freien index
+	* @author Hj. Malthaner
+	*/
+	int grow_capacity(uint8 pri);
 
-
-    void shrink_capacity(uint8 last_index);
+	void shrink_capacity(uint8 last_index);
 
 public:
-    dingliste_t();
-    ~dingliste_t();
+	dingliste_t();
+	~dingliste_t();
 
-    void rdwr(karte_t *welt, loadsave_t *file,koord3d current_pos);
+	void rdwr(karte_t *welt, loadsave_t *file,koord3d current_pos);
 
-    ding_t * suche(ding_t::typ typ,uint8 start) const;
+	ding_t * suche(ding_t::typ typ,uint8 start) const;
 
-    /**
-     * @param n thing index (unsigned value!)
-     * @returns thing at index n or NULL if n is out of bounds
-     * @author Hj. Malthaner
-     */
-    inline ding_t * bei(uint8 n) const
+	/**
+	* @param n thing index (unsigned value!)
+	* @returns thing at index n or NULL if n is out of bounds
+	* @author Hj. Malthaner
+	*/
+	inline ding_t * bei(uint8 n) const
 	{
 		if(capacity<=1) {
 			return (capacity!=0  &&  n==top-1) ? obj.one : NULL;
@@ -68,36 +67,42 @@ public:
 		}
 	}
 
-    uint8  add(ding_t *obj, uint8 pri=0);
-    uint8  insert_before_moving(ding_t *obj);
-    uint8  insert_at(ding_t *obj, uint8 pri);
-    uint8  remove(ding_t *obj, spieler_t *sp);
-    bool loesche_alle(spieler_t *sp);
-    bool ist_da(ding_t *obj) const;
-    uint8  count() const;
+	  uint8  add(ding_t *obj, uint8 pri=0);
+	  uint8  insert_before_moving(ding_t *obj);
+	  uint8  insert_at(ding_t *obj, uint8 pri);
+	  uint8  remove(ding_t *obj, spieler_t *sp);
+	  bool loesche_alle(spieler_t *sp);
+	  bool ist_da(ding_t *obj) const;
+	  uint8  count() const;
 
 	// take the thing out from the list
 	// use this only for temperary removing
 	// since it does not shrink list or checks for ownership
 	ding_t *remove_at(uint8 pos);
 
-    inline int gib_top() const {return top;};
+	inline int gib_top() const {return top;}
 
-    /**
-     * @returns NULL wenn OK, oder Meldung, warum nicht
-     * @author Hj. Malthaner
-     */
-    const char * kann_alle_entfernen(const spieler_t *) const;
+	/**
+	* @returns NULL wenn OK, oder Meldung, warum nicht
+	* @author Hj. Malthaner
+	*/
+	const char * kann_alle_entfernen(const spieler_t *) const;
 
-    /* recalcs all objects onthis tile
-     * @author prissi
-     */
-		void calc_bild();
+	/* recalcs all objects onthis tile
+	* @author prissi
+	*/
+	void calc_bild();
 
-    /* display all things, much fast to do it here ...
-     *  @author prissi
-     */
-     void display_dinge( const sint16 xpos, const sint16 ypos, const bool dirty ) const;
+	/* display all things, much fast to do it here ...
+	*  @author prissi
+	*/
+	void display_dinge( const sint16 xpos, const sint16 ypos, const bool dirty ) const;
+
+	// animation, waiting for crossing, all things that could take a while should be done in a step
+	void step(const long delta_t, const int steps);
+
+	// start next month (good for toogling a seasons)
+	void check_season(const long month);
 } GCC_PACKED;
 
 #endif

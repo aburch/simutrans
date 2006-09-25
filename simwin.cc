@@ -362,7 +362,7 @@ top_win(const gui_fenster_t *gui)
 bool win_is_top(const gui_fenster_t *ig)
 {
   const int i = ins_win - 1;
-  return wins[i].gui == ig;
+  return i>=0 ? wins[i].gui == ig : false;
 }
 
 

@@ -292,7 +292,7 @@ void vehikel_basis_t::betrete_feld()
 		start ++;
 	}
 
-	if(gr->gib_weg(weg_t::strasse)) {
+	if(gr->gib_weg(road_wt)) {
 		// this is very complicated: we may have many objects in two lanes (actually five with tram and pedestrians)
 		if(umgebung_t::drive_on_left) {
 			// driving on left side
@@ -776,7 +776,7 @@ vehikel_t::hop_check()
 			return false;
 		}
 		// check for oneway sign etc.
-		if(weg_t::luft!=gib_wegtyp()  &&  route_index<cnv->get_route()->gib_max_n()) {
+		if(air_wt!=gib_wegtyp()  &&  route_index<cnv->get_route()->gib_max_n()) {
 			uint8 dir=gib_ribi(bd);
 			koord3d nextnext_pos=cnv->get_route()->position_bei(route_index+1);
 			uint8 new_dir = ribi_typ(nextnext_pos.gib_2d()-pos_next.gib_2d());
@@ -1459,7 +1459,7 @@ automobil_t::calc_route(karte_t * welt, koord3d start, koord3d ziel, uint32 max_
 bool
 automobil_t::ist_befahrbar(const grund_t *bd) const
 {
-	strasse_t *str=(strasse_t *)bd->gib_weg(weg_t::strasse);
+	strasse_t *str=(strasse_t *)bd->gib_weg(road_wt);
 	if(str==NULL || (besch->get_engine_type()==vehikel_besch_t::electric  &&  !str->is_electrified()) ) {
 		return false;
 	}
@@ -1483,7 +1483,7 @@ int
 automobil_t::gib_kosten(const grund_t *gr,const uint32 max_speed) const
 {
 	// first favor faster ways
-	const weg_t *w=gr->gib_weg(weg_t::strasse);
+	const weg_t *w=gr->gib_weg(road_wt);
 	if(!w) {
 		return 0xFFFF;
 	}
@@ -1533,8 +1533,8 @@ automobil_t::ist_weg_frei(int &restart_speed)
 	}
 
 	// pruefe auf Schienenkreuzung
-	strasse_t *str=(strasse_t *)gr->gib_weg(weg_t::strasse);
-	if(gr->gib_weg(weg_t::schiene) &&  str) {
+	strasse_t *str=(strasse_t *)gr->gib_weg(road_wt);
+	if(gr->gib_weg(track_wt) &&  str) {
 		// das ist eine Kreuzung, ist sie frei ?
 		if(gr->suche_obj_ab(ding_t::waggon,PRI_RAIL_AND_ROAD)) {
 			restart_speed = 0;
@@ -1577,7 +1577,7 @@ automobil_t::ist_weg_frei(int &restart_speed)
 
 							// check if there is a free position
 							// this is much faster than waysearch
-							if(!target_halt->find_free_position(weg_t::strasse,cnv->self,ding_t::automobil)) {
+							if(!target_halt->find_free_position(road_wt,cnv->self,ding_t::automobil)) {
 								restart_speed = 0;
 								target_halt = halthandle_t();
 	//DBG_MESSAGE("automobil_t::ist_weg_frei()","cnv=%d nothing free found!",cnv->self.get_id());
@@ -1661,7 +1661,7 @@ automobil_t::betrete_feld()
 	vehikel_t::betrete_feld();
 
 	const int cargo = gib_fracht_menge();
-	weg_t *str=welt->lookup( pos_cur )->gib_weg(weg_t::strasse);
+	weg_t *str=welt->lookup( pos_cur )->gib_weg(road_wt);
 	str->book(cargo, WAY_STAT_GOODS);
 	if (ist_erstes)  {
 		str->book(1, WAY_STAT_CONVOIS);
@@ -1701,7 +1701,7 @@ automobil_t::rdwr(loadsave_t *file, bool force)
 		if(file->is_loading()  &&  besch==NULL) {
 			const ware_besch_t *w= (fracht.count()>0) ? fracht.at(0).gib_typ() : warenbauer_t::passagiere;
 			DBG_MESSAGE("automobil_t::rdwr()","try to find a fitting vehicle for %s.",  w->gib_name() );
-			besch = vehikelbauer_t::vehikel_search(weg_t::strasse, 0, ist_erstes?50:0, speed_to_kmh(get_speed_limit()), w );
+			besch = vehikelbauer_t::vehikel_search(road_wt, 0, ist_erstes?50:0, speed_to_kmh(get_speed_limit()), w );
 			if(besch) {
 				DBG_MESSAGE("automobil_t::rdwr()","replaced by %s",besch->gib_name());
 				// still wrong load ...
@@ -1836,7 +1836,6 @@ DBG_MESSAGE("waggon_t::setze_convoi()","new route %p, route_index %i",c->get_rou
 bool
 waggon_t::calc_route(karte_t * welt, koord3d start, koord3d ziel, uint32 max_speed, route_t * route)
 {
-	DBG_MESSAGE("waggon_t::calc_route","%i,%i",route_index,cnv->get_route()->gib_max_n());
 	if(ist_erstes  &&  route_index<cnv->get_route()->gib_max_n()) {
 		// free all reserved blocks
 		block_reserver( cnv->get_route(), route_index, target_halt.is_bound()?1000:1, false );
@@ -2200,7 +2199,7 @@ waggon_t::betrete_feld()
 
 fahrplan_t * waggon_t::erzeuge_neuen_fahrplan() const
 {
-  return besch->gib_typ()==weg_t::schiene_strab ? new tramfahrplan_t() : new zugfahrplan_t();
+  return besch->gib_typ()==tram_wt ? new tramfahrplan_t() : new zugfahrplan_t();
 }
 
 
@@ -2287,7 +2286,7 @@ schiff_t::schiff_t(karte_t *welt, loadsave_t *file) : vehikel_t(welt)
 bool
 schiff_t::ist_befahrbar(const grund_t *bd) const
 {
-    return bd->ist_wasser()  ||  bd->gib_weg(weg_t::wasser);
+    return bd->ist_wasser()  ||  bd->gib_weg(water_wt);
 }
 
 
@@ -2362,7 +2361,7 @@ schiff_t::rdwr(loadsave_t *file, bool force)
 		// try to find a matching vehivle
 		if(file->is_loading()  &&  besch==NULL) {
 			DBG_MESSAGE("schiff_t::rdwr()","try to find a fitting vehicle for %s.", fracht.count()>0 ? fracht.at(0).gib_name() : "passagiere" );
-			besch = vehikelbauer_t::vehikel_search(weg_t::wasser, 0, 100, 40, fracht.count()>0?fracht.at(0).gib_typ():warenbauer_t::passagiere );
+			besch = vehikelbauer_t::vehikel_search(water_wt, 0, 100, 40, fracht.count()>0?fracht.at(0).gib_typ():warenbauer_t::passagiere );
 			if(besch) {
 				calc_bild();
 			}
@@ -2380,7 +2379,7 @@ bool aircraft_t::ist_ziel(const grund_t *gr,const grund_t *) const
 	if(state!=looking_for_parking) {
 
 		// search for the end of the runway
-		const weg_t *w=gr->gib_weg(weg_t::luft);
+		const weg_t *w=gr->gib_weg(air_wt);
 		if(w  &&  w->gib_besch()->gib_styp()==1) {
 
 //DBG_MESSAGE("aircraft_t::ist_ziel()","testing at %i,%i",gr->gib_pos().x,gr->gib_pos().y);
@@ -2415,12 +2414,12 @@ aircraft_t::gib_ribi(const grund_t *gr) const
 	switch(state) {
 		case taxiing:
 		case looking_for_parking:
-			return gr->gib_weg_ribi(weg_t::luft);
+			return gr->gib_weg_ribi(air_wt);
 
 		case taxiing_to_halt:
 		{
 			// we must invert all one way signs here, since we start from the target position here!
-			weg_t *w = gr->gib_weg(weg_t::luft);
+			weg_t *w = gr->gib_weg(air_wt);
 			if(w) {
 				ribi_t::ribi r = w->gib_ribi_unmasked();
 				ribi_t::ribi mask = w->gib_ribi_maske();
@@ -2432,7 +2431,7 @@ aircraft_t::gib_ribi(const grund_t *gr) const
 		case landing:
 		case departing:
 		{
-			ribi_t::ribi dir = gr->gib_weg_ribi(weg_t::luft);
+			ribi_t::ribi dir = gr->gib_weg_ribi(air_wt);
 			if(dir==0) {
 				return ribi_t::alle;
 			}
@@ -2454,7 +2453,7 @@ int
 aircraft_t::gib_kosten(const grund_t *gr,const uint32 ) const
 {
 	// first favor faster ways
-	const weg_t *w=gr->gib_weg(weg_t::luft);
+	const weg_t *w=gr->gib_weg(air_wt);
 	int costs = 0;
 
 	if(state==flying) {
@@ -2493,7 +2492,7 @@ aircraft_t::ist_befahrbar(const grund_t *bd) const
 		case taxiing_to_halt:
 		case looking_for_parking:
 //DBG_MESSAGE("ist_befahrbar()","at %i,%i",bd->gib_pos().x,bd->gib_pos().y);
-			return bd->gib_weg(weg_t::luft)!=NULL;
+			return bd->gib_weg(air_wt)!=NULL;
 
 		case landing:
 		case departing:
@@ -2534,7 +2533,7 @@ aircraft_t::find_route_to_stop_position()
 
 	// then: check if the search point is still on a runway (otherwise just proceed)
 	target = welt->lookup(rt->position_bei(suchen));
-	if(target==NULL  ||  target->gib_weg(weg_t::luft)==NULL) {
+	if(target==NULL  ||  target->gib_weg(air_wt)==NULL) {
 		target_halt = halthandle_t();
 		DBG_MESSAGE("aircraft_t::find_route_to_stop_position()","no runway found at %i,%i,%i",rt->position_bei(suchen).x,rt->position_bei(suchen).y,rt->position_bei(suchen).z);
 		return true;	// no runway any more ...
@@ -2542,7 +2541,7 @@ aircraft_t::find_route_to_stop_position()
 
 	// is our target occupied?
 //	DBG_MESSAGE("aircraft_t::find_route_to_stop_position()","state %i",state);
-	if(!target_halt->find_free_position(weg_t::luft,cnv->self,ding_t::aircraft)  ) {
+	if(!target_halt->find_free_position(air_wt,cnv->self,ding_t::aircraft)  ) {
 		target_halt = halthandle_t();
 		DBG_MESSAGE("aircraft_t::find_route_to_stop_position()","no free prosition found!");
 		return false;
@@ -2678,7 +2677,7 @@ aircraft_t::betrete_feld()
 		}
 	}
 	else {
-		weg_t *w=welt->lookup(gib_pos())->gib_weg(weg_t::luft);
+		weg_t *w=welt->lookup(gib_pos())->gib_weg(air_wt);
 		if(w) {
 			const int cargo = gib_fracht_menge();
 			w->book(cargo, WAY_STAT_GOODS);
@@ -2795,7 +2794,7 @@ aircraft_t::get_approach_ribi( koord3d start, koord3d ziel )
 bool
 aircraft_t::calc_route(karte_t * welt, koord3d start, koord3d ziel, uint32 max_speed, route_t *route )
 {
-	DBG_MESSAGE("aircraft_t::calc_route()","search route from %i,%i,%i to %i,%i,%i",start.x,start.y,start.z,ziel.x,ziel.y,ziel.z);
+//DBG_MESSAGE("aircraft_t::calc_route()","search route from %i,%i,%i to %i,%i,%i",start.x,start.y,start.z,ziel.x,ziel.y,ziel.z);
 
 	// free target reservation
 	if(ist_erstes  &&  alte_fahrtrichtung!=ribi_t::keine  &&  cnv  &&  target_halt.is_bound() ) {
@@ -2807,7 +2806,7 @@ aircraft_t::calc_route(karte_t * welt, koord3d start, koord3d ziel, uint32 max_s
 	}
 	target_halt = halthandle_t();	// no block reserved
 
-	const weg_t *w=welt->lookup(start)->gib_weg(weg_t::luft);
+	const weg_t *w=welt->lookup(start)->gib_weg(air_wt);
 	bool start_in_the_air = (w==NULL);
 	bool end_in_air=false;
 
@@ -2827,7 +2826,7 @@ aircraft_t::calc_route(karte_t * welt, koord3d start, koord3d ziel, uint32 max_s
 		search_start = start;
 		start_in_the_air = true;
 		route->clear();
-		DBG_MESSAGE("aircraft_t::calc_route()","start in air at %i,%i,%i",search_start.x,search_start.y,search_start.z);
+//DBG_MESSAGE("aircraft_t::calc_route()","start in air at %i,%i,%i",search_start.x,search_start.y,search_start.z);
 	}
 	else {
 		// not found and we are not on the takeoff tile (where the route search will fail too) => we try to calculate a complete route, starting with the way to the runway
@@ -2836,7 +2835,7 @@ aircraft_t::calc_route(karte_t * welt, koord3d start, koord3d ziel, uint32 max_s
 		state = taxiing;
 #ifdef USE_DIFFERENT_WIND
 		approach_dir = get_approach_ribi( ziel, start );	// reverse
-		DBG_MESSAGE("aircraft_t::calc_route()","search runway start near %i,%i,%i with corner in %x",start.x,start.y,start.z, approach_dir);
+//DBG_MESSAGE("aircraft_t::calc_route()","search runway start near %i,%i,%i with corner in %x",start.x,start.y,start.z, approach_dir);
 #else
 		approach_dir = ribi_t::nordost;	// reverse
 		DBG_MESSAGE("aircraft_t::calc_route()","search runway start near %i,%i,%i",start.x,start.y,start.z);
@@ -2845,20 +2844,19 @@ aircraft_t::calc_route(karte_t * welt, koord3d start, koord3d ziel, uint32 max_s
 			DBG_MESSAGE("aircraft_t::calc_route()","failed");
 			return false;
 		}
-		DBG_MESSAGE("aircraft_t::calc_route()","route to runway found");
 		// save the route
 		search_start = route->position_bei( route->gib_max_n() );
-		DBG_MESSAGE("aircraft_t::calc_route()","start at ground at %i,%i,%i",search_start.x,search_start.y,search_start.z);
+//DBG_MESSAGE("aircraft_t::calc_route()","start at ground at %i,%i,%i",search_start.x,search_start.y,search_start.z);
 	}
 
 	// second: find target runway end
 	state = taxiing_to_halt;	// only used for search
 #ifdef USE_DIFFERENT_WIND
 	approach_dir = get_approach_ribi( start, ziel );	// reverse
-	DBG_MESSAGE("aircraft_t::calc_route()","search runway target near %i,%i,%i in corners %x",ziel.x,ziel.y,ziel.z,approach_dir);
+//DBG_MESSAGE("aircraft_t::calc_route()","search runway target near %i,%i,%i in corners %x",ziel.x,ziel.y,ziel.z,approach_dir);
 #else
 	approach_dir = ribi_t::suedwest;	// reverse
-	DBG_MESSAGE("aircraft_t::calc_route()","search runway target near %i,%i,%i in corners %x",ziel.x,ziel.y,ziel.z);
+//DBG_MESSAGE("aircraft_t::calc_route()","search runway target near %i,%i,%i in corners %x",ziel.x,ziel.y,ziel.z);
 #endif
 	route_t end_route;
 
@@ -2871,12 +2869,12 @@ aircraft_t::calc_route(karte_t * welt, koord3d start, koord3d ziel, uint32 max_s
 		// save target route
 		search_end = end_route.position_bei( end_route.gib_max_n() );
 	}
-	DBG_MESSAGE("aircraft_t::calc_route()","ziel now %i,%i,%i",search_end.x,search_end.y,search_end.z);
+//DBG_MESSAGE("aircraft_t::calc_route()","ziel now %i,%i,%i",search_end.x,search_end.y,search_end.z);
 
 	// create target route
 	if(!start_in_the_air) {
 		takeoff = route->gib_max_n();
-		koord start_dir(welt->lookup(search_start)->gib_weg_ribi(weg_t::luft));
+		koord start_dir(welt->lookup(search_start)->gib_weg_ribi(air_wt));
 		if(start_dir!=koord(0,0)) {
 			// add the start
 			const grund_t *gr=NULL;
@@ -2887,7 +2885,7 @@ aircraft_t::calc_route(karte_t * welt, koord3d start, koord3d ziel, uint32 max_s
 					break;
 				}
 				gr = welt->lookup(search_start.gib_2d()+(start_dir*i))->gib_kartenboden();
-				if(gr->gib_weg(weg_t::luft)) {
+				if(gr->gib_weg(air_wt)) {
 					endi ++;
 				}
 				route->append(gr->gib_pos());
@@ -2909,7 +2907,7 @@ aircraft_t::calc_route(karte_t * welt, koord3d start, koord3d ziel, uint32 max_s
 		}
 		else {
 			// init with startpos
-dbg->error("aircraft_t::calc_route()","Invalid route calculation: start is a single one direction field ...");
+			dbg->error("aircraft_t::calc_route()","Invalid route calculation: start is on a single direction field ...");
 		}
 		state = taxiing;
 		flughoehe = gib_pos().z;
@@ -2925,12 +2923,12 @@ dbg->error("aircraft_t::calc_route()","Invalid route calculation: start is a sin
 	}
 	target_height = gib_pos().z+48;
 
-	DBG_MESSAGE("aircraft_t::calc_route()","take off ok");
+//DBG_MESSAGE("aircraft_t::calc_route()","take off ok");
 
 	koord3d landing_start=search_end;
 	if(!end_in_air) {
 		// now find way to start of landing pos
-		koord end_dir(welt->lookup(search_end)->gib_weg_ribi(weg_t::luft));
+		koord end_dir(welt->lookup(search_end)->gib_weg_ribi(air_wt));
 		if(end_dir!=koord(0,0)) {
 			// add the start
 			const grund_t *gr;
@@ -2941,7 +2939,7 @@ dbg->error("aircraft_t::calc_route()","Invalid route calculation: start is a sin
 					break;
 				}
 				gr=welt->lookup(search_end.gib_2d()+(end_dir*i))->gib_kartenboden();
-				if(gr->gib_weg(weg_t::luft)) {
+				if(gr->gib_weg(air_wt)) {
 					endi ++;
 				}
 				landing_start = gr->gib_pos();
@@ -2963,7 +2961,7 @@ dbg->error("aircraft_t::calc_route()","Invalid route calculation: start is a sin
 
 		// find starting direction
 		int offset = 0;
-		switch(welt->lookup(search_end)->gib_weg_ribi(weg_t::luft)) {
+		switch(welt->lookup(search_end)->gib_weg_ribi(air_wt)) {
 			case ribi_t::nord: offset = 0; break;
 			case ribi_t::west: offset = 4; break;
 			case ribi_t::sued: offset = 8; break;
@@ -2982,9 +2980,10 @@ dbg->error("aircraft_t::calc_route()","Invalid route calculation: start is a sin
 				route->append( welt->lookup(circlepos)->gib_kartenboden()->gib_pos() );
 			}
 			else {
+				// could only happen during loading old savegames;
+				// in new versions it should not possible to build a runway here
 				route->clear();
-				dbg->warning("aircraft_t::calc_route()","airport too close to the edge! (Cannot go to %i,%i!)",circlepos.x,circlepos.y);
-				DBG_MESSAGE("aircraft_t::calc_route()","failed");
+				dbg->error("aircraft_t::calc_route()","airport too close to the edge! (Cannot go to %i,%i!)",circlepos.x,circlepos.y);
 				return false;
 			}
 		}
@@ -3001,7 +3000,7 @@ dbg->error("aircraft_t::calc_route()","Invalid route calculation: start is a sin
 		}
 	}
 
-	DBG_MESSAGE("aircraft_t::calc_route()","departing=%i  touchdown=%i   suchen=%i   total=%i  state=%i",takeoff, touchdown, suchen, route->gib_max_n(), state );
+//DBG_MESSAGE("aircraft_t::calc_route()","departing=%i  touchdown=%i   suchen=%i   total=%i  state=%i",takeoff, touchdown, suchen, route->gib_max_n(), state );
 	return true;
 }
 
@@ -3011,7 +3010,7 @@ dbg->error("aircraft_t::calc_route()","Invalid route calculation: start is a sin
 int aircraft_t::calc_height()
 {
 	int new_hoff = 0;	// default: on ground ...
-	const weg_t *w=welt->lookup(pos_cur)->gib_weg(weg_t::luft);
+	const weg_t *w=welt->lookup(pos_cur)->gib_weg(air_wt);
 
 	switch( state ) {
 		case departing:

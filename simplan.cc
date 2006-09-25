@@ -50,20 +50,20 @@ planquadrat_t::gib_boden_von_obj(ding_t *obj) const
 
 grund_t * planquadrat_t::gib_obersten_boden(spieler_t *sp) const
 {
-    grund_t *bd = gib_kartenboden();
-    int i = boeden.get_count();
-    grund_t *oben;
+	grund_t *bd = gib_kartenboden();
+	int i = boeden.get_count();
+	grund_t *oben;
 
-    if(bd->gib_besitzer() != sp) {
-	bd = NULL;
-    }
-    while(--i) {
-	oben = boeden.get(i);
-	if(oben->gib_besitzer() == sp) {
-	    return !bd || oben->gib_hoehe() > bd->gib_hoehe() ? oben : bd;
+	if(bd->gib_besitzer() != sp) {
+		bd = NULL;
 	}
-    }
-    return bd;
+	while(--i) {
+		oben = boeden.get(i);
+		if(oben->gib_besitzer() == sp) {
+			return !bd || oben->gib_hoehe() > bd->gib_hoehe() ? oben : bd;
+		}
+	}
+	return bd;
 }
 
 
@@ -234,55 +234,36 @@ DBG_MESSAGE("planquadrat_t::rwdr", "unknown building (or prepare for factory) at
 				} else {
 					boden_hinzufuegen(gr);
 				}
+				gr->calc_bild();
 			}
 		} while(gr != 0);
 	}
 }
 
 
+
 void planquadrat_t::step(const long delta_t, const int steps)
 {
-    static slist_tpl<ding_t *>loeschen;
-
-    for(unsigned int i = 0; i < boeden.get_count(); i++) {
-        grund_t *gr = boeden.get(i);
-
-		// Hajo: play or don't play ground animation
-		// see boden/grund.h for more details
-		if(umgebung_t::bodenanimation) {
-			gr->step();
+	for(unsigned int i = 0; i < boeden.get_count(); i++) {
+		grund_t *gr = boeden.get(i);
+		if(gr->gib_top()) {
+			gr->step(delta_t,steps);
 		}
-
-		for(int j=0; j<gr->gib_top(); j++) {
-			ding_t * ding = gr->obj_bei(j);
-
-			if(ding &&
-			    ding->step_frequency>0 &&
-			    (steps%ding->step_frequency) == 0) {
-
-				//long T0 = get_current_time_millis();
-
-				if(ding->step(delta_t) == false) {
-					loeschen.insert( ding );
-				}
-
-				/*
-				long T1 = get_current_time_millis();
-
-				if(T1-T0 > 5) {
-					koord3d pos = ding->gib_pos();
-					printf("ding %s at %d,%d-> %ld ms\n", ding->gib_name(), pos.x, pos.y, T1-T0);
-				}
-				*/
-			}
-		}
-	}
-
-	while(loeschen.count()) {
-		// destruktor entfernt objekt aus der Verwaltung
-		delete loeschen.remove_first();
 	}
 }
+
+
+
+// start a new month (an change seasons)
+void planquadrat_t::check_season(const long month)
+{
+	for(unsigned int i = 0; i < boeden.get_count(); i++) {
+		grund_t *gr = boeden.get(i);
+		gr->check_season(month);
+	}
+}
+
+
 
 void planquadrat_t::abgesenkt(karte_t *welt)
 {

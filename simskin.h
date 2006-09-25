@@ -17,6 +17,7 @@ public:
     static const skin_besch_t *edit_werkzeug;
 
     static const skin_besch_t *logosymbol;
+    static const skin_besch_t *biglogosymbol;
     static const skin_besch_t *neujahrsymbol;
     static const skin_besch_t *neueweltsymbol;
     static const skin_besch_t *flaggensymbol;

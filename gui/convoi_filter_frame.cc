@@ -77,69 +77,64 @@ convoi_filter_frame_t::convoi_filter_frame_t(spieler_t *sp, convoi_frame_t *main
     gui_frame_t("clf_title", sp),
     ware_scrolly(&ware_cont)
 {
-    unsigned i;
-    unsigned n;
+	unsigned i;
+	unsigned n;
 
-    this->main_frame = main_frame;
+	this->main_frame = main_frame;
 
-    for(i = 0; i < FILTER_BUTTONS; i++) {
-	filter_buttons[i].init(button_t::square, filter_buttons_text[i], filter_buttons_pos[i]);
-	filter_buttons[i].add_listener(this);
-	add_komponente(filter_buttons + i);
-    }
-    name_filter_input.setze_text(main_frame->access_name_filter(), 30);
-    name_filter_input.setze_groesse(koord(100, 14));
-    name_filter_input.setze_pos(koord(5, 17));
-    name_filter_input.add_listener(this);
-    add_komponente(&name_filter_input);
-
-    ware_alle.init(button_t::roundbox, "clf_btn_alle", koord(125, 17), koord(41, 14));
-    ware_alle.add_listener(this);
-    add_komponente(&ware_alle);
-    ware_keine.init(button_t::roundbox, "clf_btn_keine", koord(167, 17), koord(41, 14));
-    ware_keine.add_listener(this);
-    add_komponente(&ware_keine);
-    ware_invers.init(button_t::roundbox, "clf_btn_invers", koord(209, 17), koord(41, 14));
-    ware_invers.add_listener(this);
-    add_komponente(&ware_invers);
-
-    ware_scrolly.setze_pos(koord(125, 33));
-    add_komponente(&ware_scrolly);
-
-    for(i=n=0; i<warenbauer_t::gib_waren_anzahl(); i++) {
-	const ware_besch_t *ware = warenbauer_t::gib_info(i);
-
-	if(ware != warenbauer_t::nichts) {
-	    ware_item_t *item = new ware_item_t(this, ware);
-
-	    item->init(button_t::square, translator::translate(ware->gib_name()), koord(16, 16*n++ + 4));
-	    ware_cont.add_komponente(item);
+	for(i = 0; i < FILTER_BUTTONS; i++) {
+		filter_buttons[i].init(button_t::square, filter_buttons_text[i], filter_buttons_pos[i]);
+		filter_buttons[i].add_listener(this);
+		add_komponente(filter_buttons + i);
+		if(filter_buttons_types[i] < convoi_frame_t::sub_filter) {
+			filter_buttons[i].foreground = COL_WHITE;
+		}
 	}
-    }
-    ware_cont.setze_groesse(koord(100, 16*n + 4));
-    ware_scrolly.setze_groesse(koord(125, 189));
+	name_filter_input.setze_text(main_frame->access_name_filter(), 30);
+	name_filter_input.setze_groesse(koord(100, 14));
+	name_filter_input.setze_pos(koord(5, 17));
+	name_filter_input.add_listener(this);
+	add_komponente(&name_filter_input);
 
-    setze_fenstergroesse(koord(255, 243));
-    setze_opaque(true);
+	ware_alle.init(button_t::roundbox, "clf_btn_alle", koord(125, 17), koord(41, 14));
+	ware_alle.add_listener(this);
+	add_komponente(&ware_alle);
+	ware_keine.init(button_t::roundbox, "clf_btn_keine", koord(167, 17), koord(41, 14));
+	ware_keine.add_listener(this);
+	add_komponente(&ware_keine);
+	ware_invers.init(button_t::roundbox, "clf_btn_invers", koord(209, 17), koord(41, 14));
+	ware_invers.add_listener(this);
+	add_komponente(&ware_invers);
+
+	ware_scrolly.setze_pos(koord(125, 33));
+	add_komponente(&ware_scrolly);
+
+	for(i=n=0; i<warenbauer_t::gib_waren_anzahl(); i++) {
+		const ware_besch_t *ware = warenbauer_t::gib_info(i);
+		if(ware != warenbauer_t::nichts) {
+			ware_item_t *item = new ware_item_t(this, ware);
+			item->init(button_t::square, translator::translate(ware->gib_name()), koord(16, 16*n++ + 4));
+			ware_cont.add_komponente(item);
+		}
+	}
+	ware_cont.setze_groesse(koord(100, 16*n + 4));
+	ware_scrolly.setze_groesse(koord(125, 189));
+
+	setze_fenstergroesse(koord(255, 243));
+	setze_opaque(true);
 }
 
 
-/**
- * Destruktor.
- * @author V. Meyer
- */
-convoi_filter_frame_t::~convoi_filter_frame_t()
-{
-}
 
 void convoi_filter_frame_t::infowin_event(const event_t *ev)
 {
-    if(ev->ev_class == INFOWIN &&
-       ev->ev_code == WIN_CLOSE) {
-	main_frame->filter_frame_closed();
-    }
-    gui_frame_t::infowin_event(ev);
+	if(ev->ev_class == INFOWIN && ev->ev_code == WIN_CLOSE) {
+		main_frame->filter_frame_closed();
+	}
+	gui_frame_t::infowin_event(ev);
 }
+
+
 
 /**
  * This method is called if an action is triggered
@@ -190,16 +185,8 @@ void convoi_filter_frame_t::ware_item_triggered(const ware_besch_t *ware)
 
 void convoi_filter_frame_t::zeichnen(koord pos, koord gr)
 {
-    int i;
-
-    for(i = 0; i < FILTER_BUTTONS; i++) {
-	filter_buttons[i].pressed = main_frame->gib_filter(filter_buttons_types[i]);
-    }
-    gui_frame_t::zeichnen(pos, gr);
-
-    for(i = 0; i < FILTER_BUTTONS; i++) {
-	if(filter_buttons_types[i] < convoi_frame_t::sub_filter) {
-	    filter_buttons[i].zeichnen(pos + koord(0,16), COL_WHITE);
+	for(int  i=0;  i<FILTER_BUTTONS;  i++) {
+		filter_buttons[i].pressed = main_frame->gib_filter(filter_buttons_types[i]);
 	}
-    }
+	gui_frame_t::zeichnen(pos, gr);
 }

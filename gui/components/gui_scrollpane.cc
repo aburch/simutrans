@@ -26,14 +26,41 @@ gui_scrollpane_t::gui_scrollpane_t(gui_komponente_t *komp) :
     scroll_x(scrollbar_t::horizontal),
     scroll_y(scrollbar_t::vertical)
 {
-    this->komp = komp;
+	this->komp = komp;
 
-    scroll_x.setze_opaque(true);
-    scroll_y.setze_opaque(true);
+	scroll_x.setze_opaque(true);
+	scroll_y.setze_opaque(true);
 
-    b_show_scroll_x = true;
-    b_show_scroll_y = true;
-    b_has_size_corner = true;
+	b_show_scroll_x = true;
+	b_show_scroll_y = true;
+	b_has_size_corner = true;
+
+	old_komp_groesse = koord::invalid;
+}
+
+
+
+/**
+ * recalc the scroll bar sizes
+ * @author Hj. Malthaner
+ */
+void gui_scrollpane_t::recalc_sliders(koord groesse)
+{
+	scroll_x.setze_pos(koord(0, groesse.y-11));
+	scroll_x.setze_groesse(groesse-koord(12,12));
+	scroll_x.setze_knob(groesse.x-12, komp->gib_groesse().x);	// set client/komp area
+
+	if(b_has_size_corner  ||  b_show_scroll_x) {
+		scroll_y.setze_pos(koord(groesse.x-11, 0));
+		scroll_y.setze_groesse(groesse-koord(12,12));
+		scroll_y.setze_knob(groesse.y-12, komp->gib_groesse().y);
+	}
+	else {
+		scroll_y.setze_pos(koord(groesse.x-11, 0));
+		scroll_y.setze_groesse(groesse);
+		scroll_y.setze_knob(groesse.y, komp->gib_groesse().y);
+	}
+	old_komp_groesse = komp->gib_groesse();
 }
 
 
@@ -46,21 +73,7 @@ gui_scrollpane_t::gui_scrollpane_t(gui_komponente_t *komp) :
 void gui_scrollpane_t::setze_groesse(koord groesse)
 {
 	gui_komponente_t::setze_groesse(groesse);
-
-	scroll_x.setze_knob(groesse.x-12, komp->gib_groesse().x);	// set client/komp area
-	scroll_x.setze_pos(koord(0, groesse.y-11));
-	scroll_x.setze_groesse(groesse-koord(12,12));
-
-	if(b_has_size_corner  ||  b_show_scroll_x) {
-		scroll_y.setze_knob(groesse.x-12, komp->gib_groesse().y);
-		scroll_y.setze_pos(koord(groesse.x-11, 0));
-		scroll_y.setze_groesse(groesse-koord(12,12));
-	}
-	else {
-		scroll_y.setze_pos(koord(groesse.x-11, 0));
-		scroll_y.setze_groesse(groesse);
-		scroll_y.setze_knob(groesse.y, komp->gib_groesse().y);
-	}
+	recalc_sliders(groesse);
 }
 
 
@@ -97,7 +110,7 @@ void gui_scrollpane_t::infowin_event(const event_t *ev)
 
 		// Hajo: hack: component could have changed size
 		// this recalculates the scrollbars
-		setze_groesse(gib_groesse());
+		recalc_sliders(gib_groesse());
 	}
 }
 
@@ -133,9 +146,20 @@ int gui_scrollpane_t::get_scroll_y() const
  * Zeichnet die Komponente
  * @author Hj. Malthaner
  */
-void gui_scrollpane_t::zeichnen(koord pos) const
+void gui_scrollpane_t::zeichnen(koord pos)
 {
 	pos += this->pos;
+
+	koord gr=komp->gib_groesse();
+
+	PUSH_CLIP(pos.x, pos.y, groesse.x-12*b_show_scroll_y, groesse.y-11*b_show_scroll_x );
+	komp->zeichnen(pos - koord(scroll_x.gib_knob_offset(), scroll_y.gib_knob_offset()));
+	POP_CLIP();
+
+	// check, if we need to recalc slider size
+	if(old_komp_groesse!=komp->gib_groesse()) {
+		recalc_sliders(gib_groesse());
+	}
 
 	// sliding bar background color is now handled by scrollbar!
 	if (b_show_scroll_x) {
@@ -145,8 +169,4 @@ void gui_scrollpane_t::zeichnen(koord pos) const
 	if (b_show_scroll_y) {
 		scroll_y.zeichnen(pos);
 	}
-
-	PUSH_CLIP(pos.x, pos.y, groesse.x-12*b_show_scroll_y, groesse.y-11*b_show_scroll_x );
-	komp->zeichnen(pos - koord(scroll_x.gib_knob_offset(), scroll_y.gib_knob_offset()));
-	POP_CLIP();
 }

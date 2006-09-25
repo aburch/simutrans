@@ -18,7 +18,6 @@
 
 #include "../simcolor.h"
 #include "../simworld.h"
-#include "../boden/wege/weg.h"
 
 /**
  * This variable defines the current speed for bonus calculation
@@ -229,10 +228,10 @@ void goods_frame_t::zeichnen(koord pos, koord gr)
 	sprintf(speed_bonus,"%i",relative_speed_change-100);
 
 	sprintf(speed_message,translator::translate("Speedbonus\nroad %i km/h, rail %i km/h\nships %i km/h, planes %i km/h."),
-		(welt->get_average_speed(weg_t::strasse)*relative_speed_change)/100,
-		(welt->get_average_speed(weg_t::schiene)*relative_speed_change)/100,
-		(welt->get_average_speed(weg_t::wasser)*relative_speed_change)/100,
-		(welt->get_average_speed(weg_t::luft)*relative_speed_change)/100
+		(welt->get_average_speed(road_wt)*relative_speed_change)/100,
+		(welt->get_average_speed(track_wt)*relative_speed_change)/100,
+		(welt->get_average_speed(water_wt)*relative_speed_change)/100,
+		(welt->get_average_speed(air_wt)*relative_speed_change)/100
 	);
 	display_multiline_text(pos.x+11, pos.y+BUTTON_HEIGHT+4, speed_message, COL_WHITE);
 }

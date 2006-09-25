@@ -41,8 +41,6 @@ public:
 	const char *gib_name() const {return "Fussgaenger";}
 	enum ding_t::typ gib_typ() const {return fussgaenger;}
 
-//	bool sync_step(long delta_t);
-
 	// prissi: always free
 	virtual bool ist_weg_frei() { return 1; }
 	virtual bool hop_check() { return 1; }

@@ -127,7 +127,7 @@ void curiositylist_stats_t::infowin_event(const event_t * ev)
  * Zeichnet die Komponente
  * @author Hj. Malthaner
  */
-void curiositylist_stats_t::zeichnen(koord offset) const
+void curiositylist_stats_t::zeichnen(koord offset)
 {
 	const struct clip_dimension cd = display_gib_clip_wh();
 	const int start = cd.y-LINESPACE+1;

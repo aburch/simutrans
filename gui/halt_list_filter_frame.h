@@ -42,7 +42,7 @@ private:
 	    }
 	    button_t::infowin_event(ev);
 	}
-	virtual void zeichnen(koord offset) const {
+	virtual void zeichnen(koord offset) {
 	    if(ware_ab) {
 		const_cast<ware_item_t *>(this)->pressed = parent->gib_ware_filter_ab(ware_ab);
 	    }
@@ -102,7 +102,7 @@ public:
      * Destruktor.
      * @author V. Meyer
      */
-    ~halt_list_filter_frame_t();
+    ~halt_list_filter_frame_t() {}
 
     /**
      * Events werden hiermit an die GUI-Komponenten

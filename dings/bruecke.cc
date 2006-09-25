@@ -120,13 +120,13 @@ void bruecke_t::rdwr(loadsave_t *file)
 		}
 		if(besch==NULL) {
 			if(strstr(s,"onorail") ) {
-				besch = brueckenbauer_t::find_bridge(weg_t::monorail,50,0);
+				besch = brueckenbauer_t::find_bridge(monorail_wt,50,0);
 			}
 			else if(strstr(s,"ail") ) {
-				besch = brueckenbauer_t::find_bridge(weg_t::schiene,50,0);
+				besch = brueckenbauer_t::find_bridge(track_wt,50,0);
 			}
 			else {
-				besch = brueckenbauer_t::find_bridge(weg_t::strasse,50,0);
+				besch = brueckenbauer_t::find_bridge(road_wt,50,0);
 			}
 			if(besch==NULL) {
 				dbg->fatal("bruecke_t::rdwr()","Unknown bridge %s",s);

@@ -93,7 +93,7 @@ public:
      * Zeichnet die Bilder
      * @author Hj. Malthaner
      */
-    virtual void zeichnen(koord offset) const;
+    virtual void zeichnen(koord offset);
 
     /**
      * Looks for the image at given position.

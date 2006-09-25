@@ -1228,6 +1228,7 @@ void register_image(struct bild_besch_t *bild)
 	image->recode_flags[FLAGS] = (bild->zoomable&1);
 
 	image->base_data = (PIXVAL *)guarded_malloc(image->len*sizeof(PIXVAL));
+	// currently, makeobj has not yet an option to pak 8 Bit images ....
 	if ((bild->zoomable & 0xFE) == 0) {
 		// this is an 16 Bit image => we need to resize it to 8 Bit ...
 		image->recode_flags[FLAGS] |= FLAG_PLAYERCOLOR*recode_img_src16_target8(image->base_h, (PIXVAL*)(bild + 1), image->base_data, bild->zoomable & 1);
@@ -1235,10 +1236,6 @@ void register_image(struct bild_besch_t *bild)
 		memcpy(image->base_data, (PIXVAL*)(bild + 1), image->len * sizeof(PIXVAL));
 	}
 
-	if (base_tile_raster_width < bild->w) {
-		base_tile_raster_width = bild->w;
-		tile_raster_width = base_tile_raster_width;
-	}
 }
 
 

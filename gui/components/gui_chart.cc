@@ -81,7 +81,7 @@ void gui_chart_t::show_curve(unsigned int id)
 
 
 void
-gui_chart_t::zeichnen(koord offset) const
+gui_chart_t::zeichnen(koord offset)
 {
     offset += pos;
 

@@ -184,26 +184,26 @@ void gui_frame_t::set_min_windowsize(koord size)
  */
 void gui_frame_t::resize(const koord delta)
 {
-    koord size_change = delta;
-    koord new_size = groesse + delta;
+	koord size_change = delta;
+	koord new_size = groesse + delta;
 
-    // resize window to the minimal width
-    if (new_size.x < min_windowsize.x) {
-      new_size.x = min_windowsize.x;
-      size_change.x = 0;
-    }
+	// resize window to the minimal width
+	if (new_size.x < min_windowsize.x) {
+		new_size.x = min_windowsize.x;
+		size_change.x = 0;
+	}
 
-    // resize window to the minimal heigth
-    if (new_size.y < min_windowsize.y) {
-      new_size.y = min_windowsize.y;
-      size_change.y = 0;
-    }
+	// resize window to the minimal heigth
+	if (new_size.y < min_windowsize.y) {
+		new_size.y = min_windowsize.y;
+		size_change.y = 0;
+	}
 
-    // resize window
-    setze_fenstergroesse(new_size);
+	// resize window
+	setze_fenstergroesse(new_size);
 
-    // change drag start
-    change_drag_start(size_change.x, size_change.y);
+	// change drag start
+	change_drag_start(size_change.x, size_change.y);
 }
 
 

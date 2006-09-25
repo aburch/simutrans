@@ -27,15 +27,17 @@ template <class besch_t> struct spezial_obj_tpl {
  * Ein Objektzeiger wird anhand der übergebenen Liste gesetzt, falls der Name
  * des Objektes einem der in der Liste erwähnten Objekte gehört.
  */
-template <class besch_t> bool register_besch(spezial_obj_tpl<besch_t> *so,
-					     const besch_t *besch)
+template <class besch_t> bool register_besch(spezial_obj_tpl<besch_t> *so, const besch_t *besch)
 {
     while(so->name) {
-	if(!strcmp(so->name, besch->gib_name())) {
-	    *so->besch = besch;
-	    return true;
-	}
-	so++;
+		if(strcmp(so->name, besch->gib_name())==0) {
+			if(*so->besch!=NULL) {
+				dbg->message("register_besch()","Notice: obj %s already defined",so->name);
+			}
+		    *so->besch = besch;
+		    return true;
+		}
+		so++;
     }
     return false;
 }

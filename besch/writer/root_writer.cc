@@ -223,7 +223,7 @@ void root_writer_t::copy(const char *name, int argc, char *argv[])
 	int i, j;
 
 	FILE *outfp = NULL;
-	if(strchr(name,'*')) {
+	if(strchr(name,'*')==NULL) {
 		// is not a wildcard name
 		outfp = fopen(name, "wb");
 	}
@@ -296,6 +296,7 @@ void root_writer_t::copy(const char *name, int argc, char *argv[])
 }
 
 
+<<<<<<< .working
 
 /* makes single files from a merged file */
 void root_writer_t::uncopy(const char *name)
@@ -336,6 +337,47 @@ void root_writer_t::uncopy(const char *name)
 			printf("  ERROR: %s is not an archieve (aborting)\n", name );
 			fclose(infp);
 			exit(3);
+=======
+/* makes single files from a merged file */
+void root_writer_t::uncopy(const char *name)
+{
+	searchfolder_t find;
+	int i, j;
+
+	FILE *infp = NULL;
+	if(strchr(name,'*')==NULL) {
+		// is not a wildcard name
+		infp = fopen(name, "rb");
+	}
+	if(infp==NULL) {
+		name = find.complete(name, "pak");
+		infp = fopen(name, "rb");
+	}
+
+	if(!infp) {
+		printf("ERROR: cannot open archieve file %s\n", name);
+		exit(3);
+	}
+
+	// read header
+	int c;
+	do {
+		c = fgetc(infp);
+	} while(!feof(infp) && c != '\x1a');
+
+	// check version of pak format
+	uint32 version;
+	fread(&version, sizeof(version), 1, infp);
+	if(version == COMPILER_VERSION_CODE) {
+
+		// read root node
+		obj_node_info_t root;
+		fread(&root, sizeof(root), 1, infp);
+		if(root.children==1) {
+			printf("  ERROR: %s is not an archieve (aborting)\n", name );
+			fclose(infp);
+			exit(3);
+>>>>>>> .merge-right.r250
 		}
 
 		printf("  found %d files to extract\n\n", root.children );

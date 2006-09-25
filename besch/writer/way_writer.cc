@@ -44,10 +44,10 @@ void way_writer_t::write_obj(FILE *outfp, obj_node_t &parent, tabfileobj_t &obj)
 	uint8 wtyp =    get_waytype(obj.get("waytype"));
 	uint8 styp =    obj.get_int("system_type", 0);
 	// compatibility conversions
-	if(wtyp==weg_t::schiene  &&  styp==1) {
-		wtyp = weg_t::monorail;
-	} else if(wtyp==weg_t::schiene  &&  styp==7) {
-		wtyp = weg_t::schiene_strab;
+	if(wtyp==track_wt  &&  styp==1) {
+		wtyp = monorail_wt;
+	} else if(wtyp==track_wt  &&  styp==7) {
+		wtyp = tram_wt;
 	}
 
 	// true to draw as foregrund and not much earlier (default)

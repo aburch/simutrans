@@ -8,9 +8,7 @@
 #ifndef fahrer_h
 #define fahrer_h
 
-#ifndef boden_wege_weg_h
-#include "../boden/wege/weg.h"
-#endif
+
 
 class grund_t;
 
@@ -35,7 +33,7 @@ public:
 	 */
 	virtual ribi_t::ribi gib_ribi(const grund_t* ) const = 0;
 
-	virtual weg_t::typ gib_wegtyp() const = 0;
+	virtual waytype_t gib_wegtyp() const = 0;
 
 	// how expensive to go here (for way search) with the maximum convoi speed as second parameter
 	virtual int gib_kosten(const grund_t *,const uint32) const = 0;

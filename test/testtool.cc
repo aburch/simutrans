@@ -107,9 +107,9 @@ static void railtest(spieler_t *sp, karte_t *welt, koord pos)
 
 	grund_t *gr = welt->lookup(pos)->gib_kartenboden();
 
-	check("Ground must be rails:", gr->gib_weg(weg_t::schiene));
+	check("Ground must be rails:", gr->gib_weg(track_wt));
 
-	bs = (dynamic_cast<schiene_t*> (gr->gib_weg(weg_t::schiene)))->gib_blockstrecke();
+	bs = (dynamic_cast<schiene_t*> (gr->gib_weg(track_wt)))->gib_blockstrecke();
 
 	check("Block must be valid:", bs.is_bound());
 	check("Block must be managed:", blockmanager::gib_manager()->gib_strecken()->contains(bs));
@@ -119,9 +119,9 @@ static void railtest(spieler_t *sp, karte_t *welt, koord pos)
 	for(int i=1; i<6; i++) {
 	    gr = welt->lookup(pos+koord(0,i))->gib_kartenboden();
 
-	    check("Ground must be rails:", gr->gib_weg(weg_t::schiene));
+	    check("Ground must be rails:", gr->gib_weg(track_wt));
 	    check("Ground must have right owner:", gr->gib_besitzer() == sp);
-	    check("Block must be same:", bs == 	(dynamic_cast<schiene_t*> (gr->gib_weg(weg_t::schiene)))->gib_blockstrecke());
+	    check("Block must be same:", bs == 	(dynamic_cast<schiene_t*> (gr->gib_weg(track_wt)))->gib_blockstrecke());
 	}
 
 	show(welt);
@@ -143,7 +143,7 @@ static void railtest(spieler_t *sp, karte_t *welt, koord pos)
 	    wkz_remover(sp, welt, pos+koord(0,i));
 
 	    gr = welt->lookup(pos+koord(0,i))->gib_kartenboden();
-	    check("Ground must not be rails:", !gr->gib_weg(weg_t::schiene));
+	    check("Ground must not be rails:", !gr->gib_weg(track_wt));
 	    check("Ground must not have owner:", gr->gib_besitzer() == NULL);
 	}
 
@@ -166,12 +166,12 @@ static void railtest(spieler_t *sp, karte_t *welt, koord pos)
 
 	wkz_remover(sp, welt, pos+koord(0,2));
 	gr = welt->lookup(pos+koord(0,2))->gib_kartenboden();
-	check("Ground (split square) must not be rails:", !gr->gib_weg(weg_t::schiene));
+	check("Ground (split square) must not be rails:", !gr->gib_weg(track_wt));
 
 
 	gr = welt->lookup(pos)->gib_kartenboden();
-	check("Ground (track 1) must be rails:", gr->gib_weg(weg_t::schiene));
-	bs = (dynamic_cast<schiene_t*> (gr->gib_weg(weg_t::schiene)))->gib_blockstrecke();
+	check("Ground (track 1) must be rails:", gr->gib_weg(track_wt));
+	bs = (dynamic_cast<schiene_t*> (gr->gib_weg(track_wt)))->gib_blockstrecke();
 	check("Block must be valid:", bs.is_bound());
 	check("Block must be managed:", blockmanager::gib_manager()->gib_strecken()->contains(bs));
 	check("Block must be empty:", bs->ist_frei());
@@ -180,14 +180,14 @@ static void railtest(spieler_t *sp, karte_t *welt, koord pos)
 	for(int i=0; i<2; i++) {
 	    gr = welt->lookup(pos+koord(0,i))->gib_kartenboden();
 
-	    check("Ground (track 1) must be rails:", gr->gib_weg(weg_t::schiene));
-	    check("Block (track 1) must be same:", bs == (dynamic_cast<schiene_t*> (gr->gib_weg(weg_t::schiene)))->gib_blockstrecke());
+	    check("Ground (track 1) must be rails:", gr->gib_weg(track_wt));
+	    check("Block (track 1) must be same:", bs == (dynamic_cast<schiene_t*> (gr->gib_weg(track_wt)))->gib_blockstrecke());
 	}
 
 
 	gr = welt->lookup(pos+koord(0,3))->gib_kartenboden();
-	check("Ground (track 2) must be rails:", gr->gib_weg(weg_t::schiene));
-	bs = (dynamic_cast<schiene_t*> (gr->gib_weg(weg_t::schiene)))->gib_blockstrecke();
+	check("Ground (track 2) must be rails:", gr->gib_weg(track_wt));
+	bs = (dynamic_cast<schiene_t*> (gr->gib_weg(track_wt)))->gib_blockstrecke();
 	check("Block must be valid:", bs.is_bound());
 	check("Block must be managed:", blockmanager::gib_manager()->gib_strecken()->contains(bs));
 	check("Block must be empty:", bs->ist_frei());
@@ -196,8 +196,8 @@ static void railtest(spieler_t *sp, karte_t *welt, koord pos)
 	for(int i=3; i<6; i++) {
 	    gr = welt->lookup(pos+koord(0,i))->gib_kartenboden();
 
-	    check("Ground (track 2) must be rails:", gr->gib_weg(weg_t::schiene));
-	    check("Block (track 2) must be same:", bs == (dynamic_cast<schiene_t*> (gr->gib_weg(weg_t::schiene)))->gib_blockstrecke());
+	    check("Ground (track 2) must be rails:", gr->gib_weg(track_wt));
+	    check("Block (track 2) must be same:", bs == (dynamic_cast<schiene_t*> (gr->gib_weg(track_wt)))->gib_blockstrecke());
 	}
 
 	show(welt);
@@ -208,7 +208,7 @@ static void railtest(spieler_t *sp, karte_t *welt, koord pos)
 
 	gr = welt->lookup(pos)->gib_kartenboden();
 
-	check("Block numbers must differ:", bs != (dynamic_cast<schiene_t*> (gr->gib_weg(weg_t::schiene)))->gib_blockstrecke());
+	check("Block numbers must differ:", bs != (dynamic_cast<schiene_t*> (gr->gib_weg(track_wt)))->gib_blockstrecke());
 
 
 
@@ -228,8 +228,8 @@ static void railtest(spieler_t *sp, karte_t *welt, koord pos)
 	bauigel.baue();
 
 	gr = welt->lookup(pos)->gib_kartenboden();
-	check("Ground must be rails:", gr->gib_weg(weg_t::schiene));
-	bs = (dynamic_cast<schiene_t*> (gr->gib_weg(weg_t::schiene)))->gib_blockstrecke();
+	check("Ground must be rails:", gr->gib_weg(track_wt));
+	bs = (dynamic_cast<schiene_t*> (gr->gib_weg(track_wt)))->gib_blockstrecke();
 	check("Block must be valid:", bs.is_bound());
 	check("Block must be managed:", blockmanager::gib_manager()->gib_strecken()->contains(bs));
 	check("Block must be empty:", bs->ist_frei());
@@ -238,8 +238,8 @@ static void railtest(spieler_t *sp, karte_t *welt, koord pos)
 	for(int i=0; i<2; i++) {
 	    gr = welt->lookup(pos+koord(0,i))->gib_kartenboden();
 
-	    check("Ground must be rails:", gr->gib_weg(weg_t::schiene));
-	    check("Block must be same:", bs == (dynamic_cast<schiene_t*> (gr->gib_weg(weg_t::schiene)))->gib_blockstrecke());
+	    check("Ground must be rails:", gr->gib_weg(track_wt));
+	    check("Block must be same:", bs == (dynamic_cast<schiene_t*> (gr->gib_weg(track_wt)))->gib_blockstrecke());
 
 	}
 
@@ -265,7 +265,7 @@ static void railtest(spieler_t *sp, karte_t *welt, koord pos)
 
 	    gr = welt->lookup(pos+koord(0,i))->gib_kartenboden();
 
-	    check("Ground must not be rails:", !gr->gib_weg(weg_t::schiene));
+	    check("Ground must not be rails:", !gr->gib_weg(track_wt));
 	    check("Ground must be nature:", gr->ist_natur());
 	    check("Ground must not have owner:", gr->gib_besitzer() == NULL);
 	}
@@ -309,9 +309,9 @@ static void bautest(spieler_t *sp, karte_t *welt, koord pos)
 
 	grund_t *gr = welt->lookup(pos)->gib_kartenboden();
 
-	check("Ground must be rails:", gr->gib_weg(weg_t::schiene));
+	check("Ground must be rails:", gr->gib_weg(track_wt));
 
-	bs = (dynamic_cast<schiene_t*> (gr->gib_weg(weg_t::schiene)))->gib_blockstrecke();
+	bs = (dynamic_cast<schiene_t*> (gr->gib_weg(track_wt)))->gib_blockstrecke();
 	check("Block must be valid:", bs.is_bound());
 	check("Block must be managed:", blockmanager::gib_manager()->gib_strecken()->contains(bs));
 	check("Block must be empty:", bs->ist_frei());
@@ -320,9 +320,9 @@ static void bautest(spieler_t *sp, karte_t *welt, koord pos)
 	for(int i=1; i<6; i++) {
 	    gr = welt->lookup(pos+koord(0,i))->gib_kartenboden();
 
-	    check("Ground must be rails:", gr->gib_weg(weg_t::schiene));
+	    check("Ground must be rails:", gr->gib_weg(track_wt));
 	    check("Ground must have right owner:", gr->gib_besitzer() == sp);
-	    check("Block must be same:", bs == (dynamic_cast<schiene_t*> (gr->gib_weg(weg_t::schiene)))->gib_blockstrecke());
+	    check("Block must be same:", bs == (dynamic_cast<schiene_t*> (gr->gib_weg(track_wt)))->gib_blockstrecke());
 
 	}
 
@@ -358,7 +358,7 @@ static void bautest(spieler_t *sp, karte_t *welt, koord pos)
 		   welt->access(pos)->gib_kartenboden()->obj_bei(PRI_DEPOT) == NULL);
 
 	ok = check("Checking if ground is rails:" ,
-		   welt->access(pos)->gib_kartenboden()->gib_weg(weg_t::schiene));
+		   welt->access(pos)->gib_kartenboden()->gib_weg(track_wt));
 
 
 
@@ -375,15 +375,15 @@ static void bautest(spieler_t *sp, karte_t *welt, koord pos)
 		   welt->lookup(pos+koord(0, 1))->gib_kartenboden()->obj_count() == 1);
 
 	ok = check("Checking for rails at (+0, +2):" ,
-		   welt->lookup(pos+koord(0, 2))->gib_kartenboden()->gib_weg(weg_t::schiene));
+		   welt->lookup(pos+koord(0, 2))->gib_kartenboden()->gib_weg(track_wt));
 
 	ok = check("Checking for rails at (+0, +1):" ,
-		   welt->lookup(pos+koord(0, 1))->gib_kartenboden()->gib_weg(weg_t::schiene));
+		   welt->lookup(pos+koord(0, 1))->gib_kartenboden()->gib_weg(track_wt));
 
 
 	ok = check("Checking for different rail blocks:" ,
-	           (dynamic_cast<schiene_t*> (welt->lookup(pos+koord(0, 1))->gib_kartenboden()->gib_weg(weg_t::schiene)))->gib_blockstrecke() !=
-		   (dynamic_cast<schiene_t*> (welt->lookup(pos+koord(0, 2))->gib_kartenboden()->gib_weg(weg_t::schiene)))->gib_blockstrecke());
+	           (dynamic_cast<schiene_t*> (welt->lookup(pos+koord(0, 1))->gib_kartenboden()->gib_weg(track_wt)))->gib_blockstrecke() !=
+		   (dynamic_cast<schiene_t*> (welt->lookup(pos+koord(0, 2))->gib_kartenboden()->gib_weg(track_wt)))->gib_blockstrecke());
 
 
 
@@ -409,14 +409,14 @@ static void bautest(spieler_t *sp, karte_t *welt, koord pos)
 		   welt->lookup(pos+koord(0, 1))->gib_kartenboden()->obj_count() == 1);
 
 	ok = check("Checking for rails at (+0, +2):" ,
-		   welt->lookup(pos+koord(0, 2))->gib_kartenboden()->gib_weg(weg_t::schiene));
+		   welt->lookup(pos+koord(0, 2))->gib_kartenboden()->gib_weg(track_wt));
 
 	ok = check("Checking for rails at (+0, +1):" ,
-		   welt->lookup(pos+koord(0, 1))->gib_kartenboden()->gib_weg(weg_t::schiene));
+		   welt->lookup(pos+koord(0, 1))->gib_kartenboden()->gib_weg(track_wt));
 
 	ok = check("Checking for different rail blocks:" ,
-	           (dynamic_cast<schiene_t*> (welt->lookup(pos+koord(0, 1))->gib_kartenboden()->gib_weg(weg_t::schiene)))->gib_blockstrecke() !=
-		   (dynamic_cast<schiene_t*> (welt->lookup(pos+koord(0, 2))->gib_kartenboden()->gib_weg(weg_t::schiene)))->gib_blockstrecke());
+	           (dynamic_cast<schiene_t*> (welt->lookup(pos+koord(0, 1))->gib_kartenboden()->gib_weg(track_wt)))->gib_blockstrecke() !=
+		   (dynamic_cast<schiene_t*> (welt->lookup(pos+koord(0, 2))->gib_kartenboden()->gib_weg(track_wt)))->gib_blockstrecke());
 
 	fprintf(stderr, "--------------------------------------------------------------------\n");
 	fprintf(stderr, "Test 'Remove signal 1':\n");
@@ -430,10 +430,10 @@ static void bautest(spieler_t *sp, karte_t *welt, koord pos)
 		   welt->lookup(pos+koord(0, 1))->gib_kartenboden()->obj_count() == 0);
 
 	ok = check("Checking for rails at (+0, +2):" ,
-		   welt->lookup(pos+koord(0, 2))->gib_kartenboden()->gib_weg(weg_t::schiene));
+		   welt->lookup(pos+koord(0, 2))->gib_kartenboden()->gib_weg(track_wt));
 
 	ok = check("Checking for rails at (+0, +1):" ,
-		   welt->lookup(pos+koord(0, 1))->gib_kartenboden()->gib_weg(weg_t::schiene));
+		   welt->lookup(pos+koord(0, 1))->gib_kartenboden()->gib_weg(track_wt));
 
 	ok = check("Checking for same rail block:" ,
 		   ((schiene_t *)welt->lookup(pos+koord(0, 2))->gib_kartenboden())->gib_blockstrecke() ==
@@ -454,7 +454,7 @@ static void bautest(spieler_t *sp, karte_t *welt, koord pos)
 
 	    gr = welt->lookup(pos+koord(0,i))->gib_kartenboden();
 
-	    check("Ground must not be rails:", !gr->gib_weg(weg_t::schiene));
+	    check("Ground must not be rails:", !gr->gib_weg(track_wt));
 	    check("Ground must be nature:", gr->ist_natur());
 	    check("Ground must not have owner:", gr->gib_besitzer() == NULL);
 	}
@@ -501,9 +501,9 @@ static void stationstest(spieler_t *sp, karte_t *welt, koord pos)
 
 	grund_t *gr = welt->lookup(pos)->gib_kartenboden();
 
-	check("Ground must be rails:", gr->gib_weg(weg_t::schiene));
+	check("Ground must be rails:", gr->gib_weg(track_wt));
 
-	bs = (dynamic_cast<schiene_t*> (gr->gib_weg(weg_t::schiene)))->gib_blockstrecke();
+	bs = (dynamic_cast<schiene_t*> (gr->gib_weg(track_wt)))->gib_blockstrecke();
 	check("Block must be valid:", bs.is_bound());
 	check("Block must be managed:", blockmanager::gib_manager()->gib_strecken()->contains(bs));
 	check("Block must be empty:", bs->ist_frei());
@@ -512,9 +512,9 @@ static void stationstest(spieler_t *sp, karte_t *welt, koord pos)
 	for(int i=1; i<6; i++) {
 	    gr = welt->lookup(pos+koord(0,i))->gib_kartenboden();
 
-	    check("Ground must be rails:", gr->gib_weg(weg_t::schiene));
+	    check("Ground must be rails:", gr->gib_weg(track_wt));
 	    check("Ground must have right owner:", gr->gib_besitzer() == sp);
-	    check("Block must be same:", bs == (dynamic_cast<schiene_t*> (gr->gib_weg(weg_t::schiene)))->gib_blockstrecke());
+	    check("Block must be same:", bs == (dynamic_cast<schiene_t*> (gr->gib_weg(track_wt)))->gib_blockstrecke());
 
 	}
 
@@ -684,7 +684,7 @@ static void stationstest(spieler_t *sp, karte_t *welt, koord pos)
 
 	    gr = welt->lookup(pos+koord(0,i))->gib_kartenboden();
 
-	    check("Ground must not be rails:", !gr->gib_weg(weg_t::schiene));
+	    check("Ground must not be rails:", !gr->gib_weg(track_wt));
 	    check("Ground must be nature:", gr->ist_natur());
 	    check("Ground must not have owner:", gr->gib_besitzer() == NULL);
 	}
@@ -742,7 +742,7 @@ static void blockschleifentest(spieler_t *sp, karte_t *welt, koord pos)
 	bauigel.baue();
 
 	// wkz_schienenbruecke(sp, welt, pos+koord(2,3));
-        brueckenbauer_t::baue(sp, welt, pos+koord(2,3), weg_t::schiene);
+        brueckenbauer_t::baue(sp, welt, pos+koord(2,3), track_wt);
 
 	ok = check("Block count must be one more as before:", block_count+1 == blockmanager::gib_manager()->gib_strecken()->count());
 	if( !ok ) {
@@ -755,8 +755,8 @@ static void blockschleifentest(spieler_t *sp, karte_t *welt, koord pos)
 	(dynamic_cast<zeiger_t*>(welt->gib_zeiger()))->setze_richtung(ribi_t::west);
 	wkz_signale(sp, welt, pos+koord(1,0));
 
-	ok = check("Left of Signal must be rails:", welt->lookup(pos)->gib_kartenboden()->gib_weg(weg_t::schiene));
-	ok = check("Right of Signal must be rails:", welt->lookup(pos+koord(1,0))->gib_kartenboden()->gib_weg(weg_t::schiene));
+	ok = check("Left of Signal must be rails:", welt->lookup(pos)->gib_kartenboden()->gib_weg(track_wt));
+	ok = check("Right of Signal must be rails:", welt->lookup(pos+koord(1,0))->gib_kartenboden()->gib_weg(track_wt));
 
 	schiene_t *s1_left  = (schiene_t *)welt->lookup(pos)->gib_kartenboden();
 	schiene_t *s1_right = (schiene_t *)welt->lookup(pos+koord(1,0))->gib_kartenboden();

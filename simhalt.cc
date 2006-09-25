@@ -233,7 +233,7 @@ DBG_MESSAGE("haltestelle_t::remove()", "removing building: cleanup");
 							welt->access(k+pos.gib_2d())->kartenboden_setzen(new wasser_t(welt, k+pos.gib_2d()), false);
 						}
 						else {
-							weg_t *weg = bd->gib_weg(weg_t::strasse);
+							weg_t *weg = bd->gib_weg(road_wt);
 							if(weg && static_cast<strasse_t *>(weg)->hat_gehweg()) {
 								// Stadtstrassen sollten entfernbar sein, deshalb
 								// dürfen sie keinen Besitzer haben.
@@ -269,7 +269,7 @@ DBG_DEBUG("haltestelle_t::remove()","not last");
 		bd->calc_bild();
 
 DBG_DEBUG("haltestelle_t::remove()","reset city way owner");
-		weg_t *weg = bd->gib_weg(weg_t::strasse);
+		weg_t *weg = bd->gib_weg(road_wt);
 		if(weg && static_cast<strasse_t *>(weg)->hat_gehweg()) {
 			// Stadtstrassen sollten entfernbar sein, deshalb
 			// dürfen sie keinen Besitzer haben.
@@ -1504,7 +1504,7 @@ haltestelle_t::hat_gehalten(int /*number_of_cars*/,const ware_besch_t *type, con
  * @author prissi
  */
 bool
-haltestelle_t::find_free_position(const weg_t::typ w,convoihandle_t cnv,const ding_t::typ d) const
+haltestelle_t::find_free_position(const waytype_t w,convoihandle_t cnv,const ding_t::typ d) const
 {
 	// iterate over all tiles
 	slist_iterator_tpl<grund_t *> iter( grund );
@@ -1864,7 +1864,7 @@ haltestelle_t::recalc_station_type()
 		}
 		// check for trainstation
 		else if(besch->gib_utyp()==hausbauer_t::bahnhof) {
-			if(gr->gib_weg(weg_t::monorail)) {
+			if(gr->gib_weg(monorail_wt)) {
 				new_station_type |= monorailstop;
 			}
 			else {

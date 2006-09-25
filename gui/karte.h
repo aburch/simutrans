@@ -109,7 +109,7 @@ public:
 	// these are the gui_container needed functions ...
 	void infowin_event(const event_t *ev);
 
-	void zeichnen(koord pos) const;
+	void zeichnen(koord pos);
 };
 
 #endif

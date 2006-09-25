@@ -58,15 +58,15 @@ obj_besch_t * way_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 		besch->max_weight = 999;
 		besch->intro_date = DEFAULT_INTRO_DATE*12;
 		besch->obsolete_date = DEFAULT_RETIRE_DATE*12;
-		besch->wtyp = weg_t::strasse;
+		besch->wtyp = road_wt;
 		besch->styp = 0;
 		besch->draw_as_ding = false;
 		/*
 		if(tstrequ(besch->gib_name(), "road")) {
-		besch->wtyp = weg_t::strasse;
+		besch->wtyp = road_wt;
 		besch->max_speed = 130;
 		} else {
-		besch->wtyp = weg_t::schiene;
+		besch->wtyp = track_wt;
 		besch->max_speed = 450;
 		}
 		*/
@@ -119,15 +119,15 @@ obj_besch_t * way_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 	}
 
 	// some internal corrections to pay for orevious confusion with two waytypes
-	if(besch->wtyp==weg_t::schiene_strab) {
+	if(besch->wtyp==tram_wt) {
 		besch->styp = 7;
-		besch->wtyp = weg_t::schiene;
+		besch->wtyp = track_wt;
 	}
-	else if(besch->styp==5  &&  besch->wtyp==weg_t::schiene) {
-		besch->wtyp = weg_t::monorail;
+	else if(besch->styp==5  &&  besch->wtyp==track_wt) {
+		besch->wtyp = monorail_wt;
 		besch->styp = 0;
 	}
-	if(version<=2  &&  besch->wtyp==weg_t::luft  &&  besch->topspeed>=250) {
+	if(version<=2  &&  besch->wtyp==air_wt  &&  besch->topspeed>=250) {
 		// runway!
 		besch->styp = 1;
 	}

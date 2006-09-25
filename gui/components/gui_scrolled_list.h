@@ -76,7 +76,7 @@ public:
 	koord request_groesse(koord request);
 
 	void infowin_event(const event_t *ev);
-	void zeichnen(koord pos) const;
+	void zeichnen(koord pos);
 
 	/**
 	 * This method is called if an action is triggered

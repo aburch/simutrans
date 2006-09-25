@@ -23,53 +23,50 @@
  */
 class runway_t : public weg_t
 {
-private:
-
 public:
 	static const weg_besch_t *default_runway;
 
-    /**
-     * File loading constructor.
-     *
-     * @author Hj. Malthaner
-     */
-    runway_t(karte_t *welt, loadsave_t *file);
+	/**
+	 * File loading constructor.
+	 *
+	 * @author Hj. Malthaner
+	 */
+	runway_t(karte_t *welt, loadsave_t *file);
 
-    /**
-     * Basic constructor.
-     *
-     * @author Hj. Malthaner
-     */
-    runway_t(karte_t *welt);
-    /**
-     * Basic constructor with top_speed
-     * @author Hj. Malthaner
-     */
-    runway_t(karte_t *welt, int top_speed);
+	/**
+	 * Basic constructor.
+	 *
+	 * @author Hj. Malthaner
+	 */
+	runway_t(karte_t *welt);
+	/**
+	 * Basic constructor with top_speed
+	 * @author Hj. Malthaner
+	 */
+	runway_t(karte_t *welt, int top_speed);
 
-    /**
-     * Destruktor. Entfernt etwaige Debug-Meldungen vom Feld
-     *
-     * @author Hj. Malthaner
-     */
-    virtual ~runway_t();
+	/**
+	 * Destruktor. Entfernt etwaige Debug-Meldungen vom Feld
+	 *
+	 * @author Hj. Malthaner
+	 */
+	virtual ~runway_t();
 
-    /**
-     * Calculates the image of this pice of runway
-     */
-    virtual void calc_bild(koord3d) { weg_t::calc_bild(); }
+	/**
+	 * Calculates the image of this pice of runway
+	 */
+	virtual void calc_bild(koord3d) { weg_t::calc_bild(); }
 
+	inline const char *gib_typ_name() const {return "runway";}
+	inline waytype_t gib_typ() const {return air_wt;}
 
-    inline const char *gib_typ_name() const {return "runway";};
-    inline typ gib_typ() const {return luft;};
+	/**
+	 * @return Infotext zur runway
+	 * @author Hj. Malthaner
+	 */
+	void info(cbuffer_t & buf) const;
 
-    /**
-     * @return Infotext zur runway
-     * @author Hj. Malthaner
-     */
-    void info(cbuffer_t & buf) const;
-
-    void rdwr(loadsave_t *file);
+	void rdwr(loadsave_t *file);
 };
 
 #endif

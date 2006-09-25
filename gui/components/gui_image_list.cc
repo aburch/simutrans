@@ -69,7 +69,7 @@ int gui_image_list_t::index_at(koord parent_pos, int xpos, int ypos) const
 
 
 
-void gui_image_list_t::zeichnen(koord parent_pos) const
+void gui_image_list_t::zeichnen(koord parent_pos)
 {
 	const int rows = (groesse.y - 2 * BORDER) / grid.y;
 	const int columns = (groesse.x - 2 * BORDER) / grid.x;

@@ -27,57 +27,50 @@
 class gui_container_t : public gui_komponente_t
 {
 private:
+	slist_tpl <gui_komponente_t *> komponenten;
 
-    slist_tpl <gui_komponente_t *> komponenten;
+	// holds the GUI Komponent that has the focus in this window
+	gui_komponente_t * komp_focus;
 
-    // holds the GUI Komponent that has the focus in this window
-    gui_komponente_t * komp_focus;
-
-    bool list_dirty;
+	bool list_dirty;
 
 public:
+	/**
+	* Konstruktor
+	* @author hsiegeln
+	*/
+	gui_container_t();
 
 	/**
-	 * Konstruktor
-	 * @author hsiegeln
-	 */
-	 gui_container_t();
+	* Fügt eine Komponente zum Container hinzu.
+	* @author Hj. Malthaner
+	*/
+	void add_komponente(gui_komponente_t *komp);
 
-    /**
-     * Fügt eine Komponente zum Container hinzu.
-     * @author Hj. Malthaner
-     */
-    void add_komponente(gui_komponente_t *komp);
+	/**
+	* Entfernt eine Komponente aus dem Container.
+	* @author Hj. Malthaner
+	*/
+	void remove_komponente(gui_komponente_t *komp);
 
+	/**
+	* Events werden hiermit an die GUI-Komponenten
+	* gemeldet
+	* @author Hj. Malthaner
+	*/
+	virtual void infowin_event(const event_t *);
 
-    /**
-     * Entfernt eine Komponente aus dem Container.
-     * @author Hj. Malthaner
-     */
-    void remove_komponente(gui_komponente_t *komp);
+	/**
+	* Zeichnet die Komponente
+	* @author Hj. Malthaner
+	*/
+	virtual void zeichnen(koord offset);
 
-
-    /**
-     * Events werden hiermit an die GUI-Komponenten
-     * gemeldet
-     * @author Hj. Malthaner
-     */
-    virtual void infowin_event(const event_t *);
-
-
-    /**
-     * Zeichnet die Komponente
-     * @author Hj. Malthaner
-     */
-    virtual void zeichnen(koord offset) const;
-
-
-    /**
-     * Entfernt alle Komponenten aus dem Container.
-     * @author Markus Weber
-     */
-    void remove_all();
-
+	/**
+	* Entfernt alle Komponenten aus dem Container.
+	* @author Markus Weber
+	*/
+	void remove_all();
 };
 
 #endif

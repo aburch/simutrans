@@ -72,15 +72,15 @@ public:
 
 
 protected:
+	/**
+	 * Offene Info-Fenster
+	 * @author V. Meyer
+	 */
+	static ptrhashtable_tpl<grund_t *, grund_info_t *> *grund_infos;
 
-    /**
-     * Offene Info-Fenster
-     * @author V. Meyer
-     */
-    static ptrhashtable_tpl<grund_t *, grund_info_t *> *grund_infos;
+	static bool show_grid;
 
 protected:
-
     /**
      * Zusammenfassung des Ding-Container als Objekt
      * @author V. Meyer
@@ -138,7 +138,7 @@ protected:
      *
      * Return:
      *      false, if ground is NULL (this case is explitly allowed).
-     *      true, if waytyp is weg_t::invalid (this case is explitly allowed)
+     *      true, if waytype_t is invalid_wt (this case is explitly allowed)
      *      Check result otherwise
      *
      * Notice:
@@ -150,7 +150,7 @@ protected:
      * @author: Volker Meyer
      * @date: 21.05.2003
      */
-    bool is_connected(const grund_t *gr, weg_t::typ wegtyp, koord dv) const;
+    bool is_connected(const grund_t *gr, waytype_t wegtyp, koord dv) const;
 
 
     /*
@@ -210,6 +210,11 @@ public:
 
 	virtual ~grund_t();
 
+	/**
+	 * Toggle ground grid display (now only a flag)
+	 */
+	static void toggle_grid() { grund_t::show_grid = !grund_t::show_grid; }
+
 	karte_t *gib_welt() const {return welt;}
 
 	/**
@@ -223,18 +228,17 @@ public:
 
 	void entferne_grund_info();
 
-
 	/**
-	* Untergruende werden wie asynchrone Objekte gesteppt.
-	*
-	* Take care, this can be switched off by the user. Don't do
-	* anything important for the game herein, just animations or
-	* nice effects.
-	*
+	* do all things that could take a while
 	* @author Hj. Malthaner
 	*/
-	virtual void step() {};
+	void step(const long delta_t, const int steps) { dinge.step(delta_t,steps); }
 
+	/**
+	* start a new month (and toggle the seasons)
+	* @author prissi
+	*/
+	void check_season(const long month) { calc_bild(); dinge.check_season(month); }
 
 	/**
 	* Gibt die Nummer des Bildes des Untergrundes zurueck.
@@ -257,14 +261,12 @@ public:
 	*/
 	virtual const char* gib_name() const;
 
-
 	/**
 	* Gibt den Typ des Untergrundes zurueck.
 	* @return Der Typ des Untergrundes.
 	* @author Hj. Malthaner
 	*/
 	virtual enum typ gib_typ() const {return grund;}
-
 
 	/**
 	* Gibt eine Beschreibung des Untergrundes (informell) zurueck.
@@ -273,13 +275,11 @@ public:
 	*/
 	const char* gib_text() const;
 
-
 	/**
 	* @return NULL
 	* @author Hj. Malthaner
 	*/
 	virtual void info(cbuffer_t & buf) const;
-
 
 	/**
 	* Auffforderung, ein Infofenster zu oeffnen.
@@ -288,7 +288,6 @@ public:
 	*/
 	virtual bool zeige_info() { return false; }
 
-
 	/**
 	* Gibt die Farbe des Beschreibungstexthintergrundes zuurck
 	* @return die Farbe des Beschreibungstexthintergrundes.
@@ -296,14 +295,12 @@ public:
 	*/
 	PLAYER_COLOR_VAL text_farbe() const;
 
-
 	/**
 	* Dient zur Neuberechnung des Bildes, wenn sich die Umgebung
 	* oder die Lage (Hang) des grundes geaendert hat.
 	* @author Hj. Malthaner
 	*/
 	virtual void calc_bild();
-
 
 	/**
 	* Setzt den Beschreibungstext.
@@ -313,13 +310,11 @@ public:
 	*/
 	void setze_text(const char *text);
 
-
 	/**
 	* Ermittelt den Besitzer des Untergrundes.
 	* @author Hj. Malthaner
 	*/
 	spieler_t * gib_besitzer() const;
-
 
 	/**
 	* Setze den Besitzer des Untergrundes. Gibt false zururck, wenn
@@ -328,10 +323,8 @@ public:
 	*/
 	bool setze_besitzer(spieler_t *s);
 
-
 	virtual bool ist_natur() const {return false;}
 	virtual bool ist_wasser() const {return false;}
-
 
 	/**
 	* This is called very often, it must be inlined and therefore
@@ -339,7 +332,6 @@ public:
 	* @author Hj. Malthaner
 	*/
 	inline bool ist_bruecke() const {return gib_typ()==brueckenboden;}
-
 
 	/**
 	* This is called very often, it must be inlined and therefore
@@ -365,7 +357,6 @@ public:
 	* @author Hj. Malthaner
 	*/
 	virtual void rdwr(loadsave_t *file);
-
 
 	/**
 	* Gibt die 3d-Koordinaten des Planquadrates zurueck, zu dem der
@@ -432,7 +423,6 @@ public:
 	*/
 	const char * kann_alle_obj_entfernen(const spieler_t *sp) const { return dinge.kann_alle_entfernen(sp); }
 
-
 	/**
 	* Interface zur Bauen und abfragen von Gebaeuden
 	* =============================================
@@ -452,7 +442,6 @@ public:
 	*/
 	depot_t *gib_depot() const;
 
-
 	/*
 	* Interface zur Abfrage der Wege
 	* ==============================
@@ -460,20 +449,18 @@ public:
 	* alle ribis vom weg_t::wassert als gesetzt zurueckgeliefert.
 	*/
 
-
 	/**
 	* The only way to get the typ of a way on a tile
 	* @author Hj. Malthaner
 	*/
 	weg_t *gib_weg_nr(int i) const { return (this  &&  wege[i]) ? wege[i] : NULL; }
 
-
-    /**
-     * Inline da sehr oft aufgerufen.
-     * Sucht einen Weg vom typ 'typ' auf diesem Untergrund.
-     * @author Hj. Malthaner
-     */
-    weg_t *gib_weg(weg_t::typ typ) const {
+	/**
+	* Inline da sehr oft aufgerufen.
+	* Sucht einen Weg vom typ 'typ' auf diesem Untergrund.
+	* @author Hj. Malthaner
+	*/
+	weg_t *gib_weg(waytype_t typ) const {
 		if(this) {
 			int i = 0;
 			while(wege[i] && i<MAX_WEGE) {
@@ -484,7 +471,7 @@ public:
 			}
 		}
 		return NULL;
-    }
+	}
 
 	/**
 	* Returns the system type s_type of a way of type typ at this location
@@ -493,7 +480,7 @@ public:
 	* @author DarioK
 	* @see gib_weg
 	*/
-	const uint8 gib_styp(weg_t::typ typ) const {
+	const uint8 gib_styp(waytype_t typ) const {
 		if(this) {
 			int i = 0;
 			while(wege[i] && i<MAX_WEGE) {
@@ -513,7 +500,7 @@ public:
 	* Wegs nicht hierurber, sondern mit gib_weg(), ermittelt werden.
 	* @author Hj. Malthaner
 	*/
-	virtual ribi_t::ribi gib_weg_ribi(weg_t::typ typ) const;
+	virtual ribi_t::ribi gib_weg_ribi(waytype_t typ) const;
 
 	/**
 	* Ermittelt die Richtungsbits furr den weg vom Typ 'typ' unmaskiert.
@@ -522,11 +509,17 @@ public:
 	* @author Hj. Malthaner/V. Meyer
 	*
 	*/
-	virtual ribi_t::ribi gib_weg_ribi_unmasked(weg_t::typ typ) const;
+	virtual ribi_t::ribi gib_weg_ribi_unmasked(waytype_t typ) const;
 
 	/**
-	* Brurckenwege an den Auffahrten sind eine Ebene urber der Planh÷he.
-	* Alle anderen liefern hier 0.
+	* checks a ways on this ground tile and returns the highest speedlimit.
+	* only used for the minimap
+	* @author hsiegeln
+	*/
+	int get_max_speed() const;
+
+	/**
+	* only used for bridges, which start at a slope
 	* @author V. Meyer
 	*/
 	virtual int gib_weg_yoff() const { return 0; }
@@ -548,8 +541,7 @@ public:
 	* Liefert einen Text furr die Ueberschrift des Info-Fensters.
 	* @author V. Meyer
 	*/
-	const char * gib_weg_name(weg_t::typ typ = weg_t::invalid) const;
-
+	const char * gib_weg_name(waytype_t typ = invalid_wt) const;
 
 	virtual hang_t::typ gib_weg_hang() const { return gib_grund_hang(); }
 
@@ -580,8 +572,7 @@ public:
 	*
 	* @author V. Meyer
 	*/
-	bool weg_erweitern(weg_t::typ wegtyp, ribi_t::ribi ribi);
-
+	bool weg_erweitern(waytype_t wegtyp, ribi_t::ribi ribi);
 
 	/**
 	* Bauhilfsfunktion - einen Weg entfernen
@@ -592,7 +583,7 @@ public:
 	*
 	* @author V. Meyer
 	*/
-	sint32 weg_entfernen(weg_t::typ wegtyp, bool ribi_rem);
+	sint32 weg_entfernen(waytype_t wegtyp, bool ribi_rem);
 
 	/**
 	* Description;
@@ -610,7 +601,7 @@ public:
 	*
 	* Parameters:
 	*      If dir is not (-1,0), (1,0), (0,-1) or (0, 1), the function fails
-	*      If wegtyp is set to weg_t::invalid, no way checking is performed
+	*      If wegtyp is set to invalid_wt, no way checking is performed
 	*
 	* In case of success:
 	*      "to" ist set to the ground found
@@ -622,17 +613,10 @@ public:
 	* @author: Volker Meyer
 	* @date: 21.05.2003
 	*/
-	bool get_neighbour(grund_t *&to, weg_t::typ type, koord dir) const;
-
-	/**
-	* checks a ways on this ground tile and returns the highest speedlimit.
-	* @author hsiegeln
-	*/
-	int get_max_speed() const;
-
+	bool get_neighbour(grund_t *&to, waytype_t type, koord dir) const;
 
 	/* remove almost everything on this way */
-	bool remove_everything_from_way(spieler_t *sp,weg_t::typ wt,ribi_t::ribi ribi_rem);
+	bool remove_everything_from_way(spieler_t *sp,waytype_t wt,ribi_t::ribi ribi_rem);
 };
 
 

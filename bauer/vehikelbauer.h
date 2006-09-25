@@ -41,7 +41,7 @@ private:
 	// beschreibungstabellen
 	static inthashtable_tpl<int, const vehikel_besch_t *> _fahrzeuge;
 	static stringhashtable_tpl <const vehikel_besch_t *> name_fahrzeuge;
-	static inthashtable_tpl<weg_t::typ, slist_tpl<const vehikel_besch_t *> > typ_fahrzeuge;
+	static inthashtable_tpl<waytype_t, slist_tpl<const vehikel_besch_t *> > typ_fahrzeuge;
 
 public:
 	static bool register_besch(const vehikel_besch_t *besch);
@@ -57,11 +57,11 @@ public:
 	* @param min_power minimalleistung des gesuchten Fahrzeuges (inclusiv)
 	* @author Hansjörg Malthaner
 	*/
-	static const vehikel_besch_t * gib_info(const ware_besch_t *wtyp,weg_t::typ vtyp,uint32 min_power);
+	static const vehikel_besch_t * gib_info(const ware_besch_t *wtyp,waytype_t vtyp,uint32 min_power);
 
 	static const vehikel_besch_t * gib_info(image_id base_img);
 	static const vehikel_besch_t * gib_info(const char *name);
-	static const vehikel_besch_t * gib_info(weg_t::typ typ,uint32 i);
+	static const vehikel_besch_t * gib_info(waytype_t typ,uint32 i);
 
 	// only used by vehicle_search()
 	static int vehikel_can_lead(const vehikel_besch_t *v);
@@ -69,9 +69,9 @@ public:
 	/* extended sreach for vehicles for KI
 	* @author prissi
 	*/
-	static const vehikel_besch_t *vehikel_search(weg_t::typ typ, const unsigned month_now, const int target_power, const int target_speed, const ware_besch_t * target_freight, bool include_eletric = true);
+	static const vehikel_besch_t *vehikel_search(waytype_t typ, const unsigned month_now, const int target_power, const int target_speed, const ware_besch_t * target_freight, bool include_eletric = true);
 
-	static const vehikel_besch_t *vehikel_fuer_leistung(int leistung, weg_t::typ typ,const unsigned month_now);
+	static const vehikel_besch_t *vehikel_fuer_leistung(int leistung, waytype_t typ,const unsigned month_now);
 	static int gib_preis(int base_img);
 };
 

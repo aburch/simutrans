@@ -70,7 +70,7 @@ void gui_convoiinfo_t::infowin_event(const event_t *ev)
  * Zeichnet die Komponente
  * @author Hj. Malthaner
  */
-void gui_convoiinfo_t::zeichnen(koord offset) const
+void gui_convoiinfo_t::zeichnen(koord offset)
 {
 	clip_dimension clip = display_gib_clip_wh();
 	if(! ((pos.y+offset.y) > clip.yy ||  (pos.y+offset.y) < clip.y-32) &&  cnv.is_bound()) {
@@ -88,15 +88,16 @@ void gui_convoiinfo_t::zeichnen(koord offset) const
 		if (cnv->in_depot()) {
 			const char *txt=translator::translate("(in depot)");
 			int w=display_proportional_clip(pos.x+offset.x+2, pos.y+offset.y+8+2*LINESPACE,txt,ALIGN_LEFT, COL_BLACK, true);
-			max_x = max(max_x,w);
+			max_x = max(max_x,w+2);
 		}
 		else if(cnv->get_line().is_bound()) {
 			sint16 w = display_proportional_clip( pos.x+offset.x+2, pos.y+offset.y+8+2*LINESPACE, translator::translate("Line"), ALIGN_LEFT, COL_BLACK, true );
-			display_proportional_clip( pos.x+offset.x+2+w+5, pos.y+offset.y+8+2*LINESPACE, cnv->get_line()->get_name(), ALIGN_LEFT, cnv->get_line()->get_state_color(), true );
+			w += display_proportional_clip( pos.x+offset.x+2+w+5, pos.y+offset.y+8+2*LINESPACE, cnv->get_line()->get_name(), ALIGN_LEFT, cnv->get_line()->get_state_color(), true );
+			max_x = max(max_x,w+5);
 		}
 
 		// name
-		int w = display_calc_proportional_string_len_width( cnv->gib_name(), 35535, true );
+		int w = display_calc_proportional_string_len_width( cnv->gib_name(), 35535, true )+2;
 		max_x = max(max_x,w);
 
 		// we will use their images offests and width to shift them to their correct position

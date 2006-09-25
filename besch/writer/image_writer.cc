@@ -336,6 +336,10 @@ void image_writer_t::write_obj(FILE *outfp, obj_node_t &parent, cstring_t an_ima
 	if(bild.h > 0) {
 	    int len;
 	    pixdata = encode_image(col, row, &dim, &len);
+	    if(len>65535) {
+	    	printf("ERROR: packed image size (%i) exceeded 65535 bytes!\n",len);
+	    	abort();
+	    }
 	    bild.len = len;
 	}
 

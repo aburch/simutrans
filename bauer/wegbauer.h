@@ -37,7 +37,7 @@ class wegbauer_t
 public:
     static const weg_besch_t *leitung_besch;
 
-    static const kreuzung_besch_t *gib_kreuzung(const weg_t::typ ns, const weg_t::typ ow);
+    static const kreuzung_besch_t *gib_kreuzung(const waytype_t ns, const waytype_t ow);
 
     static bool register_besch(const weg_besch_t *besch);
     static bool register_besch(const kreuzung_besch_t *besch);
@@ -52,7 +52,7 @@ public:
      * Finds a way with a given speed limit for a given waytype
      * @author prissi
      */
-    static const weg_besch_t *  weg_search(const weg_t::typ wtyp,const int speed_limit,const uint16 time=0);
+    static const weg_besch_t *  weg_search(const waytype_t wtyp,const int speed_limit,const uint16 time=0);
 
     /**
      * Tries to look up description for way, described by way type,
@@ -67,7 +67,7 @@ public:
      * @author Hj. Malthaner
      */
     static void fill_menu(werkzeug_parameter_waehler_t *wzw,
-			  const weg_t::typ wtyp,
+			  const waytype_t wtyp,
 			  int (* wz1)(spieler_t *, karte_t *, koord, value_t),
 			  const int sound_ok,
 			  const int sound_ko,
@@ -226,7 +226,7 @@ public:
 	 */
 	long calc_costs();
 
-  bool check_crossing(const koord zv, const grund_t *bd,weg_t::typ wtyp) const;
+  bool check_crossing(const koord zv, const grund_t *bd,waytype_t wtyp) const;
   bool check_for_leitung(const koord zv, const grund_t *bd) const;
 
 /* built a corrdinate list

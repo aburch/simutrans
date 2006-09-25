@@ -10,6 +10,31 @@
 #ifndef simtypes_h
 #define simtypes_h
 
+/* divers enums:
+ * better defined here than scattered in thousand files ...
+ */
+enum climate { water_climate=0, desert_climate, tropic_climate, mediterran_climate, temperate_climate, tundra_climate, rocky_climate, arctic_climate, MAX_CLIMATES };
+enum climate_bits { water_climate_bit=(1<<water_climate),  desert_climate_bit=(1<<desert_climate), tropic_climate_bit=(1<<tropic_climate),
+							mediterran_climate_bit=(1<<mediterran_climate), temperate_climate_bit=(1<<temperate_climate),
+							tundra_climate_bit=(1<<tundra_climate), rocky_climatebit=(1<<rocky_climate), arctic_climate_bit=(1<<arctic_climate), all_but_arctic_climate=(arctic_climate_bit-2),  all_but_water_climate=((2<<arctic_climate)-2), ALL_CLIMATES=((2<<arctic_climate)-1) };
+
+/**
+ * Vordefinierte Wegtypen.
+ * @author Hj. Malthaner
+ */
+enum waytype_t {
+	invalid_wt=-1, ignore_wt=0, road_wt=1, track_wt=2, water_wt=3,
+	overheadlines_wt=4,
+	monorail_wt=5,
+	maglev_wt=6,
+	tram_wt=7, // Dario: Tramway
+	air_wt=16, powerline_wt=128
+};
+
+
+
+
+
 // makros are not very safe: thus use these macro like functions
 // otherwise things may fail or functions are called uneccessarily twice
 

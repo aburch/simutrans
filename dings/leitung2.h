@@ -22,20 +22,20 @@ class fabrik_t;
 class leitung_t : public ding_t
 {
 protected:
-  /**
-   * We are part of this network
-   * @author Hj. Malthaner
-   */
-  powernet_t * net;
+	/**
+	* We are part of this network
+	* @author Hj. Malthaner
+	*/
+	powernet_t * net;
 
-  /**
-   * Connect this piece of powerline to its neighbours
-   * -> this can merge power networks
-   * @author Hj. Malthaner
-   */
-  void verbinde();
+	/**
+	* Connect this piece of powerline to its neighbours
+	* -> this can merge power networks
+	* @author Hj. Malthaner
+	*/
+	void verbinde();
 
-  void replace(koord base_pos, powernet_t *alt, powernet_t *neu);
+	void replace(koord base_pos, powernet_t *alt, powernet_t *neu);
 
 public:
 	powernet_t * get_net() const {return net;};
@@ -49,9 +49,9 @@ public:
 	leitung_t(karte_t *welt, koord3d pos, spieler_t *sp);
 	virtual ~leitung_t();
 
-	enum ding_t::typ gib_typ() const {return leitung;};
+	enum ding_t::typ gib_typ() const {return leitung;}
 
-	const char *gib_name() const {return "Leitung";};
+	const char *gib_name() const {return "Leitung"; }
 
 	/**
 	* @return Einen Beschreibungsstring für das Objekt, der z.B. in einem
@@ -97,25 +97,24 @@ public:
 class pumpe_t : public leitung_t, public sync_steppable
 {
 private:
-    bool power_there;
-    fabrik_t *fab;
-
-protected:
+	bool power_there;
+	fabrik_t *fab;
 
 
 public:
-    pumpe_t(karte_t *welt, loadsave_t *file);
-    pumpe_t(karte_t *welt, koord3d pos, spieler_t *sp);
-    ~pumpe_t();
+	pumpe_t(karte_t *welt, loadsave_t *file);
+	pumpe_t(karte_t *welt, koord3d pos, spieler_t *sp);
+	~pumpe_t();
 
-    void setze_fabrik(fabrik_t *fab) {this->fab = fab;};
+	void setze_fabrik(fabrik_t *fab) {this->fab = fab;}
 
-    enum ding_t::typ gib_typ() const {return pumpe;};
+	enum ding_t::typ gib_typ() const {return pumpe;}
 
-    void sync_prepare();
-    bool sync_step(long delta_t);
+	bool sync_step(long delta_t);
 
-    const char *name() const {return "Pumpe";};
+	const char *name() const {return "Pumpe";}
+
+	void laden_abschliessen();
 };
 
 
@@ -123,31 +122,32 @@ public:
 class senke_t : public leitung_t, public sync_steppable
 {
 private:
-    int einkommen;
-    int max_einkommen;
-    fabrik_t *fab;
+	int einkommen;
+	int max_einkommen;
+	fabrik_t *fab;
 
-protected:
 
 public:
+	senke_t(karte_t *welt, loadsave_t *file);
+	senke_t(karte_t *welt, koord3d pos, spieler_t *sp);
+	~senke_t();
 
-    senke_t(karte_t *welt, loadsave_t *file);
-    senke_t(karte_t *welt, koord3d pos, spieler_t *sp);
-    ~senke_t();
-    enum ding_t::typ gib_typ() const {return senke;};
+	enum ding_t::typ gib_typ() const {return senke;}
 
-    /**
-     * book money and redraw image
-     * @author prissi
-     */
-    virtual bool step(long /*delta_t*/);
+	/**
+	 * book money and redraw image
+	 * @author prissi
+	 */
+	bool step(long /*delta_t*/);
 
-    void sync_prepare();
-    bool sync_step(long delta_t);
+	bool sync_step(long delta_t);
 
-    const char *name() const {return "Senke";};
+	const char *name() const {return "Senke";}
 
-    void info(cbuffer_t & buf) const;
+	void info(cbuffer_t & buf) const;
+
+	void laden_abschliessen();
 };
+
 
 #endif

@@ -34,7 +34,7 @@ gui_resizer_t::gui_resizer_t()
  * Zeichnet die Komponente
  * @author Markus Weber
  */
-void gui_resizer_t::zeichnen(koord offset) const
+void gui_resizer_t::zeichnen(koord offset)
 {
     int top  = pos.y+offset.y;
     int left = pos.x+offset.x;

@@ -291,6 +291,10 @@ class umgebung_t
 
 	// default beginner mode in a new map
 	static bool beginner_mode_first;
+
+	// current climate borders
+	static sint16 climate_borders[MAX_CLIMATES];
+	static sint16 winter_snowline;	// summer snowline is obviously just the artic climate ...
 };
 
 #endif

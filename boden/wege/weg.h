@@ -11,6 +11,7 @@
 #define boden_wege_weg_h
 
 #include "../../simimg.h"
+#include "../../simtypes.h"
 #include "../../besch/weg_besch.h"
 #include "../../dataobj/koord3d.h"
 
@@ -54,18 +55,6 @@ template <class T> class slist_tpl;
 class weg_t
 {
 public:
-    /**
-     * Vordefinierte Wegtypen.
-     * @author Hj. Malthaner
-     */
-    enum typ {invalid=-1, ignore=0, strasse=1, schiene=2, wasser=3,
-					overheadlines=4,
-					monorail=5,
-					schiene_maglev=6,
-					schiene_strab=7, // Dario: Tramway
-					luft=16, powerline=128
-	};
-
 	/**
 	* Get list of all ways
 	* @author Hj. Malthaner
@@ -75,7 +64,6 @@ public:
 	enum { HAS_WALKWAY=1, IS_ELECTRIFIED=2, HAS_SIGN=4, HAS_WAYOBJ=8 };
 
 private:
-
 	/**
 	* array for statistical values
 	* MAX_WAY_STAT_MONTHS: [0] = actual value; [1] = last month value
@@ -84,13 +72,11 @@ private:
 	*/
 	sint16 statistics[MAX_WAY_STAT_MONTHS][MAX_WAY_STATISTICS];
 
-
 	/**
 	* Way type description
 	* @author Hj. Malthaner
 	*/
 	const weg_besch_t * besch;
-
 
 	/**
 	* Position on map
@@ -98,14 +84,12 @@ private:
 	*/
 	koord3d pos;
 
-
 	/**
 	* Richtungsbits für den Weg. Norden ist oben rechts auf dem Monitor.
 	* 1=Nord, 2=Ost, 4=Sued, 8=West
 	* @author Hj. Malthaner
 	*/
 	ribi_t::ribi ribi;
-
 
 	/**
 	* Maske für Richtungsbits
@@ -205,7 +189,7 @@ public:
 	/**
 	* Wegtyp zurückliefern
 	*/
-	virtual typ gib_typ() const = 0;
+	virtual waytype_t gib_typ() const = 0;
 
 	/**
 	* der typ_name (Bezeichnung) des Wegs

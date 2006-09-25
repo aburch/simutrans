@@ -19,7 +19,6 @@
  */
 #include "text_besch.h"
 #include "bildliste_besch.h"
-#include "../boden/wege/weg.h"
 #include "../dataobj/ribi.h"
 #include "../simtypes.h"
 
@@ -46,11 +45,12 @@ class roadsign_besch_t : public obj_besch_t {
 	friend class roadsign_writer_t;
 	friend class roadsign_reader_t;
 
+private:
 	uint8 flags;
 
 	/**
 	* Way type: i.e. road or track
-	* @see weg_t::typ
+	* @see waytype_t
 	* @author prissi
 	*/
 	uint8 wtyp;
@@ -69,15 +69,9 @@ class roadsign_besch_t : public obj_besch_t {
 public:
 	enum types {ONE_WAY=1, FREE_ROUTE=2, PRIVATE_ROAD=4, SIGN_SIGNAL=8, SIGN_PRE_SIGNAL=16, ONLY_BACKIMAGE=32 };
 
-	const char *gib_name() const
-	{
-		return static_cast<const text_besch_t *>(gib_kind(0))->gib_text();
-	}
+	const char *gib_name() const { return static_cast<const text_besch_t *>(gib_kind(0))->gib_text(); }
 
-	const char *gib_copyright() const
-	{
-		return static_cast<const text_besch_t *>(gib_kind(1))->gib_text();
-	}
+	const char *gib_copyright() const { return static_cast<const text_besch_t *>(gib_kind(1))->gib_text(); }
 
 	int gib_bild_nr(ribi_t::dir dir) const
 	{
@@ -85,22 +79,16 @@ public:
 		return bild ? bild->bild_nr : -1;
 	}
 
-	int gib_bild_anzahl() const
-	{
-		return static_cast<const bildliste_besch_t *>(gib_kind(2))->gib_anzahl();
-	}
+	int gib_bild_anzahl() const { return static_cast<const bildliste_besch_t *>(gib_kind(2))->gib_anzahl(); }
 
-	const skin_besch_t *gib_cursor() const
-	{
-		return (const skin_besch_t *)gib_kind(3);
-	}
+	const skin_besch_t *gib_cursor() const { return (const skin_besch_t *)gib_kind(3); }
 
 	/**
 	 * get way type
-	 * @see weg_t::typ
+	 * @see waytype_t
 	 * @author Hj. Malthaner
 	 */
-	const weg_t::typ gib_wtyp() const { return (weg_t::typ)wtyp; }
+	const waytype_t gib_wtyp() const { return (waytype_t)wtyp; }
 
 	int gib_min_speed() const { return min_speed; }
 

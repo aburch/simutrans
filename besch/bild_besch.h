@@ -55,6 +55,11 @@ public:
     {
 	return bild_nr;
     }
+	/* rotate_image_data - produces a (rotated) bild_besch
+	 * only rotates by 90 degrees or multiples thereof, and assumes a square image
+	 * Otherwise it will only succeed for angle=0;
+	*/
+	bild_besch_t *copy_rotate(const sint16 angle) const;
 #else
 struct bild_besch_t {
   void *verboten;

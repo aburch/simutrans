@@ -15,7 +15,6 @@
 #include <cmath>
 
 #include "map_frame.h"
-#include "../ifc/karte_modell.h"
 #include "components/list_button.h"
 
 #include "../simworld.h"
@@ -50,7 +49,7 @@ const char map_frame_t::map_type[MAX_MAP_TYPE][64] =
     "Traffic",
     "Origin",
     "Destination",
-    "Waiting",
+    "hl_btn_sort_waiting",
     "Tracks",
     "Speedlimit",
     "Powerlines",
@@ -68,7 +67,7 @@ const int map_frame_t::map_type_color[MAX_MAP_TYPE] =
  * Konstruktor. Erzeugt alle notwendigen Subkomponenten.
  * @author Hj. Malthaner
  */
-map_frame_t::map_frame_t(const karte_modell_t *welt) :
+map_frame_t::map_frame_t(const karte_t *welt) :
 	gui_frame_t("Reliefkarte"),
 	scrolly(reliefkarte_t::gib_karte())
 {

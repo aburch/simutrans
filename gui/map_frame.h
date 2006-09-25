@@ -17,7 +17,7 @@
 #include "components/gui_button.h"
 #include "karte.h"
 
-class karte_modell_t;
+class karte_t;
 
 /**
  * Reliefkartenfenster für Simutrans.
@@ -86,7 +86,7 @@ public:
      * Konstruktor. Erzeugt alle notwendigen Subkomponenten.
      * @author Hj. Malthaner
      */
-    map_frame_t(const karte_modell_t *welt);
+    map_frame_t(const karte_t *welt);
     ~map_frame_t();
 
     /**

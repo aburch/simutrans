@@ -67,8 +67,8 @@ wayobj_t::~wayobj_t()
 	if(gib_besitzer()) {
 		gib_besitzer()->add_maintenance(-besch->gib_wartung());
 	}
-	if(besch->gib_own_wtyp()==weg_t::overheadlines) {
-		weg_t *weg = welt->lookup(gib_pos())->gib_weg((weg_t::typ)besch->gib_wtyp());
+	if(besch->gib_own_wtyp()==overheadlines_wt) {
+		weg_t *weg = welt->lookup(gib_pos())->gib_weg((waytype_t)besch->gib_wtyp());
 		if(weg) {
 			// Weg wieder freigeben, wenn das Signal nicht mehr da ist.
 			weg->set_electrify(false);
@@ -131,7 +131,7 @@ void
 wayobj_t::laden_abschliessen()
 {
 	if(dir==255) {
-		weg_t *w=welt->lookup(gib_pos())->gib_weg((weg_t::typ)besch->gib_wtyp());
+		weg_t *w=welt->lookup(gib_pos())->gib_weg((waytype_t)besch->gib_wtyp());
 		if(w) {
 			dir = w->gib_ribi_unmasked();
 		}
@@ -140,8 +140,8 @@ wayobj_t::laden_abschliessen()
 		}
 	}
 	// electrify a way if we are a catenary
-	if(besch->gib_own_wtyp()==weg_t::overheadlines) {
-		weg_t *weg = welt->lookup(gib_pos())->gib_weg((weg_t::typ)besch->gib_wtyp());
+	if(besch->gib_own_wtyp()==overheadlines_wt) {
+		weg_t *weg = welt->lookup(gib_pos())->gib_weg((waytype_t)besch->gib_wtyp());
 		if(weg) {
 			// Weg wieder freigeben, wenn das Signal nicht mehr da ist.
 			weg->set_electrify(true);
@@ -164,7 +164,7 @@ wayobj_t::find_next_ribi(const grund_t *start, const koord dir) const
 {
 	grund_t *to;
 	ribi_t::ribi r1 = ribi_t::keine;
-	if(start->get_neighbour(to, (weg_t::typ)besch->gib_wtyp(),dir)) {
+	if(start->get_neighbour(to, (waytype_t)besch->gib_wtyp(),dir)) {
 		wayobj_t *wo=(wayobj_t *)to->suche_obj(ding_t::wayobj);
 		if(wo) {
 			r1 = wo->get_dir();
@@ -186,7 +186,7 @@ wayobj_t::calc_bild()
 			return;
 		}
 
-		weg_t *w=gr->gib_weg((weg_t::typ)besch->gib_wtyp());
+		weg_t *w=gr->gib_weg((waytype_t)besch->gib_wtyp());
 		if(!w) {
 			// well, we are not on a way anymore? => delete us
 			gr->obj_remove(this,gib_besitzer());
@@ -258,7 +258,7 @@ wayobj_t::calc_bild()
 					grund_t *to;
 					rekursion++;
 					for(int r = 0; r < 4; r++) {
-						if(gr->get_neighbour(to, (weg_t::typ)besch->gib_wtyp(), koord::nsow[r])) {
+						if(gr->get_neighbour(to, (waytype_t)besch->gib_wtyp(), koord::nsow[r])) {
 							ding_t *wo = to->suche_obj(ding_t::wayobj);
 							if(wo) {
 								wo->calc_bild();
@@ -343,7 +343,7 @@ wayobj_t::register_besch(way_obj_besch_t *besch)
 {
 	wayobj_t::table.put(besch->gib_name(), besch);
 	wayobj_t::liste.append(besch);
-	if(besch->gib_own_wtyp()==weg_t::overheadlines  &&  besch->gib_wtyp()==weg_t::schiene  &&
+	if(besch->gib_own_wtyp()==overheadlines_wt  &&  besch->gib_wtyp()==track_wt  &&
 		(default_oberleitung==NULL  ||  default_oberleitung->gib_topspeed()<besch->gib_topspeed())) {
 		default_oberleitung = besch;
 	}
@@ -359,7 +359,7 @@ DBG_DEBUG( "wayobj_t::register_besch()","%s", besch->gib_name() );
  * @author Hj. Malthaner
  */
 void wayobj_t::fill_menu(werkzeug_parameter_waehler_t *wzw,
-	weg_t::typ wtyp,
+	waytype_t wtyp,
 	int (* werkzeug)(spieler_t *, karte_t *, koord, value_t),
 	int sound_ok,
 	int sound_ko,
@@ -398,7 +398,7 @@ DBG_DEBUG("wayobj_t::fill_menu()","at pos %i add %s",i,besch->gib_name());
 
 
 const way_obj_besch_t*
-wayobj_t::wayobj_search(weg_t::typ wt,weg_t::typ own,uint16 time)
+wayobj_t::wayobj_search(waytype_t wt,waytype_t own,uint16 time)
 {
 	for( unsigned i=0;  i<wayobj_t::liste.count();  i++  ) {
 		const way_obj_besch_t *besch=wayobj_t::liste.at(i);

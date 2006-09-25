@@ -15,7 +15,7 @@ void imagelist_writer_t::write_obj(FILE *fp, obj_node_t &parent, const slist_tpl
 
     obj_node_t	node(this, sizeof(besch), &parent, true);
 
-    slist_iterator_tpl< cstring_t > iter(keys);
+    slist_iterator_tpl<cstring_t> iter(keys);
 
 	int count = 0;
     while(iter.next()) {

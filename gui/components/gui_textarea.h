@@ -22,27 +22,30 @@ struct event_t;
 class gui_textarea_t : public gui_komponente_t
 {
 private:
+	/**
+	* The text to display. May be multi-lined.
+	* @autor Hj. Malthaner
+	*/
+	const char *text;
 
-    /**
-     * The text to display. May be multi-lined.
-     * @autor Hj. Malthaner
-     */
-    const char *text;
-
-
+	// we cache the number of lines, to dynamically recalculate the size, if needed
+	uint16	lines;
 
 public:
+	gui_textarea_t(const char *text);
 
-    gui_textarea_t(const char *text);
+	void setze_text(const char *text);
 
+	/**
+	 * recalc the current size, needed for speculative size calculations
+	 */
+	void recalc_size();
 
-    void setze_text(const char *text);
-
-    /**
-     * Zeichnet die Komponente
-     * @author Hj. Malthaner
-     */
-    virtual void zeichnen(koord offset) const;
+	/**
+	* Zeichnet die Komponente
+	* @author Hj. Malthaner
+	*/
+	virtual void zeichnen(koord offset);
 };
 
 #endif

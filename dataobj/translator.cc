@@ -32,8 +32,23 @@
 #include "../tpl/stringhashtable_tpl.h"
 #endif
 
-
 translator * translator::single_instance = new translator();
+
+
+// diagnosis
+static void
+dump_hashtable(stringhashtable_tpl<const char *> *tbl)
+{
+	stringhashtable_iterator_tpl<const char *> iter (tbl);
+	printf("keys\n====\n");
+	tbl->dump_stats();
+	printf("entries\n=======\n");
+	while( iter.next() ) {
+		printf("%s\n",iter.get_current_value());
+	}
+	fflush(NULL);
+}
+
 
 /* first two file fuctions needed in connection with utf */
 
@@ -41,7 +56,7 @@ translator * translator::single_instance = new translator();
  * @date 2.1.2005
  * @author prissi
  */
-bool
+static bool
 is_unicode_file(FILE *f)
 {
 	unsigned char	str[2];
@@ -352,9 +367,11 @@ DBG_MESSAGE("translator::load()","loading pak translations from %s for iso nr %i
 	FILE *file = fopen(scenario_path + "compat.tab", "rb");
 	single_instance->compatibility = NULL;
 	if(file) {
-    single_instance->compatibility = new stringhashtable_tpl <const char *>;
+		single_instance->compatibility = new stringhashtable_tpl<const char *>;
 		load_language_file_body(file, single_instance->compatibility, false, false );
+		DBG_MESSAGE("translator::load()", "scenario compatibilty texts loaded." );
 		fclose(file);
+//		dump_hashtable(single_instance->compatibility);
 	}
 	else {
 		DBG_MESSAGE("translator::load()", "no scenario compatibilty texts" );
@@ -528,3 +545,6 @@ void translator::rdwr(loadsave_t *file)
 		set_language(actual_lang);
 	}
 }
+
+
+

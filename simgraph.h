@@ -104,6 +104,9 @@ void	display_check_fonts(void);
 
 void register_image(struct bild_besch_t *buffer);
 
+// delete all images above a certain number ...
+void display_free_all_images_above( unsigned above );
+
 void display_set_image_offset( unsigned bild, int xoff, int yoff );
 void display_get_image_offset( unsigned bild, int *xoff, int *yoff, int *xw, int *yw );
 void display_mark_img_dirty( unsigned bild, int x, int y );

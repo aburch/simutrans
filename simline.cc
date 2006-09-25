@@ -82,11 +82,11 @@ simline_t::add_convoy(convoihandle_t cnv)
 	if(type==trainline  &&  line_managed_convoys.get_count()==0  &&  cnv.is_bound()) {
 		if(cnv->gib_vehikel(0)) {
 			// check, if needed to convert to tram line?
-			if(cnv->gib_vehikel(0)->gib_besch()->gib_typ()==weg_t::schiene_strab) {
+			if(cnv->gib_vehikel(0)->gib_besch()->gib_typ()==tram_wt) {
 				type = simline_t::tramline;
 			}
 			// check, if needed to convert to monorail line?
-			if(cnv->gib_vehikel(0)->gib_besch()->gib_typ()==weg_t::monorail) {
+			if(cnv->gib_vehikel(0)->gib_besch()->gib_typ()==monorail_wt) {
 				type = simline_t::monorailline;
 			}
 		}

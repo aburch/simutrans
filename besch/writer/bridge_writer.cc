@@ -14,7 +14,6 @@
 
 void bridge_writer_t::write_obj(FILE *outfp, obj_node_t &parent, tabfileobj_t &obj)
 {
-    // Hajo: node size is 14 bytes
     obj_node_t	node(this, 19, &parent, false);
 
     uint8 wegtyp = get_waytype(obj.get("waytype"));

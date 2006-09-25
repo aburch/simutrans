@@ -26,6 +26,7 @@
 #include "simplay.h"
 #include "simsound.h"
 #include "simintr.h"
+#include "simticker.h"
 #include "simmesg.h"
 
 #include "linehandle_t.h"
@@ -38,12 +39,16 @@
 
 #include "simversion.h"
 
+#include "gui/banner.h"
 #include "gui/welt.h"
 #include "gui/sprachen.h"
+#include "gui/climates.h"
 #include "gui/messagebox.h"
 #include "gui/loadsave_frame.h"
 #include "gui/load_relief_frame.h"
+
 #include "dings/baum.h"
+
 #include "utils/simstring.h"
 #include "utils/cstring_t.h"
 #include "utils/searchfolder.h"
@@ -148,116 +153,36 @@ static void show_times(karte_t *welt, karte_ansicht_t *view)
 }
 
 
-/**
- * Intro Scroller
- */
-static void scroll_intro(const int xoff, const int yoff)
-{
-	static const char* const scrolltext[] = {
-#include "scrolltext.h"
-	};
-
-	static int line = 0;
-
-	const int text_line = (line / 9) * 2;
-	const int text_offset = line % 9;
-	const int left = 60;
-	const int top = 196;
-
-	display_fillbox_wh(xoff + left, yoff + top, 240, 48, COL_GREY1, true);
-
-	display_proportional(xoff + left +   4, yoff +  1 + top - text_offset, scrolltext[text_line +  0], ALIGN_LEFT,  COL_WHITE, true);
-	display_proportional(xoff + left + 236, yoff +  1 + top - text_offset, scrolltext[text_line +  1], ALIGN_RIGHT, COL_WHITE, true);
-	display_proportional(xoff + left +   4, yoff + 10 + top - text_offset, scrolltext[text_line +  2], ALIGN_LEFT,  COL_WHITE, true);
-	display_proportional(xoff + left + 236, yoff + 10 + top - text_offset, scrolltext[text_line +  3], ALIGN_RIGHT, COL_WHITE, true);
-	display_proportional(xoff + left +   4, yoff + 19 + top - text_offset, scrolltext[text_line +  4], ALIGN_LEFT,  COL_GREY6, true);
-	display_proportional(xoff + left + 236, yoff + 19 + top - text_offset, scrolltext[text_line +  5], ALIGN_RIGHT, COL_GREY6, true);
-	display_proportional(xoff + left +   4, yoff + 28 + top - text_offset, scrolltext[text_line +  6], ALIGN_LEFT,  COL_GREY5, true);
-	display_proportional(xoff + left + 236, yoff + 28 + top - text_offset, scrolltext[text_line +  7], ALIGN_RIGHT, COL_GREY5, true);
-	display_proportional(xoff + left +   4, yoff + 37 + top - text_offset, scrolltext[text_line +  8], ALIGN_LEFT,  COL_GREY4, true);
-	display_proportional(xoff + left + 236, yoff + 37 + top - text_offset, scrolltext[text_line +  9], ALIGN_RIGHT, COL_GREY4, true);
-	display_proportional(xoff + left +   4, yoff + 46 + top - text_offset, scrolltext[text_line + 10], ALIGN_LEFT,  COL_GREY3, true);
-	display_proportional(xoff + left + 236, yoff + 46 + top - text_offset, scrolltext[text_line + 11], ALIGN_RIGHT, COL_GREY3, true);
-
-	display_fillbox_wh(xoff + left, yoff + top - 8, 240, 7, COL_GREY4, true);
-	display_fillbox_wh(xoff + left, yoff + top - 1, 240, 1, COL_GREY3, true);
-
-	display_fillbox_wh(xoff + left, yoff + top + 48, 240, 1, COL_GREY6, true);
-	display_fillbox_wh(xoff + left, yoff + top + 49, 240, 7, COL_GREY4, true);
-
-	line++;
-
-	if (scrolltext[text_line + 12] == 0) line = 0;
-}
-
 
 /**
- * Intro Screen
+ * Show Intro Screen
  */
-static void zeige_banner()
+static void zeige_banner(karte_t *welt)
 {
-	int xoff = (display_get_width()  / 2) - 180;
-	int yoff = (display_get_height() / 2) - 125;
-	struct event_t ev;
+	banner_t *b = new banner_t(welt);
+	event_t ev;
 
-#if 0
-	display_show_pointer(false);
-#endif
+	destroy_all_win();	// since eventually the successful load message is still there ....
 
-	display_ddd_box(xoff, yoff, 360, 270, COL_GREY6, COL_GREY2);
-	display_fillbox_wh(xoff + 1, yoff + 1, 358, 268, COL_GREY5, true);
-	display_ddd_box(xoff + 4, yoff + 4, 352, 262, COL_GREY2, COL_GREY6);
-	display_fillbox_wh(xoff + 5, yoff + 5, 350, 260, COL_GREY4, true);
+	create_win(0, -48, -1, b, w_autodelete);
 
-	display_color_img(skinverwaltung_t::logosymbol->gib_bild_nr(0), xoff + 264, yoff + 40, 0, false, true);
+	// hide titelbar with this trick
+	win_set_pos( b, 0, -48 );
 
-	xoff += 30;
-
-	// shadow effect by drawing two times with an offset
-	for (int s = 1; s >= 0; s--) {
-		int heading = (s == 0 ?         3 : COL_BLACK);
-		int color   = (s == 0 ? COL_WHITE : COL_BLACK);
-
-		display_proportional(xoff + s + 24, yoff + s +  16, "This is a beta version of Simutrans:", ALIGN_LEFT, heading, true);
-
-		display_proportional(xoff + s + 48, yoff + s +  28, "Version " VERSION_NUMBER " " VERSION_DATE, ALIGN_LEFT, color, true);
-
-		display_proportional(xoff + s + 24, yoff + s +  48, "This version is developed by", ALIGN_LEFT, heading, true);
-
-		display_proportional(xoff + s + 48, yoff + s +  64, "the simutrans team, based on", ALIGN_LEFT, color, true);
-		display_proportional(xoff + s + 48, yoff + s +  76, "Simutrans 0.84.21.2 by", ALIGN_LEFT, color, true);
-		display_proportional(xoff + s + 48, yoff + s +  88, "Hansjörg Malthaner et al.", ALIGN_LEFT, color, true);
-
-		display_proportional(xoff + s + 48, yoff + s + 102, "All rights reserved.", ALIGN_LEFT, color, true);
-
-		display_proportional(xoff + s + 24, yoff + s + 122, "Please send ideas and questions to:", ALIGN_LEFT, heading, true);
-
-		display_proportional(xoff + s + 48, yoff + s + 138, "Markus Pristovsek", ALIGN_LEFT, color, true);
-		display_proportional(xoff + s + 48, yoff + s + 138 + 12, "<markus@pristovsek.de>", ALIGN_LEFT, color, true);
-
-		display_proportional(xoff + s + 24, yoff + s + 158 + 12, "or visit the Simutrans pages on the web:", ALIGN_LEFT, heading, true);
-
-		display_proportional(xoff + s + 48, yoff + s + 184, "http://www.simutrans.com", ALIGN_LEFT, color, true);
-	}
-
-	xoff -= 30;
 	do {
-		// check if we need to play a new midi file
-		check_midi();
+		win_poll_event(&ev);
+		check_pos_win(&ev);
+		simusleep(4);
+		welt->step(5);
+	} while(win_is_top(b));
 
-		scroll_intro(xoff, yoff + 10);
-		display_flush(IMG_LEER, 0, 0, 0.0, "    Welcome to Simutrans", "", NULL, 0);
-		dr_sleep(70000);
-		display_poll_event(&ev);
-	} while(!IS_LEFTCLICK(&ev) && (ev.ev_class != EVENT_KEYBOARD || ev.ev_code == 0));
-
-	// wait for mouse release, of click
 	if (IS_LEFTCLICK(&ev)) {
 		do {
 			display_get_event(&ev);
 		} while (!IS_LEFTRELEASE(&ev));
 	}
 }
+
 
 
 /**
@@ -306,7 +231,6 @@ extern "C" int simu_main(int argc, char** argv)
 		int disp_height = 600;
 		int fullscreen = false;
 
-		cstring_t loadgame = "";
 		cstring_t objfilename = DEFAULT_OBJPATH;
 
 #ifdef _MSC_VER
@@ -575,6 +499,8 @@ extern "C" int simu_main(int argc, char** argv)
 			exit(11);
 		}
 
+		bool new_world = true;
+		cstring_t loadgame = "";
 		if (gimme_arg(argc, argv, "-load", 0) != NULL) {
 			char buf[128];
 			/**
@@ -582,6 +508,19 @@ extern "C" int simu_main(int argc, char** argv)
 			 */
 			sprintf(buf, SAVE_PATH_X "%s", searchfolder_t::complete(gimme_arg(argc, argv, "-load", 1), "sve").chars());
 			loadgame = buf;
+			new_world = false;
+		}
+		else {
+			char buffer[256];
+			sprintf(buffer,"%sdemo.sve",objfilename.chars());
+			// access did not work!
+			FILE *f=fopen(objfilename+"demo.sve","rb");
+			if(f) {
+				// there is a demo game to load
+				loadgame = buffer;
+				fclose(f);
+DBG_MESSAGE("simmain","loadgame file found at %s",buffer);
+			}
 		}
 
 		if (gimme_arg(argc, argv, "-timeline", 0) != NULL) {
@@ -628,18 +567,16 @@ extern "C" int simu_main(int argc, char** argv)
 		karte_t *welt = new karte_t();
 		karte_ansicht_t *view = new karte_ansicht_t(welt);
 
+		// some messages about old vehicle may appear ...
+		message_t *msg = new message_t(welt);
+		// to hide all messages
+		message_t::get_instance()->set_flags(0, 0, 0, 0);
+
 		if (!gimme_arg(argc, argv, "-nomidi", 0)) {
 			print("Reading midi data ...\n");
 			midi_init();
 			midi_play(0);
 		}
-
-#ifdef DEBUG
-		// do a render test?
-		if (gimme_arg(argc, argv, "-times", 0) != NULL) {
-			show_times(welt, view);
-		}
-#endif
 
 		// suche nach refresh-einstellungen
 		int refresh = 1;
@@ -653,19 +590,32 @@ extern "C" int simu_main(int argc, char** argv)
 		if(loadgame != "") {
 			welt->laden(loadgame);
 		}
+		else {
+			// create a default map
+DBG_MESSAGE("init","map");
+			welt->init(welt->gib_einstellungen());
+		}
+
+#ifdef DEBUG
+		// do a render test?
+		if (gimme_arg(argc, argv, "-times", 0) != NULL) {
+			show_times(welt, view);
+		}
+#endif
 
 		intr_set(welt, view, refresh);
 
 		win_setze_welt(welt);
 		win_display_menu();
 		view->display(true);
-		welt->sync_prepare();
 
 		// Bringe welt in ansehnlichen Zustand
 		// bevor sie als Hintergrund für das intro dient
-		if (loadgame == "") {
+		if (loadgame=="") {
 			welt->sync_step(welt->gib_zeit_ms() + welt->ticks_per_tag / 2);
-			for (int i = 0; i < 20; i++) welt->step(10000);
+			for (int i = 0; i < 50; i++) {
+				welt->step(100);
+			}
 		}
 		intr_refresh_display(true);
 
@@ -678,15 +628,22 @@ extern "C" int simu_main(int argc, char** argv)
 #endif
 		display_show_pointer(TRUE);
 
+		welt->setze_dirty();
+
 		translator::set_language("en");
-		zeige_banner();
+
+		ticker_t::get_instance()->add_msg("Welcome to Simutrans, a game created by Hj. Malthaner and the Simutrans community.", koord::invalid,PLAYER_FLAG+1);
+
+		zeige_banner(welt);
+
+		intr_set(welt, view, refresh);
 
 		// Hajo: simgraph init loads default fonts, now we need to load
 		// the real fonts for the current language
-		if (sprache != -1) translator::set_language(sprache);
+		if (sprache != -1) {
+			translator::set_language(sprache);
+		}
 		sprachengui_t::init_font_from_lang();
-
-		welt->setze_dirty();
 
 		einstellungen_t *sets = new einstellungen_t(*welt->gib_einstellungen());
 		sets->setze_groesse(256, 256);
@@ -700,20 +657,29 @@ extern "C" int simu_main(int argc, char** argv)
 		sets->setze_use_timeline(umgebung_t::use_timeline == 1);
 		sets->setze_starting_year(umgebung_t::starting_year);
 
+		delete msg;
+
 		do {
 			// play next tune?
 			check_midi();
 
-			if (!umgebung_t::testlauf && loadgame == "") {
-				welt_gui_t* wg = new welt_gui_t(welt, sets);
-				sprachengui_t* sg = new sprachengui_t(welt);
+			// to purge all previous old messages
+			message_t *msg = new message_t(welt);
+			msg->set_flags(umgebung_t::message_flags[0], umgebung_t::message_flags[1], umgebung_t::message_flags[2], umgebung_t::message_flags[3]);
+
+			if (!umgebung_t::testlauf && new_world) {
+				welt_gui_t *wg = new welt_gui_t(welt, sets);
+				sprachengui_t *sg = new sprachengui_t(welt);
+				climate_gui_t *cg = new climate_gui_t(welt, wg, sets);
 				event_t ev;
 
 				view->display(true);
 
-				create_win(10, 40, -1, sg, w_info);
-				create_win((disp_width - 250) / 2, (disp_height - 300) / 2, -1, wg, w_info);
+				// we want to center wg (width 260) between sg (width 220) and cg (176)
 
+				create_win(10, 40, -1, sg, w_info);
+				create_win((disp_width - 220 - 176 -10 -10- 260)/2 + 220 + 10, (disp_height - 300) / 2, -1, wg, w_info);
+				create_win((disp_width - 176-10), 40, -1, cg, w_info);
 
 				setsimrand(get_current_time_millis(), get_current_time_millis());
 
@@ -739,6 +705,7 @@ extern "C" int simu_main(int argc, char** argv)
 				if (wg->gib_start()) {
 					destroy_win(wg);
 					destroy_win(sg);
+					destroy_win(cg);
 
 					nachrichtenfenster_t *nd = new nachrichtenfenster_t(welt, "Erzeuge neue Karte.\n", skinverwaltung_t::neueweltsymbol->gib_bild_nr(0));
 					create_win(200, 100, nd, w_autodelete);
@@ -750,15 +717,18 @@ extern "C" int simu_main(int argc, char** argv)
 				} else if(wg->gib_load()) {
 					destroy_win(wg);
 					destroy_win(sg);
+					destroy_win(cg);
 					create_win(new loadsave_frame_t(welt, true), w_info, magic_load_t);
 				} else if(wg->gib_load_heightfield()) {
 					destroy_win(wg);
 					destroy_win(sg);
+					destroy_win(cg);
 					einstellungen_t *sets = wg->gib_sets();
 					welt->load_heightfield(sets);
 				} else {
 					destroy_win(wg);
 					destroy_win(sg);
+					destroy_win(cg);
 					// quit the game
 					if (wg->gib_quit()) break;
 				}
@@ -766,14 +736,11 @@ extern "C" int simu_main(int argc, char** argv)
 
 			loadgame = ""; // only first time
 
-			message_t *msg = new message_t(welt);
-			msg->add_message("Welcome to Simutrans, a game created by Hj. Malthaner.", koord::invalid, message_t::general, 0);
-			msg->set_flags(umgebung_t::message_flags[0], umgebung_t::message_flags[1], umgebung_t::message_flags[2], umgebung_t::message_flags[3]);
-
 			quit_simutrans = welt->interactive();
 
 			msg->get_flags(&umgebung_t::message_flags[0], &umgebung_t::message_flags[1], &umgebung_t::message_flags[2], &umgebung_t::message_flags[3]);
 			delete msg;
+
 		} while (!umgebung_t::testlauf && !quit_simutrans);
 
 		intr_disable();
@@ -783,6 +750,7 @@ extern "C" int simu_main(int argc, char** argv)
 
 		delete view;
 		view = 0;
+
 
 		simgraph_exit();
 

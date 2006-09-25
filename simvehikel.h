@@ -128,7 +128,7 @@ public:
 
     vehikel_basis_t(karte_t *welt, koord3d pos);
 
-    virtual weg_t::typ gib_wegtyp() const = 0;
+    virtual waytype_t gib_wegtyp() const = 0;
 
     virtual ~vehikel_basis_t();
 };
@@ -226,7 +226,7 @@ public:
 
 	virtual void verlasse_feld();
 
-	virtual weg_t::typ gib_wegtyp() const = 0;
+	virtual waytype_t gib_wegtyp() const = 0;
 
 	/**
 	* Ermittelt die für das Fahrzeug geltenden Richtungsbits,
@@ -476,7 +476,7 @@ protected:
 public:
     virtual void betrete_feld();
 
-    virtual weg_t::typ gib_wegtyp() const { return weg_t::strasse; };
+    virtual waytype_t gib_wegtyp() const { return road_wt; };
 
     automobil_t(karte_t *welt, loadsave_t *file);
     automobil_t(karte_t *welt, koord3d pos, const vehikel_besch_t *besch, spieler_t *sp, convoi_t *cnv); // start und fahrplan
@@ -521,7 +521,7 @@ protected:
     void betrete_feld();
 
 public:
-    virtual weg_t::typ gib_wegtyp() const { return weg_t::schiene; };
+    virtual waytype_t gib_wegtyp() const { return track_wt; };
 
 	// since we might need to unreserve previously used blocks, we must do this before calculation a new route
 	bool calc_route(karte_t * welt, koord3d start, koord3d ziel, uint32 max_speed, route_t * route);
@@ -566,7 +566,7 @@ public:
 class monorail_waggon_t : public waggon_t
 {
 public:
-    virtual weg_t::typ gib_wegtyp() const { return weg_t::monorail; }
+    virtual waytype_t gib_wegtyp() const { return monorail_wt; }
 
 	// all handled by waggon_t
 	monorail_waggon_t(karte_t *welt, loadsave_t *file) : waggon_t(welt, file) {}
@@ -598,7 +598,7 @@ protected:
     bool ist_befahrbar(const grund_t *bd) const;
 
 public:
-    weg_t::typ gib_wegtyp() const { return weg_t::wasser; };
+    waytype_t gib_wegtyp() const { return water_wt; };
 
     virtual bool ist_weg_frei(int &restart_speed);
 
@@ -655,7 +655,7 @@ protected:
 	bool find_route_to_stop_position();
 
 public:
-    virtual weg_t::typ gib_wegtyp() const { return weg_t::luft; };
+    virtual waytype_t gib_wegtyp() const { return air_wt; };
 
 	// returns true for the way search to an unknown target.
 	virtual bool ist_ziel(const grund_t *,const grund_t *) const;

@@ -36,7 +36,7 @@ public:
 	* Zeichnet die Komponente
 	* @author Hj. Malthaner
 	*/
-	void zeichnen(koord offset) const;
+	void zeichnen(koord offset);
 };
 
 #endif // good_stats_t_h

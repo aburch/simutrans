@@ -67,151 +67,6 @@
 // klassenlose funktionen und daten
 
 
-image_id grund_t::gib_back_bild(int leftback) const
-{
-	if(back_bild_nr==0) {
-		return IMG_LEER;
-	}
-	sint8 back_bild = abs(back_bild_nr);
-	back_bild = leftback ? (back_bild/11)+11 : back_bild%11;
-	if(back_bild_nr<0) {
-		return grund_besch_t::fundament->gib_bild(back_bild);
-	}
-	else {
-		return grund_besch_t::slopes->gib_bild(back_bild);
-	}
-}
-
-
-
-// with double height ground tiles!
-// can also happen with single height tiles
-static inline uint8
-get_backbild_from_diff( sint8 h1, sint8 h2 )
-{
-	if(h1==h2) {
-		// vertical slope: which height?
-		return h1*4;
-	}
-	else if(h1*h2<0) {
-		// middle slop of double height
-		return h1<0 ? 9 : 10;
-	}
-	else {
-		return (h1>0?h1:0)+(h2>0?h2:0)*3;
-	}
-}
-
-
-
-// artifical walls from here on ...
-void grund_t::calc_back_bild(const sint8 hgt,const sint8 slope_this)
-{
-	sint8 back_bild_nr=0;
-	sint8 is_building=0;
-	bool fence_west=false, fence_north=false;
-	const koord k = gib_pos().gib_2d();
-
-	clear_flag(grund_t::draw_as_ding);
-	if((wege[0]  &&  wege[0]->gib_besch()->is_draw_as_ding())  ||  (wege[1]  &&  wege[1]->gib_besch()->is_draw_as_ding())) {
-		set_flag(grund_t::draw_as_ding);
-	}
-	bool	left_back_is_building = false;
-
-	// check for foundation
-	if(k.x>0  &&  k.y>0) {
-		const grund_t *gr=welt->lookup(k+koord(-1,-1))->gib_kartenboden();
-		if(gr) {
-			const sint16 left_hgt=gr->gib_hoehe()/16;
-			const sint8 slope=gr->gib_grund_hang();
-
-			const sint8 diff_from_ground = left_hgt+corner2(slope)-hgt-corner4(slope_this);
-			// up slope hiding something ...
-			if(diff_from_ground<0)  {
-				set_flag(grund_t::draw_as_ding);
-			}
-			else if(gr->get_flag(grund_t::draw_as_ding)  ||  gr->obj_count()>0) {
-				left_back_is_building = true;
-			}
-		}
-	}
-
-	// now enter the left two height differences
-	if(k.x>0) {
-		const grund_t *gr=welt->lookup(k+koord(-1,0))->gib_kartenboden();
-		if(gr) {
-			const sint16 left_hgt=gr->gib_hoehe()/16;
-			const sint8 slope=gr->gib_grund_hang();
-
-			const sint8 diff_from_ground_1 = left_hgt+corner2(slope)-hgt;
-			const sint8 diff_from_ground_2 = left_hgt+corner3(slope)-hgt;
-			// up slope hiding something ...
-			if(diff_from_ground_1-corner1(slope_this)<0  ||  diff_from_ground_2-corner4(slope_this)<0)  {
-				set_flag(grund_t::draw_as_ding);
-				fence_west = true;
-			}
-			// any height difference AND something to see?
-			if(  (diff_from_ground_1-corner1(slope_this)>0  ||  diff_from_ground_2-corner4(slope_this)>0)
-				&&  (diff_from_ground_1>0  ||  diff_from_ground_2>0)  ) {
-				back_bild_nr = get_backbild_from_diff( diff_from_ground_1, diff_from_ground_2 );
-			}
-			// avoid covering of slope by building ...
-			if(left_back_is_building  &&  (back_bild_nr>0  ||  gr->gib_back_bild(1)!=IMG_LEER)) {
-				set_flag(grund_t::draw_as_ding);
-			}
-			is_building = gr->gib_typ()==grund_t::fundament;
-		}
-	}
-
-	// now enter the back two height differences
-	if(k.y>0) {
-		const grund_t *gr=welt->lookup(k+koord(0,-1))->gib_kartenboden();
-		if(gr) {
-			const sint16 back_hgt=gr->gib_hoehe()/16;
-			const sint8 slope=gr->gib_grund_hang();
-
-			const sint8 diff_from_ground_1 = back_hgt+corner1(slope)-hgt;
-			const sint8 diff_from_ground_2 = back_hgt+corner2(slope)-hgt;
-			// up slope hiding something ...
-			if(diff_from_ground_1-corner4(slope_this)<0  ||  diff_from_ground_2-corner3(slope_this)<0) {
-				set_flag(grund_t::draw_as_ding);
-				fence_north = true;
-			}
-			// any height difference AND something to see?
-			if(  (diff_from_ground_1-corner4(slope_this)>0  ||  diff_from_ground_2-corner3(slope_this)>0)
-				&&  (diff_from_ground_1>0  ||  diff_from_ground_2>0)  ) {
-				back_bild_nr += get_backbild_from_diff( diff_from_ground_1, diff_from_ground_2 )*11;
-
-			}
-			is_building |= gr->gib_typ()==grund_t::fundament;
-			// avoid covering of slope by building ...
-			if(left_back_is_building  &&  (back_bild_nr>11  ||  gr->gib_back_bild(0)!=IMG_LEER)) {
-				set_flag(grund_t::draw_as_ding);
-			}
-		}
-	}
-
-	// not ground -> then not draw first ...
-	if(welt->lookup(k)->gib_kartenboden()!=this) {
-		clear_flag(grund_t::draw_as_ding);
-	}
-
-	back_bild_nr %= 121;
-	this->back_bild_nr = (is_building!=0)? -back_bild_nr : back_bild_nr;
-	// needs a fence?
-	if(back_bild_nr==0) {
-		back_bild_nr = 121;
-		if(fence_west) {
-			back_bild_nr += 1;
-		}
-		if(fence_north) {
-			back_bild_nr += 2;
-		}
-		this->back_bild_nr = (gib_typ()==grund_t::fundament)? -back_bild_nr : back_bild_nr;
-	}
-}
-
-
 /**
  * Table of ground texts
  * @author Hj. Malthaner
@@ -225,6 +80,7 @@ inthashtable_tpl <unsigned long, const char*> ground_texts;
  * @author Hj. Malthaner
  */
 karte_t * grund_t::welt = NULL;
+bool grund_t::show_grid = false;;
 
 
 ptrhashtable_tpl<grund_t *, grund_info_t *> *grund_t::grund_infos = new ptrhashtable_tpl<grund_t *, grund_info_t *> ();
@@ -390,28 +246,28 @@ void grund_t::rdwr(loadsave_t *file)
 	}
 
     if(file->is_loading()) {
-	weg_t::typ wtyp;
+	waytype_t wtyp;
 	int i = -1;
 	do {
-	    wtyp = (weg_t::typ)file->rd_obj_id();
+	    wtyp = (waytype_t)file->rd_obj_id();
 
 	    if(++i < MAX_WEGE) {
 		switch(wtyp) {
 		default:
 		  wege[i] = NULL;
 		  break;
-		case weg_t::strasse:
+		case road_wt:
 //		  DBG_DEBUG("grund_t::rdwr()", "road");
 		  wege[i] = new strasse_t (welt, file);
 		  break;
-		case weg_t::monorail:
+		case monorail_wt:
 		  wege[i] = new monorail_t (welt, file);
 //		  DBG_DEBUG("grund_t::rdwr()", "monorail");
 		  break;
-		case weg_t::schiene:
+		case track_wt:
 		{
 		  schiene_t *sch = new schiene_t (welt, file);
-		  if(sch->gib_besch()->gib_wtyp()==weg_t::monorail) {
+		  if(sch->gib_besch()->gib_wtyp()==monorail_wt) {
 		  	dbg->warning("grund_t::rdwr()", "converting railroad to monorail at (%i,%i)",gib_pos().x, gib_pos().y);
 		  	// compatibility code: Convert to monorail
 		  	monorail_t *w= new monorail_t(welt);
@@ -427,15 +283,15 @@ void grund_t::rdwr(loadsave_t *file)
 			}
 		}
 		  break;
-		case weg_t::schiene_strab:
+		case tram_wt:
 		  wege[i] = new schiene_t (welt, file);
 //            DBG_DEBUG("grund_t::rdwr()", "tram");
 		  if(wege[i]->gib_besch()->gib_styp()!=7) {
-		  	wege[i]->setze_besch(wegbauer_t::weg_search(weg_t::schiene_strab,wege[i]->gib_max_speed()));
+		  	wege[i]->setze_besch(wegbauer_t::weg_search(tram_wt,wege[i]->gib_max_speed()));
 			DBG_DEBUG("grund_t::rdwr()", "tram replace");
 		  }
 		  break;
-		case weg_t::wasser:
+		case water_wt:
 			// ignore old type dock ...
 			if(file->get_version()>=87000) {
 			  wege[i] = new kanal_t (welt, file);
@@ -456,7 +312,7 @@ void grund_t::rdwr(loadsave_t *file)
 DBG_MESSAGE("grund_t::rdwr()","at (%i,%i) dock ignored",gib_pos().x, gib_pos().y);
 		     	}
 		  break;
-		case weg_t::luft:
+		case air_wt:
 //			DBG_DEBUG("grund_t::rdwr()", "Runway");
 			wege[i] = new runway_t (welt, file);
 			DBG_MESSAGE("runway_t::runway_t()","at (%i,%i) ribi %i",gib_pos().x, gib_pos().y, wege[i]->gib_ribi());
@@ -471,7 +327,7 @@ DBG_MESSAGE("grund_t::rdwr()","at (%i,%i) dock ignored",gib_pos().x, gib_pos().y
 			assert( wege[i]->gib_ribi_maske()==0 );
 		}
 	    }
-	} while(wtyp != weg_t::invalid);
+	} while(wtyp != invalid_wt);
 	while(++i < MAX_WEGE) {
 	    wege[i] = NULL;
 	}
@@ -491,7 +347,7 @@ DBG_MESSAGE("grund_t::rdwr()","at (%i,%i) dock ignored",gib_pos().x, gib_pos().y
 
 	if(file->is_loading()) {
 		flags |= dirty;
-		// set speedlimit for birdges
+		// set speedlimit and maintenance for birdges
 		if(gib_typ()==brueckenboden) {
 			bruecke_t *br=dynamic_cast<bruecke_t *>(suche_obj(ding_t::bruecke));
 			if(wege[0]  &&  br) {
@@ -564,7 +420,7 @@ void grund_t::info(cbuffer_t & buf) const
 	for(int i = 0; i < MAX_WEGE; i++) {
 		if(wege[i]) {
 
-			if(wege[i]->gib_typ()==weg_t::wasser  &&  !ist_wasser()) {
+			if(wege[i]->gib_typ()==water_wt  &&  !ist_wasser()) {
 				wege[i]->info(buf);
 			}
 			else {
@@ -573,7 +429,7 @@ void grund_t::info(cbuffer_t & buf) const
 		}
 	}
 
-#if 0
+#if 1
 	if(buf.len() == 0) {
 		uint8 hang= gib_grund_hang();
 		buf.append(gib_hoehe());
@@ -594,6 +450,13 @@ void grund_t::info(cbuffer_t & buf) const
 	buf.append(pos.y);
 	buf.append(", ");
 	buf.append(pos.z);
+
+	buf.append("\n\n");
+	buf.append(gib_name());
+	if(gib_weg_ribi_unmasked(water_wt)) {
+		buf.append("\nwater ribi: ");
+		buf.append(gib_weg_ribi_unmasked(water_wt));
+	}
 #endif
 }
 
@@ -674,9 +537,9 @@ depot_t *grund_t::gib_depot() const
     return dynamic_cast<depot_t *>(dt);
 }
 
-const char * grund_t::gib_weg_name(weg_t::typ typ) const
+const char * grund_t::gib_weg_name(waytype_t typ) const
 {
-    weg_t   *weg = (typ==weg_t::invalid) ? wege[0] : gib_weg(typ);
+    weg_t   *weg = (typ==invalid_wt) ? wege[0] : gib_weg(typ);
 
     if(weg) {
 	return weg->gib_name();
@@ -686,7 +549,7 @@ const char * grund_t::gib_weg_name(weg_t::typ typ) const
 }
 
 
-ribi_t::ribi grund_t::gib_weg_ribi(weg_t::typ typ) const
+ribi_t::ribi grund_t::gib_weg_ribi(waytype_t typ) const
 {
     weg_t *weg = gib_weg(typ);
 
@@ -697,7 +560,7 @@ ribi_t::ribi grund_t::gib_weg_ribi(weg_t::typ typ) const
 }
 
 
-ribi_t::ribi grund_t::gib_weg_ribi_unmasked(weg_t::typ typ) const
+ribi_t::ribi grund_t::gib_weg_ribi_unmasked(waytype_t typ) const
 {
     weg_t *weg = gib_weg(typ);
 
@@ -706,6 +569,153 @@ ribi_t::ribi grund_t::gib_weg_ribi_unmasked(weg_t::typ typ) const
     else
 	return ribi_t::keine;
 }
+
+
+
+image_id grund_t::gib_back_bild(int leftback) const
+{
+	if(back_bild_nr==0) {
+		return IMG_LEER;
+	}
+	sint8 back_bild = abs(back_bild_nr);
+	back_bild = leftback ? (back_bild/11)+11 : back_bild%11;
+	if(back_bild_nr<0) {
+		return grund_besch_t::fundament->gib_bild(back_bild);
+	}
+	else {
+		return grund_besch_t::slopes->gib_bild(back_bild);
+	}
+}
+
+
+
+// with double height ground tiles!
+// can also happen with single height tiles
+static inline uint8
+get_backbild_from_diff( sint8 h1, sint8 h2 )
+{
+	if(h1==h2) {
+		// vertical slope: which height?
+		return h1*4;
+	}
+	else if(h1*h2<0) {
+		// middle slop of double height
+		return h1<0 ? 9 : 10;
+	}
+	else {
+		return (h1>0?h1:0)+(h2>0?h2:0)*3;
+	}
+}
+
+
+
+// artifical walls from here on ...
+void grund_t::calc_back_bild(const sint8 hgt,const sint8 slope_this)
+{
+	sint8 back_bild_nr=0;
+	sint8 is_building=0;
+	bool fence_west=false, fence_north=false;
+	const koord k = gib_pos().gib_2d();
+
+	clear_flag(grund_t::draw_as_ding);
+	if((wege[0]  &&  wege[0]->gib_besch()->is_draw_as_ding())  ||  (wege[1]  &&  wege[1]->gib_besch()->is_draw_as_ding())) {
+		set_flag(grund_t::draw_as_ding);
+	}
+	bool	left_back_is_building = false;
+
+	// check for foundation
+	if(k.x>0  &&  k.y>0) {
+		const grund_t *gr=welt->lookup(k+koord(-1,-1))->gib_kartenboden();
+		if(gr) {
+			const sint16 left_hgt=gr->gib_hoehe()/16;
+			const sint8 slope=gr->gib_grund_hang();
+
+			const sint8 diff_from_ground = left_hgt+corner2(slope)-hgt-corner4(slope_this);
+			// up slope hiding something ...
+			if(diff_from_ground<0)  {
+				set_flag(grund_t::draw_as_ding);
+			}
+			else if(gr->get_flag(grund_t::draw_as_ding)  ||  gr->obj_count()>0) {
+				left_back_is_building = true;
+			}
+		}
+	}
+
+	// now enter the left two height differences
+	if(k.x>0) {
+		const grund_t *gr=welt->lookup(k+koord(-1,0))->gib_kartenboden();
+		if(gr) {
+			const sint16 left_hgt=gr->gib_hoehe()/16;
+			const sint8 slope=gr->gib_grund_hang();
+
+			const sint8 diff_from_ground_1 = left_hgt+corner2(slope)-hgt;
+			const sint8 diff_from_ground_2 = left_hgt+corner3(slope)-hgt;
+			// up slope hiding something ...
+			if(diff_from_ground_1-corner1(slope_this)<0  ||  diff_from_ground_2-corner4(slope_this)<0)  {
+				set_flag(grund_t::draw_as_ding);
+				fence_west = true;
+			}
+			// any height difference AND something to see?
+			if(  (diff_from_ground_1-corner1(slope_this)>0  ||  diff_from_ground_2-corner4(slope_this)>0)
+				&&  (diff_from_ground_1>0  ||  diff_from_ground_2>0)  ) {
+				back_bild_nr = get_backbild_from_diff( diff_from_ground_1, diff_from_ground_2 );
+			}
+			// avoid covering of slope by building ...
+			if(left_back_is_building  &&  (back_bild_nr>0  ||  gr->gib_back_bild(1)!=IMG_LEER)) {
+				set_flag(grund_t::draw_as_ding);
+			}
+			is_building = gr->gib_typ()==grund_t::fundament;
+		}
+	}
+
+	// now enter the back two height differences
+	if(k.y>0) {
+		const grund_t *gr=welt->lookup(k+koord(0,-1))->gib_kartenboden();
+		if(gr) {
+			const sint16 back_hgt=gr->gib_hoehe()/16;
+			const sint8 slope=gr->gib_grund_hang();
+
+			const sint8 diff_from_ground_1 = back_hgt+corner1(slope)-hgt;
+			const sint8 diff_from_ground_2 = back_hgt+corner2(slope)-hgt;
+			// up slope hiding something ...
+			if(diff_from_ground_1-corner4(slope_this)<0  ||  diff_from_ground_2-corner3(slope_this)<0) {
+				set_flag(grund_t::draw_as_ding);
+				fence_north = true;
+			}
+			// any height difference AND something to see?
+			if(  (diff_from_ground_1-corner4(slope_this)>0  ||  diff_from_ground_2-corner3(slope_this)>0)
+				&&  (diff_from_ground_1>0  ||  diff_from_ground_2>0)  ) {
+				back_bild_nr += get_backbild_from_diff( diff_from_ground_1, diff_from_ground_2 )*11;
+
+			}
+			is_building |= gr->gib_typ()==grund_t::fundament;
+			// avoid covering of slope by building ...
+			if(left_back_is_building  &&  (back_bild_nr>11  ||  gr->gib_back_bild(0)!=IMG_LEER)) {
+				set_flag(grund_t::draw_as_ding);
+			}
+		}
+	}
+
+	// not ground -> then not draw first ...
+	if(welt->lookup(k)->gib_kartenboden()!=this) {
+		clear_flag(grund_t::draw_as_ding);
+	}
+
+	back_bild_nr %= 121;
+	this->back_bild_nr = (is_building!=0)? -back_bild_nr : back_bild_nr;
+	// needs a fence?
+	if(back_bild_nr==0) {
+		back_bild_nr = 121;
+		if(fence_west) {
+			back_bild_nr += 1;
+		}
+		if(fence_north) {
+			back_bild_nr += 2;
+		}
+		this->back_bild_nr = (gib_typ()==grund_t::fundament)? -back_bild_nr : back_bild_nr;
+	}
+}
+
 
 
 PLAYER_COLOR_VAL
@@ -772,11 +782,18 @@ grund_t::display_boden( const sint16 xpos, const sint16 ypos, const bool reset_d
 		}
 	}
 	else {
+		// if this tile belongs to nobody, we could use the faster redraw routines
 		if(besitzer_n==-1) {
 			display_img(gib_bild(), xpos, ypos, dirty);
 		}
 		else {
 			display_color_img(gib_bild(), xpos, ypos, gib_besitzer()->get_player_color(), true, dirty);
+		}
+		// we show additionally a grid
+		if(show_grid  &&  gib_typ()!=wasser) {
+			uint8 hang = gib_grund_hang();
+			uint8 back_hang = (hang&1) + ((hang>>1)&6);
+			display_img(grund_besch_t::borders->gib_bild(back_hang), xpos, ypos, dirty);
 		}
 	}
 
@@ -789,7 +806,7 @@ grund_t::display_boden( const sint16 xpos, const sint16 ypos, const bool reset_d
 			display_color_img(wege[0]->gib_bild(), xpos, ynpos, gib_besitzer()->get_player_color(), true, dirty);
 		}
 #ifdef DEBUG_PBS
-		if(dirty  &&  (wege[0]->gib_typ()==weg_t::schiene)  &&  ((schiene_t *)wege[0])->is_reserved()) {
+		if(dirty  &&  (wege[0]->gib_typ()==track_wt)  &&  ((schiene_t *)wege[0])->is_reserved()) {
 			display_fillbox_wh_clip( xpos+get_tile_raster_width()/4-8, ypos+(get_tile_raster_width()*3)/4-8, 16, 16, 0, true);
 		}
 #endif
@@ -863,7 +880,7 @@ grund_t::display_dinge(const sint16 xpos, sint16 ypos, bool reset_dirty)
  *
  * @author V. Meyer
  */
-bool grund_t::weg_erweitern(weg_t::typ wegtyp, ribi_t::ribi ribi)
+bool grund_t::weg_erweitern(waytype_t wegtyp, ribi_t::ribi ribi)
 {
 	weg_t   *weg = gib_weg(wegtyp);
 	if(weg) {
@@ -934,7 +951,7 @@ long grund_t::neuen_weg_bauen(weg_t *weg, ribi_t::ribi ribi, spieler_t *sp)
 				return 0;
 			}
 			// add the way
-			if(weg->gib_typ()==weg_t::strasse  &&  wege[0]->gib_besch()->gib_styp()==7) {
+			if(weg->gib_typ()==road_wt  &&  wege[0]->gib_besch()->gib_styp()==7) {
 				// road add below tramway
 				wege[1] = wege[0];
 				wege[0] = weg;
@@ -969,7 +986,7 @@ long grund_t::neuen_weg_bauen(weg_t *weg, ribi_t::ribi ribi, spieler_t *sp)
  *
  * @author V. Meyer
  */
-sint32 grund_t::weg_entfernen(weg_t::typ wegtyp, bool ribi_rem)
+sint32 grund_t::weg_entfernen(waytype_t wegtyp, bool ribi_rem)
 {
 	weg_t   *weg = gib_weg(wegtyp);
 
@@ -981,7 +998,6 @@ sint32 grund_t::weg_entfernen(weg_t::typ wegtyp, bool ribi_rem)
 			for(int r = 0; r < 4; r++) {
 				if((ribi & ribi_t::nsow[r]) && get_neighbour(to, wegtyp, koord::nsow[r])) {
 					weg_t *weg2 = to->gib_weg(wegtyp);
-//					if(weg2  &&  !ist_tunnel()   &&  !ist_bruecke()) {
 					if(weg2) {
 						weg2->ribi_rem(ribi_t::rueckwaerts(ribi_t::nsow[r]));
 						to->calc_bild();
@@ -1025,7 +1041,7 @@ sint32 grund_t::weg_entfernen(weg_t::typ wegtyp, bool ribi_rem)
 	return 0;
 }
 
-bool grund_t::get_neighbour(grund_t *&to, weg_t::typ type, koord dir) const
+bool grund_t::get_neighbour(grund_t *&to, waytype_t type, koord dir) const
 {
 	if(dir != koord::nord && dir != koord::sued && dir != koord::ost && dir != koord::west) {
 		return false;
@@ -1054,12 +1070,12 @@ bool grund_t::get_neighbour(grund_t *&to, weg_t::typ type, koord dir) const
 	return false;
 }
 
-bool grund_t::is_connected(const grund_t *gr, weg_t::typ wegtyp, koord dv) const
+bool grund_t::is_connected(const grund_t *gr, waytype_t wegtyp, koord dv) const
 {
 	if(!gr) {
 		return false;
 	}
-	if(wegtyp==weg_t::invalid) {
+	if(wegtyp==invalid_wt) {
 		return true;
 	}
 
@@ -1091,16 +1107,12 @@ int grund_t::get_vmove(koord dir) const
 
 	if(dir == koord::ost) {
 		h += corner3(slope)*16;
-//		h += corner2(slope)*16;
 	} else if(dir == koord::west) {
 		h += corner1(slope)*16;
-//		h += corner4(slope)*16;
 	} else if(dir == koord::sued) {
 		h += corner1(slope)*16;
-//		h += corner2(slope)*16;
 	} else if(dir == koord::nord) {
 		h += corner3(slope)*16;
-//		h += corner4(slope)*16;
 	} else {
 		dbg->fatal("grund_t::get_vmove()","no valid direction given (%x)",ribi_typ(dir));	// error: not a direction ...
 	}
@@ -1131,7 +1143,7 @@ grund_t::get_max_speed() const
 /* removes everything from a tile, including a halt but i.e. leave a powerline ond other stuff
  * @author prissi
  */
-bool grund_t::remove_everything_from_way(spieler_t *sp,weg_t::typ wt,ribi_t::ribi rem)
+bool grund_t::remove_everything_from_way(spieler_t *sp,waytype_t wt,ribi_t::ribi rem)
 {
 //DBG_MESSAGE("grund_t::remove_everything()","at %d,%d,%d for waytype %i and ribi %i",pos.x,pos.y,pos.z,wt,rem);
 	// check, if the way must be totally removed?

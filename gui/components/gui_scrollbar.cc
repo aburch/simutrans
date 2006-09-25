@@ -241,7 +241,8 @@ void scrollbar_t::infowin_event(const event_t *ev)
 }
 
 
-void scrollbar_t::zeichnen(koord pos, int button_farbe) const
+
+void scrollbar_t::zeichnen(koord pos)
 {
 	pos += this->pos;
 
@@ -255,12 +256,8 @@ void scrollbar_t::zeichnen(koord pos, int button_farbe) const
 		}
 	}
 
-	button_def[0].zeichnen(pos, button_farbe);
-	button_def[1].zeichnen(pos, button_farbe);
-	button_def[2].zeichnen(pos, button_farbe);
+	button_def[0].zeichnen(pos);
+	button_def[1].zeichnen(pos);
+	button_def[2].zeichnen(pos);
 }
 
-void scrollbar_t::zeichnen(koord pos) const
-{
-    zeichnen(pos, COL_BLACK);
-}

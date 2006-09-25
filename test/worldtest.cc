@@ -83,14 +83,14 @@ worldtest_t::check_ground_consistency(grund_t *gr, int i, int j)
 
 
 
-    int ribi = gr->gib_weg_ribi(weg_t::strasse);
+    int ribi = gr->gib_weg_ribi(road_wt);
 
     if(ribi < 0 || ribi > 15) {
 	log->warning("worldtest_t::check_ground_consistency", "ground '%s' has invalid ribi %d for street", gr->gib_name(), ribi);
     }
 
 
-    ribi = gr->gib_weg_ribi(weg_t::schiene);
+    ribi = gr->gib_weg_ribi(track_wt);
 
     if(ribi < 0 || ribi > 15) {
 	log->warning("worldtest_t::check_ground_consistency", "ground '%s' has invalid ribi %d for street", gr->gib_name(), ribi);

@@ -77,7 +77,7 @@ public:
      * Paints the component
      * @author Hj. Malthaner
      */
-    void zeichnen(koord offset) const;
+    void zeichnen(koord offset);
 
     /**
      * Events werden hiermit an die GUI-Komponenten

@@ -25,7 +25,7 @@
 #include "sound_besch.h"
 #include "../dataobj/ribi.h"
 
-#include "../boden/wege/weg.h"
+#include "../simtypes.h"
 
 #include "intro_dates.h"
 
@@ -58,21 +58,6 @@ class vehikel_besch_t : public obj_besch_t {
     friend class vehikelbauer_t;
 
 public:
-#if 0
-    // Hajo: be careful, some of these values must match the entries
-    // in schiene_t
-    enum weg_t { strasse=0,
-		 schiene=1,
-		 wasser=2,
-		 luft=3,
-		 // Hajo: unused ATM: schiene_elektrifiziert=4,
-		 schiene_monorail=5,
-		 schiene_maglev=6,
-		 schiene_strab=7, // Dario: Tramway
-    };
-    // these are only used as explicit numbers to load old vehicles
-#endif
-
     /**
      * Engine type
      * @author Hj. Malthaner
@@ -85,7 +70,8 @@ public:
       bio,
       sail,
       fuel_cell,
-      hydrogene
+      hydrogene,
+      battery
     };
 
 
@@ -238,7 +224,7 @@ public:
 
 	int gib_nachfolger_count() const { return nachfolger; }
 
-	weg_t::typ gib_typ() const { return static_cast<weg_t::typ>(typ); }
+	waytype_t gib_typ() const { return static_cast<waytype_t>(typ); }
 	int gib_zuladung() const { return zuladung; }
 	int gib_preis() const { return preis; }
 	int gib_geschw() const { return geschw; }

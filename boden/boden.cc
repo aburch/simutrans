@@ -28,78 +28,6 @@
 #include "../simimg.h"
 
 
-bool boden_t::show_grid = false;
-
-
-/**
- * Toggle ground grid display
- * @author Hj. Malthaner
- */
-void boden_t::toggle_grid()
-{
-	show_grid = !show_grid;
-
-	for(int y=0; y<welt->gib_groesse_y(); y++) {
-		for(int x=0; x<welt->gib_groesse_x(); x++) {
-
-			const planquadrat_t *plan = welt->lookup(koord(x,y));
-			const int boden_count = plan->gib_boden_count();
-
-			for(int schicht=0; schicht<boden_count; schicht++) {
-				grund_t *gr = plan->gib_boden_bei(schicht);
-				gr->calc_bild();
-			}
-		}
-
-		INT_CHECK("simworld 1890");
-	}
-	// recalc old settings (since gr->calc_bild() will recalculate height)
-	reliefkarte_t::gib_karte()->set_mode( reliefkarte_t::gib_karte()->get_mode());
-}
-
-
-
-/**
- * Toggle ground seasons
- * @author Hj. Malthaner
- */
-void boden_t::toggle_season(int season)
-{
-	// change grounds to winter?
-	if(season==2  &&  grund_besch_t::winter_boden!=NULL) {
-		grund_besch_t::boden = grund_besch_t::winter_boden;
-	}
-	else {
-		grund_besch_t::boden = grund_besch_t::standard_boden;
-	}
-	// same for coast lines
-	if(season==2  &&  grund_besch_t::winter_ufer!=NULL) {
-		grund_besch_t::ufer = grund_besch_t::winter_ufer;
-	}
-	else {
-		grund_besch_t::ufer = grund_besch_t::standard_ufer;
-	}
-
-	// now redraw ground image
-	for(int y=0; y<welt->gib_groesse_y(); y++) {
-		for(int x=0; x<welt->gib_groesse_x(); x++) {
-
-			const planquadrat_t *plan = welt->lookup(koord(x,y));
-			const int boden_count = plan->gib_boden_count();
-
-			for(int schicht=0; schicht<boden_count; schicht++) {
-				grund_t *gr = plan->gib_boden_bei(schicht);
-				gr->calc_bild();
-			}
-		}
-
-		INT_CHECK("simworld 1890");
-	}
-}
-
-
-
-
 boden_t::boden_t(karte_t *welt, loadsave_t *file) : grund_t(welt)
 {
 	rdwr(file);
@@ -109,11 +37,6 @@ boden_t::boden_t(karte_t *welt, loadsave_t *file) : grund_t(welt)
 boden_t::boden_t(karte_t *welt, koord3d pos,hang_t::typ sl) : grund_t(welt, pos)
 {
 	slope = sl;
-}
-
-
-boden_t::~boden_t()
-{
 }
 
 
@@ -139,7 +62,7 @@ boden_t::zeige_info()
 		return true;
 	}
 	else {
-		if(hat_wege()) {	// if this is true, then all land info is shown
+		if(1|| hat_wege()) {	// if this is true, then all land info is shown
 			// there is some info!
 			if(!grund_infos->get(this)) {
 				grund_infos->put(this, new grund_info_t(welt, this));
@@ -161,12 +84,12 @@ boden_t::calc_bild()
 		grund_t::calc_back_bild(gib_hoehe()/16,0);
 
 		// this covers some other ground. MUST be flat!
-		strasse_t *weg = static_cast<strasse_t *>(gib_weg(weg_t::strasse));
+		strasse_t *weg = static_cast<strasse_t *>(gib_weg(road_wt));
 		if(weg && weg->hat_gehweg()) {
 			setze_bild(skinverwaltung_t::fussweg->gib_bild_nr(0));
 		}
 		else {
-			setze_bild( grund_besch_t::boden->gib_bild(0) );
+			setze_bild( grund_besch_t::gib_ground_tile(0, gib_hoehe() ) );
 		}
 DBG_MESSAGE("boden_t::calc_bild()","at pos %i,%i,%i", gib_pos().x,gib_pos().y,gib_pos().z );
 		set_flag(grund_t::draw_as_ding);
@@ -177,33 +100,13 @@ dbg->fatal("boden_t::calc_bild()","covered tile not ground?!?");
 	}
 	else {
 		uint8 slope_this =  gib_grund_hang();
-		weg_t *weg = gib_weg(weg_t::strasse);
+		weg_t *weg = gib_weg(road_wt);
 
 #ifndef DOUBLE_GROUNDS
 		if(weg && dynamic_cast<strasse_t *>(weg)->hat_gehweg()) {
 			setze_bild(skinverwaltung_t::fussweg->gib_bild_nr(slope_this));
-		} else if(gib_hoehe() == welt->gib_grundwasser()) {
-			setze_bild(grund_besch_t::ufer->gib_bild(slope_this));
 		} else {
-			const int offset = show_grid * 19;
-			sint8 hang = slope_this;
-
-			if(hang == 0) {
-				const int chance = simrand(1000);
-				// Hajo: variant tiles
-				if(chance < 20) {
-					hang += 15;
-				} else if(chance < 80) {
-					hang += 16;
-				} else if(chance < 300) {
-					hang += 17;
-				} else if(chance < 310) {
-					hang += 18;
-				}
-			}
-			int bild=IMG_LEER;
-			bild = grund_besch_t::boden->gib_bild(hang + offset);
-			setze_bild( bild );
+			setze_bild( grund_besch_t::gib_ground_tile(slope_this,gib_hoehe() ) );
 		}
 #else
 		if(weg && dynamic_cast<strasse_t *>(weg)->hat_gehweg()) {
@@ -213,7 +116,7 @@ dbg->fatal("boden_t::calc_bild()","covered tile not ground?!?");
 		} else if(min_h<welt->gib_grundwasser()) {
 			setze_bild(grund_besch_t::ufer->gib_bild(grund_besch_t::ufer->get_double_hang(slope_this)));
 		} else {
-			setze_bild( grund_besch_t::boden->gib_bild(grund_besch_t::boden->get_double_hang(slope_this)) );
+			setze_bild( grund_besch_t::gib_ground_tile(grund_besch_t::boden->get_double_hang(slope_this)) );
 		}
 #endif
 		grund_t::calc_back_bild(gib_hoehe()/16,slope_this);

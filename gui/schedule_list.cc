@@ -32,7 +32,7 @@
 #include "../dataobj/translator.h"
 #include "../dataobj/linie.h"
 #include "components/list_button.h"
-#include "halt_list_item.h"
+#include "halt_list_stats.h"
 
 
 const char schedule_list_gui_t::cost_type[MAX_LINE_COST][64] =
@@ -191,7 +191,7 @@ bool schedule_list_gui_t::action_triggered(gui_komponente_t *komp,value_t /* */)
 		}
 	}
 	else if (komp == &bt_new_line) {
-			if (tabs.get_active_tab_index() > 0) {
+		if (tabs.get_active_tab_index() > 0) {
 			// create typed line
 			uint8 type=tabs_to_lineindex[tabs.get_active_tab_index()];
 			linehandle_t new_line = sp->simlinemgmt.create_line(type);
@@ -402,7 +402,7 @@ void schedule_list_gui_t::update_lineinfo(linehandle_t new_line)
 			if (halt.is_bound()) {
 				// only add a haltestelle to the list, if it is not in the list allready
 				if (!tmp.contains(fahrplan_koord)) {
-					halt_list_item_t *cinfo = new halt_list_item_t(halt, i + 1);
+					halt_list_stats_t *cinfo = new halt_list_stats_t(halt, i + 1);
 					cinfo->setze_pos(koord(0, ypos));
 					cinfo->setze_groesse(koord(500, 40));
 					cont_haltestellen.add_komponente(cinfo);

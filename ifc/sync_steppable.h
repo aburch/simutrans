@@ -11,13 +11,6 @@
 class sync_steppable
 {
 public:
-
-    /**
-     * Vorbereitungsmethode für Echtzeitfunktionen eines Objekts.
-     * @author Hj. Malthaner
-     */
-    virtual void sync_prepare() = 0;
-
     /**
      * Methode für Echtzeitfunktionen eines Objekts.
      * @return false wenn Objekt aus der Liste der synchronen

@@ -9,7 +9,6 @@
 
 #include <stdio.h>
 
-#include "ifc/karte_modell.h"
 #include "simworld.h"
 #include "simview.h"
 #include "simgraph.h"
@@ -42,8 +41,8 @@ karte_ansicht_t::display(bool force_dirty)
 
 	// zuerst den boden zeichnen
 	// denn der Boden kann kein Objekt verdecken
-	force_dirty = force_dirty || ((karte_modell_t *)welt)->ist_dirty();
-	((karte_modell_t *)welt)->setze_dirty_zurueck();
+	force_dirty = force_dirty || welt->ist_dirty();
+	welt->setze_dirty_zurueck();
 
 	sint16 IMG_SIZE = get_tile_raster_width();
 

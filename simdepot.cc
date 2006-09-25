@@ -500,7 +500,7 @@ bool
 bahndepot_t::can_convoi_start(int icnv) const
 {
 	convoihandle_t cnv=get_convoi(icnv);
-	weg_t::typ wt=cnv->gib_vehikel(0)->gib_wegtyp();
+	waytype_t wt=cnv->gib_vehikel(0)->gib_wegtyp();
 	int tiles=0;
 	unsigned i;
 	for(i=0;  i<cnv->gib_vehikel_anzahl();  i++) {

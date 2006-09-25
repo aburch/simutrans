@@ -15,24 +15,24 @@ class strasse_t : public weg_t
 public:
 	static const weg_besch_t *default_strasse;
 
-    strasse_t(karte_t *welt, loadsave_t *file);
-    strasse_t(karte_t *welt);
-    strasse_t(karte_t *welt,int top_speed);
+	strasse_t(karte_t *welt, loadsave_t *file);
+	strasse_t(karte_t *welt);
+	strasse_t(karte_t *welt,int top_speed);
 
-    /**
-     * @return Infotext zur Schiene
-     * @author Hj. Malthaner
-     */
-    void info(cbuffer_t & buf) const;
+	/**
+	 * @return Infotext zur Schiene
+	 * @author Hj. Malthaner
+	 */
+	void info(cbuffer_t & buf) const;
 
-    virtual void calc_bild(koord3d) { weg_t::calc_bild(); }
+	virtual void calc_bild(koord3d) { weg_t::calc_bild(); }
 
-    inline const char *gib_typ_name() const {return "Strasse";}
-    inline typ gib_typ() const {return strasse;}
+	inline const char *gib_typ_name() const {return "Strasse";}
+	inline waytype_t gib_typ() const {return road_wt;}
 
-		void setze_gehweg(bool janein);
+	void setze_gehweg(bool janein);
 
-    virtual void rdwr(loadsave_t *file);
+	virtual void rdwr(loadsave_t *file);
 };
 
 #endif

@@ -56,7 +56,7 @@ protected:
 	virtual bool ist_weg_frei() {return 1; }	// always free
 
 protected:
-	virtual weg_t::typ gib_wegtyp() const { return weg_t::strasse; }
+	virtual waytype_t gib_wegtyp() const { return road_wt; }
 
 	virtual bool hop_check() {return true;}
 	virtual void hop();
@@ -75,7 +75,6 @@ public:
 	const char *gib_name() const = 0;
 	enum ding_t::typ gib_typ() const  = 0;
 
-	void sync_prepare() {};
 	bool sync_step(long delta_t);
 
 	/**

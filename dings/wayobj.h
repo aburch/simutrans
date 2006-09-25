@@ -109,14 +109,14 @@ public:
 	static bool alles_geladen();
 
 	// search an object (currently only used by AI for caternary)
-	static const way_obj_besch_t* wayobj_search(weg_t::typ wt,weg_t::typ own,uint16 time);
+	static const way_obj_besch_t* wayobj_search(waytype_t wt,waytype_t own,uint16 time);
 
 	/**
 	 * Fill menu with icons of given stops from the list
 	 * @author Hj. Malthaner
 	 */
 	static void fill_menu(werkzeug_parameter_waehler_t *wzw,
-		weg_t::typ wtyp,
+		waytype_t wtyp,
 		int (* werkzeug)(spieler_t *, karte_t *, koord, value_t),
 		int sound_ok,
 		int sound_ko,

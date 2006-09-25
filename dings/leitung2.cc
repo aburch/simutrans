@@ -26,8 +26,6 @@
 #include "../dataobj/loadsave.h"
 #include "../dataobj/powernet.h"
 #include "../boden/grund.h"
-#include "../boden/wege/weg.h"
-#include "../besch/weg_besch.h"
 #include "../bauer/wegbauer.h"
 
 
@@ -144,22 +142,29 @@ leitung_t::~leitung_t()
 
 		leitung_t * conn[4];
 		gimme_neighbours(welt, gib_pos().gib_2d(), conn);
+		int new_net=my_net==NULL;
 
 		for(int i=0; i<4; i++) {
 			if(conn[i]!=NULL) {
-				koord pos = gr->gib_pos().gib_2d()+koord::nsow[i];
-				// possible memory leak!
-				powernet_t *new_net = new powernet_t();
-				welt->sync_add(new_net);
-				replace(pos, my_net, new_net);
-				conn[i]->calc_neighbourhood();
+				if(new_net) {
+					// one line, then we can keep at least one net
+					koord pos = gr->gib_pos().gib_2d()+koord::nsow[i];
+					// possible memory leak!
+					powernet_t *new_net = new powernet_t();
+					welt->sync_add(new_net);
+					replace(pos, my_net, new_net);
+					conn[i]->calc_neighbourhood();
+				}
+				new_net = true;
 			}
 		}
-		// clean up stuff
-		if(my_net!=NULL) {
+		// clean up stuff, iff needed (my leed to crash under certain ciurcumstances)
+		// e.g. deleting of a lone transformer
+		if(!new_net  &&  my_net) {
 			welt->sync_remove( net );
 			delete net;
 		}
+		setze_pos(koord3d::invalid);
 	}
 	this->set_net(NULL);
 	setze_pos(koord3d::invalid);
@@ -410,8 +415,8 @@ void leitung_t::info(cbuffer_t & buf) const
  */
 void leitung_t::laden_abschliessen()
 {
-  calc_neighbourhood();
-  verbinde();
+	calc_neighbourhood();
+	verbinde();
 }
 
 
@@ -442,27 +447,18 @@ void leitung_t::rdwr(loadsave_t *file)
 
 
 /* from here on pump (source) stuff */
-
-
 pumpe_t::pumpe_t(karte_t *welt, loadsave_t *file) : leitung_t(welt , file)
 {
 	fab = NULL;
-//	power_there = false;
-//	calc_bild();
-	calc_neighbourhood();
 	step_frequency = 0;
-	welt->sync_add(this);
 }
+
 
 
 pumpe_t::pumpe_t(karte_t *welt, koord3d pos, spieler_t *sp) : leitung_t(welt , pos, sp)
 {
 	fab = NULL;
-//	power_there = false;
-//	calc_bild();
-	calc_neighbourhood();
 	step_frequency = 0;
-	welt->sync_add(this);
 }
 
 
@@ -471,28 +467,18 @@ pumpe_t::~pumpe_t()
 {
 	if(fab) {
 		fab->set_prodfaktor( max(16,fab->get_prodfaktor()/2) );
-	}
-	welt->sync_remove(this);
-}
-
-
-void
-pumpe_t::sync_prepare()
-{
-	if(fab==NULL) {
-		fab = leitung_t::suche_fab_4(gib_pos().gib_2d());
-		if(fab) {
-			fab->set_prodfaktor( fab->get_prodfaktor()*2 );
-		}
-//		step_frequency = 1;
+		welt->sync_remove(this);
+		fab = NULL;
 	}
 }
+
 
 
 bool
 pumpe_t::sync_step(long delta_t)
 {
 	if(!get_net()) {
+		fab = 0;
 		return false;
 	}
 	if(  fab==0 || (fab->gib_eingang()->get_count()>0  &&  fab->gib_eingang()->get(0).menge<=0)  ) {
@@ -507,17 +493,32 @@ pumpe_t::sync_step(long delta_t)
 }
 
 
-/* From here on drain stuff */
 
+void
+pumpe_t::laden_abschliessen()
+{
+	leitung_t::laden_abschliessen();
+
+	if(fab==NULL) {
+		fab = leitung_t::suche_fab_4(gib_pos().gib_2d());
+	}
+	if(fab) {
+		fab->set_prodfaktor( fab->get_prodfaktor()*2 );
+		step_frequency = 7;
+	}
+	welt->sync_add(this);
+}
+
+
+
+/************************************ From here on drain stuff ********************************************/
 
 senke_t::senke_t(karte_t *welt, loadsave_t *file) : leitung_t(welt , file)
 {
 	fab = NULL;
 	einkommen = 1;
 	max_einkommen = 1;
-//	calc_bild();
-	calc_neighbourhood();
-	welt->sync_add(this);
+	step_frequency = 0;
 }
 
 
@@ -526,18 +527,17 @@ senke_t::senke_t(karte_t *welt, koord3d pos, spieler_t *sp) : leitung_t(welt , p
 	fab = NULL;
 	einkommen = 1;
 	max_einkommen = 1;
-//	calc_bild();
-	calc_neighbourhood();
-	welt->sync_add(this);
 }
+
 
 
 senke_t::~senke_t()
 {
 	if(fab!=NULL) {
 		fab->set_prodfaktor( 16 );
+		welt->sync_remove(this);
+		fab = NULL;
 	}
-	welt->sync_remove(this);
 }
 
 
@@ -559,15 +559,6 @@ bool senke_t::step(long /*delta_t*/)
 }
 
 
-void
-senke_t::sync_prepare()
-{
-	if(fab==NULL) {
-		fab = leitung_t::suche_fab_4(gib_pos().gib_2d());
-		step_frequency = 7;
-	}
-}
-
 
 bool
 senke_t::sync_step(long time)
@@ -588,6 +579,21 @@ senke_t::sync_step(long time)
 	einkommen += get_power;
 	return fab!=0;	// only zero, when loading failed ...
 }
+
+
+
+void
+senke_t::laden_abschliessen()
+{
+	leitung_t::laden_abschliessen();
+
+	if(fab==NULL) {
+		fab = leitung_t::suche_fab_4(gib_pos().gib_2d());
+	}
+	welt->sync_add(this);
+	step_frequency = 7;
+}
+
 
 
 void

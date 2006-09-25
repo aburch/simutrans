@@ -125,7 +125,7 @@ fussgaenger_t::erzeuge_fussgaenger_an(karte_t *welt, const koord3d k, int &anzah
 	if(fussgaenger_t::gib_anzahl_besch()>0) {
 		const grund_t *bd = welt->lookup(k);
 		if(bd) {
-			const weg_t *weg = bd->gib_weg(weg_t::strasse);
+			const weg_t *weg = bd->gib_weg(road_wt);
 
 			// we do not start on crossings (not overrunning pedestrians please
 			if(weg && ribi_t::is_twoway(weg->gib_ribi_unmasked())) {
@@ -141,7 +141,7 @@ fussgaenger_t::erzeuge_fussgaenger_an(karte_t *welt, const koord3d k, int &anzah
 						welt->sync_add( fg );
 						anzahl --;
 					} else {
-						// jetzt delete it, if we could not put them on the map
+						// delete it, if we could not put them on the map
 						fg->set_flag(ding_t::not_on_map);
 						delete fg;
 					}
@@ -150,5 +150,3 @@ fussgaenger_t::erzeuge_fussgaenger_an(karte_t *welt, const koord3d k, int &anzah
 		}
 	}
 }
-
-

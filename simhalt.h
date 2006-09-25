@@ -19,8 +19,6 @@
 #include "simtypes.h"
 #include "simdings.h"
 
-#include "boden/wege/weg.h"
-
 #include "bauer/warenbauer.h"
 
 #include "dataobj/warenziel.h"
@@ -505,7 +503,7 @@ public:
 	/* checks, if there is an unoccupied loading bay for this kind of thing
 	 * @author prissi
 	 */
-	bool find_free_position(const weg_t::typ w ,convoihandle_t cnv,const ding_t::typ d) const;
+	bool find_free_position(const waytype_t w ,convoihandle_t cnv,const ding_t::typ d) const;
 
 	/* reserves a position (caution: railblocks work differently!
 	 * @author prissi

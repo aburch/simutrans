@@ -26,22 +26,10 @@ protected:
     static bool show_grid;
 
 public:
-    /**
-     * Toggle ground grid display
-     * @author Hj. Malthaner
-     */
-    static void toggle_grid();
-
-	/**
-	 * Toggle ground seasons
-	 * @author Hj. Malthaner
-	 */
-    static void toggle_season(int season);
-
     boden_t(karte_t *welt, loadsave_t *file);
     boden_t(karte_t *welt, koord3d pos, hang_t::typ slope);
 
-    ~boden_t();
+    virtual ~boden_t() {}
 
     inline bool ist_natur() const { return !hat_wege(); }
 
@@ -50,7 +38,6 @@ public:
      * @author Hj. Malthaner
      */
     virtual bool zeige_info();
-
 
     void calc_bild();
 

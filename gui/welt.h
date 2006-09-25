@@ -52,9 +52,6 @@ private:
 	gui_textinput_t inp_map_number;	// direct map number entering
 	button_t x_size[2];
 	button_t y_size[2];
-	button_t water_level[2];
-	button_t mountain_height[2];
-	button_t mountain_roughness[2];
 	button_t random_map, load_map;
 
 	button_t number_of_towns[2];
@@ -83,14 +80,18 @@ private:
 	*/
 	bool update_from_heightfield(const char *filename);
 
-	/**
-	* Berechnet Preview-Karte neu. Inititialisiert RNG neu!
-	* @author Hj. Malthaner
-	*/
-	void  update_preview();
 
 public:
 	welt_gui_t(karte_t *welt, einstellungen_t *sets);
+
+	/**
+	* Berechnet Preview-Karte neu. Inititialisiert RNG neu!
+	* public, because also the climate dialog need it
+	* @author Hj. Malthaner
+	*/
+	void  update_preview();
+	void clear_loaded_heightfield() { loaded_heightfield =0; }
+	bool get_loaded_heightfield() const { return loaded_heightfield; }
 
 	/**
 	 * Manche Fenster haben einen Hilfetext assoziiert.

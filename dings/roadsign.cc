@@ -77,7 +77,7 @@ roadsign_t::roadsign_t(karte_t *welt, spieler_t *sp, koord3d pos, ribi_t::ribi d
 
 roadsign_t::~roadsign_t()
 {
-	weg_t *weg = welt->lookup(gib_pos())->gib_weg((weg_t::typ)besch->gib_wtyp());
+	weg_t *weg = welt->lookup(gib_pos())->gib_weg((waytype_t)besch->gib_wtyp());
 	if(weg) {
 		// Weg wieder freigeben, wenn das Signal nicht mehr da ist.
 		weg->setze_ribi_maske(ribi_t::keine);
@@ -92,8 +92,8 @@ roadsign_t::~roadsign_t()
 void roadsign_t::set_dir(ribi_t::ribi dir)
 {
 	this->dir = dir;
-	weg_t *weg = welt->lookup(gib_pos())->gib_weg((weg_t::typ)besch->gib_wtyp());
-	if(besch->gib_wtyp()!=weg_t::schiene  &&   besch->gib_wtyp()!=weg_t::monorail) {
+	weg_t *weg = welt->lookup(gib_pos())->gib_weg((waytype_t)besch->gib_wtyp());
+	if(besch->gib_wtyp()!=track_wt  &&   besch->gib_wtyp()!=monorail_wt) {
 		weg->count_sign();
 	}
 	if(besch->is_single_way()  ||  besch->is_signal()  ||  besch->is_pre_signal()) {
@@ -224,7 +224,7 @@ void roadsign_t::calc_bild()
 	}
 	else {
 		// traffic light
-		weg_t *str=gr->gib_weg(weg_t::strasse);
+		weg_t *str=gr->gib_weg(road_wt);
 		if(str)
 		{
 			const uint8 weg_dir = str->gib_ribi_unmasked();
@@ -395,7 +395,7 @@ bool roadsign_t::register_besch(roadsign_besch_t *besch)
 {
 	roadsign_t::table.put(besch->gib_name(), besch);
 	roadsign_t::liste.append(besch);
-	if(umgebung_t::drive_on_left  &&  besch->gib_wtyp()==weg_t::strasse) {
+	if(umgebung_t::drive_on_left  &&  besch->gib_wtyp()==road_wt) {
 		// correct for driving on left side
 		if(besch->is_traffic_light()) {
 			const int XOFF=(48*get_tile_raster_width())/64;
@@ -432,7 +432,7 @@ DBG_DEBUG( "roadsign_t::register_besch()","%s", besch->gib_name() );
  * @author Hj. Malthaner
  */
 void roadsign_t::fill_menu(werkzeug_parameter_waehler_t *wzw,
-	weg_t::typ wtyp,
+	waytype_t wtyp,
 	int (* werkzeug)(spieler_t *, karte_t *, koord, value_t),
 	int sound_ok,
 	int sound_ko,
@@ -471,7 +471,7 @@ DBG_DEBUG("roadsign_t::fill_menu()","at pos %i add %s",i,besch->gib_name());
  * @author prissi
  */
 const roadsign_besch_t *
-roadsign_t::roadsign_search(uint8 flag,const weg_t::typ wt,const uint16 time)
+roadsign_t::roadsign_search(uint8 flag,const waytype_t wt,const uint16 time)
 {
 	for( unsigned i=0;  i<roadsign_t::liste.count();  i++  ) {
 		const roadsign_besch_t *besch=roadsign_t::liste.at(i);

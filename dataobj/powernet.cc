@@ -27,11 +27,13 @@ void powernet_t::prepare_loading()
 }
 
 
+
 /**
  * Loads a powernet object or hand back already loaded object
  * @author Hj. Malthaner
  */
-powernet_t * powernet_t::load_net(powernet_t *key)
+powernet_t *
+powernet_t::load_net(powernet_t *key)
 {
 	powernet_t * result = loading_table.get(key);
 	if(result == 0) {
@@ -40,6 +42,7 @@ powernet_t * powernet_t::load_net(powernet_t *key)
 	}
 	return result;
 }
+
 
 
 /**
@@ -55,17 +58,20 @@ void powernet_t::add_power(uint32 amount)
 }
 
 
+
 /**
  * Tries toget a certain amount of power from the net.
  * @return granted amount of power
  * @author Hj. Malthaner
  */
-uint32 powernet_t::withdraw_power(uint32 want)
+uint32
+powernet_t::withdraw_power(uint32 want)
 {
 	const int result = power_last > want ? want : power_last;
 	power_last -= result;
 	return result;
 }
+
 
 
 powernet_t::powernet_t()
@@ -81,28 +87,12 @@ powernet_t::powernet_t()
 }
 
 
-powernet_t::~powernet_t()
-{
-}
-
-
-/**
- * Vorbereitungsmethode für Echtzeitfunktionen eines Objekts.
- * @author Hj. Malthaner
- */
-void powernet_t::sync_prepare()
-{
-//	DBG_MESSAGE("powernet_t::sync_prepare()", "this=%d, last=%d", power_this, power_last);
-	power_last = 0;
-	power_this = 0;
-}
-
-
 
 /* calculates the last amout of power draw (a little smoothed)
  * @author prissi
  */
-uint32 powernet_t::get_capacity() const
+uint32
+powernet_t::get_capacity() const
 {
 	uint32 medium_capacity=0;
 	for( uint32 i=0;  i<8;  i++  ) {
@@ -110,7 +100,6 @@ uint32 powernet_t::get_capacity() const
 	}
 	return medium_capacity>>(3+8);
 }
-
 
 
 

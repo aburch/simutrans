@@ -50,7 +50,7 @@ public:
     /**
      * Zeichnet die Komponente
      */
-    void zeichnen(koord offset) const;
+    void zeichnen(koord offset);
 };
 
 #endif

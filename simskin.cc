@@ -17,6 +17,7 @@ const skin_besch_t *skinverwaltung_t::listen_werkzeug = NULL;
 const skin_besch_t *skinverwaltung_t::edit_werkzeug = NULL;
 const skin_besch_t *skinverwaltung_t::farbmenu = NULL;
 
+const skin_besch_t *skinverwaltung_t::biglogosymbol = NULL;
 const skin_besch_t *skinverwaltung_t::logosymbol = NULL;
 const skin_besch_t *skinverwaltung_t::neujahrsymbol = NULL;
 const skin_besch_t *skinverwaltung_t::neueweltsymbol = NULL;
@@ -88,6 +89,7 @@ static spezial_obj_tpl<skin_besch_t> menu_objekte[] = {
 };
 
 static spezial_obj_tpl<skin_besch_t> symbol_objekte[] = {
+    { &skinverwaltung_t::biglogosymbol,	    "BigLogo" },
     { &skinverwaltung_t::seasons_icons,"Seasons" },
     { &skinverwaltung_t::message_options,"MessageOptions" },
     { &skinverwaltung_t::logosymbol,	    "Logo" },
@@ -141,7 +143,7 @@ bool skinverwaltung_t::alles_geladen(skintyp_t type)
 	sb = cursor_objekte+1;	// forget about mouse cursor
 	break;
     case symbol:
-	sb = symbol_objekte+1+1;	// forget about message box options and seasons
+	sb = symbol_objekte+1+1+1;	// forget about message box options, BigLogo, and seasons
 	break;
     case misc:
 	sb = misc_objekte;	// not all signals needed

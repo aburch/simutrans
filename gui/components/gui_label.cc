@@ -69,7 +69,7 @@ void gui_label_t::setze_text(const char *text)
  * Zeichnet die Komponente
  * @author Hj. Malthaner
  */
-void gui_label_t::zeichnen(koord offset) const
+void gui_label_t::zeichnen(koord offset)
 {
     if(align == money) {
 	if(text) {

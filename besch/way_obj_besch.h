@@ -72,14 +72,14 @@ private:
 
     /**
      * Way type: i.e. road or track
-     * @see weg_t::typ
+     * @see waytype_t
      * @author Hj. Malthaner
      */
     uint8 wtyp;
 
     /**
      * set to powerline of overheadwire or ignore
-     * @see weg_t::typ
+     * @see waytype_t
      * @author Hj. Malthaner
      */
 	uint8 own_wtyp;
@@ -101,7 +101,7 @@ public:
 
     /**
      * get way type
-     * @see weg_t::typ
+     * @see waytype_t
      * @author Hj. Malthaner
      */
 	const uint8 gib_wtyp() const { return wtyp; }

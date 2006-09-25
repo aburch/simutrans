@@ -11,7 +11,6 @@
 #define simview_h
 
 class karte_t;
-class ding_t;
 
 /**
  * View-Klasse für Weltmodell.

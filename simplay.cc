@@ -972,10 +972,10 @@ DBG_MESSAGE("spieler_t::do_passenger_ki()","no suitable hub found");
 					}
 
 					// we want the fastest we can get!
-					road_vehicle = vehikelbauer_t::vehikel_search( weg_t::strasse, month_now, 10, 80, warenbauer_t::passagiere );
+					road_vehicle = vehikelbauer_t::vehikel_search( road_wt, month_now, 10, 80, warenbauer_t::passagiere );
 					if(road_vehicle!=NULL) {
 						// find cheapest road
-						road_weg = wegbauer_t::weg_search( weg_t::strasse, road_vehicle->gib_geschw() );
+						road_weg = wegbauer_t::weg_search( road_wt, road_vehicle->gib_geschw() );
 						substate = NR_BAUE_STRASSEN_ROUTE;
 DBG_MESSAGE("spieler_t::do_passenger_ki()","using %s on %s",road_vehicle->gib_name(),road_weg->gib_name());
 					}
@@ -1080,7 +1080,7 @@ DBG_DEBUG("do_passenger_ki()","calling message_t()");
 							if(  welt->use_timeline() == true   ) {
 								month_now = welt->get_current_month();
 							}
-							road_vehicle = vehikelbauer_t::vehikel_search( weg_t::strasse, month_now, 10, 80, warenbauer_t::passagiere );
+							road_vehicle = vehikelbauer_t::vehikel_search( road_wt, month_now, 10, 80, warenbauer_t::passagiere );
 							koord list[2] = {halt->gib_basis_pos(),ware.gib_zwischenziel()};
 							create_bus_transport_vehikel( list[0], 1, list, 2, false );	// overcrowded line, so waiting does not make sense
 DBG_MESSAGE("spieler_t::do_passenger_ki()","add new convoi to crowded line from %s to %s",halt->gib_name(),haltestelle_t::gib_halt(welt,list[1])->gib_name());
@@ -1332,7 +1332,7 @@ DBG_MESSAGE("spieler_t::do_ki()","%s want to build a route from %s (%d,%d) to %s
 					// is rail transport allowed?
 					if(rail_transport) {
 						// any rail car that transport this good (actually this weg_t the largest)
-						rail_vehicle = vehikelbauer_t::vehikel_search( weg_t::schiene, month_now, 0, best_rail_speed,  freight );
+						rail_vehicle = vehikelbauer_t::vehikel_search( track_wt, month_now, 0, best_rail_speed,  freight );
 					}
 					rail_engine = NULL;
 					rail_weg = NULL;
@@ -1341,7 +1341,7 @@ DBG_MESSAGE("do_ki()","rail vehicle %p",rail_vehicle);
 					// is road transport allowed?
 					if(road_transport) {
 						// any road car that transport this good (actually this returns the largest)
-						road_vehicle = vehikelbauer_t::vehikel_search( weg_t::strasse, month_now, 10, best_road_speed, freight );
+						road_vehicle = vehikelbauer_t::vehikel_search( road_wt, month_now, 10, best_road_speed, freight );
 					}
 					road_weg = NULL;
 DBG_MESSAGE("do_ki()","road vehicle %p",road_vehicle);
@@ -1362,11 +1362,11 @@ DBG_MESSAGE("do_ki()","check railway");
 						count_rail = (prod*dist) / (rail_vehicle->gib_zuladung()*best_rail_speed)+1;
 						// assume the engine weight 100 tons for power needed calcualtion
 						long power_needed=(long)(((best_rail_speed*best_rail_speed)/2500.0+1.0)*(100.0+count_rail*(rail_vehicle->gib_gewicht()+rail_vehicle->gib_zuladung()*freight->gib_weight_per_unit()*0.001)));
-						rail_engine = vehikelbauer_t::vehikel_search( weg_t::schiene, month_now, power_needed, best_rail_speed, NULL );
+						rail_engine = vehikelbauer_t::vehikel_search( track_wt, month_now, power_needed, best_rail_speed, NULL );
 						if(  rail_engine!=NULL  ) {
 						 	best_rail_speed = min(rail_engine->gib_geschw(),rail_vehicle->gib_geschw());
 						  // find cheapest track with that speed
-						 rail_weg = wegbauer_t::weg_search( weg_t::schiene, best_rail_speed );
+						 rail_weg = wegbauer_t::weg_search( track_wt, best_rail_speed );
 						 if(  rail_weg!=NULL  ) {
 							  if(  best_rail_speed>rail_weg->gib_topspeed()  ) {
 							  	best_rail_speed = rail_weg->gib_topspeed();
@@ -1397,7 +1397,7 @@ DBG_MESSAGE("do_ki()","check railway");
 					if(  road_vehicle!=NULL  ) {
 						best_road_speed = road_vehicle->gib_geschw();
 						// find cheapest road
-						road_weg = wegbauer_t::weg_search( weg_t::strasse, best_road_speed );
+						road_weg = wegbauer_t::weg_search( road_wt, best_road_speed );
 						if(  road_weg!=NULL  ) {
 							if(  best_road_speed>road_weg->gib_topspeed()  ) {
 								best_road_speed = road_weg->gib_topspeed();
@@ -1481,7 +1481,7 @@ DBG_MESSAGE("spieler_t::do_ki()","No roadway possible.");
 								}
 								// for engine: gues number of cars
 								long power_needed=(long)(((best_rail_speed*best_rail_speed)/2500.0+1.0)*(100.0+count_rail*(rail_vehicle->gib_gewicht()+rail_vehicle->gib_zuladung()*freight->gib_weight_per_unit()*0.001)));
-								const vehikel_besch_t *v=vehikelbauer_t::vehikel_search( weg_t::schiene, month_now, power_needed, best_rail_speed, NULL );
+								const vehikel_besch_t *v=vehikelbauer_t::vehikel_search( track_wt, month_now, power_needed, best_rail_speed, NULL );
 								if(v->gib_betriebskosten()<rail_engine->gib_betriebskosten()) {
 									rail_engine = v;
 								}
@@ -1493,7 +1493,7 @@ DBG_MESSAGE("spieler_t::do_ki()","No roadway possible.");
 DBG_MESSAGE("spieler_t::step()","remove already constructed rail between %i,%i and %i,%i and try road",platz1.x,platz1.y,platz2.x,platz2.y);
 							value_t v;
 							// no sucess: clean route
-							v.i = (int)weg_t::schiene;
+							v.i = (int)track_wt;
 							wkz_wayremover(this,welt,INIT,v);
 							wkz_wayremover(this,welt,platz1,v);
 							wkz_wayremover(this,welt,platz2,v);
@@ -1580,7 +1580,7 @@ DBG_MESSAGE("spieler_t::step()","remove already constructed rail between %i,%i a
 		{
 			for(unsigned i=0;  i<welt->get_convoi_count();  i++ ) {
 				const convoihandle_t cnv = welt->get_convoi_array().get(i);
-				if(cnv->gib_besitzer()==this  &&  cnv->gib_vehikel(0)->gib_besch()->gib_typ()==weg_t::strasse) {
+				if(cnv->gib_besitzer()==this  &&  cnv->gib_vehikel(0)->gib_besch()->gib_typ()==road_wt) {
 					// check for empty vehicles (likely stucked) that are making no plus and remove them ...
 					// take care, that the vehicle is old enough ...
 					if((welt->get_current_month()-cnv->gib_vehikel(0)->gib_insta_zeit())>12  &&  cnv->gib_jahresgewinn()==0  ){
@@ -1703,7 +1703,7 @@ spieler_t::baue_bahnhof(koord3d quelle,koord *p, int anz_vehikel,fabrik_t *fab)
 	koord t = *p;
 
 	int baulaenge = 0;
-	ribi_t::ribi ribi = welt->lookup(*p)->gib_kartenboden()->gib_weg_ribi(weg_t::schiene);
+	ribi_t::ribi ribi = welt->lookup(*p)->gib_kartenboden()->gib_weg_ribi(track_wt);
 	int i;
 
 	koord zv ( ribi );
@@ -1764,8 +1764,8 @@ DBG_MESSAGE("spieler_t::baue_bahnhof()","try to build a train station of length 
 
 			// try to extend station into the other direction
 			ok = (gr != NULL) &&
-					gr->gib_weg(weg_t::schiene) != NULL &&
-					gr->gib_weg_ribi(weg_t::schiene) == ribi_t::doppelt(ribi) &&
+					gr->gib_weg(track_wt) != NULL &&
+					gr->gib_weg_ribi(track_wt) == ribi_t::doppelt(ribi) &&
 					gr->kann_alle_obj_entfernen(this) == NULL &&  gr->gib_weg_nr(1)==NULL  &&
 					gr->gib_weg_hang()== hang_t::flach  &&  !gr->gib_halt().is_bound();
 			if(ok) {
@@ -1790,18 +1790,18 @@ DBG_MESSAGE("spieler_t::baue_bahnhof","achieved length %i",baulaenge);
 		const koord coverage_koord(welt->gib_einstellungen()->gib_station_coverage(),welt->gib_einstellungen()->gib_station_coverage());
 		koord pos=*p;
 		sint32 cost = 0;
-		koord last_dir = koord((ribi_t::ribi)welt->lookup(*p)->gib_kartenboden()->gib_weg_ribi(weg_t::schiene));
+		koord last_dir = koord((ribi_t::ribi)welt->lookup(*p)->gib_kartenboden()->gib_weg_ribi(track_wt));
 		while(1) {
 			grund_t *gr=welt->lookup(pos)->gib_kartenboden();
 			if(gr==NULL  ||  gr->gib_weg_hang()!=gr->gib_grund_hang()) {
 				break;
 			}
-			koord dir((ribi_t::ribi)gr->gib_weg_ribi(weg_t::schiene));
+			koord dir((ribi_t::ribi)gr->gib_weg_ribi(track_wt));
 			if(!fabrik_t::sind_da_welche(welt,pos-coverage_koord,pos+coverage_koord).is_contained(fab)) {
 				*p = pos;
 				break;
 			}
-			cost = gr->weg_entfernen(weg_t::schiene, true);
+			cost = gr->weg_entfernen(track_wt, true);
 			pos += dir;
 			buche(-cost, pos, COST_CONSTRUCTION);
 			if(dir!=last_dir  ||  welt->lookup(pos)->gib_kartenboden()->gib_weg_hang()!=hang_t::flach) {
@@ -2163,8 +2163,8 @@ spieler_t::built_hub( const koord pos, int radius )
 						// ok, one halt belongs already to us ...
       					return try_pos;
 					}
-					else if(gr->gib_weg(weg_t::strasse)) {
-						ribi_t::ribi  ribi = gr->gib_weg_ribi_unmasked(weg_t::strasse);
+					else if(gr->gib_weg(road_wt)) {
+						ribi_t::ribi  ribi = gr->gib_weg_ribi_unmasked(road_wt);
 	      				if( abs(x)+abs(y)<=dist  &&  (ribi_t::nordsued==ribi  || ribi_t::ostwest==ribi  ||  ribi_t::ist_einfach(ribi))    ) {
 	      					best_pos = try_pos;
 	      					dist = abs(x)+abs(y);
@@ -2245,7 +2245,7 @@ spieler_t::create_road_transport_vehikel(fabrik_t *qfab, int anz_vehikel)
 
 		// calculate vehicle start position
 		koord3d startpos=(start_location==0)?pos1:pos2;
-		ribi_t::ribi w_ribi = welt->lookup(startpos)->gib_weg_ribi_unmasked(weg_t::strasse);
+		ribi_t::ribi w_ribi = welt->lookup(startpos)->gib_weg_ribi_unmasked(road_wt);
 		// now start all vehicle one field before, so they load immediately
 		startpos = welt->lookup(koord(startpos.gib_2d())+koord(w_ribi))->gib_kartenboden()->gib_pos();
 
@@ -2296,7 +2296,7 @@ spieler_t::create_rail_transport_vehikel(const koord platz1, const koord platz2,
 	if(  rail_engine->get_engine_type()==vehikel_besch_t::electric  ) {
 		// we need overhead wires
 		value_t v;
-		v.p = (const void *)(wayobj_t::wayobj_search(weg_t::schiene,weg_t::overheadlines,welt->get_timeline_year_month()));
+		v.p = (const void *)(wayobj_t::wayobj_search(track_wt,overheadlines_wt,welt->get_timeline_year_month()));
 		wkz_wayobj(this,welt,INIT,v);
 		wkz_wayobj(this,welt,platz1,v);
 		wkz_wayobj(this,welt,platz2,v);
@@ -2400,7 +2400,7 @@ DBG_MESSAGE("spieler_t::create_simple_road_transport()","Already connection betw
 	// no connection => built one!
 	wegbauer_t bauigel(welt, this);
 
-	bauigel.route_fuer( wegbauer_t::strasse, road_weg, brueckenbauer_t::find_bridge(weg_t::strasse,road_vehicle->gib_geschw(),welt->get_timeline_year_month()) );
+	bauigel.route_fuer( wegbauer_t::strasse, road_weg, brueckenbauer_t::find_bridge(road_wt,road_vehicle->gib_geschw(),welt->get_timeline_year_month()) );
 	bauigel.baubaer = true;
 
 	// we won't destroy cities (and save the money)
@@ -2434,7 +2434,7 @@ bool
 spieler_t::create_simple_rail_transport()
 {
 	wegbauer_t bauigel(welt, this);
-	bauigel.route_fuer( wegbauer_t::schiene_bot_bau, rail_weg, brueckenbauer_t::find_bridge(weg_t::schiene,rail_engine->gib_geschw(),welt->get_timeline_year_month()) );
+	bauigel.route_fuer( wegbauer_t::schiene_bot_bau, rail_weg, brueckenbauer_t::find_bridge(track_wt,rail_engine->gib_geschw(),welt->get_timeline_year_month()) );
 	bauigel.set_keep_existing_ways(false);
 	bauigel.baubaer = false;	// no tunnels, no bridges
 	bauigel.calc_route(platz1,platz2);
@@ -2638,7 +2638,7 @@ DBG_DEBUG("spieler_t::rdwr()","player %i: loading %i halts.",welt->sp2num( this 
 		init_texte();
 
 		// empty undo buffer
-		init_undo(weg_t::strasse,0);
+		init_undo(road_wt,0);
 	}
 
 	// headquarter stuff
@@ -2772,7 +2772,7 @@ DBG_MESSAGE("spieler_t::bescheid_vehikel_problem","Vehicle %s, state %i!", cnv->
  * @author prissi
  */
 void
-spieler_t::init_undo( weg_t::typ wtype, unsigned short max )
+spieler_t::init_undo( waytype_t wtype, unsigned short max )
 {
 	if(player_nr!=0) {
 		// this is an KI

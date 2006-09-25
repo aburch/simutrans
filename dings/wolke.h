@@ -42,37 +42,25 @@ public:
 class sync_wolke_t : public wolke_t, public sync_steppable
 {
 private:
-    sint16 base_y_off;
-    image_id base_image;
+	sint16 base_y_off;
+	image_id base_image;
 
 public:
-    sync_wolke_t(karte_t *welt, loadsave_t *file);
-    sync_wolke_t(karte_t *welt, koord3d pos, int xoff, int yoff, image_id bild);
+	sync_wolke_t(karte_t *welt, loadsave_t *file);
+	sync_wolke_t(karte_t *welt, koord3d pos, int xoff, int yoff, image_id bild);
 
+	bool sync_step(long delta_t);
+	enum ding_t::typ gib_typ() const {return sync_wolke;}
 
-    /**
-     * Vorbereitungsmethode für Echtzeitfunktionen eines Objekts.
-     * @author Hj. Malthaner
-     */
-    virtual void sync_prepare() {};
+	void rdwr(loadsave_t *file);
 
-    bool sync_step(long delta_t);
-    enum ding_t::typ gib_typ() const {return sync_wolke;};
-
-    void rdwr(loadsave_t *file);
-
-    /**
-     * Wird aufgerufen, wenn wolke entfernt wird. Entfernt wolke aus
-     * der Verwaltuing synchroner Objekte.
-     * @author Hj. Malthaner
-     */
-    virtual void entferne(spieler_t *sp);
+	virtual void entferne(spieler_t *sp);
 };
 
 
 /**
  * Asynchron bewegte Wölkchen für Simutrans. Bewegt sich schlecht, braucht aber
- * weniger Rechenzeit als synchrone Wolken.
+ * weniger Rechenzeit als synchrone Wolken. (not saving much though ... )
  *
  * @author Hj. Malthaner
  * @version $Revision: 1.10 $
@@ -80,11 +68,11 @@ public:
 class async_wolke_t : public wolke_t
 {
 public:
-    async_wolke_t(karte_t *welt, loadsave_t *file);
-    async_wolke_t(karte_t *welt, koord3d pos, int xoff, int yoff, image_id bild);
+	async_wolke_t(karte_t *welt, loadsave_t *file);
+	async_wolke_t(karte_t *welt, koord3d pos, int xoff, int yoff, image_id bild);
 
-    bool step(long delta_t);
-    enum ding_t::typ gib_typ() const {return async_wolke;};
+	bool step(long delta_t);
+	enum ding_t::typ gib_typ() const {return async_wolke;};
 };
 
 #endif

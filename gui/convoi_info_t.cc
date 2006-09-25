@@ -210,12 +210,8 @@ convoi_info_t::zeichnen(koord pos, koord gr)
 		follow_button.pressed = (cnv->gib_welt()->get_follow_convoi()==cnv);
 
 		// buffer update now only when needed by convoi itself => dedicated buffer for this
-		int old_len=freight_info.len();
 		cnv->get_freight_info(freight_info);
-		if(old_len!=freight_info.len()) {
-			text.setze_text(freight_info);
-			resize( koord(0,0) );	// recalcs slider ...
-		}
+		text.setze_text(freight_info);
 
 		route_bar.set_base(cnv->get_route()->gib_max_n());
 		cnv_route_index = cnv->gib_vehikel(0)->gib_route_index()-1;
@@ -332,7 +328,7 @@ DBG_MESSAGE("convoi_info_t::action_triggered()","convoi state %i => cannot chang
 			slist_tpl<koord3d> all_depots;
 			karte_t * welt = cnv->gib_welt();
 			depot_t * depot = NULL;
-			const weg_t::typ waytype = cnv->gib_vehikel(0)->gib_besch()->gib_typ();
+			const waytype_t waytype = cnv->gib_vehikel(0)->gib_besch()->gib_typ();
 			for (int x = 0; x < welt->gib_groesse_x(); x++) {
 				for (int y = 0; y < welt->gib_groesse_y(); y++) {
 					grund_t * gr = welt->lookup(koord(x,y))->gib_kartenboden();
@@ -387,8 +383,7 @@ DBG_MESSAGE("convoi_info_t::action_triggered()","search depot: found on %i,%i",g
 		} // end go home button
 	}
 
-	if (komp == &toggler)
-        {
+	if (komp == &toggler) {
 		toggler.pressed = !toggler.pressed;
 		const koord offset = toggler.pressed ? koord(0, 170) : koord(0, -170);
 		set_min_windowsize( koord(TOTAL_WIDTH, toggler.pressed ? 364: 194));

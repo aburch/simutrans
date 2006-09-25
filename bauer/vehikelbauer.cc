@@ -12,12 +12,12 @@
 #include "../simworld.h"  // for year/month
 #include "../simdebug.h"
 #include "../simtools.h"  // for simrand
+#include "../simtypes.h"
 
 #include "../dataobj/umgebung.h"
 
 #include "../besch/bildliste_besch.h"
 #include "../besch/vehikel_besch.h"
-#include "../boden/wege/weg.h"
 
 #include "../bauer/warenbauer.h"
 #include "../bauer/vehikelbauer.h"
@@ -25,7 +25,7 @@
 
 inthashtable_tpl<int, const vehikel_besch_t *> vehikelbauer_t::_fahrzeuge;
 stringhashtable_tpl<const vehikel_besch_t *> vehikelbauer_t::name_fahrzeuge;
-inthashtable_tpl<weg_t::typ, slist_tpl<const vehikel_besch_t *> > vehikelbauer_t::typ_fahrzeuge;
+inthashtable_tpl<waytype_t, slist_tpl<const vehikel_besch_t *> > vehikelbauer_t::typ_fahrzeuge;
 
 
 
@@ -37,24 +37,24 @@ vehikelbauer_t::baue(karte_t *welt, koord3d k,
 	if(vb) {
 
 		switch(vb->gib_typ()) {
-			case weg_t::strasse:
+			case road_wt:
 				v = new automobil_t(welt, k, vb, sp, cnv);
 				break;
-			case weg_t::monorail:
+			case monorail_wt:
 				v = new monorail_waggon_t(welt, k, vb, sp, cnv);
 				break;
-			case weg_t::schiene:
-			case weg_t::schiene_strab:
+			case track_wt:
+			case tram_wt:
 				v = new waggon_t(welt, k, vb, sp, cnv);
 				break;
-			case weg_t::wasser:
+			case water_wt:
 				v = new schiff_t(welt, k, vb, sp, cnv);
 				break;
-			case weg_t::luft:
+			case air_wt:
 				v = new aircraft_t(welt, k, vb, sp, cnv);
 				break;
-			case weg_t::invalid:
-			case weg_t::powerline:
+			case invalid_wt:
+			case powerline_wt:
 			default:
 				dbg->fatal("vehikelbauer_t::baue()","cannot built a vehicle with waytype %i",vb->gib_typ());
 		}
@@ -79,7 +79,7 @@ bool vehikelbauer_t::register_besch(const vehikel_besch_t *besch)
 	name_fahrzeuge.put(besch->gib_name(), besch);
 	_fahrzeuge.put(besch->gib_basis_bild(), besch);
 
-	weg_t::typ typ = besch->gib_typ();
+	waytype_t typ = besch->gib_typ();
 
 	slist_tpl<const vehikel_besch_t *> *typ_liste = typ_fahrzeuge.access(typ);
 	if(!typ_liste) {
@@ -105,7 +105,7 @@ bool vehikelbauer_t::register_besch(const vehikel_besch_t *besch)
 	}
 
 	// correct for driving on left side
-	if(typ==weg_t::strasse  &&  umgebung_t::drive_on_left) {
+	if(typ==road_wt  &&  umgebung_t::drive_on_left) {
 		const int XOFF=(12*get_tile_raster_width())/64;
 		const int YOFF=(6*get_tile_raster_width())/64;
 
@@ -155,7 +155,8 @@ bool vehikelbauer_t::register_besch(const vehikel_besch_t *besch)
 
 void vehikelbauer_t::sort_lists()
 {
-    inthashtable_iterator_tpl<weg_t::typ, slist_tpl<const vehikel_besch_t *> > typ_iter(typ_fahrzeuge);
+	DBG_MESSAGE("vehikelbauer_t::sort_lists()","called");
+    inthashtable_iterator_tpl<waytype_t, slist_tpl<const vehikel_besch_t *> > typ_iter(typ_fahrzeuge);
 
     while(typ_iter.next()) {
   slist_tpl<const vehikel_besch_t *> *typ_liste = &typ_iter.access_current_value();
@@ -252,7 +253,7 @@ void vehikelbauer_t::sort_lists()
  * @author Hansjörg Malthaner
  */
 const vehikel_besch_t *
-vehikelbauer_t::gib_info(const ware_besch_t *wtyp,weg_t::typ vtyp,uint32 min_power)
+vehikelbauer_t::gib_info(const ware_besch_t *wtyp,waytype_t vtyp,uint32 min_power)
 {
 	min_power *= 64;
 
@@ -289,7 +290,7 @@ vehikelbauer_t::gib_info(image_id base_img)
 
 
 const vehikel_besch_t *
-vehikelbauer_t::gib_info(weg_t::typ typ, uint32 i)
+vehikelbauer_t::gib_info(waytype_t typ, uint32 i)
 {
 	slist_tpl<const vehikel_besch_t *> *typ_liste = typ_fahrzeuge.access(typ);
 	if(typ_liste && i < typ_liste->count()) {
@@ -344,7 +345,7 @@ int vehikelbauer_t::vehikel_can_lead( const vehikel_besch_t *v )
  * tries to get best with but adds a little random action
  * @author prissi
  */
-const vehikel_besch_t *vehikelbauer_t::vehikel_search(weg_t::typ typ,const unsigned month_now,const int target_power,const int target_speed,const ware_besch_t * target_freight,bool include_electric)
+const vehikel_besch_t *vehikelbauer_t::vehikel_search(waytype_t typ,const unsigned month_now,const int target_power,const int target_speed,const ware_besch_t * target_freight,bool include_electric)
 {
   // only needed for iteration
   inthashtable_iterator_tpl<int, const vehikel_besch_t *> iter(_fahrzeuge);
@@ -445,7 +446,7 @@ DBG_MESSAGE( "vehikelbauer_t::vehikel_search","Found engine %s",besch->gib_name(
 
 
 
-const vehikel_besch_t *vehikelbauer_t::vehikel_fuer_leistung(int leistung, weg_t::typ typ,const unsigned month_now)
+const vehikel_besch_t *vehikelbauer_t::vehikel_fuer_leistung(int leistung, waytype_t typ,const unsigned month_now)
 {
   // only needed for iteration
   inthashtable_iterator_tpl<int, const vehikel_besch_t *> iter(_fahrzeuge);

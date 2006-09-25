@@ -30,31 +30,44 @@ static const void * block_tester=NULL;
 #include "../tpl/vector_tpl.h"
 #include "../tpl/array_tpl.h"
 
-// use this for priorityques:
-// NOT RECOMMENDED: search is not faster for all map sizes, and paths are longer ...
-//#define PRIOR
+
+// if defined, print some profiling informations into the file
+//#define DEBUG_ROUTES
+
+// this is WAY slower than the sorted_heap! (also not always finding best routes, but was the original algorithms)
+//#include "../tpl/prioqueue_tpl.h"
+
+// HOT queue with the pocket size equal to the distance
+// still slower than a sorted heap
+//#include "../tpl/HOT_queue_tpl.h"
+
+// sorted heap, since we only need insert and pop
+//#include "../tpl/sorted_heap_tpl.h"
+
+// sorted heap, since we only need insert and pop
+#include "../tpl/binary_heap_tpl.h"
 
 
-#ifdef PRIOR
-
-#include "../tpl/prioqueue_tpl.h"
 #define Node KNode
 
 // dies wird fuer die routenplanung benoetigt
 class KNode {
-
 public:
-    KNode * parent;
-    grund_t *gr;
-    uint32  f, g;
-    uint8 dir;
+	KNode * parent;
+	grund_t *gr;
+	uint32  f, g;
+	uint8 dir;
+	uint16 count;
 
-    inline bool operator < (const KNode &k) const { return (f<=k.f); }
-};
-#else
-#define Node ANode
-
+	inline bool operator <= (const KNode k) const { return f==k.f ? g<=k.g : f<=k.f; }
+#ifdef sorted_heap_tpl
+	inline bool operator == (const KNode k) const { return f==k.f  &&  g==k.g; }
 #endif
+#ifdef tpl_HOT_queue_tpl_h
+	inline bool is_matching(const KNode &l) const { return gr==l.gr; }
+	inline uint32 get_distance() const { return f; }
+#endif
+};
 
 
 
@@ -223,7 +236,7 @@ route_t::find_route(karte_t *welt,
 	}
 
 	// some thing for the search
-	const weg_t::typ wegtyp = fahr->gib_wegtyp();
+	const waytype_t wegtyp = fahr->gib_wegtyp();
 	const grund_t *gr;
 	grund_t *to;
 
@@ -289,7 +302,7 @@ route_t::find_route(karte_t *welt,
 			// a way goes here, and it is not marked (i.e. in the closed list)
 			if(  (ribi & ribi_t::nsow[r] & start_dir)!=0  // allowed dir (we can restrict the first step by start_dir)
 				&& abs_distance(start.gib_2d(),gr->gib_pos().gib_2d()+koord::nsow[r])<max_depth	// not too far away
-				&& gr->get_neighbour(to, wegtyp/*weg_t::invalid*/, koord::nsow[r])  // is connected
+				&& gr->get_neighbour(to, wegtyp, koord::nsow[r])  // is connected
 				&& fahr->ist_befahrbar(to)	// can be driven on
 			) {
 				unsigned index;
@@ -392,7 +405,7 @@ route_t::intern_calc_route(karte_t *welt, const koord3d ziel, const koord3d star
 	}
 
 	// some thing for the search
-	const weg_t::typ wegtyp = fahr->gib_wegtyp();
+	const waytype_t wegtyp = fahr->gib_wegtyp();
 	grund_t *to;
 
 	bool ziel_erreicht=false;
@@ -405,20 +418,23 @@ route_t::intern_calc_route(karte_t *welt, const koord3d ziel, const koord3d star
 
 	INT_CHECK("route 347");
 
-#ifdef PRIOR
-    // Warteschlange fuer Breitensuche
-    // Kann statisch sein, weil niemals zwei Fahrzuege zugleich eine route
-    // suchen ... statisch bedeutet wiedernutzung bereits erzeugter nodes
-    // und ist in diesem Fall effizienter
-    static prioqueue_tpl <KNode *> queue;
+	// there are several variant for mantaining the open list
+	// however, only binary heap and HOT queue with binary heap are worth considering
+#ifdef tpl_HOT_queue_tpl_h
+    static HOT_queue_tpl <KNode *> queue;
 #else
-	// arrays for A*
-	// (was vector_tpl before, but since we really badly need speed here, we use unchecked arrays)
-	static ANode **open;
+#ifdef tpl_binary_heap_tpl_h
+    static binary_heap_tpl <KNode *> queue;
+#else
+#ifdef tpl_sorted_heap_tpl_h
+    static sorted_heap_tpl <KNode *> queue;
+#else
+    static prioqueue_tpl <KNode *> queue;
 #endif
-	static uint32 open_size=0, open_count;
+#endif
+#endif
 
-	const bool is_airplane = fahr->gib_wegtyp()==weg_t::luft;
+	const bool is_airplane = fahr->gib_wegtyp()==air_wt;
 
 	// we clear it here probably twice: does not hurt ...
 	route.clear();
@@ -443,22 +459,9 @@ route_t::intern_calc_route(karte_t *welt, const koord3d ziel, const koord3d star
 	// nothing in lists
 	welt->unmarkiere_alle();
 
-#ifdef PRIOR
-DBG_DEBUG("sizes","KNode=%i, ANode=%i",sizeof(KNode),sizeof(ANode));
-    // da die queue statisch ist müssen wir die reste der alten suche
-    // erst aufräumen
-    queue.clear();
-    queue.insert(tmp);
-#else
-	if(open_size==0) {
-		open_size = 4096;
-		open = (ANode **)malloc( sizeof(ANode*)*4096 );
-	}
-
-	// start in open
-	open[0] = tmp;
-	open_count = 1;
-#endif
+	// clear the queue (should be empty anyhow)
+	queue.clear();
+	queue.insert(tmp);
 
 //DBG_MESSAGE("route_t::itern_calc_route()","calc route from %d,%d,%d to %d,%d,%d",ziel.x, ziel.y, ziel.z, start.x, start.y, start.z);
 	uint32 beat=1;
@@ -468,20 +471,15 @@ DBG_DEBUG("sizes","KNode=%i, ANode=%i",sizeof(KNode),sizeof(ANode));
 			INT_CHECK("route 161");
 		}
 
-#ifdef PRIOR
 		Node *test_tmp = queue.pop();
-		tmp = test_tmp;
-#else
-		open_count --;
 
-		if(welt->ist_markiert(open[open_count]->gr)) {
-			// this is not 100% optimal, but is about two to three times faster ...
+		if(welt->ist_markiert(test_tmp->gr)) {
+			// we were already here on a faster route, thus ignore this branch
+			// (trading speed against memory consumption)
 			continue;
 		}
 
-		tmp = open[open_count];
-#endif
-
+		tmp = test_tmp;
 		gr = tmp->gr;
 		welt->markiere(gr);
 
@@ -550,51 +548,9 @@ DBG_DEBUG("sizes","KNode=%i, ANode=%i",sizeof(KNode),sizeof(ANode));
 
 				const uint32 new_f = new_g + calc_distance( to->gib_pos(), ziel );
 
-#ifdef PRIOR
-				// not in there or taken out => add new
-				KNode *k=(KNode *)(nodes+step);
+				// add new
+				Node *k=(Node *)(nodes+step);
 				step ++;
-
-				k->parent = tmp;
-				k->gr = to;
-				k->g = new_g;
-				k->f = new_f;
-				k->dir = current_dir;
-
-				queue.insert( k );
-//DBG_DEBUG("insert to open","%i,%i,%i",to->gib_pos().x,to->gib_pos().y,to->gib_pos().z);
-#else
-				uint32 index = open_count;
-				// insert with binary search, ignore doublettes
-				if(open_count>0  &&  new_f>open[open_count-1]->f) {//  || (new_f==open[open_count-1]->f  &&  new_g<=open[open_count-1]->g))) {
-					sint32 high = open_count, low = -1, probe;
-					while(high - low>1) {
-						probe = ((uint32) (low + high)) >> 1;
-						if(open[probe]->f==new_f) {
-							low = probe;
-							break;
-						}
-						else if(open[probe]->f>new_f) {
-							low = probe;
-						}
-						else {
-							high = probe;
-						}
-					}
-					// we want to insert before, so we may add 1
-					index = 0;
-					if(low>=0) {
-						index = low;
-						if(open[index]->f>=new_f) {
-							index ++;
-						}
-					}
-//DBG_MESSAGE("bsort","current=%i f=%i  f+1=%i",new_f,open[index]->f,open[index+1]->f);
-				}
-
-				// not in there or taken out => add new
-				ANode *k=&(nodes[step]);
-				step++;
 
 				k->parent = tmp;
 				k->gr = to;
@@ -603,34 +559,15 @@ DBG_DEBUG("sizes","KNode=%i, ANode=%i",sizeof(KNode),sizeof(ANode));
 				k->dir = current_dir;
 				k->count = tmp->count+1;
 
-				// need to enlarge?
-				if(open_count==open_size) {
-					ANode **tmp=open;
-					open_size += 4096;
-					open = (ANode **)malloc( sizeof(ANode*)*open_size );
-					memcpy( open, tmp, sizeof(ANode*)*(open_size-4096) );
-					free( tmp );
-				}
-
-				if(index<open_count) {
-					// was not best f so far => insert
-					memmove( open+index+1ul, open+index, sizeof(ANode*)*(open_count-index) );
-				}
-				open[index] = k;
-				open_count ++;
-#endif
-//DBG_DEBUG("insert to open","(%i,%i,%i)  f=%i at %i",to->gib_pos().x,to->gib_pos().y,to->gib_pos().z,k->f, index);
+				queue.insert( k );
 			}
 		}
-#ifdef PRIOR
-		open_count = queue.count();
-#endif
 
-	} while(open_count>0  &&  !ziel_erreicht  &&  step<MAX_STEP  &&  tmp->g<max_cost);
+	} while(!queue.is_empty()  &&  !ziel_erreicht  &&  step<MAX_STEP  &&  tmp->g<max_cost);
 
 	INT_CHECK("route 194");
 #ifdef DEBUG_ROUTES
-DBG_DEBUG("route_t::intern_calc_route()","steps=%i  (max %i) in route, open %i, cost %u (max %u)",step,MAX_STEP,open_count,tmp->g,max_cost);
+DBG_DEBUG("route_t::intern_calc_route()","steps=%i  (max %i) in route, open %i, cost %u (max %u)",step,MAX_STEP,queue.count(),tmp->g,max_cost);
 #endif
 	// target reached?
 	if(!ziel_erreicht  || step >= MAX_STEP  ||  tmp->parent==NULL) {
@@ -673,8 +610,8 @@ route_t::calc_route(karte_t *welt,
 #ifdef DEBUG_ROUTES
 	// profiling for routes ...
 	long ms=get_current_time_millis();
-	bool ok = intern_calc_route(welt, ziel, start, fahr, max_khm,max_cost);
-	if(fahr->gib_wegtyp()==weg_t::wasser) {DBG_DEBUG("route_t::calc_route()","route from %d,%d to %d,%d with %i steps in %u ms found.",start.x, start.y, ziel.x, ziel.y, route.get_count()-2, get_current_time_millis()-ms );}
+	bool ok = intern_calc_route(welt, start, ziel, fahr, max_khm,max_cost);
+	if(fahr->gib_wegtyp()==water_wt) {DBG_DEBUG("route_t::calc_route()","route from %d,%d to %d,%d with %i steps in %u ms found.",start.x, start.y, ziel.x, ziel.y, route.get_count()-2, get_current_time_millis()-ms );}
 #else
 	bool ok = intern_calc_route(welt, start, ziel, fahr, max_khm,max_cost);
 #endif
@@ -697,7 +634,7 @@ DBG_MESSAGE("route_t::calc_route()","No route from %d,%d to %d,%d found",start.x
 		if(halt.is_bound()) {
 
 			// does only make sence for trains
-			if(fahr->gib_wegtyp()==weg_t::schiene  ||  fahr->gib_wegtyp()==weg_t::monorail  ||  fahr->gib_wegtyp()==weg_t::schiene_strab) {
+			if(fahr->gib_wegtyp()==track_wt  ||  fahr->gib_wegtyp()==monorail_wt  ||  fahr->gib_wegtyp()==tram_wt) {
 
 				int max_n = route.get_count()-1;
 
@@ -706,7 +643,7 @@ DBG_MESSAGE("route_t::calc_route()","No route from %d,%d to %d,%d found",start.x
 
 				const int ribi = ribi_typ(zv);//fahr->gib_ribi(welt->lookup(start));
 				grund_t *gr=welt->lookup(start);
-				const weg_t::typ wegtyp=fahr->gib_wegtyp();
+				const waytype_t wegtyp=fahr->gib_wegtyp();
 
 				while(gr->get_neighbour(gr,wegtyp,zv)  &&  gr->gib_halt() == halt  &&   fahr->ist_befahrbar(gr)   &&  (fahr->gib_ribi(gr)&&ribi)!=0) {
 					// stop at end of track! (prissi)

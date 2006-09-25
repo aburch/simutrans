@@ -32,7 +32,7 @@
 # on your own (i.e. manually run a make clean)
 # Uncomment this if this stage takes exceptionally long, which happens on some
 # broken filesystems
-#NO_DEPS = 1
+# NO_DEPS = 1
 
 # Following flags exists
 # DOUBLE_GROUNDS: Enables two height tiles

@@ -17,6 +17,7 @@
 /*
  *  includes
  */
+#include "../simtypes.h"
 #include "text_besch.h"
 #include "bildliste2d_besch.h"
 
@@ -35,40 +36,43 @@
  *	1   Copyright
  *	2   Bildliste2D
  */
-class baum_besch_t : public obj_besch_t {
-    friend class tree_writer_t;
-    friend class tree_reader_t;
 
-    uint8  hoehenlage;
-    uint8  distribution_weight;
+ // season 0 is always summer
+ // season 1 is winter for two seasons
+ // otherwise 0 summer, next seasons (autumn, winter, spring) ....
+
+class baum_besch_t : public obj_besch_t {
+	friend class tree_writer_t;
+	friend class tree_reader_t;
+
+	climate_bits	allowed_climates;
+	uint8		distribution_weight;
+	uint8		number_of_seasons;
 
 public:
-	int gib_distribution_weight() const
-	{
-		return distribution_weight;
+	const char *gib_name() const { return static_cast<const text_besch_t *>(gib_kind(0))->gib_text(); }
+
+	const char *gib_copyright() const { return static_cast<const text_besch_t *>(gib_kind(1))->gib_text(); }
+
+	int gib_distribution_weight() const { return distribution_weight; }
+
+	bool is_allowed_climate( climate cl ) const { return ((1<<cl)&allowed_climates)!=0; }
+
+	const bild_besch_t *gib_bild(int season, int i) const  	{
+		if(number_of_seasons==0) {
+			// comapility mode
+			i += season*5;
+			season = 0;
+		}
+		return static_cast<const bildliste2d_besch_t *>(gib_kind(2))->gib_bild(i, season);
 	}
 
-	int gib_hoehenlage() const
-	{
-		return hoehenlage;
-	}
-
-	const char *gib_name() const
-	{
-		return static_cast<const text_besch_t *>(gib_kind(0))->gib_text();
-	}
-
-	const char *gib_copyright() const
-	{
-		return static_cast<const text_besch_t *>(gib_kind(1))->gib_text();
-	}
-	const bild_besch_t *gib_bild(int h, int i) const
-	{
-		return static_cast<const bildliste2d_besch_t *>(gib_kind(2))->gib_bild(i, h);
-	}
-	const int gib_seasons() const
-	{
-		return static_cast<const bildliste2d_besch_t *>(gib_kind(2))->gib_anzahl()/5;
+	// old style trees and new style tree support ...
+	const int gib_seasons() const {
+		if(number_of_seasons==0) {
+			return static_cast<const bildliste2d_besch_t *>(gib_kind(2))->gib_anzahl()/5;
+		}
+		return number_of_seasons;
 	}
 };
 

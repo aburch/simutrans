@@ -19,7 +19,7 @@
  */
 #include "text_besch.h"
 #include "bild_besch.h"
-#include "../boden/wege/weg.h"
+#include "../simtypes.h"
 
 
 /*
@@ -41,36 +41,23 @@ class kreuzung_besch_t : public obj_besch_t {
     friend class crossing_writer_t;
     friend class crossing_reader_t;
 
-    uint16  wegtyp_ns;
-    uint16  wegtyp_ow;
+private:
+    uint8  wegtyp_ns;
+    uint8  wegtyp_ow;
 
 public:
-    const char *gib_name() const
-    {
-	return static_cast<const text_besch_t *>(gib_kind(0))->gib_text();
-    }
-    const char *gib_copyright() const
-    {
-        return static_cast<const text_besch_t *>(gib_kind(1))->gib_text();
-    }
-    const bild_besch_t *gib_bild() const
-    {
-	return static_cast<const bild_besch_t *>(gib_kind(2));
-    }
-    int gib_bild_nr() const
-    {
-	const bild_besch_t *bild = gib_bild();
+	const char *gib_name() const { return static_cast<const text_besch_t *>(gib_kind(0))->gib_text(); }
+	const char *gib_copyright() const { return static_cast<const text_besch_t *>(gib_kind(1))->gib_text(); }
 
-	return bild ? bild->bild_nr : -1;
-    }
-    weg_t::typ gib_wegtyp_ns() const
-    {
-	return static_cast<weg_t::typ>(wegtyp_ns);
-    }
-    weg_t::typ gib_wegtyp_ow() const
-    {
-	return static_cast<weg_t::typ>(wegtyp_ow);
-    }
+	const bild_besch_t *gib_bild() const { return static_cast<const bild_besch_t *>(gib_kind(2)); }
+	int gib_bild_nr() const
+	{
+		const bild_besch_t *bild = gib_bild();
+		return bild ? bild->bild_nr : -1;
+	}
+
+	waytype_t gib_wegtyp_ns() const { return static_cast<waytype_t>(wegtyp_ns); }
+	waytype_t gib_wegtyp_ow() const { return static_cast<waytype_t>(wegtyp_ow); }
 };
 
 #endif // __KREUZUNG_BESCH_H

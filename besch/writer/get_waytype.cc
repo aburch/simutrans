@@ -11,28 +11,28 @@
  */
 uint8 get_waytype(const char * waytype)
 {
-	uint8 uv8 = weg_t::strasse;
+	uint8 uv8 = road_wt;
 
 	if(!STRICMP(waytype, "road")) {
-		uv8 = weg_t::strasse;
+		uv8 = road_wt;
 	} else if(!STRICMP(waytype, "track")) {
-		uv8 = weg_t::schiene;
+		uv8 = track_wt;
 	} else if(!STRICMP(waytype, "electrified_track")) {
-		uv8 = weg_t::overheadlines;
+		uv8 = overheadlines_wt;
 	} else if(!STRICMP(waytype, "monorail_track")) {
-		uv8 = weg_t::monorail;
+		uv8 = monorail_wt;
 	} else if(!STRICMP(waytype, "maglev_track")) {
-		uv8 = weg_t::schiene_maglev;
+		uv8 = maglev_wt;
 	} else if(!STRICMP(waytype, "water")) {
-		uv8 = weg_t::wasser;
+		uv8 = water_wt;
 	} else if(!STRICMP(waytype, "air")) {
-		uv8 = weg_t::luft;
+		uv8 = air_wt;
 	} else if(!STRICMP(waytype, "schiene_tram")) {
-		uv8 = weg_t::schiene_strab;
+		uv8 = tram_wt;
 	} else if(!STRICMP(waytype, "tram_track")) {
-		uv8 = weg_t::schiene_strab;
+		uv8 = tram_wt;
 	} else if(!STRICMP(waytype, "power")) {
-		uv8 = weg_t::powerline;
+		uv8 = powerline_wt;
 	} else {
 //		cstring_t reason;
 		printf("\nFATAL\ninvalid waytype %s\n", waytype);

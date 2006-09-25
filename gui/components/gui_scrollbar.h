@@ -85,13 +85,7 @@ public:
 
     void infowin_event(const event_t *ev);
 
-    /**
-     * Draw scrollbar. Offset is top left of window.
-     * @author Niels Roest
-     */
-    void zeichnen(koord pos, int button_farbe) const;
-
-    void zeichnen(koord pos) const;
+    void zeichnen(koord pos);
 };
 
 #endif

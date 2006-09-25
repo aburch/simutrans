@@ -21,73 +21,61 @@
  */
 class powernet_t : public sync_steppable
 {
- public:
+public:
+	/**
+	* Must be caled before powernets get loaded. Clears the
+	* table of networks
+	* @author Hj. Malthaner
+	*/
+	static void prepare_loading();
 
-  /**
-   * Must be caled before powernets get loaded. Clears the
-   * table of networks
-   * @author Hj. Malthaner
-   */
-  static void prepare_loading();
-
-
-  /**
-   * Loads a powernet object or hand back already loaded object
-   * @author Hj. Malthaner
-   */
-  static powernet_t * load_net(powernet_t *key);
+	/**
+	* Loads a powernet object or hand back already loaded object
+	* @author Hj. Malthaner
+	*/
+	static powernet_t * load_net(powernet_t *key);
 
 
+private:
+	long next_t;
+	uint32 capacity[8];
+	uint8 current_capacity;
 
- private:
-  long next_t;
-  uint32 capacity[8];
-  uint8 current_capacity;
+	uint32 last_capacity;
+	uint32 max_capacity;
 
-  uint32 last_capacity;
-  uint32 max_capacity;
-
-  uint32 power_last;
-  uint32 power_this;
-
- public:
-
-  uint32 get_capacity() const;
-  uint32 set_max_capacity(uint32 max) { uint32 m=max_capacity;  if(max>0){max_capacity=max;} return m; }
-
-  /**
-   * Adds some power to the net
-   * @author Hj. Malthaner
-   */
-  void add_power(uint32 amount);
+	uint32 power_last;
+	uint32 power_this;
 
 
-  /**
-   * Tries toget a certain amount of power from the net.
-   * @return granted amount of power
-   * @author Hj. Malthaner
-   */
-  uint32 withdraw_power(uint32 want);
+public:
+	powernet_t();
 
+	virtual ~powernet_t() {}
 
-  /**
-   * Vorbereitungsmethode für Echtzeitfunktionen eines Objekts.
-   * @author Hj. Malthaner
-   */
-  virtual void sync_prepare();
+	uint32 get_capacity() const;
+	uint32 set_max_capacity(uint32 max) { uint32 m=max_capacity;  if(max>0){max_capacity=max;} return m; }
 
+	/**
+	* Adds some power to the net
+	* @author Hj. Malthaner
+	*/
+	void add_power(uint32 amount);
 
-  /**
-   * Methode für Echtzeitfunktionen eines Objekts.
-   * @return false wenn Objekt aus der Liste der synchronen
-   * Objekte entfernt werden sol
-   * @author Hj. Malthaner
-   */
-  virtual bool sync_step(long delta_t);
+	/**
+	* Tries toget a certain amount of power from the net.
+	* @return granted amount of power
+	* @author Hj. Malthaner
+	*/
+	uint32 withdraw_power(uint32 want);
 
-  powernet_t();
-
-  virtual ~powernet_t();
+	/**
+	* Methode für Echtzeitfunktionen eines Objekts.
+	* @return false wenn Objekt aus der Liste der synchronen
+	* Objekte entfernt werden sol
+	* @author Hj. Malthaner
+	*/
+	virtual bool sync_step(long delta_t);
 };
 
 #endif // powernet_t_h

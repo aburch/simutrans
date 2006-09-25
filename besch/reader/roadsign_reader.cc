@@ -63,7 +63,7 @@ obj_besch_t * roadsign_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 		besch->flags = decode_uint8(p);
 		besch->intro_date = DEFAULT_INTRO_DATE*12;
 		besch->obsolete_date = DEFAULT_RETIRE_DATE*12;
-		besch->wtyp = weg_t::strasse;
+		besch->wtyp = road_wt;
 	}
 	else if(version==1) {
 		// Versioned node, version 1
@@ -72,7 +72,7 @@ obj_besch_t * roadsign_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 		besch->flags = decode_uint8(p);
 		besch->intro_date = DEFAULT_INTRO_DATE*12;
 		besch->obsolete_date = DEFAULT_RETIRE_DATE*12;
-		besch->wtyp = weg_t::strasse;
+		besch->wtyp = road_wt;
 	}
 	else {
 		dbg->fatal("roadsign_reader_t::read_node()","version 0 not supported. File corrupt?");

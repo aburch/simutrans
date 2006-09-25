@@ -4,7 +4,7 @@ CONFIG ?= config.default
 
 BACKENDS      = allegro gdi sdl x11
 COLOUR_DEPTHS = 8 16
-OSTYPES       = beos cygwin freebsd linux mingw
+OSTYPES       = beos cygwin freebsd linux mingw macintel
 
 ifeq ($(findstring $(BACKEND), $(BACKENDS)),)
   $(error Unkown BACKEND "$(BACKEND)", must be one of "$(BACKENDS)")
@@ -32,25 +32,28 @@ ifeq ($(OSTYPE),beos)
   STD_LIBS       ?= -lz
 endif
 
-ifeq ($(OSTYPE),cygwin)
-  OS_INC         ?= -I/usr/include/mingw
-  OS_OPT         ?= -mwin32
-  STD_LIBS       ?= -lgdi32 -lwinmm -lz -mno-cygwin
-endif
-
 ifeq ($(OSTYPE),freebsd)
   STD_LIBS       ?= -lz
 endif
 
-ifeq ($(OSTYPE),mingw)
-  OS_OPT         ?= -mno-cygwin -DPNG_STATIC -DZLIB_STATIC
-  STD_LIBS       ?=  -lunicows -lz -lmingw32 -lgdi32 -lwinmm
+ifeq ($(OSTYPE),macintel)
+  STD_LIBS       ?= -lz
 endif
 
 ifeq ($(OSTYPE),linux)
   STD_LIBS       ?= -lz
 endif
 
+ifeq ($(OSTYPE),cygwin)
+  OS_INC         ?= -I/usr/include/mingw
+  OS_OPT         ?= -mwin32
+  STD_LIBS       ?= -lgdi32 -lwinmm -lz -mno-cygwin
+endif
+
+ifeq ($(OSTYPE),mingw)
+  OS_OPT         ?= -mno-cygwin -DPNG_STATIC -DZLIB_STATIC
+  STD_LIBS       ?=  -lunicows -lz -lmingw32 -lgdi32 -lwinmm
+endif
 
 ALLEGRO_CONFIG ?= allegro-config
 SDL_CONFIG     ?= sdl-config
@@ -76,7 +79,11 @@ ifneq ($(PROFILE),)
 endif
 
 ifeq ($(OSTYPE),beos)
-  CFLAGS += -DUSE_C
+#  CFLAGS += -DUSE_C
+endif
+
+ifeq ($(OSTYPE),macintel)
+  CFLAGS += -DUSE_HW -DUSE_C
 endif
 
 CFLAGS   += -Wall -W -Wcast-qual -Wpointer-arith -Wcast-align -Wstrict-prototypes $(OS_INC) $(OS_OPT) $(FLAGS)
@@ -90,6 +97,7 @@ SOURCES += bauer/tunnelbauer.cc
 SOURCES += bauer/vehikelbauer.cc
 SOURCES += bauer/warenbauer.cc
 SOURCES += bauer/wegbauer.cc
+SOURCES += besch/bild_besch.cc
 SOURCES += besch/bruecke_besch.cc
 SOURCES += besch/grund_besch.cc
 SOURCES += besch/haus_besch.cc
@@ -164,11 +172,6 @@ SOURCES += dings/tunnel.cc
 SOURCES += dings/wayobj.cc
 SOURCES += dings/wolke.cc
 SOURCES += dings/zeiger.cc
-SOURCES += font.cc
-SOURCES += freight_list_sorter.cc
-SOURCES += gui/citylist_frame_t.cc
-SOURCES += gui/citylist_stats_t.cc
-SOURCES += gui/colors.cc
 SOURCES += gui/components/gui_button.cc
 SOURCES += gui/components/gui_chart.cc
 SOURCES += gui/components/gui_combobox.cc
@@ -184,6 +187,11 @@ SOURCES += gui/components/gui_tab_panel.cc
 SOURCES += gui/components/gui_textarea.cc
 SOURCES += gui/components/gui_textinput.cc
 SOURCES += gui/components/gui_world_view_t.cc
+SOURCES += gui/banner.cc
+SOURCES += gui/citylist_frame_t.cc
+SOURCES += gui/citylist_stats_t.cc
+SOURCES += gui/climates.cc
+SOURCES += gui/colors.cc
 SOURCES += gui/convoi_detail_t.cc
 SOURCES += gui/convoi_filter_frame.cc
 SOURCES += gui/convoi_frame.cc
@@ -205,7 +213,7 @@ SOURCES += gui/halt_detail.cc
 SOURCES += gui/halt_info.cc
 SOURCES += gui/halt_list_filter_frame.cc
 SOURCES += gui/halt_list_frame.cc
-SOURCES += gui/halt_list_item.cc
+SOURCES += gui/halt_list_stats.cc
 SOURCES += gui/help_frame.cc
 SOURCES += gui/karte.cc
 SOURCES += gui/kennfarbe.cc
@@ -229,6 +237,17 @@ SOURCES += gui/stadt_info.cc
 SOURCES += gui/thing_info.cc
 SOURCES += gui/welt.cc
 SOURCES += gui/werkzeug_parameter_waehler.cc
+SOURCES += sucher/platzsucher.cc
+SOURCES += tpl/debug_helper.cc
+SOURCES += tpl/no_such_element_exception.cc
+SOURCES += utils/cbuffer_t.cc
+SOURCES += utils/cstring_t.cc
+SOURCES += utils/log.cc
+SOURCES += utils/searchfolder.cc
+SOURCES += utils/simstring.c
+SOURCES += utils/tocstring.cc
+SOURCES += font.cc
+SOURCES += freight_list_sorter.cc
 SOURCES += old_blockmanager.cc
 SOURCES += simcity.cc
 SOURCES += simconvoi.cc
@@ -262,18 +281,7 @@ SOURCES += simware.cc
 SOURCES += simwerkz.cc
 SOURCES += simwin.cc
 SOURCES += simworld.cc
-SOURCES += sucher/platzsucher.cc
-SOURCES += tpl/debug_helper.cc
-SOURCES += tpl/no_such_element_exception.cc
 SOURCES += unicode.c
-SOURCES += utils/cbuffer_t.cc
-SOURCES += utils/cstring_t.cc
-SOURCES += utils/log.cc
-SOURCES += utils/searchfolder.cc
-SOURCES += utils/simstring.c
-SOURCES += utils/tocstring.cc
-
-
 SOURCES += simgraph$(COLOUR_DEPTH).c
 
 

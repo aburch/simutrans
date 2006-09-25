@@ -47,7 +47,7 @@
 void
 verkehrsteilnehmer_t::calc_current_speed()
 {
-	const weg_t * weg = welt->lookup(gib_pos())->gib_weg(weg_t::strasse);
+	const weg_t * weg = welt->lookup(gib_pos())->gib_weg(road_wt);
 	const int speed_limit = weg ? kmh_to_speed(weg->gib_max_speed()) : max_speed;
 	current_speed += max_speed>>2;
 	if(current_speed > max_speed) {
@@ -94,7 +94,7 @@ verkehrsteilnehmer_t::verkehrsteilnehmer_t(karte_t *welt, koord3d pos) :
     grund_t *from = welt->lookup(pos);
     grund_t *to;
 
-    // int ribi = from->gib_weg_ribi(weg_t::strasse);
+    // int ribi = from->gib_weg_ribi(road_wt);
     ribi_t::ribi liste[4];
     int count = 0;
 
@@ -108,7 +108,7 @@ verkehrsteilnehmer_t::verkehrsteilnehmer_t(karte_t *welt, koord3d pos) :
 
     // verfügbare ribis in liste eintragen
     for(int r = 0; r < 4; r++) {
-	if(from->get_neighbour(to, weg_t::strasse, koord::nsow[r])) {
+	if(from->get_neighbour(to, road_wt, koord::nsow[r])) {
 	    liste[count++] = ribi_t::nsow[r];
 	}
     }
@@ -133,7 +133,7 @@ verkehrsteilnehmer_t::verkehrsteilnehmer_t(karte_t *welt, koord3d pos) :
 	break;
     }
     if(count) {
-	from->get_neighbour(to, weg_t::strasse, fahrtrichtung);
+	from->get_neighbour(to, road_wt, fahrtrichtung);
 	pos_next = to->gib_pos();
     } else {
 	pos_next = welt->lookup(pos.gib_2d() + koord(fahrtrichtung))->gib_kartenboden()->gib_pos();
@@ -178,7 +178,7 @@ verkehrsteilnehmer_t::hop()
 	int count = 0;
 
 	// 1) find the allowed directions
-	const weg_t *weg = from->gib_weg(weg_t::strasse);
+	const weg_t *weg = from->gib_weg(road_wt);
 	if(weg==NULL) {
 		// no gound here any more?
 		pos_next = gib_pos();
@@ -190,10 +190,10 @@ verkehrsteilnehmer_t::hop()
 	int ribi = weg->gib_ribi_unmasked();
 	for(int r = 0; r < 4; r++) {
 		if(  (ribi & ribi_t::nsow[r])!=0  &&  (ribi_t::nsow[r]&gegenrichtung)==0 &&
-			from->get_neighbour(to, weg_t::strasse, koord::nsow[r])
+			from->get_neighbour(to, road_wt, koord::nsow[r])
 		) {
 			// check, if this is just a single tile deep
-			int next_ribi =  to->gib_weg(weg_t::strasse)->gib_ribi_unmasked();
+			int next_ribi =  to->gib_weg(road_wt)->gib_ribi_unmasked();
 			if((ribi&next_ribi)!=0  ||  !ribi_t::ist_einfach(next_ribi)) {
 				liste[count++] = to;
 			}
@@ -485,13 +485,13 @@ stadtauto_t::ist_weg_frei()
 		return false;
 	}
 
-	weg_t *str=gr->gib_weg(weg_t::strasse);
+	weg_t *str=gr->gib_weg(road_wt);
 	if(!str) {
 		return false;
 	}
 
 
-	if(gr->gib_weg(weg_t::schiene)) {
+	if(gr->gib_weg(track_wt)) {
 		// railway crossing
 		if(gr->suche_obj_ab(ding_t::waggon,PRI_RAIL_AND_ROAD)) {
 			return false;
@@ -576,7 +576,7 @@ stadtauto_t::betrete_feld()
 	vehikel_basis_t::betrete_feld();
 
 	grund_t *gr = welt->lookup( gib_pos() );
-	gr->gib_weg(weg_t::strasse)->book(1, WAY_STAT_CONVOIS);
+	gr->gib_weg(road_wt)->book(1, WAY_STAT_CONVOIS);
 }
 
 
@@ -640,7 +640,7 @@ stadtauto_t::hop()
 	liste.clear();
 
 	// 1) find the allowed directions
-	const weg_t *weg = from->gib_weg(weg_t::strasse);
+	const weg_t *weg = from->gib_weg(road_wt);
 	if(weg==NULL) {
 		// no gound here any more?
 		pos_next = gib_pos();
@@ -648,11 +648,11 @@ stadtauto_t::hop()
 	}
 
 	ribi_t::ribi ribi = weg->gib_ribi() & ribi_t::gib_forward(fahrtrichtung);
-	if(ribi_t::ist_einfach(ribi)  &&  from->get_neighbour(to, weg_t::strasse, koord(ribi))) {
+	if(ribi_t::ist_einfach(ribi)  &&  from->get_neighbour(to, road_wt, koord(ribi))) {
 		// we should add here
 		bool add=true;
 		// check, if roadsign forbid next step ...
-		if(to->gib_weg(weg_t::strasse)->has_sign()) {
+		if(to->gib_weg(road_wt)->has_sign()) {
 			const roadsign_besch_t *rs_besch = ((roadsign_t *)to->suche_obj(ding_t::roadsign))->gib_besch();
 			add = (rs_besch->is_traffic_light()  ||  rs_besch->gib_min_speed()<=gib_max_speed())  &&  !rs_besch->is_private_way();
 		}
@@ -679,9 +679,9 @@ stadtauto_t::hop()
 	else {
 		// add all good ribis here
 		for(int r = 0; r < 4; r++) {
-			if(  (ribi&ribi_t::nsow[r])!=0  &&  from->get_neighbour(to, weg_t::strasse, koord::nsow[r]) ) {
+			if(  (ribi&ribi_t::nsow[r])!=0  &&  from->get_neighbour(to, road_wt, koord::nsow[r]) ) {
 				// check, if this is just a single tile deep
-				weg_t *w=to->gib_weg(weg_t::strasse);
+				weg_t *w=to->gib_weg(road_wt);
 				int next_ribi =  w->gib_ribi();
 				if((ribi&next_ribi)!=0  ||  !ribi_t::ist_einfach(next_ribi)) {
 					bool add=true;

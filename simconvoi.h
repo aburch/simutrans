@@ -494,12 +494,6 @@ public:
 	void add_running_cost(sint32 cost);
 
 	/**
-	* Vorbereitungsmethode für Echtzeitfunktionen eines Objekts.
-	* @author Hj. Malthaner
-	*/
-	void sync_prepare() {}
-
-	/**
 	* Methode für Echtzeitfunktionen eines Objekts.
 	* @author Hj. Malthaner
 	*/

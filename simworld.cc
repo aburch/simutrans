@@ -139,6 +139,50 @@ const int karte_t::Z_GRID      = 0;
 const int karte_t::Z_LINES     = 4;
 
 
+
+// changes the snowline height (for the seasons)
+void
+karte_t::recalc_snowline()
+{
+	static int mfactor[12] = { 100, 90, 75, 50, 25, 10, 0, 10, 25, 50, 75, 90 };
+	static uint8 month_to_season[12] = { 2, 2, 2, 3, 3, 0, 0, 0, 0, 1, 1, 2 };
+
+	// calculate snowline with day precicion
+	// use linear interpolation
+	const long ticks_this_month = gib_zeit_ms() & (karte_t::ticks_per_tag-1);
+	const long faktor = mfactor[letzter_monat] + ( (mfactor[(letzter_monat+1)%12]-mfactor[letzter_monat])*ticks_this_month ) / (long)karte_t::ticks_per_tag;
+
+	// just remember them
+	const sint16 old_snowline = snowline;
+	const sint16 old_season = season;
+
+	// and calculate new values
+	season=month_to_season[letzter_monat];   //  (2+letzter_monat/3)&3; // summer always zero
+	const int winterline = einstellungen->gib_winter_snowline();
+	const int summerline = einstellungen->gib_climate_borders()[arctic_climate]+1;
+	snowline = summerline - ((summerline-winterline)*faktor)/100;
+	snowline = (snowline*16)+grundwasser;
+
+	// changed => we update all tiles ...
+	if(old_snowline!=snowline  ||  old_season!=season) {
+DBG_MESSAGE("karte_t::neuer_monat()","process seasons %i snowline %i",season,snowline/16);
+		// give most objects the chance to change according to the seasons
+		int check_counter = 0;
+		const int cached_groesse2 = cached_groesse_gitter_x*cached_groesse_gitter_y;
+		for(int i=0; i<cached_groesse2; i++) {
+			plan[i].check_season(current_month);
+
+			if(((++check_counter) & 63) == 0) {	// every 64 one update ...
+				INT_CHECK("simworld 1076");
+				interactive_update();
+			}
+		}
+		setze_dirty();
+	}
+}
+
+
+
 void
 karte_t::setze_scroll_multi(int n)
 {
@@ -457,6 +501,12 @@ DBG_MESSAGE("karte_t::destroy()", "destroying world");
 
 	labels.clear();
 
+	if(zeiger) {
+		zeiger->setze_pos(koord3d::invalid);
+		delete zeiger;
+		zeiger = NULL;
+	}
+
 	unsigned int i,j;
 
 	// alle convois aufräumen
@@ -471,12 +521,12 @@ DBG_MESSAGE("karte_t::destroy()", "convois destroyed");
 	haltestelle_t::destroy_all();
 DBG_MESSAGE("karte_t::destroy()", "stops destroyed");
 
-	// städte aufräumen
+	// delte towns first (will also delete all their houses
 	if(stadt) {
-		weighted_vector_tpl <stadt_t *> * tmp = stadt;
+		weighted_vector_tpl <stadt_t *> *tmp = stadt;
 		stadt = 0;
-			for(i=0; i<tmp->get_count(); i++) {
-		delete tmp->at(i);
+		for(i=0; i<tmp->get_count(); i++) {
+			delete tmp->at(i);
 		}
 		tmp->clear();
 		delete tmp;
@@ -491,14 +541,13 @@ DBG_MESSAGE("karte_t::destroy()", "sync list cleared");
 	// dinge aufräumen
 	if(plan) {
 		for(j=0; j<(unsigned int)gib_groesse_y(); j++) {
-		for(i=0; i<(unsigned int)gib_groesse_x(); i++) {
-			access(i, j)->destroy(NULL);
-//			DBG_MESSAGE("karte_t::destroy()", "planquadrat %i,%i destroyed",i,j);
+			for(i=0; i<(unsigned int)gib_groesse_x(); i++) {
+				access(i, j)->destroy(NULL);
+			}
 		}
-	}
 
-	delete [] plan;
-	plan = 0;
+		delete [] plan;
+		plan = 0;
 	}
 	DBG_MESSAGE("karte_t::destroy()", "planquadrat destroyed");
 
@@ -585,32 +634,30 @@ bool karte_t::rem_stadt(stadt_t *s)
 }
 
 
+
+// just allocates space;
 void
 karte_t::init_felder()
 {
-    plan   = new planquadrat_t[gib_groesse_x()*gib_groesse_y()];
-    grid_hgts = new sint8[(gib_groesse_x()+1)*(gib_groesse_y()+1)];
+	assert(plan==0);
 
-    memset(grid_hgts, 0, sizeof(sint8)*(gib_groesse_x()+1)*(gib_groesse_y()+1));
+	plan   = new planquadrat_t[gib_groesse_x()*gib_groesse_y()];
+	grid_hgts = new sint8[(gib_groesse_x()+1)*(gib_groesse_y()+1)];
 
-    marker.init(gib_groesse_x(),gib_groesse_y());
+	memset(grid_hgts, 0, sizeof(sint8)*(gib_groesse_x()+1)*(gib_groesse_y()+1));
 
-    simlinemgmt_t::init_line_ids();
+	marker.init(gib_groesse_x(),gib_groesse_y());
 
-    win_setze_welt( this );
-    reliefkarte_t::gib_karte()->setze_welt(this);
+	simlinemgmt_t::init_line_ids();
 
-    for(int i=0; i<MAX_PLAYER_COUNT ; i++) {
-        spieler[i] = new spieler_t(this, i*4, i);
-/********************************************************************** automat
-        if(i>=2) {
-        	// otherwise during loading things are not belonging to an AI ...
-        	spieler[i]->automat = true;
-        }
-*/
-    }
-    active_player = spieler[0];
-    active_player_nr = 0;
+	win_setze_welt( this );
+	reliefkarte_t::gib_karte()->setze_welt(this);
+
+	for(int i=0; i<MAX_PLAYER_COUNT ; i++) {
+		spieler[i] = new spieler_t(this, i*4, i);
+	}
+	active_player = spieler[0];
+	active_player_nr = 0;
 
 	// defaults without timeline
 	average_speed[0] = 60;
@@ -626,13 +673,15 @@ karte_t::init(einstellungen_t *sets)
 	mute_sound(true);
 	int i, j;
 
-	destroy();
 	intr_disable();
+	destroy();
 
 	if(is_display_init()) {
 		display_show_pointer(false);
 	}
 	setze_ij_off(koord(0,0));
+
+	einstellungen = sets;
 
 	x_off = y_off = 0;
 
@@ -641,16 +690,17 @@ karte_t::init(einstellungen_t *sets)
 	// ticks = 0x7FFFF800;  // Testing the 31->32 bit step
 
 	letzter_monat = 0;
-	letztes_jahr = sets->gib_starting_year();//umgebung_t::starting_year;
+	letztes_jahr = einstellungen->gib_starting_year();//umgebung_t::starting_year;
 	current_month = letzter_monat + (letztes_jahr*12);
-	setze_ticks_bits_per_tag(sets->gib_bits_per_month());
+	setze_ticks_bits_per_tag(einstellungen->gib_bits_per_month());
 	next_month_ticks =  karte_t::ticks_per_tag;
-	season = 2;
+	season=(2+letzter_monat/3)&3; // summer always zero
 	steps = 0;
-
-	einstellungen = sets;
+	recalc_average_speed();	// resets timeline
 
 	grundwasser = sets->gib_grundwasser();      //29-Nov-01     Markus Weber    Changed
+	grund_besch_t::calc_water_level( this, height_to_climate );
+	snowline = sets->gib_winter_snowline()*16;
 
 	if(sets->gib_beginner_mode()) {
 		warenbauer_t::set_multiplier( umgebung_t::beginner_price_factor );
@@ -707,6 +757,7 @@ DBG_DEBUG("karte_t::init()","set ground");
 		for(k.x=0; k.x<gib_groesse_x(); k.x++) {
 			access(k)->abgesenkt(this);
 			lookup(k)->gib_kartenboden()->setze_grund_hang( calc_natural_slope(k) );
+			lookup(k)->gib_kartenboden()->calc_bild();
 		}
 	}
 
@@ -720,13 +771,6 @@ DBG_DEBUG("karte_t::init()","built timeline");
 
 DBG_DEBUG("karte_t::init()","hausbauer_t::neue_karte()");
     hausbauer_t::neue_karte();
-
-	// make sure, we have a city road ...
-	city_road = wegbauer_t::gib_besch(umgebung_t::city_road_type->chars(),get_timeline_year_month());
-	if(!city_road) {
-		city_road = wegbauer_t::weg_search(weg_t::strasse,30,get_timeline_year_month());
-	}
-
 
 DBG_DEBUG("karte_t::init()","prepare cities");
 	stadt = new weighted_vector_tpl <stadt_t *>(0);
@@ -772,7 +816,7 @@ DBG_DEBUG("karte_t::init()","Erzeuge stadt %i with %ld inhabitants",i,(s->get_ci
 		if(besch == 0) {
 			dbg->warning("karte_t::init()","road type '%s' not found",umgebung_t::intercity_road_type->chars());
 			// Hajo: try some default (might happen with timeline ... )
-			besch = wegbauer_t::weg_search(weg_t::strasse,80,get_timeline_year_month());
+			besch = wegbauer_t::weg_search(road_wt,80,get_timeline_year_month());
 		}
 
 		// Hajo: No owner so that roads can be removed!
@@ -784,7 +828,7 @@ DBG_DEBUG("karte_t::init()","Erzeuge stadt %i with %ld inhabitants",i,(s->get_ci
 
 		// Hajo: search for road offset
 		koord roff (0,1);
-		if(lookup(pos->at(0)+roff)->gib_kartenboden()->gib_weg(weg_t::strasse) == 0) {
+		if(lookup(pos->at(0)+roff)->gib_kartenboden()->gib_weg(road_wt) == 0) {
 			roff = koord(0,2);
 		}
 
@@ -863,9 +907,6 @@ DBG_DEBUG("karte_t::init()","Erzeuge stadt %i with %ld inhabitants",i,(s->get_ci
     }
 #endif
 
-	// change grounds to winter?
-	const int current_season=(2+letzter_monat/3)&3; // summer always zero
-	boden_t::toggle_season( current_season );
 	setze_dirty();
 
     intr_enable();
@@ -923,14 +964,16 @@ karte_t::karte_t() : convoi_array(0), ausflugsziele(16), quick_shortcuts(15), ma
 	zeiger = 0;
 	plan = 0;
 	grid_hgts = 0;
-	einstellungen = 0;
+	einstellungen = sets;
 	schedule_counter = 0;
 
 	for(int i=0; i<MAX_PLAYER_COUNT ; i++) {
 		spieler[i] = 0;
 	}
 
-	init(sets);
+	// set builder to invalid tile ...
+	extern koord3d wkz_wegebau_start;
+	wkz_wegebau_start = koord3d::invalid;
 }
 
 karte_t::~karte_t()
@@ -1578,27 +1621,27 @@ karte_t::sync_remove(sync_steppable *obj)	// entfernt alle dinge == obj aus der 
 	return sync_list.remove( obj );
 }
 
+/*
+ * this routine is called before an image is displayed
+ * it moves vehicles and pedestrians
+ * only time consuming thing are done in step()
+ * everything else is done here
+ */
 void
-karte_t::sync_prepare()
+karte_t::sync_step(const long dt)
 {
+	// ingore calls by interrupt during fast forward ...
+	if(fast_forward  &&  dt!=-987) {
+		return;
+	}
+
 	if(sync_add_list.count()>0) {
 		slist_iterator_tpl<sync_steppable *> iter (sync_add_list);
 		while(iter.next()) {
 			sync_steppable *ss = iter.get_current();
-			ss->sync_prepare();
 			sync_list.insert( ss );
 		}
-//		DBG_MESSAGE("karte_t::sync_prepare()","added %d obj(s) to sync_list",sync_add_list.count());
 		sync_add_list.clear();
-	}
-}
-
-void
-karte_t::sync_step(const long dt)
-{
-	// ingore calls by interrupt ...
-	if(fast_forward  &&  dt!=-987) {
-		return;
 	}
 
 	const long delta_t = (dt<0) ? 200 : (dt * get_time_multi()) >> 4;
@@ -1629,14 +1672,14 @@ karte_t::sync_step(const long dt)
 
 	// change view due to following a convoi?
 	if(follow_convoi.is_bound()) {
-		const koord old_pos=gib_ij_off();
+		const koord old_pos=ij_off;
 		const koord new_pos=follow_convoi->gib_vehikel(0)->gib_pos().gib_2d()-koord(8,8);
 		const int rw=get_tile_raster_width();
 		const int new_xoff=tile_raster_scale_x(-follow_convoi->gib_vehikel(0)->gib_xoff(),rw);
 		const int new_yoff=tile_raster_scale_x(-follow_convoi->gib_vehikel(0)->gib_yoff(),rw)+tile_raster_scale_y(follow_convoi->gib_vehikel(0)->gib_pos().z,rw);
 		if(new_pos!=old_pos  ||  new_xoff!=gib_x_off()  ||  new_yoff!=gib_y_off()) {
 			//position changed => update
-			setze_ij_off( new_pos );
+			ij_off = new_pos;
 			x_off = new_xoff;
 			y_off = new_yoff;
 			intr_refresh_display( true );
@@ -1658,30 +1701,13 @@ karte_t::neuer_monat()
 	}
 	DBG_MESSAGE("karte_t::neuer_monat()","Month %d has started", letzter_monat);
 
-	const weg_besch_t *city_road_test = wegbauer_t::gib_besch(umgebung_t::city_road_type->chars(),get_timeline_year_month());
-	if(city_road_test) {
-		city_road = city_road_test;
-	}
-	else {
-		DBG_MESSAGE("karte_t::neuer_monat()","Month %d has started", letzter_monat);
-		city_road = wegbauer_t::weg_search(weg_t::strasse,30,get_timeline_year_month());
-	}
-	INT_CHECK("simworld 1701");
-
 	// this should be done before a map update, since the map may want an update of the way usage
 //	DBG_MESSAGE("karte_t::neuer_monat()","ways");
 	slist_iterator_tpl <weg_t *> weg_iter (weg_t::gib_alle_wege());
 	while( weg_iter.next() ) {
 		weg_iter.get_current()->neuer_monat();
 	}
-	INT_CHECK("simworld 1890");	// change grounds to winter?
-	const int current_season=(2+letzter_monat/3)&3; // summer always zero
-	if(  season!=current_season  ) {
-		season = current_season;
-		boden_t::toggle_season( current_season );
-	}
 
-//	DBG_MESSAGE("karte_t::neuer_monat()","process seasons");
 	// recalc old settings (and maybe update the staops with the current values)
 	reliefkarte_t::gib_karte()->neuer_monat();
 
@@ -1742,19 +1768,34 @@ karte_t::neuer_monat()
 		neues_jahr();
 	}
 
-//	DBG_MESSAGE("karte_t::neuer_monat()","citycars");
-	stadtauto_t::built_timeline_liste(this);
 	INT_CHECK("simworld 1299");
 
-	DBG_MESSAGE("karte_t::neuer_monat()","timeline");
+	recalc_average_speed();
+	INT_CHECK("simworld 1921");
 
-	// prissi: check for new/retired vehicles
+	if(umgebung_t::autosave>0  &&  letzter_monat%umgebung_t::autosave==0) {
+		char buf[128];
+		sprintf( buf, "save/autosave%02i.sve", letzter_monat+1 );
+		speichern( buf, true );
+	}
+}
+
+
+
+// recalculated speed boni for different vehicles
+// and takes care of all timeline stuff
+void karte_t::recalc_average_speed()
+{
+	// retire/allocate vehicles
+	stadtauto_t::built_timeline_liste(this);
+
+//	DBG_MESSAGE("karte_t::recalc_average_speed()","");
 	if(use_timeline()) {
-		char	buf[256];
 
-		for(int i=weg_t::strasse; i<weg_t::luft; i++) {
+		char	buf[256];
+		for(int i=road_wt; i<air_wt; i++) {
 			const vehikel_besch_t *info;
-			for(  int j=0;  (info = vehikelbauer_t::gib_info((weg_t::typ)i, j));  j++  ) {
+			for(  int j=0;  (info = vehikelbauer_t::gib_info((waytype_t)i, j));  j++  ) {
 
 				const uint16 intro_month = info->get_intro_year_month();
 				if(intro_month == current_month) {
@@ -1773,34 +1814,25 @@ karte_t::neuer_monat()
 				}
 			}
 		}
-	}
-	INT_CHECK("simworld 1921");
 
-	recalc_average_speed();
-	INT_CHECK("simworld 1921");
+		// city road check
+		const weg_besch_t *city_road_test = wegbauer_t::gib_besch(umgebung_t::city_road_type->chars(),get_timeline_year_month());
+		if(city_road_test) {
+			city_road = city_road_test;
+		}
+		else {
+			DBG_MESSAGE("karte_t::neuer_monat()","Month %d has started", letzter_monat);
+			city_road = wegbauer_t::weg_search(road_wt,30,get_timeline_year_month());
+		}
 
-	if(umgebung_t::autosave>0  &&  letzter_monat%umgebung_t::autosave==0) {
-		char buf[128];
-		sprintf( buf, "save/autosave%02i.sve", letzter_monat+1 );
-		speichern( buf, true );
-	}
-}
-
-
-
-// recalculated speed boni for different vehicles
-void karte_t::recalc_average_speed()
-{
-//	DBG_MESSAGE("karte_t::recalc_average_speed()","");
-	if(use_timeline()) {
 		int num_averages[4]={0,0,0,0};
 		int speed_sum[4]={0,0,0,0};
 		const uint16 timeline_month = get_timeline_year_month();
-		for(int i=weg_t::strasse; i<=weg_t::luft; i++) {
+		for(int i=road_wt; i<=air_wt; i++) {
 			// check for speed
 			const vehikel_besch_t *info;
-			const int speed_bonus_categorie = (i>=4  &&  i<=7) ? 2 : (i==weg_t::luft ? 4 : i );
-			for(  int j=0;  (info = vehikelbauer_t::gib_info((weg_t::typ)i, j));  j++  ) {
+			const int speed_bonus_categorie = (i>=4  &&  i<=7) ? 2 : (i==air_wt ? 4 : i );
+			for(  int j=0;  (info = vehikelbauer_t::gib_info((waytype_t)i, j));  j++  ) {
 				if(info->gib_leistung()>0  &&  !info->is_future(timeline_month)  &&  !info->is_retired(timeline_month)) {
 					speed_sum[speed_bonus_categorie-1] += info->gib_geschw();
 					num_averages[speed_bonus_categorie-1] ++;
@@ -1820,21 +1852,26 @@ void karte_t::recalc_average_speed()
 		average_speed[1] = 80;
 		average_speed[2] = 40;
 		average_speed[3] = 350;
+
+		city_road = wegbauer_t::gib_besch(umgebung_t::city_road_type->chars(),0);
+		if(city_road==NULL) {
+			city_road = wegbauer_t::weg_search(road_wt,30,0);
+		}
 	}
 }
 
 
 
-int karte_t::get_average_speed(weg_t::typ typ) const
+int karte_t::get_average_speed(waytype_t typ) const
 {
 	switch(typ) {
-		case weg_t::strasse: return average_speed[0];
-		case weg_t::schiene:
-		case weg_t::monorail:
-		case weg_t::schiene_maglev:
-		case weg_t::schiene_strab: return average_speed[1];
-		case weg_t::wasser: return average_speed[2];
-		case weg_t::luft: return average_speed[3];
+		case road_wt: return average_speed[0];
+		case track_wt:
+		case monorail_wt:
+		case maglev_wt:
+		case tram_wt: return average_speed[1];
+		case water_wt: return average_speed[2];
+		case air_wt: return average_speed[3];
 		default: return 1;
 	}
 }
@@ -1944,10 +1981,12 @@ void karte_t::step(const long delta_t)
 				next_month_ticks = ticks+karte_t::ticks_per_tag;
 			}
 
-			// now handle new month (and maybe new year too)
 			neuer_monat();
 		}
 		interactive_update();
+
+		// will also call all objects if needed ...
+		recalc_snowline();
 	}
 }
 
@@ -1997,7 +2036,7 @@ karte_t::blick_aendern(event_t *ev)
     x_off = -(xd & xmask)*2;
     y_off = -(yd & ymask)*2;
 
-    setze_ij_off(gib_ij_off() + koord(dx+dy, dy-dx));
+    ij_off += koord(dx+dy, dy-dx);
 
 
     if ((ev->mx - ev->cx) != 0 || (ev->my - ev->cy) != 0) {
@@ -2133,7 +2172,7 @@ karte_t::play_sound_area_clipped(koord pos, sound_info info)
 {
 	if(is_sound) {
 		const int center = display_get_width() >> 7;
-		const int dist = abs((pos.x-center) - gib_ij_off().x) + abs((pos.y-center) - gib_ij_off().y);
+		const int dist = abs((pos.x-center) - ij_off.x) + abs((pos.y-center) - ij_off.y);
 
 		if(dist < 25) {
 			info.volume = 255-dist*9;
@@ -2260,8 +2299,8 @@ karte_t::speichern(loadsave_t *file,bool silent)
     }
 	DBG_MESSAGE("karte_t::speichern(loadsave_t *file)", "saved players");
 
-    i = gib_ij_off().x;
-    j = gib_ij_off().y;
+    i = ij_off.x;
+    j = ij_off.y;
     file->rdwr_delim("View ");
     file->rdwr_long(i, " ");
     file->rdwr_long(j, "\n");
@@ -2325,29 +2364,15 @@ void karte_t::laden(loadsave_t *file)
     char buf[80];
     int x,y;
 
-    setze_maus_funktion(wkz_abfrage, skinverwaltung_t::fragezeiger->gib_bild_nr(0), Z_PLAN,  NO_SOUND, NO_SOUND );
-
     intr_disable();
+
+    destroy();
 
     // powernets zum laden vorbereiten -> tabelle loeschen
     powernet_t::prepare_loading();
 
-    // alte werte merken fuer neuen Zeiger
-    const int bild = zeiger->gib_bild();
-    const int yoff = zeiger->gib_yoff();
-
-    // gibt alles frei
-
-    // Zeiger entfernen
-    zeiger->setze_pos(koord3d::invalid);     // war nicht in welt enthalten
-    delete zeiger;
-    zeiger = NULL;
-
-    // Datenstrukturen loeschen
-    destroy();
-
 	// jetzt geht das laden los
-	DBG_MESSAGE("karte_t::laden", "Fileversion: %d", file->get_version());
+	DBG_MESSAGE("karte_t::laden", "Fileversion: %d, %p", file->get_version(), einstellungen);
 	einstellungen->rdwr(file);
 	if(einstellungen->gib_allow_player_change()  &&  umgebung_t::use_timeline!=2) {
 		// not locked => eventually switch off timeline settings, if explicitly stated
@@ -2373,12 +2398,18 @@ DBG_DEBUG("karte_t::laden", "einstellungen loaded (groesse %i,%i) timeline=%i be
     // Reliefkarte an neue welt anpassen
     reliefkarte_t::gib_karte()->setze_welt(this);
 
-    //12-Jan-02     Markus Weber added
-    grundwasser = einstellungen->gib_grundwasser();
+	//12-Jan-02     Markus Weber added
+	grundwasser = einstellungen->gib_grundwasser();
+	grund_besch_t::calc_water_level( this, height_to_climate );
+
 DBG_DEBUG("karte_t::laden()","grundwasser %i",grundwasser);
 
-DBG_DEBUG("karte_t::laden", "init felder ... ");
 	init_felder();
+
+	// reinit pointer with new pointer object and old values
+	zeiger = new zeiger_t(this, koord3d::invalid, spieler[0]);
+	setze_maus_funktion(wkz_abfrage, skinverwaltung_t::fragezeiger->gib_bild_nr(0), Z_PLAN,  NO_SOUND, NO_SOUND );
+
 DBG_DEBUG("karte_t::laden", "init felder ok");
 
 	hausbauer_t::neue_karte();
@@ -2392,12 +2423,11 @@ DBG_DEBUG("karte_t::laden", "init felder ok");
 	// set the current month count
 	setze_ticks_bits_per_tag(einstellungen->gib_bits_per_month());
 	current_month = letzter_monat + (letztes_jahr*12);
+	season=(2+letzter_monat/3)&3; // summer always zero
 	steps = 0;
 
 DBG_MESSAGE("karte_t::laden()","savegame loading at tick count %i",ticks);
-
-DBG_DEBUG("karte_t::laden()","built timeline for citycars");
-	stadtauto_t::built_timeline_liste(this);
+	recalc_average_speed();	// resets timeline
 
 DBG_DEBUG("karte_t::laden", "init %i cities",einstellungen->gib_anzahl_staedte());
 	stadt = new weighted_vector_tpl <stadt_t *> (einstellungen->gib_anzahl_staedte());
@@ -2549,11 +2579,6 @@ DBG_MESSAGE("karte_t::laden()","loading grid");
 	}
 DBG_MESSAGE("karte_t::laden()", "%d convois/trains loaded", convoi_array.get_count());
 
-    // reinit pointer with new pointer object and old values
-    zeiger = new zeiger_t(this, koord3d(0,0,0), spieler[0]);	// Zeiger ist spezialobjekt
-    zeiger->setze_bild(0, bild);
-    zeiger->setze_yoff( yoff );
-
 	// jetzt können die spieler geladen werden
 	for(int i=0; i<MAX_PLAYER_COUNT; i++) {
 		spieler[i]->rdwr(file);
@@ -2616,19 +2641,15 @@ DBG_MESSAGE("karte_t::laden()", "%d ways loaded",weg_t::gib_alle_wege().count())
 	else {
 		basis_jahr =  letztes_jahr-(ticks/(12 << karte_t::ticks_bits_per_tag));
 	}
+
 	// make counter for next month
 	next_month_ticks =(ticks+karte_t::ticks_per_tag) & (~(karte_t::ticks_per_tag-1));
 	letzter_monat %= 12;
 
 	DBG_MESSAGE("karte_t::laden()","savegame from %i/%i, base year %i, next month=%i, ticks=%i (per month=1<<%i)",letzter_monat,letztes_jahr,basis_jahr,next_month_ticks,ticks,karte_t::ticks_bits_per_tag);
 
-	// change grounds to winter?
-	const int current_season=(2+letzter_monat/3)&3; // summer always zero
-	if(  season!=current_season  ) {
-		season = current_season;
-		boden_t::toggle_season( current_season );
-	}
-    setze_dirty();
+	recalc_snowline();
+	setze_dirty();
 
 	DBG_MESSAGE("karte_t::laden()","rebuild_destinations()");
 
@@ -2646,7 +2667,7 @@ DBG_MESSAGE("karte_t::laden()", "%d ways loaded",weg_t::gib_alle_wege().count())
 	mute_sound(false);
 }
 
-// Hilfsfunktionen zum Speichern
+
 
 int
 karte_t::sp2num(spieler_t *sp)
@@ -2659,7 +2680,6 @@ karte_t::sp2num(spieler_t *sp)
 	return -1;
 }
 
-// ende karte_t methoden
 
 
 
@@ -3016,7 +3036,7 @@ karte_t::interactive_event(event_t &ev)
 	    break;
 	case '#':
 	    sound_play(click_sound);
-	    boden_t::toggle_grid();
+	    grund_t::toggle_grid();
 	    setze_dirty();
 	    break;
 	case 167:    // Hajo: '§'
@@ -3040,7 +3060,7 @@ karte_t::interactive_event(event_t &ev)
 	    break;
 	case 'e':
 	    if(default_electric==NULL) {
-			default_electric = wayobj_t::wayobj_search(weg_t::schiene,weg_t::overheadlines,get_timeline_year_month());
+			default_electric = wayobj_t::wayobj_search(track_wt,overheadlines_wt,get_timeline_year_month());
 	    }
 	    setze_maus_funktion(wkz_wayobj, default_electric->gib_cursor()->gib_bild_nr(0), Z_PLAN, (long)default_electric, SFX_JACKHAMMER, SFX_FAILURE);
 	    break;
@@ -3099,7 +3119,7 @@ karte_t::interactive_event(event_t &ev)
 	    break;
 	case 's':
 	    if(default_road==NULL) {
-			default_road = wegbauer_t::weg_search(weg_t::strasse,90,get_timeline_year_month());
+			default_road = wegbauer_t::weg_search(road_wt,90,get_timeline_year_month());
 	    }
 	    setze_maus_funktion(wkz_wegebau, default_road->gib_cursor()->gib_bild_nr(0), Z_PLAN, (long)default_road, SFX_JACKHAMMER, SFX_FAILURE);
 	    break;
@@ -3109,7 +3129,7 @@ karte_t::interactive_event(event_t &ev)
 	    break;
 	case 't':
 	    if(default_track==NULL) {
-			default_track = wegbauer_t::weg_search(weg_t::schiene,100,get_timeline_year_month());
+			default_track = wegbauer_t::weg_search(track_wt,100,get_timeline_year_month());
 	  	}
 	  	// may be NULL, if no track exists ...
 	    if(default_track!=NULL) {
@@ -3238,16 +3258,20 @@ karte_t::interactive_event(event_t &ev)
 		}
 		break;
 	case '9':
-	    setze_ij_off(gib_ij_off()+koord::nord);
+	    ij_off += koord::nord;
+	    dirty = true;
 	    break;
 	case '1':
-	    setze_ij_off(gib_ij_off()+koord::sued);
+	    ij_off += koord::sued;
+	    dirty = true;
 	    break;
 	case '7':
-	    setze_ij_off(gib_ij_off()+koord::west);
+	    ij_off += koord::west;
+	    dirty = true;
 	    break;
 	case '3':
-	    setze_ij_off(gib_ij_off()+koord::ost);
+	    ij_off += koord::ost;
+	    dirty = true;
 	    break;
 
 	case '6':

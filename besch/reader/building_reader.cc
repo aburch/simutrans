@@ -19,9 +19,7 @@ obj_besch_t * tile_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 #endif
 
 	char *info_buf = new char[sizeof(obj_besch_t) + node.children * sizeof(obj_besch_t *)];
-
 	haus_tile_besch_t *besch = new haus_tile_besch_t();
-
 	besch->node_info = reinterpret_cast<obj_besch_info_t *>(info_buf);
 
 	// Hajo: Read data
@@ -31,15 +29,23 @@ obj_besch_t * tile_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 
 	// Hajo: old versions of PAK files have no version stamp.
 	// But we know, the highest bit was always cleared.
-
 	const uint16 v = decode_uint16(p);
 	const int version = (v & 0x8000)!=0 ? v&0x7FFF : 0;
 
-	if(version == 1) {
+	if(version == 2) {
 //  DBG_DEBUG("tile_reader_t::read_node()","version=1");
 		// Versioned node, version 1
 		besch->phasen = decode_uint16(p);
 		besch->index = decode_uint16(p);
+		besch->seasons = decode_uint8(p);
+		besch->haus = NULL;
+	}
+	else if(version == 1) {
+//  DBG_DEBUG("tile_reader_t::read_node()","version=1");
+		// Versioned node, version 1
+		besch->phasen = decode_uint16(p);
+		besch->index = decode_uint16(p);
+		besch->seasons = 1;
 		besch->haus = NULL;
 	}
 	else {
@@ -47,9 +53,10 @@ obj_besch_t * tile_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 		p += 2;
 		besch->phasen = decode_uint16(p);
 		besch->index = decode_uint16(p);
+		besch->seasons = 1;
 		besch->haus = NULL;
 	}
-//  DBG_DEBUG("tile_reader_t::read_node()","phasen=%i index=%i", besch->phasen, besch->index );
+	DBG_DEBUG("tile_reader_t::read_node()","phasen=%i index=%i seasons=%i", besch->phasen, besch->index, besch->seasons );
 
 	return besch;
 }
@@ -113,107 +120,138 @@ void building_reader_t::register_obj(obj_besch_t *&data)
 
 bool building_reader_t::successfully_loaded() const
 {
-    return hausbauer_t::alles_geladen();
+	return hausbauer_t::alles_geladen();
 }
 
 
 obj_besch_t * building_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 {
-  // DBG_DEBUG("good_reader_t::read_node()", "called");
-
 #ifdef _MSC_VER /* no var array on the stack supported */
-    char *besch_buf = static_cast<char *>(alloca(node.size));
+	char *besch_buf = static_cast<char *>(alloca(node.size));
 #else
-  // Hajo: reading buffer is better allocated on stack
-  char besch_buf [node.size];
+	// Hajo: reading buffer is better allocated on stack
+	char besch_buf [node.size];
 #endif
 
+	char *info_buf = new char[sizeof(obj_besch_t) + node.children * sizeof(obj_besch_t *)];
+	haus_besch_t *besch = new haus_besch_t();
+	besch->node_info = reinterpret_cast<obj_besch_info_t *>(info_buf);
 
-  char *info_buf = new char[sizeof(obj_besch_t) + node.children * sizeof(obj_besch_t *)];
+	// Hajo: Read data
+	fread(besch_buf, node.size, 1, fp);
 
-  haus_besch_t *besch = new haus_besch_t();
+	char * p = besch_buf;
+	// Hajo: old versions of PAK files have no version stamp.
+	// But we know, the highest bit was always cleared.
+	const uint16 v = decode_uint16(p);
+	const int version = (v & 0x8000)!=0 ? v&0x7FFF : 0;
 
-  besch->node_info = reinterpret_cast<obj_besch_info_t *>(info_buf);
+	if(version == 5) {
+		// Versioned node, version 5
+		// animation intergvall in ms added
+		besch->gtyp      = (enum gebaeude_t::typ)decode_uint8(p);
+		besch->utyp      = (enum hausbauer_t::utyp)decode_uint8(p);
+		besch->level     = decode_uint16(p);
+		besch->bauzeit   = decode_uint32(p);
+		besch->groesse.x = decode_uint16(p);
+		besch->groesse.y = decode_uint16(p);
+		besch->layouts   = decode_uint8(p);
+		besch->allowed_climates = (climate_bits)decode_uint16(p);
+		besch->enables   = decode_uint8(p);
+		besch->flags     = (enum haus_besch_t::flag_t)decode_uint8(p);
+		besch->chance    = decode_uint8(p);
+		besch->intro_date    = decode_uint16(p);
+		besch->obsolete_date = decode_uint16(p);
+		besch->animation_time = decode_uint16(p);
+	}
+	else if(version == 4) {
+		// Versioned node, version 4
+		// climates and seasons added
+		besch->gtyp      = (enum gebaeude_t::typ)decode_uint8(p);
+		besch->utyp      = (enum hausbauer_t::utyp)decode_uint8(p);
+		besch->level     = decode_uint16(p);
+		besch->bauzeit   = decode_uint32(p);
+		besch->groesse.x = decode_uint16(p);
+		besch->groesse.y = decode_uint16(p);
+		besch->layouts   = decode_uint8(p);
+		besch->allowed_climates = (climate_bits)decode_uint16(p);
+		besch->enables   = decode_uint8(p);
+		besch->flags     = (enum haus_besch_t::flag_t)decode_uint8(p);
+		besch->chance    = decode_uint8(p);
+		besch->intro_date    = decode_uint16(p);
+		besch->obsolete_date = decode_uint16(p);
+		besch->animation_time = 300;
+	}
+	else if(version == 3) {
+		// Versioned node, version 3
+		besch->gtyp      = (enum gebaeude_t::typ)decode_uint8(p);
+		besch->utyp      = (enum hausbauer_t::utyp)decode_uint8(p);
+		besch->level     = decode_uint16(p);
+		besch->bauzeit   = decode_uint32(p);
+		besch->groesse.x = decode_uint16(p);
+		besch->groesse.y = decode_uint16(p);
+		besch->layouts   = decode_uint8(p);
+		besch->allowed_climates   =  (climate_bits)0xFFFE; // all but water
+		besch->enables   = decode_uint8(p);
+		besch->flags     = (enum haus_besch_t::flag_t)decode_uint8(p);
+		besch->chance    = decode_uint8(p);
+		besch->intro_date    = decode_uint16(p);
+		besch->obsolete_date = decode_uint16(p);
+		besch->animation_time = 300;
+	}
+	else if(version == 2) {
+		// Versioned node, version 2
+		besch->gtyp      = (enum gebaeude_t::typ)decode_uint8(p);
+		besch->utyp      = (enum hausbauer_t::utyp)decode_uint8(p);
+		besch->level     = decode_uint16(p);
+		besch->bauzeit   = decode_uint32(p);
+		besch->groesse.x = decode_uint16(p);
+		besch->groesse.y = decode_uint16(p);
+		besch->layouts   = decode_uint8(p);
+		besch->allowed_climates   =  (climate_bits)0xFFFE; // all but water
+		besch->enables   = 0x80;
+		besch->flags     = (enum haus_besch_t::flag_t)decode_uint8(p);
+		besch->chance    = decode_uint8(p);
+		besch->intro_date    = decode_uint16(p);
+		besch->obsolete_date = decode_uint16(p);
+		besch->animation_time = 300;
+	}
+	else if(version == 1) {
+		// Versioned node, version 1
+		besch->gtyp      = (enum gebaeude_t::typ)decode_uint8(p);
+		besch->utyp      = (enum hausbauer_t::utyp)decode_uint8(p);
+		besch->level     = decode_uint16(p);
+		besch->bauzeit   = decode_uint32(p);
+		besch->groesse.x = decode_uint16(p);
+		besch->groesse.y = decode_uint16(p);
+		besch->layouts   = decode_uint8(p);
+		besch->allowed_climates   =  (climate_bits)0xFFFE; // all but water
+		besch->enables   = 0x80;
+		besch->flags     = (enum haus_besch_t::flag_t)decode_uint8(p);
+		besch->chance    = decode_uint8(p);
 
-  // Hajo: Read data
-  fread(besch_buf, node.size, 1, fp);
+		besch->intro_date    = DEFAULT_INTRO_DATE*12;
+		besch->obsolete_date = DEFAULT_RETIRE_DATE*12;
+		besch->animation_time = 300;
+	} else {
+		// old node, version 0
+		besch->gtyp      = (enum gebaeude_t::typ)v;
+		decode_uint16(p);
+		besch->utyp      = (enum hausbauer_t::utyp)decode_uint32(p);
+		besch->level     = decode_uint32(p);
+		besch->bauzeit   = decode_uint32(p);
+		besch->groesse.x = decode_uint16(p);
+		besch->groesse.y = decode_uint16(p);
+		besch->layouts   = decode_uint32(p);
+		besch->allowed_climates   =  (climate_bits)0xFFFE; // all but water
+		besch->enables   = 0x80;
+		besch->flags     = (enum haus_besch_t::flag_t)decode_uint32(p);
+		besch->chance    = 100;
 
-  char * p = besch_buf;
-
-  // Hajo: old versions of PAK files have no version stamp.
-  // But we know, the highest bit was always cleared.
-
-  const uint16 v = decode_uint16(p);
-  const int version = (v & 0x8000)!=0 ? v&0x7FFF : 0;
-
-  if(version == 3) {
-    // Versioned node, version 3
-
-    besch->gtyp      = (enum gebaeude_t::typ)decode_uint8(p);
-    besch->utyp      = (enum hausbauer_t::utyp)decode_uint8(p);
-    besch->level     = decode_uint16(p);
-    besch->bauzeit   = decode_uint32(p);
-    besch->groesse.x = decode_uint16(p);
-    besch->groesse.y = decode_uint16(p);
-    besch->layouts   = decode_uint8(p);
-    besch->enables   = decode_uint8(p);
-    besch->flags     = (enum haus_besch_t::flag_t)decode_uint8(p);
-    besch->chance    = decode_uint8(p);
-
-    besch->intro_date    = decode_uint16(p);
-    besch->obsolete_date = decode_uint16(p);
-  }
-  else if(version == 2) {
-    // Versioned node, version 2
-
-    besch->gtyp      = (enum gebaeude_t::typ)decode_uint8(p);
-    besch->utyp      = (enum hausbauer_t::utyp)decode_uint8(p);
-    besch->level     = decode_uint16(p);
-    besch->bauzeit   = decode_uint32(p);
-    besch->groesse.x = decode_uint16(p);
-    besch->groesse.y = decode_uint16(p);
-    besch->layouts   = decode_uint8(p);
-    besch->enables   = 0x80;
-    besch->flags     = (enum haus_besch_t::flag_t)decode_uint8(p);
-    besch->chance    = decode_uint8(p);
-
-    besch->intro_date    = decode_uint16(p);
-    besch->obsolete_date = decode_uint16(p);
-
-  }
-  else if(version == 1) {
-    // Versioned node, version 1
-
-    besch->gtyp      = (enum gebaeude_t::typ)decode_uint8(p);
-    besch->utyp      = (enum hausbauer_t::utyp)decode_uint8(p);
-    besch->level     = decode_uint16(p);
-    besch->bauzeit   = decode_uint32(p);
-    besch->groesse.x = decode_uint16(p);
-    besch->groesse.y = decode_uint16(p);
-    besch->layouts   = decode_uint8(p);
-    besch->enables   = 0x80;
-    besch->flags     = (enum haus_besch_t::flag_t)decode_uint8(p);
-    besch->chance    = decode_uint8(p);
-
-    besch->intro_date    = DEFAULT_INTRO_DATE*12;
-    besch->obsolete_date = DEFAULT_RETIRE_DATE*12;
-  } else {
-    // old node, version 0
-    besch->gtyp      = (enum gebaeude_t::typ)v;
-    decode_uint16(p);
-    besch->utyp      = (enum hausbauer_t::utyp)decode_uint32(p);
-    besch->level     = decode_uint32(p);
-    besch->bauzeit   = decode_uint32(p);
-    besch->groesse.x = decode_uint16(p);
-    besch->groesse.y = decode_uint16(p);
-    besch->layouts   = decode_uint32(p);
-    besch->enables   = 0x80;
-    besch->flags     = (enum haus_besch_t::flag_t)decode_uint32(p);
-    besch->chance    = 100;
-
-    besch->intro_date    = DEFAULT_INTRO_DATE*12;
-    besch->obsolete_date = DEFAULT_RETIRE_DATE*12;
-  }
+		besch->intro_date    = DEFAULT_INTRO_DATE*12;
+		besch->obsolete_date = DEFAULT_RETIRE_DATE*12;
+		besch->animation_time = 300;
+	}
 
 	// correct old station buildings ...
 	if(besch->level<=0  &&  (besch->utyp>=hausbauer_t::bahnhof  ||  besch->utyp==hausbauer_t::fabrik)) {
@@ -232,7 +270,9 @@ obj_besch_t * building_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 	     " layouts=%d"
 	     " enables=%x"
 	     " flags=%d"
-	     " chance=%d",
+	     " chance=%d"
+	     " climates=%X"
+	     " anim=%d",
  	     version,
 	     besch->gtyp,
 	     besch->utyp,
@@ -243,7 +283,9 @@ obj_besch_t * building_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 	     besch->layouts,
 	     besch->enables,
 	     besch->flags,
-	     besch->chance
+	     besch->chance,
+	     besch->allowed_climates,
+	     besch->animation_time
 	     );
 
   return besch;

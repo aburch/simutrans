@@ -155,7 +155,7 @@ menu_open(karte_t *welt, menu_entries menu_nr, spieler_t *sp )
 		break;
 
 		case MENU_RAIL:
-			if(wegbauer_t::weg_search(weg_t::schiene,1,welt->get_timeline_year_month())!=NULL) {
+			if(wegbauer_t::weg_search(track_wt,1,welt->get_timeline_year_month())!=NULL) {
 				werkzeug_parameter_waehler_t *wzw = new werkzeug_parameter_waehler_t(welt, "RAILTOOLS");
 
 				wzw->setze_hilfe_datei("railtools.txt");
@@ -163,7 +163,7 @@ menu_open(karte_t *welt, menu_entries menu_nr, spieler_t *sp )
 				if(sp!=welt->gib_spieler(1)) {
 					// public player is not allowed to run vehicles ...
 					wegbauer_t::fill_menu(wzw,
-						weg_t::schiene,
+						track_wt,
 						wkz_wegebau,
 						SFX_JACKHAMMER,
 						SFX_FAILURE,
@@ -171,7 +171,7 @@ menu_open(karte_t *welt, menu_entries menu_nr, spieler_t *sp )
 						);
 
 					wayobj_t::fill_menu(wzw,
-						weg_t::schiene,
+						track_wt,
 						wkz_wayobj,
 						SFX_JACKHAMMER,
 						SFX_FAILURE,
@@ -179,7 +179,7 @@ menu_open(karte_t *welt, menu_entries menu_nr, spieler_t *sp )
 						);
 
 					wzw->add_param_tool(&wkz_wayremover,
-						(const int)weg_t::schiene,
+						(const int)track_wt,
 						karte_t::Z_PLAN,
 						SFX_REMOVER,
 						SFX_FAILURE,
@@ -188,25 +188,21 @@ menu_open(karte_t *welt, menu_entries menu_nr, spieler_t *sp )
 						"remove tracks");
 
 					brueckenbauer_t::fill_menu(wzw,
-						weg_t::schiene,
+						track_wt,
 						SFX_JACKHAMMER,
 						SFX_FAILURE,
 						welt->get_timeline_year_month()
 						);
 
-					if(tunnelbauer_t::schienentunnel) {
-						wzw->add_param_tool(&tunnelbauer_t::baue,
-						weg_t::schiene,
-						karte_t::Z_PLAN,
+					tunnelbauer_t::fill_menu(wzw,
+						track_wt,
 						SFX_JACKHAMMER,
 						SFX_FAILURE,
-						tunnelbauer_t::schienentunnel->gib_cursor()->gib_bild_nr(1),
-						tunnelbauer_t::schienentunnel->gib_cursor()->gib_bild_nr(0),
-						tool_tip_with_price(translator::translate("Schienentunnel"), umgebung_t::cst_tunnel));
-					}
+						welt->get_timeline_year_month()
+						);
 
 					roadsign_t::fill_menu(wzw,
-						weg_t::schiene,
+						track_wt,
 						wkz_roadsign,
 						SFX_JACKHAMMER,
 						SFX_FAILURE,
@@ -249,7 +245,7 @@ menu_open(karte_t *welt, menu_entries menu_nr, spieler_t *sp )
 		break;
 
 		case MENU_MONORAIL:
-			if(wegbauer_t::weg_search(weg_t::monorail,1,welt->get_timeline_year_month())!=NULL  &&  hausbauer_t::monorail_depot_besch!=NULL) {
+			if(wegbauer_t::weg_search(monorail_wt,1,welt->get_timeline_year_month())!=NULL  &&  hausbauer_t::monorail_depot_besch!=NULL) {
 				werkzeug_parameter_waehler_t *wzw = new werkzeug_parameter_waehler_t(welt, "MONORAILTOOLS");
 
 				wzw->setze_hilfe_datei("monorailtools.txt");
@@ -257,7 +253,7 @@ menu_open(karte_t *welt, menu_entries menu_nr, spieler_t *sp )
 				if(sp!=welt->gib_spieler(1)) {
 					// public player is not allowed to run vehicles ...
 					wegbauer_t::fill_menu(wzw,
-						weg_t::monorail,
+						monorail_wt,
 						wkz_wegebau,
 						SFX_JACKHAMMER,
 						SFX_FAILURE,
@@ -266,7 +262,7 @@ menu_open(karte_t *welt, menu_entries menu_nr, spieler_t *sp )
 						);
 
 					wegbauer_t::fill_menu(wzw,
-						weg_t::monorail,
+						monorail_wt,
 						wkz_wegebau,
 						SFX_JACKHAMMER,
 						SFX_FAILURE,
@@ -275,7 +271,7 @@ menu_open(karte_t *welt, menu_entries menu_nr, spieler_t *sp )
 						);
 
 					wayobj_t::fill_menu(wzw,
-						weg_t::monorail,
+						monorail_wt,
 						wkz_wayobj,
 						SFX_JACKHAMMER,
 						SFX_FAILURE,
@@ -283,7 +279,7 @@ menu_open(karte_t *welt, menu_entries menu_nr, spieler_t *sp )
 						);
 
 					wzw->add_param_tool(&wkz_wayremover,
-						(const int)weg_t::monorail,
+						(const int)monorail_wt,
 						karte_t::Z_PLAN,
 						SFX_REMOVER,
 						SFX_FAILURE,
@@ -292,14 +288,21 @@ menu_open(karte_t *welt, menu_entries menu_nr, spieler_t *sp )
 						"remove monorails");
 
 					brueckenbauer_t::fill_menu(wzw,
-						weg_t::monorail,
+						monorail_wt,
+						SFX_JACKHAMMER,
+						SFX_FAILURE,
+						welt->get_timeline_year_month()
+						);
+
+					tunnelbauer_t::fill_menu(wzw,
+						monorail_wt,
 						SFX_JACKHAMMER,
 						SFX_FAILURE,
 						welt->get_timeline_year_month()
 						);
 
 					roadsign_t::fill_menu(wzw,
-						weg_t::monorail,
+						monorail_wt,
 						wkz_roadsign,
 						SFX_JACKHAMMER,
 						SFX_FAILURE,
@@ -342,14 +345,14 @@ menu_open(karte_t *welt, menu_entries menu_nr, spieler_t *sp )
 		break;
 
 		case MENU_TRAM:
-			if(wegbauer_t::weg_search(weg_t::schiene_strab,1,welt->get_timeline_year_month())!=NULL  &&  hausbauer_t::tram_depot_besch!=NULL) {
+			if(wegbauer_t::weg_search(tram_wt,1,welt->get_timeline_year_month())!=NULL  &&  hausbauer_t::tram_depot_besch!=NULL) {
 				werkzeug_parameter_waehler_t *wzw = new werkzeug_parameter_waehler_t(welt, "TRAMTOOLS");
 
 				wzw->setze_hilfe_datei("tramtools.txt");
 
 				if(sp!=welt->gib_spieler(1)) {
 					wegbauer_t::fill_menu(wzw,
-						weg_t::schiene,
+						track_wt,
 						wkz_wegebau,
 						SFX_JACKHAMMER,
 						SFX_FAILURE,
@@ -358,7 +361,7 @@ menu_open(karte_t *welt, menu_entries menu_nr, spieler_t *sp )
 					);
 
 					wayobj_t::fill_menu(wzw,
-						weg_t::schiene,
+						track_wt,
 						wkz_wayobj,
 						SFX_JACKHAMMER,
 						SFX_FAILURE,
@@ -366,7 +369,7 @@ menu_open(karte_t *welt, menu_entries menu_nr, spieler_t *sp )
 						);
 
 					wzw->add_param_tool(&wkz_wayremover,
-						(const int)weg_t::schiene,
+						(const int)track_wt,
 						karte_t::Z_PLAN,
 						SFX_REMOVER,
 						SFX_FAILURE,
@@ -375,7 +378,7 @@ menu_open(karte_t *welt, menu_entries menu_nr, spieler_t *sp )
 						"remove tracks");
 
 					roadsign_t::fill_menu(wzw,
-						weg_t::schiene,
+						track_wt,
 						wkz_roadsign,
 						SFX_JACKHAMMER,
 						SFX_FAILURE,
@@ -418,13 +421,13 @@ menu_open(karte_t *welt, menu_entries menu_nr, spieler_t *sp )
 		break;
 
 		case MENU_ROAD:
-			if(wegbauer_t::weg_search(weg_t::strasse,1,welt->get_timeline_year_month())!=NULL) {
+			if(wegbauer_t::weg_search(road_wt,1,welt->get_timeline_year_month())!=NULL) {
 				werkzeug_parameter_waehler_t *wzw = new werkzeug_parameter_waehler_t(welt, "ROADTOOLS");
 
 				wzw->setze_hilfe_datei("roadtools.txt");
 
 				wegbauer_t::fill_menu(wzw,
-					weg_t::strasse,
+					road_wt,
 					wkz_wegebau,
 					SFX_JACKHAMMER,
 					SFX_FAILURE,
@@ -433,7 +436,7 @@ menu_open(karte_t *welt, menu_entries menu_nr, spieler_t *sp )
 					);
 
 				wegbauer_t::fill_menu(wzw,
-					weg_t::strasse,
+					road_wt,
 					wkz_wegebau,
 					SFX_JACKHAMMER,
 					SFX_FAILURE,
@@ -442,7 +445,7 @@ menu_open(karte_t *welt, menu_entries menu_nr, spieler_t *sp )
 					);
 
 				wayobj_t::fill_menu(wzw,
-					weg_t::strasse,
+					road_wt,
 					wkz_wayobj,
 					SFX_JACKHAMMER,
 					SFX_FAILURE,
@@ -450,7 +453,7 @@ menu_open(karte_t *welt, menu_entries menu_nr, spieler_t *sp )
 					);
 
 				wzw->add_param_tool(&wkz_wayremover,
-					(const int)weg_t::strasse,
+					(const int)road_wt,
 					karte_t::Z_PLAN,
 					SFX_REMOVER,
 					SFX_FAILURE,
@@ -459,25 +462,21 @@ menu_open(karte_t *welt, menu_entries menu_nr, spieler_t *sp )
 					"remove roads");
 
 				brueckenbauer_t::fill_menu(wzw,
-					weg_t::strasse,
+					road_wt,
 					SFX_JACKHAMMER,
 					SFX_FAILURE,
 					welt->get_timeline_year_month()
 					);
 
-				if(tunnelbauer_t::strassentunnel) {
-					wzw->add_param_tool(&tunnelbauer_t::baue,
-						(long)weg_t::strasse,
-						karte_t::Z_PLAN,
-						SFX_JACKHAMMER,
-						SFX_FAILURE,
-						tunnelbauer_t::strassentunnel->gib_cursor()->gib_bild_nr(1),
-						tunnelbauer_t::strassentunnel->gib_cursor()->gib_bild_nr(0),
-						tool_tip_with_price(translator::translate("Strassentunnel"), umgebung_t::cst_tunnel));
-				}
+				tunnelbauer_t::fill_menu(wzw,
+					road_wt,
+					SFX_JACKHAMMER,
+					SFX_FAILURE,
+					welt->get_timeline_year_month()
+					);
 
 				roadsign_t::fill_menu(wzw,
-					weg_t::strasse,
+					road_wt,
 					wkz_roadsign,
 					SFX_JACKHAMMER,
 					SFX_FAILURE,
@@ -543,7 +542,7 @@ menu_open(karte_t *welt, menu_entries menu_nr, spieler_t *sp )
 			wzw->setze_hilfe_datei("shiptools.txt");
 
 			wegbauer_t::fill_menu(wzw,
-				weg_t::wasser,
+				water_wt,
 				wkz_wegebau,
 				SFX_JACKHAMMER,
 				SFX_FAILURE,
@@ -551,7 +550,7 @@ menu_open(karte_t *welt, menu_entries menu_nr, spieler_t *sp )
 				);
 
 			wayobj_t::fill_menu(wzw,
-				weg_t::wasser,
+				water_wt,
 				wkz_wayobj,
 				SFX_JACKHAMMER,
 				SFX_FAILURE,
@@ -559,7 +558,7 @@ menu_open(karte_t *welt, menu_entries menu_nr, spieler_t *sp )
 				);
 
 			wzw->add_param_tool(&wkz_wayremover,
-				(const int)weg_t::wasser,
+				(const int)water_wt,
 				karte_t::Z_PLAN,
 				SFX_REMOVER,
 				SFX_FAILURE,
@@ -568,14 +567,21 @@ menu_open(karte_t *welt, menu_entries menu_nr, spieler_t *sp )
 				"remove channels");
 
 			brueckenbauer_t::fill_menu(wzw,
-				weg_t::wasser,
+				water_wt,
+				SFX_JACKHAMMER,
+				SFX_FAILURE,
+				welt->get_timeline_year_month()
+				);
+
+			tunnelbauer_t::fill_menu(wzw,
+				water_wt,
 				SFX_JACKHAMMER,
 				SFX_FAILURE,
 				welt->get_timeline_year_month()
 				);
 
 			roadsign_t::fill_menu(wzw,
-				weg_t::wasser,
+				water_wt,
 				wkz_roadsign,
 				SFX_JACKHAMMER,
 				SFX_FAILURE,
@@ -633,14 +639,14 @@ menu_open(karte_t *welt, menu_entries menu_nr, spieler_t *sp )
 		break;
 
 		case MENU_AIRPORT:
-			if(hausbauer_t::air_depot.count()>0  &&  wegbauer_t::weg_search(weg_t::luft,1,welt->get_timeline_year_month())!=NULL) {
+			if(hausbauer_t::air_depot.count()>0  &&  wegbauer_t::weg_search(air_wt,1,welt->get_timeline_year_month())!=NULL) {
 				// start aircraft
 				werkzeug_parameter_waehler_t *wzw = new werkzeug_parameter_waehler_t(welt, "AIRTOOLS");
 
 				wzw->setze_hilfe_datei("airtools.txt");
 
 				wegbauer_t::fill_menu(wzw,
-					weg_t::luft,
+					air_wt,
 					wkz_wegebau,
 					SFX_JACKHAMMER,
 					SFX_FAILURE,
@@ -649,7 +655,7 @@ menu_open(karte_t *welt, menu_entries menu_nr, spieler_t *sp )
 					);
 
 				wegbauer_t::fill_menu(wzw,
-					weg_t::luft,
+					air_wt,
 					wkz_wegebau,
 					SFX_JACKHAMMER,
 					SFX_FAILURE,
@@ -658,7 +664,7 @@ menu_open(karte_t *welt, menu_entries menu_nr, spieler_t *sp )
 					);
 
 				wayobj_t::fill_menu(wzw,
-					weg_t::luft,
+					air_wt,
 					wkz_wayobj,
 					SFX_JACKHAMMER,
 					SFX_FAILURE,
@@ -666,7 +672,7 @@ menu_open(karte_t *welt, menu_entries menu_nr, spieler_t *sp )
 					);
 
 				roadsign_t::fill_menu(wzw,
-					weg_t::luft,
+					air_wt,
 					wkz_roadsign,
 					SFX_JACKHAMMER,
 					SFX_FAILURE,
@@ -674,7 +680,7 @@ menu_open(karte_t *welt, menu_entries menu_nr, spieler_t *sp )
 					);
 
 				wzw->add_param_tool(&wkz_wayremover,
-					(const int)weg_t::luft,
+					(const int)air_wt,
 					karte_t::Z_PLAN,
 					SFX_REMOVER,
 					SFX_FAILURE,
@@ -723,7 +729,7 @@ menu_open(karte_t *welt, menu_entries menu_nr, spieler_t *sp )
 			wzw->setze_hilfe_datei("special.txt");
 
 			wegbauer_t::fill_menu(wzw,
-				weg_t::strasse,
+				road_wt,
 				wkz_wegebau,
 				SFX_JACKHAMMER,
 				SFX_FAILURE,
@@ -732,7 +738,7 @@ menu_open(karte_t *welt, menu_entries menu_nr, spieler_t *sp )
 				);
 
 			wegbauer_t::fill_menu(wzw,
-				weg_t::schiene,
+				track_wt,
 				wkz_wegebau,
 				SFX_JACKHAMMER,
 				SFX_FAILURE,

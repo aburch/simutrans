@@ -187,10 +187,9 @@ koord gui_flowtext_t::get_preferred_size() const {
  * Paints the component
  * @author Hj. Malthaner
  */
-void gui_flowtext_t::zeichnen(koord offset) const {
-
+void gui_flowtext_t::zeichnen(koord offset)
+{
     offset += pos;
-
     output(offset, true);
 }
 

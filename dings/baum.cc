@@ -36,8 +36,10 @@ static const int baum_bild_alter[12] =
     0,1,2,3,3,3,3,3,3,4,4,4
 };
 
-
 bool baum_t::hide = false;
+
+
+/*************************** first the static function for the baum_t and baum_besch_t administration ***************/
 
 
 /*
@@ -50,138 +52,149 @@ slist_tpl<const baum_besch_t *> baum_t::baum_typen;
  */
 stringhashtable_tpl<const baum_besch_t *> baum_t::besch_names;
 
-
-int baum_t::gib_anzahl_besch()
+// total number of trees
+// the same for a certain climate
+int baum_t::gib_anzahl_besch(climate cl)
 {
-    return baum_typen.count();
+	uint16 total_number=0;
+	slist_iterator_tpl<const baum_besch_t *> iter(baum_typen);
+	while(iter.next()) {
+		if(iter.get_current()->is_allowed_climate(cl)) {
+			total_number ++;
+		}
+	}
+	return total_number;
 }
+
 
 
 /**
  * tree planting function - it takes care of checking suitability of area
  */
-bool baum_t::plant_tree_on_coordinate(karte_t * welt,
-				      koord pos,
-				      const unsigned char maximum_count)
+bool baum_t::plant_tree_on_coordinate(karte_t * welt, koord pos, const uint8 maximum_count)
 {
-  const planquadrat_t *plan = welt->lookup(pos);
-
-  if(plan) {
-    grund_t * gr = plan->gib_kartenboden();
-
-    if( gr ){
-
-      if(gr!=NULL
-	 && gr->ist_natur()
-	 && gib_anzahl_besch()>0
-	 && gr->gib_hoehe()>welt->gib_grundwasser()
-	 && gr->obj_count()<maximum_count ) {
-
-	gr->obj_add( new baum_t(welt, gr->gib_pos()) ); //plants the tree
-
-	return true; //tree was planted - currently unused value is not checked
-
-      }
-    }
-  }
-  return false;
-}
-
-image_id
-baum_t::gib_bild() const
-{
-    return hide ? besch->gib_bild(0, 0)->gib_nummer() : ding_t::gib_bild();
-}
-
-bool baum_t::alles_geladen()
-{
-    if(besch_names.count() == 0) {
-	DBG_MESSAGE("baum_t", "No trees found - feature disabled");
-    }
-    return true;
-}
-
-bool baum_t::register_besch(baum_besch_t *besch)
-{
-    baum_typen.append(besch);
-    besch_names.put(besch->gib_name(), const_cast<baum_besch_t *>(besch));
-DBG_DEBUG("baum_t::register_besch()","%s has %i seasons",besch->gib_name(),besch->gib_seasons() );
-    return true;
+	const planquadrat_t *plan = welt->lookup(pos);
+	if(plan) {
+		grund_t * gr = plan->gib_kartenboden();
+		if(gr!=NULL  &&
+			gib_anzahl_besch(welt->get_climate(gr->gib_hoehe()))>0  &&
+			gr->ist_natur()  &&
+			gr->obj_count()<maximum_count)
+		{
+			gr->obj_add( new baum_t(welt, gr->gib_pos()) ); //plants the tree
+			return true; //tree was planted - currently unused value is not checked
+		}
+	}
+	return false;
 }
 
 
-void baum_t::calc_off()
+
+bool
+baum_t::alles_geladen()
 {
-  int liob;
-  int reob;
-  switch (welt->lookup( gib_pos().gib_2d())->gib_kartenboden()->gib_grund_hang() )
-  {
-  case 0:
-    liob=simrand(30)-15;
-    reob=simrand(30)-15;
-    setze_xoff( reob - liob  );
-    setze_yoff( (reob + liob)/2 );
-    break;
-
-  case 1:
-  case 4:
-  case 5:
-  case 8:
-  case 9:
-  case 12:
-  case 13:
-    liob=simrand(16)-8;
-    reob=simrand(16)-8;
-    setze_xoff( reob - liob  );
-    setze_yoff( reob + liob );
-    break;
-
-  case 2:
-  case 3:
-  case 6:
-  case 7:
-  case 10:
-  case 11:
-  case 14:
-  case 15:
-    liob=simrand(16)-8;
-    reob=simrand(16)-8;
-    setze_xoff( reob + liob  );
-    setze_yoff(-10-(reob - liob)/2 );
-    break;
-  }
+	if(besch_names.count() == 0) {
+		DBG_MESSAGE("baum_t", "No trees found - feature disabled");
+	}
+	return true;
 }
 
-inline bool
+
+
+bool
+baum_t::register_besch(baum_besch_t *besch)
+{
+	baum_typen.append(besch);
+	besch_names.put(besch->gib_name(), const_cast<baum_besch_t *>(besch));
+	return true;
+}
+
+
+
+// calculates tree position on a tile
+// takes care of slopes
+void
+baum_t::calc_off()
+{
+	int liob;
+	int reob;
+	switch (welt->lookup( gib_pos().gib_2d())->gib_kartenboden()->gib_grund_hang() ) {
+		case 0:
+			liob=simrand(30)-15;
+			reob=simrand(30)-15;
+			setze_xoff( reob - liob  );
+			setze_yoff( (reob + liob)/2 );
+			break;
+
+		case 1:
+		case 4:
+		case 5:
+		case 8:
+		case 9:
+		case 12:
+		case 13:
+			liob=simrand(16)-8;
+			reob=simrand(16)-8;
+			setze_xoff( reob - liob  );
+			setze_yoff( reob + liob );
+			break;
+
+		case 2:
+		case 3:
+		case 6:
+		case 7:
+		case 10:
+		case 11:
+		case 14:
+		case 15:
+			liob=simrand(16)-8;
+			reob=simrand(16)-8;
+			setze_xoff( reob + liob  );
+			setze_yoff(-10-(reob - liob)/2 );
+			break;
+	}
+}
+
+
+
+bool
 baum_t::calc_bild(const unsigned long alter)
 {
-	// alter/2048 gibt die tage
+	// alter/2048 is the age of the tree
 	int baum_alter = baum_bild_alter[min(alter>>6, 11u)];
+	const int seasons = besch->gib_seasons();
+	int season=0;
 
-	// here comes the variation for the seasons
-	const int nr_seasons=besch->gib_seasons();
-	if(nr_seasons>1) {
-//DBG_DEBUG("baum_t::calc_bild()","season %i",welt->gib_jahreszeit() );
+	if(seasons>1) {
 		// two possibilities
-		if(  nr_seasons==2  ) {
+		if(besch->gib_seasons()==2) {
 			// only summer and winter
-			if(welt->gib_jahreszeit()==2) {
-				baum_alter += 5;
-			}
+			season = welt->get_snowline()<=gib_pos().z-gib_yoff();
 		}
 		else {
 			// summer autumn winter spring
-			baum_alter += welt->gib_jahreszeit()*5;
+			season = welt->gib_jahreszeit();
+			if(welt->get_snowline()<=gib_pos().z) {
+				// change to winter
+				season = 2;
+			}
+			else if(welt->get_snowline()<=gib_pos().z+16  &&  season==0) {
+				// snowline crossing in summer
+				// so at least some weeks spring/autumn
+				season = welt->get_last_month() <=5 ? 3 : 1;
+			}
 		}
 	}
 
-	const image_id bild_neu = besch->gib_bild(0, baum_alter )->gib_nummer();
-	if(bild_neu != gib_bild()) {
+	const image_id bild_neu = besch->gib_bild(season, baum_alter )->gib_nummer();
+	if(bild_neu!=gib_bild()) {
 		setze_bild(0, bild_neu);
 		return true;
 	}
 	return false;
 }
+
+
 
 inline void
 baum_t::calc_bild()
@@ -190,17 +203,19 @@ baum_t::calc_bild()
 }
 
 
+
 /* also checks for distribution values
  * @author prissi
  */
-const baum_besch_t *baum_t::gib_aus_liste(int level)
+const baum_besch_t *
+baum_t::gib_aus_liste(climate cl)
 {
 	slist_tpl<const baum_besch_t *> auswahl;
 	slist_iterator_tpl<const baum_besch_t *>  iter(baum_typen);
 	int weight = 0;
 
 	while(iter.next()) {
-		if(iter.get_current()->gib_hoehenlage() == level) {
+		if(iter.get_current()->is_allowed_climate(cl)) {
 			auswahl.append(iter.get_current());
 			weight += iter.get_current()->gib_distribution_weight();
 		}
@@ -220,17 +235,18 @@ const baum_besch_t *baum_t::gib_aus_liste(int level)
 }
 
 
+
 baum_t::baum_t(karte_t *welt, loadsave_t *file) : ding_t(welt)
 {
-    besch = NULL;
-    rdwr(file);
-    if(gib_besch()) {
-	calc_bild();
-    }
-
-//    step_frequency = 7;
-    step_frequency = 127;
+	besch = NULL;
+	rdwr(file);
+	if(gib_besch()) {
+		calc_bild();
+	}
+	// no steps, new month will do this for us
+	step_frequency = 0;
 }
+
 
 
 baum_t::baum_t(karte_t *welt, koord3d pos) : ding_t(welt, pos)
@@ -239,30 +255,19 @@ baum_t::baum_t(karte_t *welt, koord3d pos) : ding_t(welt, pos)
 	geburt = welt->get_current_month() - simrand(400);
 
 	const grund_t *gr = welt->lookup(pos);
-	const int maxindex = baum_typen.count();
 	if(gr) {
-		int index = gr->gib_hoehe()/16 + (simrand(5)-2);
-
-		if(index < 0) {
-			index = 0;
-		}
-
-		if(index >= maxindex) {
-			index = maxindex - 1;
-		}
-		besch = gib_aus_liste(index);
+		besch = gib_aus_liste(welt->get_climate(pos.z));
 	}
 
-	if(!besch) {
-		besch = baum_typen.at(simrand(maxindex));
-	}
+	assert(besch);
 
 	calc_off();
 	calc_bild();
 
-	// as seldom as possible
-	step_frequency = 127;
+	// no steps, new month will do this for us
+	step_frequency = 0;
 }
+
 
 
 baum_t::baum_t(karte_t *welt, koord3d pos, const baum_besch_t *besch) : ding_t(welt, pos)
@@ -273,9 +278,10 @@ baum_t::baum_t(karte_t *welt, koord3d pos, const baum_besch_t *besch) : ding_t(w
 	calc_off();
 	calc_bild();
 
-	// as seldom as possible
-	step_frequency = 127;
+	// no steps, new month will do this for us
+	step_frequency = 0;
 }
+
 
 
 void
@@ -288,28 +294,24 @@ baum_t::saee_baum()
 	if(welt->lookup(k)) {
 		grund_t *bd = welt->lookup(k)->gib_kartenboden();
 		if(	bd!=NULL  &&
+			besch->is_allowed_climate(welt->get_climate(bd->gib_hoehe()))  &&
 			bd->ist_natur()  &&
-			bd->gib_hoehe()>welt->gib_grundwasser()  &&
 			bd->obj_count()<welt->gib_max_no_of_trees_on_square())
 		{
-			// take care of height level
-			const int guete = 140 - abs(bd->gib_hoehe() - besch->gib_hoehenlage()*16);
-			if(guete>(int)simrand(128)) {
-				bd->obj_add( new baum_t(welt, bd->gib_pos(), besch) );
-			}
+			bd->obj_add( new baum_t(welt, bd->gib_pos(), besch) );
 		}
 	}
 }
 
 
 
-bool baum_t::step(long /*delta_t*/)
+/* we should be as fast as possible for this, because trees are nearly the most common object on a map */
+bool
+baum_t::check_season(long month)
 {
 	// take care of birth/death and seasons
-	const long alter = (welt->get_current_month() - geburt);
-
+	const long alter = (month - geburt);
 	calc_bild(alter);
-
 	if(alter==512) {
 		// only in this month a tree can span new trees
 		// only 1-3 trees will be planted....
@@ -325,37 +327,37 @@ bool baum_t::step(long /*delta_t*/)
 }
 
 
+
 void
 baum_t::rdwr(loadsave_t *file)
 {
-    ding_t::rdwr(file);
+	ding_t::rdwr(file);
 
-    long alter = (welt->get_current_month() - geburt)<<18;
-    file->rdwr_long(alter, "\n");
+	long alter = (welt->get_current_month() - geburt)<<18;
+	file->rdwr_long(alter, "\n");
 
-    // after loading, calculate new
-    geburt = welt->get_current_month() - (alter>>18);
+	// after loading, calculate new
+	geburt = welt->get_current_month() - (alter>>18);
 
-    if(file->is_saving()) {
-	const char *s = besch->gib_name();
-	file->rdwr_str(s, "N");
-    }
-
-    if(file->is_loading()) {
-	char bname[128];
-	file->rd_str_into(bname, "N");
-
-	besch = (const baum_besch_t *)besch_names.get(bname);
-
-	if(!besch) {
-//    	    DBG_MESSAGE("baum_t::rwdr", "description %s for tree at %d,%d not found!", bname, gib_pos().x, gib_pos().y);
-    	    // replace with random tree
-    	    if(baum_typen.count()>0) {
-	    	    besch = baum_typen.at(simrand(baum_typen.count()));
-	    }
+	if(file->is_saving()) {
+		const char *s = besch->gib_name();
+		file->rdwr_str(s, "N");
 	}
-    }
+
+	if(file->is_loading()) {
+		char bname[128];
+		file->rd_str_into(bname, "N");
+
+		besch = (const baum_besch_t *)besch_names.get(bname);
+		if(!besch) {
+			// replace with random tree
+			if(baum_typen.count()>0) {
+				besch = baum_typen.at(simrand(baum_typen.count()));
+			}
+		}
+	}
 }
+
 
 
 /**
@@ -368,6 +370,7 @@ void baum_t::zeige_info()
 		ding_t::zeige_info();
 	}
 }
+
 
 
 /**
@@ -388,6 +391,7 @@ void baum_t::info(cbuffer_t & buf) const
 }
 
 
+
 void
 baum_t::entferne(spieler_t *sp)
 {
@@ -397,13 +401,17 @@ baum_t::entferne(spieler_t *sp)
 }
 
 
-void * baum_t::operator new(size_t /*s*/)
+
+void *
+baum_t::operator new(size_t /*s*/)
 {
 	return (baum_t *)freelist_t::gimme_node(sizeof(baum_t));
 }
 
 
-void baum_t::operator delete(void *p)
+
+void
+baum_t::operator delete(void *p)
 {
 	freelist_t::putback_node(sizeof(baum_t),p);
 }

@@ -836,3 +836,74 @@ void dingliste_t::display_dinge( const sint16 xpos, const sint16 ypos, const boo
 					return;
 	}
 }
+
+
+
+// animation, waiting for crossing, all things that could take a while should be done in a step
+void
+dingliste_t::step(const long delta_t, const int steps)
+{
+	static slist_tpl<ding_t *>loeschen;
+
+	if(capacity==0) {
+		return;
+	}
+	else if(capacity==1) {
+		ding_t *d = obj.one;
+		if(d!=NULL) {
+			const int freq = d->step_frequency;
+			if(freq!=0  &&  (steps&freq)==0  &&  d->step(delta_t*freq)==false) {
+				loeschen.insert( d );
+			}
+		}
+	}
+	else {
+		for(uint8 i=0; i<top; i++) {
+			ding_t *d = obj.some[i];
+			if(d!=NULL) {
+				const int freq = d->step_frequency;
+				if(freq!=0  &&  (steps&freq)==0  &&  d->step(delta_t*freq)==false) {
+					loeschen.insert( d );
+				}
+			}
+		}
+	}
+
+	// delete all objects, which do not want to step anymore
+	while(loeschen.count()) {
+		delete loeschen.remove_first();
+	}
+}
+
+
+
+
+// start next month (good for toogling a seasons)
+void
+dingliste_t::check_season(const long month)
+{
+	static slist_tpl<ding_t *>loeschen;
+
+	if(capacity==0) {
+		return;
+	}
+	else if(capacity==1) {
+		ding_t *d = obj.one;
+		if(d!=NULL  &&  d->check_season(month)==false) {
+			loeschen.insert( d );
+		}
+	}
+	else {
+		for(uint8 i=0; i<top; i++) {
+			ding_t *d = obj.some[i];
+			if(d!=NULL  &&  d->check_season(month)==false) {
+				loeschen.insert( d );
+			}
+		}
+	}
+
+	// delete all objects, which do not want to step anymore
+	while(loeschen.count()) {
+		delete loeschen.remove_first();
+	}
+}

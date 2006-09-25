@@ -3,7 +3,6 @@
 #include "bruecke_besch.h"
 
 
-
 /*
  *  member function:
  *      bruecke_besch_t::gib_simple()

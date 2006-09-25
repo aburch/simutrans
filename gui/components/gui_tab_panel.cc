@@ -83,7 +83,7 @@ void gui_tab_panel_t::infowin_event(const event_t *ev)
 
 
 
-void gui_tab_panel_t::zeichnen(koord parent_pos) const
+void gui_tab_panel_t::zeichnen(koord parent_pos)
 {
     // Position am Bildschirm/Fenster
     const int xpos = parent_pos.x + pos.x;

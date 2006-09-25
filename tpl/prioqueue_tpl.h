@@ -28,7 +28,7 @@ template<class T> class slist_iterator_tpl;
  * Maintains a list of free nodes to reduce calls to new and delete.</p>
  *
  * <p>This template only works with pointer types, because it compares
- * data by using *p1 < *p2. The operator < must be defined for the type.</p>
+ * data by using *p1 <= *p2. The operator <= must be defined for the type.</p>
  *
  * <p>The insert() operation works in O(n), in average n/2 steps</p>
  * <p>The pop() operation works in O(1) steps</p>
@@ -138,7 +138,7 @@ public:
       head = tail = tmp;
 
       // check if we may append or do we need to search?
-    } else if(tail && *tail->data < *data) {
+    } else if(tail && *tail->data <= *data) {
 
       // we may append
       tail->next = tmp;
@@ -156,7 +156,7 @@ public:
           prev->next = tmp;
           tail = tmp;
 
-        } else if(*data < *curr->data) {
+        } else if(*data <= *curr->data) {
 
           tmp->next = curr;
 
