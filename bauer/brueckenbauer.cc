@@ -402,23 +402,7 @@ bool brueckenbauer_t::baue_bruecke(karte_t *welt, spieler_t *sp,
 
 	while(pos.gib_2d()!=end.gib_2d()) {
 		brueckenboden_t *bruecke = new  brueckenboden_t(welt, pos + koord3d(0, 0, 16), 0, 0);
-
-		if(besch->gib_wegtyp() == track_wt) {
-			weg = new schiene_t(welt);
-		}
-		else if(besch->gib_wegtyp() == monorail_wt) {
-			weg = new monorail_t(welt);
-		}
-		else if(besch->gib_wegtyp()==road_wt) {
-			weg = new strasse_t(welt);
-		}
-		else if(besch->gib_wegtyp()==water_wt) {
-			weg = new kanal_t(welt);
-		}
-		else {
-			dbg->fatal("brueckenbauer_t::baue_bruecke()","unknown waytype (%i) for bridge",besch->gib_wegtyp() );
-		}
-
+		weg = weg_t::alloc(besch->gib_wegtyp());
 		weg->setze_besch(weg_besch);
 		weg->setze_max_speed(besch->gib_topspeed());
 		welt->access(pos.gib_2d())->boden_hinzufuegen(bruecke);
@@ -474,21 +458,7 @@ brueckenbauer_t::baue_auffahrt(karte_t *welt, spieler_t *sp, koord3d end, koord 
 	bruecke = new brueckenboden_t(welt, end, grund_hang, weg_hang);
 
 	weg_t *alter_weg = alter_boden->gib_weg(besch->gib_wegtyp());
-	if(besch->gib_wegtyp()==monorail_wt) {
-		weg = new monorail_t(welt);
-	}
-	else if(besch->gib_wegtyp()==track_wt) {
-		weg = new schiene_t(welt);
-	}
-	else if(besch->gib_wegtyp()==road_wt) {
-		weg = new strasse_t(welt);
-	}
-	else if(besch->gib_wegtyp()==water_wt) {
-		weg = new kanal_t(welt);
-	}
-	else {
-		dbg->fatal("brueckenbauer_t::baue_bruecke()","unknown waytype (%i) for bridge",besch->gib_wegtyp() );
-	}
+	weg = weg_t::alloc(besch->gib_wegtyp());
 
 	// add the ramp
 	if(bruecke->gib_grund_hang() == hang_t::flach) {
@@ -636,21 +606,7 @@ brueckenbauer_t::remove(karte_t *welt, spieler_t *sp, koord3d pos, waytype_t weg
 		welt->access(pos.gib_2d())->kartenboden_setzen(gr_new, false);
 
 		// Neuen Boden wieder mit Weg versehen
-		weg_t *weg=0;
-		if(wegtyp==track_wt) {
-			weg = new schiene_t(welt);
-		}
-		else if(wegtyp==monorail_wt) {
-			weg = new monorail_t(welt);
-		} else if(wegtyp==road_wt) {
-			weg = new strasse_t(welt);
-		}
-		else if(wegtyp==water_wt) {
-			weg = new kanal_t(welt);
-		}
-		else {
-			dbg->fatal("brueckenbauer_t::remove()","unknown waytype (%i) for bridge",wegtyp );
-		}
+		weg_t *weg = weg_t::alloc(wegtyp);
 		weg->setze_besch(weg_besch);
 		gr_new->neuen_weg_bauen(weg, ribi, sp);
 		gr_new->calc_bild();

@@ -8,6 +8,9 @@ This file tries to list all contributors to Simutrans.
 Additional programming
 ----------------------
 
+* Markus Pristovsek: from 2005 team leader
+markus@pristovsek.de
+
 * Andreas Röver: small patches
 andreas_roever@yahoo.com
 
@@ -17,9 +20,6 @@ hellmade@hellmade.de
 * Niels Roest: Many additional UI routines
                Simutrans' proportional font
 npr@hetnet.nl
-
-* Markus Pristovsek: Bugfixes, New AI, UTF-support
-markus@pristovsek.de
 
 * Pasi Ruhanen: Help with BeOS port
 duck@neutech.fi
@@ -52,13 +52,17 @@ volker.meyer@thales-is.com
                    "Master of the scrollbars"
 hsiegeln@tibco.com
 
+* Kieron Green: Textures
+                   Multiple freight graphics
+
+* Christoph Mallon: C-backends, Makefile, hosting SVN
+
 
 Help with game design
 ---------------------
 
 * Peter J. Dobrovka
 dobrovka@t-online.de
-
 
 
 Additional artwork
@@ -134,6 +138,8 @@ s.wuttich@web.de
 * erin: many busses for the german set
 
 *singaporkid: german steamers, different station graphics
+
+* Timothy Baldock: lots of improved buildings, maglevs
 
 
 Translation

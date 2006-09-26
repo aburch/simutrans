@@ -433,7 +433,7 @@ DBG_MESSAGE("grund_besch_t::calc_water_level()","height %i: list %i vs. %i", h, 
 #endif
 
 	// not the wrong tile size?
-	assert(boden_texture->gib_bild_ptr(0)->w==get_tile_raster_width());
+	assert(boden_texture->gib_bild_ptr(0)->w==grund_besch_t::ausserhalb->gib_bild_ptr(0)->w);
 
 #ifdef DOUBLE_GROUNDS
 #error "Implement it for double grounds too!"

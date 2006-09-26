@@ -35,17 +35,18 @@ static const void * block_tester=NULL;
 //#define DEBUG_ROUTES
 
 // this is WAY slower than the sorted_heap! (also not always finding best routes, but was the original algorithms)
-//#include "../tpl/prioqueue_tpl.h"
+//#include "../tpl/prioqueue_tpl.h" // ~100-250% slower
 
 // HOT queue with the pocket size equal to the distance
-// still slower than a sorted heap
-//#include "../tpl/HOT_queue_tpl.h"
+// still slower than a binary heap
+//#include "../tpl/HOT_queue_tpl.h"	// ~10% slower
+//#include "../tpl/HOT_queue2_tpl.h" // ~5% slower
 
 // sorted heap, since we only need insert and pop
-//#include "../tpl/sorted_heap_tpl.h"
+//#include "../tpl/sorted_heap_tpl.h" // ~10% slower
 
 // sorted heap, since we only need insert and pop
-#include "../tpl/binary_heap_tpl.h"
+#include "../tpl/binary_heap_tpl.h" // fastest
 
 
 #define Node KNode

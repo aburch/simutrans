@@ -344,26 +344,7 @@ tunnelbauer_t::baue_einfahrt(karte_t *welt, spieler_t *sp, koord3d end, koord zv
 
 DBG_MESSAGE("tunnelbauer_t::baue_einfahrt()","at end (%d,%d) for %s", end.x, end.y, weg_besch->gib_name());
 
-	weg_t *weg = 0;;
-	switch(besch->gib_wegtyp()) {
-		case track_wt:
-			weg = new schiene_t(welt);
-			break;
-		case monorail_wt:
-			weg = new monorail_t(welt);
-			break;
-		case road_wt:
-			weg = new strasse_t(welt);
-			break;
-		case water_wt:
-			weg = new kanal_t(welt);
-			break;
-		default:
-			// keep compiler happy; should never reach here anyway
-			assert(0);
-			break;
-	}
-
+	weg_t *weg = weg_t::alloc(besch->gib_wegtyp());
 	if(alter_weg) {
 		weg->setze_besch(alter_weg->gib_besch());
 		weg->setze_ribi_maske( alter_weg->gib_ribi_maske() );
@@ -503,19 +484,7 @@ tunnelbauer_t::remove(karte_t *welt, spieler_t *sp, koord3d start, waytype_t weg
 		welt->access(pos.gib_2d())->kartenboden_setzen(gr_new, false);
 
 		// Neuen Boden wieder mit Weg versehen
-		weg_t *weg=NULL;
-		if(wegtyp==track_wt) {
-			weg = new schiene_t(welt);
-		}
-		else if(wegtyp==monorail_wt) {
-			weg = new monorail_t(welt);
-		}
-		else if(wegtyp==water_wt) {
-			weg = new kanal_t(welt);
-		}
-		else {
-			weg = new strasse_t(welt);
-		}
+		weg_t *weg = weg_t::alloc(besch->gib_wegtyp());
 		weg->setze_besch( weg_besch );
 		gr_new->neuen_weg_bauen( weg, ribi, sp );
 	}

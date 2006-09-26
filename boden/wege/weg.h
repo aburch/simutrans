@@ -176,6 +176,9 @@ public:
 
 	virtual ~weg_t();
 
+	// returns a way with the matching type
+	static weg_t* alloc(waytype_t wt);
+
 	virtual void rdwr(loadsave_t *file);
 
 	virtual image_id gib_bild() const {return bild_nr;}

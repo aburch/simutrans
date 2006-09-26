@@ -16,8 +16,9 @@ Release of 99.01.1
 	ADD: engine_type 'battery' added
 	FIX: not loading passengers/mail at freight locations
 	FIX: house where not recognized in old savegames
-	CHANGE: after lot of tries settled now in binary heaps for pathfinding, about 15% faster
+	CHANGE: after lot of tries settled now in binary heaps for pathfinding, up to 15% faster
 	FIX: display of animated buildings fixed
+	FIX: monorail and channel tunnels fixed
 
 
 Release of 99.01

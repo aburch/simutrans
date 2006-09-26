@@ -22,6 +22,14 @@
 #include <stdio.h>
 
 #include "weg.h"
+
+#include "schiene.h"
+#include "strasse.h"
+#include "monorail.h"
+#include "kanal.h"
+#include "runway.h"
+
+
 #include "../grund.h"
 #include "../../simworld.h"
 #include "../../simimg.h"
@@ -61,6 +69,36 @@ const slist_tpl <weg_t *> & weg_t::gib_alle_wege()
 {
   return alle_wege;
 }
+
+
+
+// returns a way with matchin waytype
+weg_t*
+weg_t::alloc(waytype_t wt)
+{
+	weg_t *weg = NULL;
+	switch(wt) {
+		case track_wt:
+			weg = new schiene_t(welt);
+			break;
+		case monorail_wt:
+			weg = new monorail_t(welt);
+			break;
+		case road_wt:
+			weg = new strasse_t(welt);
+			break;
+		case water_wt:
+			weg = new kanal_t(welt);
+			break;
+		default:
+			// keep compiler happy; should never reach here anyway
+			assert(0);
+			break;
+	}
+	return weg;
+}
+
+
 
 
 /**
