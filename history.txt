@@ -7,7 +7,7 @@ Known bugs: (hard to fix)
 
 Release of 99.01.1
 
-25-Sep-2006: (prissi)
+26-Sep-2006: (prissi)
 	FIX: ground below houses was draw even if not needed
 	FIX: crash when messages were generated at load time
 	FIX: display error, when no passenger vehicles but engines were in a depot
@@ -19,6 +19,7 @@ Release of 99.01.1
 	CHANGE: after lot of tries settled now in binary heaps for pathfinding, up to 15% faster
 	FIX: display of animated buildings fixed
 	FIX: monorail and channel tunnels fixed
+	FIX: (again) not connection through depots and 4-stops during city expansion
 
 
 Release of 99.01

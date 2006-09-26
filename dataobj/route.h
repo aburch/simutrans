@@ -19,10 +19,7 @@
 #include "../ifc/fahrer.h"
 #include "../tpl/vector_tpl.h"
 
-class KNode;
 class karte_t;
-class Stack;
-class route_block_tester_t;
 
 template <class T> class vector_tpl;
 
@@ -35,31 +32,38 @@ template <class T> class vector_tpl;
 class route_t
 {
 private:
-
     /**
      * Die eigentliche Routensuche
      * @author Hj. Malthaner
      */
     bool intern_calc_route(karte_t *w, koord3d start, koord3d ziel, fahrer_t *fahr, const uint32 max_kmh, const uint32 max_cost);
 
-
     vector_tpl <koord3d> route;           // Die Koordinaten fuer die Fahrtroute
 
     karte_t *welt;
 
 public:
+	// this class save the nodes during route search
+	typedef class ANode {
+	public:
+		ANode * parent;
+		grund_t *gr;
+		uint32  f, g;
+		uint8 dir;
+		uint16 count;
 
-	typedef struct nodestruct{
-	    struct nodestruct *parent;
-	    const grund_t *gr;
-	    uint32  f,g;
-	    uint8 dir;
-			uint16 count;
-	} ANode;
+		inline bool operator <= (const ANode k) const { return f==k.f ? g<=k.g : f<=k.f; }
+		// next one only needed for sorted_heap_tpl
+		inline bool operator == (const ANode k) const { return f==k.f  &&  g==k.g; }
+		// next two only needed for HOT-queues
+		inline bool is_matching(const ANode &l) const { return gr==l.gr; }
+		inline uint32 get_distance() const { return f; }
+	};
 
 	static ANode *nodes;
 	static uint32 MAX_STEP;
 #ifdef DEBUG
+	// a semaphore, since we only have a single version of the array in memory
 	static bool node_in_use;
 	static void GET_NODE() {if(node_in_use){ dbg->fatal("GET_NODE","called while list in use");} node_in_use =1; }
 	static void RELEASE_NODE() {if(!node_in_use){ dbg->fatal("RELEASE_NODE","called while list free");} node_in_use =0; }
@@ -78,7 +82,7 @@ public:
      * Konstruktor, legt eine leere Route an.
      * @author Hj. Malthaner
      */
-    route_t();
+    route_t() : route(0) {}
 
 
     /**

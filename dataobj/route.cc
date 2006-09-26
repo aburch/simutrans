@@ -49,34 +49,6 @@ static const void * block_tester=NULL;
 #include "../tpl/binary_heap_tpl.h" // fastest
 
 
-#define Node KNode
-
-// dies wird fuer die routenplanung benoetigt
-class KNode {
-public:
-	KNode * parent;
-	grund_t *gr;
-	uint32  f, g;
-	uint8 dir;
-	uint16 count;
-
-	inline bool operator <= (const KNode k) const { return f==k.f ? g<=k.g : f<=k.f; }
-#ifdef sorted_heap_tpl
-	inline bool operator == (const KNode k) const { return f==k.f  &&  g==k.g; }
-#endif
-#ifdef tpl_HOT_queue_tpl_h
-	inline bool is_matching(const KNode &l) const { return gr==l.gr; }
-	inline uint32 get_distance() const { return f; }
-#endif
-};
-
-
-
-route_t::route_t() : route(0)
-{
-}
-
-
 
 void
 route_t::kopiere(const route_t *r)
@@ -215,7 +187,7 @@ static inline bool am_i_there(karte_t *welt,
 
 
 // node arrays
-route_t::nodestruct* route_t::nodes=NULL;
+route_t::ANode* route_t::nodes=NULL;
 uint32 route_t::MAX_STEP=0;
 #ifdef DEBUG
 bool route_t::node_in_use=false;
@@ -244,7 +216,7 @@ route_t::find_route(karte_t *welt,
 	// memory in static list ...
 	if(nodes==NULL) {
 		MAX_STEP = umgebung_t::max_route_steps;
-		nodes = (ANode *)malloc( sizeof(Node)*MAX_STEP );
+		nodes = (ANode *)malloc( sizeof(ANode)*MAX_STEP );
 	}
 
 	INT_CHECK("route 347");
@@ -405,8 +377,17 @@ route_t::intern_calc_route(karte_t *welt, const koord3d ziel, const koord3d star
 		return false;
 	}
 
+	// we clear it here probably twice: does not hurt ...
+	route.clear();
+
+	// first tile is not valid?!?
+	if(!fahr->ist_befahrbar(gr)) {
+		return false;
+	}
+
 	// some thing for the search
 	const waytype_t wegtyp = fahr->gib_wegtyp();
+	const bool is_airplane = fahr->gib_wegtyp()==air_wt;
 	grund_t *to;
 
 	bool ziel_erreicht=false;
@@ -422,33 +403,24 @@ route_t::intern_calc_route(karte_t *welt, const koord3d ziel, const koord3d star
 	// there are several variant for mantaining the open list
 	// however, only binary heap and HOT queue with binary heap are worth considering
 #ifdef tpl_HOT_queue_tpl_h
-    static HOT_queue_tpl <KNode *> queue;
+    static HOT_queue_tpl <ANode *> queue;
 #else
 #ifdef tpl_binary_heap_tpl_h
-    static binary_heap_tpl <KNode *> queue;
+    static binary_heap_tpl <ANode *> queue;
 #else
 #ifdef tpl_sorted_heap_tpl_h
-    static sorted_heap_tpl <KNode *> queue;
+    static sorted_heap_tpl <ANode *> queue;
 #else
-    static prioqueue_tpl <KNode *> queue;
+    static prioqueue_tpl <ANode *> queue;
 #endif
 #endif
 #endif
-
-	const bool is_airplane = fahr->gib_wegtyp()==air_wt;
-
-	// we clear it here probably twice: does not hurt ...
-	route.clear();
-
-	// first tile is not valid?!?
-	if(!fahr->ist_befahrbar(gr)) {
-		return false;
-	}
 
 	GET_NODE();
 
-	uint32 step = 1;
-	Node *tmp =(Node *)&(nodes[0]);
+	uint32 step = 0;
+	ANode *tmp =(ANode *)&(nodes[step]);
+	step ++;
 
 	tmp->parent = NULL;
 	tmp->gr = welt->lookup(start);
@@ -472,7 +444,7 @@ route_t::intern_calc_route(karte_t *welt, const koord3d ziel, const koord3d star
 			INT_CHECK("route 161");
 		}
 
-		Node *test_tmp = queue.pop();
+		ANode *test_tmp = queue.pop();
 
 		if(welt->ist_markiert(test_tmp->gr)) {
 			// we were already here on a faster route, thus ignore this branch
@@ -550,7 +522,7 @@ route_t::intern_calc_route(karte_t *welt, const koord3d ziel, const koord3d star
 				const uint32 new_f = new_g + calc_distance( to->gib_pos(), ziel );
 
 				// add new
-				Node *k=(Node *)(nodes+step);
+				ANode *k=(ANode *)(nodes+step);
 				step ++;
 
 				k->parent = tmp;
@@ -565,6 +537,11 @@ route_t::intern_calc_route(karte_t *welt, const koord3d ziel, const koord3d star
 		}
 
 	} while(!queue.is_empty()  &&  !ziel_erreicht  &&  step<MAX_STEP  &&  tmp->g<max_cost);
+
+#ifdef DEBUG_ROUTES
+	// display marked route
+	reliefkarte_t::gib_karte()->calc_map();
+#endif
 
 	INT_CHECK("route 194");
 #ifdef DEBUG_ROUTES

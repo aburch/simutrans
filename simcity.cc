@@ -2161,7 +2161,7 @@ stadt_t::renoviere_gebaeude(koord k)
  * @author Hj. Malthaner, V. Meyer
  */
 bool
-stadt_t::baue_strasse(koord k, spieler_t *sp, bool forced)
+stadt_t::baue_strasse(const koord k, spieler_t *sp, bool forced)
 {
 	grund_t *bd = welt->lookup(k)->gib_kartenboden();
 
@@ -2177,6 +2177,11 @@ stadt_t::baue_strasse(koord k, spieler_t *sp, bool forced)
 
 	// we must not built on water or runways etc.
 	if(bd->gib_weg(air_wt)  ||  bd->gib_weg(water_wt)) {
+		return false;
+	}
+
+	// somebody else's things on it?
+	if(bd->kann_alle_obj_entfernen(welt->gib_spieler(1))) {
 		return false;
 	}
 
@@ -2200,61 +2205,60 @@ stadt_t::baue_strasse(koord k, spieler_t *sp, bool forced)
 		}
 	}
 
-	if(bd->kann_alle_obj_entfernen(welt->gib_spieler(1))==NULL) {
-
-		for(int r = 0; r < 4; r++) {
-			if(ribi_t::nsow[r]&allowed_dir) {
-				// now we have to check for several problems ...
-				grund_t *bd2 = welt->lookup(k + koord::nsow[r])->gib_kartenboden();
-				if(bd2==NULL  ||  bd2->gib_typ()==grund_t::fundament) {
-					// not connecting to a building of course ...
+	for(int r = 0; r < 4; r++) {
+		if(ribi_t::nsow[r]&allowed_dir) {
+			// now we have to check for several problems ...
+			grund_t *bd2 = welt->lookup(k + koord::nsow[r])->gib_kartenboden();
+			if(bd2==NULL  ||  bd2->gib_typ()==grund_t::fundament) {
+				// not connecting to a building of course ...
+				allowed_dir &= ~ribi_t::nsow[r];
+			}
+			else if(bd2->gib_weg_hang()!=hang_t::flach  &&  ribi_t::nsow[r]!=ribi_typ(bd2->gib_grund_hang())) {
+				// not the same slope => tunnel or bridge
+				allowed_dir &= ~ribi_t::nsow[r];
+			}
+			else if(bd2->gib_weg(road_wt)!=NULL) {
+				// a road, we must just take care for stops and depots
+				const gebaeude_t *gb = dynamic_cast<const gebaeude_t *>(bd2->suche_obj(ding_t::gebaeude));
+				if(gb  &&  (gb->gib_tile()->gib_besch()->gib_all_layouts()!=2  ||  (gb->gib_tile()->gib_layout()&1)!=(r>>1))) {
+					// four corner stop or not parallel
 					allowed_dir &= ~ribi_t::nsow[r];
 				}
-				else if(bd2->gib_weg_hang()!=hang_t::flach  &&  ribi_t::nsow[r]!=ribi_typ(bd2->gib_grund_hang())) {
-					// not the same slope
-					allowed_dir &= ~ribi_t::nsow[r];
-				}
-				else if(bd2->gib_weg(road_wt)!=NULL) {
-					// check type of stop/depot
-					const gebaeude_t *gb = dynamic_cast<const gebaeude_t *>(bd2->suche_obj(ding_t::gebaeude));
-					if(gb  &&  (gb->gib_tile()->gib_besch()->gib_all_layouts()!=2  ||  (gb->gib_tile()->gib_layout()&1)!=(r>>1))) {
-						// four corner stop or not parallel
-						allowed_dir &= ~ribi_t::nsow[r];
-					}
-					else {
-						// a road to connect
+				else {
+					if(bd2->gib_depot()==NULL) {
+						// a road to connect (but not through depots)
 						connection_roads |= ribi_t::nsow[r];
 					}
 				}
 			}
 		}
+	}
 
-		// now add the ribis to the other ways (if there)
-		for(int r = 0; r < 4; r++) {
-			if(ribi_t::nsow[r]&connection_roads) {
-				grund_t *bd2 = welt->lookup(k + koord::nsow[r])->gib_kartenboden();
-				weg_t *w2 = bd2->gib_weg(road_wt);
-				w2->ribi_add(ribi_t::rueckwaerts(ribi_t::nsow[r]));
-				bd2->calc_bild();
-			}
-		}
-
-
-		if(connection_roads!=ribi_t::keine || forced) {
-
-			if(!bd->weg_erweitern(road_wt, connection_roads)) {
-				strasse_t *weg = new strasse_t(welt);
-				weg->setze_gehweg( true );
-				weg->setze_besch(welt->get_city_road());
-				// Hajo: city roads should not belong to any player => so we can ignore any contruction costs ...
-				bd->neuen_weg_bauen(weg, connection_roads, sp);
-			}
-			else {
-				bd->setze_besitzer( sp );
-			}
-			return true;
+	// now add the ribis to the other ways (if there)
+	for(int r = 0; r < 4; r++) {
+		if(ribi_t::nsow[r]&connection_roads) {
+			grund_t *bd2 = welt->lookup(k + koord::nsow[r])->gib_kartenboden();
+			weg_t *w2 = bd2->gib_weg(road_wt);
+			w2->ribi_add(ribi_t::rueckwaerts(ribi_t::nsow[r]));
+			bd2->calc_bild();
 		}
 	}
+
+	if(connection_roads!=ribi_t::keine || forced) {
+
+		if(!bd->weg_erweitern(road_wt, connection_roads)) {
+			strasse_t *weg = new strasse_t(welt);
+			weg->setze_gehweg( true );
+			weg->setze_besch(welt->get_city_road());
+			// Hajo: city roads should not belong to any player => so we can ignore any contruction costs ...
+			bd->neuen_weg_bauen(weg, connection_roads, sp);
+		}
+		else {
+			bd->setze_besitzer( sp );
+		}
+		return true;
+	}
+
 	return false;
 }
 

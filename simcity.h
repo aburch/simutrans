@@ -284,7 +284,7 @@ private:
      *
      * @author Hj. Malthaner, V. Meyer
      */
-    bool baue_strasse(koord k, spieler_t *sp, bool forced);
+    bool baue_strasse(const koord k, spieler_t *sp, bool forced);
 
     void baue();
 

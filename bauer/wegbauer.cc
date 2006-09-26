@@ -28,6 +28,8 @@
 
 #include "../dataobj/umgebung.h"
 #include "../dataobj/route.h"
+// sorted heap, since we only need insert and pop
+#include "../tpl/binary_heap_tpl.h" // fastest
 
 #include "../simworld.h"
 #include "../simwerkz.h"
@@ -1111,6 +1113,7 @@ get_next_koord(koord gr_pos, koord ziel)
 
 /* this routine uses A* to calculate the best route
  * beware: change the cost and you will mess up the system!
+ * (but you can try, look at simuconf.tab)
  */
 long
 wegbauer_t::intern_calc_route(const koord start, const koord ziel)
@@ -1135,20 +1138,6 @@ wegbauer_t::intern_calc_route(const koord start, const koord ziel)
 
 	koord3d gr_pos;	// just the last valid pos ...
 
-	// memory in static list ...
-	if(route_t::nodes==NULL) {
-		route_t::MAX_STEP = umgebung_t::max_route_steps;	// may need very much memory => configurable
-		route_t::nodes = new route_t::ANode[route_t::MAX_STEP+4+1];
-	}
-	int step = 0;
-
-	// arrays for A*
-	// (was vector_tpl before, but since we really badly need speed here, we use unchecked arrays)
-	static route_t::ANode **open;
-	static uint32 open_size=0, open_count;
-
-	INT_CHECK("wegbauer 347");
-
 	// is valid ground?
 	long dummy;
 	gr = welt->lookup(start3d);
@@ -1157,45 +1146,72 @@ wegbauer_t::intern_calc_route(const koord start, const koord ziel)
 		return false;
 	}
 
-	route_t::GET_NODE();
+	// memory in static list ...
+	if(route_t::nodes==NULL) {
+		route_t::MAX_STEP = umgebung_t::max_route_steps;	// may need very much memory => configurable
+		route_t::nodes = new route_t::ANode[route_t::MAX_STEP+4+1];
+	}
+
+	// there are several variant for mantaining the open list
+	// however, only binary heap and HOT queue with binary heap are worth considering
+#ifdef tpl_HOT_queue_tpl_h
+    //static HOT_queue_tpl <route_t::ANode *> queue;
+#else
+#ifdef tpl_binary_heap_tpl_h
+    static binary_heap_tpl <route_t::ANode *> queue;
+#else
+#ifdef tpl_sorted_heap_tpl_h
+    //static sorted_heap_tpl <route_t::ANode *> queue;
+#else
+    //static prioqueue_tpl <route_t::ANode *> queue;
+#endif
+#endif
+#endif
 
 	// nothing in lists
 	welt->unmarkiere_alle();
 
-	route_t::ANode *tmp = &(route_t::nodes[step++]);
+	// get exclusively the tile list
+	route_t::GET_NODE();
+
+	uint32 step = 0;
+	route_t::ANode *tmp = &(route_t::nodes[step]);
+	step ++;
+
 	tmp->parent = NULL;
 	tmp->gr = welt->lookup(start3d);
 	tmp->f = route_t::calc_distance(start3d,ziel3d);
 	tmp->g = 0;
 	tmp->dir = 0;
+	tmp->count = 0;
 
-	if(open_size==0) {
-		open_size = 4096;
-		open = (route_t::ANode **)malloc( sizeof(route_t::ANode*)*4096 );
-	}
+	// clear the queue (should be empty anyhow)
+	queue.clear();
+	queue.insert(tmp);
 
-	// start in open
-	open[0] = tmp;
-	open_count = 1;
+	INT_CHECK("wegbauer 347");
 
 	// to speed up search, but may not find all shortest ways
 	uint32 min_dist = 99999999;
 
 //DBG_MESSAGE("route_t::itern_calc_route()","calc route from %d,%d,%d to %d,%d,%d",ziel.x, ziel.y, ziel.z, start.x, start.y, start.z);
 	do {
-		open_count --;
-		if(welt->ist_markiert(open[open_count]->gr)) {
-			// well we had already a better one going here ...
-			// this speeds up wayfinding dramatically, but may find a only nearly best route ...
+		route_t::ANode *test_tmp = queue.pop();
+
+		if(welt->ist_markiert(test_tmp->gr)) {
+			// we were already here on a faster route, thus ignore this branch
+			// (trading speed against memory consumption)
 			continue;
 		}
-		tmp = open[open_count];
 
+		tmp = test_tmp;
 		gr = tmp->gr;
-		gr_pos = gr->gib_pos();
 		welt->markiere(gr);
+		gr_pos = gr->gib_pos();
 
-//DBG_DEBUG("add to close","(%i,%i,%i) f=%i",gr->gib_pos().x,gr->gib_pos().y,gr->gib_pos().z,tmp->f);
+#ifdef DEBUG_ROUTES
+DBG_DEBUG("insert to close","(%i,%i,%i)  f=%i",gr->gib_pos().x,gr->gib_pos().y,gr->gib_pos().z,tmp->f);
+#endif
 
 		// already there
 		if(gr_pos==ziel3d  ||  tmp->g>maximum) {
@@ -1290,82 +1306,30 @@ wegbauer_t::intern_calc_route(const koord start, const koord ziel)
 			}
 
 			const uint32 new_dist = route_t::calc_distance( to->gib_pos(), ziel3d );
+
 			if(new_dist<min_dist) {
 				min_dist = new_dist;
 			}
 			else if(new_dist>min_dist+50) {
 				// skip, if too far from current minimum tile
 				// will not find some ways, but will be much faster ...
+				// also it will avoid too big detours, which is probably also not, way the builder intended
 				continue;
 			}
 
+
 			const uint32 new_f = new_g+new_dist;
-
-			uint32 index = open_count;
-			// insert with binary search, ignore doublettes
-			if(open_count>0  &&  new_f>open[open_count-1]->f) {
-#if 0
-				// and the fastest binary search variant
-				sint32 high = open_count, low = -1, probe;
-				while(high - low>1) {
-					probe = ((uint32) (low + high)) >> 1;
-					if(open[probe]->f==new_f) {
-						low = probe;
-						break;
-					}
-					else if(open[probe]->f>new_f) {
-						low = probe;
-					}
-					else {
-						high = probe;
-					}
-				}
-				// we want to insert before, so we may add 1
-				index = 0;
-				if(low>=0) {
-					index = low;
-					if(open[index]->f>=new_f) {
-						index ++;
-					}
-				}
-//DBG_MESSAGE("bsort","current=%i f=%i  f+1=%i",new_f,open[index]->f,open[index+1]->f);
-#else
-				// this is the slower variant of the binary search ...
-				uint32 diff = 1;
-				sint8 counter=0;
-				// now make sure, diff is 2^n
-				while(diff<=open_count) {
-					diff <<= 1;
-					counter ++;
-				}
-				diff >>= 1;
-
-				index = diff-1;
-
-				// now search
-				while(counter--) {
-					diff = diff>>1;
-					if(  index<open_count  &&  open[index]->f>new_f  ) {
-						index += diff;
-					}
-					else {
-						index -= diff;
-					}
-				}
-				// might be wrong by one
-				if(index<open_count  &&  open[index]->f>=new_f) {
-					index ++;
-				}
-			}
-#endif
-			// not in there or taken out => add new
-			route_t::ANode *k=&(route_t::nodes[step]);
-			step++;
 
 			if((step&0x03)==0) {
 				INT_CHECK( "wegbauer 1347" );
+#ifdef DEBUG_ROUTES
 				if((step&1023)==0) {reliefkarte_t::gib_karte()->calc_map();}
+#endif
 			}
+
+			// not in there or taken out => add new
+			route_t::ANode *k=&(route_t::nodes[step]);
+			step++;
 
 			k->parent = tmp;
 			k->gr = to;
@@ -1373,26 +1337,18 @@ wegbauer_t::intern_calc_route(const koord start, const koord ziel)
 			k->f = new_f;
 			k->dir = current_dir;
 
-			// need to enlarge?
-			if(open_count==open_size) {
-				route_t::ANode **tmp=open;
-				open_size += 4096;
-				open = (route_t::ANode **)malloc( sizeof(route_t::ANode*)*open_size );
-				memcpy( open, tmp, sizeof(route_t::ANode*)*(open_size-4096) );
-				free( tmp );
-			}
+			queue.insert( k );
 
-			if(index<open_count) {
-				// was not best f so far => insert
-				memmove( open+index+1ul, open+index, sizeof(route_t::ANode*)*(open_count-index) );
-			}
-			open[index] = k;
-			open_count ++;
-//DBG_DEBUG("insert to open","(%i,%i,%i)  f=%i at %i (top=%i, f=%i)",to->gib_pos().x,to->gib_pos().y,to->gib_pos().z,k->f, index,open_count,open[open_count-1]->f);
+#ifdef DEBUG_ROUTES
+DBG_DEBUG("insert to open","(%i,%i,%i)  f=%i",to->gib_pos().x,to->gib_pos().y,to->gib_pos().z,k->f);
+#endif
 		}
-	} while(open_count>0  &&  step<route_t::MAX_STEP  &&  gr->gib_pos()!=ziel3d);
 
-//DBG_DEBUG("wegbauer_t::intern_calc_route()","steps %i (max %i) in route cost %i",step,route_t::MAX_STEP,tmp->g);
+	} while(!queue.is_empty()  &&  step<route_t::MAX_STEP  &&  gr->gib_pos()!=ziel3d);
+
+#ifdef DEBUG_ROUTES
+DBG_DEBUG("wegbauer_t::intern_calc_route()","steps=%i  (max %i) in route, open %i, cost %u",step,route_t::MAX_STEP,queue.count(),tmp->g);
+#endif
 	INT_CHECK("wegbauer 194");
 
 	route_t::RELEASE_NODE();
@@ -1415,9 +1371,9 @@ wegbauer_t::intern_calc_route(const koord start, const koord ziel)
 		// maybe here bridges should be optimized ...
 		max_n = route->get_count()-1;
 		return cost;
-  }
+	}
 
-    return -1;
+	return -1;
 }
 
 

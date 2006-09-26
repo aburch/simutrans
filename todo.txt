@@ -37,15 +37,14 @@ Stichpunkte
 - Linienverwaltung kollidiert mit AI Spieler: done
 - Oneway Rollbahnen: done
 - more than one translation: done
+- Jahreszeiten: done
+- set animation speed in pak-file, allow season in pak file: done
 
 - details for convois: halfway
 - Brücken an senkrechten Wänden: done/halfway
 - tile 2x height: halfway-> slopes needed
-- Jahreszeiten: halfway done
 
 - Felder: Grafiken da, fehlt noch code (vielleicht wie Wälder?)
-- schönerer Jahreszeitenwechsel => texturen statt fertiger tiles!
-- Winter höhenabhängig?
 
 - connection weighted by their intermediate stops => A* for goods routing
 - when import translation: ignore entries which are identical (saving runtime)
@@ -53,8 +52,9 @@ Stichpunkte
 - A* for goods
 - scripting for AI
 - Landfabrik alle x Jahre/Fakriken
-- set animation speed in pak-file, allow season in pak file
 
+- Signals switching nearly like before (should be easy)
+- Odometer/Lifetime
 
 Immer zu tun:
 - Aufräumen von Datentypen für bessere Portierbarkeit
