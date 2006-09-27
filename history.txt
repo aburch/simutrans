@@ -4,6 +4,9 @@ Known bugs: (hard to fix)
 	valgrind complains about errors in SDL and X?
 
 
+Release of 99.02
+
+27-Sep-2006: (prissi)
 	FIX: display depots after reloading
 	FIX: autoscrolling was still outcommented
 	FIX: loading bar position in list display
