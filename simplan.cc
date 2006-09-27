@@ -149,8 +149,6 @@ planquadrat_t::kartenboden_setzen(grund_t *bd, bool mit_spieler)
 		}
 		bd->set_kartenboden(true);
 		bd->calc_bild();
-
-		reliefkarte_t::gib_karte()->calc_map_pixel(bd->gib_pos().gib_2d());
 	}
 }
 

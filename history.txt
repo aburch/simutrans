@@ -4,6 +4,9 @@ Known bugs: (hard to fix)
 	valgrind complains about errors in SDL and X?
 
 
+	FIX: display depots after reloading
+	FIX: autoscrolling was still outcommented
+
 
 Release of 99.01.1
 

@@ -86,6 +86,10 @@ gebaeude_t::gebaeude_t(karte_t *welt, loadsave_t *file) : ding_t(welt)
 	if(tile) {
 		calc_bild();
 	}
+	else {
+		zeige_baugrube = true;
+		step_frequency = 1;
+	}
 }
 
 
@@ -265,11 +269,9 @@ gebaeude_t::step(long delta_t)
 	// still under construction?
 	if(zeige_baugrube) {
 		if(welt->gib_zeit_ms() - insta_zeit > 5000) {
-			if(zeige_baugrube) {
-				set_flag(ding_t::dirty);
-				zeige_baugrube = false;
-				calc_bild();
-			}
+			set_flag(ding_t::dirty);
+			zeige_baugrube = false;
+			calc_bild();
 			// factories needs more frequent steps
 			if(is_factory  &&  ptr.fab   &&  ptr.fab->gib_pos()==gib_pos()) {
 				step_frequency = 1;
@@ -704,6 +706,10 @@ DBG_MESSAGE("gebaeude_t::rwdr", "description %s for building at %d,%d not found 
 			// Hajo: rebuild tourist attraction list
 			if(tile && tile->gib_besch()->ist_ausflugsziel()) {
 				welt->add_ausflugsziel( this );
+			}
+
+			if(tile) {
+				calc_bild();
 			}
 		}
 	}

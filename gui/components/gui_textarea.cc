@@ -93,8 +93,8 @@ void gui_textarea_t::zeichnen(koord offset)
 			new_lines += LINESPACE;
 		} while (next != NULL);
 	}
-	koord gr(x_size+10,new_lines);
+	koord gr(max(x_size+10,gib_groesse().x),new_lines);
 	if(gr!=gib_groesse()) {
-		//setze_groesse(gr);
+		setze_groesse(gr);
 	}
 }

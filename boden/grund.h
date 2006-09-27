@@ -461,14 +461,11 @@ public:
 	* @author Hj. Malthaner
 	*/
 	weg_t *gib_weg(waytype_t typ) const {
-		if(this) {
-			int i = 0;
-			while(wege[i] && i<MAX_WEGE) {
-				if(wege[i]->gib_typ() == typ) {
-					return wege[i];
-				}
-				i++;
-			}
+		if(wege[0]  &&  wege[0]->gib_typ() == typ) {
+			return wege[0];
+		}
+		if(wege[1]  &&  wege[1]->gib_typ() == typ) {
+			return wege[1];
 		}
 		return NULL;
 	}
@@ -481,16 +478,8 @@ public:
 	* @see gib_weg
 	*/
 	const uint8 gib_styp(waytype_t typ) const {
-		if(this) {
-			int i = 0;
-			while(wege[i] && i<MAX_WEGE) {
-				if(wege[i]->gib_typ() == typ){
-					return wege[i]->gib_besch()->gib_styp();
-				}
-				i++;
-			}
-		}
-		return 0;
+		weg_t *weg = gib_weg(typ);
+		return (weg) ? weg->gib_besch()->gib_styp() : 0;
 	}
 
 	/**
@@ -498,6 +487,7 @@ public:
 	* Liefert 0 wenn kein weg des Typs vorhanden ist. Ein Weg kann ggf.
 	* auch 0 als Richtungsbits liefern, deshalb kann die Anwesenheit eines
 	* Wegs nicht hierurber, sondern mit gib_weg(), ermittelt werden.
+	* Also beware of water, which always allows all directions ...thus virtual
 	* @author Hj. Malthaner
 	*/
 	virtual ribi_t::ribi gib_weg_ribi(waytype_t typ) const;

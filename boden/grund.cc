@@ -511,63 +511,56 @@ void grund_t::calc_bild()
 	}
 }
 
-/*
-int grund_t::ist_karten_boden() const
-{
-	return welt->lookup(pos.gib_2d())->gib_kartenboden() == this;
-}
-*/
-
 
 
 /**
  * Wir gehen davon aus, das pro Feld nur ein Gebauede erlaubt ist!
  */
-bool grund_t::hat_gebaeude(const haus_besch_t *besch) const
+bool
+grund_t::hat_gebaeude(const haus_besch_t *besch) const
 {
     gebaeude_t *gb = static_cast<gebaeude_t *>(suche_obj(ding_t::gebaeude));
 
     return gb && gb->gib_tile()->gib_besch() == besch;
 }
 
-depot_t *grund_t::gib_depot() const
+
+
+depot_t
+*grund_t::gib_depot() const
 {
     ding_t *dt = obj_bei(PRI_DEPOT);
 
     return dynamic_cast<depot_t *>(dt);
 }
 
+
+
 const char * grund_t::gib_weg_name(waytype_t typ) const
 {
     weg_t   *weg = (typ==invalid_wt) ? wege[0] : gib_weg(typ);
 
     if(weg) {
-	return weg->gib_name();
+		return weg->gib_name();
     } else {
-	return NULL;
+		return NULL;
     }
 }
+
 
 
 ribi_t::ribi grund_t::gib_weg_ribi(waytype_t typ) const
 {
     weg_t *weg = gib_weg(typ);
-
-    if(weg)
-	return weg->gib_ribi();
-    else
-	return ribi_t::keine;
+	return (weg) ? weg->gib_ribi() : ribi_t::keine;
 }
+
 
 
 ribi_t::ribi grund_t::gib_weg_ribi_unmasked(waytype_t typ) const
 {
     weg_t *weg = gib_weg(typ);
-
-    if(weg)
-	return weg->gib_ribi_unmasked();
-    else
-	return ribi_t::keine;
+	return (weg) ? weg->gib_ribi_unmasked() : ribi_t::keine;
 }
 
 
