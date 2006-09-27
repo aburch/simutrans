@@ -646,17 +646,27 @@ DBG_MESSAGE("init","map");
 		sprachengui_t::init_font_from_lang();
 
 		einstellungen_t *sets = new einstellungen_t(*welt->gib_einstellungen());
-		sets->setze_groesse(256, 256);
-		sets->setze_anzahl_staedte(16);
-		sets->setze_land_industry_chains(6);
-		sets->setze_city_industry_chains(0);
-		sets->setze_tourist_attractions(12);
-		sets->setze_karte_nummer(simrand(999));
-		sets->setze_station_coverage(umgebung_t::station_coverage_size);
-		sets->setze_allow_player_change(true);
-		sets->setze_use_timeline(umgebung_t::use_timeline == 1);
-		sets->setze_starting_year(umgebung_t::starting_year);
-
+		if(new_world) {
+			// load the default settings for new maps
+			loadsave_t  file;
+			if(file.rd_open("default.sve")) {
+				sets->rdwr(&file);
+				file.close();
+			}
+			else {
+				// default without a matching file ...
+				sets->setze_groesse(256, 256);
+				sets->setze_anzahl_staedte(16);
+				sets->setze_land_industry_chains(6);
+				sets->setze_city_industry_chains(0);
+				sets->setze_tourist_attractions(12);
+				sets->setze_karte_nummer(simrand(999));
+				sets->setze_station_coverage(umgebung_t::station_coverage_size);
+				sets->setze_allow_player_change(true);
+				sets->setze_use_timeline(umgebung_t::use_timeline == 1);
+				sets->setze_starting_year(umgebung_t::starting_year);
+			}
+		}
 		delete msg;
 
 		do {
@@ -713,6 +723,14 @@ DBG_MESSAGE("init","map");
 
 					sets->heightfield = "";
 					welt->init(sets);
+					// save setting ...
+					loadsave_t file;
+					if(file.wr_open("default.sve")) {
+						// save default setting
+						sets->rdwr(&file);
+						file.close();
+					}
+
 					destroy_all_win();
 				} else if(wg->gib_load()) {
 					destroy_win(wg);

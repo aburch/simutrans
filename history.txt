@@ -9,6 +9,7 @@ Known bugs: (hard to fix)
 	FIX: loading bar position in list display
 	FIX: not roads on foundations
 	CHANGE: progress bar now always half display width, two more messages "Loading map ..." and "Saving map ..."
+	CHANGE: default setting for new map will be loaded from default.sve in the main directory. This file can be a savegame, but will be overwritten the next time a game is started.
 
 
 Release of 99.01.1
