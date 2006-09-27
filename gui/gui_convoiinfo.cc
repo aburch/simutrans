@@ -36,11 +36,10 @@ gui_convoiinfo_t::gui_convoiinfo_t(convoihandle_t cnv, int n)
     this->cnv = cnv;
     nummer = n;
 
-    filled_bar.setze_pos(koord(188, 33));
+    filled_bar.setze_pos(koord(2, 33));
     filled_bar.setze_groesse(koord(100, 4));
     filled_bar.add_color_value(&cnv->get_loading_limit(), COL_YELLOW);
     filled_bar.add_color_value(&cnv->get_loading_level(), COL_GREEN);
-    add_komponente(&filled_bar);
 }
 
 /**
@@ -116,6 +115,6 @@ void gui_convoiinfo_t::zeichnen(koord offset)
 		display_proportional_clip(pos.x+offset.x+2, pos.y+offset.y+8,cnv->gib_name(),ALIGN_LEFT, cnv->get_status_color(), true);
 
 		// since the only remaining object is the loading bar, we can alter its position this way ...
-		gui_container_t::zeichnen(pos + offset+koord(xoff-188+2,0));
+		filled_bar.zeichnen(pos+offset+koord(xoff,0));
 	}
 }

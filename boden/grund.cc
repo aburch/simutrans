@@ -346,6 +346,13 @@ DBG_MESSAGE("grund_t::rdwr()","at (%i,%i) dock ignored",gib_pos().x, gib_pos().y
 	dinge.rdwr(welt, file,gib_pos());
 
 	if(file->is_loading()) {
+		if(this->gib_typ()==fundament) {
+			while(wege[0]) {
+				// remove this (but we can not correct the other wasy, since possibly not yet loaded)
+				dbg->error("grund_t::rdwr()","removing way from foundation at %i,%i",pos.x,pos.y);
+				weg_entfernen(wege[0]->gib_typ(),false);
+			}
+		}
 		flags |= dirty;
 		// set speedlimit and maintenance for birdges
 		if(gib_typ()==brueckenboden) {

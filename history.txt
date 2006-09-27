@@ -6,6 +6,9 @@ Known bugs: (hard to fix)
 
 	FIX: display depots after reloading
 	FIX: autoscrolling was still outcommented
+	FIX: loading bar position in list display
+	FIX: not roads on foundations
+	CHANGE: progress bar now always half display width, two more messages "Loading map ..." and "Saving map ..."
 
 
 Release of 99.01.1

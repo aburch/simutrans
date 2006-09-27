@@ -2175,6 +2175,11 @@ stadt_t::baue_strasse(const koord k, spieler_t *sp, bool forced)
 		return false;
 	}
 
+	if(bd->gib_typ()!=grund_t::boden) {
+		// not on monorails, foundations, tunnel or bridges
+		return false;
+	}
+
 	// we must not built on water or runways etc.
 	if(bd->gib_weg(air_wt)  ||  bd->gib_weg(water_wt)) {
 		return false;

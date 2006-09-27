@@ -26,6 +26,16 @@
 #include "utils/simstring.h"
 
 
+static const char *progress_text=NULL;
+
+void
+display_set_progress_text(const char *t)
+{
+	progress_text = t;
+}
+
+
+
 /**
  * Zeichnet eine Fortschrittsanzeige
  * @author Hj. Malthaner
@@ -33,18 +43,25 @@
 void
 display_progress(int part, int total)
 {
-    const int disp_width=display_get_width();
-    const int disp_height=display_get_height();
+	const int disp_width=display_get_width();
+	const int disp_height=display_get_height();
 
-    // umriﬂ
-    display_ddd_box((disp_width-total-4)/2, disp_height/2-9, total+3, 18, COL_GREY6, COL_GREY4);
-    display_ddd_box((disp_width-total-2)/2, disp_height/2-8, total+1, 16, COL_GREY4, COL_GREY6);
+	const int width=disp_width/2;
+	part = (part*width)/total;
 
-    // flaeche
-    display_fillbox_wh((disp_width-total)/2, disp_height/2-7, total, 14, COL_GREY5, TRUE);
+	// outline
+	display_ddd_box(width/2-2, disp_height/2-9, width+4, 20, COL_GREY6, COL_GREY4);
+	display_ddd_box(width/2-1, disp_height/2-8, width+2, 18, COL_GREY4, COL_GREY6);
 
-    // progress
-    display_fillbox_wh((disp_width-total)/2, disp_height/2-5, part, 10, COL_BLUE, TRUE);
+	// inner
+	display_fillbox_wh(width/2, disp_height/2-7, width, 16, COL_GREY5, TRUE);
+
+	// progress
+	display_fillbox_wh(width/2, disp_height/2-5, part, 12, COL_BLUE, TRUE);
+
+	if(progress_text) {
+		display_proportional(width,display_get_height()/2-4,progress_text,ALIGN_MIDDLE,COL_WHITE,0);
+	}
 }
 
 

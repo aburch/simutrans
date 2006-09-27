@@ -25,7 +25,7 @@ struct event_t;
  *
  * @autor Hj. Malthaner
  */
-class gui_convoiinfo_t : public gui_container_t
+class gui_convoiinfo_t : public gui_komponente_t
 {
 private:
 	/**

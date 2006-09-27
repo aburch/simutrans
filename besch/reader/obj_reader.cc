@@ -105,7 +105,7 @@ bool obj_reader_t::init(const char *liste)
 		teilung = (2<<teilung)-1;
 		if(drawing) {
 			display_fillbox_wh( 0, 0, display_get_width(), display_get_height(), COL_BLACK, true );
-			display_proportional((display_get_width()-max-4)/2,display_get_height()/2-20,"Loading paks ...",ALIGN_LEFT,COL_WHITE,0);
+			display_set_progress_text("Loading paks ...");
 			read_file(name+"symbol.BigLogo.pak");
 DBG_MESSAGE("obj_reader_t::init()","big logo %p", skinverwaltung_t::biglogosymbol);
 			if(skinverwaltung_t::biglogosymbol) {

@@ -23,6 +23,7 @@
 extern "C" {
 #endif
 
+void display_set_progress_text(const char *text);
 void display_progress(int part, int total);
 void display_icon_leiste(const int color, int basi_bild_nr);
 //void display_divider(int x, int y, int w);

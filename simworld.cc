@@ -199,6 +199,7 @@ karte_t::setze_scroll_multi(int n)
 void
 karte_t::calc_hoehe_mit_heightfield(const cstring_t & filename)
 {
+	display_set_progress_text(translator::translate("Init map ..."));
 	FILE *file = fopen(filename, "rb");
 	if(file) {
 		const int display_total = 16 + gib_einstellungen()->gib_anzahl_staedte()*4 + gib_einstellungen()->gib_land_industry_chains() + gib_einstellungen()->gib_city_industry_chains();
@@ -239,9 +240,6 @@ karte_t::calc_hoehe_mit_heightfield(const cstring_t & filename)
 			}
 
 			if(is_display_init()) {
-				if(y==0) {
-					display_proportional((display_get_width()-display_total)/2,display_get_height()/2-20,translator::translate("Init map ..."),ALIGN_LEFT,COL_WHITE,0);
-				}
 				display_progress((y*16)/gib_groesse_y(), display_total);
 				display_flush(IMG_LEER, 0, 0, 0, "", "", 0, 0);
 			}
@@ -277,6 +275,7 @@ karte_t::perlin_hoehe(const int x, const int y,
 void
 karte_t::calc_hoehe_mit_perlin()
 {
+	display_set_progress_text(translator::translate("Init map ..."));
 	const int display_total = 16 + gib_einstellungen()->gib_anzahl_staedte()*4 + gib_einstellungen()->gib_land_industry_chains() + gib_einstellungen()->gib_city_industry_chains();
 	for(int y=0; y<=gib_groesse_y(); y++) {
 
@@ -295,9 +294,6 @@ karte_t::calc_hoehe_mit_perlin()
 		}
 
 		if(is_display_init()) {
-			if(y==0) {
-				display_proportional((display_get_width()-display_total)/2,display_get_height()/2-20,translator::translate("Init map ..."),ALIGN_LEFT,COL_WHITE,0);
-			}
 			display_progress((y*16)/gib_groesse_y(), display_total);
 			display_flush(IMG_LEER, 0, 0, 0, "", "", 0, 0);
 		}
@@ -2225,63 +2221,64 @@ DBG_MESSAGE("karte_t::speichern()", "saving game to '%s'", filename);
 void
 karte_t::speichern(loadsave_t *file,bool silent)
 {
-    int i,j;
+    int i, j;
 
-    einstellungen->rdwr(file);
+DBG_MESSAGE("karte_t::speichern(loadsave_t *file)", "start");
+	if(!silent) {
+		display_set_progress_text(translator::translate("Saving map ..."));
+		display_progress(0,gib_groesse_y());
+		display_flush(IMG_LEER, 0, 0, 0, "", "", 0, 0);
+	}
+
+	einstellungen->rdwr(file);
 
 	file->rdwr_long(ticks, " ");
 	file->rdwr_long(letzter_monat, " ");
 	file->rdwr_long(letztes_jahr, "\n");
 
-	DBG_MESSAGE("karte_t::speichern(loadsave_t *file)", "save cities");
-    for(i=0; i<einstellungen->gib_anzahl_staedte(); i++) {
-	stadt->at(i)->rdwr(file);
-	if(silent) {
-		INT_CHECK("saving");
+	for(i=0; i<einstellungen->gib_anzahl_staedte(); i++) {
+		stadt->at(i)->rdwr(file);
+		if(silent) {
+			INT_CHECK("saving");
+		}
 	}
-    }
-	DBG_MESSAGE("karte_t::speichern(loadsave_t *file)", "saved cities ok");
+DBG_MESSAGE("karte_t::speichern(loadsave_t *file)", "saved cities ok");
 
-	DBG_MESSAGE("karte_t::speichern(loadsave_t *file)", "save tiles");
-    for(j=0; j<gib_groesse_y(); j++) {
-	for(i=0; i<gib_groesse_x(); i++) {
-	    access(i, j)->rdwr(this, file);
+	for(j=0; j<gib_groesse_y(); j++) {
+		for(i=0; i<gib_groesse_x(); i++) {
+			access(i, j)->rdwr(this, file);
+		}
+		if(silent) {
+			INT_CHECK("saving");
+		}
+		else {
+			display_progress(j, gib_groesse_y());
+			display_flush(IMG_LEER,0, 0, 0, "", "", 0, 0);
+		}
 	}
-	if(silent) {
-		INT_CHECK("saving");
-	}
-	else {
-		display_progress(j, gib_groesse_y());
-		display_flush(IMG_LEER,0, 0, 0, "", "", 0, 0);
-	}
-    }
-	DBG_MESSAGE("karte_t::speichern(loadsave_t *file)", "saved access");
+DBG_MESSAGE("karte_t::speichern(loadsave_t *file)", "saved tiles");
 
-    for(j=0; j<=gib_groesse_y(); j++) {
-	for(i=0; i<=gib_groesse_x(); i++) {
-            int hgt = lookup_hgt(koord(i, j));
-	    file->rdwr_long(hgt, "\n");
+	for(j=0; j<=gib_groesse_y(); j++) {
+		for(i=0; i<=gib_groesse_x(); i++) {
+			int hgt = lookup_hgt(koord(i, j));
+			file->rdwr_long(hgt, "\n");
+		}
 	}
-    }
-	DBG_MESSAGE("karte_t::speichern(loadsave_t *file)", "saved hgt");
-	if(silent) {
-		INT_CHECK("saving");
+DBG_MESSAGE("karte_t::speichern(loadsave_t *file)", "saved hgt");
+
+	int fabs = fab_list.count();
+	file->rdwr_long(fabs, "\n");
+	slist_iterator_tpl<fabrik_t*> fiter ( fab_list );
+	while(fiter.next()) {
+		(fiter.get_current())->rdwr(file);
+		if(silent) {
+			INT_CHECK("saving");
+		}
 	}
-
-    int fabs = fab_list.count();
-
-    file->rdwr_long(fabs, "\n");
-
-    slist_iterator_tpl<fabrik_t*> fiter ( fab_list );
-    while(fiter.next()) {
-	(fiter.get_current())->rdwr(file);
-	if(silent) {
-		INT_CHECK("saving");
-	}
-    }
-	DBG_MESSAGE("karte_t::speichern(loadsave_t *file)", "saved fabs");
+DBG_MESSAGE("karte_t::speichern(loadsave_t *file)", "saved fabs");
 
 	for(unsigned i=0;  i<convoi_array.get_count();  i++ ) {
+		// one MUST NOT call INT_CHECK here or else the convoi will be broken during reloading!
 		convoihandle_t cnv = convoi_array.at(i);
 		cnv->rdwr(file);
 	}
@@ -2289,27 +2286,26 @@ karte_t::speichern(loadsave_t *file,bool silent)
 		INT_CHECK("saving");
 	}
 	file->wr_obj_id("Ende Convois");
-	DBG_MESSAGE("karte_t::speichern(loadsave_t *file)", "saved %i convois",convoi_array.get_count());
+DBG_MESSAGE("karte_t::speichern(loadsave_t *file)", "saved %i convois",convoi_array.get_count());
 
-    for(i=0; i<MAX_PLAYER_COUNT; i++) {
-	spieler[i]->rdwr(file);
-	if(silent) {
-		INT_CHECK("saving");
+	for(i=0; i<MAX_PLAYER_COUNT; i++) {
+		spieler[i]->rdwr(file);
+		if(silent) {
+			INT_CHECK("saving");
+		}
 	}
-    }
-	DBG_MESSAGE("karte_t::speichern(loadsave_t *file)", "saved players");
+DBG_MESSAGE("karte_t::speichern(loadsave_t *file)", "saved players");
 
-    i = ij_off.x;
-    j = ij_off.y;
-    file->rdwr_delim("View ");
-    file->rdwr_long(i, " ");
-    file->rdwr_long(j, "\n");
+	i = ij_off.x;
+	j = ij_off.y;
+	file->rdwr_delim("View ");
+	file->rdwr_long(i, " ");
+	file->rdwr_long(j, "\n");
 
-    // Hajo: once this should be removed -> it makes IMO
-    // no sense to save the UI language with a game ?!
-    // translator::rdwr( file );
-
-    display_speichern( file->gib_file(), file->is_zipped());
+	// Hajo: once this should be removed -> it makes IMO
+	// no sense to save the UI language with a game ?!
+	// translator::rdwr( file );
+	display_speichern( file->gib_file(), file->is_zipped());
 }
 
 
@@ -2361,15 +2357,20 @@ DBG_MESSAGE("karte_t::laden()","Savegame version is %d", file.get_version());
 // handles the actual loading
 void karte_t::laden(loadsave_t *file)
 {
-    char buf[80];
-    int x,y;
+	char buf[80];
+	int x,y;
 
-    intr_disable();
+	destroy_all_win();
+	intr_disable();
 
-    destroy();
+	display_set_progress_text(translator::translate("Loading map ..."));
+	display_progress(0, 100);	// does not matter, since fixed width
+	display_flush(IMG_LEER, 0, 0, 0, "", "", 0, 0);
 
-    // powernets zum laden vorbereiten -> tabelle loeschen
-    powernet_t::prepare_loading();
+	destroy();
+
+	// powernets zum laden vorbereiten -> tabelle loeschen
+	powernet_t::prepare_loading();
 
 	// jetzt geht das laden los
 	DBG_MESSAGE("karte_t::laden", "Fileversion: %d, %p", file->get_version(), einstellungen);
