@@ -57,7 +57,7 @@ public:
      * Zeichnet die Komponente
      * @author Hj. Malthaner
      */
-    void zeichnen(koord offset) const;
+    void zeichnen(koord offset);
 };
 
 

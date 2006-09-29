@@ -4,6 +4,11 @@ Known bugs: (hard to fix)
 	valgrind complains about errors in SDL and X?
 
 
+
+	CHANGE: default setting for new map will be loaded from default.sve in the main directory. This file can be a savegame, but will be overwritten the next time a game is started.
+	FIX: game could lock up during creation when no matchin tourist attractions were found for the available climates
+
+
 Release of 99.02
 
 27-Sep-2006: (prissi)
@@ -12,7 +17,6 @@ Release of 99.02
 	FIX: loading bar position in list display
 	FIX: not roads on foundations
 	CHANGE: progress bar now always half display width, two more messages "Loading map ..." and "Saving map ..."
-	CHANGE: default setting for new map will be loaded from default.sve in the main directory. This file can be a savegame, but will be overwritten the next time a game is started.
 
 
 Release of 99.01.1

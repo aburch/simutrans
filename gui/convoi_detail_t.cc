@@ -64,9 +64,6 @@ convoi_detail_t::convoi_detail_t(convoihandle_t cnv)
 
 
 
-static koord groesse_vehicle(300,5);
-
-
 /**
  * komponente neu zeichnen. Die übergebenen Werte beziehen sich auf
  * das Fenster, d.h. es sind die Bildschirkoordinaten des Fensters
@@ -85,9 +82,8 @@ convoi_detail_t::zeichnen(koord pos, koord gr)
 		}
 
 		// all gui stuff set => display it
+		veh_info.setze_groesse(koord(1,1));
 		gui_frame_t::zeichnen(pos, gr);
-		veh_info.setze_groesse(groesse_vehicle);
-		scrolly.setze_groesse(get_client_windowsize()-scrolly.gib_pos());
 		int offset_y = pos.y+14+16;
 
 		// current value
@@ -102,58 +98,6 @@ convoi_detail_t::zeichnen(koord pos, koord gr)
 		sprintf( tmp, "%s %s", translator::translate("Restwert:"), buf );
 		display_proportional_clip( pos.x+10, offset_y, tmp, ALIGN_LEFT, MONEY_PLUS, true );
 		offset_y += LINESPACE;
-
-#if 0
-		// convoi information
-		static char tmp[256];
-		static cbuffer_t info_buf(256);
-
-		// use median speed to avoid flickering
-		mean_convoi_speed += speed_to_kmh(cnv->gib_akt_speed()*4);
-		mean_convoi_speed /= 2;
-		sprintf(tmp,translator::translate("%i km/h (max. %ikm/h)"), (mean_convoi_speed+3)/4, speed_to_kmh(cnv->gib_min_top_speed()) );
-		display_proportional( pos.x+11, pos.y+16+20, tmp, ALIGN_LEFT, COL_BLACK, true );
-
-		// next important: income stuff
-		info_buf.clear();
-		info_buf.append( translator::translate("Gewinn") );
-		int len = 5+display_proportional( pos.x+11, pos.y+16+20+1*LINESPACE, info_buf, ALIGN_LEFT, COL_BLACK, true );
-		money_to_string( tmp, cnv->gib_jahresgewinn()/100.0 );
-		len += 5+display_proportional( pos.x+11+len, pos.y+16+20+1*LINESPACE, tmp, ALIGN_LEFT, cnv->gib_jahresgewinn()>0?MONEY_PLUS:MONEY_MINUS, true );
-		sprintf(tmp," (%1.2f$/km)", cnv->get_running_cost()/100.0 );
-		display_proportional( pos.x+11+len, pos.y+16+20+1*LINESPACE, tmp, ALIGN_LEFT, COL_BLACK, true );
-
-		// the weight entry
-		info_buf.clear();
-		info_buf.append( translator::translate("Gewicht") );
-		info_buf.append( ": " );
-		info_buf.append( cnv->gib_sum_gesamtgewicht() );
-		info_buf.append( " (" );
-		info_buf.append( cnv->gib_sum_gesamtgewicht()-cnv->gib_sum_gewicht() );
-		info_buf.append( ") t" );
-		display_proportional( pos.x+11, pos.y+16+20+2*LINESPACE, info_buf, ALIGN_LEFT, COL_BLACK, true );
-
-		// next stop
-		const fahrplan_t * fpl = cnv->gib_fahrplan();
-		info_buf.clear();
-		info_buf.append(translator::translate("Fahrtziel"));
-		fahrplan_gui_t::gimme_short_stop_name(info_buf, cnv->gib_welt(), fpl, fpl->aktuell, 34);
-		len = display_proportional( pos.x+11, pos.y+16+20+3*LINESPACE, info_buf, ALIGN_LEFT, COL_BLACK, true );
-
-		// convoi load indicator
-		const int offset = max( len+11, 167)+3;
-		route_bar.setze_pos(koord(offset,22+3*LINESPACE));
-		route_bar.setze_groesse(koord(view.gib_pos().x-offset-5, 4));
-
-		/*
-		* only show assigned line, if there is one!
-		* @author hsiegeln
-		*/
-		if(cnv->get_line().is_bound()) {
-			sint16 w = display_proportional( pos.x+11, pos.y+16+20+4*LINESPACE, translator::translate("Serves Line:"), ALIGN_LEFT, COL_BLACK, true );
-			display_proportional( pos.x+11+w+5, pos.y+16+20+4*LINESPACE, cnv->get_line()->get_name(), ALIGN_LEFT, cnv->get_line()->get_state_color(), true );
-		}
-#endif
 	}
 }
 
@@ -214,7 +158,7 @@ void gui_vehicleinfo_t::infowin_event(const event_t *ev)
  * Zeichnet die Komponente
  * @author Hj. Malthaner
  */
-void gui_vehicleinfo_t::zeichnen(koord offset) const
+void gui_vehicleinfo_t::zeichnen(koord offset)
 {
 	int total_height=5;
 	if(cnv.is_bound()) {
@@ -260,10 +204,10 @@ void gui_vehicleinfo_t::zeichnen(koord offset) const
 				extra_y += LINESPACE;
 			}
 
-// friction
-sprintf( buf, "%s %i", "Friction", v->gib_frictionfactor() );
-display_proportional_clip( pos.x+w+offset.x, pos.y+offset.y+total_height+extra_y, buf, ALIGN_LEFT, MONEY_PLUS, true );
-extra_y += LINESPACE;
+			// friction
+			sprintf( buf, "%s %i", translator::translate("Friction:"), v->gib_frictionfactor() );
+			display_proportional_clip( pos.x+w+offset.x, pos.y+offset.y+total_height+extra_y, buf, ALIGN_LEFT, MONEY_PLUS, true );
+			extra_y += LINESPACE;
 
 			if(v->gib_fracht_max() > 0) {
 
@@ -300,6 +244,6 @@ extra_y += LINESPACE;
 		}
 	}
 
-	// since the methods is const, we have to use dirty tricks ...
-	groesse_vehicle = koord(300, total_height+1);
+	// the size will change as soon something is loaded ...
+	setze_groesse( gib_groesse()+koord(0,total_height) );
 }

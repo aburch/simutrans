@@ -330,9 +330,8 @@ fabrikbauer_t::verteile_tourist(karte_t * welt, spieler_t *, int max_number)
 	// very fast, so we do not bother updating progress bar
 	print("Distributing %i tourist attractions ...\n",max_number);fflush(NULL);
 
-	// try to built 25% city consumer (if there)
-	while(current_number<max_number)
-	{
+	int retrys = max_number*4;
+	while(current_number<max_number  &&  retrys-->0) {
 		koord3d	pos=koord3d(simrand(welt->gib_groesse_x()),simrand(welt->gib_groesse_y()),1);
 		const haus_besch_t *attraction=hausbauer_t::waehle_sehenswuerdigkeit(0,(climate)simrand((int)arctic_climate+1));
 
@@ -346,6 +345,7 @@ fabrikbauer_t::verteile_tourist(karte_t * welt, spieler_t *, int max_number)
 			// Platz gefunden ...
 			hausbauer_t::baue(welt, welt->gib_spieler(1), pos, rotation, attraction);
 			current_number ++;
+			retrys = max_number*4;
 		}
 
 	}
@@ -377,7 +377,7 @@ fabrikbauer_t::verteile_industrie(karte_t * welt, spieler_t *, int max_number_of
 	print("Distributing about %i industries ...\n",max_number_of_factories);fflush(NULL);
 
 	int retrys = max_number_of_factories*4;
-	while(current_number<max_number_of_factories  &&  retrys>0) {
+	while(current_number<max_number_of_factories  &&  retrys-->0) {
 		koord3d	pos=koord3d(simrand(welt->gib_groesse_x()),simrand(welt->gib_groesse_y()),1);
 		const fabrik_besch_t *fab=get_random_consumer(in_city,(climate_bits)(1<<welt->get_climate(welt->lookup(pos.gib_2d())->gib_kartenboden()->gib_hoehe())));
 		if(fab) {
@@ -388,6 +388,7 @@ fabrikbauer_t::verteile_industrie(karte_t * welt, spieler_t *, int max_number_of
 				// Platz gefunden ...
 				factory_number += baue_hierarchie(welt, NULL, fab, rotation, &pos, welt->gib_spieler(1));
 				current_number ++;
+				retrys = max_number_of_factories*4;
 			}
 
 		      if(is_display_init()) {
