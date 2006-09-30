@@ -65,6 +65,7 @@ sync_wolke_t::sync_wolke_t(karte_t *welt, koord3d pos, int x_off, int y_off, ima
 {
     base_y_off = y_off-8;
     base_image = bild;
+    step_frequency = 0;
 }
 
 void

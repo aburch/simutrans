@@ -986,7 +986,6 @@ DBG_MESSAGE("wkz_station_building_aux()", "building mail office/station building
 		koord3d k=welt->lookup(pos)->gib_kartenboden()->gib_pos();
 		int rotate=-1, built_rotate=-1;
 		static koord rotate_koords[4]={koord(0,-1),koord(1,0),koord(0,1),koord(-1,0)};
-		bool slope_check = size.x+size.y>2;
 		halthandle_t halt;
 
 		// get initial rotation
@@ -1037,12 +1036,12 @@ dbg->warning("wkz_station_building_aux()","no near building for a station extens
 		// now try to built it (best layout first)
 		for( int i=0;  i<besch->gib_all_layouts()  &&  !halt.is_bound();  i++  ) {
 			if(((i+built_rotate)&1)!=0) {
-				if(welt->ist_platz_frei(pos, size.y, size.x, NULL, slope_check)) {
+				if(welt->ist_platz_frei(pos, size.y, size.x, NULL)) {
 					halt = suche_nahe_haltestelle(sp, welt, k, size.y, size.x);
 				}
 			}
 			else {
-				if(welt->ist_platz_frei(pos, size.x, size.y, NULL, slope_check)) {
+				if(welt->ist_platz_frei(pos, size.x, size.y, NULL)) {
 					halt = suche_nahe_haltestelle(sp, welt, k, size.y, size.x);
 				}
 			}
@@ -1988,13 +1987,12 @@ int wkz_build_industries_land(spieler_t *, karte_t *welt, koord pos)
 	int rotation = 0;
 
 	bool hat_platz = false;
-	bool slope_check = size.x+size.y>2;
 
-	if(welt->ist_platz_frei(pos, size.x, size.y, NULL, slope_check)) {
+	if(welt->ist_platz_frei(pos, size.x, size.y, NULL)) {
 		hat_platz = true;
 	}
 
-	if(!hat_platz &&  size.y != size.x && welt->ist_platz_frei(pos, size.y, size.x, NULL, slope_check)) {
+	if(!hat_platz &&  size.y != size.x && welt->ist_platz_frei(pos, size.y, size.x, NULL)) {
 		rotation = 1;
 		hat_platz = true;
 	}
@@ -2161,10 +2159,10 @@ DBG_MESSAGE("wkz_headquarter()", "building headquarter at (%d,%d)", pos.x, pos.y
 		koord size = besch->gib_groesse();
 		int rotate = 0;
 
-		if(welt->ist_platz_frei(pos, size.x, size.y, NULL, false)) {
+		if(welt->ist_platz_frei(pos, size.x, size.y, NULL)) {
 			ok = true;
 		}
-		if(size.y != size.x && welt->ist_platz_frei(pos, size.y, size.x, NULL, false)) {
+		if(size.y != size.x && welt->ist_platz_frei(pos, size.y, size.x, NULL)) {
 			rotate = 1;
 			ok = true;
 		}
@@ -2233,13 +2231,12 @@ int wkz_add_attraction(spieler_t *, karte_t *welt, koord pos)
 		int rotation = 0;
 
 		bool hat_platz = false;
-		bool slope_check = size.x+size.y>2;
 
-		if(welt->ist_platz_frei(pos, size.x, size.y, NULL, slope_check)) {
+		if(welt->ist_platz_frei(pos, size.x, size.y, NULL)) {
 			hat_platz = true;
 		}
 
-		if(!hat_platz &&  size.y != size.x && welt->ist_platz_frei(pos, size.y, size.x, NULL, slope_check)) {
+		if(!hat_platz &&  size.y != size.x && welt->ist_platz_frei(pos, size.y, size.x, NULL)) {
 			rotation = 1;
 			hat_platz = true;
 		}

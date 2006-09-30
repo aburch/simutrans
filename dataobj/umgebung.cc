@@ -30,6 +30,8 @@ long umgebung_t::stadtauto_duration = 100000;
 
 bool umgebung_t::tree_info = false;
 
+bool umgebung_t::ground_info = false;
+
 bool umgebung_t::townhall_info = false;
 
 bool umgebung_t::single_info = false;

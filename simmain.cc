@@ -306,6 +306,7 @@ extern "C" int simu_main(int argc, char** argv)
 			umgebung_t::drive_on_left           = contents.get_int("drive_left",         false);
 
 			umgebung_t::tree_info     = contents.get_int("tree_info",        0) != 0;
+			umgebung_t::ground_info     = contents.get_int("ground_info",        0) != 0;
 			umgebung_t::townhall_info = contents.get_int("townhall_info",    0) != 0;
 			umgebung_t::single_info   = contents.get_int("only_single_info", 0);
 

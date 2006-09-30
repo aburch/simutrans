@@ -186,8 +186,7 @@ private:
 
     zeiger_t *zeiger;
 
-
-	slist_tpl<sync_steppable *> sync_add_list;	// after calling sync_prepare, the objects are move to the sync_list
+	slist_tpl<sync_steppable *> sync_add_list;	// these objects are move to the sync_list (but before next sync step, so they do not interfere!)
 	slist_tpl<sync_steppable *> sync_list;
 
 	vector_tpl<convoihandle_t> convoi_array;
@@ -261,7 +260,6 @@ private:
     sint8 *grid_hgts;
 
     marker_t marker;
-
 
     /**
      * Die Spieler
@@ -867,7 +865,7 @@ public:
      * @return true, wenn Platz an Stelle i,j mit Groesse w,h bebaubar
      * @author Hj. Malthaner
      */
-    bool ist_platz_frei(koord pos, int w, int h, int *last_y = NULL, bool check_slope=true ) const;
+    bool ist_platz_frei(koord pos, int w, int h, int *last_y = NULL) const;
 
     /**
      * @return eine Liste aller bebaubaren Plaetze mit Groesse w,h

@@ -114,7 +114,11 @@ class umgebung_t
 	*/
 	static bool tree_info;
 
-
+	/**
+	* Info-Fenster for all grounds
+	* @author prissi
+	*/
+	static bool ground_info;
 
 	/**
 	* Info-Fenster für Townhall

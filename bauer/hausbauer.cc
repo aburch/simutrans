@@ -403,7 +403,7 @@ void hausbauer_t::baue(karte_t *welt, spieler_t *sp, koord3d pos, int layout, co
 					welt->lookup(pos.gib_2d()+koord(0,1))->gib_kartenboden()->calc_bild();
 				}
 				if(welt->ist_in_kartengrenzen(pos.gib_2d()+koord(1,1))) {
-					welt->lookup(pos.gib_2d()+koord(0,1))->gib_kartenboden()->calc_bild();
+					welt->lookup(pos.gib_2d()+koord(1,1))->gib_kartenboden()->calc_bild();
 				}
 			}
 			if(besch->ist_ausflugsziel()) {

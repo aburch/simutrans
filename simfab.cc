@@ -774,8 +774,8 @@ fabrik_t::step(long delta_t)
 		}
 		recalc_factory_status();
 
-		if(raucher  &&  is_currently_producing) {
-			raucher->step(delta_sum);
+		if(raucher) {
+			raucher->step(delta_t);
 		}
 	}
 

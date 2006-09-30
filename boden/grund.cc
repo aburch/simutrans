@@ -436,7 +436,7 @@ void grund_t::info(cbuffer_t & buf) const
 		}
 	}
 
-#if 1
+#if 0
 	if(buf.len() == 0) {
 		uint8 hang= gib_grund_hang();
 		buf.append(gib_hoehe());

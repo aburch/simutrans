@@ -2101,7 +2101,7 @@ karte_t::ist_wasser(koord pos, koord dim) const
 }
 
 bool
-karte_t::ist_platz_frei(koord pos, int w, int h, int *last_y, bool slope_check ) const
+karte_t::ist_platz_frei(koord pos, int w, int h, int *last_y) const
 {
     koord k;
 
@@ -2109,6 +2109,8 @@ karte_t::ist_platz_frei(koord pos, int w, int h, int *last_y, bool slope_check )
 //	if(pos.x | pos.y | (gib_groesse_x()-(pos.x+w)) | (gib_groesse_y()-(pos.y+h)) < 0) {
 		return false;
 	}
+	sint16 platz_h = (sint16)0xFFFF;	// remember the max height of the first tile
+
 	// ACHTUNG: Schleifen sind mit finde_plaetze koordiniert, damit wir ein
 	// paar Abfragen einsparen können bei h > 1!
 	// V. Meyer
@@ -2116,10 +2118,12 @@ karte_t::ist_platz_frei(koord pos, int w, int h, int *last_y, bool slope_check )
 		for(k.x=pos.x; k.x<pos.x+w; k.x++) {
 			const grund_t *gr = lookup(k)->gib_kartenboden();
 
-			if(  (slope_check && gr->gib_grund_hang() != hang_t::flach) ||  !gr->ist_natur() ||
-			/*gr->ist_wasser() || *//*Wasser liefert als ist_natur() false */
-			   gr->kann_alle_obj_entfernen(NULL) != NULL
-			) {
+			if(platz_h==(sint16)0xFFFF) {
+				platz_h = max_hgt(k);
+			}
+
+			// we can built, if: max height all the same, everything removable and no buildings there
+			if(platz_h!=max_hgt(k)  ||  !gr->ist_natur() ||  gr->kann_alle_obj_entfernen(NULL) != NULL) {
 				if(last_y) {
 					*last_y = k.y;
 				}

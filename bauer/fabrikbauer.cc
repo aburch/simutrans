@@ -249,7 +249,7 @@ fabrikbauer_t::finde_hersteller(const ware_besch_t *ware,int /*nr*/)
 		}
 	}
 
-	// no consumer installed?
+	// no producer installed?
 	if(producer.count()==0) {
 		dbg->error("fabrikbauer_t::finde_hersteller()","no producer for good '%s' was found", translator::translate(ware->gib_name()));
 		return NULL;
@@ -261,7 +261,8 @@ DBG_MESSAGE("fabrikbauer_t::finde_hersteller()","good '%s' weight=% of total %i"
 	for( unsigned i=0;  i<producer.count();  i++  ) {
 		besch = producer.at(i);
 		next -= besch->gib_gewichtung();
-		if(next<=0) {
+DBG_MESSAGE("fabrikbauer_t::finde_hersteller()","%i) %s (weight %i)", i, besch->gib_name(),besch->gib_gewichtung());
+		if(next<0) {
 			break;
 		}
 	}

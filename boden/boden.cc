@@ -17,6 +17,7 @@
 #include "../gui/karte.h"
 
 #include "../dataobj/freelist.h"
+#include "../dataobj/umgebung.h"
 
 #include "boden.h"
 #include "wege/strasse.h"
@@ -62,7 +63,7 @@ boden_t::zeige_info()
 		return true;
 	}
 	else {
-		if(1|| hat_wege()) {	// if this is true, then all land info is shown
+		if(umgebung_t::ground_info  ||  hat_wege()) {
 			// there is some info!
 			if(!grund_infos->get(this)) {
 				grund_infos->put(this, new grund_info_t(welt, this));
