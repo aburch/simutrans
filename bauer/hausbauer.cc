@@ -352,6 +352,7 @@ void hausbauer_t::baue(karte_t *welt, spieler_t *sp, koord3d pos, int layout, co
 
 	layout = besch->layout_anpassen(layout);
 	dim = besch->gib_groesse(layout);
+	bool needs_ground_recalc = false;
 
 	for(k.y = 0; k.y < dim.y; k.y ++) {
 		for(k.x = 0; k.x < dim.x; k.x ++) {
@@ -389,6 +390,7 @@ void hausbauer_t::baue(karte_t *welt, spieler_t *sp, koord3d pos, int layout, co
 				if(clear) {
 					gr->obj_loesche_alle(sp);	// alles weg
 				}
+				needs_ground_recalc |= gr->gib_grund_hang()!=hang_t::flach;
 				grund_t *gr2 = new fundament_t(welt, gr->gib_pos(),gr->gib_grund_hang());
 				welt->access(gr->gib_pos().gib_2d())->boden_ersetzen(gr, gr2);
 				gr = gr2;
@@ -396,14 +398,10 @@ void hausbauer_t::baue(karte_t *welt, spieler_t *sp, koord3d pos, int layout, co
 				gr->setze_besitzer(sp);
 				gr->obj_add( gb );
 				gb->setze_pos( gr->gib_pos() );
-				if(welt->ist_in_kartengrenzen(pos.gib_2d()+koord(1,0))) {
-					welt->lookup(pos.gib_2d()+koord(1,0))->gib_kartenboden()->calc_bild();
-				}
-				if(welt->ist_in_kartengrenzen(pos.gib_2d()+koord(0,1))) {
-					welt->lookup(pos.gib_2d()+koord(0,1))->gib_kartenboden()->calc_bild();
-				}
-				if(welt->ist_in_kartengrenzen(pos.gib_2d()+koord(1,1))) {
-					welt->lookup(pos.gib_2d()+koord(1,1))->gib_kartenboden()->calc_bild();
+				if(needs_ground_recalc  &&  welt->ist_in_kartengrenzen(pos.gib_2d()+koord(1,1))  &&  (k.y+1==dim.y  ||  k.x+1==dim.x)) {
+					welt->lookup(pos.gib_2d()+k+koord(1,0))->gib_kartenboden()->calc_bild();
+					welt->lookup(pos.gib_2d()+k+koord(0,1))->gib_kartenboden()->calc_bild();
+					welt->lookup(pos.gib_2d()+k+koord(1,1))->gib_kartenboden()->calc_bild();
 				}
 			}
 			if(besch->ist_ausflugsziel()) {

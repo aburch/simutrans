@@ -34,9 +34,6 @@ fundament_t::fundament_t(karte_t *welt, koord3d pos,hang_t::typ hang ) : grund_t
 		pos = gib_pos();
 		pos.z += 16;
 		setze_pos( pos );
-		if(welt->lookup(pos.gib_2d()+koord(1,1))) {
-			welt->lookup(pos.gib_2d()+koord(1,1))->gib_kartenboden()->calc_bild();
-		}
 	}
 	slope = (uint8)hang_t::flach;
 }

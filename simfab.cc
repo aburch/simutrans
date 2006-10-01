@@ -242,7 +242,9 @@ fabrik_t::baue(int rotate, bool clear)
 
 		const rauch_besch_t *rada = besch->gib_rauch();
 		if(rada) {
-			const koord3d k ( pos + rada->gib_pos_off() );
+			koord3d k ( pos + rada->gib_pos_off() );
+			assert(welt->lookup(k.gib_2d())!=NULL);
+			k = welt->lookup(k.gib_2d())->gib_kartenboden()->gib_pos();
 			raucher = new raucher_t(welt, k, rada);
 			raucher->set_flag(ding_t::not_on_map);
 		}
