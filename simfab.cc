@@ -258,15 +258,13 @@ fabrik_t::baue(int rotate, bool clear)
 }
 
 bool
-fabrik_t::ist_bauplatz(karte_t *welt, koord pos, koord groesse,bool wasser)
+fabrik_t::ist_bauplatz(karte_t *welt, koord pos, koord groesse,bool wasser,climate_bits cl)
 {
-    bool ok = false;
     if(pos.x > 0 && pos.y > 0 &&
        pos.x+groesse.x < welt->gib_groesse_x() && pos.y+groesse.y < welt->gib_groesse_y() &&
-       ( wasser  ||  welt->ist_platz_frei(pos, groesse.x, groesse.y) )&&
+       ( wasser  ||  welt->ist_platz_frei(pos, groesse.x, groesse.y, NULL, cl) )&&
        !ist_da_eine(welt,pos-koord(5,5),pos+groesse+koord(3,3))) {
 
-	ok = true;
 		// check for water (no shore in sight!)
 		if(wasser) {
 			for(int y=0;y<groesse.y;y++) {
@@ -279,13 +277,9 @@ fabrik_t::ist_bauplatz(karte_t *welt, koord pos, koord groesse,bool wasser)
 			}
 		}
 
-    } else {
-	ok = false;
-    }
-//if(welt->ist_in_kartengrenzen(pos) &&  wasser)
-//DBG_MESSAGE("fabrik_t::ist_bauplatz()","(%i,%i) is%s water => %s",pos.x,pos.y,welt->lookup(pos)->gib_kartenboden()->ist_wasser()?"":" not",ok?"ok":"error");
-
-    return ok;
+		return true;
+	}
+	return false;
 }
 
 

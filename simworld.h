@@ -809,7 +809,6 @@ public:
     bool sync_add(sync_steppable *obj);
     bool sync_remove(sync_steppable *obj);
 
-//    void sync_prepare();	// Echtzeitfunktionen
     void sync_step(long delta_t);
 
     void step(long delta_t);	// Nicht-Echtzeit
@@ -865,13 +864,14 @@ public:
      * @return true, wenn Platz an Stelle i,j mit Groesse w,h bebaubar
      * @author Hj. Malthaner
      */
-    bool ist_platz_frei(koord pos, int w, int h, int *last_y = NULL) const;
+    bool ist_platz_frei(koord pos, sint16 w, sint16 h, int *last_y, climate_bits cl) const;
 
     /**
      * @return eine Liste aller bebaubaren Plaetze mit Groesse w,h
+     * only used for town creation at the moment
      * @author Hj. Malthaner
      */
-    slist_tpl<koord> * finde_plaetze(int w, int h) const;
+    slist_tpl<koord> * finde_plaetze(sint16 w, sint16 h, climate_bits cl) const;
 
 
 

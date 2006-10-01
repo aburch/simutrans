@@ -210,35 +210,40 @@ static const char * aussen_namen [anz_aussen] =
  * @author V. Meyer
  */
 class denkmal_platz_sucher_t : public platzsucher_t {
-    spieler_t *besitzer;
+	spieler_t *besitzer;
 public:
-    denkmal_platz_sucher_t(karte_t *welt, spieler_t *sp) : platzsucher_t(welt), besitzer(sp) {}
+	denkmal_platz_sucher_t(karte_t *welt, spieler_t *sp) : platzsucher_t(welt), besitzer(sp) {}
 
-    virtual bool ist_feld_ok(koord pos, koord d) const {
-        const planquadrat_t *plan = welt->lookup(pos + d);
+	virtual bool ist_feld_ok(koord pos, koord d, climate_bits cl) const
+	{
+		const planquadrat_t *plan = welt->lookup(pos + d);
 
-  // Hajo: can't build here
-  if(plan == 0) return false;
+		// Hajo: can't build here
+		if(plan == 0) return false;
 
-  const grund_t *gr = plan->gib_kartenboden();
-  if(ist_randfeld(d)) {
-      return
-          gr != 0 &&
-    gr->gib_grund_hang() == hang_t::flach &&  // Flach
-    gr->gib_typ() == grund_t::boden &&    // Boden -> keine GEbäude
-    !gr->gib_weg(track_wt) &&     // Höchstens Strassen
-    !gr->gib_weg(water_wt) &&     // Höchstens Strassen
-    gr->kann_alle_obj_entfernen(NULL) == NULL;  // Irgendwas verbaut den Platz?
-  }
-  else {
-      return
-          gr != 0 &&
-    gr->gib_grund_hang() == hang_t::flach &&
-    gr->gib_typ() == grund_t::boden &&
-    gr->ist_natur() &&        // Keine Wege hier
-    gr->kann_alle_obj_entfernen(NULL) == NULL;  // Irgendwas verbaut den Platz?
-  }
-    }
+		const grund_t *gr = plan->gib_kartenboden();
+		if(((1<<welt->get_climate(gr->gib_hoehe()))&cl)==0) {
+			return false;
+		}
+
+		if(ist_randfeld(d)) {
+			return
+				gr != 0 &&
+				gr->gib_grund_hang() == hang_t::flach &&  // Flach
+				gr->gib_typ() == grund_t::boden &&    // Boden -> keine GEbäude
+				!gr->gib_weg(track_wt) &&     // Höchstens Strassen
+				!gr->gib_weg(water_wt) &&     // Höchstens Strassen
+				gr->kann_alle_obj_entfernen(NULL) == NULL;  // Irgendwas verbaut den Platz?
+		}
+		else {
+			return
+				gr != 0 &&
+				gr->gib_grund_hang() == hang_t::flach &&
+				gr->gib_typ() == grund_t::boden &&
+				gr->ist_natur() &&        // Keine Wege hier
+				gr->kann_alle_obj_entfernen(NULL) == NULL;  // Irgendwas verbaut den Platz?
+		}
+	}
 };
 
 
@@ -250,43 +255,48 @@ public:
  * @author V. Meyer
  */
 class rathausplatz_sucher_t : public platzsucher_t {
-    spieler_t *besitzer;
+	spieler_t *besitzer;
 public:
-    rathausplatz_sucher_t(karte_t *welt, spieler_t *sp) : platzsucher_t(welt), besitzer(sp) {}
+	rathausplatz_sucher_t(karte_t *welt, spieler_t *sp) : platzsucher_t(welt), besitzer(sp) {}
 
-    virtual bool ist_feld_ok(koord pos, koord d) const {
-        const planquadrat_t *plan = welt->lookup(pos + d);
-        if(d.x>0  ||  d.y>0) {
-        	if(welt->max_hgt(pos)!=welt->max_hgt(pos+d)) {
-        		// height wrong!
-        		return false;
-        	}
-        }
+	virtual bool ist_feld_ok(koord pos, koord d,climate_bits cl) const
+	{
+		const planquadrat_t *plan = welt->lookup(pos + d);
+		if(plan == 0) return false;
 
-  // Hajo: can't build here
-  if(plan == 0) return false;
+		if(d.x>0  ||  d.y>0) {
+			if(welt->max_hgt(pos)!=welt->max_hgt(pos+d)) {
+				// height wrong!
+				return false;
+			}
+		}
 
-  const grund_t *gr = plan->gib_kartenboden();
-  if(d.y == h - 1) {
-      // Hier soll eine Strasse hin
-      return
-          gr != 0 &&
-    gr->gib_grund_hang() == hang_t::flach &&
-    gr->gib_typ() == grund_t::boden &&
-    !gr->gib_weg(track_wt) &&
-    !gr->gib_weg(water_wt) &&     // Höchstens Strassen
-    !gr->gib_halt().is_bound() &&
-    gr->kann_alle_obj_entfernen(NULL) == NULL;
-  } else {
-      // Hier soll das Haus hin - wir ersetzen auch andere Gebäude, aber keine Wege!
-      return
-          gr != 0 &&
-    gr->gib_grund_hang() == hang_t::flach &&
-    (gr->gib_typ() == grund_t::boden && gr->ist_natur() || gr->gib_typ() == grund_t::fundament) &&
-    gr->kann_alle_obj_entfernen(NULL) == NULL;
-  }
-    }
+		const grund_t *gr = plan->gib_kartenboden();
+		if(((1<<welt->get_climate(gr->gib_hoehe()))&cl)==0) {
+			return false;
+		}
+
+		if(d.y == h - 1) {
+			// Hier soll eine Strasse hin
+			return
+				gr != 0 &&
+				gr->gib_grund_hang() == hang_t::flach &&
+				gr->gib_typ() == grund_t::boden &&
+				!gr->gib_weg(track_wt) &&
+				!gr->gib_weg(water_wt) &&     // Höchstens Strassen
+				!gr->gib_halt().is_bound() &&
+				gr->kann_alle_obj_entfernen(NULL) == NULL;
+		} else {
+			// Hier soll das Haus hin - wir ersetzen auch andere Gebäude, aber keine Wege!
+			return
+				gr != 0 &&
+				gr->gib_grund_hang() == hang_t::flach &&
+				(gr->gib_typ() == grund_t::boden && gr->ist_natur() || gr->gib_typ() == grund_t::fundament) &&
+				gr->kann_alle_obj_entfernen(NULL) == NULL;
+		}
+	}
 };
+
 
 
 // this function adds houses to the city house list
@@ -1269,10 +1279,11 @@ stadt_t::merke_passagier_ziel(koord k, int color)
  * added: Minimum distance between monuments
  * @author V. Meyer/prissi
  */
-class bauplatz_mit_strasse_sucher_t: public bauplatz_sucher_t  {
+class bauplatz_mit_strasse_sucher_t: public bauplatz_sucher_t
+{
 
-	public:
-		bauplatz_mit_strasse_sucher_t(karte_t *welt) : bauplatz_sucher_t (welt) {}
+public:
+	bauplatz_mit_strasse_sucher_t(karte_t *welt) : bauplatz_sucher_t (welt) {}
 
 	// get distance to next factory
 	int find_dist_next_special(koord pos) const {
@@ -1287,13 +1298,13 @@ class bauplatz_mit_strasse_sucher_t: public bauplatz_sucher_t  {
 		return dist;
 	}
 
-	bool strasse_bei(int x, int y) const {
+	bool strasse_bei(sint16 x, sint16 y) const {
 		grund_t *bd = welt->lookup(koord(x, y))->gib_kartenboden();
 		return bd && bd->gib_weg(road_wt);
 	}
 
-	virtual bool ist_platz_ok(koord pos, int b, int h) const {
-		if(bauplatz_sucher_t::ist_platz_ok(pos, b, h)) {
+	virtual bool ist_platz_ok(koord pos, sint16 b, sint16 h, climate_bits cl) const {
+		if(bauplatz_sucher_t::ist_platz_ok(pos, b, h,cl)) {
 			// try to built a little away from previous ones
 			if(find_dist_next_special(pos)<b+h+1) {
 				return false;
@@ -1328,7 +1339,7 @@ stadt_t::check_bau_spezial(bool new_town)
 			// baue was immer es ist
 			int rotate = 0;
 			bool is_rotate = besch->gib_all_layouts()>10;
-			koord best_pos = bauplatz_mit_strasse_sucher_t(welt).suche_platz(pos,  besch->gib_b(), besch->gib_h(),&is_rotate);
+			koord best_pos = bauplatz_mit_strasse_sucher_t(welt).suche_platz(pos,  besch->gib_b(), besch->gib_h(),besch->get_allowed_climate_bits(),&is_rotate);
 
 			if(best_pos != koord::invalid) {
 				// then built it
@@ -1353,7 +1364,7 @@ stadt_t::check_bau_spezial(bool new_town)
 		besch = hausbauer_t::waehle_denkmal(welt->get_timeline_year_month());
 		if(besch) {
 			koord total_size = koord( 2+besch->gib_b(), 2+besch->gib_h() );
-			koord best_pos ( denkmal_platz_sucher_t(welt,besitzer_p).suche_platz(pos,total_size.x,total_size.y ) );
+			koord best_pos ( denkmal_platz_sucher_t(welt,besitzer_p).suche_platz(pos,total_size.x,total_size.y,besch->get_allowed_climate_bits() ) );
 
 			if(best_pos != koord::invalid) {
 				int i;
@@ -1466,7 +1477,7 @@ DBG_MESSAGE("stadt_t::check_bau_rathaus()","delete townhall tile %i,%i (gb=%p)",
 		//
 		int layout = simrand(besch->gib_all_layouts()-1);
 		if(neugruendung || umziehen) {
-			best_pos = rathausplatz_sucher_t(welt, besitzer_p).suche_platz(pos, besch->gib_b(layout), besch->gib_h(layout)+1);
+			best_pos = rathausplatz_sucher_t(welt, besitzer_p).suche_platz(pos, besch->gib_b(layout), besch->gib_h(layout)+1, besch->get_allowed_climate_bits());
 		}
 		hausbauer_t::baue(welt, besitzer_p,welt->lookup(best_pos)->gib_kartenboden()->gib_pos(), layout, besch);
 DBG_MESSAGE("new townhall","use layout=%i",layout);
@@ -2470,8 +2481,14 @@ stadt_t::haltestellenname(koord k, const char *typ, int number)
 vector_tpl<koord> *
 stadt_t::random_place(const karte_t *wl, const int anzahl)
 {
-DBG_DEBUG("karte_t::init()","get random places");
-	slist_tpl<koord> *list = wl->finde_plaetze(2,3);
+	int cl = 0;
+	for(int i=0;  i<MAX_CLIMATES; i++  ) {
+		if(hausbauer_t::gib_rathaus(0,0,(climate)i)) {
+			cl |= (1<<i);
+		}
+	}
+DBG_DEBUG("karte_t::init()","get random places in climates %x",cl);
+	slist_tpl<koord> *list = wl->finde_plaetze(2,3,(climate_bits)cl);
 DBG_DEBUG("karte_t::init()","found %i places",list->count());
 	vector_tpl<koord> *result = new vector_tpl<koord> (anzahl);
 

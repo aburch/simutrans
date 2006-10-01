@@ -5,6 +5,7 @@
 
 #include <new>
 #include "ribi.h"
+#include "../simtypes.h"
 
 class loadsave_t;
 
@@ -14,8 +15,8 @@ class loadsave_t;
 class koord
 {
 public:
-	short x;
-	short y;
+	sint16 x;
+	sint16 y;
 
 	koord() : x(0), y(0) {}
 

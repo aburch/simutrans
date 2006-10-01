@@ -270,6 +270,9 @@ public:
 	// the right house for this area?
 	bool is_allowed_climate_bits( climate_bits cl ) const { return (cl&allowed_climates)!=0; }
 
+	// for the paltzsucher needed
+	climate_bits get_allowed_climate_bits() const { return allowed_climates; }
+
 	/**
 	* @return station flags (only used for station buildings and oil riggs)
 	* @author prissi

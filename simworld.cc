@@ -2101,7 +2101,7 @@ karte_t::ist_wasser(koord pos, koord dim) const
 }
 
 bool
-karte_t::ist_platz_frei(koord pos, int w, int h, int *last_y) const
+karte_t::ist_platz_frei(koord pos, sint16 w, sint16 h, int *last_y, climate_bits cl) const
 {
     koord k;
 
@@ -2123,7 +2123,7 @@ karte_t::ist_platz_frei(koord pos, int w, int h, int *last_y) const
 			}
 
 			// we can built, if: max height all the same, everything removable and no buildings there
-			if(platz_h!=max_hgt(k)  ||  !gr->ist_natur() ||  gr->kann_alle_obj_entfernen(NULL) != NULL) {
+			if(platz_h!=max_hgt(k)  ||  !gr->ist_natur() ||  gr->kann_alle_obj_entfernen(NULL) != NULL  ||  (cl&(1<<get_climate(gr->gib_hoehe())))==0) {
 				if(last_y) {
 					*last_y = k.y;
 				}
@@ -2137,7 +2137,7 @@ karte_t::ist_platz_frei(koord pos, int w, int h, int *last_y) const
 
 
 slist_tpl<koord> *
-karte_t::finde_plaetze(int w, int h) const
+karte_t::finde_plaetze(sint16 w, sint16 h, climate_bits cl) const
 {
 	slist_tpl<koord> * list = new slist_tpl<koord>();
 	koord start;
@@ -2146,7 +2146,7 @@ karte_t::finde_plaetze(int w, int h) const
 DBG_DEBUG("karte_t::finde_plaetze()","for size (%i,%i) in map (%i,%i)",w,h,gib_groesse_x(),gib_groesse_y() );
 	for(start.x=0; start.x<gib_groesse_x()-w; start.x++) {
 		for(start.y=0; start.y<gib_groesse_y()-h; start.y++) {
-			if(ist_platz_frei(start, w, h, &last_y)) {
+			if(ist_platz_frei(start, w, h, &last_y, cl)) {
 				list->insert(start);
 			}
 			else {

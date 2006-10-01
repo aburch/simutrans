@@ -29,28 +29,28 @@ class karte_t;
  * @author V. Meyer
  */
 class pos_liste_t {
-    short max_radius;
-    short *spalten;
-    short radius;
-    short reihe;
-    short quadrant;
+	sint16 max_radius;
+	sint16 *spalten;
+	sint16 radius;
+	sint16 reihe;
+	sint16 quadrant;
 
-    short suche_beste_reihe();
+	sint16 suche_beste_reihe();
+
 public:
-    /**
-     * constructor:
-     *
-     * @param max_xy (Maximalwert für x und y-Position)
-     *
-     * @author V. Meyer
-     */
-    pos_liste_t(short max_xy);
-    virtual ~pos_liste_t();
+	/**
+	* constructor:
+	*
+	* @param max_xy (Maximalwert für x und y-Position)
+	*
+	* @author V. Meyer
+	*/
+	pos_liste_t(sint16 max_xy);
+	virtual ~pos_liste_t();
 
-    void neu_starten();
-    bool gib_pos(koord &k);
-    virtual bool gib_naechste_pos(koord &k);
-
+	void neu_starten();
+	bool gib_pos(koord &k);
+	virtual bool gib_naechste_pos(koord &k);
 };
 
 
@@ -64,19 +64,19 @@ public:
  * @author V. Meyer
  */
 class pos_liste_wh_t : public pos_liste_t {
-    short b;
-    short h;
+	sint16 b;
+	sint16 h;
 
-    short dx;
-    short dy;
+	sint16 dx;
+	sint16 dy;
 public:
-    pos_liste_wh_t(short max_radius, short b, short h);
-    ~pos_liste_wh_t() {}
+	pos_liste_wh_t(sint16 max_radius, sint16 b, sint16 h);
+	~pos_liste_wh_t() {}
 
-    void neu_starten(short b, short h);
-    void neu_starten() { pos_liste_t::neu_starten(); }
+	void neu_starten(sint16 b, sint16 h);
+	void neu_starten() { pos_liste_t::neu_starten(); }
 
-    bool gib_naechste_pos(koord &k);
+	bool gib_naechste_pos(koord &k);
 };
 
 /**
@@ -88,19 +88,20 @@ public:
  */
 class platzsucher_t {
 protected:
-    karte_t *welt;
-    short b;
-    short h;
+	karte_t *welt;
+	sint16 b;
+	sint16 h;
+	climate_bits cl;
 
-    virtual bool ist_platz_ok(koord pos, int b, int h) const;
+	virtual bool ist_platz_ok(koord pos, sint16 b, sint16 h, climate_bits cl) const;
 
-    virtual bool ist_feld_ok(koord pos, koord d) const;
+	virtual bool ist_feld_ok(koord pos, koord d, climate_bits cl) const;
 
-    bool ist_randfeld(koord d) const;
-    platzsucher_t(karte_t *welt) { this->welt = welt; }
-    virtual ~platzsucher_t() {}
+	bool ist_randfeld(koord d) const;
+	platzsucher_t(karte_t *welt) { this->welt = welt; }
+	virtual ~platzsucher_t() {}
 public:
-    koord suche_platz(koord start, int b, int h, bool *r = NULL);
+	koord suche_platz(koord start, sint16 b, sint16 h, climate_bits cl, bool *r = NULL);
 };
 
 #endif // __PLATZSUCHER_H

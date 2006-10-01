@@ -64,13 +64,13 @@ public:
 		return dist;
 	}
 
-	bool strasse_bei(int x, int y) const {
+	bool strasse_bei(sint16 x, sint16 y) const {
 		grund_t *bd = welt->lookup(koord(x, y))->gib_kartenboden();
 		return bd && bd->gib_weg(road_wt);
 	}
 
-	virtual bool ist_platz_ok(koord pos, int b, int h) const {
-		if(bauplatz_sucher_t::ist_platz_ok(pos, b, h)) {
+	virtual bool ist_platz_ok(koord pos, sint16 b, sint16 h, climate_bits cl) const {
+		if(bauplatz_sucher_t::ist_platz_ok(pos, b, h, cl)) {
 			// try to built a little away from previous factory
 			if(find_dist_next_factory(pos)<3+b+h) {
 				return false;
@@ -288,12 +288,10 @@ fabrikbauer_t::finde_zufallsbauplatz(karte_t * welt, const koord3d pos, const in
 	for(k.y=pos.y-radius; k.y<=pos.y+radius; k.y++) {
 		for(k.x=pos.x-radius; k.x<=pos.x+radius; k.x++) {
 			// climate check
-			if(wasser  ||  besch->is_allowed_climate(welt->get_climate(welt->max_hgt(k)))) {
-				if(fabrik_t::ist_bauplatz(welt, k, groesse,wasser)) {
-					list.at(index ++) = welt->lookup(k)->gib_kartenboden()->gib_pos();
-					// nicht gleich daneben nochmal suchen
-					k.x += 4;
-				}
+			if(fabrik_t::ist_bauplatz(welt, k, groesse,wasser,besch->get_allowed_climate_bits())) {
+				list.at(index ++) = welt->lookup(k)->gib_kartenboden()->gib_pos();
+				// nicht gleich daneben nochmal suchen
+				k.x += 4;
 			}
 		}
 	}
@@ -542,7 +540,7 @@ DBG_MESSAGE("fabrikbauer_t::baue_hierarchie","Search place for city factory (%i,
 		// hat und die Suche bis zur nächsten Stadt weiterläuft
 		// Ansonsten erscheint mir das am realistischtsten..
 		bool	is_rotate=info->gib_haus()->gib_all_layouts()>1;
-		k = factory_bauplatz_mit_strasse_sucher_t(welt).suche_platz(sf.stadt->gib_pos(), size.x, size.y,&is_rotate);
+		k = factory_bauplatz_mit_strasse_sucher_t(welt).suche_platz(sf.stadt->gib_pos(), size.x, size.y,info->gib_haus()->get_allowed_climate_bits(), &is_rotate);
 		rotate = is_rotate?1:0;
 		DBG_MESSAGE("fabrikbauer_t::baue_hierarchie","Construction at (%i,%i).",k.x,k.y);
 

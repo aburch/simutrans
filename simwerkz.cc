@@ -1036,12 +1036,12 @@ dbg->warning("wkz_station_building_aux()","no near building for a station extens
 		// now try to built it (best layout first)
 		for( int i=0;  i<besch->gib_all_layouts()  &&  !halt.is_bound();  i++  ) {
 			if(((i+built_rotate)&1)!=0) {
-				if(welt->ist_platz_frei(pos, size.y, size.x, NULL)) {
+				if(welt->ist_platz_frei(pos, size.y, size.x, NULL, besch->get_allowed_climate_bits())) {
 					halt = suche_nahe_haltestelle(sp, welt, k, size.y, size.x);
 				}
 			}
 			else {
-				if(welt->ist_platz_frei(pos, size.x, size.y, NULL)) {
+				if(welt->ist_platz_frei(pos, size.x, size.y, NULL, besch->get_allowed_climate_bits())) {
 					halt = suche_nahe_haltestelle(sp, welt, k, size.y, size.x);
 				}
 			}
@@ -1988,11 +1988,11 @@ int wkz_build_industries_land(spieler_t *, karte_t *welt, koord pos)
 
 	bool hat_platz = false;
 
-	if(welt->ist_platz_frei(pos, size.x, size.y, NULL)) {
+	if(welt->ist_platz_frei(pos, size.x, size.y, NULL, info->gib_haus()->get_allowed_climate_bits())) {
 		hat_platz = true;
 	}
 
-	if(!hat_platz &&  size.y != size.x && welt->ist_platz_frei(pos, size.y, size.x, NULL)) {
+	if(!hat_platz &&  size.y != size.x && welt->ist_platz_frei(pos, size.y, size.x, NULL, info->gib_haus()->get_allowed_climate_bits())) {
 		rotation = 1;
 		hat_platz = true;
 	}
@@ -2159,10 +2159,10 @@ DBG_MESSAGE("wkz_headquarter()", "building headquarter at (%d,%d)", pos.x, pos.y
 		koord size = besch->gib_groesse();
 		int rotate = 0;
 
-		if(welt->ist_platz_frei(pos, size.x, size.y, NULL)) {
+		if(welt->ist_platz_frei(pos, size.x, size.y, NULL, besch->get_allowed_climate_bits())) {
 			ok = true;
 		}
-		if(size.y != size.x && welt->ist_platz_frei(pos, size.y, size.x, NULL)) {
+		if(size.y != size.x && welt->ist_platz_frei(pos, size.y, size.x, NULL, besch->get_allowed_climate_bits())) {
 			rotate = 1;
 			ok = true;
 		}
@@ -2232,11 +2232,11 @@ int wkz_add_attraction(spieler_t *, karte_t *welt, koord pos)
 
 		bool hat_platz = false;
 
-		if(welt->ist_platz_frei(pos, size.x, size.y, NULL)) {
+		if(welt->ist_platz_frei(pos, size.x, size.y, NULL, attraction->get_allowed_climate_bits())) {
 			hat_platz = true;
 		}
 
-		if(!hat_platz &&  size.y != size.x && welt->ist_platz_frei(pos, size.y, size.x, NULL)) {
+		if(!hat_platz &&  size.y != size.x && welt->ist_platz_frei(pos, size.y, size.x, NULL, attraction->get_allowed_climate_bits())) {
 			rotation = 1;
 			hat_platz = true;
 		}
