@@ -20,38 +20,37 @@ class einstellungen_t;
 class load_relief_frame_t : public savegame_frame_t
 {
 private:
-
-  karte_t * welt;
-  einstellungen_t * sets;
+	karte_t * welt;
+	einstellungen_t * sets;
 
 protected:
-    /**
-     * Aktion, die nach Knopfdruck gestartet wird.
-     * @author Hansjörg Malthaner
-     */
-    virtual void action(const char *filename);
+	/**
+	* Aktion, die nach Knopfdruck gestartet wird.
+	* @author Hansjörg Malthaner
+	*/
+	virtual void action(const char *filename);
 
-    /**
-     * Aktion, die nach X-Knopfdruck gestartet wird.
-     * @author V. Meyer
-     */
-    virtual void del_action(const char *filename);
+	/**
+	* Aktion, die nach X-Knopfdruck gestartet wird.
+	* @author V. Meyer
+	*/
+	virtual void del_action(const char *filename);
 
 public:
+	/**
+	 * Manche Fenster haben einen Hilfetext assoziiert.
+	 * @return den Dateinamen für die Hilfe, oder NULL
+	 * @author Hj. Malthaner
+	 */
+	virtual const char * gib_hilfe_datei() const;
 
-    /**
-     * Manche Fenster haben einen Hilfetext assoziiert.
-     * @return den Dateinamen für die Hilfe, oder NULL
-     * @author Hj. Malthaner
-     */
-    virtual const char * gib_hilfe_datei() const;
+	/**
+	 * Konstruktor.
+	 * @author Hj. Malthaner
+	 */
+	load_relief_frame_t(karte_t * welt, einstellungen_t * sets);
 
-
-    /**
-     * Konstruktor.
-     * @author Hj. Malthaner
-     */
-    load_relief_frame_t(karte_t * welt, einstellungen_t * sets);
+	virtual ~load_relief_frame_t() {}
 };
 
 #endif

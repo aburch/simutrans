@@ -51,17 +51,11 @@ public:
 	gui_convoiinfo_t(convoihandle_t cnv, int n);
 
 	/**
-	* Virtueller Destruktor, damit Klassen sauber abgeleitet werden können
-	* @author Hj. Malthaner
-	*/
-	virtual ~gui_convoiinfo_t() {}
-
-	/**
 	* Events werden hiermit an die GUI-Komponenten
 	* gemeldet
 	* @author Hj. Malthaner
 	*/
-	virtual void infowin_event(const event_t *);
+	void infowin_event(const event_t *);
 
 	/**
 	* Zeichnet die Komponente

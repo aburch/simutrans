@@ -30,7 +30,6 @@ private:
 	karte_t *welt;
 	spieler_t *sp;
 
-	koord groesse;
 	button_t bt_new_line, bt_change_line, bt_delete_line;
 	gui_container_t cont, cont_haltestellen;
 	gui_scrollpane_t scrolly, scrolly_haltestellen;
@@ -60,8 +59,6 @@ private:
 
 public:
 	schedule_list_gui_t(karte_t *welt,spieler_t *sp);
-
-	koord gib_fenstergroesse() const { return groesse; }
 
 	/**
 	* in top-level fenstern wird der Name in der Titelzeile dargestellt

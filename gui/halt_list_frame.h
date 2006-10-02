@@ -115,7 +115,7 @@ public:
      * gemeldet
      * @author V. Meyer
      */
-    virtual void infowin_event(const event_t *ev);
+    void infowin_event(const event_t *ev);
 
     /**
      * The filter frame tells us when it is closed.
@@ -135,7 +135,7 @@ public:
      * in dem die Komponente dargestellt wird.
      * @author Hj. Malthaner
      */
-    virtual void zeichnen(koord pos, koord gr);
+    void zeichnen(koord pos, koord gr);
 
     /**
      * This function refreshs the station-list

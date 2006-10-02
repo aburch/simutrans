@@ -36,7 +36,6 @@ class factorylist_frame_t : public gui_frame_t, private action_listener_t
  public:
     factorylist_frame_t(karte_t * welt);
 
-
     /**
      * resize window in response to a resize event
      * @author Hj. Malthaner

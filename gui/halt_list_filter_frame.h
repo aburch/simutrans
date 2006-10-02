@@ -24,34 +24,38 @@ class spieler_t;
 class halt_list_filter_frame_t : public gui_frame_t , private action_listener_t
 {
 private:
-    /*
-     * Helper class for the entries of the srollable list of goods.
-     * Needed since a button_t does not know its parent.
-     */
-    class ware_item_t : public button_t {
-	const ware_besch_t *ware_ab;
-	const ware_besch_t *ware_an;
-	halt_list_filter_frame_t *parent;
-    public:
-	ware_item_t(halt_list_filter_frame_t *parent, const ware_besch_t *ware_ab, const ware_besch_t *ware_an)
-	{ this->ware_ab = ware_ab; this->ware_an = ware_an; this->parent = parent; }
-
-	virtual void infowin_event(const event_t *ev) {
-	    if(IS_LEFTRELEASE(ev)) {
-		parent->ware_item_triggered(ware_ab, ware_an);
-	    }
-	    button_t::infowin_event(ev);
-	}
-	virtual void zeichnen(koord offset) {
-	    if(ware_ab) {
-		const_cast<ware_item_t *>(this)->pressed = parent->gib_ware_filter_ab(ware_ab);
-	    }
-	    if(ware_an) {
-		const_cast<ware_item_t *>(this)->pressed = parent->gib_ware_filter_an(ware_an);
-	    }
-	    button_t::zeichnen(offset);
-	}
-    };
+	/*
+	* Helper class for the entries of the srollable list of goods.
+	* Needed since a button_t does not know its parent.
+	*/
+	class ware_item_t : public button_t {
+		const ware_besch_t *ware_ab;
+		const ware_besch_t *ware_an;
+		halt_list_filter_frame_t *parent;
+	public:
+		ware_item_t(halt_list_filter_frame_t *parent, const ware_besch_t *ware_ab, const ware_besch_t *ware_an)
+		{
+			this->ware_ab = ware_ab;
+			this->ware_an = ware_an;
+			this->parent = parent;
+		}
+		virtual ~ware_item_t() {}
+		virtual void infowin_event(const event_t *ev) {
+			if(IS_LEFTRELEASE(ev)) {
+				parent->ware_item_triggered(ware_ab, ware_an);
+			}
+			button_t::infowin_event(ev);
+		}
+		virtual void zeichnen(koord offset) {
+			if(ware_ab) {
+				const_cast<ware_item_t *>(this)->pressed = parent->gib_ware_filter_ab(ware_ab);
+			}
+			if(ware_an) {
+				const_cast<ware_item_t *>(this)->pressed = parent->gib_ware_filter_an(ware_an);
+			}
+			button_t::zeichnen(offset);
+		}
+	};
 
     /*
      * As long we do not have resource scripts, we display make
@@ -97,12 +101,6 @@ public:
      * @author V. Meyer
      */
     halt_list_filter_frame_t(spieler_t *sp, halt_list_frame_t *main_frame);
-
-    /**
-     * Destruktor.
-     * @author V. Meyer
-     */
-    ~halt_list_filter_frame_t() {}
 
     /**
      * Events werden hiermit an die GUI-Komponenten

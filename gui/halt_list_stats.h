@@ -49,17 +49,11 @@ public:
 	halt_list_stats_t(halthandle_t halt, int n) { this->halt = halt; nummer = n; }
 
 	/**
-	 * Virtueller Destruktor, damit Klassen sauber abgeleitet werden können
-	 * @author Hj. Malthaner
-	 */
-	virtual ~halt_list_stats_t() {}
-
-	/**
 	 * Events werden hiermit an die GUI-Komponenten
 	 * gemeldet
 	 * @author Hj. Malthaner
 	 */
-	virtual void infowin_event(const event_t *);
+	void infowin_event(const event_t *);
 
 	/**
 	 * Zeichnet die Komponente

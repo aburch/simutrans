@@ -5,10 +5,10 @@
  * 01/12/2003
  */
 
- #include "fahrplan_gui.h"
- #include "components/gui_textinput.h"
- #include "components/action_listener.h"
- #include "gui_frame.h"
+#include "fahrplan_gui.h"
+#include "components/gui_textinput.h"
+#include "components/action_listener.h"
+#include "gui_frame.h"
 
 #include "../linehandle_t.h"
 
@@ -22,6 +22,6 @@ public:
 	void infowin_event(const event_t *ev);
 
 private:
-	    linehandle_t line;
-	    spieler_t * sp;
+	linehandle_t line;
+	spieler_t * sp;
 };

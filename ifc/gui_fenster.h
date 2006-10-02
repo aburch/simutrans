@@ -26,107 +26,94 @@ struct event_t;
 class gui_fenster_t
 {
 public:
-    /**
-     * Resize modes
-     * @author Markus Weber
-     * @date   11-May-2002
-     */
-    enum resize_modes {
-      no_resize = 0, vertical_resize = 1, horizonal_resize = 2, diagonal_resize = 3
-    };
+	/**
+	 * Resize modes
+	 * @author Markus Weber
+	 * @date   11-May-2002
+	 */
+	enum resize_modes {
+		no_resize = 0, vertical_resize = 1, horizonal_resize = 2, diagonal_resize = 3
+	};
 
+	/**
+	 * Get resize mode
+	 * @author Markus Weber
+	 * @date   25-May-2002
+	 */
+	virtual resize_modes get_resizemode(void) {return no_resize;}
 
-    /**
-     * Get resize mode
-     * @author Markus Weber
-     * @date   25-May-2002
-     */
-    virtual resize_modes get_resizemode(void) {return no_resize;}
+	virtual ~gui_fenster_t() {}
 
+	/**
+	 * Manche Fenster haben einen Hilfetext assoziiert.
+	 * @return den Dateinamen für die Hilfe, oder NULL
+	 * @author Hj. Malthaner
+	 */
+	virtual const char * gib_hilfe_datei() const {return NULL;}
 
-    virtual ~gui_fenster_t() {}
+	/**
+	 * Does this window need a min size button in the title bar?
+	 * @return true if such a button is needed
+	 * @author Hj. Malthaner
+	 */
+	virtual bool has_min_sizer() const {return false;}
 
+	/**
+	 * Does this window need a next button in the title bar?
+	 * @return true if such a button is needed
+	 * @author Volker Meyer
+	 */
+	virtual bool has_next() const {return false;}
 
-    /**
-     * Manche Fenster haben einen Hilfetext assoziiert.
-     * @return den Dateinamen für die Hilfe, oder NULL
-     * @author Hj. Malthaner
-     */
-    virtual const char * gib_hilfe_datei() const {return NULL;}
+	/**
+	 * Does this window need a prev button in the title bar?
+	 * @return true if such a button is needed
+	 * @author Volker Meyer
+	 */
+	virtual bool has_prev() const {return has_next();}
 
+	/**
+	 * in top-level fenstern wird der Name in der Titelzeile dargestellt
+	 * @return den nicht uebersetzten Namen der Komponente
+	 * @author Hj. Malthaner
+	 */
+	virtual const char * gib_name() const = 0;
 
-    /**
-     * Does this window need a min size button in the title bar?
-     * @return true if such a button is needed
-     * @author Hj. Malthaner
-     */
-    virtual bool has_min_sizer() const {return false;}
+	/**
+	 * gibt farbinformationen fuer Fenstertitel, -ränder und -körper
+	 * zurück
+	 * @author Hj. Malthaner
+	 */
+	virtual PLAYER_COLOR_VAL get_titelcolor() const = 0;
 
+	/**
+	 * @return gibt wunschgroesse für das Darstellungsfenster zurueck
+	 * @author Hj. Malthaner
+	 */
+	virtual koord gib_fenstergroesse() const = 0;
 
-    /**
-     * Does this window need a next button in the title bar?
-     * @return true if such a button is needed
-     * @author Volker Meyer
-     */
-    virtual bool has_next() const {return false;}
+	/**
+	 * Prüft, ob eine Position innerhalb der Komponente liegt.
+	 * @author Hj. Malthaner
+	 */
+	virtual bool getroffen(int x, int y)
+	{
+		koord groesse = gib_fenstergroesse();
+		return (x>=0 && y>=0 && groesse.x >= x && groesse.y >= y);
+	}
 
+	/**
+	 * Events werden hiermit an die GUI-Komponenten
+	 * gemeldet
+	 * @author Hj. Malthaner
+	 */
+	virtual void infowin_event(const event_t *ev) = 0;
 
-    /**
-     * Does this window need a prev button in the title bar?
-     * @return true if such a button is needed
-     * @author Volker Meyer
-     */
-    virtual bool has_prev() const {return has_next();}
-
-
-    /**
-     * in top-level fenstern wird der Name in der Titelzeile dargestellt
-     * @return den nicht uebersetzten Namen der Komponente
-     * @author Hj. Malthaner
-     */
-    virtual const char * gib_name() const = 0;
-
-
-    /**
-     * gibt farbinformationen fuer Fenstertitel, -ränder und -körper
-     * zurück
-     * @author Hj. Malthaner
-     */
-    virtual PLAYER_COLOR_VAL get_titelcolor() const = 0;
-
-
-    /**
-     * @return gibt wunschgroesse für das Darstellungsfenster zurueck
-     * @author Hj. Malthaner
-     */
-    virtual koord gib_fenstergroesse() const = 0;
-
-
-    /**
-     * Prüft, ob eine Position innerhalb der Komponente liegt.
-     * @author Hj. Malthaner
-     */
-    virtual bool getroffen(int x, int y)
-    {
-      koord	groesse = gib_fenstergroesse();
-	 return (x>=0 && y>=0 && groesse.x >= x && groesse.y >= y);
-    }
-
-
-
-    /**
-     * Events werden hiermit an die GUI-Komponenten
-     * gemeldet
-     * @author Hj. Malthaner
-     */
-    virtual void infowin_event(const event_t *ev) = 0;
-
-
-    /**
-     * Fenster neu zeichnen.
-     * @author Hj. Malthaner
-     */
-    virtual void zeichnen(koord pos, koord gr) = 0;
+	/**
+	 * Fenster neu zeichnen.
+	 * @author Hj. Malthaner
+	 */
+	virtual void zeichnen(koord pos, koord gr) = 0;
 };
 
 #endif

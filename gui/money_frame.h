@@ -101,7 +101,7 @@ public:
      * @return den Dateinamen für die Hilfe, oder NULL
      * @author Hj. Malthaner
      */
-    const char * gib_hilfe_datei() const {return "finances.txt";};
+    const char * gib_hilfe_datei() const {return "finances.txt";}
 
     /**
      * Konstruktor. Erzeugt alle notwendigen Subkomponenten.
@@ -126,7 +126,6 @@ public:
      * V.Meyer
      */
     bool action_triggered(gui_komponente_t *komp, value_t extra);
-
 };
 
 #endif

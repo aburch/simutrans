@@ -24,28 +24,32 @@ class spieler_t;
 class convoi_filter_frame_t : public gui_frame_t , private action_listener_t
 {
 private:
-    /*
-     * Helper class for the entries of the srollable list of goods.
-     * Needed since a button_t does not know its parent.
-     */
-    class ware_item_t : public button_t {
-	const ware_besch_t *ware;
-	convoi_filter_frame_t *parent;
-    public:
-	ware_item_t(convoi_filter_frame_t *parent, const ware_besch_t *ware)
-	{ this->ware = ware; this->parent = parent; }
-
-	virtual void infowin_event(const event_t *ev) {
-	    if(IS_LEFTRELEASE(ev)) {
-		parent->ware_item_triggered(ware);
-	    }
-	    button_t::infowin_event(ev);
-	}
-	virtual void zeichnen(koord offset) {
-	    const_cast<ware_item_t *>(this)->pressed = parent->gib_ware_filter(ware);
-	    button_t::zeichnen(offset);
-	}
-    };
+	/*
+	* Helper class for the entries of the srollable list of goods.
+	* Needed since a button_t does not know its parent.
+	*/
+	class ware_item_t : public button_t
+	{
+		const ware_besch_t *ware;
+		convoi_filter_frame_t *parent;
+	public:
+		ware_item_t(convoi_filter_frame_t *parent, const ware_besch_t *ware)
+		{
+			this->ware = ware;
+			this->parent = parent;
+		}
+		virtual ~ware_item_t() {}
+		virtual void infowin_event(const event_t *ev) {
+			if(IS_LEFTRELEASE(ev)) {
+				parent->ware_item_triggered(ware);
+			}
+			button_t::infowin_event(ev);
+		}
+		virtual void zeichnen(koord offset) {
+			const_cast<ware_item_t *>(this)->pressed = parent->gib_ware_filter(ware);
+			button_t::zeichnen(offset);
+		}
+	};
 
     /*
      * As long we do not have resource scripts, we display make
@@ -84,12 +88,6 @@ public:
      * @author V. Meyer
      */
     convoi_filter_frame_t(spieler_t *sp, convoi_frame_t *main_frame);
-
-    /**
-     * Destruktor.
-     * @author V. Meyer
-     */
-    ~convoi_filter_frame_t() {}
 
     /**
      * Events werden hiermit an die GUI-Komponenten

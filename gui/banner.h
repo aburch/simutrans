@@ -58,7 +58,7 @@ public:
 	/**
 	* @return gibt wunschgroesse für das beobachtungsfenster zurueck
 	*/
-	koord gib_fenstergroesse() const;
+	koord gib_fenstergroesse() const { return koord(display_get_width(),display_get_height()+48); }
 
 	/* returns true, if inside window area ...
 	* @author Hj. Malthaner

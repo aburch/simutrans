@@ -41,7 +41,7 @@ public:
      * @return den Dateinamen für die Hilfe, oder NULL
      * @author Hj. Malthaner
      */
-    const char * gib_hilfe_datei() const {return "mailbox.txt";};
+    const char * gib_hilfe_datei() const {return "mailbox.txt";}
 
   /**
    * resize window in response to a resize event

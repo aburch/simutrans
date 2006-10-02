@@ -79,7 +79,6 @@ schedule_list_gui_t::schedule_list_gui_t(karte_t *welt,spieler_t *sp)
 	selection = -1;
 	loadfactor = 0;
 
-	groesse = koord(500, 440);
 	button_t button_def;
 
 	// init scrolled list
@@ -166,7 +165,7 @@ schedule_list_gui_t::schedule_list_gui_t(karte_t *welt,spieler_t *sp)
 
 	// add filter buttons
 	for (int i=0; i<MAX_LINE_COST; i++) {
-		filterButtons[i].init(button_t::box,translator::translate(cost_type[i]),koord(0,0), koord(BUTTON_WIDTH,BUTTON_HEIGHT));
+		filterButtons[i].init(button_t::box_state,translator::translate(cost_type[i]),koord(0,0), koord(BUTTON_WIDTH,BUTTON_HEIGHT));
 		filterButtons[i].add_listener(this);
 		filterButtons[i].background = cost_type_color[i];
 		add_komponente(filterButtons + i);
@@ -235,7 +234,13 @@ bool schedule_list_gui_t::action_triggered(gui_komponente_t *komp,value_t /* */)
 		if (line.is_bound()) {
 			for ( int i = 0; i<MAX_LINE_COST; i++) {
 				if (komp == &filterButtons[i]) {
-					chart.is_visible(i) == true ? chart.hide_curve(i) : chart.show_curve(i);
+					filterButtons[i].pressed ^= 1;
+					if(filterButtons[i].pressed) {
+						chart.show_curve(i);
+					}
+					else {
+						chart.hide_curve(i);
+					}
 					break;
 				}
 			}
@@ -249,13 +254,10 @@ bool schedule_list_gui_t::action_triggered(gui_komponente_t *komp,value_t /* */)
 
 void schedule_list_gui_t::zeichnen(koord pos, koord gr)
 {
-  for (int i = 0;i<MAX_LINE_COST;i++) {
-    filterButtons[i].pressed = chart.is_visible(i);
-  }
-  gui_frame_t::zeichnen(pos, gr);
-  if (line.is_bound()) {
-    display(pos);
-  }
+	gui_frame_t::zeichnen(pos, gr);
+	if (line.is_bound()) {
+		display(pos);
+	}
 }
 
 
@@ -304,7 +306,7 @@ schedule_list_gui_t::display(koord pos)
 	money_to_string(ctmp, profit / 100.0);
 	len2 += display_proportional(pos.x+LINE_NAME_COLUMN_WIDTH+len2, pos.y+16+14+SCL_HEIGHT+14+4+LINESPACE, ctmp, ALIGN_LEFT, profit>=0?MONEY_PLUS:MONEY_MINUS, true );
 
-	int rest_width = max( (get_client_windowsize().x-LINE_NAME_COLUMN_WIDTH)/2, max(len2,len) );
+	int rest_width = max( (gib_fenstergroesse().x-LINE_NAME_COLUMN_WIDTH)/2, max(len2,len) );
 	number_to_string(ctmp, capacity);
 	sprintf(buffer, translator::translate("Capacity: %s\nLoad: %d (%d%%)"), ctmp, load, loadfactor);
 	display_multiline_text(pos.x + LINE_NAME_COLUMN_WIDTH + rest_width, pos.y+16 + 14 + SCL_HEIGHT + 14 +4 , buffer, COL_BLACK);
@@ -315,9 +317,8 @@ schedule_list_gui_t::display(koord pos)
 void schedule_list_gui_t::resize(const koord delta)
 {
 	gui_frame_t::resize(delta);
-	this->groesse = get_client_windowsize() + koord(0, 16);
 
-	int rest_width = get_client_windowsize().x-LINE_NAME_COLUMN_WIDTH;
+	int rest_width = gib_fenstergroesse().x-LINE_NAME_COLUMN_WIDTH;
 	int button_per_row=max(1,rest_width/(BUTTON_WIDTH+BUTTON_SPACER));
 	int button_rows= MAX_LINE_COST/button_per_row + ((MAX_LINE_COST%button_per_row)!=0);
 
@@ -417,11 +418,15 @@ void schedule_list_gui_t::update_lineinfo(linehandle_t new_line)
 		chart.remove_curves();
 		for(i=0; i<MAX_LINE_COST; i++)  {
 			chart.add_curve(cost_type_color[i], (sint64 *)new_line->get_finance_history(), MAX_LINE_COST, statistic[i], MAX_MONTHS, statistic_type[i], filterButtons[i].pressed, true);
+			if(filterButtons[i].pressed) {
+				chart.show_curve(i);
+			}
 		}
 		chart.set_visible(true);
 	}
 	else if(line.is_bound()) {
-		// need to hide everything
+		// previously a line was visible
+		// thus the need to hide everything
 		cont.remove_all();
 		inp_name.set_visible(false);
 		filled_bar.set_visible(false);
@@ -432,6 +437,10 @@ void schedule_list_gui_t::update_lineinfo(linehandle_t new_line)
 		scl.setze_selection(-1);
 		bt_delete_line.disable();
 		bt_change_line.disable();
+		for(int i=0; i<MAX_LINE_COST; i++)  {
+			chart.hide_curve(i);
+		}
+		chart.set_visible(true);
 	}
 	line = new_line;
 }

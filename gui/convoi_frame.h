@@ -85,6 +85,7 @@ private:
      * @author V. Meyer
      */
     static bool passes_filter(convoihandle_t cnv);
+
 public:
     /**
      * Konstruktor. Erzeugt alle notwendigen Subkomponenten.

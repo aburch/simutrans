@@ -32,7 +32,6 @@ public:
     ki_kontroll_t(karte_t *welt);
     ~ki_kontroll_t();
 
-
     /**
      * Manche Fenster haben einen Hilfetext assoziiert.
      * @return den Dateinamen für die Hilfe, oder NULL

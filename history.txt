@@ -12,6 +12,8 @@ Known bugs: (hard to fix)
 	FIX: factory builder did add one too few to the distribution weigth => with n factories with distribution_weight=1 the last was always forgotten
 	FIX: wrong/missing foundation during construction on slopes
 	FIX: if no townhall with bev=0 is available for a climate, no towns will be founded in this climate
+	FIX: redraw problem when changing window size
+	FIX: line remembers statistic settings in the line management window
 
 
 Release of 99.02

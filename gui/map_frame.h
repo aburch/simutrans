@@ -66,21 +66,21 @@ public:
      * @return den Dateinamen für die Hilfe, oder NULL
      * @author Hj. Malthaner
      */
-    const char * gib_hilfe_datei() const {return "map.txt";};
+    const char * gib_hilfe_datei() const {return "map.txt";}
 
     /**
      * Does this window need a min size button in the title bar?
      * @return true if such a button is needed
      * @author Hj. Malthaner
      */
-    bool has_min_sizer() const {return true;};
+    bool has_min_sizer() const {return true;}
 
     /**
      * Does this window need a next button in the title bar?
      * @return true if such a button is needed
      * @author Volker Meyer
      */
-    bool has_next() const {return true;};
+    bool has_next() const {return true;}
 
     /**
      * Konstruktor. Erzeugt alle notwendigen Subkomponenten.

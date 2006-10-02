@@ -81,7 +81,7 @@ public:
      */
     savegame_frame_t(const char *suffix);
 
-    ~savegame_frame_t();
+    virtual ~savegame_frame_t();
 
     /**
      * Setzt die Fenstergroesse

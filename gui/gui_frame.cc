@@ -42,99 +42,29 @@ gui_frame_t::gui_frame_t(const char *name, const spieler_t *sp)
 
 
 /**
- * Fügt eine Komponente zum Fenster hinzu.
- * @author Hj. Malthaner
- */
-void gui_frame_t::add_komponente(gui_komponente_t *komp)
-{
-    container.add_komponente(komp);
-}
-
-
-/**
- * Entfernt eine Komponente aus dem Container.
- * @author Hj. Malthaner
- */
-void gui_frame_t::remove_komponente(gui_komponente_t *komp)
-{
-    container.remove_komponente(komp);
-}
-
-
-
-/**
- * Der Name wird in der Titelzeile dargestellt
- * @return den nicht uebersetzten Namen der Komponente
- * @author Hj. Malthaner
- */
-const char * gui_frame_t::gib_name()  const
-{
-    return name;
-};
-
-
-/**
- * setzt den Namen (Fenstertitel)
- * @author Hj. Malthaner
- */
-void gui_frame_t::setze_name(const char *name)
-{
-    this->name = name;
-}
-
-
-/**
- * setzt die Transparenz
- * @author Hj. Malthaner
- */
-void gui_frame_t::setze_opaque(bool janein)
-{
-    opaque = janein;
-}
-
-/**
- * @return gibt wunschgroesse für das Darstellungsfenster zurueck
- * @author Hj. Malthaner
- */
-koord gui_frame_t::gib_fenstergroesse() const
-{
-    return groesse;
-}
-
-
-
-/**
- * @return returns the usable width and heigth of the window
- * @author Markus Weber
- * @date   11-May-2002
- */
-koord gui_frame_t::get_client_windowsize() const
-{
-  // return groesse-koord(dragger_x_size,16+dragger_y_size);
-  return groesse-koord(0, 16);
-}
-
-
-/**
  * Setzt die Fenstergroesse
  * @author Hj. Malthaner
  */
 void gui_frame_t::setze_fenstergroesse(koord groesse)
 {
-    // %DB0 printf( "\nMessage: gui_frame_t::setze_fenstergroesse( koord groesse ): Fenster|Window %p : Koord is (%d,%d)", (void*)this, groesse.x, groesse.y );
+	if(groesse!=this->groesse) {
+		// mark old size dirty
+		const koord pos = koord( win_get_posx(this), win_get_posy(this) );
+		mark_rect_dirty_wc(pos.x,pos.y,pos.x+this->groesse.x,pos.y+this->groesse.y);
 
-    // minimal width //25-may-02	markus weber	added
-    if (groesse.x < min_windowsize.x) {
-        groesse.x = min_windowsize.x;
-    }
+		// minimal width //25-may-02	markus weber	added
+		if (groesse.x < min_windowsize.x) {
+			groesse.x = min_windowsize.x;
+		}
 
-    // minimal heigth //25-may-02	markus weber	added
-    if (groesse.y < min_windowsize.y) {
-        groesse.y = min_windowsize.y;
-    }
+		// minimal heigth //25-may-02	markus weber	added
+		if (groesse.y < min_windowsize.y) {
+			groesse.y = min_windowsize.y;
+		}
 
-    this->groesse = groesse;
-    dirty = true;
+		this->groesse = groesse;
+		dirty = true;
+	}
 }
 
 
@@ -162,17 +92,6 @@ void gui_frame_t::infowin_event(const event_t *ev)
     event_t ev2 = *ev;
     translate_event(&ev2, 0, -16);
     container.infowin_event(&ev2);
-}
-
-
-/**
-* Set minimum size of the window
-* @author Markus Weber
-* @date   11-May-2002
-*/
-void gui_frame_t::set_min_windowsize(koord size)
-{
-    this->min_windowsize = size;
 }
 
 
@@ -225,7 +144,6 @@ void gui_frame_t::zeichnen(koord pos, koord gr)
 		// Hajo: skinned windows code
 		// draw background
 		PUSH_CLIP(pos.x+1,pos.y+16,gr.x-2,gr.y-16);
-
 		const int img = skinverwaltung_t::window_skin->gib_bild(0)->gib_nummer();
 
 		for(int j=0; j<gr.y; j+=64) {

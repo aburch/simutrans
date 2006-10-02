@@ -37,7 +37,6 @@ private:
     const char * name;
     koord groesse;
 
-
     /**
      * Min. size of the window
      * @author Markus Weber
@@ -46,7 +45,6 @@ private:
     koord min_windowsize;
 
     enum resize_modes resize_mode ;      //25-may-02	markus weber added
-
     const spieler_t *owner;
 
     bool opaque:1;
@@ -74,38 +72,36 @@ public:
      */
     gui_frame_t(const char *name, const spieler_t *sp=NULL);
 
-
     /**
      * Fügt eine Komponente zum Fenster hinzu.
      * @author Hj. Malthaner
      */
-    void add_komponente(gui_komponente_t *komp);
-
+    void add_komponente(gui_komponente_t *komp) { container.add_komponente(komp); }
 
     /**
      * Entfernt eine Komponente aus dem Container.
      * @author Hj. Malthaner
      */
-    void remove_komponente(gui_komponente_t *komp);
+    void remove_komponente(gui_komponente_t *komp) { container.remove_komponente(komp); }
 
     /**
      * Der Name wird in der Titelzeile dargestellt
      * @return den nicht uebersetzten Namen der Komponente
      * @author Hj. Malthaner
      */
-    virtual const char * gib_name() const;
+    const char * gib_name() const { return name; }
 
     /**
      * setzt den Namen (Fenstertitel)
      * @author Hj. Malthaner
      */
-    void setze_name(const char *name);
+    void setze_name(const char *name) { this->name=name; }
 
     /**
      * setzt die Transparenz
      * @author Hj. Malthaner
      */
-    void setze_opaque(bool janein);
+    void setze_opaque(bool janein) { opaque = janein; }
 
     /**
      * gibt farbinformationen fuer Fenstertitel, -ränder und -körper
@@ -118,15 +114,27 @@ public:
      * @return gibt wunschgroesse für das Darstellungsfenster zurueck
      * @author Hj. Malthaner
      */
-    virtual koord gib_fenstergroesse() const;
-
+    koord gib_fenstergroesse() const { return groesse; }
 
     /**
      * Setzt die Fenstergroesse
      * @author Hj. Malthaner
      */
-    virtual void setze_fenstergroesse(koord groesse);
+	virtual void setze_fenstergroesse(koord groesse);
 
+    /**
+     * Set minimum size of the window
+     * @author Markus Weber
+     * @date   11-May-2002
+     */
+    void set_min_windowsize(koord size) { min_windowsize = size; }
+
+    /**
+     * @return returns the usable width and heigth of the window
+     * @author Markus Weber
+     * @date   11-May-2002
+    */
+    koord get_client_windowsize() const {return groesse-koord(0,16); }
 
     /**
      * Events werden hiermit an die GUI-Komponenten
@@ -134,7 +142,6 @@ public:
      * @author Hj. Malthaner
      */
     virtual void infowin_event(const event_t *ev);
-
 
     /**
      * komponente neu zeichnen. Die übergebenen Werte beziehen sich auf
@@ -144,41 +151,19 @@ public:
      */
     virtual void zeichnen(koord pos, koord gr);
 
-
     /**
      * Set resize mode
      * @author Markus Weber
      * @date   11-May-2002
      */
-    void set_resizemode(enum resize_modes mode) {resize_mode = mode;};
-
-
+    void set_resizemode(enum resize_modes mode) {resize_mode = mode;}
 
     /**
      * Get resize mode
      * @author Markus Weber
      * @date   25-May-2002
      */
-    enum resize_modes get_resizemode(void) {return resize_mode;};;
-
-
-    /**
-     * Set minimum size of the window
-     * @author Markus Weber
-     * @date   11-May-2002
-     */
-    void set_min_windowsize(koord size);
-
-
-    /**
-     * @return returns the usable width and heigth of the window
-     * @author Markus Weber
-     * @date   11-May-2002
-    */
-    virtual koord get_client_windowsize() const;
-
-
-
+    enum resize_modes get_resizemode(void) {return resize_mode;}
 };
 
 #endif

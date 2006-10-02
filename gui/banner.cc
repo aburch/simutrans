@@ -37,14 +37,6 @@ banner_t::banner_t(karte_t *w)
 
 
 
-koord banner_t::gib_fenstergroesse() const
-{
-	// full screen
-	return koord(display_get_width(),display_get_height()+48);
-}
-
-
-
 void banner_t::infowin_event(const event_t *ev)
 {
 	if(ev->ev_class==EVENT_RELEASE  ||  (ev->ev_class==EVENT_KEYBOARD  &&  ev->ev_code!=0)) {

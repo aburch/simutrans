@@ -44,19 +44,16 @@ private:
     cbuffer_t cb_info_buffer;
 
 public:
-
     halt_detail_t(spieler_t * sp, karte_t *welt, halthandle_t halt);
 
     void halt_detail_info(cbuffer_t & buf);
-
 
     /**
      * Manche Fenster haben einen Hilfetext assoziiert.
      * @return den Dateinamen für die Hilfe, oder NULL
      * @author Hj. Malthaner
      */
-    virtual const char * gib_hilfe_datei() const;
-
+    const char * gib_hilfe_datei() const { return "station_details.txt"; }
 };
 
 #endif

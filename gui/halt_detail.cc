@@ -128,7 +128,6 @@ void halt_detail_t::halt_detail_info(cbuffer_t & buf)
 	buf.append("\n");
     }
 
-
     // add lines that serve this stop
     buf.append("\n");
     if (halt->registered_lines.get_count() > 0) {
@@ -196,12 +195,3 @@ void halt_detail_t::halt_detail_info(cbuffer_t & buf)
     buf.append("\n\n");
 }
 
-/**
- * Manche Fenster haben einen Hilfetext assoziiert.
- * @return den Dateinamen für die Hilfe, oder NULL
- * @author Hj. Malthaner
- */
-const char * halt_detail_t::gib_hilfe_datei() const
-{
-  return "station_details.txt";
-}

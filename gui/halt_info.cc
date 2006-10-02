@@ -278,11 +278,11 @@ void halt_info_t::resize(const koord delta)
 
 	const sint16 button_offset_y = toggler.pressed?245:80;
 
-	input.setze_groesse(koord(get_client_windowsize().x-23, 13));
+	input.setze_groesse(koord(gib_fenstergroesse().x-23, 13));
 	toggler.setze_pos(koord(BUTTON3_X,button_offset_y));
 	button.setze_pos(koord(BUTTON4_X,button_offset_y));
 	sort_button.setze_pos(koord(BUTTON1_X,button_offset_y));
 	sort_label.setze_pos(koord(BUTTON1_X,button_offset_y-LINESPACE));
-	view.setze_pos(koord(get_client_windowsize().x - 64 - 16 , 21));
+	view.setze_pos(koord(gib_fenstergroesse().x - 64 - 16 , 21));
 	scrolly.setze_groesse(get_client_windowsize()-scrolly.gib_pos());
 }

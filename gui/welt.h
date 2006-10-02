@@ -98,7 +98,7 @@ public:
 	 * @return den Dateinamen für die Hilfe, oder NULL
 	 * @author Hj. Malthaner
 	 */
-	const char * gib_hilfe_datei() const {return "new_world.txt";};
+	const char * gib_hilfe_datei() const {return "new_world.txt";}
 
 	bool gib_load_heightfield() const {return load_heightfield;}
 	bool gib_load() const {return load;}

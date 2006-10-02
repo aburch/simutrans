@@ -34,7 +34,6 @@ class citylist_stats_t : public gui_komponente_t
  public:
  	static char total_bev_string[128];
 
-
     citylist_stats_t(karte_t *welt,const citylist::sort_mode_t& sortby,const bool& sortreverse);
 
     void sort(const citylist::sort_mode_t& sortby_,const bool& sortreverse_);
@@ -45,7 +44,6 @@ class citylist_stats_t : public gui_komponente_t
      * @author Hj. Malthaner
      */
     void infowin_event(const event_t *);
-
 
     /**
      * Zeichnet die Komponente

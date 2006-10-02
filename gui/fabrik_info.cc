@@ -118,6 +118,7 @@ fabrik_info_t::fabrik_info_t(fabrik_t *fab, gebaeude_t *gb, karte_t *welt) :
 	add_komponente(&view);
 
 	gui_frame_t::set_owner( fab->gib_besitzer() );
+	setze_name( fab->gib_name() );
 }
 
 

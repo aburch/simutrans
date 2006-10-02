@@ -167,7 +167,6 @@ public:
 	*/
 	void infowin_event(const event_t *ev);
 
-
 	/**
 	* komponente neu zeichnen. Die übergebenen Werte beziehen sich auf
 	* das Fenster, d.h. es sind die Bildschirkoordinaten des Fensters

@@ -30,30 +30,26 @@ namespace curiositylist {
  */
 class curiositylist_stats_t : public gui_komponente_t
 {
- private:
-
+private:
 	karte_t * welt;
 	vector_tpl<gebaeude_t*> attractions;
 
-
- public:
+public:
 	curiositylist_stats_t(karte_t *welt,const curiositylist::sort_mode_t& sortby,const bool& sortreverse);
 
-
-  	void get_unique_attractions(const curiositylist::sort_mode_t& sortby,const bool& reverse);
-
+	void get_unique_attractions(const curiositylist::sort_mode_t& sortby,const bool& reverse);
 
 	/**
-	 * Events werden hiermit an die GUI-Komponenten
-	 * gemeldet
-	 * @author Hj. Malthaner
-	 */
+	* Events werden hiermit an die GUI-Komponenten
+	* gemeldet
+	* @author Hj. Malthaner
+	*/
 	void infowin_event(const event_t *);
 
 	/**
-	 * Zeichnet die Komponente
-	 * @author Hj. Malthaner
-	 */
+	* Zeichnet die Komponente
+	* @author Hj. Malthaner
+	*/
 	void zeichnen(koord offset);
 };
 

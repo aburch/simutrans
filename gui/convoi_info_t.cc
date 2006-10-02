@@ -425,9 +425,9 @@ void convoi_info_t::resize(const koord delta)
 {
 	gui_frame_t::resize(delta);
 
-	input.setze_groesse(koord(get_client_windowsize().x-22, 13));
+	input.setze_groesse(koord(gib_fenstergroesse().x-22, 13));
 
-	view.setze_pos(koord(get_client_windowsize().x - 64 - 12 , 21));
+	view.setze_pos(koord(gib_fenstergroesse().x - 64 - 12 , 21));
 	follow_button.setze_pos(koord(view.gib_pos().x-1,77));
 
 	scrolly.setze_groesse(get_client_windowsize()-scrolly.gib_pos());

@@ -34,7 +34,7 @@ public:
      * @return den Dateinamen für die Hilfe, oder NULL
      * @author Hj. Malthaner
      */
-    virtual const char * gib_hilfe_datei() const { return "color.txt"; }
+    const char * gib_hilfe_datei() const { return "color.txt"; }
 
     void infowin_event(const event_t *ev);
 };

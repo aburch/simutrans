@@ -41,7 +41,7 @@ public:
      * @return den Dateinamen für die Hilfe, oder NULL
      * @author Hj. Malthaner
      */
-    const char * gib_hilfe_datei() const {return "language.txt";};
+    const char * gib_hilfe_datei() const {return "language.txt";}
 
     /**
      * This method is called if an action is triggered
