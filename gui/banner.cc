@@ -54,9 +54,9 @@ void banner_t::infowin_event(const event_t *ev)
 
 
 
-void banner_t::zeichnen(koord pos, koord)
+void banner_t::zeichnen(koord /*pos*/, koord)
 {
-	display_ddd_box(xoff, yoff, 360, 270, COL_GREY6, COL_GREY2);
+	display_ddd_box(xoff,  yoff, 360, 270, COL_GREY6, COL_GREY2);
 	display_fillbox_wh(xoff + 1, yoff + 1, 358, 268, COL_GREY5, true);
 	display_ddd_box(xoff + 4, yoff + 4, 352, 262, COL_GREY2, COL_GREY6);
 	display_fillbox_wh(xoff + 5, yoff + 5, 350, 260, COL_GREY4, true);
@@ -115,8 +115,8 @@ void banner_t::zeichnen(koord pos, koord)
 	display_fillbox_wh(xoff + left, yoff + top + 49, 240, 7, COL_GREY4, true);
 
 	// scroll on every 70 ms
-	if(get_system_ms()>last_ms+70) {
-		last_ms += 70;
+	if(get_system_ms()>last_ms+70u) {
+		last_ms += 70u;
 		line ++;
 	}
 

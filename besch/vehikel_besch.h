@@ -225,13 +225,13 @@ public:
 	int gib_nachfolger_count() const { return nachfolger; }
 
 	waytype_t gib_typ() const { return static_cast<waytype_t>(typ); }
-	int gib_zuladung() const { return zuladung; }
-	int gib_preis() const { return preis; }
-	int gib_geschw() const { return geschw; }
-	int gib_gewicht() const { return gewicht; }
-	int gib_leistung() const { return leistung; }
-	int gib_betriebskosten() const { return betriebskosten; }
-	int gib_sound() const { return sound; }
+	uint16 gib_zuladung() const { return zuladung; }
+	uint32 gib_preis() const { return preis; }
+	uint16 gib_geschw() const { return geschw; }
+	uint16 gib_gewicht() const { return gewicht; }
+	uint32 gib_leistung() const { return leistung; }
+	uint16 gib_betriebskosten() const { return betriebskosten; }
+	sint8 gib_sound() const { return sound; }
 
 	/**
 	* @return introduction year
@@ -262,7 +262,7 @@ public:
 	* @return gear value
 	* @author Hj. Malthaner
 	*/
-	sint32 get_gear() const { return gear; }
+	uint16 get_gear() const { return gear; }
 
 	/**
 	* @return engine type

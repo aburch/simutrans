@@ -9,8 +9,9 @@ Known bugs: (hard to fix)
 	FIX: game could lock up during creation when no matchin tourist attractions were found for the available climates
 	ADD: new flag in cimuconf.tab "ground_info" to show info on ground tiles
 	FIX: platzsucher did some meaningless comparisons and did not consider all suitable places (i.e. slopes)
-	FIX: factory builder did add one too few to the distribution weigth => with n factories with dw=1 the last was always forgotten
+	FIX: factory builder did add one too few to the distribution weigth => with n factories with distribution_weight=1 the last was always forgotten
 	FIX: wrong/missing foundation during construction on slopes
+	FIX: if no townhall with bev=0 is available for a climate, no towns will be founded in this climate
 
 
 Release of 99.02

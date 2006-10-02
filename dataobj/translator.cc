@@ -35,6 +35,7 @@
 translator * translator::single_instance = new translator();
 
 
+#ifdef DEBUG
 // diagnosis
 static void
 dump_hashtable(stringhashtable_tpl<const char *> *tbl)
@@ -48,7 +49,7 @@ dump_hashtable(stringhashtable_tpl<const char *> *tbl)
 	}
 	fflush(NULL);
 }
-
+#endif
 
 /* first two file fuctions needed in connection with utf */
 

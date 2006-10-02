@@ -59,7 +59,7 @@ fundament_t::calc_bild()
 {
 	slope = 0;
 	grund_t::calc_bild();
-	setze_bild( grund_besch_t::gib_ground_tile(0,gib_hoehe() ) );
+	setze_bild( grund_besch_t::gib_ground_tile(0,gib_hoehe()) );
 	grund_t::calc_back_bild(gib_hoehe()/16,0);
 }
 

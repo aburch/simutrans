@@ -5,14 +5,12 @@
  *
  * This file is part of the Simutrans project and may not be used
  * in other projects without written permission of the author.
- */
-
-
-/* simtime.h
  *
  * High-level Timer-Routinen
  * von Hj. Malthaner, 2000
  */
+
+#include "simtypes.h"
 
 
 /**
@@ -23,7 +21,7 @@
 void sync_last_time_now();
 
 
-unsigned long get_system_ms();
+uint32 get_system_ms();
 
 
 /**
@@ -38,7 +36,7 @@ unsigned long get_system_ms();
  *
  * @author Hj. Malthaner
  */
-unsigned long get_current_time_millis();
+uint32 get_current_time_millis();
 
 
 
@@ -48,7 +46,7 @@ unsigned long get_current_time_millis();
  * @param m Multiplikator in 1/16 (16=1.0)
  * @author Hj. Malthaner
  */
-void set_time_multi(long m);
+void set_time_multi(sint32 m);
 
 
 /**
@@ -57,7 +55,7 @@ void set_time_multi(long m);
  * @return Multiplikator in 1/16 (16=1.0)
  * @author Hj. Malthaner
  */
-long get_time_multi();
+sint32 get_time_multi();
 
 
 /**
@@ -65,7 +63,7 @@ long get_time_multi();
  * may update the display if time is over or more than 10ms wait
  * @author Hj. Malthaner
  */
-void simusleep(unsigned ms);
+void simusleep(uint16 ms);
 
 
 /**

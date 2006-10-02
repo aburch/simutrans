@@ -24,7 +24,7 @@ const char * month_names[] =
 /**
  * Last real time value
  */
-static unsigned long last_time = 0;
+static uint32 last_time = 0;
 
 
 /**
@@ -33,14 +33,14 @@ static unsigned long last_time = 0;
  * time.
  * @author Hj. Malthaner
  */
-static unsigned long sim_time = 0;
+static uint32 sim_time = 0;
 
 
 /**
  * Zeitfaktor in 1/16, 16=1.0
  * @author Hj. Malthaner
  */
-static long multi = 16;
+static sint32 multi = 16;
 
 
 /**
@@ -60,7 +60,7 @@ void sync_last_time_now()
  * @param m Multiplikator in 1/16 (16=1.0)
  * @author Hj. Malthaner
  */
-void set_time_multi(long m)
+void set_time_multi(sint32 m)
 {
 	// smaller 1.0 does not work
 	if(m>=1) {
@@ -75,14 +75,14 @@ void set_time_multi(long m)
  * @return Multiplikator in 1/16 (16=1.0)
  * @author Hj. Malthaner
  */
-long get_time_multi()
+sint32 get_time_multi()
 {
     return multi;
 }
 
 
 
-unsigned long get_system_ms()
+uint32 get_system_ms()
 {
 	return dr_time();
 }
@@ -101,12 +101,12 @@ unsigned long get_system_ms()
  *
  * @author Hj. Malthaner
  */
-unsigned long get_current_time_millis()
+uint32 get_current_time_millis()
 {
-	unsigned long now = dr_time();
+	uint32 now = dr_time();
 
 	if(now > last_time) {
-		long diff = (now - last_time);
+		sint32 diff = (now - last_time);
 
 		diff = (diff * multi) >> 4;
 		sim_time += diff;
@@ -124,7 +124,7 @@ unsigned long get_current_time_millis()
  */
 static void wait_msec(long msec)
 {
-  unsigned long T = dr_time() + msec;
+  uint32 T = dr_time() + msec;
 
   do {
     // how to CPU friendly wait a bit ?!
@@ -139,9 +139,9 @@ static void wait_msec(long msec)
  * wartet millisekunden
  * @author Hj. Malthaner
  */
-void simusleep(unsigned milli)
+void simusleep(uint16 milli)
 {
-	signed ms = milli;
+	sint32 ms = milli;
 	if(ms==0) {
 		// busy wait one millisecond => better do a display check ...
 		INT_CHECK("simtime 133");
@@ -152,14 +152,14 @@ void simusleep(unsigned milli)
 			// wait at most 10 ms
 			const unsigned long T0 = dr_time();
 			dr_sleep(10240);
-			const long diff = (long)(dr_time() - T0);
+			const sint32 diff = (long)(dr_time() - T0);
 			ms -= diff;
 		}
 		while(ms>0) {
 			INT_CHECK("simtime 177");
-			const unsigned long T0 = dr_time();
+			const uint32 T0 = dr_time();
 			dr_sleep(ms<<10);
-			const long diff = (long)(dr_time() - T0);
+			const sint32 diff = (sint32)(dr_time() - T0);
 			ms -= diff;
 		}
 		INT_CHECK("simtime 177");
@@ -171,5 +171,5 @@ void simusleep(unsigned milli)
 void
 time_init()
 {
-  last_time = dr_time();
+	last_time = dr_time();
 }

@@ -559,7 +559,7 @@ const char * grund_t::gib_weg_name(waytype_t typ) const
 ribi_t::ribi grund_t::gib_weg_ribi(waytype_t typ) const
 {
     weg_t *weg = gib_weg(typ);
-	return (weg) ? weg->gib_ribi() : ribi_t::keine;
+	return (weg) ? weg->gib_ribi() : (ribi_t::ribi)ribi_t::keine;
 }
 
 
@@ -567,7 +567,7 @@ ribi_t::ribi grund_t::gib_weg_ribi(waytype_t typ) const
 ribi_t::ribi grund_t::gib_weg_ribi_unmasked(waytype_t typ) const
 {
     weg_t *weg = gib_weg(typ);
-	return (weg) ? weg->gib_ribi_unmasked() : ribi_t::keine;
+	return (weg) ? weg->gib_ribi_unmasked() : (ribi_t::ribi)ribi_t::keine;
 }
 
 
@@ -738,7 +738,7 @@ grund_t::text_farbe() const
 
 
 void
-grund_t::display_boden( const sint16 xpos, const sint16 ypos, const bool reset_dirty ) const
+grund_t::display_boden( const sint16 xpos, const sint16 ypos, const bool /*reset_dirty*/ ) const
 {
 	const bool dirty=get_flag(grund_t::dirty);
 	const sint16 rasterweite=get_tile_raster_width();

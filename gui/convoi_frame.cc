@@ -236,7 +236,7 @@ void convoi_frame_t::display_list(void)
 
 	cont.remove_all();
 
-	for (i = 0; i < n; i++) {
+	for(int i = 0; i < n; i++) {
 		gui_convoiinfo_t *cinfo = new gui_convoiinfo_t(a[i], i + 1);
 
 		cinfo->setze_pos(koord(0, ypos));

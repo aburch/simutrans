@@ -310,7 +310,7 @@ bool roadsign_t::step(long delta_t)
 
 // to correct offset on slopes
 void
-roadsign_t::display_after(int xpos, int ypos, bool reset_dirty) const
+roadsign_t::display_after(int xpos, int ypos, bool ) const
 {
 	if(after_bild!=IMG_LEER) {
 		const int raster_width = get_tile_raster_width();

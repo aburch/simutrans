@@ -16,6 +16,8 @@
 #include "../simdebug.h"
 
 
+static int make_this_a_division_by_zero = 0;
+
 /**
  * writes a debug message into the log.
  * @author Hj. Malthaner
@@ -215,20 +217,21 @@ log_t::log_t(const char *logfilename,
 
 void log_t::close()
 {
-    message("log_t::~log_t","stop logging, closing log file");
+	message("log_t::~log_t","stop logging, closing log file");
 
-    if( log ) {
-        fclose(log);
-        log = NULL;
-    }
+	if( log ) {
+		fclose(log);
+		log = NULL;
+	}
 }
 
 
-log_t::~log_t()                         /* die logdatei schliessen */
+// close all logs during cleanup
+log_t::~log_t()
 {
-    if( log ) {
-	close();
-    }
+	if( log ) {
+		close();
+	}
 }
 
 
@@ -237,12 +240,8 @@ void
 log_t::trap()
 {
 #ifdef DEBUG
-	int i=32, j;
-	for( j=1; j>=0;  j-- )
-	{
-		i += (i/j);
-		printf("%*d",i);
-	}
+	printf("%i",15/make_this_a_division_by_zero);
+	make_this_a_division_by_zero &= 0xFF;
 #else
 	assert(0);
 #endif

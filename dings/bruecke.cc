@@ -36,7 +36,7 @@ bruecke_t::bruecke_t(karte_t *welt, loadsave_t *file) : ding_t(welt)
 	setze_bild(0,IMG_LEER);
 }
 
-bruecke_t::bruecke_t(karte_t *welt, koord3d pos, const int y_off, spieler_t *sp,
+bruecke_t::bruecke_t(karte_t *welt, koord3d pos, const int /*yoff*/, spieler_t *sp,
 		     const bruecke_besch_t *besch, bruecke_besch_t::img_t img) :
  ding_t(welt, pos)
 {

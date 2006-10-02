@@ -35,7 +35,7 @@
 " Tilman Raatz","misc. patches",
 " Pasi Ruhanen","BeOS, SDL",
 " Mat Hounsell","GUI",
-" Christoph Mallon","Makefile",
+" Christoph Mallon","Makefile, patches",
 "","",
 "","",
 "Game Design Assistance:","",

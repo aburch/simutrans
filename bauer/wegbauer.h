@@ -52,7 +52,7 @@ public:
      * Finds a way with a given speed limit for a given waytype
      * @author prissi
      */
-    static const weg_besch_t *  weg_search(const waytype_t wtyp,const int speed_limit,const uint16 time=0);
+    static const weg_besch_t *  weg_search(const waytype_t wtyp,const uint32 speed_limit,const uint16 time=0);
 
     /**
      * Tries to look up description for way, described by way type,

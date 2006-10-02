@@ -102,7 +102,7 @@ create_textured_tile(const bild_besch_t *bild_lightmap, const bild_besch_t *bild
 			x += *dest;
 		} while(  (*dest++)!=0 );
 	}
-	assert((dest-(PIXVAL *)(bild_dest->gib_daten()))==bild_dest->len);
+	assert((dest-(const PIXVAL *)(bild_dest->gib_daten()))==bild_dest->len);
 	return bild_dest;
 }
 

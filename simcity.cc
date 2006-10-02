@@ -2202,7 +2202,7 @@ stadt_t::baue_strasse(const koord k, spieler_t *sp, bool forced)
 	}
 
 	// initially allow all possible directions ...
-	ribi_t::ribi allowed_dir = bd->gib_grund_hang()!=hang_t::flach ? ribi_t::doppelt(ribi_typ(bd->gib_weg_hang())) : ribi_t::alle;
+	ribi_t::ribi allowed_dir = bd->gib_grund_hang()!=hang_t::flach ? ribi_t::doppelt(ribi_typ(bd->gib_weg_hang())) : (ribi_t::ribi)ribi_t::alle;
 	ribi_t::ribi connection_roads = ribi_t::keine;
 
 	// we must not built on water or runways etc.
@@ -2519,11 +2519,6 @@ DBG_DEBUG("karte_t::init()","found %i places",list->count());
 		}
 
 		if(len<=0  &&  i<anzahl-1) {
-			if(i<=0) {
-dbg->fatal("stadt_t::random_place()","Not a single place found!");
-				delete result;
-				return NULL;
-			}
 dbg->warning("stadt_t::random_place()","Not enough places found!");
 			break;
 		}

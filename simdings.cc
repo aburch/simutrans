@@ -243,10 +243,11 @@ void ding_t::laden_abschliessen()
 
 /**
  * Ding zeichnen
+ * (reset dirty will be done from dingliste! It is true only for drawing the main window.)
  * @author Hj. Malthaner
  */
 void
-ding_t::display(int xpos, int ypos, bool reset_dirty) const
+ding_t::display(int xpos, int ypos, bool /*reset_dirty*/) const
 {
 	const int raster_width = get_tile_raster_width();
 
@@ -273,7 +274,7 @@ ding_t::display(int xpos, int ypos, bool reset_dirty) const
 
 
 void
-ding_t::display_after(int xpos, int ypos, bool reset_dirty) const
+ding_t::display_after(int xpos, int ypos, bool /*reset_dirty*/) const
 {
 	image_id bild = gib_after_bild();
 	if(bild != IMG_LEER) {

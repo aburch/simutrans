@@ -129,7 +129,7 @@ bool wegbauer_t::register_besch(const kreuzung_besch_t *besch)
  * Finds a way with a given speed limit for a given waytype
  * @author prissi
  */
-const weg_besch_t *  wegbauer_t::weg_search(const waytype_t wtyp,const int speed_limit,const uint16 time)
+const weg_besch_t *  wegbauer_t::weg_search(const waytype_t wtyp,const uint32 speed_limit,const uint16 time)
 {
 	stringhashtable_iterator_tpl<const weg_besch_t *> iter(alle_wegtypen);
 
@@ -142,7 +142,7 @@ DBG_MESSAGE("wegbauer_t::weg_search","Search cheapest for limit %i, year=%i, mon
 		if(
 			(test_weg->gib_wtyp()==wtyp
 				||  (wtyp==tram_wt  &&  test_weg->gib_wtyp()==track_wt  &&  test_weg->gib_styp()==7)
-			)  &&  iter.get_current_value()->gib_cursor()->gib_bild_nr(1) != -1) {
+			)  &&  iter.get_current_value()->gib_cursor()->gib_bild_nr(1) != IMG_LEER) {
 
 			if(  besch==NULL  ||  (besch->gib_topspeed()<speed_limit  &&  besch->gib_topspeed()<iter.get_current_value()->gib_topspeed()) ||  (iter.get_current_value()->gib_topspeed()>=speed_limit  &&  iter.get_current_value()->gib_wartung()<besch->gib_wartung())  ) {
 				if(time==0  ||  (test_weg->get_intro_year_month()<=time  &&  test_weg->get_retire_year_month()>time)) {

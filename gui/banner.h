@@ -33,9 +33,9 @@ private:
 	*/
 	karte_t *welt;
 
-	int last_ms;
+	sint32 last_ms;
 	int line;
-	int xoff, yoff;
+	sint16 xoff, yoff;
 
 public:
     banner_t(karte_t *welt);
@@ -63,7 +63,7 @@ public:
 	/* returns true, if inside window area ...
 	* @author Hj. Malthaner
 	*/
-	bool getroffen(int x, int y) { return true; }
+	bool getroffen(int , int ) { return true; }
 
 	/* Events werden hiermit an die GUI-Komponenten
 	* gemeldet

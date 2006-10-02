@@ -345,7 +345,7 @@ int vehikelbauer_t::vehikel_can_lead( const vehikel_besch_t *v )
  * tries to get best with but adds a little random action
  * @author prissi
  */
-const vehikel_besch_t *vehikelbauer_t::vehikel_search(waytype_t typ,const unsigned month_now,const int target_power,const int target_speed,const ware_besch_t * target_freight,bool include_electric)
+const vehikel_besch_t *vehikelbauer_t::vehikel_search(waytype_t typ,const uint16 month_now,const uint32 target_power,const uint32 target_speed,const ware_besch_t * target_freight,bool include_electric)
 {
   // only needed for iteration
   inthashtable_iterator_tpl<int, const vehikel_besch_t *> iter(_fahrzeuge);
@@ -366,8 +366,8 @@ DBG_MESSAGE( "vehikelbauer_t::vehikel_search()","for speed %i, power %i",target_
     // correct type and useable=
     if(test_besch->gib_typ()==typ  &&  !test_besch->is_future(month_now)  &&  !test_besch->is_retired(month_now)) {
         // finally, we might be able to use this vehicle
-        int power = (test_besch->gib_leistung()*test_besch->get_gear())/64;
-        int speed = test_besch->gib_geschw();
+        uint32 power = (test_besch->gib_leistung()*test_besch->get_gear())/64;
+        uint32 speed = test_besch->gib_geschw();
 
         // we want a car
         if(  target_freight!=NULL ) {
@@ -379,7 +379,7 @@ DBG_MESSAGE( "vehikelbauer_t::vehikel_search()","for speed %i, power %i",target_
             if(  test_besch->gib_ware()->is_interchangeable( target_freight )  ) {
 DBG_MESSAGE( "vehikelbauer_t::vehikel_search","try freight car %s",test_besch->gib_name());
               // freight category ok
-              int difference=0;	// smaller is better
+              sint32 difference=0;	// smaller is better
               // assign this vehicle, if we have none found one yet, or we found only a too week one
               if(  besch!=NULL  ) {
                 // it is cheaper to run? (this is most important)
@@ -446,7 +446,7 @@ DBG_MESSAGE( "vehikelbauer_t::vehikel_search","Found engine %s",besch->gib_name(
 
 
 
-const vehikel_besch_t *vehikelbauer_t::vehikel_fuer_leistung(int leistung, waytype_t typ,const unsigned month_now)
+const vehikel_besch_t *vehikelbauer_t::vehikel_fuer_leistung(uint32 leistung, waytype_t typ,const unsigned month_now)
 {
   // only needed for iteration
   inthashtable_iterator_tpl<int, const vehikel_besch_t *> iter(_fahrzeuge);
@@ -472,8 +472,8 @@ DBG_MESSAGE( "vehikelbauer_t::vehikel_fuer_leistung()","%s: vorgaenger %i nachfo
 
       if(month <= month_now) {
         // finally, we might be able to use this vehicle
-        int power = iter.get_current_value()->gib_leistung();
-        if(  power>leistung  ||  besch==NULL  ) {
+        uint32 power = iter.get_current_value()->gib_leistung();
+        if(power>leistung  ||  besch==NULL) {
           // assign this vehicle, if we have none found one yet, or we found only a too week one
           if(  besch==NULL  ||  besch->gib_leistung()<leistung  ||
             // it is cheaper to run?

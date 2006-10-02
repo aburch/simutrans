@@ -1374,7 +1374,7 @@ DBG_MESSAGE("do_ki()","check railway");
 							  // no train can have more than 15 cars
 							  count_rail = min( 15, (prod*dist) / (rail_vehicle->gib_zuladung()*best_rail_speed) );
 							  // if engine too week, reduce number of cars
-							  if(  count_rail*80*64>(rail_engine->gib_leistung()*rail_engine->get_gear())  ) {
+							  if(  count_rail*80*64>(int)(rail_engine->gib_leistung()*rail_engine->get_gear())  ) {
 							  	count_rail = rail_engine->gib_leistung()*rail_engine->get_gear()/(80*64);
 							  }
 							count_rail = ((count_rail+1)&0x0FE)+1;
