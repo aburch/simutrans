@@ -272,7 +272,7 @@ schedule_list_gui_t::display(koord pos)
 
 	capacity = load = loadfactor = 0; // total capacity and load of line (=sum of all conv's cap/load)
 
-	long profit = line->get_finance_history(0,LINE_PROFIT);
+	sint64 profit = line->get_finance_history(0,LINE_PROFIT);
 
 	for (int i = 0; i<icnv; i++) {
 		convoihandle_t cnv = line->get_convoy(i)->self;
@@ -303,7 +303,7 @@ schedule_list_gui_t::display(koord pos)
 	int len=display_proportional(pos.x+LINE_NAME_COLUMN_WIDTH-5, pos.y+16+14+SCL_HEIGHT+14+4, buffer, ALIGN_LEFT, COL_BLACK, true );
 
 	int len2 = display_proportional(pos.x+LINE_NAME_COLUMN_WIDTH-5, pos.y+16+14+SCL_HEIGHT+14+4+LINESPACE, translator::translate("Gewinn"), ALIGN_LEFT, COL_BLACK, true );
-	money_to_string(ctmp, profit / 100.0);
+	money_to_string(ctmp, profit/100.0);
 	len2 += display_proportional(pos.x+LINE_NAME_COLUMN_WIDTH+len2, pos.y+16+14+SCL_HEIGHT+14+4+LINESPACE, ctmp, ALIGN_LEFT, profit>=0?MONEY_PLUS:MONEY_MINUS, true );
 
 	int rest_width = max( (gib_fenstergroesse().x-LINE_NAME_COLUMN_WIDTH)/2, max(len2,len) );

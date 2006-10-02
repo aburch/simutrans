@@ -403,7 +403,7 @@ grund_besch_t::calc_water_level(karte_t *w, uint8 *height_to_climate)
 				current_cl = cl;
 			}
 		}
-		height_to_climate[h] = current_cl;
+		height_to_climate[h] = (uint8)current_cl;
 	}
 	// now built a list of the climates with their respective order
 	uint8 climate_list[32];

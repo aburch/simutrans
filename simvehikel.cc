@@ -1235,7 +1235,7 @@ vehikel_t::rdwr(loadsave_t *file)
 		file->rdwr_long(l, "\n");
 		dy = (sint8)l;
 		file->rdwr_long(l, "\n");
-		hoff = (sint16)l;
+		hoff = (sint8)l;
 		file->rdwr_long(speed_limit, "\n");
 		file->rdwr_enum(fahrtrichtung, " ");
 		file->rdwr_enum(alte_fahrtrichtung, "\n");
@@ -1251,7 +1251,9 @@ DBG_MESSAGE("vehicle_t::rdwr()","bought at %i/%i.",(insta_zeit%12)+1,insta_zeit/
 		file->rdwr_long(insta_zeit, "\n");
 		file->rdwr_byte(dx, " ");
 		file->rdwr_byte(dy, "\n");
-		file->rdwr_short(hoff, "\n");
+		sint16 dummy16=hoff;
+		file->rdwr_short(dummy16, "\n");
+		hoff = (sint8)dummy16;
 		file->rdwr_long(speed_limit, "\n");
 		file->rdwr_enum(fahrtrichtung, " ");
 		file->rdwr_enum(alte_fahrtrichtung, "\n");

@@ -72,7 +72,7 @@ int convoi_frame_t::compare_convois(const void *p1, const void *p2)
 			result = 0;
 			break;
 	    case nach_gewinn:
-			result = cnv1->gib_jahresgewinn() - cnv2->gib_jahresgewinn();
+			result = (int)(cnv1->gib_jahresgewinn() - cnv2->gib_jahresgewinn());
 			break;
 	    case nach_typ:
 			{

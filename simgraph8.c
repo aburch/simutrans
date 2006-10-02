@@ -663,7 +663,7 @@ static void init_16_to_8_conversion(void)
 				long distance = 0x00FFFFFF;
 				int i;
 				for (i = 4; i < 256; i++) {
-					if (i == 32) i += 24;
+					if (i == 32) { i += 24; }
 
 					long new_dist =
 						abs(red   - day_pal[i * 3 + 0]) +

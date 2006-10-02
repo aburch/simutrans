@@ -87,7 +87,7 @@ protected:
 	 * Offsets fuer Bergauf/Bergab
 	 * @author Hj. Malthaner
 	 */
-	sint16 hoff;
+	sint8 hoff;
 
 	/**
 	 * Next position on our path

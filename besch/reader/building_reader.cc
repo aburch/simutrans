@@ -35,7 +35,7 @@ obj_besch_t * tile_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 	if(version == 2) {
 //  DBG_DEBUG("tile_reader_t::read_node()","version=1");
 		// Versioned node, version 1
-		besch->phasen = decode_uint16(p);
+		besch->phasen = (uint8)decode_uint16(p);
 		besch->index = decode_uint16(p);
 		besch->seasons = decode_uint8(p);
 		besch->haus = NULL;
@@ -43,7 +43,7 @@ obj_besch_t * tile_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 	else if(version == 1) {
 //  DBG_DEBUG("tile_reader_t::read_node()","version=1");
 		// Versioned node, version 1
-		besch->phasen = decode_uint16(p);
+		besch->phasen = (uint8)decode_uint16(p);
 		besch->index = decode_uint16(p);
 		besch->seasons = 1;
 		besch->haus = NULL;
@@ -51,7 +51,7 @@ obj_besch_t * tile_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 	else {
 		// skip the pointer ...
 		p += 2;
-		besch->phasen = decode_uint16(p);
+		besch->phasen = (uint8)decode_uint16(p);
 		besch->index = decode_uint16(p);
 		besch->seasons = 1;
 		besch->haus = NULL;

@@ -14,6 +14,7 @@ Known bugs: (hard to fix)
 	FIX: if no townhall with bev=0 is available for a climate, no towns will be founded in this climate
 	FIX: redraw problem when changing window size
 	FIX: line remembers statistic settings in the line management window
+	FIX: many warning with VC++ fixed, project included
 
 
 Release of 99.02

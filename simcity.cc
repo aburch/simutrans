@@ -503,8 +503,8 @@ DBG_MESSAGE("stadt_t::stadt_t()","founding new city named '%s'",name);
 			city_history_month[month][hist_type] = 0;
 		}
 	}
-	last_year_bev = city_history_year[0][HIST_CITICENS] = gib_einwohner();
-	last_month_bev = city_history_month[0][HIST_CITICENS] = gib_einwohner();
+	city_history_year[0][HIST_CITICENS] = last_year_bev = gib_einwohner();
+	city_history_month[0][HIST_CITICENS] = last_month_bev = gib_einwohner();
 	this_year_transported = 0;
 	this_year_pax = 0;
 
@@ -584,8 +584,8 @@ DBG_DEBUG("stadt_t::rdwr()","is old version: No history!");
 				city_history_month[month][hist_type] = 0;
 			}
 		}
-		last_year_bev = city_history_year[0][HIST_CITICENS] = gib_einwohner();
-		last_month_bev = city_history_month[0][HIST_CITICENS] = gib_einwohner();
+		city_history_year[0][HIST_CITICENS] = last_year_bev = gib_einwohner();
+		city_history_year[0][HIST_CITICENS] = last_month_bev = gib_einwohner();
 		this_year_transported = 0;
 		this_year_pax = 0;
 	}

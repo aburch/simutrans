@@ -160,7 +160,7 @@ karte_t::recalc_snowline()
 	season=month_to_season[letzter_monat];   //  (2+letzter_monat/3)&3; // summer always zero
 	const int winterline = einstellungen->gib_winter_snowline();
 	const int summerline = einstellungen->gib_climate_borders()[arctic_climate]+1;
-	snowline = summerline - ((summerline-winterline)*faktor)/100;
+	snowline = summerline - (sint16)(((summerline-winterline)*faktor)/100);
 	snowline = (snowline*16)+grundwasser;
 
 	// changed => we update all tiles ...

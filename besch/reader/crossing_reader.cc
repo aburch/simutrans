@@ -52,8 +52,8 @@ obj_besch_t * crossing_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 
   if(version == 0) {
     // old, nonversion node
-    besch->wegtyp_ns = v;
-    besch->wegtyp_ow = decode_uint16(p);
+    besch->wegtyp_ns = (uint8)v;
+    besch->wegtyp_ow = (uint8)decode_uint16(p);
   }
   DBG_DEBUG("kreuzung_besch_t::read_node()","version=%i, ns=%d, ow=%d",v,besch->wegtyp_ns,besch->wegtyp_ow);
   return besch;

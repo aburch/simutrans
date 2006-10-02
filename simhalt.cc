@@ -194,7 +194,7 @@ DBG_MESSAGE("haltestelle_t::remove()","removing segment from %d,%d,%d", pos.x, p
 DBG_MESSAGE("haltestelle_t::remove()",  "removing building" );
 		const haus_tile_besch_t *tile  = gb->gib_tile();
 		koord size = tile->gib_besch()->gib_groesse( tile->gib_layout() );
-		const sint32 costs = tile->gib_besch()->gib_level()*umgebung_t::cst_multiply_post;
+		const sint32 costs = tile->gib_besch()->gib_level()*(sint32)umgebung_t::cst_multiply_post;
 
 		// get startpos
 		koord k=tile->gib_offset();

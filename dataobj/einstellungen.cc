@@ -135,7 +135,7 @@ einstellungen_t::rdwr(loadsave_t *file)
 		file->rdwr_long(show_pax, "\n");
 		dummy = grundwasser;
 		file->rdwr_long(dummy, "\n");
-		grundwasser = dummy;
+		grundwasser = (sint16)dummy;
 		file->rdwr_double(max_mountain_height, "\n");
 		file->rdwr_double(map_roughness, "\n");
 
@@ -163,14 +163,14 @@ einstellungen_t::rdwr(loadsave_t *file)
 		file->rdwr_long(show_pax, "\n");
 		long dummy = grundwasser;
 		file->rdwr_long(dummy, "\n");
-		grundwasser = dummy;
+		grundwasser = (sint16)dummy;
 		file->rdwr_double(max_mountain_height, "\n");
 		file->rdwr_double(map_roughness, "\n");
 
 		if(file->get_version() >= 86003) {
 			dummy = station_coverage_size;
 			file->rdwr_long(dummy, " ");
-			station_coverage_size = dummy;
+			station_coverage_size = (uint16)dummy;
 		}
 
 		if(file->get_version() >= 86006) {

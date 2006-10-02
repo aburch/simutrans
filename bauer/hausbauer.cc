@@ -410,7 +410,7 @@ void hausbauer_t::baue(karte_t *welt, spieler_t *sp, koord3d pos, int layout, co
 			gb->setze_sync( true );
 			if(besch->gib_typ() == gebaeude_t::unbekannt) {
 				if(besch->ist_fabrik()) {
-					gb->setze_count(1024);
+					gb->setze_count(0);
 					gb->setze_anim_time(0);
 				}
 				else if(besch->ist_rathaus()) {

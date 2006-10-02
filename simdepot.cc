@@ -502,7 +502,7 @@ bahndepot_t::can_convoi_start(int icnv) const
 	convoihandle_t cnv=get_convoi(icnv);
 	waytype_t wt=cnv->gib_vehikel(0)->gib_wegtyp();
 	int tiles=0;
-	unsigned i;
+	int i;
 	for(i=0;  i<cnv->gib_vehikel_anzahl();  i++) {
 		tiles += cnv->gib_vehikel(i)->gib_besch()->get_length();
 	}

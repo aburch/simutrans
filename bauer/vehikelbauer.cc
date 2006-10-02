@@ -62,7 +62,7 @@ vehikelbauer_t::baue(karte_t *welt, koord3d k,
 		assert(v != NULL);
 
 		if(sp) {
-			sp->buche(-(vb->gib_preis()), k.gib_2d(), COST_NEW_VEHICLE);
+			sp->buche(-(sint32)(vb->gib_preis()), k.gib_2d(), COST_NEW_VEHICLE);
 		}
 	}
 

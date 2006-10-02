@@ -281,7 +281,7 @@ void verkehrsteilnehmer_t::rdwr(loadsave_t *file)
 		dy = (sint8)l;
 		file->rdwr_enum(fahrtrichtung, " ");
 		file->rdwr_long(l, "\n");
-		hoff = (sint16)l;
+		hoff = (sint8)l;
 	}
 	else {
 		file->rdwr_long(max_speed, "\n");
@@ -289,7 +289,9 @@ void verkehrsteilnehmer_t::rdwr(loadsave_t *file)
 		file->rdwr_byte(dx, " ");
 		file->rdwr_byte(dy, "\n");
 		file->rdwr_enum(fahrtrichtung, " ");
-		file->rdwr_short(hoff, "\n");
+		sint16 dummy16=hoff;
+		file->rdwr_short(dummy16, "\n");
+		hoff = (sint8)dummy16;
 	}
 	pos_next.rdwr(file);
 

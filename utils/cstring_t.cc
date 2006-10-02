@@ -206,46 +206,45 @@ cstring_t cstring_t::substr(int first, int last)
   return result;
 }
 
-int cstring_t::find(char x) const
+long cstring_t::find(char x) const
 {
-    char *p = buf;
+	char *p = buf;
 
-    if(p && *p) {
-	do {
-	    if(*p == x) {
-		return p  - buf;
-	    }
-	} while(*++p);
-    }
-    return -1;
+	if(p && *p) {
+		do {
+			if(*p == x) {
+				return (p  - buf);
+			}
+		} while(*++p);
+	}
+	return -1;
 }
 
-int cstring_t::find(const char *text) const
+long cstring_t::find(const char *text) const
 {
-    int l = strlen(text);
-    int	n = len() - l + 1;
+	long l = strlen(text);
+	long	n = len() - l + 1;
 
-    for(int i = 0; i < n; i++) {
-	if(!strncmp(text, buf, l)) {
-	    return i;
+	for(int i = 0; i < n; i++) {
+		if(!strncmp(text, buf, l)) {
+			return i;
+		}
 	}
-    }
-    return -1;
+	return -1;
 }
 
-
-int cstring_t::find_back(char x) const
+long cstring_t::find_back(char x) const
 {
-    if(buf) {
-	char *p = buf + len();
+	if(buf) {
+		char *p = buf + len();
 
-        while(p-- != buf) {
-	    if(*p == x) {
-		return p - buf;
-	    }
+		while(p-- != buf) {
+			if(*p == x) {
+				return (p - buf);
+			}
+		}
 	}
-    }
-    return -1;
+	return -1;
 }
 
 

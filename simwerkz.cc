@@ -1385,7 +1385,7 @@ DBG_MESSAGE("wkz_roadsign()","new roadsign, dir is %i", dir);
 
 // built all types of depots
 static bool
-wkz_depot_aux(spieler_t *sp, karte_t *welt, koord pos,const haus_besch_t *besch,waytype_t wegtype,sint32 cost)
+wkz_depot_aux(spieler_t *sp, karte_t *welt, koord pos,const haus_besch_t *besch,waytype_t wegtype,sint64 cost)
 {
 	if(welt->ist_in_kartengrenzen(pos)) {
 		grund_t *bd=NULL;
@@ -1499,7 +1499,7 @@ int wkz_depot(spieler_t *sp, karte_t *welt, koord pos,value_t w)
 
 // built all types of stops but sea harbours
 static bool
-wkz_halt_aux(spieler_t *sp, karte_t *welt, koord pos,const haus_besch_t *besch,waytype_t wegtype,sint32 cost,const char *type_name)
+wkz_halt_aux(spieler_t *sp, karte_t *welt, koord pos,const haus_besch_t *besch,waytype_t wegtype,sint64 cost,const char *type_name)
 {
 DBG_MESSAGE("wkz_halt_aux()", "building %s on square %d,%d for waytype %x", besch->gib_name(), pos.x, pos.y, wegtype);
 	const char *p_error=(besch->gib_all_layouts()==4)?"No terminal station here!":"No through station here!";
@@ -1799,7 +1799,7 @@ dbg->warning("wkz_add_city()", "Already a city here");
  */
 int wkz_set_slope(spieler_t * sp, karte_t *welt, koord pos, value_t lParam)
 {
-	const sint8 new_slope = lParam.i;
+	const sint8 new_slope = (sint8)lParam.i;
 	bool ok = false;
 
 	if(welt->ist_in_kartengrenzen(pos)) {

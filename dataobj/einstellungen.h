@@ -20,33 +20,33 @@ class cstring_t;
 class einstellungen_t
 {
 private:
-    int groesse_x, groesse_y;
-    int nummer;
+    sint32 groesse_x, groesse_y;
+    sint32 nummer;
 
     /* new setting since version 0.85.01
      * @author prissi
-     * not used any more:    int industrie_dichte;
+     * not used any more:    sint32 industrie_dichte;
      */
-    int land_industry_chains;
-    int city_industry_chains;
-    int tourist_attractions;
+    sint32 land_industry_chains;
+    sint32 city_industry_chains;
+    sint32 tourist_attractions;
 
-    int anzahl_staedte;
-    int mittlere_einwohnerzahl;
+    sint32 anzahl_staedte;
+    sint32 mittlere_einwohnerzahl;
 
-    int scroll_multi;
+    sint32 scroll_multi;
 
-    unsigned short station_coverage_size;
+    uint16 station_coverage_size;
 
     /**
      * ab welchem level erzeugen gebaeude verkehr ?
      */
-    int verkehr_level;
+    sint32 verkehr_level;
 
     /**
      * sollen Fussgaenger angezeigt werden ?
      */
-    int show_pax;
+    sint32 show_pax;
 
      /**
      * waterlevel, climate borders, lowest snow in winter
@@ -86,43 +86,43 @@ public:
      */
     einstellungen_t(const einstellungen_t *);
 
-    void setze_groesse_x(int g) {groesse_x=g;}
-    void setze_groesse_y(int g) {groesse_y=g;}
-    void setze_groesse(int w,int h) {groesse_x=w;groesse_y=h;}
-    int gib_groesse_x() const {return groesse_x;}
-    int gib_groesse_y() const {return groesse_y;}
+    void setze_groesse_x(sint32 g) {groesse_x=g;}
+    void setze_groesse_y(sint32 g) {groesse_y=g;}
+    void setze_groesse(sint32 w,sint32 h) {groesse_x=w;groesse_y=h;}
+    sint32 gib_groesse_x() const {return groesse_x;}
+    sint32 gib_groesse_y() const {return groesse_y;}
 
-    void setze_karte_nummer(int n) {nummer=n;}
-    int gib_karte_nummer() const {return nummer;}
+    void setze_karte_nummer(sint32 n) {nummer=n;}
+    sint32 gib_karte_nummer() const {return nummer;}
 
-    void setze_land_industry_chains(int d) {land_industry_chains=d;}
-    int gib_land_industry_chains() const {return land_industry_chains;}
+    void setze_land_industry_chains(sint32 d) {land_industry_chains=d;}
+    sint32 gib_land_industry_chains() const {return land_industry_chains;}
 
-    void setze_city_industry_chains(int d) {city_industry_chains=d;}
-    int gib_city_industry_chains() const {return city_industry_chains;}
+    void setze_city_industry_chains(sint32 d) {city_industry_chains=d;}
+    sint32 gib_city_industry_chains() const {return city_industry_chains;}
 
-    void setze_tourist_attractions(int d) {tourist_attractions=d;}
-    int gib_tourist_attractions() const {return tourist_attractions;}
+    void setze_tourist_attractions(sint32 d) {tourist_attractions=d;}
+    sint32 gib_tourist_attractions() const {return tourist_attractions;}
 
-    void setze_anzahl_staedte(int n) {anzahl_staedte=n;}
-    int gib_anzahl_staedte() const {return anzahl_staedte;}
+    void setze_anzahl_staedte(sint32 n) {anzahl_staedte=n;}
+    sint32 gib_anzahl_staedte() const {return anzahl_staedte;}
 
-    void setze_mittlere_einwohnerzahl(int n) {mittlere_einwohnerzahl=n;}
-    int gib_mittlere_einwohnerzahl() const {return mittlere_einwohnerzahl;}
+    void setze_mittlere_einwohnerzahl(sint32 n) {mittlere_einwohnerzahl=n;}
+    sint32 gib_mittlere_einwohnerzahl() const {return mittlere_einwohnerzahl;}
 
-    void setze_scroll_multi(int n) {scroll_multi=n;}
-    int gib_scroll_multi() const {return scroll_multi;}
+    void setze_scroll_multi(sint32 n) {scroll_multi=n;}
+    sint32 gib_scroll_multi() const {return scroll_multi;}
 
-    void setze_verkehr_level(int l) {verkehr_level=l;}
-    int gib_verkehr_level() const {return verkehr_level;}
+    void setze_verkehr_level(sint32 l) {verkehr_level=l;}
+    sint32 gib_verkehr_level() const {return verkehr_level;}
 
     void setze_show_pax(bool yesno) {show_pax=yesno;}
     bool gib_show_pax() const {return show_pax != 0;}
 
     void rdwr(loadsave_t *file);
 
-    void setze_grundwasser(int n) {grundwasser=n;}
-    int gib_grundwasser() const {return grundwasser;}
+    void setze_grundwasser(sint32 n) {grundwasser=n;}
+    sint32 gib_grundwasser() const {return grundwasser;}
 
     void setze_max_mountain_height(double n) {max_mountain_height=n;}          //01-Dec-01        Markus Weber    Added
     double gib_max_mountain_height() const {return max_mountain_height;}

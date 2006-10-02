@@ -163,11 +163,11 @@ public:
 
     void set_at(int idx, char) const;
 
-    int find(const char *) const;
+    long find(const char *) const;
 
-    int find(char ) const;
+    long find(char ) const;
 
-    int find_back(char ) const;
+    long find_back(char ) const;
 };
 
 
