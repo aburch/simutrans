@@ -111,14 +111,17 @@ static int dsp_read_bdf_glyph(FILE *fin, uint8 *data, uint8 *screen_w, int char_
 			// find the start offset
 			uint8 start_h=0, i;
 			for( i=0;  i<6;  i++  ) {
-				if(data[CHARACTER_LEN*char_nr + i]==0  &&  (data[CHARACTER_LEN*char_nr + 12+i]&0xF0)==0) {
+				if(data[CHARACTER_LEN*char_nr + i*2]==0  &&  (data[CHARACTER_LEN*char_nr + 12+i]&0xF0)==0) {
 					start_h++;
 				}
 				else {
 					break;
 				}
-				if(data[CHARACTER_LEN*char_nr + i + 1]==0  &&  (data[CHARACTER_LEN*char_nr + 12+i]&0x0F)==0) {
+				if(data[CHARACTER_LEN*char_nr + i *2 + 1]==0  &&  (data[CHARACTER_LEN*char_nr + 12+i]&0x0F)==0) {
 					start_h++;
+				}
+				else {
+					break;
 				}
 			}
 			if(start_h==12) {
@@ -258,7 +261,12 @@ bool load_font(font_type* fnt, const char* fname)
 			for (; j < CHARACTER_LEN-2; j++) {
 				fnt->char_data[i * CHARACTER_LEN + j] = 0;
 			}
-			fnt->char_data[CHARACTER_LEN * i + CHARACTER_LEN-2] = 0;
+			// find the start offset
+			uint8 start_h;
+			for( start_h=0;  fnt->char_data[CHARACTER_LEN*i + start_h]==0  &&  start_h<10;  start_h++  )
+				;
+			fnt->char_data[CHARACTER_LEN * i + CHARACTER_LEN-2] = start_h;
+
 			fnt->char_data[CHARACTER_LEN * i + CHARACTER_LEN-1] = npr_fonttab[i];
 		}
 		fnt->screen_width[32] = 4;

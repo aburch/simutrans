@@ -79,22 +79,12 @@ class umgebung_t
 	*/
 	static int message_flags[4];
 
-
-	/**
-	* Wasser (Boden) animieren?
-	*
-	* @author Hj. Malthaner
-	*/
-	static bool bodenanimation;
-
-
 	/**
 	* Zufällig Fussgänger in den Städten erzeugen?
 	*
 	* @author Hj. Malthaner
 	*/
 	static bool fussgaenger;
-
 
 	/**
 	* Info-Fenster für Fussgänger und Privatfahrzeuge

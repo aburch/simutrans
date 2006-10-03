@@ -47,13 +47,13 @@ einstellungen_t::einstellungen_t() :
 	max_mountain_height = 160;                  //can be 0-160.0  01-Dec-01        Markus Weber    Added
 	map_roughness = 0.6;                        //can be 0-1      01-Dec-01        Markus Weber    Added
 
-	station_coverage_size = 2;	//added May 05, valid 1...x
+	station_coverage_size = umgebung_t::station_coverage_size;	//added May 05, valid 1...x
 
 	// some settigns more
 	allow_player_change = true;
 	use_timeline = true;
-	starting_year = 1930;
-	bits_per_month = 19;
+	starting_year = umgebung_t::starting_year;
+	bits_per_month = umgebung_t::bits_per_month;
 
 	beginner_mode = false;
 }

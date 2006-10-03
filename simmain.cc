@@ -298,8 +298,6 @@ extern "C" int simu_main(int argc, char** argv)
 			halthandle_t::init(contents.get_int("stations", 8192));
 			umgebung_t::max_route_steps = contents.get_int("max_route_steps", 100000);
 
-			umgebung_t::bodenanimation = (contents.get_int("animated_grounds", 1) != 0);
-
 			umgebung_t::fussgaenger             = contents.get_int("random_pedestrians",     0) != 0;
 			umgebung_t::verkehrsteilnehmer_info = contents.get_int("pedes_and_car_info",     0) != 0;
 			umgebung_t::stadtauto_duration      = contents.get_int("citycar_life",       31457280);	// ten normal years
@@ -662,11 +660,15 @@ DBG_MESSAGE("init","map");
 				sets->setze_city_industry_chains(0);
 				sets->setze_tourist_attractions(12);
 				sets->setze_karte_nummer(simrand(999));
-				sets->setze_station_coverage(umgebung_t::station_coverage_size);
 				sets->setze_allow_player_change(true);
+				sets->setze_station_coverage(umgebung_t::station_coverage_size);
 				sets->setze_use_timeline(umgebung_t::use_timeline == 1);
 				sets->setze_starting_year(umgebung_t::starting_year);
 			}
+			sets->setze_station_coverage(umgebung_t::station_coverage_size);
+			sets->setze_bits_per_month(umgebung_t::bits_per_month);
+			sets->setze_beginner_mode(umgebung_t::beginner_mode_first);
+			sets->setze_just_in_time(umgebung_t::just_in_time);
 		}
 		delete msg;
 

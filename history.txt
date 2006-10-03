@@ -5,7 +5,9 @@ Known bugs: (hard to fix)
 
 
 
-	CHANGE: default setting for new map will be loaded from default.sve in the main directory. This file can be a savegame, but will be overwritten the next time a game is started.
+Release of 99.02.1
+
+03-Oct-2006: (prissi)
 	FIX: game could lock up during creation when no matchin tourist attractions were found for the available climates
 	ADD: new flag in cimuconf.tab "ground_info" to show info on ground tiles
 	FIX: platzsucher did some meaningless comparisons and did not consider all suitable places (i.e. slopes)
@@ -16,6 +18,7 @@ Known bugs: (hard to fix)
 	FIX: line remembers statistic settings in the line management window
 	FIX: many warning with VC++ fixed, project included
 	FIX: font may also have a maximum width of 12 pixel (was even faster than previous drawing routines)
+	FIX: no longer support for animated ground (interfering with the texture code), removed "animated_grounds" from simuconf.tab
 
 
 Release of 99.02
@@ -26,6 +29,7 @@ Release of 99.02
 	FIX: loading bar position in list display
 	FIX: not roads on foundations
 	CHANGE: progress bar now always half display width, two more messages "Loading map ..." and "Saving map ..."
+	CHANGE: default setting for new map will be loaded from default.sve in the main directory. This file can be a savegame, but will be overwritten the next time a game is started.
 
 
 Release of 99.01.1
