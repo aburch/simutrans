@@ -14,6 +14,15 @@ typedef struct font_type {
 	unsigned char* char_data;
 } font_type;
 
+/*
+ * characters are stored dense in a array
+ * first 12 bytes are the first row
+ * then come nibbles with the second part (6 bytes)
+ * then the start offset for drawing
+ * then a byte with the real width
+ */
+#define CHARACTER_LEN (20)
+
 
 /**
  * Loads a font

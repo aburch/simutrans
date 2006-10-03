@@ -15,6 +15,7 @@ Known bugs: (hard to fix)
 	FIX: redraw problem when changing window size
 	FIX: line remembers statistic settings in the line management window
 	FIX: many warning with VC++ fixed, project included
+	FIX: font may also have a maximum width of 12 pixel (was even faster than previous drawing routines)
 
 
 Release of 99.02

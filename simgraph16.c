@@ -2065,9 +2065,6 @@ int display_text_proportional_len_clip(KOORD_VAL x, KOORD_VAL y, const char *txt
 	if (y < cT) {
 		y0 = cT;
 		y_offset = cT - y;
-#if 0
-		char_height -= y_offset;
-#endif
 		v_clip = TRUE;
 	}
 	if (yy > cB) {
@@ -2090,20 +2087,19 @@ int display_text_proportional_len_clip(KOORD_VAL x, KOORD_VAL y, const char *txt
 		}
 #endif
 		// print unknown character?
-		if (c >= fnt->num_chars || fnt->screen_width[c] == 0) c = 0;
+		if (c >= fnt->num_chars || fnt->screen_width[c] == 0) {
+			c = 0;
+		}
 
 		// get the data from the font
-		char_width_1 = fnt->char_data[16 * c + 15];
+		char_data = fnt->char_data + CHARACTER_LEN * c;
+		char_width_1 = char_data[CHARACTER_LEN-1];
 		char_width_2 = fnt->screen_width[c];
-		char_data = fnt->char_data + 16l * c;
-		if (char_width_1 > 8) {
+		if (char_width_1>8) {
 			mask1 = get_h_mask(x, x + 8, cL, cR);
 			// we need to double mask 2, since only 2 Bits are used
 			mask2 = get_h_mask(x + 8, x + char_width_1, cL, cR);
-			// since only two pixels are used
-			mask2 &= 0xC0;
-			if (mask2 & 0x80) mask2 |= 0xAA;
-			if (mask2 & 0x40) mask2 |= 0x55;
+			mask2 &= 0xF0;
 		} else {
 			// char_width_1<= 8: call directly
 			mask1 = get_h_mask(x, x + char_width_1, cL, cR);
@@ -2136,69 +2132,32 @@ int display_text_proportional_len_clip(KOORD_VAL x, KOORD_VAL y, const char *txt
 			screen_pos += disp_width;
 		}
 
-		// extra two bit for overwidth characters (up to 10 pixel supported for unicode)
-		// if the character height is smaller than 10, not all is needed; but we do this anyway!
+		// extra four bits for overwidth characters (up to 12 pixel supported for unicode)
 		if (char_width_1 > 8 && mask2 != 0) {
-			int dat = 0;
-
-			p = char_data + 12;
-			screen_pos = y * disp_width + x + 8;
-
-			dat = *p++ & mask2;
-			// vertical clipping
-			if (v_clip) dat &= get_v_mask(y_offset, char_height, 0, 4);
-			if (dat != 0) {
-				if (dat & 0x80) textur[screen_pos + 0] = color;
-				if (dat & 0x40) textur[screen_pos + 1] = color;
-				screen_pos += disp_width;
-				if (dat & 0x20) textur[screen_pos + 0] = color;
-				if (dat & 0x10) textur[screen_pos + 1] = color;
-				screen_pos += disp_width;
-				if (dat & 0x08) textur[screen_pos + 0] = color;
-				if (dat & 0x04) textur[screen_pos + 1] = color;
-				screen_pos += disp_width;
-				if (dat & 0x02) textur[screen_pos + 0] = color;
-				if (dat & 0x01) textur[screen_pos + 1] = color;
-				screen_pos += disp_width;
-			} else {
-				screen_pos += disp_width * 4;
-			}
-
-			dat = *p++ & mask2;
-			// vertical clipping
-			if (v_clip) dat &= get_v_mask(y_offset, char_height, 4, 8);
-			if (dat != 0) {
-				if (dat & 0x80) textur[screen_pos + 0] = color;
-				if (dat & 0x40) textur[screen_pos + 1] = color;
-				screen_pos += disp_width;
-				if (dat & 0x20) textur[screen_pos + 0] = color;
-				if (dat & 0x10) textur[screen_pos + 1] = color;
-				screen_pos += disp_width;
-				if (dat & 0x08) textur[screen_pos + 0] = color;
-				if (dat & 0x04) textur[screen_pos + 1] = color;
-				screen_pos += disp_width;
-				if (dat & 0x02) textur[screen_pos + 0] = color;
-				if (dat & 0x01) textur[screen_pos + 1] = color;
-				screen_pos += disp_width;
-			} else {
-				screen_pos += disp_width * 4;
-			}
-
-			dat = *p++ & mask2;
-			// vertical clipping
-			if (v_clip) dat &= get_v_mask(y_offset, char_height, 8, 12);
-			if (dat != 0) {
-				if (dat & 0x80) textur[screen_pos + 0] = color;
-				if (dat & 0x40) textur[screen_pos + 1] = color;
-				screen_pos += disp_width;
-				if (dat & 0x20) textur[screen_pos + 0] = color;
-				if (dat & 0x10) textur[screen_pos + 1] = color;
-				screen_pos += disp_width;
-				if (dat & 0x08) textur[screen_pos + 0] = color;
-				if (dat & 0x04) textur[screen_pos + 1] = color;
-				screen_pos += disp_width;
-				if (dat & 0x02) textur[screen_pos + 0] = color;
-				if (dat & 0x01) textur[screen_pos + 1] = color;
+			p = char_data + y_offset/2+12;
+			screen_pos = y0 * disp_width + x + 8;
+			for (h = y_offset; h < char_height; h++) {
+				unsigned int char_dat = *p;
+				PIXVAL* dst = textur + screen_pos;
+				if(h&1) {
+					uint8 dat = (char_dat<<4) & mask2;
+					if (dat != 0) {
+						if (dat & 0x80) dst[0] = color;
+						if (dat & 0x40) dst[1] = color;
+						if (dat & 0x20) dst[2] = color;
+						if (dat & 0x10) dst[3] = color;
+					}
+					p++;
+				}
+				else {
+					uint8 dat = char_dat & mask2;
+					if (dat != 0) {
+						if (dat & 0x80) dst[0] = color;
+						if (dat & 0x40) dst[1] = color;
+						if (dat & 0x20) dst[2] = color;
+						if (dat & 0x10) dst[3] = color;
+					}
+				}
 				screen_pos += disp_width;
 			}
 		}
