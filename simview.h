@@ -21,16 +21,15 @@ class karte_t;
 class karte_ansicht_t
 {
 private:
-    karte_t *welt;
+	karte_t *welt;
 
 protected:
-
-    int scale;
+	int scale;
 
 public:
-
-    karte_ansicht_t(karte_t *welt);
-    virtual void display(bool dirty);
+	karte_ansicht_t(karte_t *welt);
+	virtual ~karte_ansicht_t() {}
+	virtual void display(bool dirty);
 };
 
 #endif

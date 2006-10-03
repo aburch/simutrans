@@ -19,7 +19,7 @@ static int nibble(sint8 c)
 static void dsp_decode_bdf_data_row(uint8 *data, int y, int g_width, char *str)
 {
 	uint8 data2;
-	sint8 buf[3];
+	char buf[3];
 
 	buf[0] = str[0];
 	buf[1] = str[1];
@@ -50,8 +50,8 @@ static int dsp_read_bdf_glyph(FILE *fin, uint8 *data, uint8 *screen_w, int char_
 	int g_width, h, g_desc;
 
 	while (!feof(fin)) {
-		sint8 str[256];
-		int	d_width = 0;
+		char str[256];
+		int d_width = 0;
 
 		fgets(str, sizeof(str), fin);
 
@@ -149,7 +149,7 @@ static bool dsp_read_bdf_font(FILE* fin, font_type* font)
 	int f_chars = 0;
 
 	while (!feof(fin)) {
-		sint8 str[256];
+		char str[256];
 
 		fgets(str, sizeof(str), fin);
 
@@ -278,13 +278,13 @@ bool load_font(font_type* fnt, const char* fname)
 	// load old hex font format
 	if (c == '0') {
 		uint8 dr_4x7font[7 * 256];
-		sint8 buf[80];
+		char buf[80];
 		int i;
 
 		rewind(f);
 
 		while (fgets(buf, sizeof(buf), f) != NULL) {
-			const sint8* p;
+			const char* p;
 			int line;
 			int n;
 

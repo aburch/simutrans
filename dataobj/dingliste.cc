@@ -714,6 +714,8 @@ void dingliste_t::rdwr(karte_t *welt, loadsave_t *file, koord3d current_pos)
 						gb  = 0;
 					}
 					d = gb;
+					// old version has a foundation, which is not loaded => reset to first position
+					pri = 0;
 				}
 				break;
 

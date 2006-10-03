@@ -320,7 +320,8 @@ const char *climate_names[MAX_CLIMATES] =
 // from this number on there will be all ground images
 // i.e. 14 times slopes + 7
 image_id grund_besch_t::image_offset=IMG_LEER;
-uint8 height_to_texture_climate[32], number_of_climates;
+static uint8 height_to_texture_climate[32];
+static uint8 number_of_climates=1;
 static slist_tpl<bild_besch_t *>ground_bild_list;
 
 

@@ -502,8 +502,7 @@ bahndepot_t::can_convoi_start(int icnv) const
 	convoihandle_t cnv=get_convoi(icnv);
 	waytype_t wt=cnv->gib_vehikel(0)->gib_wegtyp();
 	int tiles=0;
-	int i;
-	for(i=0;  i<cnv->gib_vehikel_anzahl();  i++) {
+	for(unsigned i=0;  i<cnv->gib_vehikel_anzahl();  i++) {
 		tiles += cnv->gib_vehikel(i)->gib_besch()->get_length();
 	}
 	tiles = (tiles+15)/16;
@@ -521,9 +520,9 @@ bahndepot_t::can_convoi_start(int icnv) const
 
 	// reserve the next segments of the train
 	route_t *route=cnv->get_route();
-	i=0;
 	bool success = true;
-	for ( ; success  &&  i<tiles  &&  i<=route->gib_max_n(); i++) {
+	int i;
+	for (i=0; success  &&  i<tiles  &&  i<=route->gib_max_n(); i++) {
 		schiene_t * sch1 = (schiene_t *) welt->lookup( route->position_bei(i))->gib_weg(wt);
 		if(sch1==NULL) {
 			dbg->warning("waggon_t::is_next_block_free()","invalid route");

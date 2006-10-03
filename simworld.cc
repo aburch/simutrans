@@ -691,6 +691,8 @@ karte_t::init(einstellungen_t *sets)
 	setze_ticks_bits_per_tag(einstellungen->gib_bits_per_month());
 	next_month_ticks =  karte_t::ticks_per_tag;
 	season=(2+letzter_monat/3)&3; // summer always zero
+	snowline = sets->gib_winter_snowline()*16 + grundwasser;
+	mouse_funk = NULL;
 	steps = 0;
 	recalc_average_speed();	// resets timeline
 
@@ -2390,6 +2392,12 @@ void karte_t::laden(loadsave_t *file)
 	else {
 		warenbauer_t::set_multiplier( 1000 );
 	}
+
+	// just an initialisation for the loading
+	season = (2+letzter_monat/3)&3; // summer always zero
+	snowline = einstellungen->gib_winter_snowline()*16 + grundwasser;
+	mouse_funk = NULL;
+
 DBG_DEBUG("karte_t::laden", "einstellungen loaded (groesse %i,%i) timeline=%i beginner=%i",einstellungen->gib_groesse_x(),einstellungen->gib_groesse_y(),umgebung_t::use_timeline,einstellungen->gib_beginner_mode());
 
     // wird gecached, um den Pointerzugriff zu sparen, da
@@ -2428,7 +2436,7 @@ DBG_DEBUG("karte_t::laden", "init felder ok");
 	// set the current month count
 	setze_ticks_bits_per_tag(einstellungen->gib_bits_per_month());
 	current_month = letzter_monat + (letztes_jahr*12);
-	season=(2+letzter_monat/3)&3; // summer always zero
+	season = (2+letzter_monat/3)&3; // summer always zero
 	steps = 0;
 
 DBG_MESSAGE("karte_t::laden()","savegame loading at tick count %i",ticks);
