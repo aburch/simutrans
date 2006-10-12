@@ -517,16 +517,11 @@ DBG_MESSAGE("karte_t::destroy()", "convois destroyed");
 	haltestelle_t::destroy_all();
 DBG_MESSAGE("karte_t::destroy()", "stops destroyed");
 
-	// delte towns first (will also delete all their houses
+	// delete towns first (will also delete all their houses
 	if(stadt) {
-		weighted_vector_tpl <stadt_t *> *tmp = stadt;
-		stadt = 0;
-		for(i=0; i<tmp->get_count(); i++) {
-			delete tmp->at(i);
+		while(stadt->get_count()>0) {
+			rem_stadt(stadt->at(0));
 		}
-		tmp->clear();
-		delete tmp;
-		tmp = 0;
 	}
 DBG_MESSAGE("karte_t::destroy()", "towns destroyed");
 
@@ -613,7 +608,7 @@ void karte_t::add_stadt(stadt_t *s)
 bool karte_t::rem_stadt(stadt_t *s)
 {
 	if(stadt->get_count()==0  ||  s==NULL) {
-		// now twon there to delete ...
+		// no town there to delete ...
 		return false;
 	}
 	// ok, we can delete this

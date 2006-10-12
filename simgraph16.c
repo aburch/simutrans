@@ -2075,6 +2075,7 @@ int display_text_proportional_len_clip(KOORD_VAL x, KOORD_VAL y, const char *txt
 	// big loop, char by char
 	while (iTextPos < len && txt[iTextPos] != 0) {
 		int h;
+		uint8 char_yoffset;
 
 #ifdef UNICODE_SUPPORT
 		// decode char
@@ -2094,7 +2095,7 @@ int display_text_proportional_len_clip(KOORD_VAL x, KOORD_VAL y, const char *txt
 		// get the data from the font
 		char_data = fnt->char_data + CHARACTER_LEN * c;
 		char_width_1 = char_data[CHARACTER_LEN-1];
-		uint8 char_yoffset = char_data[CHARACTER_LEN-2];
+		char_yoffset = char_data[CHARACTER_LEN-2];
 		char_width_2 = fnt->screen_width[c];
 		if (char_width_1>8) {
 			mask1 = get_h_mask(x, x + 8, cL, cR);

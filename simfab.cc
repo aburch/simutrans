@@ -235,10 +235,11 @@ fabrik_t::rem_arbeiterziel(stadt_t *stadt)
 void
 fabrik_t::baue(int rotate, bool clear)
 {
-	pos.z = welt->max_hgt(pos.gib_2d());
 	if(besch) {
 		this->rotate = rotate;
+		pos = welt->lookup_kartenboden(pos.gib_2d())->gib_pos();
 		hausbauer_t::baue(welt, besitzer_p, pos, rotate, besch->gib_haus(), clear, this);
+		pos = welt->lookup_kartenboden(pos.gib_2d())->gib_pos();
 
 		const rauch_besch_t *rada = besch->gib_rauch();
 		if(rada) {

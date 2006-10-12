@@ -1245,11 +1245,13 @@ DBG_MESSAGE("spieler_t::do_ki","Select quelle from %s (%i,%i) to %s (%i,%i) (inc
 						{
 							// just normal random search ...
 							start_neu = welt->get_random_fab();
-							if(start_neu!=NULL  &&  !welt->lookup(start_neu->pos)->ist_wasser()    &&  start_neu!=last_start  ) {
+							if(start_neu!=NULL  &&  !welt->lookup(start_neu->pos)->ist_wasser()  &&  start_neu!=last_start  ) {
 								gewinn_neu = suche_transport_ziel(start_neu, &start_ware_neu, &ziel_neu);
-								assert(ziel_neu!=NULL);
-								if(gewinn_neu > -1   ) {
+								if(ziel_neu!=NULL  &&  gewinn_neu>KI_MIN_PROFIT) {
 DBG_MESSAGE("spieler_t::do_ki","Check route from %s (%i,%i) to %s (%i,%i) (income %i)",start_neu->gib_name(),start_neu->pos.x,start_neu->pos.y,ziel_neu->gib_name(),ziel_neu->pos.x,ziel_neu->pos.y, gewinn_neu);
+								}
+								else {
+									gewinn_neu = -1;
 								}
 							}
 						}
@@ -2034,7 +2036,7 @@ int spieler_t::suche_transport_ziel(fabrik_t *qfab, int *quelle_ware, fabrik_t *
 	int gewinn = -1;
 
 	// keine geeignete Quelle gefunden ?
-	if(qfab == NULL) {
+	if(qfab == NULL  ||  qfab->gib_lieferziele().get_count()==0) {
 		return -1;
 	}
 

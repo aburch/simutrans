@@ -99,6 +99,8 @@ static int dsp_read_bdf_glyph(FILE *fin, uint8 *data, uint8 *screen_w, int char_
 
 		// finally add width information (width = 0: not there!)
 		if (strncmp(str, "ENDCHAR", 7) == 0) {
+			uint8 start_h=0, i;
+
 			data[CHARACTER_LEN*char_nr + CHARACTER_LEN-1] = g_width;
 			if (d_width == 0) {
 #ifdef DEBUG
@@ -109,7 +111,6 @@ static int dsp_read_bdf_glyph(FILE *fin, uint8 *data, uint8 *screen_w, int char_
 			}
 			screen_w[char_nr] = d_width;
 			// find the start offset
-			uint8 start_h=0, i;
 			for( i=0;  i<6;  i++  ) {
 				if(data[CHARACTER_LEN*char_nr + i*2]==0  &&  (data[CHARACTER_LEN*char_nr + 12+i]&0xF0)==0) {
 					start_h++;
@@ -253,6 +254,7 @@ bool load_font(font_type* fnt, const char* fname)
 
 		for (i = 0; i < 256; i++) {
 			int j;
+			uint8 start_h;
 
 			fnt->screen_width[i] = npr_fonttab[256 + i];
 			for (j = 0; j < 10; j++) {
@@ -262,7 +264,6 @@ bool load_font(font_type* fnt, const char* fname)
 				fnt->char_data[i * CHARACTER_LEN + j] = 0;
 			}
 			// find the start offset
-			uint8 start_h;
 			for( start_h=0;  fnt->char_data[CHARACTER_LEN*i + start_h]==0  &&  start_h<10;  start_h++  )
 				;
 			fnt->char_data[CHARACTER_LEN * i + CHARACTER_LEN-2] = start_h;
