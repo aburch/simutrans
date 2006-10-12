@@ -102,11 +102,6 @@ gebaeude_t::gebaeude_t(karte_t *welt, koord3d pos,spieler_t *sp, const haus_tile
 	init(t);
 	renoviere();	// this will set init time etc.
 
-	grund_t *gr=welt->lookup(pos);
-	if(gr!=0  &&  gr->gib_weg_hang()!=gr->gib_grund_hang()) {
-		setze_yoff(-16);
-	}
-
 	if(gib_besitzer()) {
 		gib_besitzer()->add_maintenance(umgebung_t::maint_building);
 	}

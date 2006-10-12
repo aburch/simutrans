@@ -73,11 +73,9 @@ static const int FAB_MAX_INPUT = 15000;
 
 fabrik_t * fabrik_t::gib_fab(const karte_t *welt, const koord pos)
 {
-	if(welt->ist_in_kartengrenzen(pos)) {
-		const grund_t *gr = welt->lookup(pos)->gib_kartenboden();
-		if(gr  &&  gr->obj_bei(0)!=NULL  &&  gr->obj_bei(0)->get_fabrik()!=NULL) {
-			return gr->obj_bei(0)->get_fabrik();
-		}
+	const grund_t *gr = welt->lookup_kartenboden(pos);
+	if(gr  &&  gr->obj_bei(0)!=NULL  &&  gr->obj_bei(0)->get_fabrik()!=NULL) {
+		return gr->obj_bei(0)->get_fabrik();
 	}
 	// not found
 	return 0;
@@ -145,6 +143,7 @@ fabrik_t::fabrik_t(karte_t *wl, loadsave_t *file) : lieferziele(0), suppliers(0)
 fabrik_t::fabrik_t(karte_t *wl, koord3d pos, spieler_t *spieler, const fabrik_besch_t *fabesch) : lieferziele(0), suppliers(0)
 {
     this->pos = pos;
+    this->pos.z = wl->max_hgt(pos.gib_2d());
     besch = fabesch;
 
     welt = wl;
@@ -236,6 +235,7 @@ fabrik_t::rem_arbeiterziel(stadt_t *stadt)
 void
 fabrik_t::baue(int rotate, bool clear)
 {
+	pos.z = welt->max_hgt(pos.gib_2d());
 	if(besch) {
 		this->rotate = rotate;
 		hausbauer_t::baue(welt, besitzer_p, pos, rotate, besch->gib_haus(), clear, this);
@@ -244,7 +244,7 @@ fabrik_t::baue(int rotate, bool clear)
 		if(rada) {
 			koord3d k ( pos + rada->gib_pos_off() );
 			assert(welt->lookup(k.gib_2d())!=NULL);
-			k = welt->lookup(k.gib_2d())->gib_kartenboden()->gib_pos();
+			k = welt->lookup_kartenboden(k.gib_2d())->gib_pos();
 			raucher = new raucher_t(welt, k, rada);
 			raucher->set_flag(ding_t::not_on_map);
 		}
@@ -269,7 +269,7 @@ fabrik_t::ist_bauplatz(karte_t *welt, koord pos, koord groesse,bool wasser,clima
 		if(wasser) {
 			for(int y=0;y<groesse.y;y++) {
 				for(int x=0;x<groesse.x;x++) {
-					const grund_t *gr=welt->lookup(pos+koord(x,y))->gib_kartenboden();
+					const grund_t *gr=welt->lookup_kartenboden(pos+koord(x,y));
 					if(!gr->ist_wasser()  ||  gr->gib_grund_hang()!=hang_t::flach) {
 						return false;
 					}
@@ -292,12 +292,10 @@ fabrik_t::sind_da_welche(karte_t *welt, koord min_pos, koord max_pos)
 
 	for(int y=min_pos.y; y<=max_pos.y; y++) {
 		for(int x=min_pos.x; x<=max_pos.x; x++) {
-			if(welt->ist_in_kartengrenzen(x, y)) {
-				const grund_t *gr = welt->lookup(koord(x,y))->gib_kartenboden();
-				if(gr->obj_bei(0)!=NULL  &&  gr->obj_bei(0)->get_fabrik()!=NULL) {
-					if( fablist.append_unique( gr->obj_bei(0)->get_fabrik(), 4 )  ) {
+			const grund_t *gr = welt->lookup_kartenboden(koord(x,y));
+			if(gr  &&  gr->obj_bei(0)!=NULL  &&  gr->obj_bei(0)->get_fabrik()!=NULL) {
+				if( fablist.append_unique( gr->obj_bei(0)->get_fabrik(), 4 )  ) {
 //DBG_MESSAGE("fabrik_t::sind_da_welche()","appended factory %s at (%i,%i)",gr->obj_bei(0)->get_fabrik()->gib_besch()->gib_name(),x,y);
-					}
 				}
 			}
 		}
@@ -310,11 +308,9 @@ fabrik_t::ist_da_eine(karte_t *welt, koord min_pos, koord max_pos )
 {
 	for(int y=min_pos.y; y<=max_pos.y; y++) {
 		for(int x=min_pos.x; x<=max_pos.x; x++) {
-			if(welt->ist_in_kartengrenzen(x, y)) {
-				const grund_t *gr = welt->lookup(koord(x,y))->gib_kartenboden();
-				if(gr->obj_bei(0)!=NULL  &&  gr->obj_bei(0)->get_fabrik()!=NULL) {
-					return true;
-				}
+			const grund_t *gr = welt->lookup_kartenboden(koord(x,y));
+			if(gr  &&  gr->obj_bei(0)!=NULL  &&  gr->obj_bei(0)->get_fabrik()!=NULL) {
+				return true;
 			}
 		}
 	}
@@ -482,7 +478,8 @@ DBG_DEBUG("fabrik_t::rdwr()","correction of production by %i",k.x*k.y);
 	}
 
 	if(file->is_loading()  &&  besch) {
-		baue(rotate, false);
+		// clear everything, even though it might be something important ...
+		baue(rotate, true);
 	}
 }
 
@@ -1098,7 +1095,7 @@ void fabrik_t::info(cbuffer_t & buf)
     for(uint32 i=0; i<lieferziele.get_count(); i++) {
       const koord lieferziel = lieferziele.get(i);
 
-      ding_t * dt = welt->lookup(lieferziel)->gib_kartenboden()->obj_bei(0);
+      ding_t * dt = welt->lookup_kartenboden(lieferziel)->obj_bei(0);
       if(dt) {
 	fabrik_t *fab = dt->get_fabrik();
 
@@ -1123,7 +1120,7 @@ void fabrik_t::info(cbuffer_t & buf)
     for(uint32 i=0; i<suppliers.get_count(); i++) {
       const koord supplier = suppliers.get(i);
 
-      ding_t * dt = welt->lookup(supplier)->gib_kartenboden()->obj_bei(0);
+      ding_t * dt = welt->lookup_kartenboden(supplier)->obj_bei(0);
       if(dt) {
 	fabrik_t *fab = dt->get_fabrik();
 

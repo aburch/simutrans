@@ -1209,7 +1209,7 @@ spieler_t::do_ki()
 					int	start_ware_neu;
 					int gewinn_neu=-1;
 
-					if(  count==KI_TEST_LINES-2  &&  last_ziel!=NULL  ) {
+					if(  count==KI_TEST_LINES-2  &&  last_ziel!=NULL) {
 						// we built a line: do we need another supplier?
 						gewinn_neu = suche_transport_quelle(&start_neu, &start_ware_neu, last_ziel);
 						if(  gewinn_neu>KI_MIN_PROFIT  &&  start_neu!=last_start  &&  start_neu!=NULL  ) {
@@ -1227,7 +1227,7 @@ DBG_MESSAGE("spieler_t::do_ki","Select quelle from %s (%i,%i) to %s (%i,%i) (inc
 					{
 #ifdef EARLY_SEARCH_FOR_BUYER
 						// does not work well together with 128er pak
-						if(  count==KI_TEST_LINES-1  &&  last_ziel!=NULL  ) {
+						if(count==KI_TEST_LINES-1  &&  last_ziel!=NULL) {
 							// found somebody, who wants our stuff?
 							start_neu = last_ziel;
 							gewinn_neu = suche_transport_ziel(start_neu, &start_ware_neu, &ziel_neu);
@@ -1245,8 +1245,9 @@ DBG_MESSAGE("spieler_t::do_ki","Select quelle from %s (%i,%i) to %s (%i,%i) (inc
 						{
 							// just normal random search ...
 							start_neu = welt->get_random_fab();
-							if( start_neu!=NULL  &&  !welt->lookup(start_neu->pos)->ist_wasser()    &&  start_neu!=last_start  ) {
+							if(start_neu!=NULL  &&  !welt->lookup(start_neu->pos)->ist_wasser()    &&  start_neu!=last_start  ) {
 								gewinn_neu = suche_transport_ziel(start_neu, &start_ware_neu, &ziel_neu);
+								assert(ziel_neu!=NULL);
 								if(gewinn_neu > -1   ) {
 DBG_MESSAGE("spieler_t::do_ki","Check route from %s (%i,%i) to %s (%i,%i) (income %i)",start_neu->gib_name(),start_neu->pos.x,start_neu->pos.y,ziel_neu->gib_name(),ziel_neu->pos.x,ziel_neu->pos.y, gewinn_neu);
 								}
@@ -1256,7 +1257,7 @@ DBG_MESSAGE("spieler_t::do_ki","Check route from %s (%i,%i) to %s (%i,%i) (incom
 
 					// better than last one?
 					// and not identical to last one
-					if(gewinn_neu > gewinn  &&  !(start_neu==last_start  &&  last_ziel==ziel_neu)  &&  !(start_neu==baue_start  &&  ziel_neu==baue_ziel)  ) {
+					if(gewinn_neu>gewinn  &&  start_neu!=NULL  &&  !(start_neu==last_start  &&  last_ziel==ziel_neu)  &&  !(start_neu==baue_start  &&  ziel_neu==baue_ziel)  ) {
 						// more income and not the same than before ...
 						start = start_neu;
 						start_ware = start_ware_neu;
@@ -1271,7 +1272,7 @@ DBG_MESSAGE("spieler_t::do_ki","Tried already %i routes",count);
 					}
 
 					if(count >= KI_TEST_LINES && gewinn > KI_MIN_PROFIT ) {
-						if(  start !=NULL && ziel!=NULL  &&  !(start==baue_start  &&  ziel==baue_ziel)  ) {
+						if(start!=NULL && ziel!=NULL  &&  !(start==baue_start  &&  ziel==baue_ziel)  ) {
 DBG_MESSAGE("spieler_t::do_ki","Decicion %s to %s (income %i)",start->gib_name(),ziel->gib_name(), gewinn);
 							substate = NR_BAUE_ROUTE1;
 						}

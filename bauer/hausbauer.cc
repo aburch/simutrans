@@ -413,12 +413,6 @@ void hausbauer_t::baue(karte_t *welt, spieler_t *sp, koord3d pos, int layout, co
 					gb->setze_count(0);
 					gb->setze_anim_time(0);
 				}
-				else if(besch->ist_rathaus()) {
-					gb->setze_besitzer(sp);
-				}
-				else if(besch->ist_firmensitz()) {
-					gb->setze_besitzer(sp);
-				}
 				else if(station_building.contains(besch)) {
 					(*static_cast<halthandle_t *>(param))->add_grund(gr);
 				}

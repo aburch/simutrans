@@ -359,7 +359,7 @@ stadt_t::recount_houses()
 	buildings.clear();
 	for( sint16 y=lo.y;  y<=ur.y;  y++  ) {
 		for( sint16 x=lo.x;  x<=ur.x; x++  ) {
-			grund_t *gr=welt->lookup(koord(x,y))->gib_kartenboden();
+			grund_t *gr=welt->lookup_kartenboden(koord(x,y));
 			gebaeude_t *gb=dynamic_cast<gebaeude_t *>(gr->obj_bei(0));
 			if(gb  &&  (gb->ist_rathaus()  ||  gb->gib_haustyp()!=gebaeude_t::unbekannt  ||  gb->is_monument())  && welt->suche_naechste_stadt(koord(x,y))==this) {
 				// no attraction, just normal buidlings or townhall
@@ -1641,10 +1641,9 @@ stadt_t::bewerte_loc(const koord pos, const char *regel)
 
 	for(k.y=pos.y-1; ok && k.y<=pos.y+1; k.y++) {
 		for(k.x=pos.x-1; ok && k.x<=pos.x+1; k.x++) {
-			const planquadrat_t * plan = welt->lookup(k);
-			grund_t *gr;
+			grund_t *gr=welt->lookup_kartenboden(k);
 
-			if(plan && (gr = plan->gib_kartenboden())) {
+			if(gr) {
 
 				switch(regel[(k.x-pos.x+1) + ((k.y-pos.y+1)<<2)]) {
 					case 's':
@@ -1799,11 +1798,11 @@ stadt_t::bewerte()
 gebaeude_t::typ
 stadt_t::was_ist_an(const koord k) const
 {
-	const planquadrat_t *plan = welt->lookup(k);
+	const grund_t *gr=welt->lookup_kartenboden(k);
 	gebaeude_t::typ t = gebaeude_t::unbekannt;
 
-	if(plan) {
-		const gebaeude_t *gb = dynamic_cast<const gebaeude_t *>(plan->gib_kartenboden()->obj_bei(0));
+	if(gr) {
+		const gebaeude_t *gb = dynamic_cast<const gebaeude_t *>(gr->obj_bei(0));
 		if(gb) {
 			t = gb->gib_haustyp();
 		}
@@ -1904,7 +1903,7 @@ static koord neighbours[8]=
 void
 stadt_t::baue_gebaeude(const koord k)
 {
-	grund_t *gr=welt->lookup(k)->gib_kartenboden();
+	grund_t *gr=welt->lookup_kartenboden(k);
 	const koord3d pos ( gr->gib_pos() );
 
 	// no covered by a downgoing monorail?
@@ -1959,7 +1958,7 @@ stadt_t::baue_gebaeude(const koord k)
 			// check for pavement
 			int streetdir=-1;
 			for(int i=0;  i<8;  i++ ) {
-				gr = welt->lookup(k+neighbours[i])->gib_kartenboden();
+				gr=welt->lookup_kartenboden(k+neighbours[i]);
 				if(gr  &&  gr->gib_weg_hang()==gr->gib_grund_hang()) {
 					strasse_t *weg = (strasse_t *)(gr->gib_weg(road_wt));
 					if(weg) {
@@ -1982,7 +1981,7 @@ stadt_t::baue_gebaeude(const koord k)
 
 			hausbauer_t::baue(welt, NULL, pos, streetdir==-1 ? 0 : streetdir, h );
 
-			gebaeude_t *gb = dynamic_cast<gebaeude_t *>(welt->lookup(k)->gib_kartenboden()->obj_bei(0));
+			gebaeude_t *gb = dynamic_cast<gebaeude_t *>(welt->lookup_kartenboden(k)->obj_bei(0));
 			add_gebaeude_to_stadt( gb );
 		}
 	}
@@ -2286,7 +2285,8 @@ stadt_t::baue()
 
 	if(best_strasse.found()) {
 		if(!baue_strasse(best_strasse.gib_pos(), NULL, false)) {
-			baue_gebaeude(best_strasse.gib_pos());
+			// cannot built street, will terminate it with house?!?
+//			baue_gebaeude(best_strasse.gib_pos());
 		}
 		pruefe_grenzen(best_strasse.gib_pos());
 	}

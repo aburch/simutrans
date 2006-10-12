@@ -2100,7 +2100,8 @@ waggon_t::block_reserver(const route_t *route, uint16 start_index, int count, bo
 	for ( ; success  &&  count>=0  &&  i<=route->gib_max_n(); i++) {
 
 		koord3d pos = route->position_bei(i);
-		schiene_t * sch1 = (schiene_t *) welt->lookup(pos)->gib_weg(gib_wegtyp());
+		grund_t *gr = welt->lookup(pos);
+		schiene_t * sch1 = gr ? (schiene_t *)gr->gib_weg(gib_wegtyp()) : NULL;
 		if(sch1==NULL  &&  reserve) {
 			// reserve until the end of track
 			break;
@@ -2886,7 +2887,7 @@ aircraft_t::calc_route(karte_t * welt, koord3d start, koord3d ziel, uint32 max_s
 				if(!welt->ist_in_kartengrenzen(search_start.gib_2d()+(start_dir*i)) ) {
 					break;
 				}
-				gr = welt->lookup(search_start.gib_2d()+(start_dir*i))->gib_kartenboden();
+				gr = welt->lookup_kartenboden(search_start.gib_2d()+(start_dir*i));
 				if(gr->gib_weg(air_wt)) {
 					endi ++;
 				}
@@ -2940,7 +2941,7 @@ aircraft_t::calc_route(karte_t * welt, koord3d start, koord3d ziel, uint32 max_s
 				if(!welt->ist_in_kartengrenzen(search_end.gib_2d()+(end_dir*i)) ) {
 					break;
 				}
-				gr=welt->lookup(search_end.gib_2d()+(end_dir*i))->gib_kartenboden();
+				gr=welt->lookup_kartenboden(search_end.gib_2d()+(end_dir*i));
 				if(gr->gib_weg(air_wt)) {
 					endi ++;
 				}
@@ -2975,11 +2976,11 @@ aircraft_t::calc_route(karte_t * welt, koord3d start, koord3d ziel, uint32 max_s
 		static const koord circle_koord[16]={ koord(0,1), koord(0,1), koord(1,0), koord(0,1), koord(1,0), koord(1,0), koord(0,-1), koord(1,0), koord(0,-1), koord(0,-1), koord(-1,0), koord(0,-1), koord(-1,0), koord(-1,0), koord(0,1), koord(-1,0) };
 
 		// circle to the left
-		route->append( welt->lookup(circlepos)->gib_kartenboden()->gib_pos() );
+		route->append( welt->lookup_kartenboden(circlepos)->gib_pos() );
 		for(  int  i=0;  i<16;  i++  ) {
 			circlepos += circle_koord[(offset+i+16)%16];
 			if(welt->ist_in_kartengrenzen(circlepos)) {
-				route->append( welt->lookup(circlepos)->gib_kartenboden()->gib_pos() );
+				route->append( welt->lookup_kartenboden(circlepos)->gib_pos() );
 			}
 			else {
 				// could only happen during loading old savegames;

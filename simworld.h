@@ -608,7 +608,7 @@ public:
 	inline const planquadrat_t * lookup(const koord k) const
 	{
 		return ist_in_kartengrenzen(k.x, k.y) ? &plan[k.x+k.y*cached_groesse_gitter_x] : 0;
-	};
+	}
 
 	/**
 	 * Inline because called very frequently!
@@ -619,7 +619,18 @@ public:
 	{
 		const planquadrat_t *plan = lookup(pos.gib_2d());
 		return plan ? plan->gib_boden_in_hoehe(pos.z) : NULL;
-	};
+	}
+
+	/**
+	 * Inline because called very frequently!
+	 * @return grund at the bottom (where house will be built)
+	 * @author Hj. Malthaner
+	 */
+	inline grund_t * lookup_kartenboden(const koord pos) const
+	{
+		const planquadrat_t *plan = lookup(pos);
+		return plan ? plan->gib_kartenboden() : NULL;
+	}
 
 	/**
 	 * returns the natural slope a a position

@@ -2509,14 +2509,14 @@ DBG_MESSAGE("karte_t::laden()","loading grid");
     DBG_MESSAGE("karte_t::laden()", "prepare for %i factories", fabs);
 
     for(int i = 0; i < fabs; i++) {
-	// liste in gleicher reihenfolge wie vor dem speichern wieder aufbauen
-	fabrik_t *fab = new fabrik_t(this, file);
-	if(fab->gib_besch()) {
-		fab_list.append( fab );
-	}
-	else {
-		dbg->error("karte_t::laden()","Unknown fabrik skipped!");
-	}
+		// liste in gleicher reihenfolge wie vor dem speichern wieder aufbauen
+		fabrik_t *fab = new fabrik_t(this, file);
+		if(fab->gib_besch()) {
+			fab_list.append( fab );
+		}
+		else {
+			dbg->error("karte_t::laden()","Unknown fabrik skipped!");
+		}
     }
     DBG_MESSAGE("karte_t::laden()", "clean up factories");
     if (fab_list.count() > 0) {
