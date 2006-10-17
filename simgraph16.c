@@ -1305,9 +1305,6 @@ struct clip_dimension display_gib_clip_wh(void)
  */
 void display_setze_clip_wh(KOORD_VAL x, KOORD_VAL y, KOORD_VAL w, KOORD_VAL h)
 {
-#if 0
-	clip_wh(&x, &w, 0, disp_width);
-#endif
 	clip_wh(&x, &w, 0, disp_width);
 	clip_wh(&y, &h, 0, disp_height);
 

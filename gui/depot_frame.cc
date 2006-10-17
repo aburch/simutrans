@@ -476,10 +476,10 @@ void depot_frame_t::layout(koord *gr)
 	lb_veh_action.setze_text("Fahrzeuge:");
 
 	bt_veh_action.setze_pos(koord(TOTAL_WIDTH-ABUTTON_WIDTH, PANEL_VSTART + PANEL_HEIGHT + 14));
-	bt_veh_action.setze_groesse(koord(ABUTTON_WIDTH, 13));
+	bt_veh_action.setze_groesse(koord(ABUTTON_WIDTH, ABUTTON_HEIGHT));
 
 	bt_obsolete.setze_pos(koord(TOTAL_WIDTH-(ABUTTON_WIDTH*5)/2, PANEL_VSTART + PANEL_HEIGHT + 14));
-	bt_obsolete.setze_groesse(koord(ABUTTON_WIDTH, 13));
+	bt_obsolete.setze_groesse(koord(ABUTTON_WIDTH, ABUTTON_HEIGHT));
 	bt_obsolete.pressed = show_retired_vehicles;
 }
 
