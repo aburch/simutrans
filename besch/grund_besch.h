@@ -62,12 +62,8 @@ public:
 #ifdef DOUBLE_GROUNDS
     static const uint8 slopetable[80];
     // returns the correct hang number for this slope
-    int get_double_hang(hang_t::typ typ) const {
-	const bildliste_besch_t *liste = static_cast<const bildliste2d_besch_t *>(gib_kind(2))->gib_liste(65);
-	if(liste) {
-	    	return typ;
-	}
-	return slopetable[typ];
+    static inline int get_double_hang(hang_t::typ typ) {
+		return slopetable[typ];
     }
 #endif
 

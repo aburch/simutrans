@@ -112,12 +112,8 @@ dbg->fatal("boden_t::calc_bild()","covered tile not ground?!?");
 #else
 		if(weg && dynamic_cast<strasse_t *>(weg)->hat_gehweg()) {
 			setze_bild(skinverwaltung_t::fussweg->gib_bild_nr(grund_besch_t::slopetable[slope_this]));
-		} else if(max_h-min_h==16  &&  min_h==welt->gib_grundwasser()) {
-			setze_bild(grund_besch_t::ufer->gib_bild(grund_besch_t::ufer->get_double_hang(slope_this)));
-		} else if(min_h<welt->gib_grundwasser()) {
-			setze_bild(grund_besch_t::ufer->gib_bild(grund_besch_t::ufer->get_double_hang(slope_this)));
 		} else {
-			setze_bild( grund_besch_t::gib_ground_tile(grund_besch_t::boden->get_double_hang(slope_this)) );
+			setze_bild( grund_besch_t::gib_ground_tile(slope_this,gib_hoehe() ) );
 		}
 #endif
 		grund_t::calc_back_bild(gib_hoehe()/16,slope_this);

@@ -437,8 +437,8 @@ DBG_MESSAGE("grund_besch_t::calc_water_level()","height %i: list %i vs. %i", h, 
 	assert(boden_texture->gib_bild_ptr(0)->w==grund_besch_t::ausserhalb->gib_bild_ptr(0)->w);
 
 #ifdef DOUBLE_GROUNDS
-#error "Implement it for double grounds too!"
-#else
+//#error "Implement it for double grounds too!"
+#endif
 	// create rotations of the mixer
 	bild_besch_t *all_rotations_beach[15];
 	bild_besch_t *all_rotations_slope[15];
@@ -572,7 +572,6 @@ DBG_MESSAGE("grund_besch_t::calc_water_level()","height %i: list %i vs. %i", h, 
 		guarded_free( all_rotations_beach[slope] );
 		guarded_free( all_rotations_slope[slope] );
 	}
-#endif
 }
 
 
@@ -589,6 +588,12 @@ image_id
 grund_besch_t::gib_ground_tile(hang_t::typ slope, sint16 height )
 {
 	const sint16 h = (height-welt->gib_grundwasser())/16;
+#ifdef DOUBLE_GROUNDS
+	slope = get_double_hang(slope);
+	if((int)slope>78) {
+		slope = 0;
+	}
+#endif
 	if(h<0) {
 		// deep water
 		return image_offset;

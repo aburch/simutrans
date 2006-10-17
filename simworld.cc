@@ -1128,7 +1128,7 @@ int karte_t::raise_to(sint16 x, sint16 y, sint16 h,bool set_slopes)
 			n += raise_to(x+1, y-1, h-32,set_slopes);
 			n += raise_to(x-1, y  , h-32,set_slopes);
 
-			n += raise_to(x, y, h);
+			n += raise_to(x, y, h,set_slopes);
 
 			n += raise_to(x+1, y  , h-32,set_slopes);
 			n += raise_to(x-1, y+1, h-32,set_slopes);
