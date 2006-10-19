@@ -9,6 +9,8 @@ Known bugs: (hard to fix)
 	FIX: factory with there 0,0 on slopes did not recognized their position (not found by other factories, no production)
 	CHANGE: if a city could not built a road at a certain slope, it built a house instead.
 	FIX: button definitions for skins were ignored
+	FIX: demo savegame loading at startup fixed
+	CHANGE: same further optimisations of certain routines
 
 
 Release of 99.02.1
