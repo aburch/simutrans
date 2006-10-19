@@ -543,17 +543,6 @@ vehikel_basis_t::calc_height()
 	grund_t *gr = welt->lookup(gib_pos());
 	int hoff = 0;
 
-	switch(gr->gib_weg_hang()) {
-		case 3:	// nordhang
-		case 6:	// westhang
-			hoff = -vehikel_basis_t::gib_yoff() - 8;
-			break;
-		case 9:	// osthang
-		case 12:    // suedhang
-			hoff = vehikel_basis_t::gib_yoff() - 8;
-			break;
-	}
-
 	if(gr->ist_tunnel()) {
 		hoff = 0;
 		if(!gr->ist_im_tunnel()) {
@@ -594,8 +583,20 @@ vehikel_basis_t::calc_height()
 			}
 		}
 	}
-	else if(gr->gib_weg_hang()==hang_t::flach) {
-		hoff = -gr->gib_weg_yoff();
+	else {
+		switch(gr->gib_weg_hang()) {
+			case 3:	// nordhang
+			case 6:	// westhang
+				hoff = -vehikel_basis_t::gib_yoff() - 8;
+				break;
+			case 9:	// osthang
+			case 12:    // suedhang
+				hoff = vehikel_basis_t::gib_yoff() - 8;
+				break;
+			case 0:
+				hoff = -gr->gib_weg_yoff();
+				break;
+		}
 	}
 
 	// recalculate friction

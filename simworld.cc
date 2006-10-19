@@ -2402,6 +2402,7 @@ DBG_DEBUG("karte_t::laden", "einstellungen loaded (groesse %i,%i) timeline=%i be
     cached_groesse_max = max(cached_groesse_gitter_x,cached_groesse_gitter_y);
     cached_groesse_karte_x = cached_groesse_gitter_x-1;
     cached_groesse_karte_y = cached_groesse_gitter_y-1;
+    x_off = y_off = 0;
 
     // Reliefkarte an neue welt anpassen
     reliefkarte_t::gib_karte()->setze_welt(this);
@@ -2670,7 +2671,7 @@ DBG_MESSAGE("karte_t::laden()", "%d ways loaded",weg_t::gib_alle_wege().count())
 	schedule_counter++;	// force check for unroutable goods and connections
 
 	reset_timer();
-     recalc_average_speed();
+	recalc_average_speed();
 	intr_enable();
 	mute_sound(false);
 }

@@ -627,6 +627,7 @@ DBG_MESSAGE("init","map");
 #endif
 		display_show_pointer(TRUE);
 
+		welt->setze_ij_off(welt->gib_ij_off());
 		welt->setze_dirty();
 
 		translator::set_language("en");

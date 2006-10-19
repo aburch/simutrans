@@ -1425,7 +1425,7 @@ void display_img_nc(KOORD_VAL h, const KOORD_VAL xp, const KOORD_VAL yp, const P
 		PIXVAL *tp = textur + xp + yp * disp_width;
 
 		do { // zeilen dekodieren
-			unsigned int runlen = *sp++;
+			PIXVAL runlen = *sp++;
 			PIXVAL *p = tp;
 
 			// eine Zeile dekodieren
@@ -1437,15 +1437,19 @@ void display_img_nc(KOORD_VAL h, const KOORD_VAL xp, const KOORD_VAL yp, const P
 				runlen = *sp++;
 #if USE_C
 				{
-					const unsigned int* ls;
-					unsigned int* ld;
+					const PIXVAL *ls;
+					PIXVAL *ld;
 
-					if (runlen & 1) *p++ = *sp++;
+					if (runlen & 1) {
+						*p++ = *sp++;
+					}
 
-					ls = (const unsigned int*)sp;
-					ld = (unsigned int*)p;
+					ls = (const PIXVAL *)sp;
+					ld = (PIXVAL *)p;
 					runlen >>= 1;
-					while (runlen--) *ld++ = *ls++;
+					while (runlen--) {
+						*ld++ = *ls++;
+					}
 					p = (PIXVAL*)ld;
 					sp = (const PIXVAL*)ls;
 				}
@@ -1455,11 +1459,11 @@ void display_img_nc(KOORD_VAL h, const KOORD_VAL xp, const KOORD_VAL yp, const P
 					// rep movsw and we would be finished, but we unroll
 					// uneven number of words to copy
 					"testb $1, %%cl\n\t"
-					"je .Lrlev\n\t"
+					"je 0f\n\t"
 					// Copy first word
 					// *p++ = *sp++;
 					"movsw\n\t"
-					".Lrlev:\n\t"
+					"0:\n\t"
 					// now we copy long words ...
 					"shrl %2\n\t"
 					"rep\n\t"
@@ -1746,10 +1750,10 @@ static void display_fb_internal(KOORD_VAL xp, KOORD_VAL yp, KOORD_VAL w, KOORD_V
 				// uneven words to copy?
 				// if(w&1)
 				"testb $1,%%cl\n\t"
-				"je .LrSev\n\t"
+				"je 0f\n\t"
 				// set first word
 				"stosw\n\t"
-				".LrSev:\n\t"
+				"0:\n\t"
 				// now we set long words ...
 				"shrl %%ecx\n\t"
 				"rep\n\t"
