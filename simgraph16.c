@@ -1425,7 +1425,7 @@ void display_img_nc(KOORD_VAL h, const KOORD_VAL xp, const KOORD_VAL yp, const P
 		PIXVAL *tp = textur + xp + yp * disp_width;
 
 		do { // zeilen dekodieren
-			uint32 runlen = *sp++;
+			PIXVAL runlen = *sp++;
 			PIXVAL *p = tp;
 
 			// eine Zeile dekodieren
@@ -1435,7 +1435,7 @@ void display_img_nc(KOORD_VAL h, const KOORD_VAL xp, const KOORD_VAL yp, const P
 
 				// jetzt kommen farbige pixel
 				runlen = *sp++;
-#if 1
+#if USE_C
 				{
 					// "classic" C code (why is it faster!?!)
 					const uint32 *ls;
@@ -1459,7 +1459,8 @@ void display_img_nc(KOORD_VAL h, const KOORD_VAL xp, const KOORD_VAL yp, const P
 				memcpy( p, sp, runlen*sizeof(PIXVAL) );
 				sp += runlen;/*/
 #else
-				// sometimes this code is only half as fast, even though is avoids all the overhead of explicitly adds
+#if 0
+				// usually slower than the C code, even though much more straigh forward
 				asm volatile (
 					"cld\n\t"
 					// rep movsw and we would be finished, but we unroll
@@ -1470,14 +1471,179 @@ void display_img_nc(KOORD_VAL h, const KOORD_VAL xp, const KOORD_VAL yp, const P
 					// *p++ = *sp++;
 					"movsw\n"
 					"2:\n\t"
-					// now we copy long words ...
-					"shrl %2\n\t"
+					"shrl %%ecx\n\t"
 					"rep\n\t"
 					"movsd\n\t"
 					: "+D" (p), "+S" (sp), "+c" (runlen)
 					:
 					: "cc"
 				);
+#else
+				// this code is sometimes slower, mostly 5% faster, not really clear why and when (cahce alignment?)
+				asm volatile (
+					"cld\n\t"
+					"andl $255,%%ecx\n\t"
+					// rep movsw and we would be finished, but we unroll
+					// uneven number of words to copy
+					"testb $1, %%cl\n\t"
+					"je 2f\n\t"
+					// Copy first word
+					// *p++ = *sp++;
+					"movsw\n\t"
+					"dec %%ecx\n"
+					"2:\n\t"
+					"negb %%cl\n\t"
+					"shrl %%ecx\n\t"
+//					"cmp $0,%%ecx\n\t"
+					"je 4f\n\t"
+					"lea 3f(,%%ecx,1),%%ecx\n\t"
+					"jmp * %%ecx\n\t"
+					".p2align 2\n\t"
+					".align 4\n"
+					"3:\n\t"
+					"movsd\n\t"
+					"movsd\n\t"
+					"movsd\n\t"
+					"movsd\n\t"
+					"movsd\n\t"
+					"movsd\n\t"
+					"movsd\n\t"
+					"movsd\n\t"
+					"movsd\n\t"
+					"movsd\n\t"
+					"movsd\n\t"
+					"movsd\n\t"
+					"movsd\n\t"
+					"movsd\n\t"
+					"movsd\n\t"
+					"movsd\n\t"
+
+					"movsd\n\t"
+					"movsd\n\t"
+					"movsd\n\t"
+					"movsd\n\t"
+					"movsd\n\t"
+					"movsd\n\t"
+					"movsd\n\t"
+					"movsd\n\t"
+					"movsd\n\t"
+					"movsd\n\t"
+					"movsd\n\t"
+					"movsd\n\t"
+					"movsd\n\t"
+					"movsd\n\t"
+					"movsd\n\t"
+					"movsd\n\t"
+
+					"movsd\n\t"
+					"movsd\n\t"
+					"movsd\n\t"
+					"movsd\n\t"
+					"movsd\n\t"
+					"movsd\n\t"
+					"movsd\n\t"
+					"movsd\n\t"
+					"movsd\n\t"
+					"movsd\n\t"
+					"movsd\n\t"
+					"movsd\n\t"
+					"movsd\n\t"
+					"movsd\n\t"
+					"movsd\n\t"
+					"movsd\n\t"
+
+					"movsd\n\t"
+					"movsd\n\t"
+					"movsd\n\t"
+					"movsd\n\t"
+					"movsd\n\t"
+					"movsd\n\t"
+					"movsd\n\t"
+					"movsd\n\t"
+					"movsd\n\t"
+					"movsd\n\t"
+					"movsd\n\t"
+					"movsd\n\t"
+					"movsd\n\t"
+					"movsd\n\t"
+					"movsd\n\t"
+					"movsd\n\t"
+
+					"movsd\n\t"
+					"movsd\n\t"
+					"movsd\n\t"
+					"movsd\n\t"
+					"movsd\n\t"
+					"movsd\n\t"
+					"movsd\n\t"
+					"movsd\n\t"
+					"movsd\n\t"
+					"movsd\n\t"
+					"movsd\n\t"
+					"movsd\n\t"
+					"movsd\n\t"
+					"movsd\n\t"
+					"movsd\n\t"
+					"movsd\n\t"
+
+					"movsd\n\t"
+					"movsd\n\t"
+					"movsd\n\t"
+					"movsd\n\t"
+					"movsd\n\t"
+					"movsd\n\t"
+					"movsd\n\t"
+					"movsd\n\t"
+					"movsd\n\t"
+					"movsd\n\t"
+					"movsd\n\t"
+					"movsd\n\t"
+					"movsd\n\t"
+					"movsd\n\t"
+					"movsd\n\t"
+					"movsd\n\t"
+
+					"movsd\n\t"
+					"movsd\n\t"
+					"movsd\n\t"
+					"movsd\n\t"
+					"movsd\n\t"
+					"movsd\n\t"
+					"movsd\n\t"
+					"movsd\n\t"
+					"movsd\n\t"
+					"movsd\n\t"
+					"movsd\n\t"
+					"movsd\n\t"
+					"movsd\n\t"
+					"movsd\n\t"
+					"movsd\n\t"
+					"movsd\n\t"
+
+					"movsd\n\t"
+					"movsd\n\t"
+					"movsd\n\t"
+					"movsd\n\t"
+					"movsd\n\t"
+					"movsd\n\t"
+					"movsd\n\t"
+					"movsd\n\t"
+					"movsd\n\t"
+					"movsd\n\t"
+					"movsd\n\t"
+					"movsd\n\t"
+					"movsd\n\t"
+					"movsd\n\t"
+					"movsd\n\t"
+					"movsd\n"
+
+					"4:\n\t"
+
+					: "+D" (p), "+S" (sp), "+c" (runlen)
+					:
+					: "cc"
+				);
+#endif
 #endif
 				runlen = *sp++;
 			} while (runlen != 0);

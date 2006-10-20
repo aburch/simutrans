@@ -102,17 +102,22 @@ static void show_times(karte_t *welt, karte_ansicht_t *view)
 
 	long ms = get_current_time_millis();
 	for (i = 0;  i < 300000;  i++)
-		display_img(2000, 100, 100, 1);
+		display_img(10, 50, 50, 1);
 	DBG_MESSAGE("test", "display_img(): %i iterations took %i ms", i, get_current_time_millis() - ms);
 
 	ms = get_current_time_millis();
 	for (i = 0;  i < 300000;  i++)
-		display_color_img(2000, 120, 100, 16, 1, 1);
+		display_color_img(2000, 120, 100, 0, 1, 1);
 	DBG_MESSAGE("test", "display_color_img(): %i iterations took %i ms", i, get_current_time_millis() - ms);
 
 	ms = get_current_time_millis();
 	for (i = 0;  i < 300000;  i++)
-		display_color_img(2000, 120, 100, 20, 1, 1);
+		display_color_img(2000, 160, 150, 16, 1, 1);
+	DBG_MESSAGE("test", "display_color_img(): next AI: %i iterations took %i ms", i, get_current_time_millis() - ms);
+
+	ms = get_current_time_millis();
+	for (i = 0;  i < 300000;  i++)
+		display_color_img(2000, 220, 200, 20, 1, 1);
 	DBG_MESSAGE("test", "display_color_img(), other AI: %i iterations took %i ms", i, get_current_time_millis() - ms);
 
 	ms = get_current_time_millis();
