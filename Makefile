@@ -51,7 +51,7 @@ ifeq ($(OSTYPE),cygwin)
 endif
 
 ifeq ($(OSTYPE),mingw)
-  OS_OPT         ?= -mno-cygwin -DPNG_STATIC -DZLIB_STATIC -mtune=pentium
+  OS_OPT         ?= -mno-cygwin -DPNG_STATIC -DZLIB_STATIC -march=pentium
   STD_LIBS       ?=  -lunicows -lz -lmingw32 -lgdi32 -lwinmm
 endif
 

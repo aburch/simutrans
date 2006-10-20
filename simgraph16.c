@@ -1425,7 +1425,7 @@ void display_img_nc(KOORD_VAL h, const KOORD_VAL xp, const KOORD_VAL yp, const P
 		PIXVAL *tp = textur + xp + yp * disp_width;
 
 		do { // zeilen dekodieren
-			PIXVAL runlen = *sp++;
+			uint32 runlen = *sp++;
 			PIXVAL *p = tp;
 
 			// eine Zeile dekodieren
@@ -1435,17 +1435,18 @@ void display_img_nc(KOORD_VAL h, const KOORD_VAL xp, const KOORD_VAL yp, const P
 
 				// jetzt kommen farbige pixel
 				runlen = *sp++;
-#if USE_C
+#if 1
 				{
-					const PIXVAL *ls;
-					PIXVAL *ld;
+					// "classic" C code (why is it faster!?!)
+					const uint32 *ls;
+					uint32 *ld;
 
 					if (runlen & 1) {
 						*p++ = *sp++;
 					}
 
-					ls = (const PIXVAL *)sp;
-					ld = (PIXVAL *)p;
+					ls = (const uint32 *)sp;
+					ld = (uint32 *)p;
 					runlen >>= 1;
 					while (runlen--) {
 						*ld++ = *ls++;
@@ -1453,17 +1454,22 @@ void display_img_nc(KOORD_VAL h, const KOORD_VAL xp, const KOORD_VAL yp, const P
 					p = (PIXVAL*)ld;
 					sp = (const PIXVAL*)ls;
 				}
+/*/
+				// faster with inline of memory functions!
+				memcpy( p, sp, runlen*sizeof(PIXVAL) );
+				sp += runlen;/*/
 #else
+				// sometimes this code is only half as fast, even though is avoids all the overhead of explicitly adds
 				asm volatile (
 					"cld\n\t"
 					// rep movsw and we would be finished, but we unroll
 					// uneven number of words to copy
 					"testb $1, %%cl\n\t"
-					"je 0f\n\t"
+					"je 2f\n\t"
 					// Copy first word
 					// *p++ = *sp++;
-					"movsw\n\t"
-					"0:\n\t"
+					"movsw\n"
+					"2:\n\t"
 					// now we copy long words ...
 					"shrl %2\n\t"
 					"rep\n\t"
@@ -1737,12 +1743,14 @@ static void display_fb_internal(KOORD_VAL xp, KOORD_VAL yp, KOORD_VAL w, KOORD_V
 		do {
 			unsigned int count = w;
 #ifdef USE_C
-			unsigned int* lp;
+			uint32 *lp;
 
 			if (count & 1) *p++ = longcolval;
 			count >>= 1;
 			lp = p;
-			while (count-- != 0) *lp++ = longcolval;
+			while (count-- != 0) {
+				*lp++ = longcolval;
+			}
 			p = lp;
 #else
 			asm volatile (
