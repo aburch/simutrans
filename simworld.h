@@ -105,11 +105,11 @@ private:
     einstellungen_t *einstellungen;
 
     // aus performancegruenden werden einige Einstellungen local gecached
-    int cached_groesse_gitter_x;
-    int cached_groesse_gitter_y;
+    sint16 cached_groesse_gitter_x;
+    sint16 cached_groesse_gitter_y;
     // diese Werte sind um ein kleiner als die Werte für das Gitter
-    int cached_groesse_karte_x;
-    int cached_groesse_karte_y;
+    sint16 cached_groesse_karte_x;
+    sint16 cached_groesse_karte_y;
     // maximum size for waitng bars etc.
     int cached_groesse_max;
 
@@ -225,12 +225,12 @@ private:
      * @see karte_t::cleanup_karte
      * @author Hj. Malthaner
      */
-    void raise_clean(int x,int y, int h);
+    void raise_clean(sint16 x, sint16 y, sint16 h);
 
-    bool can_raise_to(int x,int y, int h) const;
+    bool can_raise_to(sint16 x, sint16 y, sint16 h) const;
     int  raise_to(sint16 x, sint16 y, sint16 h,bool set_slopes);
 
-    bool can_lower_to(int x,int y, int h) const;
+    bool can_lower_to(sint16 x, sint16 y, sint16 h) const;
     int  lower_to(sint16 x, sint16 y, sint16 h,bool set_slopes);
 
 
@@ -575,7 +575,7 @@ public:
 		//return k.x>=0 &&  k.y>=0  &&  cached_groesse_karte_x>=k.x  &&  cached_groesse_karte_y>=k.y;
 	}
 
-	inline bool ist_in_kartengrenzen(int x, int y) const {
+	inline bool ist_in_kartengrenzen(sint16 x, sint16 y) const {
 	// prissi: since negative values will make the whole result negative, we can use bitwise or
 	// faster, since pentiums and other long pipeline processors do not like jumps
 		return (x|y|(cached_groesse_karte_x-x)|(cached_groesse_karte_y-y))>=0;
@@ -589,14 +589,14 @@ public:
 //		return k.x>=0 &&  k.y>=0  &&  cached_groesse_gitter_x>=k.x  &&  cached_groesse_gitter_y>=k.y;
 	}
 
-	inline bool ist_in_gittergrenzen(int x,int y) const {
+	inline bool ist_in_gittergrenzen(sint16 x, sint16 y) const {
 	// prissi: since negative values will make the whole result negative, we can use bitwise or
 	// faster, since pentiums and other long pipeline processors do not like jumps
 		return (x|y|(cached_groesse_gitter_x-x)|(cached_groesse_gitter_y-y))>=0;
 //		return x>=0 &&  y>=0  &&  cached_groesse_gitter_x>=x  &&  cached_groesse_gitter_y>=y;
 	}
 
-	inline bool ist_in_gittergrenzen(unsigned x, unsigned y) const {
+	inline bool ist_in_gittergrenzen(uint16 x, uint16 y) const {
 		return (x<=(unsigned)cached_groesse_gitter_x && y<=(unsigned)cached_groesse_gitter_y);
 	}
 
@@ -698,7 +698,7 @@ public:
      * erniedrigt werden kann
      * @author V. Meyer
      */
-    bool can_lower_plan_to(int x, int y, int h) const;
+    bool can_lower_plan_to(sint16 x, sint16 y, sint16 h) const;
 
 
     /**
@@ -706,7 +706,7 @@ public:
      * erhöht werden kann
      * @author V. Meyer
      */
-    bool can_raise_plan_to(int x, int y, int h) const;
+    bool can_raise_plan_to(sint16 x, sint16 y, sint16 h) const;
 
 
     /**
@@ -714,7 +714,7 @@ public:
      * geaendert werden darf. (z.B. kann Wasser nicht geaendert werden)
      * @author Hj. Malthaner
      */
-    bool is_plan_height_changeable(int x, int y) const;
+    bool is_plan_height_changeable(sint16 x, sint16 y) const;
 
     /**
      * Prueft, ob die Hoehe an Gitterkoordinate (x,y)
@@ -723,7 +723,7 @@ public:
      * @param y y-Gitterkoordinate
      * @author Hj. Malthaner
      */
-    bool can_raise(int x,int y) const;
+    bool can_raise(sint16 x,sint16 y) const;
 
 
     /**
@@ -741,7 +741,7 @@ public:
      * @param y y-Gitterkoordinate
      * @author Hj. Malthaner
      */
-    bool can_lower(int x,int y) const;
+    bool can_lower(sint16 x,sint16 y) const;
 
     /**
      * Erniedrigt die Hoehe an Gitterkoordinate (x,y) um eins.
@@ -750,7 +750,7 @@ public:
      */
     int lower(koord pos);
 
-    bool ebne_planquadrat(koord pos, int hgt);
+    bool ebne_planquadrat(koord pos, sint16 hgt);
 
     /**
      * Erzeugt einen Berg oder ein Tal

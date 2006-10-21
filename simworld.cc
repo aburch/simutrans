@@ -305,7 +305,7 @@ karte_t::calc_hoehe_mit_perlin()
 }
 
 
-void karte_t::raise_clean(int x, int y, int h)
+void karte_t::raise_clean(sint16 x, sint16 y, sint16 h)
 {
   if(ist_in_gittergrenzen(x, y)) {
     const koord k (x,y);
@@ -979,7 +979,7 @@ karte_t::~karte_t()
     }
 }
 
-bool karte_t::can_lower_plan_to(int x, int y, int h) const
+bool karte_t::can_lower_plan_to(sint16 x, sint16 y, sint16 h) const
 {
     const planquadrat_t *plan = lookup(koord(x,y));
 
@@ -1000,7 +1000,7 @@ bool karte_t::can_lower_plan_to(int x, int y, int h) const
     return true;
 }
 
-bool karte_t::can_raise_plan_to(int x, int y, int h) const
+bool karte_t::can_raise_plan_to(sint16 x, sint16 y, sint16 h) const
 {
     const planquadrat_t *plan = lookup(koord(x,y));
 
@@ -1022,7 +1022,7 @@ bool karte_t::can_raise_plan_to(int x, int y, int h) const
 }
 
 
-bool karte_t::is_plan_height_changeable(int x, int y) const
+bool karte_t::is_plan_height_changeable(sint16 x, sint16 y) const
 {
     const planquadrat_t *plan = lookup(koord(x,y));
     bool ok = true;
@@ -1049,7 +1049,7 @@ bool karte_t::is_plan_height_changeable(int x, int y) const
 }
 
 
-bool karte_t::can_raise_to(int x, int y, int h) const
+bool karte_t::can_raise_to(sint16 x, sint16 y, sint16 h) const
 {
     const planquadrat_t *plan = lookup(koord(x,y));
     bool ok = true;		// annahme, es geht, pruefung ob nicht
@@ -1090,7 +1090,7 @@ bool karte_t::can_raise_to(int x, int y, int h) const
     return ok;
 }
 
-bool karte_t::can_raise(int x, int y) const
+bool karte_t::can_raise(sint16 x, sint16 y) const
 {
 	if(ist_in_gittergrenzen(x, y)) {
 		return can_raise_to(x, y, lookup_hgt(koord(x, y))+16);
@@ -1175,7 +1175,7 @@ int karte_t::raise(koord pos)
 	return n;
 }
 
-bool karte_t::can_lower_to(int x, int y, int h) const
+bool karte_t::can_lower_to(sint16 x, sint16 y, sint16 h) const
 {
     const planquadrat_t *plan = lookup(koord(x,y));
     bool ok = true;		// annahme, es geht, pruefung ob nicht
@@ -1218,7 +1218,7 @@ bool karte_t::can_lower_to(int x, int y, int h) const
 
 
 
-bool karte_t::can_lower(int x, int y) const
+bool karte_t::can_lower(sint16 x, sint16 y) const
 {
     if(ist_in_gittergrenzen(x, y)) {
 	return can_lower_to(x, y, lookup_hgt(koord(x, y))-16);
@@ -1307,7 +1307,7 @@ int karte_t::lower(koord pos)
 
 
 bool
-karte_t::ebne_planquadrat(koord pos, int hgt)
+karte_t::ebne_planquadrat(koord pos, sint16 hgt)
 {
 	koord offsets[] = {koord(0,0), koord(1,0), koord(0,1), koord(1,1)};
 	bool ok = true;

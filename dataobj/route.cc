@@ -139,16 +139,15 @@ route_t::append_straight_route(karte_t *welt, koord3d dest )
 	koord pos=route.get(gib_max_n()).gib_2d();
 	const koord ziel=dest.gib_2d();
 	route.resize( route.get_count()+abs_distance(pos,ziel)+2 );
+DBG_MESSAGE("route_t::append_straight_route()","start from (%i,%i) to (%i,%i)",pos.x,pos.y,dest.x,dest.y);
 	while(pos!=ziel) {
 		// shortest way
-		koord diff;
 		if(abs(pos.x-ziel.x)>=abs(pos.y-ziel.y)) {
-			diff = (pos.x>ziel.x) ? koord(-1,0) : koord(1,0);
+			pos.x += (pos.x>ziel.x) ? -1 : 1;
 		}
 		else {
-			diff = (pos.y>ziel.y) ? koord(0,-1) : koord(0,1);
+			pos.y += (pos.y>ziel.y) ? -1 : 1;
 		}
-		pos += diff;
 		if(!welt->ist_in_kartengrenzen(pos)) {
 			break;
 		}

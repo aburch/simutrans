@@ -435,10 +435,6 @@ void hausbauer_t::baue(karte_t *welt, spieler_t *sp, koord3d pos, int layout, co
 gebaeude_t *
 hausbauer_t::neues_gebaeude(karte_t *welt, spieler_t *sp, koord3d pos, int layout, const haus_besch_t *besch, void *param)
 {
-	if(besch->gib_groesse(layout) != koord(1, 1)) {
-		dbg->fatal("hausbauer_t::neues_gebaeude()","building %s is not 1*1", besch->gib_name());
-		return NULL;
-	}
 	gebaeude_t *gb;
 	const haus_tile_besch_t *tile = besch->gib_tile(layout, 0, 0);
 	int pri = PRI_DEPOT;

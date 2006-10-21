@@ -72,23 +72,15 @@ static inline unsigned abs_distance(koord a, koord b)
 
 static inline bool operator == (const koord& a, const koord& b)
 {
-#if 1
-	// Hajo: dirty trick to speed things up
-	return *(const int*)&a == *(const int*)&b;
-#else
-	return a.x == b.x && a.y == b.y;
-#endif
+	// only this works with O3 optimisation!
+	return ((a.x-b.x)|(a.y-b.y))==0;
 }
 
 
 static inline bool operator != (const koord & a, const koord & b)
 {
-#if 1
-	// Hajo: dirty trick to speed things up
-	return *(const int*)&a != *(const int*)&b;
-#else
-	return a.x != b.x || a.y != b.y;
-#endif
+	// only this works with O3 optimisation!
+	return ((a.x-b.x)|(a.y-b.y))!=0;
 }
 
 
