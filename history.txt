@@ -5,12 +5,17 @@ Known bugs: (hard to fix)
 
 
 
+Release of 99.02.2
+
+21-Oct-2006: (prissi)
 	FIX: unreservation of tracks failed fatally if there was no ground connected to the next tile
 	FIX: factory with there 0,0 on slopes did not recognized their position (not found by other factories, no production)
 	CHANGE: if a city could not built a road at a certain slope, it built a house instead.
 	FIX: button definitions for skins were ignored
 	FIX: demo savegame loading at startup fixed
 	CHANGE: same further optimisations of certain routines
+	ADD: <i> attribute for the help texts
+	CHANGE: first delete station, then caternary
 
 
 Release of 99.02.1
