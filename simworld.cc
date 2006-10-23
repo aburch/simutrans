@@ -517,12 +517,15 @@ DBG_MESSAGE("karte_t::destroy()", "convois destroyed");
 	haltestelle_t::destroy_all();
 DBG_MESSAGE("karte_t::destroy()", "stops destroyed");
 
-	// delete towns first (will also delete all their houses
+	// delete towns first (will also delete all their houses)
+	// for the next game we need to remember the desired number ...
+	sint32 no_of_cities=einstellungen->gib_anzahl_staedte();
 	if(stadt) {
 		while(stadt->get_count()>0) {
 			rem_stadt(stadt->at(0));
 		}
 	}
+	einstellungen->setze_anzahl_staedte(no_of_cities);
 DBG_MESSAGE("karte_t::destroy()", "towns destroyed");
 
 	// entfernt alle synchronen objekte aus der liste
@@ -2237,7 +2240,7 @@ DBG_MESSAGE("karte_t::speichern(loadsave_t *file)", "start");
 	file->rdwr_long(letzter_monat, " ");
 	file->rdwr_long(letztes_jahr, "\n");
 
-	for(i=0; i<einstellungen->gib_anzahl_staedte(); i++) {
+	for(i=0; i<stadt->get_count(); i++) {
 		stadt->at(i)->rdwr(file);
 		if(silent) {
 			INT_CHECK("saving");
