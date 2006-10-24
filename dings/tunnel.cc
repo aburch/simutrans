@@ -102,12 +102,7 @@ void tunnel_t::laden_abschliessen()
 	}
 
 	if(besch==NULL) {
-		if(gr->gib_weg(road_wt)) {
-			besch = tunnelbauer_t::find_tunnel( road_wt, 999, 0 );
-		}
-		else {
-			besch = tunnelbauer_t::find_tunnel( track_wt, 999, 0 );
-		}
+		besch = tunnelbauer_t::find_tunnel( gr->gib_weg_nr(0)->gib_typ(), 999, 0 );
 	}
 
 	// correct speed and maitenance

@@ -5,6 +5,11 @@ Known bugs: (hard to fix)
 
 
 
+	FIX: city creation on new map fixed (actually rectified deletion)
+	FIX: tunnel can now properly handle all way types
+	FIX: left and right position of buttons (you may skin round buttons now ... )
+
+
 Release of 99.02.2
 
 21-Oct-2006: (prissi)

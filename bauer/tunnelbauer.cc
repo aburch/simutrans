@@ -286,7 +286,7 @@ bool tunnelbauer_t::baue_tunnel(karte_t *welt, spieler_t *sp, koord3d start, koo
 	weg_t *weg;
 	koord3d pos = start;
 	int cost = 0;
-	const weg_besch_t *einfahrt_besch;
+	const weg_besch_t *weg_besch;
 	waytype_t wegtyp = besch->gib_wegtyp();
 
 DBG_MESSAGE("tunnelbauer_t::baue()","build from (%d,%d)", pos.x, pos.y);
@@ -297,12 +297,12 @@ DBG_MESSAGE("tunnelbauer_t::baue()","build from (%d,%d)", pos.x, pos.y);
 		weg = welt->lookup(end)->gib_weg(wegtyp);
 	}
 	if(weg==NULL) {
-		einfahrt_besch = wegbauer_t::weg_search(wegtyp,besch->gib_topspeed());
+		dbg->error("tunnelbauer_t::baue_tunnel()","No way found!");
+		return false;
 	}
-	else {
-		einfahrt_besch = weg->gib_besch();
-	}
-	baue_einfahrt(welt, sp, pos, zv, besch, einfahrt_besch, cost);
+	weg_besch = weg->gib_besch();
+
+	baue_einfahrt(welt, sp, pos, zv, besch, weg_besch, cost);
 
 	ribi = welt->lookup(pos)->gib_weg_ribi_unmasked(wegtyp);
 	pos = pos + zv;
@@ -311,22 +311,19 @@ DBG_MESSAGE("tunnelbauer_t::baue()","build from (%d,%d)", pos.x, pos.y);
 	while(pos.gib_2d()!=end.gib_2d()) {
 		tunnelboden_t *tunnel = new tunnelboden_t(welt, pos, 0);
 		// use the fastest way
-		if(wegtyp == track_wt) {
-			weg = new schiene_t(welt,besch->gib_topspeed());
-		}
-		else {
-			weg = new strasse_t(welt,besch->gib_topspeed());
-		}
+		weg = weg_t::alloc(besch->gib_wegtyp());
+		weg->setze_besch(weg_besch);
+		weg->setze_max_speed(besch->gib_topspeed());
 		welt->access(pos.gib_2d())->boden_hinzufuegen(tunnel);
 		tunnel->neuen_weg_bauen(weg, ribi_t::doppelt(ribi), sp);
 		cost += umgebung_t::cst_tunnel;
 		pos = pos + zv;
 	}
 
-	baue_einfahrt(welt, sp, pos, -zv, besch, einfahrt_besch, cost);
+	baue_einfahrt(welt, sp, pos, -zv, besch, weg_besch, cost);
 
-	((tunnel_t *)(welt->lookup(start)->suche_obj(ding_t::tunnel)))->laden_abschliessen();
 	sp->buche(cost, start.gib_2d(), COST_CONSTRUCTION);
+	((tunnel_t *)(welt->lookup(start)->suche_obj(ding_t::tunnel)))->laden_abschliessen();
 	return true;
 }
 
