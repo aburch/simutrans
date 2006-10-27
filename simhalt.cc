@@ -329,6 +329,7 @@ haltestelle_t::haltestelle_t(karte_t *wl, loadsave_t *file)
 {
 	self = halthandle_t(this);
 	alle_haltestellen.insert(self);
+	grund.clear();
 
 	welt = wl;
 	marke = 0;

@@ -165,7 +165,7 @@ schedule_list_gui_t::schedule_list_gui_t(karte_t *welt,spieler_t *sp)
 
 	// add filter buttons
 	for (int i=0; i<MAX_LINE_COST; i++) {
-		filterButtons[i].init(button_t::box_state,translator::translate(cost_type[i]),koord(0,0), koord(BUTTON_WIDTH,BUTTON_HEIGHT));
+		filterButtons[i].init(button_t::box_state,cost_type[i],koord(0,0), koord(BUTTON_WIDTH,BUTTON_HEIGHT));
 		filterButtons[i].add_listener(this);
 		filterButtons[i].background = cost_type_color[i];
 		add_komponente(filterButtons + i);

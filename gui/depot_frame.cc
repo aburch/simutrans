@@ -929,74 +929,74 @@ depot_frame_t::action_triggered(gui_komponente_t *komp,value_t p)
 
 void depot_frame_t::infowin_event(const event_t *ev)
 {
-    if(IS_WINDOW_CHOOSE_NEXT(ev)) {
-	/**
-	 * Since there is no depot list we search the whole map.
-	 * Volker Meyer
-	 */
-	depot_t *next_dep  = NULL;
+	gui_frame_t::infowin_event(ev);
 
-	koord pos = depot->gib_pos().gib_2d();
-	koord end = pos;
-	unsigned int dir = ev->ev_code;
+	if(IS_WINDOW_CHOOSE_NEXT(ev)) {
+		/**
+		* Since there is no depot list we search the whole map.
+		* Volker Meyer
+		*/
+		depot_t *next_dep  = NULL;
 
-	do {
-	    if(dir == NEXT_WINDOW) {
-		pos.x++;
-		if(pos.x == welt->gib_groesse_x()) {
-		    pos.x = 0;
-		    pos.y++;
-		    if(pos.y == welt->gib_groesse_y()) {
-			pos.y = 0;
-		    }
+		koord pos = depot->gib_pos().gib_2d();
+		koord end = pos;
+		unsigned int dir = ev->ev_code;
+
+		do {
+			if(dir == NEXT_WINDOW) {
+				pos.x++;
+				if(pos.x == welt->gib_groesse_x()) {
+					pos.x = 0;
+					pos.y++;
+					if(pos.y == welt->gib_groesse_y()) {
+						pos.y = 0;
+					}
+				}
+			 } else {
+				if(pos.x == 0) {
+					pos.x = welt->gib_groesse_x();
+					if(pos.y == 0) {
+						pos.y = welt->gib_groesse_y();
+					}
+					pos.y--;
+				}
+				pos.x--;
+			}
+			if(pos == end) {
+				next_dep = NULL;
+				break;
+			}
+			grund_t *gr = welt->lookup(pos)->gib_kartenboden();
+
+			next_dep = gr ? gr->gib_depot() : NULL;
+		} while(!next_dep || next_dep->gib_typ() != depot->gib_typ()  ||  next_dep->gib_besitzer()!=depot->gib_besitzer());
+
+		if(next_dep) {
+			/**
+			 * Replace our depot_frame_t with a new at the same position.
+			 * Volker Meyer
+			 */
+			int x = win_get_posx(this);
+			int y = win_get_posy(this);
+			destroy_win( this );
+
+			next_dep->zeige_info();
+			win_set_pos(next_dep->get_info_win(), x, y);
 		}
-	    } else {
-		if(pos.x == 0) {
-		    pos.x = welt->gib_groesse_x();
-		    if(pos.y == 0) {
-			pos.y = welt->gib_groesse_y();
-		    }
-		    pos.y--;
-		}
-		pos.x--;
-	    }
-	    if(pos == end) {
-		next_dep = NULL;
-		break;
-	    }
-	    grund_t *gr = welt->lookup(pos)->gib_kartenboden();
-
-	    next_dep = gr ? gr->gib_depot() : NULL;
-	} while(!next_dep || next_dep->gib_typ() != depot->gib_typ()  ||  next_dep->gib_besitzer()!=depot->gib_besitzer());
-
-	if(next_dep) {
-	    /**
-	     * Replace our depot_frame_t with a new at the same position.
-	     * Volker Meyer
-	     */
-	    int x = win_get_posx(this);
-	    int y = win_get_posy(this);
-	    destroy_win( this );
-
-	    next_dep->zeige_info();
-	    win_set_pos(next_dep->get_info_win(), x, y);
-	}
-	/**
-	 * Always center the map to depot
-	 * Volker Meyer
-	 */
-        welt->zentriere_auf(pos);
+		/**
+		* Always center the map to depot
+		* Volker Meyer
+		*/
+		welt->zentriere_auf(pos);
 	} else if(IS_WINDOW_REZOOM(ev)) {
-	    koord gr = gib_fenstergroesse();
-	    setze_fenstergroesse(gr);
+		koord gr = gib_fenstergroesse();
+		setze_fenstergroesse(gr);
 	} else if(ev->ev_class == INFOWIN && ev->ev_code == WIN_OPEN) {
 		build_vehicle_lists();
 		update_data();
 		layout(NULL);
-    }
-    else {
-		gui_frame_t::infowin_event(ev);
-
+	}
+	else {
 		if(IS_LEFTCLICK(ev) &&  !line_selector.getroffen(ev->cx, ev->cy-16)) {
 			// close combo box; we must do it ourselves, since the box does not recieve outside events ...
 			line_selector.close_box();

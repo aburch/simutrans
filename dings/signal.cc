@@ -33,6 +33,9 @@ void signal_t::info(cbuffer_t & buf) const
 	// well, needs to be done
 	ding_t::info(buf);
 
+	buf.append(translator::translate(besch->gib_name()));
+	buf.append("\n");
+
 	buf.append(translator::translate("\ndirection:"));
 	buf.append(get_dir());
 }

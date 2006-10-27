@@ -144,50 +144,50 @@ savegame_frame_t::savegame_frame_t(const char *suffix) :
 	button_frame.setze_groesse( koord( 175+26*2+56,y ) );
 	add_komponente(&scrolly);
 
-    y += 10+30;
-    divider1.setze_pos(koord(10,y));
-    divider1.setze_groesse(koord(257,0));
-    add_komponente(&divider1);
+	y += 10+30;
+	divider1.setze_pos(koord(10,y));
+	divider1.setze_groesse(koord(257,0));
+	add_komponente(&divider1);
 
-    y += 10;
-    savebutton.setze_pos(koord(10,y));
-    savebutton.setze_groesse(koord(65, 14));
-    savebutton.setze_text("Ok");
-    savebutton.setze_typ(button_t::roundbox);
-    savebutton.add_listener(this);
-    add_komponente(&savebutton);
+	y += 10;
+	savebutton.setze_pos(koord(10,y));
+	savebutton.setze_groesse(koord(65, 14));
+	savebutton.setze_text("Ok");
+	savebutton.setze_typ(button_t::roundbox);
+	savebutton.add_listener(this);
+	add_komponente(&savebutton);
 
-    cancelbutton.setze_pos(koord(202,y));
-    cancelbutton.setze_groesse(koord(65, 14));
-    cancelbutton.setze_text("Cancel");
-    cancelbutton.setze_typ(button_t::roundbox);
-    cancelbutton.add_listener(this);
-    add_komponente(&cancelbutton);
+	cancelbutton.setze_pos(koord(202,y));
+	cancelbutton.setze_groesse(koord(65, 14));
+	cancelbutton.setze_text("Cancel");
+	cancelbutton.setze_typ(button_t::roundbox);
+	cancelbutton.add_listener(this);
+	add_komponente(&cancelbutton);
 
-    setze_opaque(true);
-    setze_fenstergroesse(koord(175+26*2+56+12, y + 40));
+	setze_opaque(true);
+	setze_fenstergroesse(koord(175+26*2+56+12, y + 40));
 }
 
 
 
 savegame_frame_t::~savegame_frame_t()
 {
-    slist_iterator_tpl <button_t *> b_iter (buttons);
-    while(b_iter.next()) {
-	delete [] const_cast<char *>(b_iter.get_current()->text);
-	delete b_iter.get_current();
-    }
+	slist_iterator_tpl <button_t *> b_iter (buttons);
+	while(b_iter.next()) {
+		delete [] const_cast<char *>(b_iter.get_current()->gib_text());
+		delete b_iter.get_current();
+	}
 
-    slist_iterator_tpl <gui_label_t *> l_iter (labels);
-    while(l_iter.next()) {
-	delete [] const_cast<char *>(l_iter.get_current()->get_text_pointer());
-	delete l_iter.get_current();
-   }
+	slist_iterator_tpl <gui_label_t *> l_iter (labels);
+	while(l_iter.next()) {
+		delete [] const_cast<char *>(l_iter.get_current()->get_text_pointer());
+		delete l_iter.get_current();
+	}
 
-    slist_iterator_tpl <button_t *> s_iter (deletes);
-    while(s_iter.next()) {
-	delete s_iter.get_current();
-    }
+	slist_iterator_tpl <button_t *> s_iter (deletes);
+	while(s_iter.next()) {
+		delete s_iter.get_current();
+	}
 }
 
 
@@ -231,7 +231,8 @@ savegame_frame_t::add_file(const char *filename)
 
 	sprintf(name, "%s", filename);
 	name[strlen(name)-4] = '\0';
-	button->text = name;	// to avoid translation
+	button->setze_text(name);	// to avoid translation
+	button->set_no_translate(true);
 
 	// sort by date descending:
 	unsigned int i;

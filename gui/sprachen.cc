@@ -100,7 +100,8 @@ sprachengui_t::sprachengui_t(karte_t *) :
 	for(int i=0; i<translator::get_language_count(); i++) {
 		buttons.at(i).setze_pos(koord(10 + (i%2) * 100 , 44+14*(i/2)));
 		buttons.at(i).setze_typ(button_t::square_state);
-		buttons.at(i).text = translator::get_language_name(i);
+		buttons.at(i).setze_text(translator::get_language_name(i));
+		buttons.at(i).set_no_translate(true);
 
 		// check, if font exists
 		const char *fontname=translator::translate_from_lang(i,"PROP_FONT_FILE");

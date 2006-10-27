@@ -24,15 +24,15 @@ class action_listener_t
 public:
 	virtual ~action_listener_t() {}
 
-    /**
-     * This method is called if an action is triggered
-     * @author Hj. Malthaner
-     *
-     * Returns true, if action is done and no more
-     * components should be triggered.
-     * V.Meyer
-     */
-    virtual bool action_triggered(gui_komponente_t *komp, value_t extra) = 0;
+	/**
+	 * This method is called if an action is triggered
+	 * @author Hj. Malthaner
+	 *
+	 * Returns true, if action is done and no more
+	 * components should be triggered.
+	 * V.Meyer
+	 */
+	virtual bool action_triggered(gui_komponente_t *komp, value_t extra) = 0;
 };
 
 #endif

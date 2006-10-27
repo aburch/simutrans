@@ -42,7 +42,7 @@ Stichpunkte
 
 - details for convois: halfway
 - Brücken an senkrechten Wänden: done/halfway
-- tile 2x height: halfway-> slopes needed
+- tile 2x height: halfway-> need conversion for textures needed
 
 - Felder: Grafiken da, fehlt noch code (vielleicht wie Wälder?)
 
@@ -52,9 +52,15 @@ Stichpunkte
 - A* for goods
 - scripting for AI
 - Landfabrik alle x Jahre/Fakriken
-
+- merge identical images in makeobj
+- blocking crossing with animation/sound and transparent graphics
+- busy platforms
+- custom tool bars
 - Signals switching nearly like before (should be easy)
 - Odometer/Lifetime
+- plane shadow
+- renaming factories
+- longer financial history
 
 Immer zu tun:
 - Aufräumen von Datentypen für bessere Portierbarkeit

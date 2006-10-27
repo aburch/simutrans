@@ -53,7 +53,7 @@ private:
 	 * Tooltip ofthis button
 	 * @author Hj. Malthaner
 	 */
-	const char * tooltip;
+	const char * tooltip, *translated_tooltip;
 
 	enum type type;
 
@@ -62,17 +62,18 @@ private:
 	 * @author hsiegeln
 	 */
 	uint8 b_enabled:1;
-
-public:
-	PLAYER_COLOR_VAL background; //@author hsiegeln
-	PLAYER_COLOR_VAL foreground;
+	uint8 b_no_translate:1;
 
 	/**
 	 * Der im Button angezeigte Text
 	 * direct acces provided to avoid translations
 	 * @author Hj. Malthaner
 	 */
-	const char * text;
+	const char * text, *translated_text;
+
+public:
+	PLAYER_COLOR_VAL background; //@author hsiegeln
+	PLAYER_COLOR_VAL foreground;
 
 	bool pressed:1;
 
@@ -84,13 +85,19 @@ public:
 
 	void setze_typ(enum type typ);
 
-	const char * gib_text() const {return text;};
+	const char * gib_text() const {return text;}
 
 	/**
 	 * Setzt den im Button angezeigten Text
 	 * @author Hj. Malthaner
 	 */
 	void setze_text(const char * text);
+
+	/**
+	 * Setzt den im Button angezeigten Text
+	 * @author Hj. Malthaner
+	 */
+	void set_no_translate(bool b) { b_no_translate = b; }
 
 	/**
 	 * Sets the tooltip of this button
@@ -120,11 +127,11 @@ public:
 
 	void operator= (const button_t & other);
 
-	void enable() { b_enabled = true; };
+	void enable() { b_enabled = true; }
 
-	void disable() { b_enabled = false; };
+	void disable() { b_enabled = false; }
 
-	bool enabled() { return b_enabled; };
+	bool enabled() { return b_enabled; }
 };
 
 #endif

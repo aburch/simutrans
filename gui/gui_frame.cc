@@ -76,22 +76,21 @@ void gui_frame_t::setze_fenstergroesse(koord groesse)
  */
 void gui_frame_t::infowin_event(const event_t *ev)
 {
-    // %DB0 printf( "\nMessage: gui_frame_t::infowin_event( event_t const * ev ) : Fenster|Window %p : Event is %d", (void*)this, ev->ev_class );
-
-    if(IS_WINDOW_RESIZE(ev)) {
-      koord delta (ev->mx - ev->cx, ev->my - ev->cy);
-      resize(delta);
-    } else if(IS_WINDOW_MAKE_MIN_SIZE(ev)) {
-	  setze_fenstergroesse( koord(0,0) ) ;
-	  resize( koord(0,0) ) ;
+	// %DB0 printf( "\nMessage: gui_frame_t::infowin_event( event_t const * ev ) : Fenster|Window %p : Event is %d", (void*)this, ev->ev_class );
+	if(IS_WINDOW_RESIZE(ev)) {
+		koord delta (ev->mx - ev->cx, ev->my - ev->cy);
+		resize(delta);
+	} else if(IS_WINDOW_MAKE_MIN_SIZE(ev)) {
+		setze_fenstergroesse( koord(0,0) ) ;
+		resize( koord(0,0) ) ;
 	}
 	else if(ev->ev_class==INFOWIN  &&  (ev->ev_code==WIN_CLOSE  ||  ev->ev_code==WIN_OPEN)) {
 		dirty = true;
+		container.clear_dirty();
 	}
-
-    event_t ev2 = *ev;
-    translate_event(&ev2, 0, -16);
-    container.infowin_event(&ev2);
+	event_t ev2 = *ev;
+	translate_event(&ev2, 0, -16);
+	container.infowin_event(&ev2);
 }
 
 

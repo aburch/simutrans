@@ -180,11 +180,12 @@ static void draw_roundbutton(sint16 x, sint16 y, sint16 w, sint16 h, bool presse
 
 button_t::button_t()
 {
-	text = empty;
+	b_no_translate = false;
+	translated_text = text = empty;
 	pressed = false;
 	type = box;
 	foreground = COL_BLACK;
-	tooltip = 0;
+	translated_tooltip = tooltip = NULL;
 	background = MN_GREY3;
 	b_enabled = true;
 	init_button_images();
@@ -199,9 +200,11 @@ button_t::button_t(const button_t & other) : gui_komponente_action_creator_t(oth
 
 void button_t::init(enum type typ, const char *text, koord pos, koord size)
 {
+	b_no_translate = false;
 	setze_typ(typ);
 	setze_text(text);
 	setze_pos(pos);
+	translated_tooltip = tooltip = NULL;
 	if(size != koord::invalid) {
 		setze_groesse(size);
 	}
@@ -239,7 +242,8 @@ void button_t::setze_typ(enum type t)
 void
 button_t::setze_text(const char * text)
 {
-	this->text = translator::translate(text);
+	this->text = text;
+	translated_text = b_no_translate ? text : translator::translate(text);
 }
 
 
@@ -250,7 +254,8 @@ button_t::setze_text(const char * text)
  */
 void button_t::set_tooltip(const char * t)
 {
-	tooltip = translator::translate(t);
+	tooltip = t;
+	translated_tooltip = b_no_translate ? tooltip : translator::translate(tooltip);
 }
 
 
@@ -274,6 +279,15 @@ button_t::getroffen(int x,int y) {
  */
 void button_t::infowin_event(const event_t *ev)
 {
+	if(ev->ev_class==INFOWIN  &&  ev->ev_code==WIN_OPEN) {
+		if(text) {
+			translated_text = b_no_translate ? text : translator::translate(text);
+		}
+		if(tooltip) {
+			translated_tooltip = b_no_translate ? tooltip : translator::translate(tooltip);
+		}
+	}
+
 	// Hajo: we ignore resize events, they shouldn't make us
 	// pressed or upressed
 	if(!b_enabled  ||  IS_WINDOW_RESIZE(ev)) {
@@ -318,19 +332,19 @@ void button_t::zeichnen(koord offset)
 				display_ddd_box_clip(bx, by, bw, bh, COL_GREY6, COL_GREY3);
 				display_fillbox_wh_clip(bx+1, by+1, bw-2, bh-2, background, false);
 			}
-			int len = proportional_string_width(text);
-			display_proportional_clip(bx+max((bw-len)/2,0),by+(bh-large_font_height)/2, text, ALIGN_LEFT, b_enabled ? foreground : COL_GREY4, true);
+			int len = proportional_string_width(translated_text);
+			display_proportional_clip(bx+max((bw-len)/2,0),by+(bh-large_font_height)/2, translated_text, ALIGN_LEFT, b_enabled ? foreground : COL_GREY4, true);
 		}
 		break;
 
 		case roundbox: // new box with round corners
 			draw_roundbutton( bx, by, bw, bh, pressed );
-			display_proportional_clip(bx+(bw>>1),by+(bh-large_font_height)/2, text, ALIGN_MIDDLE, b_enabled ? foreground : COL_GREY4, true);
+			display_proportional_clip(bx+(bw>>1),by+(bh-large_font_height)/2, translated_text, ALIGN_MIDDLE, b_enabled ? foreground : COL_GREY4, true);
 			break;
 
 		case square: // little square in front of text
 			display_button_image(bx, by, SQUARE_BUTTON, pressed);
-			display_proportional_clip(bx+16,by+(12-large_font_height)/2, text, ALIGN_LEFT, b_enabled ? foreground : COL_GREY4, true);
+			display_proportional_clip(bx+16,by+(12-large_font_height)/2, translated_text, ALIGN_LEFT, b_enabled ? foreground : COL_GREY4, true);
 			break;
 
 		case arrowleft:
@@ -388,8 +402,8 @@ void button_t::zeichnen(koord offset)
 		break;
 	}
 
-	if(tooltip &&  getroffen( gib_maus_x(), gib_maus_y() )) {
-		win_set_tooltip(offset.x + pos.x + 16, offset.y + pos.y - 16, tooltip );
+	if(translated_tooltip &&  getroffen( gib_maus_x(), gib_maus_y() )) {
+		win_set_tooltip(offset.x + pos.x + 16, offset.y + pos.y - 16, translated_tooltip );
 	}
 }
 

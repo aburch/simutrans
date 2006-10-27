@@ -8,6 +8,8 @@ Known bugs: (hard to fix)
 	FIX: city creation on new map fixed (actually rectified deletion)
 	FIX: tunnel can now properly handle all way types
 	FIX: left and right position of buttons (you may skin round buttons now ... )
+	FIX: translation now shows the correct signal type in info window
+	FIX: button will update thier translation every time a dialog is opened
 
 
 Release of 99.02.2

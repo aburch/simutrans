@@ -41,6 +41,9 @@ public:
 	*/
 	gui_container_t();
 
+	// needed for WIN_OPEN events
+	void clear_dirty() {list_dirty=false;}
+
 	/**
 	* Fügt eine Komponente zum Container hinzu.
 	* @author Hj. Malthaner

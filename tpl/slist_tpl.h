@@ -41,18 +41,18 @@ template<class T>
 class slist_tpl
 {
 private:
-    struct node_t
-    {
-public:
-	node_t *next;
-	T data;
-    };
+	struct node_t
+	{
+	public:
+		node_t *next;
+		T data;
+	};
 
-    node_t * head;
-    node_t * tail;
-    unsigned int node_count;
+	node_t * head;
+	node_t * tail;
+	unsigned int node_count;
 
-    friend class slist_iterator_tpl<T>;
+	friend class slist_iterator_tpl<T>;
 
 	node_t * gimme_node()
 	{
@@ -78,36 +78,33 @@ public:
 		return sizeof(node_t);
 	}
 
-
-    /**
-     * Creates a new empty list.
-     *
-     * @author Hj. Malthaner
-     */
-    slist_tpl()
-    {
+	/**
+	 * Creates a new empty list.
+	 *
+	 * @author Hj. Malthaner
+	 */
+	slist_tpl()
+	{
 		head = 0;             // leere liste
 		tail = 0;
 		node_count = 0;
-    }
+	}
 
+  /**
+   * The destructor. Just calls clear()
+   *
+   * @author Hj. Malthaner
+   */
+  ~slist_tpl()
+  {
+      clear();
+  }
 
-    /**
-     * The destructor. Just calls clear()
-     *
-     * @author Hj. Malthaner
-     */
-    ~slist_tpl()
-    {
-        clear();
-    }
-
-
-    /**
-     * Inserts an element at the beginning of the list.
-     *
-     * @author Hj. Malthaner
-     */
+  /**
+   * Inserts an element at the beginning of the list.
+   *
+   * @author Hj. Malthaner
+   */
 	void insert(T data)
 	{
 		node_t *tmp = gimme_node();
@@ -123,14 +120,13 @@ public:
 		node_count++;
 	}
 
-
-    /**
-     * Inserts an element at a specific position
-     * - pos must be in the range 0..count().
-     * @author V. Meyer
-     */
-    void insert(T data, unsigned int pos)
-    {
+  /**
+   * Inserts an element at a specific position
+   * - pos must be in the range 0..count().
+   * @author V. Meyer
+   */
+  void insert(T data, unsigned int pos)
+  {
 		if(pos > node_count) {
 			dbg->fatal("slist_tpl<T>::insert()","<%s> index %d is out of bounds (<%d)",typeid(T).name(),pos,count());
 		}
@@ -153,15 +149,15 @@ public:
 			tail = tmp;
 		}
 		node_count++;
-    }
+  }
 
-    /**
-     * Appends an element to the end of the list.
-     *
-     * @author Hj. Malthaner
-     */
-    void append(T data)
-    {
+  /**
+   * Appends an element to the end of the list.
+   *
+   * @author Hj. Malthaner
+   */
+  void append(T data)
+  {
 		if(tail == 0) {
 			insert(data);
 		}
@@ -174,30 +170,30 @@ public:
 			tail = tmp;
 			node_count++;
 		}
-    }
+  }
 
-    /**
-     * Checks if the given element is already contained in the list.
-     *
-     * @author Hj. Malthaner
-     */
-    bool contains(const T data) const
-    {
-	node_t *p = head;
+  /**
+   * Checks if the given element is already contained in the list.
+   *
+   * @author Hj. Malthaner
+   */
+  bool contains(const T data) const
+  {
+		node_t *p = head;
 
-	while(p != 0 && p->data != data) {
-	    p = p->next;
+		while(p != 0 && p->data != data) {
+			p = p->next;
+		}
+		return p != 0;         // ist NULL wenn nicht gefunden
 	}
-	return p != 0;         // ist NULL wenn nicht gefunden
-    }
 
-    /**
-     * Removes an element from the list
-     *
-     * @author Hj. Malthaner
-     */
-    bool remove(const T data)
-    {
+	/**
+	 * Removes an element from the list
+	 *
+	 * @author Hj. Malthaner
+	 */
+	bool remove(const T data)
+	{
 		if(node_count == 0) {
 			//MESSAGE("slist_tpl<T>::remove()", "data not in list!");
 			return false;
@@ -232,15 +228,15 @@ public:
 		}
 		node_count--;
 		return true;
-    }
+	}
 
-    /**
-     * Removes an specific element from the list
-     *
-     * @author Hj. Malthaner
-     */
-    void remove_at(unsigned int pos)
-    {
+	/**
+	 * Removes an specific element from the list
+	 *
+	 * @author Hj. Malthaner
+	 */
+	void remove_at(unsigned int pos)
+	{
 		if(pos >= node_count) {
 			dbg->fatal("slist_tpl<T>::remove_at()","<%s> index %d is out of bounds",typeid(T).name(),pos);
 		}
@@ -270,13 +266,13 @@ public:
 			}
 		}
 		node_count--;
-    }
+	}
 
-    /**
-     * Retrieves the first element from the list. This element is
-     * deleted from the list. Useful for some queueing tasks.
-     * @author Hj. Malthaner
-     */
+	/**
+	 * Retrieves the first element from the list. This element is
+	 * deleted from the list. Useful for some queueing tasks.
+	 * @author Hj. Malthaner
+	 */
 	T remove_first()
 	{
 		if(node_count==0) {
@@ -299,34 +295,33 @@ public:
 		return tmp;
 	}
 
-
-    /**
-     * Recycles all nodes. Doesn't delete the objects.
-     * Leaves the list empty.
-     * @author Hj. Malthaner
-     */
-    void clear()
-    {
+	/**
+	 * Recycles all nodes. Doesn't delete the objects.
+	 * Leaves the list empty.
+	 * @author Hj. Malthaner
+	 */
+	void clear()
+	{
 		if(head) {
 			putback_nodes();
 		}
 		head = 0;
 		tail = 0;
 		node_count = 0;
-    }
+	}
 
-    unsigned int count() const
-    {
-	return node_count;
-    }
+	unsigned int count() const
+	{
+		return node_count;
+	}
 
-    bool is_empty() const
-    {
-	return head == 0;
-    }
+	bool is_empty() const
+	{
+		return head == 0;
+	}
 
-    T &at(unsigned int pos) const
-    {
+	T &at(unsigned int pos) const
+	{
 		node_t *p = head;
 
 		while(p != 0) {
@@ -338,11 +333,11 @@ public:
 
 		dbg->fatal("slist_tpl<T>::at()","<%s> index %d is out of bounds",typeid(T).name(),pos);
 		return head->data;	// to keep compiler silent
-    }
+	}
 
 
-    int index_of(T data) const
-    {
+	int index_of(T data) const
+	{
 		node_t *t = head;
 		int index = 0;
 
@@ -351,7 +346,7 @@ public:
 			index++;
 		}
 		return t ? index : -1;
-    }
+  }
 };
 
 
