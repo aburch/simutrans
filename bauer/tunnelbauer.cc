@@ -316,7 +316,7 @@ DBG_MESSAGE("tunnelbauer_t::baue()","build from (%d,%d)", pos.x, pos.y);
 		weg->setze_max_speed(besch->gib_topspeed());
 		welt->access(pos.gib_2d())->boden_hinzufuegen(tunnel);
 		tunnel->neuen_weg_bauen(weg, ribi_t::doppelt(ribi), sp);
-		cost += umgebung_t::cst_tunnel;
+		cost += besch->gib_preis();
 		pos = pos + zv;
 	}
 
@@ -361,8 +361,8 @@ DBG_MESSAGE("tunnelbauer_t::baue_einfahrt()","at end (%d,%d) for %s", end.x, end
 
 	welt->access(end.gib_2d())->kartenboden_setzen( tunnel, false );
 	tunnel->neuen_weg_bauen(weg, ribi, sp);
+	cost += besch->gib_preis();
 
-	cost += umgebung_t::cst_tunnel;
 	// no undo possible anymore
 	if(sp!=NULL) {
 		sp->init_undo(besch->gib_wegtyp(),0);
@@ -486,6 +486,6 @@ tunnelbauer_t::remove(karte_t *welt, spieler_t *sp, koord3d start, waytype_t weg
 		gr_new->neuen_weg_bauen( weg, ribi, sp );
 	}
 	welt->setze_dirty();
-	sp->buche(cost, start.gib_2d(), COST_CONSTRUCTION);
+	sp->buche(-cost, start.gib_2d(), COST_CONSTRUCTION);
 	return NULL;
 }

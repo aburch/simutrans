@@ -224,12 +224,12 @@ void weg_t::info(cbuffer_t & buf) const
 	buf.append(translator::translate("Max. speed:"));
 	buf.append(" ");
 	buf.append(max_speed);
-	buf.append("km/h\n");
+	buf.append(translator::translate("km/h\n"));
 
-	buf.append("\nRibi (unmasked)");
+	buf.append(translator::translate("\nRibi (unmasked)"));
 	buf.append(gib_ribi_unmasked());
 
-	buf.append("\nRibi (masked)");
+	buf.append(translator::translate("\nRibi (masked)"));
 	buf.append(gib_ribi());
 	buf.append("\n");
 
@@ -246,7 +246,7 @@ void weg_t::info(cbuffer_t & buf) const
 
 #if 1
 	char buffer[256];
-	sprintf(buffer,"convoi passed last\nmonth %i\n", statistics[1][1]);
+	sprintf(buffer,translator::translate("convoi passed last\nmonth %i\n"), statistics[1][1]);
 	buf.append(buffer);
   // Debug - output stats
 #else
