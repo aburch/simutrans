@@ -45,14 +45,14 @@ zeiger_t::setze_pos(koord3d k)
 		mark_image_dirty( gib_bild(), 0 );
 		set_flag(ding_t::dirty);
 
-		if(welt->lookup(gib_pos().gib_2d())  &&  welt->lookup(gib_pos().gib_2d())->gib_kartenboden()) {
-			welt->lookup(gib_pos().gib_2d())->gib_kartenboden()->clear_flag(grund_t::marked);
-			welt->lookup(gib_pos().gib_2d())->gib_kartenboden()->set_flag(grund_t::dirty);
+		if(welt->lookup(gib_pos())) {
+			welt->lookup(gib_pos())->clear_flag(grund_t::marked);
+			welt->lookup(gib_pos())->set_flag(grund_t::dirty);
 		}
 		ding_t::setze_pos(k);
-		if(gib_yoff()==welt->Z_PLAN  &&  welt->lookup(k.gib_2d())  &&  welt->lookup(k.gib_2d())->gib_kartenboden()) {
-			welt->lookup(k.gib_2d())->gib_kartenboden()->set_flag(grund_t::marked);
-			welt->lookup(gib_pos().gib_2d())->gib_kartenboden()->set_flag(grund_t::dirty);
+		if(gib_yoff()==welt->Z_PLAN  &&  welt->lookup(k)) {
+			welt->lookup(k)->set_flag(grund_t::marked);
+			welt->lookup(k)->set_flag(grund_t::dirty);
 		}
 	}
 }

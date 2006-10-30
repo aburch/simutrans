@@ -29,24 +29,36 @@ brueckenboden_t::brueckenboden_t(karte_t *welt, koord3d pos, int grund_hang, int
 
 void brueckenboden_t::calc_bild()
 {
-	if(ist_karten_boden()) {
-		setze_bild( grund_besch_t::gib_ground_tile(slope,gib_hoehe() ) );
-		grund_t::calc_back_bild(gib_hoehe()/16,slope);
-	}
-	else {
+	if(ist_tunnel()) {
 		clear_back_bild();
 		setze_bild(IMG_LEER);
-	}
-	if(wege[1]) {
-		wege[1]->calc_bild(pos);
-	}
-	for(uint8 i=0;  i<gib_top();  i++  ) {
-		ding_t *dt=obj_bei(i);
-		if(dt) {
-			dt->calc_bild();
+		if(wege[0]) {
+			wege[0]->setze_bild(IMG_LEER);
+		}
+		if(wege[1]) {
+			wege[1]->setze_bild(IMG_LEER);
 		}
 	}
-	set_flag(draw_as_ding);
+	else {
+		if(ist_karten_boden()) {
+			setze_bild( grund_besch_t::gib_ground_tile(slope,gib_hoehe() ) );
+			grund_t::calc_back_bild(gib_hoehe()/16,slope);
+		}
+		else {
+			clear_back_bild();
+			setze_bild(IMG_LEER);
+		}
+		if(wege[1]) {
+			wege[1]->calc_bild(pos);
+		}
+		for(uint8 i=0;  i<gib_top();  i++  ) {
+			ding_t *dt=obj_bei(i);
+			if(dt) {
+				dt->calc_bild();
+			}
+		}
+		set_flag(draw_as_ding);
+	}
 }
 
 

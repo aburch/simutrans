@@ -80,7 +80,8 @@ inthashtable_tpl <unsigned long, const char*> ground_texts;
  * @author Hj. Malthaner
  */
 karte_t * grund_t::welt = NULL;
-bool grund_t::show_grid = false;;
+bool grund_t::show_grid = false;
+bool grund_t::underground_mode = false;
 
 
 ptrhashtable_tpl<grund_t *, grund_info_t *> *grund_t::grund_infos = new ptrhashtable_tpl<grund_t *, grund_info_t *> ();
@@ -832,16 +833,29 @@ grund_t::display_dinge(const sint16 xpos, sint16 ypos, bool reset_dirty)
 //	DBG_DEBUG("grund_t::display_dinge()","at %i,%i",pos.x,pos.y);
 	const bool dirty = get_flag(grund_t::dirty);
 
-	if(reset_dirty  &&  get_flag(grund_t::marked)) {
-		uint8 hang = gib_grund_hang();
-		uint8 back_hang = (hang&1) + ((hang>>1)&6)+8;
+	if(!ist_im_tunnel()) {
+		if(reset_dirty  &&  get_flag(grund_t::marked)) {
+			uint8 hang = gib_grund_hang();
+			uint8 back_hang = (hang&1) + ((hang>>1)&6)+8;
 //DBG_DEBUG("grund_t::display_dinge()","marker at %i,%i, img=%i",pos.x,pos.y,grund_besch_t::marker->gib_bild(back_hang));
-		display_img(grund_besch_t::marker->gib_bild(back_hang), xpos, ypos, dirty);
-		dinge.display_dinge( xpos, ypos, reset_dirty );
-		display_img(grund_besch_t::marker->gib_bild(hang&7), xpos, ypos, dirty);
-	}
-	else {
-		dinge.display_dinge( xpos, ypos, reset_dirty );
+			display_img(grund_besch_t::marker->gib_bild(back_hang), xpos, ypos, dirty);
+			dinge.display_dinge( xpos, ypos, reset_dirty );
+			display_img(grund_besch_t::marker->gib_bild(hang&7), xpos, ypos, dirty);
+		}
+		else {
+			dinge.display_dinge( xpos, ypos, reset_dirty );
+		}
+	} else if(grund_t::underground_mode) {
+		// only grid lines for underground mode ...
+		uint8 hang = gib_grund_hang();
+		uint8 back_hang = (hang&1) + ((hang>>1)&6);
+		if(ist_karten_boden()) {
+			display_img(grund_besch_t::borders->gib_bild(back_hang), xpos, ypos, dirty);
+		}
+		if(get_flag(grund_t::marked)) {
+			display_img(grund_besch_t::marker->gib_bild(back_hang)+8, xpos, ypos, dirty);
+			display_img(grund_besch_t::marker->gib_bild(hang&7), xpos, ypos, dirty);
+		}
 	}
 
 	// marker/station text

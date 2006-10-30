@@ -27,7 +27,7 @@ fundament_t::fundament_t(karte_t *welt, loadsave_t *file) : grund_t(welt)
 	slope = (uint8)hang_t::flach;
 }
 
-fundament_t::fundament_t(karte_t *welt, koord3d pos,hang_t::typ hang ) : grund_t(welt, pos)
+fundament_t::fundament_t(karte_t *welt, koord3d pos, hang_t::typ hang ) : grund_t(welt, pos)
 {
 	setze_bild( IMG_LEER );
 	if(hang) {
@@ -58,9 +58,15 @@ void
 fundament_t::calc_bild()
 {
 	slope = 0;
-	grund_t::calc_bild();
-	setze_bild( grund_besch_t::gib_ground_tile(0,gib_hoehe()) );
-	grund_t::calc_back_bild(gib_hoehe()/16,0);
+	if(ist_im_tunnel()) {
+		clear_back_bild();
+		setze_bild(IMG_LEER);
+	}
+	else {
+		grund_t::calc_bild();
+		setze_bild( grund_besch_t::gib_ground_tile(0,gib_hoehe()) );
+		grund_t::calc_back_bild(gib_hoehe()/16,0);
+	}
 }
 
 

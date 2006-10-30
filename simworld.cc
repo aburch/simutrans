@@ -2398,17 +2398,17 @@ void karte_t::laden(loadsave_t *file)
 
 DBG_DEBUG("karte_t::laden", "einstellungen loaded (groesse %i,%i) timeline=%i beginner=%i",einstellungen->gib_groesse_x(),einstellungen->gib_groesse_y(),umgebung_t::use_timeline,einstellungen->gib_beginner_mode());
 
-    // wird gecached, um den Pointerzugriff zu sparen, da
-    // die groesse _sehr_ oft referenziert wird
-    cached_groesse_gitter_x = einstellungen->gib_groesse_x();
-    cached_groesse_gitter_y = einstellungen->gib_groesse_y();
-    cached_groesse_max = max(cached_groesse_gitter_x,cached_groesse_gitter_y);
-    cached_groesse_karte_x = cached_groesse_gitter_x-1;
-    cached_groesse_karte_y = cached_groesse_gitter_y-1;
-    x_off = y_off = 0;
+	// wird gecached, um den Pointerzugriff zu sparen, da
+	// die groesse _sehr_ oft referenziert wird
+	cached_groesse_gitter_x = einstellungen->gib_groesse_x();
+	cached_groesse_gitter_y = einstellungen->gib_groesse_y();
+	cached_groesse_max = max(cached_groesse_gitter_x,cached_groesse_gitter_y);
+	cached_groesse_karte_x = cached_groesse_gitter_x-1;
+	cached_groesse_karte_y = cached_groesse_gitter_y-1;
+	x_off = y_off = 0;
 
-    // Reliefkarte an neue welt anpassen
-    reliefkarte_t::gib_karte()->setze_welt(this);
+	// Reliefkarte an neue welt anpassen
+	reliefkarte_t::gib_karte()->setze_welt(this);
 
 	//12-Jan-02     Markus Weber added
 	grundwasser = einstellungen->gib_grundwasser();
@@ -2898,7 +2898,15 @@ void karte_t::bewege_zeiger(const event_t *ev)
 				const planquadrat_t *plan = lookup(koord(mi,mj));
 				if(plan != NULL) {
 					hgt = plan->gib_kartenboden()->gib_hoehe();
-				} else {
+					if(grund_t::underground_mode) {
+						for( int i=0;  i<plan->gib_boden_count();  i++  ) {
+							if(!plan->gib_boden_bei(i)->ist_tunnel()) {
+								hgt = plan->gib_boden_bei(i)->gib_hoehe();
+							}
+						}
+					}
+				}
+				else {
 					hgt = grundwasser;
 				}
 			}
@@ -2934,9 +2942,20 @@ void karte_t::bewege_zeiger(const event_t *ev)
 			j_alt = mj;
 
 			koord3d pos = lookup(koord(mi,mj))->gib_kartenboden()->gib_pos();
-			if(zeiger->gib_yoff()==Z_GRID) {
-				pos.z = lookup_hgt(koord(mi,mj));
-				// pos.z = max_hgt(koord(mi,mj));
+			if(grund_t::underground_mode) {
+				const planquadrat_t *plan=lookup(koord(mi,mj));
+				pos = koord3d::invalid;
+				for( int i=0;  i<plan->gib_boden_count();  i++  ) {
+					if(!plan->gib_boden_bei(i)->ist_tunnel()) {
+						pos = plan->gib_boden_bei(i)->gib_pos();
+					}
+				}
+			}
+			else {
+				if(zeiger->gib_yoff()==Z_GRID) {
+					pos.z = lookup_hgt(koord(mi,mj));
+					// pos.z = max_hgt(koord(mi,mj));
+				}
 			}
 			zeiger->setze_pos(pos);
 		}
@@ -3049,6 +3068,21 @@ karte_t::interactive_event(event_t &ev)
 	case '#':
 	    sound_play(click_sound);
 	    grund_t::toggle_grid();
+	    setze_dirty();
+	    break;
+	case 'U':
+	    sound_play(click_sound);
+	    grund_t::toggle_underground_mode();
+			for(int y=0; y<gib_groesse_y(); y++) {
+				for(int x=0; x<gib_groesse_x(); x++) {
+					const planquadrat_t *plan = lookup(koord(x,y));
+					const int boden_count = plan->gib_boden_count();
+					for(int schicht=0; schicht<boden_count; schicht++) {
+						grund_t *gr = plan->gib_boden_bei(schicht);
+						gr->calc_bild();
+					}
+				}
+			}
 	    setze_dirty();
 	    break;
 	case 167:    // Hajo: '§'

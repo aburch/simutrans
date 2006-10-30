@@ -53,14 +53,13 @@ template <class K, class V> class ptrhashtable_tpl;
 class grund_t
 {
 public:
-    enum { MAX_WEGE=2 };
+  enum { MAX_WEGE=2 };
 
-
-    /**
-     * Flag-Werte für das neuzeichnen geänderter Untergründe
-     * @author Hj. Malthaner
-     */
-    enum flag_values {
+  /**
+   * Flag-Werte für das neuzeichnen geänderter Untergründe
+   * @author Hj. Malthaner
+   */
+  enum flag_values {
 		keine_flags=0,
 		dirty=1, // was changed => redraw full
 		is_kartenboden=2,
@@ -68,8 +67,7 @@ public:
 		marked = 8,  // will have a frame
 		draw_as_ding = 16, // is a slope etc => draw as one
 		is_cover_tile = 32,	// is a ground; however, below is another ground ...
-    };
-
+  };
 
 protected:
 	/**
@@ -80,124 +78,127 @@ protected:
 
 	static bool show_grid;
 
+public:
+	/* true, when only underground should be visible
+	 * @author kierongreen
+	 */
+	static bool underground_mode;
+
 protected:
-    /**
-     * Zusammenfassung des Ding-Container als Objekt
-     * @author V. Meyer
-     */
-    dingliste_t dinge;
+	/**
+	 * Zusammenfassung des Ding-Container als Objekt
+	 * @author V. Meyer
+	 */
+	dingliste_t dinge;
 
-    /**
-     * The station this ground is bound to
-     */
-    halthandle_t halt;
+	/**
+	 * The station this ground is bound to
+	 */
+	halthandle_t halt;
 
-    /**
-     * Jeder Boden hat im Moment maximal 2 Wege (Kreuzungen sind 1 Weg).
-     * Dieses Array darf immer nur bei den niedrigsten Indices gefuellt sein.
-     */
-    weg_t *wege[MAX_WEGE];
+	/**
+	 * Jeder Boden hat im Moment maximal 2 Wege (Kreuzungen sind 1 Weg).
+	 * Dieses Array darf immer nur bei den niedrigsten Indices gefuellt sein.
+	 */
+	weg_t *wege[MAX_WEGE];
 
-    /**
-     * Koordinate in der Karte.
-     * @author Hj. Malthaner
-     */
-    koord3d pos;
+	/**
+	 * Koordinate in der Karte.
+	 * @author Hj. Malthaner
+	 */
+	koord3d pos;
 
-    /**
-     * 0..100: slopenr, (bild_nr%100), normal ground
-     * (bild_nr/100)%17 left slope
-     * (bild_nr/1700) right slope
-     * @author Hj. Malthaner
-     */
-    image_id bild_nr;
+	/**
+	 * 0..100: slopenr, (bild_nr%100), normal ground
+	 * (bild_nr/100)%17 left slope
+	 * (bild_nr/1700) right slope
+	 * @author Hj. Malthaner
+	 */
+	image_id bild_nr;
 
 	/* image of the walls */
-    sint8 back_bild_nr;
+	sint8 back_bild_nr;
 
-    /**
-     * Flags für das neuzeichnen geänderter Untergründe
-     * @author Hj. Malthaner
-     */
-    uint8 flags;
+	/**
+	 * Flags für das neuzeichnen geänderter Untergründe
+	 * @author Hj. Malthaner
+	 */
+	uint8 flags;
 
-    /**
-     * der Besitzer des Feldes als index in das array der Welt,
-     * -1 bedeutet "kein besitzer"
-     * @author Hj. Malthaner
-     */
-    sint8 besitzer_n;
+	/**
+	 * der Besitzer des Feldes als index in das array der Welt,
+	 * -1 bedeutet "kein besitzer"
+	 * @author Hj. Malthaner
+	 */
+	sint8 besitzer_n;
 
-    // slope (now saved locally), because different grounds need differen slopes
-    uint8 slope;
+	// slope (now saved locally), because different grounds need differen slopes
+	uint8 slope;
 
-    /**
-     * Description;
-     *      Checks whether there is a way connection from this to gr in dv
-     *      direction of the given waytype.
-     *
-     * Return:
-     *      false, if ground is NULL (this case is explitly allowed).
-     *      true, if waytype_t is invalid_wt (this case is explitly allowed)
-     *      Check result otherwise
-     *
-     * Notice:
-     *      helper function for "get_neighbour"
-     *      Currently private, but it may be possible to make it public, if
-     *      neeeded.
-     *      Was previously a part of the simposition module.
-     *
-     * @author: Volker Meyer
-     * @date: 21.05.2003
-     */
-    bool is_connected(const grund_t *gr, waytype_t wegtyp, koord dv) const;
+	/**
+	 * Description;
+	 *      Checks whether there is a way connection from this to gr in dv
+	 *      direction of the given waytype.
+	 *
+	 * Return:
+	 *      false, if ground is NULL (this case is explitly allowed).
+	 *      true, if waytype_t is invalid_wt (this case is explitly allowed)
+	 *      Check result otherwise
+	 *
+	 * Notice:
+	 *      helper function for "get_neighbour"
+	 *      Currently private, but it may be possible to make it public, if
+	 *      neeeded.
+	 *      Was previously a part of the simposition module.
+	 *
+	 * @author: Volker Meyer
+	 * @date: 21.05.2003
+	 */
+	bool is_connected(const grund_t *gr, waytype_t wegtyp, koord dv) const;
 
-
-    /*
-     * Check, whether a may in the given direction may move up or down.
-     * Returns 16 (up), 0 (only same height) or -16 (down)
-     * @author V. Meyer
-     */
-    /**
-     * Description;
-     *      Check, whether it is possible that a way goes up or down in dv
-     *      direction. The result depends of the ground type (i.e tunnel entries)
-     *      and the "hang_typ" of the ground.
-     *
-     *      Returns 16, if it is possible to go up
-     *      Returns -16, if it is possible to go down
-     *      Returns 0 otherwise.
-     *
-     * Notice:
-     *      helper function for "get_neighbour"
-     *      Was previously a part of the simposition module.
-     *
-     * @author: Volker Meyer
-     * @date: 21.05.2003
-     */
-    int get_vmove(koord dir) const;
+	/*
+	 * Check, whether a may in the given direction may move up or down.
+	 * Returns 16 (up), 0 (only same height) or -16 (down)
+	 * @author V. Meyer
+	 */
+	/**
+	 * Description;
+	 *      Check, whether it is possible that a way goes up or down in dv
+	 *      direction. The result depends of the ground type (i.e tunnel entries)
+	 *      and the "hang_typ" of the ground.
+	 *
+	 *      Returns 16, if it is possible to go up
+	 *      Returns -16, if it is possible to go down
+	 *      Returns 0 otherwise.
+	 *
+	 * Notice:
+	 *      helper function for "get_neighbour"
+	 *      Was previously a part of the simposition module.
+	 *
+	 * @author: Volker Meyer
+	 * @date: 21.05.2003
+	 */
+	int get_vmove(koord dir) const;
 
 protected:
-
-
-    grund_t(karte_t *wl);
+	grund_t(karte_t *wl);
 
 
 public:
-    /**
-     * setzt die Bildnr. des anzuzeigenden Bodens
-     * @author Hj. Malthaner
-     */
-    inline void setze_bild(image_id n) {bild_nr = n; set_flag(dirty);};
+  /**
+   * setzt die Bildnr. des anzuzeigenden Bodens
+   * @author Hj. Malthaner
+   */
+  inline void setze_bild(image_id n) {bild_nr = n; set_flag(dirty);};
 
 
 protected:
-    /**
-     * Pointer to the world of this ground. Static to conserve space.
-     * Change to instance variable once more than one world is available.
-     * @author Hj. Malthaner
-     */
-    static karte_t *welt;
+  /**
+   * Pointer to the world of this ground. Static to conserve space.
+   * Change to instance variable once more than one world is available.
+   * @author Hj. Malthaner
+   */
+  static karte_t *welt;
 
 	// calculates the slope image and sets the draw_as_ding flag correctly
 	void calc_back_bild(const sint8 hgt,const sint8 slope_this);
@@ -214,6 +215,11 @@ public:
 	 * Toggle ground grid display (now only a flag)
 	 */
 	static void toggle_grid() { grund_t::show_grid = !grund_t::show_grid; }
+
+	/**
+	 * Toggle ground grid display (now only a flag)
+	 */
+	static void toggle_underground_mode() { grund_t::underground_mode = !grund_t::underground_mode; grund_t::show_grid = grund_t::underground_mode; }
 
 	karte_t *gib_welt() const {return welt;}
 
@@ -338,14 +344,14 @@ public:
 	* cannot be virtual - subclasses must set the flags appropriately!
 	* @author Hj. Malthaner
 	*/
-	inline bool ist_tunnel() const {return gib_typ()==tunnelboden;}
+	inline bool ist_tunnel() const {return ((gib_typ()==tunnelboden)^grund_t::underground_mode);}
 
 	/**
 	* This is called very often, it must be inlined and therefore
 	* cannot be virtual - subclasses must set the flags appropriately!
 	* @author Hj. Malthaner
 	*/
-	inline bool ist_im_tunnel() const {return ist_tunnel()  &&  ist_karten_boden()==0;}
+	inline bool ist_im_tunnel() const {return (gib_typ()==tunnelboden  &&  ist_karten_boden()==0)^grund_t::underground_mode;}
 
 	/* this will be stored locally, since it is called many, many times */
 	inline uint8 ist_karten_boden() const {return (flags&is_kartenboden);}

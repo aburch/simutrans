@@ -11,8 +11,6 @@ public:
 
 	virtual void rdwr(loadsave_t *file);
 
-	inline bool ist_tunnel() const { return true; };
-
 	bool set_slope(hang_t::typ) { return false; }
 	hang_t::typ gib_weg_hang() const { return hang_t::flach; }
 

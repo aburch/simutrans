@@ -184,7 +184,7 @@ private:
      */
 	uint8 height_to_climate[32];
 
-    zeiger_t *zeiger;
+	zeiger_t *zeiger;
 
 	slist_tpl<sync_steppable *> sync_add_list;	// these objects are move to the sync_list (but before next sync step, so they do not interfere!)
 	slist_tpl<sync_steppable *> sync_list;

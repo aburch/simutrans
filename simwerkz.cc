@@ -1672,8 +1672,12 @@ dbg->warning("wkz_fahrplan_insert_aux()","Schedule is (null), doing nothing");
 		for(  unsigned cnt=0;  cnt<pl->gib_boden_count();  cnt++  ) {
 			// with control backwards
 			const unsigned i = (backwards) ? pl->gib_boden_count()-1-cnt : cnt;
-			// ignore tunnel
 			bd = pl->gib_boden_bei(i);
+			// ignore tunnel (can be set with Underground mode)
+			if(bd->ist_im_tunnel()) {
+				bd = 0;
+				continue;
+			}
 			// now just for error messages, we assing a valid ground
 			// and check for ownership
 			if(!bd->gib_halt().is_bound()  &&  !sp->check_owner(bd->gib_besitzer())) {

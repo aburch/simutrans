@@ -15,8 +15,6 @@ public:
 
 	virtual int gib_weg_yoff() const;
 
-	inline bool ist_bruecke() const { return true; }
-
 	bool setze_grund_hang(hang_t::typ /*sl*/) const { return false; }
 	hang_t::typ gib_weg_hang() const { return weg_hang; }
 
