@@ -84,14 +84,6 @@ public:
 	}
 
 
-
-	bool contains(const T data) const
-	{
-		// not supported
-		assert(0);
-	}
-
-
 	/**
 	* unfourtunately, the removing is as much effort as the insertion ...
 	*/
