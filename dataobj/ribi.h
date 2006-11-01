@@ -15,8 +15,6 @@
 
 class koord;
 
-class ribi_t;
-
 
 class hang_t {
 #ifndef DOUBLE_GROUNDS
