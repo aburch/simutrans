@@ -414,7 +414,7 @@ route_t::intern_calc_route(karte_t *welt, const koord3d ziel, const koord3d star
 	GET_NODE();
 
 	uint32 step = 0;
-	ANode *tmp =(ANode *)&(nodes[step]);
+	ANode* tmp = &nodes[step];
 	step ++;
 
 	tmp->parent = NULL;
@@ -517,7 +517,7 @@ route_t::intern_calc_route(karte_t *welt, const koord3d ziel, const koord3d star
 				const uint32 new_f = new_g + calc_distance( to->gib_pos(), ziel );
 
 				// add new
-				ANode *k=(ANode *)(nodes+step);
+				ANode* k = &nodes[step];
 				step ++;
 
 				k->parent = tmp;
