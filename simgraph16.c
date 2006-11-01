@@ -1419,7 +1419,7 @@ static void display_img_wc(KOORD_VAL h, const KOORD_VAL xp, const KOORD_VAL yp, 
 /**
  * Zeichnet Bild ohne Clipping
  */
-void display_img_nc(KOORD_VAL h, const KOORD_VAL xp, const KOORD_VAL yp, const PIXVAL *sp)
+static void display_img_nc(KOORD_VAL h, const KOORD_VAL xp, const KOORD_VAL yp, const PIXVAL *sp)
 {
 	if (h > 0) {
 		PIXVAL *tp = textur + xp + yp * disp_width;
