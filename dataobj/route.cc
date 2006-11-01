@@ -401,18 +401,14 @@ route_t::intern_calc_route(karte_t *welt, const koord3d ziel, const koord3d star
 
 	// there are several variant for mantaining the open list
 	// however, only binary heap and HOT queue with binary heap are worth considering
-#ifdef tpl_HOT_queue_tpl_h
+#if defined(tpl_HOT_queue_tpl_h)
     static HOT_queue_tpl <ANode *> queue;
-#else
-#ifdef tpl_binary_heap_tpl_h
+#elif defined(tpl_binary_heap_tpl_h)
     static binary_heap_tpl <ANode *> queue;
-#else
-#ifdef tpl_sorted_heap_tpl_h
+#elif defined(tpl_sorted_heap_tpl_h)
     static sorted_heap_tpl <ANode *> queue;
 #else
     static prioqueue_tpl <ANode *> queue;
-#endif
-#endif
 #endif
 
 	GET_NODE();
