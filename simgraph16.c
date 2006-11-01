@@ -1425,7 +1425,7 @@ static void display_img_nc(KOORD_VAL h, const KOORD_VAL xp, const KOORD_VAL yp, 
 		PIXVAL *tp = textur + xp + yp * disp_width;
 
 		do { // zeilen dekodieren
-			PIXVAL runlen = *sp++;
+			uint32 runlen = *sp++;
 			PIXVAL *p = tp;
 
 			// eine Zeile dekodieren
@@ -1465,16 +1465,15 @@ static void display_img_nc(KOORD_VAL h, const KOORD_VAL xp, const KOORD_VAL yp, 
 					"cld\n\t"
 					// rep movsw and we would be finished, but we unroll
 					// uneven number of words to copy
-					"testb $1, %%cl\n\t"
-					"je 2f\n\t"
+					"shrl %2\n\t"
+					"jnc 0f\n\t"
 					// Copy first word
 					// *p++ = *sp++;
 					"movsw\n"
-					"2:\n\t"
-					"shrl %%ecx\n\t"
+					"0:\n\t"
 					"rep\n\t"
 					"movsd\n\t"
-					: "+D" (p), "+S" (sp), "+c" (runlen)
+					: "+D" (p), "+S" (sp), "+r" (runlen)
 					:
 					: "cc"
 				);
@@ -1482,25 +1481,18 @@ static void display_img_nc(KOORD_VAL h, const KOORD_VAL xp, const KOORD_VAL yp, 
 				// this code is sometimes slower, mostly 5% faster, not really clear why and when (cahce alignment?)
 				asm volatile (
 					"cld\n\t"
-					"andl $255,%%ecx\n\t"
 					// rep movsw and we would be finished, but we unroll
 					// uneven number of words to copy
-					"testb $1, %%cl\n\t"
-					"je 2f\n\t"
+					"shrl %2\n\t"
+					"jnc 0f\n\t"
 					// Copy first word
 					// *p++ = *sp++;
 					"movsw\n\t"
-					"dec %%ecx\n"
-					"2:\n\t"
-					"negb %%cl\n\t"
-					"shrl %%ecx\n\t"
-//					"cmp $0,%%ecx\n\t"
-					"je 4f\n\t"
-					"lea 3f(,%%ecx,1),%%ecx\n\t"
-					"jmp * %%ecx\n\t"
+					"0:\n\t"
+					"negl %2\n\t"
+					"addl $1f, %2\n\t"
+					"jmp * %2\n\t"
 					".p2align 2\n\t"
-					".align 4\n"
-					"3:\n\t"
 					"movsd\n\t"
 					"movsd\n\t"
 					"movsd\n\t"
@@ -1637,9 +1629,9 @@ static void display_img_nc(KOORD_VAL h, const KOORD_VAL xp, const KOORD_VAL yp, 
 					"movsd\n\t"
 					"movsd\n"
 
-					"4:\n\t"
+					"1:\n\t"
 
-					: "+D" (p), "+S" (sp), "+c" (runlen)
+					: "+D" (p), "+S" (sp), "+r" (runlen)
 					:
 					: "cc"
 				);
