@@ -215,7 +215,7 @@ route_t::find_route(karte_t *welt,
 	// memory in static list ...
 	if(nodes==NULL) {
 		MAX_STEP = umgebung_t::max_route_steps;
-		nodes = (ANode *)malloc( sizeof(ANode)*MAX_STEP );
+		nodes = new ANode[MAX_STEP];
 	}
 
 	INT_CHECK("route 347");
@@ -394,7 +394,7 @@ route_t::intern_calc_route(karte_t *welt, const koord3d ziel, const koord3d star
 	// memory in static list ...
 	if(nodes==NULL) {
 		MAX_STEP = umgebung_t::max_route_steps;	// may need very much memory => configurable
-		nodes = (ANode *)malloc( sizeof(ANode)*(MAX_STEP+4+2) );
+		nodes = new ANode[MAX_STEP + 4 + 2];
 	}
 
 	INT_CHECK("route 347");
