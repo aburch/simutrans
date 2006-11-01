@@ -203,7 +203,7 @@ template <class T> class quickstone_tpl
     return entry != other.entry;
   };
 
-} GCC_PACKED;
+};
 
 template <class T> T** quickstone_tpl<T>::data = 0;
 
