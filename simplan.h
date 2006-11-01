@@ -49,7 +49,7 @@ public:
 	 * Constructs a planquadrat with initial capacity of one ground
 	 * @author Hansjörg Malthaner
 	 */
-	planquadrat_t() : boeden(1), halt_list(0) { halt = halthandle_t(); }
+	planquadrat_t() : boeden(1), halt_list(0), halt() {}
 
 	/**
 	 * setzt alle Eintragungen auf NULL
