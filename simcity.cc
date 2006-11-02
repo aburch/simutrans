@@ -1507,11 +1507,11 @@ DBG_MESSAGE("stadt_t::check_bau_rathaus()","add townhall (bev=%i)",buildings.get
 				alte_str == koord::invalid;
 			}
 		}
-		if(umziehen && alte_str != koord::invalid ) {
+		if(umziehen  &&  alte_str!=koord::invalid ) {
 			// Strasse vom ehemaligen Rathaus zum neuen verlegen.
 			wegbauer_t bauer(welt, NULL);
 			bauer.route_fuer(wegbauer_t::strasse, welt->get_city_road() );
-			bauer.calc_route(alte_str, best_pos + koord(0, besch->gib_h(layout)));
+			bauer.calc_route(welt->lookup(alte_str)->gib_kartenboden()->gib_pos(), welt->lookup(best_pos + koord(0, besch->gib_h(layout)))->gib_kartenboden()->gib_pos());
 			bauer.baue();
 			pruefe_grenzen(best_pos);
 		}

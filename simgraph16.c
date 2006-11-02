@@ -1195,7 +1195,9 @@ void display_set_image_offset(unsigned bild, int xoff, int yoff)
 		PIXVAL *sp = images[bild].base_data;
 
 		// avoid overflow
-		if (images[bild].base_x + xoff < 0) xoff = -images[bild].base_x;
+		if (images[bild].base_x + xoff < 0) {
+			xoff = -images[bild].base_x;
+		}
 		images[bild].base_x += xoff;
 		images[bild].base_y += yoff;
 		// the offfset is hardcoded into the image
@@ -1215,6 +1217,10 @@ void display_set_image_offset(unsigned bild, int xoff, int yoff)
 		images[anz_images].recode_flags[NEED_PLAYER_RECODE] = 128;
 #endif
 		images[anz_images].recode_flags[NEED_REZOOM] = true;
+	}
+	else {
+		// cannot adjust zero sized image
+		assert(0);
 	}
 }
 

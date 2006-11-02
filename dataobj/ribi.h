@@ -14,7 +14,7 @@
 #include "../simtypes.h"
 
 class koord;
-
+class koord3d;
 
 class hang_t {
 #ifndef DOUBLE_GROUNDS
@@ -173,6 +173,8 @@ public:
 hang_t::typ  hang_typ(koord dir);   // dir:nord -> hang:sued, ...
 ribi_t::ribi ribi_typ(koord dir);
 ribi_t::ribi ribi_typ(koord from, koord to);
+ribi_t::ribi ribi_typ(koord3d dir);
+ribi_t::ribi ribi_typ(koord3d from, koord3d to);
 ribi_t::ribi ribi_typ(hang_t::typ hang);  // nordhang -> sued, ... !
 
 #endif

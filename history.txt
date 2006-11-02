@@ -13,6 +13,8 @@ Known bugs: (hard to fix)
 	FIX: button will update thier translation every time a dialog is opened
 	FIX 'convoi passed last\nmonth %i\n' '\nRibi (masked)' '\nRibi (unmasked)' 'km/h\n' translatable
 	ADD: (kierongreen) underground mode (toggle with 'U') You can built depots and station, interrupt tunnels in the middle but not much more
+	ADD: preliminary underground construction routines (user the tunnel icon in underground mode; must start on a tunnel!)
+	ADD: elevated support for nearly all waytypes (but not tested)
 
 
 Release of 99.02.2

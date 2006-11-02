@@ -11,8 +11,8 @@ public:
 
 	virtual void rdwr(loadsave_t *file);
 
-	inline const char *gib_name() const {return "Monorailboden";};
-	inline enum typ gib_typ() const {return monorailboden;};
+	const char *gib_name() const {return "Monorailboden";}
+	enum grund_t::typ gib_typ() const {return monorailboden;}
 
 	virtual bool zeige_info();
 	void calc_bild();

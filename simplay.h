@@ -534,12 +534,12 @@ private:
 	/* undo informations *
 	 * @author prissi
 	 */
-	vector_tpl<koord> last_built;
+	vector_tpl<koord3d> last_built;
 	waytype_t undo_type;
 
 public:
 	void init_undo(waytype_t t, unsigned short max );
-	void add_undo(koord k);
+	void add_undo(koord3d k);
 	bool undo();
 
 	// headquarter stuff

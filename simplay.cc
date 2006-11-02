@@ -72,6 +72,7 @@
 #include "bauer/vehikelbauer.h"
 #include "bauer/warenbauer.h"
 #include "bauer/brueckenbauer.h"
+#include "bauer/tunnelbauer.h"
 #include "bauer/wegbauer.h"
 
 #include "utils/simstring.h"
@@ -1827,7 +1828,7 @@ DBG_MESSAGE("spieler_t::baue_bahnhof","failed");
 	INT_CHECK("simplay 599");
 
 	bauigel.route_fuer(wegbauer_t::schiene, rail_weg);
-	bauigel.calc_route(*p, t);
+	bauigel.calc_route(welt->lookup(*p)->gib_kartenboden()->gib_pos(), welt->lookup(t)->gib_kartenboden()->gib_pos());
 	bauigel.baue();
 
 	// to avoid broken stations, they will be always built next to an existing
@@ -2405,7 +2406,7 @@ DBG_MESSAGE("spieler_t::create_simple_road_transport()","Already connection betw
 	// no connection => built one!
 	wegbauer_t bauigel(welt, this);
 
-	bauigel.route_fuer( wegbauer_t::strasse, road_weg, brueckenbauer_t::find_bridge(road_wt,road_vehicle->gib_geschw(),welt->get_timeline_year_month()) );
+	bauigel.route_fuer( wegbauer_t::strasse, road_weg, tunnelbauer_t::find_tunnel(road_wt,road_vehicle->gib_geschw(),welt->get_timeline_year_month()), brueckenbauer_t::find_bridge(road_wt,road_vehicle->gib_geschw(),welt->get_timeline_year_month()) );
 	bauigel.baubaer = true;
 
 	// we won't destroy cities (and save the money)
@@ -2415,7 +2416,7 @@ DBG_MESSAGE("spieler_t::create_simple_road_transport()","Already connection betw
 
 	INT_CHECK("simplay 846");
 
-	bauigel.calc_route(platz1,platz2);
+	bauigel.calc_route(welt->lookup(platz1)->gib_kartenboden()->gib_pos(),welt->lookup(platz2)->gib_kartenboden()->gib_pos());
 
 	// Strasse muss min. 3 Felder lang sein, sonst kann man keine
 	// zwei verschiedene stops bauen
@@ -2439,10 +2440,10 @@ bool
 spieler_t::create_simple_rail_transport()
 {
 	wegbauer_t bauigel(welt, this);
-	bauigel.route_fuer( wegbauer_t::schiene_bot_bau, rail_weg, brueckenbauer_t::find_bridge(track_wt,rail_engine->gib_geschw(),welt->get_timeline_year_month()) );
+	bauigel.route_fuer( (wegbauer_t::bautyp_t)(wegbauer_t::schiene|wegbauer_t::bot_flag), rail_weg, tunnelbauer_t::find_tunnel(track_wt,rail_engine->gib_geschw(),welt->get_timeline_year_month()), brueckenbauer_t::find_bridge(track_wt,rail_engine->gib_geschw(),welt->get_timeline_year_month()) );
 	bauigel.set_keep_existing_ways(false);
 	bauigel.baubaer = false;	// no tunnels, no bridges
-	bauigel.calc_route(platz1,platz2);
+	bauigel.calc_route(welt->lookup(platz1)->gib_kartenboden()->gib_pos(),welt->lookup(platz2)->gib_kartenboden()->gib_pos());
 	INT_CHECK("simplay 2478");
 
 	if(bauigel.max_n > 3) {
@@ -2800,7 +2801,7 @@ DBG_MESSAGE("spieler_t::int_undo()","undo tiles %i",max);
 
 
 void
-spieler_t::add_undo(koord k)
+spieler_t::add_undo(koord3d k)
 {
 	if(last_built.get_size()>0) {
 //DBG_DEBUG("spieler_t::add_undo()","tile at (%i,%i)",k.x,k.y);
@@ -2820,7 +2821,7 @@ spieler_t::undo()
 	// try to remove everything last built
 	uint32 cost=0;
 	for(unsigned short i=0;  i<last_built.get_count();  i++  ) {
-		grund_t *gr = welt->lookup(last_built.at(i))->gib_kartenboden();
+		grund_t *gr = welt->lookup(last_built.at(i));
 		cost += gr->weg_entfernen(undo_type,true);
 //DBG_DEBUG("spieler_t::add_undo()","undo tile %i at (%i,%i)",i,last_built.at(i).x,last_built.at(i).y);
 	}

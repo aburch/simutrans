@@ -272,7 +272,7 @@ public:
 	* @return Der Typ des Untergrundes.
 	* @author Hj. Malthaner
 	*/
-	virtual enum typ gib_typ() const {return grund;}
+	virtual enum grund_t::typ gib_typ() const {return grund;}
 
 	/**
 	* Gibt eine Beschreibung des Untergrundes (informell) zurueck.

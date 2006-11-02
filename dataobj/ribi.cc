@@ -11,6 +11,7 @@
 #include "../simdebug.h"
 #include "ribi.h"
 #include "koord.h"
+#include "koord3d.h"
 
 const ribi_t::ribi ribi_t::nsow[4] = {
     nord,
@@ -341,22 +342,48 @@ ribi_t::ribi ribi_typ(hang_t::typ hang)   // nordhang -> sued, ... !
 
 ribi_t::ribi ribi_typ(koord dir)
 {
-    ribi_t::ribi ribi = ribi_t::keine;
+	ribi_t::ribi ribi = ribi_t::keine;
 
-    if(dir.x<0) {
-	ribi |= ribi_t::west;
-    }
-    else if(dir.x>0) {
-	ribi |= ribi_t::ost;
-    }
+	if(dir.x<0) {
+		ribi |= ribi_t::west;
+	}
+	else if(dir.x>0) {
+		ribi |= ribi_t::ost;
+	}
 
-    if(dir.y<0) {
-	ribi |= ribi_t::nord;
-    }
-    else if(dir.y>0) {
-	ribi |= ribi_t::sued;
-    }
-    return ribi;
+	if(dir.y<0) {
+		ribi |= ribi_t::nord;
+	}
+	else if(dir.y>0) {
+		ribi |= ribi_t::sued;
+	}
+	return ribi;
+}
+
+
+
+ribi_t::ribi ribi_typ(koord3d from, koord3d to)
+{
+	return ribi_typ(to-from);
+}
+
+ribi_t::ribi ribi_typ(koord3d dir)
+{
+	ribi_t::ribi ribi = ribi_t::keine;
+
+	if(dir.x<0) {
+		ribi |= ribi_t::west;
+	}
+	else if(dir.x>0) {
+		ribi |= ribi_t::ost;
+	}
+	if(dir.y<0) {
+		ribi |= ribi_t::nord;
+	}
+	else if(dir.y>0) {
+		ribi |= ribi_t::sued;
+	}
+	return ribi;
 }
 
 
@@ -384,21 +411,21 @@ ribi_t::ist_exakt_orthogonal(ribi x, ribi y)
 
 hang_t::typ hang_typ(koord dir)
 {
-    if(dir.x == 0) {
-	if(dir.y < 0) {		    // Richtung nord -> suedhang
-	    return hang_t::sued;
+	if(dir.x == 0) {
+		if(dir.y < 0) {		    // Richtung nord -> suedhang
+			return hang_t::sued;
+		}
+		if(dir.y > 0) {
+			return hang_t::nord;    // Richtung sued -> nordhang
+		}
 	}
-	if(dir.y > 0) {
-	    return hang_t::nord;    // Richtung sued -> nordhang
+	if(dir.y == 0) {
+		if(dir.x < 0) {
+			return hang_t::ost;	    // Richtung west -> osthang
+		}
+		if(dir.x > 0) {
+			return hang_t::west;    // Richtung ost -> westhang
+		}
 	}
-    }
-    if(dir.y == 0) {
-	if(dir.x < 0) {
-	    return hang_t::ost;	    // Richtung west -> osthang
-	}
-	if(dir.x > 0) {
-	    return hang_t::west;    // Richtung ost -> westhang
-	}
-    }
-    return hang_t::flach;	    // ???
+	return hang_t::flach;	    // ???
 }

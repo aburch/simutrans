@@ -841,7 +841,7 @@ DBG_DEBUG("karte_t::init()","Erzeuge stadt %i with %ld inhabitants",i,(s->get_ci
 
 				if(d < umgebung_t::intercity_road_length) {
 //DBG_DEBUG("karte_t::init()","built route fom city %d to %d", i, j);
-					bauigel.calc_route(k1, k2);
+					bauigel.calc_route(lookup(k1)->gib_kartenboden()->gib_pos(), lookup(k2)->gib_kartenboden()->gib_pos());
 					if(bauigel.max_n >= 1) {
 						bauigel.baue();
 					}
@@ -2600,16 +2600,16 @@ DBG_MESSAGE("karte_t::laden()", "%d convois/trains loaded", convoi_array.get_cou
 	}
 DBG_MESSAGE("karte_t::laden()", "players loaded");
 
-    // nachdem die welt jetzt geladen ist können die Blockstrecken neu
-    // angelegt werden
-		old_blockmanager_t::laden_abschliessen(this);
-    DBG_MESSAGE("karte_t::laden()", "blocks loaded");
+	// nachdem die welt jetzt geladen ist können die Blockstrecken neu
+	// angelegt werden
+	old_blockmanager_t::laden_abschliessen(this);
+	DBG_MESSAGE("karte_t::laden()", "blocks loaded");
 
-    file->rdwr_delim("View ");
-    file->rdwr_long(mi, " ");
-    file->rdwr_long(mj, "\n");
-    DBG_MESSAGE("karte_t::laden()", "Setting view to %d,%d", mi,mj);
-    setze_ij_off(koord(mi,mj));
+	file->rdwr_delim("View ");
+	file->rdwr_long(mi, " ");
+	file->rdwr_long(mj, "\n");
+	DBG_MESSAGE("karte_t::laden()", "Setting view to %d,%d", mi,mj);
+	setze_ij_off(koord(mi,mj));
 
 	display_laden(file->gib_file(), file->is_zipped());
 
@@ -2942,7 +2942,7 @@ void karte_t::bewege_zeiger(const event_t *ev)
 			j_alt = mj;
 
 			koord3d pos = lookup(koord(mi,mj))->gib_kartenboden()->gib_pos();
-			if(grund_t::underground_mode) {
+			if(grund_t::underground_mode  &&  mouse_funk!=tunnelbauer_t::baue) {
 				const planquadrat_t *plan=lookup(koord(mi,mj));
 				pos = koord3d::invalid;
 				for( int i=0;  i<plan->gib_boden_count();  i++  ) {

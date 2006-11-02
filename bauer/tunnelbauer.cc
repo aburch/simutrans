@@ -17,6 +17,8 @@
 #include "../simworld.h"
 #include "../simwin.h"
 #include "../simplay.h"
+#include "../simskin.h"
+#include "../simwerkz.h"
 
 #include "../besch/tunnel_besch.h"
 
@@ -28,9 +30,11 @@
 #include "../boden/wege/strasse.h"
 
 #include "../dataobj/umgebung.h"
+#include "../dataobj/koord3d.h"
 
 #include "../dings/tunnel.h"
 #include "../dings/signal.h"
+#include "../dings/zeiger.h"
 
 #include "../gui/messagebox.h"
 #include "../gui/werkzeug_parameter_waehler.h"
@@ -227,55 +231,121 @@ tunnelbauer_t::finde_ende(karte_t *welt, koord3d pos, koord zv, waytype_t wegtyp
 
 int tunnelbauer_t::baue(spieler_t *sp, karte_t *welt, koord pos, value_t param)
 {
-DBG_MESSAGE("tunnelbauer_t::baue()", "called on %d,%d", pos.x, pos.y);
+	static koord3d start=koord3d::invalid;
+	static zeiger_t *wkz_tunnelbau_bauer = NULL;
+
 	const tunnel_besch_t *besch = (const tunnel_besch_t *)param.p;
-
 	if(!besch) {
-DBG_MESSAGE("brueckenbauer_t::baue()", "no description for bridge type");
+DBG_MESSAGE("brueckenbauer_t::baue()", "no description for tunnel type");
 		return false;
 	}
-DBG_MESSAGE("brueckenbauer_t::baue()", "called on %d,%d for bridge type '%s'",
-	pos.x, pos.y, besch->gib_name());
-
+DBG_MESSAGE("tunnelbauer_t::baue()", "called on %d,%d", pos.x, pos.y);
 	if(!welt->ist_in_kartengrenzen(pos)) {
 		return false;
 	}
 
-	if(!welt->ist_in_kartengrenzen(pos)) {
-		return false;
-	}
-	const grund_t *gr = welt->lookup(pos)->gib_kartenboden();
-	koord zv;
-	const waytype_t wegtyp = besch->gib_wegtyp();
-	const weg_t *weg = gr->gib_weg(wegtyp);
-
-	if(!weg || gr->gib_typ() != grund_t::boden) {
-		if(welt->get_active_player()==sp) {
-			create_win(-1, -1, MESG_WAIT, new nachrichtenfenster_t(welt, "Tunnel must start on single way!"), w_autodelete);
+	// remove bulldozer?
+	if(start!=koord3d::invalid  &&  (pos==INIT || pos == EXIT  ||  !grund_t::underground_mode)) {
+		if(wkz_tunnelbau_bauer != NULL) {
+			delete wkz_tunnelbau_bauer;
+			wkz_tunnelbau_bauer = NULL;
 		}
-		return false;
-	}
-	if(!hang_t::ist_einfach(gr->gib_grund_hang())) {
-		create_win(-1, -1, MESG_WAIT, new nachrichtenfenster_t(welt,"Tunnel muss an\neinfachem\nHang beginnen!\n"), w_autodelete);
-		return false;
-	}
-	if(weg->gib_ribi_unmasked() & ~ribi_t::rueckwaerts(ribi_typ(gr->gib_grund_hang()))) {
-		create_win(-1, -1, MESG_WAIT, new nachrichtenfenster_t(welt, "Tunnel must end on single way!"), w_autodelete);
-		return false;
-	}
-	zv = koord(gr->gib_grund_hang());
-
-	// Tunnelende suchen
-	koord3d end = finde_ende(welt, gr->gib_pos(), zv, wegtyp);
-
-	// pruefe ob Tunnel auf strasse/schiene endet
-	if(!welt->ist_in_kartengrenzen(end.gib_2d())) {
-		create_win(-1, -1, MESG_WAIT, new nachrichtenfenster_t(welt, "Tunnel must end on single way!"), w_autodelete);
-		return false;
+		start = koord3d::invalid;
+		if(grund_t::underground_mode) {
+			return true;
+		}
 	}
 
-	// Anfang und ende sind geprueft, wir konnen endlich bauen
-	return baue_tunnel(welt, sp, gr->gib_pos(), end, zv, besch);
+	// in underground mode, new tunnel can be made ...
+	if(grund_t::underground_mode) {
+		// search for ground
+		// start needs valid tile!
+		if(start==koord3d::invalid) {
+			const planquadrat_t *plan=welt->lookup(pos);
+			grund_t *gr=NULL;
+			for(int i=0;  i<plan->gib_boden_count();  i++  ) {
+				if(plan->gib_boden_bei(i)->gib_typ()==grund_t::tunnelboden) {
+					if(sp->check_owner(plan->gib_boden_bei(i)->gib_besitzer())) {
+						gr = plan->gib_boden_bei(i);
+						break;
+					}
+				}
+			}
+			if(gr==NULL) {
+				return false;
+			}
+			start = gr->gib_pos();
+			// move bulldozer to start ...
+			wkz_tunnelbau_bauer = new zeiger_t(welt, start, sp);
+			wkz_tunnelbau_bauer->setze_bild(0, skinverwaltung_t::bauigelsymbol->gib_bild_nr(0));
+			gr->obj_pri_add(wkz_tunnelbau_bauer, PRI_NIEDRIG);
+			return true;
+		}
+		else {
+			// we have a start, now just try to built it ...
+			delete wkz_tunnelbau_bauer;
+
+			int bt=0;
+			switch(besch->gib_wegtyp()) {
+				case track_wt:
+					bt = (wegbauer_t::schiene|wegbauer_t::tunnel_flag);
+					break;
+				case road_wt:
+					bt = (wegbauer_t::strasse|wegbauer_t::tunnel_flag);
+					break;
+				case monorail_wt:
+					bt = (wegbauer_t::monorail|wegbauer_t::tunnel_flag);
+					break;
+				case water_wt:
+					bt = (wegbauer_t::wasser|wegbauer_t::tunnel_flag);
+					break;
+			}
+			// now try construction
+			wegbauer_t bauigel(welt, sp);
+			bauigel.route_fuer((wegbauer_t::bautyp_t)bt, wegbauer_t::weg_search(besch->gib_wegtyp(),1,0),besch);
+			bauigel.set_keep_existing_ways(false);
+			bauigel.calc_straight_route(start,koord3d(pos,start.z));
+			welt->mute_sound(true);
+			bauigel.baue();
+			welt->mute_sound(false);
+		}
+		start = koord3d::invalid;
+	}
+	else {
+
+		const grund_t *gr = welt->lookup(pos)->gib_kartenboden();
+		koord zv;
+		const waytype_t wegtyp = besch->gib_wegtyp();
+		const weg_t *weg = gr->gib_weg(wegtyp);
+
+		if(!weg || gr->gib_typ() != grund_t::boden) {
+			if(welt->get_active_player()==sp) {
+				create_win(-1, -1, MESG_WAIT, new nachrichtenfenster_t(welt, "Tunnel must start on single way!"), w_autodelete);
+			}
+			return false;
+		}
+		if(!hang_t::ist_einfach(gr->gib_grund_hang())) {
+			create_win(-1, -1, MESG_WAIT, new nachrichtenfenster_t(welt,"Tunnel muss an\neinfachem\nHang beginnen!\n"), w_autodelete);
+			return false;
+		}
+		if(weg->gib_ribi_unmasked() & ~ribi_t::rueckwaerts(ribi_typ(gr->gib_grund_hang()))) {
+			create_win(-1, -1, MESG_WAIT, new nachrichtenfenster_t(welt, "Tunnel must end on single way!"), w_autodelete);
+			return false;
+		}
+		zv = koord(gr->gib_grund_hang());
+
+		// Tunnelende suchen
+		koord3d end = finde_ende(welt, gr->gib_pos(), zv, wegtyp);
+
+		// pruefe ob Tunnel auf strasse/schiene endet
+		if(!welt->ist_in_kartengrenzen(end.gib_2d())) {
+			create_win(-1, -1, MESG_WAIT, new nachrichtenfenster_t(welt, "Tunnel must end on single way!"), w_autodelete);
+			return false;
+		}
+
+		// Anfang und ende sind geprueft, wir konnen endlich bauen
+		return baue_tunnel(welt, sp, gr->gib_pos(), end, zv, besch);
+	}
 }
 
 
@@ -309,7 +379,7 @@ DBG_MESSAGE("tunnelbauer_t::baue()","build from (%d,%d)", pos.x, pos.y);
 
 	// Now we build theinviosible part
 	while(pos.gib_2d()!=end.gib_2d()) {
-		tunnelboden_t *tunnel = new tunnelboden_t(welt, pos, 0);
+		tunnelboden_t *tunnel = new tunnelboden_t(welt, pos, 0, besch);
 		// use the fastest way
 		weg = weg_t::alloc(besch->gib_wegtyp());
 		weg->setze_besch(weg_besch);
@@ -336,7 +406,7 @@ tunnelbauer_t::baue_einfahrt(karte_t *welt, spieler_t *sp, koord3d end, koord zv
 	ribi_t::ribi ribi = alter_boden->gib_weg_ribi_unmasked(besch->gib_wegtyp()) | ribi_typ(zv);
 	weg_t *alter_weg = alter_boden->gib_weg(besch->gib_wegtyp());
 
-	tunnelboden_t *tunnel = new tunnelboden_t(welt, end, alter_boden->gib_grund_hang());
+	tunnelboden_t *tunnel = new tunnelboden_t(welt, end, alter_boden->gib_grund_hang(),besch);
 	tunnel->obj_add(new tunnel_t(welt, end, sp, besch));
 
 DBG_MESSAGE("tunnelbauer_t::baue_einfahrt()","at end (%d,%d) for %s", end.x, end.y, weg_besch->gib_name());

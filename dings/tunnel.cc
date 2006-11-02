@@ -14,8 +14,7 @@
 #include "../simplay.h"
 #include "../simwerkz.h"
 #include "../boden/grund.h"
-#include "../boden/wege/strasse.h"
-#include "../boden/wege/schiene.h"
+#include "../boden/tunnelboden.h"
 #include "../simimg.h"
 #include "../utils/cbuffer_t.h"
 #include "../bauer/tunnelbauer.h"
@@ -80,6 +79,7 @@ void tunnel_t::rdwr(loadsave_t *file)
 	if(file->get_version()>=99001) {
 		char  buf[256];
 		if(file->is_loading()) {
+			clean_up = false;
 			file->rdwr_str(buf,255);
 			besch = tunnelbauer_t::gib_besch(buf);
 		}
@@ -131,7 +131,8 @@ void tunnel_t::laden_abschliessen()
 			spieler_t *sp=gib_besitzer();
 			while(!tracks.is_empty()) {
 				pos = tracks.remove_first();
-				grund_t *gr = welt->lookup(pos);
+				tunnelboden_t *gr = dynamic_cast<tunnelboden_t *>(welt->lookup(pos));
+				gr->setze_besch(besch);
 				weg_t *weg = gr->gib_weg(besch->gib_wegtyp());
 				weg->setze_max_speed(besch->gib_topspeed());
 				sp->add_maintenance(-weg->gib_besch()->gib_wartung());

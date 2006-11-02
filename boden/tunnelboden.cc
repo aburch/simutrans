@@ -1,15 +1,20 @@
 
+#include <string.h>
+
 #include "tunnelboden.h"
 
 #include "../simimg.h"
 #include "../simworld.h"
 #include "../simskin.h"
 
+#include "../bauer/tunnelbauer.h"
+
 #include "../dataobj/loadsave.h"
 #include "../dataobj/freelist.h"
 
 #include "../besch/grund_besch.h"
 #include "../besch/skin_besch.h"
+#include "../besch/tunnel_besch.h"
 
 
 
@@ -19,8 +24,9 @@ tunnelboden_t::tunnelboden_t(karte_t *welt, loadsave_t *file) : boden_t(welt, ko
 }
 
 
-tunnelboden_t::tunnelboden_t(karte_t *welt, koord3d pos, hang_t::typ hang_typ) : boden_t(welt, pos, hang_typ)
+tunnelboden_t::tunnelboden_t(karte_t *welt, koord3d pos, hang_t::typ hang_typ, const tunnel_besch_t *besch) : boden_t(welt, pos, hang_typ)
 {
+	this->besch = besch;
 }
 
 
@@ -68,6 +74,19 @@ tunnelboden_t::rdwr(loadsave_t *file)
 		int int_hang = slope;
 		file->rdwr_long(int_hang, "\n");
 		slope = int_hang;
+	}
+
+	char  buf[256];
+	if(file->is_saving()) {
+		buf[0] = 0;
+		if(besch!=NULL) {
+			strcpy( buf, besch->gib_name() );
+		}
+		file->rdwr_str(buf,0);
+	}
+	else if(file->get_version()>99001) {
+		file->rdwr_str(buf,255);
+		besch = tunnelbauer_t::gib_besch(buf);
 	}
 }
 

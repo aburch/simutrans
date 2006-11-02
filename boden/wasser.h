@@ -12,30 +12,31 @@
 class wasser_t : public grund_t
 {
 public:
-    wasser_t(karte_t *welt, loadsave_t *file);
-    wasser_t(karte_t *welt, koord pos);
+	wasser_t(karte_t *welt, loadsave_t *file);
+	wasser_t(karte_t *welt, koord pos);
 
-    inline bool ist_wasser() const { return true; }
+	inline bool ist_wasser() const { return true; }
 
 	// returns all directions for waser and none for the rest ...
-    ribi_t::ribi gib_weg_ribi(waytype_t typ) const { return (typ==water_wt) ? ribi_t::alle :ribi_t::keine; }
-    ribi_t::ribi gib_weg_ribi_unmasked(waytype_t typ) const  { return (typ==water_wt) ? ribi_t::alle :ribi_t::keine; }
+	ribi_t::ribi gib_weg_ribi(waytype_t typ) const { return (typ==water_wt) ? ribi_t::alle :ribi_t::keine; }
+	ribi_t::ribi gib_weg_ribi_unmasked(waytype_t typ) const  { return (typ==water_wt) ? ribi_t::alle :ribi_t::keine; }
 
 	// no slopes for water
-    bool setze_grund_hang(hang_t::typ) { slope=0; return false; }
+	bool setze_grund_hang(hang_t::typ) { slope=0; return false; }
 
-    /**
-     * Öffnet ein Info-Fenster für diesen Boden
-     * @author Hj. Malthaner
-     */
-    virtual bool zeige_info();
+	/**
+	 * Öffnet ein Info-Fenster für diesen Boden
+	 * @author Hj. Malthaner
+	 */
+	virtual bool zeige_info();
 
-    void calc_bild();
-    inline const char *gib_name() const {return "Wasser";}
-    inline enum typ gib_typ() const {return wasser;}
+	void calc_bild();
 
-    void * operator new(size_t s);
-    void operator delete(void *p);
+	const char *gib_name() const {return "Wasser";}
+	enum grund_t::typ gib_typ() const {return wasser;}
+
+	void * operator new(size_t s);
+	void operator delete(void *p);
 };
 
 #endif
