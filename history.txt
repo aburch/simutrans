@@ -5,6 +5,8 @@ Known bugs: (hard to fix)
 
 
 
+Release of 99.03
+
 	FIX: city creation on new map fixed (actually rectified deletion)
 	FIX: tunnel can now properly handle all way types
 	FIX: cost of tunnel construction

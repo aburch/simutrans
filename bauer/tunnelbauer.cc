@@ -310,6 +310,7 @@ DBG_MESSAGE("tunnelbauer_t::baue()", "called on %d,%d", pos.x, pos.y);
 			welt->mute_sound(false);
 		}
 		start = koord3d::invalid;
+		return true;
 	}
 	else {
 
