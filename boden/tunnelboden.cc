@@ -5,6 +5,7 @@
 
 #include "../simimg.h"
 #include "../simworld.h"
+#include "../simplay.h"
 #include "../simskin.h"
 
 #include "../bauer/tunnelbauer.h"
@@ -84,9 +85,21 @@ tunnelboden_t::rdwr(loadsave_t *file)
 		}
 		file->rdwr_str(buf,0);
 	}
-	else if(file->get_version()>99001) {
-		file->rdwr_str(buf,255);
-		besch = tunnelbauer_t::gib_besch(buf);
+	else {
+		besch = NULL;
+		if(file->get_version()>99001) {
+			file->rdwr_str(buf,255);
+			besch = tunnelbauer_t::gib_besch(buf);
+			if(besch) {
+				if(gib_weg_nr(0)) {
+					gib_weg_nr(0)->setze_max_speed(besch->gib_topspeed());
+					if(gib_besitzer()) {
+						gib_besitzer()->add_maintenance(-gib_weg_nr(0)->gib_besch()->gib_wartung());
+						gib_besitzer()->add_maintenance(besch->gib_wartung());
+					}
+				}
+			}
+		}
 	}
 }
 

@@ -386,6 +386,8 @@ DBG_MESSAGE("tunnelbauer_t::baue()","build from (%d,%d)", pos.x, pos.y);
 		weg->setze_max_speed(besch->gib_topspeed());
 		welt->access(pos.gib_2d())->boden_hinzufuegen(tunnel);
 		tunnel->neuen_weg_bauen(weg, ribi_t::doppelt(ribi), sp);
+		sp->add_maintenance( -weg->gib_besch()->gib_wartung() );
+		sp->add_maintenance( besch->gib_wartung() );
 		cost += besch->gib_preis();
 		pos = pos + zv;
 	}
@@ -431,6 +433,8 @@ DBG_MESSAGE("tunnelbauer_t::baue_einfahrt()","at end (%d,%d) for %s", end.x, end
 
 	welt->access(end.gib_2d())->kartenboden_setzen( tunnel, false );
 	tunnel->neuen_weg_bauen(weg, ribi, sp);
+	sp->add_maintenance( -weg->gib_besch()->gib_wartung() );
+	sp->add_maintenance( besch->gib_wartung() );
 	cost += besch->gib_preis();
 
 	// no undo possible anymore

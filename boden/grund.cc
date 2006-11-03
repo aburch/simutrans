@@ -11,6 +11,7 @@
 
 #include "grund.h"
 #include "fundament.h"
+#include "tunnelboden.h"
 
 #include "wege/weg.h"
 #include "wege/monorail.h"
@@ -43,6 +44,7 @@
 
 #include "../besch/haus_besch.h"
 #include "../besch/kreuzung_besch.h"
+#include "../besch/tunnel_besch.h"
 
 #include "../bauer/wegbauer.h"
 #include "../besch/weg_besch.h"
@@ -355,7 +357,7 @@ DBG_MESSAGE("grund_t::rdwr()","at (%i,%i) dock ignored",gib_pos().x, gib_pos().y
 			}
 		}
 		flags |= dirty;
-		// set speedlimit and maintenance for birdges
+		// set speedlimit and maintenance for bridges
 		if(gib_typ()==brueckenboden) {
 			bruecke_t *br=dynamic_cast<bruecke_t *>(suche_obj(ding_t::bruecke));
 			if(wege[0]  &&  br) {

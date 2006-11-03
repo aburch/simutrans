@@ -30,21 +30,21 @@
 
 
 class tunnel_besch_t : public obj_besch_t {
-    friend class tunnel_writer_t;
-    friend class tunnel_reader_t;
-    friend class tunnelbauer_t;	// to convert the old tunnels to new ones
+	friend class tunnel_writer_t;
+	friend class tunnel_reader_t;
+	friend class tunnelbauer_t;	// to convert the old tunnels to new ones
 
 private:
-    static int hang_indices[16];
+	static int hang_indices[16];
 
-    uint32 topspeed;	// speed in km/h
-    uint32 preis;	// 1/100 credits
-    uint32 maintenance;	// monthly cost for bits_per_month=18
-    uint8 wegtyp;	// waytype for tunnel
+	uint32 topspeed;	// speed in km/h
+	uint32 preis;	// 1/100 credits
+	uint32 maintenance;	// monthly cost for bits_per_month=18
+	uint8 wegtyp;	// waytype for tunnel
 
-    // allowed eara
-    uint16 intro_date;
-    uint16 obsolete_date;
+	// allowed eara
+	uint16 intro_date;
+	uint16 obsolete_date;
 
 public:
 	const char *gib_name() const { return static_cast<const text_besch_t *>(gib_kind(0))->gib_text(); }
@@ -55,7 +55,8 @@ public:
 		return static_cast<const bildliste_besch_t *>(gib_kind(2))->gib_bild(hang_indices[hang]);
 	}
 
-	image_id gib_hintergrund_nr(hang_t::typ hang) const {
+	image_id gib_hintergrund_nr(hang_t::typ hang) const
+	{
 		const bild_besch_t *besch = gib_hintergrund(hang);
 		return besch ? besch->bild_nr : IMG_LEER;
 	}
@@ -75,13 +76,13 @@ public:
 
 
 	// get costs etc.
-    waytype_t gib_wegtyp() const { return static_cast<waytype_t>(wegtyp); }
+	waytype_t gib_wegtyp() const { return static_cast<waytype_t>(wegtyp); }
 
-    sint32 gib_preis() const { return preis; }
+	sint32 gib_preis() const { return preis; }
 
-    sint32 gib_wartung() const { return maintenance; }
+	sint32 gib_wartung() const { return maintenance; }
 
-    uint32  gib_topspeed() const { return topspeed; }
+	uint32  gib_topspeed() const { return topspeed; }
 
 	uint16 get_intro_year_month() const { return intro_date; }
 

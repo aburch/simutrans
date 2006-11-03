@@ -106,42 +106,27 @@ void tunnel_t::laden_abschliessen()
 	}
 
 	// correct speed and maitenance
-	if(besch  &&  !clean_up) {
+	if(besch) {
 
-		// find other end
+		// proceed until the other end
 		koord3d pos = gib_pos();
-		grund_t *gr = welt->lookup(pos);
-		koord zv = koord::invalid;
-		slist_tpl<koord3d>tracks;
-		tunnel_t *tunnel=NULL;
+		const koord zv = koord(welt->lookup(pos)->gib_grund_hang());
 
 		// now look up everything
-		zv = koord(gr->gib_grund_hang());
-		tracks.insert(pos);
-		do {
-			pos += zv;
-			tracks.append(pos);
-			gr = welt->lookup(pos);
-			tunnel = (tunnel_t *)gr->suche_obj(ding_t::tunnel);
-		} while(tunnel==NULL);
-
-		if(!tunnel->clean_up) {
-
-			// reset speed and maitenance
-			spieler_t *sp=gib_besitzer();
-			while(!tracks.is_empty()) {
-				pos = tracks.remove_first();
-				tunnelboden_t *gr = dynamic_cast<tunnelboden_t *>(welt->lookup(pos));
-				gr->setze_besch(besch);
-				weg_t *weg = gr->gib_weg(besch->gib_wegtyp());
-				weg->setze_max_speed(besch->gib_topspeed());
-				sp->add_maintenance(-weg->gib_besch()->gib_wartung());
-				sp->add_maintenance( besch->gib_wartung() );
+		// reset speed and maitenance
+		spieler_t *sp=gib_besitzer();
+		while(1) {
+			tunnelboden_t *gr = dynamic_cast<tunnelboden_t *>(welt->lookup(pos));
+			if(gr==NULL  ||  gr->gib_besch()!=NULL) {
+				// no tunnel any more, or already assigned a description
+				break;
 			}
-
-			// and mark done ...
-			tunnel->clean_up = true;
-			clean_up = true;
+			gr->setze_besch(besch);
+			weg_t *weg = gr->gib_weg(besch->gib_wegtyp());
+			weg->setze_max_speed(besch->gib_topspeed());
+			sp->add_maintenance(-weg->gib_besch()->gib_wartung());
+			sp->add_maintenance( besch->gib_wartung() );
+			pos += zv;
 		}
 	}
 	calc_bild();
