@@ -15,6 +15,7 @@ Known bugs: (hard to fix)
 	ADD: (kierongreen) underground mode (toggle with 'U') You can built depots and station, interrupt tunnels in the middle but not much more
 	ADD: preliminary underground construction routines (user the tunnel icon in underground mode; must start on a tunnel!)
 	ADD: elevated support for nearly all waytypes (but not tested)
+	FIX: stations on slope got wrong height offsets
 
 
 Release of 99.02.2
