@@ -19,13 +19,13 @@
 
 wasser_t::wasser_t(karte_t *welt, loadsave_t *file) : grund_t(welt)
 {
-    rdwr(file);
-    slope = (uint8)hang_t::flach;
+	rdwr(file);
+	slope = (uint8)hang_t::flach;
 }
 
 wasser_t::wasser_t(karte_t *welt, koord pos) : grund_t(welt, koord3d(pos, welt->gib_grundwasser()))
 {
-    slope = (uint8)hang_t::flach;
+	slope = (uint8)hang_t::flach;
 }
 
 
@@ -33,11 +33,11 @@ wasser_t::wasser_t(karte_t *welt, koord pos) : grund_t(welt, koord3d(pos, welt->
 bool
 wasser_t::zeige_info()
 {
-    if(gib_halt().is_bound()) {
-        gib_halt()->zeige_info();
-        return true;
-    }
-    return false;
+	if(gib_halt().is_bound()) {
+		gib_halt()->zeige_info();
+		return true;
+	}
+	return false;
 }
 
 

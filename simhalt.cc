@@ -360,15 +360,15 @@ haltestelle_t::haltestelle_t(karte_t *wl, koord pos, spieler_t *sp)
 	: reservation(0), registered_lines(0)
 {
 	self = halthandle_t(this);
-    alle_haltestellen.insert(self);
+	alle_haltestellen.insert(self);
 
-    welt = wl;
-    marke = 0;
+	welt = wl;
+	marke = 0;
 
-    this->pos = pos;
-    besitzer_p = sp;
+	this->pos = pos;
+	besitzer_p = sp;
 #ifdef LAGER_NOT_IN_USE
-    lager = NULL;
+	lager = NULL;
 #endif
 
 	enables = NOT_ENABLED;
@@ -1829,7 +1829,7 @@ haltestelle_t::transfer_to_public_owner()
 void
 haltestelle_t::recalc_station_type()
 {
-	slist_iterator_tpl<grund_t *> iter( grund );
+	slist_iterator_tpl<grund_t *> iter(grund);
 	int new_station_type = 0;
 	capacity = 0;
 	enables &= CROWDED;	// clear flags
@@ -1977,7 +1977,7 @@ haltestelle_t::rdwr(loadsave_t *file)
 		besitzer_p = welt->gib_spieler(spieler_n);
 		do {
 			k.rdwr( file );
-			if( k != koord3d::invalid) {
+			if( k!=koord3d::invalid) {
 				grund_t *gr = welt->lookup(k);
 				if(!gr) {
 					gr = welt->lookup(k.gib_2d())->gib_kartenboden();

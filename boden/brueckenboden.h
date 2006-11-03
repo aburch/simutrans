@@ -5,11 +5,12 @@
 
 class brueckenboden_t : public grund_t
 {
-    uint8 weg_hang;
+	uint8 weg_hang;
 
 public:
 	brueckenboden_t(karte_t *welt, loadsave_t *file);
 	brueckenboden_t(karte_t *welt, koord3d pos, int grund_hang, int weg_hang);
+	virtual ~brueckenboden_t() {};
 
 	virtual void rdwr(loadsave_t *file);
 

@@ -228,11 +228,17 @@ DBG_MESSAGE("planquadrat_t::rwdr", "unknown building (or prepare for factory) at
 			// we should also check for ground below factories
 			if(gr) {
 				if(gib_kartenboden()==NULL) {
-					kartenboden_setzen(gr, false);
+					if(boeden.get_count()>0) {
+						boeden.at(0) = gr;
+					}
+					else {
+						boeden.append(gr);
+					}
+					gr->set_kartenboden(true);
 				} else {
 					boden_hinzufuegen(gr);
 				}
-				gr->calc_bild();
+//				gr->calc_bild();
 			}
 		} while(gr != 0);
 	}

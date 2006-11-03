@@ -409,6 +409,7 @@ void vehikel_basis_t::betrete_feld()
 			gr->obj_pri_add(this,i);
 		}
 	}
+	calc_akt_speed(gr);
 }
 
 
@@ -493,45 +494,45 @@ void vehikel_basis_t::fahre()
 ribi_t::ribi
 vehikel_basis_t::calc_richtung(koord start, koord ende, sint8 &dx, sint8 &dy) const
 {
-    ribi_t::ribi richtung = ribi_t::keine;
+	ribi_t::ribi richtung = ribi_t::keine;
 
-    const int di = sgn(ende.x - start.x);
-    const int dj = sgn(ende.y - start.y);
+	const int di = sgn(ende.x - start.x);
+	const int dj = sgn(ende.y - start.y);
 
-    if(dj < 0 && di == 0) {
-	richtung = ribi_t::nord;
-	dx = 2;
-	dy = -1;
-    } else if(dj > 0 && di == 0) {
-	richtung = ribi_t::sued;
-	dx = -2;
-	dy = 1;
-    } else if(di < 0 && dj == 0) {
-	richtung = ribi_t::west;
-	dx = -2;
-	dy = -1;
-    } else if(di >0 && dj == 0) {
-	richtung = ribi_t::ost;
-	dx = 2;
-	dy = 1;
-    } else if(di > 0 && dj > 0) {
-	richtung = ribi_t::suedost;
-	dx = 0;
-	dy = 2;
-    } else if(di < 0 && dj < 0) {
-	richtung = ribi_t::nordwest;
-	dx = 0;
-	dy = -2;
-    } else if(di > 0 && dj < 0) {
-	richtung = ribi_t::nordost;
-	dx = 4;
-	dy = 0;
-    } else {
-	richtung = ribi_t::suedwest;
-	dx = -4;
-	dy = 0;
-    }
-    return richtung;
+	if(dj < 0 && di == 0) {
+		richtung = ribi_t::nord;
+		dx = 2;
+		dy = -1;
+	} else if(dj > 0 && di == 0) {
+		richtung = ribi_t::sued;
+		dx = -2;
+		dy = 1;
+	} else if(di < 0 && dj == 0) {
+		richtung = ribi_t::west;
+		dx = -2;
+		dy = -1;
+	} else if(di >0 && dj == 0) {
+		richtung = ribi_t::ost;
+		dx = 2;
+		dy = 1;
+	} else if(di > 0 && dj > 0) {
+		richtung = ribi_t::suedost;
+		dx = 0;
+		dy = 2;
+	} else if(di < 0 && dj < 0) {
+		richtung = ribi_t::nordwest;
+		dx = 0;
+		dy = -2;
+	} else if(di > 0 && dj < 0) {
+		richtung = ribi_t::nordost;
+		dx = 4;
+		dy = 0;
+	} else {
+		richtung = ribi_t::suedwest;
+		dx = -4;
+		dy = 0;
+	}
+	return richtung;
 }
 
 
@@ -540,9 +541,9 @@ vehikel_basis_t::calc_richtung(koord start, koord ende, sint8 &dx, sint8 &dy) co
 int
 vehikel_basis_t::calc_height()
 {
-	grund_t *gr = welt->lookup(gib_pos());
 	int hoff = 0;
 
+	grund_t *gr = welt->lookup(gib_pos());
 	if(gr->ist_tunnel()) {
 		hoff = 0;
 		if(!gr->ist_im_tunnel()) {
@@ -601,9 +602,8 @@ vehikel_basis_t::calc_height()
 
 	// recalculate friction
 	hoff = height_scaling(hoff);
-	calc_akt_speed(gr);
 
-    return hoff;
+	return hoff;
 }
 
 
@@ -620,8 +620,8 @@ vehikel_t::setze_convoi(convoi_t *c)
 void
 vehikel_t::setze_offsets(int x, int y)
 {
-    setze_xoff( x );
-    setze_yoff( y );
+	setze_xoff( x );
+	setze_yoff( y );
 }
 
 
@@ -878,11 +878,11 @@ DBG_MESSAGE("vehikel_t::hop()","reverse dir at route index %d",route_index);
 void
 vehikel_t::setze_speed_limit(int l)
 {
-    speed_limit = l;
+	speed_limit = l;
 
-    if(speed_limit != -1 && cnv->gib_akt_speed() > speed_limit) {
-	cnv->setze_akt_speed_soll(speed_limit);
-    }
+	if(speed_limit != -1 && cnv->gib_akt_speed() > speed_limit) {
+		cnv->setze_akt_speed_soll(speed_limit);
+	}
 }
 
 
@@ -1200,16 +1200,10 @@ void
 vehikel_t::calc_bild()
 {
 	image_id old_bild=gib_bild();
-	if(welt->lookup(pos_cur) &&  welt->lookup(pos_cur)->ist_im_tunnel() ) {
-		// tunnel
-		setze_bild(0, IMG_LEER);
-	}
-	else {
-		if(fracht.is_empty()) {
-			setze_bild(0, besch->gib_bild_nr(ribi_t::gib_dir(gib_fahrtrichtung()),NULL));
-		} else {
-			setze_bild(0, besch->gib_bild_nr(ribi_t::gib_dir(gib_fahrtrichtung()),fracht.at(0).gib_typ() ) );
-		}
+	if(fracht.is_empty()) {
+		setze_bild(0, besch->gib_bild_nr(ribi_t::gib_dir(gib_fahrtrichtung()),NULL));
+	} else {
+		setze_bild(0, besch->gib_bild_nr(ribi_t::gib_dir(gib_fahrtrichtung()),fracht.at(0).gib_typ() ) );
 	}
 	if(old_bild!=gib_bild()) {
 		set_flag(ding_t::dirty);
@@ -1220,12 +1214,12 @@ vehikel_t::calc_bild()
 void
 vehikel_t::rdwr(loadsave_t *file)
 {
-    int fracht_count = fracht.count();	// we try to have one freight count to geuss the right when no besch is given
-    if(fracht_count==0) {
-    	fracht_count = 1;
-   }
+	int fracht_count = fracht.count();	// we try to have one freight count to geuss the right when no besch is given
+	if(fracht_count==0) {
+		fracht_count = 1;
+	}
 
-    ding_t::rdwr(file);
+	ding_t::rdwr(file);
 
 	if(file->get_version()<86006) {
 		// parameter werden in der deklarierten reihenfolge gespeichert
@@ -1280,47 +1274,47 @@ DBG_MESSAGE("vehicle_t::rdwr()","bought at %i/%i.",(insta_zeit%12)+1,insta_zeit/
 		}
 	}
 
-    pos_prev.rdwr(file);
-    pos_cur.rdwr(file);
-    pos_next.rdwr(file);
+	pos_prev.rdwr(file);
+	pos_cur.rdwr(file);
+	pos_next.rdwr(file);
 
-    const char *s = NULL;
+	const char *s = NULL;
 
-    if(file->is_saving()) {
-			s = besch->gib_name();
-    }
-    file->rdwr_str(s, " ");
-    if(file->is_loading()) {
-	besch = vehikelbauer_t::gib_info(s);
-	if(besch==NULL) {
-		besch = vehikelbauer_t::gib_info(translator::compatibility_name(s));
+	if(file->is_saving()) {
+		s = besch->gib_name();
 	}
-	if(besch == 0) {
-	  dbg->warning("vehikel_t::rdwr()","no vehicle pak for '%s' search for something similar", s);
-	}
-	guarded_free(const_cast<char *>(s));
-    }
+	file->rdwr_str(s, " ");
+	if(file->is_loading()) {
+		besch = vehikelbauer_t::gib_info(s);
+		if(besch==NULL) {
+			besch = vehikelbauer_t::gib_info(translator::compatibility_name(s));
+		}
+		if(besch == 0) {
+			dbg->warning("vehikel_t::rdwr()","no vehicle pak for '%s' search for something similar", s);
+		}
+		guarded_free(const_cast<char *>(s));
+  }
 
-    if(file->is_saving()) {
-    	  if(fracht.count()==0) {
-    	  	// create dummy freight for savegame compatibility
-    	  	ware_t ware( besch->gib_ware() );
-    	  	ware.menge = 0;
-    	  	ware.max = besch->gib_zuladung();
-    	  	ware.setze_ziel( gib_pos().gib_2d() );
-    	  	ware.setze_zwischenziel( gib_pos().gib_2d() );
-    	  	ware.setze_zielpos( gib_pos().gib_2d() );
-    	  	ware.rdwr(file);
-//DBG_MESSAGE("rrddwwrr()","fracht count=%d",fracht_count);
-    	  }
-    	  else {
-	        slist_iterator_tpl<ware_t> iter(fracht);
-	        while(iter.next()) {
-		    ware_t ware = iter.get_current();
-		    ware.rdwr(file);
-	      }
-	    }
-    }
+		if(file->is_saving()) {
+			if(fracht.count()==0) {
+				// create dummy freight for savegame compatibility
+				ware_t ware( besch->gib_ware() );
+				ware.menge = 0;
+				ware.max = besch->gib_zuladung();
+				ware.setze_ziel( gib_pos().gib_2d() );
+				ware.setze_zwischenziel( gib_pos().gib_2d() );
+				ware.setze_zielpos( gib_pos().gib_2d() );
+				ware.rdwr(file);
+				//DBG_MESSAGE("rrddwwrr()","fracht count=%d",fracht_count);
+			}
+			else {
+				slist_iterator_tpl<ware_t> iter(fracht);
+				while(iter.next()) {
+				ware_t ware = iter.get_current();
+				ware.rdwr(file);
+			}
+		}
+	}
 	else {
 		for(int i=0; i<fracht_count; i++) {
 			ware_t ware(file);
@@ -1360,12 +1354,11 @@ int vehikel_t::calc_restwert() const
 void
 vehikel_t::zeige_info()
 {
-    if(cnv != NULL) {
-	cnv->zeige_info();
-    } else {
-	dbg->warning("vehikel_t::zeige_info()",
-	             "cnv is null, can't open convoi window!");
-    }
+	if(cnv != NULL) {
+		cnv->zeige_info();
+	} else {
+		dbg->warning("vehikel_t::zeige_info()","cnv is null, can't open convoi window!");
+	}
 }
 
 
@@ -1384,7 +1377,6 @@ void vehikel_t::info(cbuffer_t & buf) const
 char * vehikel_t::debug_info(char *buf) const
 {
   buf += sprintf(buf, "ist_erstes = %d, ist_letztes = %d\n",	 ist_erstes, ist_letztes);
-
   return buf;
 }
 
@@ -1397,9 +1389,7 @@ char * vehikel_t::debug_info(char *buf) const
 void vehikel_t::dump() const
 {
   char buf[16000];
-
   debug_info(buf);
-
   fprintf(stderr, buf);
 }
 
@@ -1408,7 +1398,7 @@ void vehikel_t::dump() const
 const char *
 vehikel_t::ist_entfernbar(const spieler_t *)
 {
-    return "Fahrzeuge koennen so nicht entfernt werden";
+	return "Fahrzeuge koennen so nicht entfernt werden";
 }
 
 
@@ -1429,14 +1419,14 @@ vehikel_t::~vehikel_t()
 automobil_t::automobil_t(karte_t *welt, koord3d pos, const vehikel_besch_t *besch, spieler_t *sp, convoi_t *cn) :
     vehikel_t(welt, pos, besch, sp)
 {
-    cnv = cn;
+	cnv = cn;
 }
 
 
 
 automobil_t::automobil_t(karte_t *welt, loadsave_t *file) : vehikel_t(welt)
 {
-    rdwr(file, true);
+	rdwr(file, true);
 }
 
 
@@ -2290,7 +2280,7 @@ schiff_t::schiff_t(karte_t *welt, loadsave_t *file) : vehikel_t(welt)
 bool
 schiff_t::ist_befahrbar(const grund_t *bd) const
 {
-    return bd->ist_wasser()  ||  bd->gib_weg(water_wt);
+	return bd->ist_wasser()  ||  bd->gib_weg(water_wt);
 }
 
 
@@ -2299,7 +2289,7 @@ schiff_t::ist_befahrbar(const grund_t *bd) const
  * @author prissi
  */
 void
-schiff_t::calc_akt_speed(const grund_t *gr)//const int h_alt, const int h_neu)
+schiff_t::calc_akt_speed(const grund_t *gr)
 {
 	// even track
 	current_friction = 1;

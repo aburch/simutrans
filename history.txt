@@ -7,6 +7,7 @@ Known bugs: (hard to fix)
 
 Release of 99.03
 
+03-Nov-2006: (prissi)
 	FIX: city creation on new map fixed (actually rectified deletion)
 	FIX: tunnel can now properly handle all way types
 	FIX: cost of tunnel construction
@@ -18,6 +19,7 @@ Release of 99.03
 	ADD: preliminary underground construction routines (user the tunnel icon in underground mode; must start on a tunnel!)
 	ADD: elevated support for nearly all waytypes (but not tested)
 	FIX: stations on slope got wrong height offsets
+	CHANGE: maxspeed/friction calculation is now only done when entering a tile => 16x less function calls
 
 
 Release of 99.02.2

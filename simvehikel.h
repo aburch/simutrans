@@ -97,7 +97,7 @@ protected:
 
 	virtual void fahre();
 	virtual int  calc_height();		// Offset Bergauf/Bergab
-	virtual void calc_akt_speed(const grund_t *) {};
+	virtual void calc_akt_speed(const grund_t *gr) {}
 
 	virtual int  gib_dx() const {return dx;};
 	virtual int  gib_dy() const {return dy;};
@@ -192,7 +192,6 @@ protected:
 	*/
 	uint16 route_index;
 
-
 	/**
 	* Previous position on our path
 	* @author Hj. Malthaner
@@ -236,15 +235,14 @@ public:
 	*/
 	virtual ribi_t::ribi gib_ribi(const grund_t* gr) const { return gr->gib_weg_ribi(gib_wegtyp()); }
 
-	const sint32 gib_insta_zeit() const {return insta_zeit;};
+	const sint32 gib_insta_zeit() const {return insta_zeit;}
 
-	void darf_rauchen(bool yesno ) { rauchen = yesno;};
+	void darf_rauchen(bool yesno ) { rauchen = yesno;}
 
-	virtual bool calc_route(karte_t * welt, koord3d start, koord3d ziel, uint32 max_speed, route_t * route) { return route->calc_route(welt, start, ziel, this, max_speed ); };
+	virtual bool calc_route(karte_t * welt, koord3d start, koord3d ziel, uint32 max_speed, route_t * route) { return route->calc_route(welt, start, ziel, this, max_speed ); }
 	const uint16 gib_route_index() const {return route_index;}
 
 	void setze_offsets(int x, int y);
-
 
 	/**
 	* gibt das Basisbild zurueck
@@ -252,13 +250,11 @@ public:
 	*/
 	int gib_basis_bild() const {return besch->gib_basis_bild();};
 
-
 	/**
 	* @return vehicle description object
 	* @author Hj. Malthaner
 	*/
 	const vehikel_besch_t *gib_besch() const {return besch; }
-
 
 	/**
 	* @return die Betriebskosten in Cr/100Km
@@ -266,13 +262,11 @@ public:
 	*/
 	int gib_betriebskosten() const {return besch->gib_betriebskosten();};
 
-
 	/**
 	* spielt den Sound, wenn das Vehikel sichtbar ist
 	* @author Hj. Malthaner
 	*/
 	void play_sound() const;
-
 
 	/**
 	* Bereitet Fahrzeiug auf neue Fahrt vor - wird aufgerufen wenn
@@ -281,9 +275,7 @@ public:
 	*/
 	void neue_fahrt( uint16 start_route_index );
 
-
 	void starte_neue_route(koord3d k0, koord3d k1);
-
 
 	vehikel_t(karte_t *welt);
 	vehikel_t(karte_t *welt,
@@ -297,16 +289,13 @@ public:
 	*/
 	~vehikel_t();
 
-
 	/**
 	* Vom Convoi aufgerufen.
 	* @author Hj. Malthaner
 	*/
 	void sync_step();
 
-
 	void rauche();
-
 
 	/**
 	* Öffnet ein neues Beobachtungsfenster für das Objekt.
@@ -314,20 +303,17 @@ public:
 	*/
 	void zeige_info();
 
-
 	/**
 	* der normale Infotext
 	* @author Hj. Malthaner
 	*/
 	void info(cbuffer_t & buf) const;
 
-
 	/**
 	* debug info into buffer
 	* @author Hj. Malthaner
 	*/
 	char *debug_info(char *buf) const;
-
 
 	/**
 	* Debug info to stderr
@@ -336,28 +322,23 @@ public:
 	*/
 	void dump() const;
 
-
 	/**
 	* Ermittelt fahrtrichtung
 	* @author Hj. Malthaner
 	*/
 	ribi_t::ribi richtung();
 
-
 	inline const int gib_speed() const {return kmh_to_speed(besch->gib_geschw());};
-
 
 	/* return friction constant: changes in hill and curves; may even negative downhill *
 	* @author prissi
 	*/
 	inline const int gib_frictionfactor() const {return current_friction;};
 
-
 	/* Return total weight including freight*
 	* @author prissi
 	*/
 	inline const int gib_gesamtgewicht() const {return sum_weight;};
-
 
 	const slist_tpl<ware_t> & gib_fracht() const { return fracht;}   // liste der gerade transportierten güter
 
@@ -366,31 +347,25 @@ public:
 	*/
 	int gib_fracht_menge() const;
 
-
 	/**
 	* Berechnet Gesamtgewicht der transportierten Fracht in KG
 	* @author Hj. Malthaner
 	*/
 	int gib_fracht_gewicht() const;
 
-
 	const char * gib_fracht_name() const;
-
 
 	/**
 	* setzt den typ der beförderbaren ware
 	*/
 	const ware_besch_t *gib_fracht_typ() const {return besch->gib_ware();};
 
-
 	/**
 	* setzt die maximale Kapazitaet
 	*/
 	const int gib_fracht_max() const {return besch->gib_zuladung(); }
 
-
 	const char * gib_fracht_mass() const;
-
 
 	/**
 	* erstellt einen Info-Text zur Fracht, z.B. zur Darstellung in einem
@@ -399,13 +374,11 @@ public:
 	*/
 	void gib_fracht_info(cbuffer_t & buf);
 
-
 	/**
 	* loescht alle fracht aus dem Fahrzeug
 	* @author Hj. Malthaner
 	*/
 	void loesche_fracht();
-
 
 	/**
 	* Payment is done per hop. It iterates all goods and calculates
@@ -416,13 +389,11 @@ public:
 	*/
 	sint64  calc_gewinn(koord3d start, koord3d end) const;
 
-
 	/**
 	* fahrzeug an haltestelle entladen
 	* @author Hj. Malthaner
 	*/
 	bool entladen(koord k, halthandle_t halt);
-
 
 	/**
 	* fahrzeug an haltestelle beladen
@@ -471,17 +442,17 @@ public:
 class automobil_t : public vehikel_t
 {
 protected:
-    bool ist_befahrbar(const grund_t *bd) const;
+	bool ist_befahrbar(const grund_t *bd) const;
 
 public:
-    virtual void betrete_feld();
+	virtual void betrete_feld();
 
-    virtual waytype_t gib_wegtyp() const { return road_wt; };
+	virtual waytype_t gib_wegtyp() const { return road_wt; };
 
-    automobil_t(karte_t *welt, loadsave_t *file);
-    automobil_t(karte_t *welt, koord3d pos, const vehikel_besch_t *besch, spieler_t *sp, convoi_t *cnv); // start und fahrplan
+	automobil_t(karte_t *welt, loadsave_t *file);
+	automobil_t(karte_t *welt, koord3d pos, const vehikel_besch_t *besch, spieler_t *sp, convoi_t *cnv); // start und fahrplan
 
-    virtual void setze_convoi(convoi_t *c);
+	virtual void setze_convoi(convoi_t *c);
 
 	// how expensive to go here (for way search)
 	virtual int gib_kosten(const grund_t *,const uint32 ) const;
@@ -493,13 +464,12 @@ public:
 	// returns true for the way search to an unknown target.
 	virtual bool ist_ziel(const grund_t *,const grund_t *) const;
 
-    ding_t::typ gib_typ() const {return automobil;};
+	ding_t::typ gib_typ() const {return automobil;};
 
+	fahrplan_t * erzeuge_neuen_fahrplan() const;
 
-    fahrplan_t * erzeuge_neuen_fahrplan() const;
-
-    void rdwr(loadsave_t *file);
-    void rdwr(loadsave_t *file, bool force);
+	void rdwr(loadsave_t *file);
+	void rdwr(loadsave_t *file, bool force);
 };
 
 
@@ -513,15 +483,15 @@ public:
 class waggon_t : public vehikel_t
 {
 private:
-    signal_t *ist_blockwechsel(koord3d k2) const;
+	signal_t *ist_blockwechsel(koord3d k2) const;
 
 protected:
-    bool ist_befahrbar(const grund_t *bd) const;
+	bool ist_befahrbar(const grund_t *bd) const;
 
-    void betrete_feld();
+	void betrete_feld();
 
 public:
-    virtual waytype_t gib_wegtyp() const { return track_wt; };
+	virtual waytype_t gib_wegtyp() const { return track_wt; };
 
 	// since we might need to unreserve previously used blocks, we must do this before calculation a new route
 	bool calc_route(karte_t * welt, koord3d start, koord3d ziel, uint32 max_speed, route_t * route);
@@ -566,7 +536,7 @@ public:
 class monorail_waggon_t : public waggon_t
 {
 public:
-    virtual waytype_t gib_wegtyp() const { return monorail_wt; }
+	virtual waytype_t gib_wegtyp() const { return monorail_wt; }
 
 	// all handled by waggon_t
 	monorail_waggon_t(karte_t *welt, loadsave_t *file) : waggon_t(welt, file) {}
@@ -593,27 +563,27 @@ protected:
 	// how expensive to go here (for way search)
 	virtual int gib_kosten(const grund_t *,const uint32) const {return 1; };
 
-    void calc_akt_speed(const grund_t *);
+	void calc_akt_speed(const grund_t *gr);
 
-    bool ist_befahrbar(const grund_t *bd) const;
+	bool ist_befahrbar(const grund_t *bd) const;
 
 public:
-    waytype_t gib_wegtyp() const { return water_wt; };
+	waytype_t gib_wegtyp() const { return water_wt; };
 
-    virtual bool ist_weg_frei(int &restart_speed);
+	virtual bool ist_weg_frei(int &restart_speed);
 
 	// returns true for the way search to an unknown target.
 	virtual bool ist_ziel(const grund_t *,const grund_t *) const {return 0;}
 
-    schiff_t(karte_t *welt, loadsave_t *file);
-    schiff_t(karte_t *welt, koord3d pos, const vehikel_besch_t *besch, spieler_t *sp, convoi_t *cnv); // start und fahrplan
+	schiff_t(karte_t *welt, loadsave_t *file);
+	schiff_t(karte_t *welt, koord3d pos, const vehikel_besch_t *besch, spieler_t *sp, convoi_t *cnv); // start und fahrplan
 
-    ding_t::typ gib_typ() const {return schiff;};
+	ding_t::typ gib_typ() const {return schiff;};
 
-    fahrplan_t * erzeuge_neuen_fahrplan() const;
+	fahrplan_t * erzeuge_neuen_fahrplan() const;
 
-    void rdwr(loadsave_t *file);
-    void rdwr(loadsave_t *file, bool force);
+	void rdwr(loadsave_t *file);
+	void rdwr(loadsave_t *file, bool force);
 };
 
 
@@ -685,7 +655,7 @@ public:
     virtual int calc_height();
 
 	// the speed calculation happens it calc_height
-    void calc_akt_speed(const grund_t *) { };
+    void calc_akt_speed(const grund_t *gr) {}
 };
 
 #endif

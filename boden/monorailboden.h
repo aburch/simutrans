@@ -8,6 +8,7 @@ class monorailboden_t : public grund_t
 public:
 	monorailboden_t(karte_t *welt, loadsave_t *file);
 	monorailboden_t(karte_t *welt, koord3d pos,hang_t::typ slope);
+	virtual ~monorailboden_t() {}
 
 	virtual void rdwr(loadsave_t *file);
 

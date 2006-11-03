@@ -76,16 +76,16 @@ int convoi_frame_t::compare_convois(const void *p1, const void *p2)
 			break;
 	    case nach_typ:
 			{
-			    vehikel_t *fahr1 = cnv1->gib_vehikel(0);
-			    vehikel_t *fahr2 = cnv2->gib_vehikel(0);
+				vehikel_t *fahr1 = cnv1->gib_vehikel(0);
+				vehikel_t *fahr2 = cnv2->gib_vehikel(0);
 
-			    result = fahr1->gib_typ() - fahr2->gib_typ();
-			    if(result == 0) {
-		    		result = fahr1->gib_fracht_typ() - fahr2->gib_fracht_typ();
+				result = fahr1->gib_typ() - fahr2->gib_typ();
 				if(result == 0) {
-		    	   	    result = fahr1->gib_basis_bild() - fahr2->gib_basis_bild();
+					result = fahr1->gib_fracht_typ() - fahr2->gib_fracht_typ();
+					if(result == 0) {
+						result = fahr1->gib_basis_bild() - fahr2->gib_basis_bild();
+					}
 				}
-			    }
 			}
 			break;
 	    case nach_id:

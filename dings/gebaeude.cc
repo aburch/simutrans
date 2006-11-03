@@ -102,7 +102,8 @@ gebaeude_t::gebaeude_t(karte_t *welt, koord3d pos,spieler_t *sp, const haus_tile
 	init(t);
 	renoviere();	// this will set init time etc.
 
-	if(welt->lookup(pos)->gib_weg_hang()!=welt->lookup(pos)->gib_grund_hang()) {
+	grund_t *gr=welt->lookup(pos);
+	if(gr  &&  gr->gib_weg_hang()!=gr->gib_grund_hang()) {
 		setze_yoff(-16);
 	}
 
