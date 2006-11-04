@@ -1190,38 +1190,39 @@ void display_get_image_offset(unsigned bild, int *xoff, int *yoff, int *xw, int 
 // we need it this complex, because the actual x-offset is coded into the image
 void display_set_image_offset(unsigned bild, int xoff, int yoff)
 {
-	if (bild < anz_images && images[bild].base_h > 0 && images[bild].base_w > 0) {
-		int h = images[bild].base_h;
-		PIXVAL *sp = images[bild].base_data;
+	int h;
+	PIXVAL* sp;
 
-		// avoid overflow
-		if (images[bild].base_x + xoff < 0) {
-			xoff = -images[bild].base_x;
-		}
-		images[bild].base_x += xoff;
-		images[bild].base_y += yoff;
-		// the offfset is hardcoded into the image
-		while (h-- > 0) {
-			// one line
-			*sp += xoff;	// reduce number of transparent pixels (always first)
-			do {
-				// clear run + colored run + next clear run
-				++sp;
-				sp += *sp + 1;
-			} while (*sp);
-			sp++;
-		}
-		// need recoding
-		images[anz_images].recode_flags[NEED_NORMAL_RECODE] = 128;
+	assert(bild < anz_images);
+	assert(images[bild].base_h > 0);
+	assert(images[bild].base_w > 0);
+
+	h = images[bild].base_h;
+	sp = images[bild].base_data;
+
+	// avoid overflow
+	if (images[bild].base_x + xoff < 0) {
+		xoff = -images[bild].base_x;
+	}
+	images[bild].base_x += xoff;
+	images[bild].base_y += yoff;
+	// the offfset is hardcoded into the image
+	while (h-- > 0) {
+		// one line
+		*sp += xoff;	// reduce number of transparent pixels (always first)
+		do {
+			// clear run + colored run + next clear run
+			++sp;
+			sp += *sp + 1;
+		} while (*sp);
+		sp++;
+	}
+	// need recoding
+	images[anz_images].recode_flags[NEED_NORMAL_RECODE] = 128;
 #ifdef NEED_PLAYER_RECODE
-		images[anz_images].recode_flags[NEED_PLAYER_RECODE] = 128;
+	images[anz_images].recode_flags[NEED_PLAYER_RECODE] = 128;
 #endif
-		images[anz_images].recode_flags[NEED_REZOOM] = true;
-	}
-	else {
-		// cannot adjust zero sized image
-		assert(0);
-	}
+	images[anz_images].recode_flags[NEED_REZOOM] = true;
 }
 
 
