@@ -548,9 +548,9 @@ DBG_MESSAGE("wkz_remover()", "removing way");
 		}
 		// remove all ways ...
 		if(gr->gib_weg_nr(1)) {
-			gr->weg_entfernen(gr->gib_weg_nr(1)->gib_typ(), false);
+			gr->weg_entfernen(gr->gib_weg_nr(1)->gib_typ(), true);
 		}
-		gr->weg_entfernen(gr->gib_weg_nr(0)->gib_typ(), false);
+		gr->weg_entfernen(gr->gib_weg_nr(0)->gib_typ(), true);
 	}
 
 	if(cost_sum > 0) {

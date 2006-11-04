@@ -80,9 +80,10 @@ public:
 		schiene=2,
 		schiene_tram=3, // Dario: Tramway
 		monorail=4,
-		wasser=5,
-		luft=6,
-		leitung=7,
+		maglev=6,
+		wasser=7,
+		luft=8,
+		leitung=9,
 		bautyp_mask=15,
 		bot_flag=32,					// do not connect to other ways
 		elevated_flag=64,			// elevated structure
@@ -182,9 +183,6 @@ private:
 	void baue_strasse();
 	void baue_schiene();
 	void baue_leitung();
-	void baue_monorail();
-	void baue_kanal();
-	void baue_runway();
 
 public:
 	koord gib_route_bei(int i) const {return route->at(i).gib_2d();};
@@ -219,7 +217,7 @@ public:
 	~wegbauer_t();
 
 	void calc_straight_route(koord3d start, const koord3d ziel);
-	void calc_route(koord3d start3d, const koord3d ziel);
+	void calc_route(koord3d start3d, koord3d ziel);
 
 	/* returns the amount needed to built this way
 	* author prissi

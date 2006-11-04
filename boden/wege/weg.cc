@@ -90,6 +90,9 @@ weg_t::alloc(waytype_t wt)
 		case water_wt:
 			weg = new kanal_t(welt);
 			break;
+		case air_wt:
+			weg = new runway_t(welt);
+			break;
 		default:
 			// keep compiler happy; should never reach here anyway
 			assert(0);

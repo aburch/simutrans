@@ -5,6 +5,15 @@ Known bugs: (hard to fix)
 
 
 
+
+	FIX: elevated construction could only connect via straight connections
+	FIX: tunnel rails were upraded to even higher speeds than allowed
+	FIX: no more accidental connection between bridges/tunnels
+	FIX: no more upgrading track on bridges or in tunnels
+	FIX: way search for ways below monorail fixed
+	CHANGE: unified construction of rail, monorails, maglev, channels, airstrips by baue_schiene()
+
+
 Release of 99.03
 
 03-Nov-2006: (prissi)
