@@ -531,7 +531,7 @@ bool wegbauer_t::is_allowed_step( const grund_t *from, const grund_t *to, long *
 
 	// universal check for elevated things ...
 	if(bautyp&elevated_flag) {
-		if(to->gib_weg(air_wt)  ||  to->ist_wasser()  ||  !check_for_leitung(zv,to)) {
+		if(to->gib_weg(air_wt)  ||  to->ist_wasser()  ||  !check_for_leitung(zv,to)  ||  !to->ist_karten_boden()  ||  to->gib_typ()==grund_t::brueckenboden  ||  to->gib_typ()==grund_t::tunnelboden) {
 			// no suitable ground below!
 			return false;
 		}

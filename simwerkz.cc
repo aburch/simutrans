@@ -571,28 +571,28 @@ DBG_MESSAGE("wkz_remover()", "removing ground");
 int
 wkz_remover(spieler_t *sp, karte_t *welt, koord pos)
 {
-    DBG_MESSAGE("wkz_remover()","at %d,%d", pos.x, pos.y);
-    const char *fail = NULL;
+	DBG_MESSAGE("wkz_remover()","at %d,%d", pos.x, pos.y);
+	const char *fail = NULL;
 
-    if(!wkz_remover_intern(sp, welt, pos, fail)) {
-  if(fail) {
-      create_win(-1, -1, MESG_WAIT, new nachrichtenfenster_t(welt, fail), w_autodelete);
-  }
-  return false;
-    }
-    // Nachbarschaft (Bilder) neu berechnen
+	if(!wkz_remover_intern(sp, welt, pos, fail)) {
+		if(fail) {
+			create_win(-1, -1, MESG_WAIT, new nachrichtenfenster_t(welt, fail), w_autodelete);
+		}
+		return false;
+	}
 
-    if(pos.x>1)
-  welt->lookup(pos+koord(-1, 0))->gib_kartenboden()->calc_bild();
-    if(pos.y>1)
-  welt->lookup(pos+koord::nord)->gib_kartenboden()->calc_bild();
+	// Nachbarschaft (Bilder) neu berechnen
+	if(pos.x>1)
+		welt->lookup(pos+koord(-1, 0))->gib_kartenboden()->calc_bild();
+	if(pos.y>1)
+		welt->lookup(pos+koord::nord)->gib_kartenboden()->calc_bild();
 
-    if(pos.x<welt->gib_groesse_x()-1)
-  welt->lookup(pos+koord::ost)->gib_kartenboden()->calc_bild();
-    if(pos.y<welt->gib_groesse_y()-1)
-  welt->lookup(pos+koord::sued)->gib_kartenboden()->calc_bild();
+	if(pos.x<welt->gib_groesse_x()-1)
+		welt->lookup(pos+koord::ost)->gib_kartenboden()->calc_bild();
+	if(pos.y<welt->gib_groesse_y()-1)
+		welt->lookup(pos+koord::sued)->gib_kartenboden()->calc_bild();
 
-    return true;
+	return true;
 }
 
 
@@ -663,21 +663,31 @@ wkz_wegebau(spieler_t *sp, karte_t *welt,  koord pos, value_t lParam)
 		}
 
 		grund_t *gr=NULL;
-		// search all grounds for match
-		for( unsigned cnt=0;  cnt<plan->gib_boden_count();  cnt++  ) {
-			// with control backwards
-			gr = plan->gib_boden_bei(cnt);
-			// ignore tunnel
-			if(gr->gib_typ()==grund_t::tunnelboden  &&  !gr->ist_karten_boden()) {
-				gr = NULL;
-				continue;
-			}
-			// check for ownership
-			if(sp!=NULL  &&  !sp->check_owner(gr->gib_besitzer())){
-				gr = NULL;
-				continue;
+		if(grund_t::underground_mode) {
+			// search all grounds for match
+			for( unsigned cnt=0;  cnt<plan->gib_boden_count();  cnt++  ) {
+				// with control backwards
+				gr = plan->gib_boden_bei(cnt);
+				// ignore tunnel
+				if(gr->gib_typ()!=grund_t::tunnelboden) {
+					gr = NULL;
+					continue;
+				}
+				// check for ownership
+				if(sp!=NULL  &&  !sp->check_owner(gr->gib_besitzer())){
+					gr = NULL;
+					continue;
+				}
 			}
 		}
+		else {
+			// normal ground; just check for ownership
+			gr = plan->gib_kartenboden();
+			if(sp!=NULL  &&  !sp->check_owner(gr->gib_besitzer())){
+				gr = NULL;
+			}
+		}
+
 		if(gr==NULL) {
 			return false;
 		}
