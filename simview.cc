@@ -50,8 +50,8 @@ karte_ansicht_t::display(bool force_dirty)
 	const int dpy_width = disp_width/IMG_SIZE + 2;
 	const int dpy_height = (disp_height*4)/IMG_SIZE;
 
-	const int i_off = welt->gib_ij_off().x;
-	const int j_off = welt->gib_ij_off().y;
+	const int i_off = welt->gib_ij_off().x - disp_width/(2*IMG_SIZE) - disp_height/(4*IMG_SIZE);
+	const int j_off = welt->gib_ij_off().y - disp_width/(2*IMG_SIZE) - disp_height/(4*IMG_SIZE);
 	int	y;
 
 	// not very elegant, but works:

@@ -60,7 +60,7 @@ void citycar_reader_t::register_obj(obj_besch_t *&data)
 
 bool citycar_reader_t::successfully_loaded() const
 {
-    return stadtauto_t::laden_erfolgreich();
+	return stadtauto_t::laden_erfolgreich();
 }
 
 

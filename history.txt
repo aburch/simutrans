@@ -12,6 +12,7 @@ Known bugs: (hard to fix)
 	FIX: no more upgrading track on bridges or in tunnels
 	FIX: way search for ways below monorail fixed
 	CHANGE: unified construction of rail, monorails, maglev, channels, airstrips by baue_schiene()
+	FIX: position now nearly always centered for all zoom levels and pak sizes
 
 
 Release of 99.03

@@ -1193,7 +1193,11 @@ void display_set_image_offset(unsigned bild, int xoff, int yoff)
 	int h;
 	PIXVAL* sp;
 
-	assert(bild < anz_images);
+	if(bild >= anz_images) {
+		fprintf(stderr, "Warning: display_set_image_offset(): illegal image=%d\n", bild);
+		return;
+	}
+
 	assert(images[bild].base_h > 0);
 	assert(images[bild].base_w > 0);
 

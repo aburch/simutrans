@@ -170,33 +170,33 @@ void fabrik_info_t::zeichnen(koord pos, koord gr)
    */
 bool fabrik_info_t::action_triggered(gui_komponente_t *komp,value_t /* */)
 {
-    unsigned int i;
+	unsigned int i;
 
-    for(i=0; i<fab->gib_lieferziele().get_count(); i++) {
-	if(komp == &lieferbuttons[i]) {
-	    welt->zentriere_auf(fab->gib_lieferziele().get(i));
+	for(i=0; i<fab->gib_lieferziele().get_count(); i++) {
+		if(komp == &lieferbuttons[i]) {
+			welt->setze_ij_off(koord3d(fab->gib_lieferziele().get(i),welt->max_hgt(fab->gib_lieferziele().get(i))));
+		}
 	}
-    }
 
-    for(i=0; i<fab->get_suppliers().get_count(); i++) {
-	if(komp == &supplierbuttons[i]) {
-	    welt->zentriere_auf(fab->get_suppliers().get(i));
+	for(i=0; i<fab->get_suppliers().get_count(); i++) {
+		if(komp == &supplierbuttons[i]) {
+			welt->setze_ij_off(koord3d(fab->get_suppliers().get(i),welt->max_hgt(fab->get_suppliers().get(i))));
+		}
 	}
-    }
 
-    for(i=0; i<fab->gib_arbeiterziele().count(); i++) {
-	if(komp == &stadtbuttons[i]) {
-	    welt->zentriere_auf(fab->gib_arbeiterziele().at(i)->gib_pos());
+	for(i=0; i<fab->gib_arbeiterziele().count(); i++) {
+		if(komp == &stadtbuttons[i]) {
+			welt->setze_ij_off(koord3d(fab->gib_arbeiterziele().at(i)->gib_pos(),welt->min_hgt(fab->gib_arbeiterziele().at(i)->gib_pos())));
+		}
 	}
-    }
 
-    if(komp == about) {
-      help_frame_t * frame = new help_frame_t();
-      char key[256];
-      sprintf(key, "factory_%s_details", fab->gib_name());
-      frame->setze_text(translator::translate(key));
-      create_win(frame, w_autodelete, magic_none);
-    }
+	if(komp == about) {
+		help_frame_t * frame = new help_frame_t();
+		char key[256];
+		sprintf(key, "factory_%s_details", fab->gib_name());
+		frame->setze_text(translator::translate(key));
+		create_win(frame, w_autodelete, magic_none);
+	}
 
-    return true;
+	return true;
 }

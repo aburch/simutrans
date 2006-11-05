@@ -46,7 +46,7 @@ void halt_list_stats_t::infowin_event(const event_t *ev)
 		}
 	}
 	if(IS_RIGHTRELEASE(ev)) {
-		halt->gib_welt()->setze_ij_off(halt->gib_basis_pos() + koord(-5,-5));
+		halt->gib_welt()->setze_ij_off(halt->gib_basis_pos3d());
 	}
 }
 

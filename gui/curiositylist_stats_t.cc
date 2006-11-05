@@ -101,24 +101,21 @@ void curiositylist_stats_t::get_unique_attractions(const curiositylist::sort_mod
  */
 void curiositylist_stats_t::infowin_event(const event_t * ev)
 {
-    const unsigned int line = (ev->cy) / (LINESPACE+1);
+	const unsigned int line = (ev->cy) / (LINESPACE+1);
 
-    if (line >= attractions.get_count())
-	return;
-
-    gebaeude_t * geb = attractions.at(line);
-    if (!geb)
-	return;
-
-    if (IS_LEFTRELEASE(ev)) {
-	geb->zeige_info();
-    }
-    else if (IS_RIGHTRELEASE(ev)) {
-	const koord3d pos = geb->gib_pos();
-	if(welt->ist_in_kartengrenzen(pos.gib_2d())) {
-	    welt->setze_ij_off(pos.gib_2d() + koord(-5,-5));
+	if (line>=attractions.get_count()) {
+		return;
 	}
-    }
+
+	gebaeude_t * geb = attractions.at(line);
+	if (geb) {
+		if (IS_LEFTRELEASE(ev)) {
+			geb->zeige_info();
+		}
+		else if (IS_RIGHTRELEASE(ev)) {
+			welt->setze_ij_off(geb->gib_pos());
+		}
+	}
 } // end of function curiositylist_stats_t::infowin_event(const event_t * ev)
 
 

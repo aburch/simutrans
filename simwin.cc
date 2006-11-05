@@ -783,7 +783,7 @@ check_pos_win(event_t *ev)
 		if(show_ticker  &&    ev->cy<=display_get_height()-16  &&   IS_LEFTRELEASE(ev)) {
 			koord p = ticker_t::get_instance()->get_welt_pos(ev->cx,ev->cy);
 			if(wl->ist_in_kartengrenzen(p)) {
-				wl->zentriere_auf(p);
+				wl->setze_ij_off(koord3d(p,wl->min_hgt(p)));
 			}
 			return true;
 		}

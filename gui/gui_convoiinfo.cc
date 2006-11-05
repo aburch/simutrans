@@ -59,7 +59,7 @@ void gui_convoiinfo_t::infowin_event(const event_t *ev)
 			}
 		}
 		else if(IS_RIGHTRELEASE(ev)) {
-			cnv->gib_welt()->setze_ij_off(cnv->gib_vehikel(0)->gib_pos().gib_2d() + koord(-5,-5));
+			cnv->gib_welt()->setze_ij_off(cnv->gib_vehikel(0)->gib_pos());
 		}
 	}
 }

@@ -56,7 +56,8 @@ wasser_t::calc_bild()
 void *
 wasser_t::operator new(size_t /*s*/)
 {
-	return (wasser_t *)freelist_t::gimme_node(sizeof(wasser_t));
+//	assert(s==sizeof(wasser_t));
+	return static_cast<wasser_t *>(freelist_t::gimme_node(sizeof(wasser_t)));
 }
 
 

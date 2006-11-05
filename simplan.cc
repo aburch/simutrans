@@ -217,12 +217,14 @@ planquadrat_t::rdwr(karte_t *welt, loadsave_t *file)
 					dbg->fatal("planquadrat_t::rdwr()","Error while loading game: Unknown ground type '%d'",gtyp);
 			}
 
+//			assert(gr==NULL  ||  gtyp==gr->gib_typ());
+
 			// check if we have a matching building here, otherwise set to nothing
 			if(gr  &&  gtyp==grund_t::fundament  &&  gr->suche_obj(ding_t::gebaeude)==0) {
 				koord3d pos = gr->gib_pos();
 				// show normal ground here
 				delete gr;
-				gr = new boden_t(welt, pos,0);
+				gr = new boden_t(welt, pos, 0);
 DBG_MESSAGE("planquadrat_t::rwdr", "unknown building (or prepare for factory) at %d,%d replaced by normal ground!", pos.x,pos.y);
 			}
 			// we should also check for ground below factories
@@ -238,7 +240,6 @@ DBG_MESSAGE("planquadrat_t::rwdr", "unknown building (or prepare for factory) at
 				} else {
 					boden_hinzufuegen(gr);
 				}
-//				gr->calc_bild();
 			}
 		} while(gr != 0);
 	}

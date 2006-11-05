@@ -673,7 +673,7 @@ karte_t::init(einstellungen_t *sets)
 	if(is_display_init()) {
 		display_show_pointer(false);
 	}
-	setze_ij_off(koord(0,0));
+	setze_ij_off(koord3d(0,0,0));
 
 	einstellungen = sets;
 
@@ -778,7 +778,7 @@ DBG_DEBUG("karte_t::init()","prepare cities");
 		const int max_display_progress=16+einstellungen->gib_anzahl_staedte()*4+einstellungen->gib_land_industry_chains()+einstellungen->gib_city_industry_chains();
 
 		// Ansicht auf erste Stadt zentrieren
-		setze_ij_off(pos->at(0) + koord(-8, -8));
+		setze_ij_off(koord3d(pos->at(0),min_hgt(pos->at(0))));
 
 		for(i=0; i<einstellungen->gib_anzahl_staedte(); i++) {
 
@@ -1347,9 +1347,9 @@ karte_t::setze_maus_funktion(int (* funktion)(spieler_t *, karte_t *, koord),
 			     int ok_sound,
 			     int ko_sound)
 {
-    setze_maus_funktion(
-	(int (*)(spieler_t *, karte_t *, koord, value_t))funktion,
-	zeiger_bild, zeiger_versatz, 0l, ok_sound, ko_sound);
+	setze_maus_funktion(
+		(int (*)(spieler_t *, karte_t *, koord, value_t))funktion,
+		zeiger_bild, zeiger_versatz, 0l, ok_sound, ko_sound);
 }
 
 
@@ -1361,13 +1361,10 @@ karte_t::setze_maus_funktion(int (* funktion)(spieler_t *, karte_t *, koord),
  * @author V. Meyer, Hj. Malthaner
  */
 void
-karte_t::setze_maus_funktion(int (* funktion)(spieler_t *, karte_t *, koord,
-					      value_t param),
-                             int zeiger_bild,
-			     int zeiger_versatz,
-			     value_t param,
-			     int ok_sound,
-			     int ko_sound)
+karte_t::setze_maus_funktion(int (* funktion)(spieler_t *, karte_t *, koord, value_t param),
+		int zeiger_bild, int zeiger_versatz,
+		value_t param,
+		int ok_sound, int ko_sound)
 {
     // gibt es eien neue funktion ?
     if(funktion != NULL) {
@@ -1669,7 +1666,7 @@ karte_t::sync_step(const long dt)
 	// change view due to following a convoi?
 	if(follow_convoi.is_bound()) {
 		const koord old_pos=ij_off;
-		const koord new_pos=follow_convoi->gib_vehikel(0)->gib_pos().gib_2d()-koord(8,8);
+		const koord new_pos=follow_convoi->gib_vehikel(0)->gib_pos().gib_2d();
 		const int rw=get_tile_raster_width();
 		const int new_xoff=tile_raster_scale_x(-follow_convoi->gib_vehikel(0)->gib_xoff(),rw);
 		const int new_yoff=tile_raster_scale_x(-follow_convoi->gib_vehikel(0)->gib_yoff(),rw)+tile_raster_scale_y(follow_convoi->gib_vehikel(0)->gib_pos().z,rw);
@@ -2496,7 +2493,7 @@ DBG_MESSAGE("karte_t::laden()","loading grid");
 				}
 			}
 		}
-    	}
+	}
 
     // Reliefkarte an neue welt anpassen
     DBG_MESSAGE("karte_t::laden()", "init relief");
@@ -2609,7 +2606,12 @@ DBG_MESSAGE("karte_t::laden()", "players loaded");
 	file->rdwr_long(mi, " ");
 	file->rdwr_long(mj, "\n");
 	DBG_MESSAGE("karte_t::laden()", "Setting view to %d,%d", mi,mj);
-	setze_ij_off(koord(mi,mj));
+	if(ist_in_kartengrenzen(mi,mj)) {
+		setze_ij_off(koord3d(mi,mj,min_hgt(koord(mi,mj))));
+	}
+	else {
+		setze_ij_off(koord3d(mi,mj,0));
+	}
 
 	display_laden(file->gib_file(), file->is_zipped());
 
@@ -2813,22 +2815,6 @@ void karte_t::do_pause()
 }
 
 
-/**
- * I tried to make it more centering than the old -5,-5.
- * Looks okay, but still map height effects position.
- * @author Volker Meyer
- * @date  20.06.2003
- */
-void karte_t::zentriere_auf(koord k)
-{
-    //setze_ij_off(k + koord(-5,-5));
-
-
-    const int dp_height = display_get_height() / get_tile_raster_width();
-
-    setze_ij_off(k - koord(dp_height - 3, dp_height - 2));
-}
-
 
 ding_t *
 karte_t::gib_zeiger() const
@@ -2849,8 +2835,7 @@ void karte_t::bewege_zeiger(const event_t *ev)
 		int i_alt=zeiger->gib_pos().x;
 		int j_alt=zeiger->gib_pos().y;
 
-		int screen_y = ev->my - y_off - 16 -rw4 - ((display_get_width()/rw1)&1)*rw4;
-		//	int screen_y = ev->my - y_off - rw2 - ((display_get_width()/rw1)&1)*16;
+		int screen_y = ev->my - y_off - 16 - rw4 - ((display_get_width()/rw1)&1)*rw4;
 		int screen_x = (ev->mx - x_off - rw2 - display_get_width()/2) / 2;
 
 		if(zeiger->gib_yoff() == Z_PLAN) {
@@ -2879,8 +2864,8 @@ void karte_t::bewege_zeiger(const event_t *ev)
 
 		int hgt = lookup_hgt(koord(i_alt, j_alt));
 
-		const int i_off = gib_ij_off().x;
-		const int j_off = gib_ij_off().y;
+		const int i_off = gib_ij_off().x - display_get_width()/(2*rw1) - display_get_height()/(8*rw1);
+		const int j_off = gib_ij_off().y - display_get_width()/(2*rw1) - display_get_height()/(8*rw1);
 
 		for(int n = 0; n < 2; n++) {
 
@@ -3322,19 +3307,23 @@ karte_t::interactive_event(event_t &ev)
 
 	case '6':
 	case SIM_KEY_RIGHT:
-	    setze_ij_off(gib_ij_off()+koord(+1,-1));
+			ij_off += koord(+1,-1);
+	    dirty = true;
 	    break;
 	case '2':
 	case SIM_KEY_DOWN:
-	    setze_ij_off(gib_ij_off()+koord(+1,+1));
+			ij_off += koord(+1,+1);
+	    dirty = true;
 	    break;
 	case '8':
 	case SIM_KEY_UP:
-	    setze_ij_off(gib_ij_off()+koord(-1,-1));
+			ij_off += koord(-1,-1);
+	    dirty = true;
 	    break;
 	case '4':
 	case SIM_KEY_LEFT:
-	    setze_ij_off(gib_ij_off()+koord(-1,+1));
+			ij_off += koord(-1,+1);
+	    dirty = true;
 	    break;
 
 

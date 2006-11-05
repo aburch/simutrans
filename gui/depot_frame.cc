@@ -987,7 +987,7 @@ void depot_frame_t::infowin_event(const event_t *ev)
 		* Always center the map to depot
 		* Volker Meyer
 		*/
-		welt->zentriere_auf(pos);
+		welt->setze_ij_off(koord3d(pos,welt->min_hgt(pos)));
 	} else if(IS_WINDOW_REZOOM(ev)) {
 		koord gr = gib_fenstergroesse();
 		setze_fenstergroesse(gr);

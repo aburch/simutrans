@@ -54,119 +54,119 @@ class stadt_info_t;
 
 class stadt_t {
 
-    /**
-     * best_t:
-     *
-     * Kleine Hilfsklasse - speichert die beste Bewertung einer Position.
-     *
-     * @author V. Meyer
-     */
-    class best_t {
-	sint32 best_wert;
-	koord best_pos;
-    public:
-	void reset(koord pos) { best_wert = 0; best_pos = pos; }
+	/**
+	* best_t:
+	*
+	* Kleine Hilfsklasse - speichert die beste Bewertung einer Position.
+	*
+	* @author V. Meyer
+	*/
+	class best_t {
+		sint32 best_wert;
+		koord best_pos;
+	public:
+		void reset(koord pos) { best_wert = 0; best_pos = pos; }
 
-	void check(koord pos, sint32 wert) {
-	    if(wert > best_wert) {
-		best_wert = wert;
-		best_pos = pos;
-	    }
-	}
-	bool found() const { return best_wert > 0; }
+		void check(koord pos, sint32 wert) {
+			if(wert > best_wert) {
+				best_wert = wert;
+				best_pos = pos;
+			}
+		}
 
-	koord gib_pos() const { return best_pos;}
+		bool found() const { return best_wert > 0; }
+
+		koord gib_pos() const { return best_pos;}
 	// sint32 gib_wert() const { return best_wert; }
-    };
+	};
 
 public:
-
-    /**
-     * Reads city configuration data
-     * @author Hj. Malthaner
-     */
-    static bool init();
+	/**
+	 * Reads city configuration data
+	 * @author Hj. Malthaner
+	 */
+	static bool init();
 
 private:
-    static karte_t *welt;
-    spieler_t *besitzer_p;
-    char name[64];
+	static karte_t *welt;
+	spieler_t *besitzer_p;
+	char name[64];
 
 	weighted_vector_tpl <const gebaeude_t *> buildings;
 
-    array2d_tpl<unsigned char> pax_ziele_alt;
-    array2d_tpl<unsigned char> pax_ziele_neu;
+	array2d_tpl<unsigned char> pax_ziele_alt;
+	array2d_tpl<unsigned char> pax_ziele_neu;
 
-    koord pos;			// Gruendungsplanquadrat der Stadt
-    koord lo, ur;	// max size of housing area
+	koord pos;			// Gruendungsplanquadrat der Stadt
+	koord lo, ur;	// max size of housing area
 
-    // this counter indicate which building will be processed next
-    uint32 step_count;
+	// this counter indicate which building will be processed next
+	uint32 step_count;
 
-    /**
-     * step so every house is asked once per month
-     * i.e. 262144/(number of houses) per step
-     * @author Hj. Malthaner
-     */
-    uint32 step_interval;
+	/**
+	 * step so every house is asked once per month
+	 * i.e. 262144/(number of houses) per step
+	 * @author Hj. Malthaner
+	 */
+	uint32 step_interval;
 
-    /**
-     * next passenger generation timer
-     * @author Hj. Malthaner
-     */
-    uint32 next_step;
+	/**
+	 * next passenger generation timer
+	 * @author Hj. Malthaner
+	 */
+	uint32 next_step;
 
-    /**
-     * in this fixed interval, construction will happen
-     */
-    static const uint32 step_bau_interval;
+	/**
+	 * in this fixed interval, construction will happen
+	 */
+	static const uint32 step_bau_interval;
 
-    /**
-     * next construction
-     * @author Hj. Malthaner
-     */
-    uint32 next_bau_step;
+	/**
+	 * next construction
+	 * @author Hj. Malthaner
+	 */
+	uint32 next_bau_step;
 
-    // attribute fuer die Bevoelkerung
-    sint32 bev;	// Bevoelkerung gesamt
-    sint32 arb;	// davon mit Arbeit
-    sint32 won;	// davon mit Wohnung
+	// attribute fuer die Bevoelkerung
+	sint32 bev;	// Bevoelkerung gesamt
+	sint32 arb;	// davon mit Arbeit
+	sint32 won;	// davon mit Wohnung
 
-    /**
-     * Counter: possible passengers in this month
-     * transient data, not saved
-     * @author Hj. Malthaner
-     */
-    sint32 pax_erzeugt;
+	/**
+	 * Counter: possible passengers in this month
+	 * transient data, not saved
+	 * @author Hj. Malthaner
+	 */
+	sint32 pax_erzeugt;
 
-    /**
-     * Counter: transported passengers in this month
-     * transient data, not saved
-     * @author Hj. Malthaner
-     */
-    sint32 pax_transport;
+	/**
+	 * Counter: transported passengers in this month
+	 * transient data, not saved
+	 * @author Hj. Malthaner
+	 */
+	sint32 pax_transport;
 
-    /**
-     * Modifier for city growth
-     * transient data, not saved
-     * @author Hj. Malthaner
-     */
-    sint32 wachstum;
+	/**
+	 * Modifier for city growth
+	 * transient data, not saved
+	 * @author Hj. Malthaner
+	 */
+	sint32 wachstum;
 
-    /**
-    * City history
-    * @author prissi
-    */
-    sint64 city_history_year[MAX_CITY_HISTORY_YEARS][MAX_CITY_HISTORY];
-    sint64 city_history_month[MAX_CITY_HISTORY_MONTHS][MAX_CITY_HISTORY];
+	/**
+	* City history
+	* @author prissi
+	*/
+	sint64 city_history_year[MAX_CITY_HISTORY_YEARS][MAX_CITY_HISTORY];
+	sint64 city_history_month[MAX_CITY_HISTORY_MONTHS][MAX_CITY_HISTORY];
 
-    sint32 last_month_bev;
-    sint32 last_year_bev;
-    sint32	this_year_pax, this_year_transported;
+	sint32 last_month_bev;
+	sint32 last_year_bev;
+	sint32	this_year_pax, this_year_transported;
 
 	/* updates the city history
-	 * @author prissi
-	 */
+	* @author prissi
+	*/
 	void roll_history(void);
 
 	stadt_info_t *stadt_info;
@@ -189,26 +189,26 @@ public:
 
 	/* end of histroy related thingies */
 private:
-    sint32 best_haus_wert;
-    sint32 best_strasse_wert;
+	sint32 best_haus_wert;
+	sint32 best_strasse_wert;
 
-    best_t best_haus;
-    best_t best_strasse;
+	best_t best_haus;
+	best_t best_strasse;
 
-    koord strasse_anfang_pos;
-    koord strasse_best_anfang_pos;
+	koord strasse_anfang_pos;
+	koord strasse_best_anfang_pos;
 
-    /**
-     * Arbeitsplätze der Einwohner
-     * @author Hj. Malthaner
-     */
-    weighted_vector_tpl<fabrik_t *> arbeiterziele;
+	/**
+	 * Arbeitsplätze der Einwohner
+	 * @author Hj. Malthaner
+	 */
+	weighted_vector_tpl<fabrik_t *> arbeiterziele;
 
-    /**
-     * allokiert pax_ziele_alt/neu und init. die werte
-     * @author Hj. Malthaner
-     */
-    void init_pax_ziele();
+	/**
+	 * allokiert pax_ziele_alt/neu und init. die werte
+	 * @author Hj. Malthaner
+	 */
+	void init_pax_ziele();
 
 	// this function adds houses to the city house list
 	void add_gebaeude_to_stadt(const gebaeude_t *gb);
@@ -216,280 +216,280 @@ private:
 	// recalculate house informations (used for target selection)
 	void recount_houses();
 
-    /**
-     * plant das bauen von Gebaeuden
-     * @author Hj. Malthaner
-     */
-    void step_bau();
+	/**
+	 * plant das bauen von Gebaeuden
+	 * @author Hj. Malthaner
+	 */
+	void step_bau();
 
 
-    typedef enum { no_return=0, factoy_return, tourist_return, town_return } pax_zieltyp;
+	typedef enum { no_return=0, factoy_return, tourist_return, town_return } pax_zieltyp;
 
-    /**
-     * verteilt die Passagiere auf die Haltestellen
-     * @author Hj. Malthaner
-     */
-    void step_passagiere();
-
-
-    /**
-     * ein Passagierziel in die Zielkarte eintragen
-     * @author Hj. Malthaner
-     */
-    void merke_passagier_ziel(koord ziel, sint32 color);
+	/**
+	 * verteilt die Passagiere auf die Haltestellen
+	 * @author Hj. Malthaner
+	 */
+	void step_passagiere();
 
 
-    /**
-     * baut Spezialgebaeude, z.B Stadion
-     * @author Hj. Malthaner
-     */
-    void check_bau_spezial(bool);
-
-    /**
-     * baut ein angemessenes Rathaus
-     * @author V. Meyer
-     */
-    void check_bau_rathaus(bool);
-
-    /**
-     * constructs a new consumer
-     * @author prissi
-     */
-    void check_bau_factory(bool);
-
-    void bewerte();
-
-    // bewertungsfunktionen fuer den Hauserbau
-    // wie gut passt so ein Gebaeudetyp an diese Stelle ?
-
-    gebaeude_t::typ was_ist_an(koord pos) const;
-
-    sint32 bewerte_industrie(koord pos);
-    sint32 bewerte_gewerbe(koord pos);
-    sint32 bewerte_wohnung(koord pos);
+	/**
+	 * ein Passagierziel in die Zielkarte eintragen
+	 * @author Hj. Malthaner
+	 */
+	void merke_passagier_ziel(koord ziel, sint32 color);
 
 
-    /**
-     * baut ein Gebaeude auf Planquadrat x,y
-     */
-    void baue_gebaeude(koord pos);
-    void erzeuge_verkehrsteilnehmer(koord pos, sint32 level,koord target);
-    void renoviere_gebaeude(koord pos);
+	/**
+	 * baut Spezialgebaeude, z.B Stadion
+	 * @author Hj. Malthaner
+	 */
+	void check_bau_spezial(bool);
+
+	/**
+	 * baut ein angemessenes Rathaus
+	 * @author V. Meyer
+	 */
+	void check_bau_rathaus(bool);
+
+	/**
+	 * constructs a new consumer
+	 * @author prissi
+	 */
+	void check_bau_factory(bool);
+
+	void bewerte();
+
+	// bewertungsfunktionen fuer den Hauserbau
+	// wie gut passt so ein Gebaeudetyp an diese Stelle ?
+
+	gebaeude_t::typ was_ist_an(koord pos) const;
+
+	sint32 bewerte_industrie(koord pos);
+	sint32 bewerte_gewerbe(koord pos);
+	sint32 bewerte_wohnung(koord pos);
 
 
-    /**
-     * baut ein Stueck Strasse
-     *
-     * @param k         Bauposition
-     *
-     * @author Hj. Malthaner, V. Meyer
-     */
-    bool baue_strasse(const koord k, spieler_t *sp, bool forced);
-
-    void baue();
+	/**
+	 * baut ein Gebaeude auf Planquadrat x,y
+	 */
+	void baue_gebaeude(koord pos);
+	void erzeuge_verkehrsteilnehmer(koord pos, sint32 level,koord target);
+	void renoviere_gebaeude(koord pos);
 
 
-    /**
-     * Symbols in rules:
-     * S = darf keine Strasse sein
-     * s = muss Strasse sein
-     * n = muss Natur sein
-     * . = beliebig
-     *
-     * @param pos position to check
-     * @param regel the rule to evaluate
-     * @return true on match, false otherwise
-     * @author Hj. Malthaner
-     */
-    bool bewerte_loc(koord pos, const char *regel);
+	/**
+	 * baut ein Stueck Strasse
+	 *
+	 * @param k         Bauposition
+	 *
+	 * @author Hj. Malthaner, V. Meyer
+	 */
+	bool baue_strasse(const koord k, spieler_t *sp, bool forced);
+
+	void baue();
 
 
-    /**
-     * Check rule in all transformations at given position
-     * @author Hj. Malthaner
-     */
-    sint32 bewerte_pos(koord pos, const char *regel);
+	/**
+	 * Symbols in rules:
+	 * S = darf keine Strasse sein
+	 * s = muss Strasse sein
+	 * n = muss Natur sein
+	 * . = beliebig
+	 *
+	 * @param pos position to check
+	 * @param regel the rule to evaluate
+	 * @return true on match, false otherwise
+	 * @author Hj. Malthaner
+	 */
+	bool bewerte_loc(koord pos, const char *regel);
 
-    void bewerte_strasse(koord pos, sint32 rd, char *regel);
-    void bewerte_haus(koord pos, sint32 rd, char *regel);
 
-    void trans_y(const char *regel, char *tr);
-    void trans_l(const char *regel, char *tr);
-    void trans_r(const char *regel, char *tr);
+	/**
+	 * Check rule in all transformations at given position
+	 * @author Hj. Malthaner
+	 */
+	sint32 bewerte_pos(koord pos, const char *regel);
 
-    void pruefe_grenzen(koord pos);
+	void bewerte_strasse(koord pos, sint32 rd, char *regel);
+	void bewerte_haus(koord pos, sint32 rd, char *regel);
 
-    // fuer die haltestellennamen
-    sint32 zentrum_namen_cnt, aussen_namen_cnt;
+	void trans_y(const char *regel, char *tr);
+	void trans_l(const char *regel, char *tr);
+	void trans_r(const char *regel, char *tr);
+
+	void pruefe_grenzen(koord pos);
+
+	// fuer die haltestellennamen
+	sint32 zentrum_namen_cnt, aussen_namen_cnt;
 
 
 public:
-    /**
-     * sucht arbeitsplätze für die Einwohner
-     * @author Hj. Malthaner
-     */
-    void verbinde_fabriken();
+	/**
+	 * sucht arbeitsplätze für die Einwohner
+	 * @author Hj. Malthaner
+	 */
+	void verbinde_fabriken();
 
-    /* returns all factories connected to this city ...
-     * @author: prissi
-     */
-    const weighted_vector_tpl<fabrik_t *> & gib_arbeiterziele() const {return arbeiterziele;};
+	/* returns all factories connected to this city ...
+	 * @author: prissi
+	 */
+	const weighted_vector_tpl<fabrik_t *> & gib_arbeiterziele() const {return arbeiterziele;};
 
 	// this function removes houses from the city house list
 	// (called when removed by player, or by town)
 	void remove_gebaeude_from_stadt(const gebaeude_t *gb);
 
-    sint32 gib_pax_erzeugt() const {return pax_erzeugt;}
-    sint32 gib_pax_transport() const {return pax_transport;}
-    sint32 gib_wachstum() const {return wachstum;}
+	sint32 gib_pax_erzeugt() const {return pax_erzeugt;}
+	sint32 gib_pax_transport() const {return pax_transport;}
+	sint32 gib_wachstum() const {return wachstum;}
 
-    /**
-     * ermittelt die Einwohnerzahl der Stadt
-     * @author Hj. Malthaner
-     */
+	/**
+	 * ermittelt die Einwohnerzahl der Stadt
+	 * @author Hj. Malthaner
+	 */
 	sint32 gib_einwohner() const {return (buildings.get_sum_weight()*6)+((2*bev-arb-won)>>1);}
 
-    /**
-     * Gibt den Namen der Stadt zurück.
-     * @author Hj. Malthaner
-     */
-    const char * gib_name() const {return name;};
+	/**
+	 * Gibt den Namen der Stadt zurück.
+	 * @author Hj. Malthaner
+	 */
+	const char * gib_name() const {return name;};
 
-    /**
-     * Ermöglicht Zugriff auf Namesnarray
-     * @author Hj. Malthaner
-     */
-    char * access_name() {return name;};
+	/**
+	 * Ermöglicht Zugriff auf Namesnarray
+	 * @author Hj. Malthaner
+	 */
+	char * access_name() {return name;};
 
-    /**
-     * gibt einen zufällingen gleichverteilten Punkt innerhalb der
-     * Stadtgrenzen zurück
-     * @author Hj. Malthaner
-     */
-    koord gib_zufallspunkt();
+	/**
+	 * gibt einen zufällingen gleichverteilten Punkt innerhalb der
+	 * Stadtgrenzen zurück
+	 * @author Hj. Malthaner
+	 */
+	koord gib_zufallspunkt();
 
-    /**
-     * gibt das pax-statistik-array für letzten monat zurück
-     * @author Hj. Malthaner
-     */
-    const array2d_tpl<unsigned char> * gib_pax_ziele_alt() const {return &pax_ziele_alt;};
+	/**
+	 * gibt das pax-statistik-array für letzten monat zurück
+	 * @author Hj. Malthaner
+	 */
+	const array2d_tpl<unsigned char> * gib_pax_ziele_alt() const {return &pax_ziele_alt;};
 
-    /**
-     * gibt das pax-statistik-array für den aktuellen monat zurück
-     * @author Hj. Malthaner
-     */
-    const array2d_tpl<unsigned char> * gib_pax_ziele_neu() const {return &pax_ziele_neu;};
+	/**
+	 * gibt das pax-statistik-array für den aktuellen monat zurück
+	 * @author Hj. Malthaner
+	 */
+	const array2d_tpl<unsigned char> * gib_pax_ziele_neu() const {return &pax_ziele_neu;};
 
-    /**
-     * Erzeugt eine neue Stadt auf Planquadrat (x,y) die dem Spieler sp
-     * gehoert.
-     * @param welt Die Karte zu der die Stadt gehoeren soll.
-     * @param sp Der Besitzer der Stadt.
-     * @param x x-Planquadratkoordinate
-     * @param y y-Planquadratkoordinate
-     * @param number of citizens
-     * @author Hj. Malthaner
-     */
-    stadt_t(karte_t *welt, spieler_t *sp, koord pos,sint32 citizens);
+	/**
+	 * Erzeugt eine neue Stadt auf Planquadrat (x,y) die dem Spieler sp
+	 * gehoert.
+	 * @param welt Die Karte zu der die Stadt gehoeren soll.
+	 * @param sp Der Besitzer der Stadt.
+	 * @param x x-Planquadratkoordinate
+	 * @param y y-Planquadratkoordinate
+	 * @param number of citizens
+	 * @author Hj. Malthaner
+	 */
+	stadt_t(karte_t *welt, spieler_t *sp, koord pos,sint32 citizens);
 
 
-    /**
-     * Erzeugt eine neue Stadt nach Angaben aus der Datei file.
-     * @param welt Die Karte zu der die Stadt gehoeren soll.
-     * @param file Zeiger auf die Datei mit den Stadtbaudaten.
-     * @see stadt_t::speichern()
-     * @author Hj. Malthaner
-     */
-    stadt_t(karte_t *welt, loadsave_t *file);
+	/**
+	 * Erzeugt eine neue Stadt nach Angaben aus der Datei file.
+	 * @param welt Die Karte zu der die Stadt gehoeren soll.
+	 * @param file Zeiger auf die Datei mit den Stadtbaudaten.
+	 * @see stadt_t::speichern()
+	 * @author Hj. Malthaner
+	 */
+	stadt_t(karte_t *welt, loadsave_t *file);
 
 	// closes window and that stuff
 	~stadt_t();
 
-    /**
-     * Speichert die Daten der Stadt in der Datei file so, dass daraus
-     * die Stadt wieder erzeugt werden kann. Die Gebaude und strassen der
-     * Stadt werden nicht mit der Stadt gespeichert sondern mit den
-     * Planquadraten auf denen sie stehen.
-     * @see stadt_t::stadt_t()
-     * @see planquadrat_t
-     * @author Hj. Malthaner
-     */
-    void rdwr(loadsave_t *file);
+	/**
+	 * Speichert die Daten der Stadt in der Datei file so, dass daraus
+	 * die Stadt wieder erzeugt werden kann. Die Gebaude und strassen der
+	 * Stadt werden nicht mit der Stadt gespeichert sondern mit den
+	 * Planquadraten auf denen sie stehen.
+	 * @see stadt_t::stadt_t()
+	 * @see planquadrat_t
+	 * @author Hj. Malthaner
+	 */
+	void rdwr(loadsave_t *file);
 
-    /**
-     * Wird am Ende der LAderoutine aufgerufen, wenn die Welt geladen ist
-     * und nur noch die Datenstrukturenneu verknüpft werden müssen.
-     * @author Hj. Malthaner
-     */
-    void laden_abschliessen();
+	/**
+	 * Wird am Ende der LAderoutine aufgerufen, wenn die Welt geladen ist
+	 * und nur noch die Datenstrukturenneu verknüpft werden müssen.
+	 * @author Hj. Malthaner
+	 */
+	void laden_abschliessen();
 
 	/* change size of city
-	 * @author prissi */
+	* @author prissi */
 	void change_size( long delta_citicens );
 
-    void step(long delta_t);
+	void step(long delta_t);
 
-    void neuer_monat();
+	void neuer_monat();
 
-    /**
-     * such ein (zufälliges) ziel für einen Passagier
-     * @author Hj. Malthaner
-     */
-    koord finde_passagier_ziel(pax_zieltyp *will_return);
+	/**
+	 * such ein (zufälliges) ziel für einen Passagier
+	 * @author Hj. Malthaner
+	 */
+	koord finde_passagier_ziel(pax_zieltyp *will_return);
 
-    /**
-     * Gibt die Gruendungsposition der Stadt zurueck.
-     * @return die Koordinaten des Gruendungsplanquadrates
-     * @author Hj. Malthaner
-     */
-    inline koord gib_pos() const {return pos;};
+	/**
+	 * Gibt die Gruendungsposition der Stadt zurueck.
+	 * @return die Koordinaten des Gruendungsplanquadrates
+	 * @author Hj. Malthaner
+	 */
+	inline koord gib_pos() const {return pos;}
 
-    inline koord get_linksoben() const { return lo;};
-    inline koord get_rechtsunten() const { return ur;};
-
-
-    /**
-     * Gibt den Namen der Stadt zurueck.
-     * @return den Namen der Stadt
-     * @author Hj. Malthaner
-     */
-    inline const char * get_name() const {return name;};
+	inline koord get_linksoben() const { return lo;}
+	inline koord get_rechtsunten() const { return ur;}
 
 
-    /**
-     * Creates a station name
-     * @param number if >= 0, then a number is added to the name
-     * @author Hj. Malthaner
-     */
-    const char * haltestellenname(koord pos, const char *typ, sint32 number);
+	/**
+	 * Gibt den Namen der Stadt zurueck.
+	 * @return den Namen der Stadt
+	 * @author Hj. Malthaner
+	 */
+	inline const char * get_name() const {return name;};
 
 
-    /**
-     * Erzeugt ein Array zufaelliger Startkoordinaten,
-     * die fuer eine Stadtgruendung geeignet sind.
-     * @param wl Die Karte auf der die Stadt gegruendet werden soll.
-     * @param anzahl die Anzahl der zu liefernden Koordinaten
-     * @author Hj. Malthaner
-     */
-    static vector_tpl<koord> *random_place(const karte_t *wl, sint32 anzahl);	// geeigneten platz zur Stadtgruendung durch Zufall ermitteln
+	/**
+	 * Creates a station name
+	 * @param number if >= 0, then a number is added to the name
+	 * @author Hj. Malthaner
+	 */
+	const char * haltestellenname(koord pos, const char *typ, sint32 number);
 
 
-    /**
-     * @return Einen Beschreibungsstring für das Objekt, der z.B. in einem
-     * Beobachtungsfenster angezeigt wird.
-     * @author Hj. Malthaner
-     * @see simwin
-     */
-    char *info(char *buf) const;
+	/**
+	 * Erzeugt ein Array zufaelliger Startkoordinaten,
+	 * die fuer eine Stadtgruendung geeignet sind.
+	 * @param wl Die Karte auf der die Stadt gegruendet werden soll.
+	 * @param anzahl die Anzahl der zu liefernden Koordinaten
+	 * @author Hj. Malthaner
+	 */
+	static vector_tpl<koord> *random_place(const karte_t *wl, sint32 anzahl);	// geeigneten platz zur Stadtgruendung durch Zufall ermitteln
 
 
-    /**
-     * A short info about the city stats
-     * @author Hj. Malthaner
-     */
-    void get_short_info(cbuffer_t & buf) const;
+	/**
+	 * @return Einen Beschreibungsstring für das Objekt, der z.B. in einem
+	 * Beobachtungsfenster angezeigt wird.
+	 * @author Hj. Malthaner
+	 * @see simwin
+	 */
+	char *info(char *buf) const;
 
-    void add_factory_arbeiterziel(fabrik_t *fab);
+
+	/**
+	 * A short info about the city stats
+	 * @author Hj. Malthaner
+	 */
+	void get_short_info(cbuffer_t & buf) const;
+
+	void add_factory_arbeiterziel(fabrik_t *fab);
 };
 
 #endif

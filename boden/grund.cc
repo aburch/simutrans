@@ -252,21 +252,21 @@ void grund_t::rdwr(loadsave_t *file)
 	waytype_t wtyp;
 	int i = -1;
 	do {
-	    wtyp = (waytype_t)file->rd_obj_id();
+		wtyp = (waytype_t)file->rd_obj_id();
 
-	    if(++i < MAX_WEGE) {
+		if(++i < MAX_WEGE) {
 		switch(wtyp) {
 		default:
-		  wege[i] = NULL;
-		  break;
+			wege[i] = NULL;
+			break;
 		case road_wt:
-//		  DBG_DEBUG("grund_t::rdwr()", "road");
-		  wege[i] = new strasse_t (welt, file);
-		  break;
+			//		  DBG_DEBUG("grund_t::rdwr()", "road");
+			wege[i] = new strasse_t (welt, file);
+			break;
 		case monorail_wt:
-		  wege[i] = new monorail_t (welt, file);
-//		  DBG_DEBUG("grund_t::rdwr()", "monorail");
-		  break;
+			wege[i] = new monorail_t (welt, file);
+			//		  DBG_DEBUG("grund_t::rdwr()", "monorail");
+			break;
 		case track_wt:
 		{
 		  schiene_t *sch = new schiene_t (welt, file);

@@ -55,12 +55,12 @@ world_view_t::infowin_event(const event_t *ev)
 	if(IS_LEFTRELEASE(ev)) {
 		if(ding!=NULL) {
 			if(welt->ist_in_kartengrenzen(ding->gib_pos().gib_2d())) {
-				welt->zentriere_auf(ding->gib_pos().gib_2d());
+				welt->setze_ij_off(ding->gib_pos());
 			}
 		}
 		else {
 			if(welt->ist_in_kartengrenzen(location.gib_2d())) {
-				welt->zentriere_auf(location.gib_2d());
+				welt->setze_ij_off(location);
 			}
 		}
 	}

@@ -968,7 +968,7 @@ void haltestelle_t::add_pax_unhappy(int n)
 bool
 haltestelle_t::add_grund(grund_t *gr)
 {
-	assert(gr != NULL);
+	assert(gr!=NULL);
 
 	// neu halt?
 	if(!grund.contains(gr)) {
@@ -1732,22 +1732,22 @@ void haltestelle_t::get_short_freight_info(cbuffer_t & buf)
 void
 haltestelle_t::zeige_info()
 {
-    // sync name with ground
-    access_name();
-    // open window
+	// sync name with ground
+	access_name();
+	// open window
 
-    if(halt_info == 0) {
+	if(halt_info == 0) {
 		halt_info = new halt_info_t(welt, self);
-    }
+	}
 
-    create_win(-1, -1, halt_info, w_info);
+	create_win(-1, -1, halt_info, w_info);
 }
 
 
 void
 haltestelle_t::open_detail_window()
 {
-    create_win(-1, -1, new halt_detail_t(besitzer_p, welt, self), w_autodelete);
+	create_win(-1, -1, new halt_detail_t(besitzer_p, welt, self), w_autodelete);
 }
 
 
@@ -1758,30 +1758,30 @@ haltestelle_t::open_detail_window()
  */
 int haltestelle_t::sum_all_waiting_goods() const      //15-Feb-2002    Markus Weber    Added
 {
-    int sum = 0;
+	int sum = 0;
 
-    for(unsigned int i=0; i<warenbauer_t::gib_waren_anzahl(); i++) {
-	const ware_besch_t *wtyp = warenbauer_t::gib_info(i);
+	for(unsigned int i=0; i<warenbauer_t::gib_waren_anzahl(); i++) {
+		const ware_besch_t *wtyp = warenbauer_t::gib_info(i);
 
-        if(gibt_ab(wtyp)) {
-            sum += gib_ware_summe(wtyp);
-        }
-    }
-    return sum;
+		if(gibt_ab(wtyp)) {
+			sum += gib_ware_summe(wtyp);
+		}
+	}
+	return sum;
 }
 
 
 bool
 haltestelle_t::is_something_waiting() const
 {
-    for(unsigned int i=0; i<warenbauer_t::gib_waren_anzahl(); i++) {
-	const ware_besch_t *wtyp = warenbauer_t::gib_info(i);
+	for(unsigned int i=0; i<warenbauer_t::gib_waren_anzahl(); i++) {
+		const ware_besch_t *wtyp = warenbauer_t::gib_info(i);
 
-        if(gibt_ab(wtyp)) {
-	    return true;
-        }
-    }
-    return false;
+		if(gibt_ab(wtyp)) {
+			return true;
+		}
+	}
+	return false;
 }
 
 
@@ -1994,6 +1994,9 @@ haltestelle_t::rdwr(loadsave_t *file)
 				else {
 					dbg->warning("haltestelle_t::rdwr()", "will no longer add ground without building at %s!",k3_to_cstr(k).chars());
 				}
+			}
+			else {
+				dbg->warning("haltestelle_t::rdwr()", "illegal ground ignored!");
 			}
 		} while(k!=koord3d::invalid);
     } else {

@@ -108,9 +108,7 @@ void citylist_stats_t::infowin_event(const event_t * ev)
 	}
 	else if (IS_RIGHTRELEASE(ev) && ev->cy>0) {
 		const koord pos = stadt->gib_pos();
-		if(welt->ist_in_kartengrenzen(pos)) {
-			welt->setze_ij_off(pos + koord(-5,-5));
-		}
+		welt->setze_ij_off(koord3d(pos,welt->min_hgt(pos)));
 	}
 }
 

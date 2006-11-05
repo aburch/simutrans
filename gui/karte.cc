@@ -641,7 +641,13 @@ reliefkarte_t::infowin_event(const event_t *ev)
 
 	if(IS_LEFTCLICK(ev) || IS_LEFTDRAG(ev)) {
 		welt->set_follow_convoi( convoihandle_t() );
-		welt->setze_ij_off(koord(ev->mx/zoom-8, ev->my/zoom-8)); // Offset empirisch ermittelt !
+		int x = ev->mx/zoom-8;
+		int y = ev->my/zoom-8;
+		int z = 0;
+		if(welt->ist_in_kartengrenzen(x,y)) {
+			z = welt->min_hgt(koord(x,y));
+		}
+		welt->setze_ij_off(koord3d(x,y,z)); // Offset empirisch ermittelt !
 	}
 
 	if(IS_RIGHTRELEASE(ev) || IS_WHEELUP(ev) || IS_WHEELDOWN(ev)) {

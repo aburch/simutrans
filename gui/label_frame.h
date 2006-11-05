@@ -27,56 +27,55 @@ class spieler_t;
 
 class label_frame_t : public gui_frame_t, action_listener_t
 {
-    slist_tpl <button_t *> buttons;
-    static label_frame_t *instance;
+	slist_tpl <button_t *> buttons;
+	static label_frame_t *instance;
 
-    char txlabel[64];
+	char txlabel[64];
 
-    char ibuf[64];
-    gui_textinput_t input;
-    gui_divider_t divider1;
-    button_t savebutton;
-    button_t cancelbutton;
-    button_t removebutton;
-    gui_label_t fnlabel;
+	char ibuf[64];
+	gui_textinput_t input;
+	gui_divider_t divider1;
+	button_t savebutton;
+	button_t cancelbutton;
+	button_t removebutton;
+	gui_label_t fnlabel;
 
-    spieler_t *sp;
-    karte_t *welt;
-    koord pos;
+	spieler_t *sp;
+	karte_t *welt;
+	koord pos;
 
 protected:
-    void remove_label();
-    void load_label(char *name);
-    void create_label(const char *name);
-    void goto_label(const char *name);
+	void remove_label();
+	void load_label(char *name);
+	void create_label(const char *name);
+	void goto_label(const char *name);
 
 public:
+	/**
+	 * Konstruktor.
+	 * @author V. Meyer
+	 */
+	label_frame_t(karte_t *welt, spieler_t *sp, koord pos);
 
-    /**
-     * Konstruktor.
-     * @author V. Meyer
-     */
-    label_frame_t(karte_t *welt, spieler_t *sp, koord pos);
+	~label_frame_t();
 
-    ~label_frame_t();
+	 /**
+	 * komponente neu zeichnen. Die übergebenen Werte beziehen sich auf
+	 * das Fenster, d.h. es sind die Bildschirkoordinaten des Fensters
+	 * in dem die Komponente dargestellt wird.
+	 * @author Markus Weber
+	 */
+	void zeichnen(koord pos, koord gr);
 
-     /**
-     * komponente neu zeichnen. Die übergebenen Werte beziehen sich auf
-     * das Fenster, d.h. es sind die Bildschirkoordinaten des Fensters
-     * in dem die Komponente dargestellt wird.
-     * @author Markus Weber
-     */
-    void zeichnen(koord pos, koord gr);
-
-    /**
-     * This method is called if an action is triggered
-     * @author Hj. Malthaner
-     *
-     * Returns true, if action is done and no more
-     * components should be triggered.
-     * V.Meyer
-     */
-    bool action_triggered(gui_komponente_t *komp, value_t extra);
+	/**
+	 * This method is called if an action is triggered
+	 * @author Hj. Malthaner
+	 *
+	 * Returns true, if action is done and no more
+	 * components should be triggered.
+	 * V.Meyer
+	 */
+	bool action_triggered(gui_komponente_t *komp, value_t extra);
 };
 
 #endif

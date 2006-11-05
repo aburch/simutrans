@@ -178,65 +178,58 @@ bool label_frame_t::action_triggered(gui_komponente_t *komp,value_t /* */)
  */
 void label_frame_t::zeichnen(koord pos, koord gr)
 {
-
-    fnlabel.setze_text (txlabel);
-    savebutton.setze_text("Ok");
-    cancelbutton.setze_text("Cancel");
-    gui_frame_t::zeichnen(pos, gr);
+	fnlabel.setze_text (txlabel);
+	savebutton.setze_text("Ok");
+	cancelbutton.setze_text("Cancel");
+	gui_frame_t::zeichnen(pos, gr);
 }
 
 
 
 void label_frame_t::load_label(char *name)
 {
-    grund_t *gr = welt->lookup(pos)->gib_kartenboden();
+	grund_t *gr = welt->lookup(pos)->gib_kartenboden();
 
-    if(gr &&
-	(gr->gib_besitzer() == NULL || gr->gib_besitzer() == sp))
-    {
-	if(gr->gib_text()) {
-	    tstrncpy(name, gr->gib_text(), 64);
+	if(gr &&  (gr->gib_besitzer() == NULL || gr->gib_besitzer() == sp)  &&  gr->gib_text()) {
+		tstrncpy(name, gr->gib_text(), 64);
 	}
-    }
 }
 
 void label_frame_t::create_label(const char *name)
 {
-    grund_t *gr = welt->lookup(pos)->gib_kartenboden();
+	grund_t *gr = welt->lookup(pos)->gib_kartenboden();
 
-    if(gr && strlen(name) &&
-	(gr->gib_besitzer() == NULL || gr->gib_besitzer() == sp)) {
+	if(gr && strlen(name) &&
+		(gr->gib_besitzer() == NULL || gr->gib_besitzer() == sp)) {
 
-	if(gr->gib_besitzer() == NULL) {
-	   sp->buche(-12500, pos, COST_CONSTRUCTION);
+		if(gr->gib_besitzer() == NULL) {
+			sp->buche(-12500, pos, COST_CONSTRUCTION);
+		}
+		gr->setze_besitzer(sp);
+		gr->setze_text(strdup(name));
+		if(!gr->gib_halt().is_bound()) {
+			welt->add_label(pos);
+		}
 	}
-	gr->setze_besitzer(sp);
-	gr->setze_text(strdup(name));
-	if(!gr->gib_halt().is_bound()) {
-	    welt->add_label(pos);
-	}
-    }
 }
 
 void label_frame_t::remove_label()
 {
-    grund_t *gr = welt->lookup(pos)->gib_kartenboden();
+	grund_t *gr = welt->lookup(pos)->gib_kartenboden();
 
-    if(gr && (gr->gib_besitzer() == NULL || gr->gib_besitzer() == sp)) {
-
-	gr->setze_besitzer(NULL);
-	free(const_cast<char *>(gr->gib_text()));
-	gr->setze_text(NULL);
-	welt->remove_label(pos);
-    }
+	if(gr && (gr->gib_besitzer() == NULL || gr->gib_besitzer() == sp)) {
+		gr->setze_besitzer(NULL);
+		free(const_cast<char *>(gr->gib_text()));
+		gr->setze_text(NULL);
+		welt->remove_label(pos);
+	}
 }
 
 void label_frame_t::goto_label(const char *name)
 {
-    koord my_pos;
-
-    sscanf(name, "(%hd,%hd)", &my_pos.x, &my_pos.y);
-
-    welt->setze_ij_off(my_pos - koord(8, 8));
-
+	koord my_pos;
+	sscanf(name, "(%hd,%hd)", &my_pos.x, &my_pos.y);
+	if(welt->ist_in_kartengrenzen(my_pos)) {
+		welt->setze_ij_off(koord3d(my_pos,welt->min_hgt(my_pos)));
+	}
 }
