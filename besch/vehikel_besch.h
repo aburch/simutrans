@@ -17,7 +17,7 @@
 /*
  *  includes
  */
-#include "text_besch.h"
+#include "obj_besch_std_name.h"
 #include "ware_besch.h"
 #include "bildliste_besch.h"
 #include "bildliste2d_besch.h"
@@ -52,7 +52,7 @@
  *
  * @author Volker Meyer, Hj. Malthaner, kierongreen
  */
-class vehikel_besch_t : public obj_besch_t {
+class vehikel_besch_t : public obj_besch_std_name_t {
     friend class vehicle_writer_t;
     friend class vehicle_reader_t;
     friend class vehikelbauer_t;
@@ -114,16 +114,6 @@ public:
 		typ = wtyp;
 		engine_type = (uint8)engine;
 		geschw = speed;
-	}
-
-	const char *gib_name() const { return static_cast<const text_besch_t *>(gib_kind(0))->gib_text(); }
-
-	const char *gib_copyright() const
-	{
-		if(gib_kind(1)==NULL) {
-			return NULL;
-		}
-		return static_cast<const text_besch_t *>(gib_kind(1))->gib_text();
 	}
 
 	const ware_besch_t *gib_ware() const { return static_cast<const ware_besch_t *>(gib_kind(2)); }

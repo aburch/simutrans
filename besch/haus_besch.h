@@ -18,7 +18,7 @@
  *  includes
  */
 #include "bildliste2d_besch.h"
-#include "text_besch.h"
+#include "obj_besch_std_name.h"
 #include "../dings/gebaeude.h"
 #include "../bauer/hausbauer.h"
 
@@ -131,7 +131,7 @@ public:
  *	3   Tile 2
  *	... ...
  */
-class haus_besch_t : public obj_besch_t {     // Daten für ein ganzes Gebäude
+class haus_besch_t : public obj_besch_std_name_t { // Daten für ein ganzes Gebäude
 	friend class building_writer_t;
 	friend class building_reader_t;
 
@@ -166,19 +166,6 @@ class haus_besch_t : public obj_besch_t {     // Daten für ein ganzes Gebäude
 	}
 
 public:
-	const char *gib_name() const
-	{
-		return static_cast<const text_besch_t *>(gib_kind(0))->gib_text();
-	}
-
-	const char *gib_copyright() const
-	{
-		if(gib_kind(1)==0) {
-			// compatibility check for old paks
-			return NULL;
-		}
-		return static_cast<const text_besch_t *>(gib_kind(1))->gib_text();
-	}
 
 	koord gib_groesse(int layout = 0) const
 	{

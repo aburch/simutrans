@@ -17,7 +17,7 @@
 /*
  *  includes
  */
-#include "text_besch.h"
+#include "obj_besch_std_name.h"
 #include "bildliste_besch.h"
 #include "../dataobj/ribi.h"
 #include "../simtypes.h"
@@ -41,7 +41,7 @@ class skin_besch_t;
  *	1   Copyright
  *	2   Bildliste
  */
-class roadsign_besch_t : public obj_besch_t {
+class roadsign_besch_t : public obj_besch_std_name_t {
 	friend class roadsign_writer_t;
 	friend class roadsign_reader_t;
 
@@ -68,10 +68,6 @@ private:
 
 public:
 	enum types {ONE_WAY=1, FREE_ROUTE=2, PRIVATE_ROAD=4, SIGN_SIGNAL=8, SIGN_PRE_SIGNAL=16, ONLY_BACKIMAGE=32 };
-
-	const char *gib_name() const { return static_cast<const text_besch_t *>(gib_kind(0))->gib_text(); }
-
-	const char *gib_copyright() const { return static_cast<const text_besch_t *>(gib_kind(1))->gib_text(); }
 
 	int gib_bild_nr(ribi_t::dir dir) const
 	{

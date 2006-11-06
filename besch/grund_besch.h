@@ -17,7 +17,7 @@
 /*
  *  includes
  */
-#include "text_besch.h"
+#include "obj_besch_std_name.h"
 #include "bildliste2d_besch.h"
 #include "../simtypes.h"
 #include "../dataobj/ribi.h"
@@ -40,7 +40,7 @@
 
 class karte_t;
 
-class grund_besch_t : public obj_besch_t {
+class grund_besch_t : public obj_besch_std_name_t {
 	friend class ground_writer_t;
 
 private:
@@ -66,10 +66,6 @@ public:
 		return slopetable[typ];
     }
 #endif
-
-	const char *gib_name() const { return static_cast<const text_besch_t *>(gib_kind(0))->gib_text(); }
-
-	const char *gib_copyright() const { return static_cast<const text_besch_t *>(gib_kind(1))->gib_text(); }
 
 	// returns the pointer to an image structure
 	const bild_besch_t *gib_bild_ptr(int typ) const

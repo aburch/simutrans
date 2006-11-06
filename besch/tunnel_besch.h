@@ -24,12 +24,12 @@
 
 #include "intro_dates.h"
 
+#include "obj_besch_std_name.h"
 #include "skin_besch.h"
-#include "text_besch.h"
 #include "bildliste2d_besch.h"
 
 
-class tunnel_besch_t : public obj_besch_t {
+class tunnel_besch_t : public obj_besch_std_name_t {
 	friend class tunnel_writer_t;
 	friend class tunnel_reader_t;
 	friend class tunnelbauer_t;	// to convert the old tunnels to new ones
@@ -47,9 +47,6 @@ private:
 	uint16 obsolete_date;
 
 public:
-	const char *gib_name() const { return static_cast<const text_besch_t *>(gib_kind(0))->gib_text(); }
-	const char *gib_copyright() const { return static_cast<const text_besch_t *>(gib_kind(1))->gib_text(); }
-
 	const bild_besch_t *gib_hintergrund(hang_t::typ hang) const
 	{
 		return static_cast<const bildliste_besch_t *>(gib_kind(2))->gib_bild(hang_indices[hang]);

@@ -17,7 +17,7 @@
 /*
  *  includes
  */
-#include "text_besch.h"
+#include "obj_besch_std_name.h"
 
 /*
  *  class:
@@ -34,7 +34,7 @@
  *	1   Copyright
  *	2   Text Maﬂeinheit
  */
-class ware_besch_t : public obj_besch_t {
+class ware_besch_t : public obj_besch_std_name_t {
 	friend class good_writer_t;
 	friend class good_reader_t;
 	friend class warenbauer_t;
@@ -68,16 +68,6 @@ class ware_besch_t : public obj_besch_t {
 	uint16 weight_per_unit;
 
 public:
-	const char *gib_name() const
-	{
-		return static_cast<const text_besch_t *>(gib_kind(0))->gib_text();
-	}
-
-	const char *gib_copyright() const
-	{
-		return static_cast<const text_besch_t *>(gib_kind(1))->gib_text();
-	}
-
 	// the measure for that good (crates, people, bags ... )
 	const char *gib_mass() const
 	{

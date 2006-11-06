@@ -18,7 +18,7 @@
  *  includes
  */
 #include "bildliste_besch.h"
-#include "text_besch.h"
+#include "obj_besch_std_name.h"
 #include "../dataobj/ribi.h"
 
 #include "intro_dates.h"
@@ -40,7 +40,7 @@ class skin_besch_t;
  *
  * @author  Volker Meyer, Hj. Malthaner
  */
-class way_obj_besch_t  : public obj_besch_t {
+class way_obj_besch_t : public obj_besch_std_name_t {
     friend class way_obj_writer_t;
     friend class way_obj_reader_t;
 
@@ -85,10 +85,6 @@ private:
 	uint8 own_wtyp;
 
 public:
-	const char * gib_name() const { return static_cast<const text_besch_t *>(gib_kind(0))->gib_text(); }
-
-	const char * gib_copyright() const { return static_cast<const text_besch_t *>(gib_kind(1))->gib_text(); }
-
 	const long gib_preis() const { return price; }
 
 	const long gib_wartung() const { return maintenance; }

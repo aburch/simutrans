@@ -17,7 +17,7 @@
 /*
  *  includes
  */
-#include "text_besch.h"
+#include "obj_besch_std_name.h"
 #include "bildliste_besch.h"
 #include "../dataobj/ribi.h"
 
@@ -36,20 +36,12 @@
  *	1   Copyright
  *	2   Bildliste
  */
-class fussgaenger_besch_t : public obj_besch_t {
+class fussgaenger_besch_t : public obj_besch_std_name_t {
     friend class pedestrian_writer_t;
     friend class pedestrian_reader_t;
 
     uint16 gewichtung;
 public:
-    const char *gib_name() const
-    {
-        return static_cast<const text_besch_t *>(gib_kind(0))->gib_text();
-    }
-    const char *gib_copyright() const
-    {
-        return static_cast<const text_besch_t *>(gib_kind(1))->gib_text();
-    }
     int gib_bild_nr(ribi_t::dir dir) const
     {
 	const bild_besch_t *bild = static_cast<const bildliste_besch_t *>(gib_kind(2))->gib_bild(dir);

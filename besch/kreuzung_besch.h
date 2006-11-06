@@ -17,7 +17,7 @@
 /*
  *  includes
  */
-#include "text_besch.h"
+#include "obj_besch_std_name.h"
 #include "bild_besch.h"
 #include "../simtypes.h"
 
@@ -37,7 +37,7 @@
  *	1   Copyright
  *	2   Bild
  */
-class kreuzung_besch_t : public obj_besch_t {
+class kreuzung_besch_t : public obj_besch_std_name_t {
     friend class crossing_writer_t;
     friend class crossing_reader_t;
 
@@ -46,9 +46,6 @@ private:
     uint8  wegtyp_ow;
 
 public:
-	const char *gib_name() const { return static_cast<const text_besch_t *>(gib_kind(0))->gib_text(); }
-	const char *gib_copyright() const { return static_cast<const text_besch_t *>(gib_kind(1))->gib_text(); }
-
 	const bild_besch_t *gib_bild() const { return static_cast<const bild_besch_t *>(gib_kind(2)); }
 	int gib_bild_nr() const
 	{

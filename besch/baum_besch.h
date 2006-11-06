@@ -18,7 +18,7 @@
  *  includes
  */
 #include "../simtypes.h"
-#include "text_besch.h"
+#include "obj_besch_std_name.h"
 #include "bildliste2d_besch.h"
 
 /*
@@ -41,7 +41,7 @@
  // season 1 is winter for two seasons
  // otherwise 0 summer, next seasons (autumn, winter, spring) ....
 
-class baum_besch_t : public obj_besch_t {
+class baum_besch_t : public obj_besch_std_name_t {
 	friend class tree_writer_t;
 	friend class tree_reader_t;
 
@@ -50,10 +50,6 @@ class baum_besch_t : public obj_besch_t {
 	uint8		number_of_seasons;
 
 public:
-	const char *gib_name() const { return static_cast<const text_besch_t *>(gib_kind(0))->gib_text(); }
-
-	const char *gib_copyright() const { return static_cast<const text_besch_t *>(gib_kind(1))->gib_text(); }
-
 	int gib_distribution_weight() const { return distribution_weight; }
 
 	bool is_allowed_climate( climate cl ) const { return ((1<<cl)&allowed_climates)!=0; }

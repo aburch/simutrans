@@ -18,7 +18,7 @@
  *  includes
  */
 #include "../simimg.h"
-#include "text_besch.h"
+#include "obj_besch_std_name.h"
 #include "bildliste2d_besch.h"
 
 
@@ -37,14 +37,10 @@
  *	1   Copyright
  *	2   Bildliste
  */
-class skin_besch_t : public obj_besch_t {
+class skin_besch_t : public obj_besch_std_name_t {
     friend class skin_writer_t;
 
 public:
-	const char *gib_name() const { return static_cast<const text_besch_t *>(gib_kind(0))->gib_text(); }
-
-	const char *gib_copyright() const { return static_cast<const text_besch_t *>(gib_kind(1))->gib_text(); }
-
 	const bild_besch_t *gib_bild(int i) const  { return static_cast<const bildliste_besch_t *>(gib_kind(2))->gib_bild(i); }
 
 	int gib_bild_anzahl() const { return static_cast<const bildliste_besch_t *>(gib_kind(2))->gib_anzahl(); }

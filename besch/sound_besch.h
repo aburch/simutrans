@@ -17,7 +17,7 @@
 /*
  *  includes
  */
-#include "text_besch.h"
+#include "obj_besch_std_name.h"
 #include "../simtypes.h"
 
 #define NO_SOUND (-1)
@@ -54,7 +54,7 @@ class cstring_t;
 #define MAX_OLD_SOUNDS (16)
 
 
-class sound_besch_t : public obj_besch_t {
+class sound_besch_t : public obj_besch_std_name_t {
     friend class sound_writer_t;
     friend class sound_reader_t;
 
@@ -65,13 +65,6 @@ private:
 	sint16 nr;	// for old sounds/system sounds etc.
 
 public:
-	const char *gib_name() const {
-		return static_cast<const text_besch_t *>(gib_kind(0))->gib_text();
-	}
-	const char *gib_copyright() const {
-		return static_cast<const text_besch_t *>(gib_kind(1))->gib_text();
-	}
-
 	static sint16 gib_sound_id(const char *name);
 
 	static bool register_besch(sound_besch_t *besch);
