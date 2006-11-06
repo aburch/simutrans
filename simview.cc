@@ -50,8 +50,8 @@ karte_ansicht_t::display(bool force_dirty)
 	const int dpy_width = disp_width/IMG_SIZE + 2;
 	const int dpy_height = (disp_height*4)/IMG_SIZE;
 
-	const int i_off = welt->gib_ij_off().x - disp_width/(2*IMG_SIZE) - disp_height/(4*IMG_SIZE);
-	const int j_off = welt->gib_ij_off().y - disp_width/(2*IMG_SIZE) - disp_height/(4*IMG_SIZE);
+	const int i_off = welt->gib_ij_off().x - disp_width/(2*IMG_SIZE) - (display_get_height()-32)/(4*IMG_SIZE);
+	const int j_off = welt->gib_ij_off().y - disp_width/(2*IMG_SIZE) - (display_get_height()-32)/(4*IMG_SIZE);
 	const int const_y_off = welt->gib_y_off();
 	int	y;
 
@@ -64,7 +64,7 @@ karte_ansicht_t::display(bool force_dirty)
 	// first display ground
 	for(y=-12; y<dpy_height+15; y++) {
 
-		const sint16 ypos = y*(IMG_SIZE/4)+16 + const_y_off;
+		const sint16 ypos = y*(IMG_SIZE/4) + const_y_off;
 
 		for(sint16 x=-dpy_width + (y & 1); x<=dpy_width+4; x+=2) {
 
@@ -91,7 +91,7 @@ karte_ansicht_t::display(bool force_dirty)
 	// and then things (and other ground)
 	for(y=-12; y<dpy_height+15; y++) {
 
-		const int ypos = y*(IMG_SIZE/4)+16 + const_y_off;
+		const int ypos = y*(IMG_SIZE/4) + const_y_off;
 
 		for(int x=-dpy_width + (y & 1); x<=dpy_width+2; x+=2) {
 

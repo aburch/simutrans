@@ -2835,7 +2835,7 @@ void karte_t::bewege_zeiger(const event_t *ev)
 		int i_alt=zeiger->gib_pos().x;
 		int j_alt=zeiger->gib_pos().y;
 
-		int screen_y = ev->my - y_off - 16 - rw4 - ((display_get_width()/rw1)&1)*rw4;
+		int screen_y = ev->my - y_off - rw2 - rw4 - ((display_get_width()/rw1)&1)*rw4;
 		int screen_x = (ev->mx - x_off - rw2 - display_get_width()/2) / 2;
 
 		if(zeiger->gib_yoff() == Z_PLAN) {
@@ -2862,15 +2862,15 @@ void karte_t::bewege_zeiger(const event_t *ev)
 		// iterative naeherung fuer zeigerposition
 		// iterative naehreung an gelaendehoehe
 
-		int hgt = lookup_hgt(koord(i_alt, j_alt));
+		int hgt = lookup_hgt(koord(i_alt, j_alt))-grundwasser;
 
-		const int i_off = gib_ij_off().x - display_get_width()/(2*rw1) - display_get_height()/(8*rw1);
-		const int j_off = gib_ij_off().y - display_get_width()/(2*rw1) - display_get_height()/(8*rw1);
+		const int i_off = gib_ij_off().x - display_get_width()/(2*rw1) - display_get_height()/(4*rw1);
+		const int j_off = gib_ij_off().y - display_get_width()/(2*rw1) - display_get_height()/(4*rw1);
 
 		for(int n = 0; n < 2; n++) {
 
-			const int base_i = (screen_x+screen_y+height_scaling(hgt*scale) )/2;
-			const int base_j = (screen_y-screen_x+height_scaling(hgt*scale) )/2;
+			const int base_i = (screen_x+screen_y + tile_raster_scale_y(hgt,rw1) )/2;
+			const int base_j = (screen_y-screen_x + tile_raster_scale_y(hgt,rw1) )/2;
 
 			mi = ((int)floor(base_i/(double)rw4)) + i_off;
 			mj = ((int)floor(base_j/(double)rw4)) + j_off;
@@ -2882,22 +2882,22 @@ void karte_t::bewege_zeiger(const event_t *ev)
 			} else */{
 				const planquadrat_t *plan = lookup(koord(mi,mj));
 				if(plan != NULL) {
-					hgt = plan->gib_kartenboden()->gib_hoehe();
+					hgt = plan->gib_kartenboden()->gib_hoehe()-grundwasser;
 					if(grund_t::underground_mode) {
 						for( int i=0;  i<plan->gib_boden_count();  i++  ) {
 							if(!plan->gib_boden_bei(i)->ist_tunnel()) {
-								hgt = plan->gib_boden_bei(i)->gib_hoehe();
+								hgt = plan->gib_boden_bei(i)->gib_hoehe()-grundwasser;
 							}
 						}
 					}
 				}
 				else {
-					hgt = grundwasser;
+					hgt = 0;
 				}
 			}
 
-			if(hgt < grundwasser) {
-				hgt = grundwasser;
+			if(hgt < 0) {
+				hgt = 0;
 			}
 		}
 
