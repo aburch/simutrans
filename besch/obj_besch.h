@@ -35,9 +35,7 @@ class obj_besch_t;
  *      Internal Node information - the derived class knows,
  *	    how many node child nodes really exist.
  */
-struct obj_besch_info_t {
-    obj_besch_t *children[1];
-};
+typedef obj_besch_t* obj_besch_info_t;
 
 /*
  *  class:
@@ -54,7 +52,7 @@ struct obj_besch_info_t {
 class obj_besch_t {
 
  protected:
-    obj_besch_t *gib_kind(int i) const { return node_info->children[i]; }
+    obj_besch_t *gib_kind(int i) const { return node_info[i]; }
 
  public:
 
