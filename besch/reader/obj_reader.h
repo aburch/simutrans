@@ -88,6 +88,7 @@ protected:
     static void delete_node(obj_besch_t *node);
 
     obj_reader_t() { /* Beware: Cannot register here! */}
+		virtual ~obj_reader_t() {}
 
     static void obj_for_xref(obj_type type, const char *name, obj_besch_t *data);
     static void xref_to_resolve(obj_type type, const char *name, obj_besch_t **dest, bool fatal);
@@ -105,8 +106,6 @@ protected:
 
     void register_reader();
 public:
-	virtual ~obj_reader_t() {}
-
 	virtual obj_type get_type() const = 0;
 	virtual const char *get_type_name() const = 0;
 

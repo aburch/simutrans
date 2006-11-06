@@ -7,7 +7,6 @@ class xref_reader_t : public obj_reader_t {
 protected:
     virtual void register_obj(obj_besch_t *&data);
 public:
-	virtual ~xref_reader_t() {}
     static xref_reader_t*instance() { return &the_instance; }
 
     virtual obj_type get_type() const { return obj_xref; }

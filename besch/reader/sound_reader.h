@@ -12,7 +12,6 @@ protected:
     virtual void register_obj(obj_besch_t *&data);
     virtual bool successfully_loaded() const;
 public:
-	virtual ~sound_reader_t() {}
     static sound_reader_t*instance() { return &the_instance; }
 
     virtual obj_besch_t *read_node(FILE *fp, obj_node_info_t &node);
