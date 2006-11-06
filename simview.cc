@@ -62,15 +62,15 @@ karte_ansicht_t::display(bool force_dirty)
 	}
 
 	// first display ground
-	for(y=-12; y<dpy_height+15; y++) {
+	for(y=-15; y<dpy_height+15; y++) {
 
 		const sint16 ypos = y*(IMG_SIZE/4) + const_y_off;
 
-		for(sint16 x=-dpy_width + (y & 1); x<=dpy_width+4; x+=2) {
+		for(sint16 x=-dpy_width + (y & 1); x<=dpy_width+2; x+=2) {
 
 			const sint16 i = ((y+x) >> 1) + i_off;
 			const sint16 j = ((y-x) >> 1) + j_off;
-			const sint16 xpos = x*IMG_SIZE/2 + const_x_off;
+			const sint16 xpos = x*(IMG_SIZE/2) + const_x_off;
 
 			if(xpos+IMG_SIZE>0  &&  xpos<disp_width) {
 				const planquadrat_t *plan=welt->lookup(koord(i,j));
@@ -89,7 +89,7 @@ karte_ansicht_t::display(bool force_dirty)
 	}
 
 	// and then things (and other ground)
-	for(y=-12; y<dpy_height+15; y++) {
+	for(y=-15; y<dpy_height+15; y++) {
 
 		const int ypos = y*(IMG_SIZE/4) + const_y_off;
 

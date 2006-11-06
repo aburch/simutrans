@@ -5,7 +5,9 @@ Known bugs: (hard to fix)
 
 
 
+Release of 99.03.1
 
+07-Nov-2006: (prissi)
 	FIX: elevated construction could only connect via straight connections
 	FIX: tunnel rails were upraded to even higher speeds than allowed
 	FIX: no more accidental connection between bridges/tunnels
@@ -13,6 +15,8 @@ Known bugs: (hard to fix)
 	FIX: way search for ways below monorail fixed
 	CHANGE: unified construction of rail, monorails, maglev, channels, airstrips by baue_schiene()
 	FIX: position now nearly always centered for all zoom levels and pak sizes
+	FIX: scrolling with right mouse button for all pak sizes
+	CHANGE: (tron) assembler corrections, code cleanup
 
 
 Release of 99.03

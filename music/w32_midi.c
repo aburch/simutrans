@@ -10,6 +10,7 @@
 #include <dir.h>
 #endif
 
+#include <stdio.h>
 #include <windows.h>
 #include <mmsystem.h>
 #include "music.h"

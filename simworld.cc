@@ -1986,6 +1986,21 @@ void karte_t::step(const long delta_t)
 
 
 /**
+ * set viewport (tile koordinates)
+ * @author Hj. Malthaner
+ */
+void
+karte_t::setze_ij_off(koord3d ij)
+{
+	ij_off=ij.gib_2d();
+	x_off=0;
+	y_off = (ij.z-grundwasser>0) ? tile_raster_scale_x(ij.z-grundwasser,get_tile_raster_width()) : 0;
+	dirty=true;
+}
+
+
+
+/**
  * If this is true, the map will not be scrolled
  * on right-drag
  * @author Hj. Malthaner
@@ -2014,27 +2029,33 @@ karte_t::blick_aendern(event_t *ev)
 {
   if(!scroll_lock) {
     const int raster = get_tile_raster_width();
-    const int xmask = raster - 1;
-    const int ymask = raster/2 - 1;
 
-    int xd = -x_off/2;
-    int yd = -y_off/2;
+		x_off -= scroll_off_x;
+		y_off -= scroll_off_y;
 
-    xd += (ev->mx - ev->cx) * einstellungen->gib_scroll_multi();
-    yd += (ev->my - ev->cy) * einstellungen->gib_scroll_multi();
+    scroll_off_x += (ev->mx - ev->cx) * einstellungen->gib_scroll_multi();
+    scroll_off_y += (ev->my - ev->cy) * einstellungen->gib_scroll_multi();
 
-    const int dx = (xd & ~xmask) / (raster/2);
-    const int dy = (yd & ~ymask) / (raster/4);
+		ij_off.x -= scroll_off_x/raster;
+		ij_off.y += scroll_off_x/raster;
+		scroll_off_x %= raster;
 
-    x_off = -(xd & xmask)*2;
-    y_off = -(yd & ymask)*2;
+		if(scroll_off_y>raster/4) {
+			ij_off.x -= 1;
+			ij_off.y -= 1;
+			scroll_off_y -= raster/2;
+		}
+		else if(scroll_off_y<-raster/4) {
+			ij_off.x += 1;
+			ij_off.y += 1;
+			scroll_off_y += raster/2;
+		}
 
-    ij_off += koord(dx+dy, dy-dx);
-
+		x_off += scroll_off_x;
+		y_off += scroll_off_y;
 
     if ((ev->mx - ev->cx) != 0 || (ev->my - ev->cy) != 0) {
       intr_refresh_display( true );
-
 #ifdef __BEOS__
       change_drag_start(ev->mx - ev->cx, ev->my - ev->cy);
 #else
@@ -2830,8 +2851,6 @@ void karte_t::bewege_zeiger(const event_t *ev)
 		const int rw2 = rw1/2;
 		const int rw4 = rw1/4;
 
-		const int scale = rw1/64;
-
 		int i_alt=zeiger->gib_pos().x;
 		int j_alt=zeiger->gib_pos().y;
 
@@ -2884,7 +2903,7 @@ void karte_t::bewege_zeiger(const event_t *ev)
 				if(plan != NULL) {
 					hgt = plan->gib_kartenboden()->gib_hoehe()-grundwasser;
 					if(grund_t::underground_mode) {
-						for( int i=0;  i<plan->gib_boden_count();  i++  ) {
+						for( unsigned i=0;  i<plan->gib_boden_count();  i++  ) {
 							if(!plan->gib_boden_bei(i)->ist_tunnel()) {
 								hgt = plan->gib_boden_bei(i)->gib_hoehe()-grundwasser;
 							}
@@ -2930,7 +2949,7 @@ void karte_t::bewege_zeiger(const event_t *ev)
 			if(grund_t::underground_mode  &&  mouse_funk!=tunnelbauer_t::baue) {
 				const planquadrat_t *plan=lookup(koord(mi,mj));
 				pos = koord3d::invalid;
-				for( int i=0;  i<plan->gib_boden_count();  i++  ) {
+				for( unsigned i=0;  i<plan->gib_boden_count();  i++  ) {
 					if(!plan->gib_boden_bei(i)->ist_tunnel()) {
 						pos = plan->gib_boden_bei(i)->gib_pos();
 					}
@@ -3357,15 +3376,13 @@ karte_t::interactive_event(event_t &ev)
 	    // just ignore the key
 	    break;
 	default:
-	// ignore special keys
-	if (ev.ev_code <= 255) {
-	    DBG_MESSAGE("karte_t::interactive_event()",
-			 "key `%c` is not bound to a function.",ev.ev_code);
-
-	    create_win(new help_frame_t("keys.txt"), w_autodelete, magic_keyhelp);
+		// ignore special keys
+		if (ev.ev_code <= 255) {
+DBG_MESSAGE("karte_t::interactive_event()","key `%c` is not bound to a function.",ev.ev_code);
+			create_win(new help_frame_t("keys.txt"), w_autodelete, magic_keyhelp);
+		}
 	}
-	}
-    }
+}
 
     if (IS_LEFTRELEASE(&ev)) {
 
@@ -3514,8 +3531,10 @@ karte_t::interactive_update()
 
 			if(IS_RIGHTCLICK(&ev)) {
 				display_show_pointer(false);
+				scroll_off_x = scroll_off_y = 0;
 			} else if(IS_RIGHTRELEASE(&ev)) {
 				display_show_pointer(true);
+				scroll_off_x = scroll_off_y = 0;
 			} else if(ev.ev_class==EVENT_DRAG  &&  ev.ev_code==MOUSE_RIGHTBUTTON) {
 				// unset following
 				if(follow_convoi.is_bound()) {
