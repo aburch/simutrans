@@ -217,10 +217,7 @@ public:
 
 	void entferne(spieler_t *sp);
 
-#if USE_NEW_GEBAUDE
-	virtual void * operator new(size_t s) { return (gebaeude_t *)freelist_t::gimme_node(sizeof(gebaeude_t)); }
-	virtual void operator delete(void *p) { freelist_t::putback_node(sizeof(gebaeude_t),p); };
-#endif
+	void laden_abschliessen();
 };
 
 #endif

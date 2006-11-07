@@ -372,28 +372,17 @@ DBG_MESSAGE("wkz_remover()", "bound=%i",halt.is_bound());
 DBG_MESSAGE("wkz_remover()", "check tunnel/bridge");
 
 	// beginning/end of bridge?
-	if(gr->ist_bruecke()) {
-		if(gr==plan->gib_kartenboden()) {
+	if(gr->ist_bruecke()  &&  gr->ist_karten_boden()) {
 DBG_MESSAGE("wkz_remover()",  "removing bridge from %d,%d,%d",gr->gib_pos().x, gr->gib_pos().y, gr->gib_pos().z);
-			bruecke_t *br = dynamic_cast<bruecke_t *>(gr->suche_obj(ding_t::bruecke));
-			if(br) {
-				msg = brueckenbauer_t::remove(welt, sp, gr->gib_pos(), br->gib_besch()->gib_wegtyp());
-			}
-		}
+		bruecke_t *br = dynamic_cast<bruecke_t *>(gr->suche_obj(ding_t::bruecke));
+		msg = brueckenbauer_t::remove(welt, sp, gr->gib_pos(), br->gib_besch()->gib_wegtyp());
 		return msg == NULL;
 	}
 
 	// beginning/end of tunnel
-	if(gr->ist_tunnel()) {
-		if(gr==plan->gib_kartenboden()) {
+	if(gr->ist_tunnel()  &&  gr->ist_karten_boden()) {
 DBG_MESSAGE("wkz_remover()",  "removing tunnel  from %d,%d,%d",gr->gib_pos().x, gr->gib_pos().y, gr->gib_pos().z);
-			weg_t *weg = gr->gib_weg(track_wt);
-
-			if(!weg) {
-				weg = gr->gib_weg(road_wt);
-			}
-			msg = tunnelbauer_t::remove(welt, sp, gr->gib_pos(), weg->gib_typ());
-		}
+		msg = tunnelbauer_t::remove(welt, sp, gr->gib_pos(), gr->gib_weg_nr(0)->gib_typ());
 		return msg == NULL;
 	}
 
@@ -487,7 +476,7 @@ DBG_MESSAGE("wkz_remover()",  "took out powerline");
 	msg = gr->kann_alle_obj_entfernen(sp);
 
 	// remove everything else ...
-	if(msg==NULL  &&  gr->obj_count()>0  &&  !gr->ist_bruecke()) {
+	if(msg==NULL  &&  gr->obj_count()>0  &&  (!gr->ist_bruecke()  ||  gr->ist_tunnel())) {
 DBG_MESSAGE("wkz_remover()",  "removing everything from %d,%d,%d",gr->gib_pos().x, gr->gib_pos().y, gr->gib_pos().z);
 		gr->obj_loesche_alle(sp);
 		// add the powerline again ...
@@ -540,21 +529,28 @@ DBG_MESSAGE("wkz_remover()", "removing way");
 		cost_sum += gr->weg_entfernen(air_wt, true);
 	}
 	else {
-		// inside tunnel ...
-		const tunnel_besch_t *besch = ((tunnelboden_t *)gr)->gib_besch();
-		if(gr->gib_besitzer()) {
-			sp->add_maintenance( gr->gib_weg_nr(0)->gib_besch()->gib_wartung());
-			sp->add_maintenance( -besch->gib_wartung() );
-		}
-		// remove all ways ...
+		// remove upper ways ...
 		if(gr->gib_weg_nr(1)) {
 			gr->weg_entfernen(gr->gib_weg_nr(1)->gib_typ(), true);
 		}
-		gr->weg_entfernen(gr->gib_weg_nr(0)->gib_typ(), true);
+		else {
+			// delete tunnel here ...
+			const tunnel_besch_t *besch = ((const tunnel_t *)(gr->suche_obj(ding_t::tunnel)))->gib_besch();
+			gr->obj_loesche_alle(sp);
+			if(gr->gib_besitzer()) {
+				sp->add_maintenance( gr->gib_weg_nr(0)->gib_besch()->gib_wartung());
+				sp->add_maintenance( -besch->gib_wartung() );
+			}
+			cost_sum += gr->weg_entfernen(gr->gib_weg_nr(0)->gib_typ(), true);
+			cost_sum += besch->gib_preis();
+		}
 	}
 
 	if(cost_sum > 0) {
 		sp->buche(-cost_sum, pos, COST_CONSTRUCTION);
+		if(gr->hat_wege()) {
+			return true;
+		}
 	}
 DBG_MESSAGE("wkz_remover()", "check ground");
 
@@ -1873,7 +1869,6 @@ int wkz_set_slope(spieler_t * sp, karte_t *welt, koord pos, value_t lParam)
 				return false;
 			}
 		}
-#endif
 
 		// special slope: 0 => makes a cover tile if possible
 		if(new_slope==0) {
@@ -1886,6 +1881,7 @@ int wkz_set_slope(spieler_t * sp, karte_t *welt, koord pos, value_t lParam)
 			sp->buche(umgebung_t::cst_alter_land, pos, COST_CONSTRUCTION);
 			return true;
 		}
+#endif
 
 		// finally: empty
 		if(gr1->suche_obj(ding_t::gebaeude)!=NULL  ||  ((!gr1->ist_wasser())  &&  gr1->hat_wege())) {

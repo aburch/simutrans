@@ -65,8 +65,14 @@ tunnel_t::calc_bild()
 {
 	if(besch) {
 		const grund_t *gr = welt->lookup(gib_pos());
-		setze_bild( 0, besch->gib_hintergrund_nr(gr->gib_grund_hang()) );
-		after_bild = besch->gib_vordergrund_nr(gr->gib_grund_hang());
+		if(gr->ist_karten_boden()) {
+			setze_bild( 0, besch->gib_hintergrund_nr(gr->gib_grund_hang()) );
+			after_bild = besch->gib_vordergrund_nr(gr->gib_grund_hang());
+		}
+		else {
+			setze_bild( 0, IMG_LEER );
+			after_bild = IMG_LEER;
+		}
 	}
 }
 
@@ -94,19 +100,23 @@ void tunnel_t::rdwr(loadsave_t *file)
 void tunnel_t::laden_abschliessen()
 {
 	const grund_t *gr = welt->lookup(gib_pos());
-	if(gr->gib_grund_hang()==0) {
-		// old, inside tunnel ...
-		step_frequency = 1;	// remove
-		dbg->error("tunnel_t::laden_abschliessen()","tunnel entry at flat position at %i,%i will be removed.",gib_pos().x,gib_pos().y);
-		return;
-	}
+	spieler_t *sp=gib_besitzer();
 
 	if(besch==NULL) {
 		besch = tunnelbauer_t::find_tunnel( gr->gib_weg_nr(0)->gib_typ(), 999, 0 );
 	}
 
-	// correct speed and maitenance
+	if(gr->gib_grund_hang()==0  &&  sp) {
+		// inside tunnel => do nothing but change maitainance
+		weg_t *weg = gr->gib_weg(besch->gib_wegtyp());
+		weg->setze_max_speed(besch->gib_topspeed());
+		sp->add_maintenance(-weg->gib_besch()->gib_wartung());
+		sp->add_maintenance( besch->gib_wartung() );
+		return;
+	}
+
 	if(besch) {
+		// correct speed and maitenance for old tunnels
 
 		// proceed until the other end
 		koord3d pos = gib_pos();
@@ -114,18 +124,19 @@ void tunnel_t::laden_abschliessen()
 
 		// now look up everything
 		// reset speed and maitenance
-		spieler_t *sp=gib_besitzer();
 		while(1) {
 			tunnelboden_t *gr = dynamic_cast<tunnelboden_t *>(welt->lookup(pos));
-			if(gr==NULL  ||  gr->gib_besch()!=NULL) {
+			if(gr==NULL) {
 				// no tunnel any more, or already assigned a description
 				break;
 			}
-			gr->setze_besch(besch);
-			weg_t *weg = gr->gib_weg(besch->gib_wegtyp());
-			weg->setze_max_speed(besch->gib_topspeed());
-			sp->add_maintenance(-weg->gib_besch()->gib_wartung());
-			sp->add_maintenance( besch->gib_wartung() );
+			if(gr->suche_obj(ding_t::tunnel)==NULL) {
+				gr->obj_add(new tunnel_t(welt, pos, sp, besch));
+				weg_t *weg = gr->gib_weg(besch->gib_wegtyp());
+				weg->setze_max_speed(besch->gib_topspeed());
+				sp->add_maintenance(-weg->gib_besch()->gib_wartung());
+				sp->add_maintenance( besch->gib_wartung() );
+			}
 			pos += zv;
 		}
 	}

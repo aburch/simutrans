@@ -349,8 +349,8 @@ haltestelle_t::haltestelle_t(karte_t *wl, loadsave_t *file)
 	sortierung = freight_list_sorter_t::by_name;
 	resort_freight_info = true;
 
-  // Lazy init at opening!
-  halt_info = NULL;
+	// Lazy init at opening!
+	halt_info = NULL;
 
 	rdwr(file);
 }
@@ -379,6 +379,7 @@ haltestelle_t::haltestelle_t(karte_t *wl, koord pos, spieler_t *sp)
 	pax_happy = 0;
 	pax_unhappy = 0;
 	pax_no_route = 0;
+	status_color = COL_YELLOW;
 
 	sortierung = freight_list_sorter_t::by_name;
 	init_financial_history();

@@ -502,8 +502,6 @@ DBG_MESSAGE("karte_t::destroy()", "destroying world");
 		zeiger = NULL;
 	}
 
-	unsigned int i,j;
-
 	// alle convois aufräumen
 	while(convoi_array.get_count() > 0) {
 		convoihandle_t cnv = convoi_array.at(convoi_array.get_count()-1);
@@ -533,12 +531,6 @@ DBG_MESSAGE("karte_t::destroy()", "sync list cleared");
 
 	// dinge aufräumen
 	if(plan) {
-		for(j=0; j<(unsigned int)gib_groesse_y(); j++) {
-			for(i=0; i<(unsigned int)gib_groesse_x(); i++) {
-				access(i, j)->destroy(NULL);
-			}
-		}
-
 		delete [] plan;
 		plan = 0;
 	}
@@ -555,7 +547,7 @@ DBG_MESSAGE("karte_t::destroy()", "sync list cleared");
 DBG_MESSAGE("karte_t::destroy()", "marker destroyed");
 
 	// spieler aufräumen
-	for(i=0; i<MAX_PLAYER_COUNT ; i++) {
+	for(int i=0; i<MAX_PLAYER_COUNT; i++) {
 		if(spieler[i]) {
 			delete spieler[i];
 			spieler[i] = 0;
@@ -885,7 +877,7 @@ DBG_DEBUG("karte_t::init()","Erzeuge stadt %i with %ld inhabitants",i,(s->get_ci
     print("Preparing startup ...\n");
 
     if(zeiger == 0) {
-      zeiger = new zeiger_t(this, koord3d(0,0,0), spieler[0]);
+			zeiger = new zeiger_t(this, koord3d::invalid, spieler[0]);
     }
 
 	// finishes the line preparation and sets id 0 to invalid ...
@@ -2235,8 +2227,6 @@ DBG_MESSAGE("karte_t::speichern()", "saving game to '%s'", filename);
 void
 karte_t::speichern(loadsave_t *file,bool silent)
 {
-    int i, j;
-
 DBG_MESSAGE("karte_t::speichern(loadsave_t *file)", "start");
 	if(!silent) {
 		display_set_progress_text(translator::translate("Saving map ..."));
@@ -2250,7 +2240,7 @@ DBG_MESSAGE("karte_t::speichern(loadsave_t *file)", "start");
 	file->rdwr_long(letzter_monat, " ");
 	file->rdwr_long(letztes_jahr, "\n");
 
-	for(i=0; i<stadt->get_count(); i++) {
+	for(unsigned i=0; i<stadt->get_count(); i++) {
 		stadt->at(i)->rdwr(file);
 		if(silent) {
 			INT_CHECK("saving");
@@ -2258,8 +2248,8 @@ DBG_MESSAGE("karte_t::speichern(loadsave_t *file)", "start");
 	}
 DBG_MESSAGE("karte_t::speichern(loadsave_t *file)", "saved cities ok");
 
-	for(j=0; j<gib_groesse_y(); j++) {
-		for(i=0; i<gib_groesse_x(); i++) {
+	for(int j=0; j<gib_groesse_y(); j++) {
+		for(int i=0; i<gib_groesse_x(); i++) {
 			access(i, j)->rdwr(this, file);
 		}
 		if(silent) {
@@ -2272,8 +2262,8 @@ DBG_MESSAGE("karte_t::speichern(loadsave_t *file)", "saved cities ok");
 	}
 DBG_MESSAGE("karte_t::speichern(loadsave_t *file)", "saved tiles");
 
-	for(j=0; j<=gib_groesse_y(); j++) {
-		for(i=0; i<=gib_groesse_x(); i++) {
+	for(int j=0; j<=gib_groesse_y(); j++) {
+		for(int i=0; i<=gib_groesse_x(); i++) {
 			int hgt = lookup_hgt(koord(i, j));
 			file->rdwr_long(hgt, "\n");
 		}
@@ -2302,7 +2292,7 @@ DBG_MESSAGE("karte_t::speichern(loadsave_t *file)", "saved fabs");
 	file->wr_obj_id("Ende Convois");
 DBG_MESSAGE("karte_t::speichern(loadsave_t *file)", "saved %i convois",convoi_array.get_count());
 
-	for(i=0; i<MAX_PLAYER_COUNT; i++) {
+	for(int i=0; i<MAX_PLAYER_COUNT; i++) {
 		spieler[i]->rdwr(file);
 		if(silent) {
 			INT_CHECK("saving");
@@ -2310,15 +2300,12 @@ DBG_MESSAGE("karte_t::speichern(loadsave_t *file)", "saved %i convois",convoi_ar
 	}
 DBG_MESSAGE("karte_t::speichern(loadsave_t *file)", "saved players");
 
-	i = ij_off.x;
-	j = ij_off.y;
 	file->rdwr_delim("View ");
-	file->rdwr_long(i, " ");
-	file->rdwr_long(j, "\n");
+	long dummy = ij_off.x;
+	file->rdwr_long(dummy, " ");
+	dummy = ij_off.y;
+	file->rdwr_long(dummy, "\n");
 
-	// Hajo: once this should be removed -> it makes IMO
-	// no sense to save the UI language with a game ?!
-	// translator::rdwr( file );
 	display_speichern( file->gib_file(), file->is_zipped());
 }
 
@@ -2508,16 +2495,16 @@ DBG_MESSAGE("karte_t::laden()","loading grid");
 		}
 	}
 
-    // Reliefkarte an neue welt anpassen
-    DBG_MESSAGE("karte_t::laden()", "init relief");
-    win_setze_welt( this );
-    reliefkarte_t::gib_karte()->setze_welt(this);
+	// Reliefkarte an neue welt anpassen
+	DBG_MESSAGE("karte_t::laden()", "init relief");
+	win_setze_welt( this );
+	reliefkarte_t::gib_karte()->setze_welt(this);
 
-    int fabs;
-    file->rdwr_long(fabs, "\n");
-    DBG_MESSAGE("karte_t::laden()", "prepare for %i factories", fabs);
+	int fabs;
+	file->rdwr_long(fabs, "\n");
+	DBG_MESSAGE("karte_t::laden()", "prepare for %i factories", fabs);
 
-    for(int i = 0; i < fabs; i++) {
+	for(int i = 0; i < fabs; i++) {
 		// liste in gleicher reihenfolge wie vor dem speichern wieder aufbauen
 		fabrik_t *fab = new fabrik_t(this, file);
 		if(fab->gib_besch()) {
@@ -2526,11 +2513,11 @@ DBG_MESSAGE("karte_t::laden()","loading grid");
 		else {
 			dbg->error("karte_t::laden()","Unknown fabrik skipped!");
 		}
-    }
-    DBG_MESSAGE("karte_t::laden()", "clean up factories");
-    if (fab_list.count() > 0) {
-      gib_fab(0)->laden_abschliessen();
-    }
+	}
+	DBG_MESSAGE("karte_t::laden()", "clean up factories");
+	if (fab_list.count() > 0) {
+		gib_fab(0)->laden_abschliessen();
+	}
 
 	// crossconnect all?
 	if(umgebung_t::crossconnect_factories) {
@@ -2541,7 +2528,7 @@ DBG_MESSAGE("karte_t::laden()","loading grid");
 		}
 	}
 
-    DBG_MESSAGE("karte_t::laden()", "%d factories loaded", fab_list.count());
+DBG_MESSAGE("karte_t::laden()", "%d factories loaded", fab_list.count());
 
 	// auch die fabrikverbindungen können jetzt neu init werden
 	// must be done after reliefkarte is initialized
@@ -2846,11 +2833,15 @@ void karte_t::bewege_zeiger(const event_t *ev)
 		int i_alt=zeiger->gib_pos().x;
 		int j_alt=zeiger->gib_pos().y;
 
-		int screen_y = ev->my - y_off - rw2 - rw4 - ((display_get_width()/rw1)&1)*rw4;
+		int screen_y = ev->my + rw4*(grundwasser/TILE_HEIGHT_STEP) - y_off - rw2 - ((display_get_width()/rw1)&1)*rw4;
 		int screen_x = (ev->mx - x_off - rw2 - display_get_width()/2) / 2;
 
 		if(zeiger->gib_yoff() == Z_PLAN) {
-			screen_y -= rw4;
+			// already ok
+		}
+		else {
+			// shifted by a quarter tile
+			screen_y += rw4;
 		}
 
 		// berechnung der basis feldkoordinaten in i und j
@@ -2881,7 +2872,6 @@ void karte_t::bewege_zeiger(const event_t *ev)
 
 			mi = ((int)floor(base_i/(double)rw4)) + i_off;
 			mj = ((int)floor(base_j/(double)rw4)) + j_off;
-
 
 			/*
 			if(zeiger->gib_yoff() == Z_GRID) {

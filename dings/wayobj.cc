@@ -68,7 +68,11 @@ wayobj_t::~wayobj_t()
 		gib_besitzer()->add_maintenance(-besch->gib_wartung());
 	}
 	if(besch->gib_own_wtyp()==overheadlines_wt) {
-		weg_t *weg = welt->lookup(gib_pos())->gib_weg((waytype_t)besch->gib_wtyp());
+		grund_t *gr=welt->lookup(gib_pos());
+		weg_t *weg=NULL;
+		if(gr) {
+			weg = gr->gib_weg((waytype_t)besch->gib_wtyp());
+		}
 		if(weg) {
 			// Weg wieder freigeben, wenn das Signal nicht mehr da ist.
 			weg->set_electrify(false);

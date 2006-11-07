@@ -82,14 +82,6 @@ gebaeude_t::gebaeude_t(karte_t *welt, loadsave_t *file) : ding_t(welt)
 	if(gib_besitzer()) {
 		gib_besitzer()->add_maintenance(umgebung_t::maint_building);
 	}
-	// if there is no description (i.e. building not found) we must avoid acessing it => skip calculation
-	if(tile) {
-		calc_bild();
-	}
-	else {
-		zeige_baugrube = true;
-		step_frequency = 1;
-	}
 }
 
 
@@ -707,10 +699,6 @@ DBG_MESSAGE("gebaeude_t::rwdr", "description %s for building at %d,%d not found 
 			if(tile && tile->gib_besch()->ist_ausflugsziel()) {
 				welt->add_ausflugsziel( this );
 			}
-
-			if(tile) {
-				calc_bild();
-			}
 		}
 	}
 	else {
@@ -756,6 +744,27 @@ bool gebaeude_t::sync_step(long delta_t)
 		}
 	}
 	return true;
+}
+
+
+
+/**
+ * Wird nach dem Laden der Welt aufgerufen - üblicherweise benutzt
+ * um das Aussehen des Dings an Boden und Umgebung anzupassen
+ *
+ * @author Hj. Malthaner
+ */
+void
+gebaeude_t::laden_abschliessen()
+{
+	// if there is no description (i.e. building not found) we must avoid acessing it => skip calculation
+	if(tile) {
+		calc_bild();
+	}
+	else {
+		zeige_baugrube = true;
+		step_frequency = 1;
+	}
 }
 
 

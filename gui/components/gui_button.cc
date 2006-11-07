@@ -402,8 +402,8 @@ void button_t::zeichnen(koord offset)
 		break;
 	}
 
-	if(translated_tooltip &&  getroffen( gib_maus_x(), gib_maus_y() )) {
-		win_set_tooltip(offset.x + pos.x + 16, offset.y + pos.y - 16, translated_tooltip );
+	if(translated_tooltip &&  getroffen( gib_maus_x()-offset.x, gib_maus_y()-offset.y )) {
+		win_set_tooltip(gib_maus_x() + 16, gib_maus_y() - 16, translated_tooltip );
 	}
 }
 

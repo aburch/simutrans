@@ -32,29 +32,32 @@ class ding_t;
 class planquadrat_t
 {
 private:
-	microvec_tpl <grund_t *> boeden;
+    union {
+		grund_t ** some;    // valid if capacity > 1
+		grund_t * one;      // valid if capacity == 1
+    } data;
 
-	/**
-	* stations which can be reached from this ground
-	*/
-	minivec_tpl<halthandle_t> halt_list;
+	uint8 size, capacity;
 
 	/**
 	* The station this ground is bound to
 	*/
 	halthandle_t halt;
 
+	/**
+	* stations which can be reached from this ground
+	*/
+	minivec_tpl<halthandle_t> halt_list;
+
+
 public:
 	/**
 	 * Constructs a planquadrat with initial capacity of one ground
 	 * @author Hansjörg Malthaner
 	 */
-	planquadrat_t() : boeden(1), halt_list(0), halt() {}
+	planquadrat_t() : halt(), halt_list(0) { size=0; capacity=1; data.one = NULL; }
 
-	/**
-	 * setzt alle Eintragungen auf NULL
-	 */
-	bool destroy(spieler_t *sp);
+	~planquadrat_t();
 
 	/**
 	* Setzen des "normalen" Bodens auf Kartenniveau
@@ -75,23 +78,10 @@ public:
 	void boden_hinzufuegen(grund_t *bd);
 
 	/**
-	* Gound covering another ground; use with care ;)
-	* @author prissi
-	*/
-	bool kartenboden_insert(grund_t *bd);
-
-	/**
 	* Löschen eines Brücken- oder Tunnelbodens
 	* @author V. Meyer
 	*/
 	bool boden_entfernen(grund_t *bd);
-
-	/**
-	* Sucht den höchsten Boden des Spielers - das ist eine Brücke oder
-	* der Kartenboden. Im Moment nur für Signale auf Brücken verwendet.
-	* @author V. Meyer
-	*/
-	grund_t * gib_obersten_boden(spieler_t *sp) const;
 
 	/**
 	* Rückegabe des Bodens an der gegebenen Höhe, falls vorhanden.
@@ -100,12 +90,18 @@ public:
 	* @return NULL wenn Boden nicht gefunden
 	* @author Hj. Malthaner
 	*/
-	inline grund_t * gib_boden_in_hoehe(const int z) const
-	{
-		for(unsigned int i = 0; i < boeden.get_count(); i++) {
-			grund_t * gr = boeden.get(i);
-			if(/*gr  &&  */gr->gib_hoehe() == z) {
-				return gr;
+	inline grund_t * gib_boden_in_hoehe(const sint16 z) const {
+		if(capacity==1) {
+			if(size>0  &&  data.one->gib_hoehe()==z) {
+				return data.one;
+			}
+			//assert(size==0  &&  data.one==NULL);
+		}
+		else {
+			for(uint8 i=0;  i<size;  i++) {
+				if(data.some[i]->gib_hoehe()==z) {
+					return data.some[i];
+				}
 			}
 		}
 		return NULL;
@@ -116,7 +112,7 @@ public:
 	* @return NULL wenn boden nicht existiert
 	* @author Hansjörg Malthaner
 	*/
-	inline grund_t * gib_kartenboden() const { return boeden.get(0); }
+	inline grund_t * gib_kartenboden() const { return (capacity==1) ? data.one : data.some[0]; }
 
 	/**
 	* Rückegabe des Bodens, der das gegebene Objekt enthält, falls vorhanden.
@@ -130,13 +126,13 @@ public:
 	* @return NULL wenn boden nicht existiert
 	* @author Hj. Malthaner
 	*/
-	grund_t * gib_boden_bei(const unsigned int idx) const { return boeden.get(idx); }
+	grund_t * gib_boden_bei(const unsigned int idx) const { return (idx<size) ? (capacity==1 ? data.one : data.some[idx]) : NULL; }
 
 	/**
 	* @return Anzahl der Böden dieses Planquadrats
 	* @author Hj. Malthaner
 	*/
-	unsigned int gib_boden_count() const { return boeden.get_count(); }
+	unsigned int gib_boden_count() const { return size; }
 
 
 	/**

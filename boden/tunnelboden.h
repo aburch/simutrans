@@ -7,15 +7,10 @@ class tunnel_besch_t;
 
 class tunnelboden_t : public boden_t
 {
-	const tunnel_besch_t *besch;
-
 public:
 	tunnelboden_t(karte_t *welt, loadsave_t *file);
-	tunnelboden_t(karte_t *welt, koord3d pos, hang_t::typ hang_typ, const tunnel_besch_t *besch);
+	tunnelboden_t(karte_t *welt, koord3d pos, hang_t::typ hang_typ);
 	virtual ~tunnelboden_t() {}
-
-	const tunnel_besch_t *gib_besch() const { return besch; }
-	void setze_besch(const tunnel_besch_t *b) { besch = b; }
 
 	virtual void rdwr(loadsave_t *file);
 

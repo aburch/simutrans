@@ -42,6 +42,7 @@
 
 #include "../dings/gebaeude.h"
 #include "../dings/bruecke.h"
+#include "../dings/tunnel.h"
 
 #include "../simintr.h"
 
@@ -1734,10 +1735,11 @@ wegbauer_t::baue_tunnelboden()
 
 		if(gr==NULL) {
 			// make new tunnelboden
-			tunnelboden_t *tunnel = new tunnelboden_t(welt, route->at(i), 0, tunnel_besch);
+			tunnelboden_t *tunnel = new tunnelboden_t(welt, route->at(i), 0);
 			weg_t *weg = weg_t::alloc(tunnel_besch->gib_wegtyp());
 			welt->access(route->at(i).gib_2d())->boden_hinzufuegen(tunnel);
 			tunnel->neuen_weg_bauen(weg, calc_ribi(i), sp);
+			tunnel->obj_add(new tunnel_t(welt, route->at(i), sp, tunnel_besch));
 			weg->setze_max_speed(tunnel_besch->gib_topspeed());
 			cost -= tunnel_besch->gib_preis();
 			sp->add_maintenance(-weg->gib_besch()->gib_wartung());

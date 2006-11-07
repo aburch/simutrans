@@ -34,52 +34,95 @@
 
 
 
+// deletes also all grounds in this array!
+planquadrat_t::~planquadrat_t()
+{
+	if(capacity==1) {
+		if(size>0) {
+			delete data.one;
+		}
+	}
+	else {
+		for(uint8 i=0;  i<size;  i++) {
+			delete data.some[i];
+		}
+		delete [] data.some;
+	}
+}
+
+
+
 grund_t *
 planquadrat_t::gib_boden_von_obj(ding_t *obj) const
 {
-    if(this) {
-        for(int i = 0; i < boeden.get_count(); i++) {
-            if(boeden.get(i)->obj_ist_da(obj)) {
-                return boeden.get(i);
-            }
-        }
-    }
-    return NULL;
-}
-
-
-grund_t * planquadrat_t::gib_obersten_boden(spieler_t *sp) const
-{
-	grund_t *bd = gib_kartenboden();
-	int i = boeden.get_count();
-	grund_t *oben;
-
-	if(bd->gib_besitzer() != sp) {
-		bd = NULL;
-	}
-	while(--i) {
-		oben = boeden.get(i);
-		if(oben->gib_besitzer() == sp) {
-			return !bd || oben->gib_hoehe() > bd->gib_hoehe() ? oben : bd;
+	if(capacity==1) {
+		if(size>0  &&  data.one->obj_ist_da(obj)) {
+			return data.one;
 		}
 	}
-	return bd;
+	else {
+		for(uint8 i=0;  i<size;  i++) {
+			if(data.some[i]->obj_ist_da(obj)) {
+				return data.some[i];
+			}
+		}
+	}
+	return NULL;
 }
+
 
 
 void planquadrat_t::boden_hinzufuegen(grund_t *bd)
 {
-	if(bd!=NULL  &&  !gib_boden_in_hoehe(bd->gib_hoehe())) {
-		// boeden[0] ist Kartengrund,
-		// danach folgen die Tunnels und Brücken höhensortiert.
-		int i=1;
-		while(i<boeden.get_count()) {
-			if(bd->gib_hoehe()<boeden.get(i)->gib_hoehe()) {
+	if(capacity==1) {
+		if(size==0) {
+			// completely empty
+			data.one = bd;
+			size = 1;
+			return;
+		}
+		else {
+			// needs to convert to array
+			assert(data.one->gib_hoehe()!=bd->gib_hoehe());
+			grund_t **tmp = new grund_t *[2];
+			tmp[0] = data.one;
+			tmp[1] = bd;
+			data.some = tmp;
+			size = capacity = 2;
+			return;
+		}
+	}
+	else {
+		// insert into array
+		uint8 i;
+		for(i=1;  i<size;  i++) {
+			if(data.some[i]->gib_hoehe()>=bd->gib_hoehe()) {
 				break;
 			}
-			i ++;
 		}
-		boeden.insert(i, bd);
+		assert(data.one->gib_hoehe()!=bd->gib_hoehe());
+		// extend array if needed
+		if(size==capacity) {
+			grund_t **tmp = new grund_t *[capacity+1];
+			for( uint8 j=0;  j<i;  j++  ) {
+				tmp[j] = data.some[j];
+			}
+			tmp[i] = bd;
+			while(i<size) {
+				tmp[i+1] = data.some[i];
+				i++;
+			}
+			capacity ++;
+			delete [] data.some;
+			data.some = tmp;
+		}
+		else {
+			for(  uint8 j=size;  j>i;  j--) {
+				data.some[j] = data.some[j-1];
+			}
+			data.some[i] = bd;
+		}
+		size ++;
 #ifdef COVER_TILES
 		if(bd->gib_typ()==grund_t::boden) {
 			bd->set_flag(grund_t::is_cover_tile);
@@ -92,75 +135,62 @@ void planquadrat_t::boden_hinzufuegen(grund_t *bd)
 
 
 
-bool planquadrat_t::kartenboden_insert(grund_t *bd)
-{
-	if(bd!=NULL) {
-		int already_there=0;
-		// boeden[0] ist Kartengrund,
-		// danach folgen die Tunnels und Brücken höhensortiert.
-		for(int i=0; i<boeden.get_count(); i++) {
-			if(boeden.get(i)->gib_typ()==grund_t::boden) {
-				already_there ++;
-#ifdef COVER_TILES
-				if(boeden.get(i)->get_flag(grund_t::is_cover_tile)) {
-					return 0;
-				}
-#endif
-			}
-		}
-		boeden.insert(0, bd);
-#ifdef COVER_TILES
-		if(already_there) {
-			bd->set_flag(grund_t::is_cover_tile);
-			bd->set_kartenboden(false);
-		}
-#else
-		if(already_there) {
-			dbg->fatal("planquadrat_t::kartenboden_insert()","There can be only one kartenboden at (%,%i)",bd->gib_pos().x,bd->gib_pos().y);
-		}
-#endif
-		bd->calc_bild();
-		reliefkarte_t::gib_karte()->calc_map_pixel(bd->gib_pos().gib_2d());
-	}
-	return 1;
-}
-
-
-
 bool planquadrat_t::boden_entfernen(grund_t *bd)
 {
-    if(boeden.remove(bd)) {
-        reliefkarte_t::gib_karte()->calc_map_pixel(bd->gib_pos().gib_2d());
-	return true;
-    }
-    return false;
+	if(capacity==1) {
+		assert(size>0  &&  data.one==bd);
+		size = 0;
+		data.one = NULL;
+		reliefkarte_t::gib_karte()->calc_map_pixel(bd->gib_pos().gib_2d());
+		return true;
+	}
+	else {
+		for(uint8 i=0;  i<size;  i++) {
+			if(data.some[i]==bd) {
+				while(i<size) {
+					data.some[i] = data.some[i+1];
+					i++;
+				}
+				size --;
+				return true;
+			}
+		}
+	}
+	assert(0);
+	return false;
 }
+
+
 
 void
 planquadrat_t::kartenboden_setzen(grund_t *bd, bool mit_spieler)
 {
-	if(bd != NULL) {
-		grund_t *tmp = gib_kartenboden();
+	assert(bd);
+	grund_t *tmp = gib_kartenboden();
 
-		if(boeden.get_count()>0) {
-			boeden.at(0) = bd;
-		}
-		else {
-			boeden.append(bd);
-		}
-		if( tmp ) {
-			// transfer old properties ...
-			bd->setze_text(tmp->gib_text());
-			if(mit_spieler) {
-				bd->setze_besitzer(tmp->gib_besitzer());
-			}
-			// now delete everything
-			delete tmp;
-		}
-		bd->set_kartenboden(true);
-		bd->calc_bild();
+	if(capacity==1) {
+		data.one = bd;
+		size = 1;
 	}
+	else {
+		data.some[0] = bd;
+		if(size==0) {
+			size = 1;
+		}
+	}
+	if( tmp ) {
+		// transfer old properties ...
+		bd->setze_text(tmp->gib_text());
+		if(mit_spieler) {
+			bd->setze_besitzer(tmp->gib_besitzer());
+		}
+		// now delete everything
+		delete tmp;
+	}
+	bd->set_kartenboden(true);
+	bd->calc_bild();
 }
+
 
 
 /**
@@ -169,44 +199,43 @@ planquadrat_t::kartenboden_setzen(grund_t *bd, bool mit_spieler)
  */
 void planquadrat_t::boden_ersetzen(grund_t *alt, grund_t *neu)
 {
-	if(alt != NULL && neu != NULL) {
-		for(int i=0; i<boeden.get_count(); i++) {
-			if(boeden.get(i)==alt) {
-				grund_t *tmp = boeden.get(i);
-				neu->set_kartenboden(i==0);
-				boeden.at(i) = neu;
+	assert(alt!=NULL  &&  neu!=NULL);
 #ifdef COVER_TILES
-				if(tmp->get_flag(grund_t::is_cover_tile)) {
-					neu->set_flag(grund_t::is_cover_tile);
-				}
+	if(alt->get_flag(grund_t::is_cover_tile)) {
+		neu->set_flag(grund_t::is_cover_tile);
+	}
 #endif
-				delete tmp;
-				return;
+
+	if(capacity==1) {
+		assert(data.one==alt);
+		data.one = neu;
+		neu->set_kartenboden(true);
+	}
+	else {
+		for(uint8 i=0;  i<size;  i++) {
+			if(data.some[i]==alt) {
+				data.some[i] = neu;
+				neu->set_kartenboden(i==0);
+				break;
 			}
 		}
 	}
+	delete alt;
 }
 
 
-bool
-planquadrat_t::destroy(spieler_t *sp)
-{
-	while(boeden.get_count()>0) {
-		grund_t *tmp = boeden.get(boeden.get_count() - 1);
-		assert(tmp);
-		tmp->obj_loesche_alle(sp);
-		boeden.remove(tmp);
-		delete tmp;
-	}
-	return true;
-}
 
 void
 planquadrat_t::rdwr(karte_t *welt, loadsave_t *file)
 {
 	if(file->is_saving()) {
-		for(int i = 0; i < boeden.get_count(); i++) {
-			boeden.get(i)->rdwr(file);
+		if(capacity==1) {
+			data.one->rdwr(file);
+		}
+		else {
+			for(int i=0; i<size; i++) {
+				data.some[i]->rdwr(file);
+			}
 		}
 		file->wr_obj_id(-1);
 	}
@@ -229,8 +258,6 @@ planquadrat_t::rdwr(karte_t *welt, loadsave_t *file)
 					dbg->fatal("planquadrat_t::rdwr()","Error while loading game: Unknown ground type '%d'",gtyp);
 			}
 
-//			assert(gr==NULL  ||  gtyp==gr->gib_typ());
-
 			// check if we have a matching building here, otherwise set to nothing
 			if(gr  &&  gtyp==grund_t::fundament  &&  gr->suche_obj(ding_t::gebaeude)==0) {
 				koord3d pos = gr->gib_pos();
@@ -241,15 +268,13 @@ DBG_MESSAGE("planquadrat_t::rwdr", "unknown building (or prepare for factory) at
 			}
 			// we should also check for ground below factories
 			if(gr) {
-				if(gib_kartenboden()==NULL) {
-					if(boeden.get_count()>0) {
-						boeden.at(0) = gr;
-					}
-					else {
-						boeden.append(gr);
-					}
+				if(size==0) {
+					assert(capacity==1  &&  data.one==NULL);
+					data.one = gr;
+					size = 1;
 					gr->set_kartenboden(true);
-				} else {
+				}
+				else {
 					boden_hinzufuegen(gr);
 				}
 			}
@@ -261,10 +286,14 @@ DBG_MESSAGE("planquadrat_t::rwdr", "unknown building (or prepare for factory) at
 
 void planquadrat_t::step(const long delta_t, const int steps)
 {
-	for(unsigned int i = 0; i < boeden.get_count(); i++) {
-		grund_t *gr = boeden.get(i);
-		if(gr->gib_top()) {
-			gr->step(delta_t,steps);
+	if(capacity==1) {
+		data.one->step(delta_t,steps);
+	}
+	else {
+		for(uint8 i=0;  i<size;  i++) {
+			if(data.some[i]->gib_top()) {
+				data.some[i]->step(delta_t,steps);
+			}
 		}
 	}
 }
@@ -274,9 +303,13 @@ void planquadrat_t::step(const long delta_t, const int steps)
 // start a new month (an change seasons)
 void planquadrat_t::check_season(const long month)
 {
-	for(unsigned int i = 0; i < boeden.get_count(); i++) {
-		grund_t *gr = boeden.get(i);
-		gr->check_season(month);
+	if(capacity==1) {
+		data.one->check_season(month);
+	}
+	else {
+		for(uint8 i=0;  i<size;  i++) {
+			data.some[i]->check_season(month);
+		}
 	}
 }
 
@@ -320,9 +353,10 @@ void planquadrat_t::angehoben(karte_t *welt)
 void
 planquadrat_t::display_boden(const sint16 xpos, const sint16 ypos, const sint16 /*raster*/, bool reset_dirty) const
 {
-	if(boeden.get_count() > 0) {
+	grund_t *gr=gib_kartenboden();
 #ifdef COVER_TILES
-	// cover tiles
+#error "Repair this!"
+		// cover tiles
 		if(boeden.get(0)->get_flag(grund_t::is_cover_tile)) {
 			for(uint8 i=boeden.get_count()-1; i>0;  i--) {
 				grund_t *gr = boeden.get(i);
@@ -333,19 +367,26 @@ planquadrat_t::display_boden(const sint16 xpos, const sint16 ypos, const sint16 
 			}
 		}
 #endif
-		grund_t *gr = boeden.get(0);
-		if(!gr->get_flag(grund_t::draw_as_ding)) {
-			gr->display_boden(xpos, ypos, reset_dirty);
-		}
+	if(!gr->get_flag(grund_t::draw_as_ding)) {
+		gr->display_boden(xpos, ypos, reset_dirty);
 	}
 }
+
 
 
 void
 planquadrat_t::display_dinge(const sint16 xpos, const sint16 ypos, const sint16 raster_tile_width, bool reset_dirty) const
 {
-	if(boeden.get_count()>0) {
+	grund_t *gr=gib_kartenboden();
+	const bool kartenboden_dirty = gr->get_flag(grund_t::dirty);
+	if(gr->get_flag(grund_t::draw_as_ding)) {
+		gr->display_boden(xpos, ypos, reset_dirty);
+	}
+	gr->display_dinge(xpos, ypos, reset_dirty);
+
+	if(size>1) {
 #ifdef COVER_TILES
+#error "Repair this!"
 		boeden.get(0)->display_dinge(xpos, ypos, reset_dirty);
 		for(uint8 i=1; i<boeden.get_count(); i++) {
 			gr = boeden.get(i);
@@ -355,34 +396,25 @@ planquadrat_t::display_dinge(const sint16 xpos, const sint16 ypos, const sint16 
 			}
 		}
 #else
-		// first some action with the kartenboden (i.e. level ground)
-		grund_t *gr = boeden.get(0);
-		bool kartenboden_dirty = gr->get_flag(grund_t::dirty);
-		if(gr->get_flag(grund_t::draw_as_ding)) {
-			gr->display_boden(xpos, ypos, reset_dirty );
-		}
-		gr->display_dinge(xpos, ypos, reset_dirty );
-
-		// display station owner boxes
-		if(umgebung_t::station_coverage_show  &&  halt_list.get_count()>0) {
-			const sint16 r=raster_tile_width/8;
-			const sint16 x=xpos+raster_tile_width/2-r;
-			const sint16 y=ypos+(raster_tile_width*3)/4-r - (gr->gib_grund_hang()? tile_raster_scale_y(8,raster_tile_width): 0);
-			// suitable start search
-			for(sint16 h=halt_list.get_count()-1;  h>=0;  h--  ) {
-				display_fillbox_wh_clip( x-h*2, y+h*2, r, r, PLAYER_FLAG|((halt_list.at(h)->gib_besitzer()->get_player_color())*4+4), kartenboden_dirty );
-			}
-		}
-
-		// the rest
 		const sint16 h0 = gr->gib_hoehe();
-		for(uint8 i=1; i<boeden.get_count(); i++) {
-			gr = gib_boden_bei(i);
-			const sint16 yypos = ypos -tile_raster_scale_y( gr->gib_hoehe()-h0, raster_tile_width);
+		for(uint8 i=1;  i<size;  i++) {
+			gr=data.some[i];
+			const sint16 yypos = ypos - tile_raster_scale_y( gr->gib_hoehe()-h0, raster_tile_width);
 			gr->display_boden(xpos, yypos, reset_dirty );
 			gr->display_dinge(xpos, yypos, reset_dirty );
 		}
 #endif
+	}
+
+	// display station owner boxes
+	if(umgebung_t::station_coverage_show  &&  halt_list.get_count()>0) {
+		const sint16 r=raster_tile_width/8;
+		const sint16 x=xpos+raster_tile_width/2-r;
+		const sint16 y=ypos+(raster_tile_width*3)/4-r - (gr->gib_grund_hang()? tile_raster_scale_y(8,raster_tile_width): 0);
+		// suitable start search
+		for(sint16 h=halt_list.get_count()-1;  h>=0;  h--  ) {
+			display_fillbox_wh_clip( x-h*2, y+h*2, r, r, PLAYER_FLAG|((halt_list.at(h)->gib_besitzer()->get_player_color())*4+4), kartenboden_dirty );
+		}
 	}
 }
 
@@ -415,7 +447,7 @@ void planquadrat_t::add_to_haltlist(halthandle_t halt)
 
 		unsigned insert_pos = 0;
 		// quick and dirty way to our 2d koodinates ...
-		const koord pos = boeden.at(0)->gib_pos().gib_2d();
+		const koord pos = gib_kartenboden()->gib_pos().gib_2d();
 
 		// exact position does matter only for passenger/mail transport
 		if(sp!=NULL  &&  sp->has_passenger()  &&  halt_list.get_count()>0  ) {
@@ -449,7 +481,7 @@ void planquadrat_t::add_to_haltlist(halthandle_t halt)
 void planquadrat_t::remove_from_haltlist(karte_t *welt, halthandle_t halt)
 {
 	// quick and dirty way to our 2d koodinates ...
-	const koord pos = boeden.at(0)->gib_pos().gib_2d();
+	const koord pos = gib_kartenboden()->gib_pos().gib_2d();
 
 	for(int y=-umgebung_t::station_coverage_size; y<=umgebung_t::station_coverage_size; y++) {
 

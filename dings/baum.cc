@@ -254,11 +254,7 @@ baum_t::baum_t(karte_t *welt, koord3d pos) : ding_t(welt, pos)
 	// Hajo: auch aeltere Baeume erzeugen
 	geburt = welt->get_current_month() - simrand(400);
 
-	const grund_t *gr = welt->lookup(pos);
-	if(gr) {
-		besch = gib_aus_liste(welt->get_climate(pos.z));
-	}
-
+	besch = gib_aus_liste(welt->get_climate(pos.z));
 	assert(besch);
 
 	calc_off();

@@ -197,36 +197,36 @@ DBG_MESSAGE("tunnelbauer_t::fill_menu()","%i to be added",matching.count());
 koord3d
 tunnelbauer_t::finde_ende(karte_t *welt, koord3d pos, koord zv, waytype_t wegtyp)
 {
-    const grund_t *gr;
+	const grund_t *gr;
 
-    while(true) {
-  pos = pos + zv;
-  if(!welt->ist_in_kartengrenzen(pos.gib_2d())) {
-      return koord3d::invalid;
-  }
-  gr = welt->lookup(pos);
+	while(true) {
+		pos = pos + zv;
+		if(!welt->ist_in_kartengrenzen(pos.gib_2d())) {
+			return koord3d::invalid;
+		}
+		gr = welt->lookup(pos);
 
-  if(gr) {
-      if(gr->ist_tunnel()) {  // Anderer Tunnel läuft quer
-    return koord3d::invalid;
-      }
-      ribi_t::ribi ribi = gr->gib_weg_ribi_unmasked(wegtyp);
+		if(gr) {
+			if(gr->ist_tunnel()) {  // Anderer Tunnel läuft quer
+				return koord3d::invalid;
+			}
+			ribi_t::ribi ribi = gr->gib_weg_ribi_unmasked(wegtyp);
 
-      if(ribi && koord(ribi) == zv) {
-    // Ende am Hang - Endschiene vorhanden
-    return pos;
-      }
-      if(!ribi && gr->gib_grund_hang() == hang_typ(-zv)) {
-    // Ende am Hang - Endschiene fehlt oder hat keine ribis
-    // Wir prüfen noch, ob uns dort ein anderer Weg stört
-    if(!gr->hat_wege() || gr->hat_weg(wegtyp)) {
-        return pos;
-    }
-      }
-      return koord3d::invalid;  // Was im Weg (schräger Hang oder so)
-        }
-  // Alles frei - weitersuchen
-    }
+			if(ribi && koord(ribi) == zv) {
+				// Ende am Hang - Endschiene vorhanden
+				return pos;
+			}
+			if(!ribi && gr->gib_grund_hang() == hang_typ(-zv)) {
+				// Ende am Hang - Endschiene fehlt oder hat keine ribis
+				// Wir prüfen noch, ob uns dort ein anderer Weg stört
+				if(!gr->hat_wege() || gr->hat_weg(wegtyp)) {
+					return pos;
+				}
+			}
+			return koord3d::invalid;  // Was im Weg (schräger Hang oder so)
+		}
+		// Alles frei - weitersuchen
+	}
 }
 
 int tunnelbauer_t::baue(spieler_t *sp, karte_t *welt, koord pos, value_t param)
@@ -378,15 +378,16 @@ DBG_MESSAGE("tunnelbauer_t::baue()","build from (%d,%d)", pos.x, pos.y);
 	ribi = welt->lookup(pos)->gib_weg_ribi_unmasked(wegtyp);
 	pos = pos + zv;
 
-	// Now we build theinviosible part
+	// Now we build the inviosible part
 	while(pos.gib_2d()!=end.gib_2d()) {
-		tunnelboden_t *tunnel = new tunnelboden_t(welt, pos, 0, besch);
+		tunnelboden_t *tunnel = new tunnelboden_t(welt, pos, 0);
 		// use the fastest way
 		weg = weg_t::alloc(besch->gib_wegtyp());
 		weg->setze_besch(weg_besch);
 		weg->setze_max_speed(besch->gib_topspeed());
 		welt->access(pos.gib_2d())->boden_hinzufuegen(tunnel);
 		tunnel->neuen_weg_bauen(weg, ribi_t::doppelt(ribi), sp);
+		tunnel->obj_add(new tunnel_t(welt, end, sp, besch));
 		sp->add_maintenance( -weg->gib_besch()->gib_wartung() );
 		sp->add_maintenance( besch->gib_wartung() );
 		cost += besch->gib_preis();
@@ -409,7 +410,7 @@ tunnelbauer_t::baue_einfahrt(karte_t *welt, spieler_t *sp, koord3d end, koord zv
 	ribi_t::ribi ribi = alter_boden->gib_weg_ribi_unmasked(besch->gib_wegtyp()) | ribi_typ(zv);
 	weg_t *alter_weg = alter_boden->gib_weg(besch->gib_wegtyp());
 
-	tunnelboden_t *tunnel = new tunnelboden_t(welt, end, alter_boden->gib_grund_hang(),besch);
+	tunnelboden_t *tunnel = new tunnelboden_t(welt, end, alter_boden->gib_grund_hang());
 	tunnel->obj_add(new tunnel_t(welt, end, sp, besch));
 
 DBG_MESSAGE("tunnelbauer_t::baue_einfahrt()","at end (%d,%d) for %s", end.x, end.y, weg_besch->gib_name());

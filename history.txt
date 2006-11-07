@@ -17,6 +17,7 @@ Release of 99.03.1
 	FIX: position now nearly always centered for all zoom levels and pak sizes
 	FIX: scrolling with right mouse button for all pak sizes
 	CHANGE: (tron) assembler corrections, code cleanup
+	CHANGE: tunnel code changed (will not load 99.03 savegames! Underground mode was experimental, you have been warned!)
 
 
 Release of 99.03
