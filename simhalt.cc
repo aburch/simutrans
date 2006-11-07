@@ -1516,8 +1516,7 @@ haltestelle_t::find_free_position(const waytype_t w,convoihandle_t cnv,const din
 			grund_t *gr = iter.get_current();
 			if(gr) {
 				// found a stop for this waytype but without object d ...
-				const weg_t *weg=gr->gib_weg(w);
-				if(weg  &&  gr->suche_obj(d)==NULL) {
+				if(gr->hat_weg(w)  &&  gr->suche_obj(d)==NULL) {
 					// not occipied
 					return true;
 				}
@@ -1553,8 +1552,7 @@ haltestelle_t::reserve_position(grund_t *gr,convoihandle_t cnv)
 			grund_t *gr = grund.at(idx);
 			if(gr) {
 				// found a stop for this waytype but without object d ...
-				const weg_t *weg=gr->gib_weg(cnv->gib_vehikel(0)->gib_wegtyp());
-				if(weg  &&  gr->suche_obj(cnv->gib_vehikel(0)->gib_typ())==NULL) {
+				if(gr->hat_weg(cnv->gib_vehikel(0)->gib_wegtyp())  &&  gr->suche_obj(cnv->gib_vehikel(0)->gib_typ())==NULL) {
 					// not occipied
 //DBG_MESSAGE("haltestelle_t::reserve_position()","sucess for gr=%i,%i cnv=%d",gr->gib_pos().x,gr->gib_pos().y,cnv.get_id());
 					reservation.at(idx) = cnv;
@@ -1605,8 +1603,7 @@ DBG_MESSAGE("haltestelle_t::is_reservable()","gr=%d,%d already reserved by cnv=%
 			grund_t *gr = grund.at(idx);
 			if(gr) {
 				// found a stop for this waytype but without object d ...
-				const weg_t *weg=gr->gib_weg(cnv->gib_vehikel(0)->gib_wegtyp());
-				if(weg  &&  gr->suche_obj(cnv->gib_vehikel(0)->gib_typ())==NULL) {
+				if(gr->hat_weg(cnv->gib_vehikel(0)->gib_wegtyp())  &&  gr->suche_obj(cnv->gib_vehikel(0)->gib_typ())==NULL) {
 					// not occipied
 DBG_MESSAGE("haltestelle_t::is_reservable()","sucess for gr=%i,%i cnv=%d",gr->gib_pos().x,gr->gib_pos().y,cnv.get_id());
 					return true;
@@ -1865,7 +1862,7 @@ haltestelle_t::recalc_station_type()
 		}
 		// check for trainstation
 		else if(besch->gib_utyp()==hausbauer_t::bahnhof) {
-			if(gr->gib_weg(monorail_wt)) {
+			if(gr->hat_weg(monorail_wt)) {
 				new_station_type |= monorailstop;
 			}
 			else {

@@ -824,7 +824,7 @@ DBG_DEBUG("karte_t::init()","Erzeuge stadt %i with %ld inhabitants",i,(s->get_ci
 
 		// Hajo: search for road offset
 		koord roff (0,1);
-		if(lookup(pos->at(0)+roff)->gib_kartenboden()->gib_weg(road_wt) == 0) {
+		if(!lookup(pos->at(0)+roff)->gib_kartenboden()->hat_weg(road_wt)) {
 			roff = koord(0,2);
 		}
 
@@ -2030,29 +2030,29 @@ karte_t::blick_aendern(event_t *ev)
   if(!scroll_lock) {
     const int raster = get_tile_raster_width();
 
-		x_off -= scroll_off_x;
-		y_off -= scroll_off_y;
+		x_off += scroll_off_x;
+		y_off += scroll_off_y;
 
-    scroll_off_x += (ev->mx - ev->cx) * einstellungen->gib_scroll_multi();
-    scroll_off_y += (ev->my - ev->cy) * einstellungen->gib_scroll_multi();
+		scroll_off_x += (ev->mx - ev->cx) * einstellungen->gib_scroll_multi();
+		scroll_off_y += (ev->my - ev->cy) * einstellungen->gib_scroll_multi();
 
-		ij_off.x -= scroll_off_x/raster;
-		ij_off.y += scroll_off_x/raster;
+		ij_off.x += scroll_off_x/raster;
+		ij_off.y -= scroll_off_x/raster;
 		scroll_off_x %= raster;
 
 		if(scroll_off_y>raster/4) {
-			ij_off.x -= 1;
-			ij_off.y -= 1;
+			ij_off.x += 1;
+			ij_off.y += 1;
 			scroll_off_y -= raster/2;
 		}
 		else if(scroll_off_y<-raster/4) {
-			ij_off.x += 1;
-			ij_off.y += 1;
+			ij_off.x -= 1;
+			ij_off.y -= 1;
 			scroll_off_y += raster/2;
 		}
 
-		x_off += scroll_off_x;
-		y_off += scroll_off_y;
+		x_off -= scroll_off_x;
+		y_off -= scroll_off_y;
 
     if ((ev->mx - ev->cx) != 0 || (ev->my - ev->cy) != 0) {
       intr_refresh_display( true );

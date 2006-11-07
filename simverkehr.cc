@@ -493,7 +493,7 @@ stadtauto_t::ist_weg_frei()
 	}
 
 
-	if(gr->gib_weg(track_wt)) {
+	if(gr->hat_weg(track_wt)) {
 		// railway crossing
 		if(gr->suche_obj_ab(ding_t::waggon,PRI_RAIL_AND_ROAD)) {
 			return false;
@@ -577,8 +577,7 @@ stadtauto_t::betrete_feld()
 #endif
 	vehikel_basis_t::betrete_feld();
 
-	grund_t *gr = welt->lookup( gib_pos() );
-	gr->gib_weg(road_wt)->book(1, WAY_STAT_CONVOIS);
+	welt->lookup( gib_pos() )->gib_weg(road_wt)->book(1, WAY_STAT_CONVOIS);
 }
 
 

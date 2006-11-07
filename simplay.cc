@@ -1770,7 +1770,7 @@ DBG_MESSAGE("spieler_t::baue_bahnhof()","try to build a train station of length 
 
 			// try to extend station into the other direction
 			ok = (gr != NULL) &&
-					gr->gib_weg(track_wt) != NULL &&
+					gr->hat_weg(track_wt) &&
 					gr->gib_weg_ribi(track_wt) == ribi_t::doppelt(ribi) &&
 					gr->kann_alle_obj_entfernen(this) == NULL &&  gr->gib_weg_nr(1)==NULL  &&
 					gr->gib_weg_hang()== hang_t::flach  &&  !gr->gib_halt().is_bound();
@@ -2169,7 +2169,7 @@ spieler_t::built_hub( const koord pos, int radius )
 						// ok, one halt belongs already to us ...
       					return try_pos;
 					}
-					else if(gr->gib_weg(road_wt)) {
+					else if(gr->hat_weg(road_wt)) {
 						ribi_t::ribi  ribi = gr->gib_weg_ribi_unmasked(road_wt);
 	      				if( abs(x)+abs(y)<=dist  &&  (ribi_t::nordsued==ribi  || ribi_t::ostwest==ribi  ||  ribi_t::ist_einfach(ribi))    ) {
 	      					best_pos = try_pos;

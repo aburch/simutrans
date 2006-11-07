@@ -231,8 +231,7 @@ public:
 				gr != 0 &&
 				gr->gib_grund_hang() == hang_t::flach &&  // Flach
 				gr->gib_typ() == grund_t::boden &&    // Boden -> keine GEbäude
-				!gr->gib_weg(track_wt) &&     // Höchstens Strassen
-				!gr->gib_weg(water_wt) &&     // Höchstens Strassen
+				(!gr->hat_wege()  ||  gr->hat_weg(road_wt))  &&     // Höchstens Strassen
 				gr->kann_alle_obj_entfernen(NULL) == NULL;  // Irgendwas verbaut den Platz?
 		}
 		else {
@@ -282,8 +281,7 @@ public:
 				gr != 0 &&
 				gr->gib_grund_hang() == hang_t::flach &&
 				gr->gib_typ() == grund_t::boden &&
-				!gr->gib_weg(track_wt) &&
-				!gr->gib_weg(water_wt) &&     // Höchstens Strassen
+				(!gr->hat_wege()  ||  gr->hat_weg(road_wt))  &&     // Höchstens Strassen
 				!gr->gib_halt().is_bound() &&
 				gr->kann_alle_obj_entfernen(NULL) == NULL;
 		} else {
@@ -1300,7 +1298,7 @@ public:
 
 	bool strasse_bei(sint16 x, sint16 y) const {
 		grund_t *bd = welt->lookup(koord(x, y))->gib_kartenboden();
-		return bd && bd->gib_weg(road_wt);
+		return bd && bd->hat_weg(road_wt);
 	}
 
 	virtual bool ist_platz_ok(koord pos, sint16 b, sint16 h, climate_bits cl) const {
@@ -1373,13 +1371,13 @@ stadt_t::check_bau_spezial(bool new_town)
 				// Wir bauen das Denkmal nur, wenn schon mindestens eine Strasse da ist
 				for(i = 0; i < total_size.x && !ok; i++) {
 					ok = ok ||
-						welt->access(best_pos + koord(i, -1))->gib_kartenboden()->gib_weg(road_wt) ||
-						welt->access(best_pos + koord(i, total_size.y))->gib_kartenboden()->gib_weg(road_wt);
+						welt->access(best_pos + koord(i, -1))->gib_kartenboden()->hat_weg(road_wt) ||
+						welt->access(best_pos + koord(i, total_size.y))->gib_kartenboden()->hat_weg(road_wt);
 				}
 				for(i = 0; i < total_size.y && !ok; i++) {
 					ok = ok ||
-						welt->access(best_pos + koord(total_size.x, i))->gib_kartenboden()->gib_weg(road_wt) ||
-						welt->access(best_pos + koord(-1, i))->gib_kartenboden()->gib_weg(road_wt);
+						welt->access(best_pos + koord(total_size.x, i))->gib_kartenboden()->hat_weg(road_wt) ||
+						welt->access(best_pos + koord(-1, i))->gib_kartenboden()->hat_weg(road_wt);
 				}
 				if(ok) {
 					// Straßenkreis um das Denkmal legen
@@ -1439,7 +1437,7 @@ stadt_t::check_bau_rathaus(bool new_town)
 				// no, the size is ok
 				umziehen = false;
 			}
-			else if(welt->lookup(pos + koord(0, besch_alt->gib_h()))->gib_kartenboden()->gib_weg(road_wt)) {
+			else if(welt->lookup(pos + koord(0, besch_alt->gib_h()))->gib_kartenboden()->hat_weg(road_wt)) {
 				// we need to built a new road, thus we will use the old as a starting point (if found)
 				alte_str =  pos + koord(0, besch_alt->gib_h());
 			}
@@ -1647,10 +1645,10 @@ stadt_t::bewerte_loc(const koord pos, const char *regel)
 
 				switch(regel[(k.x-pos.x+1) + ((k.y-pos.y+1)<<2)]) {
 					case 's':
-						ok = gr->gib_weg(road_wt);
+						ok = gr->hat_weg(road_wt);
 						break;
 					case 'S':
-						ok = !gr->gib_weg(road_wt);
+						ok = !gr->hat_weg(road_wt);
 						break;
 					case 'h':
 						// is house
@@ -2113,7 +2111,7 @@ stadt_t::renoviere_gebaeude(koord k)
 		for(int i=0;  i<8;  i++ ) {
 			grund_t *gr = welt->lookup(k+neighbours[i])->gib_kartenboden();
 			if(gr  &&  gr->gib_weg_hang()==gr->gib_grund_hang()) {
-				strasse_t *weg = dynamic_cast <strasse_t *>(gr->gib_weg(road_wt));
+				strasse_t *weg = static_cast <strasse_t *>(gr->gib_weg(road_wt));
 				if(weg) {
 					if(i<4  &&  streetdir==0) {
 						// update directions (NESW)
@@ -2191,7 +2189,7 @@ stadt_t::baue_strasse(const koord k, spieler_t *sp, bool forced)
 	}
 
 	// we must not built on water or runways etc.
-	if(bd->gib_weg(air_wt)  ||  bd->gib_weg(water_wt)) {
+	if(  !(bd->hat_weg(road_wt)  ||  bd->hat_weg(track_wt)  ||  !bd->hat_wege())  ) {
 		return false;
 	}
 
@@ -2205,8 +2203,8 @@ stadt_t::baue_strasse(const koord k, spieler_t *sp, bool forced)
 	ribi_t::ribi connection_roads = ribi_t::keine;
 
 	// we must not built on water or runways etc.
-	if(bd->gib_weg(track_wt)) {
-		// only crossing or tramways allowed
+	// only crossing or tramways allowed
+	if(bd->hat_weg(track_wt)) {
 		weg_t *sch=bd->gib_weg(track_wt);
 		if(sch->gib_besch()->gib_styp()!=7) {
 			// not a tramway
@@ -2232,7 +2230,7 @@ stadt_t::baue_strasse(const koord k, spieler_t *sp, bool forced)
 				// not the same slope => tunnel or bridge
 				allowed_dir &= ~ribi_t::nsow[r];
 			}
-			else if(bd2->gib_weg(road_wt)!=NULL) {
+			else if(bd2->hat_weg(road_wt)!=NULL) {
 				// a road, we must just take care for stops and depots
 				const gebaeude_t *gb = dynamic_cast<const gebaeude_t *>(bd2->suche_obj(ding_t::gebaeude));
 				if(gb  &&  (gb->gib_tile()->gib_besch()->gib_all_layouts()!=2  ||  (gb->gib_tile()->gib_layout()&1)!=(r>>1))) {

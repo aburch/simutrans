@@ -220,7 +220,7 @@ brueckenbauer_t::finde_ende(karte_t *welt, koord3d pos, koord zv, waytype_t wegt
 					// Ende mit Rampe - Endschiene vorhanden
 					return pos;
 				}
-				if(!ribi && gr2->gib_weg(wegtyp)) {
+				if(!ribi && gr2->hat_weg(wegtyp)) {
 					// Ende mit Rampe - Endschiene hat keine ribis
 					return pos;
 				}
@@ -233,7 +233,7 @@ brueckenbauer_t::finde_ende(karte_t *welt, koord3d pos, koord zv, waytype_t wegt
 				if(!ribi && gr2->gib_grund_hang() == hang_typ(zv)) {
 					// Ende am Hang - Endschiene fehlt oder hat keine ribis
 					// Wir prüfen noch, ob uns dort ein anderer Weg stört
-					if(!gr2->hat_wege() || gr2->gib_weg(wegtyp)) {
+					if(!gr2->hat_wege() || gr2->hat_weg(wegtyp)) {
 						return pos;
 					}
 				}

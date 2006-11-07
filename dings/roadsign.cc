@@ -225,8 +225,7 @@ void roadsign_t::calc_bild()
 	else {
 		// traffic light
 		weg_t *str=gr->gib_weg(road_wt);
-		if(str)
-		{
+		if(str) {
 			const uint8 weg_dir = str->gib_ribi_unmasked();
 			const uint8 direction = (dir&ribi_t::nord)!=0;
 

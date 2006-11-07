@@ -66,7 +66,7 @@ public:
 
 	bool strasse_bei(sint16 x, sint16 y) const {
 		grund_t *bd = welt->lookup(koord(x, y))->gib_kartenboden();
-		return bd && bd->gib_weg(road_wt);
+		return bd && bd->hat_weg(road_wt);
 	}
 
 	virtual bool ist_platz_ok(koord pos, sint16 b, sint16 h, climate_bits cl) const {
@@ -464,7 +464,7 @@ fabrikbauer_t::baue_fabrik(karte_t * welt, koord3d *parent, const fabrik_besch_t
 					if(welt->ist_in_kartengrenzen(k)) {
 						// add all water to station
 						grund_t *gr = welt->lookup(k)->gib_kartenboden();
-						if(gr->ist_wasser() && gr->gib_weg(water_wt) == 0) {
+						if(gr->ist_wasser() && gr->hat_weg(water_wt) == 0) {
 	//						gr->neuen_weg_bauen(new dock_t(welt), ribi_t::alle, welt->gib_spieler(0));
 							halt->add_grund( gr );
 						}

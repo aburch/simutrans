@@ -111,10 +111,10 @@ static halthandle_t suche_nahe_haltestelle(spieler_t *sp, karte_t *welt, koord3d
 	}
 
 	// first we try to connect to a stop straight in our direction; otherwise our station may break during construction
-	if(bd->gib_weg(track_wt) != NULL) {
+	if(bd->hat_weg(track_wt)) {
 		ribi = bd->gib_weg_ribi_unmasked(track_wt);
 	}
-	if(bd->gib_weg(road_wt) != NULL) {
+	if(bd->hat_weg(road_wt)) {
 		ribi = bd->gib_weg_ribi_unmasked(road_wt);
 	}
 	if(  ribi_t::nord & ribi ) {
@@ -526,12 +526,12 @@ DBG_MESSAGE("wkz_remover()", "removing way");
 	long cost_sum = 0;
 	if(gr->gib_typ()!=grund_t::tunnelboden  ||  gr->gib_weg_nr(1)) {
 		cost_sum = gr->weg_entfernen(track_wt, true);
-		if(cost_sum>0  &&  gr->gib_weg(road_wt)) {
+		if(cost_sum>0  &&  gr->hat_weg(road_wt)) {
 			// remove only railway track
 			return true;
 		}
 		cost_sum += gr->weg_entfernen(monorail_wt, true);
-		if(cost_sum>0  &&  gr->gib_weg(road_wt)) {
+		if(cost_sum>0  &&  gr->hat_weg(road_wt)) {
 			// remove only railway track
 			return true;
 		}
@@ -783,7 +783,7 @@ wkz_intern_koord_to_weg_grund(spieler_t *sp, karte_t *welt, koord pos, waytype_t
 			continue;
 		}
 		// has some rail or monorail?
-		if(gr->gib_weg(wt)==NULL) {
+		if(gr->hat_weg(wt)) {
 			gr = NULL;
 			continue;
 		}
@@ -1042,13 +1042,13 @@ DBG_MESSAGE("wkz_station_building_aux()", "building mail office/station building
 //DBG_MESSAGE("wkz_station_building_aux()","test layouts %i",i);
 						// get best alignment judging all
 						uint8 current=1;
-						if(gr->gib_weg(track_wt)) {
+						if(gr->hat_weg(track_wt)) {
 							current += 2;
-						} else if(gr->gib_weg(road_wt)) {
+						} else if(gr->hat_weg(road_wt)) {
 							current += 1;
-						} else if(gr->gib_weg(water_wt)) {
+						} else if(gr->hat_weg(water_wt)) {
 							current += 1;
-						} else if(gr->gib_weg(air_wt)) {
+						} else if(gr->hat_weg(air_wt)) {
 							current += 3;
 						} else if(gr->gib_typ()==grund_t::fundament) {
 							// always samle layout as next station building
@@ -1859,6 +1859,7 @@ int wkz_set_slope(spieler_t * sp, karte_t *welt, koord pos, value_t lParam)
 			return false;
 		}
 
+#ifdef COVER_TILES
 		// already covered ... ?
 		if(gr1->get_flag(grund_t::is_cover_tile)) {
 			if(new_slope==RESTORE_SLOPE  &&  gr1->kann_alle_obj_entfernen(sp)) {
@@ -1872,6 +1873,7 @@ int wkz_set_slope(spieler_t * sp, karte_t *welt, koord pos, value_t lParam)
 				return false;
 			}
 		}
+#endif
 
 		// special slope: 0 => makes a cover tile if possible
 		if(new_slope==0) {

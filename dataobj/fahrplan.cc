@@ -326,11 +326,11 @@ fahrplan_t::fahrplan_type fahrplan_t::get_type(karte_t * welt) const
 	const grund_t *gr = welt->lookup(eintrag.get(0).pos);
 	if ( type != fahrplan_t::fahrplan ) {
 		//
-	} else if (gr->gib_weg(road_wt) != NULL) {
+	} else if (gr->hat_weg(road_wt) != NULL) {
 		return fahrplan_t::autofahrplan;
-	} else if (gr->gib_weg(track_wt) != NULL) {
+	} else if (gr->hat_weg(track_wt) != NULL) {
 		return fahrplan_t::zugfahrplan;
-	} else if (gr->gib_weg(water_wt) != NULL) {
+	} else if (gr->hat_weg(water_wt) != NULL) {
 		return fahrplan_t::schifffahrplan;
 	} else {
 		return fahrplan_t::fahrplan;
@@ -343,7 +343,7 @@ bool
 zugfahrplan_t::ist_halt_erlaubt(const grund_t *gr) const
 {
 DBG_MESSAGE("zugfahrplan_t::ist_halt_erlaubt()","Checking for stop");
-	if(gr->gib_weg(track_wt)==NULL) {
+	if(gr->hat_weg(track_wt)==NULL) {
 		// no track
 		return false;
 	}
@@ -369,7 +369,7 @@ zugfahrplan_t::zeige_fehlermeldung(karte_t *welt) const
 bool
 autofahrplan_t::ist_halt_erlaubt(const grund_t *gr) const
 {
-	if(gr->gib_weg(road_wt)==NULL) {
+	if(gr->hat_weg(road_wt)==NULL) {
 		// no road
 		return false;
 	}
@@ -394,7 +394,7 @@ autofahrplan_t::zeige_fehlermeldung(karte_t *welt) const
 bool
 schifffahrplan_t::ist_halt_erlaubt(const grund_t *gr) const
 {
-    return gr!=NULL &&  (gr->ist_wasser()  ||  gr->gib_weg(water_wt));
+    return gr!=NULL &&  (gr->ist_wasser()  ||  gr->hat_weg(water_wt));
 }
 
 void
@@ -406,7 +406,7 @@ schifffahrplan_t::zeige_fehlermeldung(karte_t *welt) const
 bool
 airfahrplan_t::ist_halt_erlaubt(const grund_t *gr) const
 {
-	return !(gr->gib_weg(air_wt)==NULL  &&  haltestelle_t::gib_halt(gr->gib_welt(),gr->gib_pos()).is_bound());
+	return !(gr->hat_weg(air_wt)==NULL  &&  haltestelle_t::gib_halt(gr->gib_welt(),gr->gib_pos()).is_bound());
 }
 
 void
@@ -418,7 +418,7 @@ airfahrplan_t::zeige_fehlermeldung(karte_t *welt) const
 bool
 monorailfahrplan_t::ist_halt_erlaubt(const grund_t *gr) const
 {
-	return gr->gib_weg(monorail_wt)!=NULL;
+	return gr->hat_weg(monorail_wt)!=NULL;
 }
 
 void

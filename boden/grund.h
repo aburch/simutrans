@@ -66,7 +66,9 @@ public:
 		has_text=4,
 		marked = 8,  // will have a frame
 		draw_as_ding = 16, // is a slope etc => draw as one
+#ifdef COVER_TILES
 		is_cover_tile = 32,	// is a ground; however, below is another ground ...
+#endif
   };
 
 protected:
@@ -475,6 +477,17 @@ public:
 		}
 		return NULL;
 	}
+
+	bool hat_weg(waytype_t typ) const {
+		if(wege[0]  &&  wege[0]->gib_typ() == typ) {
+			return true;
+		}
+		if(wege[1]  &&  wege[1]->gib_typ() == typ) {
+			return true;
+		}
+		return false;
+	}
+
 
 	/**
 	* Returns the system type s_type of a way of type typ at this location

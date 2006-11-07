@@ -80,9 +80,11 @@ void planquadrat_t::boden_hinzufuegen(grund_t *bd)
 			i ++;
 		}
 		boeden.insert(i, bd);
+#ifdef COVER_TILES
 		if(bd->gib_typ()==grund_t::boden) {
 			bd->set_flag(grund_t::is_cover_tile);
 		}
+#endif
 		bd->calc_bild();
 		reliefkarte_t::gib_karte()->calc_map_pixel(bd->gib_pos().gib_2d());
 	}
@@ -99,16 +101,24 @@ bool planquadrat_t::kartenboden_insert(grund_t *bd)
 		for(int i=0; i<boeden.get_count(); i++) {
 			if(boeden.get(i)->gib_typ()==grund_t::boden) {
 				already_there ++;
+#ifdef COVER_TILES
 				if(boeden.get(i)->get_flag(grund_t::is_cover_tile)) {
 					return 0;
 				}
+#endif
 			}
 		}
 		boeden.insert(0, bd);
+#ifdef COVER_TILES
 		if(already_there) {
 			bd->set_flag(grund_t::is_cover_tile);
 			bd->set_kartenboden(false);
 		}
+#else
+		if(already_there) {
+			dbg->fatal("planquadrat_t::kartenboden_insert()","There can be only one kartenboden at (%,%i)",bd->gib_pos().x,bd->gib_pos().y);
+		}
+#endif
 		bd->calc_bild();
 		reliefkarte_t::gib_karte()->calc_map_pixel(bd->gib_pos().gib_2d());
 	}
@@ -165,9 +175,11 @@ void planquadrat_t::boden_ersetzen(grund_t *alt, grund_t *neu)
 				grund_t *tmp = boeden.get(i);
 				neu->set_kartenboden(i==0);
 				boeden.at(i) = neu;
+#ifdef COVER_TILES
 				if(tmp->get_flag(grund_t::is_cover_tile)) {
 					neu->set_flag(grund_t::is_cover_tile);
 				}
+#endif
 				delete tmp;
 				return;
 			}

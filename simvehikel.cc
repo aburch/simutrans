@@ -292,7 +292,7 @@ void vehikel_basis_t::betrete_feld()
 		start ++;
 	}
 
-	if(gr->gib_weg(road_wt)) {
+	if(gr->hat_weg(road_wt)) {
 		// this is very complicated: we may have many objects in two lanes (actually five with tram and pedestrians)
 		if(umgebung_t::drive_on_left) {
 			// driving on left side
@@ -1527,7 +1527,7 @@ automobil_t::ist_weg_frei(int &restart_speed)
 
 	// pruefe auf Schienenkreuzung
 	strasse_t *str=(strasse_t *)gr->gib_weg(road_wt);
-	if(gr->gib_weg(track_wt) &&  str) {
+	if(gr->hat_weg(track_wt) &&  str) {
 		// das ist eine Kreuzung, ist sie frei ?
 		if(gr->suche_obj_ab(ding_t::waggon,PRI_RAIL_AND_ROAD)) {
 			restart_speed = 0;
@@ -1948,8 +1948,8 @@ waggon_t::ist_weg_frei(int & restart_speed)
 		return false;
 	}
 
-	const schiene_t * sch1 = (const schiene_t *) welt->lookup( pos_next )->gib_weg(gib_wegtyp());
-	if(sch1==NULL) {
+//	const schiene_t * sch1 = (const schiene_t *) welt->lookup( pos_next )->gib_weg(gib_wegtyp());
+	if(welt->lookup( pos_next )->hat_weg(gib_wegtyp())) {
 		return false;
 	}
 	if(!ist_erstes) {
@@ -1958,11 +1958,6 @@ waggon_t::ist_weg_frei(int & restart_speed)
 	}
 
 	uint16 next_block=cnv->get_next_stop_index()-1;
-/*
-	if(welt->lookup(gib_pos())->gib_weg(gib_wegtyp())->has_sign()) {
-		next_block = route_index;
-	}
-*/
 	if(next_block<=route_index+3) {
 		route_t *rt=cnv->get_route();
 		koord3d block_pos=rt->position_bei(next_block);
@@ -2156,8 +2151,8 @@ waggon_t::verlasse_feld()
 {
 	vehikel_t::verlasse_feld();
 	// fix counters
-	schiene_t * sch0 = (schiene_t *) welt->lookup( pos_cur )->gib_weg(gib_wegtyp());
 	if(ist_letztes) {
+		schiene_t * sch0 = (schiene_t *) welt->lookup( pos_cur )->gib_weg(gib_wegtyp());
 		sch0->unreserve(this);
 		// tell next signal?
 		// and swith to red
@@ -2280,7 +2275,7 @@ schiff_t::schiff_t(karte_t *welt, loadsave_t *file) : vehikel_t(welt)
 bool
 schiff_t::ist_befahrbar(const grund_t *bd) const
 {
-	return bd->ist_wasser()  ||  bd->gib_weg(water_wt);
+	return bd->ist_wasser()  ||  bd->hat_weg(water_wt);
 }
 
 
@@ -2486,7 +2481,7 @@ aircraft_t::ist_befahrbar(const grund_t *bd) const
 		case taxiing_to_halt:
 		case looking_for_parking:
 //DBG_MESSAGE("ist_befahrbar()","at %i,%i",bd->gib_pos().x,bd->gib_pos().y);
-			return bd->gib_weg(air_wt)!=NULL;
+			return bd->hat_weg(air_wt);
 
 		case landing:
 		case departing:
@@ -2527,7 +2522,7 @@ aircraft_t::find_route_to_stop_position()
 
 	// then: check if the search point is still on a runway (otherwise just proceed)
 	target = welt->lookup(rt->position_bei(suchen));
-	if(target==NULL  ||  target->gib_weg(air_wt)==NULL) {
+	if(target==NULL  ||  target->hat_weg(air_wt)) {
 		target_halt = halthandle_t();
 		DBG_MESSAGE("aircraft_t::find_route_to_stop_position()","no runway found at %i,%i,%i",rt->position_bei(suchen).x,rt->position_bei(suchen).y,rt->position_bei(suchen).z);
 		return true;	// no runway any more ...
@@ -2879,7 +2874,7 @@ aircraft_t::calc_route(karte_t * welt, koord3d start, koord3d ziel, uint32 max_s
 					break;
 				}
 				gr = welt->lookup_kartenboden(search_start.gib_2d()+(start_dir*i));
-				if(gr->gib_weg(air_wt)) {
+				if(gr->hat_weg(air_wt)) {
 					endi ++;
 				}
 				route->append(gr->gib_pos());
@@ -2933,7 +2928,7 @@ aircraft_t::calc_route(karte_t * welt, koord3d start, koord3d ziel, uint32 max_s
 					break;
 				}
 				gr=welt->lookup_kartenboden(search_end.gib_2d()+(end_dir*i));
-				if(gr->gib_weg(air_wt)) {
+				if(gr->hat_weg(air_wt)) {
 					endi ++;
 				}
 				landing_start = gr->gib_pos();
@@ -3004,7 +2999,6 @@ aircraft_t::calc_route(karte_t * welt, koord3d start, koord3d ziel, uint32 max_s
 int aircraft_t::calc_height()
 {
 	int new_hoff = 0;	// default: on ground ...
-	const weg_t *w=welt->lookup(pos_cur)->gib_weg(air_wt);
 
 	switch( state ) {
 		case departing:
@@ -3013,7 +3007,7 @@ int aircraft_t::calc_height()
 			setze_speed_limit(-1);
 
 			// take off, when a) end of runway or b) last tile of runway or c) fast enough
-			if(w==NULL  ||  cnv->gib_akt_speed()>kmh_to_speed(besch->gib_geschw())/3 ) {
+			if(!welt->lookup(pos_cur)->hat_weg(air_wt)  ||  cnv->gib_akt_speed()>kmh_to_speed(besch->gib_geschw())/3 ) {
 				state = flying;
 				current_friction = 16;
 				flughoehe = height_scaling(gib_pos().z);

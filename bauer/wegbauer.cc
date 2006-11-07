@@ -300,7 +300,7 @@ void wegbauer_t::fill_menu(werkzeug_parameter_waehler_t *wzw,
 bool
 wegbauer_t::check_crossing(const koord zv, const grund_t *bd,waytype_t wtyp) const
 {
-  if(bd->gib_weg(wtyp)  &&  bd->gib_halt()==NULL) {
+  if(bd->hat_weg(wtyp)  &&  bd->gib_halt()==NULL) {
 	ribi_t::ribi w_ribi = bd->gib_weg_ribi_unmasked(wtyp);
     // it is our way we want to cross: can we built a crossing here?
     // both ways must be straight and no ends
@@ -463,7 +463,7 @@ bool wegbauer_t::is_allowed_step( const grund_t *from, const grund_t *to, long *
 	const koord to_pos=to->gib_pos().gib_2d();
 	const koord zv=to_pos-from_pos;
 
-	if(bautyp==luft  &&  (from->gib_grund_hang()+to->gib_grund_hang()!=0  ||  (from->hat_wege()  &&  from->gib_weg(air_wt)==0))) {
+	if(bautyp==luft  &&  (from->gib_grund_hang()+to->gib_grund_hang()!=0  ||  (from->hat_wege()  &&  from->hat_weg(air_wt)==0))) {
 		// absolutely no slopes for runways, neither other ways
 		return false;
 	}
@@ -531,7 +531,7 @@ bool wegbauer_t::is_allowed_step( const grund_t *from, const grund_t *to, long *
 
 	// universal check for elevated things ...
 	if(bautyp&elevated_flag) {
-		if(to->gib_weg(air_wt)  ||  to->ist_wasser()  ||  !check_for_leitung(zv,to)  ||  !to->ist_karten_boden()  ||  to->gib_typ()==grund_t::brueckenboden  ||  to->gib_typ()==grund_t::tunnelboden) {
+		if(to->hat_weg(air_wt)  ||  to->ist_wasser()  ||  !check_for_leitung(zv,to)  ||  !to->ist_karten_boden()  ||  to->gib_typ()==grund_t::brueckenboden  ||  to->gib_typ()==grund_t::tunnelboden) {
 			// no suitable ground below!
 			return false;
 		}
@@ -576,9 +576,8 @@ DBG_MESSAGE("wegbauer_t::is_allowed_step()","wrong ground already there!");
 		{
 			const weg_t *str=to->gib_weg(road_wt);
 			const weg_t *sch=to->gib_weg(track_wt);
-			ok =	(str  ||  !fundament)  &&  (sch==NULL  ||  check_crossing(zv,to,track_wt)  ||  sch->gib_besch()->gib_styp()==7) &&  !to->ist_wasser()  &&
- 					!to->gib_weg(air_wt)  &&  !to->gib_weg(water_wt)  &&    !to->gib_weg(monorail_wt)  &&
- 					(str  ||  check_owner(to->gib_besitzer(),sp)) &&
+			ok =	(str  ||  !fundament)  &&  (sch==NULL  ||  check_crossing(zv,to,track_wt)  ||  sch->gib_besch()->gib_styp()==7) &&
+					!to->ist_wasser()  &&  (!to->hat_wege()  ||  str)  &&  (str==NULL  ||  check_owner(to->gib_besitzer(),sp))  &&
 					check_for_leitung(zv,to);
 			if(ok) {
 				const weg_t *from_str=from->gib_weg(road_wt);
@@ -589,7 +588,7 @@ DBG_MESSAGE("wegbauer_t::is_allowed_step()","wrong ground already there!");
 				// calculate costs
 				*costs = str ? 0 : 5;
 				*costs += from_str ? 0 : 5;
-				if(to->gib_weg(track_wt)) {
+				if(to->hat_weg(track_wt)) {
 					*costs += 4;	// avoid crossings
 				}
 				if(to->gib_grund_hang()!=0) {
@@ -606,8 +605,7 @@ DBG_MESSAGE("wegbauer_t::is_allowed_step()","wrong ground already there!");
 			if(bautyp&bot_flag  &&  (gb  ||  sch  ||  to->gib_halt().is_bound())) {
 				return false;
 			}
-			ok =	(ok&!fundament || sch  || check_crossing(zv,to,road_wt)) &&
-					!to->gib_weg(air_wt)  &&  !to->gib_weg(water_wt)  &&    !to->gib_weg(monorail_wt)  &&
+			ok =	(ok&!fundament  ||  check_crossing(zv,to,road_wt))  &&  (!to->hat_wege()  ||  sch)  &&
 					check_owner(to->gib_besitzer(),sp) &&
 					check_for_leitung(zv,to);
 			if(ok) {
@@ -628,7 +626,7 @@ DBG_MESSAGE("wegbauer_t::is_allowed_step()","wrong ground already there!");
 				}
 				// calculate costs
 				*costs = sch ? 3 : 4;	// only prefer existing rails a little
-				if(to->gib_weg(road_wt)) {
+				if(to->hat_weg(road_wt)) {
 					*costs += 4;	// avoid crossings
 				}
 				if(to->gib_grund_hang()!=0) {
@@ -649,7 +647,7 @@ DBG_MESSAGE("wegbauer_t::is_allowed_step()","wrong ground already there!");
 			if((bautyp&elevated_flag)==0) {
 				// classical monorail
 				ok =	!to->ist_wasser()  &&  !fundament  &&
-					(to->hat_wege()==0  ||  sch)  &&  (from->hat_wege()==0  ||  from->gib_weg(monorail_wt))
+					(to->hat_wege()==0  ||  sch)  &&  (from->hat_wege()==0  ||  from->hat_weg(monorail_wt))
 					&&  check_owner(to->gib_besitzer(),sp) && check_for_leitung(zv,to)  && !to->gib_depot();
 				// check for end/start of bridge
 				if(to->gib_weg_hang()!=to->gib_grund_hang()  &&  (sch==NULL  ||  ribi_t::ist_kreuzung(ribi_typ(to_pos,from_pos)|sch->gib_ribi_unmasked()))) {
@@ -683,7 +681,7 @@ DBG_MESSAGE("wegbauer_t::is_allowed_step()","wrong ground already there!");
 
 		case schiene_tram: // Dario: Tramway
 		{
-			ok =	(ok || to->gib_weg(track_wt)  || to->gib_weg(road_wt)) &&
+			ok =	(ok || to->hat_weg(track_wt)  || to->hat_weg(road_wt)) &&
 					check_owner(to->gib_besitzer(),sp) &&
 					check_for_leitung(zv,to)  &&
 					!to->gib_depot();
@@ -691,9 +689,9 @@ DBG_MESSAGE("wegbauer_t::is_allowed_step()","wrong ground already there!");
 
 			// calculate costs
 			if(ok) {
-				*costs = to->gib_weg(track_wt) ? 2 : 4;	// only prefer existing rails a little
+				*costs = to->hat_weg(track_wt) ? 2 : 4;	// only prefer existing rails a little
 				// perfer own track
-				if(to->gib_weg(road_wt)) {
+				if(to->hat_weg(road_wt)) {
 					*costs += 2;
 				}
 				if(to->gib_grund_hang()!=0) {
@@ -727,12 +725,12 @@ DBG_MESSAGE("wegbauer_t::is_allowed_step()","wrong ground already there!");
 		break;
 
 		case wasser:
-			ok = (ok  ||  to->ist_wasser()  ||  to->gib_weg(water_wt))  &&
+			ok = (ok  ||  to->ist_wasser()  ||  to->hat_weg(water_wt))  &&
 					check_owner(to->gib_besitzer(),sp) &&
 					check_for_leitung(zv,to);
 			// calculate costs
 			if(ok) {
-				*costs = to->ist_wasser()  ||  to->gib_weg(water_wt) ? 2 : 10;	// prefer water very much ...
+				*costs = to->ist_wasser()  ||  to->hat_weg(water_wt) ? 2 : 10;	// prefer water very much ...
 				if(to->gib_grund_hang()!=0) {
 					*costs += umgebung_t::way_count_slope*2;
 				}
@@ -740,7 +738,7 @@ DBG_MESSAGE("wegbauer_t::is_allowed_step()","wrong ground already there!");
 			break;
 
 	case luft: // hsiegeln: runway
-		ok = !to->ist_wasser()  &&  (to->gib_weg(air_wt)  || !to->hat_wege())  &&
+		ok = !to->ist_wasser()  &&  (to->hat_weg(air_wt)  || !to->hat_wege())  &&
 				  to->suche_obj(ding_t::leitung)==NULL   &&  !to->gib_depot()  &&  !fundament;
 			// calculate costs
 		*costs = 4;
@@ -831,7 +829,7 @@ int wegbauer_t::check_for_bridge( const grund_t *parent_from, const grund_t *fro
 				return next_gr.get_count()-start_count;
 			}
 			// check for runways ...
-			if(gr->gib_weg(air_wt)) {
+			if(gr->hat_weg(air_wt)) {
 				return next_gr.get_count()-start_count;
 			}
 			// check, if we need really a bridge
@@ -914,7 +912,7 @@ int wegbauer_t::check_for_bridge( const grund_t *parent_from, const grund_t *fro
 				return next_gr.get_count()-start_count;
 			}
 			// check for runways ...
-			if(gr->gib_weg(air_wt)) {
+			if(gr->hat_weg(air_wt)) {
 				return next_gr.get_count()-start_count;
 			}
 			// non-manable slope?
@@ -1485,7 +1483,7 @@ wegbauer_t::intern_calc_route_runways(koord3d start3d, const koord3d ziel3d)
 		if(gr->gib_grund_hang()!=0) {
 			return false;
 		}
-		if(gr->hat_wege()  &&  gr->gib_weg(air_wt)==0) {
+		if(gr->hat_wege()  &&  !gr->hat_weg(air_wt)) {
 			// cannot cross another way
 			return false;
 		}

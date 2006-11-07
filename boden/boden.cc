@@ -91,7 +91,8 @@ boden_t::calc_bild()
 			wege[1]->setze_bild(IMG_LEER);
 		}
 	}
-	else if(get_flag(grund_t::is_cover_tile)) {
+#ifdef COVER_TILES
+	else 	if(get_flag(grund_t::is_cover_tile)) {
 		grund_t::calc_back_bild(gib_hoehe()/16,0);
 
 		// this covers some other ground. MUST be flat!
@@ -109,6 +110,7 @@ DBG_MESSAGE("boden_t::calc_bild()","at pos %i,%i,%i", gib_pos().x,gib_pos().y,gi
 dbg->fatal("boden_t::calc_bild()","covered tile not ground?!?");
 		}
 	}
+#endif
 	else {
 		uint8 slope_this =  gib_grund_hang();
 		weg_t *weg = gib_weg(road_wt);
@@ -128,11 +130,13 @@ dbg->fatal("boden_t::calc_bild()","covered tile not ground?!?");
 #endif
 		grund_t::calc_back_bild(gib_hoehe()/16,slope_this);
 
+#ifdef COVER_TILES
 		if(welt->lookup(gib_pos().gib_2d())->gib_kartenboden()!=this) {
 DBG_MESSAGE("boden_t::calc_bild()","covered at pos %i,%i,%i", gib_pos().x,gib_pos().y,gib_pos().z );
 			clear_flag(grund_t::draw_as_ding);
-			clear_flag(grund_t::is_cover_tile);
+			set_flag(grund_t::is_cover_tile);
 		}
+#endif
 	}
 }
 

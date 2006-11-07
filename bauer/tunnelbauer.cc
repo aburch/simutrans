@@ -219,7 +219,7 @@ tunnelbauer_t::finde_ende(karte_t *welt, koord3d pos, koord zv, waytype_t wegtyp
       if(!ribi && gr->gib_grund_hang() == hang_typ(-zv)) {
     // Ende am Hang - Endschiene fehlt oder hat keine ribis
     // Wir prüfen noch, ob uns dort ein anderer Weg stört
-    if(!gr->hat_wege() || gr->gib_weg(wegtyp)) {
+    if(!gr->hat_wege() || gr->hat_weg(wegtyp)) {
         return pos;
     }
       }

@@ -301,26 +301,24 @@ reliefkarte_t::calc_map_pixel(const koord k)
 				max_cargo = 1;
 				calc_map();
 			}
-			else {
+			else if(gr->hat_wege()) {
 				// now calc again ...
 				sint32 cargo=0;
-				if (gr->gib_weg(road_wt)) {
-					cargo += gr->gib_weg(road_wt)->get_statistics(WAY_STAT_GOODS);
-				}
-				if (gr->gib_weg(track_wt)) {
-					cargo += gr->gib_weg(track_wt)->get_statistics(WAY_STAT_GOODS);
-				}
-				if (gr->gib_weg(water_wt)) {
-					cargo += gr->gib_weg(water_wt)->get_statistics(WAY_STAT_GOODS);
-				}
-				if (gr->gib_weg(air_wt)) {
-					cargo += gr->gib_weg(air_wt)->get_statistics(WAY_STAT_GOODS);
-				}
-				if(cargo>0) {
-					if(cargo>max_cargo) {
-						max_cargo = cargo;
+
+				// maximum two ways for one ground
+				const weg_t *w=gr->gib_weg_nr(0);
+				if(w) {
+					cargo = w->get_statistics(WAY_STAT_GOODS);
+					const weg_t *w=gr->gib_weg_nr(1);
+					if(w) {
+						cargo += w->get_statistics(WAY_STAT_GOODS);
 					}
-					setze_relief_farbe(k, calc_severity_color(cargo, max_cargo));
+					if(cargo>0) {
+						if(cargo>max_cargo) {
+							max_cargo = cargo;
+						}
+						setze_relief_farbe(k, calc_severity_color(cargo, max_cargo));
+					}
 				}
 			}
 			break;
@@ -362,25 +360,24 @@ reliefkarte_t::calc_map_pixel(const koord k)
 				max_passed = 1;
 				calc_map();
 			}
-			else {
+			else if(gr->hat_wege()) {
+				// now calc again ...
 				sint32 passed=0;
-				if (gr->gib_weg(road_wt)) {
-					passed += gr->gib_weg(road_wt)->get_statistics(WAY_STAT_CONVOIS);
-				}
-				if (gr->gib_weg(track_wt)) {
-					passed += gr->gib_weg(track_wt)->get_statistics(WAY_STAT_CONVOIS);
-				}
-				if (gr->gib_weg(water_wt)) {
-					passed += gr->gib_weg(water_wt)->get_statistics(WAY_STAT_CONVOIS);
-				}
-				if (gr->gib_weg(air_wt)) {
-					passed += gr->gib_weg(air_wt)->get_statistics(WAY_STAT_CONVOIS);
-				}
-				if (passed>0) {
-					if(passed>max_passed) {
-						max_passed = passed;
+
+				// maximum two ways for one ground
+				const weg_t *w=gr->gib_weg_nr(0);
+				if(w) {
+					passed = w->get_statistics(WAY_STAT_CONVOIS);
+					const weg_t *w=gr->gib_weg_nr(1);
+					if(w) {
+						passed += w->get_statistics(WAY_STAT_CONVOIS);
 					}
-					setze_relief_farbe_area(k, 1, calc_severity_color(passed, max_passed));
+					if (passed>0) {
+						if(passed>max_passed) {
+							max_passed = passed;
+						}
+						setze_relief_farbe_area(k, 1, calc_severity_color(passed, max_passed));
+					}
 				}
 			}
 			break;
@@ -440,7 +437,7 @@ reliefkarte_t::calc_map_pixel(const koord k)
 		// show tracks: white: no electricity, red: electricity, yellow: signal
 		case MAP_TRACKS:
 			// show track
-			if (gr->gib_weg(track_wt)) {
+			if (gr->hat_weg(track_wt)) {
 				const schiene_t * sch = dynamic_cast<const schiene_t *> (gr->gib_weg(track_wt));
 				if(sch->is_electrified()) {
 					setze_relief_farbe(k, COL_RED);
