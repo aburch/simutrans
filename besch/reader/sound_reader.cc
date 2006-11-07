@@ -26,9 +26,8 @@ obj_besch_t * sound_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 	char besch_buf [node.size];
 #endif
 
-	char *info_buf = new char[sizeof(obj_besch_t) + node.children * sizeof(obj_besch_t *)];
 	sound_besch_t *besch = new sound_besch_t();
-	besch->node_info = reinterpret_cast<obj_besch_info_t *>(info_buf);
+	besch->node_info = new obj_besch_t*[node.children];
 
 		// Hajo: Read data
 	fread(besch_buf, node.size, 1, fp);

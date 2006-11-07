@@ -20,16 +20,13 @@ obj_besch_t * intlist_reader_t::read_node(FILE *fp, obj_node_info_t &node)
   char besch_buf [node.size];
 #endif
 
-	// if there are any children, we need space for them ...
-	char *info_buf = new char[sizeof(obj_besch_t) + node.children * sizeof(obj_besch_t *)];
-
 	// Hajo: Read data
 	fread(besch_buf, node.size, 1, fp);
 	char * p = besch_buf;
 
 	uint16 anzahl = decode_uint16(p);
 	intliste_besch_t *besch = (intliste_besch_t *)malloc( (anzahl+1)*sizeof(anzahl)+sizeof(intliste_besch_t *) );
-	besch->node_info = reinterpret_cast<obj_besch_info_t *>(info_buf);
+	besch->node_info = new obj_besch_t*[node.children];
 
 	// convert data
 	uint16 *daten = &(besch->anzahl);

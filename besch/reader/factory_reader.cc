@@ -24,9 +24,8 @@ factory_smoke_reader_t::read_node(FILE *fp, obj_node_info_t &node)
   char besch_buf [node.size];
 #endif
 
-	char *info_buf = new char[sizeof(obj_besch_t) + node.children * sizeof(obj_besch_t *)];
 	rauch_besch_t *besch = new rauch_besch_t();
-	besch->node_info = reinterpret_cast<obj_besch_info_t *>(info_buf);
+	besch->node_info = new obj_besch_t*[node.children];
 
 	// Hajo: Read data
 	fread(besch_buf, node.size, 1, fp);
@@ -71,11 +70,8 @@ factory_supplier_reader_t::read_node(FILE *fp, obj_node_info_t &node)
   char besch_buf [node.size];
 #endif
 
-  char *info_buf = new char[sizeof(obj_besch_t) + node.children * sizeof(obj_besch_t *)];
-
   fabrik_lieferant_besch_t *besch = new fabrik_lieferant_besch_t();
-
-  besch->node_info = reinterpret_cast<obj_besch_info_t *>(info_buf);
+	besch->node_info = new obj_besch_t*[node.children];
 
   // Hajo: Read data
   fread(besch_buf, node.size, 1, fp);
@@ -117,12 +113,8 @@ factory_product_reader_t::read_node(FILE *fp, obj_node_info_t &node)
   char besch_buf [node.size];
 #endif
 
-
-  char *info_buf = new char[sizeof(obj_besch_t) + node.children * sizeof(obj_besch_t *)];
-
   fabrik_produkt_besch_t *besch = new fabrik_produkt_besch_t();
-
-  besch->node_info = reinterpret_cast<obj_besch_info_t *>(info_buf);
+	besch->node_info = new obj_besch_t*[node.children];
 
   // Hajo: Read data
   fread(besch_buf, node.size, 1, fp);
@@ -169,11 +161,8 @@ factory_reader_t::read_node(FILE *fp, obj_node_info_t &node)
   char besch_buf [node.size];
 #endif
 
-  char *info_buf = new char[sizeof(obj_besch_t) + node.children * sizeof(obj_besch_t *)];
-
   fabrik_besch_t *besch = new fabrik_besch_t();
-
-  besch->node_info = reinterpret_cast<obj_besch_info_t *>(info_buf);
+	besch->node_info = new obj_besch_t*[node.children];
 
   // Hajo: Read data
   fread(besch_buf, node.size, 1, fp);
