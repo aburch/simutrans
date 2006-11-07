@@ -33,11 +33,6 @@ zeiger_t::zeiger_t(karte_t *welt, koord3d pos, spieler_t *sp) :
 }
 
 
-zeiger_t::~zeiger_t()
-{
-}
-
-
 void
 zeiger_t::setze_pos(koord3d k)
 {
@@ -63,17 +58,5 @@ zeiger_t::setze_richtung(ribi_t::ribi r)
 {
 	if(richtung != r) {
 		richtung = r;
-
-		if(gib_yoff()==welt->Z_LINES) {
-			if(richtung == ribi_t::nord) {
-				setze_xoff( 16 );
-			}
-			else {
-				setze_xoff( -16 );
-			}
-		}
-		else {
-			setze_xoff( 0 );
-		}
 	}
 };

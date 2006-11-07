@@ -66,7 +66,7 @@ karte_ansicht_t::display(bool force_dirty)
 
 		const sint16 ypos = y*(IMG_SIZE/4) + const_y_off;
 
-		for(sint16 x=-dpy_width + (y & 1); x<=dpy_width+2; x+=2) {
+		for(sint16 x=-dpy_width-(y & 1); x<=dpy_width+2; x+=2) {
 
 			const sint16 i = ((y+x) >> 1) + i_off;
 			const sint16 j = ((y-x) >> 1) + j_off;
@@ -93,7 +93,7 @@ karte_ansicht_t::display(bool force_dirty)
 
 		const int ypos = y*(IMG_SIZE/4) + const_y_off;
 
-		for(int x=-dpy_width + (y & 1); x<=dpy_width+2; x+=2) {
+		for(int x=-dpy_width-(y & 1); x<=dpy_width+2; x+=2) {
 
 			const int i = ((y+x) >> 1) + i_off;
 			const int j = ((y-x) >> 1) + j_off;

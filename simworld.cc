@@ -134,9 +134,8 @@ uint32 karte_t::ticks_bits_per_tag = 20;
 uint32 karte_t::ticks_per_tag = (1 << 20);
 
 // offsets for mouse pointer
-const int karte_t::Z_PLAN      = 8;
-const int karte_t::Z_GRID      = 0;
-const int karte_t::Z_LINES     = 4;
+const int karte_t::Z_PLAN      = -8;
+const int karte_t::Z_GRID      = -12;
 
 
 
@@ -2027,42 +2026,35 @@ void karte_t::set_follow_convoi(convoihandle_t cnv)
 void
 karte_t::blick_aendern(event_t *ev)
 {
-  if(!scroll_lock) {
-    const int raster = get_tile_raster_width();
+	if(!scroll_lock) {
+		const int raster = get_tile_raster_width();
 
-		x_off += scroll_off_x;
-		y_off += scroll_off_y;
+		x_off -= (ev->mx - ev->cx) * einstellungen->gib_scroll_multi();
+		ij_off.x -= x_off/raster;
+		ij_off.y += x_off/raster;
+		x_off %= raster;
 
-		scroll_off_x += (ev->mx - ev->cx) * einstellungen->gib_scroll_multi();
-		scroll_off_y += (ev->my - ev->cy) * einstellungen->gib_scroll_multi();
-
-		ij_off.x += scroll_off_x/raster;
-		ij_off.y -= scroll_off_x/raster;
-		scroll_off_x %= raster;
-
-		if(scroll_off_y>raster/4) {
-			ij_off.x += 1;
-			ij_off.y += 1;
-			scroll_off_y -= raster/2;
+		int lines = 0;
+		y_off -= (ev->my - ev->cy) * einstellungen->gib_scroll_multi();
+		if(y_off>0) {
+			lines = (y_off + (raster/4))/(raster/2);
 		}
-		else if(scroll_off_y<-raster/4) {
-			ij_off.x -= 1;
-			ij_off.y -= 1;
-			scroll_off_y += raster/2;
+		else {
+			lines = (y_off - (raster/4))/(raster/2);
 		}
+		ij_off.x -= lines;
+		ij_off.y -= lines;
+		y_off -= (raster/2)*lines;
 
-		x_off -= scroll_off_x;
-		y_off -= scroll_off_y;
-
-    if ((ev->mx - ev->cx) != 0 || (ev->my - ev->cy) != 0) {
-      intr_refresh_display( true );
+		if ((ev->mx - ev->cx) != 0 || (ev->my - ev->cy) != 0) {
+			intr_refresh_display( true );
 #ifdef __BEOS__
-      change_drag_start(ev->mx - ev->cx, ev->my - ev->cy);
+			change_drag_start(ev->mx - ev->cx, ev->my - ev->cy);
 #else
-      display_move_pointer(ev->cx, ev->cy);
+			display_move_pointer(ev->cx, ev->cy);
 #endif
-    }
-  }
+		}
+	}
 }
 
 
@@ -2106,16 +2098,16 @@ uint8	karte_t::calc_natural_slope( const koord pos ) const
 bool
 karte_t::ist_wasser(koord pos, koord dim) const
 {
-    koord k;
+	koord k;
 
-    for(k.x = pos.x; k.x < pos.x + dim.x; k.x++) {
-	for(k.y = pos.y; k.y < pos.y + dim.y; k.y++) {
-	    if(lookup_hgt(k) > gib_grundwasser()) {
-		return false;
-	    }
+	for(k.x = pos.x; k.x < pos.x + dim.x; k.x++) {
+		for(k.y = pos.y; k.y < pos.y + dim.y; k.y++) {
+			if(lookup_hgt(k) > gib_grundwasser()) {
+				return false;
+			}
+		}
 	}
-    }
-    return true;
+	return true;
 }
 
 bool
@@ -2860,10 +2852,6 @@ void karte_t::bewege_zeiger(const event_t *ev)
 		if(zeiger->gib_yoff() == Z_PLAN) {
 			screen_y -= rw4;
 		}
-		else if(zeiger->gib_yoff() == Z_LINES) {
-			screen_y -= rw4/2;
-		}
-
 
 		// berechnung der basis feldkoordinaten in i und j
 
@@ -3531,10 +3519,8 @@ karte_t::interactive_update()
 
 			if(IS_RIGHTCLICK(&ev)) {
 				display_show_pointer(false);
-				scroll_off_x = scroll_off_y = 0;
 			} else if(IS_RIGHTRELEASE(&ev)) {
 				display_show_pointer(true);
-				scroll_off_x = scroll_off_y = 0;
 			} else if(ev.ev_class==EVENT_DRAG  &&  ev.ev_code==MOUSE_RIGHTBUTTON) {
 				// unset following
 				if(follow_convoi.is_bound()) {

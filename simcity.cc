@@ -2230,7 +2230,7 @@ stadt_t::baue_strasse(const koord k, spieler_t *sp, bool forced)
 				// not the same slope => tunnel or bridge
 				allowed_dir &= ~ribi_t::nsow[r];
 			}
-			else if(bd2->hat_weg(road_wt)!=NULL) {
+			else if(bd2->hat_weg(road_wt)) {
 				// a road, we must just take care for stops and depots
 				const gebaeude_t *gb = dynamic_cast<const gebaeude_t *>(bd2->suche_obj(ding_t::gebaeude));
 				if(gb  &&  (gb->gib_tile()->gib_besch()->gib_all_layouts()!=2  ||  (gb->gib_tile()->gib_layout()&1)!=(r>>1))) {

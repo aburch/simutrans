@@ -783,7 +783,7 @@ wkz_intern_koord_to_weg_grund(spieler_t *sp, karte_t *welt, koord pos, waytype_t
 			continue;
 		}
 		// has some rail or monorail?
-		if(gr->hat_weg(wt)) {
+		if(!gr->hat_weg(wt)) {
 			gr = NULL;
 			continue;
 		}

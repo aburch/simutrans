@@ -24,8 +24,6 @@ public:
     zeiger_t(karte_t *welt, loadsave_t *file);
     zeiger_t(karte_t *welt, koord3d pos, spieler_t *sp);
 
-    ~zeiger_t();
-
     /**
      * we want to be able to highlight the current tile .. thus we overlay this routine
      * @author Hj. Malthaner

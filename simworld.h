@@ -136,8 +136,6 @@ private:
 	 */
 	int x_off, y_off;
 
-	int scroll_off_x, scroll_off_y;
-
 	/* current position */
 	koord ij_off;
 
@@ -502,7 +500,6 @@ public:
 	 */
 	static const int Z_PLAN;
 	static const int Z_GRID;
-	static const int Z_LINES;    // das ist eher ein flag als ein offset
 
 	/**
 	 * Bindet einen Funktionsaufruf an einen Mausklick. Spielt zusaätzlich
