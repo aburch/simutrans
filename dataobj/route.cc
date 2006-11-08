@@ -208,7 +208,7 @@ route_t::find_route(karte_t *welt,
 	}
 
 	// some thing for the search
-	const waytype_t wegtyp = fahr->gib_wegtyp();
+	const waytype_t wegtyp = fahr->gib_waytype();
 	const grund_t *gr;
 	grund_t *to;
 
@@ -385,8 +385,8 @@ route_t::intern_calc_route(karte_t *welt, const koord3d ziel, const koord3d star
 	}
 
 	// some thing for the search
-	const waytype_t wegtyp = fahr->gib_wegtyp();
-	const bool is_airplane = fahr->gib_wegtyp()==air_wt;
+	const waytype_t wegtyp = fahr->gib_waytype();
+	const bool is_airplane = fahr->gib_waytype()==air_wt;
 	grund_t *to;
 
 	bool ziel_erreicht=false;
@@ -584,7 +584,7 @@ route_t::calc_route(karte_t *welt,
 	// profiling for routes ...
 	long ms=get_current_time_millis();
 	bool ok = intern_calc_route(welt, start, ziel, fahr, max_khm,max_cost);
-	if(fahr->gib_wegtyp()==water_wt) {DBG_DEBUG("route_t::calc_route()","route from %d,%d to %d,%d with %i steps in %u ms found.",start.x, start.y, ziel.x, ziel.y, route.get_count()-2, get_current_time_millis()-ms );}
+	if(fahr->gib_waytype()==water_wt) {DBG_DEBUG("route_t::calc_route()","route from %d,%d to %d,%d with %i steps in %u ms found.",start.x, start.y, ziel.x, ziel.y, route.get_count()-2, get_current_time_millis()-ms );}
 #else
 	bool ok = intern_calc_route(welt, start, ziel, fahr, max_khm,max_cost);
 #endif
@@ -607,7 +607,7 @@ DBG_MESSAGE("route_t::calc_route()","No route from %d,%d to %d,%d found",start.x
 		if(halt.is_bound()) {
 
 			// does only make sence for trains
-			if(fahr->gib_wegtyp()==track_wt  ||  fahr->gib_wegtyp()==monorail_wt  ||  fahr->gib_wegtyp()==tram_wt) {
+			if(fahr->gib_waytype()==track_wt  ||  fahr->gib_waytype()==monorail_wt  ||  fahr->gib_waytype()==tram_wt) {
 
 				int max_n = route.get_count()-1;
 
@@ -616,7 +616,7 @@ DBG_MESSAGE("route_t::calc_route()","No route from %d,%d to %d,%d found",start.x
 
 				const int ribi = ribi_typ(zv);//fahr->gib_ribi(welt->lookup(start));
 				grund_t *gr=welt->lookup(start);
-				const waytype_t wegtyp=fahr->gib_wegtyp();
+				const waytype_t wegtyp=fahr->gib_waytype();
 
 				while(gr->get_neighbour(gr,wegtyp,zv)  &&  gr->gib_halt() == halt  &&   fahr->ist_befahrbar(gr)   &&  (fahr->gib_ribi(gr)&&ribi)!=0) {
 					// stop at end of track! (prissi)

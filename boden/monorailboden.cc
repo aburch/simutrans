@@ -49,10 +49,10 @@ void monorailboden_t::calc_bild()
 	clear_back_bild();
 	if(gib_weg_nr(0)) {
 		if(grund_t::underground_mode) {
-			gib_weg_nr(0)->setze_bild(IMG_LEER);
+			gib_weg_nr(0)->setze_bild(0, IMG_LEER);
 		}
 		else {
-			gib_weg_nr(0)->calc_bild(gib_pos());
+			gib_weg_nr(0)->calc_bild();
 		}
 	}
 }

@@ -1739,7 +1739,7 @@ wegbauer_t::baue_tunnelboden()
 		if(gr==NULL) {
 			// make new tunnelboden
 			tunnelboden_t *tunnel = new tunnelboden_t(welt, route->at(i), 0);
-			weg_t *weg = weg_t::alloc(tunnel_besch->gib_wegtyp());
+			weg_t *weg = weg_t::alloc(tunnel_besch->gib_waytype());
 			welt->access(route->at(i).gib_2d())->boden_hinzufuegen(tunnel);
 			tunnel->neuen_weg_bauen(weg, calc_ribi(i), sp);
 			tunnel->obj_add(new tunnel_t(welt, route->at(i), sp, tunnel_besch));
@@ -1750,7 +1750,7 @@ wegbauer_t::baue_tunnelboden()
 		}
 		else if(gr->gib_typ()==grund_t::tunnelboden) {
 			// check for extension only ...
-			gr->weg_erweitern(tunnel_besch->gib_wegtyp(),calc_ribi(i));
+			gr->weg_erweitern(tunnel_besch->gib_waytype(),calc_ribi(i));
 		}
 	}
 	if(cost && sp) {
@@ -1869,7 +1869,7 @@ wegbauer_t::baue_schiene()
 			bool extend = gr->weg_erweitern((waytype_t)besch->gib_wtyp(), ribi);
 
 			// bridges/tunnels have their own track type and must not upgrade
-			if((gr->gib_typ()==grund_t::brueckenboden  ||  gr->gib_typ()==grund_t::tunnelboden)  &&  gr->gib_weg_nr(0)->gib_typ()==besch->gib_wtyp()) {
+			if((gr->gib_typ()==grund_t::brueckenboden  ||  gr->gib_typ()==grund_t::tunnelboden)  &&  gr->gib_weg_nr(0)->gib_waytype()==besch->gib_wtyp()) {
 				continue;
 			}
 

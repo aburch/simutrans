@@ -12,6 +12,7 @@
 
 #include "../../simimg.h"
 #include "../../simtypes.h"
+#include "../../simdings.h"
 #include "../../besch/weg_besch.h"
 #include "../../dataobj/koord3d.h"
 
@@ -52,7 +53,7 @@ template <class T> class slist_tpl;
  *
  * @author Hj. Malthaner
  */
-class weg_t
+class weg_t : public ding_t
 {
 public:
 	/**
@@ -79,23 +80,23 @@ private:
 	const weg_besch_t * besch;
 
 	/**
-	* Position on map
-	* @author Hj. Malthaner
-	*/
-	koord3d pos;
-
-	/**
 	* Richtungsbits für den Weg. Norden ist oben rechts auf dem Monitor.
 	* 1=Nord, 2=Ost, 4=Sued, 8=West
 	* @author Hj. Malthaner
 	*/
-	ribi_t::ribi ribi;
+	uint8 ribi:4;
 
 	/**
 	* Maske für Richtungsbits
 	* @author Hj. Malthaner
 	*/
-	ribi_t::ribi ribi_maske;
+	uint8 ribi_maske:4;
+
+	/**
+	* flags like walkway, electrification, road sings
+	* @author Hj. Malthaner
+	*/
+	uint8 flags;
 
 	/**
 	* max speed; could not be taken for besch, since other object may modify the speed
@@ -104,21 +105,10 @@ private:
 	uint16 max_speed;
 
 	/**
-	* flags like walkway, electrification, road sings
-	* @author Hj. Malthaner
-	*/
-	uint8 flags;
-
-	/* we just save the offset unto the look up table; save memory
-	* @author prissi
-	*/
-	image_id bild_nr;
-
-	/**
 	* Initializes all member variables
 	* @author Hj. Malthaner
 	*/
-	void init(karte_t *);
+	void init();
 
 	/**
 	* initializes statistic array
@@ -127,29 +117,14 @@ private:
 	void init_statistics();
 
 
-protected:
-	/**
-	* Pointer to the world of this way. Static to conserve space.
-	* Change to instance variable once more than one world is available.
-	* @author Hj. Malthaner
-	*/
-	static karte_t *welt;
+public:
+	weg_t(karte_t *welt, loadsave_t *file) : ding_t(welt) { init(); }
+	weg_t(karte_t *welt) : ding_t(welt) { init(); }
+
+	virtual ~weg_t();
 
 	/* actual image recalculation */
 	void calc_bild();
-
-public:
-	/**
-	* Get position on map
-	* @author Hj. Malthaner
-	*/
-	koord3d gib_pos() const {return pos;}
-
-	/**
-	* Set position on map
-	* @author Hj. Malthaner
-	*/
-	void setze_pos(koord3d p) {pos = p;}
 
 	/**
 	* Setzt die erlaubte Höchstgeschwindigkeit
@@ -171,17 +146,10 @@ public:
 	void setze_besch(const weg_besch_t *b);
 	const weg_besch_t * gib_besch() const {return besch;}
 
-	weg_t(karte_t *welt, loadsave_t *file);
-	weg_t(karte_t *welt);
-
-	virtual ~weg_t();
-
 	// returns a way with the matching type
 	static weg_t* alloc(waytype_t wt);
 
 	virtual void rdwr(loadsave_t *file);
-
-	virtual image_id gib_bild() const {return bild_nr;}
 
 	/**
 	* Info-text für diesen Weg
@@ -192,29 +160,20 @@ public:
 	/**
 	* Wegtyp zurückliefern
 	*/
-	virtual waytype_t gib_typ() const = 0;
+	virtual waytype_t gib_waytype() const = 0;
 
 	/**
-	* der typ_name (Bezeichnung) des Wegs
+	* 'Jedes Ding braucht einen Typ.'
+	* @return Gibt den typ des Objekts zurück.
+	* @author Hj. Malthaner
 	*/
-	virtual const char *gib_typ_name() const {return "Weg"; }
+	ding_t::typ gib_typ() const { return ding_t::way; }
 
 	/**
 	* Die Bezeichnung des Wegs
 	* @author Hj. Malthaner
 	*/
-	virtual const char *gib_name() const;
-
-	/**
-	* Liefert das benötgte Bild für den Weg.
-	* Funktioniert nicht bei Wegtypkreuzungen!
-	*/
-	virtual void calc_bild(koord3d) { bild_nr = IMG_LEER; }
-
-	/**
-	* This sets the image i.e. for corssing ...
-	*/
-	virtual void setze_bild(image_id bild) { bild_nr = bild; }
+	const char *gib_name() const { return besch->gib_name(); }
 
 	/**
 	* Setzt neue Richtungsbits für einen Weg.
@@ -224,7 +183,7 @@ public:
 	* zur Reparatur muß folgen).
 	* @param ribi Richtungsbits
 	*/
-	void ribi_add(ribi_t::ribi ribi) { this->ribi |= ribi;}
+	void ribi_add(ribi_t::ribi ribi) { this->ribi |= (uint8)ribi;}
 
 	/**
 	* Entfernt Richtungsbits von einem Weg.
@@ -234,7 +193,7 @@ public:
 	* zur Reparatur muß folgen).
 	* @param ribi Richtungsbits
 	*/
-	void ribi_rem(ribi_t::ribi ribi) { this->ribi &= ~ribi;}
+	void ribi_rem(ribi_t::ribi ribi) { this->ribi &= (uint8)~ribi;}
 
 	/**
 	* Setzt Richtungsbits für den Weg.
@@ -244,25 +203,25 @@ public:
 	* zur Reparatur muß folgen).
 	* @param ribi Richtungsbits
 	*/
-	void setze_ribi(ribi_t::ribi ribi) { this->ribi = ribi;}
+	void setze_ribi(ribi_t::ribi ribi) { this->ribi = (uint8)ribi;}
 
 	/**
 	* Ermittelt die unmaskierten Richtungsbits für den Weg.
 	*/
-	ribi_t::ribi gib_ribi_unmasked() const { return ribi; }
+	ribi_t::ribi gib_ribi_unmasked() const { return (ribi_t::ribi)ribi; }
 
 	/**
 	* Ermittelt die (maskierten) Richtungsbits für den Weg.
 	*/
-	ribi_t::ribi gib_ribi() const { return ribi & ~ribi_maske; }
+	ribi_t::ribi gib_ribi() const { return (ribi_t::ribi)(ribi & ~ribi_maske); }
 
 	/**
 	* für Signale ist es notwendig, bestimmte Richtungsbits auszumaskieren
 	* damit Fahrzeuge nicht "von hinten" über Ampeln fahren können.
 	* @param ribi Richtungsbits
 	*/
-	void setze_ribi_maske(ribi_t::ribi ribi) { ribi_maske = ribi; }
-	ribi_t::ribi gib_ribi_maske() const { return ribi_maske; }
+	void setze_ribi_maske(ribi_t::ribi ribi) { ribi_maske = (uint8)ribi; }
+	ribi_t::ribi gib_ribi_maske() const { return (ribi_t::ribi)ribi_maske; }
 
 	/**
 	* book statistics - is called very often and therefore inline

@@ -56,7 +56,7 @@ protected:
 	virtual bool ist_weg_frei() {return 1; }	// always free
 
 protected:
-	virtual waytype_t gib_wegtyp() const { return road_wt; }
+	virtual waytype_t gib_waytype() const { return road_wt; }
 
 	virtual bool hop_check() {return true;}
 	virtual void hop();

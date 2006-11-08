@@ -89,7 +89,7 @@ public:
 	static img_t gib_rampe(ribi_t::ribi ribi);
 	static img_t gib_pillar(ribi_t::ribi ribi);
 
-	waytype_t gib_wegtyp() const { return static_cast<waytype_t>(wegtyp); }
+	waytype_t gib_waytype() const { return static_cast<waytype_t>(wegtyp); }
 
 	sint32 gib_preis() const { return preis; }
 

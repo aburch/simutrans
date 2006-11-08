@@ -469,20 +469,20 @@ public:
 	* @author Hj. Malthaner
 	*/
 	weg_t *gib_weg(waytype_t typ) const {
-		if(wege[0]  &&  wege[0]->gib_typ() == typ) {
+		if(wege[0]  &&  wege[0]->gib_waytype() == typ) {
 			return wege[0];
 		}
-		if(wege[1]  &&  wege[1]->gib_typ() == typ) {
+		if(wege[1]  &&  wege[1]->gib_waytype() == typ) {
 			return wege[1];
 		}
 		return NULL;
 	}
 
 	bool hat_weg(waytype_t typ) const {
-		if(wege[0]  &&  wege[0]->gib_typ() == typ) {
+		if(wege[0]  &&  wege[0]->gib_waytype() == typ) {
 			return true;
 		}
-		if(wege[1]  &&  wege[1]->gib_typ() == typ) {
+		if(wege[1]  &&  wege[1]->gib_waytype() == typ) {
 			return true;
 		}
 		return false;

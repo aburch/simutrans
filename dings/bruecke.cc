@@ -68,35 +68,11 @@ bruecke_t::calc_bild()
 	if(gr) {
 		// if we are on the bridge, put the image into the ground, so we can have two ways ...
 		if(gr->gib_weg_nr(0)) {
-			gr->gib_weg_nr(0)->setze_bild(besch->gib_hintergrund(img));
+			gr->gib_weg_nr(0)->setze_bild(0,besch->gib_hintergrund(img));
 		}
 		setze_yoff( -gr->gib_weg_yoff() );
 		setze_bild(0,IMG_LEER);
 	}
-}
-
-
-/**
- * @return Einen Beschreibungsstring für das Objekt, der z.B. in einem
- * Beobachtungsfenster angezeigt wird.
- * @author Hj. Malthaner
- */
-void bruecke_t::info(cbuffer_t & buf) const
-{
-	ding_t::info(buf);
-
-	buf.append("\n");
-	buf.append(translator::translate("Max. speed:"));
-	buf.append(" ");
-	buf.append(besch->gib_topspeed());
-	buf.append("km/h\n");
-
-	buf.append("\npos: ");
-	buf.append(gib_pos().x);
-	buf.append(", ");
-	buf.append(gib_pos().y);
-	buf.append(", ");
-	buf.append(gib_pos().z);
 }
 
 
@@ -133,5 +109,22 @@ void bruecke_t::rdwr(loadsave_t *file)
 			}
 		}
 		guarded_free(const_cast<char *>(s));
+	}
+}
+
+
+
+// correct speed and maitainace
+void bruecke_t::laden_abschliessen()
+{
+	const grund_t *gr = welt->lookup(gib_pos());
+	spieler_t *sp=gib_besitzer();
+
+	if(sp) {
+		// inside tunnel => do nothing but change maitainance
+		weg_t *weg = gr->gib_weg(besch->gib_waytype());
+		weg->setze_max_speed(besch->gib_topspeed());
+		sp->add_maintenance(-weg->gib_besch()->gib_wartung());
+		sp->add_maintenance( besch->gib_wartung() );
 	}
 }

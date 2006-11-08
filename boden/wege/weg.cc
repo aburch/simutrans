@@ -46,14 +46,6 @@
 #include "../../tpl/slist_tpl.h"
 
 /**
- * Pointer to the world of this way. Static to conserve space.
- * Change to instance variable once more than one world is available.
- * @author Hj. Malthaner
- */
-karte_t * weg_t::welt = NULL;
-
-
-/**
  * Alle instantiierten Wege
  * @author Hj. Malthaner
  */
@@ -144,35 +136,16 @@ void weg_t::init_statistics()
  * Initializes all member variables
  * @author Hj. Malthaner
  */
-void weg_t::init(karte_t *welt)
+void weg_t::init()
 {
-	if(welt!=NULL) {
-		this->welt = welt;
-	}
 	ribi = ribi_maske = ribi_t::keine;
 	max_speed = 450;
-
-	pos = koord3d::invalid;
-
 	besch = 0;
-
 	init_statistics();
-
 	alle_wege.insert(this);
 	flags = 0;
 }
 
-
-weg_t::weg_t(karte_t *welt)
-{
-  init(welt);
-}
-
-
-weg_t::weg_t(karte_t *welt, loadsave_t * /* file */)
-{
-  init(welt);
-}
 
 
 weg_t::~weg_t()
@@ -181,22 +154,25 @@ weg_t::~weg_t()
 }
 
 
+
 void weg_t::rdwr(loadsave_t *file)
 {
-
 	if(file->is_saving()) {
 		// reading has been done by grund_t!
-		file->wr_obj_id( gib_typ() );
+		file->wr_obj_id( gib_waytype() );
 	}
+
 	uint8 dummy8 = ribi;
 	file->rdwr_byte(dummy8, "\n");
 	if(file->is_loading()) {
 		ribi = dummy8 & 15;	// before: high bits was maske
 		ribi_maske = 0;	// maske will be restored by signal/roadsing
 	}
+
 	uint16 dummy16=max_speed;
 	file->rdwr_short(dummy16, "\n");
 	max_speed=dummy16;
+
 	if(file->get_version()>=89000) {
 		dummy8 = flags;
 		file->rdwr_byte(dummy8,"f");
@@ -267,19 +243,6 @@ void weg_t::info(cbuffer_t & buf) const
 
 
 /**
- * Die Bezeichnung des Wegs
- * @author Hj. Malthaner
- */
-const char * weg_t::gib_name() const {
-  if(besch) {
-    return besch->gib_name();
-  } else {
-    return gib_typ_name();
-  }
-}
-
-
-/**
  * counts signals on this tile;
  * It would be enough for the signals to register and unreigister themselves, but this is more secure ...
  * @author prissi
@@ -309,16 +272,16 @@ void
 weg_t::calc_bild()
 {
 	// V.Meyer: weg_position_t changed to grund_t::get_neighbour()
-	grund_t *from = welt->lookup(pos);
+	grund_t *from = welt->lookup(gib_pos());
 	grund_t *to;
 
 	if(from==NULL  ||  besch==NULL) {
-		bild_nr = IMG_LEER;
+		setze_bild(0,IMG_LEER);
 	}
 
 	hang_t::typ hang = from->gib_weg_hang();
 	if(hang != hang_t::flach) {
-		bild_nr = besch->gib_hang_bild_nr(hang);
+		setze_bild(0,besch->gib_hang_bild_nr(hang));
 		return;
 	}
 
@@ -330,10 +293,10 @@ weg_t::calc_bild()
 		bool diagonal = false;
 		switch(ribi) {
 			case ribi_t::nordost:
-				if(from->get_neighbour(to, gib_typ(), koord::ost))
-					r1 = to->gib_weg_ribi_unmasked(gib_typ());
-				if(from->get_neighbour(to, gib_typ(), koord::nord))
-					r2 = to->gib_weg_ribi_unmasked(gib_typ());
+				if(from->get_neighbour(to, gib_waytype(), koord::ost))
+					r1 = to->gib_weg_ribi_unmasked(gib_waytype());
+				if(from->get_neighbour(to, gib_waytype(), koord::nord))
+					r2 = to->gib_weg_ribi_unmasked(gib_waytype());
 				diagonal =
 					(r1 == ribi_t::suedwest || r2 == ribi_t::suedwest) &&
 					r1 != ribi_t::nordwest &&
@@ -341,10 +304,10 @@ weg_t::calc_bild()
 			break;
 
 			case ribi_t::suedost:
-				if(from->get_neighbour(to, gib_typ(), koord::ost))
-					r1 = to->gib_weg_ribi_unmasked(gib_typ());
-				if(from->get_neighbour(to, gib_typ(), koord::sued))
-					r2 = to->gib_weg_ribi_unmasked(gib_typ());
+				if(from->get_neighbour(to, gib_waytype(), koord::ost))
+					r1 = to->gib_weg_ribi_unmasked(gib_waytype());
+				if(from->get_neighbour(to, gib_waytype(), koord::sued))
+					r2 = to->gib_weg_ribi_unmasked(gib_waytype());
 				diagonal =
 					(r1 == ribi_t::nordwest || r2 == ribi_t::nordwest) &&
 					r1 != ribi_t::suedwest &&
@@ -352,10 +315,10 @@ weg_t::calc_bild()
 			break;
 
 			case ribi_t::nordwest:
-				if(from->get_neighbour(to, gib_typ(), koord::west))
-					r1 = to->gib_weg_ribi_unmasked(gib_typ());
-				if(from->get_neighbour(to, gib_typ(), koord::nord))
-					r2 = to->gib_weg_ribi_unmasked(gib_typ());
+				if(from->get_neighbour(to, gib_waytype(), koord::west))
+					r1 = to->gib_weg_ribi_unmasked(gib_waytype());
+				if(from->get_neighbour(to, gib_waytype(), koord::nord))
+					r2 = to->gib_weg_ribi_unmasked(gib_waytype());
 				diagonal =
 					(r1 == ribi_t::suedost || r2 == ribi_t::suedost) &&
 					r1 != ribi_t::nordost &&
@@ -363,10 +326,10 @@ weg_t::calc_bild()
 			break;
 
 			case ribi_t::suedwest:
-				if(from->get_neighbour(to, gib_typ(), koord::west))
-					r1 = to->gib_weg_ribi_unmasked(gib_typ());
-				if(from->get_neighbour(to, gib_typ(), koord::sued))
-					r2 = to->gib_weg_ribi_unmasked(gib_typ());
+				if(from->get_neighbour(to, gib_waytype(), koord::west))
+					r1 = to->gib_weg_ribi_unmasked(gib_waytype());
+				if(from->get_neighbour(to, gib_waytype(), koord::sued))
+					r2 = to->gib_weg_ribi_unmasked(gib_waytype());
 				diagonal =
 					(r1 == ribi_t::nordost || r2 == ribi_t::nordost) &&
 					r1 != ribi_t::suedost &&
@@ -380,7 +343,7 @@ weg_t::calc_bild()
 			if(rekursion == 0) {
 				rekursion++;
 				for(int r = 0; r < 4; r++) {
-					if(from->get_neighbour(to, gib_typ(), koord::nsow[r])) {
+					if(from->get_neighbour(to, gib_waytype(), koord::nsow[r])) {
 						to->calc_bild();
 					}
 				}
@@ -389,15 +352,15 @@ weg_t::calc_bild()
 
 			image_id bild = besch->gib_diagonal_bild_nr(ribi);
 			if(bild != IMG_LEER) {
-				bild_nr = bild;
+				setze_bild(0, bild);
 				return;
 			}
 		}
 	}
 
-	bild_nr = besch->gib_bild_nr(ribi);
-//	DBG_MESSAGE("bild_nr_offset","%i",bild_nr);
+	setze_bild(0,besch->gib_bild_nr(ribi));
 }
+
 
 
 /**

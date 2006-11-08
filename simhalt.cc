@@ -1553,7 +1553,7 @@ haltestelle_t::reserve_position(grund_t *gr,convoihandle_t cnv)
 			grund_t *gr = grund.at(idx);
 			if(gr) {
 				// found a stop for this waytype but without object d ...
-				if(gr->hat_weg(cnv->gib_vehikel(0)->gib_wegtyp())  &&  gr->suche_obj(cnv->gib_vehikel(0)->gib_typ())==NULL) {
+				if(gr->hat_weg(cnv->gib_vehikel(0)->gib_waytype())  &&  gr->suche_obj(cnv->gib_vehikel(0)->gib_typ())==NULL) {
 					// not occipied
 //DBG_MESSAGE("haltestelle_t::reserve_position()","sucess for gr=%i,%i cnv=%d",gr->gib_pos().x,gr->gib_pos().y,cnv.get_id());
 					reservation.at(idx) = cnv;
@@ -1604,7 +1604,7 @@ DBG_MESSAGE("haltestelle_t::is_reservable()","gr=%d,%d already reserved by cnv=%
 			grund_t *gr = grund.at(idx);
 			if(gr) {
 				// found a stop for this waytype but without object d ...
-				if(gr->hat_weg(cnv->gib_vehikel(0)->gib_wegtyp())  &&  gr->suche_obj(cnv->gib_vehikel(0)->gib_typ())==NULL) {
+				if(gr->hat_weg(cnv->gib_vehikel(0)->gib_waytype())  &&  gr->suche_obj(cnv->gib_vehikel(0)->gib_typ())==NULL) {
 					// not occipied
 DBG_MESSAGE("haltestelle_t::is_reservable()","sucess for gr=%i,%i cnv=%d",gr->gib_pos().x,gr->gib_pos().y,cnv.get_id());
 					return true;

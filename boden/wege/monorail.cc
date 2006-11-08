@@ -47,7 +47,7 @@ monorail_t::rdwr(loadsave_t *file)
 
 	if(gib_besch()->gib_wtyp()!=gib_typ()) {
 		int old_max_speed=gib_max_speed();
-		const weg_besch_t *besch = wegbauer_t::weg_search(gib_typ(),old_max_speed>0 ? old_max_speed : 120 );
+		const weg_besch_t *besch = wegbauer_t::weg_search(gib_waytype(),old_max_speed>0 ? old_max_speed : 120 );
 		dbg->warning("monorail_t::rwdr()", "Unknown way replaced by monorail %s (old_max_speed %i)", besch->gib_name(), old_max_speed );
 		setze_besch(besch);
 		if(old_max_speed>0) {

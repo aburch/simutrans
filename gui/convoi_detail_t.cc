@@ -165,7 +165,7 @@ void gui_vehicleinfo_t::zeichnen(koord offset)
 		char buf[256], tmp[256];
 
 		// for bonus stuff
-		const sint32 ref_speed = cnv->gib_welt()->get_average_speed( cnv->gib_vehikel(0)->gib_wegtyp() );
+		const sint32 ref_speed = cnv->gib_welt()->get_average_speed( cnv->gib_vehikel(0)->gib_waytype() );
 		const sint32 speed_base = (100*speed_to_kmh(cnv->gib_min_top_speed()))/ref_speed-100;
 
 		static cbuffer_t freight_info(1024);

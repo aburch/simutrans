@@ -248,95 +248,92 @@ void grund_t::rdwr(loadsave_t *file)
 		slope = 0;
 	}
 
-    if(file->is_loading()) {
-	waytype_t wtyp;
-	int i = -1;
-	do {
-		wtyp = (waytype_t)file->rd_obj_id();
+	// loading ways from here on
+	if(file->is_loading()) {
+		waytype_t wtyp;
+		int i = -1;
+		do {
+			wtyp = (waytype_t)file->rd_obj_id();
 
-		if(++i < MAX_WEGE) {
-		switch(wtyp) {
-		default:
-			wege[i] = NULL;
-			break;
-		case road_wt:
-			//		  DBG_DEBUG("grund_t::rdwr()", "road");
-			wege[i] = new strasse_t (welt, file);
-			break;
-		case monorail_wt:
-			wege[i] = new monorail_t (welt, file);
-			//		  DBG_DEBUG("grund_t::rdwr()", "monorail");
-			break;
-		case track_wt:
-		{
-		  schiene_t *sch = new schiene_t (welt, file);
-		  if(sch->gib_besch()->gib_wtyp()==monorail_wt) {
-		  	dbg->warning("grund_t::rdwr()", "converting railroad to monorail at (%i,%i)",gib_pos().x, gib_pos().y);
-		  	// compatibility code: Convert to monorail
-		  	monorail_t *w= new monorail_t(welt);
-		  	w->setze_besch(sch->gib_besch());
-		  	w->setze_max_speed(sch->gib_max_speed());
-		  	w->setze_ribi(sch->gib_ribi_unmasked());
-		  	delete sch;
-		  	wege[i] = w;
-		  }
-		  else {
-			  wege[i] = sch;
-//		  DBG_DEBUG("grund_t::rdwr()", "railroad");
+			if(++i < MAX_WEGE) {
+					switch(wtyp) {
+						default:
+							wege[i] = NULL;
+							break;
+
+						case road_wt:
+							wege[i] = new strasse_t (welt, file);
+							break;
+
+						case monorail_wt:
+							wege[i] = new monorail_t (welt, file);
+							break;
+
+						case track_wt: {
+							schiene_t *sch = new schiene_t (welt, file);
+							if(sch->gib_besch()->gib_wtyp()==monorail_wt) {
+								dbg->warning("grund_t::rdwr()", "converting railroad to monorail at (%i,%i)",gib_pos().x, gib_pos().y);
+								// compatibility code: Convert to monorail
+								monorail_t *w= new monorail_t(welt);
+								w->setze_besch(sch->gib_besch());
+								w->setze_max_speed(sch->gib_max_speed());
+								w->setze_ribi(sch->gib_ribi_unmasked());
+								delete sch;
+								wege[i] = w;
+							}
+							else {
+								wege[i] = sch;
+							}
+						} break;
+
+					case tram_wt:
+						wege[i] = new schiene_t (welt, file);
+						if(wege[i]->gib_besch()->gib_styp()!=7) {
+							wege[i]->setze_besch(wegbauer_t::weg_search(tram_wt,wege[i]->gib_max_speed()));
+						}
+						break;
+
+					case water_wt:
+						// ignore old type dock ...
+						if(file->get_version()>=87000) {
+							wege[i] = new kanal_t (welt, file);
+						}
+						else {
+							unsigned char d8;
+							short d16;
+							long d32;
+
+							file->rdwr_byte(d8, "\n");
+							file->rdwr_short(d16, "\n");
+							file->rdwr_long(d32, "\n");
+							file->rdwr_long(d32, "\n");
+							file->rdwr_long(d32, "\n");
+							file->rdwr_long(d32, "\n");
+							DBG_MESSAGE("grund_t::rdwr()","at (%i,%i) dock ignored",gib_pos().x, gib_pos().y);
+						}
+						break;
+
+					case air_wt:
+						wege[i] = new runway_t (welt, file);
+						break;
+				}
+
+				if(wege[i]) {
+					wege[i]->setze_pos(pos);
+					wege[i]->setze_besitzer(gib_besitzer());
+					if(gib_besitzer() && !ist_wasser()) {
+						gib_besitzer()->add_maintenance(wege[i]->gib_besch()->gib_wartung());
+					}
+					assert( wege[i]->gib_ribi_maske()==0 );
+				}
 			}
+		} while(wtyp != invalid_wt);
+		while(++i < MAX_WEGE) {
+			wege[i] = NULL;
 		}
-		  break;
-		case tram_wt:
-		  wege[i] = new schiene_t (welt, file);
-//            DBG_DEBUG("grund_t::rdwr()", "tram");
-		  if(wege[i]->gib_besch()->gib_styp()!=7) {
-		  	wege[i]->setze_besch(wegbauer_t::weg_search(tram_wt,wege[i]->gib_max_speed()));
-			DBG_DEBUG("grund_t::rdwr()", "tram replace");
-		  }
-		  break;
-		case water_wt:
-			// ignore old type dock ...
-			if(file->get_version()>=87000) {
-			  wege[i] = new kanal_t (welt, file);
-//		      DBG_MESSAGE("kanal_t::kanal_t()","at (%i,%i) ribi %i",gib_pos().x, gib_pos().y, wege[i]->gib_ribi());
-		     }
-		     else {
-		     		// ignore old dock
-		     		unsigned char d8;
-		     		short d16;
-		     		long d32;
-
-				file->rdwr_byte(d8, "\n");
-				file->rdwr_short(d16, "\n");
-				file->rdwr_long(d32, "\n");
-				file->rdwr_long(d32, "\n");
-				file->rdwr_long(d32, "\n");
-				file->rdwr_long(d32, "\n");
-DBG_MESSAGE("grund_t::rdwr()","at (%i,%i) dock ignored",gib_pos().x, gib_pos().y);
-		     	}
-		  break;
-		case air_wt:
-//			DBG_DEBUG("grund_t::rdwr()", "Runway");
-			wege[i] = new runway_t (welt, file);
-			DBG_MESSAGE("runway_t::runway_t()","at (%i,%i) ribi %i",gib_pos().x, gib_pos().y, wege[i]->gib_ribi());
-
-			break;
-		}
-		if(wege[i]) {
-		  wege[i]->setze_pos(pos);
-		  if(gib_besitzer() && !ist_wasser()) {
-		    gib_besitzer()->add_maintenance(wege[i]->gib_besch()->gib_wartung());
-		  }
-			assert( wege[i]->gib_ribi_maske()==0 );
-		}
-	    }
-	} while(wtyp != invalid_wt);
-	while(++i < MAX_WEGE) {
-	    wege[i] = NULL;
 	}
-  }
 	else {
-		// saving
+		// saving all ways ...
 		for(int i = 0; i < MAX_WEGE; i++) {
 			if(wege[i]) {
 				wege[i]->rdwr(file);
@@ -353,20 +350,10 @@ DBG_MESSAGE("grund_t::rdwr()","at (%i,%i) dock ignored",gib_pos().x, gib_pos().y
 			while(wege[0]) {
 				// remove this (but we can not correct the other wasy, since possibly not yet loaded)
 				dbg->error("grund_t::rdwr()","removing way from foundation at %i,%i",pos.x,pos.y);
-				weg_entfernen(wege[0]->gib_typ(),false);
+				weg_entfernen(wege[0]->gib_waytype(),false);
 			}
 		}
 		flags |= dirty;
-		// set speedlimit and maintenance for bridges
-		if(gib_typ()==brueckenboden) {
-			bruecke_t *br=dynamic_cast<bruecke_t *>(suche_obj(ding_t::bruecke));
-			if(wege[0]  &&  br) {
-				wege[0]->setze_max_speed(br->gib_besch()->gib_topspeed());
-			}
-			if(gib_besitzer()  &&  wege[0]) {
-			    gib_besitzer()->add_maintenance(-wege[0]->gib_besch()->gib_wartung());
-			}
-		}
 	}
 	//DBG_DEBUG("grund_t::rdwr()", "loaded at %i,%i with %i dinge bild %i.", pos.x, pos.y, obj_count(),bild_nr);
 }
@@ -430,7 +417,7 @@ void grund_t::info(cbuffer_t & buf) const
 	for(int i = 0; i < MAX_WEGE; i++) {
 		if(wege[i]) {
 
-			if(wege[i]->gib_typ()==water_wt  &&  !ist_wasser()) {
+			if(wege[i]->gib_waytype()==water_wt  &&  !ist_wasser()) {
 				wege[i]->info(buf);
 			}
 			else {
@@ -493,25 +480,25 @@ void grund_t::setze_halt(halthandle_t halt) {
 void grund_t::calc_bild()
 {
 	// recalc way image
-	if(ist_uebergang()  &&  wegbauer_t::gib_kreuzung(wege[1]->gib_typ(), wege[0]->gib_typ())) {
+	if(ist_uebergang()  &&  wegbauer_t::gib_kreuzung(wege[1]->gib_waytype(), wege[0]->gib_waytype())) {
 		ribi_t::ribi ribi0 = wege[0]->gib_ribi();
 		ribi_t::ribi ribi1 = wege[1]->gib_ribi();
 
 		if(ribi_t::ist_gerade_ns(ribi0) || ribi_t::ist_gerade_ow(ribi1)) {
-			wege[0]->setze_bild( wegbauer_t::gib_kreuzung(wege[0]->gib_typ(), wege[1]->gib_typ() )->gib_bild_nr() );
+			wege[0]->setze_bild( 0, wegbauer_t::gib_kreuzung(wege[0]->gib_waytype(), wege[1]->gib_waytype() )->gib_bild_nr() );
 		}
 		else {
-			wege[0]->setze_bild( wegbauer_t::gib_kreuzung(wege[1]->gib_typ(), wege[0]->gib_typ() )->gib_bild_nr() );
+			wege[0]->setze_bild( 0, wegbauer_t::gib_kreuzung(wege[1]->gib_waytype(), wege[0]->gib_waytype() )->gib_bild_nr() );
 		}
-		wege[1]->setze_bild( IMG_LEER );
+		wege[1]->setze_bild( 0, IMG_LEER );
 	}
 	else {
 		// a bridge will set this to empty anyway ...
 		if(wege[0]) {
-			wege[0]->calc_bild(pos);
+			wege[0]->calc_bild();
 		}
 		if(wege[1]) {
-			wege[1]->calc_bild(pos);
+			wege[1]->calc_bild();
 		}
 	}
 	dinge.calc_bild();
@@ -809,7 +796,7 @@ grund_t::display_boden( const sint16 xpos, const sint16 ypos, const bool /*reset
 			display_color_img(wege[0]->gib_bild(), xpos, ynpos, gib_besitzer()->get_player_color(), true, dirty);
 		}
 #ifdef DEBUG_PBS
-		if(dirty  &&  (wege[0]->gib_typ()==track_wt)  &&  ((schiene_t *)wege[0])->is_reserved()) {
+		if(dirty  &&  (wege[0]->gib_waytype()==track_wt)  &&  ((schiene_t *)wege[0])->is_reserved()) {
 			display_fillbox_wh_clip( xpos+get_tile_raster_width()/4-8, ypos+(get_tile_raster_width()*3)/4-8, 16, 16, 0, true);
 		}
 #endif
@@ -939,7 +926,7 @@ long grund_t::neuen_weg_bauen(weg_t *weg, ribi_t::ribi ribi, spieler_t *sp)
 	setze_besitzer( sp );
 
 	// not already there?
-	const weg_t * alter_weg = gib_weg(weg->gib_typ());
+	const weg_t * alter_weg = gib_weg(weg->gib_waytype());
 	if(alter_weg==NULL) {
 		// ok, we are unique
 
@@ -967,7 +954,7 @@ long grund_t::neuen_weg_bauen(weg_t *weg, ribi_t::ribi ribi, spieler_t *sp)
 				return 0;
 			}
 			// add the way
-			if(weg->gib_typ()==road_wt  &&  wege[0]->gib_besch()->gib_styp()==7) {
+			if(weg->gib_waytype()==road_wt  &&  wege[0]->gib_besch()->gib_styp()==7) {
 				// road add below tramway
 				wege[1] = wege[0];
 				wege[0] = weg;
@@ -1026,7 +1013,7 @@ sint32 grund_t::weg_entfernen(waytype_t wegtyp, bool ribi_rem)
 
 		for(sint8 i=0, j=-1; i<MAX_WEGE; i++) {
 			if(wege[i]) {
-				if(wege[i]->gib_typ()==wegtyp) {
+				if(wege[i]->gib_waytype()==wegtyp) {
 					if(gib_besitzer() && !ist_wasser()  &&  !ist_bruecke()) {
 						gib_besitzer()->add_maintenance(-wege[i]->gib_besch()->gib_wartung());
 					}

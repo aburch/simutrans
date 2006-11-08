@@ -777,7 +777,7 @@ vehikel_t::hop_check()
 			return false;
 		}
 		// check for oneway sign etc.
-		if(air_wt!=gib_wegtyp()  &&  route_index<cnv->get_route()->gib_max_n()) {
+		if(air_wt!=gib_waytype()  &&  route_index<cnv->get_route()->gib_max_n()) {
 			uint8 dir=gib_ribi(bd);
 			koord3d nextnext_pos=cnv->get_route()->position_bei(route_index+1);
 			uint8 new_dir = ribi_typ(nextnext_pos.gib_2d()-pos_next.gib_2d());
@@ -867,7 +867,7 @@ DBG_MESSAGE("vehikel_t::hop()","reverse dir at route index %d",route_index);
 	calc_bild();
 	setze_pos( pos_cur );
 
-	const weg_t * weg = welt->lookup(gib_pos())->gib_weg(gib_wegtyp());
+	const weg_t * weg = welt->lookup(gib_pos())->gib_weg(gib_waytype());
 	setze_speed_limit( weg ? kmh_to_speed(weg->gib_max_speed()) : -1 );
 
 	betrete_feld();
@@ -1019,7 +1019,7 @@ sint64 vehikel_t::calc_gewinn(koord3d start, koord3d end) const
 {
     const long dist = abs(end.x - start.x) + abs(end.y - start.y);
 
-    const sint32 ref_speed = welt->get_average_speed( gib_wegtyp() );
+    const sint32 ref_speed = welt->get_average_speed( gib_waytype() );
     const sint32 speed_base = (100*speed_to_kmh(cnv->gib_min_top_speed()))/ref_speed-100;
 
     sint64 value = 0;
@@ -1757,7 +1757,7 @@ waggon_t::~waggon_t()
 	}
 	grund_t *gr = welt->lookup(gib_pos());
 	if(gr) {
-		schiene_t * sch = (schiene_t *)gr->gib_weg(gib_wegtyp());
+		schiene_t * sch = (schiene_t *)gr->gib_weg(gib_waytype());
 		if(sch) {
 			sch->unreserve(this);
 		}
@@ -1805,7 +1805,7 @@ DBG_MESSAGE("waggon_t::setze_convoi()","new route %p, route_index %i",c->get_rou
 					}
 					else {
 						for(  uint16 i=max(route_index,1)-1;  i<=route->gib_max_n();  i++) {
-							schiene_t * sch = (schiene_t *) welt->lookup(route->position_bei(i))->gib_weg(gib_wegtyp());
+							schiene_t * sch = (schiene_t *) welt->lookup(route->position_bei(i))->gib_weg(gib_waytype());
 							if(sch==NULL) {
 								break;
 							}
@@ -1842,7 +1842,7 @@ waggon_t::calc_route(karte_t * welt, koord3d start, koord3d ziel, uint32 max_spe
 bool
 waggon_t::ist_befahrbar(const grund_t *bd) const
 {
-	const schiene_t * sch = dynamic_cast<const schiene_t *> (bd->gib_weg(gib_wegtyp()));
+	const schiene_t * sch = dynamic_cast<const schiene_t *> (bd->gib_weg(gib_waytype()));
 
 	// Hajo: diesel and steam engines can use electrifed track as well.
 	// also allow driving on foreign tracks ...
@@ -1871,7 +1871,7 @@ int
 waggon_t::gib_kosten(const grund_t *gr,const uint32 max_speed) const
 {
 	// first favor faster ways
-	const weg_t *w=gr->gib_weg(gib_wegtyp());
+	const weg_t *w=gr->gib_weg(gib_waytype());
 	uint32 max_tile_speed = w ? w->gib_max_speed() : 999;
 	// add cost for going (with maximum speed, cost is 1)
 	int costs = (max_speed<=max_tile_speed) ? 1 :  (max_speed*4)/(max_tile_speed*4);
@@ -1891,7 +1891,7 @@ waggon_t::gib_kosten(const grund_t *gr,const uint32 max_speed) const
 signal_t *
 waggon_t::ist_blockwechsel(koord3d k2) const
 {
-	const schiene_t * sch1 = (const schiene_t *) welt->lookup( k2 )->gib_weg(gib_wegtyp());
+	const schiene_t * sch1 = (const schiene_t *) welt->lookup( k2 )->gib_weg(gib_waytype());
 	if(sch1  &&  sch1->has_sign()) {
 		signal_t *sig=(signal_t *)welt->lookup(k2)->suche_obj(ding_t::signal);
 		if(sig) {
@@ -1908,7 +1908,7 @@ waggon_t::ist_blockwechsel(koord3d k2) const
 bool
 waggon_t::ist_ziel(const grund_t *gr,const grund_t *prev_gr) const
 {
-	const schiene_t * sch1 = (const schiene_t *) gr->gib_weg(gib_wegtyp());
+	const schiene_t * sch1 = (const schiene_t *) gr->gib_weg(gib_waytype());
 	// first check blocks, if we can go there
 	if(sch1->can_reserve(cnv->self)) {
 		//  just check, if we reached a free stop position of this halt
@@ -1917,7 +1917,7 @@ waggon_t::ist_ziel(const grund_t *gr,const grund_t *prev_gr) const
 			if(prev_gr!=NULL) {
 				const koord dir=gr->gib_pos().gib_2d()-prev_gr->gib_pos().gib_2d();
 				grund_t *to;
-				if(!gr->get_neighbour(to,gib_wegtyp(),dir)  ||  !(to->gib_halt()==target_halt)) {
+				if(!gr->get_neighbour(to,gib_waytype(),dir)  ||  !(to->gib_halt()==target_halt)) {
 					return true;
 				}
 			}
@@ -1948,7 +1948,7 @@ waggon_t::ist_weg_frei(int & restart_speed)
 		return false;
 	}
 
-	if(!welt->lookup( pos_next )->hat_weg(gib_wegtyp())) {
+	if(!welt->lookup( pos_next )->hat_weg(gib_waytype())) {
 		return false;
 	}
 	if(!ist_erstes) {
@@ -2086,7 +2086,7 @@ waggon_t::block_reserver(const route_t *route, uint16 start_index, int count, bo
 
 		koord3d pos = route->position_bei(i);
 		grund_t *gr = welt->lookup(pos);
-		schiene_t * sch1 = gr ? (schiene_t *)gr->gib_weg(gib_wegtyp()) : NULL;
+		schiene_t * sch1 = gr ? (schiene_t *)gr->gib_weg(gib_waytype()) : NULL;
 		if(sch1==NULL  &&  reserve) {
 			// reserve until the end of track
 			break;
@@ -2126,7 +2126,7 @@ waggon_t::block_reserver(const route_t *route, uint16 start_index, int count, bo
 		// free reservation
 		for ( int j=start_index; j<i; j++) {
 			if(i!=skip_index) {
-				schiene_t * sch1 = (schiene_t *)welt->lookup( route->position_bei(j))->gib_weg(gib_wegtyp());
+				schiene_t * sch1 = (schiene_t *)welt->lookup( route->position_bei(j))->gib_weg(gib_waytype());
 				sch1->unreserve(cnv->self);
 			}
 		}
@@ -2151,7 +2151,7 @@ waggon_t::verlasse_feld()
 	vehikel_t::verlasse_feld();
 	// fix counters
 	if(ist_letztes) {
-		schiene_t * sch0 = (schiene_t *) welt->lookup( pos_cur )->gib_weg(gib_wegtyp());
+		schiene_t * sch0 = (schiene_t *) welt->lookup( pos_cur )->gib_weg(gib_waytype());
 		sch0->unreserve(this);
 		// tell next signal?
 		// and swith to red
@@ -2171,7 +2171,7 @@ waggon_t::betrete_feld()
 {
 	vehikel_t::betrete_feld();
 
-	schiene_t * sch0 = (schiene_t *) welt->lookup(pos_cur)->gib_weg(gib_wegtyp());
+	schiene_t * sch0 = (schiene_t *) welt->lookup(pos_cur)->gib_weg(gib_waytype());
 	if(sch0) {
 		sch0->reserve(cnv->self);
 		// way statistics
@@ -2230,7 +2230,7 @@ waggon_t::rdwr(loadsave_t *file, bool force)
 			}
 			else {
 				// we have to search
-				last_besch = besch = vehikelbauer_t::vehikel_search(gib_wegtyp(), 0, ist_erstes ? 500 : power, speed_to_kmh(get_speed_limit()), power>0 ? NULL : w, false );
+				last_besch = besch = vehikelbauer_t::vehikel_search(gib_waytype(), 0, ist_erstes ? 500 : power, speed_to_kmh(get_speed_limit()), power>0 ? NULL : w, false );
 			}
 			if(besch) {
 DBG_MESSAGE("waggon_t::rdwr()","replaced by %s",besch->gib_name());

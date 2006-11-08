@@ -128,7 +128,7 @@ public:
 
     vehikel_basis_t(karte_t *welt, koord3d pos);
 
-    virtual waytype_t gib_wegtyp() const = 0;
+    virtual waytype_t gib_waytype() const = 0;
 
     virtual ~vehikel_basis_t();
 };
@@ -225,7 +225,7 @@ public:
 
 	virtual void verlasse_feld();
 
-	virtual waytype_t gib_wegtyp() const = 0;
+	virtual waytype_t gib_waytype() const = 0;
 
 	/**
 	* Ermittelt die für das Fahrzeug geltenden Richtungsbits,
@@ -233,7 +233,7 @@ public:
 	*
 	* @author Hj. Malthaner, 04.01.01
 	*/
-	virtual ribi_t::ribi gib_ribi(const grund_t* gr) const { return gr->gib_weg_ribi(gib_wegtyp()); }
+	virtual ribi_t::ribi gib_ribi(const grund_t* gr) const { return gr->gib_weg_ribi(gib_waytype()); }
 
 	const sint32 gib_insta_zeit() const {return insta_zeit;}
 
@@ -447,7 +447,7 @@ protected:
 public:
 	virtual void betrete_feld();
 
-	virtual waytype_t gib_wegtyp() const { return road_wt; };
+	virtual waytype_t gib_waytype() const { return road_wt; };
 
 	automobil_t(karte_t *welt, loadsave_t *file);
 	automobil_t(karte_t *welt, koord3d pos, const vehikel_besch_t *besch, spieler_t *sp, convoi_t *cnv); // start und fahrplan
@@ -491,7 +491,7 @@ protected:
 	void betrete_feld();
 
 public:
-	virtual waytype_t gib_wegtyp() const { return track_wt; };
+	virtual waytype_t gib_waytype() const { return track_wt; };
 
 	// since we might need to unreserve previously used blocks, we must do this before calculation a new route
 	bool calc_route(karte_t * welt, koord3d start, koord3d ziel, uint32 max_speed, route_t * route);
@@ -536,7 +536,7 @@ public:
 class monorail_waggon_t : public waggon_t
 {
 public:
-	virtual waytype_t gib_wegtyp() const { return monorail_wt; }
+	virtual waytype_t gib_waytype() const { return monorail_wt; }
 
 	// all handled by waggon_t
 	monorail_waggon_t(karte_t *welt, loadsave_t *file) : waggon_t(welt, file) {}
@@ -568,7 +568,7 @@ protected:
 	bool ist_befahrbar(const grund_t *bd) const;
 
 public:
-	waytype_t gib_wegtyp() const { return water_wt; };
+	waytype_t gib_waytype() const { return water_wt; };
 
 	virtual bool ist_weg_frei(int &restart_speed);
 
@@ -625,7 +625,7 @@ protected:
 	bool find_route_to_stop_position();
 
 public:
-    virtual waytype_t gib_wegtyp() const { return air_wt; };
+    virtual waytype_t gib_waytype() const { return air_wt; };
 
 	// returns true for the way search to an unknown target.
 	virtual bool ist_ziel(const grund_t *,const grund_t *) const;

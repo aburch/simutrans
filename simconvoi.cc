@@ -468,7 +468,7 @@ convoi_t::sync_step(long delta_t)
 			const grund_t *gr = welt->lookup(fahr->at(0)->gib_pos());
 			halthandle_t halt = haltestelle_t::gib_halt(welt, fahr->at(0)->gib_pos());
 			// we could have reached a non-haltestelle stop, so check before booking!
-			if(halt.is_bound()  &&  gr->gib_weg_ribi(fahr->at(0)->gib_wegtyp())!=0) {
+			if(halt.is_bound()  &&  gr->gib_weg_ribi(fahr->at(0)->gib_waytype())!=0) {
 				// Gewinn für transport einstreichen
 				calc_gewinn(true);
 				akt_speed = 0;
@@ -702,8 +702,8 @@ convoi_t::betrete_depot(depot_t *dep)
 		if(gr) {
 			// remove from blockstrecke
 			gr->obj_remove(fahr->at(i),gib_besitzer());
-			if(fahr->at(i)->gib_wegtyp()==track_wt  ||  fahr->at(i)->gib_wegtyp()==monorail_wt) {
-				schiene_t *sch=(schiene_t *)gr->gib_weg(fahr->at(i)->gib_wegtyp());
+			if(fahr->at(i)->gib_waytype()==track_wt  ||  fahr->at(i)->gib_waytype()==monorail_wt) {
+				schiene_t *sch=(schiene_t *)gr->gib_weg(fahr->at(i)->gib_waytype());
 				sch->unreserve(self);
 			}
 		}
@@ -1062,8 +1062,8 @@ convoi_t::go_neue_richtung()
 		grund_t *gr=welt->lookup(fahr->at(i)->gib_pos());
 		if(gr) {
 			// remove from blockstrecke
-			if(fahr->at(i)->gib_wegtyp()==track_wt  ||  fahr->at(i)->gib_wegtyp()==monorail_wt) {
-				schiene_t *sch=(schiene_t *)gr->gib_weg(fahr->at(i)->gib_wegtyp());
+			if(fahr->at(i)->gib_waytype()==track_wt  ||  fahr->at(i)->gib_waytype()==monorail_wt) {
+				schiene_t *sch=(schiene_t *)gr->gib_weg(fahr->at(i)->gib_waytype());
 				if(sch) {
 					sch->unreserve(self);
 				}
@@ -1076,8 +1076,8 @@ convoi_t::go_neue_richtung()
 		gr=welt->lookup(k0);
 		if(gr) {
 			// add to blockstrecke
-			if(fahr->at(i)->gib_wegtyp()==track_wt  ||  fahr->at(i)->gib_wegtyp()==monorail_wt) {
-				schiene_t *sch=(schiene_t *)gr->gib_weg(fahr->at(i)->gib_wegtyp());
+			if(fahr->at(i)->gib_waytype()==track_wt  ||  fahr->at(i)->gib_waytype()==monorail_wt) {
+				schiene_t *sch=(schiene_t *)gr->gib_weg(fahr->at(i)->gib_waytype());
 				if(sch) {
 					sch->reserve(self);
 				}
@@ -1275,8 +1275,8 @@ convoi_t::rdwr(loadsave_t *file)
 dbg->fatal("convoi_t::rdwr()","invalid position %s for vehicle %s in state %d (setting to ground %s)",k3_to_cstr(v->gib_pos()).chars(), v->gib_name(), state, k3_to_cstr(gr->gib_pos()).chars());
 				}
 				// add to blockstrecke
-				if(fahr->at(i)->gib_wegtyp()==track_wt  ||  fahr->at(i)->gib_wegtyp()==monorail_wt) {
-					schiene_t *sch=(schiene_t *)gr->gib_weg(fahr->at(i)->gib_wegtyp());
+				if(fahr->at(i)->gib_waytype()==track_wt  ||  fahr->at(i)->gib_waytype()==monorail_wt) {
+					schiene_t *sch=(schiene_t *)gr->gib_weg(fahr->at(i)->gib_waytype());
 					if(sch) {
 						sch->reserve(self);
 					}
@@ -1680,7 +1680,7 @@ void convoi_t::calc_gewinn(bool in_station)
 	sint64 gewinn = 0;
 
 	// ships will be always considered fully in harbour
-	in_station &= (fahr->at(0)->gib_wegtyp()!=water_wt);
+	in_station &= (fahr->at(0)->gib_waytype()!=water_wt);
 
 	for(unsigned i=0; i<anz_vehikel; i++) {
 		vehikel_t *v = fahr->at(i);
@@ -1716,7 +1716,7 @@ void convoi_t::hat_gehalten(koord k, halthandle_t /*halt*/)
 		// just load/unload vehicles in stations
 		// exception: ships will unload/load every vehicle
 		vehikel_t *v = fahr->at(i);
-		const halthandle_t &halt = haltestelle_t::gib_halt(welt, v->gib_wegtyp()==water_wt ? fahr->at(0)->gib_pos() : v->gib_pos());
+		const halthandle_t &halt = haltestelle_t::gib_halt(welt, v->gib_waytype()==water_wt ? fahr->at(0)->gib_pos() : v->gib_pos());
 
 		if(halt.is_bound()) {
 			// Hajo: die waren wissen wohin sie wollen

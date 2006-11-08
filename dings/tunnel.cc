@@ -33,7 +33,6 @@ tunnel_t::tunnel_t(karte_t *welt, loadsave_t *file) : ding_t(welt)
 	besch = 0;
 	rdwr(file);
 	step_frequency = 0;
-	clean_up = false;
 	after_bild = IMG_LEER;
 }
 
@@ -44,7 +43,6 @@ tunnel_t::tunnel_t(karte_t *welt, koord3d pos, spieler_t *sp, const tunnel_besch
 	this->besch = besch;
 	setze_besitzer( sp );
 	step_frequency = 0;
-	clean_up = false;
 	after_bild = IMG_LEER;
 }
 
@@ -71,7 +69,6 @@ void tunnel_t::rdwr(loadsave_t *file)
 	if(file->get_version()>=99001) {
 		char  buf[256];
 		if(file->is_loading()) {
-			clean_up = false;
 			file->rdwr_str(buf,255);
 			besch = tunnelbauer_t::gib_besch(buf);
 		}
@@ -89,12 +86,12 @@ void tunnel_t::laden_abschliessen()
 	spieler_t *sp=gib_besitzer();
 
 	if(besch==NULL) {
-		besch = tunnelbauer_t::find_tunnel( gr->gib_weg_nr(0)->gib_typ(), 999, 0 );
+		besch = tunnelbauer_t::find_tunnel( gr->gib_weg_nr(0)->gib_waytype(), 999, 0 );
 	}
 
 	if(sp) {
 		// inside tunnel => do nothing but change maitainance
-		weg_t *weg = gr->gib_weg(besch->gib_wegtyp());
+		weg_t *weg = gr->gib_weg(besch->gib_waytype());
 		weg->setze_max_speed(besch->gib_topspeed());
 		sp->add_maintenance(-weg->gib_besch()->gib_wartung());
 		sp->add_maintenance( besch->gib_wartung() );
@@ -119,7 +116,7 @@ void tunnel_t::laden_abschliessen()
 		}
 		if(gr->suche_obj(ding_t::tunnel)==NULL) {
 			gr->obj_add(new tunnel_t(welt, pos, sp, besch));
-			weg_t *weg = gr->gib_weg(besch->gib_wegtyp());
+			weg_t *weg = gr->gib_weg(besch->gib_waytype());
 			weg->setze_max_speed(besch->gib_topspeed());
 			sp->add_maintenance(-weg->gib_besch()->gib_wartung());
 			sp->add_maintenance( besch->gib_wartung() );

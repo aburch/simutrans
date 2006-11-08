@@ -41,7 +41,7 @@ void tunnelboden_t::calc_bild()
 		setze_bild(skinverwaltung_t::fussweg->gib_bild_nr(0));
 		if(ist_karten_boden()) {
 			setze_bild(obj_bei(0)->gib_bild());
-			wege[0]->setze_bild(obj_bei(0)->gib_after_bild());
+			wege[0]->setze_bild(0, obj_bei(0)->gib_after_bild());
 		}
 	}
 	else if(ist_karten_boden()) {
@@ -49,20 +49,20 @@ void tunnelboden_t::calc_bild()
 		boden_t::calc_bild();
 		set_flag(draw_as_ding);
 		if(wege[0]) {
-			wege[0]->setze_bild(IMG_LEER);
+			wege[0]->setze_bild(0, IMG_LEER);
 		}
 		if(wege[1]) {
-			wege[1]->setze_bild(IMG_LEER);
+			wege[1]->setze_bild(0, IMG_LEER);
 		}
 	}
 	else {
 		clear_back_bild();
 		setze_bild(IMG_LEER);
 		if(wege[0]) {
-			wege[0]->setze_bild(IMG_LEER);
+			wege[0]->setze_bild(0, IMG_LEER);
 		}
 		if(wege[1]) {
-			wege[1]->setze_bild(IMG_LEER);
+			wege[1]->setze_bild(0, IMG_LEER);
 		}
 	}
 }

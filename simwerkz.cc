@@ -375,14 +375,14 @@ DBG_MESSAGE("wkz_remover()", "check tunnel/bridge");
 	if(gr->ist_bruecke()  &&  gr->ist_karten_boden()) {
 DBG_MESSAGE("wkz_remover()",  "removing bridge from %d,%d,%d",gr->gib_pos().x, gr->gib_pos().y, gr->gib_pos().z);
 		bruecke_t *br = dynamic_cast<bruecke_t *>(gr->suche_obj(ding_t::bruecke));
-		msg = brueckenbauer_t::remove(welt, sp, gr->gib_pos(), br->gib_besch()->gib_wegtyp());
+		msg = brueckenbauer_t::remove(welt, sp, gr->gib_pos(), br->gib_besch()->gib_waytype());
 		return msg == NULL;
 	}
 
 	// beginning/end of tunnel
 	if(gr->ist_tunnel()  &&  gr->ist_karten_boden()) {
 DBG_MESSAGE("wkz_remover()",  "removing tunnel  from %d,%d,%d",gr->gib_pos().x, gr->gib_pos().y, gr->gib_pos().z);
-		msg = tunnelbauer_t::remove(welt, sp, gr->gib_pos(), gr->gib_weg_nr(0)->gib_typ());
+		msg = tunnelbauer_t::remove(welt, sp, gr->gib_pos(), gr->gib_weg_nr(0)->gib_waytype());
 		return msg == NULL;
 	}
 
@@ -531,7 +531,7 @@ DBG_MESSAGE("wkz_remover()", "removing way");
 	else {
 		// remove upper ways ...
 		if(gr->gib_weg_nr(1)) {
-			gr->weg_entfernen(gr->gib_weg_nr(1)->gib_typ(), true);
+			gr->weg_entfernen(gr->gib_weg_nr(1)->gib_waytype(), true);
 		}
 		else {
 			// delete tunnel here ...
@@ -541,7 +541,7 @@ DBG_MESSAGE("wkz_remover()", "removing way");
 				sp->add_maintenance( gr->gib_weg_nr(0)->gib_besch()->gib_wartung());
 				sp->add_maintenance( -besch->gib_wartung() );
 			}
-			cost_sum += gr->weg_entfernen(gr->gib_weg_nr(0)->gib_typ(), true);
+			cost_sum += gr->weg_entfernen(gr->gib_weg_nr(0)->gib_waytype(), true);
 			cost_sum += besch->gib_preis();
 		}
 	}

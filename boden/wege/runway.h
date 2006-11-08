@@ -57,8 +57,7 @@ public:
 	 */
 	virtual void calc_bild(koord3d) { weg_t::calc_bild(); }
 
-	inline const char *gib_typ_name() const {return "runway";}
-	inline waytype_t gib_typ() const {return air_wt;}
+	inline waytype_t gib_waytype() const {return air_wt;}
 
 	/**
 	 * @return Infotext zur runway

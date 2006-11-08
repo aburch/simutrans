@@ -85,10 +85,10 @@ boden_t::calc_bild()
 		clear_back_bild();
 		setze_bild(IMG_LEER);
 		if(wege[0]) {
-			wege[0]->setze_bild(IMG_LEER);
+			wege[0]->setze_bild(0,IMG_LEER);
 		}
 		if(wege[1]) {
-			wege[1]->setze_bild(IMG_LEER);
+			wege[1]->setze_bild(0,IMG_LEER);
 		}
 	}
 #ifdef COVER_TILES

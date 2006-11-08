@@ -73,7 +73,7 @@ public:
 
 
 	// get costs etc.
-	waytype_t gib_wegtyp() const { return static_cast<waytype_t>(wegtyp); }
+	waytype_t gib_waytype() const { return static_cast<waytype_t>(wegtyp); }
 
 	sint32 gib_preis() const { return preis; }
 

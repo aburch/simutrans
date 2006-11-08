@@ -23,8 +23,7 @@ public:
     kanal_t(karte_t *welt);
 
     virtual void calc_bild(koord3d) { weg_t::calc_bild(); }
-    inline const char *gib_typ_name() const {return "Kanal";}
-    inline waytype_t gib_typ() const {return water_wt;}
+    waytype_t gib_waytype() const {return water_wt;}
     virtual void rdwr(loadsave_t *file);
     void info(cbuffer_t & buf) const;
 };

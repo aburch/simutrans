@@ -25,10 +25,7 @@ public:
 	 */
 	void info(cbuffer_t & buf) const;
 
-	virtual void calc_bild(koord3d) { weg_t::calc_bild(); }
-
-	inline const char *gib_typ_name() const {return "Strasse";}
-	inline waytype_t gib_typ() const {return road_wt;}
+	inline waytype_t gib_waytype() const {return road_wt;}
 
 	void setze_gehweg(bool janein);
 

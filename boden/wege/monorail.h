@@ -45,8 +45,7 @@ public:
 	 */
 	virtual ~monorail_t() {}
 
-	virtual const char *gib_typ_name() const {return "Monorail";}
-	virtual waytype_t gib_typ() const {return monorail_wt;}
+	virtual waytype_t gib_waytype() const {return monorail_wt;}
 
 	/**
 	 * @return Infotext zur Schiene

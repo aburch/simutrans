@@ -60,8 +60,7 @@ public:
 	*/
 	virtual ~schiene_t() {}
 
-	virtual const char *gib_typ_name() const {return "Schiene";}
-	virtual waytype_t gib_typ() const {return track_wt;}
+	virtual waytype_t gib_waytype() const {return track_wt;}
 
 	/**
 	* Calculates the image of this pice of railroad track.
