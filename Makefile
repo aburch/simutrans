@@ -111,7 +111,6 @@ SOURCES += besch/reader/ground_reader.cc
 SOURCES += besch/reader/image_reader.cc
 SOURCES += besch/reader/imagelist2d_reader.cc
 SOURCES += besch/reader/imagelist_reader.cc
-SOURCES += besch/reader/intlist_reader.cc
 SOURCES += besch/reader/obj_reader.cc
 SOURCES += besch/reader/pedestrian_reader.cc
 SOURCES += besch/reader/roadsign_reader.cc

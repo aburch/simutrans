@@ -14,7 +14,6 @@
  */
 
 #include "text_writer.h"
-#include "intlist_writer.h"
 #include "image_writer.h"
 #include "imagelist_writer.h"
 #include "imagelist2d_writer.h"
@@ -49,7 +48,6 @@ stringhashtable_tpl<obj_writer_t *> *obj_writer_t::writer_by_name = NULL;
 inthashtable_tpl<obj_type, obj_writer_t *> *obj_writer_t::writer_by_type = NULL;
 
 text_writer_t text_writer_t::the_instance;
-intlist_writer_t intlist_writer_t::the_instance;
 image_writer_t image_writer_t::the_instance;
 imagelist_writer_t imagelist_writer_t::the_instance;
 imagelist2d_writer_t imagelist2d_writer_t::the_instance;

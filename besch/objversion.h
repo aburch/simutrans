@@ -35,7 +35,6 @@ enum obj_type {
     obj_menu	    = C4ID('M','E','N','U'),
     obj_cursor	    = C4ID('C','U','R','S'),
     obj_symbol      = C4ID('S','Y','M','B'),
-    obj_intlist	    = C4ID('I','N','T','1'),
     obj_bridge	    = C4ID('B','R','D','G'),
     obj_vehicle	    = C4ID('V','H','C','L'),
     obj_ground	    = C4ID('G','R','N','D'),

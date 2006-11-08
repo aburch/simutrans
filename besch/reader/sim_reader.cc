@@ -3,7 +3,6 @@
 
 
 #include "text_reader.h"
-#include "intlist_reader.h"
 #include "image_reader.h"
 #include "imagelist_reader.h"
 #include "imagelist2d_reader.h"
@@ -39,7 +38,6 @@
 inthashtable_tpl<obj_type, obj_reader_t *> *obj_reader_t::obj_reader = NULL;
 
 text_reader_t text_reader_t::the_instance;
-intlist_reader_t intlist_reader_t::the_instance;
 image_reader_t image_reader_t::the_instance;
 imagelist_reader_t imagelist_reader_t::the_instance;
 imagelist2d_reader_t imagelist2d_reader_t::the_instance;
