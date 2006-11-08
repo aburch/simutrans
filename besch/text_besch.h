@@ -38,6 +38,8 @@ public:
     {
 		return reinterpret_cast<const char *>(this + 1);
     }
+
+		using obj_besch_t::operator new;
 };
 
 #endif // __TEXT_BESCH_H

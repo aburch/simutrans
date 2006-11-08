@@ -60,6 +60,9 @@ public:
 	 * Otherwise it will only succeed for angle=0;
 	*/
 	bild_besch_t *copy_rotate(const sint16 angle) const;
+
+	using obj_besch_t::operator new;
+
 #else
 struct bild_besch_t {
   void *verboten;

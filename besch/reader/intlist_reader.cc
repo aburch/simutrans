@@ -25,7 +25,7 @@ obj_besch_t * intlist_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 	char * p = besch_buf;
 
 	uint16 anzahl = decode_uint16(p);
-	intliste_besch_t *besch = (intliste_besch_t *)malloc( (anzahl+1)*sizeof(anzahl)+sizeof(intliste_besch_t *) );
+	intliste_besch_t* besch = new(anzahl) intliste_besch_t();
 	besch->node_info = new obj_besch_t*[node.children];
 
 	// convert data

@@ -253,9 +253,7 @@ void obj_reader_t::read_nodes(FILE *fp, obj_besch_t * /*parent*/, obj_besch_t *&
 
 obj_besch_t *obj_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 {
-	char *besch_buf = (char *)malloc( sizeof(obj_besch_t *) + node.size );
-
-	obj_besch_t *besch = reinterpret_cast<obj_besch_t *>(besch_buf);
+	obj_besch_t* besch = new(node.size) obj_besch_t();
 	besch->node_info = new obj_besch_t*[node.children];
 
 	if(node.size>0) {
@@ -289,10 +287,8 @@ void obj_reader_t::skip_nodes(FILE *fp)
 
 void obj_reader_t::delete_node(obj_besch_t *data)
 {
-    char *besch_buf = reinterpret_cast<char *>(data);
-
 	delete [] data->node_info;
-    free( besch_buf );
+	delete data;
 }
 
 

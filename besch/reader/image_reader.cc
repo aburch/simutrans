@@ -45,7 +45,7 @@ obj_besch_t *  image_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 	char besch_buf [node.size];
 #endif
 
-	bild_besch_t* besch = reinterpret_cast<bild_besch_t*>(malloc(sizeof(bild_besch_t) + node.size - 12));
+	bild_besch_t* besch = new(node.size - 12) bild_besch_t();
 	besch->node_info = new obj_besch_t*[node.children];
 
 	// Hajo: Read data

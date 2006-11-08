@@ -48,6 +48,16 @@ class obj_besch_t {
 		 * how many node child nodes really exist.
 		 */
 		obj_besch_t** node_info;
+
+		void* operator new(unsigned int size)
+		{
+			return ::operator new(size);
+		}
+
+		void* operator new(unsigned int size, unsigned int extra)
+		{
+			return ::operator new(size + extra);
+		}
 };
 
 #endif // __OBJ_BESCH_H

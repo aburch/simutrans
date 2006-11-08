@@ -12,7 +12,7 @@
 
 obj_besch_t * xref_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 {
-	obj_besch_t *besch =  (obj_besch_t*)malloc( sizeof(obj_besch_t *)+node.size );
+	obj_besch_t* besch = new(node.size) obj_besch_t();
 	besch->node_info = new obj_besch_t*[node.children];
 
 	// Hajo: Read data

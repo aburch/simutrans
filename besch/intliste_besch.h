@@ -45,6 +45,11 @@ public:
 	int gib_anzahl() const { return anzahl; }
 
 	const int gib_int(int i) const { return i >= 0 && i < anzahl ? (&anzahl)[i + 1] : 0; }
+
+	void* operator new(unsigned int size, unsigned int count)
+	{
+		return ::operator new(size + sizeof(uint16) * count);
+	}
 };
 
 #endif // __INTLISTE_BESCH_H
