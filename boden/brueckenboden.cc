@@ -32,11 +32,11 @@ void brueckenboden_t::calc_bild()
 	if(ist_tunnel()) {
 		clear_back_bild();
 		setze_bild(IMG_LEER);
-		if(wege[0]) {
-			wege[0]->setze_bild(0,IMG_LEER);
+		if(flags&has_way1) {
+			((weg_t *)obj_bei(0))->setze_bild(0,IMG_LEER);
 		}
-		if(wege[1]) {
-			wege[1]->setze_bild(0,IMG_LEER);
+		if(flags&has_way2) {
+			((weg_t *)obj_bei(0))->setze_bild(0,IMG_LEER);
 		}
 	}
 	else {
@@ -48,8 +48,8 @@ void brueckenboden_t::calc_bild()
 			clear_back_bild();
 			setze_bild(IMG_LEER);
 		}
-		if(wege[1]) {
-			wege[1]->calc_bild();
+		if(flags&has_way2) {
+			((weg_t *)obj_bei(0))->setze_bild(0,IMG_LEER);
 		}
 		for(uint8 i=0;  i<gib_top();  i++  ) {
 			ding_t *dt=obj_bei(i);

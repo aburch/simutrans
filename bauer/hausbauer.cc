@@ -471,7 +471,7 @@ hausbauer_t::neues_gebaeude(karte_t *welt, spieler_t *sp, koord3d pos, int layou
 				gr->obj_pri_add(gb, i);
 				break;
 			}
-			else if(dt->gib_typ()>=ding_t::automobil  &&  dt->gib_typ()<=ding_t::fussgaenger) {
+			else if(dt->is_moving()) {
 				gr->obj_takeout(i);
 				gr->obj_pri_add(gb, i);
 				gr->obj_pri_add(dt, i+1);

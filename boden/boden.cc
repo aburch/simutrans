@@ -43,15 +43,15 @@ boden_t::boden_t(karte_t *welt, koord3d pos,hang_t::typ sl) : grund_t(welt, pos)
 
 const char *boden_t::gib_name() const
 {
-    if(gib_halt().is_bound()) {
-			return gib_halt()->gib_name();
-    } else if(ist_uebergang()) {
-			return "Kreuzung";
-    } else  if(hat_wege()) {
-			return gib_weg_name();
-    } else {
-			return "Boden";
-    }
+  if(gib_halt().is_bound()) {
+		return gib_halt()->gib_name();
+  } else if(ist_uebergang()) {
+		return "Kreuzung";
+  } else  if(hat_wege()) {
+		return gib_weg_name();
+  } else {
+		return "Boden";
+  }
 }
 
 
@@ -84,11 +84,11 @@ boden_t::calc_bild()
 	if(ist_im_tunnel()) {
 		clear_back_bild();
 		setze_bild(IMG_LEER);
-		if(wege[0]) {
-			wege[0]->setze_bild(0,IMG_LEER);
+		if(flags&has_way1) {
+			((weg_t *)obj_bei(0))->setze_bild(0,IMG_LEER);
 		}
-		if(wege[1]) {
-			wege[1]->setze_bild(0,IMG_LEER);
+		if(flags&has_way2) {
+			((weg_t *)obj_bei(0))->setze_bild(0,IMG_LEER);
 		}
 	}
 #ifdef COVER_TILES

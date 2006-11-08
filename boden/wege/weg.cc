@@ -144,6 +144,7 @@ void weg_t::init()
 	init_statistics();
 	alle_wege.insert(this);
 	flags = 0;
+	step_frequency = 0;
 }
 
 

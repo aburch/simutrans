@@ -424,11 +424,11 @@ dingliste_t::remove(ding_t *ding, spieler_t * /*sp*/)
 
 
 bool
-dingliste_t::loesche_alle(spieler_t *sp)
+dingliste_t::loesche_alle(spieler_t *sp,uint8 offset)
 {
 
 	if(capacity>1) {
-		for(uint8 i=0; i<top; i++) {
+		for(uint8 i=offset; i<top; i++) {
 			ding_t *dt = obj.some[i];
 			if(dt) {
 				dt->entferne(sp);
@@ -438,9 +438,9 @@ dingliste_t::loesche_alle(spieler_t *sp)
 		}
 	}
 	else {
-		if(capacity==1  &&  obj.one!=NULL) {
+		if(capacity==1  &&  top>=offset  &&  obj.one!=NULL) {
 			ding_t *dt = obj.one;
-			if(dt) {
+			if(dt  &&  dt->gib_typ()!=ding_t::way) {
 				dt->entferne(sp);
 				delete dt;
 			}
@@ -451,7 +451,7 @@ dingliste_t::loesche_alle(spieler_t *sp)
 	top = 0;
 	shrink_capacity(top);
 
-    return true;
+	return true;
 }
 
 
@@ -768,7 +768,7 @@ void dingliste_t::rdwr(karte_t *welt, loadsave_t *file, koord3d current_pos)
 			ding_t *d=bei(i);
 			if(d) {
 				if(d->gib_pos()==current_pos) {
-					if(d->gib_typ()!=ding_t::raucher) {
+					if(d->gib_typ()!=ding_t::raucher  &&  d->gib_typ()!=ding_t::way) {
 						bei(i)->rdwr(file);
 					}
 					else {
@@ -801,13 +801,13 @@ void dingliste_t::rdwr(karte_t *welt, loadsave_t *file, koord3d current_pos)
  * reset_dirty will be only true for the main display; all miniworld windows should still reset main window ...
  *  @author prissi
  */
-void dingliste_t::display_dinge( const sint16 xpos, const sint16 ypos, const bool reset_dirty ) const
+void dingliste_t::display_dinge( const sint16 xpos, const sint16 ypos, const uint8 start_offset, const bool reset_dirty ) const
 {
 	switch(capacity) {
 
 		case 0:	return;
 
-		case 1:	if(obj.one) {
+		case 1:	if(top>=start_offset  &&  obj.one) {
 						obj.one->display(xpos, ypos, reset_dirty );
 						obj.one->display_after(xpos, ypos, reset_dirty );
 						if(reset_dirty) {
@@ -818,7 +818,7 @@ void dingliste_t::display_dinge( const sint16 xpos, const sint16 ypos, const boo
 
 		default:	// background
 					{
-						for(uint8 n=0; n<top; n++) {
+						for(uint8 n=start_offset; n<top; n++) {
 							ding_t * dt = obj.some[n];
 							if(dt) {
 								// ist dort ein objekt ?

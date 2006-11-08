@@ -71,7 +71,7 @@ public:
 	  uint8  insert_before_moving(ding_t *obj);
 	  uint8  insert_at(ding_t *obj, uint8 pri);
 	  uint8  remove(ding_t *obj, spieler_t *sp);
-	  bool loesche_alle(spieler_t *sp);
+	  bool loesche_alle(spieler_t *sp,uint8 offset);
 	  bool ist_da(ding_t *obj) const;
 	  uint8  count() const;
 
@@ -96,7 +96,7 @@ public:
 	/* display all things, much fast to do it here ...
 	*  @author prissi
 	*/
-	void display_dinge( const sint16 xpos, const sint16 ypos, const bool dirty ) const;
+	void display_dinge( const sint16 xpos, const sint16 ypos, const uint8 start_offset, const bool dirty ) const;
 
 	// animation, waiting for crossing, all things that could take a while should be done in a step
 	void step(const long delta_t, const int steps);

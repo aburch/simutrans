@@ -407,6 +407,8 @@ bool brueckenbauer_t::baue_bruecke(karte_t *welt, spieler_t *sp,
 		weg->setze_max_speed(besch->gib_topspeed());
 		welt->access(pos.gib_2d())->boden_hinzufuegen(bruecke);
 		bruecke->neuen_weg_bauen(weg, ribi_t::doppelt(ribi), sp);
+		sp->add_maintenance( -weg_besch->gib_wartung() );
+		sp->add_maintenance( besch->gib_wartung() );
 		bruecke->obj_add(new bruecke_t(welt, bruecke->gib_pos(), 0, sp, besch, besch->gib_simple(ribi)));
 		bruecke->calc_bild();
 
@@ -493,6 +495,8 @@ brueckenbauer_t::baue_auffahrt(karte_t *welt, spieler_t *sp, koord3d end, koord 
 	bruecke->neuen_weg_bauen(weg, ribi_t::doppelt(ribi_neu), sp);
 
 	if(sp!=NULL) {
+		sp->add_maintenance( -weg_besch->gib_wartung() );
+		sp->add_maintenance( besch->gib_wartung() );
 		// no undo possible anymore
 		sp->init_undo(besch->gib_waytype(),0);
 	}
@@ -553,12 +557,16 @@ brueckenbauer_t::remove(karte_t *welt, spieler_t *sp, koord3d pos, waytype_t weg
 		}
 	} while(!tmp_list.is_empty());
 
+	const bruecke_besch_t *br_besch=dynamic_cast<bruecke_t *>(welt->lookup(tmp_list.at(0))->suche_obj(ding_t::bruecke))->gib_besch();
 
 	// Jetzt geht es ans löschen der Brücke
 	while(!part_list.is_empty()) {
 		pos = part_list.remove_first();
 
 		grund_t *gr = welt->lookup(pos);
+		sp->add_maintenance( gr->gib_weg_nr(0)->gib_besch()->gib_wartung());
+		sp->add_maintenance( -br_besch->gib_wartung() );
+
 		gr->weg_entfernen(wegtyp, false);
 		gr->remove_everything_from_way(sp,wegtyp,ribi_t::keine);	// removes stop and signals correctly
 		gr->obj_loesche_alle(sp);
@@ -591,6 +599,8 @@ brueckenbauer_t::remove(karte_t *welt, spieler_t *sp, koord3d pos, waytype_t weg
 			ribi &= ~ribi_typ(gr->gib_weg_hang());
 		}
 		const weg_besch_t *weg_besch=gr->gib_weg(wegtyp)->gib_besch();
+		sp->add_maintenance( weg_besch->gib_wartung());
+		sp->add_maintenance( -br_besch->gib_wartung() );
 
 		grund_t *gr_new = new boden_t(welt, pos,gr->gib_grund_hang());
 

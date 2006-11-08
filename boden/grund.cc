@@ -85,6 +85,7 @@ karte_t * grund_t::welt = NULL;
 bool grund_t::show_grid = false;
 bool grund_t::underground_mode = false;
 
+uint8 grund_t::offsets[4]={0,1,2/*illegal!*/,2};
 
 ptrhashtable_tpl<grund_t *, grund_info_t *> *grund_t::grund_infos = new ptrhashtable_tpl<grund_t *, grund_info_t *> ();
 
@@ -173,13 +174,17 @@ bool grund_t::setze_besitzer(spieler_t *s)
 	sint8 sp_num= s ? s->get_player_nr() : -1;
 	if(besitzer_n!=sp_num  &&  !ist_bruecke()) {
 		// transfer way maitenance costs
-		if(wege[0]) {
-			if(besitzer_n>=0) { welt->gib_spieler(besitzer_n)->add_maintenance(-wege[0]->gib_besch()->gib_wartung()); }
-			if(s) { s->add_maintenance(wege[0]->gib_besch()->gib_wartung()); }
+		if(flags&has_way1) {
+			weg_t *w=(weg_t *)obj_bei(0);
+			if(besitzer_n>=0) { welt->gib_spieler(besitzer_n)->add_maintenance(-w->gib_besch()->gib_wartung()); }
+			if(s) { s->add_maintenance(w->gib_besch()->gib_wartung()); }
+			w->setze_besitzer(s);
 		}
-		if(wege[1]) {
-			if(besitzer_n>=0) { welt->gib_spieler(besitzer_n)->add_maintenance(-wege[1]->gib_besch()->gib_wartung()); }
-			if(s) { s->add_maintenance(wege[1]->gib_besch()->gib_wartung()); }
+		if(flags&has_way2) {
+			weg_t *w=(weg_t *)obj_bei(0);
+			if(besitzer_n>=0) { welt->gib_spieler(besitzer_n)->add_maintenance(-w->gib_besch()->gib_wartung()); }
+			if(s) { s->add_maintenance(w->gib_besch()->gib_wartung()); }
+			w->setze_besitzer(s);
 		}
 	}
 	besitzer_n = sp_num;
@@ -189,7 +194,6 @@ bool grund_t::setze_besitzer(spieler_t *s)
 
 grund_t::grund_t(karte_t *wl)
 {
-	wege[0]= wege[1] = NULL;
 	welt = wl;
 	flags = 0;
 	bild_nr = IMG_LEER;
@@ -201,7 +205,6 @@ grund_t::grund_t(karte_t *wl)
 grund_t::grund_t(karte_t *wl, loadsave_t *file)
 {
 	// only used for saving?
-	memset(wege, 0, sizeof(wege));
 	welt = wl;
 	flags = 0;
 	back_bild_nr = 0;
@@ -211,6 +214,8 @@ grund_t::grund_t(karte_t *wl, loadsave_t *file)
 
 void grund_t::rdwr(loadsave_t *file)
 {
+	weg_t *wege[2]={NULL,NULL};
+
 	file->wr_obj_id(gib_typ());
 	pos.rdwr(file);
 //DBG_DEBUG("grund_t::rdwr()", "pos=%d,%d,%d", pos.x, pos.y, pos.z);
@@ -255,7 +260,7 @@ void grund_t::rdwr(loadsave_t *file)
 		do {
 			wtyp = (waytype_t)file->rd_obj_id();
 
-			if(++i < MAX_WEGE) {
+			if(++i < 2) {
 					switch(wtyp) {
 						default:
 							wege[i] = NULL;
@@ -328,16 +333,17 @@ void grund_t::rdwr(loadsave_t *file)
 				}
 			}
 		} while(wtyp != invalid_wt);
-		while(++i < MAX_WEGE) {
+		while(++i < 2) {
 			wege[i] = NULL;
 		}
 	}
 	else {
 		// saving all ways ...
-		for(int i = 0; i < MAX_WEGE; i++) {
-			if(wege[i]) {
-				wege[i]->rdwr(file);
-			}
+		if(flags&has_way1) {
+			obj_bei(0)->rdwr(file);
+		}
+		if(flags&has_way2) {
+			obj_bei(1)->rdwr(file);
 		}
 		file->wr_obj_id(-1);   // Ende der Wege
 	}
@@ -347,10 +353,25 @@ void grund_t::rdwr(loadsave_t *file)
 
 	if(file->is_loading()) {
 		if(this->gib_typ()==fundament) {
-			while(wege[0]) {
+			if(wege[0]) {
 				// remove this (but we can not correct the other wasy, since possibly not yet loaded)
 				dbg->error("grund_t::rdwr()","removing way from foundation at %i,%i",pos.x,pos.y);
-				weg_entfernen(wege[0]->gib_waytype(),false);
+				delete wege[0];
+			}
+			if(wege[1]) {
+				delete wege[1];
+			}
+		}
+		else {
+			// add to dingliste ...
+			if(wege[0]) {
+				dinge.insert_at( wege[0], 0 );
+				flags |= has_way1;
+			}
+			if(wege[1]) {
+				assert(wege[0]!=NULL);
+				dinge.insert_at( wege[1], 0 );
+				flags |= has_way2;
 			}
 		}
 		flags |= dirty;
@@ -364,8 +385,6 @@ grund_t::grund_t(karte_t *wl, koord3d pos)
 	this->pos = pos;
 	flags = 0;
 	besitzer_n = -1;
-
-	wege[0]= wege[1] = NULL;
 	welt = wl;
 	setze_bild(IMG_LEER);    // setzt   flags = dirty;
 	back_bild_nr = 0;
@@ -385,14 +404,19 @@ grund_t::~grund_t()
 		halt.unbind();
 	}
 
-	for(int i = 0; i<MAX_WEGE; i++) {
-		if(wege[i]) {
-			if(gib_besitzer() && !ist_wasser()  &&  !ist_bruecke()) {
-				gib_besitzer()->add_maintenance(-wege[i]->gib_besch()->gib_wartung());
-			}
-			delete wege[i];
-			wege[i] = NULL;
+	if(flags&has_way2) {
+		weg_t *w=(weg_t *)dinge.remove_at(1);
+		if(gib_besitzer()) {
+			gib_besitzer()->add_maintenance(-w->gib_besch()->gib_wartung());
 		}
+		delete w;
+	}
+	if(flags&has_way1) {
+		weg_t *w=(weg_t *)dinge.remove_at(0);
+		if(gib_besitzer()) {
+			gib_besitzer()->add_maintenance(-w->gib_besch()->gib_wartung());
+		}
+		delete w;
 	}
 }
 
@@ -414,15 +438,12 @@ void grund_t::info(cbuffer_t & buf) const
 		halt->info( buf );
 	}
 
-	for(int i = 0; i < MAX_WEGE; i++) {
-		if(wege[i]) {
-
-			if(wege[i]->gib_waytype()==water_wt  &&  !ist_wasser()) {
-				wege[i]->info(buf);
-			}
-			else {
-				wege[i]->info(buf);
-			}
+	if(!ist_wasser()) {
+		if(flags&has_way1) {
+			obj_bei(0)->info(buf);
+		}
+		if(flags&has_way2) {
+			obj_bei(1)->info(buf);
 		}
 	}
 
@@ -480,28 +501,27 @@ void grund_t::setze_halt(halthandle_t halt) {
 void grund_t::calc_bild()
 {
 	// recalc way image
-	if(ist_uebergang()  &&  wegbauer_t::gib_kreuzung(wege[1]->gib_waytype(), wege[0]->gib_waytype())) {
-		ribi_t::ribi ribi0 = wege[0]->gib_ribi();
-		ribi_t::ribi ribi1 = wege[1]->gib_ribi();
+	if(ist_uebergang()) {
+		weg_t *wege[2];
+		wege[0] = gib_weg_nr(0);
+		wege[1] = gib_weg_nr(1);
+		if(wegbauer_t::gib_kreuzung(gib_weg_nr(1)->gib_waytype(), gib_weg_nr(0)->gib_waytype())) {
+			ribi_t::ribi ribi0 = wege[0]->gib_ribi();
+			ribi_t::ribi ribi1 = wege[1]->gib_ribi();
 
-		if(ribi_t::ist_gerade_ns(ribi0) || ribi_t::ist_gerade_ow(ribi1)) {
-			wege[0]->setze_bild( 0, wegbauer_t::gib_kreuzung(wege[0]->gib_waytype(), wege[1]->gib_waytype() )->gib_bild_nr() );
-		}
-		else {
-			wege[0]->setze_bild( 0, wegbauer_t::gib_kreuzung(wege[1]->gib_waytype(), wege[0]->gib_waytype() )->gib_bild_nr() );
-		}
-		wege[1]->setze_bild( 0, IMG_LEER );
-	}
-	else {
-		// a bridge will set this to empty anyway ...
-		if(wege[0]) {
-			wege[0]->calc_bild();
-		}
-		if(wege[1]) {
-			wege[1]->calc_bild();
+			if(ribi_t::ist_gerade_ns(ribi0) || ribi_t::ist_gerade_ow(ribi1)) {
+				wege[0]->setze_bild( 0, wegbauer_t::gib_kreuzung(wege[0]->gib_waytype(), wege[1]->gib_waytype() )->gib_bild_nr() );
+			}
+			else {
+				wege[0]->setze_bild( 0, wegbauer_t::gib_kreuzung(wege[1]->gib_waytype(), wege[0]->gib_waytype() )->gib_bild_nr() );
+			}
+			wege[1]->setze_bild( 0, IMG_LEER );
 		}
 	}
+
+	// will automatically recalculate ways ...
 	dinge.calc_bild();
+
 	// Das scheint die beste Stelle zu sein
 	if(ist_karten_boden()) {
 		reliefkarte_t::gib_karte()->calc_map_pixel(gib_pos().gib_2d());
@@ -516,9 +536,8 @@ void grund_t::calc_bild()
 bool
 grund_t::hat_gebaeude(const haus_besch_t *besch) const
 {
-    gebaeude_t *gb = static_cast<gebaeude_t *>(suche_obj(ding_t::gebaeude));
-
-    return gb && gb->gib_tile()->gib_besch() == besch;
+	gebaeude_t *gb = static_cast<gebaeude_t *>(suche_obj(ding_t::gebaeude));
+	return gb && gb->gib_tile()->gib_besch() == besch;
 }
 
 
@@ -526,29 +545,23 @@ grund_t::hat_gebaeude(const haus_besch_t *besch) const
 depot_t
 *grund_t::gib_depot() const
 {
-    ding_t *dt = obj_bei(PRI_DEPOT);
-
-    return dynamic_cast<depot_t *>(dt);
+	ding_t *dt = obj_bei(PRI_DEPOT);
+	return dynamic_cast<depot_t *>(dt);
 }
 
 
 
 const char * grund_t::gib_weg_name(waytype_t typ) const
 {
-    weg_t   *weg = (typ==invalid_wt) ? wege[0] : gib_weg(typ);
-
-    if(weg) {
-		return weg->gib_name();
-    } else {
-		return NULL;
-    }
+	weg_t   *weg = gib_weg(typ);
+	return weg ? weg->gib_name() : NULL;
 }
 
 
 
 ribi_t::ribi grund_t::gib_weg_ribi(waytype_t typ) const
 {
-    weg_t *weg = gib_weg(typ);
+	weg_t *weg = gib_weg(typ);
 	return (weg) ? weg->gib_ribi() : (ribi_t::ribi)ribi_t::keine;
 }
 
@@ -556,8 +569,19 @@ ribi_t::ribi grund_t::gib_weg_ribi(waytype_t typ) const
 
 ribi_t::ribi grund_t::gib_weg_ribi_unmasked(waytype_t typ) const
 {
-    weg_t *weg = gib_weg(typ);
+	weg_t *weg = gib_weg(typ);
 	return (weg) ? weg->gib_ribi_unmasked() : (ribi_t::ribi)ribi_t::keine;
+}
+
+
+
+// do not take out ways ...
+ding_t *
+grund_t::obj_takeout(uint8 pos)
+{
+	if(pos==0  && flags&has_way1) return NULL;
+	if(pos==1  && flags&has_way2) return NULL;
+	return dinge.remove_at(pos);
 }
 
 
@@ -608,7 +632,7 @@ void grund_t::calc_back_bild(const sint8 hgt,const sint8 slope_this)
 	const koord k = gib_pos().gib_2d();
 
 	clear_flag(grund_t::draw_as_ding);
-	if((wege[0]  &&  wege[0]->gib_besch()->is_draw_as_ding())  ||  (wege[1]  &&  wege[1]->gib_besch()->is_draw_as_ding())) {
+	if(((flags&has_way1)  &&  ((weg_t *)obj_bei(0))->gib_besch()->is_draw_as_ding())  ||  ((flags&has_way2)  &&  ((weg_t *)obj_bei(1))->gib_besch()->is_draw_as_ding())) {
 		set_flag(grund_t::draw_as_ding);
 	}
 	bool	left_back_is_building = false;
@@ -787,13 +811,13 @@ grund_t::display_boden( const sint16 xpos, const sint16 ypos, const bool /*reset
 		}
 	}
 
-	if(wege[0]) {
+	if(flags&has_way1) {
 		sint16 ynpos = ypos-tile_raster_scale_y( gib_weg_yoff(), rasterweite );
 		if(besitzer_n==-1) {
-			display_img(wege[0]->gib_bild(), xpos, ynpos, dirty);
+			display_img(obj_bei(0)->gib_bild(), xpos, ynpos, dirty);
 		}
 		else {
-			display_color_img(wege[0]->gib_bild(), xpos, ynpos, gib_besitzer()->get_player_color(), true, dirty);
+			display_color_img(obj_bei(0)->gib_bild(), xpos, ynpos, gib_besitzer()->get_player_color(), true, dirty);
 		}
 #ifdef DEBUG_PBS
 		if(dirty  &&  (wege[0]->gib_waytype()==track_wt)  &&  ((schiene_t *)wege[0])->is_reserved()) {
@@ -802,13 +826,13 @@ grund_t::display_boden( const sint16 xpos, const sint16 ypos, const bool /*reset
 #endif
 	}
 
-	if(wege[1]){
+	if(flags&has_way2){
 		sint16 ynpos = ypos-tile_raster_scale_y( gib_weg_yoff(), rasterweite );
 		if(besitzer_n==-1) {
-			display_img(wege[1]->gib_bild(), xpos, ynpos, dirty);
+			display_img(obj_bei(1)->gib_bild(), xpos, ynpos, dirty);
 		}
 		else {
-			display_color_img(wege[1]->gib_bild(), xpos, ynpos, gib_besitzer()->get_player_color(), true, dirty);
+			display_color_img(obj_bei(1)->gib_bild(), xpos, ynpos, gib_besitzer()->get_player_color(), true, dirty);
 		}
 	}
 }
@@ -821,6 +845,7 @@ grund_t::display_dinge(const sint16 xpos, sint16 ypos, bool reset_dirty)
 {
 //	DBG_DEBUG("grund_t::display_dinge()","at %i,%i",pos.x,pos.y);
 	const bool dirty = get_flag(grund_t::dirty);
+	const uint8 start_offset=offsets[flags/has_way1];
 
 	if(!ist_im_tunnel()) {
 		if(reset_dirty  &&  get_flag(grund_t::marked)) {
@@ -828,11 +853,11 @@ grund_t::display_dinge(const sint16 xpos, sint16 ypos, bool reset_dirty)
 			uint8 back_hang = (hang&1) + ((hang>>1)&6)+8;
 //DBG_DEBUG("grund_t::display_dinge()","marker at %i,%i, img=%i",pos.x,pos.y,grund_besch_t::marker->gib_bild(back_hang));
 			display_img(grund_besch_t::marker->gib_bild(back_hang), xpos, ypos, dirty);
-			dinge.display_dinge( xpos, ypos, reset_dirty );
+			dinge.display_dinge( xpos, ypos, start_offset, reset_dirty );
 			display_img(grund_besch_t::marker->gib_bild(hang&7), xpos, ypos, dirty);
 		}
 		else {
-			dinge.display_dinge( xpos, ypos, reset_dirty );
+			dinge.display_dinge( xpos, ypos, start_offset, reset_dirty );
 		}
 	} else if(grund_t::underground_mode) {
 		// only grid lines for underground mode ...
@@ -930,8 +955,8 @@ long grund_t::neuen_weg_bauen(weg_t *weg, ribi_t::ribi ribi, spieler_t *sp)
 	if(alter_weg==NULL) {
 		// ok, we are unique
 
-		if(wege[0] == 0) {
-			// new way here
+		if((flags&has_way1)==0) {
+			// new first way here
 
 			// remove all trees
 			for( int i=gib_top();  i>=0;  i--  ) {
@@ -945,27 +970,28 @@ long grund_t::neuen_weg_bauen(weg_t *weg, ribi_t::ribi ribi, spieler_t *sp)
 			}
 
 			// add
-			wege[0] = weg;
+			dinge.insert_at( weg, 0 );
+			flags |= has_way1;
 		}
 		else {
 			// another way will be added
-			if(wege[1]) {
-				dbg->error("grund_t::neuen_weg_bauen()","cannot built more than two ways on %i,%i,%i!",pos.x,pos.y,pos.z);
+			if(flags&has_way2) {
+				dbg->fatal("grund_t::neuen_weg_bauen()","cannot built more than two ways on %i,%i,%i!",pos.x,pos.y,pos.z);
 				return 0;
 			}
 			// add the way
-			if(weg->gib_waytype()==road_wt  &&  wege[0]->gib_besch()->gib_styp()==7) {
+			if(weg->gib_waytype()==road_wt  &&  ((weg_t *)obj_bei(0))->gib_besch()->gib_styp()==7) {
 				// road add below tramway
-				wege[1] = wege[0];
-				wege[0] = weg;
+				dinge.insert_at( weg, 0 );
 			}
 			else {
-				wege[1] = weg;
+				dinge.insert_at( weg, 1 );
 			}
+			flags |= has_way2;
 		}
 
 		// just add the cost
-		if(gib_besitzer() && !ist_wasser()  &&  !ist_bruecke()) {
+		if(gib_besitzer() && !ist_wasser()) {
 			gib_besitzer()->add_maintenance(weg->gib_besch()->gib_wartung());
 		}
 		weg->setze_ribi(ribi);
@@ -991,7 +1017,7 @@ long grund_t::neuen_weg_bauen(weg_t *weg, ribi_t::ribi ribi, spieler_t *sp)
  */
 sint32 grund_t::weg_entfernen(waytype_t wegtyp, bool ribi_rem)
 {
-	weg_t   *weg = gib_weg(wegtyp);
+	weg_t *weg = gib_weg(wegtyp);
 
 	if(weg) {
 		if(ribi_rem) {
@@ -1011,24 +1037,28 @@ sint32 grund_t::weg_entfernen(waytype_t wegtyp, bool ribi_rem)
 
 		sint32 costs=0;	// costs for removal are construction costs
 
-		for(sint8 i=0, j=-1; i<MAX_WEGE; i++) {
-			if(wege[i]) {
-				if(wege[i]->gib_waytype()==wegtyp) {
-					if(gib_besitzer() && !ist_wasser()  &&  !ist_bruecke()) {
-						gib_besitzer()->add_maintenance(-wege[i]->gib_besch()->gib_wartung());
-					}
-
-					costs += wege[i]->gib_besch()->gib_preis();
-					delete wege[i];
-					wege[i] = NULL;
-
-					j = i;
+		if(flags&has_way1) {
+			weg_t *w=static_cast<weg_t *>(obj_bei(0));
+			if(w->gib_waytype()==wegtyp) {
+				costs += w->gib_besch()->gib_preis();
+				delete w;
+				flags &= ~has_way1;
+				// move second way one up ...
+				if(flags&has_way2) {
+					dinge.insert_at( dinge.remove_at(0), 0 );
+					flags &= ~has_way2;
+					flags |= has_way1;
 				}
-				else if(j != -1) {	// shift up!
-					wege[j] = wege[i];
-					wege[i] = NULL;
-					j = i;
-				}
+			}
+		}
+
+		// or delete the second way ...
+		if(flags&has_way2) {
+			weg_t *w=static_cast<weg_t *>(obj_bei(0));
+			if(w->gib_waytype()==wegtyp) {
+				costs += w->gib_besch()->gib_preis();
+				delete w;
+				flags &= ~has_way2;
 			}
 		}
 
@@ -1128,15 +1158,11 @@ int
 grund_t::get_max_speed() const
 {
 	int max = 0;
-	int i = 0;
-	int tmp = 0;
-
-	while(wege[i] && i<MAX_WEGE) {
-		tmp = wege[i]->gib_max_speed();
-		if (tmp > max) {
-			max = tmp;
-		}
-		i++;
+	if(flags&has_way1) {
+		max = ((weg_t *)obj_bei(0))->gib_max_speed();
+	}
+	if(flags&has_way2) {
+		max = min( max, ((weg_t *)obj_bei(0))->gib_max_speed() );
 	}
 	return max;
 }

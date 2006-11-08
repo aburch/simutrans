@@ -53,13 +53,11 @@ template <class K, class V> class ptrhashtable_tpl;
 class grund_t
 {
 public:
-  enum { MAX_WEGE=2 };
-
-  /**
-   * Flag-Werte für das neuzeichnen geänderter Untergründe
-   * @author Hj. Malthaner
-   */
-  enum flag_values {
+	/**
+	 * Flag-Werte für das neuzeichnen geänderter Untergründe
+	 * @author Hj. Malthaner
+	 */
+	enum flag_values {
 		keine_flags=0,
 		dirty=1, // was changed => redraw full
 		is_kartenboden=2,
@@ -69,7 +67,12 @@ public:
 #ifdef COVER_TILES
 		is_cover_tile = 32,	// is a ground; however, below is another ground ...
 #endif
-  };
+		has_way1 = 64,
+		has_way2 = 128
+	};
+
+	// just to calculate the offset for skipping the ways ...
+	static: uint8 grund_t::offsets[4];
 
 protected:
 	/**
@@ -94,21 +97,15 @@ protected:
 	dingliste_t dinge;
 
 	/**
-	 * The station this ground is bound to
-	 */
-	halthandle_t halt;
-
-	/**
-	 * Jeder Boden hat im Moment maximal 2 Wege (Kreuzungen sind 1 Weg).
-	 * Dieses Array darf immer nur bei den niedrigsten Indices gefuellt sein.
-	 */
-	weg_t *wege[MAX_WEGE];
-
-	/**
 	 * Koordinate in der Karte.
 	 * @author Hj. Malthaner
 	 */
 	koord3d pos;
+
+	/**
+	 * The station this ground is bound to
+	 */
+	halthandle_t halt;
 
 	/**
 	 * 0..100: slopenr, (bild_nr%100), normal ground
@@ -184,7 +181,6 @@ protected:
 
 protected:
 	grund_t(karte_t *wl);
-
 
 public:
   /**
@@ -418,8 +414,8 @@ public:
 	uint8  obj_pri_add(ding_t *obj, uint8 pri) { return dinge.add(obj, pri); }
 	uint8 insert_before_moving(ding_t *obj) { return dinge.insert_before_moving(obj); }
 	uint8  obj_remove(ding_t *obj, spieler_t *sp) { return dinge.remove(obj, sp); }
-	ding_t *obj_takeout(uint8 pos) { return dinge.remove_at(pos); }
-	bool obj_loesche_alle(spieler_t *sp) { return dinge.loesche_alle(sp); }
+	ding_t *obj_takeout(uint8 pos);
+	bool obj_loesche_alle(spieler_t *sp) { return dinge.loesche_alle(sp,offsets[flags/has_way1]); }
 	bool obj_ist_da(ding_t *obj) const { return dinge.ist_da(obj); }
 	ding_t * obj_bei(uint8 n) const { return dinge.bei(n); }
 	uint8  obj_count() const { return dinge.count(); }
@@ -461,7 +457,7 @@ public:
 	* The only way to get the typ of a way on a tile
 	* @author Hj. Malthaner
 	*/
-	weg_t *gib_weg_nr(int i) const { return (this  &&  wege[i]) ? wege[i] : NULL; }
+	weg_t *gib_weg_nr(int i) const { return (flags&(has_way1<<i)) ? static_cast<weg_t *>(obj_bei(0)) : NULL; }
 
 	/**
 	* Inline da sehr oft aufgerufen.
@@ -469,25 +465,22 @@ public:
 	* @author Hj. Malthaner
 	*/
 	weg_t *gib_weg(waytype_t typ) const {
-		if(wege[0]  &&  wege[0]->gib_waytype() == typ) {
-			return wege[0];
+		if(flags&has_way1) {
+			weg_t *w=(weg_t *)obj_bei(0);
+			if(w->gib_waytype()==typ) {
+				return w;
+			}
 		}
-		if(wege[1]  &&  wege[1]->gib_waytype() == typ) {
-			return wege[1];
+		if(flags&has_way2) {
+			weg_t *w=(weg_t *)obj_bei(1);
+			if(w->gib_waytype()==typ) {
+				return w;
+			}
 		}
 		return NULL;
 	}
 
-	bool hat_weg(waytype_t typ) const {
-		if(wege[0]  &&  wege[0]->gib_waytype() == typ) {
-			return true;
-		}
-		if(wege[1]  &&  wege[1]->gib_waytype() == typ) {
-			return true;
-		}
-		return false;
-	}
-
+	bool hat_weg(waytype_t typ) const { return gib_weg(typ)!=NULL; }
 
 	/**
 	* Returns the system type s_type of a way of type typ at this location
@@ -537,14 +530,14 @@ public:
 	* Hat der Boden mindestens ein weg_t-Objekt? Liefert false furr Wasser!
 	* @author V. Meyer
 	*/
-	inline bool hat_wege() const { return wege[0] != NULL;}
+	inline bool hat_wege() const { return (flags&(has_way1|has_way2))!=0;}
 
 	/**
 	* Kreuzen sich hier 2 verschiedene Wege?
 	* Strassenbahnschienen duerfen nicht als Kreuzung erkannt werden!
 	* @author V. Meyer, dariok
 	*/
-	inline bool ist_uebergang() const {return (wege[1]  &&  wege[0]->gib_besch()->gib_wtyp()!=wege[1]->gib_besch()->gib_wtyp()  &&  wege[1]->gib_besch()->gib_styp()!=7); }
+	inline bool ist_uebergang() const { return (flags&has_way2)!=0  &&  ((weg_t *)obj_bei(1))->gib_besch()->gib_styp()!=7; }
 
 	/**
 	* Liefert einen Text furr die Ueberschrift des Info-Fensters.

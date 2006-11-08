@@ -19,6 +19,7 @@ Release of 99.03.1
 	CHANGE: (tron) assembler corrections, code cleanup
 	CHANGE: tunnel code changed (might not load 99.03 savegames!)
 	CHANGE: 6 byte less for planquadrat_t (i.e. per tile, although GCC gives us only four of them)
+	CHANGE: 8 byte less for grund_t => 14 bytes less per tile (12 with GCC) => map requires ~ 15-25% less memory
 
 
 Release of 99.03
