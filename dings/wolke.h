@@ -29,7 +29,7 @@ public:
     const char *gib_name() const {return "Wolke";};
     enum ding_t::typ gib_typ() const {return wolke;};
 
-    void zeige_info();
+    void zeige_info() {} // show no info
 
     void rdwr(loadsave_t *file);
 };

@@ -25,13 +25,7 @@ public:
 
 	const tunnel_besch_t *gib_besch() const { return besch; }
 
-	/**
-	 * @return Einen Beschreibungsstring für das Objekt, der z.B. in einem
-	 * Beobachtungsfenster angezeigt wird.
-	 * @author Hj. Malthaner
-	 */
-	virtual void info(cbuffer_t & buf) const;
-
+    void zeige_info() {} // show no info
 
 	virtual void rdwr(loadsave_t *file);
 

@@ -13,6 +13,8 @@
 #include "../dataobj/loadsave.h"
 #include "../dataobj/freelist.h"
 
+#include "../dings/tunnel.h"
+
 #include "../besch/grund_besch.h"
 #include "../besch/skin_besch.h"
 #include "../besch/tunnel_besch.h"
@@ -74,6 +76,17 @@ tunnelboden_t::rdwr(loadsave_t *file)
 		int int_hang = slope;
 		file->rdwr_long(int_hang, "\n");
 		slope = int_hang;
+	}
+	if(file->get_version()==99003) {
+		char  buf[256];
+		const tunnel_besch_t *besch = NULL;
+		file->rdwr_str(buf,255);
+		if(this->suche_obj(ding_t::tunnel)==NULL) {
+			besch = tunnelbauer_t::gib_besch(buf);
+			if(besch) {
+				obj_add(new tunnel_t(welt, gib_pos(), gib_besitzer(), besch));
+			}
+		}
 	}
 }
 

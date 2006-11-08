@@ -2622,13 +2622,13 @@ DBG_MESSAGE("karte_t::laden()", "%d ways loaded",weg_t::gib_alle_wege().count())
 			const int boden_count = plan->gib_boden_count();
 			for(int schicht=0; schicht<boden_count; schicht++) {
 				grund_t *gr = plan->gib_boden_bei(schicht);
-				gr->calc_bild();
 				for(int n=0; n<gr->gib_top(); n++) {
 					ding_t *d = gr->obj_bei(n);
 					if(d) {
 						d->laden_abschliessen();
 					}
 				}
+				gr->calc_bild();
 			}
 		}
 	}

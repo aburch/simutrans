@@ -34,6 +34,7 @@ tunnel_t::tunnel_t(karte_t *welt, loadsave_t *file) : ding_t(welt)
 	rdwr(file);
 	step_frequency = 0;
 	clean_up = false;
+	after_bild = IMG_LEER;
 }
 
 
@@ -44,18 +45,7 @@ tunnel_t::tunnel_t(karte_t *welt, koord3d pos, spieler_t *sp, const tunnel_besch
 	setze_besitzer( sp );
 	step_frequency = 0;
 	clean_up = false;
-}
-
-
-
-/**
- * @return Einen Beschreibungsstring für das Objekt, der z.B. in einem
- * Beobachtungsfenster angezeigt wird.
- * @author Hj. Malthaner
- */
-void tunnel_t::info(cbuffer_t & buf) const
-{
-	ding_t::info(buf);
+	after_bild = IMG_LEER;
 }
 
 
@@ -63,16 +53,12 @@ void tunnel_t::info(cbuffer_t & buf) const
 void
 tunnel_t::calc_bild()
 {
-	if(besch) {
-		const grund_t *gr = welt->lookup(gib_pos());
-		if(gr->ist_karten_boden()) {
-			setze_bild( 0, besch->gib_hintergrund_nr(gr->gib_grund_hang()) );
-			after_bild = besch->gib_vordergrund_nr(gr->gib_grund_hang());
-		}
-		else {
-			setze_bild( 0, IMG_LEER );
-			after_bild = IMG_LEER;
-		}
+	const grund_t *gr = welt->lookup(gib_pos());
+	if(gr->ist_karten_boden()) {
+		setze_bild( 0, besch->gib_hintergrund_nr(gr->gib_grund_hang()) );
+		after_bild = besch->gib_vordergrund_nr(gr->gib_grund_hang());
+	}
+	else {
 	}
 }
 
@@ -106,39 +92,38 @@ void tunnel_t::laden_abschliessen()
 		besch = tunnelbauer_t::find_tunnel( gr->gib_weg_nr(0)->gib_typ(), 999, 0 );
 	}
 
-	if(gr->gib_grund_hang()==0  &&  sp) {
+	if(sp) {
 		// inside tunnel => do nothing but change maitainance
 		weg_t *weg = gr->gib_weg(besch->gib_wegtyp());
 		weg->setze_max_speed(besch->gib_topspeed());
 		sp->add_maintenance(-weg->gib_besch()->gib_wartung());
 		sp->add_maintenance( besch->gib_wartung() );
-		return;
-	}
-
-	if(besch) {
-		// correct speed and maitenance for old tunnels
-
-		// proceed until the other end
-		koord3d pos = gib_pos();
-		const koord zv = koord(welt->lookup(pos)->gib_grund_hang());
-
-		// now look up everything
-		// reset speed and maitenance
-		while(1) {
-			tunnelboden_t *gr = dynamic_cast<tunnelboden_t *>(welt->lookup(pos));
-			if(gr==NULL) {
-				// no tunnel any more, or already assigned a description
-				break;
-			}
-			if(gr->suche_obj(ding_t::tunnel)==NULL) {
-				gr->obj_add(new tunnel_t(welt, pos, sp, besch));
-				weg_t *weg = gr->gib_weg(besch->gib_wegtyp());
-				weg->setze_max_speed(besch->gib_topspeed());
-				sp->add_maintenance(-weg->gib_besch()->gib_wartung());
-				sp->add_maintenance( besch->gib_wartung() );
-			}
-			pos += zv;
+		if(gr->gib_grund_hang()==gr->gib_weg_hang()){
+			return;
 		}
 	}
-	calc_bild();
+
+	// correct speed and maitenance for old tunnels
+
+	// proceed until the other end
+	koord3d pos = gib_pos();
+	const koord zv = koord(welt->lookup(pos)->gib_grund_hang());
+
+	// now look up everything
+	// reset speed and maitenance
+	while(1) {
+		tunnelboden_t *gr = dynamic_cast<tunnelboden_t *>(welt->lookup(pos));
+		if(gr==NULL) {
+			// no tunnel any more, or already assigned a description
+			break;
+		}
+		if(gr->suche_obj(ding_t::tunnel)==NULL) {
+			gr->obj_add(new tunnel_t(welt, pos, sp, besch));
+			weg_t *weg = gr->gib_weg(besch->gib_wegtyp());
+			weg->setze_max_speed(besch->gib_topspeed());
+			sp->add_maintenance(-weg->gib_besch()->gib_wartung());
+			sp->add_maintenance( besch->gib_wartung() );
+		}
+		pos += zv;
+	}
 }

@@ -33,11 +33,7 @@ wolke_t::wolke_t(karte_t *welt, koord3d pos, int x_off, int y_off, image_id bild
     insta_zeit = 0;
 }
 
-void
-wolke_t::zeige_info()
-{
-    // wolken sollten keine Infofenster erzeugen
-}
+
 
 void
 wolke_t::rdwr(loadsave_t *file)

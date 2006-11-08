@@ -74,42 +74,40 @@ void ding_t::entferne_ding_info() {
 
 void ding_t::init(karte_t *wl)
 {
-    welt = wl;
-    pos = koord3d::invalid;    // nicht in der karte enthalten!
+	welt = wl;
+	pos = koord3d::invalid;    // nicht in der karte enthalten!
 
-    xoff = 0;
-    yoff = 0;
+	xoff = 0;
+	yoff = 0;
 
-    besitzer_n = -1;
+	besitzer_n = -1;
 
-    bild = (unsigned short)IMG_LEER;
+	bild = (image_id)IMG_LEER;
 
-    step_frequency = 1;
+	step_frequency = 1;
 
-    flags = keine_flags;
-    set_flag(dirty);
+	flags = keine_flags;
+	set_flag(dirty);
 }
 
 
 ding_t::ding_t(karte_t *wl)
 {
-    init(wl);
+	init(wl);
 }
 
 
 ding_t::ding_t(karte_t *wl, loadsave_t *file)
 {
-    init(wl);
-
-    rdwr(file);
+	init(wl);
+	rdwr(file);
 }
 
 
 ding_t::ding_t(karte_t *wl, koord3d pos)
 {
-    init(wl);
-
-    this->pos = pos;
+	init(wl);
+	this->pos = pos;
 }
 
 
