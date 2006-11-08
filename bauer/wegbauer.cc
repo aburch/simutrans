@@ -1764,7 +1764,6 @@ wegbauer_t::baue_tunnelboden()
 void
 wegbauer_t::baue_elevated()
 {
-	long cost = 0;
 	for(int i=0; i<=max_n; i++) {
 
 		planquadrat_t *plan = welt->access(route->at(i).gib_2d());
