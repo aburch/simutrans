@@ -603,10 +603,10 @@ DBG_MESSAGE("wegbauer_t::is_allowed_step()","wrong ground already there!");
 		{
 			const weg_t *sch=to->gib_weg(track_wt);
 			// extra check for AI construction (not adding to existing tracks!)
-			if(bautyp&bot_flag  &&  (gb  ||  sch  ||  to->gib_halt().is_bound())) {
+			if((bautyp&bot_flag)!=0  &&  (gb  ||  sch  ||  to->gib_halt().is_bound())) {
 				return false;
 			}
-			ok =	(ok&!fundament  ||  check_crossing(zv,to,road_wt))  &&  (!to->hat_wege()  ||  sch)  &&
+			ok =	!fundament  &&  !to->ist_wasser()  &&  (!to->hat_wege()  ||  sch  ||  check_crossing(zv,to,road_wt))  &&
 					check_owner(to->gib_besitzer(),sp) &&
 					check_for_leitung(zv,to);
 			if(ok) {
@@ -620,7 +620,7 @@ DBG_MESSAGE("wegbauer_t::is_allowed_step()","wrong ground already there!");
 						return false;
 					}
 					// now we have a halt => check for direction
-					if(sch  &&  ribi_t::ist_kreuzung(ribi_typ(to_pos,from_pos)|sch->gib_ribi_unmasked())  ) {
+					if(sch  &&  ribi_t::ist_kreuzung(ribi_typ(to_pos,from_pos)|sch->gib_ribi_unmasked())) {
 						// no crossings on stops
 						return false;
 					}
@@ -1508,6 +1508,7 @@ wegbauer_t::intern_calc_route_runways(koord3d start3d, const koord3d ziel3d)
 void
 wegbauer_t::calc_straight_route(koord3d start, const koord3d ziel)
 {
+	DBG_MESSAGE("wegbauer_t::calc_straight_route()","from %d,%d,%d to %d,%d,%d",start.x,start.y,start.z, ziel.x,ziel.y,ziel.z );
 	if(bautyp==luft  &&  besch->gib_topspeed()>=250) {
 		// these are straight anyway ...
 		intern_calc_route_runways(start, ziel);
@@ -1942,22 +1943,6 @@ wegbauer_t::baue_leitung()
 			INT_CHECK( "wegbauer 1584" );
 		}
 	}
-}
-
-
-
-/* built a coordinate list
- * @author prissi
- */
-void
-wegbauer_t::baue_strecke( slist_tpl <koord> &list )
-{
-	max_n = list.count()-1;
-	for(  int i=0;  i<=max_n;  i++  ) {
-		route->at(i) = welt->lookup(list.at(i))->gib_kartenboden()->gib_pos();
-	}
-	baue();
-	baue_tunnel_und_bruecken();
 }
 
 

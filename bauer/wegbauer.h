@@ -227,11 +227,6 @@ public:
 	bool check_crossing(const koord zv, const grund_t *bd,waytype_t wtyp) const;
 	bool check_for_leitung(const koord zv, const grund_t *bd) const;
 
-	/* built a corrdinate list
-	* @author prissi
-	*/
-	void baue_strecke( slist_tpl <koord> &list );
-
 	void baue();
 };
 

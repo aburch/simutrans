@@ -77,6 +77,7 @@ static void show_sizes()
 	DBG_MESSAGE("test", "koord: %d", sizeof(koord));
 	DBG_MESSAGE("test", "koord3d: %d", sizeof(koord3d));
 	DBG_MESSAGE("test", "ribi_t::ribi: %d", sizeof(ribi_t::ribi));
+	DBG_MESSAGE("test", "halthandle_t: %d\n", sizeof(halthandle_t));
 
 	DBG_MESSAGE("test", "ding_t: %d", sizeof(ding_t));
 	DBG_MESSAGE("test", "gebaeude_t: %d", sizeof(gebaeude_t));

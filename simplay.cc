@@ -1822,13 +1822,12 @@ DBG_MESSAGE("spieler_t::baue_bahnhof","failed");
 
 	INT_CHECK("simplay 593");
 
+    koord pos;
+
 	wegbauer_t bauigel(welt, this);
 	bauigel.baubaer = false;
-
-	INT_CHECK("simplay 599");
-
 	bauigel.route_fuer(wegbauer_t::schiene, rail_weg);
-	bauigel.calc_route(welt->lookup(*p)->gib_kartenboden()->gib_pos(), welt->lookup(t)->gib_kartenboden()->gib_pos());
+	bauigel.calc_straight_route(welt->lookup((*p)-zv)->gib_kartenboden()->gib_pos(), welt->lookup(t)->gib_kartenboden()->gib_pos());
 	bauigel.baue();
 
 	// to avoid broken stations, they will be always built next to an existing
@@ -1836,7 +1835,6 @@ DBG_MESSAGE("spieler_t::baue_bahnhof","failed");
 
 	// find a freight train station
 	const haus_besch_t *besch=hausbauer_t::gib_random_station( hausbauer_t::bahnhof, welt->get_timeline_year_month(), haltestelle_t::WARE );
-     koord pos;
 	for(  pos=*p;  pos!=t+zv;  pos+=zv ) {
 		if(  make_all_bahnhof  ||  is_my_halt(pos+koord(-1,-1))  ||  is_my_halt(pos+koord(-1,1))  ||  is_my_halt(pos+koord(1,-1))  ||  is_my_halt(pos+koord(1,1))  ) {
 			// start building, if next to an existing station
@@ -1846,12 +1844,10 @@ DBG_MESSAGE("spieler_t::baue_bahnhof","failed");
 		INT_CHECK("simplay 753");
 	}
 	// now add the other squares (going backwards)
-	baulaenge = 0;
 	for(  pos=t;  pos!=*p-zv;  pos-=zv ) {
 		if(  !is_my_halt(pos)  ) {
 			wkz_halt(this, welt, pos, besch);
 		}
-		baulaenge ++;
 	}
 
 DBG_MESSAGE("spieler_t::baue_bahnhof","set pos *p %i,%i to %i,%i",p->x,p->y,t.x,t.y);
