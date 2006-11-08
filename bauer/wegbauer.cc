@@ -577,8 +577,8 @@ DBG_MESSAGE("wegbauer_t::is_allowed_step()","wrong ground already there!");
 		{
 			const weg_t *str=to->gib_weg(road_wt);
 			const weg_t *sch=to->gib_weg(track_wt);
-			ok =	(str  ||  !fundament)  &&  (sch==NULL  ||  check_crossing(zv,to,track_wt)  ||  sch->gib_besch()->gib_styp()==7) &&
-					!to->ist_wasser()  &&  (!to->hat_wege()  ||  str)  &&  (str==NULL  ||  check_owner(to->gib_besitzer(),sp))  &&
+			ok =	(str  ||  !fundament)  &&  ((!to->hat_wege()  ||  sch==NULL)  ||  (check_crossing(zv,to,track_wt)  ||  sch->gib_besch()->gib_styp()==7)) &&
+					!to->ist_wasser()  &&  (str!=NULL  ||  check_owner(to->gib_besitzer(),sp))  &&
 					check_for_leitung(zv,to);
 			if(ok) {
 				const weg_t *from_str=from->gib_weg(road_wt);
@@ -638,9 +638,11 @@ DBG_MESSAGE("wegbauer_t::is_allowed_step()","wrong ground already there!");
 		break;
 
 		// like tram, but checks for bridges too
+		// will not connect to any other ways
 		case monorail:
+		default:
 		{
-			const weg_t *sch=to->gib_weg(monorail_wt);
+			const weg_t *sch=to->gib_weg((waytype_t)besch->gib_wtyp());
 			// extra check for AI construction (not adding to existing tracks!)
 			if(bautyp&bot_flag  &&  (gb  ||  sch  ||  to->gib_halt().is_bound())) {
 				return false;
@@ -648,7 +650,7 @@ DBG_MESSAGE("wegbauer_t::is_allowed_step()","wrong ground already there!");
 			if((bautyp&elevated_flag)==0) {
 				// classical monorail
 				ok =	!to->ist_wasser()  &&  !fundament  &&
-					(to->hat_wege()==0  ||  sch)  &&  (from->hat_wege()==0  ||  from->hat_weg(monorail_wt))
+					(to->hat_wege()==0  ||  sch)  &&  (from->hat_wege()==0  ||  from->hat_weg((waytype_t)besch->gib_wtyp()))
 					&&  check_owner(to->gib_besitzer(),sp) && check_for_leitung(zv,to)  && !to->gib_depot();
 				// check for end/start of bridge
 				if(to->gib_weg_hang()!=to->gib_grund_hang()  &&  (sch==NULL  ||  ribi_t::ist_kreuzung(ribi_typ(to_pos,from_pos)|sch->gib_ribi_unmasked()))) {

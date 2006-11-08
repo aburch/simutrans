@@ -199,7 +199,7 @@ baum_t::calc_bild(const unsigned long alter)
 inline void
 baum_t::calc_bild()
 {
-    calc_bild(welt->get_current_month() - geburt);
+	calc_bild(welt->get_current_month() - geburt);
 }
 
 

@@ -1948,8 +1948,7 @@ waggon_t::ist_weg_frei(int & restart_speed)
 		return false;
 	}
 
-//	const schiene_t * sch1 = (const schiene_t *) welt->lookup( pos_next )->gib_weg(gib_wegtyp());
-	if(welt->lookup( pos_next )->hat_weg(gib_wegtyp())) {
+	if(!welt->lookup( pos_next )->hat_weg(gib_wegtyp())) {
 		return false;
 	}
 	if(!ist_erstes) {

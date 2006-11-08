@@ -71,8 +71,8 @@ public:
 
 	void rdwr(loadsave_t *file);
 
-	const char *gib_name() const {return "Baum";};
-	enum ding_t::typ gib_typ() const {return baum;};
+	const char *gib_name() const {return "Baum";}
+	enum ding_t::typ gib_typ() const {return baum;}
 
 	bool check_season(const long delta_t);
 

@@ -18,6 +18,7 @@ Release of 99.03.1
 	FIX: scrolling with right mouse button for all pak sizes
 	CHANGE: (tron) assembler corrections, code cleanup
 	CHANGE: tunnel code changed (will not load 99.03 savegames! Underground mode was experimental, you have been warned!)
+	CHANGE: 6 byte less for planquadrat_t (i.e. per tile, although GCC gives us only four of them)
 
 
 Release of 99.03
