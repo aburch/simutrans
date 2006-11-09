@@ -1,8 +1,4 @@
 #include <stdio.h>
-#include <stdlib.h>
-#ifdef _MSC_VER
-#include <malloc.h> // for alloca
-#endif
 #include "../../simdebug.h"
 
 #include "../text_besch.h"

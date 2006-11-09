@@ -1,4 +1,3 @@
-#include <stdlib.h>
 #include <string.h>
 
 #include "../../utils/cstring_t.h"
