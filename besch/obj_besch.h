@@ -30,11 +30,6 @@ class obj_besch_t {
  protected:
     obj_besch_t *gib_kind(int i) const { return node_info[i]; }
 
-    /**
-     * Hajo 11-Oct-03: I made this public to allow reader_t subclasses
-     * to access the field easily. I recommend noone but reader_t
-     * subclasses should write this field!
-     */
 		/*
 		 * Internal Node information - the derived class knows,
 		 * how many node child nodes really exist.
