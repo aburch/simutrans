@@ -25,12 +25,14 @@ class text_besch_t : public obj_besch_t {
     friend class text_writer_t;
 
 public:
-    const char *gib_text() const
-    {
-		return reinterpret_cast<const char *>(this + 1);
-    }
+		const char* gib_text() const { return text; }
 
 		using obj_besch_t::operator new;
+
+	private:
+		char text[];
+
+	friend class text_reader_t;
 };
 
 #endif

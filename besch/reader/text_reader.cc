@@ -13,7 +13,7 @@ obj_besch_t * text_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 	besch->node_info = new obj_besch_t*[node.children];
 
 	// Hajo: Read data
-	fread(besch+1, node.size, 1, fp);
+	fread(besch->text, node.size, 1, fp);
 
 //	DBG_DEBUG("text_reader_t::read_node()", "%s",besch->gib_text() );
 
