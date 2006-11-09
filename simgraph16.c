@@ -2012,29 +2012,9 @@ void display_array_wh(KOORD_VAL xp, KOORD_VAL yp, KOORD_VAL w, KOORD_VAL h, cons
 		do {
 			unsigned int ww = w;
 
-#ifdef USE_C
 			do {
 				*p++ = rgbcolormap[*arr_src++];
-				ww--;
-			} while (ww > 0);
-#else
-			asm volatile (
-				"cld\n"
-				".Ldaw:\n\t"
-				"lodsb\n\t"
-				"movzbl %%al, %%eax\n\t"
-#if defined(__MINGW32__) || defined(__CYGWIN__)
-				"movw _rgbcolormap(%%eax, %%eax), %%ax\n\t"
-#else
-				"movw rgbcolormap(%%eax, %%eax), %%ax\n\t"
-#endif
-				"stosw\n\t"
-				"loopl .Ldaw\n\t"
-				: "+D" (p), "+S" (arr_src), "+c" (ww)
-				:
-				: "eax"
-			);
-#endif
+			} while (--ww > 0);
 			arr_src += arr_w - w;
 			p += disp_width - w;
 		} while (--h != 0);
