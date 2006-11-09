@@ -10,7 +10,7 @@
 
 void skin_reader_t::register_obj(obj_besch_t *&data)
 {
-    skin_besch_t *besch = reinterpret_cast<skin_besch_t *>(data);
+	skin_besch_t* besch = static_cast<skin_besch_t*>(data);
 
     if(get_skintype() != skinverwaltung_t::nothing)
 	skinverwaltung_t::register_besch(get_skintype(), besch);

@@ -206,7 +206,7 @@ DBG_DEBUG("factory_reader_t::read_node()","version=0");
 
 void factory_reader_t::register_obj(obj_besch_t *&data)
 {
-    fabrik_besch_t *besch = reinterpret_cast<fabrik_besch_t *>(data);
+	fabrik_besch_t* besch = static_cast<fabrik_besch_t*>(data);
     fabrikbauer_t::register_besch(besch);
 //    printf("...Fabrik %s geladen\n", besch->gib_name());
 }
