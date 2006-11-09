@@ -1,6 +1,6 @@
 #include <stdio.h>
 #include "../../simdebug.h"
-
+#include "../xref_besch.h"
 #include "xref_reader.h"
 
 #include "../obj_node_info.h"
@@ -8,11 +8,15 @@
 
 obj_besch_t * xref_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 {
-	obj_besch_t* besch = new(node.size) obj_besch_t();
+	xref_besch_t* besch = new(node.size - 4 - 1) xref_besch_t();
 	besch->node_info = new obj_besch_t*[node.children];
 
-	// Hajo: Read data
-	fread(besch+1, node.size, 1, fp);
+	char buf[4 + 1];
+	fread(buf, 1, 5, fp);
+	char* p = buf;
+	besch->type = static_cast<obj_type>(decode_uint32(p));
+	besch->fatal = (decode_uint8(p) != 0);
+	fread(besch->name, 1, node.size - 4 - 1, fp);
 
 //	DBG_DEBUG("xref_reader_t::read_node()", "%s",besch->gib_text() );
 
@@ -22,18 +26,14 @@ obj_besch_t * xref_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 
 void xref_reader_t::register_obj(obj_besch_t *&data)
 {
-    char *rest = reinterpret_cast<char *>(data + 1);
-    obj_type *typ = (obj_type *)rest;
-    bool fatal = rest[sizeof(obj_type)] != 0;
-    char *text = rest + sizeof(obj_type) + 1;
+	xref_besch_t* besch = static_cast<xref_besch_t*>(data);
 
-    if(*text) {
-	xref_to_resolve(*typ, text, &data, fatal);
-    }
-    else if(fatal) {
-	xref_to_resolve(*typ, "", &data, fatal);
-    } else {
-	delete_node(data);
-	data = NULL;
-    }
+	if (besch->name[0] != '\0') {
+		xref_to_resolve(besch->type, besch->name, &data, besch->fatal);
+	} else if (besch->fatal) {
+		xref_to_resolve(besch->type, "", &data, besch->fatal);
+	} else {
+		delete_node(data);
+		data = NULL;
+	}
 }

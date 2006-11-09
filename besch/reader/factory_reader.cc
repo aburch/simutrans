@@ -9,7 +9,7 @@
 #include "../../simdebug.h"
 #include "../obj_node_info.h"
 #include "../fabrik_besch.h"
-#include "xref_reader.h"
+#include "../xref_besch.h"
 
 #include "factory_reader.h"
 
@@ -51,7 +51,7 @@ void factory_smoke_reader_t::register_obj(obj_besch_t *&data)
 {
     rauch_besch_t *besch = static_cast<rauch_besch_t *>(data);
     // Xref ist hier noch nicht aufgelöst!
-    const char *name = xref_reader_t::get_name(besch->gib_kind(0));
+    const char* name = static_cast<xref_besch_t*>(besch->gib_kind(0))->get_name();
 
     raucher_t::register_besch(besch, name);
     //printf("...Fabrik %s geladen\n", besch->gib_name());
