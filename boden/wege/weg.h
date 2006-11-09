@@ -118,7 +118,7 @@ private:
 
 
 public:
-	weg_t(karte_t *welt, loadsave_t *file) : ding_t(welt) { init(); }
+	weg_t(karte_t* welt, loadsave_t*) : ding_t(welt) { init(); }
 	weg_t(karte_t *welt) : ding_t(welt) { init(); }
 
 	virtual ~weg_t();
