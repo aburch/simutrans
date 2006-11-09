@@ -12,6 +12,7 @@
  */
 
 #include "simdebug.h"
+#include "simgraph.h"
 #include "simmesg.h"
 #include "simworld.h"
 #include "simverkehr.h"

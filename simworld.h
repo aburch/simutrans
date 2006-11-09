@@ -33,7 +33,6 @@
 
 #include "simplan.h"
 
-#include "simgraph.h"
 #include "simdebug.h"
 
 struct event_t;

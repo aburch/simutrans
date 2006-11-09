@@ -13,7 +13,6 @@
 #include "../tpl/vector_tpl.h"
 #include "../ifc/gui_komponente.h"
 #include "../dataobj/translator.h"
-#include "../simgraph.h"
 #include "../simcolor.h"
 #include "components/gui_button.h"
 #include "fabrik_info.h"

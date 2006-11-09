@@ -10,6 +10,7 @@
 
 #include "simdebug.h"
 #include "simdings.h"
+#include "simgraph.h"
 #include "simplan.h"
 #include "simworld.h"
 #include "simhalt.h"

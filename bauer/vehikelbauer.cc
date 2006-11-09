@@ -7,6 +7,7 @@
  * in other projects without written permission of the author.
  */
 
+#include "../simgraph.h"
 #include "../simvehikel.h"
 #include "../simplay.h"
 #include "../simworld.h"  // for year/month

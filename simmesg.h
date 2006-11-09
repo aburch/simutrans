@@ -3,7 +3,6 @@
 #define simmesg_h
 
 #include "simtypes.h"
-#include "simgraph.h"
 #include "simcolor.h"
 #include "simworld.h"
 #include "simimg.h"
