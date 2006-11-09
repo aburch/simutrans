@@ -14,16 +14,10 @@
 #ifndef __PEDESTRIAN_WRITER_H
 #define __PEDESTRIAN_WRITER_H
 
-/*
- *  includes
- */
 #include "obj_writer.h"
 #include "../objversion.h"
 
 /*
- *  class:
- *      pedestrian_writer_t()
- *
  *  Autor:
  *      Volker Meyer
  *
@@ -44,4 +38,4 @@ public:
     virtual const char *get_type_name() const { return "pedestrian"; }
 };
 
-#endif // __PEDESTRIAN_WRITER_H
+#endif

@@ -3,7 +3,7 @@
 
 #if _MSC_VER > 1000
 #pragma once
-#endif // _MSC_VER > 1000
+#endif
 
 #include "../obj_node_info.h"
 #include <stdio.h>
@@ -51,4 +51,4 @@ public:
     void write(FILE *fp);
 };
 
-#endif // __OBJ_NODE_H
+#endif

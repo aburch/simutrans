@@ -19,9 +19,6 @@
 extern "C" {
 #endif
 
-/*
- *  includes
- */
 #ifdef __cplusplus
 #include "obj_besch.h"
 #else
@@ -31,9 +28,6 @@ extern "C" {
 #include "../simimg.h"
 
 /*
- *  class:
- *      bild_besch_t()
- *
  *  Autor:
  *      Volker Meyer
  *
@@ -80,4 +74,4 @@ struct bild_besch_t {
 }
 #endif
 
-#endif // __BILD_BESCH_H
+#endif

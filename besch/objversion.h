@@ -49,4 +49,4 @@ enum obj_type {
     obj_sound	    = C4ID('S','O','U','N')
 };
 
-#endif // __OBJVERSION_H
+#endif

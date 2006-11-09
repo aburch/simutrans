@@ -57,4 +57,4 @@ private:
     static PIXVAL* encode_image(int x, int y, dimension *dim, int *len);
 };
 
-#endif // __IMAGE_WRITER_H
+#endif

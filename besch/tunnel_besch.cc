@@ -17,9 +17,6 @@
 #include "../dataobj/ribi.h"
 #include "tunnel_besch.h"
 
-/*
- *  static data
- */
 
 int tunnel_besch_t::hang_indices[16] = {
     -1,			// 0:flach

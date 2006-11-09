@@ -77,4 +77,4 @@ public:
 
 };
 
-#endif // __SIMSKIN_H
+#endif

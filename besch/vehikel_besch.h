@@ -14,9 +14,6 @@
 #ifndef __VEHIKEL_BESCH_H
 #define __VEHIKEL_BESCH_H
 
-/*
- *  includes
- */
 #include "obj_besch_std_name.h"
 #include "ware_besch.h"
 #include "bildliste_besch.h"
@@ -24,12 +21,11 @@
 #include "skin_besch.h"
 #include "sound_besch.h"
 #include "../dataobj/ribi.h"
-
 #include "../simtypes.h"
-
 #include "intro_dates.h"
-
 #include "../simware.h"
+
+
 /**
  * Vehicle type description - all attributes of a vehicle type
  *
@@ -268,4 +264,4 @@ public:
 
 };
 
-#endif // __VEHIKEL_BESCH_H
+#endif

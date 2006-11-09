@@ -17,4 +17,4 @@ public:
     virtual obj_besch_t *read_node(FILE *fp, obj_node_info_t &node);
 };
 
-#endif // __IMAGELIST2D_READER_H
+#endif

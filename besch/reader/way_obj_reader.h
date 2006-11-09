@@ -26,4 +26,4 @@ public:
     virtual const char *get_type_name() const { return "way-object"; }
 };
 
-#endif // __WAY_READER_H
+#endif

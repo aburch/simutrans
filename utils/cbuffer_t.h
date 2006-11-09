@@ -93,4 +93,4 @@ class cbuffer_t
 
 };
 
-#endif // cbuffer_t_h
+#endif

@@ -14,9 +14,6 @@
 #ifndef __STADTAUTO_BESCH_H
 #define __STADTAUTO_BESCH_H
 
-/*
- *  includes
- */
 #include "obj_besch_std_name.h"
 #include "bildliste_besch.h"
 #include "../dataobj/ribi.h"
@@ -26,9 +23,6 @@
 
 
 /*
- *  class:
- *      stadtauto_besch_t()
- *
  *  Autor:
  *      Volker Meyer
  *
@@ -94,4 +88,4 @@ public:
 	}
 };
 
-#endif // __STADTAUTO_BESCH_H
+#endif

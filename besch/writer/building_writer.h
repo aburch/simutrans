@@ -42,4 +42,4 @@ public:
 
 };
 
-#endif // __BUILDING_WRITER_H
+#endif

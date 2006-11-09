@@ -25,4 +25,4 @@ public:
     virtual obj_besch_t *read_node(FILE *fp, obj_node_info_t &node);
 };
 
-#endif // __GOOD_READER_H
+#endif

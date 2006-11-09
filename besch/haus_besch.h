@@ -14,27 +14,17 @@
 #ifndef __HAUS_BESCH_H
 #define __HAUS_BESCH_H
 
-/*
- *  includes
- */
 #include "bildliste2d_besch.h"
 #include "obj_besch_std_name.h"
 #include "../dings/gebaeude.h"
 #include "../bauer/hausbauer.h"
-
 #include "intro_dates.h"
 
 
-/*
- *  forward declarations
- */
 class haus_besch_t;
 class skin_besch_t;
 
 /*
- *  class:
- *      haus_tile_besch_t()
- *
  *  Autor:
  *      Volker Meyer
  *
@@ -114,9 +104,6 @@ public:
 };
 
 /*
- *  class:
- *      haus_besch_t()
- *
  *  Autor:
  *      Volker Meyer
  *
@@ -273,4 +260,4 @@ public:
 	uint16 get_animation_time() const { return animation_time; }
 };
 
-#endif // __HAUS_BESCH_H
+#endif

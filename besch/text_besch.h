@@ -14,21 +14,12 @@
 #ifndef __TEXT_BESCH_H
 #define __TEXT_BESCH_H
 
-/*
- *  includes
- */
 #include "obj_besch.h"
 
 
 /*
- *  class:
- *      text_besch_t()
- *
  *  Autor:
  *      Volker Meyer
- *
- *  Beschreibung:
- *      ...
  */
 class text_besch_t : public obj_besch_t {
     friend class text_writer_t;
@@ -42,4 +33,4 @@ public:
 		using obj_besch_t::operator new;
 };
 
-#endif // __TEXT_BESCH_H
+#endif

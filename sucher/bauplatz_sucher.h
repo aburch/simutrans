@@ -29,4 +29,4 @@ public:
 	}
 };
 
-#endif // bauplatz_sucher_t_h
+#endif

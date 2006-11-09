@@ -52,4 +52,4 @@ class citylist_stats_t : public gui_komponente_t
     void zeichnen(koord offset);
 };
 
-#endif // citylist_stats_t_h
+#endif

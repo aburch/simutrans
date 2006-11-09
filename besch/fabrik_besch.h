@@ -14,9 +14,6 @@
 #ifndef __FABRIK_BESCH_H
 #define __FABRIK_BESCH_H
 
-/*
- *  includes
- */
 #include "obj_besch.h"
 #include "haus_besch.h"
 #include "skin_besch.h"
@@ -25,18 +22,15 @@
 
 
 /*
- *  class:
- *      rauch_besch_t()
- *
  *  Autor:
  *      Volker Meyer
  *
  *  Beschreibung:
  *      Der Rauch einer Fabrik verweist auf eine allgemeine Rauchbeschreibung
-  *
+ *
  *  Kindknoten:
  *	0   SKin
-*/
+ */
 class rauch_besch_t : public obj_besch_t {
 	friend class factory_smoke_writer_t;
 	friend class factory_smoke_reader_t;
@@ -57,9 +51,6 @@ public:
 
 
 /*
- *  class:
- *      fabrik_lieferant_besch_t()
- *
  *  Autor:
  *      Volker Meyer
  *
@@ -85,10 +76,8 @@ public:
 	int gib_verbrauch() const { return verbrauch; }
 };
 
+
 /*
- *  class:
- *      fabrik_produkt_besch_t()
- *
  *  Autor:
  *      Volker Meyer
  *
@@ -119,11 +108,7 @@ public:
 };
 
 
-
 /*
- *  class:
- *      fabrik_besch_t()
- *
  *  Autor:
  *      Volker Meyer
  *
@@ -194,4 +179,4 @@ public:
 	int gib_pax_level() const { return pax_level; };
 };
 
-#endif // __FABRIK_BESCH_H
+#endif

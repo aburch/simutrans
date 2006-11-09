@@ -21,4 +21,4 @@ public:
     virtual const char *get_type_name() const { return "tunnel"; }
 };
 
-#endif // __TUNNEL_READER_H
+#endif

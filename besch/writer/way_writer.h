@@ -24,4 +24,4 @@ public:
     virtual const char *get_type_name() const { return "way"; }
 };
 
-#endif // __WAY_WRITER_H
+#endif

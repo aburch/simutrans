@@ -14,15 +14,9 @@
 #ifndef __BILDLISTE_BESCH_H
 #define __BILDLISTE_BESCH_H
 
-/*
- *  includes
- */
 #include "bild_besch.h"
 
 /*
- *  class:
- *      bildliste_besch_t()
- *
  *  Autor:
  *      Volker Meyer
  *
@@ -60,4 +54,4 @@ public:
     }
 };
 
-#endif // __BILDLISTE_BESCH_H
+#endif

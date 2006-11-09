@@ -80,4 +80,4 @@ public:
     virtual const char *get_type_name() const { return "misc"; }
 };
 
-#endif // __SKIN_WRITER_H
+#endif

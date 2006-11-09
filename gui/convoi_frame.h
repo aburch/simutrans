@@ -160,4 +160,4 @@ public:
     bool action_triggered(gui_komponente_t *komp, value_t extra);
 };
 
-#endif // __convoi_frame_h
+#endif

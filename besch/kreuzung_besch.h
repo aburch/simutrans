@@ -14,23 +14,14 @@
 #ifndef __KREUZUNG_BESCH_H
 #define __KREUZUNG_BESCH_H
 
-/*
- *  includes
- */
 #include "obj_besch_std_name.h"
 #include "bild_besch.h"
 #include "../simtypes.h"
 
 
 /*
- *  class:
- *      kreuzung_besch_t()
- *
  *  Autor:
  *      Volker Meyer
- *
- *  Beschreibung:
- *      ...
  *
  *  Kindknoten:
  *	0   Name
@@ -57,4 +48,4 @@ public:
 	waytype_t gib_wegtyp_ow() const { return static_cast<waytype_t>(wegtyp_ow); }
 };
 
-#endif // __KREUZUNG_BESCH_H
+#endif

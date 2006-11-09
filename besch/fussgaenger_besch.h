@@ -14,17 +14,11 @@
 #ifndef __fussgaenger_besch_h
 #define __fussgaenger_besch_h
 
-/*
- *  includes
- */
 #include "obj_besch_std_name.h"
 #include "bildliste_besch.h"
 #include "../dataobj/ribi.h"
 
 /*
- *  class:
- *      fussgaenger_besch_t()
- *
  *  Autor:
  *      Volker Meyer
  *
@@ -54,4 +48,4 @@ public:
     }
 };
 
-#endif // __FUSSGAENGER_BESCH_H
+#endif

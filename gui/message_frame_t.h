@@ -60,4 +60,4 @@ public:
     bool action_triggered(gui_komponente_t *komp, value_t extra);
 };
 
-#endif //message_frame_h
+#endif

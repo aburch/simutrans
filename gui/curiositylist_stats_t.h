@@ -53,4 +53,4 @@ public:
 	void zeichnen(koord offset);
 };
 
-#endif // curiositylist_stats_t_h
+#endif

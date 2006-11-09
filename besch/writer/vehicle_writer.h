@@ -23,4 +23,4 @@ public:
     virtual const char *get_type_name() const { return "vehicle"; }
 };
 
-#endif // __VEHICLE_WRITER_H
+#endif

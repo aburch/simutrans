@@ -42,4 +42,4 @@ public:
 	static void write(FILE *fp, obj_node_t &parent, tabfileobj_t &obj);
 };
 
-#endif // __OBJ_WRITER
+#endif

@@ -18,4 +18,4 @@ public:
     virtual const char *get_type_name() const { return "ground"; }
 };
 
-#endif // __GROUND_READER_H
+#endif

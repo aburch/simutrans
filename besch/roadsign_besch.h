@@ -14,9 +14,6 @@
 #ifndef __ROADSIGN_BESCH_H
 #define __ROADSIGN_BESCH_H
 
-/*
- *  includes
- */
 #include "obj_besch_std_name.h"
 #include "bildliste_besch.h"
 #include "../dataobj/ribi.h"
@@ -27,9 +24,6 @@
 class skin_besch_t;
 
 /*
- *  class:
- *      roadsign_besch_t()
- *
  *  Autor:
  *      prissi
  *
@@ -120,4 +114,4 @@ public:
 	const uint16 get_retire_year_month() const { return obsolete_date; }
 };
 
-#endif // __ROADSIGN_BESCH_H
+#endif

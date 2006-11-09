@@ -14,18 +14,12 @@
 #ifndef __GRUND_BESCH_H
 #define __GRUND_BESCH_H
 
-/*
- *  includes
- */
 #include "obj_besch_std_name.h"
 #include "bildliste2d_besch.h"
 #include "../simtypes.h"
 #include "../dataobj/ribi.h"
 
 /*
- *  class:
- *      grund_besch_t()
- *
  *  Autor:
  *      Volker Meyer
  *
@@ -106,4 +100,4 @@ public:
 
 };
 
-#endif // __GRUND_BESCH_H
+#endif

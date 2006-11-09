@@ -161,4 +161,4 @@ public:
 	const sint16 gib_winter_snowline() const {return winter_snowline;}
 };
 
-#endif // dataobj_einstellungen_h
+#endif

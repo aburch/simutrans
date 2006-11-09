@@ -45,4 +45,4 @@ public:
   void zeichnen(koord offset);
 };
 
-#endif // message_stats_n
+#endif

@@ -14,9 +14,6 @@
 #ifndef __sound_besch_t
 #define __sound_besch_t
 
-/*
- *  includes
- */
 #include "obj_besch_std_name.h"
 #include "../simtypes.h"
 
@@ -24,9 +21,6 @@
 #define LOAD_SOUND (-2)
 
 /*
- *  class:
- *      sound_besch_t()
- *
  *  Autor:
  *      prissi
  *
@@ -78,4 +72,4 @@ public:
 };
 
 
-#endif // __sound_besch_t
+#endif

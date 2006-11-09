@@ -26,4 +26,4 @@ public:
     void write_obj(FILE *fp, obj_node_t &parent, const char *text);
 };
 
-#endif // __TEXT_WRITER_H
+#endif

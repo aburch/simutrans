@@ -14,16 +14,9 @@
 #ifndef __OBJ_NODE_INFO_H
 #define __OBJ_NODE_INFO_H
 
-/*
- *  includes
- */
-
 #include "../simtypes.h"
 
 /*
- *  struct:
- *      obj_node_info_t()
- *
  *  Autor:
  *      Volker Meyer
  *
@@ -36,4 +29,4 @@ struct obj_node_info_t {
     uint16  size;
 };
 
-#endif // __OBJ_NODE_INFO_H
+#endif

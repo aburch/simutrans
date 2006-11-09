@@ -75,4 +75,4 @@ public:
 	static int gib_preis(int base_img);
 };
 
-#endif // vehikelbauer_t_h
+#endif

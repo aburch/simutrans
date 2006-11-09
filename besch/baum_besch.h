@@ -14,17 +14,11 @@
 #ifndef __BAUM_BESCH_H
 #define __BAUM_BESCH_H
 
-/*
- *  includes
- */
 #include "../simtypes.h"
 #include "obj_besch_std_name.h"
 #include "bildliste2d_besch.h"
 
 /*
- *  class:
- *      baum_besch_t()
- *
  *  Autor:
  *      Volker Meyer
  *
@@ -72,4 +66,4 @@ public:
 	}
 };
 
-#endif // __BAUM_BESCH_H
+#endif

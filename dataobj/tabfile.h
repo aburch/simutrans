@@ -18,8 +18,6 @@ class tabfileobj_t;
 class koord;
 
 /*
- * class tabfile_t:
- *
  * This class can be used instead of FILE to read a game definition file,
  * usually with extension .tab in simutrans.
  * For the start only bridges.tab is read by this class.
@@ -84,8 +82,6 @@ public:
 
 
 /*
- * class tabfileobj_t:
- *
  * This class represents an object read from a tabfile_t.
  * It contains all strings key/value pairs read by tabfile_t::read().
  * It may be reused for reading more objects.
@@ -157,4 +153,4 @@ public:
     int *get_ints(const char *key);
 };
 
-#endif // __tabfile_h
+#endif

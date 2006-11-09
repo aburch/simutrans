@@ -23,4 +23,4 @@ public:
     virtual const char *get_type_name() const { return "good"; }
 };
 
-#endif // __GOOD_WRITER_H
+#endif

@@ -29,4 +29,4 @@ public:
 	uint8 flags;
 };
 
-#endif // linieneintrag_t_h
+#endif

@@ -17,17 +17,11 @@
 
 
 /*
- *  member function:
- *      haus_tile_besch_t::gib_layout()
- *
  *  Autor:
  *      Volker Meyer
  *
  *  Beschreibung:
  *      Rehcnet aus dem Index das Layout aus, zu dem diese Tile gehört.
- *
- *  Return type:
- *      int
  */
 int haus_tile_besch_t::gib_layout() const
 {
@@ -37,18 +31,12 @@ int haus_tile_besch_t::gib_layout() const
 }
 
 /*
- *  member function:
- *      haus_tile_besch_t::gib_offset()
- *
  *  Autor:
  *      Volker Meyer
  *
  *  Beschreibung:
  *      Bestimmt die Relativ-Position des Einzelbildes im Gesamtbild des
  *	Gebäudes.
- *
- *  Return type:
- *      koord
  */
 koord haus_tile_besch_t::gib_offset() const
 {
@@ -80,22 +68,11 @@ int haus_besch_t::gib_post_level() const
 
 
 /*
- *  member function:
- *      haus_besch_t::gib_tile()
- *
  *  Autor:
  *      Volker Meyer
  *
  *  Beschreibung:
  *      Abhängig von Position und LAyout ein tile zurückliefern
- *
- *  Return type:
- *      const haus_tile_besch_t *
- *
- *  Argumente:
- *      int layout
- *      int x
- *      int y
  */
 const haus_tile_besch_t *haus_besch_t::gib_tile(int layout, int x, int y) const
 {
@@ -112,20 +89,11 @@ const haus_tile_besch_t *haus_besch_t::gib_tile(int layout, int x, int y) const
 
 
 /*
- *  member function:
- *      haus_besch_t::layout_anpassen()
- *
  *  Autor:
  *      Volker Meyer
  *
  *  Beschreibung:
  *      Layout normalisieren.
- *
- *  Return type:
- *      int
- *
- *  Argumente:
- *      int layout
  */
 int haus_besch_t::layout_anpassen(int layout) const
 {

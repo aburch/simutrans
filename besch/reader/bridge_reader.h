@@ -25,4 +25,4 @@ public:
     virtual const char *get_type_name() const { return "bridge"; }
 };
 
-#endif // __BRIDGE_READER_H
+#endif

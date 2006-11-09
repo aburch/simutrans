@@ -78,4 +78,4 @@ public:
 	virtual bool sync_step(long delta_t);
 };
 
-#endif // powernet_t_h
+#endif

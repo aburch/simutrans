@@ -14,20 +14,11 @@
 #ifndef __WARE_BESCH_H
 #define __WARE_BESCH_H
 
-/*
- *  includes
- */
 #include "obj_besch_std_name.h"
 
 /*
- *  class:
- *      ware_besch_t()
- *
  *  Autor:
  *      Volker Meyer
- *
- *  Beschreibung:
- *      ...
  *
  *  Kindknoten:
  *	0   Name
@@ -120,4 +111,4 @@ public:
 	}
 };
 
-#endif // __WARE_BESCH_H
+#endif

@@ -39,4 +39,4 @@ public:
 	void zeichnen(koord offset);
 };
 
-#endif // good_stats_t_h
+#endif

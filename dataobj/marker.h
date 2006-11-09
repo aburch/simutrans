@@ -42,4 +42,4 @@ public:
 
 };
 
-#endif // __MARKER_H
+#endif

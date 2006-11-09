@@ -14,21 +14,12 @@
 #ifndef __CITYCAR_READER_H
 #define __CITYCAR_READER_H
 
-/*
- *  includes
- */
 #include "obj_reader.h"
 
 
 /*
- *  class:
- *      citycar_reader_t()
- *
  *  Autor:
  *      Volker Meyer
- *
- *  Beschreibung:
- *      ...
  */
 class citycar_reader_t : public obj_reader_t {
     static citycar_reader_t the_instance;
@@ -46,4 +37,4 @@ public:
     virtual obj_besch_t *read_node(FILE *fp, obj_node_info_t &node);
 };
 
-#endif // __CITYCAR_READER_H
+#endif

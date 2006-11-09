@@ -20,4 +20,4 @@ public:
     virtual const char *get_type_name() const { return "sound"; }
 };
 
-#endif // __SOUND_READER_H
+#endif

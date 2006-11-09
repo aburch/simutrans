@@ -14,22 +14,12 @@
 #ifndef __SLIST_MIT_GEWICHTEN_TPL_H
 #define __SLIST_MIT_GEWICHTEN_TPL_H
 
-/*
- *  includes
- */
-
 #include "slist_tpl.h"
 
 
 /*
- *  class:
- *      template<class T> slist_mit_gewichten_tpl()
- *
  *  Autor:
  *      Volker Meyer
- *
- *  Beschreibung:
- *      ...
  */
 template<class T> class slist_mit_gewichten_tpl : public slist_tpl<T> {
     int	gesamtgewicht;
@@ -110,4 +100,4 @@ public:
     }
 };
 
-#endif // __SLIST_MIT_GEWICHTEN_TPL_H
+#endif

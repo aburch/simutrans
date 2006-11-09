@@ -180,4 +180,4 @@ public:
     bool action_triggered(gui_komponente_t *komp, value_t extra);
 };
 
-#endif //__halt_list_frame_h
+#endif

@@ -86,4 +86,4 @@ public:
 	uint16 get_retire_year_month() const { return obsolete_date; }
 };
 
-#endif // __TUNNEL_BESCH_H
+#endif

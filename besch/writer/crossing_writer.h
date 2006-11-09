@@ -18,4 +18,4 @@ public:
     virtual const char *get_type_name() const { return "crossing"; }
 };
 
-#endif // __CROSSING_WRITER_H
+#endif

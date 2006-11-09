@@ -31,4 +31,4 @@ public:
 	const char * at(unsigned int i);
 };
 
-#endif // __SEARCHFOLDER_H
+#endif

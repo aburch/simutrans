@@ -14,15 +14,9 @@
 #ifndef __OBJ_BESCH_H
 #define __OBJ_BESCH_H
 
-/*
- *  includes
- */
 #include "../simtypes.h"
 
 /*
- *  class:
- *      obj_besch_t()
- *
  *  Autor:
  *      Volker Meyer
  *
@@ -60,4 +54,4 @@ class obj_besch_t {
 		}
 };
 
-#endif // __OBJ_BESCH_H
+#endif

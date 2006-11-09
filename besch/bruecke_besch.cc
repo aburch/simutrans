@@ -4,20 +4,11 @@
 
 
 /*
- *  member function:
- *      bruecke_besch_t::gib_simple()
- *
  *  Autor:
  *      Volker Meyer
  *
  *  Beschreibung:
  *      Richtigen Index für einfaches Brückenstück bestimmen
- *
- *  Return type:
- *      bruecke_besch_t::img_t
- *
- *  Argumente:
- *      ribi_t::ribi ribi
  */
 bruecke_besch_t::img_t bruecke_besch_t::gib_simple(ribi_t::ribi ribi)
 {
@@ -33,20 +24,11 @@ bruecke_besch_t::img_t bruecke_besch_t::gib_pillar(ribi_t::ribi ribi)
 
 
 /*
- *  member function:
- *      bruecke_besch_t::gib_start()
- *
  *  Autor:
  *      Volker Meyer
  *
  *  Beschreibung:
  *      Richtigen Index für klassischen Hangstart ück bestimmen
- *
- *  Return type:
- *      bruecke_besch_t::img_t
- *
- *  Argumente:
- *      ribi_t::ribi ribi
  */
 bruecke_besch_t::img_t bruecke_besch_t::gib_start(ribi_t::ribi ribi)
 {
@@ -61,20 +43,11 @@ bruecke_besch_t::img_t bruecke_besch_t::gib_start(ribi_t::ribi ribi)
 
 
 /*
- *  member function:
- *      bruecke_besch_t::gib_rampe()
- *
  *  Autor:
  *      Volker Meyer
  *
  *  Beschreibung:
  *      Richtigen Index für Rampenstart ück bestimmen
- *
- *  Return type:
- *      bruecke_besch_t::img_t
- *
- *  Argumente:
- *      ribi_t::ribi ribi
  */
 bruecke_besch_t::img_t bruecke_besch_t::gib_rampe(ribi_t::ribi ribi)
 {

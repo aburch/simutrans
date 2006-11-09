@@ -25,4 +25,4 @@ public:
     void dump_node(FILE *infp, const obj_node_info_t &node);
 };
 
-#endif // __XREF_WRITER_H
+#endif

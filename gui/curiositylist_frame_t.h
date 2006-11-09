@@ -71,4 +71,4 @@ class curiositylist_frame_t : public gui_frame_t, private action_listener_t
     bool action_triggered(gui_komponente_t *komp, value_t extra);
 };
 
-#endif // curiositylist_frame_t_h
+#endif

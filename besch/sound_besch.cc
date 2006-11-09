@@ -43,9 +43,7 @@ public:
 	sound_ids(sint16 i,const char *fn) { id=i;  strncpy(filename,fn,119); filename[119]=0; }
 };
 
-/*
- *  static data
- */
+
 static stringhashtable_tpl<sound_ids *> name_sound;
 static bool sound_on=false;
 static cstring_t sound_path;
@@ -117,13 +115,7 @@ DBG_MESSAGE("sound_besch_t::gib_sound_id()","successfully retrieved sound %s int
 
 
 /*
- *  member function:
- *      sound_besch_t::register_besch()
- *
  * if there is already such a sound => fail, else success and get an internal sound id
- *
- *  Argumente:
- *      const sound_besch_t *besch
  */
 bool
 sound_besch_t::register_besch(sound_besch_t *besch)
@@ -147,12 +139,7 @@ DBG_MESSAGE("sound_besch_t::gib_sound_id()","successfully registered sound %s in
 	return false;
 }
 
-/*
- *  member function:
- *      grund_besch_t::alles_geladen()
- *  Return type:
- *      bool (if all needed objects loaded)
- */
+
 bool sound_besch_t::alles_geladen()
 {
 	DBG_MESSAGE("sound_besch_t::alles_geladen()","sounds");

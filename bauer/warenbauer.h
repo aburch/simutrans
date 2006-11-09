@@ -81,4 +81,4 @@ public:
 	static void set_multiplier(sint32 multiplier);
 };
 
-#endif // warenbauer_t_h
+#endif

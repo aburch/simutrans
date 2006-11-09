@@ -112,4 +112,4 @@ public:
 	static bool init(const char *liste);
 };
 
-#endif // __OBJ_READER_H
+#endif

@@ -18,4 +18,4 @@ public:
     virtual const char *get_type_name() const { return "roadsign"; }
 };
 
-#endif // __ROADSIGN_WRITER_H
+#endif

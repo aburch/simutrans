@@ -123,4 +123,4 @@ public:
 		uint16 time);
 };
 
-#endif // wayobj_t_h
+#endif

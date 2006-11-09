@@ -32,4 +32,4 @@ public:
 	enum ding_t::typ gib_typ() const {return raucher;};
 };
 
-#endif // __RAUCHER_H
+#endif

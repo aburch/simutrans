@@ -14,7 +14,7 @@
 
 #if _MSC_VER > 1000
 #pragma once
-#endif // _MSC_VER > 1000
+#endif
 
 #include "../dataobj/koord.h"
 class karte_t;
@@ -104,4 +104,4 @@ public:
 	koord suche_platz(koord start, sint16 b, sint16 h, climate_bits cl, bool *r = NULL);
 };
 
-#endif // __PLATZSUCHER_H
+#endif

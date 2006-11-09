@@ -14,9 +14,6 @@
 #ifndef __WEG_BESCH_H
 #define __WEG_BESCH_H
 
-/*
- *  includes
- */
 #include "bildliste_besch.h"
 #include "obj_besch_std_name.h"
 #include "../dataobj/ribi.h"
@@ -186,4 +183,4 @@ public:
 	}
 };
 
-#endif // __WEG_BESCH_H
+#endif

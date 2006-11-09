@@ -50,4 +50,4 @@ class linie_t
 
 };
 
-#endif // linie_t_h
+#endif

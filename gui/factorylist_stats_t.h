@@ -58,4 +58,4 @@ public:
 	void zeichnen(koord offset);
 };
 
-#endif // factorylist_stats_t_h
+#endif

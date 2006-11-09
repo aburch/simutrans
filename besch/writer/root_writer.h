@@ -37,4 +37,4 @@ public:
 	static const cstring_t &get_inpath() { return inpath; }
 };
 
-#endif // __ROOT_WRITER_H
+#endif

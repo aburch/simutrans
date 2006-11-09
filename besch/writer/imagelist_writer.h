@@ -25,4 +25,4 @@ public:
     void write_obj(FILE *fp, obj_node_t &parent, const slist_tpl <cstring_t> &keys);
 };
 
-#endif // __IMAGELIST_WRITER_H
+#endif

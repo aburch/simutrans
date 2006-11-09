@@ -14,16 +14,10 @@
 #ifndef __CITYCAR_WRITER_H
 #define __CITYCAR_WRITER_H
 
-/*
- *  includes
- */
 #include "obj_writer.h"
 #include "../objversion.h"
 
 /*
- *  class:
- *      citycar_writer_t()
- *
  *  Autor:
  *      Volker Meyer
  *
@@ -44,4 +38,4 @@ public:
     virtual const char *get_type_name() const { return "citycar"; }
 };
 
-#endif // __CITYCAR_WRITER_H
+#endif

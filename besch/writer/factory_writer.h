@@ -61,4 +61,4 @@ public:
 
 };
 
-#endif // __FACTORY_WRITER_H
+#endif

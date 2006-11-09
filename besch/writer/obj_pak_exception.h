@@ -3,7 +3,7 @@
 
 #if _MSC_VER > 1000
 #pragma once
-#endif // _MSC_VER > 1000
+#endif
 
 
 class obj_pak_exception_t {
@@ -25,4 +25,4 @@ public:
     }
 };
 
-#endif // __OBJ_PAK_EXCEPTION_H
+#endif

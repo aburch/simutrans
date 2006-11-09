@@ -14,18 +14,12 @@
 #ifndef __SKIN_BESCH_H
 #define __SKIN_BESCH_H
 
-/*
- *  includes
- */
 #include "../simimg.h"
 #include "obj_besch_std_name.h"
 #include "bildliste2d_besch.h"
 
 
 /*
- *  class:
- *      skin_besch_t()
- *
  *  Autor:
  *      Volker Meyer
  *
@@ -52,4 +46,4 @@ public:
 	}
 };
 
-#endif // __SKIN_BESCH_H
+#endif

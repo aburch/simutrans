@@ -86,4 +86,4 @@ class fabrik_info_t : public ding_infowin_t, public action_listener_t
 	bool action_triggered(gui_komponente_t *komp, value_t extra);
 };
 
-#endif // fabrikinfo_t_h
+#endif

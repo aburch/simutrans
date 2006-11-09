@@ -210,4 +210,4 @@ template <class T> T** quickstone_tpl<T>::data = 0;
 template <class T> uint16 quickstone_tpl<T>::next = 1;
 template <class T> uint16 quickstone_tpl<T>::size = 0;
 
-#endif // quickstone_tpl_h
+#endif

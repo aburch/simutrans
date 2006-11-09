@@ -126,4 +126,4 @@ public:
 	int get_retire_year_month() const { return obsolete_date; }
 };
 
-#endif // __BRUECKE_BESCH_H
+#endif

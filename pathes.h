@@ -39,4 +39,4 @@
 #define SCRENSHOT_PATH	    "screenshot"
 #define SCRENSHOT_PATH_X    SCRENSHOT_PATH "/"
 
-#endif // __PATHES_H
+#endif

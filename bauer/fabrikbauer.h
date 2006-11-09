@@ -121,4 +121,4 @@ private:
 	static fabrik_t * baue_fabrik(karte_t *welt, koord3d *parent, const fabrik_besch_t *info, int rotate, koord3d pos, spieler_t *sp);
 };
 
-#endif // fabrikbauer_h
+#endif

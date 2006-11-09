@@ -68,4 +68,4 @@ public:
     virtual const char *get_type_name() const { return "factory"; }
 };
 
-#endif // __FACTORY_READER_H
+#endif

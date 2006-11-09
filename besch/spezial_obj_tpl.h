@@ -71,4 +71,4 @@ template <class besch_t> void warne_ungeladene(spezial_obj_tpl<besch_t> *so, int
     }
 }
 
-#endif // __SPEZIAL_OBJ_TPL_H
+#endif
