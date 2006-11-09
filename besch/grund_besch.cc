@@ -65,8 +65,7 @@ static PIXVAL mixed_color(PIXVAL map, PIXVAL src1, PIXVAL src2, PIXVAL src3)
 /* combines a textute and a lightmap
  * just weight all pixel by the lightmap
  */
-bild_besch_t *
-create_textured_tile(const bild_besch_t *bild_lightmap, const bild_besch_t *bild_texture )
+static bild_besch_t* create_textured_tile(const bild_besch_t* bild_lightmap, const bild_besch_t* bild_texture)
 {
 	bild_besch_t *bild_dest = bild_lightmap->copy_rotate(0);
 
@@ -113,8 +112,7 @@ create_textured_tile(const bild_besch_t *bild_lightmap, const bild_besch_t *bild
  * BEWARE: Assumes all images but bild_lightmap are square!
  * BEWARE: no special colors or your will see literally blue!
  */
-bild_besch_t *
-create_textured_tile_mix(const bild_besch_t *bild_lightmap, ribi_t::ribi slope, const bild_besch_t *bild_texture,  const bild_besch_t *bild_src1, const bild_besch_t *bild_src2, const bild_besch_t *bild_src3 )
+static bild_besch_t* create_textured_tile_mix(const bild_besch_t* bild_lightmap, ribi_t::ribi slope, const bild_besch_t* bild_texture,  const bild_besch_t* bild_src1, const bild_besch_t* bild_src2, const bild_besch_t* bild_src3)
 {
 	bild_besch_t *bild_dest = bild_lightmap->copy_rotate(0);
 
@@ -283,13 +281,10 @@ const uint8 grund_besch_t::slopetable[80] =
 #endif
 
 
-/*
- *  static data
- */
-const grund_besch_t *boden_texture = NULL;
-const grund_besch_t *light_map = NULL;
-const grund_besch_t *transition_water_texture = NULL;
-const grund_besch_t *transition_slope_texture = NULL;
+static const grund_besch_t* boden_texture            = NULL;
+static const grund_besch_t* light_map                = NULL;
+static const grund_besch_t* transition_water_texture = NULL;
+static const grund_besch_t* transition_slope_texture = NULL;
 const grund_besch_t *grund_besch_t::fundament = NULL;
 const grund_besch_t *grund_besch_t::slopes = NULL;
 const grund_besch_t *grund_besch_t::fences = NULL;
@@ -312,7 +307,7 @@ static spezial_obj_tpl<grund_besch_t> grounds[] = {
 };
 
 // the water and seven climates
-const char *climate_names[MAX_CLIMATES] =
+static const char* const climate_names[MAX_CLIMATES] =
 {
     "Water", "desert", "tropic", "mediterran", "temperate", "tundra", "rocky", "arctic"
 };
