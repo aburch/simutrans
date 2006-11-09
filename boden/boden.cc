@@ -88,7 +88,7 @@ boden_t::calc_bild()
 			((weg_t *)obj_bei(0))->setze_bild(0,IMG_LEER);
 		}
 		if(flags&has_way2) {
-			((weg_t *)obj_bei(0))->setze_bild(0,IMG_LEER);
+			((weg_t *)obj_bei(1))->setze_bild(0,IMG_LEER);
 		}
 	}
 #ifdef COVER_TILES

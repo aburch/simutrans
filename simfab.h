@@ -251,7 +251,7 @@ public:
 
     const char *gib_name() const { return besch ? translator::translate(besch->gib_name()) : "unnamed"; }
     sint32 gib_kennfarbe() const { return besch ? besch->gib_kennfarbe() : 0; }
-	spieler_t *gib_besitzer() const { return welt->lookup(pos) ? welt->lookup(pos)->obj_bei(0)->gib_besitzer() : NULL; }
+	spieler_t *gib_besitzer() const { return welt->lookup(pos) ? welt->lookup(pos)->first_obj()->gib_besitzer() : NULL; }
 
     void info(cbuffer_t & buf);
 

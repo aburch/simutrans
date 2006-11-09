@@ -326,7 +326,7 @@ wayobj_t::extend_wayobj_t(karte_t *welt, koord3d pos, spieler_t *besitzer, ribi_
 		}
 		// nothing found => make a new one
 		wayobj_t *wo = new wayobj_t(welt,pos,besitzer,dir,besch);
-		gr->insert_before_moving(wo);
+		gr->obj_add(wo);
 		wo->laden_abschliessen();
 		besitzer->buche( -besch->gib_preis(), pos.gib_2d(), COST_CONSTRUCTION);
 	}

@@ -471,7 +471,7 @@ brueckenbauer_t::baue_auffahrt(karte_t *welt, spieler_t *sp, koord3d end, koord 
 		yoff = -16;
 		img = besch->gib_start(ribi_neu);
 	}
-	bruecke->obj_pri_add(new bruecke_t(welt, end, yoff, sp, besch, img),0);
+	bruecke->obj_add(new bruecke_t(welt, end, yoff, sp, besch, img));
 
 	if(alter_weg==NULL) {
 		weg->setze_besch(weg_besch);
@@ -482,12 +482,7 @@ brueckenbauer_t::baue_auffahrt(karte_t *welt, spieler_t *sp, koord3d end, koord 
 		weg->setze_besch(alter_weg->gib_besch());
 		weg->setze_ribi_maske( alter_weg->gib_ribi_maske() );
 		// take care of everything on that tile ...
-		for( uint8 i=0;  i<alter_boden->gib_top();  i++  ) {
-			ding_t *d=alter_boden->obj_takeout(i);
-			if(d) {
-				bruecke->obj_pri_add(d,i);
-			}
-		}
+		bruecke->take_obj_from( alter_boden );
 		alter_boden->weg_entfernen(weg->gib_waytype(),false);
 	}
 	weg->setze_max_speed( besch->gib_topspeed() );
@@ -601,23 +596,23 @@ brueckenbauer_t::remove(karte_t *welt, spieler_t *sp, koord3d pos, waytype_t weg
 		const weg_besch_t *weg_besch=gr->gib_weg(wegtyp)->gib_besch();
 		sp->add_maintenance( weg_besch->gib_wartung());
 		sp->add_maintenance( -br_besch->gib_wartung() );
-
-		grund_t *gr_new = new boden_t(welt, pos,gr->gib_grund_hang());
+		delete gr->suche_obj(ding_t::bruecke);	// delete the bruecke
 
 		// take care of everything on that tile ... (zero is the bridge itself)
-		for( uint8 i=1;  i<gr->gib_top();  i++  ) {
-			ding_t *d=gr->obj_takeout(i);
-			if(d) {
-				gr_new->obj_pri_add(d,0);
-			}
+		grund_t *gr_new = new boden_t(welt, pos,gr->gib_grund_hang());
+		gr_new->take_obj_from( gr );
+
+		weg_t *weg = weg_t::alloc(wegtyp);
+		weg->setze_besch(weg_besch);
+
+		// remove all ways ...
+		if(gr->gib_weg_nr(1)) {
+			gr->weg_entfernen(gr->gib_weg_nr(1)->gib_waytype(), false);
 		}
 		gr->weg_entfernen(wegtyp, false);
 
-		welt->access(pos.gib_2d())->kartenboden_setzen(gr_new, false);
-
 		// Neuen Boden wieder mit Weg versehen
-		weg_t *weg = weg_t::alloc(wegtyp);
-		weg->setze_besch(weg_besch);
+		welt->access(pos.gib_2d())->kartenboden_setzen(gr_new, true);
 		gr_new->neuen_weg_bauen(weg, ribi, sp);
 		gr_new->calc_bild();
 	}

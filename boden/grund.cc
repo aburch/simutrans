@@ -138,6 +138,7 @@ void grund_t::setze_text(const char *text)
 }
 
 
+
 /**
  * Gibt eine Beschreibung des Untergrundes (informell) zurueck.
  * @return Einen Beschreibungstext zum Untergrund.
@@ -181,7 +182,7 @@ bool grund_t::setze_besitzer(spieler_t *s)
 			w->setze_besitzer(s);
 		}
 		if(flags&has_way2) {
-			weg_t *w=(weg_t *)obj_bei(0);
+			weg_t *w=(weg_t *)obj_bei(1);
 			if(besitzer_n>=0) { welt->gib_spieler(besitzer_n)->add_maintenance(-w->gib_besch()->gib_wartung()); }
 			if(s) { s->add_maintenance(w->gib_besch()->gib_wartung()); }
 			w->setze_besitzer(s);
@@ -359,12 +360,12 @@ void grund_t::rdwr(loadsave_t *file)
 		else {
 			// add to dingliste ...
 			if(wege[0]) {
-				dinge.insert_at( wege[0], 0 );
+				dinge.add( wege[0] );
 				flags |= has_way1;
 			}
 			if(wege[1]) {
 				assert(wege[0]!=NULL);
-				dinge.insert_at( wege[1], 0 );
+				dinge.add( wege[1] );
 				flags |= has_way2;
 			}
 		}
@@ -400,8 +401,26 @@ grund_t::~grund_t()
 		halt.unbind();
 	}
 	dinge.loesche_alle(NULL,offsets[flags/has_way1]);
-	if(flags&(has_way1|has_way2)) {
+	if(flags&has_way1) {
 		dinge.loesche_alle(NULL,0);
+	}
+}
+
+
+
+// moves all object from the old to the new grund_t
+void
+grund_t::take_obj_from( grund_t *gr) {
+	int i=0;
+	if(gr->gib_weg_nr(0)) i++;
+	if(gr->gib_weg_nr(1)) i++;
+	while(i<gr->gib_top()) {
+		ding_t *d=gr->obj_bei(i);
+		if(d) {
+			gr->obj_remove(d,NULL);
+			dinge.add(d);
+		}
+		i++;
 	}
 }
 
@@ -505,27 +524,6 @@ void grund_t::calc_bild()
 
 
 
-/**
- * Wir gehen davon aus, das pro Feld nur ein Gebauede erlaubt ist!
- */
-bool
-grund_t::hat_gebaeude(const haus_besch_t *besch) const
-{
-	gebaeude_t *gb = static_cast<gebaeude_t *>(suche_obj(ding_t::gebaeude));
-	return gb && gb->gib_tile()->gib_besch() == besch;
-}
-
-
-
-depot_t
-*grund_t::gib_depot() const
-{
-	ding_t *dt = obj_bei(PRI_DEPOT);
-	return dynamic_cast<depot_t *>(dt);
-}
-
-
-
 ribi_t::ribi grund_t::gib_weg_ribi(waytype_t typ) const
 {
 	weg_t *weg = gib_weg(typ);
@@ -542,18 +540,8 @@ ribi_t::ribi grund_t::gib_weg_ribi_unmasked(waytype_t typ) const
 
 
 
-// do not take out ways ...
-ding_t *
-grund_t::obj_takeout(uint8 pos)
-{
-	if(pos==0  && flags&has_way1) return NULL;
-	if(pos==1  && flags&has_way2) return NULL;
-	return dinge.remove_at(pos);
-}
-
-
-
-image_id grund_t::gib_back_bild(int leftback) const
+image_id
+grund_t::gib_back_bild(int leftback) const
 {
 	if(back_bild_nr==0) {
 		return IMG_LEER;
@@ -925,7 +913,7 @@ long grund_t::neuen_weg_bauen(weg_t *weg, ribi_t::ribi ribi, spieler_t *sp)
 		if((flags&has_way1)==0) {
 			// new first way here
 
-			// remove all trees
+			// remove all trees ...
 			for( int i=gib_top();  i>=0;  i--  ) {
 				ding_t *d=dinge.bei(i);
 				if(d  &&  d->gib_typ()==ding_t::baum) {
@@ -937,7 +925,7 @@ long grund_t::neuen_weg_bauen(weg_t *weg, ribi_t::ribi ribi, spieler_t *sp)
 			}
 
 			// add
-			dinge.insert_at( weg, 0 );
+			dinge.add( weg );
 			flags |= has_way1;
 		}
 		else {
@@ -947,13 +935,7 @@ long grund_t::neuen_weg_bauen(weg_t *weg, ribi_t::ribi ribi, spieler_t *sp)
 				return 0;
 			}
 			// add the way
-			if(weg->gib_waytype()==road_wt  &&  ((weg_t *)obj_bei(0))->gib_besch()->gib_styp()==7) {
-				// road add below tramway
-				dinge.insert_at( weg, 0 );
-			}
-			else {
-				dinge.insert_at( weg, 1 );
-			}
+			dinge.add( weg );
 			flags |= has_way2;
 		}
 
@@ -1020,13 +1002,6 @@ sint32 grund_t::weg_entfernen(waytype_t wegtyp, bool ribi_rem)
 				costs += w->gib_besch()->gib_preis();
 				flags &= ~has_way1;
 				delete w;
-DBG_MESSAGE("grund_t::weg_entfernen","way1 deleted, pos 0 from %p tp %p (flag %d)", w, obj_bei(0), flags );
-				// move second way one up ...
-				if(flags&has_way2) {
-					dinge.insert_at( dinge.remove_at(1), 0 );
-					flags &= ~has_way2;
-					flags |= has_way1;
-				}
 			}
 		}
 

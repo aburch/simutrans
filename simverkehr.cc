@@ -495,8 +495,8 @@ stadtauto_t::ist_weg_frei()
 
 
 	if(gr->hat_weg(track_wt)) {
-		// railway crossing
-		if(gr->suche_obj_ab(ding_t::waggon,PRI_RAIL_AND_ROAD)) {
+		// railway crossing/ Bahnuebergang
+		if(gr->suche_obj_ab(ding_t::waggon,2)) {
 			return false;
 		}
 	}

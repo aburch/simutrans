@@ -63,15 +63,13 @@ gui_scrolled_list_t::show_selection(int s)
 {
 	if((unsigned)s<item_list.count()) {
 		selection = s;
-//		if(groesse.y>0) {
 DBG_MESSAGE("gui_scrolled_list_t::show_selection()","sel=%d, offset=%d, groesse.y=%d",s,offset,groesse.y);
-			s *= LINESPACE;
-			if(s<offset  ||  (s+LINESPACE)>offset+groesse.y) {
-				// outside range => reposition
-				sb.setze_knob_offset( max(0,s-(groesse.y/2) ) );
-				offset = sb.gib_knob_offset();
-			}
-//		}
+		s *= LINESPACE;
+		if(s<offset  ||  (s+LINESPACE)>offset+groesse.y) {
+			// outside range => reposition
+			sb.setze_knob_offset( max(0,s-(groesse.y/2) ) );
+			offset = sb.gib_knob_offset();
+		}
 	}
 	else {
 		selection = -1;
@@ -79,11 +77,13 @@ DBG_MESSAGE("gui_scrolled_list_t::show_selection()","sel=%d, offset=%d, groesse.
 }
 
 
+
 void gui_scrolled_list_t::clear_elements()
 {
     item_list.clear();
     sb.setze_knob(groesse.y-border, total_vertical_size());
 }
+
 
 
 void gui_scrolled_list_t::insert_element(const char *string, const int pos /*= 0*/, const uint8 color /*COL_BLACK*/)
@@ -94,6 +94,7 @@ void gui_scrolled_list_t::insert_element(const char *string, const int pos /*= 0
 }
 
 
+
 void gui_scrolled_list_t::append_element(const char *string,const uint8 color)
 {
 	item it={ string, color };
@@ -102,11 +103,13 @@ void gui_scrolled_list_t::append_element(const char *string,const uint8 color)
 }
 
 
+
 void gui_scrolled_list_t::remove_element(const int pos)
 {
 	item_list.remove_at(pos);
 	sb.setze_knob(groesse.y-border, total_vertical_size());
 }
+
 
 
 // no less than 3, must be room for scrollbuttons
@@ -142,6 +145,7 @@ koord gui_scrolled_list_t::request_groesse(koord request)
 
 	return groesse;
 }
+
 
 
 void

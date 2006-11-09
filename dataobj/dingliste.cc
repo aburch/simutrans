@@ -26,6 +26,7 @@
 #include "../dings/wayobj.h"
 #include "../dings/roadsign.h"
 
+#include "../simtypes.h"
 #include "../simdepot.h"
 #include "../simmem.h"
 #include "../simverkehr.h"
@@ -39,6 +40,29 @@
 #include "../dataobj/freelist.h"
 #include "../dataobj/umgebung.h"
 
+// priority for entering into dingliste
+// unused entries have 255
+static uint8 type_to_pri[32]=
+{
+	255, //
+	10, // baum
+	100, // zeiger
+	90,	90, 90,	// wolke
+	2, 2, // buildings
+	5, // signal
+	1, 1, // bridge/tunnel
+	255,
+	2, 2, 2, // depots
+	3, // smoke generator
+	75, 2, 2, // powerlines
+	5, // roadsign
+	3, // pillar
+	2, 2, 2, // depots
+	255,
+	4, // way objects (electrification)
+	0, // ways (always at the top!)
+	255, 255, 255, 255,
+};
 
 static void dl_free(void *p, uint8 size)
 {
@@ -183,13 +207,11 @@ dingliste_t::grow_capacity(uint8 pri)
 		return (top-1==pri) ? pri+1 : pri;
 	}
 	else if(capacity==254) {
-		{
-			// scannen ob noch was frei ist
-			for(int i=pri; i<capacity; i++) {
-				if(obj.some[i] == NULL) {
-					// platz gefunden
-					return i;
-				}
+		// scannen ob noch was frei ist
+		for(int i=pri; i<capacity; i++) {
+			if(obj.some[i] == NULL) {
+				// platz gefunden
+				return i;
 			}
 		}
 		// scannen ob noch was frei ist
@@ -246,6 +268,207 @@ dingliste_t::shrink_capacity(uint8 o_top)
 
 
 
+inline
+uint8 dingliste_t::intern_insert_at(ding_t *ding,uint8 pri)
+{
+	// we have more than one object here, thus we can use obj.some exclusively!
+	ding_t *new_ding = ding;
+	while(pri<capacity  &&  new_ding!=NULL) {
+		ding_t *old_dt = obj.some[pri];
+		obj.some[pri] = new_ding;
+		new_ding = old_dt;
+		pri ++;
+	}
+	if(pri>top) {
+		top = pri;
+	}
+	return 1;
+}
+
+
+
+// this routine will automatically obey the correct order
+// of things during insert into dingliste
+uint8
+dingliste_t::add(ding_t *ding)
+{
+	uint8 index = grow_capacity(0);
+
+	// either save direct
+	if(capacity==1) {
+		obj.one = ding;
+		top = index+1;
+		return true;
+	}
+
+	// or move it into the in the array
+	if(obj.some[index]!=NULL) {
+		return false;
+	}
+
+	// vehicles need a special order
+	if(ding->is_moving()) {
+		return add_moving(ding);
+	}
+
+	// now insert it a the correct place
+	const uint8 pri=type_to_pri[ding->gib_typ()];
+
+	// roads must be first!
+	if(pri==0  &&  ((weg_t *)ding)->gib_waytype()==road_wt) {
+		return intern_insert_at(ding, 0);
+	}
+
+	uint8 i;
+	for(  i=0;  obj.some[i]!=NULL  &&  pri>=type_to_pri[ding->gib_typ()];  i++  )
+		;
+	// now i contains the position, where we either insert of just add ...
+	if(obj.some[i]==NULL) {
+		obj.some[i] = ding;
+		if(i>=top) {
+			top = i+1;
+		}
+	}
+	else {
+		intern_insert_at(ding, i);
+	}
+	// then correct the upper border
+	return true;
+}
+
+
+
+
+// this will automatically give the right order for citycars and the like ...
+uint8
+dingliste_t::add_moving(ding_t *ding)
+{
+	// we are more than one object, thus we exclusively use obj.some here!
+	// it would be nice, if also the objects are inserted according to their priorities as
+	// vehicles types (number returned by gib_typ()). However, this would increase
+	// the calculation even further. :(
+
+	// find out about the first car etc. moving thing.
+	// We can start to insert things after this index.
+	uint8 start=0;
+	while(start<top  &&  obj.some[start]!=NULL  &&  !obj.some[start]->is_moving()) {
+		start ++;
+	}
+
+	// if we have two ways, the way at index 0 is ALWAYS the road!
+	if(((weg_t *)obj.some[0])->gib_waytype()==road_wt) {
+
+		const uint8 fahrtrichtung = ((vehikel_t*)ding)->gib_fahrtrichtung();
+
+		// this is very complicated:
+		// we may have many objects in two lanes (actually five with tram and pedestrians)
+		if(umgebung_t::drive_on_left) {
+
+			// driving on left side
+			if(fahrtrichtung<4) {	// nord, nordwest
+
+				if((fahrtrichtung&(~ribi_t::suedost))==0) {
+					// if we are going east we must be drawn as the first in east direction
+					return intern_insert_at(ding,start);
+				}
+				else {
+					// we must be drawn before south or west (thus insert after)
+					for(uint8 i=start;  i<top;  i++  ) {
+						const ding_t *dt = obj.some[i];
+						if(dt  &&  dt->is_moving()  &&  (((const vehikel_t*)dt)->gib_fahrtrichtung()&ribi_t::suedwest)!=0) {
+							return intern_insert_at(ding,i);
+						}
+					}
+					// nothing going southwest
+					return add(ding,top);
+				}
+
+			}
+			else {
+				// going south, west or the rest
+				if((fahrtrichtung&(~ribi_t::suedost))==0) {
+					// if we are going south or suotheast we must be drawn as the first in east direction (after nord and nordeast)
+					for(uint8 i=start;  i<top;  i++  ) {
+						const ding_t *dt = obj.some[i];
+						if(dt  &&  dt->is_moving()  &&  (((const vehikel_t*)dt)->gib_fahrtrichtung()&ribi_t::suedwest)!=0) {
+							return intern_insert_at(ding,i);
+						}
+					}
+				}
+				// nothing going southeast
+				return add(ding,top);
+			}
+		}
+		else {
+			// driving on right side
+			if(fahrtrichtung<4) {	// nord, ost, nordost
+
+				if((fahrtrichtung&(~ribi_t::suedost))==0) {
+
+					// if we are going east we must be drawn as the first in east direction (after nord and nordeast)
+					for(uint8 i=start;  i<top;  i++  ) {
+						const ding_t *dt = obj.some[i];
+						if(dt  &&  dt->is_moving()  &&  (((const vehikel_t*)dt)->gib_fahrtrichtung()&ribi_t::nordost)!=0) {
+							return intern_insert_at(ding,i);
+						}
+					}
+					// nothing going to the east
+				}
+				// we must be drawn before south or west (thus append after)
+				return add(ding,top);
+
+			}
+			else {
+				// going south, west or the rest
+
+				if((fahrtrichtung&(~ribi_t::suedost))==0) {
+					// going south or southeast, insert as first in this dirs
+					return intern_insert_at(ding,start);
+				}
+				else {
+					for(uint8 i=start;  i<top;  i++  ) {
+						const ding_t *dt = obj.some[i];
+						// west or northwest: append after all westwards
+						if(dt  &&  dt->is_moving()  &&  (((const vehikel_t*)dt)->gib_fahrtrichtung()&ribi_t::suedwest)==0) {
+							return intern_insert_at(ding,i);
+						}
+					}
+					// nothing goinf to nordeast
+					return add(ding,top);
+				}
+			}
+
+		}	// right side/left side
+
+	}
+	else {
+		// ok, we have to sort vehicles for correct overlapping,
+		// but all vehicles are of the same typ, since this is track/channel etc. ONLY!
+
+		// => much simpler to handle
+		if((((vehikel_t*)ding)->gib_fahrtrichtung()&(~ribi_t::suedost))==0) {
+			// if we are going east or south, we must be drawn before (i.e. put first)
+			return intern_insert_at(ding,start);
+		}
+		else {
+			// for north east we must be draw last
+			uint8 i;
+			for(i=top-1;  i>=start;  i--) {
+				// scan for other vehicles (only our type allowed!)
+				ding_t *dt = obj.some[i];
+				if(dt  &&  dt->is_moving()) {
+					i++;
+					break;
+				}
+			}
+			return add(ding,i);
+		}
+	}
+	return false;
+}
+
+
+
 uint8
 dingliste_t::add(ding_t *ding, uint8 pri)
 {
@@ -279,60 +502,9 @@ dingliste_t::add(ding_t *ding, uint8 pri)
 uint8
 dingliste_t::insert_at(ding_t *ding, uint8 pri)
 {
-	if(ding) {
-		const uint8 index = grow_capacity(pri);
-
-		// either save direct
-		if(capacity==1) {
-			obj.one = ding;
-			top = pri+1;
-			return true;
-		}
-
-		// or move it into the in the array
-		if(obj.some[index]==NULL) {
-
-			// ok, shift everything up for the new entry, if it is not a depot and not empty ...
-			ding_t *new_ding = ding;
-			while(pri<capacity  &&  new_ding!=NULL) {
-
-				ding_t *old_dt = obj.some[pri];
-				if(pri==PRI_DEPOT  &&  old_dt  &&  !old_dt->is_moving()) {
-					// skip depots
-				}
-				else {
-					obj.some[pri] = new_ding;
-					new_ding = old_dt;
-				}
-
-				pri ++;
-			}
-			if(pri > top) {
-				top = pri;
-			}
-
-			return true;
-		}
-	}
+	assert(0);
 	return false;
 }
-
-
-
-// insert before all pedestrians etc but after all static objects
-uint8
-dingliste_t::insert_before_moving(ding_t *ding)
-{
-	for(uint8 i=0;  i<top;  i++) {
-		ding_t *d=bei(i);
-		if(d==NULL  ||  d->is_moving()) {
-			return insert_at(ding,i);
-		}
-	}
-	// the first empty space will do it
-	return add(ding,0);
-}
-
 
 
 
@@ -342,7 +514,7 @@ dingliste_t::insert_before_moving(ding_t *ding)
 ding_t *
 dingliste_t::remove_at(uint8 pos)
 {
-	ding_t *dt = NULL;;
+	ding_t *dt = NULL;
 	if(capacity==0) {
 		//
 	}
@@ -368,11 +540,8 @@ dingliste_t::remove_at(uint8 pos)
 
 
 uint8
-dingliste_t::remove(ding_t *ding, spieler_t * /*sp*/)
+dingliste_t::remove(ding_t *ding)
 {
-	uint8 i, number=0;
-	bool found = false;
-	int last = -1;
 
 	assert(ding != NULL);
 
@@ -381,43 +550,40 @@ dingliste_t::remove(ding_t *ding, spieler_t * /*sp*/)
 			obj.one = NULL;
 			capacity = 0;
 			top = 0;
-			found = true;
 		}
-		return found;
+		return true;
 	}
 
-	for(i=0; i<capacity; i++) {
-		if(obj.some[i]!=NULL && obj.some[i]!=ding) {
-			last = i;
-			number ++;
-		}
+	// we keep the array dense!
+	for(uint8 i=0; i<capacity; i++) {
 
 		if(obj.some[i]==ding) {
-			obj.some[i] = NULL;
-			found = true;
-
-			if(i == top-1) {
-				top = last+1;
+			// found it!
+			top--;
+			while(i<top) {
+				obj.some[i] = obj.some[i+1];
+				i++;
 			}
-
-			break;
+			obj.some[top] = NULL;
+			return true;
 		}
 	}
 
-	return found;
+	return false;
 }
 
 
 
 bool
-dingliste_t::loesche_alle(spieler_t *sp,uint8 offset)
+dingliste_t::loesche_alle(spieler_t *sp, uint8 offset)
 {
 	bool ok=false;
 
 	if(capacity>1) {
-		for(uint8 i=offset; i<top; i++) {
+		for(int i=top-1; i>=offset; i++) {
 			ding_t *dt = obj.some[i];
 			if(dt) {
+				dt->set_flag(ding_t::not_on_map);
 				dt->entferne(sp);
 				delete dt;
 				obj.some[i] = NULL;
@@ -588,8 +754,10 @@ void dingliste_t::rdwr(karte_t *welt, loadsave_t *file, koord3d current_pos)
 			ding_t *d = NULL;
 
 			switch(typ) {
+				case ding_t::old_verkehr: typ = ding_t::verkehr;
 				case ding_t::verkehr:	    d = new stadtauto_t (welt, file);		break;
-				case ding_t::fussgaenger:	    d = new fussgaenger_t (welt, file);	        break;
+				case ding_t::old_fussgaenger: typ = ding_t::fussgaenger;
+				case ding_t::fussgaenger: d = new fussgaenger_t (welt, file);	        break;
 				case ding_t::bruecke:	    d = new bruecke_t (welt, file);	        break;
 				case ding_t::tunnel:	    d = new tunnel_t (welt, file);	        break;
 				case ding_t::pumpe:		    d = new pumpe_t (welt, file);	        break;
@@ -597,45 +765,31 @@ void dingliste_t::rdwr(karte_t *welt, loadsave_t *file, koord3d current_pos)
 				case ding_t::senke:		    d = new senke_t (welt, file);	        break;
 				case ding_t::wayobj:	    d = new wayobj_t (welt, file);	        break;
 				case ding_t::zeiger:	    d = new zeiger_t (welt, file);	        break;
-				case ding_t::signal:	    d = new signal_t (welt, file);	typ=ding_t::signal;  break;
-				case ding_t::old_roadsign:
-				case ding_t::roadsign:	    d = new roadsign_t (welt, file); typ=ding_t::roadsign; break;
+				case ding_t::signal:	    d = new signal_t (welt, file);   break;
+				case ding_t::old_roadsign: typ = ding_t::roadsign;
+				case ding_t::roadsign:	  d = new roadsign_t (welt, file); break;
 
 				// depots need to be at PRI_DEPOT!
+				case ding_t::old_monoraildepot:
+					typ = ding_t::monoraildepot;
 				case ding_t::monoraildepot:
 					d = new monoraildepot_t (welt, file);
-					if(pri!=PRI_DEPOT) {
-						dbg->warning("dingliste_t::laden()", "ding_t::monoraildepot_t in position %d instead %d", pri, PRI_DEPOT);
-						pri = PRI_DEPOT;
-					}
 					break;
+				case ding_t::old_tramdepot:
+					typ = ding_t::tramdepot;
 				case ding_t::tramdepot:
 					d = new tramdepot_t (welt, file);
-					if(pri!=PRI_DEPOT) {
-						dbg->warning("dingliste_t::laden()", "ding_t::tramdepot_t in position %d instead %d", pri, PRI_DEPOT);
-						pri = PRI_DEPOT;
-					}
 					break;
 				case ding_t::strassendepot:
 					d = new strassendepot_t (welt, file);
-					if(pri!=PRI_DEPOT) {
-						dbg->warning("dingliste_t::laden()", "ding_t::strassendepot_t in position %d instead %d", pri, PRI_DEPOT);
-						pri = PRI_DEPOT;
-					}
 					break;
 				case ding_t::schiffdepot:
 					d = new schiffdepot_t (welt, file);
-					if(pri!=PRI_DEPOT) {
-						dbg->warning("dingliste_t::laden()", "ding_t::schiffdepot in position %d instead %d", pri, PRI_DEPOT);
-						pri = PRI_DEPOT;
-					}
 					break;
+				case ding_t::old_airdepot:
+					typ = ding_t::airdepot;
 				case ding_t::airdepot:
 					d = new airdepot_t (welt, file);
-					if(pri!=PRI_DEPOT) {
-						dbg->warning("dingliste_t::laden()", "ding_t::schiffdepot in position %d instead %d", pri, PRI_DEPOT);
-						pri = PRI_DEPOT;
-					}
 					break;
 
 				case ding_t::bahndepot:
@@ -661,19 +815,15 @@ void dingliste_t::rdwr(karte_t *welt, loadsave_t *file, koord3d current_pos)
 					gb->gib_besitzer()->add_maintenance(umgebung_t::maint_building);
 					typ = d->gib_typ();
 					delete gb;
-					if(pri!=PRI_DEPOT) {
-						dbg->warning("dingliste_t::laden()", "ding_t::bahndepot in position %d instead %d", pri, PRI_DEPOT);
-						pri = PRI_DEPOT;
-					}
 				}
 				break;
 
 				// check for pillars
 				case ding_t::old_pillar:
+					typ = ding_t::pillar;
 				case ding_t::pillar:
 				{
 					pillar_t *p = new pillar_t(welt, file);
-					typ = ding_t::pillar;
 					if(p->gib_besch()!=NULL  &&  p->gib_besch()->gib_pillar()!=0) {
 						d = p;
 					}
@@ -711,7 +861,7 @@ void dingliste_t::rdwr(karte_t *welt, loadsave_t *file, koord3d current_pos)
 				break;
 
 				// will be ignored, was only used before 86.09
-				case ding_t::gebaeudefundament: d = new dummy_ding_t(welt, file); delete d; d=NULL;  break;
+				case ding_t::old_gebaeudefundament: d = new dummy_ding_t(welt, file); delete d; d=NULL;  break;
 
 				// only factories can smoke; but then, the smoker is reinstated after loading
 				case ding_t::raucher: 	d = new raucher_t (welt, file); delete d; d = NULL; break;
@@ -741,17 +891,8 @@ void dingliste_t::rdwr(karte_t *welt, loadsave_t *file, koord3d current_pos)
 				d = NULL;
 			}
 
-			//DBG_DEBUG("dingliste_t::rdwr()","Loading %d,%d #%d: %s", d->gib_pos().x, d->gib_pos().y, i, d->gib_name());
 			if(d) {
-				if(pri<i) {
-					// repair depots etc
-					insert_at(d,pri);
-					DBG_DEBUG("dingliste_t::rdwr()","try to insert ding at %i instead %i",pri,i);
-				}
-				else {
-					// add, if capacity not exceeded
-					add(d, pri);
-				}
+				add(d);
 			}
 		}
 		else {
@@ -760,13 +901,14 @@ void dingliste_t::rdwr(karte_t *welt, loadsave_t *file, koord3d current_pos)
 			if(d) {
 				if(d->gib_pos()==current_pos) {
 					if(d->gib_typ()!=ding_t::raucher  &&  d->gib_typ()!=ding_t::way) {
+						assert(!d->is_moving());
 						bei(i)->rdwr(file);
 					}
 					else {
 						file->wr_obj_id(-1);
 					}
 				}
-				else 	if(bei(i)->gib_pos().gib_2d()==current_pos.gib_2d()) {
+				else if(bei(i)->gib_pos().gib_2d()==current_pos.gib_2d()) {
 					// ok, just error in z direction => we will correct it
 					DBG_DEBUG("dingliste_t::rdwr()","position error: z pos corrected on %i,%i from %i to %i",bei(i)->gib_pos().x,bei(i)->gib_pos().y,bei(i)->gib_pos().z,current_pos.z);
 					bei(i)->setze_pos( current_pos );
@@ -817,8 +959,8 @@ void dingliste_t::display_dinge( const sint16 xpos, const sint16 ypos, const uin
 							}
 						}
 					}
-					// foreground
-					for(uint8 n=0; n<top; n++) {
+					// foreground (needs to be done backwards!
+					for(int n=top-1; n>=0;  n--) {
 						ding_t * dt = obj.some[n];
 						if(dt) {
 							// ist dort ein vordergrund objekt ?

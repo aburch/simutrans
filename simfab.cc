@@ -74,8 +74,8 @@ static const int FAB_MAX_INPUT = 15000;
 fabrik_t * fabrik_t::gib_fab(const karte_t *welt, const koord pos)
 {
 	const grund_t *gr = welt->lookup_kartenboden(pos);
-	if(gr  &&  gr->obj_bei(0)!=NULL  &&  gr->obj_bei(0)->get_fabrik()!=NULL) {
-		return gr->obj_bei(0)->get_fabrik();
+	if(gr  &&  gr->first_obj()!=NULL  &&  gr->first_obj()->get_fabrik()!=NULL) {
+		return gr->first_obj()->get_fabrik();
 	}
 	// not found
 	return 0;
@@ -294,9 +294,9 @@ fabrik_t::sind_da_welche(karte_t *welt, koord min_pos, koord max_pos)
 	for(int y=min_pos.y; y<=max_pos.y; y++) {
 		for(int x=min_pos.x; x<=max_pos.x; x++) {
 			const grund_t *gr = welt->lookup_kartenboden(koord(x,y));
-			if(gr  &&  gr->obj_bei(0)!=NULL  &&  gr->obj_bei(0)->get_fabrik()!=NULL) {
-				if( fablist.append_unique( gr->obj_bei(0)->get_fabrik(), 4 )  ) {
-//DBG_MESSAGE("fabrik_t::sind_da_welche()","appended factory %s at (%i,%i)",gr->obj_bei(0)->get_fabrik()->gib_besch()->gib_name(),x,y);
+			if(gr  &&  gr->first_obj()!=NULL  &&  gr->first_obj()->get_fabrik()!=NULL) {
+				if( fablist.append_unique( gr->first_obj()->get_fabrik(), 4 )  ) {
+//DBG_MESSAGE("fabrik_t::sind_da_welche()","appended factory %s at (%i,%i)",gr->first_obj()->get_fabrik()->gib_besch()->gib_name(),x,y);
 				}
 			}
 		}
@@ -310,7 +310,7 @@ fabrik_t::ist_da_eine(karte_t *welt, koord min_pos, koord max_pos )
 	for(int y=min_pos.y; y<=max_pos.y; y++) {
 		for(int x=min_pos.x; x<=max_pos.x; x++) {
 			const grund_t *gr = welt->lookup_kartenboden(koord(x,y));
-			if(gr  &&  gr->obj_bei(0)!=NULL  &&  gr->obj_bei(0)->get_fabrik()!=NULL) {
+			if(gr  &&  gr->first_obj()!=NULL  &&  gr->first_obj()->get_fabrik()!=NULL) {
 				return true;
 			}
 		}
@@ -1096,7 +1096,7 @@ void fabrik_t::info(cbuffer_t & buf)
     for(uint32 i=0; i<lieferziele.get_count(); i++) {
       const koord lieferziel = lieferziele.get(i);
 
-      ding_t * dt = welt->lookup_kartenboden(lieferziel)->obj_bei(0);
+      ding_t * dt = welt->lookup_kartenboden(lieferziel)->first_obj();
       if(dt) {
 	fabrik_t *fab = dt->get_fabrik();
 
@@ -1121,7 +1121,7 @@ void fabrik_t::info(cbuffer_t & buf)
     for(uint32 i=0; i<suppliers.get_count(); i++) {
       const koord supplier = suppliers.get(i);
 
-      ding_t * dt = welt->lookup_kartenboden(supplier)->obj_bei(0);
+      ding_t * dt = welt->lookup_kartenboden(supplier)->first_obj();
       if(dt) {
 	fabrik_t *fab = dt->get_fabrik();
 

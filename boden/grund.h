@@ -15,6 +15,7 @@
 #include "../halthandle_t.h"
 #include "../simimg.h"
 #include "../simcolor.h"
+#include "../simdepot.h"
 
 #include "../dataobj/koord3d.h"
 #include "../dataobj/dingliste.h"
@@ -406,20 +407,20 @@ public:
 	*/
 	void display_dinge(const sint16 xpos, sint16 ypos, const bool dirty);
 
+	inline ding_t * first_obj() const { return dinge.bei(offsets[flags/has_way1]); }
 	ding_t * suche_obj(ding_t::typ typ) const { return dinge.suche(typ,0); }
 	ding_t * suche_obj_ab(ding_t::typ typ,uint8 start) const { return dinge.suche(typ,start); }
 
-	uint8  obj_add(ding_t *obj) { return dinge.add(obj,offsets[flags/has_way1]); }
-	uint8	obj_insert_at(ding_t *obj,uint8 pri) { return dinge.insert_at(obj,pri); }
-	uint8  obj_pri_add(ding_t *obj, uint8 pri) { return dinge.add(obj, pri); }
-	uint8 insert_before_moving(ding_t *obj) { return dinge.insert_before_moving(obj); }
-	uint8  obj_remove(ding_t *obj, spieler_t *sp) { return dinge.remove(obj, sp); }
-	ding_t *obj_takeout(uint8 pos);
+	uint8  obj_add(ding_t *obj) { return dinge.add(obj); }
+	uint8  obj_remove(ding_t *obj,spieler_t *) { return dinge.remove(obj); }
 	bool obj_loesche_alle(spieler_t *sp) { return dinge.loesche_alle(sp,offsets[flags/has_way1]); }
 	bool obj_ist_da(ding_t *obj) const { return dinge.ist_da(obj); }
 	ding_t * obj_bei(uint8 n) const { return dinge.bei(n); }
 	uint8  obj_count() const { return dinge.count(); }
 	uint8 gib_top() const {return dinge.gib_top();}
+
+	// moves all object from the old to the new grund_t
+	void take_obj_from( grund_t *gr);
 
 	/**
 	* @returns NULL wenn OK, oder Meldung, warum nicht
@@ -433,18 +434,10 @@ public:
 	*/
 
 	/**
-	* TRUE, falls es hier ein Gebaeude des speziellen Typs gibt.
-	* Dient insbesondere dazu, festzustellen ob eine bestimmte Haltestelle
-	* vorhanden ist:
-	* @author Volker Meyer
-	*/
-	bool hat_gebaeude(const haus_besch_t *besch) const;
-
-	/**
 	* Falls es hier ein Depot gibt, dieses zurueckliefern
 	* @author Volker Meyer
 	*/
-	depot_t *gib_depot() const;
+	depot_t *gib_depot() const { return dynamic_cast<depot_t *>(first_obj()); }
 
 	/*
 	* Interface zur Abfrage der Wege

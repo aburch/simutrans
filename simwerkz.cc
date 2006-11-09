@@ -697,7 +697,7 @@ wkz_wegebau(spieler_t *sp, karte_t *welt,  koord pos, value_t lParam)
 			// symbol für strassenanfang setzen
 			wkz_wegebau_bauer = new zeiger_t(welt, start, sp);
 			wkz_wegebau_bauer->setze_bild(0, skinverwaltung_t::bauigelsymbol->gib_bild_nr(0));
-			gr->obj_pri_add(wkz_wegebau_bauer, PRI_NIEDRIG);
+			gr->obj_add(wkz_wegebau_bauer);
 			wkz_wegebau_start = start;
 		}
 		else {
@@ -830,7 +830,7 @@ wkz_wayremover(spieler_t *sp, karte_t *welt,  koord pos, value_t lParam)
 			start = gr->gib_pos();
 			wkz_wayremover_bauer = new zeiger_t(welt, start, sp);
 			wkz_wayremover_bauer->setze_bild(0, skinverwaltung_t::killzeiger->gib_bild_nr(0));
-			gr->obj_pri_add(wkz_wayremover_bauer, PRI_NIEDRIG);
+			gr->obj_add(wkz_wayremover_bauer);
 DBG_MESSAGE("wkz_wayremover()", "Setting start to %d,%d,%d",start.x, start.y,start.z);
 		}
 		else {
@@ -959,7 +959,7 @@ wkz_wayobj(spieler_t *sp, karte_t *welt, koord pos, value_t lParam)
 			start = gr->gib_pos();
 			wkz_wayobj_bauer = new zeiger_t(welt, start, sp);
 			wkz_wayobj_bauer->setze_bild(0, besch->gib_cursor()->gib_bild_nr(0) );
-			gr->obj_pri_add(wkz_wayobj_bauer, PRI_NIEDRIG);
+			gr->obj_add(wkz_wayobj_bauer);
 			DBG_MESSAGE("wkz_wayremover()", "Setting start to %d,%d,%d",start.x, start.y,start.z);
 		}
 		else {
@@ -1047,7 +1047,7 @@ DBG_MESSAGE("wkz_station_building_aux()", "building mail office/station building
 							current += 3;
 						} else if(gr->gib_typ()==grund_t::fundament) {
 							// always samle layout as next station building
-							built_rotate = static_cast<gebaeude_t *>(gr->obj_bei(0))->gib_tile()->gib_layout()%besch->gib_all_layouts();
+							built_rotate = static_cast<gebaeude_t *>(gr->first_obj())->gib_tile()->gib_layout()%besch->gib_all_layouts();
 //DBG_MESSAGE("wkz_station_building_aux()","find building with layout %i",built_rotate);
 							continue;
 						}
@@ -1398,7 +1398,7 @@ DBG_MESSAGE("wkz_roadsign()","new signal, dir is %i", dir);
 DBG_MESSAGE("wkz_roadsign()","new roadsign, dir is %i", dir);
 						rs = new roadsign_t( welt, sp, gr->gib_pos(), dir, besch );
 					}
-					gr->insert_before_moving(rs);
+					gr->obj_add(rs);
 					rs->laden_abschliessen();	// to make them visible
 					weg->count_sign();
 					sp->buche( -besch->gib_preis(), pos, COST_CONSTRUCTION);
@@ -1507,7 +1507,7 @@ int wkz_depot(spieler_t *sp, karte_t *welt, koord pos,value_t w)
 		// since it need also a foundations, ots slightly more complex ...
 		if( wkz_depot_aux( sp, welt, pos, besch, monorail_wt, umgebung_t::cst_depot_rail ) ) {
 			grund_t *bd = welt->lookup(pos)->gib_kartenboden();
-			if(bd->gib_depot()==NULL  &&  bd->obj_bei(0)==NULL) {
+			if(bd->gib_depot()==NULL  &&  bd->first_obj()==NULL) {
 				hausbauer_t::baue( welt, sp, bd->gib_pos(), 0, hausbauer_t::monorail_foundation_besch, true );
 			}
 		}
@@ -1800,7 +1800,7 @@ int wkz_add_city(spieler_t *sp, karte_t *welt, koord pos)
 			!gr->ist_wasser() &&
 			gr->gib_grund_hang() == 0) {
 
-			ding_t *d = gr->obj_bei(0);
+			ding_t *d = gr->first_obj();
 			gebaeude_t *gb = dynamic_cast<gebaeude_t *>(d);
 
 			if(gb && gb->ist_rathaus()) {

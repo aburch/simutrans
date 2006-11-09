@@ -5,19 +5,6 @@
 #include "../simdings.h"
 
 
-#define PRI_DEPOT  11
-
-#define PRI_RAIL  0
-#define PRI_RAIL_AND_ROAD 4
-
-#define PRI_ROAD_S_W_SW_SE 0
-#define PRI_ROAD_AND_RAIL_N_E_NE_NW 6
-#define PRI_ROAD_N_E_NE_NW 4
-
-#define PRI_NIEDRIG 3
-#define PRI_MITTEL  6
-#define PRI_HOCH    9
-
 
 class dingliste_t {
 private:
@@ -44,6 +31,15 @@ private:
 
 	void shrink_capacity(uint8 last_index);
 
+	inline uint8 intern_insert_at(ding_t *ding,uint8 pri);
+
+	// this will automatically give the right order for citycars and the like ...
+	uint8 add_moving(ding_t *ding);
+
+  uint8  add(ding_t *obj, uint8 pri);
+
+	uint8  insert_at(ding_t *obj, uint8 pri);
+
 public:
 	dingliste_t();
 	~dingliste_t();
@@ -67,20 +63,19 @@ public:
 		}
 	}
 
-	  uint8  add(ding_t *obj, uint8 pri=0);
-	  uint8  insert_before_moving(ding_t *obj);
-	  uint8  insert_at(ding_t *obj, uint8 pri);
-	  uint8  remove(ding_t *obj, spieler_t *sp);
-	  bool loesche_alle(spieler_t *sp,uint8 offset);
-	  bool ist_da(ding_t *obj) const;
-	  uint8  count() const;
+	uint8  add(ding_t *obj);
+	uint8  remove(ding_t *obj);
+	bool loesche_alle(spieler_t *sp,uint8 offset);
+	bool ist_da(ding_t *obj) const;
+	uint8  count() const;
+
+	inline int gib_top() const {return top;}
 
 	// take the thing out from the list
 	// use this only for temperary removing
 	// since it does not shrink list or checks for ownership
+	// and does not restore correct order!
 	ding_t *remove_at(uint8 pos);
-
-	inline int gib_top() const {return top;}
 
 	/**
 	* @returns NULL wenn OK, oder Meldung, warum nicht

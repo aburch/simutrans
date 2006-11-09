@@ -376,11 +376,7 @@ void hausbauer_t::baue(karte_t *welt, spieler_t *sp, koord3d pos, int layout, co
 			}
 			grund_t *gr = welt->lookup(pos.gib_2d() + k)->gib_kartenboden();
 			if(gr->ist_wasser()) {
-				ding_t *dt = gr->obj_takeout(0);	// ensure, pos 0 is empty
-				gr->obj_pri_add(gb, 0);
-				if(dt) {
-					gr->obj_pri_add(gb, 1);
-				}
+				gr->obj_add(gb);
 			}
 			else if( besch->gib_utyp()==hausbauer_t::hafen ) {
 				// its a dock!
@@ -437,7 +433,6 @@ hausbauer_t::neues_gebaeude(karte_t *welt, spieler_t *sp, koord3d pos, int layou
 {
 	gebaeude_t *gb;
 	const haus_tile_besch_t *tile = besch->gib_tile(layout, 0, 0);
-	int pri = PRI_DEPOT;
 
 	if(besch == bahn_depot_besch) {
 		gb = new bahndepot_t(welt, pos, sp, tile);
@@ -452,7 +447,6 @@ hausbauer_t::neues_gebaeude(karte_t *welt, spieler_t *sp, koord3d pos, int layou
 	} else if(air_depot.contains(besch)) {
 		gb = new airdepot_t(welt, pos, sp, tile);
 	} else {
-		pri = 0;
 		gb = new gebaeude_t(welt, pos, sp, tile);
 	}
 //DBG_MESSAGE("hausbauer_t::neues_gebaeude()","building stop pri=%i",pri);
@@ -463,30 +457,7 @@ hausbauer_t::neues_gebaeude(karte_t *welt, spieler_t *sp, koord3d pos, int layou
 		gr->obj_remove(gr->suche_obj(ding_t::zeiger),NULL);
 	}
 
-	if(pri==0) {
-		// add it after roadsigns, bridges, and overheadwires, but before any cars ...
-		for( int i=0;  i<255;  i++  ) {
-			ding_t *dt=gr->obj_bei(i);
-			if(dt==NULL) {
-				gr->obj_pri_add(gb, i);
-				break;
-			}
-			else if(dt->is_moving()) {
-				gr->obj_takeout(i);
-				gr->obj_pri_add(gb, i);
-				gr->obj_pri_add(dt, i+1);
-				break;
-			}
-		}
-	}
-	else {
-		// depots MUST be at position PRI_DEPOT
-		ding_t *dt=gr->obj_takeout(pri);
-		gr->obj_pri_add(gb, pri);
-		if(dt) {
-			gr->obj_pri_add(dt, pri-1);
-		}
-	}
+	gr->obj_add(gb);
 
 	if(station_building.contains(besch)) {
 		// is a station/bus stop
@@ -498,9 +469,6 @@ hausbauer_t::neues_gebaeude(karte_t *welt, spieler_t *sp, koord3d pos, int layou
 	if(besch->ist_ausflugsziel()) {
 		welt->add_ausflugsziel( gb );
 	}
-
-//    DBG_MESSAGE("hausbauer_t::neues_gebaeude()","pri=0 %p",welt->lookup(pos)->obj_bei(0) );
-//    DBG_MESSAGE("hausbauer_t::neues_gebaeude()","pri=11 %p",welt->lookup(pos)->obj_bei(PRI_DEPOT) );
 
 	return gb;
 }

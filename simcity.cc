@@ -308,7 +308,7 @@ void stadt_t::add_gebaeude_to_stadt(const gebaeude_t *gb)
 		// add all tiles
 		for(k.y = 0; k.y < size.y; k.y ++) {
 			for(k.x = 0; k.x < size.x; k.x ++) {
-				gebaeude_t *add_gb = dynamic_cast<gebaeude_t *>(welt->lookup(pos+k)->gib_kartenboden()->obj_bei(0));
+				gebaeude_t *add_gb = dynamic_cast<gebaeude_t *>(welt->lookup(pos+k)->gib_kartenboden()->first_obj());
 //				DBG_MESSAGE("stadt_t::add_gebaeude_to_stadt()","geb=%p at (%i,%i)",add_gb,pos.x+k.x,pos.y+k.y);
 				buildings.append(add_gb,tile->gib_besch()->gib_level()+1,16);
 				add_gb->setze_stadt(this);
@@ -332,7 +332,7 @@ void stadt_t::remove_gebaeude_from_stadt(const gebaeude_t *gb)
 		// remove all tiles
 		for(k.y = 0; k.y < size.y; k.y ++) {
 			for(k.x = 0; k.x < size.x; k.x ++) {
-				gebaeude_t *rem_ge= dynamic_cast<gebaeude_t *>(welt->lookup(pos+k)->gib_kartenboden()->obj_bei(0));
+				gebaeude_t *rem_ge= dynamic_cast<gebaeude_t *>(welt->lookup(pos+k)->gib_kartenboden()->first_obj());
 //				DBG_MESSAGE("stadt_t::remove_gebaeude_from_stadt()","geb=%p at (%i,%i)",gb,pos.x+k.x,pos.y+k.y);
 				if(rem_ge==NULL) {
 					dbg->error("stadt_t::remove_gebaeude_from_stadt()","Nothing on %i,%i",pos.x+k.x,pos.y+k.y);
@@ -358,7 +358,7 @@ stadt_t::recount_houses()
 	for( sint16 y=lo.y;  y<=ur.y;  y++  ) {
 		for( sint16 x=lo.x;  x<=ur.x; x++  ) {
 			grund_t *gr=welt->lookup_kartenboden(koord(x,y));
-			gebaeude_t *gb=dynamic_cast<gebaeude_t *>(gr->obj_bei(0));
+			gebaeude_t *gb=dynamic_cast<gebaeude_t *>(gr->first_obj());
 			if(gb  &&  (gb->ist_rathaus()  ||  gb->gib_haustyp()!=gebaeude_t::unbekannt  ||  gb->is_monument())  && welt->suche_naechste_stadt(koord(x,y))==this) {
 				// no attraction, just normal buidlings or townhall
 				buildings.append(gb,gb->gib_tile()->gib_besch()->gib_level()+1,16);
@@ -1392,7 +1392,7 @@ stadt_t::check_bau_spezial(bool new_town)
 					// and then built it
 					hausbauer_t::baue(welt, besitzer_p, welt->lookup(best_pos + koord(1, 1))->gib_kartenboden()->gib_pos(), 0, besch);
 					hausbauer_t::denkmal_gebaut(besch);
-					add_gebaeude_to_stadt( dynamic_cast<const gebaeude_t *>(welt->lookup(best_pos+koord(1,1))->gib_kartenboden()->obj_bei(0)) );
+					add_gebaeude_to_stadt( dynamic_cast<const gebaeude_t *>(welt->lookup(best_pos+koord(1,1))->gib_kartenboden()->first_obj()) );
 					// tell the player, if not during initialization
 					if(!new_town) {
 						char buf[256];
@@ -1413,7 +1413,7 @@ stadt_t::check_bau_rathaus(bool new_town)
 	const haus_besch_t *besch = hausbauer_t::gib_rathaus(bev,welt->get_timeline_year_month(),welt->get_climate(welt->max_hgt(pos)));
 	if(besch) {
 		grund_t *gr = welt->lookup(pos)->gib_kartenboden();
-		gebaeude_t *gb = dynamic_cast<gebaeude_t *>(gr->obj_bei(0));
+		gebaeude_t *gb = dynamic_cast<gebaeude_t *>(gr->first_obj());
 		bool neugruendung = !gb || !gb->ist_rathaus();
 		bool umziehen = !neugruendung;
 		koord alte_str ( koord::invalid );
@@ -1451,7 +1451,7 @@ stadt_t::check_bau_rathaus(bool new_town)
 
 					gr = welt->lookup(pos_alt + k)->gib_kartenboden();
 					gr->setze_besitzer(NULL);	// everyone ground ...
-					gb = dynamic_cast<gebaeude_t *>(gr->obj_bei(0));
+					gb = dynamic_cast<gebaeude_t *>(gr->first_obj());
 					if(gb) {
 						gb->setze_besitzer(NULL);
 DBG_MESSAGE("stadt_t::check_bau_rathaus()","deleted townhall (bev=%i)",buildings.get_sum_weight());
@@ -1479,7 +1479,7 @@ DBG_MESSAGE("stadt_t::check_bau_rathaus()","delete townhall tile %i,%i (gb=%p)",
 		}
 		hausbauer_t::baue(welt, besitzer_p,welt->lookup(best_pos)->gib_kartenboden()->gib_pos(), layout, besch);
 DBG_MESSAGE("new townhall","use layout=%i",layout);
-		add_gebaeude_to_stadt( dynamic_cast<const gebaeude_t *>(welt->lookup(best_pos)->gib_kartenboden()->obj_bei(0)) );
+		add_gebaeude_to_stadt( dynamic_cast<const gebaeude_t *>(welt->lookup(best_pos)->gib_kartenboden()->first_obj()) );
 DBG_MESSAGE("stadt_t::check_bau_rathaus()","add townhall (bev=%i)",buildings.get_sum_weight());
 
 		// Orstnamen hinpflanzen
@@ -1800,7 +1800,7 @@ stadt_t::was_ist_an(const koord k) const
 	gebaeude_t::typ t = gebaeude_t::unbekannt;
 
 	if(gr) {
-		const gebaeude_t *gb = dynamic_cast<const gebaeude_t *>(gr->obj_bei(0));
+		const gebaeude_t *gb = dynamic_cast<const gebaeude_t *>(gr->first_obj());
 		if(gb) {
 			t = gb->gib_haustyp();
 		}
@@ -1979,7 +1979,7 @@ stadt_t::baue_gebaeude(const koord k)
 
 			hausbauer_t::baue(welt, NULL, pos, streetdir==-1 ? 0 : streetdir, h );
 
-			gebaeude_t *gb = dynamic_cast<gebaeude_t *>(welt->lookup_kartenboden(k)->obj_bei(0));
+			gebaeude_t *gb = dynamic_cast<gebaeude_t *>(welt->lookup_kartenboden(k)->first_obj());
 			add_gebaeude_to_stadt( gb );
 		}
 	}
@@ -2026,7 +2026,7 @@ stadt_t::renoviere_gebaeude(koord k)
 		return;   // kann nur bekannte gebaeude renovieren
 	}
 
-	gebaeude_t *gb = dynamic_cast<gebaeude_t *>(welt->lookup(k)->gib_kartenboden()->obj_bei(0));
+	gebaeude_t *gb = dynamic_cast<gebaeude_t *>(welt->lookup(k)->gib_kartenboden()->first_obj());
 	if(gb == NULL) {
 		dbg->error("stadt_t::renoviere_gebaeude()","could not find a building at (%d,%d) but there should be one!", k.x, k.y);
 		return;
@@ -2141,7 +2141,7 @@ stadt_t::renoviere_gebaeude(koord k)
 			arb += h->gib_level() * 20;
 		}
 
-		gebaeude_t *gb = dynamic_cast<gebaeude_t *>(welt->lookup(k)->gib_kartenboden()->obj_bei(0));
+		gebaeude_t *gb = dynamic_cast<gebaeude_t *>(welt->lookup(k)->gib_kartenboden()->first_obj());
 		add_gebaeude_to_stadt( gb );
 
 		if(alt_typ==gebaeude_t::industrie) {

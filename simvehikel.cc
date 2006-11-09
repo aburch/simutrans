@@ -279,136 +279,8 @@ vehikel_basis_t::verlasse_feld()
 
 void vehikel_basis_t::betrete_feld()
 {
-	// this will automatically give the right order for citycars and the like ...
-	grund_t * gr = welt->lookup(gib_pos());
-
-	uint8 end=gr->gib_top();
-	uint8 start=0;	// this is the first car etc. thing. We can start to insert things after this index.
-	while(start<end) {
-		ding_t *dt=gr->obj_bei(start);
-		if(dt==NULL  ||  dt->is_moving()) {
-			break;
-		}
-		start ++;
-	}
-
-	if(gr->hat_weg(road_wt)) {
-		// this is very complicated: we may have many objects in two lanes (actually five with tram and pedestrians)
-		if(umgebung_t::drive_on_left) {
-			// driving on left side
-			if(fahrtrichtung<4) {	// nord, nordwest
-
-				if((fahrtrichtung&(~ribi_t::suedost))==0) {
-					// if we are going east we must be drawn as the first in east direction
-					gr->obj_insert_at(this,start);
-				}
-				else {
-					// we must be drawn before south or west (thus insert after)
-					for(uint8 i=start;  i<end;  i++  ) {
-						// scan for similar types
-						ding_t *dt = gr->obj_bei(i);
-						if(dt  &&  dt->is_moving()  &&  (((vehikel_t*)dt)->gib_fahrtrichtung()&ribi_t::suedwest)!=0) {
-							gr->obj_insert_at(this,i);
-							return;
-						}
-					}
-					// nothing going southwest
-					gr->obj_pri_add(this,end);
-				}
-
-			}
-			else {
-				// going south, west or the rest
-
-				if((fahrtrichtung&(~ribi_t::suedost))==0) {
-					// if we are going south or suotheast we must be drawn as the first in east direction (after nord and nordeast)
-					for(uint8 i=start;  i<end;  i++  ) {
-						// scan for similar types
-						ding_t *dt = gr->obj_bei(i);
-						if(dt  &&  dt->is_moving()  &&  (((vehikel_t*)dt)->gib_fahrtrichtung()&ribi_t::suedwest)!=0) {
-							gr->obj_insert_at(this,i);
-							return;
-						}
-					}
-					// nothing going southeast
-					gr->obj_pri_add(this,end);
-				}
-				else {
-					// west, draw first (=> add last)
-					gr->obj_pri_add(this,end);
-				}
-			}
-		}
-		else {
-			// driving on right side
-			if(fahrtrichtung<4) {	// nord, ost, nordost
-
-				if((fahrtrichtung&(~ribi_t::suedost))==0) {
-
-					// if we are going east we must be drawn as the first in east direction (after nord and nordeast)
-					for(uint8 i=start;  i<end;  i++  ) {
-						// scan for similar types
-						ding_t *dt = gr->obj_bei(i);
-						if(dt  &&  dt->is_moving()  &&  (((vehikel_t*)dt)->gib_fahrtrichtung()&ribi_t::nordost)!=0) {
-							gr->obj_insert_at(this,i);
-							return;
-						}
-					}
-					// nothing going to the east
-					gr->obj_pri_add(this,end);
-				}
-				else {
-					// we must be drawn before south or west (thus append after)
-					gr->obj_pri_add(this,end);
-				}
-
-			}
-			else {
-				// going south, west or the rest
-
-				if((fahrtrichtung&(~ribi_t::suedost))==0) {
-					// going south or southeast, insert as first in this dirs
-					gr->obj_insert_at(this,start);
-				}
-				else {
-					for(uint8 i=start;  i<end;  i++  ) {
-						// scan for similar types
-						ding_t *dt = gr->obj_bei(i);
-						// west or northwest: append after all westwards
-						if(dt  &&  dt->is_moving()  &&  (((vehikel_t*)dt)->gib_fahrtrichtung()&ribi_t::suedwest)==0) {
-							gr->obj_insert_at(this,i);
-							return;
-						}
-					}
-					// nothing goinf to nordeast
-					gr->obj_insert_at(this,end);
-				}
-			}
-
-		}	// right side/left side
-
-	}
-	else {
-		// ok, we have to sort vehicles for correct overlapping, but all vehicles are of the same typ
-		// => much simpler to handle
-		if((fahrtrichtung&(~ribi_t::suedost))==0) {
-			// if we are going east or south, we must be drawn before (i.e. put first)
-			gr->obj_insert_at(this,start);
-		}
-		else {
-			// for north east we must be draw last
-			uint8 i;
-			for(i=gr->gib_top();  i>0;  i--) {
-				// scan for other vehicles (only our type allowed!)
-				ding_t *dt = gr->obj_bei(i);
-				if(dt  &&  dt->gib_typ()==gib_typ()) {
-					i++;
-					break;
-				}
-			}
-			gr->obj_pri_add(this,i);
-		}
-	}
+	grund_t *gr=welt->lookup(gib_pos());
+	gr->obj_add(this);
 	calc_akt_speed(gr);
 }
 
@@ -966,7 +838,7 @@ vehikel_t::rauche()
 						gib_yoff(),
 						besch->gib_rauch()->gib_bild_nr(0));
 
-	if( ! gr->obj_pri_add(abgas, PRI_MITTEL) ) {
+	if( ! gr->obj_add(abgas) ) {
 	  delete abgas;
 	} else {
 	  welt->sync_add( abgas );
@@ -1528,8 +1400,8 @@ automobil_t::ist_weg_frei(int &restart_speed)
 	// pruefe auf Schienenkreuzung
 	strasse_t *str=(strasse_t *)gr->gib_weg(road_wt);
 	if(gr->hat_weg(track_wt) &&  str) {
-		// das ist eine Kreuzung, ist sie frei ?
-		if(gr->suche_obj_ab(ding_t::waggon,PRI_RAIL_AND_ROAD)) {
+		// das ist eine Bahnuebergang, ist sie frei ?
+		if(gr->suche_obj_ab(ding_t::waggon,2)) {
 			restart_speed = 0;
 			return false;
 		}
@@ -2151,14 +2023,16 @@ waggon_t::verlasse_feld()
 	vehikel_t::verlasse_feld();
 	// fix counters
 	if(ist_letztes) {
-		schiene_t * sch0 = (schiene_t *) welt->lookup( pos_cur )->gib_weg(gib_waytype());
-		sch0->unreserve(this);
-		// tell next signal?
-		// and swith to red
-		if(sch0->has_sign()) {
-			signal_t *sig=(signal_t*)welt->lookup(pos_cur)->suche_obj(ding_t::signal);
-			if(sig) {
-				sig->setze_zustand(roadsign_t::rot);
+		schiene_t * sch0 = (schiene_t *) welt->lookup( pos_cur)->gib_weg(gib_waytype());
+		if(sch0) {
+			sch0->unreserve(this);
+			// tell next signal?
+			// and swith to red
+			if(sch0->has_sign()) {
+				signal_t *sig=(signal_t*)welt->lookup(pos_cur)->suche_obj(ding_t::signal);
+				if(sig) {
+					sig->setze_zustand(roadsign_t::rot);
+				}
 			}
 		}
 	}

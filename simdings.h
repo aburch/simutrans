@@ -160,38 +160,47 @@ public:
 		undefined=-1, ding=0, baum=1, zeiger=2,
 		wolke=3, sync_wolke=4, async_wolke=5,
 
-		gebaeude_alt=6,	// früher gebaeude
-		gebaeude=7,	// früher hausanim
+		gebaeude=7,	// animated buidldings (not used any more)
 		signal=8,
 
-		bruecke=9, tunnel=10, gebaeudefundament=11,
-		bahndepot=12, strassendepot=13, schiffdepot = 14, airdepot = 99, monoraildepot=100, tramdepot=101,
+		bruecke=9, tunnel=10,
+		bahndepot=12, strassendepot=13, schiffdepot = 14,
 
 		raucher=15,
 		leitung = 16, pumpe = 17, senke = 18,
 		roadsign = 19, pillar = 20,
 
-//  lagerhaus = 24, unused
+		airdepot = 21, monoraildepot=22, tramdepot=23,
+
 		wayobj = 25,
 		way = 26, // since 99.04 ways are normal things and stored in the dingliste_t!
 
 		// after this only moving stuff
-		// vehikel sind von 32 bis 40
-		automobil=32, waggon=33,
-		schiff=34, aircraft=35, monorailwaggon=36,
-
-		// individualverkehr
-		verkehr=41,
-		fussgaenger=42,
-
-		// new cars (not used any more!)
-		// car = 64,
+		// vehikel sind von 64 bis 95
+		fussgaenger=64,
+		verkehr=65,
+		automobil=66,
+		waggon=67,
+		monorailwaggon=68,
+		maglevwaggon=69, // currently unused
+		schiff=80,
+		aircraft=81,
 
 		// other new dings (obsolete, only used during loading old games
+		// lagerhaus = 24, (never really used)
+		// gebaeude_alt=6,	(very, very old?)
+		old_gebaeudefundament=11,	// wall below buildings, not used any more
+		old_automobil=32, old_waggon=33,
+		old_schiff=34, old_aircraft=35, old_monorailwaggon=36,
+		old_verkehr=41,
+		old_fussgaenger=42,
 		old_choosesignal = 95,
 		old_presignal = 96,
 		old_roadsign = 97,
-		old_pillar = 98
+		old_pillar = 98,
+		old_airdepot = 99,
+		old_monoraildepot=100,
+		old_tramdepot=101,
 	};
 
 	 inline const sint8 gib_xoff() const {return xoff;}

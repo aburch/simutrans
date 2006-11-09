@@ -1239,10 +1239,15 @@ convoi_t::rdwr(loadsave_t *file)
 			vehikel_t *v = 0;
 
 			switch(typ) {
+				case ding_t::old_automobil:
 				case ding_t::automobil: v = new automobil_t(welt, file);  break;
+				case ding_t::old_waggon:
 				case ding_t::waggon:    v = new waggon_t(welt, file);     break;
+				case ding_t::old_schiff:
 				case ding_t::schiff:    v = new schiff_t(welt, file);     break;
+				case ding_t::old_aircraft:
 				case ding_t::aircraft:    v = new aircraft_t(welt, file);     break;
+				case ding_t::old_monorailwaggon:
 				case ding_t::monorailwaggon:    v = new monorail_waggon_t(welt, file);     break;
 				default:
 				dbg->fatal("convoi_t::convoi_t()","Can't load vehicle type %d", typ);

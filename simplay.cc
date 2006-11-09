@@ -1991,7 +1991,7 @@ DBG_MESSAGE("spieler_t::suche_transport_quelle","Search other %i supplier for: %
 
 		if(welt->lookup(lieferquelle)) {
 			// valid koordinate?
-			ding_t * dt = welt->lookup(lieferquelle)->gib_kartenboden()->obj_bei(0);
+			ding_t * dt = welt->lookup(lieferquelle)->gib_kartenboden()->first_obj();
 			if(dt==NULL) {
 				// is already served ...
 				continue;
@@ -2065,7 +2065,7 @@ DBG_MESSAGE("spieler_t::suche_transport_ziel","Lieferziele %d",lieferziel_anzahl
 			fabrik_t *zfab = NULL;
 
 			if(welt->lookup(lieferziel)) {
-				ding_t * dt = welt->lookup(lieferziel)->gib_kartenboden()->obj_bei(0);
+				ding_t * dt = welt->lookup(lieferziel)->gib_kartenboden()->first_obj();
 				if(dt) {
 					zfab = dt->get_fabrik();
 					dieser_gewinn = guess_gewinn_transport_quelle_ziel( qfab, &ware, ware_nr, zfab );

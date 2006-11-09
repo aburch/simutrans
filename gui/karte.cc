@@ -199,7 +199,7 @@ reliefkarte_t::calc_relief_farbe(const grund_t *gr)
 			case grund_t::fundament:
 				{
 					// object at zero is either factory or house (or attraction ... )
-					ding_t * dt = gr->obj_bei(0);
+					ding_t * dt = gr->first_obj();
 					if(dt == NULL  ||  dt->get_fabrik() == NULL) {
 						color = COL_GREY3;
 					}
@@ -211,7 +211,7 @@ reliefkarte_t::calc_relief_farbe(const grund_t *gr)
 			case grund_t::wasser:
 				{
 					// object at zero is either factory or boat
-					ding_t * dt = gr->obj_bei(0);
+					ding_t * dt = gr->first_obj();
 					if(dt==NULL  ||  dt->get_fabrik()==NULL) {
 						color = COL_BLUE;	// water with boat?
 					}

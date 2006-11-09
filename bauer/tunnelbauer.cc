@@ -279,7 +279,7 @@ DBG_MESSAGE("tunnelbauer_t::baue()", "called on %d,%d", pos.x, pos.y);
 			// move bulldozer to start ...
 			wkz_tunnelbau_bauer = new zeiger_t(welt, start, sp);
 			wkz_tunnelbau_bauer->setze_bild(0, skinverwaltung_t::bauigelsymbol->gib_bild_nr(0));
-			gr->obj_pri_add(wkz_tunnelbau_bauer, PRI_NIEDRIG);
+			gr->obj_add(wkz_tunnelbau_bauer);
 			return true;
 		}
 		else {
@@ -420,13 +420,7 @@ DBG_MESSAGE("tunnelbauer_t::baue_einfahrt()","at end (%d,%d) for %s", end.x, end
 	if(alter_weg) {
 		weg->setze_besch(alter_weg->gib_besch());
 		weg->setze_ribi_maske( alter_weg->gib_ribi_maske() );
-		// take care of everything on that tile ...
-		for( uint8 i=0;  i<alter_boden->gib_top();  i++  ) {
-			ding_t *d=alter_boden->obj_takeout(i);
-			if(d) {
-				tunnel->obj_pri_add(d,i);
-			}
-		}
+		tunnel->take_obj_from( alter_boden );
 		alter_boden->weg_entfernen(besch->gib_waytype(),false);
 	}
 	else {
@@ -539,14 +533,7 @@ tunnelbauer_t::remove(karte_t *welt, spieler_t *sp, koord3d start, waytype_t weg
 		grund_t *gr_new = new boden_t(welt, pos, gr->gib_grund_hang() );
 		ribi_t::ribi ribi = gr->gib_weg_ribi_unmasked(wegtyp) &~ribi_typ(gr->gib_grund_hang());
 		weg_besch = gr->gib_weg(wegtyp)->gib_besch();
-
-		// take care of everything on that tile ... (zero is the bridge itself)
-		for( uint8 i=0;  i<gr->gib_top();  i++  ) {
-			ding_t *d=gr->obj_takeout(i);
-			if(d  &&  d->gib_typ()!=ding_t::tunnel) {
-				gr_new->obj_pri_add(d,i);
-			}
-		}
+		gr_new->take_obj_from( gr );
 
 		// remove all ways ...
 		if(gr->gib_weg_nr(1)) {
