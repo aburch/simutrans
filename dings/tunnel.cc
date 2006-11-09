@@ -51,12 +51,12 @@ tunnel_t::tunnel_t(karte_t *welt, koord3d pos, spieler_t *sp, const tunnel_besch
 void
 tunnel_t::calc_bild()
 {
-	const grund_t *gr = welt->lookup(gib_pos());
-	if(gr->ist_karten_boden()) {
-		setze_bild( 0, besch->gib_hintergrund_nr(gr->gib_grund_hang()) );
-		after_bild = besch->gib_vordergrund_nr(gr->gib_grund_hang());
-	}
-	else {
+	if(besch) {
+		const grund_t *gr = welt->lookup(gib_pos());
+		if(gr->ist_karten_boden()) {
+			setze_bild( 0, besch->gib_hintergrund_nr(gr->gib_grund_hang()) );
+			after_bild = besch->gib_vordergrund_nr(gr->gib_grund_hang());
+		}
 	}
 }
 
@@ -87,6 +87,7 @@ void tunnel_t::laden_abschliessen()
 
 	if(besch==NULL) {
 		besch = tunnelbauer_t::find_tunnel( gr->gib_weg_nr(0)->gib_waytype(), 999, 0 );
+		assert(besch!=NULL);
 	}
 
 	if(sp) {

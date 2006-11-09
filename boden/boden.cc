@@ -43,15 +43,15 @@ boden_t::boden_t(karte_t *welt, koord3d pos,hang_t::typ sl) : grund_t(welt, pos)
 
 const char *boden_t::gib_name() const
 {
-  if(gib_halt().is_bound()) {
+	if(gib_halt().is_bound()) {
 		return gib_halt()->gib_name();
-  } else if(ist_uebergang()) {
+	} else if(ist_uebergang()) {
 		return "Kreuzung";
-  } else  if(hat_wege()) {
-		return gib_weg_name();
-  } else {
+//	} else if(hat_wege()) {
+//		return gib_weg_nr()->gib_name();
+	} else {
 		return "Boden";
-  }
+	}
 }
 
 

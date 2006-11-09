@@ -476,9 +476,8 @@ DBG_MESSAGE("wkz_remover()",  "took out powerline");
 	msg = gr->kann_alle_obj_entfernen(sp);
 
 	// remove everything else ...
-	if(msg==NULL  &&  gr->obj_count()>0  &&  (!gr->ist_bruecke()  ||  gr->ist_tunnel())) {
+	if(msg==NULL  &&  (!gr->ist_bruecke()  ||  gr->ist_tunnel())  &&  gr->obj_loesche_alle(sp)) {
 DBG_MESSAGE("wkz_remover()",  "removing everything from %d,%d,%d",gr->gib_pos().x, gr->gib_pos().y, gr->gib_pos().z);
-		gr->obj_loesche_alle(sp);
 		// add the powerline again ...
 		if(lt) {
 DBG_MESSAGE("wkz_remover()",  "add again powerline");

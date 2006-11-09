@@ -42,7 +42,8 @@ public:
     void calc_bild();
 
     const char *gib_name() const;
-		enum grund_t::typ gib_typ() const {return boden;}
+
+	enum grund_t::typ gib_typ() const {return boden;}
 
 
     void * operator new(size_t s);

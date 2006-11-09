@@ -412,6 +412,7 @@ dingliste_t::remove(ding_t *ding, spieler_t * /*sp*/)
 bool
 dingliste_t::loesche_alle(spieler_t *sp,uint8 offset)
 {
+	bool ok=false;
 
 	if(capacity>1) {
 		for(uint8 i=offset; i<top; i++) {
@@ -420,24 +421,28 @@ dingliste_t::loesche_alle(spieler_t *sp,uint8 offset)
 				dt->entferne(sp);
 				delete dt;
 				obj.some[i] = NULL;
+				ok = true;
 			}
 		}
 	}
 	else {
-		if(capacity==1  &&  top>=offset  &&  obj.one!=NULL) {
+		if(capacity==1  &&  top>offset  &&  obj.one!=NULL) {
 			ding_t *dt = obj.one;
 			if(dt  &&  dt->gib_typ()!=ding_t::way) {
 				dt->entferne(sp);
 				delete dt;
+				ok = true;
 			}
 		}
 		obj.one = NULL;
 	}
 
-	top = 0;
+	if(offset>top) {
+		top = offset;
+	}
 	shrink_capacity(top);
 
-	return true;
+	return ok;
 }
 
 
@@ -793,14 +798,14 @@ void dingliste_t::display_dinge( const sint16 xpos, const sint16 ypos, const uin
 
 		case 0:	return;
 
-		case 1:	if(top>=start_offset  &&  obj.one) {
-						obj.one->display(xpos, ypos, reset_dirty );
-						obj.one->display_after(xpos, ypos, reset_dirty );
-						if(reset_dirty) {
-							obj.one->clear_flag(ding_t::dirty);
+		case 1:	if(top>start_offset  &&  obj.one) {
+							obj.one->display(xpos, ypos, reset_dirty );
+							obj.one->display_after(xpos, ypos, reset_dirty );
+							if(reset_dirty) {
+								obj.one->clear_flag(ding_t::dirty);
+							}
 						}
-					}
-					return;
+						return;
 
 		default:	// background
 					{

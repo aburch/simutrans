@@ -42,9 +42,6 @@ public:
 	* berechnet aktuelles bild
 	*/
 	void calc_bild();
-
-	// finalizes direction
-	void laden_abschliessen();
 };
 
 #endif

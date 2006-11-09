@@ -107,12 +107,3 @@ void signal_t::calc_bild()
 
 	step_frequency = 0;
 }
-
-
-
-// establish direction
-void signal_t::laden_abschliessen()
-{
-	set_dir(dir);
-	calc_bild();
-}

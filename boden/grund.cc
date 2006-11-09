@@ -526,14 +526,6 @@ depot_t
 
 
 
-const char * grund_t::gib_weg_name(waytype_t typ) const
-{
-	weg_t   *weg = gib_weg(typ);
-	return weg ? weg->gib_name() : NULL;
-}
-
-
-
 ribi_t::ribi grund_t::gib_weg_ribi(waytype_t typ) const
 {
 	weg_t *weg = gib_weg(typ);
@@ -795,7 +787,7 @@ grund_t::display_boden( const sint16 xpos, const sint16 ypos, const bool /*reset
 			display_color_img(obj_bei(0)->gib_bild(), xpos, ynpos, gib_besitzer()->get_player_color(), true, dirty);
 		}
 #ifdef DEBUG_PBS
-		if(dirty  &&  (wege[0]->gib_waytype()==track_wt)  &&  ((schiene_t *)wege[0])->is_reserved()) {
+		if(dirty  &&  ((weg_t *)obj_bei(0)->gib_waytype()==track_wt)  &&  ((schiene_t *)obj_bei(0))->is_reserved()) {
 			display_fillbox_wh_clip( xpos+get_tile_raster_width()/4-8, ypos+(get_tile_raster_width()*3)/4-8, 16, 16, 0, true);
 		}
 #endif
@@ -993,7 +985,6 @@ long grund_t::neuen_weg_bauen(weg_t *weg, ribi_t::ribi ribi, spieler_t *sp)
 sint32 grund_t::weg_entfernen(waytype_t wegtyp, bool ribi_rem)
 {
 	weg_t *weg = gib_weg(wegtyp);
-
 	if(weg) {
 		if(ribi_rem) {
 			ribi_t::ribi ribi = weg->gib_ribi();
@@ -1012,28 +1003,30 @@ sint32 grund_t::weg_entfernen(waytype_t wegtyp, bool ribi_rem)
 
 		sint32 costs=0;	// costs for removal are construction costs
 
+		// delete the second way ...
+		if(flags&has_way2) {
+			weg_t *w=static_cast<weg_t *>(obj_bei(1));
+			if(w->gib_waytype()==wegtyp) {
+				costs += w->gib_besch()->gib_preis();
+				flags &= ~has_way2;
+				delete w;
+			}
+		}
+
+		// then delete first way
 		if(flags&has_way1) {
 			weg_t *w=static_cast<weg_t *>(obj_bei(0));
 			if(w->gib_waytype()==wegtyp) {
 				costs += w->gib_besch()->gib_preis();
-				delete w;
 				flags &= ~has_way1;
+				delete w;
+DBG_MESSAGE("grund_t::weg_entfernen","way1 deleted, pos 0 from %p tp %p (flag %d)", w, obj_bei(0), flags );
 				// move second way one up ...
 				if(flags&has_way2) {
-					dinge.insert_at( dinge.remove_at(0), 0 );
+					dinge.insert_at( dinge.remove_at(1), 0 );
 					flags &= ~has_way2;
 					flags |= has_way1;
 				}
-			}
-		}
-
-		// or delete the second way ...
-		if(flags&has_way2) {
-			weg_t *w=static_cast<weg_t *>(obj_bei(0));
-			if(w->gib_waytype()==wegtyp) {
-				costs += w->gib_besch()->gib_preis();
-				delete w;
-				flags &= ~has_way2;
 			}
 		}
 

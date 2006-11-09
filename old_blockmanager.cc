@@ -212,10 +212,10 @@ old_blockmanager_t::laden_abschliessen(karte_t *welt)
 		}
 
 		// now check where we can built best
-		if(ribi_t::is_twoway(gr->gib_weg(wt)->gib_ribi_unmasked())) {
+		if(gr->hat_weg(wt)  &&  ribi_t::is_twoway(gr->gib_weg(wt)->gib_ribi_unmasked())) {
 			new_signal_gr = gr;
 		}
-		if((new_signal_gr==NULL  ||  !os1->ist_blockiert())  &&  to  &&  ribi_t::is_twoway(to->gib_weg(wt)->gib_ribi_unmasked())) {
+		if((new_signal_gr==NULL  ||  !os1->ist_blockiert())  &&  to  &&  to->hat_weg(wt)  &&  ribi_t::is_twoway(to->gib_weg(wt)->gib_ribi_unmasked())) {
 			new_signal_gr = to;
 		}
 		if(directions==2  &&  new_signal_gr) {
@@ -227,13 +227,11 @@ old_blockmanager_t::laden_abschliessen(karte_t *welt)
 			const roadsign_besch_t *sb=roadsign_t::roadsign_search(type,wt,0);
 			if(sb!=NULL) {
 				signal_t *sig = new signal_t(welt,new_signal_gr->gib_besitzer(),new_signal_gr->gib_pos(),dir,sb);
-				new_signal_gr->obj_pri_add(sig,0);
-				sig->laden_abschliessen();	// to make them visible
-				new_signal_gr->gib_weg(wt)->count_sign();
+				new_signal_gr->obj_add(sig);
 //DBG_MESSAGE("old_blockmanager::laden_abschliessen()","signal restored at %i,%i with dir %i",gr->gib_pos().x,gr->gib_pos().y,dir);
 			}
 			else {
-				dbg->error("old_blockmanager_t::laden_abschliessen()","could not restore old signal near (%i,%i), dir=%i",gr->gib_pos().x,gr->gib_pos().y,dir);
+				dbg->error("old_blockmanager_t::laden_abschliessen()","no roadsign for way %x with type %d found!",type,wt);
 				sprintf(buf,err_text,os1->gib_pos().x,os1->gib_pos().y);
 				message_t::get_instance()->add_message(buf,os1->gib_pos().gib_2d(),message_t::problems);
 				failure++;

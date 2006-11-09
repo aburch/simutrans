@@ -409,7 +409,7 @@ public:
 	ding_t * suche_obj(ding_t::typ typ) const { return dinge.suche(typ,0); }
 	ding_t * suche_obj_ab(ding_t::typ typ,uint8 start) const { return dinge.suche(typ,start); }
 
-	uint8  obj_add(ding_t *obj) { return dinge.add(obj,0); }
+	uint8  obj_add(ding_t *obj) { return dinge.add(obj,offsets[flags/has_way1]); }
 	uint8	obj_insert_at(ding_t *obj,uint8 pri) { return dinge.insert_at(obj,pri); }
 	uint8  obj_pri_add(ding_t *obj, uint8 pri) { return dinge.add(obj, pri); }
 	uint8 insert_before_moving(ding_t *obj) { return dinge.insert_before_moving(obj); }
@@ -538,12 +538,6 @@ public:
 	* @author V. Meyer, dariok
 	*/
 	inline bool ist_uebergang() const { return (flags&has_way2)!=0  &&  ((weg_t *)obj_bei(1))->gib_besch()->gib_styp()!=7; }
-
-	/**
-	* Liefert einen Text furr die Ueberschrift des Info-Fensters.
-	* @author V. Meyer
-	*/
-	const char * gib_weg_name(waytype_t typ = invalid_wt) const;
 
 	virtual hang_t::typ gib_weg_hang() const { return gib_grund_hang(); }
 

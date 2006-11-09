@@ -373,9 +373,15 @@ roadsign_t::entferne(spieler_t *sp)
  */
 void roadsign_t::laden_abschliessen()
 {
-	// after loading restore directions
-	set_dir(dir);
-	welt->lookup(gib_pos())->gib_weg(besch->gib_wtyp())->count_sign();
+	grund_t *gr=welt->lookup(gib_pos());
+	if(gr==NULL  ||  !gr->hat_weg(besch->gib_wtyp())) {
+		dbg->error("roadsign_t::laden_abschliessen","roadsing: way/ground missing at %i,%i => ignore", gib_pos().x, gib_pos().y );
+	}
+	else {
+		// after loading restore directions
+		set_dir(dir);
+		gr->gib_weg(besch->gib_wtyp())->count_sign();
+	}
 }
 
 

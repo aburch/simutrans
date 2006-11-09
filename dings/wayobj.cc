@@ -42,9 +42,6 @@ wayobj_t::wayobj_t(karte_t *welt, loadsave_t *file) : ding_t (welt)
 {
 	rdwr(file);
 	step_frequency = 0;
-	if(gib_besitzer()) {
-		gib_besitzer()->add_maintenance(besch->gib_wartung());
-	}
 }
 
 
@@ -55,9 +52,6 @@ wayobj_t::wayobj_t(karte_t *welt, koord3d pos, spieler_t *besitzer, ribi_t::ribi
 	this->dir = dir;
 	step_frequency =  0;
 	setze_besitzer(besitzer);
-	if(gib_besitzer()) {
-		gib_besitzer()->add_maintenance(besch->gib_wartung());
-	}
 }
 
 
@@ -134,6 +128,7 @@ wayobj_t::entferne(spieler_t *sp)
 void
 wayobj_t::laden_abschliessen()
 {
+	// (re)set dir
 	if(dir==255) {
 		weg_t *w=welt->lookup(gib_pos())->gib_weg((waytype_t)besch->gib_wtyp());
 		if(w) {
@@ -143,6 +138,10 @@ wayobj_t::laden_abschliessen()
 			dir = ribi_t::alle;
 		}
 	}
+	else {
+		set_dir(dir);
+	}
+
 	// electrify a way if we are a catenary
 	if(besch->gib_own_wtyp()==overheadlines_wt) {
 		weg_t *weg = welt->lookup(gib_pos())->gib_weg((waytype_t)besch->gib_wtyp());
@@ -157,6 +156,11 @@ wayobj_t::laden_abschliessen()
 			dbg->warning("wayobj_t::laden_abschliessen()","ground was not a way!");
 		}
 	}
+
+	if(gib_besitzer()) {
+		gib_besitzer()->add_maintenance(besch->gib_wartung());
+	}
+
 	calc_bild();
 }
 

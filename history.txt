@@ -30,7 +30,7 @@ Release of 99.03
 	FIX: cost of tunnel construction
 	FIX: left and right position of buttons (you may skin round buttons now ... )
 	FIX: translation now shows the correct signal type in info window
-	FIX: button will update thier translation every time a dialog is opened
+	FIX: button will update their translation every time a dialog is opened
 	FIX 'convoi passed last\nmonth %i\n' '\nRibi (masked)' '\nRibi (unmasked)' 'km/h\n' translatable
 	ADD: (kierongreen) underground mode (toggle with 'U') You can built depots and station, interrupt tunnels in the middle but not much more
 	ADD: preliminary underground construction routines (user the tunnel icon in underground mode; must start on a tunnel!)
