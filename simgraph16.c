@@ -1095,7 +1095,7 @@ static void display_set_player_color(int entry)
 /**
  * Fügt ein Image aus anderer Quelle hinzu
  */
-void register_image(struct bild_besch_t *bild)
+void register_image(struct bild_t* bild)
 {
 	struct imd* image;
 

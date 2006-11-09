@@ -63,7 +63,7 @@ obj_besch_t *  image_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 
 //	DBG_DEBUG("bild_besch_t::read_node()","x,y=%d,%d  w,h=%d,%d",besch->x,besch->y,besch->w,besch->h);
 
-	uint16 *dest =(uint16 *)(besch+1);
+	uint16* dest = besch->data;
 	p = besch_buf+12;
 	if(besch->h>0) {
 		for( int i=0;  i<besch->len;  i++ ) {

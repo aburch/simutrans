@@ -102,7 +102,7 @@ bool display_load_font(const char *fname, bool large );
  */
 void	display_check_fonts(void);
 
-void register_image(struct bild_besch_t *buffer);
+void register_image(struct bild_t*);
 
 // delete all images above a certain number ...
 void display_free_all_images_above( unsigned above );
