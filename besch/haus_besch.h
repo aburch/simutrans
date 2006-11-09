@@ -18,7 +18,6 @@
 #include "obj_besch_std_name.h"
 #include "../dings/gebaeude.h"
 #include "../bauer/hausbauer.h"
-#include "intro_dates.h"
 
 
 class haus_besch_t;

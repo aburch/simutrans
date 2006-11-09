@@ -19,8 +19,6 @@
 #include "../dataobj/ribi.h"
 #include "../simtypes.h"
 
-#include "intro_dates.h"
-
 
 /*
  *  Autor:

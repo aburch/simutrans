@@ -13,6 +13,7 @@
 #include "../simdebug.h"
 
 #include "tunnelbauer.h"
+#include "../besch/intro_dates.h"
 
 #include "../simworld.h"
 #include "../simwin.h"

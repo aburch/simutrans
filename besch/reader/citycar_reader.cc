@@ -5,6 +5,7 @@
 #include "../../simvehikel.h"
 #include "../../simverkehr.h"
 #include "../stadtauto_besch.h"
+#include "../intro_dates.h"
 
 #include "citycar_reader.h"
 #include "../obj_node_info.h"

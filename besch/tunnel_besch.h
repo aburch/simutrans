@@ -21,9 +21,6 @@
 
 #include "../simimg.h"
 #include "../simtypes.h"
-
-#include "intro_dates.h"
-
 #include "obj_besch_std_name.h"
 #include "skin_besch.h"
 #include "bildliste2d_besch.h"

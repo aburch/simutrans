@@ -5,6 +5,7 @@
 #include "../../dings/roadsign.h"
 #include "../../simvehikel.h"	// for khm to speed conversion
 #include "../roadsign_besch.h"
+#include "../intro_dates.h"
 
 #include "roadsign_reader.h"
 #include "../obj_node_info.h"

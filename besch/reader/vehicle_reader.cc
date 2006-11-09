@@ -8,6 +8,7 @@
 #include "../../boden/wege/weg.h"
 #include "../sound_besch.h"
 #include "../vehikel_besch.h"
+#include "../intro_dates.h"
 
 #include "vehicle_reader.h"
 #include "../obj_node_info.h"

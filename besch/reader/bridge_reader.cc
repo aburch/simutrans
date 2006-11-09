@@ -6,6 +6,7 @@
 
 #include "../../bauer/brueckenbauer.h"
 #include "../bruecke_besch.h"
+#include "../intro_dates.h"
 
 #include "bridge_reader.h"
 #include "../obj_node_info.h"

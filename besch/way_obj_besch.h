@@ -17,7 +17,6 @@
 #include "bildliste_besch.h"
 #include "obj_besch_std_name.h"
 #include "../dataobj/ribi.h"
-#include "intro_dates.h"
 
 
 class skin_besch_t;

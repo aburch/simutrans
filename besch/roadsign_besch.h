@@ -19,7 +19,6 @@
 #include "../dataobj/ribi.h"
 #include "../simtypes.h"
 
-#include "intro_dates.h"
 
 class skin_besch_t;
 

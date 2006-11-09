@@ -24,8 +24,6 @@
 #include "../simimg.h"
 
 #include "../dataobj/ribi.h"
-#include "intro_dates.h"
-
 
 
 class bruecke_besch_t : public obj_besch_t {

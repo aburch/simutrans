@@ -7,6 +7,7 @@
 #include "../../utils/simstring.h"
 
 #include "../weg_besch.h"
+#include "../intro_dates.h"
 #include "../../bauer/wegbauer.h"
 
 #include "way_reader.h"
