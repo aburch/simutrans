@@ -23,10 +23,6 @@ ifeq ($(BACKEND), x11)
   $(warning ATTENTION: X11 backend is broken)
 endif
 
-ifeq ($(COLOUR_DEPTH), 8)
-  $(warning ATTENTION: 8bpp is broken)
-endif
-
 
 ifeq ($(OSTYPE),beos)
   STD_LIBS ?= -lz
