@@ -79,7 +79,7 @@ dingliste_t::dingliste_t()
 dingliste_t::~dingliste_t()
 {
     if(capacity>1) {
-	dl_free(obj.some, capacity);
+		dl_free(obj.some, capacity);
     }
     // Paranoia
     obj.one = 0;
@@ -237,20 +237,6 @@ dingliste_t::grow_capacity(uint8 pri)
 void
 dingliste_t::shrink_capacity(uint8 o_top)
 {
-    // if we go for speed we should not free this array
-    // because roads and railroads often chnage to 0 objects
-    // but need such an array again whn a train/truck arrives
-
-    // if memory should be preserved this can be helpful
-
-/*
-    if(capacity > 0 && last_index == -1) {
-	delete[] obj;
-	obj = NULL;
-	capacity = 0;
-    } else
-*/
-
     // strategy: avoid free'ing mem if not neccesary. Only if we hold lots
     // of memory then free it.
 	if(capacity > 16 && o_top <= 4) {

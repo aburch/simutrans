@@ -263,7 +263,7 @@ public:
 	* @return Den Namen des Untergrundes.
 	* @author Hj. Malthaner
 	*/
-	virtual const char* gib_name() const;
+	virtual const char* gib_name() const = 0;
 
 	/**
 	* Gibt den Typ des Untergrundes zurueck.

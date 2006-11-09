@@ -160,7 +160,7 @@ const char* grund_t::gib_text() const
  */
 spieler_t * grund_t::gib_besitzer() const
 {
-  return besitzer_n == -1 ? 0 : welt->gib_spieler(besitzer_n);
+	return besitzer_n == -1 ? 0 : welt->gib_spieler(besitzer_n);
 }
 
 
@@ -326,9 +326,6 @@ void grund_t::rdwr(loadsave_t *file)
 				if(wege[i]) {
 					wege[i]->setze_pos(pos);
 					wege[i]->setze_besitzer(gib_besitzer());
-					if(gib_besitzer() && !ist_wasser()) {
-						gib_besitzer()->add_maintenance(wege[i]->gib_besch()->gib_wartung());
-					}
 					assert( wege[i]->gib_ribi_maske()==0 );
 				}
 			}
@@ -356,10 +353,7 @@ void grund_t::rdwr(loadsave_t *file)
 			if(wege[0]) {
 				// remove this (but we can not correct the other wasy, since possibly not yet loaded)
 				dbg->error("grund_t::rdwr()","removing way from foundation at %i,%i",pos.x,pos.y);
-				delete wege[0];
-			}
-			if(wege[1]) {
-				delete wege[1];
+				// we do not delete them, to keep maitenance costs correct
 			}
 		}
 		else {
@@ -380,6 +374,7 @@ void grund_t::rdwr(loadsave_t *file)
 }
 
 
+
 grund_t::grund_t(karte_t *wl, koord3d pos)
 {
 	this->pos = pos;
@@ -390,6 +385,7 @@ grund_t::grund_t(karte_t *wl, koord3d pos)
 	back_bild_nr = 0;
 	halt = halthandle_t();
 }
+
 
 
 grund_t::~grund_t()
@@ -403,33 +399,12 @@ grund_t::~grund_t()
 		halt->rem_grund(this);
 		halt.unbind();
 	}
-
-	if(flags&has_way2) {
-		weg_t *w=(weg_t *)dinge.remove_at(1);
-		if(gib_besitzer()) {
-			gib_besitzer()->add_maintenance(-w->gib_besch()->gib_wartung());
-		}
-		delete w;
-	}
-	if(flags&has_way1) {
-		weg_t *w=(weg_t *)dinge.remove_at(0);
-		if(gib_besitzer()) {
-			gib_besitzer()->add_maintenance(-w->gib_besch()->gib_wartung());
-		}
-		delete w;
+	dinge.loesche_alle(NULL,offsets[flags/has_way1]);
+	if(flags&(has_way1|has_way2)) {
+		dinge.loesche_alle(NULL,0);
 	}
 }
 
-
-
-/**
- * Gibt den Namen des Untergrundes zurueck.
- * @return Den Namen des Untergrundes.
- * @author Hj. Malthaner
- */
-const char* grund_t::gib_name() const {
-    return "Grund";
-};
 
 
 void grund_t::info(cbuffer_t & buf) const

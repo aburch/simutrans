@@ -35,6 +35,7 @@
 #include "../../simimg.h"
 #include "../../simhalt.h"
 #include "../../simdings.h"
+#include "../../simplay.h"
 #include "../../dings/roadsign.h"
 #include "../../dings/signal.h"
 #include "../../utils/cbuffer_t.h"
@@ -59,7 +60,7 @@ slist_tpl <weg_t *> alle_wege;
  */
 const slist_tpl <weg_t *> & weg_t::gib_alle_wege()
 {
-  return alle_wege;
+	return alle_wege;
 }
 
 
@@ -102,7 +103,7 @@ weg_t::alloc(waytype_t wt)
  */
 void weg_t::setze_max_speed(unsigned int s)
 {
-  max_speed = s;
+	max_speed = s;
 }
 
 
@@ -113,8 +114,8 @@ void weg_t::setze_max_speed(unsigned int s)
  */
 void weg_t::setze_besch(const weg_besch_t *b)
 {
-  besch = b;
-  max_speed = besch->gib_topspeed();
+	besch = b;
+	max_speed = besch->gib_topspeed();
 }
 
 
@@ -151,7 +152,11 @@ void weg_t::init()
 
 weg_t::~weg_t()
 {
-  alle_wege.remove(this);
+	alle_wege.remove(this);
+	spieler_t *sp=gib_besitzer();
+	if(sp) {
+		sp->add_maintenance( -besch->gib_wartung() );
+	}
 }
 
 
@@ -254,7 +259,7 @@ weg_t::count_sign()
 	flags &= ~HAS_SIGN;
 	const grund_t *gr=welt->lookup(gib_pos());
 	if(gr) {
-		const ding_t::typ type=(gib_typ()==track_wt  ||  gib_typ()==monorail_wt) ? ding_t::signal : ding_t::roadsign;
+		const ding_t::typ type=(gib_waytype()==track_wt  ||  gib_waytype()==monorail_wt) ? ding_t::signal : ding_t::roadsign;
 		for( uint8 i=0;  i<gr->gib_top();  i++  ) {
 			ding_t *d=gr->obj_bei(i);
 			// sign for us?
@@ -375,5 +380,16 @@ void weg_t::neuer_monat()
 			statistics[month][type] = statistics[month-1][type];
 		}
 		statistics[0][type] = 0;
+	}
+}
+
+
+
+// correct speed and maitainace
+void weg_t::laden_abschliessen()
+{
+	spieler_t *sp=gib_besitzer();
+	if(sp) {
+		sp->add_maintenance( besch->gib_wartung() );
 	}
 }

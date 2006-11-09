@@ -157,6 +157,8 @@ public:
 	*/
 	virtual void info(cbuffer_t & buf) const;
 
+	void zeige_info() {} // show no info
+
 	/**
 	* Wegtyp zurückliefern
 	*/
@@ -256,6 +258,9 @@ public:
 	void count_sign();
 	inline bool has_sign() const {return flags&HAS_SIGN; }
 	inline bool has_wayobj() const {return flags&HAS_WAYOBJ; }
+
+	// correct maitainace
+	void laden_abschliessen();
 } GCC_PACKED;
 
 #endif
