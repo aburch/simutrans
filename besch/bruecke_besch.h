@@ -67,19 +67,13 @@ public:
 	image_id gib_hintergrund(img_t img) const
 	{
 		const bild_besch_t *bild = static_cast<const bildliste_besch_t *>(gib_kind(0))->gib_bild(img);
-		if(bild) {
-			return bild->bild_nr;
-		}
-		return IMG_LEER;
+		return bild != NULL ? bild->gib_nummer() : IMG_LEER;
 	}
 
 	image_id gib_vordergrund(img_t img) const
 	{
 		const bild_besch_t *bild = static_cast<const bildliste_besch_t *>(gib_kind(1))->gib_bild(img);
-		if(bild) {
-			return bild->bild_nr;
-		}
-		return IMG_LEER;
+		return bild != NULL ? bild->gib_nummer() : IMG_LEER;
 	}
 
 	static img_t gib_simple(ribi_t::ribi ribi);

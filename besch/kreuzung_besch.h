@@ -41,7 +41,7 @@ public:
 	int gib_bild_nr() const
 	{
 		const bild_besch_t *bild = gib_bild();
-		return bild ? bild->bild_nr : -1;
+		return bild != NULL ? bild->gib_nummer() : IMG_LEER;
 	}
 
 	waytype_t gib_wegtyp_ns() const { return static_cast<waytype_t>(wegtyp_ns); }

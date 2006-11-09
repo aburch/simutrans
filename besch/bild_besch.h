@@ -47,8 +47,9 @@ struct bild_t {
  *  Kindknoten:
  *	(keine)
  */
-class bild_besch_t : public obj_besch_t, public bild_t {
+class bild_besch_t : public obj_besch_t, private bild_t {
 	public:
+		const bild_t* get_pic() const { return static_cast<const bild_t*>(this); }
 		const void* gib_daten() const { return data; }
 		int gib_nummer() const { return bild_nr; }
 
@@ -59,6 +60,9 @@ class bild_besch_t : public obj_besch_t, public bild_t {
 		bild_besch_t* copy_rotate(const sint16 angle) const;
 
 		using obj_besch_t::operator new;
+
+	friend class image_reader_t;
+	friend class grund_besch_t; // XXX ugly
 };
 
 #endif

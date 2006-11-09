@@ -50,7 +50,7 @@ public:
     {
 	const bild_besch_t *bild = static_cast<const bildliste_besch_t *>(gib_kind(2))->gib_bild(dir);
 
-	return bild ? bild->bild_nr : -1;
+	return bild != NULL ? bild->gib_nummer() : IMG_LEER;
     }
     int gib_gewichtung() const
     {

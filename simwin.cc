@@ -1029,7 +1029,7 @@ void win_display_menu()
 	const int width = display_get_width();
 
 	display_setze_clip_wh( 0, 0, width, 33 );
-	display_icon_leiste(-1, skinverwaltung_t::hauptmenu->gib_bild(0)->bild_nr);
+	display_icon_leiste(-1, skinverwaltung_t::hauptmenu->gib_bild(0)->gib_nummer());
 	display_setze_clip_wh( 0, 32, width, start_y+32 );
 	if(ticker_t::get_instance()->count()>0) {
 		// maybe something is omitted of the message

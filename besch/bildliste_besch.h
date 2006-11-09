@@ -50,7 +50,7 @@ public:
     {
 	const bild_besch_t *bild = gib_bild(i);
 
-	return bild ? bild->bild_nr : IMG_LEER;
+	return bild != NULL ? bild->gib_nummer() : IMG_LEER;
     }
 };
 

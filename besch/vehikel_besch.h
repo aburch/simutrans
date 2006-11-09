@@ -149,9 +149,7 @@ public:
 					bild = liste2d->gib_bild(dir - 4, ware_index);
 				}
 			}
-			if(bild) {
-				return bild->bild_nr;
-			}
+			if (bild != NULL) return bild->gib_nummer();
 		}
 
 		// only try 1d freight image list for old style vehicles
@@ -178,7 +176,7 @@ public:
 				return IMG_LEER;
 			}
 		}
-		return bild->bild_nr;
+		return bild->gib_nummer();
 	}
 
 	// Liefert die erlaubten Vorgaenger.

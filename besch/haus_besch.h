@@ -66,16 +66,11 @@ public:
 		}
 		if(phase>0 && phase<phasen) {
 			const bild_besch_t *bild = static_cast<const bildliste2d_besch_t *>(gib_kind(0+2*season))->gib_bild(hoehe, phase);
-			if(bild) {
-				return bild->bild_nr;
-			}
+			if (bild != NULL) return bild->gib_nummer();
 		}
 		// here if this phase does not exists ...
 		const bild_besch_t *bild = static_cast<const bildliste2d_besch_t *>(gib_kind(0+2*season))->gib_bild(hoehe, 0);
-		if(bild) {
-			return bild->bild_nr;
-		}
-		return IMG_LEER;
+		return bild != NULL ? bild->gib_nummer() : IMG_LEER;
 	}
 
 	image_id gib_vordergrund(int phase,int season) const
@@ -85,16 +80,11 @@ public:
 		}
 		if(phase>0 && phase<phasen) {
 			const bild_besch_t *bild = static_cast<const bildliste2d_besch_t *>(gib_kind(1+2*season))->gib_bild(0, phase);
-			if(bild) {
-				return bild->bild_nr;
-			}
+			if (bild != NULL) return bild->gib_nummer();
 		}
 		// here if this phase does not exists ...
 		const bild_besch_t *bild = static_cast<const bildliste2d_besch_t *>(gib_kind(1+2*season))->gib_bild(0, 0);
-		if(bild) {
-			return bild->bild_nr;
-		}
-		return IMG_LEER;
+		return bild != NULL ? bild->gib_nummer() : IMG_LEER;
 	}
 
 	koord gib_offset() const;

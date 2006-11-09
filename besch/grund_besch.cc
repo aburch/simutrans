@@ -73,11 +73,11 @@ create_textured_tile(const bild_besch_t *bild_lightmap, const bild_besch_t *bild
 	PIXVAL *dest = (PIXVAL *)bild_dest->gib_daten();
 
 	const PIXVAL *texture = (const PIXVAL *)bild_texture->gib_daten();
-	const sint16 x_y = bild_texture->w;
+	const sint16 x_y = bild_texture->get_pic()->w;
 	// now mix the images
-	for(int j=0; j<bild_dest->h; j++) {
+	for (int j = 0; j < bild_dest->get_pic()->h; j++) {
 		sint16 x = *dest++;
-		const sint16 offset = (bild_dest->y+j)*(x_y+3)+2;		// position of the pixel in a rectangular map
+		const sint16 offset = (bild_dest->get_pic()->y + j) * (x_y + 3) + 2; // position of the pixel in a rectangular map
 		do
 		{
 			sint16 runlen = *dest++;
@@ -102,7 +102,7 @@ create_textured_tile(const bild_besch_t *bild_lightmap, const bild_besch_t *bild
 			x += *dest;
 		} while(  (*dest++)!=0 );
 	}
-	assert((dest-(const PIXVAL *)(bild_dest->gib_daten()))==bild_dest->len);
+	assert(dest - (const PIXVAL*)bild_dest->gib_daten() == bild_dest->get_pic()->len);
 	return bild_dest;
 }
 
@@ -122,7 +122,7 @@ create_textured_tile_mix(const bild_besch_t *bild_lightmap, ribi_t::ribi slope, 
 	const PIXVAL *src1 = (const PIXVAL *)bild_src1->gib_daten();
 	const PIXVAL *src2 = (const PIXVAL *)bild_src2->gib_daten();
 	const PIXVAL *src3 = (const PIXVAL *)bild_src3->gib_daten();
-	const sint16 x_y = bild_src1->w;
+	const sint16 x_y = bild_src1->get_pic()->w;
 	sint16 tile_x, tile_y;
 
 	/*
@@ -151,12 +151,12 @@ create_textured_tile_mix(const bild_besch_t *bild_lightmap, ribi_t::ribi slope, 
 
 	// now mix the images
 	PIXVAL *dest = (PIXVAL *)bild_dest->gib_daten();
-	for(int j=0; j<bild_dest->h; j++) {
-		tile_y = bild_dest->y + j;
-		tile_x = bild_dest->x + *dest++;
+	for (int j = 0; j < bild_dest->get_pic()->h; j++) {
+		tile_y = bild_dest->get_pic()->y + j;
+		tile_x = bild_dest->get_pic()->x + *dest++;
 		// offset is the pixel position in the texture bitmaps;
 		// so we can avoid stretching the textures
-		const sint16 offset = (bild_dest->y+j)*(x_y+3)+2;
+		const sint16 offset = (bild_dest->get_pic()->y + j) * (x_y + 3) + 2;
 		do
 		{
 			sint16 runlen = *dest++;
@@ -512,7 +512,7 @@ DBG_MESSAGE("grund_besch_t::calc_water_level()","height %i: list %i vs. %i", h, 
 	// first water only
 	final_tile = create_textured_tile( light_map->gib_bild_ptr(0), boden_texture->gib_bild_ptr(water_climate) );
 	register_image( final_tile );
-	image_offset = final_tile->bild_nr;
+	image_offset = final_tile->gib_nummer();
 	ground_bild_list.append( final_tile );
 
 	DBG_MESSAGE("grund_besch_t::calc_water_level()","image_offset=%d",image_offset);

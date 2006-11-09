@@ -42,7 +42,7 @@ public:
 	image_id gib_bild_nr(int i) const
 	{
 		const bild_besch_t *bild = gib_bild(i);
-		return bild ? bild->bild_nr : IMG_LEER;
+		return bild != NULL ? bild->gib_nummer() : IMG_LEER;
 	}
 };
 

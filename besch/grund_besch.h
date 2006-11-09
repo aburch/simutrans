@@ -78,9 +78,7 @@ public:
 		const bildliste_besch_t *liste = static_cast<const bildliste2d_besch_t *>(gib_kind(2))->gib_liste(typ);
 		if(liste && liste->gib_anzahl() > 0) {
 			const bild_besch_t *bild = static_cast<const bildliste2d_besch_t *>(gib_kind(2))->gib_bild(typ,0);
-			if(bild) {
-				return bild->bild_nr;
-			}
+			if (bild != NULL) return bild->gib_nummer();
 		}
 		return IMG_LEER;
 	}

@@ -52,7 +52,7 @@ public:
 	image_id gib_hintergrund_nr(hang_t::typ hang) const
 	{
 		const bild_besch_t *besch = gib_hintergrund(hang);
-		return besch ? besch->bild_nr : IMG_LEER;
+		return besch != NULL ? besch->gib_nummer() : IMG_LEER;
 	}
 
 	const bild_besch_t *gib_vordergrund(hang_t::typ hang) const
@@ -63,7 +63,7 @@ public:
 	image_id gib_vordergrund_nr(hang_t::typ hang) const
 	{
 		const bild_besch_t *besch = gib_vordergrund(hang);
-		return besch ? besch->bild_nr :IMG_LEER;
+		return besch != NULL ? besch->gib_nummer() :IMG_LEER;
 	}
 
 	const skin_besch_t *gib_cursor() const { return static_cast<const skin_besch_t *>(gib_kind(4)); }
