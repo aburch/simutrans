@@ -630,6 +630,3 @@ grund_besch_t::gib_ground_tile(hang_t::typ slope, sint16 height )
 	}
 	return IMG_LEER;
 }
-
-
-

@@ -194,4 +194,3 @@ void halt_detail_t::halt_detail_info(cbuffer_t & buf)
 
     buf.append("\n\n");
 }
-

@@ -260,4 +260,3 @@ void scrollbar_t::zeichnen(koord pos)
 	button_def[1].zeichnen(pos);
 	button_def[2].zeichnen(pos);
 }
-

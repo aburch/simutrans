@@ -160,5 +160,3 @@ obj_writer_t::node_writer_name(FILE *infp) const
 	}
 	return "unknown";
 }
-
-

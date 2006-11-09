@@ -546,6 +546,3 @@ void translator::rdwr(loadsave_t *file)
 		set_language(actual_lang);
 	}
 }
-
-
-

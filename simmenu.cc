@@ -975,4 +975,3 @@ menu_open(karte_t *welt, menu_entries menu_nr, spieler_t *sp )
 	}
 
 }
-

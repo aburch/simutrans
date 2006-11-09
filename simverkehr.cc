@@ -761,5 +761,3 @@ stadtauto_t::calc_bild()
 		setze_bild(0,besch->gib_bild_nr(ribi_t::gib_dir(gib_fahrtrichtung())));
 	}
 }
-
-

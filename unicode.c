@@ -94,6 +94,3 @@ int utf16_to_utf8(utf16 c, utf8* out)
 		return 3;
 	}
 }
-
-
-
