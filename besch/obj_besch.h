@@ -30,8 +30,6 @@ class obj_besch_t {
  protected:
     obj_besch_t *gib_kind(int i) const { return node_info[i]; }
 
- public:
-
     /**
      * Hajo 11-Oct-03: I made this public to allow reader_t subclasses
      * to access the field easily. I recommend noone but reader_t
@@ -43,6 +41,7 @@ class obj_besch_t {
 		 */
 		obj_besch_t** node_info;
 
+	public:
 		void* operator new(unsigned int size)
 		{
 			return ::operator new(size);
@@ -52,6 +51,8 @@ class obj_besch_t {
 		{
 			return ::operator new(size + extra);
 		}
+
+	friend class obj_reader_t;
 };
 
 #endif
