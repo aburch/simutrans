@@ -29,30 +29,31 @@ endif
 
 
 ifeq ($(OSTYPE),beos)
-  STD_LIBS       ?= -lz
+  STD_LIBS ?= -lz
 endif
 
 ifeq ($(OSTYPE),freebsd)
-  STD_LIBS       ?= -lz
+  STD_LIBS ?= -lz
 endif
 
 ifeq ($(OSTYPE),macintel)
-  STD_LIBS       ?= -lz
+  CFLAGS   += -DUSE_HW -DUSE_C
+  STD_LIBS ?= -lz
 endif
 
 ifeq ($(OSTYPE),linux)
-  STD_LIBS       ?= -lz
+  STD_LIBS ?= -lz
 endif
 
 ifeq ($(OSTYPE),cygwin)
-  OS_INC         ?= -I/usr/include/mingw
-  OS_OPT         ?= -mwin32
-  STD_LIBS       ?= -lgdi32 -lwinmm -lz -mno-cygwin
+  OS_INC   ?= -I/usr/include/mingw
+  OS_OPT   ?= -mwin32
+  STD_LIBS ?= -lgdi32 -lwinmm -lz -mno-cygwin
 endif
 
 ifeq ($(OSTYPE),mingw)
-  OS_OPT         ?= -mno-cygwin -DPNG_STATIC -DZLIB_STATIC -march=pentium
-  STD_LIBS       ?=  -lunicows -lz -lmingw32 -lgdi32 -lwinmm
+  OS_OPT   ?= -mno-cygwin -DPNG_STATIC -DZLIB_STATIC -march=pentium
+  STD_LIBS ?=  -lunicows -lz -lmingw32 -lgdi32 -lwinmm
 endif
 
 ALLEGRO_CONFIG ?= allegro-config
@@ -76,14 +77,6 @@ ifneq ($(PROFILE),)
   CFLAGS   += -pg
   CXXFLAGS += -pg
   LDFLAGS  += -pg
-endif
-
-ifeq ($(OSTYPE),beos)
-#  CFLAGS += -DUSE_C
-endif
-
-ifeq ($(OSTYPE),macintel)
-  CFLAGS += -DUSE_HW -DUSE_C
 endif
 
 CFLAGS   += -Wall -W -Wcast-qual -Wpointer-arith -Wcast-align -Wstrict-prototypes $(OS_INC) $(OS_OPT) $(FLAGS)
