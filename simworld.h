@@ -39,12 +39,10 @@ struct event_t;
 class stadt_t;
 class ding_t;
 class fabrik_t;
-class convoi_t;
 class gebaeude_t;
 class zeiger_t;
 class grund_t;
 class planquadrat_t;
-class haltestelle_t;
 
 class einstellungen_t;
 
@@ -52,7 +50,6 @@ class sync_steppable;
 
 class cstring_t;
 
-template <class T> class vector_tpl;
 
 /**
  * Die Karte ist der zentrale Bestandteil der Simulation. Sie

@@ -55,11 +55,6 @@ display_setze_clip_wh(p_cr.x, p_cr.y, p_cr.w, p_cr.h); \
 }
 
 
-// function prototypes
-
-struct bild_besch_t;
-
-
 /* Do no access directly, use the get_tile_raster_width()
  * macro instead.
  * @author Hj. Malthaner

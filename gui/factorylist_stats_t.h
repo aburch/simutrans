@@ -19,7 +19,6 @@
 
 class karte_t;
 class fabrik_t;
-class button_t;
 class factorylist_stats_t;
 
 namespace factorylist {
