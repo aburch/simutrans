@@ -79,7 +79,7 @@ bool baum_t::plant_tree_on_coordinate(karte_t * welt, koord pos, const uint8 max
 		if(gr!=NULL  &&
 			gib_anzahl_besch(welt->get_climate(gr->gib_hoehe()))>0  &&
 			gr->ist_natur()  &&
-			gr->obj_count()<maximum_count)
+			gr->gib_top()<maximum_count)
 		{
 			gr->obj_add( new baum_t(welt, gr->gib_pos()) ); //plants the tree
 			return true; //tree was planted - currently unused value is not checked
@@ -292,7 +292,7 @@ baum_t::saee_baum()
 		if(	bd!=NULL  &&
 			besch->is_allowed_climate(welt->get_climate(bd->gib_hoehe()))  &&
 			bd->ist_natur()  &&
-			bd->obj_count()<welt->gib_max_no_of_trees_on_square())
+			bd->gib_top()<welt->gib_max_no_of_trees_on_square())
 		{
 			bd->obj_add( new baum_t(welt, bd->gib_pos(), besch) );
 		}

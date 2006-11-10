@@ -484,7 +484,7 @@ stadtauto_t::ist_weg_frei()
 	}
 
 	const grund_t *gr = welt->lookup(pos_next);
-	if(gr==NULL  ||  gr->obj_count()>200) {
+	if(gr==NULL  ||  gr->gib_top()>200) {
 		return false;
 	}
 

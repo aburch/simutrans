@@ -407,16 +407,17 @@ public:
 	*/
 	void display_dinge(const sint16 xpos, sint16 ypos, const bool dirty);
 
-	inline ding_t * first_obj() const { return dinge.bei(offsets[flags/has_way1]); }
-	ding_t * suche_obj(ding_t::typ typ) const { return dinge.suche(typ,0); }
-	ding_t * suche_obj_ab(ding_t::typ typ,uint8 start) const { return dinge.suche(typ,start); }
+	inline ding_t *first_obj() const { return dinge.bei(offsets[flags/has_way1]); }
+	ding_t *suche_obj(ding_t::typ typ) const { return dinge.suche(typ,0); }
+	ding_t *suche_obj_ab(ding_t::typ typ,uint8 start) const { return dinge.suche(typ,start); }
+	ding_t *obj_remove_top() { return dinge.remove_last(); }
 
 	uint8  obj_add(ding_t *obj) { return dinge.add(obj); }
 	uint8  obj_remove(ding_t *obj,spieler_t *) { return dinge.remove(obj); }
 	bool obj_loesche_alle(spieler_t *sp) { return dinge.loesche_alle(sp,offsets[flags/has_way1]); }
 	bool obj_ist_da(ding_t *obj) const { return dinge.ist_da(obj); }
 	ding_t * obj_bei(uint8 n) const { return dinge.bei(n); }
-	uint8  obj_count() const { return dinge.count(); }
+	uint8  obj_count() const { return dinge.gib_top()-offsets[flags/has_way1]; }
 	uint8 gib_top() const {return dinge.gib_top();}
 
 	// moves all object from the old to the new grund_t

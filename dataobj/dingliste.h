@@ -27,7 +27,7 @@ private:
 	* @return ersten freien index
 	* @author Hj. Malthaner
 	*/
-	int grow_capacity(uint8 pri);
+	int grow_capacity();
 
 	void shrink_capacity(uint8 last_index);
 
@@ -35,10 +35,6 @@ private:
 
 	// this will automatically give the right order for citycars and the like ...
 	uint8 add_moving(ding_t *ding);
-
-  uint8  add(ding_t *obj, uint8 pri);
-
-	uint8  insert_at(ding_t *obj, uint8 pri);
 
 public:
 	dingliste_t();
@@ -55,27 +51,21 @@ public:
 	*/
 	inline ding_t * bei(uint8 n) const
 	{
-		if(capacity<=1) {
-			return (capacity!=0  &&  n==top-1) ? obj.one : NULL;
+		if(n>top) {
+			return NULL;
 		}
-		else {
-			return (n < top) ? obj.some[n] : NULL;
-		}
+		return (capacity<=1) ? obj.one : obj.some[n];
 	}
+
+	// usually used only for copying by grund_t
+	ding_t *remove_last();
 
 	uint8  add(ding_t *obj);
 	uint8  remove(ding_t *obj);
 	bool loesche_alle(spieler_t *sp,uint8 offset);
 	bool ist_da(ding_t *obj) const;
-	uint8  count() const;
 
 	inline int gib_top() const {return top;}
-
-	// take the thing out from the list
-	// use this only for temperary removing
-	// since it does not shrink list or checks for ownership
-	// and does not restore correct order!
-	ding_t *remove_at(uint8 pos);
 
 	/**
 	* @returns NULL wenn OK, oder Meldung, warum nicht

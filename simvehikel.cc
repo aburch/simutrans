@@ -1360,7 +1360,7 @@ automobil_t::gib_kosten(const grund_t *gr,const uint32 max_speed) const
 	int costs = (max_speed<=max_tile_speed) ? 1 :  (max_speed*4)/(max_tile_speed*4);
 
 	// assume all traffic (and even road signs etc.) is not good ...
-	costs += gr->obj_count();
+	costs += gr->gib_top();
 
 	// effect of hang ...
 	if(gr->gib_weg_hang()!=0) {
@@ -1392,7 +1392,7 @@ automobil_t::ist_weg_frei(int &restart_speed)
 		return false;
 	}
 
-	if(gr->obj_count()>200) {
+	if(gr->gib_top()>200) {
 		// too many cars here
 		return false;
 	}
@@ -1815,7 +1815,7 @@ waggon_t::ist_weg_frei(int & restart_speed)
 	}
 
 	const grund_t *gr = welt->lookup(pos_next);
-	if(gr->obj_count()>200) {
+	if(gr->gib_top()>200) {
 		// too many objects here
 		return false;
 	}
@@ -2455,7 +2455,7 @@ aircraft_t::ist_weg_frei(int & restart_speed)
 		return false;
 	}
 
-	if(gr->obj_count()>200) {
+	if(gr->gib_top()>200) {
 		// too many objects here
 		return false;
 	}

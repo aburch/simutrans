@@ -40,6 +40,15 @@
 #include "../dataobj/freelist.h"
 #include "../dataobj/umgebung.h"
 
+/* All things including ways are stored in this structure.
+ * The entries are packed, i.e. the first free entry is at the top.
+ * To save memory, a single element (like in the case for houses or a single tree)
+ * is stored directly (obj.one) and capacity==1. Otherwise obj.some points to an
+ * array.
+ * The objects are sorted according to their drawing order.
+ * ways are always first.
+ */
+
 // priority for entering into dingliste
 // unused entries have 255
 static uint8 type_to_pri[32]=
@@ -105,10 +114,6 @@ dingliste_t::~dingliste_t()
     if(capacity>1) {
 		dl_free(obj.some, capacity);
     }
-    // Paranoia
-    obj.one = 0;
-    capacity = 0;
-    top = 0;
 }
 
 
@@ -127,55 +132,40 @@ dingliste_t::set_capacity(unsigned new_cap)
 			dl_free( obj.some, capacity );
 		}
 		capacity = 0;
+		top = 0;
 	}
 	else if(new_cap==1) {
 		if(capacity>1) {
 			ding_t *tmp=NULL;
 			// we have an obj to save into the list
-			if(top>0) {
-				tmp = obj.some[top-1];
-			}
+			tmp = obj.some[0];
 			dl_free( obj.some, capacity );
 			obj.one = tmp;
+			assert(top<2);
+			capacity = 1;
 		}
 		else if(capacity==0) {
-			obj.one = NULL;
+			assert(obj.one  &&  top==0);
 		}
-		capacity = 1;
 	}
 	// a single object is stored differentially
-	else if(capacity==1  &&  new_cap>1) {
+	else if(capacity<=1  &&  new_cap>1) {
 		ding_t *tmp=obj.one;
-		if(new_cap<top) {
-			new_cap = top;
-		}
 		obj.some = dl_alloc(new_cap);
 		memset( obj.some, 0, sizeof(ding_t*)*new_cap );
-		obj.some[top-1] = tmp;
+		obj.some[0] = tmp;
 		capacity = new_cap;
 	}
 	else {
 		// if we reach here, new_cap>1 and (capacity==0 or capacity>1)
 		// ensure, we do not lose anything
-		if(new_cap<top) {
-			new_cap = top;
-		}
 
 		// get memory
 		ding_t **tmp = dl_alloc(new_cap);
 
-		// copy list
-		const uint8 end = min(capacity, new_cap);
-		uint8 i=0;
-		for(; i<end; i++) {
-			tmp[i] = obj.some[i];
-		}
-		// init list
-		for(  ;  i<new_cap;  i++  ) {
-			tmp[i] = 0;
-		}
 		// free old memory
 		if(obj.some) {
+			memcpy( tmp, obj.some, sizeof(ding_t *)*top );
 			dl_free(obj.some, capacity);
 		}
 		obj.some = tmp;
@@ -190,67 +180,24 @@ dingliste_t::set_capacity(unsigned new_cap)
  * @author Hj. Malthaner
  */
 int
-dingliste_t::grow_capacity(uint8 pri)
+dingliste_t::grow_capacity()
 {
 	if(capacity==0) {
-		// nothing in the list?
-		// since the first one comes for free, we can always add it
-		capacity = 1;
-		// paranoia
-		top = 0;
-		obj.one = NULL;
-		return pri;
+		return true;
 	}
 	else if(capacity==1) {
-		uint8 new_cap = (top>pri+1) ? top : pri;
-		set_capacity( (new_cap+4)&0xFC );
-		return (top-1==pri) ? pri+1 : pri;
+		set_capacity( 4 );
+		return true;
 	}
-	else if(capacity==254) {
-		// scannen ob noch was frei ist
-		for(int i=pri; i<capacity; i++) {
-			if(obj.some[i] == NULL) {
-				// platz gefunden
-				return i;
-			}
-		}
-		// scannen ob noch was frei ist
-		for(int i=0; i<pri; i++) {
-			if(obj.some[i] == NULL) {
-				// platz gefunden
-				return i;
-			}
-		}
-		return pri;	// well, this place is occupied, but may be best choice anyway ...
+	else if(capacity>=240) {
+		// capacity exceeded ... (and no need for THAT many objects here ... )
+		return false;
 	}
 	else {
-		int new_cap = 0;
-		if(pri >= capacity) {
-			// wir brauchen neue eintraege
-			new_cap = pri + 1;
-		}
-		else {
-
-			// scannen ob noch was frei ist
-			for(int i=pri; i<capacity; i++) {
-				if(obj.some[i] == NULL) {
-					// platz gefunden
-					return i;
-				}
-			}
-
-			// size exeeded, needs to extent
-			new_cap = max(capacity + 1,255);
-		}
-
-		// wenn wir hier sind, dann muss erweitert werden
-		const int first_free = max(capacity, pri);
-
-		// neue kapazitaet auf vier aufrunden
-		new_cap = (new_cap + 3) & 0xFFFC;
+		// size exeeded, needs to extent
+		uint8 new_cap = ((uint16)capacity+4)&0x0FC;
 		set_capacity( new_cap );
-
-		return first_free;
+		return true;
 	}
 }
 
@@ -273,15 +220,13 @@ uint8 dingliste_t::intern_insert_at(ding_t *ding,uint8 pri)
 {
 	// we have more than one object here, thus we can use obj.some exclusively!
 	ding_t *new_ding = ding;
-	while(pri<capacity  &&  new_ding!=NULL) {
+	do {
 		ding_t *old_dt = obj.some[pri];
 		obj.some[pri] = new_ding;
 		new_ding = old_dt;
 		pri ++;
-	}
-	if(pri>top) {
-		top = pri;
-	}
+	} while(pri<top  &&  new_ding!=NULL);
+	top = pri;
 	return 1;
 }
 
@@ -292,17 +237,16 @@ uint8 dingliste_t::intern_insert_at(ding_t *ding,uint8 pri)
 uint8
 dingliste_t::add(ding_t *ding)
 {
-	uint8 index = grow_capacity(0);
-
-	// either save direct
-	if(capacity==1) {
+	if(capacity==0) {
+		// the first one save direct
 		obj.one = ding;
-		top = index+1;
+		top = 1;
+		capacity = 1;
 		return true;
 	}
 
-	// or move it into the in the array
-	if(obj.some[index]!=NULL) {
+	if(top>=capacity  &&  !grow_capacity()) {
+		// memory exceeded
 		return false;
 	}
 
@@ -320,14 +264,12 @@ dingliste_t::add(ding_t *ding)
 	}
 
 	uint8 i;
-	for(  i=0;  obj.some[i]!=NULL  &&  pri>=type_to_pri[ding->gib_typ()];  i++  )
+	for(  i=0;  i<top  &&  pri>=type_to_pri[obj.some[i]->gib_typ()];  i++  )
 		;
 	// now i contains the position, where we either insert of just add ...
-	if(obj.some[i]==NULL) {
-		obj.some[i] = ding;
-		if(i>=top) {
-			top = i+1;
-		}
+	if(i==top) {
+		obj.some[top] = ding;
+		top++;
 	}
 	else {
 		intern_insert_at(ding, i);
@@ -374,20 +316,20 @@ dingliste_t::add_moving(ding_t *ding)
 				else {
 					// we must be drawn before south or west (thus insert after)
 					for(uint8 i=start;  i<top;  i++  ) {
-						const ding_t *dt = obj.some[i];
-						if(dt  &&  dt->is_moving()  &&  (((const vehikel_t*)dt)->gib_fahrtrichtung()&ribi_t::suedwest)!=0) {
+						if((((const vehikel_t*)obj.some[i])->gib_fahrtrichtung()&ribi_t::suedwest)!=0) {
 							return intern_insert_at(ding,i);
 						}
 					}
 					// nothing going southwest
-					return add(ding,top);
+					obj.some[top++] = ding;
+					return true;
 				}
 
 			}
 			else {
 				// going south, west or the rest
 				if((fahrtrichtung&(~ribi_t::suedost))==0) {
-					// if we are going south or suotheast we must be drawn as the first in east direction (after nord and nordeast)
+					// if we are going south or southeast we must be drawn as the first in east direction (after nord and nordeast)
 					for(uint8 i=start;  i<top;  i++  ) {
 						const ding_t *dt = obj.some[i];
 						if(dt  &&  dt->is_moving()  &&  (((const vehikel_t*)dt)->gib_fahrtrichtung()&ribi_t::suedwest)!=0) {
@@ -396,7 +338,8 @@ dingliste_t::add_moving(ding_t *ding)
 					}
 				}
 				// nothing going southeast
-				return add(ding,top);
+				obj.some[top++] = ding;
+				return true;
 			}
 		}
 		else {
@@ -407,15 +350,15 @@ dingliste_t::add_moving(ding_t *ding)
 
 					// if we are going east we must be drawn as the first in east direction (after nord and nordeast)
 					for(uint8 i=start;  i<top;  i++  ) {
-						const ding_t *dt = obj.some[i];
-						if(dt  &&  dt->is_moving()  &&  (((const vehikel_t*)dt)->gib_fahrtrichtung()&ribi_t::nordost)!=0) {
+						if( (((const vehikel_t*)obj.some[i])->gib_fahrtrichtung()&ribi_t::nordost)!=0) {
 							return intern_insert_at(ding,i);
 						}
 					}
 					// nothing going to the east
 				}
 				// we must be drawn before south or west (thus append after)
-				return add(ding,top);
+				obj.some[top++] = ding;
+				return true;
 
 			}
 			else {
@@ -427,14 +370,14 @@ dingliste_t::add_moving(ding_t *ding)
 				}
 				else {
 					for(uint8 i=start;  i<top;  i++  ) {
-						const ding_t *dt = obj.some[i];
 						// west or northwest: append after all westwards
-						if(dt  &&  dt->is_moving()  &&  (((const vehikel_t*)dt)->gib_fahrtrichtung()&ribi_t::suedwest)==0) {
+						if((((const vehikel_t*)obj.some[i])->gib_fahrtrichtung()&ribi_t::suedwest)==0) {
 							return intern_insert_at(ding,i);
 						}
 					}
-					// nothing goinf to nordeast
-					return add(ding,top);
+					// nothing going to nordeast
+					obj.some[top++] = ding;
+					return true;
 				}
 			}
 
@@ -452,57 +395,10 @@ dingliste_t::add_moving(ding_t *ding)
 		}
 		else {
 			// for north east we must be draw last
-			uint8 i;
-			for(i=top-1;  i>=start;  i--) {
-				// scan for other vehicles (only our type allowed!)
-				ding_t *dt = obj.some[i];
-				if(dt  &&  dt->is_moving()) {
-					i++;
-					break;
-				}
-			}
-			return add(ding,i);
-		}
-	}
-	return false;
-}
-
-
-
-uint8
-dingliste_t::add(ding_t *ding, uint8 pri)
-{
-	if(ding) {
-		const uint8 index = grow_capacity(pri);
-
-		// either save direct
-		if(capacity==1) {
-			obj.one = ding;
-			top = index+1;
-			return true;
-		}
-
-		// or in the array
-		if(obj.some[index] == NULL) {
-
-			obj.some[index] = ding;
-			ding = NULL;
-
-			if(index >= top) {
-				top = index+1;
-			}
+			obj.some[top++] = ding;
 			return true;
 		}
 	}
-	return false;
-}
-
-
-
-uint8
-dingliste_t::insert_at(ding_t *ding, uint8 pri)
-{
-	assert(0);
 	return false;
 }
 
@@ -512,29 +408,25 @@ dingliste_t::insert_at(ding_t *ding, uint8 pri)
 // use this only for temperary removing
 // since it does not shrink list or checks for ownership
 ding_t *
-dingliste_t::remove_at(uint8 pos)
+dingliste_t::remove_last()
 {
-	ding_t *dt = NULL;
+	ding_t *d=NULL;
 	if(capacity==0) {
-		//
+		// nothing
 	}
 	else if(capacity==1) {
-		if(top-1==pos) {
-			dt = obj.one;
-			obj.one = NULL;
-			top = 0;
-		}
+		d = obj.one;
+		obj.one = NULL;
+		capacity = top = 0;
 	}
 	else {
-		if(pos<top) {
-			dt = obj.some[pos];
-			obj.some[pos] = 0;
-			if(top-1==pos) {
-				top --;
-			}
+		if(top>0) {
+			top --;
+			d = obj.some[top];
+			obj.some[top] = NULL;
 		}
 	}
-	return dt;
+	return d;
 }
 
 
@@ -545,17 +437,20 @@ dingliste_t::remove(ding_t *ding)
 
 	assert(ding != NULL);
 
-	if(capacity<=1) {
-		if(capacity==1  &&  obj.one==ding) {
+	if(capacity==0) {
+		return false;
+	} else if(capacity==1) {
+		if(obj.one==ding) {
 			obj.one = NULL;
 			capacity = 0;
 			top = 0;
+			return true;
 		}
-		return true;
+		return false;
 	}
 
 	// we keep the array dense!
-	for(uint8 i=0; i<capacity; i++) {
+	for(uint8 i=0; i<top; i++) {
 
 		if(obj.some[i]==ding) {
 			// found it!
@@ -567,6 +462,7 @@ dingliste_t::remove(ding_t *ding)
 			obj.some[top] = NULL;
 			return true;
 		}
+
 	}
 
 	return false;
@@ -580,30 +476,27 @@ dingliste_t::loesche_alle(spieler_t *sp, uint8 offset)
 	bool ok=false;
 
 	if(capacity>1) {
-		for(int i=top-1; i>=offset; i++) {
+		for(int i=top-1; i>=offset; i--) {
 			ding_t *dt = obj.some[i];
-			if(dt) {
-				dt->set_flag(ding_t::not_on_map);
-				dt->entferne(sp);
-				delete dt;
-				obj.some[i] = NULL;
-				ok = true;
-			}
+			dt->set_flag(ding_t::not_on_map);
+			dt->entferne(sp);
+			delete dt;
+			obj.some[i] = NULL;
+			ok = true;
 		}
 	}
 	else {
-		if(capacity==1  &&  top>offset  &&  obj.one!=NULL) {
+		if(capacity==1  &&  offset==0) {
 			ding_t *dt = obj.one;
-			if(dt  &&  dt->gib_typ()!=ding_t::way) {
-				dt->entferne(sp);
-				delete dt;
-				ok = true;
-			}
+			dt->entferne(sp);
+			delete dt;
+			ok = true;
+			obj.one = NULL;
+			capacity = 0;
 		}
-		obj.one = NULL;
 	}
 
-	if(offset>top) {
+	if(offset<top) {
 		top = offset;
 	}
 	shrink_capacity(top);
@@ -621,19 +514,15 @@ dingliste_t::kann_alle_entfernen(const spieler_t *sp) const
 		return NULL;
 	}
 	else if(capacity==1) {
-		if(obj.one!=NULL) {
-			return obj.one->ist_entfernbar(sp);
-		}
+		return obj.one->ist_entfernbar(sp);
 	}
 	else {
 		const char * msg = NULL;
 
 		for(uint8 i=0; i<top; i++) {
-			if(obj.some[i] != NULL) {
-				msg = obj.some[i]->ist_entfernbar(sp);
-				if(msg != NULL) {
-					return msg;
-				}
+			msg = obj.some[i]->ist_entfernbar(sp);
+			if(msg != NULL) {
+				return msg;
 			}
 		}
 	}
@@ -651,15 +540,11 @@ dingliste_t::calc_bild()
 		// nothing
 	}
 	else if(capacity==1) {
-		if(obj.one!=NULL) {
-			obj.one->calc_bild();
-		}
+		obj.one->calc_bild();
 	}
 	else {
 		for(uint8 i=0; i<top; i++) {
-			if(obj.some[i]!=NULL) {
-				obj.some[i]->calc_bild();
-			}
+			obj.some[i]->calc_bild();
 		}
 	}
 }
@@ -692,13 +577,13 @@ dingliste_t::suche(ding_t::typ typ,uint8 start) const
 		return NULL;
 	}
 	else if(capacity==1) {
-		return (obj.one==NULL  ||  obj.one->gib_typ()!=typ) ? NULL : obj.one;
+		return obj.one->gib_typ()!=typ ? NULL : obj.one;
 	}
-	else {
+	else if(start<top) {
 		// else we have to search the list
 		for(uint8 i=start; i<top; i++) {
 			ding_t * tmp = obj.some[i];
-			if(tmp && tmp->gib_typ()==typ) {
+			if(tmp->gib_typ()==typ) {
 				return tmp;
 			}
 		}
@@ -708,26 +593,8 @@ dingliste_t::suche(ding_t::typ typ,uint8 start) const
 
 
 
-uint8
-dingliste_t::count() const
-{
-	if(capacity<=1) {
-		return (obj.one!=NULL);
-	}
-	else {
-		uint8 i, n=0;
-		for(i=0; i<top; i++) {
-			if(obj.some[i]!=NULL) {
-				n++;
-			}
-		}
-		return n;
-	}
-}
-
-
-
-void dingliste_t::rdwr(karte_t *welt, loadsave_t *file, koord3d current_pos)
+void
+dingliste_t::rdwr(karte_t *welt, loadsave_t *file, koord3d current_pos)
 {
 	long max_object_index;
 
@@ -769,7 +636,6 @@ void dingliste_t::rdwr(karte_t *welt, loadsave_t *file, koord3d current_pos)
 				case ding_t::old_roadsign: typ = ding_t::roadsign;
 				case ding_t::roadsign:	  d = new roadsign_t (welt, file); break;
 
-				// depots need to be at PRI_DEPOT!
 				case ding_t::old_monoraildepot:
 					typ = ding_t::monoraildepot;
 				case ding_t::monoraildepot:
@@ -898,30 +764,25 @@ void dingliste_t::rdwr(karte_t *welt, loadsave_t *file, koord3d current_pos)
 		else {
 			// here is the saving part ...
 			ding_t *d=bei(i);
-			if(d) {
-				if(d->gib_pos()==current_pos) {
-					if(d->gib_typ()!=ding_t::raucher  &&  d->gib_typ()!=ding_t::way) {
-						assert(!d->is_moving());
-						bei(i)->rdwr(file);
-					}
-					else {
-						file->wr_obj_id(-1);
-					}
-				}
-				else if(bei(i)->gib_pos().gib_2d()==current_pos.gib_2d()) {
-					// ok, just error in z direction => we will correct it
-					DBG_DEBUG("dingliste_t::rdwr()","position error: z pos corrected on %i,%i from %i to %i",bei(i)->gib_pos().x,bei(i)->gib_pos().y,bei(i)->gib_pos().z,current_pos.z);
-					bei(i)->setze_pos( current_pos );
+			assert(d);
+			if(d->gib_pos()==current_pos) {
+				if(d->gib_typ()!=ding_t::raucher  &&  d->gib_typ()!=ding_t::way) {
+					assert(!d->is_moving());
 					bei(i)->rdwr(file);
 				}
 				else {
-					DBG_DEBUG("dingliste_t::rdwr()","position error: %i,%i instead %i,%i",bei(i)->gib_pos().x,bei(i)->gib_pos().y,current_pos.x,current_pos.y);
-					DBG_DEBUG("dingliste_t::rdwr()","object not saved!");
 					file->wr_obj_id(-1);
 				}
 			}
+			else if(bei(i)->gib_pos().gib_2d()==current_pos.gib_2d()) {
+				// ok, just error in z direction => we will correct it
+				DBG_DEBUG("dingliste_t::rdwr()","position error: z pos corrected on %i,%i from %i to %i",bei(i)->gib_pos().x,bei(i)->gib_pos().y,bei(i)->gib_pos().z,current_pos.z);
+				bei(i)->setze_pos( current_pos );
+				bei(i)->rdwr(file);
+			}
 			else {
-				// ignore this
+				DBG_DEBUG("dingliste_t::rdwr()","position error: %i,%i instead %i,%i",bei(i)->gib_pos().x,bei(i)->gib_pos().y,current_pos.x,current_pos.y);
+				DBG_DEBUG("dingliste_t::rdwr()","object not saved!");
 				file->wr_obj_id(-1);
 			}
 		}
@@ -936,39 +797,28 @@ void dingliste_t::rdwr(karte_t *welt, loadsave_t *file, koord3d current_pos)
  */
 void dingliste_t::display_dinge( const sint16 xpos, const sint16 ypos, const uint8 start_offset, const bool reset_dirty ) const
 {
-	switch(capacity) {
+	if(capacity==0) {
+		return;
+	}
+	else if(capacity==1) {
+		if(start_offset==0) {
+			obj.one->display(xpos, ypos, reset_dirty );
+			obj.one->display_after(xpos, ypos, reset_dirty );
+			if(reset_dirty) {
+				obj.one->clear_flag(ding_t::dirty);
+			}
+		}
+		return;
+	}
 
-		case 0:	return;
-
-		case 1:	if(top>start_offset  &&  obj.one) {
-							obj.one->display(xpos, ypos, reset_dirty );
-							obj.one->display_after(xpos, ypos, reset_dirty );
-							if(reset_dirty) {
-								obj.one->clear_flag(ding_t::dirty);
-							}
-						}
-						return;
-
-		default:	// background
-					{
-						for(uint8 n=start_offset; n<top; n++) {
-							ding_t * dt = obj.some[n];
-							if(dt) {
-								// ist dort ein objekt ?
-								dt->display(xpos, ypos, reset_dirty );
-							}
-						}
-					}
-					// foreground (needs to be done backwards!
-					for(int n=top-1; n>=0;  n--) {
-						ding_t * dt = obj.some[n];
-						if(dt) {
-							// ist dort ein vordergrund objekt ?
-							dt->display_after(xpos, ypos, reset_dirty );
-							dt->clear_flag(ding_t::dirty);
-						}
-					}
-					return;
+	for(uint8 n=start_offset; n<top; n++) {
+		// ist dort ein objekt ?
+		obj.some[n]->display(xpos, ypos, reset_dirty );
+	}
+	// foreground (needs to be done backwards!
+	for(int n=top-1; n>=0;  n--) {
+		obj.some[n]->display_after(xpos, ypos, reset_dirty );
+		obj.some[n]->clear_flag(ding_t::dirty);
 	}
 }
 
@@ -985,21 +835,17 @@ dingliste_t::step(const long delta_t, const int steps)
 	}
 	else if(capacity==1) {
 		ding_t *d = obj.one;
-		if(d!=NULL) {
-			const int freq = d->step_frequency;
-			if(freq!=0  &&  (steps&freq)==0  &&  d->step(delta_t*freq)==false) {
-				loeschen.insert( d );
-			}
+		const int freq = d->step_frequency;
+		if(freq!=0  &&  (steps&freq)==0  &&  d->step(delta_t*freq)==false) {
+			loeschen.insert( d );
 		}
 	}
 	else {
 		for(uint8 i=0; i<top; i++) {
 			ding_t *d = obj.some[i];
-			if(d!=NULL) {
-				const int freq = d->step_frequency;
-				if(freq!=0  &&  (steps&freq)==0  &&  d->step(delta_t*freq)==false) {
-					loeschen.insert( d );
-				}
+			const int freq = d->step_frequency;
+			if(freq!=0  &&  (steps&freq)==0  &&  d->step(delta_t*freq)==false) {
+				loeschen.insert( d );
 			}
 		}
 	}
@@ -1024,14 +870,14 @@ dingliste_t::check_season(const long month)
 	}
 	else if(capacity==1) {
 		ding_t *d = obj.one;
-		if(d!=NULL  &&  d->check_season(month)==false) {
+		if(d->check_season(month)==false) {
 			loeschen.insert( d );
 		}
 	}
 	else {
 		for(uint8 i=0; i<top; i++) {
 			ding_t *d = obj.some[i];
-			if(d!=NULL  &&  d->check_season(month)==false) {
+			if(d->check_season(month)==false) {
 				loeschen.insert( d );
 			}
 		}

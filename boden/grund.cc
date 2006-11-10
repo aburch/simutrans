@@ -371,7 +371,6 @@ void grund_t::rdwr(loadsave_t *file)
 		}
 		flags |= dirty;
 	}
-	//DBG_DEBUG("grund_t::rdwr()", "loaded at %i,%i with %i dinge bild %i.", pos.x, pos.y, obj_count(),bild_nr);
 }
 
 
@@ -410,17 +409,10 @@ grund_t::~grund_t()
 
 // moves all object from the old to the new grund_t
 void
-grund_t::take_obj_from( grund_t *gr) {
-	int i=0;
-	if(gr->gib_weg_nr(0)) i++;
-	if(gr->gib_weg_nr(1)) i++;
-	while(i<gr->gib_top()) {
-		ding_t *d=gr->obj_bei(i);
-		if(d) {
-			gr->obj_remove(d,NULL);
-			dinge.add(d);
-		}
-		i++;
+grund_t::take_obj_from( grund_t *gr)
+{
+	while(gr->first_obj()!=NULL) {
+		dinge.add( gr->obj_remove_top() );
 	}
 }
 
@@ -914,14 +906,13 @@ long grund_t::neuen_weg_bauen(weg_t *weg, ribi_t::ribi ribi, spieler_t *sp)
 			// new first way here
 
 			// remove all trees ...
-			for( int i=gib_top();  i>=0;  i--  ) {
-				ding_t *d=dinge.bei(i);
-				if(d  &&  d->gib_typ()==ding_t::baum) {
-					dinge.remove_at(i);
-					d->set_flag(ding_t::not_on_map);
-					delete d;
-					cost -= umgebung_t::cst_remove_tree;
+			while(1) {
+				ding_t *d=dinge.suche(ding_t::baum,0);
+				if(d==NULL) {
+					break;
 				}
+				delete d;
+				cost -= umgebung_t::cst_remove_tree;
 			}
 
 			// add
@@ -966,8 +957,10 @@ long grund_t::neuen_weg_bauen(weg_t *weg, ribi_t::ribi ribi, spieler_t *sp)
  */
 sint32 grund_t::weg_entfernen(waytype_t wegtyp, bool ribi_rem)
 {
+DBG_MESSAGE("grund_t::weg_entfernen()","this %p",this);
 	weg_t *weg = gib_weg(wegtyp);
-	if(weg) {
+DBG_MESSAGE("grund_t::weg_entfernen()","weg %p",weg);
+	if(weg!=NULL) {
 		if(ribi_rem) {
 			ribi_t::ribi ribi = weg->gib_ribi();
 			grund_t *to;
@@ -983,26 +976,15 @@ sint32 grund_t::weg_entfernen(waytype_t wegtyp, bool ribi_rem)
 			}
 		}
 
-		sint32 costs=0;	// costs for removal are construction costs
+		sint32 costs=weg->gib_besch()->gib_preis();	// costs for removal are construction costs
+		delete weg;
 
 		// delete the second way ...
 		if(flags&has_way2) {
-			weg_t *w=static_cast<weg_t *>(obj_bei(1));
-			if(w->gib_waytype()==wegtyp) {
-				costs += w->gib_besch()->gib_preis();
-				flags &= ~has_way2;
-				delete w;
-			}
+			flags &= ~has_way2;
 		}
-
-		// then delete first way
-		if(flags&has_way1) {
-			weg_t *w=static_cast<weg_t *>(obj_bei(0));
-			if(w->gib_waytype()==wegtyp) {
-				costs += w->gib_besch()->gib_preis();
-				flags &= ~has_way1;
-				delete w;
-			}
+		else {
+			flags &= ~has_way1;
 		}
 
 		// remove ownership from empty tile
