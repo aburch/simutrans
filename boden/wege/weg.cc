@@ -389,7 +389,7 @@ void weg_t::neuer_monat()
 void weg_t::laden_abschliessen()
 {
 	spieler_t *sp=gib_besitzer();
-	if(sp) {
+	if(sp  &&  besch) {
 		sp->add_maintenance( besch->gib_wartung() );
 	}
 }

@@ -84,7 +84,11 @@ void planquadrat_t::boden_hinzufuegen(grund_t *bd)
 		}
 		else {
 			// needs to convert to array
-			assert(data.one->gib_hoehe()!=bd->gib_hoehe());
+//			assert(data.one->gib_hoehe()!=bd->gib_hoehe());
+			if(data.one->gib_hoehe()==bd->gib_hoehe()) {
+DBG_MESSAGE("planquadrat_t::boden_hinzufuegen()","addition ground %s at %i%i will be ignored!",bd->gib_name(),bd->gib_pos().x,bd->gib_pos().y);
+				return;
+			}
 			grund_t **tmp = new grund_t *[2];
 			tmp[0] = data.one;
 			tmp[1] = bd;
@@ -101,7 +105,11 @@ void planquadrat_t::boden_hinzufuegen(grund_t *bd)
 				break;
 			}
 		}
-		assert(data.one->gib_hoehe()!=bd->gib_hoehe());
+//		assert(data.one->gib_hoehe()!=bd->gib_hoehe());
+		if(data.one->gib_hoehe()==bd->gib_hoehe()) {
+DBG_MESSAGE("planquadrat_t::boden_hinzufuegen()","addition ground %s at %i%i will be ignored!",bd->gib_name(),bd->gib_pos().x,bd->gib_pos().y);
+			return;
+		}
 		// extend array if needed
 		if(size==capacity) {
 			grund_t **tmp = new grund_t *[capacity+1];

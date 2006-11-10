@@ -215,8 +215,6 @@ grund_t::grund_t(karte_t *wl, loadsave_t *file)
 
 void grund_t::rdwr(loadsave_t *file)
 {
-	weg_t *wege[2]={NULL,NULL};
-
 	file->wr_obj_id(gib_typ());
 	pos.rdwr(file);
 //DBG_DEBUG("grund_t::rdwr()", "pos=%d,%d,%d", pos.x, pos.y, pos.z);
@@ -260,19 +258,19 @@ void grund_t::rdwr(loadsave_t *file)
 		int i = -1;
 		do {
 			wtyp = (waytype_t)file->rd_obj_id();
+			weg_t *weg = NULL;
 
 			if(++i < 2) {
 					switch(wtyp) {
 						default:
-							wege[i] = NULL;
 							break;
 
 						case road_wt:
-							wege[i] = new strasse_t (welt, file);
+							weg = new strasse_t (welt, file);
 							break;
 
 						case monorail_wt:
-							wege[i] = new monorail_t (welt, file);
+							weg = new monorail_t (welt, file);
 							break;
 
 						case track_wt: {
@@ -285,24 +283,24 @@ void grund_t::rdwr(loadsave_t *file)
 								w->setze_max_speed(sch->gib_max_speed());
 								w->setze_ribi(sch->gib_ribi_unmasked());
 								delete sch;
-								wege[i] = w;
+								weg = w;
 							}
 							else {
-								wege[i] = sch;
+								weg = sch;
 							}
 						} break;
 
 					case tram_wt:
-						wege[i] = new schiene_t (welt, file);
-						if(wege[i]->gib_besch()->gib_styp()!=7) {
-							wege[i]->setze_besch(wegbauer_t::weg_search(tram_wt,wege[i]->gib_max_speed()));
+						weg = new schiene_t (welt, file);
+						if(weg->gib_besch()->gib_styp()!=7) {
+							weg->setze_besch(wegbauer_t::weg_search(tram_wt,weg->gib_max_speed()));
 						}
 						break;
 
 					case water_wt:
 						// ignore old type dock ...
 						if(file->get_version()>=87000) {
-							wege[i] = new kanal_t (welt, file);
+							weg = new kanal_t (welt, file);
 						}
 						else {
 							unsigned char d8;
@@ -320,20 +318,33 @@ void grund_t::rdwr(loadsave_t *file)
 						break;
 
 					case air_wt:
-						wege[i] = new runway_t (welt, file);
+						weg = new runway_t (welt, file);
 						break;
 				}
 
-				if(wege[i]) {
-					wege[i]->setze_pos(pos);
-					wege[i]->setze_besitzer(gib_besitzer());
-					assert( wege[i]->gib_ribi_maske()==0 );
+				if(weg) {
+					if(this->gib_typ()==fundament) {
+						// remove this (but we can not correct the other wasy, since possibly not yet loaded)
+						dbg->error("grund_t::rdwr()","removing way from foundation at %i,%i",pos.x,pos.y);
+						// we do not delete them, to keep maitenance costs correct
+					}
+					else {
+						assert((flags&has_way2)==0);
+						weg->setze_pos(pos);
+						weg->setze_besitzer(gib_besitzer());
+						flags |= has_way1;
+						dinge.add(weg);
+						if(flags&has_way1) {
+							flags |= has_way2;
+							assert( dinge.bei(0)->gib_typ()==ding_t::way );
+							assert( dinge.bei(1)->gib_typ()==ding_t::way );
+						}
+					}
 				}
 			}
 		} while(wtyp != invalid_wt);
-		while(++i < 2) {
-			wege[i] = NULL;
-		}
+
+		flags |= dirty;
 	}
 	else {
 		// saving all ways ...
@@ -347,30 +358,10 @@ void grund_t::rdwr(loadsave_t *file)
 	}
 
 	// all objects on this tile
-	dinge.rdwr(welt, file,gib_pos());
+	dinge.rdwr(welt, file, gib_pos());
 
-	if(file->is_loading()) {
-		if(this->gib_typ()==fundament) {
-			if(wege[0]) {
-				// remove this (but we can not correct the other wasy, since possibly not yet loaded)
-				dbg->error("grund_t::rdwr()","removing way from foundation at %i,%i",pos.x,pos.y);
-				// we do not delete them, to keep maitenance costs correct
-			}
-		}
-		else {
-			// add to dingliste ...
-			if(wege[0]) {
-				dinge.add( wege[0] );
-				flags |= has_way1;
-			}
-			if(wege[1]) {
-				assert(wege[0]!=NULL);
-				dinge.add( wege[1] );
-				flags |= has_way2;
-			}
-		}
-		flags |= dirty;
-	}
+	if(flags&has_way1) assert( dinge.bei(0)->gib_typ()==ding_t::way );
+	if(flags&has_way2) assert( dinge.bei(1)->gib_typ()==ding_t::way );
 }
 
 
@@ -486,6 +477,9 @@ void grund_t::setze_halt(halthandle_t halt) {
  */
 void grund_t::calc_bild()
 {
+	// will automatically recalculate ways ...
+	dinge.calc_bild();
+
 	// recalc way image
 	if(ist_uebergang()) {
 		weg_t *wege[2];
@@ -504,9 +498,6 @@ void grund_t::calc_bild()
 			wege[1]->setze_bild( 0, IMG_LEER );
 		}
 	}
-
-	// will automatically recalculate ways ...
-	dinge.calc_bild();
 
 	// Das scheint die beste Stelle zu sein
 	if(ist_karten_boden()) {

@@ -385,41 +385,46 @@ depot_t::rdwr(loadsave_t *file)
 void
 depot_t::rdwr_vehikel(slist_tpl<vehikel_t *> &list, loadsave_t *file)
 {
-    int count;
+	int count;
 
-    if(file->is_saving()) {
-        count = list.count();
-	DBG_MESSAGE("depot_t::vehikel_laden()","saving %d vehicles",count);
-    }
-    file->rdwr_long(count, "\n");
+	if(file->is_saving()) {
+		count = list.count();
+		DBG_MESSAGE("depot_t::vehikel_laden()","saving %d vehicles",count);
+	}
+	file->rdwr_long(count, "\n");
 
-    if(file->is_loading()) {
+	if(file->is_loading()) {
 		DBG_MESSAGE("depot_t::vehikel_laden()","loading %d vehicles",count);
-        for(int i=0; i<count; i++) {
-            ding_t::typ typ = (ding_t::typ)file->rd_obj_id();
+		for(int i=0; i<count; i++) {
+			ding_t::typ typ = (ding_t::typ)file->rd_obj_id();
 
-	    vehikel_t *v = NULL;
+			vehikel_t *v = NULL;
 
-	    switch( typ ) {
-	    case automobil: v = new automobil_t(welt, file);    break;
-	    case waggon:    v = new waggon_t(welt, file);       break;
-	    case schiff:    v = new schiff_t(welt, file);       break;
-	    case aircraft: v = new aircraft_t(welt,file);  break;
-	    case monorailwaggon: v = new monorail_waggon_t(welt,file);  break;
-	    default:
-	        dbg->fatal("depot_t::vehikel_laden()","invalid vehicle type $%X", typ);
-	    }
+			switch( typ ) {
+				case old_automobil:
+				case automobil: v = new automobil_t(welt, file);    break;
+				case old_waggon:
+				case waggon:    v = new waggon_t(welt, file);       break;
+				case old_schiff:
+				case schiff:    v = new schiff_t(welt, file);       break;
+				case old_aircraft:
+				case aircraft: v = new aircraft_t(welt,file);  break;
+				case old_monorailwaggon:
+				case monorailwaggon: v = new monorail_waggon_t(welt,file);  break;
+				default:
+					dbg->fatal("depot_t::vehikel_laden()","invalid vehicle type $%X", typ);
+			}
 
-	    DBG_MESSAGE("depot_t::vehikel_laden()","loaded %s", v->gib_besch()->gib_name());
-	    list.insert( v );
-        }
-    }
-    else {
-        slist_iterator_tpl<vehikel_t *> l_iter ( list);
-        while(l_iter.next()) {
-	    l_iter.get_current()->rdwr( file );
-        }
-    }
+			DBG_MESSAGE("depot_t::vehikel_laden()","loaded %s", v->gib_besch()->gib_name());
+			list.insert( v );
+		}
+	}
+	else {
+		slist_iterator_tpl<vehikel_t *> l_iter ( list);
+		while(l_iter.next()) {
+			l_iter.get_current()->rdwr( file );
+		}
+	}
 }
 
 

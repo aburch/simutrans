@@ -56,7 +56,7 @@ static uint8 type_to_pri[32]=
 	255, //
 	10, // baum
 	100, // zeiger
-	90,	90, 90,	// wolke
+	90, 90, 90,	// wolke
 	2, 2, // buildings
 	5, // signal
 	1, 1, // bridge/tunnel
@@ -70,7 +70,7 @@ static uint8 type_to_pri[32]=
 	255,
 	4, // way objects (electrification)
 	0, // ways (always at the top!)
-	255, 255, 255, 255,
+	255, 255, 255, 255, 255
 };
 
 static void dl_free(void *p, uint8 size)
@@ -118,7 +118,7 @@ dingliste_t::~dingliste_t()
 
 
 void
-dingliste_t::set_capacity(unsigned new_cap)
+dingliste_t::set_capacity(uint8 new_cap)
 {
 	// DBG_MESSAGE("dingliste_t::set_capacity()", "old cap=%d, new cap=%d", capacity, new_cap);
 
@@ -155,6 +155,7 @@ dingliste_t::set_capacity(unsigned new_cap)
 		memset( obj.some, 0, sizeof(ding_t*)*new_cap );
 		obj.some[0] = tmp;
 		capacity = new_cap;
+		assert(top<=1);
 	}
 	else {
 		// if we reach here, new_cap>1 and (capacity==0 or capacity>1)
@@ -218,72 +219,26 @@ dingliste_t::shrink_capacity(uint8 o_top)
 inline
 uint8 dingliste_t::intern_insert_at(ding_t *ding,uint8 pri)
 {
+#if 0
+	memmove( obj.some+pri+1, obj.some+pri, sizeof(ding_t*)*(top-pri) );
+	obj.some[pri] = ding;
+	top ++;
+#else
 	// we have more than one object here, thus we can use obj.some exclusively!
-	ding_t *new_ding = ding;
-	do {
-		ding_t *old_dt = obj.some[pri];
-		obj.some[pri] = new_ding;
-		new_ding = old_dt;
-		pri ++;
-	} while(pri<top  &&  new_ding!=NULL);
-	top = pri;
+	for(  uint8 i=top;  i>pri;  i--  ) {
+		obj.some[i] = obj.some[i-1];
+	}
+	obj.some[pri] = ding;
+	top++;
+#endif
 	return 1;
 }
 
 
 
-// this routine will automatically obey the correct order
-// of things during insert into dingliste
-uint8
-dingliste_t::add(ding_t *ding)
-{
-	if(capacity==0) {
-		// the first one save direct
-		obj.one = ding;
-		top = 1;
-		capacity = 1;
-		return true;
-	}
-
-	if(top>=capacity  &&  !grow_capacity()) {
-		// memory exceeded
-		return false;
-	}
-
-	// vehicles need a special order
-	if(ding->is_moving()) {
-		return add_moving(ding);
-	}
-
-	// now insert it a the correct place
-	const uint8 pri=type_to_pri[ding->gib_typ()];
-
-	// roads must be first!
-	if(pri==0  &&  ((weg_t *)ding)->gib_waytype()==road_wt) {
-		return intern_insert_at(ding, 0);
-	}
-
-	uint8 i;
-	for(  i=0;  i<top  &&  pri>=type_to_pri[obj.some[i]->gib_typ()];  i++  )
-		;
-	// now i contains the position, where we either insert of just add ...
-	if(i==top) {
-		obj.some[top] = ding;
-		top++;
-	}
-	else {
-		intern_insert_at(ding, i);
-	}
-	// then correct the upper border
-	return true;
-}
-
-
-
-
 // this will automatically give the right order for citycars and the like ...
 uint8
-dingliste_t::add_moving(ding_t *ding)
+dingliste_t::intern_add_moving(ding_t *ding)
 {
 	// we are more than one object, thus we exclusively use obj.some here!
 	// it would be nice, if also the objects are inserted according to their priorities as
@@ -293,12 +248,13 @@ dingliste_t::add_moving(ding_t *ding)
 	// find out about the first car etc. moving thing.
 	// We can start to insert things after this index.
 	uint8 start=0;
-	while(start<top  &&  obj.some[start]!=NULL  &&  !obj.some[start]->is_moving()) {
+	while(start<top  &&   !obj.some[start]->is_moving()) {
 		start ++;
 	}
 
 	// if we have two ways, the way at index 0 is ALWAYS the road!
-	if(((weg_t *)obj.some[0])->gib_waytype()==road_wt) {
+	// however ships and planes may be where not way is below ...
+	if(obj.some[0]->gib_typ()==ding_t::way  &&  ((weg_t *)obj.some[0])->gib_waytype()==road_wt) {
 
 		const uint8 fahrtrichtung = ((vehikel_t*)ding)->gib_fahrtrichtung();
 
@@ -404,6 +360,56 @@ dingliste_t::add_moving(ding_t *ding)
 
 
 
+// this routine will automatically obey the correct order
+// of things during insert into dingliste
+uint8
+dingliste_t::add(ding_t *ding)
+{
+	if(capacity==0) {
+		// the first one save direct
+		obj.one = ding;
+		top = 1;
+		capacity = 1;
+		return true;
+	}
+
+	if(top>=capacity  &&  !grow_capacity()) {
+		// memory exceeded
+		return false;
+	}
+
+	// vehicles need a special order
+	if(ding->is_moving()) {
+		return intern_add_moving(ding);
+		return 1;
+	}
+
+	// now insert it a the correct place
+	const uint8 pri=type_to_pri[ding->gib_typ()];
+
+	// roads must be first!
+	if(pri==0  &&  ((weg_t *)ding)->gib_waytype()==road_wt) {
+		return intern_insert_at(ding, 0);
+	}
+
+	uint8 i;
+	for(  i=0;  i<top  &&  pri>=type_to_pri[obj.some[i]->gib_typ()];  i++  )
+		;
+	// now i contains the position, where we either insert of just add ...
+	if(i==top) {
+		obj.some[top] = ding;
+		top++;
+	}
+	else {
+		intern_insert_at(ding, i);
+	}
+	// then correct the upper border
+	return true;
+}
+
+
+
+
 // take the thing out from the list
 // use this only for temperary removing
 // since it does not shrink list or checks for ownership
@@ -434,9 +440,6 @@ dingliste_t::remove_last()
 uint8
 dingliste_t::remove(ding_t *ding)
 {
-
-	assert(ding != NULL);
-
 	if(capacity==0) {
 		return false;
 	} else if(capacity==1) {
@@ -609,9 +612,7 @@ dingliste_t::rdwr(karte_t *welt, loadsave_t *file, koord3d current_pos)
 
 	for(int i=0; i<=max_object_index; i++) {
 		if(file->is_loading()) {
-			uint8 pri = (i>=255) ? 254: (uint8)i;	// try to read as many as possible
 			ding_t::typ typ = (ding_t::typ)file->rd_obj_id();
-
 			// DBG_DEBUG("dingliste_t::laden()", "Thing type %d", typ);
 
 			if(typ == -1) {
@@ -721,8 +722,6 @@ dingliste_t::rdwr(karte_t *welt, loadsave_t *file, koord3d current_pos)
 						gb  = 0;
 					}
 					d = gb;
-					// old version has a foundation, which is not loaded => reset to first position
-					pri = 0;
 				}
 				break;
 
@@ -767,7 +766,6 @@ dingliste_t::rdwr(karte_t *welt, loadsave_t *file, koord3d current_pos)
 			assert(d);
 			if(d->gib_pos()==current_pos) {
 				if(d->gib_typ()!=ding_t::raucher  &&  d->gib_typ()!=ding_t::way) {
-					assert(!d->is_moving());
 					bei(i)->rdwr(file);
 				}
 				else {

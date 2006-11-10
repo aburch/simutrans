@@ -38,10 +38,13 @@ void tunnelboden_t::calc_bild()
 		// only here, when undergound_mode is true
 		clear_back_bild();
 		grund_t::calc_bild();
-		setze_bild(skinverwaltung_t::fussweg->gib_bild_nr(0));
 		if(ist_karten_boden()) {
-			setze_bild(obj_bei(0)->gib_bild());
+			setze_bild(first_obj()->gib_bild()); // tunnel mound
 			((weg_t *)obj_bei(0))->setze_bild(0,IMG_LEER);
+		}
+		else {
+			// default tunnel ground images
+			setze_bild(skinverwaltung_t::fussweg->gib_bild_nr(0));
 		}
 	}
 	else if(ist_karten_boden()) {

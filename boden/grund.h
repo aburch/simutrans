@@ -531,7 +531,7 @@ public:
 	* Strassenbahnschienen duerfen nicht als Kreuzung erkannt werden!
 	* @author V. Meyer, dariok
 	*/
-	inline bool ist_uebergang() const { return (flags&has_way2)!=0  &&  ((weg_t *)obj_bei(1))->gib_besch()->gib_styp()!=7; }
+	inline bool ist_uebergang() const { return (flags&has_way2)!=0  &&  ((weg_t *)dinge.bei(1))->gib_besch()->gib_styp()!=7; }
 
 	virtual hang_t::typ gib_weg_hang() const { return gib_grund_hang(); }
 

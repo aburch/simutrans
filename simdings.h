@@ -207,7 +207,7 @@ public:
 	 inline const sint8 gib_yoff() const {return yoff;}
 
 	// true for all moving objects
-	inline bool is_moving() const { return (gib_typ()&96)==32; }
+	inline bool is_moving() const { return (gib_typ()>=64); }
 
 	// while in principle, this should trigger the dirty, it takes just too much time to do it
 	// TAKE CARE OF SET IT DIRTY YOURSELF!!!

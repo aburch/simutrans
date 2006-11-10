@@ -1228,11 +1228,10 @@ convoi_t::rdwr(loadsave_t *file)
 		setze_name(name_and_id+name_offset);	// will add id automatically
 	}
 
-	koord3d dummy_pos=koord3d(0,0,0);
+	koord3d dummy_pos;
 	for(unsigned i=0; i<anz_vehikel; i++) {
 		if(file->is_saving()) {
 			fahr->at(i)->rdwr(file, true);
-			dummy_pos.rdwr(file);	// will be ignored ...
 		}
 		else {
 			ding_t::typ typ = (ding_t::typ)file->rd_obj_id();
@@ -1250,9 +1249,12 @@ convoi_t::rdwr(loadsave_t *file)
 				case ding_t::old_monorailwaggon:
 				case ding_t::monorailwaggon:    v = new monorail_waggon_t(welt, file);     break;
 				default:
-				dbg->fatal("convoi_t::convoi_t()","Can't load vehicle type %d", typ);
+					dbg->fatal("convoi_t::convoi_t()","Can't load vehicle type %d", typ);
 			}
-			dummy_pos.rdwr(file);
+
+			if(file->get_version()<99004) {
+				dummy_pos.rdwr(file);
+			}
 
 			assert(v != 0  &&  v->gib_besch()!=NULL);
 			fahr->at(i)  = v;
@@ -1277,7 +1279,7 @@ convoi_t::rdwr(loadsave_t *file)
 				gr = welt->lookup(v->gib_pos());
 				if(!gr) {
 					gr = welt->lookup(v->gib_pos().gib_2d())->gib_kartenboden();
-dbg->fatal("convoi_t::rdwr()","invalid position %s for vehicle %s in state %d (setting to ground %s)",k3_to_cstr(v->gib_pos()).chars(), v->gib_name(), state, k3_to_cstr(gr->gib_pos()).chars());
+					dbg->fatal("convoi_t::rdwr()","invalid position %s for vehicle %s in state %d (setting to ground %s)",k3_to_cstr(v->gib_pos()).chars(), v->gib_name(), state, k3_to_cstr(gr->gib_pos()).chars());
 				}
 				// add to blockstrecke
 				if(fahr->at(i)->gib_waytype()==track_wt  ||  fahr->at(i)->gib_waytype()==monorail_wt) {

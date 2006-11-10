@@ -250,11 +250,17 @@ vehikel_basis_t::~vehikel_basis_t()
 void
 vehikel_basis_t::verlasse_feld()
 {
-	if( !welt->lookup(gib_pos())->obj_remove(this, gib_besitzer()) ) {
+	if( !welt->lookup(gib_pos())->obj_remove(this, NULL) ) {
 		// was not removed (not found?)
 
-		dbg->error("vehikel_basis_t::verlasse_feld()","'%s' %p could not be removed from %d %d", gib_name(), this, gib_pos().x, gib_pos().y);
+		dbg->error("vehikel_basis_t::verlasse_feld()","'typ %i' %p could not be removed from %d %d", gib_typ(), this, gib_pos().x, gib_pos().y);
 		DBG_MESSAGE("vehikel_basis_t::verlasse_feld()","checking all plan squares");
+
+		grund_t *gr = welt->lookup( gib_pos().gib_2d() )->gib_boden_von_obj(this);
+		if(gr) {
+			gr->obj_remove(this, NULL);
+			dbg->warning("vehikel_basis_t::verlasse_feld()","removed vehicle typ %i (%p) from %d %d",gib_typ(), this, gib_pos().x, gib_pos().y);
+		}
 
 		koord k;
 		bool ok = false;
@@ -262,9 +268,8 @@ vehikel_basis_t::verlasse_feld()
 		for(k.y=0; k.y<welt->gib_groesse_y(); k.y++) {
 			for(k.x=0; k.x<welt->gib_groesse_x(); k.x++) {
 				grund_t *gr = welt->lookup( k )->gib_boden_von_obj(this);
-
-				if(gr && gr->obj_remove(this, gib_besitzer())) {
-					dbg->warning("vehikel_basis_t::verlasse_feld()","remvoved vehicle '%s' %p from %d %d",gib_name(), this, k.x, k.y);
+				if(gr && gr->obj_remove(this, NULL)) {
+					dbg->warning("vehikel_basis_t::verlasse_feld()","removed vehicle typ %i (%p) from %d %d",gib_name(), this, k.x, k.y);
 					ok = true;
 				}
 			}
@@ -281,7 +286,6 @@ void vehikel_basis_t::betrete_feld()
 {
 	grund_t *gr=welt->lookup(gib_pos());
 	gr->obj_add(this);
-	calc_akt_speed(gr);
 }
 
 
@@ -737,12 +741,15 @@ DBG_MESSAGE("vehikel_t::hop()","reverse dir at route index %d",route_index);
 		}
 	}
 	calc_bild();
-	setze_pos( pos_cur );
 
-	const weg_t * weg = welt->lookup(gib_pos())->gib_weg(gib_waytype());
+	setze_pos( pos_cur );
+	betrete_feld();
+
+	grund_t *gr = welt->lookup(gib_pos());
+	const weg_t * weg = gr->gib_weg(gib_waytype());
 	setze_speed_limit( weg ? kmh_to_speed(weg->gib_max_speed()) : -1 );
 
-	betrete_feld();
+	calc_akt_speed(gr);
 }
 
 
@@ -1399,7 +1406,7 @@ automobil_t::ist_weg_frei(int &restart_speed)
 
 	// pruefe auf Schienenkreuzung
 	strasse_t *str=(strasse_t *)gr->gib_weg(road_wt);
-	if(gr->hat_weg(track_wt) &&  str) {
+	if(gr->hat_weg(track_wt)  &&  str) {
 		// das ist eine Bahnuebergang, ist sie frei ?
 		if(gr->suche_obj_ab(ding_t::waggon,2)) {
 			restart_speed = 0;
@@ -2395,7 +2402,7 @@ aircraft_t::find_route_to_stop_position()
 
 	// then: check if the search point is still on a runway (otherwise just proceed)
 	target = welt->lookup(rt->position_bei(suchen));
-	if(target==NULL  ||  target->hat_weg(air_wt)) {
+	if(target==NULL  ||  !target->hat_weg(air_wt)) {
 		target_halt = halthandle_t();
 		DBG_MESSAGE("aircraft_t::find_route_to_stop_position()","no runway found at %i,%i,%i",rt->position_bei(suchen).x,rt->position_bei(suchen).y,rt->position_bei(suchen).z);
 		return true;	// no runway any more ...

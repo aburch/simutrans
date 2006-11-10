@@ -97,11 +97,10 @@ protected:
 
 	virtual void fahre();
 	virtual int  calc_height();		// Offset Bergauf/Bergab
-	virtual void calc_akt_speed(const grund_t*) {}
 
-	virtual int  gib_dx() const {return dx;};
-	virtual int  gib_dy() const {return dy;};
-	virtual int  gib_hoff() const {return hoff;};
+	virtual int  gib_dx() const {return dx;}
+	virtual int  gib_dy() const {return dy;}
+	virtual int  gib_hoff() const {return hoff;}
 
 	virtual bool hop_check() = 0;
 	virtual void hop() = 0;

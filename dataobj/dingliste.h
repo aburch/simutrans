@@ -21,7 +21,7 @@ private:
 	*/
 	uint8 top;
 
-	void set_capacity(unsigned new_cap);
+	void set_capacity(uint8 new_cap);
 
 	/**
 	* @return ersten freien index
@@ -34,7 +34,7 @@ private:
 	inline uint8 intern_insert_at(ding_t *ding,uint8 pri);
 
 	// this will automatically give the right order for citycars and the like ...
-	uint8 add_moving(ding_t *ding);
+	uint8 intern_add_moving(ding_t *ding);
 
 public:
 	dingliste_t();

@@ -5,7 +5,7 @@ Known bugs: (hard to fix)
 
 
 
-Release of 99.03.1
+Release of 99.04
 
 07-Nov-2006: (prissi)
 	FIX: elevated construction could only connect via straight connections
@@ -20,6 +20,7 @@ Release of 99.03.1
 	CHANGE: tunnel code changed (might not load 99.03 savegames!)
 	CHANGE: 6 byte less for planquadrat_t (i.e. per tile, although GCC gives us only four of them)
 	CHANGE: 8 byte less for grund_t => 14 bytes less per tile (12 with GCC) => map requires ~ 15-25% less memory
+	CHANGE: rewrote dingliste: alsways well defined position, about 10-20% faster insert of vehicles
 
 
 Release of 99.03
