@@ -1563,12 +1563,14 @@ automobil_t::rdwr(loadsave_t *file)
 void
 automobil_t::rdwr(loadsave_t *file, bool force)
 {
-    assert(force == true);
+	assert(force == true);
 
-    if(file->is_saving() && cnv != NULL && !force) {
-        file->wr_obj_id(-1);
-    } else {
-        vehikel_t::rdwr(file);
+	if(file->is_saving() && cnv != NULL && !force) {
+		file->wr_obj_id(-1);
+	}
+	else {
+		vehikel_t::rdwr(file);
+
 		// try to find a matching vehivle
 		if(file->is_loading()  &&  besch==NULL) {
 			const ware_besch_t *w= (fracht.count()>0) ? fracht.at(0).gib_typ() : warenbauer_t::passagiere;
@@ -1584,7 +1586,7 @@ automobil_t::rdwr(loadsave_t *file, bool force)
 				fracht.remove_first();
 			}
 		}
-    }
+	}
 }
 
 
@@ -2882,16 +2884,19 @@ int aircraft_t::calc_height()
 
 	switch( state ) {
 		case departing:
-			current_friction = 14;
-			cnv->setze_akt_speed_soll(gib_speed());
-			setze_speed_limit(-1);
+			{
+				current_friction = 14;
+				cnv->setze_akt_speed_soll(gib_speed());
+				setze_speed_limit(-1);
 
-			// take off, when a) end of runway or b) last tile of runway or c) fast enough
-			if(!welt->lookup(pos_cur)->hat_weg(air_wt)  ||  cnv->gib_akt_speed()>kmh_to_speed(besch->gib_geschw())/3 ) {
-				state = flying;
-				current_friction = 16;
-				flughoehe = height_scaling(gib_pos().z);
-				target_height = flughoehe+48;
+				// take off, when a) end of runway or b) last tile of runway or c) fast enough
+				weg_t *weg=welt->lookup(pos_cur)->gib_weg(air_wt);
+				if((weg==NULL  ||  weg->gib_besch()->gib_styp()!=1)  ||  cnv->gib_akt_speed()>kmh_to_speed(besch->gib_geschw())/3 ) {
+					state = flying;
+					current_friction = 16;
+					flughoehe = height_scaling(gib_pos().z);
+					target_height = flughoehe+48;
+				}
 			}
 			break;
 

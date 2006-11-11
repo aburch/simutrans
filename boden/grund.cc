@@ -332,13 +332,13 @@ void grund_t::rdwr(loadsave_t *file)
 						assert((flags&has_way2)==0);
 						weg->setze_pos(pos);
 						weg->setze_besitzer(gib_besitzer());
-						flags |= has_way1;
 						dinge.add(weg);
 						if(flags&has_way1) {
 							flags |= has_way2;
 							assert( dinge.bei(0)->gib_typ()==ding_t::way );
 							assert( dinge.bei(1)->gib_typ()==ding_t::way );
 						}
+						flags |= has_way1;
 					}
 				}
 			}
@@ -356,6 +356,9 @@ void grund_t::rdwr(loadsave_t *file)
 		}
 		file->wr_obj_id(-1);   // Ende der Wege
 	}
+
+	if(flags&has_way1) assert( dinge.bei(0)->gib_typ()==ding_t::way );
+	if(flags&has_way2) assert( dinge.bei(1)->gib_typ()==ding_t::way );
 
 	// all objects on this tile
 	dinge.rdwr(welt, file, gib_pos());
