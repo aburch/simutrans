@@ -16,11 +16,11 @@ typedef uint16 PIXVAL;
 bild_besch_t *
 bild_besch_t::copy_rotate(const sint16 angle) const
 {
-	assert(angle==0  ||  (w==h  &&  x==0  &&  y==0) );
+	assert(angle == 0 || (pic.w == pic.h && pic.x == 0 && pic.y == 0));
 
-	bild_besch_t *target_besch=(bild_besch_t *)guarded_malloc(len*sizeof(PIXVAL)+sizeof(bild_besch_t));
-	memcpy( target_besch, this, len*sizeof(PIXVAL)+sizeof(bild_besch_t) );
-	target_besch->bild_nr = IMG_LEER;
+	bild_besch_t *target_besch = (bild_besch_t *)guarded_malloc(pic.len * sizeof(PIXVAL) + sizeof(bild_besch_t));
+	memcpy(target_besch, this, pic.len * sizeof(PIXVAL) + sizeof(bild_besch_t));
+	target_besch->pic.bild_nr = IMG_LEER;
 
 	// the format is
 	// transparent PIXELVAL number
@@ -30,7 +30,7 @@ bild_besch_t::copy_rotate(const sint16 angle) const
 	// first data will have an offset of two PIXVAL
 	// now you should understand below arithmetics ...
 
-	const sint16 x_y=w;
+	const sint16 x_y = pic.w;
 	const PIXVAL *src=(const PIXVAL *)gib_daten();
 	PIXVAL *target = (PIXVAL *)target_besch->gib_daten();
 
