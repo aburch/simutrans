@@ -697,14 +697,12 @@ void depot_frame_t::update_data()
 				iter1.get_current_value()->rcolor = COL_RED;
 			} else if(!convoi_t::pruefe_vorgaenger(NULL, info)) {
 				iter1.get_current_value()->lcolor = COL_YELLOW;
-//				iter1.get_current_value()->rcolor = ok_color;
 			}
 		} else if(veh_action == va_append) {
 			if(!convoi_t::pruefe_vorgaenger(veh, info) ||  veh && !convoi_t::pruefe_nachfolger(veh, info)) {
 				iter1.get_current_value()->lcolor = COL_RED;
 				iter1.get_current_value()->rcolor = COL_RED;
 			} else if(!convoi_t::pruefe_nachfolger(info, NULL)) {
-//				iter1.get_current_value()->lcolor = ok_color;
 				iter1.get_current_value()->rcolor = COL_YELLOW;
 			}
 		}
@@ -744,10 +742,10 @@ void depot_frame_t::update_data()
 
 
 
-
-int depot_frame_t::calc_restwert(const vehikel_besch_t *veh_type)
+sint32
+depot_frame_t::calc_restwert(const vehikel_besch_t *veh_type)
 {
-	int wert = 0;
+	sint32 wert = 0;
 
 	slist_iterator_tpl<vehikel_t *> iter(depot->get_vehicle_list());
 	while(iter.next()) {
@@ -760,62 +758,84 @@ int depot_frame_t::calc_restwert(const vehikel_besch_t *veh_type)
 
 
 
+// returns the indest of the old/newest vehicle in a list
+sint32
+depot_frame_t::find_oldest_newest(const vehikel_besch_t *besch, bool old)
+{
+	int found_veh = -1;
+	sint32 insta_time = 0;
+
+	int i = 0;
+	slist_iterator_tpl<vehikel_t *> iter(depot->get_vehicle_list());
+	while(iter.next()) {
+		if(iter.get_current()->gib_besch() == besch) {
+			// joy of XOR, finally a line where I could use it!
+			if(found_veh == -1 || (old^(insta_time>iter.get_current()->gib_insta_zeit()))) {
+				found_veh = i;
+				insta_time = iter.get_current()->gib_insta_zeit();
+			}
+		}
+		i++;
+	}
+	return found_veh;
+}
+
+
+
 void
 depot_frame_t::image_from_storage_list(gui_image_list_t::image_data_t *bild_data)
 {
 	if(bild_data->lcolor != COL_RED && bild_data->rcolor != COL_RED) {
 		int bild = bild_data->image;
 
-		int oldest_veh = -1;
-		int newest_veh = -1;
-		sint32 insta_time_old = 0;
-		sint32 insta_time_new = 0;
-
-		int i = 0;
-		slist_iterator_tpl<vehikel_t *> iter(depot->get_vehicle_list());
-		while(iter.next()) {
-			if(iter.get_current()->gib_basis_bild() == bild) {
-				if(oldest_veh == -1 || insta_time_old > iter.get_current()->gib_insta_zeit()) {
-					oldest_veh = i;
-					insta_time_old = iter.get_current()->gib_insta_zeit();
-				}
-				if(newest_veh == -1 || insta_time_new < iter.get_current()->gib_insta_zeit()) {
-					newest_veh = i;
-					insta_time_new = iter.get_current()->gib_insta_zeit();
-				}
+		// we buy/remove all vehicles together!
+		slist_tpl<const vehikel_besch_t *>new_vehicle_info;
+		const vehikel_besch_t * info = vehikelbauer_t::gib_info(bild_data->image);
+		while(info) {
+			new_vehicle_info.append( info );
+			if(info->gib_nachfolger_count()!=1) {
+				break;
 			}
-			i++;
+			info = info->gib_nachfolger(0);
 		}
 
 		if(veh_action == va_sell) {
 			/*
 			*	We sell the newest vehicle - gives most money back.
 			*/
-//DBG_DEBUG("depot_frame_t::bild_gewaehlt()","sell %i",newest_veh);
-			depot->sell_vehicle(newest_veh);
+			while(new_vehicle_info.count()>0) {
+				sint32 veh = find_oldest_newest( new_vehicle_info.remove_first(), false );
+				depot->sell_vehicle(veh);
+			}
 		}
 		else {
-			const convoihandle_t cnv = depot->get_convoi(icnv);
+			// append to convoi
+			convoihandle_t cnv = depot->get_convoi(icnv);
 
-			if(!cnv.is_bound() || cnv->gib_vehikel_anzahl() < depot->get_max_convoi_length()) {
-				/*
-				*	We add the oldest vehicle - newer stay for selling
-				*/
-				if(oldest_veh == -1) {
-					oldest_veh = depot->buy_vehicle(bild);
+			if(!cnv.is_bound()) {
+				// create a new convoi
+				cnv = depot->add_convoi();
+				icnv = depot->convoi_count() - 1;
+				depot->get_convoi(icnv)->setze_name( new_vehicle_info.at(0)->gib_name() );
+			}
+
+			if(cnv->gib_vehikel_anzahl()+new_vehicle_info.count() < depot->get_max_convoi_length()) {
+
+				for( unsigned i=0;  i<new_vehicle_info.count();  i++ ) {
+					// insert/append needs reverse order
+					unsigned nr = (veh_action == va_insert) ? new_vehicle_info.count()-i-1 : i;
+					// We add the oldest vehicle - newer stay for selling
+					sint32 veh = find_oldest_newest( new_vehicle_info.at(nr), true );
+					if(veh == -1) {
+						// nothing there => we buy it
+						veh = depot->buy_vehicle(new_vehicle_info.at(nr)->gib_basis_bild());
+					}
+					depot->append_vehicle(icnv, veh, veh_action == va_insert);
+					assert(veh!=-1);
 				}
-				if(oldest_veh != -1) {
-					depot->append_vehicle(icnv, oldest_veh, veh_action == va_insert);
-	//DBG_DEBUG("depot_frame_t::bild_gewaehlt()","appended vehicle");
-					if(icnv == -1) {
-						icnv = depot->convoi_count() - 1;
-						depot->get_convoi(icnv)->setze_name(
-						depot->get_convoi(icnv)->gib_vehikel(0)->gib_besch()->gib_name());
-					} // endif (icnv == -1)
-//DBG_DEBUG("depot_frame_t::bild_gewaehlt()","icnv");
-				} // endif (oldest_veh != -1)
-			}  // endif (!cnv.is_bound() || cnv->gib_vehikel_anzahl() < depot->get_max_convoi_length())
+			}
 		}
+
 		update_data();
 		layout(NULL);
 	}

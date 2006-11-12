@@ -157,91 +157,84 @@ bool vehikelbauer_t::register_besch(const vehikel_besch_t *besch)
 void vehikelbauer_t::sort_lists()
 {
 	DBG_MESSAGE("vehikelbauer_t::sort_lists()","called");
-    inthashtable_iterator_tpl<waytype_t, slist_tpl<const vehikel_besch_t *> > typ_iter(typ_fahrzeuge);
+	inthashtable_iterator_tpl<waytype_t, slist_tpl<const vehikel_besch_t *> > typ_iter(typ_fahrzeuge);
 
-    while(typ_iter.next()) {
-  slist_tpl<const vehikel_besch_t *> *typ_liste = &typ_iter.access_current_value();
-  slist_tpl<const vehikel_besch_t *> tmp_liste;
+	while(typ_iter.next()) {
+		slist_tpl<const vehikel_besch_t *> *typ_liste = &typ_iter.access_current_value();
+		slist_tpl<const vehikel_besch_t *> tmp_liste;
 
-  while(typ_liste->count() > 0) {
-      tmp_liste.insert(typ_liste->remove_first());
-  }
+		while(typ_liste->count() > 0) {
+			tmp_liste.insert(typ_liste->remove_first());
+		}
 
-  while(tmp_liste.count() > 0) {
-      const vehikel_besch_t *besch = tmp_liste.remove_first();
+		while(tmp_liste.count() > 0) {
+			const vehikel_besch_t *besch = tmp_liste.remove_first();
 
-      //
-      // Sortieren nach:
-      //  1. Warengruppe
-      //  2. Ware
-      //  3. Speed
-      //  4. Power
-      //  5. Name
-      int l = 0, r = typ_liste->count() - 1;
+			//
+			// Sortieren nach:
+			//  1. Warengruppe
+			//  2. Ware
+			//  3. engine_type
+			//  4. speed
+			//  5. Power
+			//  6. intro date
+			//  7. Name
+			int l = 0, r = typ_liste->count() - 1;
 
-      while(l <= r) {
-    int m = (r + l) / 2;
+			while(l <= r) {
+				int m = (r + l) / 2;
 
-    const vehikel_besch_t *test = typ_liste->at(m);
+				const vehikel_besch_t *test = typ_liste->at(m);
+				int cmp = test->gib_ware()->gib_catg() - besch->gib_ware()->gib_catg();
 
-    int cmp = test->gib_ware()->gib_catg() - besch->gib_ware()->gib_catg();
+				if(cmp == 0) {
+					cmp = test->gib_ware()->gib_index() - besch->gib_ware()->gib_index();
 
-    if(cmp == 0) {
-        cmp = test->gib_ware()->gib_index() - besch->gib_ware()->gib_index();
+					if(cmp == 0) {
+						cmp = test->gib_zuladung() - besch->gib_zuladung();
 
-        if(cmp == 0) {
-      cmp = test->gib_zuladung() - besch->gib_zuladung();
+						if(cmp == 0) {
+							// to handle tender correctly
+							uint8 engine = (test->gib_zuladung()+test->gib_leistung()==0) ? (uint8)vehikel_besch_t::steam : test->get_engine_type();
+							uint8 besch_engine = (besch->gib_zuladung()+besch->gib_leistung()==0) ? (uint8)vehikel_besch_t::steam : besch->get_engine_type();
+							cmp =  engine - besch_engine;
 
-        if(cmp == 0) {
-        	if(test->gib_leistung()>0) {
-	        	// to handle tender correctly
-	        	uint8 engine = (test->gib_zuladung()+test->gib_leistung()==0) ? (uint8)vehikel_besch_t::steam : test->get_engine_type();
-	        	uint8 besch_engine = (besch->gib_zuladung()+besch->gib_leistung()==0) ? (uint8)vehikel_besch_t::steam : besch->get_engine_type();
-	        	cmp =  engine - besch_engine;
-	        }
+							if(cmp == 0) {
+								cmp = test->gib_geschw() - besch->gib_geschw();
 
-        if(cmp == 0) {
-      cmp = test->gib_geschw() - besch->gib_geschw();
+								if(cmp == 0) {
+									// put tender at the end of the list ...
+									int leistung = test->gib_leistung()==0 ? 0x7FFFFFF : test->gib_leistung();
+									int besch_leistung = besch->gib_leistung()==0 ? 0x7FFFFFF : besch->gib_leistung();
+									cmp =  leistung - besch_leistung;
 
-      if(cmp == 0) {
-      	// put tender at the end of the list ...
-      	int leistung = test->gib_leistung()==0 ? 0x7FFFFFF : test->gib_leistung();
-      	int besch_leistung = besch->gib_leistung()==0 ? 0x7FFFFFF : besch->gib_leistung();
-          cmp =  leistung - besch_leistung;
+									if(cmp == 0) {
+										cmp = test->get_intro_year_month() - besch->get_intro_year_month();
 
-        if(cmp == 0) {
-      cmp = test->get_intro_year_month() - besch->get_intro_year_month();
+										if(cmp == 0) {
+											cmp = strcmp(test->gib_name(), besch->gib_name());
+										}
+									}
+								}
+							}
+						}
+					}
+				}
 
-          if(cmp == 0) {
-        cmp = strcmp(test->gib_name(), besch->gib_name());
-          }
-      }
-      }
-    }
-    }
-  }
-  }
-
-    if(cmp > 0) {
-        //printf("cmp=%d: l=%d r=%d m=%d: %s=%d\n", cmp, r, l, m, "r", m -1);
-        r = m - 1;
-    }
-    else if(cmp < 0) {
-        //printf("cmp=%d: l=%d r=%d m=%d: %s=%d\n", cmp, r, l, m, "l", m + 1);
-        l = m + 1;
-    }
-    else {
-        l = m;
-        r = m -1;
-    }
-    //else
-        //printf("cmp=%d: l=%d r=%d m=%d: ???\n", cmp, r, l, m);
-
-    //printf("%d..%d\n", l, r);
-      }
-      typ_liste->insert(besch, l);
-  }
-    }
+				if(cmp > 0) {
+					r = m - 1;
+				}
+				else if(cmp < 0) {
+					l = m + 1;
+				}
+				else {
+					l = m;
+					r = m -1;
+				}
+			}
+			typ_liste->insert(besch, l);
+		}
+	}
 }
 
 

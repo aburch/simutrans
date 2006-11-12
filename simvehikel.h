@@ -119,6 +119,8 @@ public:
      */
     bool is_about_to_hop() const;
 
+    virtual waytype_t gib_waytype() const = 0;
+
     virtual void betrete_feld();
 
     virtual void verlasse_feld();
@@ -127,9 +129,7 @@ public:
 
     vehikel_basis_t(karte_t *welt, koord3d pos);
 
-    virtual waytype_t gib_waytype() const = 0;
-
-    virtual ~vehikel_basis_t();
+    virtual ~vehikel_basis_t() {}
 };
 
 

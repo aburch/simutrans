@@ -254,7 +254,7 @@ dingliste_t::intern_add_moving(ding_t *ding)
 
 	// if we have two ways, the way at index 0 is ALWAYS the road!
 	// however ships and planes may be where not way is below ...
-	if(start!=0  &&  obj.some[0]->gib_typ()==ding_t::way  &&  ((weg_t *)obj.some[0])->gib_waytype()==road_wt) {
+	if(start!=0  &&  obj.some[0]->is_way()  &&  ((weg_t *)obj.some[0])->gib_waytype()==road_wt) {
 
 		const uint8 fahrtrichtung = ((vehikel_t*)ding)->gib_fahrtrichtung();
 
@@ -765,7 +765,7 @@ dingliste_t::rdwr(karte_t *welt, loadsave_t *file, koord3d current_pos)
 			ding_t *d=bei(i);
 			assert(d);
 			if(d->gib_pos()==current_pos) {
-				if(d->gib_typ()!=ding_t::raucher  &&  d->gib_typ()!=ding_t::way) {
+				if(d->gib_typ()!=ding_t::raucher  &&  !d->is_way()) {
 					bei(i)->rdwr(file);
 				}
 				else {

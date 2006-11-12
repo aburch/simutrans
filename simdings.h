@@ -41,7 +41,7 @@ class ding_t
 {
 public:
 	// flags
-	enum flag_values {keine_flags=0, dirty=1, not_on_map=2 };
+	enum flag_values {keine_flags=0, dirty=1, not_on_map=2, is_vehicle=4, is_wayding=8 };
 
 private:
 	/**
@@ -85,7 +85,7 @@ private:
 	uint8 flags:4;
 
 
- public:
+public:
 	/**
 	* Do we need to be called every step? Must be of (2^n-1)
 	* public for performance reasons, this is accessed _very frequently_ !
@@ -94,7 +94,7 @@ private:
 	enum { max_step_frequency=255 };
 	uint8 step_frequency;
 
- private:
+private:
 	/**
 	* Used by all constructors to initialize all vars with safe values
 	* -> single source principle
@@ -203,16 +203,19 @@ public:
 		old_tramdepot=101,
 	};
 
-	 inline const sint8 gib_xoff() const {return xoff;}
-	 inline const sint8 gib_yoff() const {return yoff;}
+	inline const sint8 gib_xoff() const {return xoff;}
+	inline const sint8 gib_yoff() const {return yoff;}
 
 	// true for all moving objects
-	inline bool is_moving() const { return (gib_typ()>=64); }
+	inline bool is_moving() const { return flags&is_vehicle; }
+
+	// true for all moving objects
+	inline bool is_way() const { return flags&is_wayding; }
 
 	// while in principle, this should trigger the dirty, it takes just too much time to do it
 	// TAKE CARE OF SET IT DIRTY YOURSELF!!!
-	 inline void setze_xoff(sint8 xoff) {this->xoff = xoff; }
-	 inline void setze_yoff(sint8 yoff) {this->yoff = yoff; }
+	inline void setze_xoff(sint8 xoff) {this->xoff = xoff; }
+	inline void setze_yoff(sint8 yoff) {this->yoff = yoff; }
 
 	/**
 	 * Mit diesem Konstruktor werden Objekte aus einer Datei geladen

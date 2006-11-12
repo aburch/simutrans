@@ -62,16 +62,16 @@ depot_t::depot_t(karte_t *welt, koord3d pos, spieler_t *sp, const haus_tile_besc
 
 depot_t::~depot_t()
 {
-    if(depot_info) {
-	destroy_win(depot_info);
-	delete depot_info;
-	depot_info = NULL;
-    }
-    slist_iterator_tpl<convoihandle_t> iter(convois);
-    while(iter.next()) {
-	iter.access_current().unbind();
-    }
-    convois.clear();
+	if(depot_info) {
+		destroy_win(depot_info);
+		delete depot_info;
+		depot_info = NULL;
+	}
+	slist_iterator_tpl<convoihandle_t> iter(convois);
+	while(iter.next()) {
+		iter.access_current().unbind();
+	}
+	convois.clear();
 }
 
 
@@ -138,7 +138,7 @@ bool depot_t::can_convoi_start(int /*icnv*/) const
 
 int depot_t::buy_vehicle(int image)
 {
-    if(image != -1) {
+	if(image != -1) {
 		// Offen: prüfen ob noch platz im depot ist???
 		const vehikel_besch_t * info = vehikelbauer_t::gib_info(image);
 DBG_DEBUG("depot_t::buy_vehicle()",info->gib_name());
@@ -151,30 +151,29 @@ DBG_DEBUG("depot_t::buy_vehicle()","appended %i vehicle", vehicles.count());
 			return vehicles.count() - 1;
 		}
 	}
-    return -1;
+	return -1;
 }
 
 
 
 void depot_t::append_vehicle(int icnv, int iveh, bool infront)
 {
-    vehikel_t *veh = get_vehicle(iveh);
+	vehikel_t *veh = get_vehicle(iveh);
+	if(veh) {
+		convoihandle_t cnv = get_convoi(icnv);
+		/*
+		*  create  a new convoi, if necessary
+		*/
+		if(!cnv.is_bound()) {
+			cnv = add_convoi();
+		}
 
-    if(veh) {
-	convoihandle_t cnv = get_convoi(icnv);
-	/*
-	 *  create  a new convoi, if necessary
-	 */
-	if(!cnv.is_bound()) {
-	    cnv = add_convoi();
+		veh->setze_pos(gib_pos());
+		cnv->add_vehikel(veh, infront);
+		cnv->set_home_depot(gib_pos());
+
+		vehicles.remove(veh);
 	}
-
-	veh->setze_pos(gib_pos());
-	cnv->add_vehikel(veh, infront);
-	cnv->set_home_depot(gib_pos());
-
-	vehicles.remove(veh);
-    }
 }
 
 

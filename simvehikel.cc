@@ -233,18 +233,17 @@ bool load_freight(karte_t * welt, halthandle_t halt, slist_tpl<ware_t> *fracht, 
 vehikel_basis_t::vehikel_basis_t(karte_t *welt):
     ding_t(welt)
 {
+	set_flag( ding_t::is_vehicle );
 }
 
 
 vehikel_basis_t::vehikel_basis_t(karte_t *welt, koord3d pos):
     ding_t(welt, pos)
 {
+	set_flag( ding_t::is_vehicle );
 }
 
 
-vehikel_basis_t::~vehikel_basis_t()
-{
-}
 
 
 void
