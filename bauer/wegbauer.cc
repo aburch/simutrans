@@ -212,15 +212,14 @@ void wegbauer_t::neuer_monat(karte_t *welt)
 
 const kreuzung_besch_t *wegbauer_t::gib_kreuzung(const waytype_t ns, const waytype_t ow)
 {
-    slist_iterator_tpl<const kreuzung_besch_t *> iter(kreuzungen);
+	slist_iterator_tpl<const kreuzung_besch_t *> iter(kreuzungen);
 
-    while(iter.next()) {
-  if(iter.get_current()->gib_wegtyp_ns() == ns &&
-      iter.get_current()->gib_wegtyp_ow() == ow) {
-      return iter.get_current();
-  }
-    }
-    return NULL;
+	while(iter.next()) {
+		if(iter.get_current()->gib_wegtyp_ns()==ns  &&  iter.get_current()->gib_wegtyp_ow()==ow) {
+			return iter.get_current();
+		}
+	}
+	return NULL;
 }
 
 

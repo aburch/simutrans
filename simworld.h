@@ -135,6 +135,9 @@ private:
 	/* current position */
 	koord ij_off;
 
+	/* this is the current offset for getting from tile to screen */
+	koord ansicht_offset;
+
 	/**
 	 * Mauszeigerposition, intern
 	 * @author Hj. Malthaner
@@ -358,6 +361,11 @@ public:
 	// fine offset within the viewprt tile
 	int gib_x_off() const {return x_off;}
 	int gib_y_off() const {return y_off;}
+
+	// the koordinates between the screen and a tile may have several offset
+	// this routine caches them
+	void setze_ansicht_xy_offset( koord k ) { ansicht_offset=k; }
+	koord gib_ansicht_xy_offset() const { return ansicht_offset; }
 
 	/**
 	 * If this is true, the map will not be scrolled

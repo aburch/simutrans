@@ -1984,8 +1984,8 @@ void
 karte_t::setze_ij_off(koord3d ij)
 {
 	ij_off=ij.gib_2d();
-	x_off=0;
-	y_off = (ij.z-grundwasser>0) ? tile_raster_scale_x(ij.z-grundwasser,get_tile_raster_width()) : 0;
+	x_off = 0;
+	y_off = tile_raster_scale_y(ij.z,get_tile_raster_width());
 	dirty=true;
 }
 

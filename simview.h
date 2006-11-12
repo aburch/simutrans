@@ -23,9 +23,6 @@ class karte_ansicht_t
 private:
 	karte_t *welt;
 
-protected:
-	int scale;
-
 public:
 	karte_ansicht_t(karte_t *welt);
 	virtual ~karte_ansicht_t() {}

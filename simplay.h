@@ -397,7 +397,7 @@ public:
      * Zeigt Meldungen aus der Queue des Spielers auf dem Bildschirm an
      * @author Hj. Malthaner
      */
-    void display_messages(int xoff, int yoff, int width);
+    void display_messages();
 
 
     /**

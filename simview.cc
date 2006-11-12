@@ -37,8 +37,6 @@ karte_ansicht_t::display(bool force_dirty)
 
 	display_setze_clip_wh( 0, 32, disp_width, disp_height );
 
-	scale = get_tile_raster_width()/64;
-
 	// zuerst den boden zeichnen
 	// denn der Boden kann kein Objekt verdecken
 	force_dirty = force_dirty || welt->ist_dirty();
@@ -54,6 +52,13 @@ karte_ansicht_t::display(bool force_dirty)
 	const int j_off = welt->gib_ij_off().y - disp_width/(2*IMG_SIZE) - (display_get_height()-32)/(4*IMG_SIZE);
 	const int const_y_off = welt->gib_y_off();
 	int	y;
+
+	// these are the values needed to go directly from a tile to the display
+	welt->setze_ansicht_xy_offset(
+		koord(
+			(disp_width/2) + welt->gib_x_off(),
+			((display_get_height()-32)/2) - ((disp_width/IMG_SIZE)&1)*(IMG_SIZE/4) + welt->gib_y_off()
+		) );
 
 	// not very elegant, but works:
 	// fill everything with black for Underground mode ...
@@ -126,7 +131,7 @@ karte_ansicht_t::display(bool force_dirty)
 
 	// finally update the ticker
 	for(int x=0; x<MAX_PLAYER_COUNT; x++) {
-		welt->gib_spieler(x)->display_messages(welt->gib_x_off(),welt->gib_y_off(),disp_width);
+		welt->gib_spieler(x)->display_messages();
 	}
 
 	if(force_dirty) {

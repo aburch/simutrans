@@ -305,12 +305,12 @@ spieler_t::set_active(bool new_state)
 void
 spieler_t::init_texte()
 {
-    for(int n=0; n<50; n++) {
-	text_alter[n] = -80;
-	texte[n][0] = 0;
-    }
-
-    last_message_index = 0;
+	// these are the numbers => maximum 50 number displayed per player
+	for(int n=0; n<50; n++) {
+		text_alter[n] = -80;
+		texte[n][0] = 0;
+	}
+	last_message_index = 0;
 }
 
 
@@ -319,29 +319,25 @@ spieler_t::init_texte()
  * @author Hj. Malthaner
  */
 void
-spieler_t::display_messages(const int xoff, const int yoff, const int width)
+spieler_t::display_messages()
 {
-    const int raster = get_tile_raster_width();
+	const sint16 raster = get_tile_raster_width();
+	int last_displayed_message = -1;
 
-    int last_displayed_message = -1;
+	for(int n=0; n<=last_message_index; n++) {
+		const int i=text_pos[n].x-welt->gib_ij_off().x;
+		const int j=text_pos[n].y-welt->gib_ij_off().y;
+		const sint16 x = (i-j)*(raster/2) + welt->gib_ansicht_xy_offset().x;
+		const sint16 y = (i+j)*(raster/4) + (text_alter[n] >> 4) - tile_raster_scale_y( welt->lookup_hgt(text_pos[n]), raster) + welt->gib_ansicht_xy_offset().y;
 
-    for(int n=0; n<=last_message_index; n++) {
-	const int i=text_pos[n].x-welt->gib_ij_off().x;
-	const int j=text_pos[n].y-welt->gib_ij_off().y;
-	const int x = (i-j)*(raster/2) + (width/2);
-	const int y = (i+j)*(raster/4) +
-	              (text_alter[n] >> 4) -
-		      welt->lookup_hgt(text_pos[n]);
-
-	if(text_alter[n] >= -80) {
-	    display_proportional_clip( x+xoff+1, y+yoff+1, texte[n], ALIGN_LEFT, COL_BLACK, true);
-	    display_proportional_clip( x+xoff, y+yoff, texte[n], ALIGN_LEFT, PLAYER_FLAG|(kennfarbe*4)+3, true);
-
-	    last_displayed_message = n;
+		if(text_alter[n] >= -80) {
+			display_proportional_clip( x+1, y+1, texte[n], ALIGN_LEFT, COL_BLACK, true);
+			display_proportional_clip( x, y, texte[n], ALIGN_LEFT, PLAYER_FLAG|(kennfarbe*4)+3, true);
+			last_displayed_message = n;
+		}
 	}
-    }
 
-    last_message_index = last_displayed_message;
+	last_message_index = last_displayed_message;
 }
 
 
@@ -352,33 +348,33 @@ spieler_t::display_messages(const int xoff, const int yoff, const int width)
 void
 spieler_t::age_messages(long /*delta_t*/)
 {
-  for(int n=0; n<=last_message_index; n++) {
-    if(text_alter[n] >= -80) {
-      text_alter[n] -= 5;//delta_t>>2;
-    }
-  }
+	for(int n=0; n<=last_message_index; n++) {
+		if(text_alter[n] >= -80) {
+			text_alter[n] -= 5;//delta_t>>2;
+		}
+	}
 }
 
 
 void
 spieler_t::add_message(koord k, int betrag)
 {
+	for(int n=0; n<50; n++) {
+		if(text_alter[n] <= -80) {
+			text_pos[n] = k;
 
-    for(int n=0; n<50; n++) {
-	if(text_alter[n] <= -80) {
-	    text_pos[n] = k;
+			money_to_string(texte[n], betrag/100.0);
+			text_alter[n] = 127;
 
-	    money_to_string(texte[n], betrag/100.0);
-	    text_alter[n] = 127;
+			if(n > last_message_index) {
+				last_message_index = n;
+			}
 
-	    if(n > last_message_index) {
-		last_message_index = n;
-	    }
-
-	    break;
+			break;
+		}
 	}
-    }
 }
+
 
 
 /**
@@ -388,28 +384,28 @@ spieler_t::add_message(koord k, int betrag)
 void
 spieler_t::step()
 {
-    steps ++;
+	steps ++;
 
-    if(automat) {
-	do_ki();
-    }
+	if(automat) {
+		do_ki();
+	}
 
-    INT_CHECK("simplay 141");
+	INT_CHECK("simplay 141");
 
-    // die haltestellen müssen die Fahrpläne rgelmaessig pruefen
-
-    int i = steps & 15;
-    slist_iterator_tpl <halthandle_t> iter( halt_list );
-    while(iter.next()) {
-        if( (i & 15) == 0 ) {
-	    INT_CHECK("simplay 154");
-            iter.get_current()->step();
-	    INT_CHECK("simplay 156");
-        }
-        i++;
-    }
-    INT_CHECK("simplay 157");
+	// die haltestellen müssen die Fahrpläne rgelmaessig pruefen
+	int i = steps & 15;
+	slist_iterator_tpl <halthandle_t> iter( halt_list );
+	while(iter.next()) {
+		if( (i & 15) == 0 ) {
+			INT_CHECK("simplay 154");
+			iter.get_current()->step();
+			INT_CHECK("simplay 156");
+		}
+		i++;
+	}
+	INT_CHECK("simplay 157");
 }
+
 
 
 /**
@@ -420,42 +416,40 @@ spieler_t::step()
 void
 spieler_t::neuer_monat()
 {
-    static char buf[256];
+	static char buf[256];
 
-    // Wartungskosten abziehen
-    buche( -((sint64)maintenance) <<((sint64)karte_t::ticks_bits_per_tag-18ll), COST_MAINTENANCE);
-    calc_finance_history();
-    roll_finance_history_month();
-    simlinemgmt.new_month();
+	// Wartungskosten abziehen
+	buche( -((sint64)maintenance) <<((sint64)karte_t::ticks_bits_per_tag-18ll), COST_MAINTENANCE);
+	calc_finance_history();
+	roll_finance_history_month();
+	simlinemgmt.new_month();
 
-    // Bankrott ?
-    if(!umgebung_t::freeplay) {
-	if(konto < 0) {
-	    konto_ueberzogen++;
+	// Bankrott ?
+	if(!umgebung_t::freeplay) {
+		if(konto < 0) {
+			konto_ueberzogen++;
 
-	    if(this == welt->gib_spieler(0)) {
-
-		if(konto_ueberzogen == 1) {
-			// tell the player
-			char buf[256];
-		    sprintf(buf,translator::translate("Verschuldet:\n\nDu hast %d Monate Zeit,\ndie Schulden zurueckzuzahlen.\n"),
-		    	MAX_KONTO_VERZUG-konto_ueberzogen+1);
-		    message_t::get_instance()->add_message(buf,koord::invalid,message_t::problems,player_nr,IMG_LEER);
-		} else if(konto_ueberzogen <= MAX_KONTO_VERZUG) {
-		    sprintf(buf,translator::translate("Verschuldet:\n\nDu hast %d Monate Zeit,\ndie Schulden zurueckzuzahlen.\n"),
-		            MAX_KONTO_VERZUG-konto_ueberzogen+1);
-		    message_t::get_instance()->add_message(buf,koord::invalid,message_t::problems,player_nr,IMG_LEER);
-           } else {
-		    destroy_all_win();
-		    create_win(280, 40, new nachrichtenfenster_t(welt, "Bankrott:\n\nDu bist bankrott.\n"), w_autodelete);
-		    //welt->beenden();          // 02-Nov-2001  Markus Weber    beenden has a new parameter
-		    welt->beenden(false);
+			if(this == welt->gib_spieler(0)) {
+				if(konto_ueberzogen == 1) {
+					// tell the player
+					char buf[256];
+					sprintf(buf,translator::translate("Verschuldet:\n\nDu hast %d Monate Zeit,\ndie Schulden zurueckzuzahlen.\n"),
+					MAX_KONTO_VERZUG-konto_ueberzogen+1);
+					message_t::get_instance()->add_message(buf,koord::invalid,message_t::problems,player_nr,IMG_LEER);
+				} else if(konto_ueberzogen <= MAX_KONTO_VERZUG) {
+					sprintf(buf,translator::translate("Verschuldet:\n\nDu hast %d Monate Zeit,\ndie Schulden zurueckzuzahlen.\n"),
+					    MAX_KONTO_VERZUG-konto_ueberzogen+1);
+					message_t::get_instance()->add_message(buf,koord::invalid,message_t::problems,player_nr,IMG_LEER);
+				} else {
+					destroy_all_win();
+					create_win(280, 40, new nachrichtenfenster_t(welt, "Bankrott:\n\nDu bist bankrott.\n"), w_autodelete);
+					welt->beenden(false);
+				}
+			}
+		} else {
+			konto_ueberzogen = 0;
 		}
-	    }
-	} else {
-	    konto_ueberzogen = 0;
 	}
-    }
 }
 
 
@@ -465,8 +459,8 @@ spieler_t::neuer_monat()
  */
 void spieler_t::neues_jahr()
 {
-    calc_finance_history();
-    roll_finance_history_year();
+	calc_finance_history();
+	roll_finance_history_year();
 }
 
 /**
@@ -476,7 +470,7 @@ void spieler_t::neues_jahr()
 */
 void spieler_t::roll_finance_history_month()
 {
-        int i;
+	int i;
 	for (i=MAX_HISTORY_MONTHS-1; i>0; i--) {
 		for (int cost_type = 0; cost_type<MAX_COST; cost_type++) {
 			finance_history_month[i][cost_type] = finance_history_month[i-1][cost_type];
@@ -556,23 +550,22 @@ spieler_t::calc_finance_history()
 sint64
 spieler_t::buche(const sint64 betrag, const koord pos, const int type)
 {
-    buche(betrag, type);
+	buche(betrag, type);
 
-    if(betrag != 0) {
+	if(betrag != 0) {
 		add_message(pos, betrag);
 
 		if(!(labs((sint32)betrag)<=10000)) {
-		    struct sound_info info;
+			struct sound_info info;
 
-		    info.index = SFX_CASH;
-		    info.volume = 255;
-		    info.pri = 0;
+			info.index = SFX_CASH;
+			info.volume = 255;
+			info.pri = 0;
 
-		    welt->play_sound_area_clipped(pos, info);
-			}
-    }
-
-    return konto;
+			welt->play_sound_area_clipped(pos, info);
+		}
+	}
+	return konto;
 }
 
 
@@ -594,7 +587,6 @@ spieler_t::buche(const sint64 betrag, int type)
 		finance_history_month[0][COST_CASH] = konto;
 		// the other will be updated only monthly or whe a finance window is shown
 	}
-
 	return konto;
 }
 

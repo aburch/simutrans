@@ -451,7 +451,7 @@ public:
 	* The only way to get the typ of a way on a tile
 	* @author Hj. Malthaner
 	*/
-	weg_t *gib_weg_nr(int i) const { return (flags&(has_way1<<i)) ? static_cast<weg_t *>(obj_bei(0)) : NULL; }
+	weg_t *gib_weg_nr(int i) const { return (flags&(has_way1<<i)) ? static_cast<weg_t *>(obj_bei(i)) : NULL; }
 
 	/**
 	* Inline da sehr oft aufgerufen.

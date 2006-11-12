@@ -572,13 +572,8 @@ void vehikel_t::neue_fahrt(uint16 start_route_index )
 	if(welt->ist_in_kartengrenzen(gib_pos().gib_2d())) {
 		// mark the region after the image as dirty
 		// better not try to twist your brain to follow the retransformation ...
-		const koord diff=gib_pos().gib_2d()-welt->gib_ij_off();
-		const sint16 rasterweite=get_tile_raster_width();
-		const sint16 x=(diff.x-diff.y)*(rasterweite/2) + welt->gib_x_off() + (display_get_width()/2) + tile_raster_scale_x(gib_xoff(), rasterweite);
-		const sint16 y=16+((display_get_width()/rasterweite)&1)*(rasterweite/4)+(diff.x+diff.y)*(rasterweite/4)+welt->gib_y_off()+tile_raster_scale_x(gib_yoff()+hoff, rasterweite)-tile_raster_scale_y(gib_pos().z, rasterweite);
-		display_mark_img_dirty( gib_bild(), x, y );
+		mark_image_dirty( gib_bild(), hoff );
 	}
-
 	route_index = start_route_index+1;
 	pos_next = cnv->get_route()->position_bei(start_route_index+1);
 }
@@ -1031,26 +1026,10 @@ bool vehikel_t::entladen(koord, halthandle_t halt)
 
 void vehikel_t::sync_step()
 {
-  // ohne convoi macht der step keinen Sinn
-  assert(cnv != NULL);
-
-  // printf("vehikel %p sync_step\n", this);
-
-  // Funktionsaufruf vermeiden, wenn möglich
-  // if ist schneller als Aufruf!
-  if(hoff) {
-    setze_yoff( gib_yoff() - hoff );
-  }
-
-  fahre();
-
-  hoff = calc_height();
-
-  // Funktionsaufruf vermeiden, wenn möglich
-  // if ist schneller als Aufruf!
-  if(hoff) {
-    setze_yoff( gib_yoff() + hoff );
-  }
+	setze_yoff( gib_yoff() - hoff );
+	fahre();
+	hoff = calc_height();
+	setze_yoff( gib_yoff() + hoff );
 }
 
 
