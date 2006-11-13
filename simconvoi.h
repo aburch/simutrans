@@ -562,8 +562,8 @@ public:
 	* @author Hj. Malthaner
 	*/
 	vehikel_t * gib_vehikel(uint16 i) const {
-	return (i<fahr->get_size()) ? fahr->at(i) : NULL;
-	};
+		return (i<fahr->get_size()) ? fahr->at(i) : NULL;
+	}
 
 	/**
 	* Adds a vehicel at the start or end of the convoi.

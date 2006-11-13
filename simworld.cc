@@ -134,7 +134,7 @@ uint32 karte_t::ticks_bits_per_tag = 20;
 uint32 karte_t::ticks_per_tag = (1 << 20);
 
 // offsets for mouse pointer
-const int karte_t::Z_PLAN      = -8;
+const int karte_t::Z_PLAN      = 0;
 const int karte_t::Z_GRID      = -12;
 
 
@@ -2833,8 +2833,8 @@ void karte_t::bewege_zeiger(const event_t *ev)
 		int i_alt=zeiger->gib_pos().x;
 		int j_alt=zeiger->gib_pos().y;
 
-		int screen_y = ev->my + rw4*(grundwasser/TILE_HEIGHT_STEP) - y_off - rw2 - ((display_get_width()/rw1)&1)*rw4;
-		int screen_x = (ev->mx - x_off - rw2 - display_get_width()/2) / 2;
+		int screen_y = ev->my - ansicht_offset.y;
+		int screen_x = (ev->mx - ansicht_offset.x) / 2;
 
 		if(zeiger->gib_yoff() == Z_PLAN) {
 			// already ok
@@ -2860,12 +2860,12 @@ void karte_t::bewege_zeiger(const event_t *ev)
 		// iterative naeherung fuer zeigerposition
 		// iterative naehreung an gelaendehoehe
 
-		int hgt = lookup_hgt(koord(i_alt, j_alt))-grundwasser;
+		int hgt = lookup_hgt(koord(i_alt, j_alt))/*-grundwasser*/;
 
-		const int i_off = gib_ij_off().x - display_get_width()/(2*rw1) - display_get_height()/(4*rw1);
-		const int j_off = gib_ij_off().y - display_get_width()/(2*rw1) - display_get_height()/(4*rw1);
+		const int i_off = gib_ij_off().x;// - display_get_width()/(2*rw1) - display_get_height()/(rw1);
+		const int j_off = gib_ij_off().y;// + display_get_width()/(2*rw1) - display_get_height()/(rw1);
 
-		for(int n = 0; n < 2; n++) {
+				for(int n = 0; n < 2; n++) {
 
 			const int base_i = (screen_x+screen_y + tile_raster_scale_y(hgt,rw1) )/2;
 			const int base_j = (screen_y-screen_x + tile_raster_scale_y(hgt,rw1) )/2;
@@ -2873,28 +2873,19 @@ void karte_t::bewege_zeiger(const event_t *ev)
 			mi = ((int)floor(base_i/(double)rw4)) + i_off;
 			mj = ((int)floor(base_j/(double)rw4)) + j_off;
 
-			/*
-			if(zeiger->gib_yoff() == Z_GRID) {
-				hgt = max_hgt(koord(mi,mj))+8;
-			} else */{
-				const planquadrat_t *plan = lookup(koord(mi,mj));
-				if(plan != NULL) {
-					hgt = plan->gib_kartenboden()->gib_hoehe()-grundwasser;
-					if(grund_t::underground_mode) {
-						for( unsigned i=0;  i<plan->gib_boden_count();  i++  ) {
-							if(!plan->gib_boden_bei(i)->ist_tunnel()) {
-								hgt = plan->gib_boden_bei(i)->gib_hoehe()-grundwasser;
-							}
+			const planquadrat_t *plan = lookup(koord(mi,mj));
+			if(plan != NULL) {
+				hgt = plan->gib_kartenboden()->gib_hoehe();
+				if(grund_t::underground_mode) {
+					for( unsigned i=0;  i<plan->gib_boden_count();  i++  ) {
+						if(!plan->gib_boden_bei(i)->ist_tunnel()) {
+							hgt = plan->gib_boden_bei(i)->gib_hoehe();
 						}
 					}
 				}
-				else {
-					hgt = 0;
-				}
 			}
-
-			if(hgt < 0) {
-				hgt = 0;
+			else {
+				hgt = grundwasser;
 			}
 		}
 
@@ -2908,7 +2899,7 @@ void karte_t::bewege_zeiger(const event_t *ev)
 
 
 		// prüfe richtung d.h. welches nachbarfeld ist am naechsten
-		if(ev->mx-x_off < neu_x) {
+		if(ev->mx-ansicht_offset.x < neu_x) {
 			zeiger->setze_richtung(ribi_t::west);
 		}
 		else {

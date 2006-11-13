@@ -303,7 +303,7 @@ ding_t::mark_image_dirty(image_id bild,sint8 yoff)
 	if(bild!=IMG_LEER) {
 		// better not try to twist your brain to follow the retransformation ...
 		const sint16 rasterweite=get_tile_raster_width();
-		const koord diff = gib_pos().gib_2d()-welt->gib_ij_off();
+		const koord diff = gib_pos().gib_2d()-welt->gib_ij_off()-koord(1,0);
 		const sint16 x = (diff.x-diff.y)*(rasterweite/2) + tile_raster_scale_x(gib_xoff(), rasterweite);
 		const sint16 y = (diff.x+diff.y)*(rasterweite/4) + tile_raster_scale_y( yoff+gib_yoff()-gib_pos().z, rasterweite);
 		// mark the region after the image as dirty

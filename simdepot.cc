@@ -180,15 +180,13 @@ void depot_t::append_vehicle(int icnv, int iveh, bool infront)
 
 void depot_t::remove_vehicle(int icnv, int ipos)
 {
-    convoihandle_t cnv = get_convoi(icnv);
-
-    if(cnv.is_bound()) {
-	vehikel_t *veh = cnv->remove_vehikel_bei(ipos);
-
-	if(veh) {
-	    vehicles.append(veh);
+	convoihandle_t cnv = get_convoi(icnv);
+	if(cnv.is_bound()) {
+		vehikel_t *veh = cnv->remove_vehikel_bei(ipos);
+		if(veh) {
+			vehicles.append(veh);
+		}
 	}
-    }
 }
 
 

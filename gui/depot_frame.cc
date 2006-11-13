@@ -788,9 +788,17 @@ depot_frame_t::image_from_storage_list(gui_image_list_t::image_data_t *bild_data
 	if(bild_data->lcolor != COL_RED && bild_data->rcolor != COL_RED) {
 		int bild = bild_data->image;
 
-		// we buy/remove all vehicles together!
+		// we buy/sell all vehicles together!
 		slist_tpl<const vehikel_besch_t *>new_vehicle_info;
 		const vehikel_besch_t * info = vehikelbauer_t::gib_info(bild_data->image);
+		// start of composition
+		while(1) {
+			if(info->gib_vorgaenger_count()!=1  ||  info->gib_vorgaenger(0)==NULL) {
+				break;
+			}
+			info = info->gib_vorgaenger(0);
+		}
+		// not get the end ...
 		while(info) {
 			new_vehicle_info.append( info );
 			if(info->gib_nachfolger_count()!=1) {
@@ -800,18 +808,18 @@ depot_frame_t::image_from_storage_list(gui_image_list_t::image_data_t *bild_data
 		}
 
 		if(veh_action == va_sell) {
-			/*
-			*	We sell the newest vehicle - gives most money back.
-			*/
-			while(new_vehicle_info.count()>0) {
+			while(new_vehicle_info.count()) {
+				/*
+				*	We sell the newest vehicle - gives most money back.
+				*/
 				sint32 veh = find_oldest_newest( new_vehicle_info.remove_first(), false );
 				depot->sell_vehicle(veh);
 			}
 		}
 		else {
-			// append to convoi
-			convoihandle_t cnv = depot->get_convoi(icnv);
 
+			// append/insert into convoi
+			convoihandle_t cnv = depot->get_convoi(icnv);
 			if(!cnv.is_bound()) {
 				// create a new convoi
 				cnv = depot->add_convoi();
@@ -849,13 +857,36 @@ depot_frame_t::image_from_convoi_list(int nr)
 	const convoihandle_t cnv = depot->get_convoi(icnv);
 
 //DBG_DEBUG("depot_frame_t::bild_gewaehlt()","convoi index %i",nr);
-	if(cnv.is_bound() &&  nr<(int)cnv->gib_vehikel_anzahl() ) {
-		if(cnv->gib_vehikel_anzahl() == 1) {
+	if(cnv.is_bound() &&  nr<cnv->gib_vehikel_anzahl() ) {
+
+		// we remove all connected vehicles together!
+		// find start
+		unsigned start_nr = nr;
+		while(start_nr>0) {
+			start_nr --;
+			const vehikel_besch_t *info = cnv->gib_vehikel(start_nr)->gib_besch();
+			if(info->gib_nachfolger_count()!=1) {
+				start_nr ++;
+				break;
+			}
+		}
+		// find end
+		while(nr<cnv->gib_vehikel_anzahl()) {
+			const vehikel_besch_t *info = cnv->gib_vehikel(nr)->gib_besch();
+			nr ++;
+			if(info->gib_nachfolger_count()!=1) {
+				break;
+			}
+		}
+		// now remove the vehicles
+		if(cnv->gib_vehikel_anzahl()==nr-start_nr) {
 			depot->disassemble_convoi(icnv, false);
 			icnv--;
 		}
 		else {
-			depot->remove_vehicle(icnv, nr);
+			for( unsigned i=start_nr;  i<nr;  i++  ) {
+				depot->remove_vehicle(icnv, start_nr);
+			}
 		}
 	}
 	build_vehicle_lists();
