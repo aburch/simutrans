@@ -112,9 +112,12 @@ map_frame_t::map_frame_t(const karte_t *welt) :
 	}
 
 	// Hajo: Hack: use static size if set by a former object
-	if(size != koord::invalid) {
-		setze_fenstergroesse(size);
+	if(size == koord::invalid) {
+		size = koord(min(256,welt->gib_groesse_x())+11, min(welt->gib_groesse_y(),256)+16+12);
+		set_min_windowsize( size );
+		gui_frame_t::setze_fenstergroesse( size );
 	}
+//	setze_fenstergroesse(size);
 	resize( koord(0,0) );
 
 	// Clipping geändert - max. 250 war zu knapp für grosse Karten - V.Meyer
@@ -264,7 +267,7 @@ void map_frame_t::setze_fenstergroesse(koord groesse)
 	// set scroll area size
 	scrolly.setze_groesse( groesse-scrolly.gib_pos()-koord(0,16) );
 	map_frame_t::size = gib_fenstergroesse();
-//DBG_MESSAGE("map_frame_t::setze_fenstergroesse()","gr.x=%i, gr.y=%i",size.x,size.y );
+DBG_MESSAGE("map_frame_t::setze_fenstergroesse()","gr.x=%i, gr.y=%i",size.x,size.y );
 }
 
 
