@@ -27,7 +27,7 @@
 #include "../besch/fabrik_besch.h"
 
 
-koord map_frame_t::size;
+koord map_frame_t::size=koord::invalid;
 uint8 map_frame_t::legend_visible=false;
 
 // Hajo: we track our position onscreen
@@ -112,7 +112,7 @@ map_frame_t::map_frame_t(const karte_t *welt) :
 	}
 
 	// Hajo: Hack: use static size if set by a former object
-	if(size != koord(0,0)) {
+	if(size != koord::invalid) {
 		setze_fenstergroesse(size);
 	}
 	resize( koord(0,0) );

@@ -282,10 +282,10 @@ ding_t::display_after(int xpos, int ypos, bool /*reset_dirty*/) const
 		ypos += tile_raster_scale_y(gib_yoff(), raster_width);
 
 		if(besitzer_n!=-1) {
-			display_color_img(bild, xpos, ypos, gib_besitzer()->get_player_color(), true, get_flag(ding_t::dirty) );
+			display_color_img(bild, xpos, ypos, gib_besitzer()->get_player_color(), true, 0*get_flag(ding_t::dirty) );
 		}
 		else {
-			display_img(bild, xpos, ypos, get_flag(ding_t::dirty) );
+			display_img(bild, xpos, ypos, 0*get_flag(ding_t::dirty) );
 		}
 	}
 }
@@ -305,7 +305,7 @@ ding_t::mark_image_dirty(image_id bild,sint8 yoff)
 		const sint16 rasterweite=get_tile_raster_width();
 		const koord diff = gib_pos().gib_2d()-welt->gib_ij_off()-welt->gib_ansicht_ij_offset();
 		const sint16 x = (diff.x-diff.y)*(rasterweite/2) + tile_raster_scale_x(gib_xoff(), rasterweite);
-		const sint16 y = (diff.x+diff.y)*(rasterweite/4) + tile_raster_scale_y( yoff+gib_yoff()-gib_pos().z, rasterweite);
+		const sint16 y = (diff.x+diff.y)*(rasterweite/4) + tile_raster_scale_y( yoff+gib_yoff()-gib_pos().z, rasterweite) + ((display_get_width()/rasterweite)&1)*(rasterweite/4);
 		// mark the region after the image as dirty
 		display_mark_img_dirty( bild, x+welt->gib_x_off(), y+welt->gib_y_off() );
 	}

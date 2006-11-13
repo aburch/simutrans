@@ -588,14 +588,13 @@ reliefkarte_t::gib_karte()
 void
 reliefkarte_t::setze_welt(karte_t *welt)
 {
-    this->welt = welt;			// Welt fuer display_win() merken
-
-    if(relief) {
+	this->welt = welt;			// Welt fuer display_win() merken
+	if(relief) {
 		delete relief;
 		relief = NULL;
-    }
+	}
 
-    if(welt) {
+	if(welt) {
 		koord size = koord(welt->gib_groesse_x()*zoom, welt->gib_groesse_y()*zoom);
 DBG_MESSAGE("reliefkarte_t::setze_welt()","welt size %i,%i",size.x,size.y);
 		relief = new array2d_tpl<unsigned char> (size.x,size.y);
@@ -638,8 +637,8 @@ reliefkarte_t::infowin_event(const event_t *ev)
 
 	if(IS_LEFTCLICK(ev) || IS_LEFTDRAG(ev)) {
 		welt->set_follow_convoi( convoihandle_t() );
-		int x = ev->mx/zoom-8;
-		int y = ev->my/zoom-8;
+		int x = ev->mx/zoom;
+		int y = ev->my/zoom;
 		int z = 0;
 		if(welt->ist_in_kartengrenzen(x,y)) {
 			z = welt->min_hgt(koord(x,y));
@@ -698,17 +697,9 @@ reliefkarte_t::zeichnen(koord pos)
 	display_fillbox_wh_clip(pos.x, pos.y, 4000, 4000, COL_BLACK, true);
 	display_array_wh(pos.x, pos.y, relief->get_width(), relief->get_height(), relief->to_array());
 
-	int xpos = (welt->gib_ij_off().x+8)*zoom;
-	int ypos = (welt->gib_ij_off().y+8)*zoom;
 
 	// zoom faktor
-	const int zf = zoom * get_zoom_factor();
-
-	// zoom/resize "selection box" in map
-	display_direct_line(pos.x+xpos+12*zf, pos.y+ypos, pos.x+xpos, pos.y+ypos-12*zf, COL_WHITE);
-	display_direct_line(pos.x+xpos-12*zf, pos.y+ypos, pos.x+xpos, pos.y+ypos-12*zf, COL_WHITE);
-	display_direct_line(pos.x+xpos+12*zf, pos.y+ypos, pos.x+xpos, pos.y+ypos+12*zf, COL_WHITE);
-	display_direct_line(pos.x+xpos-12*zf, pos.y+ypos, pos.x+xpos, pos.y+ypos+12*zf, COL_WHITE);
+//	const int zf = zoom * get_zoom_factor();
 
 	// if we do not do this here, vehicles would erase the won name
 	if(mode==MAP_TOWN) {
@@ -724,6 +715,22 @@ reliefkarte_t::zeichnen(koord pos)
 			p.x = max( pos.x+(p.x*zoom)-(w/2), pos.x );
 			display_proportional_clip( p.x, pos.y+p.y*zoom, name, ALIGN_LEFT, COL_WHITE, true);
 		}
+	}
+
+	// zoom/resize "selection box" in map
+	// this must be rotated by 45 degree (sin45=cos45=0,5*sqrt(2)=0.707...)
+	const sint16 raster=get_tile_raster_width();
+	const koord diff = koord( (display_get_width()/raster)*zoom*0.707106, ((display_get_height())/(raster))*zoom*0.707106 );
+	const koord ij = welt->gib_ij_off()*zoom;
+
+	// calculate and draw the rotated coordinates
+	koord view[4];
+	view[0] = pos + ij + koord( -diff.x+diff.y, -diff.x-diff.y );
+	view[1] = pos + ij + koord( -diff.x-diff.y, -diff.x+diff.y );
+	view[2] = pos + ij + koord( diff.x-diff.y, diff.x+diff.y );
+	view[3] = pos + ij + koord( diff.x+diff.y, diff.x-diff.y );
+	for(  int i=0;  i<4;  i++  ) {
+		display_direct_line( view[i].x, view[i].y, view[(i+1)%4].x, view[(i+1)%4].y, COL_YELLOW);
 	}
 
 	if (fab) {

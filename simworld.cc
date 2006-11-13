@@ -2833,8 +2833,8 @@ void karte_t::bewege_zeiger(const event_t *ev)
 		int i_alt=zeiger->gib_pos().x;
 		int j_alt=zeiger->gib_pos().y;
 
-		int screen_y = ev->my + y_off;
-		int screen_x = (ev->mx + x_off);
+		int screen_y = ev->my - y_off - rw2 - ((display_get_width()/rw1)&1)*rw4;
+		int screen_x = (ev->mx - x_off - rw2)/2;
 
 		if(zeiger->gib_yoff() == Z_PLAN) {
 			// already ok
@@ -2868,10 +2868,13 @@ void karte_t::bewege_zeiger(const event_t *ev)
 				for(int n = 0; n < 2; n++) {
 
 			const int base_i = (screen_x+screen_y + tile_raster_scale_y(hgt,rw1) )/2;
-			const int base_j = (screen_y-screen_x + tile_raster_scale_y(hgt,rw1) )/2;
+			const int base_j = (screen_y-screen_x + tile_raster_scale_y(hgt,rw1))/2;
 
-			mi = ((int)floor(base_i/(double)rw4)) + i_off;
-			mj = ((int)floor(base_j/(double)rw4)) + j_off;
+			mi = ((int)floor(base_i/(double)rw4));
+			mj = ((int)floor(base_j/(double)rw4));
+
+			mi += i_off;
+			mj += j_off;
 
 			const planquadrat_t *plan = lookup(koord(mi,mj));
 			if(plan != NULL) {

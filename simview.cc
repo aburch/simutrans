@@ -44,14 +44,13 @@ karte_ansicht_t::display(bool force_dirty)
 
 	sint16 IMG_SIZE = get_tile_raster_width();
 
-	const int const_x_off = /*(disp_width/2) + */welt->gib_x_off();
 	const int dpy_width = disp_width/IMG_SIZE + 2;
 	const int dpy_height = (disp_height*4)/IMG_SIZE;
 
 	const int i_off = welt->gib_ij_off().x - disp_width/(2*IMG_SIZE) - disp_height/IMG_SIZE;
 	const int j_off = welt->gib_ij_off().y + disp_width/(2*IMG_SIZE) - disp_height/IMG_SIZE;
+	const int const_x_off = welt->gib_x_off();
 	const int const_y_off = welt->gib_y_off();
-	int	y;
 
 	// these are the values needed to go directly from a tile to the display
 	welt->setze_ansicht_ij_offset(
@@ -69,7 +68,8 @@ karte_ansicht_t::display(bool force_dirty)
 	}
 
 	// first display ground
-	for(y=-5; y<dpy_height+dpy_width; y++) {
+	int	y;
+	for(y=-dpy_height; y<dpy_height+dpy_width; y++) {
 
 		const sint16 ypos = y*(IMG_SIZE/4) + const_y_off;
 
@@ -96,7 +96,7 @@ karte_ansicht_t::display(bool force_dirty)
 	}
 
 	// and then things (and other ground)
-	for(y=-5; y<dpy_height+dpy_width; y++) {
+	for(y=-dpy_height; y<dpy_height+dpy_width; y++) {
 
 		const sint16 ypos = y*(IMG_SIZE/4) + const_y_off;
 

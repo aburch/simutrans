@@ -732,7 +732,7 @@ bool gebaeude_t::sync_step(long delta_t)
 				mark_image_dirty(bild,-(i<<6));
 			}
 			// old positions need redraw
-			mark_image_dirty(0,0);
+			mark_image_dirty(gib_bild(0),0);
 
 			anim_time %= tile->gib_besch()->get_animation_time();
 			count ++;
