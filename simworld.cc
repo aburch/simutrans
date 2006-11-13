@@ -2833,8 +2833,8 @@ void karte_t::bewege_zeiger(const event_t *ev)
 		int i_alt=zeiger->gib_pos().x;
 		int j_alt=zeiger->gib_pos().y;
 
-		int screen_y = ev->my - ansicht_offset.y;
-		int screen_x = (ev->mx - ansicht_offset.x) / 2;
+		int screen_y = ev->my + y_off;
+		int screen_x = (ev->mx + x_off);
 
 		if(zeiger->gib_yoff() == Z_PLAN) {
 			// already ok
@@ -2862,8 +2862,8 @@ void karte_t::bewege_zeiger(const event_t *ev)
 
 		int hgt = lookup_hgt(koord(i_alt, j_alt))/*-grundwasser*/;
 
-		const int i_off = gib_ij_off().x;// - display_get_width()/(2*rw1) - display_get_height()/(rw1);
-		const int j_off = gib_ij_off().y;// + display_get_width()/(2*rw1) - display_get_height()/(rw1);
+		const int i_off = gib_ij_off().x+gib_ansicht_ij_offset().x;
+		const int j_off = gib_ij_off().y+gib_ansicht_ij_offset().y;
 
 				for(int n = 0; n < 2; n++) {
 
@@ -2899,7 +2899,7 @@ void karte_t::bewege_zeiger(const event_t *ev)
 
 
 		// prüfe richtung d.h. welches nachbarfeld ist am naechsten
-		if(ev->mx-ansicht_offset.x < neu_x) {
+		if(ev->mx-x_off < neu_x) {
 			zeiger->setze_richtung(ribi_t::west);
 		}
 		else {

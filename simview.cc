@@ -54,10 +54,12 @@ karte_ansicht_t::display(bool force_dirty)
 	int	y;
 
 	// these are the values needed to go directly from a tile to the display
-	welt->setze_ansicht_xy_offset(
+	welt->setze_ansicht_ij_offset(
 		koord(
-			(disp_width/(2*IMG_SIZE))*2*(IMG_SIZE/2) + welt->gib_x_off(), // x-y
-			(disp_height/IMG_SIZE)*2*(IMG_SIZE/4) + welt->gib_y_off()// + (IMG_SIZE/2) + ((display_get_width()/IMG_SIZE)&1)*(IMG_SIZE/4)
+	- disp_width/(2*IMG_SIZE) - disp_height/IMG_SIZE,
+	disp_width/(2*IMG_SIZE) - disp_height/IMG_SIZE
+//			(disp_width/(2*IMG_SIZE))*2*(IMG_SIZE/2) + welt->gib_x_off(), // x-y
+//			(disp_height/IMG_SIZE)*2*(IMG_SIZE/4) + welt->gib_y_off()// + (IMG_SIZE/2) + ((display_get_width()/IMG_SIZE)&1)*(IMG_SIZE/4)
 		) );
 
 	// not very elegant, but works:

@@ -325,10 +325,9 @@ spieler_t::display_messages()
 	int last_displayed_message = -1;
 
 	for(int n=0; n<=last_message_index; n++) {
-		const int i=text_pos[n].x-welt->gib_ij_off().x;
-		const int j=text_pos[n].y-welt->gib_ij_off().y;
-		const sint16 x = (i-j)*(raster/2) + welt->gib_ansicht_xy_offset().x;
-		const sint16 y = (i+j)*(raster/4) + (text_alter[n] >> 4) - tile_raster_scale_y( welt->lookup_hgt(text_pos[n]), raster) + welt->gib_ansicht_xy_offset().y;
+		const koord ij = text_pos[n]-welt->gib_ij_off()-welt->gib_ansicht_ij_offset();
+		const sint16 x = (ij.x-ij.y)*(raster/2) + welt->gib_x_off();
+		const sint16 y = (ij.x+ij.y)*(raster/4) + (text_alter[n] >> 4) - tile_raster_scale_y( welt->lookup_hgt(text_pos[n]), raster) + welt->gib_y_off();
 
 		if(text_alter[n] >= -80) {
 			display_proportional_clip( x+1, y+1, texte[n], ALIGN_LEFT, COL_BLACK, true);

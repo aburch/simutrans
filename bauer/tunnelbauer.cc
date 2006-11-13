@@ -69,24 +69,20 @@ tunnelbauer_t::laden_erfolgreich()
 		if(besch->gib_topspeed()==0) {
 			// old style, need to convert
 			if(strcmp(besch->gib_name(),"RoadTunnel")==0) {
-				weg_t *weg = new strasse_t(NULL,999);
 				besch->wegtyp = (uint8)road_wt;
-				besch->topspeed = weg->gib_besch()->gib_topspeed();
-				besch->maintenance = weg->gib_besch()->gib_wartung();
-				besch->preis = weg->gib_besch()->gib_preis();
+				besch->topspeed = 120;
+				besch->maintenance = 500;
+				besch->preis = 200000;
 				besch->intro_date = DEFAULT_INTRO_DATE*12;
 				besch->obsolete_date = DEFAULT_RETIRE_DATE*12;
-				delete weg;
 			}
 			else {
-				weg_t *weg = new schiene_t(NULL,999);
 				besch->wegtyp = (uint8)track_wt;
-				besch->topspeed = weg->gib_besch()->gib_topspeed();
-				besch->maintenance = weg->gib_besch()->gib_wartung();
-				besch->preis = weg->gib_besch()->gib_preis();
+				besch->topspeed = 280;
+				besch->maintenance = 500;
+				besch->preis = 200000;
 				besch->intro_date = DEFAULT_INTRO_DATE*12;
 				besch->obsolete_date = DEFAULT_RETIRE_DATE*12;
-				delete weg;
 			}
 		}
 	}
