@@ -261,12 +261,6 @@ public:
 
 	// correct maitainace
 	void laden_abschliessen();
-
-	/**
-	 * Zum buchen der Abrisskosten auf das richtige Konto
-	 * @author Hj. Malthaner
-	 */
-	virtual void entferne(spieler_t *);
 } GCC_PACKED;
 
 #endif

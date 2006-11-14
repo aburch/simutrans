@@ -393,17 +393,22 @@ grund_t::~grund_t()
 
 
 
-// moves all object from the old to the new grund_t
+// moves all objects from the old to the new grund_t
 void
 grund_t::take_obj_from( grund_t *other_gr)
 {
-	const uint8 top=other_gr->gib_top();
-	for(  uint8 i=top;  i>0;  i--  ) {
-		ding_t *d=other_gr->obj_bei(i-1);
-		if(!d->is_way()) {
-			other_gr->obj_remove( d, NULL );
-			dinge.add( d );
-		}
+	// transfer all things
+	while( other_gr->gib_top() ) {
+		dinge.add( other_gr->obj_remove_top() );
+	}
+	// transfer the way flags
+	if(other_gr->get_flag(has_way1)) {
+		flags |= has_way1;
+		other_gr->clear_flag(has_way1);
+	}
+	if(other_gr->get_flag(has_way2)) {
+		flags |= has_way2;
+		other_gr->clear_flag(has_way2);
 	}
 }
 
@@ -922,8 +927,9 @@ long grund_t::neuen_weg_bauen(weg_t *weg, ribi_t::ribi ribi, spieler_t *sp)
 		}
 
 		// just add the cost
-		if(gib_besitzer() && !ist_wasser()) {
-			gib_besitzer()->add_maintenance(weg->gib_besch()->gib_wartung());
+		if(sp && !ist_wasser()) {
+			sp->add_maintenance(weg->gib_besch()->gib_wartung());
+			weg->setze_besitzer( sp );
 		}
 		weg->setze_ribi(ribi);
 		weg->setze_pos(pos);
@@ -1109,8 +1115,8 @@ bool grund_t::remove_everything_from_way(spieler_t *sp,waytype_t wt,ribi_t::ribi
 
 		for(uint8 i=0;  i<gib_top();  i++  ) {
 			ding_t *d=obj_bei(i);
-			// roadsigns: check dir
-			if(d==NULL) {
+			// do not delete ways
+			if(d->is_way()) {
 				continue;
 			}
 			// roadsigns: check dir: dirs changed? delete
@@ -1141,6 +1147,12 @@ bool grund_t::remove_everything_from_way(spieler_t *sp,waytype_t wt,ribi_t::ribi
 			else if(d->gib_typ()==ding_t::verkehr  ||  suche_obj(ding_t::fussgaenger)) {
 				delete d;
 			}
+			// remove tunnel portal/bridge
+			else if(d->gib_typ()==ding_t::bruecke  ||  suche_obj(ding_t::tunnel)) {
+				d->entferne(sp);
+				delete d;
+			}
+
 		}
 
 

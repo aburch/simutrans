@@ -85,12 +85,9 @@ void tunnel_t::laden_abschliessen()
 	const grund_t *gr = welt->lookup(gib_pos());
 	spieler_t *sp=gib_besitzer();
 
-	if(besch==NULL) {
-		besch = tunnelbauer_t::find_tunnel( gr->gib_weg_nr(0)->gib_waytype(), 999, 0 );
-		assert(besch!=NULL);
-	}
+	assert(besch);
 
-	if(sp) {
+	if(sp  &&  besch) {
 		// inside tunnel => do nothing but change maitainance
 		weg_t *weg = gr->gib_weg(besch->gib_waytype());
 		weg->setze_max_speed(besch->gib_topspeed());
@@ -117,11 +114,35 @@ void tunnel_t::laden_abschliessen()
 		}
 		if(gr->suche_obj(ding_t::tunnel)==NULL) {
 			gr->obj_add(new tunnel_t(welt, pos, sp, besch));
+			// calc calculation will be completed after loading!
+/*
 			weg_t *weg = gr->gib_weg(besch->gib_waytype());
 			weg->setze_max_speed(besch->gib_topspeed());
-			sp->add_maintenance(-weg->gib_besch()->gib_wartung());
-			sp->add_maintenance( besch->gib_wartung() );
+			if(pos.y<gib_pos().y  ||  (pos.y==gib_pos().y  &&  pos.x<gib_pos().x)) {
+				// already called for this tile!
+				sp->add_maintenance(-weg->gib_besch()->gib_wartung());
+				sp->add_maintenance( besch->gib_wartung() );
+			}
+*/
 		}
 		pos += zv;
+	}
+}
+
+
+
+// correct speed and maitainace
+void tunnel_t::entferne( spieler_t *sp )
+{
+	sp=gib_besitzer();
+	if(sp) {
+		// inside tunnel => do nothing but change maitainance
+		const grund_t *gr = welt->lookup(gib_pos());
+		weg_t *weg = gr->gib_weg( besch->gib_waytype() );
+		assert(weg);
+		weg->setze_max_speed( weg->gib_besch()->gib_topspeed() );
+		sp->add_maintenance( weg->gib_besch()->gib_wartung());
+		sp->add_maintenance( -besch->gib_wartung() );
+		sp->buche( -besch->gib_preis(), gib_pos().gib_2d(), COST_CONSTRUCTION );
 	}
 }

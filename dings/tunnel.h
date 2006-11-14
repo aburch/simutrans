@@ -31,11 +31,7 @@ public:
 
 	void laden_abschliessen();
 
-	/**
-	* Normally step is disabled; enable only for removal!
-	* @author prissi
-	*/
-	virtual bool step(long /*delta_t*/) {return false;}
+	void entferne(spieler_t *sp);
 };
 
 #endif

@@ -80,9 +80,6 @@ gebaeude_t::gebaeude_t(karte_t *welt, loadsave_t *file) : ding_t(welt)
 	if(file->get_version()<88002) {
 		setze_yoff(0);
 	}
-	if(gib_besitzer()) {
-		gib_besitzer()->add_maintenance(umgebung_t::maint_building);
-	}
 }
 
 
@@ -765,6 +762,9 @@ gebaeude_t::laden_abschliessen()
 	else {
 		zeige_baugrube = true;
 		step_frequency = 1;
+	}
+	if(gib_besitzer()) {
+		gib_besitzer()->add_maintenance(umgebung_t::maint_building);
 	}
 }
 

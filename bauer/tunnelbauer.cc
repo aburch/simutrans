@@ -375,7 +375,7 @@ DBG_MESSAGE("tunnelbauer_t::baue()","build from (%d,%d)", pos.x, pos.y);
 	ribi = welt->lookup(pos)->gib_weg_ribi_unmasked(wegtyp);
 	pos = pos + zv;
 
-	// Now we build the inviosible part
+	// Now we build the invisible part
 	while(pos.gib_2d()!=end.gib_2d()) {
 		tunnelboden_t *tunnel = new tunnelboden_t(welt, pos, 0);
 		// use the fastest way
@@ -393,8 +393,7 @@ DBG_MESSAGE("tunnelbauer_t::baue()","build from (%d,%d)", pos.x, pos.y);
 
 	baue_einfahrt(welt, sp, pos, -zv, besch, weg_besch, cost);
 
-	sp->buche(cost, start.gib_2d(), COST_CONSTRUCTION);
-	((tunnel_t *)(welt->lookup(start)->suche_obj(ding_t::tunnel)))->laden_abschliessen();
+	sp->buche( -cost, start.gib_2d(), COST_CONSTRUCTION);
 	return true;
 }
 
@@ -405,35 +404,33 @@ tunnelbauer_t::baue_einfahrt(karte_t *welt, spieler_t *sp, koord3d end, koord zv
 {
 	grund_t *alter_boden = welt->lookup(end);
 	ribi_t::ribi ribi = alter_boden->gib_weg_ribi_unmasked(besch->gib_waytype()) | ribi_typ(zv);
-	weg_t *alter_weg = alter_boden->gib_weg(besch->gib_waytype());
 
 	tunnelboden_t *tunnel = new tunnelboden_t(welt, end, alter_boden->gib_grund_hang());
+	tunnel->setze_besitzer(sp);
 	tunnel->obj_add(new tunnel_t(welt, end, sp, besch));
 
-DBG_MESSAGE("tunnelbauer_t::baue_einfahrt()","at end (%d,%d) for %s", end.x, end.y, weg_besch->gib_name());
-
-	weg_t *weg = weg_t::alloc(besch->gib_waytype());
-	if(alter_weg) {
-		weg->setze_besch(alter_weg->gib_besch());
-		weg->setze_ribi_maske( alter_weg->gib_ribi_maske() );
-		tunnel->take_obj_from( alter_boden );
-		alter_boden->weg_entfernen(besch->gib_waytype(),false);
+	weg_t *weg=alter_boden->gib_weg( besch->gib_waytype() );
+	// take care of everything on that tile ...
+	tunnel->take_obj_from( alter_boden );
+	welt->access(end.gib_2d())->kartenboden_setzen( tunnel, false );
+	if(weg) {
+		// has already a way
+		tunnel->weg_erweitern(besch->gib_waytype(), ribi);
 	}
 	else {
-		weg->setze_besch(weg_besch);
-		cost += weg_besch->gib_preis();
+		// needs still one
+		weg = weg_t::alloc( besch->gib_waytype() );
+		tunnel->neuen_weg_bauen( weg, ribi, sp );
 	}
+	weg->setze_max_speed( besch->gib_topspeed() );
+	tunnel->calc_bild();
 
-	welt->access(end.gib_2d())->kartenboden_setzen( tunnel, false );
-	tunnel->neuen_weg_bauen(weg, ribi, sp);
-	sp->add_maintenance( -weg->gib_besch()->gib_wartung() );
-	sp->add_maintenance( besch->gib_wartung() );
-	cost += besch->gib_preis();
-
-	// no undo possible anymore
 	if(sp!=NULL) {
-		sp->init_undo(besch->gib_waytype(),0);
+		sp->add_maintenance( -weg_besch->gib_wartung() );
+		sp->add_maintenance( besch->gib_wartung() );
+		sp->init_undo( besch->gib_waytype(), 0 );
 	}
+	cost += besch->gib_preis();
 }
 
 
@@ -497,21 +494,10 @@ tunnelbauer_t::remove(karte_t *welt, spieler_t *sp, koord3d start, waytype_t weg
 	// Jetzt geht es ans löschen der Tunnel
 	while(!part_list.is_empty()) {
 		pos = part_list.remove_first();
-
 		grund_t *gr = welt->lookup(pos);
-
-		if(gr->gib_besitzer()) {
-			sp->add_maintenance( gr->gib_weg_nr(0)->gib_besch()->gib_wartung());
-			sp->add_maintenance( -besch->gib_wartung() );
-		}
-		// remove all ways ...
-		if(gr->gib_weg_nr(1)) {
-			gr->weg_entfernen(gr->gib_weg_nr(1)->gib_waytype(), false);
-		}
-		gr->weg_entfernen(gr->gib_weg_nr(0)->gib_waytype(), false);
+		gr->remove_everything_from_way(sp,wegtyp,ribi_t::keine);	// removes stop and signals correctly
+		// we may have a second way here ...
 		gr->obj_loesche_alle(sp);
-		cost += besch->gib_preis();
-
 		welt->access(pos.gib_2d())->boden_entfernen(gr);
 		delete gr;
 	}
@@ -521,36 +507,34 @@ tunnelbauer_t::remove(karte_t *welt, spieler_t *sp, koord3d start, waytype_t weg
 		pos = end_list.remove_first();
 
 		grund_t *gr = welt->lookup(pos);
-		if(gr->gib_besitzer()) {
-			sp->add_maintenance( gr->gib_weg_nr(0)->gib_besch()->gib_wartung());
-			sp->add_maintenance( -besch->gib_wartung() );
+		ribi_t::ribi ribi = gr->gib_weg_ribi_unmasked(wegtyp);
+		if(gr->gib_grund_hang()!=hang_t::flach) {
+			ribi &= ~ribi_typ(gr->gib_grund_hang());
+		}
+		else {
+			ribi &= ~ribi_typ(hang_t::gegenueber(gr->gib_weg_hang()));
 		}
 
-		grund_t *gr_new = new boden_t(welt, pos, gr->gib_grund_hang() );
+		// removes single signals, bridge head, pedestrians, stops, changes catenary etc
+		gr->remove_everything_from_way(sp,wegtyp,ribi);	// removes stop and signals correctly
 
+		// corrects the ways
+		weg_t *weg=gr->gib_weg_nr(0);
+		if(weg) {
+			// fails if it was preivously the last ribi
+			weg->setze_besch(weg->gib_besch());
+			weg->setze_ribi( ribi );
+			if(gr->gib_weg_nr(1)) {
+				gr->gib_weg_nr(1)->setze_ribi( ribi );
+			}
+		}
 
-		ribi_t::ribi ribi = gr->gib_weg_ribi_unmasked(wegtyp) &~ribi_typ(gr->gib_grund_hang());
-		weg_besch = gr->gib_weg(wegtyp)->gib_besch();
-		ding_t *tunnel = gr->suche_obj( ding_t::tunnel );
-		tunnel->entferne( sp );
-		delete tunnel;
+		// then add the new ground, copy everything and replace the old one
+		grund_t *gr_new = new boden_t(welt, pos, gr->gib_grund_hang());
+		gr_new->setze_besitzer( sp );
 		gr_new->take_obj_from( gr );
-
-		// remove all ways ...
-		if(gr->gib_weg_nr(1)) {
-			gr->weg_entfernen(gr->gib_weg_nr(1)->gib_waytype(), false);
-		}
-		gr->weg_entfernen(gr->gib_weg_nr(0)->gib_waytype(), false);
-		cost += besch->gib_preis();
-
 		welt->access(pos.gib_2d())->kartenboden_setzen(gr_new, false);
-
-		// Neuen Boden wieder mit Weg versehen
-		weg_t *weg = weg_t::alloc(besch->gib_waytype());
-		weg->setze_besch( weg_besch );
-		gr_new->neuen_weg_bauen( weg, ribi, sp );
+		gr_new->calc_bild();
 	}
-	welt->setze_dirty();
-	sp->buche(-cost, start.gib_2d(), COST_CONSTRUCTION);
 	return NULL;
 }

@@ -29,14 +29,13 @@
 bruecke_t::bruecke_t(karte_t *welt, loadsave_t *file) : ding_t(welt)
 {
 	rdwr(file);
-	if(gib_besitzer()) {
-		gib_besitzer()->add_maintenance(besch->gib_wartung());
-	}
 	step_frequency = 0;
 	setze_bild(0,IMG_LEER);
 }
 
-bruecke_t::bruecke_t(karte_t *welt, koord3d pos, const int /*yoff*/, spieler_t *sp,
+
+
+bruecke_t::bruecke_t(karte_t *welt, koord3d pos, spieler_t *sp,
 		     const bruecke_besch_t *besch, bruecke_besch_t::img_t img) :
  ding_t(welt, pos)
 {
@@ -45,20 +44,17 @@ bruecke_t::bruecke_t(karte_t *welt, koord3d pos, const int /*yoff*/, spieler_t *
 	setze_besitzer( sp );
 	if(gib_besitzer()) {
 		gib_besitzer()->buche(-besch->gib_preis(), gib_pos().gib_2d(), COST_CONSTRUCTION);
-		gib_besitzer()->add_maintenance(besch->gib_wartung());
 	}
 	step_frequency = 0;
 	setze_bild(0,IMG_LEER);
 }
 
 
+
 bruecke_t::~bruecke_t()
 {
-	if(gib_besitzer()) {
-		gib_besitzer()->buche(-besch->gib_preis(), gib_pos().gib_2d(), COST_CONSTRUCTION);
-		gib_besitzer()->add_maintenance(-besch->gib_wartung());
-	}
 }
+
 
 
 void
@@ -135,12 +131,13 @@ void bruecke_t::entferne( spieler_t *sp )
 {
 	sp=gib_besitzer();
 	if(sp) {
-		// inside tunnel => do nothing but change maitainance
+		// on bridge => do nothing but change maitainance
 		const grund_t *gr = welt->lookup(gib_pos());
-		weg_t *weg = gr->gib_weg(besch->gib_waytype());
+		weg_t *weg = gr->gib_weg( besch->gib_waytype() );
 		assert(weg);
-		weg->setze_max_speed(besch->gib_topspeed());
-		sp->add_maintenance(-weg->gib_besch()->gib_wartung());
-		sp->add_maintenance( besch->gib_wartung() );
+		weg->setze_max_speed( weg->gib_besch()->gib_topspeed() );
+		sp->add_maintenance( weg->gib_besch()->gib_wartung());
+		sp->add_maintenance( -besch->gib_wartung() );
+		sp->buche( -besch->gib_preis(), gib_pos().gib_2d(), COST_CONSTRUCTION );
 	}
 }

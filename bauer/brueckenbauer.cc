@@ -245,6 +245,8 @@ brueckenbauer_t::finde_ende(karte_t *welt, koord3d pos, koord zv, waytype_t wegt
 	return koord3d::invalid;
 }
 
+
+
 bool brueckenbauer_t::ist_ende_ok(spieler_t *sp, const grund_t *gr)
 {
 	if(gr->gib_typ()!=grund_t::boden  &&  gr->gib_typ()!=grund_t::monorailboden) {
@@ -407,9 +409,11 @@ bool brueckenbauer_t::baue_bruecke(karte_t *welt, spieler_t *sp,
 		weg->setze_max_speed(besch->gib_topspeed());
 		welt->access(pos.gib_2d())->boden_hinzufuegen(bruecke);
 		bruecke->neuen_weg_bauen(weg, ribi_t::doppelt(ribi), sp);
+
 		sp->add_maintenance( -weg_besch->gib_wartung() );
 		sp->add_maintenance( besch->gib_wartung() );
-		bruecke->obj_add(new bruecke_t(welt, bruecke->gib_pos(), 0, sp, besch, besch->gib_simple(ribi)));
+
+		bruecke->obj_add(new bruecke_t(welt, bruecke->gib_pos(), sp, besch, besch->gib_simple(ribi)));
 		bruecke->calc_bild();
 
 //DBG_MESSAGE("bool brueckenbauer_t::baue_bruecke()","at (%i,%i)",pos.x,pos.y);
@@ -445,55 +449,48 @@ void
 brueckenbauer_t::baue_auffahrt(karte_t *welt, spieler_t *sp, koord3d end, koord zv, const bruecke_besch_t *besch, const weg_besch_t *weg_besch)
 {
 	grund_t *alter_boden = welt->lookup(end);
-	weg_t *weg=0;
 	ribi_t::ribi ribi_neu;
 	brueckenboden_t *bruecke;
 	int weg_hang = 0;
 	hang_t::typ grund_hang = alter_boden->gib_grund_hang();
 	bruecke_besch_t::img_t img;
-	int yoff;
 
 	ribi_neu = ribi_typ(zv);
 	if(grund_hang == hang_t::flach) {
 		weg_hang = hang_typ(zv);    // nordhang - suedrampe
 	}
+
 	bruecke = new brueckenboden_t(welt, end, grund_hang, weg_hang);
-
-	weg_t *alter_weg = alter_boden->gib_weg(besch->gib_waytype());
-	weg = weg_t::alloc(besch->gib_waytype());
-
 	// add the ramp
 	if(bruecke->gib_grund_hang() == hang_t::flach) {
-		yoff = 0;
 		img = besch->gib_rampe(ribi_neu);
 	}
 	else {
-		yoff = -16;
 		img = besch->gib_start(ribi_neu);
 	}
-	bruecke->obj_add(new bruecke_t(welt, end, yoff, sp, besch, img));
+	bruecke->setze_besitzer( sp );
 
-	if(alter_weg==NULL) {
-		weg->setze_besch(weg_besch);
-		sp->buche(weg_besch->gib_preis(), alter_boden->gib_pos().gib_2d(), COST_CONSTRUCTION);
+	weg_t *weg=alter_boden->gib_weg( besch->gib_waytype() );
+	// take care of everything on that tile ...
+	bruecke->take_obj_from( alter_boden );
+	welt->access(end.gib_2d())->kartenboden_setzen( bruecke, false );
+	if(weg) {
+		// has already a way
+		bruecke->weg_erweitern(besch->gib_waytype(), ribi_t::doppelt(ribi_neu));
 	}
 	else {
-		// here was a way before
-		weg->setze_besch(alter_weg->gib_besch());
-		weg->setze_ribi_maske( alter_weg->gib_ribi_maske() );
-		alter_boden->weg_entfernen(weg->gib_waytype(),false);
-		// take care of everything on that tile ...
-		bruecke->take_obj_from( alter_boden );
+		// needs still one
+		weg = weg_t::alloc( besch->gib_waytype() );
+		bruecke->neuen_weg_bauen( weg, ribi_t::doppelt(ribi_neu), sp );
 	}
 	weg->setze_max_speed( besch->gib_topspeed() );
-	welt->access(end.gib_2d())->kartenboden_setzen( bruecke, false );
-	bruecke->neuen_weg_bauen(weg, ribi_t::doppelt(ribi_neu), sp);
+	bruecke->obj_add(new bruecke_t(welt, end, sp, besch, img));
+	bruecke->calc_bild();
 
 	if(sp!=NULL) {
 		sp->add_maintenance( -weg_besch->gib_wartung() );
 		sp->add_maintenance( besch->gib_wartung() );
-		// no undo possible anymore
-		sp->init_undo(besch->gib_waytype(),0);
+		sp->init_undo( besch->gib_waytype(), 0 );
 	}
 }
 
@@ -508,8 +505,6 @@ brueckenbauer_t::remove(karte_t *welt, spieler_t *sp, koord3d pos, waytype_t weg
 	slist_tpl<koord3d> part_list;
 	slist_tpl<koord3d> tmp_list;
 	const char    *msg;
-
-	const bruecke_besch_t *br_besch=dynamic_cast<bruecke_t *>(welt->lookup(pos)->suche_obj(ding_t::bruecke))->gib_besch();
 
 	// Erstmal das ganze Außmaß der Brücke bestimmen und sehen,
 	// ob uns was im Weg ist.
@@ -559,11 +554,9 @@ brueckenbauer_t::remove(karte_t *welt, spieler_t *sp, koord3d pos, waytype_t weg
 		pos = part_list.remove_first();
 
 		grund_t *gr = welt->lookup(pos);
-		sp->add_maintenance( -br_besch->gib_wartung() );
-
 		gr->remove_everything_from_way(sp,wegtyp,ribi_t::keine);	// removes stop and signals correctly
+		// we may have a second way here ...
 		gr->obj_loesche_alle(sp);
-		gr->weg_entfernen(wegtyp, false);
 		welt->access(pos.gib_2d())->boden_entfernen(gr);
 		delete gr;
 
@@ -589,29 +582,26 @@ brueckenbauer_t::remove(karte_t *welt, spieler_t *sp, koord3d pos, waytype_t weg
 		else {
 			ribi &= ~ribi_typ(gr->gib_weg_hang());
 		}
-		const weg_besch_t *weg_besch=gr->gib_weg(wegtyp)->gib_besch();
 
-		// delete the bruecke
-		ding_t *bruecke = gr->suche_obj(ding_t::bruecke);
-		bruecke->entferne( sp );
-		delete bruecke;
+		// removes single signals, bridge head, pedestrians, stops, changes catenary etc
+		gr->remove_everything_from_way(sp,wegtyp,ribi);	// removes stop and signals correctly
 
-		// take care of everything on that tile ... (zero is the bridge itself)
-		grund_t *gr_new = new boden_t(welt, pos,gr->gib_grund_hang());
-
-		// remove all ways, copy the rest ...
-		gr_new->take_obj_from( gr );
-		if(gr->gib_weg_nr(1)) {
-			gr->weg_entfernen(gr->gib_weg_nr(1)->gib_waytype(), false);
+		// corrects the ways
+		weg_t *weg=gr->gib_weg_nr(0);
+		if(weg) {
+			// may fail, if this was the last tile
+			weg->setze_besch(weg->gib_besch());
+			weg->setze_ribi( ribi );
+			if(gr->gib_weg_nr(1)) {
+				gr->gib_weg_nr(1)->setze_ribi( ribi );
+			}
 		}
-		gr->weg_entfernen(wegtyp, false);
 
-		// Neuen Boden wieder mit Weg versehen
-		welt->access(pos.gib_2d())->kartenboden_setzen(gr_new, true);
-		weg_t *weg = weg_t::alloc(wegtyp);
-		weg->setze_besch(weg_besch);
-		sp->add_maintenance( weg_besch->gib_wartung());
-		gr_new->neuen_weg_bauen(weg, ribi, sp);
+		// then add the new ground, copy everything and replace the old one
+		grund_t *gr_new = new boden_t(welt, pos, gr->gib_grund_hang());
+		gr_new->setze_besitzer( sp );
+		gr_new->take_obj_from( gr );
+		welt->access(pos.gib_2d())->kartenboden_setzen(gr_new, false);
 		gr_new->calc_bild();
 	}
 
