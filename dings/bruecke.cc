@@ -119,10 +119,26 @@ void bruecke_t::laden_abschliessen()
 {
 	const grund_t *gr = welt->lookup(gib_pos());
 	spieler_t *sp=gib_besitzer();
+	if(sp) {
+		// change maitainance
+		weg_t *weg = gr->gib_weg(besch->gib_waytype());
+		weg->setze_max_speed(besch->gib_topspeed());
+		sp->add_maintenance(-weg->gib_besch()->gib_wartung());
+		sp->add_maintenance( besch->gib_wartung() );
+	}
+}
 
+
+
+// correct speed and maitainace
+void bruecke_t::entferne( spieler_t *sp )
+{
+	sp=gib_besitzer();
 	if(sp) {
 		// inside tunnel => do nothing but change maitainance
+		const grund_t *gr = welt->lookup(gib_pos());
 		weg_t *weg = gr->gib_weg(besch->gib_waytype());
+		assert(weg);
 		weg->setze_max_speed(besch->gib_topspeed());
 		sp->add_maintenance(-weg->gib_besch()->gib_wartung());
 		sp->add_maintenance( besch->gib_wartung() );

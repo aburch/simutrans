@@ -7,7 +7,16 @@ Known bugs: (hard to fix)
 
 Release of 99.04
 
-07-Nov-2006: (prissi)
+xx-Nov-2006: (prissi)
+	FIX: in depot: articulated engines will be only bought forward respective backward from the current position on
+	FIX: bridge construction fixed
+	FIX: retiere messages for planes
+	FIX: way maintainace screwed up
+
+
+Release of 99.04
+
+13-Nov-2006: (prissi)
 	FIX: elevated construction could only connect via straight connections
 	FIX: tunnel rails were upraded to even higher speeds than allowed
 	FIX: no more accidental connection between bridges/tunnels

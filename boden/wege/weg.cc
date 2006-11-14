@@ -394,3 +394,19 @@ void weg_t::laden_abschliessen()
 		sp->add_maintenance( besch->gib_wartung() );
 	}
 }
+
+
+
+
+void
+weg_t::entferne(spieler_t *sp)
+{
+/*	if(sp) {
+		sp->buche( besch->gib_preis(), gib_pos().gib_2d(), COST_CONSTRUCTION);
+	}
+*/
+	sp = gib_besitzer();
+	if(sp  && besch) {
+		sp->add_maintenance( -besch->gib_wartung() );
+	}
+}

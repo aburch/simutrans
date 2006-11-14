@@ -527,8 +527,13 @@ tunnelbauer_t::remove(karte_t *welt, spieler_t *sp, koord3d start, waytype_t weg
 		}
 
 		grund_t *gr_new = new boden_t(welt, pos, gr->gib_grund_hang() );
+
+
 		ribi_t::ribi ribi = gr->gib_weg_ribi_unmasked(wegtyp) &~ribi_typ(gr->gib_grund_hang());
 		weg_besch = gr->gib_weg(wegtyp)->gib_besch();
+		ding_t *tunnel = gr->suche_obj( ding_t::tunnel );
+		tunnel->entferne( sp );
+		delete tunnel;
 		gr_new->take_obj_from( gr );
 
 		// remove all ways ...

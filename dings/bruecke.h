@@ -35,6 +35,8 @@ public:
 
 	void laden_abschliessen();
 
+	void entferne(spieler_t *sp);
+
 	void zeige_info() {} // show no info
 };
 

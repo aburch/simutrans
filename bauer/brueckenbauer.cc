@@ -481,9 +481,9 @@ brueckenbauer_t::baue_auffahrt(karte_t *welt, spieler_t *sp, koord3d end, koord 
 		// here was a way before
 		weg->setze_besch(alter_weg->gib_besch());
 		weg->setze_ribi_maske( alter_weg->gib_ribi_maske() );
+		alter_boden->weg_entfernen(weg->gib_waytype(),false);
 		// take care of everything on that tile ...
 		bruecke->take_obj_from( alter_boden );
-		alter_boden->weg_entfernen(weg->gib_waytype(),false);
 	}
 	weg->setze_max_speed( besch->gib_topspeed() );
 	welt->access(end.gib_2d())->kartenboden_setzen( bruecke, false );
@@ -508,6 +508,8 @@ brueckenbauer_t::remove(karte_t *welt, spieler_t *sp, koord3d pos, waytype_t weg
 	slist_tpl<koord3d> part_list;
 	slist_tpl<koord3d> tmp_list;
 	const char    *msg;
+
+	const bruecke_besch_t *br_besch=dynamic_cast<bruecke_t *>(welt->lookup(pos)->suche_obj(ding_t::bruecke))->gib_besch();
 
 	// Erstmal das ganze Außmaß der Brücke bestimmen und sehen,
 	// ob uns was im Weg ist.
@@ -552,30 +554,24 @@ brueckenbauer_t::remove(karte_t *welt, spieler_t *sp, koord3d pos, waytype_t weg
 		}
 	} while(!tmp_list.is_empty());
 
-	const bruecke_besch_t *br_besch=dynamic_cast<bruecke_t *>(welt->lookup(tmp_list.at(0))->suche_obj(ding_t::bruecke))->gib_besch();
-
 	// Jetzt geht es ans löschen der Brücke
 	while(!part_list.is_empty()) {
 		pos = part_list.remove_first();
 
 		grund_t *gr = welt->lookup(pos);
-		sp->add_maintenance( gr->gib_weg_nr(0)->gib_besch()->gib_wartung());
 		sp->add_maintenance( -br_besch->gib_wartung() );
 
-		gr->weg_entfernen(wegtyp, false);
 		gr->remove_everything_from_way(sp,wegtyp,ribi_t::keine);	// removes stop and signals correctly
 		gr->obj_loesche_alle(sp);
-
+		gr->weg_entfernen(wegtyp, false);
 		welt->access(pos.gib_2d())->boden_entfernen(gr);
 		delete gr;
 
-		//  sp->buche(besch->gib_preis(), pos.gib_2d(), COST_CONSTRUCTION);
-
 		// finally delete all pillars (if there)
 		gr = welt->lookup(pos.gib_2d())->gib_kartenboden();
-		pillar_t *p;
-		while((p=dynamic_cast<pillar_t *>(gr->suche_obj(ding_t::pillar)))!=0) {
-			gr->obj_remove(p,sp);
+		ding_t *p;
+		while((p=(gr->suche_obj(ding_t::pillar)))!=0) {
+			p->entferne(sp);
 			delete p;
 		}
 	}
@@ -594,18 +590,17 @@ brueckenbauer_t::remove(karte_t *welt, spieler_t *sp, koord3d pos, waytype_t weg
 			ribi &= ~ribi_typ(gr->gib_weg_hang());
 		}
 		const weg_besch_t *weg_besch=gr->gib_weg(wegtyp)->gib_besch();
-		sp->add_maintenance( weg_besch->gib_wartung());
-		sp->add_maintenance( -br_besch->gib_wartung() );
-		delete gr->suche_obj(ding_t::bruecke);	// delete the bruecke
+
+		// delete the bruecke
+		ding_t *bruecke = gr->suche_obj(ding_t::bruecke);
+		bruecke->entferne( sp );
+		delete bruecke;
 
 		// take care of everything on that tile ... (zero is the bridge itself)
 		grund_t *gr_new = new boden_t(welt, pos,gr->gib_grund_hang());
+
+		// remove all ways, copy the rest ...
 		gr_new->take_obj_from( gr );
-
-		weg_t *weg = weg_t::alloc(wegtyp);
-		weg->setze_besch(weg_besch);
-
-		// remove all ways ...
 		if(gr->gib_weg_nr(1)) {
 			gr->weg_entfernen(gr->gib_weg_nr(1)->gib_waytype(), false);
 		}
@@ -613,6 +608,9 @@ brueckenbauer_t::remove(karte_t *welt, spieler_t *sp, koord3d pos, waytype_t weg
 
 		// Neuen Boden wieder mit Weg versehen
 		welt->access(pos.gib_2d())->kartenboden_setzen(gr_new, true);
+		weg_t *weg = weg_t::alloc(wegtyp);
+		weg->setze_besch(weg_besch);
+		sp->add_maintenance( weg_besch->gib_wartung());
 		gr_new->neuen_weg_bauen(weg, ribi, sp);
 		gr_new->calc_bild();
 	}

@@ -385,9 +385,9 @@ grund_t::~grund_t()
 		halt->rem_grund(this);
 		halt.unbind();
 	}
-	dinge.loesche_alle(NULL,offsets[flags/has_way1]);
+	dinge.loesche_alle(gib_besitzer(),offsets[flags/has_way1]);
 	if(flags&has_way1) {
-		dinge.loesche_alle(NULL,0);
+		dinge.loesche_alle(gib_besitzer(),0);
 	}
 }
 
@@ -395,10 +395,15 @@ grund_t::~grund_t()
 
 // moves all object from the old to the new grund_t
 void
-grund_t::take_obj_from( grund_t *gr)
+grund_t::take_obj_from( grund_t *other_gr)
 {
-	while(gr->first_obj()!=NULL) {
-		dinge.add( gr->obj_remove_top() );
+	const uint8 top=other_gr->gib_top();
+	for(  uint8 i=top;  i>0;  i--  ) {
+		ding_t *d=other_gr->obj_bei(i-1);
+		if(!d->is_way()) {
+			other_gr->obj_remove( d, NULL );
+			dinge.add( d );
+		}
 	}
 }
 
@@ -963,6 +968,7 @@ DBG_MESSAGE("grund_t::weg_entfernen()","weg %p",weg);
 		}
 
 		sint32 costs=weg->gib_besch()->gib_preis();	// costs for removal are construction costs
+		weg->entferne( NULL );
 		delete weg;
 
 		// delete the second way ...

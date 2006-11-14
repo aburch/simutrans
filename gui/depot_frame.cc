@@ -791,20 +791,25 @@ depot_frame_t::image_from_storage_list(gui_image_list_t::image_data_t *bild_data
 		// we buy/sell all vehicles together!
 		slist_tpl<const vehikel_besch_t *>new_vehicle_info;
 		const vehikel_besch_t * info = vehikelbauer_t::gib_info(bild_data->image);
-		// start of composition
-		while(1) {
-			if(info->gib_vorgaenger_count()!=1  ||  info->gib_vorgaenger(0)==NULL) {
-				break;
+
+		if(veh_action==va_insert  ||  veh_action==va_sell) {
+			// start of composition
+			while(1) {
+				if(info->gib_vorgaenger_count()!=1  ||  info->gib_vorgaenger(0)==NULL) {
+					break;
+				}
+				info = info->gib_vorgaenger(0);
 			}
-			info = info->gib_vorgaenger(0);
 		}
-		// not get the end ...
-		while(info) {
-			new_vehicle_info.append( info );
-			if(info->gib_nachfolger_count()!=1) {
-				break;
+		if(veh_action==va_append  ||  veh_action==va_sell) {
+			// not get the end ...
+			while(info) {
+				new_vehicle_info.append( info );
+				if(info->gib_nachfolger_count()!=1) {
+					break;
+				}
+				info = info->gib_nachfolger(0);
 			}
-			info = info->gib_nachfolger(0);
 		}
 
 		if(veh_action == va_sell) {

@@ -1777,7 +1777,7 @@ void karte_t::recalc_average_speed()
 	if(use_timeline()) {
 
 		char	buf[256];
-		for(int i=road_wt; i<air_wt; i++) {
+		for(int i=road_wt; i<=air_wt; i++) {
 			const vehikel_besch_t *info;
 			for(  int j=0;  (info = vehikelbauer_t::gib_info((waytype_t)i, j));  j++  ) {
 
