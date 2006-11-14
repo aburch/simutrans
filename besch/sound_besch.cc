@@ -61,12 +61,10 @@ sound_besch_t::init(const cstring_t & scenario_path)
 	for( unsigned i=0;  i<MAX_OLD_SOUNDS;  i++ ) {
 		compatible_sound_id[i] = NO_SOUND;
 	}
-	sound_path = scenario_path;
-	sound_path = sound_path + "sound/";
+	sound_path = scenario_path + "sound/";
 	// process sound.tab
-	cstring_t filename=scenario_path;
 	tabfile_t soundconf;
-	if(soundconf.open(filename + "sound/sound.tab")) {
+	if (soundconf.open(sound_path + "sound.tab")) {
 DBG_MESSAGE("sound_besch_t::init()","successfully opened sound/sound.tab"  );
 		tabfileobj_t contents;
 		soundconf.read(contents);
@@ -97,8 +95,7 @@ sound_besch_t::gib_sound_id(const char *name)
 	sound_ids *s = name_sound.get(name);
 	if((s==NULL  ||  s->id==NO_SOUND)  &&  *name!=0) {
 		// ty to load it ...
-		cstring_t fn(sound_path);
-		sint16 id  = dr_load_sample( fn+name );
+		sint16 id  = dr_load_sample(sound_path + name);
 		if(id!=NO_SOUND) {
 			s = new sound_ids(id,name);
 			name_sound.put(s->filename, s );
