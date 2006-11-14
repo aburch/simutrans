@@ -146,7 +146,7 @@ public:
 	short gib_bits_per_month() const {return bits_per_month;}
 
 	void setze_filename(const char *n) {filename=n;}	// prissi, Jun-06
-	const char *gib_filename() const {return filename.chars();}
+	const char* gib_filename() const { return filename; }
 
 	void setze_beginner_mode(bool yesno) {beginner_mode=yesno;}	// prissi, Aug-06
 	const bool gib_beginner_mode() const {return beginner_mode;}

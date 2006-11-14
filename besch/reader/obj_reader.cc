@@ -133,7 +133,7 @@ DBG_MESSAGE("obj_reader_t::init()","big logo %p", skinverwaltung_t::biglogosymbo
 		// and free all slots again ...
 		display_free_all_images_above(0);
 
-DBG_MESSAGE("obj_reader_t::init()","reading from '%s'", name.chars());
+DBG_MESSAGE("obj_reader_t::init()", "reading from '%s'", (const char*)name);
 		for(i=max;  i-->0; ) {
 			read_file(find.at(i));
 			if(((max-i)&teilung)==0  &&  drawing) {

@@ -498,7 +498,7 @@ extern "C" int simu_main(int argc, char** argv)
 		stadt_t::init();
 
 		// loading all paks
-		print("Reading object data from %s...\n", objfilename.chars());
+		print("Reading object data from %s...\n", (const char*)objfilename);
 		if (!obj_reader_t::init(objfilename)) {
 			fprintf(stderr, "reading object data failed.\n");
 			exit(11);
@@ -511,13 +511,13 @@ extern "C" int simu_main(int argc, char** argv)
 			/**
 			 * Added automatic adding of extension
 			 */
-			sprintf(buf, SAVE_PATH_X "%s", searchfolder_t::complete(gimme_arg(argc, argv, "-load", 1), "sve").chars());
+			sprintf(buf, SAVE_PATH_X "%s", (const char*)searchfolder_t::complete(gimme_arg(argc, argv, "-load", 1), "sve"));
 			loadgame = buf;
 			new_world = false;
 		}
 		else {
 			char buffer[256];
-			sprintf(buffer,"%sdemo.sve",objfilename.chars());
+			sprintf(buffer, "%sdemo.sve", (const char*)objfilename);
 			// access did not work!
 			FILE *f=fopen(objfilename+"demo.sve","rb");
 			if(f) {

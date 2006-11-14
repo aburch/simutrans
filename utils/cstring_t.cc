@@ -160,17 +160,6 @@ bool cstring_t::operator!= (const char *other) const
 
 
 /**
- * Automagic conversion to a const char* for backwards compatibility
- * @author Hj. Malthaner
- */
-cstring_t::operator const char *() const
-{
-    //printf("cstring_t::operator const char *() const\n");
-    return buf;
-}
-
-
-/**
  * @return Number of characters in this string
  * @author Hj. Malthaner
  */

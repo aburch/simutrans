@@ -1980,8 +1980,9 @@ haltestelle_t::rdwr(loadsave_t *file)
 				if(!gr) {
 					gr = welt->lookup(k.gib_2d())->gib_kartenboden();
 					dbg->warning("haltestelle_t::rdwr()", "invalid position %s (setting to ground %s)\n",
-					k3_to_cstr(k).chars(),
-					k3_to_cstr(gr->gib_pos()).chars());
+						(const char*)k3_to_cstr(k),
+						(const char*)k3_to_cstr(gr->gib_pos())
+					);
 				}
 				// prissi: now check, if there is a building -> we allow no longer ground without building!
 				gebaeude_t *gb = static_cast<gebaeude_t *>(gr->suche_obj(ding_t::gebaeude));
@@ -1990,7 +1991,7 @@ haltestelle_t::rdwr(loadsave_t *file)
 					add_grund(gr);
 				}
 				else {
-					dbg->warning("haltestelle_t::rdwr()", "will no longer add ground without building at %s!",k3_to_cstr(k).chars());
+					dbg->warning("haltestelle_t::rdwr()", "will no longer add ground without building at %s!", (const char*)k3_to_cstr(k));
 				}
 			}
 			else {

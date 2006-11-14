@@ -192,15 +192,15 @@ int  init_city_names(bool is_utf_language)
 	// @author prissi: first try in scenario
 	cstring_t local_file_name(szenario_path);
 	local_file_name = local_file_name+"text/citylist_"+translator::get_language_name_iso(translator::get_language()) + ".txt";
-DBG_DEBUG("translator::init_city_names()","try to read city name list '%s'",local_file_name.chars());
+DBG_DEBUG("translator::init_city_names()", "try to read city name list '%s'", (const char*)local_file_name);
 	file=fopen(local_file_name, "rb");
 DBG_DEBUG("translator::init_city_names()","file %p",file);fflush(NULL);
 	// not found => try usual location
 	if(file==NULL) {
 		cstring_t local_file_name("text/citylist_");
 		local_file_name = local_file_name+translator::get_language_name_iso(translator::get_language()) + ".txt";
-DBG_DEBUG("translator::init_city_names()","try to read city name list '%s'",local_file_name.chars());
-		file = fopen(local_file_name.chars(), "rb");
+DBG_DEBUG("translator::init_city_names()", "try to read city name list '%s'", (const char*)local_file_name);
+		file = fopen(local_file_name, "rb");
 	}
 DBG_DEBUG("translator::init_city_names()","file %p",file);
 
@@ -311,9 +311,9 @@ DBG_MESSAGE("translator::load()", "%d languages to load", num_lang_dat);
 
 		FILE *file = NULL;
 //		file = fopen(testFolderName + iso + ".tab", "rb");
-		file = fopen(fileName.chars(), "rb");
+		file = fopen(fileName, "rb");
 		if(file) {
-DBG_MESSAGE("translator::load()","base file \"%s\" - iso: \"%s\"",fileName.chars(),iso.chars());
+DBG_MESSAGE("translator::load()", "base file \"%s\" - iso: \"%s\"", (const char*)fileName, (const char*)iso);
 			load_language_iso(iso);
 			load_language_file(file);
 			fclose(file);
@@ -326,27 +326,27 @@ DBG_MESSAGE("translator::load()","base file \"%s\" - iso: \"%s\"",fileName.chars
 	// there can be more than one file per language, provided it is name like iso_xyz.tab
 	cstring_t folderName(scenario_path+"text/");
 	int num_pak_lang_dat = folder.search(folderName, "tab");
-DBG_MESSAGE("translator::load()","search folder \"%s\" and found %i files",folderName.chars(),num_pak_lang_dat);
+DBG_MESSAGE("translator::load()", "search folder \"%s\" and found %i files", (const char*)folderName, num_pak_lang_dat);
 	//read now the basic language infos
 	while(num_pak_lang_dat-->0) {
 		cstring_t fileName(folder.at(num_pak_lang_dat));
 		cstring_t iso = fileName.substr(fileName.find_back('/')+1, fileName.len()-4);
 
-		int iso_nr=get_language_iso(iso.chars());
+		int iso_nr = get_language_iso(iso);
 		if(iso_nr>=0) {
-DBG_MESSAGE("translator::load()","loading pak translations from %s for iso nr %i",fileName.chars(),iso_nr);
-			FILE *file = fopen(fileName.chars(), "rb");
+DBG_MESSAGE("translator::load()", "loading pak translations from %s for iso nr %i", (const char*)fileName, iso_nr);
+			FILE* file = fopen(fileName, "rb");
 			if(file) {
 				bool file_is_utf = is_unicode_file(file);
 				load_language_file_body(file, single_instance->languages[iso_nr], single_instance->language_is_utf_encoded[iso_nr], file_is_utf );
 				fclose(file);
 			}
 			else {
-				dbg->warning("translator::load()", "cannot open '%s'", fileName.chars());
+				dbg->warning("translator::load()", "cannot open '%s'", (const char*)fileName);
 			}
 		}
 		else {
-			dbg->warning("translator::load()", "no basic texts for language '%s'", iso.chars());
+			dbg->warning("translator::load()", "no basic texts for language '%s'", (const char*)iso);
 		}
 	}
 
@@ -392,12 +392,12 @@ DBG_MESSAGE("translator::load()","loading pak translations from %s for iso nr %i
 void translator::load_language_iso(cstring_t & iso)
 {
 	cstring_t base(iso);
-	single_instance->language_names_iso[single_instance->lang_count] = strdup(iso.chars());
+	single_instance->language_names_iso[single_instance->lang_count] = strdup(iso);
 	int loc = iso.find('_');
 	if(loc != -1) {
 		base = iso.left(loc);
 	}
-	single_instance->language_names_iso_base[single_instance->lang_count] = strdup(base.chars());
+	single_instance->language_names_iso_base[single_instance->lang_count] = strdup(base);
 }
 
 

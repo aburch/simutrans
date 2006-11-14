@@ -91,15 +91,7 @@ public:
      * Automagic conversion to a const char* for backwards compatibility
      * @author Hj. Malthaner
      */
-    operator const char *() const;
-
-
-    /**
-     * Varargs like printf(...)  don't work with automagic conversion
-     * so we need a explict conversion method
-     * @author Hj. Malthaner
-     */
-    const char * chars() const {return buf;};
+    operator const char*() const { return buf; }
 
     /**
      * vsprintf() for a string

@@ -799,9 +799,9 @@ DBG_DEBUG("karte_t::init()","Erzeuge stadt %i with %ld inhabitants",i,(s->get_ci
 		}
 
 		// Hajo: connect some cities with roads
-		const weg_besch_t * besch = wegbauer_t::gib_besch(umgebung_t::intercity_road_type->chars());
+		const weg_besch_t* besch = wegbauer_t::gib_besch(*umgebung_t::intercity_road_type);
 		if(besch == 0) {
-			dbg->warning("karte_t::init()","road type '%s' not found",umgebung_t::intercity_road_type->chars());
+			dbg->warning("karte_t::init()", "road type '%s' not found", (const char*)*umgebung_t::intercity_road_type);
 			// Hajo: try some default (might happen with timeline ... )
 			besch = wegbauer_t::weg_search(road_wt,80,get_timeline_year_month());
 		}
@@ -1800,7 +1800,7 @@ void karte_t::recalc_average_speed()
 		}
 
 		// city road check
-		const weg_besch_t *city_road_test = wegbauer_t::gib_besch(umgebung_t::city_road_type->chars(),get_timeline_year_month());
+		const weg_besch_t* city_road_test = wegbauer_t::gib_besch(*umgebung_t::city_road_type, get_timeline_year_month());
 		if(city_road_test) {
 			city_road = city_road_test;
 		}
@@ -1837,7 +1837,7 @@ void karte_t::recalc_average_speed()
 		average_speed[2] = 40;
 		average_speed[3] = 350;
 
-		city_road = wegbauer_t::gib_besch(umgebung_t::city_road_type->chars(),0);
+		city_road = wegbauer_t::gib_besch(*umgebung_t::city_road_type, 0);
 		if(city_road==NULL) {
 			city_road = wegbauer_t::weg_search(road_wt,30,0);
 		}
@@ -2737,7 +2737,8 @@ void karte_t::load_heightfield(einstellungen_t *sets)
   }
   else {
     dbg->error("karte_t::load_heightfield()",
-	       "Cant open file '%s'", sets->heightfield.chars());
+			"Cant open file '%s'", (const char*)sets->heightfield
+		);
 
     create_win(-1, -1, new nachrichtenfenster_t(this, "\nCan't open heightfield file.\n"), w_autodelete);
   }

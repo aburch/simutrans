@@ -94,7 +94,7 @@ int searchfolder_t::search(const char *filepath, const char *extension)
 #else
 	lookfor = path + ".";
 
-	DIR *dir = opendir(lookfor.chars());
+	DIR* dir = opendir(lookfor);
 	struct  dirent  *entry;
 
 	if(dir != NULL) {
@@ -103,9 +103,9 @@ int searchfolder_t::search(const char *filepath, const char *extension)
 		while((entry = readdir(dir)) != NULL) {
 			if(entry->d_name[0]!='.' || (entry->d_name[1]!='.' && entry->d_name[1]!=0)) {
 				int entry_len = strlen(entry->d_name);
-				if(strcasecmp(entry->d_name + entry_len - lookfor.len(), lookfor.chars()) == 0) {
+				if (strcasecmp(entry->d_name + entry_len - lookfor.len(), lookfor) == 0) {
 					char *c = (char *)guarded_malloc( entry_len+path.len()+1 );
-					sprintf(c,"%s%s",path.chars(),entry->d_name);
+					sprintf(c,"%s%s", (const char*)path, entry->d_name);
 					files.append(c);
 				}
 			}

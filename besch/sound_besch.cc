@@ -61,7 +61,7 @@ sound_besch_t::init(const cstring_t & scenario_path)
 	for( unsigned i=0;  i<MAX_OLD_SOUNDS;  i++ ) {
 		compatible_sound_id[i] = NO_SOUND;
 	}
-	sound_path = cstring_t(scenario_path.chars());
+	sound_path = scenario_path;
 	sound_path = sound_path + "sound/";
 	// process sound.tab
 	cstring_t filename=scenario_path;
