@@ -69,9 +69,7 @@ void halt_list_stats_t::zeichnen(koord offset)
 		display_fillbox_wh_clip(pos.x+offset.x+2, pos.y+offset.y+6, 26, INDICATOR_HEIGHT, halt->gib_status_farbe(), true);
 
 		// name
-		buf.clear();
-		buf.append(translator::translate(halt->gib_name()));
-		int left = pos.x+offset.x+32 + display_proportional_clip(pos.x+offset.x+32, pos.y+offset.y+2, buf, ALIGN_LEFT, COL_BLACK, true);
+		int left = pos.x + offset.x + 32 + display_proportional_clip(pos.x + offset.x + 32, pos.y + offset.y + 2, translator::translate(halt->gib_name()), ALIGN_LEFT, COL_BLACK, true);
 
 		// what kind of stop
 		halttype = halt->get_station_type();

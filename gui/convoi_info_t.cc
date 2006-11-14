@@ -230,9 +230,7 @@ convoi_info_t::zeichnen(koord pos, koord gr)
 		display_proportional( pos.x+11, pos.y+16+20, tmp, ALIGN_LEFT, COL_BLACK, true );
 
 		// next important: income stuff
-		info_buf.clear();
-		info_buf.append( translator::translate("Gewinn") );
-		int len = display_proportional( pos.x+11, pos.y+16+20+1*LINESPACE, info_buf, ALIGN_LEFT, COL_BLACK, true )+5;
+		int len = display_proportional(pos.x + 11, pos.y + 16 + 20 + 1 * LINESPACE, translator::translate("Gewinn"), ALIGN_LEFT, COL_BLACK, true ) + 5;
 		money_to_string( tmp, cnv->gib_jahresgewinn()/100.0 );
 		len += display_proportional( pos.x+11+len, pos.y+16+20+1*LINESPACE, tmp, ALIGN_LEFT, cnv->gib_jahresgewinn()>0?MONEY_PLUS:MONEY_MINUS, true )+5;
 		sprintf(tmp," (%1.2f$/km)", cnv->get_running_cost()/100.0 );
