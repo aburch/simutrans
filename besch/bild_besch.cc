@@ -18,9 +18,10 @@ bild_besch_t::copy_rotate(const sint16 angle) const
 {
 	assert(angle == 0 || (pic.w == pic.h && pic.x == 0 && pic.y == 0));
 
-	bild_besch_t *target_besch = (bild_besch_t *)guarded_malloc(pic.len * sizeof(PIXVAL) + sizeof(bild_besch_t));
-	memcpy(target_besch, this, pic.len * sizeof(PIXVAL) + sizeof(bild_besch_t));
+	bild_besch_t* target_besch = new(pic.len * sizeof(PIXVAL)) bild_besch_t();
+	target_besch->pic = pic;
 	target_besch->pic.bild_nr = IMG_LEER;
+	memcpy(target_besch->pic.data, pic.data, pic.len * sizeof(PIXVAL));
 
 	// the format is
 	// transparent PIXELVAL number
