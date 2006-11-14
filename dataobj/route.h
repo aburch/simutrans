@@ -38,8 +38,6 @@ private:
 
     vector_tpl <koord3d> route;           // Die Koordinaten fuer die Fahrtroute
 
-    karte_t *welt;
-
 public:
 	// this class save the nodes during route search
 	typedef class ANode {
@@ -66,8 +64,8 @@ public:
 	static void GET_NODE() {if(node_in_use){ dbg->fatal("GET_NODE","called while list in use");} node_in_use =1; }
 	static void RELEASE_NODE() {if(!node_in_use){ dbg->fatal("RELEASE_NODE","called while list free");} node_in_use =0; }
 #else
-	static void GET_NODE() {;}
-	static void RELEASE_NODE() {;}
+	static void GET_NODE() {}
+	static void RELEASE_NODE() {}
 #endif
 
 	static inline uint32 calc_distance( const koord3d p1, const koord3d p2 )
@@ -87,14 +85,14 @@ public:
      * @return Koordinate an index n
      * @author Hj. Malthaner
      */
-    const koord3d & position_bei(const unsigned int n) const { return route.get(n); };
+    const koord3d& position_bei(const unsigned int n) const { return route.get(n); }
 
 
     /**
      * @return letzer index in der Koordinatenliste
      * @author Hj. Malthaner
      */
-    sint32 gib_max_n() const { return ((signed int)route.get_count())-1; };
+    sint32 gib_max_n() const { return (int)route.get_count() - 1; }
 
 
 
@@ -128,7 +126,7 @@ public:
      * removes all tiles from the route
      * @author prissi
      */
-    void clear() { route.clear(); };
+    void clear() { route.clear(); }
 
     /**
      * removes all tiles behind this position

@@ -20,7 +20,6 @@
 #include "../boden/wege/weg.h"
 #include "../boden/grund.h"
 #include "../ifc/fahrer.h"
-static const void * block_tester=NULL;
 
 
 #include "loadsave.h"
@@ -575,7 +574,6 @@ route_t::calc_route(karte_t *welt,
                     const koord3d ziel, const koord3d start,
                     fahrer_t *fahr, const uint32 max_khm, const uint32 max_cost)
 {
-	block_tester = 0;
 	route.clear();
 
 	INT_CHECK("route 336");
