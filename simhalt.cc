@@ -14,10 +14,6 @@
  *
  * Hj. Malthaner
  */
-#ifdef _MSC_VER
-#include <string.h>
-#include <malloc.h> // for alloca
-#endif
 #include "simdebug.h"
 #include "simmem.h"
 #include "simplan.h"

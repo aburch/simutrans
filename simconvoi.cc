@@ -7,9 +7,6 @@
 
 #include <math.h>
 #include <stdlib.h>
-#ifdef _MSC_VER
-#include <malloc.h> // for alloca
-#endif
 
 #include "simdebug.h"
 #include "simworld.h"
