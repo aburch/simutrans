@@ -19,28 +19,6 @@ cbuffer_t::cbuffer_t(unsigned int cap)
 }
 
 
-/**
- * Creates a new cbuffer with capacity of the string rounded to next 256 bytes
- * @param cap the capacity
- * @author Hj. Malthaner
- */
-cbuffer_t::cbuffer_t(const char *str)
-{
-	if(str) {
-		size = strlen(str);
-		capacity = (size+256)&0x7FF0;
-		buf = new char[capacity];
-		strcpy( buf, str );
-	}
-	else {
-		capacity = 256;
-		size = 0;
-		buf = new char[capacity];
-		buf[0] = '\0';
-	}
-}
-
-
 cbuffer_t::~cbuffer_t()
 {
   delete [] buf;

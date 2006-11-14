@@ -58,7 +58,6 @@ class cbuffer_t
    * @author Hj. Malthaner
    */
   cbuffer_t(unsigned int size);
-  cbuffer_t(const char *);
   ~cbuffer_t();
 
 
