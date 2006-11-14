@@ -21,8 +21,6 @@
 
 class karte_t;
 
-template <class T> class vector_tpl;
-
 /**
  * Routen, zB für Fahrzeuge
  *
