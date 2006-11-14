@@ -28,14 +28,8 @@
 #include "../linehandle_t.h"
 
 
-class spieler_t;
-class button_t;
 class fahrplan_t;
-class kart_t;
 class spieler_t;
-class cbuffer_t;
-class convoi_t;
-class simline_t;
 struct event_t;
 
 /**
