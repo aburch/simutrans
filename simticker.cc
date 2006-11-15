@@ -62,17 +62,6 @@ int ticker_t::count() const
 
 /**
  * Add a message to the message list
- * @param pos  position of the event
- * @author Hj. Malthaner
- */
-void ticker_t::add_msg(const char *txt, koord pos)
-{
-  add_msg(txt, pos, COL_BLACK);
-}
-
-
-/**
- * Add a message to the message list
  * @param pos    position of the event
  * @param color  message color 
  * @author Hj. Malthaner

@@ -51,22 +51,13 @@ public:
 
     int count() const;
 
-
-    /**
-     * Add a message to the message list
-     * @param pos  position of the event
-     * @author Hj. Malthaner
-     */
-    void add_msg(const char *, koord pos);
-
-
     /**
      * Add a message to the message list
      * @param pos    position of the event
      * @param color  message color 
      * @author Hj. Malthaner
      */
-    void add_msg(const char *, koord pos, int color);
+    void add_msg(const char*, koord pos, int color = COL_BLACK);
 
 
     static ticker_t * get_instance();
