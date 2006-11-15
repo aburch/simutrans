@@ -40,7 +40,6 @@ ticker_t * ticker_t::get_instance()
 ticker_t::ticker_t()
 {
   list = new slist_tpl <ticker_t::node>;
-  iter = new slist_iterator_tpl <ticker_t::node> (list);
 
   next_pos = display_get_width();
   redraw_all = false;
@@ -51,9 +50,6 @@ ticker_t::~ticker_t()
 {
   delete list;
   list = 0;
-
-  delete iter;
-  iter = 0;
 }
 
 
@@ -61,36 +57,6 @@ ticker_t::~ticker_t()
 int ticker_t::count() const
 {
   return list->count();
-}
-
-
-const ticker_t::node * ticker_t::first()
-{
-  iter->begin(list);
-
-  if(iter->next()) {
-    return &(iter->get_current());
-  } else {
-    return 0;
-  }
-}
-
-
-const ticker_t::node * ticker_t::next()
-{
-  if(iter->next()) {
-    return &(iter->get_current());
-  } else {
-    return 0;
-  }
-}
-
-void ticker_t::pop()
-{
-  if(list->count() > 0) {
-//    node p = list->at(0);
-    list->remove_first();
-  }
 }
 
 

@@ -40,7 +40,6 @@ private:
     ticker_t();
 
     slist_tpl <node> * list;
-    slist_iterator_tpl <node> * iter;
     int next_pos;
 
     // true, if also trigger background need redraw
@@ -51,9 +50,6 @@ public:
     ~ticker_t();
 
     int count() const;
-
-    const node * first();
-    const node * next();
 
 
     /**
@@ -71,12 +67,6 @@ public:
      * @author Hj. Malthaner
      */
     void add_msg(const char *, koord pos, int color);
-
-
-    void pop();
-
-    void set_next_pos(int p) { next_pos  = p; }
-    void add_next_pos(int i) { next_pos += i; }
 
 
     static ticker_t * get_instance();
