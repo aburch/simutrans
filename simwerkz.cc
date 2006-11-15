@@ -476,7 +476,7 @@ DBG_MESSAGE("wkz_remover()",  "took out powerline");
 	msg = gr->kann_alle_obj_entfernen(sp);
 
 	// remove everything else ...
-	if(msg==NULL  &&  !(gr->ist_bruecke()  ||  gr->ist_tunnel())  &&  gr->obj_loesche_alle(sp)) {
+	if(msg==NULL  &&  !(gr->gib_typ()==grund_t::brueckenboden  ||  gr->gib_typ()==grund_t::tunnelboden)  &&  gr->obj_loesche_alle(sp)) {
 DBG_MESSAGE("wkz_remover()",  "removing everything from %d,%d,%d",gr->gib_pos().x, gr->gib_pos().y, gr->gib_pos().z);
 		// add the powerline again ...
 		if(lt) {
@@ -536,11 +536,7 @@ DBG_MESSAGE("wkz_remover()", "removing way");
 			// delete tunnel here ...
 			const tunnel_besch_t *besch = ((const tunnel_t *)(gr->suche_obj(ding_t::tunnel)))->gib_besch();
 			gr->obj_loesche_alle(sp);
-			if(gr->gib_besitzer()) {
-				sp->add_maintenance( gr->gib_weg_nr(0)->gib_besch()->gib_wartung());
-				sp->add_maintenance( -besch->gib_wartung() );
-			}
-			cost_sum += gr->weg_entfernen(gr->gib_weg_nr(0)->gib_waytype(), true);
+			cost_sum += gr->weg_entfernen(besch->gib_waytype(), true);
 			cost_sum += besch->gib_preis();
 		}
 	}

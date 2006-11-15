@@ -357,7 +357,7 @@ bool tunnelbauer_t::baue_tunnel(karte_t *welt, spieler_t *sp, koord3d start, koo
 	const weg_besch_t *weg_besch;
 	waytype_t wegtyp = besch->gib_waytype();
 
-DBG_MESSAGE("tunnelbauer_t::baue()","build from (%d,%d)", pos.x, pos.y);
+DBG_MESSAGE("tunnelbauer_t::baue()","build from (%d,%d,%d) to (%d,%d,%d) ", pos.x, pos.y, pos.z, end.x, end.y, end.z );
 
 	// get a way for enty/exit
 	weg = welt->lookup(start)->gib_weg(wegtyp);
@@ -376,7 +376,8 @@ DBG_MESSAGE("tunnelbauer_t::baue()","build from (%d,%d)", pos.x, pos.y);
 	pos = pos + zv;
 
 	// Now we build the invisible part
-	while(pos.gib_2d()!=end.gib_2d()) {
+	while(pos!=end) {
+		assert(pos.gib_2d()!=end.gib_2d());
 		tunnelboden_t *tunnel = new tunnelboden_t(welt, pos, 0);
 		// use the fastest way
 		weg = weg_t::alloc(besch->gib_waytype());
