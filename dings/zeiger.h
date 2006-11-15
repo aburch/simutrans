@@ -18,20 +18,20 @@ private:
 public:
     void setze_richtung(ribi_t::ribi r);
 
-    ribi_t::ribi gib_richtung() const {return richtung;};
+    ribi_t::ribi gib_richtung() const {return richtung;}
 
 
     zeiger_t(karte_t *welt, loadsave_t *file);
     zeiger_t(karte_t *welt, koord3d pos, spieler_t *sp);
 
     /**
-     * we want to be able to highlight the current tile .. thus we overlay this routine
+     * we want to be able to highlight the current tile .. thus only use this routine
      * @author Hj. Malthaner
      */
-    void setze_pos(koord3d k);
+    void change_pos(koord3d k);
 
-    const char *gib_name() const {return "Zeiger";};
-    enum ding_t::typ gib_typ() const {return zeiger;};
+    const char *gib_name() const {return "Zeiger";}
+    enum ding_t::typ gib_typ() const {return zeiger;}
 };
 
 #endif

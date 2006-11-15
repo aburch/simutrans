@@ -33,8 +33,9 @@ void
 karte_ansicht_t::display(bool force_dirty)
 {
 	const sint16 disp_width = display_get_width();
-	const sint16 disp_height = display_get_height() - 32 - 16 - (ticker_t::get_instance()->count() > 0 ? 16 : 0);
+	const sint16 disp_real_height = display_get_height();
 
+	const sint16 disp_height = display_get_height() - 32 - 16 - (ticker_t::get_instance()->count() > 0 ? 16 : 0);
 	display_setze_clip_wh( 0, 32, disp_width, disp_height );
 
 	// zuerst den boden zeichnen
@@ -45,18 +46,18 @@ karte_ansicht_t::display(bool force_dirty)
 	sint16 IMG_SIZE = get_tile_raster_width();
 
 	const int dpy_width = disp_width/IMG_SIZE + 2;
-	const int dpy_height = (disp_height*4)/IMG_SIZE;
+	const int dpy_height = (disp_real_height*4)/IMG_SIZE;
 
-	const int i_off = welt->gib_ij_off().x - disp_width/(2*IMG_SIZE) - disp_height/IMG_SIZE;
-	const int j_off = welt->gib_ij_off().y + disp_width/(2*IMG_SIZE) - disp_height/IMG_SIZE;
+	const int i_off = welt->gib_ij_off().x - disp_width/(2*IMG_SIZE) - disp_real_height/IMG_SIZE;
+	const int j_off = welt->gib_ij_off().y + disp_width/(2*IMG_SIZE) - disp_real_height/IMG_SIZE;
 	const int const_x_off = welt->gib_x_off();
 	const int const_y_off = welt->gib_y_off();
 
 	// these are the values needed to go directly from a tile to the display
 	welt->setze_ansicht_ij_offset(
 		koord(
-	- disp_width/(2*IMG_SIZE) - disp_height/IMG_SIZE,
-	disp_width/(2*IMG_SIZE) - disp_height/IMG_SIZE
+	- disp_width/(2*IMG_SIZE) - disp_real_height/IMG_SIZE,
+	disp_width/(2*IMG_SIZE) - disp_real_height/IMG_SIZE
 //			(disp_width/(2*IMG_SIZE))*2*(IMG_SIZE/2) + welt->gib_x_off(), // x-y
 //			(disp_height/IMG_SIZE)*2*(IMG_SIZE/4) + welt->gib_y_off()// + (IMG_SIZE/2) + ((display_get_width()/IMG_SIZE)&1)*(IMG_SIZE/4)
 		) );
@@ -121,13 +122,12 @@ karte_ansicht_t::display(bool force_dirty)
 	// finally display the maus pointer
 	ding_t *zeiger = welt->gib_zeiger();
 	if(zeiger) {
-		int i = (zeiger->gib_pos().x-i_off)*2;
-		int j = (zeiger->gib_pos().y-j_off)*2;
-		int x = (i-j)>>1;
-		int y = (i+j)>>1;
-		const int ypos = y*(IMG_SIZE/4) + 16 + welt->gib_y_off() + ((display_get_width()/IMG_SIZE)&1)*(IMG_SIZE/4);
-		const int xpos = x*(IMG_SIZE/2) +  const_x_off;
-		zeiger->display( xpos, ypos - tile_raster_scale_y( zeiger->gib_pos().z, IMG_SIZE), true);
+		// better not try to twist your brain to follow the retransformation ...
+		const sint16 rasterweite=get_tile_raster_width();
+		const koord diff = zeiger->gib_pos().gib_2d()-welt->gib_ij_off()-welt->gib_ansicht_ij_offset();
+		const sint16 x = (diff.x-diff.y)*(rasterweite/2) + tile_raster_scale_x(zeiger->gib_xoff(), rasterweite);
+		const sint16 y = (diff.x+diff.y)*(rasterweite/4) + tile_raster_scale_y( zeiger->gib_yoff()-zeiger->gib_pos().z, rasterweite) + ((display_get_width()/rasterweite)&1)*(rasterweite/4);
+		zeiger->display( x+welt->gib_x_off(), y+welt->gib_y_off(), true);
 		zeiger->clear_flag(ding_t::dirty);
 	}
 

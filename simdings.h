@@ -341,7 +341,7 @@ public:
 	inline koord3d gib_pos() const {return pos;}
 
 	// only zeiger_t overlays this function, so virtual definition is overkill
-	void setze_pos(koord3d k) { if(k!=pos) { set_flag(dirty); pos = k;} }
+	inline void setze_pos(koord3d k) { if(k!=pos) { set_flag(dirty); pos = k;} }
 
 	/**
 	 * @return Einen Beschreibungsstring für das Objekt, der z.B. in einem

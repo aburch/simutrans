@@ -134,8 +134,8 @@ uint32 karte_t::ticks_bits_per_tag = 20;
 uint32 karte_t::ticks_per_tag = (1 << 20);
 
 // offsets for mouse pointer
-const int karte_t::Z_PLAN      = 0;
-const int karte_t::Z_GRID      = -12;
+const int karte_t::Z_PLAN      = 4;
+const int karte_t::Z_GRID      = 0;
 
 
 
@@ -1359,24 +1359,26 @@ karte_t::setze_maus_funktion(int (* funktion)(spieler_t *, karte_t *, koord, val
 {
     // gibt es eien neue funktion ?
     if(funktion != NULL) {
-	// gab es eine alte funktion ?
-	if(mouse_funk != NULL) {
-	    mouse_funk(get_active_player(), this, EXIT, mouse_funk_param);
-	}
+		// gab es eine alte funktion ?
+		if(mouse_funk != NULL) {
+		    mouse_funk(get_active_player(), this, EXIT, mouse_funk_param);
+		}
 
-	struct sound_info info;
-	info.index = SFX_SELECT;
-	info.volume = 255;
-	info.pri = 0;
-	sound_play(info);
+		struct sound_info info;
+		info.index = SFX_SELECT;
+		info.volume = 255;
+		info.pri = 0;
+		sound_play(info);
 
-	mouse_funk = funktion;
-	mouse_funk_param = param;
-	zeiger->setze_yoff(zeiger_versatz);
-	zeiger->setze_bild(0, zeiger_bild);
-	zeiger->set_flag(ding_t::dirty);
+		mouse_funk = funktion;
+		mouse_funk_param = param;
+		koord3d zpos = zeiger->gib_pos();
+		zeiger->change_pos( koord3d::invalid );
+		zeiger->setze_yoff(zeiger_versatz);
+		zeiger->setze_bild(0, zeiger_bild);
+		zeiger->change_pos( zpos );
 
-	mouse_funk(get_active_player(), this, INIT, mouse_funk_param);
+		mouse_funk(get_active_player(), this, INIT, mouse_funk_param);
     }
 
     mouse_funk_ok_sound = ok_sound;
@@ -2866,7 +2868,7 @@ void karte_t::bewege_zeiger(const event_t *ev)
 		const int i_off = gib_ij_off().x+gib_ansicht_ij_offset().x;
 		const int j_off = gib_ij_off().y+gib_ansicht_ij_offset().y;
 
-				for(int n = 0; n < 2; n++) {
+		for(int n = 0; n < 2; n++) {
 
 			const int base_i = (screen_x+screen_y + tile_raster_scale_y(hgt,rw1) )/2;
 			const int base_j = (screen_y-screen_x + tile_raster_scale_y(hgt,rw1))/2;
@@ -2912,7 +2914,6 @@ void karte_t::bewege_zeiger(const event_t *ev)
 
 
 		// zeiger bewegen
-
 		if(mi >= 0 && mj >= 0 && mi<gib_groesse_x() && mj<gib_groesse_y() && (mi != i_alt || mj != j_alt)) {
 
 			i_alt = mi;
@@ -2934,7 +2935,7 @@ void karte_t::bewege_zeiger(const event_t *ev)
 					// pos.z = max_hgt(koord(mi,mj));
 				}
 			}
-			zeiger->setze_pos(pos);
+			zeiger->change_pos(pos);
 		}
 	}
 }
@@ -3093,13 +3094,13 @@ karte_t::interactive_event(event_t &ev)
 	    break;
 	case 'g':
 	    if(skinverwaltung_t::senke) {
-		setze_maus_funktion(wkz_senke, skinverwaltung_t::undoc_zeiger->gib_bild_nr(0), Z_PLAN,  NO_SOUND, NO_SOUND );
+			setze_maus_funktion(wkz_senke, skinverwaltung_t::undoc_zeiger->gib_bild_nr(0), Z_PLAN,  NO_SOUND, NO_SOUND );
 	    }
 	    break;
 
 	case 'H':
 	    if(hausbauer_t::headquarter.count()>0) {
-		setze_maus_funktion(wkz_headquarter, skinverwaltung_t::undoc_zeiger->gib_bild_nr(0), Z_PLAN, SFX_JACKHAMMER, SFX_FAILURE);
+			setze_maus_funktion(wkz_headquarter, skinverwaltung_t::undoc_zeiger->gib_bild_nr(0), Z_PLAN, SFX_JACKHAMMER, SFX_FAILURE);
 	    }
 	    break;
 

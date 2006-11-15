@@ -16,25 +16,24 @@
 
 zeiger_t::zeiger_t(karte_t *welt, loadsave_t *file) : ding_t(welt)
 {
-  richtung = ribi_t::alle;
-
-  rdwr(file);
-  step_frequency = 0;
+	richtung = ribi_t::alle;
+	rdwr(file);
+	step_frequency = 0;
 }
 
 
 zeiger_t::zeiger_t(karte_t *welt, koord3d pos, spieler_t *sp) :
     ding_t(welt, pos)
 {
-  setze_besitzer( sp );
-  setze_bild(0, 30);
-  step_frequency = 0;
-  richtung = ribi_t::alle;
+	setze_besitzer( sp );
+//	setze_bild( IMG_LEER, 30 );
+	step_frequency = 0;
+	richtung = ribi_t::alle;
 }
 
 
 void
-zeiger_t::setze_pos(koord3d k)
+zeiger_t::change_pos(koord3d k)
 {
 	if(k!=gib_pos()) {
 		mark_image_dirty( gib_bild(), 0 );
@@ -59,4 +58,4 @@ zeiger_t::setze_richtung(ribi_t::ribi r)
 	if(richtung != r) {
 		richtung = r;
 	}
-};
+}
