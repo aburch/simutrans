@@ -64,7 +64,7 @@ template <class T> class quickstone_tpl
     // no free entry found, can't continue
 	dbg->fatal("quickstone<T>::find_next()","no free index found (size=%i)",size);
 	return 0; //dummy for compiler
-  };
+  }
 
 
 
@@ -97,12 +97,12 @@ template <class T> class quickstone_tpl
     }
 
     next = 1;
-  };
+  }
 
 
   quickstone_tpl() {
     entry = 0;
-  };
+  }
 
 
   quickstone_tpl(T* p) {
@@ -113,7 +113,7 @@ template <class T> class quickstone_tpl
       // all NULL pointers are mapped to entry 0
       entry = 0;
     }
-  };
+  }
 
 
   /**
@@ -123,7 +123,7 @@ template <class T> class quickstone_tpl
    */
   quickstone_tpl(const quickstone_tpl& r) : entry(r.entry)
   {
-  };
+  }
 
 
   /**
@@ -136,17 +136,17 @@ template <class T> class quickstone_tpl
   {
     entry = other.entry;
     return *this;
-  };
+  }
 
 
   bool is_bound() const {
     return data[entry] != 0;
-  };
+  }
 
 
   void unbind() {
     entry = 0;
-  };
+  }
 
 
   /**
@@ -158,7 +158,7 @@ template <class T> class quickstone_tpl
     T* p = data[entry];
     data[entry] = 0;
     return p;
-  };
+  }
 
 
   /**
@@ -172,7 +172,7 @@ template <class T> class quickstone_tpl
    */
   T* get_rep() const {
     return data[entry];
-  };
+  }
 
 
   /**
@@ -181,7 +181,7 @@ template <class T> class quickstone_tpl
    */
   uint16 get_id() const {
     return entry;
-  };
+  }
 
 
   /**
@@ -192,16 +192,16 @@ template <class T> class quickstone_tpl
    */
   T* operator->() const {
     return data[entry];
-  };
+  }
 
 
   bool operator== (const quickstone_tpl<T> &other) const {
     return entry == other.entry;
-  };
+  }
 
   bool operator!= (const quickstone_tpl<T> &other) const {
     return entry != other.entry;
-  };
+  }
 
 };
 

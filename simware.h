@@ -46,14 +46,14 @@ public:
     sint32 menge;
     sint32 max;
 
-    koord gib_ziel() const {return ziel;};
-    void setze_ziel(koord ziel) {this->ziel = ziel;};
+    koord gib_ziel() const { return ziel; }
+    void setze_ziel(koord ziel) { this->ziel = ziel; }
 
-    koord gib_zwischenziel() const {return zwischenziel;};
-    void setze_zwischenziel(koord zwischenziel) {this->zwischenziel = zwischenziel;};
+    koord gib_zwischenziel() const { return zwischenziel; }
+    void setze_zwischenziel(koord zwischenziel) { this->zwischenziel = zwischenziel; }
 
-    koord gib_zielpos() const {return zielpos;};
-    void setze_zielpos(koord zielpos) {this->zielpos = zielpos;};
+    koord gib_zielpos() const { return zielpos; }
+    void setze_zielpos(koord zielpos) { this->zielpos = zielpos; }
 
     ware_t();
     ware_t(const ware_besch_t *typ);
@@ -71,8 +71,8 @@ public:
     int gib_catg() const;
 
 
-    inline const ware_besch_t *gib_typ() const { return type; };
-    inline void setze_typ( const ware_besch_t *type ) { this->type = type; };
+    inline const ware_besch_t* gib_typ() const { return type; }
+    inline void setze_typ(const ware_besch_t* type) { this->type = type; }
 
     void rdwr(loadsave_t *file);
 

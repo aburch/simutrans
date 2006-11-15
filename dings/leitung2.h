@@ -38,8 +38,8 @@ protected:
 	void replace(koord base_pos, powernet_t *alt, powernet_t *neu);
 
 public:
-	powernet_t * get_net() const {return net;};
-	void set_net(powernet_t *p) {net=p;};
+	powernet_t* get_net() const { return net; }
+	void set_net(powernet_t* p) { net = p; }
 
 	ribi_t::ribi gib_ribi();
 

@@ -24,10 +24,10 @@ protected:
     wolke_t(karte_t *welt, koord3d pos, int xoff, int yoff, image_id bild);
 
 public:
-    inline sint32 gib_insta_zeit() const {return insta_zeit;};
+    inline sint32 gib_insta_zeit() const { return insta_zeit; }
 
-    const char *gib_name() const {return "Wolke";};
-    enum ding_t::typ gib_typ() const {return wolke;};
+    const char* gib_name() const { return "Wolke"; }
+    enum ding_t::typ gib_typ() const { return wolke; }
 
     void zeige_info() {} // show no info
 
@@ -72,7 +72,7 @@ public:
 	async_wolke_t(karte_t *welt, koord3d pos, int xoff, int yoff, image_id bild);
 
 	bool step(long delta_t);
-	enum ding_t::typ gib_typ() const {return async_wolke;};
+	enum ding_t::typ gib_typ() const { return async_wolke; }
 };
 
 #endif

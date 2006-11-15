@@ -129,7 +129,7 @@ public:
     void show_line_selector(bool yesno) {
     	line_selector.set_visible(yesno);
     	lb_line.set_visible(yesno);
-    };
+    }
 
 	void get_fpl_text(cbuffer_t & buf);
 

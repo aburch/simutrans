@@ -46,7 +46,7 @@ private:
       cstring_t param;
       hyperlink_t * next;
 
-      hyperlink_t() {next = 0;};
+      hyperlink_t() { next = 0; }
     };
 
 

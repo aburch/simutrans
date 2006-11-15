@@ -141,15 +141,15 @@ public:
      * @param halt der zu prüfende Zeiger
      * @author Hj. Malthaner
      */
-    static bool pruefe_zeiger(halthandle_t halt) {return alle_haltestellen.contains( halt );};
+    static bool pruefe_zeiger(halthandle_t halt) { return alle_haltestellen.contains(halt); }
 
-    static const slist_tpl<halthandle_t> & gib_alle_haltestellen() {return alle_haltestellen;};
+    static const slist_tpl<halthandle_t>& gib_alle_haltestellen() { return alle_haltestellen; }
 
     /**
      * @return die Anzahl der Haltestellen
      * @author Hj. Malthaner
      */
-    static int gib_anzahl() {return alle_haltestellen.count();};
+    static int gib_anzahl() { return alle_haltestellen.count(); }
 
 
     /**
@@ -234,9 +234,9 @@ private:
 	/* station flags (most what enabled) */
 	uint8 enables;
 
-    void set_pax_enabled(bool yesno) {yesno ? enables|=PAX : enables&=(~PAX);};
-    void set_post_enabled(bool yesno) {yesno ? enables|=POST : enables&=(~POST);};
-    void set_ware_enabled(bool yesno) {yesno ? enables|=WARE : enables&=(~WARE);};
+    void set_pax_enabled(bool yesno)  { yesno ? enables |= PAX  : enables &= ~PAX;  }
+    void set_post_enabled(bool yesno) { yesno ? enables |= POST : enables &= ~POST; }
+    void set_ware_enabled(bool yesno) { yesno ? enables |= WARE : enables &= ~WARE; }
 
     /**
      * Found route and station uncrowded
@@ -318,7 +318,7 @@ public:
      * Calculates a status color for status bars
      * @author Hj. Malthaner
      */
-    int gib_status_farbe() const {return status_color; };
+    int gib_status_farbe() const { return status_color; }
 
 
     /**
@@ -352,7 +352,7 @@ public:
 
 	const slist_tpl<ware_t> * gib_warenliste(const ware_besch_t *ware) { return waren.get(ware); }
 
-    const slist_tpl<fabrik_t*> & gib_fab_list() const {return fab_list;};
+    const slist_tpl<fabrik_t*>& gib_fab_list() const { return fab_list; }
 
 
     /**
@@ -369,7 +369,7 @@ public:
     void neuer_monat();
 
 
-    karte_t *gib_welt() const {return welt;};
+    karte_t* gib_welt() const { return welt; }
 
 
     /**
@@ -389,9 +389,9 @@ public:
 	 */
 	bool is_connected(const halthandle_t halt, const ware_besch_t * wtyp);
 
-    int get_pax_enabled() const { return enables&PAX;};
-    int get_post_enabled() const { return enables&POST;};
-    int get_ware_enabled() const { return enables&WARE;};
+    int get_pax_enabled()  const { return enables & PAX;  }
+    int get_post_enabled() const { return enables & POST; }
+    int get_ware_enabled() const { return enables & WARE; }
 
 	// check, if we accepts this good
 	// often called, thus inline ...
@@ -423,13 +423,13 @@ public:
      */
     void add_pax_unhappy(int n);
 
-    int get_pax_happy() const {return pax_happy;};
-    int get_pax_no_route() const {return pax_no_route;};
-    int get_pax_unhappy() const {return pax_unhappy;};
+    int get_pax_happy()    const { return pax_happy;    }
+    int get_pax_no_route() const { return pax_no_route; }
+    int get_pax_unhappy()  const { return pax_unhappy;  }
 
 
 #ifdef LAGER_NOT_IN_USE
-    void setze_lager(lagerhaus_t *l) {lager = l;};
+    void setze_lager(lagerhaus_t* l) { lager = l; }
 #endif
     bool add_grund(grund_t *gb);
     void rem_grund(grund_t *gb);
@@ -581,7 +581,7 @@ public:
      * (combination of: railstation, loading bay, dock)
      * @author Markus Weber
      */
-    stationtyp get_station_type() const {return station_type; };
+    stationtyp get_station_type() const { return station_type; }
     void recalc_station_type();
 
 
@@ -629,16 +629,16 @@ public:
      * return a pointer to the financial history
      * @author hsiegeln
      */
-    sint64* get_finance_history() { return *financial_history; };
+    sint64* get_finance_history() { return *financial_history; }
 
     /**
      * return a specified element from the financial history
      * @author hsiegeln
      */
-    sint64 get_finance_history(int month, int cost_type) { return financial_history[month][cost_type]; };
+    sint64 get_finance_history(int month, int cost_type) { return financial_history[month][cost_type]; }
 
 	// flags station for a crowded message at the beginning of next month
-	void bescheid_station_voll() { enables|=CROWDED; };
+	void bescheid_station_voll() { enables |= CROWDED; }
 };
 
 #endif

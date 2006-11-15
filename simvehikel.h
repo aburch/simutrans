@@ -183,7 +183,7 @@ protected:
 	sint16 current_friction;
 
 	void setze_speed_limit(int limit);
-	sint32 get_speed_limit() { return speed_limit; };
+	sint32 get_speed_limit() { return speed_limit; }
 
 	/**
 	* Current index on the route
@@ -247,7 +247,7 @@ public:
 	* gibt das Basisbild zurueck
 	* @author Hj. Malthaner
 	*/
-	int gib_basis_bild() const {return besch->gib_basis_bild();};
+	int gib_basis_bild() const { return besch->gib_basis_bild(); }
 
 	/**
 	* @return vehicle description object
@@ -259,7 +259,7 @@ public:
 	* @return die Betriebskosten in Cr/100Km
 	* @author Hj. Malthaner
 	*/
-	int gib_betriebskosten() const {return besch->gib_betriebskosten();};
+	int gib_betriebskosten() const { return besch->gib_betriebskosten(); }
 
 	/**
 	* spielt den Sound, wenn das Vehikel sichtbar ist
@@ -327,17 +327,17 @@ public:
 	*/
 	ribi_t::ribi richtung();
 
-	inline const int gib_speed() const {return kmh_to_speed(besch->gib_geschw());};
+	inline const int gib_speed() const { return kmh_to_speed(besch->gib_geschw()); }
 
 	/* return friction constant: changes in hill and curves; may even negative downhill *
 	* @author prissi
 	*/
-	inline const int gib_frictionfactor() const {return current_friction;};
+	inline const int gib_frictionfactor() const { return current_friction; }
 
 	/* Return total weight including freight*
 	* @author prissi
 	*/
-	inline const int gib_gesamtgewicht() const {return sum_weight;};
+	inline const int gib_gesamtgewicht() const { return sum_weight; }
 
 	const slist_tpl<ware_t> & gib_fracht() const { return fracht;}   // liste der gerade transportierten güter
 
@@ -357,7 +357,7 @@ public:
 	/**
 	* setzt den typ der beförderbaren ware
 	*/
-	const ware_besch_t *gib_fracht_typ() const {return besch->gib_ware();};
+	const ware_besch_t* gib_fracht_typ() const { return besch->gib_ware(); }
 
 	/**
 	* setzt die maximale Kapazitaet
@@ -446,7 +446,7 @@ protected:
 public:
 	virtual void betrete_feld();
 
-	virtual waytype_t gib_waytype() const { return road_wt; };
+	virtual waytype_t gib_waytype() const { return road_wt; }
 
 	automobil_t(karte_t *welt, loadsave_t *file);
 	automobil_t(karte_t *welt, koord3d pos, const vehikel_besch_t *besch, spieler_t *sp, convoi_t *cnv); // start und fahrplan
@@ -463,7 +463,7 @@ public:
 	// returns true for the way search to an unknown target.
 	virtual bool ist_ziel(const grund_t *,const grund_t *) const;
 
-	ding_t::typ gib_typ() const {return automobil;};
+	ding_t::typ gib_typ() const { return automobil; }
 
 	fahrplan_t * erzeuge_neuen_fahrplan() const;
 
@@ -490,7 +490,7 @@ protected:
 	void betrete_feld();
 
 public:
-	virtual waytype_t gib_waytype() const { return track_wt; };
+	virtual waytype_t gib_waytype() const { return track_wt; }
 
 	// since we might need to unreserve previously used blocks, we must do this before calculation a new route
 	bool calc_route(karte_t * welt, koord3d start, koord3d ziel, uint32 max_speed, route_t * route);
@@ -511,7 +511,7 @@ public:
 
 	void verlasse_feld();
 
-	enum ding_t::typ gib_typ() const {return waggon;};
+	enum ding_t::typ gib_typ() const { return waggon; }
 
 	waggon_t(karte_t *welt, loadsave_t *file);
 	waggon_t(karte_t *welt, koord3d pos, const vehikel_besch_t *besch, spieler_t *sp, convoi_t *cnv); // start und fahrplan
@@ -542,7 +542,7 @@ public:
 	monorail_waggon_t(karte_t *welt, koord3d pos, const vehikel_besch_t *besch, spieler_t *sp, convoi_t *cnv) : waggon_t(welt, pos, besch, sp, cnv ) {}
 	~monorail_waggon_t() {}
 
-	enum ding_t::typ gib_typ() const {return monorailwaggon;};
+	enum ding_t::typ gib_typ() const { return monorailwaggon; }
 
 	fahrplan_t * erzeuge_neuen_fahrplan() const;
 };
@@ -560,14 +560,14 @@ class schiff_t : public vehikel_t
 {
 protected:
 	// how expensive to go here (for way search)
-	virtual int gib_kosten(const grund_t *,const uint32) const {return 1; };
+	virtual int gib_kosten(const grund_t*, const uint32) const { return 1; }
 
 	void calc_akt_speed(const grund_t *gr);
 
 	bool ist_befahrbar(const grund_t *bd) const;
 
 public:
-	waytype_t gib_waytype() const { return water_wt; };
+	waytype_t gib_waytype() const { return water_wt; }
 
 	virtual bool ist_weg_frei(int &restart_speed);
 
@@ -577,7 +577,7 @@ public:
 	schiff_t(karte_t *welt, loadsave_t *file);
 	schiff_t(karte_t *welt, koord3d pos, const vehikel_besch_t *besch, spieler_t *sp, convoi_t *cnv); // start und fahrplan
 
-	ding_t::typ gib_typ() const {return schiff;};
+	ding_t::typ gib_typ() const { return schiff; }
 
 	fahrplan_t * erzeuge_neuen_fahrplan() const;
 
@@ -624,7 +624,7 @@ protected:
 	bool find_route_to_stop_position();
 
 public:
-    virtual waytype_t gib_waytype() const { return air_wt; };
+    virtual waytype_t gib_waytype() const { return air_wt; }
 
 	// returns true for the way search to an unknown target.
 	virtual bool ist_ziel(const grund_t *,const grund_t *) const;
@@ -641,7 +641,7 @@ public:
 
 	bool calc_route(karte_t * welt, koord3d start, koord3d ziel, uint32 max_speed, route_t * route);
 
-    enum ding_t::typ gib_typ() const {return aircraft;};
+    enum ding_t::typ gib_typ() const { return aircraft; }
 
     aircraft_t(karte_t *welt, loadsave_t *file);
     aircraft_t(karte_t *welt, koord3d pos, const vehikel_besch_t *besch, spieler_t *sp, convoi_t *cnv); // start und fahrplan

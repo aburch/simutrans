@@ -141,7 +141,7 @@ private:
 
 	vector_tpl<koord3d> *route;
 
-	inline const koord3d position_bei(unsigned i) const { return route->get(i); };
+	inline const koord3d position_bei(unsigned i) const { return route->get(i); }
 
 	// allowed owner?
 	bool check_owner( const spieler_t *sp1, const spieler_t *sp2 );
@@ -185,7 +185,7 @@ private:
 	void baue_leitung();
 
 public:
-	koord gib_route_bei(int i) const {return route->at(i).gib_2d();};
+	koord gib_route_bei(int i) const { return route->at(i).gib_2d(); }
 
 	int n, max_n;
 
@@ -207,7 +207,7 @@ public:
 	/* Always keep city roads (for AI)
 	 * @author prissi
 	 */
-	void set_keep_city_roads(bool yesno) {keep_existing_city_roads=yesno;};
+	void set_keep_city_roads(bool yesno) { keep_existing_city_roads = yesno; }
 
 	void route_fuer(enum bautyp_t wt, const weg_besch_t * besch, const tunnel_besch_t *tunnel_besch=NULL, const bruecke_besch_t *bruecke_besch=NULL);
 

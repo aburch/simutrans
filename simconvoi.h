@@ -332,7 +332,7 @@ private:
 	koord3d home_depot;
 
 public:
-	route_t * get_route() { return &route; };
+	route_t* get_route() { return &route; }
 
 	/**
 	* Checks if this convoi has a driveable route
@@ -426,7 +426,7 @@ public:
 	* @return Current map.
 	* @author Hj. Malthaner
 	*/
-	karte_t * gib_welt() {return welt;};
+	karte_t* gib_welt() { return welt; }
 
 	/**
 	* Gibt Namen des Convois zurück.
@@ -475,7 +475,7 @@ public:
 	*         actual currently set speed.
 	* @author Hj. Malthaner
 	*/
-	const int &gib_akt_speed() const {return akt_speed;};
+	const int& gib_akt_speed() const { return akt_speed; }
 
 	/**
 	* @return total power of this convoi
@@ -555,7 +555,7 @@ public:
 	* @return Vehicle count
 	* @author Hj. Malthaner
 	*/
-	const unsigned int gib_vehikel_anzahl() const {return anz_vehikel;};
+	const unsigned int gib_vehikel_anzahl() const { return anz_vehikel; }
 
 	/**
 	* @return Vehicle at position i or NULL if the is not vehicle at i
@@ -587,7 +587,7 @@ public:
 	* @return Current schedule
 	* @author Hj. Malthaner
 	*/
-	fahrplan_t * gib_fahrplan() const {return fpl;};
+	fahrplan_t* gib_fahrplan() const { return fpl; }
 
 	/**
 	* Creates a new schedule if there isn't one already.

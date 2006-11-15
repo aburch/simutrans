@@ -75,8 +75,8 @@ public:
 
     void pop();
 
-    void set_next_pos(int p) {next_pos = p;};
-    void add_next_pos(int i) {next_pos += i;};
+    void set_next_pos(int p) { next_pos  = p; }
+    void add_next_pos(int i) { next_pos += i; }
 
 
     static ticker_t * get_instance();

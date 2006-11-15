@@ -38,16 +38,16 @@ public:
         return ziel!=wz.gib_ziel()  ||  typ!=wz.gib_typ();
     }
 
-    warenziel_t() {typ = 0;};
+    warenziel_t() { typ = 0; }
 
     warenziel_t(koord ziel, const ware_besch_t *b);
 
     warenziel_t(loadsave_t *file);
 
-    void setze_ziel(koord z) {ziel=z;};
-    const koord & gib_ziel() const {return ziel;};
+    void setze_ziel(koord z) { ziel = z; }
+    const koord& gib_ziel() const { return ziel; }
 
-    const ware_besch_t * gib_typ() const {return typ;};
+    const ware_besch_t* gib_typ() const { return typ; }
 
     void rdwr(loadsave_t *file);
 

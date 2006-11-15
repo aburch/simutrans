@@ -106,7 +106,7 @@ public:
 	bool gib_close() const {return close;}
 	bool gib_quit() const {return false;}
 
-	einstellungen_t *gib_sets() const {return sets;};
+	einstellungen_t* gib_sets() const { return sets; }
 
 	/**
 	 * Events werden hiermit an die GUI-Komponenten

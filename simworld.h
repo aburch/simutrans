@@ -330,13 +330,13 @@ public:
 	 * Absoluter Monat
 	 * @author prissi
 	 */
-	inline uint32 get_last_month() const { return letzter_monat; };
+	inline uint32 get_last_month() const { return letzter_monat; }
 
 	// @author hsiegeln
-	sint32 get_last_year() { return letztes_jahr; };
+	sint32 get_last_year() { return letztes_jahr; }
 
 	// @author hsiegeln
-	sint32 get_base_year() { return basis_jahr; };
+	sint32 get_base_year() { return basis_jahr; }
 
 	/**
 	 * dirty: redraw whole screen
@@ -384,16 +384,16 @@ public:
 	unsigned char gib_max_no_of_trees_on_square () const { return max_no_of_trees_on_square; }
 	void setze_max_no_of_trees_on_square (unsigned char number) { max_no_of_trees_on_square = number; }
 
-	einstellungen_t * gib_einstellungen() const {return einstellungen;};
+	einstellungen_t* gib_einstellungen() const { return einstellungen; }
 
 	// often used, therefore found here
-	bool use_timeline() const {return einstellungen->gib_use_timeline(); };
+	bool use_timeline() const { return einstellungen->gib_use_timeline(); }
 
 	void reset_timer();
 	void step_year();
 
 	// returns either 0 or the current year*16 + month
-	uint16 get_timeline_year_month() const {return (einstellungen->gib_use_timeline()) ? current_month : 0; };
+	uint16 get_timeline_year_month() const { return einstellungen->gib_use_timeline() ? current_month : 0; }
 
 	// returns current speed bonus
 	int get_average_speed(waytype_t typ) const;
@@ -409,8 +409,8 @@ public:
 	ding_t * gib_zeiger() const;
 
 	spieler_t * gib_spieler(int n) const {assert(((uint8)n)<MAX_PLAYER_COUNT); return spieler[n]; }
-	spieler_t *get_active_player() const {return active_player; };
-	uint8 get_active_player_nr() const {return active_player_nr; };
+	spieler_t* get_active_player() const { return active_player; }
+	uint8 get_active_player_nr() const { return active_player_nr; }
 	void switch_active_player(uint8 nr);
 
 	// if a schedule is changed, it will increment the schedule counter
@@ -422,53 +422,53 @@ public:
 	 * 0=winter, 1=spring, 2=summer, 3=autumn
 	 * @author prissi
 	 */
-	inline unsigned long gib_jahreszeit() const { return season; };
+	inline unsigned long gib_jahreszeit() const { return season; }
 
 	/**
 	 * Zeit seit Kartenerzeugung/dem letzen laden in ms
 	 * @author Hj. Malthaner
 	 */
-	inline unsigned long gib_zeit_ms() const { return ticks; };
+	inline unsigned long gib_zeit_ms() const { return ticks; }
 
 	/**
 	 * Absoluter Monat
 	 * @author prissi
 	 */
-	inline uint32 get_current_month() const { return current_month; };
+	inline uint32 get_current_month() const { return current_month; }
 
 	// prissi: current city road
 	// may change due to timeline
-	const weg_besch_t *get_city_road() const { return city_road; };
+	const weg_besch_t* get_city_road() const { return city_road; }
 
 	/**
 	 * Anzahl steps seit Kartenerzeugung
 	 * @author Hj. Malthaner
 	 */
-	inline long gib_steps() const { return steps; };
+	inline long gib_steps() const { return steps; }
 
 	/**
 	 * Idle time. Nur zur Anzeige verwenden!
 	 * @author Hj. Malthaner
 	 */
-	inline int gib_schlaf_zeit() const { return sleep_time; };
+	inline int gib_schlaf_zeit() const { return sleep_time; }
 
 	/**
 	 * Anzahl frames in der letzten Sekunde Spielzeit. Kann sehr ungenau sein!
 	 * @author Hj. Malthaner
 	 */
-	inline int gib_FPS() const { return lastFPS; };
+	inline int gib_FPS() const { return lastFPS; }
 
 	/**
 	 * Anzahl frames in der letzten Sekunde Realzeit
 	 * @author prissi
 	 */
-	inline int gib_realFPS() const { return realFPS; };
+	inline int gib_realFPS() const { return realFPS; }
 
 	/**
 	 * Anzahl Simulationsloops in der letzten Sekunde. Kann sehr ungenau sein!
 	 * @author Hj. Malthaner
 	 */
-	inline int gib_simloops() const { return last_simloops; };
+	inline int gib_simloops() const { return last_simloops; }
 
 	/**
 	* Holt den Grundwasserlevel der Karte
@@ -532,9 +532,9 @@ public:
 	void setze_scroll_multi(int n);
 
 	// all stuf concerning map size
-	inline int gib_groesse_x() const {return cached_groesse_gitter_x;};
-	inline int gib_groesse_y() const {return cached_groesse_gitter_y;};
-	inline int gib_groesse_max() const {return cached_groesse_max;};
+	inline int gib_groesse_x() const { return cached_groesse_gitter_x; }
+	inline int gib_groesse_y() const { return cached_groesse_gitter_y; }
+	inline int gib_groesse_max() const { return cached_groesse_max; }
 
 	inline bool ist_in_kartengrenzen(koord k) const {
 		// prissi: since negative values will make the whole result negative, we can use bitwise or
@@ -611,15 +611,15 @@ public:
 	 * Wird vom Strassenbauer als Orientierungshilfe benutzt.
 	 * @author Hj. Malthaner
 	 */
-	inline void markiere(koord3d k) { marker.markiere(lookup(k)); };
-	inline void markiere(const grund_t *gr) { marker.markiere(gr); };
+	inline void markiere(koord3d k) { marker.markiere(lookup(k)); }
+	inline void markiere(const grund_t* gr) { marker.markiere(gr); }
 
 	/**
 	 * Wird vom Strassenbauer zum Entfernen der Orientierungshilfen benutzt.
 	 * @author Hj. Malthaner
 	 */
-	inline void unmarkiere(koord3d k) { marker.unmarkiere(lookup(k)); };
-	inline void unmarkiere(const grund_t *gr) { marker.unmarkiere(gr); };
+	inline void unmarkiere(koord3d k) { marker.unmarkiere(lookup(k)); }
+	inline void unmarkiere(const grund_t* gr) { marker.unmarkiere(gr); }
 
 	/**
 	 * Entfernt alle Markierungen.
@@ -632,8 +632,8 @@ public:
 	 * @return Gibt true zurueck wenn der Untergrund markiert ist sonst false.
 	 * @author Hj. Malthaner
 	 */
-	inline bool ist_markiert(koord3d k) const { return marker.ist_markiert(lookup(k)); };
-	inline bool ist_markiert(const grund_t *gr) const { return marker.ist_markiert(gr); };
+	inline bool ist_markiert(koord3d k) const { return marker.ist_markiert(lookup(k)); }
+	inline bool ist_markiert(const grund_t* gr) const { return marker.ist_markiert(gr); }
 
 	 /**
 	 * Initialize map.
@@ -735,7 +735,7 @@ public:
 	 * Zugriff auf das Städte Array.
 	 * @author Hj. Malthaner
 	 */
-	const weighted_vector_tpl<stadt_t *> * gib_staedte() const { return stadt; };
+	const weighted_vector_tpl<stadt_t*>* gib_staedte() const { return stadt; }
 	const stadt_t *get_random_stadt() const;
 	void add_stadt(stadt_t *s);
 	bool rem_stadt(stadt_t *s);
@@ -746,15 +746,15 @@ public:
 	const gebaeude_t *gib_random_ausflugsziel() const;
 	const weighted_vector_tpl<gebaeude_t*> &gib_ausflugsziele() const {return ausflugsziele; }
 
-	void add_label(koord pos) { if(!labels.contains(pos)) { labels.append(pos); } };
-	void remove_label(koord pos) {labels.remove(pos);};
-	const slist_tpl<koord> &gib_label_list() const { return labels; };
+	void add_label(koord pos) { if (!labels.contains(pos)) labels.append(pos); }
+	void remove_label(koord pos) { labels.remove(pos); }
+	const slist_tpl<koord>& gib_label_list() const { return labels; }
 
 	bool add_fab(fabrik_t *fab);
 	bool rem_fab(fabrik_t *fab);
-	int  gib_fab_index(fabrik_t *fab) { return fab_list.index_of(fab); };
-	fabrik_t *  gib_fab(unsigned index) { return index<fab_list.count() ? (fabrik_t *)fab_list.at(index) : NULL; };
-	const slist_tpl<fabrik_t *> &gib_fab_list() const { return fab_list; };
+	int gib_fab_index(fabrik_t* fab) { return fab_list.index_of(fab); }
+	fabrik_t* gib_fab(unsigned index) { return index < fab_list.count() ? (fabrik_t*)fab_list.at(index) : NULL; }
+	const slist_tpl<fabrik_t*>& gib_fab_list() const { return fab_list; }
 
 	/* sucht zufaellig eine Fabrik aus der Fabrikliste
 	 * @author Hj. Malthaner

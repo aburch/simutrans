@@ -332,11 +332,11 @@ public:
      * activates and queries player status
      * @author player
      */
-     bool is_active() {return automat; };
+     bool is_active() { return automat; }
      bool set_active(bool new_state);
 
      // true if this can do passenger transport ...
-     bool has_passenger() const { return (player_nr==0)  ||  passenger_transport; };
+     bool has_passenger() const { return player_nr == 0 || passenger_transport; }
 
     /**
      * Konstruktor
@@ -366,7 +366,11 @@ public:
      * @param betrag zu verbuchender Betrag
      * @author Hj. Malthaner
      */
-    sint64 buche(sint64 betrag) {konto += betrag; return konto;};
+		sint64 buche(sint64 betrag)
+		{
+			konto += betrag;
+			return konto;
+		}
 
     /**
      * Adds somme amount to the maintenance costs
@@ -374,7 +378,11 @@ public:
      * @return the new maintenance costs
      * @author Hj. Malthaner
      */
-    sint32 add_maintenance(sint32 change) {maintenance += change; return maintenance;};
+		sint32 add_maintenance(sint32 change)
+		{
+			maintenance += change;
+			return maintenance;
+		}
 
     // Owen Rudge, finances
     sint64 buche(sint64 betrag, koord k, int type);
@@ -384,13 +392,13 @@ public:
      * @return Kontostand als double (Gleitkomma) Wert
      * @author Hj. Malthaner
      */
-    double gib_konto_als_double() const {return konto/100.0;};
+    double gib_konto_als_double() const { return konto / 100.0; }
 
     /**
      * @return true wenn Konto Überzogen ist
      * @author Hj. Malthaner
      */
-    int gib_konto_ueberzogen() const {return konto_ueberzogen;};
+    int gib_konto_ueberzogen() const { return konto_ueberzogen; }
 
 
     /**
@@ -442,7 +450,7 @@ public:
      * Gets haltcount, for naming purposes
      * @author hsiegeln
      */
-    int get_haltcount() const {return haltcount;};
+    int get_haltcount() const { return haltcount; }
 
     /**
      * Lädt oder speichert Zustand des Spielers
@@ -481,14 +489,14 @@ public:
     * Returns the finance history for player
     * @author hsiegeln
     */
-    sint64 get_finance_history_year(int year, int type) {return finance_history_year[year][type];};
+    sint64 get_finance_history_year(int year, int type) { return finance_history_year[year][type]; }
 
     /**
     * Returns pointer to finance history for player
     * @author hsiegeln
     */
-    sint64* get_finance_history_year() {return *finance_history_year;};
-  sint64* get_finance_history_month() {return *finance_history_month;};
+    sint64* get_finance_history_year() { return *finance_history_year; }
+  sint64* get_finance_history_month() { return *finance_history_month; }
 
     /**
     * Returns the world the player is in
@@ -548,9 +556,13 @@ private:
 	koord headquarter_pos;
 
 public:
-	void add_headquarter( short hq_level, koord hq_pos ) { headquarter_level = hq_level; headquarter_pos = hq_pos; };
-	koord get_headquarter_pos(void) const { return headquarter_pos; };
-	short get_headquarter_level(void) const { return headquarter_level; };
+	void add_headquarter(short hq_level, koord hq_pos)
+	{
+		headquarter_level = hq_level;
+		headquarter_pos = hq_pos;
+	}
+	koord get_headquarter_pos(void) const { return headquarter_pos; }
+	short get_headquarter_level(void) const { return headquarter_level; }
 };
 
 #endif

@@ -53,8 +53,8 @@ public:
 	void setze_zustand(enum signalzustand z) {zustand = z; calc_bild();}
 	enum signalzustand gib_zustand() {return (enum signalzustand)zustand;}
 
-	enum ding_t::typ gib_typ() const {return roadsign;};
-	const char *gib_name() const {return "Roadsign";};
+	enum ding_t::typ gib_typ() const { return roadsign; }
+	const char* gib_name() const { return "Roadsign"; }
 
 	roadsign_t(karte_t *welt, loadsave_t *file);
 	roadsign_t(karte_t *welt, spieler_t *sp, koord3d pos, ribi_t::ribi dir, const roadsign_besch_t* besch);

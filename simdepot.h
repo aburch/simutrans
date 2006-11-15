@@ -233,7 +233,7 @@ public:
 
 #if USE_NEW_GEBAUDE
     virtual void * operator new(size_t s) { return (depot_t *)freelist_t::gimme_node(sizeof(depot_t)); }
-    virtual void operator delete(void *p) { freelist_t::putback_node(sizeof(depot_t),p); };
+    virtual void operator delete(void* p) { freelist_t::putback_node(sizeof(depot_t), p); }
 #endif
 };
 
@@ -280,7 +280,7 @@ public:
 
 #if USE_NEW_GEBAUDE
     virtual void * operator new(size_t s) { return (bahndepot_t *)freelist_t::gimme_node(sizeof(bahndepot_t)); }
-    virtual void operator delete(void *p) { freelist_t::putback_node(sizeof(bahndepot_t),p); };
+    virtual void operator delete(void* p) { freelist_t::putback_node(sizeof(bahndepot_t), p); }
 #endif
 };
 
@@ -295,7 +295,7 @@ public:
     tramdepot_t(karte_t *welt, koord3d pos,spieler_t *sp, const haus_tile_besch_t *t): bahndepot_t(welt,pos,sp,t) {}
 
 	virtual const waytype_t get_wegtyp() const {return tram_wt;}
-    virtual enum ding_t::typ gib_typ() const {return tramdepot;};
+    virtual enum ding_t::typ gib_typ() const { return tramdepot; }
     virtual const char *gib_name() const {return "Tramdepot"; }
 };
 
@@ -309,7 +309,7 @@ public:
     monoraildepot_t(karte_t *welt, koord3d pos,spieler_t *sp, const haus_tile_besch_t *t): bahndepot_t(welt,pos,sp,t) {}
 
    virtual  const waytype_t get_wegtyp() const {return monorail_wt;}
-    virtual enum ding_t::typ gib_typ() const {return monoraildepot;};
+    virtual enum ding_t::typ gib_typ() const { return monoraildepot; }
     virtual const char *gib_name() const {return "Monoraildepot"; }
 };
 
@@ -349,7 +349,7 @@ public:
 
 #if USE_NEW_GEBAUDE
     virtual void * operator new(size_t s) { return (strassendepot_t *)freelist_t::gimme_node(sizeof(strassendepot_t)); }
-    virtual void operator delete(void *p) { freelist_t::putback_node(sizeof(strassendepot_t),p); };
+    virtual void operator delete(void* p) { freelist_t::putback_node(sizeof(strassendepot_t), p); }
 #endif
 };
 
@@ -378,8 +378,8 @@ public:
 	 * @author Volker Meyer
 	 * @date  09.06.2003
 	 */
-	int get_x_placement() const {return -1;};
-	int get_y_placement() const {return -11;};
+	int get_x_placement() const { return -1; }
+	int get_y_placement() const { return -11; }
 	int get_x_grid() const { return 60; }
 	int get_y_grid() const { return 46; }
 
@@ -390,7 +390,7 @@ public:
 
 #if USE_NEW_GEBAUDE
 	virtual void * operator new(size_t s) { return (schiffdepot_t *)freelist_t::gimme_node(sizeof(schiffdepot_t)); }
-	virtual void operator delete(void *p) { freelist_t::putback_node(sizeof(schiffdepot_t),p); };
+	virtual void operator delete(void* p) { freelist_t::putback_node(sizeof(schiffdepot_t), p); }
 #endif
 };
 
@@ -418,13 +418,13 @@ public:
 	int get_y_grid() const { return 36; }
 	unsigned get_max_convoi_length() const { return 1; }
 
-	virtual const waytype_t get_wegtyp() const {return air_wt; };
-	enum ding_t::typ gib_typ() const {return airdepot;};
+	virtual const waytype_t get_wegtyp() const { return air_wt; }
+	enum ding_t::typ gib_typ() const { return airdepot; }
 	const char *gib_name() const {return "Hangar";}
 
 #if USE_NEW_GEBAUDE
     virtual void * operator new(size_t s) { return (airdepot_t *)freelist_t::gimme_node(sizeof(airdepot_t)); }
-    virtual void operator delete(void *p) { freelist_t::putback_node(sizeof(airdepot_t),p); };
+    virtual void operator delete(void* p) { freelist_t::putback_node(sizeof(airdepot_t), p); }
 #endif
 };
 

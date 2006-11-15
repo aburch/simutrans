@@ -107,9 +107,9 @@ typedef union anyvalue{
   long i;
 
 #ifdef __cplusplus
-  anyvalue() {p = 0;};
-  anyvalue(long itg) {i = itg;};
-  anyvalue(const void *ptr) {p = ptr;};
+  anyvalue() { p = 0; }
+  anyvalue(long itg) { i = itg; }
+  anyvalue(const void* ptr) { p = ptr; }
 #endif
 } value_t;
 

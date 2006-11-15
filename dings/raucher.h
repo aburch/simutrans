@@ -29,7 +29,7 @@ public:
 
 	void rdwr(loadsave_t *file);
 
-	enum ding_t::typ gib_typ() const {return raucher;};
+	enum ding_t::typ gib_typ() const { return raucher; }
 };
 
 #endif

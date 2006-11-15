@@ -96,7 +96,7 @@ public:
 	* Gives the factory description table
 	* @author Hj.Malthaner
 	*/
-	static const stringhashtable_tpl<const fabrik_besch_t *> & gib_fabesch() {return table;};
+	static const stringhashtable_tpl<const fabrik_besch_t*>& gib_fabesch() { return table; }
 
 	/* returns a random consumer
 	* @author prissi

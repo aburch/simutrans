@@ -52,13 +52,13 @@ public:
      * Vorbereitungsmethode für Echtzeitfunktionen eines Objekts.
      * @author Hj. Malthaner
      */
-    virtual void sync_prepare() {};
+    virtual void sync_prepare() {}
 
     bool sync_step(long delta_t);
 
-    enum ding_t::typ gib_typ() const {return leitung;};
+    enum ding_t::typ gib_typ() const { return leitung; }
 
-    const char *gib_name() const {return "Leitung";};
+    const char* gib_name() const { return "Leitung"; }
     image_id gib_bild() const;
     char *info(char *buf) const;
 
@@ -80,9 +80,9 @@ public:
     pumpe_t(karte_t *welt, koord3d pos, spieler_t *sp);
     ~pumpe_t();
 
-    void setze_fabrik(fabrik_t *fab) {this->fab = fab;};
+    void setze_fabrik(fabrik_t* fab) { this->fab = fab; }
 
-    enum ding_t::typ gib_typ() const {return pumpe;};
+    enum ding_t::typ gib_typ() const { return pumpe; }
 
     /**
      * Eine Pumpe kann zu einer Fabrik gehören.
@@ -90,13 +90,13 @@ public:
      *
      * @author Hj. Malthaner
      */
-    virtual inline fabrik_t* fabrik() const {return fab;};
+    virtual inline fabrik_t* fabrik() const { return fab; }
 
     void sync_prepare();
     bool sync_step(long delta_t);
-    int gib_bild() const {return ding_t::gib_bild();};
+    int gib_bild() const { return ding_t::gib_bild(); }
 
-    const char *name() const {return "Pumpe";};
+    const char* name() const { return "Pumpe"; }
     char *info(char *buf) const;
 };
 
@@ -115,7 +115,7 @@ public:
     senke_t(karte_t *welt, loadsave_t *file);
     senke_t(karte_t *welt, koord3d pos, spieler_t *sp);
 
-    enum ding_t::typ gib_typ() const {return senke;};
+    enum ding_t::typ gib_typ() const { return senke; }
 
     /**
      * Eine Senke kann zu einer Fabrik gehören.
@@ -123,7 +123,7 @@ public:
      *
      * @author Hj. Malthaner
      */
-    virtual inline fabrik_t* fabrik() const {return fab;};
+    virtual inline fabrik_t* fabrik() const { return fab; }
 
     /**
      * Methode für asynchrone Funktionen eines Objekts.
@@ -133,9 +133,9 @@ public:
 
     void sync_prepare();
     bool sync_step(long delta_t);
-    int gib_bild() const {return ding_t::gib_bild();};
+    int gib_bild() const { return ding_t::gib_bild(); }
 
-    const char *name() const {return "Senke";};
+    const char* name() const { return "Senke"; }
 
     char *info(char *buf) const;
 };

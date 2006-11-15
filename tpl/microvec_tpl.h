@@ -80,7 +80,7 @@ public:
 		if(capacity > 1) {
 			data.some = new T[capacity];
 		}
-    };
+    }
 
 
     ~microvec_tpl()
@@ -113,7 +113,7 @@ public:
 																		i,
 																		"Out of bounds");
 		}
-    };
+    }
 
 
     /**
@@ -132,7 +132,7 @@ public:
 //			throw new no_such_element_exception("microvec_tpl<T>::at()",typeid(T).name(),i,"Out of bounds");
 			return 0;
 		}
-	};
+	}
 
 
     /**
@@ -198,7 +198,7 @@ public:
 																		"Capacity exceeded");
 			}
 		}
-	};
+	}
 
 
     /**
@@ -207,7 +207,7 @@ public:
      */
 	void append(T v) {
 		insert(size, v);
-	};
+	}
 
 
     /**
@@ -237,7 +237,7 @@ public:
 	}
 	return false;
       }
-    };
+    }
 
 
 	void clear() {
@@ -251,7 +251,7 @@ public:
      */
 	unsigned char get_count() const {
 		return size;
-	};
+	}
 };
 
 #endif

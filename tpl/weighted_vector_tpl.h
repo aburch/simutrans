@@ -400,19 +400,19 @@ public:
      * Gets the number of elements in the vector.
      * @author Hj. Malthaner
      */
-    unsigned int get_count() const {return count;};
+    unsigned int get_count() const { return count; }
 
     /**
      * Gets the capacity.
      * @author Hj. Malthaner
      */
-    unsigned int get_size() const {return size;};
+    unsigned int get_size() const { return size; }
 
     /**
      * Gets the total weight
      * @author prissi
      */
-    unsigned int get_sum_weight() const {return total_weight;};
+    unsigned int get_sum_weight() const { return total_weight; }
 };
 
 #endif

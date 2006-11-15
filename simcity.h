@@ -176,8 +176,8 @@ public:
 	 * Returns pointer to history for city
 	 * @author hsiegeln
 	 */
-	sint64* get_city_history_year() {return *city_history_year;};
-	sint64* get_city_history_month() {return *city_history_month;};
+	sint64* get_city_history_year() { return *city_history_year; }
+	sint64* get_city_history_month() { return *city_history_month; }
 
 	/* returns the money dialoge of a city
 	 * @author prissi
@@ -185,7 +185,7 @@ public:
 	stadt_info_t *gib_stadt_info();
 
 	// just needed by stadt_info.cc
-	static inline karte_t *gib_welt() { return welt; };
+	static inline karte_t* gib_welt() { return welt; }
 
 	/* end of histroy related thingies */
 private:
@@ -333,7 +333,7 @@ public:
 	/* returns all factories connected to this city ...
 	 * @author: prissi
 	 */
-	const weighted_vector_tpl<fabrik_t *> & gib_arbeiterziele() const {return arbeiterziele;};
+	const weighted_vector_tpl<fabrik_t*>& gib_arbeiterziele() const { return arbeiterziele; }
 
 	// this function removes houses from the city house list
 	// (called when removed by player, or by town)
@@ -353,13 +353,13 @@ public:
 	 * Gibt den Namen der Stadt zurück.
 	 * @author Hj. Malthaner
 	 */
-	const char * gib_name() const {return name;};
+	const char* gib_name() const { return name; }
 
 	/**
 	 * Ermöglicht Zugriff auf Namesnarray
 	 * @author Hj. Malthaner
 	 */
-	char * access_name() {return name;};
+	char* access_name() { return name; }
 
 	/**
 	 * gibt einen zufällingen gleichverteilten Punkt innerhalb der
@@ -372,13 +372,13 @@ public:
 	 * gibt das pax-statistik-array für letzten monat zurück
 	 * @author Hj. Malthaner
 	 */
-	const array2d_tpl<unsigned char> * gib_pax_ziele_alt() const {return &pax_ziele_alt;};
+	const array2d_tpl<unsigned char>* gib_pax_ziele_alt() const { return &pax_ziele_alt; }
 
 	/**
 	 * gibt das pax-statistik-array für den aktuellen monat zurück
 	 * @author Hj. Malthaner
 	 */
-	const array2d_tpl<unsigned char> * gib_pax_ziele_neu() const {return &pax_ziele_neu;};
+	const array2d_tpl<unsigned char>* gib_pax_ziele_neu() const { return &pax_ziele_neu; }
 
 	/**
 	 * Erzeugt eine neue Stadt auf Planquadrat (x,y) die dem Spieler sp
@@ -453,7 +453,7 @@ public:
 	 * @return den Namen der Stadt
 	 * @author Hj. Malthaner
 	 */
-	inline const char * get_name() const {return name;};
+	inline const char* get_name() const { return name; }
 
 
 	/**

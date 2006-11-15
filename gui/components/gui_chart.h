@@ -41,7 +41,7 @@ public:
 	 * destructor
 	 * @author hsiegeln
 	 */
-	~gui_chart_t() {};
+	~gui_chart_t() {}
 
 
 	/*
@@ -61,13 +61,17 @@ public:
 	 * set dimension
 	 * @author hsiegeln
 	 */
-        void set_dimension(int x, int y) { x_elements = x; y_elements = y;};
+		void set_dimension(int x, int y)
+		{
+			x_elements = x;
+			y_elements = y;
+		}
 
 	/*
 	 * get dimension
 	 * @author hsiegeln
 	 */
-        //koord get_dimension() { return dimension; };
+        //koord get_dimension() { return dimension; }
 
 	/*
 	 * adds a curve to the graph
@@ -82,7 +86,7 @@ public:
 	 */
         int add_curve(int color, sint64 *values, int size, int offset, int elements, int type, bool show, bool show_value);
 
-        void remove_curves() { curves.clear(); };
+        void remove_curves() { curves.clear(); }
 
 	/**
 	 * Hide a curve of the set
@@ -104,11 +108,11 @@ public:
 
 	bool is_visible(unsigned int id);
 
-	void set_show_x_axis(bool yesno) { show_x_axis = yesno; };
+	void set_show_x_axis(bool yesno) { show_x_axis = yesno; }
 
-	void set_show_y_axis(bool yesno) { show_y_axis = yesno; };
+	void set_show_y_axis(bool yesno) { show_y_axis = yesno; }
 
-	int get_curve_count() { return curves.count(); };
+	int get_curve_count() { return curves.count(); }
 
 private:
 

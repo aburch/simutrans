@@ -171,12 +171,12 @@ public:
 
 	uint8 gib_kennfarbe() const { return kennfarbe; }
 
-	void setze_produktivitaet(int p) { produktivitaet=p; };
-	int gib_produktivitaet() const { return produktivitaet; };
+	void setze_produktivitaet(int p) { produktivitaet=p; }
+	int gib_produktivitaet() const { return produktivitaet; }
 	int gib_bereich() const { return bereich; }
 
 	/* level for post and passenger generation */
-	int gib_pax_level() const { return pax_level; };
+	int gib_pax_level() const { return pax_level; }
 };
 
 #endif

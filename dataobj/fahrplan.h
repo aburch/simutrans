@@ -69,18 +69,18 @@ public:
    * get current stop of fahrplan
    * @author hsiegeln
    */
-  int get_aktuell() const { return aktuell; };
+  int get_aktuell() const { return aktuell; }
 
 	/**
 	 * set the current stop of the fahrplan
 	 * if new value is bigger than stops available, the max stop will be used
 	 * @author hsiegeln
 	 */
-	void set_aktuell(int new_aktuell) { aktuell = (unsigned)new_aktuell>=eintrag.get_count() ? eintrag.get_count()-1 : new_aktuell; };
+	void set_aktuell(int new_aktuell) { aktuell = (unsigned)new_aktuell >= eintrag.get_count() ? eintrag.get_count() - 1 : new_aktuell; }
 
-	inline bool ist_abgeschlossen() const {return abgeschlossen;};
-	void eingabe_abschliessen() {abgeschlossen = true;};
-	void eingabe_beginnen() {abgeschlossen = false;};
+	inline bool ist_abgeschlossen() const { return abgeschlossen; }
+	void eingabe_abschliessen() { abgeschlossen = true; }
+	void eingabe_beginnen() { abgeschlossen = false; }
 
 	fahrplan_t();
 
@@ -131,7 +131,7 @@ public:
 
 	 fahrplan_type get_type(karte_t * welt) const;
 
-	 virtual fahrplan_t * copy() { return new fahrplan_t(this); };
+	 virtual fahrplan_t* copy() { return new fahrplan_t(this); }
 
 	// copy all entries from schedule src to this and adjusts aktuell
 	void copy_from(const fahrplan_t *src);
@@ -150,11 +150,11 @@ protected:
 	bool ist_halt_erlaubt(const grund_t *) const;
 
 public:
-	zugfahrplan_t() : fahrplan_t() {type = zugfahrplan;};
+	zugfahrplan_t() : fahrplan_t() { type = zugfahrplan; }
 	waytype_t get_waytype() const {return track_wt;}
-	zugfahrplan_t(loadsave_t *file) : fahrplan_t(file) {type = zugfahrplan;};
-	zugfahrplan_t(fahrplan_t * fpl) : fahrplan_t(fpl) {type = zugfahrplan;};
-	fahrplan_t * copy() { return new zugfahrplan_t(this); };
+	zugfahrplan_t(loadsave_t* file) : fahrplan_t(file) { type = zugfahrplan; }
+	zugfahrplan_t(fahrplan_t* fpl) : fahrplan_t(fpl) { type = zugfahrplan; }
+	fahrplan_t* copy() { return new zugfahrplan_t(this); }
 	void zeige_fehlermeldung(karte_t *) const;
 };
 
@@ -166,10 +166,10 @@ class tramfahrplan_t : public zugfahrplan_t
 protected:
 
 public:
-	tramfahrplan_t() : zugfahrplan_t() {type = tramfahrplan;};
-	tramfahrplan_t(loadsave_t *file) : zugfahrplan_t(file) {type = tramfahrplan;};
-	tramfahrplan_t(fahrplan_t * fpl) : zugfahrplan_t(fpl) {type = tramfahrplan;};
-	fahrplan_t * copy() { return new tramfahrplan_t(this); };
+	tramfahrplan_t() : zugfahrplan_t() { type = tramfahrplan; }
+	tramfahrplan_t(loadsave_t* file) : zugfahrplan_t(file) { type = tramfahrplan; }
+	tramfahrplan_t(fahrplan_t* fpl) : zugfahrplan_t(fpl) { type = tramfahrplan; }
+	fahrplan_t* copy() { return new tramfahrplan_t(this); }
 };
 
 
@@ -186,10 +186,10 @@ protected:
 
 public:
 	waytype_t get_waytype() const {return road_wt;}
-	autofahrplan_t() : fahrplan_t() {type = autofahrplan;};
-	autofahrplan_t(loadsave_t *file) : fahrplan_t(file) {type = autofahrplan;};
-	autofahrplan_t(fahrplan_t * fpl) : fahrplan_t(fpl) {type = autofahrplan;};
-	fahrplan_t * copy() { return new autofahrplan_t(this); };
+	autofahrplan_t() : fahrplan_t() { type = autofahrplan; }
+	autofahrplan_t(loadsave_t* file) : fahrplan_t(file) { type = autofahrplan; }
+	autofahrplan_t(fahrplan_t* fpl) : fahrplan_t(fpl) { type = autofahrplan; }
+	fahrplan_t* copy() { return new autofahrplan_t(this); }
 	void zeige_fehlermeldung(karte_t *) const;
 };
 
@@ -207,10 +207,10 @@ protected:
 
 public:
 	waytype_t get_waytype() const {return road_wt;}
-    schifffahrplan_t() : fahrplan_t() {type = schifffahrplan;};
-    schifffahrplan_t(loadsave_t *file) : fahrplan_t(file) {type = schifffahrplan;};
-    schifffahrplan_t(fahrplan_t * fpl) : fahrplan_t(fpl) {type = schifffahrplan;};
-    fahrplan_t * copy() { return new schifffahrplan_t(this); };
+    schifffahrplan_t() : fahrplan_t() { type = schifffahrplan; }
+    schifffahrplan_t(loadsave_t* file) : fahrplan_t(file) { type = schifffahrplan; }
+    schifffahrplan_t(fahrplan_t* fpl) : fahrplan_t(fpl) { type = schifffahrplan; }
+    fahrplan_t* copy() { return new schifffahrplan_t(this); }
     virtual void zeige_fehlermeldung(karte_t *) const;
 };
 
@@ -225,10 +225,10 @@ protected:
 
 public:
 	waytype_t get_waytype() const {return air_wt;}
-	airfahrplan_t() : fahrplan_t() {type = airfahrplan;};
-	airfahrplan_t(loadsave_t *file) : fahrplan_t(file) {type = airfahrplan;};
-	airfahrplan_t(fahrplan_t * fpl) : fahrplan_t(fpl) {type = airfahrplan;};
-	fahrplan_t * copy() { return new airfahrplan_t(this); };
+	airfahrplan_t() : fahrplan_t() { type = airfahrplan; }
+	airfahrplan_t(loadsave_t* file) : fahrplan_t(file) { type = airfahrplan; }
+	airfahrplan_t(fahrplan_t* fpl) : fahrplan_t(fpl) { type = airfahrplan; }
+	fahrplan_t* copy() { return new airfahrplan_t(this); }
 	void zeige_fehlermeldung(karte_t *) const;
 };
 
@@ -242,10 +242,10 @@ protected:
 
 public:
 	waytype_t get_waytype() const {return monorail_wt;}
-	monorailfahrplan_t() : fahrplan_t() {type = monorailfahrplan;};
-	monorailfahrplan_t(loadsave_t *file) : fahrplan_t(file) {type = monorailfahrplan;};
-	monorailfahrplan_t(fahrplan_t * fpl) : fahrplan_t(fpl) {type = monorailfahrplan;};
-	fahrplan_t * copy() { return new monorailfahrplan_t(this); };
+	monorailfahrplan_t() : fahrplan_t() { type = monorailfahrplan; }
+	monorailfahrplan_t(loadsave_t* file) : fahrplan_t(file) { type = monorailfahrplan; }
+	monorailfahrplan_t(fahrplan_t* fpl) : fahrplan_t(fpl) { type = monorailfahrplan; }
+	fahrplan_t* copy() { return new monorailfahrplan_t(this); }
 	void zeige_fehlermeldung(karte_t *) const;
 };
 

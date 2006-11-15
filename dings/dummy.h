@@ -16,16 +16,16 @@ public:
     /**
      * @return Gibt den Namen des Objekts zurück.
      */
-    const char *gib_name() const {return "Dummy";};
+    const char* gib_name() const { return "Dummy"; }
 
     /**
      * @return Gibt den typ des Objekts zurück.
      */
-    inline enum ding_t::typ gib_typ() const {return ding_t::undefined;};
+    inline enum ding_t::typ gib_typ() const { return ding_t::undefined; }
 
-    void zeige_info() {};  // dummies do not have an info
+    void zeige_info() {} // dummies do not have an info
 
-    virtual void laden_abschliessen() {};
+    virtual void laden_abschliessen() {}
 
     void * operator new(size_t s);
     void operator delete(void *p);

@@ -70,7 +70,7 @@ public:
      */
     bool is_eof();
 
-    void *gib_file() { return fp; };
+    void* gib_file() { return fp; }
     bool is_loading() const { return !saving; }
     bool is_saving() const { return saving; }
     bool is_zipped() const { return mode == zipped; }

@@ -192,15 +192,15 @@ public:
     void link_halt(halthandle_t halt);
     void unlink_halt(halthandle_t halt);
 
-    const vector_tpl <koord> & gib_lieferziele() const {return lieferziele;};
-    const vector_tpl <koord> & get_suppliers() const {return suppliers;};
+    const vector_tpl<koord>& gib_lieferziele() const { return lieferziele; }
+    const vector_tpl<koord>& get_suppliers() const { return suppliers; }
 
     /* workers origin only used for info dialog purposes; otherwise useless ...
      * @author Hj. Malthaner/prissi
      */
     void  add_arbeiterziel(stadt_t *stadt);
     void  rem_arbeiterziel(stadt_t *stadt);
-    const slist_tpl <stadt_t *> & gib_arbeiterziele() const {return arbeiterziele;};
+    const slist_tpl<stadt_t*>& gib_arbeiterziele() const { return arbeiterziele; }
 
     /**
      * Fügt ein neues Lieferziel hinzu
@@ -244,7 +244,7 @@ public:
     sint32 hole_ab(const ware_besch_t *, sint32 menge );     // jemand will waren abholen
     sint32 liefere_an(const ware_besch_t *, sint32 menge);
 
-    sint32 gib_abgabe_letzt(sint32 t) {return abgabe_letzt->at(t);};
+    sint32 gib_abgabe_letzt(sint32 t) { return abgabe_letzt->at(t); }
 
     void step(long delta_t);                  // fabrik muss auch arbeiten
     void neuer_monat();
@@ -257,7 +257,7 @@ public:
 
     void rdwr(loadsave_t *file);
 
-    inline koord3d gib_pos() const {return pos;};
+    inline koord3d gib_pos() const { return pos; }
 
 
    /**
@@ -308,7 +308,7 @@ public:
      * @author Hj. Malthaner
      */
     void set_eingang(vector_tpl<ware_t> * typen);
-    const vector_tpl<ware_t> * gib_eingang() const {return eingang;};
+    const vector_tpl<ware_t>* gib_eingang() const { return eingang; }
 
     /**
      * setzt die Ausgangsswarentypen
@@ -316,27 +316,32 @@ public:
      * @author Hj. Malthaner
      */
     void set_ausgang(vector_tpl<ware_t> * typen);
-    const vector_tpl<ware_t> * gib_ausgang() const {return ausgang;};
+    const vector_tpl<ware_t>* gib_ausgang() const { return ausgang; }
 
 
     /**
      * Produktionsgrundmenge
      * @author Hj. Malthaner
      */
-    void set_prodbase(sint32 i) {prodbase = i;};
-  sint32 get_prodbase(void) {return prodbase;};
+    void set_prodbase(sint32 i) { prodbase = i; }
+  sint32 get_prodbase(void) { return prodbase; }
 
     /**
      * Produktionsmultiplikator
      * @author Hj. Malthaner
      */
-  void set_prodfaktor(sint32 i) {prodfaktor= (i<16)?16:i;};
-  sint32 get_prodfaktor(void) const {return prodfaktor;};
+  void set_prodfaktor(sint32 i) { prodfaktor = (i < 16 ? 16 : i); }
+  sint32 get_prodfaktor(void) const { return prodfaktor; }
 
    /* prissi: returns the status of the current factory, as well as output */
    enum { bad, medium, good, inactive, nothing };
    static unsigned status_to_color[5];
-   unsigned calc_factory_status(unsigned long *input, unsigned long *output) const { if(input) {*input=total_input;} if(output) { *output=total_output; }; return status; };
+		unsigned calc_factory_status(unsigned long* input, unsigned long* output) const
+		{
+			if (input  != NULL) *input  = total_input;
+			if (output != NULL) *output = total_output;
+			return status;
+		}
 
     /**
      * Crossconnects all factories
