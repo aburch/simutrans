@@ -46,7 +46,9 @@ class prioqueue_tpl
 private:
     struct node_t
     {
-public:
+			void* operator new(size_t) { return freelist_t::gimme_node(sizeof(node_t)); }
+			void operator delete(void* p) { freelist_t::putback_node(sizeof(node_t), p); }
+
 	node_t *next;
 	T data;
     };
@@ -55,23 +57,6 @@ public:
     node_t * tail;
 
     int node_count;
-
-	node_t * gimme_node()
-	{
-		return (node_t *)freelist_t::gimme_node(sizeof(node_t));
-	}
-
-
-	void putback_node(node_t *tmp)
-	{
-		freelist_t::putback_node(sizeof(node_t),tmp);
-	}
-
-
-	void putback_nodes()
-	{
-		freelist_t::putback_nodes(sizeof(node_t),head);
-	}
 
 #ifdef PRIQ_STATS
     int insert_hops;
@@ -119,7 +104,7 @@ public:
    */
   void insert(const T data)
   {
-    node_t *tmp = gimme_node();
+		node_t* tmp = new node_t();
     node_t *prev = 0;
     node_t *curr = head;
 
@@ -212,7 +197,7 @@ public:
 	    node_t *p = head;
 
             head = head->next;
-	    putback_node(p);
+			delete p;
 
 	    node_count --;
 
@@ -236,9 +221,12 @@ public:
      */
     void clear()
     {
-	if(head) {
-	    putback_nodes();
-	}
+			node_t* p = head;
+			while (p != NULL) {
+				node_t* tmp = p;
+				p = p->next;
+				delete tmp;
+			}
 	head = 0;
       tail = 0;
 	node_count = 0;
