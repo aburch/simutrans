@@ -16,8 +16,6 @@
 #include "simgraph.h"
 #include "simcolor.h"
 
-#include "tpl/slist_tpl.h"
-
 
 // how much scrolling per call?
 #define X_DIST 2
@@ -39,24 +37,15 @@ ticker_t * ticker_t::get_instance()
 
 ticker_t::ticker_t()
 {
-  list = new slist_tpl <ticker_t::node>;
-
   next_pos = display_get_width();
   redraw_all = false;
-}
-
-
-ticker_t::~ticker_t()
-{
-  delete list;
-  list = 0;
 }
 
 
 
 int ticker_t::count() const
 {
-  return list->count();
+  return list.count();
 }
 
 
@@ -69,7 +58,7 @@ int ticker_t::count() const
 void ticker_t::add_msg(const char *txt, koord pos, int color)
 {
 	// don't store more than 4 messages, it's useless.
-	const int count = list->count();
+	const int count = list.count();
 
 	if(count==0) {
 		redraw_all = true;
@@ -79,7 +68,7 @@ void ticker_t::add_msg(const char *txt, koord pos, int color)
 
 	if(count < 4) {
 		// Don't repeat messages
-		if(count == 0 || strncmp(txt, list->at(count-1).msg, strlen(txt)) != 0) {
+		if (count == 0 || strncmp(txt, list.at(count - 1).msg, strlen(txt)) != 0) {
 			node n;
 			int i=0;
 
@@ -100,7 +89,7 @@ void ticker_t::add_msg(const char *txt, koord pos, int color)
 			n.w = proportional_string_width(n.msg);
 
 			next_pos += n.w + 18;
-			list->append(n);
+			list.append(n);
 		}
 	}
 }
@@ -124,7 +113,7 @@ koord ticker_t::get_welt_pos()
  */
 void ticker_t::zeichnen(void)
 {
-	if(list->count()>0) {
+	if (list.count() > 0) {
 		const int start_y=display_get_height()-32;
 		const int width = display_get_width();
 
@@ -139,8 +128,8 @@ void ticker_t::zeichnen(void)
 			display_fillbox_wh(width-X_DIST, start_y+1, X_DIST, 15, MN_GREY2, true);
 			// ok, ready for the text
 			PUSH_CLIP(width-X_DIST-1,start_y+1,X_DIST+1,15);
-			for(unsigned i=0;  i<list->count();  i++  ) {
-				struct node *n=&list->at(i);
+			for (unsigned i = 0;  i < list.count(); i++) {
+				struct node* n = &list.at(i);
 				n->xpos -= X_DIST;
 				if(n->xpos<width) {
 					display_proportional_clip(n->xpos, start_y+4, n->msg,  ALIGN_LEFT, n->color, true);
@@ -148,8 +137,8 @@ void ticker_t::zeichnen(void)
 				}
 			}
 			// remove old news
-			while(list->count()>0  &&  list->at(0).xpos+list->at(0).w<0) {//width-X_DIST) {
-				list->remove_first();
+			while (list.count() > 0 && list.at(0).xpos + list.at(0).w < 0) {
+				list.remove_first();
 			}
 			if(next_pos>width) {
 				next_pos -= X_DIST;

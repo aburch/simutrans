@@ -12,10 +12,7 @@
 
 #include "dataobj/koord.h"
 #include "simcolor.h"
-
-// forward decl
-template <class T> class slist_tpl;
-template <class T> class slist_iterator_tpl;
+#include "tpl/slist_tpl.h"
 
 /**
  * A very simple news ticker message storage class.
@@ -39,16 +36,13 @@ private:
 
     ticker_t();
 
-    slist_tpl <node> * list;
+    slist_tpl<node> list;
     int next_pos;
 
     // true, if also trigger background need redraw
     bool redraw_all;
 
 public:
-
-    ~ticker_t();
-
     int count() const;
 
     /**
