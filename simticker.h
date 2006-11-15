@@ -65,7 +65,7 @@ public:
 	/* Ticker infowin pops up
 	 * @author Hj. Malthaner
 	 */
-	koord get_welt_pos(int x, int y);
+	koord get_welt_pos();
 
     void zeichnen();
 };

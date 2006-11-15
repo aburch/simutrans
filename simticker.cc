@@ -111,7 +111,7 @@ void ticker_t::add_msg(const char *txt, koord pos, int color)
 /* Ticker infowin pops up
  * @author Hj. Malthaner
  */
-koord ticker_t::get_welt_pos( int /*x*/, int /*y*/ )
+koord ticker_t::get_welt_pos()
 {
 	return default_pos;
 }
