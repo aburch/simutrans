@@ -396,6 +396,10 @@ bool brueckenbauer_t::baue_bruecke(karte_t *welt, spieler_t *sp,
 	ribi_t::ribi ribi;
 	weg_t *weg=NULL;	// =NULL to keep compiler happy
 
+	if(sp!=NULL) {
+		sp->init_undo( besch->gib_waytype(), 0 );
+	}
+
 	DBG_MESSAGE("brueckenbauer_t::baue()", "build from %d,%d", pos.x, pos.y);
 	baue_auffahrt(welt, sp, pos, zv, besch, weg_besch );
 
@@ -459,6 +463,7 @@ brueckenbauer_t::baue_auffahrt(karte_t *welt, spieler_t *sp, koord3d end, koord 
 	if(grund_hang == hang_t::flach) {
 		weg_hang = hang_typ(zv);    // nordhang - suedrampe
 	}
+	alter_boden->setze_besitzer(sp);	// to keep maitenance correct
 
 	bruecke = new brueckenboden_t(welt, end, grund_hang, weg_hang);
 	// add the ramp
@@ -484,14 +489,10 @@ brueckenbauer_t::baue_auffahrt(karte_t *welt, spieler_t *sp, koord3d end, koord 
 		bruecke->neuen_weg_bauen( weg, ribi_t::doppelt(ribi_neu), sp );
 	}
 	weg->setze_max_speed( besch->gib_topspeed() );
-	bruecke->obj_add(new bruecke_t(welt, end, sp, besch, img));
+	bruecke_t *br = new bruecke_t(welt, end, sp, besch, img);
+	bruecke->obj_add( br );
+	br->laden_abschliessen();
 	bruecke->calc_bild();
-
-	if(sp!=NULL) {
-		sp->add_maintenance( -weg_besch->gib_wartung() );
-		sp->add_maintenance( besch->gib_wartung() );
-		sp->init_undo( besch->gib_waytype(), 0 );
-	}
 }
 
 

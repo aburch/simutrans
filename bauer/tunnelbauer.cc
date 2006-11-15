@@ -406,6 +406,8 @@ tunnelbauer_t::baue_einfahrt(karte_t *welt, spieler_t *sp, koord3d end, koord zv
 	grund_t *alter_boden = welt->lookup(end);
 	ribi_t::ribi ribi = alter_boden->gib_weg_ribi_unmasked(besch->gib_waytype()) | ribi_typ(zv);
 
+	alter_boden->setze_besitzer(sp);	// to keep maitenance correct
+
 	tunnelboden_t *tunnel = new tunnelboden_t(welt, end, alter_boden->gib_grund_hang());
 	tunnel->setze_besitzer(sp);
 	tunnel->obj_add(new tunnel_t(welt, end, sp, besch));
