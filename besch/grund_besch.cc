@@ -564,8 +564,8 @@ DBG_MESSAGE("grund_besch_t::calc_water_level()","height %i: list %i vs. %i", h, 
 	}
 	// free the helper bitmap
 	for( int slope=1; slope<15;  slope++ ) {
-		guarded_free( all_rotations_beach[slope] );
-		guarded_free( all_rotations_slope[slope] );
+		delete all_rotations_beach[slope];
+		delete all_rotations_slope[slope];
 	}
 }
 
