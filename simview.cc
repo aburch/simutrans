@@ -33,7 +33,7 @@ void
 karte_ansicht_t::display(bool force_dirty)
 {
 	const sint16 disp_width = display_get_width();
-	const sint16 disp_height = display_get_height();
+	const sint16 disp_height = display_get_height() - 32 - 16 - (ticker_t::get_instance()->count() > 0 ? 16 : 0);
 
 	display_setze_clip_wh( 0, 32, disp_width, disp_height );
 
