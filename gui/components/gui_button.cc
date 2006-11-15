@@ -133,7 +133,7 @@ static void draw_roundbutton(sint16 x, sint16 y, sint16 w, sint16 h, bool presse
 		// first the center (may need extra clipping)
 		if(w-lw-rw<64) {
 			struct clip_dimension cl=display_gib_clip_wh();
-			display_setze_clip_wh(cl.x, cl.y, max(0,min(x+w-rw-lw-cl.x,cl.w)), cl.h );
+			display_setze_clip_wh(cl.x, cl.y, max(0,min(x+w-rw-cl.x,cl.w)), cl.h );
 			display_button_image(x+lw, y, RB_BODY_BUTTON, pressed);
 			display_setze_clip_wh(cl.x, cl.y, cl.w, cl.h );
 		}

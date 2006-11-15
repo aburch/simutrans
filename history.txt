@@ -7,12 +7,13 @@ Known bugs: (hard to fix)
 
 Release of 99.04.1
 
-xx-Nov-2006: (prissi)
+15-Nov-2006: (prissi)
 	FIX: in depot: articulated engines will be only bought forward respective backward from the current position on
-	FIX: bridge construction fixed
-	FIX: retiere messages for planes
-	FIX: way maintainace screwed up
+	FIX: bridge/tunnel construction/deletion fixed
+	FIX: retire messages for planes
+	FIX: way maintainace was screwed up
 	FIX: depots had not maintainance after reload
+	FIX: button offsets
 
 
 Release of 99.04
