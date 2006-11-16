@@ -75,10 +75,8 @@ DBG_DEBUG("is_unicode_file()", "file is UTF-8");
 }
 
 
-
 // recodes string to put them into the tables
-char *
-recode(const char *src,bool translate_from_utf,bool translate_to_utf)
+static char* recode(const char* src, bool translate_from_utf, bool translate_to_utf)
 {
 	char *base;
 	if(  translate_to_utf  ) {
