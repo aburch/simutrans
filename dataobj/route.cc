@@ -11,7 +11,6 @@
 #include <stdio.h>
 #include <string.h>
 
-#include "../simdebug.h"
 #include "../simworld.h"
 #include "../simintr.h"
 #include "../simtime.h"
@@ -19,15 +18,9 @@
 #include "../simhalt.h"
 #include "../boden/wege/weg.h"
 #include "../boden/grund.h"
-#include "../ifc/fahrer.h"
-
-
 #include "loadsave.h"
 #include "route.h"
 #include "umgebung.h"
-
-#include "../tpl/vector_tpl.h"
-#include "../tpl/array_tpl.h"
 
 
 // if defined, print some profiling informations into the file
@@ -159,31 +152,6 @@ DBG_MESSAGE("route_t::append_straight_route()","start from (%i,%i) to (%i,%i)",p
 }
 
 
-
-
-static inline bool am_i_there(karte_t *welt,
-            koord3d pos,
-            koord3d ziel,
-            bool block_test)
-{
-	bool ok = false;
-
-	if(block_test) {
-		halthandle_t halt1 = haltestelle_t::gib_halt(welt, pos);
-		halthandle_t halt2 = haltestelle_t::gib_halt(welt, ziel);
-
-		ok = halt1.is_bound() ? (halt1 == halt2) : (pos == ziel);
-	}
-	else {
-		ok = (pos == ziel);
-	}
-
-	return ok;
-}
-
-
-
-
 // node arrays
 route_t::ANode* route_t::nodes=NULL;
 uint32 route_t::MAX_STEP=0;
@@ -208,8 +176,6 @@ route_t::find_route(karte_t *welt,
 
 	// some thing for the search
 	const waytype_t wegtyp = fahr->gib_waytype();
-	const grund_t *gr;
-	grund_t *to;
 
 	// memory in static list ...
 	if(nodes==NULL) {
@@ -220,12 +186,11 @@ route_t::find_route(karte_t *welt,
 	INT_CHECK("route 347");
 
 	// arrays for A*
-	static vector_tpl <ANode *> open = vector_tpl <ANode *>(0);
-	vector_tpl <ANode *> close =vector_tpl <ANode *>(0);
+	static vector_tpl<ANode*> open(0);
+	vector_tpl<ANode*> close(0);
 
 	// nothing in lists
 	open.clear();
-	close.clear();	// close list may be short than mark/unmark (hopefully)
 
 	// we clear it here probably twice: does not hurt ...
 	route.clear();
@@ -238,7 +203,7 @@ route_t::find_route(karte_t *welt,
 	GET_NODE();
 
 	uint32 step = 0;
-	ANode *tmp = &(nodes[step++]);
+	ANode* tmp = &nodes[step++];
 	tmp->parent = NULL;
 	tmp->gr = welt->lookup(start);
 	tmp->count = 0;
@@ -247,6 +212,7 @@ route_t::find_route(karte_t *welt,
 	open.append(tmp,256);
 
 //DBG_MESSAGE("route_t::find_route()","calc route from %d,%d,%d",start.x, start.y, start.z);
+	const grund_t* gr;
 	do {
 		// Hajo: this is too expensive to be called each step
 		if((step & 127) == 0) {
@@ -269,8 +235,8 @@ route_t::find_route(karte_t *welt,
 		// testing all four possible directions
 		const ribi_t::ribi ribi =  fahr->gib_ribi(gr);
 		for(int r=0; r<4; r++) {
-
 			// a way goes here, and it is not marked (i.e. in the closed list)
+			grund_t* to;
 			if(  (ribi & ribi_t::nsow[r] & start_dir)!=0  // allowed dir (we can restrict the first step by start_dir)
 				&& abs_distance(start.gib_2d(),gr->gib_pos().gib_2d()+koord::nsow[r])<max_depth	// not too far away
 				&& gr->get_neighbour(to, wegtyp, koord::nsow[r])  // is connected
@@ -302,7 +268,7 @@ route_t::find_route(karte_t *welt,
 				}
 
 				// not in there or taken out => add new
-				ANode *k=&(nodes[step++]);
+				ANode* k = &nodes[step++];
 
 				k->parent = tmp;
 				k->gr = to;
@@ -581,10 +547,10 @@ route_t::calc_route(karte_t *welt,
 #ifdef DEBUG_ROUTES
 	// profiling for routes ...
 	long ms=get_current_time_millis();
+#endif
 	bool ok = intern_calc_route(welt, start, ziel, fahr, max_khm,max_cost);
+#ifdef DEBUG_ROUTES
 	if(fahr->gib_waytype()==water_wt) {DBG_DEBUG("route_t::calc_route()","route from %d,%d to %d,%d with %i steps in %u ms found.",start.x, start.y, ziel.x, ziel.y, route.get_count()-2, get_current_time_millis()-ms );}
-#else
-	bool ok = intern_calc_route(welt, start, ziel, fahr, max_khm,max_cost);
 #endif
 
 	INT_CHECK("route 343");
