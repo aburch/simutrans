@@ -781,7 +781,7 @@ check_pos_win(event_t *ev)
 	if(ev->cy>display_get_height()-32) {
 		// goto infowin koordinate, if ticker is active
 		if(show_ticker  &&    ev->cy<=display_get_height()-16  &&   IS_LEFTRELEASE(ev)) {
-			koord p = ticker_t::get_instance()->get_welt_pos();
+			koord p = ticker::get_welt_pos();
 			if(wl->ist_in_kartengrenzen(p)) {
 				wl->setze_ij_off(koord3d(p,wl->min_hgt(p)));
 			}
@@ -1031,7 +1031,7 @@ void win_display_menu()
 	display_setze_clip_wh( 0, 0, width, 33 );
 	display_icon_leiste(-1, skinverwaltung_t::hauptmenu->gib_bild(0)->gib_nummer());
 	display_setze_clip_wh( 0, 32, width, start_y+32 );
-	if(ticker_t::get_instance()->count()>0) {
+	if (ticker::count() > 0) {
 		// maybe something is omitted of the message
 		display_fillbox_wh(0, start_y, width, 1, COL_BLACK, true);
 		display_fillbox_wh(0, start_y+1, width, 15, MN_GREY2, true);
@@ -1051,9 +1051,9 @@ win_display_flush(int , int color, double konto)
 #endif
 
 	show_ticker = false;
-	if(ticker_t::get_instance()->count()>0) {
-		ticker_t::get_instance()->zeichnen();
-		if(ticker_t::get_instance()->count()==0) {
+	if (ticker::count() > 0) {
+		ticker::zeichnen();
+		if (ticker::count() == 0) {
 			// set dirty background for removing ticker
 			wl->setze_dirty();
 		}

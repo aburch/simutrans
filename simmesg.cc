@@ -142,7 +142,7 @@ DBG_MESSAGE("message_t::add_msg()","%40s (at %i,%i)", text, pos.x, pos.y );
 
       // should we send this message to a ticker? (always done)
       if(art&ticker_flags) {
-		ticker_t::get_instance()->add_msg(text,pos,colorval);
+		ticker::add_msg(text, pos, colorval);
       }
 
 	// we will not add messages two times to the list if it was within the last 20 messages or within last three months

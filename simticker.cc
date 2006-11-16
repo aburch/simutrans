@@ -15,47 +15,35 @@
 #include "simticker.h"
 #include "simgraph.h"
 #include "simcolor.h"
+#include "tpl/slist_tpl.h"
 
 
 // how much scrolling per call?
 #define X_DIST 2
 
-ticker_t * ticker_t::single_instance= 0;
-koord default_pos = koord::invalid;
+
+struct node {
+	char msg[256];
+	koord pos;
+	PLAYER_COLOR_VAL color;
+	sint16 xpos;
+	long w;
+};
 
 
-
-ticker_t * ticker_t::get_instance()
-{
-  if (single_instance == 0) {
-    single_instance = new ticker_t();
-  }
-  return single_instance;
-}
+static slist_tpl<node> list;
+static koord default_pos = koord::invalid;
+static bool redraw_all; // true, if also trigger background need redraw
+static int next_pos;
 
 
-
-ticker_t::ticker_t()
-{
-  next_pos = display_get_width();
-  redraw_all = false;
-}
-
-
-
-int ticker_t::count() const
+int ticker::count()
 {
   return list.count();
 }
 
 
-/**
- * Add a message to the message list
- * @param pos    position of the event
- * @param color  message color 
- * @author Hj. Malthaner
- */
-void ticker_t::add_msg(const char *txt, koord pos, int color)
+void ticker::add_msg(const char* txt, koord pos, int color)
 {
 	// don't store more than 4 messages, it's useless.
 	const int count = list.count();
@@ -95,23 +83,13 @@ void ticker_t::add_msg(const char *txt, koord pos, int color)
 }
 
 
-
-
-/* Ticker infowin pops up
- * @author Hj. Malthaner
- */
-koord ticker_t::get_welt_pos()
+koord ticker::get_welt_pos()
 {
 	return default_pos;
 }
 
 
-
-
-/* Ticker redraw
- * @author Hj. Malthaner
- */
-void ticker_t::zeichnen(void)
+void ticker::zeichnen(void)
 {
 	if (list.count() > 0) {
 		const int start_y=display_get_height()-32;
