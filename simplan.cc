@@ -75,6 +75,7 @@ planquadrat_t::gib_boden_von_obj(ding_t *obj) const
 
 void planquadrat_t::boden_hinzufuegen(grund_t *bd)
 {
+	assert(!bd->ist_karten_boden());
 	if(capacity==1) {
 		if(size==0) {
 			// completely empty
@@ -109,6 +110,7 @@ DBG_MESSAGE("planquadrat_t::boden_hinzufuegen()","addition ground %s at (%i,%i,%
 DBG_MESSAGE("planquadrat_t::boden_hinzufuegen()","addition ground %s at (%i,%i,%i) will be ignored!",bd->gib_name(),bd->gib_pos().x,bd->gib_pos().y,bd->gib_pos().z);
 			return;
 		}
+		bd->set_kartenboden(false);
 		// extend array if needed
 		if(size==capacity) {
 			grund_t **tmp = new grund_t *[capacity+1];
@@ -145,6 +147,7 @@ DBG_MESSAGE("planquadrat_t::boden_hinzufuegen()","addition ground %s at (%i,%i,%
 
 bool planquadrat_t::boden_entfernen(grund_t *bd)
 {
+	assert(!bd->ist_karten_boden());
 	if(capacity==1) {
 		assert(size>0  &&  data.one==bd);
 		size = 0;
