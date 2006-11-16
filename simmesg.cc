@@ -13,6 +13,7 @@
 #include <string.h>
 #include <stdlib.h>
 
+#include "macros.h"
 #include "simdebug.h"
 #include "simmesg.h"
 #include "simticker.h"
@@ -21,7 +22,7 @@
 #include "simcolor.h"
 #include "simmem.h"
 #include "simwin.h"
-
+#include "utils/simstring.h"
 #include "tpl/slist_tpl.h"
 #include "gui/messagebox.h"
 
@@ -157,8 +158,7 @@ DBG_MESSAGE("message_t::add_msg()","%40s (at %i,%i)", text, pos.x, pos.y );
 	// we do not allow messages larger than 256 bytes
       node n;
 
-	strncpy( n.msg, text, 256 );
-	n.msg[256] = 0;
+	tstrncpy(n.msg, text, lengthof(n.msg));
 	n.pos = pos;
 	n.color = colorval;
 	n.time = welt->get_current_month();

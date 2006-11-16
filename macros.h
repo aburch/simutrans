@@ -5,6 +5,8 @@
 #	define inline _inline
 #endif
 
+#define lengthof(x) (sizeof(x) / sizeof(*(x)))
+
 // make sure, a value in within the borders
 static inline int clamp(int x, int min, int max)
 {

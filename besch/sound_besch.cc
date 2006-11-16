@@ -18,7 +18,7 @@
 #include "../simdebug.h"
 
 #include "../dataobj/tabfile.h"
-
+#include "../macros.h"
 #include "../sound/sound.h"
 
 #include "../utils/cstring_t.h"
@@ -40,7 +40,11 @@ public:
 	sint16 id;
 	sound_ids() { id=NO_SOUND; filename[0]=0; }
 	sound_ids(sint16 i) { id=i;  filename[0]=0; }
-	sound_ids(sint16 i,const char *fn) { id=i;  strncpy(filename,fn,119); filename[119]=0; }
+	sound_ids(sint16 i, const char* fn)
+	{
+		id = i;
+		tstrncpy(filename, fn, lengthof(filename));
+	}
 };
 
 
