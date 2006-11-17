@@ -832,7 +832,7 @@ depot_frame_t::image_from_storage_list(gui_image_list_t::image_data_t *bild_data
 				depot->get_convoi(icnv)->setze_name( new_vehicle_info.at(0)->gib_name() );
 			}
 
-			if(cnv->gib_vehikel_anzahl()+new_vehicle_info.count() < depot->get_max_convoi_length()) {
+			if(cnv->gib_vehikel_anzahl()+new_vehicle_info.count() <= depot->get_max_convoi_length()) {
 
 				for( unsigned i=0;  i<new_vehicle_info.count();  i++ ) {
 					// insert/append needs reverse order
