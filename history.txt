@@ -7,6 +7,7 @@ Known bugs: (hard to fix)
 
 	FIX: images inside tunnel
 	FIX: buying airplanes again
+	FIX: minimap remembers size again
 
 
 Release of 99.04.1
