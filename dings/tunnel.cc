@@ -51,15 +51,17 @@ tunnel_t::tunnel_t(karte_t *welt, koord3d pos, spieler_t *sp, const tunnel_besch
 void
 tunnel_t::calc_bild()
 {
-	if(besch) {
-		const grund_t *gr = welt->lookup(gib_pos());
-		if(gr->ist_karten_boden()) {
-			setze_bild( 0, besch->gib_hintergrund_nr(gr->gib_grund_hang()) );
-			after_bild = besch->gib_vordergrund_nr(gr->gib_grund_hang());
-		}
+	const grund_t *gr = welt->lookup(gib_pos());
+	if(gr->ist_karten_boden()) {
+		hang_t::typ hang = gr->gib_grund_hang();
+		setze_bild( 0, besch->gib_hintergrund_nr(hang) );
+		after_bild = besch->gib_vordergrund_nr(hang);
+	}
+	else {
+		setze_bild( 0, IMG_LEER );
+		after_bild = IMG_LEER;
 	}
 }
-
 
 
 
@@ -80,20 +82,24 @@ void tunnel_t::rdwr(loadsave_t *file)
 }
 
 
+
 void tunnel_t::laden_abschliessen()
 {
 	const grund_t *gr = welt->lookup(gib_pos());
 	spieler_t *sp=gib_besitzer();
 
-	assert(besch);
+	if(besch==NULL) {
+		// find a matching besch
+		besch = tunnelbauer_t::find_tunnel( (waytype_t)gr->gib_weg_nr(0)->gib_besch()->gib_wtyp(), 450, 0);
+	}
 
-	if(sp  &&  besch) {
+	if(sp) {
 		// inside tunnel => do nothing but change maitainance
 		weg_t *weg = gr->gib_weg(besch->gib_waytype());
 		weg->setze_max_speed(besch->gib_topspeed());
 		sp->add_maintenance(-weg->gib_besch()->gib_wartung());
 		sp->add_maintenance( besch->gib_wartung() );
-		if(gr->gib_grund_hang()==gr->gib_weg_hang()){
+		if(!gr->ist_karten_boden()){
 			return;
 		}
 	}
@@ -103,6 +109,7 @@ void tunnel_t::laden_abschliessen()
 	// proceed until the other end
 	koord3d pos = gib_pos();
 	const koord zv = koord(welt->lookup(pos)->gib_grund_hang());
+	pos += zv;
 
 	// now look up everything
 	// reset speed and maitenance
@@ -115,15 +122,6 @@ void tunnel_t::laden_abschliessen()
 		if(gr->suche_obj(ding_t::tunnel)==NULL) {
 			gr->obj_add(new tunnel_t(welt, pos, sp, besch));
 			// calc calculation will be completed after loading!
-/*
-			weg_t *weg = gr->gib_weg(besch->gib_waytype());
-			weg->setze_max_speed(besch->gib_topspeed());
-			if(pos.y<gib_pos().y  ||  (pos.y==gib_pos().y  &&  pos.x<gib_pos().x)) {
-				// already called for this tile!
-				sp->add_maintenance(-weg->gib_besch()->gib_wartung());
-				sp->add_maintenance( besch->gib_wartung() );
-			}
-*/
 		}
 		pos += zv;
 	}

@@ -385,7 +385,8 @@ DBG_MESSAGE("tunnelbauer_t::baue()","build from (%d,%d,%d) to (%d,%d,%d) ", pos.
 		weg->setze_max_speed(besch->gib_topspeed());
 		welt->access(pos.gib_2d())->boden_hinzufuegen(tunnel);
 		tunnel->neuen_weg_bauen(weg, ribi_t::doppelt(ribi), sp);
-		tunnel->obj_add(new tunnel_t(welt, end, sp, besch));
+		tunnel->obj_add(new tunnel_t(welt, pos, sp, besch));
+		assert(!tunnel->ist_karten_boden());
 		sp->add_maintenance( -weg->gib_besch()->gib_wartung() );
 		sp->add_maintenance( besch->gib_wartung() );
 		cost += besch->gib_preis();

@@ -808,6 +808,9 @@ grund_t::display_dinge(const sint16 xpos, sint16 ypos, bool reset_dirty)
 		uint8 back_hang = (hang&1) + ((hang>>1)&6);
 		if(ist_karten_boden()) {
 			display_img(grund_besch_t::borders->gib_bild(back_hang), xpos, ypos, dirty);
+			if(gib_typ()==tunnelboden) {
+				dinge.display_dinge( xpos, ypos, start_offset, reset_dirty );
+			}
 		}
 		if(get_flag(grund_t::marked)) {
 			display_img(grund_besch_t::marker->gib_bild(back_hang)+8, xpos, ypos, dirty);

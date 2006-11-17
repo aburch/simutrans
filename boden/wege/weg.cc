@@ -282,8 +282,9 @@ weg_t::calc_bild()
 	grund_t *from = welt->lookup(gib_pos());
 	grund_t *to;
 
-	if(from==NULL  ||  besch==NULL) {
+	if(from==NULL  ||  besch==NULL  ||  from->ist_tunnel()) {
 		setze_bild(0,IMG_LEER);
+		return;
 	}
 
 	hang_t::typ hang = from->gib_weg_hang();

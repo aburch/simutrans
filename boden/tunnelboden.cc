@@ -37,36 +37,24 @@ void tunnelboden_t::calc_bild()
 	if(!ist_tunnel()) {
 		// only here, when undergound_mode is true
 		clear_back_bild();
-		grund_t::calc_bild();
 		if(ist_karten_boden()) {
-			setze_bild(first_obj()->gib_bild()); // tunnel mound
-			((weg_t *)obj_bei(0))->setze_bild(0,IMG_LEER);
+			setze_bild( IMG_LEER ); // tunnel mound
 		}
 		else {
 			// default tunnel ground images
 			setze_bild(skinverwaltung_t::fussweg->gib_bild_nr(0));
+			grund_t::calc_bild();
 		}
 	}
 	else if(ist_karten_boden()) {
 		// calculate the slope of ground
 		boden_t::calc_bild();
 		set_flag(draw_as_ding);
-		if(flags&has_way1) {
-			((weg_t *)obj_bei(0))->setze_bild(0,IMG_LEER);
-		}
-		if(flags&has_way2) {
-			((weg_t *)obj_bei(1))->setze_bild(0,IMG_LEER);
-		}
 	}
 	else {
+		grund_t::calc_bild(); // they will hide their image then ...
 		clear_back_bild();
 		setze_bild(IMG_LEER);
-		if(flags&has_way1) {
-			((weg_t *)obj_bei(0))->setze_bild(0,IMG_LEER);
-		}
-		if(flags&has_way2) {
-			((weg_t *)obj_bei(1))->setze_bild(0,IMG_LEER);
-		}
 	}
 }
 
