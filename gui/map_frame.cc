@@ -27,7 +27,7 @@
 #include "../besch/fabrik_besch.h"
 
 
-koord map_frame_t::size=koord::invalid;
+koord map_frame_t::size=koord(0,0);
 uint8 map_frame_t::legend_visible=false;
 
 // Hajo: we track our position onscreen
@@ -112,12 +112,12 @@ map_frame_t::map_frame_t(const karte_t *welt) :
 	}
 
 	// Hajo: Hack: use static size if set by a former object
-	if(size == koord::invalid) {
+	if(size == koord(0,0)) {
 		size = koord(min(256,welt->gib_groesse_x())+11, min(welt->gib_groesse_y(),256)+16+12);
 		set_min_windowsize( size );
 		gui_frame_t::setze_fenstergroesse( size );
 	}
-//	setze_fenstergroesse(size);
+	setze_fenstergroesse(size);
 	resize( koord(0,0) );
 
 	// Clipping geändert - max. 250 war zu knapp für grosse Karten - V.Meyer

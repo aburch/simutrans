@@ -5,6 +5,10 @@ Known bugs: (hard to fix)
 
 
 
+	FIX: images inside tunnel
+	FIX: buying airplanes again
+
+
 Release of 99.04.1
 
 15-Nov-2006: (prissi)
