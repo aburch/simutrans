@@ -82,10 +82,7 @@ static const uint8 offset_array[8] = {
 };
 
 
-// Helferprozeduren
-
-
-int get_freight_total(const slist_tpl<ware_t> *fracht)
+static int get_freight_total(const slist_tpl<ware_t>* fracht)
 {
   int menge = 0;
 
@@ -104,7 +101,7 @@ int get_freight_total(const slist_tpl<ware_t> *fracht)
  * @return sum of unloaded goods
  * @author Hj. Malthaner
  */
-int unload_freight(karte_t *welt, halthandle_t halt, slist_tpl<ware_t> *fracht, const ware_besch_t *fracht_typ )
+static int unload_freight(karte_t* welt, halthandle_t halt, slist_tpl<ware_t>* fracht, const ware_besch_t* fracht_typ)
 {
   assert(halt.is_bound());
 
@@ -177,7 +174,7 @@ int unload_freight(karte_t *welt, halthandle_t halt, slist_tpl<ware_t> *fracht, 
  * @return loading successful?
  * @author Hj. Malthaner
  */
-bool load_freight(karte_t * welt, halthandle_t halt, slist_tpl<ware_t> *fracht, const vehikel_besch_t *besch, fahrplan_t *fpl)
+static bool load_freight(karte_t* welt, halthandle_t halt, slist_tpl<ware_t>* fracht, const vehikel_besch_t* besch, fahrplan_t* fpl)
 {
 	const bool ok = halt->gibt_ab(besch->gib_ware());
 
