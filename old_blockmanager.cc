@@ -23,7 +23,6 @@
 #include "dataobj/umgebung.h"
 
 #include "tpl/slist_tpl.h"
-#include "tpl/array_tpl.h"
 
 #include "old_blockmanager.h"
 

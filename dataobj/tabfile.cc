@@ -15,8 +15,6 @@
 #include "koord.h"
 #include "tabfile.h"
 #include "../simmem.h"
-#include "../tpl/stringhashtable_tpl.h"
-
 
 
 bool tabfile_t::open(const char *filename)

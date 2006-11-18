@@ -18,8 +18,6 @@
 
 #include "../gui/thing_info.h"
 
-#include "../utils/cbuffer_t.h"
-
 #include "../dataobj/loadsave.h"
 #include "../dataobj/translator.h"
 

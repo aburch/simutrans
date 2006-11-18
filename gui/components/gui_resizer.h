@@ -11,7 +11,6 @@
 #define gui_components_gui_resizer_h
 
 #include "../../ifc/gui_action_creator.h"
-#include "../../tpl/slist_tpl.h"
 
 struct event_t;
 

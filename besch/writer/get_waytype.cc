@@ -1,6 +1,5 @@
 #include "../../simtypes.h"
 
-#include "../../utils/cstring_t.h"
 #include "../../dataobj/tabfile.h"
 
 #include "../../boden/wege/weg.h"
@@ -34,7 +33,6 @@ uint8 get_waytype(const char * waytype)
 	} else if(!STRICMP(waytype, "power")) {
 		uv8 = powerline_wt;
 	} else {
-//		cstring_t reason;
 		printf("\nFATAL\ninvalid waytype %s\n", waytype);
 		exit(1);
 	}

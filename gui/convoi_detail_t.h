@@ -20,8 +20,6 @@
 
 #include "../dataobj/koord.h"
 
-#include "../utils/cbuffer_t.h"
-
 class gui_chart_t;
 
 /**

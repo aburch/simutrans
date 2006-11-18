@@ -15,8 +15,6 @@
 #include "../../simgraph.h"
 #include "../../simcolor.h"
 
-#include "../../tpl/slist_tpl.h"
-
 
 int gui_scrolled_list_t::total_vertical_size() const
 {

@@ -1,7 +1,5 @@
 #include <stdio.h>
 
-#include "../../tpl/stringhashtable_tpl.h"
-
 #include "../../dings/roadsign.h"
 #include "../../simvehikel.h"	// for khm to speed conversion
 #include "../roadsign_besch.h"

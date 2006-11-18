@@ -1,7 +1,6 @@
 #ifndef color_gui_h
 #define color_gui_h
 
-#include "../tpl/array_tpl.h"
 #include "gui_frame.h"
 #include "components/gui_button.h"
 

@@ -1,7 +1,5 @@
 #include <stdio.h>
 
-#include "../../tpl/stringhashtable_tpl.h"
-
 #include "../../simvehikel.h"
 #include "../../simverkehr.h"
 #include "../stadtauto_besch.h"

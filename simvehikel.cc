@@ -60,15 +60,11 @@
 #include "besch/skin_besch.h"
 #include "besch/roadsign_besch.h"
 
-#include "tpl/inthashtable_tpl.h"
-
-
 #include "dataobj/fahrplan.h"
 #include "dataobj/translator.h"
 #include "dataobj/loadsave.h"
 #include "dataobj/umgebung.h"
 
-#include "utils/cstring_t.h"
 #include "utils/simstring.h"
 #include "utils/cbuffer_t.h"
 

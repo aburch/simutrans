@@ -16,7 +16,6 @@
 #include "../boden/grund.h"
 #include "../boden/tunnelboden.h"
 #include "../simimg.h"
-#include "../utils/cbuffer_t.h"
 #include "../bauer/tunnelbauer.h"
 
 #include "../dataobj/loadsave.h"

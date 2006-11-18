@@ -24,7 +24,6 @@
 #include "../utils/cstring_t.h"
 #include "../utils/simstring.h"
 
-#include "../tpl/vector_tpl.h"
 #include "../tpl/stringhashtable_tpl.h"
 
 #include "spezial_obj_tpl.h"

@@ -14,7 +14,6 @@
 #include "dataobj/translator.h"
 #include "dataobj/fahrplan.h"
 
-//#include "tpl/slist_tpl.h"
 #include "tpl/vector_tpl.h"
 #include "simconvoi.h"
 

@@ -26,7 +26,6 @@
 #include "tpl/minivec_tpl.h"
 #include "tpl/vector_tpl.h"
 #include "tpl/slist_tpl.h"
-#include "tpl/array_tpl.h"
 
 #include "dataobj/marker.h"
 #include "dataobj/einstellungen.h"

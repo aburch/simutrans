@@ -18,11 +18,6 @@
 
 #include "../gui/stadt_info.h"
 
-#include "../utils/cbuffer_t.h"
-
-
-
-
 
 message_stats_t::message_stats_t(karte_t *w)
 {

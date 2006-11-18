@@ -21,7 +21,6 @@
 #include "../boden/wege/schiene.h"
 #include "../dings/leitung2.h"
 #include "../dataobj/powernet.h"
-#include "../tpl/slist_tpl.h"
 #include "../simgraph.h"
 
 

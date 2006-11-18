@@ -14,7 +14,6 @@
 
 #include "../../simcolor.h"
 #include "../../ifc/gui_action_creator.h"
-#include "../../tpl/slist_tpl.h"
 #include "gui_scrolled_list.h"
 #include "gui_textinput.h"
 #include "gui_button.h"

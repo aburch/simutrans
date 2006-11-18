@@ -1,7 +1,6 @@
 #ifndef gui_scrollbar_h
 #define gui_scrollbar_h
 
-#include "../../tpl/slist_tpl.h"
 #include "../../ifc/gui_action_creator.h"
 #include "../../simevent.h"
 #include "gui_button.h"

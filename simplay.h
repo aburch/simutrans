@@ -25,8 +25,6 @@
 #include "besch/vehikel_besch.h"
 
 #include "tpl/vector_tpl.h"
-#include "tpl/array_tpl.h"
-#include "tpl/array2d_tpl.h"
 
 
 #define MAX_COST           12 // Total number of items in array

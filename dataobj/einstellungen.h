@@ -15,7 +15,6 @@
  */
 
 class loadsave_t;
-class cstring_t;
 
 class einstellungen_t
 {

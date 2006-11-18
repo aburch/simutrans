@@ -24,7 +24,6 @@
 #include "../utils/cstring_t.h"
 #include "../utils/searchfolder.h"
 #include "../utils/simstring.h"	//tstrncpy()
-#include "../tpl/slist_mit_gewichten_tpl.h"
 #include "../unicode.h"
 
 

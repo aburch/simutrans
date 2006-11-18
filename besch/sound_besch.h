@@ -41,8 +41,6 @@
 #define SFX_FAILURE sound_besch_t::get_compatible_sound_id(10)
 #define SFX_SELECT sound_besch_t::get_compatible_sound_id(9)
 
-template <class T> class vector_tpl;
-template <class T> class stringhashtable_tpl;
 class cstring_t;
 
 #define MAX_OLD_SOUNDS (16)

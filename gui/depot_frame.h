@@ -17,6 +17,7 @@
 #include "components/gui_textinput.h"
 #include "components/gui_combobox.h"
 #include "components/gui_divider.h"
+#include "../tpl/ptrhashtable_tpl.h"
 #include "../tpl/vector_tpl.h"
 #include "components/gui_tab_panel.h"
 #include "components/gui_button.h"

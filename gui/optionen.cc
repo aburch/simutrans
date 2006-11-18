@@ -22,7 +22,6 @@
 #include "../simgraph.h"
 #include "../simdisplay.h"
 #include "../dataobj/translator.h"
-#include "../utils/cbuffer_t.h"
 
 #include "optionen.h"
 #include "colors.h"

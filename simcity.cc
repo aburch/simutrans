@@ -58,7 +58,6 @@
 #include "bauer/hausbauer.h"
 #include "bauer/fabrikbauer.h"
 
-#include "tpl/slist_mit_gewichten_tpl.h"
 #include "tpl/minivec_tpl.h"
 
 #include "utils/cbuffer_t.h"

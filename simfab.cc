@@ -58,8 +58,6 @@
 #include "bauer/warenbauer.h"
 #include "bauer/fabrikbauer.h"
 
-#include "tpl/stringhashtable_tpl.h"
-
 #include "utils/cbuffer_t.h"
 
 #include "simgraph.h"

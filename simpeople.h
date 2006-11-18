@@ -2,7 +2,6 @@
 #define simpeople_h
 
 #include "simverkehr.h"
-//#include "tpl/slist_mit_gewichten_tpl.h"
 template<class T> class slist_mit_gewichten_tpl;
 
 class fussgaenger_besch_t;

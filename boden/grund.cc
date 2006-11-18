@@ -62,7 +62,6 @@
 
 #include "../tpl/ptrhashtable_tpl.h"
 #include "../tpl/inthashtable_tpl.h"
-#include "../tpl/vector_tpl.h"
 
 #include "../dings/leitung2.h"	// for construction of new ways ...
 

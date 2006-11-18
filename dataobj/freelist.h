@@ -1,8 +1,6 @@
 #ifndef freelist_t_h
 #define freelist_t_h
 
-#include "../tpl/array_tpl.h"
-
 
 typedef struct ns{
 	struct ns *next;

@@ -22,7 +22,6 @@
 #include "../simplay.h"
 #include "../simlinemgmt.h"
 
-#include "../tpl/ptrhashtable_tpl.h"
 #include "../tpl/slist_tpl.h"
 
 #include "fahrplan_gui.h"

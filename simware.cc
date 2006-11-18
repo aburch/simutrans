@@ -20,8 +20,6 @@
 #include "dataobj/loadsave.h"
 #include "dataobj/koord.h"
 
-#include "utils/cstring_t.h"
-
 #include "besch/ware_besch.h"
 #include "bauer/warenbauer.h"
 

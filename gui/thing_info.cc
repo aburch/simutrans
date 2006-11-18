@@ -21,7 +21,6 @@
 #include "../simworld.h"
 
 #include "../dataobj/translator.h"
-#include "../utils/cbuffer_t.h"
 #include "thing_info.h"
 
 karte_t * ding_infowin_t::welt = NULL;

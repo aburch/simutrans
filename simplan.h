@@ -10,7 +10,6 @@
 #ifndef simplan_h
 #define simplan_h
 
-#include "tpl/microvec_tpl.h"
 #include "tpl/minivec_tpl.h"
 #include "halthandle_t.h"
 #include "boden/grund.h"

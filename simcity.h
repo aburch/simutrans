@@ -13,10 +13,8 @@
 #include "simdings.h"
 #include "dings/gebaeude.h"
 
-#include "tpl/slist_tpl.h"
 #include "tpl/vector_tpl.h"
 #include "tpl/weighted_vector_tpl.h"
-#include "tpl/array_tpl.h"
 #include "tpl/array2d_tpl.h"
 
 class karte_t;

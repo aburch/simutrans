@@ -14,7 +14,6 @@
 #include "../besch/ware_besch.h"
 
 #include "../tpl/slist_tpl.h"
-#include "../tpl/ptrhashtable_tpl.h"
 #include "../tpl/stringhashtable_tpl.h"
 
 class ware_besch_t;

@@ -29,7 +29,6 @@ public:
   };
 
 private:
-//    array_tpl<zeiger_t *> stops;
     bool abgeschlossen;
 
 protected:

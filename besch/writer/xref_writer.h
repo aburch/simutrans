@@ -7,7 +7,6 @@
 #include "../objversion.h"
 
 
-class cstring_t;
 class obj_node_t;
 
 
