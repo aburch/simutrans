@@ -3257,26 +3257,28 @@ karte_t::interactive_event(event_t &ev)
 		case SIM_KEY_F15:
 		{
 			int num = ev.ev_code - SIM_KEY_F2;
+			save_mouse_func*& shortcut = quick_shortcuts[num];
+
 			if (event_get_last_control_shift() == 2) {
 				DBG_MESSAGE("karte_t()","Save mouse_funk");
-				if(quick_shortcuts.at(num) == NULL)
-					quick_shortcuts.at(num) = new save_mouse_func;
+				if (shortcut == NULL)
+					shortcut = new save_mouse_func;
 
-				quick_shortcuts.at(num)->save_mouse_funk = mouse_funk;
-				quick_shortcuts.at(num)->mouse_funk_param = mouse_funk_param;
-				quick_shortcuts.at(num)->mouse_funk_ok_sound = mouse_funk_ok_sound;
-				quick_shortcuts.at(num)->mouse_funk_ko_sound = mouse_funk_ko_sound;
-				quick_shortcuts.at(num)->zeiger_versatz = zeiger->gib_yoff();
-				quick_shortcuts.at(num)->zeiger_bild = zeiger->gib_bild();
+				shortcut->save_mouse_funk     = mouse_funk;
+				shortcut->mouse_funk_param    = mouse_funk_param;
+				shortcut->mouse_funk_ok_sound = mouse_funk_ok_sound;
+				shortcut->mouse_funk_ko_sound = mouse_funk_ko_sound;
+				shortcut->zeiger_versatz      = zeiger->gib_yoff();
+				shortcut->zeiger_bild         = zeiger->gib_bild();
 			}
-			else if (quick_shortcuts.at(num) != NULL) {
+			else if (shortcut != NULL) {
 				DBG_MESSAGE("karte_t()","Recall mouse_funk");
-				mouse_funk = quick_shortcuts.at(num)->save_mouse_funk;
-				mouse_funk_param = quick_shortcuts.at(num)->mouse_funk_param;
-				mouse_funk_ok_sound = quick_shortcuts.at(num)->mouse_funk_ok_sound;
-				mouse_funk_ko_sound = quick_shortcuts.at(num)->mouse_funk_ko_sound;
-				zeiger->setze_yoff(quick_shortcuts.at(num)->zeiger_versatz);
-				zeiger->setze_bild(0,quick_shortcuts.at(num)->zeiger_bild);
+				mouse_funk          = shortcut->save_mouse_funk;
+				mouse_funk_param    = shortcut->mouse_funk_param;
+				mouse_funk_ok_sound = shortcut->mouse_funk_ok_sound;
+				mouse_funk_ko_sound = shortcut->mouse_funk_ko_sound;
+				zeiger->setze_yoff(shortcut->zeiger_versatz);
+				zeiger->setze_bild(0, shortcut->zeiger_bild);
 				zeiger->set_flag(ding_t::dirty);
 			}
 		}

@@ -1111,18 +1111,22 @@ DBG_MESSAGE("spieler_t::do_passenger_ki()","convoi %s not needed!",cnv->gib_name
 						fahrplan_t  *f = cnv->gib_fahrplan();
 						koord3d startpos= cnv->gib_pos();
 						// next checkpoint also crowed with things for us?
-						halthandle_t h0=welt->lookup( f->eintrag.at(0).pos )->gib_halt();
-						halthandle_t h1=welt->lookup( f->eintrag.at(1).pos )->gib_halt();
+						halthandle_t h0 = welt->lookup(f->eintrag[0].pos)->gib_halt();
+						halthandle_t h1 = welt->lookup(f->eintrag[1].pos)->gib_halt();
 						if(!h1.is_bound() ||  !h0.is_bound()) {
 							// somebody deleted our stops or messed with the schedules ...
 							continue;
 						}
 DBG_MESSAGE("spieler_t::do_passenger_ki()","checking our convoi %s between %s and %s",cnv->gib_name(),h0->gib_name(),h1->gib_name());
-DBG_MESSAGE("spieler_t::do_passenger_ki()","waiting: %s (%i) and %s (%i)",h0->gib_name(),h0->gib_ware_fuer_zwischenziel(warenbauer_t::passagiere,f->eintrag.at(1).pos.gib_2d()),h1->gib_name(),h1->gib_ware_fuer_zwischenziel(warenbauer_t::passagiere,f->eintrag.at(0).pos.gib_2d()));
+						DBG_MESSAGE(
+							"spieler_t::do_passenger_ki()", "waiting: %s (%i) and %s (%i)",
+							h0->gib_name(), h0->gib_ware_fuer_zwischenziel(warenbauer_t::passagiere, f->eintrag[1].pos.gib_2d()),
+							h1->gib_name(), h1->gib_ware_fuer_zwischenziel(warenbauer_t::passagiere, f->eintrag[0].pos.gib_2d())
+						);
 
 						// we assume crowed for more than 129 waiting passengers
-						if(	h0->gib_ware_fuer_zwischenziel(warenbauer_t::passagiere,f->eintrag.at(1).pos.gib_2d())>h0->get_capacity()   ||
-							h1->gib_ware_fuer_zwischenziel(warenbauer_t::passagiere,f->eintrag.at(0).pos.gib_2d())>h1->get_capacity()   ) {
+						if (h0->gib_ware_fuer_zwischenziel(warenbauer_t::passagiere, f->eintrag[1].pos.gib_2d()) > h0->get_capacity() ||
+								h1->gib_ware_fuer_zwischenziel(warenbauer_t::passagiere, f->eintrag[0].pos.gib_2d()) > h1->get_capacity()) {
 DBG_MESSAGE("spieler_t::do_passenger_ki()","copy convoi %s on route %s to %s",cnv->gib_name(),h0->gib_name(),h1->gib_name());
 							vehikel_t * v = vehikelbauer_t::baue(welt, startpos, this,NULL, cnv->gib_vehikel(0)->gib_besch());
 							convoi_t *new_cnv = new convoi_t(welt, this);

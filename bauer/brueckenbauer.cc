@@ -71,7 +71,7 @@ bool brueckenbauer_t::laden_erfolgreich()
   bool schiene_da = false;
 
   for(unsigned int i = 0; i < bruecken.get_count(); i++) {
-    const bruecke_besch_t *besch = bruecken.get(i);
+    const bruecke_besch_t* besch = bruecken[i];
 
     if(besch && besch->gib_waytype() == track_wt) {
       schiene_da = true;
@@ -107,7 +107,7 @@ brueckenbauer_t::find_bridge(const waytype_t wtyp, const uint32 min_speed,const 
 	slist_tpl <const bruecke_besch_t *> matching;
 
 	for(unsigned int i = 0; i < bruecken.get_count(); i++) {
-		const bruecke_besch_t *besch = bruecken.get(i);
+		const bruecke_besch_t* besch = bruecken[i];
 		if(besch->gib_waytype() == wtyp) {
 			if(time==0  ||  (besch->get_intro_year_month()<=time  &&  besch->get_retire_year_month()>time)) {
 				if(find_besch==NULL  ||
@@ -140,7 +140,7 @@ brueckenbauer_t::fill_menu(werkzeug_parameter_waehler_t *wzw,
 	slist_tpl <const bruecke_besch_t *> matching;
 
 	for(unsigned int i = 0; i < bruecken.get_count(); i++) {
-		const bruecke_besch_t *besch = bruecken.get(i);
+		const bruecke_besch_t* besch = bruecken[i];
 		if(besch->gib_waytype()==wtyp) {
 			if(time==0  ||  (besch->get_intro_year_month()<=time  &&  besch->get_retire_year_month()>time)) {
 				// add int sorted
@@ -273,7 +273,7 @@ bool brueckenbauer_t::ist_ende_ok(spieler_t *sp, const grund_t *gr)
 int brueckenbauer_t::baue(spieler_t *sp, karte_t *welt, koord pos, waytype_t wegtyp)
 {
 	for(unsigned i = 0; i < bruecken.get_count(); i++) {
-		const bruecke_besch_t *besch = bruecken.get(i);
+		const bruecke_besch_t* besch = bruecken[i];
 
 		if(besch && besch->gib_waytype() == wegtyp) {
 			return baue(sp, welt, pos, (long)besch);
@@ -289,14 +289,19 @@ int brueckenbauer_t::baue(spieler_t *sp, karte_t *welt, koord pos, waytype_t weg
 {
   const bruecke_besch_t *besch=NULL;
   for(unsigned i = 0; i < bruecken.get_count(); i++) {
-    if(bruecken.get(i)->gib_waytype() == wegtyp) {
-      if(besch==NULL
-          ||  (besch->gib_topspeed()<top_speed  &&  besch->gib_topspeed()<bruecken.get(i)->gib_topspeed())
-          ||  (bruecken.get(i)->gib_topspeed()>=top_speed
-            &&  (besch->gib_wartung()>bruecken.get(i)->gib_wartung()
-              ||  (besch->gib_wartung()==bruecken.get(i)->gib_wartung()  &&  besch->gib_preis()>bruecken.get(i)->gib_preis()) ) ) ) {
+		const bruecke_besch_t* testee = bruecken[i];
+		if (testee->gib_waytype() == wegtyp) {
+			if (besch == NULL ||
+					besch->gib_topspeed() < top_speed && besch->gib_topspeed() < testee->gib_topspeed() || (
+						testee->gib_topspeed() >= top_speed && (
+						besch->gib_wartung() > testee->gib_wartung() || (
+							besch->gib_wartung() == testee->gib_wartung() &&
+							besch->gib_preis() > testee->gib_preis()
+							)
+						)
+					)) {
         // cheaper, faster and less mantainance
-        besch = bruecken.get(i);
+        besch = testee;
       }
     }
   }

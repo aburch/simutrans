@@ -109,14 +109,14 @@ haltestelle_t::gib_halt(karte_t *welt, const koord pos)
 			for( unsigned i=0;  i<haltlist.get_count();  i++  ) {
 				if(haltlist.get(i)->get_station_type()&dock) {
 					// ok, this is a ship stop
-					halt = haltlist.get(i);
+					halt = haltlist[i];
 					break;
 				}
 			}
 #else
 			// may catch bus stops close to water ...
 			if(haltlist.get_count()>0) {
-				return haltlist.get(0);
+				return haltlist[0];
 			}
 #endif
 		}
@@ -689,7 +689,7 @@ void haltestelle_t::rebuild_destinations()
 				for(int i=0; i<fpl->maxi(); i++) {
 
 					// Hajo: Hält dieser convoi hier?
-					if(gib_halt(welt,fpl->eintrag.get(i).pos)==self) {
+					if (gib_halt(welt, fpl->eintrag[i].pos) == self) {
 
 						const int anz = cnv->gib_vehikel_anzahl();
 						for(int j=0; j<anz; j++) {
@@ -744,7 +744,7 @@ haltestelle_t::suche_route(ware_t &ware, koord *next_to_ziel)
 	// but we can only use a subset of these
 	minivec_tpl <halthandle_t> ziel_list (halt_list.get_count());
 	for( unsigned h=0;  h<halt_list.get_count();  h++ ) {
-		halthandle_t halt = halt_list.at(h);
+		halthandle_t halt = halt_list[h];
 		if(	halt->is_enabled(warentyp)  ) {
 			ziel_list.append( halt );
 		}
@@ -1153,7 +1153,7 @@ haltestelle_t::hole_ab(const ware_besch_t *wtyp, int maxi, fahrplan_t *fpl)
 	for(int i=1; i<count; i++) {
 		const int wrap_i = (i + fpl->aktuell) % count;
 
-		halthandle_t plan_halt = gib_halt(welt,fpl->eintrag.get(wrap_i).pos.gib_2d());
+		halthandle_t plan_halt = gib_halt(welt, fpl->eintrag[wrap_i].pos.gib_2d());
 
 		if(plan_halt == self) {
 			// we will come later here again ...
@@ -1473,7 +1473,7 @@ haltestelle_t::hat_gehalten(int /*number_of_cars*/,const ware_besch_t *type, con
 		for(int i=0; i<fpl->maxi(); i++) {
 
 			// Hajo: Haltestelle selbst wird nicht in Zielliste aufgenommen
-			halthandle_t halt = gib_halt(welt,fpl->eintrag.get(i).pos);
+			halthandle_t halt = gib_halt(welt, fpl->eintrag[i].pos);
 			// Hajo: Nicht existierende Ziele (wegpunkte) werden übersprungen
 			if(!halt.is_bound()  ||  halt==self) {
 				continue;

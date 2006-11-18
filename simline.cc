@@ -176,11 +176,9 @@ simline_t::register_stops()
 void
 simline_t::register_stops(fahrplan_t * fpl)
 {
-	halthandle_t halt;
-
 DBG_DEBUG("simline_t::register_stops()", "%d fpl entries in schedule %p", fpl->maxi(),fpl);
 	for (int i = 0; i<fpl->maxi(); i++) {
-		halt = haltestelle_t::gib_halt(welt, fpl->eintrag.get(i).pos.gib_2d());
+		halthandle_t halt = haltestelle_t::gib_halt(welt, fpl->eintrag[i].pos.gib_2d());
 		if(halt.is_bound()) {
 //DBG_DEBUG("simline_t::register_stops()", "halt not null");
 			halt->add_line(self);
@@ -200,9 +198,8 @@ simline_t::unregister_stops()
 void
 simline_t::unregister_stops(fahrplan_t * fpl)
 {
-	halthandle_t halt;
 	for (int i = 0; i<fpl->maxi(); i++) {
-		halt = haltestelle_t::gib_halt(welt, fpl->eintrag.get(i).pos.gib_2d());
+		halthandle_t halt = haltestelle_t::gib_halt(welt, fpl->eintrag[i].pos.gib_2d());
 		if (halt.is_bound()) {
 			halt->remove_line(self);
 		}

@@ -309,7 +309,8 @@ depot_t::start_convoi(int icnv)
 	if(cnv.is_bound() &&  cnv->gib_fahrplan() != NULL &&  cnv->gib_fahrplan()->ist_abgeschlossen() &&   cnv->gib_fahrplan()->maxi() > 0) {
 
 		// if next schedule entry is this depot => advance to next entry
-		if(cnv->gib_fahrplan()->eintrag.at(cnv->gib_fahrplan()->aktuell).pos==gib_pos()) {
+		const koord3d& cur_pos = cnv->gib_fahrplan()->eintrag[cnv->gib_fahrplan()->aktuell].pos;
+		if (cur_pos == gib_pos()) {
 			cnv->gib_fahrplan()->aktuell = (cnv->gib_fahrplan()->aktuell+1) % cnv->gib_fahrplan()->maxi();
 		}
 
@@ -317,7 +318,7 @@ depot_t::start_convoi(int icnv)
 		if(cnv->gib_sum_leistung() == 0 || !cnv->pruefe_alle()) {
 			create_win(100, 64, MESG_WAIT, new nachrichtenfenster_t(welt, "Diese Zusammenstellung kann nicht fahren!\n"), w_autodelete);
 		}
-		else if(!cnv->gib_vehikel(0)->calc_route(welt, this->gib_pos(), cnv->gib_fahrplan()->eintrag.at(cnv->gib_fahrplan()->get_aktuell()).pos, cnv->gib_min_top_speed(), cnv->get_route()) ) {
+		else if (!cnv->gib_vehikel(0)->calc_route(welt, this->gib_pos(), cur_pos, cnv->gib_min_top_speed(), cnv->get_route()) ) {
 			// no route to go ...
 			static char buf[256];
 			sprintf(buf,translator::translate("Vehicle %s can't find a route!"), cnv->gib_name());

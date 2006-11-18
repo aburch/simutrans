@@ -64,7 +64,7 @@ bool
 tunnelbauer_t::laden_erfolgreich()
 {
 	for(unsigned int i = 0; i < tunnel.get_count(); i++) {
-		tunnel_besch_t *besch = tunnel.get(i);
+		tunnel_besch_t* besch = tunnel[i];
 
 		if(besch->gib_topspeed()==0) {
 			// old style, need to convert
@@ -110,7 +110,7 @@ tunnelbauer_t::find_tunnel(const waytype_t wtyp, const uint32 min_speed,const ui
 	slist_tpl <const tunnel_besch_t *> matching;
 
 	for(unsigned int i = 0; i < tunnel.get_count(); i++) {
-		const tunnel_besch_t *besch = tunnel.get(i);
+		const tunnel_besch_t* besch = tunnel[i];
 		if(besch->gib_waytype() == wtyp) {
 			if(time==0  ||  (besch->get_intro_year_month()<=time  &&  besch->get_retire_year_month()>time)) {
 				if(find_besch==NULL  ||
@@ -141,7 +141,7 @@ tunnelbauer_t::fill_menu(werkzeug_parameter_waehler_t *wzw,
 {
 	slist_tpl <const tunnel_besch_t *> matching;
 	for(unsigned int i = 0; i < tunnel.get_count(); i++) {
-		const tunnel_besch_t *besch = tunnel.get(i);
+		const tunnel_besch_t* besch = tunnel[i];
 		if(besch->gib_waytype()==wtyp) {
 			if(time==0  ||  (besch->get_intro_year_month()<=time  &&  besch->get_retire_year_month()>time)) {
 				// add int sorted

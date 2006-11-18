@@ -254,33 +254,11 @@ public:
 	}
 
 
-    /**
-     * Gets the element at position i
-     * @author Hj. Malthaner
-     */
-    const T& get(unsigned int i) const
-    {
-	if(i<count) {
-	    return data[i];
-	} else {
-		dbg->fatal("minivec_tpl<T>::get()","index out of bounds: %i not in 0..%d", i, count-1);
-	    return data[0];	// silence for compiler: dummy
-	}
-    }
-
-    /**
-     * Accesses the element at position i
-     * @author Hj. Malthaner
-     */
-    T& at(unsigned int i) const
-    {
-	if(i<count) {
-	    return data[i];
-	} else {
-		dbg->fatal("minivec_tpl<T>::at()","index out of bounds: %i not in 0..%d\n", i, count-1);
-		return data[0]; // to keep compiler silence
-	}
-    }
+		T& operator [](unsigned int i) const
+		{
+			if (i >= count) dbg->fatal("minivec_tpl<T>[]","index out of bounds: %i not in 0..%d", i, count - 1);
+			return data[i];
+		}
 
 
     /**

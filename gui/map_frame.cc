@@ -385,13 +385,13 @@ void map_frame_t::zeichnen(koord pos, koord gr)
 
 			const int xpos = pos.x + (u%fac_cols)*width + 8;
 			const int ypos = pos.y+offset_y+(u/fac_cols)*14;
-			const int color = legend_colors.at(u);
+			const int color = legend_colors[u];
 
 			if(ypos+14>pos.y+gr.y) {
 				break;
 			}
 			display_fillbox_wh(xpos, ypos+1, 7, 7, color, false);
-			display_proportional( xpos+8, ypos, legend_names.get(u), ALIGN_LEFT, COL_BLACK, false);
+			display_proportional(xpos + 8, ypos, legend_names[u], ALIGN_LEFT, COL_BLACK, false);
 		}
 	}
 }

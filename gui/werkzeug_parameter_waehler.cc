@@ -193,7 +193,7 @@ void werkzeug_parameter_waehler_t::infowin_event(const event_t *ev)
 			const int wz_idx = x+(tool_icon_width*y);
 
 			if(wz_idx<(int)tools->get_count()) {
-				const struct werkzeug_t & tool = tools->at(wz_idx);
+				const struct werkzeug_t& tool = (*tools)[wz_idx];
 
 				if(tool.has_param) {
 					welt->setze_maus_funktion(tool.wzwp,  tool.cursor, tool.versatz, tool.param, tool.sound_ok, tool.sound_ko);
@@ -216,7 +216,7 @@ void werkzeug_parameter_waehler_t::infowin_event(const event_t *ev)
 void werkzeug_parameter_waehler_t::zeichnen(koord pos, koord)
 {
 	for(unsigned int i=0; i<tools->get_count(); i++) {
-		const int icon = tools->at(i).icon;
+		const int icon = (*tools)[i].icon;
 
 		const koord draw_pos=pos+koord((i%tool_icon_width)*32,16+(i/tool_icon_width)*32);
 		if(icon == -1) {
@@ -235,7 +235,7 @@ void werkzeug_parameter_waehler_t::zeichnen(koord pos, koord)
 			display_fillbox_wh(draw_pos.x+31, draw_pos.y, 1, 32, MN_GREY0, dirty);
 		}
 		else {
-			display_color_img(tools->at(i).icon, draw_pos.x, draw_pos.y, 0, false, dirty);
+			display_color_img((*tools)[i].icon, draw_pos.x, draw_pos.y, 0, false, dirty);
 		}
 	}
 
@@ -245,7 +245,7 @@ void werkzeug_parameter_waehler_t::zeichnen(koord pos, koord)
 	if(xdiff>=0  &&  xdiff<tool_icon_width  &&  ydiff>=0) {
 		const int tipnr = xdiff+(tool_icon_width*ydiff);
 		if(tipnr<(int)tools->get_count()) {
-			win_set_tooltip( gib_maus_x()+16, gib_maus_y()-16, tools->at(tipnr).tooltip);
+			win_set_tooltip(gib_maus_x() + 16, gib_maus_y() - 16, (*tools)[tipnr].tooltip);
 		}
 	}
 

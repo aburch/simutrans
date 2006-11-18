@@ -322,7 +322,7 @@ convoi_t::sync_step(long delta_t)
 			}
 			else {
 				// V.Meyer: If we are at destination - complete loading task!
-				state = gib_pos() == fpl->eintrag.get(fpl->aktuell).pos ? LOADING : ROUTING_1;
+				state = (gib_pos() == fpl->eintrag[fpl->aktuell].pos ? LOADING : ROUTING_1);
 				calc_loading();
 			}
 		}
@@ -583,11 +583,11 @@ void convoi_t::step()
 			}
 			else {
 				// check first, if we are already there:
-				if(fahr->at(0)->gib_pos()==fpl->eintrag.at(fpl->get_aktuell()).pos) {
+				if (fahr->at(0)->gib_pos() == fpl->eintrag[fpl->get_aktuell()].pos) {
 					drive_to_next_stop();
 				}
 				// Hajo: now calculate a new route
-				drive_to(fahr->at(0)->gib_pos(),fpl->eintrag.at(fpl->get_aktuell()).pos);
+				drive_to(fahr->at(0)->gib_pos(), fpl->eintrag[fpl->get_aktuell()].pos);
 				if(route.gib_max_n() > 0) {
 					// Hajo: ROUTING_3 is no more, go to CAN_START directly
 					vorfahren();
@@ -1644,9 +1644,9 @@ void convoi_t::laden()
 	if(state == FAHRPLANEINGABE) {
 		return;
 	}
-	const koord k = fpl->eintrag.get(fpl->aktuell).pos.gib_2d();
+	const koord k = fpl->eintrag[fpl->aktuell].pos.gib_2d();
 
-	halthandle_t halt = haltestelle_t::gib_halt(welt, fpl->eintrag.get(fpl->aktuell).pos);
+	halthandle_t halt = haltestelle_t::gib_halt(welt, fpl->eintrag[fpl->aktuell].pos);
 	// eigene haltestelle ?
 	if(halt.is_bound()  &&  (halt->gib_besitzer()==gib_besitzer()  ||  halt->gib_besitzer()==welt->gib_spieler(1)) ) {
 		// loading/unloading ...
@@ -1735,7 +1735,7 @@ void convoi_t::hat_gehalten(koord k, halthandle_t /*halt*/)
 	if(freight_info_resort) {
 		calc_loading();
 	}
-	loading_limit = fpl->eintrag.get(fpl->aktuell).ladegrad;
+	loading_limit = fpl->eintrag[fpl->aktuell].ladegrad;
 }
 
 

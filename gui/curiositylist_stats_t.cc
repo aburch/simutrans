@@ -154,18 +154,19 @@ void curiositylist_stats_t::zeichnen(koord offset)
 		bool some_crowded=false;
 		const minivec_tpl<halthandle_t> &halt_list = welt->access(geb->gib_pos().gib_2d())->get_haltlist();
 		for(  unsigned h=0;  (post&pax)==0  &&  h<halt_list.get_count();  h++ ) {
-			if(halt_list.get(h)->get_pax_enabled()) {
+			halthandle_t halt = halt_list[h];
+			if (halt->get_pax_enabled()) {
 				pax = true;
-				if(halt_list.get(h)->get_pax_unhappy()>40) {
+				if (halt->get_pax_unhappy() > 40) {
 					some_crowded |= true;
 				}
 				else {
 					all_crowded = false;
 				}
 			}
-			if(halt_list.get(h)->get_post_enabled()) {
+			if (halt->get_post_enabled()) {
 				post = true;
-				if(halt_list.get(h)->get_pax_unhappy()>40) {
+				if (halt->get_pax_unhappy() > 40) {
 					some_crowded |= true;
 				}
 				else {

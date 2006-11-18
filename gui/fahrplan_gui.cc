@@ -58,30 +58,31 @@ void fahrplan_gui_t::gimme_stop_name(cbuffer_t & buf,
 		dbg->warning("void fahrplan_gui_t::gimme_stop_name()","tried to recieved unused entry %i in schedule %p.",i,fpl);
 		return;
 	}
-	halthandle_t halt = haltestelle_t::gib_halt(welt,fpl->eintrag.get(i).pos);
+	const linieneintrag_t& entry = fpl->eintrag[i];
+	halthandle_t halt = haltestelle_t::gib_halt(welt, entry.pos);
 	char tmp [256];
 
 	if(halt.is_bound()) {
-		if(fpl->eintrag.get(i).ladegrad!=0) {
+		if (entry.ladegrad != 0) {
 			sprintf(tmp, "%d%% %s (%d,%d)",
-				fpl->eintrag.get(i).ladegrad,
+				entry.ladegrad,
 				halt->gib_name(),
-				fpl->eintrag.get(i).pos.x, fpl->eintrag.get(i).pos.y);
+				entry.pos.x, entry.pos.y);
 		}
 		else {
 			sprintf(tmp, "%s (%d,%d)",
 				halt->gib_name(),
-				fpl->eintrag.get(i).pos.x, fpl->eintrag.get(i).pos.y);
+				entry.pos.x, entry.pos.y);
 		}
 	}
 	else {
-		const grund_t *gr = welt->lookup(fpl->eintrag.get(i).pos);
+		const grund_t* gr = welt->lookup(entry.pos);
 
 		if(gr && gr->gib_depot() != NULL) {
-			sprintf(tmp, "%s (%d,%d)", translator::translate("Depot"), fpl->eintrag.get(i).pos.x, fpl->eintrag.get(i).pos.y);
+			sprintf(tmp, "%s (%d,%d)", translator::translate("Depot"), entry.pos.x, entry.pos.y);
 		}
 		else {
-			sprintf(tmp, "%s (%d,%d)", translator::translate("Wegpunkt"), fpl->eintrag.get(i).pos.x, fpl->eintrag.get(i).pos.y);
+			sprintf(tmp, "%s (%d,%d)", translator::translate("Wegpunkt"), entry.pos.x, entry.pos.y);
 		}
 	}
 	sprintf(tmp+max_chars-4, "...");
@@ -104,14 +105,15 @@ void fahrplan_gui_t::gimme_short_stop_name(cbuffer_t & buf,
 		dbg->warning("void fahrplan_gui_t::gimme_stop_name()","tried to recieved unused entry %i in schedule %p.",i,fpl);
 		return;
 	}
-	halthandle_t halt = haltestelle_t::gib_halt(welt,fpl->eintrag.get(i).pos);
+	const linieneintrag_t& entry = fpl->eintrag[i];
+	halthandle_t halt = haltestelle_t::gib_halt(welt, entry.pos);
 	const char *p;
 
 	if(halt.is_bound()) {
 		p = halt->gib_name();
 	}
 	else {
-		const grund_t *gr = welt->lookup(fpl->eintrag.get(i).pos);
+		const grund_t* gr = welt->lookup(entry.pos);
 
 		if(gr && gr->gib_depot() != NULL) {
 			p = translator::translate("Depot");
@@ -374,7 +376,7 @@ DBG_MESSAGE("fahrplan_gui_t::action_triggered()","komp=%p combo=%p",komp,&line_s
     }
   } else if(komp == &bt_prev) {
     if(fpl->maxi() > 0) {
-      uint8 & load = fpl->eintrag.at(fpl->aktuell).ladegrad;
+      uint8& load = fpl->eintrag[fpl->aktuell].ladegrad;
       uint8 index=0;
       while(load>ladegrade[index]) {
       	index ++;
@@ -383,7 +385,7 @@ DBG_MESSAGE("fahrplan_gui_t::action_triggered()","komp=%p combo=%p",komp,&line_s
     }
   } else if(komp == &bt_next) {
     if(fpl->maxi() > 0) {
-      uint8 & load = fpl->eintrag.at(fpl->aktuell).ladegrad;
+      uint8& load = fpl->eintrag[fpl->aktuell].ladegrad;
       uint8 index=0;
       while(load>ladegrade[index]) {
       	index ++;
@@ -430,7 +432,7 @@ fahrplan_gui_t::zeichnen(koord pos, koord groesse)
 		}
 		else {
 			unsigned current = max( 0, min(fpl->aktuell,fpl->maxi()-1 ) );
-			sprintf(tmp, "%3d%%\n", fpl->eintrag.get(current).ladegrad);
+			sprintf(tmp, "%3d%%\n", fpl->eintrag[current].ladegrad);
 		}
 		display_multiline_text(pos.x+105, pos.y+40, tmp, COL_BLACK);
 	}

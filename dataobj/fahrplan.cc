@@ -56,7 +56,7 @@ fahrplan_t::fahrplan_t(fahrplan_t * old) : eintrag(0)
 		type = old->type;
 
 		for(unsigned i=0; i<old->eintrag.get_count(); i++) {
-			eintrag.append(old->eintrag.at(i));
+			eintrag.append(old->eintrag[i]);
 		}
 		abgeschlossen = true;
 		alle_fahrplaene.insert(this);
@@ -96,7 +96,7 @@ void fahrplan_t::copy_from(const fahrplan_t *src)
 	}
 	eintrag.clear();
 	for(unsigned i=0; i<src->eintrag.get_count(); i++) {
-		eintrag.append(src->eintrag.get(i));
+		eintrag.append(src->eintrag[i]);
 	}
 	if(aktuell>=(int)eintrag.get_count()) {
 		aktuell = eintrag.get_count()-1;
@@ -189,11 +189,11 @@ fahrplan_t::cleanup()
 	}
 
 	// first and last must not be the same!
-	koord3d lastpos=eintrag.get( eintrag.get_count()-1 ).pos;
+	koord3d lastpos = eintrag[eintrag.get_count() - 1].pos;
 	bool ok=true;
   	// now we have to check all entries ...
 	for(unsigned i=0; i<eintrag.get_count(); i++) {
-		if(eintrag.get(i).pos==lastpos) {
+		if (eintrag[i].pos == lastpos) {
 			// ingore double entries just one after the other
 			ok = false;
 			eintrag.remove_at(i);
@@ -201,15 +201,14 @@ fahrplan_t::cleanup()
 				aktuell --;
 			}
 			i--;
-		}
-		else if(eintrag.get(i).pos==koord3d::invalid) {
+		} else if (eintrag[i].pos == koord3d::invalid) {
 			// ingore double entries just one after the other
 			ok = false;
 			eintrag.remove_at(i);
 		}
 		else {
 			// next pos for check
-			lastpos = eintrag.get(i).pos;
+			lastpos = eintrag[i].pos;
 		}
 	}
 	if((unsigned)aktuell>eintrag.get_count()-1) {
@@ -269,8 +268,8 @@ fahrplan_t::rdwr(loadsave_t *file)
 	else {
 		// saving
 		for(unsigned i=0; i<eintrag.get_count(); i++) {
-			eintrag.at(i).pos.rdwr(file);
-			dummy = eintrag.at(i).ladegrad;
+			eintrag[i].pos.rdwr(file);
+			dummy = eintrag[i].ladegrad;
 			file->rdwr_long(dummy, "\n");
 		}
 	}
@@ -298,7 +297,7 @@ fahrplan_t::matches(const fahrplan_t *fpl)
   	}
   	// now we have to check all entries ...
 	for(unsigned i = 0; i<eintrag.get_count(); i++) {
-		if (fpl->eintrag.get(i).pos!=eintrag.get(i).pos) {	// ladegrad ignored?
+		if (fpl->eintrag[i].pos != eintrag[i].pos) { // ladegrad ignored?
 			return false;
 		}
 	}
@@ -312,7 +311,7 @@ fahrplan_t::add_return_way(karte_t *)
 {
 	if(eintrag.get_count()<127) {
 		for( int maxi = ((int)eintrag.get_count())-2;  maxi>0;  maxi--  ) {
-			eintrag.append( eintrag.at(maxi) );
+			eintrag.append(eintrag[maxi]);
 		}
 	}
 }
@@ -323,7 +322,7 @@ fahrplan_t::fahrplan_type fahrplan_t::get_type(karte_t * welt) const
 	if(eintrag.get_count()==0) {
 		return type;
 	}
-	const grund_t *gr = welt->lookup(eintrag.get(0).pos);
+	const grund_t* gr = welt->lookup(eintrag[0].pos);
 	if ( type != fahrplan_t::fahrplan ) {
 		//
 	} else if (gr->hat_weg(road_wt)) {

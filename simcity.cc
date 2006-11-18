@@ -994,7 +994,7 @@ stadt_t::step_passagiere()
 	// suitable start search
 	halthandle_t start_halt = halthandle_t();
 	for( unsigned h=0;  h<halt_list.get_count();  h++ ) {
-		halthandle_t halt = halt_list.at(h);
+		halthandle_t halt = halt_list[h];
 		if(halt->is_enabled(wtyp)) {
 			start_halt = halt;
 			break;
@@ -1033,7 +1033,7 @@ stadt_t::step_passagiere()
 			// suitable end search
 			unsigned ziel_count=0;
 			for( unsigned h=0;  h<dest_list.get_count();  h++ ) {
-				halthandle_t halt = dest_list.at(h);
+				halthandle_t halt = dest_list[h];
 				if(halt->is_enabled(wtyp)) {
 					ziel_count ++;
 					break;	// because we found at least one valid step ...
@@ -1065,7 +1065,7 @@ stadt_t::step_passagiere()
 				// we try all stations to find one not overcrowded
 				bool overcrowded=true;
 				for( unsigned halte=0;  halte<halt_list.get_count();  halte++  ) {
-					halthandle_t halt = halt_list.get(halte);
+					halthandle_t halt = halt_list[halte];
 					if(halt->is_enabled(wtyp)) {
 						if(start_halt->gib_ware_summe(wtyp) <= start_halt->get_capacity()) {
 							// prissi: not overcrowded so now try routing
@@ -1126,7 +1126,7 @@ stadt_t::step_passagiere()
 					warenziel_t wz(start_halt->gib_basis_pos(),wtyp);
 					bool found = false;
 					for(  unsigned i=0;  i<halt_list.get_count();  i++  ) {
-						halthandle_t test_halt=halt_list.at(i);
+						halthandle_t test_halt = halt_list[i];
 						if(test_halt->is_enabled(wtyp)  &&  (start_halt==test_halt  ||  test_halt->gib_warenziele()->contains(wz))  ) {
 							found = true;
 							start_halt = test_halt;
@@ -1185,7 +1185,7 @@ stadt_t::step_passagiere()
 		// check destination stop to add no route
 		const minivec_tpl <halthandle_t> &dest_no_src_list = welt->access(ziel)->get_haltlist();
 		for( unsigned halte=0;  halte<dest_no_src_list.get_count();  halte++  ) {
-			halthandle_t halt = dest_no_src_list.get(halte);
+			halthandle_t halt = dest_no_src_list[halte];
 			if(halt->is_enabled(wtyp)) {
 				// add no route back
 				halt->add_pax_no_route(num_pax);

@@ -521,7 +521,7 @@ void vehikel_t::remove_stale_freight()
       bool found = false;
 
       for (int i = 0; i < fpl->maxi(); i++) {
-	if (haltestelle_t::gib_halt(welt, fpl->eintrag.at(i).pos.gib_2d()) ==
+	if (haltestelle_t::gib_halt(welt, fpl->eintrag[i].pos.gib_2d()) ==
 	    haltestelle_t::gib_halt(welt, tmp.gib_zwischenziel())) {
 	  found = true;
 	  break;

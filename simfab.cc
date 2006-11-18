@@ -802,7 +802,7 @@ void fabrik_t::verteile_waren(const uint32 produkt)
 
 	// ok, first send everything away
 	for(  unsigned i=0;  i<haltlist.get_count();  i++  ) {
-		halthandle_t halt = haltlist.get(i);
+		halthandle_t halt = haltlist[i];
 
 		// Über alle Ziele iterieren
 		for(uint32 n=0; n<lieferziele.get_count(); n++) {
@@ -1206,7 +1206,7 @@ void fabrik_t::info(cbuffer_t & buf)
 	minivec_tpl<halthandle_t> &haltlist = welt->access(pos.gib_2d())->get_haltlist();
 	for(unsigned i=0;  i<haltlist.get_count();  i++  ) {
 	     buf.append("\n");
-		buf.append(haltlist.at(i)->gib_name());
+		buf.append(haltlist[i]->gib_name());
 	}
 #endif
 }

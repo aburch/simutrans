@@ -424,7 +424,7 @@ planquadrat_t::display_dinge(const sint16 xpos, const sint16 ypos, const sint16 
 		const sint16 y=ypos+(raster_tile_width*3)/4-r - (gr->gib_grund_hang()? tile_raster_scale_y(8,raster_tile_width): 0);
 		// suitable start search
 		for(sint16 h=halt_list.get_count()-1;  h>=0;  h--  ) {
-			display_fillbox_wh_clip( x-h*2, y+h*2, r, r, PLAYER_FLAG|((halt_list.at(h)->gib_besitzer()->get_player_color())*4+4), kartenboden_dirty );
+			display_fillbox_wh_clip(x - h * 2, y + h * 2, r, r, PLAYER_FLAG | (halt_list[h]->gib_besitzer()->get_player_color() * 4 + 4), kartenboden_dirty);
 		}
 	}
 }
@@ -468,8 +468,8 @@ void planquadrat_t::add_to_haltlist(halthandle_t halt)
 			for(insert_pos=0;  insert_pos<halt_list.get_count();  insert_pos++) {
 
 				// not a passenger KI or other is farer away
-				if(  !halt_list.get(insert_pos)->gib_besitzer()->has_passenger()
-				      ||  abs_distance( halt_list.get(insert_pos)->get_next_pos(pos), pos ) > abs_distance( halt->get_next_pos(pos), pos )  )
+				if (!halt_list[insert_pos]->gib_besitzer()->has_passenger() ||
+						abs_distance(halt_list[insert_pos]->get_next_pos(pos), pos) > abs_distance(halt->get_next_pos(pos), pos))
 				{
 
 					halt_list.insert_at( insert_pos, halt );
