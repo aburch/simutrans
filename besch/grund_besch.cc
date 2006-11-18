@@ -377,7 +377,7 @@ grund_besch_t::calc_water_level(karte_t *w, uint8 *height_to_climate)
 		display_free_all_images_above( image_offset );
 	}
 	while(ground_bild_list.count()>0) {
-		guarded_free( ground_bild_list.remove_first() );
+		delete ground_bild_list.remove_first();
 	}
 
 	// create height table
