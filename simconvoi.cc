@@ -1103,7 +1103,6 @@ convoi_t::vorfahren()
 
 		ribi_t::ribi neue_richtung =  fahr->at(0)->calc_richtung(route.position_bei(0).gib_2d(), route.position_bei(1).gib_2d(), dummy1, dummy2);
 		go_neue_richtung();
-		bool extra_check=false;	// if there are only four view, we may need to extra advance the car
 		unsigned i;	// for braindead VC++
 
 		for(i=0; i<anz_vehikel; i++) {
@@ -1113,11 +1112,9 @@ convoi_t::vorfahren()
 					break;
 				case ribi_t::ost :
 					fahr->at(i)->setze_offsets(-2,-1);
-					extra_check = true;
 					break;
 				case ribi_t::nord:
 					fahr->at(i)->setze_offsets(-10,5);
-					extra_check = true;
 					break;
 				case ribi_t::sued:
 					fahr->at(i)->setze_offsets(2,-1);
