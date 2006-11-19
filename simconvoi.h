@@ -126,7 +126,7 @@ private:
 	*
 	* @author Hj. Malthaner
 	*/
-	array_tpl <vehikel_t *> *fahr;
+	array_tpl<vehikel_t*> fahr;
 
 	/**
 	* Convoi owner
@@ -547,7 +547,7 @@ public:
 	/**
 	 * @return Vehicle at position i
 	 */
-	vehikel_t* gib_vehikel(uint16 i) const { return fahr->at(i); }
+	vehikel_t* gib_vehikel(uint16 i) const { return fahr.at(i); }
 
 	/**
 	* Adds a vehicel at the start or end of the convoi.
