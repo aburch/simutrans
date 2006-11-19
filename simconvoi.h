@@ -129,12 +129,6 @@ private:
 	array_tpl <vehikel_t *> *fahr;
 
 	/**
-	* Während des Routings müssen zeitweise die pos gespeichert werden
-	* @author Hj. Malthaner
-	*/
-	static array_tpl <koord3d> tmp_pos;
-
-	/**
 	* Convoi owner
 	* @author Hj. Malthaner
 	*/
