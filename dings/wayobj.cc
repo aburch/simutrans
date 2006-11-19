@@ -98,9 +98,9 @@ void wayobj_t::rdwr(loadsave_t *file)
 			char bname[128];
 			file->rd_str_into(bname, "N");
 
-			besch = (const way_obj_besch_t *)wayobj_t::table.get(bname);
+			besch = wayobj_t::table.get(bname);
 			if(!besch) {
-				besch = (const way_obj_besch_t *)wayobj_t::table.get(translator::compatibility_name(bname));
+				besch = wayobj_t::table.get(translator::compatibility_name(bname));
 			}
 			if(!besch) {
 				DBG_MESSAGE("wayobj_t::rwdr", "description %s for wayobj_t at %d,%d not found, will be removed!", bname, gib_pos().x, gib_pos().y);

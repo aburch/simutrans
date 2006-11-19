@@ -78,7 +78,7 @@ bool warenbauer_t::register_besch(ware_besch_t *besch)
 const ware_besch_t *
 warenbauer_t::gib_info(const char* name)
 {
-    const ware_besch_t *t = (const ware_besch_t *)besch_names.get(name);
+    const ware_besch_t* t = besch_names.get(name);
     if(t == NULL) {
         dbg->error("warenbauer_t::gib_info()", "No info for good '%s' available", name);
     }
@@ -93,7 +93,7 @@ warenbauer_t::gib_info_catg(const sint8 catg)
 	if(catg>0) {
 		for(unsigned i=0;  i<gib_waren_anzahl();  i++  ) {
 			if(waren.at(i)->catg==catg) {
-				return (const ware_besch_t *)waren.at(i);
+				return waren.at(i);
 			}
 		}
 	}

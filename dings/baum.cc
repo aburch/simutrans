@@ -344,7 +344,7 @@ baum_t::rdwr(loadsave_t *file)
 		char bname[128];
 		file->rd_str_into(bname, "N");
 
-		besch = (const baum_besch_t *)besch_names.get(bname);
+		besch = besch_names.get(bname);
 		if(!besch) {
 			// replace with random tree
 			if(baum_typen.count()>0) {

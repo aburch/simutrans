@@ -342,9 +342,9 @@ roadsign_t::rdwr(loadsave_t *file)
 		char bname[128];
 		file->rd_str_into(bname, "N");
 
-		besch = (const roadsign_besch_t *)roadsign_t::table.get(bname);
+		besch = roadsign_t::table.get(bname);
 		if(!besch) {
-			besch = (const roadsign_besch_t *)roadsign_t::table.get(translator::compatibility_name(bname));
+			besch = roadsign_t::table.get(translator::compatibility_name(bname));
 		}
 		if(!besch) {
 			DBG_MESSAGE("roadsign_t::rwdr", "description %s for roadsign at %d,%d not found, will be removed!", bname, gib_pos().x, gib_pos().y);
