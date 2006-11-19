@@ -206,10 +206,11 @@ convoi_t::laden_abschliessen()
 	if(anz_vehikel>0) {
 DBG_MESSAGE("convoi_t::laden_abschliessen()","state=%s, next_stop_index=%d", state_names[state] );
 		for( unsigned i=0;  i<anz_vehikel;  i++ ) {
-			fahr->at(i)->setze_erstes( i==0 );
-			fahr->at(i)->setze_letztes( i==(anz_vehikel-1u) );
+			vehikel_t* v = fahr->at(i);
+			v->setze_erstes(i == 0);
+			v->setze_letztes(i == anz_vehikel - 1U);
 			// this sets the convoi and will renew the block reservation, if needed!
-			fahr->at(i)->setze_convoi( this );
+			v->setze_convoi(this);
 		}
 DBG_MESSAGE("convoi_t::laden_abschliessen()","next_stop_index=%d", next_stop_index );
 		// lines are still unknown during loading!
@@ -352,10 +353,10 @@ convoi_t::sync_step(long delta_t)
 			sum_gesamtgewicht = 0;
 			// calculate total friction
 			for(unsigned i=0; i<anz_vehikel; i++) {
-				int total_vehicle_weight;
+				const vehikel_t* v = fahr->at(i);
+				int total_vehicle_weight = v->gib_gesamtgewicht();
 
-				total_vehicle_weight = fahr->at(i)->gib_gesamtgewicht();
-				sum_friction_weight += fahr->at(i)->gib_frictionfactor()*total_vehicle_weight;
+				sum_friction_weight += v->gib_frictionfactor() * total_vehicle_weight;
 				sum_gesamtgewicht += total_vehicle_weight;
 			}
 
@@ -431,11 +432,13 @@ convoi_t::sync_step(long delta_t)
 
 	} // end if(anz_ready==0)
 	else {
+		const vehikel_t* v = fahr->at(0);
+
 		// Ziel erreicht
-		alte_richtung = fahr->at(0)->gib_fahrtrichtung();
+		alte_richtung = v->gib_fahrtrichtung();
 
 		// pruefen ob wir ein depot erreicht haben
-		const grund_t *gr = welt->lookup(fahr->at(0)->gib_pos());
+		const grund_t* gr = welt->lookup(v->gib_pos());
 		depot_t * dp = gr->gib_depot();
 
 		if(dp) {
@@ -447,7 +450,7 @@ convoi_t::sync_step(long delta_t)
 
 			akt_speed = 0;
 			sprintf(buf, translator::translate("!1_DEPOT_REACHED"), gib_name());
-			message_t::get_instance()->add_message(buf,fahr->at(0)->gib_pos().gib_2d(),message_t::convoi,gib_besitzer()->get_player_nr(),IMG_LEER);
+			message_t::get_instance()->add_message(buf, v->gib_pos().gib_2d(),message_t::convoi, gib_besitzer()->get_player_nr(), IMG_LEER);
 
 			betrete_depot(dp);
 
@@ -461,10 +464,10 @@ convoi_t::sync_step(long delta_t)
 		}
 		else {
 			// no depot reached, so book values for stop!
-			const grund_t *gr = welt->lookup(fahr->at(0)->gib_pos());
-			halthandle_t halt = haltestelle_t::gib_halt(welt, fahr->at(0)->gib_pos());
+			const grund_t* gr = welt->lookup(v->gib_pos());
+			halthandle_t halt = haltestelle_t::gib_halt(welt, v->gib_pos());
 			// we could have reached a non-haltestelle stop, so check before booking!
-			if(halt.is_bound()  &&  gr->gib_weg_ribi(fahr->at(0)->gib_waytype())!=0) {
+			if (halt.is_bound() && gr->gib_weg_ribi(v->gib_waytype()) != 0) {
 				// Gewinn für transport einstreichen
 				calc_gewinn(true);
 				akt_speed = 0;
@@ -497,7 +500,8 @@ convoi_t::sync_step(long delta_t)
     case SELF_DESTRUCT:
 		{
 			for(unsigned f=0; f<anz_vehikel; f++) {
-				besitzer_p->buche(fahr->at(f)->calc_restwert(), fahr->at(f)->gib_pos().gib_2d(), COST_NEW_VEHICLE);
+				const vehikel_t* v = fahr->at(f);
+				besitzer_p->buche(v->calc_restwert(), v->gib_pos().gib_2d(), COST_NEW_VEHICLE);
 			}
 			destroy();
 		}
@@ -575,47 +579,53 @@ void convoi_t::step()
 
 		case DUMMY4:
 		case DUMMY5:
-		case ROUTING_2:
+		case ROUTING_2: {
+			vehikel_t* v = fahr->at(0);
+
 			if(fpl->maxi()==0) {
 				// no entries => no route ...
-				gib_besitzer()->bescheid_vehikel_problem(self,fahr->at(0)->gib_pos());
+				gib_besitzer()->bescheid_vehikel_problem(self, v->gib_pos());
 			}
 			else {
 				// check first, if we are already there:
-				if (fahr->at(0)->gib_pos() == fpl->eintrag[fpl->get_aktuell()].pos) {
+				if (v->gib_pos() == fpl->eintrag[fpl->get_aktuell()].pos) {
 					drive_to_next_stop();
 				}
 				// Hajo: now calculate a new route
-				drive_to(fahr->at(0)->gib_pos(), fpl->eintrag[fpl->get_aktuell()].pos);
+				drive_to(v->gib_pos(), fpl->eintrag[fpl->get_aktuell()].pos);
 				if(route.gib_max_n() > 0) {
 					// Hajo: ROUTING_3 is no more, go to CAN_START directly
 					vorfahren();
 					state = CAN_START;
 					// to advance more smoothly
 					int restart_speed=-1;
-					if(fahr->at(0)->ist_weg_frei(restart_speed)) {
+					if (v->ist_weg_frei(restart_speed)) {
 						// can reserve new block => drive on
 						state = DRIVING;
-						fahr->at(0)->play_sound();
+						v->play_sound();
 					}
 				}
 			}
 			break;
+		}
 
 		case CAN_START:
-		case CAN_START_ONE_MONTH:
+		case CAN_START_ONE_MONTH: {
+			vehikel_t* v = fahr->at(0);
+
 			if((self.get_id()&1)==(welt->gib_steps()&1)) {
 				int restart_speed=-1;
-				if(fahr->at(0)->ist_weg_frei(restart_speed)) {
+				if (v->ist_weg_frei(restart_speed)) {
 					// can reserve new block => drive on
 					state = DRIVING;
-					fahr->at(0)->play_sound();
+					v->play_sound();
 				}
 				if(restart_speed>=0) {
 					akt_speed = restart_speed;
 				}
 			}
 			break;
+		}
 
 		case WAITING_FOR_CLEARANCE:
 		case WAITING_FOR_CLEARANCE_ONE_MONTH:
@@ -694,12 +704,14 @@ convoi_t::betrete_depot(depot_t *dep)
 {
 	// Hajo: remove vehicles from world data structure
 	for(unsigned i=0; i<anz_vehikel; i++) {
-		grund_t *gr=welt->lookup(fahr->at(i)->gib_pos());
+		const vehikel_t* v = fahr->at(i);
+
+		grund_t* gr = welt->lookup(v->gib_pos());
 		if(gr) {
 			// remove from blockstrecke
-			gr->obj_remove(fahr->at(i),gib_besitzer());
-			if(fahr->at(i)->gib_waytype()==track_wt  ||  fahr->at(i)->gib_waytype()==monorail_wt) {
-				schiene_t *sch=(schiene_t *)gr->gib_weg(fahr->at(i)->gib_waytype());
+			gr->obj_remove(v, gib_besitzer());
+			if (v->gib_waytype() == track_wt || v->gib_waytype() == monorail_wt) {
+				schiene_t* sch = (schiene_t*)gr->gib_weg(v->gib_waytype());
 				sch->unreserve(self);
 			}
 		}
@@ -725,9 +737,11 @@ convoi_t::start()
 		set_home_depot(gib_pos());
 /*
 		for(unsigned i=0; i<anz_vehikel; i++) {
-			grund_t * gr = welt->lookup(fahr->at(i)->gib_pos());
-			if(!gr->obj_ist_da(fahr->at(i))) {
-				fahr->at(i)->betrete_feld();
+			const vehikel_t* v = fahr->at(i);
+
+			const grund_t* gr = welt->lookup(v->gib_pos());
+			if (!gr->obj_ist_da(v)) {
+				v->betrete_feld();
 			}
 		}
 */
@@ -939,8 +953,10 @@ fahrplan_t *
 convoi_t::erzeuge_fahrplan()
 {
 	if(fpl == NULL) {
-		if(fahr->at(0) != NULL) {
-			fpl = fahr->at(0)->erzeuge_neuen_fahrplan();
+		const vehikel_t* v = fahr->at(0);
+
+		if (v != NULL) {
+			fpl = v->erzeuge_neuen_fahrplan();
 			fpl->eingabe_abschliessen();
 		}
 	}
@@ -984,15 +1000,19 @@ convoi_t::can_go_alte_richtung()
 	// now get the actual length and the tile length
 	int length=15;
 	unsigned i;	// for visual C++
+	const vehikel_t* pred = NULL;
 	for(i=0; i<anz_vehikel; i++) {
-		length+=fahr->at(i)->gib_besch()->get_length();
-		if(i>0  &&  abs_distance( fahr->at(i)->gib_pos().gib_2d(), fahr->at(i-1)->gib_pos().gib_2d())>=2 ) {
+		const vehikel_t* v = fahr->at(i);
+
+		length += v->gib_besch()->get_length();
+		if (pred != NULL && abs_distance(v->gib_pos().gib_2d(), pred->gib_pos().gib_2d()) >= 2) {
 			// ending here is an error!
 			// this is an already broken train => restart
 			dbg->warning("convoi_t::go_alte_richtung()","broken convoy (id %i) found => fixing!",self.get_id());
 			akt_speed = 8;
 			return false;
 		}
+		pred = v;
 	}
 	length = min((length/16)+2,route.gib_max_n()-1);	// maximum length in tiles to check
 
@@ -1026,12 +1046,14 @@ convoi_t::can_go_alte_richtung()
 	// since we need the route for every vehicle of this convoi,
 	// we mus set the current route index (instead assuming 1)
 	for(i=0; i<anz_vehikel; i++) {
+		vehikel_t* v = fahr->at(i);
+
 		// this is such akward, since it takes into account different vehicle length
-		const koord3d vehicle_start_pos = fahr->at(i)->gib_pos();
+		const koord3d vehicle_start_pos = v->gib_pos();
 		bool ok=false;
 		for( int idx=0;  idx<length;  idx++  ) {
 			if(route.position_bei(idx)==vehicle_start_pos) {
-				fahr->at(i)->neue_fahrt( idx, false );
+				v->neue_fahrt(idx, false);
 				ok = true;
 				break;
 			}
@@ -1044,8 +1066,10 @@ convoi_t::can_go_alte_richtung()
 
 	// on curves the vehicle may be already on the next tile but with a wrong direction
 	for(i=0; i<anz_vehikel; i++) {
-		uint8 richtung = fahr->at(i)->gib_fahrtrichtung();
-		uint8 neu_richtung=fahr->at(i)->richtung();
+		vehikel_t* v = fahr->at(i);
+
+		uint8 richtung = v->gib_fahrtrichtung();
+		uint8 neu_richtung = v->richtung();
 		// we need to move to this place ...
 		if(neu_richtung!=richtung  &&  (i!=0  ||  anz_vehikel==1)) {
 			// 90 deg bend!
@@ -1076,29 +1100,31 @@ convoi_t::vorfahren()
 		// we must realign the vehicles on the track ...
 		const koord3d k0 = route.position_bei(0);
 		for(unsigned i=0; i<anz_vehikel; i++) {
-			grund_t *gr=welt->lookup(fahr->at(i)->gib_pos());
+			vehikel_t* v = fahr->at(i);
+
+			grund_t* gr = welt->lookup(v->gib_pos());
 			if(gr) {
 				// remove from blockstrecke
-				if(fahr->at(i)->gib_waytype()==track_wt  ||  fahr->at(i)->gib_waytype()==monorail_wt) {
-					schiene_t *sch=(schiene_t *)gr->gib_weg(fahr->at(i)->gib_waytype());
+				if (v->gib_waytype() == track_wt || v->gib_waytype() == monorail_wt) {
+					schiene_t* sch = (schiene_t*)gr->gib_weg(v->gib_waytype());
 					if(sch) {
 						sch->unreserve(self);
 					}
 				}
-				gr->obj_remove(fahr->at(i),gib_besitzer());
+				gr->obj_remove(v, gib_besitzer());
 			}
-			fahr->at(i)->neue_fahrt(0, true);
+			v->neue_fahrt(0, true);
 			gr=welt->lookup(k0);
 			if(gr) {
 				// add to blockstrecke
-				if(fahr->at(i)->gib_waytype()==track_wt  ||  fahr->at(i)->gib_waytype()==monorail_wt) {
-					schiene_t *sch=(schiene_t *)gr->gib_weg(fahr->at(i)->gib_waytype());
+				if (v->gib_waytype() == track_wt || v->gib_waytype() == monorail_wt) {
+					schiene_t* sch = (schiene_t*)gr->gib_weg(v->gib_waytype());
 					if(sch) {
 						sch->reserve(self);
 					}
 				}
-				fahr->at(i)->setze_pos(k0);
-				fahr->at(i)->betrete_feld();
+				v->setze_pos(k0);
+				v->betrete_feld();
 			}
 		}
 
@@ -1112,12 +1138,14 @@ convoi_t::vorfahren()
 		// now advance all convoi until it is completely on the track
 		fahr->at(0)->setze_erstes( false );	// switches off signal checks ...
 		for(unsigned i=0; i<anz_vehikel; i++) {
-			fahr->at(i)->darf_rauchen(false);
+			vehikel_t* v = fahr->at(i);
+
+			v->darf_rauchen(false);
 			for(int j=0; j<train_length; j++) {
-				fahr->at(i)->sync_step();
+				v->sync_step();
 			}
-			train_length -= fahr->at(i)->gib_besch()->get_length();	// this give the length in 1/16 of a full tile => all cars closely coupled!
-			fahr->at(i)->darf_rauchen(true);
+			train_length -= v->gib_besch()->get_length();	// this give the length in 1/16 of a full tile => all cars closely coupled!
+			v->darf_rauchen(true);
 		}
 		fahr->at(0)->setze_erstes( true );
 	}
@@ -1201,6 +1229,8 @@ convoi_t::rdwr(loadsave_t *file)
 
 	koord3d dummy_pos;
 	for(unsigned i=0; i<anz_vehikel; i++) {
+		vehikel_t*& vi = fahr->at(i);
+
 		if(file->is_saving()) {
 			fahr->at(i)->rdwr(file, true);
 		}
@@ -1228,7 +1258,7 @@ convoi_t::rdwr(loadsave_t *file)
 			}
 
 			assert(v != 0  &&  v->gib_besch()!=NULL);
-			fahr->at(i)  = v;
+			vi = v;
 
 			const vehikel_besch_t *info = v->gib_besch();
 
@@ -1253,8 +1283,8 @@ convoi_t::rdwr(loadsave_t *file)
 					dbg->fatal("convoi_t::rdwr()", "invalid position %s for vehicle %s in state %d (setting to ground %s)", (const char*)k3_to_cstr(v->gib_pos()), v->gib_name(), state, (const char*)k3_to_cstr(gr->gib_pos()));
 				}
 				// add to blockstrecke
-				if(fahr->at(i)->gib_waytype()==track_wt  ||  fahr->at(i)->gib_waytype()==monorail_wt) {
-					schiene_t *sch=(schiene_t *)gr->gib_weg(fahr->at(i)->gib_waytype());
+				if (vi->gib_waytype() == track_wt || vi->gib_waytype() == monorail_wt) {
+					schiene_t* sch = (schiene_t*)gr->gib_weg(vi->gib_waytype());
 					if(sch) {
 						sch->reserve(self);
 					}
@@ -1269,8 +1299,9 @@ convoi_t::rdwr(loadsave_t *file)
 	file->rdwr_bool(has_fpl, "");
 	if(has_fpl) {
 		//DBG_MESSAGE("convoi_t::rdwr()","convoi has a schedule, state %s!",state_names[state]);
-		if(file->is_loading() && fahr->at(0)) {
-			fpl = fahr->at(0)->erzeuge_neuen_fahrplan();
+		const vehikel_t* v = fahr->at(0);
+		if(file->is_loading() && v) {
+			fpl = v->erzeuge_neuen_fahrplan();
 		}
 		// Hajo: hack to load corrupted games -> there is a schedule
 		// but no vehicle so we can't determine the exact type of
@@ -1375,10 +1406,11 @@ convoi_t::zeige_info()
 
 void convoi_t::info(cbuffer_t & buf) const
 {
-  if(fahr->at(0) != NULL) {
+	const vehikel_t* v = fahr->at(0);
+	if (v != NULL) {
     char tmp[128];
 
-    sprintf(tmp,"\n %d/%dkm/h (%1.2f$/km)\n", speed_to_kmh(min_top_speed), speed_to_kmh(fahr->at(0)->gib_speed()), get_running_cost()/100.0 );
+    sprintf(tmp, "\n %d/%dkm/h (%1.2f$/km)\n", speed_to_kmh(min_top_speed), speed_to_kmh(v->gib_speed()), get_running_cost() / 100.0);
     buf.append(tmp);
 
     sprintf(tmp," %s: %ikW\n", translator::translate("Leistung"), sum_leistung );
@@ -1419,15 +1451,17 @@ void convoi_t::get_freight_info(cbuffer_t & buf)
 
 		unsigned i;
 		for(i=0; i<anz_vehikel; i++) {
+			const vehikel_t* v = fahr->at(i);
+
 			// first add to capacity indicator
-			const ware_besch_t *ware_besch=fahr->at(i)->gib_besch()->gib_ware();
-			const uint16 menge=fahr->at(i)->gib_besch()->gib_zuladung();
+			const ware_besch_t* ware_besch = v->gib_besch()->gib_ware();
+			const uint16 menge = v->gib_besch()->gib_zuladung();
 			if(menge>0  &&  ware_besch!=warenbauer_t::nichts) {
 				max_loaded_waren[ware_besch->gib_index()] += menge;
 			}
 
 			// then add the actual load
-			slist_iterator_tpl<ware_t> iter_vehicle_ware (fahr->at(i)->gib_fracht());
+			slist_iterator_tpl<ware_t> iter_vehicle_ware(v->gib_fracht());
 			while(iter_vehicle_ware.next()) {
 				ware_t ware= iter_vehicle_ware.get_current();
 				slist_iterator_tpl<ware_t> iter (total_fracht);
@@ -1595,13 +1629,16 @@ convoi_t::pruefe_alle()
     bool ok = !anz_vehikel || pruefe_vorgaenger(NULL, fahr->at(0)->gib_besch());
     unsigned i;
 
+	const vehikel_t* pred = fahr->at(0);
     for(i = 1; ok && i < anz_vehikel; i++) {
+		const vehikel_t* v = fahr->at(i);
 	ok =
-	    pruefe_nachfolger(fahr->at(i - 1)->gib_besch(), fahr->at(i)->gib_besch()) &&
-	    pruefe_vorgaenger(fahr->at(i - 1)->gib_besch(), fahr->at(i)->gib_besch());
+			pruefe_nachfolger(pred->gib_besch(), v->gib_besch()) &&
+			pruefe_vorgaenger(pred->gib_besch(), v->gib_besch());
+		pred = v;
     }
     if(ok)
-	ok = pruefe_nachfolger(fahr->at(i - 1)->gib_besch(), NULL);
+	ok = pruefe_nachfolger(pred->gib_besch(), NULL);
 
     return ok;
 }
@@ -1657,21 +1694,22 @@ void convoi_t::calc_gewinn(bool in_station)
 {
 	sint64 gewinn = 0;
 
+	const vehikel_t* head = fahr->at(0);
 	// ships will be always considered fully in harbour
-	in_station &= (fahr->at(0)->gib_waytype()!=water_wt);
+	in_station &= (head->gib_waytype() != water_wt);
 
 	for(unsigned i=0; i<anz_vehikel; i++) {
-		vehikel_t *v = fahr->at(i);
+		const vehikel_t* v = fahr->at(i);
 		if(!in_station  ||  welt->lookup(v->gib_pos())->gib_halt().is_bound()) {
 			// in a station, calc only for vehicles which are unloaded
-			gewinn += v->calc_gewinn(last_stop_pos, fahr->at(0)->gib_pos() );
+			gewinn += v->calc_gewinn(last_stop_pos, head->gib_pos());
 		}
 	}
 	if(anz_vehikel>0) {
-		last_stop_pos = fahr->at(0)->gib_pos();
+		last_stop_pos = head->gib_pos();
 	}
 
-	besitzer_p->buche(gewinn, fahr->at(0)->gib_pos().gib_2d(), COST_INCOME);
+	besitzer_p->buche(gewinn, head->gib_pos().gib_2d(), COST_INCOME);
 	jahresgewinn += gewinn;
 
 	// hsiegeln
