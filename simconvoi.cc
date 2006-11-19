@@ -408,7 +408,7 @@ convoi_t::sync_step(long delta_t)
 				sp_soll &= 1023;
 				return true;
 			}
-			for(unsigned i=1; i<anz_vehikel  &&  !anz_ready; i++) {
+			for(unsigned i=1; i<anz_vehikel; i++) {
 				fahr[i]->sync_step();
 			}
 		}

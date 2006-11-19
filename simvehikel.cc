@@ -856,10 +856,12 @@ vehikel_t::rauche()
 void
 vehikel_t::fahre()
 {
+	vehikel_basis_t::fahre();
+
 	// target mark: same coordinate twice (stems from very old ages, I think)
 	if(ist_erstes  &&  pos_next==gib_pos()) {
 		// check half a tile (8 sync_steps) ahead for a tile change
-		const sint16 iterations = /*(fahrtrichtung==ribi_t::sued  || fahrtrichtung==ribi_t::ost) ? besch->get_length()/2 :*/ besch->get_length();
+		const sint16 iterations = (fahrtrichtung==ribi_t::sued  || fahrtrichtung==ribi_t::ost) ? 1 : besch->get_length();
 
 		const sint16 neu_xoff = gib_xoff() + gib_dx()*iterations;
 		const sint16 neu_yoff = gib_yoff() + gib_dy()*iterations;
@@ -871,8 +873,6 @@ vehikel_t::fahre()
 			return;
 		}
 	}
-
-	vehikel_basis_t::fahre();
 }
 
 
@@ -1127,9 +1127,9 @@ DBG_MESSAGE("vehicle_t::rdwr()","bought at %i/%i.",(insta_zeit%12)+1,insta_zeit/
 	dummy.rdwr(file);
 	pos_prev = dummy.gib_2d();
 
-	dummy.rdwr(file);	// current pos (should be save as ding!)
-	assert(gib_pos()==dummy);
-
+	if(file->get_version()<=99004) {
+		dummy.rdwr(file);	// current pos (is already saved as ding => ignore)
+	}
 	pos_next.rdwr(file);
 
 	const char *s = NULL;
