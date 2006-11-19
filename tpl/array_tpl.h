@@ -29,7 +29,7 @@ template<class T> class array_tpl
 		void resize(index resize)
 		{
 			if (size < resize) {
-				T* new_data = new T[size];
+				T* new_data = new T[resize];
 				for (index i = 0;  i < size; i++) new_data[i] = data[i];
 				delete [] data;
 				data = new_data;
@@ -40,7 +40,7 @@ template<class T> class array_tpl
 		void resize(index resize, const T& value)
 		{
 			if (size < resize) {
-				T* new_data = new T[size];
+				T* new_data = new T[resize];
 				index i;
 				for (i = 0;  i < size; i++) new_data[i] = data[i];
 				for (; i < resize; i++) new_data[i] = value;
