@@ -61,9 +61,9 @@ public:
 	ding_t *remove_last();
 
 	uint8  add(ding_t *obj);
-	uint8  remove(ding_t *obj);
+	uint8 remove(const ding_t* obj);
 	bool loesche_alle(spieler_t *sp,uint8 offset);
-	bool ist_da(ding_t *obj) const;
+	bool ist_da(const ding_t* obj) const;
 
 	inline int gib_top() const {return top;}
 

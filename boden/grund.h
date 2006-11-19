@@ -417,9 +417,9 @@ public:
 	ding_t *obj_remove_top() { return dinge.remove_last(); }
 
 	uint8  obj_add(ding_t *obj) { return dinge.add(obj); }
-	uint8  obj_remove(ding_t *obj,spieler_t *) { return dinge.remove(obj); }
+	uint8 obj_remove(const ding_t* obj, spieler_t*) { return dinge.remove(obj); }
 	bool obj_loesche_alle(spieler_t *sp) { return dinge.loesche_alle(sp,offsets[flags/has_way1]); }
-	bool obj_ist_da(ding_t *obj) const { return dinge.ist_da(obj); }
+	bool obj_ist_da(const ding_t* obj) const { return dinge.ist_da(obj); }
 	ding_t * obj_bei(uint8 n) const { return dinge.bei(n); }
 	uint8  obj_count() const { return dinge.gib_top()-offsets[flags/has_way1]; }
 	uint8 gib_top() const {return dinge.gib_top();}

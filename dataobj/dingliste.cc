@@ -436,9 +436,7 @@ dingliste_t::remove_last()
 }
 
 
-
-uint8
-dingliste_t::remove(ding_t *ding)
+uint8 dingliste_t::remove(const ding_t* ding)
 {
 	if(capacity==0) {
 		return false;
@@ -555,8 +553,7 @@ dingliste_t::calc_bild()
 
 
 /* check for obj */
-bool
-dingliste_t::ist_da(ding_t *ding) const
+bool dingliste_t::ist_da(const ding_t* ding) const
 {
 	if(capacity<=1) {
 		return obj.one==ding;
