@@ -1090,13 +1090,11 @@ convoi_t::vorfahren()
 
 	anz_ready = false;
 
-	sint8 dummy1, dummy2;
 	setze_akt_speed_soll(fahr->at(0)->gib_speed());
 
 	INT_CHECK("simconvoi 651");
 
 	if(!can_go_alte_richtung()) {
-		sint8 dx, dy;
 		// we must realign the vehicles on the track ...
 		const koord3d k0 = route.position_bei(0);
 		for(unsigned i=0; i<anz_vehikel; i++) {
