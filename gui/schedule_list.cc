@@ -30,7 +30,6 @@
 
 #include "../dataobj/fahrplan.h"
 #include "../dataobj/translator.h"
-#include "../dataobj/linie.h"
 #include "components/list_button.h"
 #include "halt_list_stats.h"
 

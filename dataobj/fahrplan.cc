@@ -19,7 +19,6 @@
 #include "loadsave.h"
 
 #include "fahrplan.h"
-#include "linie.h"
 
 #include "../tpl/slist_tpl.h"
 

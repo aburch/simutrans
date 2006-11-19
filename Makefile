@@ -136,7 +136,6 @@ SOURCES += dataobj/fahrplan.cc
 SOURCES += dataobj/freelist.cc
 SOURCES += dataobj/koord.cc
 SOURCES += dataobj/koord3d.cc
-SOURCES += dataobj/linie.cc
 SOURCES += dataobj/loadsave.cc
 SOURCES += dataobj/marker.cc
 SOURCES += dataobj/powernet.cc
