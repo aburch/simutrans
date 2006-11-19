@@ -98,10 +98,12 @@ sprachengui_t::sprachengui_t(karte_t *) :
 	add_komponente( &seperator );
 
 	for(int i=0; i<translator::get_language_count(); i++) {
-		buttons.at(i).setze_pos(koord(10 + (i%2) * 100 , 44+14*(i/2)));
-		buttons.at(i).setze_typ(button_t::square_state);
-		buttons.at(i).setze_text(translator::get_language_name(i));
-		buttons.at(i).set_no_translate(true);
+		button_t& b = buttons.at(i);
+
+		b.setze_pos(koord(10 + (i % 2) * 100 , 44 + 14 * (i / 2)));
+		b.setze_typ(button_t::square_state);
+		b.setze_text(translator::get_language_name(i));
+		b.set_no_translate(true);
 
 		// check, if font exists
 		const char *fontname=translator::translate_from_lang(i,"PROP_FONT_FILE");
@@ -111,13 +113,13 @@ sprachengui_t::sprachengui_t(karte_t *) :
 		if(f) {
 			fclose(f);
 			// only listener for working languages ...
-			buttons.at(i).add_listener(this);
+			b.add_listener(this);
 		}
 		else {
 			dbg->warning("sprachengui_t::sprachengui_t()","no font found for %s",translator::get_language_name(i) );
-			buttons.at(i).disable();
+			b.disable();
 		}
-		add_komponente( &(buttons.at(i)) );
+		add_komponente(&b);
 	}
 
 	buttons.at(translator::get_language()).pressed = true;
@@ -131,9 +133,10 @@ bool
 sprachengui_t::action_triggered(gui_komponente_t *komp, value_t)
 {
 	for(int i=0; i<translator::get_language_count(); i++) {
-		if(&(buttons.at(i))==komp) {
+		button_t& b = buttons.at(i);
+		if (&b == komp) {
 			buttons.at(translator::get_language()).pressed = false;
-			buttons.at(i).pressed = true;
+			b.pressed = true;
 			translator::set_language(i);
 			init_font_from_lang();
 		}
