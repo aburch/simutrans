@@ -545,12 +545,9 @@ public:
 	const unsigned int gib_vehikel_anzahl() const { return anz_vehikel; }
 
 	/**
-	* @return Vehicle at position i or NULL if the is not vehicle at i
-	* @author Hj. Malthaner
-	*/
-	vehikel_t * gib_vehikel(uint16 i) const {
-		return (i<fahr->get_size()) ? fahr->at(i) : NULL;
-	}
+	 * @return Vehicle at position i
+	 */
+	vehikel_t* gib_vehikel(uint16 i) const { return fahr->at(i); }
 
 	/**
 	* Adds a vehicel at the start or end of the convoi.
