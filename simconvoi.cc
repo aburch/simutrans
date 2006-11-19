@@ -101,15 +101,11 @@ void convoi_t::init(karte_t *wl, spieler_t *sp)
 	previous_delta_v = 0;
 	min_top_speed = 9999999;
 
-	fahr = new array_tpl<vehikel_t *> (max_vehicle);
+	fahr = new array_tpl<vehikel_t*>(max_vehicle, 0);
 
 	old_fpl = fpl = NULL;
 	line = linehandle_t();
 	line_id = UNVALID_LINE_ID;
-
-	for(unsigned i=0; i<fahr->get_size(); i++) {
-		fahr->at(i) = NULL;
-	}
 
 	convoi_info = NULL;
 
@@ -792,12 +788,9 @@ DBG_MESSAGE("convoi_t::add_vehikel()","at pos %i of %i totals.",anz_vehikel,max_
 	// extend array if requested (only needed for trains)
 	if(anz_vehikel == max_vehicle) {
 DBG_MESSAGE("convoi_t::add_vehikel()","extend array_tpl to %i totals.",max_rail_vehicle);
-		array_tpl <vehikel_t *> *f = new array_tpl<vehikel_t *> (max_rail_vehicle);
+		array_tpl<vehikel_t*>* f = new array_tpl<vehikel_t*>(max_rail_vehicle, 0);
 		for(unsigned i=0; i<max_vehicle; i++) {
 			f->at(i) = fahr->at(i);
-		}
-		for(unsigned j=max_vehicle;  j<max_rail_vehicle; j++) {
-			f->at(j) = NULL;
 		}
 		delete fahr;
 		fahr = f;
@@ -1207,10 +1200,7 @@ convoi_t::rdwr(loadsave_t *file)
 	if(file->is_loading()) {
 		// extend array if requested (only needed for trains)
 		if(anz_vehikel > max_vehicle) {
-			fahr = new array_tpl<vehikel_t *> (max_rail_vehicle);
-			for(unsigned i=0; i<max_rail_vehicle; i++) {
-				fahr->at(i) =NULL;
-			}
+			fahr = new array_tpl<vehikel_t*>(max_rail_vehicle, 0);
 		}
 		besitzer_p = welt->gib_spieler( besitzer_n );
 

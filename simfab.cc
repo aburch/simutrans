@@ -511,12 +511,8 @@ void fabrik_t::set_ausgang(vector_tpl<ware_t> * typen)
 		delete abgabe_letzt;
 	}
 
-	abgabe_sum = new array_tpl<int> (ausgang->get_size());
-	abgabe_letzt = new array_tpl<int> (ausgang->get_size());
-	for(uint32 j=0; j<ausgang->get_size(); j++) {
-		abgabe_sum->at(j) = 0;
-		abgabe_letzt->at(j) = 0;
-	}
+	abgabe_sum   = new array_tpl<int>(ausgang->get_size(), 0);
+	abgabe_letzt = new array_tpl<int>(ausgang->get_size(), 0);
 }
 
 

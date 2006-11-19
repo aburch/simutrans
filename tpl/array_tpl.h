@@ -17,9 +17,9 @@ template<class T> class array_tpl
 
 		explicit array_tpl(index s) : data(new T[s]), size(s) {}
 
-		array_tpl(index s, const T* arr) : data(new T[s]), size(s)
+		explicit array_tpl(index s, const T& value) : data(new T[s]), size(s)
 		{
-			for (int i = 0; i < size; i++) data[i] = arr[i];
+			for (index i = 0; i < size; i++) data[i] = value;
 		}
 
 		~array_tpl() { delete [] data; }
@@ -29,8 +29,21 @@ template<class T> class array_tpl
 		void resize(index resize)
 		{
 			if (size < resize) {
-				T *new_data = new T[size];
-				for (index i = 0;  i < size;  i++ ) new_data[i] = data[i];
+				T* new_data = new T[size];
+				for (index i = 0;  i < size; i++) new_data[i] = data[i];
+				delete [] data;
+				data = new_data;
+				size = resize;
+			}
+		}
+
+		void resize(index resize, const T& value)
+		{
+			if (size < resize) {
+				T* new_data = new T[size];
+				index i;
+				for (i = 0;  i < size; i++) new_data[i] = data[i];
+				for (; i < resize; i++) new_data[i] = value;
 				delete [] data;
 				data = new_data;
 				size = resize;
