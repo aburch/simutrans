@@ -415,7 +415,7 @@ convoi_t::sync_step(long delta_t)
 				sp_soll &= 1023;
 				return true;
 			}
-			for(unsigned i=1; i<anz_vehikel; i++) {
+			for(unsigned i=1; i<anz_vehikel  &&  !anz_ready; i++) {
 				fahr->at(i)->sync_step();
 			}
 		}
@@ -437,7 +437,6 @@ convoi_t::sync_step(long delta_t)
 		// pruefen ob wir ein depot erreicht haben
 		const grund_t *gr = welt->lookup(fahr->at(0)->gib_pos());
 		depot_t * dp = gr->gib_depot();
-
 
 		if(dp) {
 			// ok, we are entering a depot
@@ -957,17 +956,26 @@ convoi_t::erzeuge_fahrplan()
  * on all error we better use the normal starting procedure ...
  */
 bool
-convoi_t::go_alte_richtung()
+convoi_t::can_go_alte_richtung()
 {
 	// invalid route?
 	if(route.gib_max_n()<=2) {
 		return false;
 	}
 
+#if 0
+	// last stop was a station; to repair broken convoi after length changes
+	// we always rebuilt position after a station
+	if(akt_speed==0) {
+		// however, this may lead to jumping vehicles => better not using this!
+		return false;
+	}
+#endif
+
 	// going backwards? then recalculate all
 	sint8 dummy;
 	ribi_t::ribi neue_richtung_rwr =  ribi_t::rueckwaerts( fahr->at(0)->calc_richtung(route.position_bei(0).gib_2d(), route.position_bei(2).gib_2d(), dummy, dummy) );
-//DBG_MESSAGE("convoi_t::go_alte_richtung()","neu=%i,rwr_neu=%i,alt=%i",neue_richtung,ribi_t::rueckwaerts(neue_richtung),alte_richtung);
+//	DBG_MESSAGE("convoi_t::go_alte_richtung()","neu=%i,rwr_neu=%i,alt=%i",neue_richtung_rwr,ribi_t::rueckwaerts(neue_richtung_rwr),alte_richtung);
 	if(neue_richtung_rwr&alte_richtung) {
 		akt_speed = 8;
 		return false;
@@ -1023,7 +1031,7 @@ convoi_t::go_alte_richtung()
 		bool ok=false;
 		for( int idx=0;  idx<length;  idx++  ) {
 			if(route.position_bei(idx)==vehicle_start_pos) {
-				fahr->at(i)->neue_fahrt( idx );
+				fahr->at(i)->neue_fahrt( idx, false );
 				ok = true;
 				break;
 			}
@@ -1051,41 +1059,6 @@ convoi_t::go_alte_richtung()
 
 
 void
-convoi_t::go_neue_richtung()
-{
-	const koord3d k0 = route.position_bei(0);
-	const koord3d k1 = route.position_bei(1);
-	for(unsigned i=0; i<anz_vehikel; i++) {
-		grund_t *gr=welt->lookup(fahr->at(i)->gib_pos());
-		if(gr) {
-			// remove from blockstrecke
-			if(fahr->at(i)->gib_waytype()==track_wt  ||  fahr->at(i)->gib_waytype()==monorail_wt) {
-				schiene_t *sch=(schiene_t *)gr->gib_weg(fahr->at(i)->gib_waytype());
-				if(sch) {
-					sch->unreserve(self);
-				}
-			}
-			gr->obj_remove(fahr->at(i),gib_besitzer());
-		}
-		fahr->at(i)->neue_fahrt(0);
-		fahr->at(i)->setze_pos(k0);
-		fahr->at(i)->starte_neue_route(k0, k1);
-		gr=welt->lookup(k0);
-		if(gr) {
-			// add to blockstrecke
-			if(fahr->at(i)->gib_waytype()==track_wt  ||  fahr->at(i)->gib_waytype()==monorail_wt) {
-				schiene_t *sch=(schiene_t *)gr->gib_weg(fahr->at(i)->gib_waytype());
-				if(sch) {
-					sch->reserve(self);
-				}
-			}
-			fahr->at(i)->betrete_feld();
-		}
-	}
-}
-
-
-void
 convoi_t::vorfahren()
 {
 	// Hajo: init speed settings
@@ -1098,44 +1071,48 @@ convoi_t::vorfahren()
 
 	INT_CHECK("simconvoi 651");
 
-	if(!go_alte_richtung()) {
-		// we reached a terminal => so we head in the reverse direction
-
-		ribi_t::ribi neue_richtung =  fahr->at(0)->calc_richtung(route.position_bei(0).gib_2d(), route.position_bei(1).gib_2d(), dummy1, dummy2);
-		go_neue_richtung();
-		unsigned i;	// for braindead VC++
-
-		for(i=0; i<anz_vehikel; i++) {
-			switch(neue_richtung) {
-				case ribi_t::west:
-					fahr->at(i)->setze_offsets(10,5);
-					break;
-				case ribi_t::ost :
-					fahr->at(i)->setze_offsets(-2,-1);
-					break;
-				case ribi_t::nord:
-					fahr->at(i)->setze_offsets(-10,5);
-					break;
-				case ribi_t::sued:
-					fahr->at(i)->setze_offsets(2,-1);
-					break;
-				default:
-					fahr->at(i)->setze_offsets(0,0);
-					break;
+	if(!can_go_alte_richtung()) {
+		sint8 dx, dy;
+		// we must realign the vehicles on the track ...
+		const koord3d k0 = route.position_bei(0);
+		for(unsigned i=0; i<anz_vehikel; i++) {
+			grund_t *gr=welt->lookup(fahr->at(i)->gib_pos());
+			if(gr) {
+				// remove from blockstrecke
+				if(fahr->at(i)->gib_waytype()==track_wt  ||  fahr->at(i)->gib_waytype()==monorail_wt) {
+					schiene_t *sch=(schiene_t *)gr->gib_weg(fahr->at(i)->gib_waytype());
+					if(sch) {
+						sch->unreserve(self);
+					}
+				}
+				gr->obj_remove(fahr->at(i),gib_besitzer());
+			}
+			fahr->at(i)->neue_fahrt(0, true);
+			gr=welt->lookup(k0);
+			if(gr) {
+				// add to blockstrecke
+				if(fahr->at(i)->gib_waytype()==track_wt  ||  fahr->at(i)->gib_waytype()==monorail_wt) {
+					schiene_t *sch=(schiene_t *)gr->gib_weg(fahr->at(i)->gib_waytype());
+					if(sch) {
+						sch->reserve(self);
+					}
+				}
+				fahr->at(i)->setze_pos(k0);
+				fahr->at(i)->betrete_feld();
 			}
 		}
 
 		// move one train length to the start position ...
-		int train_length=0;
-		for(i=0; i<anz_vehikel-1u; i++) {
+		int train_length=-1;
+		for(unsigned i=0; i<anz_vehikel; i++) {
 			train_length += fahr->at(i)->gib_besch()->get_length();	// this give the length in 1/16 of a full tile
 		}
+		train_length = max(1,train_length);
 
 		// now advance all convoi until it is completely on the track
 		fahr->at(0)->setze_erstes( false );	// switches off signal checks ...
-		for(i=0; i<anz_vehikel; i++) {
+		for(unsigned i=0; i<anz_vehikel; i++) {
 			fahr->at(i)->darf_rauchen(false);
-			fahr->at(i)->richtung();
 			for(int j=0; j<train_length; j++) {
 				fahr->at(i)->sync_step();
 			}

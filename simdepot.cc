@@ -100,7 +100,7 @@ depot_t::convoi_arrived(convoihandle_t acnv, bool fpl_adjust)
 			if(v) {
 				// Hajo: reset vehikel data
 				v->loesche_fracht();
-				v->setze_fahrtrichtung( ribi_t::sued );
+//				v->setze_fahrtrichtung( ribi_t::sued );
 			}
 		}
 		// Volker: remove depot from schedule
@@ -274,7 +274,7 @@ bool depot_t::disassemble_convoi(int icnv, bool sell)
 		    } else {
 			// Hajo: reset vehikel data
 			v->loesche_fracht();
-			v->setze_fahrtrichtung( ribi_t::sued );
+//			v->setze_fahrtrichtung( ribi_t::sued );
 			v->setze_erstes(false);
 			v->setze_letztes(false);
 			vehicles.append(v);

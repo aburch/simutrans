@@ -51,13 +51,12 @@ struct event_t;
 class convoi_t : public sync_steppable
 {
 public:
+	/* Konstanten
+	* @author prissi
+	*/
+	enum { max_vehicle=4, max_rail_vehicle = 24 };
 
-    /* Konstanten
-     * @author prissi
-     */
-    enum { max_vehicle=2, max_rail_vehicle = 24 };
-
-    enum states {INITIAL,
+	enum states {INITIAL,
 		FAHRPLANEINGABE,
 		ROUTING_1,
 		DUMMY4, DUMMY5,
@@ -260,17 +259,11 @@ private:
 	void drive_to_next_stop();
 
 	/**
-	* Setup vehicles for moving in other direction than before
-	* @author Hanjsörg Malthaner
-	*/
-	void go_neue_richtung();
-
-	/**
 	* Setup vehicles for moving in same direction than before
 	* if the direction is the same as before
 	* @author Hanjsörg Malthaner
 	*/
-	bool go_alte_richtung();
+	bool can_go_alte_richtung();
 
 	/**
 	* Called if a vehicle enters a depot

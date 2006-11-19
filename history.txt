@@ -8,6 +8,7 @@ Known bugs: (hard to fix)
 	FIX: images inside tunnel
 	FIX: buying airplanes again
 	FIX: minimap remembers size again
+	FIX: old error with too short vehicles => but the position of vehicles for north resp. west is very wrong
 
 
 Release of 99.04.1

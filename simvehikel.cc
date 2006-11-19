@@ -281,14 +281,11 @@ void vehikel_basis_t::betrete_feld()
  * Checks if this vehicle must change the square upon next move
  * @author Hj. Malthaner
  */
-bool vehikel_basis_t::is_about_to_hop() const
+inline bool is_about_to_hop( const sint8 neu_xoff, const sint8 neu_yoff )
 {
-    const int neu_xoff = gib_xoff() + gib_dx();
-    const int neu_yoff = gib_yoff() + gib_dy();
-
-    const int y_off_2 = 2*neu_yoff;
-    const int c_plus  = y_off_2 + neu_xoff;
-    const int c_minus = y_off_2 - neu_xoff;
+    const sint8 y_off_2 = 2*neu_yoff;
+    const sint8 c_plus  = y_off_2 + neu_xoff;
+    const sint8 c_minus = y_off_2 - neu_xoff;
 
     return ! (c_plus < 32 && c_minus < 32 && c_plus > -32 && c_minus > -32);
 }
@@ -296,16 +293,16 @@ bool vehikel_basis_t::is_about_to_hop() const
 
 void vehikel_basis_t::fahre()
 {
-	const int neu_xoff = gib_xoff() + gib_dx();
-	const int neu_yoff = gib_yoff() + gib_dy();
+	const sint8 neu_xoff = gib_xoff() + gib_dx();
+	const sint8 neu_yoff = gib_yoff() + gib_dy();
 
-	const int li = -16;
-	const int re = 16;
-	const int ob = -8;
-	const int un = 8;
+	const sint8 li = -16;
+	const sint8 re = 16;
+	const sint8 ob = -8;
+	const sint8 un = 8;
 
 	// want to go to next field and want to step
-	if(is_about_to_hop()) {
+	if(is_about_to_hop(neu_xoff,neu_yoff)) {
 
 		if( !hop_check() ) {
 			// red signal etc ...
@@ -360,8 +357,8 @@ vehikel_basis_t::calc_richtung(koord start, koord ende, sint8 &dx, sint8 &dy) co
 {
 	ribi_t::ribi richtung = ribi_t::keine;
 
-	const int di = sgn(ende.x - start.x);
-	const int dj = sgn(ende.y - start.y);
+	const sint8 di = ende.x - start.x;
+	const sint8 dj = ende.y - start.y;
 
 	if(dj < 0 && di == 0) {
 		richtung = ribi_t::nord;
@@ -398,6 +395,7 @@ vehikel_basis_t::calc_richtung(koord start, koord ende, sint8 &dx, sint8 &dy) co
 	}
 	return richtung;
 }
+
 
 
 // this routine calculates the new height
@@ -496,42 +494,40 @@ vehikel_t::setze_offsets(int x, int y)
  */
 void vehikel_t::remove_stale_freight()
 {
-  DBG_DEBUG("vehikel_t::remove_stale_freight()", "called");
+	DBG_DEBUG("vehikel_t::remove_stale_freight()", "called");
 
-  // and now check every piece of ware on board,
-  // if its target is somewhere on
-  // the new schedule, if not -> remove
-  static slist_tpl<ware_t> kill_queue;
-  kill_queue.clear();
+	// and now check every piece of ware on board,
+	// if its target is somewhere on
+	// the new schedule, if not -> remove
+	static slist_tpl<ware_t> kill_queue;
+	kill_queue.clear();
 
-  if(!fracht.is_empty()) {
-    slist_iterator_tpl<ware_t> iter (fracht);
+	if(!fracht.is_empty()) {
+		slist_iterator_tpl<ware_t> iter (fracht);
+		while(iter.next()) {
+			fahrplan_t *fpl = cnv->gib_fahrplan();
 
-    while(iter.next()) {
-      fahrplan_t *fpl = cnv->gib_fahrplan();
+			ware_t tmp = iter.get_current();
+			bool found = false;
 
-      ware_t tmp = iter.get_current();
-      bool found = false;
+			for (int i = 0; i < fpl->maxi(); i++) {
+				if (haltestelle_t::gib_halt(welt, fpl->eintrag[i].pos.gib_2d()) ==
+					haltestelle_t::gib_halt(welt, tmp.gib_zwischenziel())) {
+					found = true;
+					break;
+				}
+			}
 
-      for (int i = 0; i < fpl->maxi(); i++) {
-	if (haltestelle_t::gib_halt(welt, fpl->eintrag[i].pos.gib_2d()) ==
-	    haltestelle_t::gib_halt(welt, tmp.gib_zwischenziel())) {
-	  found = true;
-	  break;
+			if (!found) {
+				kill_queue.insert(tmp);
+			}
+		}
+
+		slist_iterator_tpl<ware_t> killer (kill_queue);
+		while(killer.next()) {
+			fracht.remove(killer.get_current());
+		}
 	}
-      }
-
-      if (!found) {
-	kill_queue.insert(tmp);
-      }
-    }
-
-    slist_iterator_tpl<ware_t> killer (kill_queue);
-
-    while(killer.next()) {
-      fracht.remove(killer.get_current());
-    }
-  }
 }
 
 
@@ -555,30 +551,48 @@ vehikel_t::play_sound() const
  * der Convoi eine neue Route ermittelt
  * @author Hj. Malthaner
  */
-void vehikel_t::neue_fahrt(uint16 start_route_index )
+void vehikel_t::neue_fahrt(uint16 start_route_index, bool recalc)
 {
+	route_index = start_route_index+1;
+	pos_next = cnv->get_route()->position_bei(route_index);
 	if(welt->ist_in_kartengrenzen(gib_pos().gib_2d())) {
 		// mark the region after the image as dirty
 		// better not try to twist your brain to follow the retransformation ...
 		mark_image_dirty( gib_bild(), hoff );
 	}
-	route_index = start_route_index+1;
-	pos_next = cnv->get_route()->position_bei(start_route_index+1);
-}
+	pos_prev = pos_cur = cnv->get_route()->position_bei(start_route_index);
 
+	if(recalc) {
+		// recalc directions
+		alte_fahrtrichtung = fahrtrichtung;
+		fahrtrichtung = calc_richtung(pos_cur.gib_2d(), pos_next.gib_2d(), dx, dy);
+		hoff = 0;
 
+		const sint8 li = -16;
+		const sint8 re = 16;
+		const sint8 ob = -8;
+		const sint8 un = 8;
 
-void vehikel_t::starte_neue_route(koord3d k0, koord3d k1)
-{
-  pos_prev = pos_cur = k0;
-  pos_next = k1;
+		sint8 yoff;
+		if (dy < 0) {
+			yoff = un;
+		}
+		else {
+			yoff = ob;
+		}
 
-  alte_fahrtrichtung = fahrtrichtung;
-  fahrtrichtung = calc_richtung(pos_prev.gib_2d(), pos_next.gib_2d(), dx, dy);
+		sint8 xoff;
+		if (dx < 0) {
+			xoff = re;
+		}
+		else {
+			xoff = li;
+		}
 
-  hoff = 0;
-
-  calc_bild();
+		setze_xoff( xoff );
+		setze_yoff( yoff );
+	  calc_bild();
+	}
 }
 
 
@@ -659,7 +673,7 @@ vehikel_t::hop_check()
 			return false;
 		}
 	}
-	return true;
+	return true;//route_index<=cnv->get_route()->gib_max_n();
 }
 
 
@@ -806,36 +820,32 @@ vehikel_t::calc_akt_speed(const grund_t *gr) //,const int h_alt, const int h_neu
 void
 vehikel_t::rauche()
 {
-  // raucht ueberhaupt ?
-  if(rauchen && besch->gib_rauch()) {
+	// raucht ueberhaupt ?
+	if(rauchen && besch->gib_rauch()) {
 
-    // Hajo: only produce smoke when heavily accelerating
-    //       or steam engine
-    int akt_speed = gib_speed();
-    if(speed_limit != -1 && akt_speed > speed_limit) {
-      akt_speed = speed_limit;
-    }
+		// Hajo: only produce smoke when heavily accelerating
+		//       or steam engine
+		int akt_speed = gib_speed();
+		if(speed_limit != -1 && akt_speed > speed_limit) {
+			akt_speed = speed_limit;
+		}
 
-    if(cnv->gib_akt_speed() < (akt_speed*7)>>3 ||
-       besch->get_engine_type() == vehikel_besch_t::steam) {
+		if(cnv->gib_akt_speed() < (akt_speed*7)>>3 ||
+			besch->get_engine_type() == vehikel_besch_t::steam) {
 
-      grund_t * gr = welt->lookup( pos_cur );
-      // nicht im tunnel ?
-      if(gr && !gr->ist_im_tunnel() ) {
-	sync_wolke_t *abgas =  new sync_wolke_t(welt,
-						pos_cur,
-						gib_xoff(),
-						gib_yoff(),
-						besch->gib_rauch()->gib_bild_nr(0));
+			grund_t * gr = welt->lookup( pos_cur );
+			// nicht im tunnel ?
+			if(gr && !gr->ist_im_tunnel() ) {
+				sync_wolke_t *abgas =  new sync_wolke_t(welt, pos_cur, gib_xoff(), gib_yoff(), besch->gib_rauch()->gib_bild_nr(0));
 
-	if( ! gr->obj_add(abgas) ) {
-	  delete abgas;
-	} else {
-	  welt->sync_add( abgas );
+				if( !gr->obj_add(abgas) ) {
+					delete abgas;
+				} else {
+					welt->sync_add( abgas );
+				}
+			}
+		}
 	}
-      }
-    }
-  }
 }
 
 
@@ -850,18 +860,16 @@ vehikel_t::fahre()
 	// target mark: same coordinate twice (stems from very old ages, I think)
 	if(ist_erstes  &&  pos_next==pos_cur) {
 		// check half a tile (8 sync_steps) ahead for a tile change
-		const int iterations=(fahrtrichtung==ribi_t::sued  || fahrtrichtung==ribi_t::ost) ? besch->get_length()/2 : besch->get_length();
+		const sint16 iterations = /*(fahrtrichtung==ribi_t::sued  || fahrtrichtung==ribi_t::ost) ? besch->get_length()/2 :*/ besch->get_length();
 
-		const int neu_xoff = gib_xoff() + gib_dx()*iterations;
-		const int neu_yoff = gib_yoff() + gib_dy()*iterations;
+		const sint16 neu_xoff = gib_xoff() + gib_dx()*iterations;
+		const sint16 neu_yoff = gib_yoff() + gib_dy()*iterations;
 
-		const int y_off_2 = 2*neu_yoff;
-		const int c_plus  = y_off_2 + neu_xoff;
-		const int c_minus = y_off_2 - neu_xoff;
-
-		// so we are there yet?
-		if( !(c_plus< 32 && c_minus < 32 &&  c_plus >=-32 && c_minus >=-32)  ) {
+		// want to go to next field and want to step
+		if(is_about_to_hop(neu_xoff,neu_yoff)) {
+			// so we are there yet?
 			cnv->ziel_erreicht(this);
+			return;
 		}
 	}
 
@@ -879,15 +887,15 @@ vehikel_t::fahre()
  */
 sint64 vehikel_t::calc_gewinn(koord3d start, koord3d end) const
 {
-    const long dist = abs(end.x - start.x) + abs(end.y - start.y);
+	const long dist = abs(end.x - start.x) + abs(end.y - start.y);
 
-    const sint32 ref_speed = welt->get_average_speed( gib_waytype() );
-    const sint32 speed_base = (100*speed_to_kmh(cnv->gib_min_top_speed()))/ref_speed-100;
+	const sint32 ref_speed = welt->get_average_speed( gib_waytype() );
+	const sint32 speed_base = (100*speed_to_kmh(cnv->gib_min_top_speed()))/ref_speed-100;
 
-    sint64 value = 0;
-    slist_iterator_tpl <ware_t> iter (fracht);
+	sint64 value = 0;
+	slist_iterator_tpl <ware_t> iter (fracht);
 
-    while( iter.next() ) {
+	while( iter.next() ) {
 		const ware_t & ware = iter.get_current();
 
 		const sint32 grundwert128 = ware.gib_typ()->gib_preis()<<7;
@@ -898,16 +906,16 @@ sint64 vehikel_t::calc_gewinn(koord3d start, koord3d end) const
 		value += price;
 	}
 
-    // Hajo: Rounded value, in cents
-    // prissi: Why on earth 1/3???
-    return (value+1500ll)/3000ll;
+  // Hajo: Rounded value, in cents
+  // prissi: Why on earth 1/3???
+  return (value+1500ll)/3000ll;
 }
 
 
 const char *vehikel_t::gib_fracht_mass() const
 {
     return gib_fracht_typ()->gib_mass();
-};
+}
 
 
 int vehikel_t::gib_fracht_menge() const
@@ -925,7 +933,6 @@ int vehikel_t::gib_fracht_gewicht() const
   int weight = 0;
 
   slist_iterator_tpl<ware_t> iter(fracht);
-
   while(iter.next()) {
     weight +=
       iter.get_current().menge *
@@ -944,40 +951,40 @@ const char * vehikel_t::gib_fracht_name() const
 
 void vehikel_t::gib_fracht_info(cbuffer_t & buf)
 {
-    if(fracht.is_empty()) {
-	buf.append("  ");
-	buf.append(translator::translate("leer"));
-	buf.append("\n");
-    } else {
+	if(fracht.is_empty()) {
+		buf.append("  ");
+		buf.append(translator::translate("leer"));
+		buf.append("\n");
+	} else {
 
-	slist_iterator_tpl<ware_t> iter (fracht);
+		slist_iterator_tpl<ware_t> iter (fracht);
 
-	while(iter.next()) {
-	    ware_t ware = iter.get_current();
-	    const char * name = "Error in Routing";
+		while(iter.next()) {
+			ware_t ware = iter.get_current();
+			const char * name = "Error in Routing";
 
-	    halthandle_t halt = haltestelle_t::gib_halt(welt, ware.gib_ziel());
-	    if(halt.is_bound()) {
-		name = halt->gib_name();
-	    }
+			halthandle_t halt = haltestelle_t::gib_halt(welt, ware.gib_ziel());
+			if(halt.is_bound()) {
+				name = halt->gib_name();
+			}
 
-	    buf.append("   ");
-	    buf.append(ware.menge);
-	    buf.append(translator::translate(ware.gib_mass()));
-	    buf.append(" ");
-	    buf.append(translator::translate(ware.gib_name()));
-	    buf.append(" > ");
-	    buf.append(name);
-	    buf.append("\n");
+			buf.append("   ");
+			buf.append(ware.menge);
+			buf.append(translator::translate(ware.gib_mass()));
+			buf.append(" ");
+			buf.append(translator::translate(ware.gib_name()));
+			buf.append(" > ");
+			buf.append(name);
+			buf.append("\n");
+		}
 	}
-    }
 }
 
 
 void
 vehikel_t::loesche_fracht()
 {
-    fracht.clear();
+	fracht.clear();
 }
 
 
@@ -1392,7 +1399,8 @@ automobil_t::ist_weg_frei(int &restart_speed)
 
 				if(rs->gib_besch()->is_traffic_light()) {
 					if((rs->get_dir()&richtung)==0) {
-						setze_fahrtrichtung(richtung);
+						fahrtrichtung = richtung;
+						calc_bild();
 						// wait here
 						return false;
 					}

@@ -108,28 +108,21 @@ protected:
 	virtual void calc_bild() = 0;
 
 public:
-    ribi_t::ribi calc_richtung(koord start, koord ende, sint8 &dx, sint8 &dy) const;
+	ribi_t::ribi calc_richtung(koord start, koord ende, sint8 &dx, sint8 &dy) const;
 
-    ribi_t::ribi gib_fahrtrichtung() const {return fahrtrichtung;}
-    void setze_fahrtrichtung(ribi_t::ribi r) {fahrtrichtung=r;calc_bild();}
+	ribi_t::ribi gib_fahrtrichtung() const {return fahrtrichtung;}
 
-    /**
-     * Checks if this vehicle must change the square upon next move
-     * @author Hj. Malthaner
-     */
-    bool is_about_to_hop() const;
+	virtual waytype_t gib_waytype() const = 0;
 
-    virtual waytype_t gib_waytype() const = 0;
+	virtual void betrete_feld();
 
-    virtual void betrete_feld();
+	virtual void verlasse_feld();
 
-    virtual void verlasse_feld();
+	vehikel_basis_t(karte_t *welt);
 
-    vehikel_basis_t(karte_t *welt);
+	vehikel_basis_t(karte_t *welt, koord3d pos);
 
-    vehikel_basis_t(karte_t *welt, koord3d pos);
-
-    virtual ~vehikel_basis_t() {}
+	virtual ~vehikel_basis_t() {}
 };
 
 
@@ -272,9 +265,7 @@ public:
 	* der Convoi eine neue Route ermittelt
 	* @author Hj. Malthaner
 	*/
-	void neue_fahrt( uint16 start_route_index );
-
-	void starte_neue_route(koord3d k0, koord3d k1);
+	void neue_fahrt( uint16 start_route_index, bool recalc );
 
 	vehikel_t(karte_t *welt);
 	vehikel_t(karte_t *welt,
