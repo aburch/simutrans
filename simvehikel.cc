@@ -238,7 +238,7 @@ vehikel_basis_t::vehikel_basis_t(karte_t *welt, koord3d pos):
 void
 vehikel_basis_t::verlasse_feld()
 {
-	if( !welt->lookup(gib_pos())->obj_remove(this, NULL) ) {
+	if (!welt->lookup(gib_pos())->obj_remove(this)) {
 		// was not removed (not found?)
 
 		dbg->error("vehikel_basis_t::verlasse_feld()","'typ %i' %p could not be removed from %d %d", gib_typ(), this, gib_pos().x, gib_pos().y);
@@ -246,7 +246,7 @@ vehikel_basis_t::verlasse_feld()
 
 		grund_t *gr = welt->lookup( gib_pos().gib_2d() )->gib_boden_von_obj(this);
 		if(gr) {
-			gr->obj_remove(this, NULL);
+			gr->obj_remove(this);
 			dbg->warning("vehikel_basis_t::verlasse_feld()","removed vehicle typ %i (%p) from %d %d",gib_typ(), this, gib_pos().x, gib_pos().y);
 		}
 
@@ -256,7 +256,7 @@ vehikel_basis_t::verlasse_feld()
 		for(k.y=0; k.y<welt->gib_groesse_y(); k.y++) {
 			for(k.x=0; k.x<welt->gib_groesse_x(); k.x++) {
 				grund_t *gr = welt->lookup( k )->gib_boden_von_obj(this);
-				if(gr && gr->obj_remove(this, NULL)) {
+				if(gr && gr->obj_remove(this)) {
 					dbg->warning("vehikel_basis_t::verlasse_feld()","removed vehicle typ %i (%p) from %d %d",gib_name(), this, k.x, k.y);
 					ok = true;
 				}

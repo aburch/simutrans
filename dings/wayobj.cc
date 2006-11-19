@@ -197,7 +197,7 @@ wayobj_t::calc_bild()
 		weg_t *w=gr->gib_weg((waytype_t)besch->gib_wtyp());
 		if(!w) {
 			// well, we are not on a way anymore? => delete us
-			gr->obj_remove(this,gib_besitzer());
+			gr->obj_remove(this);
 			entferne(gib_besitzer());
 			delete this;
 			return;
@@ -311,7 +311,7 @@ wayobj_t::extend_wayobj_t(karte_t *welt, koord3d pos, spieler_t *besitzer, ribi_
 				if(d  &&  d->gib_typ()==ding_t::wayobj  &&  ((wayobj_t *)d)->gib_besch()->gib_wtyp()==besch->gib_wtyp()) {
 					if(((wayobj_t *)d)->gib_besch()->gib_topspeed()<besch->gib_topspeed()  &&  besitzer->check_owner(d->gib_besitzer())) {
 						// replace slower by faster
-						gr->obj_remove( d, besitzer );
+						gr->obj_remove(d);
 						delete d;
 						break;
 					}

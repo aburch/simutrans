@@ -884,7 +884,7 @@ static void plantest(spieler_t *sp, karte_t *welt, koord pos)
 	fprintf(stderr, "--------------------------------------------------------------------\n");
 	fprintf(stderr, "Test: Remove ein Object\n");
 
-	plan->gib_kartenboden()->obj_remove(dt2, sp);
+	plan->gib_kartenboden()->obj_remove(dt2);
 	ok = check("top muss 8 sein:", plan->gib_kartenboden()->gib_top() == 8);
 	if( !ok ) {
 	    fprintf(stderr, "  top ist %d\n", plan->gib_kartenboden()->gib_top());

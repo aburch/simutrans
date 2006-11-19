@@ -709,7 +709,7 @@ convoi_t::betrete_depot(depot_t *dep)
 		grund_t* gr = welt->lookup(v->gib_pos());
 		if(gr) {
 			// remove from blockstrecke
-			gr->obj_remove(v, gib_besitzer());
+			gr->obj_remove(v);
 			if (v->gib_waytype() == track_wt || v->gib_waytype() == monorail_wt) {
 				schiene_t* sch = (schiene_t*)gr->gib_weg(v->gib_waytype());
 				sch->unreserve(self);
@@ -1111,7 +1111,7 @@ convoi_t::vorfahren()
 						sch->unreserve(self);
 					}
 				}
-				gr->obj_remove(v, gib_besitzer());
+				gr->obj_remove(v);
 			}
 			v->neue_fahrt(0, true);
 			gr=welt->lookup(k0);

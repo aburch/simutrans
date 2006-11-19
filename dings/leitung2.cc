@@ -138,7 +138,7 @@ leitung_t::~leitung_t()
 	grund_t *gr = welt->lookup(gib_pos());
 	if(gr) {
 		powernet_t *my_net = get_net();
-		gr->obj_remove(this, gib_besitzer());
+		gr->obj_remove(this);
 
 		leitung_t * conn[4];
 		gimme_neighbours(welt, gib_pos().gib_2d(), conn);

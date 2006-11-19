@@ -125,10 +125,7 @@ ding_t::~ding_t()
 	// pruefe ob objekt auf karte und ggf. entfernen
 	grund_t *gr = welt->lookup(pos);
 	if(gr) {
-		if(gr->obj_remove(this, gib_besitzer())) {
-			// normal case: redraw here
-		}
-		else {
+		if (!gr->obj_remove(this)) {
 			// not found? => try harder at all map locations
 			dbg->warning("ding_t::~ding_t()","couldn't remove %p from %d,%d,%d",this, pos.x , pos.y, pos.z);
 
@@ -136,7 +133,7 @@ ding_t::~ding_t()
 			for(k.y=0; k.y<welt->gib_groesse_y(); k.y++) {
 				for(k.x=0; k.x<welt->gib_groesse_x(); k.x++) {
 					grund_t *gr = welt->access(k)->gib_boden_von_obj(this);
-					if(gr && gr->obj_remove(this, gib_besitzer())) {
+					if (gr && gr->obj_remove(this)) {
 						dbg->warning("ding_t::~ding_t()",
 							"removed %p from %d,%d,%d, but it should have been on %d,%d,%d",
 							this,

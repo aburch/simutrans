@@ -218,7 +218,7 @@ DBG_MESSAGE("haltestelle_t::remove()", "removing building: cleanup");
 					if(gr) {
 						halt->rem_grund(gr);
 						gebaeude_t *gb=static_cast<gebaeude_t *>(gr->suche_obj(ding_t::gebaeude));
-						gr->obj_remove(gb,sp);	// remove building
+						gr->obj_remove(gb);	// remove building
 						delete gb;
 						gr->setze_text(NULL);
 						if(gr->gib_typ()==grund_t::fundament) {

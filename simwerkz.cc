@@ -313,7 +313,7 @@ DBG_MESSAGE("wkz_remover_intern()","at (%d,%d)", pos.x, pos.y);
 	// prissi: Leitung prüfen (can cross ground of another player)
 	leitung_t *lt=dynamic_cast<leitung_t *>(gr->suche_obj(ding_t::leitung));
 	if(lt!=NULL  &&  lt->gib_besitzer()==sp) {
-		gr->obj_remove(lt,sp);
+		gr->obj_remove(lt);
 		delete lt;
 		return true;
 	}
@@ -470,7 +470,7 @@ DBG_MESSAGE("wkz_remover()", "removing building: cleanup");
 	// so we take it out and add it later again
 	if(lt) {
 DBG_MESSAGE("wkz_remover()",  "took out powerline");
-		gr->obj_remove(lt,sp);
+		gr->obj_remove(lt);
 	}
 
 	msg = gr->kann_alle_obj_entfernen(sp);
