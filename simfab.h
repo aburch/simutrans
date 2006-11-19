@@ -244,7 +244,7 @@ public:
     sint32 hole_ab(const ware_besch_t *, sint32 menge );     // jemand will waren abholen
     sint32 liefere_an(const ware_besch_t *, sint32 menge);
 
-    sint32 gib_abgabe_letzt(sint32 t) { return abgabe_letzt.at(t); }
+    sint32 gib_abgabe_letzt(sint32 t) { return abgabe_letzt[t]; }
 
     void step(long delta_t);                  // fabrik muss auch arbeiten
     void neuer_monat();

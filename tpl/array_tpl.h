@@ -58,18 +58,10 @@ template<class T> class array_tpl
 			}
 		}
 
-		T& at(index i) const
+		T& operator [](index i) const
 		{
 			if (i >= size) {
 				dbg->fatal("array_tpl<%s>::at()", "index out of bounds: %d not in 0..%d", typeid(T).name(), i, size - 1);
-			}
-			return data[i];
-		}
-
-		const T& get(index i) const
-		{
-			if (i >= size) {
-				dbg->fatal("array_tpl<%s>::get()", "index out of bounds: %d not in 0..%d", typeid(T).name(), i, size - 1);
 			}
 			return data[i];
 		}

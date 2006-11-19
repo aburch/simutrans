@@ -98,7 +98,7 @@ sprachengui_t::sprachengui_t(karte_t *) :
 	add_komponente( &seperator );
 
 	for(int i=0; i<translator::get_language_count(); i++) {
-		button_t& b = buttons.at(i);
+		button_t& b = buttons[i];
 
 		b.setze_pos(koord(10 + (i % 2) * 100 , 44 + 14 * (i / 2)));
 		b.setze_typ(button_t::square_state);
@@ -122,7 +122,7 @@ sprachengui_t::sprachengui_t(karte_t *) :
 		add_komponente(&b);
 	}
 
-	buttons.at(translator::get_language()).pressed = true;
+	buttons[translator::get_language()].pressed = true;
 	setze_opaque(true);
 	setze_fenstergroesse( koord(220, 74+(translator::get_language_count()/2)*14) );
 }
@@ -133,9 +133,9 @@ bool
 sprachengui_t::action_triggered(gui_komponente_t *komp, value_t)
 {
 	for(int i=0; i<translator::get_language_count(); i++) {
-		button_t& b = buttons.at(i);
+		button_t& b = buttons[i];
 		if (&b == komp) {
-			buttons.at(translator::get_language()).pressed = false;
+			buttons[translator::get_language()].pressed = false;
 			b.pressed = true;
 			translator::set_language(i);
 			init_font_from_lang();

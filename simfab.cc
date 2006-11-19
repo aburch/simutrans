@@ -386,8 +386,8 @@ DBG_DEBUG("fabrik_t::rdwr()","loading factory '%s'",s);
 			typ = ausgang->at(i).gib_typ()->gib_name();
 			dummy.menge = ausgang->at(i).menge<<(old_precision_bits-precision_bits);
 			dummy.max = ausgang->at(i).max<<(old_precision_bits-precision_bits);;
-			ab_sum   = abgabe_sum.at(i);
-			ab_letzt = abgabe_letzt.at(i);
+			ab_sum   = abgabe_sum[i];
+			ab_letzt = abgabe_letzt[i];
 		}
 		file->rdwr_delim("Aus: ");
 		file->rdwr_str(typ, " ");
@@ -397,8 +397,8 @@ DBG_DEBUG("fabrik_t::rdwr()","loading factory '%s'",s);
 		file->rdwr_long(ab_letzt, "\n");
 
 		if(file->is_loading()) {
-			abgabe_sum.at(i)   = ab_sum;
-			abgabe_letzt.at(i) = ab_letzt;
+			abgabe_sum[i]   = ab_sum;
+			abgabe_letzt[i] = ab_letzt;
 			dummy.setze_typ( warenbauer_t::gib_info(typ));
 			dummy.menge >>= (old_precision_bits-precision_bits);
 			dummy.max >>= (old_precision_bits-precision_bits);
@@ -569,7 +569,7 @@ fabrik_t::hole_ab(const ware_besch_t *typ, int menge)
 		ausgang->at(index).menge = 0;
 	    }
 
-	    abgabe_sum.at(index) += menge;
+	    abgabe_sum[index] += menge;
 
 	    return menge;
 
@@ -887,8 +887,8 @@ void
 fabrik_t::neuer_monat()
 {
 	for(uint32 index = 0; index < ausgang->get_count(); index ++) {
-		abgabe_letzt.at(index) = abgabe_sum.at(index);
-		abgabe_sum.at(index) = 0;
+		abgabe_letzt[index] = abgabe_sum[index];
+		abgabe_sum[index]   = 0;
 	}
 }
 

@@ -289,7 +289,7 @@ fabrikbauer_t::finde_zufallsbauplatz(karte_t * welt, const koord3d pos, const in
 		for(k.x=pos.x-radius; k.x<=pos.x+radius; k.x++) {
 			// climate check
 			if(fabrik_t::ist_bauplatz(welt, k, groesse,wasser,besch->get_allowed_climate_bits())) {
-				list.at(index ++) = welt->lookup(k)->gib_kartenboden()->gib_pos();
+				list[index++] = welt->lookup(k)->gib_kartenboden()->gib_pos();
 				// nicht gleich daneben nochmal suchen
 				k.x += 4;
 			}
@@ -303,9 +303,9 @@ fabrikbauer_t::finde_zufallsbauplatz(karte_t * welt, const koord3d pos, const in
 	else {
 		if(wasser) {
 			// take care of offset
-			return list.at(simrand(index))+koord3d(3,3,0);
+			return list[simrand(index)] + koord3d(3, 3, 0);
 		}
-		return list.at(simrand(index));
+		return list[simrand(index)];
 	}
 }
 
