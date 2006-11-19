@@ -124,9 +124,6 @@ fabrik_t::fabrik_t(karte_t *wl, loadsave_t *file) : lieferziele(0), suppliers(0)
 
 	besch = NULL;
 
-	abgabe_sum = NULL;
-	abgabe_letzt = NULL;
-
 	besitzer_p = NULL;
 
 	rdwr(file);
@@ -153,9 +150,6 @@ fabrik_t::fabrik_t(karte_t *wl, koord3d pos, spieler_t *spieler, const fabrik_be
     eingang = NULL;
     ausgang = NULL;
 
-    abgabe_sum = NULL;
-    abgabe_letzt = NULL;
-
 	delta_sum = 0;
     last_lieferziel_start = 0;
 	total_input = total_output = 0;
@@ -175,16 +169,6 @@ fabrik_t::~fabrik_t()
 		delete ausgang;
 	}
 	ausgang = 0;
-
-	if(abgabe_sum) {
-		delete abgabe_sum;
-	}
-	abgabe_sum = 0;
-
-	if(abgabe_letzt) {
-		delete abgabe_letzt;
-	}
-	abgabe_letzt = 0;
 
 	if(raucher) {
 		delete raucher;
@@ -402,8 +386,8 @@ DBG_DEBUG("fabrik_t::rdwr()","loading factory '%s'",s);
 			typ = ausgang->at(i).gib_typ()->gib_name();
 			dummy.menge = ausgang->at(i).menge<<(old_precision_bits-precision_bits);
 			dummy.max = ausgang->at(i).max<<(old_precision_bits-precision_bits);;
-			ab_sum = abgabe_sum->at(i);
-			ab_letzt = abgabe_letzt->at(i);
+			ab_sum   = abgabe_sum.at(i);
+			ab_letzt = abgabe_letzt.at(i);
 		}
 		file->rdwr_delim("Aus: ");
 		file->rdwr_str(typ, " ");
@@ -413,8 +397,8 @@ DBG_DEBUG("fabrik_t::rdwr()","loading factory '%s'",s);
 		file->rdwr_long(ab_letzt, "\n");
 
 		if(file->is_loading()) {
-			abgabe_sum->at(i)  = ab_sum;
-			abgabe_letzt->at(i) = ab_letzt;
+			abgabe_sum.at(i)   = ab_sum;
+			abgabe_letzt.at(i) = ab_letzt;
 			dummy.setze_typ( warenbauer_t::gib_info(typ));
 			dummy.menge >>= (old_precision_bits-precision_bits);
 			dummy.max >>= (old_precision_bits-precision_bits);
@@ -502,17 +486,12 @@ void fabrik_t::set_ausgang(vector_tpl<ware_t> * typen)
 	if(ausgang) {
 		delete ausgang;
 	}
-
 	ausgang = typen;
-	if(abgabe_sum) {
-		delete abgabe_sum;
-	}
-	if(abgabe_letzt) {
-		delete abgabe_letzt;
-	}
 
-	abgabe_sum   = new array_tpl<int>(ausgang->get_size(), 0);
-	abgabe_letzt = new array_tpl<int>(ausgang->get_size(), 0);
+	abgabe_sum.clear();
+	abgabe_sum.resize(ausgang->get_size(), 0);
+	abgabe_letzt.clear();
+	abgabe_letzt.resize(ausgang->get_size(), 0);
 }
 
 
@@ -590,7 +569,7 @@ fabrik_t::hole_ab(const ware_besch_t *typ, int menge)
 		ausgang->at(index).menge = 0;
 	    }
 
-	    abgabe_sum->at(index) += menge;
+	    abgabe_sum.at(index) += menge;
 
 	    return menge;
 
@@ -908,8 +887,8 @@ void
 fabrik_t::neuer_monat()
 {
 	for(uint32 index = 0; index < ausgang->get_count(); index ++) {
-		abgabe_letzt->at(index) = abgabe_sum->at(index);
-		abgabe_sum->at(index) = 0;
+		abgabe_letzt.at(index) = abgabe_sum.at(index);
+		abgabe_sum.at(index) = 0;
 	}
 }
 
