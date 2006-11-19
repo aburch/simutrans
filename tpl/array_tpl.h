@@ -15,6 +15,8 @@ template<class T> class array_tpl
 	public:
 		typedef uint16 index;
 
+		explicit array_tpl() : data(NULL), size(0) {}
+
 		explicit array_tpl(index s) : data(new T[s]), size(s) {}
 
 		explicit array_tpl(index s, const T& value) : data(new T[s]), size(s)
@@ -25,6 +27,12 @@ template<class T> class array_tpl
 		~array_tpl() { delete [] data; }
 
 		index get_size() const { return size; }
+
+		void clear()
+		{
+			delete [] data;
+			size = 0;
+		}
 
 		void resize(index resize)
 		{
