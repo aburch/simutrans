@@ -188,13 +188,7 @@ protected:
 	* Previous position on our path
 	* @author Hj. Malthaner
 	*/
-	koord3d pos_prev;
-
-	/**
-	* Current position on our path
-	* @author Hj. Malthaner
-	*/
-	koord3d pos_cur;
+	koord pos_prev;
 
 	const vehikel_besch_t *besch;
 

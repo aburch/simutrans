@@ -91,55 +91,55 @@ verkehrsteilnehmer_t::~verkehrsteilnehmer_t()
 verkehrsteilnehmer_t::verkehrsteilnehmer_t(karte_t *welt, koord3d pos) :
    vehikel_basis_t(welt, pos)
 {
-    // V.Meyer: weg_position_t changed to grund_t::get_neighbour()
-    grund_t *from = welt->lookup(pos);
-    grund_t *to;
+	// V.Meyer: weg_position_t changed to grund_t::get_neighbour()
+	grund_t *from = welt->lookup(pos);
+	grund_t *to;
 
-    // int ribi = from->gib_weg_ribi(road_wt);
-    ribi_t::ribi liste[4];
-    int count = 0;
+	// int ribi = from->gib_weg_ribi(road_wt);
+	ribi_t::ribi liste[4];
+	int count = 0;
 
-    max_speed = kmh_to_speed(80);
-    current_speed = 50;
+	max_speed = kmh_to_speed(80);
+	current_speed = 50;
 	current_speed = 1;
 	step_frequency = 0;
 
-    weg_next = simrand(1024);
-    hoff = 0;
+	weg_next = simrand(1024);
+	hoff = 0;
 
-    // verfügbare ribis in liste eintragen
-    for(int r = 0; r < 4; r++) {
-	if(from->get_neighbour(to, road_wt, koord::nsow[r])) {
-	    liste[count++] = ribi_t::nsow[r];
+	// verfügbare ribis in liste eintragen
+	for(int r = 0; r < 4; r++) {
+		if(from->get_neighbour(to, road_wt, koord::nsow[r])) {
+			liste[count++] = ribi_t::nsow[r];
+		}
 	}
-    }
-    fahrtrichtung = count ? liste[simrand(count)] : ribi_t::nsow[simrand(4)];
+	fahrtrichtung = count ? liste[simrand(count)] : ribi_t::nsow[simrand(4)];
 
-    switch(fahrtrichtung) {
-    case ribi_t::nord:
-	dx = 2;
-	dy = -1;
-	break;
-    case ribi_t::sued:
-	dx = -2;
-	dy = 1;
-	break;
-    case ribi_t::ost:
-	dx = 2;
-	dy = 1;
-	break;
-    case ribi_t::west:
-	dx = -2;
-	dy = -1;
-	break;
-    }
-    if(count) {
-	from->get_neighbour(to, road_wt, fahrtrichtung);
-	pos_next = to->gib_pos();
-    } else {
-	pos_next = welt->lookup(pos.gib_2d() + koord(fahrtrichtung))->gib_kartenboden()->gib_pos();
-    }
-    setze_besitzer( welt->gib_spieler(1) );
+	switch(fahrtrichtung) {
+		case ribi_t::nord:
+			dx = 2;
+			dy = -1;
+			break;
+		case ribi_t::sued:
+			dx = -2;
+			dy = 1;
+			break;
+		case ribi_t::ost:
+			dx = 2;
+			dy = 1;
+			break;
+		case ribi_t::west:
+			dx = -2;
+			dy = -1;
+			break;
+	}
+	if(count) {
+		from->get_neighbour(to, road_wt, fahrtrichtung);
+		pos_next = to->gib_pos();
+	} else {
+		pos_next = welt->lookup(pos.gib_2d() + koord(fahrtrichtung))->gib_kartenboden()->gib_pos();
+	}
+	setze_besitzer( welt->gib_spieler(1) );
 }
 
 

@@ -1606,20 +1606,20 @@ bool
 convoi_t::pruefe_alle()
 {
 	bool ok = (anz_vehikel == 0 || pruefe_vorgaenger(NULL, fahr.at(0)->gib_besch()));
-    unsigned i;
+	unsigned i;
 
 	const vehikel_t* pred = fahr.at(0);
-    for(i = 1; ok && i < anz_vehikel; i++) {
+	for(i = 1; ok && i < anz_vehikel; i++) {
 		const vehikel_t* v = fahr.at(i);
-	ok =
-			pruefe_nachfolger(pred->gib_besch(), v->gib_besch()) &&
-			pruefe_vorgaenger(pred->gib_besch(), v->gib_besch());
+		ok = pruefe_nachfolger(pred->gib_besch(), v->gib_besch()) &&
+				 pruefe_vorgaenger(pred->gib_besch(), v->gib_besch());
 		pred = v;
-    }
-    if(ok)
-	ok = pruefe_nachfolger(pred->gib_besch(), NULL);
+	}
+	if(ok) {
+		ok = pruefe_nachfolger(pred->gib_besch(), NULL);
+	}
 
-    return ok;
+	return ok;
 }
 
 

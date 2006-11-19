@@ -1,5 +1,4 @@
 CHECK:
-short vehicles
 resize greater than 2400*1536 crashes simutrans
 depots list for world!/grey out find depot while route search is active
 
