@@ -36,15 +36,15 @@ void way_writer_t::write_obj(FILE *outfp, obj_node_t &parent, tabfileobj_t &obj)
 	uint32 max_weight = obj.get_int("max_weight", 999);
 
 	uint16 intro  = obj.get_int("intro_year", DEFAULT_INTRO_DATE) * 12;
-	intro +=        obj.get_int("intro_month", 1) - 1;
+	intro += obj.get_int("intro_month", 1) - 1;
 
 	uint16 retire  = obj.get_int("retire_year", DEFAULT_RETIRE_DATE) * 12;
-	retire +=        obj.get_int("retire_month", 1) - 1;
+	retire += obj.get_int("retire_month", 1) - 1;
 
 	uint8 wtyp =    get_waytype(obj.get("waytype"));
 	uint8 styp =    obj.get_int("system_type", 0);
 	// compatibility conversions
-	if(wtyp==track_wt  &&  styp==1) {
+	if(wtyp==track_wt  &&  styp==5) {
 		wtyp = monorail_wt;
 	} else if(wtyp==track_wt  &&  styp==7) {
 		wtyp = tram_wt;

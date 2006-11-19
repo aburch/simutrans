@@ -5,10 +5,15 @@ Known bugs: (hard to fix)
 
 
 
+Release of 99.04.2
+
+20-Nov-2006: (prissi)
 	FIX: images inside tunnel
 	FIX: buying airplanes again
 	FIX: minimap remembers size again
-	FIX: old error with too short vehicles
+	FIX: old errors with too short vehicles
+	CHANGE(tron): lots of cleaning up of data structures and doubtful code
+	FIX: makeobj broken at several places, not really finished with fixing
 
 
 Release of 99.04.1

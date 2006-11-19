@@ -20,7 +20,7 @@ void imagelist2d_writer_t::write_obj(FILE *fp, obj_node_t &parent,
     besch.anzahl = keys.count();
 
     while(iter.next()) {
-	imagelist_writer_t::instance()->write_obj(fp, node, iter.get_current());
+		imagelist_writer_t::instance()->write_obj(fp, node, iter.get_current());
     }
     node.write_data(fp, &besch);
     node.write(fp);

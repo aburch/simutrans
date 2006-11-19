@@ -19,14 +19,13 @@ void imagelist_writer_t::write_obj(FILE *fp, obj_node_t &parent, const slist_tpl
 
 	int count = 0;
     while(iter.next()) {
-    	if(iter.get_current().chars()==0) {
+    	if((const char *)(iter.get_current())==NULL) {
     		break;
     }
 	image_writer_t::instance()->write_obj(fp, node, iter.get_current());
 	count ++;
   }
-  if(count<keys.count())
-  {
+  if(count<keys.count()) {
 	printf("WARNING: Expected %i images, but found only %i (but might be still correct)!\n",keys.count(),count );
 	fflush(NULL);
   }

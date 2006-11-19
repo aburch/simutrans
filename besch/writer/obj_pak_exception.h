@@ -5,6 +5,7 @@
 #pragma once
 #endif
 
+class cstring_t;
 
 class obj_pak_exception_t {
     cstring_t   classname;
@@ -12,17 +13,11 @@ class obj_pak_exception_t {
 public:
     obj_pak_exception_t(const char *clsname, const char *prob)
     {
-	classname = clsname;
-	problem = prob;
+		classname = clsname;
+		problem = prob;
     }
-    const cstring_t &get_class()
-    {
-	return classname;
-    }
-    const cstring_t &get_info()
-    {
-	return problem;
-    }
+    const cstring_t &get_class() { return classname; }
+    const cstring_t &get_info() { return problem; }
 };
 
 #endif

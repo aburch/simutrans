@@ -2,6 +2,7 @@
 #define __OBJ_WRITER
 
 #include <stdio.h>
+#include "../intro_dates.h"
 #include "../objversion.h"
 #include "../../utils/cstring_t.h"
 

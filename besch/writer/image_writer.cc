@@ -1,4 +1,5 @@
 #include <string.h>
+#include <stdlib.h>
 
 #include "../../utils/cstring_t.h"
 #include "../../utils/dr_rdpng.h"
@@ -231,133 +232,114 @@ bool image_writer_t::block_laden(const char *fname)
 
 void image_writer_t::write_obj(FILE *outfp, obj_node_t &parent, cstring_t an_imagekey)
 {
-    bild_besch_t bild;
-    dimension dim;
-    PIXVAL *pixdata = NULL;;
-    cstring_t imagekey;
+	bild_t bild;
+	dimension dim;
+	PIXVAL *pixdata = NULL;;
+	cstring_t imagekey;
 
-    memset(&bild, 0, sizeof(bild)) ;
+	memset(&bild, 0, sizeof(bild)) ;
 
-    // Hajo: if first char is a '>' then this image is not zoomeable
-    if(an_imagekey.len() > 2
-       && an_imagekey.chars()[0] == '>') {
-
-      imagekey = an_imagekey.substr(2, an_imagekey.len());
-      bild.zoomable = false;
-
-      // printf("'%s'\n", imagekey.chars());
-    } else {
-
-      imagekey = an_imagekey;
-      bild.zoomable = true;
-    }
-
-
-    if(imagekey != "-" && imagekey != "") {
-	//
-	// divide key in filename and image number
-	//
-	int row = -1, col = -1;
-	cstring_t numkey;
-	cstring_t part;
-
-	int j = imagekey.find_back('/');
-	if(j == -1)
-	    numkey = imagekey;
-	else
-	    numkey = imagekey.substr(j + 1, imagekey.len());
-
-	int i = numkey.find('.');
-	if(i == -1) {
-	    cstring_t reason;
-
-	    reason.printf("no image number in %s", imagekey.chars());
-	    throw new obj_pak_exception_t("image_writer_t", reason);
-	}
-	numkey = numkey.substr(i + 1, numkey.len());
-
-	imagekey = root_writer_t::get_inpath() + imagekey.substr(0, imagekey.len() - numkey.len() - 1) +  ".png";
-
-	i = numkey.find('.');
-	if(i == -1) {
-	    row = atoi(numkey.chars());
-	}
-	else {
-	    part = numkey.substr(0, i);
-	    row = atoi(part.chars());
-	    part = numkey.substr(i + 1, numkey.len());
-	    col = atoi(part.chars());
-	}
-	//
-	// Load complete file
-	//
-	if(!block_laden(imagekey.chars())) {
-	    cstring_t reason;
-
-	    reason.printf("cannot open %s", imagekey.chars());
-	    throw new obj_pak_exception_t("image_writer_t", reason);
+	// Hajo: if first char is a '>' then this image is not zoomeable
+	if(an_imagekey.len()>2  && ((const char *)(an_imagekey))[0] == '>') {
+		imagekey = an_imagekey.substr(2, an_imagekey.len());
+		bild.zoomable = false;
+	} else {
+		imagekey = an_imagekey;
+		bild.zoomable = true;
 	}
 
-	if(col == -1) {
-	    col = row % (width / img_size);
-	    row = row / (width / img_size);
+
+	if(imagekey != "-" && imagekey != "") {
+		//
+		// divide key in filename and image number
+		//
+		int row = -1, col = -1;
+		cstring_t numkey;
+		cstring_t part;
+
+		int j = imagekey.find_back('/');
+		if(j == -1) {
+			numkey = imagekey;
+		}
+		else {
+			numkey = imagekey.substr(j + 1, imagekey.len());
+		}
+
+		int i = numkey.find('.');
+		if(i == -1) {
+			cstring_t reason;
+			reason.printf("no image number in %s", (const char *)(imagekey));
+			throw new obj_pak_exception_t("image_writer_t", reason);
+		}
+		numkey = numkey.substr(i + 1, numkey.len());
+
+		imagekey = root_writer_t::get_inpath() + imagekey.substr(0, imagekey.len() - numkey.len() - 1) +  ".png";
+
+		i = numkey.find('.');
+		if(i == -1) {
+			row = atoi((const char *)(numkey));
+		}
+		else {
+			part = numkey.substr(0, i);
+			row = atoi((const char *)(part));
+			part = numkey.substr(i + 1, numkey.len());
+			col = atoi((const char *)(part));
+		}
+		//
+		// Load complete file
+		//
+		if(!block_laden((const char *)(imagekey))) {
+			cstring_t reason;
+			reason.printf("cannot open %s", (const char *)(imagekey));
+			throw new obj_pak_exception_t("image_writer_t", reason);
+		}
+
+		if(col == -1) {
+			col = row % (width / img_size);
+			row = row / (width / img_size);
+		}
+		if(col >= (int)(width / img_size) || row >= (int)(height / img_size)) {
+			cstring_t reason;
+			reason.printf("invalid image number in %s.%s", (const char *)(imagekey), (const char *)(numkey));
+			throw new obj_pak_exception_t("image_writer_t", reason);
+		}
+		row *= img_size;
+		col *= img_size;
+
+		//
+		// Temp. read image and determine drawing area.
+		//
+		PIXRGB *image = new PIXRGB[img_size*img_size];
+		for(int x = 0; x < img_size; x++) {
+			for(int y = 0; y < img_size; y++) {
+				image[x + y * img_size] = block_getpix(x + col, y + row);
+			}
+		}
+		init_dim(image, &dim, img_size);
+		delete image;
+
+		bild.x = dim.xmin;
+		bild.y = dim.ymin;
+		bild.w = dim.xmax - dim.xmin + 1;
+		bild.h = dim.ymax - dim.ymin + 1;
+		bild.len = 0;
+
+		if(bild.h > 0) {
+			int len;
+			pixdata = encode_image(col, row, &dim, &len);
+			if(len>65535) {
+				printf("ERROR: packed image size (%i) exceeded 65535 bytes!\n",len);
+				abort();
+			}
+			bild.len = len;
+		}
 	}
-	if(col >= (int)(width / img_size) || row >= (int)(height / img_size)) {
-	    cstring_t reason;
+	obj_node_t node(this, sizeof(bild) + bild.len * sizeof(PIXVAL), &parent, true);
 
-	    reason.printf("invalid image number in %s.%s", imagekey.chars(), numkey.chars());
-	    throw new obj_pak_exception_t("image_writer_t", reason);
+	node.write_data_at(outfp, &bild, 0, sizeof(bild));
+	if(pixdata) {
+		node.write_data_at(outfp, pixdata, sizeof(bild), bild.len * sizeof(PIXVAL));
+		free(pixdata);
 	}
-	row *= img_size;
-	col *= img_size;
-
-	//
-	// Temp. read image and determine drawing area.
-	//
-	PIXRGB *image = new PIXRGB[img_size*img_size];
-
-    	for(int x = 0; x < img_size; x++) {
-	    for(int y = 0; y < img_size; y++) {
-		image[x + y * img_size] = block_getpix(x + col, y + row);
-	    }
-	}
-	init_dim(image, &dim, img_size);
-
-	delete image;
-
-
-	bild.x = dim.xmin;
-	bild.y = dim.ymin;
-	bild.w = dim.xmax - dim.xmin + 1;
-	bild.h = dim.ymax - dim.ymin + 1;
-	bild.len = 0;
-
-	if(bild.h > 0) {
-	    int len;
-	    pixdata = encode_image(col, row, &dim, &len);
-	    if(len>65535) {
-	    	printf("ERROR: packed image size (%i) exceeded 65535 bytes!\n",len);
-	    	abort();
-	    }
-	    bild.len = len;
-	}
-
-	/*
-	printf("x=%02d y=%02d w=%02d h=%02d len=%d\n",
-	       bild.x,
-	       bild.y,
-	       bild.w,
-	       bild.h,
-	       bild.len);
-	*/
-
-    }
-    obj_node_t node(this, sizeof(bild) + bild.len * sizeof(PIXVAL), &parent, true);
-
-    node.write_data_at(outfp, &bild, 0, sizeof(bild));
-    if(pixdata) {
-	node.write_data_at(outfp, pixdata, sizeof(bild), bild.len * sizeof(PIXVAL));
-	free(pixdata);
-    }
-    node.write(outfp);
+	node.write(outfp);
 }

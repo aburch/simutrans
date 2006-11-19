@@ -4,6 +4,7 @@
 
 #include "../simtypes.h"
 #include "../simversion.h"
+#include "../utils/cstring_t.h"
 #include "../besch/writer/obj_pak_exception.h"
 
 #include "../besch/writer/root_writer.h"
@@ -41,7 +42,7 @@ int main(int argc, char* argv[])
 	    }
 	    root_writer_t::instance()->write(dest, argc, argv);
 	} catch(obj_pak_exception_t *e) {
-	    printf("ERROR IN CLASS %s: %s\n", e->get_class().chars(), e->get_info().chars());
+	    printf("ERROR IN CLASS %s: %s\n", (const char *)(e->get_class()), (const char *)(e->get_info()));
 	    delete e;
 	}
 	return 0;
@@ -67,7 +68,7 @@ int main(int argc, char* argv[])
 	        }
 	        root_writer_t::instance()->write(dest, argc, argv);
 	    } catch(obj_pak_exception_t *e) {
-	        printf("ERROR IN CLASS %s: %s\n", e->get_class().chars(), e->get_info().chars());
+	        printf("ERROR IN CLASS %s: %s\n", (const char *)(e->get_class()), (const char *)(e->get_info()));
 	        delete e;
 	    }
 
@@ -99,7 +100,7 @@ int main(int argc, char* argv[])
 			argv++, argc--;
 			root_writer_t::instance()->copy(dest, argc, argv);
 	    } catch(obj_pak_exception_t *e) {
-		printf("ERROR IN CLASS %s: %s\n", e->get_class().chars(), e->get_info().chars());
+		printf("ERROR IN CLASS %s: %s\n", (const char *)(e->get_class()), (const char *)(e->get_info()));
 		delete e;
 	    }
 	    return 0;

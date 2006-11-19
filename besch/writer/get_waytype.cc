@@ -1,4 +1,5 @@
 #include "../../simtypes.h"
+#include "../../utils/cstring_t.h"	// for STRICMP
 
 #include "../../dataobj/tabfile.h"
 

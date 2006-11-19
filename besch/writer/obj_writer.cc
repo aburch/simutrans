@@ -32,10 +32,10 @@ void obj_writer_t::write(FILE *fp, obj_node_t &parent, tabfileobj_t &obj)
 
     obj_writer_t *writer = writer_by_name->get(type);
     if(!writer) {
-	printf("skipping unknown %s object %s\n", type.chars(), name.chars());
+	printf("skipping unknown %s object %s\n", (const char *)type, (const char *)name);
 	return;
     }
-    printf("      packing %s.%s\n", type.chars(), name.chars());
+    printf("      packing %s.%s\n", (const char *)type, (const char *)name);
     writer->write_obj(fp, parent, obj);
 }
 
@@ -80,7 +80,7 @@ void obj_writer_t::list_nodes(FILE *infp)
     obj_writer_t *writer = writer_by_type->get((obj_type)node.type);
     if(writer) {
 	fseek(infp, node.size, SEEK_CUR);
-	printf("%-16s %s\n", writer->get_type_name(), writer->get_node_name(infp).chars());
+	printf("%-16s %s\n", writer->get_type_name(), (const char *)(writer->get_node_name(infp)) );
     }
     else {
 	printf("(unknown %4.4s)\n", (const char *)&node.type);
@@ -101,12 +101,12 @@ void obj_writer_t::show_capabilites()
 	stringhashtable_iterator_tpl<obj_writer_t *> iter(writer_by_name);
 	cstring_t max_s = "zzz";
 	while(iter.next()) {
-	    if(STRICMP(iter.get_current_key(), min_s.chars()) > 0 && STRICMP(iter.get_current_key(), max_s) < 0)
+	    if(STRICMP(iter.get_current_key(), (const char *)min_s) > 0 && STRICMP(iter.get_current_key(), (const char *)max_s) < 0)
 		max_s = iter.get_current_key();
 	}
 	if(max_s == "zzz")
 	    break;
-	printf("   %s\n", max_s.chars());
+	printf("   %s\n", (const char *)max_s);
 	min_s = max_s;
    }
 }

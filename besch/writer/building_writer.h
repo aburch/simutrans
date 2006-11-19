@@ -4,7 +4,6 @@
 #include "obj_writer.h"
 #include "../objversion.h"
 
-
 //class cstring_t;
 //class obj_node_t;
 template<class T> class slist_tpl;

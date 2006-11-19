@@ -2,6 +2,7 @@
 
 #include <string.h>
 
+#include "../../utils/cstring_t.h"	// for STRICMP
 #include "../grund_besch.h"
 #include "../../dataobj/tabfile.h"
 
