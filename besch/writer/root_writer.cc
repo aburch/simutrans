@@ -78,7 +78,7 @@ void root_writer_t::write(const char* filename, int argc, char* argv[])
 
 						name = name + obj.get("obj") + "." + obj.get("name") + ".pak";
 
-						outfp = fopen((const char*)name, "wb");
+						outfp = fopen(name, "wb");
 						if (!outfp) {
 							printf("ERROR: cannot create destination file %s\n", filename);
 							exit(3);
@@ -336,7 +336,7 @@ void root_writer_t::uncopy(const char* name)
 			// now make a name
 			cstring_t writer = node_writer_name(infp);
 			cstring_t outfile = writer + "." + name_from_next_node(infp) + ".pak";
-			FILE* outfp = fopen((const char*)outfile, "wb");
+			FILE* outfp = fopen(outfile, "wb");
 			if (!outfp) {
 				printf("  ERROR: could not open %s for writing (aborting)\n", (const char*)outfile);
 				fclose(infp);

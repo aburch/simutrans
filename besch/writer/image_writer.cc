@@ -232,7 +232,7 @@ void image_writer_t::write_obj(FILE* outfp, obj_node_t& parent, cstring_t an_ima
 	memset(&bild, 0, sizeof(bild));
 
 	// Hajo: if first char is a '>' then this image is not zoomeable
-	if (an_imagekey.len() > 2 && ((const char*)(an_imagekey))[0] == '>') {
+	if (an_imagekey.len() > 2 && an_imagekey[0] == '>') {
 		imagekey = an_imagekey.substr(2, an_imagekey.len());
 		bild.zoomable = false;
 	} else {
@@ -244,7 +244,6 @@ void image_writer_t::write_obj(FILE* outfp, obj_node_t& parent, cstring_t an_ima
 		// divide key in filename and image number
 		int row = -1, col = -1;
 		cstring_t numkey;
-		cstring_t part;
 
 		int j = imagekey.find_back('/');
 		if (j == -1) {
@@ -256,7 +255,7 @@ void image_writer_t::write_obj(FILE* outfp, obj_node_t& parent, cstring_t an_ima
 		int i = numkey.find('.');
 		if (i == -1) {
 			cstring_t reason;
-			reason.printf("no image number in %s", (const char*)(imagekey));
+			reason.printf("no image number in %s", (const char*)imagekey);
 			throw new obj_pak_exception_t("image_writer_t", reason);
 		}
 		numkey = numkey.substr(i + 1, numkey.len());
@@ -265,17 +264,15 @@ void image_writer_t::write_obj(FILE* outfp, obj_node_t& parent, cstring_t an_ima
 
 		i = numkey.find('.');
 		if (i == -1) {
-			row = atoi((const char*)(numkey));
+			row = atoi(numkey);
 		} else {
-			part = numkey.substr(0, i);
-			row = atoi((const char*)(part));
-			part = numkey.substr(i + 1, numkey.len());
-			col = atoi((const char*)(part));
+			row = atoi(numkey.substr(0, i));
+			col = atoi(numkey.substr(i + 1, numkey.len()));
 		}
 		// Load complete file
-		if (!block_laden((const char*)(imagekey))) {
+		if (!block_laden(imagekey)) {
 			cstring_t reason;
-			reason.printf("cannot open %s", (const char*)(imagekey));
+			reason.printf("cannot open %s", (const char*)imagekey);
 			throw new obj_pak_exception_t("image_writer_t", reason);
 		}
 
@@ -285,7 +282,7 @@ void image_writer_t::write_obj(FILE* outfp, obj_node_t& parent, cstring_t an_ima
 		}
 		if (col >= (int)(width / img_size) || row >= (int)(height / img_size)) {
 			cstring_t reason;
-			reason.printf("invalid image number in %s.%s", (const char*)(imagekey), (const char*)(numkey));
+			reason.printf("invalid image number in %s.%s", (const char*)imagekey, (const char*)numkey);
 			throw new obj_pak_exception_t("image_writer_t", reason);
 		}
 		row *= img_size;

@@ -17,7 +17,7 @@ void imagelist_writer_t::write_obj(FILE* fp, obj_node_t& parent, const slist_tpl
 
 	int count = 0;
 	while (iter.next()) {
-		if ((const char*)(iter.get_current()) == NULL) {
+		if (iter.get_current() == NULL) {
 			break;
 		}
 		image_writer_t::instance()->write_obj(fp, node, iter.get_current());

@@ -98,7 +98,7 @@ void obj_writer_t::show_capabilites()
 		stringhashtable_iterator_tpl<obj_writer_t *> iter(writer_by_name);
 		cstring_t max_s = "zzz";
 		while (iter.next()) {
-			if (STRICMP(iter.get_current_key(), (const char*)min_s) > 0 && STRICMP(iter.get_current_key(), (const char*)max_s) < 0) {
+			if (STRICMP(iter.get_current_key(), min_s) > 0 && STRICMP(iter.get_current_key(), max_s) < 0) {
 				max_s = iter.get_current_key();
 			}
 		}

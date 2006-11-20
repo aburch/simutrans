@@ -65,8 +65,8 @@ void vehicle_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& obj
 	sint8 sound_id=NO_SOUND;
 	if (sound_str.len() > 0) {
 		// ok, there is some sound
-		sound_id = atoi((const char*)sound_str);
-		if (sound_id == 0 && *((const char*)sound_str) == '0') {
+		sound_id = atoi(sound_str);
+		if (sound_id == 0 && sound_str[0] == '0') {
 			sound_id = 0;
 			sound_str = "";
 		} else if (sound_id != 0) {
@@ -259,10 +259,10 @@ void vehicle_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& obj
 
 		str = obj.get(buf);
 		if (str.len() > 0) {
-			if (besch_vorgaenger == 0 && !STRICMP((const char*)str, "none")) {
+			if (besch_vorgaenger == 0 && !STRICMP(str, "none")) {
 				str = "";
 			}
-			xref_writer_t::instance()->write_obj(fp, node, obj_vehicle, (const char*)str, false);
+			xref_writer_t::instance()->write_obj(fp, node, obj_vehicle, str, false);
 			besch_vorgaenger++;
 		}
 	} while (str.len() > 0);
@@ -277,10 +277,10 @@ void vehicle_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& obj
 
 		str = obj.get(buf);
 		if (str.len() > 0) {
-			if (besch_nachfolger == 0 && !STRICMP((const char*)str, "none")) {
+			if (besch_nachfolger == 0 && !STRICMP(str, "none")) {
 				str = "";
 			}
-			xref_writer_t::instance()->write_obj(fp, node, obj_vehicle, (const char*)str, false);
+			xref_writer_t::instance()->write_obj(fp, node, obj_vehicle, str, false);
 			besch_nachfolger++;
 		}
 	} while (str.len() > 0);
@@ -303,7 +303,7 @@ void vehicle_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& obj
 			printf("*** FATAL ***:\nMissing freightimagetype[%i] for %i freight_images!\n", i, freight_max + 1);
 			exit(0);
 		}
-		xref_writer_t::instance()->write_obj(fp, node, obj_good, (const char*)str, false);
+		xref_writer_t::instance()->write_obj(fp, node, obj_good, str, false);
 	}
 
 	// if no index defined then add default as vehicle good
@@ -336,7 +336,7 @@ void vehicle_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& obj
 	if (sound_str.len() > 0) {
 		sv8 = sound_str.len();
 		node.write_data_at(fp, &sv8, 31, sizeof(sint8));
-		node.write_data_at(fp, (const char*)sound_str, 32, sound_str.len());
+		node.write_data_at(fp, sound_str, 32, sound_str.len());
 	}
 
 	node.write(fp);

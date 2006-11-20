@@ -444,7 +444,7 @@ const char * translator::translate(const char *str)
         return str;
     }
     else {
-        const char *trans=(const char *)single_instance->languages[get_language()]->get(str);
+        const char* trans= single_instance->languages[get_language()]->get(str);
         return trans ? trans : str;
     }
 }
@@ -459,7 +459,7 @@ const char * translator::translate_from_lang(const int lang,const char *str)
         return str;
     }
     else {
-        const char *trans=(const char *)single_instance->languages[lang]->get(str);
+        const char* trans = single_instance->languages[lang]->get(str);
         return trans ? trans : str;
     }
 }
@@ -475,7 +475,7 @@ const char * translator::compatibility_name(const char *str)
         return str;
     }
     else {
-        const char *trans=(const char *)single_instance->compatibility->get(str);
+        const char* trans = single_instance->compatibility->get(str);
         return trans ? trans : str;
     }
 }
@@ -487,7 +487,7 @@ const char * translator::compatibility_name(const char *str)
  */
 bool translator::check(const char *str)
 {
-    const char * trans = (const char *)single_instance->languages[get_language()]->get(str);
+    const char* trans = single_instance->languages[get_language()]->get(str);
     return trans != 0;
 }
 
