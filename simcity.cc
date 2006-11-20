@@ -2105,6 +2105,7 @@ stadt_t::renoviere_gebaeude(koord k)
 		remove_gebaeude_from_stadt(gb);
 
 		// check for pavement
+		// and make sure our house is not on a neighbouring tile, to avoid boring towns
 		int streetdir=0;
 		for(int i=0;  i<8;  i++ ) {
 			grund_t *gr = welt->lookup(k+neighbours[i])->gib_kartenboden();
@@ -2125,7 +2126,24 @@ stadt_t::renoviere_gebaeude(koord k)
 					}
 					gr->calc_bild();
 				}
+				else if(gr->gib_typ()==grund_t::fundament) {
+					// do not renovate, if the building is already in a neighbour tile
+					gebaeude_t *gb=dynamic_cast<gebaeude_t *>(gr->first_obj());
+					if(gb  &&  gb->gib_tile()->gib_besch()==h) {
+						return;
+					}
+				}
 			}
+		}
+
+		if(alt_typ==gebaeude_t::industrie) {
+			arb -= level * 20;
+		}
+		else if(alt_typ==gebaeude_t::gewerbe) {
+			arb -= level * 20;
+		}
+		else if(alt_typ==gebaeude_t::wohnung) {
+			won -= level * 10;
 		}
 
 		hausbauer_t::umbauen(welt, gb, h, streetdir);
@@ -2141,16 +2159,6 @@ stadt_t::renoviere_gebaeude(koord k)
 
 		gebaeude_t *gb = dynamic_cast<gebaeude_t *>(welt->lookup(k)->gib_kartenboden()->first_obj());
 		add_gebaeude_to_stadt( gb );
-
-		if(alt_typ==gebaeude_t::industrie) {
-			arb -= level * 20;
-		}
-		else if(alt_typ==gebaeude_t::gewerbe) {
-			arb -= level * 20;
-		}
-		else if(alt_typ==gebaeude_t::wohnung) {
-			won -= level * 10;
-		}
 
 		// printf("Renovierung mit %d Industrie, %d Gewerbe, %d  Wohnung\n", sum_industrie, sum_gewerbe, sum_wohnung);
 

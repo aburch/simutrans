@@ -14,6 +14,7 @@ Release of 99.04.2
 	FIX: old errors with too short vehicles
 	CHANGE(tron): lots of cleaning up of data structures and doubtful code
 	FIX: makeobj broken at several places, not really finished with fixing
+	CHANGE: the same building must not be next to each other => nicer endgame towns
 
 
 Release of 99.04.1
