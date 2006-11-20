@@ -314,11 +314,35 @@ void image_writer_t::write_obj(FILE* outfp, obj_node_t& parent, cstring_t an_ima
 			bild.len = len;
 		}
 	}
-	obj_node_t node(this, sizeof(bild) + bild.len * sizeof(PIXVAL), &parent, true);
 
-	node.write_data_at(outfp, &bild, 0, sizeof(bild));
-	if (pixdata) {
-		node.write_data_at(outfp, pixdata, sizeof(bild), bild.len * sizeof(PIXVAL));
+/* This does the reader; thus we need to write exactly the same ...
+	besch->x = decode_uint8(p);
+	besch->w = decode_uint8(p);
+	besch->y = decode_uint8(p);
+	besch->h = decode_uint8(p);
+	besch->len = decode_uint32(p);
+	besch->bild_nr = IMG_LEER;
+	decode_uint16(p);	// dummys
+	besch->zoomable = decode_uint8(p);
+*/
+	// ok, need to be changed to hand mode ...
+	obj_node_t node(this, 12 + (bild.len * sizeof(uint16)), &parent, false);
+
+	// to avoid any problems due to structure changes, we write manually the data
+	node.write_data_at(outfp, &bild.x, 0, sizeof(uint8));
+	node.write_data_at(outfp, &bild.w, 1, sizeof(uint8));
+	node.write_data_at(outfp, &bild.y, 2, sizeof(uint8));
+	node.write_data_at(outfp, &bild.h, 3, sizeof(uint8));
+	node.write_data_at(outfp, &bild.len, 4, sizeof(uint32));
+	uint16 dummy16=0;
+	node.write_data_at(outfp, &dummy16, 8, sizeof(uint16));
+	node.write_data_at(outfp, &bild.zoomable, 10, sizeof(uint8));
+	uint8 dummy8=0;
+	node.write_data_at(outfp, &dummy8, 11, sizeof(uint8));
+
+	if (bild.len) {
+		// only called, if there is something to store
+		node.write_data_at(outfp, pixdata, 12, bild.len * sizeof(PIXVAL));
 		free(pixdata);
 	}
 	node.write(outfp);

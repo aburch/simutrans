@@ -13,7 +13,7 @@ void crossing_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& ob
 {
 	kreuzung_besch_t besch;
 
-	obj_node_t node(this, sizeof(besch), &parent, true);
+	obj_node_t node(this, 4, &parent, false);
 
 	write_head(fp, node, obj);
 
@@ -28,6 +28,9 @@ void crossing_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& ob
 	}
 	image_writer_t::instance()->write_obj(fp, node, obj.get("image"));
 
-	node.write_data(fp, &besch);
-	node.write(fp);
+	uint16 v16 = besch.wegtyp_ns;
+	node.write_data_at(fp, &v16, 0, sizeof(uint16));
+	v16 = besch.wegtyp_ow;
+	node.write_data_at(fp, &v16, 2, sizeof(uint16));
+    node.write(fp);
 }
