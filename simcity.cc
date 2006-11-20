@@ -1204,15 +1204,14 @@ stadt_t::step_passagiere()
  * Stadtgrenzen zurück
  * @author Hj. Malthaner
  */
-koord
-stadt_t::gib_zufallspunkt()
+koord stadt_t::gib_zufallspunkt() const
 {
 	const gebaeude_t *gb=buildings.at_weight( simrand(buildings.get_sum_weight()) );
 	koord k=gb->gib_pos().gib_2d();
 	if(!welt->ist_in_kartengrenzen(k)) {
 		// this building should not be in this list, since it has been already deleted!
 		dbg->error("stadt_t::gib_zufallspunkt()","illegal building %s removing!",gb->gib_name());
-		buildings.remove(gb);
+		const_cast<stadt_t*>(this)->buildings.remove(gb);
 		k = koord(0,0);
 	}
 	return k;
@@ -1251,7 +1250,7 @@ stadt_t::finde_passagier_ziel(pax_zieltyp *will_return)
 
 		// long distance traveller? => then we return
 		*will_return = (this!=zielstadt) ? town_return : no_return;
-		return ((stadt_t *)zielstadt)->gib_zufallspunkt();
+		return zielstadt->gib_zufallspunkt();
 	}
 	// we could never reach here (but happend once anyway?!?)
 	dbg->fatal("stadt_t::finde_passagier_ziel()","no passenger ziel found!");
