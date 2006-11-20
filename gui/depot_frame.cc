@@ -785,8 +785,6 @@ void
 depot_frame_t::image_from_storage_list(gui_image_list_t::image_data_t *bild_data)
 {
 	if(bild_data->lcolor != COL_RED && bild_data->rcolor != COL_RED) {
-		int bild = bild_data->image;
-
 		// we buy/sell all vehicles together!
 		slist_tpl<const vehikel_besch_t *>new_vehicle_info;
 		const vehikel_besch_t * info = vehikelbauer_t::gib_info(bild_data->image);
