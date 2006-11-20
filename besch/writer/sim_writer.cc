@@ -44,8 +44,8 @@
  *  wenn eine fehlt, solang die instance auch im Klassenfile liegt.
  *  Daher lieber alle Instanzen hier versammeln.
  */
-stringhashtable_tpl<obj_writer_t *> *obj_writer_t::writer_by_name = NULL;
-inthashtable_tpl<obj_type, obj_writer_t *> *obj_writer_t::writer_by_type = NULL;
+stringhashtable_tpl<obj_writer_t*>* obj_writer_t::writer_by_name = NULL;
+inthashtable_tpl<obj_type, obj_writer_t*>* obj_writer_t::writer_by_type = NULL;
 
 text_writer_t text_writer_t::the_instance;
 image_writer_t image_writer_t::the_instance;

@@ -1,26 +1,30 @@
 #include "../../utils/cstring_t.h"
 #include "../../dataobj/tabfile.h"
-
 #include "../roadsign_besch.h"
 #include "obj_node.h"
 #include "text_writer.h"
 #include "imagelist_writer.h"
-
 #include "roadsign_writer.h"
 #include "get_waytype.h"
 #include "skin_writer.h"
 
-void roadsign_writer_t::write_obj(FILE *fp, obj_node_t &parent, tabfileobj_t &obj)
+
+void roadsign_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& obj)
 {
-	obj_node_t	node(this, 14, &parent, false);	/* false, because we write this ourselves */
+	obj_node_t node(this, 14, &parent, false); /* false, because we write this ourselves */
 
 	// Hajodoc: Preferred height of this tree type
 	// Hajoval: int (useful range: 0-14)
 	roadsign_besch_t besch;
 	besch.cost = obj.get_int("cost", 500)*100;
 	besch.min_speed = obj.get_int("min_speed", 0);
-	besch.flags = (obj.get_int("single_way", 0)>0) + (obj.get_int("free_route", 0)>0)*2 + (obj.get_int("is_private", 0)>0)*4 +
-						(obj.get_int("is_signal", 0)>0)*8 + (obj.get_int("is_presignal", 0)>0)*16 + (obj.get_int("no_foreground", 0)>0)*32;
+	besch.flags =
+		(obj.get_int("single_way",    0) > 0) +
+		(obj.get_int("free_route",    0) > 0) *  2 +
+		(obj.get_int("is_private",    0) > 0) *  4 +
+		(obj.get_int("is_signal",     0) > 0) *  8 +
+		(obj.get_int("is_presignal",  0) > 0) * 16 +
+		(obj.get_int("no_foreground", 0) > 0) * 32;
 	besch.wtyp =  get_waytype(obj.get("waytype"));
 
 	// Hajo: temp vars of appropriate size
@@ -58,13 +62,13 @@ void roadsign_writer_t::write_obj(FILE *fp, obj_node_t &parent, tabfileobj_t &ob
 	slist_tpl<cstring_t> keys;
 	cstring_t str;
 
-	for(int i=0; i<24; i++) {
+	for (int i = 0; i < 24; i++) {
 		char buf[40];
 
 		sprintf(buf, "image[%i]", i);
 		str = obj.get(buf);
 		// make sure, there are always 4, 8, 12, ... images (for all directions)
-		if(str.len()==0  &&  (i%4)==0) {
+		if (str.len() == 0 && i % 4 == 0) {
 			break;
 		}
 		keys.append(str);
@@ -74,10 +78,10 @@ void roadsign_writer_t::write_obj(FILE *fp, obj_node_t &parent, tabfileobj_t &ob
 	// probably add some icons, if defined
 	slist_tpl<cstring_t> cursorkeys;
 
-	cstring_t c=cstring_t(obj.get("cursor")), i=cstring_t(obj.get("icon"));
+	cstring_t c = cstring_t(obj.get("cursor")), i=cstring_t(obj.get("icon"));
 	cursorkeys.append(c);
 	cursorkeys.append(i);
-	if(c.len()>0  ||  i.len()>0) {
+	if (c.len() > 0 || i.len() > 0) {
 		cursorskin_writer_t::instance()->write_obj(fp, node, obj, cursorkeys);
 	}
 
