@@ -639,7 +639,7 @@ menu_open(karte_t *welt, menu_entries menu_nr, spieler_t *sp )
 		break;
 
 		case MENU_AIRPORT:
-			if(hausbauer_t::air_depot.count()>0  &&  wegbauer_t::weg_search(air_wt,1,welt->get_timeline_year_month())!=NULL) {
+			if (!hausbauer_t::air_depot.empty() && wegbauer_t::weg_search(air_wt, 1, welt->get_timeline_year_month()) != NULL) {
 				// start aircraft
 				werkzeug_parameter_waehler_t *wzw = new werkzeug_parameter_waehler_t(welt, "AIRTOOLS");
 

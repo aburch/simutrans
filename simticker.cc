@@ -37,9 +37,9 @@ static bool redraw_all; // true, if also trigger background need redraw
 static int next_pos;
 
 
-int ticker::count()
+bool ticker::empty()
 {
-  return list.count();
+  return list.empty();
 }
 
 
@@ -91,7 +91,7 @@ koord ticker::get_welt_pos()
 
 void ticker::zeichnen(void)
 {
-	if (list.count() > 0) {
+	if (!list.empty()) {
 		const int start_y=display_get_height()-32;
 		const int width = display_get_width();
 
@@ -115,7 +115,7 @@ void ticker::zeichnen(void)
 				}
 			}
 			// remove old news
-			while (list.count() > 0 && list.at(0).xpos + list.at(0).w < 0) {
+			while (!list.empty() > 0 && list.at(0).xpos + list.at(0).w < 0) {
 				list.remove_first();
 			}
 			if(next_pos>width) {

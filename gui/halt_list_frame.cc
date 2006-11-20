@@ -148,7 +148,7 @@ bool halt_list_frame_t::passes_filter(halthandle_t halt)
 	}
 	if(!ok && gib_filter(ohneverb_filter)) {
 	    const slist_tpl<warenziel_t> *ziele = halt->gib_warenziele();
-	    ok = (ziele->count() == 0); //only display stations with NO connection
+		ok = ziele->empty(); //only display stations with NO connection
 	}
 	if(!ok) {
 	    return false;
@@ -158,7 +158,7 @@ bool halt_list_frame_t::passes_filter(halthandle_t halt)
 	/*
 	 * Die Unterkriterien werden gebildet aus:
 	 * - die Ware wird produziert (pax/post_enabled bzw. fabrik vorhanden)
-	 * - es existiert eine Zugverbindung mit dieser Ware (!ziele[...].is_empty())
+	 * - es existiert eine Zugverbindung mit dieser Ware (!ziele[...].empty())
 	 */
 	ok = false;
 
@@ -199,7 +199,7 @@ bool halt_list_frame_t::passes_filter(halthandle_t halt)
 	/*
 	 * Die Unterkriterien werden gebildet aus:
 	 * - die Ware wird verbraucht (pax/post_enabled bzw. fabrik vorhanden)
-	 * - es existiert eine Zugverbindung mit dieser Ware (!ziele[...].is_empty())
+	 * - es existiert eine Zugverbindung mit dieser Ware (!ziele[...].empty())
 	 */
 
 	ok = false;

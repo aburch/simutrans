@@ -496,7 +496,7 @@ route_t::intern_calc_route(karte_t *welt, const koord3d ziel, const koord3d star
 			}
 		}
 
-	} while(!queue.is_empty()  &&  !ziel_erreicht  &&  step<MAX_STEP  &&  tmp->g<max_cost);
+	} while (!queue.empty() && !ziel_erreicht && step < MAX_STEP && tmp->g < max_cost);
 
 #ifdef DEBUG_ROUTES
 	// display marked route

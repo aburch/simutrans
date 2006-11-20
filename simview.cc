@@ -35,7 +35,7 @@ karte_ansicht_t::display(bool force_dirty)
 	const sint16 disp_width = display_get_width();
 	const sint16 disp_real_height = display_get_height();
 
-	const sint16 disp_height = display_get_height() - 32 - 16 - (ticker::count() > 0 ? 16 : 0);
+	const sint16 disp_height = display_get_height() - 32 - 16 - (!ticker::empty() ? 16 : 0);
 	display_setze_clip_wh( 0, 32, disp_width, disp_height );
 
 	// zuerst den boden zeichnen

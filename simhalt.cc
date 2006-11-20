@@ -128,7 +128,7 @@ haltestelle_t::gib_halt(karte_t *welt, const koord pos)
 koord
 haltestelle_t::gib_basis_pos() const
 {
-	if(!grund.is_empty()) {
+	if (!grund.empty()) {
 		return grund.at(0)->gib_pos().gib_2d();
 	}
 	else {
@@ -139,7 +139,7 @@ haltestelle_t::gib_basis_pos() const
 koord3d
 haltestelle_t::gib_basis_pos3d() const
 {
-	if(!grund.is_empty()) {
+	if (!grund.empty()) {
 		return grund.at(0)->gib_pos();
 	}
 	else {
@@ -310,7 +310,7 @@ void haltestelle_t::destroy(halthandle_t &halt)
  */
 void haltestelle_t::destroy_all()
 {
-    while(alle_haltestellen.count() > 0) {
+	while (!alle_haltestellen.empty()) {
         halthandle_t halt = alle_haltestellen.at(0);
         destroy(halt);
     }
@@ -387,7 +387,7 @@ haltestelle_t::haltestelle_t(karte_t *wl, koord pos, spieler_t *sp)
 
 haltestelle_t::~haltestelle_t()
 {
-	while(grund.count()>0) {
+	while (!grund.empty()) {
 		rem_grund(grund.at(0));
 	}
 
@@ -421,7 +421,7 @@ void
 haltestelle_t::setze_name(const char *name)
 {
 	tstrncpy(this->name, translator::translate(name), 128);
-	if(grund.count() > 0) {
+	if (!grund.empty()) {
 		grund.at(0)->setze_text(this->name);
 	}
 }
@@ -612,7 +612,7 @@ void haltestelle_t::display_status(int xpos, int ypos) const
 void
 haltestelle_t::verbinde_fabriken()
 {
-	if(!grund.is_empty()) {
+	if(!grund.empty()) {
 
 		{	// unlink all
 			slist_iterator_tpl <fabrik_t *> fab_iter(fab_list);
@@ -1056,7 +1056,7 @@ DBG_DEBUG("haltestelle_t::rem_grund()","remove also floor, count=%i",grund.count
 			}
 		}
 
-		if(!grund.is_empty()) {
+		if (!grund.empty()) {
 			grund_t *bd = grund.at(0);
 
 			if(bd->gib_text() != tmp) {
@@ -1080,12 +1080,7 @@ DBG_DEBUG("haltestelle_t::rem_grund()","remove also floor, count=%i",grund.count
 bool
 haltestelle_t::existiert_in_welt()
 {
-//	DBG_MESSAGE("haltestelle_t::existiert_in_welt()","count=%i",grund.count());
-	if(grund.count()>0) {
-//		DBG_MESSAGE("haltestelle_t::existiert_in_welt()","grund(0)=%i,%i,%i",grund.at(0)->gib_pos().x,grund.at(0)->gib_pos().y,grund.at(0)->gib_pos().z);
-	}
-
-	return !grund.is_empty();
+	return !grund.empty();
 }
 
 
@@ -1098,7 +1093,7 @@ haltestelle_t::get_next_pos( koord start ) const
 {
 	koord find = koord::invalid;
 
-	if(!grund.is_empty()) {
+	if (!grund.empty()) {
 		// find the closest one
 		int	dist = 0x7FFF;
 		slist_iterator_tpl<grund_t *> iter( grund );
@@ -1185,7 +1180,7 @@ haltestelle_t::hole_ab(const ware_besch_t *wtyp, int maxi, fahrplan_t *fpl)
 								bool ok = wliste->remove( tmp );
 								assert(ok);
 
-								if(wliste->count() == 0) {
+								if (wliste->empty()) {
 									waren.remove(ware);
 									delete wliste;
 								}
@@ -1899,7 +1894,7 @@ const char *
 haltestelle_t::name_from_ground() const
 {
 	const char *name = "Unknown";
-	if(grund.is_empty()) {
+	if (grund.empty()) {
 		name = "Unnamed";
 	}
 	else {
@@ -1916,7 +1911,7 @@ haltestelle_t::name_from_ground() const
 char *
 haltestelle_t::access_name()
 {
-	if(grund.count()>0) {
+	if (!grund.empty()) {
 		if(name!=name_from_ground()) {
 			tstrncpy(name, name_from_ground(), 128);
 			grund_t *bd = grund.at(0);

@@ -162,7 +162,7 @@ brueckenbauer_t::fill_menu(werkzeug_parameter_waehler_t *wzw,
 	const sint32 shift_maintanance = (karte_t::ticks_bits_per_tag-18);	// same costs per intervall => correct display
 
 	// now sorted ...
-	while(matching.count()>0) {
+	while (!matching.empty()) {
 		const bruecke_besch_t * besch = matching.at(0);
 		matching.remove_at(0);
 		char buf[256];
@@ -553,10 +553,10 @@ brueckenbauer_t::remove(karte_t *welt, spieler_t *sp, koord3d pos, waytype_t weg
 				marker.markiere(to);
 			}
 		}
-	} while(!tmp_list.is_empty());
+	} while (!tmp_list.empty());
 
 	// Jetzt geht es ans löschen der Brücke
-	while(!part_list.is_empty()) {
+	while (!part_list.empty()) {
 		pos = part_list.remove_first();
 
 		grund_t *gr = welt->lookup(pos);
@@ -576,7 +576,7 @@ brueckenbauer_t::remove(karte_t *welt, spieler_t *sp, koord3d pos, waytype_t weg
 	}
 
 	// Und die Brückenenden am Schluß
-	while(!end_list.is_empty()) {
+	while (!end_list.empty()) {
 		pos = end_list.remove_first();
 
 		grund_t *gr = welt->lookup(pos);

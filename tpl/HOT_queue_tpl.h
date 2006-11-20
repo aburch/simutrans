@@ -79,7 +79,7 @@ public:
 
 			// first: close the old one ...
 			node_count += heap.count();
-			while(heap.count()>0) {
+			while (!heap.empty()) {
 				nodes[node_top].append(heap.pop());
 			}
 
@@ -97,9 +97,9 @@ public:
 			// ok, touching a possibly unsorted pocket
 			if(need_resort) {
 				// need heap'ifying ...
-				assert(heap.is_empty());
+				assert(heap.empty());
 				node_count -= nodes[node_top].count();
-				while(nodes[node_top].count()>0) {
+				while (!nodes[node_top].empty()) {
 					heap.insert( nodes[node_top].remove_first() );
 				}
 				need_resort = false;
@@ -143,8 +143,8 @@ public:
 	T pop() {
 		T tmp = heap.pop();
 		// if this pocket is empty, we must go to the next
-		if(heap.count()==0) {
-			while(nodes[node_top].count()==0  &&  node_top<node_size) {
+		if (heap.empty()) {
+			while (nodes[node_top].empty() && node_top < node_size) {
 				node_top ++;
 				need_resort = true;
 			}
@@ -184,10 +184,7 @@ public:
 
 	// the HOTqueue is empty, if the last pocket is empty
 	// this is always the heap ...
-	bool is_empty() const
-	{
-		return  node_top==node_size;
-	}
+	bool empty() const { return  node_top == node_size; }
 };
 
 #endif

@@ -34,7 +34,7 @@ template<class T> class slist_iterator_tpl;
  * <p>The pop() operation works in O(1) steps</p>
  * <p>The contains() operation works in O(n), average n/2 steps</p>
  * <p>The remove() operation works in O(n), average n steps</p>
- * <p>The count() and is_empty() operation work in O(1) steps</p>
+ * <p>The count() and empty() operation work in O(1) steps</p>
  *
  * @date November 2001
  * @author Hj. Malthaner
@@ -240,10 +240,7 @@ public:
     }
 
 
-    bool is_empty() const
-    {
-	return head == 0;
-    }
+		bool empty() const { return head == 0; }
 };
 
 #endif

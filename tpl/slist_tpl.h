@@ -303,10 +303,7 @@ public:
 		return node_count;
 	}
 
-	bool is_empty() const
-	{
-		return head == 0;
-	}
+	bool empty() const { return head == 0; }
 
 	T &at(unsigned int pos) const
 	{

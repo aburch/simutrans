@@ -194,6 +194,14 @@ public:
 	}
 	return count;
     }
+
+		bool empty() const
+		{
+			for (int i = 0; i < STHT_BAGSIZE; i++) {
+				if (!bags[i].empty()) return false;
+			}
+			return true;
+		}
 };
 
 

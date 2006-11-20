@@ -229,7 +229,7 @@ void vehicle_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& obj
 		printf("*** FATAL ***:\nMissing images (must be either 4 or 8 directions (but %i found)!)\n", emptykeys.count());
 		exit(0);
 	}
-	if (freightkeys_old.count() > 0 && emptykeys.count() != freightkeys_old.count()) {
+	if (!freightkeys_old.empty() && emptykeys.count() != freightkeys_old.count()) {
 		printf("*** FATAL ***:\nMissing freigthimages (must be either 4 or 8 directions (but %i found)!)\n", freightkeys_old.count());
 		exit(0);
 	}

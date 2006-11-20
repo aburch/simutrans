@@ -109,7 +109,7 @@ static int unload_freight(karte_t* welt, halthandle_t halt, slist_tpl<ware_t>* f
   kill_queue.clear();
 
   if(halt->is_enabled( fracht_typ )) {
-    if(!fracht->is_empty()) {
+    if (!fracht->empty()) {
 
       slist_iterator_tpl<ware_t> iter (fracht);
 
@@ -502,7 +502,7 @@ void vehikel_t::remove_stale_freight()
 	static slist_tpl<ware_t> kill_queue;
 	kill_queue.clear();
 
-	if(!fracht.is_empty()) {
+	if (!fracht.empty()) {
 		slist_iterator_tpl<ware_t> iter (fracht);
 		while(iter.next()) {
 			fahrplan_t *fpl = cnv->gib_fahrplan();
@@ -950,7 +950,7 @@ const char * vehikel_t::gib_fracht_name() const
 
 void vehikel_t::gib_fracht_info(cbuffer_t & buf)
 {
-	if(fracht.is_empty()) {
+	if (fracht.empty()) {
 		buf.append("  ");
 		buf.append(translator::translate("leer"));
 		buf.append("\n");
@@ -1049,7 +1049,7 @@ void
 vehikel_t::calc_bild()
 {
 	image_id old_bild=gib_bild();
-	if(fracht.is_empty()) {
+	if (fracht.empty()) {
 		setze_bild(0, besch->gib_bild_nr(ribi_t::gib_dir(gib_fahrtrichtung()),NULL));
 	} else {
 		setze_bild(0, besch->gib_bild_nr(ribi_t::gib_dir(gib_fahrtrichtung()),fracht.at(0).gib_typ() ) );
@@ -1149,7 +1149,7 @@ DBG_MESSAGE("vehicle_t::rdwr()","bought at %i/%i.",(insta_zeit%12)+1,insta_zeit/
   }
 
 		if(file->is_saving()) {
-			if(fracht.count()==0) {
+			if (fracht.empty()) {
 				// create dummy freight for savegame compatibility
 				ware_t ware( besch->gib_ware() );
 				ware.menge = 0;
@@ -1548,7 +1548,7 @@ automobil_t::rdwr(loadsave_t *file, bool force)
 
 		// try to find a matching vehivle
 		if(file->is_loading()  &&  besch==NULL) {
-			const ware_besch_t *w= (fracht.count()>0) ? fracht.at(0).gib_typ() : warenbauer_t::passagiere;
+			const ware_besch_t* w = (!fracht.empty() ? fracht.at(0).gib_typ() : warenbauer_t::passagiere);
 			DBG_MESSAGE("automobil_t::rdwr()","try to find a fitting vehicle for %s.",  w->gib_name() );
 			besch = vehikelbauer_t::vehikel_search(road_wt, 0, ist_erstes?50:0, speed_to_kmh(get_speed_limit()), w );
 			if(besch) {
@@ -1556,7 +1556,7 @@ automobil_t::rdwr(loadsave_t *file, bool force)
 				// still wrong load ...
 				calc_bild();
 			}
-			if(fracht.count()>0  &&  fracht.at(0).menge==0) {
+			if (!fracht.empty() && fracht.at(0).menge == 0) {
 				// this was only there to find a matchin vehicle
 				fracht.remove_first();
 			}
@@ -2074,7 +2074,7 @@ waggon_t::rdwr(loadsave_t *file, bool force)
 		vehikel_t::rdwr(file);
 		// try to find a matching vehivle
 		if(file->is_loading()  &&  besch==NULL) {
-			int power = (ist_erstes  ||  fracht.count()==0  ||  fracht.at(0)==warenbauer_t::nichts) ? 500 : 0;
+			int power = (ist_erstes || fracht.empty() || fracht.at(0) == warenbauer_t::nichts) ? 500 : 0;
 			const ware_besch_t *w= power?warenbauer_t::nichts:fracht.at(0).gib_typ();
 			DBG_MESSAGE("waggon_t::rdwr()","try to find a fitting vehicle for %s.", power>0 ? "engine": w->gib_name() );
 			if(!ist_erstes  &&  last_besch!=NULL  &&  last_besch->gib_ware()==w  &&
@@ -2097,7 +2097,7 @@ DBG_MESSAGE("waggon_t::rdwr()","replaced by %s",besch->gib_name());
 			else {
 dbg->error("waggon_t::rdwr()","no matching besch found for %s!",w->gib_name());
 			}
-			if(fracht.count()>0  &&  fracht.at(0).menge==0) {
+			if (!fracht.empty() && fracht.at(0).menge == 0) {
 				// this was only there to find a matchin vehicle
 				fracht.remove_first();
 			}
@@ -2206,8 +2206,8 @@ schiff_t::rdwr(loadsave_t *file, bool force)
 		vehikel_t::rdwr(file);
 		// try to find a matching vehivle
 		if(file->is_loading()  &&  besch==NULL) {
-			DBG_MESSAGE("schiff_t::rdwr()","try to find a fitting vehicle for %s.", fracht.count()>0 ? fracht.at(0).gib_name() : "passagiere" );
-			besch = vehikelbauer_t::vehikel_search(water_wt, 0, 100, 40, fracht.count()>0?fracht.at(0).gib_typ():warenbauer_t::passagiere );
+			DBG_MESSAGE("schiff_t::rdwr()", "try to find a fitting vehicle for %s.", !fracht.empty() ? fracht.at(0).gib_name() : "passagiere");
+			besch = vehikelbauer_t::vehikel_search(water_wt, 0, 100, 40, !fracht.empty() ? fracht.at(0).gib_typ() : warenbauer_t::passagiere);
 			if(besch) {
 				calc_bild();
 			}

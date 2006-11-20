@@ -328,7 +328,7 @@ stringhashtable_tpl<const stadtauto_besch_t *> stadtauto_t::table;
 
 void stadtauto_t::built_timeline_liste(karte_t *welt)
 {
-	if(liste.count()>0) {
+	if (!liste.empty()) {
 		// this list will contain all citycars
 		liste_timeline.clear();
 		const int month_now = welt->get_current_month();
@@ -380,7 +380,7 @@ bool stadtauto_t::register_besch(const stadtauto_besch_t *besch)
 
 bool stadtauto_t::laden_erfolgreich()
 {
-	if(liste.count() == 0) {
+	if (liste.empty()) {
 		DBG_MESSAGE("stadtauto_t", "No citycars found - feature disabled");
 	}
 	return true;
@@ -436,11 +436,11 @@ void stadtauto_t::rdwr(loadsave_t *file)
 	if(file->is_loading()) {
 		besch = table.get(s);
 
-		if(besch == 0 && liste_timeline.count() > 0) {
+		if (besch == 0 && !liste_timeline.empty()) {
 			dbg->warning("stadtauto_t::rdwr()", "Object '%s' not found in table, trying random stadtauto object type",s);
 			besch = liste_timeline.gib_gewichted(simrand(liste_timeline.gib_gesamtgewicht()));
 		}
-		if(besch == 0 && liste.count() > 0) {
+		if (besch == 0 && !liste.empty()) {
 			dbg->warning("stadtauto_t::rdwr()", "Object '%s' not found in table, trying random stadtauto object type",s);
 			besch = liste.gib_gewichted(simrand(liste.gib_gesamtgewicht()));
 		}

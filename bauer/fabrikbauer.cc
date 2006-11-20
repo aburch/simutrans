@@ -164,7 +164,7 @@ const fabrik_besch_t *fabrikbauer_t::get_random_consumer(bool in_city,climate_bi
 		}
 	}
 	// no consumer installed?
-	if(consumer.count()==0) {
+	if (consumer.empty()) {
 DBG_MESSAGE("fabrikbauer_t::get_random_consumer()","No suitable consumer found");
 		return NULL;
 	}
@@ -250,7 +250,7 @@ fabrikbauer_t::finde_hersteller(const ware_besch_t *ware,int /*nr*/)
 	}
 
 	// no producer installed?
-	if(producer.count()==0) {
+	if (producer.empty()) {
 		dbg->error("fabrikbauer_t::finde_hersteller()","no producer for good '%s' was found", translator::translate(ware->gib_name()));
 		return NULL;
 	}

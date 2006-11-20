@@ -521,7 +521,7 @@ const haus_besch_t *hausbauer_t::gib_random_station(const enum utyp utype,const 
 		}
 	}
 	// found something?
-	if(stops.count()>0) {
+	if (!stops.empty()) {
 		if(stops.count()==1) {
 			return stops.at(0);
 		}

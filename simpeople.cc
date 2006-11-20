@@ -40,7 +40,7 @@ bool fussgaenger_t::register_besch(const fussgaenger_besch_t *besch)
 
 bool fussgaenger_t::laden_erfolgreich()
 {
-    if(liste.count() == 0) {
+	if (liste.empty()) {
 	DBG_MESSAGE("fussgaenger_t", "No pedestrians found - feature disabled");
     }
     return true ;

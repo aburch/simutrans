@@ -71,7 +71,7 @@ public:
 
 private:
 	void heapify(uint32 pocket) {
-		assert(nodes[pocket].count()>0);
+		assert(!nodes[pocket].empty());
 
 		// needs resort: NULL pointer in the first pocket
 		if(nodes[pocket].at(0)==NULL) {
@@ -79,12 +79,12 @@ private:
 		}
 		// first: close the old one ...
 		node_count += heap.count();
-		while(heap.count()>0) {
+		while (!heap.empty()) {
 			nodes[heap_index].append(heap.pop());
 		}
 		// now insert everything into the heap
 		node_count -= nodes[pocket].count();
-		while(nodes[pocket].count()>0) {
+		while (!nodes[pocket].empty()) {
 			heap.insert( nodes[pocket].remove_first() );
 		}
 		heap_index = pocket;
@@ -106,7 +106,7 @@ public:
 
 			// first: close the old one (first is still the lowest!)
 			node_count += heap.count();
-			while(heap.count()>0) {
+			while (!heap.empty()) {
 				nodes[heap_index].append(heap.pop());
 			}
 			heap_index = node_size;
@@ -134,7 +134,7 @@ public:
 			else {
 				// the first is always sorted
 				node_count ++;
-				if(nodes[d].count()>0  &&  *nodes[d].at(0)<=*item) {
+				if (!nodes[d].empty() && *nodes[d].at(0) <= *item) {
 					nodes[d].append(item);
 				}
 				else {
@@ -180,8 +180,8 @@ public:
 		if(node_top==heap_index) {
 			tmp = heap.pop();
 			// if this pocket is empty, we must go to the next
-			if(heap.count()==0) {
-				while(nodes[node_top].count()==0  &&  node_top<node_size) {
+			if (heap.empty()) {
+				while (nodes[node_top].empty() && node_top < node_size) {
 					node_top ++;
 				}
 			}
@@ -200,7 +200,7 @@ public:
 				// now there are some cases to handle
 				switch(nodes[node_top].count()) {
 					case 0:
-						while(nodes[node_top].count()==0  &&  node_top<node_size) {
+						while (nodes[node_top].empty() && node_top < node_size) {
 							node_top ++;
 						}
 						break;
@@ -247,7 +247,7 @@ public:
 	{
 		uint32 full_count = 0;
 		for(  uint32 i=node_top;  i<node_size;  i++  ) {
-			if(nodes[i].count()>0) {
+			if (!nodes[i].empty()) {
 				full_count += nodes[i].count();
 				if(nodes[i].at(0)==NULL) {
 					full_count --;
@@ -263,11 +263,11 @@ DBG_MESSAGE("HOT_queue_tpl::count()","expected %i found %i (%i in heap)",node_co
 
 	// the HOTqueue is empty, if the last pocket is empty
 	// this is always the heap ...
-	bool is_empty() const
+	bool empty() const
 	{
 		return node_top==node_size;
-//		return nodes[node_top].count()==0;
-//		return heap.is_empty();
+//		return nodes[node_top].empty();
+//		return heap.empty();
 	}
 };
 

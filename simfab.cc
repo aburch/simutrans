@@ -842,7 +842,7 @@ void fabrik_t::verteile_waren(const uint32 produkt)
 	}
 
 	// Auswertung der Ergebnisse
-	if(!halt_ok.is_empty()) {
+	if (!halt_ok.empty()) {
 
 		// prissi: distribute goods to factory, that has not an overflowing input storage
 		// if all have, then distribute evenly
@@ -1111,7 +1111,7 @@ void fabrik_t::info(cbuffer_t & buf)
     }
   }
 
-  if(!arbeiterziele.is_empty()) {
+  if (!arbeiterziele.empty()) {
     slist_iterator_tpl<stadt_t *> iter (arbeiterziele);
 
     buf.append("\n");

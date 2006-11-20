@@ -19,7 +19,7 @@
  */
 namespace ticker
 {
-	int count();
+	bool empty();
 
 	/**
 	 * Add a message to the message list

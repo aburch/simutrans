@@ -144,7 +144,7 @@ old_blockmanager_t::laden_abschliessen(karte_t *welt)
 	char buf[256];
 	const char *err_text=translator::translate("Error restoring old signal near (%i,%i)!");
 	int failure=0;
-	while(signale.count()>0) {
+	while (!signale.empty()) {
 		oldsignal_t *os1=signale.remove_first();
 		oldsignal_t *os2=NULL;
 		grund_t *gr=welt->lookup(os1->gib_pos());

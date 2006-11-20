@@ -75,7 +75,7 @@ void halt_detail_t::halt_detail_info(cbuffer_t & buf)
     buf.append(translator::translate("Fabrikanschluss"));
     buf.append(":\n");
 
-    if(fab_list.count() > 0) {
+    if (!fab_list.empty()) {
 
       slist_iterator_tpl<fabrik_t *> fab_iter(fab_list);
 
@@ -113,7 +113,7 @@ void halt_detail_t::halt_detail_info(cbuffer_t & buf)
     buf.append(":\n");
 
 
-    if(nimmt_an.count() > 0) {
+    if (!nimmt_an.empty()) {
 	for(uint32 i=0; i<warenbauer_t::gib_waren_anzahl(); i++) {
 	    const ware_besch_t *ware = warenbauer_t::gib_info(i);
 	    if(nimmt_an.contains(ware)) {
@@ -185,7 +185,7 @@ void halt_detail_t::halt_detail_info(cbuffer_t & buf)
       }
     }
 
-    if(ziele->count() == 0) {
+	if (ziele->empty()) {
 	buf.append(" ");
 	buf.append(translator::translate("keine"));
 	buf.append("\n");

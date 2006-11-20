@@ -325,7 +325,7 @@ void obj_reader_t::resolve_xrefs()
 		}
 	}
 
-	while(xref_nodes.count() > 0) {
+	while (!xref_nodes.empty()) {
 		delete_node(xref_nodes.remove_first());
 	}
 

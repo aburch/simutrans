@@ -368,7 +368,7 @@ depot_t::rdwr(loadsave_t *file)
 		rdwr_vehikel(vehicles, file);
 		rdwr_vehikel(waggons, file);
 
-		while(waggons.count() > 0) {
+		while (!waggons.empty()) {
 			vehicles.append(waggons.at(0));
 			waggons.remove_at(0);
 		}
@@ -435,7 +435,7 @@ const char * depot_t::ist_entfernbar(const spieler_t *sp)
 	if(sp!=gib_besitzer()) {
 		return "Das Feld gehoert\neinem anderen Spieler\n";
 	}
-	if(vehicles.count()>0) {
+	if (!vehicles.empty()) {
 		return "There are still vehicles\nstored in this depot!\n";
 	}
 	slist_iterator_tpl<convoihandle_t> iter(convois);

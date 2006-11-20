@@ -114,7 +114,7 @@ static void railtest(spieler_t *sp, karte_t *welt, koord pos)
 	check("Block must be valid:", bs.is_bound());
 	check("Block must be managed:", blockmanager::gib_manager()->gib_strecken()->contains(bs));
 	check("Block must be empty:", bs->ist_frei());
-	check("Block must not contain signals:", bs->gib_signale().count() == 0);
+	check("Block must not contain signals:", bs->gib_signale().empty());
 
 	for(int i=1; i<6; i++) {
 	    gr = welt->lookup(pos+koord(0,i))->gib_kartenboden();
@@ -175,7 +175,7 @@ static void railtest(spieler_t *sp, karte_t *welt, koord pos)
 	check("Block must be valid:", bs.is_bound());
 	check("Block must be managed:", blockmanager::gib_manager()->gib_strecken()->contains(bs));
 	check("Block must be empty:", bs->ist_frei());
-	check("Block must not contain signals:", bs->gib_signale().count() == 0);
+	check("Block must not contain signals:", bs->gib_signale().empty());
 
 	for(int i=0; i<2; i++) {
 	    gr = welt->lookup(pos+koord(0,i))->gib_kartenboden();
@@ -191,7 +191,7 @@ static void railtest(spieler_t *sp, karte_t *welt, koord pos)
 	check("Block must be valid:", bs.is_bound());
 	check("Block must be managed:", blockmanager::gib_manager()->gib_strecken()->contains(bs));
 	check("Block must be empty:", bs->ist_frei());
-	check("Block must not contain signals:", bs->gib_signale().count() == 0);
+	check("Block must not contain signals:", bs->gib_signale().empty());
 
 	for(int i=3; i<6; i++) {
 	    gr = welt->lookup(pos+koord(0,i))->gib_kartenboden();
@@ -233,7 +233,7 @@ static void railtest(spieler_t *sp, karte_t *welt, koord pos)
 	check("Block must be valid:", bs.is_bound());
 	check("Block must be managed:", blockmanager::gib_manager()->gib_strecken()->contains(bs));
 	check("Block must be empty:", bs->ist_frei());
-	check("Block must not contain signals:", bs->gib_signale().count() == 0);
+	check("Block must not contain signals:", bs->gib_signale().empty());
 
 	for(int i=0; i<2; i++) {
 	    gr = welt->lookup(pos+koord(0,i))->gib_kartenboden();
@@ -315,7 +315,7 @@ static void bautest(spieler_t *sp, karte_t *welt, koord pos)
 	check("Block must be valid:", bs.is_bound());
 	check("Block must be managed:", blockmanager::gib_manager()->gib_strecken()->contains(bs));
 	check("Block must be empty:", bs->ist_frei());
-	check("Block must not contain signals:", bs->gib_signale().count() == 0);
+	check("Block must not contain signals:", bs->gib_signale().empty());
 
 	for(int i=1; i<6; i++) {
 	    gr = welt->lookup(pos+koord(0,i))->gib_kartenboden();
@@ -507,7 +507,7 @@ static void stationstest(spieler_t *sp, karte_t *welt, koord pos)
 	check("Block must be valid:", bs.is_bound());
 	check("Block must be managed:", blockmanager::gib_manager()->gib_strecken()->contains(bs));
 	check("Block must be empty:", bs->ist_frei());
-	check("Block must not contain signals:", bs->gib_signale().count() == 0);
+	check("Block must not contain signals:", bs->gib_signale().empty());
 
 	for(int i=1; i<6; i++) {
 	    gr = welt->lookup(pos+koord(0,i))->gib_kartenboden();

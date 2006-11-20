@@ -163,11 +163,11 @@ void vehikelbauer_t::sort_lists()
 		slist_tpl<const vehikel_besch_t *> *typ_liste = &typ_iter.access_current_value();
 		slist_tpl<const vehikel_besch_t *> tmp_liste;
 
-		while(typ_liste->count() > 0) {
+		while (!typ_liste->empty()) {
 			tmp_liste.insert(typ_liste->remove_first());
 		}
 
-		while(tmp_liste.count() > 0) {
+		while (!tmp_liste.empty()) {
 			const vehikel_besch_t *besch = tmp_liste.remove_first();
 
 			//

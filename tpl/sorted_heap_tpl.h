@@ -145,10 +145,7 @@ public:
 	}
 
 
-	bool is_empty() const
-	{
-		return node_count==0;
-	}
+	bool empty() const { return node_count == 0; }
 };
 
 #endif

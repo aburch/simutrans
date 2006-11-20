@@ -1621,7 +1621,7 @@ karte_t::sync_step(const long dt)
 		return;
 	}
 
-	if(sync_add_list.count()>0) {
+	if (!sync_add_list.empty()) {
 		slist_iterator_tpl<sync_steppable *> iter (sync_add_list);
 		while(iter.next()) {
 			sync_steppable *ss = iter.get_current();
@@ -2517,7 +2517,7 @@ DBG_MESSAGE("karte_t::laden()","loading grid");
 		}
 	}
 	DBG_MESSAGE("karte_t::laden()", "clean up factories");
-	if (fab_list.count() > 0) {
+	if (!fab_list.empty()) {
 		gib_fab(0)->laden_abschliessen();
 	}
 
@@ -3099,7 +3099,7 @@ karte_t::interactive_event(event_t &ev)
 	    break;
 
 	case 'H':
-	    if(hausbauer_t::headquarter.count()>0) {
+	    if (!hausbauer_t::headquarter.empty()) {
 			setze_maus_funktion(wkz_headquarter, skinverwaltung_t::undoc_zeiger->gib_bild_nr(0), Z_PLAN, SFX_JACKHAMMER, SFX_FAILURE);
 	    }
 	    break;

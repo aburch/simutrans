@@ -1031,7 +1031,7 @@ void win_display_menu()
 	display_setze_clip_wh( 0, 0, width, 33 );
 	display_icon_leiste(-1, skinverwaltung_t::hauptmenu->gib_bild(0)->gib_nummer());
 	display_setze_clip_wh( 0, 32, width, start_y+32 );
-	if (ticker::count() > 0) {
+	if (!ticker::empty()) {
 		// maybe something is omitted of the message
 		display_fillbox_wh(0, start_y, width, 1, COL_BLACK, true);
 		display_fillbox_wh(0, start_y+1, width, 15, MN_GREY2, true);
@@ -1051,9 +1051,9 @@ win_display_flush(int , int color, double konto)
 #endif
 
 	show_ticker = false;
-	if (ticker::count() > 0) {
+	if (!ticker::empty()) {
 		ticker::zeichnen();
-		if (ticker::count() == 0) {
+		if (ticker::empty()) {
 			// set dirty background for removing ticker
 			wl->setze_dirty();
 		}

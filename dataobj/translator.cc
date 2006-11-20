@@ -217,7 +217,7 @@ DBG_DEBUG("translator::init_city_names()","file %p",file);
 
 	}
 
-	if(  namen_liste.count()==0  ) {
+	if (namen_liste.empty()) {
 DBG_MESSAGE("translator::init_city_names", "reading failed, creating random names.");
 		// Hajo: try to read list failed, create random names
 		for(int i=0; i<anz_t1; i++) {

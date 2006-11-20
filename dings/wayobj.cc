@@ -338,7 +338,7 @@ wayobj_t::extend_wayobj_t(karte_t *welt, koord3d pos, spieler_t *besitzer, ribi_
 bool
 wayobj_t::alles_geladen()
 {
-	if(wayobj_t::liste.count() == 0) {
+	if (wayobj_t::liste.empty()) {
 		dbg->warning("wayobj_t::alles_geladen()", "No obj found - may crash when loading catenary.");
 	}
 	return true;

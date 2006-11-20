@@ -390,7 +390,7 @@ void roadsign_t::laden_abschliessen()
 /* static stuff from here on ... */
 bool roadsign_t::alles_geladen()
 {
-	if(liste.count() == 0) {
+	if (liste.empty()) {
 		DBG_MESSAGE("roadsign_t", "No signs found - feature disabled");
 	}
 	return true;

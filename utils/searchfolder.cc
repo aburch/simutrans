@@ -50,7 +50,7 @@ int searchfolder_t::search(const char *filepath, const char *extension)
     cstring_t lookfor;
     cstring_t ext;
 
-	while( files.count()>0 ) {
+	while (!files.empty()) {
 		guarded_free( (void *)files.remove_first() );
 	}
 
@@ -161,7 +161,7 @@ const char *searchfolder_t::at(unsigned int i)
  */
 searchfolder_t::~searchfolder_t()
 {
-	while( files.count()>0 ) {
+	while (!files.empty()) {
 		guarded_free( (void *)files.remove_first() );
 	}
 }

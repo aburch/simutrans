@@ -186,7 +186,7 @@ gui_chart_t::zeichnen(koord offset)
 bool
 gui_chart_t::is_visible(unsigned int id)
 {
-	if ((curves.count() > 0) && (id <= curves.count())) {
+	if (!curves.empty() && id <= curves.count()) {
 		return curves.at(id).show;
 	}
 	return false;

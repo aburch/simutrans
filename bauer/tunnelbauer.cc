@@ -164,7 +164,7 @@ DBG_MESSAGE("tunnelbauer_t::fill_menu()","%i to be added",matching.count());
 	const sint32 shift_maintanance = (karte_t::ticks_bits_per_tag-18);	// same costs per intervall => correct display
 
 	// now sorted ...
-	while(matching.count()>0) {
+	while (!matching.empty()) {
 		const tunnel_besch_t * besch = matching.at(0);
 		matching.remove_at(0);
 		char buf[256];
@@ -490,13 +490,13 @@ tunnelbauer_t::remove(karte_t *welt, spieler_t *sp, koord3d start, waytype_t weg
 				marker.markiere(to);
 			}
 		}
-	} while(!tmp_list.is_empty());
+	} while (!tmp_list.empty());
 
 	assert(end_list.count());
 	const tunnel_besch_t *besch = ((tunnel_t *)(welt->lookup(end_list.at(0))->suche_obj(ding_t::tunnel)))->gib_besch();
 
 	// Jetzt geht es ans löschen der Tunnel
-	while(!part_list.is_empty()) {
+	while (!part_list.empty()) {
 		pos = part_list.remove_first();
 		grund_t *gr = welt->lookup(pos);
 		gr->remove_everything_from_way(sp,wegtyp,ribi_t::keine);	// removes stop and signals correctly
@@ -507,7 +507,7 @@ tunnelbauer_t::remove(karte_t *welt, spieler_t *sp, koord3d start, waytype_t weg
 	}
 
 	// Und die Tunnelenden am Schluß
-	while(!end_list.is_empty()) {
+	while (!end_list.empty()) {
 		pos = end_list.remove_first();
 
 		grund_t *gr = welt->lookup(pos);

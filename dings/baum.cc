@@ -93,7 +93,7 @@ bool baum_t::plant_tree_on_coordinate(karte_t * welt, koord pos, const uint8 max
 bool
 baum_t::alles_geladen()
 {
-	if(besch_names.count() == 0) {
+	if (besch_names.empty()) {
 		DBG_MESSAGE("baum_t", "No trees found - feature disabled");
 	}
 	return true;
@@ -221,7 +221,7 @@ baum_t::gib_aus_liste(climate cl)
 		}
 	}
 	// now weight their distribution
-	if( auswahl.count()>0  &&  weight>0) {
+	if (!auswahl.empty() && weight > 0) {
 		const int w=simrand(weight);
 		weight = 0;
 		for( unsigned i=0; i<auswahl.count();  i++  ) {
@@ -347,7 +347,7 @@ baum_t::rdwr(loadsave_t *file)
 		besch = besch_names.get(bname);
 		if(!besch) {
 			// replace with random tree
-			if(baum_typen.count()>0) {
+			if (!baum_typen.empty()) {
 				besch = baum_typen.at(simrand(baum_typen.count()));
 			}
 		}

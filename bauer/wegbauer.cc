@@ -268,7 +268,7 @@ void wegbauer_t::fill_menu(werkzeug_parameter_waehler_t *wzw,
 
 	const sint32 shift_maintanance = (karte_t::ticks_bits_per_tag-18);
 	// now sorted ...
-	while(matching.count()>0) {
+	while (!matching.empty()) {
 		const weg_besch_t * besch = matching.at(0);
 		matching.remove_at(0);
 
@@ -1325,7 +1325,7 @@ DBG_DEBUG("insert to open","(%i,%i,%i)  f=%i",to->gib_pos().x,to->gib_pos().y,to
 #endif
 		}
 
-	} while(!queue.is_empty()  &&  step<route_t::MAX_STEP  &&  gr->gib_pos()!=ziel3d);
+	} while (!queue.empty() && step < route_t::MAX_STEP && gr->gib_pos() != ziel3d);
 
 #ifdef DEBUG_ROUTES
 DBG_DEBUG("wegbauer_t::intern_calc_route()","steps=%i  (max %i) in route, open %i, cost %u",step,route_t::MAX_STEP,queue.count(),tmp->g);

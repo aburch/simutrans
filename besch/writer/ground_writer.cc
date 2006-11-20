@@ -31,7 +31,7 @@ void ground_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& obj)
 			keys.at(hangtyp).append(str);
 		}
 		// empty entries?
-		if (keys.at(hangtyp).count() == 0) {
+		if (keys.at(hangtyp).empty()) {
 			break;
 		}
 	}
