@@ -202,7 +202,7 @@ void obj_reader_t::read_file(const char *name)
 
 		if(version <= COMPILER_VERSION_CODE) {
 			obj_besch_t *data = NULL;
-			read_nodes(fp, NULL, data);
+			read_nodes(fp, data);
 		}
 		else {
 			DBG_DEBUG("obj_reader_t::read_file()","version of '%s' is too old, %d instead of %d", version, COMPILER_VERSION_CODE, name);
@@ -216,7 +216,7 @@ void obj_reader_t::read_file(const char *name)
 }
 
 
-void obj_reader_t::read_nodes(FILE *fp, obj_besch_t * /*parent*/, obj_besch_t *&data)
+void obj_reader_t::read_nodes(FILE* fp, obj_besch_t*& data)
 {
 	obj_node_info_t node;
 	char load_dummy[8], *p;
@@ -233,7 +233,7 @@ void obj_reader_t::read_nodes(FILE *fp, obj_besch_t * /*parent*/, obj_besch_t *&
 //DBG_DEBUG("obj_reader_t::read_nodes()","Reading %.4s-node of length %d with '%s'",	reinterpret_cast<const char *>(&node.type),	node.size,	reader->get_type_name());
 		data = reader->read_node(fp, node);
 		for(int i = 0; i < node.children; i++) {
-			read_nodes(fp, data, data->node_info[i]);
+			read_nodes(fp, data->node_info[i]);
 		}
 
 //DBG_DEBUG("obj_reader_t","registering with '%s'", reader->get_type_name());
