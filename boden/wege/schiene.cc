@@ -35,14 +35,7 @@ schiene_t::schiene_t(karte_t *welt) : weg_t(welt)
 	setze_besch(schiene_t::default_schiene);
 }
 
-/* create schiene with minimum topspeed
- * @author prissi
- */
-schiene_t::schiene_t(karte_t *welt,int top_speed) : weg_t(welt)
-{
-	reserved = convoihandle_t();
-	setze_besch(wegbauer_t::weg_search(gib_waytype(),top_speed));
-}
+
 
 schiene_t::schiene_t(karte_t *welt, loadsave_t *file) : weg_t(welt)
 {
@@ -148,7 +141,7 @@ schiene_t::rdwr(loadsave_t *file)
 		int old_max_speed=gib_max_speed();
 		const weg_besch_t *besch = wegbauer_t::gib_besch(bname);
 		if(besch==NULL) {
-			besch = wegbauer_t::weg_search(gib_waytype(),old_max_speed>0 ? old_max_speed : 120 );
+			besch = default_schiene;
 			dbg->warning("schiene_t::rwdr()", "Unknown rail %s replaced by a rail %s (old_max_speed %i)", bname, besch->gib_name(), old_max_speed );
 		}
 		setze_besch(besch);

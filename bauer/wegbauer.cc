@@ -88,11 +88,11 @@ static stringhashtable_tpl <const weg_besch_t *> alle_wegtypen;
 bool wegbauer_t::alle_wege_geladen()
 {
 	// some defaults to avoid hardcoded values
-	strasse_t::default_strasse = wegbauer_t::weg_search(road_wt,50,0);
-	schiene_t::default_schiene = wegbauer_t::weg_search(track_wt,80,0);
-	monorail_t::default_monorail = wegbauer_t::weg_search(monorail_wt,120,0);
-	kanal_t::default_kanal = wegbauer_t::weg_search(water_wt,20,0);
-	runway_t::default_runway = wegbauer_t::weg_search(air_wt,20,0);
+	strasse_t::default_strasse = wegbauer_t::weg_search(road_wt,50,0,weg_t::type_flat);
+	schiene_t::default_schiene = wegbauer_t::weg_search(track_wt,80,0,weg_t::type_flat);
+	monorail_t::default_monorail = wegbauer_t::weg_search(monorail_wt,120,0,weg_t::type_flat);
+	kanal_t::default_kanal = wegbauer_t::weg_search(water_wt,20,0,weg_t::type_flat);
+	runway_t::default_runway = wegbauer_t::weg_search(air_wt,20,0,weg_t::type_flat);
 	return ::alles_geladen(spezial_objekte + 1);
 }
 
@@ -131,25 +131,24 @@ bool wegbauer_t::register_besch(const kreuzung_besch_t *besch)
  * Finds a way with a given speed limit for a given waytype
  * @author prissi
  */
-const weg_besch_t *  wegbauer_t::weg_search(const waytype_t wtyp,const uint32 speed_limit,const uint16 time)
+const weg_besch_t *  wegbauer_t::weg_search(const waytype_t wtyp,const uint32 speed_limit,const uint16 time, const weg_t::system_type system_type)
 {
 	stringhashtable_iterator_tpl<const weg_besch_t *> iter(alle_wegtypen);
 
 	const weg_besch_t * besch=NULL;
-DBG_MESSAGE("wegbauer_t::weg_search","Search cheapest for limit %i, year=%i, month=%i",speed_limit, time/12, time%12+1);
+//DBG_MESSAGE("wegbauer_t::weg_search","Search cheapest for limit %i, year=%i, month=%i",speed_limit, time/12, time%12+1);
 	while(iter.next()) {
 		const weg_besch_t *test_weg = iter.get_current_value();
 
 
-		if(
-			(test_weg->gib_wtyp()==wtyp
-				||  (wtyp==tram_wt  &&  test_weg->gib_wtyp()==track_wt  &&  test_weg->gib_styp()==7)
+		if(  ( (test_weg->gib_wtyp()==wtyp  &&  system_type==system_type)
+			||  (wtyp==tram_wt  &&  test_weg->gib_wtyp()==track_wt  &&  test_weg->gib_styp()==weg_t::type_tram)
 			)  &&  iter.get_current_value()->gib_cursor()->gib_bild_nr(1) != IMG_LEER) {
 
 			if(  besch==NULL  ||  (besch->gib_topspeed()<speed_limit  &&  besch->gib_topspeed()<iter.get_current_value()->gib_topspeed()) ||  (iter.get_current_value()->gib_topspeed()>=speed_limit  &&  iter.get_current_value()->gib_wartung()<besch->gib_wartung())  ) {
 				if(time==0  ||  (test_weg->get_intro_year_month()<=time  &&  test_weg->get_retire_year_month()>time)) {
 					besch = test_weg;
-DBG_MESSAGE("wegbauer_t::weg_search","Found weg %s, limit %i",besch->gib_name(),besch->gib_topspeed());
+//DBG_MESSAGE("wegbauer_t::weg_search","Found weg %s, limit %i",besch->gib_name(),besch->gib_topspeed());
 				}
 			}
 		}

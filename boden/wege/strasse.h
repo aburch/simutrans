@@ -17,7 +17,6 @@ public:
 
 	strasse_t(karte_t *welt, loadsave_t *file);
 	strasse_t(karte_t *welt);
-	strasse_t(karte_t *welt,int top_speed);
 
 	/**
 	 * @return Infotext zur Schiene

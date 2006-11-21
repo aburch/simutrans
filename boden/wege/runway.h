@@ -39,18 +39,13 @@ public:
 	 * @author Hj. Malthaner
 	 */
 	runway_t(karte_t *welt);
-	/**
-	 * Basic constructor with top_speed
-	 * @author Hj. Malthaner
-	 */
-	runway_t(karte_t *welt, int top_speed);
 
 	/**
 	 * Destruktor. Entfernt etwaige Debug-Meldungen vom Feld
 	 *
 	 * @author Hj. Malthaner
 	 */
-	virtual ~runway_t();
+	virtual ~runway_t() {}
 
 	/**
 	 * Calculates the image of this pice of runway
@@ -58,12 +53,6 @@ public:
 	virtual void calc_bild(koord3d) { weg_t::calc_bild(); }
 
 	inline waytype_t gib_waytype() const {return air_wt;}
-
-	/**
-	 * @return Infotext zur runway
-	 * @author Hj. Malthaner
-	 */
-	void info(cbuffer_t & buf) const;
 
 	void rdwr(loadsave_t *file);
 };

@@ -803,7 +803,7 @@ DBG_DEBUG("karte_t::init()","Erzeuge stadt %i with %ld inhabitants",i,(s->get_ci
 		if(besch == 0) {
 			dbg->warning("karte_t::init()", "road type '%s' not found", (const char*)*umgebung_t::intercity_road_type);
 			// Hajo: try some default (might happen with timeline ... )
-			besch = wegbauer_t::weg_search(road_wt,80,get_timeline_year_month());
+			besch = wegbauer_t::weg_search(road_wt,80,get_timeline_year_month(),weg_t::type_flat);
 		}
 
 		// Hajo: No owner so that roads can be removed!
@@ -1808,7 +1808,7 @@ void karte_t::recalc_average_speed()
 		}
 		else {
 			DBG_MESSAGE("karte_t::neuer_monat()","Month %d has started", letzter_monat);
-			city_road = wegbauer_t::weg_search(road_wt,30,get_timeline_year_month());
+			city_road = wegbauer_t::weg_search(road_wt,30,get_timeline_year_month(),weg_t::type_flat);
 		}
 
 		int num_averages[4]={0,0,0,0};
@@ -1841,7 +1841,7 @@ void karte_t::recalc_average_speed()
 
 		city_road = wegbauer_t::gib_besch(*umgebung_t::city_road_type, 0);
 		if(city_road==NULL) {
-			city_road = wegbauer_t::weg_search(road_wt,30,0);
+			city_road = wegbauer_t::weg_search(road_wt,30,0,weg_t::type_flat);
 		}
 	}
 }
@@ -3143,7 +3143,7 @@ karte_t::interactive_event(event_t &ev)
 	    break;
 	case 's':
 	    if(default_road==NULL) {
-			default_road = wegbauer_t::weg_search(road_wt,90,get_timeline_year_month());
+			default_road = wegbauer_t::weg_search(road_wt,90,get_timeline_year_month(),weg_t::type_flat);
 	    }
 	    setze_maus_funktion(wkz_wegebau, default_road->gib_cursor()->gib_bild_nr(0), Z_PLAN, (long)default_road, SFX_JACKHAMMER, SFX_FAILURE);
 	    break;
@@ -3153,7 +3153,7 @@ karte_t::interactive_event(event_t &ev)
 	    break;
 	case 't':
 	    if(default_track==NULL) {
-			default_track = wegbauer_t::weg_search(track_wt,100,get_timeline_year_month());
+			default_track = wegbauer_t::weg_search(track_wt,100,get_timeline_year_month(),weg_t::type_flat);
 	  	}
 	  	// may be NULL, if no track exists ...
 	    if(default_track!=NULL) {

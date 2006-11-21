@@ -64,6 +64,8 @@ public:
 
 	enum { HAS_WALKWAY=1, IS_ELECTRIFIED=2, HAS_SIGN=4, HAS_WAYOBJ=8 };
 
+	enum system_type { type_flat=0, type_elevated=1, type_tram=7, type_all=255 };
+
 private:
 	/**
 	* array for statistical values

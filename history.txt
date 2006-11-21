@@ -15,6 +15,7 @@ Release of 99.04.2
 	CHANGE(tron): lots of cleaning up of data structures and doubtful code
 	FIX: makeobj broken at several places, not really finished with fixing
 	CHANGE: the same building must not be next to each other => nicer endgame towns
+	FIX: AI no longer using elevated track or tramways as rails
 
 
 Release of 99.04.1

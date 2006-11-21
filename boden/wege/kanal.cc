@@ -21,16 +21,19 @@
 const weg_besch_t *kanal_t::default_kanal=NULL;
 
 
+
 kanal_t::kanal_t(karte_t *welt, loadsave_t *file) :  weg_t(welt)
 {
     rdwr(file);
 }
 
 
+
 kanal_t::kanal_t(karte_t *welt) : weg_t (welt)
 {
 	setze_besch(default_kanal);
 }
+
 
 
 void
@@ -54,7 +57,7 @@ kanal_t::rdwr(loadsave_t *file)
 			const weg_besch_t *besch = wegbauer_t::gib_besch(bname);
 			if(besch==NULL) {
 				int old_max_speed=gib_max_speed();
-				besch = wegbauer_t::weg_search(water_wt,old_max_speed>0 ? old_max_speed : 10 );
+				besch = default_kanal;
 				dbg->warning("strasse_t::rwdr()", "Unknown channel %s replaced by a channel %s (old_max_speed %i)", bname, besch->gib_name(), old_max_speed );
 			}
 			setze_besch(besch);

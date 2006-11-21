@@ -155,7 +155,7 @@ menu_open(karte_t *welt, menu_entries menu_nr, spieler_t *sp )
 		break;
 
 		case MENU_RAIL:
-			if(wegbauer_t::weg_search(track_wt,1,welt->get_timeline_year_month())!=NULL) {
+			if(wegbauer_t::weg_search(track_wt,1,welt->get_timeline_year_month(),weg_t::type_flat)!=NULL) {
 				werkzeug_parameter_waehler_t *wzw = new werkzeug_parameter_waehler_t(welt, "RAILTOOLS");
 
 				wzw->setze_hilfe_datei("railtools.txt");
@@ -245,7 +245,7 @@ menu_open(karte_t *welt, menu_entries menu_nr, spieler_t *sp )
 		break;
 
 		case MENU_MONORAIL:
-			if(wegbauer_t::weg_search(monorail_wt,1,welt->get_timeline_year_month())!=NULL  &&  hausbauer_t::monorail_depot_besch!=NULL) {
+			if(wegbauer_t::weg_search(monorail_wt,1,welt->get_timeline_year_month(),weg_t::type_all)!=NULL  &&  hausbauer_t::monorail_depot_besch!=NULL) {
 				werkzeug_parameter_waehler_t *wzw = new werkzeug_parameter_waehler_t(welt, "MONORAILTOOLS");
 
 				wzw->setze_hilfe_datei("monorailtools.txt");
@@ -345,7 +345,7 @@ menu_open(karte_t *welt, menu_entries menu_nr, spieler_t *sp )
 		break;
 
 		case MENU_TRAM:
-			if(wegbauer_t::weg_search(tram_wt,1,welt->get_timeline_year_month())!=NULL  &&  hausbauer_t::tram_depot_besch!=NULL) {
+			if(wegbauer_t::weg_search(tram_wt,1,welt->get_timeline_year_month(),weg_t::type_tram)!=NULL  &&  hausbauer_t::tram_depot_besch!=NULL) {
 				werkzeug_parameter_waehler_t *wzw = new werkzeug_parameter_waehler_t(welt, "TRAMTOOLS");
 
 				wzw->setze_hilfe_datei("tramtools.txt");
@@ -421,7 +421,7 @@ menu_open(karte_t *welt, menu_entries menu_nr, spieler_t *sp )
 		break;
 
 		case MENU_ROAD:
-			if(wegbauer_t::weg_search(road_wt,1,welt->get_timeline_year_month())!=NULL) {
+			if(wegbauer_t::weg_search(road_wt,1,welt->get_timeline_year_month(),weg_t::type_flat)!=NULL) {
 				werkzeug_parameter_waehler_t *wzw = new werkzeug_parameter_waehler_t(welt, "ROADTOOLS");
 
 				wzw->setze_hilfe_datei("roadtools.txt");
@@ -639,7 +639,7 @@ menu_open(karte_t *welt, menu_entries menu_nr, spieler_t *sp )
 		break;
 
 		case MENU_AIRPORT:
-			if (!hausbauer_t::air_depot.empty() && wegbauer_t::weg_search(air_wt, 1, welt->get_timeline_year_month()) != NULL) {
+			if (!hausbauer_t::air_depot.empty() && wegbauer_t::weg_search(air_wt, 1, welt->get_timeline_year_month(),weg_t::type_all) != NULL) {
 				// start aircraft
 				werkzeug_parameter_waehler_t *wzw = new werkzeug_parameter_waehler_t(welt, "AIRTOOLS");
 

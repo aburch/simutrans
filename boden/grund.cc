@@ -291,8 +291,8 @@ void grund_t::rdwr(loadsave_t *file)
 
 					case tram_wt:
 						weg = new schiene_t (welt, file);
-						if(weg->gib_besch()->gib_styp()!=7) {
-							weg->setze_besch(wegbauer_t::weg_search(tram_wt,weg->gib_max_speed()));
+						if(weg->gib_besch()->gib_styp()!=weg_t::type_tram) {
+							weg->setze_besch(wegbauer_t::weg_search(tram_wt,weg->gib_max_speed(),0,weg_t::type_tram));
 						}
 						break;
 

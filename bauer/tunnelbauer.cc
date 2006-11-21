@@ -297,9 +297,12 @@ DBG_MESSAGE("tunnelbauer_t::baue()", "called on %d,%d", pos.x, pos.y);
 					bt = (wegbauer_t::wasser|wegbauer_t::tunnel_flag);
 					break;
 			}
+			weg_t *w=weg_t::alloc(besch->gib_waytype());
+			const weg_besch_t *wb=w->gib_besch();
+			delete w;
 			// now try construction
 			wegbauer_t bauigel(welt, sp);
-			bauigel.route_fuer((wegbauer_t::bautyp_t)bt, wegbauer_t::weg_search(besch->gib_waytype(),1,0),besch);
+			bauigel.route_fuer((wegbauer_t::bautyp_t)bt, wb, besch);
 			bauigel.set_keep_existing_ways(false);
 			bauigel.calc_straight_route(start,koord3d(pos,start.z));
 			welt->mute_sound(true);
@@ -449,8 +452,6 @@ tunnelbauer_t::remove(karte_t *welt, spieler_t *sp, koord3d start, waytype_t weg
 	slist_tpl<koord3d>  tmp_list;
 	const char    *msg;
 	koord3d   pos = start;
-	int     cost = 0;
-	const weg_besch_t* weg_besch;
 
 	// Erstmal das ganze Außmaß des Tunnels bestimmen und sehen,
 	// ob uns was im Weg ist.
@@ -493,7 +494,6 @@ tunnelbauer_t::remove(karte_t *welt, spieler_t *sp, koord3d start, waytype_t weg
 	} while (!tmp_list.empty());
 
 	assert(end_list.count());
-	const tunnel_besch_t *besch = ((tunnel_t *)(welt->lookup(end_list.at(0))->suche_obj(ding_t::tunnel)))->gib_besch();
 
 	// Jetzt geht es ans löschen der Tunnel
 	while (!part_list.empty()) {
