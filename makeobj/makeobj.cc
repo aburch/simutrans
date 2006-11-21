@@ -44,6 +44,7 @@ int main(int argc, char* argv[])
 		catch (obj_pak_exception_t* e) {
 			printf("ERROR IN CLASS %s: %s\n", (const char*)e->get_class(), (const char*)e->get_info());
 			delete e;
+			return 1;
 		}
 		return 0;
 	}
@@ -71,6 +72,7 @@ int main(int argc, char* argv[])
 			catch (obj_pak_exception_t* e) {
 				printf("ERROR IN CLASS %s: %s\n", (const char*)e->get_class(), (const char*)e->get_info());
 				delete e;
+				return 1;
 			}
 
 			// image_writer_t::dump_special_histogramm();
@@ -104,6 +106,7 @@ int main(int argc, char* argv[])
 			catch (obj_pak_exception_t* e) {
 				printf("ERROR IN CLASS %s: %s\n", (const char*)e->get_class(), (const char*)e->get_info());
 				delete e;
+				return 1;
 			}
 			return 0;
 		}
