@@ -2102,7 +2102,6 @@ stadt_t::renoviere_gebaeude(koord k)
 	// good enough to renovate, and we found a building?
 	if(sum>0  &&  h!=NULL) {
 //    DBG_MESSAGE("stadt_t::renoviere_gebaeude()","renovation at %i,%i (%i level) of typ %i to typ %i with desire %i",k.x,k.y,alt_typ,will_haben,sum);
-		remove_gebaeude_from_stadt(gb);
 
 		// check for pavement
 		// and make sure our house is not on a neighbouring tile, to avoid boring towns
@@ -2136,6 +2135,7 @@ stadt_t::renoviere_gebaeude(koord k)
 			}
 		}
 
+		remove_gebaeude_from_stadt(gb);
 		if(alt_typ==gebaeude_t::industrie) {
 			arb -= level * 20;
 		}
