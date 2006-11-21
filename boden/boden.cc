@@ -47,8 +47,8 @@ const char *boden_t::gib_name() const
 		return gib_halt()->gib_name();
 	} else if(ist_uebergang()) {
 		return "Kreuzung";
-//	} else if(hat_wege()) {
-//		return gib_weg_nr()->gib_name();
+	} else if(hat_wege()) {
+		return gib_weg_nr(0)->gib_name();
 	} else {
 		return "Boden";
 	}

@@ -16,6 +16,7 @@ Release of 99.04.2
 	FIX: makeobj broken at several places, not really finished with fixing
 	CHANGE: the same building must not be next to each other => nicer endgame towns
 	FIX: AI no longer using elevated track or tramways as rails
+	FIX: info window title for ways fixed
 
 
 Release of 99.04.1
