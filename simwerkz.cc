@@ -1879,7 +1879,7 @@ int wkz_set_slope(spieler_t * sp, karte_t *welt, koord pos, value_t lParam)
 #endif
 
 		// finally: empty
-		if(gr1->suche_obj(ding_t::gebaeude)!=NULL  ||  ((!gr1->ist_wasser())  &&  gr1->hat_wege())) {
+		if(gr1->suche_obj(ding_t::gebaeude)!=NULL  &&  !gr1->hat_wege()  &&  !gr1->kann_alle_obj_entfernen(sp)) {
 			create_win(-1, -1, MESG_WAIT, new nachrichtenfenster_t(welt, "Tile not empty."), w_autodelete);
 			return false;
 		}
@@ -1983,6 +1983,7 @@ int wkz_set_slope(spieler_t * sp, karte_t *welt, koord pos, value_t lParam)
 				welt->access(pos)->kartenboden_setzen( new boden_t(welt,new_pos,slope_this), true );
 			}
 			else {
+				gr1->obj_loesche_alle(sp);
 				gr1->setze_grund_hang(slope_this);
 				gr1->setze_pos(new_pos);
 			}

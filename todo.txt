@@ -1,6 +1,7 @@
 CHECK:
 resize greater than 2400*1536 crashes simutrans
 depots list for world!/grey out find depot while route search is active
+vehicle N/E longer than 8 px must be aligned by top, not end; need change of moving code
 
 Stichpunkte
 

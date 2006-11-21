@@ -5,6 +5,10 @@ Known bugs: (hard to fix)
 
 
 
+	FIX: always ensure tile is empty before applying slopes (avoids wrong positions)
+	FIX: deletion of thing not on the map
+
+
 Release of 99.04.2
 
 20-Nov-2006: (prissi)

@@ -117,29 +117,40 @@ ding_t::~ding_t()
 	mark_image_dirty( gib_bild(), 0 );
 	destroy_win(ding_infos->get(this));
 
-	if(flags&not_on_map) {
+	if(flags&not_on_map  ||  !welt->ist_in_kartengrenzen(pos.gib_2d())) {
 //		DBG_MESSAGE("ding_t::~ding_t()","deleted %p not on the map",this);
 		return;
 	}
 
 	// pruefe ob objekt auf karte und ggf. entfernen
 	grund_t *gr = welt->lookup(pos);
-	if(gr) {
-		if (!gr->obj_remove(this)) {
-			// not found? => try harder at all map locations
-			dbg->warning("ding_t::~ding_t()","couldn't remove %p from %d,%d,%d",this, pos.x , pos.y, pos.z);
+	if(!gr  ||  !gr->obj_remove(this)) {
+		// not found? => try harder at all map locations
+		dbg->warning("ding_t::~ding_t()","couldn't remove %p from %d,%d,%d",this, pos.x , pos.y, pos.z);
 
-			koord k;
-			for(k.y=0; k.y<welt->gib_groesse_y(); k.y++) {
-				for(k.x=0; k.x<welt->gib_groesse_x(); k.x++) {
-					grund_t *gr = welt->access(k)->gib_boden_von_obj(this);
-					if (gr && gr->obj_remove(this)) {
-						dbg->warning("ding_t::~ding_t()",
-							"removed %p from %d,%d,%d, but it should have been on %d,%d,%d",
-							this,
-							gr->gib_pos().x, gr->gib_pos().y, gr->gib_pos().z,
-							pos.x, pos.y, pos.z);
-					}
+		// first: try different height ...
+		gr = welt->access(pos.gib_2d())->gib_boden_von_obj(this);
+		if(gr  &&  gr->obj_remove(this)) {
+			dbg->warning("ding_t::~ding_t()",
+				"removed %p from %d,%d,%d, but it should have been on %d,%d,%d",
+				this,
+				gr->gib_pos().x, gr->gib_pos().y, gr->gib_pos().z,
+				pos.x, pos.y, pos.z);
+			return;
+		}
+
+		// then search entire map
+		koord k;
+		for(k.y=0; k.y<welt->gib_groesse_y(); k.y++) {
+			for(k.x=0; k.x<welt->gib_groesse_x(); k.x++) {
+				grund_t *gr = welt->access(k)->gib_boden_von_obj(this);
+				if (gr && gr->obj_remove(this)) {
+					dbg->warning("ding_t::~ding_t()",
+						"removed %p from %d,%d,%d, but it should have been on %d,%d,%d",
+						this,
+						gr->gib_pos().x, gr->gib_pos().y, gr->gib_pos().z,
+						pos.x, pos.y, pos.z);
+					return;
 				}
 			}
 		}
