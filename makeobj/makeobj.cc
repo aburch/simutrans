@@ -42,7 +42,7 @@ int main(int argc, char* argv[])
 			root_writer_t::instance()->write(dest, argc, argv);
 		}
 		catch (obj_pak_exception_t* e) {
-			printf("ERROR IN CLASS %s: %s\n", (const char*)e->get_class(), (const char*)e->get_info());
+			fprintf(stderr, "ERROR IN CLASS %s: %s\n", (const char*)e->get_class(), (const char*)e->get_info());
 			delete e;
 			return 1;
 		}
@@ -70,7 +70,7 @@ int main(int argc, char* argv[])
 				root_writer_t::instance()->write(dest, argc, argv);
 			}
 			catch (obj_pak_exception_t* e) {
-				printf("ERROR IN CLASS %s: %s\n", (const char*)e->get_class(), (const char*)e->get_info());
+				fprintf(stderr, "ERROR IN CLASS %s: %s\n", (const char*)e->get_class(), (const char*)e->get_info());
 				delete e;
 				return 1;
 			}
@@ -104,7 +104,7 @@ int main(int argc, char* argv[])
 				root_writer_t::instance()->copy(dest, argc, argv);
 			}
 			catch (obj_pak_exception_t* e) {
-				printf("ERROR IN CLASS %s: %s\n", (const char*)e->get_class(), (const char*)e->get_info());
+				fprintf(stderr, "ERROR IN CLASS %s: %s\n", (const char*)e->get_class(), (const char*)e->get_info());
 				delete e;
 				return 1;
 			}
