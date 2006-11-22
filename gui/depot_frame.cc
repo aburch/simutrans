@@ -787,7 +787,8 @@ depot_frame_t::image_from_storage_list(gui_image_list_t::image_data_t *bild_data
 	if(bild_data->lcolor != COL_RED && bild_data->rcolor != COL_RED) {
 		// we buy/sell all vehicles together!
 		slist_tpl<const vehikel_besch_t *>new_vehicle_info;
-		const vehikel_besch_t * info = vehikelbauer_t::gib_info(bild_data->image);
+		const vehikel_besch_t *info = vehikelbauer_t::gib_info(bild_data->image);
+		const vehikel_besch_t *start_info = info;
 
 		if(veh_action==va_insert  ||  veh_action==va_sell) {
 			// start of composition
@@ -796,17 +797,18 @@ depot_frame_t::image_from_storage_list(gui_image_list_t::image_data_t *bild_data
 					break;
 				}
 				info = info->gib_vorgaenger(0);
+				new_vehicle_info.insert(info);
 			}
+			info = start_info;
 		}
-		if(veh_action==va_append  ||  veh_action==va_sell) {
-			// not get the end ...
-			while(info) {
-				new_vehicle_info.append( info );
-				if(info->gib_nachfolger_count()!=1) {
-					break;
-				}
-				info = info->gib_nachfolger(0);
+		// not get the end ...
+		while(info) {
+			new_vehicle_info.append( info );
+DBG_MESSAGE("depot_frame_t::image_from_storage_list()","appended %s",info->gib_name() );
+			if(info->gib_nachfolger_count()!=1  ||  (veh_action==va_insert  &&  info==start_info)) {
+				break;
 			}
+			info = info->gib_nachfolger(0);
 		}
 
 		if(veh_action == va_sell) {
@@ -836,6 +838,7 @@ depot_frame_t::image_from_storage_list(gui_image_list_t::image_data_t *bild_data
 					unsigned nr = (veh_action == va_insert) ? new_vehicle_info.count()-i-1 : i;
 					// We add the oldest vehicle - newer stay for selling
 					sint32 veh = find_oldest_newest( new_vehicle_info.at(nr), true );
+DBG_MESSAGE("depot_frame_t::image_from_storage_list()","built nr %i", nr);
 					if(veh == -1) {
 						// nothing there => we buy it
 						veh = depot->buy_vehicle(new_vehicle_info.at(nr)->gib_basis_bild());

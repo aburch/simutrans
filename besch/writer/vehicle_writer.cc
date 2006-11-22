@@ -36,7 +36,7 @@ static uint8 get_engine_type(const char* engine_type, tabfileobj_t& obj)
 	} else if (!STRICMP(engine_type, "hydrogene")) {
 		uv8 = vehikel_besch_t::hydrogene;
 	} else if (!STRICMP(engine_type, "battery")) {
-		uv8 = vehikel_besch_t::hydrogene;
+		uv8 = vehikel_besch_t::battery;
 	} else if (!STRICMP(engine_type, "unknown")) {
 		uv8 = vehikel_besch_t::unknown;
 	}
