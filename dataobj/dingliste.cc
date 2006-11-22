@@ -111,9 +111,9 @@ dingliste_t::dingliste_t()
 
 dingliste_t::~dingliste_t()
 {
-    if(capacity>1) {
+	if(capacity>1) {
 		dl_free(obj.some, capacity);
-    }
+	}
 }
 
 
@@ -474,22 +474,29 @@ uint8 dingliste_t::remove(const ding_t* ding)
 bool
 dingliste_t::loesche_alle(spieler_t *sp, uint8 offset)
 {
+	if(top<=offset) {
+		return true;
+	}
+
+	// something to delete?
 	bool ok=false;
 
 	if(capacity>1) {
-		while(top-->offset) {
-			ding_t *dt = obj.some[top];
-			dt->set_flag(ding_t::not_on_map);
+		for( unsigned i=offset;  i<top;  i++  ) {
+			ding_t *dt = obj.some[i];
 			dt->entferne(sp);
+			dt->set_flag(ding_t::not_on_map);
 			delete dt;
-			obj.some[top] = NULL;
+			obj.some[i] = NULL;
 			ok = true;
 		}
+		top = offset;
 	}
 	else {
-		if(capacity==1  &&  offset==0) {
+		if(capacity==1) {
 			ding_t *dt = obj.one;
 			dt->entferne(sp);
+			dt->set_flag(ding_t::not_on_map);
 			delete dt;
 			ok = true;
 			obj.one = NULL;

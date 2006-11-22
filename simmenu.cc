@@ -167,7 +167,17 @@ menu_open(karte_t *welt, menu_entries menu_nr, spieler_t *sp )
 						wkz_wegebau,
 						SFX_JACKHAMMER,
 						SFX_FAILURE,
-						welt->get_timeline_year_month()
+						welt->get_timeline_year_month(),
+						weg_t::type_flat
+						);
+
+					wegbauer_t::fill_menu(wzw,
+						track_wt,
+						wkz_wegebau,
+						SFX_JACKHAMMER,
+						SFX_FAILURE,
+						welt->get_timeline_year_month(),
+						weg_t::type_elevated
 						);
 
 					wayobj_t::fill_menu(wzw,
@@ -258,7 +268,7 @@ menu_open(karte_t *welt, menu_entries menu_nr, spieler_t *sp )
 						SFX_JACKHAMMER,
 						SFX_FAILURE,
 						welt->get_timeline_year_month(),
-						0
+						weg_t::type_flat
 						);
 
 					wegbauer_t::fill_menu(wzw,
@@ -267,7 +277,7 @@ menu_open(karte_t *welt, menu_entries menu_nr, spieler_t *sp )
 						SFX_JACKHAMMER,
 						SFX_FAILURE,
 						welt->get_timeline_year_month(),
-						1
+						weg_t::type_elevated
 						);
 
 					wayobj_t::fill_menu(wzw,
@@ -351,13 +361,14 @@ menu_open(karte_t *welt, menu_entries menu_nr, spieler_t *sp )
 				wzw->setze_hilfe_datei("tramtools.txt");
 
 				if(sp!=welt->gib_spieler(1)) {
+
 					wegbauer_t::fill_menu(wzw,
 						track_wt,
 						wkz_wegebau,
 						SFX_JACKHAMMER,
 						SFX_FAILURE,
 						welt->get_timeline_year_month(),
-						7
+						weg_t::type_tram
 					);
 
 					wayobj_t::fill_menu(wzw,
@@ -432,7 +443,7 @@ menu_open(karte_t *welt, menu_entries menu_nr, spieler_t *sp )
 					SFX_JACKHAMMER,
 					SFX_FAILURE,
 					welt->get_timeline_year_month(),
-					0
+					weg_t::type_flat
 					);
 
 				wegbauer_t::fill_menu(wzw,
@@ -441,7 +452,7 @@ menu_open(karte_t *welt, menu_entries menu_nr, spieler_t *sp )
 					SFX_JACKHAMMER,
 					SFX_FAILURE,
 					welt->get_timeline_year_month(),
-					1
+					weg_t::type_elevated
 					);
 
 				wayobj_t::fill_menu(wzw,
@@ -546,7 +557,8 @@ menu_open(karte_t *welt, menu_entries menu_nr, spieler_t *sp )
 				wkz_wegebau,
 				SFX_JACKHAMMER,
 				SFX_FAILURE,
-				welt->get_timeline_year_month()
+				welt->get_timeline_year_month(),
+				weg_t::type_flat
 				);
 
 			wayobj_t::fill_menu(wzw,
@@ -651,7 +663,7 @@ menu_open(karte_t *welt, menu_entries menu_nr, spieler_t *sp )
 					SFX_JACKHAMMER,
 					SFX_FAILURE,
 					welt->get_timeline_year_month(),
-					0
+					weg_t::type_flat
 					);
 
 				wegbauer_t::fill_menu(wzw,
@@ -660,7 +672,7 @@ menu_open(karte_t *welt, menu_entries menu_nr, spieler_t *sp )
 					SFX_JACKHAMMER,
 					SFX_FAILURE,
 					welt->get_timeline_year_month(),
-					1
+					(weg_t::system_type)1
 					);
 
 				wayobj_t::fill_menu(wzw,
@@ -723,7 +735,7 @@ menu_open(karte_t *welt, menu_entries menu_nr, spieler_t *sp )
 		break;
 
 		case MENU_SPECIAL:
-          {
+    {
 			werkzeug_parameter_waehler_t *wzw = new werkzeug_parameter_waehler_t(welt, "SPECIALTOOLS");
 
 			wzw->setze_hilfe_datei("special.txt");
@@ -734,7 +746,7 @@ menu_open(karte_t *welt, menu_entries menu_nr, spieler_t *sp )
 				SFX_JACKHAMMER,
 				SFX_FAILURE,
 				welt->get_timeline_year_month(),
-				255
+				weg_t::type_all
 				);
 
 			wegbauer_t::fill_menu(wzw,
@@ -743,7 +755,7 @@ menu_open(karte_t *welt, menu_entries menu_nr, spieler_t *sp )
 				SFX_JACKHAMMER,
 				SFX_FAILURE,
 				welt->get_timeline_year_month(),
-				255
+				weg_t::type_all
 				);
 
 			hausbauer_t::fill_menu(wzw,

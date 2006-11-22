@@ -7,6 +7,8 @@ Known bugs: (hard to fix)
 
 	FIX: always ensure tile is empty before applying slopes (avoids wrong positions)
 	FIX: deletion of thing not on the map
+	FIX: buying cars with different precessor/following numbers
+	FIX: elevated tracks not shown
 
 
 Release of 99.04.2

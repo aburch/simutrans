@@ -232,7 +232,7 @@ void wegbauer_t::fill_menu(werkzeug_parameter_waehler_t *wzw,
 	const int sound_ok,
 	const int sound_ko,
 	const uint16 time,
-	const uint8 styp)
+	const weg_t::system_type styp)
 {
 	// list of matching types (sorted by speed)
 	slist_tpl <const weg_besch_t *> matching;

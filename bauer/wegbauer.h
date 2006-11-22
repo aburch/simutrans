@@ -70,8 +70,8 @@ public:
 			int (* wz1)(spieler_t *, karte_t *, koord, value_t),
 			const int sound_ok,
 			const int sound_ko,
-			const uint16 time=0,
-			uint8 styp = 0);
+			const uint16 time,
+			const weg_t::system_type styp);
 
 
 	enum bautyp_t {

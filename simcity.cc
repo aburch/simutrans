@@ -403,6 +403,7 @@ stadt_t::~stadt_t()
 		grund_t *gr = welt->lookup_kartenboden(buildings.at(0)->gib_pos().gib_2d());
 		if(gr) {
 			koord pos = gr->gib_pos().gib_2d();
+//			delete buildings.at(0);
 			gr->obj_loesche_alle(welt->gib_spieler(1));
 			uint8 new_slope = gr->gib_hoehe()==welt->min_hgt(pos) ? 0 : welt->calc_natural_slope(pos);
 			welt->access(pos)->kartenboden_setzen(new boden_t(welt, koord3d(pos,welt->min_hgt(pos)), new_slope ), false);
