@@ -404,7 +404,8 @@ schifffahrplan_t::zeige_fehlermeldung(karte_t *welt) const
 bool
 airfahrplan_t::ist_halt_erlaubt(const grund_t *gr) const
 {
-	return gr->hat_weg(air_wt)  &&  haltestelle_t::gib_halt(gr->gib_welt(),gr->gib_pos()).is_bound();
+	bool hat_halt = haltestelle_t::gib_halt(gr->gib_welt(),gr->gib_pos().gib_2d()).is_bound();
+	return hat_halt ? gr->hat_weg(air_wt) : true;
 }
 
 void
