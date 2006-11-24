@@ -380,8 +380,8 @@ bool wegbauer_t::check_slope( const grund_t *from, const grund_t *to )
 
 	// now check offsets before changing the slope ...
 	const sint8 slope_this = from->gib_weg_hang();
-	const sint16 hgt=from->gib_hoehe()/16;
-	const sint16 to_hgt=to->gib_hoehe()/16;
+	const sint16 hgt=from->gib_hoehe()/Z_TILE_STEP;
+	const sint16 to_hgt=to->gib_hoehe()/Z_TILE_STEP;
 	const sint8 to_slope=to->gib_weg_hang();
 
 	if(ribi==ribi_t::west) {
@@ -534,7 +534,7 @@ bool wegbauer_t::is_allowed_step( const grund_t *from, const grund_t *to, long *
 			// no suitable ground below!
 			return false;
 		}
-		sint16 height = welt->lookup(to->gib_pos().gib_2d())->gib_kartenboden()->gib_hoehe()+16;
+		sint16 height = welt->lookup(to->gib_pos().gib_2d())->gib_kartenboden()->gib_hoehe()+Z_TILE_STEP;
 		grund_t *to2 = welt->lookup(koord3d(to->gib_pos().gib_2d(),height));
 		if(to2) {
 			ok = to2->gib_typ()==grund_t::monorailboden  &&  check_owner(to2->gib_besitzer(),sp);
@@ -715,7 +715,7 @@ DBG_MESSAGE("wegbauer_t::is_allowed_step()","wrong ground already there!");
 				ok &= ribi_t::ist_gerade(w_ribi)  &&  !ribi_t::ist_einfach(w_ribi)  &&  ribi_t::ist_gerade(ribi_typ(zv))  &&  (w_ribi&ribi_typ(zv))==0;
 			}
 			// no bridges and monorails here in the air
-			ok &= welt->lookup(to_pos)->gib_boden_in_hoehe(to->gib_pos().z+16)==NULL;
+			ok &= welt->lookup(to_pos)->gib_boden_in_hoehe(to->gib_pos().z+Z_TILE_STEP)==NULL;
 			// calculate costs
 			if(ok) {
 				*costs = to->hat_wege() ? 8 : 1;
@@ -817,7 +817,7 @@ int wegbauer_t::check_for_bridge( const grund_t *parent_from, const grund_t *fro
 			if(gr2->gib_pos()==ziel) {
 				return next_gr.get_count()-start_count;
 			}
-			if(welt->lookup(from->gib_pos()+zv*i+koord3d(0,0,16))) {
+			if(welt->lookup(from->gib_pos()+zv*i+koord3d(0,0,Z_TILE_STEP))) {
 				// something in the way
 				return next_gr.get_count()-start_count;
 			}
@@ -904,7 +904,7 @@ int wegbauer_t::check_for_bridge( const grund_t *parent_from, const grund_t *fro
 				// something in the way
 				return next_gr.get_count()-start_count;
 			}
-			if(gr->gib_pos().z==from->gib_pos().z+16  &&  gr->suche_obj(ding_t::leitung)) {
+			if(gr->gib_pos().z==from->gib_pos().z+Z_TILE_STEP  &&  gr->suche_obj(ding_t::leitung)) {
 				// powerline in the way
 				return next_gr.get_count()-start_count;
 			}
@@ -1539,11 +1539,11 @@ long ms=get_current_time_millis();
 		// we need start and target for on plain ground and never on monorails!
 		grund_t *gr=welt->lookup(start);
 		if(gr  &&  gr->gib_typ()==grund_t::monorailboden) {
-			start.z -= 16;
+			start.z -= Z_TILE_STEP;
 		}
 		gr=welt->lookup(ziel);
 		if(gr  &&  gr->gib_typ()==grund_t::monorailboden) {
-			ziel.z -= 16;
+			ziel.z -= Z_TILE_STEP;
 		}
 
 		keep_existing_city_roads |= (bautyp&bot_flag)!=0;
@@ -1765,7 +1765,7 @@ wegbauer_t::baue_elevated()
 	for(int i=0; i<=max_n; i++) {
 
 		planquadrat_t *plan = welt->access(route->at(i).gib_2d());
-		route->at(i).z = plan->gib_kartenboden()->gib_pos().z+16;
+		route->at(i).z = plan->gib_kartenboden()->gib_pos().z+Z_TILE_STEP;
 		grund_t *gr = plan->gib_boden_in_hoehe(route->at(i).z);
 		if(gr==NULL) {
 			// add new elevated ground

@@ -14,12 +14,12 @@ class koord3d
 public:
 	sint16 x;
 	sint16 y;
-	sint16 z;
+	sint8 z;
 
 	koord3d() : x(0), y(0), z(0) {}
 
-	koord3d(short xp, short yp, short zp) : x(xp), y(yp), z(zp) {}
-	koord3d(koord xyp, short zp) : x(xyp.x), y(xyp.y), z(zp) {}
+	koord3d(sint16 xp, sint16 yp, sint8 zp) : x(xp), y(yp), z(zp) {}
+	koord3d(koord xyp, sint8 zp) : x(xyp.x), y(xyp.y), z(zp) {}
 	koord3d(loadsave_t* file);
 
 	void rdwr(loadsave_t* file);

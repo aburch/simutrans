@@ -34,7 +34,7 @@ public:
 	void calc_bild();
 
 	const char *gib_name() const {return "Wasser";}
-	enum grund_t::typ gib_typ() const {return wasser;}
+	grund_t::typ gib_typ() const {return wasser;}
 
 	void * operator new(size_t s);
 	void operator delete(void *p);

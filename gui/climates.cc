@@ -161,8 +161,8 @@ bool
 climate_gui_t::action_triggered(gui_komponente_t *komp,value_t /* */)
 {
 	if(komp==water_level+0) {
-		if(sets->gib_grundwasser() > -160 ) {
-			sets->setze_grundwasser( sets->gib_grundwasser() - 32 );
+		if(sets->gib_grundwasser() > -10*Z_TILE_STEP ) {
+			sets->setze_grundwasser( sets->gib_grundwasser() - 2*Z_TILE_STEP );
 			if(welt_gui->get_loaded_heightfield()) {
 				welt_gui->clear_loaded_heightfield();
 			}
@@ -173,7 +173,7 @@ climate_gui_t::action_triggered(gui_komponente_t *komp,value_t /* */)
 	}
 	else if(komp==water_level+1) {
 		if(sets->gib_grundwasser() < 0 ) {
-			sets->setze_grundwasser( sets->gib_grundwasser() + 32 );
+			sets->setze_grundwasser( sets->gib_grundwasser() + 2*Z_TILE_STEP );
 			if(welt_gui->get_loaded_heightfield()) {
 				welt_gui->clear_loaded_heightfield();
 			}
@@ -304,7 +304,7 @@ void climate_gui_t::zeichnen(koord pos, koord gr)
 	const int x = pos.x+10;
 	int y = pos.y+16+16;
 
-	const sint16 water_level = sets->gib_grundwasser()/32+5;
+	const sint16 water_level = sets->gib_grundwasser()/(Z_TILE_STEP*2)+5;
 	const sint16 *climate_borders = sets->gib_climate_borders();
 
       // water level       18-Nov-01       Markus W. Added

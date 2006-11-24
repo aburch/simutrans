@@ -65,9 +65,7 @@ public:
 		has_text=4,
 		marked = 8,  // will have a frame
 		draw_as_ding = 16, // is a slope etc => draw as one
-#ifdef COVER_TILES
-		is_cover_tile = 32,	// is a ground; however, below is another ground ...
-#endif
+		is_halt_flag = 32,	// is a part of a halt
 		has_way1 = 64,
 		has_way2 = 128
 	};
@@ -104,9 +102,10 @@ protected:
 	koord3d pos;
 
 	/**
-	 * The station this ground is bound to
+	 * Flags für das neuzeichnen geänderter Untergründe
+	 * @author Hj. Malthaner
 	 */
-	halthandle_t halt;
+	uint8 flags;
 
 	/**
 	 * 0..100: slopenr, (bild_nr%100), normal ground
@@ -118,19 +117,6 @@ protected:
 
 	/* image of the walls */
 	sint8 back_bild_nr;
-
-	/**
-	 * Flags für das neuzeichnen geänderter Untergründe
-	 * @author Hj. Malthaner
-	 */
-	uint8 flags;
-
-	/**
-	 * der Besitzer des Feldes als index in das array der Welt,
-	 * -1 bedeutet "kein besitzer"
-	 * @author Hj. Malthaner
-	 */
-	sint8 besitzer_n;
 
 	// slope (now saved locally), because different grounds need differen slopes
 	uint8 slope;
@@ -156,19 +142,14 @@ protected:
 	 */
 	bool is_connected(const grund_t *gr, waytype_t wegtyp, koord dv) const;
 
-	/*
-	 * Check, whether a may in the given direction may move up or down.
-	 * Returns 16 (up), 0 (only same height) or -16 (down)
-	 * @author V. Meyer
-	 */
 	/**
 	 * Description;
 	 *      Check, whether it is possible that a way goes up or down in dv
 	 *      direction. The result depends of the ground type (i.e tunnel entries)
 	 *      and the "hang_typ" of the ground.
 	 *
-	 *      Returns 16, if it is possible to go up
-	 *      Returns -16, if it is possible to go down
+	 *      Returns 1, if it is possible to go up
+	 *      Returns -1, if it is possible to go down
 	 *      Returns 0 otherwise.
 	 *
 	 * Notice:
@@ -393,7 +374,8 @@ public:
 	* @return NULL wenn keine Haltestelle, sonst Zeiger auf Haltestelle
 	* @author Hj. Malthaner
 	*/
-	const halthandle_t gib_halt() const {return halt;}
+	const halthandle_t gib_halt() const;
+	const uint8 is_halt() const {return (flags&is_halt_flag);}
 
 	inline short gib_hoehe() const {return pos.z;}
 

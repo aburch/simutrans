@@ -488,7 +488,7 @@ public:
 	*/
 	climate get_climate(sint16 height) const
 	{
-		const sint16 h=(height-grundwasser)/16;
+		const sint16 h=(height-grundwasser)/Z_TILE_STEP;
 		if(h<0) {
 			return water_climate;
 		} else if(h>=32) {
@@ -797,9 +797,8 @@ public:
 	 * @return Hoehe am Gitterpunkt i,j
 	 * @author Hj. Malthaner
 	 */
-	inline int lookup_hgt(koord k) const
-	{
-		return ist_in_gittergrenzen(k.x, k.y) ? grid_hgts[k.x + k.y*(cached_groesse_gitter_x+1)] << 4 : grundwasser;
+	inline int lookup_hgt(koord k) const {
+		return ist_in_gittergrenzen(k.x, k.y) ? grid_hgts[k.x + k.y*(cached_groesse_gitter_x+1)]*Z_TILE_STEP : grundwasser;
 	}
 
 	/**

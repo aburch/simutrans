@@ -89,7 +89,7 @@ world_view_t::zeichnen(koord offset)
 	const planquadrat_t * plan = welt->lookup(here);
 	if(plan  &&  plan->gib_kartenboden()) {
 		const koord gr=gib_groesse()-koord(2,2);
-		const int hgt = tile_raster_scale_y( plan->gib_kartenboden()->gib_hoehe(), raster );
+		const int hgt = tile_raster_scale_y( plan->gib_kartenboden()->gib_hoehe()*TILE_HEIGHT_STEP/Z_TILE_STEP, raster );
 		const koord pos = gib_pos()+offset+koord(1,1);
 
 		PUSH_CLIP(pos.x, pos.y, gr.x, gr.y);
@@ -113,7 +113,7 @@ world_view_t::zeichnen(koord offset)
 
 				plan = welt->lookup(k);
 				if(plan  &&  plan->gib_kartenboden()) {
-					const sint16 yypos = display_off.y + ((offsets.get(i).y+offsets.get(i).x)*16*raster)/64 - tile_raster_scale_y( plan->gib_kartenboden()->gib_hoehe(), raster);
+					const sint16 yypos = display_off.y + ((offsets.get(i).y+offsets.get(i).x)*16*raster)/64 - tile_raster_scale_y( plan->gib_kartenboden()->gib_hoehe()*TILE_HEIGHT_STEP/Z_TILE_STEP, raster);
 					if(yypos+(raster/4)>gr.y) {
 						// enough with grounds ...
 						break;
@@ -135,7 +135,7 @@ world_view_t::zeichnen(koord offset)
 
 			plan = welt->lookup(k);
 			if(plan  &&  plan->gib_kartenboden()) {
-				const sint16 yypos = display_off.y + tile_raster_scale_x((offsets.get(i).y+offsets.get(i).x)*16,raster) - tile_raster_scale_y( plan->gib_kartenboden()->gib_hoehe(), raster);
+				const sint16 yypos = display_off.y + tile_raster_scale_x((offsets.get(i).y+offsets.get(i).x)*16,raster) - tile_raster_scale_y( plan->gib_kartenboden()->gib_hoehe()*TILE_HEIGHT_STEP/Z_TILE_STEP, raster);
 				if(yypos-(raster*2)<gr.y  &&  yypos+raster>=0) {
 					plan->display_dinge(pos.x+off_x,pos.y+yypos,raster,false);
 				}
@@ -148,7 +148,7 @@ world_view_t::zeichnen(koord offset)
 
 		// this should only happen for airplanes: out of image, so we need to extra display them
 		if(y_offset!=0) {
-			const sint16 yypos = display_off.y - tile_raster_scale_y((2*y_offset)*16,raster) - tile_raster_scale_y( welt->lookup(ding->gib_pos())->gib_hoehe(), raster);
+			const sint16 yypos = display_off.y - tile_raster_scale_y((2*y_offset)*16,raster) - tile_raster_scale_y( welt->lookup(ding->gib_pos())->gib_hoehe()*TILE_HEIGHT_STEP/Z_TILE_STEP, raster);
 			welt->lookup(ding->gib_pos())->display_dinge( pos.x+display_off.x, pos.y+yypos, false);
 		}
 

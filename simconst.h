@@ -107,6 +107,7 @@
 // height calculation stuff
 #if defined(HALF_HEIGHT)  ||  defined(OTTD_LIKE)
 // 8 px per height
+#error "Fix me!"
 #define TILE_HEIGHT_STEP (8)
 #define tile_raster_scale_x(v, rw)   (((v)*(rw)) >> 6)
 #define tile_raster_scale_y(v, rh)   (((v)*(rh)) >> 7)
@@ -114,7 +115,8 @@
 #define height_unscaling(i) ((i)<<1)
 
 #else
-// 16 pix per height
+// 16 pix per height, koord3d.z granularity is 1
+#define Z_TILE_STEP (1)
 #define TILE_HEIGHT_STEP (16)
 #define tile_raster_scale_x(v, rw)   (((v)*(rw)) >> 6)
 #define tile_raster_scale_y(v, rh)   (((v)*(rh)) >> 6)

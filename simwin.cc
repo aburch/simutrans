@@ -1084,8 +1084,8 @@ win_display_flush(int , int color, double konto)
 		display_set_height( oldh );
 	}
 
-    koord3d pos;
-    uint32 ticks=1, month=0, year=0;
+	koord3d pos;
+	uint32 ticks=1, month=0, year=0;
 
 	if(wl) {
 		const ding_t *dt = wl->gib_zeiger();
@@ -1168,12 +1168,12 @@ win_display_flush(int , int color, double konto)
 
 	extern koord3d wkz_wegebau_start;
 	if(wkz_wegebau_start!=koord3d::invalid  &&  wkz_wegebau_start!=pos) {
-		sprintf(delta_pos,"(%d,%d,%d) -> ",wkz_wegebau_start.x,wkz_wegebau_start.y,wkz_wegebau_start.z/16);
+		sprintf(delta_pos,"(%d,%d,%d) -> ",wkz_wegebau_start.x,wkz_wegebau_start.y,wkz_wegebau_start.z/Z_TILE_STEP);
 	}
 	else {
 		delta_pos[0] = 0;
 	}
-	sprintf(info,"%s(%d,%d,%d) %s  %s", delta_pos, pos.x, pos.y, pos.z / 16, stretch_text, translator::translate(wl->use_timeline()?"timeline":"no timeline") );
+	sprintf(info,"%s(%d,%d,%d) %s  %s", delta_pos, pos.x, pos.y, pos.z/Z_TILE_STEP, stretch_text, translator::translate(wl->use_timeline()?"timeline":"no timeline") );
 
 	const char *active_player_name = wl->get_active_player()->get_player_nr()==0 ? "" : wl->get_active_player()->gib_name();
 	image_id season_img = skinverwaltung_t::seasons_icons ? skinverwaltung_t::seasons_icons->gib_bild_nr(wl->gib_jahreszeit()) : IMG_LEER;

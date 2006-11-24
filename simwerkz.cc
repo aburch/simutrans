@@ -202,14 +202,13 @@ wkz_abfrage(spieler_t *, karte_t *welt, koord pos)
 int
 wkz_raise(spieler_t *sp, karte_t *welt, koord pos)
 {
-//DBG_MESSAGE("wkz_raise()","raising square (%d,%d) to %d",pos.x, pos.y, welt->lookup_hgt(pos)+16);
-
+//DBG_MESSAGE("wkz_raise()","raising square (%d,%d) to %d",pos.x, pos.y, welt->lookup_hgt(pos)+Z_TILE_STEP);
 	bool ok = false;
 
 	if(welt->ist_in_gittergrenzen(pos)) {
 		const int hgt = welt->lookup_hgt(pos);
 
-		if(hgt < 224) {
+		if(hgt < 14*Z_TILE_STEP) {
 
 			int n = welt->raise(pos);
 			ok = (n!=0);
@@ -239,7 +238,7 @@ wkz_raise(spieler_t *sp, karte_t *welt, koord pos)
 int
 wkz_lower(spieler_t *sp, karte_t *welt, koord pos)
 {
-// DBG_MESSAGE("wkz_lower()","lowering square %d,%d to %d", pos.x, pos.y, welt->lookup_hgt(pos)-16);
+// DBG_MESSAGE("wkz_lower()","lowering square %d,%d to %d", pos.x, pos.y, welt->lookup_hgt(pos)-Z_TILE_STEP);
 
 	bool ok = false;
 
@@ -337,9 +336,9 @@ DBG_MESSAGE("wkz_remover()",  "removing roadsign %d,%d",  pos.x, pos.y);
 	}
 
 	// Haltestelle prüfen
-	halthandle_t halt = gr->gib_halt();
+	halthandle_t halt = plan->gib_halt();
 DBG_MESSAGE("wkz_remover()", "bound=%i",halt.is_bound());
-	if( halt.is_bound()  &&  (halt->gib_besitzer()==sp  ||  halt->gib_besitzer()==welt->gib_spieler(1))) {
+	if(gr->is_halt()  &&  halt.is_bound()  &&  (halt->gib_besitzer()==sp  ||  halt->gib_besitzer()==welt->gib_spieler(1))) {
 		return haltestelle_t::remove(welt, sp, gr->gib_pos(), msg);
 	}
 
@@ -406,7 +405,7 @@ DBG_MESSAGE("wkz_remover()",  "removing tunnel  from %d,%d,%d",gr->gib_pos().x, 
 				fabrik_t *fab=gb->get_fabrik();
 DBG_MESSAGE("wkz_remover()", "removing factory:  %p");
 
-				if(welt->access(fab->gib_pos().gib_2d())->get_haltlist().get_count()!=0) {
+				if(welt->lookup(fab->gib_pos().gib_2d())->get_haltlist_count()!=0) {
 					// remove from all stops
 					msg = "Das Feld gehoert\neinem anderen Spieler\n";
 					return false;
@@ -456,7 +455,7 @@ DBG_MESSAGE("wkz_remover()", "removing building: cleanup");
 					gr->obj_loesche_alle(sp);
 					if(gr->gib_typ()==grund_t::fundament) {
 						uint8 new_slope = gr->gib_hoehe()==welt->min_hgt(k+pos) ? 0 : welt->calc_natural_slope(k+pos);
-						welt->access(k+pos)->kartenboden_setzen(new boden_t(welt, koord3d(k+pos,welt->min_hgt(k+pos)), new_slope), false);
+						welt->access(k+pos)->kartenboden_setzen(new boden_t(welt, koord3d(k+pos,welt->min_hgt(k+pos)), new_slope) );
 					}
 				}
 			}
@@ -1029,7 +1028,7 @@ DBG_MESSAGE("wkz_station_building_aux()", "building mail office/station building
 			for( int i=0;  i<4;  i++  ) {
 				if(welt->ist_in_kartengrenzen(pos+rotate_koords[i])) {
 					grund_t *gr=welt->lookup(pos+rotate_koords[i])->gib_kartenboden();
-					if(gr->gib_halt().is_bound()) {
+					if(gr->is_halt()) {
 //DBG_MESSAGE("wkz_station_building_aux()","test layouts %i",i);
 						// get best alignment judging all
 						uint8 current=1;
@@ -1192,11 +1191,11 @@ wkz_dockbau(spieler_t *sp, karte_t *welt, koord pos, value_t value)
 					if(msg) {
 						break;
 					}
-					else if(i==0  &&  (gr->ist_wasser()  ||  gr->hat_wege()  ||  gr->gib_typ()!=grund_t::boden)  ||  gr->obj_count()>0  ||  gr->gib_halt().is_bound()) {
+					else if(i==0  &&  (gr->ist_wasser()  ||  gr->hat_wege()  ||  gr->gib_typ()!=grund_t::boden)  ||  gr->obj_count()>0  ||  gr->is_halt()) {
 						msg = "Tile not empty.";
 						break;
 					}
-					else if(i!=0  &&  (!gr->ist_wasser()  ||  gr->suche_obj(ding_t::gebaeude)  ||  gr->gib_depot()  ||  gr->gib_halt().is_bound())) {
+					else if(i!=0  &&  (!gr->ist_wasser()  ||  gr->suche_obj(ding_t::gebaeude)  ||  gr->gib_depot()  ||  gr->is_halt())) {
 						msg = "Tile not empty.";
 						break;
 					}
@@ -1446,7 +1445,7 @@ wkz_depot_aux(spieler_t *sp, karte_t *welt, koord pos,const haus_besch_t *besch,
 		}
 
 		// avoid building over a stop
-		if(bd->gib_halt().is_bound()  ||  bd->gib_depot()!=NULL) {
+		if(bd->is_halt()  ||  bd->gib_depot()!=NULL) {
 			create_win(-1, -1, MESG_WAIT, new nachrichtenfenster_t(welt, "Tile not empty."), w_autodelete);
 			return false;
 		}
@@ -1542,7 +1541,7 @@ DBG_MESSAGE("wkz_halt_aux()", "building %s on square %d,%d for waytype %x", besc
 	if(!bd  &&  track_wt) {
 		bd = wkz_intern_koord_to_weg_grund(sp==welt->gib_spieler(1)?NULL:sp,welt,pos,monorail_wt);
 	}
-	if(!bd  ||  bd->gib_weg_hang()!=hang_t::flach  ||  bd->gib_halt().is_bound()) {
+	if(!bd  ||  bd->gib_weg_hang()!=hang_t::flach  ||  bd->is_halt()) {
 		create_win(-1, -1, MESG_WAIT, new nachrichtenfenster_t(welt, p_error), w_autodelete);
 		return false;
 	}
@@ -1714,11 +1713,11 @@ dbg->warning("wkz_fahrplan_insert_aux()","Schedule is (null), doing nothing");
 			}
 			// now just for error messages, we assing a valid ground
 			// and check for ownership
-			if(!bd->gib_halt().is_bound()  &&  !sp->check_owner(bd->gib_besitzer())) {
+			if(!bd->is_halt()  &&  !sp->check_owner(bd->gib_besitzer())) {
 				bd = 0;
 				continue;
 			}
-			if(bd->gib_halt().is_bound()  &&  !sp->check_owner(bd->gib_halt()->gib_besitzer()) ) {
+			if(bd->is_halt()  &&  !sp->check_owner(bd->gib_halt()->gib_besitzer()) ) {
 				bd = 0;
 				continue;
 			}
@@ -1902,7 +1901,7 @@ int wkz_set_slope(spieler_t * sp, karte_t *welt, koord pos, value_t lParam)
 				change_to_slope = 0;
 			}
 			slope_this = (change_to_slope>=ALL_UP_SLOPE) ? 0 : change_to_slope;
-			new_pos = gr1->gib_pos() + koord3d(0,0,(change_to_slope==ALL_UP_SLOPE?16:(change_to_slope==ALL_DOWN_SLOPE?-16:0)));
+			new_pos = gr1->gib_pos() + koord3d(0,0,(change_to_slope==ALL_UP_SLOPE?Z_TILE_STEP:(change_to_slope==ALL_DOWN_SLOPE?-Z_TILE_STEP:0)));
 #ifdef DOUBLE_GROUNDS
 			// if already the same, double the slope
 			if(slope_this==gr1->gib_grund_hang()) {
@@ -1912,12 +1911,12 @@ int wkz_set_slope(spieler_t * sp, karte_t *welt, koord pos, value_t lParam)
 		}
 
 		// check, if action is valid ...
-		const sint16 hgt=new_pos.z/16;
+		const sint16 hgt=new_pos.z/Z_TILE_STEP;
 
 		// first left side
 		const grund_t *grleft=welt->lookup(pos+koord(-1,0))->gib_kartenboden();
 		if(grleft) {
-			const sint16 left_hgt=grleft->gib_hoehe()/16;
+			const sint16 left_hgt=grleft->gib_hoehe()/Z_TILE_STEP;
 			const sint8 slope=grleft->gib_grund_hang();
 			const sint8 diff_from_ground_1 = left_hgt+corner2(slope)-hgt;
 			const sint8 diff_from_ground_2 = left_hgt+corner3(slope)-hgt;
@@ -1930,7 +1929,7 @@ int wkz_set_slope(spieler_t * sp, karte_t *welt, koord pos, value_t lParam)
 		// right side
 		const grund_t *grright=welt->lookup(pos+koord(1,0))->gib_kartenboden();
 		if(grright) {
-			const sint16 right_hgt=grright->gib_hoehe()/16;
+			const sint16 right_hgt=grright->gib_hoehe()/Z_TILE_STEP;
 			const sint8 diff_from_ground_1 = hgt+corner2(slope_this)-right_hgt;
 			const sint8 diff_from_ground_2 = hgt+corner3(slope_this)-right_hgt;
 			if(diff_from_ground_1>2  ||  diff_from_ground_2>2) {
@@ -1941,7 +1940,7 @@ int wkz_set_slope(spieler_t * sp, karte_t *welt, koord pos, value_t lParam)
 
 		const grund_t *grback=welt->lookup(pos+koord(0,-1))->gib_kartenboden();
 		if(grback) {
-			const sint16 back_hgt=grback->gib_hoehe()/16;
+			const sint16 back_hgt=grback->gib_hoehe()/Z_TILE_STEP;
 			const sint8 slope=grback->gib_grund_hang();
 			const sint8 diff_from_ground_1 = back_hgt+corner1(slope)-hgt;
 			const sint8 diff_from_ground_2 = back_hgt+corner2(slope)-hgt;
@@ -1977,10 +1976,10 @@ int wkz_set_slope(spieler_t * sp, karte_t *welt, koord pos, value_t lParam)
 			// ok, was sucess
 			if(!gr1->ist_wasser()  &&  slope_this==0  &&  new_pos.z==welt->gib_grundwasser()) {
 				// now water
-				welt->access(pos)->kartenboden_setzen( new wasser_t(welt,pos), true );
+				welt->access(pos)->kartenboden_setzen( new wasser_t(welt,pos) );
 			}
 			else if(gr1->ist_wasser()  &&  (new_pos.z>welt->gib_grundwasser()  ||  slope_this!=0)) {
-				welt->access(pos)->kartenboden_setzen( new boden_t(welt,new_pos,slope_this), true );
+				welt->access(pos)->kartenboden_setzen( new boden_t(welt,new_pos,slope_this) );
 			}
 			else {
 				gr1->obj_loesche_alle(sp);

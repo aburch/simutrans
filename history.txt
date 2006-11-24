@@ -4,11 +4,16 @@ Known bugs: (hard to fix)
 	valgrind complains about errors in SDL and X?
 
 
+Release of 99.05
 
+xx-Nov-2006: (prissi)
 	FIX: always ensure tile is empty before applying slopes (avoids wrong positions)
 	FIX: deletion of thing not on the map
 	FIX: buying cars with different precessor/following numbers
 	FIX: elevated tracks not shown
+	FIX: waypoints for planes
+	CHANGE: 4 bytes less per planquadrat, 4 less per ground (now down to 32 bytes per tile without objects from previous 48)
+	CHANGE: koord3d is now only with 1 per height step => much less hassle with heights and again bytes saved
 
 
 Release of 99.04.2

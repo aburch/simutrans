@@ -55,12 +55,9 @@ karte_ansicht_t::display(bool force_dirty)
 
 	// these are the values needed to go directly from a tile to the display
 	welt->setze_ansicht_ij_offset(
-		koord(
-	- disp_width/(2*IMG_SIZE) - disp_real_height/IMG_SIZE,
-	disp_width/(2*IMG_SIZE) - disp_real_height/IMG_SIZE
-//			(disp_width/(2*IMG_SIZE))*2*(IMG_SIZE/2) + welt->gib_x_off(), // x-y
-//			(disp_height/IMG_SIZE)*2*(IMG_SIZE/4) + welt->gib_y_off()// + (IMG_SIZE/2) + ((display_get_width()/IMG_SIZE)&1)*(IMG_SIZE/4)
-		) );
+		koord( - disp_width/(2*IMG_SIZE) - disp_real_height/IMG_SIZE,
+					disp_width/(2*IMG_SIZE) - disp_real_height/IMG_SIZE	)
+	);
 
 	// not very elegant, but works:
 	// fill everything with black for Underground mode ...
@@ -83,14 +80,14 @@ karte_ansicht_t::display(bool force_dirty)
 			if(xpos+IMG_SIZE>0  &&  xpos<disp_width) {
 				const planquadrat_t *plan=welt->lookup(koord(i,j));
 				if(plan  &&  plan->gib_kartenboden()) {
-					sint16 yypos = ypos - tile_raster_scale_y( plan->gib_kartenboden()->gib_hoehe(), IMG_SIZE);
-					if(yypos-IMG_SIZE/2<disp_height  &&  yypos+IMG_SIZE>32) {
+					sint16 yypos = ypos - tile_raster_scale_y( plan->gib_kartenboden()->gib_hoehe()*TILE_HEIGHT_STEP/Z_TILE_STEP, IMG_SIZE);
+					if(yypos-IMG_SIZE<disp_height  &&  yypos+IMG_SIZE>32) {
 						plan->display_boden(xpos, yypos, IMG_SIZE, true);
 					}
 				}
 				else {
 					// ouside ...
-					display_img(grund_besch_t::ausserhalb->gib_bild(hang_t::flach), xpos,ypos - tile_raster_scale_y( welt->gib_grundwasser(), IMG_SIZE ), force_dirty);
+					display_img(grund_besch_t::ausserhalb->gib_bild(hang_t::flach), xpos,ypos - tile_raster_scale_y( welt->gib_grundwasser()*TILE_HEIGHT_STEP/Z_TILE_STEP, IMG_SIZE ), force_dirty);
 				}
 			}
 		}
@@ -110,7 +107,7 @@ karte_ansicht_t::display(bool force_dirty)
 			if(xpos+IMG_SIZE>0  &&  xpos<disp_width) {
 				const planquadrat_t *plan=welt->lookup(koord(i,j));
 				if(plan  &&  plan->gib_kartenboden()) {
-					sint16 yypos = ypos - tile_raster_scale_y( plan->gib_kartenboden()->gib_hoehe(), IMG_SIZE);
+					sint16 yypos = ypos - tile_raster_scale_y( plan->gib_kartenboden()->gib_hoehe()*TILE_HEIGHT_STEP/Z_TILE_STEP, IMG_SIZE);
 					if(yypos-IMG_SIZE*2-32<disp_height  &&  yypos+IMG_SIZE>32) {
 						plan->display_dinge(xpos, yypos, IMG_SIZE, true);
 					}
@@ -126,7 +123,7 @@ karte_ansicht_t::display(bool force_dirty)
 		const sint16 rasterweite=get_tile_raster_width();
 		const koord diff = zeiger->gib_pos().gib_2d()-welt->gib_ij_off()-welt->gib_ansicht_ij_offset();
 		const sint16 x = (diff.x-diff.y)*(rasterweite/2) + tile_raster_scale_x(zeiger->gib_xoff(), rasterweite);
-		const sint16 y = (diff.x+diff.y)*(rasterweite/4) + tile_raster_scale_y( zeiger->gib_yoff()-zeiger->gib_pos().z, rasterweite) + ((display_get_width()/rasterweite)&1)*(rasterweite/4);
+		const sint16 y = (diff.x+diff.y)*(rasterweite/4) + tile_raster_scale_y( zeiger->gib_yoff()-zeiger->gib_pos().z*TILE_HEIGHT_STEP/Z_TILE_STEP, rasterweite) + ((display_get_width()/rasterweite)&1)*(rasterweite/4);
 		zeiger->display( x+welt->gib_x_off(), y+welt->gib_y_off(), true);
 		zeiger->clear_flag(ding_t::dirty);
 	}

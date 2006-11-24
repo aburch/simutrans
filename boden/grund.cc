@@ -113,12 +113,12 @@ grund_t::setze_grund_hang(hang_t::typ sl)
  */
 void grund_t::setze_text(const char *text)
 {
-  // printf("Height %x\n", (pos.z - welt->gib_grundwasser()) >> 4);
+  // printf("Height %x\n", (pos.z - welt->gib_grundwasser())/Z_TILE_STEP);
 
   const unsigned long n =
     (pos.x << 19)
     + (pos.y << 6)
-    + ((pos.z - welt->gib_grundwasser()) >> 4);
+    + ((pos.z - welt->gib_grundwasser())/Z_TILE_STEP);
 
   const char * old = ground_texts.get(n);
 
@@ -147,7 +147,7 @@ const char* grund_t::gib_text() const
 {
 	const char * result = 0;
 	if(flags & has_text) {
-		const unsigned long n = (pos.x << 19) + (pos.y << 6) + ((pos.z - welt->gib_grundwasser()) >> 4);
+		const unsigned long n = (pos.x << 19) + (pos.y << 6) + ((pos.z - welt->gib_grundwasser())/Z_TILE_STEP);
 		result = ground_texts.get(n);
 	}
 	return result;
@@ -155,12 +155,16 @@ const char* grund_t::gib_text() const
 
 
 /**
- * Ermittelt den Besitzer des Untergrundes.
+ * Ground is always owned by the owner
+ * of the first object
  * @author Hj. Malthaner
  */
 spieler_t * grund_t::gib_besitzer() const
 {
-	return besitzer_n == -1 ? 0 : welt->gib_spieler(besitzer_n);
+	if(gib_top()) {
+		return obj_bei(0)->gib_besitzer();
+	}
+	return NULL;
 }
 
 
@@ -171,23 +175,23 @@ spieler_t * grund_t::gib_besitzer() const
  */
 bool grund_t::setze_besitzer(spieler_t *s)
 {
-	sint8 sp_num= s ? s->get_player_nr() : -1;
-	if(besitzer_n!=sp_num  &&  !ist_bruecke()) {
+	if(!ist_bruecke()) {
 		// transfer way maitenance costs
 		if(flags&has_way1) {
 			weg_t *w=(weg_t *)obj_bei(0);
-			if(besitzer_n>=0) { welt->gib_spieler(besitzer_n)->add_maintenance(-w->gib_besch()->gib_wartung()); }
+			spieler_t *sp = w->gib_besitzer();
+			if(sp) { sp->add_maintenance(-w->gib_besch()->gib_wartung()); }
 			if(s) { s->add_maintenance(w->gib_besch()->gib_wartung()); }
 			w->setze_besitzer(s);
 		}
 		if(flags&has_way2) {
 			weg_t *w=(weg_t *)obj_bei(1);
-			if(besitzer_n>=0) { welt->gib_spieler(besitzer_n)->add_maintenance(-w->gib_besch()->gib_wartung()); }
+			spieler_t *sp = w->gib_besitzer();
+			if(sp) { sp->add_maintenance(-w->gib_besch()->gib_wartung()); }
 			if(s) { s->add_maintenance(w->gib_besch()->gib_wartung()); }
 			w->setze_besitzer(s);
 		}
 	}
-	besitzer_n = sp_num;
 	return true;
 }
 
@@ -198,7 +202,6 @@ grund_t::grund_t(karte_t *wl)
 	flags = 0;
 	bild_nr = IMG_LEER;
 	back_bild_nr = 0;
-	halt = halthandle_t();
 }
 
 
@@ -208,7 +211,6 @@ grund_t::grund_t(karte_t *wl, loadsave_t *file)
 	welt = wl;
 	flags = 0;
 	back_bild_nr = 0;
-	halt = halthandle_t();
 	rdwr(file);
 }
 
@@ -237,9 +239,10 @@ void grund_t::rdwr(loadsave_t *file)
 	if(file->is_loading() && label) {
 		welt->add_label(gib_pos().gib_2d());
 	}
-	sint8 dummy8=besitzer_n;
-	file->rdwr_byte(dummy8, "\n");
-	besitzer_n = dummy8;
+	sint8 besitzer_n=-1;
+	if(file->get_version()<99005) {
+		file->rdwr_byte(besitzer_n, "\n");
+	}
 
 	if(file->get_version()>=88009) {
 		uint8 sl = slope;
@@ -330,7 +333,9 @@ void grund_t::rdwr(loadsave_t *file)
 					else {
 						assert((flags&has_way2)==0);	// maximum two ways on one tile ...
 						weg->setze_pos(pos);
-						weg->setze_besitzer(gib_besitzer());
+						if(besitzer_n!=-1) {
+							weg->setze_besitzer(welt->gib_spieler(besitzer_n));
+						}
 						dinge.add(weg);
 						if(flags&has_way1) {
 							flags |= has_way2;
@@ -364,11 +369,9 @@ grund_t::grund_t(karte_t *wl, koord3d pos)
 {
 	this->pos = pos;
 	flags = 0;
-	besitzer_n = -1;
 	welt = wl;
 	setze_bild(IMG_LEER);    // setzt   flags = dirty;
 	back_bild_nr = 0;
-	halt = halthandle_t();
 }
 
 
@@ -380,13 +383,12 @@ grund_t::~grund_t()
 	// remove text from table
 	ground_texts.remove((pos.x << 16) + pos.y);
 
-	if(halt.is_bound()) {
-		halt->rem_grund(this);
-		halt.unbind();
+	if(flags&is_halt_flag) {
+		welt->lookup(pos.gib_2d())->gib_halt()->rem_grund(this);
 	}
-	dinge.loesche_alle(gib_besitzer(),offsets[flags/has_way1]);
+	dinge.loesche_alle(NULL,offsets[flags/has_way1]);
 	if(flags&has_way1) {
-		dinge.loesche_alle(gib_besitzer(),0);
+		dinge.loesche_alle(NULL,0);
 	}
 }
 
@@ -415,8 +417,8 @@ grund_t::take_obj_from( grund_t *other_gr)
 
 void grund_t::info(cbuffer_t & buf) const
 {
-	if(halt.is_bound()) {
-		halt->info( buf );
+	if(flags&is_halt_flag) {
+		welt->lookup(pos.gib_2d())->gib_halt()->info( buf );
 	}
 
 	if(!ist_wasser()) {
@@ -467,7 +469,21 @@ void grund_t::info(cbuffer_t & buf) const
  * @author Hj. Malthaner
  */
 void grund_t::setze_halt(halthandle_t halt) {
-	this->halt = halt;
+//	this->halt = halt;
+	if(halt.is_bound()) {
+		flags |= is_halt_flag;
+	}
+	else {
+		flags &= ~is_halt_flag;
+	}
+}
+
+
+
+const halthandle_t
+grund_t::gib_halt() const
+{
+	return (flags&is_halt_flag) ? welt->lookup(pos.gib_2d())->gib_halt() : halthandle_t();
 }
 
 
@@ -583,7 +599,7 @@ void grund_t::calc_back_bild(const sint8 hgt,const sint8 slope_this)
 	if(k.x>0  &&  k.y>0) {
 		const grund_t *gr=welt->lookup(k+koord(-1,-1))->gib_kartenboden();
 		if(gr) {
-			const sint16 left_hgt=gr->gib_hoehe()/16;
+			const sint16 left_hgt=gr->gib_hoehe()/Z_TILE_STEP;
 			const sint8 slope=gr->gib_grund_hang();
 
 			const sint8 diff_from_ground = left_hgt+corner2(slope)-hgt-corner4(slope_this);
@@ -601,7 +617,7 @@ void grund_t::calc_back_bild(const sint8 hgt,const sint8 slope_this)
 	if(k.x>0) {
 		const grund_t *gr=welt->lookup(k+koord(-1,0))->gib_kartenboden();
 		if(gr) {
-			const sint16 left_hgt=gr->gib_hoehe()/16;
+			const sint16 left_hgt=gr->gib_hoehe()/Z_TILE_STEP;
 			const sint8 slope=gr->gib_grund_hang();
 
 			const sint8 diff_from_ground_1 = left_hgt+corner2(slope)-hgt;
@@ -628,7 +644,7 @@ void grund_t::calc_back_bild(const sint8 hgt,const sint8 slope_this)
 	if(k.y>0) {
 		const grund_t *gr=welt->lookup(k+koord(0,-1))->gib_kartenboden();
 		if(gr) {
-			const sint16 back_hgt=gr->gib_hoehe()/16;
+			const sint16 back_hgt=gr->gib_hoehe()/Z_TILE_STEP;
 			const sint8 slope=gr->gib_grund_hang();
 
 			const sint8 diff_from_ground_1 = back_hgt+corner1(slope)-hgt;
@@ -678,8 +694,11 @@ PLAYER_COLOR_VAL
 grund_t::text_farbe() const
 {
 	// if this gund belongs to a halt, the color should reflect the halt owner, not the grund owner!
-	if(halt.is_bound()  &&  halt->gib_besitzer()) {
-		return PLAYER_FLAG|((halt->gib_besitzer()->get_player_color()*4)+4);
+	if(flags&is_halt_flag) {
+		const spieler_t *sp=welt->lookup(pos.gib_2d())->gib_halt()->gib_besitzer();
+		if(sp) {
+			return PLAYER_FLAG|((sp->get_player_color()*4)+4);
+		}
 	}
 
 	// else color according to current owner
@@ -730,7 +749,8 @@ grund_t::display_boden( const sint16 xpos, const sint16 ypos, const bool /*reset
 	}
 
 	// ground
-	image_id bild=gib_bild();
+	image_id bild = gib_bild();
+	const spieler_t *sp = gib_besitzer();
 	if(bild==IMG_LEER) {
 		// only check for forced redraw (of marked ... )
 		if(dirty) {
@@ -739,11 +759,11 @@ grund_t::display_boden( const sint16 xpos, const sint16 ypos, const bool /*reset
 	}
 	else {
 		// if this tile belongs to nobody, we could use the faster redraw routines
-		if(besitzer_n==-1) {
+		if(sp==NULL) {
 			display_img(gib_bild(), xpos, ypos, dirty);
 		}
 		else {
-			display_color_img(gib_bild(), xpos, ypos, gib_besitzer()->get_player_color(), true, dirty);
+			display_color_img(gib_bild(), xpos, ypos, sp->get_player_color(), true, dirty);
 		}
 		// we show additionally a grid
 		if(show_grid  &&  gib_typ()!=wasser) {
@@ -755,11 +775,11 @@ grund_t::display_boden( const sint16 xpos, const sint16 ypos, const bool /*reset
 
 	if(flags&has_way1) {
 		sint16 ynpos = ypos-tile_raster_scale_y( gib_weg_yoff(), rasterweite );
-		if(besitzer_n==-1) {
+		if(sp==NULL) {
 			display_img(obj_bei(0)->gib_bild(), xpos, ynpos, dirty);
 		}
 		else {
-			display_color_img(obj_bei(0)->gib_bild(), xpos, ynpos, gib_besitzer()->get_player_color(), true, dirty);
+			display_color_img(obj_bei(0)->gib_bild(), xpos, ynpos, sp->get_player_color(), true, dirty);
 		}
 #ifdef DEBUG_PBS
 		if(dirty  &&  ((weg_t *)obj_bei(0)->gib_waytype()==track_wt)  &&  ((schiene_t *)obj_bei(0))->is_reserved()) {
@@ -770,11 +790,11 @@ grund_t::display_boden( const sint16 xpos, const sint16 ypos, const bool /*reset
 
 	if(flags&has_way2){
 		sint16 ynpos = ypos-tile_raster_scale_y( gib_weg_yoff(), rasterweite );
-		if(besitzer_n==-1) {
+		if(sp==NULL) {
 			display_img(obj_bei(1)->gib_bild(), xpos, ynpos, dirty);
 		}
 		else {
-			display_color_img(obj_bei(1)->gib_bild(), xpos, ynpos, gib_besitzer()->get_player_color(), true, dirty);
+			display_color_img(obj_bei(1)->gib_bild(), xpos, ynpos, sp->get_player_color(), true, dirty);
 		}
 	}
 }
@@ -826,8 +846,11 @@ grund_t::display_dinge(const sint16 xpos, sint16 ypos, bool reset_dirty)
 	}
 
 	// display station waiting information/status
-	if(halt.is_bound()  &&  (umgebung_t::show_names & 2) &&  halt->gib_basis_pos3d()==pos) {
-		halt->display_status(xpos, ypos);
+	if(flags&is_halt_flag  &&  (umgebung_t::show_names & 2)) {
+		halthandle_t halt = welt->lookup(pos.gib_2d())->gib_halt();
+		if(halt->gib_basis_pos3d()==pos) {
+			halt->display_status(xpos, ypos);
+		}
 	}
 
 #ifdef SHOW_FORE_GRUND
@@ -886,14 +909,7 @@ bool grund_t::weg_erweitern(waytype_t wegtyp, ribi_t::ribi ribi)
  */
 long grund_t::neuen_weg_bauen(weg_t *weg, ribi_t::ribi ribi, spieler_t *sp)
 {
-	if(sp  &&  sp!=gib_besitzer()   &&  besitzer_n!=1  && besitzer_n!=-1) {
-		// cannot take ownership
-		return 0;
-	}
 	long cost=0;
-
-	// by claiming this field, we also take over matenance for all ways
-	setze_besitzer( sp );
 
 	// not already there?
 	const weg_t * alter_weg = gib_weg(weg->gib_waytype());
@@ -987,11 +1003,6 @@ DBG_MESSAGE("grund_t::weg_entfernen()","weg %p",weg);
 			flags &= ~has_way1;
 		}
 
-		// remove ownership from empty tile
-		if(!hat_wege()) {
-			setze_besitzer(NULL);
-		}
-
 		calc_bild();
 
 		return costs;
@@ -1060,17 +1071,17 @@ int grund_t::get_vmove(koord dir) const
 	const sint8 slope=gib_weg_hang();
 	sint16 h=gib_hoehe();
 	if(ist_bruecke()  &&  gib_grund_hang()!=0  &&  welt->lookup(pos)==this) {
-		h += 16;	// end or start of a bridge
+		h += Z_TILE_STEP;	// end or start of a bridge
 	}
 
 	if(dir == koord::ost) {
-		h += corner3(slope)*16;
+		h += corner3(slope)*Z_TILE_STEP;
 	} else if(dir == koord::west) {
-		h += corner1(slope)*16;
+		h += corner1(slope)*Z_TILE_STEP;
 	} else if(dir == koord::sued) {
-		h += corner1(slope)*16;
+		h += corner1(slope)*Z_TILE_STEP;
 	} else if(dir == koord::nord) {
-		h += corner3(slope)*16;
+		h += corner3(slope)*Z_TILE_STEP;
 	} else {
 		dbg->fatal("grund_t::get_vmove()","no valid direction given (%x)",ribi_typ(dir));	// error: not a direction ...
 	}
@@ -1105,7 +1116,7 @@ bool grund_t::remove_everything_from_way(spieler_t *sp,waytype_t wt,ribi_t::ribi
 	if(weg) {
 
 		// stopps
-		if(halt.is_bound()  &&  halt->gib_besitzer()==sp) {
+		if(flags&is_halt_flag  &&  gib_halt()->gib_besitzer()==sp) {
 			const char *fail;
 			if(!haltestelle_t::remove(welt, sp, pos, fail)) {
 				return false;

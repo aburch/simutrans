@@ -152,8 +152,9 @@ void curiositylist_stats_t::zeichnen(koord offset)
 		bool pax=false;
 		bool all_crowded=true;
 		bool some_crowded=false;
-		const minivec_tpl<halthandle_t> &halt_list = welt->access(geb->gib_pos().gib_2d())->get_haltlist();
-		for(  unsigned h=0;  (post&pax)==0  &&  h<halt_list.get_count();  h++ ) {
+		const planquadrat_t *plan = welt->lookup(geb->gib_pos().gib_2d());
+		const halthandle_t *halt_list = plan->get_haltlist();
+		for(  unsigned h=0;  (post&pax)==0  &&  h<plan->get_haltlist_count();  h++ ) {
 			halthandle_t halt = halt_list[h];
 			if (halt->get_pax_enabled()) {
 				pax = true;

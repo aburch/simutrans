@@ -207,7 +207,7 @@ brueckenbauer_t::finde_ende(karte_t *welt, koord3d pos, koord zv, waytype_t wegt
 		if(!welt->ist_in_kartengrenzen(pos.gib_2d())) {
 			return koord3d::invalid;
 		}
-		gr1 = welt->lookup(pos + koord3d(0, 0, 16));
+		gr1 = welt->lookup(pos + koord3d(0, 0, Z_TILE_STEP));
 		if(gr1 && gr1->gib_weg_hang()==hang_t::flach) {
 			return gr1->gib_pos();        // Ende an Querbrücke
 		}
@@ -412,7 +412,7 @@ bool brueckenbauer_t::baue_bruecke(karte_t *welt, spieler_t *sp,
 	pos = pos + zv;
 
 	while(pos.gib_2d()!=end.gib_2d()) {
-		brueckenboden_t *bruecke = new  brueckenboden_t(welt, pos + koord3d(0, 0, 16), 0, 0);
+		brueckenboden_t *bruecke = new  brueckenboden_t(welt, pos + koord3d(0, 0, Z_TILE_STEP), 0, 0);
 		weg = weg_t::alloc(besch->gib_waytype());
 		weg->setze_besch(weg_besch);
 		weg->setze_max_speed(besch->gib_topspeed());
@@ -431,10 +431,10 @@ bool brueckenbauer_t::baue_bruecke(karte_t *welt, spieler_t *sp,
 			if(besch->gib_pillar()==1  ||  (pos.x+pos.y)%besch->gib_pillar()==0) {
 				grund_t *gr = welt->lookup(pos.gib_2d())->gib_kartenboden();
 //DBG_MESSAGE("bool brueckenbauer_t::baue_bruecke()","h1=%i, h2=%i",pos.z,gr->gib_pos().z);
-				int height = (pos.z - gr->gib_pos().z)/16+1;
+				int height = (pos.z - gr->gib_pos().z)/Z_TILE_STEP+1;
 				while(height-->0) {
 					// eventual more than one part needed, if it is too high ...
-					gr->obj_add( new pillar_t(welt,gr->gib_pos(),sp,besch,besch->gib_pillar(ribi), height_scaling(height*16) ) );
+					gr->obj_add( new pillar_t(welt,gr->gib_pos(),sp,besch,besch->gib_pillar(ribi), height_scaling(height*Z_TILE_STEP) ) );
 				}
 			}
 		}
@@ -482,7 +482,7 @@ void brueckenbauer_t::baue_auffahrt(karte_t* welt, spieler_t* sp, koord3d end, k
 	weg_t *weg=alter_boden->gib_weg( besch->gib_waytype() );
 	// take care of everything on that tile ...
 	bruecke->take_obj_from( alter_boden );
-	welt->access(end.gib_2d())->kartenboden_setzen( bruecke, false );
+	welt->access(end.gib_2d())->kartenboden_setzen( bruecke );
 	if(weg) {
 		// has already a way
 		bruecke->weg_erweitern(besch->gib_waytype(), ribi_t::doppelt(ribi_neu));
@@ -606,7 +606,7 @@ brueckenbauer_t::remove(karte_t *welt, spieler_t *sp, koord3d pos, waytype_t weg
 		grund_t *gr_new = new boden_t(welt, pos, gr->gib_grund_hang());
 		gr_new->setze_besitzer( sp );
 		gr_new->take_obj_from( gr );
-		welt->access(pos.gib_2d())->kartenboden_setzen(gr_new, false);
+		welt->access(pos.gib_2d())->kartenboden_setzen(gr_new );
 		gr_new->calc_bild();
 	}
 

@@ -11,6 +11,7 @@
 #define simplan_h
 
 #include "tpl/minivec_tpl.h"
+#include "tpl/microarray_tpl.h"
 #include "halthandle_t.h"
 #include "boden/grund.h"
 
@@ -31,30 +32,25 @@ class ding_t;
 class planquadrat_t
 {
 private:
-    union {
+	/* list of stations that are reaching to this tile (saves lots of time for lookup) */
+	halthandle_t *halt_list;
+
+	uint8 ground_size, halt_list_count;
+
+	/* only one station per ground xy tile */
+	halthandle_t this_halt;
+
+	union {
 		grund_t ** some;    // valid if capacity > 1
 		grund_t * one;      // valid if capacity == 1
-    } data;
-
-	uint8 size, capacity;
-
-	/**
-	* The station this ground is bound to
-	*/
-	halthandle_t halt;
-
-	/**
-	* stations which can be reached from this ground
-	*/
-	minivec_tpl<halthandle_t> halt_list;
-
+	} data;
 
 public:
 	/**
 	 * Constructs a planquadrat with initial capacity of one ground
 	 * @author Hansjörg Malthaner
 	 */
-	planquadrat_t() : halt(), halt_list(0) { size=0; capacity=1; data.one = NULL; }
+	planquadrat_t() { ground_size=0; data.one = NULL; halt_list_count=0;  halt_list=NULL; }
 
 	~planquadrat_t();
 
@@ -62,7 +58,7 @@ public:
 	* Setzen des "normalen" Bodens auf Kartenniveau
 	* @author V. Meyer
 	*/
-	void kartenboden_setzen(grund_t *bd, bool mit_besitzer);
+	void kartenboden_setzen(grund_t *bd);
 
 	/**
 	* Ersetzt Boden alt durch neu, löscht Boden alt.
@@ -89,15 +85,15 @@ public:
 	* @return NULL wenn Boden nicht gefunden
 	* @author Hj. Malthaner
 	*/
-	inline grund_t * gib_boden_in_hoehe(const sint16 z) const {
-		if(capacity==1) {
-			if(size>0  &&  data.one->gib_hoehe()==z) {
+	inline grund_t *gib_boden_in_hoehe(const sint16 z) const {
+		if(ground_size<=1) {
+			if(data.one  &&  data.one->gib_hoehe()==z) {
 				return data.one;
 			}
-			//assert(size==0  &&  data.one==NULL);
+			//assert(ground_size==0  &&  data.one==NULL);
 		}
 		else {
-			for(uint8 i=0;  i<size;  i++) {
+			for(uint8 i=0;  i<ground_size;  i++) {
 				if(data.some[i]->gib_hoehe()==z) {
 					return data.some[i];
 				}
@@ -111,28 +107,27 @@ public:
 	* @return NULL wenn boden nicht existiert
 	* @author Hansjörg Malthaner
 	*/
-	inline grund_t * gib_kartenboden() const { return (capacity==1) ? data.one : data.some[0]; }
+	inline grund_t *gib_kartenboden() const { return (ground_size<=1) ? data.one : data.some[0]; }
 
 	/**
 	* Rückegabe des Bodens, der das gegebene Objekt enthält, falls vorhanden.
 	* @return NULL wenn (this == NULL)
 	* @author V. Meyer
 	*/
-	grund_t * gib_boden_von_obj(ding_t *obj) const;
+	grund_t *gib_boden_von_obj(ding_t *obj) const;
 
 	/**
 	* Rückegabe des n-ten Bodens. Inlined weil sehr häufig aufgerufen!
 	* @return NULL wenn boden nicht existiert
 	* @author Hj. Malthaner
 	*/
-	grund_t * gib_boden_bei(const unsigned int idx) const { return (idx<size) ? (capacity==1 ? data.one : data.some[idx]) : NULL; }
+	inline grund_t *gib_boden_bei(const unsigned idx) const { return (idx<ground_size) ? (ground_size<=1 ? data.one : data.some[idx]) : NULL; }
 
 	/**
 	* @return Anzahl der Böden dieses Planquadrats
 	* @author Hj. Malthaner
 	*/
-	unsigned int gib_boden_count() const { return size; }
-
+	unsigned int gib_boden_count() const { return ground_size; }
 
 	/**
 	* konvertiert Land zu Wasser wenn unter Grundwasserniveau abgesenkt
@@ -157,8 +152,14 @@ public:
 	* @return NULL wenn keine Haltestelle, sonst Zeiger auf Haltestelle
 	* @author Hj. Malthaner
 	*/
-	const halthandle_t gib_halt() const {return halt;}
+	const halthandle_t gib_halt() const {return this_halt;}
 
+private:
+	// these functions are private helper functions for halt_list corrections
+	void halt_list_remove( halthandle_t halt );
+	void halt_list_insert_at( halthandle_t halt, uint8 pos );
+
+public:
 	/*
 	* The following three functions takes about 4 bytes of memory per tile but speed up passenger generation
 	* @author prissi
@@ -172,11 +173,14 @@ public:
 	*/
 	void remove_from_haltlist(karte_t *welt, halthandle_t halt);
 
+	bool is_connected(halthandle_t halt) const;
+
 	/**
 	* returns the internal array of halts
 	* @author prissi
 	*/
-	minivec_tpl<halthandle_t> & get_haltlist() { return halt_list; }
+	const halthandle_t *get_haltlist() const { return halt_list; }
+	const uint8 &get_haltlist_count() const { return halt_list_count; }
 
 	void rdwr(karte_t *welt, loadsave_t *file);
 

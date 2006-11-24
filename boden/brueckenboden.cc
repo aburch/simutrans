@@ -42,7 +42,7 @@ void brueckenboden_t::calc_bild()
 	else {
 		if(ist_karten_boden()) {
 			setze_bild( grund_besch_t::gib_ground_tile(slope,gib_hoehe() ) );
-			grund_t::calc_back_bild(gib_hoehe()/16,slope);
+			grund_t::calc_back_bild(gib_hoehe()/Z_TILE_STEP,slope);
 		}
 		else {
 			clear_back_bild();
@@ -79,7 +79,7 @@ brueckenboden_t::rdwr(loadsave_t *file)
 int brueckenboden_t::gib_weg_yoff() const
 {
 	if(ist_karten_boden() && weg_hang == 0) {
-		return 16;
+		return TILE_HEIGHT_STEP;
 	}
 	else {
 		return 0;

@@ -733,7 +733,7 @@ DBG_MESSAGE("vehikel_t::hop()","reverse dir at route index %d",route_index);
 		if(pos_next!=gib_pos()) {
 			fahrtrichtung = calc_richtung(pos_prev, pos_next.gib_2d(), dx, dy);
 		}
-		else if(welt->lookup(pos_next)->gib_halt().is_bound()) {
+		else if(welt->lookup(pos_next)->is_halt()) {
 			// allow diagonal stops at waypoints but avoid them on halts ...
 			fahrtrichtung = calc_richtung(pos_prev, pos_next.gib_2d(), dx, dy);
 		}
@@ -1357,7 +1357,7 @@ automobil_t::gib_kosten(const grund_t *gr,const uint32 max_speed) const
 bool automobil_t::ist_ziel(const grund_t *gr,const grund_t *) const
 {
 	//  just check, if we reached a free stop position of this halt
-	if(gr->gib_halt()==target_halt  &&  target_halt->is_reservable((grund_t *)gr,cnv->self)) {
+	if(gr->is_halt()  &&  gr->gib_halt()==target_halt  &&  target_halt->is_reservable((grund_t *)gr,cnv->self)) {
 //DBG_MESSAGE("is_target()","success at %i,%i",gr->gib_pos().x,gr->gib_pos().y);
 		return true;
 	}
@@ -1768,7 +1768,7 @@ waggon_t::ist_ziel(const grund_t *gr,const grund_t *prev_gr) const
 	// first check blocks, if we can go there
 	if(sch1->can_reserve(cnv->self)) {
 		//  just check, if we reached a free stop position of this halt
-		if(gr->gib_halt()==target_halt) {
+		if(gr->is_halt()  &&  gr->gib_halt()==target_halt) {
 			// now we must check the precessor ...
 			if(prev_gr!=NULL) {
 				const koord dir=gr->gib_pos().gib_2d()-prev_gr->gib_pos().gib_2d();
@@ -1993,7 +1993,7 @@ waggon_t::block_reserver(const route_t *route, uint16 start_index, int count, bo
 	if(next_signal_index==65535) {
 		// find out if stop or waypoint, waypoint: do not brake at waypoints
 		grund_t *gr=welt->lookup(route->position_bei(route->gib_max_n()));
-		return (gr  &&  gr->gib_halt().is_bound()) ? route->gib_max_n() : 65535;
+		return (gr  &&  gr->is_halt()) ? route->gib_max_n() : 65535;
 	}
 	return next_signal_index+1;
 }
@@ -2498,7 +2498,7 @@ aircraft_t::ist_weg_frei(int & restart_speed)
 		state = taxiing;
 	}
 
-	if(state==taxiing  &&  gr->gib_halt().is_bound()  &&  gr->suche_obj(ding_t::aircraft)) {
+	if(state==taxiing  &&  gr->is_halt()  &&  gr->suche_obj(ding_t::aircraft)) {
 		// the next step is a parking position. We do not enter, if occupied!
 		restart_speed = 0;
 		return false;
@@ -2516,8 +2516,8 @@ aircraft_t::betrete_feld()
 	vehikel_t::betrete_feld();
 
 	if((state==flying2  ||  state==flying)  &&  route_index+6u>=touchdown) {
-		const short landehoehe=height_scaling(cnv->get_route()->position_bei(touchdown).z)+16*(touchdown-route_index);
-		if(landehoehe<flughoehe) {
+		const short landehoehe=height_scaling(cnv->get_route()->position_bei(touchdown).z)+(touchdown-route_index);
+		if(landehoehe*TILE_HEIGHT_STEP/Z_TILE_STEP<flughoehe) {
 			state = landing;
 			target_height = height_scaling(cnv->get_route()->position_bei(touchdown).z);
 		}
@@ -2869,8 +2869,8 @@ int aircraft_t::calc_height()
 				if((weg==NULL  ||  weg->gib_besch()->gib_styp()!=1)  ||  cnv->gib_akt_speed()>kmh_to_speed(besch->gib_geschw())/3 ) {
 					state = flying;
 					current_friction = 16;
-					flughoehe = height_scaling(gib_pos().z);
-					target_height = flughoehe+48;
+					flughoehe = height_scaling(gib_pos().z)*TILE_HEIGHT_STEP/Z_TILE_STEP;
+					target_height = flughoehe+TILE_HEIGHT_STEP*3;
 				}
 			}
 			break;
@@ -2878,20 +2878,20 @@ int aircraft_t::calc_height()
 		case flying:
 		case flying2:
 		{
-			const sint16 h_next=height_scaling(pos_next.z);
-			const sint16 h_cur=height_scaling(gib_pos().z);
+			const sint16 h_next=height_scaling(pos_next.z)*TILE_HEIGHT_STEP/Z_TILE_STEP;
+			const sint16 h_cur=height_scaling(gib_pos().z)*TILE_HEIGHT_STEP/Z_TILE_STEP;
 
 			cnv->setze_akt_speed_soll(gib_speed());
 			setze_speed_limit(-1);
 
 			// did we have to change our flight height?
-			if(target_height-h_next>16*5) {
+			if(target_height-h_next>TILE_HEIGHT_STEP*5) {
 				// sinken
-				target_height -= 32;
+				target_height -= TILE_HEIGHT_STEP*2;
 			}
-			else if(target_height-h_next<32) {
+			else if(target_height-h_next<TILE_HEIGHT_STEP*2) {
 				// steigen
-				target_height += 32;
+				target_height += TILE_HEIGHT_STEP*2;
 			}
 			// now change flight level if required
 			if(flughoehe<target_height) {
@@ -2911,7 +2911,7 @@ int aircraft_t::calc_height()
 
 		case landing:
 		{
-			const sint16 h_cur=height_scaling(gib_pos().z);
+			const sint16 h_cur=height_scaling(gib_pos().z)*TILE_HEIGHT_STEP/Z_TILE_STEP;
 
 			setze_speed_limit(-1);
 			if(flughoehe>target_height) {
@@ -2932,8 +2932,6 @@ int aircraft_t::calc_height()
 	default:
 		// curve: higher friction
 		current_friction = (alte_fahrtrichtung != fahrtrichtung) ? 512 : 128;
-//		not needed, since these ways are currently only allowed on plain ground
-//		new_hoff = vehikel_t::calc_height();
 		break;
 	}
 	return new_hoff;

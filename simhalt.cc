@@ -104,21 +104,10 @@ haltestelle_t::gib_halt(karte_t *welt, const koord pos)
 		}
 		// no halt? => we do the water check
 		if(plan->gib_kartenboden()->ist_wasser()) {
-			const minivec_tpl<halthandle_t> &haltlist = welt->access(pos)->get_haltlist();
-#if 0
-			for( unsigned i=0;  i<haltlist.get_count();  i++  ) {
-				if(haltlist.get(i)->get_station_type()&dock) {
-					// ok, this is a ship stop
-					halt = haltlist[i];
-					break;
-				}
-			}
-#else
 			// may catch bus stops close to water ...
-			if(haltlist.get_count()>0) {
-				return haltlist[0];
+			if(plan->get_haltlist_count()>0) {
+				return plan->get_haltlist()[0];
 			}
-#endif
 		}
 	}
 	return halthandle_t();
@@ -223,10 +212,10 @@ DBG_MESSAGE("haltestelle_t::remove()", "removing building: cleanup");
 						gr->setze_text(NULL);
 						if(gr->gib_typ()==grund_t::fundament) {
 							uint8 new_slope = gr->gib_hoehe()==welt->min_hgt(k+pos.gib_2d()) ? 0 : welt->calc_natural_slope(k+pos.gib_2d());
-							welt->access(k+pos.gib_2d())->kartenboden_setzen(new boden_t(welt, koord3d(k+pos.gib_2d(),welt->min_hgt(k+pos.gib_2d())), new_slope), false);
+							welt->access(k+pos.gib_2d())->kartenboden_setzen(new boden_t(welt, koord3d(k+pos.gib_2d(),welt->min_hgt(k+pos.gib_2d())), new_slope) );
 						}
 						else if(welt->max_hgt(k+pos.gib_2d())<=welt->gib_grundwasser()) {
-							welt->access(k+pos.gib_2d())->kartenboden_setzen(new wasser_t(welt, k+pos.gib_2d()), false);
+							welt->access(k+pos.gib_2d())->kartenboden_setzen(new wasser_t(welt, k+pos.gib_2d()) );
 						}
 						else {
 							weg_t *weg = bd->gib_weg(road_wt);
@@ -504,8 +493,7 @@ void haltestelle_t::reroute_goods()
 			ware_t & ware = ware_iter.access_current();
 
 			// since also the factory halt list is added to the ground, we can use just this ...
-			const minivec_tpl <halthandle_t> &halt_list = welt->access(ware.gib_zielpos())->get_haltlist();
-			if(halt_list.is_contained(self)) {
+			if(welt->lookup(ware.gib_zielpos())->is_connected(self)) {
 				// we are already there!
 				if(warenbauer_t::ist_fabrik_ware(ware.gib_typ())) {
 					liefere_an_fabrik(ware);
@@ -740,10 +728,11 @@ haltestelle_t::suche_route(ware_t &ware, koord *next_to_ziel)
 	const koord ziel = ware.gib_zielpos();
 
 	// since also the factory halt list is added to the ground, we can use just this ...
-	const minivec_tpl <halthandle_t> &halt_list = welt->access(ziel)->get_haltlist();
+	const planquadrat_t *plan = welt->lookup(ziel);
+	const halthandle_t *halt_list = plan->get_haltlist();
 	// but we can only use a subset of these
-	minivec_tpl <halthandle_t> ziel_list (halt_list.get_count());
-	for( unsigned h=0;  h<halt_list.get_count();  h++ ) {
+	minivec_tpl <halthandle_t> ziel_list (plan->get_haltlist_count());
+	for( unsigned h=0;  h<plan->get_haltlist_count();  h++ ) {
 		halthandle_t halt = halt_list[h];
 		if(	halt->is_enabled(warentyp)  ) {
 			ziel_list.append( halt );
@@ -1003,7 +992,7 @@ haltestelle_t::add_grund(grund_t *gr)
 			}
 		}
 
-		assert(gr->gib_halt() == self);
+		assert(welt->lookup(pos)->gib_halt() == self  &&  gr->is_halt());
 		return true;
 	}
 	else {
@@ -1381,11 +1370,8 @@ dbg->warning("haltestelle_t::liefere_an()","%d %s delivered to %s have no longer
 //if(ware.gib_typ()!=warenbauer_t::passagiere  &&  ware.gib_typ()!=warenbauer_t::post)
 //DBG_MESSAGE("haltestelle_t::liefere_an()","%s: took %i %s",gib_name(), ware.menge, translator::translate(ware.gib_name()) );		// dann sind wir schon fertig;
 
-	// since also the factory halt list is added to the ground, we can use just this ...
-	const minivec_tpl <halthandle_t> &halt_list = welt->access(ware.gib_zielpos())->get_haltlist();
-
 	// did we arrived?
-	if(halt_list.is_contained(self)) {
+	if(welt->lookup(ware.gib_zielpos())->is_connected(self)) {
 		if(warenbauer_t::ist_fabrik_ware(ware.gib_typ())) {
 			// muss an fabrik geliefert werden
 			liefere_an_fabrik(ware);

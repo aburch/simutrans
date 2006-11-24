@@ -420,7 +420,7 @@ tunnelbauer_t::baue_einfahrt(karte_t *welt, spieler_t *sp, koord3d end, koord zv
 	weg_t *weg=alter_boden->gib_weg( besch->gib_waytype() );
 	// take care of everything on that tile ...
 	tunnel->take_obj_from( alter_boden );
-	welt->access(end.gib_2d())->kartenboden_setzen( tunnel, false );
+	welt->access(end.gib_2d())->kartenboden_setzen( tunnel );
 	if(weg) {
 		// has already a way
 		tunnel->weg_erweitern(besch->gib_waytype(), ribi);
@@ -538,7 +538,7 @@ tunnelbauer_t::remove(karte_t *welt, spieler_t *sp, koord3d start, waytype_t weg
 		grund_t *gr_new = new boden_t(welt, pos, gr->gib_grund_hang());
 		gr_new->setze_besitzer( sp );
 		gr_new->take_obj_from( gr );
-		welt->access(pos.gib_2d())->kartenboden_setzen(gr_new, false);
+		welt->access(pos.gib_2d())->kartenboden_setzen(gr_new );
 		gr_new->calc_bild();
 	}
 	return NULL;

@@ -32,7 +32,7 @@ fundament_t::fundament_t(karte_t *welt, koord3d pos, hang_t::typ hang ) : grund_
 	setze_bild( IMG_LEER );
 	if(hang) {
 		pos = gib_pos();
-		pos.z += 16;
+		pos.z += Z_TILE_STEP;
 		setze_pos( pos );
 	}
 	slope = (uint8)hang_t::flach;
@@ -65,7 +65,7 @@ fundament_t::calc_bild()
 	else {
 		grund_t::calc_bild();
 		setze_bild( grund_besch_t::gib_ground_tile(0,gib_hoehe()) );
-		grund_t::calc_back_bild(gib_hoehe()/16,0);
+		grund_t::calc_back_bild(gib_hoehe()/Z_TILE_STEP,0);
 	}
 }
 

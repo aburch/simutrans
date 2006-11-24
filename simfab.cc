@@ -764,8 +764,8 @@ void fabrik_t::verteile_waren(const uint32 produkt)
 	}
 
 	// not connected?
-	minivec_tpl<halthandle_t> &haltlist = welt->access(pos.gib_2d())->get_haltlist();
-	if(haltlist.get_count()==0) {
+	const planquadrat_t *plan = welt->lookup(pos.gib_2d());
+	if(plan->get_haltlist_count()==0) {
 		return;
 	}
 
@@ -774,7 +774,8 @@ void fabrik_t::verteile_waren(const uint32 produkt)
 	bool still_overflow = true;
 
 	// ok, first send everything away
-	for(  unsigned i=0;  i<haltlist.get_count();  i++  ) {
+	const halthandle_t *haltlist = plan->get_haltlist();
+	for(  unsigned i=0;  i<plan->get_haltlist_count();  i++  ) {
 		halthandle_t halt = haltlist[i];
 
 		// Über alle Ziele iterieren
@@ -931,7 +932,7 @@ void fabrik_t::recalc_factory_status()
 	char status_ein;
 	char status_aus;
 
-	int haltcount=welt->access(pos.gib_2d())->get_haltlist().get_count();
+	int haltcount=welt->lookup(pos.gib_2d())->get_haltlist_count();
 
 	// set bits for input
 	warenlager = 0;
@@ -1175,13 +1176,6 @@ void fabrik_t::info(cbuffer_t & buf)
       buf.append("%\n");
     }
   }
-#ifdef DEBUG
-	minivec_tpl<halthandle_t> &haltlist = welt->access(pos.gib_2d())->get_haltlist();
-	for(unsigned i=0;  i<haltlist.get_count();  i++  ) {
-	     buf.append("\n");
-		buf.append(haltlist[i]->gib_name());
-	}
-#endif
 }
 
 void fabrik_t::laden_abschliessen()

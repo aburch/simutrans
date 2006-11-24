@@ -94,7 +94,7 @@ gebaeude_t::gebaeude_t(karte_t *welt, koord3d pos,spieler_t *sp, const haus_tile
 
 	grund_t *gr=welt->lookup(pos);
 	if(gr  &&  gr->gib_weg_hang()!=gr->gib_grund_hang()) {
-		setze_yoff(-16);
+		setze_yoff(-TILE_HEIGHT_STEP);
 	}
 
 	if(gib_besitzer()) {

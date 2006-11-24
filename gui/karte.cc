@@ -244,7 +244,7 @@ reliefkarte_t::calc_relief_farbe(const grund_t *gr)
 #else
 						sint16 height = (gr->gib_grund_hang()%3);
 #endif
-						color = calc_hoehe_farbe((gr->gib_hoehe()>>4)+height, welt->gib_grundwasser()>>4);
+						color = calc_hoehe_farbe((gr->gib_hoehe()/Z_TILE_STEP)+height, welt->gib_grundwasser()/Z_TILE_STEP);
 					}
 				}
 				break;

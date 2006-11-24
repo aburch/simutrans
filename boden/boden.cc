@@ -93,7 +93,7 @@ boden_t::calc_bild()
 	}
 #ifdef COVER_TILES
 	else 	if(get_flag(grund_t::is_cover_tile)) {
-		grund_t::calc_back_bild(gib_hoehe()/16,0);
+		grund_t::calc_back_bild(gib_hoehe()/Z_TILE_STEP,0);
 
 		// this covers some other ground. MUST be flat!
 		strasse_t *weg = static_cast<strasse_t *>(gib_weg(road_wt));
@@ -128,7 +128,7 @@ dbg->fatal("boden_t::calc_bild()","covered tile not ground?!?");
 			setze_bild( grund_besch_t::gib_ground_tile(slope_this,gib_hoehe() ) );
 		}
 #endif
-		grund_t::calc_back_bild(gib_hoehe()/16,slope_this);
+		grund_t::calc_back_bild(gib_hoehe()/Z_TILE_STEP,slope_this);
 
 #ifdef COVER_TILES
 		if(welt->lookup(gib_pos().gib_2d())->gib_kartenboden()!=this) {

@@ -9,6 +9,7 @@
 
 #include "einstellungen.h"
 #include "umgebung.h"
+#include "../simconst.h"
 #include "../simtypes.h"
 #include "../simdebug.h"
 #include "loadsave.h"
@@ -38,7 +39,7 @@ einstellungen_t::einstellungen_t() :
 
 	show_pax = true;
 
-	grundwasser = -32;                          //25-Nov-01        Markus Weber    Added
+	grundwasser = -2*Z_TILE_STEP;            //25-Nov-01        Markus Weber    Added
 	for(  int i=0;  i<8;  i++ ) {
 		climate_borders[i] = umgebung_t::climate_borders[i];
 	}
@@ -135,7 +136,7 @@ einstellungen_t::rdwr(loadsave_t *file)
 		file->rdwr_long(show_pax, "\n");
 		dummy = grundwasser;
 		file->rdwr_long(dummy, "\n");
-		grundwasser = (sint16)dummy;
+		grundwasser = (sint16)(dummy/16)*Z_TILE_STEP;
 		file->rdwr_double(max_mountain_height, "\n");
 		file->rdwr_double(map_roughness, "\n");
 
@@ -161,9 +162,14 @@ einstellungen_t::rdwr(loadsave_t *file)
 		file->rdwr_long(scroll_multi, " ");
 		file->rdwr_long(verkehr_level, "\n");
 		file->rdwr_long(show_pax, "\n");
-		long dummy = grundwasser;
+		long dummy = grundwasser/Z_TILE_STEP;
 		file->rdwr_long(dummy, "\n");
-		grundwasser = (sint16)dummy;
+		if(file->get_version() < 99005) {
+			grundwasser = (sint16)dummy/16*Z_TILE_STEP;
+		}
+		else {
+			grundwasser = (sint16)dummy*Z_TILE_STEP;
+		}
 		file->rdwr_double(max_mountain_height, "\n");
 		file->rdwr_double(map_roughness, "\n");
 

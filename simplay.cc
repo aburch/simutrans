@@ -1749,7 +1749,7 @@ DBG_MESSAGE("spieler_t::baue_bahnhof()","try to build a train station of length 
 		ok &= (gr != NULL) &&
 				(gr->ist_natur() || gr->gib_typ() == grund_t::fundament) &&
 				gr->kann_alle_obj_entfernen(this)==NULL &&  gr->gib_weg_nr(1)==NULL  &&
-				gr->gib_weg_hang() == hang_t::flach  &&  !gr->gib_halt().is_bound();
+				gr->gib_weg_hang() == hang_t::flach  &&  !gr->is_halt();
 
 		if(ok) {
 			// remove city building here
@@ -1769,7 +1769,7 @@ DBG_MESSAGE("spieler_t::baue_bahnhof()","try to build a train station of length 
 					gr->hat_weg(track_wt) &&
 					gr->gib_weg_ribi(track_wt) == ribi_t::doppelt(ribi) &&
 					gr->kann_alle_obj_entfernen(this) == NULL &&  gr->gib_weg_nr(1)==NULL  &&
-					gr->gib_weg_hang()== hang_t::flach  &&  !gr->gib_halt().is_bound();
+					gr->gib_weg_hang()== hang_t::flach  &&  !gr->is_halt();
 			if(ok) {
 DBG_MESSAGE("spieler_t::baue_bahnhof","go back one segment");
 				// remove city building here
@@ -2157,7 +2157,7 @@ spieler_t::built_hub( const koord pos, int radius )
 
 				// flat, solid, and ours
 				if(!gr->ist_wasser()  &&  gr->gib_grund_hang()==hang_t::flach  &&  (gr->gib_besitzer()==NULL || gr->gib_besitzer()==this)  ) {
-					if(gr->gib_halt().is_bound()) {
+					if(gr->is_halt()) {
 						// ok, one halt belongs already to us ...
       					return try_pos;
 					}

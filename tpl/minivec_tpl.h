@@ -13,6 +13,7 @@
 #include <stdlib.h>
 
 #include "../simdebug.h"
+#include "../simtypes.h"
 
 /**
  * A template class for a simple vector type.
@@ -31,14 +32,14 @@ protected:
      * Capacity.
      * @author Hj. Malthaner
      */
-    unsigned char size;
+    uint8 size;
 
 
     /**
      * Number of elements in vector.
      * @author Hj. Malthaner
      */
-    unsigned char count;
+    uint8 count;
 
 public:
 
@@ -47,7 +48,7 @@ public:
      * @param size The capacity of the new vector
      * @author Hj. Malthaner
      */
-	minivec_tpl(unsigned int size)
+	minivec_tpl(uint8 size)
 	{
 		this->size  = size;
 		count = 0;
@@ -87,7 +88,7 @@ public:
      *
      * @author prissi
      */
-	bool resize(unsigned int new_size)
+	bool resize(unsigned new_size)
 	{
 		if(new_size>255) {
 			dbg->fatal("minivec_tpl<T>::resize()", "new size %i too large (>255).");
@@ -105,7 +106,7 @@ public:
 		T *new_data = new T[new_size];
 
 		if(size>0  &&  data) {
-			for(unsigned int i = 0; i < count; i++) {
+			for(uint8 i = 0; i < count; i++) {
 				new_data[i] = data[i];
 			}
 			delete [] data;
@@ -122,7 +123,7 @@ public:
      */
     bool is_contained(T elem) const
     {
-	for(unsigned int i=0; i<count; i++) {
+	for(uint8 i=0; i<count; i++) {
 	    if(data[i] == elem) {
 		return true;
 	    }
@@ -189,7 +190,7 @@ public:
 	*/
 	bool remove(T elem)
 	{
-		unsigned int i,j;
+		uint8 i,j;
 		for(i=j=0;  i<count;  i++,j++  ) {
 			if(data[i] == elem) {
 				// skip this one
@@ -210,7 +211,7 @@ public:
 	* insets data at a certain pos
 	* @author prissi
 	*/
-	bool insert_at(unsigned int pos,T elem)
+	bool insert_at(uint8 pos,T elem)
 	{
 		if(  pos<count  ) {
 			if(count<size  ||  resize( count+1 )) {
@@ -240,10 +241,10 @@ public:
 	* removes element at position
 	* @author prissi
 	*/
-	bool remove_at(unsigned int pos)
+	bool remove_at(uint8 pos)
 	{
 		if(  pos<size  &&  pos<count  ) {
-			unsigned int i,j;
+			uint8 i,j;
 			for(i=pos, j=pos+1;  j<count;  i++,j++  ) {
 				data[i] = data[j];
 			}
@@ -254,25 +255,25 @@ public:
 	}
 
 
-		T& operator [](unsigned int i) const
-		{
-			if (i >= count) dbg->fatal("minivec_tpl<T>[]","index out of bounds: %i not in 0..%d", i, count - 1);
-			return data[i];
-		}
+	T& operator [](uint8 i) const
+	{
+		if (i >= count) dbg->fatal("minivec_tpl<T>[]","index out of bounds: %i not in 0..%d", i, count - 1);
+		return data[i];
+	}
 
 
     /**
      * Gets the number of elements in the vector.
      * @author Hj. Malthaner
      */
-    unsigned int get_count() const { return count; }
+    uint8 get_count() const { return count; }
 
 
     /**
      * Gets the capacity.
      * @author Hj. Malthaner
      */
-    unsigned int get_size() const { return size; }
-};
+    uint8 get_size() const { return size; }
+} GCC_PACKED;
 
 #endif

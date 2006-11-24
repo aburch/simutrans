@@ -1679,7 +1679,7 @@ void convoi_t::calc_gewinn(bool in_station)
 
 	for(unsigned i=0; i<anz_vehikel; i++) {
 		const vehikel_t* v = fahr[i];
-		if(!in_station  ||  welt->lookup(v->gib_pos())->gib_halt().is_bound()) {
+		if(!in_station  ||  welt->lookup(v->gib_pos())->is_halt()) {
 			// in a station, calc only for vehicles which are unloaded
 			gewinn += v->calc_gewinn(last_stop_pos, head->gib_pos());
 		}
@@ -1703,25 +1703,37 @@ void convoi_t::calc_gewinn(bool in_station)
  *
  * V.Meyer: ladegrad is now stored in the object (not returned)
  */
-void convoi_t::hat_gehalten(koord k, halthandle_t /*halt*/)
+void convoi_t::hat_gehalten(koord k, halthandle_t halt)
 {
-	// entladen und beladen
-	for(unsigned i=0; i<anz_vehikel; i++) {
+	grund_t *gr=welt->lookup(fahr[0]->gib_pos());
 
-		// just load/unload vehicles in stations
-		// exception: ships will unload/load every vehicle
-		vehikel_t* v = fahr[i];
-		const halthandle_t& halt = haltestelle_t::gib_halt(welt, v->gib_waytype() == water_wt ? fahr[0]->gib_pos() : v->gib_pos());
-
-		if(halt.is_bound()) {
-			// Hajo: die waren wissen wohin sie wollen
-			// zuerst alle die hier aus/umsteigen wollen ausladen
-			freight_info_resort |= v->entladen(k, halt);
-
-			// Hajo: danach neue waren einladen
-			freight_info_resort |= v->beladen(k, halt);
+	int station_lenght=0;
+	if(gr->ist_wasser()) {
+		// habour has any size
+		station_lenght = 24*16;
+	}
+	else {
+		// calculate real station length
+		koord zv = koord( ribi_t::rueckwaerts(fahr[0]->gib_fahrtrichtung()) );
+		koord pos = fahr[0]->gib_pos().gib_2d();
+		const planquadrat_t *plan=welt->lookup(pos);
+		while(plan  &&  plan->gib_halt()==halt) {
+			station_lenght += 16;
+			pos += zv;
+			plan = welt->lookup(pos);
 		}
 	}
+
+	// only load vehicles in station
+	for(unsigned i=0; i<anz_vehikel  &&  station_lenght>0; i++) {
+		vehikel_t* v = fahr[i];
+
+		freight_info_resort |= v->entladen(k, halt);
+		freight_info_resort |= v->beladen(k, halt);
+
+		station_lenght -= v->gib_besch()->get_length();
+	}
+
 	// any loading went on?
 	if(freight_info_resort) {
 		calc_loading();

@@ -475,7 +475,7 @@ bool
 dingliste_t::loesche_alle(spieler_t *sp, uint8 offset)
 {
 	if(top<=offset) {
-		return true;
+		return false;
 	}
 
 	// something to delete?
