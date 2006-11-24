@@ -101,7 +101,7 @@ static bild_besch_t* create_textured_tile(const bild_besch_t* bild_lightmap, con
 			x += *dest;
 		} while(  (*dest++)!=0 );
 	}
-	assert(dest - (const PIXVAL*)bild_dest->gib_daten() == bild_dest->get_pic()->len);
+	assert(dest - (const PIXVAL*)bild_dest->gib_daten() == (ptrdiff_t)bild_dest->get_pic()->len);
 	return bild_dest;
 }
 

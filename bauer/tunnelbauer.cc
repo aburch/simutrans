@@ -260,7 +260,7 @@ DBG_MESSAGE("tunnelbauer_t::baue()", "called on %d,%d", pos.x, pos.y);
 		if(start==koord3d::invalid) {
 			const planquadrat_t *plan=welt->lookup(pos);
 			grund_t *gr=NULL;
-			for(int i=0;  i<plan->gib_boden_count();  i++  ) {
+			for (uint i = 0; i < plan->gib_boden_count(); i++) {
 				if(plan->gib_boden_bei(i)->gib_typ()==grund_t::tunnelboden) {
 					if(sp->check_owner(plan->gib_boden_bei(i)->gib_besitzer())) {
 						gr = plan->gib_boden_bei(i);
@@ -282,7 +282,7 @@ DBG_MESSAGE("tunnelbauer_t::baue()", "called on %d,%d", pos.x, pos.y);
 			// we have a start, now just try to built it ...
 			delete wkz_tunnelbau_bauer;
 
-			int bt=0;
+			int bt;
 			switch(besch->gib_waytype()) {
 				case track_wt:
 					bt = (wegbauer_t::schiene|wegbauer_t::tunnel_flag);
@@ -296,6 +296,7 @@ DBG_MESSAGE("tunnelbauer_t::baue()", "called on %d,%d", pos.x, pos.y);
 				case water_wt:
 					bt = (wegbauer_t::wasser|wegbauer_t::tunnel_flag);
 					break;
+				default: bt = 0; break;
 			}
 			weg_t *w=weg_t::alloc(besch->gib_waytype());
 			const weg_besch_t *wb=w->gib_besch();

@@ -454,8 +454,7 @@ bool brueckenbauer_t::baue_bruecke(karte_t *welt, spieler_t *sp,
 	return true;
 }
 
-void
-brueckenbauer_t::baue_auffahrt(karte_t *welt, spieler_t *sp, koord3d end, koord zv, const bruecke_besch_t *besch, const weg_besch_t *weg_besch)
+void brueckenbauer_t::baue_auffahrt(karte_t* welt, spieler_t* sp, koord3d end, koord zv, const bruecke_besch_t* besch, const weg_besch_t*)
 {
 	grund_t *alter_boden = welt->lookup(end);
 	ribi_t::ribi ribi_neu;

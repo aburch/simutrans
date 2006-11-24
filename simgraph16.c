@@ -1155,7 +1155,7 @@ void register_image(struct bild_t* bild)
 		const PIXVAL *src = image->base_data;
 
 		do {
-			*src++; // offset of first start
+			src++; // offset of first start
 			do {
 				PIXVAL runlen;
 

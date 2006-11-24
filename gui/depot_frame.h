@@ -187,7 +187,7 @@ private:
 	void add_to_vehicle_list(const vehikel_besch_t *info);
 
 	// for convoi image
-	void image_from_convoi_list(int nr);
+	void image_from_convoi_list(uint nr);
 
 	sint32 find_oldest_newest(const vehikel_besch_t *besch, bool old);
 

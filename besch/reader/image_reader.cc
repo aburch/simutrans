@@ -63,7 +63,7 @@ obj_besch_t *  image_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 	uint16* dest = besch->pic.data;
 	p = besch_buf+12;
 	if (besch->pic.h > 0) {
-		for (int i = 0; i < besch->pic.len; i++) {
+		for (uint i = 0; i < besch->pic.len; i++) {
 			*dest++ = decode_uint16(p);
 		}
 //		DBG_DEBUG("bild_besch_t::read_node()","size %d, struct+2*len=%d, read=%d",node.size+4,sizeof(bild_besch_t)+2*besch->len,(int)(p-besch_buf));

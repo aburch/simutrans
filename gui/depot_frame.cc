@@ -856,8 +856,7 @@ DBG_MESSAGE("depot_frame_t::image_from_storage_list()","built nr %i", nr);
 
 
 
-void
-depot_frame_t::image_from_convoi_list(int nr)
+void depot_frame_t::image_from_convoi_list(uint nr)
 {
 	const convoihandle_t cnv = depot->get_convoi(icnv);
 

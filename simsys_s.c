@@ -28,7 +28,7 @@
 // this is equivalent on 16 bpp and much slower on 32 bpp
 //#define USE_HW
 
-static char hourglass_cursor[]= {
+static Uint8 hourglass_cursor[] = {
 	0x3F, 0xFE, //   *************
 	0x30, 0x06, //   **         **
 	0x3F, 0xFE, //   *************
@@ -53,7 +53,7 @@ static char hourglass_cursor[]= {
 	0x3F, 0xFE  //   *************
 };
 
-static char hourglass_cursor_mask[]= {
+static Uint8 hourglass_cursor_mask[] = {
 	0x3F, 0xFE, //   *************
 	0x3F, 0xFE, //   *************
 	0x3F, 0xFE, //   *************

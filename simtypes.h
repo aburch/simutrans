@@ -77,6 +77,7 @@ inline static int max(const int a, const int b)
 	typedef enum bool { false, true } bool;
 #endif
 
+typedef unsigned int         uint;
 typedef signed char          sint8;
 typedef unsigned char        uint8;
 typedef signed short        sint16;
