@@ -73,7 +73,7 @@ public:
 	};
 
 	// just to calculate the offset for skipping the ways ...
-	static uint8 grund_t::offsets[4];
+	static uint8 offsets[4];
 
 protected:
 	/**

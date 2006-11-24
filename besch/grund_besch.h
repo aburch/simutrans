@@ -40,16 +40,16 @@ class grund_besch_t : public obj_besch_std_name_t {
 private:
 	static karte_t *welt;
 
-	static image_id grund_besch_t::image_offset;
+	static image_id image_offset;
 
 public:
 	// only these textures need external access
-	static const grund_besch_t *grund_besch_t::fundament;
-	static const grund_besch_t *grund_besch_t::slopes;
-	static const grund_besch_t *grund_besch_t::fences;
-	static const grund_besch_t *grund_besch_t::marker;
-	static const grund_besch_t *grund_besch_t::borders;
-	static const grund_besch_t *grund_besch_t::ausserhalb;
+	static const grund_besch_t *fundament;
+	static const grund_besch_t *slopes;
+	static const grund_besch_t *fences;
+	static const grund_besch_t *marker;
+	static const grund_besch_t *borders;
+	static const grund_besch_t *ausserhalb;
 
 	static const char *get_climate_name_from_bit( enum climate n );
 
