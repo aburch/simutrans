@@ -423,7 +423,7 @@ int translator::get_language_iso(const char *iso)
 }
 
 
-void translator::set_language(char *iso)
+void translator::set_language(const char* iso)
 {
 	for(int i=0; i<single_instance->lang_count; i++) {
 		const char *iso_base = get_language_name_iso_base(i);
