@@ -45,7 +45,7 @@ extern "C" void intr_disable();
 void interrupt_force();
 
 void interrupt_check();
-void interrupt_check(char *caller_info);
+void interrupt_check(const char* caller_info);
 
 // standard version
 #define INT_CHECK(info) interrupt_check();

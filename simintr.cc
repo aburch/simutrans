@@ -110,8 +110,7 @@ interrupt_check()
 
 
 // debug version with caller information
-void
-interrupt_check(char *caller_info)
+void interrupt_check(const char* caller_info)
 {
 	static const char * last_caller = "program start";
 	static long last_call_time = 0;
