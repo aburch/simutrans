@@ -10,8 +10,6 @@
 #ifndef simplan_h
 #define simplan_h
 
-#include "tpl/minivec_tpl.h"
-#include "tpl/microarray_tpl.h"
 #include "halthandle_t.h"
 #include "boden/grund.h"
 
