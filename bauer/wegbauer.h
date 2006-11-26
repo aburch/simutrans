@@ -140,7 +140,7 @@ private:
 
 	vector_tpl<koord3d> route;
 
-	inline const koord3d position_bei(unsigned i) const { return route.get(i); }
+	koord3d position_bei(unsigned i) const { return route[i]; }
 
 	// allowed owner?
 	bool check_owner( const spieler_t *sp1, const spieler_t *sp2 );
@@ -184,7 +184,7 @@ private:
 	void baue_leitung();
 
 public:
-	koord gib_route_bei(int i) const { return route.at(i).gib_2d(); }
+	koord gib_route_bei(int i) const { return route[i].gib_2d(); }
 
 	int n, max_n;
 

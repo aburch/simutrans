@@ -94,7 +94,7 @@ void halt_detail_t::halt_detail_info(cbuffer_t & buf)
 	const vector_tpl<ware_t>& eingang = fab->gib_eingang();
 
 	for (uint32 i = 0; i < eingang.get_count(); i++) {
-		const ware_besch_t* ware = eingang.get(i).gib_typ();
+		const ware_besch_t* ware = eingang[i].gib_typ();
 
 	    if(!nimmt_an.contains(ware)) {
 		nimmt_an.append(ware);
@@ -136,7 +136,7 @@ void halt_detail_t::halt_detail_info(cbuffer_t & buf)
 
       for (unsigned int i = 0; i<halt->registered_lines.get_count(); i++) {
 	buf.append(" ");
-	buf.append(halt->registered_lines.at(i)->get_name());
+				buf.append(halt->registered_lines[i]->get_name());
 	buf.append("\n");
       }
     }

@@ -61,7 +61,7 @@ void curiositylist_stats_t::get_unique_attractions(const curiositylist::sort_mod
 	for (unsigned int j=0; j<attractions.get_count(); ++j) {
 	    if (sortby == curiositylist::by_name) {
 		const char *token = translator::translate(geb->gib_tile()->gib_besch()->gib_name());
-		const char *check_token = translator::translate(attractions.at(j)->gib_tile()->gib_besch()->gib_name());
+		const char* check_token = translator::translate(attractions[j]->gib_tile()->gib_besch()->gib_name());
 
 		if (sortreverse)
 		    append = STRICMP(token,check_token)<0;
@@ -70,7 +70,7 @@ void curiositylist_stats_t::get_unique_attractions(const curiositylist::sort_mod
 	    }
 	    else if (sortby == curiositylist::by_paxlevel) {
 		const int paxlevel = geb->gib_passagier_level();
-		const int check_paxlevel = attractions.at(j)->gib_passagier_level();
+		const int check_paxlevel = attractions[j]->gib_passagier_level();
 
 		if (sortreverse)
 		    append = (paxlevel < check_paxlevel);
@@ -107,7 +107,7 @@ void curiositylist_stats_t::infowin_event(const event_t * ev)
 		return;
 	}
 
-	gebaeude_t * geb = attractions.at(line);
+	gebaeude_t* geb = attractions[line];
 	if (geb) {
 		if (IS_LEFTRELEASE(ev)) {
 			geb->zeige_info();
@@ -134,7 +134,7 @@ void curiositylist_stats_t::zeichnen(koord offset)
 	int yoff = offset.y;
 
 	for (unsigned int i=0; i<attractions.get_count()  &&  yoff<end; i++) {
-		const gebaeude_t *geb = attractions.get(i);
+		const gebaeude_t* geb = attractions[i];
 
 		int xoff = offset.x;
 

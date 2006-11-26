@@ -84,7 +84,7 @@ public:
 	void * operator new(size_t s);
 	void operator delete(void *p);
 
-	const baum_besch_t *gib_besch() const { return baum_typen.get(baumtype); }
+	const baum_besch_t* gib_besch() const { return baum_typen[baumtype]; }
 
 	// static functions to handle trees
 	static bool plant_tree_on_coordinate(karte_t *welt, koord pos, const uint8 maximum_count);

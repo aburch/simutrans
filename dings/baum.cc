@@ -58,7 +58,7 @@ int baum_t::gib_anzahl_besch(climate cl)
 {
 	uint16 total_number=0;
 	for( unsigned i=0;  i<baum_typen.get_count();  i++  ) {
-		if(baum_typen.get(i)->is_allowed_climate(cl)) {
+		if (baum_typen[i]->is_allowed_climate(cl)) {
 			total_number ++;
 		}
 	}
@@ -214,8 +214,8 @@ baum_t::random_tree_for_climate(climate cl)
 	int weight = 0;
 
 	for( unsigned i=0;  i<baum_typen.get_count();  i++  ) {
-		if(baum_typen.get(i)->is_allowed_climate(cl)) {
-			weight += baum_typen.get(i)->gib_distribution_weight();
+		if (baum_typen[i]->is_allowed_climate(cl)) {
+			weight += baum_typen[i]->gib_distribution_weight();
 		}
 		weights.append(weight);
 	}
@@ -225,7 +225,7 @@ baum_t::random_tree_for_climate(climate cl)
 		const int w=simrand(weight);
 		weight = 0;
 		for( unsigned i=0; i<baum_typen.get_count();  i++  ) {
-			weight += weights.get(i);
+			weight += weights[i];
 			if(weight>w) {
 				return i;
 			}

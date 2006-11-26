@@ -224,7 +224,7 @@ void convoi_frame_t::display_list(void)
 	unsigned i;
 
 	for(i=0;  i<count;  i++ ) {
-		convoihandle_t cnv = welt->get_convoi_array().get(i);
+		convoihandle_t cnv = welt->get_convoi_array()[i];
 		if(cnv->gib_besitzer() == owner && passes_filter(cnv)) {
 			a[n++] = cnv;
 		}

@@ -525,7 +525,7 @@ DBG_MESSAGE("karte_t::destroy()", "destroying world");
 
 	// alle convois aufräumen
 	while(convoi_array.get_count() > 0) {
-		convoihandle_t cnv = convoi_array.at(convoi_array.get_count()-1);
+		convoihandle_t cnv = convoi_array[convoi_array.get_count() - 1];
 		delete cnv.get_rep();	// since the convoi unbinds himself
 	}
 	convoi_array.clear();
@@ -790,7 +790,7 @@ DBG_DEBUG("karte_t::init()","prepare cities");
 		const int max_display_progress=16+einstellungen->gib_anzahl_staedte()*4+einstellungen->gib_land_industry_chains()+einstellungen->gib_city_industry_chains();
 
 		// Ansicht auf erste Stadt zentrieren
-		setze_ij_off(koord3d(pos->at(0),min_hgt(pos->at(0))));
+		setze_ij_off(koord3d((*pos)[0], min_hgt((*pos)[0])));
 
 		for(i=0; i<einstellungen->gib_anzahl_staedte(); i++) {
 
@@ -799,7 +799,7 @@ DBG_DEBUG("karte_t::init()","prepare cities");
 
 			int current_citicens = (2500l * einstellungen->gib_mittlere_einwohnerzahl()) /(simrand(20000)+100);
 
-			stadt_t *s = new stadt_t(this, spieler[1], pos->at(i), current_citicens );
+			stadt_t* s = new stadt_t(this, spieler[1], (*pos)[i], current_citicens);
 DBG_DEBUG("karte_t::init()","Erzeuge stadt %i with %ld inhabitants",i,(s->get_city_history_month())[HIST_CITICENS] );
 			stadt->append( s, current_citicens, 64 );
 		}
@@ -836,7 +836,7 @@ DBG_DEBUG("karte_t::init()","Erzeuge stadt %i with %ld inhabitants",i,(s->get_ci
 
 		// Hajo: search for road offset
 		koord roff (0,1);
-		if(!lookup(pos->at(0)+roff)->gib_kartenboden()->hat_weg(road_wt)) {
+		if (!lookup((*pos)[0] + roff)->gib_kartenboden()->hat_weg(road_wt)) {
 			roff = koord(0,2);
 		}
 
@@ -846,8 +846,8 @@ DBG_DEBUG("karte_t::init()","Erzeuge stadt %i with %ld inhabitants",i,(s->get_ci
 
 		for(i=0; i<einstellungen->gib_anzahl_staedte(); i++) {
 			for(int j=i+1; j<einstellungen->gib_anzahl_staedte(); j++) {
-				const koord k1 = pos->at(i) + roff;
-				const koord k2 = pos->at(j) + roff;
+				const koord k1 = (*pos)[i] + roff;
+				const koord k2 = (*pos)[j] + roff;
 				const koord diff = k1-k2;
 				const int d = diff.x*diff.x + diff.y*diff.y;
 
@@ -1697,7 +1697,7 @@ karte_t::neuer_monat()
 //	DBG_MESSAGE("karte_t::neuer_monat()","convois");
 	// hsiegeln - call new month for convois
 	for(unsigned i=0;  i<convoi_array.get_count();  i++ ) {
-		convoihandle_t cnv = convoi_array.at(i);
+		convoihandle_t cnv = convoi_array[i];
 		cnv->new_month();
 	}
 
@@ -1870,7 +1870,7 @@ DBG_MESSAGE("karte_t::neues_jahr()","Year %d has started", letztes_jahr);
 	message_t::get_instance()->add_message(buf,koord::invalid,message_t::general,COL_BLACK,skinverwaltung_t::neujahrsymbol->gib_bild_nr(0));
 
 	for(unsigned i=0;  i<convoi_array.get_count();  i++ ) {
-		convoihandle_t cnv = convoi_array.at(i);
+		convoihandle_t cnv = convoi_array[i];
 		cnv->neues_jahr();
 	}
 
@@ -1928,7 +1928,7 @@ void karte_t::step(const long delta_t)
 		// the convois goes alternating up and down to avoid a preferred
 		// order and loading only of the train highest in the game
 		for(unsigned i=0; i<convoi_array.get_count();  i++) {
-			convoihandle_t cnv=convoi_array.get(i);
+			convoihandle_t cnv = convoi_array[i];
 			cnv->step();
 			if((i&7)==0) {
 				INT_CHECK("simworld 1947");
@@ -2280,7 +2280,7 @@ DBG_MESSAGE("karte_t::speichern(loadsave_t *file)", "saved fabs");
 
 	for(unsigned i=0;  i<convoi_array.get_count();  i++ ) {
 		// one MUST NOT call INT_CHECK here or else the convoi will be broken during reloading!
-		convoihandle_t cnv = convoi_array.at(i);
+		convoihandle_t cnv = convoi_array[i];
 		cnv->rdwr(file);
 	}
 	if(silent) {
@@ -2632,7 +2632,7 @@ DBG_MESSAGE("karte_t::laden()", "%d ways loaded",weg_t::gib_alle_wege().count())
 
 	// assing lines and other stuff for convois
 	for(unsigned i=0;  i<convoi_array.get_count();  i++ ) {
-		convoihandle_t cnv = convoi_array.at(i);
+		convoihandle_t cnv = convoi_array[i];
 		cnv->laden_abschliessen();
 	}
 

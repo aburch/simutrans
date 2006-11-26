@@ -143,20 +143,10 @@ template<class T> class vector_tpl
 			return false;
 		}
 
-		/** Gets the element at position i */
-		const T& get(uint32 i) const
+		T& operator [](uint i) const
 		{
 			if (i >= count) {
 				dbg->fatal("vector_tpl<T>::get()", "index out of bounds: %i not in 0..%d", i, count - 1);
-			}
-			return data[i];
-		}
-
-		/** Accesses the element at position i */
-		T& at(uint32 i) const
-		{
-			if (i >= count) {
-				dbg->fatal("vector_tpl<T>::at()", "index out of bounds: %i not in 0..%d\n", i, count - 1);
 			}
 			return data[i];
 		}

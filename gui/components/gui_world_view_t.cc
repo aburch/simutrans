@@ -104,8 +104,8 @@ world_view_t::zeichnen(koord offset)
 		{
 			// display grounds
 			for(uint32 i=0; i<offsets.get_count(); i++) {
-				const koord k = here + offsets.get(i) + koord(y_offset,y_offset);
-				const sint16 off_x = (((offsets.get(i).x-offsets.get(i).y)*32)*raster)/64+display_off.x;
+				const koord k = here + offsets[i] + koord(y_offset, y_offset);
+				const sint16 off_x = (offsets[i].x - offsets[i].y) * 32 * raster / 64 + display_off.x;
 
 				if(off_x+raster<0  ||  off_x>gr.x) {
 					continue;
@@ -113,7 +113,7 @@ world_view_t::zeichnen(koord offset)
 
 				plan = welt->lookup(k);
 				if(plan  &&  plan->gib_kartenboden()) {
-					const sint16 yypos = display_off.y + ((offsets.get(i).y+offsets.get(i).x)*16*raster)/64 - tile_raster_scale_y( plan->gib_kartenboden()->gib_hoehe()*TILE_HEIGHT_STEP/Z_TILE_STEP, raster);
+					const sint16 yypos = display_off.y + (offsets[i].y + offsets[i].x) * 16 * raster / 64 - tile_raster_scale_y(plan->gib_kartenboden()->gib_hoehe() * TILE_HEIGHT_STEP / Z_TILE_STEP, raster);
 					if(yypos+(raster/4)>gr.y) {
 						// enough with grounds ...
 						break;
@@ -126,8 +126,8 @@ world_view_t::zeichnen(koord offset)
 		}
 		// display things
 		for(uint32 i=0; i<offsets.get_count(); i++) {
-			const koord k = here + offsets.get(i) + koord(y_offset,y_offset);
-			const sint16 off_x = (((offsets.get(i).x-offsets.get(i).y)*32)*raster)/64+display_off.x;
+			const koord k = here + offsets[i] + koord(y_offset, y_offset);
+			const sint16 off_x = (offsets[i].x - offsets[i].y) * 32 * raster / 64 + display_off.x;
 
 			if(off_x+raster<0  ||  off_x>gr.x) {
 				continue;
@@ -135,7 +135,7 @@ world_view_t::zeichnen(koord offset)
 
 			plan = welt->lookup(k);
 			if(plan  &&  plan->gib_kartenboden()) {
-				const sint16 yypos = display_off.y + tile_raster_scale_x((offsets.get(i).y+offsets.get(i).x)*16,raster) - tile_raster_scale_y( plan->gib_kartenboden()->gib_hoehe()*TILE_HEIGHT_STEP/Z_TILE_STEP, raster);
+				const sint16 yypos = display_off.y + tile_raster_scale_x((offsets[i].y + offsets[i].x) * 16, raster) - tile_raster_scale_y(plan->gib_kartenboden()->gib_hoehe() * TILE_HEIGHT_STEP / Z_TILE_STEP, raster);
 				if(yypos-(raster*2)<gr.y  &&  yypos+raster>=0) {
 					plan->display_dinge(pos.x+off_x,pos.y+yypos,raster,false);
 				}

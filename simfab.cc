@@ -335,9 +335,9 @@ DBG_DEBUG("fabrik_t::rdwr()","loading factory '%s'",s);
 		const char *typ = NULL;
 
 		if(file->is_saving()) {
-			typ = eingang.at(i).gib_typ()->gib_name();
-			dummy.menge = eingang.at(i).menge << (old_precision_bits - precision_bits);
-			dummy.max   = eingang.at(i).max   << (old_precision_bits - precision_bits);
+			typ = eingang[i].gib_typ()->gib_name();
+			dummy.menge = eingang[i].menge << (old_precision_bits - precision_bits);
+			dummy.max   = eingang[i].max   << (old_precision_bits - precision_bits);
 		}
 
 		file->rdwr_delim("Ein: ");
@@ -370,9 +370,9 @@ DBG_DEBUG("fabrik_t::rdwr()","loading factory '%s'",s);
 		int ab_letzt;
 
 		if(file->is_saving()) {
-			typ = ausgang.at(i).gib_typ()->gib_name();
-			dummy.menge = ausgang.at(i).menge << (old_precision_bits - precision_bits);
-			dummy.max   = ausgang.at(i).max   << (old_precision_bits - precision_bits);
+			typ = ausgang[i].gib_typ()->gib_name();
+			dummy.menge = ausgang[i].menge << (old_precision_bits - precision_bits);
+			dummy.max   = ausgang[i].max   << (old_precision_bits - precision_bits);
 			ab_sum   = abgabe_sum[i];
 			ab_letzt = abgabe_letzt[i];
 		}
@@ -440,9 +440,8 @@ DBG_DEBUG("fabrik_t::rdwr()","correction of production by %i",k.x*k.y);
 		}
 	}
 	else {
-		koord k;
 		for(int i=0; i<anz_lieferziele; i++) {
-			k = lieferziele.get(i);
+			koord k = lieferziele[i];
 			k.rdwr(file);
 		}
 	}
@@ -490,8 +489,8 @@ uint32 fabrik_t::produktion(const uint32 produkt) const
 	if (ausgang.get_count() > produkt) {
 		// wenn das lager voller wird, produziert eine Fabrik weniger pro step
 
-		const uint32 maxi = ausgang.get(produkt).max;
-		const uint32 actu = ausgang.get(produkt).menge;
+		const uint32 maxi = ausgang[produkt].max;
+		const uint32 actu = ausgang[produkt].menge;
 
 		if(actu<maxi) {
 			if(menge>(0x7FFFFFFFu/maxi)) {
@@ -527,8 +526,8 @@ fabrik_t::vorrat_an(const ware_besch_t *typ)
     int menge = -1;
 
 	for (uint32 index = 0; index < ausgang.get_count(); index++) {
-		if (typ == ausgang.at(index).gib_typ()) {
-			menge = ausgang.at(index).menge >> precision_bits;
+		if (typ == ausgang[index].gib_typ()) {
+			menge = ausgang[index].menge >> precision_bits;
 	    break;
 	}
     }
@@ -540,12 +539,12 @@ int
 fabrik_t::hole_ab(const ware_besch_t *typ, int menge)
 {
 	for (uint32 index = 0; index < ausgang.get_count(); index++) {
-		if (ausgang.at(index).gib_typ() == typ) {
-			if (ausgang.at(index).menge >> precision_bits >= menge) {
-				ausgang.at(index).menge -= menge << precision_bits;
+		if (ausgang[index].gib_typ() == typ) {
+			if (ausgang[index].menge >> precision_bits >= menge) {
+				ausgang[index].menge -= menge << precision_bits;
 	    } else {
-				menge = ausgang.at(index).menge >> precision_bits;
-				ausgang.at(index).menge = 0;
+				menge = ausgang[index].menge >> precision_bits;
+				ausgang[index].menge = 0;
 	    }
 
 	    abgabe_sum[index] += menge;
@@ -565,11 +564,10 @@ int
 fabrik_t::liefere_an(const ware_besch_t *typ, int menge)
 {
 	for (uint32 index = 0; index < eingang.get_count(); index++) {
-		if (eingang.at(index).gib_typ() == typ) {
-
+		if (eingang[index].gib_typ() == typ) {
 			// Hajo: avoid overflow
-			if (eingang.at(index).menge < (FAB_MAX_INPUT - menge) << precision_bits) {
-				eingang.at(index).menge += menge << precision_bits;
+			if (eingang[index].menge < (FAB_MAX_INPUT - menge) << precision_bits) {
+				eingang[index].menge += menge << precision_bits;
 			}
 
 			// sollte maximale lagerkapazitaet pruefen
@@ -585,9 +583,9 @@ int
 fabrik_t::verbraucht(const ware_besch_t *typ)
 {
 	for(uint32 index = 0; index < eingang.get_count(); index ++) {
-		if (eingang.at(index).gib_typ() == typ) {
+		if (eingang[index].gib_typ() == typ) {
             // sollte maximale lagerkapazitaet pruefen
-			return eingang.at(index).menge > eingang.at(index).max;
+			return eingang[index].menge > eingang[index].max;
 	}
     }
     return -1;  // wird hier nicht verbraucht
@@ -625,12 +623,12 @@ fabrik_t::step(long delta_t)
 				const uint32 vb = besch->gib_lieferant(index)->gib_verbrauch();
 				const uint32 v = (menge*vb) >> 8;
 
-				if ((uint32)eingang.get(index).menge > v) {
-					eingang.at(index).menge -= v;
+				if ((uint32)eingang[index].menge > v) {
+					eingang[index].menge -= v;
 					is_currently_producing = true;
 				}
 				else {
-					eingang.at(index).menge = 0;
+					eingang[index].menge = 0;
 				}
 			}
 		}
@@ -642,7 +640,7 @@ fabrik_t::step(long delta_t)
 			for(index = 0; index < ecount; index ++) {
 				// verbrauch fuer eine Einheit des Produktes (in 1/256)
 				const uint32 vb = besch->gib_lieferant(index)->gib_verbrauch();
-				const uint32 n = eingang.get(index).menge * 256 / vb;
+				const uint32 n = eingang[index].menge * 256 / vb;
 
 				if(n<max_menge) {
 					max_menge = n;    // finde geringsten vorrat
@@ -678,11 +676,11 @@ fabrik_t::step(long delta_t)
 				const uint32 p = (menge*pb) >> 8;
 
 				// produce
-				if (ausgang.at(produkt).menge < ausgang.at(produkt).max) {
-					ausgang.at(produkt).menge += p;
+				if (ausgang[produkt].menge < ausgang[produkt].max) {
+					ausgang[produkt].menge += p;
 					is_currently_producing = true;
 				} else {
-					ausgang.at(produkt).menge = ausgang.at(produkt).max - 1;
+					ausgang[produkt].menge = ausgang[produkt].max - 1;
 				}
 			}
 
@@ -692,12 +690,12 @@ fabrik_t::step(long delta_t)
 				const uint32 vb = besch->gib_lieferant(index)->gib_verbrauch();
 				const uint32 v = (consumed_menge*vb) >> 8;
 
-				if ((uint32)eingang.get(index).menge > v) {
-					eingang.at(index).menge -= v;
+				if ((uint32)eingang[index].menge > v) {
+					eingang[index].menge -= v;
 					is_currently_producing = true;
 				}
 				else {
-					eingang.at(index).menge = 0;
+					eingang[index].menge = 0;
 				}
 			}
 		}
@@ -711,7 +709,7 @@ fabrik_t::step(long delta_t)
 
 		// distribute, if there are more than 10 waiting ...
 		for (uint32 produkt = 0; produkt < ausgang.get_count(); produkt++) {
-			if (ausgang.at(produkt).menge > 10 << precision_bits) {
+			if (ausgang[produkt].menge > 10 << precision_bits) {
 
 				verteile_waren(produkt);
 				INT_CHECK("simfab 636");
@@ -760,19 +758,19 @@ void fabrik_t::verteile_waren(const uint32 produkt)
 		for(uint32 n=0; n<lieferziele.get_count(); n++) {
 
 			// prissi: this way, the halt, that is tried first, will change. As a result, if all destinations are empty, it will be spread evenly
-			const koord lieferziel = lieferziele.get((n+last_lieferziel_start)%lieferziele.get_count());
+			const koord lieferziel = lieferziele[(n + last_lieferziel_start) % lieferziele.get_count()];
 
 			fabrik_t * ziel_fab = gib_fab(welt, lieferziel);
 			int vorrat;
 
-			if (ziel_fab && (vorrat = ziel_fab->verbraucht(ausgang.at(produkt).gib_typ())) >= 0) {
-				ware_t ware(ausgang.at(produkt).gib_typ());
+			if (ziel_fab && (vorrat = ziel_fab->verbraucht(ausgang[produkt].gib_typ())) >= 0) {
+				ware_t ware(ausgang[produkt].gib_typ());
 				ware.menge = 1;
 				ware.setze_zielpos( lieferziel );
 
 				unsigned w;
 				// find the index in the target factory
-				for (w = 0; w < ziel_fab->gib_eingang().get_count() && ziel_fab->gib_eingang().at(w).gib_typ() != ware.gib_typ(); w++) {}
+				for (w = 0; w < ziel_fab->gib_eingang().get_count() && ziel_fab->gib_eingang()[w].gib_typ() != ware.gib_typ(); w++) {}
 
 				// Station can only store up to 128 units of goods per square
 				if(halt->gib_ware_summe(ware.gib_typ()) <halt->get_capacity()) {
@@ -783,7 +781,7 @@ void fabrik_t::verteile_waren(const uint32 produkt)
 					if(ware.gib_ziel() != koord::invalid) {
 						// if only overflown factories found => deliver to first
 						// else deliver to non-overflown factory
-						bool overflown = (ziel_fab->gib_eingang().at(w).menge >= ziel_fab->gib_eingang().at(w).max);
+						bool overflown = (ziel_fab->gib_eingang()[w].menge >= ziel_fab->gib_eingang()[w].max);
 
 						if(!welt->gib_einstellungen()->gib_just_in_time()) {
 
@@ -823,7 +821,7 @@ void fabrik_t::verteile_waren(const uint32 produkt)
 
 		// prissi: distribute goods to factory, that has not an overflowing input storage
 		// if all have, then distribute evenly
-		const int menge = ausgang.at(produkt).menge >> precision_bits;
+		const int menge = ausgang[produkt].menge >> precision_bits;
 
 //DBG_MESSAGE("verteile_waren()","halts %i",halt_ok.count());
 
@@ -851,7 +849,7 @@ void fabrik_t::verteile_waren(const uint32 produkt)
 //DBG_MESSAGE("verteile_waren()","best_amount %i %s",best_amount,translator::translate(ware.gib_name()));
 			}
 
-			ausgang.at(produkt).menge -= menge << precision_bits;
+			ausgang[produkt].menge -= menge << precision_bits;
 			best_halt->starte_mit_route(best_ware);
 		}
 
@@ -914,13 +912,13 @@ void fabrik_t::recalc_factory_status()
 	warenlager = 0;
 	status_ein = FL_WARE_ALLELIMIT;
 	for (uint j = 0; j < eingang.get_count(); j++) {
-		if (eingang.at(j).menge >= eingang.at(j).max) {
+		if (eingang[j].menge >= eingang[j].max) {
 			status_ein |= FL_WARE_LIMIT;
 		}
 		else {
 			status_ein &= ~FL_WARE_ALLELIMIT;
 		}
-		warenlager += eingang.at(j).menge;
+		warenlager += eingang[j].menge;
 		status_ein |= FL_WARE_HATWAS;
 
 	}
@@ -934,16 +932,16 @@ void fabrik_t::recalc_factory_status()
 	warenlager = 0;
 	status_aus = FL_WARE_ALLEUEBER75|FL_WARE_ALLENULL;
 	for (uint j = 0;j < ausgang.get_count(); j++) {
-		if (ausgang.at(j).menge > 0) {
+		if (ausgang[j].menge > 0) {
 
 			status_aus &= ~FL_WARE_ALLENULL;
-			if (ausgang.at(j).menge >= 0.75 * ausgang.at(j).max) {
+			if (ausgang[j].menge >= 0.75 * ausgang[j].max) {
 				status_aus |= FL_WARE_UEBER75;
 			}
 			else {
 				status_aus &= ~FL_WARE_ALLEUEBER75;
 			}
-			warenlager += ausgang.at(j).menge;
+			warenlager += ausgang[j].menge;
 			status_aus &= ~FL_WARE_ALLENULL;
 		}
 		else {
@@ -1042,7 +1040,7 @@ void fabrik_t::info(cbuffer_t & buf)
     buf.append(":\n");
 
     for(uint32 i=0; i<lieferziele.get_count(); i++) {
-      const koord lieferziel = lieferziele.get(i);
+      const koord lieferziel = lieferziele[i];
 
       ding_t * dt = welt->lookup_kartenboden(lieferziel)->first_obj();
       if(dt) {
@@ -1067,7 +1065,7 @@ void fabrik_t::info(cbuffer_t & buf)
     buf.append(":\n");
 
     for(uint32 i=0; i<suppliers.get_count(); i++) {
-      const koord supplier = suppliers.get(i);
+      const koord supplier = suppliers[i];
 
       ding_t * dt = welt->lookup_kartenboden(supplier)->first_obj();
       if(dt) {
@@ -1122,7 +1120,7 @@ void fabrik_t::info(cbuffer_t & buf)
     buf.append(":\n");
 
     for (uint32 index = 0; index < ausgang.get_count(); index++) {
-      info_add_ware_description(buf, ausgang.at(index));
+      info_add_ware_description(buf, ausgang[index]);
 
       buf.append(", ");
       buf.append((int)(besch->gib_produkt(index)->gib_faktor()*100/256));
@@ -1139,12 +1137,12 @@ void fabrik_t::info(cbuffer_t & buf)
     for (uint32 index = 0; index < eingang.get_count(); index++) {
 
       buf.append(" -");
-      buf.append(translator::translate(eingang.at(index).gib_name()));
+      buf.append(translator::translate(eingang[index].gib_name()));
       buf.append(" ");
-      buf.append(eingang.at(index).menge >> precision_bits);
+      buf.append(eingang[index].menge >> precision_bits);
       buf.append("/");
-      buf.append(eingang.at(index).max >> precision_bits);
-      buf.append(translator::translate(eingang.at(index).gib_mass()));
+      buf.append(eingang[index].max >> precision_bits);
+      buf.append(translator::translate(eingang[index].gib_mass()));
       buf.append(", ");
       buf.append((int)(besch->gib_lieferant(index)->gib_verbrauch()*100/256));
       buf.append("%\n");
@@ -1160,7 +1158,7 @@ void fabrik_t::laden_abschliessen()
 		koord fab_pos = fab->gib_pos().gib_2d();
 		const vector_tpl <koord> &lieferziele = fab->gib_lieferziele();
 		for(uint32 i=0; i<lieferziele.get_count(); i++) {
-			const koord lieferziel = lieferziele.get(i);
+			const koord lieferziel = lieferziele[i];
 			fabrik_t * fab2 = fabrik_t::gib_fab(welt, lieferziel);
 			if (fab2) {
 				fab2->add_supplier(fab_pos);

@@ -126,7 +126,7 @@ simline_t::get_name()
 convoihandle_t
 simline_t::get_convoy(int i)
 {
-	return line_managed_convoys.at(i);
+	return line_managed_convoys[i];
 }
 
 int
@@ -273,7 +273,7 @@ simline_t::recalc_status()
 		// convois has obsolete vehicles?
 		bool has_obsolete = false;
 		for(unsigned i=0;  !has_obsolete  &&  i<line_managed_convoys.get_count();  i++ ) {
-			has_obsolete = line_managed_convoys.get(i)->has_obsolete_vehicles();
+			has_obsolete = line_managed_convoys[i]->has_obsolete_vehicles();
 		}
 		// now we have to set it
 		state_color = has_obsolete ? COL_BLUE : COL_BLACK;

@@ -507,7 +507,7 @@ reliefkarte_t::calc_map()
 
 	// mark all vehicle positions
 	for(unsigned i=0;  i<welt->get_convoi_count();  i++ ) {
-		convoihandle_t cnv = welt->get_convoi_array().get(i);
+		convoihandle_t cnv = welt->get_convoi_array()[i];
 		for (uint16 i = 0; i < cnv->gib_vehikel_anzahl(); i++) {
 			setze_relief_farbe(cnv->gib_vehikel(i)->gib_pos().gib_2d(), VEHIKEL_KENN);
 		}
@@ -667,7 +667,7 @@ reliefkarte_t::draw_fab_connections(const fabrik_t * fab, uint8 colour, koord po
 	const koord fabpos = koord(pos.x + fab->pos.x * zoom, pos.y + fab->pos.y * zoom);
 	const vector_tpl <koord> &lieferziele = event_get_last_control_shift()&1 ? fab->get_suppliers() : fab->gib_lieferziele();
 	for(uint32 i=0; i<lieferziele.get_count(); i++) {
-		const koord lieferziel = lieferziele.get(i);
+		const koord lieferziel = lieferziele[i];
 		const fabrik_t * fab2 = fabrik_t::gib_fab(welt, lieferziel);
 		if (fab2) {
 			const koord end = pos + lieferziel * zoom;

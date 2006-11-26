@@ -620,7 +620,7 @@ haltestelle_t::verbinde_fabriken()
 																								p+koord( welt->gib_einstellungen()->gib_station_coverage(), welt->gib_einstellungen()->gib_station_coverage())
 																								);
 			for(unsigned i=0; i<fablist.get_count(); i++) {
-				fabrik_t * fab = fablist.at(i);
+				fabrik_t* fab = fablist[i];
 				if(!fab_list.contains(fab)) {
 					fab_list.insert(fab);
 					fab->link_halt(self);
@@ -665,7 +665,7 @@ void haltestelle_t::rebuild_destinations()
 	// Hajo: second, calculate new entries
 
 	for(unsigned i=0;  i<welt->get_convoi_count();  i++ ) {
-		convoihandle_t cnv = welt->get_convoi_array().get(i);
+		convoihandle_t cnv = welt->get_convoi_array()[i];
 		// DBG_MESSAGE("haltestelle_t::rebuild_destinations()", "convoi %d %p", cnv.get_id(), cnv.get_rep());
 
 		if(gib_besitzer()==welt->gib_spieler(1)  ||  cnv->gib_besitzer()==gib_besitzer()) {
@@ -704,7 +704,7 @@ haltestelle_t::liefere_an_fabrik(const ware_t ware)
 		const vector_tpl<ware_t>& eingang = fab->gib_eingang();
 
 		for (uint32 i = 0; i < eingang.get_count(); i++) {
-			if (eingang.get(i).gib_typ() == ware.gib_typ() && ware.gib_zielpos() == fab->gib_pos().gib_2d()) {
+			if (eingang[i].gib_typ() == ware.gib_typ() && ware.gib_zielpos() == fab->gib_pos().gib_2d()) {
 				fab->liefere_an(ware.gib_typ(), ware.menge);
 				return;
 			}
@@ -985,7 +985,7 @@ haltestelle_t::add_grund(grund_t *gr)
 			pos+koord(welt->gib_einstellungen()->gib_station_coverage(), welt->gib_einstellungen()->gib_station_coverage())
 			);
 		for(unsigned i=0; i<fablist.get_count(); i++) {
-			fabrik_t * fab = fablist.at(i);
+			fabrik_t* fab = fablist[i];
 			if(!fab_list.contains(fab)) {
 				fab_list.insert(fab);
 				fab->link_halt(self);
@@ -1489,7 +1489,7 @@ haltestelle_t::find_free_position(const waytype_t w,convoihandle_t cnv,const din
 	slist_iterator_tpl<grund_t *> iter( grund );
 	unsigned i=0;
 	while(iter.next()) {
-		if(reservation.get(i)==cnv  ||  !reservation.get(i).is_bound()) {
+		if (reservation[i] == cnv || !reservation[i].is_bound()) {
 			// not reseved
 			grund_t *gr = iter.get_current();
 			if(gr) {
@@ -1498,8 +1498,8 @@ haltestelle_t::find_free_position(const waytype_t w,convoihandle_t cnv,const din
 					// not occipied
 					return true;
 				}
-				else if(reservation.get(i)==cnv) {
-					reservation.at(i) = convoihandle_t();
+				else if (reservation[i] == cnv) {
+					reservation[i] = convoihandle_t();
 				}
 			}
 			else {
@@ -1521,19 +1521,19 @@ haltestelle_t::reserve_position(grund_t *gr,convoihandle_t cnv)
 {
 	int idx=grund.index_of(gr);
 	if(idx>=0) {
-		if(reservation.get(idx)==cnv) {
+		if (reservation[idx] == cnv) {
 //DBG_MESSAGE("haltestelle_t::reserve_position()","gr=%d,%d already reserved by cnv=%d",gr->gib_pos().x,gr->gib_pos().y,cnv.get_id());
 			return true;
 		}
 		// not reseved
-		if(!reservation.get(idx).is_bound()) {
+		if (!reservation[idx].is_bound()) {
 			grund_t *gr = grund.at(idx);
 			if(gr) {
 				// found a stop for this waytype but without object d ...
 				if(gr->hat_weg(cnv->gib_vehikel(0)->gib_waytype())  &&  gr->suche_obj(cnv->gib_vehikel(0)->gib_typ())==NULL) {
 					// not occipied
 //DBG_MESSAGE("haltestelle_t::reserve_position()","sucess for gr=%i,%i cnv=%d",gr->gib_pos().x,gr->gib_pos().y,cnv.get_id());
-					reservation.at(idx) = cnv;
+					reservation[idx] = cnv;
 					return true;
 				}
 			}
@@ -1553,8 +1553,8 @@ haltestelle_t::unreserve_position(grund_t *gr, convoihandle_t cnv)
 {
 	int idx=grund.index_of(gr);
 	if(idx>=0) {
-		if(reservation.get(idx)==cnv) {
-			reservation.at(idx) = convoihandle_t();
+		if (reservation[idx] == cnv) {
+			reservation[idx] = convoihandle_t();
 			return true;
 		}
 	}
@@ -1572,12 +1572,12 @@ haltestelle_t::is_reservable(grund_t *gr,convoihandle_t cnv)
 {
 	int idx=grund.index_of(gr);
 	if(idx>=0) {
-		if(reservation.get(idx)==cnv) {
+		if (reservation[idx] == cnv) {
 DBG_MESSAGE("haltestelle_t::is_reservable()","gr=%d,%d already reserved by cnv=%d",gr->gib_pos().x,gr->gib_pos().y,cnv.get_id());
 			return true;
 		}
 		// not reseved
-		if(!reservation.get(idx).is_bound()) {
+		if (!reservation[idx].is_bound()) {
 			grund_t *gr = grund.at(idx);
 			if(gr) {
 				// found a stop for this waytype but without object d ...

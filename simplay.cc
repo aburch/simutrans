@@ -518,7 +518,7 @@ spieler_t::calc_finance_history()
 	if(finance_history_month[0][COST_ASSETS]==0) {
 		// new month has started
 		for(unsigned i=0;  i<welt->get_convoi_count();  i++ ) {
-			convoihandle_t cnv = welt->get_convoi_array().get(i);
+			convoihandle_t cnv = welt->get_convoi_array()[i];
 			if(cnv->gib_besitzer()==this) {
 				assets += cnv->calc_restwert();
 			}
@@ -1086,7 +1086,7 @@ DBG_MESSAGE("spieler_t::do_passenger_ki()","add new convoi to crowded line from 
 			}
 #else
 			for(unsigned i=0;  i<welt->get_convoi_count();  i++ ) {
-				const convoihandle_t cnv = welt->get_convoi_array().get(i);
+				const convoihandle_t cnv = welt->get_convoi_array()[i];
 				if(cnv->gib_besitzer()==this) {
 					// check for empty vehicles (likely stucked) that are making no plus and remove them ...
 					// take care, that the vehicle is old enough ...
@@ -1317,7 +1317,7 @@ DBG_MESSAGE("spieler_t::do_ki()","%s want to build a route from %s (%d,%d) to %s
 
 					// needed for search
 					// first we have to find a suitable car
-					const ware_besch_t* freight = start->gib_ausgang().get(start_ware).gib_typ();
+					const ware_besch_t* freight = start->gib_ausgang()[start_ware].gib_typ();
 
 					// guess the "optimum" speed (usually a little too low)
 				  	uint32 best_rail_speed = 80;// is ok enough for goods, was: min(60+freight->gib_speed_bonus()*5, 140 );
@@ -1475,7 +1475,7 @@ DBG_MESSAGE("spieler_t::do_ki()","No roadway possible.");
 							 	int best_rail_speed = min(51,rail_vehicle->gib_geschw());
 								// needed for search
 								// first we have to find a suitable car
-								const ware_besch_t* freight = start->gib_ausgang().get(start_ware).gib_typ();
+								const ware_besch_t* freight = start->gib_ausgang()[start_ware].gib_typ();
 							  	// obey timeline
 								unsigned month_now = welt->get_current_month();
 								if(  welt->use_timeline() == false   ) {
@@ -1581,7 +1581,7 @@ DBG_MESSAGE("spieler_t::step()","remove already constructed rail between %i,%i a
 		case CHECK_CONVOI:
 		{
 			for(unsigned i=0;  i<welt->get_convoi_count();  i++ ) {
-				const convoihandle_t cnv = welt->get_convoi_array().get(i);
+				const convoihandle_t cnv = welt->get_convoi_array()[i];
 				if(cnv->gib_besitzer()==this  &&  cnv->gib_vehikel(0)->gib_besch()->gib_typ()==road_wt) {
 					// check for empty vehicles (likely stucked) that are making no plus and remove them ...
 					// take care, that the vehicle is old enough ...
@@ -1884,10 +1884,10 @@ spieler_t::rating_transport_quelle_ziel(fabrik_t *qfab,const ware_t *ware,fabrik
 
 	// so we do a loop
 	for (unsigned i = 0; i < eingang.get_count(); i++) {
-		if (eingang.get(i).menge < 10 << fabrik_t::precision_bits) {
+		if (eingang[i].menge < 10 << fabrik_t::precision_bits) {
 			// so more would be helpful
 			missing_input_ware ++;
-			if (eingang.get(i).gib_typ() == ware->gib_typ()) {
+			if (eingang[i].gib_typ() == ware->gib_typ()) {
 				missing_our_ware = true;
 			}
 		}
@@ -1983,7 +1983,7 @@ DBG_MESSAGE("spieler_t::suche_transport_quelle","Search other %i supplier for: %
 	// now iterate over all suppliers
 	for(  int i=0;  i<lieferquelle_anzahl;  i++  ) {
 		// find source
-		const koord lieferquelle = lieferquellen.get(i);
+		const koord lieferquelle = lieferquellen[i];
 
 		if(welt->lookup(lieferquelle)) {
 			// valid koordinate?
@@ -1998,7 +1998,7 @@ DBG_MESSAGE("spieler_t::suche_transport_quelle","Search other %i supplier for: %
 			const int waren_anzahl = ausgang.get_count();
 			// for all products
 			for(int ware_nr=0;  ware_nr<waren_anzahl ;  ware_nr++  ) {
-				const ware_t ware = ausgang.get(ware_nr);
+				const ware_t ware = ausgang[ware_nr];
 				int dieser_gewinn = guess_gewinn_transport_quelle_ziel( start_neu, &ware, ware_nr, zfab );
 				// more income on this line
 				if(  dieser_gewinn>gewinn  ) {
@@ -2040,7 +2040,7 @@ int spieler_t::suche_transport_ziel(fabrik_t *qfab, int *quelle_ware, fabrik_t *
 
 	// for all products
 	for(int ware_nr=0;  ware_nr<waren_anzahl ;  ware_nr++  ) {
-		const ware_t ware = ausgang.get(ware_nr);
+		const ware_t ware = ausgang[ware_nr];
 
 		// hat es schon etwas produziert ?
 		if(ware.menge < ware.max/4) {
@@ -2056,7 +2056,7 @@ DBG_MESSAGE("spieler_t::suche_transport_ziel","Lieferziele %d",lieferziel_anzahl
 		// loop for all targets
 		for(  int lieferziel_nr=0;  lieferziel_nr<lieferziel_anzahl;  lieferziel_nr++  ) {
 			// XXX KI sollte auch andere Lieferziele prüfen!
-			const koord lieferziel = lieferziele.get(lieferziel_nr);
+			const koord lieferziel = lieferziele[lieferziel_nr];
 			int	dieser_gewinn=-1;
 			fabrik_t *zfab = NULL;
 
@@ -2813,7 +2813,7 @@ spieler_t::undo()
 	// try to remove everything last built
 	uint32 cost=0;
 	for(unsigned short i=0;  i<last_built.get_count();  i++  ) {
-		grund_t *gr = welt->lookup(last_built.at(i));
+		grund_t* gr = welt->lookup(last_built[i]);
 		cost += gr->weg_entfernen(undo_type,true);
 //DBG_DEBUG("spieler_t::add_undo()","undo tile %i at (%i,%i)",i,last_built.at(i).x,last_built.at(i).y);
 	}

@@ -59,7 +59,7 @@ int gui_image_list_t::index_at(koord parent_pos, int xpos, int ypos) const
 		row * columns + column :
 		column * rows + row;
 
-		if(bild_index < images->get_count() && images->get(bild_index).image!=IMG_LEER) 	{
+		if (bild_index < images->get_count() && (*images)[bild_index].image != IMG_LEER) {
 			return bild_index;
 		}
 	}
@@ -86,7 +86,7 @@ void gui_image_list_t::zeichnen(koord parent_pos)
 	int ypos = ymin;
 
 	for(unsigned int i=0; i< images->get_count(); i++) {
-		const image_data_t &idata = images->get(i);
+		const image_data_t& idata = (*images)[i];
 
 		if(idata.count>=0) {
 			// display mark

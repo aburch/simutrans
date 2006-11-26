@@ -45,7 +45,7 @@ void factorylist_stats_t::infowin_event(const event_t * ev)
 		return;
 	}
 
-	fabrik_t * fab = fab_list.at(line);
+	fabrik_t* fab = fab_list[line];
 	if (!fab) {
 		return;
 	}
@@ -90,7 +90,7 @@ void factorylist_stats_t::zeichnen(koord offset)
 			continue;
 		}
 
-		const fabrik_t *fab = fab_list.at(i);
+		const fabrik_t* fab = fab_list[i];
 		if(fab) {
 
 			//DBG_DEBUG("factorylist_stats_t()","zeichnen() factory %i",i);
@@ -100,7 +100,7 @@ void factorylist_stats_t::zeichnen(koord offset)
 			buf.clear();
 			//		buf.append(i+1);
 			//		buf.append(".) ");
-			buf.append(fab_list.at(i)->gib_name());
+			buf.append(fab_list[i]->gib_name());
 			buf.append(" (");
 
 			if (fab->gib_eingang().get_count() > 0) {
@@ -159,7 +159,7 @@ void factorylist_stats_t::sort(const factorylist::sort_mode_t& sortby,const bool
 
 		bool append = true;
 		for (unsigned int j=0; j<fab_list.get_count(); j++) {
-			const fabrik_t *check_fab=fab_list.at(j);
+			const fabrik_t* check_fab = fab_list[j];
 
 			unsigned long input, output, check_input, check_output;
 			switch (sortby) {

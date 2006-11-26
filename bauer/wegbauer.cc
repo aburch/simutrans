@@ -1243,13 +1243,13 @@ DBG_DEBUG("insert to close","(%i,%i,%i)  f=%i",gr->gib_pos().x,gr->gib_pos().y,g
 		// now check all valid ones ...
 		for(unsigned r=0; r<next_gr.get_count(); r++) {
 
-			to = next_gr.get(r).gr;
+			to = next_gr[r].gr;
 			if(welt->ist_markiert(to)) {
 				continue;
 			}
 
 			// new values for cost g
-			uint32 new_g = tmp->g + next_gr.get(r).cost;
+			uint32 new_g = tmp->g + next_gr[r].cost;
 
 			// check for curves (usually, one would need the lastlast and the last;
 			// if not there, then we could just take the last
@@ -1568,14 +1568,14 @@ wegbauer_t::calc_ribi(int step)
 
 	if(step < max_n) {
 		// check distance, only neighbours
-		const koord zv = (route.at(step + 1) - route.at(step)).gib_2d();
+		const koord zv = (route[step + 1] - route[step]).gib_2d();
 		if(abs(zv.x) <= 1 && abs(zv.y) <= 1) {
 			ribi |= ribi_typ(zv);
 		}
 	}
 	if(step > 0) {
 		// check distance, only neighbours
-		const koord zv = (route.at(step - 1) - route.at(step)).gib_2d();
+		const koord zv = (route[step - 1] - route[step]).gib_2d();
 		if(abs(zv.x) <= 1 && abs(zv.y) <= 1) {
 			ribi |= ribi_typ(zv);
 		}
@@ -1590,24 +1590,24 @@ wegbauer_t::baue_tunnel_und_bruecken()
 {
 	// tunnel pruefen
 	for(int i=1; i<max_n-1; i++) {
-		koord d = (route.at(i + 1) - route.at(i)).gib_2d();
+		koord d = (route[i + 1] - route[i]).gib_2d();
 
 		// ok, here is a gap ...
 		if(d.x > 1 || d.y > 1 || d.x < -1 || d.y < -1) {
 
 			if(d.x*d.y!=0) {
-				koord3d start = route.at(i);
-				koord3d end   = route.at(i + 1);
+				koord3d start = route[i];
+				koord3d end   = route[i + 1];
 				dbg->error("wegbauer_t::baue_tunnel_und_bruecken()","cannot built a bridge between %i,%i,%i (n=%i, max_n=%i) and %i,%i,%i",start.x,start.y,start.z,i,max_n,end.x,end.y,end.z);
 				continue;
 			}
 
 			koord zv = koord (sgn(d.x), sgn(d.y));
 
-			DBG_MESSAGE("wegbauer_t::baue_tunnel_und_bruecken", "built bridge %p between %i,%i,%i and %i,%i,%i", bruecke_besch, route.at(i).x, route.at(i).y, route.at(i).z, route.at(i + 1).x, route.at(i + 1).y, route.at(i + 1).z);
+			DBG_MESSAGE("wegbauer_t::baue_tunnel_und_bruecken", "built bridge %p between %i,%i,%i and %i,%i,%i", bruecke_besch, route[i].x, route[i].y, route[i].z, route[i + 1].x, route[i + 1].y, route[i + 1].z);
 
-			const grund_t* start = welt->lookup(route.at(i));
-			const grund_t* end   = welt->lookup(route.at(i + 1));
+			const grund_t* start = welt->lookup(route[i]);
+			const grund_t* end   = welt->lookup(route[i + 1]);
 
 			if(start->gib_weg_hang()!=start->gib_grund_hang()) {
 				// already a bridge/tunnel there ...
@@ -1622,14 +1622,14 @@ wegbauer_t::baue_tunnel_und_bruecken()
 				// bridge here
 DBG_MESSAGE("wegbauer_t::baue_tunnel_und_bruecken","built bridge %p",bruecke_besch);
 				INT_CHECK( "wegbauer 1584" );
-				brueckenbauer_t::baue(sp, welt, route.at(i).gib_2d(), (value_t)bruecke_besch);
-//				brueckenbauer_t::baue_bruecke(welt, sp, route.at(i), route.at(i + 1), zv, bruecke_besch);
+				brueckenbauer_t::baue(sp, welt, route[i].gib_2d(), (value_t)bruecke_besch);
+//				brueckenbauer_t::baue_bruecke(welt, sp, route[i], route[i + 1], zv, bruecke_besch);
 				INT_CHECK( "wegbauer 1584" );
 			}
 			else {
 				// tunnel
 				INT_CHECK( "wegbauer 1584" );
-				tunnelbauer_t::baue(sp, welt, route.at(i).gib_2d(), (waytype_t)besch->gib_wtyp());
+				tunnelbauer_t::baue(sp, welt, route[i].gib_2d(), (waytype_t)besch->gib_wtyp());
 				INT_CHECK( "wegbauer 1584" );
 			}
 		}
@@ -1650,15 +1650,15 @@ wegbauer_t::calc_costs()
 	const weg_besch_t *cityroad = gib_besch("city_road");
 
 	for(int i=1; i<max_n-1; i++) {
-		koord d = (route.at(i + 1) - route.at(i)).gib_2d();
+		koord d = (route[i + 1] - route[i]).gib_2d();
 
 		// ok, here is a gap ... => either bridge or tunnel
 		if(d.x > 1 || d.y > 1 || d.x < -1 || d.y < -1) {
 
 			koord zv = koord (sgn(d.x), sgn(d.y));
 
-			const grund_t* start = welt->lookup(route.at(i));
-			const grund_t* end   = welt->lookup(route.at(i + 1));
+			const grund_t* start = welt->lookup(route[i]);
+			const grund_t* end   = welt->lookup(route[i + 1]);
 
 			if(start->gib_weg_hang()!=start->gib_grund_hang()) {
 				// already a bridge/tunnel there ...
@@ -1671,8 +1671,8 @@ wegbauer_t::calc_costs()
 
 			if(start->gib_grund_hang()==0  ||  start->gib_grund_hang()==hang_typ(zv*(-1))) {
 				// bridge
-				koord pos = route.at(i).gib_2d();
-				while (route.at(i + 1).gib_2d() != pos) {
+				koord pos = route[i].gib_2d();
+				while (route[i + 1].gib_2d() != pos) {
 					pos += zv;
 					costs += bruecke_besch->gib_preis();
 				}
@@ -1680,8 +1680,8 @@ wegbauer_t::calc_costs()
 			else {
 				// tunnel
 				// bridge
-				koord pos = route.at(i).gib_2d();
-				while (route.at(i + 1).gib_2d() != pos) {
+				koord pos = route[i].gib_2d();
+				while (route[i + 1].gib_2d() != pos) {
 					pos += zv;
 					costs -= umgebung_t::cst_tunnel;
 				}
@@ -1689,7 +1689,7 @@ wegbauer_t::calc_costs()
 		}
 		else {
 			// no gap => normal way
-			const grund_t* gr = welt->lookup(route.at(i));
+			const grund_t* gr = welt->lookup(route[i]);
 			if(gr) {
 				const weg_t *weg=gr->gib_weg((waytype_t)besch->gib_wtyp());
 				// keep faster ways or if it is the same way ... (@author prissi)
@@ -1716,15 +1716,15 @@ wegbauer_t::baue_tunnelboden()
 	long cost = 0;
 	for(int i=0; i<=max_n; i++) {
 
-		grund_t* gr = welt->lookup(route.at(i));
+		grund_t* gr = welt->lookup(route[i]);
 
 		if(gr==NULL) {
 			// make new tunnelboden
-			tunnelboden_t* tunnel = new tunnelboden_t(welt, route.at(i), 0);
+			tunnelboden_t* tunnel = new tunnelboden_t(welt, route[i], 0);
 			weg_t *weg = weg_t::alloc(tunnel_besch->gib_waytype());
-			welt->access(route.at(i).gib_2d())->boden_hinzufuegen(tunnel);
+			welt->access(route[i].gib_2d())->boden_hinzufuegen(tunnel);
 			tunnel->neuen_weg_bauen(weg, calc_ribi(i), sp);
-			tunnel->obj_add(new tunnel_t(welt, route.at(i), sp, tunnel_besch));
+			tunnel->obj_add(new tunnel_t(welt, route[i], sp, tunnel_besch));
 			weg->setze_max_speed(tunnel_besch->gib_topspeed());
 			cost -= tunnel_besch->gib_preis();
 			sp->add_maintenance(-weg->gib_besch()->gib_wartung());
@@ -1736,7 +1736,7 @@ wegbauer_t::baue_tunnelboden()
 		}
 	}
 	if(cost && sp) {
-		sp->buche(cost, route.at(0).gib_2d(), COST_CONSTRUCTION);
+		sp->buche(cost, route[0].gib_2d(), COST_CONSTRUCTION);
 	}
 	return true;
 }
@@ -1748,12 +1748,12 @@ wegbauer_t::baue_elevated()
 {
 	for(int i=0; i<=max_n; i++) {
 
-		planquadrat_t* plan = welt->access(route.at(i).gib_2d());
-		route.at(i).z = plan->gib_kartenboden()->gib_pos().z + Z_TILE_STEP;
-		grund_t* gr = plan->gib_boden_in_hoehe(route.at(i).z);
+		planquadrat_t* plan = welt->access(route[i].gib_2d());
+		route[i].z = plan->gib_kartenboden()->gib_pos().z + Z_TILE_STEP;
+		grund_t* gr = plan->gib_boden_in_hoehe(route[i].z);
 		if(gr==NULL) {
 			// add new elevated ground
-			monorailboden_t* monorail = new monorailboden_t(welt, route.at(i), plan->gib_kartenboden()->gib_grund_hang());
+			monorailboden_t* monorail = new monorailboden_t(welt, route[i], plan->gib_kartenboden()->gib_grund_hang());
 			plan->boden_hinzufuegen(monorail);
 		}
 	}
@@ -1783,8 +1783,8 @@ wegbauer_t::baue_strasse()
 			INT_CHECK( "wegbauer 1584" );
 		}
 
-		const koord k = route.at(i).gib_2d();
-		grund_t* gr = welt->lookup(route.at(i));
+		const koord k = route[i].gib_2d();
+		grund_t* gr = welt->lookup(route[i]);
 		long cost = 0;
 
 		bool extend = gr->weg_erweitern(road_wt, calc_ribi(i));
@@ -1845,7 +1845,7 @@ wegbauer_t::baue_schiene()
 		// built tracks
 		for(i=0; i<=max_n; i++) {
 			int cost = 0;
-			grund_t* gr = welt->lookup(route.at(i));
+			grund_t* gr = welt->lookup(route[i]);
 			ribi_t::ribi ribi = calc_ribi(i);
 
 			bool extend = gr->weg_erweitern((waytype_t)besch->gib_wtyp(), ribi);
@@ -1900,7 +1900,7 @@ wegbauer_t::baue_leitung()
 {
 	int i;
 	for(i=0; i<=max_n; i++) {
-		grund_t* gr = welt->lookup(route.at(i));
+		grund_t* gr = welt->lookup(route[i]);
 
 		leitung_t *lt = dynamic_cast <leitung_t *> (gr->suche_obj(ding_t::leitung));
 		if(lt==0) {
@@ -1938,7 +1938,7 @@ DBG_MESSAGE("wegbauer_t::baue()","called, but no valid route.");
 		// no valid route here ...
 		return;
 	}
-	DBG_MESSAGE("wegbauer_t::baue()", "type=%d max_n=%d start=%d,%d end=%d,%d", bautyp, max_n, route.at(0).x, route.at(0).y, route.at(max_n).x, route.at(max_n).y);
+	DBG_MESSAGE("wegbauer_t::baue()", "type=%d max_n=%d start=%d,%d end=%d,%d", bautyp, max_n, route[0].x, route[0].y, route[max_n].x, route[max_n].y);
 
 // test!
 long ms=get_current_time_millis();

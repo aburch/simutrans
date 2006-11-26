@@ -50,7 +50,7 @@ route_t::kopiere(const route_t *r)
 	route.resize(hops+1);
 	route.clear();
 	for( unsigned int i=0;  i<=hops;  i++ ) {
-		route.append(r->route.at(i));
+		route.append(r->route[i]);
 	}
 }
 
@@ -62,13 +62,13 @@ route_t::append(const route_t *r)
 	route.resize(hops+1+route.get_count());
 
 DBG_MESSAGE("route_t::append()","last=%i,%i,%i   first=%i,%i,%i",
-	route.at(gib_max_n()).x, route.at(gib_max_n()).y, route.at(gib_max_n()).z,
+	route[gib_max_n()].x, route[gib_max_n()].y, route[gib_max_n()].z,
 	r->position_bei(0).x, r->position_bei(0).y, r->position_bei(0).z );
 
 	// must be identical
-//	assert(gib_max_n()<=0  ||  r->position_bei(0)==route.at(gib_max_n()));
+//	assert(gib_max_n() <= 0 || r->position_bei(0) == route[gib_max_n()]);
 
-	while(gib_max_n()>=0  &&  route.get(gib_max_n())==r->position_bei(0)) {
+	while (gib_max_n() >= 0 && route[gib_max_n()] == r->position_bei(0)) {
 		// skip identical end tiles
 		route.remove_at(gib_max_n());
 	}
@@ -91,10 +91,10 @@ route_t::insert(koord3d k)
 void
 route_t::append(koord3d k)
 {
-	while(route.get_count()>1  &&  route.get(route.get_count()-1)==route.get(route.get_count()-2)) {
+	while (route.get_count() > 1 && route[route.get_count() - 1] == route[route.get_count() - 2]) {
 		route.remove_at(route.get_count()-1);
 	}
-	if(route.get_count()==0  ||  k!=route.get(route.get_count()-1)) {
+	if (route.get_count() == 0 || k != route[route.get_count() - 1]) {
 		route.append(k,16);
 	}
 	route.append(k,16);	// the last is always double
@@ -106,7 +106,7 @@ route_t::remove_koord_from(int i) {
 	while(i<gib_max_n()) {
 		route.remove_at(gib_max_n());
 	}
-	route.append( route.at(gib_max_n()) );	// the last is always double
+	route.append(route[gib_max_n()]); // the last is always double
 }
 
 
@@ -123,12 +123,12 @@ route_t::append_straight_route(karte_t *welt, koord3d dest )
 		return false;
 	}
 
-	while(route.get_count()>1  &&  route.get(route.get_count()-2)==route.get(route.get_count()-1)) {
+	while (route.get_count() > 1 && route[route.get_count() - 2] == route[route.get_count() - 1]) {
 		route.remove_at(route.get_count()-1);
 	}
 
 	// then try to calculate direct route
-	koord pos=route.get(gib_max_n()).gib_2d();
+	koord pos = route[gib_max_n()].gib_2d();
 	const koord ziel=dest.gib_2d();
 	route.resize( route.get_count()+abs_distance(pos,ziel)+2 );
 DBG_MESSAGE("route_t::append_straight_route()","start from (%i,%i) to (%i,%i)",pos.x,pos.y,dest.x,dest.y);
@@ -145,7 +145,7 @@ DBG_MESSAGE("route_t::append_straight_route()","start from (%i,%i) to (%i,%i)",p
 		}
 		route.append( welt->lookup(pos)->gib_kartenboden()->gib_pos(),16 );
 	}
-	route.append( route.get(route.get_count()-1),16 );
+	route.append(route[route.get_count() - 1], 16);
 	DBG_MESSAGE("route_t::append_straight_route()","to (%i,%i) found.",ziel.x,ziel.y);
 
 	return pos==ziel;
@@ -219,7 +219,7 @@ route_t::find_route(karte_t *welt,
 			INT_CHECK("route 161");
 		}
 
-		tmp = open.at( 0 );
+		tmp = open[0];
 		open.remove_at( 0 );
 
 		close.append(tmp,16);
@@ -246,7 +246,7 @@ route_t::find_route(karte_t *welt,
 
 				// already in open list?
 				for(  index=0;  index<open.get_count();  index++  ) {
-					if(  open.get(index)->gr==to  ) {
+					if (open[index]->gr == to) {
 						break;
 					}
 				}
@@ -258,7 +258,7 @@ route_t::find_route(karte_t *welt,
 
 				// already in closed list (i.e. all processed nodes)
 				for( index=0;  index<close.get_count();  index++  ) {
-					if(  close.get(index)->gr==to  ) {
+					if (close[index]->gr == to) {
 						break;
 					}
 				}
@@ -575,7 +575,7 @@ DBG_MESSAGE("route_t::calc_route()","No route from %d,%d to %d,%d found",start.x
 
 				int max_n = route.get_count()-1;
 
-				const koord zv = route.at(max_n).gib_2d() - route.at(max_n-1).gib_2d();
+				const koord zv = route[max_n].gib_2d() - route[max_n - 1].gib_2d();
 //DBG_DEBUG("route_t::calc_route()","zv=%i,%i",zv.x,zv.y);
 
 				const int ribi = ribi_typ(zv);//fahr->gib_ribi(welt->lookup(start));
@@ -623,7 +623,7 @@ route_t::rdwr(loadsave_t *file)
 	else {
 		// writing
 		for(i=0; i<=max_n; i++) {
-			route.at(i).rdwr( file );
+			route[i].rdwr(file);
 		}
 	}
 }

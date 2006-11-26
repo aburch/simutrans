@@ -2470,7 +2470,7 @@ DBG_DEBUG("karte_t::init()","found %i places",list->count());
 
 			// check minimum distance
 			for(  int j=0;  j<i;  j++  ) {
-				int dist = abs(k.x-result->at(j).x) + abs(k.y-result->at(j).y);
+				int dist = abs(k.x - (*result)[j].x) + abs(k.y - (*result)[j].y);
 				if(  minimum_dist>dist  ) {
 					minimum_dist = dist;
 				}

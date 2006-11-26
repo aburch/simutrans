@@ -184,7 +184,7 @@ bool halt_list_frame_t::passes_filter(halthandle_t halt)
 		    while(!ok && fab_iter.next()) {
 			const vector_tpl<ware_t>& ausgang = fab_iter.get_current()->gib_ausgang();
 			for (j = 0; !ok && j < ausgang.get_count(); j++) {
-				ok = (ausgang.get(j).gib_typ() == ware);
+				ok = (ausgang[j].gib_typ() == ware);
 			}
 		    }
 		}
@@ -226,7 +226,7 @@ bool halt_list_frame_t::passes_filter(halthandle_t halt)
 		    while(!ok && fab_iter.next()) {
 			const vector_tpl<ware_t>& eingang = fab_iter.get_current()->gib_eingang();
 			for (j = 0; !ok && j < eingang.get_count(); j++) {
-				ok = (eingang.get(j).gib_typ() == ware);
+				ok = (eingang[j].gib_typ() == ware);
 			}
 		    }
 		}

@@ -71,7 +71,7 @@ simlinemgmt_t::get_line_by_id(uint16 id)
 {
 	int count = count_lines();
 	for(int i = 0; i<count; i++) {
-		linehandle_t line = all_managed_lines.at(i);
+		linehandle_t line = all_managed_lines[i];
 		if (line->get_line_id()==id) {
 			return line;
 		}
@@ -221,7 +221,7 @@ void
 simlinemgmt_t::register_all_stops()
 {
 	for (int i = 0; i<count_lines(); i++) {
-		all_managed_lines.at(i)->register_stops();
+		all_managed_lines[i]->register_stops();
 	}
 }
 
@@ -263,7 +263,7 @@ void
 simlinemgmt_t::new_month()
 {
 	for (int i = 0; i<count_lines(); i++) {
-		all_managed_lines.at(i)->new_month();
+		all_managed_lines[i]->new_month();
 	}
 }
 
@@ -321,7 +321,7 @@ simlinemgmt_t::build_line_list(int type, slist_tpl<linehandle_t> * list)
 	list->clear();
 
 	for( int i=0;  i<count_lines();  i++  ) {
-		linehandle_t line = all_managed_lines.at(i);
+		linehandle_t line = all_managed_lines[i];
 
 		if(type==simline_t::line  ||  line->get_linetype()==simline_t::line  ||  line->get_linetype()==type) {
 #if 0

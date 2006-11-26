@@ -525,15 +525,15 @@ void depot_frame_t::add_to_vehicle_list(const vehikel_besch_t *info)
 	// since they come "pre-sorted" for the vehikelbauer, we have to do nothing to keep them sorted
 	if(info->gib_ware()==warenbauer_t::passagiere  ||  info->gib_ware()==warenbauer_t::post) {
 		pas_vec.append(img_data,4);
-		vehicle_map.set(info, &(pas_vec.at(pas_vec.get_count()-1)) );
+		vehicle_map.set(info, &pas_vec[pas_vec.get_count() - 1]);
 	}
 	else if(info->gib_leistung() > 0  ||  info->gib_zuladung()==0) {
 		loks_vec.append(img_data,4);
-		vehicle_map.set(info, &(loks_vec.at(loks_vec.get_count()-1)) );
+		vehicle_map.set(info, &loks_vec[loks_vec.get_count() - 1]);
 	}
 	else {
 		waggons_vec.append(img_data,4);
-		vehicle_map.set(info, &(waggons_vec.at(waggons_vec.get_count()-1)) );
+		vehicle_map.set(info, &waggons_vec[waggons_vec.get_count() - 1]);
 	}
 }
 
@@ -647,21 +647,21 @@ void depot_frame_t::update_data()
 		}
 
 		/* color bars for current convoi: */
-		convoi_pics.at(0).lcolor = convoi_t::pruefe_vorgaenger(NULL,cnv->gib_vehikel(0)->gib_besch()) ? COL_GREEN : COL_YELLOW;
+		convoi_pics[0].lcolor = convoi_t::pruefe_vorgaenger(NULL, cnv->gib_vehikel(0)->gib_besch()) ? COL_GREEN : COL_YELLOW;
 		for(  i=1;  i<cnv->gib_vehikel_anzahl(); i++) {
-			convoi_pics.at(i - 1).rcolor = convoi_t::pruefe_nachfolger(cnv->gib_vehikel(i - 1)->gib_besch(),cnv->gib_vehikel(i)->gib_besch()) ? COL_GREEN : COL_RED;
-			convoi_pics.at(i).lcolor = convoi_t::pruefe_vorgaenger(cnv->gib_vehikel(i - 1)->gib_besch(),cnv->gib_vehikel(i)->gib_besch()) ? COL_GREEN : COL_RED;
+			convoi_pics[i - 1].rcolor = convoi_t::pruefe_nachfolger(cnv->gib_vehikel(i - 1)->gib_besch(), cnv->gib_vehikel(i)->gib_besch()) ? COL_GREEN : COL_RED;
+			convoi_pics[i].lcolor     = convoi_t::pruefe_vorgaenger(cnv->gib_vehikel(i - 1)->gib_besch(), cnv->gib_vehikel(i)->gib_besch()) ? COL_GREEN : COL_RED;
 		}
-		convoi_pics.at(i-1).rcolor = convoi_t::pruefe_nachfolger(cnv->gib_vehikel(i - 1)->gib_besch(),NULL) ? COL_GREEN : COL_YELLOW;
+		convoi_pics[i - 1].rcolor = convoi_t::pruefe_nachfolger(cnv->gib_vehikel(i - 1)->gib_besch(), NULL) ? COL_GREEN : COL_YELLOW;
 
 		// change grren into blue for retired vehicles
 		for(i=0;  i<cnv->gib_vehikel_anzahl(); i++) {
 			if(cnv->gib_vehikel(i)->gib_besch()->is_future(month_now) || cnv->gib_vehikel(i)->gib_besch()->is_retired(month_now)) {
-				if(convoi_pics.at(i).lcolor==COL_GREEN) {
-					convoi_pics.at(i).lcolor = COL_BLUE;
+				if (convoi_pics[i].lcolor == COL_GREEN) {
+					convoi_pics[i].lcolor = COL_BLUE;
 				}
-				if(convoi_pics.at(i).rcolor==COL_GREEN) {
-					convoi_pics.at(i).rcolor = COL_BLUE;
+				if (convoi_pics[i].rcolor == COL_GREEN) {
+					convoi_pics[i].rcolor = COL_BLUE;
 				}
 			}
 		}
@@ -936,11 +936,11 @@ depot_frame_t::action_triggered(gui_komponente_t *komp,value_t p)
 		} else if(komp == &convoi) {
 			image_from_convoi_list( p.i );
 		} else if(komp == &pas) {
-			image_from_storage_list( &(pas_vec.at(p.i)) );
+			image_from_storage_list(&pas_vec[p.i]);
 		} else if(komp == &loks) {
-			image_from_storage_list( &(loks_vec.at(p.i)) );
+			image_from_storage_list(&loks_vec[p.i]);
 		} else if(komp == &waggons) {
-			image_from_storage_list( &(waggons_vec.at(p.i)) );
+			image_from_storage_list(&waggons_vec[p.i]);
 		} else if(komp == &bt_obsolete) {
 			show_retired_vehicles = (show_retired_vehicles==0);
 			build_vehicle_lists();
@@ -1209,9 +1209,9 @@ depot_frame_t::draw_vehicle_info_text(koord pos)
 	int sel_index = lst->index_at(pos + tabs.gib_pos() - relpos, x, y - 16 - gui_tab_panel_t::HEADER_VSIZE);
 
 	if ((sel_index != -1) && (tabs.getroffen(x-pos.x,y-pos.y))) {
-		vector_tpl<gui_image_list_t::image_data_t> *vec = (lst == &pas ? &pas_vec : (lst == &loks ? &loks_vec : &waggons_vec));
-		veh_type = vehikelbauer_t::gib_info(vec->at(sel_index).image);
-		if(vec->at(sel_index).count > 0) {
+		const vector_tpl<gui_image_list_t::image_data_t>& vec = (lst == &pas ? pas_vec : (lst == &loks ? loks_vec : waggons_vec));
+		veh_type = vehikelbauer_t::gib_info(vec[sel_index].image);
+		if (vec[sel_index].count > 0) {
 			value = calc_restwert(veh_type) / 100;
 		}
 	}
