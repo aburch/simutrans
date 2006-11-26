@@ -138,9 +138,9 @@ private:
 	karte_t *welt;
 	uint32 maximum;    // hoechste Suchtiefe
 
-	vector_tpl<koord3d> *route;
+	vector_tpl<koord3d> route;
 
-	inline const koord3d position_bei(unsigned i) const { return route->get(i); }
+	inline const koord3d position_bei(unsigned i) const { return route.get(i); }
 
 	// allowed owner?
 	bool check_owner( const spieler_t *sp1, const spieler_t *sp2 );
@@ -184,7 +184,7 @@ private:
 	void baue_leitung();
 
 public:
-	koord gib_route_bei(int i) const { return route->at(i).gib_2d(); }
+	koord gib_route_bei(int i) const { return route.at(i).gib_2d(); }
 
 	int n, max_n;
 
@@ -213,7 +213,6 @@ public:
 	void set_maximum(uint32 n) { maximum = n; }
 
 	wegbauer_t(karte_t *welt, spieler_t *spl);
-	~wegbauer_t();
 
 	void calc_straight_route(koord3d start, const koord3d ziel);
 	void calc_route(koord3d start3d, koord3d ziel);
