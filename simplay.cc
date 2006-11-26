@@ -1317,7 +1317,7 @@ DBG_MESSAGE("spieler_t::do_ki()","%s want to build a route from %s (%d,%d) to %s
 
 					// needed for search
 					// first we have to find a suitable car
-					const ware_besch_t *freight = start->gib_ausgang()->get(start_ware).gib_typ();
+					const ware_besch_t* freight = start->gib_ausgang().get(start_ware).gib_typ();
 
 					// guess the "optimum" speed (usually a little too low)
 				  	uint32 best_rail_speed = 80;// is ok enough for goods, was: min(60+freight->gib_speed_bonus()*5, 140 );
@@ -1475,7 +1475,7 @@ DBG_MESSAGE("spieler_t::do_ki()","No roadway possible.");
 							 	int best_rail_speed = min(51,rail_vehicle->gib_geschw());
 								// needed for search
 								// first we have to find a suitable car
-								const ware_besch_t *freight = start->gib_ausgang()->get(start_ware).gib_typ();
+								const ware_besch_t* freight = start->gib_ausgang().get(start_ware).gib_typ();
 							  	// obey timeline
 								unsigned month_now = welt->get_current_month();
 								if(  welt->use_timeline() == false   ) {
@@ -1862,14 +1862,14 @@ DBG_MESSAGE("spieler_t::baue_bahnhof","set pos *p %i,%i to %i,%i",p->x,p->y,t.x,
 int
 spieler_t::rating_transport_quelle_ziel(fabrik_t *qfab,const ware_t *ware,fabrik_t *zfab)
 {
-	const vector_tpl<ware_t> *eingang = zfab->gib_eingang();
+	const vector_tpl<ware_t>& eingang = zfab->gib_eingang();
 	// we may have more than one input:
 	unsigned missing_input_ware=0;
 	unsigned missing_our_ware=0;
 
 	// does the source also produce => then we should try to connect it
 	// otherwise production will stop too early
-	bool 	is_manufacturer = qfab->gib_eingang()->get_count()>0;
+	bool is_manufacturer = (qfab->gib_eingang().get_count() > 0);
 
 	// hat noch mehr als halbvolle Lager  and more then 35 (otherwise there might be also another transporter) ?
 	if(ware->menge < ware->max>>1  ||  ware->menge<(34<<fabrik_t::precision_bits)  ) {
@@ -1883,11 +1883,11 @@ spieler_t::rating_transport_quelle_ziel(fabrik_t *qfab,const ware_t *ware,fabrik
 	}
 
 	// so we do a loop
-	for(  unsigned i=0;  i<eingang->get_count();  i++  ) {
-		if( eingang->get(i).menge<(10<<fabrik_t::precision_bits)  ) {
+	for (unsigned i = 0; i < eingang.get_count(); i++) {
+		if (eingang.get(i).menge < 10 << fabrik_t::precision_bits) {
 			// so more would be helpful
 			missing_input_ware ++;
-			if(  eingang->get(i).gib_typ()==ware->gib_typ()  ) {
+			if (eingang.get(i).gib_typ() == ware->gib_typ()) {
 				missing_our_ware = true;
 			}
 		}
@@ -1897,12 +1897,12 @@ DBG_MESSAGE("spieler_t::rating_transport_quelle_ziel","Missing our %i, total  mi
 	// so our good is missing
 	if(  missing_our_ware  ) {
 		if(  missing_input_ware==1  ) {
-			if(  eingang->get_count()-missing_input_ware==1  ) {
+			if (eingang.get_count() - missing_input_ware == 1) {
 				// only our is missing of multiple produkts
 				return is_manufacturer ? 64 : 16;
 			}
 		}
-		if(  missing_input_ware<eingang->get_count()  ) {
+		if (missing_input_ware < eingang.get_count()) {
 			// factory is already supplied with mutiple sources, but our is missing
 			return is_manufacturer ? 32 : 8;
 		}
@@ -1994,11 +1994,11 @@ DBG_MESSAGE("spieler_t::suche_transport_quelle","Search other %i supplier for: %
 			}
 			fabrik_t * start_neu = dt->get_fabrik();
 			// get all ware
-			const vector_tpl<ware_t> *ausgang = zfab->gib_ausgang();
-			const int waren_anzahl = ausgang->get_count();
+			const vector_tpl<ware_t>& ausgang = zfab->gib_ausgang();
+			const int waren_anzahl = ausgang.get_count();
 			// for all products
 			for(int ware_nr=0;  ware_nr<waren_anzahl ;  ware_nr++  ) {
-				const ware_t ware = ausgang->get(ware_nr);
+				const ware_t ware = ausgang.get(ware_nr);
 				int dieser_gewinn = guess_gewinn_transport_quelle_ziel( start_neu, &ware, ware_nr, zfab );
 				// more income on this line
 				if(  dieser_gewinn>gewinn  ) {
@@ -2033,14 +2033,14 @@ int spieler_t::suche_transport_ziel(fabrik_t *qfab, int *quelle_ware, fabrik_t *
 		return -1;
 	}
 
-	const vector_tpl<ware_t> *ausgang = qfab->gib_ausgang();
+	const vector_tpl<ware_t>& ausgang = qfab->gib_ausgang();
 
 	// ist es ein erzeuger ?
-	const int waren_anzahl = ausgang->get_count();
+	const int waren_anzahl = ausgang.get_count();
 
 	// for all products
 	for(int ware_nr=0;  ware_nr<waren_anzahl ;  ware_nr++  ) {
-		const ware_t ware = ausgang->get(ware_nr);
+		const ware_t ware = ausgang.get(ware_nr);
 
 		// hat es schon etwas produziert ?
 		if(ware.menge < ware.max/4) {

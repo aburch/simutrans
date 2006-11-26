@@ -409,19 +409,18 @@ fabrikbauer_t::baue_fabrik(karte_t * welt, koord3d *parent, const fabrik_besch_t
 	fabrik_t * fab = new fabrik_t(welt, pos, spieler, info);
 	int i;
 
-	vector_tpl<ware_t> *eingang = new vector_tpl<ware_t> (info->gib_lieferanten());
-	vector_tpl<ware_t> *ausgang = new vector_tpl<ware_t> (info->gib_produkte());
-
 	// create producer information
+	vector_tpl<ware_t> eingang(info->gib_lieferanten());
 	for(i=0; i < info->gib_lieferanten(); i++) {
 		const fabrik_lieferant_besch_t *lieferant = info->gib_lieferant(i);
 		ware_t ware(lieferant->gib_ware());
 		ware.max = lieferant->gib_kapazitaet() << fabrik_t::precision_bits;
-		eingang->append(ware);
+		eingang.append(ware);
 	}
-	fab->set_eingang( eingang );
+	fab->set_eingang(eingang);
 
 	// create consumer information
+	vector_tpl<ware_t> ausgang(info->gib_produkte());
 	for(i=0; i < info->gib_produkte(); i++) {
 		const fabrik_produkt_besch_t *produkt = info->gib_produkt(i);
 		ware_t ware(produkt->gib_ware());
@@ -432,9 +431,9 @@ fabrikbauer_t::baue_fabrik(karte_t * welt, koord3d *parent, const fabrik_besch_t
 			// @author prissi
 			ware.menge = ware.max-(16<<fabrik_t::precision_bits);
 		}
-		ausgang->append(ware);
+		ausgang.append(ware);
 	}
-	fab->set_ausgang( ausgang );
+	fab->set_ausgang(ausgang);
 
 	// set production
 	fab->set_prodfaktor( 16 );
@@ -603,7 +602,7 @@ DBG_MESSAGE("fabrikbauer_t::baue_hierarchie","lieferanten %i, lcount %i (need %i
 
 				// for sources (oil fields, forests ... ) prefer thoses with a smaller distance
 				const unsigned distance = koord_distance(fab->gib_pos(),*pos);
-				const bool ok = fab->gib_eingang()->get_count()>0  ||  distance < DISTANCE || distance < simrand((welt->gib_groesse_x()*3)/4);
+				const bool ok = fab->gib_eingang().get_count() > 0 || distance < DISTANCE || distance < simrand(welt->gib_groesse_x() * 3 / 4);
 
 				if(ok  &&  distance>6) {
 					found = true;

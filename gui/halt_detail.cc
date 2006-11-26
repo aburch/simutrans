@@ -91,10 +91,10 @@ void halt_detail_t::halt_detail_info(cbuffer_t & buf)
 	buf.append(pos.y);
 	buf.append(")\n");
 
-	const vector_tpl<ware_t> * eingang = fab->gib_eingang();
+	const vector_tpl<ware_t>& eingang = fab->gib_eingang();
 
-	for(uint32 i=0; i<eingang->get_count(); i++) {
-	    const ware_besch_t *ware = eingang->get(i).gib_typ();
+	for (uint32 i = 0; i < eingang.get_count(); i++) {
+		const ware_besch_t* ware = eingang.get(i).gib_typ();
 
 	    if(!nimmt_an.contains(ware)) {
 		nimmt_an.append(ware);

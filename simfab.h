@@ -119,18 +119,8 @@ private:
     sint32 prodfaktor;
 
 
-    /**
-     * pointer auf das einganslagerfeld
-     * @author Hj. Malthaner
-     */
-    vector_tpl<ware_t> *eingang;
-
-
-    /**
-     * pointer auf das ausgangslagerfeld
-     * @author Hj. Malthaner
-     */
-    vector_tpl<ware_t> *ausgang;
+    vector_tpl<ware_t> eingang; //< das einganslagerfeld
+    vector_tpl<ware_t> ausgang; //< das ausgangslagerfeld
 
 
     /**
@@ -307,16 +297,16 @@ public:
      *
      * @author Hj. Malthaner
      */
-    void set_eingang(vector_tpl<ware_t> * typen);
-    const vector_tpl<ware_t>* gib_eingang() const { return eingang; }
+    void set_eingang(vector_tpl<ware_t>& typen);
+    const vector_tpl<ware_t>& gib_eingang() const { return eingang; }
 
     /**
      * setzt die Ausgangsswarentypen
      *
      * @author Hj. Malthaner
      */
-    void set_ausgang(vector_tpl<ware_t> * typen);
-    const vector_tpl<ware_t>* gib_ausgang() const { return ausgang; }
+    void set_ausgang(vector_tpl<ware_t>& typen);
+    const vector_tpl<ware_t>& gib_ausgang() const { return ausgang; }
 
 
     /**

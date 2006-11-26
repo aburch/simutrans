@@ -103,7 +103,7 @@ void factorylist_stats_t::zeichnen(koord offset)
 			buf.append(fab_list.at(i)->gib_name());
 			buf.append(" (");
 
-			if (fab->gib_eingang()->get_count() > 0) {
+			if (fab->gib_eingang().get_count() > 0) {
 				buf.append(input);
 			}
 			else {
@@ -111,7 +111,7 @@ void factorylist_stats_t::zeichnen(koord offset)
 			}
 			buf.append(", ");
 
-			if (fab->gib_ausgang()->get_count() > 0) {
+			if (fab->gib_ausgang().get_count() > 0) {
 				buf.append(output);
 			}
 			else {
@@ -173,7 +173,7 @@ void factorylist_stats_t::sort(const factorylist::sort_mode_t& sortby,const bool
 					fab->calc_factory_status( &input, &output );
 					check_fab->calc_factory_status( &check_input, &check_output );
 					if (sortreverse)
-						append = (input<=check_input &&  check_fab->gib_eingang()->get_count()!=0);
+						append = (input <= check_input && check_fab->gib_eingang().get_count() != 0);
 					else
 						append = (input>=check_input);//  &&  check_fab->gib_eingang()->get_count()!=0);
 					break;
@@ -181,7 +181,7 @@ void factorylist_stats_t::sort(const factorylist::sort_mode_t& sortby,const bool
 					fab->calc_factory_status( &input, &output );
 					check_fab->calc_factory_status( &check_input, &check_output );
 					if (sortreverse)
-						append = (output<=check_output  &&  check_fab->gib_ausgang()->get_count()!=0);
+						append = (output <= check_output && check_fab->gib_ausgang().get_count() != 0);
 					else
 						append = (output>=check_output);//  &&  check_fab->gib_ausgang()->get_count()!=0);
 					break;
