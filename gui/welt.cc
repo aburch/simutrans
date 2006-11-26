@@ -587,8 +587,21 @@ void welt_gui_t::zeichnen(koord pos, koord gr)
 	// since the display is done via a textfiled, we have nothing to do
 	y += 12;
 
-	const long x2 = sets->gib_groesse_x() * sets->gib_groesse_y();
-	const long memory = (sizeof(karte_t)+8l*sizeof(spieler_t)+ 1000*sizeof(convoi_t) + 10*(sets->gib_groesse_x()+sets->gib_groesse_y())*(sizeof(schiene_t)+sizeof(vehikel_t)) + (sizeof(stadt_t)*sets->gib_anzahl_staedte()) + x2*(sizeof(grund_t)+sizeof(planquadrat_t)+sizeof(baum_t)*2+sizeof(void *)*4) )/(1024l*1024l);
+	const uint sx = sets->gib_groesse_x();
+	const uint sy = sets->gib_groesse_y();
+	const long memory = (
+		sizeof(karte_t) +
+		sizeof(spieler_t) * 8 +
+		sizeof(convoi_t) * 1000 +
+		(sizeof(schiene_t) + sizeof(vehikel_t)) * 10 * (sx + sy) +
+		sizeof(stadt_t) * sets->gib_anzahl_staedte() +
+		(
+			sizeof(grund_t) +
+			sizeof(planquadrat_t) +
+			sizeof(baum_t) * 2 +
+			sizeof(void*) * 4
+		) * sx * sy
+	) / (1024 * 1024);
 	sprintf(buf, translator::translate("3WORLD_CHOOSE"), memory);
 	display_proportional_clip(x, y, buf, ALIGN_LEFT, COL_BLACK, true);
 	display_proportional_clip(x+TEXT_RIGHT, y, ntos(sets->gib_groesse_x(), 0), ALIGN_RIGHT, COL_WHITE, true);
