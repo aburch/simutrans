@@ -14,6 +14,7 @@ xx-Nov-2006: (prissi)
 	FIX: waypoints for planes
 	CHANGE: 4 bytes less per planquadrat, 4 less per ground (now down to 32 bytes per tile without objects from previous 48)
 	CHANGE: koord3d is now only with 1 per height step => much less hassle with heights and again bytes saved
+	CHANGE: squeezed another four bytes from tree structure => now only 20 bytes per tree => 16 MB less on 2048*2048 maps
 
 
 Release of 99.04.2

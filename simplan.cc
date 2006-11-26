@@ -377,7 +377,7 @@ planquadrat_t::display_dinge(const sint16 xpos, const sint16 ypos, const sint16 
 		const sint16 h0 = gr->gib_hoehe();
 		for(uint8 i=1;  i<ground_size;  i++) {
 			gr=data.some[i];
-			const sint16 yypos = ypos - tile_raster_scale_y( gr->gib_hoehe()-h0, raster_tile_width);
+			const sint16 yypos = ypos - tile_raster_scale_y( (gr->gib_hoehe()-h0)*TILE_HEIGHT_STEP/Z_TILE_STEP, raster_tile_width);
 			gr->display_boden(xpos, yypos, reset_dirty );
 			gr->display_dinge(xpos, yypos, reset_dirty );
 		}

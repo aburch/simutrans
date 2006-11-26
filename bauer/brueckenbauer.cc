@@ -67,29 +67,29 @@ const bruecke_besch_t *brueckenbauer_t::gib_besch(const char *name)
 
 bool brueckenbauer_t::laden_erfolgreich()
 {
-  bool strasse_da = false;
-  bool schiene_da = false;
+	bool strasse_da = false;
+	bool schiene_da = false;
 
-  for(unsigned int i = 0; i < bruecken.get_count(); i++) {
-    const bruecke_besch_t* besch = bruecken[i];
+	for(unsigned int i = 0; i < bruecken.get_count(); i++) {
+		const bruecke_besch_t* besch = bruecken[i];
 
-    if(besch && besch->gib_waytype() == track_wt) {
-      schiene_da = true;
-    }
-    if(besch && besch->gib_waytype() == road_wt) {
-      strasse_da = true;
-    }
-  }
+		if(besch && besch->gib_waytype() == track_wt) {
+			schiene_da = true;
+		}
+		if(besch && besch->gib_waytype() == road_wt) {
+			strasse_da = true;
+		}
+	}
 
-  if(!schiene_da) {
-    DBG_MESSAGE("brueckenbauer_t", "No rail bridge found - feature disabled");
-  }
+	if(!schiene_da) {
+		DBG_MESSAGE("brueckenbauer_t", "No rail bridge found - feature disabled");
+	}
 
-  if(!strasse_da) {
-    DBG_MESSAGE("brueckenbauer_t", "No road bridge found - feature disabled");
-  }
+	if(!strasse_da) {
+		DBG_MESSAGE("brueckenbauer_t", "No road bridge found - feature disabled");
+	}
 
-  return true;
+	return true;
 }
 
 

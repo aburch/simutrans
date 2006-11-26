@@ -182,6 +182,27 @@ DBG_MESSAGE("karte_t::neuer_monat()","process seasons %i snowline %i",season,sno
 
 
 
+// recalc images of all tiles all tiles
+void
+karte_t::recalc_world()
+{
+	const int cached_groesse2 = cached_groesse_gitter_x*cached_groesse_gitter_y;
+	int check_counter = 0;
+	for(int i=0; i<cached_groesse2; i++) {
+		for(uint8 schicht=0; schicht<plan[i].gib_boden_count(); schicht++) {
+			plan[i].gib_boden_bei(schicht)->calc_bild();
+		}
+
+		if(((++check_counter) & 63) == 0) {	// every 64 one update ...
+			INT_CHECK("simworld 1076");
+			interactive_update();
+		}
+	}
+}
+
+
+
+
 void
 karte_t::setze_scroll_multi(int n)
 {
@@ -3015,6 +3036,7 @@ karte_t::interactive_event(event_t &ev)
 	    	gebaeude_t::hide = gebaeude_t::NOT_HIDDEN;
 	    }
 	    baum_t::hide = !baum_t::hide;
+			recalc_world();
 	    setze_dirty();
 	    break;
 	case '#':

@@ -286,6 +286,19 @@ gebaeude_t::step(long delta_t)
 void
 gebaeude_t::calc_bild()
 {
+	if(hide!=NOT_HIDDEN) {
+		if(gib_haustyp()!=unbekannt) {
+			setze_bild( 0, skinverwaltung_t::construction_site->gib_bild_nr(0) );
+			return;
+		}
+		else if(hide==ALL_HIDDEN  &&  tile->gib_besch()->gib_utyp()<hausbauer_t::weitere) {
+			// special bilding
+			int kind=skinverwaltung_t::construction_site->gib_bild_anzahl()<=tile->gib_besch()->gib_utyp() ? skinverwaltung_t::construction_site->gib_bild_anzahl()-1 : tile->gib_besch()->gib_utyp();
+			setze_bild( 0, skinverwaltung_t::construction_site->gib_bild_nr( kind ) );
+			return;
+		}
+	}
+
 	// winter for buildings only above snowline
 	if(zeige_baugrube)  {
 		setze_bild( 0, skinverwaltung_t::construction_site->gib_bild_nr(0) );
@@ -293,6 +306,7 @@ gebaeude_t::calc_bild()
 	else {
 		setze_bild( 0, tile->gib_hintergrund(count, 0, gib_pos().z>=welt->get_snowline()) );
 	}
+
 	// need no ground?
 	if(!tile->gib_besch()->ist_mit_boden()) {
 		grund_t *gr=welt->lookup(gib_pos());
@@ -300,28 +314,6 @@ gebaeude_t::calc_bild()
 			gr->setze_bild( IMG_LEER );
 		}
 	}
-}
-
-
-
-/* image calculation routines
- */
-image_id
-gebaeude_t::gib_bild() const
-{
-	if(hide!=NOT_HIDDEN) {
-		if(gib_haustyp()!=unbekannt) {
-			return skinverwaltung_t::construction_site->gib_bild_nr(0);
-		}
-		else if(hide==ALL_HIDDEN  &&  tile->gib_besch()->gib_utyp()<hausbauer_t::weitere) {
-			// special bilding
-			int kind=skinverwaltung_t::construction_site->gib_bild_anzahl()<=tile->gib_besch()->gib_utyp() ? skinverwaltung_t::construction_site->gib_bild_anzahl()-1 : tile->gib_besch()->gib_utyp();
-			return skinverwaltung_t::construction_site->gib_bild_nr( kind );
-		}
-	}
-
-	// winter for buildings only above snowline
-	return ding_t::gib_bild();
 }
 
 
@@ -363,14 +355,7 @@ int gebaeude_t::gib_passagier_level() const
 	long pax = tile->gib_besch()->gib_level();
 	if(is_factory==false  &&  ptr.stadt!=NULL) {
 		// belongs to a city ...
-#if 0
-		// old density
-		const koord lo(ptr.stadt->get_linksoben()), ru(ptr.stadt->get_rechtsunten());
-		const long dense=(lo.x-ru.x)*(lo.y-ru.y);
-		return (2097*((pax+6)>>2))/dense;
-#else
 		return (((pax+6)>>2)*umgebung_t::passenger_factor)/16;
-#endif
 	}
 	return pax*dim.x*dim.y;
 }
@@ -380,14 +365,7 @@ int gebaeude_t::gib_post_level() const
 	koord dim = tile->gib_besch()->gib_groesse();
 	long post = tile->gib_besch()->gib_post_level();
 	if(is_factory==false  &&  ptr.stadt!=NULL) {
-#if 0
-		// old density
-		const koord lo(ptr.stadt->get_linksoben()), ru(ptr.stadt->get_rechtsunten());
-		const long dense=(lo.x-ru.x)*(lo.y-ru.y);
-		return (2097*((post+5)>>2))/dense;
-#else
 		return (((post+5)>>2)*umgebung_t::passenger_factor)/16;
-#endif
 	}
 	return post*dim.x*dim.y;
 }
@@ -403,28 +381,29 @@ const char *gebaeude_t::gib_name() const
 	if(is_factory  &&  ptr.fab) {
 		return ptr.fab->gib_name();
 	}
-    switch(tile->gib_besch()->gib_typ()) {
-    case wohnung:
-	break;//return "Wohnhaus";
-    case gewerbe:
-	break;//return "Gewerbehaus";
-    case industrie:
-	break;//return "Industriegebäude";
-    default:
-	switch(tile->gib_besch()->gib_utyp()) {
-	case hausbauer_t::special:
-	    return "Besonderes Gebaeude";
-	case hausbauer_t::sehenswuerdigkeit:
-	    return "Sehenswuerdigkeit";
-	case hausbauer_t::denkmal:
-	    return "Denkmal";
-	case hausbauer_t::rathaus:
-	    return "Rathaus";
-	default:
-	    break;
+	switch(tile->gib_besch()->gib_typ()) {
+		case wohnung:
+			break;//return "Wohnhaus";
+		case gewerbe:
+			break;//return "Gewerbehaus";
+		case industrie:
+			break;//return "Industriegebäude";
+		default:
+			switch(tile->gib_besch()->gib_utyp()) {
+				case hausbauer_t::special:
+					return "Besonderes Gebaeude";
+				case hausbauer_t::sehenswuerdigkeit:
+					return "Sehenswuerdigkeit";
+				case hausbauer_t::denkmal:
+					return "Denkmal";
+				case hausbauer_t::rathaus:
+					return "Rathaus";
+				default:
+					break;
+			}
+			break;
 	}
-    }
-    return "Gebaeude";
+	return "Gebaeude";
 }
 
 bool gebaeude_t::ist_rathaus() const

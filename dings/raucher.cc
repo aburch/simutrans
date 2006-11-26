@@ -45,7 +45,7 @@ raucher_t::raucher_t(karte_t *welt, koord3d pos, const rauch_besch_t *besch) :
     ding_t(welt, pos)
 {
 	this->besch = besch;
-	active = true;
+	zustand = true;
 	setze_yoff( besch->gib_xy_off().y );
 	setze_xoff( besch->gib_xy_off().x );
 }
@@ -53,7 +53,7 @@ raucher_t::raucher_t(karte_t *welt, koord3d pos, const rauch_besch_t *besch) :
 bool
 raucher_t::step(long /*delta_t*/)
 {
-	if(simrand(besch->gib_zeitmaske())<16  && active) {
+	if(simrand(besch->gib_zeitmaske())<16  && zustand) {
 		welt->lookup(gib_pos())->obj_add(new async_wolke_t(welt, gib_pos(), gib_xoff()+simrand(7)-3, gib_yoff(), besch->gib_bilder()->gib_bild_nr((0))));
 		INT_CHECK("raucher 57");
 	}

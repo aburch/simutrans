@@ -14,7 +14,7 @@ private:
 	static const rauch_besch_t *gib_besch(const char *name);
 
 	const rauch_besch_t *besch;
-	bool active;
+	uint8 zustand:1;
 
 public:
 	static void register_besch(const rauch_besch_t *besch, const char *name);
@@ -22,7 +22,7 @@ public:
 	raucher_t(karte_t *welt, loadsave_t *file);
 	raucher_t(karte_t *welt, koord3d pos, const rauch_besch_t *besch);
 
-	void set_active( bool state ) { active=state; }
+	void set_active( bool state ) { zustand=state; }
 
 	bool step(long delta_t);
 	void zeige_info();

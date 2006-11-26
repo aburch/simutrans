@@ -49,10 +49,6 @@ pillar_t::pillar_t(karte_t *welt, koord3d pos, spieler_t *sp, const bruecke_besc
 }
 
 
-pillar_t::~pillar_t()
-{
-}
-
 
 
 /**

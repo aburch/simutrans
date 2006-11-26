@@ -45,21 +45,20 @@ bool baum_t::hide = false;
 /*
  * Diese Tabelle ermöglicht das Auffinden dient zur Auswahl eines Baumtypen
  */
-slist_tpl<const baum_besch_t *> baum_t::baum_typen;
+vector_tpl<const baum_besch_t *> baum_t::baum_typen(0);
 
 /*
  * Diese Tabelle ermöglicht das Auffinden einer Beschreibung durch ihren Namen
  */
-stringhashtable_tpl<const baum_besch_t *> baum_t::besch_names;
+stringhashtable_tpl<uint32> baum_t::besch_names;
 
 // total number of trees
 // the same for a certain climate
 int baum_t::gib_anzahl_besch(climate cl)
 {
 	uint16 total_number=0;
-	slist_iterator_tpl<const baum_besch_t *> iter(baum_typen);
-	while(iter.next()) {
-		if(iter.get_current()->is_allowed_climate(cl)) {
+	for( unsigned i=0;  i<baum_typen.get_count();  i++  ) {
+		if(baum_typen.get(i)->is_allowed_climate(cl)) {
 			total_number ++;
 		}
 	}
@@ -104,8 +103,8 @@ baum_t::alles_geladen()
 bool
 baum_t::register_besch(baum_besch_t *besch)
 {
-	baum_typen.append(besch);
-	besch_names.put(besch->gib_name(), const_cast<baum_besch_t *>(besch));
+	baum_typen.append(besch,4);
+	besch_names.put(besch->gib_name(), baum_typen.get_count() );
 	return true;
 }
 
@@ -161,8 +160,9 @@ bool
 baum_t::calc_bild(const unsigned long alter)
 {
 	// alter/2048 is the age of the tree
-	int baum_alter = baum_bild_alter[min(alter>>6, 11u)];
-	const int seasons = besch->gib_seasons();
+	int baum_alter = hide ? 0 : baum_bild_alter[min(alter>>6, 11u)];
+	const baum_besch_t *besch=gib_besch();
+	const sint16 seasons = besch->gib_seasons();
 	int season=0;
 
 	if(seasons>1) {
@@ -207,38 +207,37 @@ baum_t::calc_bild()
 /* also checks for distribution values
  * @author prissi
  */
-const baum_besch_t *
-baum_t::gib_aus_liste(climate cl)
+const uint16
+baum_t::random_tree_for_climate(climate cl)
 {
-	slist_tpl<const baum_besch_t *> auswahl;
-	slist_iterator_tpl<const baum_besch_t *>  iter(baum_typen);
+	vector_tpl<sint32>weights(baum_typen.get_count());
 	int weight = 0;
 
-	while(iter.next()) {
-		if(iter.get_current()->is_allowed_climate(cl)) {
-			auswahl.append(iter.get_current());
-			weight += iter.get_current()->gib_distribution_weight();
+	for( unsigned i=0;  i<baum_typen.get_count();  i++  ) {
+		if(baum_typen.get(i)->is_allowed_climate(cl)) {
+			weight += baum_typen.get(i)->gib_distribution_weight();
 		}
+		weights.append(weight);
 	}
+
 	// now weight their distribution
-	if (!auswahl.empty() && weight > 0) {
+	if (weight > 0) {
 		const int w=simrand(weight);
 		weight = 0;
-		for( unsigned i=0; i<auswahl.count();  i++  ) {
-			weight += auswahl.at(i)->gib_distribution_weight();
+		for( unsigned i=0; i<baum_typen.get_count();  i++  ) {
+			weight += weights.get(i);
 			if(weight>w) {
-				return auswahl.at(i);
+				return i;
 			}
 		}
 	}
-	return NULL;
+	return 0xFFFF;
 }
 
 
 
 baum_t::baum_t(karte_t *welt, loadsave_t *file) : ding_t(welt)
 {
-	besch = NULL;
 	rdwr(file);
 	if(gib_besch()) {
 		calc_bild();
@@ -254,8 +253,7 @@ baum_t::baum_t(karte_t *welt, koord3d pos) : ding_t(welt, pos)
 	// Hajo: auch aeltere Baeume erzeugen
 	geburt = welt->get_current_month() - simrand(400);
 
-	besch = gib_aus_liste(welt->get_climate(pos.z));
-	assert(besch);
+	baumtype = random_tree_for_climate(welt->get_climate(pos.z));
 
 	calc_off();
 	calc_bild();
@@ -266,11 +264,11 @@ baum_t::baum_t(karte_t *welt, koord3d pos) : ding_t(welt, pos)
 
 
 
-baum_t::baum_t(karte_t *welt, koord3d pos, const baum_besch_t *besch) : ding_t(welt, pos)
+baum_t::baum_t(karte_t *welt, koord3d pos, uint16 type) : ding_t(welt, pos)
 {
 	geburt = welt->get_current_month();
 
-	this->besch = besch;
+	baumtype = type;
 	calc_off();
 	calc_bild();
 
@@ -290,11 +288,11 @@ baum_t::saee_baum()
 	if(welt->lookup(k)) {
 		grund_t *bd = welt->lookup(k)->gib_kartenboden();
 		if(	bd!=NULL  &&
-			besch->is_allowed_climate(welt->get_climate(bd->gib_hoehe()))  &&
+			gib_besch()->is_allowed_climate(welt->get_climate(bd->gib_hoehe()))  &&
 			bd->ist_natur()  &&
 			bd->gib_top()<welt->gib_max_no_of_trees_on_square())
 		{
-			bd->obj_add( new baum_t(welt, bd->gib_pos(), besch) );
+			bd->obj_add( new baum_t(welt, bd->gib_pos(), baumtype) );
 		}
 	}
 }
@@ -336,7 +334,7 @@ baum_t::rdwr(loadsave_t *file)
 	geburt = welt->get_current_month() - (alter>>18);
 
 	if(file->is_saving()) {
-		const char *s = besch->gib_name();
+		const char *s = gib_besch()->gib_name();
 		file->rdwr_str(s, "N");
 	}
 
@@ -344,13 +342,13 @@ baum_t::rdwr(loadsave_t *file)
 		char bname[128];
 		file->rd_str_into(bname, "N");
 
-		besch = besch_names.get(bname);
-		if(!besch) {
+		baumtype = 0;
+		baumtype = besch_names.get(bname);
+		if(baumtype==0) {
 			// replace with random tree
-			if (!baum_typen.empty()) {
-				besch = baum_typen.at(simrand(baum_typen.count()));
-			}
+			baumtype = simrand(baum_typen.get_count())+1;
 		}
+		baumtype --;
 	}
 }
 
@@ -379,7 +377,7 @@ void baum_t::info(cbuffer_t & buf) const
 	ding_t::info(buf);
 
 	buf.append("\n");
-	buf.append(translator::translate(besch->gib_name()));
+	buf.append(translator::translate(gib_besch()->gib_name()));
 	buf.append("\n");
 	buf.append(welt->get_current_month() - geburt);
 	buf.append(" ");

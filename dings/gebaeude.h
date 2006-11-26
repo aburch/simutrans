@@ -159,7 +159,6 @@ public:
 	// snowline height may have been changed
 	bool check_season(const long /*month*/) { calc_bild(); return true; }
 
-	image_id gib_bild() const;
 	image_id gib_bild(int nr) const;
 	image_id gib_after_bild() const;
 

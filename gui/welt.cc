@@ -27,6 +27,7 @@
 
 // just for their structure size ...
 #include "../boden/wege/schiene.h"
+#include "../dings/baum.h"
 #include "../simcity.h"
 #include "../simvehikel.h"
 
@@ -358,8 +359,6 @@ welt_gui_t::update_preview()
 	x_size[1].enable();
 	y_size[0].enable();
 	y_size[1].enable();
-
-DBG_MESSAGE("sizes","grund_t=%i, planquadrat_t=%d, ding_t=%d",sizeof(grund_t),sizeof(planquadrat_t),sizeof(ding_t));
 }
 
 
@@ -589,7 +588,7 @@ void welt_gui_t::zeichnen(koord pos, koord gr)
 	y += 12;
 
 	const long x2 = sets->gib_groesse_x() * sets->gib_groesse_y();
-	const long memory = (sizeof(karte_t)+8l*sizeof(spieler_t)+ 100*sizeof(convoi_t) + (sets->gib_groesse_x()+sets->gib_groesse_y())*(sizeof(schiene_t)+sizeof(vehikel_t)) + (sizeof(stadt_t)*sets->gib_anzahl_staedte()) + x2*(sizeof(grund_t)+sizeof(planquadrat_t)+4*sizeof(ding_t)) )/(1024l*1024l);
+	const long memory = (sizeof(karte_t)+8l*sizeof(spieler_t)+ 1000*sizeof(convoi_t) + 10*(sets->gib_groesse_x()+sets->gib_groesse_y())*(sizeof(schiene_t)+sizeof(vehikel_t)) + (sizeof(stadt_t)*sets->gib_anzahl_staedte()) + x2*(sizeof(grund_t)+sizeof(planquadrat_t)+sizeof(baum_t)*2+sizeof(void *)*4) )/(1024l*1024l);
 	sprintf(buf, translator::translate("3WORLD_CHOOSE"), memory);
 	display_proportional_clip(x, y, buf, ALIGN_LEFT, COL_BLACK, true);
 	display_proportional_clip(x+TEXT_RIGHT, y, ntos(sets->gib_groesse_x(), 0), ALIGN_RIGHT, COL_WHITE, true);

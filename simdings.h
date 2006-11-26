@@ -52,13 +52,6 @@ private:
 	koord3d pos;
 
 	/**
-	* das bild des dings
-	* @author Hj. Malthaner
-	*/
-	image_id bild;
-
-
-	/**
 	* Dies ist der x-Offset in Bilschirmkoordinaten bei der
 	* Darstellung des Objektbildes.
 	* @author Hj. Malthaner
@@ -84,6 +77,11 @@ private:
 	*/
 	uint8 flags:4;
 
+	/**
+	* das bild des dings
+	* @author Hj. Malthaner
+	*/
+	image_id bild;
 
 public:
 	/**
@@ -104,6 +102,9 @@ private:
 
 
 protected:
+	// free for additional info; specific for each object
+	uint8 extra_info;
+
 	/**
 	* Basiskonstruktor
 	* @author Hj. Malthaner
@@ -283,7 +284,14 @@ public:
 	 * @return Die Nummer des aktuellen Bildes für das Objekt.
 	 * @author Hj. Malthaner
 	 */
-	virtual image_id gib_bild() const {return bild;}
+	inline image_id gib_bild() const {return bild;}
+
+	/**
+	 * give image for height > 0 (max. height currently 3)
+	 * IMG_LEER is no images
+	 * @author Hj. Malthaner
+	 */
+	virtual image_id gib_bild(int /*height*/) const {return IMG_LEER;}
 
 	/**
 	 * this image is draw after all gib_bild() on this tile
@@ -299,13 +307,6 @@ public:
 	 * @author Hj. Malthaner
 	 */
 	virtual void setze_bild(int n, image_id bild);
-
-	/**
-	 * give image for height > 0 (max. height currently 3)
-	 * IMG_LEER is no images
-	 * @author Hj. Malthaner
-	 */
-	virtual image_id gib_bild(int /*height*/) const {return IMG_LEER;}
 
 	/**
 	 * Ein Objekt kann zu einer Fabrik gehören.
