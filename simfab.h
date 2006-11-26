@@ -28,7 +28,7 @@ class haltestelle_t;
 class spieler_t;
 class stadt_t;
 class stringhashtable_t;
-class raucher_t;
+class wolke_t;
 
 
 // production happens in every second
@@ -59,285 +59,260 @@ class raucher_t;
 class fabrik_t
 {
 public:
-
-    /**
-     * Konstanten
-     * @author Hj. Malthaner
-     */
-    enum { precision_bits = 10, old_precision_bits = 10 };
+	/**
+	 * Konstanten
+	 * @author Hj. Malthaner
+	 */
+	enum { precision_bits = 10, old_precision_bits = 10 };
 
 private:
+	/**
+	 * Die möglichen Lieferziele
+	 * @author Hj. Malthaner
+	 */
+	vector_tpl <koord> lieferziele;
+	uint32 last_lieferziel_start;
 
-    /**
-     * Die möglichen Lieferziele
-     * @author Hj. Malthaner
-     */
-    vector_tpl <koord> lieferziele;
-    uint32 last_lieferziel_start;
+	/**
+	 * suppliers to this factry
+	 * @author hsiegeln
+	 */
+	vector_tpl <koord> suppliers;
 
-    /**
-     * suppliers to this factry
-     * @author hsiegeln
-     */
-    vector_tpl <koord> suppliers;
+	/**
+	 * Die erzeugten waren auf die Haltestellen verteilen
+	 * @author Hj. Malthaner
+	 */
+	void verteile_waren(const uint32 produkt);
 
+	/* still needed for the info dialog; otherwise useless
+	 */
+	slist_tpl<stadt_t *> arbeiterziele;
 
-    /**
-     * Die erzeugten waren auf die Haltestellen verteilen
-     * @author Hj. Malthaner
-     */
-    void verteile_waren(const uint32 produkt);
+	spieler_t *besitzer_p;
+	karte_t *welt;
 
-    /* still needed for the info dialog; otherwise useless
-     */
-    slist_tpl<stadt_t *> arbeiterziele;
+	const fabrik_besch_t *besch;
 
-    spieler_t *besitzer_p;
-    karte_t *welt;
+	/**
+	 * Bauposition gedreht?
+	 * @author V.Meyer
+	 */
+	uint8 rotate;
 
-    const fabrik_besch_t *besch;
+	/**
+	 * produktionsgrundmenge
+	 * @author Hj. Malthaner
+	 */
+	sint32 prodbase;
 
-	raucher_t *raucher;
+	/**
+	 * multiplikator für die Produktionsgrundmenge
+	 * @author Hj. Malthaner
+	 */
+	sint32 prodfaktor;
 
-    /**
-     * Bauposition gedreht?
-     * @author V.Meyer
-     */
-    uint8 rotate;
+	vector_tpl<ware_t> eingang; //< das einganslagerfeld
+	vector_tpl<ware_t> ausgang; //< das ausgangslagerfeld
 
-    /**
-     * produktionsgrundmenge
-     * @author Hj. Malthaner
-     */
-    sint32 prodbase;
+	/**
+	 * bisherige abgabe in diesem monat pro ware
+	 * @author Hj. Malthaner
+	 */
+	array_tpl<sint32> abgabe_sum;
 
+	/**
+	 * abgabe im letzten monat pro ware
+	 * @author Hj. Malthaner
+	 */
+	array_tpl<sint32> abgabe_letzt;
 
-    /**
-     * multiplikator für die Produktionsgrundmenge
-     * @author Hj. Malthaner
-     */
-    sint32 prodfaktor;
+	/**
+	 * Zeitakkumulator für Produktion
+	 * @author Hj. Malthaner
+	 */
+	sint32 delta_sum;
 
+	uint32 total_input, total_output;
+	uint8 status;
 
-    vector_tpl<ware_t> eingang; //< das einganslagerfeld
-    vector_tpl<ware_t> ausgang; //< das ausgangslagerfeld
-
-
-    /**
-     * bisherige abgabe in diesem monat pro ware
-     * @author Hj. Malthaner
-     */
-    array_tpl<sint32> abgabe_sum;
-
-
-    /**
-     * abgabe im letzten monat pro ware
-     * @author Hj. Malthaner
-     */
-    array_tpl<sint32> abgabe_letzt;
-
-
-    /**
-     * Zeitakkumulator für Produktion
-     * @author Hj. Malthaner
-     */
-    sint32 delta_sum;
-
-   uint32 total_input, total_output;
-   uint8 status;
-
-   void recalc_factory_status();
+	void recalc_factory_status();
 
 public:
-  static fabrik_t * gib_fab(const karte_t *welt, const koord pos);
+	fabrik_t(karte_t *welt, loadsave_t *file);
+	fabrik_t(karte_t *welt, koord3d pos, spieler_t *sp, const fabrik_besch_t *fabesch);
 
-    /**
-     * @return vehicle description object
-     * @author Hj. Malthaner
-     */
-    const fabrik_besch_t *gib_besch() const {return besch; }
+	static fabrik_t * gib_fab(const karte_t *welt, const koord pos);
 
-  /**
-   * @author hsiegeln
-   */
-   void laden_abschliessen();
+	/**
+	 * @return vehicle description object
+	 * @author Hj. Malthaner
+	 */
+	const fabrik_besch_t *gib_besch() const {return besch; }
 
-    /* check, if the coordinate belongs to this factory
-     * @author prissi
-     */
-    bool is_fabrik( koord check );
+	/**
+	* @author hsiegeln
+	*/
+	void laden_abschliessen();
 
-    /* check, if the coordinate belongs to this factory
-     * @author prissi
-     */
-    bool is_fabrik( koord check, koord extent );
+	/* check, if the coordinate belongs to this factory
+	 * @author prissi
+	 */
+	bool is_fabrik( koord check );
 
-    /**
-     * Die Koordinate (Position) der fabrik
-     * @author Hj. Malthaner
-     */
-    koord3d pos;
+	/* check, if the coordinate belongs to this factory
+	 * @author prissi
+	 */
+	bool is_fabrik( koord check, koord extent );
 
+	/**
+	 * Die Koordinate (Position) der fabrik
+	 * @author Hj. Malthaner
+	 */
+	koord3d pos;
 
-    void link_halt(halthandle_t halt);
-    void unlink_halt(halthandle_t halt);
+	void link_halt(halthandle_t halt);
+	void unlink_halt(halthandle_t halt);
 
-    const vector_tpl<koord>& gib_lieferziele() const { return lieferziele; }
-    const vector_tpl<koord>& get_suppliers() const { return suppliers; }
+	const vector_tpl<koord>& gib_lieferziele() const { return lieferziele; }
+	const vector_tpl<koord>& get_suppliers() const { return suppliers; }
 
-    /* workers origin only used for info dialog purposes; otherwise useless ...
-     * @author Hj. Malthaner/prissi
-     */
-    void  add_arbeiterziel(stadt_t *stadt);
-    void  rem_arbeiterziel(stadt_t *stadt);
-    const slist_tpl<stadt_t*>& gib_arbeiterziele() const { return arbeiterziele; }
+	/* workers origin only used for info dialog purposes; otherwise useless ...
+	 * @author Hj. Malthaner/prissi
+	 */
+	void  add_arbeiterziel(stadt_t *stadt);
+	void  rem_arbeiterziel(stadt_t *stadt);
+	const slist_tpl<stadt_t*>& gib_arbeiterziele() const { return arbeiterziele; }
 
-    /**
-     * Fügt ein neues Lieferziel hinzu
-     * @author Hj. Malthaner
-     */
-    void  add_lieferziel(koord ziel);
-    void  rem_lieferziel(koord pos);
+	/**
+	 * Fügt ein neues Lieferziel hinzu
+	 * @author Hj. Malthaner
+	 */
+	void  add_lieferziel(koord ziel);
+	void  rem_lieferziel(koord pos);
 
-    /**
-     * adds a supplier
-     * @author Hj. Malthaner
-     */
-    void  add_supplier(koord pos);
-    void  rem_supplier(koord pos);
+	/**
+	 * adds a supplier
+	 * @author Hj. Malthaner
+	 */
+	void  add_supplier(koord pos);
+	void  rem_supplier(koord pos);
 
+	/**
+	 * @return menge der ware typ
+	 *   -1 wenn typ nicht produziert wird
+	 *   sonst die gelagerte menge
+	 */
+	sint32 vorrat_an(const ware_besch_t *ware);        // Vorrat von Warentyp
 
-    /**
-     * Used while loading a saved game
-     * @author Hj. Malthaner
-     */
-    fabrik_t(karte_t *welt, loadsave_t *file);
+	/**
+	 * @return 1 wenn verbrauch,
+	 * 0 wenn Produktionsstopp,
+	 * -1 wenn Ware nicht verarbeitet wird
+	 */
+	sint32 verbraucht(const ware_besch_t *);             // Nimmt fab das an ??
+	sint32 hole_ab(const ware_besch_t *, sint32 menge );     // jemand will waren abholen
+	sint32 liefere_an(const ware_besch_t *, sint32 menge);
 
+	sint32 gib_abgabe_letzt(sint32 t) { return abgabe_letzt[t]; }
 
-    fabrik_t(karte_t *welt, koord3d pos, spieler_t *sp, const fabrik_besch_t *fabesch);
+	void step(long delta_t);                  // fabrik muss auch arbeiten
+	void neuer_monat();
 
-    ~fabrik_t();
-
-    /**
-     * @return menge der ware typ
-     *   -1 wenn typ nicht produziert wird
-     *   sonst die gelagerte menge
-     */
-    sint32 vorrat_an(const ware_besch_t *ware);        // Vorrat von Warentyp
-
-    /**
-     * @return 1 wenn verbrauch,
-     * 0 wenn Produktionsstopp,
-     * -1 wenn Ware nicht verarbeitet wird
-     */
-    sint32 verbraucht(const ware_besch_t *);             // Nimmt fab das an ??
-    sint32 hole_ab(const ware_besch_t *, sint32 menge );     // jemand will waren abholen
-    sint32 liefere_an(const ware_besch_t *, sint32 menge);
-
-    sint32 gib_abgabe_letzt(sint32 t) { return abgabe_letzt[t]; }
-
-    void step(long delta_t);                  // fabrik muss auch arbeiten
-    void neuer_monat();
-
-    const char *gib_name() const { return besch ? translator::translate(besch->gib_name()) : "unnamed"; }
-    sint32 gib_kennfarbe() const { return besch ? besch->gib_kennfarbe() : 0; }
+	const char *gib_name() const { return besch ? translator::translate(besch->gib_name()) : "unnamed"; }
+	sint32 gib_kennfarbe() const { return besch ? besch->gib_kennfarbe() : 0; }
 	spieler_t *gib_besitzer() const { return welt->lookup(pos) ? welt->lookup(pos)->gib_besitzer() : NULL; }
 
-    void info(cbuffer_t & buf);
+	void info(cbuffer_t & buf);
 
-    void rdwr(loadsave_t *file);
+	void rdwr(loadsave_t *file);
 
-    inline koord3d gib_pos() const { return pos; }
+	inline koord3d gib_pos() const { return pos; }
 
+	/**
+	 * Die Menge an Produzierter Ware je Zeitspanne PRODUCTION_DELTA_T
+	 *
+	 * @author Hj. Malthaner
+	 */
+	uint32 produktion(uint32 produkt) const;
 
-   /**
-     * Die Menge an Produzierter Ware je Zeitspanne PRODUCTION_DELTA_T
-     *
-     * @author Hj. Malthaner
-     */
-    uint32 produktion(uint32 produkt) const;
+	/**
+	 * Die maximal produzierbare Menge je Monat
+	 *
+	 * @author Hj. Malthaner
+	 */
+	sint32 max_produktion() const;
 
+	/**
+	 * gibt eine NULL-Terminierte Liste von Fabrikpointern zurück
+	 *
+	 * @author Hj. Malthaner
+	 */
+	static vector_tpl<fabrik_t *> & sind_da_welche(karte_t *welt, koord min, koord max);
 
-    /**
-     * Die maximal produzierbare Menge je Monat
-     *
-     * @author Hj. Malthaner
-     */
-    sint32 max_produktion() const;
+	/**
+	 * gibt true zurueck wenn sich ein fabrik im feld befindet
+	 *
+	 * @author Hj. Malthaner
+	 */
+	static bool ist_da_eine(karte_t *welt, koord min, koord max);
+	static bool ist_bauplatz(karte_t *welt, koord pos, koord groesse, bool water, climate_bits cl);
 
+	// hier die methoden zum parametrisieren der Fabrik
 
-    /**
-     * gibt eine NULL-Terminierte Liste von Fabrikpointern zurück
-     *
-     * @author Hj. Malthaner
-     */
-    static vector_tpl<fabrik_t *> & sind_da_welche(karte_t *welt, koord min, koord max);
+	/**
+	 * Baut die Gebäude für die Fabrik
+	 *
+	 * @author Hj. Malthaner, V. Meyer
+	 */
+	void baue(sint32 rotate, bool clear);
 
+	/**
+	 * setzt die Eingangswarentypen
+	 *
+	 * @author Hj. Malthaner
+	 */
+	void set_eingang(vector_tpl<ware_t>& typen);
+	const vector_tpl<ware_t>& gib_eingang() const { return eingang; }
 
-    /**
-     * gibt true zurueck wenn sich ein fabrik im feld befindet
-     *
-     * @author Hj. Malthaner
-     */
-    static bool ist_da_eine(karte_t *welt, koord min, koord max);
-    static bool ist_bauplatz(karte_t *welt, koord pos, koord groesse, bool water, climate_bits cl);
-
-
-    // hier die methoden zum parametrisieren der Fabrik
-
-    /**
-     * Baut die Gebäude für die Fabrik
-     *
-     * @author Hj. Malthaner, V. Meyer
-     */
-    void baue(sint32 rotate, bool clear);
-
-    /**
-     * setzt die Eingangswarentypen
-     *
-     * @author Hj. Malthaner
-     */
-    void set_eingang(vector_tpl<ware_t>& typen);
-    const vector_tpl<ware_t>& gib_eingang() const { return eingang; }
-
-    /**
-     * setzt die Ausgangsswarentypen
-     *
-     * @author Hj. Malthaner
-     */
-    void set_ausgang(vector_tpl<ware_t>& typen);
-    const vector_tpl<ware_t>& gib_ausgang() const { return ausgang; }
+	/**
+	 * setzt die Ausgangsswarentypen
+	 *
+	 * @author Hj. Malthaner
+	 */
+	void set_ausgang(vector_tpl<ware_t>& typen);
+	const vector_tpl<ware_t>& gib_ausgang() const { return ausgang; }
 
 
-    /**
-     * Produktionsgrundmenge
-     * @author Hj. Malthaner
-     */
-    void set_prodbase(sint32 i) { prodbase = i; }
-  sint32 get_prodbase(void) { return prodbase; }
+	/**
+	 * Produktionsgrundmenge
+	 * @author Hj. Malthaner
+	 */
+	void set_prodbase(sint32 i) { prodbase = i; }
+	sint32 get_prodbase(void) { return prodbase; }
 
-    /**
-     * Produktionsmultiplikator
-     * @author Hj. Malthaner
-     */
-  void set_prodfaktor(sint32 i) { prodfaktor = (i < 16 ? 16 : i); }
-  sint32 get_prodfaktor(void) const { return prodfaktor; }
+	/**
+	 * Produktionsmultiplikator
+	 * @author Hj. Malthaner
+	 */
+	void set_prodfaktor(sint32 i) { prodfaktor = (i < 16 ? 16 : i); }
+	sint32 get_prodfaktor(void) const { return prodfaktor; }
 
-   /* prissi: returns the status of the current factory, as well as output */
-   enum { bad, medium, good, inactive, nothing };
-   static unsigned status_to_color[5];
-		unsigned calc_factory_status(unsigned long* input, unsigned long* output) const
-		{
-			if (input  != NULL) *input  = total_input;
-			if (output != NULL) *output = total_output;
-			return status;
-		}
+	/* prissi: returns the status of the current factory, as well as output */
+	enum { bad, medium, good, inactive, nothing };
+	static unsigned status_to_color[5];
+	unsigned calc_factory_status(unsigned long* input, unsigned long* output) const
+	{
+		if (input  != NULL) *input  = total_input;
+		if (output != NULL) *output = total_output;
+		return status;
+	}
 
-    /**
-     * Crossconnects all factories
-     * @author Hj. Malthaner
-     */
-   void add_all_suppliers();
+	/**
+	 * Crossconnects all factories
+	 * @author Hj. Malthaner
+	 */
+	void add_all_suppliers();
 };
 
 #endif

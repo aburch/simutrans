@@ -20,6 +20,7 @@
 #include "simmem.h"
 #include "simimg.h"
 #include "simconst.h"
+#include "simtypes.h"
 
 #ifdef DESTINATION_CITYCARS
 // for final citcar destinations
@@ -45,29 +46,12 @@
 /* Verkehrsteilnehmer (basis class) from here on */
 
 
-void
-verkehrsteilnehmer_t::calc_current_speed()
-{
-	const weg_t * weg = welt->lookup(gib_pos())->gib_weg(road_wt);
-	const int speed_limit = weg ? kmh_to_speed(weg->gib_max_speed()) : max_speed;
-	current_speed += max_speed>>2;
-	if(current_speed > max_speed) {
-		current_speed = max_speed;
-	}
-	if(current_speed > speed_limit) {
-		current_speed = speed_limit;
-	}
-}
-
-
 verkehrsteilnehmer_t::verkehrsteilnehmer_t(karte_t *welt) :
    vehikel_basis_t(welt)
 {
 	setze_besitzer( welt->gib_spieler(1) );
-	max_speed = 0;
-	current_speed = 1;
-	step_frequency = 0;
 	time_to_life = -1;
+	weg_next = 0;
 }
 
 
@@ -79,7 +63,6 @@ verkehrsteilnehmer_t::verkehrsteilnehmer_t(karte_t *welt) :
 verkehrsteilnehmer_t::~verkehrsteilnehmer_t()
 {
 	// just to be sure we are removed from this list!
-	step_frequency = 0;
 	if(time_to_life>=0) {
 		welt->sync_remove(this);
 	}
@@ -98,11 +81,6 @@ verkehrsteilnehmer_t::verkehrsteilnehmer_t(karte_t *welt, koord3d pos) :
 	// int ribi = from->gib_weg_ribi(road_wt);
 	ribi_t::ribi liste[4];
 	int count = 0;
-
-	max_speed = kmh_to_speed(80);
-	current_speed = 50;
-	current_speed = 1;
-	step_frequency = 0;
 
 	weg_next = simrand(1024);
 	hoff = 0;
@@ -210,7 +188,6 @@ verkehrsteilnehmer_t::hop()
 	}
 	else {
 		fahrtrichtung = gegenrichtung;
-		current_speed = 1;
 		dx = -dx;
 		dy = -dy;
 		pos_next = gib_pos();
@@ -218,62 +195,19 @@ verkehrsteilnehmer_t::hop()
 
 	verlasse_feld();
 	setze_pos(from->gib_pos());
-	calc_current_speed();
 	calc_bild();
 	betrete_feld();
 }
 
 
 
-bool
-verkehrsteilnehmer_t::sync_step(long delta_t)
-{
-	if(time_to_life<0) {
-		// remove obj
-		step_frequency = 0;
-//DBG_MESSAGE("verkehrsteilnehmer_t::sync_step()","stopped");
-  		return false;
-	}
-
-	if(step_frequency>0) {
-		// step will check for traffic jams
-		return true;
-	}
-	time_to_life -= delta_t;
-	weg_next += (current_speed*delta_t) / 64;
-
-	// Funktionsaufruf vermeiden, wenn möglich
-	// if ist schneller als Aufruf!
-	if(hoff) {
-		setze_yoff( gib_yoff() - hoff );
-	}
-
-	while(1024 < weg_next) {
-		weg_next -= 1024;
-		fahre();
-	}
-
-	hoff = calc_height();
-
-	// Funktionsaufruf vermeiden, wenn möglich
-	// if ist schneller als Aufruf!
-	if(hoff) {
-		setze_yoff( gib_yoff() + hoff );
-	}
-
-	return true;
-}
-
-
-
 void verkehrsteilnehmer_t::rdwr(loadsave_t *file)
 {
-	step_frequency = 0;
 	vehikel_basis_t::rdwr(file);
 
 	if(file->get_version() < 86006) {
 		long l;
-		file->rdwr_long(max_speed, "\n");
+		file->rdwr_long(l, "\n");
 		file->rdwr_long(l, " ");
 		file->rdwr_long(weg_next, "\n");
 		file->rdwr_long(l, " ");
@@ -285,14 +219,22 @@ void verkehrsteilnehmer_t::rdwr(loadsave_t *file)
 		hoff = (sint8)l;
 	}
 	else {
-		file->rdwr_long(max_speed, "\n");
+		if(file->get_version()<99005) {
+			sint32 dummy32;
+			file->rdwr_long(dummy32, "\n");
+		}
 		file->rdwr_long(weg_next, "\n");
 		file->rdwr_byte(dx, " ");
 		file->rdwr_byte(dy, "\n");
 		file->rdwr_enum(fahrtrichtung, " ");
-		sint16 dummy16=hoff;
-		file->rdwr_short(dummy16, "\n");
-		hoff = (sint8)dummy16;
+		if(file->get_version()<99005) {
+			sint16 dummy16;
+			file->rdwr_short(dummy16, "\n");
+			hoff = (sint8)dummy16;
+		}
+		else {
+			file->rdwr_byte(hoff, "\n");
+		}
 	}
 	pos_next.rdwr(file);
 
@@ -304,16 +246,6 @@ void verkehrsteilnehmer_t::rdwr(loadsave_t *file)
 	// Hajo: avoid endless growth of the values
 	// this causes lockups near 2**32
 	weg_next &= 1023;
-
-	if(file->is_loading()) {
-		// Hajo: pre-speed limit game had city cars with max speed of
-		// 60 km/h, since city raods now have a speed limit of 50 km/h
-		// we can use 80 for the cars so that they speed up on
-		// intercity roads
-		if(max_speed==kmh_to_speed(60)) {
-			max_speed = kmh_to_speed(80);
-		}
-	}
 }
 
 
@@ -388,7 +320,7 @@ bool stadtauto_t::laden_erfolgreich()
 
 int stadtauto_t::gib_anzahl_besch()
 {
-    return liste_timeline.count();
+	return liste_timeline.count();
 }
 
 
@@ -396,9 +328,9 @@ stadtauto_t::stadtauto_t(karte_t *welt, loadsave_t *file)
  : verkehrsteilnehmer_t(welt)
 {
 	rdwr(file);
-	step_frequency = 0;
 	welt->sync_add(this);
 }
+
 
 #ifdef DESTINATION_CITYCARS
 stadtauto_t::stadtauto_t(karte_t *welt, koord3d pos, koord target)
@@ -413,13 +345,54 @@ stadtauto_t::stadtauto_t(karte_t *welt, koord3d pos, koord )
 	}
 	time_to_life = umgebung_t::stadtauto_duration;
 	current_speed = 48;
-	step_frequency = 0;
 #ifdef DESTINATION_CITYCARS
 	this->target = target;
 #endif
-	setze_max_speed( besch->gib_geschw() );
 }
 
+
+
+
+bool
+stadtauto_t::sync_step(long delta_t)
+{
+	if(time_to_life<0) {
+		// remove obj
+  		return false;
+	}
+
+	time_to_life -= delta_t;
+
+	if(current_speed==0) {
+		// stuck in traffic jam
+		sint32 old_ms_traffic_jam = ms_traffic_jam;
+		ms_traffic_jam -= delta_t;
+		if((ms_traffic_jam>>10)!=(old_ms_traffic_jam>>10)) {
+			if(ist_weg_frei()) {
+				ms_traffic_jam = 0;
+				current_speed = 48;
+			}
+			else if(ms_traffic_jam<0) {
+				// message after three month, reset waiting timer
+				ms_traffic_jam = (3<<karte_t::ticks_bits_per_tag);
+				koord about_pos = gib_pos().gib_2d();
+				message_t::get_instance()->add_message(
+					translator::translate("To heavy traffic\nresults in traffic jam.\n"),
+					koord(about_pos.x&0xFFF4,about_pos.y&0xFFF4), message_t::problems, COL_ORANGE );
+				// still stucked ...
+			}
+		}
+	}
+	else {
+		weg_next += (current_speed*delta_t) / 64;
+		while(1024 < weg_next) {
+			weg_next -= 1024;
+			fahre();
+		}
+	}
+
+	return true;
+}
 
 
 
@@ -449,8 +422,7 @@ void stadtauto_t::rdwr(loadsave_t *file)
 		if(besch == 0) {
 			dbg->fatal("stadtauto_t::rdwr()", "loading game with private cars, but no private car objects found in PAK files.");
 		}
-		setze_max_speed( besch->gib_geschw() );
-		setze_bild(0,besch->gib_bild_nr(ribi_t::gib_dir(gib_fahrtrichtung())));
+		setze_bild(besch->gib_bild_nr(ribi_t::gib_dir(gib_fahrtrichtung())));
 	}
 
 	if(file->get_version() <= 86001) {
@@ -468,8 +440,11 @@ void stadtauto_t::rdwr(loadsave_t *file)
 		}
 	}
 	else {
-		file->rdwr_long(current_speed, "\n");
+		sint32 dummy32=current_speed;
+		file->rdwr_long(dummy32, "\n");
+		current_speed = dummy32;
 	}
+
 	// do not start with zero speed!
 	current_speed ++;
 }
@@ -583,50 +558,6 @@ stadtauto_t::betrete_feld()
 
 
 
-bool
-stadtauto_t::step(long delta_t)
-{
-	// if we get here, we are stucked somewhere
-	// since this test takes some time, we do not do it too often
-	if(ist_weg_frei()) {
-		// drive on
-		step_frequency = 0;
-		current_speed = 48;
-	}
-	else {
-		// still stucked
-		ms_traffic_jam -= delta_t;
-		if(ms_traffic_jam<0) {
-			// try to turn around
-			fahrtrichtung = ribi_t::rueckwaerts( fahrtrichtung );
-			koord3d old_pos_next = pos_next;
-			pos_next = gib_pos();
-			setze_pos( pos_next+koord(-1,0) );
-			if(ist_weg_frei()) {
-				// drive on
-				setze_pos( pos_next );
-				step_frequency = 0;
-				current_speed = 48;
-			}
-			else {
-				// old direction again and report traffic jam
-				fahrtrichtung = ribi_t::rueckwaerts( fahrtrichtung );
-				setze_pos( pos_next );
-				pos_next = old_pos_next;
-				ms_traffic_jam = (3<<karte_t::ticks_bits_per_tag);
-				koord about_pos = gib_pos().gib_2d();
-				message_t::get_instance()->add_message(
-					translator::translate("To heavy traffic\nresults in traffic jam.\n"),
-					koord(about_pos.x&0xFFF4,about_pos.y&0xFFF4) ,message_t::problems,COL_ORANGE );
-				// still stucked ...
-			}
-		}
-	}
-	return true;
-}
-
-
-
 void
 stadtauto_t::hop()
 {
@@ -656,7 +587,7 @@ stadtauto_t::hop()
 		// check, if roadsign forbid next step ...
 		if(to->gib_weg(road_wt)->has_sign()) {
 			const roadsign_besch_t *rs_besch = ((roadsign_t *)to->suche_obj(ding_t::roadsign))->gib_besch();
-			add = (rs_besch->is_traffic_light()  ||  rs_besch->gib_min_speed()<=gib_max_speed())  &&  !rs_besch->is_private_way();
+			add = (rs_besch->is_traffic_light()  ||  rs_besch->gib_min_speed()<=besch->gib_geschw())  &&  !rs_besch->is_private_way();
 		}
 		if(add) {
 			pos_next = to->gib_pos();
@@ -690,7 +621,7 @@ stadtauto_t::hop()
 					// check, if roadsign forbid next step ...
 					if(w->has_sign()) {
 						const roadsign_besch_t *rs_besch = ((roadsign_t *)to->suche_obj(ding_t::roadsign))->gib_besch();
-						add = (rs_besch->is_traffic_light()  ||  rs_besch->gib_min_speed()<=gib_max_speed())  &&  !rs_besch->is_private_way();
+						add = (rs_besch->is_traffic_light()  ||  rs_besch->gib_min_speed()<=besch->gib_geschw())  &&  !rs_besch->is_private_way();
 //DBG_MESSAGE("stadtauto_t::hop()","roadsign");
 					}
 					// ok;
@@ -742,12 +673,18 @@ stadtauto_t::hop()
 bool
 stadtauto_t::hop_check()
 {
-	bool frei = ist_weg_frei();
-	if(!frei) {
+	if(!ist_weg_frei()) {
 		ms_traffic_jam = (3<<karte_t::ticks_bits_per_tag);
-		step_frequency = 1;
+		current_speed = 0;
+		return false;
 	}
-	return frei;
+	else {
+		if(ms_traffic_jam) {
+			current_speed = 16;
+			ms_traffic_jam = 0;
+		}
+		return true;
+	}
 }
 
 
@@ -756,9 +693,26 @@ void
 stadtauto_t::calc_bild()
 {
 	if(welt->lookup(gib_pos())->ist_im_tunnel()) {
-		setze_bild(0, IMG_LEER);
+		setze_bild( IMG_LEER);
 	}
 	else {
-		setze_bild(0,besch->gib_bild_nr(ribi_t::gib_dir(gib_fahrtrichtung())));
+		setze_bild(besch->gib_bild_nr(ribi_t::gib_dir(gib_fahrtrichtung())));
+	}
+}
+
+
+
+void
+stadtauto_t::calc_current_speed()
+{
+	const weg_t * weg = welt->lookup(gib_pos())->gib_weg(road_wt);
+	const uint16 max_speed = besch->gib_geschw();
+	const uint16 speed_limit = weg ? kmh_to_speed(weg->gib_max_speed()) : max_speed;
+	current_speed += max_speed>>2;
+	if(current_speed > max_speed) {
+		current_speed = max_speed;
+	}
+	if(current_speed > speed_limit) {
+		current_speed = speed_limit;
 	}
 }

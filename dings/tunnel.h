@@ -10,6 +10,7 @@ class tunnel_t : public ding_t
 {
 private:
 	const tunnel_besch_t *besch;
+	image_id bild;
 	image_id after_bild;
 
 public:
@@ -21,6 +22,8 @@ public:
 
 	void calc_bild();
 
+	void inline setze_bild( image_id b ) { bild = b; }
+	image_id gib_bild() const {return bild;}
 	image_id gib_after_bild() const { return after_bild; }
 
 	const tunnel_besch_t *gib_besch() const { return besch; }

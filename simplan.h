@@ -182,9 +182,6 @@ public:
 
 	void rdwr(karte_t *welt, loadsave_t *file);
 
-	// will call the step for each ground
-	void step(long delta_t, int steps);
-
 	// will toggle the seasons ...
 	void check_season(const long month);
 

@@ -48,7 +48,6 @@ stringhashtable_tpl<const roadsign_besch_t *> roadsign_t::table;
 roadsign_t::roadsign_t(karte_t *welt, loadsave_t *file) : ding_t (welt)
 {
 	rdwr(file);
-	step_frequency = 0;
 	// if more than one state, we will switch direction and phase
 	if(besch->gib_bild_anzahl()>4) {
 		flags |= SWITCH_AUTOMATIC;
@@ -65,7 +64,6 @@ roadsign_t::roadsign_t(karte_t *welt, spieler_t *sp, koord3d pos, ribi_t::ribi d
 	zustand = 0;
 	last_switch = 0;
 	flags = 3;
-	step_frequency = 0;
 	setze_besitzer( sp );
 	// if more than one state, we will switch direction and phase
 	if(besch->gib_bild_anzahl()>4) {
@@ -112,12 +110,7 @@ DBG_MESSAGE("roadsign_t::set_dir()","ribi %i",dir);
 	mark_image_dirty(gib_bild(),0);
 	mark_image_dirty(after_bild,after_offset);
 
-	// only traffic light need switches
-	step_frequency = 0;
-	if(flags&SWITCH_AUTOMATIC) {
-		step_frequency = 1;
-	}
-	setze_bild(0,IMG_LEER);
+	bild = IMG_LEER;
 	after_bild = IMG_LEER;
 	calc_bild();
 }
@@ -180,7 +173,7 @@ void roadsign_t::calc_bild()
 		}
 	}
 
-	if(step_frequency==0) {
+	if((flags&SWITCH_AUTOMATIC)==0) {
 
 		image_id bild=IMG_LEER;
 		after_bild = IMG_LEER;
@@ -219,7 +212,7 @@ void roadsign_t::calc_bild()
 			after_bild = IMG_LEER;
 		}
 
-		setze_bild( 0, bild );
+		setze_bild( bild );
 
 	}
 	else {
@@ -247,14 +240,14 @@ void roadsign_t::calc_bild()
 
 				if(weg_dir&ribi_t::west) {
 					if(weg_dir&ribi_t::sued) {
-						setze_bild(0, besch->gib_bild_nr(7+direction*8));
+						setze_bild(besch->gib_bild_nr(7+direction*8));
 					}
 					else {
-						setze_bild(0, besch->gib_bild_nr(3+direction*8));
+						setze_bild(besch->gib_bild_nr(3+direction*8));
 					}
 				}
 				else if(weg_dir&ribi_t::sued) {
-					setze_bild(0, besch->gib_bild_nr(0+direction*8));
+					setze_bild(besch->gib_bild_nr(0+direction*8));
 				}
 			}
 			else {
@@ -273,14 +266,14 @@ void roadsign_t::calc_bild()
 
 				if(weg_dir&ribi_t::west) {
 					if(weg_dir&ribi_t::nord) {
-						setze_bild(0, besch->gib_bild_nr(5+direction*8));
+						setze_bild(besch->gib_bild_nr(5+direction*8));
 					}
 					else {
-						setze_bild(0, besch->gib_bild_nr(3+direction*8));
+						setze_bild(besch->gib_bild_nr(3+direction*8));
 					}
 				}
 				else if(weg_dir&ribi_t::nord) {
-					setze_bild(0, besch->gib_bild_nr(1+direction*8));
+					setze_bild(besch->gib_bild_nr(1+direction*8));
 				}
 			}
 
@@ -292,7 +285,8 @@ void roadsign_t::calc_bild()
 
 
 // only used for traffic light: change the current state
-bool roadsign_t::step(long delta_t)
+bool
+roadsign_t::sync_step(long delta_t)
 {
 	// change every 24 hours in normal speed = (1<<18)/24
 	last_switch += delta_t;
@@ -361,6 +355,10 @@ roadsign_t::entferne(spieler_t *sp)
 	if(sp!=NULL) {
 		sp->buche(-besch->gib_preis(), gib_pos().gib_2d(), COST_CONSTRUCTION);
 	}
+	if(flags&SWITCH_AUTOMATIC) {
+		// traffic light switch automatically
+		welt->sync_remove( this );
+	}
 }
 
 
@@ -381,6 +379,10 @@ void roadsign_t::laden_abschliessen()
 		// after loading restore directions
 		set_dir(dir);
 		gr->gib_weg(besch->gib_wtyp())->count_sign();
+	}
+	// only traffic light need switches
+	if(flags&SWITCH_AUTOMATIC) {
+		welt->sync_add( this );
 	}
 }
 

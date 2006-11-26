@@ -195,10 +195,6 @@ private:
 
 	minivec_tpl<save_mouse_func *> quick_shortcuts;
 
-	// recalcs the images of all tiles
-	// @author prissi
-	void recalc_world();
-
 	/**
 	 * Fraktale, rekursive Landschaftserzeugung
 	 * @author Hj. Malthaner

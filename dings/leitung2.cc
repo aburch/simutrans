@@ -116,7 +116,6 @@ leitung_t::suche_fab_4(const koord pos)
 
 leitung_t::leitung_t(karte_t *welt, loadsave_t *file) : ding_t(welt)
 {
-  step_frequency = 0;
   set_net(NULL);
   rdwr(file);
 }
@@ -126,7 +125,6 @@ leitung_t::leitung_t(karte_t *welt,
 		     koord3d pos,
 		     spieler_t *sp) : ding_t(welt, pos)
 {
-  step_frequency = 0;
   set_net(NULL);
   setze_besitzer( sp );
   verbinde();
@@ -337,30 +335,30 @@ void leitung_t::calc_bild()
 	const ribi_t::ribi ribi=gib_ribi();
 	hang_t::typ hang = gr->gib_grund_hang();
 	if(hang != hang_t::flach) {
-		setze_bild(0, wegbauer_t::leitung_besch->gib_hang_bild_nr(hang));
+		setze_bild( wegbauer_t::leitung_besch->gib_hang_bild_nr(hang));
 	}
 	else {
 		if(gr->hat_wege()  ||  !gr->ist_natur()) {
 			// crossing with road or rail
 			if(ribi_t::ist_gerade_ns(ribi)) {
-				setze_bild(0, wegbauer_t::leitung_besch->gib_diagonal_bild_nr(ribi_t::nord|ribi_t::ost));
+				setze_bild( wegbauer_t::leitung_besch->gib_diagonal_bild_nr(ribi_t::nord|ribi_t::ost));
 			}
 			else {
-				setze_bild(0, wegbauer_t::leitung_besch->gib_diagonal_bild_nr(ribi_t::sued|ribi_t::ost));
+				setze_bild( wegbauer_t::leitung_besch->gib_diagonal_bild_nr(ribi_t::sued|ribi_t::ost));
 			}
 		}
 		else {
 			if(ribi_t::ist_gerade(ribi)  &&  !ribi_t::ist_einfach(ribi)  &&  (pos.x+pos.y)&1) {
 				// every second skip mast
 				if(ribi_t::ist_gerade_ns(ribi)) {
-					setze_bild(0, wegbauer_t::leitung_besch->gib_diagonal_bild_nr(ribi_t::nord|ribi_t::west));
+					setze_bild( wegbauer_t::leitung_besch->gib_diagonal_bild_nr(ribi_t::nord|ribi_t::west));
 				}
 				else {
-					setze_bild(0, wegbauer_t::leitung_besch->gib_diagonal_bild_nr(ribi_t::sued|ribi_t::west));
+					setze_bild( wegbauer_t::leitung_besch->gib_diagonal_bild_nr(ribi_t::sued|ribi_t::west));
 				}
 			}
 			else {
-				setze_bild(0, wegbauer_t::leitung_besch->gib_bild_nr(ribi));
+				setze_bild( wegbauer_t::leitung_besch->gib_bild_nr(ribi));
 			}
 		}
 	}
@@ -450,7 +448,6 @@ void leitung_t::rdwr(loadsave_t *file)
 pumpe_t::pumpe_t(karte_t *welt, loadsave_t *file) : leitung_t(welt , file)
 {
 	fab = NULL;
-	step_frequency = 0;
 }
 
 
@@ -458,7 +455,6 @@ pumpe_t::pumpe_t(karte_t *welt, loadsave_t *file) : leitung_t(welt , file)
 pumpe_t::pumpe_t(karte_t *welt, koord3d pos, spieler_t *sp) : leitung_t(welt , pos, sp)
 {
 	fab = NULL;
-	step_frequency = 0;
 }
 
 
@@ -482,12 +478,12 @@ pumpe_t::sync_step(long delta_t)
 		return false;
 	}
 	if (fab == 0 || (!fab->gib_eingang().empty() && fab->gib_eingang()[0].menge <= 0)) {
-		setze_bild(0, skinverwaltung_t::pumpe->gib_bild_nr(0) );
+		setze_bild( skinverwaltung_t::pumpe->gib_bild_nr(0) );
 	}
 	else {
 		// no input needed or has something to consume
 		get_net()->add_power(delta_t*fab->get_prodbase()*32);
-		setze_bild(0, skinverwaltung_t::pumpe->gib_bild_nr(1) );
+		setze_bild( skinverwaltung_t::pumpe->gib_bild_nr(1) );
 	}
 	return fab!=0;
 }
@@ -504,7 +500,6 @@ pumpe_t::laden_abschliessen()
 	}
 	if(fab) {
 		fab->set_prodfaktor( fab->get_prodfaktor()*2 );
-		step_frequency = 7;
 	}
 	welt->sync_add(this);
 }
@@ -518,7 +513,6 @@ senke_t::senke_t(karte_t *welt, loadsave_t *file) : leitung_t(welt , file)
 	fab = NULL;
 	einkommen = 1;
 	max_einkommen = 1;
-	step_frequency = 0;
 }
 
 
@@ -541,24 +535,6 @@ senke_t::~senke_t()
 }
 
 
-/**
- * Methode für asynchrone Funktionen eines Objekts.
- * @author Hj. Malthaner
- */
-bool senke_t::step(long /*delta_t*/)
-{
-	int faktor = (16*einkommen+16)/max_einkommen;
-	if(max_einkommen>(2000<<11)) {
-		gib_besitzer()->buche(einkommen >> 11, gib_pos().gib_2d(), COST_INCOME);
-		einkommen = 0;
-		max_einkommen = 1;
-	}
-	fab->set_prodfaktor( 16+faktor );
-//	setze_bild(0, skinverwaltung_t::senke->gib_bild_nr(faktor==16?1:0) );
-	return true;
-}
-
-
 
 bool
 senke_t::sync_step(long time)
@@ -570,13 +546,22 @@ senke_t::sync_step(long time)
 	int want_power = time*(PROD/3);
 	int get_power = get_net()->withdraw_power(want_power);
 	if(get_power>want_power/2) {
-		setze_bild(0, skinverwaltung_t::senke->gib_bild_nr(1) );
+		setze_bild( skinverwaltung_t::senke->gib_bild_nr(1) );
 	}
 	else {
-		setze_bild(0, skinverwaltung_t::senke->gib_bild_nr(0) );
+		setze_bild( skinverwaltung_t::senke->gib_bild_nr(0) );
 	}
 	max_einkommen += want_power;
 	einkommen += get_power;
+
+	int faktor = (16*einkommen+16)/max_einkommen;
+	if(max_einkommen>(2000<<11)) {
+		gib_besitzer()->buche(einkommen >> 11, gib_pos().gib_2d(), COST_INCOME);
+		einkommen = 0;
+		max_einkommen = 1;
+	}
+
+	fab->set_prodfaktor( 16+faktor );
 	return fab!=0;	// only zero, when loading failed ...
 }
 
@@ -591,7 +576,6 @@ senke_t::laden_abschliessen()
 		fab = leitung_t::suche_fab_4(gib_pos().gib_2d());
 	}
 	welt->sync_add(this);
-	step_frequency = 7;
 }
 
 

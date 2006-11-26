@@ -72,27 +72,28 @@
  */
 static void show_sizes()
 {
-	DBG_MESSAGE("test", "size of strutures");
+	DBG_MESSAGE("Debug", "size of strutures");
 
-	DBG_MESSAGE("test", "koord: %d", sizeof(koord));
-	DBG_MESSAGE("test", "koord3d: %d", sizeof(koord3d));
-	DBG_MESSAGE("test", "ribi_t::ribi: %d", sizeof(ribi_t::ribi));
-	DBG_MESSAGE("test", "halthandle_t: %d\n", sizeof(halthandle_t));
+	DBG_MESSAGE("sizes", "koord: %d", sizeof(koord));
+	DBG_MESSAGE("sizes", "koord3d: %d", sizeof(koord3d));
+	DBG_MESSAGE("sizes", "ribi_t::ribi: %d", sizeof(ribi_t::ribi));
+	DBG_MESSAGE("sizes", "halthandle_t: %d\n", sizeof(halthandle_t));
 
-	DBG_MESSAGE("test", "ding_t: %d", sizeof(ding_t));
-	DBG_MESSAGE("test", "gebaeude_t: %d", sizeof(gebaeude_t));
-	DBG_MESSAGE("test", "baum_t: %d", sizeof(baum_t));
+	DBG_MESSAGE("sizes", "ding_t: %d", sizeof(ding_t));
+	DBG_MESSAGE("sizes", "gebaeude_t: %d", sizeof(gebaeude_t));
+	DBG_MESSAGE("sizes", "baum_t: %d", sizeof(baum_t));
+	DBG_MESSAGE("sizes", "weg_t: %d", sizeof(weg_t));
+	DBG_MESSAGE("sizes", "stadtauto_t: %d\n", sizeof(stadtauto_t));
 
-	DBG_MESSAGE("test", "grund_t: %d", sizeof(grund_t));
-	DBG_MESSAGE("test", "boden_t: %d", sizeof(boden_t));
-	DBG_MESSAGE("test", "wasser_t: %d", sizeof(wasser_t));
+	DBG_MESSAGE("sizes", "grund_t: %d", sizeof(grund_t));
+	DBG_MESSAGE("sizes", "boden_t: %d", sizeof(boden_t));
+	DBG_MESSAGE("sizes", "wasser_t: %d", sizeof(wasser_t));
+	DBG_MESSAGE("sizes", "planquadrat_t: %d\n", sizeof(planquadrat_t));
 
-	DBG_MESSAGE("test", "weg_t: %d", sizeof(weg_t));
-
-	DBG_MESSAGE("test", "planquadrat_t: %d", sizeof(planquadrat_t));
-	DBG_MESSAGE("test", "karte_t: %d", sizeof(karte_t));
-	DBG_MESSAGE("test", "spieler_t: %d\n", sizeof(spieler_t));
+	DBG_MESSAGE("sizes", "karte_t: %d", sizeof(karte_t));
+	DBG_MESSAGE("sizes", "spieler_t: %d\n", sizeof(spieler_t));
 }
+
 
 
 // render tests ...

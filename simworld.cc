@@ -182,27 +182,6 @@ DBG_MESSAGE("karte_t::neuer_monat()","process seasons %i snowline %i",season,sno
 
 
 
-// recalc images of all tiles all tiles
-void
-karte_t::recalc_world()
-{
-	const int cached_groesse2 = cached_groesse_gitter_x*cached_groesse_gitter_y;
-	int check_counter = 0;
-	for(int i=0; i<cached_groesse2; i++) {
-		for(uint8 schicht=0; schicht<plan[i].gib_boden_count(); schicht++) {
-			plan[i].gib_boden_bei(schicht)->calc_bild();
-		}
-
-		if(((++check_counter) & 63) == 0) {	// every 64 one update ...
-			INT_CHECK("simworld 1076");
-			interactive_update();
-		}
-	}
-}
-
-
-
-
 void
 karte_t::setze_scroll_multi(int n)
 {
@@ -1391,7 +1370,7 @@ karte_t::setze_maus_funktion(int (* funktion)(spieler_t *, karte_t *, koord, val
 		koord3d zpos = zeiger->gib_pos();
 		zeiger->change_pos( koord3d::invalid );
 		zeiger->setze_yoff(zeiger_versatz);
-		zeiger->setze_bild(0, zeiger_bild);
+		zeiger->setze_bild(zeiger_bild);
 		zeiger->change_pos( zpos );
 
 		mouse_funk(get_active_player(), this, INIT, mouse_funk_param);
@@ -1880,48 +1859,19 @@ DBG_MESSAGE("karte_t::neues_jahr()","Year %d has started", letztes_jahr);
 }
 
 
-#define GRUPPEN 14
-static long step_group_times[GRUPPEN];
 
+static long last_delta_step = 0;
 
-
-void karte_t::step(const long delta_t)
+void
+karte_t::step(const long delta_t)
 {
 	// needs plausibility check?!?
 	if(delta_t<=0  ||  delta_t>10000) {
 		return;
 	}
 
-	const int step_group = steps % GRUPPEN;
-	unsigned int i;
-
-	// due to the scheduling in several parts, we must remember the last number of intervalls
-	for(i=0; i<GRUPPEN; i++) {
-		step_group_times[i] += delta_t;
-	}
-	// the we use this accumulated value
-	const long delta_t_sum = step_group_times[step_group];
-
-	// did the at least 25 ms passed (this makes maximum simloop something below 40)
-	if(delta_t_sum>350) {
-
-		// and reset it
-		step_group_times[step_group] = 0;
-		// how many steps passed?
-		const int step_group_step = (steps / GRUPPEN);
-		// true delta t ...
-//		const long all_delta_t = delta_t_sum-step_group_times[(step_group+1)%GRUPPEN];
-
-		int check_counter = 0;
-		const int cached_groesse2 = cached_groesse_gitter_x*cached_groesse_gitter_y;
-		for(int i=step_group; i<cached_groesse2; i+=GRUPPEN) {
-			plan[i].step(delta_t_sum, step_group_step);
-
-			if(((++check_counter) & 63) == 0) {	// every 64 one update ...
-				INT_CHECK("simworld 1076");
-				interactive_update();
-			}
-		}
+	last_delta_step += delta_t;
+	if(last_delta_step>350) {
 
 		// Hajo: Convois need extra frequent steps to avoid unneccesary
 		// long waiting times
@@ -1939,7 +1889,12 @@ void karte_t::step(const long delta_t)
 		// now step all towns (to generate passengers)
 		for(unsigned int n=0; n<stadt->get_count(); n++) {
 			stadt->at(n)->step(delta_t);
-			INT_CHECK("simworld 1959");
+		}
+		interactive_update();
+
+		slist_iterator_tpl<fabrik_t *> iter(fab_list);
+		while(iter.next()) {
+			iter.get_current()->step(last_delta_step);
 		}
 		interactive_update();
 
@@ -1968,6 +1923,8 @@ void karte_t::step(const long delta_t)
 
 		// will also call all objects if needed ...
 		recalc_snowline();
+
+		last_delta_step = 0;
 	}
 }
 
@@ -2772,9 +2729,6 @@ void karte_t::reset_timer()
 	// Hajo: this actually is too conservative but the correct
 	// solution is way too difficult for a simple pause function ...
 	// init for a good separation
-	for(int i=0; i<GRUPPEN; i++) {
-		step_group_times[i] = (50*i)/GRUPPEN+1;
-	}
 	DBG_MESSAGE("karte_t::reset_timer()","ok");
 }
 
@@ -3036,7 +2990,6 @@ karte_t::interactive_event(event_t &ev)
 	    	gebaeude_t::hide = gebaeude_t::NOT_HIDDEN;
 	    }
 	    baum_t::hide = !baum_t::hide;
-			recalc_world();
 	    setze_dirty();
 	    break;
 	case '#':
@@ -3274,7 +3227,7 @@ karte_t::interactive_event(event_t &ev)
 				mouse_funk_ok_sound = shortcut->mouse_funk_ok_sound;
 				mouse_funk_ko_sound = shortcut->mouse_funk_ko_sound;
 				zeiger->setze_yoff(shortcut->zeiger_versatz);
-				zeiger->setze_bild(0, shortcut->zeiger_bild);
+				zeiger->setze_bild(shortcut->zeiger_bild);
 				zeiger->set_flag(ding_t::dirty);
 			}
 		}
@@ -3549,11 +3502,6 @@ karte_t::interactive()
 
 	sleep_time = 5000;
 	doit = true;
-
-	// init for a good separation
-	for(int i=0; i<GRUPPEN; i++) {
-		step_group_times[i] = (350*i)/GRUPPEN;
-	}
 
 	do {
 

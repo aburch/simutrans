@@ -33,10 +33,10 @@ void brueckenboden_t::calc_bild()
 		clear_back_bild();
 		setze_bild(IMG_LEER);
 		if(flags&has_way1) {
-			((weg_t *)obj_bei(0))->setze_bild(0,IMG_LEER);
+			((weg_t *)obj_bei(0))->setze_bild(IMG_LEER);
 		}
 		if(flags&has_way2) {
-			((weg_t *)obj_bei(0))->setze_bild(0,IMG_LEER);
+			((weg_t *)obj_bei(0))->setze_bild(IMG_LEER);
 		}
 	}
 	else {
@@ -49,7 +49,7 @@ void brueckenboden_t::calc_bild()
 			setze_bild(IMG_LEER);
 		}
 		if(flags&has_way2) {
-			((weg_t *)obj_bei(0))->setze_bild(0,IMG_LEER);
+			((weg_t *)obj_bei(0))->setze_bild(IMG_LEER);
 		}
 		for(uint8 i=0;  i<gib_top();  i++  ) {
 			ding_t *dt=obj_bei(i);

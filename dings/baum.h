@@ -32,7 +32,9 @@ private:
 	sint32 geburt:20;
 
 	// type of tree
-	uint32 baumtype:12;
+	uint32 baumtype:10;
+
+	uint32 season:2;
 
 	void saee_baum();
 
@@ -40,12 +42,6 @@ private:
 	 * Berechnet offsets für gepflanzte Bäume
 	 */
 	void calc_off();
-
-	/**
-	 * Berechnet Bild abhängig vom Alter
-	 * @author Hj. Malthaner
-	 */
-	bool calc_bild(const unsigned long alter);
 
 public:
 	/**
@@ -63,6 +59,8 @@ public:
 	baum_t(karte_t *welt, koord3d pos, uint16 type);
 
 	void rdwr(loadsave_t *file);
+
+	image_id gib_bild() const;
 
 	/**
 	 * Berechnet Alter und Bild abhängig vom Alter

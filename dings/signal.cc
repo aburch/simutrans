@@ -103,7 +103,5 @@ void signal_t::calc_bild()
 			}
 		}
 	}
-	setze_bild(0,bild);
-
-	step_frequency = 0;
+	setze_bild(bild);
 }

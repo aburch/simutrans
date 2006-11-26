@@ -68,7 +68,7 @@ spieler_t * ding_t::gib_besitzer() const {
 
 
 void ding_t::entferne_ding_info() {
-    ding_infos->remove(this);
+	ding_infos->remove(this);
 }
 
 
@@ -81,10 +81,6 @@ void ding_t::init(karte_t *wl)
 	yoff = 0;
 
 	besitzer_n = -1;
-
-	bild = (image_id)IMG_LEER;
-
-	step_frequency = 1;
 
 	flags = keine_flags;
 	set_flag(dirty);
@@ -159,7 +155,9 @@ ding_t::~ding_t()
 }
 
 
-void ding_t::info(cbuffer_t & buf) const
+
+void
+ding_t::info(cbuffer_t & buf) const
 {
 	if(besitzer_n==1) {
 		buf.append(translator::translate("Eigenbesitz\n"));
@@ -175,33 +173,24 @@ void ding_t::info(cbuffer_t & buf) const
 }
 
 
-void
-ding_t::setze_bild(int n, image_id bild)
-{
-	assert(n==0);
-
-	if(this->bild != bild) {
-		this->bild = bild;
-		set_flag(dirty);
-	}
-}
-
-
-
 
 ding_infowin_t *ding_t::new_info()
 {
-    return new ding_infowin_t(welt, this);
+	return new ding_infowin_t(welt, this);
 }
+
+
 
 void
 ding_t::zeige_info()
 {
-    if(!ding_infos->get(this)) {
-	ding_infos->put(this, new_info());
-    }
-    create_win(-1, -1, ding_infos->get(this), w_autodelete);
+	if(!ding_infos->get(this)) {
+		ding_infos->put(this, new_info());
+	}
+	create_win(-1, -1, ding_infos->get(this), w_autodelete);
 }
+
+
 
 const char *
 ding_t::ist_entfernbar(const spieler_t *sp)
@@ -212,6 +201,8 @@ ding_t::ist_entfernbar(const spieler_t *sp)
 		return "Der Besitzer erlaubt das Entfernen nicht";
 	}
 }
+
+
 
 void
 ding_t::rdwr(loadsave_t *file)
@@ -228,22 +219,6 @@ ding_t::rdwr(loadsave_t *file)
 	byte = besitzer_n;
 	file->rdwr_byte(byte, "\n");
 	besitzer_n = byte;
-
-	if(file->is_loading()) {
-		bild = static_cast<uint16>(IMG_LEER);
-	}
-}
-
-
-/**
- * Wird nach dem Laden der Welt aufgerufen - üblicherweise benutzt
- * um das Aussehen des Dings an Boden und Umgebung anzupassen
- *
- * @author Hj. Malthaner
- */
-void ding_t::laden_abschliessen()
-{
-  // Nothing to do
 }
 
 

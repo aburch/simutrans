@@ -32,24 +32,24 @@ stringhashtable_tpl<const fussgaenger_besch_t *> fussgaenger_t::table;
 
 bool fussgaenger_t::register_besch(const fussgaenger_besch_t *besch)
 {
-    liste.append(besch);
-    table.put(besch->gib_name(), besch);
+	liste.append(besch);
+	table.put(besch->gib_name(), besch);
 
-    return true;
+	return true;
 }
 
 bool fussgaenger_t::laden_erfolgreich()
 {
 	if (liste.empty()) {
-	DBG_MESSAGE("fussgaenger_t", "No pedestrians found - feature disabled");
-    }
-    return true ;
+		DBG_MESSAGE("fussgaenger_t", "No pedestrians found - feature disabled");
+	}
+	return true ;
 }
 
 
 int fussgaenger_t::gib_anzahl_besch()
 {
-    return liste.count();
+	return liste.count();
 }
 
 
@@ -57,9 +57,6 @@ fussgaenger_t::fussgaenger_t(karte_t *welt, loadsave_t *file)
  : verkehrsteilnehmer_t(welt)
 {
 	rdwr(file);
-
-	current_speed = 128;
-	setze_max_speed(128);
 
 	if(file->get_version()<89004) {
 		time_to_life = strecke[count & 3];
@@ -73,10 +70,7 @@ fussgaenger_t::fussgaenger_t(karte_t *welt, loadsave_t *file)
 fussgaenger_t::fussgaenger_t(karte_t *welt, koord3d pos)
  : verkehrsteilnehmer_t(welt, pos)
 {
-	current_speed = 128;
-	setze_max_speed(128);
 	besch = liste.gib_gewichted(simrand(liste.gib_gesamtgewicht()));
-
 	time_to_life = strecke[count & 7];
 	count ++;
 }
@@ -87,10 +81,10 @@ void
 fussgaenger_t::calc_bild()
 {
 	if(welt->lookup(gib_pos())->ist_im_tunnel()) {
-		setze_bild(0, IMG_LEER);
+		setze_bild(IMG_LEER);
 	}
 	else {
-		setze_bild(0,besch->gib_bild_nr(ribi_t::gib_dir(gib_fahrtrichtung())));
+		setze_bild(besch->gib_bild_nr(ribi_t::gib_dir(gib_fahrtrichtung())));
 	}
 }
 
@@ -149,4 +143,26 @@ fussgaenger_t::erzeuge_fussgaenger_an(karte_t *welt, const koord3d k, int &anzah
 			}
 		}
 	}
+}
+
+
+
+bool
+fussgaenger_t::sync_step(long delta_t)
+{
+	if(time_to_life<0) {
+		// remove obj
+//DBG_MESSAGE("verkehrsteilnehmer_t::sync_step()","stopped");
+  		return false;
+	}
+
+	time_to_life -= delta_t;
+
+	weg_next += (128*delta_t) / 64;
+	while(1024 < weg_next) {
+		weg_next -= 1024;
+		fahre();
+	}
+
+	return true;
 }

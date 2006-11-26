@@ -1,15 +1,6 @@
 /*
  * simfab.cc
  *
- * Copyright (c) 1997 - 2001 Hansjörg Malthaner
- *
- * This file is part of the Simutrans project and may not be used
- * in other projects without written permission of the author.
- */
-
-/*
- * simfab.cc
- *
  * Fabrikfunktionen und Fabrikbau
  *
  * Hansjörg Malthaner
@@ -35,6 +26,7 @@
 #include "simcity.h"
 #include "simhalt.h"
 #include "simskin.h"
+#include "simtools.h"
 #include "simworld.h"
 #include "besch/haus_besch.h"
 #include "besch/ware_besch.h"
@@ -43,9 +35,8 @@
 
 #include "simintr.h"
 
-#include "dings/raucher.h"
+#include "dings/wolke.h"
 #include "dings/gebaeude.h"
-//#include "dings/leitung2.h"
 
 #include "dataobj/einstellungen.h"
 #include "dataobj/umgebung.h"
@@ -151,15 +142,6 @@ fabrik_t::fabrik_t(karte_t *wl, koord3d pos, spieler_t *spieler, const fabrik_be
 }
 
 
-fabrik_t::~fabrik_t()
-{
-	if(raucher) {
-		delete raucher;
-	}
-	raucher = 0;
-}
-
-
 
 // must be extended for non-square factories!
 bool
@@ -205,18 +187,6 @@ fabrik_t::baue(int rotate, bool clear)
 		pos = welt->lookup_kartenboden(pos.gib_2d())->gib_pos();
 		hausbauer_t::baue(welt, besitzer_p, pos, rotate, besch->gib_haus(), clear, this);
 		pos = welt->lookup_kartenboden(pos.gib_2d())->gib_pos();
-
-		const rauch_besch_t *rada = besch->gib_rauch();
-		if(rada) {
-			koord3d k ( pos + rada->gib_pos_off() );
-			assert(welt->lookup(k.gib_2d())!=NULL);
-			k = welt->lookup_kartenboden(k.gib_2d())->gib_pos();
-			raucher = new raucher_t(welt, k, rada);
-			raucher->set_flag(ding_t::not_on_map);
-		}
-		else {
-			raucher = NULL;
-		}
 	}
 	else {
 		dbg->error("fabrik_t::baue()", "Good pak not available!");
@@ -717,8 +687,15 @@ fabrik_t::step(long delta_t)
 		}
 		recalc_factory_status();
 
-		if(raucher) {
-			raucher->step(delta_t);
+		// let the chimney smoke
+		const rauch_besch_t *rada = besch->gib_rauch();
+		if(rada) {
+			grund_t *gr=welt->lookup_kartenboden(pos.gib_2d()+rada->gib_pos_off());
+			wolke_t *smoke =  new wolke_t(welt, pos+rada->gib_pos_off(), rada->gib_xy_off().x+simrand(7)-3, rada->gib_xy_off().y+simrand(7)-3, rada->gib_bilder()->gib_bild_nr(0), false );
+
+			bool add_ok=gr->obj_add(smoke);
+			assert(add_ok);
+			welt->sync_add( smoke );
 		}
 	}
 

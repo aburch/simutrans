@@ -22,6 +22,8 @@ class fabrik_t;
 class leitung_t : public ding_t
 {
 protected:
+	image_id bild;
+
 	/**
 	* We are part of this network
 	* @author Hj. Malthaner
@@ -59,6 +61,9 @@ public:
 	* @author Hj. Malthaner
 	*/
 	void info(cbuffer_t & buf) const;
+
+	void inline setze_bild( image_id b ) { bild = b; }
+	image_id gib_bild() const {return bild;}
 
 	/**
 	* Dient zur Neuberechnung des Bildes
@@ -122,10 +127,9 @@ public:
 class senke_t : public leitung_t, public sync_steppable
 {
 private:
-	int einkommen;
-	int max_einkommen;
+	sint32 einkommen;
+	sint32 max_einkommen;
 	fabrik_t *fab;
-
 
 public:
 	senke_t(karte_t *welt, loadsave_t *file);
@@ -133,12 +137,6 @@ public:
 	~senke_t();
 
 	enum ding_t::typ gib_typ() const {return senke;}
-
-	/**
-	 * book money and redraw image
-	 * @author prissi
-	 */
-	bool step(long /*delta_t*/);
 
 	bool sync_step(long delta_t);
 

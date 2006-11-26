@@ -413,7 +413,7 @@ vehikel_basis_t::calc_height()
 			switch(gr->gib_grund_hang()) {
 			case 3:	// nordhang
 				if(vehikel_basis_t::gib_yoff()>-7) {
-					setze_bild(0, IMG_LEER);
+					setze_bild(IMG_LEER);
 				}
 				else {
 					calc_bild();
@@ -421,7 +421,7 @@ vehikel_basis_t::calc_height()
 				break;
 			case 6:	// westhang
 				if(vehikel_basis_t::gib_xoff()>-12) {
-					setze_bild(0, IMG_LEER);
+					setze_bild(IMG_LEER);
 				}
 				else {
 					calc_bild();
@@ -429,7 +429,7 @@ vehikel_basis_t::calc_height()
 				break;
 			case 9:	// osthang
 				if(vehikel_basis_t::gib_xoff()<6) {
-					setze_bild(0, IMG_LEER);
+					setze_bild(IMG_LEER);
 				}
 				else {
 					calc_bild();
@@ -437,7 +437,7 @@ vehikel_basis_t::calc_height()
 				break;
 			case 12:    // suedhang
 				if(vehikel_basis_t::gib_yoff()<7) {
-					setze_bild(0, IMG_LEER);
+					setze_bild(IMG_LEER);
 				}
 				else {
 					calc_bild();
@@ -835,7 +835,7 @@ vehikel_t::rauche()
 			grund_t * gr = welt->lookup( gib_pos() );
 			// nicht im tunnel ?
 			if(gr && !gr->ist_im_tunnel() ) {
-				sync_wolke_t *abgas =  new sync_wolke_t(welt, gib_pos(), gib_xoff(), gib_yoff(), besch->gib_rauch()->gib_bild_nr(0));
+				wolke_t *abgas =  new wolke_t(welt, gib_pos(), gib_xoff(), gib_yoff(), besch->gib_rauch()->gib_bild_nr(0), true );
 
 				if( !gr->obj_add(abgas) ) {
 					delete abgas;
@@ -1050,9 +1050,9 @@ vehikel_t::calc_bild()
 {
 	image_id old_bild=gib_bild();
 	if (fracht.empty()) {
-		setze_bild(0, besch->gib_bild_nr(ribi_t::gib_dir(gib_fahrtrichtung()),NULL));
+		setze_bild(besch->gib_bild_nr(ribi_t::gib_dir(gib_fahrtrichtung()),NULL));
 	} else {
-		setze_bild(0, besch->gib_bild_nr(ribi_t::gib_dir(gib_fahrtrichtung()),fracht.at(0).gib_typ() ) );
+		setze_bild(besch->gib_bild_nr(ribi_t::gib_dir(gib_fahrtrichtung()),fracht.at(0).gib_typ() ) );
 	}
 	if(old_bild!=gib_bild()) {
 		set_flag(ding_t::dirty);

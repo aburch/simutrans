@@ -282,24 +282,6 @@ DBG_MESSAGE("planquadrat_t::rwdr", "unknown building (or prepare for factory) at
 
 
 
-void planquadrat_t::step(const long delta_t, const int steps)
-{
-	if(ground_size==0) {
-	}
-	else if(ground_size==1) {
-		data.one->step(delta_t,steps);
-	}
-	else {
-		for(uint8 i=0;  i<ground_size;  i++) {
-			if(data.some[i]->gib_top()) {
-				data.some[i]->step(delta_t,steps);
-			}
-		}
-	}
-}
-
-
-
 // start a new month (an change seasons)
 void planquadrat_t::check_season(const long month)
 {

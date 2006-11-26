@@ -2359,13 +2359,13 @@ spieler_t::suche_platz1_platz2(fabrik_t *qfab, fabrik_t *zfab)
 
 	gr = welt->access(platz1)->gib_kartenboden();
 	z = new zeiger_t(welt, gr->gib_pos(), this);
-	z->setze_bild(0, skinverwaltung_t::belegtzeiger->gib_bild_nr(0));
+	z->setze_bild( skinverwaltung_t::belegtzeiger->gib_bild_nr(0) );
 	gr->obj_add( z );
 
 
 	gr = welt->access(platz2)->gib_kartenboden();
 	z = new zeiger_t(welt, gr->gib_pos(), this);
-	z->setze_bild(0, skinverwaltung_t::belegtzeiger->gib_bild_nr(0));
+	z->setze_bild( skinverwaltung_t::belegtzeiger->gib_bild_nr(0) );
 	gr->obj_add( z );
 
     }

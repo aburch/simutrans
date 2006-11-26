@@ -53,44 +53,49 @@ uint8 gebaeude_t::hide = NOT_HIDDEN;
  * Initializes all variables with save, usable values
  * @author Hj. Malthaner
  */
-void gebaeude_t::init(const haus_tile_besch_t *t)
+void gebaeude_t::init()
 {
-	tile = t;
+	tile = NULL;
 	ptr.fab = 0;
 	is_factory = true;
 	anim_time = 0;
 	sync = false;
 	count = 0;
-	zeige_baugrube = t ? true : false;
+	zeige_baugrube = false;
 }
 
 
 
 gebaeude_t::gebaeude_t(karte_t *welt) : ding_t(welt)
 {
-	init(0);
+	init();
 }
 
 
 
 gebaeude_t::gebaeude_t(karte_t *welt, loadsave_t *file) : ding_t(welt)
 {
-	init(0);
+	init();
 	rdwr(file);
 	if(file->get_version()<88002) {
 		setze_yoff(0);
+	}
+	if(tile  &&  tile->gib_phasen()>1) {
+		welt->sync_add( this );
 	}
 }
 
 
 
-gebaeude_t::gebaeude_t(karte_t *welt, koord3d pos,spieler_t *sp, const haus_tile_besch_t *t) :
+gebaeude_t::gebaeude_t(karte_t *welt, koord3d pos, spieler_t *sp, const haus_tile_besch_t *t) :
     ding_t(welt, pos)
 {
 	setze_besitzer( sp );
 
-	init(t);
-	renoviere();	// this will set init time etc.
+	init();
+	if(t) {
+		setze_tile(t);	// this will set init time etc.
+	}
 
 	grund_t *gr=welt->lookup(pos);
 	if(gr  &&  gr->gib_weg_hang()!=gr->gib_grund_hang()) {
@@ -111,7 +116,7 @@ gebaeude_t::gebaeude_t(karte_t *welt, koord3d pos,spieler_t *sp, const haus_tile
  */
 gebaeude_t::~gebaeude_t()
 {
-	if(sync) {
+	if(tile  &&  tile->gib_phasen()>1  ||  zeige_baugrube) {
 		sync = false;
 		welt->sync_remove(this);
 	}
@@ -144,11 +149,10 @@ gebaeude_t::setze_fab(fabrik_t *fb)
 	// sets the pointer in non-zero
 	if(fb) {
 		if(!is_factory  &&  ptr.stadt!=NULL) {
-			dbg->error("gebaeude_t::setze_fab()","building already bound to city!");
+			dbg->fatal("gebaeude_t::setze_fab()","building already bound to city!");
 		}
 		is_factory = true;
 		ptr.fab = fb;
-		step_frequency = 1;
 	}
 	else if(is_factory) {
 		ptr.fab = NULL;
@@ -166,7 +170,7 @@ gebaeude_t::setze_stadt(stadt_t *s)
 	// sets the pointer in non-zero
 	if(s) {
 		if(is_factory  &&  ptr.fab!=NULL) {
-			dbg->error("gebaeude_t::setze_stadt()","building already bound to factory!");
+			dbg->fatal("gebaeude_t::setze_stadt()","building already bound to factory!");
 		}
 		is_factory = false;
 		ptr.stadt = s;
@@ -179,105 +183,89 @@ gebaeude_t::setze_stadt(stadt_t *s)
 
 
 
-/* must be defined here, otherwise tile might be unknown
- */
-void
-gebaeude_t::setze_count(uint8 count)
-{
-	this->count = count % tile->gib_phasen();
-}
-
-
 
 /* make this building without construction */
 void
 gebaeude_t::add_alter(uint32 a)
 {
 	insta_zeit -= min(a,insta_zeit);
-	zeige_baugrube = false;
-	calc_bild();
-	if(is_factory==false  ||  ptr.fab==NULL) {
-		step_frequency = 0;
-	}
-	set_flag(ding_t::dirty);
-//	DBG_MESSAGE("gebaeude_t::add_alter()","");
 }
 
 
 
 
 void
-gebaeude_t::renoviere()
+gebaeude_t::setze_tile(const haus_tile_besch_t *new_tile)
 {
 	insta_zeit = welt->gib_zeit_ms();
-	zeige_baugrube = tile ? !tile->gib_besch()->ist_ohne_grube() : true;
-	calc_bild();
+	zeige_baugrube = !new_tile->gib_besch()->ist_ohne_grube();
+	if(sync) {
+		if(new_tile->gib_phasen()<=1  &&  !zeige_baugrube) {
+			// need to stop animation
+			welt->sync_remove(this);
+			sync = false;
+			count = 0;
+		}
+	}
+	else if(new_tile->gib_phasen()>1  ||  zeige_baugrube) {
+		// needs now anymation
+		count = simrand(new_tile->gib_phasen());
+		anim_time = 0;
+		welt->sync_add(this);
+		sync = true;
+	}
+	tile = new_tile;
 	set_flag(ding_t::dirty);
-	if(zeige_baugrube  ||  (tile  &&  tile->gib_besch()->ist_fabrik())) {
-		step_frequency = 1;
-	}
-	else {
-		step_frequency = 0;
-	}
 }
 
 
 
 
 /**
- * Should only be called after everything is set up to play
- * the animation actually. Sets sync flag and register/deregisters
- * this as a sync object
- *
+ * Methode für Echtzeitfunktionen eines Objekts.
+ * @return false wenn Objekt aus der Liste der synchronen
+ * Objekte entfernt werden sol
  * @author Hj. Malthaner
  */
-void
-gebaeude_t::setze_sync(bool yesno)
+bool gebaeude_t::sync_step(long delta_t)
 {
-	if(yesno  &&  tile->gib_phasen()>1) {
-		// already sync? and worth animating ?
-		if(!sync && tile->gib_phasen()>1) {
-			// no
-			sync = true;
-			anim_time = 0;
-			count = simrand(tile->gib_phasen());
-			welt->sync_add(this);
-		}
-	}
-	else {
-		sync = false;
-		// always deregister ... doesn't hurt if we were not registered.
-		welt->sync_remove(this);
-	}
-}
-
-
-
-bool
-gebaeude_t::step(long delta_t)
-{
-	// still under construction?
 	if(zeige_baugrube) {
+		// still under construction?
 		if(welt->gib_zeit_ms() - insta_zeit > 5000) {
 			set_flag(ding_t::dirty);
 			zeige_baugrube = false;
-			calc_bild();
-			// factories needs more frequent steps
-			if(is_factory  &&  ptr.fab   &&  ptr.fab->gib_pos()==gib_pos()) {
-				step_frequency = 1;
-			}
-			else {
-				step_frequency = 0;
+			if(tile->gib_phasen()<=1) {
+				welt->sync_remove( this );
+				sync = false;
 			}
 		}
 	}
+	else {
+		// normal animated building
+		anim_time += delta_t;
+		if(anim_time>tile->gib_besch()->get_animation_time()) {
+			if(!zeige_baugrube)  {
 
-	// factory produces
-	if(is_factory  &&  ptr.fab!=NULL) {
-		ptr.fab->step(delta_t);
-		INT_CHECK("gebaeude 250");
+				for(int i=1;  ;  i++) {
+					image_id bild = gib_bild(i);
+					if(bild==IMG_LEER) {
+						break;
+					}
+					mark_image_dirty(bild,-(i<<6));
+				}
+				// old positions need redraw
+				mark_image_dirty(gib_bild(),0);
+
+				anim_time %= tile->gib_besch()->get_animation_time();
+				count ++;
+				if(count >= tile->gib_phasen()) {
+					count = 0;
+				}
+				// winter for buildings only above snowline
+				set_flag(ding_t::dirty);
+			}
+		}
 	}
-
 	return true;
 }
 
@@ -286,33 +274,37 @@ gebaeude_t::step(long delta_t)
 void
 gebaeude_t::calc_bild()
 {
-	if(hide!=NOT_HIDDEN) {
-		if(gib_haustyp()!=unbekannt) {
-			setze_bild( 0, skinverwaltung_t::construction_site->gib_bild_nr(0) );
-			return;
-		}
-		else if(hide==ALL_HIDDEN  &&  tile->gib_besch()->gib_utyp()<hausbauer_t::weitere) {
-			// special bilding
-			int kind=skinverwaltung_t::construction_site->gib_bild_anzahl()<=tile->gib_besch()->gib_utyp() ? skinverwaltung_t::construction_site->gib_bild_anzahl()-1 : tile->gib_besch()->gib_utyp();
-			setze_bild( 0, skinverwaltung_t::construction_site->gib_bild_nr( kind ) );
-			return;
-		}
-	}
-
-	// winter for buildings only above snowline
-	if(zeige_baugrube)  {
-		setze_bild( 0, skinverwaltung_t::construction_site->gib_bild_nr(0) );
-	}
-	else {
-		setze_bild( 0, tile->gib_hintergrund(count, 0, gib_pos().z>=welt->get_snowline()) );
-	}
-
 	// need no ground?
 	if(!tile->gib_besch()->ist_mit_boden()) {
 		grund_t *gr=welt->lookup(gib_pos());
 		if(gr  &&  gr->gib_typ()==grund_t::fundament) {
 			gr->setze_bild( IMG_LEER );
 		}
+	}
+}
+
+
+
+image_id
+gebaeude_t::gib_bild() const
+{
+	if(hide!=NOT_HIDDEN) {
+		if(gib_haustyp()!=unbekannt) {
+			return skinverwaltung_t::construction_site->gib_bild_nr(0);
+		}
+		else if(hide==ALL_HIDDEN  &&  tile->gib_besch()->gib_utyp()<hausbauer_t::weitere) {
+			// special bilding
+			int kind=skinverwaltung_t::construction_site->gib_bild_anzahl()<=tile->gib_besch()->gib_utyp() ? skinverwaltung_t::construction_site->gib_bild_anzahl()-1 : tile->gib_besch()->gib_utyp();
+			return skinverwaltung_t::construction_site->gib_bild_nr( kind );
+		}
+	}
+
+	// winter for buildings only above snowline
+	if(zeige_baugrube)  {
+		return skinverwaltung_t::construction_site->gib_bild_nr(0);
+	}
+	else {
+		return tile->gib_hintergrund(count, 0, gib_pos().z>=welt->get_snowline());
 	}
 }
 
@@ -439,6 +431,7 @@ ding_infowin_t *gebaeude_t::new_info()
 }
 
 
+
 void
 gebaeude_t::zeige_info()
 {
@@ -563,6 +556,7 @@ void gebaeude_t::info(cbuffer_t & buf) const
 }
 
 
+
 void
 gebaeude_t::rdwr(loadsave_t *file)
 {
@@ -669,7 +663,7 @@ DBG_MESSAGE("gebaeude_t::rwdr", "description %s for building at %d,%d not found 
 				// Ohne "sync=false" denkt setze_sync(), es dreht sich
 				// schon alles.
 				sync = false;
-				setze_sync(true);
+				welt->sync_add(this);
 			}
 
 			// Hajo: rebuild tourist attraction list
@@ -681,46 +675,6 @@ DBG_MESSAGE("gebaeude_t::rwdr", "description %s for building at %d,%d not found 
 	else {
 		file->wr_obj_id(-1);
 	}
-}
-
-
-
-/**
- * Methode für Echtzeitfunktionen eines Objekts.
- * @return false wenn Objekt aus der Liste der synchronen
- * Objekte entfernt werden sol
- * @author Hj. Malthaner
- */
-bool gebaeude_t::sync_step(long delta_t)
-{
-// DBG_MESSAGE("gebaeude_t::sync_step()", "%p, %d phases", this, phasen);
-
-	anim_time += delta_t;
-	if(anim_time>tile->gib_besch()->get_animation_time()) {
-		if(!zeige_baugrube)  {
-
-			for(int i=1;  ;  i++) {
-				image_id bild = gib_bild(i);
-				if(bild==IMG_LEER) {
-					break;
-				}
-				setze_bild( 0, bild );
-				mark_image_dirty(bild,-(i<<6));
-			}
-			// old positions need redraw
-			mark_image_dirty(gib_bild(0),0);
-
-			anim_time %= tile->gib_besch()->get_animation_time();
-			count ++;
-			if(count >= tile->gib_phasen()) {
-				count = 0;
-			}
-			// winter for buildings only above snowline
-			setze_bild( 0, tile->gib_hintergrund(count, 0, gib_pos().z>=welt->get_snowline()) );
-			set_flag(ding_t::dirty);
-		}
-	}
-	return true;
 }
 
 
@@ -740,7 +694,6 @@ gebaeude_t::laden_abschliessen()
 	}
 	else {
 		zeige_baugrube = true;
-		step_frequency = 1;
 	}
 	if(gib_besitzer()) {
 		gib_besitzer()->add_maintenance(umgebung_t::maint_building);

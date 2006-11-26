@@ -84,16 +84,19 @@ protected:
 	sint8 dx, dy;
 
 	/**
+	 * Next position on our path
+	 * @author Hj. Malthaner
+	 */
+	koord3d pos_next;
+
+	/**
 	 * Offsets fuer Bergauf/Bergab
 	 * @author Hj. Malthaner
 	 */
 	sint8 hoff;
 
-	/**
-	 * Next position on our path
-	 * @author Hj. Malthaner
-	 */
-	koord3d pos_next;
+	// cached image
+	image_id bild;
 
 	virtual void fahre();
 	virtual int  calc_height();		// Offset Bergauf/Bergab
@@ -108,7 +111,8 @@ protected:
 	virtual void calc_bild() = 0;
 
 public:
-	ribi_t::ribi calc_richtung(koord start, koord ende, sint8 &dx, sint8 &dy) const;
+	void inline setze_bild( image_id b ) { bild = b; }
+	image_id gib_bild() const {return bild;}	ribi_t::ribi calc_richtung(koord start, koord ende, sint8 &dx, sint8 &dy) const;
 
 	ribi_t::ribi gib_fahrtrichtung() const {return fahrtrichtung;}
 
@@ -590,11 +594,9 @@ private:
 	koord3d search_start;
 	koord3d search_end;
 
-  	enum flight_state { taxiing=0, departing=1, flying=2, landing=3, looking_for_parking=4, flying2=5, taxiing_to_halt=6  };
+	enum flight_state { taxiing=0, departing=1, flying=2, landing=3, looking_for_parking=4, flying2=5, taxiing_to_halt=6  };
 
-  	enum flight_state state;	// functions needed for the search without destination from find_route
-
-//	bool ist_blockwechsel(koord3d k1, koord3d k2) const;
+	enum flight_state state;	// functions needed for the search without destination from find_route
 
 	sint16 flughoehe;
 	sint16 target_height;
@@ -603,13 +605,13 @@ private:
 protected:
 	bool ist_befahrbar(const grund_t *bd) const;
 
-    void betrete_feld();
+	void betrete_feld();
 
 	// find a route and reserve the stop position
 	bool find_route_to_stop_position();
 
 public:
-    virtual waytype_t gib_waytype() const { return air_wt; }
+	virtual waytype_t gib_waytype() const { return air_wt; }
 
 	// returns true for the way search to an unknown target.
 	virtual bool ist_ziel(const grund_t *,const grund_t *) const;
@@ -622,21 +624,21 @@ public:
 
 	virtual bool ist_weg_frei(int &restart_speed);
 
-    virtual void setze_convoi(convoi_t *c);
+	virtual void setze_convoi(convoi_t *c);
 
 	bool calc_route(karte_t * welt, koord3d start, koord3d ziel, uint32 max_speed, route_t * route);
 
-    enum ding_t::typ gib_typ() const { return aircraft; }
+	enum ding_t::typ gib_typ() const { return aircraft; }
 
-    aircraft_t(karte_t *welt, loadsave_t *file);
-    aircraft_t(karte_t *welt, koord3d pos, const vehikel_besch_t *besch, spieler_t *sp, convoi_t *cnv); // start und fahrplan
+	aircraft_t(karte_t *welt, loadsave_t *file);
+	aircraft_t(karte_t *welt, koord3d pos, const vehikel_besch_t *besch, spieler_t *sp, convoi_t *cnv); // start und fahrplan
 
-    fahrplan_t * erzeuge_neuen_fahrplan() const;
+	fahrplan_t * erzeuge_neuen_fahrplan() const;
 
-    void rdwr(loadsave_t *file);
-    void rdwr(loadsave_t *file, bool force);
+	void rdwr(loadsave_t *file);
+	void rdwr(loadsave_t *file, bool force);
 
-    virtual int calc_height();
+	virtual int calc_height();
 
 	// the speed calculation happens it calc_height
 	void calc_akt_speed(const grund_t*) {}

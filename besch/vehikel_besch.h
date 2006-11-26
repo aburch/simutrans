@@ -53,21 +53,21 @@ class vehikel_besch_t : public obj_besch_std_name_t {
     friend class vehikelbauer_t;
 
 public:
-    /**
-     * Engine type
-     * @author Hj. Malthaner
-     */
-    enum engine_t {
-    	 unknown=-1,
-      steam=0,
-      diesel,
-      electric,
-      bio,
-      sail,
-      fuel_cell,
-      hydrogene,
-      battery
-    };
+	/**
+	 * Engine type
+	 * @author Hj. Malthaner
+	 */
+	enum engine_t {
+		 unknown=-1,
+		steam=0,
+		diesel,
+		electric,
+		bio,
+		sail,
+		fuel_cell,
+		hydrogene,
+		battery
+	};
 
 
 private:

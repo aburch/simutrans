@@ -691,7 +691,7 @@ wkz_wegebau(spieler_t *sp, karte_t *welt,  koord pos, value_t lParam)
 
 			// symbol für strassenanfang setzen
 			wkz_wegebau_bauer = new zeiger_t(welt, start, sp);
-			wkz_wegebau_bauer->setze_bild(0, skinverwaltung_t::bauigelsymbol->gib_bild_nr(0));
+			wkz_wegebau_bauer->setze_bild( skinverwaltung_t::bauigelsymbol->gib_bild_nr(0));
 			gr->obj_add(wkz_wegebau_bauer);
 			wkz_wegebau_start = start;
 		}
@@ -824,7 +824,7 @@ wkz_wayremover(spieler_t *sp, karte_t *welt,  koord pos, value_t lParam)
 			erster = false;
 			start = gr->gib_pos();
 			wkz_wayremover_bauer = new zeiger_t(welt, start, sp);
-			wkz_wayremover_bauer->setze_bild(0, skinverwaltung_t::killzeiger->gib_bild_nr(0));
+			wkz_wayremover_bauer->setze_bild( skinverwaltung_t::killzeiger->gib_bild_nr(0));
 			gr->obj_add(wkz_wayremover_bauer);
 DBG_MESSAGE("wkz_wayremover()", "Setting start to %d,%d,%d",start.x, start.y,start.z);
 		}
@@ -953,7 +953,7 @@ wkz_wayobj(spieler_t *sp, karte_t *welt, koord pos, value_t lParam)
 			erster = false;
 			start = gr->gib_pos();
 			wkz_wayobj_bauer = new zeiger_t(welt, start, sp);
-			wkz_wayobj_bauer->setze_bild(0, besch->gib_cursor()->gib_bild_nr(0) );
+			wkz_wayobj_bauer->setze_bild( besch->gib_cursor()->gib_bild_nr(0) );
 			gr->obj_add(wkz_wayobj_bauer);
 			DBG_MESSAGE("wkz_wayremover()", "Setting start to %d,%d,%d",start.x, start.y,start.z);
 		}

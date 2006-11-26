@@ -30,10 +30,6 @@ pillar_t::pillar_t(karte_t *welt, loadsave_t *file) : ding_t(welt)
 {
 	besch = NULL;
 	rdwr(file);
-	if(besch) {
-		setze_bild(0,besch->gib_hintergrund((bruecke_besch_t::img_t)dir) );
-	}
-	step_frequency = 0;
 }
 
 
@@ -43,9 +39,7 @@ pillar_t::pillar_t(karte_t *welt, koord3d pos, spieler_t *sp, const bruecke_besc
 	this->besch = besch;
 	this->dir = (uint8)img;
 	setze_yoff(-hoehe);
-	setze_bild(0,besch->gib_hintergrund(img) );
 	setze_besitzer( sp );
-	step_frequency = 0;
 }
 
 

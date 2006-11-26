@@ -146,7 +146,6 @@ void weg_t::init()
 	init_statistics();
 	alle_wege.insert(this);
 	flags = 0;
-	step_frequency = 0;
 }
 
 
@@ -283,13 +282,13 @@ weg_t::calc_bild()
 	grund_t *to;
 
 	if(from==NULL  ||  besch==NULL  ||  from->ist_tunnel()) {
-		setze_bild(0,IMG_LEER);
+		setze_bild(IMG_LEER);
 		return;
 	}
 
 	hang_t::typ hang = from->gib_weg_hang();
 	if(hang != hang_t::flach) {
-		setze_bild(0,besch->gib_hang_bild_nr(hang));
+		setze_bild(besch->gib_hang_bild_nr(hang));
 		return;
 	}
 
@@ -360,13 +359,13 @@ weg_t::calc_bild()
 
 			image_id bild = besch->gib_diagonal_bild_nr(ribi);
 			if(bild != IMG_LEER) {
-				setze_bild(0, bild);
+				setze_bild(bild);
 				return;
 			}
 		}
 	}
 
-	setze_bild(0,besch->gib_bild_nr(ribi));
+	setze_bild(besch->gib_bild_nr(ribi));
 }
 
 

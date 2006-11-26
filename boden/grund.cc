@@ -510,12 +510,12 @@ void grund_t::calc_bild()
 			ribi_t::ribi ribi1 = wege[1]->gib_ribi();
 
 			if(ribi_t::ist_gerade_ns(ribi0) || ribi_t::ist_gerade_ow(ribi1)) {
-				wege[0]->setze_bild( 0, wegbauer_t::gib_kreuzung(wege[0]->gib_waytype(), wege[1]->gib_waytype() )->gib_bild_nr() );
+				wege[0]->setze_bild( wegbauer_t::gib_kreuzung(wege[0]->gib_waytype(), wege[1]->gib_waytype() )->gib_bild_nr() );
 			}
 			else {
-				wege[0]->setze_bild( 0, wegbauer_t::gib_kreuzung(wege[1]->gib_waytype(), wege[0]->gib_waytype() )->gib_bild_nr() );
+				wege[0]->setze_bild( wegbauer_t::gib_kreuzung(wege[1]->gib_waytype(), wege[0]->gib_waytype() )->gib_bild_nr() );
 			}
-			wege[1]->setze_bild( 0, IMG_LEER );
+			wege[1]->setze_bild( IMG_LEER );
 		}
 	}
 

@@ -31,7 +31,7 @@
 
 #include "baum.h"
 
-static const int baum_bild_alter[12] =
+static const uint8 baum_bild_alter[12] =
 {
     0,1,2,3,3,3,3,3,3,4,4,4
 };
@@ -156,14 +156,13 @@ baum_t::calc_off()
 
 
 
-bool
-baum_t::calc_bild(const unsigned long alter)
+void
+baum_t::calc_bild()
 {
 	// alter/2048 is the age of the tree
-	int baum_alter = hide ? 0 : baum_bild_alter[min(alter>>6, 11u)];
 	const baum_besch_t *besch=gib_besch();
 	const sint16 seasons = besch->gib_seasons();
-	int season=0;
+	season=0;
 
 	if(seasons>1) {
 		// two possibilities
@@ -185,21 +184,16 @@ baum_t::calc_bild(const unsigned long alter)
 			}
 		}
 	}
-
-	const image_id bild_neu = besch->gib_bild(season, baum_alter )->gib_nummer();
-	if(bild_neu!=gib_bild()) {
-		setze_bild(0, bild_neu);
-		return true;
-	}
-	return false;
 }
 
 
 
-inline void
-baum_t::calc_bild()
+image_id
+baum_t::gib_bild() const
 {
-	calc_bild(welt->get_current_month() - geburt);
+	// alter/2048 is the age of the tree
+	uint8 baum_alter = hide ? 0 : baum_bild_alter[min((welt->get_current_month() - geburt)>>6, 11u)];
+	return gib_besch()->gib_bild( season, baum_alter )->gib_nummer();
 }
 
 
@@ -242,8 +236,6 @@ baum_t::baum_t(karte_t *welt, loadsave_t *file) : ding_t(welt)
 	if(gib_besch()) {
 		calc_bild();
 	}
-	// no steps, new month will do this for us
-	step_frequency = 0;
 }
 
 
@@ -257,9 +249,6 @@ baum_t::baum_t(karte_t *welt, koord3d pos) : ding_t(welt, pos)
 
 	calc_off();
 	calc_bild();
-
-	// no steps, new month will do this for us
-	step_frequency = 0;
 }
 
 
@@ -271,9 +260,6 @@ baum_t::baum_t(karte_t *welt, koord3d pos, uint16 type) : ding_t(welt, pos)
 	baumtype = type;
 	calc_off();
 	calc_bild();
-
-	// no steps, new month will do this for us
-	step_frequency = 0;
 }
 
 
@@ -305,7 +291,7 @@ baum_t::check_season(long month)
 {
 	// take care of birth/death and seasons
 	const long alter = (month - geburt);
-	calc_bild(alter);
+	calc_bild();
 	if(alter==512) {
 		// only in this month a tree can span new trees
 		// only 1-3 trees will be planted....

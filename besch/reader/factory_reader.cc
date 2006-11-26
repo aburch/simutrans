@@ -5,7 +5,7 @@
 
 #include "../../simfab.h"
 #include "../../bauer/fabrikbauer.h"
-#include "../../dings/raucher.h"
+#include "../../dings/wolke.h"
 #include "../../simdebug.h"
 #include "../obj_node_info.h"
 #include "../fabrik_besch.h"
@@ -49,12 +49,11 @@ factory_smoke_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 
 void factory_smoke_reader_t::register_obj(obj_besch_t *&data)
 {
-    rauch_besch_t *besch = static_cast<rauch_besch_t *>(data);
-    // Xref ist hier noch nicht aufgelöst!
-    const char* name = static_cast<xref_besch_t*>(besch->gib_kind(0))->get_name();
+	rauch_besch_t *besch = static_cast<rauch_besch_t *>(data);
+	// Xref ist hier noch nicht aufgelöst!
+	const char* name = static_cast<xref_besch_t*>(besch->gib_kind(0))->get_name();
 
-    raucher_t::register_besch(besch, name);
-    //printf("...Fabrik %s geladen\n", besch->gib_name());
+	wolke_t::register_besch(besch, name);
 }
 
 

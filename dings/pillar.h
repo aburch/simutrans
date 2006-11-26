@@ -16,8 +16,8 @@ class karte_t;
 
 class pillar_t : public ding_t
 {
-	uint8 dir;
 	const bruecke_besch_t *besch;
+	uint8 dir;
 
 protected:
 	void rdwr(loadsave_t *file);
@@ -30,6 +30,8 @@ public:
 	enum ding_t::typ gib_typ() const { return ding_t::pillar; }
 
 	const bruecke_besch_t* gib_besch() const { return besch; }
+
+	image_id gib_bild() const { return besch->gib_hintergrund((bruecke_besch_t::img_t)dir); }
 
 	/**
 	 * @return Einen Beschreibungsstring für das Objekt, der z.B. in einem

@@ -317,10 +317,7 @@ void hausbauer_t::neue_karte()
 void hausbauer_t::umbauen(karte_t * ,gebaeude_t *gb, const haus_besch_t *besch, int rotate)
 {
 	const haus_tile_besch_t *tile = besch->gib_tile(rotate, 0, 0);
-
 	gb->setze_tile(tile);
-	gb->renoviere();
-	gb->setze_sync( true );
 }
 
 
@@ -403,13 +400,8 @@ void hausbauer_t::baue(karte_t *welt, spieler_t *sp, koord3d pos, int layout, co
 			if(besch->ist_ausflugsziel()) {
 				welt->add_ausflugsziel( gb );
 			}
-			gb->setze_sync( true );
 			if(besch->gib_typ() == gebaeude_t::unbekannt) {
-				if(besch->ist_fabrik()) {
-					gb->setze_count(0);
-					gb->setze_anim_time(0);
-				}
-				else if(station_building.contains(besch)) {
+				if(station_building.contains(besch)) {
 					(*static_cast<halthandle_t *>(param))->add_grund(gr);
 				}
 				 if( besch->gib_utyp()==hausbauer_t::hafen ) {
@@ -465,7 +457,6 @@ hausbauer_t::neues_gebaeude(karte_t *welt, spieler_t *sp, koord3d pos, int layou
 		gr->calc_bild();
 	}
 
-	gb->setze_sync( true );
 	if(besch->ist_ausflugsziel()) {
 		welt->add_ausflugsziel( gb );
 	}

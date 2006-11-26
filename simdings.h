@@ -69,21 +69,6 @@ private:
 	*/
 	uint8 flags:4;
 
-	/**
-	* das bild des dings
-	* @author Hj. Malthaner
-	*/
-	image_id bild;
-
-public:
-	/**
-	* Do we need to be called every step? Must be of (2^n-1)
-	* public for performance reasons, this is accessed _very frequently_ !
-	* @author Hj. Malthaner
-	*/
-	enum { max_step_frequency=255 };
-	uint8 step_frequency;
-
 private:
 	/**
 	* Used by all constructors to initialize all vars with safe values
@@ -92,11 +77,7 @@ private:
 	*/
 	void init(karte_t *welt);
 
-
 protected:
-	// free for additional info; specific for each object
-	uint8 extra_info;
-
 	/**
 	* Basiskonstruktor
 	* @author Hj. Malthaner
@@ -257,13 +238,6 @@ public:
 	 */
 	virtual enum ding_t::typ gib_typ() const = 0;
 
-	/**
-	 * Methode für asynchrone Funktionen eines Objekts.
-	 * @return false to be deleted after the step, true to live on
-	 * @author Hj. Malthaner
-	 */
-	virtual bool step(long /*delta_t*/) {return true;}
-
 	/*
 	* called whenever the snowline height changes
 	* return fals and the ding_t will be deleted
@@ -276,7 +250,7 @@ public:
 	 * @return Die Nummer des aktuellen Bildes für das Objekt.
 	 * @author Hj. Malthaner
 	 */
-	inline image_id gib_bild() const {return bild;}
+	virtual image_id gib_bild() const {return IMG_LEER;}
 
 	/**
 	 * give image for height > 0 (max. height currently 3)
@@ -292,13 +266,11 @@ public:
 	virtual image_id gib_after_bild() const {return IMG_LEER;}
 
 	/**
-	 * Setzt ein Bild des Objects, normalerweise ist nur bild 0
-	 * setzbar.
-	 * @param n bild index
+	 * set image zero to this number
 	 * @param bild bild nummer
 	 * @author Hj. Malthaner
 	 */
-	virtual void setze_bild(int n, image_id bild);
+	virtual void setze_bild(image_id bild) {}
 
 	/**
 	 * Ein Objekt kann zu einer Fabrik gehören.
@@ -306,7 +278,7 @@ public:
 	 * wenn das Objekt zu keiner Fabrik gehört.
 	 * @author Hj. Malthaner
 	 */
-	virtual inline fabrik_t* get_fabrik() const {return NULL;}
+	virtual fabrik_t* get_fabrik() const {return NULL;}
 
 	/**
 	 * Speichert den Zustand des Objekts.
@@ -323,7 +295,7 @@ public:
 	 *
 	 * @author Hj. Malthaner
 	 */
-	virtual void laden_abschliessen();
+	virtual void laden_abschliessen() {}
 
 	/**
 	 * Ein Objekt gehört immer zu einem grund_t

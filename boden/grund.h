@@ -219,12 +219,6 @@ public:
 	void entferne_grund_info();
 
 	/**
-	* do all things that could take a while
-	* @author Hj. Malthaner
-	*/
-	void step(const long delta_t, const int steps) { dinge.step(delta_t,steps); }
-
-	/**
 	* start a new month (and toggle the seasons)
 	* @author prissi
 	*/

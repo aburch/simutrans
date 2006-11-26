@@ -31,8 +31,7 @@ tunnel_t::tunnel_t(karte_t *welt, loadsave_t *file) : ding_t(welt)
 {
 	besch = 0;
 	rdwr(file);
-	step_frequency = 0;
-	after_bild = IMG_LEER;
+	bild = after_bild = IMG_LEER;
 }
 
 
@@ -41,8 +40,7 @@ tunnel_t::tunnel_t(karte_t *welt, koord3d pos, spieler_t *sp, const tunnel_besch
 {
 	this->besch = besch;
 	setze_besitzer( sp );
-	step_frequency = 0;
-	after_bild = IMG_LEER;
+	bild = after_bild = IMG_LEER;
 }
 
 
@@ -53,11 +51,11 @@ tunnel_t::calc_bild()
 	const grund_t *gr = welt->lookup(gib_pos());
 	if(gr->ist_karten_boden()) {
 		hang_t::typ hang = gr->gib_grund_hang();
-		setze_bild( 0, besch->gib_hintergrund_nr(hang) );
+		setze_bild( besch->gib_hintergrund_nr(hang) );
 		after_bild = besch->gib_vordergrund_nr(hang);
 	}
 	else {
-		setze_bild( 0, IMG_LEER );
+		setze_bild( IMG_LEER );
 		after_bild = IMG_LEER;
 	}
 }

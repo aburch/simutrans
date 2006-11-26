@@ -10,7 +10,6 @@
 
 #include "../dings/dummy.h"
 #include "../dings/wolke.h"
-#include "../dings/raucher.h"
 #include "../dings/zeiger.h"
 #include "../dings/baum.h"
 #include "../dings/bruecke.h"
@@ -729,11 +728,11 @@ dingliste_t::rdwr(karte_t *welt, loadsave_t *file, koord3d current_pos)
 				case ding_t::old_gebaeudefundament: d = new dummy_ding_t(welt, file); delete d; d=NULL;  break;
 
 				// only factories can smoke; but then, the smoker is reinstated after loading
-				case ding_t::raucher: 	d = new raucher_t (welt, file); delete d; d = NULL; break;
+				case ding_t::raucher: 	d = new raucher_t(welt, file); delete d; d = NULL; break;
 
 				// wolke saves wrong images; but new smoke will emerge anyway ...
-				case ding_t::sync_wolke:	    d = new sync_wolke_t (welt, file); delete d; d=NULL; break;
-				case ding_t::async_wolke:	    d = new async_wolke_t (welt, file); delete d; d=NULL; break;
+				case ding_t::sync_wolke:	    d = new wolke_t(welt, file); delete d; d=NULL; break;
+				case ding_t::async_wolke:	    d = new async_wolke_t(welt, file); delete d; d=NULL; break;
 
 #ifdef LAGER_NOT_IN_USE
 				case ding_t::lagerhaus:	    d = new lagerhaus_t (welt, file);	        break;
@@ -765,7 +764,7 @@ dingliste_t::rdwr(karte_t *welt, loadsave_t *file, koord3d current_pos)
 			ding_t *d=bei(i);
 			assert(d);
 			if(d->gib_pos()==current_pos) {
-				if(d->gib_typ()!=ding_t::raucher  &&  !d->is_way()) {
+				if(d->gib_typ()!=ding_t::raucher  &&  d->gib_typ()!=ding_t::sync_wolke  &&  d->gib_typ()!=ding_t::async_wolke  &&  !d->is_way()) {
 					bei(i)->rdwr(file);
 				}
 				else {
@@ -819,41 +818,6 @@ void dingliste_t::display_dinge( const sint16 xpos, const sint16 ypos, const uin
 		obj.some[n]->clear_flag(ding_t::dirty);
 	}
 }
-
-
-
-// animation, waiting for crossing, all things that could take a while should be done in a step
-void
-dingliste_t::step(const long delta_t, const int steps)
-{
-	static slist_tpl<ding_t *>loeschen;
-
-	if(capacity==0) {
-		return;
-	}
-	else if(capacity==1) {
-		ding_t *d = obj.one;
-		const int freq = d->step_frequency;
-		if(freq!=0  &&  (steps&freq)==0  &&  d->step(delta_t*freq)==false) {
-			loeschen.insert( d );
-		}
-	}
-	else {
-		for(uint8 i=0; i<top; i++) {
-			ding_t *d = obj.some[i];
-			const int freq = d->step_frequency;
-			if(freq!=0  &&  (steps&freq)==0  &&  d->step(delta_t*freq)==false) {
-				loeschen.insert( d );
-			}
-		}
-	}
-
-	// delete all objects, which do not want to step anymore
-	while(loeschen.count()) {
-		delete loeschen.remove_first();
-	}
-}
-
 
 
 

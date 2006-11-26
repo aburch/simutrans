@@ -13,6 +13,7 @@
 #include "../simdings.h"
 #include "../simtypes.h"
 #include "../besch/roadsign_besch.h"
+#include "../ifc/sync_steppable.h"
 #include "../tpl/stringhashtable_tpl.h"
 
 class werkzeug_parameter_waehler_t;
@@ -21,10 +22,10 @@ class werkzeug_parameter_waehler_t;
  * road sign for traffic (one way minimum speed, traffic lights)
  * @author Hj. Malthaner
  */
-class roadsign_t : public ding_t
+class roadsign_t : public ding_t, public sync_steppable
 {
 protected:
-	 // foreground
+	image_id bild;
 	image_id after_bild;
 
 	enum { SHOW_FONT=1, SHOW_BACK=2, SWITCH_AUTOMATIC=16 };
@@ -84,7 +85,10 @@ public:
 	bool is_free_route(uint8 check_dir) const { return besch->is_free_route() &&  check_dir == dir; }
 
 	// changes the state of a traffic light
-	virtual bool step(long);
+	virtual bool sync_step(long);
+
+	void inline setze_bild( image_id b ) { bild = b; }
+	image_id gib_bild() const {return bild;}
 
 	/**
 	* For the front image hiding vehicles
@@ -105,7 +109,6 @@ public:
 	void entferne(spieler_t *sp);
 
 	void laden_abschliessen();
-
 
 	// static routines from here
 private:

@@ -22,7 +22,7 @@ protected:
 public:
 	bruecke_t(karte_t *welt, loadsave_t *file);
 	bruecke_t(karte_t *welt, koord3d pos, spieler_t *sp, const bruecke_besch_t *besch, bruecke_besch_t::img_t img);
-	~bruecke_t();
+	~bruecke_t() {}
 
 	image_id gib_after_bild() const {return besch->gib_vordergrund(img); }
 
@@ -30,6 +30,9 @@ public:
 	enum ding_t::typ gib_typ() const {return bruecke;}
 
 	const bruecke_besch_t *gib_besch() const { return besch; }
+
+	// we will always replace first way image
+	image_id gib_bild() const { return IMG_LEER; }
 
 	void calc_bild();
 

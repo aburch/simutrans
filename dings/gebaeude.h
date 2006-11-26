@@ -32,84 +32,84 @@ class stadt_t;
 class gebaeude_t : public ding_t, sync_steppable
 {
 public:
-    enum  {NOT_HIDDEN=0, SOME_HIDDEN, ALL_HIDDEN};
-
-    /**
-     * Vom typ "unbekannt" sind auch spezielle gebaeude z.B. das Rathaus
-     * @author Hj. Malthaner
-     */
-    enum typ {wohnung, gewerbe, industrie, unbekannt};
-
-    /**
-     * Set to true to hide all non-station buildings
-     * @author Hj. Malthaner
-     */
-    static uint8 hide;
-
-private:
-    const haus_tile_besch_t *tile;
+	enum  {NOT_HIDDEN=0, SOME_HIDDEN, ALL_HIDDEN};
 
 	/**
-	 * either point to a factory or a city
+	 * Vom typ "unbekannt" sind auch spezielle gebaeude z.B. das Rathaus
 	 * @author Hj. Malthaner
 	 */
+	enum typ {wohnung, gewerbe, industrie, unbekannt};
+
+	/**
+	 * Set to true to hide all non-station buildings
+	 * @author Hj. Malthaner
+	 */
+	static uint8 hide;
+
+private:
+	const haus_tile_besch_t *tile;
+
+	/**
+	* either point to a factory or a city
+	* @author Hj. Malthaner
+	*/
 	union {
 		fabrik_t  *fab;
 		stadt_t *stadt;
 	} ptr;
 
-    /**
-     * Zeitpunkt an dem das Gebaeude Gebaut wurde
-     * @author Hj. Malthaner
-     */
-    uint32 insta_zeit;
+	/**
+	 * Zeitpunkt an dem das Gebaeude Gebaut wurde
+	 * @author Hj. Malthaner
+	 */
+	uint32 insta_zeit;
 
-    /**
-     * Time control for animation progress.
-     * @author Hj. Malthaner
-     */
-    uint16 anim_time;
+	/**
+	 * Time control for animation progress.
+	 * @author Hj. Malthaner
+	 */
+	uint16 anim_time;
 
-    /**
-     * Current anim frame
-     * @author Hj. Malthaner
-     */
-    uint8 count;
+	/**
+	 * Current anim frame
+	 * @author Hj. Malthaner
+	 */
+	uint8 count;
 
-    /**
-     * Is this a sync animated object?
-     * @author Hj. Malthaner
-     */
-    uint8 sync:1;
+	/**
+	 * Is this a sync animated object?
+	 * @author Hj. Malthaner
+	 */
+	uint8 sync:1;
 
-    /**
-     * Boolean flag if a construction site or buildings image
-     * shall be displayed.
-     * @author Hj. Malthaner
-     */
-    uint8 zeige_baugrube:1;
+	/**
+	 * Boolean flag if a construction site or buildings image
+	 * shall be displayed.
+	 * @author Hj. Malthaner
+	 */
+	uint8 zeige_baugrube:1;
 
-    /**
-     * if true, this ptr union contains a factory pointer
-     * @author Hj. Malthaner
-     */
-    uint8 is_factory:1;
+	/**
+	 * if true, this ptr union contains a factory pointer
+	 * @author Hj. Malthaner
+	 */
+	uint8 is_factory:1;
 
-    /**
-     * Initializes all variables with save, usable values
-     * @author Hj. Malthaner
-     */
-    void init(const haus_tile_besch_t *t);
+	/**
+	 * Initializes all variables with save, usable values
+	 * @author Hj. Malthaner
+	 */
+	void init();
 
 
 protected:
-    gebaeude_t(karte_t *welt);
+	gebaeude_t(karte_t *welt);
 
-    /**
-     * Erzeugt ein Info-Fenster für dieses Objekt
-     * @author V. Meyer
-     */
-    virtual ding_infowin_t *new_info();
+	/**
+	 * Erzeugt ein Info-Fenster für dieses Objekt
+	 * @author V. Meyer
+	 */
+	ding_infowin_t *new_info();
 
 public:
 	gebaeude_t(karte_t *welt, loadsave_t *file);
@@ -129,36 +129,15 @@ public:
 	 * wenn das Objekt zu keiner Fabrik gehört.
 	 * @author Hj. Malthaner
 	 */
-	virtual inline fabrik_t* get_fabrik() const {return is_factory?ptr.fab:NULL;}
+	virtual fabrik_t* get_fabrik() const {return is_factory?ptr.fab:NULL;}
 	stadt_t* get_stadt() const {return is_factory?NULL:ptr.stadt;}
 
 	enum ding_t::typ gib_typ() const {return ding_t::gebaeude;}
 
-	void setze_count(uint8 count);
-	void setze_anim_time(uint16 t) {anim_time = t;}
-
-	/**
-	 * @return einen Zeiger auf die Karte zu der das Ding gehört
-	 * @author Hj. Malthaner
-	 */
-	virtual inline karte_t* gib_karte() const {return welt;}
-
-	/**
-	 * Should only be called after everything is set up to play
-	 * the animation actually. Sets sync flag and register/deregisters
-	 * this as a sync object, but only if phasen > 1
-	 *
-	 * @author Hj. Malthaner
-	 */
-	void setze_sync(bool yesno);
-
-	// usually only called during construction
-	// otherwise just stepping the factories (if connected)
-	bool step(long delta_t);
-
 	// snowline height may have been changed
 	bool check_season(const long /*month*/) { calc_bild(); return true; }
 
+	image_id gib_bild() const;
 	image_id gib_bild(int nr) const;
 	image_id gib_after_bild() const;
 
@@ -178,13 +157,6 @@ public:
 	bool is_monument() const;
 
 	/**
-	 * setzt das Baudatum auf die aktuelle Zeit und das
-	 * Baugruben-Flag auf true
-	 * @author Hj. Malthaner
-	 */
-	void renoviere();
-
-	/**
 	 * @return Einen Beschreibungsstring für das Objekt, der z.B. in einem
 	 * Beobachtungsfenster angezeigt wird.
 	 * @author Hj. Malthaner
@@ -198,7 +170,7 @@ public:
 	 * @return true
 	 * @author Hj. Malthaner
 	 */
-	virtual bool sync_step(long delta_t);
+	bool sync_step(long delta_t);
 
 	/**
 	 * @return Den level (die Ausbaustufe) des Gebaudes
@@ -208,7 +180,7 @@ public:
 
 	int gib_post_level() const;
 
-	void setze_tile(const haus_tile_besch_t *t) { tile = t; }
+	void setze_tile(const haus_tile_besch_t *t);
 
 	const haus_tile_besch_t *gib_tile() const { return tile; }
 

@@ -152,7 +152,6 @@ SOURCES += dings/gebaeude.cc
 SOURCES += dings/lagerhaus.cc
 SOURCES += dings/leitung2.cc
 SOURCES += dings/pillar.cc
-SOURCES += dings/raucher.cc
 SOURCES += dings/roadsign.cc
 SOURCES += dings/signal.cc
 SOURCES += dings/tunnel.cc

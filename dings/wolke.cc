@@ -12,25 +12,49 @@
 #include "../simworld.h"
 #include "../simdings.h"
 #include "../simtools.h"
+#include "../besch/fabrik_besch.h"
 #include "wolke.h"
 
 #include "../dataobj/loadsave.h"
 #include "../dataobj/freelist.h"
 
 
+// ***************** Wolkenverwaltung ***********************
 
-wolke_t::wolke_t(karte_t *welt) : ding_t (welt)
+stringhashtable_tpl<const rauch_besch_t *> wolke_t::besch_table;
+
+void wolke_t::register_besch(const rauch_besch_t *besch, const char*name)
 {
+    besch_table.put(name, besch);
+}
+
+const rauch_besch_t *wolke_t::gib_besch(const char *name)
+{
+    return besch_table.get(name);
 }
 
 
-wolke_t::wolke_t(karte_t *welt, koord3d pos, int x_off, int y_off, image_id bild) :
+// *******************************************************************
+
+
+
+
+wolke_t::wolke_t(karte_t *welt, koord3d pos, sint8 x_off, sint8 y_off, image_id bild, bool increment) :
     ding_t(welt, pos)
 {
-    setze_bild( 0, bild );
     setze_yoff( y_off-8 );
     setze_xoff( x_off );
+    base_y_off = y_off-8;
     insta_zeit = 0;
+		this->increment = increment;
+    base_image = bild;
+}
+
+
+
+wolke_t::wolke_t(karte_t *welt, loadsave_t *file) : ding_t(welt)
+{
+	rdwr(file);
 }
 
 
@@ -38,43 +62,24 @@ wolke_t::wolke_t(karte_t *welt, koord3d pos, int x_off, int y_off, image_id bild
 void
 wolke_t::rdwr(loadsave_t *file)
 {
+	// not saving cloads!
+	assert(file->is_loading());
+
 	ding_t::rdwr( file );
 
 	file->rdwr_long(insta_zeit, "\n");
 	if(file->get_version()<88005) {
 		insta_zeit = simrand(2500);
 	}
+	uint16 dummy=base_y_off;
+	file->rdwr_short(dummy, "\n");
+	file->rdwr_short(base_image, "\n");
 }
 
-
-
-sync_wolke_t::sync_wolke_t(karte_t *welt, loadsave_t *file) : wolke_t(welt)
-{
-//    welt->sync_add( this );	//no smoke anymore after loading ...
-    rdwr(file);
-}
-
-
-sync_wolke_t::sync_wolke_t(karte_t *welt, koord3d pos, int x_off, int y_off, image_id bild)
- : wolke_t(welt, pos, x_off, y_off, bild)
-
-{
-    base_y_off = y_off-8;
-    base_image = bild;
-    step_frequency = 0;
-}
-
-void
-sync_wolke_t::rdwr(loadsave_t *file)
-{
-    wolke_t::rdwr( file );
-    file->rdwr_short(base_y_off, "\n");
-    file->rdwr_short(base_image, "\n");
-}
 
 
 bool
-sync_wolke_t::sync_step(long delta_t)
+wolke_t::sync_step(long delta_t)
 {
 	insta_zeit += delta_t;
 	if(insta_zeit<2500) {
@@ -84,7 +89,6 @@ sync_wolke_t::sync_step(long delta_t)
 				mark_image_dirty(gib_bild(),0);
 			}
 			setze_yoff(base_y_off - (insta_zeit >> 7));
-			setze_bild(0, base_image+(insta_zeit >> 9));
 			set_flag(ding_t::dirty);
 		}
 		return true;
@@ -94,44 +98,41 @@ sync_wolke_t::sync_step(long delta_t)
 }
 
 
+
 /**
  * Wird aufgerufen, wenn wolke entfernt wird. Entfernt wolke aus
  * der Verwaltung synchroner Objekte.
  * @author Hj. Malthaner
  */
-void sync_wolke_t::entferne(spieler_t *)
+void wolke_t::entferne(spieler_t *)
 {
 	welt->sync_remove(this);
 }
 
 
-async_wolke_t::async_wolke_t(karte_t *welt, loadsave_t *file) : wolke_t(welt)
+
+
+/***************************** just for compatibility, the old raucher and smoke clouds *********************************/
+
+raucher_t::raucher_t(karte_t *welt, loadsave_t *file) : ding_t(welt)
 {
-	rdwr(file);
-	step_frequency = 1;
+	assert(file->is_loading());
+	ding_t::rdwr( file );
+	const char *s = NULL;
+	file->rdwr_str(s, "N");
 }
 
 
-async_wolke_t::async_wolke_t(karte_t *welt, koord3d pos, int x_off, int y_off, image_id bild) :
-   wolke_t(welt, pos, x_off, y_off, bild)
+async_wolke_t::async_wolke_t(karte_t *welt, loadsave_t *file) : ding_t(welt)
 {
-	step_frequency = 1;
+	// not saving cloads!
+	assert(file->is_loading());
+
+	ding_t::rdwr( file );
+
+	uint32 dummy;
+	file->rdwr_long(dummy, "\n");
 }
 
-bool
-async_wolke_t::step(long delta_t)
-{
-	const int yoff = gib_yoff();
-	insta_zeit -= delta_t;
-	if(yoff>-120 &&  insta_zeit<15000 ) {
-		// move/change cloud ...
-		if(!get_flag(ding_t::dirty)) {
-			mark_image_dirty(gib_bild(),0);
-		}
-		setze_yoff( yoff - 2 );
-		set_flag(ding_t::dirty);
-		return true;
-	}
-	// remove cloud
-	return false;
-}
+
+

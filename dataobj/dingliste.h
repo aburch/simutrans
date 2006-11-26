@@ -83,9 +83,6 @@ public:
 	*/
 	void display_dinge( const sint16 xpos, const sint16 ypos, const uint8 start_offset, const bool dirty ) const;
 
-	// animation, waiting for crossing, all things that could take a while should be done in a step
-	void step(const long delta_t, const int steps);
-
 	// start next month (good for toogling a seasons)
 	void check_season(const long month);
 } GCC_PACKED;

@@ -28,8 +28,6 @@
 bruecke_t::bruecke_t(karte_t *welt, loadsave_t *file) : ding_t(welt)
 {
 	rdwr(file);
-	step_frequency = 0;
-	setze_bild(0,IMG_LEER);
 }
 
 
@@ -44,14 +42,6 @@ bruecke_t::bruecke_t(karte_t *welt, koord3d pos, spieler_t *sp,
 	if(gib_besitzer()) {
 		gib_besitzer()->buche(-besch->gib_preis(), gib_pos().gib_2d(), COST_CONSTRUCTION);
 	}
-	step_frequency = 0;
-	setze_bild(0,IMG_LEER);
-}
-
-
-
-bruecke_t::~bruecke_t()
-{
 }
 
 
@@ -63,10 +53,9 @@ bruecke_t::calc_bild()
 	if(gr) {
 		// if we are on the bridge, put the image into the ground, so we can have two ways ...
 		if(gr->gib_weg_nr(0)) {
-			gr->gib_weg_nr(0)->setze_bild(0,besch->gib_hintergrund(img));
+			gr->gib_weg_nr(0)->setze_bild(besch->gib_hintergrund(img));
 		}
 		setze_yoff( -gr->gib_weg_yoff() );
-		setze_bild(0,IMG_LEER);
 	}
 }
 

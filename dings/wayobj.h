@@ -32,11 +32,8 @@ class wayobj_t : public ding_t
 private:
 	const way_obj_besch_t *besch;
 
-	/**
-	* Front side image
-	* @author Hj. Malthaner
-	*/
-	image_id after;
+	uint8 diagonal:1;
+	uint8 hang:7;
 
 	// direction of this wayobj
 	ribi_t::ribi dir;
@@ -54,10 +51,22 @@ public:
 	const way_obj_besch_t *gib_besch() const {return besch;}
 
 	/**
+	* the front image, drawn before vehicles
+	* @author V. Meyer
+	*/
+	image_id gib_bild() const {
+		return hang ? besch->get_back_slope_image_id(hang) :
+			(diagonal ? besch->get_back_image_id(dir) : besch->get_back_image_id(dir));
+	}
+
+	/**
 	* the front image, drawn after everything else
 	* @author V. Meyer
 	*/
-	image_id gib_after_bild() const { return after; }
+	image_id gib_after_bild() const {
+		return hang ? besch->get_front_slope_image_id(hang) :
+			diagonal ? besch->get_front_diagonal_image_id(dir) : besch->get_front_image_id(dir);
+	}
 
 	/**
 	* 'Jedes Ding braucht einen Typ.'

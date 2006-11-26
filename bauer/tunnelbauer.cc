@@ -274,7 +274,7 @@ DBG_MESSAGE("tunnelbauer_t::baue()", "called on %d,%d", pos.x, pos.y);
 			start = gr->gib_pos();
 			// move bulldozer to start ...
 			wkz_tunnelbau_bauer = new zeiger_t(welt, start, sp);
-			wkz_tunnelbau_bauer->setze_bild(0, skinverwaltung_t::bauigelsymbol->gib_bild_nr(0));
+			wkz_tunnelbau_bauer->setze_bild( skinverwaltung_t::bauigelsymbol->gib_bild_nr(0));
 			gr->obj_add(wkz_tunnelbau_bauer);
 			return true;
 		}

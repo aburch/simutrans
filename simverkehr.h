@@ -32,18 +32,6 @@ class verkehrsteilnehmer_t : public vehikel_basis_t, public sync_steppable
 {
 protected:
 	/**
-	 * Hoechstgeschwindigkeit
-	 * @author Hj. Malthaner
-	 */
-	sint32 max_speed;
-
-	/**
-	 * Aktuelle Geschwindigkeit
-	 * @author Hj. Malthaner
-	 */
-	sint32 current_speed;
-
-	/**
 	 * Entfernungszaehler
 	 * @author Hj. Malthaner
 	 */
@@ -61,11 +49,6 @@ protected:
 	virtual bool hop_check() {return true;}
 	virtual void hop();
 
-	void setze_max_speed(int s) {max_speed = s;}
-	int gib_max_speed() const {return max_speed;}
-
-	void calc_current_speed();
-
 	verkehrsteilnehmer_t(karte_t *welt);
 	verkehrsteilnehmer_t(karte_t *welt, koord3d pos);
 
@@ -74,8 +57,6 @@ public:
 
 	const char *gib_name() const = 0;
 	enum ding_t::typ gib_typ() const  = 0;
-
-	bool sync_step(long delta_t);
 
 	/**
 	 * Öffnet ein neues Beobachtungsfenster für das Objekt.
@@ -113,6 +94,11 @@ private:
 #ifdef DESTINATION_CITYCARS
 	koord target;
 #endif
+	/**
+	 * Aktuelle Geschwindigkeit
+	 * @author Hj. Malthaner
+	 */
+	uint16 current_speed;
 
 	sint32 ms_traffic_jam;
 
@@ -135,16 +121,13 @@ public:
 	 */
 	virtual ~stadtauto_t() {}
 
-	virtual void hop();
+	bool sync_step(long delta_t);
 
-	virtual void betrete_feld();
+	void hop();
 
-	/**
-	 * Methode für asynchrone Funktionen eines Objekts.
-	 * @return false to be deleted after the step, true to live on
-	 * @author Hj. Malthaner
-	 */
-	virtual bool step(long delta_t);
+	void betrete_feld();
+
+	void calc_current_speed();
 
 	const char *gib_name() const {return "Verkehrsteilnehmer";}
 	enum ding_t::typ gib_typ() const {return verkehr;}

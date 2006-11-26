@@ -41,7 +41,6 @@ stringhashtable_tpl<const way_obj_besch_t *> wayobj_t::table;
 wayobj_t::wayobj_t(karte_t *welt, loadsave_t *file) : ding_t (welt)
 {
 	rdwr(file);
-	step_frequency = 0;
 }
 
 
@@ -50,7 +49,6 @@ wayobj_t::wayobj_t(karte_t *welt, koord3d pos, spieler_t *besitzer, ribi_t::ribi
 {
 	this->besch = besch;
 	this->dir = dir;
-	step_frequency =  0;
 	setze_besitzer(besitzer);
 }
 
@@ -187,12 +185,8 @@ void
 wayobj_t::calc_bild()
 {
 	grund_t *gr = welt->lookup(gib_pos());
+	diagonal = false;
 	if(gr) {
-		if(gr->ist_tunnel()) {
-			setze_bild( 0, IMG_LEER );
-			after = IMG_LEER;
-			return;
-		}
 
 		weg_t *w=gr->gib_weg((waytype_t)besch->gib_wtyp());
 		if(!w) {
@@ -207,10 +201,8 @@ wayobj_t::calc_bild()
 		dir &= w->gib_ribi_unmasked();
 
 		// if there is a slope, we are finished, only four choices here (so far)
-		hang_t::typ hang = gr->gib_weg_hang();
+		hang = gr->gib_weg_hang();
 		if(hang!=hang_t::flach) {
-			setze_bild( 0, besch->get_back_slope_image_id(hang) );
-			after = besch->get_front_slope_image_id(hang);
 			return;
 		}
 
@@ -276,19 +268,14 @@ wayobj_t::calc_bild()
 					rekursion--;
 				}
 
-				after = besch->get_front_diagonal_image_id(dir);
+				image_id after = besch->get_front_diagonal_image_id(dir);
 				image_id bild = besch->get_back_diagonal_image_id(dir);
-				if(bild!=IMG_LEER  ||  after!=IMG_LEER) {
+				if(bild==IMG_LEER  &&  after==IMG_LEER) {
 					// ok, we have diagonals
-					setze_bild( 0, bild );
-					return;
+					diagonal = false;
 				}
 			}
 		}
-
-		// ok, just use the normal lookup
-		after = besch->get_front_image_id(dir);
-		setze_bild( 0, besch->get_back_image_id(dir) );
 	}
 }
 

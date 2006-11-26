@@ -106,6 +106,8 @@ private:
 	*/
 	uint16 max_speed;
 
+	image_id bild;
+
 	/**
 	* Initializes all member variables
 	* @author Hj. Malthaner
@@ -260,6 +262,9 @@ public:
 	void count_sign();
 	inline bool has_sign() const {return flags&HAS_SIGN; }
 	inline bool has_wayobj() const {return flags&HAS_WAYOBJ; }
+
+	void inline setze_bild( image_id b ) { bild = b; }
+	image_id gib_bild() const {return bild;}
 
 	// correct maitainace
 	void laden_abschliessen();

@@ -33,57 +33,47 @@
  *	2   Bildliste
  */
 class stadtauto_besch_t : public obj_besch_std_name_t {
-    friend class citycar_writer_t;
-    friend class citycar_reader_t;
+	friend class citycar_writer_t;
+	friend class citycar_reader_t;
 
-    uint16 gewichtung;
-    // max speed
-    uint16 geschw;
-    // when was this car used?
-    uint16 intro_date;
-    uint16 obsolete_date;
+	uint16 gewichtung;
+
+	// max speed
+	uint16 geschw;
+
+	// when was this car used?
+	uint16 intro_date;
+	uint16 obsolete_date;
 
 	uint8	length[8];	// length of pixel until leaving the field (not used)
 
 public:
-    int gib_bild_nr(ribi_t::dir dir) const
-    {
-	const bild_besch_t *bild = static_cast<const bildliste_besch_t *>(gib_kind(2))->gib_bild(dir);
-
-	return bild != NULL ? bild->gib_nummer() : IMG_LEER;
-    }
-    int gib_gewichtung() const
-    {
-	return gewichtung;
-  }
-
-	int gib_geschw() const
+	int gib_bild_nr(ribi_t::dir dir) const
 	{
-		return geschw;
+		const bild_besch_t *bild = static_cast<const bildliste_besch_t *>(gib_kind(2))->gib_bild(dir);
+		return bild != NULL ? bild->gib_nummer() : IMG_LEER;
 	}
 
-      /**
-     * @return introduction year
-     * @author Hj. Malthaner
-     */
-    int get_intro_year_month() const {
-      return intro_date;
-    }
+	int gib_gewichtung() const { return gewichtung; }
 
-    /**
-     * @return time when obsolete
-     * @author prissi
-     */
-    int get_retire_year_month() const {
-      return obsolete_date;
-    }
+	int gib_geschw() const { return geschw; }
 
-	/* @return the normalized distance to the next vehicle
+	/**
+	* @return introduction year
+	* @author Hj. Malthaner
+	*/
+	int get_intro_year_month() const { return intro_date; }
+
+	/**
+	 * @return time when obsolete
 	 * @author prissi
 	 */
-	uint8 get_length_to_next( uint8 next_dir ) const {
-		return length[next_dir];
-	}
+	int get_retire_year_month() const { return obsolete_date;}
+
+	/* @return the normalized distance to the next vehicle
+	* @author prissi
+	*/
+	uint8 get_length_to_next( uint8 next_dir ) const { return length[next_dir]; }
 };
 
 #endif
