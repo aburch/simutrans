@@ -19,4 +19,14 @@ static inline int clamp(int x, int min, int max)
 	return x;
 }
 
+
+#ifdef __cplusplus
+template<class T> inline void swap(T& a, T& b)
+{
+	T t = a;
+	a = b;
+	b = t;
+}
+#endif
+
 #endif

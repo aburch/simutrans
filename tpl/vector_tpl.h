@@ -19,9 +19,14 @@
  */
 
 #include <stdlib.h>
-
+#include "../macros.h"
 #include "../simtypes.h"
 #include "../simdebug.h"
+
+
+template<class T> class vector_tpl;
+template<class T> inline void swap(vector_tpl<T>& a, vector_tpl<T>& b);
+
 
 /**
  * A template class for a simple vector type.
@@ -317,6 +322,16 @@ public:
 	*/
 	uint32 get_size() const {return size;}
 
-} GCC_PACKED;
+
+	friend void swap<>(vector_tpl<T>& a, vector_tpl<T>& b);
+};
+
+
+template<class T> inline void swap(vector_tpl<T>& a, vector_tpl<T>& b)
+{
+	swap(a.data,  b.data);
+	swap(a.size,  b.size);
+	swap(a.count, b.count);
+}
 
 #endif
