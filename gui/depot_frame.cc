@@ -192,7 +192,7 @@ DBG_DEBUG("depot_frame_t::depot_frame_t()","get_max_convoi_length()=%i",depot->g
 	scrolly_loks.set_size_corner(false);
 	scrolly_loks.set_read_only(false);
 	// add, if waggons are there ...
-	if(loks_vec.get_count()>0  ||  waggons_vec.get_count()>0) {
+	if (!loks_vec.empty() || !waggons_vec.empty()) {
 		tabs.add_tab(&scrolly_loks, depot->gib_zieher_name());
 	}
 
@@ -201,7 +201,7 @@ DBG_DEBUG("depot_frame_t::depot_frame_t()","get_max_convoi_length()=%i",depot->g
 	scrolly_waggons.set_size_corner(false);
 	scrolly_waggons.set_read_only(false);
 	// only add, if there are waggons
-	if(waggons_vec.get_count() > 0) {
+	if (!waggons_vec.empty()) {
 		tabs.add_tab(&scrolly_waggons, depot->gib_haenger_name());
 	}
 
@@ -545,7 +545,7 @@ void depot_frame_t::build_vehicle_lists()
 	const int month_now = welt->get_timeline_year_month();
 	int i = 0;
 
-	if(pas_vec.get_count()+loks_vec.get_count()+waggons_vec.get_count() == 0) {
+	if (pas_vec.empty() && loks_vec.empty() && waggons_vec.empty()) {
 		int loks = 0, waggons = 0, pax=0;
 		while(depot->get_vehicle_type(i)) {
 			const vehikel_besch_t *info = depot->get_vehicle_type(i);

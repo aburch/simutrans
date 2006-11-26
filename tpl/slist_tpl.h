@@ -179,7 +179,7 @@ public:
 	 */
 	bool remove(const T data)
 	{
-		if(node_count == 0) {
+		if (empty()) {
 			//MESSAGE("slist_tpl<T>::remove()", "data not in list!");
 			return false;
 		}
@@ -260,7 +260,7 @@ public:
 	 */
 	T remove_first()
 	{
-		if(node_count==0) {
+		if (empty()) {
 			dbg->fatal("slist_tpl<T>::remove_first()","List of <%s> is empty",typeid(T).name());
 		}
 

@@ -742,7 +742,7 @@ haltestelle_t::suche_route(ware_t &ware, koord *next_to_ziel)
 		}
 	}
 
-	if(ziel_list.get_count()==0) {
+	if (ziel_list.empty()) {
 		ware.setze_ziel(koord::invalid);
 		ware.setze_zwischenziel(koord::invalid);
 		// printf("keine route zu %d,%d nach %d steps\n", ziel.x, ziel.y, step);

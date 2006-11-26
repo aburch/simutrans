@@ -103,7 +103,7 @@ void factorylist_stats_t::zeichnen(koord offset)
 			buf.append(fab_list[i]->gib_name());
 			buf.append(" (");
 
-			if (fab->gib_eingang().get_count() > 0) {
+			if (!fab->gib_eingang().empty()) {
 				buf.append(input);
 			}
 			else {
@@ -111,7 +111,7 @@ void factorylist_stats_t::zeichnen(koord offset)
 			}
 			buf.append(", ");
 
-			if (fab->gib_ausgang().get_count() > 0) {
+			if (!fab->gib_ausgang().empty()) {
 				buf.append(output);
 			}
 			else {
@@ -173,17 +173,17 @@ void factorylist_stats_t::sort(const factorylist::sort_mode_t& sortby,const bool
 					fab->calc_factory_status( &input, &output );
 					check_fab->calc_factory_status( &check_input, &check_output );
 					if (sortreverse)
-						append = (input <= check_input && check_fab->gib_eingang().get_count() != 0);
+						append = (input <= check_input && !check_fab->gib_eingang().empty());
 					else
-						append = (input>=check_input);//  &&  check_fab->gib_eingang()->get_count()!=0);
+						append = (input >= check_input);
 					break;
 				case factorylist::by_output:
 					fab->calc_factory_status( &input, &output );
 					check_fab->calc_factory_status( &check_input, &check_output );
 					if (sortreverse)
-						append = (output <= check_output && check_fab->gib_ausgang().get_count() != 0);
+						append = (output <= check_output && !check_fab->gib_ausgang().empty());
 					else
-						append = (output>=check_output);//  &&  check_fab->gib_ausgang()->get_count()!=0);
+						append = (output >= check_output);
 					break;
 				case factorylist::by_maxprod:
 					if (sortreverse)

@@ -413,6 +413,8 @@ public:
      * @author prissi
      */
     unsigned int get_sum_weight() const { return total_weight; }
+
+		bool empty() const { return count == 0; }
 };
 
 #endif

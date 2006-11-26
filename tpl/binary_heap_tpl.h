@@ -88,7 +88,7 @@ public:
 	* unfourtunately, the removing is as much effort as the insertion ...
 	*/
 	T pop() {
-		assert(node_count>0);
+		assert(!empty());
 
 		T result = nodes[1];
 

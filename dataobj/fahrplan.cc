@@ -183,7 +183,7 @@ fahrplan_t::append(karte_t *welt, const grund_t *gr,int ladegrad)
 bool
 fahrplan_t::cleanup()
 {
-	if(eintrag.get_count()==0) {
+	if (eintrag.empty()) {
 		return true;	// nothing to check
 	}
 
@@ -318,7 +318,7 @@ fahrplan_t::add_return_way(karte_t *)
 
 fahrplan_t::fahrplan_type fahrplan_t::get_type(karte_t * welt) const
 {
-	if(eintrag.get_count()==0) {
+	if (eintrag.empty()) {
 		return type;
 	}
 	const grund_t* gr = welt->lookup(eintrag[0].pos);

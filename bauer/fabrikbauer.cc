@@ -517,7 +517,7 @@ fabrikbauer_t::baue_hierarchie(karte_t * welt, koord3d *parent, const fabrik_bes
 		return 0;
 	}
 
-	if(info->gib_platzierung() == fabrik_besch_t::Stadt  &&  welt->gib_staedte()->get_count()>0) {
+	if (info->gib_platzierung() == fabrik_besch_t::Stadt && !welt->gib_staedte()->empty()) {
 		// built consumer (factory) intown:
 		stadt_fabrik_t sf;
 		koord k=pos->gib_2d();
@@ -602,7 +602,7 @@ DBG_MESSAGE("fabrikbauer_t::baue_hierarchie","lieferanten %i, lcount %i (need %i
 
 				// for sources (oil fields, forests ... ) prefer thoses with a smaller distance
 				const unsigned distance = koord_distance(fab->gib_pos(),*pos);
-				const bool ok = fab->gib_eingang().get_count() > 0 || distance < DISTANCE || distance < simrand(welt->gib_groesse_x() * 3 / 4);
+				const bool ok = (!fab->gib_eingang().empty() || distance < DISTANCE || distance < simrand(welt->gib_groesse_x() * 3 / 4));
 
 				if(ok  &&  distance>6) {
 					found = true;

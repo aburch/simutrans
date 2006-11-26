@@ -600,7 +600,7 @@ fabrik_t::step(long delta_t)
 	if(delta_sum > PRODUCTION_DELTA_T) {
 
 		// produce nothing/consumes nothing ...
-		if (eingang.get_count() + ausgang.get_count() == 0) {
+		if (eingang.empty() && ausgang.empty()) {
 			delta_sum += PRODUCTION_DELTA_T;
 			return;
 		}
@@ -613,7 +613,7 @@ fabrik_t::step(long delta_t)
 		uint32 produkt=0;
 		bool is_currently_producing = false;
 
-		if (ausgang.get_count() == 0) {
+		if (ausgang.empty()) {
 			// consumer only ...
 			uint32 menge = produktion(produkt) * (delta_sum/PRODUCTION_DELTA_T);
 
@@ -735,7 +735,7 @@ fabrik_t::step(long delta_t)
 void fabrik_t::verteile_waren(const uint32 produkt)
 {
 	// wohin liefern ?
-	if(lieferziele.get_count()==0) {
+	if (lieferziele.empty()) {
 		return;
 	}
 
@@ -1034,7 +1034,7 @@ void fabrik_t::info(cbuffer_t & buf)
   buf.append("\n");
 
 
-  if(lieferziele.get_count() > 0) {
+  if (!lieferziele.empty()) {
     buf.append("\n");
     buf.append(translator::translate("Abnehmer"));
     buf.append(":\n");
@@ -1059,7 +1059,7 @@ void fabrik_t::info(cbuffer_t & buf)
     }
   }
 
-  if(suppliers.get_count() > 0) {
+  if (!suppliers.empty()) {
     buf.append("\n");
     buf.append(translator::translate("Suppliers"));
     buf.append(":\n");
@@ -1113,7 +1113,7 @@ void fabrik_t::info(cbuffer_t & buf)
     buf.append("\n");
   }
 
-  if (ausgang.get_count() > 0) {
+  if (!ausgang.empty()) {
 
     buf.append("\n ");
     buf.append(translator::translate("Produktion"));
@@ -1128,7 +1128,7 @@ void fabrik_t::info(cbuffer_t & buf)
     }
   }
 
-  if (eingang.get_count() > 0) {
+  if (!eingang.empty()) {
 
     buf.append("\n ");
     buf.append(translator::translate("Verbrauch"));

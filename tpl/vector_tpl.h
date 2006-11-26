@@ -157,6 +157,8 @@ template<class T> class vector_tpl
 		/** Get the capacity */
 		uint32 get_size() const { return size; }
 
+		bool empty() const { return count == 0; }
+
 	private:
 		vector_tpl(const vector_tpl&);
 

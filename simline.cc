@@ -79,7 +79,7 @@ void
 simline_t::add_convoy(convoihandle_t cnv)
 {
 	// first convoi may change line type
-	if(type==trainline  &&  line_managed_convoys.get_count()==0  &&  cnv.is_bound()) {
+	if (type == trainline && line_managed_convoys.empty() && cnv.is_bound()) {
 		if(cnv->gib_vehikel(0)) {
 			// check, if needed to convert to tram line?
 			if(cnv->gib_vehikel(0)->gib_besch()->gib_typ()==tram_wt) {

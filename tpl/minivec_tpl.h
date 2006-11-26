@@ -274,6 +274,8 @@ public:
      * @author Hj. Malthaner
      */
     uint8 get_size() const { return size; }
+
+		bool empty() const { return count == 0; }
 } GCC_PACKED;
 
 #endif

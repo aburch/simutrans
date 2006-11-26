@@ -1167,7 +1167,7 @@ spieler_t::do_ki()
 	}
 
 	if(passenger_transport) {
-		if(welt->gib_staedte()->get_count()>0) {
+		if (!welt->gib_staedte()->empty()) {
 			// passenger are special ...
 			do_passenger_ki();
 		}
@@ -1869,7 +1869,7 @@ spieler_t::rating_transport_quelle_ziel(fabrik_t *qfab,const ware_t *ware,fabrik
 
 	// does the source also produce => then we should try to connect it
 	// otherwise production will stop too early
-	bool is_manufacturer = (qfab->gib_eingang().get_count() > 0);
+	bool is_manufacturer = !qfab->gib_eingang().empty();
 
 	// hat noch mehr als halbvolle Lager  and more then 35 (otherwise there might be also another transporter) ?
 	if(ware->menge < ware->max>>1  ||  ware->menge<(34<<fabrik_t::precision_bits)  ) {
@@ -2029,7 +2029,7 @@ int spieler_t::suche_transport_ziel(fabrik_t *qfab, int *quelle_ware, fabrik_t *
 	int gewinn = -1;
 
 	// keine geeignete Quelle gefunden ?
-	if(qfab == NULL  ||  qfab->gib_lieferziele().get_count()==0) {
+	if (qfab == NULL || qfab->gib_lieferziele().empty()) {
 		return -1;
 	}
 
@@ -2806,7 +2806,7 @@ spieler_t::add_undo(koord3d k)
 bool
 spieler_t::undo()
 {
-	if(last_built.get_count()==0) {
+	if (last_built.empty()) {
 		// nothing to UNDO
 		return false;
 	}

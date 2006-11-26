@@ -481,7 +481,7 @@ pumpe_t::sync_step(long delta_t)
 		fab = 0;
 		return false;
 	}
-	if (fab == 0 || (fab->gib_eingang().get_count() > 0 && fab->gib_eingang()[0].menge <= 0)) {
+	if (fab == 0 || (!fab->gib_eingang().empty() && fab->gib_eingang()[0].menge <= 0)) {
 		setze_bild(0, skinverwaltung_t::pumpe->gib_bild_nr(0) );
 	}
 	else {

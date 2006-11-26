@@ -94,7 +94,7 @@ route_t::append(koord3d k)
 	while (route.get_count() > 1 && route[route.get_count() - 1] == route[route.get_count() - 2]) {
 		route.remove_at(route.get_count()-1);
 	}
-	if (route.get_count() == 0 || k != route[route.get_count() - 1]) {
+	if (route.empty() || k != route[route.get_count() - 1]) {
 		route.append(k,16);
 	}
 	route.append(k,16);	// the last is always double
@@ -284,7 +284,7 @@ route_t::find_route(karte_t *welt,
 		// ok, now no more restrains
 		start_dir = ribi_t::alle;
 
-	} while(open.get_count()>0  &&  step<MAX_STEP  &&  open.get_count()<max_depth);
+	} while (!open.empty() && step < MAX_STEP && open.get_count() < max_depth);
 
 	INT_CHECK("route 194");
 
@@ -302,7 +302,7 @@ route_t::find_route(karte_t *welt,
 //DBG_DEBUG("add","%i,%i",tmp->pos.x,tmp->pos.y);
 			tmp = tmp->parent;
 		}
-		ok = route.get_count()>0;
+		ok = !route.empty();
   }
 
 	RELEASE_NODE();

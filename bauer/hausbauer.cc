@@ -546,7 +546,7 @@ const haus_besch_t *hausbauer_t::gib_special_intern(int bev, utyp utype,uint16 t
 			}
 		}
 	}
-	if(auswahl.get_count()==0) {
+	if (auswahl.empty()) {
 		return 0;
 	}
 	else	if(auswahl.get_count()==1) {
@@ -581,7 +581,7 @@ const haus_besch_t * hausbauer_t::gib_aus_liste(slist_tpl<const haus_besch_t *> 
 
 		const int thislevel = besch->gib_level();
 		if(thislevel>level) {
-			if(auswahl.get_count()==0) {
+			if (auswahl.empty()) {
 				// continue with search ...
 				level = thislevel;
 			}

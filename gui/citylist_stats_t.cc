@@ -39,7 +39,7 @@ void citylist_stats_t::sort(const citylist::sort_mode_t& sortby,const bool& sort
     city_list.clear();
     city_list.resize(cities->get_count());
 
-    if (cities->get_count() == 0) {
+	if (cities->empty()) {
 	return;
 	}
 

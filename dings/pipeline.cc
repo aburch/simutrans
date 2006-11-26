@@ -303,7 +303,7 @@ pumpe_t::sync_step(long delta_t)
 
     int menge_alt = menge;
 
-    if(fab->gib_eingang()->get_count() == 0 || fab->gib_eingang()->get(0).menge <= 0) {
+	if (fab->gib_eingang()->empty() || fab->gib_eingang()->get(0).menge <= 0) {
 	menge = 0;
     }
 
@@ -330,7 +330,7 @@ pumpe_t::info(char *buf) const
 */
 
 
-    if(fab->gib_eingang()->get_count() == 0 || fab->gib_eingang()->get(0).menge <= 0) {
+	if (fab->gib_eingang()->empty() || fab->gib_eingang()->get(0).menge <= 0) {
 	buf += sprintf(buf, "%s: %s\n",
                        translator::translate("Power"),
                        translator::translate(measures[0]));

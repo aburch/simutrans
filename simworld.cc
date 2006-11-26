@@ -524,7 +524,7 @@ DBG_MESSAGE("karte_t::destroy()", "destroying world");
 	}
 
 	// alle convois aufräumen
-	while(convoi_array.get_count() > 0) {
+	while (!convoi_array.empty()) {
 		convoihandle_t cnv = convoi_array[convoi_array.get_count() - 1];
 		delete cnv.get_rep();	// since the convoi unbinds himself
 	}
@@ -556,7 +556,7 @@ DBG_MESSAGE("karte_t::destroy()", "sync list cleared");
 	// for the next game we need to remember the desired number ...
 	sint32 no_of_cities=einstellungen->gib_anzahl_staedte();
 	if(stadt) {
-		while(stadt->get_count()>0) {
+		while (!stadt->empty()) {
 			rem_stadt(stadt->at(0));
 		}
 	}
@@ -622,7 +622,7 @@ void karte_t::add_stadt(stadt_t *s)
  */
 bool karte_t::rem_stadt(stadt_t *s)
 {
-	if(stadt->get_count()==0  ||  s==NULL) {
+	if (stadt->empty() || s == NULL) {
 		// no town there to delete ...
 		return false;
 	}
@@ -784,7 +784,7 @@ DBG_DEBUG("karte_t::init()","prepare cities");
 	stadt = new weighted_vector_tpl <stadt_t *>(0);
 	vector_tpl<koord> *pos = stadt_t::random_place(this, einstellungen->gib_anzahl_staedte());
 
-	if(pos!=NULL  &&  pos->get_count()>0) {
+	if (pos != NULL && !pos->empty()) {
 		// prissi if we could not generate enough positions ...
 		einstellungen->setze_anzahl_staedte( pos->get_count() );	// new number of towns (if we did not found enough positions) ...
 		const int max_display_progress=16+einstellungen->gib_anzahl_staedte()*4+einstellungen->gib_land_industry_chains()+einstellungen->gib_city_industry_chains();
@@ -1520,7 +1520,7 @@ const gebaeude_t *
 karte_t::gib_random_ausflugsziel() const
 {
 	const unsigned long sum_pax=ausflugsziele.get_sum_weight();
-	if(ausflugsziele.get_count()>0  &&  sum_pax>0) {
+	if (!ausflugsziele.empty() && sum_pax > 0) {
 		return ausflugsziele.at_weight( simrand(sum_pax) );
 	}
 	// so there are no destinations ... should never occur ...

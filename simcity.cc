@@ -398,7 +398,7 @@ stadt_t::~stadt_t()
 		destroy_win( stadt_info );
 	}
 	// remove city info and houses
-	while(buildings.get_count()>0) {
+	while (!buildings.empty()) {
 		// old buildings are not where they think they are, so we ask for map floor
 		grund_t *gr = welt->lookup_kartenboden(buildings.at(0)->gib_pos().gib_2d());
 		if(gr) {
