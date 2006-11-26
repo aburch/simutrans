@@ -16,19 +16,11 @@
 
 
 template <class K, class V> class ptrhashtable_tpl;
-
-
-// Klassen
-
-// brauche forward-deklaration
-class ding_t;
 class ding_infowin_t;
 class cbuffer_t;
 class fabrik_t;
 class karte_t;
-class convoi_t;
 class spieler_t;
-struct event_t;
 
 /**
  * Von der Klasse ding_t sind alle Objekte in Simutrans abgeleitet.
