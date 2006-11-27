@@ -257,10 +257,14 @@ class rathausplatz_sucher_t : public platzsucher_t {
 public:
 	rathausplatz_sucher_t(karte_t *welt, spieler_t *sp) : platzsucher_t(welt), besitzer(sp) {}
 
-	virtual bool ist_feld_ok(koord pos, koord d,climate_bits cl) const
+	virtual bool ist_feld_ok(koord pos, koord d, climate_bits cl) const
 	{
-		const planquadrat_t *plan = welt->lookup(pos + d);
-		if(plan == 0) return false;
+		const grund_t *gr = welt->lookup_kartenboden(pos + d);
+		if(gr == 0) return false;
+
+		if(((1<<welt->get_climate(gr->gib_hoehe()))&cl)==0) {
+			return false;
+		}
 
 		if(d.x>0  ||  d.y>0) {
 			if(welt->max_hgt(pos)!=welt->max_hgt(pos+d)) {
@@ -269,16 +273,11 @@ public:
 			}
 		}
 
-		const grund_t *gr = plan->gib_kartenboden();
-		if(((1<<welt->get_climate(gr->gib_hoehe()))&cl)==0) {
-			return false;
-		}
-
 		if(d.y == h - 1) {
 			// Hier soll eine Strasse hin
 			return
 				gr != 0 &&
-				gr->gib_grund_hang() == hang_t::flach &&
+				gr->gib_grund_hang()==hang_t::flach &&
 				gr->gib_typ() == grund_t::boden &&
 				(!gr->hat_wege()  ||  gr->hat_weg(road_wt))  &&     // Höchstens Strassen
 				!gr->is_halt() &&
@@ -1226,8 +1225,8 @@ stadt_t::finde_passagier_ziel(pax_zieltyp *will_return)
 void
 stadt_t::merke_passagier_ziel(koord k, int color)
 {
-    const koord p = koord( ((k.x*127)/welt->gib_groesse_x())&127, ((k.y*128)/welt->gib_groesse_y())&127 );
-    pax_ziele_neu.at(p) = color;
+	const koord p = koord( ((k.x*127)/welt->gib_groesse_x())&127, ((k.y*128)/welt->gib_groesse_y())&127 );
+	pax_ziele_neu.at(p) = color;
 }
 
 

@@ -250,7 +250,7 @@ public:
 	 * @return Die Nummer des aktuellen Bildes für das Objekt.
 	 * @author Hj. Malthaner
 	 */
-	virtual image_id gib_bild() const {return IMG_LEER;}
+	virtual image_id gib_bild() const = 0;
 
 	/**
 	 * give image for height > 0 (max. height currently 3)

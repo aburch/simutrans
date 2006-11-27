@@ -110,7 +110,6 @@ ding_t::ding_t(karte_t *wl, koord3d pos)
 // removes an object and tries to delete it also form the corresponding dinglist
 ding_t::~ding_t()
 {
-	mark_image_dirty( gib_bild(), 0 );
 	destroy_win(ding_infos->get(this));
 
 	if(flags&not_on_map  ||  !welt->ist_in_kartengrenzen(pos.gib_2d())) {

@@ -62,7 +62,6 @@ fussgaenger_t::fussgaenger_t(karte_t *welt, loadsave_t *file)
 		time_to_life = strecke[count & 3];
 	}
 	count ++;
-
 	welt->sync_add(this);
 }
 
@@ -73,6 +72,7 @@ fussgaenger_t::fussgaenger_t(karte_t *welt, koord3d pos)
 	besch = liste.gib_gewichted(simrand(liste.gib_gesamtgewicht()));
 	time_to_life = strecke[count & 7];
 	count ++;
+	calc_bild();
 }
 
 

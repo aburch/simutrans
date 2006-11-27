@@ -1629,7 +1629,7 @@ DBG_MESSAGE("wegbauer_t::baue_tunnel_und_bruecken","built bridge %p",bruecke_bes
 			else {
 				// tunnel
 				INT_CHECK( "wegbauer 1584" );
-				tunnelbauer_t::baue(sp, welt, route[i].gib_2d(), (waytype_t)besch->gib_wtyp());
+				tunnelbauer_t::baue(sp, welt, route[i].gib_2d(), tunnel_besch );
 				INT_CHECK( "wegbauer 1584" );
 			}
 		}

@@ -42,7 +42,7 @@ class gebaeude_t;
 class zeiger_t;
 class grund_t;
 class planquadrat_t;
-
+class karte_ansicht_t;
 class einstellungen_t;
 
 class sync_steppable;
@@ -195,6 +195,8 @@ private:
 
 	minivec_tpl<save_mouse_func *> quick_shortcuts;
 
+	karte_ansicht_t *view;
+
 	/**
 	 * Fraktale, rekursive Landschaftserzeugung
 	 * @author Hj. Malthaner
@@ -332,10 +334,10 @@ public:
 	inline uint32 get_last_month() const { return letzter_monat; }
 
 	// @author hsiegeln
-	sint32 get_last_year() { return letztes_jahr; }
+	inline sint32 get_last_year() { return letztes_jahr; }
 
 	// @author hsiegeln
-	sint32 get_base_year() { return basis_jahr; }
+	inline sint32 get_base_year() { return basis_jahr; }
 
 	/**
 	 * dirty: redraw whole screen
@@ -344,6 +346,9 @@ public:
 	void setze_dirty() {dirty=true;}
 	void setze_dirty_zurueck() {dirty=false;}
 	bool ist_dirty() const {return dirty;}
+
+	karte_ansicht_t *gib_ansicht() const { return view; }
+	void setze_ansicht(karte_ansicht_t *v) { view = v; }
 
 	/**
 	 * viewpoint in tile koordinates

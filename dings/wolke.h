@@ -36,6 +36,7 @@ public:
 
 	wolke_t(karte_t *welt, loadsave_t *file);
 	wolke_t(karte_t *welt, koord3d pos, sint8 xoff, sint8 yoff, image_id bild, bool increment);
+	~wolke_t();
 
 	bool sync_step(long delta_t);
 
@@ -60,6 +61,7 @@ class async_wolke_t : public ding_t
 public:
 	async_wolke_t(karte_t *welt, loadsave_t *file);
 	enum ding_t::typ gib_typ() const { return async_wolke; }
+	image_id gib_bild() const { return IMG_LEER; }
 };
 
 class raucher_t : public ding_t
@@ -67,6 +69,7 @@ class raucher_t : public ding_t
 public:
 	raucher_t(karte_t *welt, loadsave_t *file);
 	enum ding_t::typ gib_typ() const { return raucher; }
+	image_id gib_bild() const { return IMG_LEER; }
 };
 
 #endif

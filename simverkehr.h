@@ -75,7 +75,7 @@ public:
 	void rdwr(loadsave_t *file);
 
 	// finalizes direction
-	void laden_abschliessen(){calc_bild();}
+	void laden_abschliessen() {calc_bild();}
 
 	// we allow to remove all cars etc.
 	const char *ist_entfernbar(const spieler_t *) { return NULL; }

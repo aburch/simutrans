@@ -222,6 +222,7 @@ static bool load_freight(karte_t* welt, halthandle_t halt, slist_tpl<ware_t>* fr
 vehikel_basis_t::vehikel_basis_t(karte_t *welt):
     ding_t(welt)
 {
+	bild = IMG_LEER;
 	set_flag( ding_t::is_vehicle );
 }
 
@@ -229,6 +230,7 @@ vehikel_basis_t::vehikel_basis_t(karte_t *welt):
 vehikel_basis_t::vehikel_basis_t(karte_t *welt, koord3d pos):
     ding_t(welt, pos)
 {
+	bild = IMG_LEER;
 	set_flag( ding_t::is_vehicle );
 }
 

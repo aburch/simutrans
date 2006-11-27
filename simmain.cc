@@ -572,6 +572,7 @@ DBG_MESSAGE("simmain","loadgame file found at %s",buffer);
 
 		karte_t *welt = new karte_t();
 		karte_ansicht_t *view = new karte_ansicht_t(welt);
+		welt->setze_ansicht( view );
 
 		// some messages about old vehicle may appear ...
 		message_t *msg = new message_t(welt);

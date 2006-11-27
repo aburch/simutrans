@@ -53,6 +53,7 @@
 #include "simvehikel.h"
 #include "simverkehr.h"
 #include "simworld.h"
+#include "simview.h"
 
 #include "simwerkz.h"
 #include "simtools.h"
@@ -173,7 +174,6 @@ DBG_MESSAGE("karte_t::neuer_monat()","process seasons %i snowline %i",season,sno
 
 			if(((++check_counter) & 63) == 0) {	// every 64 one update ...
 				INT_CHECK("simworld 1076");
-				interactive_update();
 			}
 		}
 		setze_dirty();
@@ -896,7 +896,7 @@ DBG_DEBUG("karte_t::init()","Erzeuge stadt %i with %ld inhabitants",i,(s->get_ci
 
 	setze_dirty();
 
-    intr_enable();
+    reset_timer();
 
 	if(is_display_init()) {
 		display_show_pointer(true);
@@ -1591,10 +1591,6 @@ void
 karte_t::sync_step(const long dt)
 {
 	// ingore calls by interrupt during fast forward ...
-	if(fast_forward  &&  dt!=-987) {
-		return;
-	}
-
 	if (!sync_add_list.empty()) {
 		slist_iterator_tpl<sync_steppable *> iter (sync_add_list);
 		while(iter.next()) {
@@ -1660,6 +1656,8 @@ karte_t::neuer_monat()
 		letzter_monat = 0;
 	}
 	DBG_MESSAGE("karte_t::neuer_monat()","Month %d has started", letzter_monat);
+
+	DBG_MESSAGE("karte_t::neuer_monat()","sync_step %u objects", sync_list.count() );
 
 	// this should be done before a map update, since the map may want an update of the way usage
 //	DBG_MESSAGE("karte_t::neuer_monat()","ways");
@@ -1860,8 +1858,6 @@ DBG_MESSAGE("karte_t::neues_jahr()","Year %d has started", letztes_jahr);
 
 
 
-static long last_delta_step = 0;
-
 void
 karte_t::step(const long delta_t)
 {
@@ -1870,62 +1866,51 @@ karte_t::step(const long delta_t)
 		return;
 	}
 
-	last_delta_step += delta_t;
-	if(last_delta_step>350) {
-
-		// Hajo: Convois need extra frequent steps to avoid unneccesary
-		// long waiting times
-		// the convois goes alternating up and down to avoid a preferred
-		// order and loading only of the train highest in the game
-		for(unsigned i=0; i<convoi_array.get_count();  i++) {
-			convoihandle_t cnv = convoi_array[i];
-			cnv->step();
-			if((i&7)==0) {
-				INT_CHECK("simworld 1947");
-			}
+	// Hajo: Convois need extra frequent steps to avoid unneccesary
+	// long waiting times
+	// the convois goes alternating up and down to avoid a preferred
+	// order and loading only of the train highest in the game
+	for(unsigned i=0; i<convoi_array.get_count();  i++) {
+		convoihandle_t cnv = convoi_array[i];
+		cnv->step();
+		if((i&7)==0) {
+			INT_CHECK("simworld 1947");
 		}
-		interactive_update();
-
-		// now step all towns (to generate passengers)
-		for(unsigned int n=0; n<stadt->get_count(); n++) {
-			stadt->at(n)->step(delta_t);
-		}
-		interactive_update();
-
-		slist_iterator_tpl<fabrik_t *> iter(fab_list);
-		while(iter.next()) {
-			iter.get_current()->step(last_delta_step);
-		}
-		interactive_update();
-
-		// then step all players
-		INT_CHECK("simworld 1975");
-		spieler[steps & 7]->step();
-		interactive_update();
-
-		// ok, next step
-		steps ++;
-		INT_CHECK("simworld 1975");
-
-		if(ticks > next_month_ticks) {
-
-			next_month_ticks += karte_t::ticks_per_tag;
-
-			// avoid overflow here ...
-			if(ticks>next_month_ticks) {
-				ticks %= karte_t::ticks_per_tag;
-				next_month_ticks = ticks+karte_t::ticks_per_tag;
-			}
-
-			neuer_monat();
-		}
-		interactive_update();
-
-		// will also call all objects if needed ...
-		recalc_snowline();
-
-		last_delta_step = 0;
 	}
+
+	// now step all towns (to generate passengers)
+	for(unsigned int n=0; n<stadt->get_count(); n++) {
+		stadt->at(n)->step(delta_t);
+	}
+
+	slist_iterator_tpl<fabrik_t *> iter(fab_list);
+	while(iter.next()) {
+		iter.get_current()->step(delta_t);
+	}
+
+	// then step all players
+	INT_CHECK("simworld 1975");
+	spieler[steps & 7]->step();
+
+	// ok, next step
+	steps ++;
+	INT_CHECK("simworld 1975");
+
+	if(ticks > next_month_ticks) {
+
+		next_month_ticks += karte_t::ticks_per_tag;
+
+		// avoid overflow here ...
+		if(ticks>next_month_ticks) {
+			ticks %= karte_t::ticks_per_tag;
+			next_month_ticks = ticks+karte_t::ticks_per_tag;
+		}
+
+		neuer_monat();
+	}
+
+	// will also call all objects if needed ...
+	recalc_snowline();
 }
 
 
@@ -2059,13 +2044,13 @@ karte_t::ist_wasser(koord pos, koord dim) const
 bool
 karte_t::ist_platz_frei(koord pos, sint16 w, sint16 h, int *last_y, climate_bits cl) const
 {
-    koord k;
+	koord k;
 
-    if(pos.x<0 || pos.y<0 || pos.x+w>=gib_groesse_x() || pos.y+h>=gib_groesse_y()) {
-//	if(pos.x | pos.y | (gib_groesse_x()-(pos.x+w)) | (gib_groesse_y()-(pos.y+h)) < 0) {
+	if(pos.x<0 || pos.y<0 || pos.x+w>=gib_groesse_x() || pos.y+h>=gib_groesse_y()) {
 		return false;
 	}
-	sint16 platz_h = (sint16)0xFFFF;	// remember the max height of the first tile
+
+	const sint16 platz_h = max_hgt(pos);	// remember the max height of the first tile
 
 	// ACHTUNG: Schleifen sind mit finde_plaetze koordiniert, damit wir ein
 	// paar Abfragen einsparen können bei h > 1!
@@ -2073,10 +2058,6 @@ karte_t::ist_platz_frei(koord pos, sint16 w, sint16 h, int *last_y, climate_bits
 	for(k.y=pos.y+h-1; k.y>=pos.y; k.y--) {
 		for(k.x=pos.x; k.x<pos.x+w; k.x++) {
 			const grund_t *gr = lookup(k)->gib_kartenboden();
-
-			if(platz_h==(sint16)0xFFFF) {
-				platz_h = max_hgt(k);
-			}
 
 			// we can built, if: max height all the same, everything removable and no buildings there
 			if(platz_h!=max_hgt(k)  ||  !gr->ist_natur() ||  gr->kann_alle_obj_entfernen(NULL) != NULL  ||  (cl&(1<<get_climate(gr->gib_hoehe())))==0) {
@@ -2631,7 +2612,6 @@ DBG_MESSAGE("karte_t::laden()", "%d ways loaded",weg_t::gib_alle_wege().count())
 
 	reset_timer();
 	recalc_average_speed();
-	intr_enable();
 	mute_sound(false);
 }
 
@@ -2725,6 +2705,13 @@ void karte_t::reset_timer()
 	sync_last_time_now();
 	intr_set_last_time(get_system_ms());
 	last_step_time = get_current_time_millis();
+
+	if(fast_forward) {
+		intr_disable();
+	}
+	else {
+		intr_enable();
+	}
 
 	// Hajo: this actually is too conservative but the correct
 	// solution is way too difficult for a simple pause function ...
@@ -3471,6 +3458,21 @@ karte_t::interactive_update()
 			}
 		}
 
+		unsigned long current_time = get_current_time_millis()-last_step_time;
+		if(current_time>50) {
+			// display every 50ms at least (if possible)
+			if(fast_forward) {
+				sync_step( 200 );
+				step( 200 );
+			}
+			else {
+				step( current_time );
+			}
+			last_step_time += current_time;
+			view->display( dirty );
+			win_display_flush(	0, get_active_player()->get_player_color(), get_active_player()->gib_konto_als_double() );
+		}
+
 		INT_CHECK("simworld 2630");
 
 	} while(ev.button_state != 0);
@@ -3518,20 +3520,25 @@ karte_t::interactive()
 				now = steps;
 			}
 
-			last_step_time = ticks;
-
-			INT_CHECK("simworld 3746");
-			interactive_update();
-
 			// check if we need to play a new midi file
 			check_midi();
 
-			INT_CHECK("simworld 3763");
 			interactive_update();
 
-			sync_step( -987 );
+			sync_step( 200 );
+			step( 200 );
 
-			step(ticks-last_step_time);
+			interactive_update();
+
+			if(get_current_time_millis()-last_step_time>50) {
+				// display every 50ms at least (if possible)
+				view->display( dirty );
+				win_display_flush(	0, get_active_player()->get_player_color(), get_active_player()->gib_konto_als_double() );
+				last_step_time = get_current_time_millis();
+			}
+
+			interactive_update();
+
 		}
 		else {
 			INT_CHECK("simworld 3746");
@@ -3543,11 +3550,12 @@ karte_t::interactive()
 			INT_CHECK("simworld 3763");
 			interactive_update();
 
-			// welt steppen
 			// but this will not neccessarily result in a step!
 			this_step_time = get_current_time_millis();
-			step((long)(this_step_time-last_step_time));
-			last_step_time = this_step_time;
+			while(this_step_time-last_step_time>200) {
+				step( 200 );
+				last_step_time += 200;
+			}
 
 			INT_CHECK("simworld 3772");
 			interactive_update();
@@ -3594,7 +3602,11 @@ karte_t::interactive()
 			}
 		}
 
-	}while(doit);
+	} while(doit);
+
+	// just to be sure ...
+	fast_forward = false;
+	reset_timer();
 
 	return m_quit_simutrans;      // 02-Nov-2001    Markus Weber    Added
 }

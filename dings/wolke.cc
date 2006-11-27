@@ -52,6 +52,13 @@ wolke_t::wolke_t(karte_t *welt, koord3d pos, sint8 x_off, sint8 y_off, image_id 
 
 
 
+wolke_t::~wolke_t()
+{
+	mark_image_dirty( gib_bild(), 0 );
+}
+
+
+
 wolke_t::wolke_t(karte_t *welt, loadsave_t *file) : ding_t(welt)
 {
 	rdwr(file);

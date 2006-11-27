@@ -13,6 +13,7 @@
 #include "simworld.h"
 #include "simplay.h"
 #include "simmesg.h"
+#include "simimg.h"
 #include "simvehikel.h"
 #include "dings/signal.h"
 #include "dings/tunnel.h"
@@ -49,6 +50,8 @@ public:
 	ding_t::typ gib_typ() const 	{ return type; }
 
 	void rdwr(loadsave_t *file);
+
+	image_id gib_bild() const { return IMG_LEER; }
 };
 
 

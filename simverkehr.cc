@@ -66,6 +66,7 @@ verkehrsteilnehmer_t::~verkehrsteilnehmer_t()
 	if(time_to_life>=0) {
 		welt->sync_remove(this);
 	}
+	mark_image_dirty( gib_bild(), 0 );
 }
 
 
@@ -328,6 +329,7 @@ stadtauto_t::stadtauto_t(karte_t *welt, loadsave_t *file)
  : verkehrsteilnehmer_t(welt)
 {
 	rdwr(file);
+	ms_traffic_jam = 0;
 	welt->sync_add(this);
 }
 
@@ -345,9 +347,11 @@ stadtauto_t::stadtauto_t(karte_t *welt, koord3d pos, koord )
 	}
 	time_to_life = umgebung_t::stadtauto_duration;
 	current_speed = 48;
+	ms_traffic_jam = 0;
 #ifdef DESTINATION_CITYCARS
 	this->target = target;
 #endif
+	calc_bild();
 }
 
 
@@ -384,11 +388,14 @@ stadtauto_t::sync_step(long delta_t)
 		}
 	}
 	else {
+		setze_yoff( gib_yoff() - hoff );
 		weg_next += (current_speed*delta_t) / 64;
 		while(1024 < weg_next) {
 			weg_next -= 1024;
 			fahre();
 		}
+		hoff = calc_height();
+		setze_yoff( gib_yoff() + hoff );
 	}
 
 	return true;
@@ -459,7 +466,7 @@ stadtauto_t::ist_weg_frei()
 	}
 
 	const grund_t *gr = welt->lookup(pos_next);
-	if(gr==NULL  ||  gr->gib_top()>200) {
+	if(gr==NULL  ||  gr->gib_top()>20) {
 		return false;
 	}
 

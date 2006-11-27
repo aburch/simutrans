@@ -351,6 +351,7 @@ void hausbauer_t::baue(karte_t *welt, spieler_t *sp, koord3d pos, int layout, co
 	dim = besch->gib_groesse(layout);
 	bool needs_ground_recalc = false;
 
+	sint16 z = pos.z;
 	for(k.y = 0; k.y < dim.y; k.y ++) {
 		for(k.x = 0; k.x < dim.x; k.x ++) {
 //DBG_DEBUG("hausbauer_t::baue()","get_tile() at %i,%i",k.x,k.y);
@@ -384,7 +385,7 @@ void hausbauer_t::baue(karte_t *welt, spieler_t *sp, koord3d pos, int layout, co
 					gr->obj_loesche_alle(sp);	// alles weg
 				}
 				needs_ground_recalc |= gr->gib_grund_hang()!=hang_t::flach;
-				grund_t *gr2 = new fundament_t(welt, gr->gib_pos(),gr->gib_grund_hang());
+				grund_t *gr2 = new fundament_t(welt, gr->gib_pos(), gr->gib_grund_hang());
 				welt->access(gr->gib_pos().gib_2d())->boden_ersetzen(gr, gr2);
 				gr = gr2;
 //DBG_DEBUG("hausbauer_t::baue()","ground count now %i",gr->obj_count());

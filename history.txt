@@ -17,6 +17,8 @@ xx-Nov-2006: (prissi)
 	CHANGE: squeezed another four bytes from tree structure => now only 20 bytes per tree => 16 MB less on 2048*2048 maps
 	CHANGE: got rid of ding_t::step() => large maps should now be as fast as slow maps with the same factory, citycar and city count
 	CHANGE: objects now take care of their image themselves => another four bytes off from ding_t (smaller is not possible, imho)
+	FIX: larger than 1x1 building on slopes
+	CHANGE: game will continue even while dragging (still little buggy)
 
 
 Release of 99.04.2

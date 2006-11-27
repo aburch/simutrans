@@ -440,29 +440,29 @@ gebaeude_t::zeige_info()
 	// Sonst gibt es für eine 2x2-Fabrik bis zu 4 Infofenster.
 	koord k = tile->gib_offset();
 	if(k != koord(0, 0)) {
-		ding_t *gb = welt->lookup(gib_pos() - k)->obj_bei(0);
-		if(gb)
-			// is the info of the (0,0) tile on multi tile buildings
-			gb->zeige_info();
+		grund_t *gr = welt->lookup(gib_pos() - k);
+		if(!gr) {
+			gr = welt->lookup_kartenboden(gib_pos().gib_2d() - k);
 		}
-		else {
+		ding_t *gb = (gebaeude_t *)(gr->suche_obj(ding_t::gebaeude));
+		// is the info of the (0,0) tile on multi tile buildings
+		gb->zeige_info();
+	}
+	else {
 DBG_MESSAGE("gebaeude_t::zeige_info()", "at %d,%d - name is '%s'", gib_pos().x, gib_pos().y, gib_name());
 
-				if(ist_firmensitz()) {
-					if(umgebung_t::townhall_info) {
-						ding_t::zeige_info();
-					}
-			         create_win(-1, -1, -1, gib_besitzer()->gib_money_frame(), w_info);
-				}
+		if(ist_firmensitz()) {
+			if(umgebung_t::townhall_info) {
+				ding_t::zeige_info();
+			}
+			create_win(-1, -1, -1, gib_besitzer()->gib_money_frame(), w_info);
+		}
 
-			if(!tile->gib_besch()->ist_ohne_info()) {
+		if(!tile->gib_besch()->ist_ohne_info()) {
 
-				if(ist_rathaus()) {
+			if(ist_rathaus()) {
 				stadt_t *city = welt->suche_naechste_stadt(gib_pos().gib_2d());
-				create_win(-1, -1, -1,
-					city->gib_stadt_info(),
-					w_info,
-					magic_none); /* otherwise only on image is allowed */
+				create_win(-1, -1, -1, city->gib_stadt_info(), w_info, magic_none); /* otherwise only on image is allowed */
 
 				if(umgebung_t::townhall_info) {
 					ding_t::zeige_info();

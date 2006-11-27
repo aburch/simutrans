@@ -2,6 +2,7 @@
 #define dings_dummy_h
 
 #include "../simdings.h"
+#include "../simimg.h"
 
 
 /**
@@ -10,25 +11,15 @@
 class dummy_ding_t : public ding_t
 {
 public:
-    dummy_ding_t(karte_t *welt, loadsave_t *file);
-    dummy_ding_t(karte_t *welt, koord3d pos, spieler_t *sp);
+	dummy_ding_t(karte_t *welt, loadsave_t *file);
+	dummy_ding_t(karte_t *welt, koord3d pos, spieler_t *sp);
 
-    /**
-     * @return Gibt den Namen des Objekts zurück.
-     */
-    const char* gib_name() const { return "Dummy"; }
+	enum ding_t::typ gib_typ() const { return ding_t::undefined; }
 
-    /**
-     * @return Gibt den typ des Objekts zurück.
-     */
-    inline enum ding_t::typ gib_typ() const { return ding_t::undefined; }
+	image_id gib_bild() const { return IMG_LEER; }
 
-    void zeige_info() {} // dummies do not have an info
-
-    virtual void laden_abschliessen() {}
-
-    void * operator new(size_t s);
-    void operator delete(void *p);
+	void * operator new(size_t s);
+	void operator delete(void *p);
 };
 
 #endif

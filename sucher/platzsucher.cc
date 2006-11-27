@@ -132,53 +132,51 @@ void pos_liste_wh_t::neu_starten(sint16 b, sint16 h)
 
 bool pos_liste_wh_t::gib_naechste_pos(koord &k)
 {
-    gib_pos(k);
+	gib_pos(k);
 
-    if(k.x == 0 && k.y == 0 && (dx > 0 || dy > 0)) {
-	if(dx > 0) {
-	    dx--;
+	if(k.x == 0 && k.y == 0 && (dx > 0 || dy > 0)) {
+		if(dx > 0) {
+			dx--;
+		}
+		else if(dy > 0) {
+			dy--;
+			dx = b - 1;
+		}
+		k.x -= dx;
+		k.y -= dy;
+	}
+	else if(dx > 0) {
+		k.x -= --dx;
+		if(k.y <= 0) {
+			k.y -= h - 1;
+		}
+	}
+	else if(dy > 0) {
+		k.y -= --dy;
+		if(k.x <= 0) {
+			k.x -= b - 1;
+		}
 	}
 	else {
-	    if(dy > 0) {
-		dy--;
-		dx = b - 1;
-	    }
+		if(pos_liste_t::gib_naechste_pos(k)) {
+			if(k.y == 0) {
+				dy = h - 1;
+			}
+			if(k.x == 0) {
+				dx = b - 1;
+			}
+			if(k.y <= 0) {
+				k.y -= h - 1;
+			}
+			if(k.x <= 0) {
+				k.x -= b - 1;
+			}
+		}
+		else {
+			return false;
+		}
 	}
-	k.x -= dx;
-	k.y -= dy;
-    }
-    else if(dx > 0) {
-	k.x -= --dx;
-	if(k.y <= 0) {
-	    k.y -= h - 1;
-	}
-    }
-    else if(dy > 0) {
-	k.y -= --dy;
-	if(k.x <= 0) {
-	    k.x -= b - 1;
-	}
-    }
-    else {
-	if(pos_liste_t::gib_naechste_pos(k)) {
-	    if(k.y == 0) {
-		dy = h - 1;
-	    }
-	    if(k.x == 0) {
-		dx = b - 1;
-	    }
-	    if(k.y <= 0) {
-		k.y -= h - 1;
-	    }
-	    if(k.x <= 0) {
-		k.x -= b - 1;
-	    }
-	}
-	else {
-	    return false;
-	}
-    }
-    return true;
+	return true;
 }
 
 
@@ -202,12 +200,12 @@ bool platzsucher_t::ist_platz_ok(koord pos, sint16 b, sint16 h,climate_bits cl) 
 
 bool platzsucher_t::ist_randfeld(koord d) const
 {
-    return d.x == 0 || d.x == b - 1 || d.y == 0 || d.y == h - 1;
+	return d.x == 0 || d.x == b - 1 || d.y == 0 || d.y == h - 1;
 }
 
 bool platzsucher_t::ist_feld_ok(koord /*pos*/, koord /*d*/, climate_bits /*cl*/) const
 {
-    return true;
+	return true;
 }
 
 koord platzsucher_t::suche_platz(koord start, sint16 b, sint16 h, climate_bits cl, bool *r)
