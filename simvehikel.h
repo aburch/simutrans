@@ -111,7 +111,7 @@ protected:
 	virtual void calc_bild() = 0;
 
 public:
-	void inline setze_bild( image_id b ) { bild = b; }
+	inline void setze_bild( image_id b ) { bild = b; }
 	image_id gib_bild() const {return bild;}	ribi_t::ribi calc_richtung(koord start, koord ende, sint8 &dx, sint8 &dy) const;
 
 	ribi_t::ribi gib_fahrtrichtung() const {return fahrtrichtung;}

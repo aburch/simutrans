@@ -263,7 +263,7 @@ public:
 	inline bool has_sign() const {return flags&HAS_SIGN; }
 	inline bool has_wayobj() const {return flags&HAS_WAYOBJ; }
 
-	void inline setze_bild( image_id b ) { bild = b; }
+	inline void setze_bild( image_id b ) { bild = b; }
 	image_id gib_bild() const {return bild;}
 
 	// correct maitainace

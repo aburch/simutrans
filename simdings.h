@@ -270,7 +270,7 @@ public:
 	 * @param bild bild nummer
 	 * @author Hj. Malthaner
 	 */
-	virtual void setze_bild(image_id bild) {}
+	virtual void setze_bild(image_id /*bild*/) {}
 
 	/**
 	 * Ein Objekt kann zu einer Fabrik gehören.

@@ -35,7 +35,7 @@ public:
 	const char *gib_name() const {return "Zeiger";}
 	enum ding_t::typ gib_typ() const {return zeiger;}
 
-	void inline setze_bild( image_id b ) { bild = b; }
+	inline void setze_bild( image_id b ) { bild = b; }
 	image_id gib_bild() const {return bild;}
 };
 

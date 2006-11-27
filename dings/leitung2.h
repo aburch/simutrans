@@ -62,7 +62,7 @@ public:
 	*/
 	void info(cbuffer_t & buf) const;
 
-	void inline setze_bild( image_id b ) { bild = b; }
+	inline void setze_bild( image_id b ) { bild = b; }
 	image_id gib_bild() const {return bild;}
 
 	/**

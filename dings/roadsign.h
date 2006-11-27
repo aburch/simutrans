@@ -87,7 +87,7 @@ public:
 	// changes the state of a traffic light
 	virtual bool sync_step(long);
 
-	void inline setze_bild( image_id b ) { bild = b; }
+	inline void setze_bild( image_id b ) { bild = b; }
 	image_id gib_bild() const {return bild;}
 
 	/**

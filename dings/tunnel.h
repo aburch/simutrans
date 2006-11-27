@@ -22,7 +22,7 @@ public:
 
 	void calc_bild();
 
-	void inline setze_bild( image_id b ) { bild = b; }
+	inline void setze_bild( image_id b ) { bild = b; }
 	image_id gib_bild() const {return bild;}
 	image_id gib_after_bild() const { return after_bild; }
 
