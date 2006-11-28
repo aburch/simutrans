@@ -489,14 +489,6 @@ depot_t::get_oldest_vehicle(int id)
 }
 
 
-
-/* deoptmanagement for railway depots and all other vehicles which uses the blockmanager */
-void
-bahndepot_t::convoi_arrived(convoihandle_t cnv, bool fpl_adjust)
-{
-	depot_t::convoi_arrived(cnv, fpl_adjust);
-}
-
 bool
 bahndepot_t::can_convoi_start(int icnv) const
 {

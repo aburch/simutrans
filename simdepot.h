@@ -185,7 +185,7 @@ public:
 	 * @author Volker Meyer
 	 * @date  09.06.2003
 	 */
-	virtual void convoi_arrived(convoihandle_t cnv, bool fpl_adjust);
+	void convoi_arrived(convoihandle_t cnv, bool fpl_adjust);
 
 	/**
 	 * Parameters to determine layout and behaviour of the depot_frame_t.
@@ -255,8 +255,6 @@ public:
 	bahndepot_t(karte_t *welt, koord3d pos,spieler_t *sp, const haus_tile_besch_t *t) : depot_t(welt,pos,sp,t) {}
 
 	void rdwr_vehicles(loadsave_t *file) { depot_t::rdwr_vehikel(vehicles,file); }
-
-	virtual void convoi_arrived(convoihandle_t cnv, bool fpl_adjust);
 
 	/**
 	 * Parameters to determine layout and behaviour of the depot_frame_t.
