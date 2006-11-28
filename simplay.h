@@ -23,7 +23,7 @@
 
 #include "besch/weg_besch.h"
 #include "besch/vehikel_besch.h"
-
+#include "tpl/slist_tpl.h"
 #include "tpl/vector_tpl.h"
 
 
@@ -52,7 +52,6 @@ class gebaeude_t;
 class koord3d;
 class money_frame_t;
 class schedule_list_gui_t;
-template<class T> class slist_tpl;
 
 /**
  * Spieler in Simutrans. Diese Klasse enthält Routinen für die KI
@@ -179,13 +178,7 @@ private:
      */
     int steps;
 
-
-    /**
-     * Liste der Haltestellen
-     * @author Hj. Malthaner
-     */
-    slist_tpl<halthandle_t> * halt_list;
-
+    slist_tpl<halthandle_t> halt_list; ///< Liste der Haltestellen
 
     char  texte[50][32];
     sint8 text_alter[50];

@@ -105,8 +105,6 @@ spieler_t::spieler_t(karte_t *wl, uint8 color, uint8 nr) :
 	simlinemgmt(wl,this),
 	last_built(0)
 {
-	halt_list = new slist_tpl <halthandle_t>;
-
 	welt = wl;
 	kennfarbe = color;
 	player_nr = nr;
@@ -221,9 +219,6 @@ spieler_t::~spieler_t()
 		delete line_frame;
 	}
 	line_frame = NULL;
-	// always there
-	delete halt_list;
-	halt_list = 0;
 	simlinemgmt.destroy_all();
 }
 
@@ -611,10 +606,7 @@ halthandle_t
 spieler_t::halt_add(koord pos)
 {
 	halthandle_t halt = haltestelle_t::create(welt, pos, this);
-	if(!halt_list->contains(halt)) {
-		halt_list->append( halt );
-		haltcount ++;
-	}
+	halt_add(halt);
 	return halt;
 }
 
@@ -627,8 +619,8 @@ spieler_t::halt_add(koord pos)
 void
 spieler_t::halt_add(halthandle_t halt)
 {
-	if(!halt_list->contains(halt)) {
-		halt_list->append( halt );
+	if (!halt_list.contains(halt)) {
+		halt_list.append(halt);
 		haltcount ++;
 	}
 }
@@ -642,7 +634,7 @@ spieler_t::halt_add(halthandle_t halt)
 void
 spieler_t::halt_remove(halthandle_t halt)
 {
-    halt_list->remove( halt );
+	halt_list.remove(halt);
 }
 
 
@@ -2463,7 +2455,7 @@ spieler_t::rdwr(loadsave_t *file)
 
 	// prepare for saving by default variables
 	if(file->is_saving()) {
-		halt_count = halt_list->count();
+		halt_count = halt_list.count();
 DBG_DEBUG("spieler_t::rdwr()","%i has %i halts.",welt->sp2num( this ),halt_count);
 		start_index = welt->gib_fab_index(start);
 		ziel_index = welt->gib_fab_index(ziel);
@@ -2630,7 +2622,7 @@ DBG_DEBUG("spieler_t::rdwr()","player %i: loading %i halts.",welt->sp2num( this 
 			halthandle_t halt = haltestelle_t::create( welt, file );
 			halt->laden_abschliessen();
 			if(halt->existiert_in_welt()) {
-				halt_list->append( halt );
+				halt_list.append(halt);
 			}
 			else {
 				// it was possible to have stops without ground => remove them
