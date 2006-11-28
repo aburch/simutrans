@@ -19,7 +19,7 @@
 
 class karte_t;
 class fabrik_t;
-class factorylist_stats_t;
+
 
 namespace factorylist {
     enum sort_mode_t { by_name=0, by_input, by_output, by_maxprod, by_status, by_power, SORT_MODES };

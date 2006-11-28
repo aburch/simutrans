@@ -21,7 +21,6 @@
 #include "components/gui_button.h"
 
 
-class button_t;
 class karte_t;
 class spieler_t;
 

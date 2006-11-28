@@ -21,7 +21,6 @@
 #include "../dataobj/translator.h"
 
 class bruecke_besch_t;
-class tabfileobj_t;
 class karte_t;                 // Hajo: 22-Nov-01: Added forward declaration
 class spieler_t;               // Hajo: 22-Nov-01: Added forward declaration
 class grund_t;

@@ -17,9 +17,6 @@
 #include "../convoihandle_t.h"
 
 
-struct event_t;
-
-
 /**
  * One element of the vehicle list display
  *

@@ -21,7 +21,6 @@
 
 #include "../utils/cbuffer_t.h"
 
-class gui_chart_t;
 
 /**
  * Displays an information window for a convoi

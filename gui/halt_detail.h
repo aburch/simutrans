@@ -21,8 +21,6 @@
 
 class spieler_t;
 class karte_t;
-struct event_t;
-
 
 
 /**

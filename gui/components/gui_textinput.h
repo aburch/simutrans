@@ -12,7 +12,6 @@
 
 #include "../../ifc/gui_action_creator.h"
 
-struct event_t;
 
 /**
  * Ein einfaches Texteingabefeld. Es hat keinen eigenen Textpuffer,

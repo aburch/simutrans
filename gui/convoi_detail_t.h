@@ -20,7 +20,6 @@
 
 #include "../dataobj/koord.h"
 
-class gui_chart_t;
 
 /**
  * One element of the vehicle list display

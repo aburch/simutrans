@@ -13,7 +13,6 @@
 
 #include "../tpl/slist_tpl.h"
 
-class karte_t;
 class grund_t;
 
 class marker_t {

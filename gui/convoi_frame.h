@@ -18,7 +18,6 @@
 #include "components/gui_button.h"
 
 class spieler_t;
-class vehikel_t;
 class ware_besch_t;
 
 /**

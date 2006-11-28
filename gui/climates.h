@@ -20,7 +20,7 @@
 #include "components/gui_textinput.h"
 
 class einstellungen_t;
-struct event_t;
+
 
 /**
  * set the climate borders

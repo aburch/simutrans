@@ -23,8 +23,6 @@
 #include "components/gui_button.h"
 
 
-class button_t;
-
 class savegame_frame_t : public gui_frame_t, action_listener_t
 {
 private:

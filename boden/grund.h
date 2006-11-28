@@ -25,12 +25,9 @@
 #include "../besch/weg_besch.h"
 
 class spieler_t;
-class vehikel_basis_t;
 class depot_t;
 class karte_t;
-class gebaeude_t;
 class grund_info_t;
-class haus_besch_t;
 class cbuffer_t;
 
 template <class K, class V> class ptrhashtable_tpl;

@@ -10,7 +10,7 @@
 
 #include "../tpl/array_tpl.h"
 
-class spieler_t;
+
 class karte_t;
 
 /**

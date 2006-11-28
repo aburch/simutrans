@@ -19,7 +19,6 @@
 #include "components/action_listener.h"
 
 class spieler_t;
-class haltestelle_t;
 class ware_besch_t;
 
 /**

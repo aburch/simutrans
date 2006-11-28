@@ -18,7 +18,6 @@
 #include "gui_textinput.h"
 #include "gui_button.h"
 
-struct event_t;
 
 class gui_combobox_t :
 	public gui_komponente_action_creator_t,

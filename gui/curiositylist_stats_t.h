@@ -16,8 +16,6 @@
 #include "components/gui_button.h"
 
 class karte_t;
-class button_t;
-class curiositylist_stats_t;
 class gebaeude_t;
 
 namespace curiositylist {

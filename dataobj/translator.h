@@ -15,7 +15,6 @@ class loadsave_t;
 class cstring_t;
 
 template <class T> class stringhashtable_tpl;
-//template <class T> class slist_tpl;
 
 
 /**

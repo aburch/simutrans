@@ -6,15 +6,9 @@
 #include "../tpl/minivec_tpl.h"
 
 
-// forward decl
-
-class spieler_t;
 class karte_t;
-class zeiger_t;
 class grund_t;
-class planquadrat_t;
 
-// class decl
 
 /**
  * Eine Klasse zur Speicherung von Fahrplänen in Simutrans.

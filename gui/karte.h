@@ -8,7 +8,6 @@ class karte_t;
 class fabrik_t;
 class grund_t;
 
-struct event_t;
 
 #define MAX_MAP_TYPE 16
 #define MAX_SEVERITY_COLORS 21

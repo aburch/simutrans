@@ -24,9 +24,6 @@ class vehikel_t;
 class karte_t;
 class spieler_t;
 class convoi_t;
-class fahrplan_t;
-
-
 
 
 /**

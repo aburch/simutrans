@@ -9,7 +9,6 @@
 #include "components/action_listener.h"
 
 
-class spieler_t;
 class karte_t;
 
 /**

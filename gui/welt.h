@@ -19,7 +19,7 @@
 #include "components/gui_textinput.h"
 
 class einstellungen_t;
-struct event_t;
+
 
 /**
  * Ein Dialog mit Einstellungen fuer eine neue Karte

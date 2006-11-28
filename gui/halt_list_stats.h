@@ -17,9 +17,6 @@
 #include "../halthandle_t.h"
 
 
-struct event_t;
-
-
 /**
  * Komponenten von Fenstern sollten von dieser Klassse abgeleitet werden.
  *

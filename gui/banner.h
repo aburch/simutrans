@@ -13,9 +13,6 @@
 #include "../ifc/gui_fenster.h"
 
 class karte_t;
-struct event_t;
-class skin_besch_t;
-
 
 
 /**

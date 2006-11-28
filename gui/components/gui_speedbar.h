@@ -13,7 +13,6 @@
 #include "../../ifc/gui_komponente.h"
 #include "../../tpl/slist_tpl.h"
 
-struct event_t;
 
 /**
  *

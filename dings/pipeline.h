@@ -15,7 +15,6 @@
 #include "../dataobj/koord3d.h"
 #include "../simdings.h"
 
-class mittelwert;
 class spieler_t;
 class fabrik_t;
 

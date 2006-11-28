@@ -15,9 +15,6 @@
 
 class spieler_t;
 class karte_t;
-struct event_t;
-class skin_besch_t;
-
 template <class T> class minivec_tpl;
 
 

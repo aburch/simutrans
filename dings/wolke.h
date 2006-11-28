@@ -6,7 +6,6 @@
 #include "../ifc/sync_steppable.h"
 #include "../simimg.h"
 
-class ding_t;
 class karte_t;
 class rauch_besch_t;
 template <class X> class stringhashtable_tpl;

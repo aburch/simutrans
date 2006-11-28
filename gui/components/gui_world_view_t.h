@@ -16,7 +16,7 @@
 
 class ding_t;
 class karte_t;
-struct event_t;
+
 
 /**
  * Displays a little piece of the world

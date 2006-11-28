@@ -3,7 +3,6 @@
 
 #include "boden.h"
 
-class tunnel_besch_t;
 
 class tunnelboden_t : public boden_t
 {

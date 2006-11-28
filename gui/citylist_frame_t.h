@@ -9,8 +9,6 @@
 #include "components/gui_label.h"
 #include "components/gui_scrollpane.h"
 
-class gui_scrollpane_t;
-class citylist_stats_t;
 class karte_t;
 
 /**

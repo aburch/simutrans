@@ -12,9 +12,7 @@
 #define simhausbau_h
 
 class karte_t;
-class tabfileobj_t;
 class spieler_t;
-class gebaeude_t;
 
 #include "../dataobj/koord3d.h"
 #include "../tpl/stringhashtable_tpl.h"

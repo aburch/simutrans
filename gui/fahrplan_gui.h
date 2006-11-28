@@ -30,7 +30,7 @@
 
 class fahrplan_t;
 class spieler_t;
-struct event_t;
+
 
 /**
  * GUI fuer Fahrplaene

@@ -7,7 +7,7 @@
 #include "components/gui_textarea.h"
 #include "components/gui_image.h"
 
-class spieler_t;
+
 class karte_t;
 
 class message_option_t : public gui_frame_t, private action_listener_t

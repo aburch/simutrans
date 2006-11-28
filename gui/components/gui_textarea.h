@@ -12,7 +12,6 @@
 
 #include "../../ifc/gui_komponente.h"
 
-struct event_t;
 
 /**
  * Eine textanzeigekomponente

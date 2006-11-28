@@ -26,8 +26,6 @@
 #include "../simtypes.h"
 
 class depot_t;
-class vehikel_t;
-class spieler_t;
 class vehikel_besch_t;
 /**
  * Depot frame, handles all interaction with a vehicle depot.
