@@ -19,8 +19,6 @@
 
 class karte_t;
 class spieler_t;
-class haltestelle_t;
-class cstring_t;
 class cbuffer_t;
 class stadt_info_t;
 

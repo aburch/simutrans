@@ -14,6 +14,7 @@
 #include "../../dataobj/koord3d.h"
 #include "../../tpl/vector_tpl.h"
 
+class ding_t;
 class karte_t;
 struct event_t;
 

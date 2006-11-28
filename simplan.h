@@ -14,11 +14,8 @@
 #include "boden/grund.h"
 
 
-class spieler_t;
-class zeiger_t;
 class karte_t;
 class grund_t;
-class weg_t;
 class ding_t;
 
 

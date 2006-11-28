@@ -49,12 +49,8 @@ class lagerhaus_t;
 #endif
 class grund_t;
 class fahrplan_t;
-class koord;
 class halt_info_t;
-struct event_t;
-class simline_t;
 class cbuffer_t;
-class freight_list_sorter_t;
 
 #include "halthandle_t.h"
 

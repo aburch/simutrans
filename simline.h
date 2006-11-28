@@ -34,7 +34,6 @@
 
 class karte_t;
 class simlinemgmt_t;
-class convoi_t;
 
 class simline_t {
 public:

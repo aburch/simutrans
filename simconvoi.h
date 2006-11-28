@@ -32,14 +32,11 @@
 class depot_t;
 class karte_t;
 class spieler_t;
-class haltestelle_t;
 class convoi_info_t;
 class vehikel_t;
 class vehikel_besch_t;
 class fahrplan_t;
 class cbuffer_t;
-
-struct event_t;
 
 /**
  * Basisklasse für alle Fahrzeugverbände. Convois könnnen über Zeiger

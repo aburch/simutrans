@@ -22,13 +22,9 @@
 #include "halthandle_t.h"
 #include "simworld.h"
 
-// Fabrik
 
-class haltestelle_t;
 class spieler_t;
 class stadt_t;
-class stringhashtable_t;
-class wolke_t;
 
 
 // production happens in every second

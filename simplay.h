@@ -45,20 +45,14 @@
 #define MAX_HISTORY_MONTHS  12 // number of months to keep history
 
 
-// forward dekl
-class simlinemgmt_t;
 class karte_t;
 class fabrik_t;
 class stadt_t;
 class gebaeude_t;
-class wegbauer_t;
-class slist_t;
-class Stack;
 class koord3d;
 class money_frame_t;
 class schedule_list_gui_t;
-
-template <class T> class slist_tpl;
+template<class T> class slist_tpl;
 
 /**
  * Spieler in Simutrans. Diese Klasse enthält Routinen für die KI

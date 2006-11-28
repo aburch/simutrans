@@ -15,18 +15,13 @@
 #include "boden/wege/weg.h"
 #include "convoihandle_t.h"
 #include "simline.h"
-//#include "simconvoi.h"
 
 
 class karte_t;
 class vehikel_t;
 class fahrplan_t;
 class depot_frame_t;
-struct event_t;
 class vehikel_besch_t;
-class fahrplan_t;
-class simline_t;
-class simlinemgmt_t;
 
 
 /**

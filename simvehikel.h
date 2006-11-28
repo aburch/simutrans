@@ -31,13 +31,9 @@
 #include "dataobj/route.h"
 #include "tpl/slist_tpl.h"
 
-class haltestelle_t;
-class inthashtable_t;
 class vehikel_besch_t;
 class fahrplan_t;
 class signal_t;
-
-struct event_t;
 
 
 /*

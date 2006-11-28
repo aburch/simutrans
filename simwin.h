@@ -15,9 +15,6 @@
 #include "simtypes.h"
 #include "simconst.h"
 
-struct simwin;
-
-class ding_t;
 class karte_t;
 class gui_fenster_t;
 class gui_komponente_t;

@@ -3,7 +3,6 @@
 
 #include "dataobj/koord.h"
 
-struct ware_t;
 class ware_besch_t;
 
 

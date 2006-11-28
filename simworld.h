@@ -43,10 +43,7 @@ class zeiger_t;
 class grund_t;
 class planquadrat_t;
 class karte_ansicht_t;
-class einstellungen_t;
-
 class sync_steppable;
-
 class cstring_t;
 
 
