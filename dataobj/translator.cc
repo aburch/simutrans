@@ -15,6 +15,7 @@
 #include <unistd.h>
 #endif
 
+#include "../macros.h"
 #include "../simdebug.h"
 #include "../simtypes.h"
 #include "../simgraph.h"	// for unicode stuff
@@ -123,16 +124,14 @@ static slist_tpl<const char*> namen_liste;
  * @date 2.1.2005
  * @author prissi
  */
-static const int anz_t1 = 11;
-static const char* const name_t1[anz_t1] =
+static const char* const name_t1[] =
 {
 	"%1_CITY_SYLL", "%2_CITY_SYLL", "%3_CITY_SYLL", "%4_CITY_SYLL",
 	"%5_CITY_SYLL", "%6_CITY_SYLL", "%7_CITY_SYLL", "%8_CITY_SYLL",
 	"%9_CITY_SYLL", "%A_CITY_SYLL", "%B_CITY_SYLL"
 };
 
-static const int anz_t2 = 10;
-static const char* const name_t2[anz_t2] =
+static const char* const name_t2[] =
 {
 	"&1_CITY_SYLL", "&2_CITY_SYLL", "&3_CITY_SYLL", "&4_CITY_SYLL",
 	"&5_CITY_SYLL", "&6_CITY_SYLL", "&7_CITY_SYLL", "&8_CITY_SYLL",
@@ -211,12 +210,16 @@ int init_city_names(bool is_utf_language)
 	if (namen_liste.empty()) {
 		DBG_MESSAGE("translator::init_city_names", "reading failed, creating random names.");
 		// Hajo: try to read list failed, create random names
-		for (int i = 0; i < anz_t1; i++) {
-			const long l1 = strlen(translator::translate(name_t1[i]));
-			for (int j = 0; j < anz_t2; j++) {
-				const long l2 = strlen(translator::translate(name_t2[j]));
+		for (uint i = 0; i < lengthof(name_t1); i++) {
+			const char* s1 = translator::translate(name_t1[i]);
+			const size_t l1 = strlen(s1);
+
+			for (uint j = 0; j < lengthof(name_t2); j++) {
+				const char* s2 = translator::translate(name_t2[j]);
+				const size_t l2 = strlen(s2);
+
 				char* c = (char*)guarded_malloc(l1 + l2 + 1);
-				sprintf(c, "%s%s", translator::translate(name_t1[i]), translator::translate(name_t2[j]));
+				sprintf(c, "%s%s", s1, s2);
 				namen_liste.insert(c);
 			}
 		}
