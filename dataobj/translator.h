@@ -45,7 +45,7 @@ class translator
 		/* The single instance that this class will use to gain access to
 		 * the member variables such as language names
 		 */
-		static translator* single_instance;
+		static translator single_instance;
 
 		/* Made to be dynamic, allowing any number of languages to be loaded */
 		const char* language_names[MAX_LANG];
@@ -68,7 +68,7 @@ class translator
 		 */
 		static inline bool is_in_bounds(int lang)
 		{
-			return 0 <= lang && lang<single_instance->lang_count;
+			return 0 <= lang && lang < single_instance.lang_count;
 		}
 
 	public:
@@ -89,13 +89,13 @@ class translator
 		 */
 		static int get_language()
 		{
-			return single_instance->current_lang;
+			return single_instance.current_lang;
 		}
 
 		/** true, if a language is utf-8 encoded */
 		static bool is_unicode()
 		{
-			return single_instance->language_is_utf_encoded[single_instance->current_lang];
+			return single_instance.language_is_utf_encoded[single_instance.current_lang];
 		}
 
 		/**
@@ -109,7 +109,7 @@ class translator
 		/**
 		 * Returns the number of loaded languages.
 		 */
-		static int get_language_count() { return single_instance->lang_count; }
+		static int get_language_count() { return single_instance.lang_count; }
 
 		/**
 		 * Translates a given string(key) to its locale

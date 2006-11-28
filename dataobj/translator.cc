@@ -27,7 +27,7 @@
 #include "../unicode.h"
 #include "../tpl/stringhashtable_tpl.h"
 
-translator* translator::single_instance = new translator();
+translator translator::single_instance;
 
 
 #ifdef DEBUG
@@ -264,15 +264,15 @@ void translator::load_language_file(FILE* file)
 	fgets(buffer1, 255, file);
 	buffer1[strlen(buffer1) - 1] = '\0';
 
-	single_instance->languages[single_instance->lang_count] = new stringhashtable_tpl<const char*>;
-	single_instance->language_names[single_instance->lang_count] = strdup(buffer1);
+	single_instance.languages[single_instance.lang_count] = new stringhashtable_tpl<const char*>;
+	single_instance.language_names[single_instance.lang_count] = strdup(buffer1);
 	// if the language file is utf, all language strings are assumed to be unicode
 	// @author prissi
-	single_instance->language_is_utf_encoded[single_instance->lang_count] = file_is_utf;
+	single_instance.language_is_utf_encoded[single_instance.lang_count] = file_is_utf;
 
 	//load up translations, putting them into
 	//language table of index 'lang'
-	load_language_file_body(file, single_instance->languages[single_instance->lang_count], file_is_utf, file_is_utf);
+	load_language_file_body(file, single_instance.languages[single_instance.lang_count], file_is_utf, file_is_utf);
 }
 
 
@@ -281,7 +281,7 @@ bool translator::load(const cstring_t& scenario_path)
 	tstrncpy(szenario_path, scenario_path, sizeof(szenario_path));
 
 	//initialize these values to 0(ie. nothing loaded)
-	single_instance->lang_count = single_instance->current_lang = 0;
+	single_instance.lang_count = single_instance.current_lang = 0;
 
 	DBG_MESSAGE("translator::load()", "Loading languages...");
 	searchfolder_t folder;
@@ -305,7 +305,7 @@ bool translator::load(const cstring_t& scenario_path)
 			load_language_iso(iso);
 			load_language_file(file);
 			fclose(file);
-			single_instance->lang_count++;
+			single_instance.lang_count++;
 			loc--;
 		}
 	}
@@ -326,7 +326,7 @@ bool translator::load(const cstring_t& scenario_path)
 			FILE* file = fopen(fileName, "rb");
 			if (file != NULL) {
 				bool file_is_utf = is_unicode_file(file);
-				load_language_file_body(file, single_instance->languages[iso_nr], single_instance->language_is_utf_encoded[iso_nr], file_is_utf);
+				load_language_file_body(file, single_instance.languages[iso_nr], single_instance.language_is_utf_encoded[iso_nr], file_is_utf);
 				fclose(file);
 			} else {
 				dbg->warning("translator::load()", "cannot open '%s'", (const char*)fileName);
@@ -346,19 +346,19 @@ bool translator::load(const cstring_t& scenario_path)
 	}
 
 	//if NO languages were loaded then game cannot continue
-	if (single_instance->lang_count < 1) {
+	if (single_instance.lang_count < 1) {
 		return false;
 	}
 
 	// now we try to read the compatibility stuff
 	FILE* file = fopen(scenario_path + "compat.tab", "rb");
-	single_instance->compatibility = NULL;
+	single_instance.compatibility = NULL;
 	if (file != NULL) {
-		single_instance->compatibility = new stringhashtable_tpl<const char*>;
-		load_language_file_body(file, single_instance->compatibility, false, false);
+		single_instance.compatibility = new stringhashtable_tpl<const char*>;
+		load_language_file_body(file, single_instance.compatibility, false, false);
 		DBG_MESSAGE("translator::load()", "scenario compatibilty texts loaded.");
 		fclose(file);
-//		dump_hashtable(single_instance->compatibility);
+//		dump_hashtable(single_instance.compatibility);
 	} else {
 		DBG_MESSAGE("translator::load()", "no scenario compatibilty texts");
 	}
@@ -377,22 +377,22 @@ bool translator::load(const cstring_t& scenario_path)
 void translator::load_language_iso(cstring_t& iso)
 {
 	cstring_t base(iso);
-	single_instance->language_names_iso[single_instance->lang_count] = strdup(iso);
+	single_instance.language_names_iso[single_instance.lang_count] = strdup(iso);
 	int loc = iso.find('_');
 	if (loc != -1) {
 		base = iso.left(loc);
 	}
-	single_instance->language_names_iso_base[single_instance->lang_count] = strdup(base);
+	single_instance.language_names_iso_base[single_instance.lang_count] = strdup(base);
 }
 
 
 void translator::set_language(int lang)
 {
 	if (is_in_bounds(lang)) {
-		single_instance->current_lang = lang;
-		display_set_unicode(single_instance->language_is_utf_encoded[lang]);
-		init_city_names(single_instance->language_is_utf_encoded[lang]);
-		DBG_MESSAGE("translator::set_language()", "%s, unicode %d", single_instance->language_names[lang], single_instance->language_is_utf_encoded[lang]);
+		single_instance.current_lang = lang;
+		display_set_unicode(single_instance.language_is_utf_encoded[lang]);
+		init_city_names(single_instance.language_is_utf_encoded[lang]);
+		DBG_MESSAGE("translator::set_language()", "%s, unicode %d", single_instance.language_names[lang], single_instance.language_is_utf_encoded[lang]);
 	} else {
 		dbg->warning("translator::set_language()", "Out of bounds : %d", lang);
 	}
@@ -401,7 +401,7 @@ void translator::set_language(int lang)
 
 int translator::get_language_iso(const char *iso)
 {
-	for (int i = 0; i < single_instance->lang_count; i++) {
+	for (int i = 0; i < single_instance.lang_count; i++) {
 		const char* iso_base = get_language_name_iso_base(i);
 		if (iso_base[0] == iso[0] && iso_base[1] == iso[1]) {
 			return i;
@@ -413,7 +413,7 @@ int translator::get_language_iso(const char *iso)
 
 void translator::set_language(const char* iso)
 {
-	for (int i = 0; i < single_instance->lang_count; i++) {
+	for (int i = 0; i < single_instance.lang_count; i++) {
 		const char* iso_base = get_language_name_iso_base(i);
 		if (iso_base[0] == iso[0] && iso_base[0] == iso[1]) {
 			set_language(i);
@@ -430,7 +430,7 @@ const char* translator::translate(const char* str)
 	} else if (*str == '\0') {
 		return str;
 	} else {
-		const char* trans = single_instance->languages[get_language()]->get(str);
+		const char* trans = single_instance.languages[get_language()]->get(str);
 		return trans != NULL ? trans : str;
 	}
 }
@@ -443,7 +443,7 @@ const char* translator::translate_from_lang(const int lang,const char* str)
 	} else if (*str == '\0' || !is_in_bounds(lang)) {
 		return str;
 	} else {
-		const char* trans = single_instance->languages[lang]->get(str);
+		const char* trans = single_instance.languages[lang]->get(str);
 		return trans != NULL ? trans : str;
 	}
 }
@@ -454,10 +454,10 @@ const char* translator::compatibility_name(const char* str)
 {
 	if (str == NULL) {
 		return "(null)";
-	} else if (*str == '\0' || single_instance->compatibility == NULL) {
+	} else if (*str == '\0' || single_instance.compatibility == NULL) {
 		return str;
 	} else {
-		const char* trans = single_instance->compatibility->get(str);
+		const char* trans = single_instance.compatibility->get(str);
 		return trans != NULL ? trans : str;
 	}
 }
@@ -469,7 +469,7 @@ const char* translator::compatibility_name(const char* str)
  */
 bool translator::check(const char* str)
 {
-	const char* trans = single_instance->languages[get_language()]->get(str);
+	const char* trans = single_instance.languages[get_language()]->get(str);
 	return trans != NULL;
 }
 
@@ -478,7 +478,7 @@ bool translator::check(const char* str)
 const char* translator::get_language_name(int lang)
 {
 	if (is_in_bounds(lang)) {
-		return single_instance->language_names[lang];
+		return single_instance.language_names[lang];
 	} else {
 		dbg->warning("translator::get_language_name()", "Out of bounds : %d", lang);
 		return "Error";
@@ -490,7 +490,7 @@ const char *
 translator::get_language_name_iso(int lang)
 {
 	if (is_in_bounds(lang)) {
-		return single_instance->language_names_iso[lang];
+		return single_instance.language_names_iso[lang];
 	} else {
 		dbg->warning("translator::get_language_name_iso()", "Out of bounds : %d", lang);
 		return "Error";
@@ -501,7 +501,7 @@ translator::get_language_name_iso(int lang)
 const char* translator::get_language_name_iso_base(int lang)
 {
 	if (is_in_bounds(lang)) {
-		return single_instance->language_names_iso_base[lang];
+		return single_instance.language_names_iso_base[lang];
 	} else {
 		dbg->warning("translator::get_language_name_iso_base()", "Out of bounds : %d", lang);
 		return "Error";
@@ -514,7 +514,7 @@ void translator::rdwr(loadsave_t* file)
 	int actual_lang;
 
 	if (file->is_saving()) {
-		actual_lang = single_instance->current_lang;
+		actual_lang = single_instance.current_lang;
 	}
 	file->rdwr_enum(actual_lang, "\n");
 
