@@ -668,14 +668,12 @@ class denkmal_platz_sucher_t : public platzsucher_t {
 
 			if (ist_randfeld(d)) {
 				return
-					gr != NULL &&
 					gr->gib_grund_hang() == hang_t::flach &&     // Flach
 					gr->gib_typ() == grund_t::boden &&           // Boden -> keine GEbäude
 					(!gr->hat_wege() || gr->hat_weg(road_wt)) && // Höchstens Strassen
 					gr->kann_alle_obj_entfernen(NULL) == NULL;   // Irgendwas verbaut den Platz?
 			} else {
 				return
-					gr != NULL &&
 					gr->gib_grund_hang() == hang_t::flach &&
 					gr->gib_typ() == grund_t::boden &&
 					gr->ist_natur() &&                         // Keine Wege hier
@@ -715,7 +713,6 @@ class rathausplatz_sucher_t : public platzsucher_t {
 			if (d.y == h - 1) {
 				// Hier soll eine Strasse hin
 				return
-					gr != NULL &&
 					gr->gib_grund_hang() == hang_t::flach &&
 					gr->gib_typ() == grund_t::boden &&
 					(!gr->hat_wege() || gr->hat_weg(road_wt)) && // Höchstens Strassen
@@ -724,7 +721,6 @@ class rathausplatz_sucher_t : public platzsucher_t {
 			} else {
 				// Hier soll das Haus hin - wir ersetzen auch andere Gebäude, aber keine Wege!
 				return
-					gr != NULL &&
 					gr->gib_grund_hang() == hang_t::flach && (
 						gr->gib_typ() == grund_t::boden && gr->ist_natur() ||
 						gr->gib_typ() == grund_t::fundament
