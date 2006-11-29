@@ -534,11 +534,7 @@ DBG_MESSAGE("karte_t::destroy()", "sync list cleared");
 	// delete towns first (will also delete all their houses)
 	// for the next game we need to remember the desired number ...
 	sint32 no_of_cities=einstellungen->gib_anzahl_staedte();
-	if(stadt) {
-		while (!stadt->empty()) {
-			rem_stadt(stadt->front());
-		}
-	}
+	while (!stadt.empty()) rem_stadt(stadt.front());
 	einstellungen->setze_anzahl_staedte(no_of_cities);
 DBG_MESSAGE("karte_t::destroy()", "towns destroyed");
 
@@ -586,13 +582,13 @@ DBG_MESSAGE("karte_t::destroy()", "world destroyed");
  */
 const stadt_t *karte_t::get_random_stadt() const
 {
-	return stadt->at_weight( simrand(stadt->get_sum_weight()) );
+	return stadt.at_weight(simrand(stadt.get_sum_weight()));
 }
 
 void karte_t::add_stadt(stadt_t *s)
 {
 	einstellungen->setze_anzahl_staedte(einstellungen->gib_anzahl_staedte()+1);
-	stadt->append(s,s->gib_einwohner(),64);
+	stadt.append(s, s->gib_einwohner(), 64);
 }
 
 /**
@@ -601,12 +597,12 @@ void karte_t::add_stadt(stadt_t *s)
  */
 bool karte_t::rem_stadt(stadt_t *s)
 {
-	if (stadt->empty() || s == NULL) {
+	if (stadt.empty() || s == NULL) {
 		// no town there to delete ...
 		return false;
 	}
 	// ok, we can delete this
-	stadt->remove( s );
+	stadt.remove(s);
 	delete s;
 	// reduce number of towns
 	einstellungen->setze_anzahl_staedte(einstellungen->gib_anzahl_staedte()-1);
@@ -760,7 +756,7 @@ DBG_DEBUG("karte_t::init()","hausbauer_t::neue_karte()");
     hausbauer_t::neue_karte();
 
 DBG_DEBUG("karte_t::init()","prepare cities");
-	stadt = new weighted_vector_tpl <stadt_t *>(0);
+	stadt.clear();
 	vector_tpl<koord> *pos = stadt_t::random_place(this, einstellungen->gib_anzahl_staedte());
 
 	if (pos != NULL && !pos->empty()) {
@@ -780,13 +776,13 @@ DBG_DEBUG("karte_t::init()","prepare cities");
 
 			stadt_t* s = new stadt_t(this, spieler[1], (*pos)[i], current_citicens);
 DBG_DEBUG("karte_t::init()","Erzeuge stadt %i with %ld inhabitants",i,(s->get_city_history_month())[HIST_CITICENS] );
-			stadt->append( s, current_citicens, 64 );
+			stadt.append(s, current_citicens, 64);
 		}
 
 		for(i=0; i<einstellungen->gib_anzahl_staedte(); i++) {
 			// Hajo: do final init after world was loaded/created
-			if(stadt->at(i)) {
-				stadt->at(i)->laden_abschliessen();
+			if (stadt.at(i) != NULL) {
+				stadt.at(i)->laden_abschliessen();
 			}
 			// the growth is slow, so update here the progress bar
 			if(is_display_init()) {
@@ -904,7 +900,8 @@ DBG_DEBUG("karte_t::init()","Erzeuge stadt %i with %ld inhabitants",i,(s->get_ci
 	mute_sound(false);
 }
 
-karte_t::karte_t() : convoi_array(0), ausflugsziele(16), quick_shortcuts(15), marker(0,0)
+
+karte_t::karte_t() : convoi_array(0), ausflugsziele(16), stadt(0), quick_shortcuts(15), marker(0,0)
 {
 	for (unsigned int i=0; i<15; i++) {
 //DBG_MESSAGE("karte_t::karte_t()","Append NULL to quick_shortcuts at %d\n",i);
@@ -947,7 +944,6 @@ karte_t::karte_t() : convoi_array(0), ausflugsziele(16), quick_shortcuts(15), ma
 	// standard prices
 	warenbauer_t::set_multiplier( 1000 );
 
-	stadt = 0;
 	zeiger = 0;
 	plan = 0;
 	grid_hgts = 0;
@@ -1516,8 +1512,8 @@ karte_t::suche_naechste_stadt(const koord pos) const
     long min_dist = 99999999;
     stadt_t * best = NULL;
 
-    for(unsigned n=0; n<stadt->get_count(); n++) {
-	    const koord k = stadt->at(n)->gib_pos();
+	for (uint n = 0; n < stadt.get_count(); n++) {
+		const koord k = stadt.at(n)->gib_pos();
 
 	    const long dist = (pos.x-k.x)*(pos.x-k.x) + (pos.y-k.y)*(pos.y-k.y);
 
@@ -1525,7 +1521,7 @@ karte_t::suche_naechste_stadt(const koord pos) const
 
 //		printf("dist %d  stadt %d\n", dist, n);
 		min_dist = dist;
-		best = stadt->at(n);
+			best = stadt.at(n);
 	    }
     }
     return best;
@@ -1540,19 +1536,19 @@ karte_t::suche_naechste_stadt(const koord pos, const stadt_t *letzte) const
     const int letzte_dist = (letzte_pos.x-pos.x)*(letzte_pos.x-pos.x) + (letzte_pos.y-pos.y)*(letzte_pos.y-pos.y);
     bool letzte_gefunden = false;
 
-    for(unsigned n=0; n<stadt->get_count(); n++) {
-	    const koord k = stadt->at(n)->gib_pos();
+	for (uint n = 0; n < stadt.get_count(); n++) {
+		const koord k = stadt.at(n)->gib_pos();
 
 	    const int dist = (pos.x-k.x)*(pos.x-k.x) + (pos.y-k.y)*(pos.y-k.y);
 
-	    if(stadt->at(n) == letzte) {
+		if (stadt.at(n) == letzte) {
 		letzte_gefunden = true;
 	    }
 	    else if(letzte_gefunden ? dist >= letzte_dist : dist > letzte_dist) {
 		if(dist < min_dist) {
 //		    printf("dist %d  stadt %d\n", dist, n);
 		    min_dist = dist;
-		    best = stadt->at(n);
+			best = stadt.at(n);
 		}
 	    }
     }
@@ -1692,15 +1688,14 @@ karte_t::neuer_monat()
 //	DBG_MESSAGE("karte_t::neuer_monat()","cities");
 	// roll city history and copy the new citicens (i.e. the new weight) into the stadt array
 	// no INT_CHECK() here, or dialoges will go crazy!!!
-	weighted_vector_tpl<stadt_t *>  *new_weighted_stadt = new weighted_vector_tpl <stadt_t *> ( stadt->get_count()+1 );
-	for(unsigned i=0; i<stadt->get_count(); i++) {
-		stadt_t *s = stadt->at(i);
+	weighted_vector_tpl<stadt_t*> new_weighted_stadt(stadt.get_count() + 1);
+	for (uint i = 0; i < stadt.get_count(); i++) {
+		stadt_t* s = stadt.at(i);
 		s->neuer_monat();
-		new_weighted_stadt->append( s, s->gib_einwohner(), 64 );
+		new_weighted_stadt.append(s, s->gib_einwohner(), 64);
 		INT_CHECK("simworld 1278");
 	}
-	delete stadt;
-	stadt = new_weighted_stadt;
+	swap(stadt, new_weighted_stadt);
 
 	INT_CHECK("simworld 1282");
 
@@ -1879,8 +1874,8 @@ karte_t::step(const long delta_t)
 	}
 
 	// now step all towns (to generate passengers)
-	for(unsigned int n=0; n<stadt->get_count(); n++) {
-		stadt->at(n)->step(delta_t);
+	for (uint n = 0; n < stadt.get_count(); n++) {
+		stadt.at(n)->step(delta_t);
 	}
 
 	slist_iterator_tpl<fabrik_t *> iter(fab_list);
@@ -2175,8 +2170,8 @@ DBG_MESSAGE("karte_t::speichern(loadsave_t *file)", "start");
 	file->rdwr_long(letzter_monat, " ");
 	file->rdwr_long(letztes_jahr, "\n");
 
-	for(unsigned i=0; i<stadt->get_count(); i++) {
-		stadt->at(i)->rdwr(file);
+	for (uint i = 0; i < stadt.get_count(); i++) {
+		stadt.at(i)->rdwr(file);
 		if(silent) {
 			INT_CHECK("saving");
 		}
@@ -2374,10 +2369,11 @@ DBG_MESSAGE("karte_t::laden()","savegame loading at tick count %i",ticks);
 	recalc_average_speed();	// resets timeline
 
 DBG_DEBUG("karte_t::laden", "init %i cities",einstellungen->gib_anzahl_staedte());
-	stadt = new weighted_vector_tpl <stadt_t *> (einstellungen->gib_anzahl_staedte());
+	stadt.clear();
+	stadt.resize(einstellungen->gib_anzahl_staedte());
 	for(int i=0; i<einstellungen->gib_anzahl_staedte(); i++) {
 		stadt_t *s=new stadt_t(this, file);
-		stadt->append( s, s->gib_einwohner(), 64 );
+		stadt.append(s, s->gib_einwohner(), 64);
 	}
 
 	DBG_MESSAGE("karte_t::laden()","loading blocks");
@@ -2467,19 +2463,18 @@ DBG_MESSAGE("karte_t::laden()", "%d factories loaded", fab_list.count());
 
 	// auch die fabrikverbindungen können jetzt neu init werden
 	// must be done after reliefkarte is initialized
-	for(unsigned i=0; i<stadt->get_count(); i++) {
-		stadt->at(i)->laden_abschliessen();
+	for (uint i = 0; i < stadt.get_count(); i++) {
+		stadt.at(i)->laden_abschliessen();
 	}
 	// must resort them ...
-	weighted_vector_tpl<stadt_t *>  *new_weighted_stadt = new weighted_vector_tpl <stadt_t *> ( stadt->get_count()+1 );
-	for(unsigned i=0; i<stadt->get_count(); i++) {
-		stadt_t *s = stadt->at(i);
+	weighted_vector_tpl<stadt_t*> new_weighted_stadt(stadt.get_count() + 1);
+	for (uint i = 0; i < stadt.get_count(); i++) {
+		stadt_t* s = stadt.at(i);
 //		s->neuer_monat();
-		new_weighted_stadt->append( s, s->gib_einwohner(), 64 );
+		new_weighted_stadt.append(s, s->gib_einwohner(), 64);
 		INT_CHECK("simworld 1278");
 	}
-	delete stadt;
-	stadt = new_weighted_stadt;
+	swap(stadt, new_weighted_stadt);
 	// ok finished
 	DBG_MESSAGE("karte_t::laden()", "cities initialized");
 

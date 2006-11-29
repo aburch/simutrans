@@ -705,10 +705,10 @@ reliefkarte_t::zeichnen(koord pos)
 
 	// if we do not do this here, vehicles would erase the won name
 	if(mode==MAP_TOWN) {
-		const weighted_vector_tpl <stadt_t *> * staedte = welt->gib_staedte();
+		const weighted_vector_tpl<stadt_t*>& staedte = welt->gib_staedte();
 
-		for(unsigned i=0; i<staedte->get_count(); i++) {
-			const stadt_t *stadt = staedte->get(i);
+		for (uint i = 0; i < staedte.get_count(); i++) {
+			const stadt_t* stadt = staedte.get(i);
 
 			koord p = stadt->gib_pos();
 			const char * name = stadt->gib_name();

@@ -429,9 +429,9 @@ DBG_MESSAGE("wkz_remover()", "reconnecting factories");
 
 				// remove from all cities
 DBG_MESSAGE("wkz_remover()", "removing factory:  reconnecting towns");
-				const weighted_vector_tpl<stadt_t *> *stadt = welt->gib_staedte();
-				for( unsigned i=0;  i<stadt->get_count();  i++ ) {
-					stadt->at(i)->verbinde_fabriken();
+				const weighted_vector_tpl<stadt_t*>& stadt = welt->gib_staedte();
+				for (uint i = 0; i < stadt.get_count(); i++) {
+					stadt.at(i)->verbinde_fabriken();
 				}
 				welt->rem_fab((fabrik_t*)1);
 

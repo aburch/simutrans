@@ -494,9 +494,9 @@ fabrikbauer_t::baue_fabrik(karte_t * welt, koord3d *parent, const fabrik_besch_t
 
 	// add passenger to pax>0, (so no sucide diver at the fish swarm)
 	if(info->gib_pax_level()>0) {
-		const weighted_vector_tpl<stadt_t *> *staedte=welt->gib_staedte();
-		for(  unsigned i=0;  i<staedte->get_count();  i++  ) {
-			staedte->get(i)->add_factory_arbeiterziel(fab);
+		const weighted_vector_tpl<stadt_t*>& staedte = welt->gib_staedte();
+		for (uint i = 0; i < staedte.get_count(); i++) {
+			staedte.get(i)->add_factory_arbeiterziel(fab);
 		}
 	}
 	return fab;
@@ -517,7 +517,7 @@ fabrikbauer_t::baue_hierarchie(karte_t * welt, koord3d *parent, const fabrik_bes
 		return 0;
 	}
 
-	if (info->gib_platzierung() == fabrik_besch_t::Stadt && !welt->gib_staedte()->empty()) {
+	if (info->gib_platzierung() == fabrik_besch_t::Stadt && !welt->gib_staedte().empty()) {
 		// built consumer (factory) intown:
 		stadt_fabrik_t sf;
 		koord k=pos->gib_2d();

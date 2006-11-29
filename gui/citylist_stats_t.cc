@@ -25,7 +25,7 @@ citylist_stats_t::citylist_stats_t(karte_t * w,const citylist::sort_mode_t& sort
 {
     welt = w;
 
-    setze_groesse(koord(210, welt->gib_staedte()->get_count()*(LINESPACE+1)-10));
+    setze_groesse(koord(210, welt->gib_staedte().get_count() * (LINESPACE + 1) - 10));
     total_bev_translation = translator::translate("Total inhabitants:");
     sort(sortby,sortreverse);
 }
@@ -34,19 +34,19 @@ citylist_stats_t::citylist_stats_t(karte_t * w,const citylist::sort_mode_t& sort
 
 void citylist_stats_t::sort(const citylist::sort_mode_t& sortby,const bool& sortreverse)
 {
-    const weighted_vector_tpl<stadt_t *> *cities = welt->gib_staedte();
+	const weighted_vector_tpl<stadt_t*>& cities = welt->gib_staedte();
 
     city_list.clear();
-    city_list.resize(cities->get_count());
+	city_list.resize(cities.get_count());
 
-	if (cities->empty()) {
+	if (cities.empty()) {
 	return;
 	}
 
-    city_list.append(cities->get(0),1);
+	city_list.append(cities.get(0), 1);
 
-    for(unsigned int i=1; i<cities->get_count(); i++) {
-	stadt_t *city = cities->get(i);
+	for (uint i = 1; i < cities.get_count(); i++) {
+		stadt_t* city = cities.get(i);
 	bool append = true;
 
 	for (unsigned int j=0; j<city_list.get_count(); j++) {

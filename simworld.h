@@ -188,7 +188,7 @@ private:
 
 	slist_tpl<koord> labels;
 
-	weighted_vector_tpl<stadt_t *> *stadt;
+	weighted_vector_tpl<stadt_t*> stadt;
 
 	minivec_tpl<save_mouse_func *> quick_shortcuts;
 
@@ -736,7 +736,7 @@ public:
 	 * Zugriff auf das Städte Array.
 	 * @author Hj. Malthaner
 	 */
-	const weighted_vector_tpl<stadt_t*>* gib_staedte() const { return stadt; }
+	const weighted_vector_tpl<stadt_t*>& gib_staedte() const { return stadt; }
 	const stadt_t *get_random_stadt() const;
 	void add_stadt(stadt_t *s);
 	bool rem_stadt(stadt_t *s);

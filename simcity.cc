@@ -881,8 +881,8 @@ stadt_t::stadt_t(karte_t* wl, spieler_t* sp, koord pos, int citizens) :
 	fflush(NULL);
 	/* get a unique cityname */
 	/* 9.1.2005, prissi */
-	const weighted_vector_tpl<stadt_t*>* staedte = welt->gib_staedte();
-	const int anz_staedte = staedte->get_count() - 1;
+	const weighted_vector_tpl<stadt_t*>& staedte = welt->gib_staedte();
+	const int anz_staedte = staedte.get_count() - 1;
 	const int name_list_count = translator::get_count_city_name();
 	bool not_unique = true;
 
@@ -900,8 +900,8 @@ stadt_t::stadt_t(karte_t* wl, spieler_t* sp, koord pos, int citizens) :
 		// check if still unused
 		for (int j = 0; j < anz_staedte; j++) {
 			// noch keine stadt mit diesem namen?
-			if (staedte->get(j) != this  && staedte->get(j) != NULL) {
-				not_unique |= (strcmp(list_name, staedte->get(j)->gib_name()) == 0);
+			if (staedte.get(j) != this  && staedte.get(j) != NULL) {
+				not_unique |= (strcmp(list_name, staedte.get(j)->gib_name()) == 0);
 			}
 		}
 		DBG_MESSAGE("stadt_t::stadt_t()", "'%s' is%s unique", list_name, not_unique?" not":"");

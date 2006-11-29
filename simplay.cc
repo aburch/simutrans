@@ -753,8 +753,8 @@ spieler_t::do_passenger_ki()
 			// assume fail
 			state = CHECK_CONVOI;
 
-			const weighted_vector_tpl<stadt_t *> *staedte = welt->gib_staedte();
-			int anzahl = staedte->get_count();
+			const weighted_vector_tpl<stadt_t*>& staedte = welt->gib_staedte();
+			int anzahl = staedte.get_count();
 			int offset = (anzahl>1)?simrand(anzahl-1):0;
 			// start with previous target
 			const stadt_t* last_start_stadt=start_stadt;
@@ -765,7 +765,7 @@ spieler_t::do_passenger_ki()
 			platz2 = koord::invalid;
 			// if no previous town => find one
 			if(start_stadt==NULL) {
-				start_stadt = staedte->get(offset);
+				start_stadt = staedte.get(offset);
 			}
 DBG_MESSAGE("spieler_t::do_passenger_ki()","using city %s for start",start_stadt->gib_name());
 			const halthandle_t start_halt = get_our_hub(start_stadt);
@@ -864,7 +864,7 @@ DBG_MESSAGE("spieler_t::do_passenger_ki()","searching town");
 				// find a good route
 				for( int i=0;  i<anzahl;  i++  ) {
 					const int nr = (i+offset)%anzahl;
-					stadt_t *cur = staedte->get(nr);
+					stadt_t* cur = staedte.get(nr);
 assert(cur!=NULL);
 					if(cur!=last_start_stadt  &&  cur!=start_stadt  &&  !is_connected(start_halt,cur->get_linksoben(),cur->get_rechtsunten())  ) {
 						int	dist=-1;
@@ -1159,7 +1159,7 @@ spieler_t::do_ki()
 	}
 
 	if(passenger_transport) {
-		if (!welt->gib_staedte()->empty()) {
+		if (!welt->gib_staedte().empty()) {
 			// passenger are special ...
 			do_passenger_ki();
 		}

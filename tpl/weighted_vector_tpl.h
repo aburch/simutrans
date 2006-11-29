@@ -14,6 +14,11 @@
 
 #include "../simdebug.h"
 
+
+template<class T> class weighted_vector_tpl;
+template<class T> void swap(weighted_vector_tpl<T>&, weighted_vector_tpl<T>&);
+
+
 /**
  * A template class for a simple vector type.
  *
@@ -417,6 +422,17 @@ public:
     unsigned int get_sum_weight() const { return total_weight; }
 
 		bool empty() const { return count == 0; }
+
+	friend void swap<>(weighted_vector_tpl<T>&, weighted_vector_tpl<T>&);
 };
+
+
+template<class T> void swap(weighted_vector_tpl<T>& a, weighted_vector_tpl<T>& b)
+{
+	swap(a.nodes, b.nodes);
+	swap(a.size, b.size);
+	swap(a.count, b.count);
+	swap(a.total_weight, b.total_weight);
+}
 
 #endif
