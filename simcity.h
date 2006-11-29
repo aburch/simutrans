@@ -303,8 +303,8 @@ private:
 	 */
 	sint32 bewerte_pos(koord pos, const char *regel);
 
-	void bewerte_strasse(koord pos, sint32 rd, char *regel);
-	void bewerte_haus(koord pos, sint32 rd, char *regel);
+	void bewerte_strasse(koord pos, sint32 rd, const char* regel);
+	void bewerte_haus(koord pos, sint32 rd, const char* regel);
 
 	void pruefe_grenzen(koord pos);
 
