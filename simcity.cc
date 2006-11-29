@@ -178,7 +178,6 @@ static const uint8 rotate_rules_270[] = {
 bool stadt_t::bewerte_loc(const koord pos, const char* regel, int rotation)
 {
 	koord k;
-	bool ok = true;
 	const uint8* index_to_rule = 0;
 	switch (rotation) {
 		case   0: index_to_rule = rotate_rules_0;   break;
@@ -1620,10 +1619,6 @@ koord stadt_t::finde_passagier_ziel(pax_zieltyp* will_return)
 		*will_return = (this != zielstadt) ? town_return : no_return;
 		return zielstadt->gib_zufallspunkt();
 	}
-	// we could never reach here (but happend once anyway?!?)
-	dbg->fatal("stadt_t::finde_passagier_ziel()", "no passenger ziel found!");
-	assert(0);
-	return koord::invalid;
 }
 
 
