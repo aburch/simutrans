@@ -890,12 +890,12 @@ stadt_t::stadt_t(karte_t* wl, spieler_t* sp, koord pos, int citizens) :
 	fflush(NULL);
 	// start at random position
 	int start_cont = simrand(name_list_count);
-	char list_name[64];
+	const char* list_name;
 
-	translator::get_city_name(list_name, start_cont);
+	list_name = translator::get_city_name(start_cont);
 	for (int i = 0; i < name_list_count && not_unique; i++) {
 		// get a name
-		translator::get_city_name(list_name, start_cont + i);
+		list_name = translator::get_city_name(start_cont + i);
 		not_unique = false;
 		// check if still unused
 		for (int j = 0; j < anz_staedte; j++) {

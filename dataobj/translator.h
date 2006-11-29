@@ -72,7 +72,7 @@ class translator
 		}
 
 	public:
-		static void get_city_name(char* name, int nr);
+		static const char* get_city_name(uint nr); ///< return a random city name
 		static int get_count_city_name(void);
 
 		/**

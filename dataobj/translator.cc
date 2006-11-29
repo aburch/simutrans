@@ -145,17 +145,11 @@ int translator::get_count_city_name(void)
 }
 
 
-/* returns a random city name */
-void translator::get_city_name(char* name, int nr)
+const char* translator::get_city_name(uint nr)
 {
-	if (namen_liste.count() <= 0) {
-		// fallback for empty list (should never happen)
-		strcpy(name, "Simcity");
-		return;
-	}
-	const char* list_name = namen_liste.at(nr % namen_liste.count());
-	tstrncpy(name, list_name, 63);
-	name[63] = 0;
+	// fallback for empty list (should never happen)
+	if (namen_liste.empty()) return "Simcity";
+	return namen_liste.at(nr % namen_liste.count());
 }
 
 
