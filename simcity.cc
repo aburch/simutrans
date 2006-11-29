@@ -2198,23 +2198,21 @@ void stadt_t::renoviere_gebaeude(koord k)
 		}
 
 		remove_gebaeude_from_stadt(gb);
-		if (alt_typ == gebaeude_t::industrie) {
-			arb -= level * 20;
-		} else if (alt_typ == gebaeude_t::gewerbe) {
-			arb -= level * 20;
-		} else if (alt_typ == gebaeude_t::wohnung) {
-			won -= level * 10;
+		switch (alt_typ) {
+			case gebaeude_t::wohnung:   won -= level * 10; break;
+			case gebaeude_t::gewerbe:   arb -= level * 20; break;
+			case gebaeude_t::industrie: arb -= level * 20; break;
+			default: break;
 		}
 
 		hausbauer_t::umbauen(welt, gb, h, streetdir);
 		welt->lookup(k)->gib_kartenboden()->calc_bild();
 
-		if (will_haben == gebaeude_t::wohnung) {
-			won += h->gib_level() * 10;
-		} else if (will_haben == gebaeude_t::gewerbe) {
-			arb += h->gib_level() * 20;
-		} else if (will_haben == gebaeude_t::industrie) {
-			arb += h->gib_level() * 20;
+		switch (will_haben) {
+			case gebaeude_t::wohnung:   won += h->gib_level() * 10; break;
+			case gebaeude_t::gewerbe:   arb += h->gib_level() * 20; break;
+			case gebaeude_t::industrie: arb += h->gib_level() * 20; break;
+			default: break;
 		}
 
 		gebaeude_t* gb = dynamic_cast<gebaeude_t*>(welt->lookup(k)->gib_kartenboden()->first_obj());
