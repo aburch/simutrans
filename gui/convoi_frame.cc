@@ -169,8 +169,8 @@ bool convoi_frame_t::passes_filter(convoihandle_t cnv)
 convoi_frame_t::convoi_frame_t(spieler_t *sp, karte_t *welt) :
 	gui_frame_t("cl_title", sp),
 	scrolly(&cont),
-	sort_label(translator::translate("cl_txt_sort")),
-	filter_label(translator::translate("cl_txt_filter"))
+	sort_label("cl_txt_sort"),
+	filter_label("cl_txt_filter")
 {
 	owner = sp;
 	this->welt = welt;
@@ -189,11 +189,11 @@ convoi_frame_t::convoi_frame_t(spieler_t *sp, karte_t *welt) :
 	filter_label.setze_pos(koord(BUTTON3_X, 4));
 	add_komponente(&filter_label);
 
-	filter_on.init(button_t::roundbox, translator::translate(gib_filter(any_filter) ? "cl_btn_filter_enable" : "cl_btn_filter_disable"), koord(BUTTON3_X, 14), koord(BUTTON_WIDTH,BUTTON_HEIGHT));
+	filter_on.init(button_t::roundbox, gib_filter(any_filter) ? "cl_btn_filter_enable" : "cl_btn_filter_disable", koord(BUTTON3_X, 14), koord(BUTTON_WIDTH,BUTTON_HEIGHT));
 	filter_on.add_listener(this);
 	add_komponente(&filter_on);
 
-	filter_details.init(button_t::roundbox, translator::translate("cl_btn_filter_settings"), koord(BUTTON4_X, 14), koord(BUTTON_WIDTH,BUTTON_HEIGHT));
+	filter_details.init(button_t::roundbox, "cl_btn_filter_settings", koord(BUTTON4_X, 14), koord(BUTTON_WIDTH,BUTTON_HEIGHT));
 	filter_details.add_listener(this);
 	add_komponente(&filter_details);
 

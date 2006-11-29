@@ -15,6 +15,7 @@
 #include "components/gui_scrollpane.h"
 #include "components/action_listener.h"
 #include "components/gui_button.h"
+#include "components/gui_label.h"
 #include "karte.h"
 
 class karte_t;
@@ -40,7 +41,10 @@ private:
    */
 	static koord size;
 	static koord screenpos;
+
 	static uint8 legend_visible;
+	static uint8 scale_visible;
+	static uint8 directory_visible;
 
 	  /**
 	   * We need to keep track of trag/click events
@@ -58,6 +62,13 @@ private:
 	static const int map_type_color[MAX_MAP_TYPE];
 	button_t filter_buttons[MAX_MAP_TYPE];
 	bool is_filter_active[MAX_MAP_TYPE];
+
+	button_t zoom_buttons[2];
+	gui_label_t zoom_label;
+
+	button_t b_show_legend;
+	button_t b_show_scale;
+	button_t b_show_directory;
 
 public:
 
@@ -87,7 +98,7 @@ public:
      * @author Hj. Malthaner
      */
     map_frame_t(const karte_t *welt);
-    ~map_frame_t();
+    ~map_frame_t() {}
 
     /**
      * Events werden hiermit an die GUI-Komponenten

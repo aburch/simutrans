@@ -35,7 +35,6 @@ private:
 
 	static reliefkarte_t * single_instance;
 
-	int zoom;
 
 	/**
 	* map mode: -1) normal; everything else: special map
@@ -64,6 +63,9 @@ private:
 
 public:
 	static bool is_visible;
+
+	// the zoom factors
+	sint16 zoom_out, zoom_in;
 
 	/**
 	* returns a color based on an amount (high amount/scale -> color shifts from green to red)

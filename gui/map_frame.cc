@@ -29,6 +29,8 @@
 
 koord map_frame_t::size=koord(0,0);
 uint8 map_frame_t::legend_visible=false;
+uint8 map_frame_t::scale_visible=false;
+uint8 map_frame_t::directory_visible=false;
 
 // Hajo: we track our position onscreen
 koord map_frame_t::screenpos;
@@ -69,8 +71,32 @@ const int map_frame_t::map_type_color[MAX_MAP_TYPE] =
  */
 map_frame_t::map_frame_t(const karte_t *welt) :
 	gui_frame_t("Reliefkarte"),
-	scrolly(reliefkarte_t::gib_karte())
+	scrolly(reliefkarte_t::gib_karte()),
+	zoom_label("cl_txt_filter")
 {
+	// zoom levels
+	zoom_buttons[0].setze_pos( koord(2,BUTTON_HEIGHT+4) );
+	zoom_buttons[0].setze_typ( button_t::repeatarrowleft );
+	zoom_buttons[0].add_listener( this );
+	add_komponente( zoom_buttons+0 );
+	zoom_buttons[1].setze_pos( koord(40,BUTTON_HEIGHT+4) );
+	zoom_buttons[1].setze_typ( button_t::repeatarrowright );
+	zoom_buttons[1].add_listener( this );
+	add_komponente( zoom_buttons+1 );
+	zoom_label.setze_pos( koord(54,BUTTON_HEIGHT+4) );
+	add_komponente( &zoom_label );
+
+	// show the various objects
+	b_show_legend.init(button_t::roundbox, "Show legend", koord(0,0), koord(BUTTON_WIDTH+1,BUTTON_HEIGHT));
+	b_show_legend.add_listener(this);
+	add_komponente(&b_show_legend);
+	b_show_scale.init(button_t::roundbox, "Show map scale", koord(BUTTON_WIDTH+1,0), koord(BUTTON_WIDTH+2,BUTTON_HEIGHT));
+	b_show_scale.add_listener(this);
+	add_komponente(&b_show_scale);
+	b_show_directory.init(button_t::roundbox, "Show industry", koord(2*BUTTON_WIDTH+3,0), koord(BUTTON_WIDTH+1,BUTTON_HEIGHT));
+	b_show_directory.add_listener(this);
+	add_komponente(&b_show_directory);
+
 	// init factories names
 	legend_names.clear();
 	legend_colors.clear();
@@ -130,15 +156,9 @@ map_frame_t::map_frame_t(const karte_t *welt) :
 
 	// Hajo: Trigger layouting
 	set_resizemode(diagonal_resize);
+	setze_opaque( true );
 
 	is_dragging = false;
-}
-
-
-
-// switches updates off
-map_frame_t::~map_frame_t()
-{
 }
 
 
@@ -149,21 +169,68 @@ map_frame_t::action_triggered(gui_komponente_t *komp,value_t /* */)
 {
 	bool all_inactive=true;
 	reliefkarte_t::gib_karte()->calc_map();
-	for (int i=0;i<MAX_MAP_TYPE;i++) {
-		if (komp == &filter_buttons[i]) {
-			if (is_filter_active[i] == true) {
-				is_filter_active[i] = false;
-			} else {
-				all_inactive = false;
-				reliefkarte_t::gib_karte()->set_mode((reliefkarte_t::MAP_MODES)i);
-				is_filter_active[i] = true;
+
+	if(komp==&b_show_legend) {
+		if(!legend_visible) {
+			for (int type=0; type<MAX_MAP_TYPE; type++) {
+				add_komponente(filter_buttons + type);
 			}
-		} else {
-			is_filter_active[i] = false;
+			legend_visible = 1;
 		}
+		else {
+			// do not draw legend anymore
+			for (int type=0; type<MAX_MAP_TYPE; type++) {
+				remove_komponente(filter_buttons + type);
+			}
+			legend_visible = 0;
+		}
+		resize( koord(0,0) );
 	}
-	if(all_inactive) {
-		reliefkarte_t::gib_karte()->set_mode(reliefkarte_t::PLAIN);
+	else if(komp==&b_show_scale) {
+		scale_visible = !scale_visible;
+		resize( koord(0,0) );
+	}
+	else if(komp==&b_show_directory) {
+		directory_visible = !directory_visible;
+		resize( koord(0,0) );
+	}
+	else if(komp==zoom_buttons+1) {
+		// zoom out
+		if(reliefkarte_t::gib_karte()->zoom_in>1) {
+			reliefkarte_t::gib_karte()->zoom_in--;
+		}
+		else if(reliefkarte_t::gib_karte()->zoom_out<4) {
+			reliefkarte_t::gib_karte()->zoom_out++;
+		}
+		reliefkarte_t::gib_karte()->calc_map();
+	}
+	else if(komp==zoom_buttons+0) {
+		// zoom in
+		if(reliefkarte_t::gib_karte()->zoom_out>1) {
+			reliefkarte_t::gib_karte()->zoom_out--;
+		}
+		else if(reliefkarte_t::gib_karte()->zoom_in<4) {
+			reliefkarte_t::gib_karte()->zoom_in++;
+		}
+		reliefkarte_t::gib_karte()->calc_map();
+	}
+	else {
+		for (int i=0;i<MAX_MAP_TYPE;i++) {
+			if (komp == &filter_buttons[i]) {
+				if (is_filter_active[i] == true) {
+					is_filter_active[i] = false;
+				} else {
+					all_inactive = false;
+					reliefkarte_t::gib_karte()->set_mode((reliefkarte_t::MAP_MODES)i);
+					is_filter_active[i] = true;
+				}
+			} else {
+				is_filter_active[i] = false;
+			}
+		}
+		if(all_inactive) {
+			reliefkarte_t::gib_karte()->set_mode(reliefkarte_t::PLAIN);
+		}
 	}
 	return true;
 }
@@ -199,24 +266,17 @@ void map_frame_t::infowin_event(const event_t *ev)
 
 	if(IS_WINDOW_CHOOSE_NEXT(ev)) {
 		// open close legend ...
-		if(ev->ev_code==NEXT_WINDOW) {
-			if(legend_visible==0) {
-				for (int type=0; type<MAX_MAP_TYPE; type++) {
-					add_komponente(filter_buttons + type);
-				}
+		bool dir=ev->ev_code == NEXT_WINDOW;
+		if(legend_visible) {
+			if(scale_visible) {
+				directory_visible = dir;
+				scale_visible = dir;
 			}
-			legend_visible = min(3,legend_visible+1);
-			resize( koord(0,0) );
+			scale_visible = dir;
+			legend_visible = dir;
 		}
 		else {
-			// do not draw legend anymore
-			if(legend_visible==1) {
-				for (int type=0; type<MAX_MAP_TYPE; type++) {
-					remove_komponente(filter_buttons + type);
-				}
-			}
-			legend_visible = max(0,legend_visible-1);
-			resize( koord(0,0) );
+			legend_visible = dir;
 		}
 	}
 
@@ -284,53 +344,51 @@ void map_frame_t::resize(const koord delta)
 	koord groesse = gib_fenstergroesse()+delta;
 	gui_frame_t::resize(delta);
 
+	int offset_y = BUTTON_HEIGHT*2 + 2;
+	groesse.x = max( BUTTON_WIDTH*3+4, groesse.x );	// not smaller than 192 allow
+
+	// find out about the button pos for the additiona objects
+
 	if(legend_visible) {
 		// calculate space with legend
 		col = max( 1, min( (groesse.x-2)/BUTTON_WIDTH, MAX_MAP_TYPE ) );
 		row = ((MAX_MAP_TYPE-1)/col)+1;
-		int offset_y=row*14+8;
-
-		switch(legend_visible) {
-			case 1:
-				// new minimum size/scroll offset only buttons
-				break;
-			case 2:
-				// plus scale bar
-				offset_y += LINESPACE+4;
-				break;
-			case 3:
-				{
-					// full program including factory texts
-					const int fac_cols = max( 1, min( (groesse.x-2)/110, legend_names.get_count() ) );
-					const int fac_rows = ((legend_names.get_count()-1)/fac_cols)+1;
-					offset_y += (LINESPACE+4) + (fac_rows*14+4);
-				}
-				break;
-		}
-
-		// offset of map
-		scrolly.setze_pos( koord(0,offset_y) );
-		// min size
-		offset_y += min(welt->gib_groesse_y(),256)+16+12;
-		if(offset_y>display_get_height()-64) {
-			// avoid negative values for min size
-			offset_y = max(10,display_get_height()-64);
-		}
-		set_min_windowsize(  koord(min(256,max(BUTTON_WIDTH+4,welt->gib_groesse_x()))+12, offset_y) );
-		setze_opaque(true);
 
 		// set button pos
 		for (int type=0; type<MAX_MAP_TYPE; type++) {
-			koord pos = koord( 2+BUTTON_WIDTH*(type%col), 16+4+BUTTON_HEIGHT*((int)type/col-1) );
+			koord pos = koord( 2+BUTTON_WIDTH*(type%col), 4+offset_y+BUTTON_HEIGHT*((int)type/col) );
 			filter_buttons[type].setze_pos( pos );
 		}
+		offset_y += BUTTON_HEIGHT*row+8;
+	}
 
+	if(scale_visible) {
+		// plus scale bar
+		offset_y += LINESPACE+4;
 	}
-	else {
-		scrolly.setze_pos( koord(0,0) );
-		setze_opaque(false);
-		set_min_windowsize( koord(min(256,welt->gib_groesse_x())+11, min(welt->gib_groesse_y(),256)+16+12) );
+
+	if(directory_visible) {
+		// full program including factory texts
+		const int fac_cols = max( 1, min( (groesse.x-2)/110, legend_names.get_count() ) );
+		const int fac_rows = ((legend_names.get_count()-1)/fac_cols)+1;
+		offset_y +=(fac_rows*14+4);
 	}
+
+	// offset of map
+	scrolly.setze_pos( koord(0,offset_y) );
+
+	// min size
+	offset_y += min(welt->gib_groesse_y(),256)+16+12;
+	if(offset_y>display_get_height()-64) {
+		// avoid negative values for min size
+		offset_y = max(10,display_get_height()-64);
+	}
+	set_min_windowsize(  koord(min(256,max(BUTTON_WIDTH+4,welt->gib_groesse_x()))+12, offset_y+12) );
+
+	// mark old size dirty
+	const koord pos = koord( win_get_posx(this), win_get_posy(this) );
+	mark_rect_dirty_wc(pos.x,pos.y,pos.x+groesse.x,pos.y+groesse.y);
+
 	setze_fenstergroesse( groesse );
 }
 
@@ -344,6 +402,7 @@ void map_frame_t::resize(const koord delta)
  */
 void map_frame_t::zeichnen(koord pos, koord gr)
 {
+/*
 	if(legend_visible==0) {
 		// scrollbar "opaqueness" mechanism has changed. So we must draw grey background here
 		// if not handled automatically
@@ -354,32 +413,42 @@ void map_frame_t::zeichnen(koord pos, koord gr)
 		display_fillbox_wh(pos.x+gr.x, pos.y+16, 1, gr.y-16, MN_GREY0, true);
 		display_fillbox_wh(pos.x, pos.y+gr.y, gr.x, 1, MN_GREY0, true);
 	}
-	else {
-		// button state
-		for (int i = 0;i<MAX_MAP_TYPE;i++) {
-			filter_buttons[i].pressed = is_filter_active[i];
-		}
+*/
+	// button state
+	for (int i = 0;i<MAX_MAP_TYPE;i++) {
+		filter_buttons[i].pressed = is_filter_active[i];
 	}
+
+	b_show_legend.pressed = legend_visible;
+	b_show_scale.pressed = scale_visible;
+	b_show_directory.pressed = directory_visible;
 
 	gui_frame_t::zeichnen(pos, gr);
 
+	char buf[16];
+	sprintf( buf, "%i:%i", reliefkarte_t::gib_karte()->zoom_in, reliefkarte_t::gib_karte()-> zoom_out );
+	display_proportional( pos.x+20, pos.y+16+BUTTON_HEIGHT+4, buf, ALIGN_LEFT, COL_WHITE, true);
+
+	int offset_y = BUTTON_HEIGHT*2 + 2 +16;
+	if(legend_visible) {
+		offset_y = 16+filter_buttons[MAX_MAP_TYPE-1].gib_pos().y+4+BUTTON_HEIGHT;
+	}
+
 	// draw scale
-	if(legend_visible>1) {
-		koord bar_pos = pos+scrolly.gib_pos()-koord(0,LINESPACE+4-16);
+	if(scale_visible) {
+		koord bar_pos = pos + koord( 0, offset_y+2 );
 		// color bar
 		for( int i=0;  i<MAX_SEVERITY_COLORS;  i++) {
 			display_fillbox_wh(bar_pos.x + 30 + i*(gr.x-60)/MAX_SEVERITY_COLORS, bar_pos.y+2,  (gr.x-60)/(MAX_SEVERITY_COLORS-1), 7, reliefkarte_t::calc_severity_color(i,MAX_SEVERITY_COLORS), false);
 		}
 		display_proportional(bar_pos.x + 26, bar_pos.y, translator::translate("min"), ALIGN_RIGHT, COL_BLACK, false);
 		display_proportional(bar_pos.x + size.x - 26, bar_pos.y, translator::translate("max"), ALIGN_LEFT, COL_BLACK, false);
+		offset_y += LINESPACE+4;
 	}
 
 	// draw factory descriptions
-	if(legend_visible==3) {
-
-		const int offset_y=row*14+12+16;
+	if(directory_visible) {
 		const int fac_cols = max( 1, min( (gr.x-2)/110, legend_names.get_count() ) );
-//		const int fac_rows = ((legend_names.get_count()-1)/fac_cols)+1;
 		const int width = (gr.x-10)/fac_cols;
 		for(unsigned u=0; u<legend_names.get_count(); u++) {
 
@@ -387,7 +456,7 @@ void map_frame_t::zeichnen(koord pos, koord gr)
 			const int ypos = pos.y+offset_y+(u/fac_cols)*14;
 			const int color = legend_colors[u];
 
-			if(ypos+14>pos.y+gr.y) {
+			if(ypos+LINESPACE>pos.y+gr.y) {
 				break;
 			}
 			display_fillbox_wh(xpos, ypos+1, 7, 7, color, false);
