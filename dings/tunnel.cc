@@ -38,6 +38,7 @@ tunnel_t::tunnel_t(karte_t *welt, loadsave_t *file) : ding_t(welt)
 tunnel_t::tunnel_t(karte_t *welt, koord3d pos, spieler_t *sp, const tunnel_besch_t *besch) :
 	ding_t(welt, pos)
 {
+	assert(besch);
 	this->besch = besch;
 	setze_besitzer( sp );
 	bild = after_bild = IMG_LEER;
@@ -99,28 +100,6 @@ void tunnel_t::laden_abschliessen()
 		if(!gr->ist_karten_boden()){
 			return;
 		}
-	}
-
-	// correct speed and maitenance for old tunnels
-
-	// proceed until the other end
-	koord3d pos = gib_pos();
-	const koord zv = koord(welt->lookup(pos)->gib_grund_hang());
-	pos += zv;
-
-	// now look up everything
-	// reset speed and maitenance
-	while(1) {
-		tunnelboden_t *gr = dynamic_cast<tunnelboden_t *>(welt->lookup(pos));
-		if(gr==NULL) {
-			// no tunnel any more, or already assigned a description
-			break;
-		}
-		if(gr->suche_obj(ding_t::tunnel)==NULL) {
-			gr->obj_add(new tunnel_t(welt, pos, sp, besch));
-			// calc calculation will be completed after loading!
-		}
-		pos += zv;
 	}
 }
 

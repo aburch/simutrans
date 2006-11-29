@@ -22,6 +22,7 @@ xx-Nov-2006: (prissi)
 	CHANGE: cityrules allow now up to 7x7; more fine control about the res/ind/com clustering too (see cityconf.tab)
 	CHANGE: option to not showing vehicles which are not matching current action ('Show all' and 'Show also vehicles that do not match for current action.' strings added)
 	CHANGE: zoom in and out in the small map only with a control, more user friendly buttom positions
+	ADD: tunnel entrace only built with control key
 
 
 Release of 99.04.2

@@ -20,6 +20,7 @@
 #include "../simplay.h"
 #include "../simskin.h"
 #include "../simwerkz.h"
+#include "../simevent.h"
 
 #include "../besch/tunnel_besch.h"
 
@@ -44,6 +45,7 @@
 
 #include "../tpl/minivec_tpl.h"
 #include "../tpl/stringhashtable_tpl.h"
+
 
 static minivec_tpl <tunnel_besch_t *> tunnel (16);
 static stringhashtable_tpl<tunnel_besch_t *> tunnel_by_name;
@@ -226,7 +228,10 @@ tunnelbauer_t::finde_ende(karte_t *welt, koord3d pos, koord zv, waytype_t wegtyp
 	}
 }
 
-int tunnelbauer_t::baue(spieler_t *sp, karte_t *welt, koord pos, value_t param)
+
+
+int
+tunnelbauer_t::baue(spieler_t *sp, karte_t *welt, koord pos, value_t param)
 {
 	static koord3d start=koord3d::invalid;
 	static zeiger_t *wkz_tunnelbau_bauer = NULL;
@@ -337,7 +342,15 @@ DBG_MESSAGE("tunnelbauer_t::baue()", "called on %d,%d", pos.x, pos.y);
 		zv = koord(gr->gib_grund_hang());
 
 		// Tunnelende suchen
-		koord3d end = finde_ende(welt, gr->gib_pos(), zv, wegtyp);
+		koord3d end = koord3d::invalid;
+		if(event_get_last_control_shift()!=2) {
+			end = finde_ende(welt, gr->gib_pos(), zv, wegtyp);
+		} else {
+			end = gr->gib_pos()+zv;
+			if(welt->lookup(end)  ||  welt->lookup_kartenboden(pos+zv)->gib_hoehe()<=end.z) {
+				end = koord3d::invalid;
+			}
+		}
 
 		// pruefe ob Tunnel auf strasse/schiene endet
 		if(!welt->ist_in_kartengrenzen(end.gib_2d())) {
@@ -377,7 +390,8 @@ DBG_MESSAGE("tunnelbauer_t::baue()","build from (%d,%d,%d) to (%d,%d,%d) ", pos.
 	baue_einfahrt(welt, sp, pos, zv, besch, weg_besch, cost);
 
 	ribi = welt->lookup(pos)->gib_weg_ribi_unmasked(wegtyp);
-	pos = pos + zv;
+	// don't move on to next tile if only one tile long
+	if(end!=start) pos = pos + zv;
 
 	// Now we build the invisible part
 	while(pos!=end) {
@@ -397,7 +411,23 @@ DBG_MESSAGE("tunnelbauer_t::baue()","build from (%d,%d,%d) to (%d,%d,%d) ", pos.
 		pos = pos + zv;
 	}
 
-	baue_einfahrt(welt, sp, pos, -zv, besch, weg_besch, cost);
+	// if end is above ground construct an exit
+	if(welt->lookup(end.gib_2d())->gib_kartenboden()->gib_pos().z==end.z) {
+		baue_einfahrt(welt, sp, pos, -zv, besch, weg_besch, cost);
+	} else {
+		tunnelboden_t *tunnel = new tunnelboden_t(welt, pos, 0);
+		// use the fastest way
+		weg = weg_t::alloc(besch->gib_waytype());
+		weg->setze_besch(weg_besch);
+		weg->setze_max_speed(besch->gib_topspeed());
+		welt->access(pos.gib_2d())->boden_hinzufuegen(tunnel);
+		tunnel->neuen_weg_bauen(weg, ribi_t::doppelt(ribi), sp);
+		tunnel->obj_add(new tunnel_t(welt, pos, sp, besch));
+		assert(!tunnel->ist_karten_boden());
+		sp->add_maintenance( -weg->gib_besch()->gib_wartung() );
+		sp->add_maintenance( besch->gib_wartung() );
+		cost += besch->gib_preis();
+	}
 
 	sp->buche( -cost, start.gib_2d(), COST_CONSTRUCTION);
 	return true;
