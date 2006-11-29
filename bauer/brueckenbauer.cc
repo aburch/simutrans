@@ -163,7 +163,7 @@ brueckenbauer_t::fill_menu(werkzeug_parameter_waehler_t *wzw,
 
 	// now sorted ...
 	while (!matching.empty()) {
-		const bruecke_besch_t * besch = matching.at(0);
+		const bruecke_besch_t* besch = matching.front();
 		matching.remove_at(0);
 		char buf[256];
 

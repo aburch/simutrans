@@ -268,7 +268,7 @@ void wegbauer_t::fill_menu(werkzeug_parameter_waehler_t *wzw,
 	const sint32 shift_maintanance = (karte_t::ticks_bits_per_tag-18);
 	// now sorted ...
 	while (!matching.empty()) {
-		const weg_besch_t * besch = matching.at(0);
+		const weg_besch_t* besch = matching.front();
 		matching.remove_at(0);
 
 		char buf[128];

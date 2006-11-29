@@ -177,8 +177,8 @@ DBG_MESSAGE("fabrikbauer_t::get_random_consumer()","consumer %s found.",consumer
 		}
 		next -= consumer.at(i)->gib_gewichtung();
 	}
-DBG_MESSAGE("fabrikbauer_t::get_random_consumer()","consumer %s found.",consumer.at(0)->gib_name());
-	return consumer.at(0);
+	DBG_MESSAGE("fabrikbauer_t::get_random_consumer()", "consumer %s found.", consumer.front()->gib_name());
+	return consumer.front();
 }
 
 

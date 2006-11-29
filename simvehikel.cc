@@ -1054,7 +1054,7 @@ vehikel_t::calc_bild()
 	if (fracht.empty()) {
 		setze_bild(besch->gib_bild_nr(ribi_t::gib_dir(gib_fahrtrichtung()),NULL));
 	} else {
-		setze_bild(besch->gib_bild_nr(ribi_t::gib_dir(gib_fahrtrichtung()),fracht.at(0).gib_typ() ) );
+		setze_bild(besch->gib_bild_nr(ribi_t::gib_dir(gib_fahrtrichtung()), fracht.front().gib_typ()));
 	}
 	if(old_bild!=gib_bild()) {
 		set_flag(ding_t::dirty);
@@ -1550,7 +1550,7 @@ automobil_t::rdwr(loadsave_t *file, bool force)
 
 		// try to find a matching vehivle
 		if(file->is_loading()  &&  besch==NULL) {
-			const ware_besch_t* w = (!fracht.empty() ? fracht.at(0).gib_typ() : warenbauer_t::passagiere);
+			const ware_besch_t* w = (!fracht.empty() ? fracht.front().gib_typ() : warenbauer_t::passagiere);
 			DBG_MESSAGE("automobil_t::rdwr()","try to find a fitting vehicle for %s.",  w->gib_name() );
 			besch = vehikelbauer_t::vehikel_search(road_wt, 0, ist_erstes?50:0, speed_to_kmh(get_speed_limit()), w );
 			if(besch) {
@@ -1558,7 +1558,7 @@ automobil_t::rdwr(loadsave_t *file, bool force)
 				// still wrong load ...
 				calc_bild();
 			}
-			if (!fracht.empty() && fracht.at(0).menge == 0) {
+			if (!fracht.empty() && fracht.front().menge == 0) {
 				// this was only there to find a matchin vehicle
 				fracht.remove_first();
 			}
@@ -2076,8 +2076,8 @@ waggon_t::rdwr(loadsave_t *file, bool force)
 		vehikel_t::rdwr(file);
 		// try to find a matching vehivle
 		if(file->is_loading()  &&  besch==NULL) {
-			int power = (ist_erstes || fracht.empty() || fracht.at(0) == warenbauer_t::nichts) ? 500 : 0;
-			const ware_besch_t *w= power?warenbauer_t::nichts:fracht.at(0).gib_typ();
+			int power = (ist_erstes || fracht.empty() || fracht.front() == warenbauer_t::nichts) ? 500 : 0;
+			const ware_besch_t* w = power ? warenbauer_t::nichts : fracht.front().gib_typ();
 			DBG_MESSAGE("waggon_t::rdwr()","try to find a fitting vehicle for %s.", power>0 ? "engine": w->gib_name() );
 			if(!ist_erstes  &&  last_besch!=NULL  &&  last_besch->gib_ware()==w  &&
 				(
@@ -2099,7 +2099,7 @@ DBG_MESSAGE("waggon_t::rdwr()","replaced by %s",besch->gib_name());
 			else {
 dbg->error("waggon_t::rdwr()","no matching besch found for %s!",w->gib_name());
 			}
-			if (!fracht.empty() && fracht.at(0).menge == 0) {
+			if (!fracht.empty() && fracht.front().menge == 0) {
 				// this was only there to find a matchin vehicle
 				fracht.remove_first();
 			}
@@ -2208,8 +2208,8 @@ schiff_t::rdwr(loadsave_t *file, bool force)
 		vehikel_t::rdwr(file);
 		// try to find a matching vehivle
 		if(file->is_loading()  &&  besch==NULL) {
-			DBG_MESSAGE("schiff_t::rdwr()", "try to find a fitting vehicle for %s.", !fracht.empty() ? fracht.at(0).gib_name() : "passagiere");
-			besch = vehikelbauer_t::vehikel_search(water_wt, 0, 100, 40, !fracht.empty() ? fracht.at(0).gib_typ() : warenbauer_t::passagiere);
+			DBG_MESSAGE("schiff_t::rdwr()", "try to find a fitting vehicle for %s.", !fracht.empty() ? fracht.front().gib_name() : "passagiere");
+			besch = vehikelbauer_t::vehikel_search(water_wt, 0, 100, 40, !fracht.empty() ? fracht.front().gib_typ() : warenbauer_t::passagiere);
 			if(besch) {
 				calc_bild();
 			}

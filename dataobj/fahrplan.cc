@@ -188,7 +188,7 @@ fahrplan_t::cleanup()
 	}
 
 	// first and last must not be the same!
-	koord3d lastpos = eintrag[eintrag.get_count() - 1].pos;
+	koord3d lastpos = eintrag.back().pos;
 	bool ok=true;
   	// now we have to check all entries ...
 	for(unsigned i=0; i<eintrag.get_count(); i++) {

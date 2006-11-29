@@ -165,7 +165,7 @@ DBG_MESSAGE("tunnelbauer_t::fill_menu()","%i to be added",matching.count());
 
 	// now sorted ...
 	while (!matching.empty()) {
-		const tunnel_besch_t * besch = matching.at(0);
+		const tunnel_besch_t* besch = matching.front();
 		matching.remove_at(0);
 		char buf[256];
 

@@ -807,8 +807,8 @@ void fabrik_t::verteile_waren(const uint32 produkt)
 			slist_iterator_tpl<halthandle_t> iter (halt_ok);
 			slist_iterator_tpl<ware_t> ware_iter (ware_ok);
 
-			ware_t best_ware       = ware_ok.at(0);
-			halthandle_t best_halt = halt_ok.at(0);
+			ware_t best_ware       = ware_ok.front();
+			halthandle_t best_halt = halt_ok.front();
 			int best_amount        = 999999;
 
 			while(iter.next() && ware_iter.next()) {

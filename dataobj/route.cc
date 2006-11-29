@@ -94,7 +94,7 @@ route_t::append(koord3d k)
 	while (route.get_count() > 1 && route[route.get_count() - 1] == route[route.get_count() - 2]) {
 		route.remove_at(route.get_count()-1);
 	}
-	if (route.empty() || k != route[route.get_count() - 1]) {
+	if (route.empty() || k != route.back()) {
 		route.append(k,16);
 	}
 	route.append(k,16);	// the last is always double
@@ -145,7 +145,7 @@ DBG_MESSAGE("route_t::append_straight_route()","start from (%i,%i) to (%i,%i)",p
 		}
 		route.append( welt->lookup(pos)->gib_kartenboden()->gib_pos(),16 );
 	}
-	route.append(route[route.get_count() - 1], 16);
+	route.append(route.back(), 16);
 	DBG_MESSAGE("route_t::append_straight_route()","to (%i,%i) found.",ziel.x,ziel.y);
 
 	return pos==ziel;

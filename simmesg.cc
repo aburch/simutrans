@@ -166,7 +166,7 @@ DBG_MESSAGE("message_t::add_msg()","%40s (at %i,%i)", text, pos.x, pos.y );
 
 	// insert at the top
 	list->insert(n);
-	char *p = list->at(0).msg;
+	char* p = list->front().msg;
 	// should we open an autoclose windows?
 	if(art&auto_win_flags  &&  welt!=NULL) {
 		create_win(-1, -1, MESG_WAIT, new nachrichtenfenster_t(welt,p,bild,pos,colorval), w_autodelete );

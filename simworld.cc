@@ -504,7 +504,7 @@ DBG_MESSAGE("karte_t::destroy()", "destroying world");
 
 	// alle convois aufräumen
 	while (!convoi_array.empty()) {
-		convoihandle_t cnv = convoi_array[convoi_array.get_count() - 1];
+		convoihandle_t cnv = convoi_array.back();
 		delete cnv.get_rep();	// since the convoi unbinds himself
 	}
 	convoi_array.clear();
@@ -536,7 +536,7 @@ DBG_MESSAGE("karte_t::destroy()", "sync list cleared");
 	sint32 no_of_cities=einstellungen->gib_anzahl_staedte();
 	if(stadt) {
 		while (!stadt->empty()) {
-			rem_stadt(stadt->at(0));
+			rem_stadt(stadt->front());
 		}
 	}
 	einstellungen->setze_anzahl_staedte(no_of_cities);

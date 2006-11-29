@@ -335,6 +335,8 @@ public:
 		}
 	}
 
+	T& front() { return nodes[0].data; }
+
 	/**
 	* returns the weight at a position
 	* @author prissi

@@ -320,6 +320,7 @@ public:
 		return head->data;	// to keep compiler silent
 	}
 
+	T& front() const { return head->data; }
 
 	int index_of(T data) const
 	{

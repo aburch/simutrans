@@ -525,15 +525,15 @@ void depot_frame_t::add_to_vehicle_list(const vehikel_besch_t *info)
 	// since they come "pre-sorted" for the vehikelbauer, we have to do nothing to keep them sorted
 	if(info->gib_ware()==warenbauer_t::passagiere  ||  info->gib_ware()==warenbauer_t::post) {
 		pas_vec.append(img_data,4);
-		vehicle_map.set(info, &pas_vec[pas_vec.get_count() - 1]);
+		vehicle_map.set(info, &pas_vec.back());
 	}
 	else if(info->gib_leistung() > 0  ||  info->gib_zuladung()==0) {
 		loks_vec.append(img_data,4);
-		vehicle_map.set(info, &loks_vec[loks_vec.get_count() - 1]);
+		vehicle_map.set(info, &loks_vec.back());
 	}
 	else {
 		waggons_vec.append(img_data,4);
-		vehicle_map.set(info, &waggons_vec[waggons_vec.get_count() - 1]);
+		vehicle_map.set(info, &waggons_vec.back());
 	}
 }
 
@@ -828,7 +828,7 @@ DBG_MESSAGE("depot_frame_t::image_from_storage_list()","appended %s",info->gib_n
 				// create a new convoi
 				cnv = depot->add_convoi();
 				icnv = depot->convoi_count() - 1;
-				depot->get_convoi(icnv)->setze_name( new_vehicle_info.at(0)->gib_name() );
+				depot->get_convoi(icnv)->setze_name(new_vehicle_info.front()->gib_name());
 			}
 
 			if(cnv->gib_vehikel_anzahl()+new_vehicle_info.count() <= depot->get_max_convoi_length()) {

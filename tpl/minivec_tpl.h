@@ -261,6 +261,7 @@ public:
 		return data[i];
 	}
 
+		T& back() const { return data[count - 1]; }
 
     /**
      * Gets the number of elements in the vector.

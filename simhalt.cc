@@ -118,7 +118,7 @@ koord
 haltestelle_t::gib_basis_pos() const
 {
 	if (!grund.empty()) {
-		return grund.at(0)->gib_pos().gib_2d();
+		return grund.front()->gib_pos().gib_2d();
 	}
 	else {
 		return koord::invalid;
@@ -129,7 +129,7 @@ koord3d
 haltestelle_t::gib_basis_pos3d() const
 {
 	if (!grund.empty()) {
-		return grund.at(0)->gib_pos();
+		return grund.front()->gib_pos();
 	}
 	else {
 		return koord3d::invalid;
@@ -300,7 +300,7 @@ void haltestelle_t::destroy(halthandle_t &halt)
 void haltestelle_t::destroy_all()
 {
 	while (!alle_haltestellen.empty()) {
-        halthandle_t halt = alle_haltestellen.at(0);
+		halthandle_t halt = alle_haltestellen.front();
         destroy(halt);
     }
     alle_haltestellen.clear();
@@ -377,7 +377,7 @@ haltestelle_t::haltestelle_t(karte_t *wl, koord pos, spieler_t *sp)
 haltestelle_t::~haltestelle_t()
 {
 	while (!grund.empty()) {
-		rem_grund(grund.at(0));
+		rem_grund(grund.front());
 	}
 
 	if(halt_info) {
@@ -411,7 +411,7 @@ haltestelle_t::setze_name(const char *name)
 {
 	tstrncpy(this->name, translator::translate(name), 128);
 	if (!grund.empty()) {
-		grund.at(0)->setze_text(this->name);
+		grund.front()->setze_text(this->name);
 	}
 }
 
@@ -1046,7 +1046,7 @@ DBG_DEBUG("haltestelle_t::rem_grund()","remove also floor, count=%i",grund.count
 		}
 
 		if (!grund.empty()) {
-			grund_t *bd = grund.at(0);
+			grund_t* bd = grund.front();
 
 			if(bd->gib_text() != tmp) {
 				bd->setze_text( tmp );
@@ -1884,7 +1884,7 @@ haltestelle_t::name_from_ground() const
 		name = "Unnamed";
 	}
 	else {
-		grund_t *bd = grund.at(0);
+		grund_t* bd = grund.front();
 
 		if(bd != NULL && bd->gib_text() != NULL) {
 			name = bd->gib_text();
@@ -1900,7 +1900,7 @@ haltestelle_t::access_name()
 	if (!grund.empty()) {
 		if(name!=name_from_ground()) {
 			tstrncpy(name, name_from_ground(), 128);
-			grund_t *bd = grund.at(0);
+			grund_t* bd = grund.front();
 			if(bd!=NULL) {
 				bd->setze_text(name);
 			}

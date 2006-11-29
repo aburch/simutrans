@@ -369,7 +369,7 @@ depot_t::rdwr(loadsave_t *file)
 		rdwr_vehikel(waggons, file);
 
 		while (!waggons.empty()) {
-			vehicles.append(waggons.at(0));
+			vehicles.append(waggons.front());
 			waggons.remove_at(0);
 		}
 	}

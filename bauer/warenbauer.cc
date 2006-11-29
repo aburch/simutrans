@@ -98,7 +98,7 @@ warenbauer_t::gib_info_catg(const sint8 catg)
 		}
 	}
 	dbg->warning("warenbauer_t::gib_info()", "No info for good catg %d available, set to passengers", catg);
-	return waren.at(0);
+	return waren.front();
 }
 
 
