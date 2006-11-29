@@ -1337,13 +1337,11 @@ void stadt_t::step_bau()
 
 		INT_CHECK("simcity 338");
 
-		int i = 0;
-		while (i < 30 && bev + bev > won + arb + 100) {
+		for (int i = 0; i < 30 && bev * 2 > won + arb + 100; i++) {
 			bewerte();
 			INT_CHECK("simcity 271");
 			baue();
 			INT_CHECK("simcity 273");
-			i++;
 		}
 
 		check_bau_spezial(new_town);
