@@ -651,11 +651,8 @@ stadt_t::haltestellenname(koord k, const char *typ, int number)
  * @author V. Meyer
  */
 class denkmal_platz_sucher_t : public platzsucher_t {
-	private:
-		spieler_t* besitzer;
-
 	public:
-		denkmal_platz_sucher_t(karte_t* welt, spieler_t* sp) : platzsucher_t(welt), besitzer(sp) {}
+		denkmal_platz_sucher_t(karte_t* welt) : platzsucher_t(welt) {}
 
 		virtual bool ist_feld_ok(koord pos, koord d, climate_bits cl) const
 		{
@@ -696,11 +693,8 @@ class denkmal_platz_sucher_t : public platzsucher_t {
  * @author V. Meyer
  */
 class rathausplatz_sucher_t : public platzsucher_t {
-	private:
-		spieler_t *besitzer;
-
 	public:
-		rathausplatz_sucher_t(karte_t* welt, spieler_t* sp) : platzsucher_t(welt), besitzer(sp) {}
+		rathausplatz_sucher_t(karte_t* welt) : platzsucher_t(welt) {}
 
 		virtual bool ist_feld_ok(koord pos, koord d, climate_bits cl) const
 		{
@@ -1719,7 +1713,7 @@ void stadt_t::check_bau_spezial(bool new_town)
 		besch = hausbauer_t::waehle_denkmal(welt->get_timeline_year_month());
 		if (besch) {
 			koord total_size = koord(2 + besch->gib_b(), 2 + besch->gib_h());
-			koord best_pos(denkmal_platz_sucher_t(welt, besitzer_p).suche_platz(pos, total_size.x, total_size.y, besch->get_allowed_climate_bits()));
+			koord best_pos(denkmal_platz_sucher_t(welt).suche_platz(pos, total_size.x, total_size.y, besch->get_allowed_climate_bits()));
 
 			if (best_pos != koord::invalid) {
 				bool ok = false;
@@ -1826,7 +1820,7 @@ void stadt_t::check_bau_rathaus(bool new_town)
 		// Now built the new townhall
 		int layout = simrand(besch->gib_all_layouts() - 1);
 		if (neugruendung || umziehen) {
-			best_pos = rathausplatz_sucher_t(welt, besitzer_p).suche_platz(pos, besch->gib_b(layout), besch->gib_h(layout) + 1, besch->get_allowed_climate_bits());
+			best_pos = rathausplatz_sucher_t(welt).suche_platz(pos, besch->gib_b(layout), besch->gib_h(layout) + 1, besch->get_allowed_climate_bits());
 		}
 		hausbauer_t::baue(welt, besitzer_p, welt->lookup(best_pos)->gib_kartenboden()->gib_pos(), layout, besch);
 		DBG_MESSAGE("new townhall", "use layout=%i", layout);
