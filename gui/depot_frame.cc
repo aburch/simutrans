@@ -61,6 +61,8 @@ static const char * engine_type_names [9] =
 
 bool  depot_frame_t::show_retired_vehicles = false;
 
+bool  depot_frame_t::show_all = true;
+
 
 depot_frame_t::depot_frame_t(karte_t *welt, depot_t *depot) :
 	gui_frame_t(txt_title, depot->gib_besitzer()),
@@ -230,6 +232,12 @@ DBG_DEBUG("depot_frame_t::depot_frame_t()","get_max_convoi_length()=%i",depot->g
 	bt_obsolete.set_tooltip("Show also vehicles no longer in production.");
 	add_komponente(&bt_obsolete);
 
+	bt_show_all.setze_typ(button_t::square);
+	bt_show_all.setze_text("Show all");
+	bt_show_all.add_listener(this);
+	bt_show_all.set_tooltip("Show also vehicles that do not match for current action.");
+	add_komponente(&bt_show_all);
+
 	koord gr = koord(0,0);
 	// text is only known now!
 	lb_convois.setze_text(txt_convois);
@@ -315,7 +323,7 @@ void depot_frame_t::layout(koord *gr)
 	/*
 	*	Structure of [VINFO] is one multiline text.
 	*/
-	int VINFO_HEIGHT = 82;
+	int VINFO_HEIGHT = 86;
 
 	/*
 	* Total width is the max from [CONVOI] and [ACTIONS] width.
@@ -478,7 +486,11 @@ void depot_frame_t::layout(koord *gr)
 	bt_veh_action.setze_pos(koord(TOTAL_WIDTH-ABUTTON_WIDTH, PANEL_VSTART + PANEL_HEIGHT + 14));
 	bt_veh_action.setze_groesse(koord(ABUTTON_WIDTH, ABUTTON_HEIGHT));
 
-	bt_obsolete.setze_pos(koord(TOTAL_WIDTH-(ABUTTON_WIDTH*5)/2, PANEL_VSTART + PANEL_HEIGHT + 14));
+	bt_show_all.setze_pos(koord(TOTAL_WIDTH-(ABUTTON_WIDTH*5)/2, PANEL_VSTART + PANEL_HEIGHT + 4 ));
+	bt_show_all.setze_groesse(koord(ABUTTON_WIDTH, ABUTTON_HEIGHT));
+	bt_show_all.pressed = show_all;
+
+	bt_obsolete.setze_pos(koord(TOTAL_WIDTH-(ABUTTON_WIDTH*5)/2, PANEL_VSTART + PANEL_HEIGHT + 16));
 	bt_obsolete.setze_groesse(koord(ABUTTON_WIDTH, ABUTTON_HEIGHT));
 	bt_obsolete.pressed = show_retired_vehicles;
 }
@@ -575,15 +587,47 @@ void depot_frame_t::build_vehicle_lists()
 	const schiene_t *sch = dynamic_cast<const schiene_t *>(welt->lookup(depot->gib_pos())->gib_weg(track_wt));
 	const bool schiene_electric = (sch==NULL)  ||  sch->is_electrified();
 	i = 0;
-	while(depot->get_vehicle_type(i)) {
-		const vehikel_besch_t *info=depot->get_vehicle_type(i);
-		// current vehicle
-		if( is_contained(info)  ||
-			(schiene_electric  ||  info->get_engine_type()!=vehikel_besch_t::electric)  &&
-		     ((!info->is_future(month_now))  &&  (show_retired_vehicles  ||  (!info->is_retired(month_now)) )  ) ) {
-			add_to_vehicle_list( info );
+
+	// use this to show only sellable vehicles
+	if(!show_all  &&  veh_action==va_sell) {
+		// just list the one to sell
+		slist_iterator_tpl<vehikel_t *> iter2(depot->get_vehicle_list());
+		while(iter2.next()) {
+			if(vehicle_map.get(iter2.get_current()->gib_besch())) {
+				continue;
+			}
+			add_to_vehicle_list( iter2.get_current()->gib_besch() );
 		}
-		i++;
+	}
+	else {
+		// list only matching ones
+		while(depot->get_vehicle_type(i)) {
+			const vehikel_besch_t *info=depot->get_vehicle_type(i);
+			const vehikel_besch_t *veh = NULL;
+			convoihandle_t cnv = depot->get_convoi(icnv);
+			if(cnv.is_bound() && cnv->gib_vehikel_anzahl()>0) {
+				veh = (veh_action == va_insert) ? cnv->gib_vehikel(0)->gib_besch() : cnv->gib_vehikel(cnv->gib_vehikel_anzahl() - 1)->gib_besch();
+			}
+
+			// current vehicle
+			if( is_contained(info)  ||
+				(schiene_electric  ||  info->get_engine_type()!=vehikel_besch_t::electric)  &&
+					 ((!info->is_future(month_now))  &&  (show_retired_vehicles  ||  (!info->is_retired(month_now)) )  ) ) {
+				// check, if allowed
+				bool append = true;
+				if(!show_all) {
+					if(veh_action == va_insert) {
+						append = !(!convoi_t::pruefe_nachfolger(info, veh) ||  veh && !convoi_t::pruefe_vorgaenger(info, veh));
+					} else if(veh_action == va_append) {
+						append = convoi_t::pruefe_vorgaenger(veh, info);
+					}
+				}
+				if(append) {
+					add_to_vehicle_list( info );
+				}
+			}
+			i++;
+		}
 	}
 DBG_DEBUG("depot_frame_t::build_vehicle_lists()","finally %i passenger vehicle, %i  engines, %i good wagons",pas_vec.get_count(),loks_vec.get_count(),waggons_vec.get_count());
 }
@@ -944,6 +988,9 @@ depot_frame_t::action_triggered(gui_komponente_t *komp,value_t p)
 		} else if(komp == &bt_obsolete) {
 			show_retired_vehicles = (show_retired_vehicles==0);
 			build_vehicle_lists();
+		} else if(komp == &bt_show_all) {
+			show_all = (show_all==0);
+			build_vehicle_lists();
 		} else if(komp == &bt_veh_action) {
 			if(veh_action== va_sell) {
 				veh_action = va_append;
@@ -951,6 +998,8 @@ depot_frame_t::action_triggered(gui_komponente_t *komp,value_t p)
 			else {
 				veh_action = veh_action+1;
 			}
+			// show only used ones
+			build_vehicle_lists();
 		} else if(komp == &bt_new_line) {
 			new_line();
 			return true;
@@ -1100,6 +1149,7 @@ depot_frame_t::zeichnen(koord pos, koord groesse)
 	}
 
 	bt_obsolete.pressed = show_retired_vehicles;	// otherwise the button would not show depressed
+	bt_show_all.pressed = show_all;	// otherwise the button would not show depressed
 	gui_frame_t::zeichnen(pos, groesse);
 
 	if(!cnv.is_bound()) {
@@ -1277,7 +1327,7 @@ depot_frame_t::draw_vehicle_info_text(koord pos)
 				);
 		}
 	}
-	display_multiline_text( pos.x + 4, pos.y + tabs.gib_pos().y + tabs.gib_groesse().y + 20, buf,  COL_BLACK);
+	display_multiline_text( pos.x + 4, pos.y + tabs.gib_pos().y + tabs.gib_groesse().y + 20+4, buf,  COL_BLACK);
 
 	// column 2
 	if(veh_type) {
@@ -1305,6 +1355,6 @@ depot_frame_t::draw_vehicle_info_text(koord pos)
 			sprintf(buf + strlen(buf), "%s %d Cr", translator::translate("Restwert:"), 	value);
 		}
 
-		display_multiline_text( pos.x + 200, pos.y + tabs.gib_pos().y + tabs.gib_groesse().y + 31 + LINESPACE*2, buf, COL_BLACK);
+		display_multiline_text( pos.x + 200, pos.y + tabs.gib_pos().y + tabs.gib_groesse().y + 31 + LINESPACE*2 +4, buf, COL_BLACK);
 	}
 }

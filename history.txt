@@ -19,6 +19,8 @@ xx-Nov-2006: (prissi)
 	CHANGE: objects now take care of their image themselves => another four bytes off from ding_t (smaller is not possible, imho)
 	FIX: larger than 1x1 building on slopes
 	CHANGE: game will continue even while dragging (still little buggy)
+	CHANGE: cityrules allow now up to 7x7; more fine control about the res/ind/com clustering too (see cityconf.tab)
+	CHANGE: option to not showing vehicles which are not matching current action ('Show all' and 'Show also vehicles that do not match for current action.' strings added)
 
 
 Release of 99.04.2

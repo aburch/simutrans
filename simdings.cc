@@ -45,28 +45,6 @@ karte_t * ding_t::welt = NULL;
 ptrhashtable_tpl<ding_t *, ding_infowin_t *> * ding_t::ding_infos = new ptrhashtable_tpl<ding_t *, ding_infowin_t *> ();
 
 
-/**
- * setzt den Besitzer des dings
- * (public wegen Rathausumbau - V.Meyer)
- * @author Hj. Malthaner
- */
-void ding_t::setze_besitzer(spieler_t *sp)
-{
-  besitzer_n = welt->sp2num(sp);
-}
-
-
-/**
- * Ein Objekt kann einen Besitzer haben.
- * @return Einen Zeiger auf den Besitzer des Objekts oder NULL,
- * wenn das Objekt niemand gehört.
- * @author Hj. Malthaner
- */
-spieler_t * ding_t::gib_besitzer() const {
-  return besitzer_n == -1 ? 0 : welt->gib_spieler(besitzer_n);
-}
-
-
 void ding_t::entferne_ding_info() {
 	ding_infos->remove(this);
 }
@@ -151,6 +129,31 @@ ding_t::~ding_t()
 		}
 	}
 //DBG_MESSAGE("ding_t::~ding_t()","finished");
+}
+
+
+
+
+/**
+ * setzt den Besitzer des dings
+ * (public wegen Rathausumbau - V.Meyer)
+ * @author Hj. Malthaner
+ */
+void ding_t::setze_besitzer(spieler_t *sp)
+{
+	besitzer_n = welt->sp2num(sp);
+}
+
+
+
+/**
+ * Ein Objekt kann einen Besitzer haben.
+ * @return Einen Zeiger auf den Besitzer des Objekts oder NULL,
+ * wenn das Objekt niemand gehört.
+ * @author Hj. Malthaner
+ */
+spieler_t * ding_t::gib_besitzer() const {
+	return besitzer_n == -1 ? 0 : welt->gib_spieler(besitzer_n);
 }
 
 

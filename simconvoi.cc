@@ -1547,27 +1547,27 @@ convoi_t::open_schedule_window()
 bool
 convoi_t::pruefe_nachfolger(const vehikel_besch_t *vor, const vehikel_besch_t *hinter)
 {
-    const vehikel_besch_t *soll;
+	const vehikel_besch_t *soll;
 
-    if(!vor->gib_nachfolger_count()) {
-	// Alle Nachfolger erlaubt
-	return true;
-    }
-    for(int i=0; i < vor->gib_nachfolger_count(); i++) {
-	soll = vor->gib_nachfolger(i);
-	//DBG_MESSAGE("convoi_t::pruefe_an_index()",
-	//    "checking successor: should be %d, is %d",
-	//    soll ? soll->gib_name() : "none",
-	//    hinter ? hinter->gib_name() : "none");
-
-	if(hinter == soll) {
-	    // Diese Beschränkung erlaubt unseren Nachfolger
-	    return true;
+	if(!vor->gib_nachfolger_count()) {
+		// Alle Nachfolger erlaubt
+		return true;
 	}
-    }
-    //DBG_MESSAGE("convoi_t::pruefe_an_index()",
-    //		 "No matching successor found.");
-    return false;
+	for(int i=0; i < vor->gib_nachfolger_count(); i++) {
+		soll = vor->gib_nachfolger(i);
+		//DBG_MESSAGE("convoi_t::pruefe_an_index()",
+		//    "checking successor: should be %d, is %d",
+		//    soll ? soll->gib_name() : "none",
+		//    hinter ? hinter->gib_name() : "none");
+
+		if(hinter == soll) {
+			// Diese Beschränkung erlaubt unseren Nachfolger
+			return true;
+		}
+	}
+	//DBG_MESSAGE("convoi_t::pruefe_an_index()",
+	//		 "No matching successor found.");
+	return false;
 }
 
 /* Fahrzeuge passen oft nur in bestimmten kombinationen
@@ -1577,27 +1577,27 @@ convoi_t::pruefe_nachfolger(const vehikel_besch_t *vor, const vehikel_besch_t *h
 bool
 convoi_t::pruefe_vorgaenger(const vehikel_besch_t *vor, const vehikel_besch_t *hinter)
 {
-    const vehikel_besch_t *soll;
+	const vehikel_besch_t *soll;
 
-    if(!hinter->gib_vorgaenger_count()) {
-	// Alle Vorgänger erlaubt
-	return true;
-    }
-    for(int i=0; i < hinter->gib_vorgaenger_count(); i++) {
-	soll = hinter->gib_vorgaenger(i);
-	//DBG_MESSAGE("convoi_t::pruefe_vorgaenger()",
-	//	     "checking predecessor: should be %s, is %s",
-	//	     soll ? soll->gib_name() : "none",
-	//	     vor ? vor->gib_name() : "none");
-
-	if(vor == soll) {
-	    // Diese Beschränkung erlaubt unseren Vorgänger
-	    return true;
+	if(!hinter->gib_vorgaenger_count()) {
+		// Alle Vorgänger erlaubt
+		return true;
 	}
-    }
-    //DBG_MESSAGE("convoi_t::pruefe_vorgaenger()",
-    //		 "No matching predecessor found.");
-    return false;
+	for(int i=0; i < hinter->gib_vorgaenger_count(); i++) {
+		soll = hinter->gib_vorgaenger(i);
+		//DBG_MESSAGE("convoi_t::pruefe_vorgaenger()",
+		//	     "checking predecessor: should be %s, is %s",
+		//	     soll ? soll->gib_name() : "none",
+		//	     vor ? vor->gib_name() : "none");
+
+		if(vor == soll) {
+			// Diese Beschränkung erlaubt unseren Vorgänger
+			return true;
+		}
+	}
+	//DBG_MESSAGE("convoi_t::pruefe_vorgaenger()",
+	//		 "No matching predecessor found.");
+	return false;
 }
 
 

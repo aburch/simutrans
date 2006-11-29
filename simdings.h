@@ -266,13 +266,6 @@ public:
 	virtual image_id gib_after_bild() const {return IMG_LEER;}
 
 	/**
-	 * set image zero to this number
-	 * @param bild bild nummer
-	 * @author Hj. Malthaner
-	 */
-	virtual void setze_bild(image_id /*bild*/) {}
-
-	/**
 	 * Ein Objekt kann zu einer Fabrik gehören.
 	 * @return Einen Zeiger auf die Fabrik zu der das Objekt gehört oder NULL,
 	 * wenn das Objekt zu keiner Fabrik gehört.

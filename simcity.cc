@@ -66,48 +66,14 @@
 
 karte_t *stadt_t::welt = NULL;	// one is enough ...
 
+/********************************* From here on cityrules stuff *****************************************/
+
+
 /**
  * in this fixed interval, construction will happen
+ * 21s = 21000 per house
  */
 const uint32 stadt_t::step_bau_interval=21000u;
-
-/**
- * Number of house building rules
- * @author Hj. Malthaner
- */
-static int num_house_rules = 0;
-
-/**
- * Number of road building rules
- * @author Hj. Malthaner
- */
-static int num_road_rules = 0;
-
-
-/**
- * Rule data structure
- * @author Hj. Malthaner
- */
-struct rule_t {
-  int  chance;
-  char rule[12];
-};
-
-
-/**
- * Road building rules
- * @author Hj. Malthaner
- */
-static struct rule_t * road_rules = 0;
-
-
-/**
- * House building rules
- * @author Hj. Malthaner
- */
-static struct rule_t * house_rules = 0;
-
-
 
 /**
  * try to built cities at least this distance apart
@@ -123,7 +89,355 @@ static int minimum_city_distance = 16;
 static int industry_increase_every[8];
 
 
-//------------ haltestellennamen -----------------------
+// the following are the scores for the different building types
+static int ind_start_score=0;
+static int com_start_score=-10;
+static int res_start_score=0;
+
+// order: res com, ind, given by gebaeude_t::typ
+static int ind_neighbour_score[3] = { -8, 0, 8 };
+static int com_neighbour_score[3] = { 1, 8, 1 };
+static int res_neighbour_score[3] = { 8, 0, -8 };
+
+/**
+ * Rule data structure
+ * maximum 7x7 rules
+ * @author Hj. Malthaner
+ */
+struct rule_t {
+	int  chance;
+	char rule[49];
+};
+
+// house rules
+static int num_house_rules = 0;
+static struct rule_t * house_rules = 0;
+
+// and road rules
+static int num_road_rules = 0;
+static struct rule_t * road_rules = 0;
+
+// rotation of the rules ...
+static uint8 rotate_rules_0[49]= {
+	0, 1, 2, 3, 4, 5, 6,
+	7, 8, 9, 10, 11, 12, 13,
+	14, 15, 16, 17, 18, 19, 20,
+	21, 22, 23, 24, 25, 26, 27,
+	28, 29, 30, 31, 32, 33, 34,
+	35, 36, 37, 38, 39, 40, 41,
+	42, 43, 44, 45, 46, 47, 48
+};
+
+
+static uint8 rotate_rules_90[49]= {
+	6, 13, 20, 27, 34, 41, 48,
+	5, 12, 19, 26, 33, 40, 47,
+	4, 11, 18, 25, 32, 39, 46,
+	3, 10, 17, 24, 31, 38, 45,
+	2, 9, 16, 23, 30, 37, 44,
+	1, 8, 15, 22, 29, 36, 43,
+	0, 7, 14, 21, 28, 35, 42
+};
+
+static uint8 rotate_rules_180[49]= {
+	48, 47, 46, 45, 44, 43, 42,
+	41, 40, 39, 38, 37, 36, 35,
+	34, 33, 32, 31, 30, 29, 28,
+	27, 26, 25, 24, 23, 22, 21,
+	20, 19, 18, 17, 16, 15, 14,
+	13, 12, 11, 10, 9, 8, 7,
+	6, 5, 4, 3, 2, 1, 0
+};
+
+static uint8 rotate_rules_270[49]= {
+	42, 35, 28, 21, 14, 7, 0,
+	43, 36, 29, 22, 15, 8, 1,
+	44, 37, 30, 23, 16, 9, 2,
+	45, 38, 31, 24, 17, 10, 3,
+	46, 39, 32, 25, 18, 11, 4,
+	47, 40, 33, 26, 19, 12, 5,
+	48, 41, 34, 27, 20, 13, 6
+};
+
+/**
+ * Symbols in rules:
+ * S = darf keine Strasse sein
+ * s = muss Strasse sein
+ * n = muss Natur sein
+ * H = darf kein Haus sein
+ * h = muss Haus sein
+ * T = not a stop	// added in 88.03.3
+ * t = is a stop // added in 88.03.3
+ * . = beliebig
+ *
+ * @param pos position to check
+ * @param regel the rule to evaluate
+ * @return true on match, false otherwise
+ * @author Hj. Malthaner
+ */
+bool
+stadt_t::bewerte_loc(const koord pos, const char *regel, int rotation)
+{
+	koord k;
+	bool ok=true;
+	uint8 *index_to_rule = 0;
+	switch(rotation) {
+		case 0: index_to_rule = rotate_rules_0;
+			break;
+		case 90: index_to_rule = rotate_rules_90;
+			break;
+		case 180: index_to_rule = rotate_rules_180;
+			break;
+		case 270: index_to_rule = rotate_rules_270;
+			break;
+	}
+
+	uint8 rule_index = 0;
+	for(k.y=pos.y-3;  k.y<=pos.y+3;  k.y++) {
+		for(k.x=pos.x-3;  k.x<=pos.x+3;  k.x++) {
+			const char rule = regel[index_to_rule[rule_index++]];
+			if(rule!=0) {
+
+				grund_t *gr=welt->lookup_kartenboden(k);
+				if(!gr) {
+					// outside of the map => cannot apply this rule
+					return false;
+				}
+
+				switch(rule) {
+					case 's':
+						// road?
+						if(!gr->hat_weg(road_wt)) return false;
+						break;
+					case 'S':
+						// not road?
+						if(gr->hat_weg(road_wt)) return false;
+						break;
+					case 'h':
+						// is house
+						if(gr->gib_typ()!=grund_t::fundament) return false;
+						break;
+					case 'H':
+						// no house
+						if(gr->gib_typ()==grund_t::fundament) return false;
+						break;
+					case 'n':
+						// nature/empty
+						if(!gr->ist_natur()  ||  gr->kann_alle_obj_entfernen(NULL)!=NULL) return false;
+						break;
+					case 't':
+						// here is a stop/extension building
+						if(!gr->is_halt()) return false;
+						break;
+					case 'T':
+						// no stop
+						if(gr->is_halt()) return false;
+						break;
+				}
+			}
+		}
+	}
+	return true;
+}
+
+
+/**
+ * Check rule in all transformations at given position
+ * prissi: but the rules should explicitly forbid building then?!?
+ * @author Hj. Malthaner
+ */
+int
+stadt_t::bewerte_pos(const koord pos, const char *regel)
+{
+	int w;
+	w = bewerte_loc(pos, regel, 0);
+	w += bewerte_loc(pos, regel, 90);
+	w += bewerte_loc(pos, regel, 180);
+	w += bewerte_loc(pos, regel, 270);
+	return w;
+}
+
+void
+stadt_t::bewerte_strasse(koord k, int rd, char *regel)
+{
+	if(simrand(rd) == 0) {
+		best_strasse.check(k, bewerte_pos(k, regel));
+	}
+}
+
+void
+stadt_t::bewerte_haus(koord k, int rd, char *regel)
+{
+	if(simrand(rd) == 0) {
+		best_haus.check(k, bewerte_pos(k, regel));
+	}
+}
+
+/*
+ * Zeichen in Regeln:
+ * S = darf keine Strasse sein
+ * s = muss Strasse sein
+ * n = muss Natur sein
+ * t = muss Stop sein ...
+ * . = beliebig
+ */
+void
+stadt_t::bewerte()
+{
+	// Zufallspos im Stadtgebiet
+	const int speed = 8;
+	const koord k (lo + koord( simrand(ur.x-lo.x+1),simrand(ur.y-lo.y+1)) );
+
+	best_haus.reset(k);
+	best_strasse.reset(k);
+	for(int i=0; i<num_house_rules; i++) {
+		bewerte_haus(k, speed+house_rules[i].chance, house_rules[i].rule);
+	}
+
+	for(int i=0; i<num_road_rules; i++) {
+		bewerte_strasse(k, speed+road_rules[i].chance, road_rules[i].rule);
+	}
+}
+
+
+
+/**
+ * Reads city configuration data
+ * @author Hj. Malthaner
+ */
+bool
+stadt_t::cityrules_init()
+{
+	const char *filename = "config/cityrules.tab";
+	tabfile_t cityconf;
+
+	if(!cityconf.open(filename)) {
+		dbg->fatal("stadt_t::init()", "Can't read '%s'", filename);
+		return false;
+	}
+
+	tabfileobj_t contents;
+	cityconf.read(contents);
+
+	char buf[128];
+
+	minimum_city_distance = contents.get_int("minimum_city_distance", 16);
+	int ind_increase = contents.get_int("industry_increase_every", 0);
+	for(int i=0;  i<8;  i++  ) {
+		industry_increase_every[i] = (ind_increase<<i);
+	}
+
+	// init the building value tables
+	ind_start_score = contents.get_int("ind_start_score", 0);
+	ind_neighbour_score[0] = contents.get_int("ind_near_res", -8);
+	ind_neighbour_score[1] = contents.get_int("ind_near_com", 0);
+	ind_neighbour_score[2] = contents.get_int("ind_near_ind", 8);
+
+	com_start_score = contents.get_int("com_start_score", -10);
+	com_neighbour_score[0] = contents.get_int("com_near_res", 1);
+	com_neighbour_score[1] = contents.get_int("com_near_com", 8);
+	com_neighbour_score[2] = contents.get_int("com_near_ind", 1);
+
+	res_start_score = contents.get_int("res_start_score", 0);
+	res_neighbour_score[0] = contents.get_int("res_near_res", 8);
+	res_neighbour_score[1] = contents.get_int("res_near_com", 0);
+	res_neighbour_score[2] = contents.get_int("res_near_ind", -8);
+
+	num_house_rules = 0;
+	while (true) {
+		sprintf(buf, "house_%d", num_house_rules+1);
+		if(contents.get_string(buf, 0)) {
+			num_house_rules ++;
+		} else {
+			break;
+		}
+	}
+	DBG_MESSAGE("stadt_t::init()", "Read %d house building rules", num_house_rules);
+
+	num_road_rules = 0;
+	while (true) {
+		sprintf(buf, "road_%d", num_road_rules+1);
+		if(contents.get_string(buf, 0)) {
+			num_road_rules ++;
+		} else {
+			break;
+		}
+	}
+	DBG_MESSAGE("stadt_t::init()", "Read %d road building rules", num_road_rules);
+
+	house_rules = new struct rule_t [num_house_rules];
+	for(int i=0; i<num_house_rules; i++) {
+		sprintf(buf, "house_%d.chance", i+1);
+		house_rules[i].chance = contents.get_int(buf, 0);
+		memset( house_rules[i].rule, 0, 49 );
+
+		sprintf(buf, "house_%d", i+1);
+		const char * rule = contents.get_string(buf, "");
+
+		// skip leading spaces (use . for padding)
+		while(*rule==' ') {
+			rule++;
+		}
+
+		// find out rule size
+		int size=0;
+		int maxlen = strlen(rule);
+		while(size<maxlen  &&  rule[size]!=' ') {
+			size++;
+		}
+
+		if(size>7  ||  maxlen<size*(size+1)-1  ||  (size&1)==0  ||  size<=2  ) {
+			dbg->fatal("stadt_t::cityrules_init()","house rule %d has bad format!", i+1 );
+		}
+
+		// put rule into memory
+		const uint8 offset = (7-size)/2;
+		for(int y=0;  y<size;  y++) {
+			for(int x=0;  x<size;  x++) {
+				house_rules[i].rule[(offset+y)*7 + x+offset] = rule[x+y*(size+1)];
+			}
+		}
+	}
+
+	road_rules = new struct rule_t [num_road_rules];
+	for(int i=0; i<num_road_rules; i++) {
+		sprintf(buf, "road_%d.chance", i+1);
+		road_rules[i].chance = contents.get_int(buf, 0);
+		memset( road_rules[i].rule, 0, 49 );
+
+		sprintf(buf, "road_%d", i+1);
+		const char * rule = contents.get_string(buf, "");
+
+		// skip leading spaces (use . for padding)
+		while(*rule==' ') {
+			rule++;
+		}
+
+		// find out rule size
+		int size=0;
+		int maxlen = strlen(rule);
+		while(size<maxlen  &&  rule[size]!=' ') {
+			size++;
+		}
+
+		if(size>7  ||  maxlen<size*(size+1)-1  ||  (size&1)==0  ||  size<=2  ) {
+			dbg->fatal("stadt_t::cityrules_init()","road rule %d has bad format!", i+1 );
+		}
+
+		// put rule into memory
+		const uint8 offset = (7-size)/2;
+		for(int y=0;  y<size;  y++) {
+			for(int x=0;  x<size;  x++) {
+				road_rules[i].rule[(offset+y)*7 + x+offset] = rule[x+y*(size+1)];
+			}
+		}
+	}
+	return true;
+}
+
+
+
+/*************************************************** create stop names ****************************************************/
 
 static const int anz_zentrum = 7;
 static const char * zentrum_namen [anz_zentrum] =
@@ -195,6 +509,155 @@ static const char * aussen_namen [anz_aussen] =
 //     "%s Zweig %s", "%s Neben %s", "%s Land %s", "%s Außen %s"
     "1extern", "2extern", "3extern", "4extern",
 };
+
+
+/**
+ * Creates a station name
+ * @param number if >= 0, then a number is added to the name
+ * @author Hj. Malthaner
+ */
+const char *
+stadt_t::haltestellenname(koord k, const char *typ, int number)
+{
+	const char *num_city_base = "%s city %d %s";
+	const char *num_land_base = "%s land %d %s";
+	const char *base = "1center";	// usually gets to %s %s
+	const char *building=NULL;
+	bool outside = false;
+	char buf [512];	// temperary name storage
+
+	if(number>=0  &&  umgebung_t::numbered_stations) {
+		// numbered stations here
+		int li_gr = lo.x + 2;
+		int re_gr = ur.x - 2;
+		int ob_gr = lo.y + 2;
+		int un_gr = ur.y - 2;
+
+		if(li_gr<k.x && re_gr>k.x && ob_gr<k.y && un_gr>k.y) {
+			zentrum_namen_cnt ++;
+			sprintf(buf, translator::translate(num_city_base),
+				this->name,
+				zentrum_namen_cnt,
+				translator::translate(typ));
+		}
+		else {
+			aussen_namen_cnt ++;
+			sprintf(buf, translator::translate(num_land_base),
+				this->name,
+				aussen_namen_cnt,
+				translator::translate(typ));
+		}
+	}
+	else {
+		// standard names:
+		// order: factory, attraction, direction, normal name
+
+		// prissi: first we try a factory name
+		halthandle_t halt=haltestelle_t::gib_halt(welt,k);
+		if(halt.is_bound()) {
+			// first factories (so with same distance, they have priority)
+			int this_distance = 999;
+			slist_iterator_tpl <fabrik_t *> fab_iter(halt->gib_fab_list());
+			while( fab_iter.next() ) {
+				int distance = abs_distance( fab_iter.get_current()->gib_pos().gib_2d(), k );
+				if(distance<this_distance) {
+					building = fab_iter.get_current()->gib_name();
+					distance = this_distance;
+				}
+			}
+			// check for other special building (townhall, monument, tourst attraction)
+			const sint16 catchment_area=welt->gib_einstellungen()->gib_station_coverage();
+			for( int x=-catchment_area;  x<=catchment_area;  x++ ) {
+				for( int y=-catchment_area;  y<=catchment_area;  y++ ) {
+					const planquadrat_t *plan=welt->lookup(koord(x,y)+k);
+					int distance = abs(x)+abs(y);
+					if(plan  &&  abs(x+y)<this_distance) {
+						gebaeude_t *gb=dynamic_cast<gebaeude_t *>(plan->gib_kartenboden()->suche_obj(ding_t::gebaeude));
+						if(gb) {
+							if(gb->is_monument()) {
+								building = translator::translate(gb->gib_name());
+								this_distance = distance;
+							}
+							else if(	gb->ist_rathaus()  ||
+										gb->gib_tile()->gib_besch()->gib_utyp()==hausbauer_t::sehenswuerdigkeit  ||  // land attraction
+										gb->gib_tile()->gib_besch()->gib_utyp()==hausbauer_t::special) { //town attarcttion
+								building = make_single_line_string(translator::translate(gb->gib_tile()->gib_besch()->gib_name()),2);
+								this_distance = distance;
+							}
+						}
+					}
+				}
+			}
+		}
+
+		// no factory found => take the usual name scheme
+		if(building==NULL) {
+			int li_gr = lo.x + 2;
+			int re_gr = ur.x - 2;
+			int ob_gr = lo.y + 2;
+			int un_gr = ur.y - 2;
+
+			if(li_gr<k.x && re_gr>k.x && ob_gr<k.y && un_gr>k.y) {
+				base = zentrum_namen[zentrum_namen_cnt % anz_zentrum];
+				zentrum_namen_cnt ++;
+			} else if(li_gr-6<k.x && re_gr+6>k.x && ob_gr-6<k.y && un_gr+6>k.y) {
+				if(k.y < ob_gr) {
+					if(k.x<li_gr) {
+						base = nordwest_namen[0];
+					} else if(k.x>re_gr) {
+						base = nordost_namen[0];
+					} else {
+						base = nord_namen[0];
+					}
+				} else if(k.y > un_gr) {
+					if(k.x<li_gr) {
+						base = suedwest_namen[0];
+					} else if(k.x>re_gr) {
+						base = suedost_namen[0];
+					} else {
+						base = sued_namen[0];
+					}
+				} else {
+					if(k.x <= li_gr) {
+						base = west_namen[0];
+					} else if(k.x >= re_gr) {
+						base = ost_namen[0];
+					} else {
+						base = zentrum_namen[zentrum_namen_cnt % anz_zentrum];
+						zentrum_namen_cnt ++;
+					}
+				}
+			} else {
+				base = aussen_namen[aussen_namen_cnt % anz_aussen];
+				aussen_namen_cnt ++;
+				outside = true;
+			}
+		}
+
+		// compose the name
+		if(building==NULL) {
+			sprintf(buf, translator::translate(base),
+				this->name,
+				translator::translate(typ));
+		}
+		else {
+			// with factories
+			sprintf(buf, translator::translate("%s building %s %s"),
+				this->name,
+				building,
+				translator::translate(typ));
+		}
+	}
+
+	const long len = strlen(buf) + 1;
+	char *name = new char[len];
+	tstrncpy(name, buf, len);
+
+	return name;
+}
+
+/**************************************************************************************************************/
+
 
 
 /**
@@ -1522,235 +1985,6 @@ stadt_t::check_bau_factory(bool new_town)
 }
 
 
-/*
- * transformationfunktionen fuer die Regeln
- *
- * Regeln liegen Zeilenweise im Speicher
- */
-
-// spiegeln in y
-
-void
-stadt_t::trans_y(const char *regel, char *tr)
-{
-  int x,y;
-
-  for(x=0; x<3; x++) {
-    for(y=0; y<3; y++) {
-      tr[x + ((2-y)<<2)] = regel[x+(y<<2)];
-    }
-  }
-}
-
-// drehen 90 Grad links
-
-void
-stadt_t::trans_l(const char *regel, char *tr)
-{
-  int x,y;
-
-  for(x=0; x<3; x++) {
-    for(y=0; y<3; y++) {
-      const int xx = y;
-      const int yy = 2-x;
-      tr[xx + (yy<<2)] = regel[x+(y<<2)];
-    }
-  }
-}
-
-// drehen 90 Grad rechts
-
-void
-stadt_t::trans_r(const char *regel, char *tr)
-{
-  int x,y;
-
-  for(x=0; x<3; x++) {
-    for(y=0; y<3; y++) {
-      const int xx = 2-y;
-      const int yy = x;
-      tr[xx + (yy<<2)] = regel[x+(y<<2)];
-    }
-  }
-}
-
-
-/**
- * Symbols in rules:
- * S = darf keine Strasse sein
- * s = muss Strasse sein
- * n = muss Natur sein
- * H = darf kein Haus sein
- * h = muss Haus sein
- * T = not a stop	// added in 88.03.3
- * t = is a stop // added in 88.03.3
- * . = beliebig
- *
- * @param pos position to check
- * @param regel the rule to evaluate
- * @return true on match, false otherwise
- * @author Hj. Malthaner
- */
-bool
-stadt_t::bewerte_loc(const koord pos, const char *regel)
-{
-	koord k;
-	bool ok=true;
-
-	for(k.y=pos.y-1; ok && k.y<=pos.y+1; k.y++) {
-		for(k.x=pos.x-1; ok && k.x<=pos.x+1; k.x++) {
-			grund_t *gr=welt->lookup_kartenboden(k);
-
-			if(gr) {
-
-				switch(regel[(k.x-pos.x+1) + ((k.y-pos.y+1)<<2)]) {
-					case 's':
-						ok = gr->hat_weg(road_wt);
-						break;
-					case 'S':
-						ok = !gr->hat_weg(road_wt);
-						break;
-					case 'h':
-						// is house
-						ok = gr->gib_typ()==grund_t::fundament;
-						break;
-					case 'H':
-						// no house
-						ok = gr->gib_typ()!=grund_t::fundament;
-						break;
-					case 'n':
-						ok = gr->ist_natur() && gr->kann_alle_obj_entfernen(NULL)==NULL;
-						break;
-					case 't':
-						// here is a stop/extension building
-						ok = gr->is_halt();
-						break;
-					case 'T':
-						// no stop
-						ok = !gr->is_halt();
-						break;
-				}
-			}
-			else {
-				ok = false;
-			}
-		}
-	}
-	return ok;
-}
-
-
-/**
- * Check rule in all transformations at given position
- * @author Hj. Malthaner
- */
-int
-stadt_t::bewerte_pos(const koord pos, const char *regel)
-{
-    char tr[12];    // fuer die 'transformierte' Regel
-
-    int w=bewerte_loc(pos, regel);
-    trans_y(regel, tr);
-    w+=bewerte_loc(pos, tr);
-
-    trans_l(regel, tr);
-    w+=bewerte_loc(pos, tr);
-
-    trans_r(regel, tr);
-    w+=bewerte_loc(pos, tr);
-
-    return w;
-}
-
-void
-stadt_t::bewerte_strasse(koord k, int rd, char *regel)
-{
-    if(simrand(rd) == 0) {
-  best_strasse.check(k, bewerte_pos(k, regel));
-    }
-}
-
-void
-stadt_t::bewerte_haus(koord k, int rd, char *regel)
-{
-    if(simrand(rd) == 0) {
-  best_haus.check(k, bewerte_pos(k, regel));
-    }
-}
-
-/*
- * Zeichen in Regeln:
- * S = darf keine Strasse sein
- * s = muss Strasse sein
- * n = muss Natur sein
- * . = beliebig
- */
-
-void
-stadt_t::bewerte()
-{
-    const int speed = 8;
-
-    // Zufallspos im Stadtgebiet
-    const koord k (lo + koord( simrand(ur.x-lo.x+1),simrand(ur.y-lo.y+1)) );
-
-    best_haus.reset(k);
-    best_strasse.reset(k);
-
-    /*
-    bewerte_haus(k, speed-4,"....n.sss"); // Haus am Strassenrand
-    bewerte_haus(k, speed+12,"....n.ss.");  // Haus am Strassenrand
-    bewerte_haus(k, speed+12,"....n..ss");  // Haus am Strassenrand
-    INT_CHECK("simcity 710");
-
-    bewerte_strasse(k, speed+3,"...SnSssS");  // Kurve 1
-    bewerte_strasse(k, speed+3,"...SnSSss");  // Kurve 2
-
-    bewerte_strasse(k, speed+3,"...SnSSs.");  // Strassenende weiterbauen
-    INT_CHECK("simcity 716");
-    bewerte_strasse(k, speed+3,"...SnS.sS");  // Strassenende weiterbauen
-    bewerte_strasse(k, speed,"....n.SsS");  // Strassenende weiterbauen
-    bewerte_strasse(k, speed+1,"...nnnsss");    // Einmuendung in Natur
-    */
-
-    /*
-    // mit hoher Wahrscheinlichkeit Haus bauen, wenn...
-    bewerte_haus(k, speed-2, "... Hn. sss"); // Haus am Strassenrand
-    bewerte_haus(k, speed-2, "... .nH sss"); // Haus am Strassenrand
-    // auf jeden Fall Haus bauen, wenn...
-    bewerte_haus(k, speed-7, "... .ns .ss"); // Haus an der Ecke
-    bewerte_haus(k, speed-7, "... sn. ss."); // Haus an der Ecke
-    bewerte_haus(k, speed-7, ".h. hns .sH"); // fehlendes Haus vom Block
-    bewerte_haus(k, speed-7, ".h. snh Hs."); // fehlendes Haus vom Block
-    bewerte_haus(k, speed-7, ".h. hnh .s."); // Haus "mittendrin"
-
-    // bewerte_strasse(k, speed+18,".H. SnS .sS"); // Strassenende weiterbauen
-    bewerte_strasse(k, speed+4,".H. SnS .sS"); // Strassenende weiterbauen
-    //bewerte_strasse(k, speed+4, ".H. .n. SsS"); // Strassenende weiterbauen
-    bewerte_strasse(k, speed+2, ".H. .n. SsS"); // Strassenende weiterbauen
-    bewerte_strasse(k, speed-2, "... SnS SsS"); // Strassenende weiterbauen
-    bewerte_strasse(k, speed-2, ".h. hns .sh"); // Lücke schließen
-    bewerte_strasse(k, speed-2, ".h. snh hs."); // Lücke schließen
-
-    // Einmündung bauen (nie bauen, wenn es Sackgasse zu einem Haus ist)
-    bewerte_strasse(k, speed+0, ".H. nnn sss"); // Einmuendung in Natur
-    bewerte_strasse(k, speed-5, "SHS nnn sss"); // Einmuendung in Natur
-    bewerte_strasse(k, speed-7, ".H. hnh sss"); // Einmuendung zwischen 2 Häusern
-    */
-    int i;
-    for(i=0; i<num_house_rules; i++) {
-      bewerte_haus(k,
-       speed+house_rules[i].chance,
-       house_rules[i].rule);
-    }
-
-
-    for(i=0; i<num_road_rules; i++) {
-      bewerte_strasse(k,
-          speed+road_rules[i].chance,
-          road_rules[i].rule);
-    }
-}
 
 
 gebaeude_t::typ
@@ -1765,83 +1999,31 @@ stadt_t::was_ist_an(const koord k) const
 			t = gb->gib_haustyp();
 		}
 	}
-//	DBG_MESSAGE("stadt_t::was_ist_an()","an pos %d,%d ist ein gebaeude vom typ %d", k.x, k.y, t);
-
 	return t;
 }
 
-int
-stadt_t::bewerte_industrie(const koord pos)
+
+// find out, what building matches best
+void
+stadt_t::bewerte_res_com_ind(const koord pos, int &ind_score, int &com_score, int &res_score)
 {
-    koord k;
-    int score = 0;
+	koord k;
+	ind_score = ind_start_score;
+	com_score = com_start_score;
+	res_score = res_start_score;
 
-    for(k.y=pos.y-2; k.y<=pos.y+2; k.y++) {
-  for(k.x=pos.x-2; k.x<=pos.x+2; k.x++) {
-      if(was_ist_an(k) == gebaeude_t::industrie) {
-    score += 8;
-      } else if(was_ist_an(k) == gebaeude_t::wohnung) {
-    score -= 8;
-      }
-
-  }
-    }
-    return score;
+	for(k.y=pos.y-2; k.y<=pos.y+2; k.y++) {
+		for(k.x=pos.x-2; k.x<=pos.x+2; k.x++) {
+			gebaeude_t::typ t=was_ist_an(k);
+			if(t!=gebaeude_t::unbekannt) {
+				ind_score += ind_neighbour_score[t];
+				com_score += com_neighbour_score[t];
+				res_score += res_neighbour_score[t];
+			}
+		}
+	}
 }
 
-int
-stadt_t::bewerte_gewerbe(const koord pos)
-{
-    koord k;
-    /*
-    int score = -20;
-
-    for(k.y=pos.y-2; k.y<=pos.y+2; k.y++) {
-  for(k.x=pos.x-2; k.x<=pos.x+2; k.x++) {
-      if(was_ist_an(k) == gebaeude_t::industrie) {
-    score += 4;
-      } else if(was_ist_an(k) == gebaeude_t::wohnung) {
-    score += 8;
-      }
-  }
-    }
-*/
-
-    int score = -10;
-
-    for(k.y=pos.y-2; k.y<=pos.y+2; k.y++) {
-  for(k.x=pos.x-2; k.x<=pos.x+2; k.x++) {
-      if(was_ist_an(k) == gebaeude_t::industrie) {
-    score += 1;
-      } else if(was_ist_an(k) == gebaeude_t::wohnung) {
-    score += 1;
-      } else if(was_ist_an(k) == gebaeude_t::gewerbe) {
-    score += 8;
-      }
-  }
-    }
-
-
-    return score;
-}
-
-int
-stadt_t::bewerte_wohnung(const koord pos)
-{
-    koord k;
-    int score = 0;
-
-    for(k.y=pos.y-2; k.y<=pos.y+2; k.y++) {
-  for(k.x=pos.x-2; k.x<=pos.x+2; k.x++) {
-      if(was_ist_an(k) == gebaeude_t::wohnung) {
-    score += 8;
-      } else if(was_ist_an(k) == gebaeude_t::industrie) {
-    score -= 8;
-      }
-  }
-    }
-    return score;
-}
 
 
 // return the eight neighbours
@@ -1874,12 +2056,8 @@ stadt_t::baue_gebaeude(const koord k)
 		int will_wohnung = (bev - won);
 
 		// der Bauplatz muss bewertet werden
-
-		const int passt_industrie = bewerte_industrie(k);
-		INT_CHECK("simcity 813");
-		const int passt_gewerbe = bewerte_gewerbe(k);
-		INT_CHECK("simcity 815");
-		const int passt_wohnung = bewerte_wohnung(k);
+		int passt_industrie, passt_gewerbe, passt_wohnung;
+		bewerte_res_com_ind(k, passt_industrie, passt_gewerbe, passt_wohnung );
 
 		const int sum_gewerbe = passt_gewerbe + will_arbeit;
 		const int sum_industrie = passt_industrie + will_arbeit;
@@ -2009,9 +2187,8 @@ stadt_t::renoviere_gebaeude(koord k)
 	const climate cl=welt->get_climate(welt->max_hgt(k));
 
 	// der Bauplatz muss bewertet werden
-	const int passt_industrie = bewerte_industrie(k);
-	const int passt_gewerbe = bewerte_gewerbe(k);
-	const int passt_wohnung = bewerte_wohnung(k);
+	int passt_industrie, passt_gewerbe, passt_wohnung;
+	bewerte_res_com_ind(k, passt_industrie, passt_gewerbe, passt_wohnung );
 
 	// verlust durch abriss
 	const int sum_gewerbe = passt_gewerbe + will_arbeit;
@@ -2296,153 +2473,6 @@ stadt_t::pruefe_grenzen(koord k)
 
 
 
-/**
- * Creates a station name
- * @param number if >= 0, then a number is added to the name
- * @author Hj. Malthaner
- */
-const char *
-stadt_t::haltestellenname(koord k, const char *typ, int number)
-{
-	const char *num_city_base = "%s city %d %s";
-	const char *num_land_base = "%s land %d %s";
-	const char *base = "1center";	// usually gets to %s %s
-	const char *building=NULL;
-	bool outside = false;
-	char buf [512];	// temperary name storage
-
-	if(number>=0  &&  umgebung_t::numbered_stations) {
-		// numbered stations here
-		int li_gr = lo.x + 2;
-		int re_gr = ur.x - 2;
-		int ob_gr = lo.y + 2;
-		int un_gr = ur.y - 2;
-
-		if(li_gr<k.x && re_gr>k.x && ob_gr<k.y && un_gr>k.y) {
-			zentrum_namen_cnt ++;
-			sprintf(buf, translator::translate(num_city_base),
-				this->name,
-				zentrum_namen_cnt,
-				translator::translate(typ));
-		}
-		else {
-			aussen_namen_cnt ++;
-			sprintf(buf, translator::translate(num_land_base),
-				this->name,
-				aussen_namen_cnt,
-				translator::translate(typ));
-		}
-	}
-	else {
-		// standard names:
-		// order: factory, attraction, direction, normal name
-
-		// prissi: first we try a factory name
-		halthandle_t halt=haltestelle_t::gib_halt(welt,k);
-		if(halt.is_bound()) {
-			// first factories (so with same distance, they have priority)
-			int this_distance = 999;
-			slist_iterator_tpl <fabrik_t *> fab_iter(halt->gib_fab_list());
-			while( fab_iter.next() ) {
-				int distance = abs_distance( fab_iter.get_current()->gib_pos().gib_2d(), k );
-				if(distance<this_distance) {
-					building = fab_iter.get_current()->gib_name();
-					distance = this_distance;
-				}
-			}
-			// check for other special building (townhall, monument, tourst attraction)
-			const sint16 catchment_area=welt->gib_einstellungen()->gib_station_coverage();
-			for( int x=-catchment_area;  x<=catchment_area;  x++ ) {
-				for( int y=-catchment_area;  y<=catchment_area;  y++ ) {
-					const planquadrat_t *plan=welt->lookup(koord(x,y)+k);
-					int distance = abs(x)+abs(y);
-					if(plan  &&  abs(x+y)<this_distance) {
-						gebaeude_t *gb=dynamic_cast<gebaeude_t *>(plan->gib_kartenboden()->suche_obj(ding_t::gebaeude));
-						if(gb) {
-							if(gb->is_monument()) {
-								building = translator::translate(gb->gib_name());
-								this_distance = distance;
-							}
-							else if(	gb->ist_rathaus()  ||
-										gb->gib_tile()->gib_besch()->gib_utyp()==hausbauer_t::sehenswuerdigkeit  ||  // land attraction
-										gb->gib_tile()->gib_besch()->gib_utyp()==hausbauer_t::special) { //town attarcttion
-								building = make_single_line_string(translator::translate(gb->gib_tile()->gib_besch()->gib_name()),2);
-								this_distance = distance;
-							}
-						}
-					}
-				}
-			}
-		}
-
-		// no factory found => take the usual name scheme
-		if(building==NULL) {
-			int li_gr = lo.x + 2;
-			int re_gr = ur.x - 2;
-			int ob_gr = lo.y + 2;
-			int un_gr = ur.y - 2;
-
-			if(li_gr<k.x && re_gr>k.x && ob_gr<k.y && un_gr>k.y) {
-				base = zentrum_namen[zentrum_namen_cnt % anz_zentrum];
-				zentrum_namen_cnt ++;
-			} else if(li_gr-6<k.x && re_gr+6>k.x && ob_gr-6<k.y && un_gr+6>k.y) {
-				if(k.y < ob_gr) {
-					if(k.x<li_gr) {
-						base = nordwest_namen[0];
-					} else if(k.x>re_gr) {
-						base = nordost_namen[0];
-					} else {
-						base = nord_namen[0];
-					}
-				} else if(k.y > un_gr) {
-					if(k.x<li_gr) {
-						base = suedwest_namen[0];
-					} else if(k.x>re_gr) {
-						base = suedost_namen[0];
-					} else {
-						base = sued_namen[0];
-					}
-				} else {
-					if(k.x <= li_gr) {
-						base = west_namen[0];
-					} else if(k.x >= re_gr) {
-						base = ost_namen[0];
-					} else {
-						base = zentrum_namen[zentrum_namen_cnt % anz_zentrum];
-						zentrum_namen_cnt ++;
-					}
-				}
-			} else {
-				base = aussen_namen[aussen_namen_cnt % anz_aussen];
-				aussen_namen_cnt ++;
-				outside = true;
-			}
-		}
-
-		// compose the name
-		if(building==NULL) {
-			sprintf(buf, translator::translate(base),
-				this->name,
-				translator::translate(typ));
-		}
-		else {
-			// with factories
-			sprintf(buf, translator::translate("%s building %s %s"),
-				this->name,
-				building,
-				translator::translate(typ));
-		}
-	}
-
-	const long len = strlen(buf) + 1;
-	char *name = new char[len];
-	tstrncpy(name, buf, len);
-
-	return name;
-}
-
-
-
 // geeigneten platz zur Stadtgruendung durch Zufall ermitteln
 vector_tpl<koord> *
 stadt_t::random_place(const karte_t *wl, const int anzahl)
@@ -2493,92 +2523,6 @@ dbg->warning("stadt_t::random_place()","Not enough places found!");
 	delete(list);
 
 	return result;
-}
-
-
-
-/**
- * Reads city configuration data
- * @author Hj. Malthaner
- */
-bool stadt_t::init()
-{
-  const char *filename = "config/cityrules.tab";
-  tabfile_t cityconf;
-  const bool ok = cityconf.open(filename);
-
-  if(ok) {
-    tabfileobj_t contents;
-    cityconf.read(contents);
-
-    char buf[128];
-
-    minimum_city_distance = contents.get_int("minimum_city_distance", 16);
-    int ind_increase = contents.get_int("industry_increase_every", 0);
-    int i;
-    for(i=0;  i<8;  i++  ) {
-    	industry_increase_every[i] = (ind_increase<<i);
-    }
-
-    num_house_rules = 0;
-    while (true) {
-      sprintf(buf, "house_%d", num_house_rules+1);
-      if(contents.get_string(buf, 0)) {
-  num_house_rules ++;
-      } else {
-  break;
-      }
-    }
-
-    DBG_MESSAGE("stadt_t::init()", "Read %d house building rules", num_house_rules);
-
-
-    num_road_rules = 0;
-    while (true) {
-      sprintf(buf, "road_%d", num_road_rules+1);
-      if(contents.get_string(buf, 0)) {
-  num_road_rules ++;
-      } else {
-  break;
-      }
-    }
-
-    DBG_MESSAGE("stadt_t::init()", "Read %d road building rules", num_road_rules);
-
-    house_rules = new struct rule_t [num_house_rules];
-    road_rules = new struct rule_t [num_road_rules];
-
-    for(i=0; i<num_house_rules; i++) {
-      sprintf(buf, "house_%d", i+1);
-      const char * rule = contents.get_string(buf, "");
-      tstrncpy(house_rules[i].rule, rule+1, 12);
-      house_rules[i].rule[11] = '\0';
-
-      sprintf(buf, "house_%d.chance", i+1);
-      house_rules[i].chance = contents.get_int(buf, 0);
-
-      DBG_DEBUG("stadt_t::init()", "house: %d, '%s'", house_rules[i].chance, house_rules[i].rule);
-    }
-
-
-    for(i=0; i<num_road_rules; i++) {
-      sprintf(buf, "road_%d", i+1);
-      const char * rule = contents.get_string(buf, "");
-      tstrncpy(road_rules[i].rule, rule+1, 12);
-      road_rules[i].rule[11] = '\0';
-
-      sprintf(buf, "road_%d.chance", i+1);
-      road_rules[i].chance = contents.get_int(buf, 0);
-
-      DBG_DEBUG("stadt_t::init()", "road: %d, '%s'", road_rules[i].chance, road_rules[i].rule);
-    }
-
-
-  } else {
-    dbg->fatal("stadt_t::init()", "Can't read '%s'", filename);
-  }
-
-  return ok;
 }
 
 

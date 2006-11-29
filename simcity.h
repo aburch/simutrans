@@ -81,7 +81,7 @@ public:
 	 * Reads city configuration data
 	 * @author Hj. Malthaner
 	 */
-	static bool init();
+	static bool cityrules_init();
 
 private:
 	static karte_t *welt;
@@ -260,10 +260,8 @@ private:
 
 	gebaeude_t::typ was_ist_an(koord pos) const;
 
-	sint32 bewerte_industrie(koord pos);
-	sint32 bewerte_gewerbe(koord pos);
-	sint32 bewerte_wohnung(koord pos);
-
+	// find out, what building matches best
+	void bewerte_res_com_ind(const koord pos, int &ind, int &com, int &res);
 
 	/**
 	 * baut ein Gebaeude auf Planquadrat x,y
@@ -297,8 +295,7 @@ private:
 	 * @return true on match, false otherwise
 	 * @author Hj. Malthaner
 	 */
-	bool bewerte_loc(koord pos, const char *regel);
-
+	bool bewerte_loc(koord pos, const char *regel, int rotation);
 
 	/**
 	 * Check rule in all transformations at given position
@@ -308,10 +305,6 @@ private:
 
 	void bewerte_strasse(koord pos, sint32 rd, char *regel);
 	void bewerte_haus(koord pos, sint32 rd, char *regel);
-
-	void trans_y(const char *regel, char *tr);
-	void trans_l(const char *regel, char *tr);
-	void trans_r(const char *regel, char *tr);
 
 	void pruefe_grenzen(koord pos);
 

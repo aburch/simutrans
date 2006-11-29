@@ -57,6 +57,11 @@ private:
 	*/
 	static bool show_retired_vehicles;
 
+	/* show retired vehicles (same for all depot)
+	* @author prissi
+	*/
+	static bool show_all;
+
 	/**
 	 * Gui elements
 	 * @author Volker Meyer
@@ -77,6 +82,7 @@ private:
 	button_t bt_sell;
 
 	button_t bt_obsolete;
+	button_t bt_show_all;
 
 	gui_tab_panel_t tabs;
 	gui_divider_t   div_tabbottom;

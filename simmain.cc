@@ -496,7 +496,7 @@ extern "C" int simu_main(int argc, char** argv)
 		}
 
 		print("Reading city configuration ...\n");
-		stadt_t::init();
+		stadt_t::cityrules_init();
 
 		// loading all paks
 		print("Reading object data from %s...\n", (const char*)objfilename);
