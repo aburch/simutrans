@@ -16,6 +16,7 @@ template<class T> class vector_tpl
 {
 	public:
 		/** Construct a vector for cap elements */
+		vector_tpl() : data(NULL), size(0), count(0) {}
 		explicit vector_tpl(uint32 cap) : data(cap > 0 ? new T[cap] : NULL), size(cap), count(0) {}
 
 		~vector_tpl() { delete [] data; }
@@ -68,6 +69,12 @@ template<class T> class vector_tpl
 		void append(T elem, uint32 extend)
 		{
 			if (count >= size) resize(count + extend);
+			data[count++] = elem;
+		}
+
+		void push_back(const T& elem)
+		{
+			if (count == size) resize(size == 0 ? 1 : size * 2);
 			data[count++] = elem;
 		}
 

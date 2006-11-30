@@ -27,6 +27,7 @@
 #include "../utils/simstring.h"	//tstrncpy()
 #include "../unicode.h"
 #include "../tpl/stringhashtable_tpl.h"
+#include "../tpl/vector_tpl.h"
 
 translator translator::single_instance;
 
@@ -118,7 +119,7 @@ static char szenario_path[256];
 /* Liste aller Städtenamen
  * @author Hj. Malthaner
  */
-static slist_tpl<const char*> namen_liste;
+static vector_tpl<const char*> namen_liste;
 
 /* since the city names are language dependent, they are now kept here!
  * @date 2.1.2005
@@ -141,7 +142,7 @@ static const char* const name_t2[] =
 
 int translator::get_count_city_name(void)
 {
-  return namen_liste.count();
+  return namen_liste.get_count();
 }
 
 
@@ -149,7 +150,7 @@ const char* translator::get_city_name(uint nr)
 {
 	// fallback for empty list (should never happen)
 	if (namen_liste.empty()) return "Simcity";
-	return namen_liste.at(nr % namen_liste.count());
+	return namen_liste[nr % namen_liste.get_count()];
 }
 
 
@@ -195,7 +196,7 @@ static void init_city_names(bool is_utf_language)
 			if (fgets(buf, 128, file)) {
 				rtrim(buf);
 				char* c = recode(buf, file_is_utf, is_utf_language);
-				namen_liste.insert(c);
+				namen_liste.push_back(c);
 			}
 		}
 		fclose(file);
@@ -214,7 +215,7 @@ static void init_city_names(bool is_utf_language)
 
 				char* c = (char*)guarded_malloc(l1 + l2 + 1);
 				sprintf(c, "%s%s", s1, s2);
-				namen_liste.insert(c);
+				namen_liste.push_back(c);
 			}
 		}
 	}
