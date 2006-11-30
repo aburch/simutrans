@@ -136,7 +136,7 @@ template<class T> class vector_tpl
 		bool remove_at(uint32 pos)
 		{
 			if (pos < count) {
-				for (uint i = pos; i < count; i++) data[i] = data[i + 1];
+				for (uint i = pos; i < count - 1; i++) data[i] = data[i + 1];
 				count--;
 				return true;
 			}
