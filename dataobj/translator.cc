@@ -157,7 +157,7 @@ const char* translator::get_city_name(uint nr)
  * new cities will get their appropriate names
  * @author hajo, prissi
  */
-int init_city_names(bool is_utf_language)
+static void init_city_names(bool is_utf_language)
 {
 	FILE* file;
 
@@ -218,14 +218,13 @@ int init_city_names(bool is_utf_language)
 			}
 		}
 	}
-	return namen_liste.count();
 }
 
 
 /* now on to the translate stuff */
 
 
-void load_language_file_body(FILE* file, stringhashtable_tpl<const char*>* table, bool language_is_utf, bool file_is_utf)
+static void load_language_file_body(FILE* file, stringhashtable_tpl<const char*>* table, bool language_is_utf, bool file_is_utf)
 {
 	char buffer1 [4096];
 	char buffer2 [4096];
