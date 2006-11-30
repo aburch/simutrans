@@ -97,10 +97,12 @@ brueckenboden_t::zeige_info()
 	else {
 		if(hat_wege()) {	// if this is true, then all land info is shown
 			// there is some info!
-			if(!grund_infos->get(this)) {
-				grund_infos->put(this, new grund_info_t(welt, this));
+			grund_info_t* gi = grund_infos.get(this);
+			if (gi == NULL) {
+				gi = new grund_info_t(welt, this);
+				grund_infos.put(this, gi);
 			}
-			create_win(-1, -1, grund_infos->get(this), w_autodelete);
+			create_win(-1, -1, gi, w_autodelete);
 			return true;
 		}
 	}

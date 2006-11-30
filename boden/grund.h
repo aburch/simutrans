@@ -75,7 +75,7 @@ protected:
 	 * Offene Info-Fenster
 	 * @author V. Meyer
 	 */
-	static ptrhashtable_tpl<grund_t *, grund_info_t *> *grund_infos;
+	static ptrhashtable_tpl<grund_t*, grund_info_t*> grund_infos;
 
 	static bool show_grid;
 

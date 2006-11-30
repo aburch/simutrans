@@ -86,11 +86,12 @@ bool grund_t::underground_mode = false;
 
 uint8 grund_t::offsets[4]={0,1,2/*illegal!*/,2};
 
-ptrhashtable_tpl<grund_t *, grund_info_t *> *grund_t::grund_infos = new ptrhashtable_tpl<grund_t *, grund_info_t *> ();
+ptrhashtable_tpl<grund_t*, grund_info_t*> grund_t::grund_infos;
 
 
-void grund_t::entferne_grund_info() {
-    grund_infos->remove(this);
+void grund_t::entferne_grund_info()
+{
+	grund_infos.remove(this);
 }
 
 
@@ -378,7 +379,7 @@ grund_t::grund_t(karte_t *wl, koord3d pos)
 
 grund_t::~grund_t()
 {
-	destroy_win(grund_infos->get(this));
+	destroy_win(grund_infos.get(this));
 
 	// remove text from table
 	ground_texts.remove((pos.x << 16) + pos.y);
