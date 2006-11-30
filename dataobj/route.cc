@@ -81,9 +81,6 @@ DBG_MESSAGE("route_t::append()","last=%i,%i,%i   first=%i,%i,%i",
 void
 route_t::insert(koord3d k)
 {
-	if(route.get_size()>=route.get_count()-1) {
-		route.resize(route.get_size()+16);
-	}
 //DBG_MESSAGE("route_t::insert()","insert %d,%d",k.x, k.y);
 	route.insert_at(0,k);
 }
