@@ -496,7 +496,7 @@ fabrikbauer_t::baue_fabrik(karte_t * welt, koord3d *parent, const fabrik_besch_t
 	if(info->gib_pax_level()>0) {
 		const weighted_vector_tpl<stadt_t*>& staedte = welt->gib_staedte();
 		for (uint i = 0; i < staedte.get_count(); i++) {
-			staedte.get(i)->add_factory_arbeiterziel(fab);
+			staedte[i]->add_factory_arbeiterziel(fab);
 		}
 	}
 	return fab;

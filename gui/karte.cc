@@ -530,13 +530,13 @@ reliefkarte_t::calc_map()
 		}
 		const weighted_vector_tpl<gebaeude_t *> &ausflugsziele = welt->gib_ausflugsziele();
 		for( unsigned i=0;  i<ausflugsziele.get_count();  i++ ) {
-			if(max_tourist_ziele<ausflugsziele.at(i)->gib_passagier_level()) {
-				max_tourist_ziele = ausflugsziele.at(i)->gib_passagier_level();
-			}
+			int pax = ausflugsziele[i]->gib_passagier_level();
+			if (max_tourist_ziele < pax) max_tourist_ziele = pax;
 		}
 		{
 			for( unsigned i=0;  i<ausflugsziele.get_count();  i++ ) {
-				setze_relief_farbe_area(ausflugsziele.get(i)->gib_pos().gib_2d(), 7, calc_severity_color(ausflugsziele.get(i)->gib_passagier_level(),max_tourist_ziele) );
+				const gebaeude_t* g = ausflugsziele[i];
+				setze_relief_farbe_area(g->gib_pos().gib_2d(), 7, calc_severity_color(g->gib_passagier_level(), max_tourist_ziele));
 			}
 		}
 		return;
@@ -708,7 +708,7 @@ reliefkarte_t::zeichnen(koord pos)
 		const weighted_vector_tpl<stadt_t*>& staedte = welt->gib_staedte();
 
 		for (uint i = 0; i < staedte.get_count(); i++) {
-			const stadt_t* stadt = staedte.get(i);
+			const stadt_t* stadt = staedte[i];
 
 			koord p = stadt->gib_pos();
 			const char * name = stadt->gib_name();

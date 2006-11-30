@@ -652,11 +652,11 @@ stadtauto_t::hop()
 			else
 #endif
 			{
-				pos_next = liste.get(simrand(liste.get_count()))->gib_pos();
+				pos_next = liste[simrand(liste.get_count())]->gib_pos();
 			}
 			fahrtrichtung = calc_richtung(gib_pos().gib_2d(), pos_next.gib_2d(), dx, dy);
 		} else if(liste.get_count()==1) {
-			pos_next = liste.get(0)->gib_pos();
+			pos_next = liste[0]->gib_pos();
 			fahrtrichtung = calc_richtung(gib_pos().gib_2d(), pos_next.gib_2d(), dx, dy);
 		}
 		else {

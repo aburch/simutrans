@@ -43,14 +43,14 @@ void citylist_stats_t::sort(const citylist::sort_mode_t& sortby,const bool& sort
 	return;
 	}
 
-	city_list.append(cities.get(0), 1);
+	city_list.append(cities[0], 1);
 
 	for (uint i = 1; i < cities.get_count(); i++) {
-		stadt_t* city = cities.get(i);
+		stadt_t* city = cities[i];
 	bool append = true;
 
 	for (unsigned int j=0; j<city_list.get_count(); j++) {
-	    const stadt_t *check_city = city_list.at(j);
+		const stadt_t* check_city = city_list[j];
 
 
 	    switch (sortby) {
@@ -98,7 +98,7 @@ void citylist_stats_t::infowin_event(const event_t * ev)
 		return;
 	}
 
-	stadt_t *stadt = city_list.get(line);
+	stadt_t* stadt = city_list[line];
 	if(!stadt) {
 		return;
 	}
@@ -123,7 +123,7 @@ void citylist_stats_t::zeichnen(koord offset)
 	sint32 total_bev = 0, total_growth=0;
 
 	for(unsigned int i=0; i<city_list.get_count(); i++) {
-		const stadt_t * stadt = city_list.get(i);
+		const stadt_t* stadt = city_list[i];
 		buf.clear();
 		stadt->get_short_info(buf);
 		display_proportional_clip(offset.x+4, offset.y+i*(LINESPACE+1), buf, ALIGN_LEFT,COL_BLACK,true);

@@ -900,8 +900,9 @@ stadt_t::stadt_t(karte_t* wl, spieler_t* sp, koord pos, int citizens) :
 		// check if still unused
 		for (int j = 0; j < anz_staedte; j++) {
 			// noch keine stadt mit diesem namen?
-			if (staedte.get(j) != this  && staedte.get(j) != NULL) {
-				not_unique |= (strcmp(list_name, staedte.get(j)->gib_name()) == 0);
+			const stadt_t* s = staedte[j];
+			if (s != this && s != NULL) {
+				not_unique |= strcmp(list_name, s->gib_name()) == 0;
 			}
 		}
 		DBG_MESSAGE("stadt_t::stadt_t()", "'%s' is%s unique", list_name, not_unique?" not":"");
@@ -1093,7 +1094,7 @@ void stadt_t::laden_abschliessen()
 	lo = koord(welt->gib_groesse_x(), welt->gib_groesse_y());
 	ur = koord(0, 0);
 	for (uint i = 0; i < buildings.get_count(); i++) {
-		const koord pos = buildings.get(i)->gib_pos().gib_2d();
+		const koord pos = buildings[i]->gib_pos().gib_2d();
 		if (lo.x > pos.x) lo.x = pos.x;
 		if (lo.y > pos.y) lo.y = pos.y;
 		if (ur.x < pos.x) ur.x = pos.x;
@@ -1376,7 +1377,7 @@ void stadt_t::step_passagiere()
 	if (step_count >= buildings.get_count()) {
 		step_count = 0;
 	}
-	const gebaeude_t* gb = buildings.at(step_count);
+	const gebaeude_t* gb = buildings[step_count];
 
 	// prissi: since now backtravels occur, we damp the numbers a little
 	const int num_pax =
@@ -1637,7 +1638,7 @@ class bauplatz_mit_strasse_sucher_t: public bauplatz_sucher_t
 			const weighted_vector_tpl<gebaeude_t*>& attractions = welt->gib_ausflugsziele();
 			int dist = welt->gib_groesse_x() * welt->gib_groesse_y();
 			for (uint i = 0; i < attractions.get_count(); i++) {
-				int d = koord_distance(attractions.at(i)->gib_pos(), pos);
+				int d = koord_distance(attractions[i]->gib_pos(), pos);
 				if (d < dist) {
 					dist = d;
 				}

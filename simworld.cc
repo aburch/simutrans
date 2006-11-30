@@ -781,9 +781,8 @@ DBG_DEBUG("karte_t::init()","Erzeuge stadt %i with %ld inhabitants",i,(s->get_ci
 
 		for(i=0; i<einstellungen->gib_anzahl_staedte(); i++) {
 			// Hajo: do final init after world was loaded/created
-			if (stadt.at(i) != NULL) {
-				stadt.at(i)->laden_abschliessen();
-			}
+			stadt_t* s = stadt[i];
+			if (s != NULL) s->laden_abschliessen();
 			// the growth is slow, so update here the progress bar
 			if(is_display_init()) {
 				display_progress(16+i*2, max_display_progress);
@@ -1513,7 +1512,8 @@ karte_t::suche_naechste_stadt(const koord pos) const
     stadt_t * best = NULL;
 
 	for (uint n = 0; n < stadt.get_count(); n++) {
-		const koord k = stadt.at(n)->gib_pos();
+		stadt_t* s = stadt[n];
+		const koord k = s->gib_pos();
 
 	    const long dist = (pos.x-k.x)*(pos.x-k.x) + (pos.y-k.y)*(pos.y-k.y);
 
@@ -1521,7 +1521,7 @@ karte_t::suche_naechste_stadt(const koord pos) const
 
 //		printf("dist %d  stadt %d\n", dist, n);
 		min_dist = dist;
-			best = stadt.at(n);
+			best = s;
 	    }
     }
     return best;
@@ -1537,18 +1537,19 @@ karte_t::suche_naechste_stadt(const koord pos, const stadt_t *letzte) const
     bool letzte_gefunden = false;
 
 	for (uint n = 0; n < stadt.get_count(); n++) {
-		const koord k = stadt.at(n)->gib_pos();
+		stadt_t* s = stadt[n];
+		const koord k = s->gib_pos();
 
 	    const int dist = (pos.x-k.x)*(pos.x-k.x) + (pos.y-k.y)*(pos.y-k.y);
 
-		if (stadt.at(n) == letzte) {
+		if (s == letzte) {
 		letzte_gefunden = true;
 	    }
 	    else if(letzte_gefunden ? dist >= letzte_dist : dist > letzte_dist) {
 		if(dist < min_dist) {
 //		    printf("dist %d  stadt %d\n", dist, n);
 		    min_dist = dist;
-			best = stadt.at(n);
+			best = s;
 		}
 	    }
     }
@@ -1690,7 +1691,7 @@ karte_t::neuer_monat()
 	// no INT_CHECK() here, or dialoges will go crazy!!!
 	weighted_vector_tpl<stadt_t*> new_weighted_stadt(stadt.get_count() + 1);
 	for (uint i = 0; i < stadt.get_count(); i++) {
-		stadt_t* s = stadt.at(i);
+		stadt_t* s = stadt[i];
 		s->neuer_monat();
 		new_weighted_stadt.append(s, s->gib_einwohner(), 64);
 		INT_CHECK("simworld 1278");
@@ -1875,7 +1876,7 @@ karte_t::step(const long delta_t)
 
 	// now step all towns (to generate passengers)
 	for (uint n = 0; n < stadt.get_count(); n++) {
-		stadt.at(n)->step(delta_t);
+		stadt[n]->step(delta_t);
 	}
 
 	slist_iterator_tpl<fabrik_t *> iter(fab_list);
@@ -2171,7 +2172,7 @@ DBG_MESSAGE("karte_t::speichern(loadsave_t *file)", "start");
 	file->rdwr_long(letztes_jahr, "\n");
 
 	for (uint i = 0; i < stadt.get_count(); i++) {
-		stadt.at(i)->rdwr(file);
+		stadt[i]->rdwr(file);
 		if(silent) {
 			INT_CHECK("saving");
 		}
@@ -2464,12 +2465,12 @@ DBG_MESSAGE("karte_t::laden()", "%d factories loaded", fab_list.count());
 	// auch die fabrikverbindungen können jetzt neu init werden
 	// must be done after reliefkarte is initialized
 	for (uint i = 0; i < stadt.get_count(); i++) {
-		stadt.at(i)->laden_abschliessen();
+		stadt[i]->laden_abschliessen();
 	}
 	// must resort them ...
 	weighted_vector_tpl<stadt_t*> new_weighted_stadt(stadt.get_count() + 1);
 	for (uint i = 0; i < stadt.get_count(); i++) {
-		stadt_t* s = stadt.at(i);
+		stadt_t* s = stadt[i];
 //		s->neuer_monat();
 		new_weighted_stadt.append(s, s->gib_einwohner(), 64);
 		INT_CHECK("simworld 1278");

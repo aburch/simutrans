@@ -49,7 +49,7 @@ void curiositylist_stats_t::get_unique_attractions(const curiositylist::sort_mod
 
     for (uint32 i=0; i<ausflugsziele.get_count(); ++i) {
 
-	gebaeude_t *geb = ausflugsziele.at(i);
+	gebaeude_t* geb = ausflugsziele[i];
 	// now check for paranoia, first tile on multitile buildings and real attraction
 	if (geb==NULL  ||
 	    geb->gib_tile()->gib_offset()!=koord(0,0)  ||

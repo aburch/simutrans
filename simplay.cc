@@ -765,7 +765,7 @@ spieler_t::do_passenger_ki()
 			platz2 = koord::invalid;
 			// if no previous town => find one
 			if(start_stadt==NULL) {
-				start_stadt = staedte.get(offset);
+				start_stadt = staedte[offset];
 			}
 DBG_MESSAGE("spieler_t::do_passenger_ki()","using city %s for start",start_stadt->gib_name());
 			const halthandle_t start_halt = get_our_hub(start_stadt);
@@ -808,20 +808,22 @@ DBG_MESSAGE("spieler_t::do_passenger_ki()","searching attraction");
 					unsigned	dist;
 					koord pos, size;
 					if(ausflug) {
-						if(ausflugsziele.at(i)->gib_post_level()<=25) {
+						const gebaeude_t* a = ausflugsziele[i];
+						if (a->gib_post_level() <= 25) {
 							// not a good object to go to ...
 							continue;
 						}
-						pos=ausflugsziele.at(i)->gib_pos().gib_2d();
-						size=ausflugsziele.at(i)->gib_tile()->gib_besch()->gib_groesse(ausflugsziele.at(i)->gib_tile()->gib_layout());
+						pos  = a->gib_pos().gib_2d();
+						size = a->gib_tile()->gib_besch()->gib_groesse(a->gib_tile()->gib_layout());
 					}
 					else {
-						if(fabriken.at(i)->gib_besch()->gib_pax_level()<=10) {
+						const fabrik_t* f = fabriken[i];
+						if (f->gib_besch()->gib_pax_level() <= 10) {
 							// not a good object to go to ... we want more action ...
 							continue;
 						}
-						pos=fabriken.at(i)->gib_pos().gib_2d();
-						size=fabriken.at(i)->gib_besch()->gib_haus()->gib_groesse();
+						pos  = f->gib_pos().gib_2d();
+						size = f->gib_besch()->gib_haus()->gib_groesse();
 					}
 					const stadt_t *next_town = welt->suche_naechste_stadt(pos);
 					if(next_town==NULL  ||  start_stadt==next_town) {
@@ -835,13 +837,13 @@ DBG_MESSAGE("spieler_t::do_passenger_ki()","searching attraction");
 							if(dist+simrand(50)<last_dist  &&   dist>3) {
 								// but closer than the others
 								if(ausflug) {
-									end_ausflugsziel = ausflugsziele.at(i);
+									end_ausflugsziel = ausflugsziele[i];
 									count = 1;
 //									count = 1 + end_ausflugsziel->gib_passagier_level()/128;
 //DBG_MESSAGE("spieler_t::do_passenger_ki()","testing attraction %s with %i busses",end_ausflugsziel->gib_tile()->gib_besch()->gib_name(), count);
 								}
 								else {
-									ziel = fabriken.at(i);
+									ziel = fabriken[i];
 									count = 1;// + (ziel->gib_besch()->gib_pax_level()*ziel->gib_groesse().x*ziel->gib_groesse().y)/128;
 								}
 								last_dist = dist;
@@ -864,7 +866,7 @@ DBG_MESSAGE("spieler_t::do_passenger_ki()","searching town");
 				// find a good route
 				for( int i=0;  i<anzahl;  i++  ) {
 					const int nr = (i+offset)%anzahl;
-					stadt_t* cur = staedte.get(nr);
+					const stadt_t* cur = staedte[nr];
 assert(cur!=NULL);
 					if(cur!=last_start_stadt  &&  cur!=start_stadt  &&  !is_connected(start_halt,cur->get_linksoben(),cur->get_rechtsunten())  ) {
 						int	dist=-1;
