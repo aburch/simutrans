@@ -422,71 +422,61 @@ bool stadt_t::cityrules_init()
 
 /*************************************************** create stop names ****************************************************/
 
-static const int anz_zentrum = 7;
-static const char* const zentrum_namen[anz_zentrum] =
+static const char* const zentrum_namen[] =
 {
 // "%s %s", "%s Haupt %s", "%s Zentral %s", "%s %s Mitte", "%s Transfer %s"
 	"1center", "2center", "3center", "4center", "5center", "6center", "7center"
 };
 
-static const int anz_nord = 1;
-static const char* const nord_namen[anz_nord] =
+static const char* const nord_namen[] =
 {
 // "%s Nord %s"
 	"1nord"
 };
 
-static const int anz_nordost = 1;
-static const char* const nordost_namen[anz_nordost] =
+static const char* const nordost_namen[] =
 {
 // "%s Nordost %s"
 	"1nordost"
 };
 
-static const int anz_ost = 1;
-static const char* const ost_namen[anz_ost] =
+static const char* const ost_namen[] =
 {
 // "%s Ost %s"
 	"1ost"
 };
 
-static const int anz_suedost = 1;
-static const char* const suedost_namen[anz_suedost] =
+static const char* const suedost_namen[] =
 {
 // "%s Südost %s"
 	"1suedost"
 };
 
-static const int anz_sued = 1;
-static const char* const sued_namen[anz_sued] =
+static const char* const sued_namen[] =
 {
 // "%s Süd %s"
 	"1sued"
 };
 
-static const int anz_suedwest = 1;
-static const char* const suedwest_namen[anz_suedwest] =
+static const char* const suedwest_namen[] =
 {
 // "%s Südwest %s"
 	"1suedwest"
 };
 
-static const int anz_west = 1;
-static const char* const west_namen[anz_west] =
+static const char* const west_namen[] =
 {
 // "%s West %s"
 	"1west"
 };
 
-static const int anz_nordwest = 1;
-static const char* const nordwest_namen[anz_nordwest] =
+static const char* const nordwest_namen[] =
 {
 // "%s Nordwest %s"
 	"1nordwest"
 };
 
-static const int anz_aussen = 4;
-static const char* const aussen_namen[anz_aussen] =
+static const char* const aussen_namen[] =
 {
 // "%s Zweig %s", "%s Neben %s", "%s Land %s", "%s Außen %s"
 	"1extern", "2extern", "3extern", "4extern",
@@ -579,7 +569,7 @@ stadt_t::haltestellenname(koord k, const char *typ, int number)
 			int un_gr = ur.y - 2;
 
 			if (li_gr < k.x && re_gr > k.x && ob_gr < k.y && un_gr > k.y) {
-				base = zentrum_namen[zentrum_namen_cnt % anz_zentrum];
+				base = zentrum_namen[zentrum_namen_cnt % lengthof(zentrum_namen)];
 				zentrum_namen_cnt++;
 			} else if (li_gr - 6 < k.x && re_gr + 6 > k.x && ob_gr - 6 < k.y && un_gr + 6 > k.y) {
 				if (k.y < ob_gr) {
@@ -604,12 +594,12 @@ stadt_t::haltestellenname(koord k, const char *typ, int number)
 					} else if (k.x >= re_gr) {
 						base = ost_namen[0];
 					} else {
-						base = zentrum_namen[zentrum_namen_cnt % anz_zentrum];
+						base = zentrum_namen[zentrum_namen_cnt % lengthof(zentrum_namen)];
 						zentrum_namen_cnt++;
 					}
 				}
 			} else {
-				base = aussen_namen[aussen_namen_cnt % anz_aussen];
+				base = aussen_namen[aussen_namen_cnt % lengthof(aussen_namen)];
 				aussen_namen_cnt++;
 				outside = true;
 			}
