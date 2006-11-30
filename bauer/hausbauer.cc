@@ -351,7 +351,6 @@ void hausbauer_t::baue(karte_t *welt, spieler_t *sp, koord3d pos, int layout, co
 	dim = besch->gib_groesse(layout);
 	bool needs_ground_recalc = false;
 
-	sint16 z = pos.z;
 	for(k.y = 0; k.y < dim.y; k.y ++) {
 		for(k.x = 0; k.x < dim.x; k.x ++) {
 //DBG_DEBUG("hausbauer_t::baue()","get_tile() at %i,%i",k.x,k.y);
