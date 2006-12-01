@@ -158,7 +158,7 @@ private:
 
 	// checks, if we can built a bridge here ...
 	// may modify next_gr array!
-	int check_for_bridge( const grund_t *parent_from, const grund_t *from, koord3d ziel );
+	void check_for_bridge(const grund_t* parent_from, const grund_t* from, koord3d ziel);
 
 	long intern_calc_route(koord3d start, const koord3d ziel);
 	void intern_calc_straight_route(const koord3d start, const koord3d ziel);

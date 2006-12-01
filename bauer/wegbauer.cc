@@ -749,14 +749,10 @@ DBG_MESSAGE("wegbauer_t::is_allowed_step()","wrong ground already there!");
 }
 
 
-
-
-int wegbauer_t::check_for_bridge( const grund_t *parent_from, const grund_t *from, koord3d ziel )
+void wegbauer_t::check_for_bridge(const grund_t* parent_from, const grund_t* from, koord3d ziel)
 {
 	// bridge not enabled or wrong starting slope or tile already occupied with a way ...
-	if(!hang_t::ist_wegbar(from->gib_grund_hang())) {
-		return false;
-	}
+	if (!hang_t::ist_wegbar(from->gib_grund_hang())) return;
 
 	// since we were allowed to go there, it is ok ...
 	if(from->gib_grund_hang()!=from->gib_weg_hang()) {
@@ -781,15 +777,15 @@ int wegbauer_t::check_for_bridge( const grund_t *parent_from, const grund_t *fro
 			if(to  &&  to->ist_karten_boden()) {
 				next_gr_t ngt={to,7};
 				next_gr.append(ngt,16);
-				return 1;
+				return;
 			}
 			gr = to;
 		}
-		return 0;
+		return;
 	}
 
 	if(parent_from==NULL  ||  bruecke_besch==NULL  ||  (from->gib_grund_hang()==0  &&  from->hat_wege())) {
-		return 0;
+		return;
 	}
 
 	const koord zv=from->gib_pos().gib_2d()-parent_from->gib_pos().gib_2d();
@@ -809,30 +805,18 @@ int wegbauer_t::check_for_bridge( const grund_t *parent_from, const grund_t *fro
 
 		for(int i=0;  i<max_lenght;  i++ ) {
 			// not on map or already something there => fail
-			if( !welt->ist_in_kartengrenzen(to_pos+zv*(i+1)) ) {
-				return next_gr.get_count()-start_count;
-			}
+			if (!welt->ist_in_kartengrenzen(to_pos + zv * (i + 1))) return;
 			gr = welt->lookup(to_pos+zv*i)->gib_kartenboden();
 			gr2 = welt->lookup(to_pos+zv*(i+1))->gib_kartenboden();
-			if(gr2->gib_pos()==ziel) {
-				return next_gr.get_count()-start_count;
-			}
-			if(welt->lookup(from->gib_pos()+zv*i+koord3d(0,0,Z_TILE_STEP))) {
-				// something in the way
-				return next_gr.get_count()-start_count;
-			}
-			if(gr->gib_pos().z==from->gib_pos().z  &&  gr->suche_obj(ding_t::leitung)) {
-				// powerline in the way
-				return next_gr.get_count()-start_count;
-			}
+			if (gr2->gib_pos() == ziel) return;
+			// something in the way?
+			if (welt->lookup(from->gib_pos() + zv * i + koord3d(0, 0, Z_TILE_STEP))) return;
+			// powerline in the way?
+			if (gr->gib_pos().z == from->gib_pos().z && gr->suche_obj(ding_t::leitung)) return;
 			// some artificial tiles here?!?
-			if(gr->gib_pos().z>from->gib_pos().z) {
-				return next_gr.get_count()-start_count;
-			}
+			if (gr->gib_pos().z > from->gib_pos().z) return;
 			// check for runways ...
-			if(gr->hat_weg(air_wt)) {
-				return next_gr.get_count()-start_count;
-			}
+			if (gr->hat_weg(air_wt)) return;
 			// check, if we need really a bridge
 			if(i<=2  &&  !has_reason_for_bridge) {
 				long dummy;
@@ -841,12 +825,10 @@ int wegbauer_t::check_for_bridge( const grund_t *parent_from, const grund_t *fro
 			// non-manable slope?
 			if(gr->gib_pos().z==from->gib_pos().z  &&  gr->gib_grund_hang()!=0) {
 #ifndef DOUBLE_GROUNDS
-				if(!hang_t::ist_wegbar(gr->gib_grund_hang())  ||  ribi_typ(zv)!=ribi_typ(gr->gib_grund_hang())) {
+				if (!hang_t::ist_wegbar(gr->gib_grund_hang()) || ribi_typ(zv) != ribi_typ(gr->gib_grund_hang())) return;
 #else
-				if(hang_t::ist_wegbar(gr->gib_grund_hang())  ||  !hang_t::ist_einfach(gr->gib_grund_hang())  ||  ribi_typ(zv)!=ribi_typ(gr->gib_grund_hang())) {
+				if (hang_t::ist_wegbar(gr->gib_grund_hang()) || !hang_t::ist_einfach(gr->gib_grund_hang()) || ribi_typ(zv) != ribi_typ(gr->gib_grund_hang())) return;
 #endif
-					return next_gr.get_count()-start_count;
-				}
 			}
 			// make sure, the bridge is not too short
 			if(i==0) {
@@ -862,7 +844,7 @@ int wegbauer_t::check_for_bridge( const grund_t *parent_from, const grund_t *fro
 						next_gr_t ngt={gr,i*cost_difference+umgebung_t::way_count_slope};
 						next_gr.append(ngt,16);
 					}
-					return next_gr.get_count()-start_count;
+					return;
 				}
 			}
 			// check for flat landing
@@ -874,12 +856,12 @@ int wegbauer_t::check_for_bridge( const grund_t *parent_from, const grund_t *fro
 					if(has_reason_for_bridge) {
 						next_gr_t ngt={gr,i*cost_difference+umgebung_t::way_count_slope*2};
 						next_gr.append(ngt,16);
-						return next_gr.get_count()-start_count;
+						return;
 					}
 				}
 			}
 		}
-		return next_gr.get_count()-start_count;
+		return;
 	}
 
 	// downhill hang ...
@@ -891,40 +873,26 @@ int wegbauer_t::check_for_bridge( const grund_t *parent_from, const grund_t *fro
 
 		for(int i=1;  i<max_lenght;  i++ ) {
 			// not on map or already something there => fail
-			if(!welt->ist_in_kartengrenzen(to_pos+zv*(i+1)) ) {
-				return false;
-			}
+			if (!welt->ist_in_kartengrenzen(to_pos + zv * (i + 1))) return;
 			gr = welt->lookup(to_pos+zv*i)->gib_kartenboden();
 			gr2 = welt->lookup(to_pos+zv*(i+1))->gib_kartenboden();
 			// must leave one field empty ...
-			if(gr2->gib_pos()==ziel) {
-				return next_gr.get_count()-start_count;
-			}
-			if(welt->lookup(from->gib_pos()+zv*i)) {
-				// something in the way
-				return next_gr.get_count()-start_count;
-			}
-			if(gr->gib_pos().z==from->gib_pos().z+Z_TILE_STEP  &&  gr->suche_obj(ding_t::leitung)) {
-				// powerline in the way
-				return next_gr.get_count()-start_count;
-			}
+			if (gr2->gib_pos() == ziel) return;
+			// something in the way?
+			if (welt->lookup(from->gib_pos() + zv * i)) return;
+			// powerline in the way?
+			if (gr->gib_pos().z == from->gib_pos().z + Z_TILE_STEP && gr->suche_obj(ding_t::leitung)) return;
 			// some articial tiles here?!?
-			if(gr->gib_pos().z>from->gib_pos().z) {
-				return next_gr.get_count()-start_count;
-			}
+			if (gr->gib_pos().z > from->gib_pos().z) return;
 			// check for runways ...
-			if(gr->hat_weg(air_wt)) {
-				return next_gr.get_count()-start_count;
-			}
+			if (gr->hat_weg(air_wt)) return;
 			// non-manable slope?
 			if(gr->gib_pos().z==from->gib_pos().z  &&  gr->gib_grund_hang()!=0) {
 #ifndef DOUBLE_GROUNDS
-				if(!hang_t::ist_wegbar(gr->gib_grund_hang())  ||  ribi_typ(zv)!=ribi_typ(gr->gib_grund_hang())) {
+				if (!hang_t::ist_wegbar(gr->gib_grund_hang()) || ribi_typ(zv) != ribi_typ(gr->gib_grund_hang())) return;
 #else
-				if(hang_t::ist_wegbar(gr->gib_grund_hang())  ||  !hang_t::ist_einfach(gr->gib_grund_hang())  ||  ribi_typ(zv)!=ribi_typ(gr->gib_grund_hang())) {
+				if (hang_t::ist_wegbar(gr->gib_grund_hang()) || !hang_t::ist_einfach(gr->gib_grund_hang()) || ribi_typ(zv) != ribi_typ(gr->gib_grund_hang())) return;
 #endif
-					return next_gr.get_count()-start_count;
-				}
 			}
 			// make sure, the bridge is not too short
 			if(i==1) {
@@ -939,7 +907,7 @@ int wegbauer_t::check_for_bridge( const grund_t *parent_from, const grund_t *fro
 					// this make always sense, since it is a counter slope
 					next_gr_t ngt={gr,i*cost_difference};
 					next_gr.append(ngt,16);
-					return next_gr.get_count()-start_count;
+					return;
 				}
 			}
 			// check, if we need really a bridge
@@ -959,7 +927,7 @@ int wegbauer_t::check_for_bridge( const grund_t *parent_from, const grund_t *fro
 				}
 			}
 		}
-		return next_gr.get_count()-start_count;
+		return;
 	}
 
 	// uphill hang ... may be tunnel?
@@ -967,16 +935,14 @@ int wegbauer_t::check_for_bridge( const grund_t *parent_from, const grund_t *fro
 
 		for(unsigned i=0;  i<(unsigned)umgebung_t::way_max_bridge_len;  i++ ) {
 			// not on map or already something there => fail
-			if(!welt->ist_in_kartengrenzen(to_pos+zv*(i+1)) ) {
-				return false;
-			}
+			if (!welt->ist_in_kartengrenzen(to_pos + zv * (i + 1))) return;
 			gr = welt->lookup(to_pos+zv*i)->gib_kartenboden();
 			gr2 = welt->lookup(to_pos+zv*(i+1))->gib_kartenboden();
 			// here is a hang
 			if(gr->gib_pos().z==from->gib_pos().z  &&  gr->gib_grund_hang()!=0) {
 				if(ribi_t::rueckwaerts(ribi_typ(zv))!=ribi_typ(gr->gib_grund_hang())  ||  !hang_t::ist_einfach(gr->gib_grund_hang())) {
 					// non, manable slope
-					return false;
+					return;
 				}
 				// ok, qualify for endpos
 				if(!gr->hat_wege()  &&  gr->ist_natur()  &&  !gr->ist_wasser()  &&  is_allowed_step(gr, gr2, &internal_cost )) {
@@ -984,13 +950,11 @@ int wegbauer_t::check_for_bridge( const grund_t *parent_from, const grund_t *fro
 					// we return the koord3d AFTER we came down!
 					next_gr_t ngt={gr,i*umgebung_t::way_count_tunnel };
 					next_gr.append(ngt,16);
-					return 1;
+					return;
 				}
 			}
 		}
 	}
-
-	return false;
 }
 
 
