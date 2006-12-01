@@ -2447,7 +2447,7 @@ char* stadt_t::info(char* buf) const
  */
 void stadt_t::get_short_info(cbuffer_t& buf) const
 {
-	buf.append(get_name());
+	buf.append(gib_name());
 	buf.append(": ");
 	buf.append(gib_einwohner());
 	buf.append(" (+");
