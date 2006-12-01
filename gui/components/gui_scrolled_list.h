@@ -6,8 +6,6 @@
 #include "../../ifc/gui_action_creator.h"
 #include "../../simcolor.h"
 
-class karte_t;
-template <class T> class slist_tpl;
 
 /**
  * Scrollable list.

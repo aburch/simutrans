@@ -14,11 +14,6 @@
 #include "../../simcolor.h"
 
 
-// forward decls
-class action_listener_t;
-template <class T> class slist_tpl;
-
-
 #define SQUARE_BUTTON 0
 #define ARROW_LEFT 1
 #define ARROW_RIGHT 2

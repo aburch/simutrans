@@ -17,11 +17,9 @@
 #include "../../dataobj/koord3d.h"
 
 
-class vehikel_basis_t;
 class karte_t;
 class weg_besch_t;
 class cbuffer_t;
-
 template <class T> class slist_tpl;
 
 
