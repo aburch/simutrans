@@ -29,7 +29,7 @@ class citylist_stats_t : public gui_komponente_t
  private:
     karte_t * welt;
 
-    weighted_vector_tpl<stadt_t *> city_list;
+		vector_tpl<stadt_t*> city_list;
 
  public:
  	static char total_bev_string[128];

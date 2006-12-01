@@ -43,7 +43,7 @@ void citylist_stats_t::sort(const citylist::sort_mode_t& sortby,const bool& sort
 	return;
 	}
 
-	city_list.append(cities[0], 1);
+	city_list.append(cities[0]);
 
 	for (uint i = 1; i < cities.get_count(); i++) {
 		stadt_t* city = cities[i];
@@ -74,12 +74,12 @@ void citylist_stats_t::sort(const citylist::sort_mode_t& sortby,const bool& sort
 		    break;
 	    }
 	    if(!append) {
-		city_list.insert_at(j,city,1);
+		city_list.insert_at(j, city);
 		break;
 	    }
 	} // end of for (unsigned int j=0; j<city_list.get_count(); j++)
 	if(append) {
-	    city_list.append(city,1);
+		city_list.append(city);
 	}
     }
 } // end of function citylist_stats_t::sort()
