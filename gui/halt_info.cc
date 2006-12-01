@@ -76,7 +76,6 @@ halt_info_t::halt_info_t(karte_t *welt, halthandle_t halt)
    freight_info(16384)
 {
 	this->halt = halt;
-	this->welt = welt;
 
 	input.setze_pos(koord(11,4));
 	input.setze_text(halt->access_name(), 48);
