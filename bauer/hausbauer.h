@@ -213,7 +213,7 @@ public:
      * renovates building and sets a new tile for them
      * @author V. Meyer
      */
-    static void umbauen(karte_t *welt, gebaeude_t *gb, const haus_besch_t *besch, int rotation);
+		static void umbauen(gebaeude_t* gb, const haus_besch_t* besch, int rotation);
 
     /**
      * Baut alles was in gebaeude.tab beschrieben ist.

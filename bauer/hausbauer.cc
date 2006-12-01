@@ -308,13 +308,12 @@ void hausbauer_t::neue_karte()
  * Ein Gebäude wird umgebaut, d.h. es bekommt einen neuen Typ und damit ein neues Bild.
  * Die Baugrube wird gesetzt.
  *
- * @param welt
  * @param gb
  * @param besch
  *
  * @author V. Meyer
  */
-void hausbauer_t::umbauen(karte_t * ,gebaeude_t *gb, const haus_besch_t *besch, int rotate)
+void hausbauer_t::umbauen(gebaeude_t* gb, const haus_besch_t* besch, int rotate)
 {
 	const haus_tile_besch_t *tile = besch->gib_tile(rotate, 0, 0);
 	gb->setze_tile(tile);

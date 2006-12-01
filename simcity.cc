@@ -2179,7 +2179,7 @@ void stadt_t::renoviere_gebaeude(koord k)
 			default: break;
 		}
 
-		hausbauer_t::umbauen(welt, gb, h, streetdir);
+		hausbauer_t::umbauen(gb, h, streetdir);
 		welt->lookup(k)->gib_kartenboden()->calc_bild();
 
 		switch (will_haben) {
