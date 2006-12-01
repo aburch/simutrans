@@ -438,14 +438,6 @@ public:
 
 
 	/**
-	 * Gibt den Namen der Stadt zurueck.
-	 * @return den Namen der Stadt
-	 * @author Hj. Malthaner
-	 */
-	inline const char* get_name() const { return name; }
-
-
-	/**
 	 * Creates a station name
 	 * @param number if >= 0, then a number is added to the name
 	 * @author Hj. Malthaner
