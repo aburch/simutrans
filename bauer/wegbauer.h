@@ -168,9 +168,6 @@ private:
 
 	ribi_t::ribi calc_ribi(int step);
 
-	static koord3d bruecke_finde_ende(karte_t *welt, koord3d pos, koord zv);
-	static koord3d tunnel_finde_ende(karte_t *welt, koord3d pos, const koord zv);
-
 	void baue_tunnel_und_bruecken();
 
 	// adds the ground before underground construction (always called before the following construction routines)
