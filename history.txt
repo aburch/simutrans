@@ -6,7 +6,7 @@ Known bugs: (hard to fix)
 
 Release of 99.05
 
-xx-Nov-2006: (prissi)
+xx-Nov-2006:
 	FIX: always ensure tile is empty before applying slopes (avoids wrong positions)
 	FIX: deletion of thing not on the map
 	FIX: buying cars with different precessor/following numbers
@@ -23,6 +23,8 @@ xx-Nov-2006: (prissi)
 	CHANGE: option to not showing vehicles which are not matching current action ('Show all' and 'Show also vehicles that do not match for current action.' strings added)
 	CHANGE: zoom in and out in the small map only with a control, more user friendly buttom positions
 	ADD: tunnel entrace only built with control key
+	CHANGE: corner heights only bytes instead of long => less data to handle during savegames
+	FIX: track remover for tunnel and monorails fixed
 
 
 Release of 99.04.2

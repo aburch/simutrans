@@ -3,6 +3,7 @@
 #include <string.h>
 #include <ctype.h>
 #include <assert.h>
+#include <zlib.h>
 
 #include "../simtypes.h"
 #include "../simversion.h"

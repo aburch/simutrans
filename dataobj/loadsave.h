@@ -11,7 +11,6 @@
 #ifndef loadsave_h
 #define loadsave_h
 
-#include <zlib.h>
 #include <stdio.h>
 
 #include "../utils/cstring_t.h"

@@ -165,7 +165,7 @@ einstellungen_t::rdwr(loadsave_t *file)
 		long dummy = grundwasser/Z_TILE_STEP;
 		file->rdwr_long(dummy, "\n");
 		if(file->get_version() < 99005) {
-			grundwasser = (sint16)dummy/16*Z_TILE_STEP;
+			grundwasser = (sint16)(dummy/16)*Z_TILE_STEP;
 		}
 		else {
 			grundwasser = (sint16)dummy*Z_TILE_STEP;

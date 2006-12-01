@@ -2193,11 +2193,8 @@ DBG_MESSAGE("karte_t::speichern(loadsave_t *file)", "saved cities ok");
 	}
 DBG_MESSAGE("karte_t::speichern(loadsave_t *file)", "saved tiles");
 
-	for(int j=0; j<=gib_groesse_y(); j++) {
-		for(int i=0; i<=gib_groesse_x(); i++) {
-			int hgt = lookup_hgt(koord(i, j));
-			file->rdwr_long(hgt, "\n");
-		}
+	for(int j=0; j<(gib_groesse_y()+1)*(gib_groesse_x()+1); j++) {
+		file->rdwr_byte(grid_hgts[j], "\n");
 	}
 DBG_MESSAGE("karte_t::speichern(loadsave_t *file)", "saved hgt");
 
@@ -2393,11 +2390,19 @@ DBG_DEBUG("karte_t::laden", "init %i cities",einstellungen->gib_anzahl_staedte()
 	}
 
 DBG_MESSAGE("karte_t::laden()","loading grid");
-	for(y=0; y<=gib_groesse_y(); y++) {
-		for(x=0; x<=gib_groesse_x(); x++) {
-			int hgt;
-			file->rdwr_long(hgt, "\n");
-			setze_grid_hgt(koord(x, y), hgt);
+	if(file->get_version()<99005) {
+		for(y=0; y<=gib_groesse_y(); y++) {
+			for(x=0; x<=gib_groesse_x(); x++) {
+				int hgt;
+				file->rdwr_long(hgt, "\n");
+				setze_grid_hgt(koord(x, y), (hgt*Z_TILE_STEP)/TILE_HEIGHT_STEP);
+			}
+		}
+	}
+	else {
+		// correct old heights
+		for( uint32 i=0;  i<(gib_groesse_y()+1)*(gib_groesse_x()+1);  i++  ) {
+			file->rdwr_byte( grid_hgts[i], "\n" );
 		}
 	}
 
@@ -2609,6 +2614,8 @@ DBG_MESSAGE("karte_t::laden()", "%d ways loaded",weg_t::gib_alle_wege().count())
 	reset_timer();
 	recalc_average_speed();
 	mute_sound(false);
+
+	setze_maus_funktion(wkz_abfrage, skinverwaltung_t::fragezeiger->gib_bild_nr(0), Z_PLAN,  NO_SOUND, NO_SOUND );
 }
 
 
@@ -2802,8 +2809,8 @@ void karte_t::bewege_zeiger(const event_t *ev)
 
 		for(int n = 0; n < 2; n++) {
 
-			const int base_i = (screen_x+screen_y + tile_raster_scale_y(hgt*TILE_HEIGHT_STEP/Z_TILE_STEP,rw1) )/2;
-			const int base_j = (screen_y-screen_x + tile_raster_scale_y(hgt*TILE_HEIGHT_STEP/Z_TILE_STEP,rw1))/2;
+			const int base_i = (screen_x+screen_y + tile_raster_scale_y((hgt*TILE_HEIGHT_STEP)/Z_TILE_STEP,rw1) )/2;
+			const int base_j = (screen_y-screen_x + tile_raster_scale_y((hgt*TILE_HEIGHT_STEP)/Z_TILE_STEP,rw1))/2;
 
 			mi = ((int)floor(base_i/(double)rw4));
 			mj = ((int)floor(base_j/(double)rw4));

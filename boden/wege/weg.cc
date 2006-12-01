@@ -351,7 +351,7 @@ weg_t::calc_bild()
 				rekursion++;
 				for(int r = 0; r < 4; r++) {
 					if(from->get_neighbour(to, gib_waytype(), koord::nsow[r])) {
-						to->calc_bild();
+						to->gib_weg(gib_waytype())->calc_bild();
 					}
 				}
 				rekursion--;

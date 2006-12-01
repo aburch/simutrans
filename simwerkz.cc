@@ -881,12 +881,6 @@ DBG_MESSAGE("wkz_wayremover()","route with %d tile found",verbindung.gib_max_n()
 						// renew ground
 						gr=welt->lookup(verbindung.position_bei(i));
 					}
-					else if(gr->ist_tunnel()) {
-						//  first remove tunnel
-						tunnelbauer_t::remove(welt,sp,verbindung.position_bei(i),wt);
-						// renew ground
-						gr = welt->lookup(verbindung.position_bei(i));
-					}
 
 					// may be invalid after removing tunnel or bridge
 					if(!gr) {
@@ -899,7 +893,20 @@ DBG_MESSAGE("wkz_wayremover()","route with %d tile found",verbindung.gib_max_n()
 					ribi_t::ribi rem2 = (i<verbindung.gib_max_n()) ? ribi_typ(verbindung.position_bei(i).gib_2d(),verbindung.position_bei(i+1).gib_2d()) : 0;
 					rem = ~(rem|rem2);
 
-					can_delete &= gr->remove_everything_from_way(sp,wt,rem);
+					if((gr->gib_typ()==grund_t::tunnelboden  ||  gr->gib_typ()==grund_t::monorailboden)  &&  gr->gib_weg_nr(0)->gib_waytype()==wt) {
+						can_delete &= gr->remove_everything_from_way(sp,wt,rem);
+						if(can_delete  &&  gr->gib_weg(wt)==NULL) {
+							if(gr->gib_weg_nr(0)!=0) {
+								gr->remove_everything_from_way(sp,gr->gib_weg_nr(0)->gib_waytype(),ribi_t::alle);
+							}
+							gr->obj_loesche_alle(sp);
+							// delete tunnel ground too, if empty
+							welt->access(gr->gib_pos().gib_2d())->boden_entfernen(gr);
+						}
+					}
+					else {
+						can_delete &= gr->remove_everything_from_way(sp,wt,rem);
+					}
 				}
 				// ok, now everything removed ...
 			}
