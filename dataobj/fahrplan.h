@@ -120,7 +120,7 @@ public:
 	 * will add elements 1 to maxi-1 in reverse order to schedule
 	 * @author hsiegeln
 	 */
-	 void add_return_way(karte_t * welt);
+		void add_return_way();
 
 	 fahrplan_type get_type(karte_t * welt) const;
 

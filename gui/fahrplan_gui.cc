@@ -393,7 +393,7 @@ DBG_MESSAGE("fahrplan_gui_t::action_triggered()","komp=%p combo=%p",komp,&line_s
       load = ladegrade[(index+1)%MAX_LADEGRADE];
     }
   } else if (komp == &bt_return) {
-    fpl->add_return_way(welt);
+    fpl->add_return_way();
 	} else if (komp == &line_selector) {
 		int selection = line_selector.get_selection();
 DBG_MESSAGE("fahrplan_gui_t::action_triggered()","line selection=%i",selection);

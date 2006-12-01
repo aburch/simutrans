@@ -304,9 +304,7 @@ fahrplan_t::matches(const fahrplan_t *fpl)
 }
 
 
-
-void
-fahrplan_t::add_return_way(karte_t *)
+void fahrplan_t::add_return_way()
 {
 	if(eintrag.get_count()<127) {
 		for( int maxi = ((int)eintrag.get_count())-2;  maxi>0;  maxi--  ) {
