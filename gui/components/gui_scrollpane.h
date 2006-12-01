@@ -20,18 +20,18 @@
 class gui_scrollpane_t : public gui_komponente_t
 {
 private:
-    /**
-     * Die zu scrollende Komponente
-     * @author Hj. Malthaner
-     */
-    gui_komponente_t *komp;
-    koord old_komp_groesse;
+	/**
+	 * Die zu scrollende Komponente
+	 * @author Hj. Malthaner
+	 */
+	gui_komponente_t *komp;
+	koord old_komp_groesse;
 
-    /**
-     * Scrollbar X/Y
-     * @author Hj. Malthaner
-     */
-    scrollbar_t scroll_x, scroll_y;
+	/**
+	 * Scrollbar X/Y
+	 * @author Hj. Malthaner
+	 */
+	scrollbar_t scroll_x, scroll_y;
 
 	bool b_show_scroll_x:1;
 	bool b_show_scroll_y:1;

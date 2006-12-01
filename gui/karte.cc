@@ -502,6 +502,7 @@ reliefkarte_t::calc_map()
 	if(relief->get_width()!=size.x  ||  relief->get_height()!=size.y) {
 		delete relief;
 		relief = new array2d_tpl<unsigned char> (size.x,size.y);
+		setze_groesse(size);
 	}
 
 	// redraw the map

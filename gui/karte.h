@@ -35,7 +35,6 @@ private:
 
 	static reliefkarte_t * single_instance;
 
-
 	/**
 	* map mode: -1) normal; everything else: special map
 	* @author hsiegeln

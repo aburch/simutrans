@@ -24,8 +24,11 @@
 #include "../bauer/fabrikbauer.h"
 #include "../utils/cstring_t.h"
 #include "../dataobj/translator.h"
+#include "../dataobj/koord.h"
 #include "../besch/fabrik_besch.h"
 
+
+static koord old_ij=koord::invalid;
 
 koord map_frame_t::size=koord(0,0);
 uint8 map_frame_t::legend_visible=false;
@@ -203,6 +206,8 @@ map_frame_t::action_triggered(gui_komponente_t *komp,value_t /* */)
 			reliefkarte_t::gib_karte()->zoom_out++;
 		}
 		reliefkarte_t::gib_karte()->calc_map();
+		// recalc sliders
+		scrolly.setze_groesse( scrolly.gib_groesse() );
 	}
 	else if(komp==zoom_buttons+0) {
 		// zoom in
@@ -213,6 +218,8 @@ map_frame_t::action_triggered(gui_komponente_t *komp,value_t /* */)
 			reliefkarte_t::gib_karte()->zoom_in++;
 		}
 		reliefkarte_t::gib_karte()->calc_map();
+		// recalc sliders
+		scrolly.setze_groesse( scrolly.gib_groesse() );
 	}
 	else {
 		for (int i=0;i<MAX_MAP_TYPE;i++) {
@@ -389,6 +396,8 @@ void map_frame_t::resize(const koord delta)
 	const koord pos = koord( win_get_posx(this), win_get_posy(this) );
 	mark_rect_dirty_wc(pos.x,pos.y,pos.x+groesse.x,pos.y+groesse.y);
 
+	old_ij = koord::invalid;
+
 	setze_fenstergroesse( groesse );
 }
 
@@ -414,6 +423,25 @@ void map_frame_t::zeichnen(koord pos, koord gr)
 		display_fillbox_wh(pos.x, pos.y+gr.y, gr.x, 1, MN_GREY0, true);
 	}
 */
+	// first: check if cursor within map screen size
+	karte_t *welt=reliefkarte_t::gib_karte()->gib_welt();
+	koord ij = welt->gib_ij_off();
+	if(welt->ist_in_kartengrenzen(ij)) {
+		ij.x = (ij.x*reliefkarte_t::gib_karte()->zoom_out)/reliefkarte_t::gib_karte()->zoom_in;
+		ij.y = (ij.y*reliefkarte_t::gib_karte()->zoom_out)/reliefkarte_t::gib_karte()->zoom_in;
+		// only recenter by zoom or position change; we want still be able to scroll
+		if(old_ij!=ij) {
+			koord groesse = scrolly.gib_groesse();
+			if(
+				(scrolly.get_scroll_x()>ij.x  ||  scrolly.get_scroll_x()+groesse.x<=ij.x) ||
+				(scrolly.get_scroll_y()>ij.y  ||  scrolly.get_scroll_y()+groesse.y<=ij.y) ) {
+				// recenter cursor by scrolling
+				scrolly.setze_scroll_position( max(0,ij.x-(groesse.x/2)), max(0,ij.y-(groesse.y/2)) );
+				old_ij = ij;
+			}
+		}
+	}
+
 	// button state
 	for (int i = 0;i<MAX_MAP_TYPE;i++) {
 		filter_buttons[i].pressed = is_filter_active[i];
