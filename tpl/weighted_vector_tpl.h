@@ -132,8 +132,8 @@ template<class T> class weighted_vector_tpl
 			if (pos < count) {
 				if (count == size) resize(size + 1);
 				for (uint i = count; i > pos; i--) {
-					nodes[i].data = nodes[i - 1].data;
-					nodes[i].data = nodes[i - 1].data + weight;
+					nodes[i].data   = nodes[i - 1].data;
+					nodes[i].weight = nodes[i - 1].weight + weight;
 				}
 				nodes[pos].data = elem;
 				total_weight += weight;
