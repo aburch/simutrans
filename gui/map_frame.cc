@@ -89,6 +89,11 @@ map_frame_t::map_frame_t(const karte_t *welt) :
 	zoom_label.setze_pos( koord(54,BUTTON_HEIGHT+4) );
 	add_komponente( &zoom_label );
 
+	// rotate map 45°
+	b_rotate45.init(button_t::square, "isometric map", koord(BUTTON_WIDTH,BUTTON_HEIGHT+4), koord(BUTTON_WIDTH*2,BUTTON_HEIGHT));
+	b_rotate45.add_listener(this);
+	add_komponente(&b_rotate45);
+
 	// show the various objects
 	b_show_legend.init(button_t::roundbox, "Show legend", koord(0,0), koord(BUTTON_WIDTH+1,BUTTON_HEIGHT));
 	b_show_legend.add_listener(this);
@@ -221,6 +226,12 @@ map_frame_t::action_triggered(gui_komponente_t *komp,value_t /* */)
 		// recalc sliders
 		scrolly.setze_groesse( scrolly.gib_groesse() );
 	}
+	else if(komp==&b_rotate45) {
+		// rotated/straight map
+		reliefkarte_t::gib_karte()->rotate45 ^= 1;
+		reliefkarte_t::gib_karte()->calc_map();
+		scrolly.setze_groesse( scrolly.gib_groesse() );
+	}
 	else {
 		for (int i=0;i<MAX_MAP_TYPE;i++) {
 			if (komp == &filter_buttons[i]) {
@@ -271,22 +282,6 @@ void map_frame_t::infowin_event(const event_t *ev)
 		gui_frame_t::infowin_event(ev);
 	}
 
-	if(IS_WINDOW_CHOOSE_NEXT(ev)) {
-		// open close legend ...
-		bool dir=ev->ev_code == NEXT_WINDOW;
-		if(legend_visible) {
-			if(scale_visible) {
-				directory_visible = dir;
-				scale_visible = dir;
-			}
-			scale_visible = dir;
-			legend_visible = dir;
-		}
-		else {
-			legend_visible = dir;
-		}
-	}
-
 	// Hajo: hack: relief map can resize upon right click
 	// we track this here, and adjust size.
 	if(IS_RIGHTCLICK(ev)) {
@@ -313,7 +308,6 @@ void map_frame_t::infowin_event(const event_t *ev)
 		reliefkarte_t::gib_karte()->gib_welt()->set_scroll_lock(true);
 
 		scrolly.setze_scroll_position(  max(0, x),  max(0, y) );
-//		scrolly.setze_scroll_position(  max(0, min(size.x, x)),  max(0, min(size.y, y)) );
 
 		// Hajo: re-center mouse pointer
 		display_move_pointer(screenpos.x+ev->cx, screenpos.y+ev->cy);
@@ -411,22 +405,15 @@ void map_frame_t::resize(const koord delta)
  */
 void map_frame_t::zeichnen(koord pos, koord gr)
 {
-/*
-	if(legend_visible==0) {
-		// scrollbar "opaqueness" mechanism has changed. So we must draw grey background here
-		// if not handled automatically
-		screenpos = pos;
-
-		display_fillbox_wh(pos.x+gr.x-14,pos.y+16,14, gr.y-16, MN_GREY2, true);
-		display_fillbox_wh(pos.x,pos.y+gr.y-12,gr.x,12, MN_GREY2, true);
-		display_fillbox_wh(pos.x+gr.x, pos.y+16, 1, gr.y-16, MN_GREY0, true);
-		display_fillbox_wh(pos.x, pos.y+gr.y, gr.x, 1, MN_GREY0, true);
-	}
-*/
 	// first: check if cursor within map screen size
 	karte_t *welt=reliefkarte_t::gib_karte()->gib_welt();
 	koord ij = welt->gib_ij_off();
 	if(welt->ist_in_kartengrenzen(ij)) {
+		if(reliefkarte_t::gib_karte()->rotate45) {
+			sint16 x = (welt->gib_groesse_y()/2) + (ij.x-ij.y)/2;
+			ij.y = (ij.x+ij.y)/2;
+			ij.x = x;
+		}
 		ij.x = (ij.x*reliefkarte_t::gib_karte()->zoom_out)/reliefkarte_t::gib_karte()->zoom_in;
 		ij.y = (ij.y*reliefkarte_t::gib_karte()->zoom_out)/reliefkarte_t::gib_karte()->zoom_in;
 		// only recenter by zoom or position change; we want still be able to scroll
@@ -446,6 +433,8 @@ void map_frame_t::zeichnen(koord pos, koord gr)
 	for (int i = 0;i<MAX_MAP_TYPE;i++) {
 		filter_buttons[i].pressed = is_filter_active[i];
 	}
+
+	b_rotate45.pressed = reliefkarte_t::gib_karte()->rotate45;
 
 	b_show_legend.pressed = legend_visible;
 	b_show_scale.pressed = scale_visible;

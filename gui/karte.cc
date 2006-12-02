@@ -53,6 +53,21 @@ const uint8 reliefkarte_t::severity_color[MAX_SEVERITY_COLORS] =
 
 
 
+// converts karte koordinates to screen corrdinates
+inline void
+reliefkarte_t::welt_to_screen( koord &k ) const
+{
+	if(rotate45) {
+		// 45 rotate view
+		sint16 x = welt->gib_groesse_y()/2 + (k.x-k.y)/2;
+		k.y = (k.x+k.y)/2;
+		k.x = x;
+	}
+	k.x = (k.x*zoom_out)/zoom_in;
+	k.y = (k.y*zoom_out)/zoom_in;
+}
+
+
 uint8
 reliefkarte_t::calc_severity_color(sint32 amount, sint32 max_value)
 {
@@ -82,8 +97,7 @@ reliefkarte_t::setze_relief_farbe(koord k, const int color)
 		return;
 	}
 
-	k.x = (k.x*zoom_out)/zoom_in;
-	k.y = (k.y*zoom_out)/zoom_in;
+	welt_to_screen(k);
 
 	for (int x = 0; x < zoom_out; x++) {
 		for (int y = 0; y < zoom_out; y++) {
@@ -100,9 +114,20 @@ reliefkarte_t::setze_relief_farbe_area(koord k, int areasize, uint8 color)
 	k -= koord(areasize/2, areasize/2);
 	koord p;
 
-	for (p.x = 0; p.x<areasize; p.x++) {
-		for (p.y = 0; p.y<areasize; p.y++) {
-			setze_relief_farbe(k + p, color);
+	welt_to_screen(k);
+	if(rotate45) {
+		for (p.x = 0; p.x<areasize; p.x++) {
+			for (p.y = 0; p.y<areasize; p.y++) {
+				koord pos = koord( k.x+(p.x-p.y)/2, k.y+(p.x+p.y)/2 );
+				setze_relief_farbe( pos, color);
+			}
+		}
+	}
+	else {
+		for (p.x = 0; p.x<areasize; p.x++) {
+			for (p.y = 0; p.y<areasize; p.y++) {
+				setze_relief_farbe(k + p, color);
+			}
 		}
 	}
 }
@@ -498,11 +523,16 @@ void
 reliefkarte_t::calc_map()
 {
 	// size cahnge due to zoom?
-	koord size = koord( (welt->gib_groesse_x()*zoom_out)/zoom_in+1, (welt->gib_groesse_y()*zoom_out)/zoom_in+1 );
+	koord size = rotate45 ?
+			koord( ((welt->gib_groesse_y()/2+zoom_in-1)*zoom_out)/zoom_in+((welt->gib_groesse_x()/2+zoom_in-1)*zoom_out)/zoom_in, ((welt->gib_groesse_y()/2+zoom_in-1)*zoom_out)/zoom_in+((welt->gib_groesse_x()/2+zoom_in-1)*zoom_out)/zoom_in ) :
+			koord( ((welt->gib_groesse_x()+zoom_in-1)*zoom_out)/zoom_in, ((welt->gib_groesse_y()+zoom_in-1)*zoom_out)/zoom_in );
 	if(relief->get_width()!=size.x  ||  relief->get_height()!=size.y) {
 		delete relief;
 		relief = new array2d_tpl<unsigned char> (size.x,size.y);
 		setze_groesse(size);
+	}
+	if(rotate45) {
+		memset( (void *)(relief->to_array()), COL_BLACK, size.x*size.y );
 	}
 
 	// redraw the map
@@ -566,6 +596,7 @@ reliefkarte_t::reliefkarte_t()
 	relief = NULL;
 	zoom_out = 1;
 	zoom_in = 1;
+	rotate45 = false;
 	mode = MAP_TOWN;
 	fab = 0;
 }
@@ -639,33 +670,24 @@ reliefkarte_t::neuer_monat()
 void
 reliefkarte_t::infowin_event(const event_t *ev)
 {
-	// get factory under mouse cursor
-	fab = fabrik_t::gib_fab(welt, koord( (ev->mx*zoom_in)/zoom_out , (ev->my*zoom_in)/zoom_out ));
+	koord k( (ev->mx*zoom_in)/zoom_out, (ev->my*zoom_in)/zoom_out );
+	if(rotate45) {
+		k.x = (k.x-welt->gib_groesse_y()/2) + k.y;
+		k.y = (2*k.y) - k.x;
+	}
 
+	// get factory under mouse cursor
+	fab = fabrik_t::gib_fab(welt, k );
+
+	// recenter
 	if(IS_LEFTCLICK(ev) || IS_LEFTDRAG(ev)) {
 		welt->set_follow_convoi( convoihandle_t() );
-		int x = (ev->mx*zoom_in)/zoom_out;
-		int y = (ev->my*zoom_in)/zoom_out;
 		int z = 0;
-		if(welt->ist_in_kartengrenzen(x,y)) {
-			z = welt->min_hgt(koord(x,y));
+		if(welt->ist_in_kartengrenzen(k)) {
+			z = welt->min_hgt(k);
 		}
-		welt->setze_ij_off(koord3d(x,y,z)); // Offset empirisch ermittelt !
+		welt->setze_ij_off(koord3d(k,z));
 	}
-/*
-	if(IS_RIGHTRELEASE(ev) || IS_WHEELUP(ev) || IS_WHEELDOWN(ev)) {
-
-		if (ev->ev_key_mod&1 || IS_WHEELDOWN(ev)) {
-			zoom == 1 ? zoom = MAX_MAP_ZOOM : zoom /= 2;
-		}
-		else {
-			zoom >= MAX_MAP_ZOOM ? zoom = 1 : zoom *= 2;
-		}
-
-		setze_welt(welt);
-		calc_map();
-	}
-*/
 }
 
 
@@ -674,13 +696,16 @@ reliefkarte_t::infowin_event(const event_t *ev)
 void
 reliefkarte_t::draw_fab_connections(const fabrik_t * fab, uint8 colour, koord pos) const
 {
-	const koord fabpos = koord( (pos.x + fab->pos.x * zoom_out)/zoom_in, (pos.y + fab->pos.y * zoom_out)/zoom_in);
+	koord fabpos = fab->pos.gib_2d();
+	welt_to_screen( fabpos );
+	fabpos += pos;
 	const vector_tpl <koord> &lieferziele = event_get_last_control_shift()&1 ? fab->get_suppliers() : fab->gib_lieferziele();
 	for(uint32 i=0; i<lieferziele.get_count(); i++) {
-		const koord lieferziel = lieferziele[i];
+		koord lieferziel = lieferziele[i];
 		const fabrik_t * fab2 = fabrik_t::gib_fab(welt, lieferziel);
 		if (fab2) {
-			const koord end = koord( (pos.x + lieferziel.x * zoom_out)/zoom_in, (pos. y + lieferziel.y * zoom_out)/zoom_in );
+			welt_to_screen( lieferziel );
+			const koord end = lieferziel+pos;
 			display_direct_line(fabpos.x, fabpos.y, end.x, end.y, colour);
 			display_fillbox_wh_clip(end.x, end.y, 3, 3, ((welt->gib_zeit_ms() >> 10) & 1) == 0 ? COL_RED : COL_WHITE, true);
 
@@ -723,22 +748,39 @@ reliefkarte_t::zeichnen(koord pos)
 	// zoom/resize "selection box" in map
 	// this must be rotated by 45 degree (sin45=cos45=0,5*sqrt(2)=0.707...)
 	const sint16 raster=get_tile_raster_width();
-	const koord diff = koord( ((display_get_width()/raster)*zoom_out*0.707106)/zoom_in, (((display_get_height())/(raster))*zoom_out*0.707106)/zoom_in );
-	const koord ij = koord( (welt->gib_ij_off().x*zoom_out)/zoom_in, (welt->gib_ij_off().y*zoom_out)/zoom_in );
 
 	// calculate and draw the rotated coordinates
-	koord view[4];
-	view[0] = pos + ij + koord( -diff.x+diff.y, -diff.x-diff.y );
-	view[1] = pos + ij + koord( -diff.x-diff.y, -diff.x+diff.y );
-	view[2] = pos + ij + koord( diff.x-diff.y, diff.x+diff.y );
-	view[3] = pos + ij + koord( diff.x+diff.y, diff.x-diff.y );
-	for(  int i=0;  i<4;  i++  ) {
-		display_direct_line( view[i].x, view[i].y, view[(i+1)%4].x, view[(i+1)%4].y, COL_YELLOW);
+	if(rotate45) {
+		// straight cursor
+		const koord diff = koord( ((display_get_width()/raster)*zoom_out)/zoom_in, (((display_get_height())/(raster))*zoom_out)/zoom_in );
+		koord ij = welt->gib_ij_off();
+		welt_to_screen( ij );
+		ij += pos;
+		display_direct_line( ij.x-diff.x, ij.y-diff.y, ij.x+diff.x, ij.y-diff.y, COL_YELLOW);
+		display_direct_line( ij.x+diff.x, ij.y-diff.y, ij.x+diff.x, ij.y+diff.y, COL_YELLOW);
+		display_direct_line( ij.x+diff.x, ij.y+diff.y, ij.x-diff.x, ij.y+diff.y, COL_YELLOW);
+		display_direct_line( ij.x-diff.x, ij.y+diff.y, ij.x-diff.x, ij.y-diff.y, COL_YELLOW);
+	}
+	else {
+		// rotate cursor
+		const koord diff = koord( ((display_get_width()/raster)*zoom_out*0.707106)/zoom_in, (((display_get_height())/(raster))*zoom_out*0.707106)/zoom_in );
+		koord ij = welt->gib_ij_off();
+		welt_to_screen( ij );
+		ij += pos;
+		koord view[4];
+		view[0] = ij + koord( -diff.x+diff.y, -diff.x-diff.y );
+		view[1] = ij + koord( -diff.x-diff.y, -diff.x+diff.y );
+		view[2] = ij + koord( diff.x-diff.y, diff.x+diff.y );
+		view[3] = ij + koord( diff.x+diff.y, diff.x-diff.y );
+		for(  int i=0;  i<4;  i++  ) {
+			display_direct_line( view[i].x, view[i].y, view[(i+1)%4].x, view[(i+1)%4].y, COL_YELLOW);
+		}
 	}
 
 	if (fab) {
 		draw_fab_connections(fab, event_get_last_control_shift()&1 ? COL_RED : COL_WHITE, pos);
-		const koord fabpos = koord( (pos.x + fab->pos.x * zoom_out)/zoom_in, (pos.y + fab->pos.y * zoom_out)/zoom_in );
+		koord fabpos = koord( pos.x + fab->pos.x, pos.y + fab->pos.y );
+		welt_to_screen( fabpos );
 		const koord boxpos = fabpos + koord(10, 0);
 		const char * name = translator::translate(fab->gib_name());
 		display_ddd_proportional_clip(boxpos.x, boxpos.y, proportional_string_width(name)+8, 0, 10, COL_WHITE, name, true);

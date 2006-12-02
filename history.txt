@@ -21,8 +21,9 @@ Release of 99.05
 	CHANGE: game will continue even while dragging (still little buggy)
 	CHANGE: cityrules allow now up to 7x7; more fine control about the res/ind/com clustering too (see cityconf.tab)
 	CHANGE: option to not showing vehicles which are not matching current action ('Show all' and 'Show also vehicles that do not match for current action.' strings added)
-	CHANGE: zoom in and out in the small map only with a control, more user friendly buttom positions
+	CHANGE: zoom in and out in the small map only with a control, more user friendly buttom positions 'Show legend', 'Show map scale', 'Show industry'
 	ADD: auto-centering on minimap
+	ADD: 45 rotated minimap 'isometric map'
 	ADD: tunnel entrace only built with control key
 	CHANGE: corner heights only bytes instead of long => less data to handle during savegames
 	FIX: track remover for tunnel and monorails fixed

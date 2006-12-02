@@ -45,6 +45,8 @@ private:
 
 	static const uint8 map_type_color[MAX_MAP_TYPE];
 
+	inline void welt_to_screen(koord &) const;
+
 	// to be prepared for more than one map => nonstatic
 	void setze_relief_farbe_area(koord k, int areasize, uint8 color);
 
@@ -65,6 +67,9 @@ public:
 
 	// the zoom factors
 	sint16 zoom_out, zoom_in;
+
+	// 45 rotated map
+	bool rotate45;
 
 	/**
 	* returns a color based on an amount (high amount/scale -> color shifts from green to red)

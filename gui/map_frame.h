@@ -65,6 +65,7 @@ private:
 
 	button_t zoom_buttons[2];
 	gui_label_t zoom_label;
+	button_t b_rotate45;
 
 	button_t b_show_legend;
 	button_t b_show_scale;
@@ -85,13 +86,6 @@ public:
      * @author Hj. Malthaner
      */
     bool has_min_sizer() const {return true;}
-
-    /**
-     * Does this window need a next button in the title bar?
-     * @return true if such a button is needed
-     * @author Volker Meyer
-     */
-    bool has_next() const {return true;}
 
     /**
      * Konstruktor. Erzeugt alle notwendigen Subkomponenten.
