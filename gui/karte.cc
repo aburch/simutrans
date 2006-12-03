@@ -136,20 +136,22 @@ reliefkarte_t::setze_relief_farbe_area(koord k, int areasize, uint8 color)
 {
 	koord p;
 	karte_to_screen(k);
+	areasize *= zoom_out;
 	if(rotate45) {
-		k -= koord( 0, (areasize*zoom_out)/2 );
+		k -= koord( 0, areasize/2 );
 		k.x = clamp( k.x, 0, relief->get_width()-areasize/2-1 );
 		k.y = clamp( k.y, 0, relief->get_height()-areasize/2-1 );
-		for (p.x = 0; p.x<areasize*zoom_out; p.x++) {
-			for (p.y = 0; p.y<areasize*zoom_out; p.y++) {
+		for (p.x = 0; p.x<areasize; p.x++) {
+			for (p.y = 0; p.y<areasize; p.y++) {
 				koord pos = koord( k.x+(p.x-p.y)/2, k.y+(p.x+p.y)/2 );
 				relief->at(pos.x, pos.y) = color;
 			}
 		}
 	}
 	else {
-		k.x = clamp( k.x, 0, relief->get_width()-areasize-1 );
-		k.y = clamp( k.y, 0, relief->get_height()-areasize-1 );
+		k -= koord( areasize/2, areasize/2 );
+		k.x = clamp( k.x, 0, relief->get_width()-areasize/2-1 );
+		k.y = clamp( k.y, 0, relief->get_height()-areasize/2-1 );
 		for (p.x = 0; p.x<areasize; p.x++) {
 			for (p.y = 0; p.y<areasize; p.y++) {
 				relief->at(p.x+k.x, p.y+k.y) = color;

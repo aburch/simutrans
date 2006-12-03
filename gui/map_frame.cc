@@ -112,20 +112,22 @@ map_frame_t::map_frame_t(const karte_t *welt) :
 	stringhashtable_iterator_tpl<const fabrik_besch_t *> iter (fabesch);
 
 	// add factory names; shorten too long names
-	while( iter.next() &&  iter.get_current_value()->gib_gewichtung()>0) {
-		int i;
+	while(iter.next()) {
+		if(iter.get_current_value()->gib_gewichtung()>0) {
+			int i;
 
-		cstring_t label (translator::translate(iter.get_current_value()->gib_name()));
-		for(  i=12;  i<label.len()  &&  display_calc_proportional_string_len_width(label,i,true)<100;  i++  )
-			;
-		if(  i<label.len()  ) {
-			label.set_at(i++, '.');
-			label.set_at(i++, '.');
-			label.set_at(i++, '\0');
+			cstring_t label (translator::translate(iter.get_current_value()->gib_name()));
+			for(  i=12;  i<label.len()  &&  display_calc_proportional_string_len_width(label,i,true)<100;  i++  )
+				;
+			if(  i<label.len()  ) {
+				label.set_at(i++, '.');
+				label.set_at(i++, '.');
+				label.set_at(i++, '\0');
+			}
+
+			legend_names.append(label);
+			legend_colors.append(iter.get_current_value()->gib_kennfarbe());
 		}
-
-		legend_names.append(label);
-		legend_colors.append(iter.get_current_value()->gib_kennfarbe());
 	}
 
 	// init the rest
