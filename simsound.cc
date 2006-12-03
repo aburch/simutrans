@@ -14,6 +14,7 @@
 
 #include <stdio.h>
 #include <string.h>
+#include "macros.h"
 #include "music/music.h"
 #include "besch/sound_besch.h"
 #include "sound/sound.h"
@@ -35,7 +36,7 @@ static int new_midi = 0;
 #define MAX_MIDI_TITLE 30
 
 
-static char midi_title[128][MAX_MIDI_TITLE];
+static char midi_title[MAX_MIDI_TITLE][128];
 
 
 /**
@@ -134,7 +135,7 @@ int sound_get_midi_volume()
  */
 const char * sound_get_midi_title(int index)
 {
-    if(index >= 0 && index <= max_midi && midi_title[index] != NULL) {
+	if (index >= 0 && index <= max_midi) {
 	return midi_title[index];
     } else {
 	return "Invalid MIDI index!";
@@ -184,8 +185,8 @@ midi_init()
 	  print("  Reading MIDI file '%s' - %s", buf, title);
 	  max_midi = dr_load_midi(buf);
 
-	  if(max_midi >= 0 && max_midi < MAX_MIDI_TITLE) {
-	    tstrncpy(midi_title[max_midi], title, 128);
+		if (max_midi >= 0 && (uint)max_midi < lengthof(midi_title)) {
+			tstrncpy(midi_title[max_midi], title, lengthof(midi_title[max_midi]));
 	  }
 	}
       }
