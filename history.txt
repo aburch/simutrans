@@ -29,6 +29,7 @@ Release of 99.05
 	FIX: track remover for tunnel and monorails fixed
 	FIX: building trough depots
 	FIX: retire/intro messages for ways ('way %s now available:\n' and 'way %s cannot longer used:\n')
+	ADD: winter ways form kierongreen
 
 
 Release of 99.04.2
