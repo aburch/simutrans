@@ -343,6 +343,11 @@ void map_frame_t::resize(const koord delta)
 	karte_t *welt=reliefkarte_t::gib_karte()->gib_welt();
 
 	koord groesse = gib_fenstergroesse()+delta;
+
+	// mark old size dirty
+	const koord pos = koord( win_get_posx(this), win_get_posy(this) );
+	mark_rect_dirty_wc(pos.x,pos.y,pos.x+groesse.x,pos.y+groesse.y);
+
 	gui_frame_t::resize(delta);
 
 	int offset_y = BUTTON_HEIGHT*2 + 2;
@@ -375,21 +380,24 @@ void map_frame_t::resize(const koord delta)
 		offset_y +=(fac_rows*14+4);
 	}
 
+	// set allowed min size
+	if(groesse.y<offset_y+64) {
+		groesse.y = offset_y+64;
+	}
+	set_min_windowsize(  koord( BUTTON_WIDTH*3+4, offset_y+12+64) );
+
 	// offset of map
 	scrolly.setze_pos( koord(0,offset_y) );
 
-	// min size
+	// max size
 	offset_y += min(welt->gib_groesse_y(),256)+16+12;
 	if(offset_y>display_get_height()-64) {
 		// avoid negative values for min size
 		offset_y = max(10,display_get_height()-64);
 	}
-	set_min_windowsize(  koord(min(256,max(BUTTON_WIDTH+4,welt->gib_groesse_x()))+12, offset_y+12) );
-
-	// mark old size dirty
-	const koord pos = koord( win_get_posx(this), win_get_posy(this) );
-	mark_rect_dirty_wc(pos.x,pos.y,pos.x+groesse.x,pos.y+groesse.y);
-
+	if(offset_y>groesse.y) {
+		groesse.y = offset_y;
+	}
 	old_ij = koord::invalid;
 
 	setze_fenstergroesse( groesse );
@@ -409,13 +417,7 @@ void map_frame_t::zeichnen(koord pos, koord gr)
 	karte_t *welt=reliefkarte_t::gib_karte()->gib_welt();
 	koord ij = welt->gib_ij_off();
 	if(welt->ist_in_kartengrenzen(ij)) {
-		if(reliefkarte_t::gib_karte()->rotate45) {
-			sint16 x = (welt->gib_groesse_y()/2) + (ij.x-ij.y)/2;
-			ij.y = (ij.x+ij.y)/2;
-			ij.x = x;
-		}
-		ij.x = (ij.x*reliefkarte_t::gib_karte()->zoom_out)/reliefkarte_t::gib_karte()->zoom_in;
-		ij.y = (ij.y*reliefkarte_t::gib_karte()->zoom_out)/reliefkarte_t::gib_karte()->zoom_in;
+		reliefkarte_t::gib_karte()->karte_to_screen(ij);
 		// only recenter by zoom or position change; we want still be able to scroll
 		if(old_ij!=ij) {
 			koord groesse = scrolly.gib_groesse();

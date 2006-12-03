@@ -127,6 +127,13 @@ public:
 	void set_min_windowsize(koord size) { min_windowsize = size; }
 
 	/**
+	 * Set minimum size of the window
+	 * @author Markus Weber
+	 * @date   11-May-2002
+	 */
+	koord get_min_windowsize() { return min_windowsize; }
+
+	/**
 	 * @return returns the usable width and heigth of the window
 	 * @author Markus Weber
 	 * @date   11-May-2002

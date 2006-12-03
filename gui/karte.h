@@ -45,7 +45,7 @@ private:
 
 	static const uint8 map_type_color[MAX_MAP_TYPE];
 
-	inline void welt_to_screen(koord &) const;
+	inline void screen_to_karte(koord &) const;
 
 	// to be prepared for more than one map => nonstatic
 	void setze_relief_farbe_area(koord k, int areasize, uint8 color);
@@ -63,6 +63,8 @@ private:
 	static sint32 max_tourist_ziele;
 
 public:
+	inline void karte_to_screen(koord &) const;
+
 	static bool is_visible;
 
 	// the zoom factors

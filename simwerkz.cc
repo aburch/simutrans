@@ -2030,6 +2030,10 @@ int wkz_build_industries_land(spieler_t *, karte_t *welt, koord pos)
 	}
 	const fabrik_besch_t *info = fabrikbauer_t::get_random_consumer(false,(climate_bits)(1<<welt->get_climate(welt->lookup(pos)->gib_kartenboden()->gib_hoehe())));
 
+	if(info==NULL) {
+		return false;
+	}
+
 	koord size = info->gib_haus()->gib_groesse();
 	int rotation = 0;
 
