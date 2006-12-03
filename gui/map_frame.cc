@@ -75,7 +75,7 @@ const int map_frame_t::map_type_color[MAX_MAP_TYPE] =
 map_frame_t::map_frame_t(const karte_t *welt) :
 	gui_frame_t("Reliefkarte"),
 	scrolly(reliefkarte_t::gib_karte()),
-	zoom_label("cl_txt_filter")
+	zoom_label("map zoom")
 {
 	// zoom levels
 	zoom_buttons[0].setze_pos( koord(2,BUTTON_HEIGHT+4) );
@@ -90,7 +90,7 @@ map_frame_t::map_frame_t(const karte_t *welt) :
 	add_komponente( &zoom_label );
 
 	// rotate map 45°
-	b_rotate45.init(button_t::square, "isometric map", koord(BUTTON_WIDTH,BUTTON_HEIGHT+4), koord(BUTTON_WIDTH*2,BUTTON_HEIGHT));
+	b_rotate45.init(button_t::square, "isometric map", koord(BUTTON_WIDTH+40,BUTTON_HEIGHT+4), koord(BUTTON_WIDTH,BUTTON_HEIGHT));
 	b_rotate45.add_listener(this);
 	add_komponente(&b_rotate45);
 
