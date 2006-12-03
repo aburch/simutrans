@@ -61,6 +61,7 @@ obj_besch_t * way_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 		besch->wtyp = road_wt;
 		besch->styp = 0;
 		besch->draw_as_ding = false;
+		besch->number_seasons = 0;
 		/*
 		if(tstrequ(besch->gib_name(), "road")) {
 		besch->wtyp = road_wt;
@@ -76,7 +77,20 @@ obj_besch_t * way_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 		const uint16 v = decode_uint16(p);
 		version = v & 0x7FFF;
 
-		if(version==3) {
+		if(version==4) {
+			// Versioned node, version 4
+			besch->price = decode_uint32(p);
+			besch->maintenance = decode_uint32(p);
+			besch->topspeed = decode_uint32(p);
+			besch->max_weight = decode_uint32(p);
+			besch->intro_date = decode_uint16(p);
+			besch->obsolete_date = decode_uint16(p);
+			besch->wtyp = decode_uint8(p);
+			besch->styp = decode_uint8(p);
+			besch->draw_as_ding = decode_uint8(p);
+			besch->number_seasons = decode_sint8(p);
+		}
+		else if(version==3) {
 			// Versioned node, version 3
 			besch->price = decode_uint32(p);
 			besch->maintenance = decode_uint32(p);
@@ -87,6 +101,7 @@ obj_besch_t * way_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 			besch->wtyp = decode_uint8(p);
 			besch->styp = decode_uint8(p);
 			besch->draw_as_ding = decode_uint8(p);
+			besch->number_seasons = 0;
 		}
 		else if(version==2) {
 			// Versioned node, version 2
@@ -99,6 +114,7 @@ obj_besch_t * way_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 			besch->wtyp = decode_uint8(p);
 			besch->styp = decode_uint8(p);
 			besch->draw_as_ding = false;
+			besch->number_seasons = 0;
 		}
 		else if(version == 1) {
 			// Versioned node, version 1
@@ -112,6 +128,7 @@ obj_besch_t * way_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 			besch->styp = decode_uint8(p);
 			besch->obsolete_date = DEFAULT_RETIRE_DATE*12;
 			besch->draw_as_ding = false;
+			besch->number_seasons = 0;
 		}
 		else {
 			dbg->fatal("way_reader_t::read_node()","Invalid version %d", version);

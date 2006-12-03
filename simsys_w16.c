@@ -21,6 +21,7 @@
 // windows Bibliotheken DirectDraw 5.x
 #define UNICODE 1
 #include <windows.h>
+#include <winreg.h>
 #include <wingdi.h>
 #include <mmsystem.h>
 
@@ -59,6 +60,24 @@ int dr_os_init(const int* parameter)
 {
 	return TRUE;
 }
+
+
+
+// query home directory
+const char *dr_query_home()
+{
+	static char buffer[1024];
+	DWORD len=1023;
+	HKEY hHomeDir;
+	if(RegOpenKeyA(HKEY_CURRENT_USER,"Software\\Microsoft\\Windows\\CurrentVersion\\Explorer\\User Shell Folders", &hHomeDir)==ERROR_SUCCESS) {
+		RegQueryValueExA(hHomeDir,"Personal",NULL,NULL,(LPCSTR)buffer,&len);
+		strcat(buffer,"\\");
+		return buffer;
+	}
+	return NULL;
+}
+
+
 
 
 // open the window

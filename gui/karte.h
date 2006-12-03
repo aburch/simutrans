@@ -63,7 +63,7 @@ private:
 	static sint32 max_tourist_ziele;
 
 public:
-	inline void karte_to_screen(koord &) const;
+	void karte_to_screen(koord &) const;
 
 	static bool is_visible;
 

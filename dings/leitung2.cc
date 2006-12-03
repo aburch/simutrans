@@ -335,30 +335,30 @@ void leitung_t::calc_bild()
 	const ribi_t::ribi ribi=gib_ribi();
 	hang_t::typ hang = gr->gib_grund_hang();
 	if(hang != hang_t::flach) {
-		setze_bild( wegbauer_t::leitung_besch->gib_hang_bild_nr(hang));
+		setze_bild( wegbauer_t::leitung_besch->gib_hang_bild_nr(hang, 0));
 	}
 	else {
 		if(gr->hat_wege()  ||  !gr->ist_natur()) {
 			// crossing with road or rail
 			if(ribi_t::ist_gerade_ns(ribi)) {
-				setze_bild( wegbauer_t::leitung_besch->gib_diagonal_bild_nr(ribi_t::nord|ribi_t::ost));
+				setze_bild( wegbauer_t::leitung_besch->gib_diagonal_bild_nr(ribi_t::nord|ribi_t::ost,0));
 			}
 			else {
-				setze_bild( wegbauer_t::leitung_besch->gib_diagonal_bild_nr(ribi_t::sued|ribi_t::ost));
+				setze_bild( wegbauer_t::leitung_besch->gib_diagonal_bild_nr(ribi_t::sued|ribi_t::ost,0));
 			}
 		}
 		else {
 			if(ribi_t::ist_gerade(ribi)  &&  !ribi_t::ist_einfach(ribi)  &&  (pos.x+pos.y)&1) {
 				// every second skip mast
 				if(ribi_t::ist_gerade_ns(ribi)) {
-					setze_bild( wegbauer_t::leitung_besch->gib_diagonal_bild_nr(ribi_t::nord|ribi_t::west));
+					setze_bild( wegbauer_t::leitung_besch->gib_diagonal_bild_nr(ribi_t::nord|ribi_t::west,0));
 				}
 				else {
-					setze_bild( wegbauer_t::leitung_besch->gib_diagonal_bild_nr(ribi_t::sued|ribi_t::west));
+					setze_bild( wegbauer_t::leitung_besch->gib_diagonal_bild_nr(ribi_t::sued|ribi_t::west,0));
 				}
 			}
 			else {
-				setze_bild( wegbauer_t::leitung_besch->gib_bild_nr(ribi));
+				setze_bild( wegbauer_t::leitung_besch->gib_bild_nr(ribi,0));
 			}
 		}
 	}

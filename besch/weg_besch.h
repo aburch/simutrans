@@ -89,6 +89,10 @@ private:
 	*/
 	uint8 draw_as_ding;
 
+	/* number of seasons (0 = none, 1 = no snow/snow
+	*/
+	sint8 number_seasons;
+
 public:
 	const long gib_preis() const { return price; }
 
@@ -114,16 +118,22 @@ public:
 	*/
 	const uint8 gib_styp() const { return styp; }
 
-	image_id gib_bild_nr(ribi_t::ribi ribi) const
+	image_id gib_bild_nr(ribi_t::ribi ribi, uint8 season) const
 	{
+		if(season && number_seasons == 1) {
+			return static_cast<const bildliste_besch_t *>(gib_kind(6))->gib_bild_nr(ribi);
+		}
 		return static_cast<const bildliste_besch_t *>(gib_kind(2))->gib_bild_nr(ribi);
 	}
 
-	image_id gib_hang_bild_nr(hang_t::typ hang) const
+	image_id gib_hang_bild_nr(hang_t::typ hang, uint8 season) const
 	{
 #ifndef DOUBLE_GROUNDS
 	if(!hang_t::ist_einfach(hang)) {
 		return IMG_LEER;
+	}
+	if(season && number_seasons == 1) {
+		return static_cast<const bildliste_besch_t *>(gib_kind(7))->gib_bild_nr(hang / 3 - 1);
 	}
 	return static_cast<const bildliste_besch_t *>(gib_kind(3))->gib_bild_nr(hang / 3 - 1);
 #else
@@ -144,14 +154,20 @@ public:
 			default:
 				return IMG_LEER;
 		}
+		if(season && number_seasons == 1) {
+			return static_cast<const bildliste_besch_t *>(gib_kind(7))->gib_bild_nr(nr);
+		}
 		return static_cast<const bildliste_besch_t *>(gib_kind(3))->gib_bild_nr(nr);
 #endif
 	}
 
-	image_id gib_diagonal_bild_nr(ribi_t::ribi ribi) const
+	image_id gib_diagonal_bild_nr(ribi_t::ribi ribi, uint8 season) const
 	{
 		if(!ribi_t::ist_kurve(ribi)) {
 			return IMG_LEER;
+		}
+		if(season && number_seasons == 1) {
+			return static_cast<const bildliste_besch_t *>(gib_kind(8))->gib_bild_nr(ribi / 3 - 1);
 		}
 		return static_cast<const bildliste_besch_t *>(gib_kind(4))->gib_bild_nr(ribi / 3 - 1);
 	}

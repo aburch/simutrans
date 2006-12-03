@@ -54,7 +54,7 @@ const uint8 reliefkarte_t::severity_color[MAX_SEVERITY_COLORS] =
 
 
 // converts karte koordinates to screen corrdinates
-inline void
+void
 reliefkarte_t::karte_to_screen( koord &k ) const
 {
 	if(rotate45) {

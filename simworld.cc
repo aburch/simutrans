@@ -3505,7 +3505,6 @@ bool
 karte_t::interactive()
 {
 	unsigned long now = get_system_ms();
-	unsigned long this_step_time = 0;
 	thisFPS = 0;
 
 	active_player_nr = 0;
