@@ -122,8 +122,6 @@ public:
 	 */
 		void add_return_way();
 
-	 fahrplan_type get_type(karte_t * welt) const;
-
 	 virtual fahrplan_t* copy() { return new fahrplan_t(this); }
 
 	// copy all entries from schedule src to this and adjusts aktuell

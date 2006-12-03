@@ -307,27 +307,6 @@ void fahrplan_t::add_return_way()
 }
 
 
-fahrplan_t::fahrplan_type fahrplan_t::get_type(karte_t * welt) const
-{
-	if (eintrag.empty()) {
-		return type;
-	}
-	const grund_t* gr = welt->lookup(eintrag[0].pos);
-	if ( type != fahrplan_t::fahrplan ) {
-		//
-	} else if (gr->hat_weg(road_wt)) {
-		return fahrplan_t::autofahrplan;
-	} else if (gr->hat_weg(track_wt)) {
-		return fahrplan_t::zugfahrplan;
-	} else if (gr->hat_weg(water_wt)) {
-		return fahrplan_t::schifffahrplan;
-	} else {
-		return fahrplan_t::fahrplan;
-	}
-	return type;
-}
-
-
 bool
 zugfahrplan_t::ist_halt_erlaubt(const grund_t *gr) const
 {
