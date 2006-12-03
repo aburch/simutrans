@@ -74,8 +74,6 @@ public:
 
 	void rdwr(loadsave_t *file);
 
-	fahrplan_t * erzeuge_fahrplan();
-
 	virtual linehandle_t create_line();
 
 	/**

@@ -75,16 +75,6 @@ depot_t::~depot_t()
 }
 
 
-// works with all vehicles perfectly!
-fahrplan_t *
-depot_t::erzeuge_fahrplan()
-{
-	vehikel_t *v=get_vehicle(0);
-	return (v==NULL) ? new fahrplan_t() : v->erzeuge_neuen_fahrplan();
-}
-
-
-
 /* this is called on two occasions:
  * first a convoy reaches the depot during its journey
  * second during loading a covoi is stored in a depot => only store it again
