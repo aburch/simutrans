@@ -100,7 +100,6 @@ private:
 	* @author Hj. Malthaner
 	*/
 	fahrplan_t *fpl;
-	fahrplan_t *old_fpl;	// just needed for changing a schedule
 
 	/**
 	* loading_level was ladegrad before. Actual percentage loaded for loadable vehicles (station length!).

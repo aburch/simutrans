@@ -101,7 +101,7 @@ void convoi_t::init(karte_t *wl, spieler_t *sp)
 	previous_delta_v = 0;
 	min_top_speed = 9999999;
 
-	old_fpl = fpl = NULL;
+	fpl = NULL;
 	line = linehandle_t();
 	line_id = UNVALID_LINE_ID;
 
@@ -900,11 +900,6 @@ convoi_t::setze_fahrplan(fahrplan_t * f)
 		return false;
 	}
 
-	if(old_fpl!=NULL) {
-		delete old_fpl;
-	}
-	old_fpl = NULL;
-
 	// happens to be identical?
 	if(fpl!=f) {
 		// delete, if not equal
@@ -1532,8 +1527,6 @@ convoi_t::open_schedule_window()
 	state = FAHRPLANEINGABE;
 	alte_richtung = fahr[0]->gib_fahrtrichtung();
 
-	old_fpl =new fahrplan_t( fpl );
-
 	// Fahrplandialog oeffnen
 	create_win(-1, -1, new fahrplan_gui_t(welt, self, gib_besitzer()), w_info);
 }
@@ -1903,10 +1896,6 @@ void
 convoi_t::prepare_for_new_schedule(fahrplan_t *f)
 {
 	alte_richtung = fahr[0]->gib_fahrtrichtung();
-	if(fpl) {
-		old_fpl = new fahrplan_t( fpl );
-DBG_MESSAGE("convoi_t::prepare_for_new_schedule()","old=%p,fpl=%p,f=%p",old_fpl,fpl,f);
-	}
 
 	state = FAHRPLANEINGABE;
 	setze_fahrplan(f);
