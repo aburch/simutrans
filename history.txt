@@ -27,6 +27,8 @@ Release of 99.05
 	ADD: tunnel entrace only built with control key
 	CHANGE: corner heights only bytes instead of long => less data to handle during savegames
 	FIX: track remover for tunnel and monorails fixed
+	FIX: building trough depots
+	FIX: retire/intro messages for ways ('way %s now available:\n%s\n' and 'way %s cannot longer used:\n%s\n')
 
 
 Release of 99.04.2

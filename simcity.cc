@@ -2006,7 +2006,7 @@ void stadt_t::baue_gebaeude(const koord k)
 						weg->setze_gehweg(true);
 						// if not current city road standard, then replace it
 						if (weg->gib_besch() != welt->get_city_road()) {
-							if (gr->gib_besitzer() != NULL && !gr->gib_depot() && !gr->is_halt()) {
+							if(gr->gib_besitzer() != NULL && !gr->gib_depot() && !gr->is_halt()) {
 								gr->setze_besitzer(NULL); // make public
 							}
 							weg->setze_besch(welt->get_city_road());
@@ -2239,6 +2239,17 @@ bool stadt_t::baue_strasse(const koord k, spieler_t* sp, bool forced)
 	ribi_t::ribi allowed_dir = (bd->gib_grund_hang() != hang_t::flach ? ribi_t::doppelt(ribi_typ(bd->gib_weg_hang())) : (ribi_t::ribi)ribi_t::alle);
 	ribi_t::ribi connection_roads = ribi_t::keine;
 
+	// we have here a road: check for four corner stops
+	gebaeude_t *gb = (gebaeude_t *)(bd->suche_obj(ding_t::gebaeude));
+	if(gb) {
+		// nothing to connect
+		if(gb->gib_tile()->gib_besch()->gib_all_layouts()==4) {
+			return false;
+		}
+		// check for though way
+		allowed_dir = ribi_t::doppelt( bd->gib_weg(road_wt)->gib_ribi_unmasked() );
+	}
+
 	// we must not built on water or runways etc.
 	// only crossing or tramways allowed
 	if (bd->hat_weg(track_wt)) {
@@ -2266,16 +2277,23 @@ bool stadt_t::baue_strasse(const koord k, spieler_t* sp, bool forced)
 				// not the same slope => tunnel or bridge
 				allowed_dir &= ~ribi_t::nsow[r];
 			} else if (bd2->hat_weg(road_wt)) {
-				// a road, we must just take care for stops and depots
-				const gebaeude_t* gb = dynamic_cast<const gebaeude_t*>(bd2->suche_obj(ding_t::gebaeude));
-				if (gb != NULL && (gb->gib_tile()->gib_besch()->gib_all_layouts() != 2 || (gb->gib_tile()->gib_layout() & 1) != (r >> 1))) {
-					// four corner stop or not parallel
-					allowed_dir &= ~ribi_t::nsow[r];
-				} else {
-					if (bd2->gib_depot() == NULL) {
-						// a road to connect (but not through depots)
-						connection_roads |= ribi_t::nsow[r];
+				if (bd2->gib_depot() == NULL) {
+					// a road, we must just take care for stops and depots
+					const gebaeude_t* gb = dynamic_cast<const gebaeude_t*>(bd2->suche_obj(ding_t::gebaeude));
+					if (gb!=NULL) {
+						int layouts = gb->gib_tile()->gib_besch()->gib_all_layouts();
+						if(layouts==4) {
+							allowed_dir &= ~ribi_t::nsow[r];
+							continue;
+						}
+						if(layouts==2  &&  (gb->gib_tile()->gib_layout()&1)!=(r<3)) {
+							allowed_dir &= ~ribi_t::nsow[r];
+							continue;
+						}
+						// not four corner stop or not parallel => ok
 					}
+					// a road to connect (but not through depots or stops)
+					connection_roads |= ribi_t::nsow[r];
 				}
 			}
 		}

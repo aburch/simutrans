@@ -1720,8 +1720,10 @@ karte_t::neuer_monat()
 	// now switch year to get the right year for all timeline stuff ...
 	if(letzter_monat==0) {
 		neues_jahr();
+		INT_CHECK("simworld 1299");
 	}
 
+	wegbauer_t::neuer_monat(this);
 	INT_CHECK("simworld 1299");
 
 	recalc_average_speed();

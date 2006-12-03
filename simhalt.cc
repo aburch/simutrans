@@ -1489,21 +1489,14 @@ haltestelle_t::find_free_position(const waytype_t w,convoihandle_t cnv,const din
 	slist_iterator_tpl<grund_t *> iter( grund );
 	unsigned i=0;
 	while(iter.next()) {
-		if (reservation[i] == cnv || !reservation[i].is_bound()) {
+		if (reservation[i]==cnv  ||  !reservation[i].is_bound()) {
 			// not reseved
 			grund_t *gr = iter.get_current();
-			if(gr) {
-				// found a stop for this waytype but without object d ...
-				if(gr->hat_weg(w)  &&  gr->suche_obj(d)==NULL) {
-					// not occipied
-					return true;
-				}
-				else if (reservation[i] == cnv) {
-					reservation[i] = convoihandle_t();
-				}
-			}
-			else {
-				dbg->error("haltestelle_t::find_free_position()","contains zero ground!");
+			assert(gr);
+			// found a stop for this waytype but without object d ...
+			if(gr->hat_weg(w)  &&  gr->suche_obj(d)==NULL) {
+				// not occipied
+				return true;
 			}
 		}
 		i++;

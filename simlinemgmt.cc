@@ -185,7 +185,7 @@ DBG_MESSAGE("simlinemgmt_t::rdwr()","number of lines=%i",totalLines);
 				add_line(line->self);
 			}
 		}
-    }
+	}
 }
 
 void

@@ -190,7 +190,7 @@ void wegbauer_t::neuer_monat(karte_t *welt)
 			const uint16 intro_month = besch->get_intro_year_month();
 			if(intro_month == current_month) {
 				sprintf(buf,
-					translator::translate("%s now available:\n%s\n"),
+					translator::translate("way %s now available:\n%s\n"),
 					translator::translate(besch->gib_name()));
 					message_t::get_instance()->add_message(buf,koord::invalid,message_t::new_vehicle,NEW_VEHICLE,besch->gib_bild_nr(5));
 			}
@@ -198,7 +198,7 @@ void wegbauer_t::neuer_monat(karte_t *welt)
 			const uint16 retire_month =besch->get_retire_year_month();
 			if(retire_month == current_month) {
 				sprintf(buf,
-					translator::translate("%s cannot longer used:\n%s\n"),
+					translator::translate("way %s cannot longer used:\n%s\n"),
 					translator::translate(besch->gib_name()));
 					message_t::get_instance()->add_message(buf,koord::invalid,message_t::new_vehicle,NEW_VEHICLE,besch->gib_bild_nr(5));
 			}
@@ -584,6 +584,13 @@ DBG_MESSAGE("wegbauer_t::is_allowed_step()","wrong ground already there!");
 				if(to->gib_weg_hang()!=to->gib_grund_hang()  &&  (from_str==NULL  ||  !ribi_t::ist_gerade(ribi_typ(zv)|from_str->gib_ribi_unmasked()))) {
 					return false;
 				}
+				// do not go through depots ...
+				if(to->gib_depot()  &&  (str==NULL  ||  ribi_typ(to_pos,from_pos)!=str->gib_ribi_unmasked())) {
+					return false;
+				}
+				if(from->gib_depot()) {
+					return false;
+				}
 				// calculate costs
 				*costs = str ? 0 : 5;
 				*costs += from_str ? 0 : 5;
@@ -610,6 +617,15 @@ DBG_MESSAGE("wegbauer_t::is_allowed_step()","wrong ground already there!");
 			if(ok) {
 				// check for end/start of bridge
 				if(to->gib_weg_hang()!=to->gib_grund_hang()  &&  (sch==NULL  ||  !ribi_t::ist_gerade(ribi_typ(zv)|sch->gib_ribi_unmasked()))) {
+					return false;
+				}
+				// do not go through depots ...
+				if(to->gib_depot()) {
+					if(sch==NULL  ||  ribi_typ(to_pos,from_pos)!=sch->gib_ribi_unmasked()) {
+						return false;
+					}
+				}
+				if(from->gib_depot()) {
 					return false;
 				}
 				if(gb  &&  (bautyp&elevated_flag)==0) {
@@ -652,6 +668,15 @@ DBG_MESSAGE("wegbauer_t::is_allowed_step()","wrong ground already there!");
 					&&  check_owner(to->gib_besitzer(),sp) && check_for_leitung(zv,to)  && !to->gib_depot();
 				// check for end/start of bridge
 				if(to->gib_weg_hang()!=to->gib_grund_hang()  &&  (sch==NULL  ||  ribi_t::ist_kreuzung(ribi_typ(to_pos,from_pos)|sch->gib_ribi_unmasked()))) {
+					return false;
+				}
+				// do not go through depots ...
+				if(to->gib_depot()) {
+					if(sch==NULL  ||  ribi_typ(to_pos,from_pos)!=sch->gib_ribi_unmasked()) {
+						return false;
+					}
+				}
+				if(from->gib_depot()) {
 					return false;
 				}
 				if(gb  &&  (bautyp&elevated_flag)==0) {
