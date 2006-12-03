@@ -793,7 +793,6 @@ void wegbauer_t::check_for_bridge(const grund_t* parent_from, const grund_t* fro
 	bool has_reason_for_bridge=false;
 
 	// ok, so now we do a closer investigation
-	const int start_count = next_gr.get_count();
 	grund_t *gr, *gr2;
 	long internal_cost;
 	const long cost_difference=besch->gib_wartung()>0 ? (bruecke_besch->gib_wartung()*4l+3l)/besch->gib_wartung() : 16;
