@@ -99,7 +99,7 @@ public:
 	bool append(karte_t *welt, const grund_t *gr,int ladegrad=0);
 
 	// cleanup a schedule, removes double entries
-	bool cleanup();
+	void cleanup();
 
 	/**
 	 * entfern eintrag[aktuell] aus dem fahrplan

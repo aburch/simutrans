@@ -180,21 +180,16 @@ fahrplan_t::append(karte_t *welt, const grund_t *gr,int ladegrad)
 
 
 // cleanup a schedule
-bool
-fahrplan_t::cleanup()
+void fahrplan_t::cleanup()
 {
-	if (eintrag.empty()) {
-		return true;	// nothing to check
-	}
+	if (eintrag.empty()) return; // nothing to check
 
 	// first and last must not be the same!
 	koord3d lastpos = eintrag.back().pos;
-	bool ok=true;
   	// now we have to check all entries ...
 	for(unsigned i=0; i<eintrag.get_count(); i++) {
 		if (eintrag[i].pos == lastpos) {
 			// ingore double entries just one after the other
-			ok = false;
 			eintrag.remove_at(i);
 			if(i>(unsigned)aktuell) {
 				aktuell --;
@@ -202,7 +197,6 @@ fahrplan_t::cleanup()
 			i--;
 		} else if (eintrag[i].pos == koord3d::invalid) {
 			// ingore double entries just one after the other
-			ok = false;
 			eintrag.remove_at(i);
 		}
 		else {
@@ -213,7 +207,6 @@ fahrplan_t::cleanup()
 	if((unsigned)aktuell>eintrag.get_count()-1) {
 		aktuell = eintrag.get_count()-1;
 	}
-	return ok;
 }
 
 
