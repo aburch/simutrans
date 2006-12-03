@@ -88,7 +88,7 @@ private:
     gui_label_t lb_load;
 
     karte_t *welt;
-    fahrplan_t *fpl, *tmp_fpl;
+		fahrplan_t* fpl;
     spieler_t *sp;
     convoihandle_t cnv;
 
