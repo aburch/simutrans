@@ -207,9 +207,7 @@ convoihandle_t depot_t::copy_convoi(int icnv)
     convoihandle_t old_cnv = get_convoi(icnv);
     if (old_cnv.is_bound()) {
 	    convoihandle_t new_cnv = add_convoi();
-	    char new_name[128];
-	    sprintf(new_name, "%s", old_cnv->gib_internal_name());
-	    new_cnv->setze_name(new_name);
+	    new_cnv->setze_name(old_cnv->gib_internal_name());
 			int vehicle_count = old_cnv->gib_vehikel_anzahl();
 			for (int i = 0; i<vehicle_count; i++) {
 				const vehikel_besch_t * info = old_cnv->gib_vehikel(i)->gib_besch();
