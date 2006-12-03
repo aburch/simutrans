@@ -2286,7 +2286,7 @@ bool stadt_t::baue_strasse(const koord k, spieler_t* sp, bool forced)
 							allowed_dir &= ~ribi_t::nsow[r];
 							continue;
 						}
-						if(layouts==2  &&  (gb->gib_tile()->gib_layout()&1)!=(r<3)) {
+						if(layouts==2  &&  gb->gib_tile()->gib_layout()==(r>=3)) {
 							allowed_dir &= ~ribi_t::nsow[r];
 							continue;
 						}

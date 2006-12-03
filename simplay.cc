@@ -324,7 +324,7 @@ spieler_t::display_messages()
 		if(text_alter[n] >= -80) {
 			const koord ij = text_pos[n]-welt->gib_ij_off()-welt->gib_ansicht_ij_offset();
 			const sint16 x = (ij.x-ij.y)*(raster/2) + welt->gib_x_off();
-			const sint16 y = (ij.x+ij.y)*(raster/4) + (text_alter[n] >> 4) - tile_raster_scale_y( welt->lookup_hgt(text_pos[n]), raster) + yoffset;
+			const sint16 y = (ij.x+ij.y)*(raster/4) + (text_alter[n] >> 4) - tile_raster_scale_y( welt->lookup_hgt(text_pos[n])*TILE_HEIGHT_STEP, raster) + yoffset;
 
 			display_proportional_clip( x+1, y+1, texte[n], ALIGN_LEFT, COL_BLACK, true);
 			display_proportional_clip( x, y, texte[n], ALIGN_LEFT, PLAYER_FLAG|(kennfarbe*4)+3, true);

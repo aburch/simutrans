@@ -3463,22 +3463,29 @@ karte_t::interactive_update()
 			}
 		}
 
-		unsigned long current_time = get_current_time_millis()-last_step_time;
-		if(current_time>50) {
-			// display every 50ms at least (if possible)
-			if(fast_forward) {
-				sync_step( 200 );
-				step( 200 );
+		if(fast_forward) {
+			sync_step( 200 );
+			step( 200 );
+			unsigned long current_time = get_current_time_millis()-last_step_time;
+			if(current_time>50) {
+				// display every 50ms at least (if possible)
+				intr_refresh_display(true);
+				// check if we need to play a new midi file
+				check_midi();
+				last_step_time += current_time;
 			}
-			else {
-				step( current_time );
-			}
-			last_step_time += current_time;
-			view->display( dirty );
-			win_display_flush(	0, get_active_player()->get_player_color(), get_active_player()->gib_konto_als_double() );
 		}
+		else {
+			unsigned long current_time = get_current_time_millis()-last_step_time;
+			if(current_time>200) {
+				step( current_time );
+				last_step_time += current_time;
+				// check if we need to play a new midi file
+				check_midi();
+			}
 
-		INT_CHECK("simworld 2630");
+			INT_CHECK("simworld 2630");
+		}
 
 	} while(ev.button_state != 0);
 
@@ -3510,63 +3517,23 @@ karte_t::interactive()
 	sleep_time = 5000;
 	doit = true;
 
-	do {
+	while(doit) {
+		interactive_update();
 
+		const long t = get_system_ms();
 		if(fast_forward) {
-
-			if(abs((long)(steps-now))>=5) {
-				const long t = get_system_ms();
-
-				last_simloops = steps-now;
-				realFPS = (thisFPS*1000)/((t-this_step_time)|1);// make sure, this is always!=0!!!
+			if(t > now+1000) {
+				last_simloops = steps-steps_bis_jetzt;
+				realFPS = (thisFPS*1000)/(t-now);
 				lastFPS = thisFPS;
 				thisFPS = 0;
-				this_step_time = t;
-				now = steps;
+				steps_bis_jetzt = steps;
+				now = t;
 			}
-
-			// check if we need to play a new midi file
-			check_midi();
-
-			interactive_update();
-
-			sync_step( 200 );
-			step( 200 );
-
-			interactive_update();
-
-			if(get_current_time_millis()-last_step_time>50) {
-				// display every 50ms at least (if possible)
-				view->display( dirty );
-				win_display_flush(	0, get_active_player()->get_player_color(), get_active_player()->gib_konto_als_double() );
-				last_step_time = get_current_time_millis();
-			}
-
-			interactive_update();
-
+			sleep_time = 0;
 		}
 		else {
-			INT_CHECK("simworld 3746");
-			interactive_update();
-
-			// check if we need to play a new midi file
-			check_midi();
-
-			INT_CHECK("simworld 3763");
-			interactive_update();
-
-			// but this will not neccessarily result in a step!
-			this_step_time = get_current_time_millis();
-			while(this_step_time-last_step_time>200) {
-				step( 200 );
-				last_step_time += 200;
-			}
-
-			INT_CHECK("simworld 3772");
-			interactive_update();
-
 			const unsigned long t = get_system_ms();
-
 			if(t > now+1000) {
 				// every second is enough ...
 
@@ -3599,15 +3566,13 @@ karte_t::interactive()
 			}
 
 			if(sleep_time>0) {
-				interactive_update();
 				if(sleep_time>25) {
 					sleep_time = 25;
 				}
 				simusleep( sleep_time );
 			}
 		}
-
-	} while(doit);
+	}
 
 	// just to be sure ...
 	fast_forward = false;
