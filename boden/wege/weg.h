@@ -29,12 +29,10 @@ template <class T> class slist_tpl;
 // number of different statistics collected
 #define MAX_WAY_STATISTICS 2
 
-// number of goods transported over this weg
-#define WAY_STAT_GOODS 0
-
-// number of convois that passed this weg
-#define WAY_STAT_CONVOIS 1
-
+enum way_statistics {
+	WAY_STAT_GOODS   = 0, ///< number of goods transported over this weg
+	WAY_STAT_CONVOIS = 1  ///< number of convois that passed this weg
+};
 
 
 /**
@@ -231,11 +229,7 @@ public:
 	* book statistics - is called very often and therefore inline
 	* @author hsiegeln
 	*/
-	void book(int amount, int type) {
-		if (type < MAX_WAY_STATISTICS) {
-			statistics[0][type] += amount;
-		}
-	}
+	void book(int amount, way_statistics type) { statistics[0][type] += amount; }
 
 	/**
 	* return statistics value
