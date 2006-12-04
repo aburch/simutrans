@@ -58,10 +58,18 @@ template<class T> class array_tpl
 			}
 		}
 
-		T& operator [](index i) const
+		T& operator [](index i)
 		{
 			if (i >= size) {
-				dbg->fatal("array_tpl<%s>::at()", "index out of bounds: %d not in 0..%d", typeid(T).name(), i, size - 1);
+				dbg->fatal("array_tpl<T>::[]", "index out of bounds: %d not in 0..%d, T=%s", i, size - 1, typeid(T).name());
+			}
+			return data[i];
+		}
+
+		const T& operator [](index i) const
+		{
+			if (i >= size) {
+				dbg->fatal("array_tpl<T>::[]", "index out of bounds: %d not in 0..%d, T=%s", i, size - 1, typeid(T).name());
 			}
 			return data[i];
 		}

@@ -150,10 +150,18 @@ template<class T> class vector_tpl
 			return false;
 		}
 
-		T& operator [](uint i) const
+		T& operator [](uint i)
 		{
 			if (i >= count) {
-				dbg->fatal("vector_tpl<T>::get()", "index out of bounds: %i not in 0..%d", i, count - 1);
+				dbg->fatal("vector_tpl<T>::[]", "index out of bounds: %i not in 0..%d", i, count - 1);
+			}
+			return data[i];
+		}
+
+		const T& operator [](uint i) const
+		{
+			if (i >= count) {
+				dbg->fatal("vector_tpl<T>::[]", "index out of bounds: %i not in 0..%d", i, count - 1);
 			}
 			return data[i];
 		}

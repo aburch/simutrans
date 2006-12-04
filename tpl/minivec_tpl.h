@@ -254,10 +254,15 @@ public:
 		return false;
 	}
 
-
-	T& operator [](uint8 i) const
+	T& operator [](uint8 i)
 	{
-		if (i >= count) dbg->fatal("minivec_tpl<T>[]","index out of bounds: %i not in 0..%d", i, count - 1);
+		if (i >= count) dbg->fatal("minivec_tpl<T>::[]","index out of bounds: %i not in 0..%d", i, count - 1);
+		return data[i];
+	}
+
+	const T& operator [](uint8 i) const
+	{
+		if (i >= count) dbg->fatal("minivec_tpl<T>::[]","index out of bounds: %i not in 0..%d", i, count - 1);
 		return data[i];
 	}
 
