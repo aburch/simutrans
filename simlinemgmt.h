@@ -60,7 +60,7 @@ class simlinemgmt_t
 	* return a line
 	* @author hsiegeln
 	*/
-	linehandle_t get_line(uint16 i) const { return i < all_managed_lines.get_count() ? all_managed_lines[i] : NULL; }
+	linehandle_t get_line(uint i) const { return all_managed_lines[i]; }
 	linehandle_t get_line(fahrplan_t *fpl);
 
 	/*
