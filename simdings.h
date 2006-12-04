@@ -15,7 +15,6 @@
 #include "dataobj/koord3d.h"
 
 
-template <class K, class V> class ptrhashtable_tpl;
 class ding_infowin_t;
 class cbuffer_t;
 class fabrik_t;
@@ -89,12 +88,6 @@ protected:
 	* @author V. Meyer
 	*/
 	virtual ding_infowin_t *new_info();
-
-	/**
-	* Offene Info-Fenster
-	* @author V. Meyer
-	*/
-	static ptrhashtable_tpl<ding_t *, ding_infowin_t *> * ding_infos;
 
 	/**
 	* Pointer to the world of this thing. Static to conserve space.
