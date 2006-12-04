@@ -190,16 +190,16 @@ void color_gui_t::zeichnen(koord pos, koord gr)
 	loops=welt->gib_FPS();
 	farbe = COL_WHITE;
 	if(loops<=10) {
-	   	farbe = (loops<=7) ? COL_RED : COL_YELLOW;
-   	}
+		farbe = (loops<=7) ? COL_RED : COL_YELLOW;
+  }
 	len = 15+display_proportional_clip(x+10, y+FRAME_DATA, translator::translate("FPS:"), ALIGN_LEFT, COL_BLACK, true);
 	sprintf(buf,"%d fps (real: %d)", loops, welt->gib_realFPS() );
 	display_proportional_clip(x+len, y+FRAME_DATA, buf, ALIGN_LEFT, farbe, true);
 
 	loops=welt->gib_simloops();
 	farbe = COL_WHITE;
-	if(loops<=5) {
-   		farbe = (loops<2) ? COL_RED : COL_YELLOW;
+	if(loops<=3) {
+   		farbe = (loops<=2) ? COL_RED : COL_YELLOW;
    	}
 	len = 15+display_proportional_clip(x+10, y+LOOP_DATA, translator::translate("Sim:"), ALIGN_LEFT, COL_BLACK, true);
 	display_proportional_clip(x+len, y+LOOP_DATA, ntos(loops, "%d loops"), ALIGN_LEFT, farbe, true);

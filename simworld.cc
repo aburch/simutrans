@@ -3496,8 +3496,6 @@ karte_t::interactive_update()
 
 
 
-#define MIN_LOOPS 5
-#define MAX_LOOPS 15
 #define MIN_FPS 50
 #define MAX_FPS 100
 
@@ -3542,20 +3540,19 @@ karte_t::interactive()
 				lastFPS = (thisFPS * 16) / stretch_factor;
 				thisFPS = 0;
 
-				if(last_simloops<MIN_LOOPS) {
+				if(last_simloops<=2) {
 					sleep_time = 0;
-					increase_frame_time();
 				}
-				else if(last_simloops>MAX_LOOPS) {
+				else if(last_simloops>4) {
 					sleep_time += 1;
 				}
-				else if(last_simloops<MAX_LOOPS  &&  sleep_time>=1) {
+				else if(last_simloops<5  &&  sleep_time>=1) {
 					sleep_time -= 1;
 				}
 
-				if(realFPS>MAX_FPS  ||  last_simloops<MIN_LOOPS) {
+				if(realFPS>MAX_FPS  ||  last_simloops<=2) {
 					increase_frame_time();
-				} else if(realFPS<MIN_FPS  &&  last_simloops>MIN_LOOPS) {
+				} else if(realFPS<MIN_FPS  &&  last_simloops>=3) {
 					reduce_frame_time();
 				}
 

@@ -413,11 +413,14 @@ void planquadrat_t::halt_list_remove( halthandle_t halt )
 void planquadrat_t::halt_list_insert_at( halthandle_t halt, uint8 pos )
 {
 	// extend list?
-	if((halt_list_count&3)==0) {
+	if((halt_list_count%4)==0) {
 		halthandle_t *tmp = new halthandle_t[halt_list_count+4];
-		// now insert
-		for( uint8 i=0;  i<halt_list_count;  i++ ) {
-			tmp[i] = halt_list[i];
+		if(halt_list!=NULL) {
+			// now insert
+			for( uint8 i=0;  i<halt_list_count;  i++ ) {
+				tmp[i] = halt_list[i];
+			}
+			delete halt_list;
 		}
 		halt_list = tmp;
 	}

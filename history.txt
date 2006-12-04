@@ -4,6 +4,10 @@ Known bugs: (hard to fix)
 	valgrind complains about errors in SDL and X?
 
 
+	FIX: idle timer
+	FIX: issue with transformers
+
+
 Release of 99.05
 
 03-Dec-2006:

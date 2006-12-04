@@ -473,12 +473,11 @@ pumpe_t::~pumpe_t()
 bool
 pumpe_t::sync_step(long delta_t)
 {
-	if(!get_net()) {
-		fab = 0;
+	if(fab==NULL) {
 		return false;
 	}
 	image_id new_bild;
-	if (fab == 0 || (!fab->gib_eingang().empty() && fab->gib_eingang()[0].menge <= 0)) {
+	if (!fab->gib_eingang().empty() && fab->gib_eingang()[0].menge <= 0) {
 		new_bild = skinverwaltung_t::pumpe->gib_bild_nr(0);
 	} else {
 		// no input needed or has something to consume
@@ -489,7 +488,7 @@ pumpe_t::sync_step(long delta_t)
 		set_flag(ding_t::dirty);
 		setze_bild( new_bild );
 	}
-	return fab!=0;
+	return true;
 }
 
 
@@ -499,13 +498,12 @@ pumpe_t::laden_abschliessen()
 {
 	leitung_t::laden_abschliessen();
 
-	if(fab==NULL) {
+	if(fab==NULL  &&  get_net()) {
 		fab = leitung_t::suche_fab_4(gib_pos().gib_2d());
+		if(fab) {
+			fab->set_prodfaktor( fab->get_prodfaktor()*2 );
+		}
 	}
-	if(fab==NULL) {
-		delete this;
-	}
-	fab->set_prodfaktor( fab->get_prodfaktor()*2 );
 	welt->sync_add(this);
 }
 
@@ -544,7 +542,7 @@ senke_t::~senke_t()
 bool
 senke_t::sync_step(long time)
 {
-	if(!get_net()) {
+	if(fab==NULL) {
 		return false;
 	}
 //DBG_MESSAGE("senke_t::sync_step()", "called");
@@ -581,11 +579,8 @@ senke_t::laden_abschliessen()
 {
 	leitung_t::laden_abschliessen();
 
-	if(fab==NULL) {
+	if(fab==NULL  &&  get_net()) {
 		fab = leitung_t::suche_fab_4(gib_pos().gib_2d());
-	}
-	if(fab==NULL) {
-		delete this;
 	}
 	welt->sync_add(this);
 }
