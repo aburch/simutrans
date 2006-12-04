@@ -254,7 +254,7 @@ DBG_MESSAGE("simlinemgmt_t::get_unique_line_id()","New id %i",i*8+id);
 	}
 	// not found
 	dbg->error("simlinemgmt_t::get_unique_line_id()","No valid id found!");
-	return UNVALID_LINE_ID;
+	return INVALID_LINE_ID;
 }
 
 void

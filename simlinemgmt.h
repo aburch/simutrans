@@ -23,7 +23,7 @@
 
 class fahrplan_t;
 
-#define UNVALID_LINE_ID ((uint16)(-1))
+#define INVALID_LINE_ID ((uint16)(-1))
 
 class simlinemgmt_t
 {
