@@ -87,10 +87,9 @@ linehandle_t
 simlinemgmt_t::get_line(fahrplan_t *fpl)
 {
 	int count = count_lines();
-	linehandle_t line=linehandle_t();
 	for (int i = 0; i<count; i++)
 	{
-		line = get_line(i);
+		linehandle_t line = get_line(i);
 		if (line->get_fahrplan()->matches(fpl))
 			return line;
 	}
