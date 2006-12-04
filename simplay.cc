@@ -883,7 +883,7 @@ DBG_MESSAGE("spieler_t::do_passenger_ki()","found end hub");
 								const int max_transfers=umgebung_t::max_transfers;
 								umgebung_t::max_transfers = 4;
 								start_halt->suche_route(pax);
-								umgebung_t::max_transfers = max_transfers;;
+								umgebung_t::max_transfers = max_transfers;
 								if(pax.gib_ziel()!=koord::invalid  &&  dist1>welt->gib_groesse_max()/3) {
 									// already connected
 									continue;
@@ -2374,7 +2374,7 @@ spieler_t::create_simple_road_transport()
 
 	// is there already a connection?
 	if(road_vehicle) {
-    	vehikel_t *test_driver=new automobil_t(welt,koord3d(platz1,0),road_vehicle,this,NULL);;
+		vehikel_t* test_driver = new automobil_t(welt, koord3d(platz1, 0), road_vehicle, this, NULL);
 		route_t verbindung;
 		if(	verbindung.calc_route(welt,welt->lookup(platz1)->gib_kartenboden()->gib_pos(),welt->lookup(platz2)->gib_kartenboden()->gib_pos(),(fahrer_t *)test_driver,0)  &&
 			verbindung.gib_max_n()<2*(sint32)abs_distance(platz1,platz2))  {

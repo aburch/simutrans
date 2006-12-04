@@ -226,7 +226,7 @@ void image_writer_t::write_obj(FILE* outfp, obj_node_t& parent, cstring_t an_ima
 {
 	bild_t bild;
 	dimension dim;
-	PIXVAL* pixdata = NULL;;
+	PIXVAL* pixdata = NULL;
 	cstring_t imagekey;
 
 	memset(&bild, 0, sizeof(bild));
