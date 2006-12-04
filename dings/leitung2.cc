@@ -477,14 +477,18 @@ pumpe_t::sync_step(long delta_t)
 		fab = 0;
 		return false;
 	}
+	image_id new_bild;
 	if (fab == 0 || (!fab->gib_eingang().empty() && fab->gib_eingang()[0].menge <= 0)) {
-		setze_bild( skinverwaltung_t::pumpe->gib_bild_nr(0) );
+		new_bild = skinverwaltung_t::pumpe->gib_bild_nr(0);
 	} else {
 		// no input needed or has something to consume
 		get_net()->add_power(delta_t*fab->get_prodbase()*32);
-		setze_bild( skinverwaltung_t::pumpe->gib_bild_nr(1) );
+		new_bild = skinverwaltung_t::pumpe->gib_bild_nr(1);
 	}
-	set_flag(ding_t::dirty);
+	if(bild!=new_bild) {
+		set_flag(ding_t::dirty);
+		setze_bild( new_bild );
+	}
 	return fab!=0;
 }
 
@@ -498,9 +502,10 @@ pumpe_t::laden_abschliessen()
 	if(fab==NULL) {
 		fab = leitung_t::suche_fab_4(gib_pos().gib_2d());
 	}
-	if(fab) {
-		fab->set_prodfaktor( fab->get_prodfaktor()*2 );
+	if(fab==NULL) {
+		delete this;
 	}
+	fab->set_prodfaktor( fab->get_prodfaktor()*2 );
 	welt->sync_add(this);
 }
 
@@ -545,12 +550,16 @@ senke_t::sync_step(long time)
 //DBG_MESSAGE("senke_t::sync_step()", "called");
 	int want_power = time*(PROD/3);
 	int get_power = get_net()->withdraw_power(want_power);
+	image_id new_bild;
 	if(get_power>want_power/2) {
-		setze_bild( skinverwaltung_t::senke->gib_bild_nr(1) );
+		new_bild = skinverwaltung_t::senke->gib_bild_nr(1);
 	} else {
-		setze_bild( skinverwaltung_t::senke->gib_bild_nr(0) );
+		new_bild = skinverwaltung_t::senke->gib_bild_nr(0);
 	}
-	set_flag(ding_t::dirty);
+	if(bild!=new_bild) {
+		set_flag(ding_t::dirty);
+		setze_bild( new_bild );
+	}
 	max_einkommen += want_power;
 	einkommen += get_power;
 
@@ -574,6 +583,9 @@ senke_t::laden_abschliessen()
 
 	if(fab==NULL) {
 		fab = leitung_t::suche_fab_4(gib_pos().gib_2d());
+	}
+	if(fab==NULL) {
+		delete this;
 	}
 	welt->sync_add(this);
 }

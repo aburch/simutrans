@@ -120,6 +120,8 @@ public:
 	const char *name() const {return "Pumpe";}
 
 	void laden_abschliessen();
+
+	void calc_bild() {}	// otherwise it will change to leitung
 };
 
 
@@ -145,6 +147,8 @@ public:
 	void info(cbuffer_t & buf) const;
 
 	void laden_abschliessen();
+
+	void calc_bild() {}	// otherwise it will change to leitung
 };
 
 

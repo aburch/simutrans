@@ -139,8 +139,8 @@ reliefkarte_t::setze_relief_farbe_area(koord k, int areasize, uint8 color)
 	areasize *= zoom_out;
 	if(rotate45) {
 		k -= koord( 0, areasize/2 );
-		k.x = clamp( k.x, 0, relief->get_width()-areasize/2-1 );
-		k.y = clamp( k.y, 0, relief->get_height()-areasize/2-1 );
+		k.x = clamp( k.x, areasize/2, relief->get_width()-areasize/2-1 );
+		k.y = clamp( k.y, 0, relief->get_height()-areasize-1 );
 		for (p.x = 0; p.x<areasize; p.x++) {
 			for (p.y = 0; p.y<areasize; p.y++) {
 				koord pos = koord( k.x+(p.x-p.y)/2, k.y+(p.x+p.y)/2 );
@@ -768,7 +768,7 @@ reliefkarte_t::zeichnen(koord pos)
 
 			int w = proportional_string_width(name);
 			karte_to_screen( p );
-			p.x = clamp( pos.x, 0, relief->get_width()-w );
+			p.x = clamp( p.x, 0, relief->get_width()-w );
 			p += pos;
 			display_proportional_clip( p.x, p.y, name, ALIGN_LEFT, COL_WHITE, true);
 		}
