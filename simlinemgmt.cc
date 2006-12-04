@@ -96,15 +96,6 @@ simlinemgmt_t::get_line(fahrplan_t *fpl)
 	return NULL;
 }
 
-bool
-simlinemgmt_t::delete_line(int iroute)
-{
-	linehandle_t line = get_line(iroute);
-	if(line.is_bound()) {
-		return delete_line(line);
-	}
-	return false;
-}
 
 bool
 simlinemgmt_t::delete_line(linehandle_t line)
