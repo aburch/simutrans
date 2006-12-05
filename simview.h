@@ -25,8 +25,7 @@ private:
 
 public:
 	karte_ansicht_t(karte_t *welt);
-	virtual ~karte_ansicht_t() {}
-	virtual void display(bool dirty);
+	void display(bool dirty);
 };
 
 #endif
