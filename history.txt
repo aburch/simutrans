@@ -6,6 +6,7 @@ Known bugs: (hard to fix)
 
 	FIX: idle timer has eaten up all time doing additional frames
 	FIX: issue with transformers
+	FIX: crash in depot
 
 
 Release of 99.05

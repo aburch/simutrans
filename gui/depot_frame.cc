@@ -176,11 +176,16 @@ DBG_DEBUG("depot_frame_t::depot_frame_t()","get_max_convoi_length()=%i",depot->g
 
 	/*
 	* [PANEL]
+	* to test for presence, we must fist switch on all vehicles,
+	* otherwise this tab will not be present at all
 	*/
 	bool old_retired=show_retired_vehicles;
+	bool old_show_all=show_all;
 	show_retired_vehicles = true;
+	show_all = true;
 	build_vehicle_lists();
 	show_retired_vehicles = old_retired;
+	show_all = old_show_all;
 
 	cont_pas.add_komponente(&pas);
 	scrolly_pas.set_show_scroll_x(false);
@@ -755,10 +760,14 @@ void depot_frame_t::update_data()
 
 	slist_iterator_tpl<vehikel_t *> iter2(depot->get_vehicle_list());
 	while(iter2.next()) {
-		vehicle_map.get(iter2.get_current()->gib_besch())->count++;
-		if(veh_action == va_sell) {
-			vehicle_map.get(iter2.get_current()->gib_besch())->lcolor = COL_GREEN;
-			vehicle_map.get(iter2.get_current()->gib_besch())->rcolor = COL_GREEN;
+		gui_image_list_t::image_data_t *imgdat=vehicle_map.get(iter2.get_current()->gib_besch());
+		// can fail, if currently not visible
+		if(imgdat) {
+			imgdat->count++;
+			if(veh_action == va_sell) {
+				imgdat->lcolor = COL_GREEN;
+				imgdat->rcolor = COL_GREEN;
+			}
 		}
 	}
 
@@ -893,6 +902,7 @@ DBG_MESSAGE("depot_frame_t::image_from_storage_list()","built nr %i", nr);
 			}
 		}
 
+		build_vehicle_lists();
 		update_data();
 		layout(NULL);
 	}
