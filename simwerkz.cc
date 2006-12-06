@@ -1959,7 +1959,7 @@ int wkz_set_slope(spieler_t * sp, karte_t *welt, koord pos, value_t lParam)
 
 		const grund_t *grfront=welt->lookup(pos+koord(0,1))->gib_kartenboden();
 		if(grfront) {
-			const sint16 front_hgt=grfront->gib_hoehe()/16;
+			const sint16 front_hgt=grfront->gib_hoehe()/Z_TILE_STEP;
 			const sint8 diff_from_ground_1 = hgt+corner1(slope_this)-front_hgt;
 			const sint8 diff_from_ground_2 = hgt+corner2(slope_this)-front_hgt;
 			if(diff_from_ground_1>2  ||  diff_from_ground_2>2) {

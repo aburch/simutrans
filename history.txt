@@ -4,7 +4,7 @@ Known bugs: (hard to fix)
 	valgrind complains about errors in SDL and X?
 
 
-	FIX: idle timer
+	FIX: idle timer has eaten up all time doing additional frames
 	FIX: issue with transformers
 
 

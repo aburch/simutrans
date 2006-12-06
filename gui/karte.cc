@@ -150,8 +150,8 @@ reliefkarte_t::setze_relief_farbe_area(koord k, int areasize, uint8 color)
 	}
 	else {
 		k -= koord( areasize/2, areasize/2 );
-		k.x = clamp( k.x, 0, relief->get_width()-areasize/2-1 );
-		k.y = clamp( k.y, 0, relief->get_height()-areasize/2-1 );
+		k.x = clamp( k.x, 0, relief->get_width()-areasize-1 );
+		k.y = clamp( k.y, 0, relief->get_height()-areasize-1 );
 		for (p.x = 0; p.x<areasize; p.x++) {
 			for (p.y = 0; p.y<areasize; p.y++) {
 				relief->at(p.x+k.x, p.y+k.y) = color;
