@@ -136,7 +136,6 @@ void win_display_flush(double konto); // draw the frame and all windows
 void swallow_next_release_event(bool *set_to_false); // see simwin.cc
 void win_get_event(struct event_t *ev);
 void win_poll_event(struct event_t *ev);
-void win_blick_aendern(karte_t * welt, struct event_t *ev);
 
 void win_setze_welt(karte_t *welt);
 

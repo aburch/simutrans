@@ -158,8 +158,6 @@ public:
      * @author V. Meyer
      */
     void rdwr(loadsave_t *file);
-
-	bool is_ding_there(karte_t * welt, const koord3d pos, ding_t::typ typ);
 };
 
 #endif
