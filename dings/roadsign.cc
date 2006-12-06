@@ -48,8 +48,8 @@ stringhashtable_tpl<const roadsign_besch_t *> roadsign_t::table;
 roadsign_t::roadsign_t(karte_t *welt, loadsave_t *file) : ding_t (welt)
 {
 	rdwr(file);
-	// if more than one state, we will switch direction and phase
-	if(besch->gib_bild_anzahl()>4) {
+	// if more than one state, we will switch direction and phase for traffic lights
+	if(besch->gib_bild_anzahl()>4  &&  besch->gib_wtyp()==road_wt) {
 		flags |= SWITCH_AUTOMATIC;
 	}
 	last_switch = 0;
@@ -66,7 +66,7 @@ roadsign_t::roadsign_t(karte_t *welt, spieler_t *sp, koord3d pos, ribi_t::ribi d
 	flags = 3;
 	setze_besitzer( sp );
 	// if more than one state, we will switch direction and phase
-	if(besch->gib_bild_anzahl()>4) {
+	if(besch->gib_bild_anzahl()>4  &&  besch->gib_wtyp()==road_wt) {
 		flags |= SWITCH_AUTOMATIC;
 	}
 }
