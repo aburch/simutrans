@@ -105,8 +105,7 @@ display_icon_leiste(const int redraw, int basis_bild)
  * Kopiert Puffer ins Fenster
  * @author Hj. Malthaner
  */
-void
-display_flush(const int season_img,int stunden4, COLOR_VAL color, double konto, const char *day_str, const char *info, const char *player_name, const COLOR_VAL player_color)
+void display_flush(int season_img, int stunden4, double konto, const char* day_str, const char* info, const char* player_name, COLOR_VAL player_color)
 {
 	char buffer[256];
 	const int disp_width=display_get_width();

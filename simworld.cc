@@ -240,7 +240,7 @@ karte_t::calc_hoehe_mit_heightfield(const cstring_t & filename)
 
 			if(is_display_init()) {
 				display_progress((y*16)/gib_groesse_y(), display_total);
-				display_flush(IMG_LEER, 0, 0, 0, "", "", 0, 0);
+				display_flush(IMG_LEER, 0, 0, "", "", 0, 0);
 			}
 		}
 
@@ -294,7 +294,7 @@ karte_t::calc_hoehe_mit_perlin()
 
 		if(is_display_init()) {
 			display_progress((y*16)/gib_groesse_y(), display_total);
-			display_flush(IMG_LEER, 0, 0, 0, "", "", 0, 0);
+			display_flush(IMG_LEER, 0, 0, "", "", 0, 0);
 		}
 		else {
 			printf("X");fflush(NULL);
@@ -786,7 +786,7 @@ DBG_DEBUG("karte_t::init()","Erzeuge stadt %i with %ld inhabitants",i,(s->get_ci
 			// the growth is slow, so update here the progress bar
 			if(is_display_init()) {
 				display_progress(16+i*2, max_display_progress);
-				display_flush(IMG_LEER,0, 0, 0, "", "", 0, 0);
+				display_flush(IMG_LEER, 0, 0, "", "", 0, 0);
 			}
 			else {
 				printf("*");fflush(NULL);
@@ -844,7 +844,7 @@ DBG_DEBUG("karte_t::init()","Erzeuge stadt %i with %ld inhabitants",i,(s->get_ci
 					int progress_count = 16+einstellungen->gib_anzahl_staedte()*2+ (count*einstellungen->gib_anzahl_staedte()*2)/max_count;
 					if(old_progress_count!=progress_count) {
 						display_progress(progress_count, max_display_progress );
-						display_flush(IMG_LEER,0, 0, 0, "", "", 0, 0);
+						display_flush(IMG_LEER, 0, 0, "", "", 0, 0);
 						old_progress_count = progress_count;
 					}
 				}
@@ -2164,7 +2164,7 @@ DBG_MESSAGE("karte_t::speichern(loadsave_t *file)", "start");
 	if(!silent) {
 		display_set_progress_text(translator::translate("Saving map ..."));
 		display_progress(0,gib_groesse_y());
-		display_flush(IMG_LEER, 0, 0, 0, "", "", 0, 0);
+		display_flush(IMG_LEER, 0, 0, "", "", 0, 0);
 	}
 
 	einstellungen->rdwr(file);
@@ -2190,7 +2190,7 @@ DBG_MESSAGE("karte_t::speichern(loadsave_t *file)", "saved cities ok");
 		}
 		else {
 			display_progress(j, gib_groesse_y());
-			display_flush(IMG_LEER,0, 0, 0, "", "", 0, 0);
+			display_flush(IMG_LEER, 0, 0, "", "", 0, 0);
 		}
 	}
 DBG_MESSAGE("karte_t::speichern(loadsave_t *file)", "saved tiles");
@@ -2296,7 +2296,7 @@ void karte_t::laden(loadsave_t *file)
 
 	display_set_progress_text(translator::translate("Loading map ..."));
 	display_progress(0, 100);	// does not matter, since fixed width
-	display_flush(IMG_LEER, 0, 0, 0, "", "", 0, 0);
+	display_flush(IMG_LEER, 0, 0, "", "", 0, 0);
 
 	destroy();
 
@@ -2388,7 +2388,7 @@ DBG_DEBUG("karte_t::laden", "init %i cities",einstellungen->gib_anzahl_staedte()
 			access(x, y)->rdwr(this, file);
 		}
 		display_progress(y, gib_groesse_y());
-		display_flush(IMG_LEER,0, 0, 0, "", "", 0, 0);
+		display_flush(IMG_LEER, 0, 0, "", "", 0, 0);
 	}
 
 DBG_MESSAGE("karte_t::laden()","loading grid");

@@ -138,7 +138,7 @@ DBG_MESSAGE("obj_reader_t::init()", "reading from '%s'", (const char*)name);
 			read_file(find.at(i));
 			if(((max-i)&teilung)==0  &&  drawing) {
 				display_progress(max-i,max);
-				display_flush(IMG_LEER,0, 0, 0, "", "", 0, 0);
+				display_flush(IMG_LEER, 0, 0, "", "", 0, 0);
 			}
 		}
 	}

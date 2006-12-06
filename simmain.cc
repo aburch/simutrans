@@ -146,7 +146,7 @@ static void show_times(karte_t *welt, karte_ansicht_t *view)
 	ms = get_current_time_millis();
 	for (i = 0; i < 200; i++) {
 		view->display(true);
-		win_display_flush(0, 0, 0.0);
+		win_display_flush(0.0);
 	}
 	DBG_MESSAGE("test", "view->display(true) and flush: %i iterations took %i ms", i, get_current_time_millis() - ms);
 

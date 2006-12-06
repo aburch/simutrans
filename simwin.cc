@@ -1039,9 +1039,7 @@ void win_display_menu()
 }
 
 
-
-void
-win_display_flush(int , int color, double konto)
+void win_display_flush(double konto)
 {
 #ifdef USE_SOFTPOINTER
 	display_setze_clip_wh( 0, 0, display_get_width(), display_get_height()+1 );
@@ -1177,7 +1175,7 @@ win_display_flush(int , int color, double konto)
 
 	const char *active_player_name = wl->get_active_player()->get_player_nr()==0 ? "" : wl->get_active_player()->gib_name();
 	image_id season_img = skinverwaltung_t::seasons_icons ? skinverwaltung_t::seasons_icons->gib_bild_nr(wl->gib_jahreszeit()) : IMG_LEER;
-	display_flush(season_img,stunden4, color, konto, time, info, active_player_name, wl->get_active_player()->get_player_color() );
+	display_flush(season_img, stunden4, konto, time, info, active_player_name, wl->get_active_player()->get_player_color());
 	// season icon
 }
 

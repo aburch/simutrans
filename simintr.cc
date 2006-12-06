@@ -82,7 +82,7 @@ void
 intr_refresh_display(bool dirty)
 {
 	welt_ansicht->display( dirty );
-	win_display_flush(	0, welt_modell->get_active_player()->get_player_color(), welt_modell->get_active_player()->gib_konto_als_double() );
+	win_display_flush(welt_modell->get_active_player()->gib_konto_als_double());
 }
 
 
