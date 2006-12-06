@@ -37,7 +37,7 @@ dummy_ding_t::dummy_ding_t(karte_t *welt, koord3d pos, spieler_t *) :
 
 void * dummy_ding_t::operator new(size_t /*s*/)
 {
-	return (dummy_ding_t *)freelist_t::gimme_node(sizeof(dummy_ding_t));
+	return freelist_t::gimme_node(sizeof(dummy_ding_t));
 }
 
 

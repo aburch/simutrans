@@ -22,7 +22,7 @@ const koord3d koord3d::invalid(-1, -1, -1);
 
 void * koord3d::operator new(size_t /*s*/)
 {
-	return (koord3d *)freelist_t::gimme_node(sizeof(koord3d));
+	return freelist_t::gimme_node(sizeof(koord3d));
 }
 
 

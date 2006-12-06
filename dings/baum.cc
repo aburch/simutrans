@@ -385,7 +385,7 @@ baum_t::entferne(spieler_t *sp)
 void *
 baum_t::operator new(size_t /*s*/)
 {
-	return (baum_t *)freelist_t::gimme_node(sizeof(baum_t));
+	return freelist_t::gimme_node(sizeof(baum_t));
 }
 
 

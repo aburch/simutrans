@@ -754,7 +754,7 @@ public:
 	bool add_fab(fabrik_t *fab);
 	bool rem_fab(fabrik_t *fab);
 	int gib_fab_index(fabrik_t* fab) { return fab_list.index_of(fab); }
-	fabrik_t* gib_fab(unsigned index) { return index < fab_list.count() ? (fabrik_t*)fab_list.at(index) : NULL; }
+	fabrik_t* gib_fab(unsigned index) { return index < fab_list.count() ? fab_list.at(index) : NULL; }
 	const slist_tpl<fabrik_t*>& gib_fab_list() const { return fab_list; }
 
 	/* sucht zufaellig eine Fabrik aus der Fabrikliste

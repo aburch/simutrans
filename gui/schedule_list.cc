@@ -416,7 +416,7 @@ void schedule_list_gui_t::update_lineinfo(linehandle_t new_line)
 		// chart
 		chart.remove_curves();
 		for(i=0; i<MAX_LINE_COST; i++)  {
-			chart.add_curve(cost_type_color[i], (sint64 *)new_line->get_finance_history(), MAX_LINE_COST, statistic[i], MAX_MONTHS, statistic_type[i], filterButtons[i].pressed, true);
+			chart.add_curve(cost_type_color[i], new_line->get_finance_history(), MAX_LINE_COST, statistic[i], MAX_MONTHS, statistic_type[i], filterButtons[i].pressed, true);
 			if(filterButtons[i].pressed) {
 				chart.show_curve(i);
 			}

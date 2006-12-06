@@ -1443,7 +1443,7 @@ karte_t::get_random_fab() const
 
 	if(anz > 0) {
 		const int end = simrand( anz );
-		result = (fabrik_t *)fab_list.at(end);
+		result = fab_list.at(end);
 	}
 	return result;
 }

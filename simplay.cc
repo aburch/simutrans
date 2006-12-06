@@ -2376,7 +2376,7 @@ spieler_t::create_simple_road_transport()
 	if(road_vehicle) {
 		vehikel_t* test_driver = new automobil_t(welt, koord3d(platz1, 0), road_vehicle, this, NULL);
 		route_t verbindung;
-		if(	verbindung.calc_route(welt,welt->lookup(platz1)->gib_kartenboden()->gib_pos(),welt->lookup(platz2)->gib_kartenboden()->gib_pos(),(fahrer_t *)test_driver,0)  &&
+		if (verbindung.calc_route(welt, welt->lookup(platz1)->gib_kartenboden()->gib_pos(), welt->lookup(platz2)->gib_kartenboden()->gib_pos(), test_driver, 0) &&
 			verbindung.gib_max_n()<2*(sint32)abs_distance(platz1,platz2))  {
 DBG_MESSAGE("spieler_t::create_simple_road_transport()","Already connection between %d,%d to %d,%d is only %i",platz1.x, platz1.y, platz2.x, platz2.y, verbindung.gib_max_n() );
 			// found something with the nearly same lenght

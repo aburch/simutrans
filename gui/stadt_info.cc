@@ -60,7 +60,7 @@ stadt_info_t::stadt_info_t(stadt_t *stadt) :
 	chart.set_background(MN_GREY1);
 	int i;
 	for (i = 0; i<MAX_CITY_HISTORY; i++) {
-		chart.add_curve(hist_type_color[i], (sint64 *)stadt->get_city_history_year(), MAX_CITY_HISTORY, i, 12, STANDARD, i<2, true);
+		chart.add_curve(hist_type_color[i], stadt->get_city_history_year(), MAX_CITY_HISTORY, i, 12, STANDARD, i < 2, true);
 	}
 	//CHART YEAR END
 
@@ -71,7 +71,7 @@ stadt_info_t::stadt_info_t(stadt_t *stadt) :
 	mchart.set_seed(0);
 	mchart.set_background(MN_GREY1);
 	for (i = 0; i<MAX_CITY_HISTORY; i++) {
-		mchart.add_curve(hist_type_color[i], (sint64 *)stadt->get_city_history_month(), MAX_CITY_HISTORY, i, 12, STANDARD, i<2, true);
+		mchart.add_curve(hist_type_color[i], stadt->get_city_history_month(), MAX_CITY_HISTORY, i, 12, STANDARD, i < 2, true);
 	}
 	mchart.set_visible(false);
 	//CHART MONTH END
