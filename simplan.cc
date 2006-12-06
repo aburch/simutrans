@@ -420,7 +420,7 @@ void planquadrat_t::halt_list_insert_at( halthandle_t halt, uint8 pos )
 			for( uint8 i=0;  i<halt_list_count;  i++ ) {
 				tmp[i] = halt_list[i];
 			}
-			delete halt_list;
+			delete [] halt_list;
 		}
 		halt_list = tmp;
 	}
