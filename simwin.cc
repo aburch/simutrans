@@ -86,7 +86,7 @@ static const int MAX_WIN = 64;          // 64 Fenster sollten reichen
 static struct simwin wins[MAX_WIN+1];
 static int ins_win = 0;		        // zeiger auf naechsten freien eintrag
 
-static karte_t *wl=NULL;		// Zeiger auf aktuelle Welt, wird in win_get_event gesetzt
+static karte_t* wl = NULL; // Zeiger auf aktuelle Welt, wird in win_setze_welt gesetzt
 
 
 
@@ -916,39 +916,16 @@ check_pos_win(event_t *ev)
 }
 
 
-/*
- * warning! this is a real HACK, this following routine.
- * problem:  when user presses button which opens new window,
- *           release event cannot reach window, and button will not
- *           unpress.
- * solution: callback function, which sets variable to 'false'
- *           and swallows release event.
- */
-static bool *snre_pointer;
-void swallow_next_release_event(bool *set_to_false)
-{
-  snre_pointer = set_to_false;
-}
 void
 win_get_event(struct event_t *ev)
 {
   display_get_event(ev);
-  if (snre_pointer && IS_LEFTRELEASE(ev)) {
-    *snre_pointer = false; snre_pointer = 0;
-    ev->ev_class = EVENT_NONE;
-  }
 }
 
 void
 win_poll_event(struct event_t *ev)
 {
 	display_poll_event(ev);
-	// swallow pointer event (prissi: why?)
-	if (snre_pointer && IS_LEFTRELEASE(ev)) {
-		*snre_pointer = false;
-		snre_pointer = 0;
-		ev->ev_class = EVENT_NONE;
-	}
 	// main window resized
 	if(ev->ev_class==EVENT_SYSTEM  &&  ev->ev_code==SYSTEM_RESIZE) {
 		// main window resized
