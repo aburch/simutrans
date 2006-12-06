@@ -28,7 +28,6 @@
 class message_frame_t : public gui_frame_t, private action_listener_t
 {
 private:
-	karte_t *welt;
 	message_stats_t	stats;
 	gui_scrollpane_t scrolly;
 	button_t option_bt;

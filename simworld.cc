@@ -855,9 +855,8 @@ DBG_DEBUG("karte_t::init()","Erzeuge stadt %i with %ld inhabitants",i,(s->get_ci
 	}
 	pos = NULL;
 
-    // prissi: completely change format
-     fabrikbauer_t::verteile_industrie(this, gib_spieler(1),	einstellungen->gib_land_industry_chains(),false);
-     fabrikbauer_t::verteile_industrie(this, gib_spieler(1), einstellungen->gib_city_industry_chains(),true);
+	fabrikbauer_t::verteile_industrie(this, einstellungen->gib_land_industry_chains(), false);
+	fabrikbauer_t::verteile_industrie(this, einstellungen->gib_city_industry_chains(), true);
 	// crossconnect all?
 	if(umgebung_t::crossconnect_factories) {
 		slist_iterator_tpl <fabrik_t *> iter (this->fab_list);
@@ -867,7 +866,7 @@ DBG_DEBUG("karte_t::init()","Erzeuge stadt %i with %ld inhabitants",i,(s->get_ci
 	}
 
 	// tourist attractions
-     fabrikbauer_t::verteile_tourist(this, gib_spieler(1), einstellungen->gib_tourist_attractions());
+	fabrikbauer_t::verteile_tourist(this, einstellungen->gib_tourist_attractions());
 
     print("Preparing startup ...\n");
 

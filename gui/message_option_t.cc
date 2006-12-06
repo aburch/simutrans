@@ -19,7 +19,7 @@
 #include "message_option_t.h"
 
 
-message_option_t::message_option_t(karte_t *) :
+message_option_t::message_option_t() :
 	gui_frame_t("Mailbox Options"),
 	text_label(translator::translate("MessageOptionsText")),
 	legend( skinverwaltung_t::message_options->gib_bild_nr(0) )

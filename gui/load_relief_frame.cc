@@ -12,7 +12,6 @@
 
 #include "../simdebug.h"
 #include "load_relief_frame.h"
-#include "../simworld.h"
 #include "../dataobj/einstellungen.h"
 
 
@@ -40,12 +39,11 @@ void load_relief_frame_t::del_action(const char *filename)
  * Konstruktor.
  * @author Hj. Malthaner
  */
-load_relief_frame_t::load_relief_frame_t(karte_t * welt, einstellungen_t * sets) : savegame_frame_t(".ppm")
+load_relief_frame_t::load_relief_frame_t(einstellungen_t* sets) : savegame_frame_t(".ppm")
 {
     setze_name("Laden");
 
     this->sets = sets;
-    this->welt = welt;
     sets->heightfield = "";
 }
 

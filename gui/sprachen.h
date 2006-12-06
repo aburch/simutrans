@@ -11,8 +11,6 @@
 #include "../tpl/array_tpl.h"
 
 
-class karte_t;
-
 /**
  * Sprachauswahldialog
  *
@@ -34,7 +32,7 @@ public:
      */
     static void init_font_from_lang();
 
-    sprachengui_t(karte_t *welt);
+		sprachengui_t();
 
     /**
      * Manche Fenster haben einen Hilfetext assoziiert.

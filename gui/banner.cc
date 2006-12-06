@@ -26,9 +26,8 @@
 #include "banner.h"
 
 
-banner_t::banner_t(karte_t *w)
+banner_t::banner_t()
 {
-	welt = w;
 	last_ms = get_system_ms();
 	line = 0;
 	xoff = (display_get_width()  / 2) - 180;

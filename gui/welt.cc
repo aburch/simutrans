@@ -493,7 +493,7 @@ welt_gui_t::action_triggered(gui_komponente_t *komp,value_t /* */)
 		// load relief
 		loaded_heightfield = false;
 		sets->heightfield = "";
-		create_win(new load_relief_frame_t(welt, sets), w_info, magic_load_t);
+		create_win(new load_relief_frame_t(sets), w_info, magic_load_t);
 		knr = sets->gib_karte_nummer();	// otherwise using cancel would not show the normal generated map again
 	}
 	else if(komp==&use_intro_dates) {

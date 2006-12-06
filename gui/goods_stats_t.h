@@ -12,7 +12,7 @@
 
 #include "../simtypes.h"
 #include "../ifc/gui_komponente.h"
-class karte_t;
+
 
 /**
  * Display information about each configured good
@@ -22,13 +22,11 @@ class karte_t;
 class goods_stats_t : public gui_komponente_t
 {
 private:
-	karte_t *welt;
 	uint16 *goodslist;
 	int bonus;
 
 public:
-
-	goods_stats_t(karte_t *welt);
+	goods_stats_t();
 
 	void update_goodslist(unsigned short *g, int b) {goodslist = g; bonus = b; }
 

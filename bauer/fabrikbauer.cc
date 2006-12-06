@@ -310,12 +310,10 @@ fabrikbauer_t::finde_zufallsbauplatz(karte_t * welt, const koord3d pos, const in
 }
 
 
-
 /* Create a certain numer of tourist attractions
  * @author prissi
  */
-void
-fabrikbauer_t::verteile_tourist(karte_t * welt, spieler_t *, int max_number)
+void fabrikbauer_t::verteile_tourist(karte_t* welt, int max_number)
 {
 	// current count
 	int current_number=0;
@@ -353,12 +351,10 @@ fabrikbauer_t::verteile_tourist(karte_t * welt, spieler_t *, int max_number)
 }
 
 
-
 /* Create a certain numer of industries
  * @author prissi
  */
-void
-fabrikbauer_t::verteile_industrie(karte_t * welt, spieler_t *, int max_number_of_factories,bool in_city)
+void fabrikbauer_t::verteile_industrie(karte_t* welt, int max_number_of_factories, bool in_city)
 {
 	// stuff for the progress bar
 	const int display_offset = 16 + welt->gib_einstellungen()->gib_anzahl_staedte()*4 + (in_city? welt->gib_einstellungen()->gib_land_industry_chains() : 0);

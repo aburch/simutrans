@@ -166,7 +166,7 @@ static void show_times(karte_t *welt, karte_ansicht_t *view)
  */
 static void zeige_banner(karte_t *welt)
 {
-	banner_t *b = new banner_t(welt);
+	banner_t* b = new banner_t();
 	event_t ev;
 
 	destroy_all_win();	// since eventually the successful load message is still there ....
@@ -690,7 +690,7 @@ DBG_MESSAGE("init","map");
 
 			if (!umgebung_t::testlauf && new_world) {
 				welt_gui_t *wg = new welt_gui_t(welt, sets);
-				sprachengui_t *sg = new sprachengui_t(welt);
+				sprachengui_t* sg = new sprachengui_t();
 				climate_gui_t *cg = new climate_gui_t(welt, wg, sets);
 				event_t ev;
 

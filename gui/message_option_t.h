@@ -8,8 +8,6 @@
 #include "components/gui_image.h"
 
 
-class karte_t;
-
 class message_option_t : public gui_frame_t, private action_listener_t
 {
 private:
@@ -19,7 +17,7 @@ private:
     int ticker_msg, window_msg, auto_msg, ignore_msg;
 
 public:
-    message_option_t(karte_t *welt);
+		message_option_t();
 
     /**
      * Manche Fenster haben einen Hilfetext assoziiert.

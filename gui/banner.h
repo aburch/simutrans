@@ -24,18 +24,12 @@ class karte_t;
 class banner_t : public gui_fenster_t
 {
 private:
-	/**
-	* The tools will be applied to this map
-	* @author Hj. Malthaner
-	*/
-	karte_t *welt;
-
 	sint32 last_ms;
 	int line;
 	sint16 xoff, yoff;
 
 public:
-    banner_t(karte_t *welt);
+		banner_t();
 
     ~banner_t() {}
 

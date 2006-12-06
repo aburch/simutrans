@@ -20,9 +20,8 @@
 #include "components/list_button.h"
 
 
-goods_stats_t::goods_stats_t(karte_t *welt)
+goods_stats_t::goods_stats_t()
 {
-	this->welt = welt;
 	setze_groesse(koord(BUTTON4_X+BUTTON_WIDTH+2,-10+(warenbauer_t::gib_waren_anzahl()-1)*(LINESPACE+1)));
 }
 

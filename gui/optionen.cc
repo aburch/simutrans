@@ -123,7 +123,7 @@ optionen_gui_t::optionen_gui_t(karte_t *welt) :
 bool optionen_gui_t::action_triggered(gui_komponente_t *comp,value_t /* */)
 {
 	if(comp==&bt_lang) {
-		create_win(new sprachengui_t(welt), w_info, magic_sprachengui_t);
+		create_win(new sprachengui_t(), w_info, magic_sprachengui_t);
 	}
 	else if(comp==&bt_color) {
 		create_win(new farbengui_t(welt->get_active_player()), w_info, magic_farbengui_t);

@@ -14,13 +14,12 @@
 
 #include "savegame_frame.h"
 
-class karte_t;
+
 class einstellungen_t;
 
 class load_relief_frame_t : public savegame_frame_t
 {
 private:
-	karte_t * welt;
 	einstellungen_t * sets;
 
 protected:
@@ -48,7 +47,7 @@ public:
 	 * Konstruktor.
 	 * @author Hj. Malthaner
 	 */
-	load_relief_frame_t(karte_t * welt, einstellungen_t * sets);
+	load_relief_frame_t(einstellungen_t* sets);
 
 	virtual ~load_relief_frame_t() {}
 };

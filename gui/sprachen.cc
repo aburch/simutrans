@@ -80,8 +80,7 @@ void sprachengui_t::init_font_from_lang()
 }
 
 
-
-sprachengui_t::sprachengui_t(karte_t *) :
+sprachengui_t::sprachengui_t() :
 	gui_frame_t("Sprachen"),
 	text_label(translator::translate("LANG_CHOOSE\n")),
 	flags(skinverwaltung_t::flaggensymbol->gib_bild_nr(0)),
