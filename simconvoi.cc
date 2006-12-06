@@ -749,11 +749,7 @@ convoi_t::start()
 }
 
 
-/**
- * called, when the first vehicle reaches the target
- * @author Hj. Malthaner
- */
-void convoi_t::ziel_erreicht(vehikel_t *)
+void convoi_t::ziel_erreicht()
 {
 	wait_lock = 0;
 	anz_ready |= true;

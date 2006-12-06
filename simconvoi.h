@@ -514,11 +514,7 @@ public:
 	*/
 	void start();
 
-	/**
-	* Bereit-Meldung entgegennehmen
-	* @author Hj. Malthaner
-	*/
-	void ziel_erreicht(vehikel_t *v);
+	void ziel_erreicht(); ///< Called, when the first vehicle reaches the target
 
 	/**
 	* Ein Fahrzeug hat ein Problem erkannt und erzwingt die

@@ -871,7 +871,7 @@ vehikel_t::fahre()
 		// want to go to next field and want to step
 		if(is_about_to_hop(neu_xoff,neu_yoff)) {
 			// so we are there yet?
-			cnv->ziel_erreicht(this);
+			cnv->ziel_erreicht();
 			return;
 		}
 	}
