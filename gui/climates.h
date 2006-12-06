@@ -31,7 +31,6 @@ class climate_gui_t  : public gui_frame_t, private action_listener_t
 private:
 	einstellungen_t * sets;
 	welt_gui_t *welt_gui;
-	karte_t *welt;
 
 	int old_lang;	// to detect language changes
 
@@ -51,7 +50,7 @@ private:
 	button_t end_rocky[2];
 
 public:
-	climate_gui_t(karte_t *welt, welt_gui_t *welt_gui, einstellungen_t *sets);
+	climate_gui_t(welt_gui_t* welt_gui, einstellungen_t* sets);
 
 	/**
 	 * Manche Fenster haben einen Hilfetext assoziiert.

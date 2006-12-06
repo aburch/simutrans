@@ -691,7 +691,7 @@ DBG_MESSAGE("init","map");
 			if (!umgebung_t::testlauf && new_world) {
 				welt_gui_t *wg = new welt_gui_t(welt, sets);
 				sprachengui_t* sg = new sprachengui_t();
-				climate_gui_t *cg = new climate_gui_t(welt, wg, sets);
+				climate_gui_t* cg = new climate_gui_t(wg, sets);
 				event_t ev;
 
 				view->display(true);

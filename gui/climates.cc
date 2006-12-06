@@ -40,11 +40,10 @@
  * @author prissi
  */
 
-climate_gui_t::climate_gui_t(karte_t *welt, welt_gui_t *welt_gui, einstellungen_t *sets) :
+climate_gui_t::climate_gui_t(welt_gui_t* welt_gui, einstellungen_t* sets) :
 	gui_frame_t("Climate Control")
 {
 DBG_MESSAGE("","sizeof(stat)=%d, sizeof(tm)=%d",sizeof(struct stat),sizeof(struct tm) );
-	this->welt = welt;
 	this->sets = sets;
 	this->old_lang = -1;
 	this->welt_gui = welt_gui;
