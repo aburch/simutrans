@@ -1016,7 +1016,6 @@ bool grund_t::get_neighbour(grund_t *&to, waytype_t type, koord dir) const
 	if(dir != koord::nord && dir != koord::sued && dir != koord::ost && dir != koord::west) {
 		return false;
 	}
-	grund_t *gr = NULL;
 
 	const planquadrat_t * plan = welt->lookup(pos.gib_2d() + dir);
 	if(!plan) {
@@ -1026,7 +1025,7 @@ bool grund_t::get_neighbour(grund_t *&to, waytype_t type, koord dir) const
 	// find ground in the same height: This work always!
 	const sint16 this_height = get_vmove(dir);
 	for( unsigned i=0;  i<plan->gib_boden_count();  i++  ) {
-		gr = plan->gib_boden_bei(i);
+		grund_t* gr = plan->gib_boden_bei(i);
 		if(gr->get_vmove(-dir)==this_height) {
 			// test, if connected
 			if(!is_connected(gr, type, dir)) {
