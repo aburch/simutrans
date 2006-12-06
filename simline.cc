@@ -36,7 +36,7 @@ DBG_MESSAGE("simline_t::simline_t(karte_t,simlinemgmt,fahrplan_t)","create with 
 }
 
 
-simline_t::simline_t(karte_t * welt, simlinemgmt_t * /*unused*/, loadsave_t * file) :
+simline_t::simline_t(karte_t* welt, loadsave_t* file) :
 	line_managed_convoys(0)
 {
 	self = linehandle_t(this);

@@ -150,27 +150,13 @@ DBG_MESSAGE("simlinemgmt_t::rdwr()","number of lines=%i",totalLines);
 				simline_t::linetype lt;
 				file->rdwr_enum(lt, "\n");
 				switch(lt) {
-					case simline_t::truckline:
-						line = new truckline_t(welt, this, file);
-						break;
-					case simline_t::trainline:
-						line = new trainline_t(welt, this, file);
-						break;
-					case simline_t::shipline:
-						line = new shipline_t(welt, this, file);
-						break;
-					case simline_t::airline:
-						line = new airline_t(welt, this, file);
-						break;
-					case simline_t::monorailline:
-						line = new monorailline_t(welt, this, file);
-						break;
-					case simline_t::tramline:
-						line = new tramline_t(welt, this, file);
-						break;
-					default:
-						line = new simline_t(welt, this, file);
-						break;
+					case simline_t::truckline:    line = new truckline_t(   welt, file); break;
+					case simline_t::trainline:    line = new trainline_t(   welt, file); break;
+					case simline_t::shipline:     line = new shipline_t(    welt, file); break;
+					case simline_t::airline:      line = new airline_t(     welt, file); break;
+					case simline_t::monorailline: line = new monorailline_t(welt, file); break;
+					case simline_t::tramline:     line = new tramline_t(    welt, file); break;
+					default:                      line = new simline_t(     welt, file); break;
 				}
 				add_line(line->self);
 			}
