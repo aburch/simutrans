@@ -1157,11 +1157,11 @@ bool grund_t::remove_everything_from_way(spieler_t *sp,waytype_t wt,ribi_t::ribi
 				}
 			}
 			// citycar or pedestrians: just delete
-			else if(d->gib_typ()==ding_t::verkehr  ||  suche_obj(ding_t::fussgaenger)) {
+			else if(wt==road_wt  &&  (d->gib_typ()==ding_t::verkehr  ||  suche_obj(ding_t::fussgaenger))) {
 				delete d;
 			}
 			// remove tunnel portal/bridge
-			else if(d->gib_typ()==ding_t::bruecke  ||  suche_obj(ding_t::tunnel)) {
+			else if(d->gib_typ()==ding_t::bruecke  ||  d->gib_typ()==ding_t::tunnel) {
 				d->entferne(sp);
 				delete d;
 			}
