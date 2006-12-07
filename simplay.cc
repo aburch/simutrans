@@ -2266,9 +2266,6 @@ spieler_t::create_rail_transport_vehikel(const koord platz1, const koord platz2,
 	koord3d pos1= welt->lookup(platz1)->gib_kartenboden()->gib_pos();
 	koord3d pos2 = welt->lookup(platz2)->gib_kartenboden()->gib_pos();
 
-    // lokomotive bauen
-	uint month_now = (welt->use_timeline() ? welt->get_current_month() : 0);
-
 	// probably need to electrify the track?
 	if(  rail_engine->get_engine_type()==vehikel_besch_t::electric  ) {
 		// we need overhead wires
