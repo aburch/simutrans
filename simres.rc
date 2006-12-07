@@ -1,5 +1,6 @@
 /* ICON and Version info for Simutrans Windows */
 
+#include "simversion.h"
 
 100 ICON "stormoog.ico"
 101 ICON "simutrans.ico"
@@ -7,8 +8,8 @@
 
 
 1 VERSIONINFO
-FILEVERSION 0, 99, 02, 1
-PRODUCTVERSION 0, 99, 02, 1
+FILEVERSION    RES_VERSION_NUMBER
+PRODUCTVERSION RES_VERSION_NUMBER
 {
  BLOCK "StringFileInfo"
  {
@@ -16,12 +17,12 @@ PRODUCTVERSION 0, 99, 02, 1
   {
    VALUE "CompanyName", "Simutrans Team\000"
    VALUE "FileDescription", "Simutrans\000"
-   VALUE "FileVersion", "0.99.02.1\000"
+   VALUE "FileVersion", VERSION_NUMBER "\000"
    VALUE "InternalName", "SIMUTRANS\000"
    VALUE "LegalCopyright", "\251 Hj. Malthaner '97-'04 Simutrans Team '05-06\000"
    VALUE "OriginalFilename", "SIMUTRANS.EXE\000"
    VALUE "ProductName", "Simutrans\000"
-   VALUE "ProductVersion", "0.99.02.1\000"
+   VALUE "ProductVersion", VERSION_NUMBER "\000"
   }
 
  }
