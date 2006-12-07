@@ -33,9 +33,9 @@ private:
 	vector_tpl<gebaeude_t*> attractions;
 
 public:
-	curiositylist_stats_t(karte_t *welt,const curiositylist::sort_mode_t& sortby,const bool& sortreverse);
+	curiositylist_stats_t(karte_t* welt, curiositylist::sort_mode_t sortby, bool sortreverse);
 
-	void get_unique_attractions(const curiositylist::sort_mode_t& sortby,const bool& reverse);
+	void get_unique_attractions(curiositylist::sort_mode_t sortby, bool reverse);
 
 	/**
 	* Events werden hiermit an die GUI-Komponenten

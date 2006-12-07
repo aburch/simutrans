@@ -37,8 +37,7 @@ private:
 	vector_tpl<fabrik_t*> fab_list;
 
 public:
-
-	factorylist_stats_t(karte_t *welt,const factorylist::sort_mode_t& sortby,const bool& sortreverse);
+	factorylist_stats_t(karte_t* welt, factorylist::sort_mode_t sortby, bool sortreverse);
 
 	/**
 	* Events werden hiermit an die GUI-Komponenten
@@ -47,7 +46,7 @@ public:
 	*/
 	void infowin_event(const event_t *);
 
-	void sort(const factorylist::sort_mode_t& sortby,const bool& sortreverse);
+	void sort(factorylist::sort_mode_t sortby, bool sortreverse);
 
 	/**
 	* Zeichnet die Komponente

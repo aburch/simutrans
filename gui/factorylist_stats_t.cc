@@ -21,9 +21,8 @@
 #include "../bauer/warenbauer.h"
 #include "../utils/cbuffer_t.h"
 
-factorylist_stats_t::factorylist_stats_t(karte_t * w,
-					 const factorylist::sort_mode_t& sortby,
-					 const bool& sortreverse) :
+
+factorylist_stats_t::factorylist_stats_t(karte_t* w, factorylist::sort_mode_t sortby, bool sortreverse) :
     fab_list(0)
 {
 	welt = w;
@@ -138,8 +137,7 @@ void factorylist_stats_t::zeichnen(koord offset)
 }
 
 
-
-void factorylist_stats_t::sort(const factorylist::sort_mode_t& sortby,const bool& sortreverse)
+void factorylist_stats_t::sort(factorylist::sort_mode_t sortby, bool sortreverse)
 {
 	slist_iterator_tpl<fabrik_t *> fab_iter (welt->gib_fab_list());
 

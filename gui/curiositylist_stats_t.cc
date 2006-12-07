@@ -28,9 +28,8 @@
 
 #include "components/list_button.h"
 
-curiositylist_stats_t::curiositylist_stats_t(karte_t * w,
-					     const curiositylist::sort_mode_t& sortby,
-					     const bool& sortreverse) :
+
+curiositylist_stats_t::curiositylist_stats_t(karte_t* w, curiositylist::sort_mode_t sortby, bool sortreverse) :
     attractions(10)
 {
 	welt = w;
@@ -39,9 +38,7 @@ curiositylist_stats_t::curiositylist_stats_t(karte_t * w,
 }
 
 
-
-void curiositylist_stats_t::get_unique_attractions(const curiositylist::sort_mode_t& sortby,
-						   const bool& sortreverse)
+void curiositylist_stats_t::get_unique_attractions(curiositylist::sort_mode_t sortby, bool sortreverse)
 {
     const weighted_vector_tpl<gebaeude_t *> &ausflugsziele = welt->gib_ausflugsziele();
     attractions.clear();
