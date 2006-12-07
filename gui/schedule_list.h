@@ -4,7 +4,6 @@
 #include "gui_frame.h"
 #include "gui_container.h"
 #include "components/gui_chart.h"
-#include "components/gui_resizer.h"                             // 28-Dec-2001  Markus Weber    Added
 #include "components/gui_textinput.h"
 #include "components/gui_scrolled_list.h"
 #include "components/gui_scrollpane.h"

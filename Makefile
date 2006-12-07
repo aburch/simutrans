@@ -164,7 +164,6 @@ SOURCES += gui/components/gui_combobox.cc
 SOURCES += gui/components/gui_flowtext.cc
 SOURCES += gui/components/gui_image_list.cc
 SOURCES += gui/components/gui_label.cc
-SOURCES += gui/components/gui_resizer.cc
 SOURCES += gui/components/gui_scrollbar.cc
 SOURCES += gui/components/gui_scrolled_list.cc
 SOURCES += gui/components/gui_scrollpane.cc
