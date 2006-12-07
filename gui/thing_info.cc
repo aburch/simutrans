@@ -23,7 +23,6 @@
 #include "../dataobj/translator.h"
 #include "thing_info.h"
 
-karte_t * ding_infowin_t::welt = NULL;
 cbuffer_t ding_infowin_t::buf (8192);
 
 
@@ -31,7 +30,6 @@ ding_infowin_t::ding_infowin_t(karte_t *welt,ding_t *ding) :
 	gui_frame_t("",ding->gib_besitzer()),
 	view(welt, koord3d::invalid)
 {
-	this->welt = welt;
 	this->ding = ding;
 	setze_opaque(true);
 

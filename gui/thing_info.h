@@ -29,15 +29,6 @@ protected:
 
     int calc_fensterhoehe_aus_info() const;
 
-    /**
-     * Zeiger auf die Karte zu der der Untergrund gehoert.
-     * Der Zeiger ist eine Klassenvariable um Speicher zu sparen, sollen
-     * mehrere Karten unterschieden werden, muss er eine Instanzvariable
-     * werden.
-     *
-     * @author Hj. Malthaner
-     */
-    static karte_t *welt;
     static cbuffer_t buf;
 
     /**
