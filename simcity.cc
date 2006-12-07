@@ -891,7 +891,7 @@ stadt_t::stadt_t(karte_t* wl, spieler_t* sp, koord pos, int citizens) :
 		for (int j = 0; j < anz_staedte; j++) {
 			// noch keine stadt mit diesem namen?
 			const stadt_t* s = staedte[j];
-			if (s != this && s != NULL) {
+			if (s != this) {
 				not_unique |= strcmp(list_name, s->gib_name()) == 0;
 			}
 		}

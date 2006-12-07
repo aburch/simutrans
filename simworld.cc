@@ -781,8 +781,7 @@ DBG_DEBUG("karte_t::init()","Erzeuge stadt %i with %ld inhabitants",i,(s->get_ci
 
 		for(i=0; i<einstellungen->gib_anzahl_staedte(); i++) {
 			// Hajo: do final init after world was loaded/created
-			stadt_t* s = stadt[i];
-			if (s != NULL) s->laden_abschliessen();
+			stadt[i]->laden_abschliessen();
 			// the growth is slow, so update here the progress bar
 			if(is_display_init()) {
 				display_progress(16+i*2, max_display_progress);
