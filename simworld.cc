@@ -1609,7 +1609,7 @@ karte_t::sync_step(const long dt)
 		// safely
 		ok = iter.next();
 
-		if(ss->sync_step(delta_t) == false) {
+		if (!ss->sync_step(delta_t)) {
 			sync_list.remove(ss);
 			delete ss;
 		}

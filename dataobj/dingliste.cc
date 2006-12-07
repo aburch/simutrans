@@ -832,14 +832,14 @@ dingliste_t::check_season(const long month)
 	}
 	else if(capacity==1) {
 		ding_t *d = obj.one;
-		if(d->check_season(month)==false) {
+		if (!d->check_season(month)) {
 			loeschen.insert( d );
 		}
 	}
 	else {
 		for(uint8 i=0; i<top; i++) {
 			ding_t *d = obj.some[i];
-			if(d->check_season(month)==false) {
+			if (!d->check_season(month)) {
 				loeschen.insert( d );
 			}
 		}

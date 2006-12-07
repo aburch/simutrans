@@ -955,10 +955,7 @@ DBG_MESSAGE("spieler_t::do_passenger_ki()","no suitable hub found");
 				if(!baue)
 				{
 				  	// obey timeline
-					unsigned month_now = welt->get_current_month();
-					if(  welt->use_timeline() == false   ) {
-						month_now = 0;
-					}
+					uint month_now = (welt->use_timeline() ? welt->get_current_month() : 0);
 
 					// we want the fastest we can get!
 					road_vehicle = vehikelbauer_t::vehikel_search( road_wt, month_now, 10, 80, warenbauer_t::passagiere );
@@ -1065,10 +1062,7 @@ DBG_DEBUG("do_passenger_ki()","calling message_t()");
 						if(ware.menge>129) {
 							// we want the fastest we can get
 						  	// obey timeline
-							unsigned month_now = 0;
-							if(  welt->use_timeline() == true   ) {
-								month_now = welt->get_current_month();
-							}
+							uint month_now = (welt->use_timeline() ? welt->get_current_month() : 0);
 							road_vehicle = vehikelbauer_t::vehikel_search( road_wt, month_now, 10, 80, warenbauer_t::passagiere );
 							koord list[2] = {halt->gib_basis_pos(),ware.gib_zwischenziel()};
 							create_bus_transport_vehikel( list[0], 1, list, 2, false );	// overcrowded line, so waiting does not make sense
@@ -1318,10 +1312,7 @@ DBG_MESSAGE("spieler_t::do_ki()","%s want to build a route from %s (%d,%d) to %s
 				  	uint32 best_road_speed = min(60+freight->gib_speed_bonus()*5, 130 );
 
 				  	// obey timeline
-					unsigned month_now = welt->get_current_month();
-					if(  welt->use_timeline() == false   ) {
-						month_now = 0;
-					}
+					uint month_now = (welt->use_timeline() ? welt->get_current_month() : 0);
 
 					INT_CHECK("simplay 1265");
 
@@ -1471,10 +1462,7 @@ DBG_MESSAGE("spieler_t::do_ki()","No roadway possible.");
 								// first we have to find a suitable car
 								const ware_besch_t* freight = start->gib_ausgang()[start_ware].gib_typ();
 							  	// obey timeline
-								unsigned month_now = welt->get_current_month();
-								if(  welt->use_timeline() == false   ) {
-									month_now = 0;
-								}
+								uint month_now = (welt->use_timeline() ? welt->get_current_month() : 0);
 								// for engine: gues number of cars
 								long power_needed=(long)(((best_rail_speed*best_rail_speed)/2500.0+1.0)*(100.0+count_rail*(rail_vehicle->gib_gewicht()+rail_vehicle->gib_zuladung()*freight->gib_weight_per_unit()*0.001)));
 								const vehikel_besch_t *v=vehikelbauer_t::vehikel_search( track_wt, month_now, power_needed, best_rail_speed, NULL );
@@ -2279,10 +2267,7 @@ spieler_t::create_rail_transport_vehikel(const koord platz1, const koord platz2,
 	koord3d pos2 = welt->lookup(platz2)->gib_kartenboden()->gib_pos();
 
     // lokomotive bauen
-	unsigned month_now = welt->get_current_month();
-	if(  welt->use_timeline() == false   ) {
-		month_now = 0;
-	}
+	uint month_now = (welt->use_timeline() ? welt->get_current_month() : 0);
 
 	// probably need to electrify the track?
 	if(  rail_engine->get_engine_type()==vehikel_besch_t::electric  ) {

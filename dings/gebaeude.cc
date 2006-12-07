@@ -345,7 +345,7 @@ int gebaeude_t::gib_passagier_level() const
 {
 	koord dim = tile->gib_besch()->gib_groesse();
 	long pax = tile->gib_besch()->gib_level();
-	if(is_factory==false  &&  ptr.stadt!=NULL) {
+	if (!is_factory && ptr.stadt != NULL) {
 		// belongs to a city ...
 		return (((pax+6)>>2)*umgebung_t::passenger_factor)/16;
 	}
@@ -356,7 +356,7 @@ int gebaeude_t::gib_post_level() const
 {
 	koord dim = tile->gib_besch()->gib_groesse();
 	long post = tile->gib_besch()->gib_post_level();
-	if(is_factory==false  &&  ptr.stadt!=NULL) {
+	if (!is_factory && ptr.stadt != NULL) {
 		return (((post+5)>>2)*umgebung_t::passenger_factor)/16;
 	}
 	return post*dim.x*dim.y;
@@ -514,7 +514,7 @@ void gebaeude_t::info(cbuffer_t & buf) const
 		}
 
 		// belongs to which city?
-		if(is_factory==false  &&  ptr.stadt!=NULL) {
+		if (!is_factory && ptr.stadt != NULL) {
 			static char buffer[256];
 			sprintf(buffer,translator::translate("Town: %s\n"),ptr.stadt->gib_name());
 			buf.append(buffer);

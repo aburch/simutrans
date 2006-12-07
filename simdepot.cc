@@ -335,7 +335,7 @@ depot_t::start_convoi(int icnv)
 		if(cnv.is_bound() && cnv->gib_fahrplan() == NULL) {
 			dbg->warning("depot_t::start_convoi()","No schedule for convoi.");
 		}
-		if(cnv.is_bound() && cnv->gib_fahrplan() != NULL && cnv->gib_fahrplan()->ist_abgeschlossen() == false) {
+		if (cnv.is_bound() && cnv->gib_fahrplan() != NULL && !cnv->gib_fahrplan()->ist_abgeschlossen()) {
 			dbg->warning("depot_t::start_convoi()","Schedule is incomplete/not finished");
 		}
 	}

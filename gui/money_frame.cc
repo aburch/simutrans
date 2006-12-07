@@ -338,8 +338,8 @@ bool money_frame_t::action_triggered(gui_komponente_t *komp,value_t /* */)
     {
     	if (komp == &filterButtons[i])
     	{
-    		bFilterIsActive[i] == true ? bFilterIsActive[i] = false : bFilterIsActive[i] = true;
-    		if (bFilterIsActive[i] == true) {
+			bFilterIsActive[i] = !bFilterIsActive[i];
+			if (bFilterIsActive[i]) {
 				chart.show_curve(i);
 				mchart.show_curve(i);
 			} else {

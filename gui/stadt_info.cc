@@ -130,7 +130,7 @@ bool stadt_info_t::action_triggered(gui_komponente_t *komp,value_t /* */)
 	for ( int i = 0; i<MAX_CITY_HISTORY; i++) {
 		if (komp == &filterButtons[i]) {
 			filterButtons[i].pressed ^= 1;
-			if(filterButtons[i].pressed == true) {
+			if (filterButtons[i].pressed) {
 				chart.show_curve(i);
 				mchart.show_curve(i);
 			}

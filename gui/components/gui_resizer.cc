@@ -82,7 +82,7 @@ void gui_resizer_t::infowin_event(const event_t *ev)
 
 		value_t p;
           call_listeners(p);
-          if (followmouse==true)
+		if (followmouse)
           {
                 setze_pos(koord(pos.x+hresize,pos.y+vresize));
           }

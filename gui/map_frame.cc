@@ -237,7 +237,7 @@ map_frame_t::action_triggered(gui_komponente_t *komp,value_t /* */)
 	else {
 		for (int i=0;i<MAX_MAP_TYPE;i++) {
 			if (komp == &filter_buttons[i]) {
-				if (is_filter_active[i] == true) {
+				if (is_filter_active[i]) {
 					is_filter_active[i] = false;
 				} else {
 					all_inactive = false;

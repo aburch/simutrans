@@ -1415,7 +1415,7 @@ automobil_t::ist_weg_frei(int &restart_speed)
 					// is our target occupied?
 					if(target) {
 						target_halt = target->gib_halt();
-						if(target_halt.is_bound()  &&  target_halt->reserve_position(target,cnv->self)==false) {
+						if (target_halt.is_bound() && !target_halt->reserve_position(target, cnv->self)) {
 
 							// if we fail, we will wait in a step, much more simulation friendly
 							if(!cnv->is_waiting()) {
@@ -1540,7 +1540,7 @@ automobil_t::rdwr(loadsave_t *file)
 void
 automobil_t::rdwr(loadsave_t *file, bool force)
 {
-	assert(force == true);
+	assert(force);
 
 	if(file->is_saving() && cnv != NULL && !force) {
 		file->wr_obj_id(-1);
@@ -2066,7 +2066,7 @@ void
 waggon_t::rdwr(loadsave_t *file, bool force)
 {
 	static const vehikel_besch_t *last_besch;
-	assert(force == true);
+	assert(force);
 
 	if(file->is_saving() && cnv != NULL && !force) {
 		file->wr_obj_id(-1);
@@ -2201,7 +2201,7 @@ schiff_t::rdwr(loadsave_t *file)
 void
 schiff_t::rdwr(loadsave_t *file, bool force)
 {
-	assert(force == true);
+	assert(force);
 	if(file->is_saving() && cnv != NULL && !force) {
 		file->wr_obj_id(-1);
 	} else {
@@ -2600,7 +2600,7 @@ void
 aircraft_t::rdwr(loadsave_t *file, bool force)
 {
 	// make sure, we are not called by loading via dingliste directly from a tile!
-	assert(force == true);
+	assert(force);
 
 	if(file->is_saving() && cnv != NULL && !force) {
 		file->wr_obj_id(-1);
