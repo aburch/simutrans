@@ -44,8 +44,6 @@ public:
 	virtual const char * gib_hilfe_datei() const;
 
 	load_relief_frame_t(einstellungen_t* sets);
-
-	virtual ~load_relief_frame_t() {}
 };
 
 #endif

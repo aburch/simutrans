@@ -38,7 +38,6 @@ private:
 			this->ware = ware;
 			this->parent = parent;
 		}
-		virtual ~ware_item_t() {}
 		virtual void infowin_event(const event_t *ev) {
 			if(IS_LEFTRELEASE(ev)) {
 				parent->ware_item_triggered(ware);

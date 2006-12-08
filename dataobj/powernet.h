@@ -51,8 +51,6 @@ private:
 public:
 	powernet_t();
 
-	virtual ~powernet_t() {}
-
 	uint32 get_capacity() const;
 	uint32 set_max_capacity(uint32 max) { uint32 m=max_capacity;  if(max>0){max_capacity=max;} return m; }
 

@@ -35,8 +35,6 @@ public:
 	fussgaenger_t(karte_t *welt, loadsave_t *file);
 	fussgaenger_t(karte_t *welt, koord3d pos);
 
-	virtual ~fussgaenger_t() {}
-
 	const char *gib_name() const {return "Fussgaenger";}
 	enum ding_t::typ gib_typ() const {return fussgaenger;}
 

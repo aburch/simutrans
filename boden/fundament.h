@@ -17,7 +17,6 @@ class fundament_t : public grund_t
 public:
 	fundament_t(karte_t *welt, loadsave_t *file);
 	fundament_t(karte_t *welt, koord3d pos,hang_t::typ hang);
-	virtual ~fundament_t() {}
 
 	/**
 	* Das Fundament hat immer das gleiche Bild.

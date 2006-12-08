@@ -77,7 +77,6 @@ protected:
 public:
     pumpe_t(karte_t *welt, loadsave_t *file);
     pumpe_t(karte_t *welt, koord3d pos, spieler_t *sp);
-    ~pumpe_t();
 
     void setze_fabrik(fabrik_t* fab) { this->fab = fab; }
 

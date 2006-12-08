@@ -92,7 +92,6 @@ public:
      * @author Hj. Malthaner
      */
     map_frame_t(const karte_t *welt);
-    ~map_frame_t() {}
 
     /**
      * Events werden hiermit an die GUI-Komponenten

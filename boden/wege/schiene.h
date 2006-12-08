@@ -44,8 +44,6 @@ public:
 
 	schiene_t(karte_t *welt);
 
-	virtual ~schiene_t() {}
-
 	virtual waytype_t gib_waytype() const {return track_wt;}
 
 	/**

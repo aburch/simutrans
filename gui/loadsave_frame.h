@@ -45,8 +45,6 @@ public:
 	virtual const char * gib_hilfe_datei() const;
 
 	loadsave_frame_t(karte_t *welt, bool do_load);
-
-	virtual ~loadsave_frame_t() {}
 };
 
 #endif

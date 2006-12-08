@@ -49,8 +49,6 @@ public:
 	return slist_tpl <node_t>::node_size();
     }
 
-    ~hashtable_tpl() { }
-
     void clear()
     {
 	for(int i=0; i<STHT_BAGSIZE; i++) {

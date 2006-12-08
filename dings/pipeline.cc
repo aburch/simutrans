@@ -276,9 +276,6 @@ pumpe_t::pumpe_t(karte_t *welt, koord3d pos, spieler_t *sp) : leitung_t(welt , p
     setze_bild(0, skinverwaltung_t::pumpe->gib_bild_nr(0));
 }
 
-pumpe_t::~pumpe_t()
-{
-}
 
 int
 pumpe_t::einfuellen(int )

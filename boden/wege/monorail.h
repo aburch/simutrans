@@ -35,8 +35,6 @@ public:
 	 */
 	monorail_t(karte_t *welt, loadsave_t *file);
 
-	virtual ~monorail_t() {}
-
 	virtual waytype_t gib_waytype() const {return monorail_wt;}
 
 	/**

@@ -31,9 +31,6 @@ public:
 
 	gui_chart_t();
 
-	~gui_chart_t() {}
-
-
 	/*
 	 * paint chart
 	 * @author hsiegeln

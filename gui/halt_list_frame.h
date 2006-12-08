@@ -102,8 +102,6 @@ public:
      */
     halt_list_frame_t(spieler_t *sp);
 
-    ~halt_list_frame_t();
-
     /**
      * Events werden hiermit an die GUI-Komponenten
      * gemeldet

@@ -14,7 +14,6 @@ class wasser_t : public grund_t
 public:
 	wasser_t(karte_t *welt, loadsave_t *file);
 	wasser_t(karte_t *welt, koord pos);
-	virtual ~wasser_t() {}
 
 	inline bool ist_wasser() const { return true; }
 

@@ -114,13 +114,6 @@ public:
 	stadtauto_t(karte_t *welt, loadsave_t *file);
 	stadtauto_t(karte_t *welt, koord3d pos, koord target);
 
-	/**
-	 * Ensures that this object is removed correctly from the list
-	 * of sync steppable things!
-	 * @author Hj. Malthaner
-	 */
-	virtual ~stadtauto_t() {}
-
 	bool sync_step(long delta_t);
 
 	void hop();

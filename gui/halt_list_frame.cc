@@ -286,11 +286,6 @@ halt_list_frame_t::halt_list_frame_t(spieler_t *sp) :
 }
 
 
-halt_list_frame_t::~halt_list_frame_t()
-{
-}
-
-
 /**
 * This function refreshs the station-list
 * @author Markus Weber/Volker Meyer

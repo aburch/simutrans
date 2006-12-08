@@ -35,8 +35,6 @@ public:
 
 	runway_t(karte_t *welt);
 
-	virtual ~runway_t() {}
-
 	/**
 	 * Calculates the image of this pice of runway
 	 */

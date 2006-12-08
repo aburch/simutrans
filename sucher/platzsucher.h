@@ -71,7 +71,6 @@ class pos_liste_wh_t : public pos_liste_t {
 	sint16 dy;
 public:
 	pos_liste_wh_t(sint16 max_radius, sint16 b, sint16 h);
-	~pos_liste_wh_t() {}
 
 	void neu_starten(sint16 b, sint16 h);
 	void neu_starten() { pos_liste_t::neu_starten(); }

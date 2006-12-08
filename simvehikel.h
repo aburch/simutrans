@@ -121,8 +121,6 @@ public:
 	vehikel_basis_t(karte_t *welt);
 
 	vehikel_basis_t(karte_t *welt, koord3d pos);
-
-	virtual ~vehikel_basis_t() {}
 };
 
 
@@ -521,7 +519,6 @@ public:
 	// all handled by waggon_t
 	monorail_waggon_t(karte_t *welt, loadsave_t *file) : waggon_t(welt, file) {}
 	monorail_waggon_t(karte_t *welt, koord3d pos, const vehikel_besch_t *besch, spieler_t *sp, convoi_t *cnv) : waggon_t(welt, pos, besch, sp, cnv ) {}
-	~monorail_waggon_t() {}
 
 	enum ding_t::typ gib_typ() const { return monorailwaggon; }
 

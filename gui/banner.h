@@ -31,8 +31,6 @@ private:
 public:
 		banner_t();
 
-    ~banner_t() {}
-
 	/**
 	* Fenstertitel
 	* @author Hj. Malthaner

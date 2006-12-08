@@ -29,8 +29,6 @@ public:
     boden_t(karte_t *welt, loadsave_t *file);
     boden_t(karte_t *welt, koord3d pos, hang_t::typ slope);
 
-    virtual ~boden_t() {}
-
     inline bool ist_natur() const { return !hat_wege(); }
 
     /**
