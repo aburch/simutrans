@@ -102,7 +102,6 @@ public:
 class pumpe_t : public leitung_t, public sync_steppable
 {
 private:
-	bool power_there;
 	fabrik_t *fab;
 
 
