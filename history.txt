@@ -7,6 +7,7 @@ Known bugs: (hard to fix)
 	FIX: idle timer has eaten up all time doing additional frames
 	FIX: issue with transformers
 	FIX: crash in depot
+	FIX: off-by-one error which can lead to non-unique city names
 
 
 Release of 99.05
