@@ -11,11 +11,11 @@
 #define gui_werkzeug_parameter_waehler_h
 
 #include "../ifc/gui_fenster.h"
+#include "../tpl/minivec_tpl.h"
 #include "../utils/cstring_t.h"
 
 class spieler_t;
 class karte_t;
-template <class T> class minivec_tpl;
 
 
 /**
@@ -62,8 +62,7 @@ private:
 	* The tool definitions
 	* @author Hj. Malthaner
 	*/
-	minivec_tpl <struct werkzeug_t> * tools;
-
+	minivec_tpl<struct werkzeug_t> tools;
 
 	/**
 	* window width in toolboxes
@@ -89,8 +88,6 @@ private:
 
 public:
     werkzeug_parameter_waehler_t(karte_t *welt, const char * titel);
-
-    ~werkzeug_parameter_waehler_t();
 
     /**
      * Add a new tool with values and tooltip text.

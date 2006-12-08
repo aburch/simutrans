@@ -19,30 +19,17 @@
 #include "../simwerkz.h"
 #include "../besch/skin_besch.h"
 #include "../besch/sound_besch.h"
-
-#include "../tpl/minivec_tpl.h"
-
 #include "werkzeug_parameter_waehler.h"
 
 
-werkzeug_parameter_waehler_t::werkzeug_parameter_waehler_t(karte_t *welt,
-							   const char *titel)
-
+werkzeug_parameter_waehler_t::werkzeug_parameter_waehler_t(karte_t* welt, const char* titel) :
+	tools(32)
 {
     this->welt = welt;
     this->titel  = titel;
     this->hilfe_datei = NULL;
-
-    tools = new minivec_tpl <struct werkzeug_t> (32);
     dirty = true;
 }
-
-
-werkzeug_parameter_waehler_t::~werkzeug_parameter_waehler_t()
-{
-  delete tools;
-}
-
 
 
 /**
@@ -74,10 +61,10 @@ void werkzeug_parameter_waehler_t::add_tool(int (* wz1)(spieler_t *, karte_t *, 
 	tooltip.replace_character( 10, 32 );
 	tool.tooltip = tooltip;
 
-	tools->append(tool);
+	tools.append(tool);
 
 	int ww = (display_get_width()/32)-2;
-	tool_icon_width = tools->get_count();
+	tool_icon_width = tools.get_count();
 DBG_DEBUG("werkzeug_parameter_waehler_t::add_tool()","ww=%i, tool_icon_width=%i",ww,tool_icon_width);
 	if(ww<tool_icon_width) {
 		int rows = (tool_icon_width/ww)+1;
@@ -86,7 +73,7 @@ DBG_DEBUG("werkzeug_parameter_waehler_t::add_tool()","ww=%i, rows=%i",ww,rows);
 		tool_icon_width = (tool_icon_width+rows-1)/rows;
 	}
 	dirty = true;
-	DBG_DEBUG("werkzeug_parameter_waehler_t::add_tool()","at position %i (width %i)", tools->get_count(), tool_icon_width );
+	DBG_DEBUG("werkzeug_parameter_waehler_t::add_tool()", "at position %i (width %i)", tools.get_count(), tool_icon_width);
 }
 
 
@@ -120,9 +107,9 @@ void werkzeug_parameter_waehler_t::add_param_tool(int (* wz1)(spieler_t *, karte
 	tooltip.replace_character( 10, 32 );
 	tool.tooltip = tooltip;
 
-	tools->append(tool);
+	tools.append(tool);
 	int ww = (display_get_width()/32)-2;
-	tool_icon_width = tools->get_count();
+	tool_icon_width = tools.get_count();
 //DBG_DEBUG("werkzeug_parameter_waehler_t::add_param_tool()","ww=%i, tool_icon_width=%i",ww,tool_icon_width);
 	if(ww<tool_icon_width) {
 		int rows = (tool_icon_width/ww)+1;
@@ -130,7 +117,7 @@ void werkzeug_parameter_waehler_t::add_param_tool(int (* wz1)(spieler_t *, karte
 		tool_icon_width = (tool_icon_width+rows-1)/rows;
 	}
 	dirty = true;
-//DBG_DEBUG("werkzeug_parameter_waehler_t::add_param_tool()","at position %i (width %i)", tools->get_count(), tool_icon_width );
+//	DBG_DEBUG("werkzeug_parameter_waehler_t::add_param_tool()", "at position %i (width %i)", tools.get_count(), tool_icon_width);
 }
 
 
@@ -153,7 +140,7 @@ const char *werkzeug_parameter_waehler_t::gib_name() const
 koord werkzeug_parameter_waehler_t::gib_fenstergroesse() const
 {
 	if(tool_icon_width>0) {
-		return koord(tool_icon_width*32, (tools->get_count()/tool_icon_width)*32+16+32);
+		return koord(tool_icon_width * 32, tools.get_count() / tool_icon_width * 32 + 16 + 32);
 	}
 	else {
 		return koord(32, 16);
@@ -176,7 +163,7 @@ bool werkzeug_parameter_waehler_t::getroffen(int x, int y)
 	int dx = x>>5;
 	int	dy = (y-16)>>5;
 	if(x>=0 && dx<tool_icon_width  &&  y>=0  &&  (y<16  ||  dy<tool_icon_width)) {
-		return (y<16)  ||  (dx+(tool_icon_width*dy) < (int)tools->get_count());
+		return y < 16 || dx + tool_icon_width * dy < (int)tools.get_count();
 	}
 	return false;
 }
@@ -192,8 +179,8 @@ void werkzeug_parameter_waehler_t::infowin_event(const event_t *ev)
 		if(x>=0 && x<tool_icon_width  &&  y>=0) {
 			const int wz_idx = x+(tool_icon_width*y);
 
-			if(wz_idx<(int)tools->get_count()) {
-				const struct werkzeug_t& tool = (*tools)[wz_idx];
+			if (wz_idx < (int)tools.get_count()) {
+				const struct werkzeug_t& tool = tools[wz_idx];
 
 				if(tool.has_param) {
 					welt->setze_maus_funktion(tool.wzwp,  tool.cursor, tool.versatz, tool.param, tool.sound_ok, tool.sound_ko);
@@ -215,8 +202,8 @@ void werkzeug_parameter_waehler_t::infowin_event(const event_t *ev)
 
 void werkzeug_parameter_waehler_t::zeichnen(koord pos, koord)
 {
-	for(unsigned int i=0; i<tools->get_count(); i++) {
-		const int icon = (*tools)[i].icon;
+	for (uint i = 0; i < tools.get_count(); i++) {
+		const int icon = tools[i].icon;
 
 		const koord draw_pos=pos+koord((i%tool_icon_width)*32,16+(i/tool_icon_width)*32);
 		if(icon == -1) {
@@ -235,7 +222,7 @@ void werkzeug_parameter_waehler_t::zeichnen(koord pos, koord)
 			display_fillbox_wh(draw_pos.x+31, draw_pos.y, 1, 32, MN_GREY0, dirty);
 		}
 		else {
-			display_color_img((*tools)[i].icon, draw_pos.x, draw_pos.y, 0, false, dirty);
+			display_color_img(icon, draw_pos.x, draw_pos.y, 0, false, dirty);
 		}
 	}
 
@@ -244,8 +231,8 @@ void werkzeug_parameter_waehler_t::zeichnen(koord pos, koord)
 	const int ydiff = (gib_maus_y() - pos.y - 16) >> 5;
 	if(xdiff>=0  &&  xdiff<tool_icon_width  &&  ydiff>=0) {
 		const int tipnr = xdiff+(tool_icon_width*ydiff);
-		if(tipnr<(int)tools->get_count()) {
-			win_set_tooltip(gib_maus_x() + 16, gib_maus_y() - 16, (*tools)[tipnr].tooltip);
+		if (tipnr < (int)tools.get_count()) {
+			win_set_tooltip(gib_maus_x() + 16, gib_maus_y() - 16, tools[tipnr].tooltip);
 		}
 	}
 
