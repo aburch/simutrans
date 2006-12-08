@@ -648,7 +648,7 @@ public:
 
 	karte_t();
 
-	virtual ~karte_t();
+	~karte_t();
 
 	/**
 	 * Prueft, ob das Planquadrat an Koordinate (x,y)
