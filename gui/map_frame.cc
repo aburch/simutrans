@@ -68,10 +68,7 @@ const int map_frame_t::map_type_color[MAX_MAP_TYPE] =
   7, 11, 15, 132, 23, 27, 31, 35, 241, 7, 11, 71, 57, 81
 };
 
-/**
- * Konstruktor. Erzeugt alle notwendigen Subkomponenten.
- * @author Hj. Malthaner
- */
+
 map_frame_t::map_frame_t(const karte_t *welt) :
 	gui_frame_t("Reliefkarte"),
 	scrolly(reliefkarte_t::gib_karte()),

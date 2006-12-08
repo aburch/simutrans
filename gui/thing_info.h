@@ -39,16 +39,8 @@ protected:
     ding_t *ding;
 
 public:
-    /**
-     * Basic constructor.
-     * @author Hj. Malthaner
-     */
     ding_infowin_t(karte_t *welt, ding_t *ding);
 
-    /**
-     * destructor.
-     * @author V. Meyer
-     */
     virtual ~ding_infowin_t() { ding->entferne_ding_info(); }
 
     /**

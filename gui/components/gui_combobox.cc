@@ -17,12 +17,6 @@
 #include "../../simwin.h"
 
 
-
-/**
- * Konstruktor
- *
- * @author Hj. Malthaner
- */
 gui_combobox_t::gui_combobox_t()
 {
 	bt_prev.setze_typ(button_t::arrowleft);
@@ -46,12 +40,6 @@ gui_combobox_t::gui_combobox_t()
 }
 
 
-
-/**
- * Destruktor
- *
- * @author Hj. Malthaner
- */
 gui_combobox_t::~gui_combobox_t()
 {
 	release_focus(this);

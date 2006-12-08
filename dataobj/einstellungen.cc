@@ -60,10 +60,6 @@ einstellungen_t::einstellungen_t() :
 }
 
 
-/**
- * Copy constructor, needed becuase of cstring
- * @author Hj. Malthaner
- */
 einstellungen_t::einstellungen_t(const einstellungen_t *other)
 {
 	groesse_x = other->groesse_x;

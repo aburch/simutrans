@@ -42,16 +42,8 @@ public:
 	*/
 	schiene_t(karte_t *welt, loadsave_t *file);
 
-	/**
-	* Basic constructor.
-	* @author Hj. Malthaner
-	*/
 	schiene_t(karte_t *welt);
 
-	/**
-	* Destruktor. Entfernt etwaige Debug-Meldungen vom Feld
-	* @author Hj. Malthaner
-	*/
 	virtual ~schiene_t() {}
 
 	virtual waytype_t gib_waytype() const {return track_wt;}

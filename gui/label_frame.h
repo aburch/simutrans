@@ -50,10 +50,6 @@ protected:
 	void goto_label(const char *name);
 
 public:
-	/**
-	 * Konstruktor.
-	 * @author V. Meyer
-	 */
 	label_frame_t(karte_t *welt, spieler_t *sp, koord pos);
 
 	~label_frame_t();

@@ -47,10 +47,6 @@ public:
 	enum linetype { line = 0, truckline = 1, trainline = 2, shipline = 3, airline = 4, monorailline=5, tramline=6};
 	static uint8 convoi_to_line_catgory[MAX_CONVOI_COST];
 
-	/*
-	 * constructor/destructor
-	 * @author hsiegeln
-	 */
 	simline_t(karte_t * welt, simlinemgmt_t * simlinemgmt, fahrplan_t * fpl);
 	simline_t(karte_t* welt, loadsave_t* file);
 	~simline_t();

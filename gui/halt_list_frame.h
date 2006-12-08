@@ -102,11 +102,6 @@ public:
      */
     halt_list_frame_t(spieler_t *sp);
 
-
-    /**
-     * Destruktor.
-     * @author Hj. Malthaner
-     */
     ~halt_list_frame_t();
 
     /**

@@ -115,12 +115,6 @@ template <class T> class quickstone_tpl
     }
   }
 
-
-  /**
-   * Copy constructor. Constructs a new quickstone from another one.
-   *
-   * @author Hj. Malthaner
-   */
   quickstone_tpl(const quickstone_tpl& r) : entry(r.entry)
   {
   }

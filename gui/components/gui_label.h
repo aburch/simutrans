@@ -47,24 +47,8 @@ private:
     const char * text;	// only for direct acess of non-translateable things. Do not use!
 
 public:
-
-    /**
-     * Konstruktor
-     * @author Hansjörg Malthaner
-     */
     gui_label_t(const char *text);
-
-
-    /**
-     * Konstruktor
-     * @author Hansjörg Malthaner
-     */
     gui_label_t(const char *text, int color);
-
-    /**
-     * Konstruktor
-     * @author Volker Meyer
-     */
     gui_label_t(const char *text, int color, align_t align);
 
 

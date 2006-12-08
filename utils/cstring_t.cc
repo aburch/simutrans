@@ -99,7 +99,6 @@ void cstring_t::set_at(int idx, char x) const
 }
 
 
-// copy operator (act like constructor)
 cstring_t & cstring_t::operator= (const cstring_t &other)
 {
 	if(buf!=NULL) {

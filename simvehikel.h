@@ -267,10 +267,6 @@ public:
 		const vehikel_besch_t *besch,
 		spieler_t *sp);
 
-	/**
-	* Destructor. Frees aggregated members.
-	* @author Hj. Malthaner
-	*/
 	~vehikel_t();
 
 	/**

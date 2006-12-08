@@ -35,10 +35,6 @@ private:
 	bool list_dirty;
 
 public:
-	/**
-	* Konstruktor
-	* @author hsiegeln
-	*/
 	gui_container_t();
 
 	// needed for WIN_OPEN events

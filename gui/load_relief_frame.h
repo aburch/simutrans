@@ -43,10 +43,6 @@ public:
 	 */
 	virtual const char * gib_hilfe_datei() const;
 
-	/**
-	 * Konstruktor.
-	 * @author Hj. Malthaner
-	 */
 	load_relief_frame_t(einstellungen_t* sets);
 
 	virtual ~load_relief_frame_t() {}

@@ -28,10 +28,6 @@ const char *sound_frame_t::make_song_name()
 }
 
 
-/**
- * Konstruktor. Erzeugt alle notwendigen Subkomponenten.
- * @author Hj. Malthaner
- */
 sound_frame_t::sound_frame_t()
   : gui_frame_t("Sound settings"),
     digi(scrollbar_t::horizontal),

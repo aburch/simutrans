@@ -43,8 +43,7 @@ fahrplan_t::fahrplan_t() : eintrag(0)
 	init();
 }
 
-// copy constructor
-// @author hsiegeln
+
 fahrplan_t::fahrplan_t(fahrplan_t * old) : eintrag(0)
 {
 	if (old == NULL) {

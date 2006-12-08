@@ -34,10 +34,6 @@ private:
     bool vertical;
 
 public:
-    /**
-     * Konstruktor
-     *
-     */
     gui_speedbar_t() { base = 100; vertical = false; }
 
     void add_color_value(const sint32 *value, int color);

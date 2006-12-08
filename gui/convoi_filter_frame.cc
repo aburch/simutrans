@@ -69,10 +69,7 @@ convoi_frame_t::filter_flag_t convoi_filter_frame_t::filter_buttons_types[FILTER
     convoi_frame_t::ware_filter
 };
 
-/**
- * Konstruktor. Erzeugt alle notwendigen Subkomponenten.
- * @author V. Meyer
- */
+
 convoi_filter_frame_t::convoi_filter_frame_t(spieler_t *sp, convoi_frame_t *main_frame) :
     gui_frame_t("clf_title", sp),
     ware_scrolly(&ware_cont)

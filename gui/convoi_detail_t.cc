@@ -35,10 +35,6 @@
 #include "components/list_button.h"
 
 
-/**
- * Konstruktor.
- * @author Hj. Malthaner
- */
 convoi_detail_t::convoi_detail_t(convoihandle_t cnv)
 : gui_frame_t(cnv->gib_name(), cnv->gib_besitzer()),
   scrolly(&veh_info),

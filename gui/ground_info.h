@@ -35,16 +35,7 @@ protected:
 	static cbuffer_t gr_info;
 
 public:
-    /**
-     * Basic constructor.
-     * @author Hj. Malthaner
-     */
     grund_info_t(karte_t *welt, grund_t *gr);
-
-    /**
-     * destructor.
-     * @author V. Meyer
-     */
     ~grund_info_t() { gr->entferne_grund_info(); }
 
 	void zeichnen(koord pos, koord gr);

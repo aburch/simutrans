@@ -77,10 +77,6 @@ private:
 	void init(karte_t *welt);
 
 protected:
-	/**
-	* Basiskonstruktor
-	* @author Hj. Malthaner
-	*/
 	ding_t(karte_t *welt);
 
 	/**

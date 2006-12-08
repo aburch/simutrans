@@ -80,12 +80,6 @@ public:
 
     }
 
-
-    /**
-     * The destructor. Just calls destroy()
-     *
-     * @author Hj. Malthaner
-     */
     ~prioqueue_tpl()
     {
         clear();

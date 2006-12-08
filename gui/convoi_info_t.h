@@ -71,10 +71,6 @@ private:
 	static sort_mode_t global_sortby;
 
 public:
-    /**
-     * Konstruktor.
-     * @author Hj. Malthaner
-     */
     convoi_info_t(convoihandle_t cnv);
 
     /**

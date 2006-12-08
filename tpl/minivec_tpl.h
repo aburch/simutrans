@@ -60,11 +60,6 @@ public:
 		count = 0;
 	}
 
-
-    /**
-     * Destructor.
-     * @author Hj. Malthaner
-     */
 	~minivec_tpl()
 	{
 		if(data) {

@@ -29,18 +29,8 @@ public:
 	 */
 	void set_background(int color);
 
-
-	/**
-	 * constructor
-	 * @author hsiegeln
-	 */
 	gui_chart_t();
 
-
-	/*
-	 * destructor
-	 * @author hsiegeln
-	 */
 	~gui_chart_t() {}
 
 

@@ -28,11 +28,6 @@
 #include "../utils/simstring.h"
 
 
-
-/**
- * Konstruktor.
- * @author Hj. Malthaner
- */
 savegame_frame_t::savegame_frame_t(const char *suffix) :
 	gui_frame_t("Load/Save") ,
 	fnlabel("Filename"),

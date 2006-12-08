@@ -86,12 +86,6 @@ static int calc_min_top_speed(const array_tpl<vehikel_t*>& fahr, int anz_vehikel
 }
 
 
-
-/**
- * Initialize all variables with default values.
- * Each constructor must call this method first!
- * @author Hj. Malthaner
- */
 void convoi_t::init(karte_t *wl, spieler_t *sp)
 {
 	welt = wl;

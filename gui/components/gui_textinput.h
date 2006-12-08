@@ -45,19 +45,8 @@ protected:
      long cursor_pos;
 
 public:
-    /**
-     * Konstruktor
-     *
-     * @author Hj. Malthaner
-     */
     gui_textinput_t();
 
-
-    /**
-     * Destruktor
-     *
-     * @author Hj. Malthaner
-     */
     ~gui_textinput_t();
 
     /**

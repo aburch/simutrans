@@ -27,10 +27,6 @@ class monorail_t : public schiene_t
 public:
 	static const weg_besch_t *default_monorail;
 
-	/**
-	 * Basic constructor.
-	 * @author prissi
-	 */
 	monorail_t(karte_t *welt) : schiene_t(welt) { setze_besch(default_monorail); }
 
 	/**
@@ -39,10 +35,6 @@ public:
 	 */
 	monorail_t(karte_t *welt, loadsave_t *file);
 
-	/**
-	 * Destruktor. Entfernt etwaige Debug-Meldungen vom Feld
-	 * @author prissi
-	 */
 	virtual ~monorail_t() {}
 
 	virtual waytype_t gib_waytype() const {return monorail_wt;}

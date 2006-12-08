@@ -75,10 +75,7 @@ int money_frame_t::get_money_colour(int type, int old)
 	return (sp->get_finance_history_year(old, type) < 0) ? MONEY_MINUS : MONEY_PLUS;
 }
 
-/**
- * Konstruktor. Erzeugt alle notwendigen Subkomponenten. Based on sound_frame_t()
- * @author Hj. Malthaner, Owen Rudge
- */
+
 money_frame_t::money_frame_t(spieler_t *sp)
   : gui_frame_t("Finanzen", sp),
     tylabel("This Year", COL_WHITE, gui_label_t::right),

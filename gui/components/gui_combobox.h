@@ -52,20 +52,8 @@ private:
     koord max_size;
 
 public:
-
-    /**
-     * Konstruktor
-     *
-     * @author Hj. Malthaner
-     */
     gui_combobox_t();
 
-
-    /**
-     * Destruktor
-     *
-     * @author Hj. Malthaner
-     */
     ~gui_combobox_t();
 
       /**

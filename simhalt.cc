@@ -307,8 +307,6 @@ void haltestelle_t::destroy_all()
 }
 
 
-// Konstruktoren
-
 haltestelle_t::haltestelle_t(karte_t *wl, loadsave_t *file)
 	: reservation(0), registered_lines(0)
 {

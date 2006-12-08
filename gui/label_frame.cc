@@ -27,10 +27,7 @@
 
 label_frame_t *label_frame_t::instance = NULL;
 
-/**
- * Konstruktor.
- * @author V. Meyer
- */
+
 label_frame_t::label_frame_t(karte_t *welt, spieler_t *sp, koord pos) : gui_frame_t("Marker") , fnlabel("Filename")
 {
     int i=0;

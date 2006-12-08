@@ -21,13 +21,6 @@
 #include "../besch/skin_besch.h"
 
 
-
-/**
- * Konstruktor
- * @param name Fenstertitel
- * @param color Besitzerfarbe
- * @author Hj. Malthaner
- */
 gui_frame_t::gui_frame_t(const char *name, const spieler_t *sp)
 {
     this->name = name;

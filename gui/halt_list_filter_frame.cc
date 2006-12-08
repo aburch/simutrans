@@ -66,10 +66,7 @@ halt_list_frame_t::filter_flag_t halt_list_filter_frame_t::filter_buttons_types[
     halt_list_frame_t::ware_ab_filter
 };
 
-/**
- * Konstruktor. Erzeugt alle notwendigen Subkomponenten.
- * @author V. Meyer
- */
+
 halt_list_filter_frame_t::halt_list_filter_frame_t(spieler_t *sp, halt_list_frame_t *main_frame) :
     gui_frame_t("hlf_title", sp),
     ware_scrolly_ab(&ware_cont_ab),

@@ -1257,10 +1257,6 @@ vehikel_t::ist_entfernbar(const spieler_t *)
 }
 
 
-/**
- * Destructor. Frees aggregated members.
- * @author Hj. Malthaner
- */
 vehikel_t::~vehikel_t()
 {
 	// remove vehicle's marker from the reliefmap

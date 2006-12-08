@@ -331,11 +331,6 @@ public:
      */
     spieler_t(karte_t *welt, uint8 color, uint8 player_nr );
 
-
-    /**
-     * Destruktor
-     * @author Hj. Malthaner
-     */
     ~spieler_t();
 
 

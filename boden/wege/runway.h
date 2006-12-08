@@ -33,18 +33,8 @@ public:
 	 */
 	runway_t(karte_t *welt, loadsave_t *file);
 
-	/**
-	 * Basic constructor.
-	 *
-	 * @author Hj. Malthaner
-	 */
 	runway_t(karte_t *welt);
 
-	/**
-	 * Destruktor. Entfernt etwaige Debug-Meldungen vom Feld
-	 *
-	 * @author Hj. Malthaner
-	 */
 	virtual ~runway_t() {}
 
 	/**

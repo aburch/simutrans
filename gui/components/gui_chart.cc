@@ -27,11 +27,6 @@ void gui_chart_t::set_background(int i)
 }
 
 
-
-/**
- * constructor
- * @author hsiegeln
- */
 gui_chart_t::gui_chart_t() : gui_komponente_t()
 {
 	// no toolstips at the start

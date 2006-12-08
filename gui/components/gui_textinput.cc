@@ -19,11 +19,7 @@
 
 #include "../../dataobj/translator.h"
 
-/**
- * Konstruktor
- *
- * @author Hj. Malthaner
- */
+
 gui_textinput_t::gui_textinput_t()
 {
     max = 0;
@@ -32,11 +28,7 @@ gui_textinput_t::gui_textinput_t()
     set_read_only(false);
 }
 
-/**
- * Destruktor
- *
- * @author Hj. Malthaner
- */
+
 gui_textinput_t::~gui_textinput_t()
 {
 	release_focus(this);

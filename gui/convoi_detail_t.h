@@ -79,10 +79,6 @@ private:
 	button_t	sale_button;
 
 public:
-    /**
-     * Konstruktor.
-     * @author Hj. Malthaner
-     */
     convoi_detail_t(convoihandle_t cnv);
 
     /**

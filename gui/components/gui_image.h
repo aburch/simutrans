@@ -23,16 +23,8 @@ private:
 	image_id id;
 
 public:
-    /**
-     * Konstruktor
-     * @author Hansjörg Malthaner
-     */
     gui_image_t(image_id i=IMG_LEER) { id = i; }
 
-    /**
-     * set the text without translation
-     * @author Hansjörg Malthaner
-     */
     void set_image(image_id i) { id = i; }
 
     /**

@@ -20,10 +20,6 @@
 #include "../../utils/simstring.h"
 
 
-/**
- * Konstruktor
- * @author Hansjörg Malthaner
- */
 gui_label_t::gui_label_t(const char *text)
 {
     setze_text( text );
@@ -32,10 +28,6 @@ gui_label_t::gui_label_t(const char *text)
 }
 
 
-/**
- * Konstruktor
- * @author Hansjörg Malthaner
- */
 gui_label_t::gui_label_t(const char *text, int color)
 {
     setze_text( text );
@@ -43,10 +35,7 @@ gui_label_t::gui_label_t(const char *text, int color)
     this->align = left;
 }
 
-/**
- * Konstruktor
- * @author Volker Meyer
- */
+
 gui_label_t::gui_label_t(const char *text, int color, align_t align)
 {
     setze_text( text );

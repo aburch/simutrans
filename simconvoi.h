@@ -391,16 +391,8 @@ public:
 	*/
 	convoi_t(karte_t *welt, loadsave_t *file);
 
-	/**
-	* Basic constructor.
-	* @author Hj. Malthaner
-	*/
 	convoi_t(karte_t *welt, spieler_t *sp);
 
-	/**
-	* Destructor.
-	* @author Hj. Malthaner
-	*/
 	virtual ~convoi_t();
 
 	void laden_abschliessen();

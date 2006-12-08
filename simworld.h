@@ -646,16 +646,8 @@ public:
 
 	void init_felder();
 
-	/**
-	 * Standard Konstruktor
-	 * @author Hj. Malthaner
-	 */
 	karte_t();
 
-	/**
-	 * Virtueller Destruktor damit der Compiler glücklich ist
-	 * @author Hj. Malthaner
-	 */
 	virtual ~karte_t();
 
 	/**

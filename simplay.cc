@@ -95,12 +95,6 @@ static fabrik_t *baue_start=NULL;
 static fabrik_t *baue_ziel=NULL;
 
 
-/**
- * Konstruktor
- * @param welt Die Welt (Karte) des Spiels
- * @param color Kennfarbe des Spielers
- * @author Hj. Malthaner
- */
 spieler_t::spieler_t(karte_t *wl, uint8 color, uint8 nr) :
 	simlinemgmt(wl,this),
 	last_built(0)
@@ -203,10 +197,6 @@ spieler_t::spieler_t(karte_t *wl, uint8 color, uint8 nr) :
 }
 
 
-/**
- * Destruktor
- * @author Hj. Malthaner
- */
 spieler_t::~spieler_t()
 {
 	// maybe free money frame

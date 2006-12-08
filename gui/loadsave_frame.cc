@@ -37,10 +37,7 @@ void loadsave_frame_t::del_action(const char *filename)
 #endif
 }
 
-/**
- * Konstruktor.
- * @author Hj. Malthaner
- */
+
 loadsave_frame_t::loadsave_frame_t(karte_t *welt, bool do_load) : savegame_frame_t(".sve")
 {
 	this->welt = welt;

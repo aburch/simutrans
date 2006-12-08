@@ -240,10 +240,7 @@ bool halt_list_frame_t::passes_filter(halthandle_t halt)
     return true;
 }
 
-/**
- * Konstruktor. Erzeugt alle notwendigen Subkomponenten.
- * @author Markus Weber
- */
+
 halt_list_frame_t::halt_list_frame_t(spieler_t *sp) :
     gui_frame_t("hl_title", sp),
     scrolly(&cont),
@@ -289,10 +286,6 @@ halt_list_frame_t::halt_list_frame_t(spieler_t *sp) :
 }
 
 
-/**
- * Destruktor.
- * @author Markus Weber
- */
 halt_list_frame_t::~halt_list_frame_t()
 {
 }

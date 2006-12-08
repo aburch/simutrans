@@ -75,11 +75,6 @@ public:
 		node_count = 0;
 	}
 
-  /**
-   * The destructor. Just calls clear()
-   *
-   * @author Hj. Malthaner
-   */
   ~slist_tpl()
   {
       clear();
