@@ -130,49 +130,49 @@ void way_writer_t::write_obj(FILE* outfp, obj_node_t& parent, tabfileobj_t& obj)
 		}
 		node.write_data_at(outfp, &number_seasons, 25, 1);
 		write_head(outfp, node, obj);
+
+		for (uint8 season = 0; season <= number_seasons ; season++) {
+			for (ribi = 0; ribi < 16; ribi++) {
+				char buf[40];
+
+				sprintf(buf, "image[%s][%d]", ribi_codes[ribi], season);
+				cstring_t str = obj.get(buf);
+				keys.append(str);
+			}
+			imagelist_writer_t::instance()->write_obj(outfp, node, keys);
+
+			keys.clear();
+			for (hang = 3; hang <= 12; hang += 3) {
+				char buf[40];
+
+				sprintf(buf, "imageup[%d][%d]", hang, season);
+				cstring_t str = obj.get(buf);
+				keys.append(str);
+			}
+			imagelist_writer_t::instance()->write_obj(outfp, node, keys);
+
+			keys.clear();
+			for (ribi = 3; ribi <= 12; ribi += 3) {
+				char buf[40];
+
+				sprintf(buf, "diagonal[%s][%d]", ribi_codes[ribi], season);
+				cstring_t str = obj.get(buf);
+				keys.append(str);
+			}
+			imagelist_writer_t::instance()->write_obj(outfp, node, keys);
+
+			keys.clear();
+			if(season == 0) {
+				slist_tpl<cstring_t> cursorkeys;
+
+				cursorkeys.append(cstring_t(obj.get("cursor")));
+				cursorkeys.append(cstring_t(obj.get("icon")));
+
+				cursorskin_writer_t::instance()->write_obj(outfp, node, obj, cursorkeys);
+			}
+		}
 	}
 
-	for (uint8 season = 0; season <= number_seasons ; season++) {
-		for (ribi = 0; ribi < 16; ribi++) {
-			char buf[40];
-
-			sprintf(buf, "image[%s][%d]", ribi_codes[ribi], season);
-			cstring_t str = obj.get(buf);
-			keys.append(str);
-		}
-		imagelist_writer_t::instance()->write_obj(outfp, node, keys);
-
-		keys.clear();
-		for (hang = 3; hang <= 12; hang += 3) {
-			char buf[40];
-
-			sprintf(buf, "imageup[%d][%d]", hang, season);
-			cstring_t str = obj.get(buf);
-			keys.append(str);
-		}
-		imagelist_writer_t::instance()->write_obj(outfp, node, keys);
-
-		keys.clear();
-		for (ribi = 3; ribi <= 12; ribi += 3) {
-			char buf[40];
-
-			sprintf(buf, "diagonal[%s][%d]", ribi_codes[ribi], season);
-			cstring_t str = obj.get(buf);
-			keys.append(str);
-		}
-		imagelist_writer_t::instance()->write_obj(outfp, node, keys);
-		keys.clear();
-		if(season == 0) {
-			slist_tpl<cstring_t> cursorkeys;
-
-			cursorkeys.append(cstring_t(obj.get("cursor")));
-			cursorkeys.append(cstring_t(obj.get("icon")));
-
-			cursorskin_writer_t::instance()->write_obj(outfp, node, obj, cursorkeys);
-		}
-	}
-
-	// node.write_data(fp, &besch);
 	node.write(outfp);
 }
 

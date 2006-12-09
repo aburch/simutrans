@@ -11,6 +11,8 @@ Known bugs: (hard to fix)
 	FIX: DWITH in bdf-fonts was not used
 	FIX: check for allowing articifial slopes was brocken
 	FIX: loading signals
+	FIX: loading bridges
+	FIX: display in depot for left hand driving
 
 
 Release of 99.05

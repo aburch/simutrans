@@ -277,6 +277,11 @@ void depot_frame_t::layout(koord *gr)
 	grid.y = depot->get_y_grid() * get_tile_raster_width() / 64 + 6;
 	placement.x = depot->get_x_placement() * get_tile_raster_width() / 64 + 2;
 	placement.y = depot->get_y_placement() * get_tile_raster_width() / 64 + 2;
+	if(depot->get_wegtyp()==road_wt  &&  umgebung_t::drive_on_left) {
+		// correct for dive on left
+		placement.x -= (12*get_tile_raster_width())/64;
+		placement.y -= (6*get_tile_raster_width())/64;
+	}
 	grid_dx = depot->get_x_grid() * get_tile_raster_width() / 64 / 2;
 	placement_dx = depot->get_x_grid() * get_tile_raster_width() / 64 / 4;
 
@@ -1247,18 +1252,7 @@ void
 depot_frame_t::draw_vehicle_info_text(koord pos)
 {
 	static char buf[1024];
-
-	switch(depot->vehicle_count()) {
-		case 0:
-			tstrncpy(buf, translator::translate("Keine Einzelfahrzeuge im Depot"), 128);
-			break;
-		case 1:
-			tstrncpy(buf, translator::translate("1 Einzelfahrzeug im Depot"), 128);
-			break;
-		default:
-			sprintf(buf, translator::translate("%d Einzelfahrzeuge im Depot"), depot->vehicle_count());
-			break;
-	}
+	const char *c;
 
 	gui_image_list_t *lst = dynamic_cast<gui_image_list_t *>(tabs.get_active_tab_index() == 0 ? &pas :(tabs.get_active_tab_index() == 1 ? &loks : &waggons));
 	int x = gib_maus_x();
@@ -1284,10 +1278,21 @@ depot_frame_t::draw_vehicle_info_text(koord pos)
 		}
 	}
 
+	switch(depot->vehicle_count()) {
+		case 0:
+			c = translator::translate("Keine Einzelfahrzeuge im Depot");
+			break;
+		case 1:
+			c = translator::translate("1 Einzelfahrzeug im Depot");
+			break;
+		default:
+			sprintf(buf, translator::translate("%d Einzelfahrzeuge im Depot"), depot->vehicle_count());
+			c = buf;
+			break;
+	}
+	display_proportional( pos.x + 4, pos.y + tabs.gib_pos().y + tabs.gib_groesse().y + 16 + 4, c, ALIGN_LEFT, COL_BLACK, true );
 
 	if(veh_type) {
-		strcat(buf, "\n\n");
-
 		// lok oder waggon ?
 		if(veh_type->gib_leistung() > 0) {
 			//lok
@@ -1300,7 +1305,7 @@ depot_frame_t::draw_vehicle_info_text(koord pos)
 			translator::translate(veh_type->gib_name()),
 			translator::translate(engine_type_names[veh_type->get_engine_type()+1]));
 
-			sprintf(buf + strlen(buf),
+			int n = sprintf(buf,
 				translator::translate("LOCO_INFO"),
 				name,
 				veh_type->gib_preis()/100,
@@ -1311,7 +1316,7 @@ depot_frame_t::draw_vehicle_info_text(koord pos)
 				);
 
 			if(zuladung>0) {
-				sprintf(buf + strlen(buf),
+				sprintf(buf + n,
 					translator::translate("LOCO_CAP"),
 					zuladung,
 					translator::translate(veh_type->gib_ware()->gib_mass()),
@@ -1322,7 +1327,7 @@ depot_frame_t::draw_vehicle_info_text(koord pos)
 		}
 		else {
 			// waggon
-			sprintf(buf + strlen(buf),
+			sprintf(buf,
 				translator::translate("WAGGON_INFO"),
 				translator::translate(veh_type->gib_name()),
 				veh_type->gib_preis()/100,
@@ -1336,11 +1341,9 @@ depot_frame_t::draw_vehicle_info_text(koord pos)
 				veh_type->gib_geschw()
 				);
 		}
-	}
-	display_multiline_text( pos.x + 4, pos.y + tabs.gib_pos().y + tabs.gib_groesse().y + 20+4, buf,  COL_BLACK);
+		display_multiline_text( pos.x + 4, pos.y + tabs.gib_pos().y + tabs.gib_groesse().y + 31 + LINESPACE*1 + 4, buf,  COL_BLACK);
 
-	// column 2
-	if(veh_type) {
+		// column 2
 		int n = sprintf(buf, "%s %s %04d\n",
 			translator::translate("Intro. date:"),
 			translator::translate(month_names[veh_type->get_intro_year_month()%12]),
@@ -1365,6 +1368,6 @@ depot_frame_t::draw_vehicle_info_text(koord pos)
 			sprintf(buf + strlen(buf), "%s %d Cr", translator::translate("Restwert:"), 	value);
 		}
 
-		display_multiline_text( pos.x + 200, pos.y + tabs.gib_pos().y + tabs.gib_groesse().y + 31 + LINESPACE*2 +4, buf, COL_BLACK);
+		display_multiline_text( pos.x + 200, pos.y + tabs.gib_pos().y + tabs.gib_groesse().y + 31 + LINESPACE*2 + 4, buf, COL_BLACK);
 	}
 }

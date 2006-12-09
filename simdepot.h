@@ -31,39 +31,39 @@ class vehikel_besch_t;
 class depot_t : public gebaeude_t
 {
 private:
-    /**
-     * Anzeigefenster für Depotmanagement
-     * @author Hj. Malthaner
-     */
-    depot_frame_t *depot_info;
+	/**
+	 * Anzeigefenster für Depotmanagement
+	 * @author Hj. Malthaner
+	 */
+	depot_frame_t *depot_info;
 
 protected:
-    /**
-     * Reworked depot data!
-     *
-     * It can now contain any number of vehicles bough by the user (as before).
-     * And it can held any number of convois (before only one).
-     * It is possible to have 0 convois in a depot, but an empty one shall be
-     * automatically created, when necessary.
-     * Convois are numbered 0...(n-1).
-     * Vehicles are accessed by type.
-     *
-     * @author Volker Meyer
-     * @date  30.05.2003
-     */
-    slist_tpl<vehikel_t *> vehicles;
-    slist_tpl<convoihandle_t> convois;
+	/**
+	 * Reworked depot data!
+	 *
+	 * It can now contain any number of vehicles bough by the user (as before).
+	 * And it can held any number of convois (before only one).
+	 * It is possible to have 0 convois in a depot, but an empty one shall be
+	 * automatically created, when necessary.
+	 * Convois are numbered 0...(n-1).
+	 * Vehicles are accessed by type.
+	 *
+	 * @author Volker Meyer
+	 * @date  30.05.2003
+	 */
+	slist_tpl<vehikel_t *> vehicles;
+	slist_tpl<convoihandle_t> convois;
 
 	void rdwr_vehikel(slist_tpl<vehikel_t*> &list, loadsave_t *file);
 
-    /**
-     * this list contains the lines matching the depot type
-     * train depots, for example, will only see trainlines
-     * @author hsiegeln
-     */
-     slist_tpl<linehandle_t> lines;
+	/**
+	* this list contains the lines matching the depot type
+	* train depots, for example, will only see trainlines
+	* @author hsiegeln
+	*/
+	slist_tpl<linehandle_t> lines;
 
-    virtual bool can_convoi_start(int icnv) const;
+	virtual bool can_convoi_start(int icnv) const;
 
 	virtual simline_t::linetype get_line_type() = 0;
 
