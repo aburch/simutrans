@@ -512,7 +512,7 @@ void haltestelle_t::reroute_goods()
 		}
 
 		while( waren_kill_queue.count() ) {
-			ware_t w = waren_kill_queue.remove_first();
+			const ware_t& w = waren_kill_queue.remove_first();
 DBG_MESSAGE("haltestelle_t::reroute_goods()","removing %i %s",w.menge,w.gib_name() );
 			wliste->remove(w);
 		}
@@ -691,8 +691,7 @@ void haltestelle_t::rebuild_destinations()
 }
 
 
-void
-haltestelle_t::liefere_an_fabrik(const ware_t ware)
+void haltestelle_t::liefere_an_fabrik(const ware_t& ware)
 {
 	slist_iterator_tpl<fabrik_t *> fab_iter(fab_list);
 

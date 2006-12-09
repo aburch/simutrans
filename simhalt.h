@@ -271,7 +271,7 @@ private:
      * liefert wartende ware an eine Fabrik
      * @author Hj. Malthaner
      */
-    void liefere_an_fabrik(ware_t ware);
+    void liefere_an_fabrik(const ware_t& ware);
 
 
     haltestelle_t(karte_t *welt, loadsave_t *file);

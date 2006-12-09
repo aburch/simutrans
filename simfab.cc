@@ -813,7 +813,7 @@ void fabrik_t::verteile_waren(const uint32 produkt)
 
 			while(iter.next() && ware_iter.next()) {
 				halthandle_t halt = iter.get_current();
-				ware_t ware       = ware_iter.get_current();
+				const ware_t& ware = ware_iter.get_current();
 
 				const int amount = halt->gib_ware_fuer_ziel(ware.gib_typ(),ware.gib_ziel());
 

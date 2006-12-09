@@ -1047,7 +1047,7 @@ DBG_DEBUG("do_passenger_ki()","calling message_t()");
 					slist_iterator_tpl<ware_t> iter (halt->gib_warenliste(warenbauer_t::passagiere));
 					// now we check if there are many many people waiting ...
 					while(iter.next()) {
-						ware_t ware = iter.get_current();
+						const ware_t& ware = iter.get_current();
 						// since a single stop do not hold more than 128 people
 						if(ware.menge>129) {
 							// we want the fastest we can get
@@ -1970,7 +1970,7 @@ DBG_MESSAGE("spieler_t::suche_transport_quelle","Search other %i supplier for: %
 			const int waren_anzahl = ausgang.get_count();
 			// for all products
 			for(int ware_nr=0;  ware_nr<waren_anzahl ;  ware_nr++  ) {
-				const ware_t ware = ausgang[ware_nr];
+				const ware_t& ware = ausgang[ware_nr];
 				int dieser_gewinn = guess_gewinn_transport_quelle_ziel( start_neu, &ware, ware_nr, zfab );
 				// more income on this line
 				if(  dieser_gewinn>gewinn  ) {
@@ -2012,7 +2012,7 @@ int spieler_t::suche_transport_ziel(fabrik_t *qfab, int *quelle_ware, fabrik_t *
 
 	// for all products
 	for(int ware_nr=0;  ware_nr<waren_anzahl ;  ware_nr++  ) {
-		const ware_t ware = ausgang[ware_nr];
+		const ware_t& ware = ausgang[ware_nr];
 
 		// hat es schon etwas produziert ?
 		if(ware.menge < ware.max/4) {

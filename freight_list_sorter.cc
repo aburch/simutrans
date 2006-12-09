@@ -164,8 +164,6 @@ freight_list_sorter_t::sort_freight( karte_t *welt, const slist_tpl <ware_t>*wli
 	int last_ware_catg = -1;
 
 	for (int j = 0; j<pos; j++) {
-		ware_t ware = tdlist[j].ware;
-
 		halthandle_t halt = tdlist[j].destination;
 		halthandle_t via_halt = tdlist[j].via_destination;
 
@@ -174,12 +172,13 @@ freight_list_sorter_t::sort_freight( karte_t *welt, const slist_tpl <ware_t>*wli
 			name = halt->gib_name();
 		}
 
+		const ware_t& ware = tdlist[j].ware;
 		if(last_ware_index!=ware.gib_typ()->gib_index()  &&  last_ware_catg!=ware.gib_catg()) {
 			sint32 sum = 0;
 			last_ware_index = ware.gib_typ()->gib_index();
 			last_ware_catg = (ware.gib_catg()!=0) ? ware.gib_catg() : -1;
 			for(int i=j;  i<pos;  i++  ) {
-				ware_t sumware = tdlist[i].ware;
+				const ware_t& sumware = tdlist[i].ware;
 				if(last_ware_index!=sumware.gib_typ()->gib_index()) {
 					if(last_ware_catg!=sumware.gib_catg()) {
 						break;	// next category reached ...
@@ -199,7 +198,7 @@ freight_list_sorter_t::sort_freight( karte_t *welt, const slist_tpl <ware_t>*wli
 				// ok, we have a list of freights
 				while(list_finish  &&  (list_finish=full_iter.next())!=0) {
 
-					ware_t current(full_iter.get_current());
+					const ware_t& current = full_iter.get_current();
 					if(last_ware_index==current.gib_typ()->gib_index()  ||  last_ware_catg==current.gib_catg()) {
 						add_ware_heading( buf, sum, current.menge, &current, what_doing );
 						break;

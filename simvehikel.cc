@@ -114,7 +114,7 @@ static int unload_freight(karte_t* welt, halthandle_t halt, slist_tpl<ware_t>* f
       slist_iterator_tpl<ware_t> iter (fracht);
 
       while(iter.next()) {
-	ware_t tmp = iter.get_current();
+	const ware_t& tmp = iter.get_current();
 
 	assert(tmp.gib_ziel() != koord::invalid);
 	assert(tmp.gib_zwischenziel() != koord::invalid);
@@ -509,7 +509,7 @@ void vehikel_t::remove_stale_freight()
 		while(iter.next()) {
 			fahrplan_t *fpl = cnv->gib_fahrplan();
 
-			ware_t tmp = iter.get_current();
+			const ware_t& tmp = iter.get_current();
 			bool found = false;
 
 			for (int i = 0; i < fpl->maxi(); i++) {
@@ -961,7 +961,7 @@ void vehikel_t::gib_fracht_info(cbuffer_t & buf)
 		slist_iterator_tpl<ware_t> iter (fracht);
 
 		while(iter.next()) {
-			ware_t ware = iter.get_current();
+			const ware_t& ware = iter.get_current();
 			const char * name = "Error in Routing";
 
 			halthandle_t halt = haltestelle_t::gib_halt(welt, ware.gib_ziel());
