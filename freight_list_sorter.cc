@@ -36,9 +36,8 @@ int freight_list_sorter_t::compare_ware(const void *td1, const void *td2)
 		return -2;
 	}
 
-	int order = 0;
-	ware_t ware1 = td1p->ware;
-	ware_t ware2 = td2p->ware;
+	const ware_t& ware1 = td1p->ware;
+	const ware_t& ware2 = td2p->ware;
 
 	// first sort according to freight categorie ...
 	int index = ware1.gib_catg()-ware2.gib_catg();
@@ -51,30 +50,24 @@ int freight_list_sorter_t::compare_ware(const void *td1, const void *td2)
 		return index;
 	}
 
+	int order;
 	switch (sortby) {
 		default:
 dbg->error("freight_list_sorter::compare_ware()","illegal sort mode!");
-		case by_name: //sort by destination name
-			order = strcmp(halt1->gib_name(), halt2->gib_name());
-			break;
-		case by_via: // sort by via_destination name
-			order = strcmp(via_halt1->gib_name(), via_halt2->gib_name());
-			// if the destination is different, bit the via_destination the same, sort it by the destination (2nd level sort)
-			if (order == 0)	{
-				order = strcmp(halt1->gib_name(), halt2->gib_name());
-			}
-			break;
+
 		case by_via_sum:
 		case by_amount: // sort by ware amount
 			order = ware2.menge - ware1.menge;
-			// if the same amount is transported, we sort by via_destination
-			if (order == 0)	{
-				order = strcmp(via_halt1->gib_name(), via_halt2->gib_name());
-				// if the same amount goes through the same via_destination, sort by destionation
-				if (order == 0) {
-					order = strcmp(halt1->gib_name(), halt2->gib_name());
-				}
-			}
+			if (order != 0) break;
+			/* FALLTHROUGH */
+
+		case by_via: // sort by via_destination name
+			order = strcmp(via_halt1->gib_name(), via_halt2->gib_name());
+			if (order != 0) break;
+			/* FALLTHROUGH */
+
+		case by_name: // sort by destination name
+			order = strcmp(halt1->gib_name(), halt2->gib_name());
 			break;
 	}
 
