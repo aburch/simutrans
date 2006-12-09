@@ -103,10 +103,7 @@ static int unload_freight(karte_t* welt, halthandle_t halt, slist_tpl<ware_t>* f
 
   int sum_menge = 0;
 
-  // static wg. wiederverwendung der nodes
-  static slist_tpl<ware_t> kill_queue;
-
-  kill_queue.clear();
+	slist_tpl<ware_t> kill_queue;
 
   if(halt->is_enabled( fracht_typ )) {
     if (!fracht->empty()) {
@@ -501,8 +498,7 @@ void vehikel_t::remove_stale_freight()
 	// and now check every piece of ware on board,
 	// if its target is somewhere on
 	// the new schedule, if not -> remove
-	static slist_tpl<ware_t> kill_queue;
-	kill_queue.clear();
+	slist_tpl<ware_t> kill_queue;
 
 	if (!fracht.empty()) {
 		slist_iterator_tpl<ware_t> iter (fracht);

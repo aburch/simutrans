@@ -825,7 +825,7 @@ void dingliste_t::display_dinge( const sint16 xpos, const sint16 ypos, const uin
 void
 dingliste_t::check_season(const long month)
 {
-	static slist_tpl<ding_t *>loeschen;
+	slist_tpl<ding_t *>loeschen;
 
 	if(capacity==0) {
 		return;

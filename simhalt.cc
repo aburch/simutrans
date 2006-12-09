@@ -476,11 +476,9 @@ void haltestelle_t::reroute_goods()
 	ptrhashtable_iterator_tpl<const ware_besch_t *, slist_tpl<ware_t> *> waren_iter(waren);
 
 	while(waren_iter.next()) {
-		static slist_tpl<ware_t> waren_kill_queue;
+		slist_tpl<ware_t> waren_kill_queue;
 		slist_tpl<ware_t> * wliste = waren_iter.get_current_value();
 		slist_iterator_tpl <ware_t> ware_iter(wliste);
-
-		waren_kill_queue.clear();
 
 		// Hajo:
 		// Step 1: re-route goods now and then to adapt to changes in
@@ -781,8 +779,7 @@ haltestelle_t::suche_route(ware_t &ware, koord *next_to_ziel)
 
 	// die Berechnung erfolgt durch eine Breitensuche fuer Graphen
 	// Warteschlange fuer Breitensuche
-	static slist_tpl <HNode *> queue;
-	queue.clear();
+	slist_tpl<HNode*> queue;
 
 	int step = 1;
 	HNode *tmp;
