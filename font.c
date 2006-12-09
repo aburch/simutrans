@@ -48,10 +48,10 @@ static int dsp_read_bdf_glyph(FILE *fin, uint8 *data, uint8 *screen_w, int char_
 {
 	int	char_nr = 0;
 	int g_width, h, g_desc;
+	int d_width = 0;
 
 	while (!feof(fin)) {
 		char str[256];
-		int d_width = 0;
 
 		fgets(str, sizeof(str), fin);
 

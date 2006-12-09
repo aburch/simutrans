@@ -1885,7 +1885,7 @@ int wkz_set_slope(spieler_t * sp, karte_t *welt, koord pos, value_t lParam)
 #endif
 
 		// finally: empty
-		if(gr1->suche_obj(ding_t::gebaeude)!=NULL  &&  !gr1->hat_wege()  &&  !gr1->kann_alle_obj_entfernen(sp)) {
+		if(gr1->suche_obj(ding_t::gebaeude)  ||  gr1->hat_wege()  ||  gr1->kann_alle_obj_entfernen(sp)) {
 			create_win(-1, -1, MESG_WAIT, new nachrichtenfenster_t(welt, "Tile not empty."), w_autodelete);
 			return false;
 		}
@@ -1992,6 +1992,8 @@ int wkz_set_slope(spieler_t * sp, karte_t *welt, koord pos, value_t lParam)
 				gr1->obj_loesche_alle(sp);
 				gr1->setze_grund_hang(slope_this);
 				gr1->setze_pos(new_pos);
+				gr1->clear_flag(grund_t::marked);
+				gr1->set_flag(grund_t::dirty);
 			}
 			// recalc slope walls on neightbours
 			for(int y=-1; y<=1; y++) {

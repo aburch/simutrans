@@ -8,6 +8,9 @@ Known bugs: (hard to fix)
 	FIX: issue with transformers
 	FIX: crash in depot
 	FIX: off-by-one error which can lead to non-unique city names
+	FIX: DWITH in bdf-fonts was not used
+	FIX: check for allowing articifial slopes was brocken
+	FIX: loading signals
 
 
 Release of 99.05
