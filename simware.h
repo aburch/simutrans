@@ -6,19 +6,9 @@
 class ware_besch_t;
 
 
-/**
- * Eine Klasse zur Verwaltung von Informationen ueber Fracht und Waren.
- * Diese Klasse darf gesubclassed werden, da sie new() und delete()
- * redefiniert!
- *
- * @author Hj. Malthaner
- */
+/** Eine Klasse zur Verwaltung von Informationen ueber Fracht und Waren */
 struct ware_t
 {
-public:
-    // ein paar waren sind fix
-    enum typ {Pax=0, Post=1, None=2};
-
 private:
     const ware_besch_t *type;
 

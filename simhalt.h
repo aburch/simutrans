@@ -85,12 +85,6 @@ private:
     static slist_tpl<halthandle_t> alle_haltestellen;
 
     /*
-    * declare compare function
-    * @author hsiegeln
-    */
-    static int compare_ware(const void *td1, const void *td2);
-
-    /*
      * struct holds new financial history for line
      * @author hsiegeln
      */
