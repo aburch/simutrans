@@ -68,7 +68,7 @@ void bruecke_t::rdwr(loadsave_t *file)
 	const char *s = NULL;
 
 	if(file->is_saving()) {
-	s = besch->gib_name();
+		s = besch->gib_name();
 	}
 	file->rdwr_str(s, "");
 	file->rdwr_enum(img, "");
@@ -107,6 +107,7 @@ void bruecke_t::laden_abschliessen()
 		// change maitainance
 		weg_t *weg = gr->gib_weg(besch->gib_waytype());
 		weg->setze_max_speed(besch->gib_topspeed());
+		weg->setze_besitzer(sp);
 		sp->add_maintenance(-weg->gib_besch()->gib_wartung());
 		sp->add_maintenance( besch->gib_wartung() );
 	}
