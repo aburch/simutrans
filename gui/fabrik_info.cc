@@ -126,7 +126,7 @@ fabrik_info_t::~fabrik_info_t()
 {
   delete [] lieferbuttons;
   lieferbuttons = 0;
-
+	delete [] supplierbuttons;
   delete [] stadtbuttons;
   stadtbuttons = 0;
 
