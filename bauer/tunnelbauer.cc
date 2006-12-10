@@ -524,7 +524,7 @@ tunnelbauer_t::remove(karte_t *welt, spieler_t *sp, koord3d start, waytype_t weg
 		}
 	} while (!tmp_list.empty());
 
-	assert(end_list.count());
+	assert(!end_list.empty());
 
 	// Jetzt geht es ans löschen der Tunnel
 	while (!part_list.empty()) {

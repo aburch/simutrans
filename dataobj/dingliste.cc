@@ -846,7 +846,7 @@ dingliste_t::check_season(const long month)
 	}
 
 	// delete all objects, which do not want to step anymore
-	while(loeschen.count()) {
+	while (!loeschen.empty()) {
 		delete loeschen.remove_first();
 	}
 }

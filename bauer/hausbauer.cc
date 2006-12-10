@@ -608,7 +608,7 @@ const haus_besch_t * hausbauer_t::gib_aus_liste(slist_tpl<const haus_besch_t *> 
 // get a random object
 const haus_besch_t *hausbauer_t::waehle_aus_liste(slist_tpl<const haus_besch_t *> &liste, uint16 time, climate cl)
 {
-	if(liste.count()) {
+	if (!liste.empty()) {
 		// previously just returned a random object; however, now we do als look at the chance entry
 		weighted_vector_tpl<const haus_besch_t *> auswahl(16);
 		slist_iterator_tpl <const haus_besch_t *> iter (liste);

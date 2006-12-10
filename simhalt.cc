@@ -509,7 +509,7 @@ void haltestelle_t::reroute_goods()
 			}
 		}
 
-		while( waren_kill_queue.count() ) {
+		while (!waren_kill_queue.empty()) {
 			const ware_t& w = waren_kill_queue.remove_first();
 DBG_MESSAGE("haltestelle_t::reroute_goods()","removing %i %s",w.menge,w.gib_name() );
 			wliste->remove(w);
@@ -845,8 +845,7 @@ haltestelle_t::suche_route(ware_t &ware, koord *next_to_ziel)
 
 		}
 		*/
-
-	} while(queue.count() && step < max_hops);
+	} while (!queue.empty() && step < max_hops);
 
 	// if the loop ends, nothing was found
 	tmp = 0;
