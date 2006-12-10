@@ -1836,6 +1836,11 @@ wegbauer_t::baue_schiene()
 			grund_t* gr = welt->lookup(route[i]);
 			ribi_t::ribi ribi = calc_ribi(i);
 
+			if(gr->gib_typ()==grund_t::wasser) {
+				// not building on the sea ...
+				continue;
+			}
+
 			bool extend = gr->weg_erweitern((waytype_t)besch->gib_wtyp(), ribi);
 
 			// bridges/tunnels have their own track type and must not upgrade

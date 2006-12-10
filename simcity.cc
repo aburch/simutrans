@@ -1779,15 +1779,7 @@ void stadt_t::check_bau_rathaus(bool new_town)
 					// we itereate over all tiles, since the townhalls are allowed sizes bigger than 1x1
 
 					gr = welt->lookup(pos_alt + k)->gib_kartenboden();
-					gr->setze_besitzer(NULL);	// everyone ground ...
-					gb = dynamic_cast<gebaeude_t*>(gr->first_obj());
-					if (gb) {
-						gb->setze_besitzer(NULL);
-						DBG_MESSAGE("stadt_t::check_bau_rathaus()", "deleted townhall (bev=%i)", buildings.get_sum_weight());
-					}
 					gr->obj_loesche_alle(NULL);
-
-					assert(!buildings.is_contained(gb));
 
 					if (umziehen) {
 						DBG_MESSAGE("stadt_t::check_bau_rathaus()", "delete townhall tile %i,%i (gb=%p)", k.x, k.y, gb);

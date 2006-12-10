@@ -709,7 +709,7 @@ gebaeude_t::entferne(spieler_t *sp)
 	if(!is_factory  &&  ptr.stadt!=NULL) {
 		ptr.stadt->remove_gebaeude_from_stadt(this);
 	}
-
+	// remove costs
 	if(sp) {
 		sp->buche(umgebung_t::cst_multiply_remove_haus*(tile->gib_besch()->gib_level()+1), gib_pos().gib_2d(), COST_CONSTRUCTION);
 	}

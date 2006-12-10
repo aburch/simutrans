@@ -49,9 +49,7 @@ roadsign_t::roadsign_t(karte_t *welt, loadsave_t *file) : ding_t (welt)
 {
 	rdwr(file);
 	// if more than one state, we will switch direction and phase for traffic lights
-	if(besch->gib_bild_anzahl()>4  &&  besch->gib_wtyp()==road_wt) {
-		flags |= SWITCH_AUTOMATIC;
-	}
+	automatic = (besch->gib_bild_anzahl()>4  &&  besch->gib_wtyp()==road_wt);
 	last_switch = 0;
 }
 
@@ -63,12 +61,9 @@ roadsign_t::roadsign_t(karte_t *welt, spieler_t *sp, koord3d pos, ribi_t::ribi d
 	this->dir = dir;
 	zustand = 0;
 	last_switch = 0;
-	flags = 3;
 	setze_besitzer( sp );
-	// if more than one state, we will switch direction and phase
-	if(besch->gib_bild_anzahl()>4  &&  besch->gib_wtyp()==road_wt) {
-		flags |= SWITCH_AUTOMATIC;
-	}
+	// if more than one state, we will switch direction and phase for traffic lights
+	automatic = (besch->gib_bild_anzahl()>4  &&  besch->gib_wtyp()==road_wt);
 }
 
 
@@ -173,7 +168,7 @@ void roadsign_t::calc_bild()
 		}
 	}
 
-	if((flags&SWITCH_AUTOMATIC)==0) {
+	if(automatic) {
 
 		image_id bild=IMG_LEER;
 		after_bild = IMG_LEER;
@@ -320,7 +315,8 @@ roadsign_t::rdwr(loadsave_t *file)
 {
 	ding_t::rdwr(file);
 
-	file->rdwr_byte(flags, " ");
+	uint8 dummy=0;
+	file->rdwr_byte(dummy, " ");
 	file->rdwr_byte(zustand, " ");
 	file->rdwr_byte(dir, "\n");
 	if(file->get_version()<89000) {
@@ -355,7 +351,7 @@ roadsign_t::entferne(spieler_t *sp)
 	if(sp!=NULL) {
 		sp->buche(-besch->gib_preis(), gib_pos().gib_2d(), COST_CONSTRUCTION);
 	}
-	if(flags&SWITCH_AUTOMATIC) {
+	if(automatic) {
 		// traffic light switch automatically
 		welt->sync_remove( this );
 	}
@@ -381,7 +377,7 @@ void roadsign_t::laden_abschliessen()
 		gr->gib_weg(besch->gib_wtyp())->count_sign();
 	}
 	// only traffic light need switches
-	if(flags&SWITCH_AUTOMATIC) {
+	if(automatic) {
 		welt->sync_add( this );
 	}
 }

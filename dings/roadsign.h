@@ -32,7 +32,7 @@ protected:
 
 	uint8 zustand;	// counter for steps ...
 
-	uint8 flags;
+	uint8 automatic:1;
 
 	uint8 dir;
 
