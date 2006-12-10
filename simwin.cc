@@ -46,13 +46,13 @@
 #include "besch/skin_besch.h"
 
 #include "simticker.h"
+#include "tpl/vector_tpl.h"
 
-#include "tpl/microvec_tpl.h"
 
 #define dragger_size 12
 
 
-static microvec_tpl <int> kill_list (200);
+static vector_tpl<int> kill_list;
 
 static gui_komponente_t * focus=NULL;
 
@@ -554,15 +554,7 @@ destroy_win(const gui_fenster_t *gui)
 		if(wins[i].gui == gui) {
 			if(inside_event_handling) {
 				// only add this, if not already added
-				int j;
-				for( j=0;  j<kill_list.get_count();  j++  ) {
-					if(kill_list.get(j)==i) {
-						break;
-					}
-				}
-				if(j==kill_list.get_count()) {
-					kill_list.append(i);
-				}
+				if (!kill_list.is_contained(i)) kill_list.push_back(i);
 			}
 			else {
 				destroy_framed_win(i);
@@ -579,15 +571,7 @@ void destroy_all_win()
 	for(int i=ins_win-1; i>=0; i--) {
 		if(inside_event_handling) {
 			// only add this, if not already added
-			int j;
-			for( j=0;  j<kill_list.get_count();  j++  ) {
-				if(kill_list.get(j)==i) {
-					break;
-				}
-			}
-			if(j==kill_list.get_count()) {
-				kill_list.append(i);
-			}
+			if (!kill_list.is_contained(i)) kill_list.push_back(i);
 		}
 		else {
 			destroy_framed_win(i);
@@ -740,8 +724,8 @@ void win_set_pos(gui_fenster_t *gui, int x, int y)
 
 static void process_kill_list()
 {
-	for(int i=0; i<kill_list.get_count(); i++) {
-		destroy_framed_win(kill_list.get(i));
+	for (uint i = 0; i < kill_list.get_count(); i++) {
+		destroy_framed_win(kill_list[i]);
 	}
 	kill_list.clear();
 }
