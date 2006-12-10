@@ -38,13 +38,13 @@ void fahrplan_t::init()
     type = fahrplan_t::fahrplan;
 }
 
-fahrplan_t::fahrplan_t() : eintrag(0)
+fahrplan_t::fahrplan_t()
 {
 	init();
 }
 
 
-fahrplan_t::fahrplan_t(fahrplan_t * old) : eintrag(0)
+fahrplan_t::fahrplan_t(fahrplan_t * old)
 {
 	if (old == NULL) {
 		init();
@@ -61,7 +61,7 @@ fahrplan_t::fahrplan_t(fahrplan_t * old) : eintrag(0)
 	}
 }
 
-fahrplan_t::fahrplan_t(loadsave_t *file) : eintrag(0)
+fahrplan_t::fahrplan_t(loadsave_t *file)
 {
 	type = fahrplan_t::fahrplan;
 	rdwr(file);
@@ -120,16 +120,12 @@ fahrplan_t::insert(karte_t *welt, const grund_t *gr,int ladegrad)
 #endif
 	// stored in minivec, so wie have to avoid adding too many
 	if(eintrag.get_count()>=254) {
+		create_win(-1, -1, 60, new nachrichtenfenster_t(welt, "Maximum 254 stops\nin a schedule!\n"), w_autodelete);
 		return false;
 	}
 
 	if(ist_halt_erlaubt(gr)) {
-		bool ok= eintrag.insert_at(aktuell,stop);
-		if(!ok) {
-			dbg->warning("fahrplan_t::insert()","max stop exceeded!");
-			create_win(-1, -1, 60, new nachrichtenfenster_t(welt, "Maximum 254 stops\nin a schedule!\n"), w_autodelete);
-		}
-		// ok
+		eintrag.insert_at(aktuell, stop);
 		return true;
 	}
 	else {
@@ -156,16 +152,12 @@ fahrplan_t::append(karte_t *welt, const grund_t *gr,int ladegrad)
 
 	// stored in minivec, so wie have to avoid adding too many
 	if(eintrag.get_count()>=254) {
+		create_win(-1, -1, 60, new nachrichtenfenster_t(welt, "Maximum 254 stops\nin a schedule!\n"), w_autodelete);
 		return false;
 	}
 
 	if(ist_halt_erlaubt(gr)) {
-		bool ok= eintrag.append(stop,4);
-		if(!ok) {
-			dbg->warning("fahrplan_t::append()","max stop exceeded!");
-			create_win(-1, -1, 60, new nachrichtenfenster_t(welt, "Maximum 254 stops\nin a schedule!\n"), w_autodelete);
-		}
-		// ok
+		eintrag.append(stop, 4);
 		return true;
 	}
 	else {
