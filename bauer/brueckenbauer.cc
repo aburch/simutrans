@@ -103,9 +103,6 @@ brueckenbauer_t::find_bridge(const waytype_t wtyp, const uint32 min_speed,const 
 {
 	const bruecke_besch_t *find_besch=NULL;
 
-	// list of matching types (sorted by speed)
-	slist_tpl <const bruecke_besch_t *> matching;
-
 	for(unsigned int i = 0; i < bruecken.get_count(); i++) {
 		const bruecke_besch_t* besch = bruecken[i];
 		if(besch->gib_waytype() == wtyp) {
