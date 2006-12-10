@@ -88,10 +88,12 @@ typedef unsigned int        uint32;
 typedef signed __int64	    sint64;
 typedef unsigned __int64    uint64;
 #define GCC_PACKED
+#define NORETURN __declspec(noreturn)
 #else
 typedef signed long long    sint64;
 typedef unsigned long long  uint64;
 #define GCC_PACKED __attribute__((__packed__))
+#define NORETURN __attribute__ ((noreturn))
 #endif
 
 /**

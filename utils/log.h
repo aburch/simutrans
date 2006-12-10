@@ -12,6 +12,8 @@
 #define tests_log_h
 
 #include <stdio.h>
+#include "../simtypes.h"
+
 
 /**
  * Logging facility
@@ -76,7 +78,7 @@ public:
      * writes an error into the log, aborts the program.
      * @author Hj. Malthaner
      */
-    void fatal(const char *who, const char *format, ...);
+		void fatal(const char* who, const char* format, ...) NORETURN;
 
 
 	void trap();
