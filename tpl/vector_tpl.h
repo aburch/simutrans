@@ -52,14 +52,12 @@ template<class T> class vector_tpl
 		}
 
 		/** Appends the element at the end of the vector.  */
-		bool append(T elem)
+		void append(T elem)
 		{
 			if (count >= size) {
-				dbg->fatal("vector_tpl<T>::append()", "capacity %i exceeded.",size);
-				return false;
+				dbg->fatal("vector_tpl<T>::append()", "capacity %i exceeded.", size);
 			}
 			data[count++] = elem;
-			return true;
 		}
 
 		/**
@@ -78,13 +76,6 @@ template<class T> class vector_tpl
 			data[count++] = elem;
 		}
 
-		/** Checks if element is contained. Appends only new elements. */
-		bool append_unique(T elem)
-		{
-			if (is_contained(elem)) return false;
-			return append(elem);
-		}
-
 		/**
 		 * Checks if element is contained. Appends only new elements.
 		 * extend vector if nessesary
@@ -97,7 +88,7 @@ template<class T> class vector_tpl
 		}
 
 		/** removes element, if contained */
-		bool remove(T elem)
+		void remove(T elem)
 		{
 			uint32 i, j;
 			for (i = j = 0; i < count; i++, j++) {
@@ -111,7 +102,6 @@ template<class T> class vector_tpl
 					data[i] = data[j];
 				}
 			}
-			return true;
 		}
 
 		/** insets data at a certain pos */

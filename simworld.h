@@ -720,7 +720,7 @@ public:
 			assert(cnv.is_bound());
 			convoi_array.append_unique(cnv,4);
 	}
-	bool rem_convoi(convoihandle_t &cnv) { return convoi_array.remove(cnv); }
+	void rem_convoi(convoihandle_t& cnv) { convoi_array.remove(cnv); }
 	const vector_tpl<convoihandle_t> &get_convoi_array() const {return convoi_array;}
 	const unsigned get_convoi_count() const {return convoi_array.get_count();}
 
