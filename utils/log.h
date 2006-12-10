@@ -78,7 +78,7 @@ public:
      * writes an error into the log, aborts the program.
      * @author Hj. Malthaner
      */
-		void fatal(const char* who, const char* format, ...) NORETURN;
+		void NORETURN fatal(const char* who, const char* format, ...);
 
 
 	void trap();
