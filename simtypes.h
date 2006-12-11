@@ -89,6 +89,7 @@ typedef signed __int64	    sint64;
 typedef unsigned __int64    uint64;
 #define GCC_PACKED
 #define NORETURN __declspec(noreturn)
+#pragma warning(disable: 4200 4311 4800 4996 )
 #else
 typedef signed long long    sint64;
 typedef unsigned long long  uint64;

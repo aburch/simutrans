@@ -567,8 +567,7 @@ DBG_MESSAGE("karte_t::destroy()", "factories destroyed");
 	ausflugsziele.clear();
 DBG_MESSAGE("karte_t::destroy()", "attraction list destroyed");
 
-//    delete schedule_list_gui;
-//    schedule_list_gui = 0;
+assert( depot_t::get_depot_list().empty() );
 
 DBG_MESSAGE("karte_t::destroy()", "world destroyed");
 	printf("destroyed.\n");

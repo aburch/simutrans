@@ -118,7 +118,9 @@ template<class T> class minivec_tpl
 		bool remove_at(uint8 pos)
 		{
 			if (pos < count) {
-				for (uint i = pos; i < count - 1; i++) data[i] = data[i + 1];
+				for (uint i = pos+1; i < count; i++) {
+					data[i-1] = data[i];
+				}
 				count--;
 				return true;
 			}

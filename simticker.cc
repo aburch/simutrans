@@ -115,7 +115,7 @@ void ticker::zeichnen(void)
 				}
 			}
 			// remove old news
-			while (!list.empty() > 0 && list.front().xpos + list.front().w < 0) {
+			while (!list.empty()  &&  list.front().xpos + list.front().w < 0) {
 				list.remove_first();
 			}
 			if(next_pos>width) {

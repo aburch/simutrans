@@ -67,7 +67,14 @@ protected:
 
 	virtual simline_t::linetype get_line_type() = 0;
 
+	static slist_tpl<depot_t *> all_depots;
+
 public:
+	// finds the next/previous depot relative to the current position
+	static depot_t *find_depot( koord3d start, ding_t::typ depot_type, bool next);
+
+	static const slist_tpl<depot_t *>& get_depot_list() { return all_depots; }
+
 	depot_t(karte_t *welt,loadsave_t *file);
 	depot_t(karte_t *welt, koord3d pos, spieler_t *sp, const haus_tile_besch_t *t);
 	virtual ~depot_t();
@@ -242,11 +249,11 @@ class bahndepot_t : public depot_t
 protected:
 	virtual simline_t::linetype get_line_type() { return simline_t::trainline; }
 
-    virtual const char * gib_zieher_name() { return "Lokomotive_tab"; }
-    virtual const char * gib_haenger_name() { return "Waggon_tab"; }
-    virtual const char * gib_passenger_name() { return "Pas_tab"; }
+	virtual const char * gib_zieher_name() { return "Lokomotive_tab"; }
+	virtual const char * gib_haenger_name() { return "Waggon_tab"; }
+	virtual const char * gib_passenger_name() { return "Pas_tab"; }
 
-    bool can_convoi_start(int icnv) const;
+	bool can_convoi_start(int icnv) const;
 
 public:
 	bahndepot_t(karte_t *welt, loadsave_t *file) : depot_t(welt,file) {}

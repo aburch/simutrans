@@ -1052,44 +1052,19 @@ void depot_frame_t::infowin_event(const event_t *ev)
 	gui_frame_t::infowin_event(ev);
 
 	if(IS_WINDOW_CHOOSE_NEXT(ev)) {
-		/**
-		* Since there is no depot list we search the whole map.
-		* Volker Meyer
-		*/
-		depot_t *next_dep  = NULL;
 
-		koord pos = depot->gib_pos().gib_2d();
-		koord end = pos;
-		unsigned int dir = ev->ev_code;
-
-		do {
+		bool dir = (ev->ev_code==NEXT_WINDOW);
+		depot_t *next_dep = depot_t::find_depot( depot->gib_pos(), depot->gib_typ(), dir == NEXT_WINDOW );
+		if(next_dep == NULL) {
 			if(dir == NEXT_WINDOW) {
-				pos.x++;
-				if(pos.x == welt->gib_groesse_x()) {
-					pos.x = 0;
-					pos.y++;
-					if(pos.y == welt->gib_groesse_y()) {
-						pos.y = 0;
-					}
-				}
-			 } else {
-				if(pos.x == 0) {
-					pos.x = welt->gib_groesse_x();
-					if(pos.y == 0) {
-						pos.y = welt->gib_groesse_y();
-					}
-					pos.y--;
-				}
-				pos.x--;
+				// check the next from start of map
+				next_dep = depot_t::find_depot( koord3d(-1,-1,0), depot->gib_typ(), true );
 			}
-			if(pos == end) {
-				next_dep = NULL;
-				break;
+			else {
+				// respecive end of map
+				next_dep = depot_t::find_depot( koord3d(8192,8192,127), depot->gib_typ(), false );
 			}
-			grund_t *gr = welt->lookup(pos)->gib_kartenboden();
-
-			next_dep = gr ? gr->gib_depot() : NULL;
-		} while(!next_dep || next_dep->gib_typ() != depot->gib_typ()  ||  next_dep->gib_besitzer()!=depot->gib_besitzer());
+		}
 
 		if(next_dep) {
 			/**
@@ -1102,12 +1077,8 @@ void depot_frame_t::infowin_event(const event_t *ev)
 
 			next_dep->zeige_info();
 			win_set_pos(next_dep->get_info_win(), x, y);
+			welt->setze_ij_off(next_dep->gib_pos());
 		}
-		/**
-		* Always center the map to depot
-		* Volker Meyer
-		*/
-		welt->setze_ij_off(koord3d(pos,welt->min_hgt(pos)));
 	} else if(IS_WINDOW_REZOOM(ev)) {
 		koord gr = gib_fenstergroesse();
 		setze_fenstergroesse(gr);
@@ -1165,6 +1136,7 @@ depot_frame_t::zeichnen(koord pos, koord groesse)
 
 	bt_obsolete.pressed = show_retired_vehicles;	// otherwise the button would not show depressed
 	bt_show_all.pressed = show_all;	// otherwise the button would not show depressed
+
 	gui_frame_t::zeichnen(pos, groesse);
 
 	if(!cnv.is_bound()) {

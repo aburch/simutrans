@@ -533,13 +533,6 @@ reliefkarte_t::calc_map_pixel(const koord k)
 			}
 			break;
 
-		case MAP_DEPOT:
-			if(gr->gib_depot()) {
-				// offset of one to avoid
-				setze_relief_farbe_area(k-koord(1,1), 3, gr->gib_depot()->gib_typ() );
-			}
-			break;
-
 		default:
 			break;
 	}
@@ -609,6 +602,17 @@ reliefkarte_t::calc_map()
 			koord pos = iter.get_current()->gib_pos().gib_2d();
 			setze_relief_farbe_area( pos, 9, COL_BLACK );
 			setze_relief_farbe_area( pos, 7, iter.get_current()->gib_kennfarbe() );
+		}
+		return;
+	}
+
+	if(mode==MAP_DEPOT) {
+		slist_iterator_tpl <depot_t *> iter (depot_t::get_depot_list());
+		while(iter.next()) {
+			koord pos = iter.get_current()->gib_pos().gib_2d();
+			// offset of one to avoid
+			static uint8 depot_typ_to_color[12]={ COL_ORANGE, COL_YELLOW, COL_RED, 0, 0, 0, 0, 0, 0, COL_PURPLE, COL_DARK_RED, COL_DARK_ORANGE };
+			setze_relief_farbe_area(pos, 3, depot_typ_to_color[iter.get_current()->gib_typ()-ding_t::bahndepot] );
 		}
 		return;
 	}

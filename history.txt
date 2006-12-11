@@ -13,6 +13,7 @@ Known bugs: (hard to fix)
 	FIX: loading signals
 	FIX: loading bridges
 	FIX: display in depot for left hand driving
+	CHANGE: depots now maintained in a list => underground and monorail depots are found again and shown in minimap
 
 
 Release of 99.05

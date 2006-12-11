@@ -40,7 +40,7 @@
 #include "besch/haus_besch.h"
 
 
-
+slist_tpl<depot_t *> depot_t::all_depots;
 
 depot_t::depot_t(karte_t *welt,loadsave_t *file) : gebaeude_t(welt)
 {
@@ -49,6 +49,7 @@ depot_t::depot_t(karte_t *welt,loadsave_t *file) : gebaeude_t(welt)
 	if(file->get_version()<88002) {
 		setze_yoff(0);
 	}
+	all_depots.append(this);
 }
 
 
@@ -56,7 +57,8 @@ depot_t::depot_t(karte_t *welt,loadsave_t *file) : gebaeude_t(welt)
 depot_t::depot_t(karte_t *welt, koord3d pos, spieler_t *sp, const haus_tile_besch_t *t) :
     gebaeude_t(welt, pos, sp, t)
 {
-    depot_info = NULL;
+	depot_info = NULL;
+	all_depots.append(this);
 }
 
 
@@ -71,8 +73,58 @@ depot_t::~depot_t()
 	while(iter.next()) {
 		iter.access_current().unbind();
 	}
+	all_depots.remove(this);
 	convois.clear();
 }
+
+
+
+// finds the next/previous depot relative to the current position
+depot_t *depot_t::find_depot( koord3d start, ding_t::typ depot_type, bool forward)
+{
+	depot_t *found = NULL;
+	koord3d found_pos = forward ? koord3d(welt->gib_groesse_x()+1,welt->gib_groesse_y()+1,welt->gib_grundwasser()) : koord3d(-1,-1,-1);
+	long found_hash = forward ? 0x7FFFFFF : -1;
+	long start_hash = start.x + (8192*start.y);
+	slist_iterator_tpl<depot_t *> iter(all_depots);
+	while(iter.next()) {
+		depot_t *d = iter.access_current();
+		if(d->gib_typ()==depot_type) {
+			// ok, the right type of depot
+			const koord3d pos = d->gib_pos();
+			if(pos==start) {
+				// ignore the start point
+				continue;
+			}
+			long hash = (pos.x+(8192*pos.y));
+			if(forward) {
+				if(hash>start_hash  ||  (hash==start_hash  &&  pos.z>start.z)) {
+				// found a suitable one
+					if(hash<found_hash  ||  (hash==found_hash  &&  pos.z<found_pos.z)) {
+						// which is closer ...
+						found = d;
+						found_pos = pos;
+						found_hash = hash;
+					}
+				}
+			}
+			else {
+				// search to start of the map
+				if(hash<start_hash  ||  (hash==start_hash  &&  pos.z<start.z)) {
+				// found a suitable one
+					if(hash>found_hash  ||  (hash==found_hash  &&  pos.z>found_pos.z)) {
+						// which is closer ...
+						found = d;
+						found_pos = pos;
+						found_hash = hash;
+					}
+				}
+			}
+		}
+	}
+	return found;
+}
+
 
 
 /* this is called on two occasions:

@@ -195,7 +195,7 @@ void fahrplan_t::cleanup()
 			lastpos = eintrag[i].pos;
 		}
 	}
-	if((unsigned)aktuell>eintrag.get_count()-1) {
+	if((unsigned)aktuell+1>eintrag.get_count()) {
 		aktuell = eintrag.get_count()-1;
 	}
 }

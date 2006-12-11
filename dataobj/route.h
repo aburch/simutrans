@@ -73,91 +73,84 @@ public:
 		return (abs(p1.x-p2.x)+abs(p1.y-p2.y)+abs(p1.z-p2.z)/16);
 	}
 
+	/**
+	 * Konstruktor, legt eine leere Route an.
+	 * @author Hj. Malthaner
+	 */
+	route_t() : route(0) {}
 
-    /**
-     * Konstruktor, legt eine leere Route an.
-     * @author Hj. Malthaner
-     */
-    route_t() : route(0) {}
+	/**
+	 * @return Koordinate an index n
+	 * @author Hj. Malthaner
+	 */
+	const koord3d& position_bei(const unsigned int n) const { return route[n]; }
 
+	/**
+	 * @return letzer index in der Koordinatenliste
+	 * @author Hj. Malthaner
+	 */
+	sint32 gib_max_n() const { return (int)route.get_count() - 1; }
 
-    /**
-     * @return Koordinate an index n
-     * @author Hj. Malthaner
-     */
-    const koord3d& position_bei(const unsigned int n) const { return route[n]; }
+	/**
+	 * kopiert positionen und hoehen von einer anderen route
+	 * @author Hj. Malthaner
+	 */
+	void kopiere(const route_t *route);
 
-
-    /**
-     * @return letzer index in der Koordinatenliste
-     * @author Hj. Malthaner
-     */
-    sint32 gib_max_n() const { return (int)route.get_count() - 1; }
-
-
-
-    /**
-     * kopiert positionen und hoehen von einer anderen route
-     * @author Hj. Malthaner
-     */
-    void kopiere(const route_t *route);
-
-
-    /**
-     * kopiert positionen und hoehen von einer anderen route
-     * @author prissi
-     */
-    void append(const route_t *route);
-
-
-    /**
-     * fügt k vorne in die route ein
-     * @author Hj. Malthaner
-     */
-    void insert(koord3d k);
-
-    /**
-     * fügt k hinten in die route ein
-     * @author prissi
-     */
-    void append(koord3d k);
-
-    /**
-     * removes all tiles from the route
-     * @author prissi
-     */
-    void clear() { route.clear(); }
-
-    /**
-     * removes all tiles behind this position
-     * @author prissi
-     */
-    void remove_koord_from(int);
-
-    /**
-     * Appends a straig line from the last koord3d in route to the desired target.
-     * Will return fals if fails
-     * @author prissi
-     */
-    bool append_straight_route( karte_t *w, koord3d );
-
-	/* find the route to an unknow location (where tile_found becomes true)
-	 * the max_depth is the maximum length of a route
+	/**
+	 * kopiert positionen und hoehen von einer anderen route
 	 * @author prissi
 	 */
+	void append(const route_t *route);
+
+	/**
+	 * fügt k vorne in die route ein
+	 * @author Hj. Malthaner
+	 */
+	void insert(koord3d k);
+
+	/**
+	 * fügt k hinten in die route ein
+	 * @author prissi
+	 */
+	void append(koord3d k);
+
+	/**
+	 * removes all tiles from the route
+	 * @author prissi
+	 */
+	void clear() { route.clear(); }
+
+	/**
+	 * removes all tiles behind this position
+	 * @author prissi
+	 */
+	void remove_koord_from(int);
+
+	/**
+	 * Appends a straig line from the last koord3d in route to the desired target.
+	 * Will return fals if fails
+	 * @author prissi
+	 */
+	bool append_straight_route( karte_t *w, koord3d );
+
+	/* find the route to an unknow location (where tile_found becomes true)
+	* the max_depth is the maximum length of a route
+	* @author prissi
+	*/
 	bool find_route(karte_t *w, const koord3d start, fahrer_t *fahr, const uint32 max_khm, uint8 start_dir, uint32 max_depth );
 
-    /**
-     * berechnet eine route von start nach ziel.
-     * @author Hj. Malthaner
-     */
-    bool calc_route(karte_t *welt, koord3d start, koord3d ziel, fahrer_t *fahr, const uint32 max_speed_kmh, const uint32 max_cost=0xFFFFFFFF);
+	/**
+	 * berechnet eine route von start nach ziel.
+	 * @author Hj. Malthaner
+	 */
+	bool calc_route(karte_t *welt, koord3d start, koord3d ziel, fahrer_t *fahr, const uint32 max_speed_kmh, const uint32 max_cost=0xFFFFFFFF);
 
-    /**
-     * Lädt/speichert eine Route
-     * @author V. Meyer
-     */
-    void rdwr(loadsave_t *file);
+	/**
+	 * Lädt/speichert eine Route
+	 * @author V. Meyer
+	 */
+	void rdwr(loadsave_t *file);
 };
 
 #endif
