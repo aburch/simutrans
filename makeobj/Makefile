@@ -29,7 +29,7 @@ OBJECTS=makeobj.o ../besch/writer/obj_node.o \
  ../simmem.o \
  ../dataobj/freelist.o \
  ../dataobj/tabfile.o ../utils/cstring_t.o ../utils/simstring.o ../utils/searchfolder.o \
- ../tpl/debug_helper.o ../tpl/no_such_element_exception.o \
+ ../tpl/debug_helper.o \
  ../utils/dr_rdpng.o \
  ../besch/writer/building_writer.o ../besch/writer/good_writer.o \
  ../besch/writer/skin_writer.o ../besch/writer/image_writer.o \

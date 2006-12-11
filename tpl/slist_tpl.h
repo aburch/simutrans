@@ -14,8 +14,6 @@
 #include <typeinfo>
 
 #include "../dataobj/freelist.h"
-
-#include "no_such_element_exception.h"
 #include "../simdebug.h"
 
 #ifdef _MSC_VER

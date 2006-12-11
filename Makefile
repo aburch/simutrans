@@ -224,7 +224,6 @@ SOURCES += gui/welt.cc
 SOURCES += gui/werkzeug_parameter_waehler.cc
 SOURCES += sucher/platzsucher.cc
 SOURCES += tpl/debug_helper.cc
-SOURCES += tpl/no_such_element_exception.cc
 SOURCES += utils/cbuffer_t.cc
 SOURCES += utils/cstring_t.cc
 SOURCES += utils/log.cc
