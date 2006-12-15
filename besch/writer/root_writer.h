@@ -33,7 +33,7 @@ class root_writer_t : public obj_writer_t {
 		void copy(const char* name, int argc, char* argv[]);
 
 		/* makes single files from a merged file */
-		void root_writer_t::uncopy(const char* name);
+		void uncopy(const char* name);
 
 		static const cstring_t& get_inpath() { return inpath; }
 };

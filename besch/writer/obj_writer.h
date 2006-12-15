@@ -29,7 +29,7 @@ class obj_writer_t {
 		void show_capabilites();
 
 		cstring_t name_from_next_node(FILE* fp) const;
-		const char* obj_writer_t::node_writer_name(FILE* infp) const;
+		const char* node_writer_name(FILE* infp) const;
 
 		virtual cstring_t get_node_name(FILE* /*fp*/) const { return ""; }
 
