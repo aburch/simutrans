@@ -34,23 +34,23 @@ public:
 	enum sort_mode_t { by_destination=0, by_via=1, by_amount_via=2, by_amount=3, SORT_MODES=4 };
 
 private:
-    gui_scrollpane_t scrolly;
-    gui_textarea_t text;
-    world_view_t view;
-    gui_label_t sort_label;
-    gui_textinput_t input;
-    gui_speedbar_t filled_bar;
-    gui_speedbar_t speed_bar;
-    gui_speedbar_t route_bar;
-    gui_chart_t chart;
-    button_t button;
-    button_t follow_button;
-    button_t go_home_button;
-    button_t filterButtons[7];
+	gui_scrollpane_t scrolly;
+	gui_textarea_t text;
+	world_view_t view;
+	gui_label_t sort_label;
+	gui_textinput_t input;
+	gui_speedbar_t filled_bar;
+	gui_speedbar_t speed_bar;
+	gui_speedbar_t route_bar;
+	gui_chart_t chart;
+	button_t button;
+	button_t follow_button;
+	button_t go_home_button;
+	button_t filterButtons[7];
 
-    button_t sort_button;
-    button_t details_button;
-    button_t toggler;
+	button_t sort_button;
+	button_t details_button;
+	button_t toggler;
 
 	convoihandle_t cnv;
 	sint32 mean_convoi_speed;
@@ -67,6 +67,7 @@ private:
 
 	sort_mode_t sortby;
 
+	static bool route_search_in_progress;
 	static const char *sort_text[SORT_MODES];
 	static sort_mode_t global_sortby;
 

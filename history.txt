@@ -6,7 +6,7 @@ Known bugs: (hard to fix)
 
 Release of 99.05.1
 
-xx-Dec-2006:
+17-Dec-2006:
 	FIX: idle timer has eaten up all time doing additional frames
 	FIX: issue with transformers
 	FIX: crash in depot
@@ -21,6 +21,7 @@ xx-Dec-2006:
 	ADD: scrollbar for label frame (mip)
 	FIX: now frames per second direct setable (refresh was not the right way for slow computer) new parameter "-fps", "-refresh" is obsolete; you can also use frames_per_second in simuconf.tab
 	FIX: pillar of neighboring bridges now at the same positions
+	FIX: depot search could crash game when pressed twice very fast
 
 
 Release of 99.05

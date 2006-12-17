@@ -43,6 +43,8 @@ const char cost_type[MAX_CONVOI_COST][64] =
 	"Profit"
 };
 
+bool convoi_info_t::route_search_in_progress=false;
+
 /**
  * This variable defines by which column the table is sorted
  * Values: 0 = destination
@@ -197,6 +199,7 @@ convoi_info_t::zeichnen(koord pos, koord gr)
 	else {
 		if(cnv->gib_besitzer()==cnv->gib_welt()->get_active_player()) {
 			button.enable();
+			go_home_button.pressed = route_search_in_progress;
 			go_home_button.enable();
 		}
 		else {
@@ -309,45 +312,32 @@ bool convoi_info_t::action_triggered(gui_komponente_t *komp,value_t /* */)
 			return true;
 		}
 
-		if(komp == &go_home_button)
+		if(komp == &go_home_button  &&  !route_search_in_progress)
 		{
 			// limit update to certain states that are considered to be save for fahrplan updates
 			int state = cnv->get_state();
-			if(state==convoi_t::FAHRPLANEINGABE  /*||  state==convoi_t::ROUTING_4  ||  state==convoi_t::ROUTING_5*/) {
+			if(state==convoi_t::FAHRPLANEINGABE) {
 DBG_MESSAGE("convoi_info_t::action_triggered()","convoi state %i => cannot change schedule ... ", state );
 				return true;
 			}
-
-			// find all depots
-			slist_tpl<koord3d> all_depots;
-			karte_t * welt = cnv->gib_welt();
-			depot_t * depot = NULL;
-			const waytype_t waytype = cnv->gib_vehikel(0)->gib_besch()->gib_typ();
-			for (int x = 0; x < welt->gib_groesse_x(); x++) {
-				for (int y = 0; y < welt->gib_groesse_y(); y++) {
-					grund_t * gr = welt->lookup(koord(x,y))->gib_kartenboden();
-					if (gr) {
-						depot = gr->gib_depot();
-						if(depot  &&  (depot->get_wegtyp()!=waytype  ||  depot->gib_besitzer()!=cnv->gib_besitzer())) {
-							// that was not the right depot for this vehicle
-							depot = NULL;
-						}
-					}
-					if (depot) {
-						all_depots.append(gr->gib_pos());
-DBG_MESSAGE("convoi_info_t::action_triggered()","search depot: found on %i,%i",gr->gib_pos().x,gr->gib_pos().y);
-						depot = NULL;
-					}
-				}
-			}
+			route_search_in_progress = true;
 
 			// iterate over all depots and try to find shortest route
-			slist_iterator_tpl<koord3d> depot_iter(all_depots);
+			slist_iterator_tpl<depot_t *> depot_iter(depot_t::get_depot_list());
 			route_t * shortest_route = new route_t();
 			route_t * route = new route_t();
+			karte_t *welt=cnv->gib_welt();
 			koord3d home = koord3d(0,0,0);
 			while (depot_iter.next()) {
-				koord3d pos = depot_iter.get_current();
+				depot_t *depot = depot_iter.get_current();
+				if(depot->get_wegtyp()!=cnv->gib_vehikel(0)->gib_besch()->gib_typ()  ||  depot->gib_besitzer()!=cnv->gib_besitzer()) {
+					continue;
+				}
+				koord3d pos = depot->gib_pos();
+				if(shortest_route->gib_max_n()>=0  &&  abs_distance(pos.gib_2d(),cnv->gib_pos().gib_2d())>=shortest_route->gib_max_n()) {
+					// the current route is already shorter, no need to search further
+					continue;
+				}
 				bool found = cnv->gib_vehikel(0)->calc_route(welt, cnv->gib_pos(), pos,  50, route );	// do not care about speed
 				if (found) {
 					if (route->gib_max_n() < shortest_route->gib_max_n() || shortest_route->gib_max_n() == -1) {
@@ -367,6 +357,7 @@ DBG_MESSAGE("convoi_info_t::action_triggered()","search depot: found on %i,%i",g
 				b_depot_found = cnv->setze_fahrplan(fpl);
 			}
 			delete shortest_route;
+			route_search_in_progress = false;
 
 			// show result
 			if (b_depot_found) {
