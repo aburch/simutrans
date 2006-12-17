@@ -179,7 +179,7 @@ void color_gui_t::zeichnen(koord pos, koord gr)
 	display_proportional_clip(x+NUMBER, y+DENS_TRAFFIC, ntos(sets->gib_verkehr_level(),0), ALIGN_RIGHT, COL_WHITE, true);
 
 	int len=15+display_proportional_clip(x+10, y+FPS_DATA, translator::translate("Frame time:"), ALIGN_LEFT, COL_BLACK, true);
-	sprintf(buf,"%d ms/%ld ms", 1000/max(1,welt->gib_realFPS()), get_frame_time() );
+	sprintf(buf,"%ld ms", get_frame_time() );
 	display_proportional_clip(x+len, y+FPS_DATA, buf, ALIGN_LEFT, COL_WHITE, true);
 
 	len = 15+display_proportional_clip(x+10, y+IDLE_DATA, translator::translate("Idle:"), ALIGN_LEFT, COL_BLACK, true);
@@ -187,13 +187,13 @@ void color_gui_t::zeichnen(koord pos, koord gr)
 
 	uint8 farbe;
 	int loops;
-	loops=welt->gib_FPS();
+	loops=welt->gib_realFPS();
 	farbe = COL_WHITE;
-	if(loops<=10) {
-		farbe = (loops<=7) ? COL_RED : COL_YELLOW;
+	if(loops<umgebung_t::fps-1) {
+		farbe = (loops<=5) ? COL_RED : COL_YELLOW;
   }
 	len = 15+display_proportional_clip(x+10, y+FRAME_DATA, translator::translate("FPS:"), ALIGN_LEFT, COL_BLACK, true);
-	sprintf(buf,"%d fps (real: %d)", loops, welt->gib_realFPS() );
+	sprintf(buf,"%d fps", loops );
 	display_proportional_clip(x+len, y+FRAME_DATA, buf, ALIGN_LEFT, farbe, true);
 
 	loops=welt->gib_simloops();

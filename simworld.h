@@ -273,7 +273,9 @@ private:
 	uint32 ticks;		      // Anzahl ms seit Erzeugung
 	uint32 next_month_ticks;	// from now on is next month
 
-	unsigned long last_step_time;
+	uint32 last_frame_ms[256];
+	uint8 last_frame_idx;
+	uint32 last_step_time;
 
 	sint32 current_month;	// monat+12*jahr
 	sint32 letzter_monat;  // Absoluter Monat 0..12
@@ -300,7 +302,7 @@ private:
 	 * fuer performancevergleiche
 	 * @author Hj. Malthaner
 	 */
-	int thisFPS, lastFPS, realFPS;
+	uint32 realFPS;
 
 	int last_simloops;
 
@@ -452,12 +454,6 @@ public:
 	 * @author Hj. Malthaner
 	 */
 	inline int gib_schlaf_zeit() const { return sleep_time; }
-
-	/**
-	 * Anzahl frames in der letzten Sekunde Spielzeit. Kann sehr ungenau sein!
-	 * @author Hj. Malthaner
-	 */
-	inline int gib_FPS() const { return lastFPS; }
 
 	/**
 	 * Anzahl frames in der letzten Sekunde Realzeit

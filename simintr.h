@@ -22,11 +22,9 @@ bool increase_frame_time();
 
 long get_frame_time();
 long get_actual_frame_time();
-long get_average_frame_time();
 
 void intr_refresh_display(bool dirty);
 
-void intr_set(karte_t *welt, karte_ansicht_t *view, int refresh);
 void intr_set(karte_t *welt, karte_ansicht_t *view);
 
 

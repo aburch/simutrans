@@ -180,7 +180,10 @@ struct imd {
 	unsigned char h; // current (zoomed) width
 
 	unsigned int len; // base image data size (used for allocation purposes only)
-	unsigned char recode_flags[4]; // first byte: needs recode, second byte: code normal, second byte: code for player1, third byte: flags
+
+	unsigned char recode_flags; // divers flags for recoding
+	unsigned char player_flags; // 128 = free/needs recode, otherwise coded to this color in player_data
+	unsigned char oo,  pp; // unused, just to make this structure 32 bytes long
 
 	PIXVAL* data; // current data, zoomed and adapted to output format RGB 555 or RGB 565
 
@@ -191,15 +194,13 @@ struct imd {
 	PIXVAL* player_data; // current data coded for player1 (since many building belong to him)
 };
 
-// offsets in the recode array
-#define NEED_REZOOM (0)
-#define NEED_NORMAL_RECODE (1)
-#define NEED_PLAYER_RECODE (2)
-#define FLAGS (3)
-
 // flags for recoding
 #define FLAG_ZOOMABLE (1)
 #define FLAG_PLAYERCOLOR (2)
+#define FLAG_REZOOM (4)
+#define FLAG_NORMAL_RECODE (8)
+
+#define NEED_PLAYER_RECODE (128)
 
 
 static sint16 disp_width  = 640;
@@ -328,9 +329,11 @@ static void rezoom(void)
 	unsigned int n;
 
 	for (n = 0; n < anz_images; n++) {
-		images[n].recode_flags[NEED_REZOOM] = (images[n].recode_flags[FLAGS] & FLAG_ZOOMABLE) != 0 && images[n].base_h > 0;
-		images[n].recode_flags[NEED_NORMAL_RECODE] = 128;
-		images[n].recode_flags[NEED_PLAYER_RECODE] = 128;	// color will be set next time
+		if((images[n].recode_flags & FLAG_ZOOMABLE) != 0 && images[n].base_h > 0) {
+			images[n].recode_flags |= FLAG_REZOOM;
+		}
+		images[n].recode_flags |= FLAG_NORMAL_RECODE;
+		images[n].player_flags = NEED_PLAYER_RECODE;	// color will be set next time
 	}
 }
 
@@ -449,8 +452,8 @@ static void recode(void)
 
 	for (n = 0; n < anz_images; n++) {
 		// tut jetzt on demand recode_img() für jedes Bild einzeln
-		images[n].recode_flags[NEED_NORMAL_RECODE] = 128;
-		images[n].recode_flags[NEED_PLAYER_RECODE] = 128;
+		images[n].recode_flags |= FLAG_NORMAL_RECODE;
+		images[n].player_flags = NEED_PLAYER_RECODE;
 	}
 }
 
@@ -497,7 +500,7 @@ static void recode_normal_img(const unsigned int n)
 	}
 	// now do normal recode
 	recode_img_src_target(images[n].h, src, images[n].data);
-	images[n].recode_flags[NEED_NORMAL_RECODE] = 0;
+	images[n].recode_flags &= ~FLAG_NORMAL_RECODE;
 }
 
 
@@ -543,7 +546,7 @@ static void recode_color_img(const unsigned int n, const unsigned char color)
 {
 	PIXVAL *src = images[n].base_data;
 
-	images[n].recode_flags[NEED_PLAYER_RECODE] = color;
+	images[n].player_flags = color;
 	// then use the right data
 	if (zoom_factor > 1) {
 		if (images[n].zoom_data != NULL) src = images[n].zoom_data;
@@ -568,9 +571,9 @@ static void rezoom_img(const unsigned int n)
 	// Hajo: may this image be zoomed
 	if (n < anz_images && images[n].base_h > 0) {
 		// we may need night conversion afterwards
-		images[n].recode_flags[NEED_REZOOM] = FALSE;
-		images[n].recode_flags[NEED_NORMAL_RECODE] = 128;
-		images[n].recode_flags[NEED_PLAYER_RECODE] = 128;
+		images[n].recode_flags &= ~FLAG_REZOOM;
+		images[n].recode_flags |= FLAG_NORMAL_RECODE;
+		images[n].player_flags = NEED_PLAYER_RECODE;
 
 		// just restore original size?
 		if (zoom_factor <= 1) {
@@ -1133,11 +1136,10 @@ void register_image(struct bild_t* bild)
 	image->len = bild->len;
 
 	// allocate and copy if needed
-	image->recode_flags[NEED_NORMAL_RECODE] = 128;
+	image->recode_flags = FLAG_NORMAL_RECODE | FLAG_REZOOM | (bild->zoomable & FLAG_ZOOMABLE);
 #ifdef NEED_PLAYER_RECODE
-	image->recode_flags[NEED_PLAYER_RECODE] = 128;
+	image->player_flags = NEED_PLAYER_RECODE;
 #endif
-	image->recode_flags[NEED_REZOOM] = true;
 
 	image->base_data = NULL;
 	image->zoom_data = NULL;
@@ -1146,8 +1148,6 @@ void register_image(struct bild_t* bild)
 
 	// since we do not recode them, we can work with the original data
 	image->base_data = (PIXVAL*)(bild + 1);
-
-	image->recode_flags[FLAGS] = bild->zoomable & FLAG_ZOOMABLE;
 
 	// does this image have color?
 	if (bild->h > 0) {
@@ -1163,7 +1163,7 @@ void register_image(struct bild_t* bild)
 					PIXVAL pix = *src++;
 
 					if (0x8000 <= pix && pix <= 0x800F) {
-						image->recode_flags[FLAGS] |= FLAG_PLAYERCOLOR;
+						image->recode_flags |= FLAG_PLAYERCOLOR;
 						return;
 					}
 				}
@@ -1222,11 +1222,11 @@ void display_set_image_offset(unsigned bild, int xoff, int yoff)
 		sp++;
 	}
 	// need recoding
-	images[anz_images].recode_flags[NEED_NORMAL_RECODE] = 128;
+	images[anz_images].recode_flags |= FLAG_NORMAL_RECODE;
 #ifdef NEED_PLAYER_RECODE
-	images[anz_images].recode_flags[NEED_PLAYER_RECODE] = 128;
+	images[anz_images].player_flags = NEED_PLAYER_RECODE;
 #endif
-	images[anz_images].recode_flags[NEED_REZOOM] = true;
+	images[anz_images].recode_flags |= FLAG_REZOOM;
 }
 
 
@@ -1388,7 +1388,7 @@ static inline void colorpixcopy(PIXVAL *dest, const PIXVAL *src, const PIXVAL * 
 
 
 /**
- * Zeichnet Bild mit Clipping
+ * Zeichnet Bild mit horizontalem Clipping
  * @author Hj. Malthaner
  */
 static void display_img_wc(KOORD_VAL h, const KOORD_VAL xp, const KOORD_VAL yp, const PIXVAL *sp)
@@ -1428,7 +1428,7 @@ static void display_img_wc(KOORD_VAL h, const KOORD_VAL xp, const KOORD_VAL yp, 
 
 
 /**
- * Zeichnet Bild ohne Clipping
+ * Zeichnet Bild ohne jedes Clipping
  */
 static void display_img_nc(KOORD_VAL h, const KOORD_VAL xp, const KOORD_VAL yp, const PIXVAL *sp)
 {
@@ -1447,6 +1447,7 @@ static void display_img_nc(KOORD_VAL h, const KOORD_VAL xp, const KOORD_VAL yp, 
 				// jetzt kommen farbige pixel
 				runlen = *sp++;
 #if USE_C
+#if 1
 				{
 					// "classic" C code (why is it faster!?!)
 					const uint32 *ls;
@@ -1465,31 +1466,13 @@ static void display_img_nc(KOORD_VAL h, const KOORD_VAL xp, const KOORD_VAL yp, 
 					p = (PIXVAL*)ld;
 					sp = (const PIXVAL*)ls;
 				}
-/*/
-				// faster with inline of memory functions!
+#else
+				// some architectures: faster with inline of memory functions!
 				memcpy( p, sp, runlen*sizeof(PIXVAL) );
-				sp += runlen;/*/
+				sp += runlen;
+#endif
 #else
-#if 0
-				// usually slower than the C code, even though much more straigh forward
-				asm volatile (
-					"cld\n\t"
-					// rep movsw and we would be finished, but we unroll
-					// uneven number of words to copy
-					"shrl %2\n\t"
-					"jnc 0f\n\t"
-					// Copy first word
-					// *p++ = *sp++;
-					"movsw\n"
-					"0:\n\t"
-					"rep\n\t"
-					"movsd\n\t"
-					: "+D" (p), "+S" (sp), "+r" (runlen)
-					:
-					: "cc"
-				);
-#else
-				// this code is sometimes slower, mostly 5% faster, not really clear why and when (cahce alignment?)
+				// this code is sometimes slower, mostly 5% faster, not really clear why and when (cache alignment?)
 				asm volatile (
 					"cld\n\t"
 					// rep movsw and we would be finished, but we unroll
@@ -1647,7 +1630,6 @@ static void display_img_nc(KOORD_VAL h, const KOORD_VAL xp, const KOORD_VAL yp, 
 					: "cc"
 				);
 #endif
-#endif
 				runlen = *sp++;
 			} while (runlen != 0);
 
@@ -1675,10 +1657,10 @@ void display_img_aux(const unsigned n, const KOORD_VAL xp, KOORD_VAL yp, const i
 				return;
 			}
 		} else {
-			if (images[n].recode_flags[NEED_REZOOM]) {
+			if (images[n].recode_flags&FLAG_REZOOM) {
 				rezoom_img(n);
 				recode_normal_img(n);
-			} else if (images[n].recode_flags[NEED_NORMAL_RECODE]) {
+			} else if (images[n].recode_flags&FLAG_NORMAL_RECODE) {
 				recode_normal_img(n);
 			}
 			sp = images[n].data;
@@ -1813,20 +1795,20 @@ void display_color_img(const unsigned n, const KOORD_VAL xp, const KOORD_VAL yp,
 		// only use the expensive replacement routine for colored images
 		// of other players
 		// Hajo: player 1 does not need any recoloring, too
-		if (daynight && (color < 4 || (images[n].recode_flags[FLAGS] & FLAG_PLAYERCOLOR) == 0)) {
+		if (daynight && (color < 4 || (images[n].recode_flags & FLAG_PLAYERCOLOR) == 0)) {
 			display_img_aux(n, xp, yp, dirty, false);
 			return;
 		}
 
-		if (images[n].recode_flags[NEED_REZOOM]) {
+		if (images[n].recode_flags&FLAG_REZOOM) {
 			rezoom_img(n);
 		}
 
 		{
 			// first test, if there is a cached version (or we can built one ... )
-			const unsigned char player_flag = images[n].recode_flags[NEED_PLAYER_RECODE]&0x7F;
+			const unsigned char player_flag = images[n].player_flags&0x7F;
 			if (daynight && (player_flag == 0 || player_flag == color)) {
-				if (images[n].recode_flags[NEED_PLAYER_RECODE] == 128 || player_flag == 0) {
+				if (images[n].player_flags== 128 || player_flag == 0) {
 					recode_color_img(n, color);
 				}
 				// ok, now we could use the same faster code as for the normal images

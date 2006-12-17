@@ -1,12 +1,13 @@
 /*
- * savegame_frame.cc
+ * label_frame.cc
  *
  * Copyright (c) 1997 - 2001 Hansjörg Malthaner
  *
  * This file is part of the Simutrans project and may not be used
  * in other projects without written permission of the author.
+ *
+ * Maintains a scrollable list of custom labels on the screen (may be used as jump points)
  */
-
 
 #include <string.h>
 
@@ -26,110 +27,137 @@
 
 
 label_frame_t *label_frame_t::instance = NULL;
+int label_frame_t::window_height = 16+70+100+10;
 
-
-label_frame_t::label_frame_t(karte_t *welt, spieler_t *sp, koord pos) : gui_frame_t("Marker") , fnlabel("Filename")
+label_frame_t::label_frame_t(karte_t *welt, spieler_t *sp, koord pos) :
+	gui_frame_t("Marker"),
+	fnlabel("Filename"),
+	button_frame(),
+	scrolly(&button_frame)
 {
-    int i=0;
+	destroy_win(instance);
+	instance = this;
 
-    destroy_win(instance);
-    instance = this;
+	slist_iterator_tpl <koord> iter (welt->gib_label_list());
 
-    slist_iterator_tpl <koord> iter (welt->gib_label_list());
+	scrolly.setze_pos(koord(1, 70));
+	scrolly.setze_groesse(koord(175+26*2-10, 100));
+	scrolly.set_show_scroll_x(false);
+	scrolly.set_size_corner(false);
 
-    while(iter.next()) {
-	button_t * button = new button_t();
-	koord my_pos = iter.get_current();
-	const char * text = welt->lookup(my_pos)->gib_kartenboden()->gib_text();
+	int y = 0;
+	while(iter.next()) {
+		button_t * button = new button_t();
+		koord my_pos = iter.get_current();
+		const char * text = welt->lookup(my_pos)->gib_kartenboden()->gib_text();
 
-	if(text) {
-	    char *my_text = new char[strlen(text) + 16];
+		if(text) {
+			char *my_text = new char[strlen(text) + 16];
 
-	    sprintf(my_text, "(%d,%d) %s", my_pos.x, my_pos.y, text);
+			sprintf(my_text, "(%d,%d) %s", my_pos.x, my_pos.y, text);
 
-	    button->setze_text(my_text);
-	    buttons.insert(button);
-	    button->setze_groesse(koord(205, 14));
-	    button->setze_pos(koord(10,30+14*i));
+			button->setze_text(my_text);
+			buttons.insert(button);
+			button->setze_groesse(koord(187, 14));
+			button->setze_pos(koord(10,y));
 
-	    button->add_listener(this);
-	    add_komponente(button);
-	    i++;
+			button->add_listener(this);
+			button_frame.add_komponente(button);
+
+			y+=14;
+		}
 	}
-    }
+	button_frame.setze_groesse(koord(175+26*2-10, y));
+	add_komponente(&scrolly);
 
-    this->welt = welt;
-    this->pos = pos;
-    this->sp = sp;
+	this->welt = welt;
+	this->pos = pos;
+	this->sp = sp;
 
-    grund_t *gr = welt->lookup(pos)->gib_kartenboden();
-    if(gr && (gr->gib_besitzer() == NULL || gr->gib_besitzer() == sp)) {
-	sprintf(txlabel, "(%d,%d) ", pos.x, pos.y);
+	grund_t *gr = welt->lookup(pos)->gib_kartenboden();
+	if(gr && (gr->gib_besitzer() == NULL || gr->gib_besitzer() == sp)) {
+		sprintf(txlabel, "(%d,%d) ", pos.x, pos.y);
 
-        // Text
-	fnlabel.setze_pos (koord(10,12));
-        fnlabel.setze_text (txlabel);
-	add_komponente(&fnlabel);
+		// Text
+		fnlabel.setze_pos (koord(10, 12));
+		fnlabel.setze_text (txlabel);
+		add_komponente(&fnlabel);
 
-	// Input box for new name
-        tstrncpy(ibuf, "", 1);
-	load_label(ibuf);
-        input.setze_text(ibuf, 58);
-	input.add_listener(this);
-	input.setze_pos(koord(75,8));
-	input.setze_groesse(koord(140, 14));
-	add_komponente(&input);
+		// Input box for new name
+		tstrncpy(ibuf, "", 1);
+		load_label(ibuf);
+		input.setze_text(ibuf, 58);
+		input.add_listener(this);
+		input.setze_pos(koord(75,8));
+		input.setze_groesse(koord(140, 14));
+		add_komponente(&input);
 
-	if(!gr->gib_halt().is_bound()) {
-	    removebutton.setze_pos(koord(80,50+14*i));
-	    removebutton.setze_groesse(koord(65, 14));
-	    removebutton.setze_text("Remove");
-	    removebutton.setze_typ(button_t::roundbox);
-	    removebutton.add_listener(this);
-	    add_komponente(&removebutton);
+		if(!gr->gib_halt().is_bound()) {
+			removebutton.setze_pos(koord(80,50));
+			removebutton.setze_groesse(koord(65, 14));
+			removebutton.setze_text("Remove");
+			removebutton.setze_typ(button_t::roundbox);
+			removebutton.add_listener(this);
+			add_komponente(&removebutton);
+		}
 	}
-    }
-    else {
-        // Text
-        fnlabel.setze_text ("Das Feld gehoert\neinem anderen Spieler\n");
-	add_komponente(&fnlabel);
+	else {
+		// Text
+		fnlabel.setze_text ("Das Feld gehoert\neinem anderen Spieler\n");
+		add_komponente(&fnlabel);
+	}
 
-    }
-    divider1.setze_pos(koord(10,40+14*i));
-    divider1.setze_groesse(koord(205,0));
-    add_komponente(&divider1);
+	divider1.setze_pos(koord(10,40));
+	divider1.setze_groesse(koord(205,0));
+	add_komponente(&divider1);
 
-    savebutton.setze_pos(koord(10,50+14*i));
-    savebutton.setze_groesse(koord(65, 14));
-    savebutton.setze_text("Ok");
-    savebutton.setze_typ(button_t::roundbox);
-    savebutton.add_listener(this);
-    add_komponente(&savebutton);
+	savebutton.setze_pos(koord(10,50));
+	savebutton.setze_groesse(koord(65, 14));
+	savebutton.setze_text("Ok");
+	savebutton.setze_typ(button_t::roundbox);
+	savebutton.add_listener(this);
+	add_komponente(&savebutton);
 
+	cancelbutton.setze_pos(koord(150,50));
+	cancelbutton.setze_groesse(koord(65, 14));
+	cancelbutton.setze_text("Cancel");
+	cancelbutton.setze_typ(button_t::roundbox);
+	cancelbutton.add_listener(this);
+	add_komponente(&cancelbutton);
 
-    cancelbutton.setze_pos(koord(150,50+14*i));
-    cancelbutton.setze_groesse(koord(65, 14));
-    cancelbutton.setze_text("Cancel");
-    cancelbutton.setze_typ(button_t::roundbox);
-    cancelbutton.add_listener(this);
-    add_komponente(&cancelbutton);
+	setze_opaque(true);
 
-    setze_opaque(true);
-    setze_fenstergroesse(koord(175+26*2, 90+i*14));
+	set_resizemode(vertical_resize);
+	setze_fenstergroesse(koord(175+26*2, window_height));
+	set_min_windowsize(koord(175+26*2, 16+70+100+10));
+
+	resize(koord(0,0));
 }
 
 
 label_frame_t::~label_frame_t()
 {
-    slist_iterator_tpl <button_t *> iter (buttons);
+	slist_iterator_tpl <button_t *> iter (buttons);
 
-    while(iter.next()) {
-	delete const_cast<char *>(iter.get_current()->gib_text());
-	delete iter.get_current();
-    }
-    instance = NULL;
+	while(iter.next()) {
+		delete const_cast<char *>(iter.get_current()->gib_text());
+		delete iter.get_current();
+	}
+	instance = NULL;
 }
 
+/**
+ * resize window in response to a resize event
+ * @author Hj. Malthaner
+ * @date   16-Oct-2003
+ */
+void label_frame_t::resize(const koord delta)
+{
+	gui_frame_t::resize(delta-koord(delta.x,0));
+	window_height = gib_fenstergroesse().y;
+	koord groesse = gib_fenstergroesse()-koord(10,16+70+10);
+	scrolly.setze_groesse(groesse);
+}
 
 /**
  * This method is called if an action is triggered
@@ -137,33 +165,32 @@ label_frame_t::~label_frame_t()
  */
 bool label_frame_t::action_triggered(gui_komponente_t *komp,value_t /* */)
 {
-    if(komp == &input || komp == &savebutton) {
-        // OK- Button or Enter-Key pressed
-        //---------------------------------------
-	create_label(ibuf);
-        destroy_win(this);
-    } else if(komp == &removebutton) {
-	remove_label();
-        destroy_win(this);
-    } else if(komp == &cancelbutton) {
-        // Cancel-button pressed
-        //-----------------------------
-        destroy_win(this);
-    } else {
-        // mark in list selected
-        //--------------------------
-	slist_iterator_tpl <button_t *> iter (buttons);
-
-	while(iter.next()) {
-	    if(komp == iter.get_current()) {
-		goto_label(iter.get_current()->gib_text());
+	if(komp == &input || komp == &savebutton) {
+		// OK- Button or Enter-Key pressed
+		//---------------------------------------
+		create_label(ibuf);
 		destroy_win(this);
-		intr_refresh_display( true );
-		break;
-	    }
+	} else if(komp == &removebutton) {
+		remove_label();
+		destroy_win(this);
+	} else if(komp == &cancelbutton) {
+		// Cancel-button pressed
+		//-----------------------------
+		destroy_win(this);
+	} else {
+		// mark in list selected
+		//--------------------------
+		slist_iterator_tpl <button_t *> iter (buttons);
+		while(iter.next()) {
+			if(komp == iter.get_current()) {
+				goto_label(iter.get_current()->gib_text());
+				destroy_win(this);
+				intr_refresh_display( true );
+				break;
+			}
+		}
 	}
-    }
-    return true;
+	return true;
 }
 
 
@@ -175,9 +202,9 @@ bool label_frame_t::action_triggered(gui_komponente_t *komp,value_t /* */)
  */
 void label_frame_t::zeichnen(koord pos, koord gr)
 {
-	fnlabel.setze_text (txlabel);
-	savebutton.setze_text("Ok");
-	cancelbutton.setze_text("Cancel");
+//	fnlabel.setze_text (txlabel);
+//	savebutton.setze_text("Ok");
+//	cancelbutton.setze_text("Cancel");
 	gui_frame_t::zeichnen(pos, gr);
 }
 

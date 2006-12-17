@@ -123,13 +123,13 @@ public:
 		undefined=-1, ding=0, baum=1, zeiger=2,
 		wolke=3, sync_wolke=4, async_wolke=5,
 
-		gebaeude=7,	// animated buidldings (not used any more)
+		gebaeude=7,	// animated buildings (6 not used any more)
 		signal=8,
 
 		bruecke=9, tunnel=10,
 		bahndepot=12, strassendepot=13, schiffdepot = 14,
 
-		raucher=15,
+		raucher=15, // obsolete
 		leitung = 16, pumpe = 17, senke = 18,
 		roadsign = 19, pillar = 20,
 

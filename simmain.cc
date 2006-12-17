@@ -151,7 +151,7 @@ static void show_times(karte_t *welt, karte_ansicht_t *view)
 	DBG_MESSAGE("test", "view->display(true) and flush: %i iterations took %i ms", i, get_current_time_millis() - ms);
 
 	ms = get_current_time_millis();
-	intr_set(welt, view, 1);
+	intr_set(welt, view);
 	for (i = 0; i < 200; i++) {
 		welt->step(200);
 	}
@@ -583,14 +583,14 @@ DBG_MESSAGE("simmain","loadgame file found at %s",buffer);
 		midi_play(0);
 	}
 
-	// suche nach refresh-einstellungen
-	int refresh = 1;
-	const char *ref_str = gimme_arg(argc, argv, "-refresh", 1);
-
+	// set the frame per minutes
+	int fps = 25;
+	const char *ref_str = gimme_arg(argc, argv, "-fps", 1);
 	if (ref_str != NULL) {
 		int want_refresh = atoi(ref_str);
-		refresh = want_refresh < 1 ? 1 : want_refresh > 16 ? 16 : want_refresh;
+		fps = want_refresh < 8 ? 8 : (want_refresh > 100 ? 100 : want_refresh);
 	}
+	umgebung_t::fps = fps;
 
 	if(loadgame != "") {
 		welt->laden(loadgame);
@@ -608,7 +608,7 @@ DBG_MESSAGE("init","map");
 	}
 #endif
 
-	intr_set(welt, view, refresh);
+	intr_set(welt, view);
 
 	win_setze_welt(welt);
 	win_display_menu();
@@ -641,7 +641,7 @@ DBG_MESSAGE("init","map");
 
 	zeige_banner(welt);
 
-	intr_set(welt, view, refresh);
+	intr_set(welt, view);
 
 	// Hajo: simgraph init loads default fonts, now we need to load
 	// the real fonts for the current language

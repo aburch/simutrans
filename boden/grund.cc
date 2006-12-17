@@ -953,8 +953,9 @@ long grund_t::neuen_weg_bauen(weg_t *weg, ribi_t::ribi ribi, spieler_t *sp)
 		weg->setze_ribi(ribi);
 		weg->setze_pos(pos);
 
-		// may result in a crossing
-		calc_bild();
+		// may result in a crossing, but the wegebauer will recalc all images anyway
+		weg->calc_bild();
+//		dinge.dump();
 
 		return cost;
 	}

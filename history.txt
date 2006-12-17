@@ -4,6 +4,9 @@ Known bugs: (hard to fix)
 	valgrind complains about errors in SDL and X?
 
 
+Release of 99.05.1
+
+xx-Dec-2006:
 	FIX: idle timer has eaten up all time doing additional frames
 	FIX: issue with transformers
 	FIX: crash in depot
@@ -14,6 +17,9 @@ Known bugs: (hard to fix)
 	FIX: loading bridges
 	FIX: display in depot for left hand driving
 	CHANGE: depots now maintained in a list => underground and monorail depots are found again and shown in minimap
+	FIX: crash when building tramways
+	ADD: scrollbar for label frame (mip)
+	FIX: now frames per second direct setable (refresh was not the right way for slow computer) new parameter "-fps", "-refresh" is obsolete
 
 
 Release of 99.05

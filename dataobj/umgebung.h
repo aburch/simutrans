@@ -289,6 +289,9 @@ class umgebung_t
 	// current climate borders
 	static sint16 climate_borders[MAX_CLIMATES];
 	static sint16 winter_snowline;	// summer snowline is obviously just the artic climate ...
+
+	// set the frame rate for the display
+	static sint16 fps;
 };
 
 #endif

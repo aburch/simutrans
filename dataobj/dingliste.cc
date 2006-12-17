@@ -61,7 +61,7 @@ static uint8 type_to_pri[32]=
 	1, 1, // bridge/tunnel
 	255,
 	2, 2, 2, // depots
-	3, // smoke generator
+	3, // smoke generator (not used any more)
 	75, 2, 2, // powerlines
 	5, // roadsign
 	3, // pillar
@@ -387,9 +387,15 @@ dingliste_t::add(ding_t *ding)
 	const uint8 pri=type_to_pri[ding->gib_typ()];
 
 	// roads must be first!
-	if(pri==0  &&  ((weg_t *)ding)->gib_waytype()==road_wt) {
-		return intern_insert_at(ding, 0);
+	if(pri==0) {
+		// check for other ways to keep order!
+		if(top>0  &&  obj.some[0]->gib_typ()==ding_t::way  &&  ((weg_t *)ding)->gib_waytype()>((weg_t *)obj.some[0])->gib_waytype()) {
+			return intern_insert_at(ding, 1);
+		} else {
+			return intern_insert_at(ding, 0);
+		}
 	}
+	assert(ding->gib_typ()<26);
 
 	uint8 i;
 	for(  i=0;  i<top  &&  pri>=type_to_pri[obj.some[i]->gib_typ()];  i++  )
@@ -783,6 +789,28 @@ dingliste_t::rdwr(karte_t *welt, loadsave_t *file, koord3d current_pos)
 				file->wr_obj_id(-1);
 			}
 		}
+	}
+}
+
+
+
+/* Dumps a short info about the things on this tile
+ *  @author prissi
+ */
+void dingliste_t::dump() const
+{
+	if(capacity==0) {
+		DBG_MESSAGE("dingliste_t::dump()","empty");
+		return;
+	}
+	else if(capacity==1) {
+		DBG_MESSAGE("dingliste_t::dump()","one object \'%s\'", obj.one->gib_name() );
+		return;
+	}
+
+	DBG_MESSAGE("dingliste_t::dump()","%i objects", top );
+	for(uint8 n=0; n<top; n++) {
+		DBG_MESSAGE( obj.some[n]->gib_name(), "at %i", n );
 	}
 }
 

@@ -44,6 +44,9 @@ public:
 
 	ding_t * suche(ding_t::typ typ,uint8 start) const;
 
+	// show all info about the current liste and its objects
+	void dump() const;
+
 	/**
 	* @param n thing index (unsigned value!)
 	* @returns thing at index n or NULL if n is out of bounds

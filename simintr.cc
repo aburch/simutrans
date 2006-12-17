@@ -20,16 +20,11 @@
 #include "simworld.h"
 #include "simview.h"
 
+
 static karte_t *welt_modell = NULL;
 static karte_ansicht_t *welt_ansicht = NULL;
 
 
-static int base_refresh = 1;
-static int refresh_counter = 0;
-
-//#define SHOW_TIME
-
-//static long sim_time;
 static long last_time;
 static bool enabled = false;
 
@@ -63,19 +58,13 @@ bool increase_frame_time()
 
 long get_frame_time()
 {
-    return frame_time;
+	return frame_time;
 }
 
 long get_actual_frame_time()
 {
-    return actual_frame_time;
+	return actual_frame_time;
 }
-
-long get_average_frame_time()
-{
-    return average_frame_time;
-}
-
 
 
 void
@@ -89,13 +78,6 @@ intr_refresh_display(bool dirty)
 void
 intr_routine(long delta_t)
 {
-	refresh_counter --;
-	if(refresh_counter <= 0) {
-		refresh_counter = base_refresh;
-		intr_refresh_display( false );
-	}
-
-//	welt_modell->sync_prepare();
 	welt_modell->sync_step( delta_t );
 }
 
@@ -132,20 +114,12 @@ void interrupt_check(const char* caller_info)
 
 
 void
-intr_set(karte_t *welt, karte_ansicht_t *view, int refresh)
+intr_set(karte_t *welt, karte_ansicht_t *view)
 {
 	welt_modell = welt;
 	welt_ansicht = view;
-	base_refresh = refresh;
-	refresh_counter = refresh;
 	last_time = get_system_ms();
 	enabled = true;
-}
-
-void
-intr_set(karte_t *welt, karte_ansicht_t *view)
-{
-    intr_set(welt, view, base_refresh);
 }
 
 /**
@@ -155,18 +129,18 @@ intr_set(karte_t *welt, karte_ansicht_t *view)
 void
 intr_set_last_time(long time)
 {
-    last_time = time;
+	last_time = time;
 }
 
 
 extern "C" void
 intr_disable()
 {
-    enabled = false;
+	enabled = false;
 }
 
 extern "C" void
 intr_enable()
 {
-    enabled = true;
+	enabled = true;
 }

@@ -888,7 +888,7 @@ DBG_DEBUG("karte_t::init()","Erzeuge stadt %i with %ld inhabitants",i,(s->get_ci
 
 	setze_dirty();
 
-    reset_timer();
+	reset_timer();
 
 	if(is_display_init()) {
 		display_show_pointer(true);
@@ -1618,8 +1618,6 @@ karte_t::sync_step(const long dt)
 		gib_spieler(x)->age_messages(delta_t);
 	}
 
-	ticks += delta_t;
-
 	// change view due to following a convoi?
 	if(follow_convoi.is_bound()) {
 		const koord old_pos=ij_off;
@@ -1632,12 +1630,24 @@ karte_t::sync_step(const long dt)
 			ij_off = new_pos;
 			x_off = new_xoff;
 			y_off = new_yoff;
-			intr_refresh_display( true );
+	    setze_dirty();
 		}
 	}
 
+	if(!fast_forward) {
+		// display new frame ...
+		uint32 last_ms = get_system_ms();
+		last_frame_ms[last_frame_idx++] = last_ms;
+		last_frame_idx &= 31;
+		// the first 256 after init this will give no result ...
+		if(last_frame_ms[last_frame_idx]<last_ms) {
+			realFPS = (1000*32) / (last_ms-last_frame_ms[last_frame_idx]);
+		}
+		intr_refresh_display( false );
+	}
+
 	// Hajo: ein weiterer Frame
-	thisFPS++;
+	ticks += delta_t;
 }
 
 
@@ -1920,7 +1930,7 @@ karte_t::setze_ij_off(koord3d ij)
 	ij_off=ij.gib_2d();
 	x_off = 0;
 	y_off = tile_raster_scale_y(ij.z,get_tile_raster_width());
-	dirty=true;
+	setze_dirty();
 }
 
 
@@ -2715,6 +2725,12 @@ void karte_t::reset_timer()
 		intr_enable();
 	}
 
+	// make invalid
+	for( int i=0;  i<256;  i++ ) {
+		last_frame_ms[i] = 0xFFFFFFFF;
+	}
+	last_frame_idx = 0;
+
 	// Hajo: this actually is too conservative but the correct
 	// solution is way too difficult for a simple pause function ...
 	// init for a good separation
@@ -3466,7 +3482,7 @@ karte_t::interactive_update()
 			unsigned long current_time = get_current_time_millis()-last_step_time;
 			if(current_time>50) {
 				// display every 50ms at least (if possible)
-				intr_refresh_display(true);
+				intr_refresh_display( false );
 				// check if we need to play a new midi file
 				check_midi();
 				last_step_time += current_time;
@@ -3500,7 +3516,7 @@ bool
 karte_t::interactive()
 {
 	unsigned long now = get_system_ms();
-	thisFPS = 0;
+	realFPS = umgebung_t::fps;
 
 	active_player_nr = 0;
 	active_player = spieler[0];
@@ -3518,9 +3534,7 @@ karte_t::interactive()
 		if(fast_forward) {
 			if(t > now+1000) {
 				last_simloops = steps-steps_bis_jetzt;
-				realFPS = (thisFPS*1000)/(t-now);
-				lastFPS = thisFPS;
-				thisFPS = 0;
+				realFPS = (last_simloops*1000)/(t-now);
 				steps_bis_jetzt = steps;
 				now = t;
 			}
@@ -3530,12 +3544,8 @@ karte_t::interactive()
 			const unsigned long t = get_system_ms();
 			if(t > now+1000) {
 				// every second is enough ...
-
 				const long stretch_factor = get_time_multi();
 				last_simloops = ( (steps - steps_bis_jetzt) * 16) / stretch_factor;
-				realFPS = (thisFPS * 1000) / (t-now);
-				lastFPS = (thisFPS * 16) / stretch_factor;
-				thisFPS = 0;
 
 				if(last_simloops<=2) {
 					sleep_time = 0;
@@ -3547,9 +3557,12 @@ karte_t::interactive()
 					sleep_time -= 1;
 				}
 
-				if(realFPS>MAX_FPS  ||  last_simloops<=2) {
+				if(realFPS>umgebung_t::fps  ||  last_simloops<=2) {
 					increase_frame_time();
-				} else if(realFPS<MIN_FPS  &&  last_simloops>=3) {
+				} else if(realFPS<umgebung_t::fps  &&  last_simloops>=3) {
+					if(sleep_time>0) {
+						sleep_time --;
+					}
 					reduce_frame_time();
 				}
 
