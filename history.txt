@@ -19,7 +19,8 @@ xx-Dec-2006:
 	CHANGE: depots now maintained in a list => underground and monorail depots are found again and shown in minimap
 	FIX: crash when building tramways
 	ADD: scrollbar for label frame (mip)
-	FIX: now frames per second direct setable (refresh was not the right way for slow computer) new parameter "-fps", "-refresh" is obsolete
+	FIX: now frames per second direct setable (refresh was not the right way for slow computer) new parameter "-fps", "-refresh" is obsolete; you can also use frames_per_second in simuconf.tab
+	FIX: pillar of neighboring bridges now at the same positions
 
 
 Release of 99.05

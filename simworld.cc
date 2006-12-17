@@ -2964,15 +2964,14 @@ karte_t::interactive_event(event_t &ev)
 	extern const weg_besch_t *default_track;
 	extern const weg_besch_t *default_road;
 	extern const way_obj_besch_t *default_electric;
-    struct sound_info click_sound;
+	struct sound_info click_sound;
 
-    click_sound.index = SFX_SELECT;
-    click_sound.volume = 255;
-    click_sound.pri = 0;
+	click_sound.index = SFX_SELECT;
+	click_sound.volume = 255;
+	click_sound.pri = 0;
 
-
-    if(ev.ev_class == EVENT_KEYBOARD) {
-	DBG_MESSAGE("karte_t::interactive_event()","Keyboard event with code %d '%c'", ev.ev_code, ev.ev_code);
+	if(ev.ev_class == EVENT_KEYBOARD) {
+		DBG_MESSAGE("karte_t::interactive_event()","Keyboard event with code %d '%c'", ev.ev_code, ev.ev_code);
 
 	switch(ev.ev_code) {
 	case ',':

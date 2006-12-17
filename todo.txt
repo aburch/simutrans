@@ -6,7 +6,6 @@ offset for images
 month to bankrupt into simuconf.tab
 bridges and tunnels with no initial road
 bahnhofsdetaildialog
-Brückenpfeiler: nur x- oder y- richtung
 
 Stichpunkte
 

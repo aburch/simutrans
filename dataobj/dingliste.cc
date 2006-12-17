@@ -395,7 +395,6 @@ dingliste_t::add(ding_t *ding)
 			return intern_insert_at(ding, 0);
 		}
 	}
-	assert(ding->gib_typ()<26);
 
 	uint8 i;
 	for(  i=0;  i<top  &&  pri>=type_to_pri[obj.some[i]->gib_typ()];  i++  )

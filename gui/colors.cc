@@ -189,8 +189,8 @@ void color_gui_t::zeichnen(koord pos, koord gr)
 	int loops;
 	loops=welt->gib_realFPS();
 	farbe = COL_WHITE;
-	if(loops<umgebung_t::fps-1) {
-		farbe = (loops<=5) ? COL_RED : COL_YELLOW;
+	if(loops<(umgebung_t::fps*3)/4) {
+		farbe = (loops<=umgebung_t::fps/2) ? COL_RED : COL_YELLOW;
   }
 	len = 15+display_proportional_clip(x+10, y+FRAME_DATA, translator::translate("FPS:"), ALIGN_LEFT, COL_BLACK, true);
 	sprintf(buf,"%d fps", loops );

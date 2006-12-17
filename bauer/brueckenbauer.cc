@@ -425,7 +425,7 @@ bool brueckenbauer_t::baue_bruecke(karte_t *welt, spieler_t *sp,
 //DBG_MESSAGE("bool brueckenbauer_t::baue_bruecke()","at (%i,%i)",pos.x,pos.y);
 		if(besch->gib_pillar()>0) {
 			// make a new pillar here
-			if(besch->gib_pillar()==1  ||  (pos.x+pos.y)%besch->gib_pillar()==0) {
+			if(besch->gib_pillar()==1  ||  (pos.x*zv.x+pos.y*zv.y)%besch->gib_pillar()==0) {
 				grund_t *gr = welt->lookup(pos.gib_2d())->gib_kartenboden();
 //DBG_MESSAGE("bool brueckenbauer_t::baue_bruecke()","h1=%i, h2=%i",pos.z,gr->gib_pos().z);
 				int height = (pos.z - gr->gib_pos().z)/Z_TILE_STEP+1;

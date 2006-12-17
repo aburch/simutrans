@@ -1813,6 +1813,7 @@ wegbauer_t::baue_strasse()
 				sp->add_undo( position_bei(i));
 			}
 		}
+		gr->calc_bild();
 
 		if(cost && sp) {
 			sp->buche(cost, k, COST_CONSTRUCTION);

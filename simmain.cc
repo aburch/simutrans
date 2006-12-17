@@ -400,6 +400,7 @@ extern "C" int simu_main(int argc, char** argv)
 		disp_width  = contents.get_int("display_width",  800);
 		disp_height = contents.get_int("display_height", 600);
 		fullscreen  = contents.get_int("fullscreen",       0);
+		umgebung_t::fps = contents.get_int("frames_per_second",25);
 
 		// Default pak file path
 		objfilename = ltrim(contents.get_string("pak_file_path", DEFAULT_OBJPATH));
@@ -583,14 +584,12 @@ DBG_MESSAGE("simmain","loadgame file found at %s",buffer);
 		midi_play(0);
 	}
 
-	// set the frame per minutes
-	int fps = 25;
+	// set the frame per second
 	const char *ref_str = gimme_arg(argc, argv, "-fps", 1);
 	if (ref_str != NULL) {
 		int want_refresh = atoi(ref_str);
-		fps = want_refresh < 8 ? 8 : (want_refresh > 100 ? 100 : want_refresh);
+		umgebung_t::fps = want_refresh < 5 ? 5 : (want_refresh > 100 ? 100 : want_refresh);
 	}
-	umgebung_t::fps = fps;
 
 	if(loadgame != "") {
 		welt->laden(loadgame);

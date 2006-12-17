@@ -1779,6 +1779,7 @@ void stadt_t::check_bau_rathaus(bool new_town)
 					// we itereate over all tiles, since the townhalls are allowed sizes bigger than 1x1
 
 					gr = welt->lookup(pos_alt + k)->gib_kartenboden();
+		DBG_MESSAGE("stadt_t::check_bau_rathaus()", "loesch %p", gr->first_obj());
 					gr->obj_loesche_alle(NULL);
 
 					if (umziehen) {
@@ -1799,7 +1800,7 @@ void stadt_t::check_bau_rathaus(bool new_town)
 		hausbauer_t::baue(welt, besitzer_p, welt->lookup(best_pos)->gib_kartenboden()->gib_pos(), layout, besch);
 		DBG_MESSAGE("new townhall", "use layout=%i", layout);
 		add_gebaeude_to_stadt(dynamic_cast<const gebaeude_t*>(welt->lookup(best_pos)->gib_kartenboden()->first_obj()));
-		DBG_MESSAGE("stadt_t::check_bau_rathaus()", "add townhall (bev=%i)", buildings.get_sum_weight());
+		DBG_MESSAGE("stadt_t::check_bau_rathaus()", "add townhall (bev=%i, ptr=%p)", buildings.get_sum_weight(),welt->lookup(best_pos)->gib_kartenboden()->first_obj());
 
 		// Orstnamen hinpflanzen
 		welt->lookup(best_pos)->gib_kartenboden()->setze_text(name);
