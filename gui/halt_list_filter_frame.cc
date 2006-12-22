@@ -145,12 +145,9 @@ halt_list_filter_frame_t::halt_list_filter_frame_t(spieler_t *sp, halt_list_fram
 
 
 
-void halt_list_filter_frame_t::infowin_event(const event_t *ev)
+halt_list_filter_frame_t::~halt_list_filter_frame_t()
 {
-	if(ev->ev_class == INFOWIN  &&  ev->ev_code == WIN_CLOSE) {
-		main_frame->filter_frame_closed();
-	}
-	gui_frame_t::infowin_event(ev);
+	main_frame->filter_frame_closed();
 }
 
 

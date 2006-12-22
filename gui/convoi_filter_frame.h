@@ -88,12 +88,7 @@ public:
      */
     convoi_filter_frame_t(spieler_t *sp, convoi_frame_t *main_frame);
 
-    /**
-     * Events werden hiermit an die GUI-Komponenten
-     * gemeldet
-     * @author V. Meyer
-     */
-    void infowin_event(const event_t *ev);
+		~convoi_filter_frame_t();
 
     /*
      * Propagate funktion from main_frame for ware_item_t

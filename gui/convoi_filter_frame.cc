@@ -123,12 +123,9 @@ convoi_filter_frame_t::convoi_filter_frame_t(spieler_t *sp, convoi_frame_t *main
 
 
 
-void convoi_filter_frame_t::infowin_event(const event_t *ev)
+convoi_filter_frame_t::~convoi_filter_frame_t()
 {
-	if(ev->ev_class == INFOWIN && ev->ev_code == WIN_CLOSE) {
-		main_frame->filter_frame_closed();
-	}
-	gui_frame_t::infowin_event(ev);
+	main_frame->filter_frame_closed();
 }
 
 
@@ -139,43 +136,43 @@ void convoi_filter_frame_t::infowin_event(const event_t *ev)
  */
 bool convoi_filter_frame_t::action_triggered(gui_komponente_t *komp,value_t /* */)
 {
-    int i;
+	int i;
 
-    for(i = 0; i < FILTER_BUTTONS; i++) {
-	if(komp == filter_buttons + i) {
-	    main_frame->setze_filter(filter_buttons_types[i], !main_frame->gib_filter(filter_buttons_types[i]));
-	    main_frame->display_list();
-    	    return true;
+	for(i = 0; i < FILTER_BUTTONS; i++) {
+		if(komp == filter_buttons + i) {
+			main_frame->setze_filter(filter_buttons_types[i], !main_frame->gib_filter(filter_buttons_types[i]));
+			main_frame->display_list();
+			return true;
+		}
 	}
-    }
-    if(komp == &ware_alle) {
-	main_frame->setze_alle_ware_filter(1);
-	main_frame->display_list();
-    	return true;
-    }
-    if(komp == &ware_keine) {
-	main_frame->setze_alle_ware_filter(0);
-	main_frame->display_list();
-    	return true;
-    }
-    if(komp == &ware_invers) {
-	main_frame->setze_alle_ware_filter(-1);
-	main_frame->display_list();
-    	return true;
-    }
-    if(komp == &name_filter_input) {
-	main_frame->display_list();
-	return true;
-    }
-    return false;
+	if(komp == &ware_alle) {
+		main_frame->setze_alle_ware_filter(1);
+		main_frame->display_list();
+		return true;
+	}
+	if(komp == &ware_keine) {
+		main_frame->setze_alle_ware_filter(0);
+		main_frame->display_list();
+		return true;
+	}
+	if(komp == &ware_invers) {
+		main_frame->setze_alle_ware_filter(-1);
+		main_frame->display_list();
+		return true;
+	}
+	if(komp == &name_filter_input) {
+		main_frame->display_list();
+		return true;
+	}
+	return false;
 }
 
 
 
 void convoi_filter_frame_t::ware_item_triggered(const ware_besch_t *ware)
 {
-    main_frame->setze_ware_filter(ware, -1);
-    main_frame->display_list();
+	main_frame->setze_ware_filter(ware, -1);
+	main_frame->display_list();
 }
 
 

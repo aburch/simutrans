@@ -92,6 +92,8 @@ public:
      */
     convoi_frame_t(spieler_t *sp, karte_t *welt);
 
+		~convoi_frame_t();
+
     /**
      * Events werden hiermit an die GUI-Komponenten
      * gemeldet

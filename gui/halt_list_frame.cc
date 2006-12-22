@@ -286,6 +286,16 @@ halt_list_frame_t::halt_list_frame_t(spieler_t *sp) :
 }
 
 
+
+halt_list_frame_t::~halt_list_frame_t()
+{
+	if(filter_frame) {
+		destroy_win(filter_frame);
+	}
+}
+
+
+
 /**
 * This function refreshs the station-list
 * @author Markus Weber/Volker Meyer
@@ -347,17 +357,6 @@ void halt_list_frame_t::display_list(void)
 }
 
 
-
-void halt_list_frame_t::infowin_event(const event_t *ev)
-{
-    if(ev->ev_class == INFOWIN &&
-       ev->ev_code == WIN_CLOSE) {
-	if(filter_frame) {
-	    filter_frame->infowin_event(ev);
-	}
-    }
-    gui_frame_t::infowin_event(ev);
-}
 
 /**
  * This method is called if an action is triggered

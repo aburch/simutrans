@@ -210,6 +210,15 @@ convoi_frame_t::convoi_frame_t(spieler_t *sp, karte_t *welt) :
 
 
 
+convoi_frame_t::~convoi_frame_t()
+{
+	if(filter_frame) {
+		destroy_win(filter_frame);
+	}
+}
+
+
+
 void convoi_frame_t::display_list(void)
 {
 	const unsigned count = welt->get_convoi_count();

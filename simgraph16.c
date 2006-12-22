@@ -576,7 +576,7 @@ static void rezoom_img(const unsigned int n)
 		images[n].player_flags = NEED_PLAYER_RECODE;
 
 		// just restore original size?
-		if (zoom_factor <= 1) {
+		if (zoom_factor <= 1  ||  (images[n].recode_flags&FLAG_ZOOMABLE)==0) {
 			// this we can do be a simple copy ...
 			images[n].x = images[n].base_x;
 			images[n].w = images[n].base_w;

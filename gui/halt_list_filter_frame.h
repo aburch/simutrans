@@ -95,18 +95,9 @@ private:
     gui_container_t ware_cont_an;
 
 public:
-    /**
-     * Konstruktor. Erzeugt alle notwendigen Subkomponenten.
-     * @author V. Meyer
-     */
     halt_list_filter_frame_t(spieler_t *sp, halt_list_frame_t *main_frame);
 
-    /**
-     * Events werden hiermit an die GUI-Komponenten
-     * gemeldet
-     * @author V. Meyer
-     */
-    void infowin_event(const event_t *ev);
+		~halt_list_filter_frame_t();
 
     /*
      * Propagate funktion from main_frame for ware_item_t

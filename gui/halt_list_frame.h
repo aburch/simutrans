@@ -95,19 +95,9 @@ private:
     static bool passes_filter(halthandle_t halt);
 
 public:
-
-    /**
-     * Konstruktor. Erzeugt alle notwendigen Subkomponenten.
-     * @author Hj. Malthaner
-     */
     halt_list_frame_t(spieler_t *sp);
 
-    /**
-     * Events werden hiermit an die GUI-Komponenten
-     * gemeldet
-     * @author V. Meyer
-     */
-    void infowin_event(const event_t *ev);
+		~halt_list_frame_t();
 
     /**
      * The filter frame tells us when it is closed.

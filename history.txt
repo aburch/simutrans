@@ -4,6 +4,10 @@ Known bugs: (hard to fix)
 	valgrind complains about errors in SDL and X?
 
 
+
+	FIX: crash when closing the filter window before the main list window
+	FIX: not zooming out menu icons
+
 Release of 99.05.1
 
 17-Dec-2006:
