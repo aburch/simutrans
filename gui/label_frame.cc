@@ -31,9 +31,9 @@ int label_frame_t::window_height = 16+70+100+10;
 
 label_frame_t::label_frame_t(karte_t *welt, spieler_t *sp, koord pos) :
 	gui_frame_t("Marker"),
-	fnlabel("Filename"),
+	scrolly(&button_frame),
 	button_frame(),
-	scrolly(&button_frame)
+	fnlabel("Filename")
 {
 	destroy_win(instance);
 	instance = this;
