@@ -519,11 +519,6 @@ void grund_t::calc_bild()
 			wege[1]->setze_bild( IMG_LEER );
 		}
 	}
-
-	// Das scheint die beste Stelle zu sein
-	if(ist_karten_boden()) {
-		reliefkarte_t::gib_karte()->calc_map_pixel(gib_pos().gib_2d());
-	}
 }
 
 
@@ -1006,6 +1001,7 @@ DBG_MESSAGE("grund_t::weg_entfernen()","weg %p",weg);
 		}
 
 		calc_bild();
+		reliefkarte_t::gib_karte()->calc_map_pixel(gib_pos().gib_2d());
 
 		return costs;
 	}

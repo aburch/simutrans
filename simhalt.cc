@@ -22,6 +22,7 @@
 #include "boden/wasser.h"
 #include "boden/wege/weg.h"
 #include "boden/wege/strasse.h"
+#include "gui/karte.h"
 #include "simhalt.h"
 #include "simfab.h"
 #include "simplay.h"
@@ -252,6 +253,7 @@ DBG_DEBUG("haltestelle_t::remove()","not last");
 	// if building was removed this is false!
 	if(bd) {
 		bd->calc_bild();
+		reliefkarte_t::gib_karte()->calc_map_pixel(pos.gib_2d());
 
 DBG_DEBUG("haltestelle_t::remove()","reset city way owner");
 		weg_t *weg = bd->gib_weg(road_wt);

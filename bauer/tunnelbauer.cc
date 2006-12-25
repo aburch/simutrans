@@ -15,6 +15,8 @@
 #include "tunnelbauer.h"
 #include "../besch/intro_dates.h"
 
+#include "../gui/karte.h"
+
 #include "../simworld.h"
 #include "../simwin.h"
 #include "../simplay.h"
@@ -534,6 +536,7 @@ tunnelbauer_t::remove(karte_t *welt, spieler_t *sp, koord3d start, waytype_t weg
 		// we may have a second way here ...
 		gr->obj_loesche_alle(sp);
 		welt->access(pos.gib_2d())->boden_entfernen(gr);
+		reliefkarte_t::gib_karte()->calc_map_pixel( pos.gib_2d() );
 		delete gr;
 	}
 
@@ -569,7 +572,6 @@ tunnelbauer_t::remove(karte_t *welt, spieler_t *sp, koord3d start, waytype_t weg
 		gr_new->setze_besitzer( sp );
 		gr_new->take_obj_from( gr );
 		welt->access(pos.gib_2d())->kartenboden_setzen(gr_new );
-		gr_new->calc_bild();
 	}
 	return NULL;
 }

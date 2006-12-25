@@ -738,8 +738,8 @@ DBG_DEBUG("karte_t::init()","set ground");
 	for(k.y=0; k.y<gib_groesse_y(); k.y++) {
 		for(k.x=0; k.x<gib_groesse_x(); k.x++) {
 			access(k)->abgesenkt(this);
-			lookup(k)->gib_kartenboden()->setze_grund_hang( calc_natural_slope(k) );
-			lookup(k)->gib_kartenboden()->calc_bild();
+			lookup_kartenboden(k)->setze_grund_hang( calc_natural_slope(k) );
+			lookup_kartenboden(k)->calc_bild();
 		}
 	}
 
@@ -2574,6 +2574,7 @@ DBG_MESSAGE("karte_t::laden()", "%d ways loaded",weg_t::gib_alle_wege().count())
 					}
 				}
 				gr->calc_bild();
+//				reliefkarte_t::gib_karte()->calc_map_pixel(koord(x,y));
 			}
 		}
 	}

@@ -689,7 +689,7 @@ reliefkarte_t::set_mode (MAP_MODES new_mode)
 void
 reliefkarte_t::neuer_monat()
 {
-	if(mode>MAP_TOWN) {
+	if(mode!=MAP_TOWN) {
 		calc_map();
 	}
 }

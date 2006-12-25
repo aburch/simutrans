@@ -604,7 +604,6 @@ brueckenbauer_t::remove(karte_t *welt, spieler_t *sp, koord3d pos, waytype_t weg
 		gr_new->setze_besitzer( sp );
 		gr_new->take_obj_from( gr );
 		welt->access(pos.gib_2d())->kartenboden_setzen(gr_new );
-		gr_new->calc_bild();
 	}
 
 	welt->setze_dirty();

@@ -2002,6 +2002,7 @@ void stadt_t::baue_gebaeude(const koord k)
 							weg->setze_besch(welt->get_city_road());
 						}
 						gr->calc_bild();
+						reliefkarte_t::gib_karte()->calc_map_pixel(gr->gib_pos().gib_2d());
 					}
 				}
 			}
@@ -2151,6 +2152,7 @@ void stadt_t::renoviere_gebaeude(koord k)
 						weg->setze_besch(welt->get_city_road());
 					}
 					gr->calc_bild();
+					reliefkarte_t::gib_karte()->calc_map_pixel(gr->gib_pos().gib_2d());
 				} else if (gr->gib_typ() == grund_t::fundament) {
 					// do not renovate, if the building is already in a neighbour tile
 					gebaeude_t* gb = dynamic_cast<gebaeude_t*>(gr->first_obj());

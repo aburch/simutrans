@@ -32,6 +32,7 @@
 
 // Hajo: these are needed to build the menu entries
 #include "../gui/werkzeug_parameter_waehler.h"
+#include "../gui/karte.h"
 
 #include "../tpl/weighted_vector_tpl.h"
 
@@ -409,6 +410,7 @@ void hausbauer_t::baue(karte_t *welt, spieler_t *sp, koord3d pos, int layout, co
 				}
 			}
 			gr->calc_bild();
+			reliefkarte_t::gib_karte()->calc_map_pixel(gr->gib_pos().gib_2d());
 		}
 	}
 }
@@ -459,6 +461,7 @@ hausbauer_t::neues_gebaeude(karte_t *welt, spieler_t *sp, koord3d pos, int layou
 	if(besch->ist_ausflugsziel()) {
 		welt->add_ausflugsziel( gb );
 	}
+	reliefkarte_t::gib_karte()->calc_map_pixel(gb->gib_pos().gib_2d());
 
 	return gb;
 }

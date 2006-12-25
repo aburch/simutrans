@@ -1795,7 +1795,6 @@ wegbauer_t::baue_strasse()
 				gr->setze_besitzer( NULL );	// this way the maitenace will be correct
 				weg->setze_besch(besch);
 				gr->setze_besitzer( sp );
-				gr->calc_bild();
 				cost -= besch->gib_preis();
 			}
 		}
@@ -1813,7 +1812,8 @@ wegbauer_t::baue_strasse()
 				sp->add_undo( position_bei(i));
 			}
 		}
-		gr->calc_bild();
+		gr->calc_bild();	// because it may be a crossing ...
+		reliefkarte_t::gib_karte()->calc_map_pixel(k);
 
 		if(cost && sp) {
 			sp->buche(cost, k, COST_CONSTRUCTION);
@@ -1862,7 +1862,6 @@ wegbauer_t::baue_schiene()
 					gr->setze_besitzer( NULL );	// no costs
 					weg->setze_besch(besch);
 					gr->setze_besitzer( sp );	// all to us now
-					gr->calc_bild();
 					cost = -besch->gib_preis();
 				}
 			}
@@ -1879,6 +1878,7 @@ wegbauer_t::baue_schiene()
 			}
 
 			gr->calc_bild();
+			reliefkarte_t::gib_karte()->calc_map_pixel( gr->gib_pos().gib_2d() );
 
 			if((i&3)==0) {
 				INT_CHECK( "wegbauer 1584" );

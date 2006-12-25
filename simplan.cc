@@ -84,6 +84,7 @@ void planquadrat_t::boden_hinzufuegen(grund_t *bd)
 		// completely empty
 		data.one = bd;
 		ground_size = 1;
+		reliefkarte_t::gib_karte()->calc_map_pixel(bd->gib_pos().gib_2d());
 		return;
 	}
 	else if(ground_size==1) {
@@ -98,6 +99,7 @@ DBG_MESSAGE("planquadrat_t::boden_hinzufuegen()","addition ground %s at (%i,%i,%
 		tmp[1] = bd;
 		data.some = tmp;
 		ground_size = 2;
+		reliefkarte_t::gib_karte()->calc_map_pixel(bd->gib_pos().gib_2d());
 		return;
 	}
 	else {
@@ -139,7 +141,6 @@ bool planquadrat_t::boden_entfernen(grund_t *bd)
 	if(ground_size==1) {
 		ground_size = 0;
 		data.one = NULL;
-		reliefkarte_t::gib_karte()->calc_map_pixel(bd->gib_pos().gib_2d());
 		return true;
 	}
 	else {
@@ -188,6 +189,7 @@ planquadrat_t::kartenboden_setzen(grund_t *bd)
 	}
 	bd->set_kartenboden(true);
 	bd->calc_bild();
+	reliefkarte_t::gib_karte()->calc_map_pixel(bd->gib_pos().gib_2d());
 }
 
 
