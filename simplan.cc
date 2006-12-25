@@ -464,6 +464,15 @@ void planquadrat_t::add_to_haltlist(halthandle_t halt)
 			}
 			// not found
 		}
+		else {
+			// just look, if it is not there ...
+			for(insert_pos=0;  insert_pos<halt_list_count;  insert_pos++) {
+				if(halt_list[insert_pos]==halt) {
+					// do not add twice
+					return;
+				}
+			}
+		}
 
 		// first or no passenger or append to the end ...
 		halt_list_insert_at( halt, halt_list_count );

@@ -7,6 +7,9 @@ Known bugs: (hard to fix)
 
 	FIX: crash when closing the filter window before the main list window
 	FIX: not zooming out menu icons
+	FIX: drawing of single direction signs
+	FIX: stations of AI were not added correctly
+
 
 Release of 99.05.1
 

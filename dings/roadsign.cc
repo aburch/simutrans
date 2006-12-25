@@ -168,7 +168,7 @@ void roadsign_t::calc_bild()
 		}
 	}
 
-	if(automatic) {
+	if(!automatic) {
 
 		image_id bild=IMG_LEER;
 		after_bild = IMG_LEER;
@@ -199,7 +199,7 @@ void roadsign_t::calc_bild()
 			}
 		}
 
-		// some signs on roads must not have a background (but then they have only two rotations
+		// some signs on roads must not have a background (but then they have only two rotations)
 		if(besch->get_flags()&roadsign_besch_t::ONLY_BACKIMAGE) {
 			if(after_bild!=IMG_LEER) {
 				bild = after_bild;

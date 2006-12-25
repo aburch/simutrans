@@ -107,7 +107,7 @@ static halthandle_t suche_nahe_haltestelle(spieler_t *sp, karte_t *welt, koord3d
 
 	grund_t *bd = welt->lookup(pos);
 	if(bd==NULL) {
-		bd = welt->lookup(pos.gib_2d())->gib_kartenboden();
+		bd = welt->lookup_kartenboden(pos.gib_2d());
 	}
 
 	// first we try to connect to a stop straight in our direction; otherwise our station may break during construction

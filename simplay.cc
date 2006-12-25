@@ -1790,7 +1790,7 @@ DBG_MESSAGE("spieler_t::baue_bahnhof","failed");
 
 	INT_CHECK("simplay 593");
 
-    koord pos;
+	koord pos;
 
 	wegbauer_t bauigel(welt, this);
 	bauigel.baubaer = false;
