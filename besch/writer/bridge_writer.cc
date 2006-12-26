@@ -12,7 +12,7 @@
 
 void bridge_writer_t::write_obj(FILE* outfp, obj_node_t& parent, tabfileobj_t& obj)
 {
-	obj_node_t node(this, 19, &parent, false);
+	obj_node_t node(this, 20, &parent, false);
 
 	uint8  wegtyp        = get_waytype(obj.get("waytype"));
 	uint16 topspeed      = obj.get_int("topspeed", 999);
@@ -28,9 +28,11 @@ void bridge_writer_t::write_obj(FILE* outfp, obj_node_t& parent, tabfileobj_t& o
 	uint16 obsolete_date = obj.get_int("retire_year", DEFAULT_RETIRE_DATE) * 12;
 	obsolete_date += obj.get_int("retire_month", 1) - 1;
 
+	sint8 number_seasons = 0;
+
 	// Hajo: Version needs high bit set as trigger -> this is required
 	//       as marker because formerly nodes were unversionend
-	uint16 version = 0x8005;
+	uint16 version = 0x8006;
 	node.write_data_at(outfp, &version,        0, 2);
 	node.write_data_at(outfp, &topspeed,       2, 2);
 	node.write_data_at(outfp, &preis,          4, 4);
@@ -53,48 +55,105 @@ void bridge_writer_t::write_obj(FILE* outfp, obj_node_t& parent, tabfileobj_t& o
 	slist_tpl<cstring_t> backkeys;
 	slist_tpl<cstring_t> frontkeys;
 
-	const char* const * ptr = names;
-	const char* keyname = *ptr++;
-
-	do {
-		const char* keyindex = *ptr++;
-		do {
-			char keybuf[40];
-			cstring_t value;
-
-			sprintf(keybuf, "back%s[%s]", keyname, keyindex);
-			value = obj.get(keybuf);
-			backkeys.append(value);
-			//intf("BACK: %s -> %s\n", keybuf, value.chars());
-			sprintf(keybuf, "front%s[%s]", keyname, keyindex);
-			value = obj.get(keybuf);
-			if (value.len() > 2) {
-				frontkeys.append(value);
-				//intf("FRNT: %s -> %s\n", keybuf, value.chars());
-			} else {
-				printf("WARNING: not %s specified (but might be still working)\n",keybuf);
-			}
-			keyindex = *ptr++;
-		} while (keyindex);
-		keyname = *ptr++;
-	} while (keyname);
-
-	if (pillars_every > 0) {
-		backkeys.append(cstring_t(obj.get("backpillar[s]")));
-		backkeys.append(cstring_t(obj.get("backpillar[w]")));
-	}
-
 	slist_tpl<cstring_t> cursorkeys;
 	cursorkeys.append(cstring_t(obj.get("cursor")));
 	cursorkeys.append(cstring_t(obj.get("icon")));
 
-	imagelist_writer_t::instance()->write_obj(outfp, node, backkeys);
-	imagelist_writer_t::instance()->write_obj(outfp, node, frontkeys);
-	cursorskin_writer_t::instance()->write_obj(outfp, node, obj, cursorkeys);
+	char keybuf[40];
+
+	cstring_t str = obj.get("backimage[ns][0]");
+	if(strlen(str) == 0) {
+		node.write_data_at(outfp, &number_seasons, 19, sizeof(uint8));
+		const char* const * ptr = names;
+		const char* keyname = *ptr++;
+
+		do {
+			const char* keyindex = *ptr++;
+			do {
+				cstring_t value;
+
+				sprintf(keybuf, "back%s[%s]", keyname, keyindex);
+				value = obj.get(keybuf);
+				backkeys.append(value);
+				//intf("BACK: %s -> %s\n", keybuf, value.chars());
+				sprintf(keybuf, "front%s[%s]", keyname, keyindex);
+				value = obj.get(keybuf);
+				if (value.len() > 2) {
+					frontkeys.append(value);
+					//intf("FRNT: %s -> %s\n", keybuf, value.chars());
+				} else {
+					printf("WARNING: not %s specified (but might be still working)\n",keybuf);
+				}
+				keyindex = *ptr++;
+			} while (keyindex);
+			keyname = *ptr++;
+		} while (keyname);
+
+		if (pillars_every > 0) {
+			backkeys.append(cstring_t(obj.get("backpillar[s]")));
+			backkeys.append(cstring_t(obj.get("backpillar[w]")));
+		}
+		imagelist_writer_t::instance()->write_obj(outfp, node, backkeys);
+		imagelist_writer_t::instance()->write_obj(outfp, node, frontkeys);
+		cursorskin_writer_t::instance()->write_obj(outfp, node, obj, cursorkeys);
+		backkeys.clear();
+		frontkeys.clear();
+	} else {
+		while(number_seasons < 2) {
+			sprintf(keybuf, "backimage[ns][%d]", number_seasons+1);
+			cstring_t str = obj.get(keybuf);
+			if(strlen(str) > 0) {
+				number_seasons++;
+			} else {
+				break;
+			}
+		}
+
+		node.write_data_at(outfp, &number_seasons, 19, sizeof(uint8));
+
+		for(uint8 season = 0 ; season <= number_seasons ; season++) {
+			const char* const * ptr = names;
+			const char* keyname = *ptr++;
+
+			do {
+				const char* keyindex = *ptr++;
+				do {
+					cstring_t value;
+
+					sprintf(keybuf, "back%s[%s][%d]", keyname, keyindex, season);
+					value = obj.get(keybuf);
+					backkeys.append(value);
+					//intf("BACK: %s -> %s\n", keybuf, value.chars());
+					sprintf(keybuf, "front%s[%s][%d]", keyname, keyindex, season);
+					value = obj.get(keybuf);
+					if (value.len() > 2) {
+						frontkeys.append(value);
+						//intf("FRNT: %s -> %s\n", keybuf, value.chars());
+					} else {
+						printf("WARNING: not %s specified (but might be still working)\n",keybuf);
+					}
+					keyindex = *ptr++;
+				} while (keyindex);
+				keyname = *ptr++;
+			} while (keyname);
+
+			if (pillars_every > 0) {
+				sprintf(keybuf, "backpillar[s][%d]",season);
+				backkeys.append(cstring_t(obj.get(keybuf)));
+				sprintf(keybuf, "backpillar[w][%d]",season);
+				backkeys.append(cstring_t(obj.get(keybuf)));
+			}
+			imagelist_writer_t::instance()->write_obj(outfp, node, backkeys);
+			imagelist_writer_t::instance()->write_obj(outfp, node, frontkeys);
+			if(season == 0 ) {
+				cursorskin_writer_t::instance()->write_obj(outfp, node, obj, cursorkeys);
+			}
+			backkeys.clear();
+			frontkeys.clear();
+		}
+	}
 
 	cursorkeys.clear();
-	backkeys.clear();
-	frontkeys.clear();
 
 	// node.write_data(outfp, &besch);
 	node.write(outfp);

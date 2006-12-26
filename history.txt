@@ -13,6 +13,7 @@ Known bugs: (hard to fix)
 	FIX: curves in tunnel again
 	FIX: way owner was lost after saving
 	FIX: channels were not connected to the sea in all cases
+	CHANGE: snow for tunnel and bridges (kierongreen)
 
 
 Release of 99.05.1

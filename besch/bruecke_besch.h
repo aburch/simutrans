@@ -11,6 +11,8 @@
  *	0   Vordergrundbilder
  *	1   Hintergrundbilder
  *	2   Cursor/Icon (Hajo: 14-Feb-02: now also icon image)
+ *	3   Vordergrundbilder - snow
+ *	4   Hintergrundbilder - snow
  */
 
 #ifndef __BRUECKE_BESCH_H
@@ -48,6 +50,9 @@ private:
 	uint16 intro_date;
 	uint16 obsolete_date;
 
+	/* number of seasons (0 = none, 1 = no snow/snow
+	*/
+	sint8 number_seasons;
 public:
 	/*
 	 * Nummerierung all der verschiedenen Schienstücke
@@ -64,15 +69,27 @@ public:
 
 	const skin_besch_t *gib_cursor() const { return static_cast<const skin_besch_t *>(gib_kind(2)); }
 
-	image_id gib_hintergrund(img_t img) const
+	image_id gib_hintergrund(img_t img, uint8 season) const
 	{
-		const bild_besch_t *bild = static_cast<const bildliste_besch_t *>(gib_kind(0))->gib_bild(img);
+		const bild_besch_t *bild = NULL;
+		if(season && number_seasons == 1) {
+			bild = static_cast<const bildliste_besch_t *>(gib_kind(3))->gib_bild(img);
+		}
+		if(bild == NULL) {
+			bild = static_cast<const bildliste_besch_t *>(gib_kind(0))->gib_bild(img);
+		}
 		return bild != NULL ? bild->gib_nummer() : IMG_LEER;
 	}
 
-	image_id gib_vordergrund(img_t img) const
+	image_id gib_vordergrund(img_t img, uint8 season) const
 	{
-		const bild_besch_t *bild = static_cast<const bildliste_besch_t *>(gib_kind(1))->gib_bild(img);
+		const bild_besch_t *bild = NULL;
+		if(season && number_seasons == 1) {
+			bild = static_cast<const bildliste_besch_t *>(gib_kind(4))->gib_bild(img);
+		}
+		if(bild == NULL) {
+			bild = static_cast<const bildliste_besch_t *>(gib_kind(1))->gib_bild(img);
+		}
 		return bild != NULL ? bild->gib_nummer() : IMG_LEER;
 	}
 

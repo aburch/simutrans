@@ -14,6 +14,8 @@
  *	2   Bildliste Hintergrund
  *	3   Bildliste Vordergrund
  *  4   cursor(image 0) and icon (image 1)
+ *	5   Bildliste Hintergrund - snow
+ *	6   Bildliste Vordergrund - snow
  *
  */
 #ifndef __TUNNEL_BESCH_H
@@ -43,26 +45,43 @@ private:
 	uint16 intro_date;
 	uint16 obsolete_date;
 
+	/* number of seasons (0 = none, 1 = no snow/snow
+	*/
+	sint8 number_seasons;
 public:
-	const bild_besch_t *gib_hintergrund(hang_t::typ hang) const
+	const bild_besch_t *gib_hintergrund(hang_t::typ hang, uint8 season) const
 	{
-		return static_cast<const bildliste_besch_t *>(gib_kind(2))->gib_bild(hang_indices[hang]);
+		const bild_besch_t *bild = NULL;
+		if(season && number_seasons == 1) {
+			bild = static_cast<const bildliste_besch_t *>(gib_kind(5))->gib_bild(hang_indices[hang]);
+		}
+		if(bild == NULL) {
+			bild = static_cast<const bildliste_besch_t *>(gib_kind(2))->gib_bild(hang_indices[hang]);
+		}
+		return bild;
 	}
 
-	image_id gib_hintergrund_nr(hang_t::typ hang) const
+	image_id gib_hintergrund_nr(hang_t::typ hang, uint8 season) const
 	{
-		const bild_besch_t *besch = gib_hintergrund(hang);
+		const bild_besch_t *besch = gib_hintergrund(hang, season);
 		return besch != NULL ? besch->gib_nummer() : IMG_LEER;
 	}
 
-	const bild_besch_t *gib_vordergrund(hang_t::typ hang) const
+	const bild_besch_t *gib_vordergrund(hang_t::typ hang, uint8 season) const
 	{
-		return static_cast<const bildliste_besch_t *>(gib_kind(3))->gib_bild(hang_indices[hang]);
+		const bild_besch_t *bild = NULL;
+		if(season && number_seasons == 1) {
+			bild = static_cast<const bildliste_besch_t *>(gib_kind(6))->gib_bild(hang_indices[hang]);
+		}
+		if(bild == NULL) {
+			bild = static_cast<const bildliste_besch_t *>(gib_kind(3))->gib_bild(hang_indices[hang]);
+		}
+		return bild;
 	}
 
-	image_id gib_vordergrund_nr(hang_t::typ hang) const
+	image_id gib_vordergrund_nr(hang_t::typ hang, uint8 season) const
 	{
-		const bild_besch_t *besch = gib_vordergrund(hang);
+		const bild_besch_t *besch = gib_vordergrund(hang, season);
 		return besch != NULL ? besch->gib_nummer() :IMG_LEER;
 	}
 

@@ -52,8 +52,8 @@ tunnel_t::calc_bild()
 	const grund_t *gr = welt->lookup(gib_pos());
 	if(gr->ist_karten_boden()) {
 		hang_t::typ hang = gr->gib_grund_hang();
-		setze_bild( besch->gib_hintergrund_nr(hang) );
-		after_bild = besch->gib_vordergrund_nr(hang);
+		setze_bild( besch->gib_hintergrund_nr(hang, gib_pos().z >= welt->get_snowline()));
+		after_bild = besch->gib_vordergrund_nr(hang, gib_pos().z >= welt->get_snowline());
 	}
 	else {
 		setze_bild( IMG_LEER );

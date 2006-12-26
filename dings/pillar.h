@@ -2,6 +2,7 @@
 #define dings_pillar_h
 
 #include "../simdings.h"
+#include "../simworld.h"
 #include "../besch/bruecke_besch.h"
 
 /** bruecke.h
@@ -31,7 +32,7 @@ public:
 
 	const bruecke_besch_t* gib_besch() const { return besch; }
 
-	image_id gib_bild() const { return besch->gib_hintergrund((bruecke_besch_t::img_t)dir); }
+	image_id gib_bild() const { return besch->gib_hintergrund((bruecke_besch_t::img_t)dir, gib_pos().z >= welt->get_snowline()); }
 
 	/**
 	 * @return Einen Beschreibungsstring für das Objekt, der z.B. in einem
