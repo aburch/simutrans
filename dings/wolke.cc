@@ -81,6 +81,8 @@ wolke_t::rdwr(loadsave_t *file)
 	uint16 dummy=base_y_off;
 	file->rdwr_short(dummy, "\n");
 	file->rdwr_short(base_image, "\n");
+	// do not remove from this position, since there will be nothing
+	ding_t::set_flag(ding_t::not_on_map);
 }
 
 
@@ -127,18 +129,24 @@ raucher_t::raucher_t(karte_t *welt, loadsave_t *file) : ding_t(welt)
 	ding_t::rdwr( file );
 	const char *s = NULL;
 	file->rdwr_str(s, "N");
+
+	// do not remove from this position, since there will be nothing
+	ding_t::set_flag(ding_t::not_on_map);
 }
 
 
 async_wolke_t::async_wolke_t(karte_t *welt, loadsave_t *file) : ding_t(welt)
 {
-	// not saving cloads!
+	// not saving clouds!
 	assert(file->is_loading());
 
 	ding_t::rdwr( file );
 
 	uint32 dummy;
 	file->rdwr_long(dummy, "\n");
+
+	// do not remove from this position, since there will be nothing
+	ding_t::set_flag(ding_t::not_on_map);
 }
 
 

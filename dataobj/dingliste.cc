@@ -685,6 +685,9 @@ dingliste_t::rdwr(karte_t *welt, loadsave_t *file, koord3d current_pos)
 					d->setze_besitzer( gb->gib_besitzer() );
 					gb->gib_besitzer()->add_maintenance(umgebung_t::maint_building);
 					typ = d->gib_typ();
+
+					// do not remove from this position, since there will be nothing
+					gb->set_flag(ding_t::not_on_map);
 					delete gb;
 				}
 				break;
@@ -700,6 +703,8 @@ dingliste_t::rdwr(karte_t *welt, loadsave_t *file, koord3d current_pos)
 					}
 					else {
 						// has no pillar ...
+						// do not remove from this position, since there will be nothing
+						p->set_flag(ding_t::not_on_map);
 						delete p;
 					}
 				}
@@ -709,6 +714,8 @@ dingliste_t::rdwr(karte_t *welt, loadsave_t *file, koord3d current_pos)
 				{
 					baum_t *b = new baum_t(welt, file);
 					if(!b->gib_besch()) {
+						// do not remove from this position, since there will be nothing
+						b->set_flag(ding_t::not_on_map);
 						delete b;
 					}
 					d = b;
@@ -722,6 +729,8 @@ dingliste_t::rdwr(karte_t *welt, loadsave_t *file, koord3d current_pos)
 					// Aufbau, stürzt aber nicht ab.
 					gebaeude_t *gb = new gebaeude_t (welt, file);
 					if(!gb->gib_tile()) {
+						// do not remove from this position, since there will be nothing
+						gb->set_flag(ding_t::not_on_map);
 						delete gb;
 						gb  = 0;
 					}

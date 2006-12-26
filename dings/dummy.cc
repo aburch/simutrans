@@ -27,6 +27,8 @@ dummy_ding_t::dummy_ding_t(karte_t *welt, loadsave_t *file) :
     ding_t(welt)
 {
 	rdwr(file);
+	// do not remove from this position, since there will be nothing
+	ding_t::set_flag(ding_t::not_on_map);
 }
 
 dummy_ding_t::dummy_ding_t(karte_t *welt, koord3d pos, spieler_t *) :
