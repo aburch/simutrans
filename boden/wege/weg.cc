@@ -168,6 +168,14 @@ void weg_t::rdwr(loadsave_t *file)
 		file->wr_obj_id( gib_waytype() );
 	}
 
+	// save owner
+	if(file->get_version()>=99006) {
+		sint8 spnum=gib_besitzer_num();
+		file->rdwr_byte(spnum,"");
+		setze_besitzer_num(spnum);
+	}
+
+	// all connected directions
 	uint8 dummy8 = ribi;
 	file->rdwr_byte(dummy8, "\n");
 	if(file->is_loading()) {

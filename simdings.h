@@ -79,6 +79,10 @@ private:
 protected:
 	ding_t(karte_t *welt);
 
+	// since we need often access during loading
+	void setze_besitzer_num(sint8 s) { besitzer_n = s; }
+	sint8 gib_besitzer_num() const { return besitzer_n; }
+
 	/**
 	* Erzeugt ein Info-Fenster für dieses Objekt
 	* @author V. Meyer

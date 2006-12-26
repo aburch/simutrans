@@ -11,6 +11,7 @@ Known bugs: (hard to fix)
 	FIX: stations of AI were not added correctly
 	FIX: some minimap setting were forgotten during season change
 	FIX: curves in tunnel again
+	FIX: way owner way lost after saving
 
 
 Release of 99.05.1
