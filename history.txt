@@ -9,6 +9,8 @@ Known bugs: (hard to fix)
 	FIX: not zooming out menu icons
 	FIX: drawing of single direction signs
 	FIX: stations of AI were not added correctly
+	FIX: some minimap setting were forgotten during season change
+	FIX: curves in tunnel again
 
 
 Release of 99.05.1

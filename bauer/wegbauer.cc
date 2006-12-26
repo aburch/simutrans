@@ -468,7 +468,7 @@ bool wegbauer_t::is_allowed_step( const grund_t *from, const grund_t *to, long *
 	}
 
 	if(from==to) {
-		if(!hang_t::ist_wegbar(from->gib_weg_hang())) {
+		if((bautyp&tunnel_flag)  &&  !hang_t::ist_wegbar(from->gib_weg_hang())) {
 //			DBG_MESSAGE("wrong slopes at","%i,%i ribi1=%d",from_pos.x,from_pos.y,ribi_typ(from->gib_weg_hang()));
 			return false;
 		}
@@ -561,10 +561,12 @@ DBG_MESSAGE("wegbauer_t::is_allowed_step()","wrong ground already there!");
 	}
 
 	// not jumping to other lanes on bridges or tunnels
-	if(to->gib_typ()==grund_t::brueckenboden  ||  to->gib_typ()==grund_t::tunnelboden) {
-		weg_t *weg=to->gib_weg_nr(0);
-		if(!ribi_t::ist_gerade(weg->gib_ribi_unmasked()|ribi_typ(zv))) {
-			return false;
+	if(bautyp&tunnel_flag==0) {
+		if(to->gib_typ()==grund_t::brueckenboden  ||  to->gib_typ()==grund_t::tunnelboden) {
+			weg_t *weg=to->gib_weg_nr(0);
+			if(!ribi_t::ist_gerade(weg->gib_ribi_unmasked()|ribi_typ(zv))) {
+				return false;
+			}
 		}
 	}
 
