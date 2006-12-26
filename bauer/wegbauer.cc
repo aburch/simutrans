@@ -1870,6 +1870,9 @@ wegbauer_t::baue_schiene()
 			else {
 				weg_t *sch=weg_t::alloc((waytype_t)besch->gib_wtyp());
 				sch->setze_besch(besch);
+				if(besch->gib_wtyp()==water_wt  &&  gr->gib_hoehe()==welt->gib_grundwasser()) {
+					ribi = ribi_t::doppelt(ribi);
+				}
 				cost = -gr->neuen_weg_bauen(sch, ribi, sp)-besch->gib_preis();
 				// prissi: into UNDO-list, so wie can remove it later
 				sp->add_undo( position_bei(i) );
