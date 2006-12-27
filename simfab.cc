@@ -1129,17 +1129,11 @@ void fabrik_t::info(cbuffer_t & buf)
 
 void fabrik_t::laden_abschliessen()
 {
-	slist_iterator_tpl<fabrik_t*> fiter ( welt->gib_fab_list() );
-	while(fiter.next()) {
-		fabrik_t * fab = fiter.get_current();
-		koord fab_pos = fab->gib_pos().gib_2d();
-		const vector_tpl <koord> &lieferziele = fab->gib_lieferziele();
-		for(uint32 i=0; i<lieferziele.get_count(); i++) {
-			const koord lieferziel = lieferziele[i];
-			fabrik_t * fab2 = fabrik_t::gib_fab(welt, lieferziel);
-			if (fab2) {
-				fab2->add_supplier(fab_pos);
-			}
+	for(uint32 i=0; i<lieferziele.get_count(); i++) {
+		const koord lieferziel = lieferziele[i];
+		fabrik_t * fab2 = fabrik_t::gib_fab(welt, lieferziele[i]);
+		if (fab2) {
+			fab2->add_supplier(pos.gib_2d());
 		}
 	}
 }

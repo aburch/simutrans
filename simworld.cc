@@ -2394,7 +2394,7 @@ DBG_DEBUG("karte_t::laden", "init %i cities",einstellungen->gib_anzahl_staedte()
 			}
 			access(x, y)->rdwr(this, file);
 		}
-		display_progress(y, gib_groesse_y());
+		display_progress(y, gib_groesse_y()+128+128);
 		display_flush(IMG_LEER, 0, 0, "", "", 0, 0);
 	}
 
@@ -2413,6 +2413,8 @@ DBG_MESSAGE("karte_t::laden()","loading grid");
 		for( uint32 i=0;  i<(gib_groesse_y()+1)*(gib_groesse_x()+1);  i++  ) {
 			file->rdwr_byte( grid_hgts[i], "\n" );
 		}
+		display_progress(gib_groesse_y()+16, gib_groesse_y()+128+128);
+		display_flush(IMG_LEER, 0, 0, "", "", 0, 0);
 	}
 
 	if(file->get_version()<88009) {
@@ -2460,9 +2462,13 @@ DBG_MESSAGE("karte_t::laden()","loading grid");
 			dbg->error("karte_t::laden()","Unknown fabrik skipped!");
 		}
 	}
+	display_progress(gib_groesse_y()+24, gib_groesse_y()+128+128);
+	display_flush(IMG_LEER, 0, 0, "", "", 0, 0);
+
 	DBG_MESSAGE("karte_t::laden()", "clean up factories");
-	if (!fab_list.empty()) {
-		gib_fab(0)->laden_abschliessen();
+	slist_iterator_tpl<fabrik_t*> fiter ( fab_list );
+	while(fiter.next()) {
+		fiter.get_current()->laden_abschliessen();
 	}
 
 	// crossconnect all?
@@ -2473,6 +2479,8 @@ DBG_MESSAGE("karte_t::laden()","loading grid");
 			iter.get_current()->add_all_suppliers();
 		}
 	}
+	display_progress(gib_groesse_y()+32, gib_groesse_y()+128+128);
+	display_flush(IMG_LEER, 0, 0, "", "", 0, 0);
 
 DBG_MESSAGE("karte_t::laden()", "%d factories loaded", fab_list.count());
 
@@ -2481,6 +2489,9 @@ DBG_MESSAGE("karte_t::laden()", "%d factories loaded", fab_list.count());
 	for (uint i = 0; i < stadt.get_count(); i++) {
 		stadt[i]->laden_abschliessen();
 	}
+	display_progress(gib_groesse_y()+48, gib_groesse_y()+128+128);
+	display_flush(IMG_LEER, 0, 0, "", "", 0, 0);
+
 	// must resort them ...
 	weighted_vector_tpl<stadt_t*> new_weighted_stadt(stadt.get_count() + 1);
 	for (uint i = 0; i < stadt.get_count(); i++) {
@@ -2490,7 +2501,9 @@ DBG_MESSAGE("karte_t::laden()", "%d factories loaded", fab_list.count());
 		INT_CHECK("simworld 1278");
 	}
 	swap(stadt, new_weighted_stadt);
-	// ok finished
+
+	display_progress(gib_groesse_y()+64, gib_groesse_y()+128+128);
+	display_flush(IMG_LEER, 0, 0, "", "", 0, 0);
 	DBG_MESSAGE("karte_t::laden()", "cities initialized");
 
 	// load linemanagement status (and lines)
@@ -2500,6 +2513,8 @@ DBG_MESSAGE("karte_t::laden()", "%d factories loaded", fab_list.count());
 		gib_spieler(0)->simlinemgmt.rdwr(this, file);
 		DBG_MESSAGE("karte_t::laden()", "%d lines loaded", gib_spieler(0)->simlinemgmt.count_lines());
 	}
+	display_progress(gib_groesse_y()+72, gib_groesse_y()+128+128);
+	display_flush(IMG_LEER, 0, 0, "", "", 0, 0);
 	// end load linemanagement
 
 	DBG_MESSAGE("karte_t::laden()", "load convois");
@@ -2531,11 +2546,15 @@ DBG_MESSAGE("karte_t::laden()", "%d factories loaded", fab_list.count());
 			}
 		}
 	}
+	display_progress(gib_groesse_y()+128, gib_groesse_y()+128+128);
+	display_flush(IMG_LEER, 0, 0, "", "", 0, 0);
 DBG_MESSAGE("karte_t::laden()", "%d convois/trains loaded", convoi_array.get_count());
 
 	// jetzt können die spieler geladen werden
 	for(int i=0; i<MAX_PLAYER_COUNT; i++) {
 		spieler[i]->rdwr(file);
+		display_progress(gib_groesse_y()+128+(i*8), gib_groesse_y()+128+128);
+		display_flush(IMG_LEER, 0, 0, "", "", 0, 0);
 	}
 	for(int i=0; i<MAX_PLAYER_COUNT-2; i++) {
 		umgebung_t::automaten[i] = spieler[i+2]->is_active();
@@ -2578,6 +2597,8 @@ DBG_MESSAGE("karte_t::laden()", "%d ways loaded",weg_t::gib_alle_wege().count())
 			}
 		}
 	}
+	display_progress(gib_groesse_y()+128+96, gib_groesse_y()+128+128);
+	display_flush(IMG_LEER, 0, 0, "", "", 0, 0);
 
 	// assing lines and other stuff for convois
 	for(unsigned i=0;  i<convoi_array.get_count();  i++ ) {
@@ -2589,6 +2610,8 @@ DBG_MESSAGE("karte_t::laden()", "%d ways loaded",weg_t::gib_alle_wege().count())
 	for(int i=0; i<MAX_PLAYER_COUNT ; i++) {
 		spieler[i]->laden_abschliessen();
 	}
+	display_progress(gib_groesse_y()+128+112, gib_groesse_y()+128+128);
+	display_flush(IMG_LEER, 0, 0, "", "", 0, 0);
 
 	// just keep the record for the last 12 years ... to allow infite long games
 	while(ticks>(288u << karte_t::ticks_bits_per_tag)) {
