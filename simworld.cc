@@ -2394,7 +2394,7 @@ DBG_DEBUG("karte_t::laden", "init %i cities",einstellungen->gib_anzahl_staedte()
 			}
 			access(x, y)->rdwr(this, file);
 		}
-		display_progress(y, gib_groesse_y()+128+128);
+		display_progress(y, gib_groesse_y()+stadt.get_count()+256);
 		display_flush(IMG_LEER, 0, 0, "", "", 0, 0);
 	}
 
@@ -2413,8 +2413,6 @@ DBG_MESSAGE("karte_t::laden()","loading grid");
 		for( uint32 i=0;  i<(gib_groesse_y()+1)*(gib_groesse_x()+1);  i++  ) {
 			file->rdwr_byte( grid_hgts[i], "\n" );
 		}
-		display_progress(gib_groesse_y()+16, gib_groesse_y()+128+128);
-		display_flush(IMG_LEER, 0, 0, "", "", 0, 0);
 	}
 
 	if(file->get_version()<88009) {
@@ -2461,9 +2459,11 @@ DBG_MESSAGE("karte_t::laden()","loading grid");
 		else {
 			dbg->error("karte_t::laden()","Unknown fabrik skipped!");
 		}
+		if(i&7) {
+			display_progress(gib_groesse_y()+(24*i)/fabs, gib_groesse_y()+stadt.get_count()+256);
+			display_flush(IMG_LEER, 0, 0, "", "", 0, 0);
+		}
 	}
-	display_progress(gib_groesse_y()+24, gib_groesse_y()+128+128);
-	display_flush(IMG_LEER, 0, 0, "", "", 0, 0);
 
 	DBG_MESSAGE("karte_t::laden()", "clean up factories");
 	slist_iterator_tpl<fabrik_t*> fiter ( fab_list );
@@ -2479,7 +2479,7 @@ DBG_MESSAGE("karte_t::laden()","loading grid");
 			iter.get_current()->add_all_suppliers();
 		}
 	}
-	display_progress(gib_groesse_y()+32, gib_groesse_y()+128+128);
+	display_progress(gib_groesse_y()+24, gib_groesse_y()+256+stadt.get_count());
 	display_flush(IMG_LEER, 0, 0, "", "", 0, 0);
 
 DBG_MESSAGE("karte_t::laden()", "%d factories loaded", fab_list.count());
@@ -2488,9 +2488,9 @@ DBG_MESSAGE("karte_t::laden()", "%d factories loaded", fab_list.count());
 	// must be done after reliefkarte is initialized
 	for (uint i = 0; i < stadt.get_count(); i++) {
 		stadt[i]->laden_abschliessen();
+		display_progress(gib_groesse_y()+24+i, gib_groesse_y()+256+stadt.get_count());
+		display_flush(IMG_LEER, 0, 0, "", "", 0, 0);
 	}
-	display_progress(gib_groesse_y()+48, gib_groesse_y()+128+128);
-	display_flush(IMG_LEER, 0, 0, "", "", 0, 0);
 
 	// must resort them ...
 	weighted_vector_tpl<stadt_t*> new_weighted_stadt(stadt.get_count() + 1);
@@ -2501,9 +2501,6 @@ DBG_MESSAGE("karte_t::laden()", "%d factories loaded", fab_list.count());
 		INT_CHECK("simworld 1278");
 	}
 	swap(stadt, new_weighted_stadt);
-
-	display_progress(gib_groesse_y()+64, gib_groesse_y()+128+128);
-	display_flush(IMG_LEER, 0, 0, "", "", 0, 0);
 	DBG_MESSAGE("karte_t::laden()", "cities initialized");
 
 	// load linemanagement status (and lines)
@@ -2513,8 +2510,6 @@ DBG_MESSAGE("karte_t::laden()", "%d factories loaded", fab_list.count());
 		gib_spieler(0)->simlinemgmt.rdwr(this, file);
 		DBG_MESSAGE("karte_t::laden()", "%d lines loaded", gib_spieler(0)->simlinemgmt.count_lines());
 	}
-	display_progress(gib_groesse_y()+72, gib_groesse_y()+128+128);
-	display_flush(IMG_LEER, 0, 0, "", "", 0, 0);
 	// end load linemanagement
 
 	DBG_MESSAGE("karte_t::laden()", "load convois");
@@ -2546,14 +2541,14 @@ DBG_MESSAGE("karte_t::laden()", "%d factories loaded", fab_list.count());
 			}
 		}
 	}
-	display_progress(gib_groesse_y()+128, gib_groesse_y()+128+128);
+	display_progress(gib_groesse_y()+24+stadt.get_count(), gib_groesse_y()+256+stadt.get_count());
 	display_flush(IMG_LEER, 0, 0, "", "", 0, 0);
 DBG_MESSAGE("karte_t::laden()", "%d convois/trains loaded", convoi_array.get_count());
 
 	// jetzt können die spieler geladen werden
 	for(int i=0; i<MAX_PLAYER_COUNT; i++) {
 		spieler[i]->rdwr(file);
-		display_progress(gib_groesse_y()+128+(i*8), gib_groesse_y()+128+128);
+		display_progress(gib_groesse_y()+24+stadt.get_count()+(i*3), gib_groesse_y()+256+stadt.get_count());
 		display_flush(IMG_LEER, 0, 0, "", "", 0, 0);
 	}
 	for(int i=0; i<MAX_PLAYER_COUNT-2; i++) {
@@ -2596,9 +2591,9 @@ DBG_MESSAGE("karte_t::laden()", "%d ways loaded",weg_t::gib_alle_wege().count())
 //				reliefkarte_t::gib_karte()->calc_map_pixel(koord(x,y));
 			}
 		}
+		display_progress(gib_groesse_y()+48+stadt.get_count()+(y*176)/gib_groesse_y(), gib_groesse_y()+256+stadt.get_count());
+		display_flush(IMG_LEER, 0, 0, "", "", 0, 0);
 	}
-	display_progress(gib_groesse_y()+128+96, gib_groesse_y()+128+128);
-	display_flush(IMG_LEER, 0, 0, "", "", 0, 0);
 
 	// assing lines and other stuff for convois
 	for(unsigned i=0;  i<convoi_array.get_count();  i++ ) {
@@ -2610,8 +2605,6 @@ DBG_MESSAGE("karte_t::laden()", "%d ways loaded",weg_t::gib_alle_wege().count())
 	for(int i=0; i<MAX_PLAYER_COUNT ; i++) {
 		spieler[i]->laden_abschliessen();
 	}
-	display_progress(gib_groesse_y()+128+112, gib_groesse_y()+128+128);
-	display_flush(IMG_LEER, 0, 0, "", "", 0, 0);
 
 	// just keep the record for the last 12 years ... to allow infite long games
 	while(ticks>(288u << karte_t::ticks_bits_per_tag)) {
@@ -2639,8 +2632,13 @@ DBG_MESSAGE("karte_t::laden()", "%d ways loaded",weg_t::gib_alle_wege().count())
 	// rebuild destination lists
 	const slist_tpl<halthandle_t> & list = haltestelle_t::gib_alle_haltestellen();
 	slist_iterator_tpl <halthandle_t> iter (list);
+	int i = 0;
 	while( iter.next() ) {
 		iter.get_current()->recalc_station_type();	// fix broken post flags
+		if((i++&7)==0) {
+			display_progress(gib_groesse_y()+48+stadt.get_count()+176+(i*32)/list.count(), gib_groesse_y()+256+stadt.get_count());
+			display_flush(IMG_LEER, 0, 0, "", "", 0, 0);
+		}
 	}
 	schedule_counter++;	// force check for unroutable goods and connections
 

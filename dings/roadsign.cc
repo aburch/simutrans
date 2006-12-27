@@ -70,13 +70,16 @@ roadsign_t::roadsign_t(karte_t *welt, spieler_t *sp, koord3d pos, ribi_t::ribi d
 
 roadsign_t::~roadsign_t()
 {
-	weg_t *weg = welt->lookup(gib_pos())->gib_weg((waytype_t)besch->gib_wtyp());
-	if(weg) {
-		// Weg wieder freigeben, wenn das Signal nicht mehr da ist.
-		weg->setze_ribi_maske(ribi_t::keine);
-	}
-	else {
-		dbg->error("roadsign_t::~roadsign_t()","roadsign_t %p was deleted but ground was not a road!");
+	const grund_t *gr = welt->lookup(gib_pos());
+	if(gr) {
+		weg_t *weg = gr->gib_weg((waytype_t)besch->gib_wtyp());
+		if(weg) {
+			// Weg wieder freigeben, wenn das Signal nicht mehr da ist.
+			weg->setze_ribi_maske(ribi_t::keine);
+		}
+		else {
+			dbg->error("roadsign_t::~roadsign_t()","roadsign_t %p was deleted but ground was not a road!");
+		}
 	}
 }
 

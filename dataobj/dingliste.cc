@@ -113,6 +113,8 @@ dingliste_t::~dingliste_t()
 	if(capacity>1) {
 		dl_free(obj.some, capacity);
 	}
+	obj.some = NULL;
+	capacity = top = 0;
 }
 
 
@@ -486,12 +488,13 @@ dingliste_t::loesche_alle(spieler_t *sp, uint8 offset)
 	bool ok=false;
 
 	if(capacity>1) {
-		for( unsigned i=offset;  i<top;  i++  ) {
-			ding_t *dt = obj.some[i];
+		while( top>offset  ) {
+			top --;
+			ding_t *dt = obj.some[top];
 			dt->entferne(sp);
 			dt->set_flag(ding_t::not_on_map);
 			delete dt;
-			obj.some[i] = NULL;
+			obj.some[top] = NULL;
 			ok = true;
 		}
 		top = offset;

@@ -65,8 +65,7 @@ gimme_neighbours(karte_t *welt, koord base_pos, leitung_t **conn)
 
 	for(int i=0; i<4; i++) {
 		const koord pos = base_pos + koord::nsow[i];
-		const planquadrat_t * plan = welt->lookup(pos);
-		grund_t * gr = plan ? plan->gib_kartenboden() : 0;
+		grund_t *gr = welt->lookup_kartenboden(pos);
 
 		conn[i] = NULL;
 		if(gr) {
@@ -173,9 +172,8 @@ leitung_t::~leitung_t()
 /* returns the net identifier at this position
  * @author prissi
  */
-static bool get_net_at(const planquadrat_t * plan,powernet_t **l_net)
+static bool get_net_at(const grund_t *gr, powernet_t **l_net)
 {
-	grund_t * gr = plan ? plan->gib_kartenboden() : 0;
 	if(gr) {
 		// only this way pumps are handled properly
 		const pumpe_t *p = dynamic_cast<pumpe_t *> (gr->suche_obj(ding_t::pumpe));
@@ -206,9 +204,8 @@ static bool get_net_at(const planquadrat_t * plan,powernet_t **l_net)
 /* sets the net at a position
  * @author prissi
  */
-static void set_net_at(const planquadrat_t * plan,powernet_t *new_net)
+static void set_net_at(const grund_t *gr, powernet_t *new_net)
 {
-	grund_t * gr = plan ? plan->gib_kartenboden() : 0;
 	if(gr) {
 		// only this way pumps are handled properly
 		pumpe_t *p = dynamic_cast<pumpe_t *> (gr->suche_obj(ding_t::pumpe));
@@ -242,18 +239,16 @@ static void set_net_at(const planquadrat_t * plan,powernet_t *new_net)
 void leitung_t::replace(koord base_pos, powernet_t *old_net, powernet_t *new_net)
 {
 	powernet_t *current;
-	if(get_net_at(welt->lookup(base_pos),&current)  &&  current!=new_net) {
+	if(get_net_at(welt->lookup_kartenboden(base_pos),&current)  &&  current!=new_net) {
 		// convert myself ...
 //DBG_MESSAGE("leitung_t::replace()","My net %p by %p at (%i,%i)",new_net,current,base_pos.x,base_pos.y);
-		set_net_at(welt->lookup(base_pos),new_net);
+		set_net_at(welt->lookup_kartenboden(base_pos),new_net);
 		//get_net_at(welt->lookup(base_pos),&current);
 	}
 
 	for(int i=0; i<4; i++) {
 		koord	pos=base_pos+koord::nsow[i];
-		const planquadrat_t * plan = welt->lookup(pos);
-
-		if(get_net_at(plan,&current)  &&  current!=new_net) {
+		if(get_net_at(welt->lookup_kartenboden(pos),&current)  &&  current!=new_net) {
 			if(current!=old_net) {
 				replace(pos,current,new_net);
 				if(current!=NULL) {
@@ -281,12 +276,11 @@ void leitung_t::verbinde()
 	powernet_t *new_net;
 
 	// first get my own ...
-	get_net_at(welt->lookup(pos),&new_net);
+	get_net_at(welt->lookup_kartenboden(pos),&new_net);
 
 //DBG_MESSAGE("leitung_t::verbinde()","Searching net at (%i,%i)",pos.x,pos.y);
 	for( int i=0;  i<4  &&  new_net==NULL;  i++ ) {
-		const planquadrat_t * plan = welt->lookup(pos+koord::nsow[i]);
-		get_net_at(plan,&new_net);
+		get_net_at(welt->lookup_kartenboden(pos+koord::nsow[i]),&new_net);
 	}
 //DBG_MESSAGE("leitung_t::verbinde()","Found net %p",new_net);
 
