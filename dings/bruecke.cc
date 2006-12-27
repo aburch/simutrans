@@ -122,11 +122,13 @@ void bruecke_t::entferne( spieler_t *sp )
 	if(sp) {
 		// on bridge => do nothing but change maitainance
 		const grund_t *gr = welt->lookup(gib_pos());
-		weg_t *weg = gr->gib_weg( besch->gib_waytype() );
-		assert(weg);
-		weg->setze_max_speed( weg->gib_besch()->gib_topspeed() );
-		sp->add_maintenance( weg->gib_besch()->gib_wartung());
-		sp->add_maintenance( -besch->gib_wartung() );
-		sp->buche( -besch->gib_preis(), gib_pos().gib_2d(), COST_CONSTRUCTION );
+		if(gr) {
+			weg_t *weg = gr->gib_weg( besch->gib_waytype() );
+			assert(weg);
+			weg->setze_max_speed( weg->gib_besch()->gib_topspeed() );
+			sp->add_maintenance( weg->gib_besch()->gib_wartung());
+			sp->add_maintenance( -besch->gib_wartung() );
+			sp->buche( -besch->gib_preis(), gib_pos().gib_2d(), COST_CONSTRUCTION );
+		}
 	}
 }

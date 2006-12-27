@@ -446,7 +446,10 @@ gebaeude_t::zeige_info()
 		}
 		ding_t *gb = (gebaeude_t *)(gr->suche_obj(ding_t::gebaeude));
 		// is the info of the (0,0) tile on multi tile buildings
-		gb->zeige_info();
+		if(gb) {
+			// some version made buildings, that had not tile (0,0)!
+			gb->zeige_info();
+		}
 	}
 	else {
 DBG_MESSAGE("gebaeude_t::zeige_info()", "at %d,%d - name is '%s'", gib_pos().x, gib_pos().y, gib_name());

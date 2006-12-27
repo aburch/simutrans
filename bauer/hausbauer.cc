@@ -356,7 +356,7 @@ void hausbauer_t::baue(karte_t *welt, spieler_t *sp, koord3d pos, int layout, co
 //DBG_DEBUG("hausbauer_t::baue()","get_tile() at %i,%i",k.x,k.y);
 			const haus_tile_besch_t *tile = besch->gib_tile(layout, k.x, k.y);
 			// here test for good tile
-			if(tile==NULL  ||  (tile->gib_hintergrund(0,0,0)==IMG_LEER  &&  tile->gib_vordergrund(0,0)==IMG_LEER)) {
+			if(tile==NULL  ||  (k!=koord(0,0)  &&  besch->gib_utyp()!=hausbauer_t::hafen  &&  tile->gib_hintergrund(0,0,0)==IMG_LEER  &&  tile->gib_vordergrund(0,0)==IMG_LEER)) {
 				DBG_MESSAGE("hausbauer_t::baue()","get_tile() empty at %i,%i",k.x,k.y);
 				continue;
 			}

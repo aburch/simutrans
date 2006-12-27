@@ -45,14 +45,17 @@ planquadrat_t::~planquadrat_t()
 		delete data.one;
 	}
 	else {
-		for(uint8 i=0;  i<ground_size;  i++) {
-			delete data.some[i];
+		while(ground_size>0) {
+			ground_size --;
+			delete data.some[ground_size];
 		}
 		delete [] data.some;
 	}
 	if(halt_list_count) {
 		delete [] halt_list;
 	}
+	halt_list_count = 0;
+	data.one = NULL;
 }
 
 
