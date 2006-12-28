@@ -210,7 +210,6 @@ wayobj_t::calc_bild()
 		if(ribi_t::ist_kurve(dir)) {
 			ribi_t::ribi r1 = ribi_t::keine, r2 = ribi_t::keine;
 
-			bool diagonal = false;
 			switch(dir) {
 				case ribi_t::nordost:
 					r1 = find_next_ribi( gr, koord::ost );

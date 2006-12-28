@@ -56,7 +56,7 @@ public:
 	*/
 	image_id gib_bild() const {
 		return hang ? besch->get_back_slope_image_id(hang) :
-			(diagonal ? besch->get_back_image_id(dir) : besch->get_back_image_id(dir));
+			(diagonal ? besch->get_back_diagonal_image_id(dir) : besch->get_back_image_id(dir));
 	}
 
 	/**

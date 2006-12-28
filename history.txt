@@ -15,6 +15,7 @@ Known bugs: (hard to fix)
 	FIX: channels were not connected to the sea in all cases
 	CHANGE: snow for tunnel and bridges (kierongreen)
 	FIX: crash, when building has not tile (0,0) due to empty image on info
+	FIX: diagonal wayobj again
 
 
 Release of 99.05.1
