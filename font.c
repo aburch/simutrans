@@ -16,26 +16,31 @@ static int nibble(sint8 c)
 /**
  * Decodes a single line of a character
  */
-static void dsp_decode_bdf_data_row(uint8 *data, int y, int g_width, char *str)
+static void dsp_decode_bdf_data_row(uint8 *target, int y, int xoff, int g_width, char *str)
 {
-	uint8 data2;
+	uint16 data, data2=0;
 	char buf[3];
 
 	buf[0] = str[0];
 	buf[1] = str[1];
 	buf[2] = '\0';
-	data[y] = (uint8)strtol(buf, NULL ,16);
+	data = (uint16)strtol(buf, NULL, 16)<<8;
 	// read second byte but use only first nibble
 	if (g_width > 8) {
 		buf[0] = str[2];
 		buf[1] = str[3];
 		buf[2] = '\0';
-		data2 = (uint8)(strtol(buf, NULL, 16) & 0xF0);
+		data |= strtol(buf, NULL, 16);
+	}
+	data >>= xoff;
+	// now store them, and the second nibble store interleaved
+	target[y] = data>>8;
+	if(g_width+xoff>8) {
 		if((y&1)==0) {
-			data[12 + (y / 2)] |= data2;
+			target[12 + (y / 2)] |= data & 0x00F0;
 		}
 		else {
-			data[12 + (y / 2)] |= data2>>4;
+			target[12 + (y / 2)] |= (data>>4) & 0x000F;
 		}
 	}
 }
@@ -49,6 +54,7 @@ static int dsp_read_bdf_glyph(FILE *fin, uint8 *data, uint8 *screen_w, int char_
 	int	char_nr = 0;
 	int g_width, h, g_desc;
 	int d_width = 0;
+	int xoff = 0;
 
 	while (!feof(fin)) {
 		char str[256];
@@ -68,7 +74,7 @@ static int dsp_read_bdf_glyph(FILE *fin, uint8 *data, uint8 *screen_w, int char_
 
 		// information over size and coding
 		if (strncmp(str, "BBX", 3) == 0) {
-			sscanf(str + 3, "%d %d %*d %d", &g_width, &h, &g_desc);
+			sscanf(str + 3, "%d %d %d %d", &g_width, &h, &xoff, &g_desc);
 			continue;
 		}
 
@@ -92,7 +98,7 @@ static int dsp_read_bdf_glyph(FILE *fin, uint8 *data, uint8 *screen_w, int char_
 			// read for height times
 			for (y = top; y < h; y++) {
 				fgets(str, sizeof(str), fin);
-				dsp_decode_bdf_data_row(data + char_nr*CHARACTER_LEN, y, g_width, str);
+				dsp_decode_bdf_data_row(data + char_nr*CHARACTER_LEN, y, xoff, g_width, str);
 			}
 			continue;
 		}
