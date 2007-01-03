@@ -952,9 +952,6 @@ void depot_frame_t::image_from_convoi_list(uint nr)
 			}
 		}
 	}
-	build_vehicle_lists();
-	update_data();
-	layout(NULL);
 }
 
 
@@ -1002,10 +999,8 @@ depot_frame_t::action_triggered(gui_komponente_t *komp,value_t p)
 			image_from_storage_list(&waggons_vec[p.i]);
 		} else if(komp == &bt_obsolete) {
 			show_retired_vehicles = (show_retired_vehicles==0);
-			build_vehicle_lists();
 		} else if(komp == &bt_show_all) {
 			show_all = (show_all==0);
-			build_vehicle_lists();
 		} else if(komp == &bt_veh_action) {
 			if(veh_action== va_sell) {
 				veh_action = va_append;
@@ -1013,8 +1008,6 @@ depot_frame_t::action_triggered(gui_komponente_t *komp,value_t p)
 			else {
 				veh_action = veh_action+1;
 			}
-			// show only used ones
-			build_vehicle_lists();
 		} else if(komp == &bt_new_line) {
 			new_line();
 			return true;
@@ -1040,6 +1033,7 @@ depot_frame_t::action_triggered(gui_komponente_t *komp,value_t p)
 		else {
 			return false;
 		}
+		build_vehicle_lists();
 	}
 	update_data();
 	layout(NULL);
