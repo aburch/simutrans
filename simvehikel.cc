@@ -2513,7 +2513,7 @@ aircraft_t::betrete_feld()
 		const short landehoehe=height_scaling(cnv->get_route()->position_bei(touchdown).z)+(touchdown-route_index);
 		if(landehoehe*TILE_HEIGHT_STEP/Z_TILE_STEP<flughoehe) {
 			state = landing;
-			target_height = height_scaling(cnv->get_route()->position_bei(touchdown).z);
+			target_height = height_scaling(cnv->get_route()->position_bei(touchdown).z)*TILE_HEIGHT_STEP/Z_TILE_STEP;
 		}
 	}
 	else {
