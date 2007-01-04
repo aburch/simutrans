@@ -11,8 +11,6 @@
 
 static int midi_number = -1;
 
-#define MAX_MIDI 30
-
 MIDI *midi_samples[MAX_MIDI];
 
 
@@ -30,7 +28,7 @@ void dr_init_midi(void)
  */
 void dr_set_midi_volume(int vol)
 {
-    set_volume(-1, vol);
+	set_volume(-1, vol);
 }
 
 
@@ -40,21 +38,18 @@ void dr_set_midi_volume(int vol)
  */
 int dr_load_midi(const char *filename)
 {
-    if (midi_number < MAX_MIDI - 1)
-    {
-	const int i = midi_number + 1;
+	if (midi_number < MAX_MIDI - 1) {
+		const int i = midi_number + 1;
 
-	if(i >= 0 && i < MAX_MIDI) {
+		if(i >= 0 && i < MAX_MIDI) {
+			midi_samples[i] = load_midi(filename);
 
-	    midi_samples[i] = load_midi(filename);
-
-	    if(midi_samples[i]) {
-		midi_number = i;
-	    }
+			if(midi_samples[i]) {
+				midi_number = i;
+			}
+		}
 	}
-    }
-
-    return midi_number;
+	return midi_number;
 }
 
 
@@ -65,13 +60,14 @@ int dr_load_midi(const char *filename)
  */
 void dr_play_midi(int key)
 {
-   if (midi_number > 0)
-   {
-      if (key >= 0 && key <= midi_number && midi_samples[key] != NULL)
-         play_midi(midi_samples[key], FALSE); // loop
-      else
-	printf("\nMessage: MIDI: Unable to play MIDI %d\n", key);
-   }
+	if (midi_number > 0) {
+		if (key >= 0 && key <= midi_number && midi_samples[key] != NULL) {
+			play_midi(midi_samples[key], FALSE); // loop
+		}
+		else {
+			printf("\nMessage: MIDI: Unable to play MIDI %d\n", key);
+		}
+	}
 }
 
 
@@ -81,7 +77,7 @@ void dr_play_midi(int key)
  */
 void dr_stop_midi(void)
 {
-   stop_midi();
+	stop_midi();
 }
 
 

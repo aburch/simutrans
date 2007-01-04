@@ -19,6 +19,7 @@ Known bugs: (hard to fix)
 	FIX: checked for wrong offsets in a schedule during load/save
 	FIX: obey BBX completely in BDF-fonts
 	FIX: landing airplanes now recognize the ground
+	CHANGE: cleaned up midi code, now maximum 128 songs, "music.tab" now "music/music.tab"
 	(kierongreen)
 	CHANGE: snow for tunnel and bridges
 	FIX: right mouse button scrolling in minimap

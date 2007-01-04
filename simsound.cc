@@ -13,6 +13,7 @@
  */
 
 #include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
 #include "macros.h"
 #include "music/music.h"
@@ -31,12 +32,7 @@
  * @author hj. Malthaner
  */
 static int new_midi = 0;
-
-
-#define MAX_MIDI_TITLE 30
-
-
-static char midi_title[MAX_MIDI_TITLE][128];
+static char *midi_title[MAX_MIDI];
 
 
 /**
@@ -114,7 +110,7 @@ void sound_set_midi_volume(int volume)
  */
 extern "C" void sound_set_midi_volume_var(int volume)
 {
-   midi_volume = volume;
+	midi_volume = volume;
 }
 
 
@@ -125,7 +121,7 @@ extern "C" void sound_set_midi_volume_var(int volume)
  */
 int sound_get_midi_volume()
 {
-    return midi_volume;
+	return midi_volume;
 }
 
 
@@ -136,10 +132,11 @@ int sound_get_midi_volume()
 const char * sound_get_midi_title(int index)
 {
 	if (index >= 0 && index <= max_midi) {
-	return midi_title[index];
-    } else {
-	return "Invalid MIDI index!";
-    }
+		return midi_title[index];
+	}
+	else {
+		return "Invalid MIDI index!";
+	}
 }
 
 
@@ -149,7 +146,7 @@ const char * sound_get_midi_title(int index)
  */
 int get_current_midi()
 {
-    return current_midi;
+	return current_midi;
 }
 
 
@@ -160,59 +157,60 @@ int get_current_midi()
 void
 midi_init()
 {
-  // read a list of soundfiles
+	// read a list of soundfiles
+	FILE * file = fopen("music/music.tab", "rb");
 
-  FILE * file = fopen("music.tab", "rb");
+	if(file) {
 
-  if(file) {
+		dr_init_midi();
 
-    dr_init_midi();
+		while(!feof(file)) {
+			char buf[256];
+			char title[256];
+			long len;
 
-    while(!feof(file)) {
-      char buf[80];
-      char title[80];
-      long len;
+			read_line(buf, 256, file);
+			read_line(title, 256, file);
+			if(!feof(file)) {
+				len = strlen(buf);
+				while(len>0  &&  buf[--len] <= 32) {
+					buf[len] = 0;
+				}
 
-      read_line(buf, 80, file);
-      read_line(title, 80, file);
-      if(!feof(file)) {
-	len = strlen(buf);
+				if(len > 1) {
+					print("  Reading MIDI file '%s' - %s", buf, title);
+					max_midi = dr_load_midi(buf);
 
-	while(buf[--len] < 32) {
-	  buf[len] = 0;
+					if(max_midi >= 0) {
+						len = strlen(title);
+						while(len>0  &&  title[--len] <= 32) {
+							title[len] = 0;
+						}
+						midi_title[max_midi] = (char *)malloc(len+2);
+						strcpy( midi_title[max_midi], title);
+					}
+				}
+			}
+		}
+
+		fclose(file);
+	} else {
+		dbg->warning("midi_init()","can't open file 'music.tab' for reading, turning music off.");
 	}
-	if(len > 1) {
-	  print("  Reading MIDI file '%s' - %s", buf, title);
-	  max_midi = dr_load_midi(buf);
 
-		if (max_midi >= 0 && (uint)max_midi < lengthof(midi_title)) {
-			tstrncpy(midi_title[max_midi], title, lengthof(midi_title[max_midi]));
-	  }
+	if(max_midi >= 0) {
+		current_midi = 0;
 	}
-      }
-    }
-
-    fclose(file);
-  } else {
-    dbg->warning("midi_init()",
-		 "can't open file 'music.tab' for reading, turning music off.");
-  }
-
-  if(max_midi >= 0) {
-    current_midi = 0;
-  }
 }
 
 
 void midi_play(const int no)
 {
-  if (no > max_midi) {
-    dbg->warning("midi_play()",
-		 "MIDI index %d too high (total loaded: %d)",
-		 no, max_midi);
-  } else {
-    dr_play_midi(no);
-  }
+	if (no > max_midi) {
+		dbg->warning("midi_play()", "MIDI index %d too high (total loaded: %d)", no, max_midi);
+	} else {
+		dr_play_midi(no);
+	}
 }
 
 
@@ -229,12 +227,12 @@ void check_midi()
 {
   if((dr_midi_pos() < 0 || new_midi == 1) && max_midi > -1) {
     current_midi++;
-    if (current_midi > max_midi)
+		if (current_midi > max_midi) {
       current_midi = 0;
+		}
 
     midi_play(current_midi);
-    DBG_MESSAGE("check_midi()",
-		 "Playing MIDI %d", current_midi);
+    DBG_MESSAGE("check_midi()", "Playing MIDI %d", current_midi);
     new_midi = 0;
   }
 }
@@ -258,10 +256,11 @@ void midi_next_track()
 
 void midi_last_track()
 {
-  if (current_midi == 0)
+	if (current_midi == 0) {
     current_midi = max_midi - 1;
-  else
+	}
+	else {
     current_midi = current_midi - 2;
-
+	}
   new_midi = 1;
 }

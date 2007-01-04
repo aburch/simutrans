@@ -6,6 +6,8 @@ extern "C" {
 #endif
 
 
+#define MAX_MIDI (128)
+
 /**
  * MIDI initialisation routine
  */

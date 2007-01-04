@@ -28,11 +28,7 @@ static int use_midi = 0;
 static int midi_number = -1;
 
 
-#define MAX_MIDI 30
-
-
-// MIDI *midi_samples[MAX_MIDI];
-char midi_filenames[MAX_MIDI][200];
+char *midi_filenames[MAX_MIDI];
 
 
 static int OldMIDIVol[2] = {-1, -1};
@@ -71,46 +67,46 @@ int dr_load_midi(const char *filename)
 
     char cwd[200];
     int cwd_sl;
-
     unsigned j;
 
     //   printf("dr_load_midi(%s)\n", filename);
-
-    if(midi_number < MAX_MIDI-1)
-    {
+    if(midi_number < MAX_MIDI-1) {
       const int i = midi_number + 1;
 
-      if (i >= 0 && i < MAX_MIDI)
-      {
-	strcpy(midi_filenames[i], filename);
+      if (i >= 0 && i < MAX_MIDI) {
 
-	// MCI doesn't like relative paths
+				// MCI doesn't like relative paths
+				if ((filename[1] != ':') && !(filename[0] == '\\' &&  filename[1] == '\\')) {
+					// so we must built it ...
 
-	if ((midi_filenames[i][1] != ':') && !(midi_filenames[i][0] == '\\' && midi_filenames[i][1] == '\\'))
-	{
-	  getcwd(cwd, 200);
-	  cwd_sl = strlen(cwd);
+					getcwd(cwd, 200);
+					cwd_sl = strlen(cwd);
 
-	  strcpy(midi_filenames[i], cwd);
+					midi_filenames[i] = malloc( cwd_sl + strlen(filename) + 2 );
 
-	  if (cwd[cwd_sl-1] != '\\')
-	    strcat(midi_filenames[i], "\\");
+					strcpy(midi_filenames[i], cwd);
+					if (cwd[cwd_sl-1] != '\\') {
+						strcat(midi_filenames[i], "\\");
+					}
+					strcat(midi_filenames[i], filename);
+				}
+				else {
+					// already absolute path
+					midi_filenames[i] = malloc( strlen(filename)+1 );
+					strcpy(midi_filenames[i], filename );
+				}
 
-	  strcat(midi_filenames[i], filename);
-	}
+				for (j = 0; j < strlen(midi_filenames[i]); j++)	{
+					if (midi_filenames[i][j] == '/') {
+						midi_filenames[i][j] = '\\';
+					}
+				}
 
-	for (j = 0; j < strlen(midi_filenames[i]); j++)
-        {
-	  if (midi_filenames[i][j] == '/')
-	    midi_filenames[i][j] = '\\';
-	}
-
-	midi_number = i;
+				midi_number = i;
       }
     }
     return midi_number;
   } else {
-
     return -1;
   }
 }
@@ -123,31 +119,28 @@ int dr_load_midi(const char *filename)
  */
 void dr_play_midi(int key)
 {
-  if(use_midi) {
+	if(use_midi) {
+		char str[200], retstr[200];
 
-    char str[200], retstr[200];
+		if (midi_number > 0) {
 
-    //   printf("dr_play_midi(%d)\n", key);
+			if (key >= 0 && key <= midi_number) {
+				sprintf(str, "open \"%s\" type sequencer alias SimuMIDI", midi_filenames[key]);
+				printf("MCI string: %s\n", str);
 
-    if (midi_number > 0)
-    {
-      if (key >= 0 && key <= midi_number)
-      {
-	sprintf(str, "open \"%s\" type sequencer alias SimuMIDI", midi_filenames[key]);
-	printf("MCI string: %s\n", str);
-
-	if (mciSendStringA(str, NULL, 0, NULL) != 0)
-	  printf("\nMessage: MIDI: Unable to load MIDI %d\n", key);
-	else
-        {
-	  if (mciSendStringA("play SimuMIDI", NULL, 0, NULL) != 0)
-	    printf("\nMessage: MIDI: Unable to play MIDI %d - %s\n", key, retstr);
+				if (mciSendStringA(str, NULL, 0, NULL) != 0) {
+					printf("\nMessage: MIDI: Unable to load MIDI %d\n", key);
+				}
+				else {
+					if (mciSendStringA("play SimuMIDI", NULL, 0, NULL) != 0)
+						printf("\nMessage: MIDI: Unable to play MIDI %d - %s\n", key, retstr);
+					}
+				}
+			else {
+					printf("\nMessage: MIDI: Unable to play MIDI %d\n", key);
+			}
+		}
 	}
-      }
-      else
-	printf("\nMessage: MIDI: Unable to play MIDI %d\n", key);
-    }
-  }
 }
 
 
@@ -157,15 +150,13 @@ void dr_play_midi(int key)
  */
 void dr_stop_midi(void)
 {
-  if(use_midi) {
+	if(use_midi) {
+		//   stop_midi();
+		char retstr[200];
 
-    //   stop_midi();
-    char retstr[200];
-
-    //   printf("dr_stop_midi()\n");
-    mciSendStringA("stop SimuMIDI", retstr, 200, NULL);
-    mciSendStringA("close SimuMIDI", retstr, 200, NULL);
-  }
+		mciSendStringA("stop SimuMIDI", retstr, 200, NULL);
+		mciSendStringA("close SimuMIDI", retstr, 200, NULL);
+	}
 }
 
 
@@ -175,36 +166,30 @@ void dr_stop_midi(void)
  */
 long dr_midi_pos(void)
 {
-  if(use_midi) {
-    char retstr[200];
-    static long lastpos;
-    long length;
+	if(use_midi) {
+		char retstr[200];
+		static long lastpos;
+		long length;
 
-      mciSendStringA("set SimuMIDI time format milliseconds", retstr, 200, NULL);
-      mciSendStringA("status SimuMIDI length", retstr, 200, NULL);
+		mciSendStringA("set SimuMIDI time format milliseconds", retstr, 200, NULL);
+		mciSendStringA("status SimuMIDI length", retstr, 200, NULL);
+		length = atol(retstr);
 
-      length = atol(retstr);
-
-      //      mciSendStringA("status SimuMIDI current track", retstr, 200, NULL);
-      if (mciSendStringA("status SimuMIDI position", retstr, 200, NULL) == 0)
-      {
-	//         printf("Position: %ld (%ld)\n", atol(retstr), lastpos);
-
-	if ((atol(retstr) == length))// || atol(retstr) <= 0)
-	{
-	  mciSendStringA("stop SimuMIDI", retstr, 200, NULL);  // We must stop ourselves
-	  mciSendStringA("close SimuMIDI", retstr, 200, NULL);
-
-	  return(-1);
+		if (mciSendStringA("status SimuMIDI position", retstr, 200, NULL) == 0) {
+		//         printf("Position: %ld (%ld)\n", atol(retstr), lastpos);
+			const long pos = atol(retstr);
+			if (pos == length) {
+				mciSendStringA("stop SimuMIDI", retstr, 200, NULL);  // We must stop ourselves
+				mciSendStringA("close SimuMIDI", retstr, 200, NULL);
+				return (-1);
+			}
+			else {
+				lastpos = pos;
+				return pos;
+			}
+		}
 	}
-	else
-	  lastpos = atol(retstr);
-
-	return (atol(retstr));
-      }
-  }
-
-  return 0;
+	return 0;
 }
 
 
@@ -214,12 +199,12 @@ long dr_midi_pos(void)
  */
 void dr_destroy_midi(void)
 {
-  if(use_midi) {
-    __win32_set_midi_volume(__MIDI_VOL_WIN32, OldMIDIVol[0], OldMIDIVol[1]);
-    midi_number = -1;
+	if(use_midi) {
+		__win32_set_midi_volume(__MIDI_VOL_WIN32, OldMIDIVol[0], OldMIDIVol[1]);
+		midi_number = -1;
 
-    use_midi = 0;
-  }
+		use_midi = 0;
+	}
 }
 
 
