@@ -412,6 +412,9 @@ void map_frame_t::resize(const koord delta)
  */
 void map_frame_t::zeichnen(koord pos, koord gr)
 {
+	// update our stored screen position
+	screenpos = pos;
+
 	// first: check if cursor within map screen size
 	karte_t *welt=reliefkarte_t::gib_karte()->gib_welt();
 	koord ij = welt->gib_ij_off();
