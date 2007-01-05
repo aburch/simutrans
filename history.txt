@@ -20,6 +20,8 @@ Known bugs: (hard to fix)
 	FIX: obey BBX completely in BDF-fonts
 	FIX: landing airplanes now recognize the ground
 	CHANGE: cleaned up midi code, now maximum 128 songs, "music.tab" now "music/music.tab"
+	FIX: bug when loading stations etc. that were not animated but put into the animation list
+	CHANGE: wayobj will be deleted before a station
 	(kierongreen)
 	CHANGE: snow for tunnel and bridges
 	FIX: right mouse button scrolling in minimap

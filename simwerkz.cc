@@ -335,13 +335,6 @@ DBG_MESSAGE("wkz_remover()",  "removing roadsign %d,%d",  pos.x, pos.y);
 		return true;
 	}
 
-	// Haltestelle prüfen
-	halthandle_t halt = plan->gib_halt();
-DBG_MESSAGE("wkz_remover()", "bound=%i",halt.is_bound());
-	if(gr->is_halt()  &&  halt.is_bound()  &&  (halt->gib_besitzer()==sp  ||  halt->gib_besitzer()==welt->gib_spieler(1))) {
-		return haltestelle_t::remove(welt, sp, gr->gib_pos(), msg);
-	}
-
 	// catenary or something like this
 	wayobj_t *wo=(wayobj_t *)gr->suche_obj(ding_t::wayobj);
 	if(wo) {
@@ -352,6 +345,13 @@ DBG_MESSAGE("wkz_remover()", "bound=%i",halt.is_bound());
 		wo->entferne(sp);
 		delete wo;
 		return true;
+	}
+
+	// Haltestelle prüfen
+	halthandle_t halt = plan->gib_halt();
+DBG_MESSAGE("wkz_remover()", "bound=%i",halt.is_bound());
+	if(gr->is_halt()  &&  halt.is_bound()  &&  (halt->gib_besitzer()==sp  ||  halt->gib_besitzer()==welt->gib_spieler(1))) {
+		return haltestelle_t::remove(welt, sp, gr->gib_pos(), msg);
 	}
 
 	// citycar? (we allow always)

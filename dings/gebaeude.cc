@@ -666,7 +666,7 @@ DBG_MESSAGE("gebaeude_t::rwdr", "description %s for building at %d,%d not found 
 				// Ohne "sync=false" denkt setze_sync(), es dreht sich
 				// schon alles.
 				sync = false;
-				welt->sync_add(this);
+//				welt->sync_remove(this);
 			}
 
 			// Hajo: rebuild tourist attraction list
