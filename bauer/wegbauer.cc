@@ -320,6 +320,9 @@ wegbauer_t::check_crossing(const koord zv, const grund_t *bd,waytype_t wtyp) con
 bool
 wegbauer_t::check_for_leitung(const koord zv, const grund_t *bd) const
 {
+	if(zv==koord(0,0)) {
+		return true;
+	}
 	leitung_t *lt=dynamic_cast<leitung_t *> (bd->suche_obj(ding_t::leitung));
 	if(lt!=NULL) {//  &&  (bd->gib_besitzer()==0  ||  bd->gib_besitzer()==sp)) {
 		ribi_t::ribi lt_ribi = lt->gib_ribi();
@@ -537,8 +540,9 @@ bool wegbauer_t::is_allowed_step( const grund_t *from, const grund_t *to, long *
 		sint16 height = welt->lookup(to->gib_pos().gib_2d())->gib_kartenboden()->gib_hoehe()+Z_TILE_STEP;
 		grund_t *to2 = welt->lookup(koord3d(to->gib_pos().gib_2d(),height));
 		if(to2) {
-			ok = to2->gib_typ()==grund_t::monorailboden  &&  check_owner(to2->gib_besitzer(),sp);
-			ok &= to2->gib_weg_nr(0)==NULL  ||  to2->gib_weg_nr(0)->gib_besch()->gib_wtyp()==besch->gib_wtyp();
+			// already an elevated ground here => it will has always a way object, that indicates ownership
+			ok = to2->gib_typ()==grund_t::monorailboden  &&  check_owner(to2->obj_bei(0)->gib_besitzer(),sp);
+			ok &= to2->gib_weg_nr(0)->gib_besch()->gib_wtyp()==besch->gib_wtyp();
 			if(!ok) {
 DBG_MESSAGE("wegbauer_t::is_allowed_step()","wrong ground already there!");
 				return false;
@@ -561,7 +565,7 @@ DBG_MESSAGE("wegbauer_t::is_allowed_step()","wrong ground already there!");
 	}
 
 	// not jumping to other lanes on bridges or tunnels
-	if(bautyp&tunnel_flag==0) {
+	if((bautyp&tunnel_flag)==0) {
 		if(to->gib_typ()==grund_t::brueckenboden  ||  to->gib_typ()==grund_t::tunnelboden) {
 			weg_t *weg=to->gib_weg_nr(0);
 			if(!ribi_t::ist_gerade(weg->gib_ribi_unmasked()|ribi_typ(zv))) {
@@ -577,9 +581,8 @@ DBG_MESSAGE("wegbauer_t::is_allowed_step()","wrong ground already there!");
 		{
 			const weg_t *str=to->gib_weg(road_wt);
 			const weg_t *sch=to->gib_weg(track_wt);
-			ok =	(str  ||  !fundament)  &&  ((!to->hat_wege()  ||  sch==NULL)  ||  (check_crossing(zv,to,track_wt)  ||  sch->gib_besch()->gib_styp()==7)) &&
-					!to->ist_wasser()  &&  (str!=NULL  ||  check_owner(to->gib_besitzer(),sp))  &&
-					check_for_leitung(zv,to);
+			ok =	((str  &&  check_owner(str->gib_besitzer(),sp))  ||  !fundament)  &&  (!to->hat_wege()  ||  (sch!=NULL  &&  ((check_crossing(zv,to,track_wt)  &&  check_owner(sch->gib_besitzer(),sp))  ||  sch->gib_besch()->gib_styp()==7))) &&
+					!to->ist_wasser()  &&  check_for_leitung(zv,to);
 			if(ok) {
 				const weg_t *from_str=from->gib_weg(road_wt);
 				// check for end/start of bridge
@@ -613,8 +616,8 @@ DBG_MESSAGE("wegbauer_t::is_allowed_step()","wrong ground already there!");
 			if((bautyp&bot_flag)!=0  &&  (gb  ||  sch  ||  to->gib_halt().is_bound())) {
 				return false;
 			}
-			ok =	!fundament  &&  !to->ist_wasser()  &&  (!to->hat_wege()  ||  sch  ||  check_crossing(zv,to,road_wt))  &&
-					check_owner(to->gib_besitzer(),sp) &&
+			ok =	!fundament  &&  !to->ist_wasser()  &&  (!to->hat_wege()  ||  (sch  &&  check_owner(sch->gib_besitzer(),sp))  ||  check_crossing(zv,to,road_wt))  &&
+					(to->obj_count()==0  ||  check_owner(to->obj_bei(0)->gib_besitzer(),sp)) &&
 					check_for_leitung(zv,to);
 			if(ok) {
 				// check for end/start of bridge
@@ -666,8 +669,8 @@ DBG_MESSAGE("wegbauer_t::is_allowed_step()","wrong ground already there!");
 			if((bautyp&elevated_flag)==0) {
 				// classical monorail
 				ok =	!to->ist_wasser()  &&  !fundament  &&
-					(to->hat_wege()==0  ||  sch)  &&  (from->hat_wege()==0  ||  from->hat_weg((waytype_t)besch->gib_wtyp()))
-					&&  check_owner(to->gib_besitzer(),sp) && check_for_leitung(zv,to)  && !to->gib_depot();
+					(to->hat_wege()==0  ||  (sch  &&  check_owner(sch->gib_besitzer(),sp)))  &&  (from->hat_wege()==0  ||  from->hat_weg((waytype_t)besch->gib_wtyp()))
+					&&  (sch  ||  (to->obj_count()==0  ||  check_owner(to->obj_bei(0)->gib_besitzer(),sp)))  &&  check_for_leitung(zv,to)  && !to->gib_depot();
 				// check for end/start of bridge
 				if(to->gib_weg_hang()!=to->gib_grund_hang()  &&  (sch==NULL  ||  ribi_t::ist_kreuzung(ribi_typ(to_pos,from_pos)|sch->gib_ribi_unmasked()))) {
 					return false;
@@ -709,10 +712,10 @@ DBG_MESSAGE("wegbauer_t::is_allowed_step()","wrong ground already there!");
 
 		case schiene_tram: // Dario: Tramway
 		{
-			ok =	(ok || to->hat_weg(track_wt)  || to->hat_weg(road_wt)) &&
-					check_owner(to->gib_besitzer(),sp) &&
-					check_for_leitung(zv,to)  &&
-					!to->gib_depot();
+			ok =	(ok ||
+							(to->hat_weg(track_wt)  &&  check_owner(to->gib_weg(track_wt)->gib_besitzer(),sp))  ||
+							(to->hat_weg(road_wt)  &&  check_owner(to->gib_weg(road_wt)->gib_besitzer(),sp)))
+					 &&  check_for_leitung(zv,to)  &&  !to->gib_depot();
 			// missing: check for crossings on halt!
 
 			// calculate costs
@@ -753,9 +756,7 @@ DBG_MESSAGE("wegbauer_t::is_allowed_step()","wrong ground already there!");
 		break;
 
 		case wasser:
-			ok = (ok  ||  to->ist_wasser()  ||  to->hat_weg(water_wt))  &&
-					check_owner(to->gib_besitzer(),sp) &&
-					check_for_leitung(zv,to);
+			ok = (ok  ||  to->ist_wasser()  ||  (to->hat_weg(water_wt)  &&  check_owner(to->gib_weg(water_wt)->gib_besitzer(),sp)))  &&  check_for_leitung(zv,to);
 			// calculate costs
 			if(ok) {
 				*costs = to->ist_wasser()  ||  to->hat_weg(water_wt) ? 2 : 10;	// prefer water very much ...
@@ -1794,9 +1795,11 @@ wegbauer_t::baue_strasse()
 			}
 			else {
 				// we take ownership => we take care to maintain the roads completely ...
-				gr->setze_besitzer( NULL );	// this way the maitenace will be correct
+				spieler_t *s = weg->gib_besitzer();
+				if(s) { s->add_maintenance(-weg->gib_besch()->gib_wartung()); }
 				weg->setze_besch(besch);
-				gr->setze_besitzer( sp );
+				if(sp) { sp->add_maintenance(weg->gib_besch()->gib_wartung()); }
+				weg->setze_besitzer(s);
 				cost -= besch->gib_preis();
 			}
 		}
@@ -1860,11 +1863,13 @@ wegbauer_t::baue_schiene()
 					cost = 0;
 				}
 				else {
-					// we take ownershipe => we take care to maintain the roads completely ...
-					gr->setze_besitzer( NULL );	// no costs
+					// we take ownership => we take care to maintain the roads completely ...
+					spieler_t *s = weg->gib_besitzer();
+					if(s) { s->add_maintenance(-weg->gib_besch()->gib_wartung()); }
 					weg->setze_besch(besch);
-					gr->setze_besitzer( sp );	// all to us now
-					cost = -besch->gib_preis();
+					if(sp) { sp->add_maintenance(weg->gib_besch()->gib_wartung()); }
+					weg->setze_besitzer(s);
+					cost -= besch->gib_preis();
 				}
 			}
 			else {

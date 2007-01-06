@@ -1726,7 +1726,7 @@ DBG_MESSAGE("spieler_t::baue_bahnhof()","try to build a train station of length 
 		if(ok) {
 			// remove city building here
 			gebaeude_t *gb = static_cast<gebaeude_t *>(gr->suche_obj(ding_t::gebaeude));
-			if(gb  &&  gr->gib_besitzer()==NULL) {
+			if(gb  &&  gb->gib_besitzer()==NULL) {
 				const char *msg=NULL;
 				wkz_remover_intern(this,welt,t,msg);
 			}
@@ -1746,7 +1746,7 @@ DBG_MESSAGE("spieler_t::baue_bahnhof()","try to build a train station of length 
 DBG_MESSAGE("spieler_t::baue_bahnhof","go back one segment");
 				// remove city building here
 				gebaeude_t *gb = static_cast<gebaeude_t *>(gr->suche_obj(ding_t::gebaeude));
-				if(gb  &&  gr->gib_besitzer()==NULL) {
+				if(gb  &&  gb->gib_besitzer()==NULL) {
 					const char *msg=NULL;
 					wkz_remover_intern(this,welt,*p-zv,msg);
 				}
@@ -2128,10 +2128,10 @@ spieler_t::built_hub( const koord pos, int radius )
 				const grund_t * gr = welt->lookup(try_pos)->gib_kartenboden();
 
 				// flat, solid, and ours
-				if(!gr->ist_wasser()  &&  gr->gib_grund_hang()==hang_t::flach  &&  (gr->gib_besitzer()==NULL || gr->gib_besitzer()==this)  ) {
+				if(!gr->ist_wasser()  &&  gr->gib_grund_hang()==hang_t::flach  &&  (gr->obj_count()==0  ||  gr->obj_bei(0)->gib_besitzer()==NULL || gr->obj_bei(0)->gib_besitzer()==this)  ) {
 					if(gr->is_halt()) {
 						// ok, one halt belongs already to us ...
-      					return try_pos;
+      			return try_pos;
 					}
 					else if(gr->hat_weg(road_wt)) {
 						ribi_t::ribi  ribi = gr->gib_weg_ribi_unmasked(road_wt);

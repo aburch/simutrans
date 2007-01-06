@@ -252,7 +252,8 @@ bool brueckenbauer_t::ist_ende_ok(spieler_t *sp, const grund_t *gr)
 	if(gr->ist_uebergang()) {
 		return false;
 	}
-	if(gr->gib_besitzer() != sp && gr->gib_besitzer() != NULL) {
+	ding_t *d=gr->obj_bei(0);
+	if(d!=NULL  &&  (d->gib_besitzer()!=sp  &&  d->gib_besitzer()!=NULL)) {
 		return false;
 	}
 	if(gr->gib_halt().is_bound()) {
@@ -464,7 +465,6 @@ void brueckenbauer_t::baue_auffahrt(karte_t* welt, spieler_t* sp, koord3d end, k
 	if(grund_hang == hang_t::flach) {
 		weg_hang = hang_typ(zv);    // nordhang - suedrampe
 	}
-	alter_boden->setze_besitzer(sp);	// to keep maitenance correct
 
 	bruecke = new brueckenboden_t(welt, end, grund_hang, weg_hang);
 	// add the ramp
@@ -474,7 +474,6 @@ void brueckenbauer_t::baue_auffahrt(karte_t* welt, spieler_t* sp, koord3d end, k
 	else {
 		img = besch->gib_start(ribi_neu);
 	}
-	bruecke->setze_besitzer( sp );
 
 	weg_t *weg=alter_boden->gib_weg( besch->gib_waytype() );
 	// take care of everything on that tile ...
@@ -601,7 +600,6 @@ brueckenbauer_t::remove(karte_t *welt, spieler_t *sp, koord3d pos, waytype_t weg
 
 		// then add the new ground, copy everything and replace the old one
 		grund_t *gr_new = new boden_t(welt, pos, gr->gib_grund_hang());
-		gr_new->setze_besitzer( sp );
 		gr_new->take_obj_from( gr );
 		welt->access(pos.gib_2d())->kartenboden_setzen(gr_new );
 	}

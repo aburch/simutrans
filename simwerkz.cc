@@ -300,7 +300,7 @@ DBG_MESSAGE("wkz_remover_intern()","at (%d,%d)", pos.x, pos.y);
 			continue;
 		}
 		// ok, something to remove from here ...
-		if(gr->obj_count()>0  ||  (gr->hat_wege()  &&  sp->check_owner(gr->gib_besitzer())) ) {
+		if(gr->obj_count()>0  &&  sp->check_owner(gr->obj_bei(0)->gib_besitzer()) ) {
 			break;
 		}
 	}
@@ -495,12 +495,6 @@ DBG_MESSAGE("wkz_remover()",  "add again powerline");
 		return false;
 	}
 
-	// prüfen, ob boden entfernbar
-	if(gr->gib_besitzer()!=NULL  &&  gr->gib_besitzer()!=sp) {
-		msg = "Das Feld gehoert\neinem anderen Spieler\n";
-		return false;
-	}
-
 	// ok, now we removed every object, that should be removed one by one.
 	// the following objects will be removed together
 DBG_MESSAGE("wkz_remover()", "removing way");
@@ -664,7 +658,7 @@ wkz_wegebau(spieler_t *sp, karte_t *welt,  koord pos, value_t lParam)
 					continue;
 				}
 				// check for ownership
-				if(sp!=NULL  &&  !sp->check_owner(gr->gib_besitzer())){
+				if(sp!=NULL  &&  (gr->obj_count()==0  ||  !sp->check_owner(gr->obj_bei(0)->gib_besitzer()))){
 					gr = NULL;
 					continue;
 				}
@@ -673,7 +667,7 @@ wkz_wegebau(spieler_t *sp, karte_t *welt,  koord pos, value_t lParam)
 		else {
 			// normal ground; just check for ownership
 			gr = plan->gib_kartenboden();
-			if(sp!=NULL  &&  !sp->check_owner(gr->gib_besitzer())){
+			if(gr->kann_alle_obj_entfernen(sp)){
 				gr = NULL;
 			}
 		}
@@ -778,7 +772,7 @@ wkz_intern_koord_to_weg_grund(spieler_t *sp, karte_t *welt, koord pos, waytype_t
 			continue;
 		}
 		// check for ownership
-		if(sp!=NULL  &&  !sp->check_owner(gr->gib_besitzer())){
+		if(sp!=NULL  &&  !sp->check_owner(gr->gib_weg(wt)->gib_besitzer())){
 			gr = NULL;
 			continue;
 		}
@@ -862,7 +856,7 @@ DBG_MESSAGE("wkz_wayremover()","route with %d tile found",verbindung.gib_max_n()
 			// found a route => check if I can delete anything on it
 			for( int i=0;  can_delete  &&  i<=verbindung.gib_max_n();  i++  ) {
 				grund_t *gr=welt->lookup(verbindung.position_bei(i));
-				if(!gr  ||  (gr->gib_besitzer()!=NULL  &&  gr->gib_besitzer()!=sp)  ||  gr->kann_alle_obj_entfernen(sp)!=NULL) {
+				if(!gr  ||  gr->kann_alle_obj_entfernen(sp)!=NULL) {
 					can_delete = false;
 				}
 			}
@@ -1612,7 +1606,7 @@ DBG_MESSAGE("wkz_halt_aux()", "new segment for station");
 	}
 
 	if(sp!=welt->gib_spieler(1)) {
-		bd->setze_besitzer(halt->gib_besitzer());
+		halt->gib_besitzer();
 	}
 
 	hausbauer_t::neues_gebaeude( welt, halt->gib_besitzer(), bd->gib_pos(), layout, besch, &halt);
@@ -1718,9 +1712,9 @@ dbg->warning("wkz_fahrplan_insert_aux()","Schedule is (null), doing nothing");
 				bd = 0;
 				continue;
 			}
-			// now just for error messages, we assing a valid ground
+			// now just for error messages, we assuming a valid ground
 			// and check for ownership
-			if(!bd->is_halt()  &&  !sp->check_owner(bd->gib_besitzer())) {
+			if(!bd->is_halt()  &&  bd->obj_count()!=0  &&  !sp->check_owner(bd->obj_bei(0)->gib_besitzer())) {
 				bd = 0;
 				continue;
 			}

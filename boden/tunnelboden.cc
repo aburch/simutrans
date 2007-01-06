@@ -85,7 +85,7 @@ tunnelboden_t::rdwr(loadsave_t *file)
 		if(this->suche_obj(ding_t::tunnel)==NULL) {
 			besch = tunnelbauer_t::gib_besch(buf);
 			if(besch) {
-				obj_add(new tunnel_t(welt, gib_pos(), gib_besitzer(), besch));
+				obj_add(new tunnel_t(welt, gib_pos(), obj_bei(0)->gib_besitzer(), besch));
 			}
 		}
 	}

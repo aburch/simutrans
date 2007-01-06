@@ -378,7 +378,6 @@ void hausbauer_t::baue(karte_t *welt, spieler_t *sp, koord3d pos, int layout, co
 			else if( besch->gib_utyp()==hausbauer_t::hafen ) {
 				// its a dock!
 				gr->obj_add(gb);
-				gr->setze_besitzer(sp);
 			} else {
 				if(clear) {
 					gr->obj_loesche_alle(sp);	// alles weg
@@ -388,7 +387,6 @@ void hausbauer_t::baue(karte_t *welt, spieler_t *sp, koord3d pos, int layout, co
 				welt->access(gr->gib_pos().gib_2d())->boden_ersetzen(gr, gr2);
 				gr = gr2;
 //DBG_DEBUG("hausbauer_t::baue()","ground count now %i",gr->obj_count());
-				gr->setze_besitzer(sp);
 				gr->obj_add( gb );
 				gb->setze_pos( gr->gib_pos() );
 				if(needs_ground_recalc  &&  welt->ist_in_kartengrenzen(pos.gib_2d()+koord(1,1))  &&  (k.y+1==dim.y  ||  k.x+1==dim.x)) {

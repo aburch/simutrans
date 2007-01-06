@@ -269,7 +269,7 @@ DBG_MESSAGE("tunnelbauer_t::baue()", "called on %d,%d", pos.x, pos.y);
 			grund_t *gr=NULL;
 			for (uint i = 0; i < plan->gib_boden_count(); i++) {
 				if(plan->gib_boden_bei(i)->gib_typ()==grund_t::tunnelboden) {
-					if(sp->check_owner(plan->gib_boden_bei(i)->gib_besitzer())) {
+					if(sp->check_owner(plan->gib_boden_bei(i)->obj_bei(0)->gib_besitzer())) {
 						gr = plan->gib_boden_bei(i);
 						break;
 					}
@@ -443,10 +443,7 @@ tunnelbauer_t::baue_einfahrt(karte_t *welt, spieler_t *sp, koord3d end, koord zv
 	grund_t *alter_boden = welt->lookup(end);
 	ribi_t::ribi ribi = alter_boden->gib_weg_ribi_unmasked(besch->gib_waytype()) | ribi_typ(zv);
 
-	alter_boden->setze_besitzer(sp);	// to keep maitenance correct
-
 	tunnelboden_t *tunnel = new tunnelboden_t(welt, end, alter_boden->gib_grund_hang());
-	tunnel->setze_besitzer(sp);
 	tunnel->obj_add(new tunnel_t(welt, end, sp, besch));
 
 	weg_t *weg=alter_boden->gib_weg( besch->gib_waytype() );
@@ -569,7 +566,6 @@ tunnelbauer_t::remove(karte_t *welt, spieler_t *sp, koord3d start, waytype_t weg
 
 		// then add the new ground, copy everything and replace the old one
 		grund_t *gr_new = new boden_t(welt, pos, gr->gib_grund_hang());
-		gr_new->setze_besitzer( sp );
 		gr_new->take_obj_from( gr );
 		welt->access(pos.gib_2d())->kartenboden_setzen(gr_new );
 	}

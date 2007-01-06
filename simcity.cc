@@ -1813,18 +1813,18 @@ void stadt_t::check_bau_rathaus(bool new_town)
 		}
 
 		// Strasse davor verlegen
-		// Hajo: nur, wenn der Boden noch niemand gehört!
 		k = koord(0, besch->gib_h(layout));
 		for (k.x = 0; k.x < besch->gib_b(layout); k.x++) {
 			const grund_t* gr = welt->lookup(best_pos + k)->gib_kartenboden();
-			if (gr->gib_besitzer() == 0) {
-				baue_strasse(best_pos + k, NULL, true);
-			} else {
+			if (baue_strasse(best_pos + k, NULL, true)) {
+				;
+			} else if(k.x==0) {
 				// Hajo: Strassenbau nicht versuchen, eines der Felder
 				// ist schon belegt
 				alte_str == koord::invalid;
 			}
 		}
+
 		if (umziehen && alte_str != koord::invalid) {
 			// Strasse vom ehemaligen Rathaus zum neuen verlegen.
 			wegbauer_t bauer(welt, NULL);
@@ -1996,8 +1996,12 @@ void stadt_t::baue_gebaeude(const koord k)
 						weg->setze_gehweg(true);
 						// if not current city road standard, then replace it
 						if (weg->gib_besch() != welt->get_city_road()) {
-							if(gr->gib_besitzer() != NULL && !gr->gib_depot() && !gr->is_halt()) {
-								gr->setze_besitzer(NULL); // make public
+							if(weg->gib_besitzer()!=NULL && !gr->gib_depot() && !gr->is_halt()) {
+								spieler_t *sp = weg->gib_besitzer();
+								if(sp) {
+									sp->add_maintenance(-weg->gib_besch()->gib_wartung());
+								}
+								weg->setze_besitzer(NULL); // make public
 							}
 							weg->setze_besch(welt->get_city_road());
 						}
@@ -2146,8 +2150,12 @@ void stadt_t::renoviere_gebaeude(koord k)
 					weg->setze_gehweg(true);
 					// if not current city road standard, then replace it
 					if (weg->gib_besch() != welt->get_city_road()) {
-						if (gr->gib_besitzer() != NULL && !gr->gib_depot() && !gr->is_halt()) {
-							gr->setze_besitzer(NULL); // make public
+						if (weg->gib_besitzer() != NULL && !gr->gib_depot() && !gr->is_halt()) {
+							spieler_t *sp = weg->gib_besitzer();
+							if(sp) {
+								sp->add_maintenance(-weg->gib_besch()->gib_wartung());
+							}
+							weg->setze_besitzer(NULL); // make public
 						}
 						weg->setze_besch(welt->get_city_road());
 					}
@@ -2309,8 +2317,6 @@ bool stadt_t::baue_strasse(const koord k, spieler_t* sp, bool forced)
 			weg->setze_besch(welt->get_city_road());
 			// Hajo: city roads should not belong to any player => so we can ignore any contruction costs ...
 			bd->neuen_weg_bauen(weg, connection_roads, sp);
-		} else {
-			bd->setze_besitzer(sp);
 		}
 		return true;
 	}

@@ -28,10 +28,13 @@ cbuffer_t grund_info_t::gr_info(1024);
 
 
 grund_info_t::grund_info_t(karte_t *welt, grund_t *gr) :
-	gui_frame_t(gr->gib_name(),gr->gib_besitzer()),
+	gui_frame_t(gr->gib_name(),NULL),
 	view(welt, gr->gib_pos())
 {
 	this->gr = gr;
+	if(gr->obj_bei(0)!=NULL) {
+		set_owner( gr->obj_bei(0)->gib_besitzer() );
+	}
 	gr_info.clear();
 	gr->info(gr_info);
 	sint16 height = max( count_char(gr_info, '\n')*LINESPACE+36+10, get_tile_raster_width()+30 );
@@ -41,10 +44,6 @@ grund_info_t::grund_info_t(karte_t *welt, grund_t *gr) :
 	add_komponente( &view );
 
 	setze_fenstergroesse( koord(230, height) );
-
-	if(gr->gib_besitzer()) {
-		gr->gib_besitzer()->get_player_color();
-	}
 
 	setze_opaque(true);
 }

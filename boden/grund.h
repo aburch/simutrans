@@ -295,14 +295,14 @@ public:
 	* Ermittelt den Besitzer des Untergrundes.
 	* @author Hj. Malthaner
 	*/
-	spieler_t * gib_besitzer() const;
+//	spieler_t * gib_besitzer() const;
 
 	/**
 	* Setze den Besitzer des Untergrundes. Gibt false zururck, wenn
 	* das setzen fehlgeschlagen ist.
 	* @author Hj. Malthaner
 	*/
-	bool setze_besitzer(spieler_t *s);
+//	bool setze_besitzer(spieler_t *s);
 
 	virtual bool ist_natur() const {return false;}
 	virtual bool ist_wasser() const {return false;}

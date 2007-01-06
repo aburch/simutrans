@@ -154,7 +154,7 @@ const char* grund_t::gib_text() const
 	return result;
 }
 
-
+#if 0
 /**
  * Ground is always owned by the owner
  * of the first object
@@ -195,7 +195,7 @@ bool grund_t::setze_besitzer(spieler_t *s)
 	}
 	return true;
 }
-
+#endif
 
 grund_t::grund_t(karte_t *wl)
 {
@@ -698,11 +698,13 @@ grund_t::text_farbe() const
 	}
 
 	// else color according to current owner
-	const spieler_t *sp = gib_besitzer();
-	if(sp) {
-		return PLAYER_FLAG|((sp->get_player_color()*4)+4);
-	} else {
-		return COL_WHITE;
+	if(obj_bei(0)) {
+		const spieler_t *sp = obj_bei(0)->gib_besitzer();
+		if(sp) {
+			return PLAYER_FLAG|((sp->get_player_color()*4)+4);
+		} else {
+			return COL_WHITE;
+		}
 	}
 }
 
@@ -746,7 +748,6 @@ grund_t::display_boden( const sint16 xpos, const sint16 ypos, const bool /*reset
 
 	// ground
 	image_id bild = gib_bild();
-	const spieler_t *sp = gib_besitzer();
 	if(bild==IMG_LEER) {
 		// only check for forced redraw (of marked ... )
 		if(dirty) {
@@ -755,12 +756,8 @@ grund_t::display_boden( const sint16 xpos, const sint16 ypos, const bool /*reset
 	}
 	else {
 		// if this tile belongs to nobody, we could use the faster redraw routines
-		if(sp==NULL) {
-			display_img(gib_bild(), xpos, ypos, dirty);
-		}
-		else {
-			display_color_img(gib_bild(), xpos, ypos, sp->get_player_color(), true, dirty);
-		}
+		display_img(gib_bild(), xpos, ypos, dirty);
+
 		// we show additionally a grid
 		if(show_grid  &&  gib_typ()!=wasser) {
 			uint8 hang = gib_grund_hang();
@@ -771,6 +768,7 @@ grund_t::display_boden( const sint16 xpos, const sint16 ypos, const bool /*reset
 
 	if(flags&has_way1) {
 		sint16 ynpos = ypos-tile_raster_scale_y( gib_weg_yoff(), rasterweite );
+		const spieler_t *sp = obj_bei(0)->gib_besitzer();
 		if(sp==NULL) {
 			display_img(obj_bei(0)->gib_bild(), xpos, ynpos, dirty);
 		}
@@ -786,6 +784,7 @@ grund_t::display_boden( const sint16 xpos, const sint16 ypos, const bool /*reset
 
 	if(flags&has_way2){
 		sint16 ynpos = ypos-tile_raster_scale_y( gib_weg_yoff(), rasterweite );
+		const spieler_t *sp = obj_bei(1)->gib_besitzer();
 		if(sp==NULL) {
 			display_img(obj_bei(1)->gib_bild(), xpos, ynpos, dirty);
 		}

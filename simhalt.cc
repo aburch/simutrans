@@ -218,14 +218,6 @@ DBG_MESSAGE("haltestelle_t::remove()", "removing building: cleanup");
 						else if(welt->max_hgt(k+pos.gib_2d())<=welt->gib_grundwasser()) {
 							welt->access(k+pos.gib_2d())->kartenboden_setzen(new wasser_t(welt, k+pos.gib_2d()) );
 						}
-						else {
-							weg_t *weg = bd->gib_weg(road_wt);
-							if(weg && static_cast<strasse_t *>(weg)->hat_gehweg()) {
-								// Stadtstrassen sollten entfernbar sein, deshalb
-								// dürfen sie keinen Besitzer haben.
-								bd->setze_besitzer( NULL );
-							}
-						}
 						sp->buche(costs, pos.gib_2d()+k, COST_CONSTRUCTION);
 					}
 				}
@@ -256,12 +248,6 @@ DBG_DEBUG("haltestelle_t::remove()","not last");
 		reliefkarte_t::gib_karte()->calc_map_pixel(pos.gib_2d());
 
 DBG_DEBUG("haltestelle_t::remove()","reset city way owner");
-		weg_t *weg = bd->gib_weg(road_wt);
-		if(weg && static_cast<strasse_t *>(weg)->hat_gehweg()) {
-			// Stadtstrassen sollten entfernbar sein, deshalb
-			// dürfen sie keinen Besitzer haben.
-			bd->setze_besitzer( NULL );
-		}
 		bd->setze_text( NULL );
 	}
 	return true;

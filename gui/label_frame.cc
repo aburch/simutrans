@@ -75,7 +75,7 @@ label_frame_t::label_frame_t(karte_t *welt, spieler_t *sp, koord pos) :
 	this->sp = sp;
 
 	grund_t *gr = welt->lookup(pos)->gib_kartenboden();
-	if(gr && (gr->gib_besitzer() == NULL || gr->gib_besitzer() == sp)) {
+	if(gr  &&  gr->obj_bei(0)  && (gr->obj_bei(0)->gib_besitzer() == NULL || gr->obj_bei(0)->gib_besitzer() == sp)) {
 		sprintf(txlabel, "(%d,%d) ", pos.x, pos.y);
 
 		// Text
@@ -213,8 +213,7 @@ void label_frame_t::zeichnen(koord pos, koord gr)
 void label_frame_t::load_label(char *name)
 {
 	grund_t *gr = welt->lookup(pos)->gib_kartenboden();
-
-	if(gr &&  (gr->gib_besitzer() == NULL || gr->gib_besitzer() == sp)  &&  gr->gib_text()) {
+	if(gr  &&  gr->gib_text()  &&  gr->obj_bei(0)  && (gr->obj_bei(0)->gib_besitzer() == NULL || gr->obj_bei(0)->gib_besitzer() == sp)) {
 		tstrncpy(name, gr->gib_text(), 64);
 	}
 }
@@ -223,13 +222,12 @@ void label_frame_t::create_label(const char *name)
 {
 	grund_t *gr = welt->lookup(pos)->gib_kartenboden();
 
-	if(gr && strlen(name) &&
-		(gr->gib_besitzer() == NULL || gr->gib_besitzer() == sp)) {
+	if(gr  &&  gr->obj_bei(0)  &&  strlen(name)  && (gr->obj_bei(0)->gib_besitzer() == NULL || gr->obj_bei(0)->gib_besitzer() == sp)) {
 
-		if(gr->gib_besitzer() == NULL) {
+		if(gr->obj_bei(0)->gib_besitzer() == NULL) {
 			sp->buche(-12500, pos, COST_CONSTRUCTION);
+			gr->obj_bei(0)->setze_besitzer( sp );
 		}
-		gr->setze_besitzer(sp);
 		gr->setze_text(strdup(name));
 		if(!gr->gib_halt().is_bound()) {
 			welt->add_label(pos);
@@ -240,9 +238,7 @@ void label_frame_t::create_label(const char *name)
 void label_frame_t::remove_label()
 {
 	grund_t *gr = welt->lookup(pos)->gib_kartenboden();
-
-	if(gr && (gr->gib_besitzer() == NULL || gr->gib_besitzer() == sp)) {
-		gr->setze_besitzer(NULL);
+	if(gr  &&  gr->obj_bei(0)  &&  (gr->obj_bei(0)->gib_besitzer() == NULL || gr->obj_bei(0)->gib_besitzer() == sp)) {
 		free(const_cast<char *>(gr->gib_text()));
 		gr->setze_text(NULL);
 		welt->remove_label(pos);

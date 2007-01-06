@@ -22,6 +22,7 @@ Known bugs: (hard to fix)
 	CHANGE: cleaned up midi code, now maximum 128 songs, "music.tab" now "music/music.tab"
 	FIX: bug when loading stations etc. that were not animated but put into the animation list
 	CHANGE: wayobj will be deleted before a station
+	CHANGE: ground can no long be owned, only objects on it (need some tweaks with labels still)
 	(kierongreen)
 	CHANGE: snow for tunnel and bridges
 	FIX: right mouse button scrolling in minimap
