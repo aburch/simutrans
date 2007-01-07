@@ -82,6 +82,7 @@ gebaeude_t::gebaeude_t(karte_t *welt, loadsave_t *file) : ding_t(welt)
 	}
 	if(tile  &&  tile->gib_phasen()>1) {
 		welt->sync_add( this );
+		sync = true;
 	}
 }
 

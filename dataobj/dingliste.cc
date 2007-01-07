@@ -519,18 +519,19 @@ dingliste_t::loesche_alle(spieler_t *sp, uint8 offset)
 
 /* returns the text of an error message, if obj could not be removed */
 const char *
-dingliste_t::kann_alle_entfernen(const spieler_t *sp) const
+dingliste_t::kann_alle_entfernen(const spieler_t *sp, uint8 offset) const
 {
-	if(capacity==0) {
+	if(top<=offset) {
 		return NULL;
 	}
-	else if(capacity==1) {
+
+	if(capacity==1) {
 		return obj.one->ist_entfernbar(sp);
 	}
 	else {
 		const char * msg = NULL;
 
-		for(uint8 i=0; i<top; i++) {
+		for(uint8 i=offset; i<top; i++) {
 			msg = obj.some[i]->ist_entfernbar(sp);
 			if(msg != NULL) {
 				return msg;

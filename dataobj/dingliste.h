@@ -74,7 +74,7 @@ public:
 	* @returns NULL wenn OK, oder Meldung, warum nicht
 	* @author Hj. Malthaner
 	*/
-	const char * kann_alle_entfernen(const spieler_t *) const;
+	const char * kann_alle_entfernen(const spieler_t *, uint8 ) const;
 
 	/* recalcs all objects onthis tile
 	* @author prissi

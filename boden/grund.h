@@ -404,7 +404,7 @@ public:
 	* @returns NULL wenn OK, oder Meldung, warum nicht
 	* @author Hj. Malthaner
 	*/
-	const char * kann_alle_obj_entfernen(const spieler_t *sp) const { return dinge.kann_alle_entfernen(sp); }
+	const char * kann_alle_obj_entfernen(const spieler_t *sp) const { return dinge.kann_alle_entfernen(sp,offsets[flags/has_way1]); }
 
 	/**
 	* Interface zur Bauen und abfragen von Gebaeuden

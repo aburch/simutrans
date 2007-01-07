@@ -323,8 +323,8 @@ DBG_MESSAGE("wkz_remover_intern()","at (%d,%d)", pos.x, pos.y);
 		rs=(roadsign_t *)gr->suche_obj(ding_t::roadsign);
 	}
 	if(rs!=NULL) {
-		if(!sp->check_owner(rs->gib_besitzer())) {
-			msg = "Das Feld gehoert\neinem anderen Spieler\n";
+		msg = rs->ist_entfernbar(sp);
+		if(msg) {
 			return false;
 		}
 DBG_MESSAGE("wkz_remover()",  "removing roadsign %d,%d",  pos.x, pos.y);
@@ -338,8 +338,8 @@ DBG_MESSAGE("wkz_remover()",  "removing roadsign %d,%d",  pos.x, pos.y);
 	// catenary or something like this
 	wayobj_t *wo=(wayobj_t *)gr->suche_obj(ding_t::wayobj);
 	if(wo) {
-		if(!sp->check_owner(wo->gib_besitzer())) {
-			msg = "Das Feld gehoert\neinem anderen Spieler\n";
+		msg = wo->ist_entfernbar(sp);
+		if(msg) {
 			return false;
 		}
 		wo->entferne(sp);
@@ -498,6 +498,7 @@ DBG_MESSAGE("wkz_remover()",  "add again powerline");
 	// ok, now we removed every object, that should be removed one by one.
 	// the following objects will be removed together
 DBG_MESSAGE("wkz_remover()", "removing way");
+
 	/*
 	* Eigentlich müssen wir hier noch verhindern, daß ein Bahnhofsgebäude oder eine
 	* Bushaltestelle vereinzelt wird!
@@ -506,19 +507,16 @@ DBG_MESSAGE("wkz_remover()", "removing way");
 	*/
 	long cost_sum = 0;
 	if(gr->gib_typ()!=grund_t::tunnelboden  ||  gr->gib_weg_nr(1)) {
-		cost_sum = gr->weg_entfernen(track_wt, true);
-		if(cost_sum>0  &&  gr->hat_weg(road_wt)) {
-			// remove only railway track
-			return true;
+		weg_t *w=gr->gib_weg_nr(1);
+		if(w==NULL  ||  !sp->check_owner(w->gib_besitzer())) {
+			w = gr->gib_weg_nr(0);
+			if(!sp->check_owner(w->gib_besitzer())) {
+				msg = w->ist_entfernbar(sp);
+				return false;
+			}
 		}
-		cost_sum += gr->weg_entfernen(monorail_wt, true);
-		if(cost_sum>0  &&  gr->hat_weg(road_wt)) {
-			// remove only railway track
-			return true;
-		}
-		cost_sum += gr->weg_entfernen(road_wt, true);
-		cost_sum += gr->weg_entfernen(water_wt, true);
-		cost_sum += gr->weg_entfernen(air_wt, true);
+		cost_sum = gr->weg_entfernen(w->gib_waytype(), true);
+		return true;
 	}
 	else {
 		// remove upper ways ...
@@ -659,7 +657,7 @@ wkz_wegebau(spieler_t *sp, karte_t *welt,  koord pos, value_t lParam)
 				}
 				// check for ownership
 				if(sp!=NULL  &&  (gr->obj_count()==0  ||  !sp->check_owner(gr->obj_bei(0)->gib_besitzer()))){
-					if(bautyp!=wegbauer_t::strasse  ||  !gr->hat_weg(road_wt)) {
+					if(!(bautyp==wegbauer_t::strasse  ||  bautyp!=wegbauer_t::schiene_tram)  &&  !gr->hat_weg(road_wt)) {
 						// we allow connection to other players roads
 						gr = NULL;
 						continue;
@@ -859,7 +857,7 @@ DBG_MESSAGE("wkz_wayremover()","route with %d tile found",verbindung.gib_max_n()
 			// found a route => check if I can delete anything on it
 			for( int i=0;  can_delete  &&  i<=verbindung.gib_max_n();  i++  ) {
 				grund_t *gr=welt->lookup(verbindung.position_bei(i));
-				if(!gr  ||  gr->kann_alle_obj_entfernen(sp)!=NULL) {
+				if(!gr  ||  gr->gib_weg(wt)==NULL  ||  !sp->check_owner(gr->gib_weg(wt)->gib_besitzer())) {
 					can_delete = false;
 				}
 			}

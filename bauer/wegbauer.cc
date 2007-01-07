@@ -1803,7 +1803,7 @@ wegbauer_t::baue_strasse()
 				if(s) { s->add_maintenance(-weg->gib_besch()->gib_wartung()); }
 				weg->setze_besch(besch);
 				if(sp) { sp->add_maintenance(weg->gib_besch()->gib_wartung()); }
-				weg->setze_besitzer(s);
+				weg->setze_besitzer(sp);
 				cost -= besch->gib_preis();
 			}
 		}
@@ -1872,7 +1872,7 @@ wegbauer_t::baue_schiene()
 					if(s) { s->add_maintenance(-weg->gib_besch()->gib_wartung()); }
 					weg->setze_besch(besch);
 					if(sp) { sp->add_maintenance(weg->gib_besch()->gib_wartung()); }
-					weg->setze_besitzer(s);
+					weg->setze_besitzer(sp);
 					cost -= besch->gib_preis();
 				}
 			}
