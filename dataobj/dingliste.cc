@@ -815,13 +815,13 @@ void dingliste_t::dump() const
 		return;
 	}
 	else if(capacity==1) {
-		DBG_MESSAGE("dingliste_t::dump()","one object \'%s\'", obj.one->gib_name() );
+		DBG_MESSAGE("dingliste_t::dump()","one object \'%s\' owned by sp %p", obj.one->gib_name(), obj.one->gib_besitzer() );
 		return;
 	}
 
 	DBG_MESSAGE("dingliste_t::dump()","%i objects", top );
 	for(uint8 n=0; n<top; n++) {
-		DBG_MESSAGE( obj.some[n]->gib_name(), "at %i", n );
+		DBG_MESSAGE( obj.some[n]->gib_name(), "at %i owned by sp %p", n, obj.some[n]->gib_besitzer() );
 	}
 }
 

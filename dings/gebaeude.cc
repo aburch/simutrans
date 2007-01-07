@@ -654,20 +654,16 @@ DBG_MESSAGE("gebaeude_t::rwdr", "description %s for building at %d,%d not found 
 			}
 		}
 
-		uint8 dummy=sync;
-		file->rdwr_byte(dummy, "\n");
-		sync = dummy;
+		if(file->get_version()<99006) {
+			// ignore the sync flag
+			uint8 dummy=sync;
+			file->rdwr_byte(dummy, "\n");
+		}
 
 		if(file->is_loading()) {
 			count = 0;
 			anim_time = 0;
-			if(tile && sync) {
-				// Sicherstellen, dass alles wieder animiert wird!
-				// Ohne "sync=false" denkt setze_sync(), es dreht sich
-				// schon alles.
-				sync = false;
-//				welt->sync_remove(this);
-			}
+			sync = false;
 
 			// Hajo: rebuild tourist attraction list
 			if(tile && tile->gib_besch()->ist_ausflugsziel()) {

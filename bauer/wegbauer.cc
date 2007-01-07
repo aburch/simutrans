@@ -297,10 +297,11 @@ void wegbauer_t::fill_menu(werkzeug_parameter_waehler_t *wzw,
  * @author prissi
  */
 bool
-wegbauer_t::check_crossing(const koord zv, const grund_t *bd,waytype_t wtyp) const
+wegbauer_t::check_crossing(const koord zv, const grund_t *bd,waytype_t wtyp, const spieler_t *sp) const
 {
-  if(bd->hat_weg(wtyp)  &&  bd->gib_halt()==NULL) {
-	ribi_t::ribi w_ribi = bd->gib_weg_ribi_unmasked(wtyp);
+	weg_t *w = bd->gib_weg(wtyp);
+	if(w  &&  bd->gib_halt()==NULL  &&  check_owner(w->gib_besitzer(),sp)) {
+	ribi_t::ribi w_ribi = w->gib_ribi_unmasked();
     // it is our way we want to cross: can we built a crossing here?
     // both ways must be straight and no ends
     return
@@ -324,7 +325,7 @@ wegbauer_t::check_for_leitung(const koord zv, const grund_t *bd) const
 		return true;
 	}
 	leitung_t *lt=dynamic_cast<leitung_t *> (bd->suche_obj(ding_t::leitung));
-	if(lt!=NULL) {//  &&  (bd->gib_besitzer()==0  ||  bd->gib_besitzer()==sp)) {
+	if(lt!=NULL) {
 		ribi_t::ribi lt_ribi = lt->gib_ribi();
 	    // it is our way we want to cross: can we built a crossing here?
 	    // both ways must be straight and no ends
@@ -445,7 +446,7 @@ bool wegbauer_t::check_slope( const grund_t *from, const grund_t *to )
 
 
 // allowed owner?
-bool wegbauer_t::check_owner( const spieler_t *sp1, const spieler_t *sp2 )
+bool wegbauer_t::check_owner( const spieler_t *sp1, const spieler_t *sp2 ) const
 {
 	// unowned, mine or public property?
 	return sp1==NULL  ||  sp1==sp2  ||  sp1==welt->gib_spieler(1);
@@ -581,8 +582,11 @@ DBG_MESSAGE("wegbauer_t::is_allowed_step()","wrong ground already there!");
 		{
 			const weg_t *str=to->gib_weg(road_wt);
 			const weg_t *sch=to->gib_weg(track_wt);
-			ok =	((str  &&  check_owner(str->gib_besitzer(),sp))  ||  !fundament)  &&  (!to->hat_wege()  ||  (sch!=NULL  &&  ((check_crossing(zv,to,track_wt)  &&  check_owner(sch->gib_besitzer(),sp))  ||  sch->gib_besch()->gib_styp()==7))) &&
-					!to->ist_wasser()  &&  check_for_leitung(zv,to);
+			// we allow connection to any road
+			ok =	(str  ||  !fundament)  &&  !to->ist_wasser()  &&  check_for_leitung(zv,to);
+			if(str==NULL) {
+				ok &= !to->hat_wege()  ||  (sch!=NULL  &&  (check_crossing(zv,to,track_wt,sp)  ||  sch->gib_besch()->gib_styp()==7));
+			}
 			if(ok) {
 				const weg_t *from_str=from->gib_weg(road_wt);
 				// check for end/start of bridge
@@ -616,8 +620,8 @@ DBG_MESSAGE("wegbauer_t::is_allowed_step()","wrong ground already there!");
 			if((bautyp&bot_flag)!=0  &&  (gb  ||  sch  ||  to->gib_halt().is_bound())) {
 				return false;
 			}
-			ok =	!fundament  &&  !to->ist_wasser()  &&  (!to->hat_wege()  ||  (sch  &&  check_owner(sch->gib_besitzer(),sp))  ||  check_crossing(zv,to,road_wt))  &&
-					(to->obj_count()==0  ||  check_owner(to->obj_bei(0)->gib_besitzer(),sp)) &&
+			ok =	!fundament  &&  !to->ist_wasser()  &&
+				  (!to->hat_wege()  ||  (sch  &&  check_owner(sch->gib_besitzer(),sp))  ||  (sch==NULL  &&  check_crossing(zv,to,road_wt,sp)))  &&
 					check_for_leitung(zv,to);
 			if(ok) {
 				// check for end/start of bridge

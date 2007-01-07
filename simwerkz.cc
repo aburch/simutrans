@@ -659,8 +659,11 @@ wkz_wegebau(spieler_t *sp, karte_t *welt,  koord pos, value_t lParam)
 				}
 				// check for ownership
 				if(sp!=NULL  &&  (gr->obj_count()==0  ||  !sp->check_owner(gr->obj_bei(0)->gib_besitzer()))){
-					gr = NULL;
-					continue;
+					if(bautyp!=wegbauer_t::strasse  ||  !gr->hat_weg(road_wt)) {
+						// we allow connection to other players roads
+						gr = NULL;
+						continue;
+					}
 				}
 			}
 		}

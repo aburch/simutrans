@@ -143,7 +143,7 @@ private:
 	koord3d position_bei(unsigned i) const { return route[i]; }
 
 	// allowed owner?
-	bool check_owner( const spieler_t *sp1, const spieler_t *sp2 );
+	bool check_owner( const spieler_t *sp1, const spieler_t *sp2 ) const;
 
 	// allowed slope?
 	bool check_slope( const grund_t *from, const grund_t *to );
@@ -219,7 +219,7 @@ public:
 	*/
 	long calc_costs();
 
-	bool check_crossing(const koord zv, const grund_t *bd,waytype_t wtyp) const;
+	bool check_crossing(const koord zv, const grund_t *bd,waytype_t wtyp, const spieler_t *sp) const;
 	bool check_for_leitung(const koord zv, const grund_t *bd) const;
 
 	void baue();
