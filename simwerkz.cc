@@ -510,6 +510,9 @@ DBG_MESSAGE("wkz_remover()", "removing way");
 		weg_t *w=gr->gib_weg_nr(1);
 		if(w==NULL  ||  !sp->check_owner(w->gib_besitzer())) {
 			w = gr->gib_weg_nr(0);
+			if(w==NULL) {
+				return true;
+			}
 			if(!sp->check_owner(w->gib_besitzer())) {
 				msg = w->ist_entfernbar(sp);
 				return false;

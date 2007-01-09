@@ -4,6 +4,7 @@ Known bugs: (hard to fix)
 	valgrind complains about errors in SDL and X?
 
 
+Release of 99.06
 
 	(prissi)
 	FIX: crash when closing the filter window before the main list window
