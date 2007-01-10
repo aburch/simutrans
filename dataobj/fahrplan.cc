@@ -256,8 +256,8 @@ fahrplan_t::rdwr(loadsave_t *file)
 			file->rdwr_long(dummy, "\n");
 		}
 	}
-	if(eintrag.get_count()>aktuell) {
-		dbg->error("fahrplan_t::rdwr()","aktuell>count => aktuell = 0");
+	if(aktuell>=eintrag.get_count()) {
+		dbg->error("fahrplan_t::rdwr()","aktuell %i >count %i => aktuell = 0", aktuell, eintrag.get_count() );
 		aktuell = 0;
 	}
 }
