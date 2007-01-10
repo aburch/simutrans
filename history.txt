@@ -7,7 +7,8 @@ Known bugs: (hard to fix)
 	FIX: crash when deleting empty tiles of middle parts of bridges
 	FIX: wrong schedule entry pointer after loading
 	FIX: crash when electrify before electrification
-	FIX: stucked citycars on lopes at height level -1
+	FIX: citycars got stuck on slopes at height level -1
+	FIX: way remover with tunnels crashed at tunnel entry
 
 
 Release of 99.06
