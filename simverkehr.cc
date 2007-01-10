@@ -145,11 +145,6 @@ verkehrsteilnehmer_t::info(char *buf) const
 void
 verkehrsteilnehmer_t::hop()
 {
-	// will ignore roadigns
-	if(pos_next.z == -1) {
-		// Altes Savegame geladen
-		pos_next = welt->lookup(pos_next.gib_2d())->gib_kartenboden()->gib_pos();
-	}
 	// V.Meyer: weg_position_t changed to grund_t::get_neighbour()
 	grund_t *from = welt->lookup(pos_next);
 	grund_t *to;
@@ -568,10 +563,6 @@ stadtauto_t::betrete_feld()
 void
 stadtauto_t::hop()
 {
-	if(pos_next.z == -1) {
-		// Altes Savegame geladen
-		pos_next = welt->lookup(pos_next.gib_2d())->gib_kartenboden()->gib_pos();
-	}
 	// V.Meyer: weg_position_t changed to grund_t::get_neighbour()
 	grund_t *from = welt->lookup(pos_next);
 	grund_t *to;

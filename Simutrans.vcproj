@@ -575,10 +575,6 @@
 				>
 			</File>
 			<File
-				RelativePath=".\tpl\no_such_element_exception.cc"
-				>
-			</File>
-			<File
 				RelativePath=".\besch\reader\obj_reader.cc"
 				>
 			</File>

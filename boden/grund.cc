@@ -154,48 +154,6 @@ const char* grund_t::gib_text() const
 	return result;
 }
 
-#if 0
-/**
- * Ground is always owned by the owner
- * of the first object
- * @author Hj. Malthaner
- */
-spieler_t * grund_t::gib_besitzer() const
-{
-	if(gib_top()) {
-		return obj_bei(0)->gib_besitzer();
-	}
-	return NULL;
-}
-
-
-/**
- * Setze den Besitzer des Untergrundes. Gibt false zurück, wenn
- * das setzen fehlgeschlagen ist.
- * @author Hj. Malthaner
- */
-bool grund_t::setze_besitzer(spieler_t *s)
-{
-	if(!ist_bruecke()) {
-		// transfer way maitenance costs
-		if(flags&has_way1) {
-			weg_t *w=(weg_t *)obj_bei(0);
-			spieler_t *sp = w->gib_besitzer();
-			if(sp) { sp->add_maintenance(-w->gib_besch()->gib_wartung()); }
-			if(s) { s->add_maintenance(w->gib_besch()->gib_wartung()); }
-			w->setze_besitzer(s);
-		}
-		if(flags&has_way2) {
-			weg_t *w=(weg_t *)obj_bei(1);
-			spieler_t *sp = w->gib_besitzer();
-			if(sp) { sp->add_maintenance(-w->gib_besch()->gib_wartung()); }
-			if(s) { s->add_maintenance(w->gib_besch()->gib_wartung()); }
-			w->setze_besitzer(s);
-		}
-	}
-	return true;
-}
-#endif
 
 grund_t::grund_t(karte_t *wl)
 {
