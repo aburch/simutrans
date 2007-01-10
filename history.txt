@@ -4,6 +4,9 @@ Known bugs: (hard to fix)
 	valgrind complains about errors in SDL and X?
 
 
+	FIX: crash when deleting empty tiles of middle parts of bridges
+
+
 Release of 99.06
 
 	(prissi)

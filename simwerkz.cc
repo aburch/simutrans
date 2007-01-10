@@ -508,9 +508,14 @@ DBG_MESSAGE("wkz_remover()", "removing way");
 	long cost_sum = 0;
 	if(gr->gib_typ()!=grund_t::tunnelboden  ||  gr->gib_weg_nr(1)) {
 		weg_t *w=gr->gib_weg_nr(1);
+		if(gr->gib_typ()==grund_t::brueckenboden  &&  w==NULL) {
+			// do not delete the middle of a bridge
+			return false;
+		}
 		if(w==NULL  ||  !sp->check_owner(w->gib_besitzer())) {
 			w = gr->gib_weg_nr(0);
 			if(w==NULL) {
+				// no way at all ...
 				return true;
 			}
 			if(!sp->check_owner(w->gib_besitzer())) {
