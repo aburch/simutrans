@@ -5,6 +5,8 @@ Known bugs: (hard to fix)
 
 
 	FIX: crash when deleting empty tiles of middle parts of bridges
+	FIX: wrong schedule entry pointer after loading
+	FIX: crash when electrify before electrification
 
 
 Release of 99.06

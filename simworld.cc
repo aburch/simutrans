@@ -3058,10 +3058,12 @@ karte_t::interactive_event(event_t &ev)
 	    setze_maus_funktion(wkz_lower, skinverwaltung_t::downzeiger->gib_bild_nr(0), Z_GRID,  NO_SOUND, NO_SOUND );
 	    break;
 	case 'e':
-	    if(default_electric==NULL) {
+		if(default_electric==NULL) {
 			default_electric = wayobj_t::wayobj_search(track_wt,overheadlines_wt,get_timeline_year_month());
-	    }
-	    setze_maus_funktion(wkz_wayobj, default_electric->gib_cursor()->gib_bild_nr(0), Z_PLAN, (long)default_electric, SFX_JACKHAMMER, SFX_FAILURE);
+		}
+		if(default_electric) {
+			setze_maus_funktion(wkz_wayobj, default_electric->gib_cursor()->gib_bild_nr(0), Z_PLAN, (long)default_electric, SFX_JACKHAMMER, SFX_FAILURE);
+		}
 	    break;
 	case 'f': /* OCR: Finances */
 	    sound_play(click_sound);
