@@ -35,6 +35,7 @@
 
 #include "../dings/baum.h"
 #include "../dings/bruecke.h"
+#include "../dings/tunnel.h"
 #include "../dings/gebaeude.h"
 #include "../dings/signal.h"
 #include "../dings/roadsign.h"
@@ -660,10 +661,10 @@ grund_t::text_farbe() const
 		const spieler_t *sp = obj_bei(0)->gib_besitzer();
 		if(sp) {
 			return PLAYER_FLAG|((sp->get_player_color()*4)+4);
-		} else {
-			return COL_WHITE;
 		}
 	}
+
+	return COL_WHITE;
 }
 
 
@@ -1068,6 +1069,7 @@ bool grund_t::remove_everything_from_way(spieler_t *sp,waytype_t wt,ribi_t::ribi
 	// check, if the way must be totally removed?
 	weg_t *weg = gib_weg(wt);
 	if(weg) {
+		koord here = pos.gib_2d();
 
 		// stopps
 		if(flags&is_halt_flag  &&  gib_halt()->gib_besitzer()==sp) {
@@ -1116,8 +1118,16 @@ bool grund_t::remove_everything_from_way(spieler_t *sp,waytype_t wt,ribi_t::ribi
 			}
 			// remove tunnel portal/bridge
 			else if(d->gib_typ()==ding_t::bruecke  ||  d->gib_typ()==ding_t::tunnel) {
-				d->entferne(sp);
-				delete d;
+				uint8 wt = d->gib_typ()==ding_t::bruecke ? ((bruecke_t *)d)->gib_besch()->gib_waytype() : ((tunnel_t *)d)->gib_besch()->gib_waytype();
+				if((flags&has_way2)==0  &&  weg->gib_waytype()==wt) {
+					// last way was belonging to this tunnel
+					d->entferne(sp);
+					delete d;
+				}
+				else {
+					// we must leave the way to prevent destroying the other one
+					add = weg->gib_ribi_unmasked();
+				}
 			}
 
 		}
@@ -1125,8 +1135,13 @@ bool grund_t::remove_everything_from_way(spieler_t *sp,waytype_t wt,ribi_t::ribi
 
 		// need to remove railblocks to recalcualte connections
 		// remove all ways or just some?
-		if(add==ribi_t::keine ) {
+		if(add==ribi_t::keine) {
 			costs -= weg_entfernen(wt, true);
+			if(add==ribi_t::keine  &&  (flags&is_kartenboden)  &&  gib_typ()==tunnelboden  &&  (flags&has_way1)==0) {
+				// remove tunnelportal and set to normal ground
+				obj_loesche_alle( sp );
+				welt->access(pos.gib_2d())->kartenboden_setzen( new boden_t( welt, pos, slope ) );
+			}
 		}
 		else {
 	DBG_MESSAGE("wkz_wayremover()","change remaining way to ribi %d",add);
@@ -1136,7 +1151,7 @@ bool grund_t::remove_everything_from_way(spieler_t *sp,waytype_t wt,ribi_t::ribi
 		}
 		// we have to pay?
 		if(costs) {
-			sp->buche(costs, pos.gib_2d(), COST_CONSTRUCTION);
+			sp->buche(costs, here, COST_CONSTRUCTION);
 		}
 	}
 	return true;
