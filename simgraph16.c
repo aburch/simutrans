@@ -1850,11 +1850,20 @@ void display_color_img(const unsigned n, const KOORD_VAL xp, const KOORD_VAL yp,
 /* from here code for transparent images */
 typedef void (*blend_proc)(PIXVAL *dest, const PIXVAL colour, const PIXVAL len);
 
+// different masks needed for RGB 555 and RGB 565
+#ifdef USE_16BIT_DIB
+#define ONE_OUT (0x7bef)
+#define TWO_OUT (0x39E7)
+#else
+#define ONE_OUT (0x3DEF)
+#define TWO_OUT (0x1CE7)
+#endif
+
 static void pix_blend75(PIXVAL *dest, const PIXVAL colour, const PIXVAL len)
 {
 	const PIXVAL *const end = dest + len;
 	while (dest < end) {
-		*dest = (3*((colour>>2)&0x1CE7))+(((*dest)>>2)&0x1CE7);
+		*dest = (3*((colour>>2) & TWO_OUT)) + (((*dest)>>2) & TWO_OUT);
 		dest++;
 	}
 }
@@ -1863,8 +1872,7 @@ static void pix_blend50(PIXVAL *dest, const PIXVAL colour, const PIXVAL len)
 {
 	const PIXVAL *const end = dest + len;
 	while (dest < end) {
-		// RGB 555 3DEF, RGB 565 0x7bef
-		*dest = ((colour>>1)&0x3DEF)+(((*dest)>>1)&0x3DEF);
+		*dest = ((colour>>1) & ONE_OUT) + (((*dest)>>1) & ONE_OUT);
 		dest++;
 	}
 }
@@ -1873,8 +1881,7 @@ static void pix_blend25(PIXVAL *dest, const PIXVAL colour, const PIXVAL len)
 {
 	const PIXVAL *const end = dest + len;
 	while (dest < end) {
-		// RGB 555 1cE7, RGB 565 39E7
-		*dest = ((colour>>2)&0x1CE7)+(3*(((*dest)>>2)&0x1CE7));
+		*dest = ((colour>>2) & TWO_OUT) + (3*(((*dest)>>2) & TWO_OUT));
 		dest++;
 	}
 }

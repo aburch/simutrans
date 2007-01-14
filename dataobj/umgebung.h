@@ -62,7 +62,7 @@ class umgebung_t
 	/**
 	 * three states:
 	 */
-	static enum { NOT_HIDE=0, SOME_HIDDEN_BUIDLING, ALL_HIDDEN_BUIDLING };
+	enum { NOT_HIDE=0, SOME_HIDDEN_BUIDLING, ALL_HIDDEN_BUIDLING };
 	static uint8 hide_buildings;
 
 	/**

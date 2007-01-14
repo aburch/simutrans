@@ -290,6 +290,8 @@ endif
 
 ifeq ($(BACKEND),sdl)
   SOURCES  += simsys_s.c
+  CFLAGS   += -DUSE_16BIT_DIB
+  CXXFLAGS   += -DUSE_16BIT_DIB
   ifeq ($(SDL_CONFIG),)
     SDL_CFLAGS  := -I$(MINGDIR)/include/SDL -Dmain=SDL_main
     SDL_LDFLAGS := -lmingw32 -lSDLmain -lSDL -mwindows
