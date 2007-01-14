@@ -42,6 +42,7 @@
 #include "besch/roadsign_besch.h"
 
 
+
 /**********************************************************************************************************************/
 /* Verkehrsteilnehmer (basis class) from here on */
 
@@ -157,6 +158,11 @@ verkehrsteilnehmer_t::hop()
 	if(weg==NULL) {
 		// no gound here any more?
 		pos_next = gib_pos();
+		from = welt->lookup(pos_next);
+		if(!from  ||  !from->hat_weg(road_wt)) {
+			// destroy it
+			time_to_life = 0;
+		}
 		return;
 	}
 
@@ -366,7 +372,7 @@ stadtauto_t::sync_step(long delta_t)
 		// stuck in traffic jam
 		sint32 old_ms_traffic_jam = ms_traffic_jam;
 		ms_traffic_jam -= delta_t;
-		if((ms_traffic_jam>>10)!=(old_ms_traffic_jam>>10)) {
+		if((ms_traffic_jam>>7)!=(old_ms_traffic_jam>>7)) {
 			if(ist_weg_frei()) {
 				ms_traffic_jam = 0;
 				current_speed = 48;
@@ -462,12 +468,12 @@ stadtauto_t::ist_weg_frei()
 
 	const grund_t *gr = welt->lookup(pos_next);
 	if(gr==NULL  ||  gr->gib_top()>20) {
-		return false;
+		return true;
 	}
 
 	weg_t *str=gr->gib_weg(road_wt);
 	if(!str) {
-		return false;
+		return true;
 	}
 
 
@@ -575,6 +581,11 @@ stadtauto_t::hop()
 	if(weg==NULL) {
 		// no gound here any more?
 		pos_next = gib_pos();
+		to = welt->lookup(pos_next);
+		if(!to  ||  !to->hat_weg(road_wt)) {
+			// destroy it
+			time_to_life = 0;
+		}
 		return;
 	}
 
@@ -600,17 +611,13 @@ stadtauto_t::hop()
 			dy = -dy;
 		}
 	}
-	else if(ribi==ribi_t::keine) {
-		fahrtrichtung = ribi_t::rueckwaerts(fahrtrichtung);
-		pos_next = gib_pos();
-		current_speed = 1;
-		dx = -dx;
-		dy = -dy;
-	}
 	else {
+		if(ribi==ribi_t::keine) {
+			ribi = weg->gib_ribi();
+		}
 		// add all good ribis here
 		for(int r = 0; r < 4; r++) {
-			if(  (ribi&ribi_t::nsow[r])!=0  &&  from->get_neighbour(to, road_wt, koord::nsow[r]) ) {
+			if(  (ribi&ribi_t::nsow[r])!=0  &&  from->get_neighbour(to, road_wt, koord::nsow[r])) {
 				// check, if this is just a single tile deep
 				weg_t *w=to->gib_weg(road_wt);
 				int next_ribi =  w->gib_ribi();
@@ -647,15 +654,13 @@ stadtauto_t::hop()
 			}
 			fahrtrichtung = calc_richtung(gib_pos().gib_2d(), pos_next.gib_2d(), dx, dy);
 		} else if(liste.get_count()==1) {
+			fahrtrichtung = calc_richtung( pos_next.gib_2d(), liste[0]->gib_pos().gib_2d(), dx, dy);
 			pos_next = liste[0]->gib_pos();
-			fahrtrichtung = calc_richtung(gib_pos().gib_2d(), pos_next.gib_2d(), dx, dy);
 		}
 		else {
-			fahrtrichtung = ribi_t::rueckwaerts(fahrtrichtung);
-			current_speed = 1;
-			dx = -dx;
-			dy = -dy;
-			pos_next = gib_pos();
+			// destroy, since nowhere to go
+			time_to_life = 0;
+			return;
 		}
 	}
 
@@ -672,8 +677,10 @@ bool
 stadtauto_t::hop_check()
 {
 	if(!ist_weg_frei()) {
-		ms_traffic_jam = (3<<karte_t::ticks_bits_per_tag);
-		current_speed = 0;
+		if(current_speed!=0) {
+			ms_traffic_jam = (3<<karte_t::ticks_bits_per_tag);
+			current_speed = 0;
+		}
 		return false;
 	}
 	else {
