@@ -9,7 +9,12 @@
 // this is a player color => use different table for conversion
 #define PLAYER_FLAG (0x8000)
 
-typedef  unsigned short PLAYER_COLOR_VAL;
+#define TRANSPARENT_FLAGS (0x7000)
+#define TRANSPARENT25_FLAG (0x2000)
+#define TRANSPARENT50_FLAG (0x4000)
+#define TRANSPARENT75_FLAG (0x6000)
+
+typedef unsigned short PLAYER_COLOR_VAL;
 typedef unsigned char COLOR_VAL;
 
 // Menuefarben (aendern sich nicht von Tag zu Nacht)

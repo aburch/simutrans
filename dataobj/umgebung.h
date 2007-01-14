@@ -49,12 +49,29 @@ class umgebung_t
 
 	/**
 	* Stationsabdeckung zeigen
-	*
 	* @author prissi
 	*/
-	static bool station_coverage_show;
+	static bool use_transparency_station_coverage;
+	static uint8 station_coverage_show;
+	enum { NOT_SHOWN_COVERAGE=0, SHOW_MY_COVERAGE, SHOW_ALL_COVERAGE };
 	static int station_coverage_size;
 
+	// use transparency to hide buildings and trees
+	static bool hide_with_transparency;
+
+	/**
+	 * three states:
+	 */
+	static enum { NOT_HIDE=0, SOME_HIDDEN_BUIDLING, ALL_HIDDEN_BUIDLING };
+	static uint8 hide_buildings;
+
+	/**
+	 * Set to true to hide all trees. "Hiding" is implemented by showing the
+	 * first pic which should be very small.
+	 * @author Volker Meyer
+	 * @date  10.06.2003
+	 */
+	static bool hide_trees;
 
 	/**
 	* Namen (Städte, Haltestellen) anzeigen? (0 .. 3)

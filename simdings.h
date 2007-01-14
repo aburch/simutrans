@@ -12,6 +12,7 @@
 
 #include "simtypes.h"
 #include "simimg.h"
+#include "simcolor.h"
 #include "dataobj/koord3d.h"
 
 
@@ -122,7 +123,6 @@ public:
 	inline void set_flag(enum flag_values flag) {flags |= flag;}
 	inline void clear_flag(enum flag_values flag) {flags &= ~flag;}
 	inline bool get_flag(enum flag_values flag) const {return ((flags & flag) != 0);}
-
 	enum typ {
 		undefined=-1, ding=0, baum=1, zeiger=2,
 		wolke=3, sync_wolke=4, async_wolke=5,
@@ -257,6 +257,19 @@ public:
 	 * Currently only single height is supported for this feature
 	 */
 	virtual image_id gib_after_bild() const {return IMG_LEER;}
+
+	/**
+	 * if a function return here a value with TRANSPARENT_FLAGS set
+	 * then a transparent outline with the color form the lower 8 Bit is drawn
+	 * @author kierongreen
+	 */
+	virtual PLAYER_COLOR_VAL gib_outline_colour() const {return 0;}
+
+	/**
+	 * The image, that will be outlined
+	 * @author kierongreen
+	 */
+	virtual PLAYER_COLOR_VAL gib_outline_bild() const {return IMG_LEER;}
 
 	/**
 	 * Ein Objekt kann zu einer Fabrik gehören.

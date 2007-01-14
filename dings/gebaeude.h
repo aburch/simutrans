@@ -16,6 +16,7 @@
 
 #include "../ifc/sync_steppable.h"
 #include "../simdings.h"
+#include "../simcolor.h"
 
 #ifdef USE_NEW_GEBAUDE
 #include "../dataobj/freelist.h"
@@ -32,19 +33,11 @@ class stadt_t;
 class gebaeude_t : public ding_t, sync_steppable
 {
 public:
-	enum  {NOT_HIDDEN=0, SOME_HIDDEN, ALL_HIDDEN};
-
 	/**
 	 * Vom typ "unbekannt" sind auch spezielle gebaeude z.B. das Rathaus
 	 * @author Hj. Malthaner
 	 */
 	enum typ {wohnung, gewerbe, industrie, unbekannt};
-
-	/**
-	 * Set to true to hide all non-station buildings
-	 * @author Hj. Malthaner
-	 */
-	static uint8 hide;
 
 private:
 	const haus_tile_besch_t *tile;
@@ -140,6 +133,9 @@ public:
 	image_id gib_bild() const;
 	image_id gib_bild(int nr) const;
 	image_id gib_after_bild() const;
+
+	image_id gib_outline_bild() const;
+	PLAYER_COLOR_VAL gib_outline_colour() const;
 
 	// caches image at height 0
 	void calc_bild();

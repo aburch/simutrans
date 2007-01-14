@@ -3011,11 +3011,11 @@ karte_t::interactive_event(event_t &ev)
 	    break;
 	case '"':
 	    sound_play(click_sound);
-	    gebaeude_t::hide++;
-	    if(gebaeude_t::hide>gebaeude_t::ALL_HIDDEN) {
-	    	gebaeude_t::hide = gebaeude_t::NOT_HIDDEN;
+			umgebung_t::hide_buildings ++;
+			if(umgebung_t::hide_buildings>umgebung_t::ALL_HIDDEN_BUIDLING) {
+				umgebung_t::hide_buildings = umgebung_t::NOT_HIDE;
 	    }
-	    baum_t::hide = !baum_t::hide;
+	    umgebung_t::hide_trees = !umgebung_t::hide_trees;
 	    setze_dirty();
 	    break;
 	case '#':

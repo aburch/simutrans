@@ -24,22 +24,38 @@
 
 #include "../utils/simstring.h"
 
-#define DAY_NIGHT (10)
-#define BRIGHTNESS (23)
+// y coordinates
+#define DAY_NIGHT (0*13+6)
+#define BRIGHTNESS (1*13+6)
+#define SCROLL_INVERS (2*13+6)
+#define SCROLL_SPEED (3*13+6)
 
-#define SCROLL_INVERS (39)
-#define SCROLL_SPEED (52)
+#define SEPERATE1 (4*13+6)
 
-#define CITY_WALKER (68)
-#define STOP_WALKER (81)
-#define DENS_TRAFFIC (94)
+#define USE_TRANSPARENCY (4*13+6+4)
+#define HIDE_TREES (5*13+6+4)
+#define HIDE_CITY_HOUSES (6*13+6+4)
+#define HIDE_ALL_HOUSES (7*13+6+4)
 
-#define SEPERATE (110)
-#define FPS_DATA (116)
-#define IDLE_DATA (127)
-#define FRAME_DATA (138)
-#define LOOP_DATA (149)
+#define SEPERATE2 (8*13+6+4)
 
+#define USE_TRANSPARENCY_STATIONS (8*13+6+8)
+#define SHOW_STATION_COVERAGE (9*13+6+8)
+#define CITY_WALKER (10*13+6+8)
+#define STOP_WALKER (11*13+6+8)
+#define DENS_TRAFFIC (12*13+6+8)
+
+#define SEPERATE3 (13*13+6+8)
+
+#define FPS_DATA (13*13+6+12)
+#define IDLE_DATA (14*13+6+12)
+#define FRAME_DATA (15*13+6+12)
+#define LOOP_DATA (16*13+6+12)
+
+#define BOTTOM (17*13+6+12+16)
+
+// x coordinates
+#define RIGHT_WIDTH (220)
 #define ARR_LEFT (125)
 #define ARR_RIGHT (150)
 #define NUMBER (148)
@@ -93,13 +109,43 @@ color_gui_t::color_gui_t(karte_t *welt) :
 	buttons[9].setze_text("8WORLD_CHOOSE");
 	buttons[9].pressed = umgebung_t::night_shift;
 
-	for(int i=0;  i<10;  i++ ) {
+	buttons[10].setze_pos( koord(10,USE_TRANSPARENCY) );
+	buttons[10].setze_typ(button_t::square_state);
+	buttons[10].setze_text("hide transparent");
+	buttons[10].pressed = umgebung_t::hide_with_transparency;
+
+	buttons[11].setze_pos( koord(10,HIDE_TREES) );
+	buttons[11].setze_typ(button_t::square_state);
+	buttons[11].setze_text("hide trees");
+	buttons[11].pressed = umgebung_t::hide_trees;
+
+	buttons[12].setze_pos( koord(10,HIDE_CITY_HOUSES) );
+	buttons[12].setze_typ(button_t::square_state);
+	buttons[12].setze_text("hide city building");
+	buttons[12].pressed = umgebung_t::hide_buildings>0;
+
+	buttons[13].setze_pos( koord(10,HIDE_ALL_HOUSES) );
+	buttons[13].setze_typ(button_t::square_state);
+	buttons[13].setze_text("hide all building");
+	buttons[13].pressed = umgebung_t::hide_buildings>1;
+
+	buttons[14].setze_pos( koord(10,USE_TRANSPARENCY_STATIONS) );
+	buttons[14].setze_typ(button_t::square_state);
+	buttons[14].setze_text("transparent station coverage");
+	buttons[14].pressed = umgebung_t::use_transparency_station_coverage;
+
+	buttons[15].setze_pos( koord(10,SHOW_STATION_COVERAGE) );
+	buttons[15].setze_typ(button_t::square_state);
+	buttons[15].setze_text("show station coverage");
+	buttons[15].pressed = umgebung_t::station_coverage_show;
+
+	for(int i=0;  i<16;  i++ ) {
 		buttons[i].add_listener(this);
 		add_komponente( buttons+i );
 	}
 
 	setze_opaque(true);
-	setze_fenstergroesse( koord(176, 180) );
+	setze_fenstergroesse( koord(RIGHT_WIDTH, BOTTOM) );
 }
 
 
@@ -124,20 +170,19 @@ color_gui_t::action_triggered(gui_komponente_t *komp, value_t)
 			sets->setze_verkehr_level( sets->gib_verkehr_level() + 1 );
 		}
 	} else if((buttons+2)==komp) {
-	    if(sets->gib_scroll_multi() > 1) {
-		welt->setze_scroll_multi(sets->gib_scroll_multi()-1);
-	    }
-	    if(sets->gib_scroll_multi() < -1) {
-		welt->setze_scroll_multi(sets->gib_scroll_multi()+1);
-	    }
+		if(sets->gib_scroll_multi() > 1) {
+			welt->setze_scroll_multi(sets->gib_scroll_multi()-1);
+		}
+		if(sets->gib_scroll_multi() < -1) {
+			welt->setze_scroll_multi(sets->gib_scroll_multi()+1);
+		}
 	} else if((buttons+3)==komp) {
-	    if(sets->gib_scroll_multi() >= 1) {
-		welt->setze_scroll_multi(sets->gib_scroll_multi()+1);
-	    }
-	    if(sets->gib_scroll_multi() <= -1) {
-		welt->setze_scroll_multi(sets->gib_scroll_multi()-1);
-	    }
-
+		if(sets->gib_scroll_multi() >= 1) {
+			welt->setze_scroll_multi(sets->gib_scroll_multi()+1);
+		}
+		if(sets->gib_scroll_multi() <= -1) {
+			welt->setze_scroll_multi(sets->gib_scroll_multi()-1);
+		}
 	} else if((buttons+6)==komp) {
 		welt->setze_scroll_multi(- sets->gib_scroll_multi());
 		buttons[6].pressed ^= 1;
@@ -150,6 +195,20 @@ color_gui_t::action_triggered(gui_komponente_t *komp, value_t)
 	} else if((buttons+9)==komp) {
 		umgebung_t::night_shift = !umgebung_t::night_shift;
 		buttons[9].pressed ^= 1;
+	} else if((buttons+10)==komp) {
+		umgebung_t::hide_with_transparency = !umgebung_t::hide_with_transparency;
+		buttons[10].pressed ^= 1;
+	} else if((buttons+11)==komp) {
+		umgebung_t::hide_trees = !umgebung_t::hide_trees;
+	} else if((buttons+12)==komp) {
+		umgebung_t::hide_buildings = !umgebung_t::hide_buildings;
+	} else if((buttons+13)==komp) {
+		umgebung_t::hide_buildings = umgebung_t::hide_buildings>1 ? 0 : 2;
+	} else if((buttons+14)==komp) {
+		umgebung_t::use_transparency_station_coverage = !umgebung_t::use_transparency_station_coverage;
+		buttons[14].pressed ^= 1;
+	} else if((buttons+15)==komp) {
+		umgebung_t::station_coverage_show = umgebung_t::station_coverage_show==0 ? 0xFF : 0;
 	}
 	welt->setze_dirty();
 	return true;
@@ -165,9 +224,18 @@ void color_gui_t::zeichnen(koord pos, koord gr)
 	const einstellungen_t * sets = welt->gib_einstellungen();
 	char buf[128];
 
+	// can be changed also with keys ...
+	buttons[11].pressed = umgebung_t::hide_trees;
+	buttons[12].pressed = umgebung_t::hide_buildings>0;
+	buttons[13].pressed = umgebung_t::hide_buildings>1;
+	buttons[15].pressed = umgebung_t::station_coverage_show;
+
 	gui_frame_t::zeichnen(pos, gr);
 
-	display_ddd_box_clip(x+10, y+SEPERATE, 156, 0, MN_GREY0, MN_GREY4);
+	// seperator
+	display_ddd_box_clip(x+10, y+SEPERATE1, RIGHT_WIDTH-20, 0, MN_GREY0, MN_GREY4);
+	display_ddd_box_clip(x+10, y+SEPERATE2, RIGHT_WIDTH-20, 0, MN_GREY0, MN_GREY4);
+	display_ddd_box_clip(x+10, y+SEPERATE3, RIGHT_WIDTH-20, 0, MN_GREY0, MN_GREY4);
 
 	display_proportional_clip(x+10, y+BRIGHTNESS, translator::translate("1LIGHT_CHOOSE"), ALIGN_LEFT, COL_BLACK, true);
 	display_proportional_clip(x+NUMBER, y+BRIGHTNESS, ntos(display_get_light(), 0), ALIGN_RIGHT, COL_WHITE, true);

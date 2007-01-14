@@ -9,6 +9,7 @@ Known bugs: (hard to fix)
 	FIX: crash when electrify before electrification
 	FIX: citycars got stuck on slopes at height level -1
 	FIX: way remover with tunnels crashed at tunnel entry
+	ADD: (prissi & kierongreen) transparent images for buildings, trees, and catchment area with an extended display dialoge (new strings: "hide transparent", "hide trees", "hide city building", "hide all building", "transparent station coverage", "show station coverage")
 
 
 Release of 99.06

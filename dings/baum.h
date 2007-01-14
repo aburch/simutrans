@@ -13,6 +13,8 @@
 #include "../tpl/stringhashtable_tpl.h"
 #include "../tpl/vector_tpl.h"
 #include "../besch/baum_besch.h"
+#include "../simcolor.h"
+#include "../dataobj/umgebung.h"
 
 /**
  * Bäume in Simutrans.
@@ -44,14 +46,6 @@ private:
 	void calc_off();
 
 public:
-	/**
-	 * Set to true to hide all trees. "Hiding" is implemented by showing the
-	 * first pic which should be very small.
-	 * @author Volker Meyer
-	 * @date  10.06.2003
-	 */
-	static bool hide;
-
 	// only the load save constructor should be called outside
 	// otherwise I suggest use the plant tree function (see below)
 	baum_t(karte_t *welt, loadsave_t *file);
@@ -61,6 +55,10 @@ public:
 	void rdwr(loadsave_t *file);
 
 	image_id gib_bild() const;
+
+	// hide trees eventually with transparency
+	PLAYER_COLOR_VAL gib_outline_colour() const { return (umgebung_t::hide_trees  &&  umgebung_t::hide_with_transparency) ? (TRANSPARENT25_FLAG | COL_BLACK) : 0; }
+	image_id gib_outline_bild() const;
 
 	/**
 	 * Berechnet Alter und Bild abhängig vom Alter

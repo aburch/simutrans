@@ -1846,6 +1846,155 @@ void display_color_img(const unsigned n, const KOORD_VAL xp, const KOORD_VAL yp,
 }
 
 
+
+/* from here code for transparent images */
+typedef void (*blend_proc)(PIXVAL *dest, const PIXVAL colour, const PIXVAL len);
+
+static void pix_blend75(PIXVAL *dest, const PIXVAL colour, const PIXVAL len)
+{
+	const PIXVAL *const end = dest + len;
+	while (dest < end) {
+		*dest = (3*((colour>>2)&0x1CE7))+(((*dest)>>2)&0x1CE7);
+		dest++;
+	}
+}
+
+static void pix_blend50(PIXVAL *dest, const PIXVAL colour, const PIXVAL len)
+{
+	const PIXVAL *const end = dest + len;
+	while (dest < end) {
+		// RGB 555 3DEF, RGB 565 0x7bef
+		*dest = ((colour>>1)&0x3DEF)+(((*dest)>>1)&0x3DEF);
+		dest++;
+	}
+}
+
+static void pix_blend25(PIXVAL *dest, const PIXVAL colour, const PIXVAL len)
+{
+	const PIXVAL *const end = dest + len;
+	while (dest < end) {
+		// RGB 555 1cE7, RGB 565 39E7
+		*dest = ((colour>>2)&0x1CE7)+(3*(((*dest)>>2)&0x1CE7));
+		dest++;
+	}
+}
+
+static void display_img_outline_wc(KOORD_VAL h, const KOORD_VAL xp, const KOORD_VAL yp, const PIXVAL *sp, int colour,
+	blend_proc p )
+{
+	if (h > 0) {
+		PIXVAL *tp = textur + yp * disp_width;
+
+		do { // zeilen dekodieren
+			int xpos = xp;
+
+			// bild darstellen
+			int runlen = *sp++;
+
+			do {
+				// wir starten mit einem clear run
+				xpos += runlen;
+
+				// jetzt kommen farbige pixel
+				runlen = *sp++;
+
+				// Hajo: something to display?
+				if (xpos + runlen >= clip_rect.x && xpos <= clip_rect.xx) {
+					const int left = (xpos >= clip_rect.x ? 0 : clip_rect.x - xpos);
+					const int len  = (clip_rect.xx - xpos >= runlen ? runlen : clip_rect.xx - xpos);
+					(*p)(tp + xpos + left, colour, len - left);
+				}
+
+				sp += runlen;
+				xpos += runlen;
+			} while ((runlen = *sp++));
+
+			tp += disp_width;
+		} while (--h);
+	}
+}
+
+/**
+ * draws the transparent outline of an image
+ * @author kierongreen
+ */
+void display_img_outline(const unsigned n, const KOORD_VAL xp, KOORD_VAL yp, const PLAYER_COLOR_VAL color_index, const int daynight, const int dirty)
+{
+	if (n < anz_images) {
+		// need to go to nightmode and or rezoomed?
+		PIXVAL *sp;
+		KOORD_VAL h, reduce_h, skip_lines;
+
+		if (images[n].recode_flags&FLAG_REZOOM) {
+			rezoom_img(n);
+			recode_normal_img(n);
+		} else if (images[n].recode_flags&FLAG_NORMAL_RECODE) {
+			recode_normal_img(n);
+		}
+		sp = images[n].data;
+
+		// now, since zooming may have change this image
+		yp += images[n].y;
+		h = images[n].h; // may change due to vertical clipping
+
+		// in the next line the vertical clipping will be handled
+		// by that way the drawing routines must only take into account the horizontal clipping
+		// this should be much faster in most cases
+
+		// must the height be reduced?
+		reduce_h = yp + h - clip_rect.yy;
+		if (reduce_h > 0) h -= reduce_h;
+		// still something to draw
+		if (h <= 0) return;
+
+		// vertically lines to skip (only bottom is visible
+		skip_lines = clip_rect.y - (int)yp;
+		if (skip_lines > 0) {
+			if (skip_lines >= h) {
+				// not visible at all
+				return;
+			}
+			h -= skip_lines;
+			yp += skip_lines;
+			// now skip them
+			while (skip_lines--) {
+				do {
+					// clear run + colored run + next clear run
+					sp++;
+					sp += *sp + 1;
+				} while (*sp);
+				sp++;
+			}
+			// now sp is the new start of an image with height h
+		}
+
+		// new block for new variables
+		{
+			// needed now ...
+			const KOORD_VAL x = images[n].x;
+			const KOORD_VAL w = images[n].w;
+			// get the real color
+			const PIXVAL color = (color_index >= PLAYER_FLAG ? specialcolormap_all_day[color_index & 0xFF] : rgbcolormap[color_index & 0xFF]);
+			// we use function pointer for the blend runs for the moment ...
+			static blend_proc choices[3] = { pix_blend25, pix_blend50, pix_blend75 };
+			blend_proc pix_blend = choices[ (color_index&TRANSPARENT_FLAGS)/TRANSPARENT25_FLAG - 1 ];
+
+			// use horzontal clipping or skip it?
+			if (xp + x >= clip_rect.x && xp + x + w - 1 <= clip_rect.xx) {
+				// marking change?
+				if (dirty) mark_rect_dirty_nc(xp + x, yp, xp + x + w - 1, yp + h - 1);
+				display_img_outline_wc( h, xp, yp, sp, color, pix_blend );
+			} else if (xp <= clip_rect.xx && xp + x + w > clip_rect.x) {
+				display_img_outline_wc( h, xp, yp, sp, color, pix_blend );
+				// since height may be reduced, start marking here
+				if (dirty) mark_rect_dirty_wc(xp + x, yp, xp + x + w - 1, yp + h - 1);
+			}
+		}
+	}
+}
+
+
+
 /**
  * the area of this image need update
  * @author Hj. Malthaner

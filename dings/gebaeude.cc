@@ -30,6 +30,8 @@
 #include "../besch/intro_dates.h"
 #include "../bauer/warenbauer.h"
 
+#include "../besch/grund_besch.h"
+
 #include "../utils/cbuffer_t.h"
 
 #include "../dataobj/loadsave.h"
@@ -43,10 +45,6 @@
 #include "../gui/money_frame.h"
 
 #include "gebaeude.h"
-
-
-uint8 gebaeude_t::hide = NOT_HIDDEN;
-
 
 
 /**
@@ -234,6 +232,7 @@ bool gebaeude_t::sync_step(long delta_t)
 		// still under construction?
 		if(welt->gib_zeit_ms() - insta_zeit > 5000) {
 			set_flag(ding_t::dirty);
+			mark_image_dirty(gib_bild(),0);
 			zeige_baugrube = false;
 			if(tile->gib_phasen()<=1) {
 				welt->sync_remove( this );
@@ -289,14 +288,20 @@ gebaeude_t::calc_bild()
 image_id
 gebaeude_t::gib_bild() const
 {
-	if(hide!=NOT_HIDDEN) {
+	if(umgebung_t::hide_buildings!=0) {
+		// opaque houses
 		if(gib_haustyp()!=unbekannt) {
-			return skinverwaltung_t::construction_site->gib_bild_nr(0);
+			return umgebung_t::hide_with_transparency ? skinverwaltung_t::fussweg->gib_bild_nr(0) : skinverwaltung_t::construction_site->gib_bild_nr(0);
 		}
-		else if(hide==ALL_HIDDEN  &&  tile->gib_besch()->gib_utyp()<hausbauer_t::weitere) {
+		else if(umgebung_t::hide_buildings==umgebung_t::ALL_HIDDEN_BUIDLING  &&  tile->gib_besch()->gib_utyp()<hausbauer_t::weitere) {
 			// special bilding
-			int kind=skinverwaltung_t::construction_site->gib_bild_anzahl()<=tile->gib_besch()->gib_utyp() ? skinverwaltung_t::construction_site->gib_bild_anzahl()-1 : tile->gib_besch()->gib_utyp();
-			return skinverwaltung_t::construction_site->gib_bild_nr( kind );
+			if(umgebung_t::hide_with_transparency ) {
+				return skinverwaltung_t::fussweg->gib_bild_nr(0);
+			}
+			else {
+				int kind=skinverwaltung_t::construction_site->gib_bild_anzahl()<=tile->gib_besch()->gib_utyp() ? skinverwaltung_t::construction_site->gib_bild_anzahl()-1 : tile->gib_besch()->gib_utyp();
+				return skinverwaltung_t::construction_site->gib_bild_nr( kind );
+			}
 		}
 	}
 
@@ -312,9 +317,42 @@ gebaeude_t::gib_bild() const
 
 
 image_id
+gebaeude_t::gib_outline_bild() const
+{
+	if(umgebung_t::hide_buildings!=0  &&  umgebung_t::hide_with_transparency  &&  !zeige_baugrube) {
+		// opaque houses
+		return tile->gib_hintergrund(count, 0, gib_pos().z>=welt->get_snowline());
+	}
+	return IMG_LEER;
+}
+
+
+
+/* gives outline colour and plots background tile if needed for transparent view */
+PLAYER_COLOR_VAL
+gebaeude_t::gib_outline_colour() const
+{
+	COLOR_VAL colours[] = { COL_BLACK, COL_YELLOW, COL_YELLOW, COL_PURPLE, COL_RED, COL_PURPLE };
+	PLAYER_COLOR_VAL disp_colour = 0;
+	bool dirty = get_flag(ding_t::dirty);
+	if(umgebung_t::hide_buildings!=umgebung_t::NOT_HIDE) {
+		if(gib_haustyp()!=unbekannt) {
+			disp_colour = colours[0] | TRANSPARENT25_FLAG;
+		}
+		else if(umgebung_t::hide_buildings==umgebung_t::ALL_HIDDEN_BUIDLING  &&  tile->gib_besch()->gib_utyp()<hausbauer_t::weitere) {
+			// special bilding
+			disp_colour = colours[tile->gib_besch()->gib_utyp()] | TRANSPARENT50_FLAG;
+		}
+	}
+	return disp_colour;
+}
+
+
+
+image_id
 gebaeude_t::gib_bild(int nr) const
 {
-	if(zeige_baugrube || hide) {
+	if(zeige_baugrube || umgebung_t::hide_buildings) {
 		return IMG_LEER;
 	}
 	else {

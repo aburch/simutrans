@@ -36,9 +36,6 @@ static const uint8 baum_bild_alter[12] =
     0,1,2,3,3,3,3,3,3,4,4,4
 };
 
-bool baum_t::hide = false;
-
-
 /*************************** first the static function for the baum_t and baum_besch_t administration ***************/
 
 
@@ -192,7 +189,21 @@ image_id
 baum_t::gib_bild() const
 {
 	// alter/2048 is the age of the tree
-	uint8 baum_alter = hide ? 0 : baum_bild_alter[min((welt->get_current_month() - geburt)>>6, 11u)];
+	if(umgebung_t::hide_trees) {
+		return umgebung_t::hide_with_transparency ? IMG_LEER : gib_besch()->gib_bild( season, 0 )->gib_nummer();
+		// we need the real age for transparency or real image
+	}
+	uint8 baum_alter = baum_bild_alter[min((welt->get_current_month() - geburt)>>6, 11u)];
+	return gib_besch()->gib_bild( season, baum_alter )->gib_nummer();
+}
+
+
+
+// image which transparent outline is used
+image_id
+baum_t::gib_outline_bild() const
+{
+	uint8 baum_alter = baum_bild_alter[min((welt->get_current_month() - geburt)>>6, 11u)];
 	return gib_besch()->gib_bild( season, baum_alter )->gib_nummer();
 }
 

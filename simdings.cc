@@ -27,6 +27,8 @@
 #include "simplay.h"
 #include "simdings.h"
 #include "simworld.h"
+#include "dings/baum.h"
+#include "dings/gebaeude.h"
 #include "dataobj/translator.h"
 #include "dataobj/loadsave.h"
 #include "boden/grund.h"
@@ -227,7 +229,6 @@ ding_t::rdwr(loadsave_t *file)
 	besitzer_n = byte;
 }
 
-
 /**
  * Ding zeichnen
  * (reset dirty will be done from dingliste! It is true only for drawing the main window.)
@@ -242,22 +243,30 @@ ding_t::display(int xpos, int ypos, bool /*reset_dirty*/) const
 
 	xpos += tile_raster_scale_x(gib_xoff(), raster_width);
 	ypos += tile_raster_scale_y(gib_yoff(), raster_width);
+	const int start_ypos = ypos;
 
 	bool dirty = get_flag(ding_t::dirty);
-	int j = 1;
+	int j = 0;
 	while(bild!=IMG_LEER) {
 
 		if(besitzer_n!=-1) {
 			display_color_img(bild, xpos, ypos, gib_besitzer()->get_player_color(), true, dirty);
-		}
-		else {
+		}	else {
 			display_img(bild, xpos, ypos, dirty);
 		}
 		// this ding has another image on top (e.g. skyscraper)
 		ypos -= raster_width;
-		bild = gib_bild(j++);
+		bild = gib_bild(++j);
+	}
+
+	// transparentcy?
+	const PLAYER_COLOR_VAL transparent = gib_outline_colour();
+	if(TRANSPARENT_FLAGS&transparent) {
+		// only transparent outline
+		display_img_outline(gib_outline_bild(), xpos, start_ypos, transparent, 0, dirty);
 	}
 }
+
 
 
 void

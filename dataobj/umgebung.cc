@@ -11,14 +11,19 @@ bool umgebung_t::night_shift = false;
 
 bool umgebung_t::freeplay = false;
 
-bool umgebung_t::station_coverage_show = true;
+bool umgebung_t::hide_with_transparency = true;
+bool umgebung_t::hide_trees = false;
+uint8 umgebung_t::hide_buildings = umgebung_t::NOT_HIDE;
+
+bool umgebung_t::use_transparency_station_coverage = true;
+uint8 umgebung_t::station_coverage_show = NOT_SHOWN_COVERAGE;
 int umgebung_t::station_coverage_size = 2;
 
 int  umgebung_t::show_names = 3;
 
 bool umgebung_t::automaten[6] = {0,0,0,0,1,0};
 
-int umgebung_t::message_flags[4] =  { 0xFF7F, 0x0108, 0x0080, 0 };
+int umgebung_t::message_flags[4] =  { 0x017F, 0x0108, 0x0080, 0 };
 
 bool umgebung_t::fussgaenger = false;
 
