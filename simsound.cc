@@ -22,6 +22,7 @@
 #include "simsound.h"
 #include "simsys.h"
 #include "simio.h"
+#include "simtools.h"
 #include "simdebug.h"
 
 #include "utils/simstring.h"
@@ -48,6 +49,7 @@ static int global_volume = 128;
  */
 static int midi_volume = 128;
 
+static bool shuffle_midi = false;
 
 static int max_midi = -1; // number of MIDI files
 
@@ -75,6 +77,18 @@ int sound_get_global_volume()
 {
   return global_volume;
 }
+
+
+
+bool sound_get_shuffle_midi()
+{
+	return shuffle_midi;
+}
+void sound_set_shuffle_midi( bool shuffle )
+{
+	shuffle_midi = shuffle;
+}
+
 
 
 /**
@@ -226,9 +240,19 @@ void midi_stop()
 void check_midi()
 {
   if((dr_midi_pos() < 0 || new_midi == 1) && max_midi > -1) {
-    current_midi++;
-		if (current_midi > max_midi) {
-      current_midi = 0;
+		if(shuffle_midi  &&  max_midi>1) {
+			// shuffle songs
+			int new_midi = simrand(max_midi-1);
+			if(new_midi>=current_midi) {
+				new_midi ++;
+			}
+			current_midi = new_midi;
+		}
+		else {
+	    current_midi++;
+			if (current_midi > max_midi) {
+		    current_midi = 0;
+			}
 		}
 
     midi_play(current_midi);

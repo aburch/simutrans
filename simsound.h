@@ -68,6 +68,9 @@ int sound_get_global_volume();
 void sound_play(const struct sound_info inf);
 
 
+// shuffle enable/disable for midis
+bool sound_get_shuffle_midi();
+void sound_set_shuffle_midi( bool shuffle );
 
 /**
  * setzt Lautstärke für MIDI playback

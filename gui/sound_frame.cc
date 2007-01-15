@@ -34,8 +34,6 @@ sound_frame_t::sound_frame_t()
     midi(scrollbar_t::horizontal),
     dlabel("Sound volume:"),
     mlabel("Music volume:"),
-    nextbtn(),
-    prevbtn(),
     curlabel(make_song_name()),
     cplaying("Currently playing:")
 {
@@ -57,15 +55,18 @@ sound_frame_t::sound_frame_t()
 
     mlabel.setze_pos(koord(22,64));
 
-    nextbtn.setze_groesse(koord(20, 14));
     nextbtn.setze_pos(koord(38,133));
     nextbtn.setze_typ(button_t::arrowright);
 
-    prevbtn.setze_groesse(koord(20, 14));
     prevbtn.setze_pos(koord(22,133));
     prevbtn.setze_typ(button_t::arrowleft);
 
-    cplaying.setze_pos(koord(22,114)); // "Currently Playing:"
+    shufflebtn.setze_pos(koord(22,146));
+    shufflebtn.setze_typ(button_t::square_state);
+    shufflebtn.setze_text("shuffle midis");
+		shufflebtn.pressed = sound_get_shuffle_midi();
+
+		cplaying.setze_pos(koord(22,114)); // "Currently Playing:"
     curlabel.setze_pos(koord(60,134)); // "Jazz"
 
     add_komponente(&dlabel);
@@ -79,9 +80,11 @@ sound_frame_t::sound_frame_t()
 
     nextbtn.add_listener(this);
     prevbtn.add_listener(this);
+    shufflebtn.add_listener(this);
 
     add_komponente(&nextbtn);
     add_komponente(&prevbtn);
+    add_komponente(&shufflebtn);
 
     setze_fenstergroesse(koord(300, 180));
     setze_opaque( true );
@@ -105,6 +108,10 @@ sound_frame_t::action_triggered(gui_komponente_t *komp,value_t p)
 		check_midi();
 		curlabel.setze_text(make_song_name());
 		intr_refresh_display(true);
+	}
+	else if (komp == &shufflebtn) {
+		sound_set_shuffle_midi( !sound_get_shuffle_midi() );
+		shufflebtn.pressed = sound_get_shuffle_midi();
 	}
 	else if (komp == &digi) {
 		sound_set_global_volume(p.i);

@@ -29,6 +29,7 @@ private:
     gui_label_t mlabel;
     button_t nextbtn;
     button_t prevbtn;
+    button_t shufflebtn;
     gui_label_t curlabel;
     gui_label_t cplaying;
 

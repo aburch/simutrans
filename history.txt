@@ -12,6 +12,7 @@ Known bugs: (hard to fix)
 	ADD: (prissi & kierongreen) transparent images for buildings, trees, and catchment area with an extended display dialoge (new strings: "hide transparent", "hide trees", "hide city building", "hide all building", "transparent station coverage", "show station coverage")
 	FIX: improvd citycar behaviour
 	FIX: wayobj not dirty after creation => garbage on the screen
+	ADD: shuffle for midis
 
 
 Release of 99.06
