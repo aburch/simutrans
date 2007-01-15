@@ -296,6 +296,10 @@ gebaeude_t::gib_bild() const
 		else if(umgebung_t::hide_buildings==umgebung_t::ALL_HIDDEN_BUIDLING  &&  tile->gib_besch()->gib_utyp()<hausbauer_t::weitere) {
 			// special bilding
 			if(umgebung_t::hide_with_transparency ) {
+				if(tile->gib_besch()->gib_utyp()==hausbauer_t::fabrik  &&  ptr.fab->gib_besch()->gib_platzierung()==fabrik_besch_t::Wasser) {
+					// no ground tiles for water thingies
+					return IMG_LEER;
+				}
 				return skinverwaltung_t::fussweg->gib_bild_nr(0);
 			}
 			else {

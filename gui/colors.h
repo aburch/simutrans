@@ -13,7 +13,7 @@ class color_gui_t : public gui_frame_t, private action_listener_t
 {
 private:
 	karte_t *welt;
-	button_t buttons[16];
+	button_t buttons[17];
 
 public:
     color_gui_t(karte_t *welt);

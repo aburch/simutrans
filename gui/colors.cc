@@ -25,34 +25,35 @@
 #include "../utils/simstring.h"
 
 // y coordinates
-#define DAY_NIGHT (0*13+6)
-#define BRIGHTNESS (1*13+6)
-#define SCROLL_INVERS (2*13+6)
-#define SCROLL_SPEED (3*13+6)
+#define UNDERGROUND (0*13+6)
+#define DAY_NIGHT (1*13+6)
+#define BRIGHTNESS (2*13+6)
+#define SCROLL_INVERS (3*13+6)
+#define SCROLL_SPEED (4*13+6)
 
-#define SEPERATE1 (4*13+6)
+#define SEPERATE1 (5*13+6)
 
-#define USE_TRANSPARENCY (4*13+6+4)
-#define HIDE_TREES (5*13+6+4)
-#define HIDE_CITY_HOUSES (6*13+6+4)
-#define HIDE_ALL_HOUSES (7*13+6+4)
+#define USE_TRANSPARENCY (5*13+6+4)
+#define HIDE_TREES (6*13+6+4)
+#define HIDE_CITY_HOUSES (7*13+6+4)
+#define HIDE_ALL_HOUSES (8*13+6+4)
 
-#define SEPERATE2 (8*13+6+4)
+#define SEPERATE2 (9*13+6+4)
 
-#define USE_TRANSPARENCY_STATIONS (8*13+6+8)
-#define SHOW_STATION_COVERAGE (9*13+6+8)
-#define CITY_WALKER (10*13+6+8)
-#define STOP_WALKER (11*13+6+8)
-#define DENS_TRAFFIC (12*13+6+8)
+#define USE_TRANSPARENCY_STATIONS (9*13+6+8)
+#define SHOW_STATION_COVERAGE (10*13+6+8)
+#define CITY_WALKER (11*13+6+8)
+#define STOP_WALKER (12*13+6+8)
+#define DENS_TRAFFIC (13*13+6+8)
 
-#define SEPERATE3 (13*13+6+8)
+#define SEPERATE3 (14*13+6+8)
 
-#define FPS_DATA (13*13+6+12)
-#define IDLE_DATA (14*13+6+12)
-#define FRAME_DATA (15*13+6+12)
-#define LOOP_DATA (16*13+6+12)
+#define FPS_DATA (14*13+6+12)
+#define IDLE_DATA (15*13+6+12)
+#define FRAME_DATA (16*13+6+12)
+#define LOOP_DATA (17*13+6+12)
 
-#define BOTTOM (17*13+6+12+16)
+#define BOTTOM (18*13+6+12+16)
 
 // x coordinates
 #define RIGHT_WIDTH (220)
@@ -117,17 +118,14 @@ color_gui_t::color_gui_t(karte_t *welt) :
 	buttons[11].setze_pos( koord(10,HIDE_TREES) );
 	buttons[11].setze_typ(button_t::square_state);
 	buttons[11].setze_text("hide trees");
-	buttons[11].pressed = umgebung_t::hide_trees;
 
 	buttons[12].setze_pos( koord(10,HIDE_CITY_HOUSES) );
 	buttons[12].setze_typ(button_t::square_state);
 	buttons[12].setze_text("hide city building");
-	buttons[12].pressed = umgebung_t::hide_buildings>0;
 
 	buttons[13].setze_pos( koord(10,HIDE_ALL_HOUSES) );
 	buttons[13].setze_typ(button_t::square_state);
 	buttons[13].setze_text("hide all building");
-	buttons[13].pressed = umgebung_t::hide_buildings>1;
 
 	buttons[14].setze_pos( koord(10,USE_TRANSPARENCY_STATIONS) );
 	buttons[14].setze_typ(button_t::square_state);
@@ -137,9 +135,12 @@ color_gui_t::color_gui_t(karte_t *welt) :
 	buttons[15].setze_pos( koord(10,SHOW_STATION_COVERAGE) );
 	buttons[15].setze_typ(button_t::square_state);
 	buttons[15].setze_text("show station coverage");
-	buttons[15].pressed = umgebung_t::station_coverage_show;
 
-	for(int i=0;  i<16;  i++ ) {
+	buttons[16].setze_pos( koord(10,UNDERGROUND) );
+	buttons[16].setze_typ(button_t::square_state);
+	buttons[16].setze_text("underground mode");
+
+	for(int i=0;  i<17;  i++ ) {
 		buttons[i].add_listener(this);
 		add_komponente( buttons+i );
 	}
@@ -209,6 +210,19 @@ color_gui_t::action_triggered(gui_komponente_t *komp, value_t)
 		buttons[14].pressed ^= 1;
 	} else if((buttons+15)==komp) {
 		umgebung_t::station_coverage_show = umgebung_t::station_coverage_show==0 ? 0xFF : 0;
+	} else if((buttons+16)==komp) {
+		grund_t::underground_mode = !grund_t::underground_mode;
+		for(int y=0; y<welt->gib_groesse_y(); y++) {
+			for(int x=0; x<welt->gib_groesse_x(); x++) {
+				const planquadrat_t *plan = welt->lookup(koord(x,y));
+				const int boden_count = plan->gib_boden_count();
+				for(int schicht=0; schicht<boden_count; schicht++) {
+					grund_t *gr = plan->gib_boden_bei(schicht);
+					gr->calc_bild();
+				}
+			}
+		}
+    welt->setze_dirty();
 	}
 	welt->setze_dirty();
 	return true;
@@ -229,6 +243,7 @@ void color_gui_t::zeichnen(koord pos, koord gr)
 	buttons[12].pressed = umgebung_t::hide_buildings>0;
 	buttons[13].pressed = umgebung_t::hide_buildings>1;
 	buttons[15].pressed = umgebung_t::station_coverage_show;
+	buttons[16].pressed = grund_t::underground_mode;
 
 	gui_frame_t::zeichnen(pos, gr);
 
