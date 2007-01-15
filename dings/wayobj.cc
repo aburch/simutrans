@@ -194,6 +194,7 @@ wayobj_t::calc_bild()
 			gr->obj_remove(this);
 			entferne(gib_besitzer());
 			delete this;
+			gr->set_flag(grund_t::dirty);
 			return;
 		}
 
@@ -298,6 +299,7 @@ wayobj_t::extend_wayobj_t(karte_t *welt, koord3d pos, spieler_t *besitzer, ribi_
 					if(((wayobj_t *)d)->gib_besch()->gib_topspeed()<besch->gib_topspeed()  &&  besitzer->check_owner(d->gib_besitzer())) {
 						// replace slower by faster
 						gr->obj_remove(d);
+						gr->set_flag(grund_t::dirty);
 						delete d;
 						break;
 					}
@@ -305,6 +307,8 @@ wayobj_t::extend_wayobj_t(karte_t *welt, koord3d pos, spieler_t *besitzer, ribi_
 						// extend this one instead
 						((wayobj_t *)d)->set_dir(dir|((wayobj_t *)d)->get_dir());
 						d->calc_bild();
+						d->mark_image_dirty( d->gib_after_bild(), 0 );
+						d->set_flag(ding_t::dirty);
 						return;
 					}
 				}
@@ -314,6 +318,8 @@ wayobj_t::extend_wayobj_t(karte_t *welt, koord3d pos, spieler_t *besitzer, ribi_
 		wayobj_t *wo = new wayobj_t(welt,pos,besitzer,dir,besch);
 		gr->obj_add(wo);
 		wo->laden_abschliessen();
+		wo->mark_image_dirty( wo->gib_after_bild(), 0 );
+		wo->set_flag(ding_t::dirty);
 		besitzer->buche( -besch->gib_preis(), pos.gib_2d(), COST_CONSTRUCTION);
 	}
 }
