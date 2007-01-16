@@ -704,7 +704,6 @@ grund_t::display_boden( const sint16 xpos, const sint16 ypos, const bool /*reset
 		}
 	}
 	else {
-		// if this tile belongs to nobody, we could use the faster redraw routines
 		display_img(gib_bild(), xpos, ypos, dirty);
 
 		// we show additionally a grid
