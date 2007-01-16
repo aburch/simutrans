@@ -263,7 +263,7 @@ ding_t::display(int xpos, int ypos, bool /*reset_dirty*/) const
 	const PLAYER_COLOR_VAL transparent = gib_outline_colour();
 	if(TRANSPARENT_FLAGS&transparent) {
 		// only transparent outline
-		display_img_outline(gib_outline_bild(), xpos, start_ypos, transparent, 0, dirty);
+		display_img_blend(gib_outline_bild(), xpos, start_ypos, transparent, 0, dirty);
 	}
 }
 

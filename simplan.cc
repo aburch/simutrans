@@ -379,13 +379,13 @@ planquadrat_t::display_dinge(const sint16 xpos, const sint16 ypos, const sint16 
 	if(umgebung_t::station_coverage_show  &&  halt_list_count>0) {
 		if(umgebung_t::use_transparency_station_coverage) {
 			// only transparent outline
-			const PLAYER_COLOR_VAL transparent = PLAYER_FLAG | TRANSPARENT25_FLAG | (halt_list[0]->gib_besitzer()->get_player_color() * 4 + 4);
+			const PLAYER_COLOR_VAL transparent = PLAYER_FLAG | TRANSPARENT25_FLAG | OUTLINE_FLAG | (halt_list[0]->gib_besitzer()->get_player_color() * 4 + 4);
 			image_id img = gib_kartenboden()->gib_bild();
 			if(img==IMG_LEER) {
 				// default image (since i.e. foundations do not have an image)
 				img = grund_besch_t::ausserhalb->gib_bild(hang_t::flach);
 			}
-			display_img_outline( img, xpos, ypos, transparent, 0, 0);
+			display_img_blend( img, xpos, ypos, transparent, 0, 0);
 		}
 		else {
 			// opaque boxes

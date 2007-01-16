@@ -1848,7 +1848,7 @@ void display_color_img(const unsigned n, const KOORD_VAL xp, const KOORD_VAL yp,
 
 
 /* from here code for transparent images */
-typedef void (*blend_proc)(PIXVAL *dest, const PIXVAL colour, const PIXVAL len);
+typedef void (*blend_proc)(PIXVAL *dest, const PIXVAL *src, const PIXVAL colour, const PIXVAL len);
 
 // different masks needed for RGB 555 and RGB 565
 #ifdef USE_16BIT_DIB
@@ -1859,7 +1859,37 @@ typedef void (*blend_proc)(PIXVAL *dest, const PIXVAL colour, const PIXVAL len);
 #define TWO_OUT (0x1CE7)
 #endif
 
-static void pix_blend75(PIXVAL *dest, const PIXVAL colour, const PIXVAL len)
+static void pix_blend75(PIXVAL *dest, const PIXVAL *src, const PIXVAL colour, const PIXVAL len)
+{
+	const PIXVAL *const end = dest + len;
+	while (dest < end) {
+		*dest = (3*(((*src)>>2) & TWO_OUT)) + (((*dest)>>2) & TWO_OUT);
+		dest++;
+		src++;
+	}
+}
+
+static void pix_blend50(PIXVAL *dest, const PIXVAL *src, const PIXVAL colour, const PIXVAL len)
+{
+	const PIXVAL *const end = dest + len;
+	while (dest < end) {
+		*dest = (((*src)>>1) & ONE_OUT) + (((*dest)>>1) & ONE_OUT);
+		dest++;
+		src++;
+	}
+}
+
+static void pix_blend25(PIXVAL *dest, const PIXVAL *src, const PIXVAL colour, const PIXVAL len)
+{
+	const PIXVAL *const end = dest + len;
+	while (dest < end) {
+		*dest = (((*src)>>2) & TWO_OUT) + (3*(((*dest)>>2) & TWO_OUT));
+		dest++;
+		src++;
+	}
+}
+
+static void pix_outline75(PIXVAL *dest, const PIXVAL *src, const PIXVAL colour, const PIXVAL len)
 {
 	const PIXVAL *const end = dest + len;
 	while (dest < end) {
@@ -1868,7 +1898,7 @@ static void pix_blend75(PIXVAL *dest, const PIXVAL colour, const PIXVAL len)
 	}
 }
 
-static void pix_blend50(PIXVAL *dest, const PIXVAL colour, const PIXVAL len)
+static void pix_outline50(PIXVAL *dest, const PIXVAL *src, const PIXVAL colour, const PIXVAL len)
 {
 	const PIXVAL *const end = dest + len;
 	while (dest < end) {
@@ -1877,7 +1907,7 @@ static void pix_blend50(PIXVAL *dest, const PIXVAL colour, const PIXVAL len)
 	}
 }
 
-static void pix_blend25(PIXVAL *dest, const PIXVAL colour, const PIXVAL len)
+static void pix_outline25(PIXVAL *dest, const PIXVAL *src, const PIXVAL colour, const PIXVAL len)
 {
 	const PIXVAL *const end = dest + len;
 	while (dest < end) {
@@ -1886,7 +1916,7 @@ static void pix_blend25(PIXVAL *dest, const PIXVAL colour, const PIXVAL len)
 	}
 }
 
-static void display_img_outline_wc(KOORD_VAL h, const KOORD_VAL xp, const KOORD_VAL yp, const PIXVAL *sp, int colour,
+static void display_img_blend_wc(KOORD_VAL h, const KOORD_VAL xp, const KOORD_VAL yp, const PIXVAL *sp, int colour,
 	blend_proc p )
 {
 	if (h > 0) {
@@ -1909,7 +1939,7 @@ static void display_img_outline_wc(KOORD_VAL h, const KOORD_VAL xp, const KOORD_
 				if (xpos + runlen >= clip_rect.x && xpos <= clip_rect.xx) {
 					const int left = (xpos >= clip_rect.x ? 0 : clip_rect.x - xpos);
 					const int len  = (clip_rect.xx - xpos >= runlen ? runlen : clip_rect.xx - xpos);
-					(*p)(tp + xpos + left, colour, len - left);
+					(*p)(tp + xpos + left, sp + left, colour, len - left);
 				}
 
 				sp += runlen;
@@ -1925,7 +1955,7 @@ static void display_img_outline_wc(KOORD_VAL h, const KOORD_VAL xp, const KOORD_
  * draws the transparent outline of an image
  * @author kierongreen
  */
-void display_img_outline(const unsigned n, const KOORD_VAL xp, KOORD_VAL yp, const PLAYER_COLOR_VAL color_index, const int daynight, const int dirty)
+void display_img_blend(const unsigned n, const KOORD_VAL xp, KOORD_VAL yp, const PLAYER_COLOR_VAL color_index, const int daynight, const int dirty)
 {
 	if (n < anz_images) {
 		// need to go to nightmode and or rezoomed?
@@ -1983,16 +2013,16 @@ void display_img_outline(const unsigned n, const KOORD_VAL xp, KOORD_VAL yp, con
 			// get the real color
 			const PIXVAL color = (color_index >= PLAYER_FLAG ? specialcolormap_all_day[color_index & 0xFF] : rgbcolormap[color_index & 0xFF]);
 			// we use function pointer for the blend runs for the moment ...
-			static blend_proc choices[3] = { pix_blend25, pix_blend50, pix_blend75 };
-			blend_proc pix_blend = choices[ (color_index&TRANSPARENT_FLAGS)/TRANSPARENT25_FLAG - 1 ];
+			static blend_proc choices[6] = { pix_blend25, pix_blend50, pix_blend75,pix_outline25, pix_outline50, pix_outline75 };
+			blend_proc pix_blend = choices[ ((color_index&TRANSPARENT_FLAGS)/TRANSPARENT25_FLAG - 1) + (3 * (color_index&OUTLINE_FLAG)/OUTLINE_FLAG) ];
 
 			// use horzontal clipping or skip it?
 			if (xp + x >= clip_rect.x && xp + x + w - 1 <= clip_rect.xx) {
 				// marking change?
 				if (dirty) mark_rect_dirty_nc(xp + x, yp, xp + x + w - 1, yp + h - 1);
-				display_img_outline_wc( h, xp, yp, sp, color, pix_blend );
+				display_img_blend_wc( h, xp, yp, sp, color, pix_blend );
 			} else if (xp <= clip_rect.xx && xp + x + w > clip_rect.x) {
-				display_img_outline_wc( h, xp, yp, sp, color, pix_blend );
+				display_img_blend_wc( h, xp, yp, sp, color, pix_blend );
 				// since height may be reduced, start marking here
 				if (dirty) mark_rect_dirty_wc(xp + x, yp, xp + x + w - 1, yp + h - 1);
 			}

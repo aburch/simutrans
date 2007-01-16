@@ -538,7 +538,7 @@ DBG_MESSAGE("fabrikbauer_t::baue_hierarchie","Search place for city factory (%i,
 		bool	is_rotate=info->gib_haus()->gib_all_layouts()>1;
 		k = factory_bauplatz_mit_strasse_sucher_t(welt).suche_platz(sf.stadt->gib_pos(), size.x, size.y,info->gib_haus()->get_allowed_climate_bits(), &is_rotate);
 		rotate = is_rotate?1:0;
-		DBG_MESSAGE("fabrikbauer_t::baue_hierarchie","Construction at (%i,%i).",k.x,k.y);
+DBG_MESSAGE("fabrikbauer_t::baue_hierarchie","Construction at (%i,%i).",k.x,k.y);
 
 		INT_CHECK( "fabrikbauer 588" );
 

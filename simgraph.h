@@ -130,10 +130,10 @@ void display_img_aux(const unsigned n, const KOORD_VAL xp, KOORD_VAL yp, const i
 #define display_img( n, x, y, d ) display_img_aux( (n), (x), (y), (d), 0 )
 
 /**
- * draws the transparent outline of an image
+ * draws the images with alpha, either blended or as outline
  * @author kierongreen
  */
-void display_img_outline(const unsigned n, const KOORD_VAL xp, KOORD_VAL yp, const PLAYER_COLOR_VAL color, const int daynight, const int dirty);
+void display_img_blend(const unsigned n, const KOORD_VAL xp, KOORD_VAL yp, const PLAYER_COLOR_VAL color, const int daynight, const int dirty);
 
 // dispaly image with color (if there) and optinal day and nightchange
 void display_color_img(const unsigned n, const KOORD_VAL xp, const KOORD_VAL yp, const COLOR_VAL color, const int daynight, const int dirty);

@@ -57,7 +57,7 @@ public:
 	image_id gib_bild() const;
 
 	// hide trees eventually with transparency
-	PLAYER_COLOR_VAL gib_outline_colour() const { return (umgebung_t::hide_trees  &&  umgebung_t::hide_with_transparency) ? (TRANSPARENT25_FLAG | COL_BLACK) : 0; }
+	PLAYER_COLOR_VAL gib_outline_colour() const { return (umgebung_t::hide_trees  &&  umgebung_t::hide_with_transparency) ? (TRANSPARENT25_FLAG | OUTLINE_FLAG | COL_BLACK) : 0; }
 	image_id gib_outline_bild() const;
 
 	/**
