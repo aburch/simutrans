@@ -350,8 +350,9 @@ public:
 
 	inline void setze_pos(koord3d newpos) { pos = newpos;}
 
+	// slope are now maintained locally
 	hang_t::typ gib_grund_hang() const { return (hang_t::typ)slope; }
-	virtual bool setze_grund_hang(hang_t::typ sl);
+	void setze_grund_hang(hang_t::typ sl) { slope = sl; }
 
 	/**
 	* Manche Böden können zu Haltestellen gehören.

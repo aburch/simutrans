@@ -1119,22 +1119,18 @@ int karte_t::raise_to(sint16 x, sint16 y, sint16 h,bool set_slopes)
 			if(set_slopes) {
 				planquadrat_t *plan;
 				if((plan=access(x,y))) {
-					plan->gib_kartenboden()->setze_grund_hang( calc_natural_slope(pos) );
 					plan->angehoben( this );
 				}
 
 				if((plan = access(x-1,y))) {
-					plan->gib_kartenboden()->setze_grund_hang( calc_natural_slope(pos+koord(-1,0)) );
 					plan->angehoben( this );
 				}
 
 				if((plan = access(x,y-1))) {
-					plan->gib_kartenboden()->setze_grund_hang( calc_natural_slope(pos+koord(0,-1)) );
 					plan->angehoben( this );
 				}
 
 				if((plan = access(x-1,y-1))) {
-					plan->gib_kartenboden()->setze_grund_hang( calc_natural_slope(pos+koord(-1,-1)) );
 					plan->angehoben( this );
 				}
 			}
@@ -1249,22 +1245,18 @@ int karte_t::lower_to(sint16 x, sint16 y, sint16 h,bool set_slopes)
 			if(set_slopes) {
 				planquadrat_t *plan;
 				if((plan=access(x,y))) {
-					plan->gib_kartenboden()->setze_grund_hang( calc_natural_slope(pos) );
 					plan->abgesenkt( this );
 				}
 
 				if((plan = access(x-1,y))) {
-					plan->gib_kartenboden()->setze_grund_hang( calc_natural_slope(pos+koord(-1,0)) );
 					plan->abgesenkt( this );
 				}
 
 				if((plan = access(x,y-1))) {
-					plan->gib_kartenboden()->setze_grund_hang( calc_natural_slope(pos+koord(0,-1)) );
 					plan->abgesenkt( this );
 				}
 
 				if((plan = access(x-1,y-1))) {
-					plan->gib_kartenboden()->setze_grund_hang( calc_natural_slope(pos+koord(-1,-1)) );
 					plan->abgesenkt( this );
 				}
 			}

@@ -172,12 +172,31 @@ reliefkarte_t::calc_hoehe_farbe(const sint16 hoehe, const sint16 grundwasser)
 	uint8 color;
 
 	if(hoehe <= grundwasser) {
-		color = COL_BLUE;
+		switch(grundwasser-hoehe) {
+			case 0:
+				color = 223;
+				break;
+			case 1:
+				color = 222;
+				break;
+			case 2:
+				color = 221;
+				break;
+			case 3:
+				color = 220;
+				break;
+			case 4:
+				color = 219;
+				break;
+			default:
+				color = 218;
+				break;
+		}
 	}
 	else {
 		switch(hoehe-grundwasser) {
 			case 0:
-				color = COL_BLUE;
+				color = 223;
 				break;
 			case 1:
 				color = 183;
@@ -265,7 +284,13 @@ reliefkarte_t::calc_relief_farbe(const grund_t *gr)
 					// object at zero is either factory or boat
 					ding_t * dt = gr->first_obj();
 					if(dt==NULL  ||  dt->get_fabrik()==NULL) {
-						color = COL_BLUE;	// water with boat?
+#ifndef DOUBLE_GROUNDS
+						sint16 height = (gr->gib_grund_hang()&1);
+#else
+						sint16 height = (gr->gib_grund_hang()%3);
+#endif
+						color = calc_hoehe_farbe((welt->lookup_hgt(gr->gib_pos().gib_2d())/Z_TILE_STEP)+height, welt->gib_grundwasser()/Z_TILE_STEP);
+						//color = COL_BLUE;	// water with boat?
 					}
 					else {
 						color = dt->get_fabrik()->gib_kennfarbe();

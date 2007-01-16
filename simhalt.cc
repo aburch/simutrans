@@ -215,9 +215,9 @@ DBG_MESSAGE("haltestelle_t::remove()", "removing building: cleanup");
 							uint8 new_slope = gr->gib_hoehe()==welt->min_hgt(k+pos.gib_2d()) ? 0 : welt->calc_natural_slope(k+pos.gib_2d());
 							welt->access(k+pos.gib_2d())->kartenboden_setzen(new boden_t(welt, koord3d(k+pos.gib_2d(),welt->min_hgt(k+pos.gib_2d())), new_slope) );
 						}
-						else if(welt->max_hgt(k+pos.gib_2d())<=welt->gib_grundwasser()) {
-							welt->access(k+pos.gib_2d())->kartenboden_setzen(new wasser_t(welt, k+pos.gib_2d()) );
-						}
+/*						else if(welt->max_hgt(k+pos.gib_2d())<=welt->gib_grundwasser()) {
+							welt->access(k+pos.gib_2d())->kartenboden_setzen(new wasser_t(welt, k+pos) );
+						}*/
 						sp->buche(costs, pos.gib_2d()+k, COST_CONSTRUCTION);
 					}
 				}

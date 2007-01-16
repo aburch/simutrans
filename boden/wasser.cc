@@ -17,17 +17,6 @@
 
 #include "../dataobj/freelist.h"
 
-wasser_t::wasser_t(karte_t *welt, loadsave_t *file) : grund_t(welt)
-{
-	rdwr(file);
-	slope = (uint8)hang_t::flach;
-}
-
-wasser_t::wasser_t(karte_t *welt, koord pos) : grund_t(welt, koord3d(pos, welt->gib_grundwasser()))
-{
-	slope = (uint8)hang_t::flach;
-}
-
 
 
 bool
@@ -47,6 +36,7 @@ wasser_t::calc_bild()
 {
 	setze_bild( grund_besch_t::gib_ground_tile(0,gib_hoehe() ) );
 	setze_hoehe( welt->gib_grundwasser() );
+	slope = hang_t::flach;
 	// artifical walls from here on ...
 	grund_t::calc_back_bild(gib_hoehe()/Z_TILE_STEP,0);
 }

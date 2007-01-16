@@ -97,16 +97,6 @@ void grund_t::entferne_grund_info()
 
 
 
-// set slope an recalcs image
-bool
-grund_t::setze_grund_hang(hang_t::typ sl)
-{
-	slope = sl;
-	return true;
-}
-
-
-
 /**
  * Setzt den Beschreibungstext.
  * @param text Der neue Beschreibungstext.

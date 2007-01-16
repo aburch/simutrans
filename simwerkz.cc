@@ -1987,7 +1987,7 @@ int wkz_set_slope(spieler_t * sp, karte_t *welt, koord pos, value_t lParam)
 			// ok, was sucess
 			if(!gr1->ist_wasser()  &&  slope_this==0  &&  new_pos.z==welt->gib_grundwasser()) {
 				// now water
-				welt->access(pos)->kartenboden_setzen( new wasser_t(welt,pos) );
+				welt->access(pos)->kartenboden_setzen( new wasser_t(welt,new_pos) );
 			}
 			else if(gr1->ist_wasser()  &&  (new_pos.z>welt->gib_grundwasser()  ||  slope_this!=0)) {
 				welt->access(pos)->kartenboden_setzen( new boden_t(welt,new_pos,slope_this) );

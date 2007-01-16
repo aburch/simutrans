@@ -35,12 +35,9 @@ tunnelboden_t::tunnelboden_t(karte_t *welt, loadsave_t *file) : boden_t(welt, ko
 }
 
 
-tunnelboden_t::tunnelboden_t(karte_t *welt, koord3d pos, hang_t::typ hang_typ) : boden_t(welt, pos, hang_typ)
-{
-}
 
-
-void tunnelboden_t::calc_bild()
+void
+tunnelboden_t::calc_bild()
 {
 	if(!ist_tunnel()) {
 		// only here, when undergound_mode is true
@@ -65,6 +62,8 @@ void tunnelboden_t::calc_bild()
 		setze_bild(IMG_LEER);
 	}
 }
+
+
 
 void
 tunnelboden_t::rdwr(loadsave_t *file)
@@ -93,14 +92,16 @@ tunnelboden_t::rdwr(loadsave_t *file)
 
 
 
-void * tunnelboden_t::operator new(size_t /*s*/)
+void *
+tunnelboden_t::operator new(size_t /*s*/)
 {
 //	assert(s==sizeof(tunnelboden_t));
 	return static_cast<tunnelboden_t *>(freelist_t::gimme_node(sizeof(tunnelboden_t)));
 }
 
 
-void tunnelboden_t::operator delete(void *p)
+void
+tunnelboden_t::operator delete(void *p)
 {
 	freelist_t::putback_node(sizeof(tunnelboden_t),p);
 }

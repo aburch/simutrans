@@ -8,11 +8,10 @@ class tunnelboden_t : public boden_t
 {
 public:
 	tunnelboden_t(karte_t *welt, loadsave_t *file);
-	tunnelboden_t(karte_t *welt, koord3d pos, hang_t::typ hang_typ);
+	tunnelboden_t(karte_t *welt, koord3d pos, hang_t::typ hang_typ) : boden_t(welt, pos, hang_typ) {}
 
 	virtual void rdwr(loadsave_t *file);
 
-	bool set_slope(hang_t::typ) { return false; }
 	hang_t::typ gib_weg_hang() const { return hang_t::flach; }
 
 	void calc_bild();
