@@ -17,10 +17,10 @@
 #define simworld_h
 
 #include "simconst.h"
+#include "simtypes.h"
 
 #include "convoihandle_t.h"
 #include "halthandle_t.h"
-#include "simsound.h"
 
 #include "tpl/weighted_vector_tpl.h"
 #include "tpl/minivec_tpl.h"
@@ -35,6 +35,7 @@
 #include "simdebug.h"
 
 struct event_t;
+struct sound_info;
 class stadt_t;
 class ding_t;
 class fabrik_t;

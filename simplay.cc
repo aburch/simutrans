@@ -48,6 +48,7 @@
 #include "simhalt.h"
 #include "simvehikel.h"
 #include "simconvoi.h"
+#include "simsound.h"
 #include "simtools.h"
 #include "simmesg.h"
 

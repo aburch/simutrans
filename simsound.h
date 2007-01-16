@@ -10,6 +10,7 @@
 #ifndef simsound_h
 #define simsound_h
 
+
 /**
  * info zu einem abzuspielenden sound
  * @author Hj. Malthaner
@@ -20,13 +21,13 @@ struct sound_info
      * Index des beschriebenen sounds
      * @author Hj. Malthaner
      */
-    short index;
+    uint16 index;
 
     /**
      * Lautstaerke des soundeffekts 0=stille, 255=maximum
      * @author Hj. Malthaner
      */
-    unsigned char volume;
+    uint8 volume;
 
     /**
      * Prioritaet des sounds. Falls die Anzahl der abspielbaren Sounds
@@ -34,7 +35,7 @@ struct sound_info
      * abgespielt
      * @author Hj. Malthaner
      */
-    unsigned char pri;
+    uint8 pri;
 };
 
 
@@ -65,7 +66,7 @@ int sound_get_global_volume();
  * spielt sound ab
  * @author Hj. Malthaner
  */
-void sound_play(const struct sound_info inf);
+void sound_play(const sound_info inf);
 
 
 // shuffle enable/disable for midis
