@@ -41,6 +41,7 @@
 #include "gui/halt_info.h"
 #include "gui/halt_detail.h"
 #include "dings/gebaeude.h"
+#include "dings/label.h"
 #ifdef LAGER_NOT_IN_USE
 #include "dings/lagerhaus.h"
 #endif
@@ -984,10 +985,9 @@ haltestelle_t::add_grund(grund_t *gr)
 void
 haltestelle_t::rem_grund(grund_t *gb)
 {
-    // namen merken
-    const char *tmp = gib_name();
-    if(gb) {
-
+	// namen merken
+	const char *tmp = gib_name();
+	if(gb) {
 		int idx=grund.index_of(gb);
 		if(idx==-1) {
 			// was not part of station => do nothing
@@ -1005,19 +1005,19 @@ haltestelle_t::rem_grund(grund_t *gb)
 			// still connected elsewhere?
 			for(unsigned i=0;  i<pl->gib_boden_count();  i++  ) {
 				if(pl->gib_boden_bei(i)->gib_halt().is_bound()) {
-					// still connected => do not remove from ground ...
+					// still connected with other ground => do not remove from plan ...
 DBG_DEBUG("haltestelle_t::rem_grund()","keep floor, count=%i",grund.count());
 					return;
 				}
 			}
 DBG_DEBUG("haltestelle_t::rem_grund()","remove also floor, count=%i",grund.count());
-			// otherwise remove ground ...
+			// otherwise remove from plan ...
 			pl->setze_halt(halthandle_t());
 			pl->gib_kartenboden()->set_flag(grund_t::dirty);
 		}
 
-		for(  int y=-welt->gib_einstellungen()->gib_station_coverage();  y<=welt->gib_einstellungen()->gib_station_coverage();  y++  ) {
-			for(  int x=-welt->gib_einstellungen()->gib_station_coverage();  x<=welt->gib_einstellungen()->gib_station_coverage();  x++  ) {
+		for( sint16 y=-welt->gib_einstellungen()->gib_station_coverage();  y<=welt->gib_einstellungen()->gib_station_coverage();  y++  ) {
+			for( sint16 x=-welt->gib_einstellungen()->gib_station_coverage();  x<=welt->gib_einstellungen()->gib_station_coverage();  x++  ) {
 				planquadrat_t *pl = welt->access( gb->gib_pos().gib_2d()+koord(x,y) );
 				if(pl) {
 					pl->remove_from_haltlist(welt,self);
@@ -1026,22 +1026,21 @@ DBG_DEBUG("haltestelle_t::rem_grund()","remove also floor, count=%i",grund.count
 			}
 		}
 
-		if (!grund.empty()) {
+		gb->setze_text(NULL);
+		if(!grund.empty()) {
 			grund_t* bd = grund.front();
-
-			if(bd->gib_text() != tmp) {
-				bd->setze_text( tmp );
+			if(bd->gib_text()  &&  bd->suche_obj(ding_t::label)) {
+				delete (label_t *)bd->suche_obj(ding_t::label);
 			}
-
+			bd->setze_text( tmp );
 			verbinde_fabriken();
 		}
 		else {
+			free( (void *)tmp );
 			slist_iterator_tpl <fabrik_t *> iter(fab_list);
-
 			while( iter.next() ) {
 				iter.get_current()->unlink_halt(self);
 			}
-
 			fab_list.clear();
 		}
 	}

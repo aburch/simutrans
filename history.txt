@@ -15,6 +15,7 @@ Known bugs: (hard to fix)
 	ADD: shuffle for midis
 	ADD: (kierongreen) colors for water height in minimap
 	FIX: removing way was free of charge
+	ADD: new label enables land buying (cost by 'cost_buy_land' in simuconf.tab, default -100), help file now possible ('label_frame.txt')
 
 
 Release of 99.06

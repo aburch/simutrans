@@ -366,6 +366,7 @@ extern "C" int simu_main(int argc, char** argv)
 		umgebung_t::cst_third_rail           = contents.get_int("cost_third_rail",              80) * -100;
 
 		// alter landscape
+		umgebung_t::cst_buy_land                = contents.get_int("cost_buy_land",                  100) * -100;
 		umgebung_t::cst_alter_land              = contents.get_int("cost_alter_land",                  500) * -100;
 		umgebung_t::cst_set_slope               = contents.get_int("cost_set_slope",                  2500) * -100;
 		umgebung_t::cst_found_city              = contents.get_int("cost_found_city",              5000000) * -100;

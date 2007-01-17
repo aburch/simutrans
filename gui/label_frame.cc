@@ -23,6 +23,7 @@
 #include "../boden/grund.h"
 
 #include "../dataobj/translator.h"
+#include "../dings/label.h"
 #include "../utils/simstring.h"
 
 
@@ -38,7 +39,9 @@ label_frame_t::label_frame_t(karte_t *welt, spieler_t *sp, koord pos) :
 	destroy_win(instance);
 	instance = this;
 
-	slist_iterator_tpl <koord> iter (welt->gib_label_list());
+	this->welt = welt;
+	this->pos = pos;
+	this->sp = sp;
 
 	scrolly.setze_pos(koord(1, 70));
 	scrolly.setze_groesse(koord(175+26*2-10, 100));
@@ -46,12 +49,17 @@ label_frame_t::label_frame_t(karte_t *welt, spieler_t *sp, koord pos) :
 	scrolly.set_size_corner(false);
 
 	int y = 0;
+	slist_iterator_tpl <koord> iter (welt->gib_label_list());
 	while(iter.next()) {
 		button_t * button = new button_t();
 		koord my_pos = iter.get_current();
-		const char * text = welt->lookup(my_pos)->gib_kartenboden()->gib_text();
+		label_t *l = (label_t *)welt->lookup_kartenboden(my_pos)->suche_obj(ding_t::label);
 
-		if(text) {
+		if(l) {
+			const char* text = welt->lookup(my_pos)->gib_kartenboden()->gib_text();
+			if(text==NULL) {
+				text = "";
+			}
 			char *my_text = new char[strlen(text) + 16];
 
 			sprintf(my_text, "(%d,%d) %s", my_pos.x, my_pos.y, text);
@@ -70,12 +78,8 @@ label_frame_t::label_frame_t(karte_t *welt, spieler_t *sp, koord pos) :
 	button_frame.setze_groesse(koord(175+26*2-10, y));
 	add_komponente(&scrolly);
 
-	this->welt = welt;
-	this->pos = pos;
-	this->sp = sp;
-
-	grund_t *gr = welt->lookup(pos)->gib_kartenboden();
-	if(gr  &&  gr->obj_bei(0)  && (gr->obj_bei(0)->gib_besitzer() == NULL || gr->obj_bei(0)->gib_besitzer() == sp)) {
+	grund_t *gr = welt->lookup_kartenboden(pos);
+	if(gr  &&  (gr->obj_bei(0)==NULL  || ((gr->obj_bei(0)->gib_besitzer()==NULL  &&  gr->obj_bei(0)->gib_typ()!=ding_t::gebaeude) || gr->obj_bei(0)->gib_besitzer()==sp))) {
 		sprintf(txlabel, "(%d,%d) ", pos.x, pos.y);
 
 		// Text
@@ -135,6 +139,7 @@ label_frame_t::label_frame_t(karte_t *welt, spieler_t *sp, koord pos) :
 }
 
 
+
 label_frame_t::~label_frame_t()
 {
 	slist_iterator_tpl <button_t *> iter (buttons);
@@ -145,6 +150,8 @@ label_frame_t::~label_frame_t()
 	}
 	instance = NULL;
 }
+
+
 
 /**
  * resize window in response to a resize event
@@ -158,6 +165,8 @@ void label_frame_t::resize(const koord delta)
 	koord groesse = gib_fenstergroesse()-koord(10,16+70+10);
 	scrolly.setze_groesse(groesse);
 }
+
+
 
 /**
  * This method is called if an action is triggered
@@ -194,54 +203,45 @@ bool label_frame_t::action_triggered(gui_komponente_t *komp,value_t /* */)
 }
 
 
-/**
- * komponente neu zeichnen. Die übergebenen Werte beziehen sich auf
- * das Fenster, d.h. es sind die Bildschirkoordinaten des Fensters
- * in dem die Komponente dargestellt wird.
- * @author Markus Weber
- */
-void label_frame_t::zeichnen(koord pos, koord gr)
-{
-//	fnlabel.setze_text (txlabel);
-//	savebutton.setze_text("Ok");
-//	cancelbutton.setze_text("Cancel");
-	gui_frame_t::zeichnen(pos, gr);
-}
-
-
 
 void label_frame_t::load_label(char *name)
 {
+	name[0] = 0;
 	grund_t *gr = welt->lookup(pos)->gib_kartenboden();
 	if(gr  &&  gr->gib_text()  &&  gr->obj_bei(0)  && (gr->obj_bei(0)->gib_besitzer() == NULL || gr->obj_bei(0)->gib_besitzer() == sp)) {
 		tstrncpy(name, gr->gib_text(), 64);
 	}
 }
 
+
+
 void label_frame_t::create_label(const char *name)
 {
 	grund_t *gr = welt->lookup(pos)->gib_kartenboden();
-
-	if(gr  &&  gr->obj_bei(0)  &&  strlen(name)  && (gr->obj_bei(0)->gib_besitzer() == NULL || gr->obj_bei(0)->gib_besitzer() == sp)) {
-
-		if(gr->obj_bei(0)->gib_besitzer() == NULL) {
-			sp->buche(-12500, pos, COST_CONSTRUCTION);
-			gr->obj_bei(0)->setze_besitzer( sp );
+	if(gr) {
+		label_t *l = (label_t *)gr->suche_obj(ding_t::label);
+		if(l==NULL  &&  gr->gib_text()==NULL  &&  (gr->obj_bei(0)==NULL  || (gr->obj_bei(0)->gib_besitzer()==NULL || gr->obj_bei(0)->gib_besitzer()==sp))) {
+			// label as ground owning indicator
+			// always there but only shown if tile is empty but for trees etc.
+			gr->obj_add( new label_t(welt, gr->gib_pos(), sp, name) );
 		}
-		gr->setze_text(strdup(name));
-		if(!gr->gib_halt().is_bound()) {
-			welt->add_label(pos);
+		else if(l  &&  l->gib_besitzer()==sp) {
+			// just change text
+			char *txt = (char *)malloc(strlen(name)+1);
+			strcpy( txt, name );
+			free(const_cast<char *>(gr->gib_text()));
+			gr->setze_text( txt );
 		}
 	}
 }
 
+
+
 void label_frame_t::remove_label()
 {
 	grund_t *gr = welt->lookup(pos)->gib_kartenboden();
-	if(gr  &&  gr->obj_bei(0)  &&  (gr->obj_bei(0)->gib_besitzer() == NULL || gr->obj_bei(0)->gib_besitzer() == sp)) {
-		free(const_cast<char *>(gr->gib_text()));
-		gr->setze_text(NULL);
-		welt->remove_label(pos);
+	if(gr  &&  gr->suche_obj(ding_t::label)) {
+		delete (label_t *)gr->suche_obj(ding_t::label);
 	}
 }
 

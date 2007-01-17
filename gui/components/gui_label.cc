@@ -22,25 +22,25 @@
 
 gui_label_t::gui_label_t(const char *text)
 {
-    setze_text( text );
-    this->color = COL_BLACK;
-    this->align = left;
+	setze_text( text );
+	this->color = COL_BLACK;
+	this->align = left;
 }
 
 
 gui_label_t::gui_label_t(const char *text, int color)
 {
-    setze_text( text );
-    this->color = color;
-    this->align = left;
+	setze_text( text );
+	this->color = color;
+	this->align = left;
 }
 
 
 gui_label_t::gui_label_t(const char *text, int color, align_t align)
 {
-    setze_text( text );
-    this->color = color;
-    this->align = align;
+	setze_text( text );
+	this->color = color;
+	this->align = align;
 }
 
 /**
@@ -49,7 +49,7 @@ gui_label_t::gui_label_t(const char *text, int color, align_t align)
  */
 void gui_label_t::setze_text(const char *text)
 {
-    this->text = translator::translate(text);
+	this->text = translator::translate(text);
 }
 
 
@@ -60,45 +60,35 @@ void gui_label_t::setze_text(const char *text)
  */
 void gui_label_t::zeichnen(koord offset)
 {
-    if(align == money) {
-	if(text) {
-	    const char *separator = strrchr(text, get_fraction_sep());
-
-	    if(separator) {
-		display_proportional_clip(pos.x+offset.x, pos.y+offset.y,
-				     translator::translate(separator),
-				     ALIGN_LEFT, color, true);
-
-		*const_cast<char *>(separator) = '\0';
-		display_proportional_clip(pos.x+offset.x, pos.y+offset.y,
-				     translator::translate(text),
-				     ALIGN_RIGHT, color, true);
-		*const_cast<char *>(separator) = ',';
-	    } else {
-		display_proportional_clip(pos.x+offset.x, pos.y+offset.y,
-				     text,
-				     ALIGN_RIGHT, color, true);
-	    }
+	if(align == money) {
+		if(text) {
+			const char *separator = strrchr(text, get_fraction_sep());
+			if(separator) {
+				display_proportional_clip(pos.x+offset.x, pos.y+offset.y, translator::translate(separator), ALIGN_LEFT, color, true);
+				*const_cast<char *>(separator) = '\0';
+				display_proportional_clip(pos.x+offset.x, pos.y+offset.y, translator::translate(text), ALIGN_RIGHT, color, true);
+				*const_cast<char *>(separator) = ',';
+			} else {
+				display_proportional_clip(pos.x+offset.x, pos.y+offset.y, text, ALIGN_RIGHT, color, true);
+			}
+		}
 	}
-    }
-    else if(text) {
-	int al;
+	else if(text) {
+		int al;
 
-	switch(align) {
-	case left:
-	    al = ALIGN_LEFT;
-	    break;
-	case centered:
-	    al = ALIGN_MIDDLE;
-	    break;
-	case right:
-	    al = ALIGN_RIGHT;
-	    break;
-	default:
-	    al = ALIGN_LEFT;
+		switch(align) {
+			case left:
+				al = ALIGN_LEFT;
+				break;
+			case centered:
+				al = ALIGN_MIDDLE;
+				break;
+			case right:
+				al = ALIGN_RIGHT;
+				break;
+			default:
+				al = ALIGN_LEFT;
+		}
+		display_proportional_clip(pos.x+offset.x, pos.y+offset.y, text, al, color, true);
 	}
-	display_proportional_clip(pos.x+offset.x, pos.y+offset.y,
-                             text,
-			     al, color, true);
-    }
 }

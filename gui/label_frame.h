@@ -60,19 +60,18 @@ public:
 
 	~label_frame_t();
 
-	 /**
-	 * komponente neu zeichnen. Die übergebenen Werte beziehen sich auf
-	 * das Fenster, d.h. es sind die Bildschirkoordinaten des Fensters
-	 * in dem die Komponente dargestellt wird.
-	 * @author Markus Weber
-	 */
-	void zeichnen(koord pos, koord gr);
+	/**
+	* Manche Fenster haben einen Hilfetext assoziiert.
+	* @return den Dateinamen für die Hilfe, oder NULL
+	* @author Hj. Malthaner
+	*/
+	const char * gib_hilfe_datei() const { return "label_frame.txt"; }
 
 	/**
-     * resize window in response to a resize event
-     * @author Hj. Malthaner
-     */
-    void resize(const koord delta);
+	 * resize window in response to a resize event
+	 * @author Hj. Malthaner
+	 */
+	void resize(const koord delta);
 
 	/**
 	 * This method is called if an action is triggered

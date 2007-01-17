@@ -146,6 +146,7 @@ sint64 umgebung_t::cst_signal=-50000;
 sint64 umgebung_t::cst_tunnel=-1000000;
 sint64 umgebung_t::cst_third_rail=-8000;
 // alter landscape
+sint64 umgebung_t::cst_buy_land=-10000;
 sint64 umgebung_t::cst_alter_land=-50000;
 sint64 umgebung_t::cst_set_slope=-250000;
 sint64 umgebung_t::cst_found_city=-500000000;

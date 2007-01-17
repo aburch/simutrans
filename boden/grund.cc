@@ -37,6 +37,7 @@
 #include "../dings/bruecke.h"
 #include "../dings/tunnel.h"
 #include "../dings/gebaeude.h"
+#include "../dings/label.h"
 #include "../dings/signal.h"
 #include "../dings/roadsign.h"
 #include "../dings/wayobj.h"
@@ -65,6 +66,7 @@
 #include "../tpl/inthashtable_tpl.h"
 
 #include "../dings/leitung2.h"	// for construction of new ways ...
+#include "../dings/label.h"	// for construction of new ways ...
 
 // klassenlose funktionen und daten
 
@@ -180,15 +182,14 @@ void grund_t::rdwr(loadsave_t *file)
 		setze_text(text);
 	}
 
-	bool label;
+	if(file->get_version()<99007) {
+		bool label;
+		file->rdwr_bool(label, "\n");
+		if(label) {
+			dinge.add( new label_t(welt, pos, welt->gib_spieler(0), gib_text() ) );
+		}
+	}
 
-	if(file->is_saving()) {
-		label = welt->gib_label_list().contains(pos.gib_2d());
-	}
-	file->rdwr_bool(label, "\n");
-	if(file->is_loading() && label) {
-		welt->add_label(gib_pos().gib_2d());
-	}
 	sint8 besitzer_n=-1;
 	if(file->get_version()<99005) {
 		file->rdwr_byte(besitzer_n, "\n");

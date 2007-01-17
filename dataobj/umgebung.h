@@ -279,6 +279,7 @@ class umgebung_t
 	static sint64 cst_tunnel;
 	static sint64 cst_third_rail;
 	// alter landscape
+	static sint64 cst_buy_land;
 	static sint64 cst_alter_land;
 	static sint64 cst_set_slope;
 	static sint64 cst_found_city;

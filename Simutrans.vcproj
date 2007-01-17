@@ -507,6 +507,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\dings\label.cc"
+				>
+			</File>
+			<File
 				RelativePath=".\gui\label_frame.cc"
 				>
 			</File>

@@ -142,6 +142,8 @@ public:
 		wayobj = 25,
 		way = 26, // since 99.04 ways are normal things and stored in the dingliste_t!
 
+		label = 27,	// indicates ownership
+
 		// after this only moving stuff
 		// vehikel sind von 64 bis 95
 		fussgaenger=64,
