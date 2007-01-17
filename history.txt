@@ -14,6 +14,7 @@ Known bugs: (hard to fix)
 	FIX: wayobj not dirty after creation => garbage on the screen
 	ADD: shuffle for midis
 	ADD: (kierongreen) colors for water height in minimap
+	FIX: removing way was free of charge
 
 
 Release of 99.06

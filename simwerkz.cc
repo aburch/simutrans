@@ -301,7 +301,7 @@ DBG_MESSAGE("wkz_remover_intern()","at (%d,%d)", pos.x, pos.y);
 			continue;
 		}
 		// ok, something to remove from here ...
-		if(gr->obj_count()>0  &&  sp->check_owner(gr->obj_bei(0)->gib_besitzer()) ) {
+		if(gr->gib_top()>0  &&  sp->check_owner(gr->obj_bei(0)->gib_besitzer()) ) {
 			break;
 		}
 	}
@@ -525,7 +525,6 @@ DBG_MESSAGE("wkz_remover()", "removing way");
 			}
 		}
 		cost_sum = gr->weg_entfernen(w->gib_waytype(), true);
-		return true;
 	}
 	else {
 		// remove upper ways ...
@@ -549,7 +548,7 @@ DBG_MESSAGE("wkz_remover()", "removing way");
 	}
 DBG_MESSAGE("wkz_remover()", "check ground");
 
-	if(gr!=plan->gib_kartenboden()) {
+	if(gr!=plan->gib_kartenboden()  &&  gr->gib_top()==0) {
 DBG_MESSAGE("wkz_remover()", "removing ground");
 		// remove upper or lower ground
 		plan->boden_entfernen(gr);
