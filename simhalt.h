@@ -629,6 +629,10 @@ public:
 
 	// flags station for a crowded message at the beginning of next month
 	void bescheid_station_voll() { enables |= CROWDED; }
-};
 
+	/* marks a coverage area
+	 * @author prissi
+	 */
+	void mark_unmark_coverage(const bool mark) const;
+};
 #endif

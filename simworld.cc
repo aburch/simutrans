@@ -1353,6 +1353,7 @@ karte_t::setze_maus_funktion(int (* funktion)(spieler_t *, karte_t *, koord, val
 		mouse_funk_param = param;
 		koord3d zpos = zeiger->gib_pos();
 		zeiger->change_pos( koord3d::invalid );
+		zeiger->setze_area(0);	// reset size
 		zeiger->setze_yoff(zeiger_versatz);
 		zeiger->setze_bild(zeiger_bild);
 		zeiger->change_pos( zpos );
@@ -2724,7 +2725,33 @@ bool karte_t::is_fast_forward()
 
 
 
-void karte_t::reset_timer()
+/**
+ * marks an area using the grund_t mark flag
+ * @author prissi
+ */
+void
+karte_t::mark_area( const sint16 lx, const sint16 uy, const uint8 radius, const bool mark )
+{
+	for( sint16 y=uy-radius;  y<uy+radius+1;  y++  ) {
+		for( sint16 x=lx-radius;  x<lx+radius+1;  x++  ) {
+			grund_t *gr = lookup_kartenboden( koord(x,y) );
+			if(gr) {
+				if(mark) {
+					gr->set_flag(grund_t::marked);
+				}
+				else {
+					gr->clear_flag(grund_t::marked);
+				}
+				gr->set_flag(grund_t::dirty);
+			}
+		}
+	}
+}
+
+
+
+void
+karte_t::reset_timer()
 {
 	DBG_MESSAGE("karte_t::reset_timer()","called");
 	// Reset timers
@@ -2785,14 +2812,11 @@ void karte_t::do_pause()
 	reset_timer();
 }
 
-
-
-ding_t *
+zeiger_t *
 karte_t::gib_zeiger() const
 {
     return zeiger;
 }
-
 
 void karte_t::bewege_zeiger(const event_t *ev)
 {

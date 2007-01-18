@@ -116,6 +116,28 @@ karte_ansicht_t::display(bool force_dirty)
 		}
 	}
 
+	// and finally overlays (station coverage and signs)
+	for(y=-dpy_height; y<dpy_height+dpy_width; y++) {
+
+		const sint16 ypos = y*(IMG_SIZE/4) + const_y_off;
+
+		for(sint16 x=-dpy_width-(y & 1); x<=dpy_width+dpy_height; x+=2) {
+
+			const int i = ((y+x) >> 1) + i_off;
+			const int j = ((y-x) >> 1) + j_off;
+			const int xpos = x*(IMG_SIZE/2) + const_x_off;
+
+			if(xpos+IMG_SIZE>0  &&  xpos<disp_width) {
+				const planquadrat_t *plan=welt->lookup(koord(i,j));
+				if(plan  &&  plan->gib_kartenboden()) {
+					sint16 yypos = ypos - tile_raster_scale_y( plan->gib_kartenboden()->gib_hoehe()*TILE_HEIGHT_STEP/Z_TILE_STEP, IMG_SIZE);
+					if(yypos-IMG_SIZE*2-32<disp_height  &&  yypos+IMG_SIZE>32) {
+						plan->display_overlay(xpos, yypos, IMG_SIZE, true);
+					}
+				}
+			}
+		}
+	}
 	// finally display the maus pointer
 	ding_t *zeiger = welt->gib_zeiger();
 	if(zeiger) {

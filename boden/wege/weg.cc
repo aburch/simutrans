@@ -289,7 +289,7 @@ weg_t::calc_bild()
 	grund_t *from = welt->lookup(gib_pos());
 	grund_t *to;
 
-	if(from==NULL  ||  besch==NULL  ||  from->ist_tunnel()) {
+	if(from==NULL  ||  besch==NULL  ||  from->ist_tunnel()  ||  (from->ist_bruecke()  &&  from->obj_bei(0)==this)) {
 		setze_bild(IMG_LEER);
 		return;
 	}

@@ -661,7 +661,7 @@ grund_t::text_farbe() const
 
 
 void
-grund_t::display_boden( const sint16 xpos, const sint16 ypos, const bool /*reset_dirty*/ ) const
+grund_t::display_boden( const sint16 xpos, const sint16 ypos) const
 {
 	const bool dirty=get_flag(grund_t::dirty);
 	const sint16 rasterweite=get_tile_raster_width();
@@ -745,25 +745,24 @@ grund_t::display_boden( const sint16 xpos, const sint16 ypos, const bool /*reset
 
 
 
-
+/* displays everything that is on a tile; is_global is true, if this is called during the whole screen update
+ */
 void
-grund_t::display_dinge(const sint16 xpos, sint16 ypos, bool reset_dirty)
+grund_t::display_dinge(const sint16 xpos, sint16 ypos, const bool is_global) const
 {
-//	DBG_DEBUG("grund_t::display_dinge()","at %i,%i",pos.x,pos.y);
 	const bool dirty = get_flag(grund_t::dirty);
 	const uint8 start_offset=offsets[flags/has_way1];
 
 	if(!ist_im_tunnel()) {
-		if(reset_dirty  &&  get_flag(grund_t::marked)) {
+		if(is_global  &&  get_flag(grund_t::marked)) {
 			uint8 hang = gib_grund_hang();
 			uint8 back_hang = (hang&1) + ((hang>>1)&6)+8;
-//DBG_DEBUG("grund_t::display_dinge()","marker at %i,%i, img=%i",pos.x,pos.y,grund_besch_t::marker->gib_bild(back_hang));
 			display_img(grund_besch_t::marker->gib_bild(back_hang), xpos, ypos, dirty);
-			dinge.display_dinge( xpos, ypos, start_offset, reset_dirty );
+			dinge.display_dinge( xpos, ypos, start_offset, is_global );
 			display_img(grund_besch_t::marker->gib_bild(hang&7), xpos, ypos, dirty);
 		}
 		else {
-			dinge.display_dinge( xpos, ypos, start_offset, reset_dirty );
+			dinge.display_dinge( xpos, ypos, start_offset, is_global );
 		}
 	} else if(grund_t::underground_mode) {
 		// only grid lines for underground mode ...
@@ -772,7 +771,7 @@ grund_t::display_dinge(const sint16 xpos, sint16 ypos, bool reset_dirty)
 		if(ist_karten_boden()) {
 			display_img(grund_besch_t::borders->gib_bild(back_hang), xpos, ypos, dirty);
 			if(gib_typ()==tunnelboden) {
-				dinge.display_dinge( xpos, ypos, start_offset, reset_dirty );
+				dinge.display_dinge( xpos, ypos, start_offset, is_global );
 			}
 		}
 		if(get_flag(grund_t::marked)) {
@@ -780,6 +779,24 @@ grund_t::display_dinge(const sint16 xpos, sint16 ypos, bool reset_dirty)
 			display_img(grund_besch_t::marker->gib_bild(hang&7), xpos, ypos, dirty);
 		}
 	}
+
+#ifdef SHOW_FORE_GRUND
+	if(get_flag(grund_t::draw_as_ding)) {
+		display_fillbox_wh_clip( xpos+raster_tile_width/2, ypos+(raster_tile_width*3)/4, 16, 16, 0, dirty);
+	}
+#endif
+}
+
+
+
+/* overlayer with signs, good levels and station coverage
+ * reset_dirty clear the dirty bit (which marks the changed areas)
+ * @author kierongreen
+ */
+void
+grund_t::display_overlay(const sint16 xpos, const sint16 ypos, const bool reset_dirty)
+{
+	const bool dirty = get_flag(grund_t::dirty);
 
 	// marker/station text
 	const char * text = gib_text();
@@ -807,7 +824,6 @@ grund_t::display_dinge(const sint16 xpos, sint16 ypos, bool reset_dirty)
 		clear_flag(grund_t::dirty);
 	}
 }
-
 
 
 

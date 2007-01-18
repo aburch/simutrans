@@ -97,33 +97,28 @@ world_view_t::zeichnen(koord offset)
 
 		const koord display_off = koord( min( (gr.x-raster)/2, raster/2), hgt+gr.y-raster )+fine_here;	// we aling the bottom of the image with the small image
 
-		const int show_names = umgebung_t::show_names;
-		const bool station_coverage_show=umgebung_t::station_coverage_show;
-		umgebung_t::show_names = 0;
-		umgebung_t::station_coverage_show = false;
-		{
-			// display grounds
-			for(uint32 i=0; i<offsets.get_count(); i++) {
-				const koord k = here + offsets[i] + koord(y_offset, y_offset);
-				const sint16 off_x = (offsets[i].x - offsets[i].y) * 32 * raster / 64 + display_off.x;
+		// display grounds
+		for(uint32 i=0; i<offsets.get_count(); i++) {
+			const koord k = here + offsets[i] + koord(y_offset, y_offset);
+			const sint16 off_x = (offsets[i].x - offsets[i].y) * 32 * raster / 64 + display_off.x;
 
-				if(off_x+raster<0  ||  off_x>gr.x) {
-					continue;
+			if(off_x+raster<0  ||  off_x>gr.x) {
+				continue;
+			}
+
+			plan = welt->lookup(k);
+			if(plan  &&  plan->gib_kartenboden()) {
+				const sint16 yypos = display_off.y + (offsets[i].y + offsets[i].x) * 16 * raster / 64 - tile_raster_scale_y(plan->gib_kartenboden()->gib_hoehe() * TILE_HEIGHT_STEP / Z_TILE_STEP, raster);
+				if(yypos+(raster/4)>gr.y) {
+					// enough with grounds ...
+					break;
 				}
-
-				plan = welt->lookup(k);
-				if(plan  &&  plan->gib_kartenboden()) {
-					const sint16 yypos = display_off.y + (offsets[i].y + offsets[i].x) * 16 * raster / 64 - tile_raster_scale_y(plan->gib_kartenboden()->gib_hoehe() * TILE_HEIGHT_STEP / Z_TILE_STEP, raster);
-					if(yypos+(raster/4)>gr.y) {
-						// enough with grounds ...
-						break;
-					}
-					if(yypos+raster>=0) {
-						plan->display_boden(pos.x+off_x,pos.y+yypos,raster,false);
-					}
+				if(yypos+raster>=0) {
+					plan->display_boden(pos.x+off_x,pos.y+yypos,raster,false);
 				}
 			}
 		}
+
 		// display things
 		for(uint32 i=0; i<offsets.get_count(); i++) {
 			const koord k = here + offsets[i] + koord(y_offset, y_offset);
@@ -151,10 +146,6 @@ world_view_t::zeichnen(koord offset)
 			const sint16 yypos = display_off.y - tile_raster_scale_y((2*y_offset)*16,raster) - tile_raster_scale_y( welt->lookup(ding->gib_pos())->gib_hoehe()*TILE_HEIGHT_STEP/Z_TILE_STEP, raster);
 			welt->lookup(ding->gib_pos())->display_dinge( pos.x+display_off.x, pos.y+yypos, false);
 		}
-
-		// restore settings
-		umgebung_t::show_names = show_names;
-		umgebung_t::station_coverage_show = station_coverage_show;
 
 		POP_CLIP();
 

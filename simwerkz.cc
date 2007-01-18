@@ -1113,6 +1113,11 @@ dbg->warning("wkz_station_building_aux()","no near building for a station extens
 /* any station extension building here: Alignment automatically! */
 int wkz_station_building(spieler_t *sp, karte_t *welt, koord pos, value_t value)
 {
+	if(pos == INIT || pos == EXIT) {
+		// init => set area
+		welt->gib_zeiger()->setze_area( umgebung_t::station_coverage_size );
+		return true;
+	}
 	// are we allowed to built here?
 	halthandle_t halt=haltestelle_t::gib_halt(welt,pos);
 	if(halt.is_bound()  &&  !sp->check_owner(halt->gib_besitzer())) {
@@ -1168,6 +1173,7 @@ wkz_dockbau(spieler_t *sp, karte_t *welt, koord pos, value_t value)
 
 	if(pos == INIT || pos == EXIT) {
 		// init und exit ignorieren
+		welt->gib_zeiger()->setze_area( umgebung_t::station_coverage_size );
 		return true;
 	}
 	// the cursor cannot be outside the map from here on
@@ -1251,13 +1257,14 @@ DBG_MESSAGE("wkz_dockbau()","building dock from square (%d,%d) to (%d,%d)", pos.
 //DBG_MESSAGE("wkz_dockbau()","clean up");
 		for(int i=0;  i<=len;  i++ ) {
 			koord p=pos-dx*i;
-			// Kosten
 			sp->buche(umgebung_t::cst_multiply_dock*besch->gib_level(), p, COST_CONSTRUCTION);
-			// dock-land anbindung gehört auch zur haltestelle
-//			halt->add_grund(gr);
 		}
 //DBG_MESSAGE("wkz_dockbau()","recalc station type");
 		halt->recalc_station_type();
+		if(umgebung_t::station_coverage_show) {
+			// since we are larger now ...
+			halt->mark_unmark_coverage( true );
+		}
 
 		if(neu) {
 			stadt_t *stadt = welt->suche_naechste_stadt(pos);
@@ -1276,12 +1283,167 @@ DBG_MESSAGE("wkz_dockbau()","building dock from square (%d,%d) to (%d,%d)", pos.
 		}
 
 		// rebuild destination lists (since maybe a convoi stopped here, but there was no station yet)
+		// TODO: only when there is this tile in a schedule ...
 		welt->set_schedule_counter();
-
 		return true;
 	}
 	else {
 		create_win(-1, -1, MESG_WAIT, new nachrichtenfenster_t(welt, msg), w_autodelete);
+		return false;
+	}
+}
+
+
+
+// built all types of stops but sea harbours
+static bool
+wkz_halt_aux(spieler_t *sp, karte_t *welt, koord pos,const haus_besch_t *besch,waytype_t wegtype,sint64 cost,const char *type_name)
+{
+DBG_MESSAGE("wkz_halt_aux()", "building %s on square %d,%d for waytype %x", besch->gib_name(), pos.x, pos.y, wegtype);
+	const char *p_error=(besch->gib_all_layouts()==4)?"No terminal station here!":"No through station here!";
+
+	grund_t *bd = wkz_intern_koord_to_weg_grund(sp==welt->gib_spieler(1)?NULL:sp,welt,pos,wegtype);
+	if(!bd  &&  track_wt) {
+		bd = wkz_intern_koord_to_weg_grund(sp==welt->gib_spieler(1)?NULL:sp,welt,pos,monorail_wt);
+	}
+	if(!bd  ||  bd->gib_weg_hang()!=hang_t::flach  ||  bd->is_halt()) {
+		create_win(-1, -1, MESG_WAIT, new nachrichtenfenster_t(welt, p_error), w_autodelete);
+		return false;
+	}
+
+DBG_MESSAGE("wkz_halt_aux()", "bd=%p",bd);
+
+	if(bd->gib_depot()) {
+		create_win(-1, -1, MESG_WAIT, new nachrichtenfenster_t(welt, "Tile not empty."), w_autodelete);
+		return false;
+	}
+
+	// find out orientation ...
+	int layout = 0;
+	if(besch->gib_all_layouts()==2) {
+		// through station
+		ribi_t::ribi  ribi;
+		if(bd->gib_weg_nr(1)  &&  bd->gib_weg_nr(0)) {
+			// can only happen with road/rail combination ...
+			ribi = bd->gib_weg_ribi_unmasked(road_wt)  |  bd->gib_weg_ribi_unmasked(track_wt);
+		}
+		else {
+			ribi = bd->gib_weg_ribi_unmasked(wegtype);
+		}
+		// not straight: sorry cannot built here ...
+		if(!ribi_t::ist_gerade(ribi)) {
+			create_win(-1, -1, MESG_WAIT, new nachrichtenfenster_t(welt, p_error), w_autodelete);
+			return false;
+		}
+		layout = (ribi & ribi_t::nordsued)?0 :1;
+	}
+	else {
+		// terminal station
+		ribi_t::ribi ribi = bd->gib_weg_ribi_unmasked(wegtype);
+		// sorry cannot built here ... (not a terminal tile)
+		if(!ribi_t::ist_einfach(ribi)) {
+			create_win(-1, -1, MESG_WAIT, new nachrichtenfenster_t(welt, p_error), w_autodelete);
+			return false;
+		}
+
+		switch(ribi) {
+			//case ribi_t::sued:layout = 0;  break;
+			case ribi_t::ost:   layout = 1;    break;
+			case ribi_t::nord:  layout = 2;    break;
+			case ribi_t::west:  layout = 3;    break;
+		}
+	}
+
+	// seems everything ok, lets build
+	halthandle_t halt = suche_nahe_haltestelle(sp,welt,bd->gib_pos());
+	bool neu = !halt.is_bound();
+
+	if(neu) {
+		halt = sp->halt_add(pos);
+DBG_MESSAGE("wkz_halt_aux()", "founding new station");
+	}
+	else {
+DBG_MESSAGE("wkz_halt_aux()", "new segment for station");
+		if(sp==welt->gib_spieler(1)) {
+			halt->transfer_to_public_owner();
+		}
+	}
+
+	if(sp!=welt->gib_spieler(1)) {
+		halt->gib_besitzer();
+	}
+
+	hausbauer_t::neues_gebaeude( welt, halt->gib_besitzer(), bd->gib_pos(), layout, besch, &halt);
+	halt->recalc_station_type();
+
+	if(neu) {
+		stadt_t *stadt = welt->suche_naechste_stadt(pos);
+		if(stadt) {
+			const int count = sp->get_haltcount();
+			const char *name = stadt->haltestellenname(pos, type_name, count);
+			bd->setze_text( name );
+		}
+		else {
+			// get a default name
+			const int count = sp->get_haltcount();
+			char *tmp=new char[256];
+			sprintf( tmp, translator::translate("land stop %i %s"), count,  translator::translate(type_name) );
+			bd->setze_text( tmp );
+		}
+	}
+
+	// rebuild destination lists (since maybe a convoi stopped here, but there was no station yet)
+	// TODO: only when there is this tile in a schedule ...
+	welt->set_schedule_counter();
+
+	sp->buche(cost*besch->gib_level()*besch->gib_b()*besch->gib_h(), pos, COST_CONSTRUCTION);
+	if(umgebung_t::station_coverage_show) {
+		// since we are larger now ...
+		halt->mark_unmark_coverage( true );
+	}
+	return true;
+}
+
+
+
+/* built a halt on a way
+ * cannot built sea harbours, since those are really different ...
+ * @author prissi
+ */
+int
+wkz_halt(spieler_t *sp, karte_t *welt, koord pos, value_t value)
+{
+	if(pos==INIT  ||  pos==EXIT) {
+		welt->gib_zeiger()->setze_area( umgebung_t::station_coverage_size );
+		return true;
+	}
+
+	// are we allowed to built here?
+	halthandle_t halt=haltestelle_t::gib_halt(welt,pos);
+	if(halt.is_bound()  &&  !sp->check_owner(halt->gib_besitzer())) {
+		// we cannot connect to this halt!
+		create_win(-1, -1, MESG_WAIT, new nachrichtenfenster_t(welt, "Das Feld gehoert\neinem anderen Spieler\n"), w_autodelete);
+		return false;
+	}
+
+	const haus_besch_t *besch=(const haus_besch_t *)value.p;
+	if(besch->gib_utyp()==hausbauer_t::bahnhof) {
+		return wkz_halt_aux( sp, welt, pos, besch, track_wt, umgebung_t::cst_multiply_station, "BF" );
+	}
+	else if(besch->gib_utyp()==hausbauer_t::monorailstop) {
+		return wkz_halt_aux( sp, welt, pos, besch, monorail_wt, umgebung_t::cst_multiply_station, "BF" );
+	}
+	else if(besch->gib_utyp()==hausbauer_t::bushalt  ||  besch->gib_utyp()==hausbauer_t::ladebucht) {
+		return wkz_halt_aux( sp, welt, pos, besch, road_wt, umgebung_t::cst_multiply_roadstop, "H" );
+	}
+	else if(besch->gib_utyp()==hausbauer_t::binnenhafen) {
+		return wkz_halt_aux( sp, welt, pos, besch, water_wt, umgebung_t::cst_multiply_dock, "Dock" );
+	}
+	else if(besch->gib_utyp()==hausbauer_t::airport) {
+		return wkz_halt_aux( sp, welt, pos, besch, air_wt, umgebung_t::cst_multiply_airterminal, "Airport" );
+	}
+	else {
+		DBG_MESSAGE("wkz_halt()","called with unknown besch %s",besch->gib_name() );
 		return false;
 	}
 }
@@ -1536,155 +1698,6 @@ int wkz_depot(spieler_t *sp, karte_t *welt, koord pos,value_t w)
 	}
 }
 
-
-
-
-
-// built all types of stops but sea harbours
-static bool
-wkz_halt_aux(spieler_t *sp, karte_t *welt, koord pos,const haus_besch_t *besch,waytype_t wegtype,sint64 cost,const char *type_name)
-{
-DBG_MESSAGE("wkz_halt_aux()", "building %s on square %d,%d for waytype %x", besch->gib_name(), pos.x, pos.y, wegtype);
-	const char *p_error=(besch->gib_all_layouts()==4)?"No terminal station here!":"No through station here!";
-
-	grund_t *bd = wkz_intern_koord_to_weg_grund(sp==welt->gib_spieler(1)?NULL:sp,welt,pos,wegtype);
-	if(!bd  &&  track_wt) {
-		bd = wkz_intern_koord_to_weg_grund(sp==welt->gib_spieler(1)?NULL:sp,welt,pos,monorail_wt);
-	}
-	if(!bd  ||  bd->gib_weg_hang()!=hang_t::flach  ||  bd->is_halt()) {
-		create_win(-1, -1, MESG_WAIT, new nachrichtenfenster_t(welt, p_error), w_autodelete);
-		return false;
-	}
-
-DBG_MESSAGE("wkz_halt_aux()", "bd=%p",bd);
-
-	if(bd->gib_depot()) {
-		create_win(-1, -1, MESG_WAIT, new nachrichtenfenster_t(welt, "Tile not empty."), w_autodelete);
-		return false;
-	}
-
-	// find out orientation ...
-	int layout = 0;
-	if(besch->gib_all_layouts()==2) {
-		// through station
-		ribi_t::ribi  ribi;
-		if(bd->gib_weg_nr(1)  &&  bd->gib_weg_nr(0)) {
-			// can only happen with road/rail combination ...
-			ribi = bd->gib_weg_ribi_unmasked(road_wt)  |  bd->gib_weg_ribi_unmasked(track_wt);
-		}
-		else {
-			ribi = bd->gib_weg_ribi_unmasked(wegtype);
-		}
-		// not straight: sorry cannot built here ...
-		if(!ribi_t::ist_gerade(ribi)) {
-			create_win(-1, -1, MESG_WAIT, new nachrichtenfenster_t(welt, p_error), w_autodelete);
-			return false;
-		}
-		layout = (ribi & ribi_t::nordsued)?0 :1;
-	}
-	else {
-		// terminal station
-		ribi_t::ribi ribi = bd->gib_weg_ribi_unmasked(wegtype);
-		// sorry cannot built here ... (not a terminal tile)
-		if(!ribi_t::ist_einfach(ribi)) {
-			create_win(-1, -1, MESG_WAIT, new nachrichtenfenster_t(welt, p_error), w_autodelete);
-			return false;
-		}
-
-		switch(ribi) {
-			//case ribi_t::sued:layout = 0;  break;
-			case ribi_t::ost:   layout = 1;    break;
-			case ribi_t::nord:  layout = 2;    break;
-			case ribi_t::west:  layout = 3;    break;
-		}
-	}
-
-	// seems everything ok, lets build
-	halthandle_t halt = suche_nahe_haltestelle(sp,welt,bd->gib_pos());
-	bool neu = !halt.is_bound();
-
-	if(neu) {
-		halt = sp->halt_add(pos);
-DBG_MESSAGE("wkz_halt_aux()", "founding new station");
-	}
-	else {
-DBG_MESSAGE("wkz_halt_aux()", "new segment for station");
-		if(sp==welt->gib_spieler(1)) {
-			halt->transfer_to_public_owner();
-		}
-	}
-
-	if(sp!=welt->gib_spieler(1)) {
-		halt->gib_besitzer();
-	}
-
-	hausbauer_t::neues_gebaeude( welt, halt->gib_besitzer(), bd->gib_pos(), layout, besch, &halt);
-	halt->recalc_station_type();
-
-	if(neu) {
-		stadt_t *stadt = welt->suche_naechste_stadt(pos);
-		if(stadt) {
-			const int count = sp->get_haltcount();
-			const char *name = stadt->haltestellenname(pos, type_name, count);
-			bd->setze_text( name );
-		}
-		else {
-			// get a default name
-			const int count = sp->get_haltcount();
-			char *tmp=new char[256];
-			sprintf( tmp, translator::translate("land stop %i %s"), count,  translator::translate(type_name) );
-			bd->setze_text( tmp );
-		}
-	}
-
-	// rebuild destination lists (since maybe a convoi stopped here, but there was no station yet)
-	welt->set_schedule_counter();
-	sp->buche(cost*besch->gib_level()*besch->gib_b()*besch->gib_h(), pos, COST_CONSTRUCTION);
-	return true;
-}
-
-
-
-/* built a halt on a way
- * cannot built sea harbours, since those are really different ...
- * @author prissi
- */
-int
-wkz_halt(spieler_t *sp, karte_t *welt, koord pos, value_t value)
-{
-	if(pos==INIT  ||  pos==EXIT) {
-		return true;
-	}
-
-	// are we allowed to built here?
-	halthandle_t halt=haltestelle_t::gib_halt(welt,pos);
-	if(halt.is_bound()  &&  !sp->check_owner(halt->gib_besitzer())) {
-		// we cannot connect to this halt!
-		create_win(-1, -1, MESG_WAIT, new nachrichtenfenster_t(welt, "Das Feld gehoert\neinem anderen Spieler\n"), w_autodelete);
-		return false;
-	}
-
-	const haus_besch_t *besch=(const haus_besch_t *)value.p;
-	if(besch->gib_utyp()==hausbauer_t::bahnhof) {
-		return wkz_halt_aux( sp, welt, pos, besch, track_wt, umgebung_t::cst_multiply_station, "BF" );
-	}
-	else if(besch->gib_utyp()==hausbauer_t::monorailstop) {
-		return wkz_halt_aux( sp, welt, pos, besch, monorail_wt, umgebung_t::cst_multiply_station, "BF" );
-	}
-	else if(besch->gib_utyp()==hausbauer_t::bushalt  ||  besch->gib_utyp()==hausbauer_t::ladebucht) {
-		return wkz_halt_aux( sp, welt, pos, besch, road_wt, umgebung_t::cst_multiply_roadstop, "H" );
-	}
-	else if(besch->gib_utyp()==hausbauer_t::binnenhafen) {
-		return wkz_halt_aux( sp, welt, pos, besch, water_wt, umgebung_t::cst_multiply_dock, "Dock" );
-	}
-	else if(besch->gib_utyp()==hausbauer_t::airport) {
-		return wkz_halt_aux( sp, welt, pos, besch, air_wt, umgebung_t::cst_multiply_airterminal, "Airport" );
-	}
-	else {
-		DBG_MESSAGE("wkz_halt()","called with unknown besch %s",besch->gib_name() );
-		return false;
-	}
-}
 
 
 

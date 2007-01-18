@@ -4,6 +4,9 @@ Known bugs: (hard to fix)
 	valgrind complains about errors in SDL and X?
 
 
+Release of 99.07
+
+	(prissi)
 	FIX: crash when deleting empty tiles of middle parts of bridges
 	FIX: wrong schedule entry pointer after loading
 	FIX: crash when electrify before electrification
@@ -14,12 +17,15 @@ Known bugs: (hard to fix)
 	FIX: wayobj not dirty after creation => garbage on the screen
 	ADD: shuffle for midis
 	ADD: (kierongreen) colors for water height in minimap
+	ADD: (kierongreen+prissi) better station coverage display in seperate layer
 	FIX: removing way was free of charge
 	ADD: new label enables land buying (cost by 'cost_buy_land' in simuconf.tab, default -100), help file now possible ('label_frame.txt')
+	FIX: wrong images after diagonal tile after bridges and crossings
 
 
 Release of 99.06
 
+08-Jan-2007:
 	(prissi)
 	FIX: crash when closing the filter window before the main list window
 	FIX: not zooming out menu icons

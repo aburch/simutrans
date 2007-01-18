@@ -410,7 +410,13 @@ public:
 	 *
 	 * @author Hj. Malthaner
 	 */
-	ding_t * gib_zeiger() const;
+	zeiger_t * gib_zeiger() const;
+
+	/**
+	 * marks an area using the grund_t mark flag
+	 * @author prissi
+	 */
+	void mark_area( const sint16 lx, const sint16 uy, const uint8 radius, const bool mark );
 
 	spieler_t * gib_spieler(int n) const {assert(((uint8)n)<MAX_PLAYER_COUNT); return spieler[n]; }
 	spieler_t* get_active_player() const { return active_player; }

@@ -291,19 +291,6 @@ public:
 	*/
 	void setze_text(const char *text);
 
-	/**
-	* Ermittelt den Besitzer des Untergrundes.
-	* @author Hj. Malthaner
-	*/
-//	spieler_t * gib_besitzer() const;
-
-	/**
-	* Setze den Besitzer des Untergrundes. Gibt false zururck, wenn
-	* das setzen fehlgeschlagen ist.
-	* @author Hj. Malthaner
-	*/
-//	bool setze_besitzer(spieler_t *s);
-
 	virtual bool ist_natur() const {return false;}
 	virtual bool ist_wasser() const {return false;}
 
@@ -377,13 +364,19 @@ public:
 	* Zeichnet Bodenbild des Grundes
 	* @author Hj. Malthaner
 	*/
-	void display_boden(const sint16 xpos, sint16 ypos, const bool dirty) const;
+	void display_boden(const sint16 xpos, sint16 ypos) const;
 
 	/**
 	* Zeichnet Dinge des Grundes. Löscht das Dirty-Flag.
 	* @author Hj. Malthaner
 	*/
-	void display_dinge(const sint16 xpos, sint16 ypos, const bool dirty);
+	void display_dinge(const sint16 xpos, sint16 ypos, const bool called_from_simview) const;
+
+	/**
+	* Draw signs on a tile
+	* @author Hj. Mathaner
+	*/
+	void display_overlay(const sint16 xpos, const sint16 ypos, const bool reset_dirty);
 
 	inline ding_t *first_obj() const { return dinge.bei(offsets[flags/has_way1]); }
 	ding_t *suche_obj(ding_t::typ typ) const { return dinge.suche(typ,0); }
