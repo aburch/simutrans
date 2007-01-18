@@ -73,7 +73,7 @@ void pillar_t::rdwr(loadsave_t *file)
 	const char *s = NULL;
 
 	if(file->is_saving()) {
-	s = besch->gib_name();
+		s = besch->gib_name();
 	}
 	file->rdwr_str(s, "");
 	file->rdwr_byte(dir,"\n");

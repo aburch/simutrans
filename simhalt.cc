@@ -175,6 +175,9 @@ haltestelle_t::remove(karte_t *welt, spieler_t *sp, koord3d pos, const char *&ms
 
 DBG_MESSAGE("haltestelle_t::remove()","removing segment from %d,%d,%d", pos.x, pos.y, pos.z);
 
+	// otherwise there will be marked tiles left ...
+	halt->mark_unmark_coverage(false);
+
 	// remove station building?
 	gebaeude_t *gb=dynamic_cast<gebaeude_t *>(bd->suche_obj(ding_t::gebaeude));
 	if(gb) {

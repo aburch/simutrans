@@ -1261,7 +1261,7 @@ DBG_MESSAGE("wkz_dockbau()","building dock from square (%d,%d) to (%d,%d)", pos.
 		}
 //DBG_MESSAGE("wkz_dockbau()","recalc station type");
 		halt->recalc_station_type();
-		if(umgebung_t::station_coverage_show) {
+		if(umgebung_t::station_coverage_show  &&  welt->gib_zeiger()->gib_pos().gib_2d()==pos) {
 			// since we are larger now ...
 			halt->mark_unmark_coverage( true );
 		}
@@ -1397,7 +1397,7 @@ DBG_MESSAGE("wkz_halt_aux()", "new segment for station");
 	welt->set_schedule_counter();
 
 	sp->buche(cost*besch->gib_level()*besch->gib_b()*besch->gib_h(), pos, COST_CONSTRUCTION);
-	if(umgebung_t::station_coverage_show) {
+	if(umgebung_t::station_coverage_show  &&  welt->gib_zeiger()->gib_pos().gib_2d()==pos) {
 		// since we are larger now ...
 		halt->mark_unmark_coverage( true );
 	}

@@ -246,7 +246,7 @@ bool schedule_list_gui_t::action_triggered(gui_komponente_t *komp,value_t /* */)
 		}
 	}
 
-    return true;
+	return true;
 }
 
 

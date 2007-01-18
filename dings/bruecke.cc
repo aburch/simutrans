@@ -53,7 +53,13 @@ bruecke_t::calc_bild()
 	if(gr) {
 		// if we are on the bridge, put the image into the ground, so we can have two ways ...
 		if(gr->gib_weg_nr(0)) {
-			gr->gib_weg_nr(0)->setze_bild(besch->gib_hintergrund(img, gib_pos().z >= welt->get_snowline()));
+			if(img>=bruecke_besch_t::N_Start  &&  img<=bruecke_besch_t::W_Start) {
+				// must take the upper value for the start of the bridge
+				gr->gib_weg_nr(0)->setze_bild(besch->gib_hintergrund(img, gib_pos().z+Z_TILE_STEP >= welt->get_snowline()));
+			}
+			else {
+				gr->gib_weg_nr(0)->setze_bild(besch->gib_hintergrund(img, gib_pos().z >= welt->get_snowline()));
+			}
 		}
 		setze_yoff( -gr->gib_weg_yoff() );
 	}

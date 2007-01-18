@@ -21,6 +21,9 @@ Release of 99.07
 	FIX: removing way was free of charge
 	ADD: new label enables land buying (cost by 'cost_buy_land' in simuconf.tab, default -100), help file now possible ('label_frame.txt')
 	FIX: wrong images after diagonal tile after bridges and crossings
+	FIX: snowy bridges start on slope was wrong
+	FIX: max midi volume now 255 => no overflow
+	FIX: pillar position is plainly wrong
 
 
 Release of 99.06

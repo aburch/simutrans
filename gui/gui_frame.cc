@@ -73,9 +73,11 @@ void gui_frame_t::infowin_event(const event_t *ev)
 	if(IS_WINDOW_RESIZE(ev)) {
 		koord delta (ev->mx - ev->cx, ev->my - ev->cy);
 		resize(delta);
+		return;	// not pass to childs!
 	} else if(IS_WINDOW_MAKE_MIN_SIZE(ev)) {
 		setze_fenstergroesse( get_min_windowsize() ) ;
 		resize( koord(0,0) ) ;
+		return;	// not pass to childs!
 	}
 	else if(ev->ev_class==INFOWIN  &&  (ev->ev_code==WIN_CLOSE  ||  ev->ev_code==WIN_OPEN)) {
 		dirty = true;

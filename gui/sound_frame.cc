@@ -40,16 +40,16 @@ sound_frame_t::sound_frame_t()
     digi.setze_groesse(koord(256, 10));
     digi.setze_pos(koord(22, 30));
     digi.setze_opaque( true );
-    digi.setze_knob(32, 256+32);
+    digi.setze_knob(32, 255+32);
     digi.setze_knob_offset(sound_get_global_volume());
     digi.add_listener( this );
 
     dlabel.setze_pos(koord(22,14));
 
-    midi.setze_groesse(koord(256, 10));
+    midi.setze_groesse(koord(255, 10));
     midi.setze_pos(koord(22, 80));
     midi.setze_opaque( true );
-    midi.setze_knob(32, 256+32);
+    midi.setze_knob(32, 255+32);
     midi.setze_knob_offset(sound_get_midi_volume());
     midi.add_listener( this );
 

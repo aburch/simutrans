@@ -24,7 +24,7 @@ public:
 	bruecke_t(karte_t *welt, loadsave_t *file);
 	bruecke_t(karte_t *welt, koord3d pos, spieler_t *sp, const bruecke_besch_t *besch, bruecke_besch_t::img_t img);
 
-	image_id gib_after_bild() const {return besch->gib_vordergrund(img, gib_pos().z >= welt->get_snowline()); }
+	image_id gib_after_bild() const {return besch->gib_vordergrund(img, gib_pos().z+Z_TILE_STEP*(img>=bruecke_besch_t::N_Start  &&  img<=bruecke_besch_t::W_Start) >= welt->get_snowline()); }
 
 	const char *gib_name() const {return "Bruecke";}
 	enum ding_t::typ gib_typ() const {return bruecke;}
