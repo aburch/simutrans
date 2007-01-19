@@ -6,6 +6,7 @@ offset for images
 month to bankrupt into simuconf.tab
 bridges and tunnels with no initial road
 bahnhofsdetaildialog
+pfade aufräume, weg mit paletten-ordner, mehrere Config-files, pak-Pfad mit savegame speichern (tabs beim laden)
 
 Stichpunkte
 
