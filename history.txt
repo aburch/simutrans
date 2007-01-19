@@ -23,7 +23,8 @@ Release of 99.07
 	FIX: wrong images after diagonal tile after bridges and crossings
 	FIX: snowy bridges start on slope was wrong
 	FIX: max midi volume now 255 => no overflow
-	FIX: pillar position is plainly wrong
+	FIX: (kierongreen) pillar position was plainly wrong
+	ADD: (kierongreen) using SDL_mixer for midi (now also with Linux, if possible)
 
 
 Release of 99.06

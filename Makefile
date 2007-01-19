@@ -299,6 +299,9 @@ ifeq ($(BACKEND),sdl)
     SDL_CFLAGS  := $(shell $(SDL_CONFIG) --cflags)
     SDL_LDFLAGS := $(shell $(SDL_CONFIG) --libs)
   endif
+
+  SDL_LDFLAGS+= -lSDL_mixer
+
   CFLAGS   += $(SDL_CFLAGS)
   CXXFLAGS += $(SDL_CFLAGS)
   LIBS     += $(SDL_LDFLAGS)
@@ -317,14 +320,19 @@ ifneq ($(findstring $(OSTYPE), cygwin mingw),)
 endif
 
 
-ifeq ($(findstring $(OSTYPE), cygwin mingw),)
-  ifeq ($(BACKEND), allegro)
-    SOURCES += music/allegro_midi.c
-  else
-    SOURCES += music/no_midi.c
-  endif
+ifeq ($(BACKEND), sdl)
+  SOURCES += music/sdl_midi.c
+  SOURCES += sound/sdl_sound.c
 else
-  SOURCES += music/w32_midi.c
+  ifeq ($(findstring $(OSTYPE), cygwin mingw),)
+    ifeq ($(BACKEND), allegro)
+      SOURCES += music/allegro_midi.c
+    else
+      SOURCES += music/no_midi.c
+    endif
+  else
+    SOURCES += music/w32_midi.c
+  endif
 endif
 
 
@@ -334,10 +342,6 @@ endif
 
 ifeq ($(BACKEND), gdi)
   SOURCES += sound/win32_sound.c
-endif
-
-ifeq ($(BACKEND), sdl)
-  SOURCES += sound/sdl_sound.c
 endif
 
 ifeq ($(BACKEND), x11)
