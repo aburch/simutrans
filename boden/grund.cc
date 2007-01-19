@@ -329,6 +329,7 @@ grund_t::grund_t(karte_t *wl, koord3d pos)
 
 grund_t::~grund_t()
 {
+//	dinge.dump();
 	destroy_win(grund_infos.get(this));
 
 	// remove text from table
@@ -338,8 +339,13 @@ grund_t::~grund_t()
 		welt->lookup(pos.gib_2d())->gib_halt()->rem_grund(this);
 	}
 	dinge.loesche_alle(NULL,offsets[flags/has_way1]);
+	if(flags&has_way2) {
+		dinge.loesche_alle(NULL,1);
+		flags &= ~has_way2;
+	}
 	if(flags&has_way1) {
 		dinge.loesche_alle(NULL,0);
+		flags &= ~has_way1;
 	}
 }
 

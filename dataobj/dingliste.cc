@@ -387,7 +387,7 @@ dingliste_t::add(ding_t *ding)
 	}
 
 	// now insert it a the correct place
-	const uint8 pri=type_to_pri[ding->gib_typ()];
+	uint8 pri=type_to_pri[ding->gib_typ()];
 
 	// roads must be first!
 	if(pri==0) {
@@ -498,7 +498,6 @@ dingliste_t::loesche_alle(spieler_t *sp, uint8 offset)
 			obj.some[top] = NULL;
 			ok = true;
 		}
-		top = offset;
 	}
 	else {
 		if(capacity==1) {
@@ -813,7 +812,7 @@ dingliste_t::rdwr(karte_t *welt, loadsave_t *file, koord3d current_pos)
 void dingliste_t::dump() const
 {
 	if(capacity==0) {
-		DBG_MESSAGE("dingliste_t::dump()","empty");
+//		DBG_MESSAGE("dingliste_t::dump()","empty");
 		return;
 	}
 	else if(capacity==1) {

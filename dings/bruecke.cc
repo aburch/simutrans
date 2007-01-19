@@ -108,6 +108,7 @@ void bruecke_t::rdwr(loadsave_t *file)
 void bruecke_t::laden_abschliessen()
 {
 	const grund_t *gr = welt->lookup(gib_pos());
+	assert(gr->obj_bei(0)!=this);
 	spieler_t *sp=gib_besitzer();
 	if(sp) {
 		// change maitainance
@@ -122,9 +123,13 @@ void bruecke_t::laden_abschliessen()
 
 
 // correct speed and maitainace
-void bruecke_t::entferne( spieler_t *sp )
+void bruecke_t::entferne( spieler_t *sp2 )
 {
-	sp=gib_besitzer();
+	if(sp2==NULL) {
+		// only set during destroying of the map
+		return;
+	}
+	spieler_t *sp = gib_besitzer();
 	if(sp) {
 		// on bridge => do nothing but change maitainance
 		const grund_t *gr = welt->lookup(gib_pos());
@@ -134,7 +139,9 @@ void bruecke_t::entferne( spieler_t *sp )
 			weg->setze_max_speed( weg->gib_besch()->gib_topspeed() );
 			sp->add_maintenance( weg->gib_besch()->gib_wartung());
 			sp->add_maintenance( -besch->gib_wartung() );
-			sp->buche( -besch->gib_preis(), gib_pos().gib_2d(), COST_CONSTRUCTION );
 		}
+	}
+	if(sp2) {
+		sp2->buche( -besch->gib_preis(), gib_pos().gib_2d(), COST_CONSTRUCTION );
 	}
 }

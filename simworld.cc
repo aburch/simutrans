@@ -521,14 +521,14 @@ DBG_MESSAGE("karte_t::destroy()", "sync list cleared");
 	// dinge aufräumen
 	if(plan) {
 		delete [] plan;
-		plan = 0;
+		plan = NULL;
 	}
 	DBG_MESSAGE("karte_t::destroy()", "planquadrat destroyed");
 
 	// gitter aufräumen
 	if(grid_hgts) {
 		delete [] grid_hgts;
-		grid_hgts = 0;
+		grid_hgts = NULL;
 	}
 
 	// delete towns first (will also delete all their houses)
@@ -546,7 +546,7 @@ DBG_MESSAGE("karte_t::destroy()", "marker destroyed");
 	for(int i=0; i<MAX_PLAYER_COUNT; i++) {
 		if(spieler[i]) {
 			delete spieler[i];
-			spieler[i] = 0;
+			spieler[i] = NULL;
 		}
 	}
 DBG_MESSAGE("karte_t::destroy()", "player destroyed");
