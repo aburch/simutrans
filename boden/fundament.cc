@@ -64,8 +64,8 @@ fundament_t::calc_bild()
 	}
 	else {
 		grund_t::calc_bild();
-		setze_bild( grund_besch_t::gib_ground_tile(0,gib_hoehe()) );
-		grund_t::calc_back_bild(gib_hoehe()/Z_TILE_STEP,0);
+		setze_bild( grund_besch_t::gib_ground_tile(0,gib_pos().z) );
+		grund_t::calc_back_bild(gib_pos().z/Z_TILE_STEP,0);
 	}
 }
 

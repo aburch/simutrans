@@ -374,7 +374,7 @@ void fabrikbauer_t::verteile_industrie(karte_t* welt, int max_number_of_factorie
 	int retrys = max_number_of_factories*4;
 	while(current_number<max_number_of_factories  &&  retrys-->0) {
 		koord3d	pos=koord3d(simrand(welt->gib_groesse_x()),simrand(welt->gib_groesse_y()),1);
-		const fabrik_besch_t *fab=get_random_consumer(in_city,(climate_bits)(1<<welt->get_climate(welt->lookup(pos.gib_2d())->gib_kartenboden()->gib_hoehe())));
+		const fabrik_besch_t *fab=get_random_consumer(in_city,(climate_bits)(1<<welt->get_climate(welt->lookup(pos.gib_2d())->gib_kartenboden()->gib_pos().z)));
 		if(fab) {
 			int	rotation=simrand(fab->gib_haus()->gib_all_layouts()-1);
 

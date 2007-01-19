@@ -26,6 +26,7 @@ Release of 99.07
 	FIX: (kierongreen) pillar position was plainly wrong
 	ADD: (kierongreen) using SDL_mixer for midi (now also with Linux, if possible)
 	FIX: crash during deletion of bridges and tunnel (although just fixed symptoms)
+	ADD: waterdepths (needs new ground obj "Water", with n images, n=0 is uppermost, 1=depper, 2=even deeper, ...
 
 
 Release of 99.06

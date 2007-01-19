@@ -49,6 +49,8 @@ public:
 	static const grund_besch_t *fences;
 	static const grund_besch_t *marker;
 	static const grund_besch_t *borders;
+	static const grund_besch_t *sea;	// different water depth
+	static const grund_besch_t *border;
 	static const grund_besch_t *ausserhalb;
 
 	static const char *get_climate_name_from_bit( enum climate n );

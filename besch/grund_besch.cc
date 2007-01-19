@@ -290,6 +290,7 @@ const grund_besch_t *grund_besch_t::slopes = NULL;
 const grund_besch_t *grund_besch_t::fences = NULL;
 const grund_besch_t *grund_besch_t::marker = NULL;
 const grund_besch_t *grund_besch_t::borders = NULL;
+const grund_besch_t *grund_besch_t::sea = NULL;
 const grund_besch_t *grund_besch_t::ausserhalb = NULL;
 
 static spezial_obj_tpl<grund_besch_t> grounds[] = {
@@ -302,6 +303,7 @@ static spezial_obj_tpl<grund_besch_t> grounds[] = {
     { &grund_besch_t::fences,   "Fence" },
     { &grund_besch_t::marker,   "Marker" },
     { &grund_besch_t::borders,   "Borders" },
+    { &grund_besch_t::sea,   "Water" },
     { &grund_besch_t::ausserhalb,   "Outside" },
     { NULL, NULL }
 };
@@ -589,9 +591,11 @@ grund_besch_t::gib_ground_tile(hang_t::typ slope, sint16 height )
 		slope = 0;
 	}
 #endif
-	if(h<0) {
+	if(h<0  ||  (h==0  &&  slope==hang_t::flach)) {
 		// deep water
-		return image_offset;
+		const bildliste2d_besch_t *liste = static_cast<const bildliste2d_besch_t *>(sea->gib_kind(2));
+		int nr = min( 1-h, liste->gib_anzahl()-2 );
+		return liste->gib_bild(nr,0)->gib_nummer();
 	}
 	else {
 		const bool snow_transition = (height+Z_TILE_STEP==welt->get_snowline());

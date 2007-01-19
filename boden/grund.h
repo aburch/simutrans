@@ -356,7 +356,7 @@ public:
 	const halthandle_t gib_halt() const;
 	const uint8 is_halt() const {return (flags&is_halt_flag);}
 
-	inline short gib_hoehe() const {return pos.z;}
+	inline sint16 gib_hoehe() const {return pos.z;}
 
 	void setze_hoehe(int h) { pos.z = h;}
 

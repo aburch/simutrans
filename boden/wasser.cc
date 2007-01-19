@@ -34,11 +34,11 @@ wasser_t::zeige_info()
 void
 wasser_t::calc_bild()
 {
-	setze_bild( grund_besch_t::gib_ground_tile(0,gib_hoehe() ) );
+	setze_bild( grund_besch_t::gib_ground_tile(0,welt->lookup_hgt(gib_pos().gib_2d())) );
 	setze_hoehe( welt->gib_grundwasser() );
 	slope = hang_t::flach;
 	// artifical walls from here on ...
-	grund_t::calc_back_bild(gib_hoehe()/Z_TILE_STEP,0);
+	grund_t::calc_back_bild(welt->gib_grundwasser()/Z_TILE_STEP,0);
 }
 
 

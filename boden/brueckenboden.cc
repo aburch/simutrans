@@ -41,8 +41,8 @@ void brueckenboden_t::calc_bild()
 	}
 	else {
 		if(ist_karten_boden()) {
-			setze_bild( grund_besch_t::gib_ground_tile(slope,gib_hoehe() ) );
-			grund_t::calc_back_bild(gib_hoehe()/Z_TILE_STEP,slope);
+			setze_bild( grund_besch_t::gib_ground_tile(slope,gib_pos().z) );
+			grund_t::calc_back_bild(gib_pos().z/Z_TILE_STEP,slope);
 		}
 		else {
 			clear_back_bild();
