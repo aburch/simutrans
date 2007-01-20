@@ -112,7 +112,9 @@ int dr_load_sample(const char *filename)
  */
 void dr_play_sample(int sample_number, int volume)
 {
+	// sound enabled and a valid sample
 	if(use_sound>0 && sample_number != -1) {
+		// sdl_mixer finds free channel, we then play at correct volume
 		int play_channel = Mix_PlayChannel(-1, samples[sample_number], 0);
 		Mix_Volume(play_channel,(volume*MIX_MAX_VOLUME)/256);
 	}

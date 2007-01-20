@@ -1,12 +1,12 @@
 /*
- * no_midi.c
+ * sdl_midi.c
  *
  * Copyright (c) 1997 - 2001 Hansjörg Malthaner
  *
- * Dummy midi routines - only provide interface, does nothing
+ * SDL_Mixer music routine interfaces
  *
- * author: Hj. Malthaner
- * date:   25-May-2002
+ * author: Kieron Green
+ * date:   17-Jan-2007
  */
 
 #include "music.h"
@@ -21,7 +21,7 @@ Mix_Music *music[MAX_MIDI];
 
 /**
  * sets midi playback volume
- * @author Hj. Malthaner
+ * @author Kieron Green
  */
 void dr_set_midi_volume(int vol)
 {
@@ -31,7 +31,7 @@ void dr_set_midi_volume(int vol)
 
 /**
  * Loads a MIDI file
- * @author Hj. Malthaner
+ * @author Kieron Green
  */
 int dr_load_midi(const char * filename)
 {
@@ -40,13 +40,12 @@ int dr_load_midi(const char * filename)
 
 		if(i >= 0 && i < MAX_MIDI) {
 			music[i] = NULL;
+
+			// just to make sure that we are loading from correct directory...
 			char filename2[255];
 			sprintf(filename2,"./%s",filename);
-			printf("Loading %s",filename2);
 			music[i] = Mix_LoadMUS(filename2);
-    			printf("Mix_LoadMUS(\"music.mp3\"): %s\n", Mix_GetError());
 			if(music[i]) {
-				printf("Loaded a midi");
 				midi_number = i;
 			}
 		}
@@ -61,11 +60,13 @@ void music_finished(void) {
 
 /**
  * Plays a MIDI file
- * @author Hj. Malthaner
+ * @author Kieron Green
  */
 void dr_play_midi(int key)
 {
 	Mix_PlayMusic(music[key], 1);
+
+	// when we are finished playing this file set the finished flag
 	Mix_HookMusicFinished(music_finished);
 	finished_current = 0;
 }
@@ -73,7 +74,7 @@ void dr_play_midi(int key)
 
 /**
  * Stops playing MIDI file
- * @author Hj. Malthaner
+ * @author Kieron Green
  */
 void dr_stop_midi(void)
 {
@@ -82,8 +83,10 @@ void dr_stop_midi(void)
 
 
 /**
- * Returns the midi_pos variable
- * @author Hj. Malthaner
+ * Returns the midi_pos variable <- doesn't actually do this
+ * Simutrans only needs to know whether file has finished (so that it can start the next music)
+ * Returns -1 if current music has finished, else 0
+ * @author Kieron Green
  */
 long dr_midi_pos(void)
 {
@@ -96,7 +99,7 @@ long dr_midi_pos(void)
 
 /**
  * Midi shutdown/cleanup
- * @author Hj. Malthaner
+ * @author Kieron Green
  */
 void dr_destroy_midi(void)
 {
@@ -105,7 +108,7 @@ void dr_destroy_midi(void)
 
 /**
  * Sets midi pos
- * @author Hj. Malthaner
+ * @author Kieron Green
  */
 void set_midi_pos(int pos)
 {
@@ -113,7 +116,7 @@ void set_midi_pos(int pos)
 
 /**
  * MIDI initialisation routines
- * @author Owen Rudge
+ * @author Kieron Green
  */
 void dr_init_midi(void)
 {

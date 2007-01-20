@@ -2534,6 +2534,8 @@ aircraft_t::betrete_feld()
 aircraft_t::aircraft_t(karte_t *welt, loadsave_t *file) : vehikel_t(welt)
 {
 	rdwr(file, true);
+	old_x = old_y = -1;
+	old_bild = IMG_LEER;
 }
 
 
@@ -2542,6 +2544,8 @@ aircraft_t::aircraft_t(karte_t *welt, koord3d pos, const vehikel_besch_t *besch,
 {
 	cnv = cn;
 	state = taxiing;
+	old_x = old_y = -1;
+	old_bild = IMG_LEER;
 }
 
 
@@ -2573,7 +2577,7 @@ aircraft_t::setze_convoi(convoi_t *c)
 
 fahrplan_t * aircraft_t::erzeuge_neuen_fahrplan() const
 {
-  return new airfahrplan_t();
+	return new airfahrplan_t();
 }
 
 
@@ -2581,11 +2585,11 @@ fahrplan_t * aircraft_t::erzeuge_neuen_fahrplan() const
 void
 aircraft_t::rdwr(loadsave_t *file)
 {
-    if(file->is_saving() && cnv != NULL) {
- 	file->wr_obj_id(-1);
-    } else {
-	rdwr(file, true);
-    }
+	if(file->is_saving() && cnv != NULL) {
+		file->wr_obj_id(-1);
+	} else {
+		rdwr(file, true);
+	}
 }
 
 void
@@ -2849,11 +2853,12 @@ aircraft_t::calc_route(karte_t * welt, koord3d start, koord3d ziel, uint32 max_s
 // well, the heihgt is of course most important for an aircraft ...
 int aircraft_t::calc_height()
 {
-	int new_hoff = 0;	// default: on ground ...
+	const sint16 h_cur = height_scaling(gib_pos().z)*TILE_HEIGHT_STEP/Z_TILE_STEP;
 
 	switch( state ) {
 		case departing:
 			{
+				flughoehe = 0;
 				current_friction = 14;
 				cnv->setze_akt_speed_soll(gib_speed());
 				setze_speed_limit(-1);
@@ -2863,8 +2868,7 @@ int aircraft_t::calc_height()
 				if((weg==NULL  ||  weg->gib_besch()->gib_styp()!=1)  ||  cnv->gib_akt_speed()>kmh_to_speed(besch->gib_geschw())/3 ) {
 					state = flying;
 					current_friction = 16;
-					flughoehe = height_scaling(gib_pos().z)*TILE_HEIGHT_STEP/Z_TILE_STEP;
-					target_height = flughoehe+TILE_HEIGHT_STEP*3;
+					target_height = h_cur+TILE_HEIGHT_STEP*3;
 				}
 			}
 			break;
@@ -2873,7 +2877,6 @@ int aircraft_t::calc_height()
 		case flying2:
 		{
 			const sint16 h_next=height_scaling(pos_next.z)*TILE_HEIGHT_STEP/Z_TILE_STEP;
-			const sint16 h_cur=height_scaling(gib_pos().z)*TILE_HEIGHT_STEP/Z_TILE_STEP;
 
 			cnv->setze_akt_speed_soll(gib_speed());
 			setze_speed_limit(-1);
@@ -2898,25 +2901,23 @@ int aircraft_t::calc_height()
 				// after reaching flight level, friction will be constant
 				current_friction = 1;
 			}
-
-			new_hoff = h_cur-flughoehe;
+			flughoehe -= h_cur;
 		}
 		break;
 
 		case landing:
 		{
-			const sint16 h_cur=height_scaling(gib_pos().z)*TILE_HEIGHT_STEP/Z_TILE_STEP;
-
 			setze_speed_limit(-1);
 			if(flughoehe>target_height) {
 				// still decenting
 				flughoehe--;
 				cnv->setze_akt_speed_soll( kmh_to_speed(besch->gib_geschw())/2 );
 				current_friction = 64;
-				new_hoff = h_cur-flughoehe;
+				flughoehe -= h_cur;
 			}
 			else {
 				// touchdown!
+				flughoehe = 0;
 				cnv->setze_akt_speed_soll( kmh_to_speed(besch->gib_geschw())/4 );
 				current_friction = 512;
 			}
@@ -2926,7 +2927,43 @@ int aircraft_t::calc_height()
 	default:
 		// curve: higher friction
 		current_friction = (alte_fahrtrichtung != fahrtrichtung) ? 512 : 128;
+		flughoehe = 0;
 		break;
 	}
-	return new_hoff;
+
+	// this calculation is no really working, since it assumes straight ways ...
+	return vehikel_basis_t::calc_height();
+}
+
+
+
+// needed for shadows ...
+void aircraft_t::sync_step()
+{
+	setze_yoff( gib_yoff() - hoff );
+	if(!get_flag(ding_t::dirty)) {
+		// airplane and shadow
+		mark_image_dirty( bild, gib_yoff()-flughoehe-hoff-2 );
+		mark_image_dirty( bild, hoff );
+	}
+	flughoehe += height_scaling(gib_pos().z)*TILE_HEIGHT_STEP/Z_TILE_STEP;
+	fahre();
+	hoff = calc_height();
+	setze_yoff( gib_yoff() + hoff );
+}
+
+
+
+// this routine will display the shadow
+void
+aircraft_t::display_after(int xpos, int ypos, bool /*reset_dirty*/) const
+{
+	if(bild != IMG_LEER) {
+		const int raster_width = get_tile_raster_width();
+		xpos += tile_raster_scale_x(gib_xoff(), raster_width);
+		ypos += tile_raster_scale_y(gib_yoff()-flughoehe-hoff-2, raster_width);
+
+		// will be dirty
+		display_color_img(bild, xpos, ypos, gib_besitzer()->get_player_color(), true, get_flag(ding_t::dirty) );
+	}
 }

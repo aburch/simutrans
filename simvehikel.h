@@ -108,7 +108,9 @@ protected:
 
 public:
 	inline void setze_bild( image_id b ) { bild = b; }
-	image_id gib_bild() const {return bild;}	ribi_t::ribi calc_richtung(koord start, koord ende, sint8 &dx, sint8 &dy) const;
+	virtual image_id gib_bild() const {return bild;}
+
+	ribi_t::ribi calc_richtung(koord start, koord ende, sint8 &dx, sint8 &dy) const;
 
 	ribi_t::ribi gib_fahrtrichtung() const {return fahrtrichtung;}
 
@@ -160,9 +162,9 @@ private:
 	 */
 	virtual void calc_akt_speed(const grund_t *gr);
 
+protected:
 	void fahre();
 
-protected:
 	ribi_t::ribi alte_fahrtrichtung;
 
 	// for target reservation and search
@@ -271,7 +273,7 @@ public:
 	* Vom Convoi aufgerufen.
 	* @author Hj. Malthaner
 	*/
-	void sync_step();
+	virtual void sync_step();
 
 	void rauche();
 
@@ -574,6 +576,10 @@ public:
 class aircraft_t : public vehikel_t
 {
 private:
+	// just to mark dirty afterwards
+	sint16 old_x, old_y;
+	image_id old_bild;
+
 	// only used for ist_ziel() (do not need saving)
 	ribi_t::ribi approach_dir;
 #ifdef USE_DIFFERENT_WIND
@@ -627,7 +633,21 @@ public:
 	void rdwr(loadsave_t *file);
 	void rdwr(loadsave_t *file, bool force);
 
+	virtual void sync_step();
+
 	virtual int calc_height();
+
+	// since our image is the shadow ...
+	virtual image_id gib_bild() const {return IMG_LEER;}
+
+	// outline is the planes shadow
+	virtual PLAYER_COLOR_VAL gib_outline_bild() const {return bild;}
+
+	// shadow has black color
+	virtual PLAYER_COLOR_VAL gib_outline_colour() const {return TRANSPARENT75_FLAG | OUTLINE_FLAG | COL_BLACK;}
+
+	// this draws the "real" aircrafts!
+	virtual void display_after(int xpos, int ypos, bool dirty) const;
 
 	// the speed calculation happens it calc_height
 	void calc_akt_speed(const grund_t*) {}

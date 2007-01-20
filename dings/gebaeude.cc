@@ -341,7 +341,7 @@ gebaeude_t::gib_outline_colour() const
 	bool dirty = get_flag(ding_t::dirty);
 	if(umgebung_t::hide_buildings!=umgebung_t::NOT_HIDE) {
 		if(gib_haustyp()!=unbekannt) {
-			disp_colour = colours[0] | TRANSPARENT25_FLAG | OUTLINE_FLAG;
+			disp_colour = colours[0] | TRANSPARENT50_FLAG | OUTLINE_FLAG;
 		}
 		else if(umgebung_t::hide_buildings==umgebung_t::ALL_HIDDEN_BUIDLING  &&  tile->gib_besch()->gib_utyp()<hausbauer_t::weitere) {
 			// special bilding
