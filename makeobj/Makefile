@@ -7,8 +7,8 @@ OSTYPE = linux
 
 LN= $(CC)
 
-CFLAGS=-O
-CXXFLAGS=-O
+CFLAGS=-V 3.3 -O
+CXXFLAGS=-V 3.3 -O
 
 ifeq ($(OSTYPE),mingw)
 LDLIBS=-lmingw32 -lpng -lz -lstdc++

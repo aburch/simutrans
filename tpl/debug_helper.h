@@ -3,9 +3,16 @@
 
 #ifdef simdebug_h
 
+#ifdef __cplusplus
 #define ERROR dbg->error
 #define WARNING dbg->warning
 #define MESSAGE dbg->message
+
+#else
+#define ERROR c_out_error
+#define WARNING c_out_warning
+#define MESSAGE c_out_message
+#endif
 
 #ifdef __cplusplus
 extern "C" {
@@ -27,10 +34,6 @@ extern "C" {
 #ifdef __cplusplus
 }
 #endif
-
-//#define ERROR c_out_error
-//#define WARNING c_out_warning
-//#define MESSAGE c_out_message
 
 #endif
 
