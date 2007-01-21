@@ -292,6 +292,7 @@ weg_t::calc_bild()
 	if(from==NULL  ||  besch==NULL  ||  from->ist_tunnel()) {
 		// no ground, in tunnel
 		setze_bild(IMG_LEER);
+		return;
 	}
 	if(from->ist_bruecke()  &&  from->obj_bei(0)==this) {
 		// first way on a bridge (bruecke_t will set the image)
