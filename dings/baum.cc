@@ -216,7 +216,7 @@ const uint16
 baum_t::random_tree_for_climate(climate cl)
 {
 	vector_tpl<sint32>weights(baum_typen.get_count());
-	int weight = 0;
+	uint32 weight = 0;
 
 	for( unsigned i=0;  i<baum_typen.get_count();  i++  ) {
 		if (baum_typen[i]->is_allowed_climate(cl)) {
@@ -230,9 +230,11 @@ baum_t::random_tree_for_climate(climate cl)
 		const int w=simrand(weight);
 		weight = 0;
 		for( unsigned i=0; i<baum_typen.get_count();  i++  ) {
-			weight += weights[i];
-			if(weight>w) {
-				return i;
+			if (baum_typen[i]->is_allowed_climate(cl)) {
+				weight += weights[i];
+				if(weight>w) {
+					return i;
+				}
 			}
 		}
 	}

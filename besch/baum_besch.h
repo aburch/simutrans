@@ -44,7 +44,7 @@ class baum_besch_t : public obj_besch_std_name_t {
 	uint8		number_of_seasons;
 
 public:
-	int gib_distribution_weight() const { return distribution_weight; }
+	uint16 gib_distribution_weight() const { return distribution_weight; }
 
 	bool is_allowed_climate( climate cl ) const { return ((1<<cl)&allowed_climates)!=0; }
 
