@@ -605,23 +605,21 @@ stadtauto_t::hop()
 		else {
 			// turn around
 			fahrtrichtung = ribi_t::rueckwaerts(fahrtrichtung);
-			pos_next = gib_pos();
+			pos_next = gib_pos();//welt->lookup_kartenboden(gib_pos().gib_2d()+koord(fahrtrichtung))->gib_pos();
 			current_speed = 1;
 			dx = -dx;
 			dy = -dy;
 		}
 	}
 	else {
-		if(ribi==ribi_t::keine) {
-			ribi = weg->gib_ribi();
-		}
 		// add all good ribis here
+		ribi = weg->gib_ribi();
 		for(int r = 0; r < 4; r++) {
 			if(  (ribi&ribi_t::nsow[r])!=0  &&  from->get_neighbour(to, road_wt, koord::nsow[r])) {
 				// check, if this is just a single tile deep
 				weg_t *w=to->gib_weg(road_wt);
 				int next_ribi =  w->gib_ribi();
-				if((ribi&next_ribi)!=0  ||  !ribi_t::ist_einfach(next_ribi)) {
+				if((ribi&next_ribi)!=0  &&  !ribi_t::ist_einfach(next_ribi)) {
 					bool add=true;
 					// check, if roadsign forbid next step ...
 					if(w->has_sign()) {
@@ -643,6 +641,11 @@ stadtauto_t::hop()
 		}
 
 		if(liste.get_count()>1) {
+			// do not go back if there are other way out
+			liste.remove( welt->lookup(gib_pos()) );
+		}
+		// now we can decide
+		if(liste.get_count()>1) {
 #ifdef DESTINATION_CITYCARS
 			if(target!=koord::invalid) {
 				pos_next = liste.at_weight(simrand(liste.get_sum_weight()))->gib_pos();
@@ -654,11 +657,12 @@ stadtauto_t::hop()
 			}
 			fahrtrichtung = calc_richtung(gib_pos().gib_2d(), pos_next.gib_2d(), dx, dy);
 		} else if(liste.get_count()==1) {
+			// no chioce
 			fahrtrichtung = calc_richtung( pos_next.gib_2d(), liste[0]->gib_pos().gib_2d(), dx, dy);
 			pos_next = liste[0]->gib_pos();
 		}
 		else {
-			// destroy, since nowhere to go
+			// nowhere to go: destroy
 			time_to_life = 0;
 			return;
 		}
