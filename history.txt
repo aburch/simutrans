@@ -7,6 +7,7 @@ Known bugs: (hard to fix)
 	FIX: random_tree_for_climate was broken, and did return not always the right tree
 	FIX: unmark map ground during underground deletion
 	FIX: image for bridge ramps after reloading
+	FIX: citys continue also ways on upslopes
 
 
 Release of 99.07

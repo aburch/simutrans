@@ -2215,11 +2215,6 @@ bool stadt_t::baue_strasse(const koord k, spieler_t* sp, bool forced)
 		return false;
 	}
 
-	if (bd->gib_weg_hang() != bd->gib_grund_hang()) {
-		// tunnel or bridge ...
-		return false;
-	}
-
 	if (bd->gib_typ() != grund_t::boden) {
 		// not on monorails, foundations, tunnel or bridges
 		return false;
@@ -2273,7 +2268,7 @@ bool stadt_t::baue_strasse(const koord k, spieler_t* sp, bool forced)
 			if (bd2 == NULL || bd2->gib_typ() == grund_t::fundament) {
 				// not connecting to a building of course ...
 				allowed_dir &= ~ribi_t::nsow[r];
-			} else if (bd2->gib_weg_hang() != hang_t::flach && ribi_t::nsow[r] != ribi_typ(bd2->gib_grund_hang())) {
+			} else if (bd2->gib_typ()!=grund_t::boden  &&  ribi_t::nsow[r]!=ribi_typ(bd2->gib_grund_hang())) {
 				// not the same slope => tunnel or bridge
 				allowed_dir &= ~ribi_t::nsow[r];
 			} else if (bd2->hat_weg(road_wt)) {
