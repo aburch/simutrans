@@ -289,9 +289,12 @@ weg_t::calc_bild()
 	grund_t *from = welt->lookup(gib_pos());
 	grund_t *to;
 
-	if(from==NULL  ||  besch==NULL  ||  from->ist_tunnel()  ||  (from->ist_bruecke()  &&  from->obj_bei(0)==this)) {
-		// no ground, in tunnel or first way on a bridge (in the last case, bruecke_t will set the image)
+	if(from==NULL  ||  besch==NULL  ||  from->ist_tunnel()) {
+		// no ground, in tunnel
 		setze_bild(IMG_LEER);
+	}
+	if(from->ist_bruecke()  &&  from->obj_bei(0)==this) {
+		// first way on a bridge (bruecke_t will set the image)
 		return;
 	}
 

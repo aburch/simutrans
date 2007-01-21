@@ -594,7 +594,7 @@ grund_besch_t::gib_ground_tile(hang_t::typ slope, sint16 height )
 	if(h<0  ||  (h==0  &&  slope==hang_t::flach)) {
 		// deep water
 		const bildliste2d_besch_t *liste = static_cast<const bildliste2d_besch_t *>(sea->gib_kind(2));
-		int nr = min( 1-h, liste->gib_anzahl()-2 );
+		int nr = min( -h, liste->gib_anzahl()-2 );
 		return liste->gib_bild(nr,0)->gib_nummer();
 	}
 	else {

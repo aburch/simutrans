@@ -550,6 +550,8 @@ DBG_MESSAGE("wkz_remover()", "check ground");
 
 	if(gr!=plan->gib_kartenboden()  &&  gr->gib_top()==0) {
 DBG_MESSAGE("wkz_remover()", "removing ground");
+		// unmark kartenboden (is marked during underground mode deletion)
+		plan->gib_kartenboden()->clear_flag(grund_t::marked);
 		// remove upper or lower ground
 		plan->boden_entfernen(gr);
 	}
