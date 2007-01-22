@@ -573,6 +573,12 @@ stadtauto_t::hop()
 	grund_t *from = welt->lookup(pos_next);
 	grund_t *to;
 
+	if(from==NULL) {
+		time_to_life = 0;
+		dbg->error("stadtauto_t::hop()","citycar jumped on empty tile!");
+		return;
+	}
+
 	static weighted_vector_tpl<grund_t *> liste(4);
 	liste.clear();
 
@@ -640,10 +646,9 @@ stadtauto_t::hop()
 			}
 		}
 
-		if(liste.get_count()>1) {
-			// do not go back if there are other way out
-			liste.remove( welt->lookup(gib_pos()) );
-		}
+		// do not go back if there are other way out
+		liste.remove( welt->lookup(gib_pos()) );
+
 		// now we can decide
 		if(liste.get_count()>1) {
 #ifdef DESTINATION_CITYCARS
@@ -655,16 +660,26 @@ stadtauto_t::hop()
 			{
 				pos_next = liste[simrand(liste.get_count())]->gib_pos();
 			}
-			fahrtrichtung = calc_richtung(gib_pos().gib_2d(), pos_next.gib_2d(), dx, dy);
+			fahrtrichtung = calc_richtung( gib_pos().gib_2d(), pos_next.gib_2d(), dx, dy);
 		} else if(liste.get_count()==1) {
-			// no chioce
-			fahrtrichtung = calc_richtung( pos_next.gib_2d(), liste[0]->gib_pos().gib_2d(), dx, dy);
+			fahrtrichtung = calc_richtung( gib_pos().gib_2d(), liste[0]->gib_pos().gib_2d(), dx, dy);
 			pos_next = liste[0]->gib_pos();
 		}
 		else {
-			// nowhere to go: destroy
-			time_to_life = 0;
-			return;
+			to = welt->lookup(gib_pos());
+			if(to  &&  to->gib_weg(road_wt)) {
+				// turn around
+				fahrtrichtung = ribi_t::rueckwaerts(fahrtrichtung);
+				pos_next = gib_pos();//welt->lookup_kartenboden(gib_pos().gib_2d()+koord(fahrtrichtung))->gib_pos();
+				current_speed = 1;
+				dx = -dx;
+				dy = -dy;
+			}
+			else {
+				// nowhere to go: destroy
+				time_to_life = 0;
+				return;
+			}
 		}
 	}
 

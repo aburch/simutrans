@@ -45,7 +45,7 @@ label_t::label_t(karte_t *welt, koord3d pos, spieler_t *sp, const char *text) :
 				d->setze_besitzer(sp);
 			}
 		}
-		if(*text) {
+		if(text) {
 			char *txt = (char *)malloc(strlen(text)+1);
 			strcpy( txt, text );
 			gr->setze_text( txt );
