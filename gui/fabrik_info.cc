@@ -124,14 +124,10 @@ fabrik_info_t::fabrik_info_t(fabrik_t *fab, gebaeude_t *gb, karte_t *welt) :
 
 fabrik_info_t::~fabrik_info_t()
 {
-  delete [] lieferbuttons;
-  lieferbuttons = 0;
+	delete [] lieferbuttons;
 	delete [] supplierbuttons;
-  delete [] stadtbuttons;
-  stadtbuttons = 0;
-
-  delete about;
-  about = 0;
+	delete [] stadtbuttons;
+	delete about;
 }
 
 

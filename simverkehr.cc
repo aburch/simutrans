@@ -461,24 +461,22 @@ void stadtauto_t::rdwr(loadsave_t *file)
 bool
 stadtauto_t::ist_weg_frei()
 {
-	// no change, or invalid
-	if(pos_next==gib_pos()) {
-		return true;
+	const grund_t *gr;
+	weg_t *str;
+
+	// destroy on: no step, invalid position, no road below
+	if(pos_next==gib_pos()  ||  (gr = welt->lookup(pos_next))==NULL  ||  (str=gr->gib_weg(road_wt))==NULL) {
+		time_to_life = 0;
+		return false;
 	}
 
-	const grund_t *gr = welt->lookup(pos_next);
-	if(gr==NULL  ||  gr->gib_top()>20) {
-		return true;
+	if(gr->gib_top()>20) {
+		// already too many things here
+		return false;
 	}
-
-	weg_t *str=gr->gib_weg(road_wt);
-	if(!str) {
-		return true;
-	}
-
 
 	if(gr->hat_weg(track_wt)) {
-		// railway crossing/ Bahnuebergang
+		// railway crossing/ Bahnuebergang: waggons here
 		if(gr->suche_obj_ab(ding_t::waggon,2)) {
 			return false;
 		}
@@ -573,28 +571,11 @@ stadtauto_t::hop()
 	grund_t *from = welt->lookup(pos_next);
 	grund_t *to;
 
-	if(from==NULL) {
-		time_to_life = 0;
-		dbg->error("stadtauto_t::hop()","citycar jumped on empty tile!");
-		return;
-	}
-
 	static weighted_vector_tpl<grund_t *> liste(4);
 	liste.clear();
 
 	// 1) find the allowed directions
 	const weg_t *weg = from->gib_weg(road_wt);
-	if(weg==NULL) {
-		// no gound here any more?
-		pos_next = gib_pos();
-		to = welt->lookup(pos_next);
-		if(!to  ||  !to->hat_weg(road_wt)) {
-			// destroy it
-			time_to_life = 0;
-		}
-		return;
-	}
-
 	ribi_t::ribi ribi = weg->gib_ribi() & ribi_t::gib_forward(fahrtrichtung);
 	if(ribi_t::ist_einfach(ribi)  &&  from->get_neighbour(to, road_wt, koord(ribi))) {
 		// we should add here
@@ -647,7 +628,9 @@ stadtauto_t::hop()
 		}
 
 		// do not go back if there are other way out
-		liste.remove( welt->lookup(gib_pos()) );
+		if(liste.get_count()>1) {
+			liste.remove( welt->lookup(gib_pos()) );
+		}
 
 		// now we can decide
 		if(liste.get_count()>1) {
@@ -662,12 +645,7 @@ stadtauto_t::hop()
 			}
 			fahrtrichtung = calc_richtung( gib_pos().gib_2d(), pos_next.gib_2d(), dx, dy);
 		} else if(liste.get_count()==1) {
-			fahrtrichtung = calc_richtung( gib_pos().gib_2d(), liste[0]->gib_pos().gib_2d(), dx, dy);
-			pos_next = liste[0]->gib_pos();
-		}
-		else {
-			to = welt->lookup(gib_pos());
-			if(to  &&  to->gib_weg(road_wt)) {
+			if(liste[0]->gib_pos()==gib_pos()) {
 				// turn around
 				fahrtrichtung = ribi_t::rueckwaerts(fahrtrichtung);
 				pos_next = gib_pos();//welt->lookup_kartenboden(gib_pos().gib_2d()+koord(fahrtrichtung))->gib_pos();
@@ -676,10 +654,14 @@ stadtauto_t::hop()
 				dy = -dy;
 			}
 			else {
-				// nowhere to go: destroy
-				time_to_life = 0;
-				return;
+				fahrtrichtung = calc_richtung( gib_pos().gib_2d(), liste[0]->gib_pos().gib_2d(), dx, dy);
+				pos_next = liste[0]->gib_pos();
 			}
+		}
+		else {
+			// nowhere to go: destroy
+			time_to_life = 0;
+			return;
 		}
 	}
 
