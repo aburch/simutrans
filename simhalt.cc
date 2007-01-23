@@ -1932,10 +1932,7 @@ haltestelle_t::rdwr(loadsave_t *file)
 				grund_t *gr = welt->lookup(k);
 				if(!gr) {
 					gr = welt->lookup(k.gib_2d())->gib_kartenboden();
-					dbg->warning("haltestelle_t::rdwr()", "invalid position %s (setting to ground %s)\n",
-						(const char*)k3_to_cstr(k),
-						(const char*)k3_to_cstr(gr->gib_pos())
-					);
+					dbg->warning("haltestelle_t::rdwr()", "invalid position %s (setting to ground %s)\n", (const char*)k3_to_cstr(k), (const char*)k3_to_cstr(gr->gib_pos()) );
 				}
 				// prissi: now check, if there is a building -> we allow no longer ground without building!
 				gebaeude_t *gb = static_cast<gebaeude_t *>(gr->suche_obj(ding_t::gebaeude));
@@ -1951,91 +1948,87 @@ haltestelle_t::rdwr(loadsave_t *file)
 				dbg->warning("haltestelle_t::rdwr()", "illegal ground ignored!");
 			}
 		} while(k!=koord3d::invalid);
-    } else {
-	slist_iterator_tpl<grund_t*> gr_iter ( grund );
+	} else {
+		slist_iterator_tpl<grund_t*> gr_iter ( grund );
 
-	while(gr_iter.next()) {
-	    k = gr_iter.get_current()->gib_pos();
-	    k.rdwr( file );
+		while(gr_iter.next()) {
+			k = gr_iter.get_current()->gib_pos();
+			k.rdwr( file );
+		}
+		k = koord3d::invalid;
+		k.rdwr( file );
 	}
-	k = koord3d::invalid;
-	k.rdwr( file );
-    }
 
-    short count;
-    const char *s;
+	short count;
+	const char *s;
+	if(file->is_saving()) {
+		for(unsigned int i=0; i<warenbauer_t::gib_waren_anzahl(); i++) {
+			const ware_besch_t *ware = warenbauer_t::gib_info(i);
+			slist_tpl<ware_t> * wliste = waren.get(ware);
 
-    if(file->is_saving()) {
-      for(unsigned int i=0; i<warenbauer_t::gib_waren_anzahl(); i++) {
-	const ware_besch_t *ware = warenbauer_t::gib_info(i);
-	slist_tpl<ware_t> * wliste = waren.get(ware);
+			if(wliste) {
+				s = ware->gib_name();
+				file->rdwr_str(s, "N");
 
-	if(wliste) {
-	  s = ware->gib_name();
-	  file->rdwr_str(s, "N");
+				count = wliste ? wliste->count() : 0;
+				file->rdwr_short(count, " ");
+				if(wliste) {
+					slist_iterator_tpl<ware_t> wliste_iter(wliste);
+					while(wliste_iter.next()) {
+						ware_t ware = wliste_iter.get_current();
+						ware.rdwr(file);
+					}
+				}
+			}
+		}
+		s = "";
+		file->rdwr_str(s, "N");
 
-	  count = wliste ? wliste->count() : 0;
-	  file->rdwr_short(count, " ");
-	  if(wliste) {
-	    slist_iterator_tpl<ware_t> wliste_iter(wliste);
-	    while(wliste_iter.next()) {
-	      ware_t ware = wliste_iter.get_current();
-	      ware.rdwr(file);
-	    }
-	  }
+		count = warenziele.count();
+		file->rdwr_short(count, " ");
+
+		slist_iterator_tpl<warenziel_t>ziel_iter(warenziele);
+		while(ziel_iter.next()) {
+			warenziel_t wz = ziel_iter.get_current();
+			wz.rdwr(file);
+		}
+
+	} else {
+		// restoring all goods in the station
+		s = NULL;
+		file->rdwr_str(s, "N");
+		while(s && *s) {
+			const ware_besch_t *ware = warenbauer_t::gib_info(s);
+
+			file->rdwr_short(count, " ");
+			if(count) {
+				slist_tpl<ware_t> *wlist = new slist_tpl<ware_t>;
+
+				for(int i = 0; i < count; i++) {
+					ware_t ware(file);
+					if(ware.menge>0) {
+						wlist->insert(ware);
+					}
+				}
+				count = wlist->count();
+				if(count>0) {
+					waren.put(ware, wlist);
+				}
+			}
+			file->rdwr_str(s, "N");
+		}
+
+		// resoring connections ...
+		file->rdwr_short(count, " ");
+		for(int i=0; i<count; i++) {
+			warenziel_t wz (file);
+			warenziele.append(wz);
+		}
+		guarded_free(const_cast<char *>(s));
 	}
-      }
-      s = "";
-      file->rdwr_str(s, "N");
 
-
-      count = warenziele.count();
-      file->rdwr_short(count, " ");
-
-      slist_iterator_tpl<warenziel_t>ziel_iter(warenziele);
-      while(ziel_iter.next()) {
-	warenziel_t wz = ziel_iter.get_current();
-	wz.rdwr(file);
-      }
-
-    } else {
-      s = NULL;
-      file->rdwr_str(s, "N");
-      while(s && *s) {
-	const ware_besch_t *ware = warenbauer_t::gib_info(s);
-
-	file->rdwr_short(count, " ");
-	if(count) {
-	  slist_tpl<ware_t> *wlist = new slist_tpl<ware_t>;
-
-	  for(int i = 0; i < count; i++) {
-	    ware_t ware(file);
-	    if(ware.menge>0) {
-	    	wlist->insert(ware);
-	    }
-	  }
-	  count = wlist->count();
-	  if(count>0) {
-		  waren.put(ware, wlist);
-	}
-	}
-	file->rdwr_str(s, "N");
-      }
-
-      file->rdwr_short(count, " ");
-
-      for(int i=0; i<count; i++) {
-	warenziel_t wz (file);
-	warenziele.append(wz);
-      }
-
-      guarded_free(const_cast<char *>(s));
-    }
-
-	for (int j = 0; j<MAX_HALT_COST; j++)
-	{
-		for (int k = MAX_MONTHS-1; k>=0; k--)
-		{
+	for (int j = 0; j<MAX_HALT_COST; j++) {
+		for (int k = MAX_MONTHS-1; k>=0; k--) {
 			file->rdwr_longlong(financial_history[k][j], " ");
 		}
 	}
