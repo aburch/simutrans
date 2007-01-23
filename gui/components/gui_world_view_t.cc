@@ -15,7 +15,9 @@
 #include "../../simdings.h"
 #include "../../simgraph.h"
 #include "../../simcolor.h"
+#include "../../simvehikel.h"
 #include "../../boden/grund.h"
+#include "../../simdings.h"
 
 #include "../../dataobj/umgebung.h"
 #include "../../dataobj/koord3d.h"
@@ -89,7 +91,16 @@ world_view_t::zeichnen(koord offset)
 	const planquadrat_t * plan = welt->lookup(here);
 	if(plan  &&  plan->gib_kartenboden()) {
 		const koord gr=gib_groesse()-koord(2,2);
-		const int hgt = tile_raster_scale_y( plan->gib_kartenboden()->gib_hoehe()*TILE_HEIGHT_STEP/Z_TILE_STEP, raster );
+		int hgt;
+		if(!ding) {
+			hgt = tile_raster_scale_y( plan->gib_kartenboden()->gib_hoehe()*TILE_HEIGHT_STEP/Z_TILE_STEP, raster );
+		} else {
+			hgt = tile_raster_scale_y( ding->gib_pos().z*TILE_HEIGHT_STEP/Z_TILE_STEP, raster );
+			if(ding->gib_typ() == ding_t::aircraft) {
+				aircraft_t *plane =  dynamic_cast <aircraft_t *>(ding);
+				hgt += tile_raster_scale_y( plane->gib_flyingheight(), raster );
+			}
+		}
 		const koord pos = gib_pos()+offset+koord(1,1);
 
 		PUSH_CLIP(pos.x, pos.y, gr.x, gr.y);

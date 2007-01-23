@@ -9,6 +9,7 @@ Known bugs: (hard to fix)
 	FIX: image for bridge ramps after reloading
 	FIX: citys continue also ways on upslopes
 	FIX: citycars properly turning, when there is no entry or only one tile after a crossing
+	FIX: (kierongreen) trains in small window are now correctly followed over bridges
 
 
 Release of 99.07

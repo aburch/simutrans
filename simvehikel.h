@@ -637,6 +637,8 @@ public:
 
 	virtual int calc_height();
 
+	int gib_flyingheight() const {return flughoehe-hoff-2;}
+
 	// since our image is the shadow ...
 	virtual image_id gib_bild() const {return IMG_LEER;}
 

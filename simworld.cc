@@ -1617,13 +1617,13 @@ karte_t::sync_step(const long dt)
 		const koord new_pos=follow_convoi->gib_vehikel(0)->gib_pos().gib_2d();
 		const int rw=get_tile_raster_width();
 		const int new_xoff=tile_raster_scale_x(-follow_convoi->gib_vehikel(0)->gib_xoff(),rw);
-		const int new_yoff=tile_raster_scale_x(-follow_convoi->gib_vehikel(0)->gib_yoff(),rw)+tile_raster_scale_y(follow_convoi->gib_vehikel(0)->gib_pos().z,rw);
+		const int new_yoff=tile_raster_scale_y(-follow_convoi->gib_vehikel(0)->gib_yoff(),rw)+tile_raster_scale_y(follow_convoi->gib_vehikel(0)->gib_pos().z,rw);
 		if(new_pos!=old_pos  ||  new_xoff!=gib_x_off()  ||  new_yoff!=gib_y_off()) {
 			//position changed => update
 			ij_off = new_pos;
 			x_off = new_xoff;
 			y_off = new_yoff;
-	    setze_dirty();
+			setze_dirty();
 		}
 	}
 
