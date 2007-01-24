@@ -136,6 +136,12 @@ private:
 	*/
 	karte_t   *welt;
 
+ 	/**
+	* the convoi is being withdrawn from service
+	* @author kierongreen
+	*/
+	bool withdraw;
+
 	/**
 	* the convoi caches its freight info; it is only recalculation after loading or resorting
 	* @author prissi
@@ -734,6 +740,10 @@ public:
 	uint8 get_status_color() const;
 
 	bool has_obsolete_vehicles() const { return has_obsolete; }
+
+	bool get_withdraw() const { return withdraw; }
+
+	void set_withdraw(bool new_withdraw) { withdraw = new_withdraw; }
 };
 
 #endif

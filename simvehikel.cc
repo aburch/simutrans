@@ -78,17 +78,14 @@ static const uint8 offset_array[8] = {
 };
 
 
-static int get_freight_total(const slist_tpl<ware_t>* fracht)
+static uint16 get_freight_total(const slist_tpl<ware_t>* fracht)
 {
-  int menge = 0;
-
-  slist_iterator_tpl<ware_t> iter(fracht);
-
-  while(iter.next()) {
-    menge += iter.get_current().menge;
-  }
-
-  return menge;
+	uint16 menge = 0;
+	slist_iterator_tpl<ware_t> iter(fracht);
+	while(iter.next()) {
+		menge += iter.get_current().menge;
+	}
+	return menge;
 }
 
 
@@ -97,68 +94,61 @@ static int get_freight_total(const slist_tpl<ware_t>* fracht)
  * @return sum of unloaded goods
  * @author Hj. Malthaner
  */
-static int unload_freight(karte_t* welt, halthandle_t halt, slist_tpl<ware_t>* fracht, const ware_besch_t* fracht_typ)
+uint16
+vehikel_t::unload_freight(halthandle_t halt)
 {
-  assert(halt.is_bound());
-
-  int sum_menge = 0;
+	assert(halt.is_bound());
+	uint16 sum_menge = 0;
 
 	slist_tpl<ware_t> kill_queue;
+	if(halt->is_enabled( gib_fracht_typ() )) {
+		if (!fracht.empty()) {
 
-  if(halt->is_enabled( fracht_typ )) {
-    if (!fracht->empty()) {
+			slist_iterator_tpl<ware_t> iter (fracht);
+			while(iter.next()) {
+				const ware_t& tmp = iter.get_current();
 
-      slist_iterator_tpl<ware_t> iter (fracht);
+				assert(tmp.gib_ziel() != koord::invalid);
+				assert(tmp.gib_zwischenziel() != koord::invalid);
 
-      while(iter.next()) {
-	const ware_t& tmp = iter.get_current();
+				halthandle_t end_halt = haltestelle_t::gib_halt(welt, tmp.gib_ziel());
+				halthandle_t via_halt = haltestelle_t::gib_halt(welt, tmp.gib_zwischenziel());
 
-	assert(tmp.gib_ziel() != koord::invalid);
-	assert(tmp.gib_zwischenziel() != koord::invalid);
+				// probleme mit fehlerhafter ware
+				// vielleicht wurde zwischendurch die
+				// Zielhaltestelle entfernt ?
+				if(!end_halt.is_bound() || !via_halt.is_bound()) {
+					DBG_MESSAGE("vehikel_t::entladen()", "destination of %d %s is no longer reachable",tmp.menge,translator::translate(tmp.gib_name()));
+					kill_queue.insert(tmp);
+				} else if(end_halt == halt || via_halt == halt) {
 
-	halthandle_t end_halt = haltestelle_t::gib_halt(welt, tmp.gib_ziel());
-	halthandle_t via_halt = haltestelle_t::gib_halt(welt, tmp.gib_zwischenziel());
+					//		    printf("Liefere %d %s nach %s via %s an %s\n",
+					//                           tmp->menge,
+					//			   tmp->name(),
+					//			   end_halt->gib_name(),
+					//			   via_halt->gib_name(),
+					//			   halt->gib_name());
 
-	// probleme mit fehlerhafter ware
-	// vielleicht wurde zwischendurch die
-	// Zielhaltestelle entfernt ?
+					// hier sollte nur ordentliche ware verabeitet werden
+					int menge = halt->liefere_an(tmp);
+					sum_menge += menge;
 
-	if(!end_halt.is_bound() || !via_halt.is_bound()) {
-	  DBG_MESSAGE("vehikel_t::entladen()",
-		       "destination of %d %s is no longer reachable",
-		       tmp.menge,
-		       translator::translate(tmp.gib_name()));
+					kill_queue.insert(tmp);
 
-	  kill_queue.insert(tmp);
-	} else if(end_halt == halt || via_halt == halt) {
-
-	  //		    printf("Liefere %d %s nach %s via %s an %s\n",
-	  //                           tmp->menge,
-	  //			   tmp->name(),
-	  //			   end_halt->gib_name(),
-	  //			   via_halt->gib_name(),
-	  //			   halt->gib_name());
-
-	  // hier sollte nur ordentliche ware verabeitet werden
-	  int menge = halt->liefere_an(tmp);
-	  sum_menge += menge;
-
-	  kill_queue.insert(tmp);
-
-	  INT_CHECK("simvehikel 937");
+					INT_CHECK("simvehikel 937");
+				}
+			}
+		}
 	}
-      }
-    }
-  }
 
+	slist_iterator_tpl<ware_t> iter (kill_queue);
+	while( iter.next() ) {
+		total_freight -= iter.get_current().menge;
+		bool ok = fracht.remove(iter.get_current());
+		assert(ok);
+	}
 
-  slist_iterator_tpl<ware_t> iter (kill_queue);
-  while( iter.next() ) {
-    bool ok = fracht->remove(iter.get_current());
-    assert(ok);
-  }
-
-  return sum_menge;
+	return sum_menge;
 }
 
 
@@ -167,15 +157,14 @@ static int unload_freight(karte_t* welt, halthandle_t halt, slist_tpl<ware_t>* f
  * @return loading successful?
  * @author Hj. Malthaner
  */
-static bool load_freight(karte_t* welt, halthandle_t halt, slist_tpl<ware_t>* fracht, const vehikel_besch_t* besch, fahrplan_t* fpl)
+bool vehikel_t::load_freight(halthandle_t halt)
 {
 	const bool ok = halt->gibt_ab(besch->gib_ware());
-
+	fahrplan_t *fpl = cnv->gib_fahrplan();
 	if( ok ) {
-		int menge;
 
-		while((menge = get_freight_total(fracht)) < besch->gib_zuladung()) {
-			const int hinein = besch->gib_zuladung() - menge;
+		while(total_freight < besch->gib_zuladung()) {
+			const uint16 hinein = besch->gib_zuladung() - total_freight;
 
 			ware_t ware = halt->hole_ab(besch->gib_ware(), hinein, fpl);
 			if(ware.menge==0) {
@@ -197,6 +186,7 @@ static bool load_freight(karte_t* welt, halthandle_t halt, slist_tpl<ware_t>* fr
 				// for all others we *must* use target coordinates
 				if(tmp.gib_typ()==ware.gib_typ()  &&  (tmp.gib_zielpos()==ware.gib_zielpos()  ||  (is_pax   &&   haltestelle_t::gib_halt(welt,tmp.gib_ziel())==haltestelle_t::gib_halt(welt,ware.gib_ziel()))  )  ) {
 					tmp.menge += ware.menge;
+					total_freight += ware.menge;
 					ware.menge = 0;
 					break;
 				}
@@ -204,13 +194,13 @@ static bool load_freight(karte_t* welt, halthandle_t halt, slist_tpl<ware_t>* fr
 
 			// if != 0 we could not joi it to existing => load it
 			if(ware.menge != 0) {
-				fracht->insert(ware);
+				fracht.insert(ware);
+				total_freight += ware.menge;
 			}
 
 			INT_CHECK("simvehikel 876");
 		}
 	}
-
 	return ok;
 }
 
@@ -499,6 +489,7 @@ void vehikel_t::remove_stale_freight()
 	// if its target is somewhere on
 	// the new schedule, if not -> remove
 	slist_tpl<ware_t> kill_queue;
+	total_freight = 0;
 
 	if (!fracht.empty()) {
 		slist_iterator_tpl<ware_t> iter (fracht);
@@ -518,6 +509,9 @@ void vehikel_t::remove_stale_freight()
 
 			if (!found) {
 				kill_queue.insert(tmp);
+			}
+			else {
+				total_freight += tmp.menge;
 			}
 		}
 
@@ -612,6 +606,7 @@ vehikel_t::vehikel_t(karte_t *welt, koord3d pos, const vehikel_besch_t *besch, s
 	fahrtrichtung = ribi_t::keine;
 
 	current_friction = 4;
+	total_freight = 0;
 	sum_weight = besch->gib_gewicht();
 
 	ist_erstes = ist_letztes = false;
@@ -631,6 +626,7 @@ vehikel_t::vehikel_t(karte_t *welt) :
 	route_index = 1;
 	current_friction = 4;
 	sum_weight = 10;
+	total_freight = 0;
 
 	alte_fahrtrichtung = fahrtrichtung = ribi_t::keine;
 }
@@ -915,28 +911,21 @@ const char *vehikel_t::gib_fracht_mass() const
 }
 
 
-int vehikel_t::gib_fracht_menge() const
-{
-  return get_freight_total(&fracht);
-}
-
-
 /**
  * Berechnet Gesamtgewicht der transportierten Fracht in KG
  * @author Hj. Malthaner
  */
-int vehikel_t::gib_fracht_gewicht() const
+uint32 vehikel_t::gib_fracht_gewicht() const
 {
-  int weight = 0;
+	uint32 weight = 0;
 
-  slist_iterator_tpl<ware_t> iter(fracht);
-  while(iter.next()) {
-    weight +=
-      iter.get_current().menge *
-      iter.get_current().gib_typ()->gib_weight_per_unit();
-  }
-
-  return weight;
+	slist_iterator_tpl<ware_t> iter(fracht);
+	while(iter.next()) {
+		weight +=
+			iter.get_current().menge *
+			iter.get_current().gib_typ()->gib_weight_per_unit();
+	}
+	return weight;
 }
 
 
@@ -988,7 +977,7 @@ vehikel_t::loesche_fracht()
 bool
 vehikel_t::beladen(koord , halthandle_t halt)
 {
-	const bool ok= load_freight(welt, halt, &fracht, besch, cnv->gib_fahrplan());
+	const bool ok= load_freight(halt);
 	sum_weight =  (gib_fracht_gewicht()+499)/1000 + besch->gib_gewicht();
 
 	calc_bild();
@@ -1003,13 +992,12 @@ vehikel_t::beladen(koord , halthandle_t halt)
 bool vehikel_t::entladen(koord, halthandle_t halt)
 {
 	// printf("Vehikel %p entladen\n", this);
-	long menge = unload_freight(welt, halt, &fracht, gib_fracht_typ());
+	uint16 menge = unload_freight(halt);
 	if(menge>0) {
 		// add delivered goods to statistics
 		cnv->book(menge, CONVOI_TRANSPORTED_GOODS);
 		// add delivered goods to halt's statistics
 		halt->book(menge, HALT_ARRIVED);
-		// freight changed
 		return true;
 	}
 	return false;
@@ -1156,7 +1144,6 @@ DBG_MESSAGE("vehicle_t::rdwr()","bought at %i/%i.",(insta_zeit%12)+1,insta_zeit/
 				ware.setze_zwischenziel( gib_pos().gib_2d() );
 				ware.setze_zielpos( gib_pos().gib_2d() );
 				ware.rdwr(file);
-				//DBG_MESSAGE("rrddwwrr()","fracht count=%d",fracht_count);
 			}
 			else {
 				slist_iterator_tpl<ware_t> iter(fracht);
@@ -1188,6 +1175,12 @@ DBG_MESSAGE("vehicle_t::rdwr()","bought at %i/%i.",(insta_zeit%12)+1,insta_zeit/
 			calc_bild();
 			// full weight after loading
 			sum_weight =  (gib_fracht_gewicht()+499)/1000 + besch->gib_gewicht();
+		}
+		// recalc total freight
+		total_freight = 0;
+		slist_iterator_tpl<ware_t> iter(fracht);
+		while(iter.next()) {
+			total_freight += iter.get_current().menge;
 		}
 	}
 }
@@ -2546,6 +2539,15 @@ aircraft_t::aircraft_t(karte_t *welt, koord3d pos, const vehikel_besch_t *besch,
 	state = taxiing;
 	old_x = old_y = -1;
 	old_bild = IMG_LEER;
+}
+
+
+
+aircraft_t::~aircraft_t()
+{
+	// mark aircraft (after_image) dirty, since we have no "real" image
+	mark_image_dirty( bild, -flughoehe-hoff-2 );
+	mark_image_dirty( bild, 0 );
 }
 
 

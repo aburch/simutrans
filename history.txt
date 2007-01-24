@@ -10,6 +10,7 @@ Known bugs: (hard to fix)
 	FIX: citys continue also ways on upslopes
 	FIX: citycars properly turning, when there is no entry or only one tile after a crossing
 	FIX: (kierongreen) trains in small window are now correctly followed over bridges
+	ADD: (kierongreen) withdraw of convois i.e. convoi is sold after it is empty (and no freight is loaded) 'withdraw' and 'Convoi is sold when all wagons are empty.'
 
 
 Release of 99.07

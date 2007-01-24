@@ -103,6 +103,7 @@ void convoi_t::init(karte_t *wl, spieler_t *sp)
 
 	anz_vehikel = 0;
 	anz_ready = false;
+	withdraw = false;
 	wait_lock = 0;
 
 	jahresgewinn = 0;
@@ -460,7 +461,6 @@ convoi_t::sync_step(long delta_t)
 				halt->book(1, HALT_CONVOIS_ARRIVED);
 //DBG_MESSAGE("convoi_t::sync_step()","reached station at (%i,%i)",gr->gib_pos().x,gr->gib_pos().y);
 				state = LOADING;
-				calc_loading();
 			}
 			else {
 //DBG_MESSAGE("convoi_t::sync_step()","passed waypoint at (%i,%i)",gr->gib_pos().x,gr->gib_pos().y);
@@ -1629,7 +1629,13 @@ void convoi_t::laden()
 	INT_CHECK("simconvoi 1077");
 
 	// Nun wurde ein/ausgeladen werden
-	if(get_loading_level()>=get_loading_limit())  {
+	if(loading_level>=loading_limit  ||  withdraw)  {
+
+		if(withdraw  &&  loading_level==0) {
+			// destroy when empty
+			self_destruct();
+			return;
+		}
 
 		// add available capacity after loading(!) to statistics
 		for (unsigned i = 0; i<anz_vehikel; i++) {
@@ -1708,19 +1714,21 @@ void convoi_t::hat_gehalten(koord k, halthandle_t halt)
 	}
 
 	// only load vehicles in station
+	// don't load when vehicle is being withdrawn
 	for(unsigned i=0; i<anz_vehikel  &&  station_lenght>0; i++) {
 		vehikel_t* v = fahr[i];
 
 		freight_info_resort |= v->entladen(k, halt);
-		freight_info_resort |= v->beladen(k, halt);
+		if(!withdraw) {
+			// this convoi is going to be sold soon; do not load anymore
+			freight_info_resort |= v->beladen(k, halt);
+		}
 
 		station_lenght -= v->gib_besch()->get_length();
 	}
 
 	// any loading went on?
-	if(freight_info_resort) {
-		calc_loading();
-	}
+	calc_loading();
 	loading_limit = fpl->eintrag[fpl->aktuell].ladegrad;
 }
 
@@ -1751,7 +1759,7 @@ void convoi_t::calc_loading()
 		fracht_menge += v->gib_fracht_menge();
 	}
 	loading_level = fracht_max > 0 ? (fracht_menge*100)/fracht_max : 100;
-	loading_limit = 0;	// will be set correctly from laden() routine
+	loading_limit = 0;	// will be set correctly from hat_gehalten() routine
 }
 
 
@@ -1762,7 +1770,7 @@ void convoi_t::calc_loading()
  */
 void convoi_t::self_destruct()
 {
-  state = SELF_DESTRUCT;
+	state = SELF_DESTRUCT;
 }
 
 

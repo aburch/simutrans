@@ -603,7 +603,9 @@ void display_win(int win)
 {
 	gui_fenster_t *komp = wins[win].gui;
 	koord gr = komp->gib_fenstergroesse();
+	koord pos = wins[win].pos;
 	int titel_farbe = komp->get_titelcolor();
+	bool need_dragger = komp->get_resizemode() != gui_fenster_t::no_resize;
 
 	// %HACK (Mathew Hounsell) So draw will know if gadget is needed.
 	wins[win].flags.help = ( komp->gib_hilfe_datei() != NULL );
@@ -621,8 +623,8 @@ void display_win(int win)
 	komp->zeichnen(wins[win].pos, gr);
 
 	// dragger zeichnen
-	if(komp->get_resizemode() != gui_fenster_t::no_resize) {
-		win_draw_window_dragger(wins[win].pos, gr);
+	if(need_dragger) {
+		win_draw_window_dragger( pos, gr);
 	}
 }
 

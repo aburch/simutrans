@@ -162,6 +162,20 @@ private:
 	 */
 	virtual void calc_akt_speed(const grund_t *gr);
 
+	/**
+	 * Unload freight to halt
+	 * @return sum of unloaded goods
+	 * @author Hj. Malthaner
+	 */
+	uint16 unload_freight(halthandle_t halt);
+
+	/**
+	 * Load freight from halt
+	 * @return loading successful?
+	 * @author Hj. Malthaner
+	 */
+	bool load_freight(halthandle_t halt);
+
 protected:
 	void fahre();
 
@@ -193,6 +207,7 @@ protected:
 	const vehikel_besch_t *besch;
 
 	slist_tpl<ware_t> fracht;   // liste der gerade transportierten güter
+	uint16 total_freight;	// since the sum is needed quite often, it is chached
 
 	convoi_t *cnv;		// != NULL falls das vehikel zu einem Convoi gehoert
 
@@ -325,13 +340,13 @@ public:
 	/**
 	* berechnet die gesamtmenge der beförderten waren
 	*/
-	int gib_fracht_menge() const;
+	uint16 gib_fracht_menge() const { return total_freight; }
 
 	/**
 	* Berechnet Gesamtgewicht der transportierten Fracht in KG
 	* @author Hj. Malthaner
 	*/
-	int gib_fracht_gewicht() const;
+	uint32 gib_fracht_gewicht() const;
 
 	const char * gib_fracht_name() const;
 
@@ -343,7 +358,7 @@ public:
 	/**
 	* setzt die maximale Kapazitaet
 	*/
-	const int gib_fracht_max() const {return besch->gib_zuladung(); }
+	const uint16 gib_fracht_max() const {return besch->gib_zuladung(); }
 
 	const char * gib_fracht_mass() const;
 
@@ -606,6 +621,12 @@ protected:
 	bool find_route_to_stop_position();
 
 public:
+	aircraft_t(karte_t *welt, loadsave_t *file);
+	aircraft_t(karte_t *welt, koord3d pos, const vehikel_besch_t *besch, spieler_t *sp, convoi_t *cnv); // start und fahrplan
+
+	// since we are drawing ourselves, we must mark ourselves dirty during deletion
+	~aircraft_t();
+
 	virtual waytype_t gib_waytype() const { return air_wt; }
 
 	// returns true for the way search to an unknown target.
@@ -624,9 +645,6 @@ public:
 	bool calc_route(karte_t * welt, koord3d start, koord3d ziel, uint32 max_speed, route_t * route);
 
 	enum ding_t::typ gib_typ() const { return aircraft; }
-
-	aircraft_t(karte_t *welt, loadsave_t *file);
-	aircraft_t(karte_t *welt, koord3d pos, const vehikel_besch_t *besch, spieler_t *sp, convoi_t *cnv); // start und fahrplan
 
 	fahrplan_t * erzeuge_neuen_fahrplan() const;
 

@@ -42,10 +42,18 @@ convoi_detail_t::convoi_detail_t(convoihandle_t cnv)
 {
 	this->cnv = cnv;
 
-	sale_button.init(button_t::roundbox, "verkaufen", koord(BUTTON3_X, 14), koord(BUTTON_WIDTH,BUTTON_HEIGHT));
+	sale_button.init(button_t::roundbox, "verkaufen", koord(BUTTON4_X, 14), koord(BUTTON_WIDTH,BUTTON_HEIGHT));
 	sale_button.add_listener(this);
 	sale_button.set_tooltip("Remove vehicle from map. Use with care!");
 	add_komponente(&sale_button);
+
+	withdraw_button.setze_groesse(koord(BUTTON_WIDTH, BUTTON_HEIGHT));
+	withdraw_button.setze_pos(koord(BUTTON3_X,14));
+	withdraw_button.setze_text("withdraw");
+	withdraw_button.setze_typ(button_t::roundbox);
+	withdraw_button.set_tooltip("Convoi is sold when all wagons are empty.");
+	add_komponente(&withdraw_button);
+	withdraw_button.add_listener(this);
 
 	scrolly.setze_pos(koord(0, 64));
 	add_komponente(&scrolly);
@@ -69,13 +77,19 @@ convoi_detail_t::convoi_detail_t(convoihandle_t cnv)
 void
 convoi_detail_t::zeichnen(koord pos, koord gr)
 {
-	if(cnv.is_bound()) {
+	if(!cnv.is_bound()) {
+		destroy_win(dynamic_cast <gui_fenster_t *>(this));
+	}
+	else {
 		if(cnv->gib_besitzer()==cnv->gib_welt()->get_active_player()) {
+			withdraw_button.enable();
 			sale_button.enable();
 		}
 		else {
 			sale_button.disable();
+			withdraw_button.disable();
 		}
+		withdraw_button.pressed = cnv->get_withdraw();
 
 		// all gui stuff set => display it
 		veh_info.setze_groesse(koord(1,1));
@@ -108,8 +122,11 @@ convoi_detail_t::action_triggered(gui_komponente_t *komp,value_t /* */)         
 {
 	if(cnv.is_bound()) {
 		if(komp==&sale_button) {
-			destroy_win(dynamic_cast <gui_fenster_t *> (this));
 			cnv->self_destruct();
+			return true;
+		}
+		else if(komp==&withdraw_button) {
+			cnv->set_withdraw(!cnv->get_withdraw());
 			return true;
 		}
 	}
@@ -133,19 +150,6 @@ void convoi_detail_t::resize(const koord delta)
 gui_vehicleinfo_t::gui_vehicleinfo_t(convoihandle_t cnv)
 {
 	this->cnv = cnv;
-}
-
-
-/**
- * Events werden hiermit an die GUI-Komponenten
- * gemeldet
- * @author Hj. Malthaner
- */
-void gui_vehicleinfo_t::infowin_event(const event_t *ev)
-{
-	if(IS_LEFTRELEASE(ev) && cnv.is_bound()) {
-		// if there are further details, open dialog
-	}
 }
 
 

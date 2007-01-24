@@ -42,14 +42,6 @@ public:
      */
     gui_vehicleinfo_t(convoihandle_t cnv);
 
-
-    /**
-     * Events werden hiermit an die GUI-Komponenten
-     * gemeldet
-     * @author Hj. Malthaner
-     */
-    void infowin_event(const event_t *);
-
     /**
      * Zeichnet die Komponente
      * @author Hj. Malthaner
@@ -77,6 +69,7 @@ private:
 
 	convoihandle_t cnv;
 	button_t	sale_button;
+	button_t withdraw_button;
 
 public:
     convoi_detail_t(convoihandle_t cnv);
