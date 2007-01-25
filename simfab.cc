@@ -60,6 +60,8 @@
 static const int FAB_MAX_INPUT = 15000;
 
 
+
+
 fabrik_t * fabrik_t::gib_fab(const karte_t *welt, const koord pos)
 {
 	const grund_t *gr = welt->lookup_kartenboden(pos);
@@ -125,20 +127,41 @@ fabrik_t::fabrik_t(karte_t *wl, loadsave_t *file) : lieferziele(0), suppliers(0)
 
 fabrik_t::fabrik_t(karte_t *wl, koord3d pos, spieler_t *spieler, const fabrik_besch_t *fabesch) : lieferziele(0), suppliers(0), eingang(0), ausgang(0)
 {
-    this->pos = pos;
-    this->pos.z = wl->max_hgt(pos.gib_2d());
-    besch = fabesch;
+	this->pos = pos;
+	this->pos.z = wl->max_hgt(pos.gib_2d());
+	besch = fabesch;
 
-    welt = wl;
+	welt = wl;
 
-    besitzer_p = spieler;
-    prodfaktor = 16;
-    prodbase = 0;
+	besitzer_p = spieler;
+	prodfaktor = 16;
+	prodbase = 0;
 
 	delta_sum = 0;
-    last_lieferziel_start = 0;
+	last_lieferziel_start = 0;
 	total_input = total_output = 0;
 	status = nothing;
+
+	// create producer information
+	for(int i=0; i < fabesch->gib_lieferanten(); i++) {
+		const fabrik_lieferant_besch_t *lieferant = fabesch->gib_lieferant(i);
+		ware_production_t ware;
+		ware.setze_typ( lieferant->gib_ware() );
+		ware.max = lieferant->gib_kapazitaet() << fabrik_t::precision_bits;
+		ware.menge = 0;
+		eingang.append(ware,1);
+	}
+
+	// create consumer information
+	for(int i=0; i < fabesch->gib_produkte(); i++) {
+		const fabrik_produkt_besch_t *produkt = fabesch->gib_produkt(i);
+		ware_production_t ware;
+		ware.setze_typ( produkt->gib_ware() );
+		ware.max = produkt->gib_kapazitaet() << fabrik_t::precision_bits;
+		// if source then start with full storage (thus AI will built immeadiately lines)
+		ware.menge = (fabesch->gib_lieferanten()==0) ? ware.max-(16<<fabrik_t::precision_bits) : 0;
+		ausgang.append(ware,1);
+	}
 }
 
 
@@ -239,6 +262,8 @@ fabrik_t::sind_da_welche(karte_t *welt, koord min_pos, koord max_pos)
 	return fablist;
 }
 
+
+
 bool
 fabrik_t::ist_da_eine(karte_t *welt, koord min_pos, koord max_pos )
 {
@@ -252,6 +277,7 @@ fabrik_t::ist_da_eine(karte_t *welt, koord min_pos, koord max_pos )
 	}
 	return false;
 }
+
 
 
 void
@@ -280,17 +306,17 @@ DBG_DEBUG("fabrik_t::rdwr()","loading factory '%s'",s);
 		guarded_free(const_cast<char *>(s));
 		// set ware arrays ...
 		if(besch) {
-			vector_tpl<ware_t> e(besch->gib_lieferanten());
-			vector_tpl<ware_t> a(besch->gib_produkte());
-			set_eingang(e);
-			set_ausgang(a);
+			eingang.clear();
+			eingang.resize(besch->gib_lieferanten());
+			ausgang.clear();
+			ausgang.resize(besch->gib_produkte());
 		}
 		else {
 			// save defaults for loading only, factory will be ignored!
-			vector_tpl<ware_t> e(16);
-			vector_tpl<ware_t> a(10);
-			set_eingang(e);
-			set_ausgang(a);
+			eingang.clear();
+			eingang.resize(16);
+			ausgang.clear();
+			ausgang.resize(10);
 		}
 	}
 	pos.rdwr(file);
@@ -301,7 +327,7 @@ DBG_DEBUG("fabrik_t::rdwr()","loading factory '%s'",s);
 	// now rebuilt information for recieved goods
 	file->rdwr_long(eingang_count, "\n");
 	for(i=0; i<eingang_count; i++) {
-		ware_t dummy;
+		ware_production_t dummy;
 		const char *typ = NULL;
 
 		if(file->is_saving()) {
@@ -327,14 +353,14 @@ DBG_DEBUG("fabrik_t::rdwr()","loading factory '%s'",s);
 			if(dummy.menge > (FAB_MAX_INPUT << precision_bits)) {
 				dummy.menge = (FAB_MAX_INPUT << precision_bits);
 			}
-			eingang.append(dummy, 4);
+			eingang.append(dummy, 1);
 		}
 	}
 
 	// now rebuilt information for produced goods
 	file->rdwr_long(ausgang_count, "\n");
 	for(i=0; i<ausgang_count; i++) {
-		ware_t dummy;
+		ware_production_t dummy;
 		const char *typ = NULL;
 		int ab_sum;
 		int ab_letzt;
@@ -420,28 +446,6 @@ DBG_DEBUG("fabrik_t::rdwr()","correction of production by %i",k.x*k.y);
 		// clear everything, even though it might be something important ...
 		baue(rotate, true);
 	}
-}
-
-
-/**
- * setzt die Eingangswarentypen
- */
-void fabrik_t::set_eingang(vector_tpl<ware_t>& typen)
-{
-	swap(eingang, typen);
-}
-
-
-/**
- * setzt die Ausgangsswarentypen
- */
-void fabrik_t::set_ausgang(vector_tpl<ware_t>& typen)
-{
-	swap(ausgang, typen);
-	abgabe_sum.clear();
-	abgabe_sum.resize(ausgang.get_size(), 0);
-	abgabe_letzt.clear();
-	abgabe_letzt.resize(ausgang.get_size(), 0);
 }
 
 
@@ -846,19 +850,19 @@ fabrik_t::neuer_monat()
 
 
 
-static void info_add_ware_description(cbuffer_t & buf, const ware_t & ware)
+static void info_add_ware_description(cbuffer_t & buf, const ware_production_t & ware)
 {
   const ware_besch_t * type = ware.gib_typ();
 
   buf.append(" -");
-  buf.append(translator::translate(ware.gib_name()));
+  buf.append(translator::translate(type->gib_name()));
   buf.append(" ");
   buf.append(ware.menge >> fabrik_t::precision_bits);
   buf.append("/");
   buf.append(ware.max >> fabrik_t::precision_bits);
-  buf.append(translator::translate(ware.gib_mass()));
+  buf.append(translator::translate(type->gib_mass()));
 
-  if(ware.gib_catg() != 0) {
+  if(type->gib_catg() != 0) {
     buf.append(", ");
     buf.append(translator::translate(type->gib_catg_name()));
   }
@@ -1114,12 +1118,12 @@ void fabrik_t::info(cbuffer_t & buf)
     for (uint32 index = 0; index < eingang.get_count(); index++) {
 
       buf.append(" -");
-      buf.append(translator::translate(eingang[index].gib_name()));
+      buf.append(translator::translate(eingang[index].gib_typ()->gib_name()));
       buf.append(" ");
       buf.append(eingang[index].menge >> precision_bits);
       buf.append("/");
       buf.append(eingang[index].max >> precision_bits);
-      buf.append(translator::translate(eingang[index].gib_mass()));
+      buf.append(translator::translate(eingang[index].gib_typ()->gib_mass()));
       buf.append(", ");
       buf.append((int)(besch->gib_lieferant(index)->gib_verbrauch()*100/256));
       buf.append("%\n");
@@ -1130,7 +1134,6 @@ void fabrik_t::info(cbuffer_t & buf)
 void fabrik_t::laden_abschliessen()
 {
 	for(uint32 i=0; i<lieferziele.get_count(); i++) {
-		const koord lieferziel = lieferziele[i];
 		fabrik_t * fab2 = fabrik_t::gib_fab(welt, lieferziele[i]);
 		if (fab2) {
 			fab2->add_supplier(pos.gib_2d());

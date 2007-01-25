@@ -688,8 +688,7 @@ void haltestelle_t::liefere_an_fabrik(const ware_t& ware)
 	while(fab_iter.next()) {
 		fabrik_t * fab = fab_iter.get_current();
 
-		const vector_tpl<ware_t>& eingang = fab->gib_eingang();
-
+		const vector_tpl<ware_production_t>& eingang = fab->gib_eingang();
 		for (uint32 i = 0; i < eingang.get_count(); i++) {
 			if (eingang[i].gib_typ() == ware.gib_typ() && ware.gib_zielpos() == fab->gib_pos().gib_2d()) {
 				fab->liefere_an(ware.gib_typ(), ware.menge);

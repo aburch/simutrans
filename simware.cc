@@ -54,7 +54,6 @@ const char *ware_t::gib_mass() const
 ware_t::ware_t() : ziel(-1, -1), zwischenziel(-1, -1), zielpos(-1, -1)
 {
     menge = 0;
-    max = 0;
     type = 0;
 }
 
@@ -62,7 +61,6 @@ ware_t::ware_t() : ziel(-1, -1), zwischenziel(-1, -1), zielpos(-1, -1)
 ware_t::ware_t(const ware_besch_t *wtyp) : ziel(-1, -1), zwischenziel(-1, -1), zielpos(-1, -1)
 {
     menge = 0;
-    max = 0;
     type = wtyp;
 }
 
@@ -75,7 +73,6 @@ ware_t::ware_t(loadsave_t *file)
 ware_t::~ware_t()
 {
     menge = 0;
-    max = 0;
     type = 0;
 }
 
@@ -84,7 +81,10 @@ void
 ware_t::rdwr(loadsave_t *file)
 {
 	file->rdwr_long(menge, " ");
-	file->rdwr_long(max, " ");
+	if(file->get_version()<99008) {
+		sint32 max;
+		file->rdwr_long(max, " ");
+	}
 
 	const char *typ = NULL;
 	sint8 catg=0;

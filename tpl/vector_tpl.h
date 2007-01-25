@@ -33,8 +33,12 @@ template<class T> class vector_tpl
 			if (new_size <= size) return; // do nothing
 
 			T* new_data = new T[new_size];
-			for (uint32 i = 0; i < count; i++) new_data[i] = data[i];
-			delete [] data;
+			if(size>0) {
+				for (uint32 i = 0; i < count; i++) {
+					new_data[i] = data[i];
+				}
+				delete [] data;
+			}
 			size = new_size;
 			data = new_data;
 		}

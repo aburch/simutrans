@@ -1833,9 +1833,9 @@ DBG_MESSAGE("spieler_t::baue_bahnhof","set pos *p %i,%i to %i,%i",p->x,p->y,t.x,
  * @author prissi
  */
 int
-spieler_t::rating_transport_quelle_ziel(fabrik_t *qfab,const ware_t *ware,fabrik_t *zfab)
+spieler_t::rating_transport_quelle_ziel(fabrik_t *qfab,const ware_production_t *ware,fabrik_t *zfab)
 {
-	const vector_tpl<ware_t>& eingang = zfab->gib_eingang();
+	const vector_tpl<ware_production_t>& eingang = zfab->gib_eingang();
 	// we may have more than one input:
 	unsigned missing_input_ware=0;
 	unsigned missing_our_ware=0;
@@ -1893,7 +1893,7 @@ DBG_MESSAGE("spieler_t::rating_transport_quelle_ziel","Missing our %i, total  mi
  * @author prissi
  */
 int
-spieler_t::guess_gewinn_transport_quelle_ziel(fabrik_t *qfab,const ware_t *ware,int ware_nr, fabrik_t *zfab)
+spieler_t::guess_gewinn_transport_quelle_ziel(fabrik_t *qfab,const ware_production_t *ware,int ware_nr, fabrik_t *zfab)
 {
 	int gewinn=-1;
 	// more checks
@@ -1909,7 +1909,7 @@ spieler_t::guess_gewinn_transport_quelle_ziel(fabrik_t *qfab,const ware_t *ware,
 		// wenn andere fahrzeuge genutzt werden muss man die werte anpassen
 		// da aber später genau berechnet wird, welche Fahrzeuge am günstigsten sind => grobe schätzung ok!
 		const int dist = abs(zfab->gib_pos().x - qfab->gib_pos().x) + abs(zfab->gib_pos().y - qfab->gib_pos().y);
-		const int grundwert = ware->gib_preis();	// assume 3 cent per square mantenance
+		const int grundwert = ware->gib_typ()->gib_preis();	// assume 3 cent per square mantenance
 		if( dist > 6) {                          // sollte vernuenftige Entfernung sein
 
 			// wie viel koennen wir tatsaechlich transportieren
@@ -1967,12 +1967,11 @@ DBG_MESSAGE("spieler_t::suche_transport_quelle","Search other %i supplier for: %
 			}
 			fabrik_t * start_neu = dt->get_fabrik();
 			// get all ware
-			const vector_tpl<ware_t>& ausgang = zfab->gib_ausgang();
+			const vector_tpl<ware_production_t>& ausgang = zfab->gib_ausgang();
 			const int waren_anzahl = ausgang.get_count();
 			// for all products
 			for(int ware_nr=0;  ware_nr<waren_anzahl ;  ware_nr++  ) {
-				const ware_t& ware = ausgang[ware_nr];
-				int dieser_gewinn = guess_gewinn_transport_quelle_ziel( start_neu, &ware, ware_nr, zfab );
+				int dieser_gewinn = guess_gewinn_transport_quelle_ziel( start_neu, &ausgang[ware_nr], ware_nr, zfab );
 				// more income on this line
 				if(  dieser_gewinn>gewinn  ) {
 					*qfab = start_neu;
@@ -2006,14 +2005,14 @@ int spieler_t::suche_transport_ziel(fabrik_t *qfab, int *quelle_ware, fabrik_t *
 		return -1;
 	}
 
-	const vector_tpl<ware_t>& ausgang = qfab->gib_ausgang();
+	const vector_tpl<ware_production_t>& ausgang = qfab->gib_ausgang();
 
 	// ist es ein erzeuger ?
 	const int waren_anzahl = ausgang.get_count();
 
 	// for all products
 	for(int ware_nr=0;  ware_nr<waren_anzahl ;  ware_nr++  ) {
-		const ware_t& ware = ausgang[ware_nr];
+		const ware_production_t& ware = ausgang[ware_nr];
 
 		// hat es schon etwas produziert ?
 		if(ware.menge < ware.max/4) {

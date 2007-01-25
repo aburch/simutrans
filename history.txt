@@ -12,6 +12,7 @@ Known bugs: (hard to fix)
 	FIX: (kierongreen) trains in small window are now correctly followed over bridges
 	ADD: (kierongreen) withdraw of convois i.e. convoi is sold after it is empty (and no freight is loaded) 'withdraw' and 'Convoi is sold when all wagons are empty.'
 	ADD: (kierongreen) no loading button to convoi info window added for manual control of a convois state
+	CHANGE: shrank ware_t by four bytes
 
 
 Release of 99.07

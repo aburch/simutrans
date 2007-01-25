@@ -1815,7 +1815,6 @@ void stadt_t::check_bau_rathaus(bool new_town)
 		// Strasse davor verlegen
 		k = koord(0, besch->gib_h(layout));
 		for (k.x = 0; k.x < besch->gib_b(layout); k.x++) {
-			const grund_t* gr = welt->lookup(best_pos + k)->gib_kartenboden();
 			if (baue_strasse(best_pos + k, NULL, true)) {
 				;
 			} else if(k.x==0) {

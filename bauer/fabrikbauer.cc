@@ -403,33 +403,6 @@ fabrik_t *
 fabrikbauer_t::baue_fabrik(karte_t * welt, koord3d *parent, const fabrik_besch_t *info, int rotate, koord3d pos, spieler_t *spieler)
 {
 	fabrik_t * fab = new fabrik_t(welt, pos, spieler, info);
-	int i;
-
-	// create producer information
-	vector_tpl<ware_t> eingang(info->gib_lieferanten());
-	for(i=0; i < info->gib_lieferanten(); i++) {
-		const fabrik_lieferant_besch_t *lieferant = info->gib_lieferant(i);
-		ware_t ware(lieferant->gib_ware());
-		ware.max = lieferant->gib_kapazitaet() << fabrik_t::precision_bits;
-		eingang.append(ware);
-	}
-	fab->set_eingang(eingang);
-
-	// create consumer information
-	vector_tpl<ware_t> ausgang(info->gib_produkte());
-	for(i=0; i < info->gib_produkte(); i++) {
-		const fabrik_produkt_besch_t *produkt = info->gib_produkt(i);
-		ware_t ware(produkt->gib_ware());
-
-		ware.max = produkt->gib_kapazitaet() << fabrik_t::precision_bits;
-		if(info->gib_lieferanten()==0) {
-			// if source then start with full storage (thus AI will built immeadiately lines)
-			// @author prissi
-			ware.menge = ware.max-(16<<fabrik_t::precision_bits);
-		}
-		ausgang.append(ware);
-	}
-	fab->set_ausgang(ausgang);
 
 	// set production
 	fab->set_prodfaktor( 16 );

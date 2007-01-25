@@ -33,7 +33,6 @@ private:
 
 public:
     sint32 menge;
-    sint32 max;
 
     koord gib_ziel() const { return ziel; }
     void setze_ziel(koord ziel) { this->ziel = ziel; }
@@ -68,7 +67,7 @@ public:
     int operator==(const ware_t &w) {
 	return type  == w.type  &&
                menge == w.menge &&
-               max   == w.max   &&
+//               max   == w.max   &&
                ziel  == w.ziel  &&
                zwischenziel == w.zwischenziel &&
                zielpos      == w.zielpos;

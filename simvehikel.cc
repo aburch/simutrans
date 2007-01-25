@@ -1139,7 +1139,6 @@ DBG_MESSAGE("vehicle_t::rdwr()","bought at %i/%i.",(insta_zeit%12)+1,insta_zeit/
 				// create dummy freight for savegame compatibility
 				ware_t ware( besch->gib_ware() );
 				ware.menge = 0;
-				ware.max = besch->gib_zuladung();
 				ware.setze_ziel( gib_pos().gib_2d() );
 				ware.setze_zwischenziel( gib_pos().gib_2d() );
 				ware.setze_zielpos( gib_pos().gib_2d() );

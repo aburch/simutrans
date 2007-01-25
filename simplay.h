@@ -52,6 +52,7 @@ class gebaeude_t;
 class koord3d;
 class money_frame_t;
 class schedule_list_gui_t;
+class ware_production_t;
 
 /**
  * Spieler in Simutrans. Diese Klasse enthält Routinen für die KI
@@ -243,8 +244,8 @@ private:
     /* these two routines calculate the income
      * @author prissi
      */
-    int rating_transport_quelle_ziel(fabrik_t *qfab,const ware_t *ware,fabrik_t *zfab);
-    int guess_gewinn_transport_quelle_ziel(fabrik_t *qfab,const ware_t *ware, int qware_nr, fabrik_t *zfab);
+    int rating_transport_quelle_ziel(fabrik_t *qfab,const ware_production_t *ware,fabrik_t *zfab);
+    int guess_gewinn_transport_quelle_ziel(fabrik_t *qfab,const ware_production_t *ware, int qware_nr, fabrik_t *zfab);
 
     /* These two routines calculate, which route next
      * @author Hj. Malthaner

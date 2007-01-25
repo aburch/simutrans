@@ -38,6 +38,19 @@ class stadt_t;
 // up to this distance, factories will be connected to their towns ...
 #define CONNECT_TO_TOWN_SQUARE_DISTANCE 5000
 
+// to prepare for 64 precision ...
+class ware_production_t
+{
+private:
+    const ware_besch_t *type;
+public:
+    const ware_besch_t* gib_typ() const { return type; }
+    void setze_typ(const ware_besch_t *t) { type=t; }
+    sint32 menge;
+    sint32 max;
+};
+
+
 /**
  * Eine Klasse für Fabriken in Simutrans. Fabriken produzieren und
  * verbrauchen Waren und beliefern nahe Haltestellen.
@@ -108,8 +121,8 @@ private:
 	 */
 	sint32 prodfaktor;
 
-	vector_tpl<ware_t> eingang; //< das einganslagerfeld
-	vector_tpl<ware_t> ausgang; //< das ausgangslagerfeld
+	vector_tpl<ware_production_t> eingang; //< das einganslagerfeld
+	vector_tpl<ware_production_t> ausgang; //< das ausgangslagerfeld
 
 	/**
 	 * bisherige abgabe in diesem monat pro ware
@@ -264,21 +277,11 @@ public:
 	void baue(sint32 rotate, bool clear);
 
 	/**
-	 * setzt die Eingangswarentypen
-	 *
+	 * total and current procduction/storage values
 	 * @author Hj. Malthaner
 	 */
-	void set_eingang(vector_tpl<ware_t>& typen);
-	const vector_tpl<ware_t>& gib_eingang() const { return eingang; }
-
-	/**
-	 * setzt die Ausgangsswarentypen
-	 *
-	 * @author Hj. Malthaner
-	 */
-	void set_ausgang(vector_tpl<ware_t>& typen);
-	const vector_tpl<ware_t>& gib_ausgang() const { return ausgang; }
-
+	const vector_tpl<ware_production_t>& gib_eingang() const { return eingang; }
+	const vector_tpl<ware_production_t>& gib_ausgang() const { return ausgang; }
 
 	/**
 	 * Produktionsgrundmenge
