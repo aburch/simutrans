@@ -1038,7 +1038,8 @@ DBG_DEBUG("haltestelle_t::rem_grund()","remove also floor, count=%i",grund.count
 			verbinde_fabriken();
 		}
 		else {
-			free( (void *)tmp );
+			//### memory leak (but crash if present?!?!)
+			// free( (void *)tmp );
 			slist_iterator_tpl <fabrik_t *> iter(fab_list);
 			while( iter.next() ) {
 				iter.get_current()->unlink_halt(self);

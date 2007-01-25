@@ -17,7 +17,6 @@
 
 #include "tpl/slist_tpl.h"
 #include "tpl/vector_tpl.h"
-#include "tpl/array_tpl.h"
 #include "besch/fabrik_besch.h"
 #include "halthandle_t.h"
 #include "simworld.h"
@@ -46,8 +45,10 @@ private:
 public:
     const ware_besch_t* gib_typ() const { return type; }
     void setze_typ(const ware_besch_t *t) { type=t; }
-    sint32 menge;
+    sint32 menge;	// in internal untis shifted by precision (see produktion)
     sint32 max;
+		sint32 abgabe_sum;	// total this month (in units)
+		sint32 abgabe_letzt;	// total last month (in units)
 };
 
 
@@ -123,18 +124,6 @@ private:
 
 	vector_tpl<ware_production_t> eingang; //< das einganslagerfeld
 	vector_tpl<ware_production_t> ausgang; //< das ausgangslagerfeld
-
-	/**
-	 * bisherige abgabe in diesem monat pro ware
-	 * @author Hj. Malthaner
-	 */
-	array_tpl<sint32> abgabe_sum;
-
-	/**
-	 * abgabe im letzten monat pro ware
-	 * @author Hj. Malthaner
-	 */
-	array_tpl<sint32> abgabe_letzt;
 
 	/**
 	 * Zeitakkumulator für Produktion
@@ -223,7 +212,7 @@ public:
 	sint32 hole_ab(const ware_besch_t *, sint32 menge );     // jemand will waren abholen
 	sint32 liefere_an(const ware_besch_t *, sint32 menge);
 
-	sint32 gib_abgabe_letzt(sint32 t) { return abgabe_letzt[t]; }
+	sint32 gib_abgabe_letzt(sint32 t) { return ausgang[t].abgabe_letzt; }
 
 	void step(long delta_t);                  // fabrik muss auch arbeiten
 	void neuer_monat();

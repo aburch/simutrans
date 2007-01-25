@@ -13,7 +13,7 @@
 
 #include "../besch/ware_besch.h"
 
-#include "../tpl/slist_tpl.h"
+#include "../tpl/vector_tpl.h"
 #include "../tpl/stringhashtable_tpl.h"
 
 class ware_besch_t;
@@ -27,7 +27,7 @@ class warenbauer_t
 {
 private:
 	static stringhashtable_tpl<const ware_besch_t *> besch_names;
-	static slist_tpl<ware_besch_t *> waren;
+	static vector_tpl<ware_besch_t *> waren;
 
 	static ware_besch_t *load_passagiere;
 	static ware_besch_t *load_post;
@@ -52,7 +52,7 @@ public:
 
 	static const ware_besch_t *gib_info(unsigned int idx)
 	{
-		return waren.at(idx);
+		return waren[idx];
 	}
 
 	static bool ist_fabrik_ware(const ware_besch_t *ware)
@@ -67,7 +67,7 @@ public:
 
 	static unsigned int gib_waren_anzahl()
 	{
-		return waren.count();
+		return waren.get_count();
 	}
 
 	// ware by catg
