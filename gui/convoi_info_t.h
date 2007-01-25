@@ -46,6 +46,7 @@ private:
 	button_t button;
 	button_t follow_button;
 	button_t go_home_button;
+	button_t no_load_button;
 	button_t filterButtons[7];
 
 	button_t sort_button;

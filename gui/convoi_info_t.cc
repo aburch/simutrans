@@ -167,6 +167,14 @@ convoi_info_t::convoi_info_t(convoihandle_t cnv)
 	add_komponente(&go_home_button);
 	go_home_button.add_listener(this);
 
+	no_load_button.setze_groesse(koord(BUTTON_WIDTH, BUTTON_HEIGHT));
+	no_load_button.setze_pos(koord(BUTTON3_X,76));
+	no_load_button.setze_text("no load");
+	no_load_button.setze_typ(button_t::roundbox);
+	no_load_button.set_tooltip("No goods are loaded onto this convoi.");
+	add_komponente(&no_load_button);
+	no_load_button.add_listener(this);
+
 	follow_button.setze_groesse(koord(66, BUTTON_HEIGHT));
 	follow_button.setze_text("follow me");
 	follow_button.setze_typ(button_t::roundbox_state);
@@ -201,10 +209,13 @@ convoi_info_t::zeichnen(koord pos, koord gr)
 			button.enable();
 			go_home_button.pressed = route_search_in_progress;
 			go_home_button.enable();
+			no_load_button.pressed = cnv->get_no_load();
+			no_load_button.enable();
 		}
 		else {
 			button.disable();
 			go_home_button.disable();
+			no_load_button.disable();
 		}
 		follow_button.pressed = (cnv->gib_welt()->get_follow_convoi()==cnv);
 
@@ -309,6 +320,15 @@ bool convoi_info_t::action_triggered(gui_komponente_t *komp,value_t /* */)
 		if(komp == &button)     //Fahrplan
 		{
 			cnv->open_schedule_window();
+			return true;
+		}
+
+		if(komp == &no_load_button  &&  !route_search_in_progress)
+		{
+			cnv->set_no_load(!cnv->get_no_load());
+			if(!cnv->get_no_load()) {
+				cnv->set_withdraw(false);
+			}
 			return true;
 		}
 

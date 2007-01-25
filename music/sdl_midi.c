@@ -14,10 +14,10 @@
 #include <SDL_mixer.h>
 
 static int midi_number = -1;
-int finished_current = 0;
 
 char *midi_filenames[MAX_MIDI];
-Mix_Music *music[MAX_MIDI];
+//Mix_Music *music[MAX_MIDI];
+Mix_Music *music = NULL;
 
 /**
  * sets midi playback volume
@@ -39,23 +39,18 @@ int dr_load_midi(const char * filename)
 		const int i = midi_number + 1;
 
 		if(i >= 0 && i < MAX_MIDI) {
-			music[i] = NULL;
-
-			// just to make sure that we are loading from correct directory...
-			char filename2[255];
-			sprintf(filename2,"./%s",filename);
-			music[i] = Mix_LoadMUS(filename2);
-			if(music[i]) {
+			music = Mix_LoadMUS(filename);
+			if(music) {
 				midi_number = i;
+				midi_filenames[i] = malloc( strlen(filename) + 2 );
+
+				strcpy(midi_filenames[i], filename);
 			}
+			Mix_FreeMusic(music);
+			music = NULL;
 		}
 	}
 	return midi_number;
-}
-
-/** sets finished flag **/
-void music_finished(void) {
-	finished_current = 1;
 }
 
 /**
@@ -64,11 +59,11 @@ void music_finished(void) {
  */
 void dr_play_midi(int key)
 {
-	Mix_PlayMusic(music[key], 1);
-
-	// when we are finished playing this file set the finished flag
-	Mix_HookMusicFinished(music_finished);
-	finished_current = 0;
+	if(dr_midi_pos()!= -1) {
+		dr_stop_midi();
+	}
+	music = Mix_LoadMUS(midi_filenames[key]);
+	Mix_PlayMusic(music, 1);
 }
 
 
@@ -78,7 +73,11 @@ void dr_play_midi(int key)
  */
 void dr_stop_midi(void)
 {
-	Mix_HaltMusic();
+	if(music) {
+		Mix_HaltMusic();
+		Mix_FreeMusic(music);
+		music = NULL;
+	}
 }
 
 
@@ -90,10 +89,11 @@ void dr_stop_midi(void)
  */
 long dr_midi_pos(void)
 {
-	if(finished_current == 1) {
+	if(Mix_PlayingMusic()== 0) {
 		return -1;
+	} else {
+		return 0;
 	}
-	return 0;
 }
 
 
@@ -103,6 +103,8 @@ long dr_midi_pos(void)
  */
 void dr_destroy_midi(void)
 {
+	dr_stop_midi();
+	midi_number = -1;
 }
 
 

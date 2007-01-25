@@ -104,6 +104,7 @@ void convoi_t::init(karte_t *wl, spieler_t *sp)
 	anz_vehikel = 0;
 	anz_ready = false;
 	withdraw = false;
+	no_load = false;
 	wait_lock = 0;
 
 	jahresgewinn = 0;
@@ -1629,7 +1630,7 @@ void convoi_t::laden()
 	INT_CHECK("simconvoi 1077");
 
 	// Nun wurde ein/ausgeladen werden
-	if(loading_level>=loading_limit  ||  withdraw)  {
+	if(loading_level>=loading_limit  ||  no_load)  {
 
 		if(withdraw  &&  loading_level==0) {
 			// destroy when empty
@@ -1719,8 +1720,8 @@ void convoi_t::hat_gehalten(koord k, halthandle_t halt)
 		vehikel_t* v = fahr[i];
 
 		freight_info_resort |= v->entladen(k, halt);
-		if(!withdraw) {
-			// this convoi is going to be sold soon; do not load anymore
+		if(!no_load) {
+			// do not load anymore
 			freight_info_resort |= v->beladen(k, halt);
 		}
 

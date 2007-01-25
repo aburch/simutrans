@@ -127,6 +127,7 @@ convoi_detail_t::action_triggered(gui_komponente_t *komp,value_t /* */)         
 		}
 		else if(komp==&withdraw_button) {
 			cnv->set_withdraw(!cnv->get_withdraw());
+			cnv->set_no_load(cnv->get_withdraw());
 			return true;
 		}
 	}

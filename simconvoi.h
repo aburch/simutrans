@@ -142,6 +142,12 @@ private:
 	*/
 	bool withdraw;
 
+ 	/**
+	* nothing will be loaded onto this convoi
+	* @author kierongreen
+	*/
+	bool no_load;
+
 	/**
 	* the convoi caches its freight info; it is only recalculation after loading or resorting
 	* @author prissi
@@ -744,6 +750,10 @@ public:
 	bool get_withdraw() const { return withdraw; }
 
 	void set_withdraw(bool new_withdraw) { withdraw = new_withdraw; }
+
+	bool get_no_load() const { return no_load; }
+
+	void set_no_load(bool new_no_load) { no_load = new_no_load; }
 };
 
 #endif
