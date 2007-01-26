@@ -52,7 +52,11 @@ void gui_convoiinfo_t::infowin_event(const event_t *ev)
 	if(cnv.is_bound()) {
 		if(IS_LEFTRELEASE(ev)) {
 			if(cnv->in_depot()) {
-				cnv->gib_welt()->lookup(cnv->get_home_depot())->gib_depot()->zeige_info();
+				grund_t *gr = cnv->gib_welt()->lookup(cnv->gib_vehikel(0)->gib_pos());
+				if(gr==NULL  ||  gr->gib_depot()==NULL) {
+					gr = cnv->gib_welt()->lookup(cnv->get_home_depot());
+				}
+				gr->gib_depot()->zeige_info();
 			}
 			else {
 				cnv->zeige_info();
