@@ -14,6 +14,7 @@ Known bugs: (hard to fix)
 	ADD: (kierongreen) no loading button to convoi info window added for manual control of a convois state
 	CHANGE: shrank ware_t by four bytes
 	FIX: crash when click on vehicle thas is in a different depot than its home depot
+	FIX: (kierongreen) underground mode resets not grid mode
 
 
 Release of 99.07

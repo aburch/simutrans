@@ -714,7 +714,7 @@ grund_t::display_boden( const sint16 xpos, const sint16 ypos) const
 		display_img(gib_bild(), xpos, ypos, dirty);
 
 		// we show additionally a grid
-		if(show_grid  &&  gib_typ()!=wasser) {
+		if((show_grid || underground_mode) &&  gib_typ()!=wasser) {
 			uint8 hang = gib_grund_hang();
 			uint8 back_hang = (hang&1) + ((hang>>1)&6);
 			display_img(grund_besch_t::borders->gib_bild(back_hang), xpos, ypos, dirty);

@@ -200,7 +200,7 @@ public:
 	/**
 	 * Toggle ground grid display (now only a flag)
 	 */
-	static void toggle_underground_mode() { grund_t::underground_mode = !grund_t::underground_mode; grund_t::show_grid = grund_t::underground_mode; }
+	static void toggle_underground_mode() { grund_t::underground_mode = !grund_t::underground_mode; }
 
 	karte_t *gib_welt() const {return welt;}
 
