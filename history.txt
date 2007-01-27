@@ -15,6 +15,7 @@ Known bugs: (hard to fix)
 	CHANGE: shrank ware_t by four bytes
 	FIX: crash when click on vehicle thas is in a different depot than its home depot
 	FIX: (kierongreen) underground mode resets not grid mode
+	FIX: (kierongreen) height on slope during follow convoi was jumping
 
 
 Release of 99.07
