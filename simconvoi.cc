@@ -10,6 +10,7 @@
 
 #include "simdebug.h"
 #include "simworld.h"
+#include "simware.h"
 #include "simplay.h"
 #include "simconvoi.h"
 #include "simvehikel.h"

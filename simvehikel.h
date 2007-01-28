@@ -20,7 +20,6 @@
 
 #include "simtypes.h"
 #include "simdings.h"
-#include "simware.h"
 #include "simconvoi.h"
 #include "halthandle_t.h"
 #include "convoihandle_t.h"
@@ -34,6 +33,7 @@
 class vehikel_besch_t;
 class fahrplan_t;
 class signal_t;
+class ware_t;
 
 
 /*

@@ -36,6 +36,7 @@
 #include "simdebug.h"
 
 #include "simplay.h"
+#include "simware.h"
 #include "simhalt.h"
 #include "simconvoi.h"
 #include "simsound.h"

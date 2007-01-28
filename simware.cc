@@ -24,85 +24,69 @@
 #include "bauer/warenbauer.h"
 
 
-/**
- * gibt den nicht-uebersetzten warennamen zurück
- * @author Hj. Malthaner
- */
-const char *ware_t::gib_name() const
-{
-    return type->gib_name();
-}
+
+const ware_besch_t *ware_t::index_to_besch[256];
 
 
-int ware_t::gib_preis()  const
-{
-    return type->gib_preis();
-}
-
-
-int ware_t::gib_catg()  const
-{
-    return type->gib_catg();
-}
-
-
-const char *ware_t::gib_mass() const
-{
-    return type->gib_mass();
-}
 
 ware_t::ware_t() : ziel(-1, -1), zwischenziel(-1, -1), zielpos(-1, -1)
 {
-    menge = 0;
-    type = 0;
+	menge = 0;
+	index = 0;
 }
 
 
 ware_t::ware_t(const ware_besch_t *wtyp) : ziel(-1, -1), zwischenziel(-1, -1), zielpos(-1, -1)
 {
-    menge = 0;
-    type = wtyp;
+	menge = 0;
+	index = warenbauer_t::gib_index(wtyp);
 }
 
 ware_t::ware_t(loadsave_t *file)
 {
-    rdwr(file);
+	rdwr(file);
 }
 
 
-ware_t::~ware_t()
+void
+ware_t::setze_typ(const ware_besch_t* type)
 {
-    menge = 0;
-    type = 0;
+	index = type->gib_index();
 }
+
 
 
 void
 ware_t::rdwr(loadsave_t *file)
 {
-	file->rdwr_long(menge, " ");
+	sint32 amount = menge;
+	file->rdwr_long(amount, " ");
+	menge = amount;
 	if(file->get_version()<99008) {
 		sint32 max;
 		file->rdwr_long(max, " ");
 	}
 
 	const char *typ = NULL;
-	sint8 catg=0;
+	uint8 catg=0;
 
 	if(file->is_saving()) {
-		typ = type->gib_name();
+		typ = gib_typ()->gib_name();
 	}
 	if(file->get_version()>=88005) {
 		file->rdwr_byte(catg,"c");
 	}
 	file->rdwr_str(typ, " ");
 	if(file->is_loading()) {
-		type = warenbauer_t::gib_info(typ);
+		const ware_besch_t *type = warenbauer_t::gib_info(typ);
 		guarded_free(const_cast<char *>(typ));
 		if(type==NULL) {
 			dbg->warning("ware_t::rdwr()","unknown ware of catg %d!",catg);
-			type = warenbauer_t::gib_info_catg(catg);
+			index = warenbauer_t::gib_info_catg(catg)->gib_index();
 			menge = 0;
+		}
+		else {
+			index = type->gib_index();
 		}
 	}
 	ziel.rdwr(file);

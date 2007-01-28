@@ -11,7 +11,6 @@
 #ifndef simfab_h
 #define simfab_h
 
-#include "simware.h"
 #include "dataobj/koord3d.h"
 #include "dataobj/translator.h"
 

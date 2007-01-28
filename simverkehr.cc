@@ -606,7 +606,7 @@ stadtauto_t::hop()
 				// check, if this is just a single tile deep
 				weg_t *w=to->gib_weg(road_wt);
 				int next_ribi =  w->gib_ribi();
-				if((ribi&next_ribi)!=0  &&  !ribi_t::ist_einfach(next_ribi)) {
+				if(!ribi_t::ist_einfach(next_ribi)) {
 					bool add=true;
 					// check, if roadsign forbid next step ...
 					if(w->has_sign()) {

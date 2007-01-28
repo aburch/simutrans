@@ -11,7 +11,6 @@
 #define simplay_h
 
 #include "simtypes.h"
-#include "simware.h"
 #include "simlinemgmt.h"
 
 #include "halthandle_t.h"

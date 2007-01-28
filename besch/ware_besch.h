@@ -40,11 +40,11 @@ class ware_besch_t : public obj_besch_std_name_t {
 	* Category of the good
 	* @author Hj. Malthaner
 	*/
-	uint16 catg;
+	uint8 catg;
 
 	// just for sorting etc.
 	// assinged during registration
-	uint16 ware_index;
+	uint8 ware_index;
 
 	/**
 	* Bonus for fast transport given in percent!
@@ -65,31 +65,31 @@ public:
 		return static_cast<const text_besch_t *>(gib_kind(2))->gib_text();
 	}
 
-	int gib_preis() const { return value; }
+	uint16 gib_preis() const { return value; }
 
 	/**
 	* @return speed bonus value of the good
 	* @author Hj. Malthaner
 	*/
-	int gib_speed_bonus() const { return speed_bonus; }
+	uint16 gib_speed_bonus() const { return speed_bonus; }
 
 	/**
 	* @return Category of the good
 	* @author Hj. Malthaner
 	*/
-	int gib_catg() const { return catg; }
+	uint8 gib_catg() const { return catg; }
 
 	/**
 	* @return internal index (just a number, passenger, then mail, then something ... )
 	* @author prissi
 	*/
-	uint16 gib_index() const { return ware_index; }
+	uint8 gib_index() const { return ware_index; }
 
 	/**
 	* @return weight in KG per unit of the good
 	* @author Hj. Malthaner
 	*/
-	int gib_weight_per_unit() const { return weight_per_unit; }
+	uint16 gib_weight_per_unit() const { return weight_per_unit; }
 
 	/**
 	* @return Name of the category of the good

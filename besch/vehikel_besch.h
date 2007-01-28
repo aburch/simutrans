@@ -22,7 +22,6 @@
 #include "sound_besch.h"
 #include "../dataobj/ribi.h"
 #include "../simtypes.h"
-#include "../simware.h"
 
 
 /**

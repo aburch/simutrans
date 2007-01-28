@@ -27,6 +27,7 @@
 #include "simhalt.h"
 #include "simskin.h"
 #include "simtools.h"
+#include "simware.h"
 #include "simworld.h"
 #include "besch/haus_besch.h"
 #include "besch/ware_besch.h"
@@ -747,7 +748,9 @@ void fabrik_t::verteile_waren(const uint32 produkt)
 
 				unsigned w;
 				// find the index in the target factory
-				for (w = 0; w < ziel_fab->gib_eingang().get_count() && ziel_fab->gib_eingang()[w].gib_typ() != ware.gib_typ(); w++) {}
+				for (w = 0; w < ziel_fab->gib_eingang().get_count() && ziel_fab->gib_eingang()[w].gib_typ() != ware.gib_typ(); w++) {
+					// emtpy
+				}
 
 				// Station can only store up to 128 units of goods per square
 				if(halt->gib_ware_summe(ware.gib_typ()) <halt->get_capacity()) {

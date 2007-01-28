@@ -23,6 +23,7 @@
 #include "boden/grund.h"
 #include "boden/boden.h"
 #include "simworld.h"
+#include "simware.h"
 #include "simplay.h"
 #include "simplan.h"
 #include "simimg.h"

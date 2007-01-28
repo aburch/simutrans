@@ -50,10 +50,7 @@ public:
 	*/
 	static const ware_besch_t *gib_info(const char* name);
 
-	static const ware_besch_t *gib_info(unsigned int idx)
-	{
-		return waren[idx];
-	}
+	static const ware_besch_t *gib_info(uint16 idx) { return waren[idx]; }
 
 	static bool ist_fabrik_ware(const ware_besch_t *ware)
 	{
@@ -71,7 +68,7 @@ public:
 	}
 
 	// ware by catg
-	static const ware_besch_t *gib_info_catg(const sint8 catg);
+	static const ware_besch_t *gib_info_catg(const uint8 catg);
 
 	/*
 	 * allow to multiply all prices, 1000=1.0

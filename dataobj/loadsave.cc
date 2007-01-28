@@ -433,13 +433,13 @@ void loadsave_t::rd_obj_id(char *id_buf, int size)
 
 void loadsave_t::rdwr_delim(const char *delim)
 {
-    if(is_text()) {
-	if(saving) {
-	    fprintf(fp, "%s", delim);
-        } else {
-	    fscanf(fp, delim);
+	if(is_text()) {
+		if(saving) {
+			fprintf(fp, "%s", delim);
+		} else {
+			fscanf(fp, delim);
+		}
 	}
-    }
 }
 
 int loadsave_t::int_version(const char *version_text, mode_t *mode)

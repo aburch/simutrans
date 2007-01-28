@@ -12,10 +12,12 @@ Known bugs: (hard to fix)
 	FIX: (kierongreen) trains in small window are now correctly followed over bridges
 	ADD: (kierongreen) withdraw of convois i.e. convoi is sold after it is empty (and no freight is loaded) 'withdraw' and 'Convoi is sold when all wagons are empty.'
 	ADD: (kierongreen) no loading button to convoi info window added for manual control of a convois state
-	CHANGE: shrank ware_t by four bytes
 	FIX: crash when click on vehicle thas is in a different depot than its home depot
 	FIX: (kierongreen) underground mode resets not grid mode
 	FIX: (kierongreen) height on slope during follow convoi was jumping
+	CHANGE: shrank ware_t by eight bytes
+	FIX: citycar destroyed themselves after a curve with a dead end
+	FIX: wayremover in tunnel bemoved tunnel object also on starting and end tile
 
 
 Release of 99.07

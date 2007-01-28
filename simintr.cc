@@ -31,7 +31,6 @@ static bool enabled = false;
 
 static long frame_time = 36;
 static long actual_frame_time = 30;
-static long average_frame_time = 30;
 
 
 

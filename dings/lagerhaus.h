@@ -4,6 +4,8 @@
 #include "../simware.h"
 #include "gebaeude.h"
 
+#error "Unsupported!"
+
 class lagerhaus_t : public gebaeude_t
 {
 private:

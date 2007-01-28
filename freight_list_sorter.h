@@ -5,12 +5,12 @@
 
 
 #include "utils/cbuffer_t.h"
-#include "simware.h"
 #include "halthandle_t.h"
+#include "simware.h"
 
 // same sorting for stations and vehicle/convoi freight ...
 
-struct ware_t;
+class ware_t;
 class karte_t;
 
 class freight_list_sorter_t

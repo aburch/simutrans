@@ -10,6 +10,7 @@
 #include "../simdebug.h"
 #include "../besch/ware_besch.h"
 #include "../besch/spezial_obj_tpl.h"
+#include "../simware.h"
 #include "warenbauer.h"
 
 
@@ -33,7 +34,9 @@ static spezial_obj_tpl<ware_besch_t> spezial_objekte[] = {
 };
 
 
-bool warenbauer_t::alles_geladen()
+
+bool
+warenbauer_t::alles_geladen()
 {
 	if(!::alles_geladen(spezial_objekte)) {
 		return false;
@@ -45,6 +48,25 @@ bool warenbauer_t::alles_geladen()
 	waren.insert_at(0,load_post);
 	waren.insert_at(0,load_passagiere);
 	waren.insert_at(0,load_nichts);
+
+	// init the lookup table in ware_t
+	for( unsigned i=0;  i<256;  i++  ) {
+		if(i>=waren.get_count()) {
+			// these entries will be never looked at;
+			// however, if then this will generate an error
+			ware_t::index_to_besch[i] = NULL;
+		}
+		else {
+			assert(waren[i]->gib_index()==i);
+			ware_t::index_to_besch[i] = waren[i];
+		}
+	}
+	// none should never be loaded to something ...
+	ware_t::index_to_besch[0] = NULL;
+
+	if(waren.get_count()>255) {
+		dbg->fatal("warenbauer_t::alles_geladen()","Too many different goods %i>255",waren.get_count()-1 );
+	}
 	return true;
 }
 
@@ -56,18 +78,18 @@ bool warenbauer_t::register_besch(ware_besch_t *besch)
 	besch_names.put(besch->gib_name(), const_cast<ware_besch_t *>(besch));
 
 	if(besch==passagiere) {
-		besch->ware_index = 0;
+		besch->ware_index = 1;
 		load_passagiere = besch;
 	} else if(besch==post) {
-		besch->ware_index = 1;
+		besch->ware_index = 2;
 		load_post = besch;
 	} else if(besch != nichts) {
-		besch->ware_index = waren.get_count()+2;
+		besch->ware_index = waren.get_count()+3;
 		waren.append(besch,1);
 	}
 	else {
 		load_nichts = besch;
-		besch->ware_index = 2;
+		besch->ware_index = 0;
 	}
 	return true;
 }
@@ -78,17 +100,17 @@ bool warenbauer_t::register_besch(ware_besch_t *besch)
 const ware_besch_t *
 warenbauer_t::gib_info(const char* name)
 {
-    const ware_besch_t* t = besch_names.get(name);
-    if(t == NULL) {
-        dbg->error("warenbauer_t::gib_info()", "No info for good '%s' available", name);
-    }
-    return t;
+	const ware_besch_t* t = besch_names.get(name);
+	if(t == NULL) {
+		dbg->error("warenbauer_t::gib_info()", "No info for good '%s' available", name);
+	}
+	return t;
 }
 
 
 
 const ware_besch_t *
-warenbauer_t::gib_info_catg(const sint8 catg)
+warenbauer_t::gib_info_catg(const uint8 catg)
 {
 	if(catg>0) {
 		for(unsigned i=0;  i<gib_waren_anzahl();  i++  ) {

@@ -1128,9 +1128,15 @@ bool grund_t::remove_everything_from_way(spieler_t *sp,waytype_t wt,ribi_t::ribi
 			else if(wt==road_wt  &&  (d->gib_typ()==ding_t::verkehr  ||  suche_obj(ding_t::fussgaenger))) {
 				delete d;
 			}
-			// remove tunnel portal/bridge
-			else if(d->gib_typ()==ding_t::bruecke  ||  d->gib_typ()==ding_t::tunnel) {
-				uint8 wt = d->gib_typ()==ding_t::bruecke ? ((bruecke_t *)d)->gib_besch()->gib_waytype() : ((tunnel_t *)d)->gib_besch()->gib_waytype();
+			// remove bridge
+			else if(d->gib_typ()==ding_t::bruecke) {
+				// last way was belonging to this bridge
+				d->entferne(sp);
+				delete d;
+			}
+			// remove tunnel portal, if not the last tile ...
+			else if(add==ribi_t::keine  &&  d->gib_typ()==ding_t::tunnel) {
+				uint8 wt = ((tunnel_t *)d)->gib_besch()->gib_waytype();
 				if((flags&has_way2)==0  &&  weg->gib_waytype()==wt) {
 					// last way was belonging to this tunnel
 					d->entferne(sp);
@@ -1138,7 +1144,7 @@ bool grund_t::remove_everything_from_way(spieler_t *sp,waytype_t wt,ribi_t::ribi
 				}
 				else {
 					// we must leave the way to prevent destroying the other one
-					add = weg->gib_ribi_unmasked();
+					add = gib_weg_nr(1)->gib_ribi_unmasked();
 				}
 			}
 

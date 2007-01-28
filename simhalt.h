@@ -15,7 +15,6 @@
 #include "linehandle_t.h"
 
 #include "simdebug.h"
-#include "simware.h"
 #include "simtypes.h"
 #include "simdings.h"
 
@@ -47,6 +46,7 @@ class karte_t;
 #ifdef LAGER_NOT_IN_USE
 class lagerhaus_t;
 #endif
+class ware_t;
 class grund_t;
 class fahrplan_t;
 class halt_info_t;

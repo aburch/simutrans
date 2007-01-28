@@ -222,7 +222,7 @@ void weg_t::info(cbuffer_t & buf) const
 	buf.append(translator::translate("\nRibi (unmasked)"));
 	buf.append(gib_ribi_unmasked());
 
-	buf.append(translator::translate("\nRibi (masked)"));
+	buf.append(translator::translate("\n\nRibi (masked)"));
 	buf.append(gib_ribi());
 	buf.append("\n");
 

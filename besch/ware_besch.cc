@@ -47,5 +47,5 @@ static const char * catg_names[32] = {
  */
 const char * ware_besch_t::gib_catg_name() const
 {
-  return catg_names[catg & 31];
+	return catg_names[catg & 31];
 }

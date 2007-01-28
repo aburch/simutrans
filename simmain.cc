@@ -9,6 +9,7 @@
 #include "pathes.h"
 
 #include "simworld.h"
+#include "simware.h"
 #include "simview.h"
 #include "simwin.h"
 #include "simhalt.h"
@@ -90,6 +91,7 @@ static void show_sizes()
 	DBG_MESSAGE("sizes", "wasser_t: %d", sizeof(wasser_t));
 	DBG_MESSAGE("sizes", "planquadrat_t: %d\n", sizeof(planquadrat_t));
 
+	DBG_MESSAGE("sizes", "ware_t: %d", sizeof(ware_t));
 	DBG_MESSAGE("sizes", "karte_t: %d", sizeof(karte_t));
 	DBG_MESSAGE("sizes", "spieler_t: %d\n", sizeof(spieler_t));
 }

@@ -51,6 +51,7 @@
 #include "simsound.h"
 #include "simtools.h"
 #include "simmesg.h"
+#include "simware.h"
 
 #include "simintr.h"
 

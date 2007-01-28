@@ -2,80 +2,89 @@
 #define simware_h
 
 #include "dataobj/koord.h"
-
+#include "bauer/warenbauer.h"
+#include "besch/ware_besch.h"
 class ware_besch_t;
 
 
 /** Eine Klasse zur Verwaltung von Informationen ueber Fracht und Waren */
-struct ware_t
+class ware_t
 {
+	friend warenbauer_t;
+
 private:
-    const ware_besch_t *type;
-
-    /**
-     * Koordinate der Zielhaltestelle
-     * @author Hj. Malthaner
-     */
-    koord ziel;
-
-    /**
-     * Koordinte des nächsten Zwischenstops
-     * @author Hj. Malthaner
-     */
-    koord zwischenziel;
-
-    /**
-     * die engültige Zielposition,
-     * das ist i.a. nicht die Zielhaltestellenposition
-     * @author Hj. Malthaner
-     */
-    koord zielpos;
+	// private lookup table to sppedup
+	static const ware_besch_t *index_to_besch[256];
 
 public:
-    sint32 menge;
+	uint32 index: 8;
 
-    koord gib_ziel() const { return ziel; }
-    void setze_ziel(koord ziel) { this->ziel = ziel; }
+	uint32 menge : 24;
 
-    koord gib_zwischenziel() const { return zwischenziel; }
-    void setze_zwischenziel(koord zwischenziel) { this->zwischenziel = zwischenziel; }
+private:
+	/**
+	 * Koordinate der Zielhaltestelle
+	 * @author Hj. Malthaner
+	 */
+	koord ziel;
 
-    koord gib_zielpos() const { return zielpos; }
-    void setze_zielpos(koord zielpos) { this->zielpos = zielpos; }
+	/**
+	 * Koordinte des nächsten Zwischenstops
+	 * @author Hj. Malthaner
+	 */
+	koord zwischenziel;
 
-    ware_t();
-    ware_t(const ware_besch_t *typ);
-    ware_t(loadsave_t *file);
+	/**
+	 * die engültige Zielposition,
+	 * das ist i.a. nicht die Zielhaltestellenposition
+	 * @author Hj. Malthaner
+	 */
+	koord zielpos;
 
-    ~ware_t();
+public:
+	koord gib_ziel() const { return ziel; }
+	void setze_ziel(koord ziel) { this->ziel = ziel; }
 
-    /**
-     * gibt den nicht-uebersetzten warennamen zurück
-     * @author Hj. Malthaner
-     */
-    const char *gib_name() const;
-    const char *gib_mass() const;
-    int gib_preis() const;
-    int gib_catg() const;
+	koord gib_zwischenziel() const { return zwischenziel; }
+	void setze_zwischenziel(koord zwischenziel) { this->zwischenziel = zwischenziel; }
+
+	koord gib_zielpos() const { return zielpos; }
+	void setze_zielpos(koord zielpos) { this->zielpos = zielpos; }
+
+	ware_t();
+	ware_t(const ware_besch_t *typ);
+	ware_t(loadsave_t *file);
+
+	/**
+	 * gibt den nicht-uebersetzten warennamen zurück
+	 * @author Hj. Malthaner
+	 */
+	const char *gib_name() const { return gib_typ()->gib_name(); }
+	const char *gib_mass() const { return gib_typ()->gib_mass(); }
+	uint16 gib_preis() const { return gib_typ()->gib_preis(); }
+	uint8 gib_catg() const { return gib_typ()->gib_catg(); }
+
+	const ware_besch_t* gib_typ() const { return index_to_besch[index]; }
+	void setze_typ(const ware_besch_t* type);
+
+	void rdwr(loadsave_t *file);
+
+	// find out the category ...
+	bool is_passenger() const {  return index==1; }
+	bool is_mail() const {  return index==2; }
+	bool is_freight() const {  return index>2; }
 
 
-    inline const ware_besch_t* gib_typ() const { return type; }
-    inline void setze_typ(const ware_besch_t* type) { this->type = type; }
+	int operator==(const ware_t &w) {
+		return index  == w.index  &&
+			menge == w.menge &&
+//			max   == w.max   &&
+			ziel  == w.ziel  &&
+			zwischenziel == w.zwischenziel &&
+			zielpos      == w.zielpos;
+	}
 
-    void rdwr(loadsave_t *file);
-
-    int operator==(const ware_t &w) {
-	return type  == w.type  &&
-               menge == w.menge &&
-//               max   == w.max   &&
-               ziel  == w.ziel  &&
-               zwischenziel == w.zwischenziel &&
-               zielpos      == w.zielpos;
-    }
-
-    int operator!=(const ware_t &w) {
-		return ! (*this == w);
-    }
+	int operator!=(const ware_t &w) { 	return ! (*this == w); 	}
 
 };
 
