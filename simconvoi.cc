@@ -1406,7 +1406,7 @@ void convoi_t::get_freight_info(cbuffer_t & buf)
 	if(freight_info_resort) {
 		freight_info_resort = false;
 		// rebuilt the list with goods ...
-		slist_tpl<ware_t> total_fracht;
+		vector_tpl<ware_t> total_fracht;
 
 #ifdef _MSC_VER
 		uint32 *max_loaded_waren = static_cast<uint32 *>(_alloca(warenbauer_t::gib_waren_anzahl()*4+4));
@@ -1429,14 +1429,13 @@ void convoi_t::get_freight_info(cbuffer_t & buf)
 			// then add the actual load
 			slist_iterator_tpl<ware_t> iter_vehicle_ware(v->gib_fracht());
 			while(iter_vehicle_ware.next()) {
-				ware_t ware= iter_vehicle_ware.get_current();
-				slist_iterator_tpl<ware_t> iter (total_fracht);
+				ware_t ware = iter_vehicle_ware.get_current();
+				for(unsigned i=0;  i<total_fracht.get_count();  i++ ) {
 
-				const bool is_pax = (ware.gib_typ()==warenbauer_t::passagiere  ||  ware.gib_typ()==warenbauer_t::post);
+					const bool is_pax = !ware.is_freight();
 
-				// could this be joined with existing freight?
-				while(iter.next()) {
-					ware_t &tmp = iter.access_current();
+					// could this be joined with existing freight?
+					ware_t &tmp = total_fracht[i];
 
 					// for pax: join according next stop
 					// for all others we *must* use target coordinates
@@ -1449,7 +1448,7 @@ void convoi_t::get_freight_info(cbuffer_t & buf)
 
 				// if != 0 we could not joi it to existing => load it
 				if(ware.menge != 0) {
-					total_fracht.insert(ware);
+					total_fracht.append(ware,16);
 				}
 
 			}

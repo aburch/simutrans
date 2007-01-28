@@ -28,7 +28,7 @@ public:
 
 	enum sort_mode_t { by_name=0, by_via=1, by_via_sum=2, by_amount=3};
 
-	static void sort_freight( karte_t *welt, const slist_tpl <ware_t>*, cbuffer_t &buf, sort_mode_t sort_mode, const slist_tpl <ware_t>*full_list, const char *what_doing );
+	static void sort_freight( karte_t *welt, const vector_tpl <ware_t>*, cbuffer_t &buf, sort_mode_t sort_mode, const slist_tpl <ware_t>*full_list, const char *what_doing );
 
 private:
 	static sort_mode_t sortby;

@@ -114,11 +114,11 @@ freight_list_sorter_t::add_ware_heading( cbuffer_t &buf, uint32 sum, uint32 max,
 
 
 void
-freight_list_sorter_t::sort_freight( karte_t *welt, const slist_tpl <ware_t>*wliste, cbuffer_t &buf, sort_mode_t sort_mode, const slist_tpl <ware_t>*full_list, const char *what_doing )
+freight_list_sorter_t::sort_freight( karte_t *welt, const vector_tpl <ware_t>*warray, cbuffer_t &buf, sort_mode_t sort_mode, const slist_tpl <ware_t>*full_list, const char *what_doing )
 {
-	slist_iterator_tpl<ware_t> iter (wliste);
 	sortby = sort_mode;
 
+	// if there, give the capacity for each freight
 	slist_tpl <ware_t> dummy;
 	slist_iterator_tpl<ware_t> full_iter ( full_list==NULL ? &dummy : full_list );
 	bool list_finish=1;
@@ -127,14 +127,14 @@ freight_list_sorter_t::sort_freight( karte_t *welt, const slist_tpl <ware_t>*wli
 	// added sorting to ware's destination list
 	int pos = 0;
 #ifdef _MSC_VER
-	travel_details *tdlist = (travel_details *)alloca((wliste->count()+1) * sizeof(travel_details));
+	travel_details *tdlist = (travel_details *)alloca((warray->get_count()+1) * sizeof(travel_details));
 #else
-	travel_details tdlist [wliste->count()];
+	travel_details tdlist [warray->get_count()];
 #endif
 
-	while(iter.next()) {
-		ware_t ware = iter.get_current();
-		if(ware.gib_typ()==warenbauer_t::nichts) {
+	for(unsigned i=0;  i<warray->get_count();  i++  ) {
+		const ware_t &ware = (*warray)[i];
+		if(ware.gib_typ()==warenbauer_t::nichts  ||  ware.menge==0) {
 			continue;
 		}
 //DBG_MESSAGE("freight_list_sorter_t::get_freight_info()","for halt %i",pos);
@@ -154,6 +154,11 @@ freight_list_sorter_t::sort_freight( karte_t *welt, const slist_tpl <ware_t>*wli
 		}
 //DBG_MESSAGE("freight_list_sorter_t::get_freight_info()","for halt %i added",pos);
 		pos++;
+	}
+
+	// nothing added?
+	if(pos==0) {
+		return;
 	}
 
 	// sort the ware's list
@@ -208,7 +213,6 @@ freight_list_sorter_t::sort_freight( karte_t *welt, const slist_tpl <ware_t>*wli
 					}
 				}
 			}
-
 		}
 		// detail amount
 		buf.append("   ");

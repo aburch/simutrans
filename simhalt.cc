@@ -1597,15 +1597,7 @@ void haltestelle_t::get_freight_info(cbuffer_t & buf)
 			vector_tpl<ware_t> * warray = waren.get(wtyp);
 			slist_tpl<ware_t> wliste;
 			if(warray) {
-				for(unsigned i=0;  i<warray->get_count();  i++ ) {
-					ware_t &tmp = (*warray)[i];
-					if(tmp.menge>0) {
-						wliste.insert(tmp);
-					}
-				}
-				if(!wliste.empty()) {
-					freight_list_sorter_t::sort_freight( welt, &wliste, buf, (freight_list_sorter_t::sort_mode_t)sortierung, NULL, "waiting" );
-				}
+				freight_list_sorter_t::sort_freight( welt, warray, buf, (freight_list_sorter_t::sort_mode_t)sortierung, NULL, "waiting" );
 			}
 		}
 	}

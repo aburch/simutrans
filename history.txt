@@ -20,6 +20,7 @@ Known bugs: (hard to fix)
 	FIX: wayremover in tunnel bemoved tunnel object also on starting and end tile
 	CHANGE: goods now stored in an array instead of a list at stations => higher chanches of joining => much faster (up to 50% for poassenger/mail games) + less memory (up to 4MB); your milage may vary.
 	FIX: label were saved but not loaded
+	FIX: crash when city tried to built new road to new townhall over existing player road
 
 
 Release of 99.07
