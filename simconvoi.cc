@@ -1461,8 +1461,8 @@ void convoi_t::get_freight_info(cbuffer_t & buf)
 		// apend info on total capacity
 		slist_tpl <ware_t>capacity;
 		for(i=0;  i<warenbauer_t::gib_waren_anzahl();  i++  ) {
-			if(max_loaded_waren[i]>0  &&  i!=2) {
-				ware_t ware(warenbauer_t::gib_info(i+1));
+			if(max_loaded_waren[i]>0  &&  i!=warenbauer_t::INDEX_NONE) {
+				ware_t ware(warenbauer_t::gib_info(i));
 				ware.menge = max_loaded_waren[i];
 				if(ware.gib_catg()==0) {
 					capacity.append( ware );

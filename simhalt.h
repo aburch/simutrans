@@ -145,13 +145,11 @@ public:
 	 */
 	static int gib_anzahl() { return alle_haltestellen.count(); }
 
-
 	/**
 	 * Station factory method. Returns handles instead of pointers.
 	 * @author Hj. Malthaner
 	 */
 	static halthandle_t create(karte_t *welt, koord pos, spieler_t *sp);
-
 
 	/**
 	 * Station factory method. Returns handles instead of pointers.
@@ -170,7 +168,6 @@ public:
 	 * @author Hj. Malthaner
 	 */
 	static void destroy(halthandle_t &halt);
-
 
 	/**
 	 * destroys all stations
@@ -196,7 +193,7 @@ private:
 	slist_tpl<warenziel_t> warenziele;
 
 	// loest warte_menge ab
-	ptrhashtable_tpl<const ware_besch_t *, slist_tpl<ware_t> *> waren;
+	ptrhashtable_tpl<const ware_besch_t *, vector_tpl<ware_t> *> waren;
 
 	/**
 	 * Liste der angeschlossenen Fabriken
@@ -252,11 +249,10 @@ private:
 	 */
 	uint32 marke;
 
-
-	#ifdef USE_QUOTE
+#ifdef USE_QUOTE
 	// for station rating
 	const char * quote_bezeichnung(int quote) const;
-	#endif
+#endif
 
 	halt_info_t *halt_info;
 
@@ -271,12 +267,6 @@ private:
 	 * @author Hj. Malthaner
 	 */
 	void liefere_an_fabrik(const ware_t& ware);
-
-
-	haltestelle_t(karte_t *welt, loadsave_t *file);
-	haltestelle_t(karte_t *welt, koord pos, spieler_t *sp);
-
-	~haltestelle_t();
 
 	/*
 	* parameter to ease sorting
@@ -293,6 +283,10 @@ private:
 	*/
 	void reroute_goods();
 
+	haltestelle_t(karte_t *welt, loadsave_t *file);
+	haltestelle_t(karte_t *welt, koord pos, spieler_t *sp);
+	~haltestelle_t();
+
 public:
 	/**
 	 * getter/setter for sortby
@@ -301,20 +295,17 @@ public:
 	uint8 get_sortby() { return sortierung; }
 	void set_sortby(uint8 sm) { resort_freight_info =true; sortierung = sm; }
 
-
 	/**
 	 * Calculates a status color for status bars
 	 * @author Hj. Malthaner
 	 */
 	int gib_status_farbe() const { return status_color; }
 
-
 	/**
 	 * Draws some nice colored bars giving some status information
 	 * @author Hj. Malthaner
 	 */
 	void display_status(int xpos, int ypos) const;
-
 
 	/**
 	 * sucht umliegende, erreichbare fabriken und baut daraus die
@@ -323,7 +314,6 @@ public:
 	 */
 	void verbinde_fabriken();
 	void remove_fabriken(fabrik_t *fab);
-
 
 	/**
 	 * Rebuilds the list of reachable destinations
@@ -338,10 +328,7 @@ public:
 
 	const slist_tpl<warenziel_t> * gib_warenziele() const {return &warenziele;}
 
-	const slist_tpl<ware_t> * gib_warenliste(const ware_besch_t *ware) { return waren.get(ware); }
-
 	const slist_tpl<fabrik_t*>& gib_fab_list() const { return fab_list; }
-
 
 	/**
 	 * Haltestellen messen regelmaessig die Fahrplaene pruefen
@@ -349,16 +336,13 @@ public:
 	 */
 	void step();
 
-
 	/**
 	 * Called every month/every 24 game hours
 	 * @author Hj. Malthaner
 	 */
 	void neuer_monat();
 
-
 	karte_t* gib_welt() const { return welt; }
-
 
 	/**
 	 * Kann die Ware nicht zum Ziel geroutet werden (keine Route), dann werden

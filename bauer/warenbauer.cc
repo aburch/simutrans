@@ -62,6 +62,7 @@ warenbauer_t::alles_geladen()
 		}
 	}
 	// none should never be loaded to something ...
+	// however, some place do need the dummy ...
 	ware_t::index_to_besch[2] = NULL;
 
 	if(waren.get_count()>255) {

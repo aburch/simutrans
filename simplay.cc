@@ -1039,32 +1039,6 @@ DBG_DEBUG("do_passenger_ki()","calling message_t()");
 		// add vehicles to crowded lines
 		case CHECK_CONVOI:
 		{
-#if 0
-			slist_iterator_tpl<halthandle_t> iter( halt_list );
-
-			while(iter.next()  &&  road_vehicle!=NULL) {
-				halthandle_t halt = iter.get_current();
-				if(halt.is_bound()  &&  (halt->get_pax_unhappy()>200  ||  halt->gib_ware_summe(warenbauer_t::passagiere)>1000)) {
-//					slist_tpl<ware_t> * wliste = waren.get(warenbauer_t::passagiere);
-					slist_iterator_tpl<ware_t> iter (halt->gib_warenliste(warenbauer_t::passagiere));
-					// now we check if there are many many people waiting ...
-					while(iter.next()) {
-						const ware_t& ware = iter.get_current();
-						// since a single stop do not hold more than 128 people
-						if(ware.menge>129) {
-							// we want the fastest we can get
-						  	// obey timeline
-							uint month_now = (welt->use_timeline() ? welt->get_current_month() : 0);
-							road_vehicle = vehikelbauer_t::vehikel_search( road_wt, month_now, 10, 80, warenbauer_t::passagiere );
-							koord list[2] = {halt->gib_basis_pos(),ware.gib_zwischenziel()};
-							create_bus_transport_vehikel( list[0], 1, list, 2, false );	// overcrowded line, so waiting does not make sense
-DBG_MESSAGE("spieler_t::do_passenger_ki()","add new convoi to crowded line from %s to %s",halt->gib_name(),haltestelle_t::gib_halt(welt,list[1])->gib_name());
-							break;
-						}
-					}
-				}
-			}
-#else
 			for(unsigned i=0;  i<welt->get_convoi_count();  i++ ) {
 				const convoihandle_t cnv = welt->get_convoi_array()[i];
 				if(cnv->gib_besitzer()==this) {
@@ -1123,7 +1097,6 @@ DBG_MESSAGE("spieler_t::do_passenger_ki()","copy convoi %s on route %s to %s",cn
 					}
 				}
 			}
-#endif
 			state = NEUE_ROUTE;
 		}
 		break;

@@ -34,6 +34,8 @@ private:
 	static ware_besch_t *load_nichts;
 
 public:
+	enum { INDEX_PAS=0, INDEX_MAIL=1, INDEX_NONE=2 };
+
 	static const ware_besch_t *passagiere;
 	static const ware_besch_t *post;
 	static const ware_besch_t *nichts;
