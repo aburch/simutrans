@@ -18,6 +18,8 @@ Known bugs: (hard to fix)
 	CHANGE: shrank ware_t by eight bytes
 	FIX: citycar destroyed themselves after a curve with a dead end
 	FIX: wayremover in tunnel bemoved tunnel object also on starting and end tile
+	CHANGE: goods now stored in an array instead of a list at stations => higher chanches of joining => much faster (up to 50% for poassenger/mail games) + less memory (up to 4MB); your milage may vary.
+	FIX: label were saved but not loaded
 
 
 Release of 99.07

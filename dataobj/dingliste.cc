@@ -20,6 +20,7 @@
 #ifdef LAGER_NOT_IN_USE
 #include "../dings/lagerhaus.h"
 #endif
+#include "../dings/label.h"
 #include "../dings/gebaeude.h"
 #include "../dings/leitung2.h"
 #include "../dings/wayobj.h"
@@ -630,10 +631,6 @@ dingliste_t::rdwr(karte_t *welt, loadsave_t *file, koord3d current_pos)
 			ding_t *d = NULL;
 
 			switch(typ) {
-				case ding_t::old_verkehr: typ = ding_t::verkehr;
-				case ding_t::verkehr:	    d = new stadtauto_t (welt, file);		break;
-				case ding_t::old_fussgaenger: typ = ding_t::fussgaenger;
-				case ding_t::fussgaenger: d = new fussgaenger_t (welt, file);	        break;
 				case ding_t::bruecke:	    d = new bruecke_t (welt, file);	        break;
 				case ding_t::tunnel:	    d = new tunnel_t (welt, file);	        break;
 				case ding_t::pumpe:		    d = new pumpe_t (welt, file);	        break;
@@ -642,8 +639,15 @@ dingliste_t::rdwr(karte_t *welt, loadsave_t *file, koord3d current_pos)
 				case ding_t::wayobj:	    d = new wayobj_t (welt, file);	        break;
 				case ding_t::zeiger:	    d = new zeiger_t (welt, file);	        break;
 				case ding_t::signal:	    d = new signal_t (welt, file);   break;
+				case ding_t::label:				d = new label_t(welt,file); break;
+
+				// some old offsets will be converted to new ones
 				case ding_t::old_roadsign: typ = ding_t::roadsign;
 				case ding_t::roadsign:	  d = new roadsign_t (welt, file); break;
+				case ding_t::old_fussgaenger: typ = ding_t::fussgaenger;
+				case ding_t::fussgaenger: d = new fussgaenger_t (welt, file);	        break;
+				case ding_t::old_verkehr: typ = ding_t::verkehr;
+				case ding_t::verkehr:	    d = new stadtauto_t (welt, file);		break;
 
 				case ding_t::old_monoraildepot:
 					typ = ding_t::monoraildepot;
