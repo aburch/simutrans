@@ -10,7 +10,7 @@ class ware_besch_t;
 /** Eine Klasse zur Verwaltung von Informationen ueber Fracht und Waren */
 class ware_t
 {
-	friend warenbauer_t;
+	friend class warenbauer_t;
 
 private:
 	// private lookup table to sppedup
@@ -70,10 +70,9 @@ public:
 	void rdwr(loadsave_t *file);
 
 	// find out the category ...
-	bool is_passenger() const {  return index==1; }
-	bool is_mail() const {  return index==2; }
+	bool is_passenger() const {  return index==0; }
+	bool is_mail() const {  return index==1; }
 	bool is_freight() const {  return index>2; }
-
 
 	int operator==(const ware_t &w) {
 		return index  == w.index  &&
@@ -84,8 +83,7 @@ public:
 			zielpos      == w.zielpos;
 	}
 
-	int operator!=(const ware_t &w) { 	return ! (*this == w); 	}
-
+	int operator!=(const ware_t &w) { return !(*this == w); 	}
 };
 
 #endif

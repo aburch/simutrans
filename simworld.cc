@@ -2211,6 +2211,14 @@ DBG_MESSAGE("karte_t::speichern(loadsave_t *file)", "saved hgt");
 	}
 DBG_MESSAGE("karte_t::speichern(loadsave_t *file)", "saved fabs");
 
+	sint32 haltcount=haltestelle_t::gib_alle_haltestellen().count();
+	file->rdwr_long(haltcount,"hc");
+	slist_iterator_tpl<halthandle_t> iter (haltestelle_t::gib_alle_haltestellen());
+	while(iter.next()) {
+		iter.get_current()->rdwr( file );
+	}
+DBG_MESSAGE("karte_t::speichern(loadsave_t *file)", "saved stops");
+
 	for(unsigned i=0;  i<convoi_array.get_count();  i++ ) {
 		// one MUST NOT call INT_CHECK here or else the convoi will be broken during reloading!
 		convoihandle_t cnv = convoi_array[i];
@@ -2505,6 +2513,20 @@ DBG_MESSAGE("karte_t::laden()", "%d factories loaded", fab_list.count());
 	}
 	// end load linemanagement
 
+	DBG_MESSAGE("karte_t::laden()", "load stops");
+	// now load the stops
+	// (the players will be load later and overwrite some values,
+	//  like the total number of stops build (for the numbered station feature)
+	if(file->get_version()>=99008) {
+		sint32 halt_count;
+		file->rdwr_long(halt_count,"hc");
+		for(int i=0; i<halt_count; i++) {
+			halthandle_t halt = haltestelle_t::create( this, file );
+			assert(halt->existiert_in_welt());
+			halt->gib_besitzer()->halt_add(halt);
+		}
+	}
+
 	DBG_MESSAGE("karte_t::laden()", "load convois");
 	while( true ) {
 		file->rd_obj_id(buf, 79);
@@ -2581,11 +2603,16 @@ DBG_MESSAGE("karte_t::laden()", "%d ways loaded",weg_t::gib_alle_wege().count())
 					}
 				}
 				gr->calc_bild();
-//				reliefkarte_t::gib_karte()->calc_map_pixel(koord(x,y));
 			}
 		}
 		display_progress(gib_groesse_y()+48+stadt.get_count()+(y*176)/gib_groesse_y(), gib_groesse_y()+256+stadt.get_count());
 		display_flush(IMG_LEER, 0, 0, "", "", 0, 0);
+	}
+
+	// finish the loading of stops
+	slist_iterator_tpl <halthandle_t> iter (haltestelle_t::gib_alle_haltestellen());
+	while( iter.next() ) {
+		iter.get_current()->laden_abschliessen();
 	}
 
 	// assing lines and other stuff for convois
@@ -2594,7 +2621,7 @@ DBG_MESSAGE("karte_t::laden()", "%d ways loaded",weg_t::gib_alle_wege().count())
 		cnv->laden_abschliessen();
 	}
 
-    // register all line stops and change line types, if needed
+	// register all line stops and change line types, if needed
 	for(int i=0; i<MAX_PLAYER_COUNT ; i++) {
 		spieler[i]->laden_abschliessen();
 	}
@@ -2620,19 +2647,6 @@ DBG_MESSAGE("karte_t::laden()", "%d ways loaded",weg_t::gib_alle_wege().count())
 	recalc_snowline();
 	setze_dirty();
 
-	DBG_MESSAGE("karte_t::laden()","rebuild_destinations()");
-
-	// rebuild destination lists
-	const slist_tpl<halthandle_t> & list = haltestelle_t::gib_alle_haltestellen();
-	slist_iterator_tpl <halthandle_t> iter (list);
-	int i = 0;
-	while( iter.next() ) {
-		iter.get_current()->recalc_station_type();	// fix broken post flags
-		if((i++&7)==0) {
-			display_progress(gib_groesse_y()+48+stadt.get_count()+176+(i*32)/list.count(), gib_groesse_y()+256+stadt.get_count());
-			display_flush(IMG_LEER, 0, 0, "", "", 0, 0);
-		}
-	}
 	schedule_counter++;	// force check for unroutable goods and connections
 
 	reset_timer();

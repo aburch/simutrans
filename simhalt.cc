@@ -60,26 +60,13 @@
 
 //#include "tpl/minivec_tpl.h"
 
+karte_t *haltestelle_t::welt = NULL;
+
 /**
  * Max number of hops in route calculation
  * @author Hj. Malthaner
  */
-static int max_hops = 300;
-
-
-/**
- * Sets max number of hops in route calculation
- * @author Hj. Malthaner
- */
-void haltestelle_t::set_max_hops(int hops)
-{
-  if(hops > 9994) {
-    hops = 9994;
-  }
-
-  max_hops = hops;
-}
-
+int haltestelle_t::max_hops = 300;
 
 // Helfer Klassen
 
@@ -337,7 +324,7 @@ haltestelle_t::haltestelle_t(karte_t *wl, koord pos, spieler_t *sp)
 	welt = wl;
 	marke = 0;
 
-	this->pos = pos;
+//	this->pos = pos;
 	besitzer_p = sp;
 #ifdef LAGER_NOT_IN_USE
 	lager = NULL;
@@ -394,11 +381,17 @@ haltestelle_t::~haltestelle_t()
  * @author Hj. Malthaner
  */
 void
-haltestelle_t::setze_name(const char *name)
+haltestelle_t::setze_name(const char *new_name)
 {
-	tstrncpy(this->name, translator::translate(name), 128);
+	const char *trans_name=translator::translate(new_name);
+	char *name=(char *)guarded_malloc(strlen(trans_name+2));
+	strcpy(name, trans_name );
 	if (!grund.empty()) {
-		grund.front()->setze_text(this->name);
+		const char *old_name = grund.front()->gib_text();
+		grund.front()->setze_text(name);
+		if(old_name) {
+			guarded_free((void *)old_name);
+		}
 	}
 }
 
@@ -636,6 +629,7 @@ DBG_MESSAGE("haltestelle_t::remove_fabriken()","fab_list at(%i) = %p",i,fab_list
 }
 
 
+
 /**
  * Rebuilds the list of reachable destinations
  *
@@ -678,6 +672,7 @@ void haltestelle_t::rebuild_destinations()
 }
 
 
+
 void haltestelle_t::liefere_an_fabrik(const ware_t& ware)
 {
 	slist_iterator_tpl<fabrik_t *> fab_iter(fab_list);
@@ -694,6 +689,7 @@ void haltestelle_t::liefere_an_fabrik(const ware_t& ware)
 		}
 	}
 }
+
 
 
 /**
@@ -738,7 +734,7 @@ haltestelle_t::suche_route(ware_t &ware, koord *next_to_ziel)
 
 	// check, if the shortest connection is not right to us ...
 	if(ziel_list.is_contained(self)) {
-		ware.setze_ziel(pos);
+		ware.setze_ziel(grund.front()->gib_pos().gib_2d());
 		ware.setze_zwischenziel(koord::invalid);
 		if(next_to_ziel!=NULL) {
 			*next_to_ziel = koord::invalid;
@@ -897,6 +893,7 @@ found:
 }
 
 
+
 /**
  * Found route and station uncrowded
  * @author Hj. Malthaner
@@ -908,6 +905,7 @@ void haltestelle_t::add_pax_happy(int n)
 }
 
 
+
 /**
  * Found no route
  * @author Hj. Malthaner
@@ -917,6 +915,7 @@ void haltestelle_t::add_pax_no_route(int n)
   pax_no_route += n;
   book(n, HALT_NOROUTE);
 }
+
 
 
 /**
@@ -931,7 +930,6 @@ void haltestelle_t::add_pax_unhappy(int n)
 
 
 
-
 bool
 haltestelle_t::add_grund(grund_t *gr)
 {
@@ -941,7 +939,6 @@ haltestelle_t::add_grund(grund_t *gr)
 	if(!grund.contains(gr)) {
 
 		koord pos=gr->gib_pos().gib_2d();
-
 		gr->setze_halt(self);
 		grund.append(gr);
 		reservation.append(0,16);
@@ -980,6 +977,8 @@ haltestelle_t::add_grund(grund_t *gr)
 		return false;
 	}
 }
+
+
 
 void
 haltestelle_t::rem_grund(grund_t *gb)
@@ -1035,8 +1034,7 @@ DBG_DEBUG("haltestelle_t::rem_grund()","remove also floor, count=%i",grund.count
 			verbinde_fabriken();
 		}
 		else {
-			//### memory leak (but crash if present?!?!)
-			// free( (void *)tmp );
+			free( (void *)tmp );
 			slist_iterator_tpl <fabrik_t *> iter(fab_list);
 			while( iter.next() ) {
 				iter.get_current()->unlink_halt(self);
@@ -1045,6 +1043,8 @@ DBG_DEBUG("haltestelle_t::rem_grund()","remove also floor, count=%i",grund.count
 		}
 	}
 }
+
+
 
 bool
 haltestelle_t::existiert_in_welt()
@@ -1103,17 +1103,15 @@ haltestelle_t::gibt_ab(const ware_besch_t *wtyp) const
 
 // will load something compatible with wtyp into the car which schedule is fpl
 ware_t
-haltestelle_t::hole_ab(const ware_besch_t *wtyp, int maxi, fahrplan_t *fpl)
+haltestelle_t::hole_ab(const ware_besch_t *wtyp, uint32 maxi, fahrplan_t *fpl)
 {
 	// prissi: first iterate over the next stop, then over the ware
 	// might be a little slower, but ensures that passengers to nearest stop are served first
 	// this allows for separate high speed and normal service
-
 	const int count = fpl->maxi();
 
 	// da wir schon an der aktuellem haltestelle halten
 	// startet die schleife ab 1, d.h. dem naechsten halt
-
 	for(int i=1; i<count; i++) {
 		const int wrap_i = (i + fpl->aktuell) % count;
 
@@ -1189,67 +1187,59 @@ haltestelle_t::hole_ab(const ware_besch_t *wtyp, int maxi, fahrplan_t *fpl)
 
 
 
-int
+uint32
 haltestelle_t::gib_ware_summe(const ware_besch_t *typ) const
 {
-    int sum = 0;
-
-    slist_tpl<ware_t> * wliste = waren.get(typ);
-    if(wliste) {
-	slist_iterator_tpl<ware_t> iter (wliste);
-
-	while(iter.next()) {
-	    sum += iter.get_current().menge;
+	int sum = 0;
+	slist_tpl<ware_t> * wliste = waren.get(typ);
+	if(wliste) {
+		slist_iterator_tpl<ware_t> iter (wliste);
+		while(iter.next()) {
+			sum += iter.get_current().menge;
+		}
 	}
-    }
-    return sum;
+	return sum;
 }
 
 
-int
+
+uint32
 haltestelle_t::gib_ware_fuer_ziel(const ware_besch_t *typ,
 				  const koord ziel) const
 {
-  int sum = 0;
-
-  slist_tpl<ware_t> * wliste = waren.get(typ);
-  if(wliste) {
-    slist_iterator_tpl<ware_t> iter (wliste);
-
-    while(iter.next()) {
-      const ware_t &ware = iter.get_current();
-
-      if(ware.gib_ziel() == ziel) {
-	sum += ware.menge;
-      }
-    }
-  }
-
-  return sum;
+	int sum = 0;
+	slist_tpl<ware_t> * wliste = waren.get(typ);
+	if(wliste) {
+		slist_iterator_tpl<ware_t> iter (wliste);
+		while(iter.next()) {
+			const ware_t &ware = iter.get_current();
+			if(ware.gib_ziel() == ziel) {
+				sum += ware.menge;
+			}
+		}
+	}
+	return sum;
 }
 
 
 
-
-int
+uint32
 haltestelle_t::gib_ware_fuer_zwischenziel(const ware_besch_t *typ, const koord zwischenziel) const
 {
-  int sum = 0;
+	int sum = 0;
+	slist_tpl<ware_t> * wliste = waren.get(typ);
+	if(wliste) {
+		slist_iterator_tpl<ware_t> iter (wliste);
 
-  slist_tpl<ware_t> * wliste = waren.get(typ);
-  if(wliste) {
-    slist_iterator_tpl<ware_t> iter (wliste);
+		while(iter.next()) {
+			const ware_t &ware = iter.get_current();
 
-    while(iter.next()) {
-      const ware_t &ware = iter.get_current();
-
-      if(ware.gib_zwischenziel() == zwischenziel) {
-	sum += ware.menge;
-      }
-    }
-  }
-
-  return sum;
+			if(ware.gib_zwischenziel() == zwischenziel) {
+				sum += ware.menge;
+			}
+		}
+	}
+	return sum;
 }
 
 
@@ -1257,29 +1247,28 @@ haltestelle_t::gib_ware_fuer_zwischenziel(const ware_besch_t *typ, const koord z
 bool
 haltestelle_t::vereinige_waren(const ware_t &ware)
 {
-        // pruefen ob die ware mit bereits wartender ware vereinigt werden kann
-        slist_tpl<ware_t> * wliste = waren.get(ware.gib_typ());
-        const bool is_pax = (ware.gib_typ()==warenbauer_t::passagiere  ||  ware.gib_typ()==warenbauer_t::post);
+	// pruefen ob die ware mit bereits wartender ware vereinigt werden kann
+	slist_tpl<ware_t> * wliste = waren.get(ware.gib_typ());
+	const bool is_pax = !ware.is_freight();
 
-        if(wliste) {
-                slist_iterator_tpl<ware_t> iter(wliste);
+	if(wliste) {
+		slist_iterator_tpl<ware_t> iter(wliste);
 
-                while(iter.next()) {
-                        ware_t &tmp = iter.access_current();
+		while(iter.next()) {
+			ware_t &tmp = iter.access_current();
 
-                        // es wird auf basis von Haltestellen vereinigt
-                        // prissi: das ist aber ein Fehler für alle anderen Güter, daher Zielkoordinaten für alles, was kein passagier ist ...
-                        if(  tmp.gib_zielpos()==ware.gib_zielpos()
-                        	||  (is_pax   &&   gib_halt(welt,tmp.gib_ziel())==gib_halt(welt,ware.gib_ziel()) )
-                        ) {
-                                tmp.menge += ware.menge;
-						resort_freight_info = true;
-                                return true;
-                        }
-                }
-        }
-
-        return false;
+			// es wird auf basis von Haltestellen vereinigt
+			// prissi: das ist aber ein Fehler für alle anderen Güter, daher Zielkoordinaten für alles, was kein passagier ist ...
+			if(  tmp.gib_zielpos()==ware.gib_zielpos()
+					||  (is_pax   &&   gib_halt(welt,tmp.gib_ziel())==gib_halt(welt,ware.gib_ziel()) )
+			) {
+				tmp.menge += ware.menge;
+				resort_freight_info = true;
+				return true;
+			}
+		}
+	}
+	return false;
 }
 
 
@@ -1287,7 +1276,7 @@ haltestelle_t::vereinige_waren(const ware_t &ware)
 /* same as liefere an, but there will be no route calculated, since it hase be calculated just before
  * @author prissi
  */
-int
+uint32
 haltestelle_t::starte_mit_route(ware_t ware)
 {
 	// no valid next stops? Or we are the next stop?
@@ -1336,7 +1325,7 @@ haltestelle_t::starte_mit_route(ware_t ware)
  * if no route is found, it will be removed
  * @author prissi
  */
-int
+uint32
 haltestelle_t::liefere_an(ware_t ware)
 {
 	// no valid next stops?
@@ -1680,14 +1669,10 @@ void haltestelle_t::get_short_freight_info(cbuffer_t & buf)
 void
 haltestelle_t::zeige_info()
 {
-	// sync name with ground
-	access_name();
 	// open window
-
 	if(halt_info == 0) {
 		halt_info = new halt_info_t(welt, self);
 	}
-
 	create_win(-1, -1, halt_info, w_info);
 }
 
@@ -1850,7 +1835,7 @@ haltestelle_t::recalc_station_type()
 
 
 const char *
-haltestelle_t::name_from_ground() const
+haltestelle_t::gib_name() const
 {
 	const char *name = "Unknown";
 	if (grund.empty()) {
@@ -1858,37 +1843,13 @@ haltestelle_t::name_from_ground() const
 	}
 	else {
 		grund_t* bd = grund.front();
-
-		if(bd != NULL && bd->gib_text() != NULL) {
+		if(bd!=NULL  &&  bd->gib_text()!=NULL) {
 			name = bd->gib_text();
 		}
 	}
-
 	return name;
 }
 
-char *
-haltestelle_t::access_name()
-{
-	if (!grund.empty()) {
-		if(name!=name_from_ground()) {
-			tstrncpy(name, name_from_ground(), 128);
-			grund_t* bd = grund.front();
-			if(bd!=NULL) {
-				bd->setze_text(name);
-			}
-		}
-	}
-
-	return name;
-}
-
-
-const char *
-haltestelle_t::gib_name() const
-{
-    return name_from_ground();
-}
 
 
 int
@@ -1911,7 +1872,11 @@ haltestelle_t::rdwr(loadsave_t *file)
 	if(file->is_saving()) {
 		spieler_n = welt->sp2num( besitzer_p );
 	}
-	pos.rdwr( file );
+
+	if(file->get_version()<99008) {
+		koord dummy;
+		dummy.rdwr( file );
+	}
 	file->rdwr_long(spieler_n, "\n");
 
 	if(file->get_version()<=88005) {
@@ -1998,7 +1963,7 @@ haltestelle_t::rdwr(loadsave_t *file)
 			const ware_besch_t *ware = warenbauer_t::gib_info(s);
 
 			file->rdwr_short(count, " ");
-			if(count) {
+			if(count>0) {
 				slist_tpl<ware_t> *wlist = new slist_tpl<ware_t>;
 
 				for(int i = 0; i < count; i++) {

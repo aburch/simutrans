@@ -2424,13 +2424,12 @@ DBG_MESSAGE("spieler_t::create_simple_rail_transport()","building simple track f
 void
 spieler_t::rdwr(loadsave_t *file)
 {
-	int halt_count;
+	int halt_count=0;
 	int start_index=-1;
 	int ziel_index=-1;
 
 	// prepare for saving by default variables
 	if(file->is_saving()) {
-		halt_count = halt_list.count();
 DBG_DEBUG("spieler_t::rdwr()","%i has %i halts.",welt->sp2num( this ),halt_count);
 		start_index = welt->gib_fab_index(start);
 		ziel_index = welt->gib_fab_index(ziel);
@@ -2442,7 +2441,9 @@ DBG_DEBUG("spieler_t::rdwr()","%i has %i halts.",welt->sp2num( this ),halt_count
 	long farbe = kennfarbe;
 	file->rdwr_long(farbe, " ");
 	kennfarbe = (uint8)farbe;
-	file->rdwr_long(halt_count, " ");
+	if(file->get_version()<99008) {
+		file->rdwr_long(halt_count, " ");
+	}
 	file->rdwr_long(haltcount, " ");
 
 	if (file->get_version() < 84008) {
@@ -2547,14 +2548,7 @@ DBG_DEBUG("spieler_t::rdwr()","%i has %i halts.",welt->sp2num( this ),halt_count
 		dbg->fatal("spieler_t::rdwr()", "Ziel index is out of bounds: %d -> corrupt savegame?", ziel_index);
 	}
 
-	if(file->is_saving()) {
-		slist_iterator_tpl<halthandle_t> iter (halt_list);
-		while(iter.next()) {
-			iter.get_current()->rdwr( file );
-		}
-DBG_MESSAGE("spieler_t::rdwr","Save ok");
-	}
-	else {
+	if(file->is_loading()) {
 		// first: financial sanity check
 		for (int year = 0;year<MAX_HISTORY_YEARS;year++) {
 			sint64 value=0;
@@ -2592,6 +2586,7 @@ DBG_MESSAGE("spieler_t::rdwr","loading ...");
 		rail_weg = NULL;
 		road_weg = NULL;
 
+		// halt_count will be zero for newer savegames
 DBG_DEBUG("spieler_t::rdwr()","player %i: loading %i halts.",welt->sp2num( this ),halt_count);
 		for(int i=0; i<halt_count; i++) {
 			halthandle_t halt = haltestelle_t::create( welt, file );

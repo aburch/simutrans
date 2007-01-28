@@ -45,9 +45,9 @@ warenbauer_t::alles_geladen()
 	* Put special items in front:
 	* Volker Meyer
 	*/
+	waren.insert_at(0,load_nichts);
 	waren.insert_at(0,load_post);
 	waren.insert_at(0,load_passagiere);
-	waren.insert_at(0,load_nichts);
 
 	// init the lookup table in ware_t
 	for( unsigned i=0;  i<256;  i++  ) {
@@ -62,7 +62,7 @@ warenbauer_t::alles_geladen()
 		}
 	}
 	// none should never be loaded to something ...
-	ware_t::index_to_besch[0] = NULL;
+	ware_t::index_to_besch[2] = NULL;
 
 	if(waren.get_count()>255) {
 		dbg->fatal("warenbauer_t::alles_geladen()","Too many different goods %i>255",waren.get_count()-1 );
@@ -78,10 +78,10 @@ bool warenbauer_t::register_besch(ware_besch_t *besch)
 	besch_names.put(besch->gib_name(), const_cast<ware_besch_t *>(besch));
 
 	if(besch==passagiere) {
-		besch->ware_index = 1;
+		besch->ware_index = 0;
 		load_passagiere = besch;
 	} else if(besch==post) {
-		besch->ware_index = 2;
+		besch->ware_index = 1;
 		load_post = besch;
 	} else if(besch != nichts) {
 		besch->ware_index = waren.get_count()+3;
@@ -89,7 +89,7 @@ bool warenbauer_t::register_besch(ware_besch_t *besch)
 	}
 	else {
 		load_nichts = besch;
-		besch->ware_index = 0;
+		besch->ware_index = 2;
 	}
 	return true;
 }

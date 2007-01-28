@@ -18,6 +18,7 @@
 #include "../simcolor.h"
 #include "../simgraph.h"
 #include "../simskin.h"
+#include "../utils/simstring.h"
 #include "../freight_list_sorter.h"
 
 #include "../dataobj/translator.h"
@@ -66,7 +67,7 @@ const int cost_type_color[MAX_HALT_COST] =
 };
 
 halt_info_t::halt_info_t(karte_t *welt, halthandle_t halt)
- : gui_frame_t(halt->access_name(), halt->gib_besitzer()),
+ : gui_frame_t(edit_name, halt->gib_besitzer()),
   scrolly(&text),
   text("                                                                                     "
        " \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n"
@@ -79,7 +80,8 @@ halt_info_t::halt_info_t(karte_t *welt, halthandle_t halt)
 	this->halt = halt;
 
 	input.setze_pos(koord(11,4));
-	input.setze_text(halt->access_name(), 48);
+	tstrncpy( edit_name, halt->gib_name(), 256 );
+	input.setze_text( edit_name, 256 );
 
 	add_komponente(&sort_label);
 
@@ -117,6 +119,7 @@ halt_info_t::halt_info_t(karte_t *welt, halthandle_t halt)
 	resize(koord(0,0));
 
 	button.add_listener(this);
+//	input.add_listener(this);
 	sort_button.add_listener(this);
 
 	// chart
@@ -144,6 +147,7 @@ halt_info_t::halt_info_t(karte_t *welt, halthandle_t halt)
 }
 
 
+
 /**
  * Komponente neu zeichnen. Die übergebenen Werte beziehen sich auf
  * das Fenster, d.h. es sind die Bildschirkoordinaten des Fensters
@@ -154,6 +158,10 @@ void
 halt_info_t::zeichnen(koord pos, koord gr)
 {
 	if(halt.is_bound()) {
+		if(strcmp(edit_name,halt->gib_name())) {
+			halt->setze_name( edit_name );
+		}
+
 		// buffer update now only when needed by halt itself => dedicated buffer for this
 		int old_len=freight_info.len();
 		halt->get_freight_info(freight_info);

@@ -1050,9 +1050,15 @@ vehikel_t::calc_bild()
 void
 vehikel_t::rdwr(loadsave_t *file)
 {
-	int fracht_count = fracht.count();	// we try to have one freight count to geuss the right when no besch is given
-	if(fracht_count==0) {
-		fracht_count = 1;
+	int fracht_count = 0;
+
+	if(file->is_saving()) {
+		fracht_count = fracht.count();
+		// we try to have one freight count to guess the right freight
+		// when no besch is given
+		if(fracht_count==0  &&  besch->gib_ware()!=warenbauer_t::nichts  &&  besch->gib_zuladung()>0) {
+			fracht_count = 1;
+		}
 	}
 
 	ding_t::rdwr(file);
@@ -1092,6 +1098,7 @@ DBG_MESSAGE("vehicle_t::rdwr()","bought at %i/%i.",(insta_zeit%12)+1,insta_zeit/
 		file->rdwr_long(fracht_count, " ");
 		file->rdwr_short(route_index, "\n");
 	}
+
 	// information about the target halt
 	if(file->get_version()>=88007) {
 		bool target_info;
@@ -1110,6 +1117,7 @@ DBG_MESSAGE("vehicle_t::rdwr()","bought at %i/%i.",(insta_zeit%12)+1,insta_zeit/
 		}
 	}
 
+	// only 2d now ...
 	koord3d dummy = koord3d(pos_prev,0);
 	dummy.rdwr(file);
 	pos_prev = dummy.gib_2d();
@@ -1135,19 +1143,19 @@ DBG_MESSAGE("vehicle_t::rdwr()","bought at %i/%i.",(insta_zeit%12)+1,insta_zeit/
 		guarded_free(const_cast<char *>(s));
   }
 
-		if(file->is_saving()) {
-			if (fracht.empty()) {
-				// create dummy freight for savegame compatibility
-				ware_t ware( besch->gib_ware() );
-				ware.menge = 0;
-				ware.setze_ziel( gib_pos().gib_2d() );
-				ware.setze_zwischenziel( gib_pos().gib_2d() );
-				ware.setze_zielpos( gib_pos().gib_2d() );
-				ware.rdwr(file);
-			}
-			else {
-				slist_iterator_tpl<ware_t> iter(fracht);
-				while(iter.next()) {
+	if(file->is_saving()) {
+		if (fracht.empty()  &&  fracht_count>0) {
+			// create dummy freight for savegame compatibility
+			ware_t ware( besch->gib_ware() );
+			ware.menge = 0;
+			ware.setze_ziel( gib_pos().gib_2d() );
+			ware.setze_zwischenziel( gib_pos().gib_2d() );
+			ware.setze_zielpos( gib_pos().gib_2d() );
+			ware.rdwr(file);
+		}
+		else {
+			slist_iterator_tpl<ware_t> iter(fracht);
+			while(iter.next()) {
 				ware_t ware = iter.get_current();
 				ware.rdwr(file);
 			}
