@@ -173,7 +173,7 @@ bool vehikel_t::load_freight(halthandle_t halt)
 				return ok;
 			}
 
-			const bool is_pax = (ware.gib_typ()==warenbauer_t::passagiere  ||  ware.gib_typ()==warenbauer_t::post);
+			const bool is_pax = !ware.is_freight();
 			slist_iterator_tpl<ware_t> iter (fracht);
 
 			// could this be joined with existing freight?
@@ -215,13 +215,13 @@ vehikel_basis_t::vehikel_basis_t(karte_t *welt):
 }
 
 
+
 vehikel_basis_t::vehikel_basis_t(karte_t *welt, koord3d pos):
     ding_t(welt, pos)
 {
 	bild = IMG_LEER;
 	set_flag( ding_t::is_vehicle );
 }
-
 
 
 
@@ -1151,19 +1151,19 @@ DBG_MESSAGE("vehicle_t::rdwr()","bought at %i/%i.",(insta_zeit%12)+1,insta_zeit/
 			ware.setze_ziel( gib_pos().gib_2d() );
 			ware.setze_zwischenziel( gib_pos().gib_2d() );
 			ware.setze_zielpos( gib_pos().gib_2d() );
-			ware.rdwr(file);
+			ware.rdwr(welt,file);
 		}
 		else {
 			slist_iterator_tpl<ware_t> iter(fracht);
 			while(iter.next()) {
 				ware_t ware = iter.get_current();
-				ware.rdwr(file);
+				ware.rdwr(welt,file);
 			}
 		}
 	}
 	else {
 		for(int i=0; i<fracht_count; i++) {
-			ware_t ware(file);
+			ware_t ware(welt,file);
 			if(besch==NULL  ||  ware.menge>0) {	// also add, of the besch is unknown to find matching replacement
 				fracht.insert(ware);
 			}
@@ -1552,7 +1552,7 @@ automobil_t::rdwr(loadsave_t *file, bool force)
 				calc_bild();
 			}
 			if (!fracht.empty() && fracht.front().menge == 0) {
-				// this was only there to find a matchin vehicle
+				// this was only there to find a matching vehicle
 				fracht.remove_first();
 			}
 		}

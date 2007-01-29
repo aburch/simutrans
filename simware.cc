@@ -42,9 +42,9 @@ ware_t::ware_t(const ware_besch_t *wtyp) : ziel(-1, -1), zwischenziel(-1, -1), z
 	index = warenbauer_t::gib_index(wtyp);
 }
 
-ware_t::ware_t(loadsave_t *file)
+ware_t::ware_t(karte_t *welt,loadsave_t *file)
 {
-	rdwr(file);
+	rdwr(welt,file);
 }
 
 
@@ -57,7 +57,7 @@ ware_t::setze_typ(const ware_besch_t* type)
 
 
 void
-ware_t::rdwr(loadsave_t *file)
+ware_t::rdwr(karte_t *welt,loadsave_t *file)
 {
 	sint32 amount = menge;
 	file->rdwr_long(amount, " ");

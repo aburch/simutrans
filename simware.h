@@ -4,8 +4,9 @@
 #include "dataobj/koord.h"
 #include "bauer/warenbauer.h"
 #include "besch/ware_besch.h"
-class ware_besch_t;
 
+class ware_besch_t;
+class karte_t;
 
 /** Eine Klasse zur Verwaltung von Informationen ueber Fracht und Waren */
 class ware_t
@@ -53,7 +54,7 @@ public:
 
 	ware_t();
 	ware_t(const ware_besch_t *typ);
-	ware_t(loadsave_t *file);
+	ware_t(karte_t *welt,loadsave_t *file);
 
 	/**
 	 * gibt den nicht-uebersetzten warennamen zurück
@@ -63,11 +64,12 @@ public:
 	const char *gib_mass() const { return gib_typ()->gib_mass(); }
 	uint16 gib_preis() const { return gib_typ()->gib_preis(); }
 	uint8 gib_catg() const { return gib_typ()->gib_catg(); }
+	uint8 gib_index() const { return index; }
 
 	const ware_besch_t* gib_typ() const { return index_to_besch[index]; }
 	void setze_typ(const ware_besch_t* type);
 
-	void rdwr(loadsave_t *file);
+	void rdwr(karte_t *welt,loadsave_t *file);
 
 	// find out the category ...
 	bool is_passenger() const {  return index==0; }
@@ -77,10 +79,9 @@ public:
 	int operator==(const ware_t &w) {
 		return index  == w.index  &&
 			menge == w.menge &&
-//			max   == w.max   &&
 			ziel  == w.ziel  &&
 			zwischenziel == w.zwischenziel &&
-			zielpos      == w.zielpos;
+			zielpos == w.zielpos;
 	}
 
 	int operator!=(const ware_t &w) { return !(*this == w); 	}

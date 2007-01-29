@@ -315,7 +315,7 @@ haltestelle_t::haltestelle_t(karte_t *wl, loadsave_t *file)
 }
 
 
-haltestelle_t::haltestelle_t(karte_t *wl, koord pos, spieler_t *sp)
+haltestelle_t::haltestelle_t(karte_t *wl, koord, spieler_t *sp)
 	: reservation(0), registered_lines(0)
 {
 	self = halthandle_t(this);
@@ -462,10 +462,16 @@ void haltestelle_t::reroute_goods()
 
 		// Hajo:
 		// Step 1: re-route goods now and then to adapt to changes in
-		// world layout, remove all goods which destination was removed
-		// from the map
-		for(unsigned i=0;  i<warray->get_count();  i++  ) {
+		// world layout, remove all goods which destination was removed from the map
+		// prissi;
+		// also the empty entries of the array are cleared
+		for(int i=warray->get_count()-1;  i>=0;  i--  ) {
 			ware_t & ware = (*warray)[i];
+
+			if(ware.menge==0) {
+				warray->remove_at(i);
+				continue;
+			}
 
 			// since also the factory halt list is added to the ground, we can use just this ...
 			if(welt->lookup(ware.gib_zielpos())->is_connected(self)) {
@@ -474,7 +480,6 @@ void haltestelle_t::reroute_goods()
 					liefere_an_fabrik(ware);
 				}
 				warray->remove_at(i);
-				i--;
 				continue;
 			}
 
@@ -485,7 +490,6 @@ void haltestelle_t::reroute_goods()
 			if(!gib_halt(welt,ware.gib_ziel()).is_bound() ||  !gib_halt(welt,ware.gib_zwischenziel()).is_bound()) {
 				// remove invalid destinations
 				warray->remove_at(i);
-				i--;
 				continue;
 			}
 		}
@@ -528,42 +532,40 @@ void haltestelle_t::recalc_status()
 }
 
 
+
 /**
  * Draws some nice colored bars giving some status information
  * @author Hj. Malthaner
  */
 void haltestelle_t::display_status(int xpos, int ypos) const
 {
-  const int count = warenbauer_t::gib_waren_anzahl();
+	const int count = warenbauer_t::gib_waren_anzahl();
 
-  ypos -= 11;
-  // all variables in the bracket MUST be signed, otherwise nothing may be drawn at all
-  xpos -= (count*4 - get_tile_raster_width())/2;
+	ypos -= 11;
+	// all variables in the bracket MUST be signed, otherwise nothing may be drawn at all
+	xpos -= (count*4 - get_tile_raster_width())/2;
 
-  for( int i=0; i+1<count; i++) {
-    const ware_besch_t *wtyp = warenbauer_t::gib_info(i+1);
+	for( int i=0; i+1<count; i++) {
+		const ware_besch_t *wtyp = warenbauer_t::gib_info(i+1);
 
-    const int v = min((gib_ware_summe(wtyp) >> 2) + 2, 128);
+		const int v = min((gib_ware_summe(wtyp) >> 2) + 2, 128);
 
-    display_fillbox_wh_clip(xpos+i*4, ypos-v-1, 1, v, COL_GREY4, true);
+		display_fillbox_wh_clip(xpos+i*4, ypos-v-1, 1, v, COL_GREY4, true);
+		display_fillbox_wh_clip(xpos+i*4+1, ypos-v-1, 2, v, 255 - i*4, true);
+		display_fillbox_wh_clip(xpos+i*4+3, ypos-v-1, 1, v, COL_GREY1, true);
 
-    display_fillbox_wh_clip(xpos+i*4+1, ypos-v-1, 2, v,
-			    // (i & 7) * 4 + 1,
-			    255 - i*4, true);
+		// Hajo: show up arrow for capped values
+		if(v == 128) {
+			display_fillbox_wh_clip(xpos+i*4+1, ypos-v-6, 2, 4, COL_WHITE, true);
+			display_fillbox_wh_clip(xpos+i*4, ypos-v-5, 4, 1, COL_WHITE, true);
+		}
+	}
 
-    display_fillbox_wh_clip(xpos+i*4+3, ypos-v-1, 1, v, COL_GREY1, true);
-
-    // Hajo: show up arrow for capped values
-    if(v == 128) {
-      display_fillbox_wh_clip(xpos+i*4+1, ypos-v-6, 2, 4, COL_WHITE, true);
-      display_fillbox_wh_clip(xpos+i*4, ypos-v-5, 4, 1, COL_WHITE, true);
-    }
-  }
-
-  const int color = gib_status_farbe();
-
-  display_fillbox_wh_clip(xpos-1, ypos, count*4-2, 4, color, true);
+	const int color = gib_status_farbe();
+	display_fillbox_wh_clip(xpos-1, ypos, count*4-2, 4, color, true);
 }
+
+
 
 /*
  * connects a factory to a halt
@@ -603,22 +605,14 @@ haltestelle_t::verbinde_fabriken()
 }
 
 
+
 /*
  * removes factory to a halt
  */
 void
 haltestelle_t::remove_fabriken(fabrik_t *fab)
 {
-DBG_MESSAGE("haltestelle_t::remove_fabriken()","removing %p",fab);
-	for(unsigned i=0;  i<fab_list.count();  i++ ) {
-DBG_MESSAGE("haltestelle_t::remove_fabriken()","fab_list at(%i) = %p",i,fab_list.at(i));
-	}
-DBG_MESSAGE("haltestelle_t::remove_fabriken()","removing %s",fab->gib_name());
-	bool ok=fab_list.remove(fab);
-DBG_MESSAGE("karte_t::remove_fabriken()","fab_list now %i(%i)",fab_list.count(),ok);
-	for(unsigned i=0;  i<fab_list.count();  i++ ) {
-DBG_MESSAGE("haltestelle_t::remove_fabriken()","fab_list at(%i) = %p",i,fab_list.at(i));
-	}
+	fab_list.remove(fab);
 }
 
 
@@ -893,8 +887,8 @@ found:
  */
 void haltestelle_t::add_pax_happy(int n)
 {
-  pax_happy += n;
-  book(n, HALT_HAPPY);
+	pax_happy += n;
+	book(n, HALT_HAPPY);
 }
 
 
@@ -905,8 +899,8 @@ void haltestelle_t::add_pax_happy(int n)
  */
 void haltestelle_t::add_pax_no_route(int n)
 {
-  pax_no_route += n;
-  book(n, HALT_NOROUTE);
+	pax_no_route += n;
+	book(n, HALT_NOROUTE);
 }
 
 
@@ -917,8 +911,8 @@ void haltestelle_t::add_pax_no_route(int n)
  */
 void haltestelle_t::add_pax_unhappy(int n)
 {
-  pax_unhappy += n;
-  book(n, HALT_UNHAPPY);
+	pax_unhappy += n;
+	book(n, HALT_UNHAPPY);
 }
 
 
@@ -1078,17 +1072,17 @@ haltestelle_t::get_next_pos( koord start ) const
 bool
 haltestelle_t::gibt_ab(const ware_besch_t *wtyp) const
 {
-  // Exact match?
-  bool ok = waren.get(wtyp) != 0;
+	// Exact match?
+	bool ok = waren.get(wtyp) != 0;
 
-  if(!ok) {
-    // Check for category match
-    ptrhashtable_iterator_tpl<const ware_besch_t *, vector_tpl<ware_t> *> iter (waren);
-    while (!ok && iter.next()) {
-      ok = wtyp->is_interchangeable(iter.get_current_key());
-    }
-  }
-  return ok;
+	if(!ok) {
+		// Check for category match
+		ptrhashtable_iterator_tpl<const ware_besch_t *, vector_tpl<ware_t> *> iter (waren);
+		while (!ok && iter.next()) {
+			ok = wtyp->is_interchangeable(iter.get_current_key());
+		}
+	}
+	return ok;
 }
 
 
@@ -1107,7 +1101,7 @@ haltestelle_t::hole_ab(const ware_besch_t *wtyp, uint32 maxi, fahrplan_t *fpl)
 	for(int i=1; i<count; i++) {
 		const int wrap_i = (i + fpl->aktuell) % count;
 
-		halthandle_t plan_halt = gib_halt(welt, fpl->eintrag[wrap_i].pos.gib_2d());
+		const halthandle_t plan_halt = gib_halt(welt, fpl->eintrag[wrap_i].pos.gib_2d());
 
 		if(plan_halt == self) {
 			// we will come later here again ...
@@ -1117,36 +1111,40 @@ haltestelle_t::hole_ab(const ware_besch_t *wtyp, uint32 maxi, fahrplan_t *fpl)
 
 			for(unsigned int i=0; i<warenbauer_t::gib_waren_anzahl(); i++) {
 				const ware_besch_t *ware = warenbauer_t::gib_info(i);
-				vector_tpl<ware_t> * warray = waren.get(ware);
+				if(wtyp->is_interchangeable(ware)) {
+					vector_tpl<ware_t> * warray = waren.get(ware);
 
-				if(warray) {
-					for(unsigned i=0;  i<warray->get_count();  i++ ) {
-						ware_t &tmp = (*warray)[i];
+					if(warray) {
+						for(unsigned i=0;  i<warray->get_count();  i++ ) {
+							ware_t &tmp = (*warray)[i];
 
-						// passt der Warentyp?
-						bool ok = wtyp->is_interchangeable(tmp.gib_typ());
-
-						// ok, wants to go here
-						if(ok  &&  gib_halt(welt,tmp.gib_zwischenziel())==plan_halt ) {
-
-							// not too much?
-							ware_t neu (tmp);
-							if(tmp.menge > maxi) {
-								// not all can be loaded
-								neu.menge = maxi;
-								tmp.menge -= maxi;
+							// skip empty entries
+							if(tmp.menge==0) {
+								continue;
 							}
-							else {
-								// leave an empty entry => joining will more often work
-								tmp.menge = 0;
+
+							// compatible car and right target stop?
+							if(gib_halt(welt,tmp.gib_zwischenziel())==plan_halt ) {
+
+								// not too much?
+								ware_t neu (tmp);
+								if(tmp.menge > maxi) {
+									// not all can be loaded
+									neu.menge = maxi;
+									tmp.menge -= maxi;
+								}
+								else {
+									// leave an empty entry => joining will more often work
+									tmp.menge = 0;
+								}
+								book(neu.menge, HALT_DEPARTED);
+								resort_freight_info = true;
+								return neu;
 							}
-							book(neu.menge, HALT_DEPARTED);
-							resort_freight_info = true;
-							return neu;
 						}
-					}
 
-					// nothing there to load
+						// nothing there to load
+					}
 				}
 			}
 		}
@@ -1284,7 +1282,7 @@ haltestelle_t::starte_mit_route(ware_t ware)
 		}
 	}
 	// here, if no free entries found
-	warray->append(ware,1);
+	warray->append(ware,4);
 	return ware.menge;
 }
 
@@ -1910,7 +1908,7 @@ haltestelle_t::rdwr(loadsave_t *file)
 				file->rdwr_short(count, " ");
 				for(unsigned i=0;  i<warray->get_count();  i++ ) {
 					ware_t &ware = (*warray)[i];
-					ware.rdwr(file);
+					ware.rdwr(welt,file);
 				}
 			}
 		}
@@ -1937,7 +1935,7 @@ haltestelle_t::rdwr(loadsave_t *file)
 			if(count>0) {
 				vector_tpl<ware_t> *warray = new vector_tpl<ware_t>(count);
 				for(int i = 0; i < count; i++) {
-					ware_t ware(file);
+					ware_t ware(welt,file);
 					if(ware.menge>0) {
 						warray->append(ware);
 					}
