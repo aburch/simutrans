@@ -42,7 +42,15 @@ class ware_besch_t : public obj_besch_std_name_t {
 	*/
 	uint8 catg;
 
-	// just for sorting etc.
+	/**
+	* total index, all ware with same cagt index will be compatible,
+	* including special freight
+	* assigned during registration
+	* @author prissi
+	*/
+	uint8 catg_index;
+
+	// used for inderect index (saves 3 bytes per ware_t!)
 	// assinged during registration
 	uint8 ware_index;
 
@@ -80,6 +88,12 @@ public:
 	uint8 gib_catg() const { return catg; }
 
 	/**
+	* @return Category of the good
+	* @author Hj. Malthaner
+	*/
+	uint8 gib_catg_index() const { return catg_index; }
+
+	/**
 	* @return internal index (just a number, passenger, then mail, then something ... )
 	* @author prissi
 	*/
@@ -107,7 +121,7 @@ public:
 	*/
 	bool is_interchangeable(const ware_besch_t *other) const
 	{
-		return (catg) ? (catg == other->catg) : (this == other);
+		return catg_index == other->gib_catg_index();
 	}
 };
 

@@ -39,7 +39,7 @@ ware_t::ware_t() : ziel(-1, -1), zwischenziel(-1, -1), zielpos(-1, -1)
 ware_t::ware_t(const ware_besch_t *wtyp) : ziel(-1, -1), zwischenziel(-1, -1), zielpos(-1, -1)
 {
 	menge = 0;
-	index = warenbauer_t::gib_index(wtyp);
+	index = wtyp->gib_index();
 }
 
 ware_t::ware_t(karte_t *welt,loadsave_t *file)

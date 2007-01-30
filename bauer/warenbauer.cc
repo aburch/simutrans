@@ -18,6 +18,9 @@ stringhashtable_tpl<const ware_besch_t *> warenbauer_t::besch_names;
 
 vector_tpl<ware_besch_t *> warenbauer_t::waren;
 
+uint8 warenbauer_t::max_catg_index = 0;
+uint8 warenbauer_t::max_special_catg_index = 0;
+
 const ware_besch_t *warenbauer_t::passagiere = NULL;
 const ware_besch_t *warenbauer_t::post = NULL;
 const ware_besch_t *warenbauer_t::nichts = NULL;
@@ -41,6 +44,7 @@ warenbauer_t::alles_geladen()
 	if(!::alles_geladen(spezial_objekte)) {
 		return false;
 	}
+
 	/**
 	* Put special items in front:
 	* Volker Meyer
@@ -48,6 +52,33 @@ warenbauer_t::alles_geladen()
 	waren.insert_at(0,load_nichts);
 	waren.insert_at(0,load_post);
 	waren.insert_at(0,load_passagiere);
+
+	if(waren.get_count()>255) {
+		dbg->fatal("warenbauer_t::alles_geladen()","Too many different goods %i>255",waren.get_count()-1 );
+	}
+
+	// now assign unique category indexes for unique categories
+	max_catg_index = 0;
+	// first assign special freight (which always needs an own category)
+	for( unsigned i=0;  i<waren.get_count();  i++  ) {
+		// skipping none ...
+		if(i==2) continue;
+		if(waren[i]->gib_catg()==0) {
+			waren[i]->catg_index = max_catg_index++;
+		}
+	}
+	max_special_catg_index = max_catg_index-1;
+	// now assign all unused waren.
+	for( unsigned i=0;  i<waren.get_count();  i++  ) {
+		// now search, if we already have a matching category
+		if(waren[i]->gib_catg()>0) {
+			waren[i]->catg_index = waren[i]->catg+max_special_catg_index;
+			if(waren[i]->gib_catg_index()>max_catg_index) {
+				// find the higest catg used ...
+				max_catg_index = waren[i]->gib_catg_index()+1;
+			}
+		}
+	}
 
 	// init the lookup table in ware_t
 	for( unsigned i=0;  i<256;  i++  ) {
@@ -65,9 +96,8 @@ warenbauer_t::alles_geladen()
 	// however, some place do need the dummy ...
 	ware_t::index_to_besch[2] = NULL;
 
-	if(waren.get_count()>255) {
-		dbg->fatal("warenbauer_t::alles_geladen()","Too many different goods %i>255",waren.get_count()-1 );
-	}
+	DBG_MESSAGE("warenbauer_t::alles_geladen()","total goods %i, different kind of categories %i", waren.get_count(), max_catg_index );
+
 	return true;
 }
 
@@ -122,6 +152,20 @@ warenbauer_t::gib_info_catg(const uint8 catg)
 	}
 	dbg->warning("warenbauer_t::gib_info()", "No info for good catg %d available, set to passengers", catg);
 	return waren[0];
+}
+
+
+
+const ware_besch_t *
+warenbauer_t::gib_info_catg_index(const uint8 catg_index)
+{
+	for(unsigned i=0;  i<gib_waren_anzahl();  i++  ) {
+		if(waren[i]->gib_catg_index()==catg_index) {
+			return waren[i];
+		}
+	}
+	// return none as default
+	return waren[2];
 }
 
 

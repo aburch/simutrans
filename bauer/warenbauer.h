@@ -33,6 +33,11 @@ private:
 	static ware_besch_t *load_post;
 	static ware_besch_t *load_nichts;
 
+	// number of different good classes;
+	static uint8 max_catg_index;
+	// up to this are special freight indexes
+	static uint8 max_special_catg_index;
+
 public:
 	enum { INDEX_PAS=0, INDEX_MAIL=1, INDEX_NONE=2 };
 
@@ -42,6 +47,9 @@ public:
 
 	static bool alles_geladen();
 	static bool register_besch(ware_besch_t *besch);
+
+	static const uint8 gib_max_catg_index() { return max_catg_index; }
+
 	/**
 	* Sucht information zur ware 'name' und gibt die
 	* Beschreibung davon zurück. Gibt NULL zurück wenn die
@@ -54,23 +62,13 @@ public:
 
 	static const ware_besch_t *gib_info(uint16 idx) { return waren[idx]; }
 
-	static bool ist_fabrik_ware(const ware_besch_t *ware)
-	{
-		return ware != post && ware != passagiere && ware != nichts;
-	}
-
-	static int gib_index(const ware_besch_t *ware)
-	{
-		return ware->gib_index();
-	}
-
-	static unsigned int gib_waren_anzahl()
-	{
-		return waren.get_count();
-	}
+	static unsigned int gib_waren_anzahl() { return waren.get_count(); }
 
 	// ware by catg
 	static const ware_besch_t *gib_info_catg(const uint8 catg);
+
+	// ware by catg_index
+	static const ware_besch_t *gib_info_catg_index(const uint8 catg_index);
 
 	/*
 	 * allow to multiply all prices, 1000=1.0

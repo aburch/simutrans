@@ -296,6 +296,7 @@ haltestelle_t::haltestelle_t(karte_t *wl, loadsave_t *file)
 	pax_happy = 0;
 	pax_unhappy = 0;
 	pax_no_route = 0;
+	waren = (vector_tpl<ware_t> **)calloc( sizeof(vector_tpl<ware_t> *), warenbauer_t::gib_max_catg_index() );
 
 	status_color = COL_YELLOW;
 
@@ -334,6 +335,7 @@ haltestelle_t::haltestelle_t(karte_t *wl, koord, spieler_t *sp)
 
 	reroute_counter = welt->get_schedule_counter()-1;
 	rebuilt_destination_counter = reroute_counter;
+	waren = (vector_tpl<ware_t> **)calloc( sizeof(vector_tpl<ware_t> *), warenbauer_t::gib_max_catg_index() );
 
 	pax_happy = 0;
 	pax_unhappy = 0;
@@ -362,14 +364,11 @@ haltestelle_t::~haltestelle_t()
 	alle_haltestellen.remove(self);
 	self.unbind();
 
-	for(unsigned int i=0; i<warenbauer_t::gib_waren_anzahl(); i++) {
-		const ware_besch_t *ware = warenbauer_t::gib_info(i);
-		vector_tpl<ware_t> *warray = waren.get(ware);
-
-		if(warray) {
-			waren.remove(ware);
-			delete warray;
+	for(unsigned i=0; i<warenbauer_t::gib_max_catg_index(); i++) {
+		if(waren[i]) {
+			delete waren[i];
 		}
+		free(waren);
 	}
 	// route may have changed without this station ...
 	welt->set_schedule_counter();
@@ -436,7 +435,7 @@ void haltestelle_t::neuer_monat()
 	pax_no_route = 0;
 	pax_unhappy = 0;
 
-		// hsiegeln: roll financial history
+	// hsiegeln: roll financial history
 	for (int j = 0; j<MAX_HALT_COST; j++) {
 		for (int k = MAX_MONTHS-1; k>0; k--) {
 			financial_history[k][j] = financial_history[k-1][j];
@@ -455,42 +454,42 @@ void haltestelle_t::neuer_monat()
 void haltestelle_t::reroute_goods()
 {
 	// reroute only on demand
-	ptrhashtable_iterator_tpl<const ware_besch_t *, vector_tpl<ware_t> *> waren_iter(waren);
+	for(unsigned i=0; i<warenbauer_t::gib_max_catg_index(); i++) {
+		if(waren[i]) {
+			vector_tpl<ware_t> * warray = waren[i];
 
-	while(waren_iter.next()) {
-		vector_tpl<ware_t> * warray = waren_iter.get_current_value();
+			// Hajo:
+			// Step 1: re-route goods now and then to adapt to changes in
+			// world layout, remove all goods which destination was removed from the map
+			// prissi;
+			// also the empty entries of the array are cleared
+			for(int i=warray->get_count()-1;  i>=0;  i--  ) {
+				ware_t & ware = (*warray)[i];
 
-		// Hajo:
-		// Step 1: re-route goods now and then to adapt to changes in
-		// world layout, remove all goods which destination was removed from the map
-		// prissi;
-		// also the empty entries of the array are cleared
-		for(int i=warray->get_count()-1;  i>=0;  i--  ) {
-			ware_t & ware = (*warray)[i];
-
-			if(ware.menge==0) {
-				warray->remove_at(i);
-				continue;
-			}
-
-			// since also the factory halt list is added to the ground, we can use just this ...
-			if(welt->lookup(ware.gib_zielpos())->is_connected(self)) {
-				// we are already there!
-				if(warenbauer_t::ist_fabrik_ware(ware.gib_typ())) {
-					liefere_an_fabrik(ware);
+				if(ware.menge==0) {
+					warray->remove_at(i);
+					continue;
 				}
-				warray->remove_at(i);
-				continue;
-			}
 
-			suche_route(ware);
-			INT_CHECK("simhalt 484");
+				// since also the factory halt list is added to the ground, we can use just this ...
+				if(welt->lookup(ware.gib_zielpos())->is_connected(self)) {
+					// we are already there!
+					if(ware.is_freight()) {
+						liefere_an_fabrik(ware);
+					}
+					warray->remove_at(i);
+					continue;
+				}
 
-			// check if this good can still reach its destination
-			if(!gib_halt(welt,ware.gib_ziel()).is_bound() ||  !gib_halt(welt,ware.gib_zwischenziel()).is_bound()) {
-				// remove invalid destinations
-				warray->remove_at(i);
-				continue;
+				suche_route(ware);
+				INT_CHECK("simhalt 484");
+
+				// check if this good can still reach its destination
+				if(!gib_halt(welt,ware.gib_ziel()).is_bound() ||  !gib_halt(welt,ware.gib_zwischenziel()).is_bound()) {
+					// remove invalid destinations
+					warray->remove_at(i);
+					continue;
+				}
 			}
 		}
 	}
@@ -1069,24 +1068,6 @@ haltestelle_t::get_next_pos( koord start ) const
 
 
 
-bool
-haltestelle_t::gibt_ab(const ware_besch_t *wtyp) const
-{
-	// Exact match?
-	bool ok = waren.get(wtyp) != 0;
-
-	if(!ok) {
-		// Check for category match
-		ptrhashtable_iterator_tpl<const ware_besch_t *, vector_tpl<ware_t> *> iter (waren);
-		while (!ok && iter.next()) {
-			ok = wtyp->is_interchangeable(iter.get_current_key());
-		}
-	}
-	return ok;
-}
-
-
-
 // will load something compatible with wtyp into the car which schedule is fpl
 ware_t
 haltestelle_t::hole_ab(const ware_besch_t *wtyp, uint32 maxi, fahrplan_t *fpl)
@@ -1095,57 +1076,51 @@ haltestelle_t::hole_ab(const ware_besch_t *wtyp, uint32 maxi, fahrplan_t *fpl)
 	// might be a little slower, but ensures that passengers to nearest stop are served first
 	// this allows for separate high speed and normal service
 	const int count = fpl->maxi();
+	vector_tpl<ware_t> * warray = waren[wtyp->gib_catg_index()];
 
-	// da wir schon an der aktuellem haltestelle halten
-	// startet die schleife ab 1, d.h. dem naechsten halt
-	for(int i=1; i<count; i++) {
-		const int wrap_i = (i + fpl->aktuell) % count;
+	if(warray!=NULL) {
 
-		const halthandle_t plan_halt = gib_halt(welt, fpl->eintrag[wrap_i].pos.gib_2d());
+		// da wir schon an der aktuellem haltestelle halten
+		// startet die schleife ab 1, d.h. dem naechsten halt
+		for(int i=1; i<count; i++) {
+			const int wrap_i = (i + fpl->aktuell) % count;
 
-		if(plan_halt == self) {
-			// we will come later here again ...
-			break;
-		}
-		else {
+			const halthandle_t plan_halt = gib_halt(welt, fpl->eintrag[wrap_i].pos.gib_2d());
+			if(plan_halt == self) {
+				// we will come later here again ...
+				break;
+			}
+			else {
 
-			for(unsigned int i=0; i<warenbauer_t::gib_waren_anzahl(); i++) {
-				const ware_besch_t *ware = warenbauer_t::gib_info(i);
-				if(wtyp->is_interchangeable(ware)) {
-					vector_tpl<ware_t> * warray = waren.get(ware);
+				for(unsigned i=0;  i<warray->get_count();  i++ ) {
+					ware_t &tmp = (*warray)[i];
 
-					if(warray) {
-						for(unsigned i=0;  i<warray->get_count();  i++ ) {
-							ware_t &tmp = (*warray)[i];
+					// skip empty entries
+					if(tmp.menge==0) {
+						continue;
+					}
 
-							// skip empty entries
-							if(tmp.menge==0) {
-								continue;
-							}
+					// compatible car and right target stop?
+					if(gib_halt(welt,tmp.gib_zwischenziel())==plan_halt ) {
 
-							// compatible car and right target stop?
-							if(gib_halt(welt,tmp.gib_zwischenziel())==plan_halt ) {
-
-								// not too much?
-								ware_t neu (tmp);
-								if(tmp.menge > maxi) {
-									// not all can be loaded
-									neu.menge = maxi;
-									tmp.menge -= maxi;
-								}
-								else {
-									// leave an empty entry => joining will more often work
-									tmp.menge = 0;
-								}
-								book(neu.menge, HALT_DEPARTED);
-								resort_freight_info = true;
-								return neu;
-							}
+						// not too much?
+						ware_t neu (tmp);
+						if(tmp.menge > maxi) {
+							// not all can be loaded
+							neu.menge = maxi;
+							tmp.menge -= maxi;
 						}
-
-						// nothing there to load
+						else {
+							// leave an empty entry => joining will more often work
+							tmp.menge = 0;
+						}
+						book(neu.menge, HALT_DEPARTED);
+						resort_freight_info = true;
+						return neu;
 					}
 				}
+
+				// nothing there to load
 			}
 		}
 	}
@@ -1157,13 +1132,15 @@ haltestelle_t::hole_ab(const ware_besch_t *wtyp, uint32 maxi, fahrplan_t *fpl)
 
 
 uint32
-haltestelle_t::gib_ware_summe(const ware_besch_t *typ) const
+haltestelle_t::gib_ware_summe(const ware_besch_t *wtyp) const
 {
 	int sum = 0;
-	vector_tpl<ware_t> * warray = waren.get(typ);
-	if(warray) {
+	vector_tpl<ware_t> * warray = waren[wtyp->gib_catg_index()];
+	if(warray!=NULL) {
 		for(unsigned i=0;  i<warray->get_count();  i++ ) {
-			sum += (*warray)[i].menge;
+			if(wtyp->gib_index()==(*warray)[i].gib_index()) {
+				sum += (*warray)[i].menge;
+			}
 		}
 	}
 	return sum;
@@ -1172,15 +1149,15 @@ haltestelle_t::gib_ware_summe(const ware_besch_t *typ) const
 
 
 uint32
-haltestelle_t::gib_ware_fuer_ziel(const ware_besch_t *typ,
+haltestelle_t::gib_ware_fuer_ziel(const ware_besch_t *wtyp,
 				  const koord ziel) const
 {
-	int sum = 0;
-	vector_tpl<ware_t> * warray = waren.get(typ);
-	if(warray) {
+	uint32 sum = 0;
+	vector_tpl<ware_t> * warray = waren[wtyp->gib_catg_index()];
+	if(warray!=NULL) {
 		for(unsigned i=0;  i<warray->get_count();  i++ ) {
 			ware_t &ware = (*warray)[i];
-			if(ware.gib_ziel() == ziel) {
+			if(wtyp->gib_index()==ware.gib_index()  &&  ware.gib_ziel()==ziel) {
 				sum += ware.menge;
 			}
 		}
@@ -1191,14 +1168,14 @@ haltestelle_t::gib_ware_fuer_ziel(const ware_besch_t *typ,
 
 
 uint32
-haltestelle_t::gib_ware_fuer_zwischenziel(const ware_besch_t *typ, const koord zwischenziel) const
+haltestelle_t::gib_ware_fuer_zwischenziel(const ware_besch_t *wtyp, const koord zwischenziel) const
 {
-	int sum = 0;
-	vector_tpl<ware_t> * warray = waren.get(typ);
-	if(warray) {
+	uint32 sum = 0;
+	vector_tpl<ware_t> * warray = waren[wtyp->gib_catg_index()];
+	if(warray!=NULL) {
 		for(unsigned i=0;  i<warray->get_count();  i++ ) {
 			ware_t &ware = (*warray)[i];
-			if(ware.gib_zwischenziel() == zwischenziel) {
+			if(wtyp->gib_index()==ware.gib_index()  &&  ware.gib_zwischenziel()==zwischenziel) {
 				sum += ware.menge;
 			}
 		}
@@ -1213,15 +1190,16 @@ haltestelle_t::vereinige_waren(const ware_t &ware)
 {
 	// pruefen ob die ware mit bereits wartender ware vereinigt werden kann
 	const bool is_pax = !ware.is_freight();
-	vector_tpl<ware_t> * warray = waren.get(ware.gib_typ());
-	if(warray) {
+	vector_tpl<ware_t> * warray = waren[ware.gib_typ()->gib_catg_index()];
+	if(warray!=NULL) {
 		for(unsigned i=0;  i<warray->get_count();  i++ ) {
 			ware_t &tmp = (*warray)[i];
 
 			// es wird auf basis von Haltestellen vereinigt
 			// prissi: das ist aber ein Fehler für alle anderen Güter, daher Zielkoordinaten für alles, was kein passagier ist ...
-			if(  tmp.gib_zielpos()==ware.gib_zielpos()
-					||  (is_pax   &&   gib_halt(welt,tmp.gib_ziel())==gib_halt(welt,ware.gib_ziel()) )
+			if(ware.gib_index()==tmp.gib_index()
+				&&  (tmp.gib_zielpos()==ware.gib_zielpos()
+					||  (is_pax   &&   gib_halt(welt,tmp.gib_ziel())==gib_halt(welt,ware.gib_ziel()) ) )
 			) {
 				tmp.menge += ware.menge;
 				resort_freight_info = true;
@@ -1230,6 +1208,32 @@ haltestelle_t::vereinige_waren(const ware_t &ware)
 		}
 	}
 	return false;
+}
+
+
+
+// put the ware into the internal storage
+// take care of all allocation neccessary
+void
+haltestelle_t::add_ware_to_halt(ware_t ware)
+{
+	// now we have to add the ware to the stop
+	vector_tpl<ware_t> * warray = waren[ware.gib_typ()->gib_catg_index()];
+	if(warray==NULL) {
+		// this type was not stored here before ...
+		warray = new vector_tpl<ware_t>(4);
+		waren[ware.gib_typ()->gib_catg_index()] = warray;
+	}
+	// the ware will be put into the first entry with menge==0
+	resort_freight_info = true;
+	for(unsigned i=0;  i<warray->get_count();  i++ ) {
+		if((*warray)[i].menge==0) {
+			(*warray)[i] = ware;
+			return;
+		}
+	}
+	// here, if no free entries found
+	warray->append(ware,4);
 }
 
 
@@ -1252,7 +1256,7 @@ haltestelle_t::starte_mit_route(ware_t ware)
 	}
 
 	if(gib_halt(welt,ware.gib_ziel())==self) {
-		if(warenbauer_t::ist_fabrik_ware(ware.gib_typ())) {
+		if(ware.is_freight()) {
 			// muss an fabrik geliefert werden
 			liefere_an_fabrik(ware);
 		}
@@ -1266,23 +1270,9 @@ haltestelle_t::starte_mit_route(ware_t ware)
 		return ware.menge;
 	}
 
-	// now we have to add the ware to the stop
-	vector_tpl<ware_t> * warray = waren.get(ware.gib_typ());
-	if(!warray) {
-		// this type was not stored here before ...
-		warray = new vector_tpl<ware_t>(4);
-		waren.set(ware.gib_typ(), warray);
-	}
-	// the ware will be put into the first entry with menge==0
-	resort_freight_info = true;
-	for(unsigned i=0;  i<warray->get_count();  i++ ) {
-		if((*warray)[i].menge==0) {
-			(*warray)[i] = ware;
-			return ware.menge;
-		}
-	}
-	// here, if no free entries found
-	warray->append(ware,4);
+	// add to internal storage
+	add_ware_to_halt(ware);
+
 	return ware.menge;
 }
 
@@ -1308,7 +1298,7 @@ dbg->warning("haltestelle_t::liefere_an()","%d %s delivered to %s have no longer
 
 	// did we arrived?
 	if(welt->lookup(ware.gib_zielpos())->is_connected(self)) {
-		if(warenbauer_t::ist_fabrik_ware(ware.gib_typ())) {
+		if(ware.is_freight()) {
 			// muss an fabrik geliefert werden
 			liefere_an_fabrik(ware);
 		}
@@ -1349,23 +1339,9 @@ dbg->warning("haltestelle_t::liefere_an()","%d %s delivered to %s have no longer
 		return ware.menge;
 	}
 
-	// now we have to add the ware to the stop
-	vector_tpl<ware_t> * warray = waren.get(ware.gib_typ());
-	if(!warray) {
-		// this type was not stored here before ...
-		warray = new vector_tpl<ware_t>(4);
-		waren.set(ware.gib_typ(), warray);
-	}
-	// the ware will be put into the first entry with menge==0
-	resort_freight_info = true;
-	for(unsigned i=0;  i<warray->get_count();  i++ ) {
-		if((*warray)[i].menge==0) {
-			(*warray)[i] = ware;
-			return ware.menge;
-		}
-	}
-	// here, if no free entries found
-	warray->append(ware,1);
+	// add to internal storage
+	add_ware_to_halt(ware);
+
 	return ware.menge;
 }
 
@@ -1590,10 +1566,8 @@ void haltestelle_t::get_freight_info(cbuffer_t & buf)
 		resort_freight_info = false;
 		buf.clear();
 
-		for(unsigned int i=0; i<warenbauer_t::gib_waren_anzahl(); i++) {
-			const ware_besch_t *wtyp = warenbauer_t::gib_info(i);
-			vector_tpl<ware_t> * warray = waren.get(wtyp);
-			slist_tpl<ware_t> wliste;
+		for(unsigned i=0; i<warenbauer_t::gib_max_catg_index(); i++) {
+			vector_tpl<ware_t> * warray = waren[i];
 			if(warray) {
 				freight_list_sorter_t::sort_freight( welt, warray, buf, (freight_list_sorter_t::sort_mode_t)sortierung, NULL, "waiting" );
 			}
@@ -1898,11 +1872,10 @@ haltestelle_t::rdwr(loadsave_t *file)
 	short count;
 	const char *s;
 	if(file->is_saving()) {
-		for(unsigned int i=0; i<warenbauer_t::gib_waren_anzahl(); i++) {
-			const ware_besch_t *ware = warenbauer_t::gib_info(i);
-			vector_tpl<ware_t> * warray = waren.get(ware);
+		for(unsigned i=0; i<warenbauer_t::gib_max_catg_index(); i++) {
+			vector_tpl<ware_t> *warray = waren[i];
 			if(warray) {
-				s = ware->gib_name();
+				s = "y";	// needs to be non-empty
 				file->rdwr_str(s, "N");
 				count = warray->get_count();
 				file->rdwr_short(count, " ");
@@ -1917,7 +1890,6 @@ haltestelle_t::rdwr(loadsave_t *file)
 
 		count = warenziele.count();
 		file->rdwr_short(count, " ");
-
 		slist_iterator_tpl<warenziel_t>ziel_iter(warenziele);
 		while(ziel_iter.next()) {
 			warenziel_t wz = ziel_iter.get_current();
@@ -1929,23 +1901,12 @@ haltestelle_t::rdwr(loadsave_t *file)
 		s = NULL;
 		file->rdwr_str(s, "N");
 		while(s && *s) {
-			const ware_besch_t *ware = warenbauer_t::gib_info(s);
-
 			file->rdwr_short(count, " ");
 			if(count>0) {
-				vector_tpl<ware_t> *warray = new vector_tpl<ware_t>(count);
 				for(int i = 0; i < count; i++) {
+					// add to internal storage (use this function, since the old categories were different)
 					ware_t ware(welt,file);
-					if(ware.menge>0) {
-						warray->append(ware);
-					}
-				}
-				count = warray->get_count();
-				if(count>0) {
-					waren.put(ware, warray);
-				}
-				else {
-					delete warray;
+					add_ware_to_halt(ware);
 				}
 			}
 			file->rdwr_str(s, "N");

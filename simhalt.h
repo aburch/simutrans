@@ -193,7 +193,7 @@ private:
 	slist_tpl<warenziel_t> warenziele;
 
 	// loest warte_menge ab
-	ptrhashtable_tpl<const ware_besch_t *, vector_tpl<ware_t> *> waren;
+	vector_tpl<ware_t> **waren;
 
 	/**
 	 * Liste der angeschlossenen Fabriken
@@ -261,6 +261,9 @@ private:
 	 * @author Hj. Malthaner
 	 */
 	bool vereinige_waren(const ware_t &ware);
+
+	// add the ware to the internal storage, called only internally
+	void add_ware_to_halt(ware_t ware);
 
 	/**
 	 * liefert wartende ware an eine Fabrik
@@ -437,7 +440,8 @@ public:
 	 */
 	uint32 gib_ware_fuer_zwischenziel(const ware_besch_t *warentyp, const koord zwischenziel) const;
 
-	bool gibt_ab(const ware_besch_t *warentyp) const;
+	// true, if we accept/deliver this kind of good
+	bool gibt_ab(const ware_besch_t *warentyp) const { return waren[warentyp->gib_catg_index()] != NULL; }
 
 	/**
 	 * holt ware ab
