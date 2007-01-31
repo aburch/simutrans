@@ -298,14 +298,16 @@ void stadt_t::bewerte()
  * Reads city configuration data
  * @author Hj. Malthaner
  */
-bool stadt_t::cityrules_init()
+bool stadt_t::cityrules_init(cstring_t objfilename)
 {
-	const char* filename = "config/cityrules.tab";
 	tabfile_t cityconf;
-
-	if (!cityconf.open(filename)) {
-		dbg->fatal("stadt_t::init()", "Can't read '%s'", filename);
-		return false;
+	// first take user data, then user global data
+	cstring_t user_dir=umgebung_t::user_dir;
+	if (!cityconf.open(user_dir+"cityrules.tab")) {
+		if (!cityconf.open(objfilename+"config/cityrules.tab")) {
+			dbg->fatal("stadt_t::init()", "Can't read cityrules.tab" );
+			return false;
+		}
 	}
 
 	tabfileobj_t contents;

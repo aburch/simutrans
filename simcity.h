@@ -39,7 +39,7 @@ class stadt_info_t;
 
 
 
-
+class cstring_t;
 
 /**
  * Die Objecte der Klasse stadt_t bilden die Staedte in Simu. Sie
@@ -81,7 +81,7 @@ public:
 	 * Reads city configuration data
 	 * @author Hj. Malthaner
 	 */
-	static bool cityrules_init();
+	static bool cityrules_init(cstring_t objpathname);
 
 private:
 	static karte_t *welt;

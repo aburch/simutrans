@@ -25,6 +25,7 @@
 #include "simtools.h"
 #include "simdebug.h"
 
+#include "dataobj/umgebung.h"
 #include "utils/simstring.h"
 
 
@@ -52,7 +53,6 @@ static int midi_volume = 128;
 static bool shuffle_midi = false;
 
 static int max_midi = -1; // number of MIDI files
-
 
 static int current_midi = -1;  // Hajo: init with error condition,
                                // reset during loading
@@ -168,14 +168,12 @@ int get_current_midi()
  * Load MIDI files
  * By Owen Rudge
  */
-void
+int
 midi_init()
 {
 	// read a list of soundfiles
 	FILE * file = fopen("music/music.tab", "rb");
-
-	if(file) {
-
+	if(!file) {
 		dr_init_midi();
 
 		while(!feof(file)) {
@@ -215,6 +213,8 @@ midi_init()
 	if(max_midi >= 0) {
 		current_midi = 0;
 	}
+	// success?
+	return max_midi>=0;
 }
 
 

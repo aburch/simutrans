@@ -2,6 +2,7 @@
 #include "../simdebug.h"
 
 #include "../gui/ground_info.h"
+#include "../tpl/ptrhashtable_tpl.h"
 
 #include "../simimg.h"
 #include "../simworld.h"

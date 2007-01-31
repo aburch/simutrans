@@ -22,7 +22,14 @@ class cstring_t;
  */
 class umgebung_t
 {
-	public:
+public:
+	// points to the current simutrans data directory
+	static char program_dir[1024];
+
+	//points to the current directory user for loading and saving
+	static const char *user_dir;
+
+	static bool multiuser_install;
 
 	/**
 	* bei Testläufen wird sofort eine standardkarte erzeugt
@@ -45,7 +52,6 @@ class umgebung_t
 	* @author Hj. Malthaner
 	*/
 	static bool night_shift;
-
 
 	/**
 	* Stationsabdeckung zeigen
@@ -80,14 +86,12 @@ class umgebung_t
 	*/
 	static int show_names;
 
-
 	/**
 	* Welche KIs sollen bei neuen Spielen aktiviert werden?
 	*
 	* @author V. Meyer
 	*/
 	static bool automaten[6];
-
 
 	/**
 	* which messages to display where?

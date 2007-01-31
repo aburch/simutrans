@@ -67,29 +67,25 @@ int dr_os_init(const int* parameter)
 char *dr_query_homedir()
 {
 	static char buffer[1024];
+	char b2[1060];
 	DWORD len=960;
 	HKEY hHomeDir;
-	if(RegOpenKeyExA(HKEY_CURRENT_USER,"Software\\Microsoft\\Windows\\CurrentVersion\\Explorer\\User Shell Folders", 0, KEY_READ,	&hHomeDir)==ERROR_SUCCESS) {
+	if(RegOpenKeyExA(HKEY_CURRENT_USER,"Software\\Microsoft\\Windows\\CurrentVersion\\Explorer\\Shell Folders", 0, KEY_READ,	&hHomeDir)==ERROR_SUCCESS) {
 		RegQueryValueExA(hHomeDir,"Personal",NULL,NULL,(LPCSTR)buffer,&len);
 		strcat(buffer,"\\Simutrans");
 		CreateDirectoryA( buffer, NULL );
 		strcat(buffer, "\\");
+
+		// create other subdirectories
+		sprintf(b2, "%ssave", buffer );
+		CreateDirectoryA( b2, NULL );
+		sprintf(b2, "%sscreenshot", buffer );
+		CreateDirectoryA( b2, NULL );
+
 		return buffer;
 	}
 	return NULL;
 }
-
-
-
-
-// query simutrans base directory
-char *dr_query_programdir()
-{
-	static char buffer[1024];
-	GetCurrentDirectoryA( 1023, buffer );
-	return buffer;
-}
-
 
 
 

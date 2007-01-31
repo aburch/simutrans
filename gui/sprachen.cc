@@ -14,6 +14,11 @@
  */
 
 #include <stdio.h>
+#ifdef _MSC_VER
+#include <direct.h>
+#else
+#include <unistd.h>
+#endif
 
 #include "../simdebug.h"
 #include "../pathes.h"
@@ -22,6 +27,7 @@
 #include "../besch/skin_besch.h"
 #include "sprachen.h"
 
+#include "../dataobj/umgebung.h"
 #include "../dataobj/translator.h"
 #include "../utils/simstring.h"
 
@@ -33,6 +39,7 @@
  */
 void sprachengui_t::init_font_from_lang()
 {
+	chdir(umgebung_t::program_dir);
 	const char * prop_font_file = translator::translate("PROP_FONT_FILE");
 
 	// Hajo: fallback if entry is missing
@@ -77,6 +84,7 @@ void sprachengui_t::init_font_from_lang()
 	}
 
 	set_fraction_sep(c);
+	chdir(umgebung_t::user_dir);
 }
 
 
@@ -105,6 +113,7 @@ sprachengui_t::sprachengui_t() :
 		b.set_no_translate(true);
 
 		// check, if font exists
+		chdir(umgebung_t::program_dir);
 		const char *fontname=translator::translate_from_lang(i,"PROP_FONT_FILE");
 		char prop_font_file_name [1024];
 		sprintf(prop_font_file_name, "%s%s", FONT_PATH_X, fontname);
@@ -120,6 +129,7 @@ sprachengui_t::sprachengui_t() :
 		}
 		add_komponente(&b);
 	}
+	chdir(umgebung_t::user_dir);
 
 	buttons[translator::get_language()].pressed = true;
 	setze_opaque(true);

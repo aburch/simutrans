@@ -4,6 +4,9 @@
 
 // Hajo: hier Standardwerte belegen.
 
+char umgebung_t::program_dir[1024];
+const char *umgebung_t::user_dir = 0;
+bool umgebung_t::multiuser_install = true;
 
 bool umgebung_t::testlauf = false;
 

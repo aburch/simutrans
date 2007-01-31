@@ -4,6 +4,9 @@
 
 #ifdef _MSC_VER
 #include <new.h> // for _set_new_handler
+#include <direct.h>
+#else
+#include <unistd.h>
 #endif
 
 #include "pathes.h"
@@ -312,6 +315,9 @@ parse_simuconf( tabfile_t &simuconf, int &disp_width, int &disp_height, int &ful
 	// Default pak file path
 	objfilename = ltrim(contents.get_string("pak_file_path", DEFAULT_OBJPATH));
 
+	// use different save directories
+	umgebung_t::multiuser_install = contents.get_int("multiuser_install",             1) != 0;
+
 	// Max number of steps in goods pathfinding
 	haltestelle_t::set_max_hops(contents.get_int("max_hops", 300));
 
@@ -421,6 +427,10 @@ extern "C" int simu_main(int argc, char** argv)
 	umgebung_t::freeplay      = (gimme_arg(argc, argv, "-freeplay", 0) != NULL);
 	umgebung_t::verbose_debug = (gimme_arg(argc, argv, "-debug",    0) != NULL);
 
+	// save the current directories
+	getcwd( umgebung_t::program_dir, 1024 );
+	DBG_MESSAGE( "program_dir", umgebung_t::program_dir );
+
 	// parsing config/simuconf.tab
 	print("Reading low level config data ...\n");
 	bool found_simuconf=false;
@@ -443,8 +453,21 @@ extern "C" int simu_main(int argc, char** argv)
 		found_simuconf = true;
 	}
 
-//	DBG_MESSAGE( "dr_query_homedir()", dr_query_homedir() );
-//	DBG_MESSAGE( "dr_query_programdir()", dr_query_programdir() );
+	// if set for multiuser, then pares the users config (if there)
+	if(umgebung_t::multiuser_install) {
+		umgebung_t::user_dir = dr_query_homedir();
+		DBG_MESSAGE( "home_dir", umgebung_t::user_dir );
+
+		cstring_t obj_conf = umgebung_t::user_dir;
+		if(simuconf.open(obj_conf + "simuconf.tab")) {
+			parse_simuconf( simuconf, disp_width, disp_height, fullscreen, dummy );
+			found_simuconf = true;
+		}
+	}
+	else {
+		// save in program directory
+		umgebung_t::user_dir = umgebung_t::program_dir;
+	}
 
 	// likely only the programm without graphics was downloaded
 	if(!found_simuconf) {
@@ -523,7 +546,7 @@ extern "C" int simu_main(int argc, char** argv)
 	}
 
 	print("Reading city configuration ...\n");
-	stadt_t::cityrules_init();
+	stadt_t::cityrules_init(objfilename);
 
 	// loading all paks
 	print("Reading object data from %s...\n", (const char*)objfilename);
@@ -534,8 +557,10 @@ extern "C" int simu_main(int argc, char** argv)
 
 	bool new_world = true;
 	cstring_t loadgame = "";
+
 	if (gimme_arg(argc, argv, "-load", 0) != NULL) {
-		char buf[128];
+		char buf[256];
+		chdir( umgebung_t::user_dir );
 		/**
 		 * Added automatic adding of extension
 		 */
@@ -566,6 +591,9 @@ DBG_MESSAGE("simmain","loadgame file found at %s",buffer);
 		if (ref_str != NULL) umgebung_t::starting_year = atoi(ref_str);
 	}
 
+	// now always writing in user dir (which points the the program dir in multiuser mode)
+	chdir( umgebung_t::user_dir );
+
 	/* Jetzt, nachdem die Kommandozeile ausgewertet ist, koennen wir die
 	 * Konfigurationsdatei lesen, und ggf. einige Einstellungen setzen
 	 */
@@ -590,9 +618,12 @@ DBG_MESSAGE("simmain","loadgame file found at %s",buffer);
 			&umgebung_t::message_flags[3]
 		);
 
-		dn = 0;
-		fscanf(config, "ShowCoverage=%d\n", &dn);
-		umgebung_t::station_coverage_show = (dn != 0);
+		fscanf(config, "Visual=%i,%i,%i,%i,%i\n", &b[0], &b[1], &b[2], &b[3], &b[4] );
+		umgebung_t::hide_with_transparency = b[0]!=0;
+		umgebung_t::hide_trees = b[1]!=0;
+		umgebung_t::hide_buildings = b[2];
+		umgebung_t::use_transparency_station_coverage = b[3]!=0;
+		umgebung_t::station_coverage_show = b[4]!=0;
 
 		fclose(config);
 	}
@@ -608,8 +639,9 @@ DBG_MESSAGE("simmain","loadgame file found at %s",buffer);
 
 	if (!gimme_arg(argc, argv, "-nomidi", 0)) {
 		print("Reading midi data ...\n");
-		midi_init();
-		midi_play(0);
+		if(midi_init()) {
+			midi_play(0);
+		}
 	}
 
 	// set the frame per second
@@ -831,7 +863,14 @@ DBG_MESSAGE("init","map");
 			umgebung_t::message_flags[2],
 			umgebung_t::message_flags[3]
 		);
-		fprintf(config, "ShowCoverage=%d\n", umgebung_t::station_coverage_show);
+		fprintf(
+			config, "Visual=%d,%d,%d,%d,d\n",
+			umgebung_t::hide_with_transparency,
+			umgebung_t::hide_trees,
+			umgebung_t::hide_buildings,
+			umgebung_t::use_transparency_station_coverage,
+			umgebung_t::station_coverage_show
+		);
 		fclose(config);
 	}
 
