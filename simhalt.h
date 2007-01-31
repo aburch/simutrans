@@ -308,7 +308,7 @@ public:
 	 * Draws some nice colored bars giving some status information
 	 * @author Hj. Malthaner
 	 */
-	void display_status(int xpos, int ypos) const;
+	void display_status(sint16 xpos, sint16 ypos) const;
 
 	/**
 	 * sucht umliegende, erreichbare fabriken und baut daraus die
@@ -440,6 +440,13 @@ public:
 	 */
 	uint32 gib_ware_fuer_zwischenziel(const ware_besch_t *warentyp, const koord zwischenziel) const;
 
+	/**
+	 * @returns the sum of all waiting goods (100t coal + 10
+	 * passengers + 2000 liter oil = 2110)
+	 * @author Markus Weber
+	 */
+	uint32 sum_all_waiting_goods() const;
+
 	// true, if we accept/deliver this kind of good
 	bool gibt_ab(const ware_besch_t *warentyp) const { return waren[warentyp->gib_catg_index()] != NULL; }
 
@@ -469,9 +476,7 @@ public:
 	 * @param typ der beförderte warentyp
 	 * @author Hj. Malthaner
 	 */
-	void hat_gehalten(const int number_of_cars,
-										const ware_besch_t *warentyp,
-										const fahrplan_t *fpl);
+	void hat_gehalten(const int number_of_cars, const ware_besch_t *warentyp, const fahrplan_t *fpl);
 
 	/* checks, if there is an unoccupied loading bay for this kind of thing
 	* @author prissi
@@ -493,9 +498,7 @@ public:
 	*/
 	bool is_reservable(grund_t *gr, convoihandle_t cnv);
 
-
 	void info(cbuffer_t & buf) const;
-
 
 	/**
 	 * @param buf the buffer to fill
@@ -504,7 +507,6 @@ public:
 	 */
 	void get_freight_info(cbuffer_t & buf);
 
-
 	/**
 	 * @param buf the buffer to fill
 	 * @return short list of the waiting goods (i.e. 110 Wood, 15 Coal)
@@ -512,13 +514,11 @@ public:
 	 */
 	void get_short_freight_info(cbuffer_t & buf);
 
-
 	/**
 	 * Opens an information window for this station.
 	 * @author Hj. Malthaner
 	 */
 	void zeige_info();
-
 
 	/**
 	 * Opens the details window for this station.
@@ -527,26 +527,12 @@ public:
 	void open_detail_window();
 
 	/**
-	 * @returns the sum of all waiting goods (100t coal + 10
-	 * passengers + 2000 liter oil = 2110)
-	 * @author Markus Weber
-	 */
-	int sum_all_waiting_goods() const;
-
-	/**
-	 * @returns true, if goods or passengers are waiting
-	 * @author Markus Weber
-	 */
-	bool is_something_waiting() const;       //12-Jan-2002    Markus Weber    Added
-
-	/**
 	 * @returns the type of a station
 	 * (combination of: railstation, loading bay, dock)
 	 * @author Markus Weber
 	 */
 	stationtyp get_station_type() const { return station_type; }
 	void recalc_station_type();
-
 
 	/**
 	 * fragt den namen der Haltestelle ab.

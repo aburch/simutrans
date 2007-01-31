@@ -21,6 +21,7 @@ Known bugs: (hard to fix)
 	CHANGE: goods now stored in an array instead of a list at stations => higher chanches of joining => much faster (up to 50% for poassenger/mail games) + less memory (up to 4MB); your milage may vary.
 	FIX: label were saved but not loaded
 	FIX: crash when city tried to built new road to new townhall over existing player road
+	CHANGE: only show goods which can be transported for status display at stations
 
 
 Release of 99.07

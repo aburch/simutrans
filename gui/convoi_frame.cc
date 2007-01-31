@@ -36,7 +36,7 @@
 convoi_frame_t::sort_mode_t convoi_frame_t::sortby = convoi_frame_t::nach_name;
 bool convoi_frame_t::sortreverse = false;
 
-int convoi_frame_t::filter_flags = 0;
+uint32 convoi_frame_t::filter_flags = 0;
 
 char convoi_frame_t::name_filter_value[64] = "";
 

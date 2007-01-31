@@ -58,7 +58,6 @@
 #include "besch/ware_besch.h"
 #include "bauer/warenbauer.h"
 
-//#include "tpl/minivec_tpl.h"
 
 karte_t *haltestelle_t::welt = NULL;
 
@@ -463,8 +462,8 @@ void haltestelle_t::reroute_goods()
 			// world layout, remove all goods which destination was removed from the map
 			// prissi;
 			// also the empty entries of the array are cleared
-			for(int i=warray->get_count()-1;  i>=0;  i--  ) {
-				ware_t & ware = (*warray)[i];
+			for(int j=warray->get_count()-1;  j>=0;  j--  ) {
+				ware_t & ware = (*warray)[j];
 
 				if(ware.menge==0) {
 					warray->remove_at(i);
@@ -477,7 +476,7 @@ void haltestelle_t::reroute_goods()
 					if(ware.is_freight()) {
 						liefere_an_fabrik(ware);
 					}
-					warray->remove_at(i);
+					warray->remove_at(j);
 					continue;
 				}
 
@@ -491,77 +490,23 @@ void haltestelle_t::reroute_goods()
 					continue;
 				}
 			}
-		}
-	}
-}
 
-
-
-/**
- * Calculates a status color for status bars
- * @author Hj. Malthaner
- */
-void haltestelle_t::recalc_status()
-{
-	status_color = financial_history[0][HALT_CONVOIS_ARRIVED] > 0 ? COL_GREEN : COL_YELLOW;
-
-	// has passengers
-	if(get_pax_happy() > 0 || get_pax_no_route() > 0) {
-
-		if(get_pax_unhappy() > 200 ) {
-			status_color = COL_RED;
-		} else if(get_pax_unhappy() > 40) {
-			status_color = COL_ORANGE;
-		}
-	}
-
-	// check for goods
-	if(status_color!=COL_RED  &&  get_ware_enabled()) {
-		const int count = warenbauer_t::gib_waren_anzahl();
-		const int max_ware = get_capacity();
-
-		for( int i=0; i+1<count; i++) {
-			const ware_besch_t *wtyp = warenbauer_t::gib_info(i+1);
-			if(  gib_ware_summe(wtyp)>max_ware  ) {
-				status_color = COL_RED;
-				break;
+			// delete, if nothing connects here
+			if(warray->get_count()==0) {
+				bool delete_it = true;
+				slist_iterator_tpl<warenziel_t> iter(warenziele);
+				while(iter.next()  &&  delete_it) {
+					delete_it = iter.get_current().gib_typ()->gib_catg_index()!=i;
+				}
+				if(delete_it) {
+					// no connections from here => delete
+					delete waren[i];
+					waren[i] = NULL;
+				}
 			}
+
 		}
 	}
-}
-
-
-
-/**
- * Draws some nice colored bars giving some status information
- * @author Hj. Malthaner
- */
-void haltestelle_t::display_status(int xpos, int ypos) const
-{
-	const int count = warenbauer_t::gib_waren_anzahl();
-
-	ypos -= 11;
-	// all variables in the bracket MUST be signed, otherwise nothing may be drawn at all
-	xpos -= (count*4 - get_tile_raster_width())/2;
-
-	for( int i=0; i+1<count; i++) {
-		const ware_besch_t *wtyp = warenbauer_t::gib_info(i+1);
-
-		const int v = min((gib_ware_summe(wtyp) >> 2) + 2, 128);
-
-		display_fillbox_wh_clip(xpos+i*4, ypos-v-1, 1, v, COL_GREY4, true);
-		display_fillbox_wh_clip(xpos+i*4+1, ypos-v-1, 2, v, 255 - i*4, true);
-		display_fillbox_wh_clip(xpos+i*4+3, ypos-v-1, 1, v, COL_GREY1, true);
-
-		// Hajo: show up arrow for capped values
-		if(v == 128) {
-			display_fillbox_wh_clip(xpos+i*4+1, ypos-v-6, 2, 4, COL_WHITE, true);
-			display_fillbox_wh_clip(xpos+i*4, ypos-v-5, 4, 1, COL_WHITE, true);
-		}
-	}
-
-	const int color = gib_status_farbe();
-	display_fillbox_wh_clip(xpos-1, ypos, count*4-2, 4, color, true);
 }
 
 
@@ -1149,8 +1094,7 @@ haltestelle_t::gib_ware_summe(const ware_besch_t *wtyp) const
 
 
 uint32
-haltestelle_t::gib_ware_fuer_ziel(const ware_besch_t *wtyp,
-				  const koord ziel) const
+haltestelle_t::gib_ware_fuer_ziel(const ware_besch_t *wtyp, const koord ziel) const
 {
 	uint32 sum = 0;
 	vector_tpl<ware_t> * warray = waren[wtyp->gib_catg_index()];
@@ -1177,6 +1121,28 @@ haltestelle_t::gib_ware_fuer_zwischenziel(const ware_besch_t *wtyp, const koord 
 			ware_t &ware = (*warray)[i];
 			if(wtyp->gib_index()==ware.gib_index()  &&  ware.gib_zwischenziel()==zwischenziel) {
 				sum += ware.menge;
+			}
+		}
+	}
+	return sum;
+}
+
+
+
+/**
+ * @returns the sum of all waiting goods (100t coal + 10
+ * passengers + 2000 liter oil = 2110)
+ * @author Markus Weber
+ */
+uint32
+haltestelle_t::sum_all_waiting_goods() const      //15-Feb-2002    Markus Weber    Added
+{
+	uint32 sum = 0;
+
+	for(unsigned i=0; i<warenbauer_t::gib_max_catg_index(); i++) {
+		if(waren[i]) {
+			for( unsigned j=0;  j<waren[i]->get_count();  j++  ) {
+				sum += (*(waren[i]))[j].menge;
 			}
 		}
 	}
@@ -1576,6 +1542,7 @@ void haltestelle_t::get_freight_info(cbuffer_t & buf)
 }
 
 
+
 void haltestelle_t::get_short_freight_info(cbuffer_t & buf)
 {
 	bool got_one = false;
@@ -1614,6 +1581,7 @@ void haltestelle_t::get_short_freight_info(cbuffer_t & buf)
 }
 
 
+
 void
 haltestelle_t::zeige_info()
 {
@@ -1625,44 +1593,11 @@ haltestelle_t::zeige_info()
 }
 
 
+
 void
 haltestelle_t::open_detail_window()
 {
 	create_win(-1, -1, new halt_detail_t(besitzer_p, welt, self), w_autodelete);
-}
-
-
-/**
- * @returns the sum of all waiting goods (100t coal + 10
- * passengers + 2000 liter oil = 2110)
- * @author Markus Weber
- */
-int haltestelle_t::sum_all_waiting_goods() const      //15-Feb-2002    Markus Weber    Added
-{
-	int sum = 0;
-
-	for(unsigned int i=0; i<warenbauer_t::gib_waren_anzahl(); i++) {
-		const ware_besch_t *wtyp = warenbauer_t::gib_info(i);
-
-		if(gibt_ab(wtyp)) {
-			sum += gib_ware_summe(wtyp);
-		}
-	}
-	return sum;
-}
-
-
-bool
-haltestelle_t::is_something_waiting() const
-{
-	for(unsigned int i=0; i<warenbauer_t::gib_waren_anzahl(); i++) {
-		const ware_besch_t *wtyp = warenbauer_t::gib_info(i);
-
-		if(gibt_ab(wtyp)) {
-			return true;
-		}
-	}
-	return false;
 }
 
 
@@ -1978,6 +1913,94 @@ haltestelle_t::init_financial_history()
 	financial_history[0][HALT_HAPPY] = pax_happy;
 	financial_history[0][HALT_UNHAPPY] = pax_unhappy;
 	financial_history[0][HALT_NOROUTE] = pax_no_route;
+}
+
+
+
+/**
+ * Calculates a status color for status bars
+ * @author Hj. Malthaner
+ */
+void haltestelle_t::recalc_status()
+{
+	status_color = financial_history[0][HALT_CONVOIS_ARRIVED] > 0 ? COL_GREEN : COL_YELLOW;
+
+	// has passengers
+	if(get_pax_happy() > 0 || get_pax_no_route() > 0) {
+
+		if(get_pax_unhappy() > 200 ) {
+			status_color = COL_RED;
+		} else if(get_pax_unhappy() > 40) {
+			status_color = COL_ORANGE;
+		}
+	}
+
+	// check for goods
+	if(status_color!=COL_RED  &&  get_ware_enabled()) {
+		const int count = warenbauer_t::gib_waren_anzahl();
+		const int max_ware = get_capacity();
+
+		for( int i=0; i+1<count; i++) {
+			const ware_besch_t *wtyp = warenbauer_t::gib_info(i+1);
+			if(  gib_ware_summe(wtyp)>max_ware  ) {
+				status_color = COL_RED;
+				break;
+			}
+		}
+	}
+}
+
+
+
+/**
+ * Draws some nice colored bars giving some status information
+ * @author Hj. Malthaner
+ */
+void haltestelle_t::display_status(sint16 xpos, sint16 ypos) const
+{
+	// ignore freight that cannot reach to this station
+	sint16 count = 0;
+	for( unsigned i=0;  i<warenbauer_t::gib_waren_anzahl(); i++) {
+		if(i==2) continue;	// ignore freight none
+		if(gibt_ab(warenbauer_t::gib_info(i))) {
+			count ++;
+		}
+	}
+
+	ypos -= 11;
+	xpos -= (count*4 - get_tile_raster_width())/2;
+	sint16 x = xpos;
+	const uint32 max_capacity=get_capacity();
+
+	for( unsigned i=0;  i<warenbauer_t::gib_waren_anzahl(); i++) {
+		if(i==2) continue;	// ignore freight none
+		const ware_besch_t *wtyp = warenbauer_t::gib_info(i);
+		if(gibt_ab(wtyp)) {
+			const uint32 sum = gib_ware_summe(wtyp);
+			uint32 v = min(sum, max_capacity);
+			if(max_capacity>512) {
+				v = 2+(v*128)/max_capacity;
+			}
+			else {
+				v = (v/4)+2;
+			}
+
+			display_fillbox_wh_clip(xpos, ypos-v-1, 1, v, COL_GREY4, true);
+			display_fillbox_wh_clip(xpos+1, ypos-v-1, 2, v, 255 - i*4, true);
+			display_fillbox_wh_clip(xpos+3, ypos-v-1, 1, v, COL_GREY1, true);
+
+			// Hajo: show up arrow for capped values
+			if(sum > max_capacity) {
+				display_fillbox_wh_clip(xpos+1, ypos-v-6, 2, 4, COL_WHITE, true);
+				display_fillbox_wh_clip(xpos, ypos-v-5, 4, 1, COL_WHITE, true);
+			}
+
+			xpos += 4;
+		}
+	}
+
+	// status color box below
+	display_fillbox_wh_clip(x-1-4, ypos, count*4+12-2, 4, gib_status_farbe(), true);
 }
 
 

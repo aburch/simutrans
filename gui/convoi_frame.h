@@ -65,7 +65,7 @@ private:
     static sort_mode_t sortby;
     static bool sortreverse;
 
-    static int filter_flags;
+    static uint32 filter_flags;
 
     static char name_filter_value[64];
 
