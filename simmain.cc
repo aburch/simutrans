@@ -443,6 +443,9 @@ extern "C" int simu_main(int argc, char** argv)
 		found_simuconf = true;
 	}
 
+//	DBG_MESSAGE( "dr_query_homedir()", dr_query_homedir() );
+//	DBG_MESSAGE( "dr_query_programdir()", dr_query_programdir() );
+
 	// likely only the programm without graphics was downloaded
 	if(!found_simuconf) {
 		fprintf(stderr, "*** No simuconf.tab found ***\n\nPlease install a complete system\n");

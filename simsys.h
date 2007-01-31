@@ -64,8 +64,10 @@ int dr_os_open(int w, int h, int bpp, int fullscreen);
 int dr_os_close(void);
 
 // query home directory
-// not yet used
-//const char *dr_query_home();
+char *dr_query_homedir();
+
+// query simutrans base directory
+char *dr_query_programdir();
 
 unsigned short* dr_textur_init(void);
 

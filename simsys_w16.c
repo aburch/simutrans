@@ -64,17 +64,30 @@ int dr_os_init(const int* parameter)
 
 
 // query home directory
-const char *dr_query_home()
+char *dr_query_homedir()
 {
 	static char buffer[1024];
-	DWORD len=1023;
+	DWORD len=960;
 	HKEY hHomeDir;
-	if(RegOpenKeyA(HKEY_CURRENT_USER,"Software\\Microsoft\\Windows\\CurrentVersion\\Explorer\\User Shell Folders", &hHomeDir)==ERROR_SUCCESS) {
+	if(RegOpenKeyExA(HKEY_CURRENT_USER,"Software\\Microsoft\\Windows\\CurrentVersion\\Explorer\\User Shell Folders", 0, KEY_READ,	&hHomeDir)==ERROR_SUCCESS) {
 		RegQueryValueExA(hHomeDir,"Personal",NULL,NULL,(LPCSTR)buffer,&len);
-		strcat(buffer,"\\");
+		strcat(buffer,"\\Simutrans");
+		CreateDirectoryA( buffer, NULL );
+		strcat(buffer, "\\");
 		return buffer;
 	}
 	return NULL;
+}
+
+
+
+
+// query simutrans base directory
+char *dr_query_programdir()
+{
+	static char buffer[1024];
+	GetCurrentDirectoryA( 1023, buffer );
+	return buffer;
 }
 
 
