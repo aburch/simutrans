@@ -194,6 +194,137 @@ static void zeige_banner(karte_t *welt)
 
 
 
+// read the settings from this file
+void
+parse_simuconf( tabfile_t &simuconf, int &disp_width, int &disp_height, int &fullscreen, cstring_t &objfilename )
+{
+	tabfileobj_t contents;
+
+	simuconf.read(contents);
+
+	print("Initializing tombstones ...\n");
+
+	convoihandle_t::init(contents.get_int("convoys", 8192));
+	linehandle_t::init(contents.get_int("lines", 8192));
+	halthandle_t::init(contents.get_int("stations", 8192));
+	umgebung_t::max_route_steps = contents.get_int("max_route_steps", 100000);
+
+	umgebung_t::fussgaenger             = contents.get_int("random_pedestrians",     0) != 0;
+	umgebung_t::verkehrsteilnehmer_info = contents.get_int("pedes_and_car_info",     0) != 0;
+	umgebung_t::stadtauto_duration      = contents.get_int("citycar_life",       31457280);	// ten normal years
+	umgebung_t::drive_on_left           = contents.get_int("drive_left",         false);
+
+	umgebung_t::tree_info     = contents.get_int("tree_info",        0) != 0;
+	umgebung_t::ground_info     = contents.get_int("ground_info",        0) != 0;
+	umgebung_t::townhall_info = contents.get_int("townhall_info",    0) != 0;
+	umgebung_t::single_info   = contents.get_int("only_single_info", 0);
+
+	umgebung_t::window_buttons_right = contents.get_int("window_buttons_right", false);
+
+	umgebung_t::starting_money = contents.get_int("starting_money",       15000000);
+	umgebung_t::maint_building = contents.get_int("maintenance_building",     5000);
+	umgebung_t::maint_way      = contents.get_int("maintenance_ways",          800);
+	umgebung_t::maint_overhead = contents.get_int("maintenance_overhead",      200);
+
+
+	umgebung_t::show_names            = contents.get_int("show_names",        3);
+	umgebung_t::numbered_stations     = contents.get_int("numbered_stations", 0) != 0;
+	umgebung_t::station_coverage_size = contents.get_int("station_coverage",  2);
+
+	// time stuff
+	umgebung_t::show_month     = contents.get_int("show_month",       0);
+	umgebung_t::bits_per_month = contents.get_int("bits_per_month",  18);
+	umgebung_t::use_timeline   = contents.get_int("use_timeline",     2);
+	umgebung_t::starting_year  = contents.get_int("starting_year", 1930);
+
+	umgebung_t::intercity_road_length = contents.get_int("intercity_road_length", 8000);
+	umgebung_t::intercity_road_type   = new cstring_t(ltrim(contents.get("intercity_road_type")));
+	umgebung_t::city_road_type        = new cstring_t(ltrim(contents.get("city_road_type")));
+	if (umgebung_t::city_road_type->len() == 0) {
+		*umgebung_t::city_road_type = "city_road";
+	}
+
+	umgebung_t::autosave = (contents.get_int("autosave", 0));
+
+	umgebung_t::crossconnect_factories =
+#ifdef OTTD_LIKE
+		contents.get_int("crossconnect_factories", 1) != 0;
+#else
+		contents.get_int("crossconnect_factories", 0) != 0;
+#endif
+	umgebung_t::just_in_time          = contents.get_int("just_in_time",             1) != 0;
+	umgebung_t::passenger_factor      = contents.get_int("passenger_factor",        16); /* this can manipulate the passenger generation */
+	umgebung_t::beginner_price_factor = contents.get_int("beginner_price_factor", 1500); /* this manipulates the good prices in beginner mode */
+	umgebung_t::beginner_mode_first   = contents.get_int("first_beginner",           0); /* start in beginner mode */
+
+	/* now the cost section */
+	umgebung_t::cst_multiply_dock        = contents.get_int("cost_multiply_dock",          500) * -100;
+	umgebung_t::cst_multiply_station     = contents.get_int("cost_multiply_station",       600) * -100;
+	umgebung_t::cst_multiply_roadstop    = contents.get_int("cost_multiply_roadstop",      400) * -100;
+	umgebung_t::cst_multiply_airterminal = contents.get_int("cost_multiply_airterminal",  3000) * -100;
+	umgebung_t::cst_multiply_post        = contents.get_int("cost_multiply_post",          300) * -100;
+	umgebung_t::cst_multiply_headquarter = contents.get_int("cost_multiply_headquarter", 10000) * -100;
+	umgebung_t::cst_depot_rail           = contents.get_int("cost_depot_rail",            1000) * -100;
+	umgebung_t::cst_depot_road           = contents.get_int("cost_depot_road",            1300) * -100;
+	umgebung_t::cst_depot_ship           = contents.get_int("cost_depot_ship",            2500) * -100;
+	umgebung_t::cst_signal               = contents.get_int("cost_signal",                 500) * -100;
+	umgebung_t::cst_tunnel               = contents.get_int("cost_tunnel",               10000) * -100;
+	umgebung_t::cst_third_rail           = contents.get_int("cost_third_rail",              80) * -100;
+
+	// alter landscape
+	umgebung_t::cst_buy_land                = contents.get_int("cost_buy_land",                  100) * -100;
+	umgebung_t::cst_alter_land              = contents.get_int("cost_alter_land",                  500) * -100;
+	umgebung_t::cst_set_slope               = contents.get_int("cost_set_slope",                  2500) * -100;
+	umgebung_t::cst_found_city              = contents.get_int("cost_found_city",              5000000) * -100;
+	umgebung_t::cst_multiply_found_industry = contents.get_int("cost_multiply_found_industry", 1000000) * -100;
+	umgebung_t::cst_remove_tree             = contents.get_int("cost_remove_tree",                 100) * -100;
+	umgebung_t::cst_multiply_remove_haus    = contents.get_int("cost_multiply_remove_haus",       1000) * -100;
+
+	/* now the way builder */
+	umgebung_t::way_count_curve        = contents.get_int("way_curve",            10);
+	umgebung_t::way_count_double_curve = contents.get_int("way_double_curve",     40);
+	umgebung_t::way_count_90_curve     = contents.get_int("way_90_curve",       2000);
+	umgebung_t::way_count_slope        = contents.get_int("way_slope",            80);
+	umgebung_t::way_count_tunnel       = contents.get_int("way_tunnel",            8);
+	umgebung_t::way_max_bridge_len     = contents.get_int("way_max_bridge_len",   15);
+
+	/*
+	* Selection of savegame format through inifile
+	*/
+	const char *str = contents.get("saveformat");
+	while (*str == ' ') str++;
+	if (strcmp(str, "binary") == 0) {
+		loadsave_t::set_savemode(loadsave_t::binary);
+	} else if(strcmp(str, "zipped") == 0) {
+		loadsave_t::set_savemode(loadsave_t::zipped);
+	} else if(strcmp(str, "text") == 0) {
+		loadsave_t::set_savemode(loadsave_t::text);
+	}
+
+	/*
+	 * Default resolution
+	 */
+	disp_width  = contents.get_int("display_width",  800);
+	disp_height = contents.get_int("display_height", 600);
+	fullscreen  = contents.get_int("fullscreen",       0);
+	umgebung_t::fps = contents.get_int("frames_per_second",25);
+
+	// Default pak file path
+	objfilename = ltrim(contents.get_string("pak_file_path", DEFAULT_OBJPATH));
+
+	// Max number of steps in goods pathfinding
+	haltestelle_t::set_max_hops(contents.get_int("max_hops", 300));
+
+	// Max number of transfers in goods pathfinding
+	umgebung_t::max_transfers = contents.get_int("max_transfers", 7);
+
+	print("Reading simuconf.tab successful!\n");
+
+	simuconf.close();
+}
+
+
+
 /**
  * Dies wird in main mittels set_new_handler gesetzt und von der
  * Laufzeitumgebung im Falle des Speichermangels bei new() aufgerufen
@@ -292,140 +423,31 @@ extern "C" int simu_main(int argc, char** argv)
 
 	// parsing config/simuconf.tab
 	print("Reading low level config data ...\n");
+	bool found_simuconf=false;
 	tabfile_t simuconf;
-	if (simuconf.open("config/simuconf.tab")) {
-		tabfileobj_t contents;
+	if(simuconf.open("config/simuconf.tab")) {
+		parse_simuconf( simuconf, disp_width, disp_height, fullscreen, objfilename );
+		found_simuconf = true;
+	}
 
-		simuconf.read(contents);
+	// now set the desired objectfilename
+	if (gimme_arg(argc, argv, "-objects", 1)) {
+		objfilename = gimme_arg(argc, argv, "-objects", 1);
+	}
 
-		print("Initializing tombstones ...\n");
+	// now find the pak specific tab file ...
+	cstring_t obj_conf = objfilename + "config/simuconf.tab";
+	cstring_t dummy("");
+	if(simuconf.open((const char *)obj_conf)) {
+		parse_simuconf( simuconf, disp_width, disp_height, fullscreen, dummy );
+		found_simuconf = true;
+	}
 
-		convoihandle_t::init(contents.get_int("convoys", 8192));
-		linehandle_t::init(contents.get_int("lines", 8192));
-		halthandle_t::init(contents.get_int("stations", 8192));
-		umgebung_t::max_route_steps = contents.get_int("max_route_steps", 100000);
-
-		umgebung_t::fussgaenger             = contents.get_int("random_pedestrians",     0) != 0;
-		umgebung_t::verkehrsteilnehmer_info = contents.get_int("pedes_and_car_info",     0) != 0;
-		umgebung_t::stadtauto_duration      = contents.get_int("citycar_life",       31457280);	// ten normal years
-		umgebung_t::drive_on_left           = contents.get_int("drive_left",         false);
-
-		umgebung_t::tree_info     = contents.get_int("tree_info",        0) != 0;
-		umgebung_t::ground_info     = contents.get_int("ground_info",        0) != 0;
-		umgebung_t::townhall_info = contents.get_int("townhall_info",    0) != 0;
-		umgebung_t::single_info   = contents.get_int("only_single_info", 0);
-
-		umgebung_t::window_buttons_right = contents.get_int("window_buttons_right", false);
-
-		umgebung_t::starting_money = contents.get_int("starting_money",       15000000);
-		umgebung_t::maint_building = contents.get_int("maintenance_building",     5000);
-		umgebung_t::maint_way      = contents.get_int("maintenance_ways",          800);
-		umgebung_t::maint_overhead = contents.get_int("maintenance_overhead",      200);
-
-
-		umgebung_t::show_names            = contents.get_int("show_names",        3);
-		umgebung_t::numbered_stations     = contents.get_int("numbered_stations", 0) != 0;
-		umgebung_t::station_coverage_size = contents.get_int("station_coverage",  2);
-
-		// time stuff
-		umgebung_t::show_month     = contents.get_int("show_month",       0);
-		umgebung_t::bits_per_month = contents.get_int("bits_per_month",  18);
-		umgebung_t::use_timeline   = contents.get_int("use_timeline",     2);
-		umgebung_t::starting_year  = contents.get_int("starting_year", 1930);
-
-		umgebung_t::intercity_road_length = contents.get_int("intercity_road_length", 8000);
-		umgebung_t::intercity_road_type   = new cstring_t(ltrim(contents.get("intercity_road_type")));
-		umgebung_t::city_road_type        = new cstring_t(ltrim(contents.get("city_road_type")));
-		if (umgebung_t::city_road_type->len() == 0) {
-			*umgebung_t::city_road_type = "city_road";
-		}
-
-		umgebung_t::autosave = (contents.get_int("autosave", 0));
-
-		umgebung_t::crossconnect_factories =
-#ifdef OTTD_LIKE
-			contents.get_int("crossconnect_factories", 1) != 0;
-#else
-			contents.get_int("crossconnect_factories", 0) != 0;
-#endif
-		umgebung_t::just_in_time          = contents.get_int("just_in_time",             1) != 0;
-		umgebung_t::passenger_factor      = contents.get_int("passenger_factor",        16); /* this can manipulate the passenger generation */
-		umgebung_t::beginner_price_factor = contents.get_int("beginner_price_factor", 1500); /* this manipulates the good prices in beginner mode */
-		umgebung_t::beginner_mode_first   = contents.get_int("first_beginner",           0); /* start in beginner mode */
-
-		/* now the cost section */
-		umgebung_t::cst_multiply_dock        = contents.get_int("cost_multiply_dock",          500) * -100;
-		umgebung_t::cst_multiply_station     = contents.get_int("cost_multiply_station",       600) * -100;
-		umgebung_t::cst_multiply_roadstop    = contents.get_int("cost_multiply_roadstop",      400) * -100;
-		umgebung_t::cst_multiply_airterminal = contents.get_int("cost_multiply_airterminal",  3000) * -100;
-		umgebung_t::cst_multiply_post        = contents.get_int("cost_multiply_post",          300) * -100;
-		umgebung_t::cst_multiply_headquarter = contents.get_int("cost_multiply_headquarter", 10000) * -100;
-		umgebung_t::cst_depot_rail           = contents.get_int("cost_depot_rail",            1000) * -100;
-		umgebung_t::cst_depot_road           = contents.get_int("cost_depot_road",            1300) * -100;
-		umgebung_t::cst_depot_ship           = contents.get_int("cost_depot_ship",            2500) * -100;
-		umgebung_t::cst_signal               = contents.get_int("cost_signal",                 500) * -100;
-		umgebung_t::cst_tunnel               = contents.get_int("cost_tunnel",               10000) * -100;
-		umgebung_t::cst_third_rail           = contents.get_int("cost_third_rail",              80) * -100;
-
-		// alter landscape
-		umgebung_t::cst_buy_land                = contents.get_int("cost_buy_land",                  100) * -100;
-		umgebung_t::cst_alter_land              = contents.get_int("cost_alter_land",                  500) * -100;
-		umgebung_t::cst_set_slope               = contents.get_int("cost_set_slope",                  2500) * -100;
-		umgebung_t::cst_found_city              = contents.get_int("cost_found_city",              5000000) * -100;
-		umgebung_t::cst_multiply_found_industry = contents.get_int("cost_multiply_found_industry", 1000000) * -100;
-		umgebung_t::cst_remove_tree             = contents.get_int("cost_remove_tree",                 100) * -100;
-		umgebung_t::cst_multiply_remove_haus    = contents.get_int("cost_multiply_remove_haus",       1000) * -100;
-
-		/* now the way builder */
-		umgebung_t::way_count_curve        = contents.get_int("way_curve",            10);
-		umgebung_t::way_count_double_curve = contents.get_int("way_double_curve",     40);
-		umgebung_t::way_count_90_curve     = contents.get_int("way_90_curve",       2000);
-		umgebung_t::way_count_slope        = contents.get_int("way_slope",            80);
-		umgebung_t::way_count_tunnel       = contents.get_int("way_tunnel",            8);
-		umgebung_t::way_max_bridge_len     = contents.get_int("way_max_bridge_len",   15);
-
-		/*
-		* Selection of savegame format through inifile
-		*/
-		const char *str = contents.get("saveformat");
-		while (*str == ' ') str++;
-		if (strcmp(str, "binary") == 0) {
-			loadsave_t::set_savemode(loadsave_t::binary);
-		} else if(strcmp(str, "zipped") == 0) {
-			loadsave_t::set_savemode(loadsave_t::zipped);
-		} else if(strcmp(str, "text") == 0) {
-			loadsave_t::set_savemode(loadsave_t::text);
-		}
-
-		/*
-		 * Default resolution
-		 */
-		disp_width  = contents.get_int("display_width",  800);
-		disp_height = contents.get_int("display_height", 600);
-		fullscreen  = contents.get_int("fullscreen",       0);
-		umgebung_t::fps = contents.get_int("frames_per_second",25);
-
-		// Default pak file path
-		objfilename = ltrim(contents.get_string("pak_file_path", DEFAULT_OBJPATH));
-
-		// Max number of steps in goods pathfinding
-		haltestelle_t::set_max_hops(contents.get_int("max_hops", 300));
-
-		// Max number of transfers in goods pathfinding
-		umgebung_t::max_transfers = contents.get_int("max_transfers", 7);
-
-		print("Reading simuconf.tab successful!\n");
-
-		simuconf.close();
-	} else {
-		// likely only the programm without graphics started
+	// likely only the programm without graphics was downloaded
+	if(!found_simuconf) {
 		fprintf(stderr, "*** No simuconf.tab found ***\n\nPlease install a complete system\n");
 		getc(stdin);
 		return 0;
-	}
-
-	if (gimme_arg(argc, argv, "-objects", 1)) {
-		objfilename = gimme_arg(argc, argv, "-objects", 1);
 	}
 
 	if (gimme_arg(argc, argv, "-res", 0) != NULL) {

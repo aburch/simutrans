@@ -22,6 +22,7 @@ Known bugs: (hard to fix)
 	FIX: label were saved but not loaded
 	FIX: crash when city tried to built new road to new townhall over existing player road
 	CHANGE: only show goods which can be transported for status display at stations
+	CHANGE: simuconf.tab is searched in pak/config/simuconf.tab after reading the main one in simuconf.tab (which is not needed)
 
 
 Release of 99.07
