@@ -2241,10 +2241,16 @@ bool stadt_t::baue_strasse(const koord k, spieler_t* sp, bool forced)
 	if(gb) {
 		// nothing to connect
 		if(gb->gib_tile()->gib_besch()->gib_all_layouts()==4) {
-			return false;
+			// single way
+			allowed_dir = ribi_t::layout_to_ribi[gb->gib_tile()->gib_layout()];
 		}
-		// check for though way
-		allowed_dir = ribi_t::doppelt( bd->gib_weg(road_wt)->gib_ribi_unmasked() );
+		else if(gb->gib_tile()->gib_besch()->gib_all_layouts()) {
+			// through way
+			allowed_dir = ribi_t::doppelt( ribi_t::layout_to_ribi[gb->gib_tile()->gib_layout()] );
+		}
+		else {
+			dbg->error("stadt_t::baue_strasse()", "building on road with not directions at %i,%i?!?", k.x, k.y );
+		}
 	}
 
 	// we must not built on water or runways etc.
@@ -2274,22 +2280,39 @@ bool stadt_t::baue_strasse(const koord k, spieler_t* sp, bool forced)
 				// not the same slope => tunnel or bridge
 				allowed_dir &= ~ribi_t::nsow[r];
 			} else if (bd2->hat_weg(road_wt)) {
-				if (bd2->gib_depot() == NULL) {
-					// a road, we must just take care for stops and depots
-					const gebaeude_t* gb = dynamic_cast<const gebaeude_t*>(bd2->suche_obj(ding_t::gebaeude));
-					if (gb!=NULL) {
-						int layouts = gb->gib_tile()->gib_besch()->gib_all_layouts();
-						if(layouts==4) {
+				gebaeude_t *gb = (gebaeude_t *)(bd2->suche_obj(ding_t::gebaeude));
+				if(gb) {
+					// nothing to connect
+					if(gb->gib_tile()->gib_besch()->gib_all_layouts()==4) {
+						// single way
+						if(ribi_t::nsow[r]!=ribi_t::rueckwaerts(ribi_t::layout_to_ribi[gb->gib_tile()->gib_layout()])) {
 							allowed_dir &= ~ribi_t::nsow[r];
-							continue;
 						}
-						if(layouts==2  &&  gb->gib_tile()->gib_layout()==(r>=3)) {
-							allowed_dir &= ~ribi_t::nsow[r];
-							continue;
+						else {
+							// otherwise allowed ...
+							connection_roads |= ribi_t::nsow[r];
 						}
-						// not four corner stop or not parallel => ok
 					}
-					// a road to connect (but not through depots or stops)
+					else if(gb->gib_tile()->gib_besch()->gib_all_layouts()==2) {
+						// through way
+						if((ribi_t::doppelt( ribi_t::layout_to_ribi[gb->gib_tile()->gib_layout()] )&ribi_t::nsow[r])==0) {
+							allowed_dir &= ~ribi_t::nsow[r];
+						}
+						else {
+							// otherwise allowed ...
+							connection_roads |= ribi_t::nsow[r];
+						}
+					}
+					else {
+						dbg->error("stadt_t::baue_strasse()", "building on road with not directions at %i,%i?!?", k.x, k.y );
+					}
+				}
+				else if(bd2->gib_depot()) {
+					// do not enter depots
+					allowed_dir &= ~ribi_t::nsow[r];
+				}
+				else {
+					// otherwise allowed ...
 					connection_roads |= ribi_t::nsow[r];
 				}
 			}

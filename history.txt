@@ -11,7 +11,7 @@ Release of 99.08
 	FIX: unmark map ground during underground deletion
 	FIX: image for bridge ramps after reloading
 	FIX: citys continue also ways on upslopes
-	FIX: citycars properly turning, when there is no entry or only one tile after a crossing
+	FIX: citycars properly turning, when there is no entry or only one tile after a crossing (and also make now 180° turns)
 	FIX: (kierongreen) trains in small window are now correctly followed over bridges
 	ADD: (kierongreen) withdraw of convois i.e. convoi is sold after it is empty (and no freight is loaded) 'withdraw' and 'Convoi is sold when all wagons are empty.'
 	ADD: (kierongreen) no loading button to convoi info window added for manual control of a convois state
@@ -33,6 +33,7 @@ Release of 99.08
 	FIX: forgot to charge for industry construction
 	CHANGE: forrestconf.tab -> forestrules.tab, now maintained by the tree class itself
 	FIX: building ways into depots again
+	FIX: city does not build road through busstops, loading bays or depots
 
 
 Release of 99.07
