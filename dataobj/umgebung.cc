@@ -1,12 +1,16 @@
 #include "umgebung.h"
 #include "../simtypes.h"
+#include "../utils/cstring_t.h"
 
 
 // Hajo: hier Standardwerte belegen.
 
 char umgebung_t::program_dir[1024];
 const char *umgebung_t::user_dir = 0;
-bool umgebung_t::multiuser_install = true;
+
+uint16 umgebung_t::max_convoihandles = 8192;
+uint16 umgebung_t::max_linehandles = 2048;
+uint16 umgebung_t::max_halthandles = 8192;
 
 bool umgebung_t::testlauf = false;
 
@@ -18,9 +22,15 @@ bool umgebung_t::hide_with_transparency = true;
 bool umgebung_t::hide_trees = false;
 uint8 umgebung_t::hide_buildings = umgebung_t::NOT_HIDE;
 
+/* station stuff */
 bool umgebung_t::use_transparency_station_coverage = true;
 uint8 umgebung_t::station_coverage_show = NOT_SHOWN_COVERAGE;
 int umgebung_t::station_coverage_size = 2;
+int umgebung_t::set_max_hops = 1000;
+int umgebung_t::max_transfers = 7;
+
+// passenger manipulation factor
+uint32 umgebung_t::passenger_factor=16;
 
 int  umgebung_t::show_names = 3;
 
@@ -28,38 +38,23 @@ bool umgebung_t::automaten[6] = {0,0,0,0,1,0};
 
 int umgebung_t::message_flags[4] =  { 0x017F, 0x0108, 0x0080, 0 };
 
-bool umgebung_t::fussgaenger = false;
+bool umgebung_t::fussgaenger = true;
+
+long umgebung_t::stadtauto_duration = 31457280;	// ten years
 
 bool umgebung_t::verkehrsteilnehmer_info = false;
-
-long umgebung_t::stadtauto_duration = 100000;
-
 bool umgebung_t::tree_info = false;
-
 bool umgebung_t::ground_info = false;
-
 bool umgebung_t::townhall_info = false;
-
 bool umgebung_t::single_info = false;
 
 bool umgebung_t::window_buttons_right = false;
 
 bool umgebung_t::verbose_debug = false;
 
-int umgebung_t::starting_money = 15000000;
+sint64 umgebung_t::starting_money = 20000000;
 
-int umgebung_t::maint_building;
-
-int umgebung_t::maint_way;
-
-
-/**
- * Wartungskosten für Oberleitungen
- * (not used since 89.02.2)
- * @author Hj. Malthaner
- */
-int umgebung_t::maint_overhead = 200;
-
+sint32 umgebung_t::maint_building = 500;
 
 /**
  * Use numbering for stations?
@@ -75,22 +70,19 @@ bool umgebung_t::numbered_stations = false;
  */
 int umgebung_t::intercity_road_length = 8000;
 
-
 /**
  * Typ (Name) initiale Stadtverbindungen
  *
  * @author Hj. Malthaner
  */
-cstring_t * umgebung_t::intercity_road_type = 0;
-
+cstring_t * umgebung_t::intercity_road_type = new cstring_t( "cobblestone_road" );
 
 /**
  * Typ (Name) initiale Stadtstrassen
  *
  * @author Hj. Malthaner
  */
-cstring_t * umgebung_t::city_road_type = 0;
-
+cstring_t * umgebung_t::city_road_type = new cstring_t( "city_road" );
 
 /**
  * Should the timeline be activated?
@@ -104,30 +96,32 @@ char umgebung_t::use_timeline = 2;	// do not care
  *
  * @author hsiegeln
  */
-sint8 umgebung_t::show_month = 0;
+uint8 umgebung_t::show_month = 0;
 
 /**
  * Starting year of the game
  *
  * @author Hj. Malthaner
  */
-sint16 umgebung_t::starting_year;
+sint16 umgebung_t::starting_year = 1930;
 
 /* prissi: 1<<bits_per_day is the duration of a month in ms */
 sint16 umgebung_t::bits_per_month=18;
 
 
 /* prissi: maximum number of steps for breath search */
-int umgebung_t::max_route_steps = 10000;
+int umgebung_t::max_route_steps = 1000000;
 
-/* prissi: maximum number of steps for breath search */
-int umgebung_t::max_transfers = 7;
+/* prissi: autosave every x months (0=off) */
+int umgebung_t::autosave = 0;
 
-/* prissi: autosave every x months */
-int umgebung_t::autosave = 3;
-
+#ifdef OTTD_LIKE
+/* prissi: crossconnect all factories (like OTTD and similar games) */
+bool umgebung_t::crossconnect_factories=true;
+#else
 /* prissi: crossconnect all factories (like OTTD and similar games) */
 bool umgebung_t::crossconnect_factories=false;
+#endif
 
 /* prissi: do not distribute goods to overflowing factories */
 bool umgebung_t::just_in_time=true;
@@ -136,11 +130,11 @@ bool umgebung_t::just_in_time=true;
 bool umgebung_t::drive_on_left=false;
 
 /* the big cost section */
-sint64 umgebung_t::cst_multiply_dock=-200000;
-sint64 umgebung_t::cst_multiply_station=-240000;
-sint64 umgebung_t::cst_multiply_roadstop=-150000;
-sint64 umgebung_t::cst_multiply_airterminal=-1500000;
-sint64 umgebung_t::cst_multiply_post=-60000;
+sint64 umgebung_t::cst_multiply_dock=-50000;
+sint64 umgebung_t::cst_multiply_station=-60000;
+sint64 umgebung_t::cst_multiply_roadstop=-40000;
+sint64 umgebung_t::cst_multiply_airterminal=-300000;
+sint64 umgebung_t::cst_multiply_post=-30000;
 sint64 umgebung_t::cst_multiply_headquarter=-1000000;
 sint64 umgebung_t::cst_depot_rail=-100000;
 sint64 umgebung_t::cst_depot_road=-130000;
@@ -153,20 +147,17 @@ sint64 umgebung_t::cst_buy_land=-10000;
 sint64 umgebung_t::cst_alter_land=-50000;
 sint64 umgebung_t::cst_set_slope=-250000;
 sint64 umgebung_t::cst_found_city=-500000000;
-sint64 umgebung_t::cst_multiply_found_industry=-100000000;
+sint64 umgebung_t::cst_multiply_found_industry=-2000000;
 sint64 umgebung_t::cst_remove_tree=-10000;
 sint64 umgebung_t::cst_multiply_remove_haus=-100000;
 
 // costs for the way searcher
-sint32 umgebung_t::way_count_curve=10;
-sint32 umgebung_t::way_count_double_curve=40;
-sint32 umgebung_t::way_count_90_curve=2000;
-sint32 umgebung_t::way_count_slope=80;
+sint32 umgebung_t::way_count_curve=2;
+sint32 umgebung_t::way_count_double_curve=10;
+sint32 umgebung_t::way_count_90_curve=50;
+sint32 umgebung_t::way_count_slope=10;
 sint32 umgebung_t::way_count_tunnel=8;
 uint32 umgebung_t::way_max_bridge_len=15;
-
-// passenger manipulation factor
-uint32 umgebung_t::passenger_factor=16;
 
 // easier prices for beginner
 uint32 umgebung_t::beginner_price_factor=1500;

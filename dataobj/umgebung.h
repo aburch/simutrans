@@ -29,7 +29,11 @@ public:
 	//points to the current directory user for loading and saving
 	static const char *user_dir;
 
-	static bool multiuser_install;
+	//
+	static uint16 max_convoihandles;
+	static uint16 max_linehandles;
+	static uint16 max_halthandles;
+
 
 	/**
 	* bei Testläufen wird sofort eine standardkarte erzeugt
@@ -162,7 +166,7 @@ public:
 	*
 	* @author Hj. Malthaner
 	*/
-	static int starting_money;
+	static sint64 starting_money;
 
 
 	/**
@@ -170,7 +174,7 @@ public:
 	*
 	* @author Hj. Malthaner
 	*/
-	static int maint_building;
+	static sint32 maint_building;
 
 
 	/**
@@ -178,16 +182,7 @@ public:
 	*
 	* @author Hj. Malthaner
 	*/
-	static int maint_way;
-
-
-	/**
-	* Wartungskosten für Oberleitungen
-	*
-	* @author Hj. Malthaner
-	*/
-	static int maint_overhead;
-
+	static sint32 maint_way;
 
 	/**
 	* Use numbering for stations?
@@ -231,7 +226,7 @@ public:
 	*
 	* @author hsiegeln
 	*/
-	static sint8 show_month;
+	static uint8 show_month;
 
 	/**
 	* Starting year of the game
@@ -251,10 +246,11 @@ public:
 	/* prissi: maximum number of steps for breath search */
 	static int max_route_steps;
 
+	// max steps for good routing
+	static int set_max_hops;
 
 	/* prissi: maximum number of steps for breath search */
 	static int max_transfers;
-
 
 	/* prissi: do autosave every month? */
 	static int autosave;

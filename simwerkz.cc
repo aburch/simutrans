@@ -2043,7 +2043,7 @@ int wkz_pflanze_baum(spieler_t *, karte_t *welt, koord pos)
 
 
 /* builts a random industry chain, either in the next town */
-int wkz_build_industries_land(spieler_t *, karte_t *welt, koord pos)
+int wkz_build_industries_land(spieler_t *sp, karte_t *welt, koord pos)
 {
 	if(welt->lookup(pos)==NULL) {
 		return false;
@@ -2070,7 +2070,7 @@ int wkz_build_industries_land(spieler_t *, karte_t *welt, koord pos)
 
 	if(hat_platz) {
 		koord3d k = welt->lookup(pos)->gib_kartenboden()->gib_pos();
-		fabrikbauer_t::baue_hierarchie(welt, NULL, info, rotation, &k,welt->gib_spieler(1));
+		int anzahl = fabrikbauer_t::baue_hierarchie(welt, NULL, info, rotation, &k,welt->gib_spieler(1));
 
 		// crossconnect all?
 		if(umgebung_t::crossconnect_factories) {
@@ -2079,6 +2079,10 @@ int wkz_build_industries_land(spieler_t *, karte_t *welt, koord pos)
 			while( iter.next() ) {
 				iter.get_current()->add_all_suppliers();
 			}
+		}
+
+		if(sp) {
+			sp->buche( anzahl*umgebung_t::cst_multiply_found_industry, pos, COST_CONSTRUCTION );
 		}
 
 		return true;
@@ -2089,14 +2093,14 @@ int wkz_build_industries_land(spieler_t *, karte_t *welt, koord pos)
 
 
 /* builts a random industry chain, either in the next town */
-int wkz_build_industries_city(spieler_t *, karte_t *welt, koord pos)
+int wkz_build_industries_city(spieler_t *sp, karte_t *welt, koord pos)
 {
 	const planquadrat_t *plan = welt->lookup(pos);
 	if(plan) {
 
 		koord3d pos3d = plan->gib_kartenboden()->gib_pos();
 		const fabrik_besch_t *info = fabrikbauer_t::get_random_consumer(true,(climate_bits)(1<<welt->get_climate(pos3d.z)));
-		fabrikbauer_t::baue_hierarchie(welt, NULL, info, false, &pos3d,welt->gib_spieler(1));
+		int anzahl = fabrikbauer_t::baue_hierarchie(welt, NULL, info, false, &pos3d,welt->gib_spieler(1));
 
 		// crossconnect all?
 		if(umgebung_t::crossconnect_factories) {
@@ -2107,6 +2111,9 @@ int wkz_build_industries_city(spieler_t *, karte_t *welt, koord pos)
 			}
 		}
 
+		if(sp) {
+			sp->buche( anzahl*umgebung_t::cst_multiply_found_industry, pos, COST_CONSTRUCTION );
+		}
 	}
 	return plan != 0;
 }

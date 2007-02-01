@@ -3112,7 +3112,12 @@ karte_t::interactive_event(event_t &ev)
 	    break;
 
 	case 'I':
-	  setze_maus_funktion(wkz_build_industries_land, skinverwaltung_t::undoc_zeiger->gib_bild_nr(0), Z_PLAN,  NO_SOUND, NO_SOUND );
+		if(einstellungen->gib_allow_player_change()) {
+			setze_maus_funktion(wkz_build_industries_land, skinverwaltung_t::undoc_zeiger->gib_bild_nr(0), Z_PLAN,  NO_SOUND, NO_SOUND );
+		}
+		else {
+			message_t::get_instance()->add_message(translator::translate("On this map, you are not\nallowed to change player!\n"),koord(-1,-(sint16)simrand(63)),message_t::problems,get_active_player()->get_player_nr(),IMG_LEER);
+		}
 	    break;
 
 	case 'k':
