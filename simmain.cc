@@ -435,7 +435,9 @@ extern "C" int simu_main(int argc, char** argv)
 
 	// parsing config/simuconf.tab
 	print("Reading low level config data ...\n");
-	bool found_simuconf=false, multiuser=false;
+	bool found_simuconf=false;
+	bool multiuser = (gimme_arg(argc, argv, "-singleuser", 0) == NULL);
+
 	tabfile_t simuconf;
 	if(simuconf.open("config/simuconf.tab")) {
 		parse_simuconf( simuconf, disp_width, disp_height, fullscreen, objfilename, multiuser );
@@ -571,6 +573,9 @@ extern "C" int simu_main(int argc, char** argv)
 
 	print("Reading city configuration ...\n");
 	stadt_t::cityrules_init(objfilename);
+
+	print("Reading forest configuration ...\n");
+	baum_t::forestrules_init(objfilename);
 
 	// loading all paks
 	print("Reading object data from %s...\n", (const char*)objfilename);

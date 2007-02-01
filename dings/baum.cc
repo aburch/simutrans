@@ -8,6 +8,7 @@
  */
 
 #include <stdio.h>
+#include <math.h>
 
 #include "../simdebug.h"
 #include "../simworld.h"
@@ -16,6 +17,7 @@
 #include "../simplay.h"
 #include "../simmem.h"
 #include "../simtools.h"
+#include "../simtypes.h"
 
 #include "../boden/grund.h"
 
@@ -25,6 +27,7 @@
 
 #include "../dataobj/loadsave.h"
 #include "../dataobj/translator.h"
+#include "../dataobj/tabfile.h"
 #include "../dataobj/umgebung.h"
 #include "../dataobj/freelist.h"
 
@@ -36,8 +39,123 @@ static const uint8 baum_bild_alter[12] =
     0,1,2,3,3,3,3,3,3,4,4,4
 };
 
-/*************************** first the static function for the baum_t and baum_besch_t administration ***************/
+/******************************** static stuff for forest rules ****************************************************************/
 
+// at first deafault values for forest creation will be set
+// Base forest size - minimal size of forest - map independent
+uint8 baum_t::forest_base_size = 36;
+
+// Map size divisor - smaller it is the larger are individual forests
+uint8 baum_t::forest_map_size_divisor = 38;
+
+// Forest count divisor - smaller it is, the more forest are generated
+uint8 baum_t::forest_count_divisor = 16;
+
+// Forest boundary sharpenss: 0 - perfectly sharp boundaries, 20 - very blurred
+uint8 baum_t::forest_boundary_blur = 6;
+
+// Forest boundary thickness  - determines how thick will the boundary line be
+uint8 baum_t::forest_boundary_thickness = 2;
+
+// Determins how often are spare trees going to be planted (works inversly)
+uint8 baum_t::forest_inverse_spare_tree_density = 5;
+
+// Number of trees on square 2 - minimal usable, 3 good, 5 very nice looking
+uint8 baum_t::max_no_of_trees_on_square = 3;
+
+
+/**
+ * Reads forest configuration data
+ * @author prissi
+ */
+bool
+baum_t::forestrules_init(cstring_t objfilename)
+{
+	tabfile_t forestconf;
+	// first take user data, then user global data
+	cstring_t user_dir=umgebung_t::user_dir;
+	if (!forestconf.open(user_dir+"forestrules.tab")) {
+		if (!forestconf.open(objfilename+"config/forestrules.tab")) {
+			dbg->fatal("stadt_t::init()", "Can't read forestrules.tab" );
+			return false;
+		}
+	}
+
+	tabfileobj_t contents;
+	forestconf.read(contents);
+
+	baum_t::forest_base_size = contents.get_int("forest_base_size", baum_t::forest_base_size );
+	baum_t::forest_map_size_divisor = contents.get_int("forest_map_size_divisor", baum_t::forest_map_size_divisor );
+	baum_t::forest_count_divisor = contents.get_int("forest_count_divisor", baum_t::forest_count_divisor );
+	baum_t::forest_boundary_blur = contents.get_int("forest_boundary_blur", baum_t::forest_boundary_blur );
+	baum_t::forest_boundary_thickness = contents.get_int("forest_boundary_thickness", baum_t::forest_boundary_thickness );
+	baum_t::forest_inverse_spare_tree_density = contents.get_int("forest_inverse_spare_tree_density", baum_t::forest_inverse_spare_tree_density );
+	baum_t::max_no_of_trees_on_square = contents.get_int("max_no_of_trees_on_square", baum_t::max_no_of_trees_on_square );
+
+	return true;
+}
+
+
+
+// distributes trees on a map
+void
+baum_t::distribute_trees(karte_t *welt, int dichte)
+{
+	// now we can proceed to tree palnting routine itself
+	// best forests results are produced if forest size is tied to map size -
+	// but there is some nonlinearity to ensure good forests on small maps
+	const unsigned t_forest_size = (unsigned)pow( welt->gib_groesse_max()>>7 , 0.5)*forest_base_size + (welt->gib_groesse_max()/forest_map_size_divisor);
+	const uint8 c_forest_count = welt->gib_groesse_max()/forest_count_divisor;
+	unsigned  x_tree_pos, y_tree_pos, distance, tree_probability;
+	uint8 c2;
+
+DBG_MESSAGE("verteile_baeume()","creating %i forest",c_forest_count);
+	for (uint8 c1 = 0 ; c1 < c_forest_count ; c1++) {
+		const unsigned xpos_f = simrand(welt->gib_groesse_x());
+		const unsigned ypos_f = simrand(welt->gib_groesse_y());
+		const unsigned c_coef_x = 1+simrand(2);
+		const unsigned c_coef_y = 1+simrand(2);
+		const unsigned x_forest_boundary = t_forest_size*c_coef_x;
+		const unsigned y_forest_boundary = t_forest_size*c_coef_y;
+		unsigned i, j;
+
+		for(j = 0; j < x_forest_boundary; j++) {
+			for(i = 0; i < y_forest_boundary; i++) {
+
+				x_tree_pos = (j-(t_forest_size>>1)); // >>1 works like 2 but is faster
+				y_tree_pos = (i-(t_forest_size>>1));
+
+				distance = 1 + ((int) sqrt( (double)(x_tree_pos*x_tree_pos/c_coef_x + y_tree_pos*y_tree_pos/c_coef_y)));
+
+				tree_probability = ( 32 * (t_forest_size / 2) ) / distance;
+
+				for (c2 = 0 ; c2<max_no_of_trees_on_square; c2++) {
+					const unsigned rating = simrand(forest_boundary_blur) + 38 + c2*forest_boundary_thickness;
+					if (rating < tree_probability ) {
+						const koord pos( (sint16)(xpos_f+x_tree_pos), (sint16)(ypos_f+y_tree_pos));
+						plant_tree_on_coordinate(welt, pos, max_no_of_trees_on_square );
+					}
+				}
+			}
+		}
+	}
+
+DBG_MESSAGE("verteile_baeume()","distributing single trees");
+	koord pos;
+	for(pos.y=0;pos.y<welt->gib_groesse_y(); pos.y++) {
+		for(pos.x=0; pos.x<welt->gib_groesse_x(); pos.x++) {
+			//plant spare trees, (those with low preffered density)
+			if(simrand(forest_inverse_spare_tree_density*dichte) < 100) {
+				plant_tree_on_coordinate(welt, pos, 1);
+			}
+		}
+	}
+}
+
+
+
+
+/*************************** first the static function for the baum_t and baum_besch_t administration ***************/
 
 /*
  * Diese Tabelle ermöglicht das Auffinden dient zur Auswahl eines Baumtypen
@@ -289,7 +407,7 @@ baum_t::saee_baum()
 		if(	bd!=NULL  &&
 			gib_besch()->is_allowed_climate(welt->get_climate(bd->gib_pos().z))  &&
 			bd->ist_natur()  &&
-			bd->gib_top()<welt->gib_max_no_of_trees_on_square())
+			bd->gib_top()<max_no_of_trees_on_square)
 		{
 			bd->obj_add( new baum_t(welt, bd->gib_pos(), baumtype) );
 		}

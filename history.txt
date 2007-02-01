@@ -4,6 +4,9 @@ Known bugs: (hard to fix)
 	valgrind complains about errors in SDL and X?
 
 
+Release of 99.08
+
+4-Feb-2007:
 	FIX: random_tree_for_climate was broken, and did return not always the right tree
 	FIX: unmark map ground during underground deletion
 	FIX: image for bridge ramps after reloading
@@ -25,8 +28,10 @@ Known bugs: (hard to fix)
 	CHANGE: simuconf.tab is searched in pak/config/simuconf.tab after reading the main one in simuconf.tab (which is not needed)
 	CHANGE: savegames and all other configuration stuff is now saved in the users home directory (resp. Eigene Dateien) inf multiuser_install=1 (default) in simuconf.tab
 	CHANGE: simuconf tabs are now read in this order: program_dir/config/ then user_dir/config (for pak file path) than pak/config/ then user_dir/config for the rest
+	CHANGE: new program option -singleuser to avoid using the users home directory
 	CHANGE: removed maintenance_overhad, maintenance_ways from simuconf.tab, since it was not used
 	FIX: forgot to charge for industry construction
+	CHANGE: forrestconf.tab -> forestrules.tab, now maintained by the tree class itself
 
 
 Release of 99.07

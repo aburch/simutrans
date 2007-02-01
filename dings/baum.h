@@ -25,11 +25,6 @@
 class baum_t : public ding_t
 {
 private:
-	static stringhashtable_tpl<uint32> besch_names;
-	static vector_tpl<const baum_besch_t *> baum_typen;
-
-	static const uint16 random_tree_for_climate(climate cl);
-
 	// month of birth
 	sint32 geburt:20;
 
@@ -38,12 +33,27 @@ private:
 
 	uint32 season:2;
 
+	// static for administration
+	static stringhashtable_tpl<uint32> besch_names;
+	static vector_tpl<const baum_besch_t *> baum_typen;
+
+	// static for the forest rule set
+	static uint8 forest_base_size;
+	static uint8 forest_map_size_divisor;
+	static uint8 forest_count_divisor;
+	static uint8 forest_boundary_blur;
+	static uint8 forest_boundary_thickness;
+	static uint8 forest_inverse_spare_tree_density;
+	static uint8 max_no_of_trees_on_square;
+
 	void saee_baum();
 
 	/**
 	 * Berechnet offsets für gepflanzte Bäume
 	 */
 	void calc_off();
+
+	static const uint16 random_tree_for_climate(climate cl);
 
 public:
 	// only the load save constructor should be called outside
@@ -83,6 +93,13 @@ public:
 	const baum_besch_t* gib_besch() const { return baum_typen[baumtype]; }
 
 	// static functions to handle trees
+
+	// reads configuration data
+	static bool forestrules_init(cstring_t objpathname);
+
+	// distributes trees on a map
+	static void distribute_trees(karte_t *welt, int dichte);
+
 	static bool plant_tree_on_coordinate(karte_t *welt, koord pos, const uint8 maximum_count);
 
 	static bool register_besch(baum_besch_t *besch);

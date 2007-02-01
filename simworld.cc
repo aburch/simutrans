@@ -374,117 +374,6 @@ void karte_t::cleanup_karte()
 
 
 
-void karte_t::verteile_baeume(int dichte)
-{
-  // at first deafault values for forest creation will be set
-  // Base forest size - minimal size of forest - map independent
-  unsigned char forest_base_size = 36;
-
-  // Map size divisor - smaller it is the larger are individual forests
-  unsigned char forest_map_size_divisor = 38;
-
-  // Forest count divisor - smaller it is, the more forest are generated
-  unsigned char forest_count_divisor = 16;
-
-  // Forest boundary sharpenss: 0 - perfectly sharp boundaries, 20 - very blurred
-  unsigned char forest_boundary_blur = 6;
-
-  // Forest boundary thickness  - determines how thick will the boundary line be
-  unsigned char forest_boundary_thickness = 2;
-
-  // Determins how often are spare trees going to be planted (works inversly)
-  unsigned char forest_inverse_spare_tree_density = 5;
-
-  //	Number of trees on square 2 - minimal usable, 3 good, 5 very nice looking
-  setze_max_no_of_trees_on_square (3);
-
-  //now forest configuration data will be read form forrestconf.tab
-  tabfile_t simuconf;
-
-  if(simuconf.open("config/forrestconf.tab")) {
-    tabfileobj_t contents;
-
-    simuconf.read(contents);
-
-    forest_base_size = contents.get_int("forest_base_size", 36);
-    forest_map_size_divisor = contents.get_int("forest_map_size_divisor", 38);
-    forest_count_divisor = contents.get_int("forest_count_divisor", 16);
-    forest_boundary_blur = contents.get_int("forest_boundary_blur", 6);
-    forest_boundary_thickness = contents.get_int("forest_boundary_thickness", 2);
-    forest_inverse_spare_tree_density = contents.get_int("forest_inverse_spare_tree_density", 5);
-
-
-    setze_max_no_of_trees_on_square (contents.get_int("max_no_of_trees_on_square", 3));
-
-    simuconf.close();
-  } else {
-    // nothing here, if reading fails, default values will remain
-  }
-
-  // now we can proceed to tree palnting routine itself
-  // best forests results are produced if forest size is tied to map size -
-  // but there is some nonlinearity to ensure good forests on small maps
-
-  const unsigned int t_forest_size =
-    (unsigned int)pow( gib_groesse_max()>>7 , 0.5)*forest_base_size + (gib_groesse_max()/forest_map_size_divisor);
-  const unsigned char c_forest_count = gib_groesse_max()/forest_count_divisor;
-  unsigned int  x_tree_pos, y_tree_pos, distance, tree_probability;
-  unsigned char c2;
-
-	DBG_MESSAGE("verteile_baeume()","c_forest_count %i",c_forest_count);
-
-  for (unsigned char c1 = 0 ; c1 < c_forest_count ; c1++) {
-    const unsigned int xpos_f = simrand(gib_groesse_x());
-    const unsigned int ypos_f = simrand(gib_groesse_y());
-    const unsigned int c_coef_x = 1+simrand(2);
-    const unsigned int c_coef_y = 1+simrand(2);
-    const unsigned int x_forest_boundary = t_forest_size*c_coef_x;
-    const unsigned int y_forest_boundary = t_forest_size*c_coef_y;
-    unsigned int i, j;
-
-    for(j = 0; j < x_forest_boundary; j++) {
-      for(i = 0; i < y_forest_boundary; i++) {
-
-	x_tree_pos = (j-(t_forest_size>>1)); // >>1 works like 2 but is faster
-	y_tree_pos = (i-(t_forest_size>>1));
-
-	distance = 1 + ((int) sqrt( (double)(x_tree_pos*x_tree_pos/c_coef_x + y_tree_pos*y_tree_pos/c_coef_y)));
-
-	tree_probability = (t_forest_size<<4) / distance; //is same as = ( 32 * (t_forest_size / 2) ) / distance
-
-	for (c2 = 0 ; c2 < gib_max_no_of_trees_on_square() ; c2++) {
-	  const unsigned int rating =
-	    simrand(forest_boundary_blur) + 38 + c2*forest_boundary_thickness;
-
-	  if (rating < tree_probability ) {
-	    const koord pos ((short int)(xpos_f+x_tree_pos),
-			     (short int)(ypos_f+y_tree_pos));
-
-	    baum_t::plant_tree_on_coordinate(this,
-					     pos,
-					     gib_max_no_of_trees_on_square());
-	  }
-	}
-      }
-    }
-  }
-
-	DBG_MESSAGE("verteile_baeume()","distributing single trees");
-
-	koord pos;
-	for(pos.y=0;pos.y<gib_groesse_y(); pos.y++) {
-		for(pos.x=0; pos.x<gib_groesse_x(); pos.x++) {
-			//plant spare trees, (those with low preffered density)
-			if(simrand(forest_inverse_spare_tree_density*dichte) < 100) {
-				baum_t::plant_tree_on_coordinate(this, pos, 1);
-			}
-		}
-	}
-}
-
-
-
-
 // karte_t methoden
 
 void
@@ -744,15 +633,14 @@ DBG_DEBUG("karte_t::init()","set ground");
 	}
 
 DBG_DEBUG("karte_t::init()","distributing trees");
-    verteile_baeume(3);
+	baum_t::distribute_trees(this,3);
 
 DBG_DEBUG("karte_t::init()","built timeline");
-    stadtauto_t::built_timeline_liste(this);
+	stadtauto_t::built_timeline_liste(this);
 
-    print("Creating cities ...\n");
-
+print("Creating cities ...\n");
 DBG_DEBUG("karte_t::init()","hausbauer_t::neue_karte()");
-    hausbauer_t::neue_karte();
+	hausbauer_t::neue_karte();
 
 DBG_DEBUG("karte_t::init()","prepare cities");
 	stadt.clear();
@@ -3069,7 +2957,7 @@ karte_t::interactive_event(event_t &ev)
 	    setze_dirty();
 	    break;
 	case 167:    // Hajo: '§'
-	    verteile_baeume(3);
+		baum_t::distribute_trees( this, 3 );
 	    break;
 
 	case 'a':

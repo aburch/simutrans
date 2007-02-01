@@ -114,12 +114,6 @@ private:
 	int mouse_funk_ko_sound;
 
 	/**
-	 * Tomas: forest related values - no of trees could be on
-	 * other places as well
-	 */
-	unsigned char max_no_of_trees_on_square;
-
-	/**
 	 * redraw whole map
 	 */
 	bool dirty;
@@ -307,8 +301,6 @@ private:
 
 	int last_simloops;
 
-	void verteile_baeume(int dichte);
-
 	void do_pause();         // Spiel pausieren
 	void neuer_monat();      // Monatliche Aktionen
 	void neues_jahr();       // Jaehrliche Aktionen
@@ -383,10 +375,6 @@ public:
 	*/
 	void set_follow_convoi(convoihandle_t cnv);
 	convoihandle_t get_follow_convoi() const { return follow_convoi; }
-
-	//tree number related routines
-	unsigned char gib_max_no_of_trees_on_square () const { return max_no_of_trees_on_square; }
-	void setze_max_no_of_trees_on_square (unsigned char number) { max_no_of_trees_on_square = number; }
 
 	einstellungen_t* gib_einstellungen() const { return einstellungen; }
 
