@@ -256,9 +256,9 @@ void grund_t::rdwr(loadsave_t *file)
 							weg = new kanal_t (welt, file);
 						}
 						else {
-							unsigned char d8;
-							short d16;
-							long d32;
+							uint8 d8;
+							sint16 d16;
+							sint32 d32;
 
 							file->rdwr_byte(d8, "\n");
 							file->rdwr_short(d16, "\n");

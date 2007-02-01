@@ -377,8 +377,6 @@ extern "C" int simu_main(int argc, char** argv)
 	int disp_height = 600;
 	int fullscreen = false;
 
-	cstring_t objfilename = DEFAULT_OBJPATH;
-
 #ifdef _MSC_VER
 	_set_new_handler(sim_new_handler);
 #else
@@ -440,7 +438,7 @@ extern "C" int simu_main(int argc, char** argv)
 
 	tabfile_t simuconf;
 	if(simuconf.open("config/simuconf.tab")) {
-		parse_simuconf( simuconf, disp_width, disp_height, fullscreen, objfilename, multiuser );
+		parse_simuconf( simuconf, disp_width, disp_height, fullscreen, umgebung_t::objfilename, multiuser );
 		found_simuconf = true;
 		simuconf.close();
 	}
@@ -456,7 +454,7 @@ extern "C" int simu_main(int argc, char** argv)
 			// determine my pak file path
 			tabfileobj_t contents;
 			simuconf.read(contents);
-			objfilename = ltrim(contents.get_string("pak_file_path", DEFAULT_OBJPATH));
+			umgebung_t::objfilename = ltrim(contents.get_string("pak_file_path", DEFAULT_OBJPATH));
 			found_simuconf = true;
 			simuconf.close();
 		}
@@ -468,11 +466,11 @@ extern "C" int simu_main(int argc, char** argv)
 
 	// now set the desired objectfilename (overide all previous settings)
 	if (gimme_arg(argc, argv, "-objects", 1)) {
-		objfilename = gimme_arg(argc, argv, "-objects", 1);
+		umgebung_t::objfilename = gimme_arg(argc, argv, "-objects", 1);
 	}
 
 	// now find the pak specific tab file ...
-	cstring_t obj_conf = objfilename + "config/simuconf.tab";
+	cstring_t obj_conf = umgebung_t::objfilename + "config/simuconf.tab";
 	cstring_t dummy("");
 	if(simuconf.open((const char *)obj_conf)) {
 		parse_simuconf( simuconf, disp_width, disp_height, fullscreen, dummy, multiuser );
@@ -561,25 +559,25 @@ extern "C" int simu_main(int argc, char** argv)
 	// just check before loading objects
 	if (!gimme_arg(argc, argv, "-nosound", 0)) {
 		print("Reading compatibility sound data ...\n");
-		sound_besch_t::init(objfilename);
+		sound_besch_t::init(umgebung_t::objfilename);
 	}
 
 	// Adam - Moved away loading from simmain and placed into translator for better modularisation
-	if (!translator::load(objfilename)) {
+	if (!translator::load(umgebung_t::objfilename)) {
 		// installation error: likely only program started
 		dbg->fatal("simmain::main()", "Unable to load any language files\n*** PLEASE INSTALL PROPER BASE FILES ***\n");
 		exit(11);
 	}
 
 	print("Reading city configuration ...\n");
-	stadt_t::cityrules_init(objfilename);
+	stadt_t::cityrules_init(umgebung_t::objfilename);
 
 	print("Reading forest configuration ...\n");
-	baum_t::forestrules_init(objfilename);
+	baum_t::forestrules_init(umgebung_t::objfilename);
 
 	// loading all paks
-	print("Reading object data from %s...\n", (const char*)objfilename);
-	if (!obj_reader_t::init(objfilename)) {
+	print("Reading object data from %s...\n", (const char*)umgebung_t::objfilename);
+	if (!obj_reader_t::init(umgebung_t::objfilename)) {
 		fprintf(stderr, "reading object data failed.\n");
 		exit(11);
 	}
@@ -599,9 +597,9 @@ extern "C" int simu_main(int argc, char** argv)
 	}
 	else {
 		char buffer[256];
-		sprintf(buffer, "%sdemo.sve", (const char*)objfilename);
+		sprintf(buffer, "%sdemo.sve", (const char*)umgebung_t::objfilename);
 		// access did not work!
-		FILE *f=fopen(objfilename+"demo.sve","rb");
+		FILE *f=fopen(umgebung_t::objfilename+"demo.sve","rb");
 		if(f) {
 			// there is a demo game to load
 			loadgame = buffer;
@@ -822,12 +820,11 @@ DBG_MESSAGE("init","map");
 				welt->init(sets);
 				// save setting ...
 				loadsave_t file;
-				if(file.wr_open("default.sve")) {
+				if(file.wr_open("default.sve",loadsave_t::binary,"settings only")) {
 					// save default setting
 					sets->rdwr(&file);
 					file.close();
 				}
-
 				destroy_all_win();
 			} else if(wg->gib_load()) {
 				destroy_win(wg);

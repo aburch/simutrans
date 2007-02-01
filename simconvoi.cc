@@ -1127,7 +1127,7 @@ convoi_t::vorfahren()
 void
 convoi_t::rdwr(loadsave_t *file)
 {
-	long dummy;
+	sint32 dummy;
 	int besitzer_n = welt->sp2num(besitzer_p);
 
 	if(file->is_saving()) {
@@ -1140,7 +1140,7 @@ convoi_t::rdwr(loadsave_t *file)
 	// for new line management we need to load/save the assigned line id
 	// @author hsiegeln
 	if(file->get_version()<88003) {
-		dummy=0;
+		dummy = 0;
 		file->rdwr_long(dummy, " ");
 		line_id = (uint16)dummy;
 	}
@@ -1148,18 +1148,21 @@ convoi_t::rdwr(loadsave_t *file)
 		file->rdwr_short(line_id, " ");
 	}
 
-	dummy=anz_vehikel;
+	dummy = anz_vehikel;
 	file->rdwr_long(dummy, " ");
 	anz_vehikel = (uint8)dummy;
-	dummy=anz_ready;
+
+	dummy = anz_ready;
 	file->rdwr_long(dummy, " ");
 	anz_ready = (bool)dummy;
+
 	file->rdwr_long(wait_lock, " ");
 	// some versions may produce broken safegames apparently
 	if(wait_lock > 60000) {
 		dbg->warning("convoi_t::sync_prepre()","Convoi %d: wait lock out of bounds: wait_lock = %d, setting to 60000",self.get_id(), wait_lock);
 		wait_lock = 60000;
 	}
+
 	bool dummy_bool=false;
 	file->rdwr_bool(dummy_bool, " ");
 	file->rdwr_long(besitzer_n, "\n");
@@ -1168,11 +1171,13 @@ convoi_t::rdwr(loadsave_t *file)
 	file->rdwr_long(sp_soll, " ");
 	file->rdwr_enum(state, " ");
 	file->rdwr_enum(alte_richtung, " ");
+
 	// read the yearly income (which has since then become a 64 bit value)
 	// will be recalculated later directly from the history
 	if(file->get_version()<=89003) {
 		file->rdwr_long(dummy, "\n");
 	}
+
 	route.rdwr(file);
 
 	if(file->is_loading()) {
@@ -1188,7 +1193,7 @@ convoi_t::rdwr(loadsave_t *file)
 		}
 	}
 
-    file->rdwr_str(name_and_id+name_offset,116);
+	file->rdwr_str(name_and_id+name_offset,116);
 	if(file->is_loading()) {
 		setze_name(name_and_id+name_offset);	// will add id automatically
 	}
@@ -1196,7 +1201,6 @@ convoi_t::rdwr(loadsave_t *file)
 	koord3d dummy_pos;
 	for(unsigned i=0; i<anz_vehikel; i++) {
 		vehikel_t*& vi = fahr[i];
-
 		if(file->is_saving()) {
 			vi->rdwr(file, true);
 		}

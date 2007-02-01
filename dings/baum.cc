@@ -444,7 +444,7 @@ baum_t::rdwr(loadsave_t *file)
 {
 	ding_t::rdwr(file);
 
-	long alter = (welt->get_current_month() - geburt)<<18;
+	sint32 alter = (welt->get_current_month() - geburt)<<18;
 	file->rdwr_long(alter, "\n");
 
 	// after loading, calculate new

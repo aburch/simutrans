@@ -608,8 +608,7 @@ dingliste_t::suche(ding_t::typ typ,uint8 start) const
 void
 dingliste_t::rdwr(karte_t *welt, loadsave_t *file, koord3d current_pos)
 {
-	long max_object_index;
-
+	sint32 max_object_index;
 	if(file->is_saving()) {
 		max_object_index = top-1;
 	}

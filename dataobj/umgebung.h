@@ -29,11 +29,12 @@ public:
 	//points to the current directory user for loading and saving
 	static const char *user_dir;
 
-	//
+	static cstring_t objfilename;
+
+	// maximum number of handles
 	static uint16 max_convoihandles;
 	static uint16 max_linehandles;
 	static uint16 max_halthandles;
-
 
 	/**
 	* bei Testläufen wird sofort eine standardkarte erzeugt

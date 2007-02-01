@@ -25,7 +25,7 @@ loadsave_t::loadsave_t() :
 
 loadsave_t::~loadsave_t()
 {
-    close();
+	close();
 }
 
 bool loadsave_t::rd_open(const char *filename)
@@ -46,7 +46,7 @@ bool loadsave_t::rd_open(const char *filename)
 		close();
 		return false;
 	}
-	version = int_version(buf + sizeof(SAVEGAME_PREFIX) - 1, &mode);
+	version = int_version(buf + sizeof(SAVEGAME_PREFIX) - 1, &mode, pak_extension);
 	if(mode != zipped) {
 		gzclose(fp);
 		fp = fopen(filename, "rb");
@@ -56,7 +56,7 @@ bool loadsave_t::rd_open(const char *filename)
 	return true;
 }
 
-bool loadsave_t::wr_open(const char *filename, mode_t m)
+bool loadsave_t::wr_open(const char *filename, mode_t m, const char *pak_extension)
 {
 	mode = m;
 	close();
@@ -74,13 +74,13 @@ bool loadsave_t::wr_open(const char *filename, mode_t m)
 	saving = true;
 
 	if(is_zipped()) {
-		gzprintf(fp, "%s%s\n", SAVEGAME_VERSION, "zip");
+		gzprintf(fp, "%s%s%s\n", SAVEGAME_VERSION, "zip", pak_extension);
 	}
 	else {
-		fprintf(fp, "%s%s\n", SAVEGAME_VERSION, mode == binary ? "bin" : "");
+		fprintf(fp, "%s%s%s\n", SAVEGAME_VERSION, mode == binary ? "bin" : "", pak_extension);
 	}
 
-	version = int_version(SAVEGAME_VER_NR, NULL);
+	version = int_version(SAVEGAME_VER_NR, NULL, this->pak_extension );
 	this->mode = mode;
 	this->filename = filename;
 
@@ -119,159 +119,144 @@ bool loadsave_t::is_eof()
 
 int loadsave_t::lsputc(int c)
 {
-    if(is_zipped()) {
-        return gzputc(fp, c);
-    } else {
-        return fputc(c, fp);
-    }
+	if(is_zipped()) {
+		return gzputc(fp, c);
+	} else {
+		return fputc(c, fp);
+	}
 }
 
 int loadsave_t::lsgetc()
 {
-    if(is_zipped()) {
-        return gzgetc(fp);
-    } else {
-        return fgetc(fp);
-    }
+	if(is_zipped()) {
+		return gzgetc(fp);
+	} else {
+		return fgetc(fp);
+	}
 }
 
 long loadsave_t::write(const void *buf, unsigned long len)
 {
-    if(is_zipped()) {
-	return gzwrite(fp, const_cast<void *>(buf), len);
-    } else {
-	return (long)fwrite(buf, 1, len, fp);
-    }
+	if(is_zipped()) {
+		return gzwrite(fp, const_cast<void *>(buf), len);
+	} else {
+		return (long)fwrite(buf, 1, len, fp);
+	}
 }
 
-long loadsave_t::read (void *buf, unsigned long len)
+long loadsave_t::read(void *buf, unsigned long len)
 {
-    if(is_zipped()) {
-	return gzread(fp, buf, len);
-    } else {
-	return (long)fread(buf, 1, len, fp);
-    }
+	if(is_zipped()) {
+		return gzread(fp, buf, len);
+	} else {
+		return (long)fread(buf, 1, len, fp);
+	}
 }
 
 
 /* read data types (should check also for Intel/Motorola) etc */
-void loadsave_t::rdwr_byte(signed char &c, const char *delim)
+void loadsave_t::rdwr_byte(sint8 &c, const char *delim)
 {
-    if(saving) {
-        lsputc(c);
-    } else {
-	c = (signed char)lsgetc();
-    }
-    rdwr_delim(delim);
+	if(saving) {
+		lsputc(c);
+	} else {
+		c = (sint8)lsgetc();
+	}
+	rdwr_delim(delim);
 }
 
-void loadsave_t::rdwr_byte(unsigned char &c, const char *delim)
+void loadsave_t::rdwr_byte(uint8 &c, const char *delim)
 {
-	signed char cc=c;
+	sint8 cc=c;
 	rdwr_byte(cc,delim);
-	c = (unsigned char)cc;
+	c = (uint8)cc;
 }
 
 
 /* shorts */
-void loadsave_t::rdwr_short(short &i, const char *delim)
+void loadsave_t::rdwr_short(sint16 &i, const char *delim)
 {
-    if(!is_text()) {
-
-	if(saving) {
-	    write(&i, sizeof(short));
-        } else {
-	    read(&i, sizeof(short));
+	if(!is_text()) {
+		if(saving) {
+			write(&i, sizeof(short));
+		} else {
+			read(&i, sizeof(short));
+		}
+	} else {
+		if(saving) {
+			fprintf(fp, "%d", i);
+		} else {
+			fscanf(fp, "%hd", &i);
+		}
 	}
-    } else {
-	if(saving) {
-	    fprintf(fp, "%d", i);
-        } else {
-	    fscanf(fp, "%hd", &i);
-	}
-    }
-    rdwr_delim(delim);
+	rdwr_delim(delim);
 }
 
-void loadsave_t::rdwr_short(unsigned short &i, const char *delim)
+void loadsave_t::rdwr_short(uint16 &i, const char *delim)
 {
-	short ii=i;
+	sint16 ii=i;
 	rdwr_short(ii,delim);
-	i = (unsigned short)ii;
+	i = (uint16)ii;
 }
 
 
 /* long words*/
-void loadsave_t::rdwr_long(long &l, const char *delim)
+void loadsave_t::rdwr_long(sint32 &l, const char *delim)
 {
-    if(!is_text()) {
-	if(saving) {
-	    write(&l, sizeof(long));
-        } else {
-	    read(&l, sizeof(long));
+	if(!is_text()) {
+		if(saving) {
+			write(&l, sizeof(long));
+		} else {
+			read(&l, sizeof(long));
+		}
+	} else {
+		if(saving) {
+			fprintf(fp, "%ld", l);
+		} else {
+			fscanf(fp, "%ld", &l);
+		}
 	}
-    } else {
-	if(saving) {
-    	    fprintf(fp, "%ld", l);
-        } else {
-	    fscanf(fp, "%ld", &l);
-	}
-    }
-    rdwr_delim(delim);
+	rdwr_delim(delim);
 }
 
-void loadsave_t::rdwr_long(unsigned long &l, const char *delim)
+void loadsave_t::rdwr_long(uint32 &l, const char *delim)
 {
-	long ll=l;
+	sint32 ll=l;
 	rdwr_long(ll,delim);
-	l = (unsigned long)l;
-}
-
-void loadsave_t::rdwr_long(int &l, const char *delim)
-{
-	long ll = l;
-	rdwr_long(ll,delim);
-	l = (int)ll;
-}
-
-void loadsave_t::rdwr_long(unsigned &l, const char *delim)
-{
-	long ll = l;
-	rdwr_long(ll,delim);
-	l = (unsigned)ll;
+	l = (uint32)l;
 }
 
 /* long long (64 Bit) */
 void loadsave_t::rdwr_longlong(sint64 &ll, const char *delim)
 {
-    if(!is_text()) {
-	if(saving) {
-	    write(&ll, sizeof(sint64));
-        } else {
-	    read(&ll, sizeof(sint64));
+	if(!is_text()) {
+		if(saving) {
+			write(&ll, sizeof(sint64));
+		} else {
+			read(&ll, sizeof(sint64));
+		}
+	} else {
+		if(saving) {
+			fprintf(fp, "%f", (double)ll);
+		} else {
+			double dbl;
+			fscanf(fp, "%lf", &dbl);
+			ll = (sint64)dbl;
+		}
 	}
-    } else {
-	if(saving) {
-	    fprintf(fp, "%f", (double)ll);
-        } else {
-	    double dbl;
-	    fscanf(fp, "%lf", &dbl);
-	    ll = (sint64)dbl;
-	}
-    }
-    rdwr_delim(delim);
+	rdwr_delim(delim);
 }
 
 
 
 void loadsave_t::rdwr_bool(bool &i, const char *delim)
 {
-    if(saving) {
-        lsputc(i ? '1' : '0');
-    } else {
-	i = lsgetc() == '1';
-    }
-    rdwr_delim(delim);
+	if(saving) {
+		lsputc(i ? '1' : '0');
+	} else {
+		i = lsgetc() == '1';
+	}
+	rdwr_delim(delim);
 }
 
 
@@ -299,27 +284,27 @@ void loadsave_t::rdwr_str(const char *&s, const char *null_s)
 			}
 			s = sneu;
 		}
-    } else {
-	if(saving) {
-            fprintf(fp, "%s\n", s ? s : null_s);
-        }
-        else {
-	    char buffer[256];
+	} else {
+		if(saving) {
+			fprintf(fp, "%s\n", s ? s : null_s);
+		}
+		else {
+			char buffer[256];
 
-            fgets(buffer, 255, fp);
-            buffer[strlen(buffer)-1] = 0;
+			fgets(buffer, 255, fp);
+			buffer[strlen(buffer)-1] = 0;
 
-            if(s) {
-                free(const_cast<char *>(s));
-            }
-            if(buffer[0] != 0 && strcmp(buffer, null_s)) {
-                s = strdup(buffer);
-            }
-            else {
-                s = NULL;
-            }
+			if(s) {
+				free(const_cast<char *>(s));
+			}
+			if(buffer[0] != 0 && strcmp(buffer, null_s)) {
+				s = strdup(buffer);
+			}
+			else {
+				s = NULL;
+			}
+		}
 	}
-    }
 }
 
 void loadsave_t::rdwr_str(char *s, int /*size*/)
@@ -353,83 +338,80 @@ void loadsave_t::rdwr_str(char *s, int /*size*/)
 	}
 }
 
-
 void loadsave_t::rdwr_double(double &dbl, const char *delim)                //01-Dec-01     Markus Weber    Added
 {
-    if(!is_text()) {
-	if(saving) {
-	    write(&dbl, sizeof(double));
-        } else {
-	    read(&dbl, sizeof(double));
+	if(!is_text()) {
+		if(saving) {
+			write(&dbl, sizeof(double));
+		} else {
+			read(&dbl, sizeof(double));
+		}
+	} else {
+		if(saving) {
+			fprintf(fp, "%f", dbl);
+		} else {
+			fscanf(fp, "%lf", &dbl);
+		}
 	}
-    } else {
-	if(saving) {
-	    fprintf(fp, "%f", dbl);
-        } else {
-	    fscanf(fp, "%lf", &dbl);
-	}
-    }
-    rdwr_delim(delim);
+	rdwr_delim(delim);
 }
 
-void loadsave_t::wr_obj_id(short id)
+void loadsave_t::wr_obj_id(sint16 id)
 {
-    if(saving) {
-	if(!is_text()) {
-            char idc = (char)id;
-	    write(&idc, sizeof(char));
-        } else {
-	    fprintf(fp, "%d\n", id);
-        }
-    }
+	if(saving) {
+		if(!is_text()) {
+			char idc = (char)id;
+			write(&idc, sizeof(char));
+		} else {
+			fprintf(fp, "%d\n", id);
+		}
+	}
 }
 
-short loadsave_t::rd_obj_id()
+sint16 loadsave_t::rd_obj_id()
 {
-    short   id;
-
-    if(!saving) {
-	if(!is_text()) {
-            char idc;
-	    read(&idc, sizeof(char));
-            id = idc;
-        } else {
-            if(fgetc(fp) == 'N') {
-                fgetc(fp); // '\n' lesen
-                id = -1;
-            }
-            else {
-                fseek(fp, -1, SEEK_CUR);
-	        fscanf(fp, "%hd\n", &id);
-            }
-        }
-    }
-    return id;
+	sint16   id;
+	if(!saving) {
+		if(!is_text()) {
+			char idc;
+			read(&idc, sizeof(char));
+			id = idc;
+		} else {
+			if(fgetc(fp) == 'N') {
+				fgetc(fp); // '\n' lesen
+				id = -1;
+			}
+			else {
+				fseek(fp, -1, SEEK_CUR);
+				fscanf(fp, "%hd\n", &id);
+			}
+		}
+	}
+	return id;
 }
 
 void loadsave_t::wr_obj_id(const char *id_text)
 {
-    if(saving) {
-	if(is_zipped()) {
-	    gzprintf(fp, "%s\n", id_text);
-        } else {
-	    fprintf(fp, "%s\n", id_text);
-        }
-    }
+	if(saving) {
+		if(is_zipped()) {
+			gzprintf(fp, "%s\n", id_text);
+		} else {
+			fprintf(fp, "%s\n", id_text);
+		}
+	}
 }
 
 void loadsave_t::rd_obj_id(char *id_buf, int size)
 {
-    if(!saving) {
-	if(is_zipped()) {
-            gzgets(fp, id_buf, size);
-        } else {
-            fgets(id_buf, size, fp);
-        }
-        id_buf[strlen(id_buf) - 1] = '\0';
-    }
+	if(!saving) {
+		if(is_zipped()) {
+			gzgets(fp, id_buf, size);
+		} else {
+			fgets(id_buf, size, fp);
+		}
+		id_buf[strlen(id_buf) - 1] = '\0';
+	}
 }
-
 
 void loadsave_t::rdwr_delim(const char *delim)
 {
@@ -442,32 +424,53 @@ void loadsave_t::rdwr_delim(const char *delim)
 	}
 }
 
-int loadsave_t::int_version(const char *version_text, mode_t *mode)
+uint32 loadsave_t::int_version(const char *version_text, mode_t *mode, char *pak_extension)
 {
-    int v0 = atoi(version_text);
-
-    while(*version_text && *version_text++ != '.');
-    if(!*version_text) {
-        return -1;
-    }
-    int v1 = atoi(version_text);
-    while(*version_text && *version_text++ != '.');
-    if(!*version_text) {
-        return -1;
-    }
-    int v2 = atoi(version_text);
-    if(mode) {
-        while(*version_text && *version_text != 'b' && *version_text != 'z')
-	    version_text++;
-        if(!strncmp(version_text, "bin", 3)) {
-	    *mode = binary;
-        } else if(!strncmp(version_text, "zip", 3)) {
-	    *mode = zipped;
-	} else {
-	    *mode = text;
+	// major number (0..)
+	uint32 v0 = atoi(version_text);
+	while(*version_text && *version_text++ != '.')
+		;
+	if(!*version_text) {
+		return -1;
 	}
-    }
-    return v0 * 1000000 + v1 * 1000 + v2;
+
+	// middle number (.99.)
+	uint32 v1 = atoi(version_text);
+	while(*version_text && *version_text++ != '.')
+		;
+	if(!*version_text) {
+		return -1;
+	}
+
+	// minor number (..08)
+	uint32 v2 = atoi(version_text);
+	uint32 version = v0 * 1000000 + v1 * 1000 + v2;
+
+	if(mode) {
+		while(*version_text && *version_text != 'b' && *version_text != 'z') {
+			version_text++;
+		}
+		if(!strncmp(version_text, "bin", 3)) {
+			*mode = binary;
+		} else if(!strncmp(version_text, "zip", 3)) {
+			*mode = zipped;
+		} else {
+			*mode = text;
+		}
+	}
+
+	// also pak extension was saved
+	if(version>=99008) {
+		if(*mode!=text) {
+			version_text += 3;
+		}
+		while(*version_text && *version_text>=32) {
+			*pak_extension++ = *version_text++;
+		}
+	}
+	*pak_extension = 0;
+
+	return version;
 }
 
 
@@ -477,11 +480,13 @@ int loadsave_t::int_version(const char *version_text, mode_t *mode)
  */
 void loadsave_t::rd_str_into(char *s, const char * /*null_s*/)
 {
-    short size;
-    read(&size, sizeof(short));
-
-    if(size > 0) {
-	read(s, size);
-    }
-    s[size] = '\0';
+	sint16 size;
+	read(&size, sizeof(sint16));
+	if(size > 0) {
+		read(s, size);
+		s[size] = '\0';
+	}
+	else {
+		s[0] = '\0';
+	}
 }

@@ -198,7 +198,7 @@ void weg_t::rdwr(loadsave_t *file)
 
 	for (int type=0; type<MAX_WAY_STATISTICS; type++) {
 		for (int month=0; month<MAX_WAY_STAT_MONTHS; month++) {
-			long w=statistics[month][type];
+			sint32 w=statistics[month][type];
 			file->rdwr_long(w, "\n");
 			statistics[month][type] = (sint16)w;
 			// DBG_DEBUG("weg_t::rdwr()", "statistics[%d][%d]=%d", month, type, statistics[month][type]);

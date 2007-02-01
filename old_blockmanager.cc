@@ -104,12 +104,12 @@ old_blockmanager_t::rdwr_block(karte_t *welt,loadsave_t *file)
 	// counters
 	if(file->get_version()<=88005) {
 		// old style
-		long dummy = 0;
+		sint32 dummy = 0;
 		file->rdwr_long(dummy, " ");
 		file->rdwr_long(dummy, "\n");
 	}
 	else  {
-		short dummy;
+		sint16 dummy;
 		file->rdwr_short(dummy, "\n");
 	}
 }

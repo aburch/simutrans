@@ -2027,7 +2027,7 @@ DBG_MESSAGE("karte_t::speichern()", "saving game to '%s'", filename);
 	loadsave_t  file;
 
 	display_show_load_pointer( true );
-	if(!file.wr_open(filename)) {
+	if(!file.wr_open(filename,loadsave_t::save_mode,umgebung_t::objfilename)) {
 		create_win(-1, -1, new nachrichtenfenster_t(this, "Kann Spielstand\nnicht speichern.\n"), w_autodelete);
 		dbg->error("karte_t::speichern()","cannot open file for writing! check permissions!");
 	}
@@ -2127,7 +2127,7 @@ DBG_MESSAGE("karte_t::speichern(loadsave_t *file)", "saved %i convois",convoi_ar
 DBG_MESSAGE("karte_t::speichern(loadsave_t *file)", "saved players");
 
 	file->rdwr_delim("View ");
-	long dummy = ij_off.x;
+	sint32 dummy = ij_off.x;
 	file->rdwr_long(dummy, " ");
 	dummy = ij_off.y;
 	file->rdwr_long(dummy, "\n");

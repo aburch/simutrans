@@ -217,11 +217,11 @@ fahrplan_t::remove()
 void
 fahrplan_t::rdwr(loadsave_t *file)
 {
-	long dummy=aktuell;
+	uint32 dummy=aktuell;
 	file->rdwr_long(dummy, " ");
 	aktuell = (sint16)dummy;
 
-	long maxi=eintrag.get_count();
+	sint32 maxi=eintrag.get_count();
 	file->rdwr_long(maxi, " ");
 	DBG_MESSAGE("fahrplan_t::rdwr()","read schedule %p with %i entries",this,maxi);
 

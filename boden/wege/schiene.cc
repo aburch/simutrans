@@ -118,11 +118,12 @@ schiene_t::unreserve(vehikel_t *v)
 void
 schiene_t::rdwr(loadsave_t *file)
 {
-	long blocknr=-1;
-
 	weg_t::rdwr(file);
 
-	file->rdwr_long(blocknr, "\n");
+	if(file->get_version()<99008) {
+		sint32 blocknr=-1;
+		file->rdwr_long(blocknr, "\n");
+	}
 
 	if(file->get_version()<89000) {
 		uint8 dummy;

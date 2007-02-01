@@ -2411,7 +2411,7 @@ DBG_DEBUG("spieler_t::rdwr()","%i has %i halts.",welt->sp2num( this ),halt_count
 	file->rdwr_longlong(konto, " ");
 	file->rdwr_long(konto_ueberzogen, " ");
 	file->rdwr_long(steps, " ");
-	long farbe = kennfarbe;
+	sint32 farbe = kennfarbe;
 	file->rdwr_long(farbe, " ");
 	kennfarbe = (uint8)farbe;
 	if(file->get_version()<99008) {

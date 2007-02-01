@@ -208,7 +208,7 @@ void verkehrsteilnehmer_t::rdwr(loadsave_t *file)
 	vehikel_basis_t::rdwr(file);
 
 	if(file->get_version() < 86006) {
-		long l;
+		sint32 l;
 		file->rdwr_long(l, "\n");
 		file->rdwr_long(l, " ");
 		file->rdwr_long(weg_next, "\n");

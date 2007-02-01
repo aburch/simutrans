@@ -102,7 +102,7 @@ void
 einstellungen_t::rdwr(loadsave_t *file)
 {
 	if(file->get_version() < 86000) {
-		long dummy;
+		uint32 dummy;
 
 		file->rdwr_long(groesse_x, " ");
 		groesse_y = groesse_x;
@@ -158,7 +158,7 @@ einstellungen_t::rdwr(loadsave_t *file)
 		file->rdwr_long(scroll_multi, " ");
 		file->rdwr_long(verkehr_level, "\n");
 		file->rdwr_long(show_pax, "\n");
-		long dummy = grundwasser/Z_TILE_STEP;
+		sint32 dummy = grundwasser/Z_TILE_STEP;
 		file->rdwr_long(dummy, "\n");
 		if(file->get_version() < 99005) {
 			grundwasser = (sint16)(dummy/16)*Z_TILE_STEP;

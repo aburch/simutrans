@@ -422,7 +422,7 @@ void leitung_t::laden_abschliessen()
  */
 void leitung_t::rdwr(loadsave_t *file)
 {
-	unsigned long value;
+	uint32 value;
 
 	ding_t::rdwr(file);
 	if(file->is_saving()) {

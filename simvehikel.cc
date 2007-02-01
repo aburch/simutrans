@@ -1065,7 +1065,7 @@ vehikel_t::rdwr(loadsave_t *file)
 
 	if(file->get_version()<86006) {
 		// parameter werden in der deklarierten reihenfolge gespeichert
-		long l;
+		sint32 l;
 		file->rdwr_long(insta_zeit, "\n");
 		file->rdwr_long(l, " ");
 		dx = (sint8)l;
