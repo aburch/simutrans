@@ -32,10 +32,10 @@ static slist_tpl<fahrplan_t *> alle_fahrplaene;
 
 void fahrplan_t::init()
 {
-    aktuell = 0;
-    abgeschlossen = false;
-    alle_fahrplaene.insert(this);
-    type = fahrplan_t::fahrplan;
+	aktuell = 0;
+	abgeschlossen = false;
+	alle_fahrplaene.insert(this);
+	type = fahrplan_t::fahrplan;
 }
 
 fahrplan_t::fahrplan_t()

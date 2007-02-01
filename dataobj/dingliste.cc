@@ -57,18 +57,18 @@ static uint8 type_to_pri[32]=
 	10, // baum
 	100, // zeiger
 	90, 90, 90,	// wolke
-	2, 2, // buildings
+	3, 3, // buildings
 	5, // signal
-	1, 1, // bridge/tunnel
+	2, 2, // bridge/tunnel
 	255,
-	2, 2, 2, // depots
-	3, // smoke generator (not used any more)
-	75, 2, 2, // powerlines
+	1, 1, 1, // depots
+	4, // smoke generator (not used any more)
+	75, 3, 3, // powerlines
 	5, // roadsign
-	3, // pillar
-	2, 2, 2, // depots
+	4, // pillar
+	1, 1, 1, // depots (must be before tunnel!)
 	255,
-	4, // way objects (electrification)
+	6, // way objects (electrification)
 	0, // ways (always at the top!)
 	9, // label, indicates ownership: insert before trees
 	255, 255, 255, 255

@@ -96,7 +96,7 @@ int convoi_frame_t::compare_convois(const void *p1, const void *p2)
 	 * use name as an additional sort, to make sort more stable.
 	 */
 	if(result == 0) {
-	result = strcmp(cnv1->gib_internal_name(), cnv2->gib_internal_name());
+		result = strcmp(cnv1->gib_internal_name(), cnv2->gib_internal_name());
 	}
 	return sortreverse ? -result : result;
 }

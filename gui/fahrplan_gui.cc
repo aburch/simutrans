@@ -95,11 +95,7 @@ void fahrplan_gui_t::gimme_stop_name(cbuffer_t & buf,
  * short version, without loading level and position ...
  * @author Hj. Malthaner
  */
-void fahrplan_gui_t::gimme_short_stop_name(cbuffer_t & buf,
-				     karte_t *welt,
-				     const fahrplan_t *fpl,
-				     int i,
-				     int max_chars)
+void fahrplan_gui_t::gimme_short_stop_name(cbuffer_t &buf, karte_t *welt, const fahrplan_t *fpl, int i, int max_chars)
 {
 	if(i<0  ||  fpl==NULL  ||  i>=fpl->maxi()) {
 		dbg->warning("void fahrplan_gui_t::gimme_stop_name()","tried to recieved unused entry %i in schedule %p.",i,fpl);
@@ -114,7 +110,6 @@ void fahrplan_gui_t::gimme_short_stop_name(cbuffer_t & buf,
 	}
 	else {
 		const grund_t* gr = welt->lookup(entry.pos);
-
 		if(gr && gr->gib_depot() != NULL) {
 			p = translator::translate("Depot");
 		}
