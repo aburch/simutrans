@@ -278,7 +278,6 @@ private:
 	uint8 player_nr;
 
 public:
-
     /**
      * Ist dieser Spieler ein automatischer Spieler?
      * @author Hj. Malthaner
@@ -289,68 +288,66 @@ public:
 	simlinemgmt_t simlinemgmt;
 	schedule_list_gui_t *get_line_frame();
 
-    /**
-     * Age messages (move them upwards)
-     * @author Hj. Malthaner
-     */
-    void age_messages(long delta_t);
+	/**
+	 * Age messages (move them upwards)
+	 * @author Hj. Malthaner
+	 */
+	void age_messages(long delta_t);
 
 	/* Handles player colors ...
-	 * @author prissi
-	 */
+	* @author prissi
+	*/
 	uint8 get_player_color() const { return kennfarbe; }
 	void set_player_color(uint8 col) { kennfarbe=col; }
 
-    /**
-     * Name of the player
-     * @author player
-     */
+	/**
+	 * Name of the player
+	 * @author player
+	 */
 	const char *gib_name();
 	const uint8 get_player_nr() const {return player_nr; }
 
 	/* return true, if the owner is none, myself or player(1)
-	 * @author prissi
-	 */
+	* @author prissi
+	*/
 	bool check_owner( const spieler_t *sp ) const;
 
-    /**
-     * activates and queries player status
-     * @author player
-     */
-     bool is_active() { return automat; }
-     bool set_active(bool new_state);
+	/**
+	 * activates and queries player status
+	 * @author player
+	 */
+	 bool is_active() { return automat; }
+	 bool set_active(bool new_state);
 
-     // true if this can do passenger transport ...
-     bool has_passenger() const { return player_nr == 0 || passenger_transport; }
+	 // true if this can do passenger transport ...
+	 bool has_passenger() const { return player_nr == 0 || passenger_transport; }
 
-    /**
-     * Konstruktor
-     * @param welt Die Welt (Karte) des Spiels
-     * @param color Kennfarbe des Spielers
-     * @author Hj. Malthaner
-     */
-    spieler_t(karte_t *welt, uint8 color, uint8 player_nr );
+	/**
+	 * Konstruktor
+	 * @param welt Die Welt (Karte) des Spiels
+	 * @param color Kennfarbe des Spielers
+	 * @author Hj. Malthaner
+	 */
+	spieler_t(karte_t *welt, uint8 color, uint8 player_nr );
 
-    ~spieler_t();
+	~spieler_t();
 
+	/**
+	 * Methode fuer jaehrliche Aktionen
+	 * @author Hj. Malthaner
+	 */
+	void neues_jahr();
 
-    /**
-     * Methode fuer jaehrliche Aktionen
-     * @author Hj. Malthaner
-     */
-    void neues_jahr();
-
-
-    /**
-     * Bucht einen Betrag auf das Konto des Spielers
-     * @param betrag zu verbuchender Betrag
-     * @author Hj. Malthaner
-     */
-		sint64 buche(sint64 betrag)
-		{
-			konto += betrag;
-			return konto;
-		}
+	/**
+	 * Bucht einen Betrag auf das Konto des Spielers
+	 * @param betrag zu verbuchender Betrag
+	 * @author Hj. Malthaner
+	 */
+	sint64 buche(sint64 betrag)
+	{
+		konto += betrag;
+		return konto;
+	}
 
     /**
      * Adds somme amount to the maintenance costs
@@ -358,11 +355,11 @@ public:
      * @return the new maintenance costs
      * @author Hj. Malthaner
      */
-		sint32 add_maintenance(sint32 change)
-		{
-			maintenance += change;
-			return maintenance;
-		}
+	sint32 add_maintenance(sint32 change)
+	{
+		maintenance += change;
+		return maintenance;
+	}
 
     // Owen Rudge, finances
     sint64 buche(sint64 betrag, koord k, int type);
@@ -380,13 +377,11 @@ public:
      */
     int gib_konto_ueberzogen() const { return konto_ueberzogen; }
 
-
     /**
      * Zeigt Meldungen aus der Queue des Spielers auf dem Bildschirm an
      * @author Hj. Malthaner
      */
     void display_messages();
-
 
     /**
      * Wird von welt in kurzen abständen aufgerufen
@@ -394,12 +389,10 @@ public:
      */
     void step();
 
-
     /**
      * Wird von welt nach jedem monat aufgerufen
      * @author Hj. Malthaner
      */
-
     void neuer_monat();
 
     /**
@@ -444,19 +437,17 @@ public:
 	 */
 	void laden_abschliessen();
 
+	// fuer tests
+	koord platz1, platz2;
 
-    // fuer tests
-    koord platz1, platz2;
-
-    bool create_simple_road_transport();    // neue Transportroute anlegen
-    bool create_simple_rail_transport();
+	bool create_simple_road_transport();    // neue Transportroute anlegen
+	bool create_simple_rail_transport();
 
     /**
      * Returns the amount of money for a certain finance section
      * @author Owen Rudge
      */
     sint64 get_finance_info(int type);
-
 
     /**
      * Returns the amount of money for a certain finance section from previous year
@@ -471,12 +462,12 @@ public:
     */
     sint64 get_finance_history_year(int year, int type) { return finance_history_year[year][type]; }
 
-    /**
-    * Returns pointer to finance history for player
-    * @author hsiegeln
-    */
-    sint64* get_finance_history_year() { return *finance_history_year; }
-  sint64* get_finance_history_month() { return *finance_history_month; }
+	/**
+	 * Returns pointer to finance history for player
+	 * @author hsiegeln
+	 */
+	sint64* get_finance_history_year() { return *finance_history_year; }
+	sint64* get_finance_history_month() { return *finance_history_month; }
 
     /**
     * Returns the world the player is in
@@ -509,7 +500,6 @@ public:
      * @date 25-Nov-2001
      */
     void bescheid_station_voll(halthandle_t halt);
-
 
     /**
      * Rückruf, um uns zu informieren, dass ein Vehikel ein Problem hat
