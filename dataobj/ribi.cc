@@ -20,6 +20,14 @@ const ribi_t::ribi ribi_t::nsow[4] = {
     west
 };
 
+// same like the layouts of buildings
+const ribi_t::ribi ribi_t::layout_to_ribi[4] = {
+    sued,
+    ost,
+    nord,
+    west
+};
+
 const int ribi_t::flags[16] = {
     0,										// keine
     einfach | gerade_ns,	// nord

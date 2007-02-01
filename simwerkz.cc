@@ -641,6 +641,7 @@ wkz_wegebau(spieler_t *sp, karte_t *welt,  koord pos, value_t lParam)
 		erster = true;
 
 		if(wkz_wegebau_bauer != NULL) {
+			wkz_wegebau_bauer->mark_image_dirty( skinverwaltung_t::bauigelsymbol->gib_bild_nr(0), 0 );
 			delete wkz_wegebau_bauer;
 			wkz_wegebau_bauer = NULL;
 		}
@@ -696,13 +697,14 @@ wkz_wegebau(spieler_t *sp, karte_t *welt,  koord pos, value_t lParam)
 
 			// symbol für strassenanfang setzen
 			wkz_wegebau_bauer = new zeiger_t(welt, start, sp);
-			wkz_wegebau_bauer->setze_bild( skinverwaltung_t::bauigelsymbol->gib_bild_nr(0));
+			wkz_wegebau_bauer->setze_bild( skinverwaltung_t::bauigelsymbol->gib_bild_nr(0) );
 			gr->obj_add(wkz_wegebau_bauer);
 			wkz_wegebau_start = start;
 		}
 		else {
 			// Hajo: symbol für strassenanfang entfernen
-			delete( wkz_wegebau_bauer );
+			wkz_wegebau_bauer->mark_image_dirty( wkz_wegebau_bauer->gib_bild(), 0 );
+			delete wkz_wegebau_bauer;
 			wkz_wegebau_bauer = NULL;
 			wkz_wegebau_start = koord3d::invalid;
 
@@ -810,6 +812,7 @@ wkz_wayremover(spieler_t *sp, karte_t *welt,  koord pos, value_t lParam)
 		erster = true;
 
 		if(wkz_wayremover_bauer!=NULL) {
+			wkz_wayremover_bauer->mark_image_dirty( skinverwaltung_t::killzeiger->gib_bild_nr(0), 0 );
 			delete wkz_wayremover_bauer;
 			wkz_wayremover_bauer = NULL;
 		}
@@ -821,6 +824,10 @@ wkz_wayremover(spieler_t *sp, karte_t *welt,  koord pos, value_t lParam)
 		if(gr==NULL) {
 			DBG_MESSAGE("wkz_wayremover()", "no ground on %i,%i",pos.x, pos.y);
 			// wrong ground or not this way here => exit
+			return false;
+		}
+		// do not remove ground from depot
+		if(gr->gib_depot()) {
 			return false;
 		}
 
@@ -837,7 +844,8 @@ DBG_MESSAGE("wkz_wayremover()", "Setting start to %d,%d,%d",start.x, start.y,sta
 DBG_MESSAGE("wkz_wayremover()", "Setting end to %d,%d,%d",gr->gib_pos().x, gr->gib_pos().y,gr->gib_pos().z);
 
 			// remove marker
-			delete wkz_wayremover_bauer ;
+			wkz_wayremover_bauer->mark_image_dirty( skinverwaltung_t::killzeiger->gib_bild_nr(0), 0 );
+			delete wkz_wayremover_bauer;
 			wkz_wayremover_bauer = NULL;
 			erster = true;
 

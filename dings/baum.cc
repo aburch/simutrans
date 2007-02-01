@@ -76,7 +76,7 @@ baum_t::forestrules_init(cstring_t objfilename)
 	cstring_t user_dir=umgebung_t::user_dir;
 	if (!forestconf.open(user_dir+"forestrules.tab")) {
 		if (!forestconf.open(objfilename+"config/forestrules.tab")) {
-			dbg->fatal("stadt_t::init()", "Can't read forestrules.tab" );
+			dbg->warning("baum_t::forestrules_init()", "Can't read forestrules.tab" );
 			return false;
 		}
 	}

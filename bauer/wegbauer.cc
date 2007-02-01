@@ -553,6 +553,13 @@ DBG_MESSAGE("wegbauer_t::is_allowed_step()","wrong ground already there!");
 				// no crossings on stops
 				return false;
 			}
+			// do not go through depots ...
+			if(to2->gib_depot()) {
+				depot_t *dp = to2->gib_depot();
+				if(dp->get_wegtyp()!=(waytype_t)besch->gib_wtyp()  ||  ribi_typ(to_pos,from_pos)!=ribi_t::layout_to_ribi[to->gib_depot()->gib_tile()->gib_layout()]) {
+					return false;
+				}
+			}
 		}
 		if(gb) {
 			// no halt => citybuilding => do not touch
@@ -594,8 +601,11 @@ DBG_MESSAGE("wegbauer_t::is_allowed_step()","wrong ground already there!");
 					return false;
 				}
 				// do not go through depots ...
-				if(to->gib_depot()  &&  (str==NULL  ||  ribi_typ(to_pos,from_pos)!=str->gib_ribi_unmasked())) {
-					return false;
+				if(to->gib_depot()) {
+					depot_t *dp = to->gib_depot();
+					if(dp->get_wegtyp()!=road_wt  ||  ribi_typ(to_pos,from_pos)!=ribi_t::layout_to_ribi[to->gib_depot()->gib_tile()->gib_layout()]) {
+						return false;
+					}
 				}
 				if(from->gib_depot()) {
 					return false;
@@ -630,7 +640,8 @@ DBG_MESSAGE("wegbauer_t::is_allowed_step()","wrong ground already there!");
 				}
 				// do not go through depots ...
 				if(to->gib_depot()) {
-					if(sch==NULL  ||  ribi_typ(to_pos,from_pos)!=sch->gib_ribi_unmasked()) {
+					depot_t *dp = to->gib_depot();
+					if(dp->get_wegtyp()!=track_wt  ||  ribi_typ(to_pos,from_pos)!=ribi_t::layout_to_ribi[to->gib_depot()->gib_tile()->gib_layout()]) {
 						return false;
 					}
 				}
@@ -681,7 +692,8 @@ DBG_MESSAGE("wegbauer_t::is_allowed_step()","wrong ground already there!");
 				}
 				// do not go through depots ...
 				if(to->gib_depot()) {
-					if(sch==NULL  ||  ribi_typ(to_pos,from_pos)!=sch->gib_ribi_unmasked()) {
+					depot_t *dp = to->gib_depot();
+					if(dp->get_wegtyp()!=(waytype_t)besch->gib_wtyp()  ||  ribi_typ(to_pos,from_pos)!=ribi_t::layout_to_ribi[to->gib_depot()->gib_tile()->gib_layout()]) {
 						return false;
 					}
 				}
@@ -719,9 +731,16 @@ DBG_MESSAGE("wegbauer_t::is_allowed_step()","wrong ground already there!");
 			ok =	(ok ||
 							(to->hat_weg(track_wt)  &&  check_owner(to->gib_weg(track_wt)->gib_besitzer(),sp))  ||
 							(to->hat_weg(road_wt)  &&  check_owner(to->gib_weg(road_wt)->gib_besitzer(),sp)))
-					 &&  check_for_leitung(zv,to)  &&  !to->gib_depot();
+					 &&  check_for_leitung(zv,to);
 			// missing: check for crossings on halt!
 
+			// do not go through depots ...
+			if(to->gib_depot()) {
+				depot_t *dp = to->gib_depot();
+				if(dp->get_wegtyp()!=tram_wt  ||  ribi_typ(to_pos,from_pos)!=ribi_t::layout_to_ribi[to->gib_depot()->gib_tile()->gib_layout()]) {
+					return false;
+				}
+			}
 			// calculate costs
 			if(ok) {
 				*costs = to->hat_weg(track_wt) ? 2 : 4;	// only prefer existing rails a little
@@ -772,8 +791,15 @@ DBG_MESSAGE("wegbauer_t::is_allowed_step()","wrong ground already there!");
 
 	case luft: // hsiegeln: runway
 		ok = !to->ist_wasser()  &&  (to->hat_weg(air_wt)  || !to->hat_wege())  &&
-				  to->suche_obj(ding_t::leitung)==NULL   &&  !to->gib_depot()  &&  !fundament;
-			// calculate costs
+				  to->suche_obj(ding_t::leitung)==NULL   &&  !fundament;
+		// do not go through depots ...
+		if(to->gib_depot()) {
+			depot_t *dp = to->gib_depot();
+			if(dp->get_wegtyp()!=road_wt  ||  ribi_typ(to_pos,from_pos)!=ribi_t::layout_to_ribi[to->gib_depot()->gib_tile()->gib_layout()]) {
+				return false;
+			}
+		}
+		// calculate costs
 		*costs = 4;
 		break;
 	}

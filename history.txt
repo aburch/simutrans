@@ -32,6 +32,7 @@ Release of 99.08
 	CHANGE: removed maintenance_overhad, maintenance_ways from simuconf.tab, since it was not used
 	FIX: forgot to charge for industry construction
 	CHANGE: forrestconf.tab -> forestrules.tab, now maintained by the tree class itself
+	FIX: building ways into depots again
 
 
 Release of 99.07

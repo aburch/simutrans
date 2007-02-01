@@ -140,7 +140,7 @@ private:
 
 public:
 	static const ribi nsow[4];
-
+	static const ribi layout_to_ribi[4];	// building layout to ribi (for four rotations, for two use doppelt()!
 	//
 	// Alle Abfragen über statische Tabellen wg. Performance
 	// Ranges werden nicht geprüft!
