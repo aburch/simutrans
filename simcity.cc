@@ -1556,9 +1556,10 @@ void stadt_t::step_passagiere()
  */
 koord stadt_t::gib_zufallspunkt() const
 {
+	assert(buildings.get_count()>0);
 	const gebaeude_t* gb = buildings.at_weight(simrand(buildings.get_sum_weight()));
 	koord k = gb->gib_pos().gib_2d();
-	if (!welt->ist_in_kartengrenzen(k)) {
+	if(!welt->ist_in_kartengrenzen(k)) {
 		// this building should not be in this list, since it has been already deleted!
 		dbg->error("stadt_t::gib_zufallspunkt()", "illegal building %s removing!", gb->gib_name());
 		const_cast<stadt_t*>(this)->buildings.remove(gb);
@@ -1605,7 +1606,7 @@ void stadt_t::merke_passagier_ziel(koord k, int color)
 {
 	const koord p = koord(
 		((k.x * 127) / welt->gib_groesse_x()) & 127,
-		((k.y * 128) / welt->gib_groesse_y()) & 127
+		((k.y * 127) / welt->gib_groesse_y()) & 127
 	);
 	pax_ziele_neu.at(p) = color;
 }
