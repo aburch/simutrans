@@ -746,33 +746,14 @@ void stadt_t::add_gebaeude_to_stadt(const gebaeude_t* gb)
 }
 
 
+
 // this function removes houses from the city house list
 void stadt_t::remove_gebaeude_from_stadt(const gebaeude_t* gb)
 {
-#if 0
-	if(gb) {
-		const haus_tile_besch_t *tile  = gb->gib_tile();
-		koord size = tile->gib_besch()->gib_groesse( tile->gib_layout() );
-		koord k, pos = gb->gib_pos().gib_2d() - tile->gib_offset();
-//		DBG_MESSAGE("stadt_t::remove_gebaeude_from_stadt()","at (%i,%i)",pos.x,pos.y);
-
-		// remove all tiles
-		for(k.y = 0; k.y < size.y; k.y ++) {
-			for(k.x = 0; k.x < size.x; k.x ++) {
-				gebaeude_t *rem_ge= dynamic_cast<gebaeude_t *>(welt->lookup(pos+k)->gib_kartenboden()->first_obj());
-//				DBG_MESSAGE("stadt_t::remove_gebaeude_from_stadt()","geb=%p at (%i,%i)",gb,pos.x+k.x,pos.y+k.y);
-				if(rem_ge==NULL) {
-					dbg->error("stadt_t::remove_gebaeude_from_stadt()","Nothing on %i,%i",pos.x+k.x,pos.y+k.y);
-				}
-				buildings.remove(rem_ge);
-				rem_ge->setze_stadt(NULL);
-			}
-		}
-	}
-#else
 	buildings.remove(gb);
-#endif
+	recalc_city_size();
 }
+
 
 
 // recalculate house informations (used for target selection)
@@ -798,6 +779,42 @@ void stadt_t::recount_houses()
 	}
 	DBG_MESSAGE("recount_houses()", "%s has %i bev", gib_name(), gib_einwohner());
 }
+
+
+
+// recalculate the spreading of a city
+// will be updated also after house deletion
+void stadt_t::recalc_city_size()
+{
+	lo = koord(welt->gib_groesse_x(), welt->gib_groesse_y());
+	ur = koord(0, 0);
+	for (uint i = 0; i < buildings.get_count(); i++) {
+		const koord pos = buildings[i]->gib_pos().gib_2d();
+		if (lo.x > pos.x) lo.x = pos.x;
+		if (lo.y > pos.y) lo.y = pos.y;
+		if (ur.x < pos.x) ur.x = pos.x;
+		if (ur.y < pos.y) ur.y = pos.y;
+	}
+
+	lo.x -= 2;
+	lo.y -= 2;
+	ur.x += 2;
+	ur.y += 2;
+
+	if (lo.x < 0) {
+		lo.x = 0;
+	}
+	if (lo.y < 0) {
+		lo.y = 0;
+	}
+	if (ur.x >= welt->gib_groesse_x()) {
+		ur.x = welt->gib_groesse_x();
+	}
+	if (ur.y >= welt->gib_groesse_y()) {
+		ur.y = welt->gib_groesse_y();
+	}
+}
+
 
 
 void stadt_t::init_pax_ziele()
@@ -1026,26 +1043,19 @@ void stadt_t::rdwr(loadsave_t* file)
 		file->rdwr_long(this_year_transported, " ");
 		file->rdwr_long(this_year_pax, "\n");
 	}
-#if 0
-	// convert to new display
-	if (file->get_version() < 88005) {
-		last_year_bev *= 2;
-		last_month_bev *= 2;
-		for (int year = 0;year<MAX_CITY_HISTORY_YEARS;year++) {
-			city_history_year[year][HIST_CITICENS] *= 2;
-			city_history_year[year][HIST_GROWTH] *= 2;
-		}
-		for (int month=0; month<MAX_CITY_HISTORY_MONTHS; month++) {
-			city_history_month[month][HIST_CITICENS] *= 2;
-			city_history_month[month][HIST_GROWTH] *= 2;
-		}
-	}
-#endif
+
 	// 08-Jan-03: Due to some bugs in the special buildings/town hall
 	// placement code, li,re,ob,un could've gotten irregular values
 	// If a game is loaded, the game might suffer from such an mistake
 	// and we need to correct it here.
 	DBG_MESSAGE("stadt_t::rdwr()", "borders (%i,%i) -> (%i,%i)", lo.x, lo.y, ur.x, ur.y);
+
+	if(lo==koord(0,0)) {
+		lo = pos - koord(33,33);
+	}
+	if(ur==koord(0,0)) {
+		ur = pos + koord(33,33);
+	}
 
 	if (lo.x < 0) lo.x = max(0, pos.x - 33);
 	if (ur.x >= welt->gib_groesse_x() - 1) ur.x = min(welt->gib_groesse_x() - 2, pos.x + 33);
@@ -1080,34 +1090,7 @@ void stadt_t::laden_abschliessen()
 		step_interval = 1;
 	}
 
-	// recount the size of a city
-	lo = koord(welt->gib_groesse_x(), welt->gib_groesse_y());
-	ur = koord(0, 0);
-	for (uint i = 0; i < buildings.get_count(); i++) {
-		const koord pos = buildings[i]->gib_pos().gib_2d();
-		if (lo.x > pos.x) lo.x = pos.x;
-		if (lo.y > pos.y) lo.y = pos.y;
-		if (ur.x < pos.x) ur.x = pos.x;
-		if (ur.y < pos.y) ur.y = pos.y;
-	}
-
-	lo.x -= 2;
-	lo.y -= 2;
-	ur.x += 2;
-	ur.y += 2;
-
-	if (lo.x < 0) {
-		lo.x = 0;
-	}
-	if (lo.y < 0) {
-		lo.y = 0;
-	}
-	if (ur.x >= welt->gib_groesse_x()) {
-		ur.x = welt->gib_groesse_x();
-	}
-	if (ur.y >= welt->gib_groesse_y()) {
-		ur.y = welt->gib_groesse_y();
-	}
+	recalc_city_size();
 
 	next_step = 0;
 	next_bau_step = 0;
@@ -1352,8 +1335,6 @@ void stadt_t::step_passagiere()
 //	DBG_MESSAGE("stadt_t::step_passagiere()", "%s step_passagiere called (%d,%d - %d,%d)\n", name, li, ob, re, un);
 //	long t0 = get_current_time_millis();
 
-	INT_CHECK("simcity 434");
-
 	// post oder pax erzeugen ?
 	const ware_besch_t* wtyp;
 	if (simrand(400) < 300) {
@@ -1546,6 +1527,8 @@ void stadt_t::step_passagiere()
 
 //	long t1 = get_current_time_millis();
 //	DBG_MESSAGE("stadt_t::step_passagiere()", "Zeit für Passagierstep: %ld ms\n", (long)(t1 - t0));
+
+	INT_CHECK( "simcity 1551" );
 }
 
 
@@ -2353,9 +2336,12 @@ void stadt_t::baue()
 	if (best_strasse.found()) {
 		if (!baue_strasse(best_strasse.gib_pos(), NULL, false)) {
 			// cannot built street, will terminate it with house?!?
+			// prissi: we will just ignore this
 //			baue_gebaeude(best_strasse.gib_pos());
 		}
-		pruefe_grenzen(best_strasse.gib_pos());
+		// prissi: only houses will extend a city
+		// to make the core more compact
+//		pruefe_grenzen(best_strasse.gib_pos());
 	}
 
 	INT_CHECK("simcity 1156");

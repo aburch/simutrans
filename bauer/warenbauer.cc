@@ -73,7 +73,7 @@ warenbauer_t::alles_geladen()
 		// now search, if we already have a matching category
 		if(waren[i]->gib_catg()>0) {
 			waren[i]->catg_index = waren[i]->catg+max_special_catg_index;
-			if(waren[i]->gib_catg_index()>max_catg_index) {
+			if(waren[i]->gib_catg_index()>=max_catg_index) {
 				// find the higest catg used ...
 				max_catg_index = waren[i]->gib_catg_index()+1;
 			}

@@ -212,12 +212,14 @@ private:
 	// recalculate house informations (used for target selection)
 	void recount_houses();
 
+	// recalcs city borders (after loading and deletion)
+	void recalc_city_size();
+
 	/**
 	 * plant das bauen von Gebaeuden
 	 * @author Hj. Malthaner
 	 */
 	void step_bau();
-
 
 	typedef enum { no_return=0, factoy_return, tourist_return, town_return } pax_zieltyp;
 
@@ -227,13 +229,11 @@ private:
 	 */
 	void step_passagiere();
 
-
 	/**
 	 * ein Passagierziel in die Zielkarte eintragen
 	 * @author Hj. Malthaner
 	 */
 	void merke_passagier_ziel(koord ziel, sint32 color);
-
 
 	/**
 	 * baut Spezialgebaeude, z.B Stadion
@@ -257,7 +257,6 @@ private:
 
 	// bewertungsfunktionen fuer den Hauserbau
 	// wie gut passt so ein Gebaeudetyp an diese Stelle ?
-
 	gebaeude_t::typ was_ist_an(koord pos) const;
 
 	// find out, what building matches best
@@ -270,7 +269,6 @@ private:
 	void erzeuge_verkehrsteilnehmer(koord pos, sint32 level,koord target);
 	void renoviere_gebaeude(koord pos);
 
-
 	/**
 	 * baut ein Stueck Strasse
 	 *
@@ -282,14 +280,7 @@ private:
 
 	void baue();
 
-
 	/**
-	 * Symbols in rules:
-	 * S = darf keine Strasse sein
-	 * s = muss Strasse sein
-	 * n = muss Natur sein
-	 * . = beliebig
-	 *
 	 * @param pos position to check
 	 * @param regel the rule to evaluate
 	 * @return true on match, false otherwise
@@ -310,7 +301,6 @@ private:
 
 	// fuer die haltestellennamen
 	sint32 zentrum_namen_cnt, aussen_namen_cnt;
-
 
 public:
 	/**
@@ -381,7 +371,6 @@ public:
 	 */
 	stadt_t(karte_t *welt, spieler_t *sp, koord pos,sint32 citizens);
 
-
 	/**
 	 * Erzeugt eine neue Stadt nach Angaben aus der Datei file.
 	 * @param welt Die Karte zu der die Stadt gehoeren soll.
@@ -436,14 +425,12 @@ public:
 	inline koord get_linksoben() const { return lo;}
 	inline koord get_rechtsunten() const { return ur;}
 
-
 	/**
 	 * Creates a station name
 	 * @param number if >= 0, then a number is added to the name
 	 * @author Hj. Malthaner
 	 */
 	const char * haltestellenname(koord pos, const char *typ, sint32 number);
-
 
 	/**
 	 * Erzeugt ein Array zufaelliger Startkoordinaten,
@@ -454,7 +441,6 @@ public:
 	 */
 	static vector_tpl<koord> *random_place(const karte_t *wl, sint32 anzahl);	// geeigneten platz zur Stadtgruendung durch Zufall ermitteln
 
-
 	/**
 	 * @return Einen Beschreibungsstring für das Objekt, der z.B. in einem
 	 * Beobachtungsfenster angezeigt wird.
@@ -462,7 +448,6 @@ public:
 	 * @see simwin
 	 */
 	char *info(char *buf) const;
-
 
 	/**
 	 * A short info about the city stats
