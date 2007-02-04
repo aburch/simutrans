@@ -195,8 +195,8 @@ int dr_textur_resize(unsigned short** textur, int w, int h, int bpp)
 char *dr_query_homedir(void)
 {
 	static char buffer[1024];
-#ifdef _WIN32
 	char b2[1060];
+#ifdef _WIN32
 	DWORD len=960;
 	HKEY hHomeDir;
 	if(RegOpenKeyExA(HKEY_CURRENT_USER,"Software\\Microsoft\\Windows\\CurrentVersion\\Explorer\\Shell Folders", 0, KEY_READ,	&hHomeDir)==ERROR_SUCCESS) {
@@ -215,14 +215,16 @@ char *dr_query_homedir(void)
 	}
 	return NULL;
 #else
-	strcpy( buffer, "~/simutrans/" );
-	int err = mkdir( "~/simutrans", 0700 );
+	sprintf( buffer, "%s/simutrans", getenv("HOME") );
+	int err = mkdir( buffer, 0700 );
 	if(err  &&  err!=EEXIST) {
 		// could not create directory
-		return NULL;
+		// we assume success anyway
 	}
-	mkdir( "~/simutrans/screenshot", 0700 );
-	mkdir( "~/simutrans/save", 0700 );
+        sprintf( b2, "%s/screenshot", buffer );
+	mkdir( b2, 0700 );
+        sprintf( b2, "%s/save", buffer );
+	mkdir( b2, 0700 );
 	return buffer;
 #endif
 }
