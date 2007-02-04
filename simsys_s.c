@@ -16,8 +16,13 @@
 
 #ifdef _WIN32
 #include <windows.h>
+#else
+#include <sys/stat.h>
+#include <sys/errno.h>
 #endif
 
+#include <dirent.h>
+#include <stdio.h>
 #include <stddef.h>
 #include <string.h>
 #include <stdlib.h>
@@ -211,13 +216,13 @@ char *dr_query_homedir(void)
 	return NULL;
 #else
 	strcpy( buffer, "~/simutrans/" );
-	int err = mkdir( "~/simutrans" );
+	int err = mkdir( "~/simutrans", 0700 );
 	if(err  &&  err!=EEXIST) {
 		// could not create directory
 		return NULL;
 	}
-	mkdir( "~/simutrans/screenshot" );
-	mkdir( "~/simutrans/save" );
+	mkdir( "~/simutrans/screenshot", 0700 );
+	mkdir( "~/simutrans/save", 0700 );
 	return buffer;
 #endif
 }
