@@ -22,10 +22,14 @@
 #include "../pathes.h"
 
 #include "../simdebug.h"
-#include "savegame_frame.h"
 #include "../simwin.h"
 #include "../simintr.h"
 #include "../utils/simstring.h"
+
+#include "components/list_button.h"
+#include "savegame_frame.h"
+
+#define DIALOG_WIDTH (360)
 
 
 savegame_frame_t::savegame_frame_t(const char *suffix) :
@@ -34,10 +38,11 @@ savegame_frame_t::savegame_frame_t(const char *suffix) :
 	button_frame(),
 	scrolly(&button_frame)
 {
-    this->suffix = suffix;
+	this->suffix = suffix;
+	use_pak_extension = strcmp( suffix, ".sve" )==0;
 
 #ifdef WIN32
-//	CreateDirectoryA(SAVE_PATH);
+	//CreateDirectoryA(SAVE_PATH);
 	mkdir(SAVE_PATH);
 #else
 	mkdir(SAVE_PATH, 0700);
@@ -45,66 +50,81 @@ savegame_frame_t::savegame_frame_t(const char *suffix) :
 
 #ifndef _MSC_VER
 	// find filenames
-    DIR     *dir;                      /* Schnittstellen  zum BS */
-    struct  dirent  *entry;
+	DIR     *dir;                      /* Schnittstellen zum BS */
+	struct  dirent  *entry;
 
-    dir=opendir(SAVE_PATH_X ".");
+	dir=opendir(SAVE_PATH_X ".");
 
-    if(dir==NULL) {
-	dbg->warning("savegame_frame_t::savegame_frame_t()",
-                     "Couldn't read directory.");
-    } else {
-	do {
-	    entry=readdir(dir);
-	    if(entry!=NULL) {
-		if(entry->d_name[0]!='.' ||
-		   (entry->d_name[1]!='.' && entry->d_name[1]!=0)) {
-		    if(strncmp(entry->d_name + strlen(entry->d_name) - 4, suffix, 4) == 0) {
-			add_file(entry->d_name);
-		    }
-		}
-	    }
-	}while(entry!=NULL);
-	closedir(dir);
-    }
+	if(dir==NULL) {
+		dbg->warning("savegame_frame_t::savegame_frame_t()","Couldn't read directory.");
+	} else {
+		do {
+			entry=readdir(dir);
+			if(entry!=NULL) {
+				if(entry->d_name[0]!='.' ||  (entry->d_name[1]!='.' && entry->d_name[1]!=0)) {
+					if(strncmp(entry->d_name + strlen(entry->d_name) - 4, suffix, 4) == 0) {
+						if(!use_pak_extension) {
+							add_file(entry->d_name, "");
+						}
+						else {
+							// this is a savegame:
+							// read also the pak extension
+							loadsave_t test;
+							test.rd_open(entry->d_name);
+							add_file( entry->d_name, test.get_pak_extension() );
+						}
+					}
+				}
+			}
+		}while(entry!=NULL);
+		closedir(dir);
+	}
 #else
 	struct _finddata_t entry;
-    long hfind;
+	long hfind;
 
-    char wild[32];
-    tstrncpy(wild, SAVE_PATH_X "*", 32);
-    strcat(wild, suffix);
+	char wild[32];
+	tstrncpy(wild, SAVE_PATH_X "*", 32);
+	strcat(wild, suffix);
 
-    hfind = _findfirst( wild, &entry);
-    if(hfind == -1) {
-	dbg->warning("savegame_frame_t::savegame_frame_t()",
-                     "Couldn't read directory.");
-    } else {
-        do{
-	    add_file(entry.name);
-        } while(_findnext(hfind, &entry) == 0 );
-    }
+	hfind = _findfirst( wild, &entry);
+	if(hfind == -1) {
+		dbg->warning("savegame_frame_t::savegame_frame_t()","Couldn't read directory.");
+	} else {
+		do{
+			if(!use_pak_extension) {
+				add_file(entry.name, "");
+			}
+			else {
+				// this is a savegame:
+				// read also the pak extension
+				loadsave_t test;
+				char p[1024];
+				sprintf( p, "%s%s", SAVE_PATH_X, entry.name );
+				test.rd_open(p);
+				add_file( entry.name, test.get_pak_extension() );
+			}
+		} while(_findnext(hfind, &entry) == 0 );
+	}
 #endif
+	// Text 'Game name'
+	fnlabel.setze_pos (koord(10,12));
+	fnlabel.setze_text ("Filename");
+	add_komponente(&fnlabel);
 
-    // Text 'Game name'
-    fnlabel.setze_pos (koord(10,12));
-    fnlabel.setze_text ("Filename");
-    add_komponente(&fnlabel);
-
-    // Input box for game name
-    tstrncpy(ibuf, "", 1);
-    input.setze_text(ibuf, 58);
-    input.add_listener(this);
-    input.setze_pos(koord(75,8));
-    input.setze_groesse(koord(140, 14));
-
-    add_komponente(&input);
+	// Input box for game name
+	tstrncpy(ibuf, "", 1);
+	input.setze_text(ibuf, 58);
+	input.add_listener(this);
+	input.setze_pos(koord(75,8));
+	input.setze_groesse(koord(DIALOG_WIDTH-75-10-10, 14));
+	add_komponente(&input);
 
 	// needs to be scrollable
 	scrolly.setze_pos( koord(0,30) );
 	scrolly.set_show_scroll_x(false);
 	scrolly.set_size_corner(false);
-	scrolly.setze_groesse( koord(257,30) );
+	scrolly.setze_groesse( koord(DIALOG_WIDTH-12,30) );
 
 	// The file entries
 	slist_iterator_tpl <button_t *> iter1(deletes);
@@ -136,31 +156,31 @@ savegame_frame_t::savegame_frame_t(const char *suffix) :
 
 		y += 14;
 	}
-	button_frame.setze_groesse( koord( 175+26*2+56,y ) );
+	button_frame.setze_groesse( koord( DIALOG_WIDTH-1, y ) );
 	add_komponente(&scrolly);
 
 	y += 10+30;
 	divider1.setze_pos(koord(10,y));
-	divider1.setze_groesse(koord(257,0));
+	divider1.setze_groesse(koord(DIALOG_WIDTH-20,0));
 	add_komponente(&divider1);
 
 	y += 10;
 	savebutton.setze_pos(koord(10,y));
-	savebutton.setze_groesse(koord(65, 14));
+	savebutton.setze_groesse(koord(BUTTON_WIDTH, 14));
 	savebutton.setze_text("Ok");
 	savebutton.setze_typ(button_t::roundbox);
 	savebutton.add_listener(this);
 	add_komponente(&savebutton);
 
-	cancelbutton.setze_pos(koord(202,y));
-	cancelbutton.setze_groesse(koord(65, 14));
+	cancelbutton.setze_pos(koord(DIALOG_WIDTH-BUTTON_WIDTH-10,y));
+	cancelbutton.setze_groesse(koord(BUTTON_WIDTH, 14));
 	cancelbutton.setze_text("Cancel");
 	cancelbutton.setze_typ(button_t::roundbox);
 	cancelbutton.add_listener(this);
 	add_komponente(&cancelbutton);
 
 	setze_opaque(true);
-	setze_fenstergroesse(koord(175+26*2+56+12, y + 40));
+	setze_fenstergroesse(koord(DIALOG_WIDTH, y + 40));
 }
 
 
@@ -205,20 +225,25 @@ savegame_frame_t::set_filename(const char *fn)
 
 
 void
-savegame_frame_t::add_file(const char *filename)
+savegame_frame_t::add_file(const char *filename, const char *pak)
 {
 	button_t * button = new button_t();
 	char * name = new char [strlen(filename)+10];
-	char * date = new char[18];
+	char * date = new char[18+strlen(pak)+3];
 
 	//DBG_MESSAGE("","sizeof(stat)=%d, sizeof(tm)=%d",sizeof(struct stat),sizeof(struct tm) );
 	sprintf(name, SAVE_PATH_X "%s", filename);
 
 	struct stat  sb;
 	stat(name, &sb);
+
+	// add pak extension
+	size_t n = *pak!=0 ? sprintf( date, "%s: ", pak ) : 0;
+
+	// add the time too
 	struct tm *tm = localtime(&sb.st_mtime);
 	if(tm) {
-		strftime(date, 18, "%Y-%m-%d %H:%M", tm);
+		strftime(date+n, 18, "%Y-%m-%d %H:%M", tm);
 	}
 	else {
 		tstrncpy(date, "??.??.???? ??:??", 15);
@@ -319,5 +344,5 @@ void savegame_frame_t::setze_fenstergroesse(koord groesse)
 	gui_frame_t::setze_fenstergroesse(groesse);
 	divider1.setze_pos(koord(10,groesse.y-44));
 	savebutton.setze_pos(koord(10,groesse.y-34));
-	cancelbutton.setze_pos(koord(202,groesse.y-34));
+	cancelbutton.setze_pos(koord(DIALOG_WIDTH-BUTTON_WIDTH-10,groesse.y-34));
 }

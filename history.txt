@@ -35,6 +35,8 @@ Release of 99.08
 	FIX: building ways into depots again
 	FIX: city does not build road through busstops, loading bays or depots
 	FIX: underground depots are recognized again
+	FIX: water image of artificial slopes fixed
+	CHANGE: display of savegame pak-folder in the load/save dialog
 
 
 Release of 99.07

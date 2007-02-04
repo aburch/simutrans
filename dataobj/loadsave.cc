@@ -52,6 +52,9 @@ bool loadsave_t::rd_open(const char *filename)
 		fp = fopen(filename, "rb");
 		fgets(buf, 80, fp);
 	}
+	if(*pak_extension==0) {
+		strcpy( pak_extension, "(unknown)" );
+	}
 	this->filename = filename;
 	return true;
 }
@@ -73,14 +76,30 @@ bool loadsave_t::wr_open(const char *filename, mode_t m, const char *pak_extensi
 	}
 	saving = true;
 
+	// get the right extension
+	const char *start = pak_extension;
+	const char *end = pak_extension + strlen(pak_extension)-1;
+	const char *c = pak_extension;
+	// find the start
+	while(*c<*end) {
+		if(*c==':'  ||  *c=='\\'  ||  *c=='/') {
+			start = c+1;
+		}
+		c++;
+	}
+	assert(start<end);
+	tstrncpy( this->pak_extension, start, 64 );
+	// delete trailing path seperator
+	this->pak_extension[strlen(this->pak_extension)-1] = 0;
+
 	if(is_zipped()) {
-		gzprintf(fp, "%s%s%s\n", SAVEGAME_VERSION, "zip", pak_extension);
+		gzprintf(fp, "%s%s%s\n", SAVEGAME_VERSION, "zip", this->pak_extension);
 	}
 	else {
 		fprintf(fp, "%s%s%s\n", SAVEGAME_VERSION, mode == binary ? "bin" : "", pak_extension);
 	}
 
-	version = int_version(SAVEGAME_VER_NR, NULL, this->pak_extension );
+	version = int_version(SAVEGAME_VER_NR, NULL, NULL );
 	this->mode = mode;
 	this->filename = filename;
 
@@ -457,18 +476,18 @@ uint32 loadsave_t::int_version(const char *version_text, mode_t *mode, char *pak
 		} else {
 			*mode = text;
 		}
-	}
 
-	// also pak extension was saved
-	if(version>=99008) {
-		if(*mode!=text) {
-			version_text += 3;
+		// also pak extension was saved
+		if(version>=99008) {
+			if(*mode!=text) {
+				version_text += 3;
+			}
+			while(*version_text && *version_text>=32) {
+				*pak_extension++ = *version_text++;
+			}
 		}
-		while(*version_text && *version_text>=32) {
-			*pak_extension++ = *version_text++;
-		}
+		*pak_extension = 0;
 	}
-	*pak_extension = 0;
 
 	return version;
 }
