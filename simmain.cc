@@ -324,7 +324,7 @@ parse_simuconf( tabfile_t &simuconf, int &disp_width, int &disp_height, int &ful
 	objfilename = ltrim(contents.get_string("pak_file_path", DEFAULT_OBJPATH));
 
 	// use different save directories
-	multiuser = contents.get_int("multiuser_install", multiuser) != 0;
+	multiuser = contents.get_int("singleuser_install", !multiuser) != 0;
 
 	print("Reading simuconf.tab successful!\n");
 

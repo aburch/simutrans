@@ -70,7 +70,9 @@ savegame_frame_t::savegame_frame_t(const char *suffix) :
 							// this is a savegame:
 							// read also the pak extension
 							loadsave_t test;
-							test.rd_open(entry->d_name);
+							char p[1024];
+							sprintf( p, "%s%s", SAVE_PATH_X, entry->d_name );
+							test.rd_open(p);
 							add_file( entry->d_name, test.get_pak_extension() );
 						}
 					}
@@ -238,7 +240,7 @@ savegame_frame_t::add_file(const char *filename, const char *pak)
 	stat(name, &sb);
 
 	// add pak extension
-	size_t n = *pak!=0 ? sprintf( date, "%s: ", pak ) : 0;
+	size_t n = *pak!=0 ? sprintf( date, "%s - ", pak ) : 0;
 
 	// add the time too
 	struct tm *tm = localtime(&sb.st_mtime);

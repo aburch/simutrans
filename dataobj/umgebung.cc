@@ -29,7 +29,7 @@ bool umgebung_t::use_transparency_station_coverage = true;
 uint8 umgebung_t::station_coverage_show = NOT_SHOWN_COVERAGE;
 int umgebung_t::station_coverage_size = 2;
 int umgebung_t::set_max_hops = 1000;
-int umgebung_t::max_transfers = 7;
+int umgebung_t::max_transfers = 9;
 
 // passenger manipulation factor
 uint32 umgebung_t::passenger_factor=16;
@@ -45,7 +45,7 @@ bool umgebung_t::fussgaenger = true;
 long umgebung_t::stadtauto_duration = 31457280;	// ten years
 
 bool umgebung_t::verkehrsteilnehmer_info = false;
-bool umgebung_t::tree_info = false;
+bool umgebung_t::tree_info = true;
 bool umgebung_t::ground_info = false;
 bool umgebung_t::townhall_info = false;
 bool umgebung_t::single_info = false;
@@ -146,7 +146,7 @@ sint64 umgebung_t::cst_tunnel=-1000000;
 sint64 umgebung_t::cst_third_rail=-8000;
 // alter landscape
 sint64 umgebung_t::cst_buy_land=-10000;
-sint64 umgebung_t::cst_alter_land=-50000;
+sint64 umgebung_t::cst_alter_land=-100000;
 sint64 umgebung_t::cst_set_slope=-250000;
 sint64 umgebung_t::cst_found_city=-500000000;
 sint64 umgebung_t::cst_multiply_found_industry=-2000000;

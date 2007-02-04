@@ -1813,10 +1813,62 @@ waggon_t::ist_weg_frei(int & restart_speed)
 		koord3d block_pos=rt->position_bei(next_block);
 		signal_t *sig = ist_blockwechsel(block_pos);
 		if(sig) {
-			// action dedend on the next signal
+			// action depend on the next signal
 			uint16 next_stop = 0;
 			const roadsign_besch_t *sig_besch=sig->gib_besch();
 
+			// if signal is single line then calculate route to next signal and check it is clear
+			if(sig_besch->is_longblock_signal()) {
+				bool exit_loop = false;
+				short fahrplan_index = cnv->gib_fahrplan()->get_aktuell();
+				int count = 0;
+				route_t target_rt;
+				koord3d cur_pos = rt->position_bei(next_block+1);
+				do {
+					// search for route
+					if(!target_rt.calc_route( welt, cur_pos , cnv->gib_fahrplan()->eintrag[fahrplan_index].pos, this, speed_to_kmh(cnv->gib_min_top_speed()))) {
+						exit_loop = true;
+					}
+					else {
+						// check tiles of route until we find signal or reserved track
+						for (int i = 0; i<=target_rt.gib_max_n(); i++) {
+							koord3d pos = target_rt.position_bei(i);
+							grund_t *gr = welt->lookup(pos);
+							schiene_t * sch1 = gr ? (schiene_t *)gr->gib_weg(gib_waytype()) : NULL;
+							if(sch1 && sch1->has_sign()) {
+								next_stop = block_reserver(cnv->get_route(),next_block+1,0,true);
+								if(next_stop > 0) {
+									// we should be able to always get reservation to next station - since we've already checked
+									// that tiles are clear. No harm in sanity check though...
+									restart_speed = -1;
+									cnv->set_next_stop_index(next_stop);
+									sig->setze_zustand(roadsign_t::gruen);
+									return true;
+								}
+								exit_loop = true;
+							} else if(sch1 && sch1->get_reserved_convoi()!=convoihandle_t()) {
+								// for some reason sch1->can_reserve() crashed from time to time so we use get_reserved_convoi instead...
+								exit_loop = true;
+							}
+						}
+					}
+					target_rt.clear();
+					cur_pos = cnv->gib_fahrplan()->eintrag[fahrplan_index].pos;
+					fahrplan_index ++;
+					if(fahrplan_index >= cnv->gib_fahrplan()->maxi()) {
+						fahrplan_index = 0;
+					}
+					count++;
+				} while(count < cnv->gib_fahrplan()->maxi() && exit_loop == false); // stop after we've looped round schedule...
+				// we can't go
+				sig->setze_zustand(roadsign_t::rot);
+				if(route_index==next_block+1) {
+					restart_speed = 0;
+					return false;
+				}
+				restart_speed = -1;
+				return true;
+			}
 			if(sig_besch->is_free_route()) {
 				grund_t *target=NULL;
 
@@ -1887,7 +1939,7 @@ waggon_t::ist_weg_frei(int & restart_speed)
 			if(next_block+1>=cnv->get_route()->gib_max_n()  &&  route_index==next_block+1) {
 				// we can always continue, if there would be a route ...
 				return true;
-		}
+			}
 			// not a signal (anymore) but we will still stop anyway
 			uint16 next_stop = block_reserver(cnv->get_route(),next_block+1,target_halt.is_bound()?1000:0,true);
 			if(next_stop!=0) {

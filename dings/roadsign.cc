@@ -92,7 +92,7 @@ void roadsign_t::set_dir(ribi_t::ribi dir)
 	if(besch->gib_wtyp()!=track_wt  &&   besch->gib_wtyp()!=monorail_wt) {
 		weg->count_sign();
 	}
-	if(besch->is_single_way()  ||  besch->is_signal()  ||  besch->is_pre_signal()) {
+	if(besch->is_single_way()  ||  besch->is_signal()  ||  besch->is_pre_signal()  ||  besch->is_longblock_signal()) {
 		// set mask, if it is a signle way ...
 		weg->count_sign();
 		if(ribi_t::ist_einfach(dir)) {
