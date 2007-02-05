@@ -16,6 +16,8 @@
 
 #include "../simtypes.h"
 
+#include <stdlib.h>
+
 /*
  *  Autor:
  *      Volker Meyer
@@ -37,12 +39,12 @@ class obj_besch_t {
 		obj_besch_t** node_info;
 
 	public:
-		void* operator new(unsigned int size)
+		void* operator new(size_t size)
 		{
 			return ::operator new(size);
 		}
 
-		void* operator new(unsigned int size, unsigned int extra)
+		void* operator new(size_t size, unsigned extra)
 		{
 			return ::operator new(size + extra);
 		}

@@ -177,13 +177,17 @@ DBG_DEBUG("depot_frame_t::depot_frame_t()","get_max_convoi_length()=%i",depot->g
 	/*
 	* [PANEL]
 	* to test for presence, we must fist switch on all vehicles,
-	* otherwise this tab will not be present at all
+	* and switch off the timeline ...
+	* otherwise the tabs will not be present at all
 	*/
 	bool old_retired=show_retired_vehicles;
 	bool old_show_all=show_all;
 	show_retired_vehicles = true;
 	show_all = true;
+	char timeline = welt->gib_einstellungen()->gib_use_timeline();
+	welt->gib_einstellungen()->setze_use_timeline(0);
 	build_vehicle_lists();
+	welt->gib_einstellungen()->setze_use_timeline(timeline);
 	show_retired_vehicles = old_retired;
 	show_all = old_show_all;
 
@@ -191,6 +195,7 @@ DBG_DEBUG("depot_frame_t::depot_frame_t()","get_max_convoi_length()=%i",depot->g
 	scrolly_pas.set_show_scroll_x(false);
 	scrolly_pas.set_size_corner(false);
 	scrolly_pas.set_read_only(false);
+
 	// always add
 	tabs.add_tab(&scrolly_pas, depot->gib_passenger_name());
 
@@ -211,6 +216,7 @@ DBG_DEBUG("depot_frame_t::depot_frame_t()","get_max_convoi_length()=%i",depot->g
 	if (!waggons_vec.empty()) {
 		tabs.add_tab(&scrolly_waggons, depot->gib_haenger_name());
 	}
+
 
 	pas.set_player_color(kennfarbe);
 	pas.add_listener(this);

@@ -14,6 +14,7 @@
 #include <stdio.h>
 
 #include "../utils/cstring_t.h"
+#include "../simtypes.h"
 
 /**
  * loadsave_t:

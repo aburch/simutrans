@@ -4,6 +4,10 @@ Known bugs: (hard to fix)
 	valgrind complains about errors in SDL and X?
 
 
+	FIX: all tab in depot show, if there was/is ever a matching vehicle
+	FIX: all reserved signals are green
+
+
 Release of 99.08
 
 4-Feb-2007:

@@ -1869,7 +1869,7 @@ waggon_t::ist_weg_frei(int & restart_speed)
 				restart_speed = -1;
 				return true;
 			}
-			if(sig_besch->is_free_route()) {
+			else if(sig_besch->is_free_route()) {
 				grund_t *target=NULL;
 
 				// choose signal here
@@ -1973,6 +1973,7 @@ waggon_t::block_reserver(const route_t *route, uint16 start_index, int count, bo
 #ifdef MAX_CHOOSE_BLOCK_TILES
 	int max_tiles=2*MAX_CHOOSE_BLOCK_TILES; // max tiles to check for choosesignals
 #endif
+	slist_tpl<grund_t *> signs;	// switch all signals on their way too ...
 
 	if(start_index>route->gib_max_n()) {
 		return 0;
@@ -2004,6 +2005,9 @@ waggon_t::block_reserver(const route_t *route, uint16 start_index, int count, bo
 #endif
 		if(reserve) {
 			if(sch1->has_sign()) {
+				if(count) {
+					signs.append(gr);
+				}
 				count --;
 				next_signal_index = i;
 			}
@@ -2011,9 +2015,17 @@ waggon_t::block_reserver(const route_t *route, uint16 start_index, int count, bo
 				success = false;
 			}
 		}
-		else if(sch1  &&  !sch1->unreserve(cnv->self)) {
-			// reached an reserved or free track => finished
-			return 65535;
+		else if(sch1) {
+			if(!sch1->unreserve(cnv->self)) {
+				// reached an reserved or free track => finished
+				return 65535;
+			}
+			if(sch1->has_sign()) {
+				signal_t *signal = (signal_t *)(gr->suche_obj(ding_t::signal));
+				if(signal) {
+					signal->setze_zustand(roadsign_t::rot);
+				}
+			}
 		}
 	}
 
@@ -2034,6 +2046,15 @@ waggon_t::block_reserver(const route_t *route, uint16 start_index, int count, bo
 			}
 		}
 		return 0;
+	}
+
+	// ok, switch everything green ...
+	slist_iterator_tpl<grund_t *> iter(signs);
+	while(iter.next()) {
+		signal_t *signal = (signal_t *)(iter.get_current()->suche_obj(ding_t::signal));
+		if(signal) {
+			signal->setze_zustand(roadsign_t::gruen);
+		}
 	}
 
 	// stop at station or signals, not at waypoints

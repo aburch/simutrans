@@ -236,14 +236,10 @@ fahrplan_t::rdwr(loadsave_t *file)
 			pos.rdwr(file);
 			file->rdwr_long(dummy, "\n");
 
-#ifndef _MSC_VER
-			struct linieneintrag_t stop = { pos, (sint8)dummy, 0 };
-#else
 			struct linieneintrag_t stop;
 			stop.pos = pos;
 			stop.ladegrad = (sint8)dummy;
 			stop.flags = 0;
-#endif
 			eintrag.append(stop);
 		}
 		abgeschlossen = true;
