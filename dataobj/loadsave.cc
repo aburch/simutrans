@@ -197,9 +197,9 @@ void loadsave_t::rdwr_short(sint16 &i, const char *delim)
 {
 	if(!is_text()) {
 		if(saving) {
-			write(&i, sizeof(short));
+			write(&i, sizeof(sint16));
 		} else {
-			read(&i, sizeof(short));
+			read(&i, sizeof(sint16));
 		}
 	} else {
 		if(saving) {
@@ -224,9 +224,9 @@ void loadsave_t::rdwr_long(sint32 &l, const char *delim)
 {
 	if(!is_text()) {
 		if(saving) {
-			write(&l, sizeof(long));
+			write(&l, sizeof(sint32));
 		} else {
-			read(&l, sizeof(long));
+			read(&l, sizeof(sint32));
 		}
 	} else {
 		if(saving) {
@@ -242,7 +242,7 @@ void loadsave_t::rdwr_long(uint32 &l, const char *delim)
 {
 	sint32 ll=l;
 	rdwr_long(ll,delim);
-	l = (uint32)l;
+	l = (uint32)ll;
 }
 
 /* long long (64 Bit) */
