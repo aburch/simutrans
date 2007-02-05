@@ -41,14 +41,14 @@ static char *midi_title[MAX_MIDI];
  * Gesamtlautstärke
  * @author hj. Malthaner
  */
-static int global_volume = 128;
+static int global_volume = 127;
 
 
 /**
  * MIDI Lautstärke
  * @author hj. Malthaner
  */
-static int midi_volume = 128;
+static int midi_volume = 127;
 
 static bool shuffle_midi = false;
 
@@ -169,11 +169,13 @@ int get_current_midi()
  * By Owen Rudge
  */
 int
-midi_init()
+midi_init(const char *directory)
 {
 	// read a list of soundfiles
-	FILE * file = fopen("music/music.tab", "rb");
-	if(!file) {
+	char full_path[1024];
+	sprintf( full_path, "%smusic/music.tab", directory );
+	FILE * file = fopen( full_path, "rb");
+	if(file) {
 		dr_init_midi();
 
 		while(!feof(file)) {
@@ -190,8 +192,9 @@ midi_init()
 				}
 
 				if(len > 1) {
-					print("  Reading MIDI file '%s' - %s", buf, title);
-					max_midi = dr_load_midi(buf);
+					sprintf( full_path, "%s%s", directory, buf );
+					print("  Reading MIDI file '%s' - %s", full_path, title);
+					max_midi = dr_load_midi(full_path);
 
 					if(max_midi >= 0) {
 						len = strlen(title);
@@ -206,6 +209,7 @@ midi_init()
 		}
 
 		fclose(file);
+		dr_set_midi_volume(midi_volume);
 	} else {
 		dbg->warning("midi_init()","can't open file 'music.tab' for reading, turning music off.");
 	}

@@ -429,6 +429,11 @@ extern "C" int simu_main(int argc, char** argv)
 
 	// save the current directories
 	getcwd( umgebung_t::program_dir, 1024 );
+#ifdef _WIN32
+	strcat( umgebung_t::program_dir, "\\" );
+#else
+	strcat( umgebung_t::program_dir, "/" );
+#endif
 	DBG_MESSAGE( "program_dir", umgebung_t::program_dir );
 
 	// parsing config/simuconf.tab
@@ -652,6 +657,11 @@ DBG_MESSAGE("simmain","loadgame file found at %s",buffer);
 		umgebung_t::use_transparency_station_coverage = b[3]!=0;
 		umgebung_t::station_coverage_show = b[4]!=0;
 
+		int midi_volume=128, sound_volume=128;
+		fscanf(config, "SoundMidiVolume=%d,%d\n", &sound_volume, &midi_volume );
+		sound_set_global_volume(sound_volume);
+		sound_set_midi_volume(midi_volume);
+
 		fclose(config);
 	}
 
@@ -666,7 +676,9 @@ DBG_MESSAGE("simmain","loadgame file found at %s",buffer);
 
 	if (!gimme_arg(argc, argv, "-nomidi", 0)) {
 		print("Reading midi data ...\n");
-		if(midi_init()) {
+		if(midi_init(umgebung_t::user_dir)) {
+			midi_play(0);
+		} else if(midi_init(umgebung_t::program_dir)) {
 			midi_play(0);
 		}
 	}
@@ -897,6 +909,7 @@ DBG_MESSAGE("init","map");
 			umgebung_t::use_transparency_station_coverage,
 			umgebung_t::station_coverage_show
 		);
+		fprintf(config, "SoundMidiVolume=%d,%d\n", sound_get_global_volume(), sound_get_midi_volume() );
 		fclose(config);
 	}
 

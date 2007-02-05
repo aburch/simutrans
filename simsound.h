@@ -105,7 +105,7 @@ int get_current_midi();
 
 
 /* OWEN: MIDI routines */
-extern int midi_init();
+extern int midi_init(const char *path);
 extern void midi_play(const int no);
 extern void check_midi();
 

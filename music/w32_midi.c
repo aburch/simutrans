@@ -27,7 +27,6 @@ static int use_midi = 0;
  */
 static int midi_number = -1;
 
-
 char *midi_filenames[MAX_MIDI];
 
 
@@ -65,8 +64,6 @@ int dr_load_midi(const char *filename)
 {
   if(use_midi) {
 
-    char cwd[200];
-    int cwd_sl;
     unsigned j;
 
     //   printf("dr_load_midi(%s)\n", filename);
@@ -76,26 +73,12 @@ int dr_load_midi(const char *filename)
       if (i >= 0 && i < MAX_MIDI) {
 
 				// MCI doesn't like relative paths
-				if ((filename[1] != ':') && !(filename[0] == '\\' &&  filename[1] == '\\')) {
-					// so we must built it ...
+				// but we get absolute ones anyway
+				// already absolute path
+				midi_filenames[i] = malloc( strlen(filename)+1 );
+				strcpy(midi_filenames[i], filename );
 
-					getcwd(cwd, 200);
-					cwd_sl = strlen(cwd);
-
-					midi_filenames[i] = malloc( cwd_sl + strlen(filename) + 2 );
-
-					strcpy(midi_filenames[i], cwd);
-					if (cwd[cwd_sl-1] != '\\') {
-						strcat(midi_filenames[i], "\\");
-					}
-					strcat(midi_filenames[i], filename);
-				}
-				else {
-					// already absolute path
-					midi_filenames[i] = malloc( strlen(filename)+1 );
-					strcpy(midi_filenames[i], filename );
-				}
-
+				// need to make dos path seperators
 				for (j = 0; j < strlen(midi_filenames[i]); j++)	{
 					if (midi_filenames[i][j] == '/') {
 						midi_filenames[i][j] = '\\';

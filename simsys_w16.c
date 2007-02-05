@@ -518,6 +518,7 @@ int simu_main(int argc, char **argv);
 BOOL APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nShowCmd)
 {
 	WNDCLASSW wc;
+	char pathname[1024];
 	char *argv[32], *p;
 	int argc;
 
@@ -536,7 +537,8 @@ BOOL APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdL
 
 	// prepare commandline
 	argc = 0;
-	argv[argc++] = SAVEGAME_PREFIX;
+	GetModuleFileNameA( hInstance, pathname, 1024 );
+	argv[argc++] = pathname;
 	p = strtok(lpCmdLine, " ");
 	while (p != NULL) {
 		argv[argc++] = p;
