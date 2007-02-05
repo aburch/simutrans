@@ -95,7 +95,7 @@ ding_t::~ding_t()
 	destroy_win(ding_infos.get(this));
 
 	if(flags&not_on_map  ||  !welt->ist_in_kartengrenzen(pos.gib_2d())) {
-		DBG_MESSAGE("ding_t::~ding_t()","deleted %p not on the map",this);
+//		DBG_MESSAGE("ding_t::~ding_t()","deleted %p not on the map",this);
 		return;
 	}
 

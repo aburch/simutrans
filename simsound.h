@@ -10,7 +10,6 @@
 #ifndef simsound_h
 #define simsound_h
 
-
 /**
  * info zu einem abzuspielenden sound
  * @author Hj. Malthaner

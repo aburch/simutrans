@@ -333,14 +333,12 @@ baum_t::gib_outline_bild() const
 const uint16
 baum_t::random_tree_for_climate(climate cl)
 {
-	vector_tpl<sint32>weights(baum_typen.get_count());
-	uint32 weight = 0;
+	int weight = 0;
 
 	for( unsigned i=0;  i<baum_typen.get_count();  i++  ) {
 		if (baum_typen[i]->is_allowed_climate(cl)) {
 			weight += baum_typen[i]->gib_distribution_weight();
 		}
-		weights.append(weight);
 	}
 
 	// now weight their distribution
@@ -349,8 +347,8 @@ baum_t::random_tree_for_climate(climate cl)
 		weight = 0;
 		for( unsigned i=0; i<baum_typen.get_count();  i++  ) {
 			if (baum_typen[i]->is_allowed_climate(cl)) {
-				weight += weights[i];
-				if(weight>w) {
+				weight += baum_typen[i]->gib_distribution_weight();
+				if(weight>=w) {
 					return i;
 				}
 			}

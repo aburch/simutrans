@@ -5,7 +5,10 @@ Known bugs: (hard to fix)
 
 
 	FIX: all tab in depot show, if there was/is ever a matching vehicle
-	FIX: all reserved signals are green
+	FIX: all reserved signals after presignal or choose signals are now green
+	CHANGE: save sound/midi volume
+	FIX: midi now loaded correctly
+	FIX: unsigned long correctly loaded (i.e. load in schedules)
 
 
 Release of 99.08
