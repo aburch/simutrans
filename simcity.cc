@@ -2371,18 +2371,18 @@ void stadt_t::baue()
 
 void stadt_t::pruefe_grenzen(koord k)
 {
-	if (k.x <= lo.x && k.x > 0) {
-		lo.x = k.x - 1;
+	if (k.x <= lo.x && k.x > 1) {
+		lo.x = k.x - 2;
 	}
-	if (k.y <= lo.y && k.y > 0) {
-		lo.y = k.y - 1;
+	if (k.y <= lo.y && k.y > 1) {
+		lo.y = k.y - 2;
 	}
 
-	if (k.x >= ur.x && k.x < welt->gib_groesse_x() - 2) {
-		ur.x = k.x + 1;
+	if (k.x >= ur.x && k.x < welt->gib_groesse_x() - 3) {
+		ur.x = k.x + 2;
 	}
-	if (k.y >= ur.y && k.y < welt->gib_groesse_y() - 2) {
-		ur.y = k.y + 1;
+	if (k.y >= ur.y && k.y < welt->gib_groesse_y() - 3) {
+		ur.y = k.y + 2;
 	}
 }
 
