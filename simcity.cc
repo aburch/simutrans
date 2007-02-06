@@ -742,6 +742,11 @@ void stadt_t::add_gebaeude_to_stadt(const gebaeude_t* gb)
 				add_gb->setze_stadt(this);
 			}
 		}
+		// check borders
+		pruefe_grenzen(pos);
+		if(size!=koord(1,1)) {
+			pruefe_grenzen(pos+size+koord(-1,-1));
+		}
 	}
 }
 
@@ -796,10 +801,10 @@ void stadt_t::recalc_city_size()
 		if (ur.y < pos.y) ur.y = pos.y;
 	}
 
-	lo.x -= 2;
-	lo.y -= 2;
-	ur.x += 2;
-	ur.y += 2;
+	lo.x -= 1;
+	lo.y -= 1;
+	ur.x += 1;
+	ur.y += 1;
 
 	if (lo.x < 0) {
 		lo.x = 0;

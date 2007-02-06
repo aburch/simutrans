@@ -1,16 +1,16 @@
-Known bugs: (hard to fix)
-	Citycars cannot go around a 180 degree road bend
-	Monorails have no appropriate crossing, nor tunnel
-	valgrind complains about errors in SDL and X?
+Release of 99.08.1
 
-
-	FIX: all tab in depot show, if there was/is ever a matching vehicle
+6-Feb-2007:
+	FIX: all tabs in depot show, if there was/is ever a matching vehicle
 	FIX: all reserved signals after presignal or choose signals are now green
 	CHANGE: save sound/midi volume
 	FIX: midi now loaded correctly (first in usedir/music/music.tab, then program_dir/music/music.tab)
 	FIX: unsigned long correctly loaded (i.e. load in schedules)
 	FIX: correct baum types in the correct climate (hopefully final fix)
 	CHANGE: bus AI will use always the cheapest road to survive a little longer
+	FIX: games with failed to generate even a single town were saved wrongly
+	FIX: houses without citys are again reconnected to the nearest city upon reloading
+	FIX: length of string buffer for stations was 3 bytes too short
 
 
 Release of 99.08

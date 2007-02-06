@@ -740,6 +740,13 @@ gebaeude_t::laden_abschliessen()
 	if(gib_besitzer()) {
 		gib_besitzer()->add_maintenance(umgebung_t::maint_building);
 	}
+	// citybuilding, but no town?
+	if(gib_haustyp()!=unbekannt  &&  ptr.stadt==NULL) {
+		// so we add it to the next one
+		stadt_t *city = welt->suche_naechste_stadt( gib_pos().gib_2d() );
+		assert(city);
+		city->add_gebaeude_to_stadt(this);
+	}
 }
 
 

@@ -739,7 +739,13 @@ DBG_DEBUG("karte_t::init()","Erzeuge stadt %i with %ld inhabitants",i,(s->get_ci
 
 		delete pos;
 	}
-	pos = NULL;
+	else {
+		// could not generate any town
+		if(pos) {
+			delete pos;
+		}
+		einstellungen->setze_anzahl_staedte( 0 );	// new number of towns (if we did not found enough positions) ...
+	}
 
 	fabrikbauer_t::verteile_industrie(this, einstellungen->gib_land_industry_chains(), false);
 	fabrikbauer_t::verteile_industrie(this, einstellungen->gib_city_industry_chains(), true);
@@ -2298,7 +2304,7 @@ DBG_MESSAGE("karte_t::laden()","loading grid");
 		}
 	}
 	else {
-		// correct old heights
+		// hgt now bytes
 		for( uint32 i=0;  i<(gib_groesse_y()+1)*(gib_groesse_x()+1);  i++  ) {
 			file->rdwr_byte( grid_hgts[i], "\n" );
 		}

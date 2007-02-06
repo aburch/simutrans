@@ -383,9 +383,9 @@ haltestelle_t::~haltestelle_t()
 void
 haltestelle_t::setze_name(const char *new_name)
 {
-	const char *trans_name=translator::translate(new_name);
-	char *name=(char *)guarded_malloc(strlen(trans_name+2));
-	strcpy(name, trans_name );
+//	const char *trans_name=translator::translate(new_name);
+	char *name=(char *)guarded_malloc(strlen(new_name)+2);
+	strcpy(name, new_name );
 	if (!grund.empty()) {
 		const char *old_name = grund.front()->gib_text();
 		grund.front()->setze_text(name);

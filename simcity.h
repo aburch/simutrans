@@ -206,9 +206,6 @@ private:
 	 */
 	void init_pax_ziele();
 
-	// this function adds houses to the city house list
-	void add_gebaeude_to_stadt(const gebaeude_t *gb);
-
 	// recalculate house informations (used for target selection)
 	void recount_houses();
 
@@ -317,6 +314,9 @@ public:
 	// this function removes houses from the city house list
 	// (called when removed by player, or by town)
 	void remove_gebaeude_from_stadt(const gebaeude_t *gb);
+
+	// this function adds houses to the city house list
+	void add_gebaeude_to_stadt(const gebaeude_t *gb);
 
 	sint32 gib_pax_erzeugt() const {return pax_erzeugt;}
 	sint32 gib_pax_transport() const {return pax_transport;}
