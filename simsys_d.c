@@ -208,6 +208,46 @@ int dr_os_close(void)
 }
 
 
+// query home directory
+char *dr_query_homedir(void)
+{
+	static char buffer[1024];
+	char b2[1060];
+#ifdef _WIN32
+	DWORD len=960;
+	HKEY hHomeDir;
+	if(RegOpenKeyExA(HKEY_CURRENT_USER,"Software\\Microsoft\\Windows\\CurrentVersion\\Explorer\\Shell Folders", 0, KEY_READ,	&hHomeDir)==ERROR_SUCCESS) {
+		RegQueryValueExA(hHomeDir,"Personal",NULL,NULL,(LPCSTR)buffer,&len);
+		strcat(buffer,"\\Simutrans");
+		CreateDirectoryA( buffer, NULL );
+		strcat(buffer, "\\");
+
+		// create other subdirectories
+		sprintf(b2, "%ssave", buffer );
+		CreateDirectoryA( b2, NULL );
+		sprintf(b2, "%sscreenshot", buffer );
+		CreateDirectoryA( b2, NULL );
+
+		return buffer;
+	}
+	return NULL;
+#else
+	sprintf( buffer, "%s/simutrans", getenv("HOME") );
+	int err = mkdir( buffer, 0700 );
+	if(err  &&  err!=EEXIST) {
+		// could not create directory
+		// we assume success anyway
+	}
+        sprintf( b2, "%s/screenshot", buffer );
+	mkdir( b2, 0700 );
+        sprintf( b2, "%s/save", buffer );
+	mkdir( b2, 0700 );
+	return buffer;
+#endif
+}
+
+
+
 /*
  * Hier beginnen die eigentlichen graphischen Funktionen
  */

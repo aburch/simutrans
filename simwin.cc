@@ -1006,7 +1006,7 @@ void win_display_flush(double konto)
 {
 #ifdef USE_SOFTPOINTER
 	display_setze_clip_wh( 0, 0, display_get_width(), display_get_height()+1 );
-	display_icon_leiste(0, skinverwaltung_t::hauptmenu->gib_bild(0)->bild_nr);
+	display_icon_leiste(0, skinverwaltung_t::hauptmenu->gib_bild(0)->gib_nummer());
 #else
 	display_setze_clip_wh( 0, 32, display_get_width(), display_get_height()+1 );
 #endif
