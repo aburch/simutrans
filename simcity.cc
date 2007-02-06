@@ -745,7 +745,7 @@ void stadt_t::add_gebaeude_to_stadt(const gebaeude_t* gb)
 		// check borders
 		pruefe_grenzen(pos);
 		if(size!=koord(1,1)) {
-			pruefe_grenzen(pos+size+koord(-1,-1));
+			pruefe_grenzen(pos+size-koord(1,1));
 		}
 	}
 }
@@ -2371,17 +2371,17 @@ void stadt_t::baue()
 
 void stadt_t::pruefe_grenzen(koord k)
 {
-	if (k.x <= lo.x && k.x > 1) {
+	if (k.x < lo.x+2 && k.x > 1) {
 		lo.x = k.x - 2;
 	}
-	if (k.y <= lo.y && k.y > 1) {
+	if (k.y < lo.y+2 && k.y > 1) {
 		lo.y = k.y - 2;
 	}
 
-	if (k.x >= ur.x && k.x < welt->gib_groesse_x() - 3) {
+	if (k.x > ur.x-2 && k.x < welt->gib_groesse_x() - 3) {
 		ur.x = k.x + 2;
 	}
-	if (k.y >= ur.y && k.y < welt->gib_groesse_y() - 3) {
+	if (k.y > ur.y-2 && k.y < welt->gib_groesse_y() - 3) {
 		ur.y = k.y + 2;
 	}
 }
