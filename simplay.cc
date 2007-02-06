@@ -952,8 +952,9 @@ DBG_MESSAGE("spieler_t::do_passenger_ki()","no suitable hub found");
 					// we want the fastest we can get!
 					road_vehicle = vehikelbauer_t::vehikel_search( road_wt, month_now, 10, 80, warenbauer_t::passagiere );
 					if(road_vehicle!=NULL) {
-						// find cheapest road
-						road_weg = wegbauer_t::weg_search( road_wt, road_vehicle->gib_geschw(), welt->get_timeline_year_month(),weg_t::type_flat );
+//						road_weg = wegbauer_t::weg_search( road_wt, road_vehicle->gib_geschw(), welt->get_timeline_year_month(),weg_t::type_flat );
+						// find the really cheapest road
+						road_weg = wegbauer_t::weg_search( road_wt, 10, welt->get_timeline_year_month(), weg_t::type_flat );
 						substate = NR_BAUE_STRASSEN_ROUTE;
 DBG_MESSAGE("spieler_t::do_passenger_ki()","using %s on %s",road_vehicle->gib_name(),road_weg->gib_name());
 					}

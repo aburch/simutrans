@@ -21,6 +21,7 @@
 #include "../simgraph.h"	// for unicode stuff
 #include "translator.h"
 #include "loadsave.h"
+#include "umgebung.h"
 #include "../simmem.h"
 #include "../utils/cstring_t.h"
 #include "../utils/searchfolder.h"
@@ -173,19 +174,27 @@ static void init_city_names(bool is_utf_language)
 	// try to read list
 
 	// @author prissi: first try in scenario
-	cstring_t local_file_name(szenario_path);
-	local_file_name = local_file_name + "text/citylist_" + translator::get_language_name_iso(translator::get_language()) + ".txt";
-	DBG_DEBUG("translator::init_city_names()", "try to read city name list '%s'", (const char*)local_file_name);
+	// not found => try user location
+	cstring_t local_file_name(umgebung_t::user_dir);
+	local_file_name = local_file_name+"citylist_"+translator::get_language_name_iso(translator::get_language()) + ".txt";
 	file = fopen(local_file_name, "rb");
-	DBG_DEBUG("translator::init_city_names()", "file %p",file);
-	fflush(NULL);
-	// not found => try usual location
+	DBG_DEBUG("translator::init_city_names()", "try to read city name list '%s'", (const char*)local_file_name);
 	if (file==NULL) {
-		cstring_t local_file_name("text/citylist_");
-		local_file_name = local_file_name+translator::get_language_name_iso(translator::get_language()) + ".txt";
+		cstring_t local_file_name(umgebung_t::program_dir);
+		local_file_name = local_file_name + szenario_path + "text/citylist_" + translator::get_language_name_iso(translator::get_language()) + ".txt";
 		DBG_DEBUG("translator::init_city_names()", "try to read city name list '%s'", (const char*)local_file_name);
 		file = fopen(local_file_name, "rb");
+		DBG_DEBUG("translator::init_city_names()", "try to read city name list '%s'", (const char*)local_file_name);
 	}
+	// not found => try old location
+	if (file==NULL) {
+		cstring_t local_file_name(umgebung_t::program_dir);
+		local_file_name = local_file_name+"text/citylist_"+translator::get_language_name_iso(translator::get_language()) + ".txt";
+		DBG_DEBUG("translator::init_city_names()", "try to read city name list '%s'", (const char*)local_file_name);
+		file = fopen(local_file_name, "rb");
+		DBG_DEBUG("translator::init_city_names()", "try to read city name list '%s'", (const char*)local_file_name);
+	}
+	fflush(NULL);
 	DBG_DEBUG("translator::init_city_names()","file %p",file);
 
 	if (file != NULL) {

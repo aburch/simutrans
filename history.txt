@@ -10,6 +10,7 @@ Known bugs: (hard to fix)
 	FIX: midi now loaded correctly (first in usedir/music/music.tab, then program_dir/music/music.tab)
 	FIX: unsigned long correctly loaded (i.e. load in schedules)
 	FIX: correct baum types in the correct climate (hopefully final fix)
+	CHANGE: bus AI will use always the cheapest road to survive a little longer
 
 
 Release of 99.08
