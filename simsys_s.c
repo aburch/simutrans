@@ -221,9 +221,10 @@ char *dr_query_homedir(void)
 		// could not create directory
 		// we assume success anyway
 	}
-        sprintf( b2, "%s/screenshot", buffer );
+	strcat( buffer, "/" );
+	sprintf( b2, "%sscreenshot", buffer );
 	mkdir( b2, 0700 );
-        sprintf( b2, "%s/save", buffer );
+	sprintf( b2, "%ssave", buffer );
 	mkdir( b2, 0700 );
 	return buffer;
 #endif

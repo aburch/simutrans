@@ -1,3 +1,9 @@
+
+
+
+	FIX: on unix multiuser environments the path seperator symbol was omitted
+
+
 Release of 99.08.1
 
 6-Feb-2007:
