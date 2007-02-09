@@ -46,7 +46,7 @@ void farbengui_t::infowin_event(const event_t *ev)
 			const int y = (ev->my-16)/8;
 			const int f = (y + x*8);
 			if(f>=0 && f<16) {
-				sp->set_player_color(f*4);
+				sp->set_player_color(f*8);
 				sp->gib_welt()->setze_dirty();
 			}
 		}

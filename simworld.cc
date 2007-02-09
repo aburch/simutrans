@@ -523,7 +523,7 @@ karte_t::init_felder()
 	reliefkarte_t::gib_karte()->setze_welt(this);
 
 	for(int i=0; i<MAX_PLAYER_COUNT ; i++) {
-		spieler[i] = new spieler_t(this, i*4, i);
+		spieler[i] = new spieler_t(this, i*8, i);
 	}
 	active_player = spieler[0];
 	active_player_nr = 0;
@@ -2132,13 +2132,12 @@ DBG_MESSAGE("karte_t::speichern(loadsave_t *file)", "saved %i convois",convoi_ar
 	}
 DBG_MESSAGE("karte_t::speichern(loadsave_t *file)", "saved players");
 
+	// centered on what?
 	file->rdwr_delim("View ");
 	sint32 dummy = ij_off.x;
 	file->rdwr_long(dummy, " ");
 	dummy = ij_off.y;
 	file->rdwr_long(dummy, "\n");
-
-	display_speichern( file->gib_file(), file->is_zipped());
 }
 
 
@@ -2480,8 +2479,6 @@ DBG_MESSAGE("karte_t::laden()", "players loaded");
 	else {
 		setze_ij_off(koord3d(mi,mj,0));
 	}
-
-	display_laden(file->gib_file(), file->is_zipped());
 
 DBG_MESSAGE("karte_t::laden()", "%d ways loaded",weg_t::gib_alle_wege().count());
 	for(y=0; y<gib_groesse_y(); y++) {

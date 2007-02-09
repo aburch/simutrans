@@ -203,14 +203,6 @@ struct clip_dimension display_gib_clip_wh(void);
 
 void display_snapshot(void);
 
-/**
- * Loading/Saving can be to a zlib or normal file handle
- * @author Volker Meyer
- * @date  20.06.2003
- */
-void display_laden(void* file, int zipped);
-void display_speichern(void* file, int zipped);
-
 #ifdef __cplusplus
 }
 #endif

@@ -43,7 +43,7 @@ static minivec_tpl <cstring_t> legend_names (128);
 static minivec_tpl <int> legend_colors (128);
 
 // @author hsiegeln
-const char map_frame_t::map_type[MAX_MAP_TYPE][64] =
+const char map_frame_t::map_type[MAX_BUTTON_TYPE][64] =
 {
     "Towns",
     "Passagiere",
@@ -60,12 +60,13 @@ const char map_frame_t::map_type[MAX_MAP_TYPE][64] =
     "Powerlines",
     "Tourists",
     "Factories",
-    "Depots"
+    "Depots",
+		"Forest"
 };
 
-const int map_frame_t::map_type_color[MAX_MAP_TYPE] =
+const uint8 map_frame_t::map_type_color[MAX_BUTTON_TYPE] =
 {
-  7, 11, 15, 132, 23, 27, 31, 35, 241, 7, 11, 71, 57, 81
+	15, 23, 31, 157, 46, 55, 63, 133, 79, 191, 207, 11, 123, 221, 71, 135, 127
 };
 
 
@@ -134,7 +135,7 @@ map_frame_t::map_frame_t(const karte_t *welt) :
 	// and now the buttons
 	// these will be only added to the window, when they are visible
 	// this is the only legal way to hide them
-	for (int type=0; type<MAX_MAP_TYPE; type++) {
+	for (int type=0; type<MAX_BUTTON_TYPE; type++) {
 		filter_buttons[type].init(button_t::box,translator::translate(map_type[type]), koord(0,0), koord(BUTTON_WIDTH, BUTTON_HEIGHT));
 		filter_buttons[type].add_listener(this);
 		filter_buttons[type].background = map_type_color[type];
@@ -179,14 +180,14 @@ map_frame_t::action_triggered(gui_komponente_t *komp,value_t /* */)
 
 	if(komp==&b_show_legend) {
 		if(!legend_visible) {
-			for (int type=0; type<MAX_MAP_TYPE; type++) {
+			for (int type=0; type<MAX_BUTTON_TYPE; type++) {
 				add_komponente(filter_buttons + type);
 			}
 			legend_visible = 1;
 		}
 		else {
 			// do not draw legend anymore
-			for (int type=0; type<MAX_MAP_TYPE; type++) {
+			for (int type=0; type<MAX_BUTTON_TYPE; type++) {
 				remove_komponente(filter_buttons + type);
 			}
 			legend_visible = 0;
@@ -232,7 +233,7 @@ map_frame_t::action_triggered(gui_komponente_t *komp,value_t /* */)
 		scrolly.setze_groesse( scrolly.gib_groesse() );
 	}
 	else {
-		for (int i=0;i<MAX_MAP_TYPE;i++) {
+		for (int i=0;i<MAX_BUTTON_TYPE;i++) {
 			if (komp == &filter_buttons[i]) {
 				if (is_filter_active[i]) {
 					is_filter_active[i] = false;
@@ -356,11 +357,11 @@ void map_frame_t::resize(const koord delta)
 
 	if(legend_visible) {
 		// calculate space with legend
-		col = max( 1, min( (groesse.x-2)/BUTTON_WIDTH, MAX_MAP_TYPE ) );
-		row = ((MAX_MAP_TYPE-1)/col)+1;
+		col = max( 1, min( (groesse.x-2)/BUTTON_WIDTH, MAX_BUTTON_TYPE ) );
+		row = ((MAX_BUTTON_TYPE-1)/col)+1;
 
 		// set button pos
-		for (int type=0; type<MAX_MAP_TYPE; type++) {
+		for (int type=0; type<MAX_BUTTON_TYPE; type++) {
 			koord pos = koord( 2+BUTTON_WIDTH*(type%col), 4+offset_y+BUTTON_HEIGHT*((int)type/col) );
 			filter_buttons[type].setze_pos( pos );
 		}
@@ -434,7 +435,7 @@ void map_frame_t::zeichnen(koord pos, koord gr)
 	}
 
 	// button state
-	for (int i = 0;i<MAX_MAP_TYPE;i++) {
+	for (int i = 0;i<MAX_BUTTON_TYPE;i++) {
 		filter_buttons[i].pressed = is_filter_active[i];
 	}
 
@@ -452,7 +453,7 @@ void map_frame_t::zeichnen(koord pos, koord gr)
 
 	int offset_y = BUTTON_HEIGHT*2 + 2 +16;
 	if(legend_visible) {
-		offset_y = 16+filter_buttons[MAX_MAP_TYPE-1].gib_pos().y+4+BUTTON_HEIGHT;
+		offset_y = 16+filter_buttons[MAX_BUTTON_TYPE-1].gib_pos().y+4+BUTTON_HEIGHT;
 	}
 
 	// draw scale

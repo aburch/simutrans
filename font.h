@@ -5,13 +5,14 @@
 extern "C" {
 #endif
 
+#include "simtypes.h"
 
 typedef struct font_type {
-	int	height;
-	int	descent;
-	unsigned int num_chars;
-	unsigned char* screen_width;
-	unsigned char* char_data;
+	sint16	height;
+	sint16	descent;
+	uint16 num_chars;
+	uint8 *screen_width;
+	uint8 *char_data;
 } font_type;
 
 /*

@@ -3,6 +3,7 @@
 #include <string.h>
 
 #include "simtypes.h"
+#include "simmem.h"
 #include "macros.h"
 #include "font.h"
 
@@ -250,10 +251,10 @@ bool load_font(font_type* fnt, const char* fname)
 		fclose(f);
 
 		// convert to new standard font
-		free(fnt->screen_width);
-		free(fnt->char_data);
-		fnt->screen_width = malloc(256);
-		fnt->char_data    = malloc(CHARACTER_LEN * 256);
+		guarded_free(fnt->screen_width);
+		guarded_free(fnt->char_data);
+		fnt->screen_width = guarded_malloc(256);
+		fnt->char_data    = guarded_malloc(CHARACTER_LEN * 256);
 		fnt->num_chars    = 256;
 		fnt->height       = 10;
 		fnt->descent      = -1;

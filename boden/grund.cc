@@ -649,7 +649,7 @@ grund_t::text_farbe() const
 	if(flags&is_halt_flag) {
 		const spieler_t *sp=welt->lookup(pos.gib_2d())->gib_halt()->gib_besitzer();
 		if(sp) {
-			return PLAYER_FLAG|((sp->get_player_color()*4)+4);
+			return PLAYER_FLAG|(sp->get_player_color()+4);
 		}
 	}
 
@@ -657,7 +657,7 @@ grund_t::text_farbe() const
 	if(obj_bei(0)) {
 		const spieler_t *sp = obj_bei(0)->gib_besitzer();
 		if(sp) {
-			return PLAYER_FLAG|((sp->get_player_color()*4)+4);
+			return PLAYER_FLAG|(sp->get_player_color()+4);
 		}
 	}
 

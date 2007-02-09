@@ -123,7 +123,7 @@ void display_flush(int season_img, int stunden4, double konto, const char* day_s
 	display_proportional(20, disp_height-12, buffer, ALIGN_LEFT, COL_BLACK, TRUE);
 
 	if(player_name!=NULL) {
-		display_proportional(256, disp_height-12, player_name, ALIGN_MIDDLE, PLAYER_FLAG|(player_color*4), TRUE);
+		display_proportional(256, disp_height-12, player_name, ALIGN_MIDDLE, PLAYER_FLAG|(player_color+4), TRUE);
 	}
 
 	money_to_string(buffer, konto);

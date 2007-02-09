@@ -37,10 +37,11 @@ karte_t * reliefkarte_t::welt = NULL;
 reliefkarte_t::MAP_MODES reliefkarte_t::mode = MAP_TOWN;
 bool reliefkarte_t::is_visible = false;
 
-const uint8 reliefkarte_t::map_type_color[MAX_MAP_TYPE] =
+// color for the land
+const uint8 reliefkarte_t::map_type_color[MAX_MAP_TYPE_WATER+MAX_MAP_TYPE_LAND] =
 {
-//  7, 11, 15, 132, 23, 31, 35, 7
-  248, 7, 11, 15, 132, 23, 27, 31, 35, 241, 7, 124, 31, 71, 55, 11
+	97, 99, 19, 21, 23,
+	160, 161, 162, 163, 164, 165, 166, 167, 205, 206, 207, 173, 175, 15
 };
 
 const uint8 reliefkarte_t::severity_color[MAX_SEVERITY_COLORS] =
@@ -169,71 +170,10 @@ reliefkarte_t::setze_relief_farbe_area(koord k, int areasize, uint8 color)
 uint8
 reliefkarte_t::calc_hoehe_farbe(const sint16 hoehe, const sint16 grundwasser)
 {
-	uint8 color;
-
-	if(hoehe <= grundwasser) {
-		switch(grundwasser-hoehe) {
-			case 0:
-				color = 223;
-				break;
-			case 1:
-				color = 222;
-				break;
-			case 2:
-				color = 221;
-				break;
-			case 3:
-				color = 220;
-				break;
-			case 4:
-				color = 219;
-				break;
-			default:
-				color = 218;
-				break;
-		}
-	}
-	else {
-		switch(hoehe-grundwasser) {
-			case 0:
-				color = 223;
-				break;
-			case 1:
-				color = 183;
-				break;
-			case 2:
-				color = 162;
-				break;
-			case 3:
-				color = 163;
-				break;
-			case 4:
-				color = 164;
-				break;
-			case 5:
-				color = 165;
-				break;
-			case 6:
-				color = 166;
-				break;
-			case 7:
-				color = 167;
-				break;
-			case 8:
-				color = 161;
-				break;
-			case 9:
-				color = 182;
-				break;
-			case 10:
-				color = 147;
-				break;
-			default:
-				color = 199;
-				break;
-		}
-	}
-	return color;
+	sint8 index = (hoehe-grundwasser)+MAX_MAP_TYPE_WATER;
+	if(index<0) index = 0;
+	if(index>=MAX_MAP_TYPE_WATER+MAX_MAP_TYPE_LAND) index = MAX_MAP_TYPE_WATER+MAX_MAP_TYPE_LAND-1;
+	return map_type_color[index];
 }
 
 
@@ -355,7 +295,7 @@ reliefkarte_t::calc_map_pixel(const koord k)
 			{
 				halthandle_t halt = gr->gib_halt();
 				if (halt.is_bound()    &&  halt->get_pax_enabled()) {
-					setze_relief_farbe_area(k, (welt->gib_einstellungen()->gib_station_coverage()*2)+1, halt->gib_besitzer()->get_player_color() );
+					setze_relief_farbe_area(k, (welt->gib_einstellungen()->gib_station_coverage()*2)+1, halt->gib_besitzer()->get_player_color()+3 );
 				}
 			}
 			break;
@@ -366,7 +306,7 @@ reliefkarte_t::calc_map_pixel(const koord k)
 			{
 				halthandle_t halt = gr->gib_halt();
 				if (halt.is_bound()  &&  halt->get_post_enabled()) {
-					setze_relief_farbe_area(k, (welt->gib_einstellungen()->gib_station_coverage()*2)+1,halt->gib_besitzer()->get_player_color() );
+					setze_relief_farbe_area(k, (welt->gib_einstellungen()->gib_station_coverage()*2)+1,halt->gib_besitzer()->get_player_color()+3 );
 				}
 			}
 			break;

@@ -78,59 +78,55 @@ void gui_chart_t::show_curve(unsigned int id)
 void
 gui_chart_t::zeichnen(koord offset)
 {
-    offset += pos;
+	offset += pos;
 
-    sint64 last_year=0, tmp=0;
-    char cmin[128] = "0", cmax[128] = "0", digit[8];
+	sint64 last_year=0, tmp=0;
+	char cmin[128] = "0", cmax[128] = "0", digit[8];
 
-    sint64 baseline = 0;
-    sint64* pbaseline = &baseline;
+	sint64 baseline = 0;
+	sint64* pbaseline = &baseline;
 
-    float scale = 0;
-    float* pscale = &scale;
+	float scale = 0;
+	float* pscale = &scale;
 
-    curve_t c;
+	curve_t c;
 
-    // calc baseline and scale
-    calc_gui_chart_values(pbaseline, pscale, cmin, cmax);
+	// calc baseline and scale
+	calc_gui_chart_values(pbaseline, pscale, cmin, cmax);
 
+	// Hajo: draw background if desired
+	if(background != -1) {
+		display_fillbox_wh_clip(offset.x, offset.y, groesse.x, groesse.y, background, false);
+	}
 
-    // Hajo: draw background if desired
-    if(background != -1) {
-      display_fillbox_wh_clip(offset.x, offset.y, groesse.x, groesse.y, background, false);
-    }
+	// draw zero line
+	display_direct_line(offset.x+1, offset.y+baseline, offset.x+groesse.x-2, offset.y+baseline, MN_GREY4);
 
-    // draw zero line
-    display_direct_line(offset.x+1, offset.y+baseline, offset.x+groesse.x-2, offset.y+baseline, 5);
+	if (show_y_axis) {
 
-    if (show_y_axis) {
+		// draw zero number only, if it will not disturb any other printed values!
+		if ((baseline > 18) && (baseline < groesse.y -18)) {
+			display_proportional_clip(offset.x - 4, offset.y+baseline-3, "0", ALIGN_RIGHT, COL_WHITE, true );
+		}
 
-      // draw zero number only, if it will not disturb any other printed values!
-      if ((baseline > 18) && (baseline < groesse.y -18)) {
-		display_proportional_clip(offset.x - 4, offset.y+baseline-3, "0", ALIGN_RIGHT, COL_WHITE, true );
-      }
+		// display min/max money values
+		display_proportional_clip(offset.x - 4, offset.y-5, cmax, ALIGN_RIGHT, COL_WHITE, true );
+		display_proportional_clip(offset.x - 4, offset.y+groesse.y-5, cmin, ALIGN_RIGHT, COL_WHITE, true );
+	}
 
-      // display min/max money values
-      display_proportional_clip(offset.x - 4, offset.y-5, cmax, ALIGN_RIGHT, COL_WHITE, true );
+	// draw chart frame
+	display_ddd_box_clip(offset.x, offset.y, groesse.x, groesse.y, COL_GREY1, COL_WHITE);
 
-      display_proportional_clip(offset.x - 4, offset.y+groesse.y-5, cmin, ALIGN_RIGHT, COL_WHITE, true );
-    }
-
-    // draw chart frame
-    display_ddd_box_clip(offset.x, offset.y, groesse.x, groesse.y, COL_GREY1, COL_WHITE);
-
-    // draw chart lines
-    for (int i = 0; i<x_elements; i++) {
+	// draw chart lines
+	for (int i = 0; i<x_elements; i++) {
 		if (show_x_axis) {
 			// display x-axis
 			sprintf(digit, "%i", abs(seed-i));
-			display_proportional_clip(offset.x+(groesse.x / (x_elements - 1))*i - (seed != i ? (int)(2*log((double)abs((seed-i)))) : 0),
-					     offset.y+groesse.y+6,
-					     digit, ALIGN_LEFT, 4, true );
+			display_proportional_clip(offset.x+(groesse.x / (x_elements - 1))*i - (seed != i ? (int)(2*log((double)abs((seed-i)))) : 0), offset.y+groesse.y+6, digit, ALIGN_LEFT, MN_GREY4, true );
 		}
-	// year's vertical lines
-	display_vline_wh_clip(offset.x+(groesse.x / (x_elements - 1))*i, offset.y+1, groesse.y-2, 5, false);
-    }
+		// year's vertical lines
+		display_vline_wh_clip(offset.x+(groesse.x / (x_elements - 1))*i, offset.y+1, groesse.y-2, MN_GREY4, false);
+	}
 
 	// display current value?
 	int tooltip_n=-1;
@@ -140,14 +136,14 @@ gui_chart_t::zeichnen(koord offset)
 
 	// draw chart's curves
 	for (unsigned int n=0; n < curves.count(); n++) {
-	c = curves.at(n);
-	if (c.show) {
-		// for each curve iterate through all elements and display curve
-		for (int i=0;i<c.elements;i++) {
-			//tmp=c.values[year*c.size+c.offset];
-			c.type == 0 ? tmp = c.values[i*c.size+c.offset] : tmp = c.values[i*c.size+c.offset] / 100;
-			// display marker(box) for financial value
-			display_fillbox_wh_clip(offset.x+(groesse.x / (x_elements - 1))*i-2, offset.y+baseline- (int)(tmp/scale)-2, 5, 5, c.color, true);
+		c = curves.at(n);
+		if (c.show) {
+			// for each curve iterate through all elements and display curve
+			for (int i=0;i<c.elements;i++) {
+				//tmp=c.values[year*c.size+c.offset];
+				c.type == 0 ? tmp = c.values[i*c.size+c.offset] : tmp = c.values[i*c.size+c.offset] / 100;
+				// display marker(box) for financial value
+				display_fillbox_wh_clip(offset.x+(groesse.x / (x_elements - 1))*i-2, offset.y+baseline- (int)(tmp/scale)-2, 5, 5, c.color, true);
 
 				// display tooltip?
 				if(i==tooltip_n  &&  abs((int)(baseline-(int)(tmp/scale)-tooltipkoord.y))<10) {
@@ -155,26 +151,26 @@ gui_chart_t::zeichnen(koord offset)
 					win_set_tooltip( gib_maus_x()+16, gib_maus_y()-16, tooltip );
 				}
 
-			// draw line between two financial markers; this is only possible from the second value on
-			if (i>0) {
-				display_direct_line(offset.x+(groesse.x / (x_elements - 1))*(i-1),
-						    offset.y+baseline-(int)(last_year/scale),
-						    offset.x+(groesse.x / (x_elements - 1))*i,
-						    offset.y+baseline-(int)(tmp/scale),
-						    c.color);
-			} else {
-				// for the first element print the current value (optionally)
-				// only print value if not too narrow to min/max/zero
-				if ((c.show_value) && (baseline-tmp/scale-8 > 0) && (baseline-tmp/scale+8 < groesse.y) && (abs((int)(tmp/scale)) > 9)) {
-					number_to_string(cmin, tmp);
-					display_proportional_clip(offset.x - 4, offset.y+baseline-(int)(tmp/scale)-4, cmin, ALIGN_RIGHT, 4/*c.color*/, true );
+				// draw line between two financial markers; this is only possible from the second value on
+				if (i>0) {
+					display_direct_line(offset.x+(groesse.x / (x_elements - 1))*(i-1),
+						offset.y+baseline-(int)(last_year/scale),
+						offset.x+(groesse.x / (x_elements - 1))*i,
+						offset.y+baseline-(int)(tmp/scale),
+						c.color);
+				} else {
+					// for the first element print the current value (optionally)
+					// only print value if not too narrow to min/max/zero
+					if ((c.show_value) && (baseline-tmp/scale-8 > 0) && (baseline-tmp/scale+8 < groesse.y) && (abs((int)(tmp/scale)) > 9)) {
+						number_to_string(cmin, tmp);
+						display_proportional_clip(offset.x - 4, offset.y+baseline-(int)(tmp/scale)-4, cmin, ALIGN_RIGHT, c.color, true );
+					}
 				}
+				last_year=tmp;
 			}
-			last_year=tmp;
 		}
+		last_year=tmp=0;
 	}
-	last_year=tmp=0;
-    }
 
 }
 
@@ -209,7 +205,6 @@ gui_chart_t::calc_gui_chart_values(sint64 *baseline, float *scale, char *cmin, c
 			}
 		}
 	}
-
 
 	number_to_string(cmin, min);
 	number_to_string(cmax, max);

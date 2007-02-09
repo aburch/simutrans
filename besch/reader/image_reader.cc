@@ -41,32 +41,67 @@ obj_besch_t *  image_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 	// Hajo: reading buffer is better allocated on stack
 	char besch_buf [node.size];
 #endif
-
-	bild_besch_t* besch = new(node.size - 12) bild_besch_t();
-	besch->node_info = new obj_besch_t*[node.children];
+	bild_besch_t* besch=NULL;
 
 	// Hajo: Read data
 	fread(besch_buf, node.size, 1, fp);
-	char * p = besch_buf;
+	char * p = besch_buf+6;
 
-	besch->pic.x = decode_uint8(p);
-	besch->pic.w = decode_uint8(p);
-	besch->pic.y = decode_uint8(p);
-	besch->pic.h = decode_uint8(p);
-	besch->pic.len = decode_uint32(p);
-	besch->pic.bild_nr = IMG_LEER;
-	decode_uint16(p);	// dummys
-	besch->pic.zoomable = decode_uint8(p);
+	// always zero in old version, since length was always less than 65535
+	// because a node could not hold more data
+	uint8 version = decode_uint8(p);
+	p = besch_buf;
+	//DBG_MESSAGE("bild_besch_t::read_node()","version %i",version);
 
-//	DBG_DEBUG("bild_besch_t::read_node()","x,y=%d,%d  w,h=%d,%d",besch->x,besch->y,besch->w,besch->h);
+	if(version==0) {
+		besch = new(node.size - 12) bild_besch_t();
+		besch->node_info = new obj_besch_t*[node.children];
 
-	uint16* dest = besch->pic.data;
-	p = besch_buf+12;
-	if (besch->pic.h > 0) {
-		for (uint i = 0; i < besch->pic.len; i++) {
-			*dest++ = decode_uint16(p);
+		besch->pic.x = decode_uint8(p);
+		besch->pic.w = decode_uint8(p);
+		besch->pic.y = decode_uint8(p);
+		besch->pic.h = decode_uint8(p);
+		besch->pic.len = (uint16)decode_uint32(p);
+		besch->pic.bild_nr = IMG_LEER;
+		p += 2;	// dummys
+		besch->pic.zoomable = decode_uint8(p);
+
+		//DBG_DEBUG("bild_besch_t::read_node()","x,y=%d,%d  w,h=%d,%d, len=%i",besch->pic.x,besch->pic.y,besch->pic.w,besch->pic.h, besch->pic.len);
+
+		uint16* dest = besch->pic.data;
+		p = besch_buf+12;
+		if (besch->pic.h > 0) {
+			for (uint i = 0; i < besch->pic.len; i++) {
+				uint16 data = decode_uint16(p);
+				if(data>=0x8000u  &&  data<=0x800Fu) {
+					// player color offset changed
+					data ++;
+				}
+				*dest++ = data;
+			}
 		}
-//		DBG_DEBUG("bild_besch_t::read_node()","size %d, struct+2*len=%d, read=%d",node.size+4,sizeof(bild_besch_t)+2*besch->len,(int)(p-besch_buf));
+	}
+	else if(version==1) {
+		besch = new(node.size - 9) bild_besch_t();
+		besch->node_info = new obj_besch_t*[node.children];
+
+		besch->pic.x = decode_uint16(p);
+		besch->pic.y = decode_uint16(p);
+		besch->pic.w = decode_uint8(p);
+		besch->pic.h = decode_uint8(p);
+		besch->pic.len = decode_uint16(p);
+		besch->pic.zoomable = decode_uint8(p);
+		besch->pic.bild_nr = IMG_LEER;
+
+		uint16* dest = besch->pic.data;
+		if (besch->pic.h > 0) {
+			for (uint i = 0; i < besch->pic.len; i++) {
+				*dest++ = decode_uint16(p);
+			}
+		}
+	}
+	else {
+		dbg->fatal("image_reader_t::read_node()","illegal versions %d", version );
 	}
 
 	return besch;

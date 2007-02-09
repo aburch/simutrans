@@ -23,13 +23,13 @@ extern "C" {
 #include "../simimg.h"
 
 struct bild_t {
-	uint8 x;
+	sint16 x;
+	sint16 y;
 	uint8 w;
-	uint8 y;
 	uint8 h;
-	uint32 len;
-	image_id bild_nr;	// Speichern wir erstmal als Dummy mit, wird von register_image() ersetzt
 	uint8 zoomable; // some image may not be zoomed i.e. icons
+	uint16 len;	// since the maximum size of a node is uint16!
+	image_id bild_nr;	// Speichern wir erstmal als Dummy mit, wird von register_image() ersetzt
 	uint16 data[];
 };
 

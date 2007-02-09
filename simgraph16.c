@@ -90,20 +90,9 @@ static font_type	large_font;
 // needed for gui
 int large_font_height = 10;
 
+#define LIGHT_COUNT (14)
 
-static unsigned char day_pal[256 * 3];
-
-
-/*
- * Hajo: player colors daytime RGB values
- * 16 sets of 16 colors each. At the moment only 7 of the
- * 16 colors of a set are used.
- * Last 16 colors are recolored player 0 color set
- */
-static unsigned char special_pal[256 * 3 + 16 * 3];
-
-
-#define RGBMAPSIZE (0x8000 + 29)
+#define RGBMAPSIZE (0x8000+LIGHT_COUNT+16)
 
 
 /*
@@ -131,12 +120,6 @@ static PIXVAL *rgbmap_current = 0;
 
 
 /*
- * Hajo: mapping tables for Simutrans colormap to actual output format
- */
-static PIXVAL rgbcolormap[256];
-
-
-/*
  * Hajo: mapping table for specialcolors (AI player colors)
  * to actual output format - day&night mode
  * 16 sets of 16 colors
@@ -160,30 +143,23 @@ static PIXVAL* specialcolormap_current = 0;
 
 
 /*
- * Hajo: Currently selected color set for player 0 (0..15)
- */
-static int selected_player_color_set = 0;
-
-
-/*
  * Hajo: Image map descriptor struture
  */
 struct imd {
-	unsigned char base_x; // current min x offset
-	unsigned char base_w; // current width
-	unsigned char base_y; // current min y offset
-	unsigned char base_h; // current width
+	sint16 base_x; // min x offset
+	sint16 base_y; // min y offset
+	uint8 base_w; //  width
+	uint8 base_h; // height
 
-	unsigned char x; // current (zoomed) min x offset
-	unsigned char w; // current (zoomed) width
-	unsigned char y; // current (zoomed) min y offset
-	unsigned char h; // current (zoomed) width
+	sint16 x; // current (zoomed) min x offset
+	sint16 y; // current (zoomed) min y offset
+	uint8 w; // current (zoomed) width
+	uint8 h; // current (zoomed) height
 
-	unsigned int len; // base image data size (used for allocation purposes only)
+	uint16 len; // base image data size (used for allocation purposes only)
 
-	unsigned char recode_flags; // divers flags for recoding
-	unsigned char player_flags; // 128 = free/needs recode, otherwise coded to this color in player_data
-	unsigned char oo,  pp; // unused, just to make this structure 32 bytes long
+	uint8 recode_flags; // divers flags for recoding
+	uint8 player_flags; // 128 = free/needs recode, otherwise coded to this color in player_data
 
 	PIXVAL* data; // current data, zoomed and adapted to output format RGB 555 or RGB 565
 
@@ -251,50 +227,279 @@ static int tile_buffer_length = 0;
 
 
 static int light_level = 0;
-static int color_level = 1;
-
 static int night_shift = -1;
 
-
-#define LIGHT_COUNT 13
 
 /*
  * Hajo: speical colors during daytime
  */
-static const int day_lights[LIGHT_COUNT] = {
-	0x57656F, // Dark windows, lit yellowish at night
-	0x7F9BF1, // Lighter windows, lit blueish at night
-	0xFFFF53, // Yellow light
-	0xFF211D, // Red light
-	0x01DD01, // Green light
-	0x6B6B6B, // Non-darkening grey 1 (menus)
-	0x9B9B9B, // Non-darkening grey 2 (menus)
-	0xB3B3B3, // non-darkening grey 3 (menus)
-	0xC9C9C9, // Non-darkening grey 4 (menus)
-	0xDFDFDF, // Non-darkening grey 5 (menus)
-	0xE3E3FF, // Nearly white light at day, yellowish light at night
-	0xC1B1D1, // Windows, lit yellow
-	0x4D4D4D, // Windows, lit yellow
+static const uint8 day_lights[LIGHT_COUNT*3] = {
+	0x57,	0x65,	0x6F, // Dark windows, lit yellowish at night
+	0x7F,	0x9B,	0xF1, // Lighter windows, lit blueish at night
+	0xFF,	0xFF,	0x53, // Yellow light
+	0xFF,	0x21,	0x1D, // Red light
+	0x01,	0xDD,	0x01, // Green light
+	0x6B,	0x6B,	0x6B, // Non-darkening grey 1 (menus)
+	0x9B,	0x9B,	0x9B, // Non-darkening grey 2 (menus)
+	0xB3,	0xB3,	0xB3, // non-darkening grey 3 (menus)
+	0xC9,	0xC9,	0xC9, // Non-darkening grey 4 (menus)
+	0xDF,	0xDF,	0xDF, // Non-darkening grey 5 (menus)
+	0xE3,	0xE3,	0xFF, // Nearly white light at day, yellowish light at night
+	0xC1,	0xB1,	0xD1, // Windows, lit yellow
+	0x4D,	0x4D,	0x4D, // Windows, lit yellow
+	0xE1,	0x00,	0xE1, // purple light for signals
 };
 
 
 /*
  * Hajo: speical colors during nighttime
  */
-static const int night_lights[LIGHT_COUNT] = {
-	0xD3C380, // Dark windows, lit yellowish at night
-	0x80C3D3, // Lighter windows, lit blueish at night
-	0xFFFF53, // Yellow light
-	0xFF211D, // Red light
-	0x01DD01, // Green light
-	0x6B6B6B, // Non-darkening grey 1 (menus)
-	0x9B9B9B, // Non-darkening grey 2 (menus)
-	0xB3B3B3, // non-darkening grey 3 (menus)
-	0xC9C9C9, // Non-darkening grey 4 (menus)
-	0xDFDFDF, // Non-darkening grey 5 (menus)
-	0xFFFFE3, // Nearly white light at day, yellowish light at night
-	0xD3C380, // Windows, lit yellow
-	0xD3C380, // Windows, lit yellow
+static const uint8 night_lights[LIGHT_COUNT*3] = {
+	0xD3,	0xC3,	0x80, // Dark windows, lit yellowish at night
+	0x80,	0xC3,	0xD3, // Lighter windows, lit blueish at night
+	0xFF,	0xFF,	0x53, // Yellow light
+	0xFF,	0x21,	0x1D, // Red light
+	0x01,	0xDD,	0x01, // Green light
+	0x6B,	0x6B,	0x6B, // Non-darkening grey 1 (menus)
+	0x9B,	0x9B,	0x9B, // Non-darkening grey 2 (menus)
+	0xB3,	0xB3,	0xB3, // non-darkening grey 3 (menus)
+	0xC9,	0xC9,	0xC9, // Non-darkening grey 4 (menus)
+	0xDF,	0xDF,	0xDF, // Non-darkening grey 5 (menus)
+	0xFF,	0xFF,	0xE3, // Nearly white light at day, yellowish light at night
+	0xD3,	0xC3,	0x80, // Windows, lit yellow
+	0xD3,	0xC3,	0x80, // Windows, lit yellow
+	0xE1,	0x00,	0xE1, // purple light for signals
+};
+
+
+// the players colors and colors for simple drawing operations
+// each eight colors are corresponding to a player color
+static const uint8 special_pal[224*3]=
+{
+	36, 75, 103,
+	57, 94, 124,
+	76, 113, 145,
+	96, 132, 167,
+	116, 151, 189,
+	136, 171, 211,
+	156, 190, 233,
+	176, 210, 255,
+	88, 88, 88,
+	107, 107, 107,
+	125, 125, 125,
+	144, 144, 144,
+	162, 162, 162,
+	181, 181, 181,
+	200, 200, 200,
+	219, 219, 219,
+	17, 55, 133,
+	27, 71, 150,
+	37, 86, 167,
+	48, 102, 185,
+	58, 117, 202,
+	69, 133, 220,
+	79, 149, 237,
+	90, 165, 255,
+	123, 88, 3,
+	142, 111, 4,
+	161, 134, 5,
+	180, 157, 7,
+	198, 180, 8,
+	217, 203, 10,
+	236, 226, 11,
+	255, 249, 13,
+	86, 32, 14,
+	110, 40, 16,
+	134, 48, 18,
+	158, 57, 20,
+	182, 65, 22,
+	206, 74, 24,
+	230, 82, 26,
+	255, 91, 28,
+	34, 59, 10,
+	44, 80, 14,
+	53, 101, 18,
+	63, 122, 22,
+	77, 143, 29,
+	92, 164, 37,
+	106, 185, 44,
+	121, 207, 52,
+	0, 86, 78,
+	0, 108, 98,
+	0, 130, 118,
+	0, 152, 138,
+	0, 174, 158,
+	0, 196, 178,
+	0, 218, 198,
+	0, 241, 219,
+	74, 7, 122,
+	95, 21, 139,
+	116, 37, 156,
+	138, 53, 173,
+	160, 69, 191,
+	181, 85, 208,
+	203, 101, 225,
+	225, 117, 243,
+	59, 41, 0,
+	83, 55, 0,
+	107, 69, 0,
+	131, 84, 0,
+	155, 98, 0,
+	179, 113, 0,
+	203, 128, 0,
+	227, 143, 0,
+	87, 0, 43,
+	111, 11, 69,
+	135, 28, 92,
+	159, 45, 115,
+	183, 62, 138,
+	230, 74, 174,
+	245, 121, 194,
+	255, 156, 209,
+	20, 48, 10,
+	44, 74, 28,
+	68, 99, 45,
+	93, 124, 62,
+	118, 149, 79,
+	143, 174, 96,
+	168, 199, 113,
+	193, 225, 130,
+	54, 19, 29,
+	82, 44, 44,
+	110, 69, 58,
+	139, 95, 72,
+	168, 121, 86,
+	197, 147, 101,
+	226, 173, 115,
+	255, 199, 130,
+	8, 11, 100,
+	14, 22, 116,
+	20, 33, 139,
+	26, 44, 162,
+	41, 74, 185,
+	57, 104, 208,
+	76, 132, 231,
+	96, 160, 255,
+	43, 30, 46,
+	68, 50, 85,
+	93, 70, 110,
+	118, 91, 130,
+	143, 111, 170,
+	168, 132, 190,
+	193, 153, 210,
+	219, 174, 230,
+	63, 18, 12,
+	90, 38, 30,
+	117, 58, 42,
+	145, 78, 55,
+	172, 98, 67,
+	200, 118, 80,
+	227, 138, 92,
+	255, 159, 105,
+	11, 68, 30,
+	33, 94, 56,
+	54, 120, 81,
+	76, 147, 106,
+	98, 174, 131,
+	120, 201, 156,
+	142, 228, 181,
+	164, 255, 207,
+	64, 0, 0,
+	96, 0, 0,
+	128, 0, 0,
+	192, 0, 0,
+	255, 0, 0,
+	255, 64, 64,
+	255, 96, 96,
+	255, 128, 128,
+	0, 128, 0,
+	0, 196, 0,
+	0, 225, 0,
+	0, 240, 0,
+	0, 255, 0,
+	64, 255, 64,
+	94, 255, 94,
+	128, 255, 128,
+	0, 0, 128,
+	0, 0, 192,
+	0, 0, 224,
+	0, 0, 255,
+	0, 64, 255,
+	0, 94, 255,
+	0, 106, 255,
+	0, 128, 255,
+	128, 64, 0,
+	193, 97, 0,
+	215, 107, 0,
+	255, 128, 0,
+	255, 128, 0,
+	255, 149, 43,
+	255, 170, 85,
+	255, 193, 132,
+	8, 52, 0,
+	16, 64, 0,
+	32, 80, 4,
+	48, 96, 4,
+	64, 112, 12,
+	84, 132, 20,
+	104, 148, 28,
+	128, 168, 44,
+	164, 164, 0,
+	193, 193, 0,
+	215, 215, 0,
+	255, 255, 0,
+	255, 255, 32,
+	255, 255, 64,
+	255, 255, 128,
+	255, 255, 172,
+	32, 4, 0,
+	64, 20, 8,
+	84, 28, 16,
+	108, 44, 28,
+	128, 56, 40,
+	148, 72, 56,
+	168, 92, 76,
+	184, 108, 88,
+	64, 0, 0,
+	96, 8, 0,
+	112, 16, 0,
+	120, 32, 8,
+	138, 64, 16,
+	156, 72, 32,
+	174, 96, 48,
+	192, 128, 64,
+	32, 32, 0,
+	64, 64, 0,
+	96, 96, 0,
+	128, 128, 0,
+	144, 144, 0,
+	172, 172, 0,
+	192, 192, 0,
+	224, 224, 0,
+	64, 96, 8,
+	80, 108, 32,
+	96, 120, 48,
+	112, 144, 56,
+	128, 172, 64,
+	150, 210, 68,
+	172, 238, 80,
+	192, 255, 96,
+	32, 32, 32,
+	48, 48, 48,
+	64, 64, 64,
+	80, 80, 80,
+	96, 96, 96,
+	172, 172, 172,
+	236, 236, 236,
+	255, 255, 255,
+	41, 41, 54,
+	60, 45, 70,
+	75, 62, 108,
+	95, 77, 136,
+	113, 105, 150,
+	135, 120, 176,
+	165, 145, 218,
+	198, 191, 232,
 };
 
 
@@ -784,40 +989,6 @@ static int load_palette(const char *filename, unsigned char *palette)
 }
 
 
-/**
- * Loads the special colors map
- * @author Hj. Malthaner
- */
-static int load_special_palette(void)
-{
-	const char *fname = PALETTE_PATH_X "special.pal";
-
-	FILE *file = fopen(fname, "rt");
-
-	if (file) {
-		int i, R,G,B;
-		unsigned char* p = special_pal;
-
-		// Hajo: skip number of colors entry
-		fscanf(file, "%*d\n");
-
-		// Hajo: read colors
-		for (i = 0; i < 256; i++) {
-			fscanf(file, "%d %d %d\n", &R, &G, &B);
-
-			*p++ = R;
-			*p++ = G;
-			*p++ = B;
-		}
-
-		fclose(file);
-	} else {
-		fprintf(stderr, "Error: can't open file '%s' for reading\n", fname);
-	}
-
-	return file != NULL;
-}
-
 
 sint16 display_get_width(void)
 {
@@ -847,26 +1018,6 @@ sint16 display_set_height(KOORD_VAL h)
 int display_get_light(void)
 {
 	return light_level;
-}
-
-
-/**
- * Setzt Farbeinstellungen
- * @author Hj. Malthaner
- */
-static void display_set_color(int new_color_level)
-{
-	color_level = new_color_level;
-
-	if (color_level < 0) color_level = 0;
-	if (color_level > 3) color_level = 3;
-
-	switch (color_level) {
-		case 0: load_palette(PALETTE_PATH_X "simud70.pal",  day_pal); break;
-		case 1: load_palette(PALETTE_PATH_X "simud80.pal",  day_pal); break;
-		case 2: load_palette(PALETTE_PATH_X "simud90.pal",  day_pal); break;
-		case 3: load_palette(PALETTE_PATH_X "simud100.pal", day_pal); break;
-	}
 }
 
 
@@ -981,57 +1132,42 @@ static void calc_base_pal_from_night_shift(const int night)
 		rgbmap_day_night[i] = get_system_color(R, G, B);
 	}
 
-	// player 0 colors, unshaded
-	for (i = 0; i < 4; i++) {
-		const int R = day_pal[i * 3 + 0];
-		const int G = day_pal[i * 3 + 1];
-		const int B = day_pal[i * 3 + 2];
+	// player color map (and used for map display etc.)
+	for (i = 0; i < 224; i++) {
+		const int R = (int)(special_pal[i*3 + 0] * RG_nihgt_multiplier);
+		const int G = (int)(special_pal[i*3 + 1] * RG_nihgt_multiplier);
+		const int B = (int)(special_pal[i*3 + 2] * B_nihgt_multiplier);
 
-		rgbcolormap[i] =
-			get_system_color(R > 0 ? R : 0, G > 0 ? G : 0, B > 0 ? B : 0);
+		specialcolormap_day_night[i] = get_system_color(R, G, B);
 	}
-
-	// player 0 colors, shaded
-	for (i = 0; i < 16; i++) {
-		const int R = (int)(special_pal[(256 + i) * 3 + 0] * RG_nihgt_multiplier);
-		const int G = (int)(special_pal[(256 + i) * 3 + 1] * RG_nihgt_multiplier);
-		const int B = (int)(special_pal[(256 + i) * 3 + 2] * B_nihgt_multiplier);
-
-		specialcolormap_day_night[i] = rgbmap_day_night[0x8000 + i] =
-			get_system_color(R > 0 ? R : 0, G > 0 ? G : 0, B > 0 ? B : 0);
-
-		specialcolormap_all_day[i] = get_system_color(
-			special_pal[(256 + i) * 3 + 0],
-			special_pal[(256 + i) * 3 + 1],
-			special_pal[(256 + i) * 3 + 2]
-		);
+	// special light colors (actually, only non-darkening greys should be used
+	for(i=0;  i<LIGHT_COUNT;  i++  ) {
+		specialcolormap_day_night[i+224] = get_system_color( day_lights[i*3 + 0], day_lights[i*3 + 1], 	day_lights[i*3 + 2] );
+	}
+	// init with black for forbidden colors
+	for(i=224+LIGHT_COUNT;  i<256;  i++  ) {
+		specialcolormap_day_night[i] = 0;
+	}
+	// default player colors
+	for(i=0;  i<16;  i++  ) {
+		rgbmap_day_night[0x8000+i] = specialcolormap_day_night[i];
 	}
 
 	// Lights
 	for (i = 0; i < LIGHT_COUNT; i++) {
-		const int day_R =  day_lights[i] >> 16;
-		const int day_G = (day_lights[i] >> 8) & 0xFF;
-		const int day_B =  day_lights[i] & 0xFF;
+		const int day_R = day_lights[i*3+0];
+		const int day_G = day_lights[i*3+1];
+		const int day_B = day_lights[i*3+2];
 
-		const int night_R =  night_lights[i] >> 16;
-		const int night_G = (night_lights[i] >> 8) & 0xFF;
-		const int night_B =  night_lights[i] & 0xFF;
+		const int night_R = night_lights[i*3+0];
+		const int night_G = night_lights[i*3+1];
+		const int night_B = night_lights[i*3+2];
 
 		const int R = (day_R * day + night_R * night) >> 2;
 		const int G = (day_G * day + night_G * night) >> 2;
 		const int B = (day_B * day + night_B * night) >> 2;
 
 		rgbmap_day_night[0x8010 + i] =
-			get_system_color(R > 0 ? R : 0, G > 0 ? G : 0, B > 0 ? B : 0);
-	}
-
-	// transform special colors
-	for (i = 16; i < 256; i++) {
-		int R = (int)(special_pal[i * 3 + 0] * RG_nihgt_multiplier);
-		int G = (int)(special_pal[i * 3 + 1] * RG_nihgt_multiplier);
-		int B = (int)(special_pal[i * 3 + 2] * B_nihgt_multiplier);
-
-		specialcolormap_day_night[i] =
 			get_system_color(R > 0 ? R : 0, G > 0 ? G : 0, B > 0 ? B : 0);
 	}
 
@@ -1061,38 +1197,6 @@ void display_day_night_shift(int night)
 	}
 }
 
-
-/**
- * Sets color set for player 0
- * @param entry   number of color set, range 0..15
- * @author Hj. Malthaner
- */
-static void display_set_player_color(int entry)
-{
-	int i;
-
-	selected_player_color_set = entry;
-
-	entry *= 16 * 3;
-
-	// Legacy set of 4 player colors, unshaded
-	for (i = 0; i < 4; i++) {
-		day_pal[i * 3 + 0] = special_pal[entry + i * 3 * 2 + 0];
-		day_pal[i * 3 + 1] = special_pal[entry + i * 3 * 2 + 1];
-		day_pal[i * 3 + 2] = special_pal[entry + i * 3 * 2 + 2];
-	}
-
-	// New set of 16 player colors, unshaded
-	for (i = 0; i < 16; i++) {
-		special_pal[(256 + i) * 3 + 0] = special_pal[entry + i * 3 + 0];
-		special_pal[(256 + i) * 3 + 1] = special_pal[entry + i * 3 + 1];
-		special_pal[(256 + i) * 3 + 2] = special_pal[entry + i * 3 + 2];
-	}
-
-	calc_base_pal_from_night_shift(night_shift);
-
-	mark_rect_dirty_nc(0, 0, disp_width - 1, disp_height - 1);
-}
 
 
 /**
@@ -1162,7 +1266,7 @@ void register_image(struct bild_t* bild)
 				for (runlen = *src++; runlen != 0; runlen--) {
 					PIXVAL pix = *src++;
 
-					if (0x8000 <= pix && pix <= 0x800F) {
+					if (pix>=0x8000  &&  pix<=0x800F) {
 						image->recode_flags |= FLAG_PLAYERCOLOR;
 						return;
 					}
@@ -2011,7 +2115,7 @@ void display_img_blend(const unsigned n, const KOORD_VAL xp, KOORD_VAL yp, const
 			const KOORD_VAL x = images[n].x;
 			const KOORD_VAL w = images[n].w;
 			// get the real color
-			const PIXVAL color = (color_index >= PLAYER_FLAG ? specialcolormap_all_day[color_index & 0xFF] : rgbcolormap[color_index & 0xFF]);
+			const PIXVAL color = specialcolormap_all_day[color_index & 0xFF];
 			// we use function pointer for the blend runs for the moment ...
 			static blend_proc choices[6] = { pix_blend25, pix_blend50, pix_blend75,pix_outline25, pix_outline50, pix_outline75 };
 			blend_proc pix_blend = choices[ ((color_index&TRANSPARENT_FLAGS)/TRANSPARENT25_FLAG - 1) + (3 * (color_index&OUTLINE_FLAG)/OUTLINE_FLAG) ];
@@ -2072,7 +2176,7 @@ static void display_fb_internal(KOORD_VAL xp, KOORD_VAL yp, KOORD_VAL w, KOORD_V
 	if (clip_lr(&xp, &w, cL, cR) && clip_lr(&yp, &h, cT, cB)) {
 		PIXVAL *p = textur + xp + yp * disp_width;
 		int dx = disp_width - w;
-		const PIXVAL colval = (color >= PLAYER_FLAG ? specialcolormap_all_day[color & 0xFF] : rgbcolormap[color]);
+		const PIXVAL colval = specialcolormap_all_day[color & 0xFF];
 		const unsigned int longcolval = (colval << 16) | colval;
 
 		if (dirty) mark_rect_dirty_nc(xp, yp, xp + w - 1, yp + h - 1);
@@ -2135,7 +2239,7 @@ static void display_vl_internal(const KOORD_VAL xp, KOORD_VAL yp, KOORD_VAL h, c
 {
 	if (xp >= cL && xp <= cR && clip_lr(&yp, &h, cT, cB)) {
 		PIXVAL *p = textur + xp + yp * disp_width;
-		const PIXVAL colval = (color >= PLAYER_FLAG ? specialcolormap_all_day[color & 0xFF] : rgbcolormap[color]);
+		const PIXVAL colval =specialcolormap_all_day[color & 0xFF];
 
 		if (dirty) mark_rect_dirty_nc(xp, yp, xp, yp + h - 1);
 
@@ -2181,7 +2285,7 @@ void display_array_wh(KOORD_VAL xp, KOORD_VAL yp, KOORD_VAL w, KOORD_VAL h, cons
 			unsigned int ww = w;
 
 			do {
-				*p++ = rgbcolormap[*arr_src++];
+				*p++ = specialcolormap_all_day[*arr_src++];
 			} while (--ww > 0);
 			arr_src += arr_w - w;
 			p += disp_width - w;
@@ -2307,7 +2411,7 @@ int display_text_proportional_len_clip(KOORD_VAL x, KOORD_VAL y, const char *txt
 	KOORD_VAL y0, y_offset, char_height;	// real y for display with clipping
 	bool v_clip;
 	unsigned char mask1, mask2;	// for horizontal clipping
-	const PIXVAL color = (color_index >= PLAYER_FLAG ? specialcolormap_all_day[color_index & 0xFF] : rgbcolormap[color_index]);
+	const PIXVAL color = specialcolormap_all_day[color_index & 0xFF];
 #ifndef USE_C
 	// faster drawing with assembler
 	const unsigned long color2 = (color << 16) | color;
@@ -2717,7 +2821,6 @@ int simgraph_init(KOORD_VAL width, KOORD_VAL height, int use_shm, int do_sync, i
 	width = (width + 15) & 0x7FF0;
 
 	if (dr_os_open(width, height, 16, full_screen)) {
-		unsigned int i;
 
 		disp_width = width;
 		disp_height = height;
@@ -2734,13 +2837,6 @@ int simgraph_init(KOORD_VAL width, KOORD_VAL height, int use_shm, int do_sync, i
 		display_load_font(FONT_PATH_X "4x7.hex", false);
 		display_check_fonts();
 #endif
-
-		load_special_palette();
-		display_set_color(1);
-
-		for (i = 0; i < 256; i++) {
-			rgbcolormap[i] = get_system_color(day_pal[i * 3], day_pal[i * 3 + 1], day_pal[i * 3 + 2]);
-		}
 	} else {
 		puts("Error  : can't open window!");
 		exit(-1);
@@ -2758,9 +2854,7 @@ int simgraph_init(KOORD_VAL width, KOORD_VAL height, int use_shm, int do_sync, i
 	memset(tile_dirty_old, 255, tile_buffer_length);
 
 	display_setze_clip_wh(0, 0, disp_width, disp_height);
-
 	display_day_night_shift(0);
-	display_set_player_color(0);
 
 	// Hajo: Calculate daylight rgbmap and save it for unshaded tile drawing
 	calc_base_pal_from_night_shift(0);
@@ -2873,54 +2967,6 @@ void display_snapshot()
 }
 
 
-/**
- * Laedt Einstellungen
- * @author Hj. Malthaner
- */
-void display_laden(void* file, int zipped)
-{
-	int i;
-
-	if (zipped) {
-		char line[80];
-		char *ptr = line;
-
-		gzgets(file, line, sizeof(line));
-
-		light_level = atoi(ptr);
-		while (*ptr && *ptr++ != ' ') {}
-		color_level = atoi(ptr);
-		while (*ptr && *ptr++ != ' ') {}
-		night_shift = atoi(ptr);
-
-		gzgets(file, line, sizeof(line));
-		i = atoi(line);
-	} else {
-		fscanf(file, "%d %d %d\n", &light_level, &color_level, &night_shift);
-		fscanf(file, "%d\n", &i);
-	}
-	if (i < 0 || i > 15) i = 0;
-	display_set_light(light_level);
-	display_set_color(color_level);
-	display_set_player_color(i);
-}
-
-
-/**
- * Speichert Einstellungen
- * @author Hj. Malthaner
- */
-void display_speichern(void* file, int zipped)
-{
-	if (zipped) {
-		gzprintf(file, "%d %d %d\n", light_level, color_level, night_shift);
-		gzprintf(file, "%d\n", selected_player_color_set);
-	} else {
-		fprintf(file, "%d %d %d\n", light_level, color_level, night_shift);
-		fprintf(file, "%d\n", selected_player_color_set);
-	}
-}
-
 
 /**
  * zeichnet linie von x,y nach xx,yy
@@ -2934,7 +2980,7 @@ void display_direct_line(const KOORD_VAL x, const KOORD_VAL y, const KOORD_VAL x
 
 	const int dx = xx - x;
 	const int dy = yy - y;
-	const PIXVAL colval = (color >= PLAYER_FLAG ? specialcolormap_all_day[color & 0xFF] : rgbcolormap[color]);
+	const PIXVAL colval = specialcolormap_all_day[color & 0xFF];
 
 	steps = (abs(dx) > abs(dy) ? abs(dx) : abs(dy));
 	if (steps == 0) steps = 1;

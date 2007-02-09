@@ -138,7 +138,7 @@ DBG_MESSAGE("message_t::add_msg()","%40s (at %i,%i)", text, pos.x, pos.y );
 	// correct for player color
 	PLAYER_COLOR_VAL colorval=color;
 	if(color<8) {
-		colorval = PLAYER_FLAG|((welt->gib_spieler(color)->get_player_color()*4)+0);
+		colorval = PLAYER_FLAG|(welt->gib_spieler(color)->get_player_color()+0);
 	}
 
       // should we send this message to a ticker? (always done)

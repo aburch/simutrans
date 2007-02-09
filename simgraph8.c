@@ -1529,7 +1529,7 @@ void display_img_aux(const unsigned n, const KOORD_VAL xp, KOORD_VAL yp, const i
 {
 	if (n < anz_images) {
 		// need to go to nightmode and or rezoomed?
-		int h, reduce_h, skip_lines;
+		KOORD_VAL h, reduce_h, skip_lines;
 
 		if (images[n].recode_flags[NEED_REZOOM]) {
 			rezoom_img(n);
