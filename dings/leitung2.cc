@@ -134,37 +134,44 @@ leitung_t::~leitung_t()
 {
 	grund_t *gr = welt->lookup(gib_pos());
 	if(gr) {
-		powernet_t *my_net = get_net();
 		gr->obj_remove(this);
 
 		leitung_t * conn[4];
-		gimme_neighbours(welt, gib_pos().gib_2d(), conn);
-		int new_net=my_net==NULL;
+		int neighbours = gimme_neighbours(welt, gib_pos().gib_2d(), conn);
 
-		for(int i=0; i<4; i++) {
-			if(conn[i]!=NULL) {
-				if(new_net) {
-					// one line, then we can keep at least one net
-					koord pos = gr->gib_pos().gib_2d()+koord::nsow[i];
-					// possible memory leak!
-					powernet_t *new_net = new powernet_t();
-					welt->sync_add(new_net);
-					replace(pos, my_net, new_net);
-					conn[i]->calc_neighbourhood();
+		powernet_t *new_net = NULL;
+		if(neighbours>1) {
+			// only reconnect if two connections ...
+			bool first = true;
+			for(int i=0; i<4; i++) {
+				if(conn[i]!=NULL) {
+					if(!first) {
+						// replace both nets
+						koord pos = gr->gib_pos().gib_2d()+koord::nsow[i];
+						new_net = new powernet_t();
+						welt->sync_add(new_net);
+						replace(pos, net, new_net);
+						conn[i]->calc_neighbourhood();
+					}
+					first = false;
 				}
-				new_net = true;
 			}
 		}
-		// clean up stuff, iff needed (my leed to crash under certain ciurcumstances)
-		// e.g. deleting of a lone transformer
-		if(!new_net  &&  my_net) {
-			welt->sync_remove( net );
-			delete net;
-		}
+
 		setze_pos(koord3d::invalid);
+
+		if(neighbours==0  ||  new_net) {
+			// delete in last or crossing
+			if(welt->sync_remove( net )) {
+				// but there is still something wrong with the logic here ...
+				// so we only delete, if still present in the world
+				delete net;
+			}
+			else {
+				dbg->warning("~leitung()","net %p already deleted at (%i,%i)!",net,gr->gib_pos().x,gr->gib_pos().y);
+			}
+		}
 	}
-	this->set_net(NULL);
-	setze_pos(koord3d::invalid);
 }
 
 
@@ -251,10 +258,6 @@ void leitung_t::replace(koord base_pos, powernet_t *old_net, powernet_t *new_net
 		if(get_net_at(welt->lookup_kartenboden(pos),&current)  &&  current!=new_net) {
 			if(current!=old_net) {
 				replace(pos,current,new_net);
-				if(current!=NULL) {
-// maybe memory leak?
-//					delete current;
-				}
 			}
 			else {
 				replace(pos,old_net,new_net);
@@ -285,15 +288,19 @@ void leitung_t::verbinde()
 //DBG_MESSAGE("leitung_t::verbinde()","Found net %p",new_net);
 
 	// we are alone?
-	if(new_net==NULL) {
+	if(new_net==NULL  &&  net==NULL) {
 		// then we start a new net
 		new_net = new powernet_t();
 		welt->sync_add(new_net);
-//DBG_MESSAGE("leitung_t::verbinde()","Creating new net %p",new_net);
+	//DBG_MESSAGE("leitung_t::verbinde()","Creating new net %p",new_net);
 	}
-	if(new_net!=get_net()) {
-		replace(pos, NULL, new_net);
-		set_net(new_net);
+	if(new_net  &&  new_net!=net) {
+		powernet_t *my_net = net;
+		replace(pos, net, new_net);
+		if(my_net) {
+			welt->sync_remove(my_net);
+			delete my_net;
+		}
 	}
 }
 

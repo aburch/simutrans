@@ -2,7 +2,8 @@
 
 
 	FIX: on unix multiuser environments the path seperator symbol was omitted
-	FIX: marker did nor work on elevated ways => no route, even if there was one
+	FIX: marker did not work on elevated ways => no route, even if there was one
+	FIX: no crash after deleting powerline crossing during game creation (but this was done by fixing symtoms, not the cause :()
 
 
 Release of 99.08.1

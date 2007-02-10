@@ -110,8 +110,6 @@ public:
 	pumpe_t(karte_t *welt, koord3d pos, spieler_t *sp);
 	~pumpe_t();
 
-	void setze_fabrik(fabrik_t *fab) {this->fab = fab;}
-
 	enum ding_t::typ gib_typ() const {return pumpe;}
 
 	bool sync_step(long delta_t);
