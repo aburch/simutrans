@@ -2,6 +2,7 @@
 
 
 	FIX: on unix multiuser environments the path seperator symbol was omitted
+	FIX: marker did nor work on elevated ways => no route, even if there was one
 
 
 Release of 99.08.1

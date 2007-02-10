@@ -49,7 +49,8 @@ void marker_t::unmarkiere_alle()
 void marker_t::markiere(const grund_t *gr)
 {
 	if(gr != NULL) {
-		if(!gr->ist_bruecke() && !gr->ist_tunnel()) {
+		if(gr->gib_typ()<=grund_t::fundament) {
+			// these types (boden, wasser, fundament) are always at ground level
 			const int bit = gr->gib_pos().y*cached_groesse+gr->gib_pos().x;
 			bits[bit/bit_unit] |= 1 << (bit & bit_mask);
 		}
@@ -62,7 +63,8 @@ void marker_t::markiere(const grund_t *gr)
 void marker_t::unmarkiere(const grund_t *gr)
 {
 	if(gr != NULL) {
-		if(!gr->ist_bruecke() && !gr->ist_tunnel()) {
+		if(gr->gib_typ()<=grund_t::fundament) {
+			// these types (boden, wasser, fundament) are always at ground level
 			const int bit = gr->gib_pos().y*cached_groesse+gr->gib_pos().x;
 			bits[bit/bit_unit] &= ~(1 << (bit & bit_mask));
 		}
@@ -77,7 +79,8 @@ bool marker_t::ist_markiert(const grund_t *gr) const
 	if(gr==NULL) {
 		return false;
 	}
-	if(!gr->ist_bruecke() && !gr->ist_tunnel()) {
+	if(gr->gib_typ()<=grund_t::fundament) {
+		// these types (boden, wasser, fundament) are always at ground level
 		const int bit = gr->gib_pos().y*cached_groesse+gr->gib_pos().x;
 		return (bits[bit/bit_unit] & (1 << (bit & bit_mask))) != 0;
 	}

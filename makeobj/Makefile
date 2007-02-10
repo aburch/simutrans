@@ -2,24 +2,28 @@
 #OSTYPE = beos
 #OSTYPE = cygwin
 #OSTYPE = freebsd
-OSTYPE = linux
-#OSTYPE = mingw
+#OSTYPE = linux
+OSTYPE = mingw
 
 LN= $(CC)
 
-CFLAGS=-V 3.3 -O
-CXXFLAGS=-V 3.3 -O
-
 ifeq ($(OSTYPE),mingw)
 LDLIBS=-lmingw32 -lpng -lz -lstdc++
+CFLAGS= -O
+CXXFLAGS= -O
 endif
 
 ifeq ($(OSTYPE),linux)
 LDLIBS=-lpng -lz -lstdc++ -lm
+CFLAGS=-V 3.3 -O
+CXXFLAGS=-V 3.3 -O
 endif
 
 ifeq ($(OSTYPE),beos)
 LDLIBS=-lpng -lz -lstdc++
+CFLAGS=-O
+CXXFLAGS=-O
+
 endif
 
 

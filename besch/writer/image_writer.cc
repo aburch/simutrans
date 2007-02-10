@@ -24,9 +24,7 @@ struct dimension
 
 // number of special colors
 
-// #define SPECIAL 4
-// #define SPECIAL 17
-#define SPECIAL 29
+#define SPECIAL 31
 
 
 /*
@@ -34,24 +32,23 @@ struct dimension
  * @author Hj. Malthaner
  */
 static const PIXRGB rgbtab[SPECIAL] = {
-	0x395E7C, // Player colors
+	0x244B67, // Player color 1
+	0x395E7C,
 	0x4C7191,
 	0x6084A7,
 	0x7497BD,
 	0x88ABD3,
 	0x9CBEE9,
 	0xB0D2FF,
-	0xFF00FF, // Dummy entry
 
-	0xFF00FF, // Dummy entry
-	0xFF00FF, // Dummy entry
-	0xFF00FF, // Dummy entry
-	0xFF00FF, // Dummy entry
-
-	0xFF00FF, // Dummy entry
-	0xFF00FF, // Dummy entry
-	0xFF00FF, // Dummy entry
-	0xFF00FF, // Dummy entry
+	0x7B5803, // Player color 2
+	0x8E6F04,
+	0xA18605,
+	0xB49D07,
+	0xC6B408,
+	0xD9CB0A,
+	0xECE20B,
+	0xFFF90C,
 
 	0x57656F, // Dark windows, lit yellowish at night
 	0x7F9BF1, // Lighter windows, lit blueish at night
@@ -66,6 +63,8 @@ static const PIXRGB rgbtab[SPECIAL] = {
 	0xE3E3FF, // Nearly white light at day, yellowish light at night
 	0xC1B1D1, // Windows, lit yellow
 	0x4D4D4D, // Windows, lit yellow
+	0xFF017F, // purple light
+	0x0101FF, // blue light
 };
 
 
