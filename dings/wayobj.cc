@@ -64,17 +64,17 @@ wayobj_t::~wayobj_t()
 		weg_t *weg=NULL;
 		if(gr) {
 			weg = gr->gib_weg((waytype_t)besch->gib_wtyp());
-		}
-		if(weg) {
-			// Weg wieder freigeben, wenn das Signal nicht mehr da ist.
-			weg->set_electrify(false);
-			// restore old speed limit
-			if(weg->gib_besch()->gib_topspeed()>besch->gib_topspeed()) {
-				weg->setze_max_speed(weg->hat_gehweg()?50:weg->gib_besch()->gib_topspeed());
+			if(weg) {
+				// Weg wieder freigeben, wenn das Signal nicht mehr da ist.
+				weg->set_electrify(false);
+				// restore old speed limit
+				if(weg->gib_besch()->gib_topspeed()>besch->gib_topspeed()) {
+					weg->setze_max_speed(weg->hat_gehweg()?50:weg->gib_besch()->gib_topspeed());
+				}
 			}
-		}
-		else {
-			dbg->warning("wayobj_t::~wayobj_t()","ground was not a way!");
+			else {
+				dbg->warning("wayobj_t::~wayobj_t()","ground was not a way!");
+			}
 		}
 	}
 }
