@@ -61,8 +61,6 @@ warenbauer_t::alles_geladen()
 	max_catg_index = 0;
 	// first assign special freight (which always needs an own category)
 	for( unsigned i=0;  i<waren.get_count();  i++  ) {
-		// skipping none ...
-		if(i==2) continue;
 		if(waren[i]->gib_catg()==0) {
 			waren[i]->catg_index = max_catg_index++;
 		}

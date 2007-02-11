@@ -5,6 +5,7 @@
 	FIX: marker did not work on elevated ways => no route, even if there was one
 	FIX: no crash after deleting powerline crossing during game creation (but this was done by fixing symtoms, not the cause :()
 	ADD: button for showing forest in minimap (new string "Forest")
+	FIX: during rerouting of goods wrong entries were deleted
 
 
 Release of 99.08.1

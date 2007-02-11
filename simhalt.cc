@@ -468,7 +468,7 @@ void haltestelle_t::reroute_goods()
 				ware_t & ware = (*warray)[j];
 
 				if(ware.menge==0) {
-					warray->remove_at(i);
+					warray->remove_at(j);
 					continue;
 				}
 
