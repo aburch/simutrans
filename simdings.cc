@@ -250,7 +250,7 @@ ding_t::display(int xpos, int ypos, bool /*reset_dirty*/) const
 	while(bild!=IMG_LEER) {
 
 		if(besitzer_n!=-1) {
-			display_color_img(bild, xpos, ypos, gib_besitzer()->get_player_color(), true, dirty);
+			display_color_img(bild, xpos, ypos, besitzer_n, true, dirty);
 		}	else {
 			display_img(bild, xpos, ypos, dirty);
 		}
@@ -280,7 +280,7 @@ ding_t::display_after(int xpos, int ypos, bool /*reset_dirty*/) const
 		ypos += tile_raster_scale_y(gib_yoff(), raster_width);
 
 		if(besitzer_n!=-1) {
-			display_color_img(bild, xpos, ypos, gib_besitzer()->get_player_color(), true, 0*get_flag(ding_t::dirty) );
+			display_color_img(bild, xpos, ypos, besitzer_n, true, 0*get_flag(ding_t::dirty) );
 		}
 		else {
 			display_img(bild, xpos, ypos, 0*get_flag(ding_t::dirty) );

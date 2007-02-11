@@ -97,13 +97,13 @@ static fabrik_t *baue_start=NULL;
 static fabrik_t *baue_ziel=NULL;
 
 
-spieler_t::spieler_t(karte_t *wl, uint8 color, uint8 nr) :
+spieler_t::spieler_t(karte_t *wl, uint8 nr) :
 	simlinemgmt(wl,this),
 	last_built(0)
 {
 	welt = wl;
-	kennfarbe = color;
 	player_nr = nr;
+	set_player_color( nr*8, nr*8+24 );
 
 	konto = umgebung_t::starting_money;
 
@@ -319,7 +319,7 @@ spieler_t::display_messages()
 			const sint16 y = (ij.x+ij.y)*(raster/4) + (text_alter[n] >> 4) - tile_raster_scale_y( welt->lookup_hgt(text_pos[n])*TILE_HEIGHT_STEP, raster) + yoffset;
 
 			display_proportional_clip( x+1, y+1, texte[n], ALIGN_LEFT, COL_BLACK, true);
-			display_proportional_clip( x, y, texte[n], ALIGN_LEFT, PLAYER_FLAG|(kennfarbe*4)+3, true);
+			display_proportional_clip( x, y, texte[n], ALIGN_LEFT, PLAYER_FLAG|(kennfarbe1+3), true);
 			last_displayed_message = n;
 		}
 	}
@@ -360,6 +360,16 @@ spieler_t::add_message(koord k, int betrag)
 			break;
 		}
 	}
+}
+
+
+
+void
+spieler_t::set_player_color(uint8 col1, uint8 col2)
+{
+	kennfarbe1 = col1;
+	kennfarbe2 = col2;
+	display_set_player_color_scheme( player_nr, col1, col2 );
 }
 
 
@@ -2412,9 +2422,16 @@ DBG_DEBUG("spieler_t::rdwr()","%i has %i halts.",welt->sp2num( this ),halt_count
 	file->rdwr_longlong(konto, " ");
 	file->rdwr_long(konto_ueberzogen, " ");
 	file->rdwr_long(steps, " ");
-	sint32 farbe = kennfarbe;
-	file->rdwr_long(farbe, " ");
-	kennfarbe = (uint8)farbe;
+	if(file->get_version()<99009) {
+		sint32 farbe;
+		file->rdwr_long(farbe, " ");
+		kennfarbe1 = (uint8)farbe*2;
+		kennfarbe2 = kennfarbe1+24;
+	}
+	else {
+		file->rdwr_byte(kennfarbe1, " ");
+		file->rdwr_byte(kennfarbe2, " ");
+	}
 	if(file->get_version()<99008) {
 		file->rdwr_long(halt_count, " ");
 	}
@@ -2614,6 +2631,7 @@ void
 spieler_t::laden_abschliessen()
 {
 	simlinemgmt.laden_abschliessen();
+	display_set_player_color_scheme( player_nr, kennfarbe1, kennfarbe1 );
 }
 
 

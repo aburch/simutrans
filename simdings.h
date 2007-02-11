@@ -81,8 +81,7 @@ protected:
 	ding_t(karte_t *welt);
 
 	// since we need often access during loading
-	void setze_besitzer_num(sint8 s) { besitzer_n = s; }
-	sint8 gib_besitzer_num() const { return besitzer_n; }
+	void set_player_nr(sint8 s) { besitzer_n = s; }
 
 	/**
 	* Erzeugt ein Info-Fenster für dieses Objekt
@@ -99,6 +98,9 @@ protected:
 
 
 public:
+	// needed for drawinf images
+	sint8 get_player_nr() const { return besitzer_n; }
+
 	/**
 	* setzt den Besitzer des dings
 	* (public wegen Rathausumbau - V.Meyer)

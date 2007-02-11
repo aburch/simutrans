@@ -116,7 +116,7 @@ void display_flush(int season_img, int stunden4, double konto, const char* day_s
 	display_fillbox_wh(0, disp_height-15, disp_width, 15, MN_GREY1, FALSE);
 
 	if(season_img!=IMG_LEER) {
-		display_color_img( season_img, 2, disp_height-15, player_color, false, true );
+		display_color_img( season_img, 2, disp_height-15, 0, false, true );
 	}
 
 	sprintf(buffer,"%s %2d:%02dh", day_str, stunden4 >> 2, (stunden4 & 3)*15);

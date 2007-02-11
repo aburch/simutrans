@@ -170,9 +170,9 @@ void weg_t::rdwr(loadsave_t *file)
 
 	// save owner
 	if(file->get_version()>=99006) {
-		sint8 spnum=gib_besitzer_num();
+		sint8 spnum=get_player_nr();
 		file->rdwr_byte(spnum,"");
-		setze_besitzer_num(spnum);
+		set_player_nr(spnum);
 	}
 
 	// all connected directions

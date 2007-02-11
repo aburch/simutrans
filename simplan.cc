@@ -401,7 +401,7 @@ planquadrat_t::display_overlay(const sint16 xpos, const sint16 ypos, const sint1
 			}
 
 			for(int halt_count = 0; halt_count < halt_list_count; halt_count++) {
-				const PLAYER_COLOR_VAL transparent = PLAYER_FLAG | OUTLINE_FLAG | (halt_list[halt_count]->gib_besitzer()->get_player_color() + 4);
+				const PLAYER_COLOR_VAL transparent = PLAYER_FLAG | OUTLINE_FLAG | (halt_list[halt_count]->gib_besitzer()->get_player_color1() + 4);
 				display_img_blend( img, xpos, ypos, transparent | TRANSPARENT25_FLAG, 0, 0);
 			}
 /*
@@ -409,7 +409,7 @@ planquadrat_t::display_overlay(const sint16 xpos, const sint16 ypos, const sint1
 			// doesn't affect the colour displayed [since blend(col1,blend(col2,screen)) != blend(col2,blend(col1,screen))]
 			for(int spieler_count = 0; spieler_count<MAX_PLAYER_COUNT; spieler_count++) {
 				spieler_t *display_player = gr->gib_welt()->gib_spieler(spieler_count);
-				const PLAYER_COLOR_VAL transparent = PLAYER_FLAG | OUTLINE_FLAG | (display_player->get_player_color() * 4 + 4);
+				const PLAYER_COLOR_VAL transparent = PLAYER_FLAG | OUTLINE_FLAG | (display_player->get_player_color1() * 4 + 4);
 				for(int halt_count = 0; halt_count < halt_list_count; halt_count++) {
 					if(halt_list[halt_count]->gib_besitzer() == display_player) {
 						display_img_blend( img, xpos, ypos, transparent | TRANSPARENT25_FLAG, 0, 0);
@@ -447,7 +447,7 @@ planquadrat_t::display_overlay(const sint16 xpos, const sint16 ypos, const sint1
 			const sint16 y=ypos+(raster_tile_width*3)/4-r - (gib_kartenboden()->gib_grund_hang()? tile_raster_scale_y(8,raster_tile_width): 0);
 			// suitable start search
 			for(sint16 h=halt_list_count-1;  h>=0;  h--  ) {
-				display_fillbox_wh_clip(x - h * 2, y + h * 2, r, r, PLAYER_FLAG | (halt_list[h]->gib_besitzer()->get_player_color() + 4), kartenboden_dirty);
+				display_fillbox_wh_clip(x - h * 2, y + h * 2, r, r, PLAYER_FLAG | (halt_list[h]->gib_besitzer()->get_player_color1() + 4), kartenboden_dirty);
 			}
 		}
 	}

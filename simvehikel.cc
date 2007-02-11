@@ -3047,6 +3047,6 @@ aircraft_t::display_after(int xpos, int ypos, bool /*reset_dirty*/) const
 		ypos += tile_raster_scale_y(gib_yoff()-flughoehe-hoff-2, raster_width);
 
 		// will be dirty
-		display_color_img(bild, xpos, ypos, gib_besitzer()->get_player_color(), true, get_flag(ding_t::dirty) );
+		display_color_img(bild, xpos, ypos, get_player_nr(), true, get_flag(ding_t::dirty) );
 	}
 }

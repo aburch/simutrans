@@ -83,7 +83,7 @@ schedule_list_gui_t::schedule_list_gui_t(karte_t *welt,spieler_t *sp)
 	// init scrolled list
 	scl.setze_groesse(koord(LINE_NAME_COLUMN_WIDTH-22, SCL_HEIGHT-14));
 	scl.setze_pos(koord(0,1));
-	scl.setze_highlight_color(sp->get_player_color()+1);
+	scl.setze_highlight_color(sp->get_player_color1()+1);
 	scl.request_groesse(scl.gib_groesse());
 	scl.add_listener(this);
 

@@ -87,7 +87,6 @@ depot_frame_t::depot_frame_t(karte_t *welt, depot_t *depot) :
 	scrolly_waggons(&cont_waggons)
 {
 DBG_DEBUG("depot_frame_t::depot_frame_t()","get_max_convoi_length()=%i",depot->get_max_convoi_length());
-	uint8 kennfarbe=depot->gib_besitzer()->get_player_color();
 	selected_line = linehandle_t();
 	strcpy(no_line_text, translator::translate("<no line>"));
 	setze_opaque( true );
@@ -112,7 +111,7 @@ DBG_DEBUG("depot_frame_t::depot_frame_t()","get_max_convoi_length()=%i",depot->g
 	/*
 	* [SELECT ROUTE]:
 	*/
-	line_selector.set_highlight_color(PLAYER_FLAG|kennfarbe+1);
+	line_selector.set_highlight_color(PLAYER_FLAG|depot->gib_besitzer()->get_player_color1()+1);
 	line_selector.add_listener(this);
 	add_komponente(&line_selector);
 	depot->gib_besitzer()->simlinemgmt.sort_lines();
@@ -120,7 +119,7 @@ DBG_DEBUG("depot_frame_t::depot_frame_t()","get_max_convoi_length()=%i",depot->g
 	/*
 	* [CONVOI]
 	*/
-	convoi.set_player_color(kennfarbe);
+	convoi.set_player_nr(depot->get_player_nr());
 	convoi.add_listener(this);
 
 	add_komponente(&convoi);
@@ -218,13 +217,13 @@ DBG_DEBUG("depot_frame_t::depot_frame_t()","get_max_convoi_length()=%i",depot->g
 	}
 
 
-	pas.set_player_color(kennfarbe);
+	pas.set_player_nr(depot->get_player_nr());
 	pas.add_listener(this);
 
-	loks.set_player_color(kennfarbe);
+	loks.set_player_nr(depot->get_player_nr());
 	loks.add_listener(this);
 
-	waggons.set_player_color(kennfarbe);
+	waggons.set_player_nr(depot->get_player_nr());
 	waggons.add_listener(this);
 
 	add_komponente(&tabs);

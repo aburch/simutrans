@@ -295,7 +295,7 @@ reliefkarte_t::calc_map_pixel(const koord k)
 			{
 				halthandle_t halt = gr->gib_halt();
 				if (halt.is_bound()    &&  halt->get_pax_enabled()) {
-					setze_relief_farbe_area(k, (welt->gib_einstellungen()->gib_station_coverage()*2)+1, halt->gib_besitzer()->get_player_color()+3 );
+					setze_relief_farbe_area(k, (welt->gib_einstellungen()->gib_station_coverage()*2)+1, halt->gib_besitzer()->get_player_color1()+3 );
 				}
 			}
 			break;
@@ -306,7 +306,7 @@ reliefkarte_t::calc_map_pixel(const koord k)
 			{
 				halthandle_t halt = gr->gib_halt();
 				if (halt.is_bound()  &&  halt->get_post_enabled()) {
-					setze_relief_farbe_area(k, (welt->gib_einstellungen()->gib_station_coverage()*2)+1,halt->gib_besitzer()->get_player_color()+3 );
+					setze_relief_farbe_area(k, (welt->gib_einstellungen()->gib_station_coverage()*2)+1,halt->gib_besitzer()->get_player_color1()+3 );
 				}
 			}
 			break;

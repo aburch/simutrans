@@ -523,7 +523,7 @@ karte_t::init_felder()
 	reliefkarte_t::gib_karte()->setze_welt(this);
 
 	for(int i=0; i<MAX_PLAYER_COUNT ; i++) {
-		spieler[i] = new spieler_t(this, i*8, i);
+		spieler[i] = new spieler_t(this, i);
 	}
 	active_player = spieler[0];
 	active_player_nr = 0;

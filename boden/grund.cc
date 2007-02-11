@@ -649,7 +649,7 @@ grund_t::text_farbe() const
 	if(flags&is_halt_flag) {
 		const spieler_t *sp=welt->lookup(pos.gib_2d())->gib_halt()->gib_besitzer();
 		if(sp) {
-			return PLAYER_FLAG|(sp->get_player_color()+4);
+			return PLAYER_FLAG|(sp->get_player_color1()+4);
 		}
 	}
 
@@ -657,7 +657,7 @@ grund_t::text_farbe() const
 	if(obj_bei(0)) {
 		const spieler_t *sp = obj_bei(0)->gib_besitzer();
 		if(sp) {
-			return PLAYER_FLAG|(sp->get_player_color()+4);
+			return PLAYER_FLAG|(sp->get_player_color1()+4);
 		}
 	}
 
@@ -723,13 +723,7 @@ grund_t::display_boden( const sint16 xpos, const sint16 ypos) const
 
 	if(flags&has_way1) {
 		sint16 ynpos = ypos-tile_raster_scale_y( gib_weg_yoff(), rasterweite );
-		const spieler_t *sp = obj_bei(0)->gib_besitzer();
-		if(sp==NULL) {
-			display_img(obj_bei(0)->gib_bild(), xpos, ynpos, dirty);
-		}
-		else {
-			display_color_img(obj_bei(0)->gib_bild(), xpos, ynpos, sp->get_player_color(), true, dirty);
-		}
+		display_color_img(obj_bei(0)->gib_bild(), xpos, ynpos, obj_bei(0)->get_player_nr(), true, dirty);
 #ifdef DEBUG_PBS
 		if(dirty  &&  ((weg_t *)obj_bei(0)->gib_waytype()==track_wt)  &&  ((schiene_t *)obj_bei(0))->is_reserved()) {
 			display_fillbox_wh_clip( xpos+get_tile_raster_width()/4-8, ypos+(get_tile_raster_width()*3)/4-8, 16, 16, 0, true);
@@ -739,13 +733,7 @@ grund_t::display_boden( const sint16 xpos, const sint16 ypos) const
 
 	if(flags&has_way2){
 		sint16 ynpos = ypos-tile_raster_scale_y( gib_weg_yoff(), rasterweite );
-		const spieler_t *sp = obj_bei(1)->gib_besitzer();
-		if(sp==NULL) {
-			display_img(obj_bei(1)->gib_bild(), xpos, ynpos, dirty);
-		}
-		else {
-			display_color_img(obj_bei(1)->gib_bild(), xpos, ynpos, sp->get_player_color(), true, dirty);
-		}
+		display_color_img(obj_bei(1)->gib_bild(), xpos, ynpos, obj_bei(1)->get_player_nr(), true, dirty);
 	}
 }
 

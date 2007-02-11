@@ -21,7 +21,7 @@ gui_image_list_t::gui_image_list_t(vector_tpl<image_data_t> *images) :
 {
     this->images = images;
     use_rows = true;
-    color = 0;
+    player_nr = 0;
 }
 
 
@@ -100,7 +100,7 @@ void gui_image_list_t::zeichnen(koord parent_pos)
 			if(i == sel_index) {
 				display_ddd_box_clip(xpos, ypos, grid.x, grid.y, MN_GREY4, MN_GREY0);
 			}
-			display_color_img(idata.image, xpos + placement.x, ypos + placement.y,color, false, true);
+			display_color_img(idata.image, xpos + placement.x, ypos + placement.y, player_nr, false, true);
 
 			// If necessary, display a number:
 			if(idata.count > 0) {

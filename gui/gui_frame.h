@@ -105,7 +105,7 @@ public:
 	 * zurück
 	 * @author Hj. Malthaner
 	 */
-	virtual PLAYER_COLOR_VAL get_titelcolor() const { return owner ? PLAYER_FLAG|(owner->get_player_color()+1) : WIN_TITEL; }
+	virtual PLAYER_COLOR_VAL get_titelcolor() const { return owner ? PLAYER_FLAG|(owner->get_player_color1()+1) : WIN_TITEL; }
 
 	/**
 	 * @return gibt wunschgroesse für das Darstellungsfenster zurueck

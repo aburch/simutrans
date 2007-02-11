@@ -125,6 +125,9 @@ void display_day_night_shift(int night);
 // scrolls horizontally, will ignore clipping etc.
 void	display_scroll_band( const KOORD_VAL start_y, const KOORD_VAL x_offset, const KOORD_VAL h );
 
+// set first and second company color for player
+void display_set_player_color_scheme(const int player, const COLOR_VAL col1, const COLOR_VAL col2 );
+
 // display image with day and night change
 void display_img_aux(const unsigned n, const KOORD_VAL xp, KOORD_VAL yp, const int dirty, bool player);
 #define display_img( n, x, y, d ) display_img_aux( (n), (x), (y), (d), 0 )
@@ -135,8 +138,8 @@ void display_img_aux(const unsigned n, const KOORD_VAL xp, KOORD_VAL yp, const i
  */
 void display_img_blend(const unsigned n, const KOORD_VAL xp, KOORD_VAL yp, const PLAYER_COLOR_VAL color, const int daynight, const int dirty);
 
-// dispaly image with color (if there) and optinal day and nightchange
-void display_color_img(const unsigned n, const KOORD_VAL xp, const KOORD_VAL yp, const COLOR_VAL color, const int daynight, const int dirty);
+// display image with color (if there) and optinal day and nightchange
+void display_color_img(const unsigned n, const KOORD_VAL xp, const KOORD_VAL yp, const signed char color, const int daynight, const int dirty);
 
 void display_fillbox_wh(KOORD_VAL xp, KOORD_VAL yp, KOORD_VAL w, KOORD_VAL h, PLAYER_COLOR_VAL color, int dirty);
 void display_fillbox_wh_clip(KOORD_VAL xp, KOORD_VAL yp, KOORD_VAL w, KOORD_VAL h, PLAYER_COLOR_VAL color, int d);

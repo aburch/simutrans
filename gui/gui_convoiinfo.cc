@@ -111,7 +111,7 @@ void gui_convoiinfo_t::zeichnen(koord offset)
 			int x, y, w, h;
 			const image_id bild=cnv->gib_vehikel(i)->gib_basis_bild();
 			display_get_image_offset(bild, &x, &y, &w, &h );
-			display_color_img(bild,left-x,pos.y+offset.y+13-y-h/2,cnv->gib_besitzer()->get_player_color(),false,true);
+			display_color_img(bild,left-x,pos.y+offset.y+13-y-h/2,cnv->gib_besitzer()->get_player_nr(),false,true);
 			left += (w*2)/3;
 		}
 

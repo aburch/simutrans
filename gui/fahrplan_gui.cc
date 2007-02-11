@@ -239,7 +239,7 @@ void fahrplan_gui_t::init()
 	line_selector.setze_pos(koord(BUTTON_WIDTH, 5));
 	line_selector.setze_groesse(koord(BUTTON_WIDTH*2, 14));
 	line_selector.set_max_size(koord(BUTTON_WIDTH*2, 13*LINESPACE+2+16));
-	line_selector.set_highlight_color(welt->get_active_player()->get_player_color()+1);
+	line_selector.set_highlight_color(welt->get_active_player()->get_player_color1()+1);
 	line_selector.clear_elements();
 
 	sp->simlinemgmt.sort_lines();
