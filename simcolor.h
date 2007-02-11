@@ -53,12 +53,12 @@ typedef unsigned char COLOR_VAL;
 #define NEW_VEHICLE COL_PURPLE
 
 // by niels
-#define COL_GREY1  (209)
+#define COL_GREY1  (208)
 #define COL_GREY2  (210)
-#define COL_GREY3  (211)
-#define COL_GREY4  (212)
+#define COL_GREY3  (212)
+#define COL_GREY4  (11)
 #define COL_GREY5  (213)
-#define COL_GREY6  (214)
+#define COL_GREY6  (15)
 
 // Kenfarben fuer die Karte
 #define STRASSE_KENN      (210)

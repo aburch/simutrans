@@ -170,7 +170,7 @@ reliefkarte_t::setze_relief_farbe_area(koord k, int areasize, uint8 color)
 uint8
 reliefkarte_t::calc_hoehe_farbe(const sint16 hoehe, const sint16 grundwasser)
 {
-	sint8 index = (hoehe-grundwasser)+MAX_MAP_TYPE_WATER;
+	sint8 index = (hoehe-grundwasser)+MAX_MAP_TYPE_WATER-1;
 	if(index<0) index = 0;
 	if(index>=MAX_MAP_TYPE_WATER+MAX_MAP_TYPE_LAND) index = MAX_MAP_TYPE_WATER+MAX_MAP_TYPE_LAND-1;
 	return map_type_color[index];
@@ -495,6 +495,12 @@ reliefkarte_t::calc_map_pixel(const koord k)
 					}
 					setze_relief_farbe(k, calc_severity_color(capacity,max_capacity) );
 				}
+			}
+			break;
+
+		case MAP_FOREST:
+			if(gr->gib_top()>1  &&  gr->obj_bei(gr->gib_top()-1)->gib_typ()==ding_t::baum) {
+				setze_relief_farbe(k, COL_GREEN );
 			}
 			break;
 

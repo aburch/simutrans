@@ -56,6 +56,9 @@ wayobj_t::wayobj_t(karte_t *welt, koord3d pos, spieler_t *besitzer, ribi_t::ribi
 
 wayobj_t::~wayobj_t()
 {
+	if(!besch) {
+		return;
+	}
 	if(gib_besitzer()) {
 		gib_besitzer()->add_maintenance(-besch->gib_wartung());
 	}
@@ -116,7 +119,7 @@ void wayobj_t::rdwr(loadsave_t *file)
 void
 wayobj_t::entferne(spieler_t *sp)
 {
-	if(sp!=NULL) {
+	if(sp!=NULL  &&  besch) {
 		sp->buche(-besch->gib_preis(), gib_pos().gib_2d(), COST_CONSTRUCTION);
 	}
 }

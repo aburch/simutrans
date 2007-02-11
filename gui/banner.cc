@@ -57,7 +57,7 @@ void banner_t::zeichnen(koord /*pos*/, koord)
 	// first the fixed part
 	// shadow effect by drawing two times with an offset
 	for (int s = 1; s >= 0; s--) {
-		int heading = (s == 0 ? COL_GREY3 : COL_BLACK);
+		int heading = (s == 0 ? 7 : COL_BLACK);
 		int color   = (s == 0 ? COL_WHITE : COL_BLACK);
 
 		display_proportional(xoff + s + 24+30, yoff + s +  16, "This is a beta version of Simutrans:", ALIGN_LEFT, heading, true);
