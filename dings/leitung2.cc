@@ -160,7 +160,7 @@ leitung_t::~leitung_t()
 
 		setze_pos(koord3d::invalid);
 
-		if(neighbours==0  ||  new_net) {
+		if(neighbours==0) {
 			// delete in last or crossing
 			if(welt->sync_remove( net )) {
 				// but there is still something wrong with the logic here ...
